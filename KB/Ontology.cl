@@ -636,6 +636,18 @@
 (def-goalprop draw-vectors (draw-vectors ?vector-list)
   :english ("drawing the vectors asked for in the problem statement"))
 
+;; this goal used as sought in variable-defining-only problems (q1)
+(def-goalprop define-scalar-variable (define-scalar-variable ?quant)
+  :english ("defining the variable asked for"))
+
+;; this goal used as sought in general qualitative problems (q5)
+(def-goalprop do-all-steps (do-all-steps . ?steps)
+  :english ("making the entries asked for in the problem statement"))
+
+;; this goal used as subgoal in general qualitative problems (q5)
+(def-goalprop write-eqn (write-eqn ?eqn-name)
+  :english ("writing the equation asked for"))
+
 ;; this goal used as sought in multiple-choice question problem
 (def-goalprop choose-mc-answer (choose-answer ?question-id ?answer)
    :english ("answering question ~A" (str-after ?question-id)))

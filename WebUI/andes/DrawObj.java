@@ -577,8 +577,14 @@ import java.lang.System;
 		   RectangularShape r = (RectangularShape) shape;
 		   int textWidth = fm.stringWidth(text);
 		   if (r.getWidth() < textWidth + HANDLE_W) {
-		           // change width only
-			   r.setFrame(r.getX(), r.getY(), textWidth + HANDLE_W, r.getHeight());
+		           // change box width to include text + half handle margins
+			   if (! center)
+			       r.setFrame(r.getX(), r.getY(), textWidth + HANDLE_W, r.getHeight());
+			   else { // adjust both left and right edges to preserve center
+			       int xMidPoint = (int) (r.getX() + r.getWidth()/2);
+			       r.setFrame(xMidPoint - (textWidth/2 + HANDLE_W/2), r.getY(),
+					  textWidth + HANDLE_W, r.getHeight());
+			   }
 		   }
 		   // limit bounding box height to one lineheight plus border
 		   // Border on top and bottom is HANDLE_W/2 + extra border approximately matching 

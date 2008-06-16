@@ -209,10 +209,7 @@
 	  (when unneeded-vardefs
 	     ; temporarily munge this entry's interpretations to get variable definition entries 
 	     ; associated with it to be marked as entered by this student entry, restore when done. 
-	     ; !!! Need to make sg handle deletions for this.  If not, need to either add these to this
-	     ; entry's interp -- which could cause problems with code that assumes eqn
-	     ; entries have only eqn entries in interp -- or else make this a dependent
-	     ; entry like an implicit eqn. 
+	     ; Note sg-delete-StudentEntry adjusted to undo this on equation entry deletions.
 	     (format *debug-help* "entering unneeded vardefs: ~s~%" 
 		     unneeded-vardefs)
 	     (setf (StudentEntry-Cinterp se) unneeded-vardefs)

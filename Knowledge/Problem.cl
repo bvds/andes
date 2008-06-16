@@ -169,12 +169,16 @@
   (format Stream "Predefs       ~W~%" (problem-Predefs Problem))
   (format Stream "Comments      ~W~%" (problem-Comments Problem))
   (format Stream "Features      ~W~%" (problem-features Problem))
-  (format Stream "Soughts       ~W~%" (problem-Soughts Problem))
-  (format Stream "Givens        ~W~%" (problem-Givens Problem))
+  ; To protect problem descriptions, don't include in prb file. Fill in from kb on read.
+  ;(format Stream "Soughts       ~W~%" (problem-Soughts Problem))
+  ;(format Stream "Givens        ~W~%" (problem-Givens Problem))
   (format Stream "ForbiddenPSMS ~W~%" (problem-ForbiddenPSMS Problem))
   (format Stream "IgnorePSMS    ~W~%" (problem-IgnorePSMS Problem))
   (format Stream "VariableMarks ~W~%" (problem-VariableMarks Problem))
-  (format Stream "WorkingMemory ~W~%" (Problem-wm Problem))
+  ; remove problem givens from wm list so problem description is not visible in it
+  (format Stream "WorkingMemory ~W~%" (remove-if #'(lambda (wme) 
+                                              (member wme (problem-givens Problem) :test #'unify))
+                                          (Problem-wm Problem)))
   (format Stream "Bubblegraph   ") (print-mreadable-bubblegraph (Problem-Graph Problem) Stream)
   (format Stream "~%EqnIndex    ") (print-mreadable-eqns (Problem-EqnIndex Problem) Stream)
   (format Stream "~%VarIndex    ") (print-mreadable-qvars (Problem-VarIndex Problem) Stream)
@@ -263,6 +267,15 @@
 	(mpf-read File '<Andes2Problem>) ;Read the file ID tag.
 	;; Read the contents until the close tag is found.
 	(read-pfile-contents File Problem) 
+	;; if problem givens or soughts were omitted, restore them
+	;; from the problem description in the knowledge base
+	(when (null (problem-soughts Problem))
+	  (let ((kb-prob (get-problem (problem-name Problem))))
+	   ;; !!! throw error if kb-prob not found
+	   (setf (problem-soughts Problem) (problem-soughts kb-prob))
+	   (setf (problem-givens Problem) (problem-givens kb-prob))
+	   ;; must also restore givens to working memory list
+	   (push (problem-givens kb-prob) (problem-wm Problem))))
 	;; When the files are stored numerical indicies 
 	;; are used for qvars in the BGNODES.  This call
 	;; Regenerates those links for later use.
