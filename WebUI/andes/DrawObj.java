@@ -187,7 +187,7 @@ import java.lang.System;
 	* meaning during the crossover -- West may become East, etc. The workbench
 	* used a different method: allowed non-normalized position rects w/handle
 	* ids that were oriented around the rect.
-        */
+	*
 	class NormalizedRect {
 	    double left; double top; double bottom; double right;
 	    NormalizedRect(double x1, double y1, double x2, double y2) {
@@ -205,6 +205,7 @@ import java.lang.System;
 		}
 	    }
 	}
+        */
 
 	// move specified resize handle to given point
 	void MoveHandleTo(int nHandle, int x, int y) {
@@ -452,17 +453,19 @@ import java.lang.System;
      }
 
 
-     // Draw body draws a labelled dot (circle) Normally used to represent a body
+     // DrawDot draws a labelled dot (circle) Normally used to represent a body
      // can be moved but not resized.
-     class DrawBody extends DrawEllipse {
-	    public DrawBody(int x, int y) {
+     class DrawDot extends DrawEllipse {
+	    public DrawDot(int x, int y) {
 		super(x, y);
 		// might want to create circle
 	    }
 
-	    // might want to lock this as circle on moves, rather than allow ellipse
+	    public Color getFillColor() { return Color.black; }
+
+	    // might want to lock this as circle when resizing, rather than allow ellipse
 	    
-	    // create label for body
+	    // create label for dot 
 	    public DrawLabel CreateLabel()
 	    {
 	       final int TOP_OFFSET = 20;
@@ -531,26 +534,34 @@ import java.lang.System;
 	   }
 		   
 	   public Color getBackgroundColor() { return Color.white; }
-	   //
+
 	   // Default handle drawing centers resize handles on the handle position
 	   // and rectangular objects places handle positions at the corners of the object's
 	   // defining rectangle. To get handles entirely outside the TextField component
-	   // during the in-place editing, we define the Text object's bounding rectangle
-	   // we tried defining the bounding box to have a border of of HANDLE_W/2 on each 
-	   // side of the edit box:
+	   // used when in-place editing, we we definine the object's bounding box to have 
+	   // a border of of HANDLE_W/2 on each side of the edit box. To match drawing
+	   // when not in-place editing also have to take account of the internal top and 
+	   // bottom margins around string used within the edit control. Haven't found 
+	   // an API to get these. Value of HANDLE_W/2 seems to work OK for top internal margin.
 	   //
 	   //  +-------+ handle
 	   //  |       |
-	   //  |   +------------------------  text object bounding box
+	   //  |   +------------------------- text drawobj bounding box
 	   //  |   |   |
-	   //  +---+-- +--------------------- edit box
+	   //  +---+-- +--------------------- textfield bounding box 
+	   //      |   |                      [top margin inside textfield]
+	   //      |   +===================== string bounding box
 	   //      |   |
 	   //      |   |..................... text baseline
-	   //      |   +---------------------
+	   //      |   +===================== string bounding box
+	   //      |   |                      [bottom margin inside textfield]
+	   //      |   +--------------------- textfield bounding box
 	   //      |
-	   //      +------------------------
+	   //      +------------------------- text drawobj bounding box
 	   //
-	   // But still some problems here. Maybe easier just to override the handle methods.
+	   // This is kind of hairy and results in a relatively large boundary around string. 
+	   // Maybe better to override the to use textfield bounds as drawobj bounds and
+	   // override handle methods to get handles outside.
 	   public void Draw (Graphics g) {
 		   // no-op if active for in-place editing
 		   if (isActive()) return;
@@ -560,9 +571,9 @@ import java.lang.System;
                    // g2d.setFont (font);
                    FontMetrics fm = g2d.getFontMetrics ();
 		   
-		   // editing may have made text exceed user-drawing boundary box.
-		   // widen box if needed as a side effect here. Note we never
-		   // shrink box to fit if smaller.
+		   // editing may have made text exceed user-drawn boundary box.
+		   // widen box if needed as a side effect of drawing here. 
+		   // Note we don't shrink box to fit if smaller.
 		   RectangularShape r = (RectangularShape) shape;
 		   int textWidth = fm.stringWidth(text);
 		   if (r.getWidth() < textWidth + HANDLE_W) {
@@ -570,22 +581,36 @@ import java.lang.System;
 			   r.setFrame(r.getX(), r.getY(), textWidth + HANDLE_W, r.getHeight());
 		   }
 		   // limit bounding box height to one lineheight plus border
-		   // height border of 2*HANDLE_W is needed to fit text, not sure why.
+		   // Border on top and bottom is HANDLE_W/2 + extra border approximately matching 
+		   // margin around string within a text field, so that base line stays in about the
+		   // same place when text field is created. HANDLE_W/2 works OK for that extra,
+		   // so total is HANDLE_W on top and bottom.
 		   if (r.getHeight() != (fm.getHeight() + 2*HANDLE_W)) {
 		           // change height only
 			   r.setFrame(r.getX(), r.getY(), r.getWidth(), fm.getHeight()+2*HANDLE_W);
 		   }
 
-		   // fill background to make text stand out
+		   // get bounds around the string itself, exclusive of margins
+		   int xStr = center ? (int) ((r.getX() + r.getWidth()/2) - textWidth/2)
+			             : (int) (r.getX() + HANDLE_W/2);  // left edge of string
+                   Rectangle2D.Double strBounds = new Rectangle2D.Double(xStr, r.getY() + HANDLE_W, textWidth, fm.getHeight());
+		   //System.out.println("Str bounds x1=" + strBounds.getX() + " y=" + strBounds.getY() + " W=" + strBounds.getWidth() + " H=" + strBounds.getHeight());
+		   // fill background behind text to effect opaque drawing
 		   g2d.setPaint(getBackgroundColor());
-		   g2d.fill(r);
+		   g2d.fill(strBounds);
                    g2d.setPaint(Color.black);
-		   int x = (int) r.getX();
-		   if (center) {
-			   x = (int) (r.getX() + r.getWidth()/2) - textWidth/2;
-		   }
 
-		   g2d.drawString(text, x + HANDLE_W/2, (int) r.getY() + HANDLE_W/2 + fm.getAscent());
+		   double yBaseline = r.getY() + HANDLE_W + fm.getAscent();
+		   g2d.drawString(text, xStr,  (int) yBaseline);
+		   
+                   // temporary, for debugging
+		   // show string bounding box we are assuming 
+		   g2d.setPaint(Color.RED);
+		   g2d.draw(strBounds);
+		   g2d.setPaint(Color.BLACK);
+		   // show baseline
+		   //g2d.setPaint(Color.BLACK);
+		   //g2d.drawLine(xStr , (int) yBaseline, xStr + textWidth, (int) yBaseline);
 	   }
 	   public void DrawSelectBorder (Graphics g) {
 		   Graphics2D g2d = (Graphics2D) g;
@@ -641,7 +666,7 @@ import java.lang.System;
 	   // box bounds after either box resize or text change. 
 	   private void syncInPlace()
 	   {
-		// set its bounds to that of underlying text object
+		// set its bounds to that of underlying text object, inset by half-handle
 		if (isActive()) {
                 	RectangularShape r = (RectangularShape) shape;
       			inplace.setBounds((int)(r.getX() + HANDLE_W/2), (int)(r.getY() + HANDLE_W/2), 
@@ -667,7 +692,7 @@ import java.lang.System;
      // DrawLabel -- subclass of Text object used for object labels. 
      //
      // A label is a text piece that is linked with some other object
-     // Unlike regular text it is centered in its box.
+     // Unlike regular text it is centered in its box. 
      // It may be in-place editable
      //
      class DrawLabel extends DrawText {

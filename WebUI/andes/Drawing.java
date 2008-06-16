@@ -52,7 +52,7 @@ public class Drawing extends JApplet
       JToolBar btnBar = new JToolBar();
       //btnPanel.setBackground(Color.white);
       //btnPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-      String[] toolNames = { "Line", "Arrow", "Axes", "Text", "Body",
+      String[] toolNames = { "Line", "Arrow", "Axes", "Text", "Dot",
 	                       "Rectangle", "Ellipse", "RoundRectangle", 
 	                      "Select", "Delete" };
       JButton b; 
@@ -299,8 +299,8 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener, Ac
 		     return new DrawArrow(x, y);
 	     else if (toolName.equals("Axes"))
 		     return new DrawAxes(x, y);
-	     else if (toolName.equals("Body"))
-                     return new DrawBody(x, y);
+	     else if (toolName.equals("Dot"))
+                     return new DrawDot(x, y);
 	     else {
                      Drawing.msg.setText("CreateNew: unknown tool! : " + toolName);
 		     return null;
@@ -338,7 +338,7 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener, Ac
 		// on ending text mode, create edit control to
 		// make this text object active for inplace editing
 		setActiveObject(selection);
-	   } else if (curTool == "Arrow" || curTool == "Body") {
+	   } else if (curTool == "Arrow" || curTool == "Dot") {
 		// create the vector's label and activate it for editing
 		DrawLabel l =  selection.CreateLabel();
 		if (l != null) {
