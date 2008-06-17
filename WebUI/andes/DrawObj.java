@@ -611,9 +611,9 @@ import java.lang.System;
 		   
                    // temporary, for debugging
 		   // show string bounding box we are assuming 
-		   g2d.setPaint(Color.RED);
-		   g2d.draw(strBounds);
-		   g2d.setPaint(Color.BLACK);
+		   //g2d.setPaint(Color.RED);
+		   //g2d.draw(strBounds);
+		   //g2d.setPaint(Color.BLACK);
 		   // show baseline
 		   //g2d.setPaint(Color.BLACK);
 		   //g2d.drawLine(xStr , (int) yBaseline, xStr + textWidth, (int) yBaseline);
