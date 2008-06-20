@@ -574,8 +574,7 @@ BOOL APIENTRY DllMain(HANDLE module, DWORD reasonCalled, LPVOID reserved) {
      // init debuglevel to print trace output messages (requires WITHDBG code)
      // dbglevel = 0xFFFFFFFF; // show all trace info 
      // turn off low-level detail which interrupts high-level solver trace:
-	 //dbglevel = ~(EXPRDB | GETEQS | ORDUNK | DIMCHK);
-	 dbglevel = ~(EXPRDB | ORDUNK | DIMCHK);
+	 dbglevel = ~(EXPRDB | GETEQS | ORDUNK | DIMCHK);
 	break;
 #endif 
     case DLL_THREAD_ATTACH:
