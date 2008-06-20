@@ -266,32 +266,27 @@ bool makepar(const string bufst, bool keep_algebraic)
     throw(string("parameter in bad format ") + bufst);
   string newvar = bufst.substr(kstrt,kend-kstrt);
   DBG ( cout << "variable |" << newvar << "| set param?" << endl);
-  // check for optional value argument starting after end of symbol
-  if ((kstrt = kend + 1) < bufst.size()) {
-  	kend = parseanum(bufst, kstrt);
-  	if (kend != kstrt) {
-    	    value = atof(bufst.substr(kstrt,kend-kstrt).c_str());
+  // skip white space and check for optional numerical value argument
+  for (kstrt = kend+1; kstrt < bufst.size() && bufst[kstrt] == ' '; kstrt++);
+  if ((kend = parseanum(bufst, kstrt)) != kstrt) {
+    	value = atof(bufst.substr(kstrt,kend-kstrt).c_str());
 	    DBG(cout << "value = " << value << endl);
-            value_specified = true;
-        }
+        value_specified = true;
   }
   
   for (k = 0; k < canonvars->size(); k++)
     if (newvar == (*canonvars)[k]->clipsname)
       {
 	// The SGG assigns "parameter" to any "answer-var"
-	// So we only do this once.
+	// So we only assign value first time we see one of these.
 	if(!(*canonvars)[k]->keepalgebraic && !(*canonvars)[k]->isparam)
 	  {
 	    numparams++;
 	    // Bug #1374, a random choice can sometimes cause problems. 
-	    // So use client-specified value if one was provided
-	    numvalexp* numval;
-	    if (value_specified)  
-		numval = new numvalexp(value);
-	    else 
-		numval = new numvalexp(exp((double) numparams)/M_PI);
-
+	    // So use client-specified numerical value if one was provided.
+		// Note no units on value, default units for variable are implied.
+	    numvalexp* numval = new numvalexp(value_specified ? value
+			                      : exp((double) numparams)/M_PI);
 	    binopexp *eq = new binopexp(&equals,new physvarptr(k), numval);
 	    paramasgn->push_back(eq);
 	    DBG ( cout << "variable |" << newvar << "| set param, no. "
