@@ -154,9 +154,23 @@
   
 
 (defun collect-svar-marks (qvar)
-  (mapcar #'(lambda (m) (list M (Qvar-Var Qvar)))
+  (mapcar #'(lambda (m) (get-mark-statement M Qvar))
 	  (intersection **Solver-Variable-Marks** 
 			(Qvar-Marks Qvar))))
+
+(defun get-mark-statement (mark Qvar)
+"get the statement to pass to the solver for mark on Qvar"
+ ; special case for parameters/answer-vars with specified values to use
+  (if (and (member mark '(PARAMETER ANSWER-VAR)) 
+           (qvar-param-value Qvar))
+	`(,mark ,(Qvar-Var Qvar) ,(qvar-param-value Qvar))
+    ; else
+    `(,mark ,(Qvar-Var Qvar))))
+
+(defun qvar-param-value (Qvar)
+"get the value of given parameter QVAR; NIL if none or not parameter"
+  ;; function in SGG/GraphGenerator.cl. Need to use *cp*
+  (find-param-value (Qvar-Exp Qvar) (problem-givens *cp*)))
 
 (defun qvars->indyVars (Qvars)
   "Given a list of qvars generate the indyVars for the independence system."

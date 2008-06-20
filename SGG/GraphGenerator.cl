@@ -226,6 +226,11 @@
 			      (unify (cadr G) Sought)))
 	   Givens))
 
+(defun find-param-value (Quant Givens)
+  "Find value specified for parameter Quant; NIL if none"
+  ;; prop form is (parameter ?quant ?answer-var [?value])
+  (fourth (find-sought-param Quant Givens))) ; safe if missing
+
 
 ;;;-------------------------------------------------------------------
 ;;; Solve givens.
