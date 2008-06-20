@@ -237,7 +237,8 @@ bool setacc(const string bufst)
  * bool makepar(const string varname) 					*
  *	searches for varname in variable list. 				*
  *	If found, sets its parameter attribute, writes an equation	*
- *	setting it to a "random" numerical value,  and returns true.	*
+ *	setting it t_o a "random" numerical value if no value argument  *
+ *	included, and returns true.	                                *
  *	If not found, returns false.					*
  *	The value it is set to (if found) is e/pi for the first		*
  *	  parameter, and e^n/pi for the n'th one specified		*
@@ -246,18 +247,35 @@ bool makepar(const string bufst, bool keep_algebraic)
 {
   int k,taglength;
   int kstrt, kend;
+  double value;
+  bool value_specified = false;
   extern int numparams;
   if(keep_algebraic)
     taglength=13;
   else
     taglength=12;
+
+  // find beginning of symbol, stripping any '|'
   for(kstrt = taglength-1; kstrt < bufst.size() && 
 	(bufst[kstrt] == ' ' || bufst[kstrt] == '|'); kstrt++);
-  // drop trailing ")", strip any "|"
-  for (kend = bufst.size() - 2; kend >= kstrt 
-	 && (bufst[kend] == ' ' || bufst[kend] == '|'); kend--);
-  string newvar = bufst.substr(kstrt,kend-kstrt+1);
+  if (kstrt == bufst.size()) throw(string("parameter in bad format") + bufst);
+  // find end of symbol, stripping any '|'
+  for(kend = kstrt; kend < bufst.size() 
+	&& bufst[kend] != ' ' && bufst[kend] != '|' && bufst[kend] != ')'; kend++);
+  if ((kend == kstrt) || kend == bufst.size()) 
+    throw(string("parameter in bad format ") + bufst);
+  string newvar = bufst.substr(kstrt,kend-kstrt);
   DBG ( cout << "variable |" << newvar << "| set param?" << endl);
+  // check for optional value argument starting after end of symbol
+  if ((kstrt = kend + 1) < bufst.size()) {
+  	kend = parseanum(bufst, kstrt);
+  	if (kend != kstrt) {
+    	    value = atof(bufst.substr(kstrt,kend-kstrt).c_str());
+	    DBG(cout << "value = " << value << endl);
+            value_specified = true;
+        }
+  }
+  
   for (k = 0; k < canonvars->size(); k++)
     if (newvar == (*canonvars)[k]->clipsname)
       {
@@ -266,10 +284,15 @@ bool makepar(const string bufst, bool keep_algebraic)
 	if(!(*canonvars)[k]->keepalgebraic && !(*canonvars)[k]->isparam)
 	  {
 	    numparams++;
-	    // Bug #1374, a random choice can sometimes cause problems
-	    // this function works for kt7b given order params come out
-	    binopexp *eq = new binopexp(&equals,new physvarptr(k),
-					                new numvalexp(exp((double) numparams)/M_PI));
+	    // Bug #1374, a random choice can sometimes cause problems. 
+	    // So use client-specified value if one was provided
+	    numvalexp* numval;
+	    if (value_specified)  
+		numval = new numvalexp(value);
+	    else 
+		numval = new numvalexp(exp((double) numparams)/M_PI);
+
+	    binopexp *eq = new binopexp(&equals,new physvarptr(k), numval);
 	    paramasgn->push_back(eq);
 	    DBG ( cout << "variable |" << newvar << "| set param, no. "
 		  << numparams << endl

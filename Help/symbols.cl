@@ -124,7 +124,7 @@
         *variables*)
 
   ; for debugging: dump symbol table contents after change
-  ;(symbols-dump) 
+  (symbols-dump) 
   )
 
 (defun symbols-delete (label)
@@ -149,7 +149,7 @@
                     (member entry-id (sym-entries sym)))
 	         *variables*))
    ; for debugging: dump symbol table contents after change
-   ;(symbols-dump)
+   (symbols-dump)
 )
 
 ;-----------------------------------------------------------------------------

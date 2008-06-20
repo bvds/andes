@@ -136,6 +136,7 @@
 
 (defun solve-for-param-var (Param Givens)
   "Solve for a parameter variable corresponding to param."
+  ;; Solves variable definition goal only for quantity Param
   (merge-qsolver-results
    (loop for State in (qsolve-for (list `(variable ?var ,Param)) Givens)
        collect (let ((Var (find-if #'(lambda (W) 
