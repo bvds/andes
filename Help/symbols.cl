@@ -75,6 +75,7 @@
   (format stream "<SYM ~A ~A>" (sym-label sym) (sym-referent sym)))
 
 (defvar *variables*)	; no init value so can reload into running helpsys
+(defvar *watch-symbols* NIL)  ; set to trace symbol table changes
 
 ;-----------------------------------------------------------------------------
 ; Symbol table manipulation functions:
@@ -96,11 +97,10 @@
       (setf entries (list entries))) 
 
   ; Client code should delete symbols from an existing entry before handling
-  ; modified entry.  Workbench should prevent a brand new entry to redefine any 
-  ; existing def of same label, but we make sure to be on the safe side
+  ; modified entry.  Workbench should prevent a brand new entry from redefining 
+  ; any existing def of same label. 
   (when (symbols-lookup label)
-     (warn "symbols-enter: new entry replacing existing def for ~A~%" label)
-     (symbols-delete label))
+     (warn "symbols-enter: new entry shadowing existing def for ~A~%" label))
 
   ; if no special sysvar specified, look up matching quantity as default
   ; OK if NIL, not all referents will have matching system vars
@@ -124,8 +124,8 @@
         *variables*)
 
   ; for debugging: dump symbol table contents after change
-  (symbols-dump) 
-  )
+  (when *watch-symbols* 
+        (symbols-dump)))
 
 (defun symbols-delete (label)
   "remove entry for a student label from the symbol table"
@@ -149,8 +149,8 @@
                     (member entry-id (sym-entries sym)))
 	         *variables*))
    ; for debugging: dump symbol table contents after change
-   (symbols-dump)
-)
+   (when *watch-symbols*
+          (symbols-dump)))
 
 ;-----------------------------------------------------------------------------
 ; Symbol table accessor functions:

@@ -206,6 +206,11 @@
   :units nil
   :restrictions nonnegative)
 
+;; Special axis terms entered into the symbol table. These are not
+;; used as quantities, but may need to be Englished.
+(def-qexp axis (axis ?xyz ?angle)
+   :english ("the axis at ~A degrees" ?angle))
+
 ;;;; scalar quantities
 
 ;;; in the workbench, the time slot is added if feature changing-mass

@@ -618,7 +618,7 @@
   ;; for compound bodies, enter body label so it can be recognized when
   ;; referenced in subsequent quantity definitions for compound's attributes.
   (when (compound-bodyp body-term)
-  	(symbols-enter label body-term id))
+  	(check-symbols-enter label body-term id))
   entry))  ;finally return entry 
 
 
@@ -716,8 +716,8 @@
                                         label)))
     ; remove existing entry and update
     (add-entry entry)
-    (symbols-enter label vector-mag-term id)
-    (symbols-enter dir-label vector-dir-term id)
+    (check-symbols-enter label vector-mag-term id)
+    (check-symbols-enter dir-label vector-dir-term id)
 
     ;; if any axes are defined must add all component variables as well
     (dolist (axis-sym (symbols-fetch '(axis ?xyz ?dir)))
@@ -727,7 +727,7 @@
              (compo-var  (format NIL "~A_~A" label axis-label))
 	     (compo-term (vector-compo vector-term axis-term)) ; Physics-Funcs
 	    )
-        (symbols-enter compo-var compo-term (list id axis-entry-id))))
+        (check-symbols-enter compo-var compo-term (list id axis-entry-id))))
 
     ; Different given values are handled in different ways:
     ; 1. Direction value or unknown or zero-mag values get checked automatically as part 
@@ -810,8 +810,8 @@
 			     label)))
     ;; remove existing entry and update
     (add-entry entry)
-    (symbols-enter label line-mag-term id)
-    (symbols-enter dir-label line-dir-term id)
+    (check-symbols-enter label line-mag-term id)
+    (check-symbols-enter dir-label line-dir-term id)
     
     ;; if direction is known, associate implicit equation dirV = dir deg.
     (when (degree-specifierp dir-term)          ; known xy plane direction
@@ -1000,7 +1000,7 @@
 
    ; delete existing entry info and update
    (add-entry entry)
-   (symbols-enter label angle-term id-angle)
+   (check-symbols-enter label angle-term id-angle)
    ; add implicit equation for variable if value known. This means they
    ; don't have to enter equation giving the value. Interface does
    ; show them the value on the dialog box.
@@ -1152,7 +1152,7 @@
 
   ; install new variable in symbol table
   (add-entry entry)
-  (symbols-enter var quant-term id)
+  (check-symbols-enter var quant-term id)
 
   ; record associated given value equation entry
   (when value  ; NIL => unspecified. (Empty string => unknown)
@@ -1198,12 +1198,12 @@
    ;; They would also be needed for referring to the axes by label in help 
    ;; messages if there is more than one set of axes.
    (add-entry entry)
-   (symbols-enter x-label x-term id)
-   (symbols-enter y-label y-term id)
-   (symbols-enter z-label z-term id) 
+   (check-symbols-enter x-label x-term id)
+   (check-symbols-enter y-label y-term id)
+   (check-symbols-enter z-label z-term id) 
 
    ;; automatically define thetaX as label for direction of positive x-axis
-   (symbols-enter (strcat "$q" x-label) xdir-dnum id xdir-dnum)
+   (check-symbols-enter (strcat "$q" x-label) xdir-dnum id xdir-dnum)
 
   ;; if any vectors are defined add all component variables along 
   ;; these new axes as well
@@ -1218,7 +1218,7 @@
 	     (axis-term    (symbols-referent axis-label))
 	     (compo-term   (vector-compo vector-term axis-term)) ; in Physics-Funcs
 	    )
-        (symbols-enter compo-var compo-term (list id vector-entry-id)))))
+        (check-symbols-enter compo-var compo-term (list id vector-entry-id)))))
 
   ; finally return entry
   entry))
@@ -1337,8 +1337,38 @@
 
 ;;----------------------- Checking Entries ----------------------------------
 ;; 
-;; Following two functions implement to the non-eqn portion of the
+;; Following functions implement the non-eqn portion of the
 ;; EntryInterpreter. EntryInterpreter for equations is in another file
+
+;;
+;; check-symbols-enter -- make an entry in the symbol table of student
+;;                        variables, checking for redefinition.
+;;
+;; This takes the same arguments as symbols-enter in symbols.cl, but
+;; wraps error checking around it. In case of symbol definition error, 
+;; the entry is tagged incorrect with the appropriate error interpretation.
+;; NB: if entries is not a singleton, the error is hung on the first
+;; one, which should be the principal entry being evaluated
+(defun check-symbols-enter (label referent entry-ids &optional sysvar)
+   (cond ((symbols-lookup label) ;; variable already defined!
+      ;; find entry. entry-ids arg may be atom or list, but should not be nil
+      (let ((entry (find-entry (if (atom entry-ids) entry-ids (first entry-ids))))
+	     rem)
+	  ;; build the error remediation turn
+	  (setf rem (make-hint-seq (list
+		 (format nil "The variable ~A is in use to define ~A. Please choose a different label." 
+		         label (nlg (symbols-referent label))))))
+	  (setf (turn-coloring rem) **color-red**)
+	  ;; set state of entry and attach error. But only do if not done already, so 
+	  ;; only report on the first error found.
+	  (unless (studentEntry-ErrInterp entry)
+	     (setf (studentEntry-state entry) 'incorrect)
+             (setf (studentEntry-ErrInterp entry)
+       	          (make-ErrorInterp :diagnosis '(variable-already-in-use)
+                                    :remediation rem)))))
+
+	  ;; else no conflict: just make the definition
+          (T (symbols-enter label referent entry-ids sysvar))))
 
 ;;
 ;; Check-NonEq-Entry -- Generic checker for non-equation student entry 
@@ -1361,7 +1391,15 @@
     (return-from Check-NonEq-Entry (make-red-turn)))
   (when (eq entry T) 
     (return-from Check-NonEq-Entry (make-green-turn)))
-    
+     
+  ;; special case: Entry-API handler can attach an error interp for certain
+  ;; errors such as symbol redefinitions that prevent the entry from
+  ;; being processed further. Return appropriate turn with unsolicited 
+  ;; error message in this case.
+  (when (studentEntry-ErrInterp entry) 
+    (return-from Check-NonEq-Entry 
+                     (ErrorInterp-remediation (studentEntry-ErrInterp entry))))
+
   ;; else have a real student entry to check
   (format *debug-help* "Checking entry: ~S~%" (StudentEntry-prop entry))
   (let (cand		; candidate (state . interpretation) pair
