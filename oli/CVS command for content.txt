@@ -1,0 +1,6 @@
+ cvs -d :ext:andersw@oli-cvs.andrew.cmu.edu:/oli/cvs/content/lrdc/intro_physics co intro_physics-1.0
+
+The correct host name for CVS is :  oli-cvs.andrew.cmu.edu
+
+And ODIN is at :  odin.web.cmu.edu
+
