@@ -3986,12 +3986,13 @@
 			(second (problem-graph *cp*))
 			:key #'enode-id :test #'unify))
 	;; if the (given ...) has custom hints, grab the hints
-	(bindings (or
-		      (when given-enode 
+	(bindings (when given-enode 
 			(unify (enode-id given-enode) 
-			       '(given ?qant ?val-expr :hint (?given-loc ?more))))
-		    '((?given-loc . "from the problem statement") 
-		      (?more . nil))))
+			       '(given ?qant ?val-expr :hint ?hint-arg))))
+	;; optional ?hint-arg has form (?loc ?more)
+	(given-loc (or (first (cdr (assoc '?hint-arg bindings)))
+	               "from the problem statement"))
+	(more      (second (cdr (assoc '?hint-arg bindings))))  ; may be NIL
         ;; use original value expression in preference to stored numerical value in case
 	;; it contains a complex expression like 2*pi rad which we want to preserve
 	(foo (format T "?val-expr binding is ~A => ~A~%" 
@@ -4003,11 +4004,9 @@
 	;; Be sure to include full quantity def in message, in case problem
 	;; is that student thinks var denotes some other quantity.
         (format nil "~A is not the correct value for ~A, ~A.  ~A can be determined ~A." 
-	            studval studvar (nlg quant) studvar
-		    (cdr (assoc '?given-loc bindings)))
+	            studval studvar (nlg quant) studvar given-loc)
 	;; ?? should we tell them correct given value?
-	(format nil "~@[~A  ~]The correct value for ~A is ~A." 
-		(cdr (assoc '?more bindings)) studvar rightval)
+	(format nil "~@[~A  ~]The correct value for ~A is ~A." more studvar rightval)
    ))))
 
 ;; Wrong value for a non-given (i.e. calculated) quantity: 
