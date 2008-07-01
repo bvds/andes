@@ -10,15 +10,6 @@
 "true if this problem is tagged as part of the main Andes2 distribution"
    (member 'Andes2 (problem-features p)))
 
-(defun listprobs () 
-  "list problems in alphabetical problem name order"
-  (let (problist)
-    (map-problems #'(lambda (p)
-		      (push p problist)))
-    ;; and return sorted list
-    (sort problist #'(lambda (p1 p2) (string< (problem-name p1) 
-					      (problem-name p2))))))
-
 (defun choose-working-probs (topics)
   "list of problems with specified features or use given list of problems"
   (remove-if-not #'(lambda (p) 

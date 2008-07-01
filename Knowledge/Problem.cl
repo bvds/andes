@@ -401,8 +401,8 @@
 				   :Choices ',Choices
 				   :Graphic ',Graphic
 				   :Predefs ',Predefs))))
-    (register-problem Prob)                                          ;;Store the problem for access.
-    Prob))                                                           ;;Return the problem.
+    (setf (getproblem (Problem-Name Prob)) Prob) ;Store the problem for access
+    Prob))                         ;Return the problem.
 
 
 (defun remove-answer (S)
@@ -413,11 +413,6 @@
 		    (cadr a)
 		  a))
 	    S)))
-						
-(defun register-problem (P)
-  "Store problem P in the *Problem-Registry* Hashtable."
-  (setf (gethash (Problem-Name P) *Problem-Registry*) P))
-
 
 (defun clear-Problem-Registry ()
   "Clear out the problem registry."
@@ -428,10 +423,6 @@
 
 ;;------------------------------------------------------------------
 ;; problem access.
-
-(defmacro gp (P)
-  "Get the named problem from the *Problem-Registry* Hashtable."
-  `(gethash ',P *Problem-Registry*))
 
 
 (defun get-problem (P)
@@ -455,17 +446,14 @@
 		 (funcall Function Problem)))
 	   *Problem-Registry*))
 
-
-(defun collect-func-problems (Function)
-  "Collect all problems for which Function returns t."
-  (let ((Storage))
-    (maphash #'(lambda (name Problem)
-		 (declare (ignore Name))
-		 (pprint Problem)
-		 (when (funcall Function Problem)
-		   (push Problem Storage)))
-	     *Problem-Registry*)
-    Storage))
+(defun listprobs () 
+  "list problems in alphabetical problem name order"
+  (let (problist)
+    (map-problems #'(lambda (p)
+		      (push p problist)))
+    ;; and return sorted list
+    (sort problist #'(lambda (p1 p2) (string< (problem-name p1) 
+					      (problem-name p2))))))
 
 (defun working-problem-p (problem)
   "Test if problem is tagged as working"
