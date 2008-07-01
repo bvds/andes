@@ -442,3 +442,64 @@
 	      (write-to-string (list (psmclass-name pc) bindings) :pretty nil))
 	    #\tab
 	    tutorial)))
+
+;;;          Generate file Documentation/principles.html
+
+(defun principles-html-file ()
+  "construct file Documentation/principles.html"
+  (let ((Stream (open 
+		 (merge-pathnames  "Documentation/principles.html" *Andes-Path*)
+		   :direction :output :if-exists :supersede)))
+  ;;  Assume stream has UTF-8 encoding (default for sbcl)
+  ;;  Should test this is actually true or change the charset to match
+  ;;  the actual character code being used by the stream
+  ;;  something like:
+  (when (streamp Stream) 
+    #+sbcl (unless (eq (stream-external-format Stream) ':utf-8)
+	     (error "Wrong character code ~A, should be UTF-8" 
+		    (stream-external-format Stream))))
+  (format Stream 
+	  (strcat
+	   "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">~%"
+	   "<html> <head>~%"
+	   ;;	   "   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">~%"
+	   "   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">~%"
+	   "<link rel=\"stylesheet\" type=\"text/css\" href=\"main.css\">~%"
+	   "<title>Principles</title>~%"
+	   "</head>~%"
+	   "<body>~%"
+	   "<h1>Princples and problems</h1>~%"
+	   "<p>~%"))
+
+    (dolist (p *principle-tree*) (principle-branch-print-html stream p))
+
+   (format Stream (strcat
+	   "</body>~%"
+	   "</html>~%"))
+    (close stream)))
+
+(defun principle-branch-print-html (str p)
+  "prints a group in Documentation/principles.html"
+  (cond ((eq (car p) 'group)
+	 ;; principles.tsv file format is 4 tab-separated columns
+	 (format str "GROUP~C~A~C~C~%" #\tab (cadr p) #\tab #\tab)
+	 (dolist (pp (cddr p)) (principle-branch-print str pp))
+	 (format str "END_GROUP~C~A~C~C~%"  #\tab (cadr p) #\tab #\tab))
+	((eq (car p) 'leaf)
+	 (apply #'principle-leaf-print (cons str (cdr p))))))
+
+;; keywords :short-name and :EqnFormat override definitions in Ontology
+(defun principle-leaf-print (str class &key tutorial (bindings no-bindings)
+					EqnFormat short-name) 
+  "prints a principle in KB/principles.tsv"
+  (let ((pc (lookup-psmclass-name class)))
+    (format str "LEAF~C~A    ~A~C~(~A~)~C~@[~A~]~%" #\tab 
+	    (eval-print-spec (or EqnFormat (psmclass-EqnFormat pc)) bindings)
+	    (eval-print-spec (or short-name (psmclass-short-name pc)) bindings)
+	    #\tab
+	    (if (eq bindings no-bindings) (psmclass-name pc)
+	      ;; if bindings have been supplied, construct list
+	      ;; turn off pretty-print to prevent line breaks
+	      (write-to-string (list (psmclass-name pc) bindings) :pretty nil))
+	    #\tab
+	    tutorial)))
