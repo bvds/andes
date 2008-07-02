@@ -401,8 +401,8 @@
 				   :Choices ',Choices
 				   :Graphic ',Graphic
 				   :Predefs ',Predefs))))
-    (setf (getproblem (Problem-Name Prob)) Prob) ;Store the problem for access
-    Prob))                         ;Return the problem.
+    (add-problem Prob) ;Store the problem for access
+    Prob))                        ;Return the problem.
 
 
 (defun remove-answer (S)
@@ -429,6 +429,10 @@
   "Get the named problem from the *Problem-Registry* Hashtable."
   (gethash P *Problem-Registry*))
 
+(defun add-problem (Prob)
+  "Add a problem to the *Problem-Registry* Hashtable."
+    (setf (gethash (Problem-name Prob) *Problem-Registry*) Prob))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; map-problems
 ;; Map the specified function onto each registered problem in turn.
@@ -447,13 +451,8 @@
 	   *Problem-Registry*))
 
 (defun listprobs () 
-  "list problems in alphabetical problem name order"
-  (let (problist)
-    (map-problems #'(lambda (p)
-		      (push p problist)))
-    ;; and return sorted list
-    (sort problist #'(lambda (p1 p2) (string< (problem-name p1) 
-					      (problem-name p2))))))
+  "list of problems in alphabetical problem name order"
+  (mapcar #'get-problem (sort (hash-keys *problem-registry*) #'string<)))
 
 (defun working-problem-p (problem)
   "Test if problem is tagged as working"
