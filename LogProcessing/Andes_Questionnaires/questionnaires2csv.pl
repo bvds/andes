@@ -4,7 +4,7 @@
 # The purpose of this script is to convert online Andes Questionnaires 
 # into csv format.
 # Usage: 
-#    questionnaires_to_excel.pl andes_q.txt > andes_q.csv
+#    questionnaires2csv.pl andes_q.txt > andes_q.csv
 #    In the spreadsheet, do a regexp find and replace to remove single
 #    quote at beginning of line (used to force text format),
 #    then sort first 3 columns.  Make School Section CourseID Name columns
@@ -13,28 +13,38 @@
 # Mathematica format:
 #    questionnaires_to_excel.plx -m andes_q.txt > andes_q.m
 # Open-ended questions instead use -o
+# Short version (WHRHS Spring 2008) use -s
+# Essay questions (HWRHS Spring 2008) use -e
+
+# On OS X, run existing cpan and install DateTime::Format::Strptime
+use Digest::CRC qw(crc32_base64 crc16 crcccitt crc crc8);
 
 use Getopt::Long;
 my $mma=0;
 my $openended=0;
-GetOptions ('math|m|mma' => \$mma,'o' => \$openended);
+my $short=0;
+my $essay=0;
+GetOptions ('math|m|mma' => \$mma,'o|open' => \$openended,'s|short' => \$short,
+	    'e|essay' => \$essay);
 
-my @categories = $openended?(
-'Year','Semester','School','Section','CourseID','Name','Date','Time',
-'1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25'
-):(
-'Year','Semester','School','Section','CourseID','Name','Date','Time',
-'1','2','3','4','5','6','7','8A','8B','9','10','11A','11B','11C','11D','11E','11F','11G','11H','11I','11J','11K','11L','12A','12B','12C','12D','12E','13A','13B','13C','13D','14','15','16A','16B','16C','16D','16E','17','18A','18B','18C','18D','19','20','21','22','23A','23B','23C','23D','23E','24','25','26','27','28','29','30','30A','30B','30C','30D'
-);
+my @categories;
+my %encoding;
 
-
-# for sanity test later on
-my %categories_hash;
-foreach (@categories) { $categories_hash{$_}=1; }
-
-my %encoding = (
-'bobh' => 'bobh',
-'tmwilbur' => 'tmwilbur',
+# define list of categories for various configurations
+if($short || $essay){
+  @categories = $essay?( 'Year','Semester','School','Section','CourseID','Name','Date','Time','1','2','3','4','5','6','7'):
+    ($openended?('Year','Semester','School','Section','CourseID','Name','Date','Time','1','3','5','6','23','25'):
+     ('Year','Semester','School','Section','CourseID','Name','Date','Time','1','3','5','6','24','25','25','28','30','30A','30B','30C','30D'));
+} else {
+  @categories = $openended?('Year','Semester','School','Section','CourseID','Name','Date','Time',
+			       '1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25'
+			      ):(
+				 'Year','Semester','School','Section','CourseID','Name','Date','Time',
+				 '1','2','3','4','5','6','7','8A','8B','9','10','11A','11B','11C','11D','11E','11F','11G','11H','11I','11J','11K','11L','12A','12B','12C','12D','12E','13A','13B','13C','13D','14','15','16A','16B','16C','16D','16E','17','18A','18B','18C','18D','19','20','21','22','23A','23B','23C','23D','23E','24','25','26','27','28','29','30','30A','30B','30C','30D'
+				);
+  %encoding = (
+		  'bobh' => 'bobh',
+		  'tmwilbur' => 'tmwilbur',
 'xxxxx' => 'xxxxx',
 'yyyy' => 'yyyy',
 'TTTTT' => 'TTTTT',
@@ -350,7 +360,11 @@ my %encoding = (
 '101818' => 'DB485',
 '105232' => 'DA72F',
 '101122' => 'DB73D');
+}
 
+# for sanity test later on
+my %categories_hash;
+foreach (@categories) { $categories_hash{$_}=1; }
  
 # print out header line
 {
@@ -362,25 +376,29 @@ my %encoding = (
   print "\n";
 }
 
-while (<>) {  #loop through mails
+do {  #loop through mails
   my %answers=();
   my $last=0;
 
   while (<>) {  # loop through questionnaire lines
-    last if /^.From andes2\@pitt.edu/;
+    last if /^.From andes2\@pitt.edu/ or /^\f/;
     
     0 and warn "working on $_";
-    my $keep = $openended?'Open-Ended_':'Question_';
-    my $discard = $openended?'Question_':'Open-Ended_';
 
+    # Find the essay responses
+    if(/^Essay_(\w+)=(.*)/) {
+      $last=$essay?$1:0;	       
+      $answers{$1} = $2 if $last;
+    }
     # Find the answers to the close-ended questions.
-    if (/^$keep(\w+)=(.*)/) {
-      $answers{$1} = $2;
-      $last=$1; 
+    elsif (/^Question_(\w+)=(.*)/) {
+      $last=($essay or $openended)?0:$1;
+      $answers{$1} = $2 if $last;
     }
     # throw away Open-Ended fields
-    elsif (/^$discard(\w+)=(.*)/) { 
-	$last=0;
+    elsif (/^Open-Ended_(\w+)=(.*)/) { 
+      $last=($essay or not $openended)?0:$1;
+      $answers{$1} = $2 if $last;
     }
     # get non-question fields (Name, School, etc.)
     elsif (/^(\w+)=(.*)/) {
@@ -396,6 +414,13 @@ while (<>) {  #loop through mails
       $answers{'Date'} = $1 . ' ' .$2;
       $answers{'Year'} = $2;
       $answers{'Time'} = $3;
+    }
+    # Date: June 17, 2008 1:27:09 PM EDT
+    elsif (/^Date: (\w+ \d+), (\d+) (\d+:\d+:\d+ \w+) /) {
+      0 and warn "got date $1 $2\n";
+      $answers{'Date'} = $1 . ', ' .$2;
+      $answers{'Year'} = $2;
+      $answers{'Time'} = $3;
     } else {
       $last=0;
     }
@@ -406,10 +431,15 @@ while (<>) {  #loop through mails
     warn "unmatched category $key" unless $categories_hash{$key};
   }
 
-  #  Hash table of encodings:  this is supposed to be supplied
+  #  Hash table of name encodings:  this is supposed to be supplied
   #  by anders.
-  $answers{'Name'} = $encoding{$answers{'Name'}} if 
-    $answers{'Name'} and $encoding{$answers{'Name'}};
+  if ($answers{'Name'} and $encoding{$answers{'Name'}}) {
+    $answers{'Name'} = $encoding{$answers{'Name'}};
+  } 
+  # Use crc32 hash (base64 output) to encrypt user name
+  elsif (1 and ($short or $essay)) {
+    $answers{'Name'} = crc32_base64($answers{'Name'});
+  }
 
   my $count=0;
   print "{" if $mma;
@@ -435,12 +465,10 @@ while (<>) {  #loop through mails
     }
   }
   print "}" if $mma;
-  last if eof;  # when inner loop reaches eof
   print "," if $mma;
   print "\n";
 
-}
+} until (eof);  #inner loop has detected an eof
 
 print "};" if $mma;
 print "\n";
-
