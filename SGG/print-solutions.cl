@@ -277,7 +277,7 @@
       (print-html-entries (distinct-SystemEntries 
 			   (mappend #'bgnode-entries 
 				    (flatten1 (problem-graph problem))))
-			  n Stream)))
+			  N Stream)))
     
     (format Stream (strcat
 	   "</body>~%"

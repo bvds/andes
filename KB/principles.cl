@@ -469,37 +469,37 @@
 	   "</head>~%"
 	   "<body>~%"
 	   "<h1>Princples and problems</h1>~%"
-	   "<p>~%"))
+	   "<ul>~%"))
 
     (dolist (p *principle-tree*) (principle-branch-print-html stream p))
 
    (format Stream (strcat
-	   "</body>~%"
-	   "</html>~%"))
+		   "</ul>~%"
+		   "</body>~%"
+		   "</html>~%"))
     (close stream)))
 
 (defun principle-branch-print-html (str p)
   "prints a group in Documentation/principles.html"
   (cond ((eq (car p) 'group)
 	 ;; principles.tsv file format is 4 tab-separated columns
-	 (format str "GROUP~C~A~C~C~%" #\tab (cadr p) #\tab #\tab)
-	 (dolist (pp (cddr p)) (principle-branch-print str pp))
-	 (format str "END_GROUP~C~A~C~C~%"  #\tab (cadr p) #\tab #\tab))
+	 (format str "<ul>~%")
+	 (dolist (pp (cddr p)) (principle-branch-print-html str pp))
+	 (format str "</ul>~%")
 	((eq (car p) 'leaf)
-	 (apply #'principle-leaf-print (cons str (cdr p))))))
+	 (apply #'principle-leaf-print-html (cons str (cdr p))))))
 
 ;; keywords :short-name and :EqnFormat override definitions in Ontology
-(defun principle-leaf-print (str class &key tutorial (bindings no-bindings)
+(defun principle-leaf-print-html (str class &key tutorial (bindings no-bindings)
 					EqnFormat short-name) 
   "prints a principle in KB/principles.tsv"
   (let ((pc (lookup-psmclass-name class)))
-    (format str "LEAF~C~A    ~A~C~(~A~)~C~@[~A~]~%" #\tab 
+    (format str "<li>~A ~A  ~(~A ~)~%" 
 	    (eval-print-spec (or EqnFormat (psmclass-EqnFormat pc)) bindings)
 	    (eval-print-spec (or short-name (psmclass-short-name pc)) bindings)
-	    #\tab
+	    (member 
 	    (if (eq bindings no-bindings) (psmclass-name pc)
 	      ;; if bindings have been supplied, construct list
 	      ;; turn off pretty-print to prevent line breaks
 	      (write-to-string (list (psmclass-name pc) bindings) :pretty nil))
-	    #\tab
-	    tutorial)))
+	    )))
