@@ -72,8 +72,7 @@
 	 )
  (group "Work Energy and Power" 
 	 (leaf work :tutorial "Work done by a force")
-;;   only use work-nc in expt.
-;;	 (leaf net-work :tutorial "Net work")
+	 (leaf net-work :tutorial "Net work")
 	 (leaf work-nc :tutorial "Conservation of Energy")
 	 (leaf work-energy :tutorial "Work-Energy")
 	 (leaf mechanical-energy :tutorial "Conservation of Energy")
@@ -444,10 +443,10 @@
 	    tutorial)))
 
 ;;;          Generate file Documentation/principles.html
-
+-
 (defun principles-html-file ()
   "construct file Documentation/principles.html"
-  (let ((Stream (open 
+  (let ((Stream  (open 
 		 (merge-pathnames  "Documentation/principles.html" *Andes-Path*)
 		   :direction :output :if-exists :supersede)))
   ;;  Assume stream has UTF-8 encoding (default for sbcl)
@@ -468,7 +467,7 @@
 	   "<title>Principles</title>~%"
 	   "</head>~%"
 	   "<body>~%"
-	   "<h1>Princples and problems</h1>~%"
+	   "<h1>Principles and Problems</h1>~%"
 	   "<ul>~%"))
 
     (dolist (p *principle-tree*) (principle-branch-print-html stream p))
@@ -477,29 +476,40 @@
 		   "</ul>~%"
 		   "</body>~%"
 		   "</html>~%"))
-    (close stream)))
+    (when (streamp stream) (close stream))))
 
 (defun principle-branch-print-html (str p)
   "prints a group in Documentation/principles.html"
   (cond ((eq (car p) 'group)
 	 ;; principles.tsv file format is 4 tab-separated columns
-	 (format str "<ul>~%")
+	 (format str "<li>~A~%<ul>~%" (cadr p))
 	 (dolist (pp (cddr p)) (principle-branch-print-html str pp))
-	 (format str "</ul>~%")
+	 (format str "</ul>~%"))
 	((eq (car p) 'leaf)
-	 (apply #'principle-leaf-print-html (cons str (cdr p)))))))
+	 (apply #'principle-leaf-print-html (cons str (cdr p))))))
 
 ;; keywords :short-name and :EqnFormat override definitions in Ontology
 (defun principle-leaf-print-html (str class &key tutorial (bindings no-bindings)
 					EqnFormat short-name) 
   "prints a principle in KB/principles.tsv"
-  (let ((pc (lookup-psmclass-name class)))
+  (format t "print leaf ~A~%" class)
+  (andes-init)
+  (let* ((pc (lookup-psmclass-name class))
+	 (probs (remove-if-not
+		 #'(lambda (Prob)
+		     (read-problem-info (string (problem-name prob)))
+		     (when *cp* 
+		;     (format t "problem ~A with ~A~%" 
+		;	     (problem-name prob) 
+		;	     (length (second (problem-graph *cp*))))
+		       (some #'(lambda (enode)
+				; (format t "   bind ~A and ~A~%" 
+				;	 (psmclass-form pc) (enode-id enode))
+				 (unify (psmclass-form pc)
+					(enode-id enode) bindings)) 
+			     (second (problem-graph *cp*)))))
+		 (choose-working-probs '(andes2)))))
     (format str "<li>~A ~A  ~(~A ~)~%" 
 	    (eval-print-spec (or EqnFormat (psmclass-EqnFormat pc)) bindings)
 	    (eval-print-spec (or short-name (psmclass-short-name pc)) bindings)
-	    (member 
-	    (if (eq bindings no-bindings) (psmclass-name pc)
-	      ;; if bindings have been supplied, construct list
-	      ;; turn off pretty-print to prevent line breaks
-	      (write-to-string (list (psmclass-name pc) bindings) :pretty nil))
-	    ))))
+	    (mapcar #'problem-name probs))))
