@@ -443,12 +443,17 @@
 	    tutorial)))
 
 ;;;          Generate file Documentation/principles.html
--
+;;;
+;;;  See Bug #1475
+;;;   expression to fix the special characters
+;;;   perl -pi.orig -e 's/&/&amp;/g; s/\$w/&omega;/g; s/\$p/&pi;/g; s/\$S/&Sigma/g; s/\$q/&theta;/g; s/\$l/&lambda;/g; s/\$a/&alpha;/g; s/\$r/&rho;/g; s/\$F/&Phi;/g; s/\$e/&epsilon;/g; s/\$m/&mu;/g; s/\$t/&tau;/g; s/\$b/&beta;/g;' principles.html
+
 (defun principles-html-file ()
   "construct file Documentation/principles.html"
   (let ((Stream  (open 
 		 (merge-pathnames  "Documentation/principles.html" *Andes-Path*)
 		   :direction :output :if-exists :supersede)))
+  (andes-init)
   ;;  Assume stream has UTF-8 encoding (default for sbcl)
   ;;  Should test this is actually true or change the charset to match
   ;;  the actual character code being used by the stream
@@ -481,7 +486,6 @@
 (defun principle-branch-print-html (str p)
   "prints a group in Documentation/principles.html"
   (cond ((eq (car p) 'group)
-	 ;; principles.tsv file format is 4 tab-separated columns
 	 (format str "<li>~A~%<ul>~%" (cadr p))
 	 (dolist (pp (cddr p)) (principle-branch-print-html str pp))
 	 (format str "</ul>~%"))
@@ -493,12 +497,13 @@
 					EqnFormat short-name) 
   "prints a principle in KB/principles.tsv"
   (format t "print leaf ~A~%" class)
-  (andes-init)
   (let* ((pc (lookup-psmclass-name class))
 	 (probs (remove-if-not
 		 #'(lambda (Prob)
-		     (read-problem-info (string (problem-name prob)))
-		     (when *cp* 
+		     (unless (problem-graph Prob)
+		       (read-problem-info (string (problem-name prob)))
+		       (when *cp* (setf (problem-graph Prob) 
+					(problem-graph *cp*))))
 		;     (format t "problem ~A with ~A~%" 
 		;	     (problem-name prob) 
 		;	     (length (second (problem-graph *cp*))))
@@ -507,7 +512,7 @@
 				;	 (psmclass-form pc) (enode-id enode))
 				 (unify (psmclass-form pc)
 					(enode-id enode) bindings)) 
-			     (second (problem-graph *cp*)))))
+			     (second (problem-graph Prob))))
 		 (choose-working-probs '(andes2)))))
     (format str "<li>~A ~A  ~(~A ~)~%" 
 	    (eval-print-spec (or EqnFormat (psmclass-EqnFormat pc)) bindings)
