@@ -87,19 +87,19 @@
 </ul>
 <li>Rotational
 <ul>
-<li>$w(avg) = $q/t average angular velocity  (kr1a kr1b kr1c kr4b) 
-<li>$a(avg) = ($wf - $wi)/t average anglular acceleration  (kr10 kr2a kr2b kr3a
+<li>&omega;(avg) = &theta;/t average angular velocity  (kr1a kr1b kr1c kr4b) 
+<li>&alpha;(avg) = (&omega;f - &omega;i)/t average anglular acceleration  (kr10 kr2a kr2b kr3a
                                                             kr3b kr3c kr4a kr4b
                                                             kr5a) 
-<li>$q_z = $w0_z*t + 0.5*$a_z*t^2 [$a_z is constant]  (kr10 kr2a kr2b kr3b kr4a
+<li>&theta;_z = &omega;0_z*t + 0.5*&alpha;_z*t^2 [&alpha;_z is constant]  (kr10 kr2a kr2b kr3b kr4a
                                                        kr5a) 
-<li>$wf = $wi + $a(avg)*t average anglular acceleration  (kr10 kr2a kr2b kr3a
+<li>&omega;f = &omega;i + &alpha;(avg)*t average anglular acceleration  (kr10 kr2a kr2b kr3a
                                                           kr3b kr3c kr4a kr4b
                                                           kr5a) 
-<li>$w_z^2 = $w0_z^2 + 2*$a_z*$q_z [$a_z is constant]  (kr10 kr2a kr2b kr3b
+<li>&omega;_z^2 = &omega;0_z^2 + 2*&alpha;_z*&theta;_z [&alpha;_z is constant]  (kr10 kr2a kr2b kr3b
                                                         kr4a kr5a) 
-<li>v = $w*r linear velocity at a certain radius  (kr6a kr7a kr9) 
-<li>v = $w*r linear velocity of rolling object  (erot3 erot4 kr10) 
+<li>v = &omega;*r linear velocity at a certain radius  (kr6a kr7a kr9) 
+<li>v = &omega;*r linear velocity of rolling object  (erot3 erot4 kr10) 
 </ul>
 </ul>
 <li>Newton's Laws
@@ -197,15 +197,15 @@
 </ul>
 <li>Rotational
 <ul>
-<li>0 = $t1_z + $t2_z + ... rotational form of Newton's 2nd law ($a =0)  (dr8a
+<li>0 = &tau;1_z + &tau;2_z + ... rotational form of Newton's 2nd law (&alpha; =0)  (dr8a
                                                                           s13
                                                                           s14) 
-<li>$tnet_z = I*$a_z rotational form of Newton's 2nd law  (dr6a dr6b dr7a) 
-<li>$t = r*F*sin($q) torque defined (magnitude)  (dr2a dr2b dr3a dr4a dr5a dr6a
+<li>&tau;net_z = I*&alpha;_z rotational form of Newton's 2nd law  (dr6a dr6b dr7a) 
+<li>&tau; = r*F*sin(&theta;) torque defined (magnitude)  (dr2a dr2b dr3a dr4a dr5a dr6a
                                                   dr6b dr7a dr8a s13 s14) 
-<li>$t_x = r_y*F_z - r_z*F_y torque defined (x component)  nil 
-<li>$t_y = r_z*F_x - r_x*F_z torque defined (y component)  nil 
-<li>$t_z = r*F*sin($qF-$qr)) or $t_z = r_x*F_y - r_y*F_x torque defined (z component)  (dr2a
+<li>&tau;_x = r_y*F_z - r_z*F_y torque defined (x component)  nil 
+<li>&tau;_y = r_z*F_x - r_x*F_z torque defined (y component)  nil 
+<li>&tau;_z = r*F*sin(&theta;F-&theta;r)) or &tau;_z = r_x*F_y - r_y*F_x torque defined (z component)  (dr2a
                                                                                         dr2b
                                                                                         dr3a
                                                                                         dr4a
@@ -216,13 +216,13 @@
                                                                                         dr8a
                                                                                         s13
                                                                                         s14) 
-<li>$tnet_z = $t1_z + $t2_z + ... net torque defined  (dr2a dr2b dr3a dr4a dr5a
+<li>&tau;net_z = &tau;1_z + &tau;2_z + ... net torque defined  (dr2a dr2b dr3a dr4a dr5a
                                                        dr6a dr6b dr7a dr8a) 
 </ul>
 </ul>
 <li>Work Energy and Power
 <ul>
-<li>W = F*d*cos($q) or W = F_x*d_x + F_y*d_y work defined  (e10a e11a e1a e1b
+<li>W = F*d*cos(&theta;) or W = F_x*d_x + F_y*d_y work defined  (e10a e11a e1a e1b
                                                             e1c e2a e2b e2c e3a
                                                             e8a e8b e9a e9b
                                                             elec3b elec4b
@@ -243,7 +243,7 @@
                                          elec3b elec4b elec5b elec6b for11b
                                          for11c pow1a pow1b pow2a pow4a pow4b
                                          pow5a we2a we3a we4a we5 we6) 
-<li>ME = KE + $S Ui mechanical energy defined  (dip1b e10a e11a e4a e4b e4bb
+<li>ME = KE + &Sigma Ui mechanical energy defined  (dip1b e10a e11a e4a e4b e4bb
                                                 e4c e5a e5aa e5b e6a e7a e7b
                                                 e8a e8b e9a e9b egrav1 erot2
                                                 erot3 erot4 lmom5 magdip4 pot7
@@ -267,7 +267,7 @@
                                             lmom5 lmom6 lmom7 pow1a pow1b pow2a
                                             pow4a pow4b pow5a we2a we3a we4a
                                             we5 we6 weq2 weq4) 
-<li>KE = 0.5*I*$w^2 rotational kinetic energy defined  (erot2 erot3 erot4) 
+<li>KE = 0.5*I*&omega;^2 rotational kinetic energy defined  (erot2 erot3 erot4) 
 <li>Ug = m*g*h gravitational potential energy  (e10a e4a e4b e4bb e4c e5a e5aa
                                                 e5b e6a e7a e7b e8a e8b e9a e9b
                                                 erot2 erot3 erot4 lmom5 pow2a
@@ -278,18 +278,18 @@
 <li>U = q*Vnet electric potential energy  (pot5 pot6 pot7 pot8) 
 <li>P(avg) = W/t average power defined  (pow1b pow4a pow4b pow5a) 
 <li>Pnet = Wnet/t average net power defined  (pow1a pow2a) 
-<li>P = F*v*cos($q) or P = F_x*v_x + F_y*v_y instantaneous power  (pow3a pow5b
+<li>P = F*v*cos(&theta;) or P = F_x*v_x + F_y*v_y instantaneous power  (pow3a pow5b
                                                                    pow5c pow5d
                                                                    pow6a) 
-<li>P = 4*$p*r^2*I relation of power and intensity (spherical emitter)  (emwave3a
+<li>P = 4*&pi;*r^2*I relation of power and intensity (spherical emitter)  (emwave3a
                                                                          wave15
                                                                          wave17
                                                                          wave18) 
 <li>P = I*A relation of power and intensity (uniform over surface)  (emwave4) 
 <li>Inet = I1 + I2 + ... net intensity defined  (wave16) 
-<li>$b = 10*log10(I/Iref) intensity & decibels  (wave15 wave16 wave17 wave18) 
-<li>I = Iref*10^($b/10) intensity & decibels  (wave15 wave16 wave17 wave18) 
-<li>I = S intensity & magnitude of the Poynting vector  nil 
+<li>&beta; = 10*log10(I/Iref) intensity &amp; decibels  (wave15 wave16 wave17 wave18) 
+<li>I = Iref*10^(&beta;/10) intensity &amp; decibels  (wave15 wave16 wave17 wave18) 
+<li>I = S intensity &amp; magnitude of the Poynting vector  nil 
 </ul>
 <li>Momentum and Impulse
 <ul>
@@ -331,7 +331,7 @@
 </ul>
 <li>Rotational
 <ul>
-<li>L_z = I*$w_z angular momentum defined  (momr1a momr1b momr2a momr2b momr3a
+<li>L_z = I*&omega;_z angular momentum defined  (momr1a momr1b momr2a momr2b momr3a
                                             momr4a) 
 <li>L1i_z + L2i_z + ... = L1f_z + L2f_z + ... conservation of angular momentum  (momr3a
                                                                                  momr4a) 
@@ -339,16 +339,16 @@
 </ul>
 <li>Fluids
 <ul>
-<li>P2 - P1 = $r*g*(h1-h2) pressure in fluid  (fluids1) 
-<li>0.5*$r*v1^2 + $r*g*h1 + P1 = 0.5*$r*v2^2 + $r*g*h2 + P2 Bernoulli equation  (fluids2
+<li>P2 - P1 = &rho;*g*(h1-h2) pressure in fluid  (fluids1) 
+<li>0.5*&rho;*v1^2 + &rho;*g*h1 + P1 = 0.5*&rho;*v2^2 + &rho;*g*h2 + P2 Bernoulli equation  (fluids2
                                                                                  fluids3
                                                                                  fluids5
                                                                                  fluids6) 
 <li>A1*v1 = A2*v2 equation of continuity  (fluids4 fluids5 fluids6) 
 <li>Fp = P*A pressure defined  (emwave5 fluids8 fluids9) 
-<li>$r = m/V mass density defined  (fluids11 fluids12 fluids13 fluids14
+<li>&rho; = m/V mass density defined  (fluids11 fluids12 fluids13 fluids14
                                     fluids15) 
-<li>Fb = $rf*V*g Archimedes principle (buoyant force)  (fluids11 fluids12
+<li>Fb = &rho;f*V*g Archimedes principle (buoyant force)  (fluids11 fluids12
                                                         fluids13 fluids14
                                                         fluids15) 
 </ul>
@@ -394,27 +394,27 @@
                                                                   for9a for9b
                                                                   gauss11 pot3a
                                                                   pot3b) 
-<li>$Fe = A*E*cos($qE - $qn) or $Fe = A*(E_x*n_x + E_y*n_y) electric flux (uniform field)  (gauss10
+<li>&Phi;e = A*E*cos(&theta;E - &theta;n) or &Phi;e = A*(E_x*n_x + E_y*n_y) electric flux (uniform field)  (gauss10
                                                                                             gauss3
                                                                                             gauss6
                                                                                             gauss8
                                                                                             gauss9) 
-<li>d$Fe/dt = E.n*dA/dt derivative of electric flux, uniform field  nil 
-<li>$F = $F1 + $F2 + ... adding fluxes  (gauss10 gauss9) 
+<li>d&Phi;e/dt = E.n*dA/dt derivative of electric flux, uniform field  nil 
+<li>&Phi; = &Phi;1 + &Phi;2 + ... adding fluxes  (gauss10 gauss9) 
 <li>V = kelec*q/r point charge potential  (pot1a pot1b pot2a pot2b pot2c pot3a
                                            pot3b pot4 pot5 pot6) 
 <li>Vnet = V1 + V2 + ... net potential  (pot2a pot2b pot2c pot3a pot3b pot4
                                          pot5 pot6) 
 <li>U = q*Vnet electric potential energy  (pot5 pot6 pot7 pot8) 
-<li>$Fe = Q/$e0 Gauss' law  (gauss10 gauss11 gauss5 gauss9) 
+<li>&Phi;e = Q/&epsilon;0 Gauss' law  (gauss10 gauss11 gauss5 gauss9) 
 <li>p = abs(q)*r electric dipole moment (magnitude)  (dip1a dip1b) 
 <li>p_x = q*r_x electric dipole moment (x component)  (dip1a dip1b) 
 <li>p_y = q*r_y electric dipole moment (y component)  (dip1a dip1b) 
-<li>$t = p*E*sin($q) torque for electric dipole (magnitude)  (dip1a) 
-<li>$t_z = p*E*sin($qE-$qp)) or $t_z = p_x*E_y - p_y*E_x torque for electric dipole (z component)  (dip1a) 
-<li>U = -p*E*cos($qp - $qE) or U = -(p_x*E_x + p_y*E_y) potential energy of electric dipole  (dip1a
+<li>&tau; = p*E*sin(&theta;) torque for electric dipole (magnitude)  (dip1a) 
+<li>&tau;_z = p*E*sin(&theta;E-&theta;p)) or &tau;_z = p_x*E_y - p_y*E_x torque for electric dipole (z component)  (dip1a) 
+<li>U = -p*E*cos(&theta;p - &theta;E) or U = -(p_x*E_x + p_y*E_y) potential energy of electric dipole  (dip1a
                                                                                               dip1b) 
-<li>F = abs(q)*v*B*sin($q) magnetic force (magnitude)  (mag1c mag1d mag1e mag2a
+<li>F = abs(q)*v*B*sin(&theta;) magnetic force (magnitude)  (mag1c mag1d mag1e mag2a
                                                         mag2b mag4a mag5a mag5b) 
 <li>F_x = q*(v_y*B_z - v_z*B_y) magnetic force (x component)  (mag1c mag1d
                                                                mag3a mag3b) 
@@ -423,37 +423,37 @@
                                                                mag2b mag3a
                                                                mag3b mag4a
                                                                mag5a mag5b) 
-<li>F_z = q*v*B*sin($qB-$qv) or F_z = q*(v_x*B_y - v_y*B_x) magnetic force (z component)  (mag1c
+<li>F_z = q*v*B*sin(&theta;B-&theta;v) or F_z = q*(v_x*B_y - v_y*B_x) magnetic force (z component)  (mag1c
                                                                                            mag1d
                                                                                            mag3a
                                                                                            mag3b) 
-<li>F = I*L*B*sin($q) magnetic force on a wire (magnitude)  (mag11 mag7) 
-<li>B = $m0*abs(q)*v*sin($q)/(4*$p*r^2) Biot-Savart law for a point charge (magnitude)  (mag9) 
-<li>B_x = $m0*q*(v_y*n_z - v_z*n_y)/(4*$p*r^2) Biot-Savart law for a point charge (x component)  nil 
-<li>B_y = $m0*q*(v_z*n_x - v_x*n_z)/(4*$p*r^2) Biot-Savart law for a point charge (y component)  nil 
-<li>B_z = $m0*q*v*sin($qn-$qv)/(4*$p*r^2) or B_z = $m0*q*(v_x*n_y - v_y*n_x)/(4*$p*r^2) Biot-Savart law for a point charge (z component)  (mag9) 
-<li>B = $m0*I/(2*$p*r) magnetic field of a straight wire  (mag10 mag12 mag6a
+<li>F = I*L*B*sin(&theta;) magnetic force on a wire (magnitude)  (mag11 mag7) 
+<li>B = &mu;0*abs(q)*v*sin(&theta;)/(4*&pi;*r^2) Biot-Savart law for a point charge (magnitude)  (mag9) 
+<li>B_x = &mu;0*q*(v_y*n_z - v_z*n_y)/(4*&pi;*r^2) Biot-Savart law for a point charge (x component)  nil 
+<li>B_y = &mu;0*q*(v_z*n_x - v_x*n_z)/(4*&pi;*r^2) Biot-Savart law for a point charge (y component)  nil 
+<li>B_z = &mu;0*q*v*sin(&theta;n-&theta;v)/(4*&pi;*r^2) or B_z = &mu;0*q*(v_x*n_y - v_y*n_x)/(4*&pi;*r^2) Biot-Savart law for a point charge (z component)  (mag9) 
+<li>B = &mu;0*I/(2*&pi;*r) magnetic field of a straight wire  (mag10 mag12 mag6a
                                                            mag7) 
-<li>B = $m0*N*I/(2*r) magnetic field at center of a thin coil  (mag12 mag8b) 
-<li>B = $m0*n*I magnetic field inside a long solenoid  (ind3a mag8a) 
+<li>B = &mu;0*N*I/(2*r) magnetic field at center of a thin coil  (mag12 mag8b) 
+<li>B = &mu;0*n*I magnetic field inside a long solenoid  (ind3a mag8a) 
 <li>Bnet_x = B1_x + B2_x + ... net magnetic field (x component)  nil 
 <li>Bnet_y = B1_y + B2_y + ... net magnetic field (y component)  nil 
 <li>Bnet_z = B1_z + B2_z + ... net magnetic field (z component)  (mag10 mag12) 
-<li>$Fb = A*B*cos($qB - $qn) or $Fb = A*(B_x*n_x + B_y*n_y) magnetic flux (constant field)  (fara11a
+<li>&Phi;b = A*B*cos(&theta;B - &theta;n) or &Phi;b = A*(B_x*n_x + B_y*n_y) magnetic flux (constant field)  (fara11a
                                                                                              fara11b) 
-<li>d$Fb/dt = B.n*dA/dt rate of change in magnetic flux (constant field)  (fara9) 
-<li>V = -N*d$Fb/dt Faraday's law  (fara11a fara11b fara9) 
-<li>int B = $m0*(±I1 ± I2 ± ...) Ampère's law  (amp1) 
-<li>$m = N*I*A magnetic dipole moment (magnitude)  (magdip1 magdip2 magdip3) 
-<li>$m_x = N*I*A*n_x magnetic dipole moment (x component)  (magdip2) 
-<li>$m_y = N*I*A*n_y magnetic dipole moment (y component)  (magdip2) 
-<li>$m_z = N*I*A*n_z magnetic dipole moment (z component)  (magdip1 magdip3) 
-<li>$t = $m*B*sin($q) torque for magnetic dipole (magnitude)  (magdip1 magdip2
+<li>d&Phi;b/dt = B.n*dA/dt rate of change in magnetic flux (constant field)  (fara9) 
+<li>V = -N*d&Phi;b/dt Faraday's law  (fara11a fara11b fara9) 
+<li>int B = &mu;0*(±I1 ± I2 ± ...) Ampère's law  (amp1) 
+<li>&mu; = N*I*A magnetic dipole moment (magnitude)  (magdip1 magdip2 magdip3) 
+<li>&mu;_x = N*I*A*n_x magnetic dipole moment (x component)  (magdip2) 
+<li>&mu;_y = N*I*A*n_y magnetic dipole moment (y component)  (magdip2) 
+<li>&mu;_z = N*I*A*n_z magnetic dipole moment (z component)  (magdip1 magdip3) 
+<li>&tau; = &mu;*B*sin(&theta;) torque for magnetic dipole (magnitude)  (magdip1 magdip2
                                                                magdip3) 
-<li>$t_x = $m_y*B_z - $m_z*B_y torque for magnetic dipole (x component)  nil 
-<li>$t_y = $m_z*B_x - $m_x*B_z torque for magnetic dipole (y component)  nil 
-<li>$t_z = $m*B*sin($qB-$q$m)) or $t_z = $m_x*B_y - $m_y*B_x torque for magnetic dipole (z component)  (magdip2) 
-<li>U = -$m*B*cos($q$m - $qB) or U = -($m_x*B_x + $m_y*B_y) potential energy of magnetic dipole  (magdip4) 
+<li>&tau;_x = &mu;_y*B_z - &mu;_z*B_y torque for magnetic dipole (x component)  nil 
+<li>&tau;_y = &mu;_z*B_x - &mu;_x*B_z torque for magnetic dipole (y component)  nil 
+<li>&tau;_z = &mu;*B*sin(&theta;B-&theta;&mu;)) or &tau;_z = &mu;_x*B_y - &mu;_y*B_x torque for magnetic dipole (z component)  (magdip2) 
+<li>U = -&mu;*B*cos(&theta;&mu; - &theta;B) or U = -(&mu;_x*B_x + &mu;_y*B_y) potential energy of magnetic dipole  (magdip4) 
 <li>E = B*c ratio of fields in electromagnetic wave  (emwave1) 
 </ul>
 <li>Circuits
@@ -505,9 +505,9 @@
 <li>Qin = Qout capacitor junction rule  (cap3a cap4a) 
 <li>U = 0.5*C*V^2 energy stored in a capacitor  (cap1a cap2a cap3a cap6a cap6b
                                                  lc1a lrc1a rc8 rc9) 
-<li>$t = R*C RC time constant  (rc1a rc1b rc1c rc2a rc3a rc3b rc4a rc4b rc5a
+<li>&tau; = R*C RC time constant  (rc1a rc1b rc1c rc2a rc3a rc3b rc4a rc4b rc5a
                                 rc6a rc7a rc7b rc8 rc9) 
-<li>q = C*Vb*(1 - exp(-t/$t)) charge on capacitor in RC circuit with battery  (rc1a
+<li>q = C*Vb*(1 - exp(-t/&tau;)) charge on capacitor in RC circuit with battery  (rc1a
                                                                                rc1b
                                                                                rc1c
                                                                                rc2a
@@ -515,9 +515,9 @@
                                                                                rc3b
                                                                                rc8
                                                                                rc9) 
-<li>q = qi*exp(-t/$t) charge on capacitor in RC circuit  (rc4a rc4b rc5a rc6a
+<li>q = qi*exp(-t/&tau;) charge on capacitor in RC circuit  (rc4a rc4b rc5a rc6a
                                                           rc7a rc7b) 
-<li>I = (Vb/R)*exp(-t/$t) current in RC circuit  (rc1c rc3b rc8 rc9) 
+<li>I = (Vb/R)*exp(-t/&tau;) current in RC circuit  (rc1c rc3b rc8 rc9) 
 <li>q = fraction*C*Vb RC charge as fraction of max  (rc3a rc3b rc9) 
 </ul>
 <li>Inductance
@@ -525,15 +525,15 @@
 <li>V = -L*dIdt inductor EMF  (ind1a ind1b ind1c ind4 lc1a lr3a lr3b lrc1a) 
 <li>V2 = -M12*dI1dt mutual inductor EMF  (ind3c) 
 <li>U = 0.5*L*I^2 energy stored in inductor  (ind2a ind3b lc1a lr1c lr3a lrc1a) 
-<li>L = $m0*N^2*A/l self-inductance of long, uniform solenoid  (ind3a ind3b) 
-<li>$t = L/R LR time constant  (lr1a lr1b lr1c lr1d lr2a lr2b lr3b) 
-<li>I = Imax*(1 - exp(-t/$t)) LR current growth  (lr1a lr1b lr1c lr1d) 
+<li>L = &mu;0*N^2*A/l self-inductance of long, uniform solenoid  (ind3a ind3b) 
+<li>&tau; = L/R LR time constant  (lr1a lr1b lr1c lr1d lr2a lr2b lr3b) 
+<li>I = Imax*(1 - exp(-t/&tau;)) LR current growth  (lr1a lr1b lr1c lr1d) 
 <li>Imax = Vb/R LR growth final current  (lr1a) 
-<li>I = I0*exp(-t/$t) LR current decay  (lr2a lr2b lr3b) 
+<li>I = I0*exp(-t/&tau;) LR current decay  (lr2a lr2b lr3b) 
 <li>I0 = Vb/R LR circuit initial current  (lr2a lr3b) 
-<li>$w = 1/sqrt(L*C) LC angular frequency  (lc2a lc2b) 
-<li>$t = 2*L/R RLC time constant  (lrc2a) 
-<li>$w = sqrt(1/(L*C)-R^2/(2*L)^2) RLC angular frequency  (lrc2a) 
+<li>&omega; = 1/sqrt(L*C) LC angular frequency  (lc2a lc2b) 
+<li>&tau; = 2*L/R RLC time constant  (lrc2a) 
+<li>&omega; = sqrt(1/(L*C)-R^2/(2*L)^2) RLC angular frequency  (lrc2a) 
 <li>V1/N1 = V2/N2 transformer voltage relation  (fara10a) 
 <li>P1 = P2 transformer power relation  (fara10b) 
 </ul>
@@ -552,37 +552,37 @@
 <li>1/f12 = 1/f1 + 1/f2 compound lens (touching lenses)  (lens5a lens5b) 
 <li>n = c/v index of refraction  (ref1 ref2a ref2b) 
 <li>n=1 index of refraction of vacuum  nil 
-<li>n1*sin($q1) = n2*sin($q2) Snell's law  (ref2a ref2b ref2c ref3a ref4a ref4b
+<li>n1*sin(&theta;1) = n2*sin(&theta;2) Snell's law  (ref2a ref2b ref2c ref3a ref4a ref4b
                                             ref6) 
-<li>n1*sin($q1) = n2 total internal reflection (minimum angle)  (ref3a ref3b
+<li>n1*sin(&theta;1) = n2 total internal reflection (minimum angle)  (ref3a ref3b
                                                                  ref6) 
-<li>n1*tan($q1) = n2 Brewster's law  (ref4a ref4b) 
-<li>If = Ii*cos($q)^2 Malus' law  (ref5a ref5b) 
+<li>n1*tan(&theta;1) = n2 Brewster's law  (ref4a ref4b) 
+<li>If = Ii*cos(&theta;)^2 Malus' law  (ref5a ref5b) 
 <li>If = 0.5*Ii polarizer and unpolarized light  (ref5a) 
-<li>d*sin($q) = n*$l interference for parallel slits  (int1a int1b int1c) 
-<li>w*sin($q) = n*$l single slit diffraction (minima)  (int2a) 
-<li>$q = 1.22*$l/d resolution (circular)  (int2b) 
+<li>d*sin(&theta;) = n*&lambda; interference for parallel slits  (int1a int1b int1c) 
+<li>w*sin(&theta;) = n*&lambda; single slit diffraction (minima)  (int2a) 
+<li>&theta; = 1.22*&lambda;/d resolution (circular)  (int2b) 
 <li>Fp = 2*I/c radiation pressure (reflector)  (emwave5) 
 </ul>
 <li>Waves and Oscillations
 <ul>
-<li>k = 2*$p/$l wavenumber  (wave1 wave13 wave2 wave24 wave3 wave9) 
-<li>f = $w/(2*$p) frequency  (kr8 kr9 lc2a lc2b lrc2a osc1 wave1 wave13 wave2
+<li>k = 2*&pi;/&lambda; wavenumber  (wave1 wave13 wave2 wave24 wave3 wave9) 
+<li>f = &omega;/(2*&pi;) frequency  (kr8 kr9 lc2a lc2b lrc2a osc1 wave1 wave13 wave2
                               wave24 wave3 wave9) 
 <li>T = 1/f period of oscillation  (kr8 kr9 osc1 osc4 osc5 osc6 wave24) 
-<li>vw = $l*f or vw = $w/k speed of a wave  (ref1 wave1 wave13 wave2 wave24
+<li>vw = &lambda;*f or vw = &omega;/k speed of a wave  (ref1 wave1 wave13 wave2 wave24
                                              wave3 wave5 wave6 wave8 wave9) 
 <li>vp = vw speed of pulse is wave speed  (wave19 wave4) 
-<li>vw = sqrt(Ft/$m) speed of waves on a string  (wave4 wave8) 
-<li>vmax = A*$w maximum speed of oscillation  (osc2) 
-<li>amax = A*$w^2 maximum acceleration of oscillation  (osc2) 
-<li>T = 2*$p*sqrt(m/k) period of spring-mass system  (osc3 osc4 osc5) 
-<li>T = 2*$p*sqrt(l/g) period of simple pendulum  (osc6 osc7 osc8) 
+<li>vw = sqrt(Ft/&mu;) speed of waves on a string  (wave4 wave8) 
+<li>vmax = A*&omega; maximum speed of oscillation  (osc2) 
+<li>amax = A*&omega;^2 maximum acceleration of oscillation  (osc2) 
+<li>T = 2*&pi;*sqrt(m/k) period of spring-mass system  (osc3 osc4 osc5) 
+<li>T = 2*&pi;*sqrt(l/g) period of simple pendulum  (osc6 osc7 osc8) 
 <li>fo=fs*(vw±vo)/(vw±vs) frequency shift from doppler effect  (wave10 wave11
                                                                 wave12 wave14) 
-<li>fn = n*f1 or $ln = $l1/n n-th harmonic  (wave5 wave6) 
+<li>fn = n*f1 or &lambda;n = &lambda;1/n n-th harmonic  (wave5 wave6) 
 <li>fbeat = abs(f1-f2)/2 beat frequency  (wave13 wave14) 
-<li>E = Ei*exp(-2*t/$t) energy decay  (lrc2a) 
+<li>E = Ei*exp(-2*t/&tau;) energy decay  (lrc2a) 
 <li>vw = c speed of light  (ref1 ref2a ref2b wave1 wave19) 
 </ul>
 </ul>
@@ -629,12 +629,12 @@
                                  rots6a rots6b rots6c rots7a s10a s11a s11b
                                  s12a s1b s1c s1d s1e s2a s2b s2c s2d s2e s3a
                                  s3b s3c s4b s5a s6a s9a we1a we3a we4a we5 we6) 
-<li>T = 2*$p*r/v period of uniform circular motion  (kr9 rots8a) 
+<li>T = 2*&pi;*r/v period of uniform circular motion  (kr9 rots8a) 
 </ul>
 <li>Rotational
 <ul>
-<li>$w(avg) = $q/t average angular velocity  (kr1a kr1b kr1c kr4b) 
-<li>$wf = $wi + $a(avg)*t average anglular acceleration  (kr10 kr2a kr2b kr3a
+<li>&omega;(avg) = &theta;/t average angular velocity  (kr1a kr1b kr1c kr4b) 
+<li>&omega;f = &omega;i + &alpha;(avg)*t average anglular acceleration  (kr10 kr2a kr2b kr3a
                                                           kr3b kr3c kr4a kr4b
                                                           kr5a) 
 </ul>
@@ -655,8 +655,8 @@
                           rots7a s10a s11a s11b s12a s13 s1a s1b s1c s1d s1e
                           s1f s2a s2b s2c s2d s2e s3a s3b s3c s4b s5a s6a s9a
                           we1a we3a we6) 
-<li>Ff = $mk*Fn kinetic friction  (dt6c we6) 
-<li>Ff = $ms*Fn static friction (at max)  (s12a s8a) 
+<li>Ff = &mu;k*Fn kinetic friction  (dt6c we6) 
+<li>Ff = &mu;s*Fn static friction (at max)  (s12a s8a) 
 <li>F = k*d Hooke's law  (osc5 s11a s11b) 
 <li>Ft1 = Ft2 equal tensions at both ends  (dt6a dt6b dt6c s7a s7b s8a s9a) 
 <li>F = v*abs(dmdt) thrust force (magnitudes)  (roc1 roc2 roc3 roc4 roc6) 
@@ -677,9 +677,9 @@
 </ul>
 <li>Rotational
 <ul>
-<li>$tnet_z = $t1_z + $t2_z + ... net torque defined  (dr2a dr2b dr3a dr4a dr5a
+<li>&tau;net_z = &tau;1_z + &tau;2_z + ... net torque defined  (dr2a dr2b dr3a dr4a dr5a
                                                        dr6a dr6b dr7a dr8a) 
-<li>$t_z = r*F*sin($qF-$qr)) or $t_z = r_x*F_y - r_y*F_x torque defined (z component)  (dr2a
+<li>&tau;_z = r*F*sin(&theta;F-&theta;r)) or &tau;_z = r_x*F_y - r_y*F_x torque defined (z component)  (dr2a
                                                                                         dr2b
                                                                                         dr3a
                                                                                         dr4a
@@ -690,7 +690,7 @@
                                                                                         dr8a
                                                                                         s13
                                                                                         s14) 
-<li>$t = r*F*sin($q) torque defined (magnitude)  (dr2a dr2b dr3a dr4a dr5a dr6a
+<li>&tau; = r*F*sin(&theta;) torque defined (magnitude)  (dr2a dr2b dr3a dr4a dr5a dr6a
                                                   dr6b dr7a dr8a s13 s14) 
 <li>Moment of Inertia
 <ul>
@@ -709,7 +709,7 @@
                                                          e9b egrav1 pow1b pow2a
                                                          pow4a pow4b pow5a we2a
                                                          we3a we4a we5) 
-<li>ME = KE + $S Ui mechanical energy defined  (dip1b e10a e11a e4a e4b e4bb
+<li>ME = KE + &Sigma Ui mechanical energy defined  (dip1b e10a e11a e4a e4b e4bb
                                                 e4c e5a e5aa e5b e6a e7a e7b
                                                 e8a e8b e9a e9b egrav1 erot2
                                                 erot3 erot4 lmom5 magdip4 pot7
@@ -730,7 +730,7 @@
 <ul>
 <li>Displacement
 <ul>
-<li>d_x = d*cos($qd - $qx) on x-axis  (dt1b dt3c dt5a dt9b e10a e11a e1a e1b
+<li>d_x = d*cos(&theta;d - &theta;x) on x-axis  (dt1b dt3c dt5a dt9b e10a e11a e1a e1b
                                        e1c e2a e2b e2c e3a e8a e8b e9a e9b
                                        elec3b elec4b elec5b elec6b for11b
                                        for11c kgraph10 kgraph16 kgraph17 kt12a
@@ -739,7 +739,7 @@
                                        vec3c vec4a vec4b vec4c vec4d vec5a
                                        vec5b vec5c vec5d vec7a we1a we2a we4a
                                        we5 we6) 
-<li>d_y = d*sin($qd - $qy) on y-axis  (dt1c dt5a dt6a dt9b e10a e11a e1a e1b
+<li>d_y = d*sin(&theta;d - &theta;y) on y-axis  (dt1c dt5a dt6a dt9b e10a e11a e1a e1b
                                        e1c e2a e2b e2c e3a e7a e7b e8a e8b e9a
                                        e9b elec3b elec4b elec5b elec6b erot3
                                        erot4 for11b for11c kt10a kt10c kt11b
@@ -751,7 +751,7 @@
 </ul>
 <li>Velocity
 <ul>
-<li>v_x = v*cos($qv - $qx) on x-axis  (dt1a dt1b dt3a dt3b dt3c dt5a dt9b
+<li>v_x = v*cos(&theta;v - &theta;x) on x-axis  (dt1a dt1b dt3a dt3b dt3c dt5a dt9b
                                        elec4b elec5b for11a for11b for11c imp1
                                        imp2 imp3a kgraph16 kgraph17 kgraph18
                                        kgraph19 kgraph20 kgraph21 kt11b kt12a
@@ -762,7 +762,7 @@
                                        mag1e mag2a mag2b mag4a mag5a mag5b mag9
                                        pow3a pow5a pow5b pow5c pow5d pow6a
                                        vec1b vec1e vec2a vec8a vec8b vec8c we6) 
-<li>v_y = v*sin($qv - $qy) on y-axis  (dt1c dt4a dt4b dt5a dt6a dt9b elec3b
+<li>v_y = v*sin(&theta;v - &theta;y) on y-axis  (dt1c dt4a dt4b dt5a dt6a dt9b elec3b
                                        elec6b for11a imp3a kt10a kt10c kt11a
                                        kt11b kt12a kt12b kt12c kt13a kt13b
                                        kt13c kt14a kt14b kt4a kt4b kt4c kt5a
@@ -773,12 +773,12 @@
 </ul>
 <li>Acceleration
 <ul>
-<li>a_x = a*cos($qa - $qx) on x-axis  nil 
-<li>a_y = a*sin($qa - $qy) on y-axis  nil 
+<li>a_x = a*cos(&theta;a - &theta;x) on x-axis  nil 
+<li>a_y = a*sin(&theta;a - &theta;y) on y-axis  nil 
 </ul>
 <li>Force
 <ul>
-<li>F_x = F*cos($qF - $qx) on x-axis  (coul1a coul1b coul1c coul2c dr2a dr2b
+<li>F_x = F*cos(&theta;F - &theta;x) on x-axis  (coul1a coul1b coul1c coul2c dr2a dr2b
                                        dr3a dr4a dr5a dr6a dr6b dr7a dr8a dt10a
                                        dt11a dt11b dt13a dt13b dt2a dt3a dt3b
                                        dt3c dt5a dt6a dt6b dt6c dt7a dt7b dt9a
@@ -792,7 +792,7 @@
                                        s13 s14 s2b s2c s2e s3a s3b s3c s4a s4b
                                        s5a s6a s7a s7b s8a s9a vec1c vec2b we1a
                                        we2a we3a we4a we5 we6) 
-<li>F_y = F*sin($qF - $qy) on y-axis  (coul1b dr2a dr2b dr3a dr4a dr5a dr6a
+<li>F_y = F*sin(&theta;F - &theta;y) on y-axis  (coul1b dr2a dr2b dr3a dr4a dr5a dr6a
                                        dr6b dr7a dr8a dt10a dt11a dt11b dt12a
                                        dt13b dt14a dt14b dt17 dt19 dt2a dt4a
                                        dt4b dt5a dt6a dt6b dt6c dt7a dt7b dt8a
@@ -815,14 +815,14 @@
 </ul>
 <li>Relative Position
 <ul>
-<li>r_x = r*cos($qr - $qx) on x-axis  (cm1 cm2 cm3 coul1a coul1b coul1c coul2a
+<li>r_x = r*cos(&theta;r - &theta;x) on x-axis  (cm1 cm2 cm3 coul1a coul1b coul1c coul2a
                                        coul2b coul2c coul3 dip1a dip1b dr2a
                                        dr2b dr3a dr4a dr5a dr6a dr6b dr7a dr8a
                                        for10a for10b for7a for7b for8a for8b
                                        for9a for9b kgraph18 kgraph19 kgraph21
                                        kt12c pot1a pot1b pot2a pot2b pot2c
                                        pot3a pot3b pot4 pot5 pot6 s13 s14) 
-<li>r_y = r*sin($qr - $qy) on y-axis  (cm1 cm2 coul1a coul1b coul2a coul2b
+<li>r_y = r*sin(&theta;r - &theta;y) on y-axis  (cm1 cm2 coul1a coul1b coul2a coul2b
                                        dip1a dip1b dr2a dr2b dr3a dr4a dr5a
                                        dr6a dr6b dr7a dr8a for10a for10b for7a
                                        for7b for8a for8b for9a for9b gauss11
@@ -831,10 +831,10 @@
 </ul>
 <li>Momentum
 <ul>
-<li>p_x = p*cos($qp - $qx) on x-axis  (imp2 imp3a imp3b imp3c lmom1a lmom1b
+<li>p_x = p*cos(&theta;p - &theta;x) on x-axis  (imp2 imp3a imp3b imp3c lmom1a lmom1b
                                        lmom2a lmom2b lmom3a lmom4a lmom5 lmom7
                                        pow5b pow5c pow5d) 
-<li>p_y = p*sin($qp - $qy) on y-axis  (imp3a imp3b imp3c lmom2b lmom3a lmom4a
+<li>p_y = p*sin(&theta;p - &theta;y) on y-axis  (imp3a imp3b imp3c lmom2b lmom3a lmom4a
                                        lmom6 lmom7 pow5b pow5c pow5d) 
 </ul>
 </ul>
@@ -845,7 +845,7 @@
                                          lens5a lens5b lmom2b lmom3a mag10
                                          mag12 osc8 pow6a rc8 ref4a ref4b roc5
                                          rots3a rots8a rots8b wave4 wave8) 
-<li>$q12 = $q2 - $q1 or 180-($q2-$q1) angle between  (dip1a dip1b dr2a dr2b
+<li>&theta;12 = &theta;2 - &theta;1 or 180-(&theta;2-&theta;1) angle between  (dip1a dip1b dr2a dr2b
                                                       dr3a dr4a dr5a dr6a dr6b
                                                       dr7a dr8a e10a e11a e1a
                                                       e1b e1c e2a e2b e2c e3a
@@ -864,7 +864,7 @@
                                                       ref3b ref4a ref4b ref5a
                                                       ref5b ref6 s13 s14 we1a
                                                       we2a we4a we5 we6) 
-<li>|d| = s distance & displacement  (kt4b kt4c kt7b) 
+<li>|d| = s distance &amp; displacement  (kt4b kt4c kt7b) 
 <li>Icomp = Ibranch current in branch  (kir1a kir1b kir7a rc1c rc3b) 
 <li>nf = (count forces) number of forces  nil 
 <li>val1 = fraction*val2 fraction of  (emwave4 kr9 kt14a kt14b kt2b lmom5 lr1b
@@ -881,9 +881,9 @@
                                   gauss8 gauss9 mag9 magdip1 magdip2 magdip3) 
 <li>a1 = a2 connected accelerations  (dt6a dt6b dt6c) 
 <li>v1 = v2 connected velocities  (kr6a) 
-<li>$q1 + $q2 = 90 deg complimentary angles  (ref3a ref6) 
-<li>$q1 + $q2 = 180 deg supplementary angles  nil 
-<li>tan($q) = opposite/adjacent tangent for right triangle  (int1a int2a) 
+<li>&theta;1 + &theta;2 = 90 deg complimentary angles  (ref3a ref6) 
+<li>&theta;1 + &theta;2 = 180 deg supplementary angles  nil 
+<li>tan(&theta;) = opposite/adjacent tangent for right triangle  (int1a int2a) 
 <li>Ft1 = Ft2 equal tensions at both ends  (dt6a dt6b dt6c s7a s7b s8a s9a) 
 <li>A = sqrt(A_x^2 + A_y^2) vector magnitude  (coul1b coul2a coul2b dip1a dip1b
                                                dt10a dt11b dt5a dt6a for10a
@@ -898,11 +898,11 @@
 <li>r21_y = y2 - y1 relative position from coordinates  nil 
 <li>A = w*l area of rectangle  (gauss3 gauss9 magdip1 magdip3) 
 <li>dA/dt = w*dl/dt derivative of area of rectangle (constant width)  (fara9) 
-<li>A = $p*r^2 area of circle  (fluids8 fluids9 gauss6 gauss8 ind3b magdip2) 
-<li>c = 2*$p*r circumference of circle  (ind3b kt14a kt14b) 
-<li>c = $p*d circumference of circle  (ind3b kt14a) 
+<li>A = &pi;*r^2 area of circle  (fluids8 fluids9 gauss6 gauss8 ind3b magdip2) 
+<li>c = 2*&pi;*r circumference of circle  (ind3b kt14a kt14b) 
+<li>c = &pi;*d circumference of circle  (ind3b kt14a) 
 <li>V = A*l volume of a cylinder  nil 
-<li>$l = m/L mass per unit length  (mag11 wave4 wave8) 
+<li>&lambda; = m/L mass per unit length  (mag11 wave4 wave8) 
 <li>n = N/l turns per unit length  (ind3a mag8a) 
 <li>dy/dt_avg = (y2-y1)/(t2-t1) average rate of change  (fara11a fara11b ind1a
                                                          ind1b ind1c) 
