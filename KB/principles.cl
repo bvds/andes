@@ -487,7 +487,7 @@
 	 (dolist (pp (cddr p)) (principle-branch-print-html str pp))
 	 (format str "</ul>~%")
 	((eq (car p) 'leaf)
-	 (apply #'principle-leaf-print-html (cons str (cdr p))))))
+	 (apply #'principle-leaf-print-html (cons str (cdr p)))))))
 
 ;; keywords :short-name and :EqnFormat override definitions in Ontology
 (defun principle-leaf-print-html (str class &key tutorial (bindings no-bindings)
@@ -502,4 +502,4 @@
 	      ;; if bindings have been supplied, construct list
 	      ;; turn off pretty-print to prevent line breaks
 	      (write-to-string (list (psmclass-name pc) bindings) :pretty nil))
-	    )))
+	    ))))

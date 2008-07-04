@@ -452,7 +452,10 @@
 
 (defun listprobs () 
   "list of problems in alphabetical problem name order"
-  (mapcar #'get-problem (sort (hash-keys *problem-registry*) #'string<)))
+  (let ((values))
+    (maphash #'(lambda (key value) (declare (ignore key))
+		       (push value values)) *Problem-Registry*)
+    (sort values #'string< :key #'problem-name)))
 
 (defun working-problem-p (problem)
   "Test if problem is tagged as working"
