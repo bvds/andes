@@ -448,9 +448,8 @@
 ;;;   expression to fix the special characters
 ;;;   perl -pi.orig -e 's/&/&amp;/g; s/\$w/&omega;/g; s/\$p/&pi;/g; s/\$S/&Sigma/g; s/\$q/&theta;/g; s/\$l/&lambda;/g; s/\$a/&alpha;/g; s/\$r/&rho;/g; s/\$F/&Phi;/g; s/\$e/&epsilon;/g; s/\$m/&mu;/g; s/\$t/&tau;/g; s/\$b/&beta;/g;' principles.html
 
-;;; working on getting a list of homework sets into lisp.
-;;;  Problaby should be done as a file.
-;;; perl -w -n -e 'when(m/\"(.*?\.aps)\">(.*?)</){open(X,$1);my @x=<X>;close(x); print "$2 @x\n";' Problems/index.html
+;;; Get a list of homework sets into lisp.
+;;; cd Problems; perl -w -n -e 'if(m/"(.*?\.aps)">(.*?)</){open F,"< $1" or next;my @y=<F>;close F;shift @y;shift @y;chomp(@y);print "($2 (@y))\n";}' index.html
 
 (defun principles-html-file ()
   "construct file Documentation/principles.html"
