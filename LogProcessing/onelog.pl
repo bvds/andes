@@ -372,7 +372,7 @@ if (0) {
 # printout histogram of pauses
 # This is not affected by any of the cutoffs
 
-if (1) {
+if (0) {
     print "pausehistogram={";
     my $sep="";
     foreach $delay (sort {$a <=> $b} (keys %dt_histogram)) {
@@ -554,12 +554,38 @@ if (0) {
 		$scores{$student}{$problem} > $score_cut_off) {
                 # could print out times, scores, and correct entries
 		0 && print ",$times{$student}{$problem}";
-		1 && print ",$correct_entries{$student}{$problem}";
+		1 && print ",$scores{$student}{$problem}";
+		0 && print ",$correct_entries{$student}{$problem}";
 	    } else {
 		print ",";
 	    } 
 	}
 	print "\n";
+    }
+}
+
+# print out median time to solve and median score for each problem
+# trying to output to spreadsheet did not work because there were too
+# many columns.
+
+if (1) {
+    foreach $problem (sort keys %problems) {
+      my @timelist=();
+      my @scorelist=();
+      foreach $student (sort keys %times) {
+	if ($times{$student}{$problem} and 
+	    $scores{$student}{$problem} > $score_cut_off) {
+	  push @timelist, $times{$student}{$problem};
+	  push @scorelist, $scores{$student}{$problem};
+	}
+      }
+      @timelist = sort { $a <=> $b } @timelist;
+      @scorelist = sort { $a <=> $b } @scorelist;
+      my $mediantime=($timelist[int(@timelist/2)]+
+		      $timelist[int((@timelist-1)/2)])/2;
+      my $medianscore=($scorelist[int(@scorelist/2)]+
+		       $scorelist[int((@scorelist-1)/2)])/2;
+      print "($problem $mediantime $medianscore)\n";
     }
 }
 
