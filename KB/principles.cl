@@ -1211,3 +1211,94 @@
 		    "  ]~%"
 		    "}~%"))
     (when (streamp stream) (close stream))))
+
+(setf jsonc 0)
+
+(defun principles-json-file ()
+  "construct file Documentation/principles.json"
+  (let ((Stream  (open 
+		 (merge-pathnames  "Documentation/principles.json" *Andes-Path*)
+		   :direction :output :if-exists :supersede)))
+  (andes-init)
+  (setf jsonc 0)
+  ;;  Assume stream has UTF-8 encoding (default for sbcl)
+  ;;  Should test this is actually true or change the charset to match
+  ;;  the actual character code being used by the stream
+  ;;  something like:
+  (when (streamp Stream) 
+    #+sbcl (unless (eq (stream-external-format Stream) ':utf-8)
+	     (error "Wrong character code ~A, should be UTF-8" 
+		    (stream-external-format Stream))))
+    (format Stream 
+	    (strcat "{~%"
+		    "  identifier: 'id',~%"
+		    "  label: 'label',~%"
+		    "  items: [~%"
+		    ))
+
+    (dolist (p *principle-tree*) (principle-branch-print-json stream p)
+	    (format stream "~@[,~]~%" 
+		    (not (eq p (car (last *principle-tree*))))))
+
+    (format Stream (strcat
+		    "  ]~%"
+		    "}~%"))
+    (when (streamp stream) (close stream))))
+
+(defun principle-branch-print-json (stream p)
+  "prints a group in Documentation/principles.json"
+  (cond ((eq (car p) 'group)
+	(format stream "  {id: \"~A~A\", label: \"~A\", items: [~%" 
+		(cadr p) (setf jsonc (+ jsonc 1)) (cadr p))
+	 (dolist (pp (cddr p)) 
+	   (principle-branch-print-json stream pp)
+		 (format stream "~@[,~]~%" (not (eq pp (car (last (cddr p)))))))
+	 (format stream "  ]}"))
+	((eq (car p) 'leaf)
+	(apply #'principle-leaf-print-json (cons stream (cdr p)))
+	 (setf ccc (+ ccc 1))
+)))
+
+;; keywords :short-name and :EqnFormat override definitions in Ontology
+(defun principle-leaf-print-json (stream class &key tutorial (bindings no-bindings)
+				  EqnFormat short-name) 
+  (format t "print leaf ~A~%" class)
+  (let ((cont nil) 
+	(pc (lookup-psmclass-name class)))
+ 	(format stream "    {id: '~A~A', label: \"~A    ~A\", items: [~%" 
+		(subst-bindings bindings (psmclass-name pc))
+		(setf jsonc (+ jsonc 1))
+		(eval-print-spec (or EqnFormat (psmclass-EqnFormat pc)) bindings)
+	    (eval-print-spec (or short-name (psmclass-short-name pc)) bindings))
+    (dolist (set *sets*)
+      (let ((probs (remove-if-not
+		    #'(lambda (Prob)
+			(when Prob 
+			  (unless (problem-graph Prob)
+			    (read-problem-info (string (problem-name prob)))
+			    (when *cp* (setf (problem-graph Prob) 
+					     (problem-graph *cp*))))
+			  (some #'(lambda (enode)
+				    (unify (psmclass-form pc)
+					   (enode-id enode) bindings)) 
+				(second (problem-graph Prob)))))
+		    (mapcar #'get-problem (second set)))))
+	(when probs 
+	  (when cont (format stream ",~%"))
+	  (setf cont t)
+	  (format stream "      {id: '~A~A', label: '~A', items: [~%" 
+		  (car set) (setf jsonc (+ jsonc 1)) (car set))
+	  (dolist (prob probs)
+	    (format stream "        {id: '~A~A', label: \"~A: ~@[~,1Fm~] ~@[~A%~]\"}~@[,~]~%"
+;; , statement: [~{~S~^, ~}]
+;;"   {id: '~A', time: '~A', score: '~a', statement: \"~{~A<br>~}\"}~@[,~]~%"
+		    (problem-name prob) (setf jsonc (+ jsonc 1))
+		    (problem-name prob)
+		    (when (find (problem-name prob) *times-scores* :key #'car)
+		      (/ (second (find (problem-name prob) *times-scores* 
+				       :key #'car)) 60))
+		    (third (find (problem-name prob) *times-scores* :key #'car))
+		 ;   (problem-statement prob)
+		    (not (eq prob (car (last probs))))))
+	  (format stream "      ]}"))))
+    (format stream "    ]}")))

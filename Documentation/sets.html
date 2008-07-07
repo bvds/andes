@@ -1,6 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
+<title>Andes problem chooser</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <style type="text/css">
         @import "http://o.aolcdn.com/dojo/1.0.0/dijit/themes/tundra/tundra.css";
@@ -17,6 +18,19 @@
 <body class="tundra">
         <div dojoType="dojo.data.ItemFileWriteStore"
              url="sets.json" jsId="setStore" />
-        <div dojoType="dijit.Tree" store="setStore" labelAttr="identifier" label="Homework Sets" childrenAttr="items"></div>
+        <div dojoType="dojo.data.ItemFileWriteStore"
+             url="principles.json" jsId="principlesStore" />
+<h1>Andes problem chooser tool</h1>
+	  For each problem, median solution time and median score are shown.&nbsp;
+	  Times and scores are from US Naval Academy students from Fall 2005
+	  to spring 2008.
+	  <p>
+	  <table>
+	    <tr><td>Homework Sets</td><td>List of principles<br>For each principle, show homework sets and problems</td></tr>
+	    <tr><td valign="top">
+        <div dojoType="dijit.Tree" store="setStore" labelAttr="identifier" childrenAttr="items"></div>
+	</td><td valign="top">
+        <div dojoType="dijit.Tree" store="principlesStore" labelAttr="identifier" childrenAttr="items"></div>
+	</td></tr></table>
 </body>
 </html>
