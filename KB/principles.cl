@@ -1113,20 +1113,22 @@
 	(when probs 
 	  (format str "  <li>~A~%<table>~%" (car set))
 	  (dolist (prob probs)
-	    (format str "    <tr><td>~A</td><td>~@[~A~]</td><td>~@[~A~]</td><td>~{~A<br>~}</td></tr>~%"
+	    (format str "    <tr><td>~A</td><td>~@[~A~]</td><td>~@[~A~]</td></tr>~%"
+		    ;;"    <tr><td>~A</td><td>~@[~A~]</td><td>~@[~A~]</td><td>~{~A<br>~}</td></tr>~%"
 		    (problem-name prob)
 		    (second (find (problem-name prob) *times-scores* :key #'car))
 		    (third (find (problem-name prob) *times-scores* :key #'car))
-		    (problem-statement prob)))
+		;;    (problem-statement prob)
+))
 	  (format str "</table>~%"))))
     (format str "</ul>~%")))
 
 ;;;  Print html file with list of homework sets
 
 (defun sets-html-file ()
-  "construct file Documentation/sets.html"
+  "construct file Documentation/simple-sets.html"
   (let ((Stream  (open 
-		  (merge-pathnames  "Documentation/sets.html" *Andes-Path*)
+		  (merge-pathnames  "Documentation/simple-sets.html" *Andes-Path*)
 		  :direction :output :if-exists :supersede)))
     ;;  Assume stream has UTF-8 encoding (default for sbcl)
     ;;  Should test this is actually true or change the charset to match
@@ -1165,4 +1167,47 @@
 		    "</ul>~%"
 		    "</body>~%"
 		    "</html>~%"))
+    (when (streamp stream) (close stream))))
+
+(defun sets-json-file ()
+  "construct file Documentation/sets.json"
+  (let ((Stream  (open 
+		  (merge-pathnames  "Documentation/sets.json" *Andes-Path*)
+		  :direction :output :if-exists :supersede)))
+    ;;  Assume stream has UTF-8 encoding (default for sbcl)
+    ;;  Should test this is actually true or change the charset to match
+    ;;  the actual character code being used by the stream
+    ;;  something like:
+    (when (streamp Stream) 
+      #+sbcl (unless (eq (stream-external-format Stream) ':utf-8)
+	       (error "Wrong character code ~A, should be UTF-8" 
+		      (stream-external-format Stream))))
+    (format Stream 
+	    (strcat "{~%"
+		    "  identifier: 'id',~%"
+		    "  label: 'label',~%"
+		    "  items: [~%"
+		    ))
+    
+    (dolist (set *sets*)
+      (let ((probs (remove nil (mapcar #'get-problem (second set)))))
+	(format t "set ~a~%" (car set))
+	(format stream " {id: '~A', label: '~A', items: [~%" (car set) (car set))
+	(dolist (prob probs)
+	    (format t "  Problem ~A~%" (problem-name prob))
+	    (format stream "   {id: '~A', label: \"~A: ~@[~,1Fm~] ~@[~A%~]\"}~@[,~]~%"
+;; , statement: [~{~S~^, ~}]
+;;"   {id: '~A', time: '~A', score: '~a', statement: \"~{~A<br>~}\"}~@[,~]~%"
+		    (problem-name prob)
+		    (problem-name prob)
+		    (when (find (problem-name prob) *times-scores* :key #'car)
+		      (/ (second (find (problem-name prob) *times-scores* 
+				       :key #'car)) 60))
+		    (third (find (problem-name prob) *times-scores* :key #'car))
+		 ;   (problem-statement prob)
+		    (not (eq prob (car (last probs))))))
+	(format stream "]}~@[,~]~%" (not (eq set (car (last *sets*)))))))
+    (format Stream (strcat
+		    "  ]~%"
+		    "}~%"))
     (when (streamp stream) (close stream))))
