@@ -10,6 +10,10 @@
 #    then sort first 3 columns.  Make School Section CourseID Name columns
 #    explcitly text format.  (I could only get this to work in 
 #    openoffice and then export to excel.)
+#
+#    In spreadsheet, removed duplicate submissions (about 5% of submissions).
+#    Also, made column headings into question names.
+#
 # Mathematica format:
 #    questionnaires_to_excel.plx -m andes_q.txt > andes_q.m
 # Open-ended questions instead use -o
@@ -34,7 +38,7 @@ my %encoding;
 if($short || $essay){
   @categories = $essay?( 'Year','Semester','School','Section','CourseID','Name','Date','Time','1','2','3','4','5','6','7'):
     ($openended?('Year','Semester','School','Section','CourseID','Name','Date','Time','1','3','5','6','23','25'):
-     ('Year','Semester','School','Section','CourseID','Name','Date','Time','1','3','5','6','24','25','25','28','30','30A','30B','30C','30D'));
+     ('Year','Semester','School','Section','CourseID','Name','Date','Time','1','3','5','6','24','25','28','30','30A','30B','30C','30D'));
 } else {
   @categories = $openended?('Year','Semester','School','Section','CourseID','Name','Date','Time',
 			       '1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25'

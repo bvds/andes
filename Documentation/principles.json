@@ -25,7 +25,7 @@
       {id: 'Electromagnetic Waves19', label: 'Electromagnetic Waves', items: [
         {id: 'WAVE1920', label: "WAVE19: 5.8m 74%"}
       ]}    ]},
-    {id: 'AVG-VELOCITY21', label: "v(avg)_x = d_x/t    average velocity", items: [
+    {id: 'AVG-VELOCITY21', label: "v(avg)<sub>x</sub> = d<sub>x</sub>/t    average velocity", items: [
       {id: 'Vectors22', label: 'Vectors', items: [
         {id: 'MOT423', label: "MOT4: 17.1m 92%"}
       ]},
@@ -43,7 +43,7 @@
       {id: 'Power33', label: 'Power', items: [
         {id: 'POW5A34', label: "POW5A: 20.1m 57%"}
       ]}    ]},
-    {id: 'AVG-VELOCITY35', label: "v(avg)_y = d_y/t    average velocity", items: [
+    {id: 'AVG-VELOCITY35', label: "v(avg)<sub>y</sub> = d<sub>y</sub>/t    average velocity", items: [
       {id: 'Translational Kinematics36', label: 'Translational Kinematics', items: [
         {id: 'KT4A37', label: "KT4A: 5.8m 93%"},
         {id: 'KT4B38', label: "KT4B: 19.5m 66%"},
@@ -56,7 +56,7 @@
         {id: 'POW2A44', label: "POW2A: 6.1m 84%"},
         {id: 'POW5A45', label: "POW5A: 20.1m 57%"}
       ]}    ]},
-    {id: 'LK-NO-S46', label: "a(avg)_x = (vf_x - vi_x)/t    ", items: [
+    {id: 'LK-NO-S46', label: "a(avg)<sub>x</sub> = (vf<sub>x</sub> - vi<sub>x</sub>)/t    ", items: [
       {id: 'Vectors47', label: 'Vectors', items: [
         {id: 'VEC6A48', label: "VEC6A: 15.6m 89%"},
         {id: 'VEC6B49', label: "VEC6B: 6.6m 97%"},
@@ -103,7 +103,7 @@
         {id: 'ELEC4B83', label: "ELEC4B: 8.1m 89%"},
         {id: 'ELEC5B84', label: "ELEC5B: 7.3m 88%"}
       ]}    ]},
-    {id: 'LK-NO-S85', label: "a(avg)_y = (vf_y - vi_y)/t    ", items: [
+    {id: 'LK-NO-S85', label: "a(avg)<sub>y</sub> = (vf<sub>y</sub> - vi<sub>y</sub>)/t    ", items: [
       {id: 'Vectors86', label: 'Vectors', items: [
         {id: 'VEC6A87', label: "VEC6A: 15.6m 89%"},
         {id: 'VEC6B88', label: "VEC6B: 6.6m 97%"},
@@ -143,7 +143,7 @@
         {id: 'ELEC3B119', label: "ELEC3B: 15.0m 59%"},
         {id: 'ELEC6B120', label: "ELEC6B: 18.1m 39%"}
       ]}    ]},
-    {id: 'LK-NO-VF121', label: "d_x = v0_x*t + 0.5*a_x*t^2    [a_x is constant]", items: [
+    {id: 'LK-NO-VF121', label: "d<sub>x</sub> = v0<sub>x</sub> t + 0.5 a<sub>x</sub> t<sup>2</sup>    [a<sub>x</sub> is constant]", items: [
       {id: 'Translational Kinematics122', label: 'Translational Kinematics', items: [
         {id: 'KT7A123', label: "KT7A: 22.1m 75%"},
         {id: 'KT7B124', label: "KT7B: 1.0m 29%"},
@@ -165,7 +165,7 @@
         {id: 'ELEC4B137', label: "ELEC4B: 8.1m 89%"},
         {id: 'ELEC5B138', label: "ELEC5B: 7.3m 88%"}
       ]}    ]},
-    {id: 'LK-NO-VF139', label: "d_y = v0_y*t + 0.5*a_y*t^2    [a_y is constant]", items: [
+    {id: 'LK-NO-VF139', label: "d<sub>y</sub> = v0<sub>y</sub> t + 0.5 a<sub>y</sub> t<sup>2</sup>    [a<sub>y</sub> is constant]", items: [
       {id: 'Translational Kinematics140', label: 'Translational Kinematics', items: [
         {id: 'KT9A141', label: "KT9A: 13.8m 85%"},
         {id: 'KT9B142', label: "KT9B: 8.7m 93%"},
@@ -192,7 +192,7 @@
         {id: 'ELEC3B161', label: "ELEC3B: 15.0m 59%"},
         {id: 'ELEC6B162', label: "ELEC6B: 18.1m 39%"}
       ]}    ]},
-    {id: 'LK-NO-S163', label: "vf_x = vi_x + a(avg)_x*t    ", items: [
+    {id: 'LK-NO-S163', label: "vf<sub>x</sub> = vi<sub>x</sub> + a(avg)<sub>x</sub> t    ", items: [
       {id: 'Vectors164', label: 'Vectors', items: [
         {id: 'VEC6A165', label: "VEC6A: 15.6m 89%"},
         {id: 'VEC6B166', label: "VEC6B: 6.6m 97%"},
@@ -239,7 +239,7 @@
         {id: 'ELEC4B200', label: "ELEC4B: 8.1m 89%"},
         {id: 'ELEC5B201', label: "ELEC5B: 7.3m 88%"}
       ]}    ]},
-    {id: 'LK-NO-S202', label: "vf_y = vi_y + a(avg)_y*t    ", items: [
+    {id: 'LK-NO-S202', label: "vf<sub>y</sub> = vi<sub>y</sub> + a(avg)<sub>y</sub> t    ", items: [
       {id: 'Vectors203', label: 'Vectors', items: [
         {id: 'VEC6A204', label: "VEC6A: 15.6m 89%"},
         {id: 'VEC6B205', label: "VEC6B: 6.6m 97%"},
@@ -279,7 +279,7 @@
         {id: 'ELEC3B236', label: "ELEC3B: 15.0m 59%"},
         {id: 'ELEC6B237', label: "ELEC6B: 18.1m 39%"}
       ]}    ]},
-    {id: 'LK-NO-T238', label: "v_x^2 = v0_x^2 + 2*a_x*d_x    [a_x is constant]", items: [
+    {id: 'LK-NO-T238', label: "v<sub>x</sub><sup>2</sup> = v0<sub>x</sub><sup>2</sup> + 2 a<sub>x</sub> d<sub>x</sub>    [a<sub>x</sub> is constant]", items: [
       {id: 'Translational Kinematics239', label: 'Translational Kinematics', items: [
         {id: 'KT7A240', label: "KT7A: 22.1m 75%"},
         {id: 'KT7B241', label: "KT7B: 1.0m 29%"},
@@ -301,7 +301,7 @@
         {id: 'ELEC4B254', label: "ELEC4B: 8.1m 89%"},
         {id: 'ELEC5B255', label: "ELEC5B: 7.3m 88%"}
       ]}    ]},
-    {id: 'LK-NO-T256', label: "v_y^2 = v0_y^2 + 2*a_y*d_y    [a_y is constant]", items: [
+    {id: 'LK-NO-T256', label: "v<sub>y</sub><sup>2</sup> = v0<sub>y</sub><sup>2</sup> + 2 a<sub>y</sub> d<sub>y</sub>    [a<sub>y</sub> is constant]", items: [
       {id: 'Translational Kinematics257', label: 'Translational Kinematics', items: [
         {id: 'KT9A258', label: "KT9A: 13.8m 85%"},
         {id: 'KT9B259', label: "KT9B: 8.7m 93%"},
@@ -328,7 +328,7 @@
         {id: 'ELEC3B278', label: "ELEC3B: 15.0m 59%"},
         {id: 'ELEC6B279', label: "ELEC6B: 18.1m 39%"}
       ]}    ]},
-    {id: 'SDD-CONSTVEL280', label: "d_x = v_x * t    [a_x=0; v_x is constant]", items: [
+    {id: 'SDD-CONSTVEL280', label: "d<sub>x</sub> = v<sub>x</sub>   t    [a<sub>x</sub>=0; v<sub>x</sub> is constant]", items: [
       {id: 'Translational Kinematics281', label: 'Translational Kinematics', items: [
         {id: 'KT9A282', label: "KT9A: 13.8m 85%"},
         {id: 'KT9C283', label: "KT9C:  "},
@@ -340,9 +340,9 @@
       {id: 'Electric Field288', label: 'Electric Field', items: [
         {id: 'FOR11A289', label: "FOR11A: 17.7m 48.5%"}
       ]}    ]},
-    {id: 'SDD-CONSTVEL290', label: "d_y = v_y * t    [a_y=0; v_y is constant]", items: [
+    {id: 'SDD-CONSTVEL290', label: "d<sub>y</sub> = v<sub>y</sub>   t    [a<sub>y</sub>=0; v<sub>y</sub> is constant]", items: [
     ]},
-    {id: 'CONST-V291', label: "vf_x = vi_x    ", items: [
+    {id: 'CONST-V291', label: "vf<sub>x</sub> = vi<sub>x</sub>    ", items: [
       {id: 'Translational Kinematics292', label: 'Translational Kinematics', items: [
         {id: 'KT9B293', label: "KT9B: 8.7m 93%"},
         {id: 'KT12B294', label: "KT12B: 7.7m 39%"},
@@ -351,9 +351,9 @@
       {id: 'Electric Field296', label: 'Electric Field', items: [
         {id: 'FOR11A297', label: "FOR11A: 17.7m 48.5%"}
       ]}    ]},
-    {id: 'CONST-V298', label: "vf_y = vi_y    ", items: [
+    {id: 'CONST-V298', label: "vf<sub>y</sub> = vi<sub>y</sub>    ", items: [
     ]},
-    {id: 'CENTRIPETAL-ACCEL299', label: "ac = v^2/r    centripetal acceleration (instantaneous)", items: [
+    {id: 'CENTRIPETAL-ACCEL299', label: "ac = v<sup>2</sup>/r    centripetal acceleration (instantaneous)", items: [
       {id: 'Translational Kinematics300', label: 'Translational Kinematics', items: [
         {id: 'KT14B301', label: "KT14B: 19.9m 38%"}
       ]},
@@ -381,7 +381,7 @@
         {id: 'MAG5A320', label: "MAG5A: 8.6m 73%"},
         {id: 'MAG5B321', label: "MAG5B: 5.0m 83%"}
       ]}    ]},
-    {id: 'CENTRIPETAL-ACCEL-COMPO322', label: "ac_x = -v^2/r * r_x/r    centripetal acceleration (x component)", items: [
+    {id: 'CENTRIPETAL-ACCEL-COMPO322', label: "ac<sub>x</sub> = -v<sup>2</sup>/r   r<sub>x</sub>/r    centripetal acceleration (x component)", items: [
       {id: 'Translational Kinematics323', label: 'Translational Kinematics', items: [
         {id: 'KT14B324', label: "KT14B: 19.9m 38%"}
       ]},
@@ -394,7 +394,7 @@
         {id: 'ROTS6C331', label: "ROTS6C: 10.6m 85.5%"},
         {id: 'ROTS7A332', label: "ROTS7A: 9.5m 88%"}
       ]}    ]},
-    {id: 'CENTRIPETAL-ACCEL-COMPO333', label: "ac_y = -v^2/r * r_y/r    centripetal acceleration (y component)", items: [
+    {id: 'CENTRIPETAL-ACCEL-COMPO333', label: "ac<sub>y</sub> = -v<sup>2</sup>/r   r<sub>y</sub>/r    centripetal acceleration (y component)", items: [
       {id: 'Circular Motion334', label: 'Circular Motion', items: [
         {id: 'ROTS1B335', label: "ROTS1B: 9.1m 49%"},
         {id: 'ROTS3A336', label: "ROTS3A: 7.6m 91%"},
@@ -416,13 +416,13 @@
         {id: 'MAG5A349', label: "MAG5A: 8.6m 73%"},
         {id: 'MAG5B350', label: "MAG5B: 5.0m 83%"}
       ]}    ]},
-    {id: 'RELATIVE-VEL351', label: "Vac_x = Vab_x + Vbc_x    relative velocity", items: [
+    {id: 'RELATIVE-VEL351', label: "Vac<sub>x</sub> = Vab<sub>x</sub> + Vbc<sub>x</sub>    relative velocity", items: [
       {id: 'Vectors352', label: 'Vectors', items: [
         {id: 'RELVEL1A353', label: "RELVEL1A: 16.5m 81%"},
         {id: 'RELVEL2A354', label: "RELVEL2A: 6.8m 85%"},
         {id: 'RELVEL3A355', label: "RELVEL3A: 10.7m 88.5%"}
       ]}    ]},
-    {id: 'RELATIVE-VEL356', label: "Vac_y = Vab_y + Vbc_y    relative velocity", items: [
+    {id: 'RELATIVE-VEL356', label: "Vac<sub>y</sub> = Vab<sub>y</sub> + Vbc<sub>y</sub>    relative velocity", items: [
       {id: 'Vectors357', label: 'Vectors', items: [
         {id: 'RELVEL1A358', label: "RELVEL1A: 16.5m 81%"},
         {id: 'RELVEL2A359', label: "RELVEL2A: 6.8m 85%"},
@@ -430,14 +430,14 @@
       ]}    ]}
   ]},
   {id: "Rotational361", label: "Rotational", items: [
-    {id: 'ANG-SDD362', label: "$w(avg) = $q/t    average angular velocity", items: [
+    {id: 'ANG-SDD362', label: "&omega;(avg) = &theta;/t    average angular velocity", items: [
       {id: 'Rotational Kinematics363', label: 'Rotational Kinematics', items: [
         {id: 'KR1A364', label: "KR1A: 5.4m 83%"},
         {id: 'KR1B365', label: "KR1B: 3.1m 88%"},
         {id: 'KR1C366', label: "KR1C:  "},
         {id: 'KR4B367', label: "KR4B:  "}
       ]}    ]},
-    {id: 'RK-NO-S368', label: "$a(avg) = ($wf - $wi)/t    average anglular acceleration", items: [
+    {id: 'RK-NO-S368', label: "&alpha;(avg) = (&omega;f - &omega;i)/t    average anglular acceleration", items: [
       {id: 'Rotational Kinematics369', label: 'Rotational Kinematics', items: [
         {id: 'KR2A370', label: "KR2A: 4.3m 89%"},
         {id: 'KR2B371', label: "KR2B: 4.3m 85%"},
@@ -449,7 +449,7 @@
         {id: 'KR5A377', label: "KR5A: 6.8m 83%"},
         {id: 'KR10378', label: "KR10:  "}
       ]}    ]},
-    {id: 'RK-NO-VF379', label: "$q_z = $w0_z*t + 0.5*$a_z*t^2    [$a_z is constant]", items: [
+    {id: 'RK-NO-VF379', label: "&theta;<sub>z</sub> = &omega;0<sub>z</sub> t + 0.5 &alpha;<sub>z</sub> t<sup>2</sup>    [&alpha;<sub>z</sub> is constant]", items: [
       {id: 'Rotational Kinematics380', label: 'Rotational Kinematics', items: [
         {id: 'KR2A381', label: "KR2A: 4.3m 89%"},
         {id: 'KR2B382', label: "KR2B: 4.3m 85%"},
@@ -458,7 +458,7 @@
         {id: 'KR5A385', label: "KR5A: 6.8m 83%"},
         {id: 'KR10386', label: "KR10:  "}
       ]}    ]},
-    {id: 'RK-NO-S387', label: "$wf = $wi + $a(avg)*t    average anglular acceleration", items: [
+    {id: 'RK-NO-S387', label: "&omega;f = &omega;i + &alpha;(avg) t    average anglular acceleration", items: [
       {id: 'Rotational Kinematics388', label: 'Rotational Kinematics', items: [
         {id: 'KR2A389', label: "KR2A: 4.3m 89%"},
         {id: 'KR2B390', label: "KR2B: 4.3m 85%"},
@@ -470,7 +470,7 @@
         {id: 'KR5A396', label: "KR5A: 6.8m 83%"},
         {id: 'KR10397', label: "KR10:  "}
       ]}    ]},
-    {id: 'RK-NO-T398', label: "$w_z^2 = $w0_z^2 + 2*$a_z*$q_z    [$a_z is constant]", items: [
+    {id: 'RK-NO-T398', label: "&omega;<sub>z</sub><sup>2</sup> = &omega;0<sub>z</sub><sup>2</sup> + 2 &alpha;<sub>z</sub> &theta;<sub>z</sub>    [&alpha;<sub>z</sub> is constant]", items: [
       {id: 'Rotational Kinematics399', label: 'Rotational Kinematics', items: [
         {id: 'KR2A400', label: "KR2A: 4.3m 89%"},
         {id: 'KR2B401', label: "KR2B: 4.3m 85%"},
@@ -479,13 +479,13 @@
         {id: 'KR5A404', label: "KR5A: 6.8m 83%"},
         {id: 'KR10405', label: "KR10:  "}
       ]}    ]},
-    {id: 'LINEAR-VEL406', label: "v = $w*r    linear velocity at a certain radius", items: [
+    {id: 'LINEAR-VEL406', label: "v = &omega; r    linear velocity at a certain radius", items: [
       {id: 'Rotational Kinematics407', label: 'Rotational Kinematics', items: [
         {id: 'KR9408', label: "KR9:  "},
         {id: 'KR6A409', label: "KR6A: 9.8m 75.5%"},
         {id: 'KR7A410', label: "KR7A: 4.7m 90%"}
       ]}    ]},
-    {id: 'ROLLING-VEL411', label: "v = $w*r    linear velocity of rolling object", items: [
+    {id: 'ROLLING-VEL411', label: "v = &omega; r    linear velocity of rolling object", items: [
       {id: 'Rotational Kinematics412', label: 'Rotational Kinematics', items: [
         {id: 'KR10413', label: "KR10:  "}
       ]},
@@ -497,7 +497,7 @@
   ]},
   {id: "Newton's Laws417", label: "Newton's Laws", items: [
   {id: "Translational418", label: "Translational", items: [
-    {id: 'NSL419', label: "F1_x + F2_x + ... = m*a_x    Newton's second law", items: [
+    {id: 'NSL419', label: "F1<sub>x</sub> + F2<sub>x</sub> + ... = m a<sub>x</sub>    Newton's second law", items: [
       {id: 'Statics420', label: 'Statics', items: [
         {id: 'S2B421', label: "S2B: 12.9m 77%"},
         {id: 'S2C422', label: "S2C: 8.1m 78.5%"},
@@ -575,7 +575,7 @@
       {id: 'Magnetic Field486', label: 'Magnetic Field', items: [
         {id: 'MAG11487', label: "MAG11: 9.8m 57.5%"}
       ]}    ]},
-    {id: 'NSL488', label: "F1_y + F2_y + ... = m*a_y    Newton's second law", items: [
+    {id: 'NSL488', label: "F1<sub>y</sub> + F2<sub>y</sub> + ... = m a<sub>y</sub>    Newton's second law", items: [
       {id: 'Translational Kinematics489', label: 'Translational Kinematics', items: [
         {id: 'KT11B490', label: "KT11B: 10.6m 89%"}
       ]},
@@ -689,7 +689,7 @@
         {id: 'MAG5B589', label: "MAG5B: 5.0m 83%"},
         {id: 'MAG11590', label: "MAG11: 9.8m 57.5%"}
       ]}    ]},
-    {id: 'NET-FORCE591', label: "Fnet_x = F1_x + F2_x + ...    net force (x component)", items: [
+    {id: 'NET-FORCE591', label: "Fnet<sub>x</sub> = F1<sub>x</sub> + F2<sub>x</sub> + ...    net force (x component)", items: [
       {id: 'Statics592', label: 'Statics', items: [
         {id: 'S2B593', label: "S2B: 12.9m 77%"},
         {id: 'S2C594', label: "S2C: 8.1m 78.5%"},
@@ -771,7 +771,7 @@
         {id: 'MAG3B662', label: "MAG3B: 9.2m 87%"},
         {id: 'MAG11663', label: "MAG11: 9.8m 57.5%"}
       ]}    ]},
-    {id: 'NET-FORCE664', label: "Fnet_y = F1_y + F2_y + ...    net force (y component)", items: [
+    {id: 'NET-FORCE664', label: "Fnet<sub>y</sub> = F1<sub>y</sub> + F2<sub>y</sub> + ...    net force (y component)", items: [
       {id: 'Translational Kinematics665', label: 'Translational Kinematics', items: [
         {id: 'KT11B666', label: "KT11B: 10.6m 89%"}
       ]},
@@ -901,7 +901,7 @@
         {id: 'ROTS8A779', label: "ROTS8A: 11.4m 73%"},
         {id: 'ROTS8B780', label: "ROTS8B: 7.1m 77.5%"}
       ]}    ]},
-    {id: 'NTL-VECTOR781', label: "F12_x = - F21_x    Newton's Third law (components)", items: [
+    {id: 'NTL-VECTOR781', label: "F12<sub>x</sub> = - F21<sub>x</sub>    Newton's Third law (components)", items: [
       {id: 'Statics782', label: 'Statics', items: [
         {id: 'S2B783', label: "S2B: 12.9m 77%"},
         {id: 'S2C784', label: "S2C: 8.1m 78.5%"}
@@ -911,7 +911,7 @@
         {id: 'DT11A787', label: "DT11A: 27.8m 53%"},
         {id: 'DT11B788', label: "DT11B: 25.4m 33%"}
       ]}    ]},
-    {id: 'NTL-VECTOR789', label: "F12_y = - F21_y    Newton's Third law (components)", items: [
+    {id: 'NTL-VECTOR789', label: "F12<sub>y</sub> = - F21<sub>y</sub>    Newton's Third law (components)", items: [
       {id: 'Statics790', label: 'Statics', items: [
         {id: 'S2B791', label: "S2B: 12.9m 77%"},
         {id: 'S2C792', label: "S2C: 8.1m 78.5%"},
@@ -933,7 +933,7 @@
         {id: 'FLUIDS14805', label: "FLUIDS14: 10.3m 75%"},
         {id: 'FLUIDS15806', label: "FLUIDS15: 8.2m 69%"}
       ]}    ]},
-    {id: 'UG807', label: "Fg = G*m1*m2/r^2    universal gravitation", items: [
+    {id: 'UG807', label: "Fg = G m1 m2/r<sup>2</sup>    universal gravitation", items: [
       {id: 'Translational Dynamics808', label: 'Translational Dynamics', items: [
         {id: 'DT12A809', label: "DT12A: 9.9m 77%"}
       ]},
@@ -946,7 +946,7 @@
       ]}    ]}
   ]},
   {id: "Rotational815", label: "Rotational", items: [
-    {id: 'NFL-ROT816', label: "0 = $t1_z + $t2_z + ...    rotational form of Newton's 2nd law ($a =0)", items: [
+    {id: 'NFL-ROT816', label: "0 = &tau;1<sub>z</sub> + &tau;2<sub>z</sub> + ...    rotational form of Newton's 2nd law (&alpha; =0)", items: [
       {id: 'Statics817', label: 'Statics', items: [
         {id: 'S13818', label: "S13:  "},
         {id: 'S14819', label: "S14:  "}
@@ -954,13 +954,13 @@
       {id: 'Rotational Dynamics820', label: 'Rotational Dynamics', items: [
         {id: 'DR8A821', label: "DR8A: 13.6m 72%"}
       ]}    ]},
-    {id: 'NSL-ROT822', label: "$tnet_z = I*$a_z    rotational form of Newton's 2nd law", items: [
+    {id: 'NSL-ROT822', label: "&tau;net<sub>z</sub> = I &alpha;<sub>z</sub>    rotational form of Newton's 2nd law", items: [
       {id: 'Rotational Dynamics823', label: 'Rotational Dynamics', items: [
         {id: 'DR6A824', label: "DR6A: 7.0m 81.5%"},
         {id: 'DR6B825', label: "DR6B: 5.7m 81%"},
         {id: 'DR7A826', label: "DR7A: 18.2m 38%"}
       ]}    ]},
-    {id: 'MAG-TORQUE827', label: "$t = r*F*sin($q)    torque defined (magnitude)", items: [
+    {id: 'MAG-TORQUE827', label: "&tau; = r F sin(&theta;)    torque defined (magnitude)", items: [
       {id: 'Statics828', label: 'Statics', items: [
         {id: 'S13829', label: "S13:  "},
         {id: 'S14830', label: "S14:  "}
@@ -976,11 +976,11 @@
         {id: 'DR7A839', label: "DR7A: 18.2m 38%"},
         {id: 'DR8A840', label: "DR8A: 13.6m 72%"}
       ]}    ]},
-    {id: 'TORQUE841', label: "$t_x = r_y*F_z - r_z*F_y    torque defined (x component)", items: [
+    {id: 'TORQUE841', label: "&tau;<sub>x</sub> = r<sub>y</sub> F<sub>z</sub> - r<sub>z</sub> F<sub>y</sub>    torque defined (x component)", items: [
     ]},
-    {id: 'TORQUE842', label: "$t_y = r_z*F_x - r_x*F_z    torque defined (y component)", items: [
+    {id: 'TORQUE842', label: "&tau;<sub>y</sub> = r<sub>z</sub> F<sub>x</sub> - r<sub>x</sub> F<sub>z</sub>    torque defined (y component)", items: [
     ]},
-    {id: 'TORQUE843', label: "$t_z = r*F*sin($qF-$qr)) or $t_z = r_x*F_y - r_y*F_x    torque defined (z component)", items: [
+    {id: 'TORQUE843', label: "&tau;<sub>z</sub> = r F sin(&theta;F-&theta;r)) or &tau;<sub>z</sub> = r<sub>x</sub> F<sub>y</sub> - r<sub>y</sub> F<sub>x</sub>    torque defined (z component)", items: [
       {id: 'Statics844', label: 'Statics', items: [
         {id: 'S13845', label: "S13:  "},
         {id: 'S14846', label: "S14:  "}
@@ -996,7 +996,7 @@
         {id: 'DR7A855', label: "DR7A: 18.2m 38%"},
         {id: 'DR8A856', label: "DR8A: 13.6m 72%"}
       ]}    ]},
-    {id: 'NET-TORQUE-ZC857', label: "$tnet_z = $t1_z + $t2_z + ...    net torque defined", items: [
+    {id: 'NET-TORQUE-ZC857', label: "&tau;net<sub>z</sub> = &tau;1<sub>z</sub> + &tau;2<sub>z</sub> + ...    net torque defined", items: [
       {id: 'Rotational Dynamics858', label: 'Rotational Dynamics', items: [
         {id: 'DR2A859', label: "DR2A: 11.1m 75.5%"},
         {id: 'DR2B860', label: "DR2B: 8.2m 83%"},
@@ -1011,7 +1011,7 @@
   ]}
   ]},
   {id: "Work Energy and Power868", label: "Work Energy and Power", items: [
-    {id: 'WORK869', label: "W = F*d*cos($q) or W = F_x*d_x + F_y*d_y    work defined", items: [
+    {id: 'WORK869', label: "W = F d cos(&theta;) or W = F<sub>x</sub> d<sub>x</sub> + F<sub>y</sub> d<sub>y</sub>    work defined", items: [
       {id: 'Work and Energy870', label: 'Work and Energy', items: [
         {id: 'WEQ5871', label: "WEQ5:  "},
         {id: 'E1A872', label: "E1A: 4.0m 98%"},
@@ -1133,7 +1133,7 @@
         {id: 'ELEC5B978', label: "ELEC5B: 7.3m 88%"},
         {id: 'ELEC6B979', label: "ELEC6B: 18.1m 39%"}
       ]}    ]},
-    {id: 'MECHANICAL-ENERGY980', label: "ME = KE + $S Ui    mechanical energy defined", items: [
+    {id: 'MECHANICAL-ENERGY980', label: "ME = KE + &Sigma Ui    mechanical energy defined", items: [
       {id: 'Work and Energy981', label: 'Work and Energy', items: [
         {id: 'WEQ4982', label: "WEQ4:  "},
         {id: 'WEQ5983', label: "WEQ5:  "},
@@ -1256,7 +1256,7 @@
         {id: 'POW4B1083', label: "POW4B: 15.5m 73%"},
         {id: 'POW5A1084', label: "POW5A: 20.1m 57%"}
       ]}    ]},
-    {id: 'KINETIC-ENERGY1085', label: "KE = 0.5*m*v^2    kinetic energy defined", items: [
+    {id: 'KINETIC-ENERGY1085', label: "KE = 0.5 m v<sup>2</sup>    kinetic energy defined", items: [
       {id: 'Work and Energy1086', label: 'Work and Energy', items: [
         {id: 'WEQ21087', label: "WEQ2:  "},
         {id: 'WEQ41088', label: "WEQ4:  "},
@@ -1308,13 +1308,13 @@
         {id: 'ELEC5B1130', label: "ELEC5B: 7.3m 88%"},
         {id: 'ELEC6B1131', label: "ELEC6B: 18.1m 39%"}
       ]}    ]},
-    {id: 'ROTATIONAL-ENERGY1132', label: "KE = 0.5*I*$w^2    rotational kinetic energy defined", items: [
+    {id: 'ROTATIONAL-ENERGY1132', label: "KE = 0.5 I &omega;<sup>2</sup>    rotational kinetic energy defined", items: [
       {id: 'Rotational Dynamics1133', label: 'Rotational Dynamics', items: [
         {id: 'EROT21134', label: "EROT2: 9.5m 83%"},
         {id: 'EROT31135', label: "EROT3: 22.8m 89.5%"},
         {id: 'EROT41136', label: "EROT4: 0.8m 89%"}
       ]}    ]},
-    {id: 'GRAV-ENERGY1137', label: "Ug = m*g*h    gravitational potential energy", items: [
+    {id: 'GRAV-ENERGY1137', label: "Ug = m g h    gravitational potential energy", items: [
       {id: 'Work and Energy1138', label: 'Work and Energy', items: [
         {id: 'WEQ51139', label: "WEQ5:  "},
         {id: 'E4A1140', label: "E4A: 11.2m 77%"},
@@ -1346,11 +1346,11 @@
         {id: 'EROT31163', label: "EROT3: 22.8m 89.5%"},
         {id: 'EROT41164', label: "EROT4: 0.8m 89%"}
       ]}    ]},
-    {id: 'GRAVITATIONAL-ENERGY-POINT1165', label: "Ug = -G*m1*m2/r    gravitational potential energy, spherical source", items: [
+    {id: 'GRAVITATIONAL-ENERGY-POINT1165', label: "Ug = -G m1 m2/r    gravitational potential energy, spherical source", items: [
       {id: 'Work and Energy1166', label: 'Work and Energy', items: [
         {id: 'EGRAV11167', label: "EGRAV1:  "}
       ]}    ]},
-    {id: 'SPRING-ENERGY1168', label: "Us = 0.5*k*d^2    spring potential energy", items: [
+    {id: 'SPRING-ENERGY1168', label: "Us = 0.5 k d<sup>2</sup>    spring potential energy", items: [
       {id: 'Work and Energy1169', label: 'Work and Energy', items: [
         {id: 'E4A1170', label: "E4A: 11.2m 77%"},
         {id: 'E4B1171', label: "E4B: 6.3m 95%"},
@@ -1362,7 +1362,7 @@
         {id: 'POW4A1176', label: "POW4A: 14.5m 68%"},
         {id: 'POW4B1177', label: "POW4B: 15.5m 73%"}
       ]}    ]},
-    {id: 'ELECTRIC-ENERGY1178', label: "U = q*Vnet    electric potential energy", items: [
+    {id: 'ELECTRIC-ENERGY1178', label: "U = q Vnet    electric potential energy", items: [
       {id: 'Electric Potential1179', label: 'Electric Potential', items: [
         {id: 'POT51180', label: "POT5: 9.2m 64%"},
         {id: 'POT61181', label: "POT6: 7.1m 77.5%"},
@@ -1381,7 +1381,7 @@
         {id: 'POW1A1192', label: "POW1A: 6.2m 94%"},
         {id: 'POW2A1193', label: "POW2A: 6.1m 84%"}
       ]}    ]},
-    {id: 'INST-POWER1194', label: "P = F*v*cos($q) or P = F_x*v_x + F_y*v_y    instantaneous power", items: [
+    {id: 'INST-POWER1194', label: "P = F v cos(&theta;) or P = F<sub>x</sub> v<sub>x</sub> + F<sub>y</sub> v<sub>y</sub>    instantaneous power", items: [
       {id: 'Power1195', label: 'Power', items: [
         {id: 'POW3A1196', label: "POW3A: 7.9m 82%"},
         {id: 'POW5B1197', label: "POW5B: 11.6m 79%"},
@@ -1389,7 +1389,7 @@
         {id: 'POW5D1199', label: "POW5D: 12.1m 83%"},
         {id: 'POW6A1200', label: "POW6A: 17.2m 63%"}
       ]}    ]},
-    {id: 'SPHERICAL-INTENSITY-TO-POWER1201', label: "P = 4*$p*r^2*I    relation of power and intensity (spherical emitter)", items: [
+    {id: 'SPHERICAL-INTENSITY-TO-POWER1201', label: "P = 4 &pi; r<sup>2</sup> I    relation of power and intensity (spherical emitter)", items: [
       {id: 'Waves1202', label: 'Waves', items: [
         {id: 'WAVE151203', label: "WAVE15: 7.0m 84%"},
         {id: 'WAVE171204', label: "WAVE17: 6.8m 84.5%"},
@@ -1398,7 +1398,7 @@
       {id: 'Electromagnetic Waves1206', label: 'Electromagnetic Waves', items: [
         {id: 'EMWAVE3A1207', label: "EMWAVE3A: 5.5m 83.5%"}
       ]}    ]},
-    {id: 'UNIFORM-INTENSITY-TO-POWER1208', label: "P = I*A    relation of power and intensity (uniform over surface)", items: [
+    {id: 'UNIFORM-INTENSITY-TO-POWER1208', label: "P = I A    relation of power and intensity (uniform over surface)", items: [
       {id: 'Electromagnetic Waves1209', label: 'Electromagnetic Waves', items: [
         {id: 'EMWAVE41210', label: "EMWAVE4: 5.1m 84%"}
       ]}    ]},
@@ -1406,26 +1406,26 @@
       {id: 'Waves1212', label: 'Waves', items: [
         {id: 'WAVE161213', label: "WAVE16: 6.1m 89%"}
       ]}    ]},
-    {id: 'INTENSITY-TO-DECIBELS1214', label: "$b = 10*log10(I/Iref)    intensity & decibels", items: [
+    {id: 'INTENSITY-TO-DECIBELS1214', label: "&beta; = 10 log10(I/Iref)    intensity &amp; decibels", items: [
       {id: 'Waves1215', label: 'Waves', items: [
         {id: 'WAVE151216', label: "WAVE15: 7.0m 84%"},
         {id: 'WAVE161217', label: "WAVE16: 6.1m 89%"},
         {id: 'WAVE171218', label: "WAVE17: 6.8m 84.5%"},
         {id: 'WAVE181219', label: "WAVE18: 2.9m 96%"}
       ]}    ]},
-    {id: 'INTENSITY-TO-DECIBELS1220', label: "I = Iref*10^($b/10)    intensity & decibels", items: [
+    {id: 'INTENSITY-TO-DECIBELS1220', label: "I = Iref 10<sup>(</sup>&beta;/10)    intensity &amp; decibels", items: [
       {id: 'Waves1221', label: 'Waves', items: [
         {id: 'WAVE151222', label: "WAVE15: 7.0m 84%"},
         {id: 'WAVE161223', label: "WAVE16: 6.1m 89%"},
         {id: 'WAVE171224', label: "WAVE17: 6.8m 84.5%"},
         {id: 'WAVE181225', label: "WAVE18: 2.9m 96%"}
       ]}    ]},
-    {id: 'INTENSITY-TO-POYNTING-VECTOR-MAGNITUDE1226', label: "I = S    intensity & magnitude of the Poynting vector", items: [
+    {id: 'INTENSITY-TO-POYNTING-VECTOR-MAGNITUDE1226', label: "I = S    intensity &amp; magnitude of the Poynting vector", items: [
     ]}
   ]},
   {id: "Momentum and Impulse1227", label: "Momentum and Impulse", items: [
   {id: "Translational1228", label: "Translational", items: [
-    {id: 'MOMENTUM-COMPO1229', label: "p_x = m*v_x    momentum defined (x component)", items: [
+    {id: 'MOMENTUM-COMPO1229', label: "p<sub>x</sub> = m v<sub>x</sub>    momentum defined (x component)", items: [
       {id: 'Power1230', label: 'Power', items: [
         {id: 'POW5B1231', label: "POW5B: 11.6m 79%"},
         {id: 'POW5C1232', label: "POW5C: 8.2m 96.5%"},
@@ -1445,7 +1445,7 @@
         {id: 'IMP21245', label: "IMP2: 8.8m 79%"},
         {id: 'IMP3A1246', label: "IMP3A: 8.2m 94%"}
       ]}    ]},
-    {id: 'MOMENTUM-COMPO1247', label: "p_y = m*v_y    momentum defined (y component)", items: [
+    {id: 'MOMENTUM-COMPO1247', label: "p<sub>y</sub> = m v<sub>y</sub>    momentum defined (y component)", items: [
       {id: 'Power1248', label: 'Power', items: [
         {id: 'POW5B1249', label: "POW5B: 11.6m 79%"},
         {id: 'POW5C1250', label: "POW5C: 8.2m 96.5%"},
@@ -1458,7 +1458,7 @@
         {id: 'LMOM71256', label: "LMOM7: 17.2m 64%"},
         {id: 'IMP3A1257', label: "IMP3A: 8.2m 94%"}
       ]}    ]},
-    {id: 'CONS-LINMOM1258', label: "p1i_x + p2i_x + ... = p1f_x + p2f_x + ...    conservation of momentum", items: [
+    {id: 'CONS-LINMOM1258', label: "p1i<sub>x</sub> + p2i<sub>x</sub> + ... = p1f<sub>x</sub> + p2f<sub>x</sub> + ...    conservation of momentum", items: [
       {id: 'Linear Momentum1259', label: 'Linear Momentum', items: [
         {id: 'LMOM1A1260', label: "LMOM1A: 7.6m 69%"},
         {id: 'LMOM1B1261', label: "LMOM1B: 6.3m 94%"},
@@ -1471,7 +1471,7 @@
         {id: 'LMOM71268', label: "LMOM7: 17.2m 64%"},
         {id: 'IMP21269', label: "IMP2: 8.8m 79%"}
       ]}    ]},
-    {id: 'CONS-LINMOM1270', label: "p1i_y + p2i_y + ... = p1f_y + p2f_y + ...    conservation of momentum", items: [
+    {id: 'CONS-LINMOM1270', label: "p1i<sub>y</sub> + p2i<sub>y</sub> + ... = p1f<sub>y</sub> + p2f<sub>y</sub> + ...    conservation of momentum", items: [
       {id: 'Linear Momentum1271', label: 'Linear Momentum', items: [
         {id: 'LMOM2B1272', label: "LMOM2B: 18.2m 74%"},
         {id: 'LMOM3A1273', label: "LMOM3A: 23.3m 68%"},
@@ -1484,13 +1484,13 @@
         {id: 'LMOM61279', label: "LMOM6: 23.0m 67%"},
         {id: 'LMOM71280', label: "LMOM7: 17.2m 64%"}
       ]}    ]},
-    {id: 'IMPULSE-FORCE1281', label: "J_x = F(avg)_x*t    impulse and force", items: [
+    {id: 'IMPULSE-FORCE1281', label: "J<sub>x</sub> = F(avg)<sub>x</sub> t    impulse and force", items: [
       {id: 'Linear Momentum1282', label: 'Linear Momentum', items: [
         {id: 'IMP11283', label: "IMP1: 9.6m 77%"}
       ]}    ]},
-    {id: 'IMPULSE-FORCE1284', label: "J_y = F(avg)_y*t    impulse and force", items: [
+    {id: 'IMPULSE-FORCE1284', label: "J<sub>y</sub> = F(avg)<sub>y</sub> t    impulse and force", items: [
     ]},
-    {id: 'IMPULSE-MOMENTUM1285', label: "J1_x + J2_x + ... = pf_x - pi_x    Newton's second law", items: [
+    {id: 'IMPULSE-MOMENTUM1285', label: "J1<sub>x</sub> + J2<sub>x</sub> + ... = pf<sub>x</sub> - pi<sub>x</sub>    Newton's second law", items: [
       {id: 'Linear Momentum1286', label: 'Linear Momentum', items: [
         {id: 'LMOM61287', label: "LMOM6: 23.0m 67%"},
         {id: 'IMP11288', label: "IMP1: 9.6m 77%"},
@@ -1499,7 +1499,7 @@
         {id: 'IMP3B1291', label: "IMP3B: 6.0m 76%"},
         {id: 'IMP3C1292', label: "IMP3C: 7.5m 90.5%"}
       ]}    ]},
-    {id: 'IMPULSE-MOMENTUM1293', label: "J1_y + J2_y + ... = pf_y - pi_y    Newton's second law", items: [
+    {id: 'IMPULSE-MOMENTUM1293', label: "J1<sub>y</sub> + J2<sub>y</sub> + ... = pf<sub>y</sub> - pi<sub>y</sub>    Newton's second law", items: [
       {id: 'Linear Momentum1294', label: 'Linear Momentum', items: [
         {id: 'LMOM61295', label: "LMOM6: 23.0m 67%"},
         {id: 'IMP3A1296', label: "IMP3A: 8.2m 94%"},
@@ -1511,27 +1511,27 @@
         {id: 'LMOM61301', label: "LMOM6: 23.0m 67%"},
         {id: 'IMP21302', label: "IMP2: 8.8m 79%"}
       ]}    ]},
-    {id: 'NTL-IMPULSE-VECTOR1303', label: "J12_x = -J21_x    Newton's third law (x component)", items: [
+    {id: 'NTL-IMPULSE-VECTOR1303', label: "J12<sub>x</sub> = -J21<sub>x</sub>    Newton's third law (x component)", items: [
       {id: 'Linear Momentum1304', label: 'Linear Momentum', items: [
         {id: 'LMOM61305', label: "LMOM6: 23.0m 67%"},
         {id: 'IMP21306', label: "IMP2: 8.8m 79%"}
       ]}    ]},
-    {id: 'NTL-IMPULSE-VECTOR1307', label: "J12_y = -J21_y    Newton's third law (y component)", items: [
+    {id: 'NTL-IMPULSE-VECTOR1307', label: "J12<sub>y</sub> = -J21<sub>y</sub>    Newton's third law (y component)", items: [
     ]},
-    {id: 'CENTER-OF-MASS-COMPO1308', label: "Rcm_x = (m1*r1_x + m2*r2_x + ...)/(m1 + m2 + ...)    center of mass", items: [
+    {id: 'CENTER-OF-MASS-COMPO1308', label: "Rcm<sub>x</sub> = (m1 r1<sub>x</sub> + m2 r2<sub>x</sub> + ...)/(m1 + m2 + ...)    center of mass", items: [
       {id: 'Linear Momentum1309', label: 'Linear Momentum', items: [
         {id: 'CM11310', label: "CM1: 10.7m 57.5%"},
         {id: 'CM21311', label: "CM2: 8.8m 56.5%"},
         {id: 'CM31312', label: "CM3: 8.5m 74%"}
       ]}    ]},
-    {id: 'CENTER-OF-MASS-COMPO1313', label: "Rcm_y = (m1*r1_y + m2*r2_y + ...)/(m1 + m2 + ...)    center of mass", items: [
+    {id: 'CENTER-OF-MASS-COMPO1313', label: "Rcm<sub>y</sub> = (m1 r1<sub>y</sub> + m2 r2<sub>y</sub> + ...)/(m1 + m2 + ...)    center of mass", items: [
       {id: 'Linear Momentum1314', label: 'Linear Momentum', items: [
         {id: 'CM11315', label: "CM1: 10.7m 57.5%"},
         {id: 'CM21316', label: "CM2: 8.8m 56.5%"}
       ]}    ]}
   ]},
   {id: "Rotational1317", label: "Rotational", items: [
-    {id: 'ANG-MOMENTUM1318', label: "L_z = I*$w_z    angular momentum defined", items: [
+    {id: 'ANG-MOMENTUM1318', label: "L<sub>z</sub> = I &omega;<sub>z</sub>    angular momentum defined", items: [
       {id: 'Angular Momentum1319', label: 'Angular Momentum', items: [
         {id: 'MOMR1A1320', label: "MOMR1A: 5.8m 86%"},
         {id: 'MOMR1B1321', label: "MOMR1B: 3.6m 83%"},
@@ -1540,7 +1540,7 @@
         {id: 'MOMR3A1324', label: "MOMR3A: 6.0m 76%"},
         {id: 'MOMR4A1325', label: "MOMR4A: 9.2m 75%"}
       ]}    ]},
-    {id: 'CONS-ANGMOM1326', label: "L1i_z + L2i_z + ... = L1f_z + L2f_z + ...    conservation of angular momentum", items: [
+    {id: 'CONS-ANGMOM1326', label: "L1i<sub>z</sub> + L2i<sub>z</sub> + ... = L1f<sub>z</sub> + L2f<sub>z</sub> + ...    conservation of angular momentum", items: [
       {id: 'Angular Momentum1327', label: 'Angular Momentum', items: [
         {id: 'MOMR3A1328', label: "MOMR3A: 6.0m 76%"},
         {id: 'MOMR4A1329', label: "MOMR4A: 9.2m 75%"}
@@ -1548,22 +1548,22 @@
   ]}
   ]},
   {id: "Fluids1330", label: "Fluids", items: [
-    {id: 'PRESSURE-HEIGHT-FLUID1331', label: "P2 - P1 = $r*g*(h1-h2)    pressure in fluid", items: [
+    {id: 'PRESSURE-HEIGHT-FLUID1331', label: "P2 - P1 = &rho; g (h1-h2)    pressure in fluid", items: [
     ]},
-    {id: 'BERNOULLI1332', label: "0.5*$r*v1^2 + $r*g*h1 + P1 = 0.5*$r*v2^2 + $r*g*h2 + P2    Bernoulli equation", items: [
+    {id: 'BERNOULLI1332', label: "0.5 &rho; v1<sup>2</sup> + &rho; g h1 + P1 = 0.5 &rho; v2<sup>2</sup> + &rho; g h2 + P2    Bernoulli equation", items: [
       {id: 'Fluids1333', label: 'Fluids', items: [
         {id: 'FLUIDS21334', label: "FLUIDS2: 7.0m 93%"},
         {id: 'FLUIDS31335', label: "FLUIDS3: 4.1m 99%"},
         {id: 'FLUIDS51336', label: "FLUIDS5: 8.4m 88%"},
         {id: 'FLUIDS61337', label: "FLUIDS6: 6.9m 95.5%"}
       ]}    ]},
-    {id: 'EQUATION-OF-CONTINUITY1338', label: "A1*v1 = A2*v2    equation of continuity", items: [
+    {id: 'EQUATION-OF-CONTINUITY1338', label: "A1 v1 = A2 v2    equation of continuity", items: [
       {id: 'Fluids1339', label: 'Fluids', items: [
         {id: 'FLUIDS41340', label: "FLUIDS4: 3.2m 98%"},
         {id: 'FLUIDS51341', label: "FLUIDS5: 8.4m 88%"},
         {id: 'FLUIDS61342', label: "FLUIDS6: 6.9m 95.5%"}
       ]}    ]},
-    {id: 'PRESSURE-FORCE1343', label: "Fp = P*A    pressure defined", items: [
+    {id: 'PRESSURE-FORCE1343', label: "Fp = P A    pressure defined", items: [
       {id: 'Fluids1344', label: 'Fluids', items: [
         {id: 'FLUIDS81345', label: "FLUIDS8: 15.1m 49.5%"},
         {id: 'FLUIDS91346', label: "FLUIDS9: 10.3m 78%"}
@@ -1571,7 +1571,7 @@
       {id: 'Electromagnetic Waves1347', label: 'Electromagnetic Waves', items: [
         {id: 'EMWAVE51348', label: "EMWAVE5: 5.8m 75%"}
       ]}    ]},
-    {id: 'DENSITY1349', label: "$r = m/V    mass density defined", items: [
+    {id: 'DENSITY1349', label: "&rho; = m/V    mass density defined", items: [
       {id: 'Fluids1350', label: 'Fluids', items: [
         {id: 'FLUIDS111351', label: "FLUIDS11: 7.3m 84%"},
         {id: 'FLUIDS121352', label: "FLUIDS12: 4.8m 94%"},
@@ -1579,7 +1579,7 @@
         {id: 'FLUIDS141354', label: "FLUIDS14: 10.3m 75%"},
         {id: 'FLUIDS151355', label: "FLUIDS15: 8.2m 69%"}
       ]}    ]},
-    {id: 'ARCHIMEDES1356', label: "Fb = $rf*V*g    Archimedes principle (buoyant force)", items: [
+    {id: 'ARCHIMEDES1356', label: "Fb = &rho;f V g    Archimedes principle (buoyant force)", items: [
       {id: 'Fluids1357', label: 'Fluids', items: [
         {id: 'FLUIDS111358', label: "FLUIDS11: 7.3m 84%"},
         {id: 'FLUIDS121359', label: "FLUIDS12: 4.8m 94%"},
@@ -1589,18 +1589,18 @@
       ]}    ]}
   ]},
   {id: "Electricity and Magnetism1363", label: "Electricity and Magnetism", items: [
-    {id: 'CHARGED-PARTICLES1364', label: "Q = N*q    charged particles", items: [
+    {id: 'CHARGED-PARTICLES1364', label: "Q = N q    charged particles", items: [
       {id: 'Electric Field1365', label: 'Electric Field', items: [
         {id: 'CHARGE1B1366', label: "CHARGE1B: 3.3m 86%"}
       ]}    ]},
-    {id: 'COULOMB1367', label: "F = kelec*abs(q1*q2)/r^2    Coulomb's law (magnitude)", items: [
+    {id: 'COULOMB1367', label: "F = kelec abs(q1 q2)/r<sup>2</sup>    Coulomb's law (magnitude)", items: [
       {id: 'Electric Field1368', label: 'Electric Field', items: [
         {id: 'COUL1A1369', label: "COUL1A: 10.7m 77%"},
         {id: 'COUL1B1370', label: "COUL1B: 8.7m 82%"},
         {id: 'COUL1C1371', label: "COUL1C: 8.6m 57%"},
         {id: 'COUL2C1372', label: "COUL2C: 7.8m 45.5%"}
       ]}    ]},
-    {id: 'COULOMB-COMPO1373', label: "F_x = (kelec*q1*q2/r^2) * r_x/r    Coulomb's law (x component)", items: [
+    {id: 'COULOMB-COMPO1373', label: "F<sub>x</sub> = (kelec q1 q2/r<sup>2</sup>)   r<sub>x</sub>/r    Coulomb's law (x component)", items: [
       {id: 'Electric Field1374', label: 'Electric Field', items: [
         {id: 'COUL1A1375', label: "COUL1A: 10.7m 77%"},
         {id: 'COUL1B1376', label: "COUL1B: 8.7m 82%"},
@@ -1610,13 +1610,13 @@
         {id: 'COUL2C1380', label: "COUL2C: 7.8m 45.5%"},
         {id: 'COUL31381', label: "COUL3: 18.0m 43%"}
       ]}    ]},
-    {id: 'COULOMB-COMPO1382', label: "F_y = (kelec*q1*q2/r^2) * r_y/r    Coulomb's law (y component)", items: [
+    {id: 'COULOMB-COMPO1382', label: "F<sub>y</sub> = (kelec q1 q2/r<sup>2</sup>)   r<sub>y</sub>/r    Coulomb's law (y component)", items: [
       {id: 'Electric Field1383', label: 'Electric Field', items: [
         {id: 'COUL1B1384', label: "COUL1B: 8.7m 82%"},
         {id: 'COUL2A1385', label: "COUL2A: 23.0m 39%"},
         {id: 'COUL2B1386', label: "COUL2B: 20.1m 73.5%"}
       ]}    ]},
-    {id: 'CHARGE-FORCE-EFIELD-MAG1387', label: "F = abs(q)*E    electric field (magnitude)", items: [
+    {id: 'CHARGE-FORCE-EFIELD-MAG1387', label: "F = abs(q) E    electric field (magnitude)", items: [
       {id: 'Electric Field1388', label: 'Electric Field', items: [
         {id: 'FOR4A1389', label: "FOR4A: 4.7m 92%"},
         {id: 'FOR4B1390', label: "FOR4B: 4.8m 97%"},
@@ -1634,7 +1634,7 @@
       {id: 'Magnetic Field1401', label: 'Magnetic Field', items: [
         {id: 'MAG4A1402', label: "MAG4A: 9.4m 61.5%"}
       ]}    ]},
-    {id: 'CHARGE-FORCE-EFIELD1403', label: "F_x = q*E_x    electric field", items: [
+    {id: 'CHARGE-FORCE-EFIELD1403', label: "F<sub>x</sub> = q E<sub>x</sub>    electric field", items: [
       {id: 'Electric Field1404', label: 'Electric Field', items: [
         {id: 'FOR1A1405', label: "FOR1A: 9.1m 92.5%"},
         {id: 'FOR1B1406', label: "FOR1B: 4.7m 78.5%"},
@@ -1650,7 +1650,7 @@
         {id: 'ELEC4B1416', label: "ELEC4B: 8.1m 89%"},
         {id: 'ELEC5B1417', label: "ELEC5B: 7.3m 88%"}
       ]}    ]},
-    {id: 'CHARGE-FORCE-EFIELD1418', label: "F_y = q*E_y    electric field", items: [
+    {id: 'CHARGE-FORCE-EFIELD1418', label: "F<sub>y</sub> = q E<sub>y</sub>    electric field", items: [
       {id: 'Electric Field1419', label: 'Electric Field', items: [
         {id: 'FOR1A1420', label: "FOR1A: 9.1m 92.5%"},
         {id: 'FOR1B1421', label: "FOR1B: 4.7m 78.5%"},
@@ -1671,7 +1671,7 @@
       {id: 'Magnetic Field1435', label: 'Magnetic Field', items: [
         {id: 'MAG4A1436', label: "MAG4A: 9.4m 61.5%"}
       ]}    ]},
-    {id: 'POINT-CHARGE-EFIELD-MAG1437', label: "E = kelec*abs(q)/r^2    point charge field (magnitude)", items: [
+    {id: 'POINT-CHARGE-EFIELD-MAG1437', label: "E = kelec abs(q)/r<sup>2</sup>    point charge field (magnitude)", items: [
       {id: 'Electric Field1438', label: 'Electric Field', items: [
         {id: 'FOR7A1439', label: "FOR7A: 5.3m 48.5%"},
         {id: 'FOR7B1440', label: "FOR7B: 3.4m 96%"},
@@ -1681,7 +1681,7 @@
         {id: 'POT3A1443', label: "POT3A: 11.4m 76.5%"},
         {id: 'POT3B1444', label: "POT3B: 10.4m 80%"}
       ]}    ]},
-    {id: 'POINT-CHARGE-EFIELD1445', label: "E_x = (kelec*q/r^2) * r_x/r    point charge field (x component)", items: [
+    {id: 'POINT-CHARGE-EFIELD1445', label: "E<sub>x</sub> = (kelec q/r<sup>2</sup>)   r<sub>x</sub>/r    point charge field (x component)", items: [
       {id: 'Electric Field1446', label: 'Electric Field', items: [
         {id: 'FOR7A1447', label: "FOR7A: 5.3m 48.5%"},
         {id: 'FOR7B1448', label: "FOR7B: 3.4m 96%"},
@@ -1696,7 +1696,7 @@
         {id: 'POT3A1456', label: "POT3A: 11.4m 76.5%"},
         {id: 'POT3B1457', label: "POT3B: 10.4m 80%"}
       ]}    ]},
-    {id: 'POINT-CHARGE-EFIELD1458', label: "E_y = (kelec*q/r^2) * r_y/r    point charge field (y component)", items: [
+    {id: 'POINT-CHARGE-EFIELD1458', label: "E<sub>y</sub> = (kelec q/r<sup>2</sup>)   r<sub>y</sub>/r    point charge field (y component)", items: [
       {id: 'Electric Field1459', label: 'Electric Field', items: [
         {id: 'FOR7A1460', label: "FOR7A: 5.3m 48.5%"},
         {id: 'FOR7B1461', label: "FOR7B: 3.4m 96%"},
@@ -1711,7 +1711,7 @@
       {id: 'Electric Potential1469', label: 'Electric Potential', items: [
         {id: 'POT3A1470', label: "POT3A: 11.4m 76.5%"}
       ]}    ]},
-    {id: 'NET-FIELD-ELECTRIC1471', label: "Enet_x = E1_x + E2_x + ...    net electric field (x component)", items: [
+    {id: 'NET-FIELD-ELECTRIC1471', label: "Enet<sub>x</sub> = E1<sub>x</sub> + E2<sub>x</sub> + ...    net electric field (x component)", items: [
       {id: 'Electric Field1472', label: 'Electric Field', items: [
         {id: 'FOR9A1473', label: "FOR9A: 14.7m 76%"},
         {id: 'FOR9B1474', label: "FOR9B: 17.9m 82%"},
@@ -1723,7 +1723,7 @@
         {id: 'POT3A1479', label: "POT3A: 11.4m 76.5%"},
         {id: 'POT3B1480', label: "POT3B: 10.4m 80%"}
       ]}    ]},
-    {id: 'NET-FIELD-ELECTRIC1481', label: "Enet_y = E1_y + E2_y + ...    net electric field (y component)", items: [
+    {id: 'NET-FIELD-ELECTRIC1481', label: "Enet<sub>y</sub> = E1<sub>y</sub> + E2<sub>y</sub> + ...    net electric field (y component)", items: [
       {id: 'Electric Field1482', label: 'Electric Field', items: [
         {id: 'FOR9A1483', label: "FOR9A: 14.7m 76%"},
         {id: 'FOR9B1484', label: "FOR9B: 17.9m 82%"},
@@ -1735,7 +1735,7 @@
         {id: 'POT3A1489', label: "POT3A: 11.4m 76.5%"},
         {id: 'POT3B1490', label: "POT3B: 10.4m 80%"}
       ]}    ]},
-    {id: 'ELECTRIC-FLUX-CONSTANT-FIELD1491', label: "$Fe = A*E*cos($qE - $qn) or $Fe = A*(E_x*n_x + E_y*n_y)    electric flux (uniform field)", items: [
+    {id: 'ELECTRIC-FLUX-CONSTANT-FIELD1491', label: "&Phi;e = A E cos(&theta;E - &theta;n) or &Phi;e = A (E<sub>x</sub> n<sub>x</sub> + E<sub>y</sub> n<sub>y</sub>)    electric flux (uniform field)", items: [
       {id: 'Electric Field1492', label: 'Electric Field', items: [
         {id: 'GAUSS31493', label: "GAUSS3: 9.6m 53%"},
         {id: 'GAUSS61494', label: "GAUSS6: 9.2m 96%"},
@@ -1743,14 +1743,14 @@
         {id: 'GAUSS91496', label: "GAUSS9: 14.3m 80%"},
         {id: 'GAUSS101497', label: "GAUSS10: 10.0m 78%"}
       ]}    ]},
-    {id: 'ELECTRIC-FLUX-CONSTANT-FIELD-CHANGE1498', label: "d$Fe/dt = E.n*dA/dt    derivative of electric flux, uniform field", items: [
+    {id: 'ELECTRIC-FLUX-CONSTANT-FIELD-CHANGE1498', label: "d&Phi;e/dt = E.n dA/dt    derivative of electric flux, uniform field", items: [
     ]},
-    {id: 'SUM-FLUXES1499', label: "$F = $F1 + $F2 + ...    adding fluxes", items: [
+    {id: 'SUM-FLUXES1499', label: "&Phi; = &Phi;1 + &Phi;2 + ...    adding fluxes", items: [
       {id: 'Electric Field1500', label: 'Electric Field', items: [
         {id: 'GAUSS91501', label: "GAUSS9: 14.3m 80%"},
         {id: 'GAUSS101502', label: "GAUSS10: 10.0m 78%"}
       ]}    ]},
-    {id: 'POINT-CHARGE-POTENTIAL1503', label: "V = kelec*q/r    point charge potential", items: [
+    {id: 'POINT-CHARGE-POTENTIAL1503', label: "V = kelec q/r    point charge potential", items: [
       {id: 'Electric Potential1504', label: 'Electric Potential', items: [
         {id: 'POT1A1505', label: "POT1A: 9.6m 78%"},
         {id: 'POT1B1506', label: "POT1B: 9.8m 89.5%"},
@@ -1774,49 +1774,49 @@
         {id: 'POT51523', label: "POT5: 9.2m 64%"},
         {id: 'POT61524', label: "POT6: 7.1m 77.5%"}
       ]}    ]},
-    {id: 'ELECTRIC-ENERGY1525', label: "U = q*Vnet    electric potential energy", items: [
+    {id: 'ELECTRIC-ENERGY1525', label: "U = q Vnet    electric potential energy", items: [
       {id: 'Electric Potential1526', label: 'Electric Potential', items: [
         {id: 'POT51527', label: "POT5: 9.2m 64%"},
         {id: 'POT61528', label: "POT6: 7.1m 77.5%"},
         {id: 'POT71529', label: "POT7: 8.7m 54%"},
         {id: 'POT81530', label: "POT8: 4.6m 78%"}
       ]}    ]},
-    {id: 'GAUSS-LAW1531', label: "$Fe = Q/$e0    Gauss' law", items: [
+    {id: 'GAUSS-LAW1531', label: "&Phi;e = Q/&epsilon;0    Gauss' law", items: [
       {id: 'Electric Field1532', label: 'Electric Field', items: [
         {id: 'GAUSS51533', label: "GAUSS5: 4.0m 83%"},
         {id: 'GAUSS91534', label: "GAUSS9: 14.3m 80%"},
         {id: 'GAUSS101535', label: "GAUSS10: 10.0m 78%"},
         {id: 'GAUSS111536', label: "GAUSS11: 16.3m 56%"}
       ]}    ]},
-    {id: 'ELECTRIC-DIPOLE-MOMENT-MAG1537', label: "p = abs(q)*r    electric dipole moment (magnitude)", items: [
+    {id: 'ELECTRIC-DIPOLE-MOMENT-MAG1537', label: "p = abs(q) r    electric dipole moment (magnitude)", items: [
       {id: 'Electric Field1538', label: 'Electric Field', items: [
         {id: 'DIP1A1539', label: "DIP1A: 15.8m 60%"},
         {id: 'DIP1B1540', label: "DIP1B: 15.9m 43.5%"}
       ]}    ]},
-    {id: 'ELECTRIC-DIPOLE-MOMENT1541', label: "p_x = q*r_x    electric dipole moment (x component)", items: [
+    {id: 'ELECTRIC-DIPOLE-MOMENT1541', label: "p<sub>x</sub> = q r<sub>x</sub>    electric dipole moment (x component)", items: [
       {id: 'Electric Field1542', label: 'Electric Field', items: [
         {id: 'DIP1A1543', label: "DIP1A: 15.8m 60%"},
         {id: 'DIP1B1544', label: "DIP1B: 15.9m 43.5%"}
       ]}    ]},
-    {id: 'ELECTRIC-DIPOLE-MOMENT1545', label: "p_y = q*r_y    electric dipole moment (y component)", items: [
+    {id: 'ELECTRIC-DIPOLE-MOMENT1545', label: "p<sub>y</sub> = q r<sub>y</sub>    electric dipole moment (y component)", items: [
       {id: 'Electric Field1546', label: 'Electric Field', items: [
         {id: 'DIP1A1547', label: "DIP1A: 15.8m 60%"},
         {id: 'DIP1B1548', label: "DIP1B: 15.9m 43.5%"}
       ]}    ]},
-    {id: 'ELECTRIC-DIPOLE-TORQUE-MAG1549', label: "$t = p*E*sin($q)    torque for electric dipole (magnitude)", items: [
+    {id: 'ELECTRIC-DIPOLE-TORQUE-MAG1549', label: "&tau; = p E sin(&theta;)    torque for electric dipole (magnitude)", items: [
       {id: 'Electric Field1550', label: 'Electric Field', items: [
         {id: 'DIP1A1551', label: "DIP1A: 15.8m 60%"}
       ]}    ]},
-    {id: 'ELECTRIC-DIPOLE-TORQUE1552', label: "$t_z = p*E*sin($qE-$qp)) or $t_z = p_x*E_y - p_y*E_x    torque for electric dipole (z component)", items: [
+    {id: 'ELECTRIC-DIPOLE-TORQUE1552', label: "&tau;<sub>z</sub> = p E sin(&theta;E-&theta;p)) or &tau;<sub>z</sub> = p<sub>x</sub> E<sub>y</sub> - p<sub>y</sub> E<sub>x</sub>    torque for electric dipole (z component)", items: [
       {id: 'Electric Field1553', label: 'Electric Field', items: [
         {id: 'DIP1A1554', label: "DIP1A: 15.8m 60%"}
       ]}    ]},
-    {id: 'ELECTRIC-DIPOLE-ENERGY1555', label: "U = -p*E*cos($qp - $qE) or U = -(p_x*E_x + p_y*E_y)    potential energy of electric dipole", items: [
+    {id: 'ELECTRIC-DIPOLE-ENERGY1555', label: "U = -p E cos(&theta;p - &theta;E) or U = -(p<sub>x</sub> E<sub>x</sub> + p<sub>y</sub> E<sub>y</sub>)    potential energy of electric dipole", items: [
       {id: 'Electric Field1556', label: 'Electric Field', items: [
         {id: 'DIP1A1557', label: "DIP1A: 15.8m 60%"},
         {id: 'DIP1B1558', label: "DIP1B: 15.9m 43.5%"}
       ]}    ]},
-    {id: 'CHARGE-FORCE-BFIELD-MAG1559', label: "F = abs(q)*v*B*sin($q)    magnetic force (magnitude)", items: [
+    {id: 'CHARGE-FORCE-BFIELD-MAG1559', label: "F = abs(q) v B sin(&theta;)    magnetic force (magnitude)", items: [
       {id: 'Magnetic Field1560', label: 'Magnetic Field', items: [
         {id: 'MAG1C1561', label: "MAG1C: 8.6m 83%"},
         {id: 'MAG2A1562', label: "MAG2A: 6.1m 83%"},
@@ -1825,13 +1825,13 @@
         {id: 'MAG5A1565', label: "MAG5A: 8.6m 73%"},
         {id: 'MAG5B1566', label: "MAG5B: 5.0m 83%"}
       ]}    ]},
-    {id: 'CHARGE-FORCE-BFIELD1567', label: "F_x = q*(v_y*B_z - v_z*B_y)    magnetic force (x component)", items: [
+    {id: 'CHARGE-FORCE-BFIELD1567', label: "F<sub>x</sub> = q (v<sub>y</sub> B<sub>z</sub> - v<sub>z</sub> B<sub>y</sub>)    magnetic force (x component)", items: [
       {id: 'Magnetic Field1568', label: 'Magnetic Field', items: [
         {id: 'MAG1C1569', label: "MAG1C: 8.6m 83%"},
         {id: 'MAG3A1570', label: "MAG3A: 9.8m 89%"},
         {id: 'MAG3B1571', label: "MAG3B: 9.2m 87%"}
       ]}    ]},
-    {id: 'CHARGE-FORCE-BFIELD1572', label: "F_y = q*(v_z*B_x - v_x*B_z)    magnetic force (y component)", items: [
+    {id: 'CHARGE-FORCE-BFIELD1572', label: "F<sub>y</sub> = q (v<sub>z</sub> B<sub>x</sub> - v<sub>x</sub> B<sub>z</sub>)    magnetic force (y component)", items: [
       {id: 'Magnetic Field1573', label: 'Magnetic Field', items: [
         {id: 'MAG1C1574', label: "MAG1C: 8.6m 83%"},
         {id: 'MAG2A1575', label: "MAG2A: 6.1m 83%"},
@@ -1842,114 +1842,114 @@
         {id: 'MAG5A1580', label: "MAG5A: 8.6m 73%"},
         {id: 'MAG5B1581', label: "MAG5B: 5.0m 83%"}
       ]}    ]},
-    {id: 'CHARGE-FORCE-BFIELD1582', label: "F_z = q*v*B*sin($qB-$qv) or F_z = q*(v_x*B_y - v_y*B_x)    magnetic force (z component)", items: [
+    {id: 'CHARGE-FORCE-BFIELD1582', label: "F<sub>z</sub> = q v B sin(&theta;B-&theta;v) or F<sub>z</sub> = q (v<sub>x</sub> B<sub>y</sub> - v<sub>y</sub> B<sub>x</sub>)    magnetic force (z component)", items: [
       {id: 'Magnetic Field1583', label: 'Magnetic Field', items: [
         {id: 'MAG1C1584', label: "MAG1C: 8.6m 83%"},
         {id: 'MAG3A1585', label: "MAG3A: 9.8m 89%"},
         {id: 'MAG3B1586', label: "MAG3B: 9.2m 87%"}
       ]}    ]},
-    {id: 'CURRENT-FORCE-BFIELD-MAG1587', label: "F = I*L*B*sin($q)    magnetic force on a wire (magnitude)", items: [
+    {id: 'CURRENT-FORCE-BFIELD-MAG1587', label: "F = I L B sin(&theta;)    magnetic force on a wire (magnitude)", items: [
       {id: 'Magnetic Field1588', label: 'Magnetic Field', items: [
         {id: 'MAG71589', label: "MAG7: 6.8m 71%"},
         {id: 'MAG111590', label: "MAG11: 9.8m 57.5%"}
       ]}    ]},
-    {id: 'BIOT-SAVERT-POINT-PARTICLE-MAG1591', label: "B = $m0*abs(q)*v*sin($q)/(4*$p*r^2)    Biot-Savart law for a point charge (magnitude)", items: [
+    {id: 'BIOT-SAVERT-POINT-PARTICLE-MAG1591', label: "B = &mu;0 abs(q) v sin(&theta;)/(4 &pi; r<sup>2</sup>)    Biot-Savart law for a point charge (magnitude)", items: [
       {id: 'Magnetic Field1592', label: 'Magnetic Field', items: [
         {id: 'MAG91593', label: "MAG9: 19.3m 69%"}
       ]}    ]},
-    {id: 'BIOT-SAVERT-POINT-PARTICLE1594', label: "B_x = $m0*q*(v_y*n_z - v_z*n_y)/(4*$p*r^2)    Biot-Savart law for a point charge (x component)", items: [
+    {id: 'BIOT-SAVERT-POINT-PARTICLE1594', label: "B<sub>x</sub> = &mu;0 q (v<sub>y</sub> n<sub>z</sub> - v<sub>z</sub> n<sub>y</sub>)/(4 &pi; r<sup>2</sup>)    Biot-Savart law for a point charge (x component)", items: [
     ]},
-    {id: 'BIOT-SAVERT-POINT-PARTICLE1595', label: "B_y = $m0*q*(v_z*n_x - v_x*n_z)/(4*$p*r^2)    Biot-Savart law for a point charge (y component)", items: [
+    {id: 'BIOT-SAVERT-POINT-PARTICLE1595', label: "B<sub>y</sub> = &mu;0 q (v<sub>z</sub> n<sub>x</sub> - v<sub>x</sub> n<sub>z</sub>)/(4 &pi; r<sup>2</sup>)    Biot-Savart law for a point charge (y component)", items: [
     ]},
-    {id: 'BIOT-SAVERT-POINT-PARTICLE1596', label: "B_z = $m0*q*v*sin($qn-$qv)/(4*$p*r^2) or B_z = $m0*q*(v_x*n_y - v_y*n_x)/(4*$p*r^2)    Biot-Savart law for a point charge (z component)", items: [
+    {id: 'BIOT-SAVERT-POINT-PARTICLE1596', label: "B<sub>z</sub> = &mu;0 q v sin(&theta;n-&theta;v)/(4 &pi; r<sup>2</sup>) or B<sub>z</sub> = &mu;0 q (v<sub>x</sub> n<sub>y</sub> - v<sub>y</sub> n<sub>x</sub>)/(4 &pi; r<sup>2</sup>)    Biot-Savart law for a point charge (z component)", items: [
       {id: 'Magnetic Field1597', label: 'Magnetic Field', items: [
         {id: 'MAG91598', label: "MAG9: 19.3m 69%"}
       ]}    ]},
-    {id: 'STRAIGHT-WIRE-BFIELD1599', label: "B = $m0*I/(2*$p*r)    magnetic field of a straight wire", items: [
+    {id: 'STRAIGHT-WIRE-BFIELD1599', label: "B = &mu;0 I/(2 &pi; r)    magnetic field of a straight wire", items: [
       {id: 'Magnetic Field1600', label: 'Magnetic Field', items: [
         {id: 'MAG6A1601', label: "MAG6A: 6.2m 93%"},
         {id: 'MAG71602', label: "MAG7: 6.8m 71%"},
         {id: 'MAG101603', label: "MAG10: 20.0m 59%"},
         {id: 'MAG121604', label: "MAG12: 7.7m 69%"}
       ]}    ]},
-    {id: 'CENTER-COIL-BFIELD1605', label: "B = $m0*N*I/(2*r)    magnetic field at center of a thin coil", items: [
+    {id: 'CENTER-COIL-BFIELD1605', label: "B = &mu;0 N I/(2 r)    magnetic field at center of a thin coil", items: [
       {id: 'Magnetic Field1606', label: 'Magnetic Field', items: [
         {id: 'MAG8B1607', label: "MAG8B: 3.3m 93%"},
         {id: 'MAG121608', label: "MAG12: 7.7m 69%"}
       ]}    ]},
-    {id: 'INSIDE-SOLENOID-BFIELD1609', label: "B = $m0*n*I    magnetic field inside a long solenoid", items: [
+    {id: 'INSIDE-SOLENOID-BFIELD1609', label: "B = &mu;0 n I    magnetic field inside a long solenoid", items: [
       {id: 'Magnetic Field1610', label: 'Magnetic Field', items: [
         {id: 'MAG8A1611', label: "MAG8A: 4.0m 88.5%"}
       ]},
       {id: 'Inductance 1612', label: 'Inductance ', items: [
         {id: 'IND3A1613', label: "IND3A: 6.9m 90%"}
       ]}    ]},
-    {id: 'NET-FIELD-MAGNETIC1614', label: "Bnet_x = B1_x + B2_x + ...    net magnetic field (x component)", items: [
+    {id: 'NET-FIELD-MAGNETIC1614', label: "Bnet<sub>x</sub> = B1<sub>x</sub> + B2<sub>x</sub> + ...    net magnetic field (x component)", items: [
     ]},
-    {id: 'NET-FIELD-MAGNETIC1615', label: "Bnet_y = B1_y + B2_y + ...    net magnetic field (y component)", items: [
+    {id: 'NET-FIELD-MAGNETIC1615', label: "Bnet<sub>y</sub> = B1<sub>y</sub> + B2<sub>y</sub> + ...    net magnetic field (y component)", items: [
     ]},
-    {id: 'NET-FIELD-MAGNETIC1616', label: "Bnet_z = B1_z + B2_z + ...    net magnetic field (z component)", items: [
+    {id: 'NET-FIELD-MAGNETIC1616', label: "Bnet<sub>z</sub> = B1<sub>z</sub> + B2<sub>z</sub> + ...    net magnetic field (z component)", items: [
       {id: 'Magnetic Field1617', label: 'Magnetic Field', items: [
         {id: 'MAG101618', label: "MAG10: 20.0m 59%"},
         {id: 'MAG121619', label: "MAG12: 7.7m 69%"}
       ]}    ]},
-    {id: 'MAGNETIC-FLUX-CONSTANT-FIELD1620', label: "$Fb = A*B*cos($qB - $qn) or $Fb = A*(B_x*n_x + B_y*n_y)    magnetic flux (constant field)", items: [
+    {id: 'MAGNETIC-FLUX-CONSTANT-FIELD1620', label: "&Phi;b = A B cos(&theta;B - &theta;n) or &Phi;b = A (B<sub>x</sub> n<sub>x</sub> + B<sub>y</sub> n<sub>y</sub>)    magnetic flux (constant field)", items: [
       {id: 'Electromagnetic Induction1621', label: 'Electromagnetic Induction', items: [
         {id: 'FARA11A1622', label: "FARA11A: 11.1m 49%"},
         {id: 'FARA11B1623', label: "FARA11B: 7.2m 71.5%"}
       ]}    ]},
-    {id: 'MAGNETIC-FLUX-CONSTANT-FIELD-CHANGE1624', label: "d$Fb/dt = B.n*dA/dt    rate of change in magnetic flux (constant field)", items: [
+    {id: 'MAGNETIC-FLUX-CONSTANT-FIELD-CHANGE1624', label: "d&Phi;b/dt = B.n dA/dt    rate of change in magnetic flux (constant field)", items: [
       {id: 'Electromagnetic Induction1625', label: 'Electromagnetic Induction', items: [
         {id: 'FARA91626', label: "FARA9: 12.0m 48%"}
       ]}    ]},
-    {id: 'FARADAYS-LAW1627', label: "V = -N*d$Fb/dt    Faraday's law", items: [
+    {id: 'FARADAYS-LAW1627', label: "V = -N d&Phi;b/dt    Faraday's law", items: [
       {id: 'Electromagnetic Induction1628', label: 'Electromagnetic Induction', items: [
         {id: 'FARA91629', label: "FARA9: 12.0m 48%"},
         {id: 'FARA11A1630', label: "FARA11A: 11.1m 49%"},
         {id: 'FARA11B1631', label: "FARA11B: 7.2m 71.5%"}
       ]}    ]},
-    {id: 'AMPERES-LAW1632', label: "int B = $m0*(±I1 ± I2 ± ...)    Ampère's law", items: [
+    {id: 'AMPERES-LAW1632', label: "int B = &mu;0 (±I1 ± I2 ± ...)    Ampère's law", items: [
       {id: 'Electromagnetic Induction1633', label: 'Electromagnetic Induction', items: [
         {id: 'AMP11634', label: "AMP1: 3.9m 92%"}
       ]}    ]},
-    {id: 'MAGNETIC-DIPOLE-MOMENT-MAG1635', label: "$m = N*I*A    magnetic dipole moment (magnitude)", items: [
+    {id: 'MAGNETIC-DIPOLE-MOMENT-MAG1635', label: "&mu; = N I A    magnetic dipole moment (magnitude)", items: [
       {id: 'Magnetic Field1636', label: 'Magnetic Field', items: [
         {id: 'MAGDIP11637', label: "MAGDIP1: 8.2m 79.5%"},
         {id: 'MAGDIP21638', label: "MAGDIP2: 10.8m 69%"},
         {id: 'MAGDIP31639', label: "MAGDIP3: 6.3m 92%"}
       ]}    ]},
-    {id: 'MAGNETIC-DIPOLE-MOMENT1640', label: "$m_x = N*I*A*n_x    magnetic dipole moment (x component)", items: [
+    {id: 'MAGNETIC-DIPOLE-MOMENT1640', label: "&mu;<sub>x</sub> = N I A n<sub>x</sub>    magnetic dipole moment (x component)", items: [
       {id: 'Magnetic Field1641', label: 'Magnetic Field', items: [
         {id: 'MAGDIP21642', label: "MAGDIP2: 10.8m 69%"}
       ]}    ]},
-    {id: 'MAGNETIC-DIPOLE-MOMENT1643', label: "$m_y = N*I*A*n_y    magnetic dipole moment (y component)", items: [
+    {id: 'MAGNETIC-DIPOLE-MOMENT1643', label: "&mu;<sub>y</sub> = N I A n<sub>y</sub>    magnetic dipole moment (y component)", items: [
       {id: 'Magnetic Field1644', label: 'Magnetic Field', items: [
         {id: 'MAGDIP21645', label: "MAGDIP2: 10.8m 69%"}
       ]}    ]},
-    {id: 'MAGNETIC-DIPOLE-MOMENT1646', label: "$m_z = N*I*A*n_z    magnetic dipole moment (z component)", items: [
+    {id: 'MAGNETIC-DIPOLE-MOMENT1646', label: "&mu;<sub>z</sub> = N I A n<sub>z</sub>    magnetic dipole moment (z component)", items: [
       {id: 'Magnetic Field1647', label: 'Magnetic Field', items: [
         {id: 'MAGDIP11648', label: "MAGDIP1: 8.2m 79.5%"},
         {id: 'MAGDIP31649', label: "MAGDIP3: 6.3m 92%"}
       ]}    ]},
-    {id: 'MAGNETIC-DIPOLE-TORQUE-MAG1650', label: "$t = $m*B*sin($q)    torque for magnetic dipole (magnitude)", items: [
+    {id: 'MAGNETIC-DIPOLE-TORQUE-MAG1650', label: "&tau; = &mu; B sin(&theta;)    torque for magnetic dipole (magnitude)", items: [
       {id: 'Magnetic Field1651', label: 'Magnetic Field', items: [
         {id: 'MAGDIP11652', label: "MAGDIP1: 8.2m 79.5%"},
         {id: 'MAGDIP21653', label: "MAGDIP2: 10.8m 69%"},
         {id: 'MAGDIP31654', label: "MAGDIP3: 6.3m 92%"}
       ]}    ]},
-    {id: 'MAGNETIC-DIPOLE-TORQUE1655', label: "$t_x = $m_y*B_z - $m_z*B_y    torque for magnetic dipole (x component)", items: [
+    {id: 'MAGNETIC-DIPOLE-TORQUE1655', label: "&tau;<sub>x</sub> = &mu;<sub>y</sub> B<sub>z</sub> - &mu;<sub>z</sub> B<sub>y</sub>    torque for magnetic dipole (x component)", items: [
     ]},
-    {id: 'MAGNETIC-DIPOLE-TORQUE1656', label: "$t_y = $m_z*B_x - $m_x*B_z    torque for magnetic dipole (y component)", items: [
+    {id: 'MAGNETIC-DIPOLE-TORQUE1656', label: "&tau;<sub>y</sub> = &mu;<sub>z</sub> B<sub>x</sub> - &mu;<sub>x</sub> B<sub>z</sub>    torque for magnetic dipole (y component)", items: [
     ]},
-    {id: 'MAGNETIC-DIPOLE-TORQUE1657', label: "$t_z = $m*B*sin($qB-$q$m)) or $t_z = $m_x*B_y - $m_y*B_x    torque for magnetic dipole (z component)", items: [
+    {id: 'MAGNETIC-DIPOLE-TORQUE1657', label: "&tau;<sub>z</sub> = &mu; B sin(&theta;B-&theta;&mu;)) or &tau;<sub>z</sub> = &mu;<sub>x</sub> B<sub>y</sub> - &mu;<sub>y</sub> B<sub>x</sub>    torque for magnetic dipole (z component)", items: [
       {id: 'Magnetic Field1658', label: 'Magnetic Field', items: [
         {id: 'MAGDIP21659', label: "MAGDIP2: 10.8m 69%"}
       ]}    ]},
-    {id: 'MAGNETIC-DIPOLE-ENERGY1660', label: "U = -$m*B*cos($q$m - $qB) or U = -($m_x*B_x + $m_y*B_y)    potential energy of magnetic dipole", items: [
+    {id: 'MAGNETIC-DIPOLE-ENERGY1660', label: "U = -&mu; B cos(&theta;&mu; - &theta;B) or U = -(&mu;<sub>x</sub> B<sub>x</sub> + &mu;<sub>y</sub> B<sub>y</sub>)    potential energy of magnetic dipole", items: [
       {id: 'Magnetic Field1661', label: 'Magnetic Field', items: [
         {id: 'MAGDIP41662', label: "MAGDIP4: 12.0m 61%"}
       ]}    ]},
-    {id: 'ELECTROMAGNETIC-WAVE-FIELD-AMPLITUDE1663', label: "E = B*c    ratio of fields in electromagnetic wave", items: [
+    {id: 'ELECTROMAGNETIC-WAVE-FIELD-AMPLITUDE1663', label: "E = B c    ratio of fields in electromagnetic wave", items: [
     ]}
   ]},
   {id: "Circuits1664", label: "Circuits", items: [
@@ -1997,7 +1997,7 @@
         {id: 'KIR4A1703', label: "KIR4A: 5.6m 86.5%"},
         {id: 'KIR5A1704', label: "KIR5A: 11.6m 85.5%"}
       ]}    ]},
-    {id: 'ELECTRIC-POWER1705', label: "P = V*I    electric power", items: [
+    {id: 'ELECTRIC-POWER1705', label: "P = V I    electric power", items: [
       {id: 'DC Circuits1706', label: 'DC Circuits', items: [
         {id: 'EPOW11707', label: "EPOW1: 4.1m 83%"},
         {id: 'EPOW21708', label: "EPOW2: 4.9m 88%"},
@@ -2042,7 +2042,7 @@
         {id: 'EQRES5A1742', label: "EQRES5A: 2.5m 99%"},
         {id: 'EQRES6A1743', label: "EQRES6A: 7.3m 81%"}
       ]}    ]},
-    {id: 'OHMS-LAW1744', label: "V = I*R    Ohm's Law", items: [
+    {id: 'OHMS-LAW1744', label: "V = I R    Ohm's Law", items: [
       {id: 'DC Circuits1745', label: 'DC Circuits', items: [
         {id: 'KIR1B1746', label: "KIR1B: 1.0m 91%"},
         {id: 'KIR2A1747', label: "KIR2A: 8.3m 74%"},
@@ -2138,7 +2138,7 @@
         {id: 'CAP3A1827', label: "CAP3A: 8.4m 68%"},
         {id: 'CAP4A1828', label: "CAP4A: 8.8m 65.5%"}
       ]}    ]},
-    {id: 'CAP-ENERGY1829', label: "U = 0.5*C*V^2    energy stored in a capacitor", items: [
+    {id: 'CAP-ENERGY1829', label: "U = 0.5 C V<sup>2</sup>    energy stored in a capacitor", items: [
       {id: 'Capacitance1830', label: 'Capacitance', items: [
         {id: 'CAP1A1831', label: "CAP1A: 9.7m 64%"},
         {id: 'CAP2A1832', label: "CAP2A: 6.3m 78%"},
@@ -2154,7 +2154,7 @@
         {id: 'LC1A1840', label: "LC1A: 6.7m 84%"},
         {id: 'LRC1A1841', label: "LRC1A: 7.8m 81%"}
       ]}    ]},
-    {id: 'RC-TIME-CONSTANT1842', label: "$t = R*C    RC time constant", items: [
+    {id: 'RC-TIME-CONSTANT1842', label: "&tau; = R C    RC time constant", items: [
       {id: 'DC Circuits1843', label: 'DC Circuits', items: [
         {id: 'RC1A1844', label: "RC1A: 5.1m 83.5%"},
         {id: 'RC1B1845', label: "RC1B: 4.4m 87%"},
@@ -2171,7 +2171,7 @@
         {id: 'RC81856', label: "RC8:  "},
         {id: 'RC91857', label: "RC9: 0.02m 19%"}
       ]}    ]},
-    {id: 'CHARGING-CAPACITOR-AT-TIME1858', label: "q = C*Vb*(1 - exp(-t/$t))    charge on capacitor in RC circuit with battery", items: [
+    {id: 'CHARGING-CAPACITOR-AT-TIME1858', label: "q = C Vb (1 - exp(-t/&tau;))    charge on capacitor in RC circuit with battery", items: [
       {id: 'DC Circuits1859', label: 'DC Circuits', items: [
         {id: 'RC1A1860', label: "RC1A: 5.1m 83.5%"},
         {id: 'RC1B1861', label: "RC1B: 4.4m 87%"},
@@ -2182,7 +2182,7 @@
         {id: 'RC81866', label: "RC8:  "},
         {id: 'RC91867', label: "RC9: 0.02m 19%"}
       ]}    ]},
-    {id: 'DISCHARGING-CAPACITOR-AT-TIME1868', label: "q = qi*exp(-t/$t)    charge on capacitor in RC circuit", items: [
+    {id: 'DISCHARGING-CAPACITOR-AT-TIME1868', label: "q = qi exp(-t/&tau;)    charge on capacitor in RC circuit", items: [
       {id: 'DC Circuits1869', label: 'DC Circuits', items: [
         {id: 'RC4A1870', label: "RC4A: 4.8m 73%"},
         {id: 'RC4B1871', label: "RC4B: 4.2m 16%"},
@@ -2191,14 +2191,14 @@
         {id: 'RC7A1874', label: "RC7A: 3.7m 84%"},
         {id: 'RC7B1875', label: "RC7B: 7.3m 80.5%"}
       ]}    ]},
-    {id: 'CURRENT-IN-RC-AT-TIME1876', label: "I = (Vb/R)*exp(-t/$t)    current in RC circuit", items: [
+    {id: 'CURRENT-IN-RC-AT-TIME1876', label: "I = (Vb/R) exp(-t/&tau;)    current in RC circuit", items: [
       {id: 'DC Circuits1877', label: 'DC Circuits', items: [
         {id: 'RC1C1878', label: "RC1C: 4.5m 95%"},
         {id: 'RC3B1879', label: "RC3B: 5.9m 90%"},
         {id: 'RC81880', label: "RC8:  "},
         {id: 'RC91881', label: "RC9: 0.02m 19%"}
       ]}    ]},
-    {id: 'CHARGE-CAPACITOR-PERCENT-MAX1882', label: "q = fraction*C*Vb    RC charge as fraction of max", items: [
+    {id: 'CHARGE-CAPACITOR-PERCENT-MAX1882', label: "q = fraction C Vb    RC charge as fraction of max", items: [
       {id: 'DC Circuits1883', label: 'DC Circuits', items: [
         {id: 'RC3A1884', label: "RC3A: 3.6m 90%"},
         {id: 'RC3B1885', label: "RC3B: 5.9m 90%"},
@@ -2206,7 +2206,7 @@
       ]}    ]}
   ]},
   {id: "Inductance1887", label: "Inductance", items: [
-    {id: 'INDUCTOR-EMF1888', label: "V = -L*dIdt    inductor EMF", items: [
+    {id: 'INDUCTOR-EMF1888', label: "V = -L dIdt    inductor EMF", items: [
       {id: 'Inductance 1889', label: 'Inductance ', items: [
         {id: 'IND1A1890', label: "IND1A: 3.1m 94%"},
         {id: 'IND1B1891', label: "IND1B: 1.7m 98%"},
@@ -2217,11 +2217,11 @@
         {id: 'LC1A1896', label: "LC1A: 6.7m 84%"},
         {id: 'LRC1A1897', label: "LRC1A: 7.8m 81%"}
       ]}    ]},
-    {id: 'MUTUAL-INDUCTOR-EMF1898', label: "V2 = -M12*dI1dt    mutual inductor EMF", items: [
+    {id: 'MUTUAL-INDUCTOR-EMF1898', label: "V2 = -M12 dI1dt    mutual inductor EMF", items: [
       {id: 'Inductance 1899', label: 'Inductance ', items: [
         {id: 'IND3C1900', label: "IND3C: 2.8m 97%"}
       ]}    ]},
-    {id: 'INDUCTOR-ENERGY1901', label: "U = 0.5*L*I^2    energy stored in inductor", items: [
+    {id: 'INDUCTOR-ENERGY1901', label: "U = 0.5 L I<sup>2</sup>    energy stored in inductor", items: [
       {id: 'Inductance 1902', label: 'Inductance ', items: [
         {id: 'IND2A1903', label: "IND2A: 1.3m 98%"},
         {id: 'IND3B1904', label: "IND3B: 5.3m 90.5%"},
@@ -2230,12 +2230,12 @@
         {id: 'LC1A1907', label: "LC1A: 6.7m 84%"},
         {id: 'LRC1A1908', label: "LRC1A: 7.8m 81%"}
       ]}    ]},
-    {id: 'SOLENOID-SELF-INDUCTANCE1909', label: "L = $m0*N^2*A/l    self-inductance of long, uniform solenoid", items: [
+    {id: 'SOLENOID-SELF-INDUCTANCE1909', label: "L = &mu;0 N<sup>2</sup> A/l    self-inductance of long, uniform solenoid", items: [
       {id: 'Inductance 1910', label: 'Inductance ', items: [
         {id: 'IND3A1911', label: "IND3A: 6.9m 90%"},
         {id: 'IND3B1912', label: "IND3B: 5.3m 90.5%"}
       ]}    ]},
-    {id: 'LR-TIME-CONSTANT1913', label: "$t = L/R    LR time constant", items: [
+    {id: 'LR-TIME-CONSTANT1913', label: "&tau; = L/R    LR time constant", items: [
       {id: 'Inductance 1914', label: 'Inductance ', items: [
         {id: 'LR1A1915', label: "LR1A: 6.4m 77%"},
         {id: 'LR1B1916', label: "LR1B: 4.7m 73%"},
@@ -2245,7 +2245,7 @@
         {id: 'LR2B1920', label: "LR2B: 2.3m 59%"},
         {id: 'LR3B1921', label: "LR3B: 6.7m 72%"}
       ]}    ]},
-    {id: 'LR-CURRENT-GROWTH1922', label: "I = Imax*(1 - exp(-t/$t))    LR current growth", items: [
+    {id: 'LR-CURRENT-GROWTH1922', label: "I = Imax (1 - exp(-t/&tau;))    LR current growth", items: [
       {id: 'Inductance 1923', label: 'Inductance ', items: [
         {id: 'LR1A1924', label: "LR1A: 6.4m 77%"},
         {id: 'LR1B1925', label: "LR1B: 4.7m 73%"},
@@ -2256,7 +2256,7 @@
       {id: 'Inductance 1929', label: 'Inductance ', items: [
         {id: 'LR1A1930', label: "LR1A: 6.4m 77%"}
       ]}    ]},
-    {id: 'LR-CURRENT-DECAY1931', label: "I = I0*exp(-t/$t)    LR current decay", items: [
+    {id: 'LR-CURRENT-DECAY1931', label: "I = I0 exp(-t/&tau;)    LR current decay", items: [
       {id: 'Inductance 1932', label: 'Inductance ', items: [
         {id: 'LR2A1933', label: "LR2A: 4.5m 84.5%"},
         {id: 'LR2B1934', label: "LR2B: 2.3m 59%"},
@@ -2267,16 +2267,16 @@
         {id: 'LR2A1938', label: "LR2A: 4.5m 84.5%"},
         {id: 'LR3B1939', label: "LR3B: 6.7m 72%"}
       ]}    ]},
-    {id: 'LC-ANGULAR-FREQUENCY1940', label: "$w = 1/sqrt(L*C)    LC angular frequency", items: [
+    {id: 'LC-ANGULAR-FREQUENCY1940', label: "&omega; = 1/sqrt(L C)    LC angular frequency", items: [
       {id: 'Inductance 1941', label: 'Inductance ', items: [
         {id: 'LC2A1942', label: "LC2A: 4.0m 88%"},
         {id: 'LC2B1943', label: "LC2B: 2.4m 97%"}
       ]}    ]},
-    {id: 'RLC-TIME-CONSTANT1944', label: "$t = 2*L/R    RLC time constant", items: [
+    {id: 'RLC-TIME-CONSTANT1944', label: "&tau; = 2 L/R    RLC time constant", items: [
       {id: 'Inductance 1945', label: 'Inductance ', items: [
         {id: 'LRC2A1946', label: "LRC2A: 10.5m 69%"}
       ]}    ]},
-    {id: 'RLC-ANGULAR-FREQUENCY1947', label: "$w = sqrt(1/(L*C)-R^2/(2*L)^2)    RLC angular frequency", items: [
+    {id: 'RLC-ANGULAR-FREQUENCY1947', label: "&omega; = sqrt(1/(L C)-R<sup>2</sup>/(2 L)<sup>2</sup>)    RLC angular frequency", items: [
       {id: 'Inductance 1948', label: 'Inductance ', items: [
         {id: 'LRC2A1949', label: "LRC2A: 10.5m 69%"}
       ]}    ]},
@@ -2329,7 +2329,7 @@
         {id: 'LENS4A1989', label: "LENS4A: 4.3m 89%"},
         {id: 'LENS4B1990', label: "LENS4B: 3.2m 83%"}
       ]}    ]},
-    {id: 'COMBO-MAGNIFICATION1991', label: "m12 = m1*m2    combined magnification", items: [
+    {id: 'COMBO-MAGNIFICATION1991', label: "m12 = m1 m2    combined magnification", items: [
       {id: 'Optics1992', label: 'Optics', items: [
         {id: 'LENS3A1993', label: "LENS3A: 6.9m 89%"},
         {id: 'LENS3B1994', label: "LENS3B: 4.7m 96%"}
@@ -2347,7 +2347,7 @@
       ]}    ]},
     {id: 'REFRACTION-VACUUM2004', label: "n=1    index of refraction of vacuum", items: [
     ]},
-    {id: 'SNELLS-LAW2005', label: "n1*sin($q1) = n2*sin($q2)    Snell's law", items: [
+    {id: 'SNELLS-LAW2005', label: "n1 sin(&theta;1) = n2 sin(&theta;2)    Snell's law", items: [
       {id: 'Optics2006', label: 'Optics', items: [
         {id: 'REF2A2007', label: "REF2A: 6.7m 75%"},
         {id: 'REF2B2008', label: "REF2B: 4.1m 89%"},
@@ -2357,47 +2357,47 @@
         {id: 'REF4B2012', label: "REF4B: 3.0m 95%"},
         {id: 'REF62013', label: "REF6: 4.8m 71%"}
       ]}    ]},
-    {id: 'TOTAL-INTERNAL-REFLECTION2014', label: "n1*sin($q1) = n2    total internal reflection (minimum angle)", items: [
+    {id: 'TOTAL-INTERNAL-REFLECTION2014', label: "n1 sin(&theta;1) = n2    total internal reflection (minimum angle)", items: [
       {id: 'Optics2015', label: 'Optics', items: [
         {id: 'REF3A2016', label: "REF3A: 8.8m 60%"},
         {id: 'REF3B2017', label: "REF3B: 3.9m 87.5%"},
         {id: 'REF62018', label: "REF6: 4.8m 71%"}
       ]}    ]},
-    {id: 'BREWSTERS-LAW2019', label: "n1*tan($q1) = n2    Brewster's law", items: [
+    {id: 'BREWSTERS-LAW2019', label: "n1 tan(&theta;1) = n2    Brewster's law", items: [
       {id: 'Optics2020', label: 'Optics', items: [
         {id: 'REF4A2021', label: "REF4A: 5.8m 84%"},
         {id: 'REF4B2022', label: "REF4B: 3.0m 95%"}
       ]}    ]},
-    {id: 'POLARIZER-INTENSITY2023', label: "If = Ii*cos($q)^2    Malus' law", items: [
+    {id: 'POLARIZER-INTENSITY2023', label: "If = Ii cos(&theta;)<sup>2</sup>    Malus' law", items: [
       {id: 'Optics2024', label: 'Optics', items: [
         {id: 'REF5A2025', label: "REF5A: 5.2m 80%"},
         {id: 'REF5B2026', label: "REF5B: 4.0m 86.5%"}
       ]}    ]},
-    {id: 'POLARIZER-INTENSITY2027', label: "If = 0.5*Ii    polarizer and unpolarized light", items: [
+    {id: 'POLARIZER-INTENSITY2027', label: "If = 0.5 Ii    polarizer and unpolarized light", items: [
       {id: 'Optics2028', label: 'Optics', items: [
         {id: 'REF5A2029', label: "REF5A: 5.2m 80%"}
       ]}    ]},
-    {id: 'SLIT-INTERFERENCE2030', label: "d*sin($q) = n*$l    interference for parallel slits", items: [
+    {id: 'SLIT-INTERFERENCE2030', label: "d sin(&theta;) = n &lambda;    interference for parallel slits", items: [
       {id: 'Optics2031', label: 'Optics', items: [
         {id: 'INT1A2032', label: "INT1A: 10.9m 62%"},
         {id: 'INT1B2033', label: "INT1B: 5.1m 89%"},
         {id: 'INT1C2034', label: "INT1C: 2.8m 94%"}
       ]}    ]},
-    {id: 'FRAUENHOFER-DIFFRACTION2035', label: "w*sin($q) = n*$l    single slit diffraction (minima)", items: [
+    {id: 'FRAUENHOFER-DIFFRACTION2035', label: "w sin(&theta;) = n &lambda;    single slit diffraction (minima)", items: [
       {id: 'Optics2036', label: 'Optics', items: [
         {id: 'INT2A2037', label: "INT2A: 5.9m 84%"}
       ]}    ]},
-    {id: 'RESOLUTION-CIRCULAR-APERTURE2038', label: "$q = 1.22*$l/d    resolution (circular)", items: [
+    {id: 'RESOLUTION-CIRCULAR-APERTURE2038', label: "&theta; = 1.22 &lambda;/d    resolution (circular)", items: [
       {id: 'Optics2039', label: 'Optics', items: [
         {id: 'INT2B2040', label: "INT2B: 2.1m 96%"}
       ]}    ]},
-    {id: 'RADIATION-PRESSURE2041', label: "Fp = 2*I/c    radiation pressure (reflector)", items: [
+    {id: 'RADIATION-PRESSURE2041', label: "Fp = 2 I/c    radiation pressure (reflector)", items: [
       {id: 'Electromagnetic Waves2042', label: 'Electromagnetic Waves', items: [
         {id: 'EMWAVE52043', label: "EMWAVE5: 5.8m 75%"}
       ]}    ]}
   ]},
   {id: "Waves and Oscillations2044", label: "Waves and Oscillations", items: [
-    {id: 'WAVENUMBER-LAMBDA-WAVE2045', label: "k = 2*$p/$l    wavenumber", items: [
+    {id: 'WAVENUMBER-LAMBDA-WAVE2045', label: "k = 2 &pi;/&lambda;    wavenumber", items: [
       {id: 'Waves2046', label: 'Waves', items: [
         {id: 'WAVE22047', label: "WAVE2: 1.4m 99%"},
         {id: 'WAVE32048', label: "WAVE3: 1.3m 99%"},
@@ -2405,7 +2405,7 @@
         {id: 'WAVE132050', label: "WAVE13: 4.3m 98%"},
         {id: 'WAVE242051', label: "WAVE24:  "}
       ]}    ]},
-    {id: 'FREQUENCY-OF-WAVE2052', label: "f = $w/(2*$p)    frequency", items: [
+    {id: 'FREQUENCY-OF-WAVE2052', label: "f = &omega;/(2 &pi;)    frequency", items: [
       {id: 'Rotational Kinematics2053', label: 'Rotational Kinematics', items: [
         {id: 'KR92054', label: "KR9:  "}
       ]},
@@ -2433,7 +2433,7 @@
       {id: 'Waves2072', label: 'Waves', items: [
         {id: 'WAVE242073', label: "WAVE24:  "}
       ]}    ]},
-    {id: 'SPEED-OF-WAVE2074', label: "vw = $l*f or vw = $w/k    speed of a wave", items: [
+    {id: 'SPEED-OF-WAVE2074', label: "vw = &lambda; f or vw = &omega;/k    speed of a wave", items: [
       {id: 'Waves2075', label: 'Waves', items: [
         {id: 'WAVE22076', label: "WAVE2: 1.4m 99%"},
         {id: 'WAVE32077', label: "WAVE3: 1.3m 99%"},
@@ -2454,39 +2454,39 @@
       {id: 'Electromagnetic Waves2089', label: 'Electromagnetic Waves', items: [
         {id: 'WAVE192090', label: "WAVE19: 5.8m 74%"}
       ]}    ]},
-    {id: 'WAVE-SPEED-STRING2091', label: "vw = sqrt(Ft/$m)    speed of waves on a string", items: [
+    {id: 'WAVE-SPEED-STRING2091', label: "vw = sqrt(Ft/&mu;)    speed of waves on a string", items: [
       {id: 'Waves2092', label: 'Waves', items: [
         {id: 'WAVE42093', label: "WAVE4: 6.1m 89%"},
         {id: 'WAVE82094', label: "WAVE8: 9.5m 79%"}
       ]}    ]},
-    {id: 'MAX-TRANSVERSE-SPEED-WAVE2095', label: "vmax = A*$w    maximum speed of oscillation", items: [
+    {id: 'MAX-TRANSVERSE-SPEED-WAVE2095', label: "vmax = A &omega;    maximum speed of oscillation", items: [
       {id: 'Oscillations2096', label: 'Oscillations', items: [
         {id: 'OSC22097', label: "OSC2: 3.3m 97%"}
       ]}    ]},
-    {id: 'MAX-TRANSVERSE-ABS-ACCELERATION-WAVE2098', label: "amax = A*$w^2    maximum acceleration of oscillation", items: [
+    {id: 'MAX-TRANSVERSE-ABS-ACCELERATION-WAVE2098', label: "amax = A &omega;<sup>2</sup>    maximum acceleration of oscillation", items: [
       {id: 'Oscillations2099', label: 'Oscillations', items: [
         {id: 'OSC22100', label: "OSC2: 3.3m 97%"}
       ]}    ]},
-    {id: 'SPRING-MASS-OSCILLATION2101', label: "T = 2*$p*sqrt(m/k)    period of spring-mass system", items: [
+    {id: 'SPRING-MASS-OSCILLATION2101', label: "T = 2 &pi; sqrt(m/k)    period of spring-mass system", items: [
       {id: 'Oscillations2102', label: 'Oscillations', items: [
         {id: 'OSC32103', label: "OSC3: 2.8m 97%"},
         {id: 'OSC42104', label: "OSC4: 11.2m 51%"},
         {id: 'OSC52105', label: "OSC5: 6.8m 81%"}
       ]}    ]},
-    {id: 'PENDULUM-OSCILLATION2106', label: "T = 2*$p*sqrt(l/g)    period of simple pendulum", items: [
+    {id: 'PENDULUM-OSCILLATION2106', label: "T = 2 &pi; sqrt(l/g)    period of simple pendulum", items: [
       {id: 'Oscillations2107', label: 'Oscillations', items: [
         {id: 'OSC62108', label: "OSC6: 2.6m 98%"},
         {id: 'OSC72109', label: "OSC7: 3.9m 96.5%"},
         {id: 'OSC82110', label: "OSC8: 4.3m 98%"}
       ]}    ]},
-    {id: 'DOPPLER-FREQUENCY2111', label: "fo=fs*(vw±vo)/(vw±vs)    frequency shift from doppler effect", items: [
+    {id: 'DOPPLER-FREQUENCY2111', label: "fo=fs (vw±vo)/(vw±vs)    frequency shift from doppler effect", items: [
       {id: 'Waves2112', label: 'Waves', items: [
         {id: 'WAVE102113', label: "WAVE10: 7.9m 64%"},
         {id: 'WAVE112114', label: "WAVE11: 6.1m 89%"},
         {id: 'WAVE122115', label: "WAVE12: 5.5m 66%"},
         {id: 'WAVE142116', label: "WAVE14: 7.7m 75.5%"}
       ]}    ]},
-    {id: 'HARMONIC-OF2117', label: "fn = n*f1 or $ln = $l1/n    n-th harmonic", items: [
+    {id: 'HARMONIC-OF2117', label: "fn = n f1 or &lambda;n = &lambda;1/n    n-th harmonic", items: [
       {id: 'Waves2118', label: 'Waves', items: [
         {id: 'WAVE52119', label: "WAVE5: 5.1m 90%"},
         {id: 'WAVE62120', label: "WAVE6: 5.9m 85%"}
@@ -2496,7 +2496,7 @@
         {id: 'WAVE132123', label: "WAVE13: 4.3m 98%"},
         {id: 'WAVE142124', label: "WAVE14: 7.7m 75.5%"}
       ]}    ]},
-    {id: 'ENERGY-DECAY2125', label: "E = Ei*exp(-2*t/$t)    energy decay", items: [
+    {id: 'ENERGY-DECAY2125', label: "E = Ei exp(-2 t/&tau;)    energy decay", items: [
       {id: 'Inductance 2126', label: 'Inductance ', items: [
         {id: 'LRC2A2127', label: "LRC2A: 10.5m 69%"}
       ]}    ]},
@@ -2514,7 +2514,7 @@
   {id: "Apply a Definition or Auxiliary Law2135", label: "Apply a Definition or Auxiliary Law", items: [
   {id: "Kinematics2136", label: "Kinematics", items: [
   {id: "Translational2137", label: "Translational", items: [
-    {id: 'NET-DISP2138', label: "dnet_x = d1_x + d2_x + ...    net displacement", items: [
+    {id: 'NET-DISP2138', label: "dnet<sub>x</sub> = d1<sub>x</sub> + d2<sub>x</sub> + ...    net displacement", items: [
       {id: 'Vectors2139', label: 'Vectors', items: [
         {id: 'VEC3A2140', label: "VEC3A: 9.3m 97%"},
         {id: 'VEC3B2141', label: "VEC3B: 13.4m 92%"},
@@ -2534,7 +2534,7 @@
         {id: 'KT4C2154', label: "KT4C:  "},
         {id: 'KT7B2155', label: "KT7B: 1.0m 29%"}
       ]}    ]},
-    {id: 'NET-DISP2156', label: "dnet_y = d1_y + d2_y + ...    net displacement", items: [
+    {id: 'NET-DISP2156', label: "dnet<sub>y</sub> = d1<sub>y</sub> + d2<sub>y</sub> + ...    net displacement", items: [
       {id: 'Vectors2157', label: 'Vectors', items: [
         {id: 'VEC3A2158', label: "VEC3A: 9.3m 97%"},
         {id: 'VEC3B2159', label: "VEC3B: 13.4m 92%"},
@@ -2557,7 +2557,7 @@
         {id: 'WE4A2174', label: "WE4A: 8.9m 83%"},
         {id: 'WE52175', label: "WE5: 5.3m 77.5%"}
       ]}    ]},
-    {id: 'AVG-VELOCITY2176', label: "v(avg)_x = d_x/t    average velocity", items: [
+    {id: 'AVG-VELOCITY2176', label: "v(avg)<sub>x</sub> = d<sub>x</sub>/t    average velocity", items: [
       {id: 'Vectors2177', label: 'Vectors', items: [
         {id: 'MOT42178', label: "MOT4: 17.1m 92%"}
       ]},
@@ -2575,7 +2575,7 @@
       {id: 'Power2188', label: 'Power', items: [
         {id: 'POW5A2189', label: "POW5A: 20.1m 57%"}
       ]}    ]},
-    {id: 'AVG-VELOCITY2190', label: "v(avg)_y = d_y/t    average velocity", items: [
+    {id: 'AVG-VELOCITY2190', label: "v(avg)<sub>y</sub> = d<sub>y</sub>/t    average velocity", items: [
       {id: 'Translational Kinematics2191', label: 'Translational Kinematics', items: [
         {id: 'KT4A2192', label: "KT4A: 5.8m 93%"},
         {id: 'KT4B2193', label: "KT4B: 19.5m 66%"},
@@ -2588,7 +2588,7 @@
         {id: 'POW2A2199', label: "POW2A: 6.1m 84%"},
         {id: 'POW5A2200', label: "POW5A: 20.1m 57%"}
       ]}    ]},
-    {id: 'LK-NO-S2201', label: "a(avg)_x = (vf_x - vi_x)/t    ", items: [
+    {id: 'LK-NO-S2201', label: "a(avg)<sub>x</sub> = (vf<sub>x</sub> - vi<sub>x</sub>)/t    ", items: [
       {id: 'Vectors2202', label: 'Vectors', items: [
         {id: 'VEC6A2203', label: "VEC6A: 15.6m 89%"},
         {id: 'VEC6B2204', label: "VEC6B: 6.6m 97%"},
@@ -2635,7 +2635,7 @@
         {id: 'ELEC4B2238', label: "ELEC4B: 8.1m 89%"},
         {id: 'ELEC5B2239', label: "ELEC5B: 7.3m 88%"}
       ]}    ]},
-    {id: 'LK-NO-S2240', label: "a(avg)_y = (vf_y - vi_y)/t    ", items: [
+    {id: 'LK-NO-S2240', label: "a(avg)<sub>y</sub> = (vf<sub>y</sub> - vi<sub>y</sub>)/t    ", items: [
       {id: 'Vectors2241', label: 'Vectors', items: [
         {id: 'VEC6A2242', label: "VEC6A: 15.6m 89%"},
         {id: 'VEC6B2243', label: "VEC6B: 6.6m 97%"},
@@ -2691,7 +2691,7 @@
         {id: 'KT13B2289', label: "KT13B: 8.8m 53.5%"},
         {id: 'KT13C2290', label: "KT13C: 13.2m 83%"}
       ]}    ]},
-    {id: 'STD-CONSTANT-G2291', label: "g = 9.8 m/s^2    g near Earth", items: [
+    {id: 'STD-CONSTANT-G2291', label: "g = 9.8 m/s<sup>2</sup>    g near Earth", items: [
       {id: 'Translational Kinematics2292', label: 'Translational Kinematics', items: [
         {id: 'KT9A2293', label: "KT9A: 13.8m 85%"},
         {id: 'KT9B2294', label: "KT9B: 8.7m 93%"},
@@ -2833,7 +2833,7 @@
       {id: 'Magnetic Field2419', label: 'Magnetic Field', items: [
         {id: 'MAG112420', label: "MAG11: 9.8m 57.5%"}
       ]}    ]},
-    {id: 'PERIOD-CIRCLE2421', label: "T = 2*$p*r/v    period of uniform circular motion", items: [
+    {id: 'PERIOD-CIRCLE2421', label: "T = 2 &pi; r/v    period of uniform circular motion", items: [
       {id: 'Circular Motion2422', label: 'Circular Motion', items: [
         {id: 'ROTS8A2423', label: "ROTS8A: 11.4m 73%"}
       ]},
@@ -2842,14 +2842,14 @@
       ]}    ]}
   ]},
   {id: "Rotational2426", label: "Rotational", items: [
-    {id: 'ANG-SDD2427', label: "$w(avg) = $q/t    average angular velocity", items: [
+    {id: 'ANG-SDD2427', label: "&omega;(avg) = &theta;/t    average angular velocity", items: [
       {id: 'Rotational Kinematics2428', label: 'Rotational Kinematics', items: [
         {id: 'KR1A2429', label: "KR1A: 5.4m 83%"},
         {id: 'KR1B2430', label: "KR1B: 3.1m 88%"},
         {id: 'KR1C2431', label: "KR1C:  "},
         {id: 'KR4B2432', label: "KR4B:  "}
       ]}    ]},
-    {id: 'RK-NO-S2433', label: "$wf = $wi + $a(avg)*t    average anglular acceleration", items: [
+    {id: 'RK-NO-S2433', label: "&omega;f = &omega;i + &alpha;(avg) t    average anglular acceleration", items: [
       {id: 'Rotational Kinematics2434', label: 'Rotational Kinematics', items: [
         {id: 'KR2A2435', label: "KR2A: 4.3m 89%"},
         {id: 'KR2B2436', label: "KR2B: 4.3m 85%"},
@@ -2866,7 +2866,7 @@
   {id: "Newton's Laws2444", label: "Newton's Laws", items: [
   {id: "Translational2445", label: "Translational", items: [
   {id: "Force Laws2446", label: "Force Laws", items: [
-    {id: 'WT-LAW2447', label: "Fw = m*g    weight law", items: [
+    {id: 'WT-LAW2447', label: "Fw = m g    weight law", items: [
       {id: 'Translational Kinematics2448', label: 'Translational Kinematics', items: [
         {id: 'KT11B2449', label: "KT11B: 10.6m 89%"}
       ]},
@@ -2975,19 +2975,19 @@
       {id: 'Magnetic Field2542', label: 'Magnetic Field', items: [
         {id: 'MAG112543', label: "MAG11: 9.8m 57.5%"}
       ]}    ]},
-    {id: 'KINETIC-FRICTION2544', label: "Ff = $mk*Fn    kinetic friction", items: [
+    {id: 'KINETIC-FRICTION2544', label: "Ff = &mu;k Fn    kinetic friction", items: [
       {id: 'Translational Dynamics2545', label: 'Translational Dynamics', items: [
         {id: 'DT6C2546', label: "DT6C: 24.5m 93%"}
       ]},
       {id: 'Work and Energy2547', label: 'Work and Energy', items: [
         {id: 'WE62548', label: "WE6: 13.0m 89.5%"}
       ]}    ]},
-    {id: 'STATIC-FRICTION2549', label: "Ff = $ms*Fn    static friction (at max)", items: [
+    {id: 'STATIC-FRICTION2549', label: "Ff = &mu;s Fn    static friction (at max)", items: [
       {id: 'Statics2550', label: 'Statics', items: [
         {id: 'S8A2551', label: "S8A: 11.8m 78%"},
         {id: 'S12A2552', label: "S12A: 7.1m 62%"}
       ]}    ]},
-    {id: 'SPRING-LAW2553', label: "F = k*d    Hooke's law", items: [
+    {id: 'SPRING-LAW2553', label: "F = k d    Hooke's law", items: [
       {id: 'Statics2554', label: 'Statics', items: [
         {id: 'S11A2555', label: "S11A: 7.6m 83%"},
         {id: 'S11B2556', label: "S11B: 5.7m 76%"}
@@ -3007,7 +3007,7 @@
         {id: 'DT6B2567', label: "DT6B:  "},
         {id: 'DT6C2568', label: "DT6C: 24.5m 93%"}
       ]}    ]},
-    {id: 'THRUST-FORCE2569', label: "F = v*abs(dmdt)    thrust force (magnitudes)", items: [
+    {id: 'THRUST-FORCE2569', label: "F = v abs(dmdt)    thrust force (magnitudes)", items: [
       {id: 'Linear Momentum2570', label: 'Linear Momentum', items: [
         {id: 'ROC12571', label: "ROC1: 4.6m 92%"},
         {id: 'ROC22572', label: "ROC2: 6.4m 84%"},
@@ -3015,11 +3015,11 @@
         {id: 'ROC42574', label: "ROC4: 5.2m 85%"},
         {id: 'ROC62575', label: "ROC6: 7.1m 93%"}
       ]}    ]},
-    {id: 'THRUST-FORCE-VECTOR2576', label: "F_x = -v_x*dmdt    thrust force (x components)", items: [
+    {id: 'THRUST-FORCE-VECTOR2576', label: "F<sub>x</sub> = -v<sub>x</sub> dmdt    thrust force (x components)", items: [
     ]},
-    {id: 'THRUST-FORCE-VECTOR2577', label: "F_y = -v_y*dmdt    thrust force (y components)", items: [
+    {id: 'THRUST-FORCE-VECTOR2577', label: "F<sub>y</sub> = -v<sub>y</sub> dmdt    thrust force (y components)", items: [
     ]},
-    {id: 'DRAG-FORCE-TURBULENT2578', label: "F = K*v^2    drag force", items: [
+    {id: 'DRAG-FORCE-TURBULENT2578', label: "F = K v<sup>2</sup>    drag force", items: [
       {id: 'Translational Dynamics2579', label: 'Translational Dynamics', items: [
         {id: 'DT192580', label: "DT19:  "}
       ]}    ]}
@@ -3047,11 +3047,11 @@
       {id: 'Fluids2597', label: 'Fluids', items: [
         {id: 'FLUIDS152598', label: "FLUIDS15: 8.2m 69%"}
       ]}    ]},
-    {id: 'KINE-COMPOUND2599', label: "v_compound = v_part    velocity of compound", items: [
+    {id: 'KINE-COMPOUND2599', label: "v<sub>c</sub>ompound = v<sub>p</sub>art    velocity of compound", items: [
     ]},
-    {id: 'KINE-COMPOUND2600', label: "v_compound = v_part    velocity of compound", items: [
+    {id: 'KINE-COMPOUND2600', label: "v<sub>c</sub>ompound = v<sub>p</sub>art    velocity of compound", items: [
     ]},
-    {id: 'FORCE-COMPOUND2601', label: "F_on_part = F_on_compound    force on compound", items: [
+    {id: 'FORCE-COMPOUND2601', label: "F<sub>o</sub>n<sub>p</sub>art = F<sub>o</sub>n<sub>c</sub>ompound    force on compound", items: [
       {id: 'Statics2602', label: 'Statics', items: [
         {id: 'S2D2603', label: "S2D: 16.2m 54%"}
       ]},
@@ -3064,7 +3064,7 @@
   ]}
   ]},
   {id: "Rotational2609", label: "Rotational", items: [
-    {id: 'NET-TORQUE-ZC2610', label: "$tnet_z = $t1_z + $t2_z + ...    net torque defined", items: [
+    {id: 'NET-TORQUE-ZC2610', label: "&tau;net<sub>z</sub> = &tau;1<sub>z</sub> + &tau;2<sub>z</sub> + ...    net torque defined", items: [
       {id: 'Rotational Dynamics2611', label: 'Rotational Dynamics', items: [
         {id: 'DR2A2612', label: "DR2A: 11.1m 75.5%"},
         {id: 'DR2B2613', label: "DR2B: 8.2m 83%"},
@@ -3076,7 +3076,7 @@
         {id: 'DR7A2619', label: "DR7A: 18.2m 38%"},
         {id: 'DR8A2620', label: "DR8A: 13.6m 72%"}
       ]}    ]},
-    {id: 'TORQUE2621', label: "$t_z = r*F*sin($qF-$qr)) or $t_z = r_x*F_y - r_y*F_x    torque defined (z component)", items: [
+    {id: 'TORQUE2621', label: "&tau;<sub>z</sub> = r F sin(&theta;F-&theta;r)) or &tau;<sub>z</sub> = r<sub>x</sub> F<sub>y</sub> - r<sub>y</sub> F<sub>x</sub>    torque defined (z component)", items: [
       {id: 'Statics2622', label: 'Statics', items: [
         {id: 'S132623', label: "S13:  "},
         {id: 'S142624', label: "S14:  "}
@@ -3092,7 +3092,7 @@
         {id: 'DR7A2633', label: "DR7A: 18.2m 38%"},
         {id: 'DR8A2634', label: "DR8A: 13.6m 72%"}
       ]}    ]},
-    {id: 'MAG-TORQUE2635', label: "$t = r*F*sin($q)    torque defined (magnitude)", items: [
+    {id: 'MAG-TORQUE2635', label: "&tau; = r F sin(&theta;)    torque defined (magnitude)", items: [
       {id: 'Statics2636', label: 'Statics', items: [
         {id: 'S132637', label: "S13:  "},
         {id: 'S142638', label: "S14:  "}
@@ -3109,18 +3109,18 @@
         {id: 'DR8A2648', label: "DR8A: 13.6m 72%"}
       ]}    ]},
   {id: "Moment of Inertia2649", label: "Moment of Inertia", items: [
-    {id: 'I-DISK-CM2650', label: "I = 0.5*m*r^2    disk about center", items: [
+    {id: 'I-DISK-CM2650', label: "I = 0.5 m r<sup>2</sup>    disk about center", items: [
     ]},
-    {id: 'I-ROD-CM2651', label: "I = (1/12) m*L^2    rod about center", items: [
+    {id: 'I-ROD-CM2651', label: "I = (1/12) m L<sup>2</sup>    rod about center", items: [
       {id: 'Angular Momentum2652', label: 'Angular Momentum', items: [
         {id: 'MOMR1A2653', label: "MOMR1A: 5.8m 86%"},
         {id: 'MOMR1B2654', label: "MOMR1B: 3.6m 83%"}
       ]}    ]},
-    {id: 'I-ROD-END2655', label: "I = (1/3) m*L^2    rod about end", items: [
+    {id: 'I-ROD-END2655', label: "I = (1/3) m L<sup>2</sup>    rod about end", items: [
       {id: 'Rotational Dynamics2656', label: 'Rotational Dynamics', items: [
         {id: 'EROT22657', label: "EROT2: 9.5m 83%"}
       ]}    ]},
-    {id: 'I-HOOP-CM2658', label: "I = m*r^2    hoop", items: [
+    {id: 'I-HOOP-CM2658', label: "I = m r<sup>2</sup>    hoop", items: [
       {id: 'Angular Momentum2659', label: 'Angular Momentum', items: [
         {id: 'MOMR2A2660', label: "MOMR2A: 4.7m 92%"},
         {id: 'MOMR2B2661', label: "MOMR2B: 3.8m 93%"}
@@ -3128,7 +3128,7 @@
       {id: 'Rotational Dynamics2662', label: 'Rotational Dynamics', items: [
         {id: 'EROT32663', label: "EROT3: 22.8m 89.5%"}
       ]}    ]},
-    {id: 'I-RECT-CM2664', label: "I = (1/12) m*(L^2 + W^2)    rectangular plate", items: [
+    {id: 'I-RECT-CM2664', label: "I = (1/12) m (L<sup>2</sup> + W<sup>2</sup>)    rectangular plate", items: [
       {id: 'Rotational Dynamics2665', label: 'Rotational Dynamics', items: [
         {id: 'DR7A2666', label: "DR7A: 18.2m 38%"}
       ]}    ]},
@@ -3162,7 +3162,7 @@
         {id: 'POW4B2689', label: "POW4B: 15.5m 73%"},
         {id: 'POW5A2690', label: "POW5A: 20.1m 57%"}
       ]}    ]},
-    {id: 'MECHANICAL-ENERGY2691', label: "ME = KE + $S Ui    mechanical energy defined", items: [
+    {id: 'MECHANICAL-ENERGY2691', label: "ME = KE + &Sigma Ui    mechanical energy defined", items: [
       {id: 'Work and Energy2692', label: 'Work and Energy', items: [
         {id: 'WEQ42693', label: "WEQ4:  "},
         {id: 'WEQ52694', label: "WEQ5:  "},
@@ -3211,7 +3211,7 @@
       {id: 'Magnetic Field2731', label: 'Magnetic Field', items: [
         {id: 'MAGDIP42732', label: "MAGDIP4: 12.0m 61%"}
       ]}    ]},
-    {id: 'HEIGHT-DY2733', label: "h2 - h1 = d12_y    change in height", items: [
+    {id: 'HEIGHT-DY2733', label: "h2 - h1 = d12<sub>y</sub>    change in height", items: [
       {id: 'Work and Energy2734', label: 'Work and Energy', items: [
         {id: 'WEQ52735', label: "WEQ5:  "},
         {id: 'E7A2736', label: "E7A: 10.8m 88%"},
@@ -3253,7 +3253,7 @@
   ]},
   {id: "Calculate a vector component2764", label: "Calculate a vector component", items: [
   {id: "Displacement2765", label: "Displacement", items: [
-    {id: 'PROJECTION2766', label: "d_x = d*cos($qd - $qx)    on x-axis", items: [
+    {id: 'PROJECTION2766', label: "d<sub>x</sub> = d cos(&theta;d - &theta;x)    on x-axis", items: [
       {id: 'Vectors2767', label: 'Vectors', items: [
         {id: 'VEC1A2768', label: "VEC1A: 11.6m 95.5%"},
         {id: 'VEC2C2769', label: "VEC2C: 2.3m 99%"},
@@ -3324,7 +3324,7 @@
         {id: 'ELEC5B2828', label: "ELEC5B: 7.3m 88%"},
         {id: 'ELEC6B2829', label: "ELEC6B: 18.1m 39%"}
       ]}    ]},
-    {id: 'PROJECTION2830', label: "d_y = d*sin($qd - $qy)    on y-axis", items: [
+    {id: 'PROJECTION2830', label: "d<sub>y</sub> = d sin(&theta;d - &theta;y)    on y-axis", items: [
       {id: 'Vectors2831', label: 'Vectors', items: [
         {id: 'VEC1A2832', label: "VEC1A: 11.6m 95.5%"},
         {id: 'VEC2C2833', label: "VEC2C: 2.3m 99%"},
@@ -3402,7 +3402,7 @@
       ]}    ]}
   ]},
   {id: "Velocity2899", label: "Velocity", items: [
-    {id: 'PROJECTION2900', label: "v_x = v*cos($qv - $qx)    on x-axis", items: [
+    {id: 'PROJECTION2900', label: "v<sub>x</sub> = v cos(&theta;v - &theta;x)    on x-axis", items: [
       {id: 'Vectors2901', label: 'Vectors', items: [
         {id: 'VEC1B2902', label: "VEC1B: 9.5m 95%"},
         {id: 'VEC1E2903', label: "VEC1E:  "},
@@ -3487,7 +3487,7 @@
         {id: 'MAG5B2974', label: "MAG5B: 5.0m 83%"},
         {id: 'MAG92975', label: "MAG9: 19.3m 69%"}
       ]}    ]},
-    {id: 'PROJECTION2976', label: "v_y = v*sin($qv - $qy)    on y-axis", items: [
+    {id: 'PROJECTION2976', label: "v<sub>y</sub> = v sin(&theta;v - &theta;y)    on y-axis", items: [
       {id: 'Vectors2977', label: 'Vectors', items: [
         {id: 'VEC1B2978', label: "VEC1B: 9.5m 95%"},
         {id: 'VEC1E2979', label: "VEC1E:  "},
@@ -3553,13 +3553,13 @@
       ]}    ]}
   ]},
   {id: "Acceleration3033", label: "Acceleration", items: [
-    {id: 'PROJECTION3034', label: "a_x = a*cos($qa - $qx)    on x-axis", items: [
+    {id: 'PROJECTION3034', label: "a<sub>x</sub> = a cos(&theta;a - &theta;x)    on x-axis", items: [
     ]},
-    {id: 'PROJECTION3035', label: "a_y = a*sin($qa - $qy)    on y-axis", items: [
+    {id: 'PROJECTION3035', label: "a<sub>y</sub> = a sin(&theta;a - &theta;y)    on y-axis", items: [
     ]}
   ]},
   {id: "Force3036", label: "Force", items: [
-    {id: 'PROJECTION3037', label: "F_x = F*cos($qF - $qx)    on x-axis", items: [
+    {id: 'PROJECTION3037', label: "F<sub>x</sub> = F cos(&theta;F - &theta;x)    on x-axis", items: [
       {id: 'Vectors3038', label: 'Vectors', items: [
         {id: 'VEC1C3039', label: "VEC1C: 9.4m 97%"},
         {id: 'VEC2B3040', label: "VEC2B: 4.2m 97%"}
@@ -3681,7 +3681,7 @@
         {id: 'MAG1C3146', label: "MAG1C: 8.6m 83%"},
         {id: 'MAG113147', label: "MAG11: 9.8m 57.5%"}
       ]}    ]},
-    {id: 'PROJECTION3148', label: "F_y = F*sin($qF - $qy)    on y-axis", items: [
+    {id: 'PROJECTION3148', label: "F<sub>y</sub> = F sin(&theta;F - &theta;y)    on y-axis", items: [
       {id: 'Vectors3149', label: 'Vectors', items: [
         {id: 'VEC1C3150', label: "VEC1C: 9.4m 97%"},
         {id: 'VEC2B3151', label: "VEC2B: 4.2m 97%"}
@@ -3842,7 +3842,7 @@
       ]}    ]}
   ]},
   {id: "Relative Position3294", label: "Relative Position", items: [
-    {id: 'PROJECTION3295', label: "r_x = r*cos($qr - $qx)    on x-axis", items: [
+    {id: 'PROJECTION3295', label: "r<sub>x</sub> = r cos(&theta;r - &theta;x)    on x-axis", items: [
       {id: 'Kinematics Graphs3296', label: 'Kinematics Graphs', items: [
         {id: 'KGRAPH183297', label: "KGRAPH18: 0.3m 50%"},
         {id: 'KGRAPH193298', label: "KGRAPH19: 0.6m 20%"},
@@ -3902,7 +3902,7 @@
         {id: 'POT53346', label: "POT5: 9.2m 64%"},
         {id: 'POT63347', label: "POT6: 7.1m 77.5%"}
       ]}    ]},
-    {id: 'PROJECTION3348', label: "r_y = r*sin($qr - $qy)    on y-axis", items: [
+    {id: 'PROJECTION3348', label: "r<sub>y</sub> = r sin(&theta;r - &theta;y)    on y-axis", items: [
       {id: 'Statics3349', label: 'Statics', items: [
         {id: 'S133350', label: "S13:  "},
         {id: 'S143351', label: "S14:  "}
@@ -3952,7 +3952,7 @@
       ]}    ]}
   ]},
   {id: "Momentum3391", label: "Momentum", items: [
-    {id: 'PROJECTION3392', label: "p_x = p*cos($qp - $qx)    on x-axis", items: [
+    {id: 'PROJECTION3392', label: "p<sub>x</sub> = p cos(&theta;p - &theta;x)    on x-axis", items: [
       {id: 'Power3393', label: 'Power', items: [
         {id: 'POW5B3394', label: "POW5B: 11.6m 79%"},
         {id: 'POW5C3395', label: "POW5C: 8.2m 96.5%"},
@@ -3972,7 +3972,7 @@
         {id: 'IMP3B3408', label: "IMP3B: 6.0m 76%"},
         {id: 'IMP3C3409', label: "IMP3C: 7.5m 90.5%"}
       ]}    ]},
-    {id: 'PROJECTION3410', label: "p_y = p*sin($qp - $qy)    on y-axis", items: [
+    {id: 'PROJECTION3410', label: "p<sub>y</sub> = p sin(&theta;p - &theta;y)    on y-axis", items: [
       {id: 'Power3411', label: 'Power', items: [
         {id: 'POW5B3412', label: "POW5B: 11.6m 79%"},
         {id: 'POW5C3413', label: "POW5C: 8.2m 96.5%"},
@@ -4048,7 +4048,7 @@
         {id: 'REF4A3467', label: "REF4A: 5.8m 84%"},
         {id: 'REF4B3468', label: "REF4B: 3.0m 95%"}
       ]}    ]},
-    {id: 'ANGLE-DIRECTION3469', label: "$q12 = $q2 - $q1 or 180-($q2-$q1)    angle between", items: [
+    {id: 'ANGLE-DIRECTION3469', label: "&theta;12 = &theta;2 - &theta;1 or 180-(&theta;2-&theta;1)    angle between", items: [
       {id: 'Statics3470', label: 'Statics', items: [
         {id: 'S133471', label: "S13:  "},
         {id: 'S143472', label: "S14:  "}
@@ -4142,7 +4142,7 @@
         {id: 'INT1C3553', label: "INT1C: 2.8m 94%"},
         {id: 'INT2A3554', label: "INT2A: 5.9m 84%"}
       ]}    ]},
-    {id: 'DISPLACEMENT-DISTANCE3555', label: "|d| = s    distance & displacement", items: [
+    {id: 'DISPLACEMENT-DISTANCE3555', label: "|d| = s    distance &amp; displacement", items: [
       {id: 'Translational Kinematics3556', label: 'Translational Kinematics', items: [
         {id: 'KT4B3557', label: "KT4B: 19.5m 66%"},
         {id: 'KT4C3558', label: "KT4C:  "},
@@ -4157,7 +4157,7 @@
       ]}    ]},
     {id: 'NUM-FORCES3566', label: "nf = (count forces)    number of forces", items: [
     ]},
-    {id: 'GIVEN-FRACTION3567', label: "val1 = fraction*val2    fraction of", items: [
+    {id: 'GIVEN-FRACTION3567', label: "val1 = fraction val2    fraction of", items: [
       {id: 'Translational Kinematics3568', label: 'Translational Kinematics', items: [
         {id: 'KT2B3569', label: "KT2B: 16.8m 4%"},
         {id: 'KT14A3570', label: "KT14A: 6.6m 79%"},
@@ -4238,7 +4238,7 @@
       {id: 'Electric Potential3628', label: 'Electric Potential', items: [
         {id: 'POT43629', label: "POT4: 10.2m 83%"}
       ]}    ]},
-    {id: 'PYTH-THM3630', label: "c^2 = a^2 + b^2    Pythagorean Thm", items: [
+    {id: 'PYTH-THM3630', label: "c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>    Pythagorean Thm", items: [
       {id: 'Translational Kinematics3631', label: 'Translational Kinematics', items: [
         {id: 'KT5A3632', label: "KT5A: 13.0m 80%"}
       ]}    ]},
@@ -4271,14 +4271,14 @@
       {id: 'Rotational Kinematics3655', label: 'Rotational Kinematics', items: [
         {id: 'KR6A3656', label: "KR6A: 9.8m 75.5%"}
       ]}    ]},
-    {id: 'COMPLIMENTARY-ANGLES3657', label: "$q1 + $q2 = 90 deg    complimentary angles", items: [
+    {id: 'COMPLIMENTARY-ANGLES3657', label: "&theta;1 + &theta;2 = 90 deg    complimentary angles", items: [
       {id: 'Optics3658', label: 'Optics', items: [
         {id: 'REF3A3659', label: "REF3A: 8.8m 60%"},
         {id: 'REF63660', label: "REF6: 4.8m 71%"}
       ]}    ]},
-    {id: 'SUPPLEMENTARY-ANGLES3661', label: "$q1 + $q2 = 180 deg    supplementary angles", items: [
+    {id: 'SUPPLEMENTARY-ANGLES3661', label: "&theta;1 + &theta;2 = 180 deg    supplementary angles", items: [
     ]},
-    {id: 'RIGHT-TRIANGLE-TANGENT3662', label: "tan($q) = opposite/adjacent    tangent for right triangle", items: [
+    {id: 'RIGHT-TRIANGLE-TANGENT3662', label: "tan(&theta;) = opposite/adjacent    tangent for right triangle", items: [
       {id: 'Optics3663', label: 'Optics', items: [
         {id: 'INT1A3664', label: "INT1A: 10.9m 62%"},
         {id: 'INT2A3665', label: "INT2A: 5.9m 84%"}
@@ -4295,7 +4295,7 @@
         {id: 'DT6B3674', label: "DT6B:  "},
         {id: 'DT6C3675', label: "DT6C: 24.5m 93%"}
       ]}    ]},
-    {id: 'VECTOR-MAGNITUDE3676', label: "A = sqrt(A_x^2 + A_y^2)    vector magnitude", items: [
+    {id: 'VECTOR-MAGNITUDE3676', label: "A = sqrt(A<sub>x</sub><sup>2</sup> + A<sub>y</sub><sup>2</sup>)    vector magnitude", items: [
       {id: 'Vectors3677', label: 'Vectors', items: [
         {id: 'VEC3A3678', label: "VEC3A: 9.3m 97%"}
       ]},
@@ -4358,11 +4358,11 @@
         {id: 'MAG1C3727', label: "MAG1C: 8.6m 83%"},
         {id: 'MAG113728', label: "MAG11: 9.8m 57.5%"}
       ]}    ]},
-    {id: 'RDIFF3729', label: "r21_x = x2 - x1    relative position from coordinates", items: [
+    {id: 'RDIFF3729', label: "r21<sub>x</sub> = x2 - x1    relative position from coordinates", items: [
     ]},
-    {id: 'RDIFF3730', label: "r21_y = y2 - y1    relative position from coordinates", items: [
+    {id: 'RDIFF3730', label: "r21<sub>y</sub> = y2 - y1    relative position from coordinates", items: [
     ]},
-    {id: 'AREA-OF-RECTANGLE3731', label: "A = w*l    area of rectangle", items: [
+    {id: 'AREA-OF-RECTANGLE3731', label: "A = w l    area of rectangle", items: [
       {id: 'Electric Field3732', label: 'Electric Field', items: [
         {id: 'GAUSS33733', label: "GAUSS3: 9.6m 53%"},
         {id: 'GAUSS93734', label: "GAUSS9: 14.3m 80%"}
@@ -4371,11 +4371,11 @@
         {id: 'MAGDIP13736', label: "MAGDIP1: 8.2m 79.5%"},
         {id: 'MAGDIP33737', label: "MAGDIP3: 6.3m 92%"}
       ]}    ]},
-    {id: 'AREA-OF-RECTANGLE-CHANGE3738', label: "dA/dt = w*dl/dt    derivative of area of rectangle (constant width)", items: [
+    {id: 'AREA-OF-RECTANGLE-CHANGE3738', label: "dA/dt = w dl/dt    derivative of area of rectangle (constant width)", items: [
       {id: 'Electromagnetic Induction3739', label: 'Electromagnetic Induction', items: [
         {id: 'FARA93740', label: "FARA9: 12.0m 48%"}
       ]}    ]},
-    {id: 'AREA-OF-CIRCLE3741', label: "A = $p*r^2    area of circle", items: [
+    {id: 'AREA-OF-CIRCLE3741', label: "A = &pi; r<sup>2</sup>    area of circle", items: [
       {id: 'Fluids3742', label: 'Fluids', items: [
         {id: 'FLUIDS83743', label: "FLUIDS8: 15.1m 49.5%"},
         {id: 'FLUIDS93744', label: "FLUIDS9: 10.3m 78%"}
@@ -4390,7 +4390,7 @@
       {id: 'Inductance 3750', label: 'Inductance ', items: [
         {id: 'IND3B3751', label: "IND3B: 5.3m 90.5%"}
       ]}    ]},
-    {id: 'CIRCUMFERENCE-OF-CIRCLE-R3752', label: "c = 2*$p*r    circumference of circle", items: [
+    {id: 'CIRCUMFERENCE-OF-CIRCLE-R3752', label: "c = 2 &pi; r    circumference of circle", items: [
       {id: 'Translational Kinematics3753', label: 'Translational Kinematics', items: [
         {id: 'KT14A3754', label: "KT14A: 6.6m 79%"},
         {id: 'KT14B3755', label: "KT14B: 19.9m 38%"}
@@ -4398,16 +4398,16 @@
       {id: 'Inductance 3756', label: 'Inductance ', items: [
         {id: 'IND3B3757', label: "IND3B: 5.3m 90.5%"}
       ]}    ]},
-    {id: 'CIRCUMFERENCE-OF-CIRCLE-D3758', label: "c = $p*d    circumference of circle", items: [
+    {id: 'CIRCUMFERENCE-OF-CIRCLE-D3758', label: "c = &pi; d    circumference of circle", items: [
       {id: 'Translational Kinematics3759', label: 'Translational Kinematics', items: [
         {id: 'KT14A3760', label: "KT14A: 6.6m 79%"}
       ]},
       {id: 'Inductance 3761', label: 'Inductance ', items: [
         {id: 'IND3B3762', label: "IND3B: 5.3m 90.5%"}
       ]}    ]},
-    {id: 'VOLUME-OF-CYLINDER3763', label: "V = A*l    volume of a cylinder", items: [
+    {id: 'VOLUME-OF-CYLINDER3763', label: "V = A l    volume of a cylinder", items: [
     ]},
-    {id: 'MASS-PER-LENGTH-EQN3764', label: "$l = m/L    mass per unit length", items: [
+    {id: 'MASS-PER-LENGTH-EQN3764', label: "&lambda; = m/L    mass per unit length", items: [
       {id: 'Waves3765', label: 'Waves', items: [
         {id: 'WAVE43766', label: "WAVE4: 6.1m 89%"},
         {id: 'WAVE83767', label: "WAVE8: 9.5m 79%"}
@@ -4422,7 +4422,7 @@
       {id: 'Inductance 3773', label: 'Inductance ', items: [
         {id: 'IND3A3774', label: "IND3A: 6.9m 90%"}
       ]}    ]},
-    {id: 'AVERAGE-RATE-OF-CHANGE3775', label: "dy/dt_avg = (y2-y1)/(t2-t1)    average rate of change", items: [
+    {id: 'AVERAGE-RATE-OF-CHANGE3775', label: "dy/dt<sub>a</sub>vg = (y2-y1)/(t2-t1)    average rate of change", items: [
       {id: 'Electromagnetic Induction3776', label: 'Electromagnetic Induction', items: [
         {id: 'FARA11A3777', label: "FARA11A: 11.1m 49%"},
         {id: 'FARA11B3778', label: "FARA11B: 7.2m 71.5%"}
