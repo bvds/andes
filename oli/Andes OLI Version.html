@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Andes OLI Version</title>
+</head>
+<body>
+<h1><span style="font-weight: bold;">Building the Andes OLI Course</span></h1>
+<br>
+This document describes how to build the OLI Andes-based physics course
+content from the Andes source code tree. Formally, what you are
+building is called a<span style="font-style: italic;"> content package</span>.
+The content package includes all resources needed for the content. This
+content package is deployed onto an OLI server. Once deployed,
+instructors or developers with the appropriate access may then create
+course sections which are instances of this content package.<br>
+<br>
+<h2>Accessing OLI <br>
+</h2>
+You must obtain a CMU andrew account. The OLI folks must give your
+account permission to access the OLI servers. <br>
+<br>
+OLI course development involves the following servers:<br>
+<ul>
+  <li>The CVS repository server: <span style="font-weight: bold;">oli-cvs.andrew.cmu.edu</span><br>
+  </li>
+  <li>The development server (ODIN):&nbsp; <span
+ style="font-weight: bold;">odin.web.cmu.edu</span><br>
+  </li>
+  <li>The QA server: <span style="font-weight: bold;">oli-qa.andrew.cmu</span><br>
+  </li>
+  <li>The production server: <span style="font-weight: bold;">www.cmu.edu/oli/</span></li>
+</ul>
+The front page of ODIN links to some documentation on OLI development
+processes. A course author can freely build, deploy and update a
+private version of the content package on the development server and
+then build test courses using that package. Moving the course to QA or
+production is
+done by OLI staff at the appropriate time.<br>
+<br>
+OLI requires all source for building a course to be stored in its own
+CVS repository.&nbsp; The OLI-CVS host name is actually the same as
+odin, the development server. The bulk of the source to go into this
+repository are OLI problem pages and related problem files which are
+generated automatically from the Andes
+source tree. Other portions like the course introduction page must be
+created or modifiedby hand.<br>
+<h2>Checking out from OLI-CVS</h2>
+The CVS module containing the OLI physics course source is named
+"intro-physics-1.0".&nbsp; To check out the main branch use a command
+like the following:<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+cvs -d
+:ext:andersw@oli-cvs.andrew.cmu.edu:/oli/cvs/content/lrdc/intro_physics
+co intro_physics-1.0<br>
+<br>
+replacing the "andersw" with the appropriate user id. This will create
+a directory named intro_physics-1.0 containing the OLI source tree. I
+usually do this within the "oli" subdirectory of the Andes working
+directory.<br>
+<br>
+Note: the "1.0" at&nbsp; the end of the CVS project name is
+meaningless, and is potentially misleading, since the 1.0 here never
+changes as new editions of the course are developed. There is a <span
+ style="font-style: italic;">different </span>version number that
+identifies the OLI content package version. The real content package
+version number is set inside the sources (see below).&nbsp; This
+content package version number functions within OLI somewhat like an
+edition number on a textbook: courses built on one version of the
+content package get patched as that version of the content package is
+updated, but such courses are never upgraded to use a different version
+of the content. The content package version has usually been
+incremented each semester though this is not strictly necessary.&nbsp;
+It now stands at 1.8.<br>
+<br>
+<h2>OLI Source structure</h2>
+The OLI source has two main subdirectories:<br>
+&nbsp;&nbsp;&nbsp; content - holds the course content<br>
+&nbsp;&nbsp;&nbsp; organizations - holds&nbsp; the&nbsp; files
+specifying possible organizations of the course<br>
+<br>
+It also contains a "tools" directory&nbsp; which&nbsp; we do&nbsp; not
+modify.<br>
+<br>
+<h4>The content tree</h4>
+<h5>package.xml</h5>
+The root of the content tree contains the file package.xml which
+describes the content package. The most important thing in this is the
+version identifier. To create a new version the version number must be
+changed by hand. <br>
+<h5>standard subdirectories</h5>
+Within the content tree, files are grouped by type into subdirectories
+named for the MIME type of files they contain.<br>
+&nbsp;&nbsp;&nbsp; x-oli-workbook_page&nbsp; -- OLI workbook pages<br>
+&nbsp;&nbsp;&nbsp; x-pitt-lrdc-andes1-assignment -- xml problem
+descriptor files (see below)<br>
+&nbsp;&nbsp;&nbsp; webcontent -- any content files that can be served
+without special handling by a web server: gifs, jpegs, wmvs, whatever.<br>
+<br>
+For andes-specific files, we use a subdirectory within a webcontent
+folder:<br>
+&nbsp;&nbsp;&nbsp; webcontent/andes -- andes-problem files. This
+includes the prb files for the problems as well as gifs or jpegs used.<br>
+<h5>unit and module structure</h5>
+The content directory is structured into a subdirectory for one unit
+which contains two module subdirectories within it which parallel the
+original unit and module structure of the course. These are named<br>
+&nbsp; content<br>
+&nbsp;&nbsp;&nbsp; _u1_intro_physics<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _m01_mechanics<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; _m02_em<br>
+<br>
+The key point is that the mechanics-related files have to go into the
+_m01_mechanics tree while the E&amp;M files have to go within the
+_m02_em tree. Both are contained in one big "unit" which is essentially
+the whole course.<br>
+<br>
+Note: The hierarchical structure with unit and module directories was
+once required by the OLI system but is not required any longer. So this
+sturcture could in principle be
+simplified so as to include all problem files in one directory. But it
+is a
+nuisance to change structure once the CVS is set up. The existing
+script assumes this directory structure. <br>
+<br>
+The _u1_intro_physics unit directory contains the course introduction
+page, and also an instructor-only information page. One might expect
+supporting webcontent for these pages to be contained within the
+_u1_intro_physics directory. However, for obscure historical reasons,
+supporting webcontent for these pages are contained ina webcontent
+directory at the root of the course (within the content directory),
+rather than within the _u1... subdirectory.<br>
+<br>
+<h4>The organizations tree</h4>
+This contains one subdirectory for each organization that an instructor
+may select when building a course from this content package. An
+organization file defines a table of contents structure over the course
+content, and may also customize the stakes or gating requirements. We
+provide three:<br>
+&nbsp;&nbsp;&nbsp; default -- the default, full course<br>
+&nbsp;&nbsp;&nbsp; em -- the E&amp;M only course<br>
+&nbsp;&nbsp;&nbsp; mechanics -- the mechanics only problems.<br>
+<br>
+The organizations are defined in an xml file using OLI's simple format,
+in which it is only necessary to list the relevant modules (not each
+individual problem).&nbsp; The simple organization files change very
+rarely so are not automatically generated. The only change that could
+be necessary would be to add a new problem set, in which case the
+necessary changes should be obvious using the existing <br>
+<br>
+Organization files do contain a content package version number which
+must match the version number in the content package. So, a change to
+the version number must also be applied to each organization.xml file. <br>
+<br>
+The gating requirements defined for Sandy Katz's experiment require
+using the advanced format organization files. This involves listing
+each problem with its prerequisites. Assuming this will not be required
+it is not described here. <br>
+<br>
+<br>
+<br>
+<br>
+&nbsp;<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<h1><span style="font-weight: bold;"></span></h1>
+</body>
+</html>

@@ -7,16 +7,20 @@
 # Also generates the little OLI problem descriptor file for a problem if it 
 # doesn't already exist and copies needed problem files.
 #
-# Expects to run in the root of the OLI content directory into which we
-# will copy.
+# Expects to run in the root of the OLI source directory into which we
+# will copy, e.g. Andes2/oli/intro_physics-1_8_patches
 $root = ".";
 # expects to find current Andes development files here:
-$ANDES = "C:/cygwin/home/andersw/Andes2";
+# $ANDES = "C:/cygwin/home/andersw/Andes2";
+$ANDES = "../..";
 # Will fetch problem statements from problem statement files written into
 #     $ANDES/Statements/<problem-id>.txt 
 # Lisp code to do this from the knowledge base is in kb/makeprob.cl
 
-%emsets= (			# these sets go in em, all others mechanics
+# List of problem set ids that belong in em subtree. All others
+# go in mechanics. If any new problem sets added to E&M, must update
+# this list. Note id format is lower-case w/underscores instead of spaces.
+%emsets= (			
 "resistance", "em",
 "capacitance", "em",
 "dc_circuits", "em",
@@ -30,18 +34,9 @@ $ANDES = "C:/cygwin/home/andersw/Andes2";
 "ac_circuits", "em",
 );
 
-# !!! Important: following is the root of the oli content directory into which we
-# will copy, relative to directory in which we are run
-# Must change this to update into another directory for mid-semester patches
-# Should be made into script argument
-# use one of alternatives when updating branch mid-term
-# $root = "intro_physics-1.0main";   # holds current CVS main branch, 1_5_usna
-# $root = "intro_physics-usafa";   # USAFA version -r v_1_5_patches
-# $root = "intro_physics-usna";    # USNA version -r v_1_5_usna_patches
-# !!! Now expect to run in the version directory.
-
 # IMPORTANT: remember to set this switch correctly! 
 # Set to 1 if building a version that shouldn't show any stubs (e.g. for open and free)
+# Set to 0 to include stub processing
 $ignore_stubs = 1; # set to 1 to ignore stub problems entirely
 
 use File::Copy;
@@ -93,7 +88,7 @@ while (<>) {
              $setid = $setname;
              $setid =~ tr/A-Z /a-z_/; 	
 	     # now that we have gotten the internal id from the filename,  fix up the human-readable title for 
-	     # case of treacy-NAME[-exp|-control]
+	     # case of experimental problem set names of form treacy-NAME[-exp|-control]
 	     #$setname =~ s/treacy-//;
 	     #$setname =~ s/-exp//;
 	     #$setname =~ s/-control//;
@@ -142,7 +137,7 @@ EOH
 	}
 	# now do for each problem line in .aps file
 	next if (/ANDES Problem Set/);
-	# look for special section heading lines
+	# look for special section heading lines used in custom sets used in gated experiment
 	if (/^DEMOS/) {
 		if ($open_section) { print LP "		</body></section>\n"; }
 		print LP "		<section><title>Demonstration Videos</title><body>\n\n";
@@ -248,7 +243,7 @@ EOV
             print LP "</body></section>\n\n";
 
 	    # copy the latest problem files, reporting additions
-	    # !!! this will change the modified date even if the files haven't changed. That's OK, but makes it
+	    # This will change the modified date even if the files haven't changed. That's OK, but makes it
 	    # hard to tell what version of files we are using, e.g. very old fbds that haven't changed.
 	    $prbdst = "$root/content/_u1_intro_physics/$module/webcontent/andes/$problemid.prb";
 	    if (! (-e $prbdst)) {
