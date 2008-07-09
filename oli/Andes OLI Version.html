@@ -144,7 +144,7 @@ content will be applied to old courses without any special notice. This
 is fine to fix bugs that don't require a new Andes client installation,
 but problematic if the changes require a new client installation.<br>
 <br>
-In the past, the OLI maintainers have incremembed the version number
+In the past, the OLI maintainers have incremented the version number
 for us, so you should check this has not already been done before
 generating a new one. However, more recently we have been incrementing
 it ourselves.<br>
@@ -235,10 +235,18 @@ very rarely so are not automatically generated. The only change that
 could be necessary would be to add a new problem set, in which case the
 necessary changes should be obvious using the existing <br>
 <br>
-Organization files do also contain a content package version number
-which must match the version number in the content package. So, <span
+Organization files do also contain a reference to the version of the
+content package they are associated with. This reference occurs in the
+organization id wich is an attribute on the organization element:<br>
+&lt;organization id="intro_physics-1.8_default" version="1.0"&gt;<br>
+<br>
+Notice this content id includes a version number within it. This part
+of the id must match the version number in the content package. So, <span
  style="font-weight: bold;">any change to the content package version
-number must also be applied to each organization.xml file. </span><br>
+number must also be applied to each organization.xml file </span>by
+changing the version number within this id. For example, the
+organization id may have to change from "intro_physics-1.8_default" to
+"intro_physics-1.9_default". <br>
 <br>
 Defining the gating requirements defined for Sandy Katz's experiment
 involved adding new custom organizations for each experimental
