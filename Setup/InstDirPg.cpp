@@ -86,16 +86,9 @@ BOOL CInstDirPg::OnSetActive()
 #ifdef OLI
 		m_strInstDir = "C:\\AndesOLI";
 #else 
-#if USNA_EVAL
-		m_strInstDir = "C:\\Program Files\\Andes";
-#else 
-#if SCOTTY
-		m_strInstDir = "C:\\AndesScotty";
-#else // some public version
 		m_strInstDir = "C:\\AndesDemo";        // "C:\\Program Files\\Andes"; 
 #endif
-#endif 
-#endif  
+
     }
 	m_ctrlInstDir.SetWindowText(m_strInstDir);
 

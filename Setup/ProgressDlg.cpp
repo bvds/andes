@@ -215,7 +215,7 @@ BOOL CProgressDlg::MyCopyDLL(CString strFileName, CString strSourcePath, CString
 					AfxMessageBox(str);
 					return FALSE;//exit program
 				}
-				if (theApp.m_dwOS == VER_PLATFORM_WIN32_NT)
+				if (theApp.m_bNTFamily)
 				{
 					MoveFileEx(strDestFile, strOldDestFile, MOVEFILE_DELAY_UNTIL_REBOOT|MOVEFILE_REPLACE_EXISTING);
 				}

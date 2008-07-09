@@ -97,10 +97,10 @@ static const char * s_files[] =
 	"Andes2.lic", 
 
 #else // New DLL-based helpsys also using ACL 8.0.1
-	"HelpSys.dxl",
-	"HelpSys.lic",
-	"helpifc.dll",
-	"lnkacl.dll",
+	"HelpSys.dxl",		// helpsys Lisp image
+	"HelpSys.lic",		// license for Lisp image
+	"helpifc.dll",		// help system interface dll
+	"lnkacl.dll",       // allegro-provided dll for dll binding
 #endif
 	
 	// OLD ACL 5.01 files
@@ -108,13 +108,8 @@ static const char * s_files[] =
 	// New ACL 8.01 support:
 	//"acli8010.dll",
 	// New in ACL 8.1:
-	"acli817.dll",
-
+	"acli817.dll",		// allegro runtime libarary
 	"solver.dll",		// Solver dll
-	
-#ifdef USNA_EVAL
-	"upload.exe",		// upload utility
-#endif 
 	"Uninst.exe",		// uninstaller
 	"config.cl",		// helpsys config option settings.
 	"AndesLicense.txt",      // our license agreement

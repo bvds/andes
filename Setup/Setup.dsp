@@ -146,6 +146,12 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 version.lib /nologo /subsystem:windows /machine:I386
 # ADD LINK32 version.lib /nologo /subsystem:windows /machine:I386 /out:"Student_Release/SetupStudent.exe"
+# Begin Special Build Tool
+OutDir=.\Student_Release
+SOURCE="$(InputPath)"
+PostBuild_Desc=copying into parent directory
+PostBuild_Cmds=copy $(OutDir)\SetupStudent.exe ..
+# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "Setup - Win32 Experiment Release"
 
@@ -233,6 +239,12 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 version.lib /nologo /subsystem:windows /machine:I386 /out:"Student_Release/SetupStudent.exe"
 # ADD LINK32 version.lib /nologo /subsystem:windows /machine:I386 /out:"OLI_Release/SetupOLI.exe"
+# Begin Special Build Tool
+OutDir=.\OLI_Release
+SOURCE="$(InputPath)"
+PostBuild_Desc=copying into parent directory
+PostBuild_Cmds=copy $(OutDir)\SetupOLI.exe ..
+# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "Setup - Win32 Scotty Release"
 

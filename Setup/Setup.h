@@ -30,9 +30,10 @@ public:
 	CSetupApp();
 
 	// Operating system info:
-	DWORD m_dwOS;		// major OS family: VER_PLATFORM_WIN32_NT => NT/2000/XP 
-	//					//                  VER_PLATFORM_WIN32_WINDOWS => 95/98/Me
-	BOOL m_bWin2000orXP;// TRUE if Win2000 or XP
+	BOOL m_bNTFamily;		// major OS family: true for NT/2000/XP/Vista 
+	//					    //                  false for 95/98/Me
+	BOOL m_bWin2000orXP;	// TRUE if Win2000 or XP or later 
+	BOOL m_bVista;			// TRUE if Windows Vista or later
 
 	//try to open dll's, report errors as a side note if existing Dll's not current or DNE
 	BOOL HasCurrentDLL(CString newDLL, CString oldDLL);

@@ -49,7 +49,9 @@ CSetupApp::CSetupApp()
 	m_bSkipNewer = FALSE;
 	m_bReboot = FALSE;
 	m_bCopyFilesOnly = FALSE;
+	m_bNTFamily = FALSE;
 	m_bWin2000orXP = FALSE;
+	m_bVista = FALSE;
 	// Place all significant initialization in InitInstance
 }
 
@@ -90,21 +92,28 @@ BOOL CSetupApp::InitInstance()
     m_pMainWnd->ShowWindow (m_nCmdShow);
 	m_pMainWnd->UpdateWindow ();
 
-	// find OS
+	// get the OS version
 	OSVERSIONINFO osvi;
 	ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
 	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 	if (! GetVersionEx ( &osvi) ) 
 		return FALSE;
-	m_dwOS = osvi.dwPlatformId;
-	// Following info from latest Platform SDK docs on MSDN web site:
+	// The PlatformId distinguishes NT-family and successors from 95/98/Me family:
+	//      VER_PLATFORM_WIN32_WINDOWS ==> Win32 Windows 95 or Windows 98.  
+    //      VER_PLATFORM_WIN32_NT ==> Win32 on Windows NT. 
+	// Windows 2000, XP, and Vista are still NT-based platforms
+	m_bNTFamily = osvi.dwPlatformId == VER_PLATFORM_WIN32_NT;
+	// Set flags for particular OS versions we are interested in
 	m_bWin2000orXP = osvi.dwMajorVersion >= 5; // really == 5, but allow for future
 	// If needed: dwMinorVersion = 0 on Win2000; dwMinorVersion = 1 on WinXP.
+	// Note m_bWin2000orXP includes later systems so will be set for Vista.
+	// Following lets us distinguish Vista or later systems.
+	m_bVista = osvi.dwMajorVersion >= 6;
 
-	// on NT/2000/XP, make sure we have Administrator privileges. Needed to create
+	// on NT family systems, make sure we have Administrator privileges. Needed to create
 	// shortcuts in All Users profile and registry entries. 
 	// "Power User" group on Win2000 will suffice as well.
-	if (m_dwOS == VER_PLATFORM_WIN32_NT && ! (RunningAsAdministrator() || RunningAsPowerUser())) 
+	if (m_bNTFamily && ! (RunningAsAdministrator() || RunningAsPowerUser())) 
 	{
 		AfxMessageBox("Administrator or Power User privileges are required to install ANDES.\
  \
@@ -142,7 +151,7 @@ Setup will exit.");
 	{
 		if (theApp.m_bReboot)
 		{
-			if (theApp.m_dwOS == VER_PLATFORM_WIN32_NT)
+			if (theApp.m_bNTFamily)
 			{
 				HANDLE hToken;              // handle to process token 
 				TOKEN_PRIVILEGES tkp;       // pointer to token structure  
@@ -420,25 +429,24 @@ BOOL CSetupApp::MakeRegEntries()
 	//Getshort file name of install directory->lisp uses
 	char szShortInstDir[MAX_PATH];
 	GetShortPathName(m_strInstDir, szShortInstDir, MAX_PATH);
-#if 0 // obsolete
-	//Insert Install directory information
-	WriteProfileString("Settings", "Install Directory", szShortInstDir);
-#else // new
-	// always overwrite with empty string to force use of executable directory so
-	// new version can coexist with any existing ones.
+
+	// We used to use an Install Directory setting, but no longer.
+	// Now always overwrite with empty string to force use of executable directory 
+	// so new version can coexist with any existing ones.
 	WriteProfileString("Settings", "Install Directory", "");
-#endif // new
 
 	// Whether this is author or student version install
 #ifdef STUDENT_INSTALL
 	
 	WriteProfileInt("Settings", "Author", 0);
 
+#if 0 // Use of Uploader is now obsolete
 #if  USNA_EVAL || EXPERIMENT	// evaluation version, USNA or PITT
 	WriteProfileInt("Settings", "Upload", 1);	// set flag to run uploader
 # else // non-eval  student version
 	WriteProfileInt("Settings", "Upload", 0);	// set flag to disable uploading
 # endif 
+#endif 0 // end obsolete uploader shortcut
 
 #else // AUTHOR INSTALL, (default if no special #defines)
 
@@ -456,13 +464,17 @@ BOOL CSetupApp::MakeRegEntries()
 	WriteProfileInt("Help",	"Procedural",	1);
 
 #if EXPERIMENT
-	// Enable textbook buttoni
+	// Enable textbook button
 	WriteProfileInt("Settings", "Experiment", 1);
 	//CString strURL = m_strInstDir + "toc.html";
 	//WriteProfileString("Settings", "Textbook", strURL);
 #endif // EXPERIMENT
 
-	//Create registry entries for App Paths
+	// Create registry entries to associate an "App Path" with our
+	// main executable file. It probably is not very important that we set this. 
+	// This setting lets one type fbd-tcp.exe into the Run box and have 
+	// Windows find the path it needs, and perhaps from a command prompt too.
+	// Don't think it is relied on by the workbench itself in any way.
 	CString keyPath = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\";
 	
 	HKEY hKey;
@@ -527,9 +539,9 @@ BOOL CSetupApp::MakeRegEntries()
 // 4.71: Internet Explorer 4.0 with Web Integrated Desktop. 
 // 4.72: Internet Explorer 4.01 with Web Integrated Desktop.
 //
-// By now almost all of our users should in fact have 4.71 or greater. Still,
+// By now virtually all of our users should in fact have 4.71 or greater. Still,
 // doesn't hurt to check for it. Following function copied from Platform SDK
-// documentation retrieves version number of shel32.dll
+// documentation retrieves version number of shell32.dll
 HRESULT GetShell32Version(LPDWORD pdwMajor, LPDWORD pdwMinor)
 {
 	HINSTANCE   hShell32;
@@ -598,7 +610,8 @@ BOOL HaveShell471()		// true if we have Shell lib version 4.71 or greater
 	if (SUCCEEDED(hr)) TRACE("Shell32 version: %d.%d\n", dwMajor, dwMinor);
 	else TRACE("Failed to get Shell32 version\n");
 
-	return ((SUCCEEDED(hr)) && (dwMajor >= 4) && (dwMinor >= 71));
+	return (SUCCEEDED(hr)) && (dwMajor > 4
+		                       || (dwMajor == 4 && dwMinor >= 71));
 }
 
 // find paths to Windows Folder and the folder containing the Start Menu
@@ -627,8 +640,8 @@ void CSetupApp::GetFolderPaths(CString& winPath, CString& progGroupPath,
 	// !!! Maybe should check if multiple user profiles are enabled (how??)
 	CString profileDir = szPathTemp;
 
-	// But if it's WinNT/2000/XP we want Start Menu under the All Users profile
-	if (theApp.m_dwOS == VER_PLATFORM_WIN32_NT)
+	// But if it's WinNT family, we want Start Menu under the All Users profile
+	if (theApp.m_bNTFamily)
 	{
 		// WinNT stores user profiles here:
 		profileDir = winPath + "Profiles\\All Users";
@@ -636,31 +649,33 @@ void CSetupApp::GetFolderPaths(CString& winPath, CString& progGroupPath,
 		// On new Win2000/XP or upgrade from 95/98, profiles are in:
 		//       [Windows installation drive]:\Documents and Settings
 		// If Win2000/XP was installed as *upgrade* from NT, profiles remain
-		// in the old NT location.
+		// in the old NT location. 
+		// So try to use shell API to locate path all the way to 
+		// PROFILES/All Users/Start Menu/Programs.
 		if (m_bWin2000orXP)
-		{
-	/* Following isn't getting called, at least on XP we tried
-			// Try to use shell API to locate path all the way to 
-			//  PROFILES/All Users/Start Menu/Programs.
-			// Note this func is unreliable on Windows95/98 -- directory it returns
-			// may not be effective if multiple user profiles not enabled
+		{	
 			if (HaveShell471()) //  have appropriate version of shell dll.
 			{
 				TRACE("Using Shell Library to find Program Group Dir\n");
+				// Note this func is unreliable on Windows95/98 -- directory it returns
+			    // may not be effective if multiple user profiles not enabled
 				HRESULT hr = SHGetSpecialFolderPath(NULL, szPathTemp, CSIDL_COMMON_PROGRAMS, FALSE);
 				if (SUCCEEDED(hr)) {
 					TRACE("Program Group dir = %s\n", szPathTemp);
 					// temp: write a log file to  test this step on NT/2000/XP test systems
-					FILE * fp = fopen(m_strInstDir + "\\Setup.log", "w");
-					fprintf(fp, "Program Group dir = %s\n", szPathTemp);
-					fclose(fp);
+					//FILE * fp = fopen(m_strInstDir + "\\Setup.log", "w");
+					//fprintf(fp, "Program Group dir = %s\n", szPathTemp);
+					//fclose(fp);
 					// end temp
 					progGroupPath = CString(szPathTemp) + '\\';
 					// early return since we now have complete path to return
 					return;
 				}
 			}
-     */
+
+			// Get here => on 2000/XP/Vista without shell.dll 4.71. Think this could
+			// only happen on an old 2000 machine that never updated IE.
+
 			// get System drive from windows path (not necessarily C:)
 			char szDrive[_MAX_DRIVE];
 			_splitpath(winPath, szDrive, NULL, NULL, NULL);
@@ -840,11 +855,11 @@ void CSetupApp::CleanUpSourceFiles()
 	strcpy(szThisFile, m_strCurDir);
 	lstrcat(szThisFile, "\\Setup.exe");
 
-	if (theApp.m_dwOS == VER_PLATFORM_WIN32_NT)
+	if (theApp.m_bNTFamily)
 	{
 		MoveFileEx(szThisFile, NULL, MOVEFILE_DELAY_UNTIL_REBOOT);
 	}	
-	else // Windows 95
+	else // Windows 95/98/Me
 		RenameOnStartup("NUL", szThisFile);
 }
 
@@ -1289,19 +1304,27 @@ void CSetupApp::InstallCodec()
 		return;
 	}
 
-	// else build command to launch the inf file
+	// else build appropriate command line to run the installer. On pre-Vista systems,
+	// we can launch the .inf file used by the codec installer package. On Vista,
+	// we're not sure if this is the same, so we run the installer package itself, 
+	// including the quiet:administrator switch to suppress any prompts to user.
 	CString strCmdLine;
-	if (m_dwOS == VER_PLATFORM_WIN32_NT) 
+	if (m_bVista) {
+		strCmdLine = "Vista_Install_AcelpNet.exe -q:a";
+	} else if (m_bNTFamily) 
 		strCmdLine = "Rundll32.exe setupapi.dll,InstallHinfSection DefaultInstall 132 ";
 	else // Win9x
 		strCmdLine = "Rundll.exe setupx.dll,InstallHinfSection DefaultInstall 132 ";
-	// Get full path to the INF file in our current working directory.
-	char szWorkingDir[MAX_PATH];
-	if (_getcwd(szWorkingDir, MAX_PATH) == NULL)
-		AfxMessageBox("GetCwd failed while launching audio codec installer!");
-	CString strInfPath = CString(szWorkingDir) + "\\" + strInfName;
+
+	if (! m_bVista) {
+		// Get full path to the INF file in our current working directory.
+		char szWorkingDir[MAX_PATH];
+		if (_getcwd(szWorkingDir, MAX_PATH) == NULL)
+			AfxMessageBox("GetCwd failed while launching audio codec installer!");
+		CString strInfPath = CString(szWorkingDir) + "\\" + strInfName;
 	
-	strCmdLine += strInfPath;
+		strCmdLine += strInfPath;
+	}
 
 	// OK, now run this command line
 	// AfxMessageBox("Trying to install codec");
