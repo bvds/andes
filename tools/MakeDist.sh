@@ -22,12 +22,14 @@
 set -o errexit	# set to exit script on any command error 
 
 # shell magic to process switches in command line args
-OLI="";		# zero-length if false, detect with [ -z "$OLI" ]
+# OLI flag will be zero-length for false, detected with [ -z "$OLI" ]
+#     non-zero-length tests true in [ "$OLI" ]
+OLI="";		
 MODULES="tools/modules.lst"
 while [ $# -gt 0 ]
 do
     case "$1" in
-        -oli)  OLI=true;;
+      -oli) OLI=true;;  # any non-zero-length value will do 
 	-m) MODULES=$2; shift;;
 	-*)
             echo >&2 "usage: $0 [-oli] "
@@ -36,7 +38,7 @@ do
     esac
     shift
 done
-echo "MakeDist starting w OLI = $OLI, MODULES= $MODULES"
+echo "MakeDist starting w OLI = '$OLI', MODULES= $MODULES"
 
 #------------------------------------------------------------------------
 #  PHASE 1: copy all needed distribution files into a temp directory

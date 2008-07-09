@@ -3,18 +3,23 @@
 #
 # Usage:  copyprbs.pl module.lst dstdir [verbose]
 #
-# module.lst file should contain a list of Andes problem set names without extension,
-#                 one to a line
+# module.lst file should contain a list of Andes problem set names 
+# without extension, one to a line
+#
 # dstdir is the root of the destination Andes directory. 
-# verbose should be 1 to set the verbose flag. (Any non-zero string will do)
+#
+# verbose should be 1 to set the verbose flag (though any non-zero string 
+# will have the same effect)
+#
+# Run in the root of an Andes source directory.
 #
 # APS, prb, and graphic files will be copied into Problems subdirectory of 
-# dstdir (assumed to exist)
+# dstdir, which must already exist
 #
 
 #
 # docopy (srcfile, dstroot) -- copy named file into directory
-# srcfile should be relative to source root
+# srcfile should be relative to Andes root
 #
 $verbose = 0;		# set this flag for verbose trace of copying
 use File::Copy;
@@ -32,7 +37,7 @@ if (!$module_lst || !$dstdir) { die "usage: copyprbs module.lst dstdir:" };
 
 # ensure we have destination directory
 if (! -d $dstdir) { die "$dstdir is not a directory."; }
-$problemdir .= "/Problems";
+$problemdir = $dstdir . "/Problems";
 if (! -e $problemdir) { mkdir $problemdir or die "Couldn't create $problemdir. $!"; }
 if (! -d $problemdir) { die "$problemdir is not a directory."; }
 
@@ -40,7 +45,7 @@ if (! -d $problemdir) { die "$problemdir is not a directory."; }
 open (MODULES, "$module_lst") or die "Couldn't open $module_lst. $!";
 while ($module = (<MODULES>))
 {
-    $module =~ s/[\r]\n//;	# for cygwin perl on Windows using default PERLIO mode
+    $module =~ s/[\r]\n//;  #  cygwin perl on Windows may include \r
    
     # open next aps file to process
     print STDERR "copyprbs: Copying files for $module\n";
@@ -48,7 +53,6 @@ while ($module = (<MODULES>))
     open (APS, "$apsfile") or die "Couldn't open $apsfile. $!";
 
     # copy the APS file itself
-    if ($verbose) { print STDERR "Copying $apsfile\n"};
     &docopy($apsfile, $dstdir);
    
     # do for each line in APS file
@@ -63,6 +67,7 @@ while ($module = (<MODULES>))
 	      # copy prb file
 	      $prbfile = "Problems/$problemid" . ".prb";
 	      if (! -e $prbfile) {
+		  # assume this is stub problem, so keep going
 		  print STDERR "copyprbs: no prb for $problemid -- ignored\n"; 
 		  next;
 	      }
@@ -72,7 +77,7 @@ while ($module = (<MODULES>))
               open (PRB, "$prbfile") or die "Couldn't open $prbfile. $!";
 	      while (<PRB>) {
 	         if (/^Graphic +"([^"]+)"/) {
-		    $graphicfile = "Problems/$1";
+		     $graphicfile = "Problems/$1";
 		     &docopy($graphicfile, $dstdir);
 		     last;
 	          }
