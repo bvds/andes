@@ -1,0 +1,123 @@
+#!/usr/bin/perl
+#
+# mkanon -- anonymize USNA userids in Andes log files
+#
+# Usage:   reads one or more logs from standard input, writes to standard 
+#          output
+#
+# If input files have ids in their names, can write to a concatenated 
+# output file, then split out from there with splitlogs.
+#
+# Optional file merge-ids.txt in the current directory can specify
+# mapping from actual userids to effective user ids for anonymization. 
+# This can be used to map non-mid-number ids to mid numbers, or multiple
+# different ids to the same id, or numeric ids used by instructors to names.
+
+# old custom merge mapping
+#%merge = ( "gossard419" => "m092508",
+#            "blindmelon" => "m094098");
+
+if (open MERGEFILE, "<merge-ids.txt") {
+     %merge = map /(.*)\t([^\r]*)/, <MERGEFILE>;
+     close MERGEFILE;
+     #print STDERR "loaded merge map\n";
+}
+
+while (<>) 
+{
+  s/\r$//; # cygwin perl includes CR from DOS-mode text files by default
+  
+  # Log header part saying "by JoeSmith on Joes-Computer" can reveal identity
+  #      $1                               $2                    
+  if (/^(.*)# Log of Andes session begun (.*) by [\w-]+ on .*$/) 
+  {
+     print "$1# Log of Andes session begun $2 by [user] on [computer]\n";
+  }
+  #
+  # initial set session id call normally contains userid as part
+  #         $1                   $2     $3
+  elsif (/^(.*)set-session-id "([^"]*)"(.*)$/)
+  {
+	# Session id form is UserID-MonthDay-Hours-Mins-Secs
+	# but any spaces in UserID are converted to hyphens
+	# ($id, $rest) = split(/-/, $2, 2);
+	@id_parts = split('-', $2);
+	$nparts = @id_parts;
+	$id = $session_id = join(' ', @id_parts[0 .. $nparts-5]);
+	$rest = join('-', @id_parts[$nparts-4 .. $nparts-1]);
+	&munge_id(); 
+	print "$1set-session-id \"$newid-$rest\"$3\n";
+  }
+  #
+  # read-student-info call also has user name
+  #         $1                      $2     $3
+  elsif (/^(.*)read-student-info "([^"]*)"(.*)$/)
+  { 
+    $id = $2;  # session label should start with student id
+    if ($id ne $session_id) {
+	    print STDERR "warning: student id $id != session id part $session_id!\n";
+    }
+    &munge_id ();
+    print "$1read-student-info \"$newid\"$3\n";
+  }
+  #
+  # kcd urls in hints can contain the user id. Here we just map
+  # it anywhere it is found
+  #
+  elsif ($id && /$id/i) 
+  {
+    s/$id/$anonid/g;	
+    print;
+  } 
+ 
+  # !!! Standalone Andes also records interactions with Login dialog
+  # should note this and suppress characters while in this box
+  else { 
+	  print; 
+  }
+} # end while (<>)
+
+# at end of input, dump idmap so it can be saved
+foreach $id (sort keys %idmap) {
+     print STDERR "$id\t$idmap{$id}\n";
+}
+
+
+sub munge_id () # reads global $id, sets global $newid
+{
+    # check if we have noted this as a duplicate account of some student
+    $primary_id = $merge{$id} ? $merge{$id} : $id;
+
+    # check if it's a mid number which may occur with or without the initial "m" or "midn"
+    # prefix. If not, it may be a teacher or TA log 
+    # Note: pattern is anchored at beginning but not end of id, so allows trailing cruft in
+    # id after proper mid number. This allows for extra letter as in m102340x which was used.
+    # But also matches longer digit string as in 26384826 used by instructor McClanahan. 
+    # Maybe better to anchor at end and handle ids with trailing cruft via merge mechanism.
+    if ($primary_id =~ /^(m|mid|midn)?([\d][\d][\d][\d][\d][\d])/i) 
+    {
+	# following in case we want to map on substructure: year parts will all 
+	# be the same within a particular dataset.
+        # if ($primary_id =~ /^(m|mid|midn)?([\d][\d])([\d][\d][\d][\d])$/i) 
+	#  $yr = $2;	# first two digits are two digit class year: 07, 08, 09 etc.
+	#  $snum = $3;	# remaining four digits are student number 
+	$num= $2; 
+
+	# simple sample mapping function:
+	$num += 8765;
+
+	# treat new num string as integer and format in hex
+	$newid  = sprintf("%X", ($num + 0));
+	# remember mapping
+	$idmap{$id} = $newid;
+    } 
+    else {
+    	# !!! Put alternative method here for non-usna student names
+	if (! $warned{$id} ) {
+		print STDERR "Non mid id $id found in $_\n";
+		$warned{$id} = 1;
+	}
+	$newid = $id;
+	$idmap{$id} = $newid;
+   }
+}

@@ -1,0 +1,45 @@
+#!/usr/bin/perl
+#
+# mapid -- map USNA mid ids in input file using external tab-delimited mapping 
+#          file
+#
+# changes occurrences of an apparent mid id , once per line.
+# An apparent mid id is any six digit number optionally preceded by an "m" or "M".
+
+# load mapping from "idmap.txt" in current working directory
+open MAPFILE, "<idmap.txt" or die "open: $!";
+%idmap = map /(.*)\t([^\r]*)/, <MAPFILE>;
+close MAPFILE;
+
+while (<>)
+{
+	s/\r$//; # cygwin perl includes CR from DOS-mode text files by default
+
+	# Match any six digit number, optionally preceded by an "m".
+	# Note numeric ids coming out of excel may lose initial
+	# zero -- must fix this if this script is to work.
+	# !!! also matches digit string with more than 6 digits -- fix?
+	if (/[Mm]?([\d][\d][\d][\d][\d][\d])/) {
+		$alpha =  $1;
+		if (($newid = $idmap{$alpha}) or 
+		    ($newid = $idmap{"m" . $alpha}) or
+		    ($newid = $idmap{"M" . $alpha}) ){
+			# print "changing $& to $newid\n";
+			s/$&/$newid/;	
+		} else {
+			&munge_id();
+			s/$&/$newid/;	
+			print STDERR "no log idmap entry for $& generated $newid\n";
+		}
+	}
+	print; 
+}
+
+sub munge_id () # reads global $alpha, sets global $newid
+{
+   $num = $alpha;
+   # simple sample mapping function
+   $num += 8765;
+   # treat new num string as integer and format in hex
+   $newid  = sprintf("%X", ($num + 0));
+}

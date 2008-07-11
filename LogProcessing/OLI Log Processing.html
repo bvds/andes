@@ -1,0 +1,357 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>ANDES Log Processing</title>
+</head>
+<body>
+<h1>Processing ANDES Logs from OLI</h1>
+<br>
+This document explains how to obtain Andes log sets from OLI, anonymize
+them, and convert them into datashop format. All scripts for dealing
+with log files can be found in the LogProcessing directory of the Andes
+tree.<br>
+<br>
+<h2>Obtaining Logs from OLI</h2>
+OLI logs can be retreived from the oli QA server,
+oli-qa.andrew.cmu.edu, using OLI's <span style="font-style: italic;">Data
+Extraction tool.</span> OLI will have to give you an account and
+configure your access to the data extraction tool, after which a link
+for it will show up as a long on the top right of your start page when
+you log in to OLI.<br>
+<br>
+Logs on the QA server are mirrors of those on the OLI production
+server. These mirrors are made periodically, typically when QA software
+is updated and at other irregular intervals. So, they typically lag the
+data on production by a few weeks. It is not allowed to retrieve logs
+from the production server since the process can overload the server. <br>
+<br>
+For courses hosted on the PSLC server, the Data Extraction tool may be
+made available on the live server at any time.<br>
+<br>
+<h2>Running the Data Extraction tool</h2>
+After clicking the Data Extraction tool, you are walked through a
+series of screens to define a query. You should make the following
+selections:<br>
+<br>
+&nbsp;&nbsp; Step 1: Select scope of data<br>
+&nbsp;&nbsp;&nbsp;&nbsp; Go down to "Course Sections" and select the
+course sections you want. The available ones for you should be
+highlighted. OLI may have to configure your access to particular course
+logs.
+Otherwise you will see them but not be able to select them in the Data
+Extraction tool interface. <br>
+&nbsp;&nbsp;&nbsp; Do not select anything else on this page. You do not
+normally want to select by content package, for example.<br>
+&nbsp;&nbsp;&nbsp; Click Go to Step 2<br>
+<br>
+&nbsp;&nbsp;&nbsp; Step 2: Options<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; <span
+ style="font-weight: bold;">Columns</span>: This selects which columns
+from the OLI log database will be included in the output in a
+comma-separated format. The essential one is the "info" column. The
+info column records application-specific information. In our
+case,&nbsp; there a single row in the OLI log database corresponding to
+the event of Andes uploading a log file at the end of an Andes problem
+session. This row includes the entire text of an Andes session logfile
+in the "info" field, so info should always remain checked. <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; One should also check the "Action
+TimeStamp"&nbsp; to receive the server's time at the time the log was
+made. This is useful to have because the date and time shown<span
+ style="font-style: italic;"> inside</span> the Andes logs is derived
+from the user's system clock, which may be incorrectly set. So the OLI
+recorded event time is more reliable to have. This time should be very
+close to the time of the <span style="font-style: italic;">end </span>of
+the Andes session, when the log file was uploaded. <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; One may check the Action
+Time Zone for a more complete specification about the time.
+However,&nbsp; since this event is recorded by the OLI server, this
+does not really add information -- the times here should always be in
+the Eastern time zone where the OLI servers are, even if the students
+are working in different time zones. <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; All other columns should
+be unchecked to keep the output simple.<br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Notes: In theory
+there might be some use for the User Id column, which will show an
+anonymized OLI user id (into a long ugly GUID), or the Session GUID,
+which identifes an OLI login session. This detail could be used to
+correlate Andes logs with other OLI, non-ANDES log entries made by the
+same student or within the same OLI login session. For example, one can
+also use the Data Extraction tool to retrieving logs showing access to
+learning pages in the course. With that result, one could determine
+which learning pages the student visited in the same session as the
+Andes log was made.&nbsp; However, we have never made any use of this
+information up to now. <br>
+&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp; The question has sometimes come up as to whether we
+can determine when students view training videos on OLI from their
+logs. Right now, there is no record made in the OLI log database of
+these events, because they are just serves of&nbsp; webcontent that do
+not pass through the OLI courseware system. On way around this would be
+to wrap each video in its own learning page. In this case there <span
+ style="font-style: italic;">would </span>be a log of those learning
+page accesses. However, that would not show whether the student had
+launched the video or not, merely whether they had opened the page on
+which it resides. Another possible way might be to convert the videos
+to Flash format, and make use of Flash media logging support built into
+certain OLI tools. This would log media viewing events in the
+DataShop's xml notation, and these events could then be retrieved <br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; <span
+ style="font-weight: bold;">Actions</span>: Select Andes. This is a
+custom action which indicates uploading an Andes log at the end of an
+Andes problem session.<br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; <span
+ style="font-weight: bold;">Filters</span>: leave blank<br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; <span
+ style="font-weight: bold;">Options</span>:&nbsp; Normally one should
+select a date range which includes all logs in the course but exclude
+other semesters that might contain the same student. The dates do
+not&nbsp; have to be exact . For example, for a Spring term 2007
+course, it could suffice to select a range from 2007-01-01 to
+2007-06-01, even if the exact course date range was somewhat narrower. <br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; The reason for this is
+that OLI does not actually record course information in the log
+database. Rather, when you request logs for a course, the Data
+Extraction server looks up the course roster and translates this into a
+query for logs by all students on that roster. If a student was in both
+a fall term and spring term course, this will retrieve logs from
+outside of the course.&nbsp; <br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; All other options should
+be left as defaults.<br>
+<br>
+At Step 3, the query is submitted and you should start downloading a
+zip file named data.zip. However, this step often times out or fails if
+the server is heavily
+loaded. In that case you just have to try again at a different time.<br>
+<br>
+&nbsp;&nbsp;&nbsp; The data.zip itself contains a single file named
+actions.csv, with all the data. Save this zip file with some
+identifying name like Fall2007-USNA.dat.z <br>
+<h4>Concatenated log format</h4>
+&nbsp;&nbsp;&nbsp; The embedded file you get is formally a csv file
+showing selected rows in a database, like a
+spreadsheet. The first line gives the column headings and subsequent
+lines give comma-separated values. As noted above, the
+last "column" of each line is the full Andes log, which normally
+includes multiple text lines within it.&nbsp; Effectively that makes
+this file a concatenated sequence of Andes logs, with a
+little bit of cruft before the initial log header line. <br>
+<br>
+&nbsp;&nbsp;&nbsp; For most purposes the concatenated file can be
+processed as a unit. By using zcat and piping output to further
+processing, it may not even necessary to uncompress it. However, it
+could also be split into separate log files for processing
+-- see the splitlogs.pl tool in the Andes LogProcessing directory. <br>
+<br>
+&nbsp;&nbsp;&nbsp; Within the concatenated log, individual session logs
+can be found by searching for the Andes log header line, which will
+have the following format:<br>
+<br>
+2008/04/03 18:15:21,Eastern,# Log of Andes session begun Thursday,
+April 03, 2008 18:14:50 by [user] on [computer]<br>
+<br>
+&nbsp;&nbsp;&nbsp; Individual logs should each end with an END-LOG line<br>
+1:00&nbsp;&nbsp;&nbsp; END-LOG <br>
+&nbsp;&nbsp;&nbsp; However, in theory an error could prevent the
+END-LOG statement from getting into the log, so it is safest just to
+end a log at the header of the next one.<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp; Technically this file is in Unix text file
+format, in which there is a single newline characters at the end of
+each row from the database. However, the last column of all the rows
+after the first, header line, end with the full text of an Andes log
+file, and an Andes log file is tself a multi-line Windows-format&nbsp;
+text file in which the lines end with carriage-return linefeed pairs.
+One effect of this is that when viewed in a text editor, there will
+appears to be a blank line after each log file. <br>
+<br>
+&nbsp;&nbsp; <br>
+<h2><span style="font-weight: bold;">Anonymizing the logs</span></h2>
+<h2><span style="font-weight: bold;"></span></h2>
+<br>
+There are different scripts for anonymizing USNA logs, where our
+students are supposed to use their alphas, aka mid numbers, as user
+ids, and anonymizing arbitrary student logs, where the ids may take any
+form.<br>
+<h5>Anonymizing USNA midshipmen logs: mkanon-usna.pl<br>
+</h5>
+To anonymize mid logs, obtain the file mkanon-usna.pl.template. Edit it
+to include a different hash function in the munge_id routine to map the
+mid number into some anonymization code. Rename it to makanon-usna.pl.
+The basic way to anonymize is then:<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; zcat Fall2007-USNA.dat.z |
+perl mkanon-usna.pl&nbsp; &gt; Fall2007-USNA-anon.dat 2&gt; idmap.txt<br>
+<br>
+The standard output will be the anonymized concatenated log
+(uncompressed). The stderr output will contain any error messages, of
+which the most important is reports of ids that do not conform to the
+mid number patten. This will be followed by a tab-delimited listing of
+the id mapping file generated. This mapping should be saved reference
+and for use in applying the mapping to other files. So you should
+inspect idmap first, and edit out any error message before saving it.
+[Maybe better to just write idmap.txt file separately from error
+messages? ]<br>
+<br>
+A nuisance is that sometimes the same real student will have created
+two or more different OLI ids. Also, a student may not have used a mid
+number at all as an id. Normally we ask instructors to grant us TA
+access to courses we
+support so we can inspect the gradebook and rosters, so the usual way
+to identify such students is to inspect the OLI section rosters, which
+will show students with the same real name on different lines. <br>
+<br>
+Both these issues can be handled by creating a file named merge-ids.txt
+in the directory in which the script is run. This should be
+tab-separated two column listing mapping login ids to canonical&nbsp;
+user ids: instances of the first id will be mapped to the second before
+anonymizing. The second id need never have been actually used, e.g. for
+someone who used a non-mid number id, you could just map it to a mid
+number. <br>
+<br>
+Note the anonymization will already merge students who used two user
+ids consisting of a mid number with and without an initial "m" since it
+anonymizes based on the mid number itself. So no special entry is
+required for these.<br>
+<h6>Applying the id map to other files: mapid-usna.pl<br>
+</h6>
+The mapping defined in the saved file idmap.txt can be applied to other
+text files, e.g.a list of questionnaire respondants or students in some
+experimental condition, by using the script mapid-usna.pl.<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; mapid-usna.pl &lt; infile &gt; outfile<br>
+This script looks for a file named idmap.txt in the current directory.
+This also should be customized from the template file to include the
+same mapping function used in mkanon-usna. This will apply the map to
+mid numbers in the&nbsp; If an id is not found in the map, it will use
+the hashing algorithm to generate one, generating an error message. The
+advantage of&nbsp; re-using the log-generated mapping file is that it
+tells us when it encounters a user id for which no logs were found in
+the set. This may indicate an anomaly requiring investigation, e.g. a
+questionnaire respondant who entered his user id incorrectly.<br>
+<h5>Anonymizing arbitrary logs</h5>
+Student ids in non-USNA datasets can be anonymized with the mkanon.pl
+and mapid.pl scripts. These don't use a hashing algorithm. Rather, they
+simply generate ids by adding numbers to a specified prefix. To use
+these, create a&nbsp; tab-separated mapping file (of any name)
+initialized to contain a special mapping for PREFIX, e.g<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PREFIX\tWH081<br>
+Then do<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; perl mkanon.pl
+mapfile.txt &lt; log &gt; newlog<br>
+where mapfile.txt is the mapping file. This will update mapfile.txt
+with the new mapping file. <br>
+<br>
+This can be done multiple times; in each case, an existing mapping will
+be used if found, and the mapping file will be updated with any new
+entries at the end.<br>
+<br>
+As above, the mapping can be applied to arbitrary text by<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; perl mapid.pl mapfile.txt &lt; old &gt;
+new<br>
+<br>
+<h2>Converting Raw Logs to DataShop Format</h2>
+The script log2xml.pl can be used to convert an anonymized dataset into
+files in the xml format the DataShop uses for import into their
+database. By the datashop's request, this will generate one folder per
+student, and one xml log file per session log. At the end of the
+conversion, this should be zipped up and delivered to the DataShop for
+dropoff. The DataShop should give you ssh access to a dropbox location
+on their "cooker" server for this purpose.<br>
+<h5>Info files</h5>
+Although the basic conversion is simple, the converter makes use of
+several external files to patch in information not included in the
+Andes raw logs. It will look for them in a subdirectory named "Info"
+within its working directory when run. <br>
+<br>
+Required:<br>
+&nbsp;&nbsp; dataset.txt -- contains dataset name <br>
+Optional:<br>
+&nbsp;&nbsp; classmap.txt -- student to class id mapping. <br>
+&nbsp;&nbsp; class-XXX.xml -- class XML element for class w/id XXX<br>
+&nbsp;&nbsp; conditionmap.txt -- student to condition id mapping<br>
+&nbsp;&nbsp; condition-XXX.xml -- condition element for id XXX<br>
+&nbsp;&nbsp; unitmap.txt&nbsp; -- problem to unit mapping<br>
+<br>
+The dataset.txt file must exit. All others are optional, if not found,
+this info will not be included in the conversion.<br>
+<br>
+Samples of these files can be viewed in the directory Info.sample in
+the LogProcessing directory. <br>
+<h6>Class information</h6>
+The classmap file is a two-column tab-separated mapping of student
+names to some string identifying the class they were in. This could be
+a section number like "3346" or it could just be an instructor name
+like "gershmann". The class-XXX.xml then gives the xml element to patch
+into the conversion for specifying the student's class.&nbsp; For
+example:<br>
+<br>
+&lt;class&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;name&gt;SP212 General Physics II&lt;/name&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;school&gt;USNA&lt;/school&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;period&gt;6546&lt;/period&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &lt;description&gt;Electricity and
+Magnetism Spring 2007&lt;/description&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;instructor&gt;Mary Wintersgill&lt;/instructor&gt;<br>
+&lt;/class&gt;<br>
+<br>
+If all this information is not known, then it need not be included. <br>
+<br>
+This information must be obtained from OLI rosters or other sources
+from the instructor or experimenter. One way is to build a spreadsheet
+or list, cut the column or real names and save to a file, anonymize
+that file, and paste it back into the spreadsheet, then save in
+tab-delimited format.<br>
+<h6>Condition information</h6>
+Experimental condition information may come from two sources: it may be
+included in the logs, if OLI had been customized for different
+conditions, as in Sandy Katz's USNA experiments. In this case the
+condition will always be one of "control", "experiment", "experiment1"
+or "experiment2", which are the only possible values defined in our OLI
+course. In this case no conditionmap file is needed.<br>
+<br>
+Alternatively, the condition information may be patched in via a
+conditionmap.txt file, which maps student ids to experiment condition
+ids. This is more common for logs from lab studies. <br>
+<br>
+Again, the ids used here are arbitrary. The xml element
+condition-XXX.xml will be patched into the converted log to explain the
+student's experiment condition. A sample is<br>
+<br>
+&nbsp;&nbsp;&nbsp; &lt;condition&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;name&gt;Katz Reflective
+Dialogue&lt;/name&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;type&gt;Experimental&lt;/type&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;/condition&gt;<br>
+<br>
+Note a conditionmap will take priority over conditions found in the
+logs. It is not required to include any condition information.<br>
+<br>
+I believe the datashop format does not support multiple conditions in a
+log, even though a USNA student might have participated in multiple
+experiments, say a lab study and also a longer study like Sandy Katz's.
+<br>
+<h6>Unit information</h6>
+The converter also makes use of a mapping from problem id to problem
+set, e.g kt1 -&gt; Translational Kinematics, since this information is
+not in the logs. This is contained in the file unitmap.txt. This file
+can be generated from a set of aps files by the script&nbsp;
+mkunitmap.pl as<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; mkunitmap.pl *.aps &gt; unitmap.txt<br>
+<br>
+&nbsp;It changes rarely so it can usually just be copied. <br>
+<br>
+<br>
+<br>
+</body>
+</html>
