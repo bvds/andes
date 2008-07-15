@@ -1123,51 +1123,6 @@
 	  (format str "</table>~%"))))
     (format str "</ul>~%")))
 
-;;;  Print html file with list of homework sets
-
-(defun sets-html-file ()
-  "construct file Documentation/simple-sets.html"
-  (let ((Stream  (open 
-		  (merge-pathnames  "Documentation/simple-sets.html" *Andes-Path*)
-		  :direction :output :if-exists :supersede)))
-    ;;  Assume stream has UTF-8 encoding (default for sbcl)
-    ;;  Should test this is actually true or change the charset to match
-    ;;  the actual character code being used by the stream
-    ;;  something like:
-    (when (streamp Stream) 
-      #+sbcl (unless (eq (stream-external-format Stream) ':utf-8)
-	       (error "Wrong character code ~A, should be UTF-8" 
-		      (stream-external-format Stream))))
-    (format Stream 
-	    (strcat
-	     "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">~%"
-	     "<html> <head>~%"
-	     ;;	   "   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">~%"
-	     "   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">~%"
-	     "<link rel=\"stylesheet\" type=\"text/css\" href=\"main.css\">~%"
-	     "<title>Principles</title>~%"
-	     "</head>~%"
-	     "<body>~%"
-	     "<h1>Problem Sets</h1>~%"
-	     "<ul>~%"))
-    
-    (dolist (set *sets*)
-      (let ((probs (mapcar #'get-problem (second set))))
-	(format stream "  <li>~A~%<table>~%" (car set))
-	(dolist (prob probs)
-	  (when prob 
-	    (format stream "    <tr><td>~A</td><td>~@[~A~]</td><td>~@[~A~]</td><td>~{~A<br>~}</td></tr>~%"
-		    (problem-name prob)
-		    (second (find (problem-name prob) *times-scores* :key #'car))
-		    (third (find (problem-name prob) *times-scores* :key #'car))
-		    (problem-statement prob))))
-	(format stream "</table>~%")))
-    
-    (format Stream (strcat
-		    "</ul>~%"
-		    "</body>~%"
-		    "</html>~%"))
-    (when (streamp stream) (close stream))))
 
 (defun sets-json-file ()
   "construct file Documentation/sets.json"
@@ -1194,17 +1149,14 @@
 	(format t "set ~a~%" (car set))
 	(format stream " {id: '~A', label: '~A', items: [~%" (car set) (car set))
 	(dolist (prob probs)
-	    (format t "  Problem ~A~%" (problem-name prob))
-	    (format stream "   {id: '~A', label: \"~A: ~@[~,1Fm~] ~@[~A%~]\"}~@[,~]~%"
-;; , statement: [~{~S~^, ~}]
-;;"   {id: '~A', time: '~A', score: '~a', statement: \"~{~A<br>~}\"}~@[,~]~%"
+	    (format stream "   {id: '~A',  expand: \"~(~A~).html\", label: \"~(~A~): ~@[~,1Fm~] ~@[~A%~]\"}~@[,~]~%"
+		    (problem-name prob)
 		    (problem-name prob)
 		    (problem-name prob)
 		    (when (find (problem-name prob) *times-scores* :key #'car)
 		      (/ (second (find (problem-name prob) *times-scores* 
 				       :key #'car)) 60))
 		    (third (find (problem-name prob) *times-scores* :key #'car))
-		 ;   (problem-statement prob)
 		    (not (eq prob (car (last probs))))))
 	(format stream "]}~@[,~]~%" (not (eq set (car (last *sets*)))))))
     (format Stream (strcat
@@ -1256,7 +1208,7 @@
 	 (format stream "  ]}"))
 	((eq (car p) 'leaf)
 	(apply #'principle-leaf-print-json (cons stream (cdr p)))
-	 (setf ccc (+ ccc 1))
+	 (setf jsonc (+ jsonc 1))
 )))
 
 ;; keywords :short-name and :EqnFormat override definitions in Ontology
@@ -1289,16 +1241,58 @@
 	  (format stream "      {id: '~A~A', label: '~A', items: [~%" 
 		  (car set) (setf jsonc (+ jsonc 1)) (car set))
 	  (dolist (prob probs)
-	    (format stream "        {id: '~A~A', label: \"~A: ~@[~,1Fm~] ~@[~A%~]\"}~@[,~]~%"
-;; , statement: [~{~S~^, ~}]
-;;"   {id: '~A', time: '~A', score: '~a', statement: \"~{~A<br>~}\"}~@[,~]~%"
+	    (format stream "        {id: '~A~A', expand: \"~(~A~).html\", label: \"~(~A~): ~@[~,1Fm~] ~@[~A%~]\"}~@[,~]~%"
 		    (problem-name prob) (setf jsonc (+ jsonc 1))
+		    (problem-name prob)
 		    (problem-name prob)
 		    (when (find (problem-name prob) *times-scores* :key #'car)
 		      (/ (second (find (problem-name prob) *times-scores* 
 				       :key #'car)) 60))
 		    (third (find (problem-name prob) *times-scores* :key #'car))
-		 ;   (problem-statement prob)
 		    (not (eq prob (car (last probs))))))
 	  (format stream "      ]}"))))
     (format stream "    ]}")))
+
+;; Use the above perl script to fix the math formatting after the files
+;; are generated.
+;; (problem-html-files #P"/Users/bvds/problems/")
+;; cp Problems/*.gif ~/problems/
+;; cp Problems/*.GIF ~/problems/
+;; cp Problems/*.jpg ~/problems/
+
+(defun problem-html-files (&optional (path *andes-path*))
+  "construct html files for all problems"
+(dolist (prob (listprobs))
+  (when (problem-graphic prob) (format t "~A~%" (problem-graphic prob)))
+  (let ((*print-pretty* NIL) ;disble line breaks
+	(stream (open (merge-pathnames 
+	         (format nil "~(~A~).html" (problem-name prob)) path)
+		      :direction :output :if-exists :supersede)))
+    
+  ;;  Assume stream has UTF-8 encoding (default for sbcl)
+  ;;  Should test this is actually true or change the charset to match
+  ;;  the actual character code being used by the stream
+  ;;  something like:
+  (when (streamp Stream) 
+    #+sbcl (unless (eq (stream-external-format Stream) ':utf-8)
+             (error "Wrong character code ~A, should be UTF-8" 
+                    (stream-external-format Stream))))
+  (format Stream 
+          (strcat
+           "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">~%"
+           "<html> <head>~%"
+           ;;      "   <meta http-equiv=\"Content-Type\" content=\"text/html; "
+	   ;;     "charset=iso-8859-1\">~%"
+           "   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UT
+F-8\">~%"
+           "<title>Problem ~(~A~)</title>~%"
+           "</head>~%"
+           "<body>~%") (problem-name prob))
+
+  (format stream "~{~A<br>~}~%~@[<img src=\"~A\" alt=\"figure\">~%~]" 
+	  (problem-statement prob) 
+	  (problem-graphic prob))
+
+  (format stream (strcat "</body>~%" 
+		       "</html>~%"))
+  (when (streamp stream) (close stream)))))

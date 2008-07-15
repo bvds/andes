@@ -3,44 +3,59 @@
 <head>
 <title>Andes problem chooser</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <style type="text/css">
-        @import "http://o.aolcdn.com/dojo/1.0.0/dijit/themes/tundra/tundra.css";
-        @import "http://o.aolcdn.com/dojo/1.0.0/dojo/resources/dojo.css";
-    </style>
-    <script type="text/javascript" src="http://o.aolcdn.com/dojo/1.0.0/dojo/dojo.xd.js"
-            djConfig="parseOnLoad: true"></script>
-    <script>
-        dojo.require("dojo.data.ItemFileWriteStore");
-        dojo.require("dijit.Tree");
-        dojo.require("dojo.parser");
-        dojo.require("dijit.layout.ContentPane");
-   </script>
+<style type="text/css">
+  @import "http://o.aolcdn.com/dojo/1.0.0/dijit/themes/tundra/tundra.css";
+  @import "http://o.aolcdn.com/dojo/1.0.0/dojo/resources/dojo.css";
+</style>
+<script type="text/javascript" src="http://o.aolcdn.com/dojo/1.0.0/dojo/dojo.xd.js"
+  djConfig="parseOnLoad: true"></script>
+<script>
+  dojo.require("dojo.data.ItemFileWriteStore");
+  dojo.require("dijit.Tree");
+  dojo.require("dojo.parser");
+  dojo.require("dijit.layout.ContentPane");
+</script>
 </head>
 <body class="tundra">
-        <div dojoType="dojo.data.ItemFileWriteStore"
-             url="sets.json" jsId="setStore" />
-        <div dojoType="dojo.data.ItemFileWriteStore"
-             url="principles.json" jsId="principlesStore" />
-<h1>Andes problem chooser tool</h1>
-	  For each problem, median solution time and median score are shown.&nbsp;
-	  Times and scores are from US Naval Academy students from Fall 2005
-	  to spring 2008.
-	  <p>
-	  <table>
-	    <tr><td>Homework Sets</td><td>List of principles<br>For each principle, show homework sets and problems</td></tr>
+
+<div dojoType="dojo.data.ItemFileWriteStore" url="sets.json" jsId="setStore" />
+<div dojoType="dojo.data.ItemFileWriteStore" url="principles.json" jsId="principlesStore" />
+  
+  <h1>Andes problem chooser tool</h1>
+  
+  <p>The left column shows a list of all the homework sets,
+  while the right column shows a nested list of the principles of
+  physics.&nbsp; For each principle, a list of problems
+  whose solution involves that principle is shown.&nbsp;
+  For each problem, median solution time and median score are shown.&nbsp;
+  Times and scores are from US Naval Academy students from Fall 2005
+  to spring 2008.
+  <p>
+  <table>
+    <tr><th>Homework Sets</th><th>List of principles</th><th></th></tr>
 	    <tr><td valign="top">
         <div dojoType="dijit.Tree" store="setStore" labelAttr="identifier" childrenAttr="items">
+	  <!-- Two copies of this script:  should make this a function -->
 	  <script type="dojo/method" event="onClick" args="item">
-	// console.log("from json:  "+setStore.getValues(item,"expand"));
 	 if(setStore.hasAttribute(item,"expand")) {
-	  dijit.byId('prob').setHref(setStore.getValue(item,"expand"));
+	  // console.log("from json:  "+setStore.getValue(item,"expand"));
+	  dijit.byId('prob').setHref("problems/"+setStore.getValue(item,"expand"));
 	  }
-	  
 	  </script>
 	</div>
 	</td><td valign="top">
-        <div dojoType="dijit.Tree" store="principlesStore" labelAttr="identifier" childrenAttr="items"></div>
+        <div dojoType="dijit.Tree" store="principlesStore" labelAttr="identifier" childrenAttr="items">
+	  <!-- Two copies of this script:  should make this a function -->
+	  <script type="dojo/method" event="onClick" args="item">
+	 if(principlesStore.hasAttribute(item,"expand")) {
+	  // console.log("from json:  "+principlesStore.getValue(item,"expand"));
+	  dijit.byId('prob').setHref("problems/"+principlesStore.getValue(item,"expand"));
+	  } else {
+	  // console.log("doesn't work:  ");
+	  }
+	  </script>
+	</div>
 	</td><td valign="top"> <div dojoType="dijit.layout.ContentPane"
-	     id="prob"></td></tr></table>
+	     id="prob" extractContent="true"></td></tr></table>
 </body>
 </html>
