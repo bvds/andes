@@ -3,8 +3,8 @@
   label: 'label',
   items: [
  {id: 'Vectors', label: 'Vectors', items: [
-   {id: 'VEC1A', label: "VEC1A: 11.6m 95.5%"},
-   {id: 'VEC1B', label: "VEC1B: 9.5m 95%"},
+   {id: 'VEC1A', expand: "vec1a.html", label: "VEC1A: 11.6m 95.5%"},
+   {id: 'VEC1B', expand: "vec1b.html", label: "VEC1B: 9.5m 95%"},
    {id: 'VEC1C', label: "VEC1C: 9.4m 97%"},
    {id: 'VEC1D', label: "VEC1D: 5.3m 97%"},
    {id: 'VEC1E', label: "VEC1E:  "},

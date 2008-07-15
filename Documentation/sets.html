@@ -13,6 +13,7 @@
         dojo.require("dojo.data.ItemFileWriteStore");
         dojo.require("dijit.Tree");
         dojo.require("dojo.parser");
+        dojo.require("dijit.layout.ContentPane");
    </script>
 </head>
 <body class="tundra">
@@ -28,9 +29,18 @@
 	  <table>
 	    <tr><td>Homework Sets</td><td>List of principles<br>For each principle, show homework sets and problems</td></tr>
 	    <tr><td valign="top">
-        <div dojoType="dijit.Tree" store="setStore" labelAttr="identifier" childrenAttr="items"></div>
+        <div dojoType="dijit.Tree" store="setStore" labelAttr="identifier" childrenAttr="items">
+	  <script type="dojo/method" event="onClick" args="item">
+	// console.log("from json:  "+setStore.getValues(item,"expand"));
+	 if(setStore.hasAttribute(item,"expand")) {
+	  dijit.byId('prob').setHref(setStore.getValue(item,"expand"));
+	  }
+	  
+	  </script>
+	</div>
 	</td><td valign="top">
         <div dojoType="dijit.Tree" store="principlesStore" labelAttr="identifier" childrenAttr="items"></div>
-	</td></tr></table>
+	</td><td valign="top"> <div dojoType="dijit.layout.ContentPane"
+	     id="prob"></td></tr></table>
 </body>
 </html>
