@@ -1031,99 +1031,6 @@
 (we5 317.5 77.5)
 (we6 779.5 89.5)))
 
-;;;          Generate file Documentation/principles.html
-;;;
-;;;  See Bug #1475
-;;;   script to fix the math notation
-;;;   perl -pi.orig -e 's/& /&amp; /g; s/_(.)/<sub>$1<\/sub>/g; s/\^(.)/<sup>$1<\/sup>/g; s/\*/ /g;' principles.html
-;;;   script to fix the special characters
-;;;   perl -pi.orig -e 's/\$w/&omega;/g; s/\$p/&pi;/g; s/\$S/&Sigma/g; s/\$q/&theta;/g; s/\$l/&lambda;/g; s/\$a/&alpha;/g; s/\$r/&rho;/g; s/\$F/&Phi;/g; s/\$e/&epsilon;/g; s/\$m/&mu;/g; s/\$t/&tau;/g; s/\$b/&beta;/g;' principles.html
-
-(defun principles-html-file ()
-  "construct file Documentation/principles.html"
-  (let ((Stream  (open 
-		 (merge-pathnames  "Documentation/principles.html" *Andes-Path*)
-		   :direction :output :if-exists :supersede)))
-  (andes-init)
-  ;;  Assume stream has UTF-8 encoding (default for sbcl)
-  ;;  Should test this is actually true or change the charset to match
-  ;;  the actual character code being used by the stream
-  ;;  something like:
-  (when (streamp Stream) 
-    #+sbcl (unless (eq (stream-external-format Stream) ':utf-8)
-	     (error "Wrong character code ~A, should be UTF-8" 
-		    (stream-external-format Stream))))
-  (format Stream 
-	  (strcat
-	   "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">~%"
-	   "<html> <head>~%"
-	   ;;	   "   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">~%"
-	   "   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">~%"
-	   "<link rel=\"stylesheet\" type=\"text/css\" href=\"main.css\">~%"
-	   "<title>Principles</title>~%"
-	   "</head>~%"
-	   "<body>~%"
-	   "<h1>Principles and Problems</h1>~%"
-	   "<ul>~%"))
-
-    (dolist (p *principle-tree*) (principle-branch-print-html stream p))
-
-   (format Stream (strcat
-		   "</ul>~%"
-		   "</body>~%"
-		   "</html>~%"))
-    (when (streamp stream) (close stream))))
-
-(defun principle-branch-print-html (str p)
-  "prints a group in Documentation/principles.html"
-  (cond ((eq (car p) 'group)
-	 (format str "<li>~A~%<ul>~%" (cadr p))
-	 (dolist (pp (cddr p)) (principle-branch-print-html str pp))
-	 (format str "</ul>~%"))
-	((eq (car p) 'leaf)
-	 (apply #'principle-leaf-print-html (cons str (cdr p))))))
-
-;; keywords :short-name and :EqnFormat override definitions in Ontology
-(defun principle-leaf-print-html (str class &key tutorial (bindings no-bindings)
-				  EqnFormat short-name) 
-  "prints a principle in KB/principles.tsv"
-  (format t "print leaf ~A~%" class)
-  (let ((pc (lookup-psmclass-name class)))
-    (format str "<li>~A&nbsp; ~A~%<ul>~%" 
-	    (eval-print-spec (or EqnFormat (psmclass-EqnFormat pc)) bindings)
-	    (eval-print-spec (or short-name (psmclass-short-name pc)) bindings))
-    (dolist (set *sets*)
-      (let ((probs (remove-if-not
-		    #'(lambda (Prob)
-			(when Prob 
-			  (unless (problem-graph Prob)
-			    (read-problem-info (string (problem-name prob)))
-			    (when *cp* (setf (problem-graph Prob) 
-					     (problem-graph *cp*))))
-			  ;;     (format t "problem ~A with ~A~%" 
-			  ;;	     (problem-name prob) 
-			  ;;	     (length (second (problem-graph *cp*))))
-			  (some #'(lambda (enode)
-				    ;; (format t "   bind ~A and ~A~%" 
-				    ;;	 (psmclass-form pc) (enode-id enode))
-				    (unify (psmclass-form pc)
-					   (enode-id enode) bindings)) 
-				(second (problem-graph Prob)))))
-		    (mapcar #'get-problem (second set)))))
-	(when probs 
-	  (format str "  <li>~A~%<table>~%" (car set))
-	  (dolist (prob probs)
-	    (format str "    <tr><td>~A</td><td>~@[~A~]</td><td>~@[~A~]</td></tr>~%"
-		    ;;"    <tr><td>~A</td><td>~@[~A~]</td><td>~@[~A~]</td><td>~{~A<br>~}</td></tr>~%"
-		    (problem-name prob)
-		    (second (find (problem-name prob) *times-scores* :key #'car))
-		    (third (find (problem-name prob) *times-scores* :key #'car))
-		;;    (problem-statement prob)
-))
-	  (format str "</table>~%"))))
-    (format str "</ul>~%")))
-
-
 (defun sets-json-file ()
   "construct file Documentation/sets.json"
   (let ((Stream  (open 
@@ -1148,16 +1055,7 @@
       (let ((probs (remove nil (mapcar #'get-problem (second set)))))
 	(format t "set ~a~%" (car set))
 	(format stream " {id: '~A', label: '~A', items: [~%" (car set) (car set))
-	(dolist (prob probs)
-	    (format stream "   {id: '~A',  expand: \"~(~A~).html\", label: \"~(~A~): ~@[~,1Fm~] ~@[~A%~]\"}~@[,~]~%"
-		    (problem-name prob)
-		    (problem-name prob)
-		    (problem-name prob)
-		    (when (find (problem-name prob) *times-scores* :key #'car)
-		      (/ (second (find (problem-name prob) *times-scores* 
-				       :key #'car)) 60))
-		    (third (find (problem-name prob) *times-scores* :key #'car))
-		    (not (eq prob (car (last probs))))))
+	(problem-lines-json stream probs)
 	(format stream "]}~@[,~]~%" (not (eq set (car (last *sets*)))))))
     (format Stream (strcat
 		    "  ]~%"
@@ -1165,6 +1063,14 @@
     (when (streamp stream) (close stream))))
 
 (setf jsonc 0)
+
+;;;
+;;;  See Bug #1475
+;;;   script to fix the math notation
+;;;   perl -pi.orig -e 's/& /&amp; /g; s/_(.)/<sub>$1<\/sub>/g; s/\^(.)/<sup>$1<\/sup>/g; s/\*/ /g;' principles.json
+;;;   script to fix the special characters
+;;;   perl -pi.orig -e 's/\$w/&omega;/g; s/\$p/&pi;/g; s/\$S/&Sigma/g; s/\$q/&theta;/g; s/\$l/&lambda;/g; s/\$a/&alpha;/g; s/\$r/&rho;/g; s/\$F/&Phi;/g; s/\$e/&epsilon;/g; s/\$m/&mu;/g; s/\$t/&tau;/g; s/\$b/&beta;/g;' principles.json
+
 
 (defun principles-json-file ()
   "construct file Documentation/principles.json"
@@ -1201,14 +1107,14 @@
   "prints a group in Documentation/principles.json"
   (cond ((eq (car p) 'group)
 	(format stream "  {id: \"~A~A\", label: \"~A\", items: [~%" 
-		(cadr p) (setf jsonc (+ jsonc 1)) (cadr p))
+		(cadr p) (incf jsonc) (cadr p))
 	 (dolist (pp (cddr p)) 
 	   (principle-branch-print-json stream pp)
 		 (format stream "~@[,~]~%" (not (eq pp (car (last (cddr p)))))))
 	 (format stream "  ]}"))
 	((eq (car p) 'leaf)
 	(apply #'principle-leaf-print-json (cons stream (cdr p)))
-	 (setf jsonc (+ jsonc 1))
+	 (incf jsonc)
 )))
 
 ;; keywords :short-name and :EqnFormat override definitions in Ontology
@@ -1239,25 +1145,28 @@
 	  (when cont (format stream ",~%"))
 	  (setf cont t)
 	  (format stream "      {id: '~A~A', label: '~A', items: [~%" 
-		  (car set) (setf jsonc (+ jsonc 1)) (car set))
-	  (dolist (prob probs)
-	    (format stream "        {id: '~A~A', expand: \"~(~A~).html\", label: \"~(~A~): ~@[~,1Fm~] ~@[~A%~]\"}~@[,~]~%"
-		    (problem-name prob) (setf jsonc (+ jsonc 1))
-		    (problem-name prob)
-		    (problem-name prob)
-		    (when (find (problem-name prob) *times-scores* :key #'car)
-		      (/ (second (find (problem-name prob) *times-scores* 
-				       :key #'car)) 60))
-		    (third (find (problem-name prob) *times-scores* :key #'car))
-		    (not (eq prob (car (last probs))))))
+		  (car set) (incf jsonc) (car set))
+	  (problem-lines-json stream probs (incf jsonc))
 	  (format stream "      ]}"))))
     (format stream "    ]}")))
+
+(defun problem-lines-json (stream probs &optional id)
+  (dolist (prob probs)
+    (format stream "        {id: '~A~@[~A~]', expand: \"~(~A~).html\", ~@[graphic: \"~A\", ~] label: \"~(~A~): ~@[~,1Fm~] ~@[~A%~]\"}~@[,~]~%"
+	    (problem-name prob) id
+	    (problem-name prob)
+	    (problem-graphic prob)
+	    (problem-name prob)
+	    (when (find (problem-name prob) *times-scores* :key #'car)
+	      (/ (second (find (problem-name prob) *times-scores* 
+			       :key #'car)) 60))
+	    (third (find (problem-name prob) *times-scores* :key #'car))
+	    (not (eq prob (car (last probs)))))))
 
 ;; Use the above perl script to fix the math formatting after the files
 ;; are generated.
 ;; (problem-html-files #P"/Users/bvds/problems/")
 ;; cp Problems/*.gif ~/problems/
-;; cp Problems/*.GIF ~/problems/
 ;; cp Problems/*.jpg ~/problems/
 
 (defun problem-html-files (&optional (path *andes-path*))
@@ -1288,11 +1197,7 @@ F-8\">~%"
            "<title>Problem ~(~A~)</title>~%"
            "</head>~%"
            "<body>~%") (problem-name prob))
-
-  (format stream "~{~A<br>~}~%~@[<img src=\"~A\" alt=\"figure\">~%~]" 
-	  (problem-statement prob) 
-	  (problem-graphic prob))
-
+  (format stream "~{    ~A<br>~%~}" (problem-statement prob))
   (format stream (strcat "</body>~%" 
-		       "</html>~%"))
+			 "</html>~%"))
   (when (streamp stream) (close stream)))))
