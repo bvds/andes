@@ -6,8 +6,17 @@
 <style type="text/css">
   @import "http://o.aolcdn.com/dojo/1.0.0/dijit/themes/tundra/tundra.css";
   @import "http://o.aolcdn.com/dojo/1.0.0/dojo/resources/dojo.css";
-  #graphic {
-       overflow: hidden
+  div#graphic {
+       overflow: hidden;
+   }
+  div.tall {
+      border-style: solid;
+      border-width: thin;
+      border-color: grey;
+      overflow: auto; height: 400px;
+   }
+   th {
+       font-weight: bold;
    }
 </style>
 <script type="text/javascript" src="http://o.aolcdn.com/dojo/1.0.0/dojo/dojo.xd.js"
@@ -23,6 +32,7 @@
     if(store.hasAttribute(item,"expand")) {
       // console.log("from json:  "+store.getValue(item,"expand"));
       dijit.byId('prob').setHref("problems/"+store.getValue(item,"expand"));
+      dijit.byId('label').setContent(store.getValue(item,"label"));
       if(store.hasAttribute(item,"graphic")) {
         // console.log("from json:  "+store.getValue(item,"graphic"));
 	// console.log("   "+"<img src=\"problems/"+store.getValue(item,"graphic")+"\">");
@@ -52,17 +62,16 @@
   to spring 2008.
   <p>
   <table>
-    <tr><th>Homework Sets</th><th>List of principles</th><th></th></tr>
+    <tr><th>Homework Sets</th><th>List of principles</th>
+         <th><div dojoType="dijit.layout.ContentPane" id="label"></div></th></tr>
 	    <tr><td valign="top">
-        <div dojoType="dijit.Tree" store="setStore" labelAttr="identifier" childrenAttr="items">
-	  <!-- Two copies of this script:  should make this a function -->
+        <div dojoType="dijit.Tree" store="setStore" labelAttr="identifier" childrenAttr="items" class="tall">
 	  <script type="dojo/method" event="onClick" args="item">
 	  addProblem(item,setStore);
 	  </script>
 	</div>
 	</td><td valign="top">
-        <div dojoType="dijit.Tree" store="principlesStore" labelAttr="identifier" childrenAttr="items">
-	  <!-- Two copies of this script:  should make this a function -->
+        <div dojoType="dijit.Tree" store="principlesStore" labelAttr="identifier" childrenAttr="items" class="tall">
 	  <script type="dojo/method" event="onClick" args="item">
 	  addProblem(item,principlesStore);
 	  </script>
