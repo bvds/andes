@@ -156,8 +156,8 @@
   ; else atomic body name:
    ; check if this is a student-defined compound-body label
    (let ((stud-quant (symbols-referent (string body-arg))))
-     (if (and stud-quant (compound-object-term stud-quant)) stud-quant
-       ; else simple body name:
+     (if (and stud-quant (compound-bodyp stud-quant)) stud-quant
+       ; else treat as simple body name:
        (fix-body-name body-arg)))))
 
 (defun fix-body-name (body-arg)
@@ -168,7 +168,13 @@
   ;; (to prevent Lisp printing with #:)
   (intern (string-upcase (substitute #\_ #\- (string body-arg)))))
 
-; For circuits, we have to handle defined compound component terms as arguments.
+;; Extract constituents from list-valued circuit quantity argument
+(defun bodyterm-complist (bodyterm)
+ "extract component list from a compound component term as built by arg-to-body"
+ ; arg-to-body builds: (compound orderless C1 C2 ...)
+ (cddr bodyterm))  
+
+; For circuits, we sometimes have to handle defined compound component labels as arguments.
 ; E.g. say student variable "foo" has earlier been defined as (resistance (R5 R6)), meaning
 ; the resistance of the compound of R5 and R6. The workbench now allows "foo" to be used as a 
 ; name for the compound resistor in OTHER variable definitions.  For example, student may define 
@@ -177,26 +183,26 @@
 ; component itself. The body arg "foo" in *this* context will need ultimately to be translated to
 ; (R1 R2) get us to (voltage-across (R1 R2)) to match the form used in the knowledge base. 
 ;
-; In this case, (arg-to-body 'foo) will simply lookup the definition of "foo" and return 
-; (resistance (R5 R6)).  The make-quant cases for circuit component attributes below have been
-; coded to be prepared to receive such a quantity form as the body-term and pull out the constituents
-; appropriately wherever variable args can be compound equivalents. 
-
-(defun compound-object-term (quant)
-   (or (compound-bodyp quant)
-       (compound-componentp quant)))
+; There are only certain contexts in which a compound equivalent label might occur as an
+; argument and need to be expanded into its constituents -- right now it is only voltage quantities. 
+; So arg-to-body itself does NOT automatically expand them.  (See bug 1478). Rather, the relevant 
+; make-quant clause will use component-elements to look up the definition of "foo", 
+; find (resistance (R5 R6)), and extract (R5 R6) when building the voltage term.  
 
 (defun compound-componentp (quant)
+"return true if quantity is a compound equivalent resistor or capacitor"
    (and (consp quant)
 	(= (length quant) 2)
         (or (eq (first quant) 'resistance)
 	    (eq (first quant) 'capacitance))
 	(consp (second quant))))
 
-(defun bodyterm-complist (bodyterm)
- "extract component list from a compound component term as built by arg-to-body"
- ; arg-to-body builds: (compound orderless C1 C2 ...)
- (cddr bodyterm))  
+(defun component-elements (comp-name)
+"return elements of named component: constituents for defined compounds, else itself"
+   (let ((stud-quant (symbols-referent (string comp-name))))
+     (if (and stud-quant (compound-componentp stud-quant)) stud-quant
+      ; else
+         comp-name)))
 
 ;; 
 ;; Type/subtype identifiers
@@ -405,8 +411,8 @@
        (if (null subtype) `(coef-friction ,body-term ,body2-term static)
 	 `(coef-friction ,body-term ,body2-term ,subtype)))
       (voltage    (case subtype
-		    (across		; body-term may come here as (resistance (a b c)) for equiv.
-		     (if (atom body-term) `(voltage-across ,body-term :time ,time-term)
+		    (across		; body-term may denote (resistance (a b c)) for equiv.
+		     (if (atom body-term) `(voltage-across ,(component-elements body-term) :time ,time-term)
                        `(voltage-across ,(second body-term) :time ,time-term)))
 		    (otherwise		; no longer used
 		     `(voltage-btwn ,body-term ,body2-term :time ,time-term))))
