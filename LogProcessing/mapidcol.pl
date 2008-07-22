@@ -1,26 +1,26 @@
 #!/usr/bin/perl
 #
-# mapid --  map list of student ids in input file using external 
-#           tab-delimited mapping file, generating new id if not found
-#           and updating 
+# mapidcol -- map id column in a tab-delimited table using external 
+#             via given mapping
 #
-# Usage:   mapid.pl mapfile.txt [idfile.txt]
-# Reads id list from second argument, standard input if none. Writes
-# anonymized list to stdout, updating mapfile with newly generated
-# mappings if any. Also writes newly generated pairs to stderr.
+# Usage:   mapid.pl mapfile.txt column-number [table.txt]
+#
+# Reads tab-delimited table from second argument, standard input if none. 
+# Writes table list to stdout with contents of column with given 1-based
+# column-number mapped via mapfile, updating mapfile with newly generated 
+# mappings if any. Also reports any newly generated pairs to stderr.
 #
 # Mapfile is tab-delimited list of canonical-name anon-id pairs. It
 # should contain a special entry for "PREFIX" specifying the prefix
 # to use when generating ids. 
 #
-# Note this matches whole lines which may include spaces (since
-# a few students used ids with spaces), so text to be mapped should
-# have nothing but ids on the lines. Normally applied to a column of
-# studentids cut from a larger spreadsheet in a large file, with
-# result to be pasted in to make an anonymized file.
 
 my $filename = $ARGV[0]; shift @ARGV;
-if (! $filename) { die "usage: mapid.pl mapfile.txt [inputfile]\n"; }
+if (! $filename) { die "usage: mapid.pl mapfile.txt column-number [inputfile]\n"; }
+
+my $idcol = $ARGV[0]; shift @ARGV;
+# $colnum of "0" converts to false; OK, since we want 1-based
+if (! $idcol) { die "usage: mapid.pl mapfile.txt column-number [inputfile]\n"; }
 
 # count of ids generated with this prefix
 my $id_counter = 1;
@@ -31,7 +31,7 @@ open MAPFILE, "<$filename" or die "Couldn't open $filename for reading: $!\n"  ;
 close MAPFILE;
 if (1) { # debugging printout
 	$maplength = (keys idmap);
-	print STDERR "Input mapping ($maplength) entries\n";
+	print STDERR "Initial mapping ($maplength) entries\n";
 	while( ($k, $v) = each %idmap) {
         	print STDERR "  |$k| |$v|\n";
 	}
@@ -49,23 +49,25 @@ $id_counter = (keys idmap);
 
 while (<>)
 {
-	s/\r$//;  # cygwin perl may include CR from DOS-mode text files
+	s/\r?\n//;  # cygwin perl may include CR from DOS-mode text files
         # ids may have spaces, dots, or odd chars. Assume begin and
 	# end with a word character.
-	if (/[\w].*[\w]/) {
-		# to ignore case differences, use canonical lower case
-		# form in mapping table. 
-		$canon_id = $id = $&;
-		$canon_id =~ tr/[A-Z]/[a-z]/;
-		if (! ($anonid = $idmap{$canon_id})) { 
-			$anonid = $idmap{$canon_id} = $prefix . $id_counter++;
-			print STDERR "Added to idmap: $canon_id => $anonid\n";
-			$modified_map = 1;
-		}
-		# NB: substitute for original, not canonical, form 
-		s/$id/$anonid/;	
+	
+	@fields = split(/\t/);
+
+        # to ignore case differences, use canonical lower case
+	# form in mapping table. 
+	$canon_id = $fields[$idcol - 1];
+        $canon_id =~ tr/[A-Z]/[a-z]/;
+        if (! ($anonid = $idmap{$canon_id})) { 
+	       $anonid = $idmap{$canon_id} = $prefix . $id_counter++;
+	       print STDERR "Added to idmap: $canon_id => $anonid\n";
+	       $modified_map = 1;
 	}
-	print; 
+	# NB: substitute for original, not canonical, form 
+	$fields[$idcol - 1] = $anonid;
+	$oline = join("\t", @fields); 
+	print "$oline\n";
 }
 
 # update mapping file if mapping has been extended.

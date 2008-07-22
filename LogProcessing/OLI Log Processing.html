@@ -121,10 +121,24 @@ database. Rather, when you request logs for a course, the Data
 Extraction server looks up the course roster and translates this into a
 query for logs by all students on that roster. If a student was in both
 a fall term and spring term course, this will retrieve logs from
-outside of the course.&nbsp; <br>
+outside of the course. Using a restricted date range will limit this to
+student logs from the time the course was running.<br>
 <br>
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; All other options should
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; All other options should
 be left as defaults.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Note: if a student did
+work under their own OLI id in other courses than the desired one, for
+example, in the open and free course, these logs will also be included
+in the set. It is not easy to eliminate these since there is no record
+in the OLI database of the course from which a log was saved. However,
+the activity GUIDs which identify particular problems are specific to a
+course: problem KT1A in one course will be identified by a different
+activity GUID than KT1A in a different course. So in theory one could
+correlate activity GUIDs with those used in the course to identify the
+particular course. However, activity GUIDs are not currently recorded
+when Andes logs are saved. Andes would have to be modified to stamp the
+activity GUID into the log itself for this. <br>
 <br>
 At Step 3, the query is submitted and you should start downloading a
 zip file named data.zip. However, this step often times out or fails if
@@ -171,8 +185,6 @@ file, and an Andes log file is tself a multi-line Windows-format&nbsp;
 text file in which the lines end with carriage-return linefeed pairs.
 One effect of this is that when viewed in a text editor, there will
 appears to be a blank line after each log file. <br>
-<br>
-&nbsp;&nbsp; <br>
 <h2><span style="font-weight: bold;">Anonymizing the logs</span></h2>
 <h2><span style="font-weight: bold;"></span></h2>
 <br>
@@ -186,6 +198,7 @@ To anonymize mid logs, obtain the file mkanon-usna.pl.template. Edit it
 to include a different hash function in the munge_id routine to map the
 mid number into some anonymization code. Rename it to makanon-usna.pl.
 The basic way to anonymize is then:<br>
+<br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; zcat Fall2007-USNA.dat.z |
 perl mkanon-usna.pl&nbsp; &gt; Fall2007-USNA-anon.dat 2&gt; idmap.txt<br>
 <br>
@@ -199,68 +212,175 @@ inspect idmap first, and edit out any error message before saving it.
 [Maybe better to just write idmap.txt file separately from error
 messages? ]<br>
 <br>
+In this script, any ids that do not have the pattern of a mid number
+will be passed through unchanged. Normally such ids are limited to
+instructor or TA accounts. So, these untranslated ids should then be
+identifiable in the anonymized output by the fact that they differ in
+form from all the student ids. <br>
+<h5>Using OLI class rosters</h5>
+It is generally useful to save copies of the OLI roster tables. OLI
+does not provide any method to export the rosters, so the method for
+this is just to view the roster page in a browser, select every line in
+the roster table display, copy the selection to the clipboard, then
+paste it into a text file. Save the file with a name of the form
+SECTIONID-roster.txt, e.g. "treacy-3346-roster.txt" or
+"gershman-honors-roster.txt" for use with the DataShop conversion
+process. <br>
+<br>
+Note: Some versions of the roster display contain check boxes in the
+left-most column. These can safely be included in the selection: when
+pasted into a text file, they will simply create an empty column, which
+is harmless. However, if&nbsp; you try pasting directly into
+Excel,&nbsp; the
+check boxes and other formatting can cause trouble. That is why it is
+easiest to go via a text file.<br>
+<br>
+The text file may be usable as is as a space-delimited file. However,
+it is more reliable to convert it to a tab-delimited format, because
+some of the fields might contain spaces. For example, one student used
+a full name with a space as an OLI&nbsp; user id. Also, the first or
+last name column might contain a space if a student uses a name like
+"Van Helsing".<br>
+<br>
+One way to convert the text file rosters into a tab-delimited table by
+copying the text from the file and pasting into Excel. Because these
+files are delimited by spaces, Excel will not automatically tabulate
+this data, but will place it all in the leftmost column. While this
+pasted data is still selected, select "Tools/Text to Columns" to
+convert this into spreadsheet data, selecting spaces and commas as the
+delimiters. Excel will now display the data in columns. This can then
+be saved in a tab-delimited format.&nbsp; You should eyeball the data
+and fix up any rows that contain extra columns because of extra spaces
+in the source.<br>
+<br>
+One thing to watch out for when passing ids through Excel is that by
+default Excel will strip initial 0's when it writes out apparently
+numeric data. Mid numbers for some years begin with 0's, so this can be
+a problem, although mid numbers for future years will not (Mid numbers
+begin with the two-digit graduation year of the class who are almost
+all sophomores, so in Fall 08 most student ids will begin with 11).<br>
+<h5>Merging or fixing student ids</h5>
 A nuisance is that sometimes the same real student will have created
 two or more different OLI ids. Also, a student may not have used a mid
-number at all as an id. Normally we ask instructors to grant us TA
+number at all as an id. Also, instructors may have enrolled in the
+course under special ids which might need to be treated specially. <br>
+<br>
+Normally we ask instructors to grant us TA
 access to courses we
-support so we can inspect the gradebook and rosters, so the usual way
+support so we can inspect the gradebook and rosters. So the usual way
 to identify such students is to inspect the OLI section rosters, which
 will show students with the same real name on different lines. <br>
+<br>
+Note the anonymization for USNA mid ids will already merge students who
+used two user
+ids consisting of a mid number with and without an initial "m" since it
+anonymizes based on the mid number itself, regardless of prefix. So no
+special fixup is
+required for these cases.<br>
 <br>
 Both these issues can be handled by creating a file named merge-ids.txt
 in the directory in which the script is run. This should be
 tab-separated two column listing mapping login ids to canonical&nbsp;
 user ids: instances of the first id will be mapped to the second before
 anonymizing. The second id need never have been actually used, e.g. for
-someone who used a non-mid number id, you could just map it to a mid
-number. <br>
+someone who used a non-mid number id, you could just map it to their
+mid
+number, even if they never logged in under that number. <br>
 <br>
-Note the anonymization will already merge students who used two user
-ids consisting of a mid number with and without an initial "m" since it
-anonymizes based on the mid number itself. So no special entry is
-required for these.<br>
+When merging ids into a mid number, it doesn't matter if the initial
+"m" is included or not. By convention I haven't been omitting the
+initial m's here on the idea that the canonical id is the number.<br>
 <h6>Applying the id map to other files: mapid-usna.pl<br>
 </h6>
 The mapping defined in the saved file idmap.txt can be applied to other
 text files, e.g.a list of questionnaire respondants or students in some
 experimental condition, by using the script mapid-usna.pl.<br>
+<br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; mapid-usna.pl &lt; infile &gt; outfile<br>
+<br>
 This script looks for a file named idmap.txt in the current directory.
 This also should be customized from the template file to include the
 same mapping function used in mkanon-usna. This will apply the map to
 mid numbers in the&nbsp; If an id is not found in the map, it will use
-the hashing algorithm to generate one, generating an error message. The
+the hashing algorithm to generate one, generating an error message. <br>
+<br>
+The
 advantage of&nbsp; re-using the log-generated mapping file is that it
-tells us when it encounters a user id for which no logs were found in
+gives a message when it encounters a user id for which no logs were
+found in
 the set. This may indicate an anomaly requiring investigation, e.g. a
 questionnaire respondant who entered his user id incorrectly.<br>
+<br>
+The file merge-ids.txt will also be applied to the text being
+processed. This can lead to spurious reports of&nbsp; ids not in the
+map which may be ignored. For example, suppose the id "maverick" was
+used by a mid whose alpha is m091234. Then merge-ids.txt will contain a
+line mapping "maverick" to "091234" (with or without the m), so scripts
+will treat "maverick" as if it were "091234". The anonymization map
+idmap.txt will then wind up with an entry mapping "maverick" via this
+intermediary to some hexadecimal number, say "DC954". However, if you
+anonymize some other table containing the true mid number "091234" via
+the idmap, it will report that there is no entry for that. This is
+harmless because application of the hashing algorithm will come up with
+the same anonymous id, namely DC954.<br>
 <h5>Anonymizing arbitrary logs</h5>
 Student ids in non-USNA datasets can be anonymized with the mkanon.pl
 and mapid.pl scripts. These don't use a hashing algorithm. Rather, they
 simply generate ids by adding numbers to a specified prefix. To use
 these, create a&nbsp; tab-separated mapping file (of any name)
 initialized to contain a special mapping for PREFIX, e.g<br>
+<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PREFIX\tWH081<br>
+<br>
 Then do<br>
+<br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; perl mkanon.pl
 mapfile.txt &lt; log &gt; newlog<br>
+<br>
 where mapfile.txt is the mapping file. This will update mapfile.txt
 with the new mapping file. <br>
 <br>
-This can be done multiple times; in each case, an existing mapping will
-be used if found, and the mapping file will be updated with any new
-entries at the end.<br>
+This script is designed to be run and re-run multiple times while both
+reading and updating the mapping file.&nbsp; In each case, an existing
+mapping will
+be used if found in the mapfile. Otherwise the mapping file will be
+updated with any new
+entries at the end. <br>
+<h5>Applying the id map to other files: mapid.pl</h5>
+The mapping can be applied to a list of ids using the mapid script:<br>
 <br>
-As above, the mapping can be applied to arbitrary text by<br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; perl mapid.pl mapfile.txt &lt; old &gt;
 new<br>
 <br>
-<h2>Converting Raw Logs to DataShop Format</h2>
+However, this script does not apply to arbitrary text. Rather, it
+expects to operate on a file containing a list of student ids, one to a
+line. It will match id patterns on the whole line, so ids may contain
+spaces. <br>
+<br>
+The usual use is to anonymize a student id column in a spreadsheet. The
+way to do this is to cut the whole column from the spreadsheet, paste
+it into a text file, apply the mapid script to that text file, saving
+the result into a new text file, selecting all the text in the new text
+file, and pasting it into the id column in the original spreadsheet. <br>
+<br>
+It would be easy to write a script to apply the mapping to a specified
+column in a tab-delimited file, but the above method has sufficed.<br>
+<br>
+<h2>Converting Raw Logs to DataShop XML Format</h2>
 The script log2xml.pl can be used to convert an anonymized dataset into
 files in the xml format the DataShop uses for import into their
-database. By the datashop's request, this will generate one folder per
-student, and one xml log file per session log. At the end of the
-conversion, this should be zipped up and delivered to the DataShop for
+database. This script reads standard input and takes no command line
+arguments (but does need files, see below). With compressed raw logs,
+usage is typically of the form<br>
+<br>
+&nbsp;&nbsp;&nbsp; zcat Fall2008-USNA.dat.z | perl log2xml.pl<br>
+<br>
+By the datashop's request, this will create one folder for each
+student's logs, and one xml log file per session log. <br>
+<br>
+At the end of the
+conversion, this set of directories should be zipped up and delivered
+to the DataShop for
 dropoff. The DataShop should give you ssh access to a dropbox location
 on their "cooker" server for this purpose.<br>
 <h5>Info files</h5>
@@ -283,12 +403,38 @@ this info will not be included in the conversion.<br>
 <br>
 Samples of these files can be viewed in the directory Info.sample in
 the LogProcessing directory. <br>
-<h6>Class information</h6>
-The classmap file is a two-column tab-separated mapping of student
-names to some string identifying the class they were in. This could be
+<h6>classmap.txt: student to class id mapping<br>
+</h6>
+The classmap.txt file is a two-column tab-separated mapping of student
+names to some string identifying the class they were in. The string
+itself will never be shown to users so is completely arbitrary. It
+could be
 a section number like "3346" or it could just be an instructor name
-like "gershmann". The class-XXX.xml then gives the xml element to patch
-into the conversion for specifying the student's class.&nbsp; For
+like "gershman".&nbsp; <br>
+<br>
+The classmap file can be generated from roster files by using the
+simple perl script rosters-to-classmap.pl as follows:<br>
+<br>
+&nbsp;&nbsp;&nbsp; perl rosters-to-classmap.pl *-roster.txt &gt;
+raw-classmap.txt<br>
+<br>
+This writes a two-column tab-delimited output with the penultimate
+column of each line in the roster file (which should be the OLI user
+id) followed by the file name with "-roster.txt" removed. <br>
+<br>
+This output&nbsp; is in the correct format for a classmap file, but is
+not anonymized. For mid ids, the whole file can be anonymized directly
+by mapid-usna, since it can recognize which parts of the text have the
+form of mid ids. However, for non-mid-ids, the contents of the first
+column must cut and pasted into a separate file which is then passed
+through the mapid or mapid-usna script to generate an anonymized
+version of the column as output. This output can be pasted back into
+the table to make an anonymized form. <br>
+<h6>Class information</h6>
+The Info file class-XXX.xml specifies the full xml element to patch
+into the conversion output for specifying the class of students mapped
+to XXX via the classmap.&nbsp; These contents are what datashop users
+will actually see. For
 example:<br>
 <br>
 &lt;class&gt;<br>
@@ -298,19 +444,14 @@ example:<br>
 &lt;school&gt;USNA&lt;/school&gt;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 &lt;period&gt;6546&lt;/period&gt;<br>
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &lt;description&gt;Electricity and
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;description&gt;Electricity and
 Magnetism Spring 2007&lt;/description&gt;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 &lt;instructor&gt;Mary Wintersgill&lt;/instructor&gt;<br>
 &lt;/class&gt;<br>
 <br>
-If all this information is not known, then it need not be included. <br>
-<br>
-This information must be obtained from OLI rosters or other sources
-from the instructor or experimenter. One way is to build a spreadsheet
-or list, cut the column or real names and save to a file, anonymize
-that file, and paste it back into the spreadsheet, then save in
-tab-delimited format.<br>
+If any of this information is not known, then it need not be included. <br>
 <h6>Condition information</h6>
 Experimental condition information may come from two sources: it may be
 included in the logs, if OLI had been customized for different
@@ -347,9 +488,11 @@ set, e.g kt1 -&gt; Translational Kinematics, since this information is
 not in the logs. This is contained in the file unitmap.txt. This file
 can be generated from a set of aps files by the script&nbsp;
 mkunitmap.pl as<br>
+<br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; mkunitmap.pl *.aps &gt; unitmap.txt<br>
 <br>
-&nbsp;It changes rarely so it can usually just be copied. <br>
+This changes rarely so it can usually just be copied. However, as new
+problems are added to Andes it might need to be regenerated. <br>
 <br>
 <br>
 <br>
