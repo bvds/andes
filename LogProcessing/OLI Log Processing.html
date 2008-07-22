@@ -347,25 +347,39 @@ be used if found in the mapfile. Otherwise the mapping file will be
 updated with any new
 entries at the end. <br>
 <h5>Applying the id map to other files: mapid.pl</h5>
-The mapping can be applied to a list of ids using the mapid script:<br>
+It is harder to anonymize arbitrary text because with arbitrary ids,
+there is no easy way to tell which piece of the text is a student id --
+though it is unusual, arbitrary student ids can even contain spaces.
+However, the most common text needing anonymization is a spreadsheet of
+information containing student ids in one column. The script
+mapidcol.pl can anonymize one column of a spreadsheet given in a tab
+delimited format. Usage is<br>
+<br>
+&nbsp;&nbsp;&nbsp; perl mapidcol.pl mapfile.txt column-number &lt; old
+&gt; new<br>
+<br>
+where column number is the one-based index of the id column in the
+tab-delimited file. <br>
+<br>
+The mapping can also be applied to a file containing list of ids using
+the (older) mapid script:<br>
 <br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; perl mapid.pl mapfile.txt &lt; old &gt;
 new<br>
 <br>
-However, this script does not apply to arbitrary text. Rather, it
-expects to operate on a file containing a list of student ids, one to a
-line. It will match id patterns on the whole line, so ids may contain
-spaces. <br>
+This script expects to operate on a file containing a list of student
+ids, one to a line. It will match id patterns on the whole line, so ids
+may contain spaces. <br>
+This provides an alternate way to anonymize a spreadsheet column: cut
+the whole column from the spreadsheet, paste it into a text file, apply
+the mapid script to that text file, saving the result into a new text
+file, selecting all the text in the new text file, and pasting it into
+the id column in the original spreadsheet. <br>
 <br>
-The usual use is to anonymize a student id column in a spreadsheet. The
-way to do this is to cut the whole column from the spreadsheet, paste
-it into a text file, apply the mapid script to that text file, saving
-the result into a new text file, selecting all the text in the new text
-file, and pasting it into the id column in the original spreadsheet. <br>
-<br>
-It would be easy to write a script to apply the mapping to a specified
-column in a tab-delimited file, but the above method has sufficed.<br>
-<br>
+Both these scripts report if they have to generate new ids, and update
+the file mapfile.txt with new mappings generated. However, because a
+missing mapping may indicate some error, it is a good idea to back up
+the idmap file after an earlier stage in the process.<br>
 <h2>Converting Raw Logs to DataShop XML Format</h2>
 The script log2xml.pl can be used to convert an anonymized dataset into
 files in the xml format the DataShop uses for import into their
@@ -424,12 +438,14 @@ id) followed by the file name with "-roster.txt" removed. <br>
 <br>
 This output&nbsp; is in the correct format for a classmap file, but is
 not anonymized. For mid ids, the whole file can be anonymized directly
-by mapid-usna, since it can recognize which parts of the text have the
-form of mid ids. However, for non-mid-ids, the contents of the first
-column must cut and pasted into a separate file which is then passed
-through the mapid or mapid-usna script to generate an anonymized
-version of the column as output. This output can be pasted back into
-the table to make an anonymized form. <br>
+by mapid-usna.pl, since it can recognize which parts of the text have
+the form of mid ids. <br>
+<br>
+For non-mid-ids, the table can be anonymized by the mapidcol.pl script,
+as<br>
+<br>
+&nbsp;&nbsp;&nbsp; perl mapidcol.pl idmap.txt 1 &lt; raw-classmap.txt
+&gt; classmap.txt<br>
 <h6>Class information</h6>
 The Info file class-XXX.xml specifies the full xml element to patch
 into the conversion output for specifying the class of students mapped
@@ -449,7 +465,7 @@ example:<br>
 Magnetism Spring 2007&lt;/description&gt;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 &lt;instructor&gt;Mary Wintersgill&lt;/instructor&gt;<br>
-&lt;/class&gt;<br>
+&lt;/class&gt;&nbsp;&nbsp; <br>
 <br>
 If any of this information is not known, then it need not be included. <br>
 <h6>Condition information</h6>
