@@ -8,12 +8,23 @@
 
 # load mapping from "idmap.txt" in current working directory
 open MAPFILE, "<idmap.txt" or die "open: $!";
-%idmap = map /(.*)\t([^\r]*)/, <MAPFILE>;
+%idmap = map /(.*)\t([^\s]*)/, <MAPFILE>;
 close MAPFILE;
+
+# load optional merge mapping
+if (open MERGEFILE, "<merge-ids.txt") {
+     %merge = map /(.*)\t([^\r]*)/, <MERGEFILE>;
+     close MERGEFILE;
+}
 
 while (<>)
 {
 	s/\r$//; # cygwin perl includes CR from DOS-mode text files by default
+
+	# first apply merge mapping to text in line.
+	while( ($k, $v) = each %merge) {
+               s/$k/$v/g;
+        }
 
 	# Match any six digit number, optionally preceded by an "m".
 	# Note numeric ids coming out of excel may lose initial

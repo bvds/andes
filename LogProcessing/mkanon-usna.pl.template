@@ -20,7 +20,11 @@
 if (open MERGEFILE, "<merge-ids.txt") {
      %merge = map /(.*)\t([^\r]*)/, <MERGEFILE>;
      close MERGEFILE;
-     #print STDERR "loaded merge map\n";
+
+     #print STDERR "loaded merge map:\n";
+     #foreach $item (sort keys %merge) 
+     #     { print STDERR "$item\t$merge{$item}\n"; }
+
 }
 
 while (<>) 
@@ -87,6 +91,10 @@ sub munge_id () # reads global $id, sets global $newid
 {
     # check if we have noted this as a duplicate account of some student
     $primary_id = $merge{$id} ? $merge{$id} : $id;
+    if ($merge{$id} && ! $reported{$id}) { 
+	    print STDERR "treating $id as $primary_id\n"; 
+	    $reported{$id} = 1;
+    }
 
     # check if it's a mid number which may occur with or without the initial "m" or "midn"
     # prefix. If not, it may be a teacher or TA log 
@@ -96,11 +104,11 @@ sub munge_id () # reads global $id, sets global $newid
     # Maybe better to anchor at end and handle ids with trailing cruft via merge mechanism.
     if ($primary_id =~ /^(m|mid|midn)?([\d][\d][\d][\d][\d][\d])/i) 
     {
-	# following in case we want to map on substructure: year parts will all 
+	# following in case we want to obscure substructure: year parts will all 
 	# be the same within a particular dataset.
-        # if ($primary_id =~ /^(m|mid|midn)?([\d][\d])([\d][\d][\d][\d])$/i) 
-	#  $yr = $2;	# first two digits are two digit class year: 07, 08, 09 etc.
-	#  $snum = $3;	# remaining four digits are student number 
+        # if ($primary_id =~ /^(m|midn)?([\d][\d])([\d][\d][\d][\d])$/i) 
+	# $yr = $2;	# first two digits are two digit class year: 07, 08, 09 etc.
+	# $snum = $3;	# remaining four digits are student number 
 	$num= $2; 
 
 	# simple sample mapping function:
@@ -112,12 +120,13 @@ sub munge_id () # reads global $id, sets global $newid
 	$idmap{$id} = $newid;
     } 
     else {
-    	# !!! Put alternative method here for non-usna student names
-	if (! $warned{$id} ) {
-		print STDERR "Non mid id $id found in $_\n";
-		$warned{$id} = 1;
+    	# Leave non-mid form ids untranslated. Merge table should fix all true mid ids, so
+	# others should be for instructors or TAs.
+	if (! $warned{$primary_id} ) {
+		print STDERR "Non mid id $primary_id found in $_\n";
+		$warned{$primary_id} = 1;
 	}
-	$newid = $id;
-	$idmap{$id} = $newid;
+	$newid = $primary_id; # NB: merge may yield non-mid primary_id for instructors
+	$idmap{$id} = $newid; # NB: map entry is for original id in log
    }
 }
