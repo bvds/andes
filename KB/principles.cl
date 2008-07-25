@@ -1055,7 +1055,7 @@
       (let ((probs (remove nil (mapcar #'get-problem (second set)))))
 	(format t "set ~a~%" (car set))
 	(format stream " {id: '~A', label: '~A', items: [~%" (car set) (car set))
-	(problem-lines-json stream probs (car set))
+	(problem-lines-json stream probs)
 	(format stream "]}~@[,~]~%" (not (eq set (car (last *sets*)))))))
     (format Stream (strcat
 		    "  ]~%"
