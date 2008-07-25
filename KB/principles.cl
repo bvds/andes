@@ -1055,7 +1055,7 @@
       (let ((probs (remove nil (mapcar #'get-problem (second set)))))
 	(format t "set ~a~%" (car set))
 	(format stream " {id: '~A', label: '~A', items: [~%" (car set) (car set))
-	(problem-lines-json stream probs)
+	(problem-lines-json stream probs (car set))
 	(format stream "]}~@[,~]~%" (not (eq set (car (last *sets*)))))))
     (format Stream (strcat
 		    "  ]~%"
@@ -1144,10 +1144,10 @@
 	(when probs 
 	  (when cont (format stream ",~%"))
 	  (setf cont t)
-	  (problem-lines-json stream probs jsonc (car set)))))
+	  (problem-lines-json stream probs (car set) jsonc))))
     (format stream "    ]}")))
 
-(defun problem-lines-json (stream probs &optional id set)
+(defun problem-lines-json (stream probs &optional set id)
   (dolist (prob probs)
     (format stream "        {id: '~A~@[~A~]', expand: \"~(~A~).html\", ~@[graphic: \"~A\", ~] ~@[set: \"~A\",~] label: \"~(~A~): ~@[~,1Fm~] ~@[~A%~]\"}~@[,~]~%"
 	    (problem-name prob) id

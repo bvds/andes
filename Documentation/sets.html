@@ -33,10 +33,10 @@
       dijit.byId('prob').setHref("problems/"+store.getValue(item,"expand"));
       var label=store.getValue(item,"label");
       if(store.hasAttribute(item,"set")) {
-          label = "<br>\n"+store.getValue(item,"set")+"<br>"+label;
+          label = "&nbsp; " + store.getValue(item,"set")+"<br>"+label;
       }
       dijit.byId('label').setContent(label);
-    if(store.hasAttribute(item,"graphic")) {
+      if(store.hasAttribute(item,"graphic")) {
         // console.log("from json:  "+store.getValue(item,"graphic"));
 	// console.log("   "+"<img src=\"problems/"+store.getValue(item,"graphic")+"\">");
 	dijit.byId('graphic').setContent("<img src=\"problems/"+store.getValue(item,"graphic")+"\">");
