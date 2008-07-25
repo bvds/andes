@@ -31,8 +31,13 @@
     if(store.hasAttribute(item,"expand")) {
       // console.log("from json:  "+store.getValue(item,"expand"));
       dijit.byId('prob').setHref("problems/"+store.getValue(item,"expand"));
-      dijit.byId('label').setContent(store.getValue(item,"label"));
-      if(store.hasAttribute(item,"graphic")) {
+      var label=store.getValue(item,"label");
+      if(store.hasAttribute(item,"set")) {
+          label += "<br>"+store.getValue(item,"set");
+      }
+      dijit.byId('label').setContent(label);
+    }
+    if(store.hasAttribute(item,"graphic")) {
         // console.log("from json:  "+store.getValue(item,"graphic"));
 	// console.log("   "+"<img src=\"problems/"+store.getValue(item,"graphic")+"\">");
 	dijit.byId('graphic').setContent("<img src=\"problems/"+store.getValue(item,"graphic")+"\">");

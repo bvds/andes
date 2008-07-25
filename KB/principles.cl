@@ -1067,7 +1067,7 @@
 ;;;
 ;;;  See Bug #1475
 ;;;   script to fix the math notation
-;;;   perl -pi.orig -e 's/& /&amp; /g; s/_(.)/<sub>$1<\/sub>/g; s/\^(.)/<sup>$1<\/sup>/g; s/\*/ /g;' principles.json
+;;;   perl -pi.orig -e 's/& /&amp; /g; s/_([xyz])/<sub>$1<\/sub>/g; s/\^(.)/<sup>$1<\/sup>/g; s/\*/ /g;' principles.json
 ;;;   script to fix the special characters
 ;;;   perl -pi.orig -e 's/\$w/&omega;/g; s/\$p/&pi;/g; s/\$S/&Sigma/g; s/\$q/&theta;/g; s/\$l/&lambda;/g; s/\$a/&alpha;/g; s/\$r/&rho;/g; s/\$F/&Phi;/g; s/\$e/&epsilon;/g; s/\$m/&mu;/g; s/\$t/&tau;/g; s/\$b/&beta;/g;' principles.json
 
@@ -1125,7 +1125,7 @@
 	(pc (lookup-psmclass-name class)))
  	(format stream "    {id: '~A~A', label: \"~A    ~A\", items: [~%" 
 		(subst-bindings bindings (psmclass-name pc))
-		(setf jsonc (+ jsonc 1))
+		(incf jsonc)
 		(eval-print-spec (or EqnFormat (psmclass-EqnFormat pc)) bindings)
 	    (eval-print-spec (or short-name (psmclass-short-name pc)) bindings))
     (dolist (set *sets*)
@@ -1144,18 +1144,16 @@
 	(when probs 
 	  (when cont (format stream ",~%"))
 	  (setf cont t)
-	  (format stream "      {id: '~A~A', label: '~A', items: [~%" 
-		  (car set) (incf jsonc) (car set))
-	  (problem-lines-json stream probs (incf jsonc))
-	  (format stream "      ]}"))))
+	  (problem-lines-json stream probs jsonc (car set)))))
     (format stream "    ]}")))
 
-(defun problem-lines-json (stream probs &optional id)
+(defun problem-lines-json (stream probs &optional id set)
   (dolist (prob probs)
-    (format stream "        {id: '~A~@[~A~]', expand: \"~(~A~).html\", ~@[graphic: \"~A\", ~] label: \"~(~A~): ~@[~,1Fm~] ~@[~A%~]\"}~@[,~]~%"
+    (format stream "        {id: '~A~@[~A~]', expand: \"~(~A~).html\", ~@[graphic: \"~A\", ~] ~@[set: \"~A\",~] label: \"~(~A~): ~@[~,1Fm~] ~@[~A%~]\"}~@[,~]~%"
 	    (problem-name prob) id
 	    (problem-name prob)
 	    (problem-graphic prob)
+	    set
 	    (problem-name prob)
 	    (when (find (problem-name prob) *times-scores* :key #'car)
 	      (/ (second (find (problem-name prob) *times-scores* 
