@@ -33,10 +33,9 @@
       dijit.byId('prob').setHref("problems/"+store.getValue(item,"expand"));
       var label=store.getValue(item,"label");
       if(store.hasAttribute(item,"set")) {
-          label += "<br>"+store.getValue(item,"set");
+          label = "<br>\n"+store.getValue(item,"set")+"<br>"+label;
       }
       dijit.byId('label').setContent(label);
-    }
     if(store.hasAttribute(item,"graphic")) {
         // console.log("from json:  "+store.getValue(item,"graphic"));
 	// console.log("   "+"<img src=\"problems/"+store.getValue(item,"graphic")+"\">");
@@ -55,7 +54,7 @@
 <div dojoType="dojo.data.ItemFileWriteStore" url="principles.json" jsId="principlesStore" />
   
   <h1>Andes problem chooser tool</h1>
-  
+ 
   <p>The left menu shows a list of all the homework sets,
   while the right menu shows a nested list of the principles of
   physics.&nbsp;
