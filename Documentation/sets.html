@@ -33,7 +33,7 @@
       dijit.byId('prob').setHref("problems/"+store.getValue(item,"expand"));
       var label=store.getValue(item,"label");
       if(store.hasAttribute(item,"set")) {
-          label = "&nbsp; " + store.getValue(item,"set")+"<br>"+label;
+          label = store.getValue(item,"set") + "&nbsp; " + label;
       }
       dijit.byId('label').setContent(label);
       if(store.hasAttribute(item,"graphic")) {
