@@ -1,0 +1,44 @@
+Choose DOS style text files in cygwin and 
+    restart windows
+install make in cygwin by running "setup"
+Microsoft visual studio install version 6.0 from 1998
+   vc32/setup.exe
+  modifications:  install MFC source code and 
+                                         MFC source browser and
+                       run environment variables.
+  Documentation c++ sdk, 
+optional:  Install latest service pack 
+    (6.0 for visual studio 6) from    
+   support.microsoft.com/kb/194022
+    run extractor
+    save extracted files into new folder, run setupsp6
+make workbench (or in IDE, choose FBD/Fbd.dsw and choose "Win32 OLI Release", build "Fbd-tcp.exe" need all three versions ...).
+make solver
+make installer
+make helpsys (needs Franz lisp)
+download winzip standard and command line add-on
+
+to make distribution tools/MakeDist.sh
+mkdir Andes2/oli-course
+use cvs co from Documentation with pass:andersoli
+
+oli-course/intro-physics.*/content/package.xml 
+   update version number
+
+write-stmts from documentation
+
+cp Problems/*.aps oli-course/intro_physics-1.9/
+  remove excess by hand. 
+
+perl  ../../tools/aps2xml.pl *.aps > july-28-output.txt
+  only run once for given output file.
+  grep Add *-output.txt for new files and 
+  add them to cvs.
+  (problem with kgraph10)
+
+ssh andersw@odin.web.cmu.edu
+pass:  andersoli
+ cd /oli/private/andersw
+
+cvs -d oli-community.andrew.cmu.edu:/home/cmu/cvs co intro_physics-1.0
+
