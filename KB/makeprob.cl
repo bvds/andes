@@ -204,7 +204,7 @@
 (defun write-stmts()
    (map-problems 
       #'(lambda(p) 
-         (with-open-file (outf (strcat ".\\Statements\\" (string (problem-name p)) ".txt")
+         (with-open-file (outf (merge-pathnames (strcat "Statements/" (string (problem-name p)) ".txt") *andes-path*)
 	                  :direction :output :if-exists :supersede)
 	   (dolist (line (Problem-Statement P))
 	    (when (not (find #\[ line)) ; skip answer-box marker lines in stmt
