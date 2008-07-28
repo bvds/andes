@@ -444,6 +444,7 @@
 
 
 ;;; Get a list of homework sets into lisp.
+;;; tools/modules.lst  also contains a list of the homework sets.
 ;;; cd Problems; perl -w -n -e 'if(m/"(.*?\.aps)">(.*?)</){open F,"< $1" or next;my @y=<F>;close F;shift @y;shift @y;chomp(@y);print "(\"$2\" (@y))\n";}' index.html
 
 (setf *sets* '(("Vectors" (vec1a vec1b vec1c vec1d vec1e vec1f vec2a vec2b vec2c vec2d vec2e vec2f vec3a vec3b-DEMO.wmv vec3b vec3c vec3d vec4a vec4b vec4c vec4d vec5a vec5b vec5c vec5d vec6a vec6b vec6c vec6d vec7a vec8a vec8b vec8c vec9 relvel1a-DEMO.wmv relvel1a relvel2a relvel3a mot1 mot2 mot3 mot4 vec20 vec21 ))
