@@ -1,6 +1,6 @@
 # Microsoft Developer Studio Project File - Name="Uninst" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
-# ** DO NOT EDIT **
+# ** DO NOT EDIT ** 
 
 # TARGTYPE "Win32 (x86) Application" 0x0101
 
