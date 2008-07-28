@@ -45,10 +45,10 @@ if (! -d $problemdir) { die "$problemdir is not a directory."; }
 open (MODULES, "$module_lst") or die "Couldn't open $module_lst. $!";
 while ($module = (<MODULES>))
 {
-    $module =~ s/[\r]\n//;  #  cygwin perl on Windows may include \r
+    $module =~ s/\r?\n//;  #  cygwin perl on Windows may include \r
    
     # open next aps file to process
-    print STDERR "copyprbs: Copying files for $module\n";
+    print STDERR "copyprbs: Copying files for |$module|\n";
     $apsfile = "Problems/$module" . ".aps";
     open (APS, "$apsfile") or die "Couldn't open $apsfile. $!";
 
