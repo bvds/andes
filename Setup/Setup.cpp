@@ -513,6 +513,7 @@ BOOL CSetupApp::MakeRegEntries()
 	addrstr = (LPSTR)lpz;
 
 	RegSetValueEx(hKey, "DisplayName", 0, REG_SZ, (LPBYTE)addrstr, strlen(data)+1);
+	
 	//Create registry entry for version information
 	keyPath = "Software\\Andes Group\\Andes\\";
 	CString strVersion =  theApp.GetProductVersion("FBD-tcp.exe");	
@@ -1333,6 +1334,7 @@ void CSetupApp::InstallCodec()
 		CString strMsg;
 		strMsg.Format("Failed to launch audio codec installer. Error code = %d", ::GetLastError());
 		AfxMessageBox(strMsg);
+		// Open up codec installation page in the browser?
 	}
 
 	// We could wait for RunDll process to finish and query its exit status to try to tell
