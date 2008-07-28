@@ -17,21 +17,13 @@ CFG=FBD - Win32 DLL Debug
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "FBD - Win32 Release" (based on "Win32 (x86) Application")
-!MESSAGE "FBD - Win32 Debug" (based on "Win32 (x86) Application")
-!MESSAGE "FBD - Win32 Atlas Debug" (based on "Win32 (x86) Application")
-!MESSAGE "FBD - Win32 Atlas Release" (based on "Win32 (x86) Application")
 !MESSAGE "FBD - Win32 TCP Debug" (based on "Win32 (x86) Application")
 !MESSAGE "FBD - Win32 TCP Release" (based on "Win32 (x86) Application")
-!MESSAGE "FBD - Win32 WOZ Debug" (based on "Win32 (x86) Application")
-!MESSAGE "FBD - Win32 WOZ Release" (based on "Win32 (x86) Application")
-!MESSAGE "FBD - Win32 Roving Release" (based on "Win32 (x86) Application")
-!MESSAGE "FBD - Win32 Roving Debug" (based on "Win32 (x86) Application")
-!MESSAGE "FBD - Win32 Physics Lite Release" (based on "Win32 (x86) Application")
 !MESSAGE "FBD - Win32 OLI Release" (based on "Win32 (x86) Application")
 !MESSAGE "FBD - Win32 OLI Debug" (based on "Win32 (x86) Application")
 !MESSAGE "FBD - Win32 DLL Debug" (based on "Win32 (x86) Application")
 !MESSAGE "FBD - Win32 DLL Release" (based on "Win32 (x86) Application")
+!MESSAGE "FBD - Win32 DLL Record Screen Release" (based on "Win32 (x86) Application")
 !MESSAGE 
 
 # Begin Project
@@ -42,121 +34,7 @@ CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "FBD - Win32 Release"
-
-# PROP BASE Use_MFC 6
-# PROP BASE Use_Debug_Libraries 0
-# PROP BASE Output_Dir ".\Release"
-# PROP BASE Intermediate_Dir ".\Release"
-# PROP BASE Target_Dir ""
-# PROP Use_MFC 6
-# PROP Use_Debug_Libraries 0
-# PROP Output_Dir ".\Release"
-# PROP Intermediate_Dir ".\Release"
-# PROP Ignore_Export_Lib 0
-# PROP Target_Dir ""
-# ADD BASE CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Yu"stdafx.h" /c
-# ADD CPP /nologo /MD /W3 /GX /O1 /I "Example" /D "NDEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "USNA_EVAL" /Yu"stdafx.h" /FD /c
-# ADD BASE MTL /nologo /D "NDEBUG" /win32
-# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
-# ADD BASE RSC /l 0x409 /d "NDEBUG" /d "_AFXDLL"
-# ADD RSC /l 0x409 /d "NDEBUG" /d "_AFXDLL"
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-LINK32=link.exe
-# ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 winmm.lib version.lib /nologo /subsystem:windows /debug /machine:I386
-# SUBTRACT LINK32 /pdb:none
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Debug"
-
-# PROP BASE Use_MFC 6
-# PROP BASE Use_Debug_Libraries 1
-# PROP BASE Output_Dir ".\Debug"
-# PROP BASE Intermediate_Dir ".\Debug"
-# PROP BASE Target_Dir ""
-# PROP Use_MFC 6
-# PROP Use_Debug_Libraries 1
-# PROP Output_Dir ".\Debug"
-# PROP Intermediate_Dir ".\Debug"
-# PROP Ignore_Export_Lib 0
-# PROP Target_Dir ""
-# ADD BASE CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Yu"stdafx.h" /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "Example" /D "_DEBUG" /D "USNA_EVAL" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /Yu"stdafx.h" /FD /c
-# SUBTRACT CPP /Fr
-# ADD BASE MTL /nologo /D "_DEBUG" /win32
-# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
-# ADD BASE RSC /l 0x409 /d "_DEBUG" /d "_AFXDLL"
-# ADD RSC /l 0x409 /d "_DEBUG" /d "_AFXDLL"
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-LINK32=link.exe
-# ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386
-# ADD LINK32 winmm.lib version.lib /nologo /subsystem:windows /debug /machine:I386
-# SUBTRACT LINK32 /profile
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Atlas Debug"
-
-# PROP BASE Use_MFC 6
-# PROP BASE Use_Debug_Libraries 1
-# PROP BASE Output_Dir "FBD___Win32_Atlas_Debug"
-# PROP BASE Intermediate_Dir "FBD___Win32_Atlas_Debug"
-# PROP BASE Ignore_Export_Lib 0
-# PROP BASE Target_Dir ""
-# PROP Use_MFC 6
-# PROP Use_Debug_Libraries 1
-# PROP Output_Dir ".\Atlas_Debug"
-# PROP Intermediate_Dir ".\Atlas_Debug"
-# PROP Ignore_Export_Lib 0
-# PROP Target_Dir ""
-# ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /D "_DEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /Fr /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "Example" /D "_DEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "ATLAS" /Yu"stdafx.h" /FD /c
-# SUBTRACT CPP /Fr
-# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
-# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
-# ADD BASE RSC /l 0x409 /d "_DEBUG" /d "_AFXDLL"
-# ADD RSC /l 0x409 /d "_DEBUG" /d "_AFXDLL"
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-LINK32=link.exe
-# ADD BASE LINK32 winmm.lib version.lib /nologo /subsystem:windows /debug /machine:I386
-# SUBTRACT BASE LINK32 /profile
-# ADD LINK32 winmm.lib version.lib /nologo /subsystem:windows /debug /machine:I386
-# SUBTRACT LINK32 /profile
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Atlas Release"
-
-# PROP BASE Use_MFC 6
-# PROP BASE Use_Debug_Libraries 0
-# PROP BASE Output_Dir "FBD___Win32_Atlas_Release"
-# PROP BASE Intermediate_Dir "FBD___Win32_Atlas_Release"
-# PROP BASE Ignore_Export_Lib 0
-# PROP BASE Target_Dir ""
-# PROP Use_MFC 6
-# PROP Use_Debug_Libraries 0
-# PROP Output_Dir ".\Atlas_Release"
-# PROP Intermediate_Dir ".\Atlas_Release"
-# PROP Ignore_Export_Lib 0
-# PROP Target_Dir ""
-# ADD BASE CPP /nologo /MD /W3 /GX /O1 /D "NDEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O1 /I "Example" /D "NDEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "ATLAS" /Yu"stdafx.h" /FD /c
-# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
-# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
-# ADD BASE RSC /l 0x409 /d "NDEBUG" /d "_AFXDLL"
-# ADD RSC /l 0x409 /d "NDEBUG" /d "_AFXDLL"
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-LINK32=link.exe
-# ADD BASE LINK32 winmm.lib version.lib /nologo /subsystem:windows /debug /machine:I386
-# SUBTRACT BASE LINK32 /pdb:none
-# ADD LINK32 winmm.lib version.lib /nologo /subsystem:windows /debug /machine:I386
-# SUBTRACT LINK32 /pdb:none
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 TCP Debug"
+!IF  "$(CFG)" == "FBD - Win32 TCP Debug"
 
 # PROP BASE Use_MFC 6
 # PROP BASE Use_Debug_Libraries 1
@@ -219,166 +97,6 @@ OutDir=.\TCP_Release
 SOURCE="$(InputPath)"
 PostBuild_Desc=copying into parent directory
 PostBuild_Cmds=copy $(OutDir)\fbd-tcp.exe ..
-# End Special Build Tool
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 WOZ Debug"
-
-# PROP BASE Use_MFC 6
-# PROP BASE Use_Debug_Libraries 1
-# PROP BASE Output_Dir "FBD___Win32_WOZ_Debug"
-# PROP BASE Intermediate_Dir "FBD___Win32_WOZ_Debug"
-# PROP BASE Ignore_Export_Lib 0
-# PROP BASE Target_Dir ""
-# PROP Use_MFC 6
-# PROP Use_Debug_Libraries 1
-# PROP Output_Dir "WOZ_Debug"
-# PROP Intermediate_Dir "WOZ_Debug"
-# PROP Ignore_Export_Lib 0
-# PROP Target_Dir ""
-# ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "Example" /D "_DEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "ATLAS" /D "HELPIFC_TCP" /Yu"stdafx.h" /FD /c
-# SUBTRACT BASE CPP /Fr
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "Example" /D "_DEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "ATLAS" /D "HELPIFC_TCP" /Yu"stdafx.h" /FD /c
-# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
-# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
-# ADD BASE RSC /l 0x409 /d "_DEBUG" /d "_AFXDLL"
-# ADD RSC /l 0x409 /d "_DEBUG" /d "_AFXDLL"
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-LINK32=link.exe
-# ADD BASE LINK32 winmm.lib version.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\TCP_Debug/Fbd-woz.exe"
-# SUBTRACT BASE LINK32 /profile
-# ADD LINK32 winmm.lib version.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\WOZ_Debug/Fbd-woz.exe"
-# SUBTRACT LINK32 /profile
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 WOZ Release"
-
-# PROP BASE Use_MFC 6
-# PROP BASE Use_Debug_Libraries 0
-# PROP BASE Output_Dir "FBD___Win32_WOZ_Release"
-# PROP BASE Intermediate_Dir "FBD___Win32_WOZ_Release"
-# PROP BASE Ignore_Export_Lib 0
-# PROP BASE Target_Dir ""
-# PROP Use_MFC 6
-# PROP Use_Debug_Libraries 0
-# PROP Output_Dir "WOZ_Release"
-# PROP Intermediate_Dir "WOZ_Release"
-# PROP Ignore_Export_Lib 0
-# PROP Target_Dir ""
-# ADD BASE CPP /nologo /MD /W3 /GX /O1 /I "Example" /D "NDEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "ATLAS" /D "HELPIFC_TCP" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O1 /I "Example" /D "NDEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "ATLAS" /D "HELPIFC_TCP" /Yu"stdafx.h" /FD /c
-# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
-# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
-# ADD BASE RSC /l 0x409 /d "NDEBUG" /d "_AFXDLL"
-# ADD RSC /l 0x409 /d "NDEBUG" /d "_AFXDLL"
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-LINK32=link.exe
-# ADD BASE LINK32 winmm.lib version.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\TCP_Release/Fbd-woz.exe"
-# SUBTRACT BASE LINK32 /pdb:none
-# ADD LINK32 winmm.lib version.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\WOZ_Release/Fbd-woz.exe"
-# SUBTRACT LINK32 /pdb:none
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Roving Release"
-
-# PROP BASE Use_MFC 6
-# PROP BASE Use_Debug_Libraries 0
-# PROP BASE Output_Dir "FBD___Win32_Roving_Release"
-# PROP BASE Intermediate_Dir "FBD___Win32_Roving_Release"
-# PROP BASE Ignore_Export_Lib 0
-# PROP BASE Target_Dir ""
-# PROP Use_MFC 6
-# PROP Use_Debug_Libraries 0
-# PROP Output_Dir "Roving_Release"
-# PROP Intermediate_Dir "Roving_Release"
-# PROP Ignore_Export_Lib 0
-# PROP Target_Dir ""
-# ADD BASE CPP /nologo /MD /W3 /GX /O1 /I "Example" /D "NDEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "HELPIFC_TCP" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /GX /Zi /O1 /I "Example" /D "NDEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "HELPIFC_TCP" /D "ROVING" /Yu"stdafx.h" /FD /c
-# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
-# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
-# ADD BASE RSC /l 0x409 /d "NDEBUG" /d "_AFXDLL"
-# ADD RSC /l 0x409 /d "NDEBUG" /d "_AFXDLL"
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-LINK32=link.exe
-# ADD BASE LINK32 winmm.lib version.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\TCP_Release/Fbd-tcp.exe"
-# SUBTRACT BASE LINK32 /pdb:none
-# ADD LINK32 winmm.lib version.lib wininet.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\Roving_Release/Fbd-net.exe"
-# SUBTRACT LINK32 /pdb:none
-# Begin Special Build Tool
-TargetPath=.\Roving_Release\Fbd-net.exe
-SOURCE="$(InputPath)"
-PostBuild_Desc=copying $(TargetPath) into C:\Andes2
-PostBuild_Cmds=copy $(TargetPath) C:\Andes2
-# End Special Build Tool
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Roving Debug"
-
-# PROP BASE Use_MFC 6
-# PROP BASE Use_Debug_Libraries 1
-# PROP BASE Output_Dir "FBD___Win32_Roving_Debug"
-# PROP BASE Intermediate_Dir "FBD___Win32_Roving_Debug"
-# PROP BASE Ignore_Export_Lib 0
-# PROP BASE Target_Dir ""
-# PROP Use_MFC 6
-# PROP Use_Debug_Libraries 1
-# PROP Output_Dir "Roving_Debug"
-# PROP Intermediate_Dir "Roving_Debug"
-# PROP Ignore_Export_Lib 0
-# PROP Target_Dir ""
-# ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "Example" /D "_DEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "HELPIFC_TCP" /Yu"stdafx.h" /FD /c
-# SUBTRACT BASE CPP /Fr
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "Example" /D "_DEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "HELPIFC_TCP" /D "ROVING" /Yu"stdafx.h" /FD /c
-# SUBTRACT CPP /Fr
-# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
-# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
-# ADD BASE RSC /l 0x409 /d "_DEBUG" /d "_AFXDLL"
-# ADD RSC /l 0x409 /d "_DEBUG" /d "_AFXDLL"
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-LINK32=link.exe
-# ADD BASE LINK32 winmm.lib version.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\TCP_Debug/Fbd-tcp.exe"
-# SUBTRACT BASE LINK32 /profile
-# ADD LINK32 winmm.lib version.lib wininet.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\Roving_Debug/Fbd-net.exe"
-# SUBTRACT LINK32 /profile
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Physics Lite Release"
-
-# PROP BASE Use_MFC 6
-# PROP BASE Use_Debug_Libraries 0
-# PROP BASE Output_Dir "FBD___Win32_Physics_Lite_Release"
-# PROP BASE Intermediate_Dir "FBD___Win32_Physics_Lite_Release"
-# PROP BASE Ignore_Export_Lib 0
-# PROP BASE Target_Dir ""
-# PROP Use_MFC 6
-# PROP Use_Debug_Libraries 0
-# PROP Output_Dir "Lite_Release"
-# PROP Intermediate_Dir "Lite_Release"
-# PROP Ignore_Export_Lib 0
-# PROP Target_Dir ""
-# ADD BASE CPP /nologo /MD /W3 /GX /O1 /I "Example" /D "NDEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "HELPIFC_TCP" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O1 /I "Example" /D "NDEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "HELPIFC_TCP" /D "LITE" /Yu"stdafx.h" /FD /c
-# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
-# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
-# ADD BASE RSC /l 0x409 /d "NDEBUG" /d "_AFXDLL"
-# ADD RSC /l 0x409 /d "NDEBUG" /d "_AFXDLL"
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-LINK32=link.exe
-# ADD BASE LINK32 winmm.lib version.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\TCP_Release/Fbd-tcp.exe"
-# SUBTRACT BASE LINK32 /pdb:none
-# ADD LINK32 winmm.lib version.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\Lite_Release/Fbd-lite.exe"
-# SUBTRACT LINK32 /pdb:none
-# Begin Special Build Tool
-OutDir=.\Lite_Release
-SOURCE="$(InputPath)"
-PostBuild_Desc=copying into C:\Andes2
-PostBuild_Cmds=copy $(OutDir)\fbd-lite.exe C:\Andes2
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 OLI Release"
@@ -519,25 +237,52 @@ PostBuild_Desc=copying into parent directory
 PostBuild_Cmds=copy $(OutDir)\fbd-dll.exe ..
 # End Special Build Tool
 
+!ELSEIF  "$(CFG)" == "FBD - Win32 DLL Record Screen Release"
+
+# PROP BASE Use_MFC 6
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "FBD___Win32_DLL_Record_Screen_Release"
+# PROP BASE Intermediate_Dir "FBD___Win32_DLL_Record_Screen_Release"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 6
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "FBD___Win32_DLL_Record_Screen_Release"
+# PROP Intermediate_Dir "FBD___Win32_DLL_Record_Screen_Release"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /MD /W3 /GX /Zi /O1 /I "Example" /D "NDEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "HELPIFC_TCP" /Yu"stdafx.h" /FD /c
+# ADD CPP /nologo /MD /W3 /GX /Zi /O1 /I "Example" /D "NDEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "HELPIFC_TCP" /D "EXP" /Yu"stdafx.h" /FD /c
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD BASE RSC /l 0x409 /d "NDEBUG" /d "_AFXDLL"
+# ADD RSC /l 0x409 /d "NDEBUG" /d "_AFXDLL"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 winmm.lib version.lib wininet.lib ../helpifc.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\DLL_Release/Fbd-dll.exe"
+# SUBTRACT BASE LINK32 /pdb:none
+# ADD LINK32 winmm.lib version.lib wininet.lib ../helpifc.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\DLL_Release/Fbd-dll.exe"
+# SUBTRACT LINK32 /pdb:none
+# Begin Special Build Tool
+OutDir=.\FBD___Win32_DLL_Record_Screen_Release
+SOURCE="$(InputPath)"
+PostBuild_Desc=copying into parent directory
+PostBuild_Cmds=copy $(OutDir)\fbd-dll.exe ..
+# End Special Build Tool
+
 !ENDIF 
 
 # Begin Target
 
-# Name "FBD - Win32 Release"
-# Name "FBD - Win32 Debug"
-# Name "FBD - Win32 Atlas Debug"
-# Name "FBD - Win32 Atlas Release"
 # Name "FBD - Win32 TCP Debug"
 # Name "FBD - Win32 TCP Release"
-# Name "FBD - Win32 WOZ Debug"
-# Name "FBD - Win32 WOZ Release"
-# Name "FBD - Win32 Roving Release"
-# Name "FBD - Win32 Roving Debug"
-# Name "FBD - Win32 Physics Lite Release"
 # Name "FBD - Win32 OLI Release"
 # Name "FBD - Win32 OLI Debug"
 # Name "FBD - Win32 DLL Debug"
 # Name "FBD - Win32 DLL Release"
+# Name "FBD - Win32 DLL Record Screen Release"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;hpj;bat;for;f90"
@@ -548,47 +293,11 @@ PostBuild_Cmds=copy $(OutDir)\fbd-dll.exe ..
 
 SOURCE=".\helpifc-dll.cpp"
 
-!IF  "$(CFG)" == "FBD - Win32 Release"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Debug"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Atlas Debug"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Atlas Release"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 TCP Debug"
+!IF  "$(CFG)" == "FBD - Win32 TCP Debug"
 
 # PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 TCP Release"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 WOZ Debug"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 WOZ Release"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Roving Release"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Roving Debug"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Physics Lite Release"
 
 # PROP Exclude_From_Build 1
 
@@ -602,6 +311,8 @@ SOURCE=".\helpifc-dll.cpp"
 
 # PROP BASE Exclude_From_Build 1
 
+!ELSEIF  "$(CFG)" == "FBD - Win32 DLL Record Screen Release"
+
 !ENDIF 
 
 # End Source File
@@ -609,35 +320,9 @@ SOURCE=".\helpifc-dll.cpp"
 
 SOURCE=".\helpifc-tcp.cpp"
 
-!IF  "$(CFG)" == "FBD - Win32 Release"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Debug"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Atlas Debug"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Atlas Release"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 TCP Debug"
+!IF  "$(CFG)" == "FBD - Win32 TCP Debug"
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 TCP Release"
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 WOZ Debug"
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 WOZ Release"
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Roving Release"
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Roving Debug"
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Physics Lite Release"
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 OLI Release"
 
@@ -656,6 +341,13 @@ SOURCE=".\helpifc-tcp.cpp"
 # PROP Intermediate_Dir ".\DLL_Debug"
 # PROP Exclude_From_Build 1
 
+!ELSEIF  "$(CFG)" == "FBD - Win32 DLL Record Screen Release"
+
+# PROP BASE Intermediate_Dir ".\DLL_Debug"
+# PROP BASE Exclude_From_Build 1
+# PROP Intermediate_Dir ".\DLL_Debug"
+# PROP Exclude_From_Build 1
+
 !ENDIF 
 
 # End Source File
@@ -663,45 +355,12 @@ SOURCE=".\helpifc-tcp.cpp"
 
 SOURCE=.\HelpIfc.cpp
 
-!IF  "$(CFG)" == "FBD - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Debug"
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Atlas Debug"
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Atlas Release"
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 TCP Debug"
+!IF  "$(CFG)" == "FBD - Win32 TCP Debug"
 
 # PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 TCP Release"
 
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 WOZ Debug"
-
-# PROP BASE Exclude_From_Build 1
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 WOZ Release"
-
-# PROP BASE Exclude_From_Build 1
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Roving Release"
-
-# PROP BASE Exclude_From_Build 1
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Roving Debug"
-
-# PROP BASE Exclude_From_Build 1
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Physics Lite Release"
-
-# PROP BASE Exclude_From_Build 1
 # PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 OLI Release"
@@ -720,6 +379,11 @@ SOURCE=.\HelpIfc.cpp
 # PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 DLL Release"
+
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 DLL Record Screen Release"
 
 # PROP BASE Exclude_From_Build 1
 # PROP Exclude_From_Build 1
@@ -856,53 +520,12 @@ SOURCE=.\Example\ExpLawDlg.cpp
 
 SOURCE=.\Example\expmenu.rc
 
-!IF  "$(CFG)" == "FBD - Win32 Release"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Debug"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Atlas Debug"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Atlas Release"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 TCP Debug"
+!IF  "$(CFG)" == "FBD - Win32 TCP Debug"
 
 # PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 TCP Release"
 
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 WOZ Debug"
-
-# PROP BASE Exclude_From_Build 1
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 WOZ Release"
-
-# PROP BASE Exclude_From_Build 1
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Roving Release"
-
-# PROP BASE Exclude_From_Build 1
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Roving Debug"
-
-# PROP BASE Exclude_From_Build 1
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Physics Lite Release"
-
-# PROP BASE Exclude_From_Build 1
 # PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 OLI Release"
@@ -921,6 +544,11 @@ SOURCE=.\Example\expmenu.rc
 # PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 DLL Release"
+
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 DLL Record Screen Release"
 
 # PROP BASE Exclude_From_Build 1
 # PROP Exclude_From_Build 1
@@ -1153,6 +781,35 @@ SOURCE=.\PtrDlg.cpp
 # Begin Source File
 
 SOURCE=.\RecordScreen.cpp
+
+!IF  "$(CFG)" == "FBD - Win32 TCP Debug"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 TCP Release"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 OLI Release"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 OLI Debug"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 DLL Debug"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 DLL Release"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 DLL Record Screen Release"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
@@ -1246,45 +903,12 @@ SOURCE=.\TraceDlg.cpp
 
 SOURCE=.\TransferDlg.cpp
 
-!IF  "$(CFG)" == "FBD - Win32 Release"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Debug"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Atlas Debug"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Atlas Release"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 TCP Debug"
+!IF  "$(CFG)" == "FBD - Win32 TCP Debug"
 
 # PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 TCP Release"
 
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 WOZ Debug"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 WOZ Release"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Roving Release"
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Roving Debug"
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Physics Lite Release"
-
-# PROP BASE Exclude_From_Build 1
 # PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 OLI Release"
@@ -1303,6 +927,11 @@ SOURCE=.\TransferDlg.cpp
 # PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 DLL Release"
+
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 DLL Record Screen Release"
 
 # PROP BASE Exclude_From_Build 1
 # PROP Exclude_From_Build 1
@@ -2121,19 +1750,6 @@ SOURCE=.\res\zvel_o.cur
 # End Group
 # End Target
 # End Project
-# Section OLE Controls
-# 	{EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}
-# End Section
-# Section FBD : {EAB22AC1-30C1-11CF-A7EB-0000C05BAE0B}
-# 	2:5:Class:CWebBrowser
-# 	2:10:HeaderFile:webbrowser.h
-# 	2:8:ImplFile:webbrowser.cpp
-# End Section
-# Section FBD : {2B6C9472-6704-11CF-BC04-0000C037C67D}
-# 	1:17:ID_INDICATOR_TIME:105
-# 	2:2:BH:
-# 	2:17:ID_INDICATOR_TIME:ID_INDICATOR_TIME
-# End Section
 # Section FBD : {EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}
 # 	0:14:WebBrowser.cpp:C:\Msdev\Projects\Fbd\WebBrowser.cpp
 # 	0:12:WebBrowser.h:C:\Msdev\Projects\Fbd\WebBrowser.h
@@ -2152,4 +1768,17 @@ SOURCE=.\res\zvel_o.cur
 # 	2:10:HeaderName:Splash.h
 # 	2:10:ImplemName:Splash.cpp
 # 	2:7:BmpID16:IDB_SPLASH
+# End Section
+# Section FBD : {EAB22AC1-30C1-11CF-A7EB-0000C05BAE0B}
+# 	2:5:Class:CWebBrowser
+# 	2:10:HeaderFile:webbrowser.h
+# 	2:8:ImplFile:webbrowser.cpp
+# End Section
+# Section FBD : {2B6C9472-6704-11CF-BC04-0000C037C67D}
+# 	1:17:ID_INDICATOR_TIME:105
+# 	2:2:BH:
+# 	2:17:ID_INDICATOR_TIME:ID_INDICATOR_TIME
+# End Section
+# Section OLE Controls
+# 	{EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}
 # End Section
