@@ -1,3 +1,4 @@
+#!/usr/bin/perl 
 #
 # copyprbs -- copy all Andes problem files for a given list of problem sets
 #
@@ -8,11 +9,10 @@
 #
 # dstdir is the root of the destination Andes directory. 
 #
-# verbose should be 1 to set the verbose flag (though any non-zero string 
-# will have the same effect)
+# verbose can be set to any non-zero string (e.g. -verbose or 1)
+# to enable tracing of all file copying operations.
 #
-# Run in the root of an Andes source directory.
-#
+# Assumes it will run in the root of an Andes source directory.
 # APS, prb, and graphic files will be copied into Problems subdirectory of 
 # dstdir, which must already exist
 #

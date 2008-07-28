@@ -32,7 +32,7 @@ do
       -oli) OLI=true;;  # any non-zero-length value will do 
 	-m) MODULES=$2; shift;;
 	-*)
-            echo >&2 "usage: $0 [-oli] "
+            echo >&2 "usage: $0 [-oli] [-m module.lst]"
 	    exit 1;;
 	*)  break;;	# terminate while loop
     esac
@@ -146,7 +146,7 @@ else
 	exit $E_NOVERSION
 fi
 
-# figure out which filename to use
+# figure out which filename to use for the installer
 if [ $OLI ]; then
     INSTALLERNAME="andes_installer"
     FOR_OLI=" for OLI"  # optional suffix, include initial space
