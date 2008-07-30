@@ -1186,6 +1186,9 @@ void CFBDApp::OnAppAbout()
 {
    	CAboutDlg aboutDlg;
 	aboutDlg.m_strVersion = m_strAndesVersion;
+#if OLI
+	aboutDlg.m_strVersion += " for OLI";
+#endif
    	aboutDlg.DoModal();
 }
     
