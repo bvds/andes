@@ -48,6 +48,11 @@ applied. <br>
 <br>
 However, we expect that Fall 08 will use a new version 1.9 of the
 content package.<br>
+<br>
+The content package version identifier need not be purely numeric. We
+once used a version identifier of the form "1.7_pslc" to label a
+variant version of the 1.7 package deployed on the pslc server, for
+example. But normally it will be numeric.<br>
 <h2>Accessing OLI <br>
 </h2>
 You must obtain a CMU andrew account. The OLI folks must give your
@@ -78,25 +83,38 @@ repository are OLI problem pages and related problem files which are
 generated automatically from the Andes
 source tree. Other portions like the course introduction page must be
 created or modified by hand.<br>
+<br>
+We also deploy courses on the PSLC course server. The advantage of
+deploying on this server is that, unlike with OLI, we have permission
+to update the courses as often as we like, without administrator
+intervention and without adhering to OLI's update schedule or rules.
+This was handy for "just-in-time" problem development, but may not be
+needed in the future. The PSLC uses the following servers:<br>
+<ul>
+  <li>PSLC QA server: <span style="font-weight: bold;">pslc-qa.andrew.cmu.edu/</span><br>
+  </li>
+  <li>PSLC production server: <span style="font-weight: bold;">learnlab.web.cmu.edu</span></li>
+</ul>
 <h2>Checking out from OLI-CVS</h2>
 The CVS module containing the OLI physics course source is named
 "intro-physics-1.0".&nbsp; To check out the main branch use commands
 like the following:<br>
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp; cd ANDESROOT/oli&nbsp;&nbsp;&nbsp; # optional:
-change into oli subdirectory of an Andes source treee<br>
-&nbsp;&nbsp;&nbsp;&nbsp; cvs -d
+&nbsp;&nbsp;&nbsp;&nbsp; cd ANDESROOT/olicourse &nbsp;&nbsp; #
+optional:
+change into olicourse subdirectory of an Andes source treee<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <span style="font-weight: bold;">cvs -d
 :ext:andersw@oli-cvs.andrew.cmu.edu:/oli/cvs/content/lrdc/intro_physics
-co -d intro_physics-1.9 intro_physics-1.0 <br>
+co -d intro_physics-1.9 intro_physics-1.0 </span><br>
 <br>
 replacing the "andersw" with the appropriate user id. <br>
 <br>
 Because you can find yourself managing multiple versions of the content
 package, I recommend using the -d option and replacing the 1.9&nbsp;
 with the latest content package version number, so as to&nbsp; create a
-directory named intro_physics-1.9. I do this within the "oli"
-subdirectory of the Andes working directory to make use of scripts in
-that&nbsp; directory.<br>
+working directory named intro_physics-1.9. I do this within an
+"olicourse"
+subdirectory of the Andes working directory. <br>
 <br>
 Note the "1.0" at&nbsp; the end of the CVS project name is meaningless,
 and
@@ -110,12 +128,18 @@ server (normally at the start of a semester), the OLI folks will create
 a branch in cvs to hold any patches to the content. If the content
 package is numbered 1.9, then the patch branch will be named
 v_1_8_patches. <br>
-So, to check out the patch branch for working on mid-semester updates
+So, to check out the patch branch from scratch for working on
+mid-semester updates
 you can do:<br>
 <br>
 cvs -d
 :ext:andersw@oli-cvs.andrew.cmu.edu:/oli/cvs/content/lrdc/intro_physics
 co -r v_1_9_patches -d intro_physics-v_1_9_patches intro_physics-1.0<br>
+<br>
+Alternatively, if you have already have a working directory with the
+1.9 version, you can tie that working directory to the patches branch
+in CVS for further work on mid-semester updates by using the -r command
+to CVS with the appropriate branch tag.<br>
 <h2>OLI Source structure</h2>
 The OLI source for the course has two main subdirectories:<br>
 &nbsp;&nbsp;&nbsp; content - holds the course content<br>
@@ -144,13 +168,17 @@ content will be applied to old courses without any special notice. This
 is fine to fix bugs that don't require a new Andes client installation,
 but problematic if the changes require a new client installation.<br>
 <br>
-In the past, the OLI maintainers have incremented the version number
-for us, so you should check this has not already been done before
-generating a new one. However, more recently we have been incrementing
-it ourselves.<br>
+In the past, the OLI maintainers have normally incremented the version
+number
+for us before the start of a new semester. So you should check this has
+not already been done before
+generating a new one. However, occasionally we have been incremented
+it ourselves. In particular, this has been done to generate variant
+versions if needed.<br>
 <h5>File type subdirectories</h5>
 Within the content tree, files are grouped by type into subdirectories
-named for the MIME type of files they contain. <br>
+named for the MIME type of files they contain:<br>
+<br>
 &nbsp;&nbsp;&nbsp; x-oli-workbook_page&nbsp; -- OLI workbook pages<br>
 &nbsp;&nbsp;&nbsp; x-pitt-lrdc-andes1-assignment -- xml problem
 descriptor files (described below)<br>
@@ -159,6 +187,7 @@ without special handling by a web server: gifs, jpegs, wmvs, whatever.<br>
 <br>
 For andes-specific files, we use a subdirectory within a webcontent
 folder:<br>
+<br>
 &nbsp;&nbsp;&nbsp; webcontent/andes -- andes-problem files. This
 includes the prb files for the problems as well as gifs or jpegs used.<br>
 <br>
@@ -229,6 +258,7 @@ may select when building a course from this content package. An
 organization file defines a kind of table of contents structure over
 the course content, and may also customize the stakes or gating
 requirements. We provide three:<br>
+<br>
 &nbsp;&nbsp;&nbsp; default -- the default, full course containing all
 problems<br>
 &nbsp;&nbsp;&nbsp; em -- the E&amp;M only course<br>
@@ -316,12 +346,17 @@ the time the course was generated. (They could be added to the patch
 branch, in fact).<br>
 <br>
 In the OLI source directory type a command of the form<br>
-&nbsp;&nbsp;&nbsp; perl&nbsp; ../../aps2xml.pl *.aps &gt;
+<br>
+&nbsp;&nbsp;&nbsp; perl&nbsp; ../../tools/aps2xml.pl *.aps &gt;
 DATE-output.txt<br>
-The output file name is irrelevant. Since this process may be done
+<br>
+The output file name is irrelevant, it is just a way to save a record
+of&nbsp; the verbose and detailed trace messages. Since this process
+may be done
 several times, I recommend replacing DATE with some date indication,
 e.g. Sep10, so that you can save a record of the results on each run.
-The output is quite verbose and detailed. <br>
+If you run it more than once on the same date, each output trace from
+each run should be saved into a separate file for reasons below. <br>
 <br>
 This should create the workbook pages containing problems and demo
 videos. For example, for "Translational Kinematics.aps" it will create
@@ -336,7 +371,13 @@ possibly new gif or jpeg files.<br>
 <br>
 You can find out if any new files were adding by searching for "adding"
 within the script output:<br>
+<br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; grep adding DATE-output.txt<br>
+<br>
+Note that unless you undo the operation of the script, a file shows up
+as new only the first time the script encounters it. That is why it is
+useful to save the trace from each run -- if you overwrite them, you
+will lose the indication of what was new on previous runs. <br>
 <br>
 If new files were added, one way to get them into CVS is just to go
 into the relevant directories and just add<span
@@ -358,7 +399,9 @@ safe, though it can generate lots of messages. For example:<br>
 <br>
 In addition, if a new problem set&nbsp; as added, these also
 have to be added to CVS. These will not show up in the grep above. Add<br>
+<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cvs add x-oli-workbook-page/*.xml<br>
+<br>
 to the command lists above.<br>
 <br>
 If any hand generated content or video files are added, these also must
@@ -374,21 +417,35 @@ This file is named andes_installer.exe and goes in the root webcontent
 directory. One can build the installer by using the MakeDist.sh script
 in the Andes tools directory.<br>
 From the Andes root directory type<br>
+<br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; /tools/MakeDist.sh -oli<br>
+<br>
 This should build an OLI version installer andes_installer.exe in the
 current directory.<br>
 <br>
 Then copy the installer into the OLI version directory. For example, if
 you are building intro_physics_1_9_patches, do:<br>
+<br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; cp andes_installer.exe
 oli/intro_physics_1_9_patches/content/webcontent<br>
 <br>
 It can also be desirable to save the components that went into this
-installer, so you can easily check the versions that were used at a
+installer, so you can easily check the components that were used in the
+build at a
 later date. You can do this by copying the zipped archive of the
 installer files<br>
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; cp andes_installer.zip
+&nbsp;&nbsp;&nbsp; <br>
+&nbsp; &nbsp; &nbsp; &nbsp; cp andes_installer.zip
 oli/intro_physics_1_9_patches<br>
+<br>
+Occasionally one might want to do a patch of only some pieces of the
+installer in the Andes course. For example, one might want to update
+only the solver.dll to fix a bug, while not updating the kb files or
+other prbs which might still be experimental in the Andes source tree.
+This would have to be done carefully by hand. If you save the original
+zip, you can update just the solver.dll within it and build an updated
+installer from the patched zip without running the whole build script
+to update everything.<br>
 <h4>Updating the Organizations</h4>
 If any problem sets have been added or deleted, the relevant
 organizations must also be updated. This happens rarely so has not been
@@ -419,6 +476,7 @@ the module in lower case with spaces changed to underscores.<br>
 <h4>Update CVS</h4>
 After all updates are ready, of course you must commit all changes into
 OLI's CVS. Change to the root of the OLI course source tree and type<br>
+<br>
 &nbsp;&nbsp;&nbsp; cvs commit<br>
 <h2>Building the OLI&nbsp; content package</h2>
 You should build and deploy the content on the OLI development server. <br>
@@ -432,14 +490,18 @@ server.<br>
 &nbsp;&nbsp;&nbsp; $ ssh [user ID]@[server hostname]<br>
 Example:<br>
 &nbsp;&nbsp;&nbsp; $ ssh andersw@odin.web.cmu.edu<br>
+<br>
 Note: All subsequent commands will be run on/from the OLI development
 server and not your local computer. Remember to logout when finished.<br>
 <br>
 AW: To be sure of having enough disk space, it may be desirable to do
 the following within the "private" space alloted to developers by OLI,
 rather than your home directory.<br>
+<br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; cd /oli/private/andersw<br>
-I have put this command into my .login file.<br>
+<br>
+I have put this command into my .login file so in my account this is
+done automatically on login.<br>
 <br>
 2. Setup the project directory, if necessary. [one-time setup step]<br>
 If this is the first time you are deploying your content, checkout a
@@ -450,10 +512,16 @@ co [project name]<br>
 Example:<br>
 &nbsp;&nbsp;&nbsp; $ cvs &#8211;d oli-community.andrew.cmu.edu:/home/cmu/cvs
 co intro_physics-1.0 <br>
+<span style="font-weight: bold;">Note</span>: For ANDES, you should use
+the same command as you used above to check out the project:<br>
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; cvs -d
+:ext:andersw@oli-cvs.andrew.cmu.edu:/oli/cvs/content/lrdc/intro_physics
+co -d intro_physics-1.9 intro_physics-1.0 </span><br>
 <br>
 3. Change directory to project folder.<br>
 The deploy and update commands must be run from the root of the project
 structure.<br>
+&nbsp;&nbsp;&nbsp; <br>
 &nbsp;&nbsp;&nbsp; $ cd [project name]<br>
 <br>
 4. Copy configuration settings from sample, if necessary. [one-time
@@ -461,14 +529,17 @@ setup step]<br>
 If this is the first time you are deploying your content, run the
 command below. Otherwise proceed to step 5. You only need to run this
 command once.<br>
-&nbsp;&nbsp;&nbsp; $ cp log4j.properties.sample log4j.properties<br>
+&nbsp; <br>
+&nbsp;&nbsp;&nbsp; &nbsp; $ cp log4j.properties.sample log4j.properties<br>
 <br>
 5. Update the course project from CVS.<br>
 In order for your changes to be loaded into the OLI delivery
 environment, you must first retrieve those changes from CVS.<br>
-&nbsp;&nbsp;&nbsp; $ cvs update &#8211;Pd<br>
+&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp; $ cvs update &#8211;Pd<br>
 <br>
 6. Build the content package using Ant.<br>
+<br>
 &nbsp;&nbsp;&nbsp; $ ant<br>
 <br>
 7. Deploy or update content as is required.<br>
@@ -478,12 +549,14 @@ command completely removes and reloads your content, organizations, and
 course syllabi. The deploy command is used to initially load your
 content and subsequently when the structure (i.e., organization) has
 changed.<br>
+<br>
 &nbsp;&nbsp;&nbsp; $ ./tools/oli/deploy.sh<br>
 <br>
 To update the content package, run the update script. The update
 command does not update any organizations or change the structure of
 existing course syllabi. It updates the files contained in the content
 package.<br>
+<br>
 &nbsp;&nbsp;&nbsp; $ ./tools/oli/updatepkg.sh<br>
 <br>
 8. Create a course, if necessary. [one-time setup step]<br>
@@ -496,9 +569,12 @@ builder manual.<br>
 AW: This process builds a private version of the content package which
 you own and can test with. The content package name will be qualified
 with the creator's user id. So the resulting content package will be
-called, for example, intro_physics-andersw-1.9, and this may be seen in
-some OLI prompts. When it is deployed on production, the owner
-qualifier will be absent.<br>
+called, for example, intro_physics-andersw-1.9. This may be seen in
+some OLI prompts. When the package is deployed on production, the owner
+qualifier will be absent from the package name.<br>
+<br>
+However, on the pslc server we do our own deploys, and it is in fact a
+private package with an owner-qualified name that gets deployed.<br>
 <br>
 <br>
 <br>

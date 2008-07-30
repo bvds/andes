@@ -129,14 +129,19 @@ fi
 # Extract Andes version number from FBD executable for inclusion
 # in our dialog messages and in naming our installer file
 # Following uses a simple vbscript to get this. 
-cscript /Nologo tools/FileVersion.vbs $dstdir/fbd-tcp.exe > version.txt
+# Version number resources have four fields, but by convention we only 
+# include a non-zero fourth digit for internal test or experimental builds.
+# The workbench will also not display the fourth digit if it is zero. 
+# So we apply sed command to strip fourth field if it is zero
+cscript /Nologo tools/FileVersion.vbs $dstdir/fbd-tcp.exe | sed 's/\.0$//' > version.txt
 # Following is an alternate method that pulls version out of
 # workbench source, changing commas used in source to periods. 
 # Finding version this way is less reliable because workbench might
 # not be up to date with the source. But it avoids reliance on vbscript
 # grep FILEVERSION FBD\fbd.rc | cut -f3 -d' ' | tr ',' '.' > version.txt
 
-VERSION=`cat version.txt`
+
+VERSION=`cat version.txt` 
 E_NOVERSION=65
 if [ -n "$VERSION" ]	# length of string is non-zero
 then
