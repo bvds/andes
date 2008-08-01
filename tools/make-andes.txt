@@ -25,7 +25,7 @@ use cvs co from Documentation with pass:andersoli
 oli-course/intro-physics.*/content/package.xml 
    update version number
 
-write-stmts from documentation
+see write-stmts from documentation
 
 cp Problems/*.aps oli-course/intro_physics-1.9/
   remove excess by hand. 
@@ -40,5 +40,29 @@ ssh andersw@odin.web.cmu.edu
 pass:  andersoli
  cd /oli/private/andersw
 
-cvs -d oli-community.andrew.cmu.edu:/home/cmu/cvs co intro_physics-1.0
+cvs -d :ext:andersw@oli-cvs.andrew.cmu.edu:/oli/cvs/content/lrdc/intro_physics co -d intro_physics-1.9 intro_physics-1.0
 
+cvs update -dP
+
+cd intro_physics-1.9/
+ cp log4j.properties.sample log4j.properties
+ant
+
+./tools/oli/deploy.sh
+
+Account ID: andersw
+Password: andersoli
+
+odin.web.cmu.edu
+login twice
+"Create a new course"  this is what an instructor will do.
+Create a new course
+simple mode:  choose course
+  (in principle, should make 3 different courses and test all combinations)
+  choose Full course
+"12345" is admit code (no password)
+test course as student:  need to use internet explorer to instll certificate for the QA server.
+  in IE, go to https://www.cmu.edu/computing/software/all/certs/download.html
+  Can otherwise use firefox.   This is not an issue on the production server.
+
+Need to update video instructions for firefox.

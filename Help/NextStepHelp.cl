@@ -4264,25 +4264,14 @@
   ((member 'elastic-collision-help (problem-features *cp*)) 
      (format NIL "Although you seem to have entered enough equations, the Andes solver is unable to solve them for ~A in their current form.  See the {\\l discussion of elastic collisions in one dimension}{\\v 1D_elastic_collision.html} for further help." var))
   
-  (T ; done and not an answer-var problem and solving for a sought
-       (format NIL "Although you seem to have enough equations, the Andes solver is unable to solve them for ~a in their current form.  Try entering algebraic combinations to isolate a calculable expression for ~a yourself.  Combining equations and plugging in numbers for variables, solving for intermediate unknowns if needed, might get you closer to a form that Andes can solve.  If not, you will just have to finish the problem on your own."  var var))
+  ;; done and not an answer-var problem and solving for a sought
+  ;; Need handler for case where one trig function is missing, Bug #719
+  (T (format NIL "Although you seem to have enough equations, the Andes solver is unable to solve them for ~a in their current form.  Try entering algebraic combinations to isolate a calculable expression for ~a yourself.  Combining equations and plugging in numbers for variables, solving for intermediate unknowns if needed, might get you closer to a form that Andes can solve.  If not, you will just have to finish the problem on your own."  var var))
          
  )))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-;;; =================== Trace functions ==========================================
+;;; =================== Trace functions ========================================
 
 (defun trace-nsh ()
   ;;(trace-nsh-setup)
