@@ -27,7 +27,7 @@ sub docopy()
     my($srcfile, $dstroot) = @_;
     my $dstfile = "$dstroot/$srcfile";
     copy ($srcfile, $dstfile) or die "Copy $srcfile $dstfile failed:$!";
-    print STDERR "     copy $srcfile to $dstroot\n" if $verbose;
+    print "     copy $srcfile to $dstroot\n" if $verbose;
 }
 
 # get command line arguments 
@@ -50,7 +50,7 @@ while (<MODULES>)
       $apsfile="Problems/" . $1;
       $module=$2;   
       # open next aps file to process
-      print STDERR "Copying files for $module\n";
+      print "Copying files for $module\n";
       open (APS, "$apsfile") or die "Couldn't open $apsfile";
       
       # copy the APS file itself
@@ -68,7 +68,7 @@ while (<MODULES>)
 	  $prbfile = "Problems/" . uc($_) . ".prb";
 	  if (! -e $prbfile) {
 	    # assume this is a stub problem, so keep going
-	    print STDERR "  no file $prbfile, skipping\n"; 
+	    print "  no file $prbfile, skipping\n"; 
 	    next;
 	  }
 	  &docopy($prbfile, $dstdir);

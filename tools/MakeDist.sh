@@ -38,7 +38,7 @@ do
     esac
     shift
 done
-echo "MakeDist starting w OLI = '$OLI', MODULE_FILE= $MODULE_FILE"
+echo "MakeDist with OLI = '$OLI', MODULE_FILE= $MODULE_FILE"
 
 #------------------------------------------------------------------------
 #  PHASE 1: copy all needed distribution files into a temp directory
@@ -141,7 +141,7 @@ cscript /Nologo tools/FileVersion.vbs $dstdir/fbd-tcp.exe | sed 's/\.0$//' > ver
 # grep FILEVERSION FBD\fbd.rc | cut -f3 -d' ' | tr ',' '.' > version.txt
 
 
-VERSION=`cat version.txt` 
+VERSION=`cat version.txt | tr -d [:cntrl:]` # remove trailing newline 
 E_NOVERSION=65
 if [ -n "$VERSION" ]	# length of string is non-zero
 then
@@ -156,7 +156,7 @@ if [ $OLI ]; then
     INSTALLERNAME="andes_installer"
     FOR_OLI=" for OLI"  # optional suffix, include initial space
 else
-    VERSION_NODOTS=`cat version.txt | tr -d .`
+    VERSION_NODOTS=`cat version.txt | tr -Cd [:alnum:]`
     INSTALLERNAME=Andes$VERSION_NODOTS
     FOR_OLI=""
 fi
