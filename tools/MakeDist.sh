@@ -2,9 +2,11 @@
 ############################################################################
 # MakeDist.sh -- shell script to build an Andes installer image
 #
-#    Usage: MakeDist.sh [-oli] 
+#    Usage: MakeDist.sh [-oli] [-m module.lst]
 #
 # -oli flag builds the OLI client installer.
+# Relies on list of problem sets to include via tools/copyprbs.pl script
+# Default is tools/modules.lst
 #
 # Assumes it is being run from root of an Andes source directory
 #
@@ -23,18 +25,26 @@ set -o errexit	# set to exit script on any command error
 # OLI flag will be zero-length for false, detected with [ -z "$OLI" ]
 #     non-zero-length tests true in [ "$OLI" ]
 OLI="";		
+MODULE_FILE="";
 while [ $# -gt 0 ]
 do
     case "$1" in
       -oli) OLI=true;;  # any non-zero-length value will do 
+	-m) MODULE_FILE=$2; shift;;
 	-*)
-            echo >&2 "usage: $0 [-oli]"
+            echo >&2 "usage: $0 [-oli] [-m module.lst]"
 	    exit 1;;
 	*)  break;;	# terminate while loop
     esac
     shift
 done
-echo "MakeDist starting w OLI = '$OLI'"
+# if no custom module list specified on command line, generate default
+# using all aps's mentioned in current Problems/index.html
+if [ -z "$MODULE_FILE" ]; then
+  MODULE_FILE=tools/modules.lst
+  perl -nle 'if (/"(.*)\.aps"/) { print $1; }' Problems/index.html > $MODULE_FILE 
+fi
+echo "MakeDist starting w OLI = '$OLI', MODULE_FILE= $MODULE_FILE"
 
 #------------------------------------------------------------------------
 #  PHASE 1: copy all needed distribution files into a temp directory
@@ -115,7 +125,7 @@ if [ -z "$OLI" ]; then
    cp Problems/index.html $dstdir/Problems
    cp Problems/video.fbd $dstdir/Problems
    # Copy the required APS's and all needed problem files. 
-   perl tools/copyprbs.pl $dstdir 
+   perl tools/copyprbs.pl $MODULE_FILE $dstdir 
 fi
 
 #------------------------------------------------------------------------
