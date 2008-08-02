@@ -24,66 +24,64 @@ sub docopy()
     my($srcfile, $dstroot) = @_;
     my $dstfile = "$dstroot/$srcfile";
     copy ($srcfile, $dstfile) or die "Copy $srcfile $dstfile failed:$!";
-    if ($verbose) { print STDERR "copied $srcfile to $dstroot\n"; }
+    print STDERR "     copy $srcfile to $dstroot\n" if $verbose;
 }
 
 # get command line arguments 
 my $dstdir = $ARGV[0] or die "usage: copyprbs dstdir";
 
 # ensure we have destination directory
-unless (-d $dstdir) die "$dstdir is not a directory.";
+unless (-d $dstdir){ die "$dstdir is not a directory.";}
 $problemdir = $dstdir . "/Problems";
 unless (-e $problemdir) { 
   mkdir $problemdir or die "Couldn't create $problemdir. $!"; 
 }
-unless (-d $problemdir) die "$problemdir is not a directory."; 
+unless (-d $problemdir){ die "$problemdir is not a directory."; }
 
 # do for each module listed
 open (MODULES, "Problems/index.html") or 
   die "Couldn't open Problems/index.html.";
 while (<MODULES>)
   {
-    
-    $module =~ s/\r?\n//;  #  cygwin perl on Windows may include \r
-   
-    # open next aps file to process
-    print STDERR "copyprbs: Copying files for |$module|\n";
-    $apsfile = "Problems/$module" . ".aps";
-    open (APS, "$apsfile") or die "Couldn't open $apsfile. $!";
-
-    # copy the APS file itself
-    &docopy($apsfile, $dstdir);
-   
-    # do for each line in APS file
-    while ($line = <APS>)
-    {
+    if(m/"(.*?\.aps)">(.*?)</){
+      $apsfile="Problems/" . $1;
+      $module=$2;   
+      # open next aps file to process
+      print STDERR "Copying files for $module\n";
+      open (APS, "$apsfile") or die "Couldn't open $apsfile";
+      
+      # copy the APS file itself
+      &docopy($apsfile, $dstdir);
+      
+      # do for each line in APS file
+      while (<APS>)
+	{
 	  # skip non-problem lines
-	  next if $line =~ /ANDES Problem Set/;
-	  next if $line =~ /\.wmv/;    # demo video line
-
-	  if ($line =~ /\S+/) { # non-space sequence = problem id
-	      $problemid = $&;
-	      # copy prb file
-	      $prbfile = "Problems/$problemid" . ".prb";
-	      if (! -e $prbfile) {
-		  # assume this is stub problem, so keep going
-		  print STDERR "copyprbs: no prb for $problemid -- ignored\n"; 
-		  next;
-	      }
-	      &docopy($prbfile, $dstdir);
-	 
-	      # scan inside prb file for graphic and copy it also
-              open (PRB, "$prbfile") or die "Couldn't open $prbfile. $!";
-	      while (<PRB>) {
-	         if (/^Graphic +"([^"]+)"/) {
-		     $graphicfile = "Problems/$1";
-		     &docopy($graphicfile, $dstdir);
-		     last;
-	          }
-	      }
-	      close PRB;
+	  next if m/ANDES Problem Set/;
+	  next if m/\.wmv/;    # demo video line
+	  chop;
+	  next unless $_; # empty line
+	  # copy prb file
+	  $prbfile = "Problems/" . uc($_) . ".prb";
+	  if (! -e $prbfile) {
+	    # assume this is a stub problem, so keep going
+	    print STDERR "  no file $prbfile, skipping\n"; 
+	    next;
 	  }
+	  &docopy($prbfile, $dstdir);
+	 
+	  # scan inside prb file for graphic and copy it also
+	  open (PRB, "$prbfile") or die "Couldn't open $prbfile. $!";
+	  while (<PRB>) {
+	    if (/^Graphic +"([^"]+)"/) {
+	      $graphicfile = "Problems/$1";
+	      &docopy($graphicfile, $dstdir);
+	      last;
+	    }
+	  }
+	  close PRB;
+	}
     }
     close APS;
-}
+  }
 close MODULES;
