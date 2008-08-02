@@ -2,7 +2,7 @@
 ############################################################################
 # MakeDist.sh -- shell script to build an Andes installer image
 #
-#    Usage: MakeDist.sh [-oli] [-m module.lst]
+#    Usage: MakeDist.sh [-oli] [-m index.html]
 #
 # -oli flag builds the OLI client installer.
 # Relies on list of problem sets to include via tools/copyprbs.pl script
@@ -25,14 +25,14 @@ set -o errexit	# set to exit script on any command error
 # OLI flag will be zero-length for false, detected with [ -z "$OLI" ]
 #     non-zero-length tests true in [ "$OLI" ]
 OLI="";		
-MODULE_FILE="";
+MODULE_FILE="index.html";
 while [ $# -gt 0 ]
 do
     case "$1" in
       -oli) OLI=true;;  # any non-zero-length value will do 
 	-m) MODULE_FILE=$2; shift;;
 	-*)
-            echo >&2 "usage: $0 [-oli] [-m module.lst]"
+            echo >&2 "usage: $0 [-oli] [-m index.html]"
 	    exit 1;;
 	*)  break;;	# terminate while loop
     esac
@@ -125,7 +125,7 @@ if [ -z "$OLI" ]; then
    cp Problems/index.html $dstdir/Problems
    cp Problems/video.fbd $dstdir/Problems
    # Copy the required APS's and all needed problem files. 
-   perl tools/copyprbs.pl $MODULE_FILE $dstdir 
+   perl tools/copyprbs.pl -i $MODULE_FILE $dstdir 
 fi
 
 #------------------------------------------------------------------------

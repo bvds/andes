@@ -2,18 +2,21 @@
 #
 # copyprbs -- copy all Andes problem files for a given list of problem sets
 #
-# Usage:  copyprbs.pl -v dstdir
+# Usage:  copyprbs.pl -v -i index-file.html dstdir
 #
 # dstdir is the root of the destination Andes directory. 
 #
 # -v verbose mode enables tracing of all file copying operations.
+# -i index-file.html is the file containing a list of homework sets, default
+#    is index.html
 #
 # Assumes it will run in the root of an Andes source directory.
 # APS, prb, and graphic files will be copied into Problems subdirectory of 
 # dstdir, which must already exist
 #
 use Getopt::Long;
-&GetOptions("v" => \$verbose);
+my $index="index.html";
+&GetOptions("v" => \$verbose,"i=s" => \$index);
 #
 # docopy (srcfile, dstroot) -- copy named file into directory
 # srcfile should be relative to Andes root
@@ -39,8 +42,8 @@ unless (-e $problemdir) {
 unless (-d $problemdir){ die "$problemdir is not a directory."; }
 
 # do for each module listed
-open (MODULES, "Problems/index.html") or 
-  die "Couldn't open Problems/index.html.";
+open (MODULES, "Problems/" . $index) or 
+  die "Couldn't open Problems/" . $index;
 while (<MODULES>)
   {
     if(m/"(.*?\.aps)">(.*?)</){
