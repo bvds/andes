@@ -38,12 +38,6 @@ do
     esac
     shift
 done
-# if no custom module list specified on command line, generate default
-# using all aps's mentioned in current Problems/index.html
-if [ -z "$MODULE_FILE" ]; then
-  MODULE_FILE=tools/modules.lst
-  perl -nle 'if (/"(.*)\.aps"/) { print $1; }' Problems/index.html > $MODULE_FILE 
-fi
 echo "MakeDist starting w OLI = '$OLI', MODULE_FILE= $MODULE_FILE"
 
 #------------------------------------------------------------------------
@@ -125,7 +119,7 @@ if [ -z "$OLI" ]; then
    cp Problems/index.html $dstdir/Problems
    cp Problems/video.fbd $dstdir/Problems
    # Copy the required APS's and all needed problem files. 
-   perl tools/copyprbs.pl -i $MODULE_FILE $dstdir 
+   perl tools/copyprbs.pl -m $MODULE_FILE $dstdir 
 fi
 
 #------------------------------------------------------------------------

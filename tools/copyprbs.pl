@@ -2,7 +2,7 @@
 #
 # copyprbs -- copy all Andes problem files for a given list of problem sets
 #
-# Usage:  copyprbs.pl -v -i index-file.html dstdir
+# Usage:  copyprbs.pl -v -m index-file.html dstdir
 #
 # dstdir is the root of the destination Andes directory. 
 #
@@ -16,7 +16,7 @@
 #
 use Getopt::Long;
 my $index="index.html";
-&GetOptions("v" => \$verbose,"i=s" => \$index);
+&GetOptions("v" => \$verbose,"m=s" => \$index);
 #
 # docopy (srcfile, dstroot) -- copy named file into directory
 # srcfile should be relative to Andes root
