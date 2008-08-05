@@ -1,8 +1,0 @@
--setup
--t AndesSE0.txt
--a AndesSE1.txt
--3
--win32
--le
--st"Andes 2 (installation)"
--c SetupUSNA
