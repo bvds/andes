@@ -342,9 +342,6 @@ BOOL CSetupApp::CopyTheFiles()
 			dlg->DestroyWindow();
 			return FALSE;
 		}
-
-		// Ensure codec is installed if need be
-		InstallCodec();
 	}
 #endif
 
@@ -525,6 +522,11 @@ BOOL CSetupApp::MakeRegEntries()
 	if ((int)hInst <= 32) {
 		AfxMessageBox("Warning: failed to register ANDES file types\nRun Andes Workbench (fbd-tcp.exe) once to register file types");
 	}
+
+	// Try to install audio codec if needed. Treat this as part of registry entries since
+	// it involves entering info into the registry and some versions might show a message
+	// to that effect. 
+	InstallCodec();
 
 	return TRUE;
 
@@ -1305,41 +1307,58 @@ void CSetupApp::InstallCodec()
 		return;
 	}
 
+	// Get full path to our current working directory for building command line
+	char szWorkingDir[MAX_PATH];
+	if (_getcwd(szWorkingDir, MAX_PATH) == NULL)
+		AfxMessageBox("GetCwd failed while launching audio codec installer!");
+	CString strCmdLine;
+
 	// else build appropriate command line to run the installer. On pre-Vista systems,
 	// we can launch the .inf file used by the codec installer package. On Vista,
 	// we're not sure if this is the same, so we run the installer package itself, 
-	// including the quiet:administrator switch to suppress any prompts to user.
-	CString strCmdLine;
+
+	
 	if (m_bVista) {
-		strCmdLine = "Vista_Install_AcelpNet.exe -q:a";
+		strCmdLine = CString(szWorkingDir) + "\\" + "Vista_Install_AcelpNet.exe";
 	} else if (m_bNTFamily) 
 		strCmdLine = "Rundll32.exe setupapi.dll,InstallHinfSection DefaultInstall 132 ";
 	else // Win9x
 		strCmdLine = "Rundll.exe setupx.dll,InstallHinfSection DefaultInstall 132 ";
 
 	if (! m_bVista) {
-		// Get full path to the INF file in our current working directory.
-		char szWorkingDir[MAX_PATH];
-		if (_getcwd(szWorkingDir, MAX_PATH) == NULL)
-			AfxMessageBox("GetCwd failed while launching audio codec installer!");
+		// Add full path to the INF file in our current working directory.
 		CString strInfPath = CString(szWorkingDir) + "\\" + strInfName;
-	
 		strCmdLine += strInfPath;
-	}
+	} 
 
 	// OK, now run this command line
 	// AfxMessageBox("Trying to install codec");
-	HANDLE hProcess = StartProcess(strCmdLine);
-	if (hProcess == NULL) {
-		CString strMsg;
-		strMsg.Format("Failed to launch audio codec installer. Error code = %d", ::GetLastError());
-		AfxMessageBox(strMsg);
-		// Open up codec installation page in the browser?
-	}
+	if (m_bVista) {
+		// use ShellExecute on Vista since it could prompt for privilege elevation if
+		// needed. 	Include the -q for quiet flag to try to suppress any prompts to user. 
+		// [The -q flag is standard on Microsoft installation packages, not sure how well it 
+		// works with this installer.]
+		HINSTANCE hInst= ::ShellExecute(NULL, NULL, strCmdLine, "-q", NULL, SW_HIDE);
+		if ((int)hInst <= 32) {
+			AfxMessageBox("Warning: Andes setup failed to install Acelp.net audio codec used in Andes training videos.\
+Codec may be downloaded later from http://www.voiceage.com/acelp_eval.php");
+		}
+	} 
+	else // pre-vista method
+	{
+		HANDLE hProcess = StartProcess(strCmdLine);
+		if (hProcess == NULL) {
+			CString strMsg;
+			strMsg.Format("Failed to launch audio codec installer. Error code = %d", ::GetLastError());
+			AfxMessageBox(strMsg);
+			// Open up codec installation page in the browser?
+			// http://www.voiceage.com/acelp_eval.php
+		}
 
-	// We could wait for RunDll process to finish and query its exit status to try to tell
-	// if it succeeded. For now, just leave it running -- should be quick if it succeeds.
-	::CloseHandle(hProcess);
+		// We could wait for RunDll process to finish and query its exit status to try to tell
+		// if it succeeded. For now, just leave it running -- should be quick if it succeeds.
+		::CloseHandle(hProcess);
+	}
 }
 
 
