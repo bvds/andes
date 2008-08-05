@@ -3993,8 +3993,9 @@
 	(given-loc (or (first (cdr (assoc '?hint-arg bindings)))
 	               "from the problem statement"))
 	(more      (second (cdr (assoc '?hint-arg bindings))))  ; may be NIL
-        ;; use original value expression in preference to stored numerical value in case
-	;; it contains a complex expression like 2*pi rad which we want to preserve
+        ;; use original value expression in preference to stored numerical 
+        ;; value in case it contains a complex expression like 2*pi rad 
+	;; which we want to preserve
 	(foo (format T "?val-expr binding is ~A => ~A~%" 
 	               (assoc '?val-expr bindings) (cdr (assoc '?val-expr bindings))))
 	(rightval (nlg (or (cdr (assoc '?val-expr bindings))
