@@ -62,8 +62,9 @@ while (<MODULES>)
 	  # skip non-problem lines
 	  next if m/ANDES Problem Set/;
 	  next if m/\.wmv/;    # demo video line
-	  chop;
-	  next unless $_; # empty line
+	  # delete trailing spaces. Includes CR on Windows
+	  s/[\s]+$//;     
+	  next unless $_; # skip blank lines
 	  # copy prb file
 	  $prbfile = "Problems/" . uc($_) . ".prb";
 	  if (! -e $prbfile) {
