@@ -1074,8 +1074,8 @@ BEGIN
                     IDC_STATIC,14,61,241,26
     CONTROL         "",IDR_ONR_LOGO,"Static",SS_ETCHEDFRAME | SS_SUNKEN,51,
                     119,166,80
-    LTEXT           "http://www.andes.pitt.edu",IDC_ANDES_URL,118,92,84,8
-    LTEXT           "andesits@pitt.edu",IDC_ANDES_EMAIL,118,106,58,8
+    LTEXT           "http://www.AndesTutor.org",IDC_ANDES_URL,118,92,84,8
+    LTEXT           "help@AndesTutor.org",IDC_ANDES_EMAIL,118,106,58,8
     LTEXT           "Home page:",IDC_STATIC,66,92,40,8
     LTEXT           "Email:",IDC_STATIC,86,106,20,8
     LTEXT           "Allegro CL Runtime copyright Franz, Inc.",IDC_STATIC,74,

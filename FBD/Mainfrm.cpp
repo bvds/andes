@@ -1,6 +1,6 @@
 // MainFrm.cpp : implementation of the CMainFrame class
 //
-// $Id: Mainfrm.cpp,v 1.4 2006/12/18 20:12:19 anders Exp $
+// $Id: Mainfrm.cpp,v 1.5 2008/08/07 03:03:40 bvds Exp $
     
 #include "stdafx.h"
 #include "dde.h"			// for OnDdeCommand override 
@@ -1207,7 +1207,7 @@ void CMainFrame::OnWebSupport()
 {
 	// hardcoded default can be overridden by registry setting:
 	CString strPage = theApp.GetProfileString("Settings", "WebSupport", 
-					  "http://www.andes.pitt.edu/FAQ");
+					  "http://www.AndesTutor.org/FAQ");
 
 	// try to ShellExec the URL to show in default browser. No failure message.
 	HINSTANCE hInst = ShellExecute(NULL, "open", strPage, NULL, NULL, SW_SHOWNORMAL); 
@@ -1216,7 +1216,7 @@ void CMainFrame::OnWebSupport()
 void CMainFrame::OnHelpEmail() 
 {
 	// try to ShellExec the URL to show in default browser. No failure message.
-	HINSTANCE hInst = ShellExecute(NULL, "open", "mailto:andesits@pitt.edu", NULL, NULL, SW_SHOWNORMAL); 
+	HINSTANCE hInst = ShellExecute(NULL, "open", "mailto:help@AndesTutor.org", NULL, NULL, SW_SHOWNORMAL); 
 }
 
 

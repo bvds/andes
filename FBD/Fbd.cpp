@@ -1176,7 +1176,7 @@ BOOL CAboutDlg::OnInitDialog()
 {
 	m_wndPict.SubclassDlgItem(IDR_ONR_LOGO, this);
 	m_lnkAndes.SubclassDlgItem(IDC_ANDES_URL, this);
-	m_lnkEmail.SubclassDlgItem(IDC_ANDES_EMAIL, this, "mailto:andesits@pitt.edu");
+	m_lnkEmail.SubclassDlgItem(IDC_ANDES_EMAIL, this, "mailto:help@andestutor.org");
 
 	return CDialog::OnInitDialog();
 }
@@ -1715,7 +1715,7 @@ void CFBDApp::ShowVideoPage(CString strName)
 	// Get the ShowLesson style path to prepend for a video page:
 	// (Arg to showlesson is either full-URL, or Review-relative filename). 
 	// default is to find videos on web site
-	CString strPath = "http://www.andes.pitt.edu/Videos/" + strName;
+	CString strPath = "http://www.AndesTutor.org/Videos/" + strName;
 
 	// Videos may be installed locally (CD version, or -- future -- add-in option)
 	// Detect this by checking for the page file locally and adjust path
