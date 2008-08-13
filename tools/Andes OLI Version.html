@@ -105,7 +105,7 @@ optional:
 change into olicourse subdirectory of an Andes source treee<br>
 &nbsp;&nbsp;&nbsp;&nbsp; <span style="font-weight: bold;">cvs -d
 :ext:andersw@oli-cvs.andrew.cmu.edu:/oli/cvs/content/lrdc/intro_physics
-co -d intro_physics-1.9 intro_physics-1.0 </span><br>
+co -P -d intro_physics-1.9 intro_physics-1.0 </span><br>
 <br>
 replacing the "andersw" with the appropriate user id. <br>
 <br>
@@ -116,12 +116,19 @@ working directory named intro_physics-1.9. I do this within an
 "olicourse"
 subdirectory of the Andes working directory. <br>
 <br>
+It is important to include the -P flag to prune now-empty directories from older versions of the course. Some of these held custom organizations used in past versions of the course. The course content package will not build successfully if these directories are present. 
+If this happens, the obsolete directories can be removed later by changing into the working directory and typing <br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp; cvs update -Pd
+<br>
+<br>
 Note the "1.0" at&nbsp; the end of the CVS project name is meaningless,
 and
 is potentially misleading, since the 1.0 used here never changes as new
 editions of the course are developed.&nbsp; The real
 content package version number is set inside the sources (details
-below).&nbsp; <br>
+below).&nbsp; 
+
 <h4>Checking out patch branches</h4>
 After a version of the content package is deployed onto the production
 server (normally at the start of a semester), the OLI folks will create
