@@ -1074,8 +1074,8 @@ BEGIN
                     IDC_STATIC,14,61,241,26
     CONTROL         "",IDR_ONR_LOGO,"Static",SS_ETCHEDFRAME | SS_SUNKEN,51,
                     119,166,80
-    LTEXT           "http://www.AndesTutor.org",IDC_ANDES_URL,118,92,84,8
-    LTEXT           "help@AndesTutor.org",IDC_ANDES_EMAIL,118,106,58,8
+    LTEXT           "http://www.AndesTutor.org",IDC_ANDES_URL,118,92,96,8
+    LTEXT           "help@AndesTutor.org",IDC_ANDES_EMAIL,118,106,83,8
     LTEXT           "Home page:",IDC_STATIC,66,92,40,8
     LTEXT           "Email:",IDC_STATIC,86,106,20,8
     LTEXT           "Allegro CL Runtime copyright Franz, Inc.",IDC_STATIC,74,
@@ -3326,8 +3326,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 13,0,1,0
- PRODUCTVERSION 13,0,1,0
+ FILEVERSION 13,0,2,0
+ PRODUCTVERSION 13,0,2,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -3345,14 +3345,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Andes Group\0"
             VALUE "FileDescription", "Physics Workbench\0"
-            VALUE "FileVersion", "13, 0, 1, 0\0"
+            VALUE "FileVersion", "13, 0, 2, 0\0"
             VALUE "InternalName", "FBD\0"
             VALUE "LegalCopyright", "Copyright © 1996-2008\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "FBD.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "FBD Application\0"
-            VALUE "ProductVersion", "13, 0, 1, 0\0"
+            VALUE "ProductVersion", "13, 0, 2, 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END
