@@ -12,6 +12,9 @@ use Time::Local;
   "Jan"=>0, "Feb"=>1, "Mar"=>2, "Apr"=>3, "May"=>4, "Jun"=>5, 
   "Jul"=>6, "Aug"=>7, "Sep"=>8, "Oct"=>9, "Nov"=>10, "Dec"=>11); 
 
+# for fixing up DST issue on timestamps: DST ended 11/4/07 at 1 AM
+$dst_end_2007 = timelocal(0, 0, 1, 4, 11-1, 2007-1900);
+
 # list of per-problem statistic names
 # In addition to heading the output columns, the statistic name is 
 # also used as the hash key for that entry in a per student 
@@ -45,6 +48,7 @@ while (<>) {
    # lower-case $time is current event's time in seconds from the epoch. 
    ($t_year, $t_month, $t_mday, $t_hour, $t_min, $t_sec, $t_tenth) = split(/-| |:|\./, $Time);
    $time = timelocal($t_sec, $t_min, $t_hour, $t_mday, $t_month - 1, $t_year-1900);
+   # print STDERR "time:$time year:$t_year month:$t_month day:$t_mday hour:$t_hour min:$t_min sec:$t_sec tenth:$t_tenth\n";
 
    # detect end of one problem session and beginning of new one
    if ($Session_Id ne $current_session_id) {
@@ -70,7 +74,17 @@ while (<>) {
 	   # transactions
 	   ($session_user, $monthdate, $hours, $min, $sec) = split('-', $Session_Id);
            ($monthabbr, $mday) = ($monthdate =~ m/([A-Z][a-z]+)([\d]+)/); 
+	   # Because DataShop treated our US/Eastern timestamps as standard time, add one hour
+	   # to session start times from before DST changeover. This works for 2007 only.
+	   # DataShop may change this behavior in the future.
 	   $session_start_time = timelocal($sec,$min,$hours,$mday,$month2num{$monthabbr},$t_year-1900); 
+	   $session_start_time_old = $session_start_time;
+	   if ($session_start_time < $dst_end_2007) {
+		   $session_start_time += 3600;
+	   }
+	   print STDERR "$Session_Id $session_start_time (was $session_start_time_old)\n";
+
+	   # print STDERR "session start time = $session_start_time month=$month2num{$monthabbr} day=$mday hours=$hours min=$min sec=$sec\n";
    }
 
    # just ignore blank answer submissions = clears. 
