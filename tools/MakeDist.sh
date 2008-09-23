@@ -98,7 +98,10 @@ cp KB/scalars.tsv $dstdir/KB
 mkdir -p $dstdir/Review
 cp Review/*.html $dstdir/Review
 cp Review/*.htm $dstdir/Review
+cp Review/*.HTM $dstdir/Review
 cp Review/*.gif $dstdir/Review
+cp Review/*.GIF $dstdir/Review
+cp Review/*.JPG $dstdir/Review
 # currently no jpgs in use
 # cp Review/*.jpg $dstdir/Review
 #    minilesson graphics subdirectory
