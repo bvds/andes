@@ -523,7 +523,7 @@
     (implicit-eqn (= ?dir-var ?dir-var-value) (dir (force ?b ?surface kinetic-friction :time ?t))))
   :hint
    ((point (string "Notice that ~a is sliding across ~a." ?b ?surface))
-    (teach (minilesson "Mini_kinetic_friction.HTM")
+    (teach (minilesson "mini_kinetic_friction.htm")
            (kcd "dynamic_friction_force_direction")
 	   (string "When an object is moving in contact with a surface and the surface exerts a kinetic friction force on it.  The friction force is opposite to the direction of motion."))
     (bottom-out (string "Because ~a is moving in contact with ~a, draw a kinetic friction force on ~a due to ~a at an angle of ~a." 
