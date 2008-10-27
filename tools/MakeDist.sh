@@ -113,6 +113,8 @@ if [ -z "$OLI" ]; then
     cp Videos/Intro_to_Andes.wmv $dstdir/Review/Videos
     cp Videos/Intro_to_Andes.html $dstdir/Review/Videos
     # videos for a "full" installation including videos would go here.
+    # These videos would also require the following html wrappers:
+    # cp Videos/wrappers/*.html  $dstdir/Review/Videos
 fi
 
 # Andes problem files

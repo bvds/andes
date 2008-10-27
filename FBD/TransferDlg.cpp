@@ -32,9 +32,10 @@ CTransferDlg::CTransferDlg(CWnd* pParent /*=NULL*/)
 	hFTP = NULL;
 	
 	// compiled-in account defaults for Pitt Fall 01 experiment
-	m_strHost = "unix.cis.pitt.edu";
-	m_strUserName = "andes2";
-	m_strPassword = m_strUserName;
+        // BvdS this must be dead code, if not, find how to kill it.
+	// m_strHost = "unix.cis.pitt.edu";
+	// m_strUserName = "andes2";
+	// m_strPassword = m_strUserName;
 }
 
 

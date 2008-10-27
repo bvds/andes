@@ -28,7 +28,7 @@ CBrowserDlg::CBrowserDlg(CWnd* pParent /*=NULL*/)
 	
 /*	// default should be empty to indicate unset
 	// following is default URL to open browser:
-	m_strUrl = "http://www.pitt.edu/~vanlehn/andes.html";	// ANDES homepage
+	m_strUrl = "http://www.andestutor.org";	// ANDES homepage
 */
 	// flag when navigation is initiated by our program, (not user action)
 	// used in processing the BeforeNavigate the browser sends us

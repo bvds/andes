@@ -191,6 +191,7 @@ const char* szUserKey = "User ID";		// value id for saved user name
 const char* szHostKey = "Server";		// value id for saved machine name
 const char* szUpDirKey = "Directory";	// value id for main upload dir on server
 
+#if 0  // BvdS:  This must be dead code
 // constants for USNA environment:
 #ifndef PITT
 const char* szBaltic = "baltic.nadn.navy.mil";
@@ -198,7 +199,7 @@ const char* szCoral = "coral.nadn.navy.mil";
 const char* szArctic = "arctic.nadn.navy.mil";
 const char* szNavyDir = "/file.exchange/mids/Andes/data";
 // for testing locally (presence of this choice a little non-obvious in combo box).
-const char* szAndesServer = "unix.cis.pitt.edu";
+ const char* szAndesServer = "unix.cis.pitt.edu";
 const char* szAndesDir = "upload";
 #else // PITT version
 const char* szAndesServer = "unix.cis.pitt.edu";
@@ -206,7 +207,7 @@ const char* szAndesDir = "upload";
 const char* szAndesUser = "andes2";
 const char* szNavyDir = ".";		// shouldn't be used, but code references.
 #endif 
-
+#endif
 BOOL CUploadDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
