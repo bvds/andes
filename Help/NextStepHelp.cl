@@ -1119,9 +1119,9 @@
 (defun nsh-start-bodies ()
   (let ((Body (nsh-pick-body-to-hint)))
     (nsh-bottom-hint-target-entry
-     (Strcat "It is a good idea to begin any problem by enumerating "
-	     "the bodies at work within it.  Doing so helps to frame "
-	     "later principle applications.  Why don't you do so now.")
+     (Strcat "It is a good idea to begin problems like this by enumerating "
+	     "the bodies that are involved.  Please draw the bodies "
+	     "that are important for solving this problem.")
      Body
      :Assoc `(nsh start-bodies ,(SystemEntry-prop Body)))))
 
@@ -1846,25 +1846,25 @@
 ;;; accept.  As above we keep track of the responses to prevent overlap.
 
 (defparameter **NSH-AFP-String**
-    "What is the first principle application that you would like to work on?")
+    "Which principle would you like to apply first?")
 
 (defparameter **NSH-AFP-Single-String**
-    (strcat "Hint: this principle application will usually be one that mentions "
-	    "the sought quantity explicitly.  Therefore its equation may contain "
-	    "the sought quantity that the problem seeks."))
+    (strcat "Hint: this principle will usually be one that mentions "
+	    "the sought quantity explicitly.  If so, look for "
+	    " a principle that includes the answer quantity."))
 
 (defparameter **NSH-AFP-Multi-String**
-    (strcat "Hint: usually this principle application will usually mention one "
+    (strcat "Hint: usually this principle will usually mention one "
 	    "of the sought quantities explicitly.  That is, its equation may "
-	    "contain one of the sought quantities that the problem seeks."))
+	    "contain one of the answer quantities."))
 
 (defparameter  **NSH-AFPC-DIRECT-String**
-    (strcat "What is the first principle application that you wish to work on?"
+    (strcat "Which principle would you wish to apply first?"
 	    "  You should look for a principle that contains the sought "
 	    "quantity itself."))
 
 (defparameter  **NSH-AFPC-INDIRECT-String**
-    (strcat "What is the first principle application that you wish to work on?"
+    (strcat "Which principle of physics would you wish to apply first?"
 	    "  You should look for a principle that is related to the sought "
 	    "quantity indirectly."))
       
@@ -1961,10 +1961,8 @@
 
 
 (defparameter **nsh-repeat-fp-resp**
-    (strcat "You have already tried that principle application.  As I "
-	    "told you then it is wrong.  In order to move ahead you "
-	    "need to try something that you have not tried before.  Why "
-	    "don't you do that now."))
+    (strcat "You have already tried choosing that principle.  "
+	    "You need to choose something different."))
 
 
 (defun nsh-check-first-principle-response (response sought past)
@@ -1996,8 +1994,8 @@
 ;;; a forbidden PSMGroup.
 (defun nsh-cfp-forbidden (Sought Past)
   (nsh-wrong-fp-resp 
-   (strcat "That principle application is forbidden by the problem "
-	   "statement.  Why don't you re-read it and try again.")
+   (strcat "The use of that principle is forbidden by the problem "
+	   "statement.  Why don't you re-read the problem and try again.")
    Sought past
    :Case **Forbidden**))
 
@@ -2031,9 +2029,8 @@
 (defun nsh-cfp-principle-null (Sought past)
   "Account for an unknown psm name."
   (nsh-wrong-fp-resp
-   (strcat "Although that principle application is on the menu, Andes has "
-	   "no record of it internally.  Please inform the Andes Development "
-	   "group or your professor and select again.")
+   (strcat "Although that principle is listed on the menu, Andes has "
+	   "no record of it internally.  Please select again.")
    Sought past
    :Case 'Null))
 
@@ -2303,7 +2300,7 @@
 ;;; the student here and give them the following message.
 (defun nsh-cfp-filter-null-resp (Sought Past)
   (nsh-wrong-fp-resp
-     "No principle applications of the type that you selected appear in the solution.  "
+     "No principle of the type that you selected appears in the solution.  "
      Sought Past :case 'FilterNull))
 
 
@@ -2424,10 +2421,10 @@
 (defun nsh-cbf-invalid (Best Solutions Principles Sought Past)
   "Alert the student to their state and start them over."
   (make-dialog-turn
-   (strcat "While the principle application that you have chosen a valid way to "
+   (strcat "While the principle that you have chosen a valid way to "
 	   "start a problem solution, there are no solutions that apply it with "
 	   "the coordinate system that you have currently drawn.  Do you want to "
-	   "change your axes rotationor pick a different principle application?")
+	   "change your axes rotation or pick a different principle?")
    '("Axes" "Principle")
    :Responder #'(lambda (Response)
 		  (if (string-equal Response "Axes")
@@ -2520,9 +2517,10 @@
 (defun nsh-cbf-prompt-change (Best Solutions Principles Sought Past)
   "Prompt the student to change their axes rotations for the best."
   (make-dialog-turn
-   (strcat "You can form a solution using the principle application that you "
-	   "have chosen and the axes that you have drawn.  However if you "
-	   "change the rotation you can craft a less complex solution.  "
+   (strcat "You can form a solution by applying the principle that you "
+	   "have chosen and using the axes that you have drawn.  "
+	   "However if you change the rotation, you can craft a "
+	   "less complex solution.  "
 	   "Do you want to change your axes?")
    **Yes-No-Menu**
    :Responder #'(lambda (Response)
@@ -2783,8 +2781,7 @@
   (make-dialog-turn
    (strcat Message "  You have already finished "
 	   (nlg (enode-id Principle) 'psm-exp)
-	   ".  This is acceptable as an initial principle application.  "
-	   "Why don't you start on the next principle?")
+	   ".  Why don't you start working on the next principle?")
    **Explain-More**
    :Responder #'(lambda (Response)
 		  (when (equal Response **Explain-More**)
@@ -2877,7 +2874,7 @@
 (defun nsh-prompt-done ()
   "Prompt that the student is done with the problem."
   (make-end-dialog-turn
-   (strcat "You have completed all of the principle applications "
+   (strcat "You have applied all of the principles "
 	   "necessary to solve this problem.  " (nsh-prompt-done-string))
    :assoc '(nsh prompt-done)))
 
@@ -4255,11 +4252,13 @@
   ((problem-has-answer-vars) 
     (format NIL "Although you seem to have entered enough equations, the Andes solver can only be used to calculate purely numerical answers.  Because this problem seeks an answer in terms of one or more variables, you must do the necessary algebra to obtain an answer expression yourself.")) 
   
- ;; Make sure they were solving for a problem sought before assuming solver problems [Bug 1471].
- ((not (member (symbols-referent var) (problem-soughts *cp*) :test #'unify))
-      ;; Might be nice to have special message for possible magnitude/component confusion about sought
-      (format NIL "Unable to solve for ~A. Notice that this problem does not ask for ~A, so you do not need to solve for it. You probably want to solve for a quantity sought by the problem." var var))
- 
+  ;; Make sure they were solving for a problem sought before assuming solver 
+  ;;  problems [Bug 1471].
+  ((not (member (symbols-referent var) (problem-soughts *cp*) :test #'unify))
+   ;; Might be nice to have special message for possible 
+   ;; magnitude/component confusion about sought
+   (format NIL "Unable to solve for ~A. Notice that this problem does not ask for ~A, so you do not need to solve for it. You probably want to solve for a quantity sought by the problem." var var))
+  
   ;; advise of special tricks for these
   ((member 'elastic-collision-help (problem-features *cp*)) 
      (format NIL "Although you seem to have entered enough equations, the Andes solver is unable to solve them for ~A in their current form.  See the {\\l discussion of elastic collisions in one dimension}{\\v 1D_elastic_collision.html} for further help." var))
