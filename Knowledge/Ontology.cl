@@ -247,11 +247,6 @@
   "Lookup the struct corresponding to the field."
   (cdr (find Field (ExpType-fields Struct) :key #'car)))
     
-(defun lookup-expression-type (exp)
-  "Lookup the type of an expression."
-  (func-lookup-expression-struct 
-   exp #'ExpType-type))
-
 (defun lookup-expression-units (exp)
   "Lookup the expression units."
   (let ((s) (B))
