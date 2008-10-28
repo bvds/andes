@@ -22,7 +22,7 @@
 
 (generate-application 
  "Andes2"
- "c:\\cygwin\\home\\andersw\\Andes2\\"
+ "c:\\cygwin\\home\\Administrator\\Andes2\\"
  ; list copied from Andes1, not clear if all of these are needed
  '(:defctype :ffcompat :foreign :list2 :loop :seq2 :sock :defftype 
    ; new in 8.0: multiprocessing functions

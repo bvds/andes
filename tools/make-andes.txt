@@ -1,26 +1,43 @@
-Choose DOS style text files in cygwin and 
-    restart windows
-install make in cygwin by running "setup"
-Microsoft visual studio install version 6.0 from 1998
-   vc32/setup.exe
-  modifications:  install MFC source code and 
-                                         MFC source browser and
-                       run environment variables.
-  Documentation c++ sdk, 
-optional:  Install latest service pack 
-    (6.0 for visual studio 6) from    
-   support.microsoft.com/kb/194022
-    run extractor
-    save extracted files into new folder, run setupsp6
-make workbench (or in IDE, choose FBD/Fbd.dsw and choose "Win32 OLI Release", build "Fbd-tcp.exe" need all three versions ...).
+# Choose DOS style text files in cygwin and restart windows
+# install make in cygwin by running "setup"
+
+# cygwin git, by default, only works if the filesystem is mounted
+#   binary.  (Might get it to work with linefeed conversion and textmode
+#   mount, but haven't tried this.)  Instead, use msysgit install
+#   and with the bash shell provided with git, checkout Andes2:
+   cd /c/cygwin/home/Andministrator
+   git clone ssh://bvds@andestutor.org/home/bvds/Andes2.git Andes2
+
+# Microsoft visual studio install version 6.0 from 1998
+#   vc32/setup.exe
+#  modifications:  install MFC source code and 
+#                  MFC source browser and
+#                 run environment variables.
+# Documentation c++ sdk, 
+# optional:  Install latest service pack 
+#    (6.0 for visual studio 6) from    
+#   support.microsoft.com/kb/194022
+#    run extractor
+#    save extracted files into new folder, run setupsp6
+
+make workbench 
+# or in IDE, choose FBD/Fbd.dsw and choose 
+# "Win32 OLI Release", build "Fbd-tcp.exe" need all three versions ...).
 make solver
 make installer
-make helpsys (needs Franz lisp)
-download winzip standard and command line add-on
 
-to make distribution tools/MakeDist.sh
-mkdir Andes2/oli-course
-use cvs co from Documentation with pass:andersoli
+#  lnk.cl needed by Franz lisp, can be copied from distribution
+cp /cygdrive/c/Program Files/acl81/examples/dll/lnk.cl ~/Andes2
+# needs Franz lisp, modify path in makedll.cl and makehelp80.cl
+make helpsys 
+# need to exit lisp by hand.
+# seems the tcp version is hanging
+
+# download winzip standard and command line add-on
+# to make distribution 
+tools/MakeDist.sh
+mkdir oli-course
+# use cvs co from tools/Andes-OLI.html with pass:andersoli
 
 oli-course/intro-physics.*/content/package.xml 
    update version number

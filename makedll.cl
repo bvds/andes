@@ -1,6 +1,6 @@
 (generate-application
  "Helpsys"
- "c:\\cygwin\\home\\andersw\\Andes2\\"
+ "c:\\cygwin\\home\\Administrator\\Andes2\\"
  (list :defctype :ffcompat :foreign :list2 :loop :seq2 :defftype :process
        ; probably not used in dll version:
        :sock
