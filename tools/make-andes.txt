@@ -64,10 +64,14 @@ mkdir oli-course
 make statements
 #
 cp Problems/*.aps oli-course/intro_physics-*/
-  remove excess by hand. 
-
+cd oli-course/intro_physics-*/
+#  remove irrelevant *.aps files by hand. 
+#  run the following with some unique identifier for output file
 perl  ../../tools/aps2xml.pl *.aps > july-28-output.txt
-  only run once for given output file.
+#  only run once for given output file.
+#  It will complain about problems that are included in aps files,
+#     but not having feature Andes2.
+#
   grep Add *-output.txt for new files and 
   add them to cvs.
   (problem with kgraph10)
