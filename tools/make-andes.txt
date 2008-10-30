@@ -37,14 +37,33 @@ make helpsys
 # to make distribution 
 tools/MakeDist.sh
 mkdir oli-course
-# use cvs co from tools/Andes-OLI.html with pass:andersoli
 
-oli-course/intro-physics.*/content/package.xml 
-   update version number
-
-see write-stmts from documentation
-
-cp Problems/*.aps oli-course/intro_physics-1.9/
+#-----------------------------------------------------------
+#
+#           setup oli accounts
+#
+# Apply for an andrew account
+# The next step is to make sure you have one regular OLI account and one 
+# web-iso account on both Odin and QA.
+#
+# So on qa, https://oli-qa.andrew.cmu.edu create an account using the 
+#"Carnegie Mellon Users Log-in Here" link and your andrew id.
+#
+#On Odin, http://odin.web.cmu.edu create two accounts. One account using 
+#the "Carnegie Mellon Users Log-in Here" link and your andrew id. The 
+#second account using the main "Need an account?" link.
+#
+#Your account names can be the same on each server.
+#
+#
+# use cvs co command from tools/Andes-OLI.html with pass:andersoli
+#
+# edit oli-course/intro-physics-*/content/package.xml 
+#   and update version number
+#
+make statements
+#
+cp Problems/*.aps oli-course/intro_physics-*/
   remove excess by hand. 
 
 perl  ../../tools/aps2xml.pl *.aps > july-28-output.txt
