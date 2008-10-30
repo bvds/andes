@@ -61,7 +61,7 @@ mkdir oli-course
 # edit oli-course/intro-physics-*/content/package.xml 
 #   and update version number
 #
-make statements
+make Statements
 #
 cp Problems/*.aps oli-course/intro_physics-*/
 cd oli-course/intro_physics-*/

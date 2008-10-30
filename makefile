@@ -63,7 +63,7 @@ helpifc.obj:	helpifc.c
 	$(CC) helpifc.c -Fohelpifc.obj
 
 # Problem statements
-statements:  # always do
+Statements:    #always do
 	mkdir -p Statements
 	$(ACL) -L statements.cl
 
