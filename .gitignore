@@ -1,0 +1,10 @@
+#
+#  files to ignore globally in a repository
+#
+.DS_Store
+CVS
+.svn
+*~
+*.o
+*.fasl
+#*#
