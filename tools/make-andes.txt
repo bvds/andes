@@ -34,9 +34,8 @@ make helpsys
 # seems the tcp version is hanging
 
 # download winzip standard and command line add-on
-# to make distribution 
-tools/MakeDist.sh
-mkdir oli-course
+# to make distribution for use in oli course
+tools/MakeDist.sh -oli
 
 #-----------------------------------------------------------
 #
@@ -55,11 +54,12 @@ mkdir oli-course
 #
 #Your account names can be the same on each server.
 #
+#  --------------------------------------------------------------
+#
+mkdir -p oli-course
 #
 # use cvs co command from tools/Andes-OLI.html with pass:andersoli
-#
-# edit oli-course/intro-physics-*/content/package.xml 
-#   and update version number
+# edit oli-course/intro-physics-*/content/package.xml & update version number
 #
 make Statements
 #
@@ -68,13 +68,14 @@ cd oli-course/intro_physics-*/
 #  remove irrelevant *.aps files by hand. 
 #  run the following with some unique identifier for output file
 perl  ../../tools/aps2xml.pl *.aps > july-28-output.txt
-#  use different output file for each run, so grep below will work.
-#  It will complain about problems that are included in aps files,
+#  use different output file for each run, so below grep will work.
+#  It will complain about any problems that are included in aps files,
 #     but not having feature Andes2.
-#
 grep Add *-output.txt 
-# for new files  add them to cvs.  Then put changes into repository
-cvs commit -m "latest updates"
+#  If the grep reports any new files,  add them to cvs. 
+cp -p ../../andes_installer.exe content/webcontent
+#  Non-problem set specific content must be updated by hand (videos, etc). 
+cvs commit -m "latest updates, blah blah"
 
 #
 #         Now switch to working on OLI machine
