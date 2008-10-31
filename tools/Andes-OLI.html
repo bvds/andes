@@ -327,22 +327,11 @@ The script maintains a list of problem sets that belong in the EM
 module, putting all others within the mechanics module. If a new
 problem set is added to EM, it must be added to this list in aps2xml.<br>
 <h5>Exporting problem statements</h5>
-The aps2xml script makes use of&nbsp; problem statement files exported
-from the Lisp problem definitions. To export statement files from Lisp
-into the place where the script expects to find them:<br>
-&nbsp;&nbsp;&nbsp; 1. (first time only) In the Andes source tree root,
-create a directory named "Statements"<br>
-&nbsp;&nbsp;&nbsp; 2. Load the Andes sgg and problem definitions into
-Lisp<br>
-&nbsp;&nbsp;&nbsp; 3. In Lisp, type (write-stmts)<br>
-<br>
-This should be done before each run to make sure the exported statement
-files are up to date. It will write one file per problem named
-PROBLEMNAME.txt containing the text of the problem statement.<br>
-<br>
-[With a little work this step could be eliminated, but this is how it
-works now.]<br>
+The aps2xml script makes use of problem statement files exported
+from the Lisp problem definitions.&nbsp; Type <code>make statements</code>
+
 <h5>Building the content pages</h5>
+
 <h6>Copy the desired Problem Set (.aps) files</h6>
 The Andes source tree usually contains more .aps files than are
 actually used in a distribution. Copy only the aps files needed for a

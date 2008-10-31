@@ -56,7 +56,6 @@ installer:
 solver:
 	$(MSDEV) Algebra/src/solver.dsp /MAKE "Solver - Win32 Debug"
 
-	
 # helpifc.dll -- adapted from factorial sample in Allegro installation
 helpifc.dll:	helpifc.obj lnkacl.lib
 	$(link) -dll  -debug -out:helpifc.dll helpifc.obj $(win_lib) \
@@ -64,5 +63,10 @@ helpifc.dll:	helpifc.obj lnkacl.lib
 
 helpifc.obj:	helpifc.c
 	$(CC) helpifc.c -Fohelpifc.obj
+
+# Problem statements
+statements:  # always do
+	mkdir -p Statements
+	$(ACL) -L statements.cl
 
 FORCE:
