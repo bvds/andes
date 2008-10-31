@@ -68,13 +68,17 @@ cd oli-course/intro_physics-*/
 #  remove irrelevant *.aps files by hand. 
 #  run the following with some unique identifier for output file
 perl  ../../tools/aps2xml.pl *.aps > july-28-output.txt
-#  only run once for given output file.
+#  use different output file for each run, so grep below will work.
 #  It will complain about problems that are included in aps files,
 #     but not having feature Andes2.
 #
-  grep Add *-output.txt for new files and 
-  add them to cvs.
-  (problem with kgraph10)
+grep Add *-output.txt 
+# for new files  add them to cvs.  Then put changes into repository
+cvs commit -m "
+
+#
+#         Now switch to working on OLI machine
+#
 
 ssh andersw@odin.web.cmu.edu
 pass:  andersoli
