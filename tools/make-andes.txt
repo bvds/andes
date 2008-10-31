@@ -74,7 +74,7 @@ perl  ../../tools/aps2xml.pl *.aps > july-28-output.txt
 #
 grep Add *-output.txt 
 # for new files  add them to cvs.  Then put changes into repository
-cvs commit -m "
+cvs commit -m "latest updates"
 
 #
 #         Now switch to working on OLI machine
