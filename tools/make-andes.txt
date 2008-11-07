@@ -36,6 +36,7 @@ make helpsys
 # download winzip standard and command line add-on
 # to make distribution for use in oli course
 tools/MakeDist.sh -oli
+#
 
 #-----------------------------------------------------------
 #
@@ -56,13 +57,21 @@ tools/MakeDist.sh -oli
 #
 #  --------------------------------------------------------------
 #
-mkdir -p oli-course
+#                       Put course into OLI cvs  
+#   Now, this step is done on the Windows machine, but it could
+#   be just as well done elsewhere if the binaries are all put into the Andes2
+#   repository.
 #
-# use cvs co command from tools/Andes-OLI.html with pass:andersoli
+mkdir -p oli-course
+cd oli-course
+# replace with right user name and version, see tools/Andes-OLI.html
+# andersw pass: andersoli
+cvs -d :ext:bvds@oli-cvs.andrew.cmu.edu:/oli/cvs/content/lrdc/intro_physics co -P -d intro_physics-2.0 intro_physics-1.0 
+#
 # edit oli-course/intro-physics-*/content/package.xml & update version number
 #
+cd ..
 make Statements
-#
 cp Problems/*.aps oli-course/intro_physics-*/
 cd oli-course/intro_physics-*/
 #  remove irrelevant *.aps files by hand. 
@@ -81,11 +90,11 @@ cvs commit -m "latest updates, blah blah"
 #         Now switch to working on OLI machine
 #
 
-ssh andersw@odin.web.cmu.edu
-pass:  andersoli
- cd /oli/private/andersw
+ssh bvds@odin.web.cmu.edu
+# andersw pass:  andersoli
+cd /oli/private/bvds
 
-cvs -d :ext:andersw@oli-cvs.andrew.cmu.edu:/oli/cvs/content/lrdc/intro_physics co -d intro_physics-1.9 intro_physics-1.0
+cvs -d :ext:bvds@oli-cvs.andrew.cmu.edu:/oli/cvs/content/lrdc/intro_physics co -d intro_physics-2.0 intro_physics-1.0
 
 cvs update -dP
 
