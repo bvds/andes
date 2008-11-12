@@ -69,6 +69,7 @@ cd oli-course
 cvs -d :ext:bvds@oli-cvs.andrew.cmu.edu:/oli/cvs/content/lrdc/intro_physics co -P -d intro_physics-2.0 intro_physics-1.0 
 #
 # edit oli-course/intro-physics-*/content/package.xml & update version number
+# Likewise for organizations/*/organization.xml files
 #
 cd ..
 make Statements
@@ -92,21 +93,28 @@ cvs commit -m "latest updates, blah blah"
 
 ssh bvds@odin.web.cmu.edu
 # andersw pass:  andersoli
+echo "setenv CVS_RSH ssh" >> ~/.login  #on first login
 cd /oli/private/bvds
 
+# on first login
 cvs -d :ext:bvds@oli-cvs.andrew.cmu.edu:/oli/cvs/content/lrdc/intro_physics co -d intro_physics-2.0 intro_physics-1.0
 
+cd intro_physics-*/
 cvs update -dP
-
-cd intro_physics-1.9/
  cp log4j.properties.sample log4j.properties
 ant
 
 ./tools/oli/deploy.sh
 
-Account ID: andersw
-Password: andersoli
+# pipe in account name and password.
+#Account ID: andersw   Password: andersoli
 
+exit
+
+#---------------------------------------------------------------------------
+#
+#              test course using web browser
+#
 odin.web.cmu.edu
 login twice
 "Create a new course"  this is what an instructor will do.

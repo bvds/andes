@@ -60,14 +60,13 @@ account permission to access the OLI servers. <br>
 <br>
 OLI course development involves the following servers:<br>
 <ul>
-  <li>The CVS repository server: <span style="font-weight: bold;">oli-cvs.andrew.cmu.edu</span><br>
+  <li>The CVS repository server: <a href="http://oli-cvs.andrew.cmu.edu">oli-cvs.andrew.cmu.edu</a>
   </li>
-  <li>The development server (ODIN):&nbsp; <span
- style="font-weight: bold;">odin.web.cmu.edu</span><br>
+  <li>The development server (ODIN):&nbsp; <a href="http://odin.web.cmu.edu">odin.web.cmu.edu</a
   </li>
-  <li>The QA server: <span style="font-weight: bold;">oli-qa.andrew.cmu</span><br>
+  <li>The QA server: <a href="http://oli-qa.andrew.cmu.edu">oli-qa.andrew.cmu.edu</a>
   </li>
-  <li>The production server: <span style="font-weight: bold;">www.cmu.edu/oli/</span></li>
+  <li>The production server:&nbsp; <a href="http://www.cmu.edu/oli">www.cmu.edu/oli</a>
 </ul>
 The front page of ODIN links to some documentation on OLI development
 processes, which should also be consulted. A course author can freely
@@ -91,25 +90,25 @@ intervention and without adhering to OLI's update schedule or rules.
 This was handy for "just-in-time" problem development, but may not be
 needed in the future. The PSLC uses the following servers:<br>
 <ul>
-  <li>PSLC QA server: <span style="font-weight: bold;">pslc-qa.andrew.cmu.edu/</span><br>
-  </li>
-  <li>PSLC production server: <span style="font-weight: bold;">learnlab.web.cmu.edu</span></li>
+  <li>PSLC QA server:&nbsp; <a href="http://pslc-qa.andrew.cmu.edu">pslc-qa.andrew.cmu.edu</a>
+  <li>PSLC production server:&nbsp; <a href="http://learnlab.web.cmu.edu">learnlab.web.cmu.edu</a>
 </ul>
+
 <h2>Checking out from OLI-CVS</h2>
 The CVS module containing the OLI physics course source is named
 "intro-physics-1.0".&nbsp; To check out the main branch use commands
 like the following:<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp; cd ANDESROOT/olicourse &nbsp;&nbsp; #
-optional:
-change into olicourse subdirectory of an Andes source treee<br>
-&nbsp;&nbsp;&nbsp;&nbsp; <span style="font-weight: bold;">cvs -d
-:ext:andersw@oli-cvs.andrew.cmu.edu:/oli/cvs/content/lrdc/intro_physics
-co -P -d intro_physics-1.9 intro_physics-1.0 </span><br>
-<br>
-replacing the "andersw" with the appropriate user id. <br>
-<br>
-Because you can find yourself managing multiple versions of the content
+<blockquote>
+<code>
+cd ANDESROOT/olicourse  #optional:  change into olicourse subdirectory of an Andes source treee
+</code>
+<br> 
+<code>
+cvs -d :ext:andersw@oli-cvs.andrew.cmu.edu:/oli/cvs/content/lrdc/intro_physics co -P -d intro_physics-1.9 intro_physics-1.0 </code>
+</blockquote>
+replacing the "andersw" with the appropriate user id.
+
+<p>Because you can find yourself managing multiple versions of the content
 package, I recommend using the -d option and replacing the 1.9&nbsp;
 with the latest content package version number, so as to&nbsp; create a
 working directory named intro_physics-1.9. I do this within an
@@ -118,10 +117,9 @@ subdirectory of the Andes working directory. <br>
 <br>
 It is important to include the -P flag to prune now-empty directories from older versions of the course. Some of these held custom organizations used in past versions of the course. The course content package will not build successfully if these directories are present. 
 If this happens, the obsolete directories can be removed later by changing into the working directory and typing <br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp; cvs update -Pd
-<br>
-<br>
+<blockquote>
+<code>cvs update -Pd</code>
+</blockquote>
 Note the "1.0" at&nbsp; the end of the CVS project name is meaningless,
 and
 is potentially misleading, since the 1.0 used here never changes as new
@@ -137,16 +135,19 @@ package is numbered 1.9, then the patch branch will be named
 v_1_8_patches. <br>
 So, to check out the patch branch from scratch for working on
 mid-semester updates
-you can do:<br>
-<br>
+you can do:
+<blockquote>
+<code>
 cvs -d
 :ext:andersw@oli-cvs.andrew.cmu.edu:/oli/cvs/content/lrdc/intro_physics
-co -r v_1_9_patches -d intro_physics-v_1_9_patches intro_physics-1.0<br>
-<br>
+co -r v_1_9_patches -d intro_physics-v_1_9_patches intro_physics-1.0
+</code>
+</blockquote>
 Alternatively, if you have already have a working directory with the
 1.9 version, you can tie that working directory to the patches branch
 in CVS for further work on mid-semester updates by using the -r command
-to CVS with the appropriate branch tag.<br>
+to CVS with the appropriate branch tag.
+
 <h2>OLI Source structure</h2>
 The OLI source for the course has two main subdirectories:<br>
 &nbsp;&nbsp;&nbsp; content - holds the course content<br>
@@ -154,28 +155,35 @@ The OLI source for the course has two main subdirectories:<br>
 specifying possible organizations of the course<br>
 <br>
 It also contains a "tools" directory&nbsp; which&nbsp; we do&nbsp; not
-modify.<br>
+modify.
+
 <h4>The content tree</h4>
 <h5>package.xml</h5>
-The root of the content tree contains the file package.xml which
-describes the content package. The most important thing in this is the
-version identifier, which is specified as an attribute of the package
-element as follows:<br>
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;package id="intro_physics"
-version="1.8"&gt;<br>
+The root of the content tree contains the file <code>package.xml</code> 
+which describes the content package. This file specifies the 
+version attribute of the package element:
+<blockquote>
+<code> &lt;package id="intro_physics" version="1.8"&gt;</code>
+</blockquote>
 To create a new version of the content package, this version number
-must be changed. This is usually done once for each semester containing
+must be changed.&nbsp;  This is usually done once for each semester containing
 a significant new version, since this generally involves a new Andes
-version with potentially new problem files. <br>
-<br>
-If Andes has not changed much but for a few bug fixes, it is not
+version with potentially new problem files.&nbsp;  In addition, a 
+matching change must be made to  to the id attibute of the organization 
+element in each <code>organizations/*/organization.xml</code> file:
+<blockquote>
+<code> &lt;organization id="intro_physics-2.0_em" version="1.0"&gt;</code>
+</blockquote>
+Note the version field is not modified.
+
+<p>If Andes has not changed much but for a few bug fixes, it is not
 necessary to increment the content package version number for a new
 semester. However, then any changes or updates that are made to the
 content will be applied to old courses without any special notice. This
 is fine to fix bugs that don't require a new Andes client installation,
-but problematic if the changes require a new client installation.<br>
-<br>
-In the past, the OLI maintainers have normally incremented the version
+but problematic if the changes require a new client installation.
+
+<p>In the past, the OLI maintainers have normally incremented the version
 number
 for us before the start of a new semester. So you should check this has
 not already been done before
@@ -208,19 +216,19 @@ The x-pitt-lrdc-andes1-assignement files are small problem descriptor
 files in an OLI-defined xml format. These are used by the OLI
 andes-specific server side code to find the little bit of information
 it needs about Andes problems. There must be one such file per problem.
-An example of the contents is as follows:<br>
-<br>
-&lt;?xml version='1.0' encoding='UTF-8'?&gt;<br>
+An example of the contents is as follows:
+<pre>
+&lt;?xml version='1.0' encoding='UTF-8'?&gt;
 &lt;!DOCTYPE andes_assignment PUBLIC '-//Carnegie Mellon
 University//DTD Andes Assignment 1.0b1//EN'
-'http://oli.web.cmu.edu/dtd/pitt_lrdc_andes1_assignment_1_0b1.dtd'&gt;<br>
-<br>
-&lt;andes_assignment id="CM1"&gt;<br>
-&nbsp;&nbsp;&nbsp; &lt;title&gt;Linear Momentum - CM1&lt;/title&gt;<br>
-&nbsp;&nbsp;&nbsp;
-&lt;path&gt;_u1_intro_physics/_m01_mechanics/webcontent/andes/&lt;/path&gt;<br>
-&lt;/andes_assignment&gt;<br>
-<br>
+'http://oli.web.cmu.edu/dtd/pitt_lrdc_andes1_assignment_1_0b1.dtd'&gt;
+
+&lt;andes_assignment id="CM1"&gt;
+    &lt;title&gt;Linear Momentum - CM1&lt;/title&gt;
+
+&lt;path&gt;_u1_intro_physics/_m01_mechanics/webcontent/andes/&lt;/path&gt;
+&lt;/andes_assignment&gt;
+</pre>
 These are normally generated automatically.<br>
 <h5>Unit and module structure</h5>
 The content directory is structured into a subdirectory for one unit
@@ -279,21 +287,8 @@ each individual problem).&nbsp; The simple organization files change
 very rarely so are not automatically generated. The only change that
 could be necessary would be to add a new problem set, in which case the
 necessary changes should be obvious using the existing <br>
-<br>
-Organization files do also contain a reference to the version of the
-content package they are associated with. This reference occurs in the
-organization id wich is an attribute on the organization element:<br>
-&lt;organization id="intro_physics-1.8_default" version="1.0"&gt;<br>
-<br>
-Notice this content id includes a version number within it. This part
-of the id must match the version number in the content package. So, <span
- style="font-weight: bold;">any change to the content package version
-number must also be applied to each organization.xml file </span>by
-changing the version number within this id. For example, the
-organization id may have to change from "intro_physics-1.8_default" to
-"intro_physics-1.9_default". <br>
-<br>
-Defining the gating requirements defined for Sandy Katz's experiment
+
+<p>Defining the gating requirements defined for Sandy Katz's experiment
 involved adding new custom organizations for each experimental
 condition. These organizations required using the <span
  style="font-style: italic;">full</span> format organization files,
