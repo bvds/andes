@@ -47,13 +47,14 @@ tools/MakeDist.sh -oli
 # web-iso account on both Odin and QA.
 #
 # So on qa, https://oli-qa.andrew.cmu.edu create an account using the 
-#"Carnegie Mellon Users Log-in Here" link and your andrew id.
+# "Carnegie Mellon Users Log-in Here" link and your andrew id.
 #
-#On Odin, http://odin.web.cmu.edu create two accounts. One account using 
-#the "Carnegie Mellon Users Log-in Here" link and your andrew id. The 
-#second account using the main "Need an account?" link.
+# On Odin, http://odin.web.cmu.edu create two accounts. One account using 
+# the "Carnegie Mellon Users Log-in Here" link and your andrew id. The 
+# second account using the main "Need an account?" link.  (To login,
+# use "Non-Carnegie Mellon users".)
 #
-#Your account names can be the same on each server.
+# Your account names can be the same on each server.
 #
 #  --------------------------------------------------------------
 #
@@ -115,16 +116,18 @@ exit
 #
 #              test course using web browser
 #
-odin.web.cmu.edu
-login twice
-"Create a new course"  this is what an instructor will do.
-Create a new course
-simple mode:  choose course
-  (in principle, should make 3 different courses and test all combinations)
-  choose Full course
-"12345" is admit code (no password)
-test course as student:  need to use internet explorer to instll certificate for the QA server.
-  in IE, go to https://www.cmu.edu/computing/software/all/certs/download.html
-  Can otherwise use firefox.   This is not an issue on the production server.
-
-Need to update video instructions for firefox.
+# Browser odin.web.cmu.edu
+# Login via Andrew, then login using "Non-Carnegie Mellon users"
+# "Create a new course"  this is what an instructor will do.
+# Create a new course
+# simple mode:  choose course
+# (in principle, should make 3 different courses and test all combinations)
+#  choose Full course
+# "andes-20" is admit code (no password)
+# test course as student (bvds-test)
+#
+# need to use internet explorer to install certificate for the QA server.
+# in IE, go to https://www.cmu.edu/computing/software/all/certs/download.html
+#  Can otherwise use firefox.   This is not an issue on the production server.
+#
+# See bug #1487.
