@@ -6,11 +6,11 @@ dojo.require("draw.UndoStack");
 
 (function(){
 	var ta=draw;
+        var annCounter;
 	ta.tools={};
 	ta.registerTool=function(type, fn){ ta.tools[type]=fn; };
 	ta.Figure = function(mixin){
 		var self=this;
-		var annCounter=1;
 
 		this.shapes=[];
 		this.image=null;
@@ -21,7 +21,7 @@ dojo.require("draw.UndoStack");
 		this.node=null;
 
 		this.zoomFactor=1;	//	multiplier for zooming.
-		
+	  annCounter=1;
 		this.tools=null;	//	toolbar reference.
 
 		this.obj={};		//	lookup table for shapes.  Not keen on this solution.

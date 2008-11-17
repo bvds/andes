@@ -38,12 +38,13 @@ dojo.declare("draw.Toolbar", dijit.Toolbar, {
 
 		this.connect(this.figure,'onLoad','reset');
 		if(!this.plugins){
-			this.plugins=['Slider','Lead','SingleArrow','DoubleArrow','Underline','Preexisting'];
+			this.plugins=['Slider','Lead','SingleArrow','DoubleArrow','Preexisting'];
 		}
 		this._plugins=[];
 
 		dojo.forEach(this.plugins,function(obj){
 			var name=dojo.isString(obj)?obj:obj.name;
+			console.log("add toolbar element",name);
 			var p=new draw.tools[name](obj.args||{});
 			this._plugins.push(p);
 			p.setFigure(this.figure);
