@@ -1,11 +1,11 @@
-dojo.provide("dojox.sketch.Figure");
-dojo.experimental("dojox.sketch");
+dojo.provide("draw.Figure");
+dojo.experimental("draw");
 
 dojo.require("dojox.gfx");
-dojo.require("dojox.sketch.UndoStack");
+dojo.require("draw.UndoStack");
 
 (function(){
-	var ta=dojox.sketch;
+	var ta=draw;
 	ta.tools={};
 	ta.registerTool=function(type, fn){ ta.tools[type]=fn; };
 	ta.Figure = function(mixin){
@@ -219,7 +219,7 @@ dojo.require("dojox.sketch.UndoStack");
 	p.initUndoStack=function(){
 		this.history=new ta.UndoStack(this);
 	};
-	p.setTool=function(/*dojox.sketch._Plugin*/t){
+	p.setTool=function(/*draw._Plugin*/t){
 		this._ctool=t;
 	};
 	p.onDblClickShape=function(shape,e){
@@ -462,7 +462,7 @@ dojo.require("dojox.sketch.UndoStack");
 	p.onLoad=function(){};
 	p.onClick=function(){};
 	p._loadAnnotation=function(obj){
-		var ctor=obj.getAttribute('dojoxsketch:type')+"Annotation";
+		var ctor=obj.getAttribute('draw:type')+"Annotation";
 		if(ta[ctor]){
 			var a=new ta[ctor](this, obj.id);
 			a.initialize(obj);
@@ -495,7 +495,7 @@ dojo.require("dojox.sketch.UndoStack");
 	p.serialize=function(){
 		var s='<svg xmlns="http://www.w3.org/2000/svg" '
 			+ 'xmlns:xlink="http://www.w3.org/1999/xlink" '
-			+ 'xmlns:dojoxsketch="http://dojotoolkit.org/dojox/sketch" '
+			+ 'xmlns:draw="http://gideon.eas.asu.edu/web-UI/draw" '
 			+ 'width="' + this.size.w + '" height="' + this.size.h + '">'
 			+ '<g>'
 			+ '<image xlink:href="' + this.imageSrc + '" x="0" y="0" width="' 

@@ -1,11 +1,11 @@
-dojo.provide("dojox.sketch.UndoStack");
+dojo.provide("draw.UndoStack");
 dojo.require("dojox.xml.DomParser");
 
 (function(){
-	var ta=dojox.sketch;
+	var ta=draw;
 	ta.CommandTypes={ Create:"Create", Move:"Move", Modify:"Modify", Delete:"Delete", Convert:"Convert"};
 
-	dojo.declare("dojox.sketch.UndoStack",null,{
+	dojo.declare("draw.UndoStack",null,{
 		constructor: function(figure){
 			this.figure=figure;
 			this._steps=[];
@@ -77,7 +77,7 @@ dojo.require("dojox.xml.DomParser");
 					shapeText:after
 				}
 			};
-			//console.log('dojox.sketch history add',state);
+			//console.log('draw history add',state);
 			this._steps.push(state);
 			this._undoedSteps = [];
 		},

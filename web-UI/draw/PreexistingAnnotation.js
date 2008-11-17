@@ -1,10 +1,10 @@
-dojo.provide("dojox.sketch.PreexistingAnnotation");
+dojo.provide("draw.PreexistingAnnotation");
 
-dojo.require("dojox.sketch.Annotation");
-dojo.require("dojox.sketch.Anchor");
+dojo.require("draw.Annotation");
+dojo.require("draw.Anchor");
 
 (function(){
-	var ta=dojox.sketch;
+	var ta=draw;
 	ta.PreexistingAnnotation=function(figure, id){
 		ta.Annotation.call(this, figure, id);
 		this.transform={dx:0, dy:0};

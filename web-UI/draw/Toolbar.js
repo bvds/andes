@@ -1,11 +1,11 @@
-dojo.provide("dojox.sketch.Toolbar");
+dojo.provide("draw.Toolbar");
 
-dojo.require("dojox.sketch.Annotation");
+dojo.require("draw.Annotation");
 dojo.require("dijit.Toolbar");
 dojo.require("dijit.form.Button");
 dojo.require("dijit.form.Slider");
 
-dojo.declare("dojox.sketch.ButtonGroup", null, {
+dojo.declare("draw.ButtonGroup", null, {
 	constructor: function(){
 		this._childMaps={};
 		this._children=[];
@@ -29,12 +29,12 @@ dojo.declare("dojox.sketch.ButtonGroup", null, {
 	}
 });
 
-dojo.declare("dojox.sketch.Toolbar", dijit.Toolbar, {
+dojo.declare("draw.Toolbar", dijit.Toolbar, {
 	figure: null,
 	plugins: null,
 	postCreate: function(){
 		this.inherited(arguments);
-		this.shapeGroup=new dojox.sketch.ButtonGroup;
+		this.shapeGroup=new draw.ButtonGroup;
 
 		this.connect(this.figure,'onLoad','reset');
 		if(!this.plugins){
@@ -44,7 +44,7 @@ dojo.declare("dojox.sketch.Toolbar", dijit.Toolbar, {
 
 		dojo.forEach(this.plugins,function(obj){
 			var name=dojo.isString(obj)?obj:obj.name;
-			var p=new dojox.sketch.tools[name](obj.args||{});
+			var p=new draw.tools[name](obj.args||{});
 			this._plugins.push(p);
 			p.setFigure(this.figure);
 			p.setToolbar(this);
@@ -79,14 +79,14 @@ dojo.declare("dojox.sketch.Toolbar", dijit.Toolbar, {
 			for(var i=0; i<this.figure.selected.length; i++){
 				var before=this.figure.selected[i].serialize();
 				this.figure.convert(this.figure.selected[i], s);
-				this.figure.history.add(dojox.sketch.CommandTypes.Convert, this.figure.selected[i], before);
+				this.figure.history.add(draw.CommandTypes.Convert, this.figure.selected[i], before);
 			}
 		}
 	}
 });
 
-dojox.sketch.makeToolbar=function(node,figure){
-	var toolbar=new dojox.sketch.Toolbar({"figure":figure});
+draw.makeToolbar=function(node,figure){
+	var toolbar=new draw.Toolbar({"figure":figure});
 	node.appendChild(toolbar.domNode);
 	return toolbar;
 };

@@ -1,10 +1,10 @@
-dojo.provide("dojox.sketch.DoubleArrowAnnotation");
+dojo.provide("draw.DoubleArrowAnnotation");
 
-dojo.require("dojox.sketch.Annotation");
-dojo.require("dojox.sketch.Anchor");
+dojo.require("draw.Annotation");
+dojo.require("draw.Anchor");
 
 (function(){
-	var ta=dojox.sketch;
+	var ta=draw;
 	ta.DoubleArrowAnnotation=function(figure, id){
 		ta.Annotation.call(this, figure, id);
 		this.transform={ dx:0, dy:0 };

@@ -1,9 +1,9 @@
-dojo.provide("dojox.sketch.SingleArrowAnnotation");
-dojo.require("dojox.sketch.Annotation");
-dojo.require("dojox.sketch.Anchor");
+dojo.provide("draw.SingleArrowAnnotation");
+dojo.require("draw.Annotation");
+dojo.require("draw.Anchor");
 
 (function(){
-	var ta=dojox.sketch;
+	var ta=draw;
 	ta.SingleArrowAnnotation=function(figure, id){
 		ta.Annotation.call(this, figure, id);
 		this.transform={ dx:0, dy:0 };

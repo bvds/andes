@@ -1,10 +1,10 @@
-dojo.provide("dojox.sketch.Annotation");
-dojo.require("dojox.sketch.Anchor");
-dojo.require("dojox.sketch._Plugin");
+dojo.provide("draw.Annotation");
+dojo.require("draw.Anchor");
+dojo.require("draw._Plugin");
 
 (function(){
-	var ta=dojox.sketch;
-	dojo.declare("dojox.sketch.AnnotationTool", ta._Plugin, {
+	var ta=draw;
+	dojo.declare("draw.AnnotationTool", ta._Plugin, {
 		onMouseDown: function(e){
 			this._omd=true;
 		},
@@ -223,7 +223,7 @@ dojo.require("dojox.sketch._Plugin");
 		}
 	};
 	p.writeCommonAttrs=function(){
-		return 'id="' + this.id + '" dojoxsketch:type="' + this.type() + '"'
+		return 'id="' + this.id + '" draw:type="' + this.type() + '"'
 			+ ' transform="translate('+ this.transform.dx + "," + this.transform.dy + ')"'
 			+ (this.data?(' ><![CDATA[data:'+dojo.toJson(this.data)+']]'):'');
 	};

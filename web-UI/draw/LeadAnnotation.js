@@ -1,9 +1,9 @@
-dojo.provide("dojox.sketch.LeadAnnotation");
-dojo.require("dojox.sketch.Annotation");
-dojo.require("dojox.sketch.Anchor");
+dojo.provide("draw.LeadAnnotation");
+dojo.require("draw.Annotation");
+dojo.require("draw.Anchor");
 
 (function(){
-	var ta=dojox.sketch;
+	var ta=draw;
 	ta.LeadAnnotation=function(figure, id){
 		ta.Annotation.call(this, figure, id);
 		this.transform={dx:0, dy:0 };
