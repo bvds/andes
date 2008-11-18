@@ -35,6 +35,8 @@
 				dojo.connect(f, "_mu", function(){ dojo.byId("output").value=f.serialize(); });
 
 				t=ta.makeToolbar(dojo.byId("toolbar"), f);
+				console.log("toolbar plugins",t.plugins);
+				t.plugins=['Slider'];	
 				//	test loading from an SVG file
 				dojo.xhrGet({
 					url:"annotation.svg",
