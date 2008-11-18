@@ -7,7 +7,7 @@
 @import "dojotoolkit/dojo/resources/dojo.css";
 @Import "dojotoolkit/dijit/themes/tundra/tundra.css";
 </style>
-		<link href="draw.css" type="text/css" rel="stylesheet">
+		<link href="dojotoolkit/dojox/sketch/resources/sketch.css" type="text/css" rel="stylesheet">
 		<style type="text/css">
 			table { margin:0; width:100%;}
 			table tr td { padding:0; }
@@ -18,27 +18,23 @@
 			#canvas{ width:600px; height:600px; background-color:#fff;border:1px solid #ccc; overflow:auto;position:relative;}
 		</style>
 		<script>var djConfig={ isDebug: false };</script>
-		<script type="text/javascript"
-		        src="dojotoolkit/dojo/dojo.js"></script>
-		<script type="text/javascript">
-		        dojo.registerModulePath("draw", "../../draw");
-                </script>
-		<script src="draw/Toolbar.js"></script>
+		<script src="dojotoolkit/dojo/dojo.js"></script>
+		<script src="dojotoolkit/dojox/sketch/Toolbar.js"></script>
 		<script>
-			dojo.require("draw");
-			dojo.require("draw.Slider");
-			dojo.require("draw.LeadAnnotation");
-			dojo.require("draw.SingleArrowAnnotation");
-			dojo.require("draw.DoubleArrowAnnotation");
-			dojo.require("draw.PreexistingAnnotation");
+			dojo.require("dojox.sketch");
+			dojo.require("dojox.sketch.Slider");
+			dojo.require("dojox.sketch.LeadAnnotation");
+			dojo.require("dojox.sketch.UnderlineAnnotation");
+			dojo.require("dojox.sketch.SingleArrowAnnotation");
+			dojo.require("dojox.sketch.DoubleArrowAnnotation");
+			dojo.require("dojox.sketch.PreexistingAnnotation");
 			var f, a, t;
 			function init(){
-				var ta=draw;
+				var ta=dojox.sketch;
 				f=new ta.Figure();
 				dojo.connect(f, "_mu", function(){ dojo.byId("output").value=f.serialize(); });
 
 				t=ta.makeToolbar(dojo.byId("toolbar"), f);
-
 				//	test loading from an SVG file
 				dojo.xhrGet({
 					url:"annotation.svg",
