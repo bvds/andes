@@ -8,7 +8,6 @@ dojo.require("dojox.sketch.Anchor");
 		ta.Annotation.call(this, figure, id);
 		this.transform={ dx:0, dy:0 };
 		this.start={x:0, y:0};
-		this.control={x:100, y:-50};
 		this.end={x:200, y:0};
 		this.textPosition={ x:0, y:0 };
 		this.textOffset=4;
@@ -24,7 +23,6 @@ dojo.require("dojox.sketch.Anchor");
 		this.labelShape=null;
 
 		this.anchors.start=new ta.Anchor(this, "start");
-		this.anchors.control=new ta.Anchor(this, "control");
 		this.anchors.end=new ta.Anchor(this, "end");
 	};
 	ta.VectorAnnotation.prototype=new ta.Annotation;
@@ -37,18 +35,18 @@ dojo.require("dojox.sketch.Anchor");
 	//	helper functions
 	p._rot=function(){
 		//	arrowhead rotation
-		var opp=this.start.y-this.control.y;
-		var adj=this.start.x-this.control.x;
+		var opp=this.start.y-this.end.y;
+		var adj=this.start.x-this.end.x;
 		if(!adj){ adj=1; }
 		this.rotation=Math.atan(opp/adj);
 	};
 	p._pos=function(){
 		//	text position
 		var offset=this.textOffset, x=0, y=0;
-		var slope=this.calculate.slope(this.control, this.end);
+		var slope=this.calculate.slope(this.start, this.end);
 		if(Math.abs(slope)>=1){
-			x=this.end.x+this.calculate.dx(this.control, this.end, offset);
-			if(this.control.y>this.end.y){ y=this.end.y-offset; }
+			x=this.end.x+this.calculate.dx(this.start, this.end, offset);
+			if(this.start.y>this.end.y){ y=this.end.y-offset; }
 			else{ y=this.end.y+offset+this.textYOffset; }
 		} else if(slope==0){
 			x=this.end.x+offset;
@@ -62,9 +60,9 @@ dojo.require("dojox.sketch.Anchor");
 				this.textAlign="start";
 			}
 			if(this.start.y<this.end.y){
-				y=this.end.y+this.calculate.dy(this.control, this.end, offset)+this.textYOffset;
+				y=this.end.y+this.calculate.dy(this.start, this.end, offset)+this.textYOffset;
 			} else { 
-				y=this.end.y+this.calculate.dy(this.control, this.end, -offset);
+				y=this.end.y+this.calculate.dy(this.start, this.end, -offset);
 			}
 		}
 		this.textPosition={ x:x, y:y };
@@ -87,9 +85,6 @@ dojo.require("dojox.sketch.Anchor");
 				this.start.x=parseFloat(s[0].substr(1),10);
 				this.start.y=parseFloat(s[1],10);
 				s=d[1].split(",");
-				this.control.x=parseFloat(s[0].substr(1),10);
-				this.control.y=parseFloat(s[1],10);
-				s=d[2].split(",");
 				this.end.x=parseFloat(s[0],10);
 				this.end.y=parseFloat(s[1],10);
 				var stroke=this.property('stroke');
@@ -118,7 +113,7 @@ dojo.require("dojox.sketch.Anchor");
 
 		//	rotation matrix
 		var rot=this.rotation;
-		if(this.control.x>=this.end.x&&this.control.x<this.start.x){ rot+=Math.PI; }
+		if(this.start.x>=this.end.x&&this.end.x<this.start.x){ rot+=Math.PI; }
 		var tRot=dojox.gfx.matrix.rotate(rot);
 
 		//	draw the shapes
@@ -126,7 +121,7 @@ dojo.require("dojox.sketch.Anchor");
 		this.shape.getEventSource().setAttribute("id", this.id);
 		//if(this.transform.dx||this.transform.dy){ this.shape.setTransform(this.transform); }
 
-		this.pathShape=this.shape.createPath("M"+this.start.x+","+this.start.y+" Q"+this.control.x+","+this.control.y+" "+this.end.x+","+this.end.y+" l0,0")
+		this.pathShape=this.shape.createPath("M"+this.start.x+","+this.start.y+" L"+this.end.x+","+this.end.y)
 			//.setStroke(this.property('stroke'));
 
 		this.arrowheadGroup=this.shape.createGroup();//.setTransform({ dx:this.start.x, dy:this.start.y }).applyTransform(tRot);
@@ -161,11 +156,11 @@ dojo.require("dojox.sketch.Anchor");
 
 		//	rotation matrix
 		var rot=this.rotation;
-		if(this.control.x<this.start.x){ rot+=Math.PI; }
+		if(this.end.x<this.start.x){ rot+=Math.PI; }
 		var tRot=dojox.gfx.matrix.rotate(rot);
 
 		this.shape.setTransform(this.transform);
-		this.pathShape.setShape("M"+this.start.x+","+this.start.y+" Q"+this.control.x+","+this.control.y+" "+this.end.x+","+this.end.y+" l0,0")
+	  this.pathShape.setShape("M"+this.start.x+","+this.start.y+" L"+this.end.x+","+this.end.y);
 			//.setStroke(this.property('stroke'));
 
 		this.arrowheadGroup.setTransform({dx:this.start.x,dy:this.start.y}).applyTransform(tRot);
@@ -194,10 +189,10 @@ dojo.require("dojox.sketch.Anchor");
 	};
 
 	p.getBBox=function(){
-		var x=Math.min(this.start.x, this.control.x, this.end.x);
-		var y=Math.min(this.start.y, this.control.y, this.end.y);
-		var w=Math.max(this.start.x, this.control.x, this.end.x)-x;
-		var h=Math.max(this.start.y, this.control.y, this.end.y)-y;
+		var x=Math.min(this.start.x, this.end.x);
+		var y=Math.min(this.start.y, this.end.y);
+		var w=Math.max(this.start.x, this.end.x)-x;
+		var h=Math.max(this.start.y, this.end.y)-y;
 		return { x:x, y:y, width:w, height:h };
 	};
 
@@ -209,8 +204,7 @@ dojo.require("dojox.sketch.Anchor");
 		return '<g '+this.writeCommonAttrs()+'>'
 			+ '<path style="stroke:'+s.color+';stroke-width:'+s.width+';fill:none;" d="'
 			+ "M"+this.start.x+","+this.start.y+" "
-			+ "Q"+this.control.x+","+this.control.y+" "
-			+ this.end.x+","+this.end.y
+			+ "L"+ this.end.x+","+this.end.y
 			+ '" />'
 			+ '<g transform="translate(' + this.start.x + "," + this.start.y + ") "
 			+ 'rotate(' + r + ')">'
