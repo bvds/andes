@@ -1,11 +1,11 @@
-dojo.provide("draw.Toolbar");
+dojo.provide("dojox.sketch.Toolbar");
 
-dojo.require("draw.Annotation");
+dojo.require("dojox.sketch.Annotation");
 dojo.require("dijit.Toolbar");
 dojo.require("dijit.form.Button");
 dojo.require("dijit.form.Slider");
 
-dojo.declare("draw.ButtonGroup", null, {
+dojo.declare("dojox.sketch.ButtonGroup", null, {
 	constructor: function(){
 		this._childMaps={};
 		this._children=[];
@@ -29,23 +29,22 @@ dojo.declare("draw.ButtonGroup", null, {
 	}
 });
 
-dojo.declare("draw.Toolbar", dijit.Toolbar, {
+dojo.declare("dojox.sketch.Toolbar", dijit.Toolbar, {
 	figure: null,
 	plugins: null,
 	postCreate: function(){
 		this.inherited(arguments);
-		this.shapeGroup=new draw.ButtonGroup;
+		this.shapeGroup=new dojox.sketch.ButtonGroup;
 
 		this.connect(this.figure,'onLoad','reset');
 		if(!this.plugins){
-			this.plugins=['Slider','Lead','SingleArrow','DoubleArrow','Preexisting'];
+			this.plugins=['Slider','Lead','SingleArrow','DoubleArrow','Underline','Preexisting'];
 		}
 		this._plugins=[];
 
 		dojo.forEach(this.plugins,function(obj){
 			var name=dojo.isString(obj)?obj:obj.name;
-			console.log("add toolbar element",name);
-			var p=new draw.tools[name](obj.args||{});
+			var p=new dojox.sketch.tools[name](obj.args||{});
 			this._plugins.push(p);
 			p.setFigure(this.figure);
 			p.setToolbar(this);
@@ -80,14 +79,14 @@ dojo.declare("draw.Toolbar", dijit.Toolbar, {
 			for(var i=0; i<this.figure.selected.length; i++){
 				var before=this.figure.selected[i].serialize();
 				this.figure.convert(this.figure.selected[i], s);
-				this.figure.history.add(draw.CommandTypes.Convert, this.figure.selected[i], before);
+				this.figure.history.add(dojox.sketch.CommandTypes.Convert, this.figure.selected[i], before);
 			}
 		}
 	}
 });
 
-draw.makeToolbar=function(node,figure){
-	var toolbar=new draw.Toolbar({"figure":figure});
+dojox.sketch.makeToolbar=function(node,figure){
+	var toolbar=new dojox.sketch.Toolbar({"figure":figure});
 	node.appendChild(toolbar.domNode);
 	return toolbar;
 };

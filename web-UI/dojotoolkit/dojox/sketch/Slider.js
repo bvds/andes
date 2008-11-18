@@ -1,7 +1,7 @@
-dojo.provide("draw.Slider");
+dojo.provide("dojox.sketch.Slider");
 
 dojo.require("dijit.form.Slider");
-dojo.declare("draw.Slider",draw._Plugin,{
+dojo.declare("dojox.sketch.Slider",dojox.sketch._Plugin,{
 	_initButton: function(){
 		this.slider=new dijit.form.HorizontalSlider({minimum:20,maximum:200,value:20,style:"width:200px;float:right"});
 		this.connect(this.slider,'onChange','_setZoom');
@@ -25,4 +25,4 @@ dojo.declare("draw.Slider",draw._Plugin,{
 	}
 });
 
-draw.registerTool("Slider", draw.Slider);
+dojox.sketch.registerTool("Slider", dojox.sketch.Slider);

@@ -1,10 +1,10 @@
-dojo.provide("draw._Plugin");
-//dojo.require("draw");
+dojo.provide("dojox.sketch._Plugin");
+//dojo.require("dojox.sketch");
 dojo.require("dijit.form.Button");
 
-dojo.declare("draw._Plugin", null, {
+dojo.declare("dojox.sketch._Plugin", null, {
 	// summary
-	//		This represents a "plugin" to the draw.Figure, which is basically
+	//		This represents a "plugin" to the dojox.sketch.Figure, which is basically
 	//		a single button on the Toolbar and some associated code
 	constructor: function(/*Object?*/args){
 		if(args){
@@ -14,7 +14,7 @@ dojo.declare("draw._Plugin", null, {
 	},
 
 	figure: null,
-	iconClassPrefix: "DrawIcon",
+	iconClassPrefix: "dojoxSketchIcon",
 	itemGroup: 'toolsGroup',
 	button: null,
 	queryCommand: null,
@@ -24,7 +24,7 @@ dojo.declare("draw._Plugin", null, {
 	_initButton: function(){
 		if(this.shape.length){
 			//TODO: i18n
-//			var label = draw.shapes[this.shape];
+//			var label = dojox.sketch.shapes[this.shape];
 			var className = this.iconClassPrefix+" "+this.iconClassPrefix + this.shape.charAt(0).toUpperCase() + this.shape.substr(1);
 			if(!this.button){
 				var props = {

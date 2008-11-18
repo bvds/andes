@@ -1,16 +1,16 @@
-dojo.provide("draw.Figure");
-dojo.experimental("draw");
+dojo.provide("dojox.sketch.Figure");
+dojo.experimental("dojox.sketch");
 
 dojo.require("dojox.gfx");
-dojo.require("draw.UndoStack");
+dojo.require("dojox.sketch.UndoStack");
 
 (function(){
-	var ta=draw;
-        var annCounter; // wrong in dojo svn, moved here
+	var ta=dojox.sketch;
 	ta.tools={};
 	ta.registerTool=function(type, fn){ ta.tools[type]=fn; };
 	ta.Figure = function(mixin){
 		var self=this;
+		this.annCounter=1;
 
 		this.shapes=[];
 		this.image=null;
@@ -21,7 +21,7 @@ dojo.require("draw.UndoStack");
 		this.node=null;
 
 		this.zoomFactor=1;	//	multiplier for zooming.
-	  annCounter=1;    // wrong in dojo svn, moved here
+		
 		this.tools=null;	//	toolbar reference.
 
 		this.obj={};		//	lookup table for shapes.  Not keen on this solution.
@@ -219,7 +219,7 @@ dojo.require("draw.UndoStack");
 	p.initUndoStack=function(){
 		this.history=new ta.UndoStack(this);
 	};
-	p.setTool=function(/*draw._Plugin*/t){
+	p.setTool=function(/*dojox.sketch._Plugin*/t){
 		this._ctool=t;
 	};
 	p.onDblClickShape=function(shape,e){
@@ -281,7 +281,7 @@ dojo.require("draw.UndoStack");
 		this.obj={};
 		this.shapes=[];
 	};
-	p.nextKey=function(){ return "annotation-"+annCounter++; };
+	p.nextKey=function(){ return "annotation-"+this.annCounter++; };
 	p.draw=function(){ };
 	p.zoom=function(pct){
 		//	first get the new dimensions
@@ -462,7 +462,7 @@ dojo.require("draw.UndoStack");
 	p.onLoad=function(){};
 	p.onClick=function(){};
 	p._loadAnnotation=function(obj){
-		var ctor=obj.getAttribute('draw:type')+"Annotation";
+		var ctor=obj.getAttribute('dojoxsketch:type')+"Annotation";
 		if(ta[ctor]){
 			var a=new ta[ctor](this, obj.id);
 			a.initialize(obj);
@@ -495,7 +495,7 @@ dojo.require("draw.UndoStack");
 	p.serialize=function(){
 		var s='<svg xmlns="http://www.w3.org/2000/svg" '
 			+ 'xmlns:xlink="http://www.w3.org/1999/xlink" '
-			+ 'xmlns:draw="http://gideon.eas.asu.edu/web-UI/draw" '
+			+ 'xmlns:dojoxsketch="http://dojotoolkit.org/dojox/sketch" '
 			+ 'width="' + this.size.w + '" height="' + this.size.h + '">'
 			+ '<g>'
 			+ '<image xlink:href="' + this.imageSrc + '" x="0" y="0" width="' 

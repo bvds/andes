@@ -1,8 +1,8 @@
-dojo.provide("draw.Anchor");
+dojo.provide("dojox.sketch.Anchor");
 dojo.require("dojox.gfx");
 
 (function(){
-	var ta=draw;
+	var ta=dojox.sketch;
 	ta.Anchor=function(an, id, isControl){
 		var self=this;
 		var size=4;	//	.5 * size of anchor.
