@@ -38,7 +38,9 @@ dojo.declare("dojox.sketch.Toolbar", dijit.Toolbar, {
 
 		this.connect(this.figure,'onLoad','reset');
 		if(!this.plugins){
-			this.plugins=['Slider','Lead','SingleArrow','DoubleArrow','Underline','Preexisting'];
+		       // customization should not be done here, but ...
+		  this.plugins=['Text','Vector','Line','Rectangle','Preexisting','Slider'];
+			// this.plugins=['Slider','Lead','SingleArrow','DoubleArrow','Underline','Preexisting'];
 		}
 		this._plugins=[];
 
