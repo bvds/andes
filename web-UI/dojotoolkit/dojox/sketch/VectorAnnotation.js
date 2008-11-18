@@ -1,10 +1,10 @@
-dojo.provide("dojox.sketch.Vector");
+dojo.provide("dojox.sketch.VectorAnnotation");
 dojo.require("dojox.sketch.Annotation");
 dojo.require("dojox.sketch.Anchor");
 
 (function(){
 	var ta=dojox.sketch;
-	ta.Vector=function(figure, id){
+	ta.VectorAnnotation=function(figure, id){
 		ta.Annotation.call(this, figure, id);
 		this.transform={ dx:0, dy:0 };
 		this.start={x:0, y:0};
@@ -27,12 +27,12 @@ dojo.require("dojox.sketch.Anchor");
 		this.anchors.control=new ta.Anchor(this, "control");
 		this.anchors.end=new ta.Anchor(this, "end");
 	};
-	ta.Vector.prototype=new ta.Annotation;
-	var p=ta.Vector.prototype;
-	p.constructor=ta.Vector;
+	ta.VectorAnnotation.prototype=new ta.Annotation;
+	var p=ta.VectorAnnotation.prototype;
+	p.constructor=ta.VectorAnnotation;
 
 	p.type=function(){ return 'Vector'; };
-	p.getType=function(){ return ta.Vector; };
+	p.getType=function(){ return ta.VectorAnnotation; };
 
 	//	helper functions
 	p._rot=function(){

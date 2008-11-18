@@ -26,6 +26,7 @@
 			dojo.require("dojox.sketch.LeadAnnotation");
 			dojo.require("dojox.sketch.UnderlineAnnotation");
 			dojo.require("dojox.sketch.SingleArrowAnnotation");
+			dojo.require("dojox.sketch.VectorAnnotation");
 			dojo.require("dojox.sketch.DoubleArrowAnnotation");
 			dojo.require("dojox.sketch.PreexistingAnnotation");
 			var f, a, t;
@@ -33,10 +34,7 @@
 				var ta=dojox.sketch;
 				f=new ta.Figure();
 				dojo.connect(f, "_mu", function(){ dojo.byId("output").value=f.serialize(); });
-
 				t=ta.makeToolbar(dojo.byId("toolbar"), f);
-				console.log("toolbar plugins",t.plugins);
-				t.plugins=['Slider'];	
 				//	test loading from an SVG file
 				dojo.xhrGet({
 					url:"annotation.svg",
