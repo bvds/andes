@@ -34,7 +34,13 @@
 				var ta=dojox.sketch;
 				f=new ta.Figure();
 				dojo.connect(f, "_mu", function(){ dojo.byId("output").value=f.serialize(); });
-				t=ta.makeToolbar(dojo.byId("toolbar"), f);
+				// t=ta.makeToolbar(dojo.byId("toolbar"), f);
+				// Replace makeToolbar to customize plugins
+				ta=new dojox.sketch.Toolbar({"figure":f,
+				 "plugins":['Vector','SingleArrow',
+				 'Preexisting','Slider']});
+				dojo.byId("toolbar").appendChild(ta.domNode);
+
 				//	test loading from an SVG file
 				dojo.xhrGet({
 					url:"annotation.svg",
