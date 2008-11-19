@@ -10,9 +10,9 @@ dojo.require("dojox.sketch.Anchor");
 		this.start={x:0, y:0};
 		this.end={x:200, y:0};
 		this.textPosition={ x:0, y:0 };
-		this.textOffset=4;
+		this.textOffset=4;  // distance from line to text box
 		this.textAlign="middle";
-		this.textYOffset=10;
+		this.textYOffset=10;  // height of text box
 		this.rotation=0;
 
 //		this.property('label',this.id);
@@ -41,31 +41,28 @@ dojo.require("dojox.sketch.Anchor");
 	};
 	p._pos=function(){
 		//	text position
-		var offset=this.textOffset, x=0, y=0;
-		var slope=this.calculate.slope(this.start, this.end);
-		if(Math.abs(slope)>=1){
-			x=this.end.x+this.calculate.dx(this.start, this.end, offset);
-			if(this.start.y>this.end.y){ y=this.end.y-offset; }
-			else{ y=this.end.y+offset+this.textYOffset; }
-		} else if(slope==0){
-			x=this.end.x+offset;
-			y=this.end.y+this.textYOffset;
-		} else {
-			if(this.start.x>this.end.x){
-				x=this.end.x-offset;
-				this.textAlign="end";
-			} else {
-				x=this.end.x+offset;
-				this.textAlign="start";
-			}
-			if(this.start.y<this.end.y){
-				y=this.end.y+this.calculate.dy(this.start, this.end, offset)+this.textYOffset;
-			} else { 
-				y=this.end.y+this.calculate.dy(this.start, this.end, -offset);
-			}
-		}
-		this.textPosition={ x:x, y:y };
-	};
+	  // label at middle of vetor
+	  var x=0.5*(this.start.x+this.end.x);
+	  var y=0.5*(this.start.y+this.end.y);
+	  // move label a set distance from the line
+	  var slope=this.calculate.slope(this.start, this.end);
+	  var deltay = this.textOffset/Math.sqrt(1.0+slope*slope);
+	  if(this.end.y>this.start.y){deltay = -deltay;}
+	  x += -deltay*slope;
+	  y += deltay;
+	  
+	  // want text to be away from start of vector
+          // This will make force diagrams less crowded
+	  if(this.end.x<this.start.x){
+	    this.textAlign="end";
+	  } else {
+	    this.textAlign="start";
+	  }
+	  if(this.end.y<this.start.y){
+	    y += this.textYOffset;
+	  }
+	  this.textPosition={ x:x, y:y };
+	    };
 	
 	p.apply=function(obj){
 		if(!obj){ return; }
