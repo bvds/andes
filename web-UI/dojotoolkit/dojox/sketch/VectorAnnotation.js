@@ -37,8 +37,7 @@ dojo.require("dojox.sketch.Anchor");
 		//	arrowhead rotation
 		var opp=this.start.y-this.end.y;
 		var adj=this.start.x-this.end.x;
-		if(!adj){ adj=1; }
-		this.rotation=Math.atan(opp/adj);
+        	this.rotation=Math.atan2(opp,adj);
 	};
 	p._pos=function(){
 		//	text position
@@ -113,7 +112,6 @@ dojo.require("dojox.sketch.Anchor");
 
 		//	rotation matrix
 		var rot=this.rotation;
-		if(this.start.x>=this.end.x&&this.end.x<this.start.x){ rot+=Math.PI; }
 		var tRot=dojox.gfx.matrix.rotate(rot);
 
 		//	draw the shapes
@@ -156,14 +154,13 @@ dojo.require("dojox.sketch.Anchor");
 
 		//	rotation matrix
 		var rot=this.rotation;
-		if(this.end.x<this.start.x){ rot+=Math.PI; }
 		var tRot=dojox.gfx.matrix.rotate(rot);
 
 		this.shape.setTransform(this.transform);
 	  this.pathShape.setShape("M"+this.start.x+","+this.start.y+" L"+this.end.x+","+this.end.y);
 			//.setStroke(this.property('stroke'));
 
-		this.arrowheadGroup.setTransform({dx:this.start.x,dy:this.start.y}).applyTransform(tRot);
+		this.arrowheadGroup.setTransform({dx:this.end.x,dy:this.end.y}).applyTransform(tRot);
 		this.arrowhead.setFill(this.property('fill'));
 
 		this.labelShape.setShape({
