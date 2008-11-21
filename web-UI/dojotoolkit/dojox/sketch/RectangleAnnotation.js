@@ -97,6 +97,13 @@ dojo.require("dojox.sketch.Anchor");
 			.setFill(this.property('fill'));
 		this.labelShape.getEventSource().setAttribute('id',this.id+"-labelShape");
 		this.draw();
+	  // pop up dialog box automatically to get initial text
+	  var l=prompt('define rectangle:',this.property('label'));
+	  if(l!=false){
+	    this.property('label',l);
+	    this.draw();	    // redraw with label this time
+	    }
+
 	};
 	p.destroy=function(){
 		if(!this.shape){ return; }

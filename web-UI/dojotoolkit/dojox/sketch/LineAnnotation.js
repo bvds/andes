@@ -115,6 +115,12 @@ dojo.require("dojox.sketch.Anchor");
 			//.setFill(this.property('fill'));
 		this.labelShape.getEventSource().setAttribute('id',this.id+"-labelShape");
 		this.draw();
+	  // pop up dialog box automatically to get initial text
+	  var l=prompt('Define line:',this.property('label'));
+	  if(l!=false){
+	    this.property('label',l);
+	    this.draw();	    // redraw with label this time
+	    }
 	};
 
 	p.destroy=function(){
@@ -147,8 +153,9 @@ dojo.require("dojox.sketch.Anchor");
 			ta.Annotation.prototype.zoom.call(this,pct);
 	};
 
-	  // Canvas doesn't like zero-width boxes.
           // This is a copy of the corresponding line function
+	  // Canvas doesn't like zero-width boxes.
+	  // http://trac.dojotoolkit.org/ticket/5271
         p.getBBox=function(){
 	  var linewidth=this.property('stroke').width;
 	  var x=Math.min(this.start.x, this.end.x)-0.5*linewidth;
