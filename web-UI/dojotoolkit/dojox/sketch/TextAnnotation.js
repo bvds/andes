@@ -8,7 +8,7 @@ dojo.require("dojox.sketch.Anchor");
 		ta.Annotation.call(this, figure, id);
 		this.transform={dx:0, dy:0};
 		this.start={x:0, y:0};
-		this.property('label','#');
+		this.property('label','');
 		this.labelShape=null;
 		this.lineShape=null;
 		//this.anchors.start=new ta.Anchor(this, "start");
@@ -57,13 +57,19 @@ dojo.require("dojox.sketch.Anchor");
 	p.initialize=function(obj){
 		//var font=(ta.Annotation.labelFont)?ta.Annotation.labelFont:{family:"Times", size:"16px"};
 		this.apply(obj);
-
+ 
 		//	create either from scratch or based on the passed node
 		this.shape=this.figure.group.createGroup();
 		this.shape.getEventSource().setAttribute("id", this.id);
 		//if(this.transform.dx || this.transform.dy){ this.shape.setTransform(this.transform); }
 
-		this.labelShape=this.shape.createText({
+
+	  // pop up dialog box automatically to get initial text
+	  var l=prompt('Write text:',this.property('label'));
+	  if(l==false){l='text';}  // put in default if nothing entered
+	  this.property('label',l);
+
+	  this.labelShape=this.shape.createText({
 				x:0, 
 				y:0, 
 				text:this.property('label'), 
@@ -81,7 +87,9 @@ dojo.require("dojox.sketch.Anchor");
 			})
 			//.setStroke({ color:this.property('fill'), width:1 });
 		this.lineShape.getEventSource().setAttribute("shape-rendering","crispEdges");
-		this.draw();
+	  
+	  this.draw();
+	  
 	};
 	p.destroy=function(){
 		if(!this.shape){ return; }
@@ -92,7 +100,6 @@ dojo.require("dojox.sketch.Anchor");
 	};
 	p.getBBox=function(){
 		var b=this.getTextBox();
-//		console.log('getBBox',b,this.getLabel());
 		return { x:0, y:(b.h*-1+4)/this.figure.zoomFactor, width:(b.w+2)/this.figure.zoomFactor, height:b.h/this.figure.zoomFactor };
 	};
 	p.draw=function(obj){
@@ -117,7 +124,7 @@ dojo.require("dojox.sketch.Anchor");
 		var s=this.property('stroke');
 		return '<g '+this.writeCommonAttrs()+'>'
 			//+ '<line x1="1" x2="'+this.labelShape.getTextWidth()+1+'" y1="5" y2="5" style="stroke:'+s.color+';stroke-width:'+s.width+';" />'
-			+ '<text style="fill:'+this.property('fill')+';" font-weight="bold" text-decoration="underline" '
+			+ '<text style="fill:'+this.property('fill')+';" font-weight="medium" '
 			+ 'x="0" y="0">'
 			+ this.property('label')
 			+ '</text>'

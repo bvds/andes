@@ -1,36 +1,55 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
 		"http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<html>  <!-- debug="true" for firebug lite -->
 	<head>
 		<title>Annotator/Figure Testing</title>
 <style type="text/css">
 @import "dojotoolkit/dojo/resources/dojo.css";
 @Import "dojotoolkit/dijit/themes/tundra/tundra.css";
 </style>
-		<link href="dojotoolkit/dojox/sketch/resources/sketch.css" type="text/css" rel="stylesheet">
-		<style type="text/css">
-			table { margin:0; width:100%;}
-			table tr td { padding:0; }
-			table tr td table { border:0; width:auto;}
 
-			#container{ width:600px; }
-			#toolbar{ width:100%; }
-			#canvas{ width:600px; height:600px; background-color:#fff;border:1px solid #ccc; overflow:auto;position:relative;}
-		</style>
+<link href="dojotoolkit/dojox/sketch/resources/sketch.css" type="text/css" rel="stylesheet">
+<style type="text/css">
+    table { margin:0; width:100%;}
+    table tr td { padding:0; }
+    table tr td table { border:0; width:auto;}
+
+    #container{ width:600px; }
+    #toolbar{ width:100%; }
+    #canvas{ width:600px; height:600px; background-color:#fff;border:1px solid #ccc; overflow:auto;position:relative;}
+
+    // button icons are done via css
+    .dojoxSketchIcon{
+	background-repeat:no-repeat;
+	height:20px;
+	min-width:20px;
+	text-align:center;
+	width:20px;
+	}
+	.dojoxSketchIcon { background-image:url(junk_icons.gif); }
+	.dojoxSketchIconText{ background-position:0px 0px; }
+	.dojoxSketchIconVector{ background-position:0px -40px; }
+	.dojoxSketchIconLine{ background-position:0px -60px; }
+	.dojoxSketchIconRectangle{ background-position:0px -80px; }
+
+</style>
+
+
 		<script>var djConfig={ isDebug: false };</script>
 		<script src="dojotoolkit/dojo/dojo.js"></script>
 		<script src="dojotoolkit/dojox/sketch/Toolbar.js"></script>
 		<script>
 			dojo.require("dojox.sketch");
 			dojo.require("dojox.sketch.Slider");
-			dojo.require("dojox.sketch.LeadAnnotation");
-			dojo.require("dojox.sketch.UnderlineAnnotation");
+			// dojo.require("dojox.sketch.LeadAnnotation");
+			// dojo.require("dojox.sketch.UnderlineAnnotation");
 			dojo.require("dojox.sketch.TextAnnotation");
-			dojo.require("dojox.sketch.SingleArrowAnnotation");
+			// dojo.require("dojox.sketch.SingleArrowAnnotation");
 			dojo.require("dojox.sketch.VectorAnnotation");
 			dojo.require("dojox.sketch.LineAnnotation");
-			dojo.require("dojox.sketch.DoubleArrowAnnotation");
-			dojo.require("dojox.sketch.PreexistingAnnotation");
+			// dojo.require("dojox.sketch.DoubleArrowAnnotation");
+			//dojo.require("dojox.sketch.PreexistingAnnotation");
+			dojo.require("dojox.sketch.RectangleAnnotation");
 			var f, a, t;
 			function init(){
 				var ta=dojox.sketch;
@@ -41,8 +60,7 @@
 				ta=new dojox.sketch.Toolbar({"figure":f,
 				// Right-justfified elements first
 				 "plugins":['Slider','Vector','Line',
-				 'Text','Underline',
-				 'Preexisting']});
+				 'Text','Rectangle']});
 				dojo.byId("toolbar").appendChild(ta.domNode);
 
 				//	test loading from an SVG file

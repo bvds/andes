@@ -1,63 +1,42 @@
-dojo.provide("dojox.sketch.LeadAnnotation");
+dojo.provide("dojox.sketch.RectangleAnnotation");
+
 dojo.require("dojox.sketch.Annotation");
 dojo.require("dojox.sketch.Anchor");
 
 (function(){
 	var ta=dojox.sketch;
-	ta.LeadAnnotation=function(figure, id){
+	ta.RectangleAnnotation=function(figure, id){
 		ta.Annotation.call(this, figure, id);
-		this.transform={dx:0, dy:0 };
+		this.transform={dx:0, dy:0};
 		this.start={ x:0, y:0 };
-		this.control={x:100, y:-50};
-		this.end={ x:200, y:0 };
-		this.textPosition={ x:0, y:0 };
+		this.end={ x:200, y:200 };
+		this.radius=8;
+		this.textPosition={ x:196, y:196 };
 		this.textOffset=4;
-		this.textAlign="middle";
-		this.textYOffset=10;
+		this.textAlign="end";
 
-//		this.property('label',this.id);
-		this.pathShape=null;
+		//this.property('label',this.id);
+		this.rectShape=null;
 		this.labelShape=null;
 
 		this.anchors.start=new ta.Anchor(this, "start");
-		this.anchors.control=new ta.Anchor(this, "control");
 		this.anchors.end=new ta.Anchor(this, "end");
 	};
-	ta.LeadAnnotation.prototype=new ta.Annotation;
-	var p=ta.LeadAnnotation.prototype;
-	p.constructor=ta.LeadAnnotation;
+	ta.RectangleAnnotation.prototype=new ta.Annotation;
+	var p=ta.RectangleAnnotation.prototype;
+	p.constructor=ta.RectangleAnnotation;
 
-	p.type=function(){ return 'Lead'; }
-	p.getType=function(){ return ta.LeadAnnotation; };
+	p.type=function(){ return 'Rectangle' };
+	p.getType=function(){ return ta.RectangleAnnotation; };
 
 	p._pos=function(){
-		var offset=this.textOffset, x=0, y=0;
-		var slope=this.calculate.slope(this.control, this.end);
-		if(Math.abs(slope)>=1){
-			x=this.end.x+this.calculate.dx(this.control, this.end, offset);
-			if(this.control.y>this.end.y){ 
-				y=this.end.y-offset; 
-			} else { 
-				y=this.end.y+offset+this.textYOffset; 
-			}
-		} else if(slope==0){
-			x=this.end.x+offset;
-			y=this.end.y+this.textYOffset;
-		} else {
-			if(this.start.x>this.end.x){
-				x=this.end.x-offset;
-				this.textAlign="end";
-			} else {
-				x=this.end.x+offset;
-				this.textAlign="start";
-			}
-			if(this.start.y<this.end.y){
-				y=this.end.y+this.calculate.dy(this.control, this.end, offset)+this.textYOffset;
-			} else { 
-				y=this.end.y+this.calculate.dy(this.control, this.end, -offset);
-			}
-		}
-		this.textPosition={ x:x, y:y };
+		var x=Math.min(this.start.x, this.end.x);
+		var y=Math.min(this.start.y, this.end.y);
+		var w=Math.max(this.start.x, this.end.x);
+		var h=Math.max(this.start.y, this.end.y);
+		this.start={ x:x, y:y };
+		this.end={ x:w, y:h };
+		this.textPosition={ x:this.end.x-this.textOffset, y:this.end.y-this.textOffset };
 	};
 	p.apply=function(obj){
 		if(!obj){ return; }
@@ -69,18 +48,12 @@ dojo.require("dojox.sketch.Anchor");
 			if(c.localName=="text"){ 
 				this.property('label',c.childNodes.length?c.childNodes[0].nodeValue:'');
 			}
-			else if(c.localName=="path"){
-				//	the line
-				var d=c.getAttribute('d').split(" ");
-				var s=d[0].split(",");
-				this.start.x=parseFloat(s[0].substr(1),10);
-				this.start.y=parseFloat(s[1],10);
-				s=d[1].split(",");
-				this.control.x=parseFloat(s[0].substr(1),10);
-				this.control.y=parseFloat(s[1],10);
-				s=d[2].split(",");
-				this.end.x=parseFloat(s[0],10);
-				this.end.y=parseFloat(s[1],10);
+			else if(c.localName=="rect"){
+				if(c.getAttribute('x')!==null){ this.start.x=parseFloat(c.getAttribute('x'), 10); }
+				if(c.getAttribute('width')!==null){ this.end.x=parseFloat(c.getAttribute('width'), 10)+parseFloat(c.getAttribute('x'), 10); }
+				if(c.getAttribute('y')!==null){ this.start.y=parseFloat(c.getAttribute('y'), 10); }
+				if(c.getAttribute('height')!==null){ this.end.y=parseFloat(c.getAttribute('height'), 10)+parseFloat(c.getAttribute('y'), 10); }
+				if(c.getAttribute('r')!==null){ this.radius=parseFloat(c.getAttribute('r'),10); }
 				var stroke=this.property('stroke');
 				var style=c.getAttribute('style');
 				var m=style.match(/stroke:([^;]+);/);
@@ -96,7 +69,6 @@ dojo.require("dojox.sketch.Anchor");
 			}
 		}
 	};
-
 	p.initialize=function(obj){
 		this.apply(obj);
 		this._pos();
@@ -104,35 +76,59 @@ dojo.require("dojox.sketch.Anchor");
 		//	create either from scratch or based on the passed node
 		this.shape=this.figure.group.createGroup();
 		this.shape.getEventSource().setAttribute("id", this.id);
-		this.pathShape=this.shape.createPath("M"+this.start.x+","+this.start.y+" Q"+this.control.x+","+this.control.y+" "+this.end.x+","+this.end.y+" l0,0");
+		//if(this.transform.dx || this.transform.dy){ this.shape.setTransform(this.transform); }
+		this.rectShape=this.shape.createRect({
+				x:this.start.x, 
+				y: this.start.y, 
+				width: this.end.x-this.start.x, 
+				height:this.end.y-this.start.y, 
+				r:this.radius
+			})
+			//.setStroke({color:this.property('fill'), width:1})
+			.setFill([255,255,255,0.1]);
+		this.rectShape.getEventSource().setAttribute("shape-rendering","crispEdges");
 		this.labelShape=this.shape.createText({
 				x:this.textPosition.x, 
 				y:this.textPosition.y, 
 				text:this.property('label'), 
 				align:this.textAlign
-			});
+			})
+			//.setFont(font)
+			.setFill(this.property('fill'));
 		this.labelShape.getEventSource().setAttribute('id',this.id+"-labelShape");
 		this.draw();
 	};
 	p.destroy=function(){
 		if(!this.shape){ return; }
-		this.shape.remove(this.pathShape);
+		this.shape.remove(this.rectShape);
 		this.shape.remove(this.labelShape);
 		this.figure.group.remove(this.shape);
-		this.shape=this.pathShape=this.labelShape=null;
+		this.shape=this.rectShape=this.labelShape=null;
 	};
 	p.getBBox=function(){
-		var x=Math.min(this.start.x, this.control.x, this.end.x);
-		var y=Math.min(this.start.y, this.control.y, this.end.y);
-		var w=Math.max(this.start.x, this.control.x, this.end.x)-x;
-		var h=Math.max(this.start.y, this.control.y, this.end.y)-y;
-		return { x:x, y:y, width:w, height:h };
+		var x=Math.min(this.start.x, this.end.x)-2;
+		var y=Math.min(this.start.y, this.end.y)-2;
+		var w=Math.abs(this.end.x-this.start.x)+4;
+		var h=Math.abs(this.end.y-this.start.y)+4;
+		return { x:x, y:y, width:w, height:h};
 	};
 	p.draw=function(obj){
 		this.apply(obj);
 		this._pos();
 		this.shape.setTransform(this.transform);
-		this.pathShape.setShape("M"+this.start.x+","+this.start.y+" Q"+this.control.x+","+this.control.y+" "+this.end.x+","+this.end.y+" l0,0");
+	  var w=this.end.x-this.start.x;
+	  var h=this.end.y-this.start.y;
+	  // Canvas can't take zero size box
+	  if(Math.abs(w)<1){w=1;}
+	  if(Math.abs(h)<1){h=1;}
+		this.rectShape.setShape({
+				x:this.start.x, y:this.start.y, 
+				width: w, height:h, 
+				r:this.radius
+			})
+			//.setStroke({ color:this.property('fill'), width:1 })
+			.setFill([255,255,255,0.1]);
+
 		this.labelShape.setShape({ 
 				x:this.textPosition.x, 
 				y:this.textPosition.y, 
@@ -141,15 +137,25 @@ dojo.require("dojox.sketch.Anchor");
 			.setFill(this.property('fill'));
 		this.zoom();
 	};
+	p.zoom=function(pct){
+		if(this.rectShape){
+			pct = pct || this.figure.zoomFactor;
+			this.rectShape.setStroke({color:this.property('fill'), width:1/pct});
+			ta.Annotation.prototype.zoom.call(this,pct);
+		}
+	};
 	p.serialize=function(){
-		var stroke=this.property('stroke');
+		var s=this.property('stroke');
 		return '<g '+this.writeCommonAttrs()+'>'
-			+ '<path style="stroke:'+stroke.color+';stroke-width:'+stroke.width+';fill:none;" d="'
-			+ "M"+this.start.x+","+this.start.y+" "
-			+ "Q"+this.control.x+","+this.control.y+" "
-			+ this.end.x+","+this.end.y
-			+ '" />'
-			+ '<text style="fill:'+stroke.color+';text-anchor:'+this.textAlign+'" font-weight="bold" '
+			+ '<rect style="stroke:'+s.color+';stroke-width:1;fill:none;" '
+			+ 'x="' + this.start.x + '" '
+			+ 'width="' + (this.end.x-this.start.x) + '" '
+			+ 'y="' + this.start.y + '" '
+			+ 'height="' + (this.end.y-this.start.y) + '" '
+			+ 'rx="' + this.radius + '" '
+			+ 'ry="' + this.radius + '" '
+			+ ' />'
+			+ '<text style="fill:'+s.color+';text-anchor:'+this.textAlign+'" font-weight="bold" '
 			+ 'x="' + this.textPosition.x + '" '
 			+ 'y="' + this.textPosition.y + '">'
 			+ this.property('label')
@@ -157,5 +163,5 @@ dojo.require("dojox.sketch.Anchor");
 			+ '</g>';
 	};
 
-	ta.Annotation.register("Lead");
+	ta.Annotation.register("Rectangle");
 })();

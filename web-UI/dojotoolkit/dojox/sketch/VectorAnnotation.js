@@ -180,12 +180,15 @@ dojo.require("dojox.sketch.Anchor");
 			ta.Annotation.prototype.zoom.call(this,pct);
 	};
 
-	p.getBBox=function(){
-		var x=Math.min(this.start.x, this.end.x);
-		var y=Math.min(this.start.y, this.end.y);
-		var w=Math.max(this.start.x, this.end.x)-x;
-		var h=Math.max(this.start.y, this.end.y)-y;
-		return { x:x, y:y, width:w, height:h };
+        p.getBBox=function(){
+	  var linewidth=this.property('stroke').width;
+	  console.log("using width",linewidth);
+	  var x=Math.min(this.start.x, this.end.x)-0.5*linewidth;
+	  var y=Math.min(this.start.y, this.end.y)-0.5*linewidth;
+	  // Canvas doesn't like zero-width boxes.
+	  var w=Math.abs(this.end.x-this.start.x)+linewidth;
+	  var h=Math.abs(this.end.y-this.start.y)+linewidth;
+          return { x:x, y:y, width:w, height:h };
 	};
 
 	p.serialize=function(){
