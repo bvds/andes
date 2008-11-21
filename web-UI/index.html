@@ -2,7 +2,7 @@
 		"http://www.w3.org/TR/html4/strict.dtd">
 <html>  <!-- debug="true" for firebug lite -->
 	<head>
-		<title>Annotator/Figure Testing</title>
+		<title>Statics:  s2e</title>
 <style type="text/css">
 @import "dojotoolkit/dojo/resources/dojo.css";
 @Import "dojotoolkit/dijit/themes/tundra/tundra.css";
@@ -14,9 +14,9 @@
     table tr td { padding:0; }
     table tr td table { border:0; width:auto;}
 
-    #container{ width:600px; }
-    #toolbar{ width:100%; }
-    #canvas{ width:600px; height:600px; background-color:#fff;border:1px solid #ccc; overflow:auto;position:relative;}
+ //   #container{ width:600px; }
+ //   #toolbar{ width:100%; }
+    #canvas{ width:100%; height:100%; background-color:#fff;border:1px solid #ccc; overflow:auto;position:relative;}
 
     // button icons are done via css
     .dojoxSketchIcon{
@@ -41,22 +41,17 @@
 		<script>
 			dojo.require("dojox.sketch");
 			dojo.require("dojox.sketch.Slider");
-			// dojo.require("dojox.sketch.LeadAnnotation");
-			// dojo.require("dojox.sketch.UnderlineAnnotation");
 			dojo.require("dojox.sketch.TextAnnotation");
-			// dojo.require("dojox.sketch.SingleArrowAnnotation");
 			dojo.require("dojox.sketch.VectorAnnotation");
 			dojo.require("dojox.sketch.LineAnnotation");
-			// dojo.require("dojox.sketch.DoubleArrowAnnotation");
-			//dojo.require("dojox.sketch.PreexistingAnnotation");
 			dojo.require("dojox.sketch.RectangleAnnotation");
 			var f, a, t;
 			function init(){
 				var ta=dojox.sketch;
 				f=new ta.Figure();
-				dojo.connect(f, "_mu", function(){ dojo.byId("output").value=f.serialize(); });
-				// t=ta.makeToolbar(dojo.byId("toolbar"), f);
-				// Replace makeToolbar to customize plugins
+                                // show result of each drawing step
+				dojo.connect(f, "_mu", function(){ console.log("serialized:  ",f.serialize()); });
+				// Instead of calling makeToolbar, customize plugins
 				ta=new dojox.sketch.Toolbar({"figure":f,
 				// Right-justfified elements first
 				 "plugins":['Slider','Vector','Line',
@@ -70,7 +65,6 @@
 					load:function(data, ioArgs){
 						var svg=dojox.xml.DomParser.parse(data);
 						f.load(svg, dojo.byId("canvas"));
-						dojo.byId("output").value=f.serialize();
 					}
 				});
 			}
@@ -78,13 +72,9 @@
 		</script>
 	</head>
 	<body class="tundra">
-		<h1>Annotator/Figure Testing Platform</h1>
-		<p>This is a generic test to create a figure from an existing SVG file, to edit that figure, and to test the undo stack. Double click a shape to set new text for it.</p>
 		<div id="container">
 			<div id="toolbar"></div>
 			<div id="canvas"></div>
 		</div>
-		<h2>Serialized output</h2>
-		<textarea id="output" style="width:100%;height:180px;overflow:auto;font-size:0.8em;"></textarea>
 	</body>
 </html>
