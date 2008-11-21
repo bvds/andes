@@ -25,6 +25,7 @@
 			dojo.require("dojox.sketch.Slider");
 			dojo.require("dojox.sketch.LeadAnnotation");
 			dojo.require("dojox.sketch.UnderlineAnnotation");
+			dojo.require("dojox.sketch.TextAnnotation");
 			dojo.require("dojox.sketch.SingleArrowAnnotation");
 			dojo.require("dojox.sketch.VectorAnnotation");
 			dojo.require("dojox.sketch.LineAnnotation");
@@ -40,6 +41,7 @@
 				ta=new dojox.sketch.Toolbar({"figure":f,
 				// Right-justfified elements first
 				 "plugins":['Slider','Vector','Line',
+				 'Text','Underline',
 				 'Preexisting']});
 				dojo.byId("toolbar").appendChild(ta.domNode);
 

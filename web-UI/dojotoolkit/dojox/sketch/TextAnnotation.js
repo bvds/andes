@@ -1,10 +1,10 @@
-dojo.provide("dojox.sketch.UnderlineAnnotation");
+dojo.provide("dojox.sketch.TextAnnotation");
 dojo.require("dojox.sketch.Annotation");
 dojo.require("dojox.sketch.Anchor");
 
 (function(){
 	var ta=dojox.sketch;
-	ta.UnderlineAnnotation=function(figure, id){
+	ta.TextAnnotation=function(figure, id){
 		ta.Annotation.call(this, figure, id);
 		this.transform={dx:0, dy:0};
 		this.start={x:0, y:0};
@@ -13,12 +13,12 @@ dojo.require("dojox.sketch.Anchor");
 		this.lineShape=null;
 		//this.anchors.start=new ta.Anchor(this, "start");
 	};
-	ta.UnderlineAnnotation.prototype=new ta.Annotation;
-	var p=ta.UnderlineAnnotation.prototype;
-	p.constructor=ta.UnderlineAnnotation;
+	ta.TextAnnotation.prototype=new ta.Annotation;
+	var p=ta.TextAnnotation.prototype;
+	p.constructor=ta.TextAnnotation;
 
-	p.type=function(){ return 'Underline'; };
-	p.getType=function(){ return ta.UnderlineAnnotation; };
+	p.type=function(){ return 'Text'; };
+	p.getType=function(){ return ta.TextAnnotation; };
 
 	p.apply=function(obj){
 		if(!obj){ return; }
@@ -124,5 +124,5 @@ dojo.require("dojox.sketch.Anchor");
 			+ '</g>';
 	};
 
-	ta.Annotation.register("Underline");
+	ta.Annotation.register("Text");
 })();
