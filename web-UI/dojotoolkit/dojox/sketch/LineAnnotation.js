@@ -148,10 +148,9 @@ dojo.require("dojox.sketch.Anchor");
 	};
 
 	  // Canvas doesn't like zero-width boxes.
-          // This is an exact copy of the corresponding line function
+          // This is a copy of the corresponding line function
         p.getBBox=function(){
 	  var linewidth=this.property('stroke').width;
-	  console.log("using width",linewidth);
 	  var x=Math.min(this.start.x, this.end.x)-0.5*linewidth;
 	  var y=Math.min(this.start.y, this.end.y)-0.5*linewidth;
 	  var w=Math.abs(this.end.x-this.start.x)+linewidth;
