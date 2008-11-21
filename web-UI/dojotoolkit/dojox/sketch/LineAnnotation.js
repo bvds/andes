@@ -1,64 +1,60 @@
-dojo.provide("dojox.sketch.LeadAnnotation");
+dojo.provide("dojox.sketch.LineAnnotation");
 dojo.require("dojox.sketch.Annotation");
 dojo.require("dojox.sketch.Anchor");
 
 (function(){
 	var ta=dojox.sketch;
-	ta.LeadAnnotation=function(figure, id){
+	ta.LineAnnotation=function(figure, id){
 		ta.Annotation.call(this, figure, id);
-		this.transform={dx:0, dy:0 };
-		this.start={ x:0, y:0 };
-		this.control={x:100, y:-50};
-		this.end={ x:200, y:0 };
+		this.transform={ dx:0, dy:0 };
+		this.start={x:0, y:0};
+		this.end={x:200, y:0};
 		this.textPosition={ x:0, y:0 };
-		this.textOffset=4;
+		this.textOffset=4;  // distance from line to text box
 		this.textAlign="middle";
-		this.textYOffset=10;
+		this.textYOffset=10;  // height of text box
+		this.rotation=0;
 
 //		this.property('label',this.id);
+//		this.label=this.id;
 		this.pathShape=null;
 		this.labelShape=null;
 
 		this.anchors.start=new ta.Anchor(this, "start");
-		this.anchors.control=new ta.Anchor(this, "control");
 		this.anchors.end=new ta.Anchor(this, "end");
 	};
-	ta.LeadAnnotation.prototype=new ta.Annotation;
-	var p=ta.LeadAnnotation.prototype;
-	p.constructor=ta.LeadAnnotation;
+	ta.LineAnnotation.prototype=new ta.Annotation;
+	var p=ta.LineAnnotation.prototype;
+	p.constructor=ta.LineAnnotation;
 
-	p.type=function(){ return 'Lead'; }
-	p.getType=function(){ return ta.LeadAnnotation; };
+	p.type=function(){ return 'Line'; };
+	p.getType=function(){ return ta.LineAnnotation; };
 
 	p._pos=function(){
-		var offset=this.textOffset, x=0, y=0;
-		var slope=this.calculate.slope(this.control, this.end);
-		if(Math.abs(slope)>=1){
-			x=this.end.x+this.calculate.dx(this.control, this.end, offset);
-			if(this.control.y>this.end.y){ 
-				y=this.end.y-offset; 
-			} else { 
-				y=this.end.y+offset+this.textYOffset; 
-			}
-		} else if(slope==0){
-			x=this.end.x+offset;
-			y=this.end.y+this.textYOffset;
-		} else {
-			if(this.start.x>this.end.x){
-				x=this.end.x-offset;
-				this.textAlign="end";
-			} else {
-				x=this.end.x+offset;
-				this.textAlign="start";
-			}
-			if(this.start.y<this.end.y){
-				y=this.end.y+this.calculate.dy(this.control, this.end, offset)+this.textYOffset;
-			} else { 
-				y=this.end.y+this.calculate.dy(this.control, this.end, -offset);
-			}
-		}
-		this.textPosition={ x:x, y:y };
-	};
+		//	text position
+	  // label at middle of vetor
+	  var x=0.5*(this.start.x+this.end.x);
+	  var y=0.5*(this.start.y+this.end.y);
+	  // move label a set distance from the line
+	  var slope=this.calculate.slope(this.start, this.end);
+	  var deltay = this.textOffset/Math.sqrt(1.0+slope*slope);
+	  if(this.end.y>this.start.y){deltay = -deltay;}
+	  x += -deltay*slope;
+	  y += deltay;
+	  
+	  // want text to be away from start of vector
+          // This will make force diagrams less crowded
+	  if(this.end.x<this.start.x){
+	    this.textAlign="end";
+	  } else {
+	    this.textAlign="start";
+	  }
+	  if(this.end.y<this.start.y){
+	    y += this.textYOffset;
+	  }
+	  this.textPosition={ x:x, y:y };
+	    };
+	
 	p.apply=function(obj){
 		if(!obj){ return; }
 		if(obj.documentElement){ obj=obj.documentElement; }
@@ -76,9 +72,6 @@ dojo.require("dojox.sketch.Anchor");
 				this.start.x=parseFloat(s[0].substr(1),10);
 				this.start.y=parseFloat(s[1],10);
 				s=d[1].split(",");
-				this.control.x=parseFloat(s[0].substr(1),10);
-				this.control.y=parseFloat(s[1],10);
-				s=d[2].split(",");
 				this.end.x=parseFloat(s[0],10);
 				this.end.y=parseFloat(s[1],10);
 				var stroke=this.property('stroke');
@@ -96,24 +89,34 @@ dojo.require("dojox.sketch.Anchor");
 			}
 		}
 	};
-
 	p.initialize=function(obj){
+		//	create, based on passed DOM node if available.
+		var font=(ta.Annotation.labelFont)?ta.Annotation.labelFont:{family:"Times", size:"16px"};
 		this.apply(obj);
+
+		//	calculate the other positions
 		this._pos();
 
-		//	create either from scratch or based on the passed node
+		//	draw the shapes
 		this.shape=this.figure.group.createGroup();
 		this.shape.getEventSource().setAttribute("id", this.id);
-		this.pathShape=this.shape.createPath("M"+this.start.x+","+this.start.y+" Q"+this.control.x+","+this.control.y+" "+this.end.x+","+this.end.y+" l0,0");
+		//if(this.transform.dx||this.transform.dy){ this.shape.setTransform(this.transform); }
+
+		this.pathShape=this.shape.createPath("M"+this.start.x+","+this.start.y+" L"+this.end.x+","+this.end.y)
+			//.setStroke(this.property('stroke'));
+
 		this.labelShape=this.shape.createText({
 				x:this.textPosition.x, 
 				y:this.textPosition.y, 
 				text:this.property('label'), 
 				align:this.textAlign
-			});
+			})
+			//.setFont(font)
+			//.setFill(this.property('fill'));
 		this.labelShape.getEventSource().setAttribute('id',this.id+"-labelShape");
 		this.draw();
 	};
+
 	p.destroy=function(){
 		if(!this.shape){ return; }
 		this.shape.remove(this.pathShape);
@@ -121,35 +124,45 @@ dojo.require("dojox.sketch.Anchor");
 		this.figure.group.remove(this.shape);
 		this.shape=this.pathShape=this.labelShape=null;
 	};
-	p.getBBox=function(){
-		var x=Math.min(this.start.x, this.control.x, this.end.x);
-		var y=Math.min(this.start.y, this.control.y, this.end.y);
-		var w=Math.max(this.start.x, this.control.x, this.end.x)-x;
-		var h=Math.max(this.start.y, this.control.y, this.end.y)-y;
-		return { x:x, y:y, width:w, height:h };
-	};
+
 	p.draw=function(obj){
 		this.apply(obj);
 		this._pos();
+
 		this.shape.setTransform(this.transform);
-		this.pathShape.setShape("M"+this.start.x+","+this.start.y+" Q"+this.control.x+","+this.control.y+" "+this.end.x+","+this.end.y+" l0,0");
-		this.labelShape.setShape({ 
+	  this.pathShape.setShape("M"+this.start.x+","+this.start.y+" L"+this.end.x+","+this.end.y);
+
+	  this.labelShape.setShape({
 				x:this.textPosition.x, 
 				y:this.textPosition.y, 
-				text:this.property('label') 
+				text:this.property('label'), 
+				align:this.textAlign
 			})
 			.setFill(this.property('fill'));
 		this.zoom();
 	};
+
+	p.zoom=function(pct){
+	  pct = pct || this.figure.zoomFactor;
+			ta.Annotation.prototype.zoom.call(this,pct);
+	};
+
+	p.getBBox=function(){
+		var x=Math.min(this.start.x, this.end.x);
+		var y=Math.min(this.start.y, this.end.y);
+		var w=Math.max(this.start.x, this.end.x)-x;
+		var h=Math.max(this.start.y, this.end.y)-y;
+		return { x:x, y:y, width:w, height:h };
+	};
+
 	p.serialize=function(){
-		var stroke=this.property('stroke');
+		var s=this.property('stroke');
 		return '<g '+this.writeCommonAttrs()+'>'
-			+ '<path style="stroke:'+stroke.color+';stroke-width:'+stroke.width+';fill:none;" d="'
+			+ '<path style="stroke:'+s.color+';stroke-width:'+s.width+';fill:none;" d="'
 			+ "M"+this.start.x+","+this.start.y+" "
-			+ "Q"+this.control.x+","+this.control.y+" "
-			+ this.end.x+","+this.end.y
+			+ "L"+ this.end.x+","+this.end.y
 			+ '" />'
-			+ '<text style="fill:'+stroke.color+';text-anchor:'+this.textAlign+'" font-weight="bold" '
+			+ '<text style="fill:'+s.color+';text-anchor:'+this.textAlign+'" font-weight="bold" '
 			+ 'x="' + this.textPosition.x + '" '
 			+ 'y="' + this.textPosition.y + '">'
 			+ this.property('label')
@@ -157,5 +170,5 @@ dojo.require("dojox.sketch.Anchor");
 			+ '</g>';
 	};
 
-	ta.Annotation.register("Lead");
+	ta.Annotation.register("Line");
 })();

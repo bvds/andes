@@ -171,7 +171,6 @@ dojo.require("dojox.sketch.Anchor");
 	};
 
 	p.zoom=function(pct){
-		if(this.arrowhead){
 			pct = pct || this.figure.zoomFactor;
 			if(this._curPct!==pct){
 				this._curPct=pct;
@@ -179,7 +178,6 @@ dojo.require("dojox.sketch.Anchor");
 				this.arrowhead.setShape("M0,0 l"+l+",-"+w+" -"+h+","+w+" "+h+","+w+" Z");
 			}
 			ta.Annotation.prototype.zoom.call(this,pct);
-		}
 	};
 
 	p.getBBox=function(){

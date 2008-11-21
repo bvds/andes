@@ -27,6 +27,7 @@
 			dojo.require("dojox.sketch.UnderlineAnnotation");
 			dojo.require("dojox.sketch.SingleArrowAnnotation");
 			dojo.require("dojox.sketch.VectorAnnotation");
+			dojo.require("dojox.sketch.LineAnnotation");
 			dojo.require("dojox.sketch.DoubleArrowAnnotation");
 			dojo.require("dojox.sketch.PreexistingAnnotation");
 			var f, a, t;
@@ -37,8 +38,9 @@
 				// t=ta.makeToolbar(dojo.byId("toolbar"), f);
 				// Replace makeToolbar to customize plugins
 				ta=new dojox.sketch.Toolbar({"figure":f,
-				 "plugins":['Vector','SingleArrow',
-				 'Preexisting','Slider']});
+				// Right-justfified elements first
+				 "plugins":['Slider','Vector','Line',
+				 'Preexisting']});
 				dojo.byId("toolbar").appendChild(ta.domNode);
 
 				//	test loading from an SVG file
