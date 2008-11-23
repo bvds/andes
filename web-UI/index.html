@@ -1,80 +1,84 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
 		"http://www.w3.org/TR/html4/strict.dtd">
 <html>  <!-- debug="true" for firebug lite -->
-	<head>
-		<title>Statics:  s2e</title>
-<style type="text/css">
-@import "dojotoolkit/dojo/resources/dojo.css";
-@Import "dojotoolkit/dijit/themes/tundra/tundra.css";
-</style>
+<head>
+	<title>Statics:  s2e</title>
+	<style type="text/css">
+		@import "dojotoolkit/dojo/resources/dojo.css";
+                @import "dojotoolkit/dojox/sketch/resources/sketch.css";
+		html, body, #container {
+        		width: 100%; height: 100%;
+		        overflow: hidden;  /* erase window level scrollbars: erases all in FF */
+       			padding: 0; margin: 0;
+		}
 
-<link href="dojotoolkit/dojox/sketch/resources/sketch.css" type="text/css" rel="stylesheet">
-<style type="text/css">
-    table { margin:0; width:100%;}
-    table tr td { padding:0; }
-    table tr td table { border:0; width:auto;}
+		// button icons are done via css
+		.dojoxSketchIcon{
+			background-repeat:no-repeat;
+			height:20px;
+			min-width:20px;
+			text-align:center;
+			width:20px;
+		}
+		.dojoxSketchIcon { background-image:url(junk_icons.gif); }
+		.dojoxSketchIconText{ background-position:0px 0px; }
+		.dojoxSketchIconVector{ background-position:0px -40px; }
+		.dojoxSketchIconLine{ background-position:0px -60px; }
+		.dojoxSketchIconRectangle{ background-position:0px -80px; }
+	</style>
 
- //   #container{ width:600px; }
- //   #toolbar{ width:100%; }
-    #canvas{ width:100%; height:100%; background-color:#fff;border:1px solid #ccc; overflow:auto;position:relative;}
+	<!-- required: the default dijit theme: -->
+	<link id="themeStyles" rel="stylesheet" href="dojotoolkit/dijit/themes/tundra/tundra.css">
 
-    // button icons are done via css
-    .dojoxSketchIcon{
-	background-repeat:no-repeat;
-	height:20px;
-	min-width:20px;
-	text-align:center;
-	width:20px;
-	}
-	.dojoxSketchIcon { background-image:url(junk_icons.gif); }
-	.dojoxSketchIconText{ background-position:0px 0px; }
-	.dojoxSketchIconVector{ background-position:0px -40px; }
-	.dojoxSketchIconLine{ background-position:0px -60px; }
-	.dojoxSketchIconRectangle{ background-position:0px -80px; }
+        <!-- need to parse dojoType after creating toolbar -->
+	<script src="dojotoolkit/dojo/dojo.js" djConfig="isDebug: true, parseOnLoad:false"></script>
+	<script>
+		dojo.require("dojo.parser");
+		dojo.require("dijit.dijit"); // optimize: load dijit layer
+		dojo.require("dijit.layout.BorderContainer");
+		dojo.require("dijit.layout.ContentPane");
+	</script>
 
-</style>
-
-
-		<script>var djConfig={ isDebug: false };</script>
-		<script src="dojotoolkit/dojo/dojo.js"></script>
-		<script src="dojotoolkit/dojox/sketch/Toolbar.js"></script>
-		<script>
-			dojo.require("dojox.sketch");
-			dojo.require("dojox.sketch.Slider");
-			dojo.require("dojox.sketch.TextAnnotation");
-			dojo.require("dojox.sketch.VectorAnnotation");
-			dojo.require("dojox.sketch.LineAnnotation");
-			dojo.require("dojox.sketch.RectangleAnnotation");
-			var f, a, t;
-			function init(){
-				var ta=dojox.sketch;
-				f=new ta.Figure();
-                                // show result of each drawing step
-				dojo.connect(f, "_mu", function(){ console.log("serialized:  ",f.serialize()); });
-				// Instead of calling makeToolbar, customize plugins
-				ta=new dojox.sketch.Toolbar({"figure":f,
+	<script src="dojotoolkit/dojox/sketch/Toolbar.js"></script>
+	<script>
+		dojo.require("dojox.sketch");
+		dojo.require("dojox.sketch.Slider");
+		dojo.require("dojox.sketch.TextAnnotation");
+		dojo.require("dojox.sketch.VectorAnnotation");
+		dojo.require("dojox.sketch.LineAnnotation");
+		dojo.require("dojox.sketch.RectangleAnnotation");
+		var f, a, t;
+		function init(){
+			var ta=dojox.sketch;
+			f=new ta.Figure();
+                        // show result of each drawing step
+			dojo.connect(f, "_mu", function(){ console.log("serialized:  ",f.serialize()); });
+			// Instead of calling makeToolbar, customize plugins
+			ta=new dojox.sketch.Toolbar({"figure":f,
 				// Right-justfified elements first
 				 "plugins":['Slider','Vector','Line',
 				 'Text','Rectangle']});
-				dojo.byId("toolbar").appendChild(ta.domNode);
+			dojo.byId("toolbar").appendChild(ta.domNode);
 
-				//	test loading from an SVG file
-				dojo.xhrGet({
-					url:"annotation.svg",
-					preventCache:true,
-					load:function(data, ioArgs){
-						var svg=dojox.xml.DomParser.parse(data);
-						f.load(svg, dojo.byId("canvas"));
-					}
-				});
-			}
-			dojo.addOnLoad(init);
-		</script>
-	</head>
-	<body class="tundra">
-		<div id="container">
-			<div id="toolbar"></div>
-			<div id="canvas"></div>
-		</div>
-	</body>
+			//	test loading from an SVG file
+			dojo.xhrGet({
+				url:"annotation.svg",
+				preventCache:true,
+				load:function(data, ioArgs){
+					var svg=dojox.xml.DomParser.parse(data);
+					f.load(svg, dojo.byId("canvas"));
+				}
+			});
+                        // can't do layout until toolbar and canvas are created
+			dojo.parser.parse();
+		}
+		dojo.addOnLoad(init);
+	</script>
+</head>
+<body class="tundra">
+	<div dojoType="dijit.layout.BorderContainer" design="sidebar" id="container" gutters="false">
+		<div dojoType="dijit.layout.ContentPane" id="toolbar" region="top"></div>
+		<div dojoType="dijit.layout.ContentPane" region="center" id="canvas"></div>
+	</div>
+</body>
 </html>
