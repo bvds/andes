@@ -33,7 +33,9 @@ helpsys: helpsys-dll helpsys-tcp
 
 #  lnk.cl needed by Franz lisp, can be copied from distribution
 helpsys-dll: 	# always rebuild, dependencies too complicated
-	cp -u -p /cygdrive/c/Program\ Files/acl81/examples/dll/lnk.cl ~/Andes2
+	cp -u -p /cygdrive/c/Program\ Files/acl81/examples/dll/lnk.cl .
+	cp -u -p /cygdrive/c/Program\ Files/acl81/lnkacl.dll .
+	cp -u -p /cygdrive/c/Program\ Files/acl81/acli817.dll .
 	$(ACL) -L makedll.cl 
 
 helpsys-tcp:    # always rebuild, dependencies too complicated
