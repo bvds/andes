@@ -20,9 +20,14 @@
 #    run extractor
 #    save extracted files into new folder, run setupsp6
 
-make workbench 
-# or in IDE, choose FBD/Fbd.dsw and choose 
+# Can also use MFC IDE, choose FBD/Fbd.dsw and choose 
 # "Win32 OLI Release", build "Fbd-tcp.exe" need all three versions ...).
+# Then move executables with "mv -v FBD/*_Release/Fbd-*.exe ."
+make workbench
+
+# Can also user MFC ide, show all files, choose Algebra/src/Solver.dsw,
+# choose "Win 32 Release", and build
+# Then move executables with "mv -v Algebra/src/Release/Solver.dll ."
 make solver
 make installer
 

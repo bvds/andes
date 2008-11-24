@@ -1,6 +1,6 @@
 # Microsoft Developer Studio Project File - Name="Uninst" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
-# ** DO NOT EDIT ** 
+# ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Application" 0x0101
 
@@ -53,12 +53,6 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
 # ADD LINK32 /nologo /subsystem:windows /machine:I386
-# Begin Special Build Tool
-OutDir=.\Release
-SOURCE="$(InputPath)"
-PostBuild_Desc=Copying into parent directory
-PostBuild_Cmds=copy $(OutDir)\Uninst.exe ..
-# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "Uninst - Win32 Debug"
 

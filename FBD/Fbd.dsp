@@ -92,12 +92,6 @@ LINK32=link.exe
 # SUBTRACT BASE LINK32 /pdb:none
 # ADD LINK32 winmm.lib version.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\TCP_Release/Fbd-tcp.exe"
 # SUBTRACT LINK32 /pdb:none
-# Begin Special Build Tool
-OutDir=.\TCP_Release
-SOURCE="$(InputPath)"
-PostBuild_Desc=copying into parent directory
-PostBuild_Cmds=copy $(OutDir)\fbd-tcp.exe ..
-# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 OLI Release"
 
@@ -125,14 +119,8 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 winmm.lib version.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\TCP_Release/Fbd-tcp.exe"
 # SUBTRACT BASE LINK32 /pdb:none
-# ADD LINK32 winmm.lib version.lib ../helpifc.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\OLI_Release/Fbd-tcp.exe"
+# ADD LINK32 winmm.lib version.lib ../helpifc.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\OLI_Release/Fbd-tcp-oli.exe"
 # SUBTRACT LINK32 /pdb:none
-# Begin Special Build Tool
-OutDir=.\OLI_Release
-SOURCE="$(InputPath)"
-PostBuild_Desc=copying into parent dir
-PostBuild_Cmds=copy $(OutDir)\fbd-tcp.exe ..\fbd-tcp-oli.exe
-# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 OLI Debug"
 
@@ -195,12 +183,6 @@ LINK32=link.exe
 # SUBTRACT BASE LINK32 /profile
 # ADD LINK32 winmm.lib version.lib wininet.lib ../helpifc.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\Dll_Debug/Fbd-dll.exe"
 # SUBTRACT LINK32 /profile
-# Begin Special Build Tool
-OutDir=.\DLL_Debug
-SOURCE="$(InputPath)"
-PostBuild_Desc=copying into parent directory
-PostBuild_Cmds=copy $(OutDir)\fbd-dll.exe ..
-# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 DLL Release"
 
@@ -230,12 +212,6 @@ LINK32=link.exe
 # SUBTRACT BASE LINK32 /pdb:none
 # ADD LINK32 winmm.lib version.lib wininet.lib ../helpifc.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\DLL_Release/Fbd-dll.exe"
 # SUBTRACT LINK32 /pdb:none
-# Begin Special Build Tool
-OutDir=.\DLL_Release
-SOURCE="$(InputPath)"
-PostBuild_Desc=copying into parent directory
-PostBuild_Cmds=copy $(OutDir)\fbd-dll.exe ..
-# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 DLL Record Screen Release"
 
@@ -265,12 +241,6 @@ LINK32=link.exe
 # SUBTRACT BASE LINK32 /pdb:none
 # ADD LINK32 winmm.lib version.lib wininet.lib ../helpifc.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\DLL_Release/Fbd-dll.exe"
 # SUBTRACT LINK32 /pdb:none
-# Begin Special Build Tool
-OutDir=.\FBD___Win32_DLL_Record_Screen_Release
-SOURCE="$(InputPath)"
-PostBuild_Desc=copying into parent directory
-PostBuild_Cmds=copy $(OutDir)\fbd-dll.exe ..
-# End Special Build Tool
 
 !ENDIF 
 
@@ -1750,6 +1720,19 @@ SOURCE=.\res\zvel_o.cur
 # End Group
 # End Target
 # End Project
+# Section FBD : {EAB22AC1-30C1-11CF-A7EB-0000C05BAE0B}
+# 	2:5:Class:CWebBrowser
+# 	2:10:HeaderFile:webbrowser.h
+# 	2:8:ImplFile:webbrowser.cpp
+# End Section
+# Section FBD : {2B6C9472-6704-11CF-BC04-0000C037C67D}
+# 	1:17:ID_INDICATOR_TIME:105
+# 	2:2:BH:
+# 	2:17:ID_INDICATOR_TIME:ID_INDICATOR_TIME
+# End Section
+# Section OLE Controls
+# 	{EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}
+# End Section
 # Section FBD : {EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}
 # 	0:14:WebBrowser.cpp:C:\Msdev\Projects\Fbd\WebBrowser.cpp
 # 	0:12:WebBrowser.h:C:\Msdev\Projects\Fbd\WebBrowser.h
@@ -1768,17 +1751,4 @@ SOURCE=.\res\zvel_o.cur
 # 	2:10:HeaderName:Splash.h
 # 	2:10:ImplemName:Splash.cpp
 # 	2:7:BmpID16:IDB_SPLASH
-# End Section
-# Section FBD : {EAB22AC1-30C1-11CF-A7EB-0000C05BAE0B}
-# 	2:5:Class:CWebBrowser
-# 	2:10:HeaderFile:webbrowser.h
-# 	2:8:ImplFile:webbrowser.cpp
-# End Section
-# Section FBD : {2B6C9472-6704-11CF-BC04-0000C037C67D}
-# 	1:17:ID_INDICATOR_TIME:105
-# 	2:2:BH:
-# 	2:17:ID_INDICATOR_TIME:ID_INDICATOR_TIME
-# End Section
-# Section OLE Controls
-# 	{EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}
 # End Section
