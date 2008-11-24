@@ -1,67 +1,84 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
 		"http://www.w3.org/TR/html4/strict.dtd">
-<html>
-	<head>
-		<title>Annotator/Figure Testing</title>
-<style type="text/css">
-@import "dojotoolkit/dojo/resources/dojo.css";
-@Import "dojotoolkit/dijit/themes/tundra/tundra.css";
-</style>
-		<link href="dojotoolkit/dojox/sketch/resources/sketch.css" type="text/css" rel="stylesheet">
-		<style type="text/css">
-			body {
-				background:#fff url("images/testsBodyBg.gif") repeat-x top left;
-				padding:1em 3em;
-			}
-			table { margin:0; width:100%;}
-			table tr td { padding:0; }
-			table tr td table { border:0; width:auto;}
+<html>  <!-- debug="true" for firebug lite -->
+<head>
+	<title>Statics:  s2e</title>
+	<style type="text/css">
+		@import "dojotoolkit/dojo/resources/dojo.css";
+                @import "dojotoolkit/dojox/sketch/resources/sketch.css";
+		html, body, #container {
+        		width: 100%; height: 100%;
+		        overflow: hidden;  /* erase window level scrollbars: erases all in FF */
+       			padding: 0; margin: 0;
+		}
 
-			#container{ width:600px; }
-			#toolbar{ width:100%; }
-			#canvas{ width:600px; height:600px; background-color:#fff;border:1px solid #ccc; overflow:auto;position:relative;}
-		</style>
-		<script>var djConfig={ isDebug: false };</script>
-		<script src="dojotoolkit/dojo/dojo.js"></script>
-		<script src="dojotoolkit/dojox/sketch/Toolbar.js"></script>
-		<script>
-			dojo.require("dojox.sketch");
-			dojo.require("dojox.sketch.Slider");
-			dojo.require("dojox.sketch.LeadAnnotation");
-			dojo.require("dojox.sketch.UnderlineAnnotation");
-			dojo.require("dojox.sketch.SingleArrowAnnotation");
-			dojo.require("dojox.sketch.DoubleArrowAnnotation");
-			dojo.require("dojox.sketch.PreexistingAnnotation");
-			var f, a, t;
-			function init(){
-				var ta=dojox.sketch;
-				f=new ta.Figure();
-				dojo.connect(f, "_mu", function(){ dojo.byId("output").value=f.serialize(); });
+		// button icons are done via css
+		.dojoxSketchIcon{
+			background-repeat:no-repeat;
+			height:20px;
+			min-width:20px;
+			text-align:center;
+			width:20px;
+		}
+		.dojoxSketchIcon { background-image:url(junk_icons.gif); }
+		.dojoxSketchIconText{ background-position:0px 0px; }
+		.dojoxSketchIconVector{ background-position:0px -40px; }
+		.dojoxSketchIconLine{ background-position:0px -60px; }
+		.dojoxSketchIconRectangle{ background-position:0px -80px; }
+	</style>
 
-				t=ta.makeToolbar(dojo.byId("toolbar"), f);
+	<!-- required: the default dijit theme: -->
+	<link id="themeStyles" rel="stylesheet" href="dojotoolkit/dijit/themes/tundra/tundra.css">
 
-				//	test loading from an SVG file
-				dojo.xhrGet({
-					url:"annotation.svg",
-					preventCache:true,
-					load:function(data, ioArgs){
-						var svg=dojox.xml.DomParser.parse(data);
-						f.load(svg, dojo.byId("canvas"));
-						dojo.byId("output").value=f.serialize();
-					}
-				});
-			}
-			dojo.addOnLoad(init);
-		</script>
-	</head>
-	<body class="tundra">
-		<h1>Annotator/Figure Testing Platform</h1>
-		<p>This is a generic test to create a figure from an existing SVG file, to edit that figure, and to test the undo stack. Double click a shape to set new text for it.</p>
-		<div id="container">
-			<div id="toolbar"></div>
-			<div id="canvas"></div>
-		</div>
-		<h2>Serialized output</h2>
-		<textarea id="output" style="width:100%;height:180px;overflow:auto;font-size:0.8em;"></textarea>
-	</body>
+        <!-- need to parse dojoType after creating toolbar -->
+	<script src="dojotoolkit/dojo/dojo.js" djConfig="isDebug: true, parseOnLoad:false"></script>
+	<script>
+		dojo.require("dojo.parser");
+		dojo.require("dijit.dijit"); // optimize: load dijit layer
+		dojo.require("dijit.layout.BorderContainer");
+		dojo.require("dijit.layout.ContentPane");
+	</script>
+
+	<script src="dojotoolkit/dojox/sketch/Toolbar.js"></script>
+	<script>
+		dojo.require("dojox.sketch");
+		dojo.require("dojox.sketch.Slider");
+		dojo.require("dojox.sketch.TextAnnotation");
+		dojo.require("dojox.sketch.VectorAnnotation");
+		dojo.require("dojox.sketch.LineAnnotation");
+		dojo.require("dojox.sketch.RectangleAnnotation");
+		var f, a, t;
+		function init(){
+			var ta=dojox.sketch;
+			f=new ta.Figure();
+                        // show result of each drawing step
+			dojo.connect(f, "_mu", function(){ console.log("serialized:  ",f.serialize()); });
+			// Instead of calling makeToolbar, customize plugins
+			ta=new dojox.sketch.Toolbar({"figure":f,
+				// Right-justfified elements first
+				 "plugins":['Slider','Vector','Line',
+				 'Text','Rectangle']});
+			dojo.byId("toolbar").appendChild(ta.domNode);
+
+			//	test loading from an SVG file
+			dojo.xhrGet({
+				url:"annotation.svg",
+				preventCache:true,
+				load:function(data, ioArgs){
+					var svg=dojox.xml.DomParser.parse(data);
+					f.load(svg, dojo.byId("canvas"));
+				}
+			});
+                        // can't do layout until toolbar and canvas are created
+			dojo.parser.parse();
+		}
+		dojo.addOnLoad(init);
+	</script>
+</head>
+<body class="tundra">
+	<div dojoType="dijit.layout.BorderContainer" design="sidebar" id="container" gutters="false">
+		<div dojoType="dijit.layout.ContentPane" id="toolbar" region="top"></div>
+		<div dojoType="dijit.layout.ContentPane" region="center" id="canvas"></div>
+	</div>
+</body>
 </html>
