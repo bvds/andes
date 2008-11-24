@@ -31,8 +31,6 @@ make workbench
 make solver
 make installer
 
-#  lnk.cl needed by Franz lisp, can be copied from distribution
-cp /cygdrive/c/Program Files/acl81/examples/dll/lnk.cl ~/Andes2
 # needs Franz lisp, modify path in makedll.cl and makehelp80.cl
 make helpsys 
 # need to exit lisp by hand.

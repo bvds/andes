@@ -65,8 +65,8 @@ cp fbd.cnt $dstdir
 cp Helpsys.dxl $dstdir
 cp Helpsys.lic $dstdir
 cp helpifc.dll $dstdir
-cp lnkacl.dll $dstdir
-cp acli817.dll $dstdir
+cp /cygdrive/c/Program\ Files/acl81/lnkacl.dll $dstdir
+cp /cygdrive/c/Program\ Files/acl81/acli817.dll $dstdir
 cp solver.dll $dstdir
 cp Config.cl $dstdir
 #  rename appropriate Setup version to Setup.exe
