@@ -45,16 +45,20 @@ workbench:
 	$(MSDEV) Fbd/fbd.dsp /MAKE "FBD - Win32 DLL Release"
 	$(MSDEV) Fbd/fbd.dsp /MAKE "FBD - Win32 OLI Release"
 	$(MSDEV) Fbd/fbd.dsp /MAKE "FBD - Win32 TCP Release"
+	mv -v FBD/*_Release/Fbd-*.exe .
 
 # setup program: OLI and standalone, versions plus uninstaller 
 installer: 
 	$(MSDEV) Setup/Setup.dsp /MAKE "Setup - Win32 Student Release"
 	$(MSDEV) Setup/Setup.dsp /MAKE "Setup - Win32 OLI Release"
 	$(MSDEV) Uninst/Uninst.dsp /MAKE "Uninst - Win32 Release"
+	mv -v Setup/*_Release/Setup*.exe .
+	mv -v Uninst/Release/Uninst.exe .
 
 # solver dll.
 solver:
-	$(MSDEV) Algebra/src/solver.dsp /MAKE "Solver - Win32 Debug"
+	$(MSDEV) Algebra/src/solver.dsp /MAKE "Solver - Win32 Release"
+	mv -v Algebra/src/Release/Solver.dll .
 
 # helpifc.dll -- adapted from factorial sample in Allegro installation
 helpifc.dll:	helpifc.obj lnkacl.lib
