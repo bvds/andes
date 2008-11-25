@@ -26,8 +26,8 @@
 make workbench
 
 # Can also user MFC ide, show all files, choose Algebra/src/Solver.dsw,
-# choose "Win 32 Release", and build
-# Then move executables with "mv -v Algebra/src/Release/Solver.dll ."
+# choose "Win 32 Debug", and build
+# Then move executables with "mv -v Algebra/src/Debug/Solver.dll ."
 make solver
 make installer
 
