@@ -57,8 +57,8 @@ installer:
 
 # solver dll.
 solver:
-	$(MSDEV) Algebra/src/solver.dsp /MAKE "Solver - Win32 Release"
-	mv -v Algebra/src/Release/Solver.dll .
+	$(MSDEV) Algebra/src/solver.dsp /MAKE "Solver - Win32 Debug"
+	mv -v Algebra/src/Debug/Solver.dll .
 
 # helpifc.dll -- adapted from factorial sample in Allegro installation
 helpifc.dll:	helpifc.obj lnkacl.lib
