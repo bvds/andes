@@ -126,7 +126,7 @@ exit
 # simple mode:  choose course
 # (in principle, should make 3 different courses and test all combinations)
 #  choose Full course
-# "andes-20" is admit code (no password)
+# "andes-20" is admit code (no password) or physics-test
 # test course as student (bvds-test)
 #
 # need to use internet explorer to install certificate for the QA server.

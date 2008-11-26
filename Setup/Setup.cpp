@@ -185,6 +185,7 @@ Setup will exit.");
 	return FALSE;
 }
 
+#ifndef FAST   // remove to save mouse clicks
 BOOL CSetupApp::AcceptLicense()
 {
 	// Load the contents of file "AndesLicense.txt";
@@ -199,6 +200,7 @@ BOOL CSetupApp::AcceptLicense()
 	dlg.m_strText = (LPCTSTR) pData;
 	return dlg.DoModal() == IDOK && dlg.m_nYesNo == 0; // 0=> yes, 1=> no
 }
+#endif
 
 BOOL CSetupApp::CheckDiskSpace()
 {

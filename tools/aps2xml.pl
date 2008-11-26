@@ -130,7 +130,7 @@ Bill Jerome (wjj@andrew.cmu.edu)
 		<body>
 
 <pullout type="note"> 
-	<p>You must <activity_link idref="intro">install the OLI version of Andes</activity_link> before you can do the exercises on this page. </p>
+	<p>You must <link title="Andes installer" href="../../webcontent/andes_installer.exe">install Andes</link> before doing any exercises.  See the <activity_link idref="intro">Introduction</activity_link> for details.</p>
 </pullout>
 
 EOH

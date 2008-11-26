@@ -1,6 +1,5 @@
 // LicenseDlg.cpp : implementation file
 //
-
 #include "stdafx.h"
 #include "setup.h"
 #include "LicenseDlg.h"
@@ -14,6 +13,7 @@ static char THIS_FILE[] = __FILE__;
 /////////////////////////////////////////////////////////////////////////////
 // CLicenseDlg dialog
 
+#ifndef FAST
 
 CLicenseDlg::CLicenseDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CLicenseDlg::IDD, pParent)
@@ -43,3 +43,4 @@ END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CLicenseDlg message handlers
+#endif

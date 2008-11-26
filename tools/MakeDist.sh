@@ -172,13 +172,12 @@ C:/Program\ Files/WinZip/wzzip -rp $INSTALLERNAME.zip $dstdir
 if [ ! $? ]; then echo "MakeDist: Zip operation failed"; exit 1; fi
 
 # Make installer message files containing version number
-echo "Click OK to install ANDES Physics Tutor, version $VERSION$FOR_OLI" > DistMsg.txt
 echo "Installing ANDES Physics Tutor version $VERSION $FOR_OLI
 Please wait ..." > DistDlg.txt
 
 # create the self-extractor
 echo "MakeDist: Creating self-extractor"
-C:/Program\ Files/WinZip\ Self-Extractor/WZIPSE32 $INSTALLERNAME -setup -mokcancel DistMsg.txt -auto -t DistDlg.txt -c ./Setup.exe
+C:/Program\ Files/WinZip\ Self-Extractor/WZIPSE32 $INSTALLERNAME -setup -auto -t DistDlg.txt -c ./Setup.exe
 if [ ! $? ]; then echo "MakeDist: self-extractor creation failed"; exit 1; fi
 
 # OK, done. clean up temporary files

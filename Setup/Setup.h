@@ -26,7 +26,9 @@ class CSetupApp : public CWinApp
 {
 public:
 	void InstallCodec();
+#ifndef FAST
 	BOOL AcceptLicense();
+#endif
 	CSetupApp();
 
 	// Operating system info:

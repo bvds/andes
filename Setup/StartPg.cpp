@@ -6,7 +6,9 @@
 #include "setup.h"
 #include "ExitDlg.h"
 #include "StartPg.h"
+#ifndef FAST
 #include "LicenseDlg.h"
+#endif
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -75,9 +77,11 @@ LRESULT CStartPg::OnWizardNext()
 {
 	// TODO: Add your specialized code here and/or call the base class
 
+#ifndef FAST
 	// Run the license modal dialog before going on to the next screen.
 	if (! theApp.AcceptLicense())
 		return -1;
+#endif
 
 	return CPropertyPage::OnWizardNext();
 }
