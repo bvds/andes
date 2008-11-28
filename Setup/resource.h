@@ -33,7 +33,6 @@
 #define IDD_CLEANUP_DLG                 143
 #define IDD_VERSIONMSG_DLG              144
 #define IDD_LICENSE_DLG                 146
-#define IDR_COVER						147
 #define IDC_SETUP_BMP                   1000
 #define IDC_BROWSE                      1001
 #define IDC_INSTALLDIR                  1002

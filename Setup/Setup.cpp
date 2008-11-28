@@ -131,12 +131,16 @@ Setup will exit.");
 	CMySheet dlg("Setup");
     m_pSheet = &dlg;
 
+#ifndef FAST
 	CStartPg   pageStart;
+#endif
 	CInstDirPg pageInstDir;
 	CSettingPg pageSetting;
 	CFinishPg  pageFinish;
 
+#ifndef FAST
 	dlg.AddPage(&pageStart);
+#endif
 	dlg.AddPage(&pageInstDir);
 	dlg.AddPage(&pageSetting);
 	dlg.AddPage(&pageFinish);

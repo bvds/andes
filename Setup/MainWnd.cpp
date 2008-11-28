@@ -59,40 +59,6 @@ void CMainWnd::OnPaint ()
 	CDC* cdc = GetDC();
 
     CPaintDC dc (this);
-
-
-#if 0
-	BITMAP bm;
-	m_bmpAndes.GetObject(sizeof(BITMAP), &bm);
-	CPoint size(bm.bmWidth, bm.bmHeight);
-	dc.DPtoLP(&size);
-
-	CPoint org(0,0);
-	dc.DPtoLP(&org);
-
-//	CDC* cdc = GetDC();
-	CDC dcMem;
-	dcMem.CreateCompatibleDC(cdc);
-	CBitmap* pOldBitmap = (CBitmap*)dcMem.SelectObject(m_bmpAndes);
-	dcMem.SetMapMode(dc.GetMapMode());
-
-	int cx = (rect.Width()-bm.bmWidth) /2;
-	int cy = (rect.Height()-bm.bmHeight) - 16;
-    DoDrawText (&dc, &rect);
-	dc.BitBlt(cx, cy, size.x, size.y, &dcMem, org.x, org.y, SRCCOPY); 
-#else
-	CPicture pic;
-	if (! pic.Load(IDR_COVER)) {
-		return;
-	}
-	CSize sizePic = pic.GetImageSize();
-	// 10% * margin on each side
-	int cxMargin = .10 * rect.Width();
-	int cyMargin = .10 * rect.Height();
-	CRect rcImage = CRect(cxMargin, cyMargin, rect.Width() - cxMargin, rect.Height()-cyMargin);
-	pic.Render(&dc, rect);
-#endif 
-
 }
 
 //void CMainWindow::OnOptionsExit ()

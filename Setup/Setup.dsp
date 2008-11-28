@@ -449,10 +449,6 @@ SOURCE=.\VerMsgDlg.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=.\res\AndesSplash4.bmp
-# End Source File
-# Begin Source File
-
 SOURCE=.\res\bitmap1.bmp
 # End Source File
 # Begin Source File

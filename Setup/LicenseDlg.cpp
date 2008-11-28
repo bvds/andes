@@ -1,5 +1,6 @@
 // LicenseDlg.cpp : implementation file
 //
+
 #include "stdafx.h"
 #include "setup.h"
 #include "LicenseDlg.h"
