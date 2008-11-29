@@ -78,7 +78,7 @@ EXSTYLE WS_EX_APPWINDOW
 CAPTION "Welcome"
 FONT 8, "MS Sans Serif"
 BEGIN
-    LTEXT           "Welcome to the Andes Setup program.  This program will install Andes Physics workbench on your computer.",
+    LTEXT           "Install the Andes Physics tutor on your computer.",
                     IDC_STATIC,54,7,181,20
     ICON            IDR_MAINFRAME,IDC_SETUP_BMP,9,8,20,20
     LTEXT           "It is strongly recommended that you exit all Windows programs before running this setup program.",
@@ -96,17 +96,13 @@ STYLE WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
 CAPTION "Choose Destination Location"
 FONT 8, "MS Sans Serif"
 BEGIN
-    LTEXT           "Setup will install Andes Physics Tutor in the following directory.",
-                    IDC_STATIC,7,7,196,8
-    LTEXT           "To install to this directory, click Next.",IDC_STATIC,7,
-                    24,116,8
-    LTEXT           "To install to a different directory, click Browse and select another directory.",
-                    IDC_STATIC,7,39,208,20
-    LTEXT           "IMPORTANT: users of Andes must have permission to write files into the installation directory, or else Andes will not work correctly.",
+    LTEXT           "Click 'Next' to install the Andes Physics Tutor in the following directory.",
+                    IDC_STATIC,7,21,213,28
+    LTEXT           "Users of Andes must have permission to write files in the installation directory, or else Andes will not work correctly.",
                     IDC_STATIC,11,64,205,18
     PUSHBUTTON      "Browse",IDC_BROWSE,167,105,50,14
     LTEXT           "C:\\Program Files\\Andes",IDC_INSTALLDIR,14,106,150,15
-    GROUPBOX        "Desination Directory",IDC_STATIC,7,94,216,34
+    GROUPBOX        "Installation Directory",IDC_STATIC,7,94,216,34
     GROUPBOX        "",IDC_STATIC,9,57,212,29
 END
 
@@ -115,7 +111,7 @@ STYLE WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
 CAPTION "Start Copying Files"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
-    LTEXT           "Setup has enough information to start copying the program files.  If you want to review or change any of the settings, click Back.  If you are satisfied with the settings, click Next to begin copying the files.",
+    LTEXT           "The Andes installer is ready to copy files to the installation directory.  If you want to review or change any of the settings, click Back.  If you are satisfied with the settings, click 'Next' to begin copying the files.",
                     IDC_STATIC,7,7,219,36
     LTEXT           "Current Settings:",IDC_STATIC,7,53,64,10
     LTEXT           "Static",IDC_CUR_SETTINGS,7,64,219,53,SS_SUNKEN,
@@ -135,10 +131,10 @@ END
 
 IDD_FINISH_DLG DIALOG DISCARDABLE  0, 0, 180, 121
 STYLE WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
-CAPTION "Setup Complete"
+CAPTION "Installation complete"
 FONT 8, "MS Sans Serif"
 BEGIN
-    LTEXT           "Setup has finished copying files to your computer.",
+    LTEXT           "The Andes installer has finished copying files.",
                     IDC_STATIC,7,7,166,16
     LTEXT           "Click Finish to complete setup",IDC_STATIC,7,34,166,17
 END
@@ -166,11 +162,11 @@ FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "Resume ",IDOK,30,90,58,14
     PUSHBUTTON      "Exit Setup",IDCANCEL,99,90,50,14
-    LTEXT           "Setup is not complete.  If you quit the Setup program now, the program will not be installed",
+    LTEXT           "Andes is not installed yet.",
                     IDC_STATIC,7,14,172,18
-    LTEXT           "You may run the Setup program at a later time to complete the installation",
+    LTEXT           "You may run the installer at a later time to complete the installation",
                     IDC_STATIC,7,35,172,18
-    LTEXT           "To continue installing the program, click Resume.  To quit the Setup program, click Exit Setup.",
+    LTEXT           "To continue installing the program, click Resume.  To quit the installer, click Exit Setup.",
                     IDC_STATIC,7,59,172,20
 END
 
@@ -180,7 +176,7 @@ CAPTION "Setup"
 FONT 8, "MS Sans Serif"
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,11,10,20,20
-    LTEXT           "Please wait while Setup checks for Disk Space",
+    LTEXT           "Checking available Disk Space",
                     IDC_STATIC,61,13,161,22
 END
 
@@ -190,13 +186,13 @@ CAPTION "Setup"
 FONT 8, "MS Sans Serif"
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,10,9,20,20
-    LTEXT           "Please wait while Setup updates the registry and the Start Menu",
+    LTEXT           "Updating the registry and the Start Menu",
                     IDC_TXT,61,13,168,20
 END
 
 IDD_CLEANUP_DLG DIALOG DISCARDABLE  0, 0, 237, 74
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Setup Cleanup"
+CAPTION "Installation cleanup"
 FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "Yes",IDOK,60,53,50,14
@@ -262,14 +258,14 @@ BEGIN
         BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "\0"
-            VALUE "FileDescription", "ANDES Setup program\0"
+            VALUE "FileDescription", "Andes installer\0"
             VALUE "FileVersion", "2, 0, 0, 0\0"
             VALUE "InternalName", "Setup\0"
             VALUE "LegalCopyright", "Copyright (C) 1997-2008\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "Setup.EXE\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "Setup Application\0"
+            VALUE "ProductName", "Andes installer\0"
             VALUE "ProductVersion", "12, 0, 0, 0\0"
             VALUE "SpecialBuild", "\0"
         END
@@ -409,15 +405,15 @@ BEGIN
     IDS_NOSUCH_DIR          "The directory: %s does not exist.  Would you like to create it?"
     IDS_NOSPACE             "There is not enough space on this drive to install Andes (Required: %d. Free: %d) Please select another drive or click Cancel to exit the setup program."
     IDS_DIR_FAIL            "The directory:  %s  could not be created.\nThe parent disk or directory may be write-protected. "
-    IDS_WAITREMOVE          "Please wait while Setup removes all installation components."
+    IDS_WAITREMOVE          "Removing all installation components."
     IDS_VERMSG              "You are about to replace the file %s with an older version.  It is recommended that you keep the existing file.  Would you like to skip the replacement of this file and continue with the installation? "
-    IDS_ERROR_SHARING       "Sharing violation of file: %s\nFile may be in use.  Please cancel Setup, close all programs and then try running Setup again."
-    IDS_ERROR_FNF           "File not found: %s  \n\nSetup will exit"
-    IDS_ERROR_COPY          "Error copying file: %s to %s\n\nSetup will exit"
+    IDS_ERROR_SHARING       "Sharing violation of file: %s\nFile may be in use.  Please cancel, close all programs and then try running the installer again."
+    IDS_ERROR_FNF           "File not found: %s  \n\nexiting."
+    IDS_ERROR_COPY          "Error copying file: %s to %s\n\nexiting"
     IDS_ERROR_OPEN          "Error opening file: %s"
     IDS_REBOOT              "It is necessary to restart your computer to complete the Andes installation. Click Yes to restart now.  \n\nIf you have unsaved information in open programs, click No, close all programs and restart your computer manually."
     IDS_ERROR_REBOOT        "Error during reboot, Please close all applications and manually reboot your system"
-    IDS_CLEANUP             "Would you like Setup to remove this installation program and all of its components from your hard drive?"
+    IDS_CLEANUP             "Would you like to remove this installation program and all of its components from your hard drive?"
 END
 
 #endif    // English (U.S.) resources
