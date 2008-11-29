@@ -55,6 +55,3 @@ BOOL CFinishPg::OnSetActive()
 	CancelToClose();
 	return CPropertyPage::OnSetActive();
 }
-
-
-

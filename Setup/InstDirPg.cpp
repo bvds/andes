@@ -55,12 +55,20 @@ LRESULT CInstDirPg::OnWizardNext()
 	CString strInstDir;
 	m_ctrlInstDir.GetWindowText(strInstDir);
 	theApp.m_strInstDir = strInstDir;
-#if 0 // this is not reliable
-	//Check for sufficient disk space
-	if (!theApp.CheckDiskSpace()){
-		return -1;
-	}
-#endif 0 
+#ifdef FAST   // borrow actions from SettingPg
+	m_strInstDir = theApp.m_strInstDir;
+
+	CWnd* pWnd = GetParent();
+	CPropertySheet* pSht = (CPropertySheet*)pWnd;
+	//start copying the files
+	if (!theApp.CopyTheFiles())
+	  pSht->EndDialog(IDCANCEL);
+	else
+	  // Press Finish button if file copy & registry 
+          // edit were successful.  This means we don't need
+          // to show final dialog box.
+	  pSht->EndDialog(ID_WIZFINISH);
+#endif
 	return CPropertyPage::OnWizardNext();
 }
 

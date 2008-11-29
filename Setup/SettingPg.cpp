@@ -60,20 +60,24 @@ BOOL CSettingPg::OnSetActive()
 
 LRESULT CSettingPg::OnWizardNext() 
 {
+#ifndef FAST  // do actions in InstDirPg
 	CWnd* pWnd = GetParent();
 	CPropertySheet* pSht = (CPropertySheet*)pWnd;
 	//start copying the files
 	if (!theApp.CopyTheFiles())
 		pSht->EndDialog(IDCANCEL);
+#endif
 	return CPropertyPage::OnWizardNext();
 }
 
 BOOL CSettingPg::OnInitDialog() 
 {
 	CPropertyPage::OnInitDialog();
-	
+
+#ifndef FAST // do this on InstDirPg
 	m_strInstDir = theApp.m_strInstDir;
-	
+#endif
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
 }

@@ -142,8 +142,10 @@ Setup will exit.");
 	dlg.AddPage(&pageStart);
 #endif
 	dlg.AddPage(&pageInstDir);
+#ifndef FAST
 	dlg.AddPage(&pageSetting);
 	dlg.AddPage(&pageFinish);
+#endif
 	dlg.SetWizardMode();
 	
 	// run the wizard to do the install
