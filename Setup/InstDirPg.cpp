@@ -87,8 +87,8 @@ BOOL CInstDirPg::OnSetActive()
 {
 	CWnd* pWnd = GetParent();
 	CPropertySheet* pSht = (CPropertySheet*)pWnd;
-	//2nd page, both back and next button enabled
-	pSht->SetWizardButtons(PSWIZB_NEXT|PSWIZB_BACK);
+	// only next button enabled
+	pSht->SetWizardButtons(PSWIZB_NEXT);
 	//Set default install directory
 	if (m_strInstDir.IsEmpty()) {
 #ifdef OLI
