@@ -87,7 +87,9 @@ perl  ../../tools/aps2xml.pl *.aps > july-28-output.txt
 #     but not having feature Andes2.
 grep Add *-output.txt 
 #  If the grep reports any new files,  add them to cvs. 
-cp -p ../../andes_installer.exe content/webcontent
+#  Next copy over content files:
+cp -p -u ../../andes_installer.exe content/webcontent
+cp -p -u ../../Videos/*.* content/webcontent
 #  Non-problem set specific content must be updated by hand (videos, etc). 
 cvs commit -m "latest updates, blah blah"
 
