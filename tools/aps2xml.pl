@@ -168,7 +168,6 @@ EOH
 	    print "    Video name:  $video\n";
             print LP <<EOV;
 <section><title>$setname - $videoUC Demo Video</title><body>
-<p>
 <p><link href=\"../webcontent/$video.wmv\">Video</link> showing how to solve problems like $videoUC.  See the <link href=\"../webcontent/videotips.html\"> instructions </link>for viewing videos.</p>
 </body></section>
 
