@@ -130,7 +130,7 @@ Bill Jerome (wjj@andrew.cmu.edu)
 		<body>
 
 <pullout type="note"> 
-	<p>You must <link title="Andes installer" href="../../webcontent/andes_installer.exe">install Andes</link> before doing any exercises.  See the <activity_link idref="intro">Introduction</activity_link> for details.</p>
+	<p>Please <link title="Andes installer" href="../../../webcontent/andes_installer.exe">install Andes</link> before doing any exercises.  See the <activity_link idref="intro">Introduction</activity_link> for details.</p>
 </pullout>
 
 EOH
@@ -169,9 +169,7 @@ EOH
             print LP <<EOV;
 <section><title>$setname - $videoUC Demo Video</title><body>
 <p>
-Click \"View Video\" below to watch a video demonstrating some features of how to solve problems like $videoUC in Andes.  See <link href=\"../webcontent/videotips.html\"> this page </link>for instructions on how best to view Andes videos.
-</p>
-<p><link href=\"../webcontent/$video.wmv\">View Video $videoUC</link></p>
+<p><link href=\"../webcontent/$video.wmv\">Video</link> showing how to solve problems like $videoUC.  See the <link href=\"../webcontent/videotips.html\"> instructions </link>for viewing videos.</p>
 </body></section>
 
 EOV
