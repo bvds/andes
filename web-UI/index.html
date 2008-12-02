@@ -30,22 +30,19 @@
 	<!-- required: the default dijit theme: -->
 	<link id="themeStyles" rel="stylesheet" href="dojotoolkit/dijit/themes/tundra/tundra.css">
 
-        <!-- For debugging in IE -->
-        <script type='text/javascript' 
-        src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
 
         <!-- need to parse dojoType after creating toolbar -->
-	<script src="dojotoolkit/dojo/dojo.js" djConfig="isDebug: true, popup: true, 
-                                                         parseOnLoad:false"></script>
-	<script>
+	<script src="dojotoolkit/dojo/dojo.js" type="text/javascript" 
+                djConfig="parseOnLoad:false"></script>
+	<script type="text/javascript">
 		dojo.require("dojo.parser");
 		dojo.require("dijit.dijit"); // optimize: load dijit layer
 		dojo.require("dijit.layout.BorderContainer");
 		dojo.require("dijit.layout.ContentPane");
 	</script>
 
-	<script src="dojotoolkit/dojox/sketch/Toolbar.js"></script>
-	<script>
+	<script src="dojotoolkit/dojox/sketch/Toolbar.js" type="text/javascript"></script>
+	<script type="text/javascript">
 		dojo.require("dojox.sketch");
 		dojo.require("dojox.sketch.Slider");
 		dojo.require("dojox.sketch.TextAnnotation");
