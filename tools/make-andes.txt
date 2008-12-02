@@ -89,8 +89,9 @@ grep Add *-output.txt
 #  If the grep reports any new files,  add them to cvs. 
 #  Next copy over content files:
 cp -p -u ../../andes_installer.exe content/webcontent
-cp -p -u ../../Videos/*.* content/webcontent
+cp -p -u ../../Videos/videotips.html content/webcontent
 #  Non-problem set specific content must be updated by hand (videos, etc). 
+#  The intro videos on OLI are different than the ones in git.
 cvs commit -m "latest updates, blah blah"
 
 #

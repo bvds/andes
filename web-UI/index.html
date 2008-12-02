@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
 		"http://www.w3.org/TR/html4/strict.dtd">
-<html>  <!-- debug="true" for firebug lite -->
+<html>
 <head>
 	<title>Statics:  s2e</title>
 	<style type="text/css">
@@ -30,8 +30,13 @@
 	<!-- required: the default dijit theme: -->
 	<link id="themeStyles" rel="stylesheet" href="dojotoolkit/dijit/themes/tundra/tundra.css">
 
+        <!-- For debugging in IE -->
+        <script type='text/javascript' 
+        src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
+
         <!-- need to parse dojoType after creating toolbar -->
-	<script src="dojotoolkit/dojo/dojo.js" djConfig="isDebug: true, parseOnLoad:false"></script>
+	<script src="dojotoolkit/dojo/dojo.js" djConfig="isDebug: true, popup: true, 
+                                                         parseOnLoad:false"></script>
 	<script>
 		dojo.require("dojo.parser");
 		dojo.require("dijit.dijit"); // optimize: load dijit layer
@@ -52,7 +57,9 @@
 			var ta=dojox.sketch;
 			f=new ta.Figure();
                         // show result of each drawing step
-			dojo.connect(f, "_mu", function(){ console.log("serialized:  ",f.serialize()); });
+			dojo.connect(f, "_mu", function(){ 
+			    console.log("serialized:  ",f.serialize()); 
+                        });
 			// Instead of calling makeToolbar, customize plugins
 			ta=new dojox.sketch.Toolbar({"figure":f,
 				// Right-justfified elements first
