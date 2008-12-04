@@ -146,6 +146,8 @@ while (<>) { # loop over andes files/sessions
     my $check_entries=0;
     my $time_stamp="";
     my $this_time=0;
+    my $first_hint_flag=1;
+    my $first_action_flag=1;
     
     /^([0-9:]+)\t/ or die "no time stamp for $_";
     my $last_time_stamp=$1;      
@@ -185,6 +187,17 @@ while (<>) { # loop over andes files/sessions
 	} else {
 	  warn "$this_header     Time stamp missing for $_";
 	  next;
+	}
+
+	# histogram time of first hint or first action in session
+	if($first_hint_flag && /\tHelp-Hint /){
+	    $first_hint{$this_time-$loss_of_focus}++;
+	    $first_hint_flag=0;
+	}
+	if($first_action_flag && (/\tSelect-tool / || /\tSelect-Variable /
+	   || /\tVariable-Menu / || /\tNew-Variable /)){
+	    $first_action{$this_time-$loss_of_focus}++;
+	    $first_action_flag=0;
 	}
 	
 	next unless /\tDDE/;  # skip non DDE lines
@@ -365,6 +378,25 @@ if (0) {
     print "\nscorehistogram={";
     foreach $score (sort {$a <=> $b} (keys %score_histogram)) {
 	print "{$score,$score_histogram{$score}}",$score<100?",":"";
+    }
+    print "};\n";
+}    
+
+# print out histogram of first hint and first action in Mathematica notation
+# This is not affected by any of the cutoffs
+if (1) {
+    print "\nfirstHintHistogram={";
+    my $count=0;
+    foreach $time (sort {$a <=> $b} (keys %first_hint)) {
+      if ($count++) {print ",";}
+	print "{$time,$first_hint{$time}}";
+    }
+    print "};\n";
+    print "\nfirstActionHistogram={";
+    $count=0;
+    foreach $time (sort {$a <=> $b} (keys %first_action)) {
+      if ($count++) {print ",";}
+	print "{$time,$first_action{$time}}";
     }
     print "};\n";
 }    
@@ -568,7 +600,7 @@ if (0) {
 # trying to output to spreadsheet did not work because there were too
 # many columns.
 
-if (1) {
+if (0) {
     foreach $problem (sort keys %problems) {
       my @timelist=();
       my @scorelist=();
