@@ -137,6 +137,8 @@ dojo.require("dojox.sketch.Anchor");
 	  var l=prompt('Define vector:',this.property('label'));
 	  if(l!=false){
 	    this.property('label',l);
+	    // pick out any variable name
+	    console.log("variable name ",getVariableName(l));
 	    this.draw();	    // redraw with label this time
 	    }
 	};
