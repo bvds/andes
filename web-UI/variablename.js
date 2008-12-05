@@ -17,10 +17,11 @@
 //    "A_{t=0} is the initial area"
 
 function getVariableName(intext) {
+  if(!intext) return null;
   // canonicalize whitespace
   var cantext = intext.replace(/\s+/g," ");
-  cantext = cantext.replace(/\s*=\s*/," = ");
-  cantext = cantext.replace(/^\s+/,"");
+  if(cantext) cantext = cantext.replace(/\s*=\s*/," = ");
+  if(cantext) cantext = cantext.replace(/^\s+/,"");
   // match for forms like ?var is ...
   var equality=/^([\w\\$]+)(:| is| =) /i;
   var match = equality.exec(cantext);
