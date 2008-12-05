@@ -17,25 +17,26 @@
 //    "A_{t=0} is the initial area"
 
 function getVariableName(intext) {
-  if(!intext) return null;
-  // canonicalize whitespace
-  var cantext = intext.replace(/\s+/g," ");
-  if(cantext) cantext = cantext.replace(/\s*=\s*/," = ");
-  if(cantext) cantext = cantext.replace(/^\s+/,"");
-  // match for forms like ?var is ...
-  var equality=/^([\w\\$]+)(:| is| =) /i;
-  var match = equality.exec(cantext);
-  // console.log("equality match ",match);
-  if (match) return match[1];
-  // match for let ...
-  var letre=/^let ([\w\\$]+) (=|be) /i;
-  match = letre.exec(cantext);
-  // console.log("letre match ",match," for ",cantext);
-  if(match) return match[1];
-  // match for define ...
-  var definere=/^define ([\w\\$]+)(to be|=|as) /i;
-  match = definere.exec(cantext);
-  // console.log("definere match ",match);
-  if (match) return match[1];
+  if(intext){
+    // canonicalize whitespace
+    var cantext = intext.replace(/\s+/g," ");
+    cantext = cantext.replace(/\s*=\s*/," = ");
+    cantext = cantext.replace(/^\s+/,"");
+    // match for forms like ?var is ...
+    var equality=/^([\w\\$]+)(:| is| =) /i;
+    var match = equality.exec(cantext);
+    // console.log("equality match ",match);
+    if (match) return match[1];
+    // match for let ...
+    var letre=/^let ([\w\\$]+) (=|be) /i;
+    match = letre.exec(cantext);
+    // console.log("letre match ",match," for ",cantext);
+    if(match) return match[1];
+    // match for define ...
+    var definere=/^define ([\w\\$]+)(to be|=|as) /i;
+    match = definere.exec(cantext);
+    // console.log("definere match ",match);
+    if (match) return match[1];
+  }
   return null;
 }
