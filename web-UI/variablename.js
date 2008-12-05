@@ -6,11 +6,15 @@
 //    Let ?var be ...
 //    Define ?var (as|to be) ...
 //
-//  To do:
+// Variables are any alphanumeric, _ \ and $, 
+// for LaTeX compatibility
+// 
+// To do:
 //    Test for variable names that begin with a number
 //
-//    Handle variable names containing parentheses:   
-//    "H(house) is the height of the house"
+//    Handle variable names containing parentheses or brackets:   
+//    "H(green house) is the height of the house on Green St."
+//    "A_{t=0} is the initial area"
 
 function getVariableName(intext) {
   // canonicalize whitespace
@@ -18,17 +22,17 @@ function getVariableName(intext) {
   cantext = cantext.replace(/\s*=\s*/," = ");
   cantext = cantext.replace(/^\s+/,"");
   // match for forms like ?var is ...
-  var equality=/^([\w\\]+)(:| is| =) /i;
+  var equality=/^([\w\\$]+)(:| is| =) /i;
   var match = equality.exec(cantext);
   // console.log("equality match ",match);
   if (match) return match[1];
   // match for let ...
-  var letre=/^let ([\w\\]+) (=|be) /i;
+  var letre=/^let ([\w\\$]+) (=|be) /i;
   match = letre.exec(cantext);
   // console.log("letre match ",match," for ",cantext);
   if(match) return match[1];
   // match for define ...
-  var definere=/^define ([\w\\]+)(to be|=|as) /i;
+  var definere=/^define ([\w\\$]+)(to be|=|as) /i;
   match = definere.exec(cantext);
   // console.log("definere match ",match);
   if (match) return match[1];
