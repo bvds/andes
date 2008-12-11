@@ -95,10 +95,10 @@ cp -p -u ../../Videos/videotips.html content/webcontent
 cvs commit -m "latest updates, blah blah"
 
 #
-#         Now switch to working on OLI machine
+#         Now switch to working on OLI [or PSLC] machine
+#         [or the production server learnlab.web.cmu.edu]
 #
-
-ssh bvds@odin.web.cmu.edu
+ssh bvds@odin.web.cmu.edu   # [pslc-qa.andrew.cmu.edu]
 # andersw pass:  andersoli
 echo "setenv CVS_RSH ssh" >> ~/.login  #on first login
 cd /oli/private/bvds
@@ -108,11 +108,10 @@ cvs -d :ext:bvds@oli-cvs.andrew.cmu.edu:/oli/cvs/content/lrdc/intro_physics co -
 
 cd intro_physics-*/
 cvs update -dP
- cp log4j.properties.sample log4j.properties
+cp log4j.properties.sample log4j.properties
 ant
 
 ./tools/oli/deploy.sh
-
 # pipe in account name and password.
 #Account ID: andersw   Password: andersoli
 
@@ -120,10 +119,13 @@ exit
 
 #---------------------------------------------------------------------------
 #
-#              test course using web browser
+#              test OLI [PSLC] course using web browser 
+#              [or PSLC production server learnlab.web.cmu.edu]
 #
-# Browser odin.web.cmu.edu
-# Login via Andrew, then login using "Non-Carnegie Mellon users"
+# Browser odin.web.cmu.edu [pslc-qa.andrew.cmu.edu]
+# [production server has alias http://learnlab.web.cmu.edu/physics/ ]
+# Login via Andrew, [not needed for PSLC production server]
+# then login to site using "Non-Carnegie Mellon users"
 # "Create a new course"  this is what an instructor will do.
 # Create a new course
 # simple mode:  choose course
