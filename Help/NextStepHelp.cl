@@ -2421,8 +2421,8 @@
 (defun nsh-cbf-invalid (Best Solutions Principles Sought Past)
   "Alert the student to their state and start them over."
   (make-dialog-turn
-   (strcat "While the principle that you have chosen a valid way to "
-	   "start a problem solution, there are no solutions that apply it with "
+   (strcat "While you may apply this principle, "
+	   "there are no solutions that apply it with "
 	   "the coordinate system that you have currently drawn.  Do you want to "
 	   "change your axes rotation or pick a different principle?")
    '("Axes" "Principle")
