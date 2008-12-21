@@ -23,6 +23,7 @@
 # Can also use MFC IDE, choose FBD/Fbd.dsw and choose 
 # "Win32 OLI Release", build "Fbd-tcp.exe" need all three versions ...).
 # Then move executables with "mv -v FBD/*_Release/Fbd-*.exe ."
+# Modify FILEVERSION and PRODUCTVERSION in FBD/FBD.rc
 make workbench
 
 # Can also user MFC ide, show all files, choose Algebra/src/Solver.dsw,
