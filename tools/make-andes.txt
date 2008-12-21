@@ -70,7 +70,7 @@ tools/MakeDist.sh -oli
 mkdir -p oli-course
 cd oli-course
 # replace with right user name and version, see tools/Andes-OLI.html
-# andersw pass: andersoli
+ # andersw pass: andersoli
 cvs -d :ext:bvds@oli-cvs.andrew.cmu.edu:/oli/cvs/content/lrdc/intro_physics co -P -d intro_physics-2.0 intro_physics-1.0 
 #
 # edit oli-course/intro-physics-*/content/package.xml & update version number
