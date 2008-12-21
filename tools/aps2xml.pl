@@ -32,12 +32,13 @@ $ANDES = "../..";
 "optics", "em",
 "electromagnetic_waves", "em",
 "ac_circuits", "em",
+"em-extras", "em"
 );
 
 # IMPORTANT: remember to set this switch correctly! 
 # Set to 1 if building a version that shouldn't show any stubs (e.g. for open and free)
 # Set to 0 to include stub processing
-$ignore_stubs = 1; # set to 1 to ignore stub problems entirely
+$ignore_stubs = 0; # set to 1 to ignore stub problems entirely
 
 use File::Copy;
 
@@ -208,7 +209,7 @@ EOV
 
 	    if ($stub) {
 		    print "Creating stub for $problemid\n";
-		    print LP "<p><em>This problem will be added in a future release of ANDES. DO NOT ATTEMPT this problem until instructed that it is ready and you have obtained the updated ANDES software.</em></p>"
+		    print LP "<p><em>This problem is not ready for use.</em></p>"
 	    }
 	    else # not a stub now
 	    {
@@ -218,7 +219,7 @@ EOV
 		# automatic
 	
 		# Set following to current version suffix (for stub copying below). Should mkdir!
-		$currentver = "1201";
+		$currentstubs = "stubs-2.0.0";
 		if (-e "Stubs1203/$problemid.prb" ) {
  		    print LP "<p>This problem requires <link href=\"../../../webcontent/andes_installer.exe\">upgrade to Andes 12.0.4</link> or higher.</p>";
 		    print "Unstubbed in 12.0.4: $problemid\n";
@@ -248,7 +249,7 @@ EOV
 	    }
 	    if ($stub) {
 	       &sync("$ANDES/Problems/DUMMY.prb", $prbdst) or warn "couldn't copy DUMMY.prb for $problemid.prb";
-	       &sync("$ANDES/Problems/DUMMY.prb", "Stubs$currentver/$problemid.prb") or warn "couldn't copy DUMMY.prb to current stub Dir $problemid.prb";
+	       &sync("$ANDES/Problems/DUMMY.prb", "$currentstubs/$problemid.prb") or warn "couldn't copy DUMMY.prb to current stub Dir $problemid.prb";
 	    } else {
 	       &sync("$ANDES/Problems/$problemid.prb", $prbdst) or warn "couldnt copy $problemid.prb";
 	    }
