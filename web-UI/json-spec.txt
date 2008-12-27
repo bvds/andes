@@ -1,0 +1,11 @@
+
+This is the json spec for Andes3
+
+The idea here is to go through the demo in http://www.andestutor.org/AAPT-2007 and describe how the communication would look in json format.
+
+time is milliseconds since that matches javascript getTime() function.  time is wall-clock time since some arbitrary initial point, possibly the beginning of the session.
+
+0:02 
+
+[
+           {"time" : 2000, 
