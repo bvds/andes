@@ -1,0 +1,77 @@
+Kurts notes from Dec. 18 discussion on server design.
+
+1.      Student logs in to WebAssign, which authenticates, records the
+IP address of the student, and generates a session id.
+
+2.      Student navigates to homework page that displays Andes problems.
+WebAssign generates this page that has Andes links that embed the
+session id inside them.
+
+3.      Student clicks on the Andes link, which sends to the Andes P
+server the sessions id and the problem id.  The IP address comes along
+as part of the HTTP protocol.
+
+4.      PROBLEM START. Andes P server contacts WebAssign to get the
+student id from the session id, and to check that the session is in
+progress.
+
+5.      Andes P server get the OK from WebAssign, it sends the client
+drawing program with a canvas that shows the text and graphic of the
+problem with the P server's IP address embedded.  Meanwhile, it starts a
+Lisp job passing in the student ID and the problem ID.
+
+6.      Student client sends a request for existing steps which contains
+the session id to the (right) Andes P server.
+
+7.      The P server asks Lisp for the existing steps.  Lisp sends a
+list of previously done steps e.g., predefined vectors, previously
+written equations, etc.
+
+8.      P server pass these to the client, which renders them and waits
+for the student.
+
+9.      When the student does an action, it is sent to the P server
+(with session ID) which passes it along to the appropriate Lisp.
+
+10.     Lisp generates a response and sends it to the P server (with
+session ID) which passes it back to the client.
+
+11.     After lots of this, the student closes the problem (e.g.,
+normally by the browsers back button).  The client tells P server to end
+the session.
+
+12.     P server tells the appropriate to end the problem.
+
+13.     Lisps saves the solutions (flush output buffer) and sends the
+score on this problem to WebAssign along with the Student ID and problem
+ID.
+
+14.     Student is now looking at the list of Andes problems, and clicks
+on a new one (let's say; case where they click on the Forward or same
+problem discussed later).  The link has the session ID and the problem
+ID, and they are sent to the Andes P server.  Go to step PROBLEM START
+above.
+
+15.     If the student clicks on the Forward button (or the same problem
+as they were working on), then P server does the same think as it always
+does.  The student's old work has been save by Andes, so it is displayed
+along with the static problem images, text, etc.
+
+If an instructor is using WebAssign to tutor students or view their
+work, then the "student ID" has a bit which indicates instructor is
+using it.  Andes copies the student historical files from that student
+ID to this new ID and uses them to initialize the problem.
+
+If WebAssign knows that a student has logged out (or been logged out by
+a sysadmin or instructor), then it sends an unsolicited message ot the
+Andes P server, which stops the Andes session.
+
+
+-------------------------------------------------------------------
+SitePen implements client and the Andes P server.
+
+We implement the Lisp and its communication with WebAssign's server.
+
+WebAssign provides code or a running server for testing.
+
+-------------------------------------------------------------------
