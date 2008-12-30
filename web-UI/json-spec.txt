@@ -1,0 +1,79 @@
+
+This is the client-server API  for Andes3
+
+Definitions:
+
+user session:  each instance of a student trying to solve a problem.  It
+is marked by a unique integer.
+
+controller script:  This is a script running on the web server that receives 
+http requests, sends them on to the appropriate lisp process, and then 
+forwards the reply from the lisp process back to the client.  It may also 
+log messages.
+
+lisp process:  This is a process running the help system for one or more
+user sessions.  It is assumed to be already running and ready for input.
+That is, the process is neither started or stopped by the controller script.
+
+The the following design decisions have not been made and the 
+API should be agnostic to them:
+
+1.  Does a single lisp process handles one or many user sessions?
+
+2.  Does one allow for multiple sessions on one machine?
+
+3.  Is logging done by the lisp process or by the controller script on
+     the web server?  There is a lisp interface to SQL type databases, so we
+     could have the lisp process handle the logging.
+
+The idea here is to go through the demo in http://www.andestutor.org/AAPT-2007 and 
+describe how the communication would look in json format.
+
+"session" a unique integer assigned to each user session.
+
+"time" is in seconds since some arbitrary start time, perhaps the beginning
+of the user session.  May include decimal fractions;  the intent is to use the
+javascript t.getTime()/1000.  This should not be used to infer the absolute
+time associated with a user session; absolute time on client machines cannot be trusted.
+
+
+0:02 
+
+1.  validate student, login pass, problem
+     set session id.
+[
+           {"session" : 34342, "time" : 2.000, 
+	    "action" : { "user" : joe, "problem" : "s2e"}}
+
+"action" : "validate-session",
+"user" : "bobh",
+
+{"action" : "set-session-id", "session" : 3432}  
+{"session" : 3232, a
+
+{"session" : 3432, "action" : "get-problem"}
+
+text-width is integer for characters, optional (can also use embedded newlines "\n")
+dx for text is optional width in screen units.  
+
+{"draw" : {"id" : 0, "type" : "text", "mode" : "locked", "x" : 33, "y" : 45, "text-width" : 80,
+   "label" : "A spherical ball with a mass of 2.00 kg rests in the notch ..."}}
+{"draw" : {"id" : 1, "type" : "graphics", "mode" : "locked", "x" : 53, "y" : 15,
+      "dx" : 150, "dy" : "180" , "href" : "http://www.andestutor.org/web-UI/s2e.gif"}}
+{"draw" : {"id" : 2, "type" : "text", "mode" : "correct", "x" : 200, "y" : 55,
+      "label" : "g = 9.8 m/s^2 is the gravitational acceleration \nnear earth."}
+
+If there was previous work, it would be set here.  Also, there would be a score vector
+sent to the help system but ignored by the client.
+{"set-stats" : {"NSH_BO_Call_Count" : 0, "WWH_BO_Call_Count" : 0,
+      "Correct_Entries_V_Entries" : [0,0],  "Correct_Answer_Entries_V_Answer_Entries" :  [0 0]}}
+
+{"net-score" : 0}
+
+"id" is set by the client.
+rot is angle in degrees. dx is length of x-axis.
+x-label, y-label are hard-coded into client
+
+{"last-time" : 8.000},
+{"session" : 3232, "time" : 50.000, "draw-object" : {"id" : 3,  "type" : "axes", "x" : 77, "y" : 88,
+	   "rot" : 88,  "dx" : 120, "x-label" : "x", 
