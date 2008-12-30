@@ -14,6 +14,7 @@ The "drawing demo" is at http://gideon.eas.asu.edu/web-UI/ and
 the Tim Nokes demo solution and associated log file are at 
 http://www.andestutor.org/AAPT-2007/Nokes_Example.swf and
 http://www.andestutor.org/AAPT-2007/nokes_demo_s2e.html.
+The Andes problem chooser tool can be found at http://www.andestutor.org/sets
 An example variable name matcher variablename.js can be found at
 http://gideon.eas.asu.edu/web-UI/variablename.js
 
@@ -33,7 +34,7 @@ on a Cox Cable connection, where the measured download
 bandwidth is 1.5 Mbits/s and measured upload bandwidth is 250 kbits/s.
 [13 seconds is the median time for students, after opening
 an Andes problem, to start doing something.  This number is based
-on analysis of the USNA 2007-2008 log files.  Currently, I am 
+from analysis of the USNA 2007-2008 log files.  Currently, I am 
 measuring 35 seconds for the above benchmark using the drawing demo 
 on a fast machine, so I don't know if this target is realistic.]
 
@@ -42,9 +43,8 @@ shown in the Nokes demo solution with the following exceptions:
     a.  All of the dialog boxes associated with defining
         quantities (variables, bodies, axes and vectors) are replaced 
 	with plain text entry dialog boxes.
-    b.  Choosing the sought quantity and the principle of physics
-        is replaced by plain text entry in the help dialog window.
-    c.  The score is deferred to a later stage.
+    b.  Choosing the sought quantity is replaced by plain text entry 
+         in the help dialog window.
     d.  Entry of Greek letters is done with plain text in LaTeX style.
 
 6.  At any step in the problem-solving process, the user should be 
@@ -69,7 +69,8 @@ minimum functionality:
         be functional.
     c.  The toolbar only needs to contain the axis tool, vector drawing 
         tool, a body tool (any shape OK), equation tool, definition
-        tool, and help button
+        tool, and help button.
+    d. The menu bar does not need to be functional.
 
 8.  More details on the functionality of the drawing tools.
     a.  When vectors and axes are swept out, the angle is shown 
@@ -116,41 +117,53 @@ minimum functionality:
         provide a mechanism for the student to enter a reply (either
         via radio buttons or clicking a link).  
 	[In Andes2 most of the student replies are multiple-choice].
-        As mentioned above, choosing the sought quantity and a principle
-        will be done via text entry.
+        As mentioned above, choosing the sought quantity will be done via text entry.
 
-10.  In order for the the drawing application to function, it must be
-     connected to a server.  The server will be running a lisp application
-     called the "help system" that analyzes student entries and provides
-     hints on demand.  Since our partners (WebAssign and LON-CAPA) use perl 
+10.  Window for selecting a principle of physics.  The ASU team will supply the 
+       the json code for constructing an window where the student can select a 
+       principle of physics.  See the Andes problem chooser tool for 
+       a similar application.  We need a way of writing Greek letters in the menu.
+
+11.  In order for the the drawing application to function, it must be 
+     connected to a server.  Since our  partners (WebAssign and LON-CAPA) use perl 
      extensively, we would prefer to use perl-based tools on the server.
+
+12.  The ASU team will specify the API for communication 
+    between the server and the drawing application, to be completed by January 15,
+    subject to further revision, as needed.  This is roughly analogous
+    to the (undocumented) API used in Andes2, see the Nokes demo log file
+    for an example.
+     a.  The API will use json and include a json schema and written description.
+     b.  The API will be specified with sufficient detail so that the Nokes
+          demo solution can be sucessfully completed.
+     c.  SVG is not sufficiently abstract:  the API should divide visual
+         presentation from content.  Thus, vectors should be
+	 described by position coordinates, length, angle, defining text, and
+         status (right, wrong, unknown, fade, or locked).
+     d.  For Step 1, visual presentation (colors, line widths, arrow shapes, 
+	 etc.) will be hard-coded into the drawing application.  However, in 
+         later Steps, such style information should be transferable back 
+	 and forth to the server.
+     e.  Problem text and any pre-defined quantities will be delivered
+         to the client through the API.
+
+13.    The server will be running a lisp application called the "help system" 
+     that analyzes student entries and provides hints on demand.  
      The team at ASU will give the help system the required
      functionality and interface the help system with the web server.
      The help system will use the same API as used for client-server 
      communication.
 
-11. The ASU team will specify the API for communication between
-    the server and the drawing application, to be completed by January 15,
-    subject to further revision, as needed.  This is roughly analogous
-    to the (undocumented) API used in Andes2, see the Nokes demo log file
-    for an example.
-     a.  The API will use json.
-     b.  SVG is not sufficiently abstract:  the API should divide visual
-         presentation from content.  Thus, vectors should be
-	 described by position coordinates, length, angle, defining text, and
-         status (right, wrong, unknown, fade, or locked).
-     c.  For Step 1, visual presentation (colors, line widths, arrow shapes, 
-	 etc.) will be hard-coded into the drawing application.  However, in 
-         later Steps, such style information should be transferable back 
-	 and forth to the server.
+14.  The ASU team will provide a working help system that implements
+       the above API by January 30.
 
-11.  The team at ASU will be responsible for testing of the drawing interface.
+15.  The team at ASU will be responsible for testing of the drawing interface.
      Usability testing will be carried out using paid student volunteers.
      Since we won't have the partial scaffolding mechanism (as described in 
      the IES grant proposal), the students will follow a set of written 
      instructions.
 
-12.  Through the development process, the code for both the help system and
+16.  Through the development process, the code for both the help system and
      the drawing utility will be kept in publicly accessible repositories.
      Bug reporting will be handled through the normal dojo project mechanisms.
      Also, any errors in the documentation will be reported through the normal
@@ -158,24 +171,26 @@ minimum functionality:
      date.  All code developed for this project will have the associated 
      documentation and comments written simultaneously.
 
-13.  The team at ASU will provide server hardware and give members 
+17.  The team at ASU will provide server hardware and give members 
      of the development team login access to the server, as needed.   The ASU
-     team will provide a source control repository for code associated with the server.
+     team will provide a source control repository for any code not placed in the dojo project.
      This code will be made publically available under an open source license
      on a third-party server, as specified in the existing agreement between the ASU team
      and WebAssign.
 
 -------------------------------------------------------------------------------
 
-Step 2 
-I have not yet formulated Step 2, and beyond, since we will need
-to prioritize the things that need to be done.  Obviously, we
-need the functionality so that all of the current Andes problems
-can be solved on the user interface.  Here is an unordered list:
+Step 2
+
+These are items that need to be completed in order for Andes to be used for
+a classroom course.  The target date for deployment is August 2009,
+so these targets will need to to be completed by mid-June 2009. 
 
 1.  Implement the input method described in Bug #1488.
 
-2.  Good behavior for back and reload buttons...
+2.  Good behavior for back, window close, and reload buttons.  The back 
+     and window close buttons will end a user session.  The reload button
+     will end a user session and start a new one.
 
 3.  Good behavior for losing Internet connection for a while:
        can still do problem solving steps, but messages to 
@@ -207,19 +222,14 @@ can be solved on the user interface.  Here is an unordered list:
     	     list of pre-defined constants
     	     list of notational conventions.
     	     list of mini-lessons on various topics.
-      The pages will be supplied by the ASU team.
-
-13.  Implement method for choosing a principle of physics, similar
-       to the method used in Andes2.  See http://www.andestutor.org/sets for
-       a dojox implementation of a tree for choosing principles.
-       Need a way of writing Greek letters in the menu.
+      The html pages will be supplied by the ASU team.
 
 14. Specify and implement user interface actions for drawing 3-D
     vectors.
 
 15. Draw lines, as needed for current optics problems.
 
-16. Implement method for pre-defined quantities, as is possible in Andes2.
+16.  Help with Greek letter input.
 
 17. Implement the fading method described in the IES grant proposal.
 
