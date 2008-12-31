@@ -68,8 +68,8 @@ minimum functionality:
     b.  The menu bar, menus, and score must be present but need not
         be functional.
     c.  The toolbar only needs to contain the axis tool, vector drawing 
-        tool, a body tool (any shape OK), equation tool, definition
-        tool, and help button.
+        tool, a circle tool, equation tool, definition
+        tool, rectangle tool, and help button.
     d. The menu bar does not need to be functional.
 
 8.  More details on the functionality of the drawing tools.

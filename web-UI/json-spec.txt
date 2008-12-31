@@ -26,15 +26,16 @@ API should be agnostic to them:
      the web server?  There is a lisp interface to SQL type databases, so we
      could have the lisp process handle the logging.
 
-The idea here is to go through the demo in http://www.andestutor.org/AAPT-2007 and 
-describe how the communication would look in json format.
+The idea here is to go through the demo in http://www.andestutor.org/AAPT-2007 
+and describe how the communication would look in json format.
 
 "session" a unique integer assigned to each user session.
 
 "time" is in seconds since some arbitrary start time, perhaps the beginning
 of the user session.  May include decimal fractions;  the intent is to use the
 javascript t.getTime()/1000.  This should not be used to infer the absolute
-time associated with a user session; absolute time on client machines cannot be trusted.
+time associated with a user session; absolute time on client machines cannot be 
+trusted.
 
 
 0:02 
@@ -42,38 +43,118 @@ time associated with a user session; absolute time on client machines cannot be 
 1.  validate student, login pass, problem
      set session id.
 [
-           {"session" : 34342, "time" : 2.000, 
-	    "action" : { "user" : joe, "problem" : "s2e"}}
+           {"session": 34342, "time": 2.000, 
+	    "action": { "user": joe, "problem": "s2e"}}
 
-"action" : "validate-session",
-"user" : "bobh",
+"action": "validate-session",
+"user": "bobh",
 
-{"action" : "set-session-id", "session" : 3432}  
-{"session" : 3232, a
+{"action": "set-session-id", "session": 3432}  
+{"session": 3232, a
 
-{"session" : 3432, "action" : "get-problem"}
+{"session": 3432, "action": "get-problem"}
 
-text-width is integer for characters, optional (can also use embedded newlines "\n")
+text-width is integer for characters, optional (can also use newlines "\n")
 dx for text is optional width in screen units.  
 
-{"draw" : {"id" : 0, "type" : "text", "mode" : "locked", "x" : 33, "y" : 45, "text-width" : 80,
-   "label" : "A spherical ball with a mass of 2.00 kg rests in the notch ..."}}
-{"draw" : {"id" : 1, "type" : "graphics", "mode" : "locked", "x" : 53, "y" : 15,
-      "dx" : 150, "dy" : "180" , "href" : "http://www.andestutor.org/web-UI/s2e.gif"}}
-{"draw" : {"id" : 2, "type" : "text", "mode" : "correct", "x" : 200, "y" : 55,
-      "label" : "g = 9.8 m/s^2 is the gravitational acceleration \nnear earth."}
+{"new-object": {"id": 0, "type": "text", "mode": "locked", 
+	      "x": 33, "y": 45, "text-width": 80,
+	      "label": "A spherical ball with a mass of 2.00 kg rests in the notch ..."}}
+{"new-object": {"id": 1, "type": "graphics", "mode": "locked", 
+	      "x": 53, "y": 15, "dx": 150, "dy": "180" , 
+	      "href": "http://www.andestutor.org/web-UI/s2e.gif"}}
+{"new-object": {"id": 2, "type": "text", "mode": "correct", 
+	      "x": 200, "y": 55, 
+              "label": "g = 9.8 m/s^2 is the gravitational acceleration \nnear earth."}
 
-If there was previous work, it would be set here.  Also, there would be a score vector
-sent to the help system but ignored by the client.
-{"set-stats" : {"NSH_BO_Call_Count" : 0, "WWH_BO_Call_Count" : 0,
-      "Correct_Entries_V_Entries" : [0,0],  "Correct_Answer_Entries_V_Answer_Entries" :  [0 0]}}
+If there was previous work, it would be set here.  Also, there would be a 
+score vector sent to the help system but ignored by the client.
 
-{"net-score" : 0}
+{"set-stats": {"NSH_BO_Call_Count": 0, "WWH_BO_Call_Count": 0,
+      "Correct_Entries_V_Entries": [0,0],  
+      "Correct_Answer_Entries_V_Answer_Entries":  [0 0]}}
+
+{"net-score": 0}
 
 "id" is set by the client.
 rot is angle in degrees. dx is length of x-axis.
 x-label, y-label are hard-coded into client
 
-{"last-time" : 8.000},
-{"session" : 3232, "time" : 50.000, "draw-object" : {"id" : 3,  "type" : "axes", "x" : 77, "y" : 88,
-	   "rot" : 88,  "dx" : 120, "x-label" : "x", 
+0:50 student draws ball
+
+{"session": 3232, "set-time": 8.000, "id": 2},
+{"session": 3232, "time": 50.000, "new-object": {"id": 3,  "type": "circle", 
+	   "mode": "unknown", "x": 66, "y": 188, "label": "ball"}},
+
+{"assoc" : {"(BODY BALL)": "DRAW-BODY"}, "id": 3}
+{"net-score": 15}
+{"modify-object": {"id": 3, "mode": "correct"}}
+
+1:09 student draws axes
+
+{"session": 3232, "set-time": 51.000, "id": 3},
+{"session": 3232, "time": 69.000, "new-object": {"id": 4,  "type": "axes", 
+	   "mode": "unknown", "x": 77, "y": 88, "rot": 88,  "dx": 120, 
+	   "x-label": "x", "y-label": "y"}},
+
+
+{"assoc" : {"(DRAW-AXES 0)": "DRAW-UNROTATED-AXES"}, "id": 4}
+{"net-score": 25}
+{"modify-object": {"id": 4, "mode": "correct"}}
+
+1:14 student moves ball
+
+{"session": 3232, "set-time": 71.111, "id": 4},
+{"session": 3232, "time": 74.000, "modify-object": {"id": 3,
+	    "x": 88, "y": 99}}
+
+no reply since this doesn't affect solution
+1:16 student moves axes
+
+{"session": 3232, "time": 76.000, "modify-object": {"id": 4,
+	    "x": 108, "y": 109}}
+
+no reply since this doesn't affect solution
+1:57 define mass of ball
+
+{"session": 3232, "time": 117.001, "new-object": {"id": 5,  "type": "text", 
+	   "mode": "unknown", "x": 177, "y": 188, "text-width": 66, 
+	   "label": "m=2 kg is the mass of the ball"}},
+
+{"assoc" : {"(DEFINE-VAR (MASS BALL))": "DEFINE-MASS"}, "id": 5}
+{"parse" : "(= m_BALL (DNUM 2.0 kg))", "id": 5}
+{"net-score": 40}
+{"modify-object": {"id": 5, "mode": "correct"}}
+
+3:18 draw first force vector
+
+{"session": 3232, "set-time": 118.000, "id": 5},
+{"session": 3232, "time": 198.001, "new-object": {"id": 6,  "type": "vector", 
+	   "mode": "unknown", "x": 240, "y": 222, "rot": 120,
+	   "symbol": "Fwall1", "x-label": 300, "y-label": 350,
+	   "label": "Fwall1 is force due to wall1 acting on ball"}},
+
+{"assoc" : {"VECTOR (FORCE BALL WALL1 NORMAL :TIME 1) (DNUM 120 deg))": "DRAW-NORMAL"}, "id": 6}
+{"modify-object": {"id": 6, "mode": "correct"}}
+
+4:21 draw second force vector
+
+{"session": 3232, "set-time": 199.000, "id": 6},
+{"session": 3232, "time": 261.001, "new-object": {"id": 7,  "type": "vector", 
+	   "mode": "unknown", "x": 241, "y": 224, "rot": 40, 
+	   "symbol": "Fwall2", "x-label": 300, "y-label": 360,
+	   "label": "Fwall2 is force due to wall2"}},
+
+{"assoc" : {"VECTOR (FORCE BALL WALL3 NORMAL :TIME 1) (DNUM 40 deg))": "DRAW-NORMAL"}, "id": 7}
+{"modify-object": {"id": 7, "mode": "correct"}}
+
+5:09 draw third force vector
+
+{"session": 3232, "set-time": 263.000, "id": 7},
+{"session": 3232, "time": 309.001, "new-object": {"id": 8,  "type": "vector", 
+	   "mode": "unknown", "x": 245, "y": 224, "rot": 270, 
+	   "symbol": "Fearth", "x-label": 300, "y-label": 370,
+	   "label": "Fearth is force due to gravity"}},
+
+{"assoc" : {"VECTOR (FORCE BALL EARTH WEIGHT :TIME 1) (DNUM 270 deg))": "DRAW-WEIGHT"}, "id": 8}
+{"modify-object": {"id": 8, "mode": "correct"}}
