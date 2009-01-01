@@ -231,6 +231,11 @@ so these targets will need to to be completed by mid-June 2009.
 
 16.  Help with Greek letter input.
 
+17.  After receiving a response from the server, the client sents
+     a notification message giving time the response was 
+     implemented in the client.  In json-rpc format:
+     {"method": "update", "params": {"id": 1, "response-time": 8.000}}
+
 17. Implement the fading method described in the IES grant proposal.
 
 18. Scaling to many simultaneous users.
