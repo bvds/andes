@@ -42,20 +42,24 @@ session; absolute time on client machines cannot be trusted.
 {"method": "get-problem", "params": {"session": 3422, "time": 0.000, 
 	   "problem": "s2e", "user": "joe"}}
 
-text-width is integer for characters, optional (can also use embedded newlines)
+Width of text box set explicitly by "text-width" in em units or implicitly 
+by newlines in the text.
 "id" is used as a hash for referencing graphics objects, set by 
 the creator of the object.
 
 [
   {"action": "new-object", "id": 0, "type": "text", "mode": "locked", 
 	     "x": 3, "y": 5, "text-width": 80,
-	     "label": "A spherical ball with a mass of 2.00 kg rests in the notch ..."},
+	     "text": "A spherical ball with a mass of 2.00 kg rests in the notch ..."},
   {"action": "new-object", "id": 1, "type": "graphics", "mode": "locked", 
 	     "x": 53, "y": 15, "dx": 150, "dy": "180" , 
 	     "href": "http://www.andestutor.org/web-UI/s2e.gif"},
   {"action": "new-object", "id":  2, "type": "text", "mode": "correct", 
 	     "x": 200, "y": 55, 
-	     "label": "g = 9.8 m/s^2 is the gravitational acceleration \nnear the surface of the earth."},
+	     "text": "g = 9.8 m/s^2 is the gravitational acceleration \nnear the surface of the earth."},
+  {"action": "new-object", "id":  2.5, "type": "text", "mode": "correct", 
+	     "x": 200, "y": 75, 
+	     "text": "T0 is the time."},
   {"action": "log", "score": {"NSH_BO_Call_Count": 0, "WWH_BO_Call_Count": 0,
 	     "Correct_Entries_V_Entries": [0,0],  
 	   " Correct_Answer_Entries_V_Answer_Entries":  [0 0]}}
@@ -68,9 +72,10 @@ be stripped from the result returned to the client.
 
 0:50 student draws ball
 
-{"method": "new-object", "params": {"session": 3232, "time": 50.000, "id": 3,  
+{"method": "help", "params": {"session": 3232, "time": 50.000, 
+	   "action": "new-object", "id": 3,  
 	   "type": "circle", "mode": "unknown", 
-	   "x": 66, "y": 188, "label": "ball"}, "id": 2}
+	   "x": 66, "y": 188, "r": 25, "text": "ball"}, "id": 2}
 
 [
   {"action": "log", "assoc": {"DRAW-BODY": "(BODY BALL)"}},
@@ -79,12 +84,13 @@ be stripped from the result returned to the client.
 ]
 
 1:09 student draws axes
-"rot" is angle in degrees. "dx" is length of x-axis.
+"angle" is angle in degrees. "r" is length of axes.
 "x-label", "y-label" are hard-coded into client.
 
-{"method": "new-object", "params": {"session": 3232, "time": 69.000, "id": 4,  
+{"method": "help", "params": {"session": 3232, "time": 69.000, 
+	   "action": "new-object", "id": 4,  
 	   "type": "axes", "mode": "unknown", 
-	   "x": 77, "y": 88, "rot": 88,  "dx": 120, 
+	   "x": 77, "y": 88, "angle": 88,  "r": 120, 
 	   "x-label": "x", "y-label": "y"}, "id": 3}
 
 [
@@ -93,83 +99,88 @@ be stripped from the result returned to the client.
   {"action": "modify-object", "id": 4, "mode": "correct"}
 ]
 
-1:14 student moves ball
+1:14 student moves ball, client changes it to "unknown"
 
-{"method": "modify-object", "params": {"session": 3232, "time": 74.000, "id": 3,
-	    "x": 88, "y": 99}, "id": 4}
+{"method": "help", "params": {"session": 3232, "time": 74.000, "id": 3,
+	    "action": "modify-object",  "mode": "unknown", "x": 88, "y": 99}, "id": 4}
 
-Empty reply since this doesn't affect solution
+[
+  {"action": "modify-object", "id": 3, "mode": "correct"}
+]
 
-[]
+1:16 student moves axes, client changes it to "unknown"
 
-1:16 student moves axes
+{"method": "help", "params": {"session": 3232, "time": 76.000, 
+	   "action": "modify-object", "id": 4, "x": 108, "y": 109}, "id": 5}
 
-{"method": "modify-object", "params": {"session": 3232, "time": 76.000, "id": 4,
-	    "x": 108, "y": 109}, "id": 5}
-
-Empty reply since this doesn't affect solution
-
-[]
+[
+  {"action": "modify-object", "id": 4, "mode": "correct"}
+]
 
 1:57 define mass of ball
 
-{"method": "new-object", "params": {"session": 3232, "time": 117.001, "id": 5,  
+{"method": "help", "params": {"session": 3232, "time": 117.001, 
+	   "action": "new-object", "id": 5,  
 	   "type": "text", "mode": "unknown", 
 	   "x": 177, "y": 188, "text-width": 66, 
-	   "label": "m=2 kg is the mass of the ball"}, "id": 6}
+	   "text": "m=2 kg is the mass of the ball"}, "id": 6}
 
 [
   {"action": "log", "assoc": {"DEFINE-MASS": "(DEFINE-VAR (MASS BALL))"}, "id": 5}
   {"action": "log", {"parse": "(= m_BALL (DNUM 2.0 kg))"},
   {"action": "set-score", "score", 40},
-  {"action": "modify-object": {"id": 5, "mode": "correct"}}
+  {"action": "modify-object", "id": 5, "mode": "correct"}
 ]
 
 3:18 draw first force vector
 
-{"method": "new-object", "params": {"session": 3232, "time": 198.001, "id": 6,  
+{"method": "help", "params": {"session": 3232, "time": 198.001, 
+	   "action": "new-object", "id": 6,  
 	   "type": "vector", "mode": "unknown", 
-	   "x": 240, "y": 222, "rot": 120,
+	   "x": 240, "y": 222, "angle": 120,  "r": 60,
 	   "symbol": "Fwall1", "x-label": 300, "y-label": 350,
-	   "label": "Fwall1 is force due to wall1 acting on ball"}, "id": 7}
+	   "text": "Fwall1 is force due to wall1 acting on ball"}, "id": 7}
 
 [
   {"action": "log", "assoc": {"DRAW-NORMAL": "VECTOR (FORCE BALL WALL1 NORMAL :TIME 1) (DNUM 120 deg))"},
-  {"action": "modify-object": {"id": 6, "mode": "correct"}}
+  {"action": "modify-object", "id": 6, "mode": "correct"}
 ]
 
 4:21 draw second force vector
 
-{"method": "new-object", "params": {"session": 3232, "time": 261.001, "id": 7,  
+{"method": "help", "params": {"session": 3232, "time": 261.001, 
+	   "action": "new-object", "id": 7,  
 	   "type": "vector", "mode": "unknown", 
-	   "x": 241, "y": 224, "rot": 40, 
+	   "x": 241, "y": 224, "angle": 40, "r": 88,
 	   "symbol": "Fwall2", "x-label": 300, "y-label": 360,
-	   "label": "Fwall2 is force due to wall2"}, "id": 8}
+	   "text": "Fwall2 is force due to wall2"}, "id": 8}
 
 [
   {"action": "log", "assoc": {"DRAW-NORMAL": "VECTOR (FORCE BALL WALL3 NORMAL :TIME 1) (DNUM 40 deg))"},
-  {"action": "modify-object": {"id": 7, "mode": "correct"}}
+  {"action": "modify-object", "id": 7, "mode": "correct"}
 ]
 
 5:09 draw third force vector
 
-{"method": "new-object", "params": {"session": 3232, "time": 309.001, "id": 8,
+{"method": "help", "params": {"session": 3232, "time": 309.001, 
+	   "action": "new-object", "id": 8,
 	   "type": "vector", "mode": "unknown", 
-	   "x": 245, "y": 224, "rot": 270, 
+	   "x": 245, "y": 224, "angle": 270, "r": 77,
 	   "symbol": "Fearth", "x-label": 300, "y-label": 370,
-	   "label": "Fearth is force due to gravity"}, "id": 9}
+	   "text": "Fearth is force due to gravity"}, "id": 9}
 
 [
   {"action": "log", "assoc": {"DRAW-WEIGHT": "VECTOR (FORCE BALL EARTH WEIGHT :TIME 1) (DNUM 270 deg))"},
-  {"action": "modify-object","id": 8, "mode": "correct"}
+  {"action": "modify-object", "id": 8, "mode": "correct"}
 ]
 
 6:25 First equation, client has to encode the backspace.
 
-{"method": "new-object", "params": {"session": 3232, "time": 385.001, "id": 9,  
+{"method": "help", "params": {"session": 3232, "time": 385.001, 
+	   "action": "new-object", "id": 9,  
 	   "type": "equation", "mode": "unknown", 
 	   "x": 15, "y": 300, 
-	   "label": "Fwall1_x = Fwall1 * cos (\\thetaFwall1)"}, "id": 10}
+	   "text": "Fwall1_x = Fwall1 * cos (\\thetaFwall1)"}, "id": 10}
 
 [
   {"action": "log", "parse": "(= Xc_Fn_BALL_WALL1_1_0 (* Fn_BALL_WALL1_1 (COS OFn_BALL_WALL1_1)))"},
@@ -180,10 +191,11 @@ Empty reply since this doesn't affect solution
 
 7:01 Second equation
 
-{"method": "new-object", "params": {"session": 3232, "time": 421.001, "id": 10,
+{"method": "help", "params": {"session": 3232, "time": 421.001, 
+	   "action": "new-object", "id": 10,
 	   "type": "equation", "mode": "unknown", 
 	   "x: 15, "y": 310, 
-	   "label": "Fwall1_y = Fwall1 * sin (\\thetaFwall1)"}, "id": 11}
+	   "text": "Fwall1_y = Fwall1 * sin (\\thetaFwall1)"}, "id": 11}
 
 [
   {"action": "log", "parse": "(= Xc_Fn_BALL_WALL1_1_0 (* Fn_BALL_WALL1_1 (COS OFn_BALL_WALL1_1)))"},
@@ -195,10 +207,11 @@ Empty reply since this doesn't affect solution
 7:39 Third equation
 For the rest of this, I am going to skip the log stuff.
 
-{"method": "new-object", "params": {"session": 3232, "time": 459.001, "id": 11,
+{"method": "help", "params": {"session": 3232, "time": 459.001, 
+	   "action": "new-object", "id": 11,
 	   "type": "equation", "mode": "unknown", 
 	   "x: 15, "y": 320, 
-	   "label": "Fwall2_x = Fwall2 * cos (\\thetaFwall2)"}, "id": 12}
+	   "text": "Fwall2_x = Fwall2 * cos (\\thetaFwall2)"}, "id": 12}
 
 [
   {"action": "modify-object", "id": 11, "mode": "correct"}
@@ -206,10 +219,11 @@ For the rest of this, I am going to skip the log stuff.
 
 8:02 Fourth equation
 
-{"method": "new-object", "params": {"session": 3232, "time": 482.001, "id": 12,
+{"method": "help", "params": {"session": 3232, "time": 482.001, 
+	   "action": "new-object", "id": 12,
 	   "type": "equation", "mode": "unknown", 
 	   "x: 15, "y": 330, 
-	   "label": "Fwall2_y = Fwall2 * sin(\\thetaFwall2)"}, "id": 13}
+	   "text": "Fwall2_y = Fwall2 * sin(\\thetaFwall2)"}, "id": 13}
 
 [
   {"action": "modify-object", "id": 12, "mode": "correct"}
@@ -217,10 +231,11 @@ For the rest of this, I am going to skip the log stuff.
 
 8:37 Fifth equation
 
-{"method": "new-object", "params": {"session": 3232, "time": 517.001, "id": 12,
+{"method": "help", "params": {"session": 3232, "time": 517.001, 
+	   "action": "new-object", "id": 12,
 	   "type": "equation", "mode": "unknown", 
 	   "x: 15, "y": 340, 
-	   "label": "Fearth_x = 0"}, "id": 13}
+	   "text": "Fearth_x = 0"}, "id": 13}
 
 [
   {"action": "modify-object", "id": 12, "mode": "correct"}
@@ -228,17 +243,19 @@ For the rest of this, I am going to skip the log stuff.
 
 9:31 Sixth equation (with error and fix)
 
-{"method": "new-object", "params": {"session": 3232, "time": 571.001, "id": 13,
+{"method": "help", "params": {"session": 3232, "time": 571.001, 
+	   "action": "new-object", "id": 13,
 	   "type": "equation", "mode": "unknown", 
 	   "x: 15, "y": 350, 
-	   "label": "Fearth_y = Fearth_y * sin (\\thetaFearth)"}, "id": 14}
+	   "text": "Fearth_y = Fearth_y * sin (\\thetaFearth)"}, "id": 14}
 
 [
   {"action": "modify-object", "id": 13, "mode": "wrong"}
 ]
 
-{"method": "modify-object", "params": {"session": 3232, "time": 590.001, "id": 13,
-	   "label": "Fearth_y = Fearth * sin (\\thetaFearth)"}, "id": 15}
+{"method": "help", "params": {"session": 3232, "time": 590.001, 
+	   "action": "modify-object", "id": 13,
+	   "text": "Fearth_y = Fearth * sin (\\thetaFearth)"}, "id": 15}
 
 [
   {"action": "modify-object", "id": 13, "mode": "correct"}
@@ -246,17 +263,19 @@ For the rest of this, I am going to skip the log stuff.
 
 10:22 Ask for a hint.  The student replies by typing in the chat window.
 
-{"method": "get-help", "params": {"session": 3232, "time": 571.001}, "id": 16}
+{"method": "help", "params": {"session": 3232, "time": 571.001,
+	   "action": "help-button"}, "id": 16}
 
 [
   {"action": "show-hint", "text": "Now that you have stated all of the given information, you should start on the major principles. What quantity is the problem seeking?"},
   {"action": "focus-hint-text-box"}
 ]
 
-{"method": "help-response", "params": {"session": 3232, "time": 657.001,
-	   "text": "Fwall1"}, "id": 17}
+{"method": "help", "params": {"session": 3232, "time": 657.001,
+	   "action": "help-response", "text": "Fwall1"}, "id": 17}
 
-We may want to allow HTML in hint text, then the two actions can be
+Show hint with a link below it.  On clicking, opens window with list of 
+principles.  We may want to allow HTML in hint text, then the two actions can be
 combined.
 
 [
@@ -264,8 +283,8 @@ combined.
   {"action" : "show-hint-link", "text": "Choose a principle", "href": "quantities.html"}
 ]
 
-{"method": "choose-principle", "params": {"session": 3232, "time": 671.001,
-	   "principle-name": "(nsl((?axis.x)))"}, "id": 18}
+{"method": "help", "params": {"session": 3232, "time": 671.001,
+	   "action": "hint-link", "value": "(nsl((?axis.x)))"}, "id": 18}
 
 [
   {"action": "show-hint", "text": "Right indeed. Notice that the ball is at rest at T0."},
@@ -274,4 +293,94 @@ combined.
 
 11:51 Draw acceleration vector
 
+{"method": "help", "params": {"session": 3232, "time": 711.001, 
+	   "action": "new-object", "id": 14,
+	   "type": "vector", "mode": "unknown", 
+	   "x": 245, "y": 224, "angle": 270, "r": 0, 
+	   "symbol": "Fearth", "x-label": 300, "y-label": 370,
+	   "text": "Fearth is force due to gravity"}, "id": 19}
+
+[
+  {"action": "modify-object", "id": 14, "mode": "correct"}
+]
+
+12:30 Seventh equation
+
+{"method": "help", "params": {"session": 3232, "time": 750.001, 
+	   "action": "new-object", "id": 15,
+	   "type": "equation", "mode": "unknown", 
+	   "x: 15, "y": 360, 
+	   "text": "Fwall1_x + Fwall2_x + Fearth_x = m *a"}, "id": 20}
+
+[
+  {"action": "set-score", "score", 57},
+  {"action": "modify-object", "id": 15, "mode": "correct"}
+]
+
+13:01 Eighth equation
+
+{"method": "help", "params": {"session": 3232, "time": 781.001, 
+	   "action": "new-object", "id": 16,
+	   "type": "equation", "mode": "unknown", 
+	   "x: 15, "y": 370, 
+	   "text": "Fwall1_y + Fwall2_y + Fearth_y = m*a"}, "id": 21}
+
+[
+  {"action": "set-score", "score", 75},
+  {"action": "modify-object", "id": 16, "mode": "correct"}
+]
+
+14:11 Ninth equation, turns red, ask for help.
+
+{"method": "help", "params": {"session": 3232, "time": 851.001, 
+	   "action": "new-object", "id": 17,
+	   "type": "equation", "mode": "unknown", 
+	   "x: 15, "y": 380, 
+	   "text": "Fearth_y = m*g"}, "id": 21}
+
+[
+  {"action": "set-score", "score", 74},
+  {"action": "modify-object", "id": 17, "mode": "wrong"}
+]
+
+Student asks for help by pressing the help button.  Unlike Andes2,
+there is only one help button.
+
+{"method": "help", "params": {"session": 3232, "time": 860.001,
+	   "action": "help-button"}, "id": 23}
+
+[
+  {"action": "show-hint", "text": "Think about the direction of the weight force on the ball at T0 due to the earth."},
+  {"action": "show-hint-link", "text": "Explain more", "value": "Explain-More"}
+]
+
+{"method": "help", "params": {"session": 3232, "time": 671.001,
+	   "action": "hint-link", "value": "Explain-More"}, "id": 24}
+
+[
+  {"action": "show-hint", "text": "Because the vector is parallel to the Y axis but in the negative direction, the projection equation is Fearth_y = - Fearth so Fearth_y stands for a negative value."},
+  {"action": "show-hint-link", "text": "Explain more", "value": "Explain-More"}
+]
+
+14:58 Ninth equation, again.
+
+{"method": "help", "params": {"session": 3232, "time": 851.001, 
+	   "action": "modify-object", "id": 17, "mode": "unknown", 
+	   "text": "Fearth_y = -m*g"}, "id": 25}
+
+[
+  {"action": "modify-object", "id": 17, "mode": "correct"}
+]
+
+15:05  Ask for Fwall1, Unlike Andes2, this is done in the hint window.
+
+{"method": "help", "params": {"session": 3232, "time": 905.001, 
+	   "action": "new-object", "id": 18,
+	   "type": "equation", "mode": "unknown", 
+	   "x: 15, "y": 390, 
+	   "text": "Fwall1=?"}, "id": 26}
+
+[
+  {"action": "modify-object", "id": 18, "mode": " correct", "text": "Fwall1 = 15.24609350323204 N"}
+]
 
