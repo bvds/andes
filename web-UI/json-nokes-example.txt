@@ -1,5 +1,22 @@
 
-This is the client-server API  for Andes3
+This is an example the client-server API for the Tim Nokes demo solution.
+See http://www.andestutor.org/AAPT-2007
+
+This is done in a form that is compatible with json-rpc-2.0, although
+this is not shown explicitly.  Comments explain places where the Andes3
+behavior is different than Andes2 as well as some behaviors of the 
+user interface.
+
+The the following design decisions have not been made and the 
+API should be agnostic with respect to them:
+
+1.  Does a single lisp process handles one or many user sessions?
+
+2.  Does one allow for multiple user sessions on one client machine?
+
+3.  Is logging done by the lisp process or by the controller script on
+     the web server?  There is a lisp interface to SQL type databases, so we
+     could have the lisp process itself handle the logging.
 
 Definitions:
 
@@ -15,20 +32,6 @@ lisp process:  This is a process running the help system for one or more
 user sessions.  It is assumed to be already running and ready for input.
 That is, the process is neither started or stopped by the controller script.
 
-The the following design decisions have not been made and the 
-API should be agnostic to them:
-
-1.  Does a single lisp process handles one or many user sessions?
-
-2.  Does one allow for multiple user sessions on one client machine?
-
-3.  Is logging done by the lisp process or by the controller script on
-     the web server?  There is a lisp interface to SQL type databases, so we
-     could have the lisp process handle the logging.
-
-The idea here is to go through the demo in http://www.andestutor.org/AAPT-2007 
-and describe how the communication would look in json format.
-
 "session" a unique integer assigned to each user session.
 
 "time" is in seconds since some arbitrary start time set by the client. 
@@ -36,6 +39,8 @@ May include decimal fractions;  the intent is to use the javascript
    var t = new Date(); t.getTime()/1000-initialTime;
 This should not be used to infer the absolute time associated with a user 
 session; absolute time on client machines cannot be trusted.
+
+********************************************************************************
 
 0:02 Initial login
 
@@ -387,13 +392,13 @@ We will allow two methods:  "Fwall1=?" in an equation box or something like
 ]
 
 15:13  Submit final answer.  There are several methods for this:  write an 
-equation of the form "var=expr" and draw a rectangle around it (significant 
-digits issue) or draw a rectangle and label it with an equation of the form 
-"var = expr", where var is the variable representing the sought quantity.  
-Alternatively, allow the student to write text of the form "answer:  expr" as 
-either an equationor a text box.  We could have a tex box included with 
-the original problem statement "answer:  ??" with "mode" set as "unknown",
-or a special mode called "answer-box".
+equation of the form "var=expr" and draw a rectangle around it (modulo 
+the significant digits issue) or draw a rectangle and label it with an equation 
+of the form "var = expr", where var is the variable representing the sought 
+quantity.  Alternatively, allow the student to write text of the form 
+"answer:  expr" as either an equation or a text box.  We could have a tex 
+box included with the original problem statement with "text" set to
+"answer:  ??" and "mode" set as "unknown".
 
 {"method": "help", "params": {"session": 3232, "time": 913.001, 
 	   "action": "new-object", "id": 18,  
@@ -423,16 +428,18 @@ or a special mode called "answer-box".
   {"action": "modify-object", "id": 18, "mode": "correct"}
 ]
 
-16:24  Close problem.  This is done by hitting the browser back button, 
-the browsers reload button, or the window close button.  The hint window
+16:24  Close problem.  This is done by clicking on the browser back button, 
+the browsers reload button, or the close window button.  The hint window
 may persist.
 
 {"method": "close-problem", "params": {"session": 3422, "time": 984.200}}
 
 [
-  {"action": "show-hint", "text": "Finished working on problem."},
+  {"action": "show-hint", "text": "Finished working on problem s2e."},
   {"action": "log", "score": {"NSH_BO_Call_Count": [-0.05, 0], 
   "WWH_BO_Call_Count": [-0.05,0],
 	     "Correct_Entries_V_Entries": [0.05,17,19],  
 	   " Correct_Answer_Entries_V_Answer_Entries":  [0.05,1,2]}}
 ]
+
+********************************************************************************
