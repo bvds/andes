@@ -60,9 +60,10 @@ the creator of the object.
   {"action": "new-object", "id":  2.5, "type": "text", "mode": "correct", 
 	     "x": 200, "y": 75, 
 	     "text": "T0 is the time."},
-  {"action": "log", "score": {"NSH_BO_Call_Count": 0, "WWH_BO_Call_Count": 0,
-	     "Correct_Entries_V_Entries": [0,0],  
-	   " Correct_Answer_Entries_V_Answer_Entries":  [0 0]}}
+  {"action": "log", "score": {"NSH_BO_Call_Count": [0,0], 
+             "WWH_BO_Call_Count": [0,0],
+	     "Correct_Entries_V_Entries": [0,0,0],  
+	     "Correct_Answer_Entries_V_Answer_Entries":  [0,0,0]}}
   {"action": "set-score", "score": 0}
 ]
 
@@ -266,6 +267,8 @@ For the rest of this, I am going to skip the log stuff.
 {"method": "help", "params": {"session": 3232, "time": 571.001,
 	   "action": "help-button"}, "id": 16}
 
+Make the chat window text box come into focus.
+
 [
   {"action": "show-hint", "text": "Now that you have stated all of the given information, you should start on the major principles. What quantity is the problem seeking?"},
   {"action": "focus-hint-text-box"}
@@ -372,15 +375,64 @@ there is only one help button.
   {"action": "modify-object", "id": 17, "mode": "correct"}
 ]
 
-15:05  Ask for Fwall1, Unlike Andes2, this is done in the hint window.
+15:05  Ask for Fwall1.  I would like to avoid another button on the interface.
+We will allow two methods:  "Fwall1=?" in an equation box or something like
+"solve for Fwall1" in the hint window.  The latter is shown here.
 
-{"method": "help", "params": {"session": 3232, "time": 905.001, 
-	   "action": "new-object", "id": 18,
-	   "type": "equation", "mode": "unknown", 
-	   "x: 15, "y": 390, 
-	   "text": "Fwall1=?"}, "id": 26}
+{"method": "help", "params": {"session": 3232, "time": 905.001,
+	   "action": "help-response", "text": "Solve for Fwall1"}, "id": 26}
 
 [
-  {"action": "modify-object", "id": 18, "mode": " correct", "text": "Fwall1 = 15.24609350323204 N"}
+  {"action": "show-hint", "text": "Fwall1 = 15.24609350323204 N"}
 ]
 
+15:13  Submit final answer.  There are several methods for this:  write an 
+equation of the form "var=expr" and draw a rectangle around it (significant 
+digits issue) or draw a rectangle and label it with an equation of the form 
+"var = expr", where var is the variable representing the sought quantity.  
+Alternatively, allow the student to write text of the form "answer:  expr" as 
+either an equationor a text box.  We could have a tex box included with 
+the original problem statement "answer:  ??" with "mode" set as "unknown",
+or a special mode called "answer-box".
+
+{"method": "help", "params": {"session": 3232, "time": 913.001, 
+	   "action": "new-object", "id": 18,  
+	   "type": "text", "mode": "unknown", 
+	   "x": 15, "y": 390, 
+	   "text": "answer:  15.2"}, "id": 27}
+
+[
+  {"action": "show-hint", "text": "Forgot to put units on a number."},
+  {"action": "show-hint-link", "text": "Explain more", "value": "Explain-More"},
+  {"action": "modify-object", "id": 18, "mode": "wrong"}
+]
+
+{"method": "help", "params": {"session": 3232, "time": 918.001,
+	   "action": "hint-link", "value": "Explain-More"}, "id": 28}
+
+[
+  {"action": "show-hint", "text": "This equation is dimensionally inconsistent. When numbers are used in equations, they must include the appropriate units. It looks like one of the numbers you've used is lacking the units."}
+]
+
+{"method": "help", "params": {"session": 3232, "time": 913.001, 
+	   "action": "modify-object", "id": 18, "mode": "unknown", 
+	   "text": "answer:  15.2 N"}, "id": 29}
+
+[
+  {"action": "set-score", "score", 97},
+  {"action": "modify-object", "id": 18, "mode": "correct"}
+]
+
+16:24  Close problem.  This is done by hitting the browser back button, 
+the browsers reload button, or the window close button.  The hint window
+may persist.
+
+{"method": "close-problem", "params": {"session": 3422, "time": 984.200}}
+
+[
+  {"action": "show-hint", "text": "Finished working on problem."},
+  {"action": "log", "score": {"NSH_BO_Call_Count": [-0.05, 0], 
+  "WWH_BO_Call_Count": [-0.05,0],
+	     "Correct_Entries_V_Entries": [0.05,17,19],  
+	   " Correct_Answer_Entries_V_Answer_Entries":  [0.05,1,2]}}
+]
