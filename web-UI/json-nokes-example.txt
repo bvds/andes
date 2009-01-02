@@ -395,7 +395,7 @@ We will allow two methods:  "Fwall1=?" in an equation box or something like
 equation of the form "var=expr" and draw a rectangle around it (modulo 
 the significant digits issue) or draw a rectangle and label it with an equation 
 of the form "var = expr", where var is the variable representing the sought 
-quantity.  Alternatively, allow the student to write text of the form 
+quantity.  Alternatively, allow the student to write a text of the form 
 "answer:  expr" as either an equation or a text box.  We could have a tex 
 box included with the original problem statement with "text" set to
 "answer:  ??" and "mode" set as "unknown".
