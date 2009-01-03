@@ -2,7 +2,7 @@
 This is an example the client-server API for the Tim Nokes demo solution.
 See http://www.andestutor.org/AAPT-2007
 
-This is done in a form that is compatible with json-rpc-2.0, although
+The API is done in a form that is compatible with json-rpc-2.0, although
 this is not shown explicitly.  Comments explain places where the Andes3
 behavior is different than Andes2 as well as some behaviors of the 
 user interface.
@@ -32,13 +32,6 @@ lisp process:  This is a process running the help system for one or more
 user sessions.  It is assumed to be already running and ready for input.
 That is, the process is neither started or stopped by the controller script.
 
-"session" a unique integer assigned to each user session.
-
-"time" is in seconds since some arbitrary start time set by the client. 
-May include decimal fractions;  the intent is to use the javascript 
-   var t = new Date(); t.getTime()/1000-initialTime;
-This should not be used to infer the absolute time associated with a user 
-session; absolute time on client machines cannot be trusted.
 
 ********************************************************************************
 
@@ -49,8 +42,17 @@ session; absolute time on client machines cannot be trusted.
 
 Width of text box set explicitly by "text-width" in em units or implicitly 
 by newlines in the text.
-"id" is used as a hash for referencing graphics objects, set by 
+
+"id" is used as a hash for referencing drawn objects, set by 
 the creator of the object.
+
+"session" a unique integer assigned to each user session.
+
+"time" is in seconds since some arbitrary start time set by the client. 
+May include decimal fractions;  the intent is to use the javascript 
+   var t = new Date(); t.getTime()/1000-initialTime;
+This should not be used to infer the absolute time associated with a user 
+session; absolute time on client machines cannot be trusted.
 
 [
   {"action": "new-object", "id": 0, "type": "text", "mode": "locked", 
@@ -74,7 +76,7 @@ the creator of the object.
 
 If there was previous work, it would be included in the above response.  
 Also, any action of type "log" is ignored by the client and may
-be stripped from the result returned to the client.
+be stripped from the array returned to the client.
 
 0:50 student draws ball
 
@@ -90,7 +92,8 @@ be stripped from the result returned to the client.
 ]
 
 1:09 student draws axes
-"angle" is angle in degrees. "r" is length of axes.
+"angle" is angle in degrees. 
+"r" is length of axes.
 "x-label", "y-label" are hard-coded into client.
 
 {"method": "help", "params": {"session": 3232, "time": 69.000, 
@@ -105,7 +108,8 @@ be stripped from the result returned to the client.
   {"action": "modify-object", "id": 4, "mode": "correct"}
 ]
 
-1:14 student moves ball, client changes it to "unknown"
+1:14 student moves ball, client changes it to "unknown"  Andes2 is
+agnostic about object positions.  Andes3 is not.
 
 {"method": "help", "params": {"session": 3232, "time": 74.000, "id": 3,
 	    "action": "modify-object",  "mode": "unknown", "x": 88, "y": 99}, "id": 4}
@@ -292,7 +296,7 @@ combined.
 ]
 
 {"method": "help", "params": {"session": 3232, "time": 671.001,
-	   "action": "hint-link", "value": "(nsl((?axis.x)))"}, "id": 18}
+	   "action": "help-response", "value": "(nsl((?axis.x)))"}, "id": 18}
 
 [
   {"action": "show-hint", "text": "Right indeed. Notice that the ball is at rest at T0."},
@@ -363,7 +367,7 @@ there is only one help button.
 ]
 
 {"method": "help", "params": {"session": 3232, "time": 671.001,
-	   "action": "hint-link", "value": "Explain-More"}, "id": 24}
+	   "action": "help-response", "value": "Explain-More"}, "id": 24}
 
 [
   {"action": "show-hint", "text": "Because the vector is parallel to the Y axis but in the negative direction, the projection equation is Fearth_y = - Fearth so Fearth_y stands for a negative value."},
@@ -413,7 +417,7 @@ box included with the original problem statement with "text" set to
 ]
 
 {"method": "help", "params": {"session": 3232, "time": 918.001,
-	   "action": "hint-link", "value": "Explain-More"}, "id": 28}
+	   "action": "help-response", "value": "Explain-More"}, "id": 28}
 
 [
   {"action": "show-hint", "text": "This equation is dimensionally inconsistent. When numbers are used in equations, they must include the appropriate units. It looks like one of the numbers you've used is lacking the units."}

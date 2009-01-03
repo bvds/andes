@@ -1,0 +1,19 @@
+{
+  "id": "client-to-server",
+  "description": "Andes3 servant to client message content",
+  "type": "object",
+
+  "properties" : {
+    "jsonrpc": {"type": "string"},
+    "method": {"type" : "object",
+	       "properties" : {
+		 "session": {"type": "integer"},
+		 "time": {"type": "number"},
+		 "id": {"type": "integer"},
+		 "action": {
+		   "type": "string",
+		   "enum":["new-object","modify-object",
+			   "help-button","help-response",
+			   // for server only
+			   "log","set-score","show-hint","show-hint-link","focus-hint-text-box",]
+		 },
