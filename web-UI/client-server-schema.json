@@ -1,19 +1,78 @@
 {
+  "id": "sentence"
+
+       "type": "object",
+      "properties" : {
+	"session": {"type": "integer"},
+	"time": {"type": "number"},
+	"action": {
+	  "type": "string",
+	  "enum":["new-object","modify-object",
+		  "help-button","help-response",
+		  // for server only
+		  "log","set-score","show-hint","show-hint-link","focus-hint-text-box",]
+	},
+	"id": {"type": "integer"},
+	"type": {
+	  "type": "string",
+	  "enum": ["text", "graphics", "equation", "circle", "rectangle", "axes", "vector", "line"]
+	},
+	"mode": {
+	  "type": "string",
+	  "enum": ["unknown","correct","wrong","locked","fade"]
+	},
+	"x": "number", "y": "number",
+	"text-width": "integer",
+	"text": "string",
+	"dx": "number", "dy": "number",
+	"radius": "number",
+	"symbol": "string",
+	"x-label": "string", "y-label": "string",
+	"href": "string",
+	"value": "string",
+
+	"score": ["object","number"]
+      }
+
+
+{
   "id": "client-to-server",
-  "description": "Andes3 servant to client message content",
+  "description": "Andes3 client to server message, following json rpc",
   "type": "object",
 
   "properties" : {
     "jsonrpc": {"type": "string"},
-    "method": {"type" : "object",
-	       "properties" : {
-		 "session": {"type": "integer"},
-		 "time": {"type": "number"},
-		 "id": {"type": "integer"},
-		 "action": {
-		   "type": "string",
-		   "enum":["new-object","modify-object",
-			   "help-button","help-response",
-			   // for server only
-			   "log","set-score","show-hint","show-hint-link","focus-hint-text-box",]
-		 },
+    "method": "help",
+    "params": {"$ref": "sentence"},
+    "id": "integer"
+  }
+}
+
+{
+  "description": "Andes3 server reply to client\n\"result\" and \"error\" are mutually exclusive",
+  "type": "object",
+
+  "properties" : {
+    "jsonrpc": {"type": "string"},
+    "result": {
+      "type": "array",
+      "items": {"$ref", "sentence"},
+      "optional": true
+    },
+    "error": {
+      "type": "object",
+      "optional": true,
+      "properties": {
+	"code": "integer",
+	"message": "string",
+	"data": {
+	  "type": "any",
+	  "optional": true
+	}
+      }
+    }
+    "id": "integer",
+  }
+}
+
+
