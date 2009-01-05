@@ -1,11 +1,10 @@
 
 This is an example the client-server API for the Tim Nokes demo solution.
-See http://www.andestutor.org/AAPT-2007
+See http://www.andestutor.org/AAPT-2007 .  The API is expressed in a form that 
+should be compatible with json-rpc-2.0.
 
-The API is done in a form that is compatible with json-rpc-2.0, although
-this is not shown explicitly.  Comments explain places where the Andes3
-behavior is different than Andes2 as well as some behaviors of the 
-user interface.
+Comments explain places where the Andes3 behavior is different than Andes2 
+as well as some details of the user interface behavior.
 
 The the following design decisions have not been made and the 
 API should be agnostic with respect to them:
@@ -40,26 +39,15 @@ That is, the process is neither started or stopped by the controller script.
 {"method": "get-problem", "params": {"session": 3422, "time": 0.000, 
 	   "problem": "s2e", "user": "joe"}}
 
-Width of text box set explicitly by "text-width" in em units or implicitly 
+Width of a text box is set explicitly by "text-width" in em units or implicitly 
 by newlines in the text.
-
-"id" is used as a hash for referencing drawn objects, set by 
-the creator of the object.
-
-"session" a unique integer assigned to each user session.
-
-"time" is in seconds since some arbitrary start time set by the client. 
-May include decimal fractions;  the intent is to use the javascript 
-   var t = new Date(); t.getTime()/1000-initialTime;
-This should not be used to infer the absolute time associated with a user 
-session; absolute time on client machines cannot be trusted.
 
 [
   {"action": "new-object", "id": 0, "type": "text", "mode": "locked", 
 	     "x": 3, "y": 5, "text-width": 80,
 	     "text": "A spherical ball with a mass of 2.00 kg rests in the notch ..."},
   {"action": "new-object", "id": 1, "type": "graphics", "mode": "locked", 
-	     "x": 53, "y": 15, "dx": 150, "dy": "180" , 
+	     "x": 53, "y": 15, "dx": 150, "dy": "180", 
 	     "href": "http://www.andestutor.org/web-UI/s2e.gif"},
   {"action": "new-object", "id":  2, "type": "text", "mode": "correct", 
 	     "x": 200, "y": 55, 
@@ -75,15 +63,13 @@ session; absolute time on client machines cannot be trusted.
 ]
 
 If there was previous work, it would be included in the above response.  
-Also, any action of type "log" is ignored by the client and may
-be stripped from the array returned to the client.
 
 0:50 student draws ball
 
 {"method": "help", "params": {"session": 3232, "time": 50.000, 
 	   "action": "new-object", "id": 3,  
 	   "type": "circle", "mode": "unknown", 
-	   "x": 66, "y": 188, "r": 25, "text": "ball"}, "id": 2}
+	   "x": 66, "y": 188, "radius": 25, "text": "ball"}, "id": 2}
 
 [
   {"action": "log", "assoc": {"DRAW-BODY": "(BODY BALL)"}},
@@ -93,13 +79,13 @@ be stripped from the array returned to the client.
 
 1:09 student draws axes
 "angle" is angle in degrees. 
-"r" is length of axes.
+"radius" is length of axes.
 "x-label", "y-label" are hard-coded into client.
 
 {"method": "help", "params": {"session": 3232, "time": 69.000, 
 	   "action": "new-object", "id": 4,  
 	   "type": "axes", "mode": "unknown", 
-	   "x": 77, "y": 88, "angle": 88,  "r": 120, 
+	   "x": 77, "y": 88, "angle": 88,  "radius": 120, 
 	   "x-label": "x", "y-label": "y"}, "id": 3}
 
 [
@@ -147,7 +133,7 @@ agnostic about object positions.  Andes3 is not.
 {"method": "help", "params": {"session": 3232, "time": 198.001, 
 	   "action": "new-object", "id": 6,  
 	   "type": "vector", "mode": "unknown", 
-	   "x": 240, "y": 222, "angle": 120,  "r": 60,
+	   "x": 240, "y": 222, "angle": 120,  "radius": 60,
 	   "symbol": "Fwall1", "x-label": 300, "y-label": 350,
 	   "text": "Fwall1 is force due to wall1 acting on ball"}, "id": 7}
 
@@ -161,7 +147,7 @@ agnostic about object positions.  Andes3 is not.
 {"method": "help", "params": {"session": 3232, "time": 261.001, 
 	   "action": "new-object", "id": 7,  
 	   "type": "vector", "mode": "unknown", 
-	   "x": 241, "y": 224, "angle": 40, "r": 88,
+	   "x": 241, "y": 224, "angle": 40, "radius": 88,
 	   "symbol": "Fwall2", "x-label": 300, "y-label": 360,
 	   "text": "Fwall2 is force due to wall2"}, "id": 8}
 
@@ -175,7 +161,7 @@ agnostic about object positions.  Andes3 is not.
 {"method": "help", "params": {"session": 3232, "time": 309.001, 
 	   "action": "new-object", "id": 8,
 	   "type": "vector", "mode": "unknown", 
-	   "x": 245, "y": 224, "angle": 270, "r": 77,
+	   "x": 245, "y": 224, "angle": 270, "radius": 77,
 	   "symbol": "Fearth", "x-label": 300, "y-label": 370,
 	   "text": "Fearth is force due to gravity"}, "id": 9}
 
@@ -308,7 +294,7 @@ combined.
 {"method": "help", "params": {"session": 3232, "time": 711.001, 
 	   "action": "new-object", "id": 14,
 	   "type": "vector", "mode": "unknown", 
-	   "x": 245, "y": 224, "angle": 270, "r": 0, 
+	   "x": 245, "y": 224, "angle": 270, "radius": 0, 
 	   "symbol": "Fearth", "x-label": 300, "y-label": 370,
 	   "text": "Fearth is force due to gravity"}, "id": 19}
 
@@ -355,8 +341,10 @@ combined.
   {"action": "modify-object", "id": 17, "mode": "wrong"}
 ]
 
-Student asks for help by pressing the help button.  Unlike Andes2,
-there is only one help button.
+Student asks for help by pressing the help button.  They can also ask for
+help by typing "help" or "?" in the help window.  Pressing the help button
+creates the help window if it doesn't exist and brings the hint window into 
+focus.  Unlike Andes2, there is only one help button.
 
 {"method": "help", "params": {"session": 3232, "time": 860.001,
 	   "action": "help-button"}, "id": 23}
@@ -400,7 +388,7 @@ equation of the form "var=expr" and draw a rectangle around it (modulo
 the significant digits issue) or draw a rectangle and label it with an equation 
 of the form "var = expr", where var is the variable representing the sought 
 quantity.  Alternatively, allow the student to write a text of the form 
-"answer:  expr" as either an equation or a text box.  We could have a tex 
+"answer:  expr" as either an equation or a text box.  We could have a text 
 box included with the original problem statement with "text" set to
 "answer:  ??" and "mode" set as "unknown".
 
@@ -434,7 +422,7 @@ box included with the original problem statement with "text" set to
 
 16:24  Close problem.  This is done by clicking on the browser back button, 
 the browsers reload button, or the close window button.  The hint window
-may persist.
+may persist after a problem is closed.
 
 {"method": "close-problem", "params": {"session": 3422, "time": 984.200}}
 
