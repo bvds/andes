@@ -49,10 +49,10 @@ by newlines in the text.
   {"action": "new-object", "id": 1, "type": "graphics", "mode": "locked", 
 	     "x": 53, "y": 15, "dx": 150, "dy": "180", 
 	     "href": "http://www.andestutor.org/web-UI/s2e.gif"},
-  {"action": "new-object", "id":  2, "type": "text", "mode": "correct", 
+  {"action": "new-object", "id":  2, "type": "text", "mode": "right", 
 	     "x": 200, "y": 55, 
 	     "text": "g = 9.8 m/s^2 is the gravitational acceleration \nnear the surface of the earth."},
-  {"action": "new-object", "id":  2.5, "type": "text", "mode": "correct", 
+  {"action": "new-object", "id":  2.5, "type": "text", "mode": "right", 
 	     "x": 200, "y": 75, 
 	     "text": "T0 is the time."},
   {"action": "log", "score": {"NSH_BO_Call_Count": [0,0], 
@@ -74,12 +74,12 @@ If there was previous work, it would be included in the above response.
 [
   {"action": "log", "assoc": {"DRAW-BODY": "(BODY BALL)"}},
   {"action": "set-score", "score", 15},
-  {"action": "modify-object", "id": 3, "mode": "correct"}
+  {"action": "modify-object", "id": 3, "mode": "right"}
 ]
 
-1:09 student draws axes
-"angle" is angle in degrees. 
-"radius" is length of axes.
+1:09  Student draws axes.  Unlike Andes2, the angle of the vector
+is shown on the screen when the vector is being dragged out.
+"angle" is angle in degrees; "radius" is length of axes;
 "x-label", "y-label" are hard-coded into client.
 
 {"method": "help", "params": {"session": 3232, "time": 69.000, 
@@ -91,7 +91,7 @@ If there was previous work, it would be included in the above response.
 [
   {"action": "log", "assoc": {"DRAW-UNROTATED-AXES": "(DRAW-AXES 0)"}},
   {"action": "set-score", "score", 25},
-  {"action": "modify-object", "id": 4, "mode": "correct"}
+  {"action": "modify-object", "id": 4, "mode": "right"}
 ]
 
 1:14 student moves ball, client changes it to "unknown"  Andes2 is
@@ -101,7 +101,7 @@ agnostic about object positions.  Andes3 is not.
 	    "action": "modify-object",  "mode": "unknown", "x": 88, "y": 99}, "id": 4}
 
 [
-  {"action": "modify-object", "id": 3, "mode": "correct"}
+  {"action": "modify-object", "id": 3, "mode": "right"}
 ]
 
 1:16 student moves axes, client changes it to "unknown"
@@ -110,7 +110,7 @@ agnostic about object positions.  Andes3 is not.
 	   "action": "modify-object", "id": 4, "x": 108, "y": 109}, "id": 5}
 
 [
-  {"action": "modify-object", "id": 4, "mode": "correct"}
+  {"action": "modify-object", "id": 4, "mode": "right"}
 ]
 
 1:57 define mass of ball
@@ -125,10 +125,11 @@ agnostic about object positions.  Andes3 is not.
   {"action": "log", "assoc": {"DEFINE-MASS": "(DEFINE-VAR (MASS BALL))"}, "id": 5}
   {"action": "log", {"parse": "(= m_BALL (DNUM 2.0 kg))"},
   {"action": "set-score", "score", 40},
-  {"action": "modify-object", "id": 5, "mode": "correct"}
+  {"action": "modify-object", "id": 5, "mode": "right"}
 ]
 
-3:18 draw first force vector
+3:18 draw first force vector.  Unlike Andes2, the angle of the vector
+is shown on the screen when the vector is being dragged out.
 
 {"method": "help", "params": {"session": 3232, "time": 198.001, 
 	   "action": "new-object", "id": 6,  
@@ -139,7 +140,7 @@ agnostic about object positions.  Andes3 is not.
 
 [
   {"action": "log", "assoc": {"DRAW-NORMAL": "VECTOR (FORCE BALL WALL1 NORMAL :TIME 1) (DNUM 120 deg))"},
-  {"action": "modify-object", "id": 6, "mode": "correct"}
+  {"action": "modify-object", "id": 6, "mode": "right"}
 ]
 
 4:21 draw second force vector
@@ -153,7 +154,7 @@ agnostic about object positions.  Andes3 is not.
 
 [
   {"action": "log", "assoc": {"DRAW-NORMAL": "VECTOR (FORCE BALL WALL3 NORMAL :TIME 1) (DNUM 40 deg))"},
-  {"action": "modify-object", "id": 7, "mode": "correct"}
+  {"action": "modify-object", "id": 7, "mode": "right"}
 ]
 
 5:09 draw third force vector
@@ -167,7 +168,7 @@ agnostic about object positions.  Andes3 is not.
 
 [
   {"action": "log", "assoc": {"DRAW-WEIGHT": "VECTOR (FORCE BALL EARTH WEIGHT :TIME 1) (DNUM 270 deg))"},
-  {"action": "modify-object", "id": 8, "mode": "correct"}
+  {"action": "modify-object", "id": 8, "mode": "right"}
 ]
 
 6:25 First equation, client has to encode the backspace.
@@ -182,7 +183,7 @@ agnostic about object positions.  Andes3 is not.
   {"action": "log", "parse": "(= Xc_Fn_BALL_WALL1_1_0 (* Fn_BALL_WALL1_1 (COS OFn_BALL_WALL1_1)))"},
   {"action": "log", "assoc": {"COMPO-GENERAL-CASE": "(EQN (= Xc_Fn_BALL_WALL1_1_0 (* Fn_BALL_WALL1_1 (COS (- (DNUM 120 deg) (DNUM 0 deg))))))", 
 	 "WRITE-IMPLICIT-EQN": "IMPLICIT-EQN (= OFn_BALL_WALL1_1 (DNUM 120 deg)))"},
-  {"action": "modify-object", "id": 9, "mode": "correct"}
+  {"action": "modify-object", "id": 9, "mode": "right"}
 ]
 
 7:01 Second equation
@@ -197,7 +198,7 @@ agnostic about object positions.  Andes3 is not.
   {"action": "log", "parse": "(= Xc_Fn_BALL_WALL1_1_0 (* Fn_BALL_WALL1_1 (COS OFn_BALL_WALL1_1)))"},
   {"action": "log", "assoc": {"COMPO-GENERAL-CASE": "(EQN (= Xc_Fn_BALL_WALL1_1_0 (* Fn_BALL_WALL1_1 (COS (- (DNUM 120 deg) (DNUM 0 deg))))))", 
 	 "WRITE-IMPLICIT-EQN": "IMPLICIT-EQN (= OFn_BALL_WALL1_1 (DNUM 120 deg)))"},
-  {"action": "modify-object", "id": 10, "mode": "correct"}
+  {"action": "modify-object", "id": 10, "mode": "right"}
 ]
 
 7:39 Third equation
@@ -210,7 +211,7 @@ For the rest of this, I am going to skip the log stuff.
 	   "text": "Fwall2_x = Fwall2 * cos (\\thetaFwall2)"}, "id": 12}
 
 [
-  {"action": "modify-object", "id": 11, "mode": "correct"}
+  {"action": "modify-object", "id": 11, "mode": "right"}
 ]
 
 8:02 Fourth equation
@@ -222,7 +223,7 @@ For the rest of this, I am going to skip the log stuff.
 	   "text": "Fwall2_y = Fwall2 * sin(\\thetaFwall2)"}, "id": 13}
 
 [
-  {"action": "modify-object", "id": 12, "mode": "correct"}
+  {"action": "modify-object", "id": 12, "mode": "right"}
 ]
 
 8:37 Fifth equation
@@ -234,7 +235,7 @@ For the rest of this, I am going to skip the log stuff.
 	   "text": "Fearth_x = 0"}, "id": 13}
 
 [
-  {"action": "modify-object", "id": 12, "mode": "correct"}
+  {"action": "modify-object", "id": 12, "mode": "right"}
 ]
 
 9:31 Sixth equation (with error and fix)
@@ -254,13 +255,13 @@ For the rest of this, I am going to skip the log stuff.
 	   "text": "Fearth_y = Fearth * sin (\\thetaFearth)"}, "id": 15}
 
 [
-  {"action": "modify-object", "id": 13, "mode": "correct"}
+  {"action": "modify-object", "id": 13, "mode": "right"}
 ]
 
 10:22 Ask for a hint.  The student replies by typing in the chat window.
 
 {"method": "help", "params": {"session": 3232, "time": 571.001,
-	   "action": "help-button"}, "id": 16}
+	   "action": "get-help", "value:", "help-button"}, "id": 16}
 
 Make the chat window text box come into focus.
 
@@ -270,7 +271,7 @@ Make the chat window text box come into focus.
 ]
 
 {"method": "help", "params": {"session": 3232, "time": 657.001,
-	   "action": "help-response", "text": "Fwall1"}, "id": 17}
+	   "action": "get-help", "text": "Fwall1"}, "id": 17}
 
 Show hint with a link below it.  On clicking, opens window with list of 
 principles.  We may want to allow HTML in hint text, then the two actions can be
@@ -282,7 +283,7 @@ combined.
 ]
 
 {"method": "help", "params": {"session": 3232, "time": 671.001,
-	   "action": "help-response", "value": "(nsl((?axis.x)))"}, "id": 18}
+	   "action": "get-help", "value": "(nsl((?axis.x)))"}, "id": 18}
 
 [
   {"action": "show-hint", "text": "Right indeed. Notice that the ball is at rest at T0."},
@@ -299,7 +300,7 @@ combined.
 	   "text": "Fearth is force due to gravity"}, "id": 19}
 
 [
-  {"action": "modify-object", "id": 14, "mode": "correct"}
+  {"action": "modify-object", "id": 14, "mode": "right"}
 ]
 
 12:30 Seventh equation
@@ -312,7 +313,7 @@ combined.
 
 [
   {"action": "set-score", "score", 57},
-  {"action": "modify-object", "id": 15, "mode": "correct"}
+  {"action": "modify-object", "id": 15, "mode": "right"}
 ]
 
 13:01 Eighth equation
@@ -325,7 +326,7 @@ combined.
 
 [
   {"action": "set-score", "score", 75},
-  {"action": "modify-object", "id": 16, "mode": "correct"}
+  {"action": "modify-object", "id": 16, "mode": "right"}
 ]
 
 14:11 Ninth equation, turns red, ask for help.
@@ -344,7 +345,10 @@ combined.
 Student asks for help by pressing the help button.  They can also ask for
 help by typing "help" or "?" in the help window.  Pressing the help button
 creates the help window if it doesn't exist and brings the hint window into 
-focus.  Unlike Andes2, there is only one help button.
+focus.  
+
+Unlike Andes2, there is only one help button.  Also, the help window is 
+non-blocking, thus there is no need for the "OK" button seen in Andes2.
 
 {"method": "help", "params": {"session": 3232, "time": 860.001,
 	   "action": "help-button"}, "id": 23}
@@ -355,7 +359,7 @@ focus.  Unlike Andes2, there is only one help button.
 ]
 
 {"method": "help", "params": {"session": 3232, "time": 671.001,
-	   "action": "help-response", "value": "Explain-More"}, "id": 24}
+	   "action": "get-help", "value": "Explain-More"}, "id": 24}
 
 [
   {"action": "show-hint", "text": "Because the vector is parallel to the Y axis but in the negative direction, the projection equation is Fearth_y = - Fearth so Fearth_y stands for a negative value."},
@@ -369,7 +373,7 @@ focus.  Unlike Andes2, there is only one help button.
 	   "text": "Fearth_y = -m*g"}, "id": 25}
 
 [
-  {"action": "modify-object", "id": 17, "mode": "correct"}
+  {"action": "modify-object", "id": 17, "mode": "right"}
 ]
 
 15:05  Ask for Fwall1.  I would like to avoid another button on the interface.
@@ -377,7 +381,7 @@ We will allow two methods:  "Fwall1=?" in an equation box or something like
 "solve for Fwall1" in the hint window.  The latter is shown here.
 
 {"method": "help", "params": {"session": 3232, "time": 905.001,
-	   "action": "help-response", "text": "Solve for Fwall1"}, "id": 26}
+	   "action": "get-help", "text": "Solve for Fwall1"}, "id": 26}
 
 [
   {"action": "show-hint", "text": "Fwall1 = 15.24609350323204 N"}
@@ -405,7 +409,7 @@ box included with the original problem statement with "text" set to
 ]
 
 {"method": "help", "params": {"session": 3232, "time": 918.001,
-	   "action": "help-response", "value": "Explain-More"}, "id": 28}
+	   "action": "get-help", "value": "Explain-More"}, "id": 28}
 
 [
   {"action": "show-hint", "text": "This equation is dimensionally inconsistent. When numbers are used in equations, they must include the appropriate units. It looks like one of the numbers you've used is lacking the units."}
@@ -417,7 +421,7 @@ box included with the original problem statement with "text" set to
 
 [
   {"action": "set-score", "score", 97},
-  {"action": "modify-object", "id": 18, "mode": "correct"}
+  {"action": "modify-object", "id": 18, "mode": "right"}
 ]
 
 16:24  Close problem.  This is done by clicking on the browser back button, 

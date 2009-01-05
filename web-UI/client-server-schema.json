@@ -6,9 +6,9 @@
   "properties": {
     "action": {
       "type": "string",
-      "description": "The choices help-button and help-response are only from the  client while\nthe choices set-score, show-hint, show-hint-link, and focus-hint-text-box are only from the server. \nLog actions are not read by the client and my be stripped from any response sent to the client.",
+      "description": "The choice get-help is only from the  client while\nthe choices set-score, show-hint, show-hint-link, and focus-hint-text-box are only from the server. \nLog actions are not read by the client and my be stripped from any response sent to the client.",
       "enum":["new-object","modify-object", "delete-object", "log",
-      "help-button","help-response",
+      "get-help",
       "set-score","show-hint","show-hint-link","focus-hint-text-box"]
     },
     "id": {
@@ -24,7 +24,7 @@
     "mode": {
       "description": "manditory for new-object and optional for modify-object or delete-object\n  unknown:  turn black\n  correct:  turn green\n  wrong:  turn red\n  locked:  black, not user selectable\n  fade:  gray, not user selectable",
       "type": "string",
-      "enum": ["unknown","correct","wrong","locked","fade"],
+      "enum": ["unknown","right","wrong","locked","fade"],
       "optional": true
     },
     "x":  {"type": "number", "optional": true},
