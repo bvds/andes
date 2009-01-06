@@ -1,10 +1,13 @@
 
 This is an example the client-server API for the Tim Nokes demo solution.
 See http://www.andestutor.org/AAPT-2007 .  The API is expressed in a form that 
-should be compatible with json-rpc-2.0.
+should be compatible with json-rpc-2.0.  This is just a first attempt at
+an API, any suggestions are welcome.
 
 Comments explain places where the Andes3 behavior is different than Andes2 
-as well as some details of the user interface behavior.
+as well as some details of the user interface behavior.  In particular,
+all of the dialog boxes associated with defining quantities (variables, 
+bodies, axes and vectors) are replaced with plain text entry dialog boxes.
 
 The the following design decisions have not been made and the 
 API should be agnostic with respect to them:
@@ -95,7 +98,7 @@ is shown on the screen when the vector is being dragged out.
 ]
 
 1:14 student moves ball, client changes it to "unknown"  Andes2 is
-agnostic about object positions.  Andes3 is not.
+agnostic about object positions; Andes3 is not.
 
 {"method": "help", "params": {"session": 3232, "time": 74.000, "id": 3,
 	    "action": "modify-object",  "mode": "unknown", "x": 88, "y": 99}, "id": 4}

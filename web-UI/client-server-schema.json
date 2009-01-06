@@ -6,7 +6,7 @@
   "properties": {
     "action": {
       "type": "string",
-      "description": "The choice get-help is only from the  client while\nthe choices set-score, show-hint, show-hint-link, and focus-hint-text-box are only from the server. \nLog actions are not read by the client and my be stripped from any response sent to the client.",
+      "description": "The choice get-help is only from the  client while\nthe choices set-score, show-hint, show-hint-link, and focus-hint-text-box are only from the server. \nLog actions are not read by the client and my be stripped from any response sent to the client.  This is just a first attempt at the client-server API, any suggestions are welcome.",
       "enum":["new-object","modify-object", "delete-object", "log",
       "get-help",
       "set-score","show-hint","show-hint-link","focus-hint-text-box"]
