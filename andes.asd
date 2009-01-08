@@ -36,6 +36,7 @@
 ;;;			:description "Common Utilities"
 			:components ((:file "Htime")
 				     (:file "Unification")
+				     (:file "auxiliary")
 				     (:file "hash")
 				     (:file "Utility")))
 	       (:module "Solver_Release"
