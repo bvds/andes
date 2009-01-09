@@ -33,7 +33,6 @@
 (defsystem :andes
   :name "Andes"
   :description "Andes physics tutor system"
-  :depends-on (problems)
   :components (
 ;;;    this should eventually be removed
 	       (:file "andes-path")

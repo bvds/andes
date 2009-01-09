@@ -21,6 +21,7 @@
 
 (defsystem :problems
   :name "problems"
+  :depends-on (andes)
   :description "Problem definitions"
   :default-component-class no-compile-file
   :components (
