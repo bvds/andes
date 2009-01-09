@@ -305,10 +305,10 @@ Cell[BoxData[
 Cell[CellGroupData[{
 
 Cell[BoxData[
-    \(Export["\<../Problems/wave6.gif\>", pp]\)], "Input"],
+    \(Export["\<../solutions/wave6.gif\>", pp]\)], "Input"],
 
 Cell[BoxData[
-    \("../Problems/wave6.gif"\)], "Output"]
+    \("../solutions/wave6.gif"\)], "Output"]
 }, Open  ]],
 
 Cell["\<\
@@ -1320,11 +1320,11 @@ Cell[BoxData[
 Cell[CellGroupData[{
 
 Cell[BoxData[
-    \(Export["\<Andes2/Problems/wave24.gif\>", pp24, 
+    \(Export["\<Andes2/solutions/wave24.gif\>", pp24, 
       ImageSize \[Rule] 400]\)], "Input"],
 
 Cell[BoxData[
-    \("Andes2/Problems/wave24.gif"\)], "Output"]
+    \("Andes2/solutions/wave24.gif"\)], "Output"]
 }, Open  ]]
 },
 FrontEndVersion->"5.2 for Macintosh",

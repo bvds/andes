@@ -115,11 +115,11 @@ Cell[BoxData[
 Cell[CellGroupData[{
 
 Cell[BoxData[
-    \(Export["\<~/Andes2/Problems/kgraph5b.gif\>", aa, 
+    \(Export["\<~/Andes2/solutions/kgraph5b.gif\>", aa, 
       ImageSize \[Rule] 6*72]\)], "Input"],
 
 Cell[BoxData[
-    \("~/Andes2/Problems/kgraph5b.gif"\)], "Output"]
+    \("~/Andes2/solutions/kgraph5b.gif"\)], "Output"]
 }, Open  ]]
 }, Closed]],
 
@@ -184,11 +184,11 @@ Cell[BoxData[
 Cell[CellGroupData[{
 
 Cell[BoxData[
-    \(Export["\<~/Andes2/Problems/kgraph5c.gif\>", aa, 
+    \(Export["\<~/Andes2/solutions/kgraph5c.gif\>", aa, 
       ImageSize \[Rule] 6*72]\)], "Input"],
 
 Cell[BoxData[
-    \("~/Andes2/Problems/kgraph5c.gif"\)], "Output"]
+    \("~/Andes2/solutions/kgraph5c.gif"\)], "Output"]
 }, Open  ]]
 }, Closed]],
 
@@ -253,11 +253,11 @@ Cell[BoxData[
 Cell[CellGroupData[{
 
 Cell[BoxData[
-    \(Export["\<~/Andes2/Problems/kgraph5d.gif\>", aa, 
+    \(Export["\<~/Andes2/solutions/kgraph5d.gif\>", aa, 
       ImageSize \[Rule] 6*72]\)], "Input"],
 
 Cell[BoxData[
-    \("~/Andes2/Problems/kgraph5d.gif"\)], "Output"]
+    \("~/Andes2/solutions/kgraph5d.gif"\)], "Output"]
 }, Open  ]]
 }, Closed]],
 
@@ -323,11 +323,11 @@ Cell[BoxData[
 Cell[CellGroupData[{
 
 Cell[BoxData[
-    \(Export["\<~/Andes2/Problems/kgraph5e.gif\>", aa, 
+    \(Export["\<~/Andes2/solutions/kgraph5e.gif\>", aa, 
       ImageSize \[Rule] 6*72]\)], "Input"],
 
 Cell[BoxData[
-    \("~/Andes2/Problems/kgraph5e.gif"\)], "Output"]
+    \("~/Andes2/solutions/kgraph5e.gif"\)], "Output"]
 }, Open  ]]
 }, Closed]],
 
@@ -391,11 +391,11 @@ Cell[BoxData[
 Cell[CellGroupData[{
 
 Cell[BoxData[
-    \(Export["\<~/Andes2/Problems/kgraph8b.gif\>", aa, 
+    \(Export["\<~/Andes2/solutions/kgraph8b.gif\>", aa, 
       ImageSize \[Rule] 6*72]\)], "Input"],
 
 Cell[BoxData[
-    \("~/Andes2/Problems/kgraph8b.gif"\)], "Output"]
+    \("~/Andes2/solutions/kgraph8b.gif"\)], "Output"]
 }, Open  ]]
 }, Closed]]
 },

@@ -74,7 +74,7 @@
    (pprint Errs)))
 
 ;;; compare prb files in two directories
-;;; (diff-prbs (Default-ProblemFile-Path) #P"/home/bvds/Andes2-old/Problems/" '(lmom1a lmom1b))
+;;; (diff-prbs (Default-ProblemFile-Path) #P"/home/bvds/Andes2-old/solutions/" '(lmom1a lmom1b))
 (defun diff-prbs (path1 path2 &rest topics)  
   "compare prb files in two directories."
   (let (Errs)
@@ -98,7 +98,7 @@
 
 
 ;; need helpsystem loaded for this
-;; (dump-html-prbs #P"/home/bvds/Andes2/Problems/" #P"/home/bvds/solutions/")
+;; (dump-html-prbs #P"/home/bvds/Andes2/solutions/" #P"/home/bvds/solutions/")
 ;; scp -r ~/solutions/ andes3.lrdc.pitt.edu:/home/andes/public_html/learnlab
 
 (defun dump-html-prbs (in-path out-path &rest topics)  
@@ -113,7 +113,7 @@
   (dump-style-file out-path))
 
 ;; need helpsystem loaded for this
-;; (dump-entries-operators #P"/home/bvds/Andes2/Problems/" #P"/home/bvds/solutions/")
+;; (dump-entries-operators #P"/home/bvds/Andes2/solutions/" #P"/home/bvds/solutions/")
 ;; scp -r ~/solutions/ andes3.lrdc.pitt.edu:/home/andes/public_html/learnlab
 (defun dump-entries-operators (in-path out-path &rest topics)  
   "write operators and entries to working problems into a directory"
