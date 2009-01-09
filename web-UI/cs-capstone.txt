@@ -14,17 +14,19 @@ done the night before.
 2.  Based on log files, suggest problems that will help them prepare
 for the exam.  Adaptive task selection.
 
-3.  Address the equation parser.  Instructors use latex, but students’
-done.  Cramster has equation palette, which students seem to use but
-instructors seem to hate.  So survey what various software does for
-math entry.  Maple, MathCad, Maxima, Mathmatica, … Then develop
+3.  Address the equation parser.  Instructors use latex, but students
+find it difficult to learn.  Cramster has equation palette, which 
+students seem to use but instructors seem to hate.  First activity
+would be to survey what various software does for
+math entry:  Maple, MathCad, Maxima, Mathmatica.  Then develop
 parser.  It should have API to Andes for reducing ambiguity.  Outputs
-in MathML?  No, need something like Mathematica’s.
+in MathML?  No, need something like Mathematica's.  (two possible levels of 
+representation:  semi-visual like LaTeX or full parse like mathematica).
 
-4.  The cascading text for defing variables.  When do down load from
+4.  The cascading text for defing variables.  When does one download from
 server?  By character, by tab-deliminted segments or whole tree
-structure?  Need too much in the driver program for Brett?  Let’s have
-them do it.
+structure?  See http://www.andestutor.org/bugzilla/show_bug.cgi?id=1488#c0
+We will need a "prototype" working method ready for June.
 
 5.  Architect with model-view-controller so that as system changes,
 the log player automatically keeps up.
@@ -38,3 +40,6 @@ Better penalty for guessing.
 
 8.  Customization.  Survey physics instructors to find out what are
 the rubrics used during hand grading.
+
+9.  Method for implementing 3-D vectors.  We will need a "prototype"
+working method ready for June.
