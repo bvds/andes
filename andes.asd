@@ -25,6 +25,10 @@
 (defmethod asdf:output-files ((o asdf:compile-op) (s no-compile-file))
   (list (component-pathname s)))
 
+;;;
+;;;  Add directory of problem files to  
+;;;
+
 
 (defsystem :andes
   :name "Andes"
@@ -65,7 +69,8 @@
 	       (:module "KB"
 ;;;	    	:description "Knowledge Base"
 			:depends-on ("Knowledge" "Base")
-			:serial t  ;real dependancies would be better
+			:default-component-class no-compile-file
+  			:serial t  ;real dependancies would be better
 			:components (
 				     ;; treat these as normal lisp files
 				     (:cl-source-file "Physics-Funcs")
@@ -95,9 +100,6 @@
 				     (:file "momentum-impulse")
 				     (:file "electromagnetism")          
 				     ))
-	       (:module "problems"
-;;;                     :description "problem sources, with own asd file"
-			:depends-on (problems))
 	       (:module "SGG"
 ;;;			:description "Solution Graph Generator" 
 			:depends-on ("Base" "Knowledge" "HelpStructs")
@@ -117,4 +119,3 @@
 
 (defmethod source-file-type ((c cl-source-file) (s (eql (find-system :andes))))
    "cl")
-

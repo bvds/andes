@@ -22,7 +22,7 @@
 (defsystem :andes-help
   :name "Andes help"
   :description "Andes physics tutor system: helpsystem"
-  :depends-on (andes)
+  :depends-on (problems)
   :components (
 	       (:module "Base"
 			:components ((:file "memoize")

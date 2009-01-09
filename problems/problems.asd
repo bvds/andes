@@ -1,8 +1,6 @@
 ;;;; -*- Lisp -*-
 ;;;; above sets emacs major mode to Lisp
 ;;;;
-
-
 ;;;; The following was stolen from maxima.asd
 ;;;; See http://www.math.utexas.edu/pipermail/maxima/2003/005630.html
 #+(or sbcl openmcl)
@@ -21,10 +19,11 @@
 (defmethod asdf:output-files ((o asdf:compile-op) (s no-compile-file))
   (list (component-pathname s)))
 
-
 (defsystem :problems
   :name "problems"
+  :depends-on (andes)
   :description "Problem definitions"
+  :default-component-class no-compile-file
   :components (
 	       (:file "kinematics-problems")
 	       (:file "dynamics-problems")
@@ -43,3 +42,7 @@
 	       (:file "statics-problems") 
 	       ))
 
+;;;  make lisp source file extension "cl"  See asdf manual
+
+(defmethod source-file-type ((c cl-source-file) (s (eql (find-system :problems))))
+   "cl")
