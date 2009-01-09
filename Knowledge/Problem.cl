@@ -17,7 +17,7 @@
 
 (defun Default-ProblemFile-Path ()
     ;; trailing / makes it a directory
-    (merge-pathnames  "Problems/" *Andes-Path*))
+    (merge-pathnames  "solutions/" *Andes-Path*))
 
 (defparameter *Number-Of-Problems* 0 
   "The number of problems registered to the system.")
