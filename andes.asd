@@ -65,7 +65,6 @@
 	       (:module "KB"
 ;;;	    	:description "Knowledge Base"
 			:depends-on ("Knowledge" "Base")
-			:default-component-class no-compile-file
 			:serial t  ;real dependancies would be better
 			:components (
 				     ;; treat these as normal lisp files
@@ -88,30 +87,17 @@
 				     (:file "dynamics")
 				     (:file "vectors")
 				     (:file "NewtonsNogoods")  
-				     (:file "kinematics-problems")
-				     (:file "dynamics-problems")
 				     (:file "fluids")
-				     (:file "fluids-problems")
 				     (:file "waves")
-				     (:file "waves-problems")
 				     (:file "work-energy")
-				     (:file "work-energy-problems")
-				     ;; depends on "waves":
-				     (:file "oscillations-problems")
-;;; Hey, these are the wrong mountains
-				     ;; (:file "PyreneesProblems")
-				     (:file "electromagnetism")          
-				     (:file "electromagnetism-problems")  
 				     (:file "optics")          
-				     (:file "optics-problems")          
-				     (:file "momentum-impulse")
-				     (:file "momentum-impulse-problems") 
-				     (:file "rocket-problems") 
-				     ;; there is some ugly code here
 				     (:file "circuits")
-				     (:file "circuit-problems")
-				     (:file "statics-problems") 
+				     (:file "momentum-impulse")
+				     (:file "electromagnetism")          
 				     ))
+	       (:module "problems"
+;;;                     :description "problem sources, with own asd file"
+			:depends-on (problems))
 	       (:module "SGG"
 ;;;			:description "Solution Graph Generator" 
 			:depends-on ("Base" "Knowledge" "HelpStructs")
