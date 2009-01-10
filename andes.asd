@@ -108,8 +108,7 @@
 					    :depends-on ("Qsolver"))
 				     (:file "Macros"
 					    :depends-on ("Qsolver"))         
-				     (:file "SolutionPoint" 
-					    :depends-on ("solver"))
+				     (:file "SolutionPoint")
 				     (:file "GraphGenerator")
 				     (:file "ProblemSolver")
 				     (:file "print-solutions")
