@@ -1,4 +1,8 @@
-;;; Modifications by Anders Weinstein 2000-2008
+;;;; CmdTests
+;;;; Collin Lynch 
+;;;; 4/16/2003 
+;;;; Copyright Kurt VanLehn.
+;;; Modifications by Anders Weinstein 2004-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
@@ -17,11 +21,6 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;; ===============================================================================
-;;;; CmdTests
-;;;; Collin Lynch 
-;;;; 4/16/2003 
-;;;; Copyright Kurt VanLehn.
 ;;;;
 ;;;; The code in this file handles command tests.  These are predicates that test 
 ;;;; the individual commands and return t if the command matches some restriction.

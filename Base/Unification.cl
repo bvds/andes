@@ -5,7 +5,7 @@
 ;; and is based upon the files patmatch.lisp, Prolog1.lisp and 
 ;; unify.lisp. 
 ;;; Copyright (c) 1991 Peter Norvig
-;;; Modifications by Anders Weinstein 2000-2008
+;;; Modifications by Anders Weinstein 2002-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 
 ;;(load "c:/SolutionGraph/Utility.cl")

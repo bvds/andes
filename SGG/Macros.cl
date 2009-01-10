@@ -1,4 +1,6 @@
-;;; Modifications by Anders Weinstein 2000-2008
+;;; Macro2.cl
+;;; 11/25/00
+;;; Modifications by Anders Weinstein 2002-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
@@ -17,8 +19,6 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Macro2.cl
-;;; 11/25/00
 ;;; This file defines the Andes2 Macro facilty.  Macros are similar to
 ;;; executables in that they can be embedded within Andes2 script as
 ;;; preconditions.  However, when a macro is encountered, it will be

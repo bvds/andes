@@ -1,4 +1,7 @@
-;;; Modifications by Anders Weinstein 2000-2008
+;;; UtilFuncs.cl
+;;; Collin Lynch
+;;; 8/13/2003
+;;; Modifications by Anders Weinstein 2004-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
@@ -17,15 +20,10 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; UtilFuncs.cl
-;;; Collin Lynch
-;;; 8/13/2003
 ;;;
 ;;; This code is used to support the runtime tests.  These
 ;;; functions act as wrappers to provide regular processing
 ;;; tasks and to allow for efficient re-use.
-|#
 
 ;;;; ======================================================
 ;;;; Fractional updates.

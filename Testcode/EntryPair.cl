@@ -1,4 +1,7 @@
-;;; Modifications by Anders Weinstein 2000-2008
+;;; EntryPair.cl
+;;; Collin Lynch
+;;; 4/28/2003
+;;; Modifications by Anders Weinstein 2002-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
@@ -18,9 +21,6 @@
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; EntryPair.cl
-;;; Collin Lynch
-;;; 4/28/2003
 ;;;
 ;;; The testset in this file tracks the short-term impact of
 ;;; help and our assumptions about it.  The tests are designed

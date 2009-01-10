@@ -1,4 +1,6 @@
-;;; Modifications by Anders Weinstein 2000-2008
+;; Nogood facility.
+;; Collin Lynch 12/18/2000
+;;; Modifications by Anders Weinstein 2002-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
@@ -17,9 +19,6 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Nogood facility.
-;; Collin Lynch 12/18/2000
 ;;
 ;; Nogoods are defined as a specific condition that cannot
 ;; or rather should not occur in the knowledge base.  The 

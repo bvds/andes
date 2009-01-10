@@ -5,7 +5,7 @@
 ;;  Collin Lynch (c?l) <CollinL@pitt.edu>
 ;; Modified:
 ;;  4 June 2001 - (lht) created
-;;; Modifications by Anders Weinstein 2000-2008
+;;; Modifications by Anders Weinstein 2002-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.

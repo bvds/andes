@@ -1,4 +1,7 @@
-;;; Modifications by Anders Weinstein 2000-2008
+;;;;; Solution.cl
+;;;;; Collin Lynch
+;;;;; 3/14/2001
+;;; Modifications by Anders Weinstein 2002-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
@@ -17,10 +20,6 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;; Solution.cl
-;;;;; Collin Lynch
-;;;;; 3/14/2001
 ;;;;; 
 ;;;
 ;;;;;;; Note the terminology issues with eqnsets and solutions will need

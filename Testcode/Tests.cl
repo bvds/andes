@@ -1,4 +1,8 @@
-;;; Modifications by Anders Weinstein 2000-2008
+;;; Tests.cl
+;;; Collin Lynch
+;;; 8/8/2003
+;;; Copyright Kurt VanLehn.
+;;; Modifications by Anders Weinstein 2004-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
@@ -17,11 +21,6 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Tests.cl
-;;; Collin Lynch
-;;; 8/8/2003
-;;; Copyright Kurt VanLehn.
 ;;;
 ;;; At runtime we want the system to load and maintain a list of scores
 ;;; that reflect the student's actions in some set ways.  This is the 
@@ -141,7 +140,6 @@
 ;;;; ==============================================================================
 ;;;; TODO.
 ;;;;  1. End dpeendence of tsch-cache-collect-bodies-list on nsh internal code.
-|#
 
 (clear-runtime-testsets)
 

@@ -1,7 +1,7 @@
 ;;  memoize routines from norvig's text 274-275 "Paradigms or Artificial
 ;;  Intelligence Programming (Case studies in LISP)"
 ;;; Copyright (c) 1991 Peter Norvig
-;;; Modifications by Anders Weinstein 2000-2008
+;;; Modifications by Anders Weinstein 2002-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;
 ;;  There is also a version by Tim Bradshaw, but that is overkill for us.

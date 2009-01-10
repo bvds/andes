@@ -1,4 +1,7 @@
-;;; Modifications by Anders Weinstein 2000-2008
+;; Problemsolver.cl
+;; Collin Lynch
+;; 3/24/2001
+;;; Modifications by Anders Weinstein 2002-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
@@ -17,10 +20,6 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Problemsolver.cl
-;; Collin Lynch
-;; 3/24/2001
 ;;
 ;; This file defines the overall problem-solving algorithm of the
 ;; Andes2 SGG.  The main function here is solve-problem which takes
