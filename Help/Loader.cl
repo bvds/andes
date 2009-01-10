@@ -1,4 +1,7 @@
-;;; Modifications by Anders Weinstein 2000-2008
+;; Loader.cl
+;; Collin Lynch
+;; 4/20/2001
+;;; Modifications by Anders Weinstein 2001-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
@@ -18,9 +21,6 @@
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Loader.cl
-;; Collin Lynch
-;; 4/20/2001
 ;;
 ;; This file is used to load the interface information for the 
 ;; Andes2 help system at runtime.

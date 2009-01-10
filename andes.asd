@@ -43,8 +43,7 @@
 				     (:file "auxiliary")
 				     (:file "hash")
 				     (:file "Utility")))
-	       (:module "Solver_Release"
-			:depends-on ("andes-path")
+	       (:module "Algebra"
 			:components ((:file "solver")))
 	       (:module "HelpStructs"
 			:depends-on ("Base")
@@ -53,7 +52,7 @@
 					    :depends-on ("PsmGraph"))
 				     ))
 	       (:module "Knowledge"
-			:depends-on ("Base" "Solver_Release" "HelpStructs")
+			:depends-on ("Base" "HelpStructs")
 			:components ((:file "eqn")         
 				     (:file "Nogood")    
 				     (:file "Operators")  
@@ -102,13 +101,15 @@
 				     ))
 	       (:module "SGG"
 ;;;			:description "Solution Graph Generator" 
-			:depends-on ("Base" "Knowledge" "HelpStructs")
-			:components ((:file "Qsolver") ;depends on HelpStructs
+			:depends-on ("Base" "Knowledge" "HelpStructs" "Algebra")
+			:components (
+				     (:file "Qsolver") ;depends on HelpStructs
 				     (:file "Exec" 
 					    :depends-on ("Qsolver"))
 				     (:file "Macros"
 					    :depends-on ("Qsolver"))         
-				     (:file "SolutionPoint")
+				     (:file "SolutionPoint" 
+					    :depends-on ("solver"))
 				     (:file "GraphGenerator")
 				     (:file "ProblemSolver")
 				     (:file "print-solutions")

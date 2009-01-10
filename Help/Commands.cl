@@ -1,4 +1,10 @@
-;;; Modifications by Anders Weinstein 2000-2008
+;; Author(s):
+;;  unknown -- originators of code from Andes team
+;;  Linwood H. Taylor (lht) <lht@lzri.com>
+;;  Collin Lynch (CL)  <Collinl@pitt.edu>
+;; Modified:
+;;  12 March 2001 - (lht) -- this file created for Andes 2
+;;; Modifications by Anders Weinstein 2001-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
@@ -26,13 +32,6 @@
 ;; by delegating to worker functions in the relevant modules. This module 
 ;; also maintains the record of the current dialog state if any for use in 
 ;; responding to subsequent student input.
-;; Copyright (C) 2001 by ?????????????????????????????? -- All Rights Reserved.
-;; Author(s):
-;;  unknown -- originators of code from Andes team
-;;  Linwood H. Taylor (lht) <lht@lzri.com>
-;;  Collin Lynch (CL)  <Collinl@pitt.edu>
-;; Modified:
-;;  12 March 2001 - (lht) -- this file created for Andes 2
 ;;  20 May 2002 - (CL) -- Added in entry-auto-logging and other macros to
 ;;   permit the creation of the *Studentactions* Stack in future these may
 ;;   be made a stock part of the system but, for now, it is a compiler setting.

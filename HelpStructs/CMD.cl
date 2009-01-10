@@ -1,3 +1,7 @@
+;; CMD.cl
+;; Collin Lynch
+;; 1/28/2003
+;; Copyright Kurt VanLehn.
 ;;; Modifications by Anders Weinstein 2000-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
@@ -18,10 +22,6 @@
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; CMD.cl
-;; Collin Lynch
-;; 1/28/2003
-;; Copyright Kurt VanLehn.
 ;;
 ;; This file contains the CMD struct along with specific predicates
 ;; to test and set various portions of the struct.  This file appears

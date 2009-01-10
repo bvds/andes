@@ -1,4 +1,7 @@
-;;; Modifications by Anders Weinstein 2000-2008
+;; SolutionGraph.cl
+;; Collin Lynch
+;; 04/19/2001
+;;; Modifications by Anders Weinstein 2001-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
@@ -18,9 +21,6 @@
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; SolutionGraph.cl
-;; Collin Lynch
-;; 04/19/2001
 ;;
 ;; The solution graph module maintains a listing of 
 ;; system entries and their status for the help system.

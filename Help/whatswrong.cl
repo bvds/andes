@@ -1,3 +1,8 @@
+;; whatswrong.cl -- interprets the errclasses in errors.cl
+;; Copyright (C) 2001 by Kurt VanLehn
+;; Author(s):
+;;  Kurt Van Lehn (kvl) <vanlehn@cs.pitt.edu>
+;;  Collin Lynch <collinl@pitt.edu>
 ;;; Modifications by Anders Weinstein 2000-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
@@ -17,13 +22,6 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; whatswrong.cl -- interprets the errclasses in errors.cl
-;; Copyright (C) 2001 by Kurt VanLehn
-;; Author(s):
-;;  Kurt Van Lehn (kvl) <vanlehn@cs.pitt.edu>
-;;  Collin Lynch <collinl@pitt.edu>
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defparameter **done-already**
     'done

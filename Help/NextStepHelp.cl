@@ -1,4 +1,9 @@
-;;; Modifications by Anders Weinstein 2000-2008
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; NextStepHelp.cl
+;; Collin Lynch (Cl) <CollinL@pitt.edu>
+;; Kurt VanLehn (Kvl) <VnaLehn@cs.pitt.edu>
+;; 7/18/2002
+;;; Modifications by Anders Weinstein 2002-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
@@ -17,11 +22,6 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; NextStepHelp.cl
-;; Collin Lynch (Cl) <CollinL@pitt.edu>
-;; Kurt VanLehn (Kvl) <VnaLehn@cs.pitt.edu>
-;; 7/18/2002
 ;;;
 ;; ChangeLog:
 ;;   6/12/2003 - (Cl) - fixing compiler warnings.

@@ -1,4 +1,8 @@
-;;; Modifications by Anders Weinstein 2000-2008
+;; StudentFile.cl -- routines to suport load save and modification of student information
+;; Author(s):
+;;  Linwood H. Taylor (lht) <lht@lzri.com> Collin Lynch (cl) <collinl@pitt.edu>
+;;  5 August 2001 - (lht) created
+;;; Modifications by Anders Weinstein 2001-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
@@ -18,12 +22,6 @@
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; StudentFile.cl -- routines to suport load save and modification of student information
-;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> -- All Rights Reserved.
-;; Author(s):
-;;  Linwood H. Taylor (lht) <lht@lzri.com> Collin Lynch (cl) <collinl@pitt.edu>
-;; Modified:
-;;  5 August 2001 - (lht) created
 ;;  26 November 2003 - (cl) modified for loading so that the studentfile can be loaded
 ;;    from an explicitly named file as opposed to the standard location and so that the
 ;;    scores can be stored to and loaded from a single location so that multiple files

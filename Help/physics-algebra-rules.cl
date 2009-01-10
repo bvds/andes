@@ -1,3 +1,8 @@
+;; physics-algebra-rules.cl -- sets up the grammar for physics algebra
+;; Author(s):
+;;  Linwood H. Taylor (lht) <lht@lzri.com>
+;;  Collin Lynch (cl) <CollinL@pitt.edu>
+;;   3 April 2001 - (lht) -- created from previous work on ANDES2 parsing
 ;;; Modifications by Anders Weinstein 2000-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
@@ -17,14 +22,7 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; physics-algebra-rules.cl -- sets up the grammar for physics algebra
-;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> -- All Rights Reserved.
-;; Author(s):
-;;  Linwood H. Taylor (lht) <lht@lzri.com>
-;;  Collin Lynch (cl) <CollinL@pitt.edu>
 ;; Modified:
-;;   3 April 2001 - (lht) -- created from previous work on ANDES2 parsing
 ;;   8 April 2001 - (lht) -- version finalized and source cleaned
 ;;  10 April 2001 - (lht) -- added cull to end of file (helps time issues)
 ;;  15 May 2001 - (lht) -- new dnum treatment and scinum definition

@@ -1,3 +1,8 @@
+;; pre2in.cl -- convert from prefix to infix
+;; Author(s):
+;;  Linwood H. Taylor (lht) <lht@lzri.com>
+;; Modified:
+;;  4 June 2001 - (lht) -- created
 ;;; Modifications by Anders Weinstein 2000-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
@@ -17,13 +22,6 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; pre2in.cl -- convert from prefix to infix
-;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> -- All Rights Reserved.
-;; Author(s):
-;;  Linwood H. Taylor (lht) <lht@lzri.com>
-;; Modified:
-;;  4 June 2001 - (lht) -- created
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun pre2in (eq)

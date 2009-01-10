@@ -1,4 +1,9 @@
-;;; Modifications by Anders Weinstein 2000-2008
+;; Author(s):
+;;  Linwood H. Taylor (lht) <lht@lzri.com>
+;;  Collin Lynch (cl) <collinl@pitt.edu>
+;; Modified:
+;;  16 May 2001 - (lht) -- created
+;;; Modifications by Anders Weinstein 2001-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
@@ -21,12 +26,6 @@
 ;; in2pre.cl -- routines for converting infix lists to prefix lists ... 
 ;;  facilities for special handling of unary, binary, stamp and other special 
 ;;  operators with additional functionality for supporting operator precedence.
-;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> -- All Rights Reserved.
-;; Author(s):
-;;  Linwood H. Taylor (lht) <lht@lzri.com>
-;;  Collin Lynch (cl) <collinl@pitt.edu>
-;; Modified:
-;;  16 May 2001 - (lht) -- created
 ;;  12/6/2003 - (cl) -- removed unused vars that were causing compiler 
 ;;    warnings:
 ;;    in2pre-position-of-first now uses the Len variable.

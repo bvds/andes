@@ -1,3 +1,6 @@
+;; NewtonsNogoods.cl
+;; Collin Lynch
+;; 01/11/2001
 ;;; Modifications by Anders Weinstein 2000-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
@@ -17,10 +20,6 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; NewtonsNogoods.cl
-;; Collin Lynch
-;; 01/11/2001
 ;;
 ;; This file defines nogoods for the Newtons2.cl physics code.
 ;;

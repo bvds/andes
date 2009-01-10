@@ -1,4 +1,7 @@
-;;; Modifications by Anders Weinstein 2000-2008
+;;; API.cl
+;;; Collin Lynch
+;;; 4/16/2003
+;;; Modifications by Anders Weinstein 2004-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
@@ -18,9 +21,6 @@
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; API.cl
-;;; Collin Lynch
-;;; 4/16/2003
 ;;;
 ;;; The code in this file provides meta-information about the Andes2 API
 ;;; the parameters and functions are used to classify the API calls into

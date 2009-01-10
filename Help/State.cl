@@ -1,3 +1,8 @@
+;; State.cl
+;; Collin Lynch (CL) <CollinL@pitt.edu>
+;; Anders Weinstein (AW) <AndersW@pitt.edu>
+;; Lynwood Taylor (LHT) <lht@lzri.com>
+;; 4/20/2001
 ;;; Modifications by Anders Weinstein 2000-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
@@ -18,11 +23,6 @@
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; State.cl
-;; Collin Lynch (CL) <CollinL@pitt.edu>
-;; Anders Weinstein (AW) <AndersW@pitt.edu>
-;; Lynwood Taylor (LHT) <lht@lzri.com>
-;; 4/20/2001
 ;;
 ;; This file defines basic state storage functions and
 ;; state information for the help system.  

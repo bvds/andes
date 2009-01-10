@@ -1,3 +1,8 @@
+;; symbols.lsp/cl
+;; author(s):
+;;   Collin Lynch (cl) -- <CollinL@pitt.edu>
+;;   Linwood H. Taylor (lht) -- <lht@lzri.com>
+;;   19 February 2001 - (cl) -- created
 ;;; Modifications by Anders Weinstein 2000-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
@@ -17,14 +22,7 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; symbols.lsp/cl
-;; Copyright (C) 2001 by ??????????????????????????????? -- All Rights Reserved
-;; author(s):
-;;   Collin Lynch (cl) -- <CollinL@pitt.edu>
-;;   Linwood H. Taylor (lht) -- <lht@lzri.com>
 ;; modified:
-;;   19 February 2001 - (cl) -- created
 ;;   18 March 2001 - (lht) -- took over for addition to Andes2 code
 ;;   5 June 2003 - (cl) -- removed depreciated calls to replace-greek.
 ;;   7 July 2003 - (cl) -- Added optional problem argument to quant-to-sysvar

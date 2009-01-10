@@ -1,5 +1,4 @@
 ;;; Mersenne Twister MT19937, adapted from CMUCL rand-mt19937.lisp -r1.11 (2003/03/06)
-
 ;;; CMUCL version by Douglas T. Crosher and Raymond Toy based
 ;;; on public domain code from Carnegie Mellon University.
 ;;; Modified for Maxima by Robert Dodier.

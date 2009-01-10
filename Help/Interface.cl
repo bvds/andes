@@ -1,3 +1,5 @@
+;;; Interface.cl
+;;; Autor(s):  Collin Lynch <CollinL@pitt.edu>
 ;;; Modifications by Anders Weinstein 2000-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
@@ -18,7 +20,6 @@
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Interface.cl
 ;;; Dispatch and execution code for the Andes API.
 ;;; The execue-andes-command function located in this file 
 ;;; exists as the interface between the Workbench API and the
@@ -44,8 +45,6 @@
 ;;; the running code.  It also makes it easier for me to hang the 
 ;;; command generation code in one single place.  
 ;;;
-;;; Autor(s):  Collin Lynch <CollinL@pitt.edu>
-;;; Copyright: Kurt VanLehn.
 ;;;
 ;;;
 ;;; NOTE:: At some point this will need to be modified so that the

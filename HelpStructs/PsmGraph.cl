@@ -1,3 +1,6 @@
+;; PsmGraph.cl
+;; Collin Lynch 
+;; 4/10/2001
 ;;; Modifications by Anders Weinstein 2000-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
@@ -18,9 +21,6 @@
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; PsmGraph.cl
-;; Collin Lynch 
-;; 4/10/2001
 ;; This file defines the PSM Graph and associated 
 ;; code within it.  At SGG time the graph is stored
 ;; as a flat list of lists.  At Help time this list

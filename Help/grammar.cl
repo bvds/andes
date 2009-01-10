@@ -1,4 +1,10 @@
-;;; Modifications by Anders Weinstein 2000-2008
+;; grammar.cl -- routines for building grammars a little quicker than one rule at a time
+;; Author(s):
+;;  Linwood H. Taylor (lht) <lht@lzri.com>
+;;  Collin Lynch (CL) <CollinL@pitt.edu>
+;; Modified:
+;;   3 April 2001 - (lht) -- created from previous work on ANDES2 parsing
+;;; Modifications by Anders Weinstein 2001-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
@@ -17,14 +23,6 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; grammar.cl -- routines for building grammars a little quicker than one rule at a time
-;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> -- All Rights Reserved.
-;; Author(s):
-;;  Linwood H. Taylor (lht) <lht@lzri.com>
-;;  Collin Lynch (CL) <CollinL@pitt.edu>
-;; Modified:
-;;   3 April 2001 - (lht) -- created from previous work on ANDES2 parsing
 ;;   8 April 2001 - (lht) -- version finalized and source cleaned
 ;;  10 April 2001 - (lht) -- added cull routines
 ;;  10 May 2001 - (lht) -- reworked for better parse handling and to return more useable info.

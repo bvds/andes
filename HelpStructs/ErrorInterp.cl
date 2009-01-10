@@ -1,3 +1,6 @@
+;;;  defines the struct used by whatswrong.cl to represent error interpretations
+;;;  Kurt VanLehn
+;;;  Copyright Kurt VanLehn 2001
 ;;; Modifications by Anders Weinstein 2000-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
@@ -17,11 +20,6 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;  defines the struct used by whatswrong.cl to represent error interpretations
-;;;  Kurt VanLehn
-;;;  Copyright Kurt VanLehn 2001
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defstruct (ErrorInterp (:print-function write-ErrorInterp))
   test          ; name of test that provided this interp

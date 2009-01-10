@@ -1,4 +1,7 @@
-;;; Modifications by Anders Weinstein 2000-2008
+;; RuntimeTestScore.cl
+;; Collin Lynch
+;; 10/3/2003
+;;; Modifications by Anders Weinstein 2003-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
@@ -18,9 +21,6 @@
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; RuntimeTestScore.cl
-;; Collin Lynch
-;; 10/3/2003
 ;;
 ;; This file contains the rt-Val, rt-score and rt-Solset classes and 
 ;; their individual subclasses.  The rt-Val class is an abstract 

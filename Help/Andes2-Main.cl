@@ -1,4 +1,15 @@
-;;; Modifications by Anders Weinstein 2000-2008
+;; Author(s):
+;;   Mike Ringenberg (mr) <
+;;   Linwood H. Taylor (lht) <lht@lzri.com>
+;;   Anders Weinstein (a?w) <andersw+@pitt.edu>
+;; Modified:
+;;   unknown - created
+;;   7 February 2001 - (lht) - editing for documentation and new help dialog
+;;   ?????????? 2001 - (a?w) - added fucntionality fro debugging and added
+;;                             support for symbol table processing
+;;   23 April 2001 - (lht) - renamed from tcp-wb.lsp to Andes-Main.cl
+;;                           adding some polishing to support final code
+;;    5 June 2001 - (lht) - editied to load/initialize new parseing/etc.
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
@@ -21,19 +32,6 @@
 ;; Andes-Main.lsp/cl - functions that setup, maintain, terminate, and generally
 ;;   handle the communication between the workbench and the Andes2 help system
 ;;   using TCP/IP sockets and streams.
-;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> - All Rights Reserved.
-;; Author(s):
-;;   Mike Ringenberg (mr) <
-;;   Linwood H. Taylor (lht) <lht@lzri.com>
-;;   Anders Weinstein (a?w) <andersw+@pitt.edu>
-;; Modified:
-;;   unknown - created
-;;   7 February 2001 - (lht) - editing for documentation and new help dialog
-;;   ?????????? 2001 - (a?w) - added fucntionality fro debugging and added
-;;                             support for symbol table processing
-;;   23 April 2001 - (lht) - renamed from tcp-wb.lsp to Andes-Main.cl
-;;                           adding some polishing to support final code
-;;    5 June 2001 - (lht) - editied to load/initialize new parseing/etc.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (in-package :user)
 

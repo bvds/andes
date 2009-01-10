@@ -1,4 +1,7 @@
-;;; Modifications by Anders Weinstein 2000-2008
+;;; StudentAction.cl
+;;; Collin Lynch
+;;; 7/8/2002
+;;; Modifications by Anders Weinstein 2002-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
@@ -18,9 +21,6 @@
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; StudentAction.cl
-;;; Collin Lynch
-;;; 7/8/2002
 ;;;
 ;;; The studentaction represents a single student 
 ;;; action in the help system embodying the entry and

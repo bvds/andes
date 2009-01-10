@@ -1,3 +1,7 @@
+;; nlg.cl -- Natural Language Generator code and data
+;; Author(s):
+;;  Collin Lynch (c?l) <collinl@pitt.edu>
+;;  Linwood H. Taylor (lht) <lht@lzri.com>
 ;;; Modifications by Anders Weinstein 2000-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
@@ -17,12 +21,6 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; nlg.cl -- Natural Language Generator code and data
-;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> -- All Rights Reserved.
-;; Author(s):
-;;  Collin Lynch (c?l) <collinl@pitt.edu>
-;;  Linwood H. Taylor (lht) <lht@lzri.com>
 ;; Modified:
 ;;  ??? - (c?l) -- created
 ;;  29 June 2001 - (lht) -- begin to implement working code

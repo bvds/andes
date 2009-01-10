@@ -1,3 +1,7 @@
+;; Author(s):
+;;  unknown -- originators of code from Andes team
+;;  Linwood H. Taylor (lht) <lht@lzri.com>
+;;  12 March 2001 - (lht) -- this file created for Andes 2
 ;;; Modifications by Anders Weinstein 2000-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
@@ -17,16 +21,10 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; utilities.cl -- the lisp calls that echo the commands sent by the Andes 2
 ;;  Workbench to the Dialog Manager. They are grouped here for that common rea-
 ;;  son alone. Supportive functions can be found else-where.
-;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> -- All Rights Reserved.
-;; Author(s):
-;;  unknown -- originators of code from Andes team
-;;  Linwood H. Taylor (lht) <lht@lzri.com>
 ;; Modified:
-;;  12 March 2001 - (lht) -- this file created for Andes 2
 ;;  19 April 2001 - (lht) -- added packaging code
 ;;  10 May 2001 - (lht) -- removed packaging code and adjusted for new grammar
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

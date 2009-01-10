@@ -1,3 +1,9 @@
+;; lrdc-errors.cl -- error handlers for Andes 2 Dialog Manager
+;; Author(s):
+;;  unknown -- originators of code from Andes team
+;;  Linwood H. Taylor (lht) <lht@lzri.com>
+;; Modified:
+;;  12 March 2001 - (lht) -- this file created for Andes 2
 ;;; Modifications by Anders Weinstein 2000-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
@@ -17,14 +23,6 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; lrdc-errors.cl -- error handlers for Andes 2 Dialog Manager
-;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> -- All Rights Reserved.
-;; Author(s):
-;;  unknown -- originators of code from Andes team
-;;  Linwood H. Taylor (lht) <lht@lzri.com>
-;; Modified:
-;;  12 March 2001 - (lht) -- this file created for Andes 2
 ;;  26 March 2001 - (lht) -- added customizing functions: set-error-stream,
 ;;                           enable-erros, and disable-errors and adjusted
 ;;                           comments to reflect these changes
