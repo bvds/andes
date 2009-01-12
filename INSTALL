@@ -1,0 +1,18 @@
+
+Andes works with several varieties of lisp, but
+has been most extensively used with sbcl and Allegro lisp.
+A sample .sbclrc file has been included as sbclrc-sample.
+Andes uses asdf as its package manager; both sbclr and 
+Allegro lisp distributions include asdf.
+
+Install the uffi lisp package uffi; see http://uffi.b9.com/.
+
+Compile the solver library:
+  cd Algebra/src/; make
+
+For the system to work, a library of problem definitions 
+must be included.  The original Andes problem definitions
+are under copyright and not publicly available.  For access,
+send your ssh public key to help@andestutor.org  The git command
+to download this library is (from the Andes root directory):
+   git clone ssh://git@andestutor.org/home/git/Andes-problems.git/ problems

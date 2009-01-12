@@ -1,0 +1,33 @@
+;;;; -*- Lisp -*-
+;;;; above sets emacs major mode to Lisp
+;;;;
+;;;;  initialization file for sbcl
+;;;;
+;;; Muffle compiler-notes globally
+(declaim (sb-ext:muffle-conditions sb-ext:compiler-note))
+
+(require :asdf)  ; asdf is built-in
+
+(pushnew #P"/home/bvds/Andes2/" asdf:*central-registry*)
+(pushnew #P"/usr/local/uffi/" asdf:*central-registry*)
+
+;;;
+;;;  load uffi
+;;; 
+#-uffi (progn
+	 (asdf:operate 'asdf:load-op 'uffi)
+	 ;;this should be conditional on a successful
+	 (pushnew :uffi cl:*features*)  
+)					
+
+;;;;
+;;;;  load andes system
+;;;;
+
+(defun rkb ()
+  "Reset the lists in KB and reload all files using asdf"
+  (asdf:operate 'asdf:load-op 'problems))
+
+(defun rhelp ()
+  "Load or reload help system using asdf"
+  (asdf:operate 'asdf:load-op 'andes-help))
