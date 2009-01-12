@@ -1,0 +1,444 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif\r\n"
+    "#include ""res\\Setup.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\setup.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_WELCOME_DLG DIALOGEX 0, 0, 242, 121
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Welcome"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Install the Andes Physics tutor on your computer.",
+                    IDC_STATIC,54,7,181,20
+    ICON            IDR_MAINFRAME,IDC_SETUP_BMP,9,8,20,20
+    LTEXT           "It is strongly recommended that you exit all Windows programs before running this setup program.",
+                    IDC_STATIC,5,47,230,17
+    LTEXT           "WARNING:  This program is protected by copyright law and international treaties.",
+                    IDC_STATIC,5,68,230,17
+    LTEXT           "Unauthorized reproduction or distibution of this program, or any portion of it, may result in severe civil and criminal penalties, and will be prosecuted to the maximum extent possible under the law.",
+                    IDC_STATIC,5,90,230,24
+    LTEXT           "Version",IDC_STATIC,55,29,24,8
+    LTEXT           "NN.NN.NN.NN",IDC_VERSION,82,29,65,8
+END
+
+IDD_DESTINATION_DLG DIALOG DISCARDABLE  0, 0, 243, 135
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
+CAPTION "Choose Destination Location"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Click 'Next' to install the Andes Physics Tutor in the following directory.",
+                    IDC_STATIC,7,21,213,28
+    LTEXT           "Users of Andes must have permission to write files in the installation directory, or else Andes will not work correctly.",
+                    IDC_STATIC,11,64,205,18
+    PUSHBUTTON      "Browse",IDC_BROWSE,167,105,50,14
+    LTEXT           "C:\\Program Files\\Andes",IDC_INSTALLDIR,14,106,150,15
+    GROUPBOX        "Installation Directory",IDC_STATIC,7,94,216,34
+    GROUPBOX        "",IDC_STATIC,9,57,212,29
+END
+
+IDD_STARTCOPY_DLG DIALOGEX 0, 0, 233, 124
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
+CAPTION "Start Copying Files"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "The Andes installer is ready to copy files to the installation directory.  If you want to review or change any of the settings, click Back.  If you are satisfied with the settings, click 'Next' to begin copying the files.",
+                    IDC_STATIC,7,7,219,36
+    LTEXT           "Current Settings:",IDC_STATIC,7,53,64,10
+    LTEXT           "Static",IDC_CUR_SETTINGS,7,64,219,53,SS_SUNKEN,
+                    WS_EX_STATICEDGE
+END
+
+IDD_PROGRESS_DLG DIALOG DISCARDABLE  0, 0, 300, 86
+STYLE DS_MODALFRAME | DS_3DLOOK | WS_POPUP | WS_VISIBLE
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Cancel",IDC_STOP,130,65,50,14
+    CONTROL         "Progress1",IDC_PROGRESS1,"msctls_progress32",WS_BORDER,
+                    7,42,286,14
+    LTEXT           "Copying program files...",IDC_STATIC,7,7,85,12
+    LTEXT           "uninst.exe",IDC_FILENAME,7,23,113,14
+END
+
+IDD_FINISH_DLG DIALOG DISCARDABLE  0, 0, 180, 121
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
+CAPTION "Installation complete"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "The Andes installer has finished copying files.",
+                    IDC_STATIC,7,7,166,16
+    LTEXT           "Click Finish to complete setup",IDC_STATIC,7,34,166,17
+END
+
+IDD_DIRECTORY_DLG DIALOG DISCARDABLE  0, 0, 186, 166
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Choose Directory"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,129,65,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,84,50,14
+    LTEXT           "Please choose the directory for installation.",
+                    IDC_STATIC,7,7,165,8
+    LTEXT           "Path:",IDC_STATIC,7,20,30,8
+    EDITTEXT        IDC_INSTALL_PATH,7,32,172,13,ES_AUTOHSCROLL
+    LTEXT           "Directories:",IDC_STATIC,7,51,51,8
+    CONTROL         "Tree1",IDC_DIRECTORY_TREE,"SysTreeView32",WS_BORDER | 
+                    WS_TABSTOP,7,65,115,84
+END
+
+IDD_EXIT_DLG DIALOG DISCARDABLE  0, 0, 186, 111
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Exit Setup"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Resume ",IDOK,30,90,58,14
+    PUSHBUTTON      "Exit Setup",IDCANCEL,99,90,50,14
+    LTEXT           "Andes is not installed yet.",
+                    IDC_STATIC,7,14,172,18
+    LTEXT           "You may run the installer at a later time to complete the installation",
+                    IDC_STATIC,7,35,172,18
+    LTEXT           "To continue installing the program, click Resume.  To quit the installer, click Exit Setup.",
+                    IDC_STATIC,7,59,172,20
+END
+
+IDD_CHECKSPACE_DLG DIALOG DISCARDABLE  0, 0, 237, 49
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Setup"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,10,20,20
+    LTEXT           "Checking available Disk Space",
+                    IDC_STATIC,61,13,161,22
+END
+
+IDD_REG_DLG DIALOG DISCARDABLE  0, 0, 237, 49
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Setup"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,10,9,20,20
+    LTEXT           "Updating the registry and the Start Menu",
+                    IDC_TXT,61,13,168,20
+END
+
+IDD_CLEANUP_DLG DIALOG DISCARDABLE  0, 0, 237, 74
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Installation cleanup"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Yes",IDOK,60,53,50,14
+    PUSHBUTTON      "No",IDCANCEL,126,53,50,14
+    LTEXT           "",IDC_STATIC_TXT,47,7,183,43
+    ICON            IDR_MAINFRAME,IDC_STATIC,9,7,21,20
+END
+
+IDD_VERSIONMSG_DLG DIALOG DISCARDABLE  0, 0, 237, 71
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Version Conflict"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Yes, Skip",IDOK,27,50,50,14
+    PUSHBUTTON      "No, Replace",IDCANCEL,159,50,50,14
+    LTEXT           "",IDC_STATIC_MSG,51,7,179,36
+    ICON            32515,IDC_STATIC,13,13,20,20
+    PUSHBUTTON      "Skip All",IDC_YESTOALL,93,50,50,14
+END
+
+IDD_LICENSE_DLG DIALOG DISCARDABLE  0, 0, 406, 345
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "License Agreement"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Yes",IDC_ACCEPT,"Button",BS_AUTORADIOBUTTON | WS_GROUP | 
+                    WS_TABSTOP,186,292,28,10
+    CONTROL         "No, do not accept",IDC_REJECT,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,284,291,73,10
+    DEFPUSHBUTTON   "OK",IDOK,183,324,50,18
+    EDITTEXT        IDC_LICENSE_TEXT,9,26,384,252,ES_MULTILINE | ES_READONLY | 
+                    WS_VSCROLL | NOT WS_TABSTOP
+    LTEXT           "Use of ANDES is governed by the following license agreeement:",
+                    IDC_STATIC,9,10,203,8
+    LTEXT           "I accept the terms of the license agreement:",
+                    IDC_STATIC,13,291,139,8
+    GROUPBOX        "",IDC_STATIC,6,283,387,25
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 2,0,0,0
+ PRODUCTVERSION 12,0,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "Andes installer\0"
+            VALUE "FileVersion", "2, 0, 0, 0\0"
+            VALUE "InternalName", "Setup\0"
+            VALUE "LegalCopyright", "Copyright (C) 1997-2008\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "Setup.EXE\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "Andes installer\0"
+            VALUE "ProductVersion", "12, 0, 0, 0\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_WELCOME_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 5
+        RIGHTMARGIN, 235
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 114
+    END
+
+    IDD_DESTINATION_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 236
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 128
+    END
+
+    IDD_STARTCOPY_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 226
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 117
+    END
+
+    IDD_PROGRESS_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 293
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 79
+    END
+
+    IDD_FINISH_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 173
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 114
+    END
+
+    IDD_DIRECTORY_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 159
+    END
+
+    IDD_EXIT_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 104
+    END
+
+    IDD_CHECKSPACE_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 230
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 42
+    END
+
+    IDD_REG_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 230
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 41
+    END
+
+    IDD_CLEANUP_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 230
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 67
+    END
+
+    IDD_VERSIONMSG_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 230
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 64
+    END
+
+    IDD_LICENSE_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 399
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 338
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_SETUPBMP            BITMAP  DISCARDABLE     "res\\bitmap1.bmp"
+IDR_DRIVES              BITMAP  DISCARDABLE     "res\\drives.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_INVALID_DRIVE       "The specified drive:\n%s\nis invalid, incomplete or write protected.  Please type a full path with drive letter.\nFor example,  ""C:\\APPS"""
+    IDS_NOSUCH_DIR          "The directory: %s does not exist.  Would you like to create it?"
+    IDS_NOSPACE             "There is not enough space on this drive to install Andes (Required: %d. Free: %d) Please select another drive or click Cancel to exit the setup program."
+    IDS_DIR_FAIL            "The directory:  %s  could not be created.\nThe parent disk or directory may be write-protected. "
+    IDS_WAITREMOVE          "Removing all installation components."
+    IDS_VERMSG              "You are about to replace the file %s with an older version.  It is recommended that you keep the existing file.  Would you like to skip the replacement of this file and continue with the installation? "
+    IDS_ERROR_SHARING       "Sharing violation of file: %s\nFile may be in use.  Please cancel, close all programs and then try running the installer again."
+    IDS_ERROR_FNF           "File not found: %s  \n\nexiting."
+    IDS_ERROR_COPY          "Error copying file: %s to %s\n\nexiting"
+    IDS_ERROR_OPEN          "Error opening file: %s"
+    IDS_REBOOT              "It is necessary to restart your computer to complete the Andes installation. Click Yes to restart now.  \n\nIf you have unsaved information in open programs, click No, close all programs and restart your computer manually."
+    IDS_ERROR_REBOOT        "Error during reboot, Please close all applications and manually reboot your system"
+    IDS_CLEANUP             "Would you like to remove this installation program and all of its components from your hard drive?"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif
+#include "res\Setup.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

@@ -1,0 +1,343 @@
+<CLV STREAM="ClassView Window" SIZE="7168" VERSION="0x00050001">
+<PROJECTS COUNT="1">
+<SLOB LEVEL="1" TYPE="CClsFldSlob"/>
+<PROJECT NAME="FBD">
+<FOLDERS COUNT="10">
+<SLOB LEVEL="2" TYPE="CClassSubfolderSlob"/>
+<FOLDER NAME="Equations">
+<FOLDERS COUNT="1">
+<FOLDER NAME="Greek Text">
+<FOLDERS COUNT="0"/>
+<CLASSES COUNT="8">
+<CLASS NAME="CGreekText"/>
+<CLASS NAME="CGreekMenu"/>
+<CLASS NAME="CMyMenu"/>
+<CLASS NAME="CPinkMenu"/>
+<CLASS NAME="CRichCombo"/>
+<CLASS NAME="CRichStatic"/>
+<CLASS NAME="CRichEditEx"/>
+<CLASS NAME="CSymbolMenu"/>
+</CLASSES>
+</FOLDER>
+</FOLDERS>
+<CLASSES COUNT="4">
+<CLASS NAME="EQCTX"/>
+<CLASS NAME="CEQEdit"/>
+<CLASS NAME="CEQRichEdit"/>
+<CLASS NAME="CEQView"/>
+</CLASSES>
+</FOLDER>
+<FOLDER NAME="Diagrams">
+<FOLDERS COUNT="3">
+<FOLDER NAME="Qualitative Questions">
+<FOLDERS COUNT="0"/>
+<CLASSES COUNT="3">
+<CLASS NAME="CChoiceDlg"/>
+<CLASS NAME="CChoice"/>
+<CLASS NAME="CChoiceBtn"/>
+</CLASSES>
+</FOLDER>
+<FOLDER NAME="General Graphics">
+<FOLDERS COUNT="0"/>
+<CLASSES COUNT="14">
+<CLASS NAME="CAreaDlg"/>
+<CLASS NAME="CDocArea"/>
+<CLASS NAME="CDrawPoly"/>
+<CLASS NAME="CDrawRect"/>
+<CLASS NAME="CGroup"/>
+<CLASS NAME="CGuideLine"/>
+<CLASS NAME="CHyperLnk"/>
+<CLASS NAME="CLabel"/>
+<CLASS NAME="COleDrawItem"/>
+<CLASS NAME="COleDrawObj"/>
+<CLASS NAME="CHypertxtDlg"/>
+<CLASS NAME="CLabelDlg"/>
+<CLASS NAME="CMCQDlg"/>
+<CLASS NAME="CRectDlg"/>
+</CLASSES>
+</FOLDER>
+<FOLDER NAME="Student Diagram Entries">
+<FOLDERS COUNT="3">
+<FOLDER NAME="FBD">
+<FOLDERS COUNT="0"/>
+<CLASSES COUNT="15">
+<CLASS NAME="CAngleDlg"/>
+<CLASS NAME="CAxesDlg"/>
+<CLASS NAME="AXESSTRINGS"/>
+<CLASS NAME="CAngle"/>
+<CLASS NAME="CAxes"/>
+<CLASS NAME="CRadius"/>
+<CLASS NAME="CSystem"/>
+<CLASS NAME="CVector"/>
+<CLASS NAME="CRadiusDlg"/>
+<CLASS NAME="CSystemDlg"/>
+<CLASS NAME="CTorqueDlg"/>
+<CLASS NAME="CVectorMoveDlg"/>
+<CLASS NAME="CVectorCompDlg"/>
+<CLASS NAME="CVectorDlg"/>
+<CLASS NAME="CVecPosDlg"/>
+</CLASSES>
+</FOLDER>
+<FOLDER NAME="Motion Diagrams">
+<FOLDERS COUNT="0"/>
+<CLASSES COUNT="5">
+<CLASS NAME="CMotionDlg"/>
+<CLASS NAME="C2DMotion"/>
+<CLASS NAME="CMDVector"/>
+<CLASS NAME="CMotionBody"/>
+<CLASS NAME="CMotionDiagram"/>
+</CLASSES>
+</FOLDER>
+<FOLDER NAME="Property Dialogs">
+<FOLDERS COUNT="0"/>
+<CLASSES COUNT="2">
+<CLASS NAME="CDrawObjDlg"/>
+<CLASS NAME="CLabelRichEdit"/>
+</CLASSES>
+</FOLDER>
+</FOLDERS>
+<CLASSES COUNT="1">
+<CLASS NAME="CCheckedObj"/>
+</CLASSES>
+</FOLDER>
+</FOLDERS>
+<CLASSES COUNT="2">
+<CLASS NAME="CDrawObj"/>
+<CLASS NAME="CFBDView"/>
+</CLASSES>
+</FOLDER>
+<FOLDER NAME="Variables">
+<FOLDERS COUNT="1">
+<FOLDER NAME="Circuits">
+<FOLDERS COUNT="0"/>
+<CLASSES COUNT="3">
+<CLASS NAME="CVoltageDlg"/>
+<CLASS NAME="CCurrentDlg"/>
+<CLASS NAME="CResistanceDlg"/>
+</CLASSES>
+</FOLDER>
+</FOLDERS>
+<CLASSES COUNT="12">
+<CLASS NAME="PROBLEM_MENUITEMS"/>
+<CLASS NAME="valueType"/>
+<CLASS NAME="Table"/>
+<CLASS NAME="PROBLEM_CONCEPT"/>
+<CLASS NAME="CVariable"/>
+<CLASS NAME="CEnergyDlg"/>
+<CLASS NAME="CListViewEx"/>
+<CLASS NAME="CVarMenu"/>
+<CLASS NAME="CSolveVarDlg"/>
+<CLASS NAME="CVarTypeDlg"/>
+<CLASS NAME="CVariableDlg"/>
+<CLASS NAME="CVarView"/>
+</CLASSES>
+</FOLDER>
+<FOLDER NAME="Examples">
+<FOLDERS COUNT="0"/>
+<CLASSES COUNT="24">
+<CLASS NAME="lawType"/>
+<CLASS NAME="EXCTX"/>
+<CLASS NAME="CDoneDlg"/>
+<CLASS NAME="CExplainDlg"/>
+<CLASS NAME="CEXInfo"/>
+<CLASS NAME="CEXText"/>
+<CLASS NAME="CExp2Dlg"/>
+<CLASS NAME="CExp4Dlg"/>
+<CLASS NAME="CExplainBodyDlg"/>
+<CLASS NAME="CEXPlanVw"/>
+<CLASS NAME="CExpLawDlg"/>
+<CLASS NAME="CEXTextDlg"/>
+<CLASS NAME="CEXView"/>
+<CLASS NAME="CPlanItem"/>
+<CLASS NAME="CPlanObj"/>
+<CLASS NAME="ruleInfo"/>
+<CLASS NAME="stepInfo"/>
+<CLASS NAME="substepInfo"/>
+<CLASS NAME="tmplInfo"/>
+<CLASS NAME="tmplSetup"/>
+<CLASS NAME="topRuleInfo"/>
+<CLASS NAME="CPlanView"/>
+<CLASS NAME="CStepDlg"/>
+<CLASS NAME="CTemplateDlg"/>
+</CLASSES>
+</FOLDER>
+<FOLDER NAME="Help UI">
+<FOLDERS COUNT="0"/>
+<CLASSES COUNT="12">
+<CLASS NAME="CBrowserDlg"/>
+<CLASS NAME="CChatView"/>
+<CLASS NAME="CHintDlg"/>
+<CLASS NAME="CHintView"/>
+<CLASS NAME="CInstructMsg"/>
+<CLASS NAME="CWarningMsg"/>
+<CLASS NAME="CPopupWnd"/>
+<CLASS NAME="CHintRichEdit"/>
+<CLASS NAME="CRuleQDlg"/>
+<CLASS NAME="CWebBrowser"/>
+<CLASS NAME="itemInfo"/>
+<CLASS NAME="CPsmDlg"/>
+</CLASSES>
+</FOLDER>
+<FOLDER NAME="Logging/Playback">
+<FOLDERS COUNT="2">
+<FOLDER NAME="Demo playing">
+<FOLDERS COUNT="0"/>
+<CLASSES COUNT="3">
+<CLASS NAME="CDemoDlg"/>
+<CLASS NAME="CMsgBalloon"/>
+<CLASS NAME="CPtrWnd"/>
+</CLASSES>
+</FOLDER>
+<FOLDER NAME="Log-aware controls">
+<FOLDERS COUNT="0"/>
+<CLASSES COUNT="7">
+<CLASS NAME="CCheckedDlg"/>
+<CLASS NAME="CLogDialog"/>
+<CLASS NAME="CLogBtn"/>
+<CLASS NAME="CLogCombo"/>
+<CLASS NAME="CLogEdit"/>
+<CLASS NAME="CLogList"/>
+<CLASS NAME="CLogRichEdit"/>
+</CLASSES>
+</FOLDER>
+</FOLDERS>
+<CLASSES COUNT="8">
+<CLASS NAME="CAppEventHandler"/>
+<CLASS NAME="CEventSink"/>
+<CLASS NAME="CEventSock"/>
+<CLASS NAME="CEventSrvr"/>
+<CLASS NAME="EvInfo"/>
+<CLASS NAME="IEventHandler"/>
+<CLASS NAME="IPlayerUI"/>
+<CLASS NAME="CPlayDlg"/>
+</CLASSES>
+</FOLDER>
+<FOLDER NAME="Hi-level Plan">
+<FOLDERS COUNT="2">
+<FOLDER NAME="Principles">
+<FOLDERS COUNT="0"/>
+<CLASSES COUNT="5">
+<CLASS NAME="CLawDialog"/>
+<CLASS NAME="CPrincView"/>
+<CLASS NAME="CPrincItem"/>
+<CLASS NAME="CPrincObj"/>
+<CLASS NAME="CPrincStep"/>
+</CLASSES>
+</FOLDER>
+<FOLDER NAME="Hi-level Plan">
+<FOLDERS COUNT="0"/>
+<CLASSES COUNT="26">
+<CLASS NAME="planString"/>
+<CLASS NAME="CCellID"/>
+<CLASS NAME="CCellRange"/>
+<CLASS NAME="CFormulaDlg"/>
+<CLASS NAME="formString"/>
+<CLASS NAME="CGridCell"/>
+<CLASS NAME="CGridCtrl"/>
+<CLASS NAME="_GV_ITEM"/>
+<CLASS NAME="tagGV_DISPINFO"/>
+<CLASS NAME="tagNM_GRIDVIEW"/>
+<CLASS NAME="CGridDropTarget"/>
+<CLASS NAME="CHiLevelVw"/>
+<CLASS NAME="CInPlaceList"/>
+<CLASS NAME="CCellCtrl"/>
+<CLASS NAME="CCheckedItem"/>
+<CLASS NAME="CItemBtn"/>
+<CLASS NAME="CItemCtrl"/>
+<CLASS NAME="CItemStc"/>
+<CLASS NAME="CCtrlData"/>
+<CLASS NAME="CMenuGrid"/>
+<CLASS NAME="CTableGrid"/>
+<CLASS NAME="CTableRow"/>
+<CLASS NAME="CPropertyDlg"/>
+<CLASS NAME="COutlineItem"/>
+<CLASS NAME="CStageObj"/>
+<CLASS NAME="OUTLINEFORMAT"/>
+</CLASSES>
+</FOLDER>
+</FOLDERS>
+<CLASSES COUNT="0"/>
+</FOLDER>
+<FOLDER NAME="Top-level (App, Frames)">
+<FOLDERS COUNT="3">
+<FOLDER NAME="Problem Document">
+<FOLDERS COUNT="1">
+<FOLDER NAME="Authoring">
+<FOLDERS COUNT="0"/>
+<CLASSES COUNT="6">
+<CLASS NAME="CAuthorDlg"/>
+<CLASS NAME="CBranchesPage"/>
+<CLASS NAME="CGeneralPage"/>
+<CLASS NAME="CListsPage"/>
+<CLASS NAME="CObjectsPage"/>
+<CLASS NAME="CPositionsPage"/>
+</CLASSES>
+</FOLDER>
+</FOLDERS>
+<CLASSES COUNT="5">
+<CLASS NAME="CChkObjIter"/>
+<CLASS NAME="CFBDDoc"/>
+<CLASS NAME="CFBDDocTemplate"/>
+<CLASS NAME="CHelpData"/>
+<CLASS NAME="CHelpFilesPage"/>
+</CLASSES>
+</FOLDER>
+<FOLDER NAME="Dialogs">
+<FOLDERS COUNT="0"/>
+<CLASSES COUNT="8">
+<CLASS NAME="CCommentDlg"/>
+<CLASS NAME="CTimesPage"/>
+<CLASS NAME="CHelpOptsDlg"/>
+<CLASS NAME="CLoginDlg"/>
+<CLASS NAME="CPreviewStc"/>
+<CLASS NAME="CSplashWnd"/>
+<CLASS NAME="CTraceDlg"/>
+<CLASS NAME="CViewOptsDlg"/>
+</CLASSES>
+</FOLDER>
+<FOLDER NAME="Tabbed views">
+<FOLDERS COUNT="0"/>
+<CLASSES COUNT="3">
+<CLASS NAME="CTabObjArray"/>
+<CLASS NAME="CTabObject"/>
+<CLASS NAME="CTabView"/>
+</CLASSES>
+</FOLDER>
+</FOLDERS>
+<CLASSES COUNT="10">
+<CLASS NAME="CAboutDlg"/>
+<CLASS NAME="CFBDCmdLineInfo"/>
+<CLASS NAME="sndInfo"/>
+<CLASS NAME="CmdInfo"/>
+<CLASS NAME="CChildFrame"/>
+<CLASS NAME="CFBDApp"/>
+<CLASS NAME="CMainFrame"/>
+<CLASS NAME="CMDIFixedSizeFrame"/>
+<CLASS NAME="CPicCtrl"/>
+<CLASS NAME="CTransferDlg"/>
+</CLASSES>
+</FOLDER>
+<FOLDER NAME="Problem Sets">
+<FOLDERS COUNT="0"/>
+<CLASSES COUNT="7">
+<CLASS NAME="EnumInfo"/>
+<CLASS NAME="OptInfo"/>
+<CLASS NAME="CProblemSet"/>
+<CLASS NAME="CTask"/>
+<CLASS NAME="CProbSetEditView"/>
+<CLASS NAME="CProbSetView"/>
+<CLASS NAME="CTaskDlg"/>
+</CLASSES>
+</FOLDER>
+<FOLDER NAME="Helpsys Interface">
+<FOLDERS COUNT="0"/>
+<CLASSES COUNT="3">
+<CLASS NAME="CMsgSock"/>
+<CLASS NAME="CXact"/>
+<CLASS NAME="Callback"/>
+</CLASSES>
+</FOLDER>
+</FOLDERS>
+</PROJECT>
+</PROJECTS>
+</CLV>

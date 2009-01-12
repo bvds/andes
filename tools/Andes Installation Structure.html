@@ -1,0 +1,270 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Andes Installation Structure</title>
+</head>
+<body>
+<h1>Andes Installation Structure<br>
+</h1>
+<br>
+This document describes the components and structure of an Andes
+installation, the operation of the various Andes processes, and
+configurable parameters affecting Andes operations.<br>
+<br>
+Andes comes in two major versions, a self-contained standalone version,
+and an OLI client version intended to be launched from OLI course
+pages. This will describe the standalone version first, then how the
+OLI version differs.<br>
+<h2>Directory structure</h2>
+Standalone Andes&nbsp; installs by default into C:/AndesDemo. All
+installed files go within the Andes installation directory. It has the
+following subdirectories<br>
+&nbsp;&nbsp; <br>
+&nbsp;&nbsp; Andes<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; kb -- Knowledge Base description files
+(tsv format)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; log -- log files will be stored
+here<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Problems -- Andes problems and
+problem sets<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; Solutions -- Student
+solutions<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Review -- physics review html pages<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; Graphics -- some graphics
+used by review pages<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; Videos -- locally
+installed videos<br>
+<h4>Root components</h4>
+The root of the Andes installation directory on a user machine contains
+the following files:<br>
+<br>
+&nbsp;&nbsp;&nbsp; acli8010.dll&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp; -- Allegro Common Lisp 8.1 runtime library<br>
+&nbsp;&nbsp;&nbsp; Andes Physics Workbench.lnk&nbsp; -- shortcut to
+workbench executable<br>
+&nbsp;&nbsp;&nbsp; AndesLicense.txt&nbsp; -- Andes license text<br>
+&nbsp;&nbsp;&nbsp; config.cl&nbsp;&nbsp; -- Lisp configuration file
+read by help system<br>
+&nbsp;&nbsp;&nbsp; fbd.cnt&nbsp;&nbsp;&nbsp; -- table of contents for
+workbench help file<br>
+&nbsp;&nbsp;&nbsp; fbd-tcp.exe&nbsp; -- workbench executable (dll
+version)<br>
+&nbsp;&nbsp;&nbsp; fbd-tcp.hlp&nbsp;&nbsp; -- Windows help (winhelp)
+file for workbench<br>
+&nbsp;&nbsp;&nbsp; helpifc.dll&nbsp;&nbsp; -- library for linking with
+help system in Lisp dll<br>
+&nbsp;&nbsp;&nbsp; HelpSys.dxl&nbsp; -- help system runtime Lisp image
+(dll version)<br>
+&nbsp;&nbsp;&nbsp; HelpSys.lic&nbsp; -- license file for help system
+lisp image<br>
+&nbsp;&nbsp;&nbsp; lnkacl.dll&nbsp; --&nbsp; Allegro-supplied dll
+linkage library<br>
+&nbsp;&nbsp;&nbsp; solver.dll&nbsp; -- solver runtime library<br>
+&nbsp;&nbsp;&nbsp; Uninst.exe&nbsp; -- Andes uninstaller<br>
+<br>
+The OLI version is essentially the same, except that the Problems
+directory is initially empty. Problem files are downloaded as needed
+from the OLI server. Problem set files are not used.<br>
+<h4>Additional components for developers<br>
+</h4>
+There are some other versions of the executables that exist in a
+developer installation that are not normally installed on end-user
+machines. The developer installation normally contains three possible
+versions of the workbench executable:<br>
+<br>
+&nbsp;&nbsp;&nbsp; fbd-tcp.exe -- TCP version -- connects to help
+system via TCP<br>
+&nbsp;&nbsp;&nbsp; fbd-dll.exe -- DLL version -- loads help system in a
+dll<br>
+&nbsp;&nbsp;&nbsp; fbd-tcp-oli.exe -- OLI version. In spite of the
+name, this now also loads the help system in a dll.<br>
+<br>
+We now install either the DLL version (in standalone andes) or the OLI
+version (for OLI Andes). The TCP version is only used by developers or
+in certain experiments. However, whichever version of the workbench is
+installed, <span style="font-weight: bold;">it is always&nbsp; renamed
+to fbd-tcp.exe on the client machine</span>. This is for simplicity of
+other code that has to use the name of the workbench executable, such
+as the setup program. Also it preserves the matchup with the help file
+fbd-tcp.hlp<br>
+<br>
+The development version may also contain a runtime image of the tcp
+version of the help system. This consists of<br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; Andes2.dxl&nbsp; -- help system Lisp
+image<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; Andes2.lic&nbsp; -- license file for
+Andes2.dxl<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Andes2.exe&nbsp; -- Lisp startup
+program, renamed to Andes2.exe<br>
+<br>
+Note the small executable Andes2.exe is just a version of the lisp.exe
+startup program copied from Allegro and renamed. By default, the lisp
+startup program will look for an image with the same basename, so
+starting Andes2.exe will automatically attempt to load Andes2.dxl.<br>
+<br>
+The runtime image of the TCP version help system was distributed in the
+past, but is not much needed now. Typically the TCP version is only
+used by developers who load the help system into a Lisp environment,
+rather than using the runtime image.<br>
+<br>
+The development installation will also contain versions of the setup
+program:<br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; SetupStudent.exe -- setup program for
+installing standalone Andes on a student machine<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; SetupOLI.exe -- setup program for
+installing an OLI version on a student machine<br>
+<br>
+<h4>Student solution storage</h4>
+One directory per student, one directory per problem set. In OLI
+version, all solutions go within the "oli" problem set. Solution files
+are in binary .fbd format read by workbench serialization code.<br>
+<br>
+<h2>Configuration via Registry Entries</h2>
+Certain parameters of the workbench can be configured via registry
+entries. The Windows registry can be viewed and modified by using the
+registry editor. On 32-bit Windows this can be invoked by typing<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; regedt32.exe<br>
+into the Run box of the Start Menu.<br>
+<br>
+Andes registry settings are stored under
+HKEY_CURRENT_USER/Software/Andes Group/FBD/Settings. These settings
+affect all versions of the workbench on the given machine as long as
+the current Windows user is logged in. <br>
+<br>
+Note the workbench is designed to be able to run with no entries in the
+registry using the compiled-in defaults. So it should be possible to do
+a cheap installation of Andes just by copying an Andes installation
+tree. This installation will not be registered with the system for
+uninstallation via the Add/Remove programs display and will not create
+shortcuts or register file types,&nbsp; but it should run.<br>
+<br>
+The most important settings are the following:<br>
+<br>
+&nbsp;&nbsp;&nbsp; Author -- A DWORD value used as a boolean. Set to 1
+to enable commands used for Authors/Developers. Default is 0 to show
+only commands used by students. The most important use of this is to
+enable the Log Player command.<br>
+&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp; HelpAddress -- a string value set to the IP address
+at which the TCP version should connect to the help system. <br>
+HelpAddress is normally empty, in which case the local host is used. It
+is only set to connect to a remote help system, which has to be started
+before the workbench.<br>
+<br>
+&nbsp;&nbsp;&nbsp; ShowConsole -- DWORD value used as a boolean. 1
+=&gt; show Lisp console window in DLL versions. Default is 0. <br>
+<br>
+&nbsp;&nbsp;&nbsp; LispArgs -- String value. <span
+ style="font-style: italic;">Used by older TCP version only</span>.
+Specifies command line arguments to use when starting the help system
+Lisp process. No effect if connecting to a remote help system. A value
+of "+cn" is useful to show the Allegro console initially
+minimized.&nbsp; See Allegro docs for other arguments.<br>
+<br>
+&nbsp;&nbsp;&nbsp; InstallDirectory -- Full path to the Andes
+installation directory, for use when finding files or help system
+executable. Normally empy, in which case workbench will use the
+directory of&nbsp; the executable that was launched. However, it can be
+set to make the workbench look in another directory for files. This is
+occasionally useful when developing, e.g. if you have a debug version
+of the workbench executable built in a subdirectory of FBD, you can set
+this to make it fetch files from the main Andes development tree.
+However, use with caution, if not reset to empty,&nbsp; it can cause
+mysterious problems.<br>
+<br>
+<h3>Adjusting via Registry Scripts</h3>
+The easiest way to make the relevant entries is to make a .reg file,
+which functions as a reg edit script. This script can be double-clicked
+to make the relevant setting in the registry. <br>
+<br>
+Once you have the settings you want, you can use the File/Export
+command in regedit to export a .reg file containing the currently
+selected settings. But note this will contain all settings within the
+key (folder) of the currently selected setting. If you only want one
+setting, you should edit this text file down to include only the
+setting you want. <br>
+<br>
+A couple of&nbsp; sample scripts are included in the tools directory.<br>
+<br>
+The old tool FbdConf.exe provides a dialog window for making some of
+these settings as well. This can be more convenient. The source for
+this tool has apparently been lost in a change of machines. But the
+binary should still work. <br>
+<h3>File type associations</h3>
+The workbench registers itself&nbsp; with Windows as the opener for its
+file types. It makes this registration step every time it starts up. In
+addition, it can be invokved with the /register command-line argument
+to just make its registry entries and exit.&nbsp; <br>
+<br>
+All versions of the workbench register themselves as the opener for
+.aps (Problem Set) and .fbd (Solution) files. This is not crucial,
+however, since students seldom open these files by double-clicking the
+file icons. It is occasionally useful, though. Some experiments have
+served up .aps files from a web server, for example, to be opened by
+the workbench (as long as some non-text MIME type is specified for
+them).<br>
+<br>
+Only the OLI version registers itself as the opener for .atd (Andes
+Task Descriptor) files. These are variants of APS files that include
+extra parameters needed for the communication with OLI. This
+registration step is absolutely crucial for the launch of Andes from an
+OLI problem page.<br>
+<h3>Uninstaller via Add/Remove programs</h3>
+The Andes installer also makes an installation entry for its uninstall
+program, so that this can be invoked via the Windows Add/Remove
+Programs Control Panel item.<br>
+<br>
+<h2>Potential Installation Issues <br>
+</h2>
+<h6>File Permissions</h6>
+Andes requires the ability to write and delete files within its
+installation directory. This was common practice for applications in
+the Windows 95 era, though
+it is not in accord with current Windows application guidelines. A well
+behaved Windows application is supposed to separate its executable
+files from user-created files into different trees, storing the latter
+in the Application Data directory of the C:/Document and Settings/USER.
+However, it is convenient to contain the whole system within one
+directory tree. Because C:/Program Files is often protected by default
+on XP style systems,&nbsp; while directories under the root are usually
+writeable by default, we install into C:/AndesDemo or C:/AndesOLI,
+rather than into C:/Program Files.<br>
+<h6>Multiple versions of Andes</h6>
+Multiple versions of Andes can co-exist on the same system, as long as
+they are installed into different directories. However, normally only
+developers do this and it isn't recommended for end users since it can
+cause unexpected problems. For development, it can be useful to install
+different versions into directories named with the version number. The
+potential issue is that the workbench makes the registry entries for
+its file associations on startup, <span style="font-weight: bold;">every
+time it is launched</span>. So, the registered opener for .aps,&nbsp;
+and .fbd files will always be the most recently launched version of the
+workbench, whichever it is. Similarly, the registered opener for .atd
+files (which come from OLI) will always be the most recently launched
+OLI version of the workbench, whichever it is. This can cause confusion
+if the wrong version of Andes opens to handle a file.<br>
+<h6>Audio Codec installation</h6>
+Setup attempts to install the audio codec used by our videos, the
+ACELP.net codec developed at Sipro Labs and now owned by VoiceAge.
+(This codec was included in an old version of Windows Media, but
+removed in later versions in favor of Microsoft's own, so it is no
+longer automatically installed.).<br>
+<br>
+<br>
+<h3>How the TCP version runs</h3>
+Tries to connect to HelpAddress; if fails, starts Andes2.exe and tries
+to connect on localhost. It uses fixed port 12345. This port is not
+used by any well known program, though it is used by certain Trojan
+Horse programs.<br>
+<h3>How the OLI version runs</h3>
+<br>
+<br>
+<br>
+<br>
+<br>
+</body>
+</html>
