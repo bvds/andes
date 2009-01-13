@@ -1175,8 +1175,8 @@
 ;; Use the above perl script to fix the math formatting after the files
 ;; are generated.
 ;; (problem-html-files #P"/Users/bvds/problems/")
-;; cp solutions/*.gif ~/problems/
-;; cp solutions/*.jpg ~/problems/
+;; cp images/*.gif ~/problems/
+;; cp images/*.jpg ~/problems/
 
 (defun problem-html-files (&optional (path *andes-path*))
   "construct html files for all problems"
