@@ -1,11 +1,64 @@
 Possible projects for capstone projects:
 
 Two semester course.  Starting either fall or spring.  So we are
-shooting for jan.  Proposals are pretty vague. Team projects, 5 to 6
+shooting for Jan.  Proposals are pretty vague. Team projects, 5 to 6
 students.  Specs done as part of the project.  Need a demo at the end
 of the first semester.  Second semester is testing & scaling.
 Generally about twice as many projects to choose from as teams.  Team
 meets once or twice a week with proposers, often by phone.
+
+1.  Address the equation parser.  Instructors use latex, but students
+find it difficult to learn.  Cramster has equation palette, which 
+students seem to use but instructors seem to hate.  First activity
+would be to survey what various software does for
+math entry:  Maple, MathCad, Maxima, Mathematica.  Then develop
+parser.  It should have API to Andes for reducing ambiguity.  Outputs
+in MathML?  No, need something like Mathematica's.  (two possible levels of 
+representation:  semi-visual like LaTeX or full parse like mathematica).
+  a.  Start with existing parser.  Interesting idea of resolving
+      parse ambiguities with context information (model solution plus
+      previous entries).
+  b.  Choose parser technology (Yacc Bison ...)
+  c.  Replicate existing Andes functionality, fix outstanding unary
+      minus bug, add space as multiplication operator.
+  d.  Survey input methods for math:  Mathematica, maple, etc.
+  e.  Survey learning methods for math input (Microsoft equation editor palette,
+      WebAssign's new palette, )
+  f.  Choose methods to design and implement.
+  g.  test on novice users in lab.
+
+2.  The cascading text for defining variables.  When does one download from
+server?  By character, by tab-delimited segments or whole tree
+structure?  See http://www.andestutor.org/bugzilla/show_bug.cgi?id=1488#c0
+We will need a "prototype" working method ready for June.
+  a.  Question of what is on server and what is on client.
+  b.  minimum edit distance as control condition.
+  c.  implement "semantic parse" method as alternative?
+
+4.  Replace the mysterious scoring scheme with game theory
+perspective: if only 2 choices, then always correct on second choice.
+Better penalty for guessing.  
+  a.  Survey instructors for grading:  give me your rubric.
+      (show problem and worked solution)
+        How would you assign points for this problem?
+  b.  Implement in code.
+  c.  Storage scheme.  
+  d.  Interface for instructor customization.  Issue that instructors
+      won't understand the grading structure?  Do example-wise and 
+      infer policy from examples?
+  e.  Test on users, test on log files.
+
+5.  Method for implementing 3-D vectors.  We will need a "prototype"
+working method ready for June.
+  a.  How to do this?  (present method not optimal)
+  b.  Maybe test several methods.
+
+In general, open source licensing:
+  a.  Survey of open source licensing.
+  b.  List project goals and find license well-aligned with those goals.
+  c.  Apply license and release on public repository.
+
+Future project ideas:
 
 1. "Learning from students homework"  Analyze log files in real time 
 to provide advice to physics instructors.  Instructors adjust lectures 
@@ -19,69 +72,17 @@ based on data from problems done the night before.  Sometimes called
       course objectives.
   d.  First semester:  do with existing log files.
 
-2.  Based on log files, suggest problems that will help students prepare
-for an exam.  Adaptive task selection.
-
-3.  Address the equation parser.  Instructors use latex, but students
-find it difficult to learn.  Cramster has equation palette, which 
-students seem to use but instructors seem to hate.  First activity
-would be to survey what various software does for
-math entry:  Maple, MathCad, Maxima, Mathmatica.  Then develop
-parser.  It should have API to Andes for reducing ambiguity.  Outputs
-in MathML?  No, need something like Mathematica's.  (two possible levels of 
-representation:  semi-visual like LaTeX or full parse like mathematica).
-  a.  Start with existing parser.  Interesting idea of resolving
-      parse ambiguities with context information (model solution plus
-      previous entries).
-  b.  Choose parser technology (Yacc Bison ...)
-  c.  Replicate existing Andes functionality, fix outstanding unary
-      minus bug, add space as multiplication operator.
-  d.  Survey input methods for math:  mathematica, maple, etc.
-  e.  Survey learning methods for math input (Microsoft eqn editor palette,
-      WebAssign's new palette, )
-  f.  Choose methods to design and implement.
-  g.  test on novice users in lab.
-Are there IRB issues?
-
-4.  The cascading text for defing variables.  When does one download from
-server?  By character, by tab-deliminted segments or whole tree
-structure?  See http://www.andestutor.org/bugzilla/show_bug.cgi?id=1488#c0
-We will need a "prototype" working method ready for June.
-  a.  Question of what is on server and what is on client.
-  b.  minimum edit distance as control condition.
-  c.  impliment "semantic parse" method as alternative?
-
-5.  Develop log player for Andes3 interface.
+2.  Develop log player for Andes3 interface.
   a.  Architect with model-view-controller so that as system changes,
       the log player automatically keeps up.
   b.  Offline version?
   c.  Add keyboard and mouse logging.
 
-6.  Duplicate WebAssing effort on Lon-Capa.  But they build
+3.  Make a version that can be used as a collaborative problem solving 
+tool for use on online homework forums like the ones mentioned above.  
+
+4.  Duplicate WebAssign effort on Lon-Capa.  But they build
 relationships then disappear.
 
-7.  Replace the mysterious scoring scheme with game theory
-perspective: if only 2 choices, then always correct on second choice.
-Better penalty for guessing.  
-  a.  Survey instructors for grading:  give me your rubric.
-      (show problem and worked solution)
-        How would you assign points for this problem?
-  b.  Impliment in code.
-  c.  Storage scheme.  
-  d.  Interface for instructor customization.
-  e.  Test on users, test on log files.
-
-8.  Customization.  Survey physics instructors to find out what are
-the rubrics used during hand grading.
-
-9.  Method for implementing 3-D vectors.  We will need a "prototype"
-working method ready for June.
-  a.  How to do this?  (present method not optimal)
-  b.  Maybe test several methods.
-
-In general, open source licensing:
-  a.  Survery of open source licensing.
-  b.  List project goals and find license well-aligned with those goals.
-  c.  Apply license and release on public repository.
-
-	     
+5.  Based on log files, suggest problems that will help students prepare
+for an exam.  Adaptive task selection.
