@@ -68,7 +68,7 @@ BOOL CLoginDlg::OnInitDialog()
 	// char szDirectory[] = // "\\Students\\*.old";
 	// Now check student solution directory, see ProblemSet functions
 	// !!! Note this only gets students who've saved solutions.
-	char szDirectory[] = 	"\\solutions\\Solutions\\*";
+	char szDirectory[] = 	"\\Problems\\Solutions\\*";
 	
 	strcat(szPathName, szDirectory);
 	HANDLE hSearch = FindFirstFile(szPathName, &FileData);

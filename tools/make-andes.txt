@@ -16,8 +16,10 @@
    git clone git@github.com:bvds/andes.git Andes2
    cd Andes2
    git clone ssh://git@andestutor.org/home/git/Andes-problems.git problems
-#  Copy over prb files:
+#  Assuming solutions have been generated on another machine,
+# copy over prb and tsv files:
    scp bvds@gideon.ies.asu.edu:Andes2/solutions/\*.prb solutions
+   scp bvds@gideon.ies.asu.edu:Andes2/solutions/\*.tsv solutions
 
 # Microsoft visual studio install version 6.0 from 1998
 #   vc32/setup.exe
