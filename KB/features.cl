@@ -151,14 +151,14 @@
 ;;;             Utilities for constructing features file
 
 (defun print-features (str)
- "express features in the format needed for KB/features.tsv"
+ "express features in the format needed for solutions/features.tsv"
   (dolist (f *Ontology-features*)
   (format str "~A~C~(~{~A;~}~)~%"  ;lower case, see Bug #788 
 	  (first f) #\tab (second f))))
 
 (defun features-file ()
- "construct file KB/features.tsv"
-    (let ((str (open (merge-pathnames  "KB/features.tsv" *Andes-Path*)
+ "construct file solutions/features.tsv"
+    (let ((str (open (merge-pathnames  "solutions/features.tsv" *Andes-Path*)
 		     :direction :output :if-exists :supersede
 		     ;; The workbench uses an older windows-specific 
 		     ;; character encoding
