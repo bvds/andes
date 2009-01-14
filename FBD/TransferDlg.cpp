@@ -172,7 +172,7 @@ note messages in Transfer window, and notify experimenters.");
 
 // Local directory names
 const char * szLogDirName = "Log";
-const char * szSolutionPath = "Problems\\Solutions\\";
+const char * szSolutionPath = "solutions\\Solutions\\";
 // Remote Directory names
 const char * szUploadDir = "upload";
 const char * szUploadSolutionDir = "Solutions";

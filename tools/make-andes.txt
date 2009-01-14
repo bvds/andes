@@ -42,8 +42,10 @@ make workbench
 # Then move executables with "mv -v Algebra/src/Debug/Solver.dll ."
 make solver
 make installer
+make helpifc.dll
 
 # needs Franz lisp, modify path in makedll.cl and makehelp80.cl
+# BvdS  -- Jan 13 2009 got to here.
 make helpsys 
 # need to exit lisp by hand.
 # seems the tcp version is hanging

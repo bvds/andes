@@ -57,7 +57,7 @@ CString g_strAndesDir("");	// default to none, to search relative to EXE's dir
 //
 // Subdirectory names, no backslash (for use in File Dialogs).
 //
-const char* g_szProblemDir = "Problems";
+const char* g_szProblemDir = "solutions";
 const char* g_szExampleDir = "Examples";
 const char* g_szLessonDir = "Review";
 const char* g_szLogDir = "Log";

@@ -879,7 +879,7 @@ int CProblemSet::GetProblemFiles(CString strProblemId)
 	// relies on fact that problemid we get is all upper-case and 
 	// prb name is all upper-case as well.
 	CString strBaseName = strProblemId + ".prb";
-	CString strProblemDir = g_strAndesDir + "Problems/";
+	CString strProblemDir = g_strAndesDir + "solutions/";
 	if (HttpGetFile(strProblemUrl + strBaseName, 
 		            strProblemDir + strBaseName, "getPrb") <= 0) {
 		SetStatusMsg("Failed to download .prb file!");
@@ -933,7 +933,7 @@ int CProblemSet::GetProblemGraphic(CString strFileName)
 	CString strProblemUrl;
 	if (! (m_opts.Lookup("problemurl", strProblemUrl))) return -1;
 	strFileName.MakeLower();	// gif filenames all lower-case
-	CString strProblemDir = g_strAndesDir + "Problems/";
+	CString strProblemDir = g_strAndesDir + "images/";
 	return HttpGetFile(strProblemUrl + strFileName, 
 				       strProblemDir + strFileName, "getGif");
 }
