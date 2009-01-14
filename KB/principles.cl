@@ -21,7 +21,7 @@
 ;;;;       list of PSMclasses grouped into catagories
 ;;;;   
 
-;; Use (principles-file) to generate file KB/principles.tsv
+;; Use (principles-file) to generate file solutions/principles.tsv
 
 (defparameter *principle-tree* '(
 (group "Write a Principle"
@@ -410,10 +410,10 @@
 ))
 
 
-;;;          Generate file KB/principles.tsv
+;;;          Generate file solutions/principles.tsv
 
 (defun principles-file ()
-  "construct file KB/principles.tsv"
+  "construct file solutions/principles.tsv"
   (let ((str (open (merge-pathnames  "KB/principles.tsv" *Andes-Path*)
 		   :direction :output :if-exists :supersede
 		   ;; The workbench uses an older windows-specific 
@@ -423,7 +423,7 @@
     (close str)))
 
 (defun principle-branch-print (str p)
-  "prints a group in KB/principles.tsv"
+  "prints a group in solutions/principles.tsv"
   (cond ((eq (car p) 'group)
 	 ;; principles.tsv file format is 4 tab-separated columns
 	 (format str "GROUP~C~A~C~C~%" #\tab (cadr p) #\tab #\tab)
@@ -435,7 +435,7 @@
 ;; keywords :short-name and :EqnFormat override definitions in Ontology
 (defun principle-leaf-print (str class &key tutorial (bindings no-bindings)
 					EqnFormat short-name) 
-  "prints a principle in KB/principles.tsv"
+  "prints a principle in solutions/principles.tsv"
   (let ((pc (lookup-psmclass-name class)))
     (format str "LEAF~C~A    ~A~C~(~A~)~C~@[~A~]~%" #\tab 
 	    (eval-print-spec (or EqnFormat (psmclass-EqnFormat pc)) bindings)
@@ -1175,8 +1175,8 @@
 ;; Use the above perl script to fix the math formatting after the files
 ;; are generated.
 ;; (problem-html-files #P"/Users/bvds/problems/")
-;; cp solutions/*.gif ~/problems/
-;; cp solutions/*.jpg ~/problems/
+;; cp images/*.gif ~/problems/
+;; cp images/*.jpg ~/problems/
 
 (defun problem-html-files (&optional (path *andes-path*))
   "construct html files for all problems"

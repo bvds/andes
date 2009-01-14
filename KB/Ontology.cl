@@ -27,15 +27,15 @@
 ;;;
 ;;;  set list =  egrep '[^;]*def-(equation|psmclass)' KB/*.cl | sed -e 's/.*def-\w* \([^(]*\) (*.*/\1/'
 ;;;  foreach i ($list)
-;;;     if (0 == `grep -c -i $i KB/principles.tsv`) echo $i
+;;;     if (0 == `grep -c -i $i solutions/principles.tsv`) echo $i
 ;;;  end
 ;;;
 
-;;;          Generate file KB/scalars.tsv
+;;;          Generate file solutions/scalars.tsv
 
 (defun scalars-file ()
-  "construct file KB/scalars.tsv"
-  (let ((str (open (merge-pathnames  "KB/scalars.tsv" *Andes-Path*)
+  "construct file solutions/scalars.tsv"
+  (let ((str (open (merge-pathnames  "solutions/scalars.tsv" *Andes-Path*)
 		   :direction :output :if-exists :supersede
 		   ;; The workbench uses an older windows-specific 
 		   ;; character encoding
