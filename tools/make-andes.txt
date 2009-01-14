@@ -1,12 +1,23 @@
 # Choose DOS style text files in cygwin and restart windows
 # install make in cygwin by running "setup"
-
+#
+#
 # cygwin git, by default, only works if the filesystem is mounted
 #   binary.  (Might get it to work with linefeed conversion and textmode
-#   mount, but haven't tried this.)  Instead, use msysgit install
-#   and with the bash shell provided with git, checkout Andes2:
+#   mount, but haven't tried this.)  Instead, use msysgit install.
+#   Need ssh key pair:  get ~/.ssh/id_dsa pair and add to list
+#   at github.com, user bvds.  $HOME for the bash shell provided
+#   with git is different than the cygwin bash shell.  Test with:
+         ssh git@github.com
+#  With the bash shell provided with git, checkout Andes2 and the 
+#  list of problems from a private repository:
    cd /c/cygwin/home/Andministrator
-   git clone ssh://bvds@andestutor.org/home/bvds/Andes2.git Andes2
+   #git clone ssh://bvds@andestutor.org/home/bvds/Andes2.git Andes2
+   git clone git@github.com:bvds/andes.git Andes2
+   cd Andes2
+   git clone ssh://git@andestutor.org/home/git/Andes-problems.git problems
+#  Copy over prb files:
+   scp bvds@gideon.ies.asu.edu:Andes2/solutions/\*.prb solutions
 
 # Microsoft visual studio install version 6.0 from 1998
 #   vc32/setup.exe
