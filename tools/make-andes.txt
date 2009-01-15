@@ -47,7 +47,6 @@ make installer
 make helpifc.dll
 
 # needs Franz lisp, modify path in makedll.cl and makehelp80.cl
-# BvdS  -- Jan 13 2009 got to here.
 make helpsys 
 # need to exit lisp by hand.
 # seems the tcp version is hanging
@@ -93,7 +92,7 @@ cvs -d :ext:bvds@oli-cvs.andrew.cmu.edu:/oli/cvs/content/lrdc/intro_physics co -
 #
 cd ..
 make Statements
-cp Problems/*.aps oli-course/intro_physics-*/
+cp solutions/*.aps oli-course/intro_physics-*/
 cd oli-course/intro_physics-*/
 #  remove irrelevant *.aps files by hand. 
 #  run the following with some unique identifier for output file

@@ -177,7 +177,7 @@ EOV
 	    $problemid =~ tr[a-z][A-Z];	# make it all upper-case
 	    print "   problemid = [$problemid]\n";
 	    # if prb file does not exist, assume this is a stub
-	    $stub = ! (-e "$ANDES/Problems/$problemid.prb");
+	    $stub = ! (-e "$ANDES/solutions/$problemid.prb");
 
 	    # skip over stubs if flag is set
 	    if ($stub && $ignore_stubs) {
@@ -247,23 +247,23 @@ EOV
 		    print "Add new problem file $problemid.prb in $module\n";
 	    }
 	    if ($stub) {
-	       &sync("$ANDES/Problems/DUMMY.prb", $prbdst) or warn "couldn't copy DUMMY.prb for $problemid.prb";
-	       &sync("$ANDES/Problems/DUMMY.prb", "Stubs$currentver/$problemid.prb") or warn "couldn't copy DUMMY.prb to current stub Dir $problemid.prb";
+	       &sync("$ANDES/solutions/DUMMY.prb", $prbdst) or warn "couldn't copy DUMMY.prb for $problemid.prb";
+	       &sync("$ANDES/solutions/DUMMY.prb", "Stubs$currentver/$problemid.prb") or warn "couldn't copy DUMMY.prb to current stub Dir $problemid.prb";
 	    } else {
-	       &sync("$ANDES/Problems/$problemid.prb", $prbdst) or warn "couldnt copy $problemid.prb";
+	       &sync("$ANDES/solutions/$problemid.prb", $prbdst) or warn "couldnt copy $problemid.prb";
 	    }
 	    # copy other files used by problem
 	    $problemname = $problemid;
 	    $problemname =~ tr[A-Z][a-z];  # lower case
-	    if (-e "$ANDES/Problems/$problemname.fbd") { # check for fbd file -- now obsolete
+	    if (-e "$ANDES/solutions/$problemname.fbd") { # check for fbd file -- now obsolete
                  $fbddst = "$root/content/_u1_intro_physics/$module/webcontent/andes/$problemname.fbd";
 		 if (! (-e $fbddst)) {
 		    print "Add new problem file $problemname.fbd in $module\n";
 		 }
-                  &sync("$ANDES/Problems/$problemname.fbd", $fbddst) or die "couldn't copy $problemname.fbd";
+                  &sync("$ANDES/solutions/$problemname.fbd", $fbddst) or die "couldn't copy $problemname.fbd";
 	    } elsif (! $stub) { # no fbd file but not a stub.
 		    # scan inside prb to see if it needs a graphic file 
-		    open (PRB, "$ANDES/Problems/$problemid.prb") or warn "Couldn't open $problemid.prb";
+		    open (PRB, "$ANDES/solutions/$problemid.prb") or warn "Couldn't open $problemid.prb";
 		    while (<PRB>) {
 			if (/^Graphic +"([^"]+)"/) {
 				$graphic = $1;
@@ -271,7 +271,7 @@ EOV
 				if (! (-e $graphicdst)) {
 				    print "Add new graphic file $graphic in $module\n";
 				}
-			        &sync("$ANDES/Problems/$graphic", $graphicdst) or warn "couldn't copy $graphicdst";
+			        &sync("$ANDES/images/$graphic", $graphicdst) or warn "couldn't copy $graphicdst";
 				last;
 			}
 			last if (/^Graphic +NIL/); 

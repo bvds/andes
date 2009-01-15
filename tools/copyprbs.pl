@@ -43,7 +43,7 @@ unless (-d $problemdir){ die "$problemdir is not a directory."; }
 
 # do for each module listed
 open (MODULES, "problems/" . $index) or 
-  die "Couldn't open Problems/" . $index;
+  die "Couldn't open problems/" . $index;
 while (<MODULES>)
   {
     if(m/"(.*?\.aps)">(.*?)</){
