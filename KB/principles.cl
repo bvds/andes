@@ -414,7 +414,7 @@
 
 (defun principles-file ()
   "construct file solutions/principles.tsv"
-  (let ((str (open (merge-pathnames  "KB/principles.tsv" *Andes-Path*)
+  (let ((str (open (merge-pathnames  "solutions/principles.tsv" *Andes-Path*)
 		   :direction :output :if-exists :supersede
 		   ;; The workbench uses an older windows-specific 
 		   ;; character encoding
@@ -1175,8 +1175,8 @@
 ;; Use the above perl script to fix the math formatting after the files
 ;; are generated.
 ;; (problem-html-files #P"/Users/bvds/problems/")
-;; cp images/*.gif ~/problems/
-;; cp images/*.jpg ~/problems/
+;; cp solutions/*.gif ~/problems/
+;; cp solutions/*.jpg ~/problems/
 
 (defun problem-html-files (&optional (path *andes-path*))
   "construct html files for all problems"
