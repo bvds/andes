@@ -42,12 +42,12 @@ unless (-e $problemdir) {
 unless (-d $problemdir){ die "$problemdir is not a directory."; }
 
 # do for each module listed
-open (MODULES, "Problems/" . $index) or 
+open (MODULES, "problems/" . $index) or 
   die "Couldn't open Problems/" . $index;
 while (<MODULES>)
   {
     if(m/"(.*?\.aps)">(.*?)</){
-      $apsfile="Problems/" . $1;
+      $apsfile="problems/" . $1;
       $module=$2;   
       # open next aps file to process
       print "Copying files for $module\n";
@@ -66,7 +66,7 @@ while (<MODULES>)
 	  s/[\s]+$//;     
 	  next unless $_; # skip blank lines
 	  # copy prb file
-	  $prbfile = "Problems/" . uc($_) . ".prb";
+	  $prbfile = "solutions/" . uc($_) . ".prb";
 	  if (! -e $prbfile) {
 	    # assume this is a stub problem, so keep going
 	    print "  no file $prbfile, skipping\n"; 
@@ -78,7 +78,7 @@ while (<MODULES>)
 	  open (PRB, "$prbfile") or die "Couldn't open $prbfile. $!";
 	  while (<PRB>) {
 	    if (/^Graphic +"([^"]+)"/) {
-	      $graphicfile = "Problems/$1";
+	      $graphicfile = "images/$1";
 	      &docopy($graphicfile, $dstdir);
 	      last;
 	    }

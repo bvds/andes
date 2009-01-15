@@ -1376,7 +1376,7 @@ CString CFBDDoc::GetWorkStateStr()
 // export problem specification info to a file in .prb format
 void CFBDDoc::DoExport()
 {
-	CString strFileName = g_strAndesDir + "solutions/" + m_strProblemId + ".txt";
+	CString strFileName = g_strAndesDir + "Problems/" + m_strProblemId + ".txt";
 	FILE* fp = fopen(strFileName, "w");
 	fprintf(fp, "(defproblem %s\n", m_strProblemId);
 

@@ -88,9 +88,9 @@ cp Setup/redist/mfc42.dll $dstdir
 cp Setup/redist/msvcrt.dll $dstdir
 #    KB files
 mkdir -p $dstdir/KB
-cp KB/features.tsv $dstdir/KB
-cp KB/principles.tsv $dstdir/KB
-cp KB/scalars.tsv $dstdir/KB
+cp solutions/features.tsv $dstdir/KB
+cp solutions/principles.tsv $dstdir/KB
+cp solutions/scalars.tsv $dstdir/KB
 #    Review files
 # Note use of wildcards here could overgenerate if there are junk files in the
 # source directories. Including extra files is usually harmless, but they do 
@@ -120,8 +120,8 @@ fi
 # Andes problem files
 mkdir -p $dstdir/Problems
 if [ -z "$OLI" ]; then
-   cp Problems/index.html $dstdir/Problems
-   cp Problems/video.fbd $dstdir/Problems
+   cp problems/index.html $dstdir/Problems
+   cp solutions/video.fbd $dstdir/Problems
    # Copy the required APS's and all needed problem files. 
    perl tools/copyprbs.pl -m $MODULE_FILE $dstdir 
 fi
