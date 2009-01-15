@@ -281,9 +281,15 @@ so these targets will need to to be completed by mid-June 2009.&nbsp;
 
 <li> Draw lines, as needed for current optics problems.
 
-<li> Specify and implement a method for helping students with 
-     Greek letter input.
-
+<li> Specify and implement methods for inputting and displaying Greek
+      letters, as well as help for students trying to input Greek
+      letters.&nbsp;  Generally students do not know the Greek alphabet,
+      but the help should gradually teach it to them.&nbsp;  A possible
+      display method is for the help system to send a "displayed-text"
+      tag to the client where the Greek letter is represented as a unicode
+      character or html escape code.&nbsp;  When the student double clicks
+      on a text object, the input box displays the original typed text.&nbsp;
+      
 <li>  After receiving a response from the server, the client sents
      a notification message giving time the response was 
      implemented in the client.&nbsp;  In json-rpc format, this would be

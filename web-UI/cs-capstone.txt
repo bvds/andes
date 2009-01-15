@@ -7,40 +7,40 @@ of the first semester.  Second semester is testing & scaling.
 Generally about twice as many projects to choose from as teams.  Team
 meets once or twice a week with proposers, often by phone.
 
-1.  The cascading text for defining variables.  When does one download from
+1.  The cascading text for defining variables.  "Beyond menus"  Can be 
+presented as Andes-independent problem.  Remind students of google &
+firefox examples.  When does one download from
 server?  By character, by tab-delimited segments or whole tree
 structure?  See http://www.andestutor.org/bugzilla/show_bug.cgi?id=1488#c0
 We will need a "prototype" working method ready for June.
   a.  Question of what is on server and what is on client.
   b.  minimum edit distance as control condition.
   c.  implement "semantic parse" method as alternative?
+  d.  Best method:  system provides context-free grammar.  We have
+       to do this problem-wise since we have a problem-specific vocabulary.
+       That is, the system must provide problem-specific non-terminals.
+  d.  Kurt company BA Systems (?) with Candy Sider (?) is doing a similar project.
 
 2.  Method for implementing 3-D vectors.  We will need a "prototype"
 working method ready for June.
   a.  How to do this?  (present method not optimal)
-  b.  Maybe test several methods.
+  b.  Survey methods used in CAD programs and elsewhere.
+  c.  Maybe test several methods.
+  d.  ASU graphics group (Gerald Fagan) pretty strong, maybe get some 
+      advice from them.
 
-3.  Replace the mysterious scoring scheme with game theory
-perspective: if only 2 choices, then always correct on second choice.
-Better penalty for guessing.  
-  a.  Survey instructors for grading:  give me your rubric.
-      (show problem and worked solution)
-        How would you assign points for this problem?
-  b.  Implement in code.
-  c.  Storage scheme.  
-  d.  Interface for instructor customization.  Issue that instructors
-      won't understand the grading structure?  Do example-wise and 
-      infer policy from examples?
-  e.  Test on users, test on log files.
+3.  Do database and integrate with WebAssign.  
+  a.  Collaborating with a commercial partners WebAssign and SitePen.
+  b.  Specification is important for this, since this project is sewing 
+       several things together.
+  b.  MySql storage, perl modules.
+  c.  Task matches a lot of commercial business programming issues.
+  d.  Handle authentication, user sessions.
+  e.  Later, worry about security.
+  e.  Later, extract into xml for datashop.
+  f.  We need minimal integration by June.
 
-In general, open source licensing:
-  a.  Survey of open source licensing.
-  b.  List project goals and find license well-aligned with those goals.
-  c.  Apply license and release on public repository.
-
-Future project ideas:
-
-1.  Address the equation parser.  Instructors use latex, but students
+4.  Address the equation parser.  Instructors use latex, but students
 find it difficult to learn.  Cramster has equation palette, which 
 students seem to use but instructors seem to hate.  First activity
 would be to survey what various software does for
@@ -60,7 +60,27 @@ representation:  semi-visual like LaTeX or full parse like mathematica).
   f.  Choose methods to design and implement.
   g.  test on novice users in lab.
 
-2. "Learning from students homework"  Analyze log files in real time 
+5.  Replace the mysterious scoring scheme with game theory
+perspective: if only 2 choices, then always correct on second choice.
+Better penalty for guessing.  
+  a.  Survey instructors for grading:  give me your rubric.
+      (show problem and worked solution)
+        How would you assign points for this problem?
+  b.  Implement in code.
+  c.  Storage scheme.  
+  d.  Interface for instructor customization.  Issue that instructors
+      won't understand the grading structure?  Do example-wise and 
+      infer policy from examples?
+  e.  Test on users, test on log files.
+  
+In general, open source licensing:
+  a.  Survey of open source licensing.
+  b.  List project goals and find license well-aligned with those goals.
+  c.  Apply license and release on public repository.
+
+Future project ideas:
+
+1. "Learning from students homework"  Analyze log files in real time 
 to provide advice to physics instructors.  Instructors adjust lectures 
 based on data from problems done the night before.  Sometimes called
 "Just in time" teaching.
@@ -72,17 +92,31 @@ based on data from problems done the night before.  Sometimes called
       course objectives.
   d.  First semester:  do with existing log files.
 
-3.  Develop log player for Andes3 interface.
+2.  Develop log player for Andes3 interface for research purposes
+and for providing help.
   a.  Architect with model-view-controller so that as system changes,
       the log player automatically keeps up.
   b.  Offline version?
   c.  Add keyboard and mouse logging.
+  d.  Use as method for developing help "videos".  The Instructor would solve
+       a problem, recording audio.  Then the log player would play the log
+       file, to make the video part.  This would be more stable with respect to
+       changes in the system.
+  e.  A further development would be log player help with pauses, where
+      the student tries step for themself, which watching video.  "OK, now you try it..."
 
-4.  Make a version that can be used as a collaborative problem solving 
+3.  Make a version that can be used as a collaborative problem solving 
 tool for use on online homework forums like the ones mentioned above.  
 
-5.  Duplicate WebAssign effort on Lon-Capa.  But they build
+4.  Duplicate WebAssign effort on Lon-Capa.  But they build
 relationships then disappear.
 
 5.  Based on log files, suggest problems that will help students prepare
 for an exam.  Adaptive task selection.
+
+6.  Replacement of Joel's code.
+    a.  Probably in lisp.
+    b.  Borrow SMP routines from maxima.
+    c.  Better linear algebra techniques for reducing equations, rather than 
+    	relying on symbolic techniques.
+    d.  Implement incorrect equation analyzer by finding vector perpendicular from incorrect equation hypersurface pointing to correct solution.  Do this in a space reduced by the existing correct equations.  Also need to thing of way to make reasonable metric in this space.
