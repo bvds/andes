@@ -37,8 +37,10 @@ working method ready for June.
   c.  Task matches a lot of commercial business programming issues.
   d.  Handle authentication, user sessions.
   e.  Later, worry about security.
-  e.  Later, extract into xml for datashop.
-  f.  We need minimal integration by June.
+  f.  Later, extract into xml for datashop.
+  g.  We need minimal integration by June.
+  h.  Later work on efficiency scaling, and "compacting" initial state when 
+       student re-opens a problem
 
 4.  Address the equation parser.  Instructors use latex, but students
 find it difficult to learn.  Cramster has equation palette, which 
@@ -51,7 +53,8 @@ representation:  semi-visual like LaTeX or full parse like mathematica).
   a.  Start with existing parser.  Interesting idea of resolving
       parse ambiguities with context information (model solution plus
       previous entries).
-  b.  Choose parser technology (Yacc Bison ...)
+  b.  Choose parser technology (Yacc Bison ...) or use the existing parser in 
+       Maxima, which is available as open source.
   c.  Replicate existing Andes functionality, fix outstanding unary
       minus bug, add space as multiplication operator.
   d.  Survey input methods for math:  Mathematica, maple, etc.
@@ -59,6 +62,10 @@ representation:  semi-visual like LaTeX or full parse like mathematica).
       WebAssign's new palette, )
   f.  Choose methods to design and implement.
   g.  test on novice users in lab.
+  h.  Later improvements include using context information to aid
+       parsing and detect input errors, generalizing to allow multiple
+       input formats, and integration into an online homework forum, and
+       integration into the Andes intelligent tutor system (www.andestutor.org).
 
 5.  Replace the mysterious scoring scheme with game theory
 perspective: if only 2 choices, then always correct on second choice.
