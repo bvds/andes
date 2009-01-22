@@ -2656,6 +2656,7 @@
    ;; make sure this is not known to be zero-length from at-place stmt.
    (not (at-place ?b1 ?b2 :time ?t-at) (tinsidep ?t ?t-at))
    (not (at-place ?b2 ?b1 :time ?t-at) (tinsidep ?t ?t-at))
+   (not (same-place (orderless ?b1 ?b2) :time ?t-at ) (tinsidep ?t ?t-at))
    ;; Make sure we are not given the direction, or the opposite direction,
    ;; when other drawing rules would apply
    (not (given (dir (relative-position ?b1 ?b2 :time ?t-at)) . ?whatever) 
@@ -2700,6 +2701,31 @@
 		   ?b ?loc))    
     (bottom-out (string "Use the relative position drawing tool (labeled R) to draw a zero length vector representing the position of ~a relative to ~a ~a."
 			?b ?loc (?t pp)))
+    ))
+
+;;; draw zero-length relative position for two bodies
+(defoperator draw-zero-relative-position-bodies (?a ?b  ?t)
+  :preconditions
+  ((in-wm (same-place (orderless . ?bodies) :time ?t-at-place))
+   (time ?t)
+   (test (tinsidep ?t ?t-at-place))
+   (any-member ?bodies ((?a ?b) (?b ?a)))
+   (not (vector ?b (relative-position ?a ?b :time ?t) ?dont-care))
+   (not (vector ?b (relative-position ?b ?a :time ?t) ?dont-care))
+   (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?a) (body-name ?b)
+			      (time-abbrev ?t)))
+   (debug "~&Drawing zero-length relative position of ~a wrt ~a at ~a.~%" ?a ?b ?t))
+  :effects 
+  ((vector ?a (relative-position ?a ?b :time ?t) zero)
+   (variable ?mag-var (mag (relative-position ?a ?b :time ?t)))
+   (given (mag (relative-position ?a ?b :time ?t)) (dnum 0 |m|))
+   (implicit-eqn (= ?mag-var (dnum 0 |m|)) (mag (relative-position ?a ?b :time ?t))))
+  :hint 
+  ( (point (string "Note that ~A and ~A are at the same place ~." ?a ?b (?t pp)))
+    (teach (string "What is the relative position of ~A with respect to ~A ~A?" 
+		   ?a ?b (?t pp)))    
+    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw a zero length vector representing the position of ~a relative to ~a ~a."
+			?a ?b (?t pp)))
     ))
 
 ;;;
@@ -2752,6 +2778,60 @@
    ((point (string "Think about the relationship between the net displacement of ~A ~A and the individual displacements over each of the times making up the interval." ?b (?tt pp)))
     (point (string "The net displacement vector over a time interval represents the net change in position over that interval. This will be the vector sum of the individual displacements making up the net change. This can be applied component-wise to write an equation for the components of the net displacement in terms of the components of the individual displacements."))
     (bottom-out (string "Write the equation ~A" ((= ?dnet-xy (+ . ?di-compos)) algebra)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Relate relative positions of two objects to their displacments
+;;; 
+(defoperator relative-position-displacement-vector-contains (?sought)
+  :preconditions 
+  ((any-member ?sought ( (displacement ?b :time ?tt)
+			 (displacement ?a :time ?tt)
+			 (relative-position ?a ?b :time ?t)))
+   (object ?a)
+   (object ?b)
+   (time ?tt)
+   (time ?t)
+   (test (tendpointp ?t ?tt)) ;?t is endpoint of ?tt
+   )
+  :effects 
+  ((eqn-family-contains (relative-position-displacement ?a ?b ?tt) ?sought)
+   ;; since only one compo-eqn under this vector PSM, we can just
+   ;; select it now, rather than requiring further operators to do so
+   (compo-eqn-contains (relative-position-displacement ?a ?b ?tt) 
+		       relative-position-displacement ?sought)))
+
+(defoperator draw-relative-position-displacement-diagram (?rot ?a ?b ?t1 ?t2)
+  :preconditions 
+  (
+   (vector ?a (relative-position ?a ?b :time ?t1) ?dir-abi)
+   (vector ?a (relative-position ?a ?b :time ?t2) ?dir-abf)
+   (vector ?a (displacement ?a :time (during ?t1 ?t2)) ?dir-a)
+   (vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir-b)
+   (axes-for ?a ?rot))
+  :effects 
+  ((vector-diagram ?rot (relative-position-displacement ?a ?b 
+							(during ?t1 ?t2)))))
+
+(defoperator write-relative-position-displacement-compo (?a ?b ?t1 ?t2 ?xy ?rot)
+  :preconditions 
+   ((variable ?da (compo ?xy ?rot (displacement ?a :time (during ?t1 ?t2))))
+    (variable ?db (compo ?xy ?rot (displacement ?b :time (during ?t1 ?t2))))
+    (variable ?rabi (compo ?xy ?rot (relative-position ?a ?b :time ?t1)))
+    (variable ?rabf (compo ?xy ?rot (relative-position ?a ?b :time ?t2)))
+    )
+  :effects 
+   ((eqn (= (+ ?rabf ?db) (+ ?rabi ?da))
+               (compo-eqn relative-position-displacement ?xy ?rot 
+			  (relative-position-displacement ?a ?b 
+							  (during ?t1 ?t2))))
+    )
+   :hint
+   ((point (string "The change in relative position of ~A and ~B is related to their individual displacments ~A." ?a ?b (?tt pp)))
+    (point (string "The relative position of two objects over a time interval is determined by each of ther displacements during that time. This will be the vector sum of the initial relative position plus the displacement of the first object minus the displacement of the second object.  This can be applied component-wise."))
+    (bottom-out (string "Write the equation ~A" ((= ?rabf (+ ?abi (- ?da ?db))) algebra)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; motion of a part is same as that of a compound
 ;; this is useful if we are given the motion of a compound in the problem

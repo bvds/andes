@@ -383,6 +383,7 @@
  (leaf num-forces)
  (leaf given-fraction)
  (leaf opposite-relative-position)
+ (leaf relative-position-displacement)
  (leaf sum-times :tutorial "Sum of times")
  (leaf sum-distances)
  (leaf sum-distance)
