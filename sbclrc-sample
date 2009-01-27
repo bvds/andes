@@ -7,18 +7,12 @@
 (declaim (sb-ext:muffle-conditions sb-ext:compiler-note))
 
 (require :asdf)  ; asdf is built-in
-
 (pushnew #P"/home/bvds/Andes2/" asdf:*central-registry*)
-(pushnew #P"/usr/local/uffi/" asdf:*central-registry*)
 
-;;;
 ;;;  load uffi
-;;; 
-#-uffi (progn
-	 (asdf:operate 'asdf:load-op 'uffi)
-	 ;;this should be conditional on a successful
-	 (pushnew :uffi cl:*features*)  
-)					
+(require :uffi)
+(asdf:operate 'asdf:load-op :uffi) 
+(pushnew :uffi cl:*features*)  ;; used by solver to detect uffi
 
 ;;;;
 ;;;;  load andes system

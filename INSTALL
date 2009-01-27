@@ -8,6 +8,10 @@ Andes uses asdf as its package manager; both the sbcl and
 Allegro lisp distributions include asdf.
 
 Install the uffi lisp package uffi; see http://uffi.b9.com/.
+Use asdf-install to do this, you will need to adjust 
+permissions/ownership for /usr/local/lib/sbcl/site:
+  (require 'asdf-install)
+  (asdf-install:install 'uffi)
 
 Compile the solver library:
   cd Algebra/src/; make
@@ -19,3 +23,27 @@ send your ssh public key to help@andestutor.org  The git command
 to download this library is (from the Andes root directory):
    git clone ssh://git@andestutor.org/home/git/Andes-problems.git/ problems
 
+=============== Web Server =================================
+
+# Install the hunchentoot web server ttp://www.weitz.de/hunchentoot/
+# using asdf-install:
+  (require 'asdf-install)
+  (asdf-install:install 'hunchentoot)
+  
+# Install mod_lisp.  
+  svd checkout http://www.fractalconcept.com:8000/public/open-source/mod_lisp/ mod_lisp
+  cd mod_lisp
+# You will need apxs, on RedHat-like systems:
+  yum install httpd-devel
+  /usr/sbin/apxs -i -c -a mod_lisp2.c # -a flag LoadModule line to httpd.conf
+# In httpd.conf, add:
+  <Location /help>
+    LispServer 127.0.0.1 8080 "help"
+    SetHandler lisp-handler
+  </Location>
+# Then restart:
+  /sbin/service httpd restart
+
+# To run server in lisp:
+  (asdf:operate 'asdf:load-op 'hunchentoot)
+  (hunchentoot:start-server :port 8080 :MOD-LISP-P t)
