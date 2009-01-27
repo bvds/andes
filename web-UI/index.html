@@ -45,6 +45,19 @@
 
          <!--  Demo for json-rpc to server and back -->
          <script type="text/javascript">
+	   dojo.require("dojox.rpc.Service");
+	   dojo.require("dojox.rpc.JsonRPC");
+ 
+           echoService = new dojox.rpc.Service({
+	   envelope:"JSON-RPC-1.0",
+	   transport:"POST",
+	   target:"/jsonrpc/echo",
+	   services:{
+	   sayHi:{
+	   parameters:[{type:"string"}] // this is optional
+	   }
+	   }
+	   });
                 djConfig.usePlainJson = true;
                 dojo.require('dojo.rpc.JsonService');
                 function setup() {
