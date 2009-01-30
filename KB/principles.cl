@@ -21,7 +21,7 @@
 ;;;;       list of PSMclasses grouped into catagories
 ;;;;   
 
-;; Use (principles-file) to generate file solutions/principles.tsv
+;; Use (principles-file) to generate file KB/principles.tsv
 
 (defparameter *principle-tree* '(
 (group "Write a Principle"
@@ -411,7 +411,7 @@
 ))
 
 
-;;;          Generate file solutions/principles.tsv
+;;;          Generate file KB/principles.tsv
 
 (defun principles-file ()
   "construct file solutions/principles.tsv"
@@ -424,7 +424,7 @@
     (close str)))
 
 (defun principle-branch-print (str p)
-  "prints a group in solutions/principles.tsv"
+  "prints a group in KB/principles.tsv"
   (cond ((eq (car p) 'group)
 	 ;; principles.tsv file format is 4 tab-separated columns
 	 (format str "GROUP~C~A~C~C~%" #\tab (cadr p) #\tab #\tab)
@@ -436,7 +436,7 @@
 ;; keywords :short-name and :EqnFormat override definitions in Ontology
 (defun principle-leaf-print (str class &key tutorial (bindings no-bindings)
 					EqnFormat short-name) 
-  "prints a principle in solutions/principles.tsv"
+  "prints a principle in KB/principles.tsv"
   (let ((pc (lookup-psmclass-name class)))
     (format str "LEAF~C~A    ~A~C~(~A~)~C~@[~A~]~%" #\tab 
 	    (eval-print-spec (or EqnFormat (psmclass-EqnFormat pc)) bindings)
