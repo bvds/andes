@@ -1645,7 +1645,9 @@
     (time ?t)
     ;; If the time covers more than two consecutive points, then we
     ;; cannot be assured that there are no forces defined for a subset. 
-    (test (or (time-pointp ?t) (time-consecutivep ?t)))
+    (test (or (time-pointp ?t) (time-consecutivep ?t) 
+	      ;; exception for some problems; see elec10
+	      (member 'allow-long-duration (problem-features *cp*))))
     (inherit-or-quantity (body ?b :time ?t) (body ?b :time ?tt))
     (body ?b :time ?tt)
     (not (unknown-forces :time ?t ?t)) ;can't collect forces if some are unknown
