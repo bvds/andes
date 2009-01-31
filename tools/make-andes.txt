@@ -92,7 +92,7 @@ cvs -d :ext:bvds@oli-cvs.andrew.cmu.edu:/oli/cvs/content/lrdc/intro_physics co -
 #
 cd ..
 make Statements
-cp solutions/*.aps oli-course/intro_physics-*/
+cp problems/*.aps oli-course/intro_physics-*/
 cd oli-course/intro_physics-*/
 #  remove irrelevant *.aps files by hand. 
 #  run the following with some unique identifier for output file

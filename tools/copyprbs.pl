@@ -25,8 +25,7 @@ use File::Copy;
 sub docopy()
 {
     my($srcfile, $dstroot) = @_;
-    my $dstfile = "$dstroot/$srcfile";
-    copy ($srcfile, $dstfile) or die "Copy $srcfile $dstfile failed:$!";
+    copy ($srcfile, $dstroot) or die "Copy $srcfile $dstroot failed:$!";
     print "     copy $srcfile to $dstroot\n" if $verbose;
 }
 
@@ -54,7 +53,7 @@ while (<MODULES>)
       open (APS, "$apsfile") or die "Couldn't open $apsfile";
       
       # copy the APS file itself
-      &docopy($apsfile, $dstdir);
+      &docopy($apsfile, $problemdir);
       
       # do for each line in APS file
       while (<APS>)
@@ -72,14 +71,14 @@ while (<MODULES>)
 	    print "  no file $prbfile, skipping\n"; 
 	    next;
 	  }
-	  &docopy($prbfile, $dstdir);
+	  &docopy($prbfile, $problemdir);
 	 
 	  # scan inside prb file for graphic and copy it also
 	  open (PRB, "$prbfile") or die "Couldn't open $prbfile. $!";
 	  while (<PRB>) {
 	    if (/^Graphic +"([^"]+)"/) {
 	      $graphicfile = "images/$1";
-	      &docopy($graphicfile, $dstdir);
+	      &docopy($graphicfile, $problemdir);
 	      last;
 	    }
 	  }
