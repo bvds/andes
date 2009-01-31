@@ -2199,7 +2199,6 @@
    (debug "start  NSL~%")
    (not (vector ?b (accel ?b :time ?t) zero))
    (not (massless ?b))
-   (not (disallow nsl ?b ?t)) ; See Bug #1507
    (debug "finish  NSL~%")
    )
   :effects
