@@ -1462,7 +1462,7 @@
    (test (not (compound-bodyp ?b)))
    ;; find list distinct of agent-direction pairs
    (setof (force ?b ?agent ?type ?t ?dir ?action) (?agent ?dir) ?ad)
-   (not (unknown-forces :time ?t ?t))
+   (not (unknown-forces :body ?b ?b :time ?t ?t))
    ;; remove any pair where the agent is on the list of excluded agents
    (bind ?ad-ok (remove-duplicates
 		 (remove-if #'(lambda (a) (member a ?agents)) 
@@ -1474,7 +1474,7 @@
 :effects ((net-force-dir ?b ?t ?net-dir :no-agent ?agents)))
 
 (defoperator calculate-net-force-dir-unknown (?b ?t)
-  :preconditions ((unknown-forces :time ?t ?t))
+  :preconditions ((unknown-forces :body ?b ?b :time ?t ?t))
   :effects ((net-force-dir ?b ?t unknown)))
 
 ;; Here we draw the net force in the same direction as the known acceleration
@@ -1645,12 +1645,14 @@
     (time ?t)
     ;; If the time covers more than two consecutive points, then we
     ;; cannot be assured that there are no forces defined for a subset. 
-    (test (or (time-pointp ?t) (time-consecutivep ?t) 
-	      ;; exception for some problems; see elec10
-	      (member 'allow-long-duration (problem-features *cp*))))
+    (test (or (time-pointp ?t)
+	      ;; exception for some problems; see Bug #1508
+	      (member 'allow-long-interval (problem-features *cp*))
+	      (time-consecutivep ?t)))
     (inherit-or-quantity (body ?b :time ?t) (body ?b :time ?tt))
     (body ?b :time ?tt)
-    (not (unknown-forces :time ?t ?t)) ;can't collect forces if some are unknown
+    ;; can't collect forces if some are unknown
+    (not (unknown-forces :body ?b ?b :time ?t ?t))
     ;; list of forces acting on entire body (particle)
     (setof (inherit-proposition (force ?b ?agent ?type :time ?t)
 				 (force ?b . ?rest) 
@@ -1749,7 +1751,7 @@
 		 (net-force ?b :time ?t)
 		 (force ?b ?agent ?type :time ?t)))
      (object ?b)
-     (not (unknown-forces :time ?t ?t)) ;also checked in draw-forces
+     (not (unknown-forces :body ?b ?b :time ?t ?t)) ;also checked in draw-forces
     )  
   :effects 
   ((eqn-family-contains (net-force ?b ?t) ?sought)
@@ -2197,6 +2199,7 @@
    (debug "start  NSL~%")
    (not (vector ?b (accel ?b :time ?t) zero))
    (not (massless ?b))
+   (not (disallow nsl ?b ?t)) ; See Bug #1507
    (debug "finish  NSL~%")
    )
   :effects
@@ -2801,7 +2804,7 @@
     (rotation-axis ?b ?axis) ;?axis is not bound by couples
     ;; make sure there aren't unknown forces, as in basic rotational kinematics
     ;; problems with unexplained accelerations
-   (not (unknown-forces :time ?t ?t))
+   (not (unknown-forces :body ?b ?b :time ?t ?t))
    )
    :effects (
    (eqn-family-contains (net-torque ?b ?axis ?t) ?sought)

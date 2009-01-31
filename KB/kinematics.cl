@@ -1875,7 +1875,7 @@
     (test (null (rest ?dirs))) ;setof only gives distinct matches to ?dir
     (bind ?accel-dir (first ?dirs))
     (test (degree-specifierp ?accel-dir)) ;exclude 'zero and 'unknown
-    (not (unknown-forces :time ?t ?t)) ;only valid if all forces are specified
+    (not (unknown-forces :body ?b ?b :time ?t ?t)) ;only valid if all forces are specified
     (not (vector ?b (accel ?b :time ?t) ?dontcare))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
