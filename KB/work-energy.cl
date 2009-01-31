@@ -261,7 +261,7 @@
   (not (does-work-on ?agent ?b :time ?t-work)
        (tintersect2 ?t-work `(during ,?t1 ,?t2)))
   ;; make sure we can determine all forces:
-  (not (unknown-forces :time (during ?t1 ?t2) (during ?t1 ?t2)))
+  (not (unknown-forces :body ?b ?b :time (during ?t1 ?t2) (during ?t1 ?t2)))
   )
  :effects (
 	   (eqn-contains (cons-energy ?b ?t1 ?t2) ?sought)
@@ -990,7 +990,7 @@
    ;; Can't collect (does-work-on ..) if some work agents are unknown;
    ;; (unknown-forces) means that a work agent is neither specified
    ;; as a force, nor specified via (does-work-on ...).
-  (not (unknown-forces :time ?t ?t)) ;also tested in draw-forces
+  (not (unknown-forces :body ?b ?b :time ?t ?t)) ;also tested in draw-forces
   (test (time-consecutivep ?t)))  ;only apply to consecutive times
   :effects 
   ((eqn-contains (net-work ?b ?t) ?sought)))
@@ -1163,7 +1163,7 @@
   ;; (unknown-forces) means that a work agent is neither specified
   ;; as a force, nor specified via (does-work-on ...).
   ;; can't collect (nc-work-during ...) if unknown forces
-  (not (unknown-forces :time ?t ?t))  
+  (not (unknown-forces :body ?body ?body :time ?t ?t))  
   )
  :effects (
   (eqn-contains (Wnc ?body ?t) ?sought)
