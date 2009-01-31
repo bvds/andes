@@ -44,6 +44,7 @@
 				     (:file "hash")
 				     (:file "Utility")))
 	       (:module "Algebra"
+			;; this depends on uffi
 			:components ((:file "solver")))
 	       (:module "HelpStructs"
 			:depends-on ("Base")
