@@ -40,4 +40,4 @@
 ;;;
 (defun rkb ()
   "Reset the lists in KB and reload all files using asdf"
-  (asdf:operate 'asdf:load-op 'andes))
+  (asdf:operate 'asdf:load-op 'problems))
