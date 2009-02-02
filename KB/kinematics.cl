@@ -2392,6 +2392,10 @@
     (inherit-variable ?a-compo (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
     (variable ?s-compo (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
     (variable ?t-var (duration (during ?t1 ?t2)))
+   ;; When appropriate, send some extra equations along to help the solver.
+   (setof (solver-eqn ?ans-eqn 
+		      (horizontal-projectile ?xyz ?rot ?b (during ?t1 ?t2))) 
+	  nil ?dont-care)
     )
   :effects
   ((eqn (= ?s-compo (+ (* ?vi-compo ?t-var) (* 0.5 ?a-compo (^ ?t-var 2))))
@@ -2404,6 +2408,27 @@
 					(* 0.5 ?a-compo (^ ?t-var 2))))
 						 algebra)))
   ))
+
+;; The solver doesn't know how to solve this type of system reliably.  
+;; In this case, supply an explicit equation to the solver
+;; for the case of horizontal projectile motion.
+;;
+;; This also means that the solver probably will
+;; fail when attempting to solve the student's equations.
+;; Special help is given in that case; see Help/NextStepHelp.cl.
+(defoperator solver-eqn-for-horizontal-projectile-motion (?b ?t1 ?t2)
+  :preconditions 
+  (
+   ;; this should have a more general test that displacement
+   ;; in this direction is zero, or solve the general quadratic.  Bug #1509
+   ;; it doesn't really have to be problem-specific.  Currently used for elec10
+   (horizontal-projectile-motion ?b (during ?t1 ?t2))
+   (inherit-variable ?vi (compo y 0 (velocity ?b :time ?t1)))
+   (inherit-variable ?a (compo y 0 (accel ?b :time (during ?t1 ?t2))))
+   (inherit-variable ?t-var (duration (during ?t1 ?t2)))
+   )
+  :effects ((solver-eqn (= ?t-var (/ (* -2.0 ?vi) ?a))
+			  (horizontal-projectile ?xyz ?rot ?b (during ?t1 ?t2)))))
 
 ;;
 ;; LK equations special to projectile motion
