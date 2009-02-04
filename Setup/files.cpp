@@ -163,11 +163,11 @@ static const char * s_files[] =
 	"Problems\\*.aps",
 	"Problems\\*.gif",
 	"Problems\\*.jpg",
-	"Problems\\*.html", // for index.html
 
 	// Video pseudo-problem for preview image
 	"Problems\\video.fbd",
 #endif
+	"Problems\\*.html", // for index.html
 
 	// knowledge base files
 	// "kb\\*.cl",			// uncompiled lisp files

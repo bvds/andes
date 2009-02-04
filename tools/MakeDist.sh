@@ -124,6 +124,8 @@ if [ -z "$OLI" ]; then
    cp solutions/video.fbd $dstdir/Problems
    # Copy the required APS's and all needed problem files. 
    perl tools/copyprbs.pl -m $MODULE_FILE $dstdir 
+else
+    cp index-warn.html $dstdir/Problems/index.html
 fi
 
 #------------------------------------------------------------------------
