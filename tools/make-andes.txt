@@ -94,14 +94,16 @@ cd ..
 make Statements
 cp problems/*.aps oli-course/intro_physics-*/
 cd oli-course/intro_physics-*/
-#  remove irrelevant *.aps files by hand. 
+#  remove irrelevant *.aps files by hand.   
+#  [Don't change the *.aps files  after the course is deployed.]
 #  run the following with some unique identifier for output file
+#  [For stubs, you need to first edit aps2xml.pl]
 perl  ../../tools/aps2xml.pl *.aps > july-28-output.txt
 #  use different output file for each run, so below grep will work.
 #  It will complain about any problems that are included in aps files,
 #     but not having feature Andes2.
 grep Add *-output.txt 
-#  If the grep reports any new files,  add them to cvs. 
+#  If the grep reports any new files,  add problem *.xml and *.prb files to cvs. 
 #  Next copy over content files:
 cp -p -u ../../andes_installer.exe content/webcontent
 cp -p -u ../../Videos/videotips.html content/webcontent
@@ -126,7 +128,8 @@ cvs update -dP
 cp log4j.properties.sample log4j.properties
 ant
 
-./tools/oli/deploy.sh
+# for a new course [or an update]:
+./tools/oli/deploy.sh  [./tools/oli/updatepkg.sh]
 # pipe in account name and password.
 #Account ID: andersw   Password: andersoli
 
