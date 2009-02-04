@@ -715,6 +715,8 @@
 ;; inputs. Would be better to formalize reasoning leading to cross
 ;; product direction in this case.
 
+;;  See bug #1510
+
 (defoperator use-compos-for-dir (?quant)
    :preconditions 
    (

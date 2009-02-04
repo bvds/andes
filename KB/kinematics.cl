@@ -481,6 +481,8 @@
 ;; to be drawn.  Might have to change this eventually, or add variant
 ;; that allows them to be drawn.
 
+;; See Bug #1510
+
 (def-psmclass rdiff
              (?eq-type rdiff ?axis ?rot (rdiff ?p1 ?p2 ?time)) 
   :complexity minor
