@@ -22,6 +22,8 @@ are under copyright and not publicly available.  For access,
 send your ssh public key to help@andestutor.org  The git command
 to download this library is (from the Andes root directory):
    git clone ssh://git@andestutor.org/home/git/Andes-problems.git/ problems
+Likewise, at least for Andes2, one can use the solutions repository:
+   git clone ssh://git@andestutor.org/home/git/Andes-solutions.git/ solutions
 
 =============== Web Server =================================
 
