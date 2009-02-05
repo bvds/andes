@@ -1,9 +1,9 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
 		"http://www.w3.org/TR/html4/strict.dtd">
 <html>
-<head>
-<title>Statics:  s2e</title>
-     <style type="text/css">
+  <head>
+    <title>Statics:  s2e</title>
+    <style type="text/css">
                 @import "dojotoolkit/dojo/resources/dojo.css";
                 @import "dojotoolkit/dojox/sketch/resources/sketch.css";
 		html, body, #container {
@@ -25,10 +25,10 @@
 		.dojoxSketchIconVector{ background-position:0px -40px; }
 		.dojoxSketchIconLine{ background-position:0px -60px; }
 		.dojoxSketchIconRectangle{ background-position:0px -80px; }
-	</style>
+    </style>
 
-	<!-- required: the default dijit theme: -->
-	<link id="themeStyles" rel="stylesheet" href="dojotoolkit/dijit/themes/tundra/tundra.css">
+    <!-- required: the default dijit theme: -->
+    <link id="themeStyles" rel="stylesheet" href="dojotoolkit/dijit/themes/tundra/tundra.css">
 
 	<!-- pick out variable name from definition string, or null -->
 	<script src="variablename.js" type="text/javascript"></script>
@@ -43,40 +43,40 @@
 		dojo.require("dijit.layout.ContentPane");
 	</script>
 
-         <!--  Demo for json-rpc to server and back -->
-         <script type="text/javascript">
-	   dojo.require("dojox.rpc.Service");
-	   dojo.require("dojox.rpc.JsonRPC");
+    <!--  Demo for json-rpc to server and back -->
+    <script type="text/javascript">
+      dojo.require("dojo.parser");
+      dojo.require("dijit.form.Button");
+      dojo.require("dojox.rpc.Service");
+      dojo.require("dojox.rpc.JsonRPC");
  
-           echoService = new dojox.rpc.Service({
-	   envelope:"JSON-RPC-1.0",
-	   transport:"POST",
-	   target:"/jsonrpc/echo",
-	   services:{
-	   sayHi:{
-	   parameters:[{type:"string"}] // this is optional
-	   }
-	   }
-	   });
-                djConfig.usePlainJson = true;
-                dojo.require('dojo.rpc.JsonService');
-                function setup() {
-                    var smdURL =
-           '/docroot/json-rpc/jsonrpc.php?processor=jsonrpc&__smd=MathService';
-                    proxy = new dojo.rpc.JsonService(smdURL);
-                }
+      function test() {
+        var jsonInput = document.getElementById('jsonstring').value;
+      var typejson = new dojox.rpc.Service(
+                   //"andes3.smd"
+          // temporary string echo
+      {
+	target:"/help",
+	transport:"POST",
+	envelope:"JSON-RPC-1.0",
+	contentType:"application/json",
+	services:{
+		"get-problem":{ // this is the method that we created in jabsorb
+			returns:{"type":"string"},
+			parameters:[{"type":"string"}]
+		}
+	}
+        }
+        );
+        document.getElementById('inputString').innerHTML = jsonInput;
+        var deferred = typejson["get-problem"](jsonInput);
+        deferred.addCallback(
+          function successfulResult(result) {
+            document.getElementById('result').innerHTML = result;        
+        })
+      }
 
-                function doCalc() {
-                   proxy.add(document.getElementById('a').value,
-               document.getElementById('b').value).addCallback(doCalcCallback);
-                }
-
-                function doCalcCallback(result) {
-                   alert(result);
-                }
-
-                dojo.addOnLoad(setup);
-        </script>
+    </script>
 
 
 	<script src="dojotoolkit/dojox/sketch/Toolbar.js"
@@ -117,11 +117,17 @@
 		}
 		dojo.addOnLoad(init);
 	</script>
-</head>
-<body class="tundra">
-	<div dojoType="dijit.layout.BorderContainer" design="sidebar" id="container" gutters="false">
-		<div dojoType="dijit.layout.ContentPane" id="toolbar" region="top"></div>
-		<div dojoType="dijit.layout.ContentPane" region="center" id="canvas"></div>
-	</div>
-</body>
+  </head>
+  <body class="tundra">
+    <div dojoType="dijit.layout.BorderContainer" design="sidebar" id="container" gutters="false">
+      <div dojoType="dijit.layout.ContentPane" id="toolbar" region="top">
+          <input type="text" id="jsonstring" length="100" />
+          <button dojoType="dijit.form.Button" onclick="test">
+               Do JSON-RPC call</button>
+	  <div id="inputString">Input</div>
+	  <div id="result">Result</div>
+      </div>
+      <div dojoType="dijit.layout.ContentPane" region="center" id="canvas"></div>
+    </div>
+  </body>
 </html>
