@@ -4,6 +4,7 @@ dojo.require("dijit.form.Slider");
 dojo.declare("dojox.sketch.Slider",dojox.sketch._Plugin,{
 	_initButton: function(){
 		this.slider=new dijit.form.HorizontalSlider({minimum:20,maximum:200,value:20,style:"width:200px;float:right"});
+		this.slider._movable.node.title='Double Click to "Zoom to Fit"'; //I18N
 		this.connect(this.slider,'onChange','_setZoom');
 		this.connect(this.slider.sliderHandle,'ondblclick','_zoomToFit');
 	},
