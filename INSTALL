@@ -30,6 +30,7 @@ Likewise, at least for Andes2, one can use the solutions repository:
 # Install the hunchentoot web server ttp://www.weitz.de/hunchentoot/
 # using asdf-install:
   (require 'asdf-install)
+  (push :hunchentoot-no-ssl *features*) ;we have apache to do this
   (asdf-install:install 'hunchentoot)
   
 # Install mod_lisp.  
@@ -49,3 +50,5 @@ Likewise, at least for Andes2, one can use the solutions repository:
 # To run server in lisp:
   (asdf:operate 'asdf:load-op 'hunchentoot)
   (hunchentoot:start-server :port 8080 :MOD-LISP-P t)
+
+# See http://www.newartisans.com/blog/2007/11/running-common-lisp-behind-apache.html
