@@ -41,7 +41,7 @@
 ;; correspond to solution graph actions.
 ;; 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(in-package :user)
+(in-package :cl-user)
 
 ;;-----------------------------------------------------------------------------
 ;; Helper functions for workbench API arguments 

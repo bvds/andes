@@ -30,7 +30,7 @@
 ;; This code is not used now that there are no fbd-based problems anymore. 
 ;; The split-sym routine might be a useful utility.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(in-package :user)
+(in-package :cl-user)
 
 ; split-sym - Split out separator-char-delimited fields from structured symbol 
 ; Default separator is underscore.
