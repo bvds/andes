@@ -49,9 +49,6 @@
       dojo.require("dijit.form.Button");
       dojo.require("dojox.rpc.Service");
       dojo.require("dojox.rpc.JsonRPC");
- 
-      function test() {
-        var jsonInput = document.getElementById('jsonstring').value;
       var typejson = new dojox.rpc.Service(
                    //"andes3.smd"
           // temporary string echo
@@ -61,19 +58,29 @@
 	envelope:"JSON-RPC-1.0",
 	contentType:"application/json",
 	services:{
-		"get-problem":{ // this is the method that we created in jabsorb
+		"echo":{ // this is the method that we created in jabsorb
 			returns:{"type":"string"},
 			parameters:[{"type":"string"}]
 		}
 	}
         }
         );
-        document.getElementById('inputString').innerHTML = jsonInput;
-        var deferred = typejson["get-problem"](jsonInput);
-        deferred.addCallback(
-          function successfulResult(result) {
-            document.getElementById('result').innerHTML = result;        
-        })
+ 
+      function sendString() {
+        var jsonInput = document.getElementById('jsonstring').value;
+        document.getElementById('inputString').innerHTML = 
+	       "Send:  " + jsonInput;
+        var deferred = typejson["echo"](jsonInput);
+        deferred.addCallbacks(
+          function (result) {
+            document.getElementById('result').innerHTML = 
+	    "Success:  " + result;        
+        }, 
+	// error conditiion handler:
+          function (result) {
+            document.getElementById('result').innerHTML = 
+	         "Failure:  " + result;        
+        });
       }
 
     </script>
@@ -121,8 +128,8 @@
   <body class="tundra">
     <div dojoType="dijit.layout.BorderContainer" design="sidebar" id="container" gutters="false">
       <div dojoType="dijit.layout.ContentPane" id="toolbar" region="top">
-          <input type="text" id="jsonstring" length="100" />
-          <button dojoType="dijit.form.Button" onclick="test">
+          <input type="text" id="jsonstring" size="100"/>
+          <button dojoType="dijit.form.Button" onclick="sendString">
                Do JSON-RPC call</button>
 	  <div id="inputString">Input</div>
 	  <div id="result">Result</div>
