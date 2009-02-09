@@ -48,7 +48,7 @@
 					    :depends-on ("PsmGraph"))
 				     ))
 	       (:module "Knowledge"
-			:depends-on ("Base" "HelpStructs")
+			:depends-on ("Base" "HelpStructs" "Algebra")
 			:components ((:file "eqn")         
 				     (:file "Nogood")    
 				     (:file "Operators")  
