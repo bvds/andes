@@ -33,7 +33,7 @@
 ;;   handle the communication between the workbench and the Andes2 help system
 ;;   using TCP/IP sockets and streams.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(in-package :user)
+(in-package :cl-user)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; from sockets.lisp by Kevin M. Rosenberg

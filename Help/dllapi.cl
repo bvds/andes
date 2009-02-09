@@ -35,7 +35,7 @@
 ;; This also defines send-fbd-command which help system code may be use to 
 ;; to send a wb command string for execution by the workbench.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(in-package :user)
+(in-package :cl-user)
 
 (eval-when (load eval)
   (load "helpifc.dll"))
