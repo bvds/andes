@@ -22,10 +22,11 @@
 
 ;; for now, run these on command line:
 ;(asdf:operate 'asdf:load-op 'hunchentoot)
+;(asdf:operate 'asdf:load-op 'cl-json)
 ;(in-package :webserver)
 
 (defpackage :webserver
-  (:use :cl :hunchentoot))
+  (:use :cl :hunchentoot :json))
 
 (in-package :webserver)
 
@@ -42,7 +43,6 @@
   (setq *show-lisp-errors-p* t
         *show-lisp-backtraces-p* t)
 
-  (push
   (setf *server* (start-server :port 8080 :MOD-LISP-P t)))
 
 (defun stop-help ()
@@ -53,5 +53,5 @@
   ;; this contains the json-rpc object itself ...
   ;; probably should see how hunchentoot itself handles this
   ;; and make a new handler, then convert to-from json.
-;(raw-post-data :force-text t)
-  (format nil "{\"result\": \"received ~A and post ~A\",\"error\": null,\"id\":1}~%" (request-uri) nil))
+(let ((in-json (decode-json-from-string (raw-post-data :force-text t))))
+  (format nil "{\"result\": {\"uri\": \"~A\", \"post\": ~A},\"error\": null,\"id\":1}~%" (request-uri) (raw-post-data :force-text t))))

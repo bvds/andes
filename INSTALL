@@ -32,6 +32,7 @@ Likewise, at least for Andes2, one can use the solutions repository:
   (require 'asdf-install)
   (push :hunchentoot-no-ssl *features*) ;we have apache to do this
   (asdf-install:install 'hunchentoot)
+  (asdf-install:install 'cl-json)
   
 # Install mod_lisp.  
   svd checkout http://www.fractalconcept.com:8000/public/open-source/mod_lisp/ mod_lisp
