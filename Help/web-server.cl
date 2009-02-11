@@ -21,7 +21,7 @@
 (in-package :cl-user)
 
 ;; for now, run these on command line:
-;(asdf:operate 'asdf:load-op 'hunchentoot)
+;(asdf:operate 'asdf:load-op 'hunchentoot) 
 ;(asdf:operate 'asdf:load-op 'cl-json)
 ;(in-package :webserver)
 
@@ -31,27 +31,60 @@
 (in-package :webserver)
 
 (defvar *server* nil)
+(defvar *stdout* *standard-output*)
+
 
 (defun start-help ()
   "Start server with simple echo service, for testing"
   (setq  *dispatch-table*
 	 (list #'dispatch-easy-handlers
-	       (create-prefix-dispatcher "/" 'handle-echo)
+	       (create-prefix-dispatcher "/help" 'handle-json-rpc)
 	       #'default-dispatcher))
-
+  
   ;; This is just for the debugging stage
   (setq *show-lisp-errors-p* t
         *show-lisp-backtraces-p* t)
-
+  
   (setf *server* (start-server :port 8080 :MOD-LISP-P t)))
 
 (defun stop-help ()
-      (stop-server *server*))
+  (stop-server *server*))
 
-(defun handle-echo ()
+;; This now works as far as it goes.
+;; Need error handling with restart-case or handler-case
+;;  need to handle errors associated with bad function call or inside call
+;;  need to handle errors with bad json
+;;  need to handle errors with bad rpc
+;;  need to test input and reply against andes3.smd
+(defun handle-json-rpc ()
   (setf (content-type) "application/json; charset=UTF-8")
-  ;; this contains the json-rpc object itself ...
-  ;; probably should see how hunchentoot itself handles this
-  ;; and make a new handler, then convert to-from json.
-(let ((in-json (decode-json-from-string (raw-post-data :force-text t))))
-  (format nil "{\"result\": {\"uri\": \"~A\", \"post\": ~A},\"error\": null,\"id\":1}~%" (request-uri) (raw-post-data :force-text t))))
+  ;; Hunchentoot is supposed to take care of charset encoding
+  (unless (search "application/json" (header-in :content-type))
+    ;; with the wrong content-type, just send string back
+    (return-from handle-json-rpc "\"content-type must be application/json\""))
+  (let* (result error reply
+		(in-json (decode-json-from-string 
+			  (raw-post-data :force-text t)))
+		(method (cdr (assoc :method in-json)))
+		(params (cdr (assoc :params in-json)))
+		(id (assoc :id in-json))
+		(version (assoc :jsonrpc in-json)))
+    (format *stdout* "calling ~S with ~S~%" method params)
+    ;; when this function is executed, the package is cl-user
+    ;; so we mush supply the package explicitly
+    (if (find-symbol method :webserver)
+	(setq result (apply (intern method :webserver) params))
+	(setq error (if version
+			`((:code . -32601) (:message . "Method not found")
+			  (:data . ,method))
+			(format nil "Can't find method ~S" method))))
+    (format *stdout* "  result ~S error ~S~%" result error)
+    ;; only give a response when id is given
+    (when id
+      (when (or error (not version)) (push (cons :error error) reply))
+      (when (or result (not version)) (push (cons :result result) reply))
+      (push id reply)
+      (when version (push version reply))
+      (encode-json-alist-to-string reply))))
+
+(defun |echo| (x) x)
