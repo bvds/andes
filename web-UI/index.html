@@ -116,13 +116,14 @@
   <body class="tundra">
     <div dojoType="dijit.layout.BorderContainer" design="sidebar" id="container" gutters="false">
       <div dojoType="dijit.layout.ContentPane" id="toolbar" region="top">
-          <select id="help-method">
+          method: <select id="help-method">
+                <!-- This list must match methods in andes3.smd -->
                 <option>get-problem</option>
                 <option>solution-step</option>
                 <option>seek-help</option>
                 <option>close-problem</option>
           </select>
-          <input type="text" id="jsonstring" size="80"/>
+          &nbsp;params: <input type="text" id="jsonstring" size="80"/>
           <button dojoType="dijit.form.Button" onclick="sendString">
                Do JSON-RPC call</button>
 	  <div id="inputString">Input</div>

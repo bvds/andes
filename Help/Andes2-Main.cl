@@ -44,7 +44,7 @@
      (:href . "/images/s2e.gif"))))
 
 (defun |solution-step| (&key session time id action type mode x y text-width
-			text dx dy radius symbol x-label y-label) 
+			text dx dy radius symbol x-label y-label angle) 
   "problem-solving step" 
   '(((:action . "new-object") (:id . 0) (:type . "text") (:mode . "locked")
      (:x . 3) (:y . 5) (:text-width . 80) (:text . "A spherical ball with a mass of 2.00 kg rests in the notch ..."))

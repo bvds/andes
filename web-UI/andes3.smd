@@ -42,7 +42,8 @@
 	{"name": "radius", "type": "number", "optional": true},
 	{"name": "symbol", "type": "string", "optional": true},
 	{"name": "x-label", "type": "string", "optional": true},
-	{"name": "y-label", "type": "string", "optional": true}
+	{"name": "y-label", "type": "string", "optional": true},
+	{"name": "angle", "type": "number", "optional": true}
       ]
     },
     "seek-help": {

@@ -195,7 +195,7 @@ is shown on the screen when the vector is being dragged out.
 {"method": "solution-step", "params": {"session": 3232, "time": 421.001, 
 	   "action": "new-object", "id": 10,
 	   "type": "equation", "mode": "unknown", 
-	   "x: 15, "y": 310, 
+	   "x": 15, "y": 310, 
 	   "text": "Fwall1_y = Fwall1 * sin (\\thetaFwall1)"}, "id": 11}
 
 [
@@ -211,7 +211,7 @@ For the rest of this, I am going to skip the log stuff.
 {"method": "solution-step", "params": {"session": 3232, "time": 459.001, 
 	   "action": "new-object", "id": 11,
 	   "type": "equation", "mode": "unknown", 
-	   "x: 15, "y": 320, 
+	   "x": 15, "y": 320, 
 	   "text": "Fwall2_x = Fwall2 * cos (\\thetaFwall2)"}, "id": 12}
 
 [
@@ -223,7 +223,7 @@ For the rest of this, I am going to skip the log stuff.
 {"method": "solution-step", "params": {"session": 3232, "time": 482.001, 
 	   "action": "new-object", "id": 12,
 	   "type": "equation", "mode": "unknown", 
-	   "x: 15, "y": 330, 
+	   "x": 15, "y": 330, 
 	   "text": "Fwall2_y = Fwall2 * sin(\\thetaFwall2)"}, "id": 13}
 
 [
@@ -235,7 +235,7 @@ For the rest of this, I am going to skip the log stuff.
 {"method": "solution-step", "params": {"session": 3232, "time": 517.001, 
 	   "action": "new-object", "id": 12,
 	   "type": "equation", "mode": "unknown", 
-	   "x: 15, "y": 340, 
+	   "x": 15, "y": 340, 
 	   "text": "Fearth_x = 0"}, "id": 13}
 
 [
@@ -247,7 +247,7 @@ For the rest of this, I am going to skip the log stuff.
 {"method": "solution-step", "params": {"session": 3232, "time": 571.001, 
 	   "action": "new-object", "id": 13,
 	   "type": "equation", "mode": "unknown", 
-	   "x: 15, "y": 350, 
+	   "x": 15, "y": 350, 
 	   "text": "Fearth_y = Fearth_y * sin (\\thetaFearth)"}, "id": 14}
 
 [
@@ -312,7 +312,7 @@ combined.
 {"method": "solution-step", "params": {"session": 3232, "time": 750.001, 
 	   "action": "new-object", "id": 15,
 	   "type": "equation", "mode": "unknown", 
-	   "x: 15, "y": 360, 
+	   "x": 15, "y": 360, 
 	   "text": "Fwall1_x + Fwall2_x + Fearth_x = m *a"}, "id": 20}
 
 [
@@ -325,7 +325,7 @@ combined.
 {"method": "solution-step", "params": {"session": 3232, "time": 781.001, 
 	   "action": "new-object", "id": 16,
 	   "type": "equation", "mode": "unknown", 
-	   "x: 15, "y": 370, 
+	   "x": 15, "y": 370, 
 	   "text": "Fwall1_y + Fwall2_y + Fearth_y = m*a"}, "id": 21}
 
 [
@@ -338,7 +338,7 @@ combined.
 {"method": "solution-step", "params": {"session": 3232, "time": 851.001, 
 	   "action": "new-object", "id": 17,
 	   "type": "equation", "mode": "unknown", 
-	   "x: 15, "y": 380, 
+	   "x": 15, "y": 380, 
 	   "text": "Fearth_y = m*g"}, "id": 21}
 
 [
