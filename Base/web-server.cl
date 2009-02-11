@@ -20,14 +20,9 @@
 ;; ctl-c ctl-k compiles entire file 
 (in-package :cl-user)
 
-(defun |get-problem| (&optional x) "demo function" (format nil "~S" x))
-
 ;; for now, run these on command line:
-;(asdf:operate 'asdf:load-op 'hunchentoot) 
-;(asdf:operate 'asdf:load-op 'cl-json)
-;(in-package :webserver)
 
-(defpackage #:webserver
+(defpackage :webserver
   (:use :cl :hunchentoot :json)
   (:export :start-help :stop-help :*stdout*))
 
@@ -76,7 +71,9 @@
     ;; when this function is executed, the package is cl-user
     ;; so we must supply any package explicitly
     (if (find-symbol method)
-	(setq result (apply (intern method) params))
+	(setq result (apply (intern method) 
+			    (if (alistp params) 
+				(flatten-alist params) params)))
 	(setq error (if version
 			`((:code . -32601) (:message . "Method not found")
 			  (:data . ,method))
@@ -89,4 +86,12 @@
       (push id reply)
       (when version (push version reply))
       (encode-json-alist-to-string reply))))
+
+(defun alistp (x) 
+  "determine if x is an alist" 
+  (and (listp x) (every #'consp x)))
+
+(defun flatten-alist (x) 
+  "turn an alist into plain list"
+  (mapcan #'(lambda (x) (list (car x) (cdr x))) x))
 
