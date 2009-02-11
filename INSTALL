@@ -45,11 +45,13 @@ Likewise, at least for Andes2, one can use the solutions repository:
     LispServer 127.0.0.1 8080 "help"
     SetHandler lisp-handler
   </Location>
+# add links to web-UI and images in /var/www/html
 # Then restart:
   /sbin/service httpd restart
 
 # To run server in lisp:
-  (asdf:operate 'asdf:load-op 'hunchentoot)
-  (hunchentoot:start-server :port 8080 :MOD-LISP-P t)
+  (rhelp)
+  (webserver:start-help)
+  (webserver:stop-help)
 
 # See http://www.newartisans.com/blog/2007/11/running-common-lisp-behind-apache.html

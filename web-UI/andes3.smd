@@ -14,7 +14,7 @@
 	{"name": "problem", "type": "string"}
       ]
     },
-    "step": {
+    "solution-step": {
       "parameters": [
 	{"name": "action", "type": "string",
 	 "enum":["new-object","modify-object", "delete-object"]},
@@ -45,16 +45,20 @@
 	{"name": "y-label", "type": "string", "optional": true}
       ]
     },
-    "help": {
+    "seek-help": {
       "parameters": [
 	{"name": "action", "type": "string",
-	 "enum":["get-help","help-button"]},
+	 "enum":["get-help","help-button","principles-menu"]},
 	{"name": "href", "type": "string", "optional": true},
-	{"name": "value", "type": "string", "optional": true}
+	{"name": "value", "type": "string", "optional": true},
+	{"name": "text", "type": "string", "optional": true}
       ]
     },
-    "log": {},
-    "close-problem": {}
+    "close-problem": {
+      "parameters": [
+	{"name": "json smd bug: can't just inherit parameters and get named parameters", "type": "string", "optional": true}
+      ]
+    }
   },
   "returns": {
     "type": "array",

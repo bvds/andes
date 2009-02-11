@@ -4,8 +4,8 @@
   <head>
     <title>Statics:  s2e</title>
     <style type="text/css">
-                @import "dojotoolkit/dojo/resources/dojo.css";
-                @import "dojotoolkit/dojox/sketch/resources/sketch.css";
+	        @import "dojotoolkit/dojo/resources/dojo.css";
+	        @import "dojotoolkit/dojox/sketch/resources/sketch.css";
 		html, body, #container {
         		width: 100%; height: 100%;
 		        overflow: hidden;  /* erase window level scrollbars: erases all in FF */
@@ -55,16 +55,18 @@
         var jsonInput = document.getElementById('jsonstring').value;
         document.getElementById('inputString').innerHTML = 
 	       "Send:  " + jsonInput;
-        var deferred = typejson["get-problem"](dojo.fromJson(jsonInput));
+	var methodField = document.getElementById('help-method');
+	var methodText = methodField.options[methodField.selectedIndex].text;
+        var deferred = typejson[methodText](dojo.fromJson(jsonInput));
         deferred.addCallbacks(
           function (result) {
             document.getElementById('result').innerHTML = 
-	    "Success:  " + result;        
+	    "Success:  " + dojo.toJson(result);        
         }, 
 	// error conditiion handler:
           function (result) {
             document.getElementById('result').innerHTML = 
-	         "Failure:  " + result;        
+	         "Failure:  " + dojo.toJson(result);
         });
       }
 
@@ -110,10 +112,17 @@
 		dojo.addOnLoad(init);
 	</script>
   </head>
+
   <body class="tundra">
     <div dojoType="dijit.layout.BorderContainer" design="sidebar" id="container" gutters="false">
       <div dojoType="dijit.layout.ContentPane" id="toolbar" region="top">
-          <input type="text" id="jsonstring" size="100"/>
+          <select id="help-method">
+                <option>get-problem</option>
+                <option>solution-step</option>
+                <option>seek-help</option>
+                <option>close-problem</option>
+          </select>
+          <input type="text" id="jsonstring" size="80"/>
           <button dojoType="dijit.form.Button" onclick="sendString">
                Do JSON-RPC call</button>
 	  <div id="inputString">Input</div>

@@ -32,7 +32,7 @@
 (defvar *stdout* *standard-output*)
 
 
-(defun start-help ()
+(defun start-help (&key (port 8080) (mod-lisp-p t))
   "Start server with simple echo service, for testing"
   (setq  *dispatch-table*
 	 (list #'dispatch-easy-handlers
@@ -43,7 +43,7 @@
   (setq *show-lisp-errors-p* t
         *show-lisp-backtraces-p* t)
   
-  (setf *server* (start-server :port 8080 :MOD-LISP-P t)))
+  (setf *server* (start-server :port port :MOD-LISP-P mod-lisp-p)))
 
 (defun stop-help ()
   (stop-server *server*))
@@ -53,8 +53,12 @@
 ;;  need to handle errors associated with bad function call or inside call
 ;;  need to handle errors with bad json
 ;;  need to handle errors with bad rpc (test for :method & :params not nil)
-;;  need to test input and reply against andes3.smd
+;;  need to test input and reply against andes3.smd,
+;;        should have macro to define method functions which compares
+;;        the lambda list with the smd.  Also, handle-json-rpc should
+;;        only allow methods that match smd.
 (defun handle-json-rpc ()
+  "Handles json-rpc 1.0 and 2.0"
   (setf (content-type) "application/json; charset=UTF-8")
   ;; Hunchentoot is supposed to take care of charset encoding
   (unless (search "application/json" (header-in :content-type))

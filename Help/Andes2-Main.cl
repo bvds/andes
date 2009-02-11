@@ -35,6 +35,41 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (in-package :cl-user)
 
+(defun |get-problem| (&key session time problem user) 
+  "initial problem statement" 
+  '(((:action . "new-object") (:id . 0) (:type . "text") (:mode . "locked")
+     (:x . 3) (:y . 5) (:text-width . 80) (:text . "A spherical ball with a mass of 2.00 kg rests in the notch ..."))
+    ((:action . "new-object") (:id . 1) (:type . "graphics") (:mode . "locked")
+     (:x . 53) (:y . 15) (:dx . 150) (:dy . 180)
+     (:href . "/images/s2e.gif"))))
+
+(defun |solution-step| (&key session time id action type mode x y text-width
+			text dx dy radius symbol x-label y-label) 
+  "problem-solving step" 
+  '(((:action . "new-object") (:id . 0) (:type . "text") (:mode . "locked")
+     (:x . 3) (:y . 5) (:text-width . 80) (:text . "A spherical ball with a mass of 2.00 kg rests in the notch ..."))
+    ((:action . "new-object") (:id . 1) (:type . "graphics") (:mode . "locked")
+     (:x . 53) (:y . 15) (:dx . 150) (:dy . 180)
+     (:href . "/images/s2e.gif"))))
+
+(defun |seek-help| (&key session time action href value text) 
+  "ask for help, or do a step in a help dialog" 
+  '(((:action . "show-hint") 
+     (:text . "Now that you have stated all of the given information, you should start on the major principles. What quantity is the problem seeking?"))
+    ((:action . "focus-hint-text-box"))))
+
+(defun |close-problem| (&key session time) 
+  "shut problem down" 
+  (format webserver:*stdout* 
+	  "in closeproblem  session ~S time ~S~%" session time)
+  '(((:action . "show-hint") 
+     (:text . "Finished working on problem s2e."))
+    ((:action . "log") 
+     (:score . (("NSH_BO_Call_Count" . (-0.05 0)) 
+      ("WWH_BO_Call_Count" . (-0.05 0))
+      ("Correct_Entries_V_Entries" . (0.05 17 19))
+      ("Correct_Answer_Entries_V_Answer_Entries" . (0.05 1 2)))))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; from sockets.lisp by Kevin M. Rosenberg
 (eval-when (:compile-toplevel :load-toplevel :execute)
