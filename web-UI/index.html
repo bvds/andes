@@ -49,28 +49,13 @@
       dojo.require("dijit.form.Button");
       dojo.require("dojox.rpc.Service");
       dojo.require("dojox.rpc.JsonRPC");
-      var typejson = new dojox.rpc.Service(
-                   //"andes3.smd"
-          // temporary string echo
-      {
-	target:"/help",
-	transport:"POST",
-	envelope:"JSON-RPC-2.0",
-	contentType:"application/json",
-	services:{
-		"echo":{ // this is the method that we created in jabsorb
-			returns:{"type":"string"},
-			parameters:[{"type":"string"}]
-		}
-	}
-        }
-        );
+      var typejson = new dojox.rpc.Service("andes3.smd");
  
       function sendString() {
         var jsonInput = document.getElementById('jsonstring').value;
         document.getElementById('inputString').innerHTML = 
 	       "Send:  " + jsonInput;
-        var deferred = typejson["echo"](jsonInput);
+        var deferred = typejson["get-problem"](dojo.fromJson(jsonInput));
         deferred.addCallbacks(
           function (result) {
             document.getElementById('result').innerHTML = 

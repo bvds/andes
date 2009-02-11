@@ -20,13 +20,16 @@
 ;; ctl-c ctl-k compiles entire file 
 (in-package :cl-user)
 
+(defun |get-problem| (&optional x) "demo function" (format nil "~S" x))
+
 ;; for now, run these on command line:
 ;(asdf:operate 'asdf:load-op 'hunchentoot) 
 ;(asdf:operate 'asdf:load-op 'cl-json)
 ;(in-package :webserver)
 
-(defpackage :webserver
-  (:use :cl :hunchentoot :json))
+(defpackage #:webserver
+  (:use :cl :hunchentoot :json)
+  (:export :start-help :stop-help :*stdout*))
 
 (in-package :webserver)
 
@@ -54,7 +57,7 @@
 ;; Need error handling with restart-case or handler-case
 ;;  need to handle errors associated with bad function call or inside call
 ;;  need to handle errors with bad json
-;;  need to handle errors with bad rpc
+;;  need to handle errors with bad rpc (test for :method & :params not nil)
 ;;  need to test input and reply against andes3.smd
 (defun handle-json-rpc ()
   (setf (content-type) "application/json; charset=UTF-8")
@@ -71,9 +74,9 @@
 		(version (assoc :jsonrpc in-json)))
     (format *stdout* "calling ~S with ~S~%" method params)
     ;; when this function is executed, the package is cl-user
-    ;; so we mush supply the package explicitly
-    (if (find-symbol method :webserver)
-	(setq result (apply (intern method :webserver) params))
+    ;; so we must supply any package explicitly
+    (if (find-symbol method)
+	(setq result (apply (intern method) params))
 	(setq error (if version
 			`((:code . -32601) (:message . "Method not found")
 			  (:data . ,method))
@@ -87,4 +90,3 @@
       (when version (push version reply))
       (encode-json-alist-to-string reply))))
 
-(defun |echo| (x) x)

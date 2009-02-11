@@ -1,7 +1,7 @@
 {
   "envelope": "JSON-RPC-2.0",
   "transport": "POST", 
-  "target": "/jsonrpc",
+  "target": "/help",
   "SMDVersion": "2.0",
   "parameters": [
     {"name": "session", "type": "integer"},
