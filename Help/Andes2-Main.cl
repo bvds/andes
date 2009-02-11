@@ -46,11 +46,8 @@
 (defun |solution-step| (&key session time id action type mode x y text-width
 			text dx dy radius symbol x-label y-label angle) 
   "problem-solving step" 
-  '(((:action . "new-object") (:id . 0) (:type . "text") (:mode . "locked")
-     (:x . 3) (:y . 5) (:text-width . 80) (:text . "A spherical ball with a mass of 2.00 kg rests in the notch ..."))
-    ((:action . "new-object") (:id . 1) (:type . "graphics") (:mode . "locked")
-     (:x . 53) (:y . 15) (:dx . 150) (:dy . 180)
-     (:href . "/images/s2e.gif"))))
+  '(((:action . "set-score") (:score . 57))
+    ((:action . "modify-object") (:id . 15) (:mode . "right"))))
 
 (defun |seek-help| (&key session time action href value text) 
   "ask for help, or do a step in a help dialog" 
