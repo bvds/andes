@@ -46,8 +46,8 @@
 (defun |solution-step| (&key session time id action type mode x y text-width
 			text dx dy radius symbol x-label y-label angle) 
   "problem-solving step" 
-  '(((:action . "set-score") (:score . 57))
-    ((:action . "modify-object") (:id . 15) (:mode . "right"))))
+  `(((:action . "set-score") (:score . 57))
+    ((:action . "modify-object") (:id . ,id) (:mode . "right"))))
 
 (defun |seek-help| (&key session time action href value text) 
   "ask for help, or do a step in a help dialog" 
