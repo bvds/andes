@@ -10,7 +10,7 @@
 ;;   23 April 2001 - (lht) - renamed from tcp-wb.lsp to Andes-Main.cl
 ;;                           adding some polishing to support final code
 ;;    5 June 2001 - (lht) - editied to load/initialize new parseing/etc.
-;;; Modifications by Brett van de Sande, 2005-2008
+;;; Modifications by Brett van de Sande, 2005-2009
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
 ;;;
@@ -67,12 +67,43 @@
       ("Correct_Entries_V_Entries" . (0.05 17 19))
       ("Correct_Answer_Entries_V_Answer_Entries" . (0.05 1 2)))))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; from sockets.lisp by Kevin M. Rosenberg
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  #+sbcl (require :sb-bsd-sockets)
-  #+lispworks (require "comm")
-  #+allegro (require :socket))
+;; Define *student-entries* and *cp* using defvar in thread, local to thread.
+;; Define hash table *sessions* (or tables) with the session id as the key.
+;; each session contains *student-entries* and *cp* for that session.
+;;
+;; Also need a queue for keeping track of the time order of the most recent 
+;; interaction for each session.  This queue will be used to clean up idle 
+;; sessions.
+
+(defparameter *sessions* (make-hash-table :test #'=) 
+	      "A list of active sessions")
+
+(defparameter *recent* nil "Queue containing list of sessions in order of most recent interaction")
+
+(defstruct session StudentEntries last-turn student problem)
+
+;; does it matter if id is always a number when doing hash?
+(defun new-session (student problem)
+   "initializes session, if inactive, and returns session id"
+   (let ((id (sxhash (cons student problem))))
+            (unless (gethash id *sessions*)
+		   (push id *recent*)
+	          (setf (gethash id *sessions*) 
+                   (make-session :student student :problem problem :last-turn *recent*))
+       id))
+
+(defun get-session (id)
+  "returns a session for a given session id; update queue of recent activity"
+  ;; must be fast, since this is called a lot
+(let (session activep)
+  (mulitple-value-bind (session activep) (gethash id *sessions*))
+  (if activep
+          ;;; this doesn't work.  maybe have the *recent* list backwards?
+      (setf (session-last-turn session) (cdr (session-last-turn session)))
+      (push id *recent*)
+      (setf 
+      (getha
+)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Global Variables 
@@ -88,11 +119,6 @@
 "merge relative path with *andes-dir* returning new pathname"
     (merge-pathnames relative-path *andes-path*))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Global Variables -- TCP socket and stream variables
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defvar *andes-socket* nil
-  "The TCP/IP socket that this application sets up to service help requests.")
 
 (defvar *andes-stream* nil
   "The stream that represents the character socket that serves help requests.")
@@ -100,138 +126,7 @@
 (defvar *debug-help* t
   "The stream showing help system runtime activities.")
 
-(defparameter &andes-port& 12345 ;; default port number from workbench code.
-  "The port where the help system listens for help requests.")
 
-;; Command designators on the TCP stream
-(defparameter &exec& #\?) ;; client -> server, want result
-(defparameter &reply& #\<) ;; client <- server EXEC reply
-(defparameter &NACK& #\*) ;; client <- server EXEC failure reply
-(defparameter &NOTIFY& #\!) ;; client -> server, no result
-(defparameter &cmd& #\!) ;; client <- server, no result (same as NOTIFY)
-
-;; used by event loop:
-(defvar *task-list* nil)		;queue of background tasks -- unused in Andes2
-(defvar *andes-stop* nil		;exit flag to shut down event loop
-  "startAll will loop main-event-loop until this is true")
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Function Definitions
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; initiate-server -- To setup the help server.  Use in system initialization.
-;; argument(s):
-;;   NONE
-;; returns:
-;;   nil
-;; note(s):
-;;   creates passive socket on &andes-port& port on machine running on.
-;;   a dynamic port would be better but there is no easy way to tell WB
-;;     what port is
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; Stolen from sockets.lisp by Kevin M. Rosenberg
-#+sbcl
-(defun listen-to-inet-port (&key (port 0) (kind :stream) (reuse nil))
-  "Create, bind and listen to an inet socket on *:PORT.
-setsockopt SO_REUSEADDR if :reuse is not nil"
-  (let ((socket (make-instance 'sb-bsd-sockets:inet-socket
-			       :type :stream
-			       :protocol :tcp)))
-    (if reuse
-        (setf (sb-bsd-sockets:sockopt-reuse-address socket) t))
-    (sb-bsd-sockets:socket-bind 
-     socket (sb-bsd-sockets:make-inet-address "0.0.0.0") port)
-    (sb-bsd-sockets:socket-listen socket 15)
-    socket))
-
-;; Stolen from sockets.lisp by Kevin M. Rosenberg
-(defun close-passive-socket (socket)
-  #+allegro (close socket)
-  #+clisp (close socket)
-  #+cmu (unix:unix-close socket)
-  #+sbcl (sb-unix:unix-close
-	  (sb-bsd-sockets:socket-file-descriptor socket))
-  #+openmcl (close socket)
-  #-(or allegro clisp cmu sbcl openmcl)
-  (warn "close-passive-socket not supported on this implementation")
-  )
-
-(defun initiate-server ()
-  "Sets-up the TCP socket on the local machine at the &andes-port& port."
-  (setq *andes-stop* nil) ;; so it doesn't immediately shutdown
-  (if (not *andes-socket*)
-      (setq *andes-socket*
-	;; see create-inet-listener in sockets.lisp by Kevin M. Rosenberg
-	#+allegro
-	(socket:make-socket :connect :passive
-	                    :backlog 1
-			    :reuse-address &andes-port&
-			    :local-port &andes-port&)
-	#+cmu (ext:create-inet-listener &andes-port&)
-	#+sbcl
-	(listen-to-inet-port :port &andes-port& :reuse &andes-port&)
-	#+clisp (ext:socket-server &andes-port&)
-	#+openmcl 
-	(ccl:make-socket :connect :passive :local-port &andes-port&
-			 :reuse-address  &andes-port&)
-	#-(or allegro clisp cmu sbcl openmcl)
-	(warn "create-inet-listener not supported on this implementation")
-	))
-  (format *debug-help* "~&Opened socket: ~S~%" *andes-socket*) t)
-
-(defun await-passive-connection ()
-"start listening server and wait until a connection"
-    (initiate-server)
-    (connection-started))
-
-(defun make-active-connection (port)
-"connect actively to the given port"
-  (setq *andes-stop* nil) ;; so it doesn't immediately shutdown
-  (format *debug-help* "~&Attempting connection to workbench on port ~A~%" port)
-  (handler-case		; socket calls throw errors on failure to connect
-     (setq *andes-stream*
-	   #+allegro
-	   (socket:make-socket :remote-host "127.0.0.1" :remote-port port)
-	   #-allegro 
-	   (error "Andes2-main.cl: make-active-connection only implemented for Allegro"))
-   (error (c) 
-    	(error-message (format nil "~A Quitting" c))
-	(andes-stop))  ; set flag to quit event loop immediately
-   (:no-error (c)
-         (declare (ignore c))
-         (format *debug-help* "~&Opened stream: ~S~%" *andes-stream*))))
-	
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; terminate-server -- closes the open stream and socket to the workbench
-;;    as gracefully as we can.
-;; argument(s):
-;;   NONE
-;; returns: nil
-;; note(s): Closes *andes-stream* and *andes-socket*.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun terminate-server ()
-  "Closes *andes-stream* and *andes-socket* gracefully."
-  (when (and *andes-stream* (open-stream-p *andes-stream*))
-    (finish-output *andes-stream*)
-    (close *andes-stream*))
-  (setq *andes-stream* nil)
-  (if *andes-socket* (close *andes-socket*)) ;Close the socket.
-  (setq *andes-socket* nil))		;leaves *andes-stop* true
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; run - runs main event handling loop for the server process
-;; argument(s): nil
-;; returns: Garbage
-;; Execute after server initialized and connection established with client.
-;; Interleaves execution of delayed tasks with polling for and dispatching
-;; input events. This loop doesn't normally terminate until some event
-;; handler sets the *andes-stop* termination flag
-;; Note: In the Lisp IDE, hitting return to get a top-loop prompt for debugging
-;; unwinds out of the event handler. Can call "run" again to restart loop.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun andes-run ()
   "Executes delayed tasks and listens for new events on the stream to process."
@@ -432,46 +327,6 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
   (finish-output *andes-stream*))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; connection-started -- checks to see if *andes-socket* has a connection
-;;  request and waits until a connection is established.
-;;  Sets *andes-stream* if a connection to *andes-socket* was established.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun connection-started ()
-  "Checks to see if *andes-socket* has a connection request. Optionally waits until a connection is established."
-  (if 
-      (setq *andes-stream* 
-	;; See accept-tcp-connection in sockets.lisp by Kevin M. Rosenberg
-	;; The default character encoding (in *locale*) works for "Amp`ere"
-	#+allegro (socket:accept-connection *andes-socket* :wait t)
-	#+clisp (ext:socket-accept *andes-socket* )
-	#+cmu
-	(progn (mp:process-wait-until-fd-usable *andes-socket* :input)
-	       (sys:make-fd-stream
-		(nth-value 0 (ext:accept-tcp-connection *andes-socket*)) 
-		:input t :output t))
-	#+sbcl
-	(when (sb-sys:wait-until-fd-usable
-	       (sb-bsd-sockets:socket-file-descriptor *andes-socket* ) :input)
-	  (sb-bsd-sockets:socket-make-stream 
-	   (sb-bsd-sockets:socket-accept  *andes-socket* )
-	   :element-type 'base-char :input t :output t
-	   ;; The workbench uses an older windows-specific 
-	   ;; character encoding.  This is an issue for "Amp`ere"
-	   :external-format :windows-1252))	
-	#+openmcl 
-	(ccl:accept-connection *andes-socket* :wait t) 
-	#-(or allegro clisp cmu sbcl openmcl)
-	(warn "accept-tcp-connection not supported on this implementation")
-	)
-      (progn 
-	(format *debug-help* "~&Opened stream: ~S~%" *andes-stream*) 
-	;; try to close the listening socket immediately, 
-	;; since we only handle one connection -- you have to 
-	;; start-andes again to run another session
-	(close-passive-socket *andes-socket*)
-	(setq *andes-socket* NIL)
-	t)				;return success:
-    (warn "No connection started")))	;return failure
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Function: connection-running
@@ -576,8 +431,3 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
   (format *debug-help* "~&Andes session finished!~%")
   ; in runtime version only: exit Lisp when session is done
   #+allegro-cl-runtime (exit 0))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; end of file Andes-Main.lsp/cl
-;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> - All Rights Reserved.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
