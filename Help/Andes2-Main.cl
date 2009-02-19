@@ -90,7 +90,7 @@
 		   (push id *recent*)
 	          (setf (gethash id *sessions*) 
                    (make-session :student student :problem problem :last-turn *recent*))
-       id))
+       id)))
 
 (defun get-session (id)
   "returns a session for a given session id; update queue of recent activity"
@@ -101,9 +101,9 @@
           ;;; this doesn't work.  maybe have the *recent* list backwards?
       (setf (session-last-turn session) (cdr (session-last-turn session)))
       (push id *recent*)
-      (setf 
-      (getha
-)
+  ;    (setf 
+   ;   (getha
+)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Global Variables 

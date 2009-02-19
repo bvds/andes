@@ -28,12 +28,13 @@ Likewise, at least for Andes2, one can use the solutions repository:
 =============== Web Server =================================
 
 # Install the hunchentoot web server ttp://www.weitz.de/hunchentoot/
-# using asdf-install:
+# using asdf-install.  asdf-install broken in that it will try to load
+# packages we said we didn't need, like cl+ssl and its dependent cffi.
   (require 'asdf-install)
   (push :hunchentoot-no-ssl *features*) ;we have apache to do this
   (asdf-install:install 'hunchentoot)
   (asdf-install:install 'cl-json)
-  
+
 # Install mod_lisp.  
   svd checkout http://www.fractalconcept.com:8000/public/open-source/mod_lisp/ mod_lisp
   cd mod_lisp

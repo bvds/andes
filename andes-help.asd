@@ -1,8 +1,8 @@
 ;;;; -*- Lisp -*-
 
 (in-package :cl-user)
-(defpackage :andes-asd (:use :cl :asdf))
-(in-package :andes-asd)
+(defpackage :help-asd (:use :cl :asdf))
+(in-package :help-asd)
 
 ;;;;   Load the source file, without compiling
 ;;;;   asdf:load-op reloads all files, whether they have been

@@ -18,10 +18,9 @@
 (defmethod output-files ((o compile-op) (s no-compile-file))
   (list (component-pathname s)))
 
-;;;
-;;;  Add directory of problem files to  
-;;;
-
+;;  Match instructions in the INSTALL file:  don't do ssl when
+;;  loading huncentoot.
+(push :hunchentoot-no-ssl *features*) ;we have apache to do this
 
 (defsystem :web-server
   :name "Web Server"
