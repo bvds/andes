@@ -105,28 +105,8 @@
 ;;; State API calls.
 ;;; The do definitions are located in state.cl
 
-;;-------------------------------------------------------------------------------
-;; Session ID info.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; set-session-id
-;; argument(s): The session ID.
-;; returns: Nil for failure color-green for success.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun set-session-id (SessionID)
-  (do-set-session-id :SessionID SessionID))
 
-;;-------------------------------------------------------------------------------
-;; Student control info.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; read-student-info
-;; argument(s): student name
-;; returns: NIL for failure, non-NIL for success
-;; note(s):
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun read-student-info (name &optional ConcHelp)
-  (do-read-student-info name ConcHelp))
-
-;;-------------------------------------------------------------------------------
+;;------------------------------------------------------------------------------
 ;; Problem Control info.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; read-problem-info open a new problem
@@ -150,31 +130,6 @@
 	  (error e)))))
    
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; close-problem -- close the specified problem 
-;; argument(s): 
-;;  name: the problem name.
-;;  Done:  If t then the student is declaring the problem 'done' and we should 
-;;         give them the autograde and voluntary-mastery dialog box.  If not then
-;;         we will close the problem as we always have.
-;; returns: unused
-;; note(s): should be current problem
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun close-problem (name &optional (Done Nil))
-  (do-close-problem name Done))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; exit-andes -- end the Andes session
-;; argument(s):
-;; returns: unused
-;; note(s): This sets flag to terminate event processing, which leads to
-;; server shutdown when event loop runs.
-;;
-;; There is no need for a return-turn here because no processing occurs
-;; following the exit-andes call.  
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun exit-andes ()
-  (do-exit-andes))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

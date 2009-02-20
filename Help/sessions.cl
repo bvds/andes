@@ -34,6 +34,9 @@
 (defun |open-problem| (turn &key session time problem user) 
   "initial problem statement" 
   (new-session turn session user problem)
+  ;; need calls to 
+  ;; do-read-student-info
+  ;; read-problem-info  (useful)
   `(((:action . "new-object") (:id . 0) (:type . "text") (:mode . "locked")
      (:x . 3) (:y . 5) (:text-width . 80) (:text . "A spherical ball with a mass of 2.00 kg rests in the notch ..."))
     ((:action . "new-object") (:id . 1) (:type . "graphics") (:mode . "locked")
@@ -86,6 +89,9 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
 (defun |close-problem| (turn &key session time) 
   "shut problem down" 
     (close-session turn session svar
+		   ;; need to run (maybe not here)
+		   ;; do-close-problem
+                   ;; do-exit-andes
 		   (format webserver:*stdout* 
 			   "in closeproblem  session ~S time ~S~%" session time)
 		   '(((:action . "show-hint") 
