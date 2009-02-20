@@ -86,7 +86,7 @@
 	 			     (:file "Commands"
 					    :depends-on ("Entry-API"))
  				     (:file "API")
-				     (:file "Andes2-Main")))
+				     (:file "sessions")))
 	       (:module "Testcode"
 			:depends-on ("Help" "HelpStructs")
 			:components (

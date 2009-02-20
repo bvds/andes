@@ -28,11 +28,7 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Andes-Main.lsp/cl - functions that setup, maintain, terminate, and generally
-;;   handle the communication between the workbench and the Andes2 help system
-;;   using TCP/IP sockets and streams.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (in-package :cl-user)
 
 (defun |get-problem| (&key session time problem user) 
@@ -70,40 +66,85 @@
 ;; Define *student-entries* and *cp* using defvar in thread, local to thread.
 ;; Define hash table *sessions* (or tables) with the session id as the key.
 ;; each session contains *student-entries* and *cp* for that session.
-;;
-;; Also need a queue for keeping track of the time order of the most recent 
-;; interaction for each session.  This queue will be used to clean up idle 
-;; sessions.
 
-(defparameter *sessions* (make-hash-table :test #'=) 
-	      "A list of active sessions")
+;; which equality is most appropriate for sxhash keys?
+(defparameter *sessions* (make-hash-table) 
+  "A list of active sessions")
 
-(defparameter *recent* nil "Queue containing list of sessions in order of most recent interaction")
+(defparameter *least-idle* nil "Session having most recent interaction.")
 
-(defstruct session StudentEntries last-turn student problem)
+(defparameter *most-idle* nil "Session that has been idle for the longest time.")
+
+(defstruct session StudentEntries next previous student problem)
 
 ;; does it matter if id is always a number when doing hash?
 (defun new-session (student problem)
-   "initializes session, if inactive, and returns session id"
-   (let ((id (sxhash (cons student problem))))
-            (unless (gethash id *sessions*)
-		   (push id *recent*)
-	          (setf (gethash id *sessions*) 
-                   (make-session :student student :problem problem :last-turn *recent*))
-       id)))
+  "initializes session and pushes onto recent activity queue, if inactive, and returns session id"
+  (let ((id (sxhash (cons student problem))))
+    (unless (gethash id *sessions*)
+      (setf (gethash id *sessions*) 
+	    (make-session :student student :problem problem 
+			  ;; :next is nil
+			  :previous *least-idle*))
+      (if *least-idle* 
+	  ;; need thread lock for these:
+	  (setf (session-next (gethash *least-idle* *sessions*)) id)
+	  (setf *most-idle* id))  ;only for first session
+      (setf *least-idle* id))
+    id))
+
 
 (defun get-session (id)
   "returns a session for a given session id; update queue of recent activity"
   ;; must be fast, since this is called a lot
-(let (session activep)
-  (mulitple-value-bind (session activep) (gethash id *sessions*))
-  (if activep
-          ;;; this doesn't work.  maybe have the *recent* list backwards?
-      (setf (session-last-turn session) (cdr (session-last-turn session)))
-      (push id *recent*)
-  ;    (setf 
-   ;   (getha
-)))
+  (let ((session (gethash id *sessions*)))
+   ;; might instead try to retrieve session from database.
+   (unless session  (error "trying to access inactive session ~A" id))
+   ;; need thread lock for these:
+   (remove-session-from-recent-activity-queue session)
+   (setf (session-next (gethash *least-idle* *sessions*)) id)
+   (setf (session-next session) nil)
+   ;; use same equality test as the hash table.
+   (when (equalp *most-idle* id)
+     (setf *most-idle* (session-next session)))
+   (setf (session-previous session) *least-idle*)
+   (setf (session-next (gethash *least-idle* *sessions*)) id)
+   (setf *least-idle* id)
+   session))
+
+(defun remove-session-from-recent-activity-queue (session)
+  (let ((previous-session (when (session-previous session)
+			    (gethash (session-previous session) *sessions*)))
+	(next-session (when (session-next session)
+			(gethash (session-next session) *sessions*))))
+    ;; need thread lock for these:
+    (when previous-session
+      (setf (session-next previous-session)
+	    (when next-session (session-previous next-session))))
+    (when next-session
+      (setf (session-previous next-session)
+	    (when previous-session (session-next previous-session))))))
+
+
+(defun close-session (id)
+  "close a session, if it is open, update queue of recent activity"
+  ;; should also save session to database?
+  (let (session activep previous next)
+    (mulitple-value-bind (session activep) (gethash id *sessions*))
+    ;; might instead try to retrieve session from database.
+    (unless activep  (error "trying to access inactive session ~A" id))
+    (remove-session-from-recent-activity-queue session)
+    ;; use same equality test as the hash table.
+    (when (equalp *most-idle* id)
+      (setf *most-idle* (session-next session)))
+    (when (equalp *least-idle* id)
+      (setf *least-idle* (session-previous session)))))
+
+(defun list-active-sessions (&optional (id *least-idle*))
+  "Return a list of sessions in order of recent activity."
+  (cons id (unless (equal id *most-idle*) 
+	     (list-active-sessions 
+	      (session-next (get-hash id *sessions*))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Global Variables 
