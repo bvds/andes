@@ -127,12 +127,11 @@
 
 
 (defun close-session (id)
-  "close a session, if it is open, update queue of recent activity"
+  "close a session if it is open; update queue of recent activity"
   ;; should also save session to database?
-  (let (session activep previous next)
-    (mulitple-value-bind (session activep) (gethash id *sessions*))
+  (let (previous next (session (gethash id *sessions*)))
     ;; might instead try to retrieve session from database.
-    (unless activep  (error "trying to access inactive session ~A" id))
+    (unless session (error "trying to access inactive session ~A" id))
     (remove-session-from-recent-activity-queue session)
     ;; use same equality test as the hash table.
     (when (equalp *most-idle* id)
