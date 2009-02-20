@@ -142,9 +142,10 @@
 
 (defun list-active-sessions (&optional (id *least-idle*))
   "Return a list of sessions in order of recent activity."
-  (cons id (unless (equal id *most-idle*) 
-	     (list-active-sessions 
-	      (session-next (get-hash id *sessions*))))))
+  (when *most-idle* 
+    (cons id (unless (equal id *most-idle*) 
+	       (list-active-sessions 
+		(session-previous (gethash id *sessions*)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Global Variables 
