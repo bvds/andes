@@ -31,37 +31,42 @@
 
 (in-package :cl-user)
 
-(defun |get-problem| (&key session time problem user) 
+(defun |get-problem| (turn &key session time problem user) 
   "initial problem statement" 
+  (new-session turn user problem)
   '(((:action . "new-object") (:id . 0) (:type . "text") (:mode . "locked")
      (:x . 3) (:y . 5) (:text-width . 80) (:text . "A spherical ball with a mass of 2.00 kg rests in the notch ..."))
     ((:action . "new-object") (:id . 1) (:type . "graphics") (:mode . "locked")
      (:x . 53) (:y . 15) (:dx . 150) (:dy . 180)
      (:href . "/images/s2e.gif"))))
 
-(defun |solution-step| (&key session time id action type mode x y text-width
+(defun |solution-step| (turn &key session time id action type mode x y text-width
 			text dx dy radius symbol x-label y-label angle) 
   "problem-solving step" 
+  (in-session turn session svar
   `(((:action . "set-score") (:score . 57))
-    ((:action . "modify-object") (:id . ,id) (:mode . "right"))))
+    ((:action . "modify-object") (:id . ,id) (:mode . "right")))))
 
-(defun |seek-help| (&key session time action href value text) 
+(defun |seek-help| (turn &key session time action href value text) 
   "ask for help, or do a step in a help dialog" 
+  (in-session turn session svar
   '(((:action . "show-hint") 
      (:text . "Now that you have stated all of the given information, you should start on the major principles. What quantity is the problem seeking?"))
-    ((:action . "focus-hint-text-box"))))
+    ((:action . "focus-hint-text-box")))))
 
-(defun |close-problem| (&key session time) 
+(defun |close-problem| (turn &key session time) 
   "shut problem down" 
-  (format webserver:*stdout* 
-	  "in closeproblem  session ~S time ~S~%" session time)
-  '(((:action . "show-hint") 
-     (:text . "Finished working on problem s2e."))
-    ((:action . "log") 
-     (:score . (("NSH_BO_Call_Count" . (-0.05 0)) 
-      ("WWH_BO_Call_Count" . (-0.05 0))
+  (close-session turn session svar
+		 (format webserver:*stdout* 
+			 "in closeproblem  session ~S time ~S~%" session time)
+		 '(((:action . "show-hint") 
+		    (:text . (format nil "Finished working on problem ~A."
+				     session-problem svar)))
+		   ((:action . "log") 
+		    (:score . (("NSH_BO_Call_Count" . (-0.05 0)) 
+			       ("WWH_BO_Call_Count" . (-0.05 0))
       ("Correct_Entries_V_Entries" . (0.05 17 19))
-      ("Correct_Answer_Entries_V_Answer_Entries" . (0.05 1 2)))))))
+			       ("Correct_Answer_Entries_V_Answer_Entries" . (0.05 1 2))))))))
 
 ;; Define *student-entries* and *cp* using defvar in thread, local to thread.
 ;; Define hash table *sessions* (or tables) with the session id as the key.
@@ -71,80 +76,77 @@
 (defparameter *sessions* (make-hash-table) 
   "A list of active sessions")
 
-(defparameter *least-idle* nil "Session having most recent interaction.")
-
-(defparameter *most-idle* nil "Session that has been idle for the longest time.")
-
-(defstruct session StudentEntries next previous student problem)
+(defstruct session StudentEntries time turn student problem)
 
 ;; does it matter if id is always a number when doing hash?
-(defun new-session (student problem)
+(defun new-session (turn student problem)
   "initializes session and pushes onto recent activity queue, if inactive, and returns session id"
   (let ((id (sxhash (cons student problem))))
     (unless (gethash id *sessions*)
+      (close-idle-sessions)
       (setf (gethash id *sessions*) 
-	    (make-session :student student :problem problem 
-			  ;; :next is nil
-			  :previous *least-idle*))
-      (if *least-idle* 
-	  ;; need thread lock for these:
-	  (setf (session-next (gethash *least-idle* *sessions*)) id)
-	  (setf *most-idle* id))  ;only for first session
-      (setf *least-idle* id))
-    id))
+	    (make-session :student student :problem problem :turn turn
+			  :time (get-internal-real-time)))
+    id)))
+
+(defmacro in-session (turn id svar &rest body)
+  `(let (result (,svar (gethash ,id *sessions*))) 
+     (lock-session ,turn ,svar)
+     (setf result (progn ,@body))
+     (unlock-session ,svar)
+     result))
+
+(defun lock-session (turn session)
+  "returns a session for a given session id; locks session"
+  ;; might instead try to retrieve session from database.
+  ;; also, might just want to return a message to the student.
+  ;; sayng session has maybe timed out.
+  (unless session  (error "trying to access inactive session"))
+  ;; wait until earlier turns are all done
+  (loop until (and (session-time session) 
+		   (> (+ (session-turn session) 2) turn))
+     do (sleep 1))
+  (setf (session-time session) nil) ;lock session
+  (setf (session-turn session) turn))
+
+(defun unlock-session (session)
+  "unlocks session"
+  (when (session-time session)
+    (error "trying unlock an unlocked session"))
+  ;; unlock session
+  (setf session-time (get-internal-real-time)))
+
+(defmacro close-session (turn id svar &rest body)
+  `(let (result (,svar (gethash ,id *sessions))) 
+     (lock-session ,turn ,svar)
+     (setf result (progn ,@body))
+     (remhash id *sessions*)
+     result))
+
+(defun count-sessions () "Number of active sessions."
+       (hash-table-count *sessions*))
 
 
-(defun get-session (id)
-  "returns a session for a given session id; update queue of recent activity"
-  ;; must be fast, since this is called a lot
-  (let ((session (gethash id *sessions*)))
-   ;; might instead try to retrieve session from database.
-   (unless session  (error "trying to access inactive session ~A" id))
-   ;; need thread lock for these:
-   (remove-session-from-recent-activity-queue session)
-   (setf (session-next (gethash *least-idle* *sessions*)) id)
-   (setf (session-next session) nil)
-   ;; use same equality test as the hash table.
-   (when (equalp *most-idle* id)
-     (setf *most-idle* (session-next session)))
-   (setf (session-previous session) *least-idle*)
-   (setf (session-next (gethash *least-idle* *sessions*)) id)
-   (setf *least-idle* id)
-   session))
+(defun close-idle-sessions (&optional (idle 7200))
+  "Close all (idle) sessions."
+  (let ((cutoff (- (get-internal-real-time) 
+		   (* idle internal-time-units-per-second))))
+    (maphash #'(lambda (id session) 
+		 ;; should also test locked threads to see how
+		 ;; long they have been running and kill if
+		 ;; time is too long?
+		 (when (and (session-time session) ;unlocked
+			    (< (session-time session) cutoff))
+		   (format t "closing idle session ~A time ~A now ~A~%"
+			   id (session-time session) cutoff)
+		   (remhash id *sessions*))) *sessions*)))
 
-(defun remove-session-from-recent-activity-queue (session)
-  (let ((previous-session (when (session-previous session)
-			    (gethash (session-previous session) *sessions*)))
-	(next-session (when (session-next session)
-			(gethash (session-next session) *sessions*))))
-    ;; need thread lock for these:
-    (when previous-session
-      (setf (session-next previous-session)
-	    (when next-session (session-previous next-session))))
-    (when next-session
-      (setf (session-previous next-session)
-	    (when previous-session (session-next previous-session))))))
-
-
-(defun close-session (id)
-  "close a session if it is open; update queue of recent activity"
-  ;; should also save session to database?
-  (let (previous next (session (gethash id *sessions*)))
-    ;; might instead try to retrieve session from database.
-    (unless session (error "trying to access inactive session ~A" id))
-    (remove-session-from-recent-activity-queue session)
-    ;; use same equality test as the hash table.
-    (when (equalp *most-idle* id)
-      (setf *most-idle* (session-next session)))
-    (when (equalp *least-idle* id)
-      (setf *least-idle* (session-previous session)))))
-
-(defun list-active-sessions (&optional (id *least-idle*))
-  "Return a list of sessions in order of recent activity."
-  (when *most-idle* 
-    (cons id (unless (equal id *most-idle*) 
-	       (list-active-sessions 
-		(session-previous (gethash id *sessions*)))))))
+(defun print-sessions ()
+  "Print sessions to see what is going on."
+    (maphash #'(lambda (id session) 
+		 (format t "session ~A with turn ~A and time ~A~%" id
+			 (session-turn session) (session-time session)))
+	     *sessions*))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Global Variables 

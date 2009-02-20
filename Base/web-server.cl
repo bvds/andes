@@ -73,11 +73,10 @@
 		(version (assoc :jsonrpc in-json)))
     (format *stdout* "calling ~S with ~S~%" method params)
     ;; when this function is executed, the package is cl-user
-    ;; so we must supply any package explicitly
     (if (find-symbol method)
 	(setq result (apply (intern method) 
-			    (if (alistp params) 
-				(flatten-alist params) params)))
+			    (cons id (if (alistp params) 
+				(flatten-alist params) params))))
 	(setq error (if version
 			`((:code . -32601) (:message . "Method not found")
 			  (:data . ,method))
