@@ -31,10 +31,10 @@
 
 (in-package :cl-user)
 
-(defun |get-problem| (turn &key session time problem user) 
+(defun |open-problem| (turn &key session time problem user) 
   "initial problem statement" 
-  (new-session turn user problem)
-  '(((:action . "new-object") (:id . 0) (:type . "text") (:mode . "locked")
+  (new-session turn session user problem)
+  `(((:action . "new-object") (:id . 0) (:type . "text") (:mode . "locked")
      (:x . 3) (:y . 5) (:text-width . 80) (:text . "A spherical ball with a mass of 2.00 kg rests in the notch ..."))
     ((:action . "new-object") (:id . 1) (:type . "graphics") (:mode . "locked")
      (:x . 53) (:y . 15) (:dx . 150) (:dy . 180)
@@ -42,31 +42,60 @@
 
 (defun |solution-step| (turn &key session time id action type mode x y text-width
 			text dx dy radius symbol x-label y-label angle) 
-  "problem-solving step" 
-  (in-session turn session svar
-  `(((:action . "set-score") (:score . 57))
-    ((:action . "modify-object") (:id . ,id) (:mode . "right")))))
+  "problem-solving step"
+    (in-session turn session svar
+		(cond
+		  ((string= action "new-object")
+		   `(((:action . "log") 
+		      (:assoc . (("DEFINE-MASS" . "(DEFINE-VAR (MASS BALL))"))) 
+		      (:id . ,id))
+		     ((:action . "log") (:parse . "(= m_BALL (DNUM 2.0 kg))"))
+		   ((:action . "set-score") (:score . 40))
+		     ((:action . "modify-object") (:id . ,id) (:mode . "right"))))
+		  ((string= action "modify-object")
+		   `(((:action . "set-score") (:score . 57))
+		     ((:action . "modify-object") (:id . ,id) (:mode . "right"))))
+		  ((string= action "delete-object")
+		   `(((:action . "set-score") (:score . 52))))
+		  (t (error "undefined action ~A" action)))))
 
 (defun |seek-help| (turn &key session time action href value text) 
   "ask for help, or do a step in a help dialog" 
-  (in-session turn session svar
-  '(((:action . "show-hint") 
-     (:text . "Now that you have stated all of the given information, you should start on the major principles. What quantity is the problem seeking?"))
-    ((:action . "focus-hint-text-box")))))
-
+    (in-session turn session svar
+		(cond
+		  ((string= action "get-help")
+		   '(((:action . "show-hint") 
+		      (:text . "Because the vector is parallel to the Y axis 
+but in the negative direction, the projection equation is Fearth_y = - Fearth so
+ Fearth_y stands for a negative value."))
+		     ((:action . "show-hint-link") 
+		      (:text . "Explain more") 
+		      (:value . "Explain-More"))))
+		  ((string= action "help-button")
+		   '(((:action . "show-hint") 
+		      (:text . "Now that you have stated all of the given information, you should start on the major principles. What quantity is the problem seeking?"))
+		     ((:action . "focus-hint-text-box"))))
+		  ((string= action "principles-menu")
+		   '(((:action . "show-hint") 
+		      (:text . "Right indeed. Notice that the ball is at rest at T0."))
+		     ((:action . "show-hint-link") 
+		      (:text . "Explain more") 
+		      (:value . "Explain-More"))))
+		  (t (error "undefined action ~A" action)))))
+ 
 (defun |close-problem| (turn &key session time) 
   "shut problem down" 
-  (close-session turn session svar
-		 (format webserver:*stdout* 
-			 "in closeproblem  session ~S time ~S~%" session time)
-		 '(((:action . "show-hint") 
-		    (:text . (format nil "Finished working on problem ~A."
-				     session-problem svar)))
-		   ((:action . "log") 
-		    (:score . (("NSH_BO_Call_Count" . (-0.05 0)) 
-			       ("WWH_BO_Call_Count" . (-0.05 0))
-      ("Correct_Entries_V_Entries" . (0.05 17 19))
-			       ("Correct_Answer_Entries_V_Answer_Entries" . (0.05 1 2))))))))
+    (close-session turn session svar
+		   (format webserver:*stdout* 
+			   "in closeproblem  session ~S time ~S~%" session time)
+		   '(((:action . "show-hint") 
+		      (:text . (format nil "Finished working on problem ~A."
+				       (session-problem svar))))
+		     ((:action . "log") 
+		      (:score . (("NSH_BO_Call_Count" . (-0.05 0)) 
+				 ("WWH_BO_Call_Count" . (-0.05 0))
+				 ("Correct_Entries_V_Entries" . (0.05 17 19))
+				 ("Correct_Answer_Entries_V_Answer_Entries" . (0.05 1 2))))))))
 
 ;; Define *student-entries* and *cp* using defvar in thread, local to thread.
 ;; Define hash table *sessions* (or tables) with the session id as the key.
@@ -79,19 +108,19 @@
 (defstruct session StudentEntries time turn student problem)
 
 ;; does it matter if id is always a number when doing hash?
-(defun new-session (turn student problem)
+(defun new-session (turn id student problem)
   "initializes session and pushes onto recent activity queue, if inactive, and returns session id"
-  (let ((id (sxhash (cons student problem))))
     (unless (gethash id *sessions*)
       (close-idle-sessions)
       (setf (gethash id *sessions*) 
 	    (make-session :student student :problem problem :turn turn
-			  :time (get-internal-real-time)))
-    id)))
+			  :time (get-internal-real-time)))))
 
 (defmacro in-session (turn id svar &rest body)
+  "wrapper for code to be run within an existing session. svar is the name the session object"
   `(let (result (,svar (gethash ,id *sessions*))) 
      (lock-session ,turn ,svar)
+     ;; need to catch errors and do timeouts here, so session gets unlocked
      (setf result (progn ,@body))
      (unlock-session ,svar)
      result))
@@ -114,31 +143,29 @@
   (when (session-time session)
     (error "trying unlock an unlocked session"))
   ;; unlock session
-  (setf session-time (get-internal-real-time)))
+  (setf (session-time session) (get-internal-real-time)))
 
 (defmacro close-session (turn id svar &rest body)
-  `(let (result (,svar (gethash ,id *sessions))) 
+  `(let (result (,svar (gethash ,id *sessions*))) 
      (lock-session ,turn ,svar)
+     ;; need to catch errors here so session is really killed
      (setf result (progn ,@body))
-     (remhash id *sessions*)
+     (remhash ,id *sessions*)
      result))
 
 (defun count-sessions () "Number of active sessions."
        (hash-table-count *sessions*))
-
 
 (defun close-idle-sessions (&optional (idle 7200))
   "Close all (idle) sessions."
   (let ((cutoff (- (get-internal-real-time) 
 		   (* idle internal-time-units-per-second))))
     (maphash #'(lambda (id session) 
-		 ;; should also test locked threads to see how
+		 ;; should also test locked session threads to see how
 		 ;; long they have been running and kill if
 		 ;; time is too long?
 		 (when (and (session-time session) ;unlocked
 			    (< (session-time session) cutoff))
-		   (format t "closing idle session ~A time ~A now ~A~%"
-			   id (session-time session) cutoff)
 		   (remhash id *sessions*))) *sessions*)))
 
 (defun print-sessions ()

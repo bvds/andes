@@ -39,7 +39,7 @@ That is, the process is neither started or stopped by the controller script.
 
 0:02 Initial login
 
-{"method": "get-problem", "params": {"session": 3422, "time": 0.000, 
+{"method": "open-problem", "params": {"session": 3422, "time": 0.000, 
 	   "problem": "s2e", "user": "joe"}}
 
 Width of a text box is set explicitly by "text-width" in em units or implicitly 

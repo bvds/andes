@@ -8,7 +8,7 @@
     {"name": "time", "type": "number"}
   ],
   "services": {
-    "get-problem": {
+    "open-problem": {
       "parameters": [
 	{"name": "user", "type": "string"},
 	{"name": "problem", "type": "string"}
