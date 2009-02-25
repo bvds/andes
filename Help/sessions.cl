@@ -31,8 +31,93 @@
 
 (in-package :cl-user)
 
+;; Define *student-entries* and *cp* using defvar in thread, local to thread.
+;; Define hash table *sessions* (or tables) with the session id as the key.
+;; each session contains *student-entries* and *cp* for that session.
+
+;; which equality is most appropriate for sxhash keys?
+(defparameter *sessions* (make-hash-table) 
+  "A list of active sessions")
+
+(defstruct session StudentEntries time turn student problem)
+
+;; does it matter if id is always a number when doing hash?
+(defun new-session (turn id student problem)
+  "initializes session and pushes onto recent activity queue, if inactive, and returns session id"
+    (unless (gethash id *sessions*)
+      (setf (gethash id *sessions*) 
+	    (make-session :student student :problem problem :turn turn
+			  :time (get-internal-real-time)))))
+
+(defmacro in-session (turn id svar &rest body)
+  "wrapper for code to be run within an existing session. svar is the name the session object"
+  `(let (result (,svar (gethash ,id *sessions*)))
+     (lock-session ,turn ,svar)
+     ;; need to catch errors and do timeouts here, so session gets unlocked
+     (setf result (progn ,@body))
+     (unlock-session ,svar)
+     result))
+
+(defun lock-session (turn session)
+  "returns a session for a given session id; locks session"
+  ;; might instead try to retrieve session from database.
+  ;; also, might just want to return a message to the student.
+  ;; sayng session has maybe timed out.
+  (unless session  (error "trying to access inactive session"))
+  ;; wait until earlier turns are all done
+  (loop until (and (session-time session) 
+		   (> (+ (session-turn session) 2) turn))
+     do (sleep 1))
+  (setf (session-time session) nil) ;lock session
+  (setf (session-turn session) turn))
+
+(defun unlock-session (session)
+  "unlocks session"
+  (when (session-time session)
+    (error "trying unlock an unlocked session"))
+  ;; unlock session
+  (setf (session-time session) (get-internal-real-time)))
+
+(defmacro close-session (turn id svar &rest body)
+  `(let (result (,svar (gethash ,id *sessions*))) 
+     (lock-session ,turn ,svar)
+     ;; need to catch errors here so session is really killed
+     (setf result (progn ,@body))
+     (remhash ,id *sessions*)
+     result))
+
+(defun count-sessions () "Number of active sessions."
+       (hash-table-count *sessions*))
+
+(defun close-idle-sessions (&optional (idle 7200))
+  "Close all (idle) sessions."
+  (let ((cutoff (- (get-internal-real-time) 
+		   (* idle internal-time-units-per-second))))
+    (maphash #'(lambda (id session) 
+		 ;; should also test locked session threads to see how
+		 ;; long they have been running and kill if
+		 ;; time is too long?
+		 (when (and (session-time session) ;unlocked
+			    (< (session-time session) cutoff))
+		   (remhash id *sessions*))) *sessions*)))
+
+(defun print-sessions ()
+  "Print sessions to see what is going on."
+    (maphash #'(lambda (id session) 
+		 (format t "session ~A with turn ~A and time ~A~%" id
+			 (session-turn session) (session-time session)))
+	     *sessions*))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  The methods themselves.  Right now, these are just dummy functions
+;;  and not connected with the help system.
+;;  It would be great to entirely decouple the sessions from the 
+;;  methods.
+
 (defun |open-problem| (turn &key session time problem user) 
   "initial problem statement" 
+  (close-idle-sessions)
   (new-session turn session user problem)
   ;; need calls to 
   ;; do-read-student-info
@@ -103,83 +188,7 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
 				 ("Correct_Entries_V_Entries" . (0.05 17 19))
 				 ("Correct_Answer_Entries_V_Answer_Entries" . (0.05 1 2))))))))
 
-;; Define *student-entries* and *cp* using defvar in thread, local to thread.
-;; Define hash table *sessions* (or tables) with the session id as the key.
-;; each session contains *student-entries* and *cp* for that session.
 
-;; which equality is most appropriate for sxhash keys?
-(defparameter *sessions* (make-hash-table) 
-  "A list of active sessions")
-
-(defstruct session StudentEntries time turn student problem)
-
-;; does it matter if id is always a number when doing hash?
-(defun new-session (turn id student problem)
-  "initializes session and pushes onto recent activity queue, if inactive, and returns session id"
-    (unless (gethash id *sessions*)
-      (close-idle-sessions)
-      (setf (gethash id *sessions*) 
-	    (make-session :student student :problem problem :turn turn
-			  :time (get-internal-real-time)))))
-
-(defmacro in-session (turn id svar &rest body)
-  "wrapper for code to be run within an existing session. svar is the name the session object"
-  `(let (result (,svar (gethash ,id *sessions*))) 
-     (lock-session ,turn ,svar)
-     ;; need to catch errors and do timeouts here, so session gets unlocked
-     (setf result (progn ,@body))
-     (unlock-session ,svar)
-     result))
-
-(defun lock-session (turn session)
-  "returns a session for a given session id; locks session"
-  ;; might instead try to retrieve session from database.
-  ;; also, might just want to return a message to the student.
-  ;; sayng session has maybe timed out.
-  (unless session  (error "trying to access inactive session"))
-  ;; wait until earlier turns are all done
-  (loop until (and (session-time session) 
-		   (> (+ (session-turn session) 2) turn))
-     do (sleep 1))
-  (setf (session-time session) nil) ;lock session
-  (setf (session-turn session) turn))
-
-(defun unlock-session (session)
-  "unlocks session"
-  (when (session-time session)
-    (error "trying unlock an unlocked session"))
-  ;; unlock session
-  (setf (session-time session) (get-internal-real-time)))
-
-(defmacro close-session (turn id svar &rest body)
-  `(let (result (,svar (gethash ,id *sessions*))) 
-     (lock-session ,turn ,svar)
-     ;; need to catch errors here so session is really killed
-     (setf result (progn ,@body))
-     (remhash ,id *sessions*)
-     result))
-
-(defun count-sessions () "Number of active sessions."
-       (hash-table-count *sessions*))
-
-(defun close-idle-sessions (&optional (idle 7200))
-  "Close all (idle) sessions."
-  (let ((cutoff (- (get-internal-real-time) 
-		   (* idle internal-time-units-per-second))))
-    (maphash #'(lambda (id session) 
-		 ;; should also test locked session threads to see how
-		 ;; long they have been running and kill if
-		 ;; time is too long?
-		 (when (and (session-time session) ;unlocked
-			    (< (session-time session) cutoff))
-		   (remhash id *sessions*))) *sessions*)))
-
-(defun print-sessions ()
-  "Print sessions to see what is going on."
-    (maphash #'(lambda (id session) 
-		 (format t "session ~A with turn ~A and time ~A~%" id
-			 (session-turn session) (session-time session)))
-	     *sessions*))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Global Variables 

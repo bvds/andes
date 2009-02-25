@@ -75,7 +75,7 @@
     ;; when this function is executed, the package is cl-user
     (if (find-symbol method)
 	(setq result (apply (intern method) 
-			    (cons id (if (alistp params) 
+			    (cons (cdr id) (if (alistp params) 
 				(flatten-alist params) params))))
 	(setq error (if version
 			`((:code . -32601) (:message . "Method not found")
