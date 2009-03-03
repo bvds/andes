@@ -42,7 +42,7 @@ src_objects = Solver.o   \
 	dofactor.o   indysgg2.o                      unitabr.o \
 	donlsolv.o   indysgg3.o     parse.o          utils.o \
 	dopurelin.o  indysgg.o      parseeqwunits.o  valander.o \
-	dotrig.o     interact.o     parseunit.o\
+	dotrig.o     parseunit.o\
 	eqnokay.o    ispos.o        physconsts.o \
 	eqnumsimp.o  justonev.o     physvar.o 
 
@@ -173,8 +173,6 @@ valander.o: valander.cpp decl.h expr.h dimens.h \
   mconst.h
 dotrig.o: dotrig.cpp decl.h expr.h dimens.h extoper.h dbg.h standard.h \
   extstruct.h
-interact.o: interact.cpp decl.h expr.h dimens.h extoper.h extstruct.h \
-  standard.h
 parseunit.o: parseunit.cpp decl.h expr.h dimens.h extoper.h extstruct.h \
   standard.h mconst.h unitabr.h dbg.h
 eqnokay.o: eqnokay.cpp decl.h expr.h dimens.h dbg.h standard.h \
