@@ -42,16 +42,17 @@ src_objects = Solver.o   \
 	dofactor.o   indysgg2.o                      unitabr.o \
 	donlsolv.o   indysgg3.o     parse.o          utils.o \
 	dopurelin.o  indysgg.o      parseeqwunits.o  valander.o \
-	dotrig.o     interact.o     parseunit.o\
+	dotrig.o     parseunit.o\
 	eqnokay.o    ispos.o        physconsts.o \
 	eqnumsimp.o  justonev.o     physvar.o 
 
 libSolver.so libSolver: $(src_objects) Makefile
 	$(CXX) $(SHARED) $(src_objects) -o libSolver.$(SO) && \
-	mv -f libSolver.$(SO) ../../ 
+             cp libSolver.$(SO) ../../
 
-algebra: $(src_objects) main.o
-	$(CXX) $(CPPFLAGS) -o algebra $(src_objects) main.o
+executable solver-program: libSolver solver-program.o
+	$(CXX) $(CPPFLAGS) -o ../../solver-program solver-program.o \
+	   -Wl,-R,. libSolver.$(SO)
 
 clean:
 	rm *.o
@@ -173,8 +174,6 @@ valander.o: valander.cpp decl.h expr.h dimens.h \
   mconst.h
 dotrig.o: dotrig.cpp decl.h expr.h dimens.h extoper.h dbg.h standard.h \
   extstruct.h
-interact.o: interact.cpp decl.h expr.h dimens.h extoper.h extstruct.h \
-  standard.h
 parseunit.o: parseunit.cpp decl.h expr.h dimens.h extoper.h extstruct.h \
   standard.h mconst.h unitabr.h dbg.h
 eqnokay.o: eqnokay.cpp decl.h expr.h dimens.h dbg.h standard.h \
@@ -187,3 +186,5 @@ justonev.o: justonev.cpp decl.h expr.h dimens.h
 physvar.o: physvar.cpp decl.h expr.h dimens.h dbg.h standard.h
 Solver.o: Solver.cpp Solver.h \
   lrdcstd.h indysgg.h dbg.h standard.h coldriver.h
+solver-program.o: solver-program.cpp decl.h expr.h dimens.h extstruct.h \
+  standard.h Solver.h lrdcstd.h indysgg.h indyset.h valander.h dbg.h

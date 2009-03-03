@@ -150,20 +150,21 @@
 ;;;;    Set the path of the solver by os type.
 ;;;;
 
-(defparameter *process*)
+(defparameter *process* nil)
 
 #+uffi (defvar force-reload nil)	;flag for reloading after solver-unload
 
-(defun solver-load (&optional filename)
+(defun solver-load ()
   (setf *process* (sb-ext:run-program "solver-program" nil 
 				      :search *Andes-Path* :wait nil
 				      :input :stream :output :stream))
-    ; on load, ensure logging set to Lisp variable value
-    (solver-logging *solver-logging*)
-    ))
+  (format t "process stated with status ~A~%" 
+     (sb-ext:process-status *process*))
+  ;; on load, ensure logging set to Lisp variable value
+    (solver-logging *solver-logging*))
  
 (defun solver-unload ()
-  (write-line "close" (sb-ext:process-input *process*))
+  (write-line "exit" (sb-ext:process-input *process*))
   (sb-ext:process-wait *process*)
   (sb-ext:process-close *process*))
 
@@ -179,22 +180,37 @@
   "Labelling for the temporary modification slot.")  
 
 (defmacro do-solver-turn (name &optional input)
-  `(progn (write-line ,(if input `(concatenate 'string ,name " " ,input) ,name) 
-		      (sb-ext:process-input *process*))	
-	  ;; may be that the buffer must be explicitly flushed
-	  ;; will this alto be a problem for the input buffer?
-	  (force-output (sb-ext:process-input *process*))
-	  (my-read-answer (read-line (sb-ext:process-output *process*))))) 
+  `(progn 
+    (unless (sb-ext:process-p *process*) 
+      (error "external program not started"))
+    (format t "process status for ~A ~A is ~A~%" 
+     ,name ,input (sb-ext:process-status *process*))
+    (write-line 
+     ,(if input `(concatenate 'string ,name " " ,input) `,name) 
+     (sb-ext:process-input *process*))	
+    ;; RUN-PROGRAM creates its PROCESS-INPUT streams with
+    ;; :BUFFERING :FULL by default, rather than :BUFFERING :LINE.  
+    ;; Thus, it must be explicitly flushed
+    (force-output (sb-ext:process-input *process*))
+    (unless (sb-ext:process-output *process*) 
+      (error "external program has no output stream"))
+    (read-until-match (sb-ext:process-output *process*))))
 
+(defun read-until-match (stream)
+    "solver has a lot of print statements, so we mark the actual function return as a line starting with //"
+    (do ((line (read-line stream) (read-line stream)))
+	((and (stringp line) (string= (subseq line 0 2) "//"))
+	  (my-read-answer (subseq line 2)))
+      (format t "   solver print:  ~A~%" line)))
+   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun solver-logging (x)
-  (setf *solver-logging* x)
   ; update Lisp-side state flag, and set in currently loaded solver
   (do-solver-turn "solverDoLog" (format nil "~A" x)))
 
 (defun solver-log-new-name (x)
-  (do-solver-turn "solverStartLog" (format nil "~A" x))))
+  (do-solver-turn "solverStartLog" (format nil "~A" x)))
 
 ;; never called in Andes
 (defun solver-debug-level (x)  ;use #x... for hexadecimal format
@@ -214,7 +230,7 @@
 
 (defun solver-isIndependent (setID equationID)
   (do-solver-turn "c_indyCanonHowIndy"
-		   (format nil "(~A ~A)" setID equationID))))
+		   (format nil "(~A ~A)" setID equationID)))
 
 (defun solver-indyAddVar (arg)
   ; suppress pretty printing -- it may insert line breaks on very long 
