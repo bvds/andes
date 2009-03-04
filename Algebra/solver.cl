@@ -153,11 +153,12 @@
 (defparameter *process* nil)
 
 (defun solver-load ()
-  "load solver, if it isn't already loaded"
-  (unless (sb-ext:process-p *process*) 
+  "load solver, if it isn't already loaded and running"
+  (unless (and (sb-ext:process-p *process*) 
+	       (sb-ext:process-alive-p *process*))
     (setf *process* (sb-ext:run-program 
 		     (merge-pathnames "solver-program" *Andes-Path*) 
-		     ;; can also add debug flag like this: '("0x10")
+		     ;; can also add the debug flag like this: '("0x10")
 		     nil
 		     :search nil :wait nil
 		     :input :stream :output :stream)))
@@ -171,8 +172,8 @@
   (sb-ext:process-wait *process*)
   (sb-ext:process-close *process*))
 
-; Ensure Lisp will read given values into double-precision floating points.
-; Thus constants will have the format expected by the solver.
+;; Ensure Lisp will read given values into double-precision floating points.
+;; Thus constants will have the format expected by the solver.
 (setf *read-default-float-format* 'double-float)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -184,8 +185,11 @@
 
 (defmacro do-solver-turn (name &optional input)
   `(progn 
-    (unless (sb-ext:process-p *process*) 
-      (error "external program not started"))
+    (unless (and (sb-ext:process-p *process*) 
+		 (sb-ext:process-alive-p *process*))
+      (error "external program not running."))
+    ;; useful for debugging solver
+    ;; (format t "  sending ~A ~S~%" ,name ,input)
     (write-line 
      ,(if input `(concatenate 'string ,name " " ,input) `,name) 
      (sb-ext:process-input *process*))	
@@ -239,16 +243,17 @@
   ;; suppress pretty printing -- it may insert line breaks on very long 
   ;; variable names and value strings, causing argument parsing error 
   (do-solver-turn "c_indyAddVariable" 
-    ;; maybe want :escape T for keyword colons? 
-    (write-to-string arg :pretty NIL :escape NIL)))
+    ;; Choosing :escape T causes variable names to
+    ;; change somehow and not be recognized.
+    (write-to-string arg :pretty NIL :escape nil)))
 
 (defun solver-indyDoneAddVar ()
   (do-solver-turn "c_indyDoneAddVariable"))
 
 (defun solver-indyAddEquation (equationID equation)
   (do-solver-turn  "c_indyAddEquation" 
-    ;; ~S so keywords have colons [for :error]
-    (format nil "(~A ~S)" equationID equation)))
+    ;; :escape T so keywords have colons [for :error]
+     (write-to-string (list equationID equation) :pretty NIL :escape t)))
 
 (defun solver-indyEmpty ()
   (do-solver-turn "c_indyEmpty"))
