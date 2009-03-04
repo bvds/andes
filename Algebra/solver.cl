@@ -153,14 +153,16 @@
 (defparameter *process* nil)
 
 (defun solver-load ()
-  (setf *process* (sb-ext:run-program 
-		   (merge-pathnames "solver-program" *Andes-Path*) 
-		   ;; can also add debug flag like this: '("0x10")
-		   nil
-		   :search nil :wait nil
-		   :input :stream :output :stream))
+  "load solver, if it isn't already loaded"
+  (unless (sb-ext:process-p *process*) 
+    (setf *process* (sb-ext:run-program 
+		     (merge-pathnames "solver-program" *Andes-Path*) 
+		     ;; can also add debug flag like this: '("0x10")
+		     nil
+		     :search nil :wait nil
+		     :input :stream :output :stream)))
   ;; on load, ensure logging set to Lisp variable value
-    (solver-logging *solver-logging*))
+  (solver-logging *solver-logging*))
  
 (defun solver-unload ()
   (write-line "exit" (sb-ext:process-input *process*))
@@ -219,8 +221,12 @@
 (defun solver-solve-more-problem ()
   (do-solver-turn "solveMoreBubble"))
 
-(defun solver-send-problem-statement (x)
-  (do-solver-turn "solveAdd" (format nil "~S" x))) ;format to show keywords
+(defun solver-send-problem-statement (arg)
+  ;; suppress pretty printing -- it may insert line breaks on 
+  ;; very long equations
+  (do-solver-turn "solveAdd" 
+    ;; :escape T for keyword colons
+    (write-to-string arg :pretty NIL :escape T)))
 
 (defun solver-new-problem ()
   (do-solver-turn "solveClear"))
@@ -230,8 +236,8 @@
 		   (format nil "(~A ~A)" setID equationID)))
 
 (defun solver-indyAddVar (arg)
-  ; suppress pretty printing -- it may insert line breaks on very long 
-  ; variable name and value string causing argument parsing error 
+  ;; suppress pretty printing -- it may insert line breaks on very long 
+  ;; variable names and value strings, causing argument parsing error 
   (do-solver-turn "c_indyAddVariable" 
     ;; maybe want :escape T for keyword colons? 
     (write-to-string arg :pretty NIL :escape NIL)))
