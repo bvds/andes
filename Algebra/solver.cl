@@ -152,8 +152,6 @@
 
 (defparameter *process* nil)
 
-#+uffi (defvar force-reload nil)	;flag for reloading after solver-unload
-
 (defun solver-load ()
   (setf *process* (sb-ext:run-program 
 		   (merge-pathnames "solver-program" *Andes-Path*) 
