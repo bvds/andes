@@ -155,11 +155,10 @@
 #+uffi (defvar force-reload nil)	;flag for reloading after solver-unload
 
 (defun solver-load ()
-  (setf *process* (sb-ext:run-program "solver-program" nil 
-				      :search *Andes-Path* :wait nil
-				      :input :stream :output :stream))
-  (format t "process stated with status ~A~%" 
-     (sb-ext:process-status *process*))
+  (setf *process* (sb-ext:run-program 
+		   (merge-pathnames "solver-program" *Andes-Path*) nil 
+		   :search nil :wait nil
+		   :input :stream :output :stream))
   ;; on load, ensure logging set to Lisp variable value
     (solver-logging *solver-logging*))
  
@@ -183,8 +182,6 @@
   `(progn 
     (unless (sb-ext:process-p *process*) 
       (error "external program not started"))
-    (format t "process status for ~A ~A is ~A~%" 
-     ,name ,input (sb-ext:process-status *process*))
     (write-line 
      ,(if input `(concatenate 'string ,name " " ,input) `,name) 
      (sb-ext:process-input *process*))	
@@ -192,8 +189,6 @@
     ;; :BUFFERING :FULL by default, rather than :BUFFERING :LINE.  
     ;; Thus, it must be explicitly flushed
     (force-output (sb-ext:process-input *process*))
-    (unless (sb-ext:process-output *process*) 
-      (error "external program has no output stream"))
     (read-until-match (sb-ext:process-output *process*))))
 
 (defun read-until-match (stream)
