@@ -164,6 +164,8 @@
  
 (defun solver-unload ()
   (write-line "exit" (sb-ext:process-input *process*))
+  ;; see comment in do-solver-turn about buffering
+  (force-output (sb-ext:process-input *process*))
   (sb-ext:process-wait *process*)
   (sb-ext:process-close *process*))
 
