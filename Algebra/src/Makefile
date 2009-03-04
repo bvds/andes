@@ -17,9 +17,11 @@ CPPFLAGS += -DWITHDBG -DTRACE_OUTPUT
 ifeq ($(shell uname),Darwin)
 SO	= dylib
 SHARED	= -dynamiclib -install_name $(shell pwd)/../../libSolver.dylib
+LN_THIS_DIR = -L.
 else   # standard case
 SO      = so
 SHARED  = -shared
+LN_THIS_DIR = -Wl,-R,.
 endif
 
 src_objects = Solver.o   \
@@ -52,7 +54,7 @@ libSolver.so libSolver: $(src_objects) Makefile
 
 executable solver-program: libSolver solver-program.o
 	$(CXX) $(CPPFLAGS) -o ../../solver-program solver-program.o \
-	   -Wl,-R,. libSolver.$(SO)
+	   $(LN_THIS_DIR) libSolver.$(SO)
 
 clean:
 	rm *.o
