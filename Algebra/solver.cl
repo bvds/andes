@@ -156,7 +156,9 @@
 
 (defun solver-load ()
   (setf *process* (sb-ext:run-program 
-		   (merge-pathnames "solver-program" *Andes-Path*) nil 
+		   (merge-pathnames "solver-program" *Andes-Path*) 
+		   ;; can also add debug flag like this: '("0x10")
+		   nil
 		   :search nil :wait nil
 		   :input :stream :output :stream))
   ;; on load, ensure logging set to Lisp variable value
@@ -194,7 +196,7 @@
 (defun read-until-match (stream)
     "solver has a lot of print statements, so we mark the actual function return as a line starting with //"
     (do ((line (read-line stream) (read-line stream)))
-	((and (stringp line) (string= (subseq line 0 2) "//"))
+	((and (> (length line) 1) (string= line "//" :end1 2))
 	  (my-read-answer (subseq line 2)))
       (format t "   solver print:  ~A~%" line)))
    

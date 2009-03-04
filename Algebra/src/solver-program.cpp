@@ -61,8 +61,7 @@ int main(int argc, char* argv[]) {
     space=buf.find_first_of(" ");
     if(space != string::npos){  
       command=buf.substr(0,space);
-      action=buf.substr(space);
-      cout << "solver got action" << action << endl;
+      action=buf.substr(space+1); // don't include space itself
     } else {
       command=buf;
       action="";
