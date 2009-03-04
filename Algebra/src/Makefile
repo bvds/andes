@@ -42,7 +42,7 @@ src_objects = Solver.o   \
 	dofactor.o   indysgg2.o                      unitabr.o \
 	donlsolv.o   indysgg3.o     parse.o          utils.o \
 	dopurelin.o  indysgg.o      parseeqwunits.o  valander.o \
-	dotrig.o     interact.o     parseunit.o\
+	dotrig.o     parseunit.o\
 	eqnokay.o    ispos.o        physconsts.o \
 	eqnumsimp.o  justonev.o     physvar.o 
 
