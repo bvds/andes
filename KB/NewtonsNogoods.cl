@@ -222,3 +222,13 @@
      )
   :specs ("Use only one form of energy conservation")
   :message (Both ?type1 ?type2 used for energy conservation))
+
+;; Only one order of bodies in relative-position-displacement
+;; The two forms are related by opposite-relative-position
+(defnogood one-form-of-relative-position-displacement
+    ((using-relative-position-displacement ?a ?b ?tt)
+     (using-relative-position-displacement ?b ?a ?tt)
+     )
+  :specs ("Apply relative-position-displacement only once for a given set of bodies.")
+  :message (One application of relative-position=displacement for ?a ?b))
+
