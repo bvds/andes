@@ -2,7 +2,7 @@
 		"http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-   <title>Andes3 user interface specification for Sitepen</title>
+   <title>Andes3 user interface specification for SitePen</title>
 </head>
 <body>
 
@@ -84,7 +84,7 @@ the following behaviors:
         area, plus a margin.
         If the window is smaller than the minimum canvas, a single 
         scrollbar appears in each relevant dimension.
-    <li>  If the window is resized to be larger than the canvas, 
+    <li>  If the window is re-sized to be larger than the canvas, 
         the canvas size is increased to fill the window.
   </ol>
 
@@ -157,7 +157,7 @@ minimum functionality:
 <li>  Window for selecting a principle of physics will be provided by the
      ASU team.&nbsp;  See the <a href="http://www.andestutor.org/sets">
      Andes problem chooser tool</a> for 
-     a similar application.&nbsp;  Sitepen will supply a method for writing 
+     a similar application.&nbsp;  SitePen will supply a method for writing 
      Greek letters in the menu.
 
 <li>  In order for the the drawing application to function, it must be 
@@ -169,10 +169,10 @@ For Stage 1, the Problem server will not have any logging functionality.
     to be completed by January 15 and subject to further revision, 
     as needed.&nbsp; 
   <ol>
-     <li>  The API will use json and include a json schema an english 
+     <li>  The API will use json and include a json schema an English 
            description.&nbsp;  See an <a href="http://gideon.eas.asu.edu/web-UI/client-server-schema.json">example json schema</a>.
      <li>  The API will be specified with sufficient detail so that the <a href="http://www.andestutor.org/AAPT-2007/Nokes_Example.swf">Nokes
-    demo solution</a> solution can be sucessfully completed.
+    demo solution</a> solution can be successfully completed.
     See the 
     <a href="http://gideon.eas.asu.edu/web-UI/nokes-example-json.txt">
     example json session log</a> for an example.
@@ -200,16 +200,16 @@ For Stage 1, the Problem server will not have any logging functionality.
 
 <li>  Through the development process, the code for both the help system and
      the drawing utility will be kept in publicly accessible repositories.
-     Bug reporting will be handled through the normal dojo project mechanisms.
+     Bug reporting will be handled through the normal Dojo project mechanisms.
      Also, any errors in the documentation will be reported through the normal
-     dojo project mechanisms and must be addressed by the project completion
+     Dojo project mechanisms and must be addressed by the project completion
      date.&nbsp;  All code developed for this project will have the associated 
      documentation and comments written simultaneously.
 
 <li>  The team at ASU will provide server hardware and give members 
-     of the Sitepen team login access to the server, as needed.&nbsp;   The ASU
+     of the SitePen team login access to the server, as needed.&nbsp;   The ASU
      team will provide a source control repository for any code not placed in 
-     the dojo project.&nbsp;  This code will be made publically available under an 
+     the Dojo project.&nbsp;  This code will be made publicly available under an 
      open source license on a third-party server, as specified in the existing 
      agreement between the ASU team and WebAssign.
 
@@ -238,7 +238,7 @@ so these targets will need to to be completed by mid-June 2009.&nbsp;
        format for equations, hint messages, etc.).
 
 <li> The level and quality of the documentation and comments in any new 
-    code will match the documentation associated with the present dojo 
+    code will match the documentation associated with the present Dojo 
     core libraries.
 
 <li> When selecting an object, a region around the object should be
@@ -282,11 +282,11 @@ so these targets will need to to be completed by mid-June 2009.&nbsp;
       letters.&nbsp;  Generally students do not know the Greek alphabet,
       but the help should gradually teach it to them.&nbsp;  A possible
       display method is for the help system to send a "displayed-text"
-      tag to the client where the Greek letter is represented as a unicode
+      tag to the client where the Greek letter is represented as a Unicode
       character or html escape code.&nbsp;  When the student double clicks
       on a text object, the input box displays the original typed text.&nbsp;
       
-<li>  After receiving a response from the server, the client sents
+<li>  After receiving a response from the server, the client sends
      a notification message giving time the response was 
      implemented in the client.&nbsp;  In json-rpc format, this would be
 <pre>
@@ -363,7 +363,7 @@ collaborative whiteboard.
 <li>  Logging of UI events at level of keystrokes/mouseclicks.&nbsp;  Kurt and I disagree about
 this one [Kurt says it is not useful].
 
-<li>  Representation for objects on system clipboard for sharing beteen applications.
+<li>  Representation for objects on system clipboard for sharing between applications.
 
 <li>  Regular editing features, cut, copy, paste, with associated keyboard shortcuts.&nbsp;  
      Andes2 has this functionality, but it is currently only useful for equations.&nbsp; 
