@@ -2815,10 +2815,8 @@
   ((any-member ?sought ( (displacement ?b :time ?tt)
 			 (displacement ?a :time ?tt)
 			 (relative-position ?a ?b :time ?t)))
-   (object ?a)
-   (object ?b)
-   (time ?tt)
-   (time ?t)
+   (object ?a) (object ?b)
+   (time ?tt) (time ?t)
    (test (tendpointp ?t ?tt)) ;?t is endpoint of ?tt
    )
   :effects 
@@ -2835,7 +2833,10 @@
    (vector ?a (relative-position ?a ?b :time ?t2) ?dir-abf)
    (vector ?a (displacement ?a :time (during ?t1 ?t2)) ?dir-a)
    (vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir-b)
-   (axes-for ?a ?rot))
+   ;; make sure that same coordinates being used for both bodies.
+   ;; Note that both bodies have equal footing under this PSM.
+   (axes-for ?a ?rot)
+   (axes-for ?b ?rot))
   :effects 
   ((vector-diagram ?rot (relative-position-displacement ?a ?b 
 							(during ?t1 ?t2)))))
