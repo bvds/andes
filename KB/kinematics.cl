@@ -2852,6 +2852,7 @@
                (compo-eqn relative-position-displacement ?xy ?rot 
 			  (relative-position-displacement ?a ?b 
 							  (during ?t1 ?t2))))
+    (assume using-relative-position-displacement ?a ?b (during ?t1 ?t2))
     )
    :hint
    ((point (string "The change in relative position of ~A and ~B is related to their individual displacments ~A." ?a ?b (?tt pp)))
