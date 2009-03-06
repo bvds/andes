@@ -2679,15 +2679,15 @@
    (time ?t)  ;explicit time
    (test (not (equal ?b1 ?b2))) ;make sure the objects are distinct.
    ;; make sure this is not known to be zero-length from at-place stmt.
-   (not (at-place ?b1 ?b2 :time ?t-at) (tinsidep ?t ?t-at))
-   (not (at-place ?b2 ?b1 :time ?t-at) (tinsidep ?t ?t-at))
+   (not (at-place ?b1 ?b2 :time ?t-at) (tinsidep-include-endpoints ?t ?t-at))
+   (not (at-place ?b2 ?b1 :time ?t-at) (tinsidep-include-endpoints ?t ?t-at))
    (not (same-place (orderless ?b1 ?b2) :time ?t-at ) (tinsidep ?t ?t-at))
    ;; Make sure we are not given the direction, or the opposite direction,
    ;; when other drawing rules would apply
    (not (given (dir (relative-position ?b1 ?b2 :time ?t-at)) . ?whatever) 
-	(tinsidep ?t ?t-at))
+	(tinsidep-include-endpoints ?t ?t-at))
    (not (given (dir (relative-position ?b2 ?b1 :time ?t-at)) . ?whatever) 
-	(tinsidep ?t ?t-at))
+	(tinsidep-include-endpoints ?t ?t-at))
    ;; make sure this vector not already drawn
    (not (vector ?b2 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
    (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?b1) 
@@ -2710,7 +2710,7 @@
   :preconditions
   ((in-wm (at-place ?b ?loc :time ?t-at-place))
    (time ?t)
-   (test (tinsidep ?t ?t-at-place))
+   (test (tinsidep-include-endpoints ?t ?t-at-place))
    (not (vector ?b (relative-position ?b ?loc :time ?t) ?dont-care))
    (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?b) ?loc 
 			      (time-abbrev ?t)))
@@ -2733,7 +2733,7 @@
   :preconditions
   ((in-wm (same-place (orderless . ?bodies) :time ?t-at-place))
    (time ?t)
-   (test (tinsidep ?t ?t-at-place))
+   (test (tinsidep-include-endpoints ?t ?t-at-place))
    (any-member ?bodies ((?a ?b) (?b ?a)))
    (not (vector ?b (relative-position ?a ?b :time ?t) ?dont-care))
    (not (vector ?b (relative-position ?b ?a :time ?t) ?dont-care))
@@ -3763,7 +3763,7 @@
    (point-on-body ?pt ?whole-body)
    (motion ?whole-body rotating :axis ?axis-pt :time ?t-rotating . ?whatever)
    (time ?t)
-   (test (tinsidep ?t ?t-rotating))
+   (test (tinsidep-include-endpoints ?t ?t-rotating))
    (given (mag (relative-position ?pt ?axis-pt :time ?t)) ?value)
    )
    :effects (
