@@ -1,12 +1,8 @@
 ;;;; -*- Lisp -*-
 
-;;;; The following was stolen from maxima.asd
-;;;; See http://www.math.utexas.edu/pipermail/maxima/2003/005630.html
-#+(or sbcl openmcl)
-(or (find-package "USER")
-    (rename-package "COMMON-LISP-USER" "COMMON-LISP-USER" '("USER")))
-(in-package :user)
-(in-package :asdf)
+(in-package :cl-user)
+(defpackage :help-asd (:use :cl :asdf))
+(in-package :help-asd)
 
 ;;;;   Load the source file, without compiling
 ;;;;   asdf:load-op reloads all files, whether they have been

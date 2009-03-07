@@ -82,7 +82,7 @@
 ;; excess step by building the links correctly the first time around.
 
 
-(in-package :user)
+(in-package :cl-user)
 
 
 ;; ================================================
