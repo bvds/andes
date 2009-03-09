@@ -66,7 +66,8 @@ int main(int argc, char* argv[]) {
       command=buf;
       action="";
     }
-    
+    cout << "     Solver got " << command << " " << action << endl;    
+
     if(command == "solverDoLog"){
       result=solverDoLog(action.c_str());
     }
