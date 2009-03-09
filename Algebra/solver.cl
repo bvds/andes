@@ -189,7 +189,7 @@
 		 (sb-ext:process-alive-p *process*))
       (error "external program not running."))
     ;; useful for debugging solver
-     (format t "  sending ~A ~S~%" ,name ,input)
+    ;; (format t "  sending ~A ~S~%" ,name ,input)
     (write-line 
      ,(if input `(concatenate 'string ,name " " ,input) `,name) 
      (sb-ext:process-input *process*))	
@@ -272,14 +272,16 @@
 
 (defun solver-studentAddOkay (equationID equation)
   (do-solver-turn "c_indyStudentAddEquationOkay" 
-     (write-to-string (list equationID equation) :pretty NIL :escape t)))
+    ;; no vertical bars on units
+     (write-to-string (list equationID equation) :pretty NIL :escape nil)))
 
 (defun solver-studentEmptySlot (slot)
    (solver-studentAddOkay slot "")) ;result should = 8
 
 (defun solver-studentIsOkay (equation)
   (do-solver-turn "c_indyIsStudentEquationOkay" 
-    (write-to-string (list equation) :pretty nil :escape t)))
+     ;; no vertical bars on units 
+    (write-to-string (list equation) :pretty nil :escape nil)))
 
 (defun solver-eqn-subst-var (assignmentID eqnID destID)
   (do-solver-turn "c_subInOneEqn"
