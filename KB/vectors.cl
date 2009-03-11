@@ -1870,7 +1870,7 @@
 ;;; statement of the given dimensions. 
 (defoperator define-width (?b)
   :preconditions (
-     (shape ?b rectangle ?dontcare)
+     (shape ?b rectangle . ?dontcare)
      (bind ?l-var (format-sym "width_~A" (body-name ?b)))
   )
   :effects (
@@ -1890,20 +1890,20 @@
 ;; I for long thin rod rotating about cm = 1/12 m l^2, where l is length
 (defoperator I-rod-cm-contains (?sought)
   :preconditions 
-  ((shape ?b rod cm)
+  ((shape ?b rod :center ?cm . ?rest)
    ;; could be generalized to include time:
-  (any-member ?sought ( (moment-of-inertia ?b)
+  (any-member ?sought ( (moment-of-inertia ?b :axis ?cm)
 		        (mass ?b)
 		        (length ?b) )))
-  :effects ( (eqn-contains (I-rod-cm ?b) ?sought)))
+  :effects ( (eqn-contains (I-rod-cm ?b ?cm) ?sought)))
 
-(defoperator write-I-rod-cm (?b)
+(defoperator write-I-rod-cm (?b ?cm)
   :preconditions (
-    (variable ?I-var (moment-of-inertia ?b))
+    (variable ?I-var (moment-of-inertia ?b :axis ?cm))
     (variable ?m-var (mass ?b))
     (variable ?l-var (length ?b) ))
   :effects 
-    ((eqn (= ?I-var (* (/ 1 12) ?m-var (^ ?l-var 2))) (I-rod-cm ?b)))
+    ((eqn (= ?I-var (* (/ 1 12) ?m-var (^ ?l-var 2))) (I-rod-cm ?b ?cm)))
    :hint
     ((point (string "You need the formula for the moment of inertia of a long thin rod rotating about its center of mass."))
      (bottom-out (string "Write the equation ~A"
@@ -1915,21 +1915,21 @@
 ;; axis theorem", but we don't include that yet.
 (defoperator I-rod-end-contains (?sought)
   :preconditions 
-  ((shape ?b rod end)
+  ((shape ?b rod :end ?end . ?rest)
    ;; this could be generalized to include time
-  (any-member ?sought ( (moment-of-inertia ?b)
+  (any-member ?sought ( (moment-of-inertia ?b :axis ?end)
 		        (mass ?b)
 		        (length ?b) ))
   )
-  :effects ( (eqn-contains (I-rod-end ?b) ?sought)))
+  :effects ( (eqn-contains (I-rod-end ?b ?end) ?sought)))
 
-(defoperator write-I-rod-end (?b)
+(defoperator write-I-rod-end (?b ?end)
   :preconditions (
-    (variable ?I-var (moment-of-inertia ?b))
+    (variable ?I-var (moment-of-inertia ?b :axis ?end))
     (variable ?m-var (mass ?b))
     (variable ?l-var (length ?b) ))
   :effects 
-    ((eqn (= ?I-var (* (/ 1 3) ?m-var (^ ?l-var 2))) (I-rod-end ?b)))
+    ((eqn (= ?I-var (* (/ 1 3) ?m-var (^ ?l-var 2))) (I-rod-end ?b ?end)))
   :hint
     ((point (string "You need the formula for the moment of inertia of a long thin rod rotating about its end."))
      (bottom-out (string "Write the equation ~A"
@@ -1946,23 +1946,23 @@
 ; the workbench. 
 (defoperator I-hoop-cm-contains (?sought)
   :preconditions 
-  ((shape ?b hoop cm)
+  ((shape ?b hoop :center ?cm)
    ;; this could be generalized to include time
-   (any-member ?sought ((moment-of-inertia ?b)
+   (any-member ?sought ((moment-of-inertia ?b :axis ?cm)
 			(mass ?b)
 			(radius-of-circle ?b)
 		      ))
   )
   :effects 
-    ((eqn-contains (I-hoop-cm ?b) ?sought)))
+    ((eqn-contains (I-hoop-cm ?b ?cm) ?sought)))
 
-(defoperator write-I-hoop-cm (?b)
+(defoperator write-I-hoop-cm (?b ?cm)
   :preconditions 
-    ((variable ?I-var (moment-of-inertia ?b))
+    ((variable ?I-var (moment-of-inertia ?b :axis ?cm))
     (variable ?m-var (mass ?b))
     (variable ?r-var (radius-of-circle ?b)))
   :effects 
-  ( (eqn (= ?I-var (* ?m-var (^ ?r-var 2))) (I-hoop-cm ?b)) )
+  ( (eqn (= ?I-var (* ?m-var (^ ?r-var 2))) (I-hoop-cm ?b ?cm)) )
    :hint
     ((point (string "You need the formula for the moment of inertia of a hoop rotating about its center of mass."))
      (bottom-out (string "Write the equation ~A"
@@ -1971,44 +1971,44 @@
 ; I for disk or cylinder of given radius about center: I = 1/2 M R^2
 (defoperator I-disk-cm-contains (?sought)
   :preconditions 
-  ((shape ?b disk cm)
+  ((shape ?b disk :center ?cm)
    ;; this could be generalized to include time
-  (any-member ?sought ((moment-of-inertia ?b)
+  (any-member ?sought ((moment-of-inertia ?b :axis ?cm)
 		       (mass ?b)
 		       (radius-of-circle ?b))) )
   :effects 
-    ( (eqn-contains (I-disk-cm ?b) ?sought) ))
+    ( (eqn-contains (I-disk-cm ?b ?cm) ?sought) ))
 
-(defoperator write-I-disk-cm (?b)
+(defoperator write-I-disk-cm (?b ?cm)
   :preconditions (
-    (variable ?I-var (moment-of-inertia ?b))
+    (variable ?I-var (moment-of-inertia ?b :axis ?cm))
     (variable ?m-var (mass ?b))
     (variable ?r-var (radius-of-circle ?b))
   )
   :effects 
-    ( (eqn (= ?I-var (* 0.5 ?m-var (^ ?r-var 2))) (I-disk-cm ?b)) ))
+    ( (eqn (= ?I-var (* 0.5 ?m-var (^ ?r-var 2))) (I-disk-cm ?b ?cm)) ))
 
 ; rectangular plate I = 1/12 M * (l^2 + w^2) where l = length, w = width
 (defoperator I-rect-cm-contains (?sought)
   :preconditions 
-  ((shape ?b rectangle cm)
+  ((shape ?b rectangle :center ?cm)
    ;; this could be generalized to include time
-  (any-member ?sought ( (moment-of-inertia ?b)
+  (any-member ?sought ( (moment-of-inertia ?b :axis ?cm)
 		        (mass ?b)
 		        (length ?b) 
 		        (width ?b) )))
-  :effects ( (eqn-contains (I-rect-cm ?b) ?sought)))
+  :effects ( (eqn-contains (I-rect-cm ?b ?cm) ?sought)))
 
-(defoperator write-I-rect-cm (?b)
+(defoperator write-I-rect-cm (?b ?cm)
   :preconditions 
-   ((variable ?I-var (moment-of-inertia ?b))
+   ((variable ?I-var (moment-of-inertia ?b :axis ?cm))
     (variable ?m-var (mass ?b))
     (variable ?l-var (length ?b)) 
     (variable ?w-var (width ?b)))
   :effects 
     ((eqn (= ?I-var (* (/ 1 12) ?m-var (+ (^ ?l-var 2) 
                                           (^ ?w-var 2)))) 
-          (I-rect-cm ?b)))
+          (I-rect-cm ?b ?cm)))
    :hint
     ((point (string "You need the formula for the moment of inertia of a rectangle rotating about its center of mass."))
      (bottom-out (string "Write the equation ~A"
@@ -2020,24 +2020,24 @@
 (defoperator I-compound-contains (?sought)
    :preconditions 
    (  ;; could be generalized to optionally include time
-    (any-member ?sought ( (moment-of-inertia (compound orderless . ?bodies)) ))
+    (any-member ?sought ( (moment-of-inertia (compound orderless . ?bodies) :axis ?axis) ))
      ; can also find I for component bodies from I of compound, see below
    )
    :effects (
-     (eqn-contains (I-compound ?bodies) ?sought)
+     (eqn-contains (I-compound ?bodies ?axis) ?sought)
    ))
 
 (defoperator I-compound-contains2 (?sought)
    :preconditions (
      (object (compound orderless . ?bodies))
-     (any-member ?sought ( (moment-of-inertia ?b) ))
+     (any-member ?sought ( (moment-of-inertia ?b :axis ?axis) ))
      (test (member ?b ?bodies :test #'equal))
    )
    :effects (
-     (eqn-contains (I-compound ?bodies) ?sought)
+     (eqn-contains (I-compound ?bodies ?axis) ?sought)
    ))
 
-(defoperator write-I-compound (?bodies)
+(defoperator write-I-compound (?bodies ?axis)
   :preconditions (
 		  ;; make sure compound body is drawn. This is the only place 
 		  ;; the compound occurs as a "principle body" in a cons 
@@ -2046,13 +2046,13 @@
 		  ;; (This isn't needed for counterpart mass-compound,
       ;; since compound is drawn as one way of defining mass variable.)
       (body (compound orderless . ?bodies))
-      (variable ?I-var (moment-of-inertia (compound orderless . ?bodies)))
+      (variable ?I-var (moment-of-inertia (compound orderless . ?bodies) :axis ?axis))
       (map ?body ?bodies
-         (variable ?Ipart-var (moment-of-inertia ?body))
+         (variable ?Ipart-var (moment-of-inertia ?body :axis ?axis))
 	 ?Ipart-var ?Ipart-vars)
    )
    :effects (
-      (eqn (= ?I-var (+ . ?Ipart-vars)) (I-compound ?bodies))
+      (eqn (= ?I-var (+ . ?Ipart-vars)) (I-compound ?bodies ?axis))
    )
    :hint (
      (point (string "Think about how the moment of inertia of a compound body relates to the moments of inertia of its parts"))
@@ -2270,7 +2270,7 @@
 (defoperator area-of-square-contains (?sought)
   :preconditions 
   (
-    (shape ?shape square ?dontcare)
+    (shape ?shape square . ?dontcare)
     (any-member ?sought ((length ?shape)
 			 (area ?shape)))  
     )
@@ -2289,15 +2289,15 @@
 	 (bottom-out (string "Write the equation ~A"  
 			     ((= ?A (^ ?l 2)) algebra)) )) )
 
-(defoperator square-is-kind-of-rectangle (?shape)
-  :preconditions ((shape ?shape square ?dontcare))
-  :effects ((shape ?shape rectangle ?dontcare))
+(defoperator square-is-kind-of-rectangle (?shape . ?rest)
+  :preconditions ((shape ?shape square . ?rest))
+  :effects ((shape ?shape rectangle . ?rest))
 )
 
 (defoperator area-of-rectangle-contains (?sought)
    :preconditions 
    (
-    (shape ?shape rectangle ?dontcare)
+    (shape ?shape rectangle . ?dontcare)
     (any-member ?sought ((width ?shape)
 			 (length ?shape)
 			 (area ?shape)))  
@@ -2327,7 +2327,7 @@
 
  (defoperator area-of-rectangle-change-contains (?sought)
    :preconditions (
-		   (in-wm (shape ?shape rectangle ?dontcare))
+		   (in-wm (shape ?shape rectangle . ?dontcare))
 		   (any-member ?sought ((width ?shape)
 					(rate-of-change (length ?shape))
 					(rate-of-change (area ?shape)))  )

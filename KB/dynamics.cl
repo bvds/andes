@@ -2499,14 +2499,15 @@
 ;;; to the problem, so the relevant axis can be derived. We don't have 
 ;;; problems where rotation about more than one axis is considered.
 
-(defoperator inherit-timeless-moment-of-inertia (?b ?t)
+(defoperator inherit-timeless-moment-of-inertia (?b ?a ?t)
    :preconditions ((test (not (member 'changing-mass (problem-features *cp*))))
 		   (time ?t))
   :effects 
-  ((inherit-quantity (moment-of-inertia ?b :time ?t) (moment-of-inertia ?b))))
+  ((inherit-quantity (moment-of-inertia ?b :axis ?a :time ?t) 
+		     (moment-of-inertia ?b :axis ?a))))
 
 
-(defoperator define-moment-of-inertia (?b)
+(defoperator define-moment-of-inertia (?b ?a)
   :preconditions 
   (
    ;; only use time when allowed by feature changing-mass
@@ -2515,16 +2516,17 @@
 		 (null (member 'changing-mass (problem-features *cp*))))
 	     (error "time slot ~A not consistant with problem features" ?t)))
    (object ?b)
-   (bind ?I-var (format-sym "I_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
+   (bind ?I-var (format-sym "I_~A~@[_~A~]~@[_~A~]" (body-name ?b) (body-name ?a) 
+			    (time-abbrev ?t)))
   )
   :effects (
-    (define-var (moment-of-inertia ?b :time ?t))
-    (variable ?I-var (moment-of-inertia ?b :time ?t))
+    (define-var (moment-of-inertia ?b :axis ?a :time ?t))
+    (variable ?I-var (moment-of-inertia ?b :axis ?a :time ?t))
   )
   :hint 
   (
    (bottom-out (string "Use the Add Variable command to define a variable for ~A."
-		       ((moment-of-inertia ?b :time ?t) def-np)))
+		       ((moment-of-inertia ?b :axis ?a :time ?t) def-np)))
    ))
 
 
@@ -3043,7 +3045,7 @@
   (
    (rotation-axis ?b ?axis)
    (any-member ?quantity
-	       ((moment-of-inertiam ?b :time ?t) 
+	       ((moment-of-inertia ?b :axis ?axis :time ?t) 
 		(ang-accel ?b :time ?t)
 		(torque ?b ?force :axis ?axis :time ?t)))
    (object ?b) ;; sanity check
@@ -3054,7 +3056,7 @@
   :preconditions 
   (
    (rotation-axis ?b ?axis)
-   (any-member ?quantity ((moment-of-inertia ?b :time ?t) 
+   (any-member ?quantity ((moment-of-inertia ?b :axis ?axis :time ?t) 
 			  (ang-accel ?b :time ?t)
 			  (net-torque ?b ?axis :time ?t)
 			  ))
@@ -3179,7 +3181,7 @@
    (debug "write-NSL-compo: set of force compo-vars = ~A~%" ?force-compo-vars)
    (variable ?a-compo (compo ?xyz ?rot (ang-accel ?b :time ?t)))
    ;; assume any mass change is described by thrust force
-   (inherit-variable ?m (moment-of-inertia ?b :time ?t))
+   (inherit-variable ?m (moment-of-inertia ?b :axis ?axis :time ?t))
    (debug "write-NSL-compo: eqn-compo-vars = ~A~%" ?eqn-compo-vars)
    )
   :effects
@@ -3201,7 +3203,7 @@
    (
     (test ?netp)
     (variable ?tau_z  (compo ?z ?rot (net-torque ?b ?axis :time ?t)))
-    (inherit-variable ?I (moment-of-inertia ?b :time ?t))
+    (inherit-variable ?I (moment-of-inertia ?b :axis ?axis :time ?t))
     (variable ?alpha_z (compo ?z ?rot (ang-accel ?b :time ?t)))
     ;; fetch mag variable for implicit equation (defined when drawn)
     (in-wm (variable ?mag-var (mag (ang-accel ?b :time ?t))))
