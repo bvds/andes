@@ -1893,6 +1893,7 @@
 (defoperator I-rod-cm-contains (?sought)
   :preconditions 
   ((shape ?b rod :center ?cm . ?rest)
+   (test ?cm)
    ;; could be generalized to include time:
   (any-member ?sought ( (moment-of-inertia ?b :axis ?cm)
 		        (mass ?b)
@@ -1918,6 +1919,7 @@
 (defoperator I-rod-end-contains (?sought)
   :preconditions 
   ((shape ?b rod :end ?end . ?rest)
+   (test ?end)
    ;; this could be generalized to include time
   (any-member ?sought ( (moment-of-inertia ?b :axis ?end)
 		        (mass ?b)
@@ -1949,6 +1951,7 @@
 (defoperator I-hoop-cm-contains (?sought)
   :preconditions 
   ((shape ?b hoop :center ?cm)
+   (test ?cm)
    ;; this could be generalized to include time
    (any-member ?sought ((moment-of-inertia ?b :axis ?cm)
 			(mass ?b)
@@ -1974,6 +1977,7 @@
 (defoperator I-disk-cm-contains (?sought)
   :preconditions 
   ((shape ?b disk :center ?cm)
+   (test ?cm)
    ;; this could be generalized to include time
   (any-member ?sought ((moment-of-inertia ?b :axis ?cm)
 		       (mass ?b)
@@ -1994,6 +1998,7 @@
 (defoperator I-rect-cm-contains (?sought)
   :preconditions 
   ((shape ?b rectangle :center ?cm)
+   (test ?cm)
    ;; this could be generalized to include time
   (any-member ?sought ( (moment-of-inertia ?b :axis ?cm)
 		        (mass ?b)
