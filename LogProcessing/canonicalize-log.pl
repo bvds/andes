@@ -8,7 +8,7 @@
 while (<>) {   # loop over lines in all Andes sessions
     
     # canonicalize unbound variables that should have
-    # been bound, fixed May 2007
+    # been bound, supposedly fixed May 2007, but still wrong March 2009
     if(1 && m/^([\d:]+)\tDDE-COMMAND assoc \(GOAL /) {
 	s/\(VARIABLE [^ ]+ /\(VARIABLE \*VAR\* /;
 	s/\(FORCES ([^ ]+ [^ ]+) [^ )]+/\(FORCES $1 \*VAR\*/;
@@ -22,7 +22,7 @@ while (<>) {   # loop over lines in all Andes sessions
     # canonicalize randomized phrases.  This should be fixed
     # by explicit problem-specific seed to random-elt, March 2007.
     # Added use of random seed for flagging bad slot, August 1, 2007.
-    if(1 && m/^([\d:]+)\tDDE-RESULT |!show-hint /) {
+    if(0 && m/^([\d:]+)\tDDE-RESULT |!show-hint /) {
         # created by random-positive-feedback
 	s/Good!|Right\.|Correct\.|Yes\.|Yep\.|That.s right\.|Very good\.|Right indeed\./\*YES\*/;
 	# created by random-goal prefix
@@ -31,12 +31,12 @@ while (<>) {   # loop over lines in all Andes sessions
 
     #  Anders change to workbench API on July 17, 2007
     #  DDE-RESULT |NIL;VALUE -> DDE-RESULT |NIL
-    if(1 && m/^([\d:]+)\tDDE-RESULT /) {
+    if(0 && m/^([\d:]+)\tDDE-RESULT /) {
 	s/NIL;VALUE/NIL/; 
 	s/\|NIL;[A-Z;\-]+\|/\|NIL\|/;
     }    
 
-    if(m/^([\d:]+)\tDDE-COMMAND assoc /) {
+    if(0 && m/^([\d:]+)\tDDE-COMMAND assoc /) {
 	# remove nil keyword pairs
 	# fix bug in remove-nil-keywords, August 13, 2007
         # remove nil keyword pairs via subst-bindings, Sept 17, 2007
@@ -66,7 +66,7 @@ while (<>) {   # loop over lines in all Andes sessions
     }
 
     # bad hints fixed early August 2007.
-    if(1 && m/^([\d:]+)\tDDE-RESULT |!show-hint /) {
+    if(0 && m/^([\d:]+)\tDDE-RESULT |!show-hint /) {
         s/at T0 at T0/at T0/;
         s/(When the direction of a vector is not given or easily inferred from the problem statement, you should mark it unknown.) .*/$1/;
         s/(Double-click on the vector in order to bring up its properties) if necessary/$1/;
@@ -78,17 +78,17 @@ while (<>) {   # loop over lines in all Andes sessions
     }
 
     # bad hints fixed early October 2007.
-    if(1 && m/^([\d:]+)\tDDE-RESULT |!show-hint /) {
+    if(0 && m/^([\d:]+)\tDDE-RESULT |!show-hint /) {
 	s/You can .* projection equations.* and negative otherwise./\*projection hint\*/;
         #time slot on relative-position
 	s/(relative position of .* with respect to .*) at T[0-9]/$1/s;
     }
 
     # month of Sept. 2007:  Anders changes to scoring
-    if(1 && m/^([\d:]+)\tDDE-COMMAND set-score /){
+    if(0 && m/^([\d:]+)\tDDE-COMMAND set-score /){
 	s/set-score [\d-]+/set-score \*score\*/;
     }
-    if(1 && m/^([\d:]+)\tDDE-RESULT \|NSH_BO_CALL_COUNT /i){
+    if(0 && m/^([\d:]+)\tDDE-RESULT \|NSH_BO_CALL_COUNT /i){
 	# beginning of October 2007, scoring changed capitalization
 	# month of Sept. 2007:  Anders changes to scoring
         s/NSH_BO_CALL_COUNT [^|]+/\*scores\*/i;
