@@ -519,7 +519,7 @@
   (
    (any-member ?sought ((rotational-energy ?body :time ?t)
 			(mag (ang-velocity ?body :time ?t))
-			(moment-of-inertia ?body :time ?t)))
+			(moment-of-inertia ?body :axis ?axis :time ?t)))
    (time ?t) ;sanity test
    ;; if we did allow an interval, would need test for constant omega
    (test (time-pointp ?t)) 
@@ -533,10 +533,10 @@
   (
    ;; if the object is rotating at any time, then this term should be 
    ;; included.
-   (motion ?body rotating . ?whatever)
+   (motion ?body rotating :axis ?axis . ?whatever)
    (variable ?kr-var (rotational-energy ?body :time ?t))
    ;; definition of energy at a given moment is ok with changing mass...
-   (inherit-variable ?m-var (moment-of-inertia ?body :time ?t))
+   (inherit-variable ?m-var (moment-of-inertia ?body :axis ?axis :time ?t))
    (variable ?v-var (mag (ang-velocity ?body :time ?t)))
   )
   :effects (

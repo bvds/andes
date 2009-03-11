@@ -426,14 +426,16 @@
   :fromWorkbench `(height ,body :time ,time)
   :english ("the height of ~A above the zero level" 
 	    (nlg ?body 'at-time ?time)))
-(def-qexp moment-of-inertia (moment-of-inertia ?body :time ?time)
+(def-qexp moment-of-inertia (moment-of-inertia ?body :axis ?axis :time ?time)
   :symbol-base |I|     
   :short-name "moment of inertia"	
-  :dialog-text "of [body:bodies]"
+  :dialog-text "of [body:bodies] about [body2:positions]"
   :units |kg.m^2|
   :restrictions positive
-  :fromWorkbench (if time `(moment-of-inertia ,body :time ,time) `(moment-of-inertia ,body))
-  :english ("the moment of inertia of ~A" (nlg ?body 'at-time ?time)))
+  :fromWorkbench (if time `(moment-of-inertia ,body :axis ,body2 :time ,time) 
+		     `(moment-of-inertia ,body :axis ,body2))
+  :english ("the moment of inertia of ~A about ~A" 
+	    (nlg ?body) (nlg ?axis 'at-time ?time)))
 ;; for dimensions of certain rigid bodies:
 (def-qexp length (length ?body)
   :symbol-base ||     
