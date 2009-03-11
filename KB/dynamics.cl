@@ -3043,7 +3043,7 @@
   (
    (rotation-axis ?b ?axis)
    (any-member ?quantity
-	       ((moment-of-inertiam ?b :time ?t) 
+	       ((moment-of-inertia ?b :time ?t) 
 		(ang-accel ?b :time ?t)
 		(torque ?b ?force :axis ?axis :time ?t)))
    (object ?b) ;; sanity check
