@@ -404,7 +404,7 @@
 ; following writes the equation for angular momentum 
 ; compo equation: L_z = I * omega_z
 (def-psmclass ang-momentum (?eq-type definition ?xyz ?rot 
-				     (ang-momentum ?body ?time))
+				     (ang-momentum ?body ?axis ?time))
   :complexity definition ;definition, but can be first "principle" for sought
   :short-name "angular momentum defined"
   :english ("definition of angular momentum")
