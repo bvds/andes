@@ -2289,7 +2289,7 @@
 	 (bottom-out (string "Write the equation ~A"  
 			     ((= ?A (^ ?l 2)) algebra)) )) )
 
-(defoperator square-is-kind-of-rectangle (?shape . ?rest)
+(defoperator square-is-kind-of-rectangle (?shape ?rest)
   :preconditions ((shape ?shape square . ?rest))
   :effects ((shape ?shape rectangle . ?rest))
 )
