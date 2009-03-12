@@ -1887,7 +1887,46 @@
 ;;;; axes such as cm (for center of mass) or end. 
 ;;;;-------------------------------------------------------------------------
 
+;; I for point particle
+(def-psmclass I-particle (I-particle ?body ?axis)
+  :complexity minor
+  :short-name "rod about center"
+  :english ("moment of inertia of a rod about its center")
+  :expformat ("calculating the moment of inertia of ~a about its cm" 
+	      (nlg ?body))
+  :EqnFormat ("I = (1/12) m*L^2"))
+
+(defoperator I-rod-cm-contains (?sought)
+  :preconditions 
+  ((shape ?b rod :center ?cm . ?rest)
+   (test ?cm)
+   ;; could be generalized to include time:
+  (any-member ?sought ( (moment-of-inertia ?b :axis ?cm)
+		        (mass ?b)
+		        (length ?b) )))
+  :effects ( (eqn-contains (I-rod-cm ?b ?cm) ?sought)))
+
+(defoperator write-I-rod-cm (?b ?cm)
+  :preconditions (
+    (variable ?I-var (moment-of-inertia ?b :axis ?cm))
+    (variable ?m-var (mass ?b))
+    (variable ?l-var (length ?b) ))
+  :effects 
+    ((eqn (= ?I-var (* (/ 1 12) ?m-var (^ ?l-var 2))) (I-rod-cm ?b ?cm)))
+   :hint
+    ((point (string "You need the formula for the moment of inertia of a long thin rod rotating about its center of mass."))
+     (bottom-out (string "Write the equation ~A"
+            ((= ?I-var (* (/ 1 12) ?m-var (^ ?l-var 2))) algebra)))))
+
 ;; I for long thin rod rotating about cm = 1/12 m l^2, where l is length
+(def-psmclass I-rod-cm (I-rod-cm ?body ?cm)
+  :complexity minor
+  :short-name "rod about center"
+  :english ("moment of inertia of a rod about its center")
+  :expformat ("calculating the moment of inertia of ~a about ~A" 
+	      (nlg ?body) (nlg ?cm))
+  :EqnFormat ("I = (1/12) m*L^2"))
+
 (defoperator I-rod-cm-contains (?sought)
   :preconditions 
   ((shape ?b rod :center ?cm . ?rest)
@@ -1914,6 +1953,14 @@
 ;; This is our only formula for rotation not about the center of mass.
 ;; It could be derived from the formula for I about cm plus the "parallel 
 ;; axis theorem", but we don't include that yet.
+
+(def-psmclass I-rod-end (I-rod-end ?body ?end)
+  :complexity minor
+  :short-name "rod about end"
+  :english ("moment of inertia of a rod about its end")
+  :expformat ("moment of inertia of the rod ~a about ~A" (nlg ?body) (nlg ?end))
+  :EqnFormat ("I = (1/3) m*L^2"))
+
 (defoperator I-rod-end-contains (?sought)
   :preconditions 
   ((shape ?b rod :end ?end . ?rest)
@@ -1938,14 +1985,23 @@
             ((= ?I-var (* (/ 1 3) ?m-var (^ ?l-var 2))) algebra)))))
 
 
-; I for hoop of given radius about center: I = MR^2 where R is radius
-; !!! quick hack !!! The workbench offers a "radius" variable, but uses it
-; to mean "radius of uniform circular motion" -- our "revolution-radius" --
-; and has nothing to be radius of a rigid body shape. In order to allow
-; this to be defined with the current workbench, we define I for a hoop in 
-; terms of a revolution radius. This is not totally awful since our hoop is 
-; likely rotating about it's center of mass, but it should be fixed in
-; the workbench. 
+;; I for hoop of given radius about center: I = MR^2 where R is radius
+;; !!! quick hack !!! The workbench offers a "radius" variable, but uses it
+;; to mean "radius of uniform circular motion" -- our "revolution-radius" --
+;; and has nothing to be radius of a rigid body shape. In order to allow
+;; this to be defined with the current workbench, we define I for a hoop in 
+;; terms of a revolution radius. This is not totally awful since our hoop is 
+;; likely rotating about it's center of mass, but it should be fixed in
+;; the workbench. 
+
+(def-psmclass I-hoop-cm (I-hoop-cm ?body ?cm)
+  :complexity minor
+  :short-name "hoop"
+  :english ("moment of inertia for a hoop about its center")
+  :expformat ("moment of inertia for the hoop ~a about ~A" 
+	      (nlg ?body) (nlg ?cm))
+  :EqnFormat ("I = m*r^2"))
+
 (defoperator I-hoop-cm-contains (?sought)
   :preconditions 
   ((shape ?b hoop :center ?cm)
@@ -1971,7 +2027,15 @@
      (bottom-out (string "Write the equation ~A"
             ((= ?I-var (* ?m-var (^ ?r-var 2))) algebra)))))
 
-; I for disk or cylinder of given radius about center: I = 1/2 M R^2
+;; I for disk or cylinder of given radius about center: I = 1/2 M R^2
+(def-psmclass I-disk-cm (I-disk-cm ?body ?cm)
+  :complexity minor
+  :short-name "disk about center"
+  :english ("moment of inertia of a disk about its center")
+  :expformat ("moment of inertia of the disk ~a about ~A" 
+	      (nlg ?body) (nlg ?cm))
+  :EqnFormat ("I = 0.5*m*r^2"))
+
 (defoperator I-disk-cm-contains (?sought)
   :preconditions 
   ((shape ?b disk :center ?cm)
@@ -1992,7 +2056,16 @@
   :effects 
     ( (eqn (= ?I-var (* 0.5 ?m-var (^ ?r-var 2))) (I-disk-cm ?b ?cm)) ))
 
-; rectangular plate I = 1/12 M * (l^2 + w^2) where l = length, w = width
+;; rectangular plate I = 1/12 M * (l^2 + w^2) where l = length, w = width
+
+(def-psmclass I-rect-cm (I-rect-cm ?body ?cm)
+  :complexity minor
+  :short-name "rectangular plate"
+  :english ("moment of inertia of a rectangle about its center")
+  :expformat ("moment of inertia of the rectangle ~a about ~A"
+	      (nlg ?body) (nlg ?cm))
+  :EqnFormat ("I = (1/12) m*(L^2 + W^2)"))
+
 (defoperator I-rect-cm-contains (?sought)
   :preconditions 
   ((shape ?b rectangle :center ?cm)
@@ -2022,6 +2095,15 @@
 
 ;; moment of inertia of a compound body is sum of moments of inertia of 
 ;; its constituents
+
+(def-psmclass I-compound (I-compound ?compound ?axis)
+  :complexity minor
+  :short-name "compound body"
+  :english ("moment of inertia of a compound body")
+  :expformat ("calculating the total moment of inertia of ~a about ~A"
+	      (nlg ?compound) (nlg ?axis))
+  :EqnFormat ("I12 = I1 + I2"))
+
 (defoperator I-compound-contains (?sought)
    :preconditions 
    (  ;; could be generalized to optionally include time
