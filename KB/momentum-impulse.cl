@@ -404,7 +404,7 @@
 ; following writes the equation for angular momentum 
 ; compo equation: L_z = I * omega_z
 (def-psmclass ang-momentum (?eq-type definition ?xyz ?rot 
-				     (ang-momentum ?body ?time))
+				     (ang-momentum ?body ?axis ?time))
   :complexity definition ;definition, but can be first "principle" for sought
   :short-name "angular momentum defined"
   :english ("definition of angular momentum")
@@ -413,41 +413,43 @@
   :EqnFormat ("L_z = I*$w_z"))
 
 (defoperator ang-momentum-contains (?sought)
-   :preconditions (
+   :preconditions 
+   (
+    (motion ?b rotating :axis ?a . ?rest)
       (any-member ?sought (
               (ang-momentum ?b :time ?t)
 	      (ang-velocity ?b :time ?t)
-	      (moment-of-inertia ?b :time ?t)
+	      (moment-of-inertia ?b :axis ?a :time ?t)
                           )) 
       (time ?t)
    )
    :effects 
    (
-    (eqn-family-contains (ang-momentum ?b ?t) ?sought)
+    (eqn-family-contains (ang-momentum ?b ?a ?t) ?sought)
     ;; since only one compo-eqn under this vector PSM, we can just
     ;; select it now, rather than requiring further operators to do so
-    (compo-eqn-contains (ang-momentum ?b ?t) definition ?sought)
+    (compo-eqn-contains (ang-momentum ?b ?a ?t) definition ?sought)
     ))
 
-(def-goalprop angmom-fbd (vector-diagram ?rot (ang-momentum ?b ?t))
+(def-goalprop angmom-fbd (vector-diagram ?rot (ang-momentum ?b ?a ?t))
    :english ("drawing a diagram showing all of the needed kinematic vectors and coordinate axes"))
 
-(defoperator draw-ang-momentum-vectors (?rot ?b ?t)
+(defoperator draw-ang-momentum-vectors (?rot ?b ?a ?t)
   :preconditions 
      ((vector ?b (ang-momentum ?b :time ?t) ?dir) 
        (axes-for ?b ?rot) )
   :effects 
-     ( (vector-diagram ?rot (ang-momentum ?b ?t)) ))
+     ( (vector-diagram ?rot (ang-momentum ?b ?a ?t)) ))
 
-(defoperator write-ang-momentum (?b ?t)
+(defoperator write-ang-momentum (?b ?a ?t)
   :preconditions (
      (variable ?L_z (compo ?z ?rot (ang-momentum ?b :time ?t)))
      (variable ?omega_z (compo ?z ?rot (ang-velocity ?b :time ?t)))
-     (inherit-variable ?I (moment-of-inertia ?b :time ?t))
+     (inherit-variable ?I (moment-of-inertia ?b :axis ?a :time ?t))
   )
   :effects (
      (eqn (= ?L_z (* ?I ?omega_z)) 
-                 (compo-eqn definition ?z ?rot (ang-momentum ?b ?t)))
+                 (compo-eqn definition ?z ?rot (ang-momentum ?b ?a ?t)))
   )
   :hint (
     (point (string "Can you write an equation for the z component of the angular momentum of ~A ~A?" ?b (?t pp)))
