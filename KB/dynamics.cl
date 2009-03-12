@@ -2986,6 +2986,7 @@
 				     :axis ?axis :time ?t)))
    (cross ?cross (relative-position ?pt ?axis :time ?t)
 	  (force ?pt ?agent ?type :time ?t) ?xyz ?rot ?angle-flag)
+   (test (not (eq ?cross '0)))	;handled by write-mag-torque and projections
    )
   :effects 
   ( (eqn (= ?tau ?cross) 
