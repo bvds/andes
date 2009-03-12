@@ -1225,57 +1225,6 @@
 	      (nlg ?body 'at-time ?time))
   :EqnFormat ("v = $w*r"))
 
-
-;; ROTATIONAL KINEMATICS: CONSTANT ANGULAR ACCELERATION EQUATIONS
-;; MOMENT OF INERTIA
-(def-psmclass I-rod-cm (I-rod-cm ?body)
-  :complexity minor
-  :short-name "rod about center"
-  :english ("moment of inertia of a rod about its center")
-  :expformat ("calculating the moment of inertia of ~a about its cm" 
-	      (nlg ?body))
-  :EqnFormat ("I = (1/12) m*L^2"))
-
-(def-psmclass I-rod-end (I-rod-end ?body)
-  :complexity minor
-  :short-name "rod about end"
-  :english ("moment of inertia of a rod about its end")
-  :expformat ("moment of inertia of the rod ~a about its end" (nlg ?body))
-  :EqnFormat ("I = (1/3) m*L^2"))
-(def-psmclass I-hoop-cm (I-hoop-cm ?body)
-  :complexity minor
-  :short-name "hoop"
-  :english ("moment of inertia for a hoop about its center")
-  :expformat ("moment of inertia for the hoop ~a about its cm" (nlg ?body))
-  :EqnFormat ("I = m*r^2"))
-
-(def-psmclass I-disk-cm (I-disk-cm ?body)
-  :complexity minor
-  :short-name "disk about center"
-  :english ("moment of inertia of a disk about its center")
-  :expformat ("moment of inertia of the disk ~a about its cm" (nlg ?body))
-  :EqnFormat ("I = 0.5*m*r^2"))
-
-(def-psmclass I-rect-cm (I-rect-cm ?body)
-  :complexity minor
-  :short-name "rectangular plate"
-  :english ("moment of inertia of a rectangle about its center")
-  :expformat ("moment of inertia of the rectangle ~a about its cm"
-	      (nlg ?body))
-  :EqnFormat ("I = (1/12) m*(L^2 + W^2)"))
-
-(def-psmclass I-compound (I-compound ?compound)
-  :complexity minor
-  :short-name "compound body"
-  :english ("moment of inertia of a compound body")
-  :expformat ("calculating the moment of inertia of the compound body ~a"
-	      (nlg ?compound))
-  :EqnFormat ("I12 = I1 + I2"))
-
-
-;; ANGULAR MOMENTUM
-
-
 ;;;; ROTATIONAL DYNAMICS (TORQUE)
 
 (def-psmclass mag-torque (mag-torque ?body ?pivot (force ?pt ?agent ?type) ?time)
