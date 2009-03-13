@@ -817,15 +817,6 @@
 	   (nlg ?body) (nlg ?time 'pp) ?axis))
 
 
-
-(def-psmclass displacement-relative-position (?eq-type relative-position-displacement ?axis ?rot (relative-position-displacment ?a ?b ?time))
-  :complexity minor
-  :short-name "relative position and displacement"
-  :english ("relative positon and displacement for two bodies")
-  :ExpFormat ("calculating change in relative position between ~a and ~a ~a" (nlg ?a) (nlg ?b) (nlg ?time))
-  :EqnFormat ("Rab2~a = da12_~a - db12_~a Rab1_~A" (axis-name ?axis)  
-	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 	Linear kinematic family of equations.
 ;;
