@@ -201,7 +201,7 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 
   // Try polysolve
   DBG( cout<< "Checkeqs " << thisdbg << ": now try polysolve" << endl;);
-  if (polysolve(eqn,vars)) doagain = 1;
+  if (polysolve(eqn)) doagain = 1;
   
   DBG( { cout << "Checkeqs " << thisdbg << ": after polysolve, doagain is " 
 	      << doagain << ", and the equations are:" << endl;
@@ -217,7 +217,7 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
   if (eqn->size() >= 2) {
     int dotriggave = dotrig(eqn); // 8/9/02 JaS
     if (dotriggave == 2) doagain = 1;
-    else if (dotriggave == 1) if (polysolve(eqn,vars)) doagain = 1;} // 8/9/02 
+    else if (dotriggave == 1) if (polysolve(eqn)) doagain = 1;} // 8/9/02 
   VEQCHK(eqn);
 
   // check that the equations not previously fixupedforpurelin can now be

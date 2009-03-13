@@ -289,7 +289,7 @@ bool desperate(vector<binopexp *> * eqn, vector<varindx> * & vars)
 	  {
 	    // both equations used, and both vars partially solved.
 	    // but this is only progress if it leads to a solution
-	    bool polyresult=polysolve(eqn,vars); 
+	    bool polyresult=polysolve(eqn); 
 	    DBG(cout << "desperate " << thisdbg << " returning " 
 		<< polyresult << endl);
 	    return(polyresult);

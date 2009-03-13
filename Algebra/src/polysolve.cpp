@@ -41,7 +41,7 @@ bool polyexpand(const expr * ex,varindx var,vector<double> * & coefs);
 
 
 /************************************************************************
- * bool polysolve(vector *eqn, vector<varindx> *vars)			*
+ * bool polysolve(vector *eqn)	               		                *
  *	looks through the list of equations in eqn for ones which	*
  *	involves only one variable and is polynomial in that.		*
  *     It solves each equation and checks to see if exactly one 	*
@@ -53,7 +53,8 @@ bool polyexpand(const expr * ex,varindx var,vector<double> * & coefs);
 //		[Do we have duplication? In desperate we call polyexpand
 //		 and look at roots. Here we call slvpolyexpr and check roots
 
-bool polysolve(vector<binopexp *> * eqn, const vector<varindx> *vars)
+// arguement vars is not used
+bool polysolve(vector<binopexp *> * eqn)
 {
   int k, q;
   bool doagain=false;
