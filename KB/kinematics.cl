@@ -2810,6 +2810,17 @@
 ;;;
 ;;; Relate relative positions of two objects to their displacments
 ;;; 
+
+(def-psmclass relative-position-displacement 
+    (?eq-type relative-position-displacement ?axis ?rot (relative-position-displacment ?a ?b ?time))
+  :complexity minor
+  :short-name "relative position and displacement"
+  :english ("relative positon and displacement for two bodies")
+  :ExpFormat ("calculating change in relative position between ~a and ~a ~a" (nlg ?a) (nlg ?b) (nlg ?time))
+  :EqnFormat ("Rab2~a = da12_~a - db12_~a Rab1_~A" (axis-name ?axis)  
+	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
+
+
 (defoperator relative-position-displacement-vector-contains (?sought)
   :preconditions 
   ((any-member ?sought ( (displacement ?b :time ?tt)
