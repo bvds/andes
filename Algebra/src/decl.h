@@ -106,8 +106,7 @@ bool polyexpand(const expr * ex,varindx var,			// polysolve
 		vector<double> * & coefs);
 vector<double> *polymult(const vector<double> * poly1, 		// polysolve
 			 const vector<double> * poly2); 
-bool polysolve(vector<binopexp *> * eqn, 			// polysolve
-	       const vector<varindx> *vars);
+bool polysolve(vector<binopexp *> * eqn); 			// polysolve
 vector<double> *polytopow(const vector<double> * poly, 		// polysolve
 			  const int pow); 		
 int powonev(const expr * eq, const varindx var);		// powonev
