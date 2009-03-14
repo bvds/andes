@@ -331,6 +331,7 @@
 			(leaf mag-torque :tutorial "Individual torque magnitude")
 			(group "Moment of Inertia" 
 			 (leaf I-particle)
+			 (leaf parallel-axis-theorem)
 			 (leaf I-disk-cm :tutorial "disk about center of mass")
 			 (leaf I-rod-cm :tutorial "Long thin rod about center of mass")
 			 (leaf I-rod-end :tutorial "Long thin rod about end")
