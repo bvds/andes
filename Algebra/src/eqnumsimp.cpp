@@ -351,7 +351,11 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 	{
 	  (*th->args)[numk] = numkexp; // AW: needed? numkexp points to args[numk] expr above  
 	  if ((th->op->opty == pluse)  &&
-	      (fabs(numkexp->value) < sumabs * RELERR)) numkexp->value = 0.;
+	      (fabs(numkexp->value) < sumabs * RELERR))
+	    {
+	      numkexp->value = 0.;
+	      if(numkexp->abserr<0)numkexp->abserr = sumabs * RELERR;
+	    }
 	  if (numkexp->value == 0.)
 	    {
 	      if (th->op->opty == multe) // multiplying by a 0
