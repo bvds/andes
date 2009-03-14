@@ -1925,6 +1925,48 @@
      (bottom-out (string "Write the equation ~A"
             ((= ?I-var (* ?m-var (^ ?r-var 2))) algebra)))))
 
+;; parallel-axis theorem
+(def-psmclass parallel-axis-theorem (parallel-axis-theorem ?body ?axis ?cm ?time)
+  ;; Could use tau = I alpha as the definition of I, but to
+  ;; keep analogy with linear motion we want tau = I alpha to
+  ;; be a principle.
+  :complexity minor
+  :short-name "parallel axis theorem"
+  :english ("parallel axis theorem")
+  :expformat ("calculating the moment of inertia of ~a about ~A" 
+	      (nlg ?body) (nlg ?axis))
+  :EqnFormat ("I = M*R^2 + Icm"))
+
+(defoperator parallel-axis-theorem-contains (?sought)
+  :preconditions 
+  ((center-of-mass ?cm (?b))
+   ;; could be generalized to include time:
+   (any-member ?sought ( (moment-of-inertia ?b :axis ?cm)
+			 (moment-of-inertia ?b :axis ?axis)
+			 (mass ?b)
+			 (mag (relative-postion ?axis ?cm :time ?t)) ))
+   (time ?t)
+   ;; draw vector and make sure it lies in the xy plane
+   ;; Andes assumes all axes are in z-direction
+   (vector ?b (relative-position ?axis ?cm :time ?t) ?dir)
+   (test (perpendicularp 'z-unknown ?dir)))
+  :effects ( (eqn-contains (parallel-axis-theorem ?b ?axis ?cm ?t) ?sought)))
+
+(defoperator write-parallel-axis-theorem (?b ?axis ?cm ?t)
+  :preconditions (
+    (variable ?I-axis-var (moment-of-inertia ?b :axis ?axis))
+    (variable ?I-cm-var (moment-of-inertia ?b :axis ?cm))
+    (variable ?m-var (mass ?b))
+    (variable ?r-var (mag (relative-position ?axis ?cm :time ?t))))
+  :effects 
+    ((eqn (= ?I-axis-var (+  ?I-cm-var (* ?m-var (^ ?r-var 2)))) 
+	  (parallel-axis-theorem ?b ?axis ?cm ?t)))
+   :hint
+    ((point (string "Find the moment of inertia of ~A about ~A." ?b ?axis))
+     (teach (string "The parallel axis theorem relates the moment of intertia about any axis to the moment of inertial about the center of mass."))
+     (bottom-out (string "Write the equation ~A"
+            ((= ?I-var (+  ?I-cm-var (* ?m-var (^ ?r-var 2)))) algebra)))))
+
 ;; I for long thin rod rotating about cm = 1/12 m l^2, where l is length
 (def-psmclass I-rod-cm (I-rod-cm ?body ?cm)
   :complexity minor
