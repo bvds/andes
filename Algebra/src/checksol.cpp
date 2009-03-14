@@ -26,9 +26,11 @@
 #include "dbg.h"
 
 // if 1 degree is a numval with value 1, we have FAKEDEG
-
+#ifdef WITHDBG // for debugging
 #define DBG(A) DBGF(CHKSOL,A)
 #define DBGM(A) DBGFM(CHKSOL,A)
+int recall=0;    
+#endif
 
 #ifdef FAKEDEG
 #define DEG2RAD DEGTORAD
@@ -62,6 +64,9 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
 int checksol(const binopexp* const eqn, const vector<double>* const sols,
 	     const double reltverr) {
   DBG(cout << "entered checksol" << endl);
+#ifdef WITHDBG // for debugging
+  recall=0;    
+#endif
   answitherr* value;
   expr* eqexpr = copyexpr(eqn); // g++ refused this without copyexpr
   try {
@@ -118,15 +123,17 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
   int k;
   
 #ifdef WITHDBG // for debugging
-  static int call=0;    
-  int thiscall=call++;  
+  int thiscall=recall++;  
 #endif
   DBG(cout << "evalexpr call " << thiscall << " for " 
       << ex->getInfix() << " with reltverr = " << reltverr << endl);
   switch (ex->etype) {
   case numval:
     retval->value = ((numvalexp*)ex)->value;
-    retval->abserr = reltverr * fabs(retval->value);
+    if( ((numvalexp*)ex)->abserr<0)
+      retval->abserr = reltverr * fabs(retval->value);
+    else
+      retval->abserr = ((numvalexp*)ex)->abserr;
     DBG(cout << "evalexpr call " << thiscall << " numval returning " 
 	<< retval->value << "+-" << retval->abserr << endl);
     return(retval);
@@ -174,11 +181,16 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
       retval->abserr = fabs(argval->abserr / (retval->value * log(10.0)));
       break;
     case sqrte:
-      if(argval->value<=0){
-	delete retval;
-	throw(FPE_handler + string("sqrt of negative"));
-      }
-      retval->value = sqrt(argval->value);
+      if(argval->value<0.0){
+	// if a negative value is less than the error, just set to zero.
+	if(argval->abserr + argval->value>0.0)
+	  retval->value=0.0;
+	else {
+	  delete retval;
+	  throw(FPE_handler + string("sqrt of negative"));
+	}
+      } else
+	retval->value = sqrt(argval->value);
       if (retval->value > reltverr) {
 	retval->abserr = (argval->abserr / (2.0 * retval->value));
       } else {
