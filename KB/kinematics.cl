@@ -2679,17 +2679,17 @@
   :preconditions 
   ( 
    (time ?t)  ;explicit time
-   (test (not (equal ?b1 ?b2))) ;make sure the objects are distinct.
-   ;; make sure this is not known to be zero-length from at-place stmt.
-   (not (at-place ?b1 ?b2 :time ?t-at) (tinsidep-include-endpoints ?t ?t-at))
-   (not (at-place ?b2 ?b1 :time ?t-at) (tinsidep-include-endpoints ?t ?t-at))
-   (not (same-place (orderless ?b1 ?b2) :time ?t-at ) (tinsidep ?t ?t-at))
    ;; Make sure we are not given the direction, or the opposite direction,
    ;; when other drawing rules would apply
    (not (given (dir (relative-position ?b1 ?b2 :time ?t-at)) . ?whatever) 
 	(tinsidep-include-endpoints ?t ?t-at))
    (not (given (dir (relative-position ?b2 ?b1 :time ?t-at)) . ?whatever) 
 	(tinsidep-include-endpoints ?t ?t-at))
+   (test (not (equal ?b1 ?b2))) ;make sure the objects are distinct.
+   ;; make sure this is not known to be zero-length from at-place stmt.
+   (not (at-place ?b1 ?b2 :time ?t-at) (tinsidep-include-endpoints ?t ?t-at))
+   (not (at-place ?b2 ?b1 :time ?t-at) (tinsidep-include-endpoints ?t ?t-at))
+   (not (same-place (orderless ?b1 ?b2) :time ?t-at ) (tinsidep ?t ?t-at))
    ;; make sure this vector not already drawn
    (not (vector ?b2 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
    (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?b1) 

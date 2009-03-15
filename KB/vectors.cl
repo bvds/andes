@@ -1950,7 +1950,7 @@
    (time ?t)
    ;; draw vector and make sure it lies in the xy plane
    ;; Andes assumes all axes are in z-direction
-   (vector ?b (relative-position ?axis ?cm :time ?t) ?dir)
+   (vector ?axis (relative-position ?axis ?cm :time ?t) ?dir)
    (test (perpendicularp 'z-unknown ?dir)))
   :effects ( (eqn-contains (parallel-axis-theorem ?b ?axis ?cm ?t) ?sought)))
 
