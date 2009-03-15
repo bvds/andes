@@ -2679,17 +2679,17 @@
   :preconditions 
   ( 
    (time ?t)  ;explicit time
-   (test (not (equal ?b1 ?b2))) ;make sure the objects are distinct.
-   ;; make sure this is not known to be zero-length from at-place stmt.
-   (not (at-place ?b1 ?b2 :time ?t-at) (tinsidep-include-endpoints ?t ?t-at))
-   (not (at-place ?b2 ?b1 :time ?t-at) (tinsidep-include-endpoints ?t ?t-at))
-   (not (same-place (orderless ?b1 ?b2) :time ?t-at ) (tinsidep ?t ?t-at))
    ;; Make sure we are not given the direction, or the opposite direction,
    ;; when other drawing rules would apply
    (not (given (dir (relative-position ?b1 ?b2 :time ?t-at)) . ?whatever) 
 	(tinsidep-include-endpoints ?t ?t-at))
    (not (given (dir (relative-position ?b2 ?b1 :time ?t-at)) . ?whatever) 
 	(tinsidep-include-endpoints ?t ?t-at))
+   (test (not (equal ?b1 ?b2))) ;make sure the objects are distinct.
+   ;; make sure this is not known to be zero-length from at-place stmt.
+   (not (at-place ?b1 ?b2 :time ?t-at) (tinsidep-include-endpoints ?t ?t-at))
+   (not (at-place ?b2 ?b1 :time ?t-at) (tinsidep-include-endpoints ?t ?t-at))
+   (not (same-place (orderless ?b1 ?b2) :time ?t-at ) (tinsidep ?t ?t-at))
    ;; make sure this vector not already drawn
    (not (vector ?b2 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
    (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?b1) 
@@ -2810,6 +2810,17 @@
 ;;;
 ;;; Relate relative positions of two objects to their displacments
 ;;; 
+
+(def-psmclass relative-position-displacement 
+    (?eq-type relative-position-displacement ?axis ?rot (relative-position-displacment ?a ?b ?time))
+  :complexity minor
+  :short-name "relative position and displacement"
+  :english ("relative positon and displacement for two bodies")
+  :ExpFormat ("calculating change in relative position between ~a and ~a ~a" (nlg ?a) (nlg ?b) (nlg ?time))
+  :EqnFormat ("Rab2~a = da12_~a - db12_~a Rab1_~A" (axis-name ?axis)  
+	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
+
+
 (defoperator relative-position-displacement-vector-contains (?sought)
   :preconditions 
   ((any-member ?sought ( (displacement ?b :time ?tt)

@@ -1890,35 +1890,84 @@
 ;;;;-------------------------------------------------------------------------
 
 ;; I for point particle
-(def-psmclass I-particle (I-particle ?body ?axis)
-  :complexity minor
-  :short-name "rod about center"
-  :english ("moment of inertia of a rod about its center")
-  :expformat ("calculating the moment of inertia of ~a about its cm" 
-	      (nlg ?body))
-  :EqnFormat ("I = (1/12) m*L^2"))
+(def-psmclass I-particle (I-particle ?body ?axis ?time)
+  ;; Could use tau = I alpha as the definition of I, but to
+  ;; keep analogy with linear motion we want tau = I alpha to
+  ;; be a principle.
+  :complexity definition
+  :short-name "moment of point mass"
+  :english ("moment of inertia of a point mass")
+  :expformat ("calculating the moment of inertia of ~a about ~A" 
+	      (nlg ?body) (nlg ?axis))
+  :EqnFormat ("I = m*R^2"))
 
-(defoperator I-rod-cm-contains (?sought)
+(defoperator I-particle-contains (?sought)
   :preconditions 
-  ((shape ?b rod :center ?cm . ?rest)
-   (test ?cm)
+  ((shape ?b point)  ;should combine with (point-particle ...)
    ;; could be generalized to include time:
-  (any-member ?sought ( (moment-of-inertia ?b :axis ?cm)
-		        (mass ?b)
-		        (length ?b) )))
-  :effects ( (eqn-contains (I-rod-cm ?b ?cm) ?sought)))
+   (any-member ?sought ( (moment-of-inertia ?b :axis ?cm)
+			 (mass ?b)
+			 (mag (relative-postion ?b ?cm :time ?t)) ))
+   (time ?t)
+   ;; draw vector and make sure it lies in the xy plane
+   ;; Andes assumes all axes are in z-direction
+   (vector ?b (relative-position ?b ?cm :time ?t) ?dir)
+   (test (perpendicularp 'z-unknown ?dir)))
+  :effects ( (eqn-contains (I-particle ?b ?cm ?t) ?sought)))
 
-(defoperator write-I-rod-cm (?b ?cm)
+(defoperator write-I-particle (?b ?cm ?t)
   :preconditions (
     (variable ?I-var (moment-of-inertia ?b :axis ?cm))
     (variable ?m-var (mass ?b))
-    (variable ?l-var (length ?b) ))
+    (variable ?r-var (mag (relative-position ?b ?cm :time ?t))))
   :effects 
-    ((eqn (= ?I-var (* (/ 1 12) ?m-var (^ ?l-var 2))) (I-rod-cm ?b ?cm)))
+    ((eqn (= ?I-var (* ?m-var (^ ?r-var 2))) (I-particle ?b ?cm ?t)))
    :hint
-    ((point (string "You need the formula for the moment of inertia of a long thin rod rotating about its center of mass."))
+    ((point (string "Find the moment of inertia of ~A." ?b))
      (bottom-out (string "Write the equation ~A"
-            ((= ?I-var (* (/ 1 12) ?m-var (^ ?l-var 2))) algebra)))))
+            ((= ?I-var (* ?m-var (^ ?r-var 2))) algebra)))))
+
+;; parallel-axis theorem
+(def-psmclass parallel-axis-theorem (parallel-axis-theorem ?body ?axis ?cm ?time)
+  ;; Could use tau = I alpha as the definition of I, but to
+  ;; keep analogy with linear motion we want tau = I alpha to
+  ;; be a principle.
+  :complexity minor
+  :short-name "parallel axis theorem"
+  :english ("parallel axis theorem")
+  :expformat ("calculating the moment of inertia of ~a about ~A" 
+	      (nlg ?body) (nlg ?axis))
+  :EqnFormat ("I = M*R^2 + Icm"))
+
+(defoperator parallel-axis-theorem-contains (?sought)
+  :preconditions 
+  ((center-of-mass ?cm (?b))
+   ;; could be generalized to include time:
+   (any-member ?sought ( (moment-of-inertia ?b :axis ?cm)
+			 (moment-of-inertia ?b :axis ?axis)
+			 (mass ?b)
+			 (mag (relative-postion ?axis ?cm :time ?t)) ))
+   (time ?t)
+   ;; draw vector and make sure it lies in the xy plane
+   ;; Andes assumes all axes are in z-direction
+   (vector ?axis (relative-position ?axis ?cm :time ?t) ?dir)
+   (test (perpendicularp 'z-unknown ?dir)))
+  :effects ( (eqn-contains (parallel-axis-theorem ?b ?axis ?cm ?t) ?sought)))
+
+(defoperator write-parallel-axis-theorem (?b ?axis ?cm ?t)
+  :preconditions (
+    (variable ?I-axis-var (moment-of-inertia ?b :axis ?axis))
+    (variable ?I-cm-var (moment-of-inertia ?b :axis ?cm))
+    (variable ?m-var (mass ?b))
+    (variable ?r-var (mag (relative-position ?axis ?cm :time ?t))))
+  :effects 
+    ((eqn (= ?I-axis-var (+  ?I-cm-var (* ?m-var (^ ?r-var 2)))) 
+	  (parallel-axis-theorem ?b ?axis ?cm ?t)))
+   :hint
+    ((point (string "Find the moment of inertia of ~A about ~A." ?b ?axis))
+     (teach (string "The parallel axis theorem relates the moment of intertia about any axis to the moment of inertial about the center of mass."))
+     (bottom-out (string "Write the equation ~A"
+            ((= ?I-var (+  ?I-cm-var (* ?m-var (^ ?r-var 2)))) algebra)))))
 
 ;; I for long thin rod rotating about cm = 1/12 m l^2, where l is length
 (def-psmclass I-rod-cm (I-rod-cm ?body ?cm)

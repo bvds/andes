@@ -330,6 +330,8 @@
 			(leaf torque :bindings ((?xyz . z)) :tutorial "Individual torque magnitude")
 			(leaf mag-torque :tutorial "Individual torque magnitude")
 			(group "Moment of Inertia" 
+			 (leaf I-particle)
+			 (leaf parallel-axis-theorem)
 			 (leaf I-disk-cm :tutorial "disk about center of mass")
 			 (leaf I-rod-cm :tutorial "Long thin rod about center of mass")
 			 (leaf I-rod-end :tutorial "Long thin rod about end")
@@ -383,7 +385,8 @@
  (leaf num-forces)
  (leaf given-fraction)
  (leaf opposite-relative-position)
- (leaf relative-position-displacement)
+ (leaf relative-position-displacement :bindings ((?axis . x)))
+ (leaf relative-position-displacement :bindings ((?axis . y)))
  (leaf sum-times :tutorial "Sum of times")
  (leaf sum-distances)
  (leaf sum-distance)

@@ -148,14 +148,14 @@ string powersolve(const int howstrong, const varindx sought,
       DBG(cout << "after donlsolv, doagain is " << doagain << endl;);
     }
     if (howstrong & 4) {
-      if (polysolve(&eqn,vars)) doagain = 1;
+      if (polysolve(&eqn)) doagain = 1;
       DBG(cout << "after polysolve, doagain is " << doagain << endl;);
     }
     if (howstrong & 8) if (eqn.size() >= 2) {
       //      if (dotrig(eqn))  doagain = 1;
       int dotriggave = dotrig(&eqn); // 8/9/02 JaS
       if (dotriggave == 2) doagain = 1;
-      else if (dotriggave == 1) if (polysolve(&eqn,vars)) doagain = 1; //8/9/02
+      else if (dotriggave == 1) if (polysolve(&eqn)) doagain = 1; //8/9/02
       for (q = 0; q < eqn.size(); q++)
 	if (fixupforpls(eqn[q])) {doagain = 1; break;}
       DBG(cout << "after dotrig, doagain is " << doagain << endl);
