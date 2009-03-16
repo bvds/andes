@@ -2685,6 +2685,7 @@
 	(tinsidep-include-endpoints ?t ?t-at))
    (not (given (dir (relative-position ?b2 ?b1 :time ?t-at)) . ?whatever) 
 	(tinsidep-include-endpoints ?t ?t-at))
+   ;; test must be after the (not ...) or an error if ?b1 is unbound.
    (test (not (equal ?b1 ?b2))) ;make sure the objects are distinct.
    ;; make sure this is not known to be zero-length from at-place stmt.
    (not (at-place ?b1 ?b2 :time ?t-at) (tinsidep-include-endpoints ?t ?t-at))
