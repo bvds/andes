@@ -24,7 +24,8 @@ Definitions:
 
 user session:  each instance of a student trying to solve a problem.  It
 is marked by a unique integer.  A student may solve a problem over the 
-course of several user sessions.
+course of several user sessions.  The Dojox.rpc.Client library includes
+X-Client-id header that might be better used for this purpose.
 
 controller script:  This is a script running on the web server that receives 
 http requests, sends them on to the appropriate lisp process, and then 

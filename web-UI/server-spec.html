@@ -41,7 +41,8 @@ WebAssign sessions id, the problem id, and user name.&nbsp;
 
 <li>  Andes Problem server contacts WebAssign, sending
 the user name, session id, and problem, to determine if the 
-WebAssign session id is valid.
+WebAssign session id is valid.&nbsp;  The Dojox.rpc.Client library includes
+X-Client-id header that might be used for the session id.
 
 <li>  Andes Problem server get the OK from WebAssign.&nbsp;  It sets
 a unique Andes session id (distinct from the WebAssign session id).&nbsp; 
