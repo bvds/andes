@@ -263,10 +263,6 @@ SOURCE=indysgg3.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=interact.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=ispos.cpp
 # End Source File
 # Begin Source File
