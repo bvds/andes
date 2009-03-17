@@ -25,13 +25,13 @@
 #include "mconst.h"
 #include "dbg.h"
 
-// if 1 degree is a numval with value 1, we have FAKEDEG
-#ifdef WITHDBG // for debugging
 #define DBG(A) DBGF(CHKSOL,A)
 #define DBGM(A) DBGFM(CHKSOL,A)
+#ifdef WITHDBG // for debugging
 int recall=0;    
 #endif
 
+// if 1 degree is a numval with value 1, we have FAKEDEG
 #ifdef FAKEDEG
 #define DEG2RAD DEGTORAD
 #else
@@ -143,7 +143,7 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
     retval->value = (*sols)[((physvarptr *) ex)->varindex];
     retval->abserr = reltverr * fabs(retval->value);
     DBG(cout << "evalexpr call " << thiscall << " physvar returning " 
-	<< retval->value << "+-" << retval->abserr << endl;);
+	<< retval->value << "+-" << retval->abserr << endl);
     return(retval);
 
   case function: {
@@ -205,7 +205,7 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
       throw(string("impossible function in evalexpr"));
     }
     DBG(cout << "evalexpr call " << thiscall << " function returning " 
-	<< retval->value << "+-" << retval->abserr << endl;);
+	<< retval->value << "+-" << retval->abserr << endl);
     delete argval;
     return(retval);
   }
@@ -245,7 +245,7 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
     delete lhsval;
     delete rhsval;
     DBG(cout << "evalexpr call " << thiscall << " binop returning " 
-	<< retval->value << "+-" << retval->abserr << endl;);
+	<< retval->value << "+-" << retval->abserr << endl);
     return(retval);
   }
   case n_op: {
