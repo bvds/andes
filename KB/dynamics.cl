@@ -897,7 +897,7 @@
      ; first make sure gravitational interaction exists in problem
      (gravity (orderless . ?grav-bodies) :time ?t-grav)
      ; make sure body1 is in circular motion for this form
-     (motion ?b1 (curved circular ?dontcare) :time ?t-circular)
+     (motion ?b1 curved :type circular :time ?t-circular . ?dontcare)
      (any-member ?sought (
                     (mass ?b1) (mass ?b2)
 		    (mag (force ?b1 ?b2 gravitational :time ?t))
