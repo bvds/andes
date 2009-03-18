@@ -190,7 +190,7 @@
 (defoperator draw-momentum-curved (?b ?t)
   :preconditions
    ((motion ?b curved :type ?kind :dir ?dir :time ?t-motion . ?whatever)
-    (test (not (equal ?dir 'unknown)))  ; until conditional effects 
+    (test (definite-directionp ?dir))  ;needed for dir-var-value
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (momentum ?b :time ?t) ?dir))
