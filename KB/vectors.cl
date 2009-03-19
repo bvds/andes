@@ -1939,13 +1939,15 @@
 
 (defoperator parallel-axis-theorem-contains (?sought)
   :preconditions 
-  ((center-of-mass ?cm (?b))
+  (
    ;; could be generalized to include time:
    (any-member ?sought ( (moment-of-inertia ?b :axis ?cm)
 			 (moment-of-inertia ?b :axis ?axis)
 			 (mass ?b)
 			 (mag (relative-postion ?axis ?cm :time ?t)) ))
    (time ?t)
+   ;; Need to bind ?axis here
+   (use-point-for-body ?b ?cm ?axis)
    ;; draw vector and make sure it lies in the xy plane
    ;; Andes assumes all axes are in z-direction
    (vector ?axis (relative-position ?axis ?cm :time ?t) ?dir)

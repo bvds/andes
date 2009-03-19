@@ -437,8 +437,10 @@
 ;;; an axis that neither fixed nor the center of mass.
 ;;;
 ;;; We assume this property if it is rotating about the center of 
-;;; mass or a fixed point at any time.
-;;;
+;;; mass or a fixed point at any time.  Also, we assume any motion
+;;; is about the z-axis.  Eventually, we should add keyword pairs for
+;;; specifying the axis or restricting the time.
+;;;  
 (defoperator use-body-rotating-cm (?body)
   :preconditions 
   ( (center-of-mass ?cm (?body))
@@ -449,16 +451,14 @@
 	     ;; ?cm is kinematic variable for translational motion
 	     (object ?cm)))
 
-;; fixed axis case
+;; other axis case, so there has to be some external force
+;; acting on the system.
 (defoperator use-body-rotating-fixed (?body)
   :preconditions 
   ( (object ?body)
-    (motion ?body rotating :axis ?axis :time ?t-motion . ?whatever)
+    (motion ?body rotating :axis ?axis . ?whatever)
     (center-of-mass ?cm (?body))
-    (motion ?axis ?rest :time ?t-axis)
-    (test (or (eq ?rest 'at-rest) (eq ?rest 'momentarily-at-rest)))
-    ;; some time where both are true
-    (test (or (null ?t-motion) (null ?t-axis) (tintersect2 ?t-motion ?t-axis)))
+    (test (not (equal ?cm ?axis)))
     ) 
   :effects ( (use-point-for-body ?body ?cm ?axis)))
 

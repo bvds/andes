@@ -3159,7 +3159,7 @@
    :preconditions (
     (motion ?b rotating :dir ?dir 
 	    :axis ?axis :time ?t-motion . ?whatever)
-    (test (not (equal ?dir 'z-unknown)))  
+    (test (definite-directionp ?dir)) ;match dir-var-value
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-velocity ?b :time ?t) ?dir-drawn))
