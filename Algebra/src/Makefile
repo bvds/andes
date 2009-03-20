@@ -17,11 +17,9 @@ CPPFLAGS += -DWITHDBG -DTRACE_OUTPUT
 ifeq ($(shell uname),Darwin)
 SO	= dylib
 SHARED	= -dynamiclib -install_name $(shell pwd)/../../libSolver.dylib
-LN_THIS_DIR = -L.
 else   # standard case
 SO      = so
 SHARED  = -shared
-LN_THIS_DIR = -Wl,-R,.
 endif
 
 src_objects = Solver.o   \
@@ -50,11 +48,10 @@ src_objects = Solver.o   \
 
 libSolver.so libSolver: $(src_objects) Makefile
 	$(CXX) $(SHARED) $(src_objects) -o libSolver.$(SO) && \
-             cp libSolver.$(SO) ../../
+	mv -f libSolver.$(SO) ../../ 
 
-executable solver-program: libSolver solver-program.o
-	$(CXX) $(CPPFLAGS) -o ../../solver-program solver-program.o \
-	   $(LN_THIS_DIR) libSolver.$(SO)
+algebra: $(src_objects) main.o
+	$(CXX) $(CPPFLAGS) -o algebra $(src_objects) main.o
 
 clean:
 	rm *.o
@@ -188,5 +185,3 @@ justonev.o: justonev.cpp decl.h expr.h dimens.h
 physvar.o: physvar.cpp decl.h expr.h dimens.h dbg.h standard.h
 Solver.o: Solver.cpp Solver.h \
   lrdcstd.h indysgg.h dbg.h standard.h coldriver.h
-solver-program.o: solver-program.cpp decl.h expr.h dimens.h extstruct.h \
-  standard.h Solver.h lrdcstd.h indysgg.h indyset.h valander.h dbg.h

@@ -45,7 +45,7 @@ expr * dimenchk(const bool fix, expr * & ex)
   unsigned long thisdbg = ++dbgnum;	// recursive calls for debug
 #endif
   DBG( cout << "Starting dimenchk call " << thisdbg << " on " 
-       << ex->getInfix() << endl; ex->dbgprint(10));
+       << ex->getInfix() << endl);
   if(ex->etype==function){
     DBG( cout << "Function is " << ((functexp *) ex)->f->printname <<endl );
   }
@@ -351,7 +351,7 @@ expr * dimenchk(const bool fix, expr * & ex)
 		       << " from call " << thisdbg << endl);
 		  return(nopex);
 		}
-	    DBG(cout << "plus end arg loop" << endl; nopex->dbgprint(8));
+	    DBG(cout << "plus end arg loop" << endl);
 	    if (nopex->MKS.unknp()) nopex->MKS = tempds;
 	    else if (!(nopex->MKS == tempds)) { // note - this ought to recurse
 	      DBG( cout << "Returning " << nopex->getInfix()
@@ -385,8 +385,7 @@ expr * dimenchk(const bool fix, expr * & ex)
 	    }
 	    DBG( 
 		cout << "Dimenchk mult end arg loop, numunk = " << numunk
-		<< ", k=" << k << endl;
-		nopex->dbgprint(8));
+		<< ", k=" << k << endl);
 	    if (nopex->MKS.unknp()) { 
 	      nopex->MKS = tempds; 
 	      DBG( if (trouble == (expr *) NULL) cout << "Returning NULL";

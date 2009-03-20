@@ -409,8 +409,6 @@ RETURN_CSTRING c_indyStudHowIndy(const char* const data);
 
 // turn on logging of input and output.
 
-RETURN_CSTRING solverStartLog(const char* const src);
 RETURN_CSTRING solverDoLog(const char* const src);
-RETURN_CSTRING solverDebugLevel(const unsigned long int x);
 
 #endif // ndef _H_SOLVER_H_
