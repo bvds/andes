@@ -528,7 +528,7 @@
     (eqn-contains (rotational-energy ?body ?t) ?sought)
   ))
 
-(defoperator write-rotational-energy (?body ?t)
+(defoperator write-rotational-energy (?body ?axis ?t)
   :preconditions 
   (
    ;; if the object is rotating at any time, then this term should be 
