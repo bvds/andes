@@ -733,7 +733,7 @@
    "If you don't know the direction of a net displacement over an interval
    then draw a displacement vector for it at an unspecified direction"
   :preconditions
-   ((motion ?b (curved projectile . ?dontcare) :time ?t)
+   ((motion ?b curved :type projectile :time ?t . ?dontcare)
     (not (given (dir (displacement ?b :time ?t)) ?dir-given))
     (test (time-intervalp ?t))
     (not (vector ?b (displacement ?b :time ?t) ?dir))
@@ -940,12 +940,13 @@
    ))
 
 ;;; Using the motion statement:
-;;;    (motion ?body (curved ?type (?dir-velocity ?dir-acceleration)) :time ?t)
+;;;    (motion ?body curved :type ?type :dir ?dir-velocity 
+;;;                 :accel ?dir-acceleration :time ?t)
 ;;; This operator draws velocities for curved motion, where curved
 ;;; motion ?type is projectile, circular and other kinds of curves.
 ;;; ?dir-accleration is used only for ?type=projectile or circular.
 ;;; General motion along a curve can be described by:
-;;;     (motion ?body (curved nil (?dir-velocity nil)) :time ?t)
+;;;     (motion ?body curved :type nil :dir ?dir-velocity :time ?t . ?rest)
 ;;;
 
 (defoperator draw-velocity-curved (?b ?t)
@@ -953,7 +954,7 @@
    "If an object is moving along a curved at a certain time point,
    then its velocity is tangent to the curve at that time."
   :preconditions
-   ((motion ?b (curved ?dontcare (?dir ?dont-care)) :time ?t)
+   ((motion ?b curved :dir ?dir :time ?t . ?dontcare)
     (test (and ?dir (not (eq ?dir 'unknown))))
     (time ?t) ;sanity test
     (test (time-pointp ?t))
@@ -980,13 +981,12 @@
 (defoperator draw-velocity-curved-unknown (?b ?t)
   :preconditions
   (;; don't use this to draw average velocity over an interval.
-   (motion ?b (curved ?curve-type ?dir-spec) :time ?t-motion)
+   (motion ?b curved :dir ?dir-spec :time ?t-motion . ?dontcare)
    (time ?t)
    (test (time-pointp ?t))
    (test (tinsidep ?t ?t-motion))
    ;; Test for unknown
-   (test (or (null ?dir-spec) (null (first ?dir-spec)) 
-	     (eq (first ?dir-spec) 'unknown)))   
+   (test (or (null ?dir-spec) (eq ?dir-spec 'unknown)))
    ;; direction of displacement is not known
    ;; This is handled by draw-avg-vel-from-displacement
    (not (given (dir (displacement ?b :time ?t)) ?disp-dir))
@@ -1622,9 +1622,9 @@
   :preconditions
    (
     (time ?t)
-    ;; this is redundant with excluding (curved projectile ...)
+    ;; this is redundant with excluding curved :type projectile
     (not (free-fall ?b :time ?tfree) (tinsidep ?t ?tfree))		
-    (motion ?b (curved ?type ?dir-spec) :time ?t-motion)
+    (motion ?b curved :type ?type :dir ?dir-spec :time ?t-motion . ?rest)
     (test (tinsidep ?t ?t-motion))
     ;; However, the direction is known for projectile motion.
     ;; This should also be clear from the ?dir-spec but the 
@@ -1632,8 +1632,7 @@
     (test (not (eq ?type 'projectile)))
     ;; the acceleration direction is nil or 'unknown
     ;; may conflict for cases where nil != unknown; see problem kt12a
-    (test (or (null ?dir-spec) (null (second ?dir-spec)) 
-	      (eq (second ?dir-spec) 'unknown)))
+    (test (or (null ?dir-spec) (eq ?dir-spec 'unknown)))
     (object ?b) ;sanity test
     (not (vector ?b (accel ?b :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -1729,14 +1728,15 @@
     (bottom-out (string "Because ~a is accelerating due to gravity, you should use the acceleration tool to draw an acceleration for it ~a in the direction 270 degrees." ?b (?t pp)))
     ))
 
-;;; right now (curved projectile ...) means all non-circular curved
-;;; motion.  So automatically entailing (free-fall ...) is inappropriate
+;;; right now (motion ?body curved :type projectile ...) means all 
+;;; non-circular curved motion.  So automatically entailing 
+;;; (free-fall ...) is inappropriate
 ;;; perhaps we should rename projectile to "nil" or "unknown"
 #| 
 ;; projectile motion entails (free-fall ...)
 ;; we might want to get rid of (free-fall ...) entirely 
 (defoperator projectile-motion-is-free-fall (?b ?t)
-  :preconditions ((motion ?b (curved projectile ?whatever) :time ?t)
+  :preconditions ((motion ?b curved :type projectile :time ?t . ?whatever)
 		  (test (time-intervalp ?t)))
   :effects
    ((free-fall ?b :time ?t)))
@@ -1785,7 +1785,7 @@
 
 ;;; This operator draws the instantaneous acceleration vector for a body in 
 ;;; uniform circular motion.  This must be given in the problem statement as 
-;;; (motion ?body (curved circular (tangent-dir accel-dir)) :time ?t)
+;;; (motion ?body curved :type circular :dir ?dir :accel ?accel-dir :time ?t)
 ;;; where tangent-dir is the direction of the velocity at that time.
 ;;; It time is an interval, then the angle spec may be ignored, since it
 ;;; is no longer well-defined.
@@ -1800,7 +1800,7 @@
    "If ?body is in uniform circular motion during ?time,
    then draw a non-zero acceleration perpendicular to the velocity at ?time."
   :preconditions
-   ((motion ?b (curved circular (?vel-dir ?accel-dir)) :time ?t-motion)
+   ((motion ?b curved :type circular :accel ?accel-dir :time ?t-motion . ?rest)
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     (test (time-pointp ?t))
@@ -1835,7 +1835,7 @@
 (defoperator draw-accel-projectile-given-dir (?b ?t)
    :preconditions 
    (
-    (motion ?b (curved projectile (?vel-dir ?accel-dir)) :time ?t-motion)
+    (motion ?b curved :type projectile :accel ?accel-dir :time ?t-motion . ?rest)
     (test (degree-specifierp ?accel-dir))
     (time ?t)
     (test (tinsidep ?t ?t-motion))
@@ -1866,7 +1866,7 @@
    (
     ;; we have special rules to handle straight line and circular motion
     ;; This motion statement implies all other possibilities
-    (motion ?b (curved projectile ?dirstuff) :time ?t-motion)
+    (motion ?b curved :type projectile :time ?t-motion . ?dirstuff)
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     ;; we have special rules for the case of gravitational acceleration
@@ -1911,7 +1911,7 @@
 	       ((mag (accel ?b :time ?t))
 		(mag (velocity ?b :time ?t))
 		(revolution-radius ?b :time ?t)))
-   (motion ?body (curved circular ?dontcare) :time ?t-motion)
+   (motion ?body curved :type circular :time ?t-motion . ?dontcare)
    (test (tinsidep ?t ?t-motion))
    )
   :effects
@@ -1948,7 +1948,7 @@
    (any-member ?sought ((accel ?b :time ?t)
 			(velocity ?b :time ?t)
 			(revolution-radius ?b :time ?t)))
-   (motion ?body (curved circular ?dontcare) :time ?t-motion)
+   (motion ?body curved :type circular :time ?t-motion . ?dontcare)
    (test (tinsidep ?t ?t-motion))
    )
   :effects 
@@ -2032,7 +2032,7 @@
 
 (defoperator period-circular-contains (?sought)
   :preconditions (
-     (motion ?b (curved circular ?dontcare) :time ?t-circular)
+     (motion ?b curved :type circular :time ?t-circular . ?dontcare)
      (any-member ?sought (
                        (period ?b)
 		       (revolution-radius ?b :time ?t)
@@ -2679,17 +2679,18 @@
   :preconditions 
   ( 
    (time ?t)  ;explicit time
-   (test (not (equal ?b1 ?b2))) ;make sure the objects are distinct.
-   ;; make sure this is not known to be zero-length from at-place stmt.
-   (not (at-place ?b1 ?b2 :time ?t-at) (tinsidep-include-endpoints ?t ?t-at))
-   (not (at-place ?b2 ?b1 :time ?t-at) (tinsidep-include-endpoints ?t ?t-at))
-   (not (same-place (orderless ?b1 ?b2) :time ?t-at ) (tinsidep ?t ?t-at))
    ;; Make sure we are not given the direction, or the opposite direction,
    ;; when other drawing rules would apply
    (not (given (dir (relative-position ?b1 ?b2 :time ?t-at)) . ?whatever) 
 	(tinsidep-include-endpoints ?t ?t-at))
    (not (given (dir (relative-position ?b2 ?b1 :time ?t-at)) . ?whatever) 
 	(tinsidep-include-endpoints ?t ?t-at))
+   ;; test must be after the (not ...) or an error if ?b1 is unbound.
+   (test (not (equal ?b1 ?b2))) ;make sure the objects are distinct.
+   ;; make sure this is not known to be zero-length from at-place stmt.
+   (not (at-place ?b1 ?b2 :time ?t-at) (tinsidep-include-endpoints ?t ?t-at))
+   (not (at-place ?b2 ?b1 :time ?t-at) (tinsidep-include-endpoints ?t ?t-at))
+   (not (same-place (orderless ?b1 ?b2) :time ?t-at ) (tinsidep ?t ?t-at))
    ;; make sure this vector not already drawn
    (not (vector ?b2 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
    (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?b1) 
@@ -2810,6 +2811,17 @@
 ;;;
 ;;; Relate relative positions of two objects to their displacments
 ;;; 
+
+(def-psmclass relative-position-displacement 
+    (?eq-type relative-position-displacement ?axis ?rot (relative-position-displacment ?a ?b ?time))
+  :complexity minor
+  :short-name "relative position and displacement"
+  :english ("relative positon and displacement for two bodies")
+  :ExpFormat ("calculating change in relative position between ~a and ~a ~a" (nlg ?a) (nlg ?b) (nlg ?time))
+  :EqnFormat ("Rab2~a = da12_~a - db12_~a Rab1_~A" (axis-name ?axis)  
+	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
+
+
 (defoperator relative-position-displacement-vector-contains (?sought)
   :preconditions 
   ((any-member ?sought ( (displacement ?b :time ?tt)
@@ -3150,7 +3162,7 @@
    :preconditions (
     (motion ?b rotating :dir ?dir 
 	    :axis ?axis :time ?t-motion . ?whatever)
-    (test (not (equal ?dir 'z-unknown)))  
+    (test (definite-directionp ?dir)) ;match dir-var-value
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-velocity ?b :time ?t) ?dir-drawn))
@@ -3677,7 +3689,7 @@
    (bind ?a-dir (opposite ?r-dir))  
    (debug "linear motion of ~A: vel dir ~A, accel dir ~A~%" ?pt ?v-dir ?a-dir)
    )
-   :effects ((motion ?pt (curved circular (?v-dir ?a-dir)) :time ?t))
+   :effects ((motion ?pt curved :type circular :dir ?v-dir :accel ?a-dir :time ?t))
 )
 
 (defoperator linear-vel-contains (?sought)

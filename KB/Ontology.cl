@@ -426,14 +426,16 @@
   :fromWorkbench `(height ,body :time ,time)
   :english ("the height of ~A above the zero level" 
 	    (nlg ?body 'at-time ?time)))
-(def-qexp moment-of-inertia (moment-of-inertia ?body :time ?time)
+(def-qexp moment-of-inertia (moment-of-inertia ?body :axis ?axis :time ?time)
   :symbol-base |I|     
   :short-name "moment of inertia"	
-  :dialog-text "of [body:bodies]"
+  :dialog-text "of [body:bodies] about [body2:positions]"
   :units |kg.m^2|
   :restrictions positive
-  :fromWorkbench (if time `(moment-of-inertia ,body :time ,time) `(moment-of-inertia ,body))
-  :english ("the moment of inertia of ~A" (nlg ?body 'at-time ?time)))
+  :fromWorkbench (if time `(moment-of-inertia ,body :axis ,body2 :time ,time) 
+		     `(moment-of-inertia ,body :axis ,body2))
+  :english ("the moment of inertia of ~A about ~A" 
+	    (nlg ?body) (nlg ?axis 'at-time ?time)))
 ;; for dimensions of certain rigid bodies:
 (def-qexp length (length ?body)
   :symbol-base ||     
@@ -814,15 +816,6 @@
 		   "displacement of ~A ~A along the ~A axis") 
 	   (nlg ?body) (nlg ?time 'pp) ?axis))
 
-
-
-(def-psmclass displacement-relative-position (?eq-type relative-position-displacement ?axis ?rot (relative-position-displacment ?a ?b ?time))
-  :complexity minor
-  :short-name "relative position and displacement"
-  :english ("relative positon and displacement for two bodies")
-  :ExpFormat ("calculating change in relative position between ~a and ~a ~a" (nlg ?a) (nlg ?b) (nlg ?time))
-  :EqnFormat ("Rab2~a = da12_~a - db12_~a Rab1_~A" (axis-name ?axis)  
-	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 	Linear kinematic family of equations.
@@ -1222,57 +1215,6 @@
   :ExpFormat ("finding the relation between linear motion and rotational motion of ~A"
 	      (nlg ?body 'at-time ?time))
   :EqnFormat ("v = $w*r"))
-
-
-;; ROTATIONAL KINEMATICS: CONSTANT ANGULAR ACCELERATION EQUATIONS
-;; MOMENT OF INERTIA
-(def-psmclass I-rod-cm (I-rod-cm ?body)
-  :complexity minor
-  :short-name "rod about center"
-  :english ("moment of inertia of a rod about its center")
-  :expformat ("calculating the moment of inertia of ~a about its cm" 
-	      (nlg ?body))
-  :EqnFormat ("I = (1/12) m*L^2"))
-
-(def-psmclass I-rod-end (I-rod-end ?body)
-  :complexity minor
-  :short-name "rod about end"
-  :english ("moment of inertia of a rod about its end")
-  :expformat ("moment of inertia of the rod ~a about its end" (nlg ?body))
-  :EqnFormat ("I = (1/3) m*L^2"))
-(def-psmclass I-hoop-cm (I-hoop-cm ?body)
-  :complexity minor
-  :short-name "hoop"
-  :english ("moment of inertia for a hoop about its center")
-  :expformat ("moment of inertia for the hoop ~a about its cm" (nlg ?body))
-  :EqnFormat ("I = m*r^2"))
-
-(def-psmclass I-disk-cm (I-disk-cm ?body)
-  :complexity minor
-  :short-name "disk about center"
-  :english ("moment of inertia of a disk about its center")
-  :expformat ("moment of inertia of the disk ~a about its cm" (nlg ?body))
-  :EqnFormat ("I = 0.5*m*r^2"))
-
-(def-psmclass I-rect-cm (I-rect-cm ?body)
-  :complexity minor
-  :short-name "rectangular plate"
-  :english ("moment of inertia of a rectangle about its center")
-  :expformat ("moment of inertia of the rectangle ~a about its cm"
-	      (nlg ?body))
-  :EqnFormat ("I = (1/12) m*(L^2 + W^2)"))
-
-(def-psmclass I-compound (I-compound ?compound)
-  :complexity minor
-  :short-name "compound body"
-  :english ("moment of inertia of a compound body")
-  :expformat ("calculating the moment of inertia of the compound body ~a"
-	      (nlg ?compound))
-  :EqnFormat ("I12 = I1 + I2"))
-
-
-;; ANGULAR MOMENTUM
-
 
 ;;;; ROTATIONAL DYNAMICS (TORQUE)
 
