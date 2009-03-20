@@ -801,9 +801,9 @@
 
 ;;; default case: picking the wrong body.  Test this with momr4a.
 (def-error-class wrong-body-moment-of-inertia (?sbody ?cbody)
-  ((student (define-var (moment-of-inertia ?sbody :time ?t)))
-   (no-correct (define-var (moment-of-inertia ?sbody :time ?t)))
-   (correct (define-var (moment-of-inertia ?cbody :time ?t))))
+  ((student (define-var (moment-of-inertia ?sbody :axis ?axis :time ?t)))
+   (no-correct (define-var (moment-of-inertia ?sbody :axis ?any-axis :time ?t)))
+   (correct (define-var (moment-of-inertia ?cbody :axis ?axis :time ?t))))
   :flag (body)
   :probability
   (+ 0.3))

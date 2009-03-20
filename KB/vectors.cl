@@ -715,6 +715,8 @@
 ;; inputs. Would be better to formalize reasoning leading to cross
 ;; product direction in this case.
 
+;;  See bug #1510
+
 (defoperator use-compos-for-dir (?quant)
    :preconditions 
    (
@@ -1870,7 +1872,7 @@
 ;;; statement of the given dimensions. 
 (defoperator define-width (?b)
   :preconditions (
-     (shape ?b rectangle ?dontcare)
+     (shape ?b rectangle . ?dontcare)
      (bind ?l-var (format-sym "width_~A" (body-name ?b)))
   )
   :effects (
@@ -1887,23 +1889,114 @@
 ;;;; axes such as cm (for center of mass) or end. 
 ;;;;-------------------------------------------------------------------------
 
+;; I for point particle
+(def-psmclass I-particle (I-particle ?body ?axis ?time)
+  ;; Could use tau = I alpha as the definition of I, but to
+  ;; keep analogy with linear motion we want tau = I alpha to
+  ;; be a principle.
+  :complexity definition
+  :short-name "moment of point mass"
+  :english ("moment of inertia of a point mass")
+  :expformat ("calculating the moment of inertia of ~a about ~A" 
+	      (nlg ?body) (nlg ?axis))
+  :EqnFormat ("I = m*R^2"))
+
+(defoperator I-particle-contains (?sought)
+  :preconditions 
+  ((shape ?b point)  ;should combine with (point-particle ...)
+   ;; could be generalized to include time:
+   (any-member ?sought ( (moment-of-inertia ?b :axis ?cm)
+			 (mass ?b)
+			 (mag (relative-postion ?b ?cm :time ?t)) ))
+   (time ?t)
+   ;; draw vector and make sure it lies in the xy plane
+   ;; Andes assumes all axes are in z-direction
+   (vector ?b (relative-position ?b ?cm :time ?t) ?dir)
+   (test (perpendicularp 'z-unknown ?dir)))
+  :effects ( (eqn-contains (I-particle ?b ?cm ?t) ?sought)))
+
+(defoperator write-I-particle (?b ?cm ?t)
+  :preconditions (
+    (variable ?I-var (moment-of-inertia ?b :axis ?cm))
+    (variable ?m-var (mass ?b))
+    (variable ?r-var (mag (relative-position ?b ?cm :time ?t))))
+  :effects 
+    ((eqn (= ?I-var (* ?m-var (^ ?r-var 2))) (I-particle ?b ?cm ?t)))
+   :hint
+    ((point (string "Find the moment of inertia of ~A." ?b))
+     (bottom-out (string "Write the equation ~A"
+            ((= ?I-var (* ?m-var (^ ?r-var 2))) algebra)))))
+
+;; parallel-axis theorem
+(def-psmclass parallel-axis-theorem (parallel-axis-theorem ?body ?axis ?cm ?time)
+  ;; Could use tau = I alpha as the definition of I, but to
+  ;; keep analogy with linear motion we want tau = I alpha to
+  ;; be a principle.
+  :complexity minor
+  :short-name "parallel axis theorem"
+  :english ("parallel axis theorem")
+  :expformat ("calculating the moment of inertia of ~a about ~A" 
+	      (nlg ?body) (nlg ?axis))
+  :EqnFormat ("I = M*R^2 + Icm"))
+
+(defoperator parallel-axis-theorem-contains (?sought)
+  :preconditions 
+  (
+   ;; could be generalized to include time:
+   (any-member ?sought ( (moment-of-inertia ?b :axis ?cm)
+			 (moment-of-inertia ?b :axis ?axis)
+			 (mass ?b)
+			 (mag (relative-postion ?axis ?cm :time ?t)) ))
+   (time ?t)
+   ;; Need to bind ?axis here
+   (use-point-for-body ?b ?cm ?axis)
+   ;; draw vector and make sure it lies in the xy plane
+   ;; Andes assumes all axes are in z-direction
+   (vector ?axis (relative-position ?axis ?cm :time ?t) ?dir)
+   (test (perpendicularp 'z-unknown ?dir)))
+  :effects ( (eqn-contains (parallel-axis-theorem ?b ?axis ?cm ?t) ?sought)))
+
+(defoperator write-parallel-axis-theorem (?b ?axis ?cm ?t)
+  :preconditions (
+    (variable ?I-axis-var (moment-of-inertia ?b :axis ?axis))
+    (variable ?I-cm-var (moment-of-inertia ?b :axis ?cm))
+    (variable ?m-var (mass ?b))
+    (variable ?r-var (mag (relative-position ?axis ?cm :time ?t))))
+  :effects 
+    ((eqn (= ?I-axis-var (+  ?I-cm-var (* ?m-var (^ ?r-var 2)))) 
+	  (parallel-axis-theorem ?b ?axis ?cm ?t)))
+   :hint
+    ((point (string "Find the moment of inertia of ~A about ~A." ?b ?axis))
+     (teach (string "The parallel axis theorem relates the moment of intertia about any axis to the moment of inertial about the center of mass."))
+     (bottom-out (string "Write the equation ~A"
+            ((= ?I-var (+  ?I-cm-var (* ?m-var (^ ?r-var 2)))) algebra)))))
+
 ;; I for long thin rod rotating about cm = 1/12 m l^2, where l is length
+(def-psmclass I-rod-cm (I-rod-cm ?body ?cm)
+  :complexity minor
+  :short-name "rod about center"
+  :english ("moment of inertia of a rod about its center")
+  :expformat ("calculating the moment of inertia of ~a about ~A" 
+	      (nlg ?body) (nlg ?cm))
+  :EqnFormat ("I = (1/12) m*L^2"))
+
 (defoperator I-rod-cm-contains (?sought)
   :preconditions 
-  ((shape ?b rod cm)
+  ((shape ?b rod :center ?cm . ?rest)
+   (test ?cm)
    ;; could be generalized to include time:
-  (any-member ?sought ( (moment-of-inertia ?b)
+  (any-member ?sought ( (moment-of-inertia ?b :axis ?cm)
 		        (mass ?b)
 		        (length ?b) )))
-  :effects ( (eqn-contains (I-rod-cm ?b) ?sought)))
+  :effects ( (eqn-contains (I-rod-cm ?b ?cm) ?sought)))
 
-(defoperator write-I-rod-cm (?b)
+(defoperator write-I-rod-cm (?b ?cm)
   :preconditions (
-    (variable ?I-var (moment-of-inertia ?b))
+    (variable ?I-var (moment-of-inertia ?b :axis ?cm))
     (variable ?m-var (mass ?b))
     (variable ?l-var (length ?b) ))
   :effects 
-    ((eqn (= ?I-var (* (/ 1 12) ?m-var (^ ?l-var 2))) (I-rod-cm ?b)))
+    ((eqn (= ?I-var (* (/ 1 12) ?m-var (^ ?l-var 2))) (I-rod-cm ?b ?cm)))
    :hint
     ((point (string "You need the formula for the moment of inertia of a long thin rod rotating about its center of mass."))
      (bottom-out (string "Write the equation ~A"
@@ -1913,102 +2006,140 @@
 ;; This is our only formula for rotation not about the center of mass.
 ;; It could be derived from the formula for I about cm plus the "parallel 
 ;; axis theorem", but we don't include that yet.
+
+(def-psmclass I-rod-end (I-rod-end ?body ?end)
+  :complexity minor
+  :short-name "rod about end"
+  :english ("moment of inertia of a rod about its end")
+  :expformat ("moment of inertia of the rod ~a about ~A" (nlg ?body) (nlg ?end))
+  :EqnFormat ("I = (1/3) m*L^2"))
+
 (defoperator I-rod-end-contains (?sought)
   :preconditions 
-  ((shape ?b rod end)
+  ((shape ?b rod :end ?end . ?rest)
+   (test ?end)
    ;; this could be generalized to include time
-  (any-member ?sought ( (moment-of-inertia ?b)
+  (any-member ?sought ( (moment-of-inertia ?b :axis ?end)
 		        (mass ?b)
 		        (length ?b) ))
   )
-  :effects ( (eqn-contains (I-rod-end ?b) ?sought)))
+  :effects ( (eqn-contains (I-rod-end ?b ?end) ?sought)))
 
-(defoperator write-I-rod-end (?b)
+(defoperator write-I-rod-end (?b ?end)
   :preconditions (
-    (variable ?I-var (moment-of-inertia ?b))
+    (variable ?I-var (moment-of-inertia ?b :axis ?end))
     (variable ?m-var (mass ?b))
     (variable ?l-var (length ?b) ))
   :effects 
-    ((eqn (= ?I-var (* (/ 1 3) ?m-var (^ ?l-var 2))) (I-rod-end ?b)))
+    ((eqn (= ?I-var (* (/ 1 3) ?m-var (^ ?l-var 2))) (I-rod-end ?b ?end)))
   :hint
     ((point (string "You need the formula for the moment of inertia of a long thin rod rotating about its end."))
      (bottom-out (string "Write the equation ~A"
             ((= ?I-var (* (/ 1 3) ?m-var (^ ?l-var 2))) algebra)))))
 
 
-; I for hoop of given radius about center: I = MR^2 where R is radius
-; !!! quick hack !!! The workbench offers a "radius" variable, but uses it
-; to mean "radius of uniform circular motion" -- our "revolution-radius" --
-; and has nothing to be radius of a rigid body shape. In order to allow
-; this to be defined with the current workbench, we define I for a hoop in 
-; terms of a revolution radius. This is not totally awful since our hoop is 
-; likely rotating about it's center of mass, but it should be fixed in
-; the workbench. 
+;; I for hoop of given radius about center: I = MR^2 where R is radius
+;; !!! quick hack !!! The workbench offers a "radius" variable, but uses it
+;; to mean "radius of uniform circular motion" -- our "revolution-radius" --
+;; and has nothing to be radius of a rigid body shape. In order to allow
+;; this to be defined with the current workbench, we define I for a hoop in 
+;; terms of a revolution radius. This is not totally awful since our hoop is 
+;; likely rotating about it's center of mass, but it should be fixed in
+;; the workbench. 
+
+(def-psmclass I-hoop-cm (I-hoop-cm ?body ?cm)
+  :complexity minor
+  :short-name "hoop"
+  :english ("moment of inertia for a hoop about its center")
+  :expformat ("moment of inertia for the hoop ~a about ~A" 
+	      (nlg ?body) (nlg ?cm))
+  :EqnFormat ("I = m*r^2"))
+
 (defoperator I-hoop-cm-contains (?sought)
   :preconditions 
-  ((shape ?b hoop cm)
+  ((shape ?b hoop :center ?cm)
+   (test ?cm)
    ;; this could be generalized to include time
-   (any-member ?sought ((moment-of-inertia ?b)
+   (any-member ?sought ((moment-of-inertia ?b :axis ?cm)
 			(mass ?b)
 			(radius-of-circle ?b)
 		      ))
   )
   :effects 
-    ((eqn-contains (I-hoop-cm ?b) ?sought)))
+    ((eqn-contains (I-hoop-cm ?b ?cm) ?sought)))
 
-(defoperator write-I-hoop-cm (?b)
+(defoperator write-I-hoop-cm (?b ?cm)
   :preconditions 
-    ((variable ?I-var (moment-of-inertia ?b))
+    ((variable ?I-var (moment-of-inertia ?b :axis ?cm))
     (variable ?m-var (mass ?b))
     (variable ?r-var (radius-of-circle ?b)))
   :effects 
-  ( (eqn (= ?I-var (* ?m-var (^ ?r-var 2))) (I-hoop-cm ?b)) )
+  ( (eqn (= ?I-var (* ?m-var (^ ?r-var 2))) (I-hoop-cm ?b ?cm)) )
    :hint
     ((point (string "You need the formula for the moment of inertia of a hoop rotating about its center of mass."))
      (bottom-out (string "Write the equation ~A"
             ((= ?I-var (* ?m-var (^ ?r-var 2))) algebra)))))
 
-; I for disk or cylinder of given radius about center: I = 1/2 M R^2
+;; I for disk or cylinder of given radius about center: I = 1/2 M R^2
+(def-psmclass I-disk-cm (I-disk-cm ?body ?cm)
+  :complexity minor
+  :short-name "disk about center"
+  :english ("moment of inertia of a disk about its center")
+  :expformat ("moment of inertia of the disk ~a about ~A" 
+	      (nlg ?body) (nlg ?cm))
+  :EqnFormat ("I = 0.5*m*r^2"))
+
 (defoperator I-disk-cm-contains (?sought)
   :preconditions 
-  ((shape ?b disk cm)
+  ((shape ?b disk :center ?cm)
+   (test ?cm)
    ;; this could be generalized to include time
-  (any-member ?sought ((moment-of-inertia ?b)
+  (any-member ?sought ((moment-of-inertia ?b :axis ?cm)
 		       (mass ?b)
 		       (radius-of-circle ?b))) )
   :effects 
-    ( (eqn-contains (I-disk-cm ?b) ?sought) ))
+    ( (eqn-contains (I-disk-cm ?b ?cm) ?sought) ))
 
-(defoperator write-I-disk-cm (?b)
+(defoperator write-I-disk-cm (?b ?cm)
   :preconditions (
-    (variable ?I-var (moment-of-inertia ?b))
+    (variable ?I-var (moment-of-inertia ?b :axis ?cm))
     (variable ?m-var (mass ?b))
     (variable ?r-var (radius-of-circle ?b))
   )
   :effects 
-    ( (eqn (= ?I-var (* 0.5 ?m-var (^ ?r-var 2))) (I-disk-cm ?b)) ))
+    ( (eqn (= ?I-var (* 0.5 ?m-var (^ ?r-var 2))) (I-disk-cm ?b ?cm)) ))
 
-; rectangular plate I = 1/12 M * (l^2 + w^2) where l = length, w = width
+;; rectangular plate I = 1/12 M * (l^2 + w^2) where l = length, w = width
+
+(def-psmclass I-rect-cm (I-rect-cm ?body ?cm)
+  :complexity minor
+  :short-name "rectangular plate"
+  :english ("moment of inertia of a rectangle about its center")
+  :expformat ("moment of inertia of the rectangle ~a about ~A"
+	      (nlg ?body) (nlg ?cm))
+  :EqnFormat ("I = (1/12) m*(L^2 + W^2)"))
+
 (defoperator I-rect-cm-contains (?sought)
   :preconditions 
-  ((shape ?b rectangle cm)
+  ((shape ?b rectangle :center ?cm)
+   (test ?cm)
    ;; this could be generalized to include time
-  (any-member ?sought ( (moment-of-inertia ?b)
+  (any-member ?sought ( (moment-of-inertia ?b :axis ?cm)
 		        (mass ?b)
 		        (length ?b) 
 		        (width ?b) )))
-  :effects ( (eqn-contains (I-rect-cm ?b) ?sought)))
+  :effects ( (eqn-contains (I-rect-cm ?b ?cm) ?sought)))
 
-(defoperator write-I-rect-cm (?b)
+(defoperator write-I-rect-cm (?b ?cm)
   :preconditions 
-   ((variable ?I-var (moment-of-inertia ?b))
+   ((variable ?I-var (moment-of-inertia ?b :axis ?cm))
     (variable ?m-var (mass ?b))
     (variable ?l-var (length ?b)) 
     (variable ?w-var (width ?b)))
   :effects 
     ((eqn (= ?I-var (* (/ 1 12) ?m-var (+ (^ ?l-var 2) 
                                           (^ ?w-var 2)))) 
-          (I-rect-cm ?b)))
+          (I-rect-cm ?b ?cm)))
    :hint
     ((point (string "You need the formula for the moment of inertia of a rectangle rotating about its center of mass."))
      (bottom-out (string "Write the equation ~A"
@@ -2017,27 +2148,36 @@
 
 ;; moment of inertia of a compound body is sum of moments of inertia of 
 ;; its constituents
+
+(def-psmclass I-compound (I-compound ?compound ?axis)
+  :complexity minor
+  :short-name "compound body"
+  :english ("moment of inertia of a compound body")
+  :expformat ("calculating the total moment of inertia of ~a about ~A"
+	      (nlg ?compound) (nlg ?axis))
+  :EqnFormat ("I12 = I1 + I2"))
+
 (defoperator I-compound-contains (?sought)
    :preconditions 
    (  ;; could be generalized to optionally include time
-    (any-member ?sought ( (moment-of-inertia (compound orderless . ?bodies)) ))
+    (any-member ?sought ( (moment-of-inertia (compound orderless . ?bodies) :axis ?axis) ))
      ; can also find I for component bodies from I of compound, see below
    )
    :effects (
-     (eqn-contains (I-compound ?bodies) ?sought)
+     (eqn-contains (I-compound ?bodies ?axis) ?sought)
    ))
 
 (defoperator I-compound-contains2 (?sought)
    :preconditions (
      (object (compound orderless . ?bodies))
-     (any-member ?sought ( (moment-of-inertia ?b) ))
+     (any-member ?sought ( (moment-of-inertia ?b :axis ?axis) ))
      (test (member ?b ?bodies :test #'equal))
    )
    :effects (
-     (eqn-contains (I-compound ?bodies) ?sought)
+     (eqn-contains (I-compound ?bodies ?axis) ?sought)
    ))
 
-(defoperator write-I-compound (?bodies)
+(defoperator write-I-compound (?bodies ?axis)
   :preconditions (
 		  ;; make sure compound body is drawn. This is the only place 
 		  ;; the compound occurs as a "principle body" in a cons 
@@ -2046,13 +2186,13 @@
 		  ;; (This isn't needed for counterpart mass-compound,
       ;; since compound is drawn as one way of defining mass variable.)
       (body (compound orderless . ?bodies))
-      (variable ?I-var (moment-of-inertia (compound orderless . ?bodies)))
+      (variable ?I-var (moment-of-inertia (compound orderless . ?bodies) :axis ?axis))
       (map ?body ?bodies
-         (variable ?Ipart-var (moment-of-inertia ?body))
+         (variable ?Ipart-var (moment-of-inertia ?body :axis ?axis))
 	 ?Ipart-var ?Ipart-vars)
    )
    :effects (
-      (eqn (= ?I-var (+ . ?Ipart-vars)) (I-compound ?bodies))
+      (eqn (= ?I-var (+ . ?Ipart-vars)) (I-compound ?bodies ?axis))
    )
    :hint (
      (point (string "Think about how the moment of inertia of a compound body relates to the moments of inertia of its parts"))
@@ -2270,7 +2410,7 @@
 (defoperator area-of-square-contains (?sought)
   :preconditions 
   (
-    (shape ?shape square ?dontcare)
+    (shape ?shape square . ?dontcare)
     (any-member ?sought ((length ?shape)
 			 (area ?shape)))  
     )
@@ -2289,15 +2429,15 @@
 	 (bottom-out (string "Write the equation ~A"  
 			     ((= ?A (^ ?l 2)) algebra)) )) )
 
-(defoperator square-is-kind-of-rectangle (?shape)
-  :preconditions ((shape ?shape square ?dontcare))
-  :effects ((shape ?shape rectangle ?dontcare))
+(defoperator square-is-kind-of-rectangle (?shape ?rest)
+  :preconditions ((shape ?shape square . ?rest))
+  :effects ((shape ?shape rectangle . ?rest))
 )
 
 (defoperator area-of-rectangle-contains (?sought)
    :preconditions 
    (
-    (shape ?shape rectangle ?dontcare)
+    (shape ?shape rectangle . ?dontcare)
     (any-member ?sought ((width ?shape)
 			 (length ?shape)
 			 (area ?shape)))  
@@ -2327,7 +2467,7 @@
 
  (defoperator area-of-rectangle-change-contains (?sought)
    :preconditions (
-		   (in-wm (shape ?shape rectangle ?dontcare))
+		   (in-wm (shape ?shape rectangle . ?dontcare))
 		   (any-member ?sought ((width ?shape)
 					(rate-of-change (length ?shape))
 					(rate-of-change (area ?shape)))  )
