@@ -299,7 +299,7 @@ while (<>) { # loop over andes files/sessions
 
 	    # Sanity test:  these should have the same length
 	    @operator_list == @step_list or
-		die "assoc op and assoc step don't match\n";
+		warn "assoc op and assoc step don't match\n";
     
 	    my $new_step = 0; #see if entry involves any new part of solution
 	    while (@operator_list) {
@@ -384,7 +384,7 @@ if (0) {
 
 # print out histogram of first hint and first action in Mathematica notation
 # This is not affected by any of the cutoffs
-if (1) {
+if (0) {
     print "\nfirstHintHistogram={";
     my $count=0;
     foreach $time (sort {$a <=> $b} (keys %first_hint)) {
@@ -513,13 +513,16 @@ foreach $student (sort keys %times) {
 	     $scores{$student}{$problem} > $score_cut_off) {$i++;}
      }
     $problem_attempts{$i}++;
+    $total_problem_attempts+= $i;
     if($i<=$minimum_problem_attempts) {delete $times{$student};}
 }
-
 #
 #  Print number of students that attempted to solve a given number of problems.
 #
-if (0) {
+if (1) {
+  my $count_students=scalar(keys %times);
+  my $mean_problems = $total_problem_attempts/$count_students;
+  print "students=$count_students; avgproblems=$mean_problems\n";
     print "problemattempts={";
     my $count=0;
     foreach $i (sort {$a <=> $b} keys %problem_attempts) {
