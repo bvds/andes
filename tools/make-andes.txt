@@ -1,6 +1,14 @@
+# corman lisp install attempt
+# download and run corman lisp
+# (user-homedir-pathname)
+# copy clisprc.lisp to .clisprc.lisp in this directory
+
+
+
 # Choose DOS style text files in cygwin and restart windows
 # install make in cygwin by running "setup"
 #
+# In cygwin modify default terminal by editing /cygdrive/c/cygwin/cygwin.bat
 #
 # cygwin git, by default, only works if the filesystem is mounted
 #   binary.  (Might get it to work with linefeed conversion and textmode
