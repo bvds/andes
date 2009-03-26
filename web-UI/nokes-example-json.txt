@@ -12,9 +12,9 @@ bodies, axes and vectors) are replaced with plain text entry dialog boxes.
 The the following design decisions have not been made and the 
 API should be agnostic with respect to them:
 
-1.  Does a single lisp process handles one or many user sessions?
+1.  Does a single lisp process handles one or many user/problem sessions?
 
-2.  Does one allow for multiple user sessions on one client machine?
+2.  Does one allow for multiple user/problem sessions on one client machine?
 
 3.  Is logging done by the lisp process or by the controller script on
      the web server?  There is a lisp interface to SQL type databases, so we
@@ -22,10 +22,12 @@ API should be agnostic with respect to them:
 
 Definitions:
 
-user session:  each instance of a student trying to solve a problem.  It
+user/problem session:  each instance of a student trying to solve a problem.  It
 is marked by a unique integer.  A student may solve a problem over the 
-course of several user sessions.  The Dojox.rpc.Client library includes
-X-Client-id header that might be better used for this purpose.
+course of several user/problem sessions.  Also, there may be more than one
+user/problem sessions active at the same time for a given course login.  
+The Dojox.rpc.Client library includes X-Client-id header that might be used to 
+send this identification to the server.
 
 controller script:  This is a script running on the web server that receives 
 http requests, sends them on to the appropriate lisp process, and then 
@@ -33,22 +35,22 @@ forwards the reply from the lisp process back to the client.  It may also
 log messages.
 
 lisp process:  This is a process running the help system for one or more
-user sessions.  It is assumed to be already running and ready for input.
+user/problem sessions.  It is assumed to be already running and ready for input.
 That is, the process is neither started or stopped by the controller script.
 
 *******************************************************************************
 
 0:02 Initial login
 
-{"method": "open-problem", "params": {"session": 3234, "time": 0.000, 
+{"method": "open-problem", "params": {"time": 0.000, 
 	   "problem": "s2e", "user": "joe"}}
 
 Width of a text box is set explicitly by "text-width" in em units or implicitly 
-by newlines in the text.  Alternatively, there will be a parameter giving
-the WebAssign session id and the return will include an action that sets
-the user session id on the client.
+by newlines in the text.  Alternatively, this request will send 
+the WebAssign session id.
 
 [
+  {"action": "set-session", "id": 3237},
   {"action": "new-object", "id": 0, "type": "text", "mode": "locked", 
 	     "x": 3, "y": 5, "text-width": 80,
 	     "text": "A spherical ball with a mass of 2.00 kg rests in the notch ..."},
@@ -72,7 +74,7 @@ If there was previous work, it would be included in the above response.
 
 0:50 student draws ball
 
-{"method": "solution-step", "params": {"session": 3234, "time": 50.000, 
+{"method": "solution-step", "params": {"time": 50.000, 
 	   "action": "new-object", "id": 3,  
 	   "type": "circle", "mode": "unknown", 
 	   "x": 66, "y": 188, "radius": 25, "text": "ball"}, "id": 2}
@@ -88,7 +90,7 @@ is shown on the screen when the vector is being dragged out.
 "angle" is angle in degrees; "radius" is length of axes;
 "x-label", "y-label" are hard-coded into client.
 
-{"method": "solution-step", "params": {"session": 3234, "time": 69.000, 
+{"method": "solution-step", "params": {"time": 69.000, 
 	   "action": "new-object", "id": 4,  
 	   "type": "axes", "mode": "unknown", 
 	   "x": 77, "y": 88, "angle": 88,  "radius": 120, 
@@ -103,7 +105,7 @@ is shown on the screen when the vector is being dragged out.
 1:14 student moves ball, client changes it to "unknown"  Andes2 is
 agnostic about object positions; Andes3 is not.
 
-{"method": "solution-step", "params": {"session": 3234, "time": 74.000, 
+{"method": "solution-step", "params": {"time": 74.000, 
 	   "id": 3, "action": "modify-object",  "mode": "unknown", 
 	   "x": 88, "y": 99}, "id": 4}
 
@@ -113,7 +115,7 @@ agnostic about object positions; Andes3 is not.
 
 1:16 student moves axes, client changes it to "unknown"
 
-{"method": "solution-step", "params": {"session": 3234, "time": 76.000, 
+{"method": "solution-step", "params": {"time": 76.000, 
 	   "action": "modify-object", "id": 4, "x": 108, "y": 109}, "id": 5}
 
 [
@@ -122,7 +124,7 @@ agnostic about object positions; Andes3 is not.
 
 1:57 define mass of ball
 
-{"method": "solution-step", "params": {"session": 3234, "time": 117.001, 
+{"method": "solution-step", "params": {"time": 117.001, 
 	   "action": "new-object", "id": 5,  
 	   "type": "text", "mode": "unknown", 
 	   "x": 177, "y": 188, "text-width": 66, 
@@ -138,7 +140,7 @@ agnostic about object positions; Andes3 is not.
 3:18 draw first force vector.  Unlike Andes2, the angle of the vector
 is shown on the screen when the vector is being dragged out.
 
-{"method": "solution-step", "params": {"session": 3234, "time": 198.001, 
+{"method": "solution-step", "params": {"time": 198.001, 
 	   "action": "new-object", "id": 6,  
 	   "type": "vector", "mode": "unknown", 
 	   "x": 240, "y": 222, "angle": 120,  "radius": 60,
@@ -152,7 +154,7 @@ is shown on the screen when the vector is being dragged out.
 
 4:21 draw second force vector
 
-{"method": "solution-step", "params": {"session": 3234, "time": 261.001, 
+{"method": "solution-step", "params": {"time": 261.001, 
 	   "action": "new-object", "id": 7,  
 	   "type": "vector", "mode": "unknown", 
 	   "x": 241, "y": 224, "angle": 40, "radius": 88,
@@ -166,7 +168,7 @@ is shown on the screen when the vector is being dragged out.
 
 5:09 draw third force vector
 
-{"method": "solution-step", "params": {"session": 3234, "time": 309.001, 
+{"method": "solution-step", "params": {"time": 309.001, 
 	   "action": "new-object", "id": 8,
 	   "type": "vector", "mode": "unknown", 
 	   "x": 245, "y": 224, "angle": 270, "radius": 77,
@@ -180,7 +182,7 @@ is shown on the screen when the vector is being dragged out.
 
 6:25 First equation, client has to encode the backspace.
 
-{"method": "solution-step", "params": {"session": 3234, "time": 385.001, 
+{"method": "solution-step", "params": {"time": 385.001, 
 	   "action": "new-object", "id": 9,  
 	   "type": "equation", "mode": "unknown", 
 	   "x": 15, "y": 300, 
@@ -195,7 +197,7 @@ is shown on the screen when the vector is being dragged out.
 
 7:01 Second equation
 
-{"method": "solution-step", "params": {"session": 3234, "time": 421.001, 
+{"method": "solution-step", "params": {"time": 421.001, 
 	   "action": "new-object", "id": 10,
 	   "type": "equation", "mode": "unknown", 
 	   "x": 15, "y": 310, 
@@ -211,7 +213,7 @@ is shown on the screen when the vector is being dragged out.
 7:39 Third equation
 For the rest of this, I am going to skip the log stuff.
 
-{"method": "solution-step", "params": {"session": 3234, "time": 459.001, 
+{"method": "solution-step", "params": {"time": 459.001, 
 	   "action": "new-object", "id": 11,
 	   "type": "equation", "mode": "unknown", 
 	   "x": 15, "y": 320, 
@@ -223,7 +225,7 @@ For the rest of this, I am going to skip the log stuff.
 
 8:02 Fourth equation
 
-{"method": "solution-step", "params": {"session": 3234, "time": 482.001, 
+{"method": "solution-step", "params": {"time": 482.001, 
 	   "action": "new-object", "id": 12,
 	   "type": "equation", "mode": "unknown", 
 	   "x": 15, "y": 330, 
@@ -235,7 +237,7 @@ For the rest of this, I am going to skip the log stuff.
 
 8:37 Fifth equation
 
-{"method": "solution-step", "params": {"session": 3234, "time": 517.001, 
+{"method": "solution-step", "params": {"time": 517.001, 
 	   "action": "new-object", "id": 12,
 	   "type": "equation", "mode": "unknown", 
 	   "x": 15, "y": 340, 
@@ -247,7 +249,7 @@ For the rest of this, I am going to skip the log stuff.
 
 9:31 Sixth equation (with error and fix)
 
-{"method": "solution-step", "params": {"session": 3234, "time": 571.001, 
+{"method": "solution-step", "params": {"time": 571.001, 
 	   "action": "new-object", "id": 13,
 	   "type": "equation", "mode": "unknown", 
 	   "x": 15, "y": 350, 
@@ -257,7 +259,7 @@ For the rest of this, I am going to skip the log stuff.
   {"action": "modify-object", "id": 13, "mode": "wrong"}
 ]
 
-{"method": "solution-step", "params": {"session": 3234, "time": 590.001, 
+{"method": "solution-step", "params": {"time": 590.001, 
 	   "action": "modify-object", "id": 13,
 	   "text": "Fearth_y = Fearth * sin (\\thetaFearth)"}, "id": 15}
 
@@ -267,7 +269,7 @@ For the rest of this, I am going to skip the log stuff.
 
 10:22 Ask for a hint.  The student replies by typing in the chat window.
 
-{"method": "seek-help", "params": {"session": 3234, "time": 571.001,
+{"method": "seek-help", "params": {"time": 571.001,
 	   "action": "help-button"}, "id": 16}
 
 Make the chat window text box come into focus.
@@ -277,7 +279,7 @@ Make the chat window text box come into focus.
   {"action": "focus-hint-text-box"}
 ]
 
-{"method": "seek-help", "params": {"session": 3234, "time": 657.001,
+{"method": "seek-help", "params": {"time": 657.001,
 	   "action": "get-help", "text": "Fwall1"}, "id": 17}
 
 Show hint with a link below it.  On clicking, opens window with list of 
@@ -289,7 +291,7 @@ combined.
   {"action" : "show-hint-link", "text": "Choose a principle", "href": "quantities.html"}
 ]
 
-{"method": "seek-help", "params": {"session": 3234, "time": 671.001,
+{"method": "seek-help", "params": {"time": 671.001,
 	   "action": "principles-menu", "value": "(nsl((?axis.x)))"}, "id": 18}
 
 [
@@ -299,7 +301,7 @@ combined.
 
 11:51 Draw acceleration vector
 
-{"method": "solution-step", "params": {"session": 3234, "time": 711.001, 
+{"method": "solution-step", "params": {"time": 711.001, 
 	   "action": "new-object", "id": 14,
 	   "type": "vector", "mode": "unknown", 
 	   "x": 245, "y": 224, "angle": 270, "radius": 0, 
@@ -312,7 +314,7 @@ combined.
 
 12:30 Seventh equation
 
-{"method": "solution-step", "params": {"session": 3234, "time": 750.001, 
+{"method": "solution-step", "params": {"time": 750.001, 
 	   "action": "new-object", "id": 15,
 	   "type": "equation", "mode": "unknown", 
 	   "x": 15, "y": 360, 
@@ -325,7 +327,7 @@ combined.
 
 13:01 Eighth equation
 
-{"method": "solution-step", "params": {"session": 3234, "time": 781.001, 
+{"method": "solution-step", "params": {"time": 781.001, 
 	   "action": "new-object", "id": 16,
 	   "type": "equation", "mode": "unknown", 
 	   "x": 15, "y": 370, 
@@ -338,7 +340,7 @@ combined.
 
 14:11 Ninth equation, turns red, ask for help.
 
-{"method": "solution-step", "params": {"session": 3234, "time": 851.001, 
+{"method": "solution-step", "params": {"time": 851.001, 
 	   "action": "new-object", "id": 17,
 	   "type": "equation", "mode": "unknown", 
 	   "x": 15, "y": 380, 
@@ -357,7 +359,7 @@ focus.
 Unlike Andes2, there is only one help button.  Also, the help window is 
 non-blocking, thus there is no need for the "OK" button seen in Andes2.
 
-{"method": "seek-help", "params": {"session": 3234, "time": 860.001,
+{"method": "seek-help", "params": {"time": 860.001,
 	   "action": "help-button"}, "id": 23}
 
 [
@@ -365,7 +367,7 @@ non-blocking, thus there is no need for the "OK" button seen in Andes2.
   {"action": "show-hint-link", "text": "Explain more", "value": "Explain-More"}
 ]
 
-{"method": "seek-help", "params": {"session": 3234, "time": 671.001,
+{"method": "seek-help", "params": {"time": 671.001,
 	   "action": "get-help", "value": "Explain-More"}, "id": 24}
 
 [
@@ -375,7 +377,7 @@ non-blocking, thus there is no need for the "OK" button seen in Andes2.
 
 14:58 Ninth equation, again.
 
-{"method": "solution-step", "params": {"session": 3234, "time": 851.001, 
+{"method": "solution-step", "params": {"time": 851.001, 
 	   "action": "modify-object", "id": 17, "mode": "unknown", 
 	   "text": "Fearth_y = -m*g"}, "id": 25}
 
@@ -387,7 +389,7 @@ non-blocking, thus there is no need for the "OK" button seen in Andes2.
 We will allow two methods:  "Fwall1=?" in an equation box or something like
 "solve for Fwall1" in the hint window.  The latter is shown here.
 
-{"method": "seek-help", "params": {"session": 3234, "time": 905.001,
+{"method": "seek-help", "params": {"time": 905.001,
 	   "action": "get-help", "text": "Solve for Fwall1"}, "id": 26}
 
 [
@@ -403,7 +405,7 @@ quantity.  Alternatively, allow the student to write a text of the form
 box included with the original problem statement with "text" set to
 "answer:  ??" and "mode" set as "unknown".
 
-{"method": "solution-step", "params": {"session": 3234, "time": 913.001, 
+{"method": "solution-step", "params": {"time": 913.001, 
 	   "action": "new-object", "id": 18,  
 	   "type": "text", "mode": "unknown", 
 	   "x": 15, "y": 390, 
@@ -415,14 +417,14 @@ box included with the original problem statement with "text" set to
   {"action": "modify-object", "id": 18, "mode": "wrong"}
 ]
 
-{"method": "seek-help", "params": {"session": 3234, "time": 918.001,
+{"method": "seek-help", "params": {"time": 918.001,
 	   "action": "get-help", "value": "Explain-More"}, "id": 28}
 
 [
   {"action": "show-hint", "text": "This equation is dimensionally inconsistent. When numbers are used in equations, they must include the appropriate units. It looks like one of the numbers you've used is lacking the units."}
 ]
 
-{"method": "solution-step", "params": {"session": 3234, "time": 913.001, 
+{"method": "solution-step", "params": {"time": 913.001, 
 	   "action": "modify-object", "id": 18, "mode": "unknown", 
 	   "text": "answer:  15.2 N"}, "id": 29}
 
@@ -435,7 +437,7 @@ box included with the original problem statement with "text" set to
 the browsers reload button, or the close window button.  The hint window
 may persist after a problem is closed.
 
-{"method": "close-problem", "params": {"session": 3234, "time": 984.200}}
+{"method": "close-problem", "params": {"time": 984.200}}
 
 [
   {"action": "show-hint", "text": "Finished working on problem s2e."},
