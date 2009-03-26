@@ -27,7 +27,8 @@ is marked by a unique integer.  A student may solve a problem over the
 course of several user/problem sessions.  Also, there may be more than one
 user/problem sessions active at the same time for a given course login.  
 The Dojox.rpc.Client library includes X-Client-id header that might be used to 
-send this identification to the server.
+send this identification to the server.  It is not clear whether this 
+number should be generated on the client or on the server.
 
 controller script:  This is a script running on the web server that receives 
 http requests, sends them on to the appropriate lisp process, and then 
@@ -45,9 +46,9 @@ That is, the process is neither started or stopped by the controller script.
 {"method": "open-problem", "params": {"time": 0.000, 
 	   "problem": "s2e", "user": "joe"}}
 
+This request may also send the WebAssign session id.
 Width of a text box is set explicitly by "text-width" in em units or implicitly 
-by newlines in the text.  Alternatively, this request will send 
-the WebAssign session id.
+by newlines in the text.  
 
 [
   {"action": "set-session", "id": 3237},
@@ -70,6 +71,8 @@ the WebAssign session id.
   {"action": "set-score", "score": 0}
 ]
 
+"set-session" will only be returned if the server sets the user/problem 
+session number.
 If there was previous work, it would be included in the above response.  
 
 0:50 student draws ball
