@@ -31,6 +31,14 @@
 
 (in-package :cl-user)
 
+(defun start-help (&key (port 8080) (mod-lisp-p t))
+  "start a server with help system"
+  (webserver:start-json-rpc-service "/help" :port port :mod-lisp-p mod-lisp-p))
+
+(defun stop-help () 
+  "stop the web server running this service"
+  (webserver:stop-json-rpc-service))
+
 ;; Define *student-entries* and *cp* using defvar in thread, local to thread.
 ;; Define hash table *sessions* (or tables) with the session id as the key.
 ;; each session contains *student-entries* and *cp* for that session.
@@ -115,7 +123,7 @@
 ;;  It would be great to entirely decouple the sessions from the 
 ;;  methods.
 
-(defun |open-problem| (turn &key session time problem user) 
+(webserver:defun-method "/help" open-problem (session turn &key time problem user) 
   "initial problem statement" 
   (close-idle-sessions)
   (new-session turn session user problem)
@@ -128,7 +136,7 @@
      (:x . 53) (:y . 15) (:dx . 150) (:dy . 180)
      (:href . "/images/s2e.gif"))))
 
-(defun |solution-step| (turn &key session time id action type mode x y text-width
+(webserver:defun-method "/help" solution-step (session turn &key time id action type mode x y text-width
 			text dx dy radius symbol x-label y-label angle) 
   "problem-solving step"
     (in-session turn session svar
@@ -147,7 +155,7 @@
 		   `(((:action . "set-score") (:score . 52))))
 		  (t (error "undefined action ~A" action)))))
 
-(defun |seek-help| (turn &key session time action href value text) 
+(webserver:defun-method "/help" seek-help (session turn &key time action href value text) 
   "ask for help, or do a step in a help dialog" 
     (in-session turn session svar
 		(cond
@@ -171,7 +179,7 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
 		      (:value . "Explain-More"))))
 		  (t (error "undefined action ~A" action)))))
  
-(defun |close-problem| (turn &key session time) 
+(webserver:defun-method "/help" close-problem (session turn &key  time) 
   "shut problem down" 
     (close-session turn session svar
 		   ;; need to run (maybe not here)

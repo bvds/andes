@@ -20,33 +20,44 @@
 ;; ctl-c ctl-k compiles entire file 
 (in-package :cl-user)
 
-;; for now, run these on command line:
-
 (defpackage :webserver
   (:use :cl :hunchentoot :json)
-  (:export :start-help :stop-help :*stdout*))
+  (:export :defun-method :start-json-rpc-service :stop-json-rpc-service 
+	   :*stdout*))
 
 (in-package :webserver)
 
 (defvar *server* nil)
 (defvar *stdout* *standard-output*)
+(defvar *service-methods* (make-hash-table :test #'equal))
 
-
-(defun start-help (&key (port 8080) (mod-lisp-p t))
-  "Start server with simple echo service, for testing"
+(defun start-json-rpc-service (uri &key (port 8080) (mod-lisp-p t))
+  "Start a web server that runs a single service for handling json-rpc"
+  ;; One could easily extend this to multiple web servers or multiple
+  ;; services, but we don't need that now.
+  (when *server* (error "server already started"))
   (setq  *dispatch-table*
 	 (list #'dispatch-easy-handlers
-	       (create-prefix-dispatcher "/help" 'handle-json-rpc)
+	       (create-prefix-dispatcher uri 'handle-json-rpc)
 	       #'default-dispatcher))
-  
+
   ;; This is just for the debugging stage
   (setq *show-lisp-errors-p* t
         *show-lisp-backtraces-p* t)
   
   (setf *server* (start-server :port port :MOD-LISP-P mod-lisp-p)))
 
-(defun stop-help ()
-  (stop-server *server*))
+(defun stop-json-rpc-service ()
+  (stop-server *server*) (setf *server* nil))
+
+(defmacro defun-method (uri name lambda-list &body body)
+  "Defines a function and registers it as a method associated with a service."
+  `(progn (defun ,name ,lambda-list ,@body)
+    (register-method-for-service ,uri #',name 
+     (string-downcase (symbol-name ',name)))))
+
+(defun register-method-for-service (uri method method-name)
+  (setf (gethash (list uri method-name) *service-methods*) method))
 
 ;; This now works as far as it goes.
 ;; Need error handling with restart-case or handler-case
@@ -64,27 +75,36 @@
   (unless (search "application/json" (header-in :content-type))
     ;; with the wrong content-type, just send string back
     (return-from handle-json-rpc "\"content-type must be application/json\""))
-  (let* (result error reply
+  (let* (result error1 reply
 		(in-json (decode-json-from-string 
 			  (raw-post-data :force-text t)))
+		(user-problem-session (header-in :client-id))
+		(service-uri (request-uri))
 		(method (cdr (assoc :method in-json)))
 		(params (cdr (assoc :params in-json)))
 		(id (assoc :id in-json))
-		(version (assoc :jsonrpc in-json)))
-    (format *stdout* "calling ~S with ~S~%" method params)
+		(version (assoc :jsonrpc in-json))
+		(method-func (gethash (list service-uri method) 
+				      *service-methods*)))
+    (format *stdout* "session ~A calling ~S with ~S~%" 
+	    user-problem-session method-func params)
     ;; when this function is executed, the package is cl-user
-    (if (find-symbol method)
-	(setq result (apply (intern method) 
-			    (cons (cdr id) (if (alistp params) 
-				(flatten-alist params) params))))
-	(setq error (if version
+    (if method-func
+	(setq result (apply method-func 
+			    ;; this is only temporary
+			    (cons user-problem-session 
+				  (cons (cdr id) 
+					(if (alistp params) 
+					    (flatten-alist params) params)))))
+	(setq error1 (if version
 			`((:code . -32601) (:message . "Method not found")
 			  (:data . ,method))
-			(format nil "Can't find method ~S" method))))
-    (format *stdout* "  result ~S error ~S~%" result error)
+			(format nil "Can't find method ~S for service ~A" 
+				method service-uri))))
+    (format *stdout* "  result ~S error ~S~%" result error1)
     ;; only give a response when id is given
     (when id
-      (when (or error (not version)) (push (cons :error error) reply))
+      (when (or error1 (not version)) (push (cons :error error1) reply))
       (when (or result (not version)) (push (cons :result result) reply))
       (push id reply)
       (when version (push version reply))

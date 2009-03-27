@@ -52,7 +52,7 @@ Likewise, at least for Andes2, one can use the solutions repository:
 
 # To run server in lisp:
   (rhelp)
-  (webserver:start-help)
-  (webserver:stop-help)
+  (start-help)
+  (stop-help)
 
 # See http://www.newartisans.com/blog/2007/11/running-common-lisp-behind-apache.html
