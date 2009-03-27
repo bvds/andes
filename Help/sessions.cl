@@ -136,7 +136,8 @@
      (:x . 53) (:y . 15) (:dx . 150) (:dy . 180)
      (:href . "/images/s2e.gif"))))
 
-(webserver:defun-method "/help" solution-step (session turn &key time id action type mode x y text-width
+(webserver:defun-method "/help" solution-step 
+    (session turn &key time id action type mode x y text-width
 			text dx dy radius symbol x-label y-label angle) 
   "problem-solving step"
     (in-session turn session svar

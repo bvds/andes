@@ -86,21 +86,33 @@
 		(version (assoc :jsonrpc in-json))
 		(method-func (gethash (list service-uri method) 
 				      *service-methods*)))
-    (format *stdout* "session ~A calling ~S with ~S~%" 
-	    user-problem-session method-func params)
+    (format *stdout* "session ~A calling ~A with ~S~%" 
+	    user-problem-session method params)
     ;; when this function is executed, the package is cl-user
-    (if method-func
-	(setq result (apply method-func 
-			    ;; this is only temporary
-			    (cons user-problem-session 
-				  (cons (cdr id) 
-					(if (alistp params) 
-					    (flatten-alist params) params)))))
-	(setq error1 (if version
+    (cond 
+      ;; Here, we assume that the client generates the session id
+      ;; alternatively, we could have the server generate it and
+      ;; return it to the client at the beginning of a new session
+      ((null user-problem-session)
+       (setq error1 (if version
+			`((:code . -32000) 
+			  (:message . "missing http header client-id"))
+			(format nil "missing http header client-id"))))
+      ((null method-func)
+       (setq error1 (if version
 			`((:code . -32601) (:message . "Method not found")
 			  (:data . ,method))
 			(format nil "Can't find method ~S for service ~A" 
 				method service-uri))))
+      ;; need error handler for the case where the arguements don't 
+      ;; match the function...
+      (t (setq result 
+	       (apply method-func 
+		      ;; this is only temporary
+		      (cons user-problem-session 
+			    (cons (cdr id) 
+				  (if (alistp params) 
+				      (flatten-alist params) params)))))))
     (format *stdout* "  result ~S error ~S~%" result error1)
     ;; only give a response when id is given
     (when id
