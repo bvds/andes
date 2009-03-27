@@ -25,9 +25,9 @@ The Tim Nokes demo solution and associated example json session log are at
 http://www.andestutor.org/AAPT-2007/Nokes_Example.swf</a> and
 <a href="http://gideon.eas.asu.edu/web-UI/nokes-example-json.txt">
 http://gideon.eas.asu.edu/web-UI/nokes-example-json.txt</a>.&nbsp; 
-Example json schema for client-server communication can be
-found at <a href="http://gideon.eas.asu.edu/web-UI/client-server-schema.json">
-http://gideon.eas.asu.edu/web-UI/client-server-schema.json</a>.&nbsp; 
+Client-server communication is defined by the Andes3 SMD:&nbsp; 
+<a href="http://gideon.eas.asu.edu/web-UI/andes3.smd">
+http://gideon.eas.asu.edu/web-UI/andes3.smd</a>.&nbsp; 
 The Andes problem chooser tool can be found at 
 <a href="http://www.andestutor.org/sets">http://www.andestutor.org/sets</a>.&nbsp; 
 An example variable name matcher can be found at
@@ -46,18 +46,20 @@ solving an example problem.
 
 
 <ol>
-<li>  Due date:  Midnight, Arizona time, March 13, 2009
+<li> Due date:&nbsp;  Midnight, Arizona time, 
+    <span class="date">March 13, 2009</span>.&nbsp;
+      (I left this date intact for comic effect.)
 
-<li>  The drawing application should be tested on recent versions
+<li> The drawing application should be tested on recent versions
 of Firefox and Safari browsers.&nbsp;  It should be tested on versions
 6, 7 and 8 (beta) of Internet Explorer.
 
-<li>  On all browsers, the testing should not raise any errors:
+<li> On all browsers, the testing should not raise any errors:
      IE enable "Display notification about every script error" 
      Firefox errors reported by firebug.
      Safari errors reported by "Develop" menu.
 
-<li>  Download of the application should take less than 13 seconds 
+<li> Download of the application should take less than 13 seconds 
 on a Cox Cable connection, where the measured download
 bandwidth is 1.5 Mbits/s and measured upload bandwidth is 250 kbits/s.
 [13 seconds is the median time for students, after opening
@@ -67,45 +69,63 @@ measuring 35 seconds for the above benchmark using the
 <a href="http://gideon.eas.asu.edu/web-UI">drawing demo</a>
 on a fast machine, so I don't know if this target is realistic.]
 
-<li>  The drawing application should handle all of the user steps
+<li> The drawing application should handle all of the user steps
 shown in the <a href="http://www.andestutor.org/AAPT-2007/Nokes_Example.swf">Nokes demo solution</a> except for changes noted in the
 <a href="http://gideon.eas.asu.edu/web-UI/nokes-example-json.txt">
     example json session log</a>.
 
-<li>  At any step in the problem-solving process, the user should be 
+<li> The back and window close buttons will end that instance of
+     the user solving a given problem, or 
+     <em id="ups">user/problem session</em>.  
+
+<li> Determine reasonable behavior for the page reload button.&nbsp;  
+     The issue here is:&nbsp; what happens when the client javascript 
+     crashes?&nbsp;  I believe that users will generally  click on the 
+     page reload button.&nbsp;  In that case, we might want to end
+     the <a href="#ups">user/problem session</a> and start a new one.&nbsp;
+     Alternatively, the reload button could have no effect on the user/problem
+     session.
+
+<li> Good behavior for losing Internet connection for a while:
+       can still do problem solving steps, but messages to 
+       server are queued until the server is back on.&nbsp;  Help system
+       replies are handled properly even if there is a delay (red/green, 
+       format for equations, hint messages, etc.).
+
+<li> At any step in the problem-solving process, the user should be 
 able to re-size the figure, re-size the window, and scroll the 
 drawing area (if possible).&nbsp;  The drawing area "canvas" should have
 the following behaviors:  
   <ol>
-    <li>  Rescaling should be consistent:  a given slider position
+    <li> Rescaling should be consistent:&nbsp;  a given slider position
         should correspond to a given magnification.
-    <li>  Define a minimum canvas size determined as the smallest
+    <li> Define a minimum canvas size determined as the smallest
         box containing all drawn objects and the initial drawing
         area, plus a margin.
         If the window is smaller than the minimum canvas, a single 
         scrollbar appears in each relevant dimension.
-    <li>  If the window is re-sized to be larger than the canvas, 
+    <li> If the window is re-sized to be larger than the canvas, 
         the canvas size is increased to fill the window.
   </ol>
 
-<li>  The drawing tool will have a toolbar and menu area as described 
+<li> The drawing tool will have a toolbar and menu area as described 
 in the supporting materials.&nbsp;  However, for Stage 1, we are looking for
 minimum functionality:
   <ol>
-    <li>  The toolbar may be horizontal rather than on the left hand side.
-    <li>  The menu bar, menus, and score must be present but need not
+    <li> The toolbar may be horizontal rather than on the left hand side.
+    <li> The menu bar, menus, and score must be present but need not
         be functional.
-    <li>  The toolbar only needs to contain the axis tool, vector drawing 
+    <li> The toolbar only needs to contain the axis tool, vector drawing 
         tool, a circle tool, equation tool, definition
         tool, rectangle tool, and help button.
     <li> The menu bar does not need to be functional.
   </ol>
 
-<li>  More details on the functionality of the drawing tools.
+<li> More details on the functionality of the drawing tools.
   <ol>
-    <li>  When vectors and axes are swept out, the angle is shown 
+    <li> When vectors and axes are swept out, the angle is shown 
         on the screen.&nbsp;  See <a href="http://www.andestutor.org/bugzilla/show_bug.cgi?id=1489#c5">Bug #1489, comment #5</a>.
-    <li>  The dialog boxes associated with vector drawing (as well as
+    <li> The dialog boxes associated with vector drawing (as well as
         other tools) will consist of one text input field.&nbsp;  A
         javascript routine supplied by the ASU team will determine if
         the input text defines a variable; see
@@ -118,33 +138,40 @@ minimum functionality:
         be attached to the cursor and the student can place it
         anywhere on the drawing area with a subsequent mouse click;
         the vector and the input text can be moved independently.
-    <li>  The text and equation tools can be either be used with a 
+    <li> The text and equation tools can be either be used with a 
         single click or by dragging out a box.&nbsp;  In the case of a 
         single click, the width of the subsequent text box will be 
         determined by the contents.&nbsp;  If a box is dragged out, the
 	width of the subsequent text box will be determined from that.
         Text will be wrapped according to the box width.
-    <li>  After an object is drawn, a description is sent to the help 
+    <li> After an object is drawn, a description is sent to the help 
         system.&nbsp;  The drawn object will later be updated by information
 	from the help system.&nbsp;  The color will be updated to red/green.
-    <li>  As in the <a href="http://gideon.eas.asu.edu/web-UI">
+    <li> As in the <a href="http://gideon.eas.asu.edu/web-UI">
         drawing demo</a>, double-clicking on an object will allow
         modification of the text.&nbsp;  Single clicking will select an object,
         the delete key will remove selected object, et cetera.
-    <li>  On download, the drawing tool should show the problem statement,
+    <li> On download, the drawing tool should show the problem statement,
         associated graphics, and pre-defined quantities almost immediately.
 	The toolbars, menus, and associated functionality may appear later.
+    <li> When selecting an object, a region around the object should be
+        selectable, instead of just the object itself.&nbsp;  In the drawing
+        demo, one must hit the object itself, which can be difficult if a line 
+         is thin.
+    <li> Using rectangle to mark selected object doesn't make sense.&nbsp;  
+         Should have some alternative like fading the object or having some 
+         bounding shape that matches the selection region.
   </ol>
    
 <li> Help dialog window.
   <ol>
-    <li>  The help dialog window will be opened or brought into focus 
+    <li> The help dialog window will be opened or brought into focus 
         if the help button on the drawing application is pressed.
-    <li>  It is supposed to look and function like a standard chat program.
-    <li>  Unlike Andes2, it is not modal with respect to the drawing application.
-    <li>  To ask for help, the student types "help" in the help dialog window
-          or presses the help button on the main drawing window.
-    <li>  The help system will send plain text, which may include clickable 
+    <li> It is supposed to look and function like a standard chat program.
+    <li> Unlike Andes2, it is not modal with respect to the drawing application.
+    <li> To ask for help, the student types "help" in the help dialog window
+         or presses the help button on the main drawing window.
+    <li> The help system will send plain text, which may include clickable 
         links.&nbsp;  It will also send messages that require a
         multiple-choice response.&nbsp;  The help dialog window needs to
         provide a mechanism for the student to enter a reply (either
@@ -154,51 +181,52 @@ minimum functionality:
 	entry.
   </ol>
 
-<li>  Window for selecting a principle of physics will be provided by the
+<li> Window for selecting a principle of physics will be provided by the
      ASU team.&nbsp;  See the <a href="http://www.andestutor.org/sets">
      Andes problem chooser tool</a> for 
      a similar application.&nbsp;  SitePen will supply a method for writing 
      Greek letters in the menu.
 
-<li>  In order for the the drawing application to function, it must be 
+<li> In order for the the drawing application to function, it must be 
      connected to a server.&nbsp;  See a <a href="http://gideon.eas.asu.edu/web-UI/server-spec.html">description of the Andes3 Problem server</a>.
 For Stage 1, the Problem server will not have any logging functionality.
 
-<li> The ASU team will specify the API for communication 
-    between the Andes3 Problem server and the drawing application, 
-    to be completed by January 15 and subject to further revision, 
-    as needed.&nbsp; 
+<li> The communication protocol between the Andes3 Problem server and 
+    the drawing application:
   <ol>
-     <li>  The API will use json and include a json schema an English 
-           description.&nbsp;  See an <a href="http://gideon.eas.asu.edu/web-UI/client-server-schema.json">example json schema</a>.
-     <li>  The API will be specified with sufficient detail so that the <a href="http://www.andestutor.org/AAPT-2007/Nokes_Example.swf">Nokes
-    demo solution</a> solution can be successfully completed.
-    See the 
+     <li> The API will use json-rpc defined according to the 
+          <a href="http://gideon.eas.asu.edu/web-UI/andes3.smd">
+           Andes3 Sevice Method Description (SMD)</a>.
+     <li> WebAssign login information and authentication
+           will be handled by existing mechanisms (eg.cookies) provided
+           by WebAssign.
+     <li> There will be a unique integer marking each 
+           <a href="#ups">user/problem session</a>.&nbsp;
+           This id will be communicated to the server via an X-Client-id 
+           http header or some equivalent mechanism.
+     <li> Communicaton for the <a href="http://www.andestutor.org/AAPT-2007/Nokes_Example.swf">Nokes demo solution</a> solution is described in the
     <a href="http://gideon.eas.asu.edu/web-UI/nokes-example-json.txt">
-    example json session log</a> for an example.
-     <li>  For Stage 1, visual presentation (colors, line widths, arrow shapes, 
-	 etc.) will be hard-coded into the drawing application.&nbsp;  However, in 
-         later, such style information should be transferable back 
+    example json session log</a>.
+     <li> For Stage 1, visual presentation (colors, line widths, arrow shapes, 
+	 etc.) will be hard-coded into the drawing application.&nbsp;  
+         Eventually, such style information should be transferable back 
 	 and forth to the server.
   </ol>
 
-<li>  The Andes3 Problem server will be running a lisp application called 
+<li> The Andes3 Problem server will be running a lisp application called 
      the "help system" that analyzes student entries and provides hints 
      on demand.&nbsp;  
      The help system will use the same API that is used for client-server 
      communication.
 
-<li> The team at ASU will give the help system the required
-     functionality and interface the help system with the Andes Problem server
-     by January 30.
-
-<li>  The team at ASU will be responsible for testing of the drawing interface.
+<li> The team at ASU will be responsible for testing of the drawing interface.
      Usability testing will be carried out using paid student volunteers.
      Since we won't have the partial scaffolding mechanism (as described in 
-     the <a href="http://gideon.eas.asu.edu/web-UI/narrative-22.pdf">IES grant proposal</a>), the students will follow a set of written 
+     the <a href="http://gideon.eas.asu.edu/web-UI/narrative-22.pdf">IES grant 
+     proposal</a>), the students will follow a set of written 
      instructions.
 
-<li>  Through the development process, the code for both the help system and
+<li> Through the development process, the code for both the help system and
      the drawing utility will be kept in publicly accessible repositories.
      Bug reporting will be handled through the normal Dojo project mechanisms.
      Also, any errors in the documentation will be reported through the normal
@@ -206,11 +234,15 @@ For Stage 1, the Problem server will not have any logging functionality.
      date.&nbsp;  All code developed for this project will have the associated 
      documentation and comments written simultaneously.
 
-<li>  The team at ASU will provide server hardware and give members 
-     of the SitePen team login access to the server, as needed.&nbsp;   The ASU
-     team will provide a source control repository for any code not placed in 
-     the Dojo project.&nbsp;  This code will made publicly available under an 
-     open source license at <a href="http://github.com/bvds/andes">github</a>, 
+<li> The level and quality of the documentation and comments in any new 
+    code will match the documentation associated with the present Dojo 
+    core libraries.
+
+<li> The team at ASU will provide server hardware and give members 
+     of the SitePen team login access to the server, as needed.&nbsp;  
+     Any code not placed in the Dojo project will made publicly available under 
+     an open source license at the
+     <a href="http://github.com/bvds/andes">github Andes repository</a>, 
      in keeping with the existing 
      agreement between the ASU team and WebAssign.
 
@@ -224,37 +256,9 @@ so these targets will need to to be completed by mid-June 2009.&nbsp;
 
 <ol>
 
-<li>  Implement the input method described in 
+<li> Implement the input method described in 
       <a href="http://www.andestutor.org/bugzilla/show_bug.cgi?id=1488#c0">
       Bug #1488</a>.
-
-<li> Good behavior for back, window close, and reload buttons.&nbsp;  The back 
-     and window close buttons will end a user/problem session.&nbsp;  
-
-<li> Determine behavior for the reload button.&nbsp;  The question is:&nbsp; what
-     happens when the client javascript crashes?&nbsp;  I believe that users
-     will click on the reload button.&nbsp;  In that case,
-     we might want to end a user/problem session and start a new one.&nbsp;
-     Alternatively, the reload button could have no effect on the user/problem
-     session.
-
-<li> Good behavior for losing Internet connection for a while:
-       can still do problem solving steps, but messages to 
-       server are queued until the server is back on.&nbsp;  Help system
-       replies are handled properly even if there is a delay (red/green, 
-       format for equations, hint messages, etc.).
-
-<li> The level and quality of the documentation and comments in any new 
-    code will match the documentation associated with the present Dojo 
-    core libraries.
-
-<li> When selecting an object, a region around the object should be
-    selectable, instead of just the object itself.&nbsp;  In the drawing
-    demo, one must hit the object, which can be hard if a line is thin.
-
-<li> Using rectangle to mark selected object doesn't make sense.&nbsp;  Should
-    have some alternative like fading the object or having some bounding
-    shape that matches the selection region.
 
 <li> Implement the following menu items described in 
      <a href="http://www.andestutor.org/bugzilla/show_bug.cgi?id=1489">
@@ -264,17 +268,17 @@ so these targets will need to to be completed by mid-June 2009.&nbsp;
           <ul>
            <li> close:  Close a problem and possibly navigate back to the list of problems, may have the
              	     same behavior as the "back button."
-	  <li>   print:  Standard print button.
+	  <li>  print:  Standard print button.
       </ul>
       <li>Physics:  All items in this menu point to external html files which then open
       		    in a separate window or tab.&nbsp;  Students generally like to have these available when
 		    solving a problem.&nbsp;  The html pages are all printable.
          <ul>
-	   <li>  list of scalar quantities with example text for definition
-    	   <li>  list of physics principles.
-    	   <li>  list of pre-defined constants
-    	   <li>  list of notational conventions.
-    	   <li>  list of mini-lessons on various topics.
+	   <li> list of scalar quantities with example text for definition
+    	   <li> list of physics principles.
+    	   <li> list of pre-defined constants
+    	   <li> list of notational conventions.
+    	   <li> list of mini-lessons on various topics.
          </ul>
       </ul>
       The html pages will be supplied by the ASU team.
@@ -293,7 +297,7 @@ so these targets will need to to be completed by mid-June 2009.&nbsp;
       character or html escape code.&nbsp;  When the student double clicks
       on a text object, the input box displays the original typed text.&nbsp;
       
-<li>  After receiving a response from the server, the client sends
+<li> After receiving a response from the server, the client sends
      a notification message giving time the response was 
      implemented in the client.&nbsp;  In json-rpc format, this would be
 <pre>
@@ -302,7 +306,7 @@ so these targets will need to to be completed by mid-June 2009.&nbsp;
 
 <li> Implement the fading method described in the <a href="http://gideon.eas.asu.edu/web-UI/narrative-22.pdf">IES grant proposal</a>.&nbsp;  Create content for all tutorial problems, to replace the videos in Andes2 [ASU team].
 
-<li>  Logging all client-server API messages; see the 
+<li> Logging all client-server API messages; see the 
 <a href="http://gideon.eas.asu.edu/web-UI/server-spec.html">
 description of the Andes3 Problem server</a>.&nbsp;  This will also allow
 students to get previous work done if they re-open a problem.&nbsp;
@@ -310,7 +314,7 @@ The ASU team and WebAssign will be responsible for this step.
 
 <li> Scaling to many simultaneous users.
 
-<li>  Integration into WebAssign.
+<li> Integration into WebAssign.
 
 
 </ol>
@@ -318,7 +322,7 @@ The ASU team and WebAssign will be responsible for this step.
 <h1>Beyond step 2.</h1>
 
 <p>These are things we want to do, but are not needed for a minimally working 
-course starting fall 2009.
+course starting Fall 2009.
 
 <ol>
 
@@ -354,7 +358,7 @@ course starting fall 2009.
     Double clicking on the object will reveal the original plain 
     graphics. 
 
-<li>  Style sheets for visual formatting of drawn objects.&nbsp;  Visual formatting
+<li> Style sheets for visual formatting of drawn objects.&nbsp;  Visual formatting
     would include colors, line widths, arrow shapes, etc.&nbsp;  There should
     be a menu/dialog box for adjusting these on the drawing application.&nbsp;  
     The style sheets should be upload-able and download-able from the server.
@@ -363,16 +367,16 @@ course starting fall 2009.
     tool for use on online homework forums like the ones mentioned
     above.
 
-<li>  Working undo button.&nbsp;  I am not sure if this is a good idea, since generating
+<li> Working undo button.&nbsp;  I am not sure if this is a good idea, since generating
 the associated help would be difficult.&nbsp;  It may be useful in the context of a generic
 collaborative whiteboard.
 
-<li>  Logging of UI events at level of keystrokes/mouseclicks.&nbsp;  Kurt and I disagree about
+<li> Logging of UI events at level of keystrokes/mouseclicks.&nbsp;  Kurt and I disagree about
 this one [Kurt says it is not useful].
 
-<li>  Representation for objects on system clipboard for sharing between applications.
+<li> Representation for objects on system clipboard for sharing between applications.
 
-<li>  Regular editing features, cut, copy, paste, with associated keyboard shortcuts.&nbsp;  
+<li> Regular editing features, cut, copy, paste, with associated keyboard shortcuts.&nbsp;  
      Andes2 has this functionality, but it is currently only useful for equations.&nbsp; 
      In Andes2, if any drawn object is cut and pasted, the result turns red since it is a duplicate
      of the original object.&nbsp; 

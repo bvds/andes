@@ -47,11 +47,25 @@
     <script type="text/javascript">
       dojo.require("dojo.parser");
       dojo.require("dijit.form.Button");
+      dojo.provide("dojox.rpc.Client");
       dojo.require("dojox.rpc.Service");
       dojo.require("dojox.rpc.JsonRPC");
       var typejson = new dojox.rpc.Service("andes3.smd");
+
+      // AOP-style function replacement that performs before-advice 
+      // to add the headers on all XHR requests.  See dojox/rpc/Client.js
+      (function() {
+	dojo._defaultXhr = dojo.xhr;
+	dojo.xhr = function(method,args){
+		var headers = args.headers = args.headers || {};
+		headers["Client-Id"] = dojox.rpc.Client.clientId;
+		console.log("setting to "+ dojox.rpc.Client.clientId);
+		return dojo._defaultXhr.apply(dojo,arguments);
+	}
+      })();
  
       function sendString() {
+        dojox.rpc.Client.clientId = document.getElementById('ups').value;
         var jsonInput = document.getElementById('jsonstring').value;
         document.getElementById('inputString').innerHTML = 
 	       "Send:  " + jsonInput;
@@ -116,14 +130,16 @@
   <body class="tundra">
     <div dojoType="dijit.layout.BorderContainer" design="sidebar" id="container" gutters="false">
       <div dojoType="dijit.layout.ContentPane" id="toolbar" region="top">
+          user/problem session: 
+              <input type="text" id="ups" value="32345" size="6"/>&nbsp;
           method: <select id="help-method">
                 <!-- This list must match methods in andes3.smd -->
                 <option>open-problem</option>
                 <option>solution-step</option>
                 <option>seek-help</option>
                 <option>close-problem</option>
-          </select>
-          &nbsp;params: <input type="text" id="jsonstring" size="80"/>
+          </select>&nbsp;  
+           params: <input type="text" id="jsonstring" size="50"/>
           <button dojoType="dijit.form.Button" onclick="sendString">
                Do JSON-RPC call</button>
 	  <div id="inputString">Input</div>

@@ -22,13 +22,13 @@ API should be agnostic with respect to them:
 
 Definitions:
 
-user/problem session:  each instance of a student trying to solve a problem.  It
-is marked by a unique integer.  A student may solve a problem over the 
+user/problem session:  each instance of a student trying to solve a problem.  
+It is marked by a unique integer.  A student may solve a problem over the 
 course of several user/problem sessions.  Also, there may be more than one
 user/problem sessions active at the same time for a given course login.  
-The Dojox.rpc.Client library includes X-Client-id header that might be used to 
-send this identification to the server.  It is not clear whether this 
-number should be generated on the client or on the server.
+One might use the X-Client-id header to send the user/problem session id 
+to the server.  It is not clear whether this id should be generated on 
+the client or on the server.
 
 controller script:  This is a script running on the web server that receives 
 http requests, sends them on to the appropriate lisp process, and then 
@@ -36,8 +36,9 @@ forwards the reply from the lisp process back to the client.  It may also
 log messages.
 
 lisp process:  This is a process running the help system for one or more
-user/problem sessions.  It is assumed to be already running and ready for input.
-That is, the process is neither started or stopped by the controller script.
+user/problem sessions.  It is assumed to be already running and ready for 
+input.  That is, the process is neither started or stopped by the controller 
+script.
 
 *******************************************************************************
 
@@ -46,9 +47,9 @@ That is, the process is neither started or stopped by the controller script.
 {"method": "open-problem", "params": {"time": 0.000, 
 	   "problem": "s2e", "user": "joe"}}
 
-This request may also send the WebAssign session id.
-Width of a text box is set explicitly by "text-width" in em units or implicitly 
-by newlines in the text.  
+This request may also send the WebAssign session id.  Width of a text box is 
+set explicitly by "text-width" in em units or implicitly by newlines in 
+the text.  
 
 [
   {"action": "set-session", "id": 3237},
@@ -71,9 +72,8 @@ by newlines in the text.
   {"action": "set-score", "score": 0}
 ]
 
-"set-session" will only be returned if the server sets the user/problem 
-session number.
-If there was previous work, it would be included in the above response.  
+"set-session" will only be returned if the server sets the user/problem session 
+number.  If there was previous work, it would be included in the above response.  
 
 0:50 student draws ball
 
