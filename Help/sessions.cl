@@ -43,11 +43,22 @@
 ;; Define hash table *sessions* (or tables) with the session id as the key.
 ;; each session contains *student-entries* and *cp* for that session.
 
-;; which equality is most appropriate for sxhash keys?
-(defparameter *sessions* (make-hash-table) 
-  "A list of active sessions")
+(defstruct env student problem studentactions studententries cp
+last-tutor-turn last-score slot-flag-frequency
+SG-Solutions SG-Entries SG-Eqns problem-finished
+correct-entry
+)
 
-(defstruct session StudentEntries time turn student problem)
+(defun save-to-env (session)
+  (setf (env-studentactions env) *studentactions*)
+  (setf (env-studententries env) *studententries*)
+  (setf (env-cp env) *cp*)
+  (setf (env-last-tutor-turn env) *last-tutor-turn*)
+  (setf (env-last-score env) *lastscore*)
+  (setf (env-studentactions env) *studentactions*)
+  (setf (env-studentactions env) *studentactions*)
+  (setf (env-studentactions env) *studentactions*)
+  (setf (env-studentactions env) *studentactions*))
 
 ;; does it matter if id is always a number when doing hash?
 (defun new-session (turn id student problem)
@@ -57,34 +68,7 @@
 	    (make-session :student student :problem problem :turn turn
 			  :time (get-internal-real-time)))))
 
-(defmacro in-session (turn id svar &rest body)
-  "wrapper for code to be run within an existing session. svar is the name the session object"
-  `(let (result (,svar (gethash ,id *sessions*)))
-     (lock-session ,turn ,svar)
-     ;; need to catch errors and do timeouts here, so session gets unlocked
-     (setf result (progn ,@body))
-     (unlock-session ,svar)
-     result))
 
-(defun lock-session (turn session)
-  "returns a session for a given session id; locks session"
-  ;; might instead try to retrieve session from database.
-  ;; also, might just want to return a message to the student.
-  ;; sayng session has maybe timed out.
-  (unless session  (error "trying to access inactive session"))
-  ;; wait until earlier turns are all done
-  (loop until (and (session-time session) 
-		   (> (+ (session-turn session) 2) turn))
-     do (sleep 1))
-  (setf (session-time session) nil) ;lock session
-  (setf (session-turn session) turn))
-
-(defun unlock-session (session)
-  "unlocks session"
-  (when (session-time session)
-    (error "trying unlock an unlocked session"))
-  ;; unlock session
-  (setf (session-time session) (get-internal-real-time)))
 
 (defmacro close-session (turn id svar &rest body)
   `(let (result (,svar (gethash ,id *sessions*))) 
@@ -109,13 +93,6 @@
 			    (< (session-time session) cutoff))
 		   (remhash id *sessions*))) *sessions*)))
 
-(defun print-sessions ()
-  "Print sessions to see what is going on."
-    (maphash #'(lambda (id session) 
-		 (format t "session ~A with turn ~A and time ~A~%" id
-			 (session-turn session) (session-time session)))
-	     *sessions*))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  The methods themselves.  Right now, these are just dummy functions
@@ -123,10 +100,12 @@
 ;;  It would be great to entirely decouple the sessions from the 
 ;;  methods.
 
-(webserver:defun-method "/help" open-problem (session turn &key time problem user) 
+(webserver:defun-method "/help" open-problem (session &key time problem user) 
   "initial problem statement" 
-  (close-idle-sessions)
-  (new-session turn session user problem)
+  ;; need to think about better handling for case
+  ;; where session already exists.
+  (unless (webserver:env session)
+    (setq (webserver:env session) (make-env :student user :problem problem)))
   ;; need calls to 
   ;; do-read-student-info
   ;; read-problem-info  (useful)
@@ -136,67 +115,75 @@
      (:x . 53) (:y . 15) (:dx . 150) (:dy . 180)
      (:href . "/images/s2e.gif"))))
 
+;(defun in-help (session &rest body)
+;  "wrapper code for session turn to handle environment variables"
+;  `(let (result (,svar (gethash ,id *sessions*)))
+;     (lock-session ,turn ,svar)
+;     ;; need to catch errors and do timeouts here, so session gets unlocked
+;     (setf result (progn ,@body))
+;     (unlock-session ,svar)
+;     result))
+
 (webserver:defun-method "/help" solution-step 
-    (session turn &key time id action type mode x y text-width
+    (session &key time id action type mode x y text-width
 			text dx dy radius symbol x-label y-label angle) 
   "problem-solving step"
-    (in-session turn session svar
-		(cond
-		  ((string= action "new-object")
-		   `(((:action . "log") 
-		      (:assoc . (("DEFINE-MASS" . "(DEFINE-VAR (MASS BALL))"))) 
-		      (:id . ,id))
-		     ((:action . "log") (:parse . "(= m_BALL (DNUM 2.0 kg))"))
-		   ((:action . "set-score") (:score . 40))
-		     ((:action . "modify-object") (:id . ,id) (:mode . "right"))))
-		  ((string= action "modify-object")
-		   `(((:action . "set-score") (:score . 57))
-		     ((:action . "modify-object") (:id . ,id) (:mode . "right"))))
-		  ((string= action "delete-object")
-		   `(((:action . "set-score") (:score . 52))))
-		  (t (error "undefined action ~A" action)))))
-
-(webserver:defun-method "/help" seek-help (session turn &key time action href value text) 
+  (cond
+	     ((string= action "new-object")
+	      `(((:action . "log") 
+		 (:assoc . (("DEFINE-MASS" . "(DEFINE-VAR (MASS BALL))"))) 
+		 (:id . ,id))
+		((:action . "log") (:parse . "(= m_BALL (DNUM 2.0 kg))"))
+		((:action . "set-score") (:score . 40))
+		((:action . "modify-object") (:id . ,id) (:mode . "right"))))
+	     ((string= action "modify-object")
+	      `(((:action . "set-score") (:score . 57))
+		((:action . "modify-object") (:id . ,id) (:mode . "right"))))
+	     ((string= action "delete-object")
+	      `(((:action . "set-score") (:score . 52))))
+	     (t (error "undefined action ~A" action))))
+  
+(webserver:defun-method "/help" seek-help 
+    (session &key time action href value text) 
   "ask for help, or do a step in a help dialog" 
-    (in-session turn session svar
-		(cond
-		  ((string= action "get-help")
-		   '(((:action . "show-hint") 
-		      (:text . "Because the vector is parallel to the Y axis 
+  (cond
+    ((string= action "get-help")
+	      '(((:action . "show-hint") 
+		 (:text . "Because the vector is parallel to the Y axis 
 but in the negative direction, the projection equation is Fearth_y = - Fearth so
  Fearth_y stands for a negative value."))
-		     ((:action . "show-hint-link") 
-		      (:text . "Explain more") 
-		      (:value . "Explain-More"))))
-		  ((string= action "help-button")
-		   '(((:action . "show-hint") 
-		      (:text . "Now that you have stated all of the given information, you should start on the major principles. What quantity is the problem seeking?"))
-		     ((:action . "focus-hint-text-box"))))
-		  ((string= action "principles-menu")
-		   '(((:action . "show-hint") 
-		      (:text . "Right indeed. Notice that the ball is at rest at T0."))
-		     ((:action . "show-hint-link") 
-		      (:text . "Explain more") 
-		      (:value . "Explain-More"))))
-		  (t (error "undefined action ~A" action)))))
- 
-(webserver:defun-method "/help" close-problem (session turn &key  time) 
-  "shut problem down" 
-    (close-session turn session svar
-		   ;; need to run (maybe not here)
-		   ;; do-close-problem
-                   ;; do-exit-andes
-		   (format webserver:*stdout* 
-			   "in closeproblem  session ~S time ~S~%" session time)
-		   '(((:action . "show-hint") 
-		      (:text . (format nil "Finished working on problem ~A."
-				       (session-problem svar))))
-		     ((:action . "log") 
-		      (:score . (("NSH_BO_Call_Count" . (-0.05 0)) 
-				 ("WWH_BO_Call_Count" . (-0.05 0))
-				 ("Correct_Entries_V_Entries" . (0.05 17 19))
-				 ("Correct_Answer_Entries_V_Answer_Entries" . (0.05 1 2))))))))
+		((:action . "show-hint-link") 
+		 (:text . "Explain more") 
+		 (:value . "Explain-More"))))
+	     ((string= action "help-button")
+	      '(((:action . "show-hint") 
+		 (:text . "Now that you have stated all of the given information, you should start on the major principles. What quantity is the problem seeking?"))
+		((:action . "focus-hint-text-box"))))
+	     ((string= action "principles-menu")
+	      '(((:action . "show-hint") 
+		 (:text . "Right indeed. Notice that the ball is at rest at T0."))
+		((:action . "show-hint-link") 
+		 (:text . "Explain more") 
+		 (:value . "Explain-More"))))
+	     (t (error "undefined action ~A" action))))
 
+(webserver:defun-method "/help" close-problem (session &key  time) 
+  "shut problem down" 
+  ;; need to run (maybe not here)
+		   ;; do-close-problem
+  ;; do-exit-andes
+  ;; this tells the session manager that the session is over.
+  (setf (webserver:env session) nil)
+  (format webserver:*stdout* 
+	  "in closeproblem  time ~S~%" time)
+  '(((:action . "show-hint") 
+     (:text . (format nil "Finished working on problem ~A."
+		      (problem-name (session-problem env)))))
+    ((:action . "log") 
+     (:score . (("NSH_BO_Call_Count" . (-0.05 0)) 
+		("WWH_BO_Call_Count" . (-0.05 0))
+		("Correct_Entries_V_Entries" . (0.05 17 19))
+		("Correct_Answer_Entries_V_Answer_Entries" . (0.05 1 2)))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

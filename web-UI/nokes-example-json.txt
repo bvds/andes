@@ -26,9 +26,8 @@ user/problem session:  each instance of a student trying to solve a problem.
 It is marked by a unique integer.  A student may solve a problem over the 
 course of several user/problem sessions.  Also, there may be more than one
 user/problem sessions active at the same time for a given course login.  
-One might use the X-Client-id header to send the user/problem session id 
-to the server.  It is not clear whether this id should be generated on 
-the client or on the server.
+Sse the X-Client-id header to send the user/problem session id 
+to the server.
 
 controller script:  This is a script running on the web server that receives 
 http requests, sends them on to the appropriate lisp process, and then 
@@ -52,7 +51,6 @@ set explicitly by "text-width" in em units or implicitly by newlines in
 the text.  
 
 [
-  {"action": "set-session", "id": 3237},
   {"action": "new-object", "id": 0, "type": "text", "mode": "locked", 
 	     "x": 3, "y": 5, "text-width": 80,
 	     "text": "A spherical ball with a mass of 2.00 kg rests in the notch ..."},
@@ -72,8 +70,7 @@ the text.
   {"action": "set-score", "score": 0}
 ]
 
-"set-session" will only be returned if the server sets the user/problem session 
-number.  If there was previous work, it would be included in the above response.  
+If there was previous work, it would be included in the above response.  
 
 0:50 student draws ball
 

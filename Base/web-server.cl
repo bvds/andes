@@ -23,7 +23,7 @@
 (defpackage :webserver
   (:use :cl :hunchentoot :json)
   (:export :defun-method :start-json-rpc-service :stop-json-rpc-service 
-	   :*stdout*))
+	   :*stdout* :print-sessions :set-env))
 
 (in-package :webserver)
 
@@ -65,9 +65,8 @@
 ;;  need to handle errors with bad json
 ;;  need to handle errors with bad rpc (test for :method & :params not nil)
 ;;  need to test input and reply against andes3.smd,
-;;        should have macro to define method functions which compares
-;;        the lambda list with the smd.  Also, handle-json-rpc should
-;;        only allow methods that match smd.
+;;  There is no provision for timing out (hung help system).
+;;  Need to use something more efficient for handle locks.
 (defun handle-json-rpc ()
   "Handles json-rpc 1.0 and 2.0"
   (setf (content-type) "application/json; charset=UTF-8")
@@ -78,49 +77,112 @@
   (let* (result error1 reply
 		(in-json (decode-json-from-string 
 			  (raw-post-data :force-text t)))
-		(user-problem-session (header-in :client-id))
 		(service-uri (request-uri))
 		(method (cdr (assoc :method in-json)))
 		(params (cdr (assoc :params in-json)))
-		(id (assoc :id in-json))
+		(turn (assoc :id in-json))
+		(client-id (header-in :client-id))
 		(version (assoc :jsonrpc in-json))
 		(method-func (gethash (list service-uri method) 
 				      *service-methods*)))
     (format *stdout* "session ~A calling ~A with ~S~%" 
-	    user-problem-session method params)
-    ;; when this function is executed, the package is cl-user
-    (cond 
-      ;; Here, we assume that the client generates the session id
-      ;; alternatively, we could have the server generate it and
+	    client-id method params)
+    (cond
+      ;; Here, we assume that the client generates the user-problem
+      ;; session id alternatively, we could have the server generate it and
       ;; return it to the client at the beginning of a new session
-      ((null user-problem-session)
+      ((null client-id)
        (setq error1 (if version
 			`((:code . -32000) 
 			  (:message . "missing http header client-id"))
 			(format nil "missing http header client-id"))))
-      ((null method-func)
-       (setq error1 (if version
-			`((:code . -32601) (:message . "Method not found")
-			  (:data . ,method))
-			(format nil "Can't find method ~S for service ~A" 
-				method service-uri))))
-      ;; need error handler for the case where the arguements don't 
-      ;; match the function...
-      (t (setq result 
-	       (apply method-func 
-		      ;; this is only temporary
-		      (cons user-problem-session 
-			    (cons (cdr id) 
-				  (if (alistp params) 
-				      (flatten-alist params) params)))))))
+	((null method-func)
+	 (setq error1 (if version
+			 `((:code . -32601) (:message . "Method not found")
+			   (:data . ,method))
+			 (format nil "Can't find method ~S for service ~A" 
+				 method service-uri))))
+	;; need error handler for the case where the arguments don't 
+	;; match the function...
+	(t (setq result (execute-session client-id (cdr turn) 
+					 method-func params))))
     (format *stdout* "  result ~S error ~S~%" result error1)
     ;; only give a response when id is given
-    (when id
+    (when turn
       (when (or error1 (not version)) (push (cons :error error1) reply))
       (when (or result (not version)) (push (cons :result result) reply))
-      (push id reply)
+      (push turn reply)
       (when version (push version reply))
       (encode-json-alist-to-string reply))))
+
+;;; 
+;;;     Session management
+;;;
+
+(defparameter *sessions* (make-hash-table :test #'equal) 
+  "A list of active sessions")
+(defstruct session turn lock time environment)
+
+(defun print-sessions ()
+  "Print sessions to see what is going on."
+    (maphash #'(lambda (id session) 
+		 (format t "session ~A with turn ~A and time ~A~%" id
+			 (session-turn session) (session-time session)))
+	     *sessions*))
+
+(defun get-session (session turn)
+  "Return a session for a given hash or create a new one"
+  (or (gethash session *sessions*)
+      (setf (gethash session *sessions*) 
+	    (make-session :time (get-internal-real-time) :turn turn))))
+
+(defun lock-session (session turn)
+  "locks session based on turn number"
+  ;; might instead try to retrieve session from database.
+  ;; also, might just want to return a message to the student.
+  ;; saying session has maybe timed out.
+  ;; wait until earlier turns are all done
+  (unless (numberp turn)    
+    ;; in this case, could use expr< to order?
+    (error "turn ~A is a not a number" turn))
+  ;; Here, we are using custom code to handle the wait, without
+  ;; any signalling.  This might be quite inefficient!
+  (loop until (and (not (session-lock session))
+		   (> (+ (session-turn session) 2) turn))
+	do (sleep 1))
+  ;; lock session
+  (setf (session-lock session) turn)
+  (setf (session-turn session) turn))
+
+(defun unlock-session (session)
+  "unlocks session"
+  (unless (session-lock session)
+    (error "trying unlock an unlocked session"))
+  ;; unlock session
+  (setf (session-time session) (get-internal-real-time))
+  (setf (session-lock session) nil))
+
+(defun set-env (session value)
+  "dummy wrapper for getting session environment"
+  (setf (session-environment session) value)
+
+(defun execute-session (session-hash turn func params)
+  "execute a function in the context of a given session when its turn comes"
+  (let (func-return (session (get-session session-hash turn)))
+    (lock-session session turn)
+    ;; when this function is executed, the package is cl-user
+   ; (defvar *session-environment* (session-environment session))    
+    (setf func-return (apply func 
+			     (cons session
+				   (if (alistp params) 
+					     (flatten-alist params) params))))
+  ;  (setf (session-environment session) *session-environment* )
+    ;; if environment has been removed, remove session from table
+    (unless (session-environment session) 
+      (remhash session-hash *sessions*))
+    ;; unlock session, if locked
+    (unlock-session session)
+    func-return))
 
 (defun alistp (x) 
   "determine if x is an alist" 
@@ -129,4 +191,3 @@
 (defun flatten-alist (x) 
   "turn an alist into plain list"
   (mapcan #'(lambda (x) (list (car x) (cdr x))) x))
-
