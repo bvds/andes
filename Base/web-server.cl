@@ -23,7 +23,7 @@
 (defpackage :webserver
   (:use :cl :hunchentoot :json)
   (:export :defun-method :start-json-rpc-service :stop-json-rpc-service 
-	   :*stdout* :print-sessions :set-env))
+	   :*stdout* :print-sessions :env))
 
 (in-package :webserver)
 
@@ -162,21 +162,18 @@
   (setf (session-time session) (get-internal-real-time))
   (setf (session-lock session) nil))
 
-(defun set-env (session value)
-  "dummy wrapper for getting session environment"
-  (setf (session-environment session) value)
-
 (defun execute-session (session-hash turn func params)
   "execute a function in the context of a given session when its turn comes"
   (let (func-return (session (get-session session-hash turn)))
     (lock-session session turn)
+    ;; set up session environment for this session
     ;; when this function is executed, the package is cl-user
-   ; (defvar *session-environment* (session-environment session))    
+    (defvar webserver:env (session-environment session))    
     (setf func-return (apply func 
-			     (cons session
-				   (if (alistp params) 
-					     (flatten-alist params) params))))
-  ;  (setf (session-environment session) *session-environment* )
+			     (if (alistp params) 
+					     (flatten-alist params) params)))
+    ;; save session environment for next turn
+    (setf (session-environment session) webserver:env)
     ;; if environment has been removed, remove session from table
     (unless (session-environment session) 
       (remhash session-hash *sessions*))

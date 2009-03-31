@@ -100,12 +100,12 @@ correct-entry
 ;;  It would be great to entirely decouple the sessions from the 
 ;;  methods.
 
-(webserver:defun-method "/help" open-problem (session &key time problem user) 
+(webserver:defun-method "/help" open-problem (&key time problem user) 
   "initial problem statement" 
   ;; need to think about better handling for case
   ;; where session already exists.
-  (unless (webserver:env session)
-    (setq (webserver:env session) (make-env :student user :problem problem)))
+  (unless webserver:env
+    (setq webserver:env (make-env :student user :problem problem)))
   ;; need calls to 
   ;; do-read-student-info
   ;; read-problem-info  (useful)
@@ -125,7 +125,7 @@ correct-entry
 ;     result))
 
 (webserver:defun-method "/help" solution-step 
-    (session &key time id action type mode x y text-width
+    (&key time id action type mode x y text-width
 			text dx dy radius symbol x-label y-label angle) 
   "problem-solving step"
   (cond
@@ -144,7 +144,7 @@ correct-entry
 	     (t (error "undefined action ~A" action))))
   
 (webserver:defun-method "/help" seek-help 
-    (session &key time action href value text) 
+    (&key time action href value text) 
   "ask for help, or do a step in a help dialog" 
   (cond
     ((string= action "get-help")
@@ -167,13 +167,13 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
 		 (:value . "Explain-More"))))
 	     (t (error "undefined action ~A" action))))
 
-(webserver:defun-method "/help" close-problem (session &key  time) 
+(webserver:defun-method "/help" close-problem (&key  time) 
   "shut problem down" 
   ;; need to run (maybe not here)
 		   ;; do-close-problem
   ;; do-exit-andes
   ;; this tells the session manager that the session is over.
-  (setf (webserver:env session) nil)
+  (setf webserver:env nil)
   (format webserver:*stdout* 
 	  "in closeproblem  time ~S~%" time)
   '(((:action . "show-hint") 

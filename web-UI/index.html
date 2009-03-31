@@ -53,13 +53,12 @@
       var typejson = new dojox.rpc.Service("andes3.smd");
 
       // AOP-style function replacement that performs before-advice 
-      // to add the headers on all XHR requests.  See dojox/rpc/Client.js
+      // to add to the headers on all XHR requests.  See dojox/rpc/Client.js
       (function() {
 	dojo._defaultXhr = dojo.xhr;
 	dojo.xhr = function(method,args){
 		var headers = args.headers = args.headers || {};
 		headers["Client-Id"] = dojox.rpc.Client.clientId;
-		console.log("setting to "+ dojox.rpc.Client.clientId);
 		return dojo._defaultXhr.apply(dojo,arguments);
 	}
       })();
