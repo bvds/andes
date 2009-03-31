@@ -170,21 +170,18 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
 (webserver:defun-method "/help" close-problem (&key  time) 
   "shut problem down" 
   ;; need to run (maybe not here)
-		   ;; do-close-problem
+  ;; do-close-problem
   ;; do-exit-andes
   ;; this tells the session manager that the session is over.
-  (setf webserver:env nil)
-  (format webserver:*stdout* 
-	  "in closeproblem  time ~S~%" time)
-  '(((:action . "show-hint") 
-     (:text . (format nil "Finished working on problem ~A."
-		      (problem-name (session-problem env)))))
-    ((:action . "log") 
-     (:score . (("NSH_BO_Call_Count" . (-0.05 0)) 
-		("WWH_BO_Call_Count" . (-0.05 0))
-		("Correct_Entries_V_Entries" . (0.05 17 19))
-		("Correct_Answer_Entries_V_Answer_Entries" . (0.05 1 2)))))))
-
+  (let ((prob (env-problem webserver:env)))
+    (setf webserver:env nil)
+    `(((:action . "show-hint") 
+       (:text . ,(format nil "Finished working on problem ~A." prob)))
+      ((:action . "log") 
+       (:score . (("NSH_BO_Call_Count" . (-0.05 0)) 
+		  ("WWH_BO_Call_Count" . (-0.05 0))
+		  ("Correct_Entries_V_Entries" . (0.05 17 19))
+		  ("Correct_Answer_Entries_V_Answer_Entries" . (0.05 1 2))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Global Variables 

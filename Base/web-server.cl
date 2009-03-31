@@ -149,7 +149,11 @@
   ;; any signalling.  This might be quite inefficient!
   (loop until (and (not (session-lock session))
 		   (> (+ (session-turn session) 2) turn))
-	do (sleep 1))
+	do 
+	(format webserver:*stdout* 
+		"turn ~A waiting for turn ~A~%" turn (session-turn session))
+
+	(sleep 1))
   ;; lock session
   (setf (session-lock session) turn)
   (setf (session-turn session) turn))
@@ -168,12 +172,23 @@
     (lock-session session turn)
     ;; set up session environment for this session
     ;; when this function is executed, the package is cl-user
-    (defvar webserver:env (session-environment session))    
-    (setf func-return (apply func 
-			     (if (alistp params) 
-					     (flatten-alist params) params)))
+    (defvar env (session-environment session))
+    ;; Lisp errors not treated as Json rpc errors, since there
+    ;; is little the client can do to handle them.
+    (setf func-return 
+	  (handler-case (apply func 
+			       (if (alistp params) 
+				   (flatten-alist params) params))
+	    (error (condition) 
+	      `(((:action . "show-hint")
+		 (:text . ,(format nil "An error occurred:~%     ~A" 
+				   condition)))
+		((:action . "log")
+		 (:error-type . ,(string (type-of condition)))
+		 (:error . ,(format nil "~A" condition))
+		 (:backtrace . ,(format nil "~A" (backtrace))))))))
     ;; save session environment for next turn
-    (setf (session-environment session) webserver:env)
+    (setf (session-environment session) env)
     ;; if environment has been removed, remove session from table
     (unless (session-environment session) 
       (remhash session-hash *sessions*))
