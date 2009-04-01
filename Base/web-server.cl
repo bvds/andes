@@ -80,7 +80,7 @@
 		(service-uri (request-uri))
 		(method (cdr (assoc :method in-json)))
 		(params (cdr (assoc :params in-json)))
-		(turn (assoc :id in-json))
+		(turn (cdr (assoc :id in-json)))
 		(client-id (header-in :client-id))
 		(version (assoc :jsonrpc in-json))
 		(method-func (gethash (list service-uri method) 
@@ -96,27 +96,31 @@
 			`((:code . -32000) 
 			  (:message . "missing http header client-id"))
 			(format nil "missing http header client-id"))))
-	((null method-func)
-	 (setq error1 (if version
-			 `((:code . -32601) (:message . "Method not found")
-			   (:data . ,method))
-			 (format nil "Can't find method ~S for service ~A" 
-				 method service-uri))))
-	;; need error handler for the case where the arguments don't 
-	;; match the function...
-	(t (setq result (execute-session client-id (cdr turn) 
-					 method-func params))))
+      ((null method)
+       (setq error1 (if version
+			`((:code . -32600) (:message . "Method missing."))
+			(format nil "Method missing"))))
+      ((null method-func)
+       (setq error1 (if version
+			`((:code . -32601) (:message . "Method not found")
+			  (:data . ,method))
+			(format nil "Can't find method ~S for service ~A" 
+				method service-uri))))
+      ;; need error handler for the case where the arguments don't 
+      ;; match the function...
+      (t (setq result (execute-session client-id turn 
+				       method-func params))))
     (format *stdout* "  result ~S error ~S~%" result error1)
-    ;; only give a response when id is given
-    (when turn
+    ;; only give a response when there is an error or id is given
+    (when (or error1 turn)
       (when (or error1 (not version)) (push (cons :error error1) reply))
       (when (or result (not version)) (push (cons :result result) reply))
-      (push turn reply)
+      (push (cons :id turn) reply)
       (when version (push version reply))
       (encode-json-alist-to-string reply))))
 
 ;;; 
-;;;     Session management
+;;;     Session and turn management
 ;;;
 
 (defparameter *sessions* (make-hash-table :test #'equal) 
@@ -176,9 +180,8 @@
     ;; Lisp errors not treated as Json rpc errors, since there
     ;; is little the client can do to handle them.
     (setf func-return 
-	  (handler-case (apply func 
-			       (if (alistp params) 
-				   (flatten-alist params) params))
+	  (handler-case (apply func (if (alistp params) 
+					(flatten-alist params) params))
 	    (error (condition) 
 	      `(((:action . "show-hint")
 		 (:text . ,(format nil "An error occurred:~%     ~A" 
@@ -186,7 +189,10 @@
 		((:action . "log")
 		 (:error-type . ,(string (type-of condition)))
 		 (:error . ,(format nil "~A" condition))
-		 (:backtrace . ,(format nil "~A" (backtrace))))))))
+		 (:backtrace . ,(with-output-to-string 
+				 (stream)
+				 ;; sbcl-specific function 
+				 #+sbcl(sb-debug:backtrace 10 stream))))))))
     ;; save session environment for next turn
     (setf (session-environment session) env)
     ;; if environment has been removed, remove session from table
