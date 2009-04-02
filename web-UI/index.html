@@ -66,6 +66,7 @@
       function sendString() {
         dojox.rpc.Client.clientId = document.getElementById('ups').value;
         var jsonInput = document.getElementById('jsonstring').value;
+        typejson._requestId = document.getElementById('turn').value;
         document.getElementById('inputString').innerHTML = 
 	       "Send:  " + jsonInput;
 	var methodField = document.getElementById('help-method');
@@ -74,7 +75,8 @@
         deferred.addCallbacks(
           function (result) {
             document.getElementById('result').innerHTML = 
-	    "Success:  " + dojo.toJson(result);        
+	    "Success:  " + dojo.toJson(result);
+            document.getElementById('turn').value=typejson._requestId;
         }, 
 	// error conditiion handler:
           function (result) {
@@ -138,7 +140,8 @@
                 <option>seek-help</option>
                 <option>close-problem</option>
           </select>&nbsp;  
-           params: <input type="text" id="jsonstring" size="50"/>
+           params: <input type="text" id="jsonstring" size="50"/>&nbsp;
+           requestId: <input type="text" id="turn" value="0" size="3"/>&nbsp;
           <button dojoType="dijit.form.Button" onclick="sendString">
                Do JSON-RPC call</button>
 	  <div id="inputString">Input</div>
