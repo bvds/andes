@@ -59,14 +59,18 @@
 (defun register-method-for-service (uri method method-name)
   (setf (gethash (list uri method-name) *service-methods*) method))
 
-;; This now works as far as it goes.
-;; Need error handling with restart-case or handler-case
-;;  need to handle errors associated with bad function call or inside call
-;;  need to handle errors with bad json
-;;  need to handle errors with bad rpc (test for :method & :params not nil)
-;;  need to test input and reply against andes3.smd,
-;;  There is no provision for timing out (hung help system).
-;;  Need to use something more efficient for handle locks.
+;; Still needs to be done:
+;;  Need to handle errors with bad json (hard, since clients already check json)
+;;  generate smd from methods (the client is supposed to do the test posts against
+;;        the smd, just need to make sure smd matches the methods
+;;  Need webserver handler for helpsystem timeout (returning json rpc?).
+;;  There is no provision for timing out (hung help system).  Need webserver
+;;       timeout set to larger than helpsystem timeout.  Need timeout for
+;;        turns, so ordering doesn't get screwed up.  Maybe only kill turn
+;;         after timeout if there is a subsequent turn waiting.
+;;   How to handle turns that never make it to the webserver?  This will
+;;       cause subsequent turns to hang.
+;;  Need to use something more efficient for handle locks for waiting for turns.
 (defun handle-json-rpc ()
   "Handles json-rpc 1.0 and 2.0"
   (setf (content-type) "application/json; charset=UTF-8")
@@ -108,8 +112,25 @@
 				method service-uri))))
       ;; need error handler for the case where the arguments don't 
       ;; match the function...
-      (t (setq result (execute-session client-id turn 
-				       method-func params))))
+      (t 
+       (setq result 
+	     ;; Lisp errors not treated as Json rpc errors, since there
+	     ;; is little the client can do to handle them.
+	     (handler-case 
+		 (execute-session client-id turn 
+				  method-func params)
+	       (error (condition) 
+		 `(((:action . "show-hint")
+		    (:text . ,(format nil "An error occurred:~%     ~A" 
+				      condition)))
+		   ((:action . "log")
+		    (:error-type . ,(string (type-of condition)))
+		    (:error . ,(format nil "~A" condition))
+		    (:backtrace . 
+		     ,(with-output-to-string 
+		       (stream)
+		       ;; sbcl-specific function 
+		       #+sbcl(sb-debug:backtrace 10 stream))))))))))
     (format *stdout* "  result ~S error ~S~%" result error1)
     ;; only give a response when there is an error or id is given
     (when (or error1 turn)
@@ -125,7 +146,7 @@
 
 (defparameter *sessions* (make-hash-table :test #'equal) 
   "A list of active sessions")
-(defstruct session turn lock time environment)
+(defstruct session turn lock queue time environment)
 
 (defun print-sessions ()
   "Print sessions to see what is going on."
@@ -138,13 +159,15 @@
   "Return a session for a given hash or create a new one"
   (or (gethash session *sessions*)
       (setf (gethash session *sessions*) 
-	    (make-session :time (get-internal-real-time) :turn turn))))
+	    (make-session 
+	     :lock #+sbcl(sb-thread:make-mutex :name "turn lock")
+	     :queue #+sbcl(sb-thread:make-waitqueue)
+	     :time (get-internal-real-time) :turn turn))))
+
+;; should also set up timeout for waiting ...
 
 (defun lock-session (session turn)
   "locks session based on turn number"
-  ;; might instead try to retrieve session from database.
-  ;; also, might just want to return a message to the student.
-  ;; saying session has maybe timed out.
   ;; wait until earlier turns are all done
   (unless (numberp turn)    
     ;; in this case, could use expr< to order?
@@ -177,22 +200,9 @@
     ;; set up session environment for this session
     ;; when this function is executed, the package is cl-user
     (defvar env (session-environment session))
-    ;; Lisp errors not treated as Json rpc errors, since there
-    ;; is little the client can do to handle them.
-    (setf func-return 
-	  (handler-case (apply func (if (alistp params) 
-					(flatten-alist params) params))
-	    (error (condition) 
-	      `(((:action . "show-hint")
-		 (:text . ,(format nil "An error occurred:~%     ~A" 
-				   condition)))
-		((:action . "log")
-		 (:error-type . ,(string (type-of condition)))
-		 (:error . ,(format nil "~A" condition))
-		 (:backtrace . ,(with-output-to-string 
-				 (stream)
-				 ;; sbcl-specific function 
-				 #+sbcl(sb-debug:backtrace 10 stream))))))))
+    ;; execute the method
+    (setf func-return (apply func (if (alistp params) 
+					(flatten-alist params) params)))
     ;; save session environment for next turn
     (setf (session-environment session) env)
     ;; if environment has been removed, remove session from table
