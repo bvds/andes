@@ -93,7 +93,7 @@
 	    client-id method params)
     (cond
       ;; Here, we assume that the client generates the user-problem
-      ;; session id alternatively, we could have the server generate it and
+      ;; session id.  Alternatively, we could have the server generate it and
       ;; return it to the client at the beginning of a new session
       ((null client-id)
        (setq error1 (if version
@@ -148,8 +148,6 @@
 	     :lock #+sbcl(sb-thread:make-mutex :name "turn lock")
 	     :time (get-internal-real-time) :turn turn))))
 
-;; should also set up timeout for waiting ...
-
 (defun lock-session (session turn)
   "locks session based on turn number"
   ;; There are dire warnings in sbcl documentation about
@@ -177,7 +175,7 @@
   "unlocks session"
   ;; mostly for debugging
   (setf (session-time session) (get-internal-real-time))
-  ;; unlock session
+  ;; unlock session and wake other turns in session
   #-sbcl(setf (session-lock session) nil)
   #+sbcl(progn (sb-thread:condition-broadcast (session-queue session))
 		(sb-thread:release-mutex (session-lock session))))
@@ -187,7 +185,7 @@
   (let (func-return (session (get-session session-hash turn)))
     (lock-session session turn)
     ;; set up session environment for this session
-    ;; when this function is executed, the package is cl-user
+    ;; env is local to the thread.
     (defvar env (session-environment session))
     (setf func-return 
 	  ;; Lisp errors not treated as Json rpc errors, since there
