@@ -113,24 +113,8 @@
       ;; need error handler for the case where the arguments don't 
       ;; match the function...
       (t 
-       (setq result 
-	     ;; Lisp errors not treated as Json rpc errors, since there
-	     ;; is little the client can do to handle them.
-	     (handler-case 
-		 (execute-session client-id turn 
-				  method-func params)
-	       (error (condition) 
-		 `(((:action . "show-hint")
-		    (:text . ,(format nil "An error occurred:~%     ~A" 
-				      condition)))
-		   ((:action . "log")
-		    (:error-type . ,(string (type-of condition)))
-		    (:error . ,(format nil "~A" condition))
-		    (:backtrace . 
-		     ,(with-output-to-string 
-		       (stream)
-		       ;; sbcl-specific function 
-		       #+sbcl(sb-debug:backtrace 10 stream))))))))))
+       (setq result (execute-session client-id turn 
+				     method-func params))))
     (format *stdout* "  result ~S error ~S~%" result error1)
     ;; only give a response when there is an error or id is given
     (when (or error1 turn)
@@ -200,9 +184,23 @@
     ;; set up session environment for this session
     ;; when this function is executed, the package is cl-user
     (defvar env (session-environment session))
-    ;; execute the method
-    (setf func-return (apply func (if (alistp params) 
-					(flatten-alist params) params)))
+	     ;; Lisp errors not treated as Json rpc errors, since there
+	     ;; is little the client can do to handle them.
+    (handler-case 
+	;; execute the method
+	(setf func-return (apply func (if (alistp params) 
+					  (flatten-alist params) params)))
+      (error (condition) 
+	`(((:action . "show-hint")
+	   (:text . ,(format nil "An error occurred:~%     ~A" 
+			     condition)))
+	  ((:action . "log")
+	   (:error-type . ,(string (type-of condition)))
+	   (:error . ,(format nil "~A" condition))
+	   (:backtrace . ,(with-output-to-string 
+			   (stream)
+			   ;; sbcl-specific function 
+			   #+sbcl(sb-debug:backtrace 10 stream)))))))
     ;; save session environment for next turn
     (setf (session-environment session) env)
     ;; if environment has been removed, remove session from table
