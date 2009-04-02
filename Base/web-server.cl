@@ -61,16 +61,16 @@
 
 ;; Still needs to be done:
 ;;  Need to handle errors with bad json (hard, since clients already check json)
-;;  generate smd from methods (the client is supposed to do the test posts against
-;;        the smd, just need to make sure smd matches the methods
+;;  Generate smd from methods (the client is supposed to test posts against
+;;       the smd, just need to make sure smd matches the methods).
 ;;  Need webserver handler for helpsystem timeout (returning json rpc?).
 ;;  There is no provision for timing out (hung help system).  Need webserver
-;;       timeout set to larger than helpsystem timeout.  Need timeout for
-;;        turns, so ordering doesn't get screwed up.  Maybe only kill turn
-;;         after timeout if there is a subsequent turn waiting.
-;;   How to handle turns that never make it to the webserver?  This will
-;;       cause subsequent turns to hang.
-;;  Need to use something more efficient for handle locks for waiting for turns.
+;;       timeout set to larger than helpsystem timeout.  Maybe only kill turn
+;;       after timeout if there is a subsequent turn waiting?
+;;  How to handle turns that never make it to the webserver?  This will
+;;       cause subsequent turns to hang.  Maybe timeout if a subsequent
+;;       turn is waiting and session is unlocked.
+
 (defun handle-json-rpc ()
   "Handles json-rpc 1.0 and 2.0"
   (setf (content-type) "application/json; charset=UTF-8")
@@ -144,38 +144,43 @@
   (or (gethash session *sessions*)
       (setf (gethash session *sessions*) 
 	    (make-session 
+	     :queue #+sbcl(sb-thread:make-waitqueue :name "turn queue")
 	     :lock #+sbcl(sb-thread:make-mutex :name "turn lock")
-	     :queue #+sbcl(sb-thread:make-waitqueue)
 	     :time (get-internal-real-time) :turn turn))))
 
 ;; should also set up timeout for waiting ...
 
 (defun lock-session (session turn)
   "locks session based on turn number"
-  ;; wait until earlier turns are all done
-  (unless (numberp turn)    
-    ;; in this case, could use expr< to order?
-    (error "turn ~A is a not a number" turn))
-  ;; Here, we are using custom code to handle the wait, without
-  ;; any signalling.  This might be quite inefficient!
-  (loop until (and (not (session-lock session))
-		   (> (+ (session-turn session) 2) turn))
-	do 
-	(format webserver:*stdout* 
-		"turn ~A waiting for turn ~A~%" turn (session-turn session))
-
-	(sleep 1))
-  ;; lock session
-  (setf (session-lock session) turn)
+  ;; There are dire warnings in sbcl documentation about
+  ;; using get-mutex and interrupts.
+  #+sbcl(sb-thread:get-mutex (session-lock session) nil t)
+  ;; If turns can be numbered, wait until this turn is next
+  (when (numberp turn)
+     ;; wait until earlier turns are all done
+    (loop while (> turn (+ (session-turn session) 1))
+	  ;; Estimate minimum time needed to process  
+	  ;; number of turns waiting times number of sessions
+	  do #-sbcl(sleep (* (/ (hash-table-count *sessions*) 
+				internal-time-units-per-second)
+			     (- turn (+ (session-turn session) 1))))
+	  #+sbcl(sb-thread:condition-wait (session-queue session) 
+					  (session-lock session))))
+  ;; lock session.
+  #-sbcl(progn (loop until (not (session-lock session)) 
+		     do (sleep (/ (hash-table-count *sessions*) 
+				  internal-time-units-per-second)))
+	       (setf (session-lock session) turn))
   (setf (session-turn session) turn))
 
 (defun unlock-session (session)
   "unlocks session"
-  (unless (session-lock session)
-    (error "trying unlock an unlocked session"))
-  ;; unlock session
+  ;; mostly for debugging
   (setf (session-time session) (get-internal-real-time))
-  (setf (session-lock session) nil))
+  ;; unlock session
+  #-sbcl(setf (session-lock session) nil)
+  #+sbcl(progn (sb-thread:condition-broadcast (session-queue session))
+		(sb-thread:release-mutex (session-lock session))))
 
 (defun execute-session (session-hash turn func params)
   "execute a function in the context of a given session when its turn comes"
@@ -184,23 +189,24 @@
     ;; set up session environment for this session
     ;; when this function is executed, the package is cl-user
     (defvar env (session-environment session))
-	     ;; Lisp errors not treated as Json rpc errors, since there
-	     ;; is little the client can do to handle them.
-    (handler-case 
-	;; execute the method
-	(setf func-return (apply func (if (alistp params) 
-					  (flatten-alist params) params)))
-      (error (condition) 
-	`(((:action . "show-hint")
-	   (:text . ,(format nil "An error occurred:~%     ~A" 
-			     condition)))
-	  ((:action . "log")
-	   (:error-type . ,(string (type-of condition)))
-	   (:error . ,(format nil "~A" condition))
-	   (:backtrace . ,(with-output-to-string 
-			   (stream)
-			   ;; sbcl-specific function 
-			   #+sbcl(sb-debug:backtrace 10 stream)))))))
+    (setf func-return 
+	  ;; Lisp errors not treated as Json rpc errors, since there
+	  ;; is little the client can do to handle them.
+	  (handler-case 
+	      ;; execute the method
+	      (apply func (if (alistp params) 
+			      (flatten-alist params) params))
+	    (error (condition) 
+	      `(((:action . "show-hint")
+		 (:text . ,(format nil "An error occurred:~%     ~A" 
+				   condition)))
+		((:action . "log")
+		 (:error-type . ,(string (type-of condition)))
+		 (:error . ,(format nil "~A" condition))
+		 (:backtrace . ,(with-output-to-string 
+				 (stream)
+				 ;; sbcl-specific function 
+				 #+sbcl(sb-debug:backtrace 10 stream))))))))
     ;; save session environment for next turn
     (setf (session-environment session) env)
     ;; if environment has been removed, remove session from table
