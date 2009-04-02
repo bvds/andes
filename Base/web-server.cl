@@ -205,11 +205,11 @@
 				 (stream)
 				 ;; sbcl-specific function 
 				 #+sbcl(sb-debug:backtrace 10 stream))))))))
-    ;; save session environment for next turn
-    (setf (session-environment session) env)
-    ;; if environment has been removed, remove session from table
-    (unless (session-environment session) 
-      (remhash session-hash *sessions*))
+    (if env
+	;; save session environment for next turn
+	(setf (session-environment session) env)
+	;; if environment has been removed, remove session from table
+	(remhash session-hash *sessions*))
     ;; unlock session, if locked
     (unlock-session session)
     func-return))
