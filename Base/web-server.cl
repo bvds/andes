@@ -23,7 +23,7 @@
 (defpackage :webserver
   (:use :cl :hunchentoot :json)
   (:export :defun-method :start-json-rpc-service :stop-json-rpc-service 
-	   :*stdout* :print-sessions :env))
+	   :*stdout* :print-sessions :*ssn-env*))
 
 (in-package :webserver)
 
@@ -132,11 +132,12 @@
   "A list of active sessions")
 (defstruct session turn lock queue time environment)
 
-(defun print-sessions ()
+(defun print-sessions (&optional str)
   "Print sessions to see what is going on."
     (maphash #'(lambda (id session) 
-		 (format t "session ~A with turn ~A and time ~A~%" id
-			 (session-turn session) (session-time session)))
+		 (format str "session ~A with turn ~A, time ~A,~%   env ~A~%" 
+			 id (session-turn session) (session-time session)
+			 (session-environment session)))
 	     *sessions*))
 
 (defun get-session (session turn)
@@ -182,11 +183,14 @@
 
 (defun execute-session (session-hash turn func params)
   "execute a function in the context of a given session when its turn comes"
-  (let (func-return (session (get-session session-hash turn)))
+  (let* ((session (get-session session-hash turn))
+	 *ssn-env* func-return)
     (lock-session session turn)
     ;; set up session environment for this session
     ;; env is local to the thread.
-    (defvar env (session-environment session))
+    (setf *ssn-env* (session-environment session))
+    (format *stdout* "execute-session package ~A *ssn-env* ~A~%" *package*
+	    (symbol-package '*ssn-env*))
     (setf func-return 
 	  ;; Lisp errors not treated as Json rpc errors, since there
 	  ;; is little the client can do to handle them.
@@ -205,9 +209,9 @@
 				 (stream)
 				 ;; sbcl-specific function 
 				 #+sbcl(sb-debug:backtrace 10 stream))))))))
-    (if env
+    (if *ssn-env*
 	;; save session environment for next turn
-	(setf (session-environment session) env)
+	(setf (session-environment session) *ssn-env*)
 	;; if environment has been removed, remove session from table
 	(remhash session-hash *sessions*))
     ;; unlock session, if locked

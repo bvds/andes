@@ -102,10 +102,14 @@ correct-entry
 
 (webserver:defun-method "/help" open-problem (&key time problem user) 
   "initial problem statement" 
+  (declare (special webserver:*ssn-env*)(special *ssn-env*))
   ;; need to think about better handling for case
   ;; where session already exists.
-  (unless webserver:env
-    (setq webserver:env (make-env :student user :problem problem)))
+    (format webserver:*stdout* "open-problem package ~A *ssn-env* ~A ~A~%" *package*
+	    (symbol-package '*ssn-env*)	    (symbol-package 'webserver:*ssn-env*))
+  (unless webserver:*ssn-env*
+    (format webserver:*stdout* "open-problem  try to set ~%")
+    (setq webserver:*ssn-env* (make-env :student user :problem problem)))
   ;; need calls to 
   ;; do-read-student-info
   ;; read-problem-info  (useful)
@@ -169,12 +173,13 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
 
 (webserver:defun-method "/help" close-problem (&key  time) 
   "shut problem down" 
+  (declare (special webserver:*ssn-env*))
   ;; need to run (maybe not here)
   ;; do-close-problem
   ;; do-exit-andes
-  ;; this tells the session manager that the session is over.
-  (let ((prob (env-problem webserver:env)))
-    (setf webserver:env nil)
+  (let ((prob (env-problem webserver:*ssn-env*)))
+    ;; this tells the session manager that the session is over.
+    (setf webserver:*ssn-env* nil)
     `(((:action . "show-hint") 
        (:text . ,(format nil "Finished working on problem ~A." prob)))
       ((:action . "log") 
