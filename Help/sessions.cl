@@ -60,38 +60,6 @@ correct-entry
   (setf (env-studentactions env) *studentactions*)
   (setf (env-studentactions env) *studentactions*))
 
-;; does it matter if id is always a number when doing hash?
-(defun new-session (turn id student problem)
-  "initializes session and pushes onto recent activity queue, if inactive, and returns session id"
-    (unless (gethash id *sessions*)
-      (setf (gethash id *sessions*) 
-	    (make-session :student student :problem problem :turn turn
-			  :time (get-internal-real-time)))))
-
-
-
-(defmacro close-session (turn id svar &rest body)
-  `(let (result (,svar (gethash ,id *sessions*))) 
-     (lock-session ,turn ,svar)
-     ;; need to catch errors here so session is really killed
-     (setf result (progn ,@body))
-     (remhash ,id *sessions*)
-     result))
-
-(defun count-sessions () "Number of active sessions."
-       (hash-table-count *sessions*))
-
-(defun close-idle-sessions (&optional (idle 7200))
-  "Close all (idle) sessions."
-  (let ((cutoff (- (get-internal-real-time) 
-		   (* idle internal-time-units-per-second))))
-    (maphash #'(lambda (id session) 
-		 ;; should also test locked session threads to see how
-		 ;; long they have been running and kill if
-		 ;; time is too long?
-		 (when (and (session-time session) ;unlocked
-			    (< (session-time session) cutoff))
-		   (remhash id *sessions*))) *sessions*)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -102,14 +70,11 @@ correct-entry
 
 (webserver:defun-method "/help" open-problem (&key time problem user) 
   "initial problem statement" 
-  (declare (special webserver:*ssn-env*)(special *ssn-env*))
-  ;; need to think about better handling for case
-  ;; where session already exists.
-    (format webserver:*stdout* "open-problem package ~A *ssn-env* ~A ~A~%" *package*
-	    (symbol-package '*ssn-env*)	    (symbol-package 'webserver:*ssn-env*))
-  (unless webserver:*ssn-env*
-    (format webserver:*stdout* "open-problem  try to set ~%")
-    (setq webserver:*ssn-env* (make-env :student user :problem problem)))
+  ;; Need to think about error handling for the case where 
+  ;; the session already exists:  webserver:*env* is not nil.
+  (unless webserver:*env*
+    (format webserver:*stdout* "open-problem opening problem ~A~%" problem)
+    (setq webserver:*env* (make-env :student user :problem problem)))
   ;; need calls to 
   ;; do-read-student-info
   ;; read-problem-info  (useful)
@@ -128,6 +93,8 @@ correct-entry
 ;     (unlock-session ,svar)
 ;     result))
 
+;; need error handler for case where the session isn't active
+;; (webserver:*env* is null).  
 (webserver:defun-method "/help" solution-step 
     (&key time id action type mode x y text-width
 			text dx dy radius symbol x-label y-label angle) 
@@ -146,7 +113,9 @@ correct-entry
 	     ((string= action "delete-object")
 	      `(((:action . "set-score") (:score . 52))))
 	     (t (error "undefined action ~A" action))))
-  
+
+;; need error handler for case where the session isn't active
+;; (webserver:*env* is null).  
 (webserver:defun-method "/help" seek-help 
     (&key time action href value text) 
   "ask for help, or do a step in a help dialog" 
@@ -173,13 +142,12 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
 
 (webserver:defun-method "/help" close-problem (&key  time) 
   "shut problem down" 
-  (declare (special webserver:*ssn-env*))
   ;; need to run (maybe not here)
   ;; do-close-problem
   ;; do-exit-andes
-  (let ((prob (env-problem webserver:*ssn-env*)))
+  (let ((prob (env-problem webserver:*env*)))
     ;; this tells the session manager that the session is over.
-    (setf webserver:*ssn-env* nil)
+    (setf webserver:*env* nil)
     `(((:action . "show-hint") 
        (:text . ,(format nil "Finished working on problem ~A." prob)))
       ((:action . "log") 

@@ -23,7 +23,7 @@
 (defpackage :webserver
   (:use :cl :hunchentoot :json)
   (:export :defun-method :start-json-rpc-service :stop-json-rpc-service 
-	   :*stdout* :print-sessions :*ssn-env*))
+	   :*stdout* :print-sessions :*env* :close-idle-sessions))
 
 (in-package :webserver)
 
@@ -131,6 +131,10 @@
 (defparameter *sessions* (make-hash-table :test #'equal) 
   "A list of active sessions")
 (defstruct session turn lock queue time environment)
+;; Each thread has the variable *env* available to store
+;; sesssion-specific information between turns.
+;; If a method sets *env* to nil, this indicates the session is finished.
+(defvar *env*) ;Declare *env* to be special, but don't bind it globally.
 
 (defun print-sessions (&optional str)
   "Print sessions to see what is going on."
@@ -148,6 +152,26 @@
 	     :queue #+sbcl(sb-thread:make-waitqueue :name "turn queue")
 	     :lock #+sbcl(sb-thread:make-mutex :name "turn lock")
 	     :time (get-internal-real-time) :turn turn))))
+
+(defun close-idle-sessions (&optional (idle 7200))
+  "Close all (idle) sessions."
+  (let ((cutoff (- (get-internal-real-time) 
+		   (* idle internal-time-units-per-second))))
+    (maphash #'(lambda (id session) 
+		 (when (< (session-time session) cutoff)
+		   ;; when a session is locked, we should 
+		   ;; force it to return an error
+		   #+sbcl(when (sb-thread:mutex-value (session-lock session))
+			    (sb-thread:interrupt-thread 
+			     (sb-thread:mutex-value (session-lock session))
+			     #'hung-session-error))
+		   ;; Don't know how to access other threads
+                   ;; in non-sbcl case.
+		   #-sbcl(when (session-lock session))
+		   (remhash id *sessions*))) *sessions*)))
+
+(defun hung-session-error ()
+  (error "Help system running for too long, killing turn."))
 
 (defun lock-session (session turn)
   "locks session based on turn number"
@@ -174,7 +198,7 @@
 
 (defun unlock-session (session)
   "unlocks session"
-  ;; mostly for debugging
+  ;; time used to determine idle sessions.
   (setf (session-time session) (get-internal-real-time))
   ;; unlock session and wake other turns in session
   #-sbcl(setf (session-lock session) nil)
@@ -183,14 +207,14 @@
 
 (defun execute-session (session-hash turn func params)
   "execute a function in the context of a given session when its turn comes"
-  (let* ((session (get-session session-hash turn))
-	 *ssn-env* func-return)
+  (let (func-return 
+	(session (get-session session-hash turn))
+	;; Make thread-local binding of special variable *env*
+	*env*)
     (lock-session session turn)
     ;; set up session environment for this session
     ;; env is local to the thread.
-    (setf *ssn-env* (session-environment session))
-    (format *stdout* "execute-session package ~A *ssn-env* ~A~%" *package*
-	    (symbol-package '*ssn-env*))
+    (setf *env* (session-environment session))
     (setf func-return 
 	  ;; Lisp errors not treated as Json rpc errors, since there
 	  ;; is little the client can do to handle them.
@@ -209,10 +233,10 @@
 				 (stream)
 				 ;; sbcl-specific function 
 				 #+sbcl(sb-debug:backtrace 10 stream))))))))
-    (if *ssn-env*
+    (if *env*
 	;; save session environment for next turn
-	(setf (session-environment session) *ssn-env*)
-	;; if environment has been removed, remove session from table
+	(setf (session-environment session) *env*)
+	;; if environment has been removed, remove session from table.
 	(remhash session-hash *sessions*))
     ;; unlock session, if locked
     (unlock-session session)
