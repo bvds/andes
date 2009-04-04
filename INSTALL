@@ -51,7 +51,7 @@ Likewise, at least for Andes2, one can use the solutions repository:
   <Location /help>
     LispServer 127.0.0.1 8080 "help"
     SetHandler lisp-handler
-    ErrorDocument 500 "{\"jsonrpc\": \"2.0\", \"error\": {\"code\": -32000, \"message\": \"Andes help server not responding\"}, \"id\": null}"  
+    ErrorDocument 500 "{\"jsonrpc\": \"2.0\", \"error\": {\"code\": 500, \"message\": \"Andes help server not responding\"}, \"id\": null}"  
   </Location>
 # add links to web-UI and images in /var/www/html
 # Then restart:
