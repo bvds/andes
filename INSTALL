@@ -36,15 +36,22 @@ Likewise, at least for Andes2, one can use the solutions repository:
   (asdf-install:install 'cl-json)
 
 # Install mod_lisp.  
-  svd checkout http://www.fractalconcept.com:8000/public/open-source/mod_lisp/ mod_lisp
+  svn checkout http://www.fractalconcept.com:8000/public/open-source/mod_lisp/ mod_lisp
   cd mod_lisp
-# You will need apxs, on RedHat-like systems:
+# Note that mod_lisp has a timeout for no reply from the lisp server.  
+# In mod_lisp2.c,  READ_TIMEOUT is set to 60 seconds (in milliseconds) and 
+# returns error code 500.
+# You will need apxs, on RedHat-like systems to install mod_lisp:
   yum install httpd-devel
-  /usr/sbin/apxs -i -c -a mod_lisp2.c # -a flag LoadModule line to httpd.conf
+# Now, you can compile this file and load it into Apache:
+  /usr/sbin/apxs -i -c -a mod_lisp2.c # -a means add LoadModule line to httpd.conf
+
+# Next, configure Apache
 # In httpd.conf, add:
   <Location /help>
     LispServer 127.0.0.1 8080 "help"
     SetHandler lisp-handler
+    ErrorDocument 500 "{\"jsonrpc\": \"2.0\", \"error\": {\"code\": -32000, \"message\": \"Andes help server not responding\"}, \"id\": null}"  
   </Location>
 # add links to web-UI and images in /var/www/html
 # Then restart:
