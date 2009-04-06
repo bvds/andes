@@ -14,10 +14,9 @@
 ;;;;   asdf:load-op reloads all files, whether they have been
 ;;;;   changed or not.
 
-(defclass no-compile-file (asdf:cl-source-file) ())
-(defmethod asdf:perform ((o asdf:compile-op) (s no-compile-file))
-  nil)
-(defmethod asdf:output-files ((o asdf:compile-op) (s no-compile-file))
+(defclass no-compile-file (cl-source-file) ())
+(defmethod perform ((o compile-op) (s no-compile-file)) nil)
+(defmethod output-files ((o compile-op) (s no-compile-file))
   (list (component-pathname s)))
 
 ;;;
