@@ -22,7 +22,6 @@
 #include "decl.h"
 #include "extstruct.h"
 #include "Solver.h"
-RETURN_CSTRING solverDoLog(const char* const src);
 #include "indysgg.h"
 #include "indyset.h"
 #include "dbg.h"
