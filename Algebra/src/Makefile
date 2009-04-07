@@ -49,12 +49,11 @@ src_objects = Solver.o   \
 	eqnumsimp.o  justonev.o     physvar.o 
 
 libSolver.so libSolver: $(src_objects) Makefile
-	$(CXX) $(SHARED) $(src_objects) -o libSolver.$(SO) && \
-	mv -f libSolver.$(SO) ../../ 
+	$(CXX) $(SHARED) $(src_objects) -o ../../libSolver.$(SO) \
 
 executable solver-program: libSolver solver-program.o
 	$(CXX) $(CPPFLAGS) -o ../../solver-program solver-program.o \
-	$(LN_THIS_DIR) libSolver.$(SO)
+	$(LN_THIS_DIR) -L../../ -lSolver
 
 clean:
 	rm *.o
