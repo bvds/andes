@@ -47,7 +47,7 @@ src_objects = Solver.o   \
 	eqnumsimp.o  justonev.o     physvar.o 
 
 libSolver.so libSolver: $(src_objects) Makefile
-	$(CXX) $(SHARED) $(src_objects) -o ../../libSolver.$(SO) && \
+	$(CXX) $(SHARED) $(src_objects) -o ../../libSolver.$(SO)
 
 algebra: $(src_objects) main.o
 	$(CXX) $(CPPFLAGS) -o algebra $(src_objects) main.o
