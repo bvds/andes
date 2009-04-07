@@ -15,8 +15,7 @@
 ;;;;   changed or not.
 
 (defclass no-compile-file (cl-source-file) ())
-(defmethod perform ((o compile-op) (s no-compile-file))
-  nil)
+(defmethod perform ((o compile-op) (s no-compile-file)) nil)
 (defmethod output-files ((o compile-op) (s no-compile-file))
   (list (component-pathname s)))
 

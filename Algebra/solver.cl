@@ -150,41 +150,30 @@
 ;;;;    Set the path of the solver by os type.
 ;;;;
 
-#+MSWINDOWS (defparameter *DLL-NAME* "Solver.dll") ;name of library
-#+LINUX (defparameter *DLL-NAME* "libSolver.so")
-#+DARWIN (defparameter *DLL-NAME* "libSolver.dylib") ;OS X
+(defparameter *process* nil)
 
-#+uffi (defvar force-reload nil)	;flag for reloading after solver-unload
-
-(defun solver-load (&optional filename)
-  (let ((path (if filename filename 
-		(merge-pathnames *DLL-NAME* *Andes-Path*))))
-    #-uffi(unless (member *DLL-NAME* (ff:list-all-foreign-libraries)
-			  :key #'file-namestring :test #'string-equal))
-    (format T "~&Loading solver from ~A~%" path)
-    #-uffi(load path)
-    #+uffi(uffi:load-foreign-library path
-;;; The libraries which are needed.
-;;; Only needed for Python-based Lisps like CMUCL, SBCL, or SCL?
-				     :supporting-libraries '("c" "m")
-				     :force-load force-reload 
-				)
-    #+uffi (setf force-reload nil)
-    ; on load, ensure logging set to Lisp variable value
-    (solver-logging *solver-logging*)
-    ))
+(defun solver-load ()
+  "load solver, if it isn't already loaded and running"
+  (unless (and (sb-ext:process-p *process*) 
+	       (sb-ext:process-alive-p *process*))
+    (setf *process* (sb-ext:run-program 
+		     (merge-pathnames "solver-program" *Andes-Path*) 
+		     ;; can also add the debug flag like this: '("0x10")
+		     nil
+		     :search nil :wait nil
+		     :input :stream :output :stream)))
+  ;; on load, ensure logging set to Lisp variable value
+  (solver-logging *solver-logging*))
  
 (defun solver-unload ()
-  (let ((path (merge-pathnames *DLL-NAME* *Andes-Path*)))
-    ;; uffi doesn't have an unload command, so we are stuck with reloading.
-    #+uffi (setf force-reload t)
-    #-uffi (when (member *DLL-NAME* (ff:list-all-foreign-libraries) 
-		  :key #'file-namestring :test #'string-equal)
-       (format T "~&UnLoading solver from ~A~%" path)
-       (ff::unload-foreign-library path))))
+  (write-line "exit" (sb-ext:process-input *process*))
+  ;; see comment in do-solver-turn about buffering
+  (force-output (sb-ext:process-input *process*))
+  (sb-ext:process-wait *process*)
+  (sb-ext:process-close *process*))
 
-; Ensure Lisp will read given values into double-precision floating points.
-; Thus constants will have the format expected by the solver.
+;; Ensure Lisp will read given values into double-precision floating points.
+;; Thus constants will have the format expected by the solver.
 (setf *read-default-float-format* 'double-float)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -194,347 +183,120 @@
 (defconstant *solver-temp-eqn-slot* *solver-max-eqn-slot*  
   "Labelling for the temporary modification slot.")  
 
+(defmacro do-solver-turn (name &optional input)
+  `(progn 
+    (unless (and (sb-ext:process-p *process*) 
+		 (sb-ext:process-alive-p *process*))
+      (error "external program not running."))
+    ;; useful for debugging solver
+    ;; (format t "  sending ~A ~S~%" ,name ,input)
+    (write-line 
+     ,(if input `(concatenate 'string ,name " " ,input) `,name) 
+     (sb-ext:process-input *process*))	
+    ;; RUN-PROGRAM creates its PROCESS-INPUT streams with
+    ;; :BUFFERING :FULL by default, rather than :BUFFERING :LINE.  
+    ;; Thus, it must be explicitly flushed
+    (force-output (sb-ext:process-input *process*))
+    (read-until-match (sb-ext:process-output *process*))))
 
+(defun read-until-match (stream)
+    "solver has a lot of print statements, so we mark the actual function return as a line starting with //"
+    (do ((line (read-line stream) (read-line stream)))
+	((and (> (length line) 1) (string= line "//" :end1 2))
+	  (my-read-answer (subseq line 2)))
+      (format t "   solver print:  ~A~%" line)))
+   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#-uffi (ff:def-foreign-call (c-solve-do-log "solverDoLog")
-			    ((string (* :char)))
-			    :returning :int) ;BvdS:  but it returns a string...
-#+uffi  (uffi:def-function ("solverDoLog" c-solve-do-log )
-			   ((string :cstring))
-			   :returning :cstring)
-#-uffi (defun solve-do-log (a)
-	 (excl:native-to-string (c-solve-do-log a)))
-#+uffi (defun solve-do-log (arg)
-	 (check-type arg string)
-	 (uffi:with-cstring (arg-native arg)
-	 (uffi:convert-from-cstring (c-solve-do-log arg-native))))
 
 (defun solver-logging (x)
   ; update Lisp-side state flag, and set in currently loaded solver
-  (setf *solver-logging* x)
-  (my-read-answer (solve-do-log (format nil "~A" x))))
+  (do-solver-turn "solverDoLog" (format nil "~A" x)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#-uffi (ff:def-foreign-call (c-solve-start-log "solverStartLog")
-			    ((string (* :char)))
-			    :returning :int) ;BvdS:  but it returns a string...
-#+uffi (uffi:def-function ("solverStartLog" c-solve-start-log)
-			  ((string :cstring))
-			  :returning :cstring)
-#-uffi (defun solve-start-log (a)
-	 (excl:native-to-string (c-solve-start-log a)))
-#+uffi (defun solve-start-log (arg)
-	 (check-type arg string)
-	 (uffi:with-cstring (arg-native arg)
-	 (uffi:convert-from-cstring (c-solve-start-log arg-native))))
 (defun solver-log-new-name (x)
-  (my-read-answer (solve-start-log (format nil "~A" x))))
+  (do-solver-turn "solverStartLog" (format nil "~A" x)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#-uffi (ff:def-foreign-call (c-solve-debug-level "solverDebugLevel")
-			    ((level :unsigned-long))
-			    :returning :int) ;BvdS:  but it returns a string...
-#+uffi (uffi:def-function ("solverDebugLevel" c-solve-debug-level)
-			  ((level :unsigned-long))
-			  :returning :cstring)
-#-uffi (defun solve-debug-level (a)
-	 (excl:native-to-string (c-solve-debug-level a)))
-#+uffi (defun solve-debug-level (arg)
-	 (uffi:convert-from-cstring (c-solve-debug-level arg)))
+;; never called in Andes
 (defun solver-debug-level (x)  ;use #x... for hexadecimal format
-  (my-read-answer (solve-debug-level x)))
+  (do-solver-turn "solverDebugLevel" (format nil "~A" x)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#-uffi (ff:def-foreign-call (c-solve-bubble "solveBubble")
-    (:void)
-  :returning :int)
-#+uffi (uffi:def-function ("solveBubble" c-solve-bubble)
-    nil
-  :returning :cstring)
-#-uffi (defun solve-bubble ()
-  (excl:native-to-string (c-solve-bubble)))
-#+uffi (defun solve-bubble ()
-  (uffi:convert-from-cstring (c-solve-bubble)))
 (defun solver-solve-problem ()
-  (my-read-answer (solve-bubble)))
+  (do-solver-turn "solveBubble"))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#-uffi (ff:def-foreign-call (c-solve-more-bubble "solveMoreBubble")
-    (:void)
-  :returning :int)
-#+uffi (uffi:def-function ("solveMoreBubble" c-solve-more-bubble)
-    nil
-  :returning :cstring)
-#-uffi (defun solve-more-bubble ()
-  (excl:native-to-string (c-solve-more-bubble)))
-#+uffi (defun solve-more-bubble ()
-  (uffi:convert-from-cstring (c-solve-more-bubble)))
 (defun solver-solve-more-problem ()
-  (my-read-answer (solve-more-bubble)))
+  (do-solver-turn "solveMoreBubble"))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#-uffi (ff:def-foreign-call (c-solve-add "solveAdd")
-    ((string (* :char)))
-  :returning :int)
-#+uffi (uffi:def-function ("solveAdd" c-solve-add)
-    ((string :cstring))
-  :returning :cstring)
-#-uffi (defun solve-add (a)
-  (excl:native-to-string (c-solve-add a)))
-#+uffi (defun solve-add (arg)
-	 (check-type arg string)
-	 (uffi:with-cstring (arg-native arg)
-  (uffi:convert-from-cstring (c-solve-add arg-native))))
-(defun solver-send-problem-statement (x)
-  (my-read-answer (solve-add (format nil "~S" x)))) ;format to show keywords
+(defun solver-send-problem-statement (arg)
+  ;; suppress pretty printing -- it may insert line breaks on 
+  ;; very long equations
+  (do-solver-turn "solveAdd" 
+    ;; :escape T for keyword colons
+    (write-to-string arg :pretty NIL :escape T)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#-uffi (ff:def-foreign-call (c-solve-clear "solveClear")
-    (:void)
-  :returning :int)
-#+uffi (uffi:def-function ("solveClear" c-solve-clear)
-    nil
-  :returning :cstring)
-#-uffi (defun solve-clear ()
-  (excl:native-to-string (c-solve-clear)))
-#+uffi (defun solve-clear ()
-  (uffi:convert-from-cstring (c-solve-clear)))
 (defun solver-new-problem ()
-  (my-read-answer (solve-clear)))
+  (do-solver-turn "solveClear"))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#-uffi (ff:def-foreign-call (c-indy-is-independent "c_indyCanonHowIndy")
-    ((string (* :char)))
-  :returning :int)
-#+uffi (uffi:def-function ("c_indyCanonHowIndy" c-indy-is-independent)
-    ((string :cstring))
-  :returning :cstring)
-#-uffi (defun indy-is-independent (arg)
-  (excl:native-to-string (c-indy-is-independent arg)))
-#+uffi (defun indy-is-independent (arg)
-	 (check-type arg string)
-	 (uffi:with-cstring (arg-native arg)
-  (uffi:convert-from-cstring (c-indy-is-independent arg-native))))
 (defun solver-isIndependent (setID equationID)
-  (my-read-answer (indy-is-independent 
-		   (format nil "(~A ~A)" setID equationID))))
+  (do-solver-turn "c_indyCanonHowIndy"
+		   (format nil "(~A ~A)" setID equationID)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#-uffi (ff:def-foreign-call (c-indy-add-variable "c_indyAddVariable")
-    ((string (* :char)))
-  :returning :int)
-#+uffi (uffi:def-function ("c_indyAddVariable" c-indy-add-variable)
-    ((string :cstring))
-  :returning :cstring)
-#-uffi (defun indy-add-variable (arg)
-  (excl:native-to-string (c-indy-add-variable arg)))
-#+uffi (defun indy-add-variable (arg)
-	 (check-type arg string)
-	 (uffi:with-cstring (arg-native arg)
-  (uffi:convert-from-cstring (c-indy-add-variable arg-native))))
 (defun solver-indyAddVar (arg)
-  ; suppress pretty printing -- it may insert line breaks on very long 
-  ; variable name and value string causing argument parsing error 
-  (my-read-answer (indy-add-variable ; maybe want :escape T for keyword colons? 
-                       (write-to-string arg :pretty NIL :escape NIL))))
+  ;; suppress pretty printing -- it may insert line breaks on very long 
+  ;; variable names and value strings, causing argument parsing error 
+  (do-solver-turn "c_indyAddVariable" 
+    ;; Choosing :escape T causes variable names to
+    ;; change somehow and not be recognized.
+    (write-to-string arg :pretty NIL :escape nil)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#-uffi (ff:def-foreign-call (c-indy-done-add-variable "c_indyDoneAddVariable")
-    (:void)
-  :returning :int)
-#+uffi (uffi:def-function ("c_indyDoneAddVariable" c-indy-done-add-variable)
-    nil
-  :returning :cstring)
-#-uffi (defun indy-done-add-variable ()
-  (excl:native-to-string (c-indy-done-add-variable)))
-#+uffi (defun indy-done-add-variable ()
-  (uffi:convert-from-cstring (c-indy-done-add-variable)))
 (defun solver-indyDoneAddVar ()
-  (my-read-answer (indy-done-add-variable)))
+  (do-solver-turn "c_indyDoneAddVariable"))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#-uffi (ff:def-foreign-call (c-indy-add-equation "c_indyAddEquation")
-    ((string (* :char)))
-  :returning :int)
-#+uffi (uffi:def-function ("c_indyAddEquation" c-indy-add-equation)
-    ((string :cstring))
-  :returning :cstring)
-#-uffi (defun indy-add-equation (arg)
-  (excl:native-to-string (c-indy-add-equation arg)))
-#+uffi (defun indy-add-equation (arg)
-	 (check-type arg string)
-	 (uffi:with-cstring (arg-native arg)
-  (uffi:convert-from-cstring (c-indy-add-equation arg-native))))
 (defun solver-indyAddEquation (equationID equation)
-  (my-read-answer (indy-add-equation ; ~S so keywords have colons [for :error]
-		   (format nil "(~A ~S)" equationID equation)))) 
+  (do-solver-turn  "c_indyAddEquation" 
+    ;; :escape T so keywords have colons [for :error]
+     (write-to-string (list equationID equation) :pretty NIL :escape t)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#-uffi (ff:def-foreign-call (c-indy-empty "c_indyEmpty")
-    (:void)
-  :returning :int)
-#+uffi (uffi:def-function ("c_indyEmpty" c-indy-empty)
-    nil
-  :returning :cstring)
-#-uffi (defun indy-empty ()
-  (excl:native-to-string (c-indy-empty)))
-#+uffi (defun indy-empty ()
-  (uffi:convert-from-cstring (c-indy-empty)))
 (defun solver-indyEmpty ()
-  (my-read-answer (indy-empty)))
+  (do-solver-turn "c_indyEmpty"))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#-uffi (ff:def-foreign-call (c-indy-add-eq-to-set "c_indyAddEq2Set")
-    ((string (* :char)))
-  :returning :int)
-#+uffi (uffi:def-function ("c_indyAddEq2Set" c-indy-add-eq-to-set)
-    ((string :cstring))
-  :returning :cstring)
-#-uffi (defun indy-add-eq-to-set (arg)
-  (excl:native-to-string (c-indy-add-eq-to-set arg)))
-#+uffi (defun indy-add-eq-to-set (arg)
-	 (check-type arg string)
-	 (uffi:with-cstring (arg-native arg)
-  (uffi:convert-from-cstring (c-indy-add-eq-to-set arg-native))))
 (defun solver-indyAddEq2Set (setID equationID)
-  (my-read-answer (indy-add-eq-to-set 
-		   (format nil "(~A ~A)" setID equationID))))
+  (do-solver-turn "c_indyAddEq2Set"
+		   (format nil "(~A ~A)" setID equationID)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#-uffi (ff:def-foreign-call (c-indy-keep-n-of-set "c_indyKeepNOfSet")
-    ((string (* :char)))
-  :returning :int)
-#+uffi (uffi:def-function ("c_indyKeepNOfSet" c-indy-keep-n-of-set)
-    ((string :cstring))
-  :returning :cstring)
-#-uffi (defun indy-keep-n-of-set (arg)
-  (excl:native-to-string (c-indy-keep-n-of-set arg)))
-#+uffi (defun indy-keep-n-of-set (arg)
-	 (check-type arg string)
-	 (uffi:with-cstring (arg-native arg)
-  (uffi:convert-from-cstring (c-indy-keep-n-of-set arg-native))))
 (defun solver-indyKeepN (setID numberToKeep)
-  (my-read-answer (indy-keep-n-of-set 
-		   (format nil "(~A ~A)" setID numberToKeep))))
+  (do-solver-turn "c_indyKeepNOfSet"
+		   (format nil "(~A ~A)" setID numberToKeep)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#-uffi (ff:def-foreign-call (c-student-is-independent "c_indyStudHowIndy")
-    ((string (* :char)))
-  :returning :int)
-#+uffi (uffi:def-function ("c_indyStudHowIndy" c-student-is-independent)
-    ((string :cstring))
-  :returning :cstring)
-#-uffi (defun student-is-independent (arg)
-  (excl:native-to-string (c-student-is-independent arg)))
-#+uffi (defun student-is-independent (arg)
-	 (check-type arg string)
-	 (uffi:with-cstring (arg-native arg)
-  (uffi:convert-from-cstring (c-student-is-independent arg-native))))
 (defun solver-studentIsIndependent (setID equationID)
-  (my-read-answer (student-is-independent 
-		   (format nil "(~A ~A)" setID equationID))))
+  (do-solver-turn "c_indyStudHowIndy"
+		   (format nil "(~A ~A)" setID equationID)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#-uffi (ff:def-foreign-call (c-student-is-add-okay "c_indyStudentAddEquationOkay")
-    ((string (* :char)))
-  :returning :int)
-#+uffi (uffi:def-function ("c_indyStudentAddEquationOkay" c-student-is-add-okay)
-    ((string :cstring))
-  :returning :cstring)
-#-uffi (defun student-is-add-okay (arg)
-  (excl:native-to-string (c-student-is-add-okay arg)))
-#+uffi (defun student-is-add-okay (arg)
-	 (check-type arg string)
-	 (uffi:with-cstring (arg-native arg)
-  (uffi:convert-from-cstring (c-student-is-add-okay arg-native))))
 (defun solver-studentAddOkay (equationID equation)
-  (my-read-answer (student-is-add-okay 
-		   (format nil "(~A ~A)" equationID equation))))
+  (do-solver-turn "c_indyStudentAddEquationOkay" 
+    ;; no vertical bars on units
+     (write-to-string (list equationID equation) :pretty NIL :escape nil)))
+
 (defun solver-studentEmptySlot (slot)
    (solver-studentAddOkay slot "")) ;result should = 8
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#-uffi (ff:def-foreign-call (c-student-is-okay "c_indyIsStudentEquationOkay")
-    ((string (* :char)))
-  :returning :int)
-#+uffi (uffi:def-function ("c_indyIsStudentEquationOkay" c-student-is-okay)
-    ((string :cstring))
-  :returning :cstring)
-#-uffi (defun student-is-okay (arg)
-  (excl:native-to-string (c-student-is-okay arg)))
-#+uffi (defun student-is-okay (arg)
-	 (check-type arg string)
-	 (uffi:with-cstring (arg-native arg)
-  (uffi:convert-from-cstring (c-student-is-okay arg-native))))
 (defun solver-studentIsOkay (equation)
-  (my-read-answer (student-is-okay (format nil "(~A)" equation))))
+  (do-solver-turn "c_indyIsStudentEquationOkay" 
+     ;; no vertical bars on units 
+    (write-to-string (list equation) :pretty nil :escape nil)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#-uffi (ff:def-foreign-call (c-sub-in-one-eqn "c_subInOneEqn")
-    ((string (* :char)))
-  :returning :int)
-#+uffi (uffi:def-function ("c_subInOneEqn" c-sub-in-one-eqn)
-    ((string :cstring))
-  :returning :cstring)
-#-uffi (defun sub-in-one-eqn (arg)
-  (excl:native-to-string (c-sub-in-one-eqn arg)))
-#+uffi (defun sub-in-one-eqn (arg)
-	 (check-type arg string)
-	 (uffi:with-cstring (arg-native arg)
-  (uffi:convert-from-cstring (c-sub-in-one-eqn arg-native))))
 (defun solver-eqn-subst-var (assignmentID eqnID destID)
-  (my-read-answer (sub-in-one-eqn 
-		   (format nil "(~A ~A ~A)" assignmentID eqnID destID))))
+  (do-solver-turn "c_subInOneEqn"
+		   (format nil "(~A ~A ~A)" assignmentID eqnID destID)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#-uffi (ff:def-foreign-call (c-solve-power-solve "c_powersolve")
-    ((string (* :char)))
-  :returning :int)
-#+uffi (uffi:def-function ("c_powersolve" c-solve-power-solve)
-    ((string :cstring))
-  :returning :cstring)
-#-uffi (defun solve-power-solve (arg)
-  (excl:native-to-string (c-solve-power-solve arg)))
-#+uffi (defun solve-power-solve (arg)
-	 (check-type arg string)
-	 (uffi:with-cstring (arg-native arg)
-  (uffi:convert-from-cstring (c-solve-power-solve arg-native))))
 (defun solver-power-solve (strength varName slot)
-  (my-read-answer (solve-power-solve 
-		   (format nil "(~A ~A ~A)" strength varName slot))))
+  (do-solver-turn "c_powersolve"
+		   (format nil "(~A ~A ~A)" strength varName slot)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#-uffi (ff:def-foreign-call (c-solve-one-eqn "c_solveOneEqn")
-    ((string (* :char)))
-  :returning :int)
-#+uffi (uffi:def-function ("c_solveOneEqn" c-solve-one-eqn)
-    ((string :cstring))
-  :returning :cstring)
-#-uffi (defun solve-one-eqn (arg)
-  (excl:native-to-string (c-solve-one-eqn arg)))
-#+uffi (defun solve-one-eqn (arg)
-	 (check-type arg string)
-	 (uffi:with-cstring (arg-native arg)
-  (uffi:convert-from-cstring (c-solve-one-eqn arg-native))))
 (defun solver-eqn-solve (name equationSlot destinationSlot)
-  (my-read-answer (solve-one-eqn 
-		   (format nil "(~A ~A ~A)" name equationSlot destinationSlot))))
+  (do-solver-turn "c_solveOneEqn"
+    (format nil "(~A ~A ~A)" name equationSlot destinationSlot)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#-uffi (ff:def-foreign-call (c-simplify-eqn "c_simplifyEqn")
-    ((string (* :char)))
-  :returning :int)
-#+uffi (uffi:def-function ("c_simplifyEqn" c-simplify-eqn)
-    ((string :cstring))
-  :returning :cstring)
-#-uffi (defun simplify-eqn (arg)
-  (excl:native-to-string (c-simplify-eqn arg)))
-#+uffi (defun simplify-eqn (arg)
-	 (check-type arg string)
-	 (uffi:with-cstring (arg-native arg)
-  (uffi:convert-from-cstring (c-simplify-eqn arg-native))))
 (defun solver-eqn-simplify (equationSlot destinationSlot)
-  (my-read-answer (simplify-eqn (format nil "(~A ~A)" equationSlot destinationSlot))))
+  (do-solver-turn "c_simplifyEqn" (format nil "(~A ~A)" equationSlot destinationSlot)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; utility routine to read as lisp string only when not an error
