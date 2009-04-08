@@ -9,11 +9,6 @@
 (require :asdf)  ; asdf is built-in
 (pushnew #P"/home/bvds/Andes2/" asdf:*central-registry*)
 
-;;;  load uffi
-(require :uffi)
-(asdf:operate 'asdf:load-op :uffi) 
-(pushnew :uffi cl:*features*)  ;; used by solver to detect uffi
-
 ;;;;
 ;;;;  load andes system
 ;;;;

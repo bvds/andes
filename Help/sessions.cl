@@ -31,9 +31,9 @@
 
 (in-package :cl-user)
 
-(defun start-help (&key (port 8080) (mod-lisp-p t))
+(defun start-help (&key (port 8080))
   "start a server with help system"
-  (webserver:start-json-rpc-service "/help" :port port :mod-lisp-p mod-lisp-p))
+  (webserver:start-json-rpc-service "/help" :port port))
 
 (defun stop-help () 
   "stop the web server running this service"

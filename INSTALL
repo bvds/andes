@@ -3,18 +3,13 @@
 
 Andes works with several varieties of lisp, but
 has been used most extensively with sbcl and Allegro lisp.
+The webserver functionality has only been developed for sbcl.
 A sample ~/.sbclrc file has been included as sbclrc-sample.
 Andes uses asdf as its package manager; both the sbcl and 
 Allegro lisp distributions include asdf.
 
-Install the uffi lisp package uffi; see http://uffi.b9.com/.
-Use asdf-install to do this, you will need to adjust 
-permissions/ownership for /usr/local/lib/sbcl/site:
-  (require 'asdf-install)
-  (asdf-install:install 'uffi)
-
-Compile the solver library:
-  cd Algebra/src/; make
+Compile the solver library and executable:
+  cd Algebra/src/; make solver-program
 
 For the system to work, a library of problem definitions 
 must be included.  The original Andes problem definitions
@@ -30,21 +25,11 @@ Likewise, at least for Andes2, one can use the solutions repository:
 # Install the hunchentoot web server ttp://www.weitz.de/hunchentoot/
 # using asdf-install.  asdf-install broken in that it will try to load
 # packages we said we didn't need, like cl+ssl and its dependent cffi.
+# Check that the permissions in /usr/local/lib/sbcl/site* are OK
   (require 'asdf-install)
   (push :hunchentoot-no-ssl *features*) ;we have apache to do this
   (asdf-install:install 'hunchentoot)
   (asdf-install:install 'cl-json)
-
-# Install mod_lisp.  
-  svn checkout http://www.fractalconcept.com:8000/public/open-source/mod_lisp/ mod_lisp
-  cd mod_lisp
-# Note that mod_lisp has a timeout for no reply from the lisp server.  
-# In mod_lisp2.c,  READ_TIMEOUT is set to 60 seconds (in milliseconds) and 
-# returns error code 500.
-# You will need apxs, on RedHat-like systems to install mod_lisp:
-  yum install httpd-devel
-# Now, you can compile this file and load it into Apache:
-  /usr/sbin/apxs -i -c -a mod_lisp2.c # -a means add LoadModule line to httpd.conf
 
 # Next, configure Apache
 # In httpd.conf, add:
