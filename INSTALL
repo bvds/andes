@@ -31,20 +31,19 @@ Likewise, at least for Andes2, one can use the solutions repository:
   (asdf-install:install 'hunchentoot)
   (asdf-install:install 'cl-json)
 
-# Next, configure Apache
-# In httpd.conf, add:
+# Next, configure Apache as reverse proxy server, with json-rpc 
+# error messages.  In httpd.conf, add:
   <Location /help>
-    LispServer 127.0.0.1 8080 "help"
-    SetHandler lisp-handler
-    ErrorDocument 500 "{\"jsonrpc\": \"2.0\", \"error\": {\"code\": 500, \"message\": \"Andes help server not responding\"}, \"id\": null}"  
+    ProxyPath http://localhost:8080/help
+    ReverseProxyPath http://localhost:8080/help
+    ErrorDocument 502 "{\"jsonrpc\": \"2.0\", \"error\": {\"code\": 502, \"message\": \"Andes help server:  proxy error\"}, \"id\": null}"  
+    ErrorDocument 503 "{\"jsonrpc\": \"2.0\", \"error\": {\"code\": 503, \"message\": \"Andes help server:  Service Temporarily Unavailable\"}, \"id\": null}"  
   </Location>
 # add links to web-UI and images in /var/www/html
 # Then restart:
-  /sbin/service httpd restart
+  /sbin/service httpd reload
 
 # To run server in lisp:
   (rhelp)
   (start-help)
   (stop-help)
-
-# See http://www.newartisans.com/blog/2007/11/running-common-lisp-behind-apache.html
