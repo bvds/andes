@@ -41,11 +41,14 @@
 	       (create-prefix-dispatcher uri 'handle-json-rpc)
 	       #'default-dispatcher))
 
-  ;; This is just for the debugging stage
-  (setq *show-lisp-errors-p* t
-        *show-lisp-backtraces-p* t)
-  
+  ;; Error handlers
+  (setq *show-lisp-errors-p* t)
+  (setf *http-error-handler* 'json-rpc-error-message)
+
   (setf *server* (start (make-instance 'acceptor :port port))))
+
+(defun json-rpc-error-message (err)
+  (format nil "{\"jsonrpc\": \"2.0\", \"error\": {\"code\": ~A, \"message\": \"Hunchentoot error:  ~A\"}, \"id\": null}" err (reason-phrase err)))
 
 (defun stop-json-rpc-service ()
   (stop *server*) (setf *server* nil))
