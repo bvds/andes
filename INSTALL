@@ -46,4 +46,7 @@ Likewise, at least for Andes2, one can use the solutions repository:
 # To run server in lisp:
   (rhelp)
   (start-help)
+# There is a bug, which causes this to hang, see
+# http://common-lisp.net/pipermail/tbnl-devel/2009-February/004608.html
+# http://common-lisp.net/pipermail/tbnl-devel/2009-February/004589.html
   (stop-help)

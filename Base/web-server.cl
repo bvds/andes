@@ -76,7 +76,7 @@
 
 (defun handle-json-rpc ()
   "Handles json-rpc 1.0 and 2.0"
-  (setf (content-type) "application/json; charset=UTF-8")
+  (setf (content-type*) "application/json; charset=UTF-8")
   ;; Hunchentoot is supposed to take care of charset encoding
   (unless (search "application/json" (header-in* :content-type))
     ;; with the wrong content-type, just send string back
