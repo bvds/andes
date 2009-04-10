@@ -39,28 +39,27 @@
   "stop the web server running this service"
   (webserver:stop-json-rpc-service))
 
-;; Define *student-entries* and *cp* using defvar in thread, local to thread.
-;; Define hash table *sessions* (or tables) with the session id as the key.
-;; each session contains *student-entries* and *cp* for that session.
+(defparameter *help-env-vars* '(*studentactions* *studententries* 
+*cp* *last-tutor-turn* *last-score* *slot-flag-frequency*
+*SG-Solutions* *SG-Entries* *SG-Eqns* *problem-finished*
+*correct-entry*) "List of global variables that need to be saved between turns in a session.")
 
-(defstruct env student problem studentactions studententries cp
-last-tutor-turn last-score slot-flag-frequency
-SG-Solutions SG-Entries SG-Eqns problem-finished
-correct-entry
-)
+;; New method with 
+(defstruct help-env "Quantities that must be saved between turns of a session.  Member vals contains list of values for *help-env-vars*." student problem 
+(vals ()
 
-(defun save-to-env (session)
-  (setf (env-studentactions env) *studentactions*)
-  (setf (env-studententries env) *studententries*)
-  (setf (env-cp env) *cp*)
-  (setf (env-last-tutor-turn env) *last-tutor-turn*)
-  (setf (env-last-score env) *lastscore*)
-  (setf (env-studentactions env) *studentactions*)
-  (setf (env-studentactions env) *studentactions*)
-  (setf (env-studentactions env) *studentactions*)
-  (setf (env-studentactions env) *studentactions*))
-
-
+(defmacro env-wrap (&body body)
+  "Make session-local copy of global variables, retrieving them from webserver:*env*-vars at the beginning of a turn and saving them there at the end of that turn"
+  (let ((result (gensym)) (vals 'webserver:*env*))
+    `(let ,(cons result 
+		 (mapcar 
+		  #'(lambda (x) (list x `(when (help-env-p ,vals) 
+					  (pop (help-env-vals ,vals))))) 
+		  *help-env*))
+      (setf ,result (progn ,@body))
+      (setf ,vals (list ,@*help-env*)) 
+      ,result)))
+               
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  The methods themselves.  Right now, these are just dummy functions
