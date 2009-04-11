@@ -45,21 +45,31 @@
 *correct-entry*) "List of global variables that need to be saved between turns in a session.")
 
 ;; New method with 
-(defstruct help-env "Quantities that must be saved between turns of a session.  Member vals contains list of values for *help-env-vars*." student problem 
-(vals ()
+(defstruct help-env "Quantities that must be saved between turns of a session.  Member vals contains list of values for *help-env-vars*." 
+	   student problem vals)
 
 (defmacro env-wrap (&body body)
-  "Make session-local copy of global variables, retrieving them from webserver:*env*-vars at the beginning of a turn and saving them there at the end of that turn"
+  "Make session-local copy of global variables, retrieving values from webserver:*env* at the beginning of a turn and saving them there at the end of that turn"
   (let ((result (gensym)) (vals 'webserver:*env*))
-    `(let ,(cons result 
-		 (mapcar 
-		  #'(lambda (x) (list x `(when (help-env-p ,vals) 
-					  (pop (help-env-vals ,vals))))) 
-		  *help-env*))
-      (setf ,result (progn ,@body))
-      (setf ,vals (list ,@*help-env*)) 
-      ,result)))
-               
+    `(progn
+      ;; should check for use of "assert" in other code I have written.
+      ;; maybe grep for "(unless .*(error " or "(when .*(error "
+
+      ;; An error here indicates that the student is trying to work
+      ;; on a session that has timed out or has not been initialized:  
+      ;; probably should have a appropriate handler that gives instructions
+      ;; to start a new session
+      (assert ,vals)
+      ;; further sanity check.
+      (assert (help-env-p ,vals))
+      (let ,(cons result 
+		  (mapcar 
+		   #'(lambda (x) (list x `(pop (help-env-vals ,vals))))
+		   *help-env-vars*))
+	(setf ,result (progn ,@body))
+	(when ,vals (setf (help-env-vals ,vals) (list ,@*help-env-vars*)))
+	,result))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  The methods themselves.  Right now, these are just dummy functions
@@ -70,27 +80,23 @@
 (webserver:defun-method "/help" open-problem (&key time problem user) 
   "initial problem statement" 
   ;; Need to think about error handling for the case where 
-  ;; the session already exists:  webserver:*env* is not nil.
-  (unless webserver:*env*
-    (format webserver:*stdout* "open-problem opening problem ~A~%" problem)
-    (setq webserver:*env* (make-env :student user :problem problem)))
-  ;; need calls to 
-  ;; do-read-student-info
-  ;; read-problem-info  (useful)
-  `(((:action . "new-object") (:id . 0) (:type . "text") (:mode . "locked")
-     (:x . 3) (:y . 5) (:text-width . 80) (:text . "A spherical ball with a mass of 2.00 kg rests in the notch ..."))
-    ((:action . "new-object") (:id . 1) (:type . "graphics") (:mode . "locked")
-     (:x . 53) (:y . 15) (:dx . 150) (:dy . 180)
-     (:href . "/images/s2e.gif"))))
-
-;(defun in-help (session &rest body)
-;  "wrapper code for session turn to handle environment variables"
-;  `(let (result (,svar (gethash ,id *sessions*)))
-;     (lock-session ,turn ,svar)
-;     ;; need to catch errors and do timeouts here, so session gets unlocked
-;     (setf result (progn ,@body))
-;     (unlock-session ,svar)
-;     result))
+  ;; the session already exists.
+  (assert (null webserver:*env*))
+  ;; tracing/debugging print
+  (format t webserver:*stdout* "open-problem opening problem ~A~%" problem)
+  (setq webserver:*env* (make-env :student user :problem problem))
+  ;; webserver:*env* needs to be initialized before the wrapper
+  (env-wrap
+  ;  (read-problem-info problem)
+    ;; need calls to 
+    ;; do-read-student-info
+    ;; read-problem-info  (useful)
+    
+    `(((:action . "new-object") (:id . 0) (:type . "text") (:mode . "locked")
+       (:x . 3) (:y . 5) (:text-width . 80) (:text . "A spherical ball with a mass of 2.00 kg rests in the notch ..."))
+      ((:action . "new-object") (:id . 1) (:type . "graphics") (:mode . "locked")
+       (:x . 53) (:y . 15) (:dx . 150) (:dy . 180)
+       (:href . "/images/s2e.gif")))))
 
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
@@ -98,65 +104,68 @@
     (&key time id action type mode x y text-width
 			text dx dy radius symbol x-label y-label angle) 
   "problem-solving step"
-  (cond
-	     ((string= action "new-object")
-	      `(((:action . "log") 
-		 (:assoc . (("DEFINE-MASS" . "(DEFINE-VAR (MASS BALL))"))) 
-		 (:id . ,id))
-		((:action . "log") (:parse . "(= m_BALL (DNUM 2.0 kg))"))
+  (env-wrap 
+    (cond
+      ((string= action "new-object")
+       `(((:action . "log") 
+	  (:assoc . (("DEFINE-MASS" . "(DEFINE-VAR (MASS BALL))"))) 
+	  (:id . ,id))
+	 ((:action . "log") (:parse . "(= m_BALL (DNUM 2.0 kg))"))
 		((:action . "set-score") (:score . 40))
-		((:action . "modify-object") (:id . ,id) (:mode . "right"))))
-	     ((string= action "modify-object")
-	      `(((:action . "set-score") (:score . 57))
-		((:action . "modify-object") (:id . ,id) (:mode . "right"))))
-	     ((string= action "delete-object")
-	      `(((:action . "set-score") (:score . 52))))
-	     (t (error "undefined action ~A" action))))
+	 ((:action . "modify-object") (:id . ,id) (:mode . "right"))))
+      ((string= action "modify-object")
+       `(((:action . "set-score") (:score . 57))
+	 ((:action . "modify-object") (:id . ,id) (:mode . "right"))))
+      ((string= action "delete-object")
+       `(((:action . "set-score") (:score . 52))))
+      (t (error "undefined action ~A" action)))))
 
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
 (webserver:defun-method "/help" seek-help 
     (&key time action href value text) 
   "ask for help, or do a step in a help dialog" 
-  (cond
-    ((string= action "get-help")
-	      '(((:action . "show-hint") 
-		 (:text . "Because the vector is parallel to the Y axis 
+  (env-wrap 
+    (cond
+      ((string= action "get-help")
+       '(((:action . "show-hint") 
+	  (:text . "Because the vector is parallel to the Y axis 
 but in the negative direction, the projection equation is Fearth_y = - Fearth so
  Fearth_y stands for a negative value."))
-		((:action . "show-hint-link") 
-		 (:text . "Explain more") 
-		 (:value . "Explain-More"))))
-	     ((string= action "help-button")
-	      '(((:action . "show-hint") 
-		 (:text . "Now that you have stated all of the given information, you should start on the major principles. What quantity is the problem seeking?"))
-		((:action . "focus-hint-text-box"))))
-	     ((string= action "principles-menu")
-	      '(((:action . "show-hint") 
-		 (:text . "Right indeed. Notice that the ball is at rest at T0."))
-		((:action . "show-hint-link") 
-		 (:text . "Explain more") 
-		 (:value . "Explain-More"))))
-	     (t (error "undefined action ~A" action))))
+	 ((:action . "show-hint-link") 
+	  (:text . "Explain more") 
+	  (:value . "Explain-More"))))
+      ((string= action "help-button")
+       '(((:action . "show-hint") 
+	  (:text . "Now that you have stated all of the given information, you should start on the major principles. What quantity is the problem seeking?"))
+	 ((:action . "focus-hint-text-box"))))
+      ((string= action "principles-menu")
+       '(((:action . "show-hint") 
+	  (:text . "Right indeed. Notice that the ball is at rest at T0."))
+	 ((:action . "show-hint-link") 
+	  (:text . "Explain more") 
+	  (:value . "Explain-More"))))
+      (t (error "undefined action ~A" action)))))
 
 (webserver:defun-method "/help" close-problem (&key  time) 
   "shut problem down" 
-  ;; need to run (maybe not here)
-  ;; do-close-problem
-  ;; do-exit-andes
-  (let ((prob (env-problem webserver:*env*)))
-    ;; this tells the session manager that the session is over.
-    (setf webserver:*env* nil)
-    `(((:action . "show-hint") 
-       (:text . ,(format nil "Finished working on problem ~A." prob)))
-      ((:action . "log") 
-       (:score . (("NSH_BO_Call_Count" . (-0.05 0)) 
-		  ("WWH_BO_Call_Count" . (-0.05 0))
-		  ("Correct_Entries_V_Entries" . (0.05 17 19))
-		  ("Correct_Answer_Entries_V_Answer_Entries" . (0.05 1 2))))))))
+  (env-wrap 
+    ;; need to run (maybe not here)
+    ;; do-close-problem
+    ;; do-exit-andes
+    (let ((prob (env-problem webserver:*env*)))
+      ;; this tells the session manager that the session is over.
+      (setf webserver:*env* nil)
+      `(((:action . "show-hint") 
+	 (:text . ,(format nil "Finished working on problem ~A." prob)))
+	((:action . "log") 
+	 (:score . (("NSH_BO_Call_Count" . (-0.05 0)) 
+		    ("WWH_BO_Call_Count" . (-0.05 0))
+		    ("Correct_Entries_V_Entries" . (0.05 17 19))
+		    ("Correct_Answer_Entries_V_Answer_Entries" . (0.05 1 2)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Global Variables 
+;;                       Global Variables 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; *andes-path* -- pathname of directory in which Andes files are installed

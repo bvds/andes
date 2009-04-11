@@ -209,7 +209,7 @@
 		(sb-thread:release-mutex (ssn-lock session))))
 
 (defun execute-session (session-hash turn func params)
-  "execute a function in the context of a given session when its turn comes"
+  "Execute a function in the context of a given session when its turn comes.  If the session doesn't exist, create it.  If there is nothing to save in *env*, delete session."
   (let (func-return 
 	(session (get-session session-hash turn))
 	;; Make thread-local binding of special variable *env*
