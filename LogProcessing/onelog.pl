@@ -502,6 +502,50 @@ if (0) {
   }
 }
 
+#
+#  Print out students who did problems outside the assigned curriculum.
+#
+if (0){
+# from Fall 2006 USNA
+    my @assigned_problems=("vec1b", "vec1d", "vec2a", "vec2b", "vec2d",
+"vec3b", "vec3c", "vec4a", "vec5a", "kt7a", "vec6a", "vec6c", "vec6d",
+"vec8a", "kt6b", "kt8a", "vec3a", "vec4b", "vec5b", "vec8b", "kt10a",
+"kgraph1", "kt3a", "kt5a", "kt9a", "kt9b", "kt13c", "kgraph3",
+"kgraph4", "kt11a", "kt11b", "kt12a", "kgraph6", "kgraph8",
+"relvel1a", "relvel2a", "fbd1a", "fbd1b", "fbd2a", "fbd3a", "fbd6a",
+"s1b", "s1f", "s2b", "s2e", "s3c", "s4b", "s6a", "s11a", "dt1a",
+"dt2a", "dt4a", "dt13a", "dt14b", "dt11a", "dt9a", "rots1a", "rots3a",
+"rots4a", "rots6a", "rots6c", "rots7a", "dt13b", "dt4b", "dt6a",
+"dt7b", "dt12a", "dt14a", "e1a", "e1b", "e2a", "e2b", "e2c", "e8a",
+"e8b", "e9b", "e10a", "e4a", "e4b", "e5a", "e6a", "e7a", "pow1a",
+"pow3a", "pow4a", "pow5a", "pow6a", "lmom1a", "lmom2a", "lmom2b",
+"imp1", "imp2", "imp3a", "pgraph1", "pgraph2", "pgraph3", "lmom3a",
+"lmom4a", "lmom5", "lmom6", "lmom7", "cm2", "cm3", "roc1", "roc2",
+"roc4", "kr1a", "kr1b", "kr2b", "kr3a", "kr4a", "kr6a", "kr7a",
+"dr2a", "dr2b", "dr5a", "dr6a", "dr8a", "momr1a", "momr2a", "momr3a",
+"momr4a", "rots8a", "rots8b", "fluids1", "fluids8", "fluids9",
+"fluids11", "fluids12", "fluids14", "fluids15", "fluids2", "fluids3",
+"fluids4", "fluids5", "osc1", "osc2", "osc3", "osc4", "osc5", "osc6",
+"osc7", "wave1", "wave2", "wave3", "wave4", "wave8", "wave9",
+"wave10", "wave11", "wave12", "wave5", "wave6", "wave15", "wave16",
+"wave13", "wave14", "wave17", "wave18");
+    my %assigned_p;
+    # make a hash table of the problems
+    foreach $problem (@assigned_problems) {
+	$assigned_p{$problem}=1;
+    }
+    
+    foreach $student (sort keys %times) {
+	$i=0; $j=0;
+	foreach $problem (sort keys %problems) {
+	    if ($times{$student}{$problem} and 
+		$scores{$student}{$problem} > 50) {
+		if($assigned_p{$problem}) {$j++;} else {$i++;}
+	    }
+	}
+	print "Student $student did $i unassigned out of $j\n";
+    }   
+}
 #    
 #  Remove students that solved only a few problems.
 #  This should be done semester-wise

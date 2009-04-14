@@ -108667,7 +108667,7 @@ Cell[BoxData[
 }, Open  ]]
 },
 WindowSize->{847, 670},
-WindowMargins->{{Automatic, 132}, {51, Automatic}},
+WindowMargins->{{205, Automatic}, {Automatic, 23}},
 PrintingPageRange->{Automatic, Automatic},
 PrintingOptions->{"Magnification"->1,
 "PaperOrientation"->"Portrait",
