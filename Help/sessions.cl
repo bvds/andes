@@ -39,10 +39,16 @@
   "stop the web server running this service"
   (webserver:stop-json-rpc-service))
 
-(defparameter *help-env-vars* '(*studentactions* *studententries* 
-*cp* *last-tutor-turn* *last-score* *slot-flag-frequency*
-*SG-Solutions* *SG-Entries* *SG-Eqns* *problem-finished*
-*correct-entry*) "List of global variables that need to be saved between turns in a session.")
+;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
+(#-sbcl defconstant #+sbcl sb-int:defconstant-eqx
+	*help-env-vars* 
+	'(*studentactions* *studententries* 
+	  *cp* *last-tutor-turn* *last-score* *slot-flag-frequency*
+	  *SG-Solutions* *SG-Entries* *SG-Eqns* *problem-finished*
+	  *correct-entry*) 
+	#-sbcl "List of global variables that need to be saved between turns in a session."
+	#+sbcl #'equalp
+	)
 
 ;; New method with 
 (defstruct help-env "Quantities that must be saved between turns of a session.  Member vals contains list of values for *help-env-vars*." 
