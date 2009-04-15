@@ -180,7 +180,7 @@ is shown on the screen when the vector is being dragged out.
   {"action": "modify-object", "id": 8, "mode": "right"}
 ]
 
-6:25 First equation, client has to encode the backspace.
+6:25 First equation, client has to encode the backslash.
 
 {"method": "solution-step", "params": {"time": 385.001, 
 	   "action": "new-object", "id": 9,  

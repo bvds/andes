@@ -89,8 +89,8 @@
   ;; the session already exists.
   (assert (null webserver:*env*))
   ;; tracing/debugging print
-  (format t webserver:*stdout* "open-problem opening problem ~A~%" problem)
-  (setq webserver:*env* (make-env :student user :problem problem))
+  (format webserver:*stdout* "open-problem opening problem ~A~%" problem)
+  (setq webserver:*env* (make-help-env :student user :problem problem))
   ;; webserver:*env* needs to be initialized before the wrapper
   (env-wrap
   ;  (read-problem-info problem)
