@@ -42,10 +42,14 @@
 ;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
 (#-sbcl defconstant #+sbcl sb-int:defconstant-eqx
 	*help-env-vars* 
-	'(*studentactions* *studententries* 
-	  *cp* *last-tutor-turn* *last-score* *slot-flag-frequency*
-	  *SG-Solutions* *SG-Entries* *SG-Eqns* *problem-finished*
-	  *correct-entry*) 
+	;; These are all the variables that are be set by API commands
+        ;; listed in Andes2 log files or their descendants.
+	'(*CP* **STUDENTFILE** *STUDENTACTIONS* **CURRENT-STUDENT-NAME** 
+	  **NSH-NEXT-CALL** *NSH-NODES* *NSH-FIRST-PRINCIPLES*
+	  *NSH-CURRENT-SOLUTIONS* *NSH-LAST-NODE* *NSH-SOLUTION-SETS* 
+	  *NSH-GIVENS* *NSH-AXIS-ENTRIES* *NSH-BODYSETS* *NSH-VALID-ENTRIES* 
+	  *NSH-PROBLEM-TYPE* **ALTERNATE-COMMAND-INTERPRETER** *VARIABLES* 
+	  *STUDENTENTRIES* *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*)
 	#-sbcl "List of global variables that need to be saved between turns in a session."
 	#+sbcl #'equalp
 	)
