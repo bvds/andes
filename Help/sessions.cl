@@ -251,18 +251,16 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
 	  ; we normally terminate on the "exit-andes" API call before we 
 	  ; read EOF on the socket, so have never seen this happen:
 	  (end-of-file (condition) 
-	    (error-message
 	     (format
 	      nil
 	      "stream termination on ~S.~%Exiting Andes help gracefully.~%"
-	      (stream-error-stream condition)))
+	      (stream-error-stream condition))
 	    (andes-stop)	; sets stop flag to andes-run loop
 	    NIL)		; no message to process in this case
           ; Can happen for connection reset; remote crash, net failure:
 	  (error (condition) 
-	    (error-message 
 	      (format NIL "Unexpected error: ~A~%Andes help quitting."
-	              condition))
+	              condition)
 	     (andes-stop)	; sets stop flag to andes-run loop
 	     NIL)))		; no message to process in this case
 
@@ -289,8 +287,7 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
 	 (dispatch-stream-event (remove &notify& str :count 1)))
 	((string= str &exec& :end1 1)	;Workbench expects reply
 	 (dispatch-and-return-stream-event (remove &exec& str :count 1)))
-	(t (error-message
-	    (format nil "unrecognized command: ~A" str)))))
+	(t (format nil "unrecognized command: ~A" str))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Function: dispatch-stream-event
@@ -342,7 +339,7 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
     (handler-case 
 	(setf result (apply fn args))
       (error (c) 
-    	(error-message (format nil "Executing command: ~A" c))
+    	(format nil "Executing command: ~A" c)
         :error)
       (:no-error (c) 
 	(declare (ignore c))
@@ -486,7 +483,6 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
   (solver-load)
   (solver-logging *solver-logging*)
   (physics-algebra-rules-initialize) ;initialize grammar
-  (enable-errors)
   )
 
 (defun andes-stop ()

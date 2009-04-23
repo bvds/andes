@@ -916,21 +916,7 @@
      **last-api-call** Result
      (if (and Result (turn-p result)) (turn-assoc result)))
     Result))
-  
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; cancel-help-system -- tells the system has cancelled the latest pending help
-;;  request
-;; argument(s):
-;;   NONE
-;; returns:
-;;   T (ignored by the WB)
-;; note(s):
-;;  sets global variale *command-cancelled* to true, which causes some loops in
-;;  the help system to exit immediately
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun cancel-help-request ()
-  (error-message "not implemented"))
-  
+    
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; get-proc-help -- Begins the next step help process for the student/
 ;; argument(s):
@@ -962,35 +948,6 @@
 (defun explain-more ()
   (handle-student-response 'explain-more))
   
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; hint-next-substep - triggered when the student clicks on "how do I do that?"
-;;  finds the next substep in the goal tree after the last hint and produces a
-;;  hint about that substep.
-;; argument(s):
-;;  NONE
-;; returns:
-;;  HintSpec -- see end of this file for further description
-;; note(s):
-;;  updates the assessor bayesian network to reflect the fact that the student
-;;  has received this hint
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun hint-next-substep ()
-  (error-message "not implemented"))
-  
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; why - gets an explanation of the last hint it gave, based on the rule that is
-;;  identifed with the hint in the solution graph. The explanations are canned
-;;  text that are stroed in the rules.lsp kb file
-;; argument(s):
-;;  NONE
-;; returns:
-;;  HintSpec -- see end of this file for further description
-;; note(s):
-;;  updates the assessor bayesian network to reflect the fact that the student
-;;  has received this hint
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun why ()
-  (error-message "not implemented"))
 
 ;;
 ;; history file queries -- API calls to give workbench access to the student.dat

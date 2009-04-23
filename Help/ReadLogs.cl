@@ -156,7 +156,7 @@
     (handler-case 
 	(setf result (apply fn args))
       (error (c) 
-    	(error-message (format ostr "Executing command: ~A" c))
+    	(format ostr "Executing command: ~A" c)
         :error)
       (:no-error (c) 
 	(declare (ignore c))
