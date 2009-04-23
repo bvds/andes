@@ -625,11 +625,6 @@
   "Prints system entries"
   (loop for s in *sg-entries* do (print (systemEntry-prop s))))
 
-(defun gg ()
-  (load "C:/Andes2/help/whatswrong.cl")
-  (load "C:/Andes2/KB/errors.cl")
-  (andes-run))
-
 (defparameter **watch-error-classes** nil
   "If t the error classes in **watched-error-classes** will be watched.")
 (defparameter **Watched-Error-Classes** () "The Error classes being watched.")

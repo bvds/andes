@@ -47,9 +47,6 @@
 ;;;
 ;;;
 ;;;
-;;; NOTE:: At some point this will need to be modified so that the
-;;;  send-fbd-command function is no longer called by the functions
-;;;  directly but it sent in as part of return-turn or turn->wb-reply.
 
 
 ;;;; ======================================================================
@@ -289,8 +286,10 @@
   ;; the current total score if it has changed since last sent
   (let ((current-score (get-current-runtime-total-score)))
     (when (not (equal current-score *last-score*))
-      (send-fbd-command (format Nil "set-score ~a" current-score))
-      (setf *last-score* current-score))))
+      (setf *last-score* current-score)
+      ;; needs to be formatted for json-rpc
+      (format Nil "set-score ~a" current-score)
+      )))
 
 ;;; AW: now we no longer load and save problem statistics in the
 ;;; student history file. Instead, the workbench will fetch the 
@@ -372,19 +371,17 @@
   ;; each one back to the workbench before the final result is placed on
   ;; the stream.  This allows us to wrap multiple workbench actions into 
   ;; the result of a single command and is used primarily for opening and
-  ;; closing separate browser windows.  
-  (when (and turn (turn-commands Turn))
-    (if (stringp (turn-commands Turn))
-	(send-fbd-command (turn-commands Turn))
-      (mapcar #'send-fbd-command (turn-commands turn))))
-  ;; if there is assoc info in the turn, send async command to record it in
-  ;; the workbench log. 
-  (when (and turn (turn-assoc turn))
-    (send-fbd-command 
-     (strcat "assoc " (write-to-string (turn-assoc turn)
+  ;; closing separate browser windows.
+  (list   
+   (when (and turn (turn-commands Turn))
+     (turn-commands Turn))
+   ;; if there is assoc info in the turn, send async command to record it in
+   ;; the workbench log. 
+   (when (and turn (turn-assoc turn))
+    (strcat "assoc " (write-to-string (turn-assoc turn)
 				       :escape t ;make it lisp-readable
-				       :pretty NIL))))   ;turn off line breaks 
-  (turn->WB-Reply turn))    
+				       :pretty NIL)))   ;turn off line breaks 
+  (turn->WB-Reply turn)))    
 
 
 ;;-----------------------------------------------------------------------------

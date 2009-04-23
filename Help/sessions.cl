@@ -188,137 +188,8 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
 "merge relative path with *andes-dir* returning new pathname"
     (merge-pathnames relative-path *andes-path*))
 
-
-(defvar *andes-stream* nil
-  "The stream that represents the character socket that serves help requests.")
-
 (defvar *debug-help* t
   "The stream showing help system runtime activities.")
-
-
-
-(defun andes-run ()
-  "Executes delayed tasks and listens for new events on the stream to process."
-  (unless *andes-stop*
-     (format *debug-help* "~&Running server event processing loop~%"))
-  (unwind-protect
-      ;; outer loop just repeats forever until server termination flag gets 
-      ;; set or connection no longer exists.
-      (loop until (or *andes-stop* 
-                      (not (connection-running)))
-	  do
-	    ;; 1: loop to drain all pending work from our queue by interleaving
-	    ;; execution of delayed tasks from task queue with polling and 
-	    ;; dispatching of ready input events from the command stream.
-	    (loop until (null *task-list*)
-		do (eval (pop *task-list*)) ;tasks can have side-effects
-		   ;; handle input events while draining the task queue.
-		   (process-stream-event :blocking nil))
-	    ;; 2: no work to do right now
-	    ;; Do blocking wait on next command so lisp process does not domi- 
-	    ;; nate the system's resources busy-waiting when no work to do.
-	    (process-stream-event :blocking t))
-
-    ;; protected post-loop cleanup: Note could have unwound out of loop to here
-    ;; after error.  In runtime image, always just terminate
-    #+allegro-cl-runtime (andes-terminate)
-    ;; Otherwise make sure session was normally ended before we terminate 
-    ;; server instance.  In interactive Lisp can restart loop after throwing 
-    ;; out of error to continue.
-    #-allegro-cl-runtime 
-    (if (not *andes-stop*)
-       (format *debug-help* 
-              "~&Exited server event loop! Call \"andes-run\" to resume event processing~%")
-     (andes-terminate)))) 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; process-stream-event - Listens for message on *andes-stream* and then exe-
-;;    cutes it as a command.
-;; argument(s):
-;;    &key :blocking : if true, function will wait for an event. default nil.
-;; returns: Garbage
-;; note(s): If there is an error on the stream, it tries to handle it. 
-;;          It starts the process of executing the command on the stream.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun process-stream-event (&key blocking)
-  "Listens for a message on *andes-stream* and then executes it as a command."
-  (let ((fbd-message nil))
-    ;; determines if it should wait for a message or just return unless
-    ;; there is a message.
-    (when (or blocking (listen *andes-stream*))
-      (setq fbd-message 
-	(handler-case (read-line *andes-stream*) ;; get command string
-	  ; we normally terminate on the "exit-andes" API call before we 
-	  ; read EOF on the socket, so have never seen this happen:
-	  (end-of-file (condition) 
-	     (format
-	      nil
-	      "stream termination on ~S.~%Exiting Andes help gracefully.~%"
-	      (stream-error-stream condition))
-	    (andes-stop)	; sets stop flag to andes-run loop
-	    NIL)		; no message to process in this case
-          ; Can happen for connection reset; remote crash, net failure:
-	  (error (condition) 
-	      (format NIL "Unexpected error: ~A~%Andes help quitting."
-	              condition)
-	     (andes-stop)	; sets stop flag to andes-run loop
-	     NIL)))		; no message to process in this case
-
-      ; if got message OK, then execute it 
-      (when fbd-message
-        (execute-stream-event fbd-message)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Function: execute-stream-event
-;; Parameters: str: a string containing the message from the workbench
-;; Purpose: This function determines what to do with a command message string 
-;;          based on the tag at the head of the string.  It is also
-;;          responsible for removing the tag.
-;; returns: Garbage
-;; Side Effects: If the string is a notify command, it attempts to execute it.
-;;               If it is a execute command, it will execute it and return the
-;;               results to *andes-stream*.  Gives an error message on unknown
-;;               command types.  
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun execute-stream-event (str)
-  "Determines from the 1st char of string how to handle the message"
-  (format *debug-help* "Stream-event ~A~%" str)
-  (cond ((string= str &notify& :end1 1)	;Workbench does not expect a reply
-	 (dispatch-stream-event (remove &notify& str :count 1)))
-	((string= str &exec& :end1 1)	;Workbench expects reply
-	 (dispatch-and-return-stream-event (remove &exec& str :count 1)))
-	(t (format nil "unrecognized command: ~A" str))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Function: dispatch-stream-event
-;; Parameters: command-string: a string containing a lisp function call
-;;             dde:  t/nil indicating whether this is a dde (needs reply
-;;                   or a dde-post (no reply needed).
-;; Purpose: To safely execute a command from the workbench, return the result
-;;          of the function call, and to do some book-keeping.
-;; returns: Results of the function call or :error if failed.
-;; Side Effects: Signals errors when execution fails, executes command in the
-;;               command-string which might have side effects, records the
-;;               time the command was executed, and updates the help system's
-;;               records.
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun dispatch-stream-event (command-string &key (dde Nil))
-  "Reads the string and tries to execute it, returns the result of the execution while also performing some bookkeeping."
-  ;; AW: we used to preprocess command string to ensure it could be passed safely through
-  ;; Lisp reader, which we use to parse it into a list of Lisp objects. This was particularly
-  ;; an issue for equation box contents, which could contain characters like quotes that confuse read.
-  ;; Now we just it to the workbench to ensure all arguments in command strings are properly
-  ;; escaped for Lisp.  Still, wrap the work in safe-apply to recover in case of error in Lisp read.
-  (safe-apply 'do-dispatch-stream-event (list command-string dde)))
-
-(defun do-dispatch-stream-event (command-string dde)
-  (let ((cmd-obj (read-from-string command-string))) 
-    (format *debug-help* "~&~%Executing ~A~%(Apply ~W ~W)~%" command-string (first cmd-obj) (rest cmd-obj))
-    ;; Pass parsed call to to the main dispatch wrapper in interface.cl
-    (execute-andes-command (first cmd-obj) (rest cmd-obj) dde)))
-
-
      
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; For runtime dist, trap all Lisp errors and return special :error value
@@ -346,92 +217,6 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
     	result)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Function: dispatch-and-return-stream-event
-;; Parameters: command-string: a string containing a lisp function call
-;; Purpose: To execute the command and return the results on *andes-stream*
-;; returns: garbage
-;; Side Effects: Signals errors when there was a caught error on the execution
-;;               of the command, makes sure that the stream is not being
-;;               buffered, and writes the results of the execution onto the
-;;               stream with the message id and type identifier.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun dispatch-and-return-stream-event (command-string)
-  "Dissects a command string to pull out the message id, executes the command, and prints the results with id to *andes-stream*"
-  (let* ((id (subseq command-string 0 (position #\: command-string)))
-	 (cmd (subseq command-string (+ (position #\: command-string) 1)))
-	 ;; Execute the DDE passing the fact that it is a dde on to the
-	 ;; Dispatch-stream-event call.
-	 (results (dispatch-stream-event cmd :DDE t)))
-    (cond ((eq results :error) ;; If there was a problem executing the string
-	   (format *debug-help* "~&Returned: ~A~A: for ~A~%"
-		   &nack& id command-string)
-	   (format *andes-stream* "~A~A:~%" &nack& id)) ;; return negative ack
-	  (t ;; otherwise, simply print the results to the stream.
-	   (format *debug-help* "~&Returned: ~A~A:~A~%" &reply& id results)
-	   (format *andes-stream* "~A~A:~A~%" &reply& id results)))
-    ;; push the text onto the stream to prevent buffering
-    (force-output *andes-stream*)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Function: send-fbd-command
-;; Parameters: command: a string containing a command that the workbench
-;;                      understands.
-;; Purpose: To send an unsolicited command to the workbench.
-;; returns: Garbage (nil)
-;; Side Effects: Prints the command to *andes-stream* and then lushes the
-;;               output buffer.
-;; IMPORTANT: Do not use this method to send a command 
-;; that will put the interface in a modal loop (such as opening a
-;; dialog box) if it is waiting for a return result from the 
-;; help system. This will result in losing the help system's return
-;; value. 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun send-fbd-command (command)
-  "Sends a command to the workbench using *andes-stream*."
-  (format *debug-help* "Sending: ~A~A~%" &cmd& command)
-  (format *andes-stream* "~A~A~%" &cmd& command)
-  (finish-output *andes-stream*))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Function: connection-running
-;; Parameters: nil
-;; Purpose: To check *andes-stream* to see if the connection is still open.
-;; returns: t: if stream is still open.
-;;          nil: if the stream is nil or closed.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun connection-running ()
-  "Checks to see if *andes-stream* is still open."
-  (and *andes-stream* (open-stream-p *andes-stream*)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; This was applied to incoming raw command strings as defense before passing 
-;; it through read-from-string: escape comma and backslash, which will interfere
-;; with parsing into objects by Lisp read. This simple method applies this blindly 
-;; throughout the string, without taking into account whether it occurs within
-;; vbar-delimited symbol, or quote-delimited string, for example. 
-;;
-;; This should not be necessary now that the workbench tries to ensure that 
-;; arguments in all command strings are sent in a Lisp-readable form.
-;; That was not done perfectly in past versions of Andes; in particular,
-;; bad chars in student-typed-equation box contents used to crash the helpsys.
-;; Should be safer now, and problems should be fixed on workbench side.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun escape-special-characters (string)
-  (loop for i from 0 to (1- (length string))
-      with special = '(#\, #\\)
-      appending
-	(let ((c (char string i)))
-	  (if (member c special) (list #\\ c)
-	    (list c)))
-      into newstring
-      finally (return (concatenate 'string newstring))))
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; dummy 'main' or begin function
 ;;
 ;; if wb-port is specified, make an active connection to that port on
@@ -448,7 +233,6 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
                            (read-from-string (sys:command-line-argument 1))))
   (if wb-port (make-active-connection wb-port)
      (await-passive-connection))
-  (andes-run)
   ;; andes-run should always call andes-terminate when done so following 
   ;; shouldn't be necessary, but shouldn't hurt to be safe just in case
   #+allegro-cl-runtime (exit 0))
@@ -485,13 +269,8 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
   (physics-algebra-rules-initialize) ;initialize grammar
   )
 
-(defun andes-stop ()
-"set the exit flag to cause the server to exit event loop"
-  (setq *andes-stop* t))
-
 (defun andes-terminate ()
 "terminate this instance of the help server on session end"
-  (terminate-server)
   (solver-unload)
   (format *debug-help* "~&Andes session finished!~%")
   ; in runtime version only: exit Lisp when session is done
