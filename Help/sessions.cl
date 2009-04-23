@@ -33,6 +33,31 @@
 
 (defun start-help (&key (port 8080))
   "start a server with help system"
+  ;; global setup
+
+  ;; Mainly for safety in runtime image: ensure Lisp reads floating point 
+  ;; numbers into doubles, no matter what setting had been in effect before.
+  (setq *read-default-float-format* 'double-float)
+
+
+  ;; in runtime version only: set *andes-path* to process working directory
+  #+allegro-cl-runtime (setf *andes-path* 
+			     (make-pathname 
+			      :host (pathname-host *default-pathname-defaults*)
+			      :device (pathname-device *default-pathname-defaults*)
+			      :directory (pathname-directory *default-pathname-defaults*)
+			      :name nil :type nil))
+  ;; We also fix up the AndesModule system's compiled-in base-name var 
+  ;; (set when helpsys was built) so runtime use loads from the runtime 
+  ;; Andes directory.
+  #-asdf (setf *Base-Andes-Module-Path* (namestring *andes-path*))
+  (format T "Starting Andes, *andes-path* = ~A~%" *andes-path*)
+
+  (doSafety :in2pre)
+
+  (physics-algebra-rules-initialize) ;initialize grammar
+
+  ;; start webserver
   (webserver:start-json-rpc-service "/help" :port port))
 
 (defun stop-help () 
@@ -97,7 +122,11 @@
   (setq webserver:*env* (make-help-env :student user :problem problem))
   ;; webserver:*env* needs to be initialized before the wrapper
   (env-wrap
-  ;  (read-problem-info problem)
+    ;; might be replaced with session-env struct?
+    (setq **base-Htime** (universal-time->htime (get-universal-time)))
+    (solver-load)
+    (solver-logging *solver-logging*)
+    ;;  (read-problem-info problem)
     ;; need calls to 
     ;; do-read-student-info
     ;; read-problem-info  (useful)
@@ -163,6 +192,8 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
     ;; need to run (maybe not here)
     ;; do-close-problem
     ;; do-exit-andes
+    (solver-unload)
+
     (let ((prob (env-problem webserver:*env*)))
       ;; this tells the session manager that the session is over.
       (setf webserver:*env* nil)
@@ -217,61 +248,3 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
     	result)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; dummy 'main' or begin function
-;;
-;; if wb-port is specified, make an active connection to that port on
-;; local host so as to attach to a running workbench listening on that port. 
-;; Otherwise we listen for connections as a server on the default port
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun andes-start (&key wb-port)
-  "initialize the andes help system server state"
-  (andes-init)
-  ; in runtime version: wb can pass a port number in to us on command line
-  ; in which case we will actively connect to that port. 
-  #+allegro-cl-runtime (when (>= (sys:command-line-argument-count) 2)
-                         (setf wb-port
-                           (read-from-string (sys:command-line-argument 1))))
-  (if wb-port (make-active-connection wb-port)
-     (await-passive-connection))
-  ;; andes-run should always call andes-terminate when done so following 
-  ;; shouldn't be necessary, but shouldn't hurt to be safe just in case
-  #+allegro-cl-runtime (exit 0))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Andes-init (CL)
-;; Initialize Andes for execution but do not start the tcp server.  This is 
-;; called directly only when using the HelpDriver to execute Andes within the
-;; same lisp process.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun andes-init ()
-  "initialize the andes help system server state"
-  ;; Set the base help system time
-  (setq **base-Htime** (universal-time->htime (get-universal-time)))
-  
-  ;; Mainly for safety in runtime image: ensure Lisp reads floating point 
-  ;; numbers into doubles, no matter what setting had been in effect before.
-  (setq *read-default-float-format* 'double-float)
-  
-  ;; in runtime version only: set *andes-path* to process working directory
-  #+allegro-cl-runtime (setf *andes-path* 
-			     (make-pathname :host (pathname-host *default-pathname-defaults*)
-					    :device (pathname-device *default-pathname-defaults*)
-					    :directory (pathname-directory *default-pathname-defaults*)
-					    :name nil :type nil))
-  ;; We also fix up the AndesModule system's compiled-in base-name var 
-  ;; (set when helpsys was built) so runtime use loads from the runtime 
-  ;; Andes directory.
-  #-asdf (setf *Base-Andes-Module-Path* (namestring *andes-path*))
-  (format T "Starting Andes, *andes-path* = ~A~%" *andes-path*)
-  (doSafety :in2pre)
-  (solver-load)
-  (solver-logging *solver-logging*)
-  (physics-algebra-rules-initialize) ;initialize grammar
-  )
-
-(defun andes-terminate ()
-"terminate this instance of the help server on session end"
-  (solver-unload)
-  (format *debug-help* "~&Andes session finished!~%")
-  ; in runtime version only: exit Lisp when session is done
-  #+allegro-cl-runtime (exit 0))
