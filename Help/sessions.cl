@@ -90,7 +90,7 @@
 	*help-env-vars* 
 	;; These are all the variables that are be set by API commands
         ;; listed in Andes2 log files or their descendants.
-	'(*CP* **STUDENTFILE** *STUDENTACTIONS* **CURRENT-STUDENT-NAME** 
+	'(*CP* **STUDENTFILE** **CURRENT-STUDENT-NAME** 
 	  **NSH-NEXT-CALL** *NSH-NODES* *NSH-FIRST-PRINCIPLES*
 	  *NSH-CURRENT-SOLUTIONS* *NSH-LAST-NODE* *NSH-SOLUTION-SETS* 
 	  *NSH-GIVENS* *NSH-AXIS-ENTRIES* *NSH-BODYSETS* *NSH-VALID-ENTRIES* 

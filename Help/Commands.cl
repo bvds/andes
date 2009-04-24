@@ -89,17 +89,10 @@
 
 
 ;; general procedure to apply to non-equation entries
-;; The entry and call will be logged in *studentactions*
-;; along with the result (generated here) which will also 
+;; The result (generated here) will 
 ;; be passed back via return-turn.
 (defun handle-non-eq (Entry)
-  (let ((Result (check-noneq-entry entry)))
-    (log-studentaction **last-api-call** Result Entry)
-    Result))
-
-
-
-
+  (check-noneq-entry entry))
 
 ;;; =============================================================================
 ;;; State API calls.
@@ -472,13 +465,7 @@
 ;;  This is a hack-ish way to get the assoc value but (for now), it works.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun lookup-eqn-string (eqn-string &optional id)
-  (let ((result (do-lookup-eqn-string eqn-string id)))
-    (log-studentaction **last-api-call** result (car *studententries*))
-    Result))
-
-
-
-
+  (do-lookup-eqn-string eqn-string id))
 
 ;;; ===========================================================================
 ;;; Algebra API calls.
@@ -584,7 +571,6 @@
 				   :parsedEqn result
 				   :state **Correct**)))
     
-    ;; Store the resulting entry/result equation in studentactions
     ;; for later, and then update entry list and the results.
     (setf (studentaction-result action) studtext)
     (setf (studentaction-assoc action) entry)
@@ -692,8 +678,6 @@
                (all-answers-done-p)    ; is now done
 	       (not-curr-checking-problemp)) ; ignore if in initial entry check
        (add-followup-if-needed result))
-
-    (log-studentaction **last-api-call** result (car *Studententries*))
     Result))
 
 ; display followup dialog in browser on done for certain problems in 
@@ -771,7 +755,6 @@
                (all-answers-done-p)    ; is now done
 	       (not-curr-checking-problemp)) ; ignore if in initial entry check
           (add-followup-if-needed result)))
-      (log-studentaction **last-api-call** Result)
       Result)
      
      ;; Handle the multiple choice case by generating an entry and then
@@ -801,11 +784,7 @@
 ;;  a variable, the removes that variable from the symbol table.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun delete-object (label &optional id)
-  (let ((entry (find-entry id))
-	(Result (on-delete-object label id)))
-    (log-studentaction **last-api-call** result Entry)
-    Result))
-
+  (on-delete-object label id))
   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; delete-equation - deletes a student equation from the student-entries list
@@ -819,10 +798,7 @@
 ;;  responding system equations
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun delete-equation (id)
-  (let ((entry (find-entry id))
-	(result (on-delete-equation id))) 
-    (log-studentaction **last-api-call** result Entry)
-    result))
+  (on-delete-equation id))
 
 
 
@@ -848,25 +824,21 @@
 	 ;; student cancelled out of dialog sequence (must be next-step-help).
 	 ;; give null response, but *don't* don't clobber saved turn with
 	 ;; return-turn. subsequent next-step help resumes dialog (not done yet).
-	 (log-turn-response-studentaction Response-Code (make-noop-turn)))
+	 (make-noop-turn))
 
 	;; else If we have a previous tutor turn, and a responder function
 	((and *last-tutor-turn* (turn-responder *last-tutor-turn*))
 	 ;; dispatch the response to the responder function, logging it 
 	 ;; if necessary in the acts, and then return the turn setting the
 	 ;; *last-tutor-turn value in the process.
-	 (log-turn-response-studentaction 
-	   Response-Code 
-	   (apply (turn-responder *last-tutor-turn*) 
-		  (list response-code))))
+	 (apply (turn-responder *last-tutor-turn*) 
+		  (list response-code)))
 
 	;; else no responder!
-	(T (log-turn-response-studentaction
-	      Response-code
-	      (make-dialog-turn 
+	(T (make-dialog-turn 
 	       (format NIL "An internal error occurred: no response found for ~A" 
 		       response-code)
-	       NIL)))))
+	       NIL))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -892,12 +864,7 @@
 ;; note(s):
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun why-wrong-object (&optional label id)
-  (declare (ignore label))
-  (let ((result (do-whats-wrong id)))
-    (log-studentaction 
-     **last-api-call** Result
-     (if (and Result (turn-p result)) (turn-assoc result)))
-    Result))
+  (do-whats-wrong id))
   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; why-wrong-equation - get a message explaining why the equation entry is not
@@ -911,11 +878,7 @@
 ;; note(s):
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun why-wrong-equation (id)
-  (let ((result (do-whats-wrong id)))
-    (log-studentaction 
-     **last-api-call** Result
-     (if (and Result (turn-p result)) (turn-assoc result)))
-    Result))
+  (do-whats-wrong id))
     
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; get-proc-help -- Begins the next step help process for the student/
@@ -928,11 +891,7 @@
 ;;  cieved this hint  Also updates the *studentactions* log if that is set.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun get-proc-help ()
-  (let ((result (next-step-help)))
-    (log-studentaction 
-     **last-api-call** result
-     (if (and Result (turn-p result)) (turn-assoc result)))
-    Result))
+  (next-step-help))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; explain-more triggered when the studfent clicks on "explain further". gives

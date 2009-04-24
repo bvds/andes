@@ -200,10 +200,7 @@
 
   ;; Set the Problem Instance time for this work on the problem.
   (setq *Current-Problem-Instant-Start-UTime* (get-universal-time))
-  
-  ;; Clear out the student's actions. This may change later. 
-  (setq *studentactions* nil) 
-  
+    
   ;; clear flag for detecting when problem done
   (reset-done-flag)
 
@@ -260,10 +257,6 @@
    (symbols-reset) 
    (clear-entries)
 
-   ;; Clear the record of the students actions.
-   ;; Note that this may change to a record of this act.
-   (setq *studentactions* nil)
-   
    ;; unload current problem with its sgraph structures
    (setf *cp* NIL)
 
@@ -289,7 +282,6 @@
 (defun do-exit-andes ()
   ;; Clear the record of the student's actions.
   ;; This may change later.
-  (setq *studentactions* nil)
   (andes-stop))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -553,100 +545,17 @@
   "Load the configuration file."
   (load (andes-path **Config-File-Name**)))
 
-
-;;;; ===============================================================
-;;;; StudentActions
-;;;; For the purposes of filtering and tracking student actions 
-;;;; we need to keep up to date on what the student has done including
-;;;; deleted actions.  The following assists in developing and maintaining
-;;;; a stack of student actions All of the actions in the list will be
-;;;; Act Structs that link to the relevant incoming command and any
-;;;; resultant structures within them.  
-;;;;
-;;;; The Search functions below allow for this list to be tested and 
-;;;; maintained.  And used (eventually) for behavior tracking.  I have
-;;;; elected to add this behavior tracking in the backend so that I 
-;;;; can access the entry structs.  
-
-;;; This is a stack containing the actions that the student has 
-;;; performed.  These include student entries and help calls 
-;;; along with their respective values.  This includes the help
-;;; calls and their results.  The actions are stored in a special
-;;; act struct.  See HelpStructs/StudentAction.cl for the definition.
-
-
-;;; ---------------------------------------------------------------
-;;; Parameters.
-
-(defparameter *StudentActions* Nil "A Stack of the actions the student.")
-
-(defparameter **log-student-actions** t 
-  "Turns studentactions logging on and off at compile time.") 
-
-
-;;; -----------------------------------------------------------------
-;;; Logging commands
-;;; The following commands allow actions to be logged into the 
-;;; *StudentActions* list for later use. The main log func is 
-;;; a generic alternative but typically the specialized calls 
-;;; should be used.
-
-;;; Once an act has been generated, add it to 
-;;; the *studentactions* stack for later use 
-;;(defun log-StudentAction (Act)
-;;  "Log a new act that has occured for the student."
-;;  (push Act *StudentActions*))
-
-
-;;; Add the specified StudentEntry (Non-Eqn, Eqn and answer
-;;; to the log for later use.
-(defun log-entry-StudentAction (Entry Result &optional (Time nil))
-  "Log the specified studententry in the list."
-  (when **log-student-actions**
-    (let ((action (make-StudentAction 
-		   :Type (Help-entryprop-type (Studententry-prop Entry))
-		   :Call (StudentEntry-Prop Entry)
-		   :Result Result
-		   :Assoc Entry)))
-      (if Time (setf (Studentaction-Time Action) Time)
-	(setf (studentaction-time Action) (studententry-time Entry)))
-      (push Action *StudentActions*)))
-  Result)
-
-
-;;; Log the specified tutor turn.  Using the current time as its
-;;; logtime.  This can be spoofed later by the Help Driver.
-(defun log-turn-response-StudentAction (Response Result &optional (Time nil))
-  "Log the supplied tutor turn."
-  (when **log-student-actions**
-    (let ((action (make-StudentAction
-		   :type 'Tutor-turn
-		   :Call (list 'handle-student-response response)
-		   :Result Result
-		   :Assoc (if (and Result (turn-p Result)) 
-			      (turn-assoc Result)))))
-      (if Time (setf (Studentaction-Time Action) Time))
-      (push action *StudentActions*)))
-  Result)
-
-
 ;;; Log the student's action call, and its result
 ;;; all the necessary values are supplied.
 (defun log-studentaction (Call &optional (Result nil) (Assoc nil) (Time nil))
   "Generate a studentaction log and store the value."
-  (when **log-student-actions**
-    (let ((action (make-studentaction
-		   :type (car Call) 
-		   :Call Call
-		   :Result Result
-		   :Assoc Assoc)))
-      (if Time (setf (Studentaction-Time Action) Time))
-      (push action *StudentActions*)
-      action)))
-
-
-
-
+  (let ((action (make-studentaction
+		 :type (car Call) 
+		 :Call Call
+		 :Result Result
+		 :Assoc Assoc)))
+    (if Time (setf (Studentaction-Time Action) Time))
+    action))
 
 ;;;; =====================================================================
 ;;;; Shared utility problems
@@ -679,7 +588,6 @@
 ;;; some easy runtime testing.
 (defun problem-loadedp ()
   (problem-p *cp*))
-
 
 ;;; Return t iff a problem is open and the 
 ;;; system is not checking entries.
