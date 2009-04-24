@@ -44,19 +44,6 @@
 |#
 
 ;;;; ===================================================================
-;;;; Static parameters.
-;;;; This section contains several static parameters that will be used
-;;;; in other files or other portions of the code.
-
-(defconstant **Green** 'Green "The color signaling a correct cmdresult.")
-(defconstant **Red** 'Red "The color signaling an incorrect cmdresult.")
-(defconstant **DDE-Failed** 'DDE-Failed "A type indicating an error or timeout cmdresult.")
-(defconstant **DDE-Result** 'DDE-Result "A Type indicating a successful cmdresult.")
-(defconstant **DDE** 'DDE "A cmd type indicating a cmd with result.")
-(defconstant **DDE-Post** 'DDE-Post "A cmd type indicating an asynchronous call.")
-
-
-;;;; ===================================================================
 ;;;; CMD Struct
 ;;;; when they exists and the current result.  In theory the results 
 ;;;; should be identical.

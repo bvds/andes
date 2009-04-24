@@ -54,21 +54,22 @@
 ;;;; These parameters are set and used by the code below.  And in some 
 ;;;; cases by other APIs in the system.  
 
-;;; This parameter stores the last api call made.  This is used for internal logging
-;;; as we do not have a strict layering heiarchy for keeping track of the state.
+;;; This parameter stores the last api call made.  This is used for internal 
+;;; logging as we do not have a strict layering heiarchy for keeping track 
+;;;; of the state.
 (defparameter **last-api-call** () "The last call made to the help system, set by dispatch-stream-event.")
 
-;;; An alternate command interpreter function.  If this is parameter has a value then
-;;; it will be called with the Command and arguments as its arguments in lieu of 
-;;; dispatching the command directly.  This allows us to alter how commands are 
-;;; evaluated for specialized situations such as the walk-prompt mode.  The 
-;;; assumption is that whatever we supply will be sufficient.  To handling things.
+;;; An alternate command interpreter function.  If this is parameter has a 
+;;; value then it will be called with the Command and arguments as its 
+;;; arguments in lieu of dispatching the command directly.  This allows us 
+;;; to alter how commands are 
+;;; evaluated for specialized situations such as the walk-prompt mode.
 (defparameter **Alternate-Command-Interpreter** () 
   "An alternate command interpreter func for later use.")
 
-;;; As the CMDs are generated they will be added to the **current-cmd-stack** list
-;;; until an open-problem dde is encountered.  At which point the list will be 
-;;; cleared but for the open-problem cmd. 
+;;; As the CMDs are generated they will be added to the **current-cmd-stack** 
+;;; list until an open-problem dde is encountered.  At which point the list 
+;;; will be  cleared but for the open-problem cmd. 
 (defparameter **current-cmd-stack** Nil "The current CMDs.")
 
 ;;; The most recent cmd is stored here in addition to the cmd stack to 
@@ -207,26 +208,12 @@
 ;;;   than a second or two at most and will likely be constant.  Therefore 
 ;;;   the time between the entries and the total time will be close enough
 ;;;   for our purposes.
-;;;
-;;; NOTE:: In order for the times to be rendered interms of the distance from 
-;;;   the beginning of this session (as they are in the logfiles) it is necessary
-;;;   to set the **base-htime** to the time when Andes is initialized.  Therefore
-;;;   this will be done below.
 
-;;; When the system is first loaded we need to set the **base-htime** to reflect
-;;; the current time.  This will make it possible for each cmd to be timed 
-;;; appropriately when they begin.  
-(setq **Base-Htime** (universal-time->htime (Get-universal-time)))
-
-
-
-;;(defparameter **DDE** 'DDE)
-;;(defparameter **DDE-Post** 'DDE-Post)
 
 (defun iface-generate-log-cmd (DDE Command Arguments)
   "Generate an initial cmd and add it to the set for processing."
   (let ((C (make-cmd :Class (lookup-command->class Command)
-		     :Type (if DDE **DDE** **DDE-POST**)
+		     :Type (if DDE 'DDE 'DDE-POST)
 		     :LineNum (incf **Runtime-cmd-curr-line-num**)
 		     :Time (get-current-htime)
 		     :Call (cons Command Arguments))))
@@ -346,9 +333,6 @@
 ;;; On a read-student-info command we need to load in the 
 ;;; studentfile and to reset the stored stats variable.  
 (defun iface-handle-stats-student ()
-  ; AW: no longer load stats from history file
-  ; (load-saved-scores-cache)
-  ; (load-stored-runtime-test-stats Nil)
   (update-runtime-testset-scores))  ; AW: maybe not still needed
 
 
@@ -479,11 +463,7 @@
 
 (defun wb-text (turn)
 "return adjust text from turn by replacing any disallowed newlines with spaces"
-  (remove-newlines (turn-text turn)))
-
-(defun remove-newlines (str)
-"returns string with newlines replaced by spaces"
-  (substitute #\Space #\Newline str))
+  (substitute #\Space #\Newline (turn-text turn)))
 
 
 
@@ -564,7 +544,7 @@
 (defun iface-Add-cmdresult-to-cmd (CMD Result)
   "Generate a cmdresult appropriate for the cmd from Result and store it."
   (if (equalp Result :Error) 
-      (iface-set-cmdresult Cmd :Class **DDE-Failed** :Value (Cmd-Call Cmd))
+      (iface-set-cmdresult Cmd :Class 'DDE-Failed :Value (Cmd-Call Cmd))
     (case (lookup-commandclass->resultclass (cmd-class Cmd))
       (Status-Return-Val (iface-add-srv-cmdresult Cmd Result))
       (Eqn-Result (iface-add-eqr-cmdresult Cmd Result))
@@ -586,8 +566,8 @@
 (defun iface-add-srv-cmdresult (Cmd Result)
   "Add a status return val result."
   (cond
-   ((null Result) (iface-add-srv-int Cmd :Coloring **Red**))
-   ((not (turn-p Result)) (iface-add-srv-int Cmd :Coloring **Green**))
+   ((null Result) (iface-add-srv-int Cmd :Coloring 'Red))
+   ((not (turn-p Result)) (iface-add-srv-int Cmd :Coloring 'Green))
    (t (iface-add-srv-turn Cmd Result))))
 
 
@@ -634,8 +614,8 @@
 (defun iface-set-srv-turn-color (Val Result)
   (setf (Status-return-val-coloring Val)
     (case (turn-coloring Result)
-      (Color-Green **Green**)
-      (Color-Red **Red**)
+      (Color-Green 'Green)
+      (Color-Red 'Red)
       (no-op Nil)
       (delete Nil))))
 
@@ -759,7 +739,7 @@
 ;;; this code handles the general tasks of setting the Linenum
 ;;; time and other elements and relies upon keyword arguments to 
 ;;; set the class, value, assocs, and commands.
-(defun iface-set-cmdresult (Cmd &key (Class **DDE-Result**) Value Assoc Commands)
+(defun iface-set-cmdresult (Cmd &key (Class 'DDE-Result) Value Assoc Commands)
   (setf (cmd-result Cmd)
     (make-cmdresult
      :Class Class

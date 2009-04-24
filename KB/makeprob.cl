@@ -114,8 +114,17 @@
     (format T "Discrepencies:~%")
     (pprint Errs)))
 
+(defun andes-init ()
+  "initialize parser and start up solver"
+  ;; Mainly for safety:  ensure Lisp reads floating point
+  ;; numbers into doubles, no matter what setting had been in effect before.
+  (setq *read-default-float-format* 'double-float)
+  (physics-algebra-rules-initialize) ;initialize grammar
 
-;; need helpsystem loaded for this
+  (solver-load)
+  (solver-logging *solver-logging*))
+
+
 ;; (dump-html-prbs #P"/home/bvds/Andes2/solutions/" #P"/home/bvds/solutions/")
 ;; scp -r ~/solutions/ andes3.lrdc.pitt.edu:/home/andes/public_html/learnlab
 

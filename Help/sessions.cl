@@ -31,8 +31,29 @@
 
 (in-package :cl-user)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                       Global Variables 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; *andes-path* -- pathname of directory in which Andes files are installed
+;;                 as logical pathname object
+
+(defun andes-path (relative-path)
+"merge relative path with *andes-path* returning new pathname"
+    (merge-pathnames relative-path *andes-path*))
+
+(defvar *debug-help* t
+  "The stream showing help system runtime activities.")
+     
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Main function for starting up the webserver
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun start-help (&key (port 8080))
-  "start a server with help system"
+  "start a server with help system, optionally specifying the port."
   ;; global setup
 
   ;; Mainly for safety in runtime image: ensure Lisp reads floating point 
@@ -74,7 +95,12 @@
 	  *NSH-CURRENT-SOLUTIONS* *NSH-LAST-NODE* *NSH-SOLUTION-SETS* 
 	  *NSH-GIVENS* *NSH-AXIS-ENTRIES* *NSH-BODYSETS* *NSH-VALID-ENTRIES* 
 	  *NSH-PROBLEM-TYPE* **ALTERNATE-COMMAND-INTERPRETER** *VARIABLES* 
-	  *STUDENTENTRIES* *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*)
+	  *STUDENTENTRIES* *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*
+	  ;; Session-specific variables in Help/Interface.cl
+	  **last-api-call** **current-cmd-stack**
+	  **current-cmd** **Runtime-CMD-Curr-line-num** *last-tutor-turn*
+	  *last-score* *slot-flag-frequency*
+	  )
 	#-sbcl "List of global variables that need to be saved between turns in a session."
 	#+sbcl #'equalp
 	)
@@ -205,23 +231,8 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
 		    ("Correct_Entries_V_Entries" . (0.05 17 19))
 		    ("Correct_Answer_Entries_V_Answer_Entries" . (0.05 1 2)))))))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;                       Global Variables 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; *andes-path* -- pathname of directory in which Andes files are installed
-;;                 as logical pathname object
-;; In the runtime image this will be set on startup to the working directory 
-;; of the Lisp process -- see top of andes-start.  The workbench sets process 
-;; working directory when it launches the help system.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun andes-path (relative-path)
-"merge relative path with *andes-dir* returning new pathname"
-    (merge-pathnames relative-path *andes-path*))
-
-(defvar *debug-help* t
-  "The stream showing help system runtime activities.")
-     
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; For runtime dist, trap all Lisp errors and return special :error value
 ;; instead. When debugging, just use apply to debug on errors.
