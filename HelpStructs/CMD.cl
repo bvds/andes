@@ -51,7 +51,6 @@
 (defstruct CMD
   Class    ;; One of Help-Request, State, Post, etc
   Type     ;; Either DDE, DDE-POST, 
-  LineNum  ;; The Line Number 
   Time     ;; The Time that it occured (Htime)
   Call     ;; The Help system call.
   Result   ;; The result either Nil DDE-Res or DDE-Failed
@@ -333,7 +332,6 @@
 
 (defstruct CMDResult
   Class    ;; one of dde-failed or dde-result.
-  LineNum  ;; The Line Number 
   Time     ;; The Time that it occured (Htime)
   Value    ;; The value of the result.)
   

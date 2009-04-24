@@ -97,9 +97,8 @@
 	  *NSH-PROBLEM-TYPE* **ALTERNATE-COMMAND-INTERPRETER** *VARIABLES* 
 	  *STUDENTENTRIES* *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*
 	  ;; Session-specific variables in Help/Interface.cl
-	  **last-api-call** **current-cmd-stack**
-	  **current-cmd** **Runtime-CMD-Curr-line-num** *last-tutor-turn*
-	  *last-score* *slot-flag-frequency*
+	  **last-api-call** **current-cmd-stack** **current-cmd** 
+	  *last-tutor-turn* *last-score*
 	  )
 	#-sbcl "List of global variables that need to be saved between turns in a session."
 	#+sbcl #'equalp

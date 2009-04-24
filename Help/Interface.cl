@@ -76,11 +76,6 @@
 ;;; facilitate direct access.
 (defparameter **current-cmd** Nil "The current Cmd.")
 
-;;; Some of the CMD tests make use of the line num to delineate order.  
-;;; With that in mind I have chosen to assign an arbitrarily increasing
-;;; line number to the cmds at runtime.
-(defparameter **Runtime-CMD-Curr-line-num** 0 "Runtime line number.")
-
 ;;; *last-tutor-turn* -- record of the last tutor turn made
 ;;; This is used in handle-student-response to deal with the student's 
 ;;; continuation of ongoing diologues.  It is set bu return-turn below.
@@ -89,11 +84,6 @@
 ;;; *last-score* -- last integer score we sent to workbench
 ;;; used to detect when score has not changed so no need to send
 (defvar *last-score* NIL "last score reported to workbench")
-
-;;; value between 0 = never and 1.0 = always giving frequency (probability)
-;;; with which we should flag dialog slots on errors. Only applies to
-;;; cases in which we have a slot to flag.
-(defvar *slot-flag-frequency* 1.0)
 
 ;;;; =========================================================================
 ;;;; Central Dispatch call.
@@ -214,7 +204,6 @@
   "Generate an initial cmd and add it to the set for processing."
   (let ((C (make-cmd :Class (lookup-command->class Command)
 		     :Type (if DDE 'DDE 'DDE-POST)
-		     :LineNum (incf **Runtime-cmd-curr-line-num**)
 		     :Time (get-current-htime)
 		     :Call (cons Command Arguments))))
     (push C **Current-Cmd-Stack**)
@@ -457,8 +446,7 @@
 "return effective list of slots to flag for this turn, NIL if none"
   ; in cases in which we have a slot to flag, apply random
   ; process to use them with *flag-frequency* probability
-  (when (and (turn-flag-slots turn)
-             (random-choice *slot-flag-frequency*))
+  (when (turn-flag-slots turn)
       (turn-flag-slots turn)))
 
 (defun wb-text (turn)
@@ -743,7 +731,6 @@
   (setf (cmd-result Cmd)
     (make-cmdresult
      :Class Class
-     :Linenum (incf **Runtime-cmd-curr-line-num**)
      :Time (get-current-htime)
      :Value Value
      :Assoc Assoc
