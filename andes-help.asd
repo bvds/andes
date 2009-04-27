@@ -48,8 +48,6 @@
 	 			     (:file "SolutionGraph")
 				     
                                      (:file "utilities")
-				     (:file "lrdc-errors")
-				     (:file "StudentFile")
 				     				     
 				     ;; Entry Intepreter: generic + non-eq
 				     (:file "symbols")
