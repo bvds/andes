@@ -47,7 +47,6 @@
 	 			     (:file "SolutionGraph")
 				     
                                      (:file "utilities")
-				     (:file "StudentFile")
 				     				     
 				     ;; Entry Intepreter: generic + non-eq
 				     (:file "symbols")
