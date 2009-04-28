@@ -222,20 +222,12 @@
 	(t (warn "unexpected event within hint sequence ~S" CMD)
 	   NIL)))
 
-
-
-;;; a cmd is a help cont if it is an explain-more,
-;;; a handle student response, a get-dialog-response, a
-;;; why (1999 logs only) or a hint-next-substep (1999 logs).
+;;; a cmd is a help cont if it is an explain-more or
+;;; a handle student response.
 (defun help-stack-cont-cmdp (cmd)
   (member (car (cmd-call cmd))
 	  '(EXPLAIN-MORE 
-	    HANDLE-STUDENT-RESPONSE
-	    WHY                    ;; 1999 logs only.
-	    HINT-NEXT-SUBSTEP      ;; 1999 Logs only.
-	    GET-DIALOG-RESPONSE))) ;; Only in the Andes/Atlas logs.
-
-
+	    HANDLE-STUDENT-RESPONSE)))
 
 ;;; A help stack is capped (started) by a get-proc-help, 
 ;;; why-wrong-* help or any other entry that returns a 
@@ -243,7 +235,6 @@
 (defun help-stack-capp (cmd)
   (or (help-stack-help-capp cmd)
       (help-stack-nohelp-capp cmd)))
-
 
 ;;; Return the matching item name to signify what type of help 
 ;;; cap this is.  

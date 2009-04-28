@@ -63,7 +63,7 @@
 ;;;;
 ;;;; NOTE:: If the cursor is active in an equation box when the student 
 ;;;;  calls next-step help or other help commands then the system will 
-;;;;  submit a delete-equation command as a dde-post.  Because this is 
+;;;;  submit a delete equation command, "", as a dde-post.  Because this is 
 ;;;;  asynbchronous it can show up at any time during after the call to 
 ;;;;  get-proc help.  The help-stackc commands will ignore up to one of 
 ;;;;  these in a stack.

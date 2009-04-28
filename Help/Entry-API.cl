@@ -1248,43 +1248,6 @@
   ; finally return entry
   entry))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; lookup-component - check a student drawn vector component
-;; argument(s):
-;;  label: the label of this component (should be the vector label w/subscript
-;;    of axis label
-;;  compo-of: the label given to the vector this is a component of (this means
-;;    that a component can not be drawn before its vector
-;;  axis: the label of the axis of the projection ('x or 'y)
-;;  id: id assigned by the workbench
-;;  dir: direction (degrees from horizontal right) in which the vector is
-;;   pointing
-;; returns: StudentEntry
-;; note(s):
-;;  if the component is correct, marks the corresponding system entry as "en-
-;;  tered", figures out which algebraic function of the system's component var-
-;;  iable corresponds to this variable given the student's axis rotation, and
-;;  enters into the symbol table a pairing consisting of that expression and the
-;;  student's variable name.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-lookup-component (label compo-of axis mag &optional dir id)
-  (declare (ignore label compo-of axis mag dir id))
-  ; We don't draw vector components in our solutions. Instructors have been
-  ; discouraging the drawing of components as well, and there are deficiencies
-  ; in the current component dialog box: 1. it has no direction slot, but 
-  ; direction may not be exactly drawn.
-  ; 2. it allows student to introduce any non-standard name other than
-  ; F_x for the component variable, which we is also discouraged and should
-  ; be disallowed in the future.
-  ; In fact all checking of components could in theory be done by workbench, 
-  ; since drawing a component requires vector and axis to be drawn, so only 
-  ; real mistake possible is in direction, which workbench could catch. 
-  ; It is also possible to draw a component not needed for the solution, though,
-  ; so we might check that.
-   (make-dialog-turn "Your instructor recommends you not draw vector components on your diagram to avoid confusion. You can refer to vector components in equations using the subscript notation." NIL)
-  )
-
-
 ;-----------------------------------------------------------------------------
 ;; for processing deletions of entries
 ;-----------------------------------------------------------------------------
@@ -1309,23 +1272,6 @@
   ;; Remove from entry list. This function knows to call back to undo-entry 
   (remove-entry id) 
 )
-  
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; delete-equation - deletes a student equation from the student-entries list
-;; argument(s):
-;;  id: the id of the equation being deleted. Integer id starts at 0 for first
-;;    equation box.
-;; returns: garbage
-;; note(s):
-;;  removes this student entry from the entered-by fields of each of the cor-
-;;  responding system equations
-;;
-;; Believe this API is obsolete and will never be called. Effect is now 
-;; achieved by submitting an empty equation string. Here we translate 
-;; to that just in case it ever arises.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-delete-equation (id)
-   (lookup-eqn-string "" id))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Undo-entry -- undo all state effects of a particular Student entry

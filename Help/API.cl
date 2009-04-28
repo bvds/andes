@@ -103,18 +103,9 @@
       ;; return value.  This is used for displaying the students scores
       ;; to them at runtime.  
       (Statistics
-       (set-score
+       (set-stats
 	get-stats))
       
-      ;; --------------------------------------------------------------
-      ;; control
-      ;; At present there is only one control command.  This doesn't 
-      ;; appear in our student docs so it should appear rarely.  when
-      ;; it does it should only appear as a dde post so no return type
-      ;; should be given.
-      (Control 
-       (cancel-help-request))
-
       ;; -------------------------------------------------------------
       ;; Noneq-Entry
       ;; non-eq entries such as assert object are dde's that post a 
@@ -130,15 +121,6 @@
 	label-radius 
 	define-variable
 	assert-x-axis 
-	lookup-component
-	
-	;; The motion diagrams are no longer used in Andes2 but they appear quite often
-	;; in Andes 1 and a few early Andes2 logs (where they shouldn't have been).  As
-	;; noneq entries they have been placed here.
-	lookup-md           ;; Generate the motion diagram "ruler" ID MotionDiagram-
-	lookup-md-position  ;; Marks the position of the body at a time on the ruler with  a dot.ID Motionbody-
-	lookup-md-velocity  ;; Marks a motion vec ID: MDVector-
-	lookup-md-accel
 	))
       
       
@@ -171,17 +153,15 @@
       (Answer 
        (check-answer
 	lookup-mc-answer
-	choose-answer
 	))
       
       ;; -------------------------------------------------------------------
       ;; Deletions (post only no return)
       ;; Deletions remove an entry either equations or nonequations from the 
       ;; screen.  Deletions are distributed as dde-posts and get no return
-      ;; value.  If noe is found as a dde then an error will be thrown.
+      ;; value.  If no is found as a dde then an error will be thrown.
       (Delete 
        (delete-object
-	delete-equation
 	))
       
       ;; ------------------------------------------------------------------
@@ -190,45 +170,15 @@
       ;; Hint-return-val.
       (Help
        (handle-student-response
-	get-dialog-response
 	why-wrong-object
 	why-wrong-equation
 	get-proc-help
 	explain-more
-
-	;; These special help commands were present in Andes 1
-	;; But are no longert used
-	hint-next-substep 
-	why 
-	))
-      
-      ;; ------------------------------------------------------------------
-      ;; Unknown
-      ;; For whatever reson the logs contain many api calls that we no 
-      ;; longer have documentation for.  The api calls in this section are
-      ;; just that, Unknown calls.  
-      (Unknown
-       (read-example-info
-	
-	
-	;; Approve-close appears to have been part of the poor-man's eye-tracker 
-	;; that Christina Conati used along with the colver-item and uncover-item
-	;; dde-posts.
-	approve-close 
-	
-	;; Selected-menu-item seems to be associated with the old self-explain
-	;; system along with selected-obj and deselect-obje dde-posts.
-	selected-menu-item
-	
-	;; I am not sure what examples were used for but they appear in some of
-	;; the older logs.
-	close-example
-	))
+	))      
       ))
      
-      
-;;; Note, this is used by the cmdreader and does not need to be directly accessed
-;;; by the user.  
+;;; Note, this is used by the cmdreader and does not need to be directly 
+;;;  accessed by the user.  
 (defun lookup-command->class (Type &optional (Types **Andes-Command-classes**))
   "Given a command lookup its class."
   (when Types
@@ -300,13 +250,7 @@
       (label-radius 2 "Radius")
       (define-variable 7 "Var")
       (assert-x-axis 3 "Axes")
-      (lookup-component 6 "Vector")
-      
-      (lookup-md 5 "MotionDiagram")
-      (lookup-md-position 4 "MotionBody")
-      (lookup-md-velocity 6 "MDVector")
-      (lookup-md-accel 6 "MDVector")
-      
+            
       (lookup-eqn-string 2)
       
       ;; The algebra calls introduce new equations and are
@@ -326,7 +270,6 @@
       ;; Deletions use ids but in different ways nevertheless it will
       ;; be helpful to have the tools to look them up here.
       (delete-object 2)
-      (delete-equation 1)
 
       ;; The read problem info and read student info calls are not strictly
       ;; entries but they do contain "ids" of a form and we want to be able

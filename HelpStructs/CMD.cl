@@ -289,11 +289,7 @@
   "Test whether this is a delete-equation or lookup-eqn-string \"\""
   (and (equal (cmd-type CMD) 'DDE-POST)
        (or (and (equalp (cmd-call-func CMD) 'LOOKUP-EQN-STRING)
-                (equalp (first (cmd-call-args CMD)) ""))
-	   ; following call no longer sent by workbench. Possibly was 
-	   ; used in some old logs.
-	   (equalp (cmd-call-func CMD) 'DELETE-EQUATION))))
-
+                (equalp (first (cmd-call-args CMD)) "")))))
 
 (defun read-problem-info-cmdp (CMD)
   "Return t if this is an open-problem command."

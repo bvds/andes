@@ -423,33 +423,6 @@
  (handle-non-eq
    (on-assert-x-axis body dir id x-label y-label z-label)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; lookup-component - check a student drawn vector component
-;; argument(s):
-;;  label: the label of this component (should be the vector label w/subscript
-;;    of axis label
-;;  compo-of: the label given to the vector this is a component of (this means
-;;    that a component can not be drawn before its vector
-;;  axis: the label of the axis of the projection ('x or 'y)
-;;  id: id assigned by the workbench
-;;  dir: direction (degrees from horizontal right) in which the vector is
-;;   pointing
-;; returns:
-;;  entry status return value -- see end of code for description of this
-;; note(s):
-;;  if the component is correct, marks the corresponding system entry as "en-
-;;  tered", figures out which algebraic function of the system's component var-
-;;  iable corresponds to this variable given the student's axis rotation, and
-;;  enters into the symbol table a pairing consisting of that expression and the
-;;  student's variable name.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun lookup-component (label compo-of axis mag &optional dir id)
- (handle-non-eq
-  (on-lookup-component label compo-of axis mag dir id)))
-
-
-
-
 ;;; ===========================================================================
 ;;; Eqn-entry
 ;;; Equation entry commands.
@@ -786,25 +759,6 @@
 (defun delete-object (label &optional id)
   (on-delete-object label id))
   
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; delete-equation - deletes a student equation from the student-entries list
-;; argument(s):
-;;  id: the id of the equation being deleted. Integer id starts at 0 for first
-;;    equation box.
-;; returns:
-;;   the new student-equations list. return value is ignored by the workbench
-;; note(s):
-;;  removes this student ewntry from the entered-by fields of each of the cor-
-;;  responding system equations
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun delete-equation (id)
-  (on-delete-equation id))
-
-
-
-
-
-
 ;;; ===========================================================================
 ;;; Help API Types.
 
@@ -839,17 +793,6 @@
 	       (format NIL "An internal error occurred: no response found for ~A" 
 		       response-code)
 	       NIL))))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; get-dialog-response:  API invoked on submission of free-text response
-;;                       to a dialog, presumably inside a kcd
-;; response-text is string containing student's response.
-(defun get-dialog-response (response-text)
-  ; just delegate to responder function, should be set by kcd turn
-  (handle-student-response response-text))
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; why-wrong-object -- get a message explaining why an entry was judged to be
@@ -907,20 +850,6 @@
 (defun explain-more ()
   (handle-student-response 'explain-more))
   
-
-;;
-;; history file queries -- API calls to give workbench access to the student.dat
-;; history file. These apply to current student, so must have initialized first
-;; Note "get" on unset values return NIL.
-;;
-(defun history-get (key)
-   (studentfile-ask key))
-
-(defun history-set (key value)
-   (studentfile-tell key value))
-
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Entry Status Return Values are 3+ field strings of the form:
 ;;   StatusCode;ErrorList!Command  where
@@ -957,7 +886,6 @@
 ;;  Flag -> w -- why -- continuation (why)
 ;;          e -- explain further -- continuation (explain)
 ;;          h -- how do I do that -- continuation (hint-next-substep)
-;;          ? -- <free text response> -- continuation (get-dialog-response str)
 ;;  MessageBody ->
 ;;          free form text with crude hypertext facilities
 ;;          (\d text) -- RTF-like tags text as definition
