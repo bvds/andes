@@ -115,7 +115,6 @@
 ;  |
 ;  |   Close-problem     -- close currently open problem
 ;  +------+
-;  Exit-Andes        -- End Andes session
 ;------------------------------------------------------------------------------
 
 
@@ -270,19 +269,6 @@
    (if (null Done) 
        (make-green-turn)
      (make-green-turn)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; exit-andes -- end the Andes session
-;; argument(s):
-;; returns: unused
-;; note(s): This sets flag to terminate event processing, which leads to
-;; server shutdown when event loop runs.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun do-exit-andes ()
-  ;; Clear the record of the student's actions.
-  ;; This may change later.
-  (andes-stop))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

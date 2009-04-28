@@ -93,7 +93,6 @@
 	read-student-info
 	read-problem-info 
 	close-problem 
-	exit-andes
 	check-entries
 	))
       

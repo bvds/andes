@@ -216,7 +216,6 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
   (env-wrap 
     ;; need to run (maybe not here)
     ;; do-close-problem
-    ;; do-exit-andes
     (solver-unload)
 
     (let ((prob (env-problem webserver:*env*)))
