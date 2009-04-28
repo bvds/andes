@@ -151,11 +151,19 @@
     (setq **base-Htime** (universal-time->htime (get-universal-time)))
     (solver-load)
     (solver-logging *solver-logging*)
-    ;;  (read-problem-info problem)
-    ;; need calls to 
-    ;; do-read-student-info
-    ;; read-problem-info  (useful)
-    
+
+    ;; Andes2 had calls to:
+    ;;   set-session-id
+    ;;   do-read-student-info
+    ;;   set-condition none
+    ;;   read-problem-info  (useful)
+    ;;   check-entries T
+    ;;     load any history from log files
+    ;;     [define-variable assert-x-axis assert-object lookup-vector
+    ;;      lookup-eqn-string check-answer etc.]
+    ;;   check-entries nil
+    ;;   set-stats (if there was an old score)
+
     `(((:action . "new-object") (:id . 0) (:type . "text") (:mode . "locked")
        (:x . 3) (:y . 5) (:text-width . 80) (:text . "A spherical ball with a mass of 2.00 kg rests in the notch ..."))
       ((:action . "new-object") (:id . 1) (:type . "graphics") (:mode . "locked")
@@ -169,6 +177,18 @@
 			text dx dy radius symbol x-label y-label angle) 
   "problem-solving step"
   (env-wrap 
+    ;; Andes2 had calls to:
+    ;; define-variable define-angle-variable
+    ;; assert-x-axis assert-object
+    ;; assert-compound-object
+    ;; label-radius label-angle
+    ;; lookup-force lookup-torque lookup-line
+    ;; lookup-vector lookup-eqn-string
+    ;; lookup-mc-answer
+    ;; delete-object
+    ;; check-answer
+    ;; calculate-equation-string (find variable on lhs of equation)
+    ;;                           (probably not in Andes3)
     (cond
       ((string= action "new-object")
        `(((:action . "log") 
@@ -190,6 +210,14 @@
     (&key time action href value text) 
   "ask for help, or do a step in a help dialog" 
   (env-wrap 
+    ;; Andes2 had calls to:
+    ;; get-proc-help (help-hint)
+    ;; explain-more
+    ;; handle-student-response  (choose a quantity or a principle; in new version, typed in help chat window)
+    ;; why-wrong-equation (what's wrong error)
+    ;; why-wrong-object
+    ;; solve-for-var (could also be under solve steps..., or own method)
+
     (cond
       ((string= action "get-help")
        '(((:action . "show-hint") 
@@ -214,8 +242,10 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
 (webserver:defun-method "/help" close-problem (&key  time) 
   "shut problem down" 
   (env-wrap 
-    ;; need to run (maybe not here)
-    ;; do-close-problem
+    ;; Andes2 had calls to:
+    ;; get-stats (instead, we need to send grade to LMS)
+    ;; close-problem
+    ;; need to maybe store state
     (solver-unload)
 
     (let ((prob (env-problem webserver:*env*)))
