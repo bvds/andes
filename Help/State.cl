@@ -122,48 +122,6 @@
 ;;; State API calls.
 
 
-
-    
-;;=============================================================================
-;; Student control info.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; read-student-info
-;; argument(s): student name, optional condition
-;; returns: NIL for failure, non-NIL for success
-;; note(s): Old ConcHelp arg now used to set experimental condition id
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun do-read-student-info (name &optional (Conchelp Nil))
-  (declare (ignore Conchelp))
-  (set-student-name name)
-  ;; Lisp errors within API calls like this one are caught by the API call
-  ;; dispatcher,  causing a special "call failed" signal to be returned to
-  ;; the workbench. However, the workbench treats failure on this call to mean
-  ;; the help system has not initialized and is unavailable. (Maybe this 
-  ;; should be changed?) So don't want to return call-failed if we can in fact 
-  ;; continue, perhaps without student information, so don't let Lisp errors
-  ;; propagate out of this routine. !!! Might want to communicate warning 
-  ;; message in case of failure to load student file, though.
-
-  ;; Don't fail call if fail to load student file. 
-  (safe-apply 'StudentFile-load (list name))
-   
-  ;; we want to load the config file after student name is known, so it can
-  ;; include customizations based on student name (used in some experiments).
-  (safe-apply 'Load-Config-File)			
-
-  ;; color-green result signals success
-  (make-green-turn))			
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Problem Control info.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; read-problem-info open a new problem
-;; argument(s): problem id
-;; returns: NIL for failure, non-NIL for success
-;; note(s):
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;; Problem Control info.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; read-problem-info open a new problem
@@ -172,23 +130,7 @@
 ;; note(s):
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun read-problem-info (name &optional kb-type (bn-alg 0))
-  ; trap wrong version error and return special code to user
-  (handler-case
-        (do-read-problem-info name kb-type bn-alg)
-    ; in help system: trap version error and return custom code so
-    ; workbench can give a good message. Note any other error on load
-    ; will just unwind through here.
-    (wrong-version-prb (e)  
-        (format T "read-problem-info: caught error wrong-version-prb~%")
-	; If trapping Lisp errors as in rutime help system, convert this 
-	; condition to special return code for workbench.
-	(if *ignore-errors* 'wrong-version-prb
-	  ; else let it through as any other error
-	  (error e)))))
-   
-
-(defun do-read-problem-info (name &optional kb-type (bn-alg 0))
-  (declare (ignore kb-type bn-alg))
+ (declare (ignore kb-type bn-alg))
 
   (parse-initialize) 	;clear out hash tables in parser
   ;; reset run-time data structures for new problem:
@@ -493,19 +435,6 @@
       (push givenEntry (studentEntry-GivenEqns mainEntry))))
 
 
-;;===========================================================================
-;; Student Name
-;; The Student-name is stored at startup time in the 
-;; **Current-Student-Name** parameter and can be accessed 
-;; using the set-student-name and student-name functions.
-(defparameter **Current-Student-Name** ())
-
-(defun set-student-name (name)
-  (setq **Current-Student-Name** name))
-
-(defun student-name ()
-  **Current-Student-Name**)
-
 ;;==============================================================
 ;; Experimental condition
 ;;
@@ -526,7 +455,7 @@
 ;; is loaded (and evaluated in the process) at runtime.
 ;; this file may set parameters as necessary for experiements
 ;; it may also modify the state of the system depending upon
-;; other info such as the student-name.
+;; other info.
 (defun load-config-file ()
   "Load the configuration file."
   (load (andes-path **Config-File-Name**)))

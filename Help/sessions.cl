@@ -90,15 +90,20 @@
 	*help-env-vars* 
 	;; These are all the variables that are be set by API commands
         ;; listed in Andes2 log files or their descendants.
-	'(*CP* **STUDENTFILE** **CURRENT-STUDENT-NAME** 
+	'(*CP* **STUDENTFILE** 
 	  **NSH-NEXT-CALL** *NSH-NODES* *NSH-FIRST-PRINCIPLES*
 	  *NSH-CURRENT-SOLUTIONS* *NSH-LAST-NODE* *NSH-SOLUTION-SETS* 
 	  *NSH-GIVENS* *NSH-AXIS-ENTRIES* *NSH-BODYSETS* *NSH-VALID-ENTRIES* 
 	  *NSH-PROBLEM-TYPE* **ALTERNATE-COMMAND-INTERPRETER** *VARIABLES* 
 	  *STUDENTENTRIES* *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*
+          **Condition**
 	  ;; Session-specific variables in Help/Interface.cl
 	  **last-api-call** **current-cmd-stack** **current-cmd** 
 	  *last-tutor-turn* *last-score*
+          ;; Variables set in Config.cl, which is loaded for each session.
+          *Runtime-Testset* *Runtime-Score-Testset*
+	  **Testing-Pause-Time-Threshold** **Filter-Constraint-losses**
+          *slot-flag-frequency* *followup-problems*
 	  )
 	#-sbcl "List of global variables that need to be saved between turns in a session."
 	#+sbcl #'equalp
@@ -130,12 +135,12 @@
 	(when ,vals (setf (help-env-vals ,vals) (list ,@*help-env-vars*)))
 	,result))))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  The methods themselves.  Right now, these are just dummy functions
-;;  and not connected with the help system.
-;;  It would be great to entirely decouple the sessions from the 
-;;  methods.
+;;                   The methods themselves.  
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (webserver:defun-method "/help" open-problem (&key time problem user) 
   "initial problem statement" 
@@ -144,26 +149,31 @@
   (assert (null webserver:*env*))
   ;; tracing/debugging print
   (format webserver:*stdout* "open-problem opening problem ~A~%" problem)
-  (setq webserver:*env* (make-help-env :student user :problem problem))
+
   ;; webserver:*env* needs to be initialized before the wrapper
+  (setq webserver:*env* (make-help-env :student user :problem problem))
+
   (env-wrap
-    ;; might be replaced with session-env struct?
     (setq **base-Htime** (universal-time->htime (get-universal-time)))
     (solver-load)
     (solver-logging *solver-logging*)
 
-    ;; Andes2 had calls to:
-    ;;   set-session-id
-    ;;   do-read-student-info
+    ;; Andes2 had the following calls that can be found in log files:
+    ;;   read-student-info; the only remaining step is:
+    (Load-Config-File)			
     ;;   set-condition none
-    ;;   read-problem-info  (useful)
+    (set-condition 'none) ;Any experimental condition
+    ;;     ****** done up to here *******
+    ;;   read-problem-info  (useful, but need to figure out memoize)
     ;;   check-entries T
     ;;     load any history from log files
     ;;     [define-variable assert-x-axis assert-object lookup-vector
     ;;      lookup-eqn-string check-answer etc.]
     ;;   check-entries nil
     ;;   set-stats (if there was an old score)
-
+    ;;
+    ;;  New:  return problem statement, any graphic, any work
+    ;;  done, and score to the client.
     `(((:action . "new-object") (:id . 0) (:type . "text") (:mode . "locked")
        (:x . 3) (:y . 5) (:text-width . 80) (:text . "A spherical ball with a mass of 2.00 kg rests in the notch ..."))
       ((:action . "new-object") (:id . 1) (:type . "graphics") (:mode . "locked")

@@ -679,7 +679,7 @@
      (setf (turn-type result-turn) **Minil-Turn**)
      (setf (turn-text result-turn)
        (format NIL "http://136.142.94.84/cgi-bin/navalkcds?user=~a;prob=~a"
-                   (student-name) (problem-name *cp*)))))
+                   (help-env-student webserver:*env*) (problem-name *cp*)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-mc-answer
