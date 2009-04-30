@@ -51,16 +51,16 @@ set explicitly by "text-width" in em units or implicitly by newlines in
 the text.  
 
 [
-  {"action": "new-object", "id": 0, "type": "text", "mode": "locked", 
+  {"action": "new-object", "id": 0, "type": "phrase", "mode": "locked", 
 	     "x": 3, "y": 5, "text-width": 80,
 	     "text": "A spherical ball with a mass of 2.00 kg rests in the notch ..."},
   {"action": "new-object", "id": 1, "type": "graphics", "mode": "locked", 
 	     "x": 53, "y": 15, "dx": 150, "dy": "180", 
 	     "href": "http://www.andestutor.org/web-UI/s2e.gif"},
-  {"action": "new-object", "id":  2, "type": "text", "mode": "right", 
+  {"action": "new-object", "id":  2, "type": "phrase", "mode": "right", 
 	     "x": 200, "y": 55, 
 	     "text": "g = 9.8 m/s^2 is the gravitational acceleration \nnear the surface of the earth."},
-  {"action": "new-object", "id":  2.5, "type": "text", "mode": "right", 
+  {"action": "new-object", "id":  2.5, "type": "phrase", "mode": "right", 
 	     "x": 200, "y": 75, 
 	     "text": "T0 is the time."},
   {"action": "log", "score": {"NSH_BO_Call_Count": [0,0], 
@@ -126,7 +126,7 @@ agnostic about object positions; Andes3 is not.
 
 {"method": "solution-step", "params": {"time": 117.001, 
 	   "action": "new-object", "id": 5,  
-	   "type": "text", "mode": "unknown", 
+	   "type": "phrase", "mode": "unknown", 
 	   "x": 177, "y": 188, "text-width": 66, 
 	   "text": "m=2 kg is the mass of the ball"}, "id": 6}
 
@@ -401,13 +401,13 @@ equation of the form "var=expr" and draw a rectangle around it (modulo
 the significant digits issue) or draw a rectangle and label it with an equation 
 of the form "var = expr", where var is the variable representing the sought 
 quantity.  Alternatively, allow the student to write a text of the form 
-"answer:  expr" as either an equation or a text box.  We could have a text 
+"answer:  expr" using either the equation or the phrase tool.  We could have a text 
 box included with the original problem statement with "text" set to
 "answer:  ??" and "mode" set as "unknown".
 
 {"method": "solution-step", "params": {"time": 913.001, 
 	   "action": "new-object", "id": 18,  
-	   "type": "text", "mode": "unknown", 
+	   "type": "phrase", "mode": "unknown", 
 	   "x": 15, "y": 390, 
 	   "text": "answer:  15.2"}, "id": 27}
 

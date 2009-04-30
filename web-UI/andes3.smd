@@ -23,7 +23,7 @@
 	{"name": "type",
 	 "description": "kind of drawn object; manditory for new-object and optional for modify-object or delete-object",
 	 "type": "string",
-	 "enum": ["text", "graphics", "equation", "circle", "rectangle", "axes", "vector", "line"],
+	 "enum": ["phrase", "graphics", "equation", "circle", "rectangle", "axes", "vector", "line"],
 	 "optional": true
 	},
 	{"name": "mode",
@@ -83,7 +83,7 @@
 	  "description": "kind of drawn object; manditory for new-object and optional for modify-object or delete-object",
 	  "type": "string",
 	  "enum": [
-	    "text", "graphics", "equation", "circle", "rectangle", "axes", "vector", "line"
+	    "phrase", "graphics", "equation", "circle", "rectangle", "axes", "vector", "line"
 	  ],
 	  "optional": true
 	},

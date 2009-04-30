@@ -174,7 +174,7 @@
     ;;
     ;;  New:  return problem statement, any graphic, any work
     ;;  done, and score to the client.
-    `(((:action . "new-object") (:id . 0) (:type . "text") (:mode . "locked")
+    `(((:action . "new-object") (:id . 0) (:type . "phrase") (:mode . "locked")
        (:x . 3) (:y . 5) (:text-width . 80) (:text . "A spherical ball with a mass of 2.00 kg rests in the notch ..."))
       ((:action . "new-object") (:id . 1) (:type . "graphics") (:mode . "locked")
        (:x . 53) (:y . 15) (:dx . 150) (:dy . 180)
