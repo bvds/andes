@@ -33,14 +33,16 @@ var foo = // this line is here so my IDE parser works with json
 									"type":{
 										"type": "string",
 										"enum": ["text", "graphics", "equation", "circle", "rectangle", "axes", "vector", "line"],
-										"optional": true,
+										"optional": false,
 										"description": "kind of drawn object"
 									},
 									"mode":{
 										"type": "string",
 										"enum": ["unknown","right","wrong","locked","fade"],
 										"optional": true,
-										"description": "State of the item; unknown: black; correct: green; wrong: red; locked: black(not user selectable); fade: gray (not user selectable)"
+										"description": "State of the item; unknown: black; correct: green; " +
+														"wrong: red; locked: black(not user selectable); "+
+														"fade: gray (not user selectable)"
 									},
 									"x":		{"type": "number"},
 									"y":		{"type": "number"},
@@ -67,13 +69,15 @@ var foo = // this line is here so my IDE parser works with json
 				{
 					"name": "action",
 					"type": "string",
+					"optional": false,
 					"enum":["new-object","modify-object", "delete-object"]
 				},
 				{
 					"name": "id",
 					"type": "string",
-					"optional": true,
-					"description": "Identifier for each drawn item, set by the creator of the object. Used only by actions new-object, modify-object, and delete-object"
+					"optional": false,
+					"description": "Identifier for each drawn item, set by the creator of the object. " +
+									"Used only by actions new-object, modify-object, and delete-object"
 				},
 				{
 					"name": "type",
@@ -87,12 +91,14 @@ var foo = // this line is here so my IDE parser works with json
 					"type": "string",
 					"enum": ["unknown","right","wrong","locked","fade"],
 					"optional": true,
-					"description": "manditory for new-object and optional for modify-object or delete-object\n  unknown:  turn black\n  correct:  turn green\n  wrong:  turn red\n  locked:  black, not user selectable\n  fade:  gray, not user selectable"
+					"description": "manditory for new-object and optional for modify-object or delete-object "+
+									"unknown: black; correct: green; wrong: red; locked:  black (not user selectable) "+
+									"fade:  gray (not user selectable)"
 				},
-				{"name": "x", 		"type": "number", 	"optional": true},
-				{"name": "y",	 	"type": "number", 	"optional": true},
-				{"name": "width", 	"type": "integer", 	"optional": true}, 
-				{"name": "height", 	"type": "integer",	"optional": true},
+				{"name": "x", 		"type": "number"},
+				{"name": "y",	 	"type": "number"},
+				{"name": "width", 	"type": "number", 	"optional": true}, 
+				{"name": "height", 	"type": "number",	"optional": true},
 				{"name": "text", 	"type": "string", 	"optional": true},
 				{"name": "radius", 	"type": "number", 	"optional": true},
 				{"name": "symbol", 	"type": "string", 	"optional": true},
@@ -100,35 +106,37 @@ var foo = // this line is here so my IDE parser works with json
 				{"name": "y-label", "type": "string", 	"optional": true},
 				{"name": "angle", 	"type": "number", 	"optional": true}
 			],
+			
 			"returns":{
-				"parameters": [
-					{
-						"name":"score",
+				"properties":{
+					"score":{
 						"type": ["object","number"],
-						"optional": true
+						"optional": false
 					},
-					{
-						"name":"items",
+					"items":{
 						"type":"array",
 						"items":[
 							{
-								"name":"item",
-								"type":"object"
-							},
-							{
-								"name": "id",
-								"type": "string"
-							},
-							{
-								"name": "mode",
-								"type": "string",
-								"enum": ["unknown","right","wrong","locked","fade"],
-								"description": "manditory for new-object and optional for modify-object or delete-object\n  unknown:  turn black\n  correct:  turn green\n  wrong:  turn red\n  locked:  black, not user selectable\n  fade:  gray, not user selectable"
+								"type":"object",
+								"properties":{
+									"id":{
+										"type": "string",
+										"optional": false,
+										"description": "Identifier for each drawn item, set by the creator of the object."
+									},
+									// I THINK WE COULD USE AN ADDITIONAL MODE: DELETED
+									"mode":{
+										"type": "string",
+										"enum": ["unknown","right","wrong","locked","fade"],
+										"optional": true,
+										"description": "State of the item; unknown: black; correct: green; " +
+														"wrong: red; locked: black(not user selectable); fade: gray (not user selectable)"
+									}
+								}
 							}
-							
 						]
 					}
-				]
+				}
 			}
 		},
 		
@@ -138,27 +146,30 @@ var foo = // this line is here so my IDE parser works with json
 				{
 					"name": "action",
 					"type": "string",
-					"enum":["get-help","help-button","principles-menu"]
+					"enum":["get-help","help-button","principles-menu"],
+					"description": 	"The choice get-help is only from the client while the choices " +
+									"set-score, show-hint, show-hint-link, and focus-hint-text-box " +
+									"are only from the server. Log actions are not read by the client " +
+									"and my be stripped from any response sent to the client. This is " +
+									"just a first attempt at the client-server API, any suggestions are welcome."
 				},
 				{"name": "href", "type": "string", "optional": true},
 				{"name": "value", "type": "string", "optional": true},
 				{"name": "text", "type": "string", "optional": true}
 			],
 			"returns":{
-				"parameters": [
-					{
-						// NOTE - DON'T KNOW IF THIS IS RIGHT SINCE I DON'T KNOW WHAT 'HELP' RETURNS
-						"name":"content",
-						"type":"string",
-						"enum":[
-							"help-button",
-							"set-score",
-							"show-hint",
-							"show-hint-link",
-							"focus-hint-text-box"
-						]
-					}
-				]
+				"properties":{
+					// NOTE - DON'T KNOW IF THIS IS RIGHT SINCE I DON'T KNOW WHAT 'HELP' RETURNS
+					"name":"content",
+					"type":"string",
+					"enum":[
+						"help-button",
+						"set-score",
+						"show-hint",
+						"show-hint-link",
+						"focus-hint-text-box"
+					]
+				}
 			}
 		},
 		
@@ -180,7 +191,11 @@ var foo = // this line is here so my IDE parser works with json
 	},
 	
 	
-	// LEFT FOR REFERENCE - DISREGARD:
+	
+	
+	
+	
+	// LEFT FOR REFERENCE - WILL BE REMOVED:
 	"returns": {
 		"type": "array",
 		"items": {
@@ -188,7 +203,7 @@ var foo = // this line is here so my IDE parser works with json
 			"properties": {
 				"action": {
 					"type": "string",
-					"description": "The choice get-help is only from the  client while\nthe choices set-score, show-hint, show-hint-link, and focus-hint-text-box are only from the server. \nLog actions are not read by the client and my be stripped from any response sent to the client. This is just a first attempt at the client-server API, any suggestions are welcome.",
+					"description": "",
 					"enum":[
 							"new-object",
 							"modify-object",
@@ -216,7 +231,7 @@ var foo = // this line is here so my IDE parser works with json
 				"optional": true
 			},
 			"mode": {
-				"description": "manditory for new-object and optional for modify-object or delete-object\n  unknown:  turn black\n  correct:  turn green\n  wrong:  turn red\n  locked:  black, not user selectable\n  fade:  gray, not user selectable",
+				"description": "",
 				"type": "string",
 				"enum": ["unknown","right","wrong","locked","fade"],
 				"optional": true
