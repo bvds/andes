@@ -96,7 +96,7 @@
 	  *NSH-GIVENS* *NSH-AXIS-ENTRIES* *NSH-BODYSETS* *NSH-VALID-ENTRIES* 
 	  *NSH-PROBLEM-TYPE* **ALTERNATE-COMMAND-INTERPRETER** *VARIABLES* 
 	  *STUDENTENTRIES* *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*
-          **Condition**
+          **Condition**  mt19937::*random-state*
 	  ;; Session-specific variables in Help/Interface.cl
 	  **last-api-call** **current-cmd-stack** **current-cmd** 
 	  *last-tutor-turn* *last-score*
@@ -104,6 +104,8 @@
           *Runtime-Testset* *Runtime-Score-Testset*
 	  **Testing-Pause-Time-Threshold** **Filter-Constraint-losses**
           *slot-flag-frequency* *followup-problems*
+	  ;; Variables holding session-local memos.
+	  *parse-memo* *grammar-get-rhs-memo* *grammar-get-rhs-with-first*
 	  )
 	#-sbcl "List of global variables that need to be saved between turns in a session."
 	#+sbcl #'equalp

@@ -124,17 +124,6 @@
   (when (null sysvar)
      (setf sysvar (quant-to-valid-sysvar referent)))
 
-  ; register new variable with equation parser's grammar
-  ; We could do this only if there is a matching sysvar that can be used
-  ; in equations, but for now we do it for all. Equations using unmatched
-  ; vars will get marked wrong but reason won't appear to be use of undefined
-  ; var.  This will also register labels for non-quantities like bodies and 
-  ; axes, but that should be OK -- they'll parse but still be marked wrong.
-  ; (when sysvar 
-  ;    (grammar-add-variable label))
-  ;;(grammar-add-variable label)
-  (grammar-add-variable label) 
-
   ; build entry and add it to list
   (push (make-syminfo :label label :referent referent 
 		      :entries entries :sysvar sysvar)

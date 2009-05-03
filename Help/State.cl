@@ -134,28 +134,25 @@
 
   (parse-initialize) 	;clear out hash tables in parser
   ;; reset run-time data structures for new problem:
+  ;; BvdS:  this has not been fixed..
   (symbols-reset)   	;clear out symbol table
   (clear-entries)	;clear out student entry list
   ;; use problem name as seed for random elt
   (initialize-random-elt (string-downcase name)) 
 
-  ;; Set the Problem Instance time for this work on the problem.
-  (setq *Current-Problem-Instant-Start-UTime* (get-universal-time))
-    
-  ;; clear flag for detecting when problem done
-  (reset-done-flag)
-
   ;; Load the current problem and set into global *cp* 
   ;; NB: for case-sensitive filesystems, ensure we convert the problem name, 
   ;; passed as a string, to canonical upper case used for problem ids.
-  (setf *cp* (read-problem-file (string-upcase name) :path (andes-path "solutions/")))
+  (setf *cp* (read-problem-file (string-upcase name) 
+				:path (andes-path "solutions/")))
 
   ;; If the problem failed to load then we will submit a color-red turn
   ;; to the workbench in order to make the case known.  If not then the 
   ;; code will set up the problem for use and then return a color-green
   ;; turn.  
-  (if (null *cp*) (make-red-turn)
-    (do-read-problem-info-setup)))
+  (if (null *cp*) 
+      (make-red-turn)
+      (do-read-problem-info-setup)))
 
 
 ;; Once the problem has been loaded successfully into the *cp* parameter

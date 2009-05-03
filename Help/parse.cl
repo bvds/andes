@@ -77,11 +77,17 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+(defvar *parse-memo* "memo for holding session-local parse")
+(defvar *grammar-get-rhs-memo* "memo for holding session-local grammar")
+(defvar *grammar-get-rhs-with-first* "memo for holding session-local grammar")
+
 (defun parse-initialize ()
   ;; makes parser act like chart parser (memoize does this)
-  (memoize 'parse :key #'second :test #'equal)
-  (memoize 'grammar-get-rhs :key #'second :test #'equal)
-  (memoize 'grammar-get-rhs-with-first :key #'second :test #'equal))
+  (memoize 'parse :key #'second :test #'equal :var *parse-memo*)
+  (memoize 'grammar-get-rhs :key #'second :test #'equal 
+	   :var *grammar-get-rhs-memo*)
+  (memoize 'grammar-get-rhs-with-first :key #'second :test #'equal
+	   :var *grammar-get-rhs-with-first*))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
