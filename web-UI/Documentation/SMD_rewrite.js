@@ -173,19 +173,35 @@ var foo = // this line is here so my IDE parser works with json
 			}
 		},
 		
+		"submit-problem": {
+			"parameters": [
+				{
+					"name": "projectId",
+					"type": "string",
+					"description":	"Called when user explicitly hits the Submit button."
+				}
+			],
+			"returns":{
+				"name":"action",
+				"type": ["boolean","string"],
+				"description":	"Either returns an URL for where to navigate next, " + 
+								"or returns 'true' (or 'close') if the window is to be closed."
+			}
+		},
 		
 		"close-problem": {
 			"parameters": [
 				{
 					"name": "json smd bug: can't just inherit parameters and get named parameters",
 					"type": "string",
-					"optional": true
+					"description":	"Called when user explicitly closes problem, like from menu-close. (For SOW2 or Future)"
 				}
 			],
 			"returns":{
-				// NOTE - DON'T KNOW IF THIS IS RIGHT - DOES CLOSE RETURN ANYTHING?
-				"name":"success",
-				"type": "boolean"
+				"name":"action",
+				"type": "boolean",
+				"description":	"Confirmation of problem closed. App or user may now open another problem."
+			
 			}
 		}
 	},
