@@ -151,10 +151,10 @@
   (assert (null webserver:*env*))
   ;; tracing/debugging print
   (format webserver:*stdout* "open-problem opening problem ~A~%" problem)
-
+  
   ;; webserver:*env* needs to be initialized before the wrapper
   (setq webserver:*env* (make-help-env :student user :problem problem))
-
+  
   (env-wrap
     (setq **base-Htime** (universal-time->htime (get-universal-time)))
     (solver-load)
@@ -176,17 +176,34 @@
     ;;
     ;;  New:  return problem statement, any graphic, any work
     ;;  done, and score to the client.
-    `(((:action . "new-object") (:id . 0) (:type . "phrase") (:mode . "locked")
-       (:x . 3) (:y . 5) (:text-width . 80) (:text . "A spherical ball with a mass of 2.00 kg rests in the notch ..."))
-      ((:action . "new-object") (:id . 1) (:type . "graphics") (:mode . "locked")
-       (:x . 53) (:y . 15) (:dx . 150) (:dy . 180)
-       (:href . "/images/s2e.gif")))))
+    `(((:action . "new-object") (:id . "a0") (:type . "phrase") 
+       (:mode . "locked") (:x . 3) (:y . 5) (:width . 80) 
+       (:text . "A spherical ball with a mass of 2.00 kg rests in the notch ..."))
+      ((:action . "new-object") (:id . "a1") (:type . "graphics") 
+       (:mode . "locked") (:x . 53) (:y . 15) (:width . 150) (:height . 180)
+       (:href . "/images/s2e.gif"))
+
+      ((:action . "new-object") (:id . "a2") (:type . "phrase") 
+       (:mode . "right") (:x . 200) (:y . 55) 
+       (:text . "g = 9.8 m/s^2 is the gravitational acceleration \nnear the surface of the earth."))
+
+      ((:action . "new-object") (:id .  "a2.5") (:type . "phrase") 
+       (:mode . "right") (:x . 200) (:y . 75) (:text . "T0 is the time."))
+
+      ((:action . "log") 
+       (:subscores . (("NSH_BO_Call_Count" . (0 0))
+		      ("WWH_BO_Call_Count" . (0  0))
+		      ("Correct_Entries_V_Entries" . (0 0 0)) 
+		      ("Correct_Answer_Entries_V_Answer_Entries" .  (0 0 0)))))
+
+      ((:action . "set-score") (:score . 0)))))
+
 
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
 (webserver:defun-method "/help" solution-step 
-    (&key time id action type mode x y text-width
-			text dx dy radius symbol x-label y-label angle) 
+    (&key time id action type mode x y
+			text width height radius symbol x-label y-label angle) 
   "problem-solving step"
   (env-wrap 
     ;; Andes2 had calls to:
@@ -207,7 +224,7 @@
 	  (:assoc . (("DEFINE-MASS" . "(DEFINE-VAR (MASS BALL))"))) 
 	  (:id . ,id))
 	 ((:action . "log") (:parse . "(= m_BALL (DNUM 2.0 kg))"))
-		((:action . "set-score") (:score . 40))
+	 ((:action . "set-score") (:score . 40))
 	 ((:action . "modify-object") (:id . ,id) (:mode . "right"))))
       ((string= action "modify-object")
        `(((:action . "set-score") (:score . 57))
@@ -260,16 +277,16 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
     ;; need to maybe store state
     (solver-unload)
 
-    (let ((prob (env-problem webserver:*env*)))
+    (let ((prob (help-env-problem webserver:*env*)))
       ;; this tells the session manager that the session is over.
       (setf webserver:*env* nil)
       `(((:action . "show-hint") 
 	 (:text . ,(format nil "Finished working on problem ~A." prob)))
 	((:action . "log") 
-	 (:score . (("NSH_BO_Call_Count" . (-0.05 0)) 
-		    ("WWH_BO_Call_Count" . (-0.05 0))
-		    ("Correct_Entries_V_Entries" . (0.05 17 19))
-		    ("Correct_Answer_Entries_V_Answer_Entries" . (0.05 1 2)))))))))
+	 (:subscores . (("NSH_BO_Call_Count" . (-0.05 0)) 
+			("WWH_BO_Call_Count" . (-0.05 0))
+			("Correct_Entries_V_Entries" . (0.05 17 19))
+			("Correct_Answer_Entries_V_Answer_Entries" . (0.05 1 2)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

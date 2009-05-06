@@ -140,19 +140,6 @@
 		}
 		dojo.addOnLoad(init);
 	</script>
-<script>
-   dojo.require("dojox.json.schema");
-   var inp=[{a: "f", b: 6}, {b: 3, a: "g"},{a: "6"}];
- //  var sch={items: {type: {type: "object", additionalProperties: false,
-   //                 properties: { a: {type: "string"}, 
-    //                b: {optional: true, type: "number"}}}}};
-var sch={items: {type: "object", additionalProperties: false,
-                    properties: { a: {type: "string"}, 
-                    b: {optional: true, type: "number"}}}};    
-    var va=dojox.json.schema.validate(inp,sch);
-    console.log("test case: " + va.valid + " " 
-     + (va.errors.length>0 ? va.errors[0].message: " "));
-</script>
   </head>
 
   <body class="tundra">
