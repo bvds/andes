@@ -20,7 +20,7 @@
 (defun memo (fn &key (key #'first) (test #'eql) name var)
   "Return a memo-function of fn."
   (let ((thehash (make-hash-table :test test)))
-    (if (symbolp var) 
+    (if (and var (symbolp var))
 	(setf (symbol-value var) thehash)
 	(setf var thehash))
     ;; At this point var is either a hash table or a symbol pointing to one.
