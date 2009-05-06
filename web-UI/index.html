@@ -50,6 +50,7 @@
       dojo.provide("dojox.rpc.Client");
       dojo.require("dojox.rpc.Service");
       dojo.require("dojox.rpc.JsonRPC");
+      dojo.require("dojox.json.schema");
       var typejson = new dojox.rpc.Service("andes3.smd");
 
       // AOP-style function replacement that performs before-advice 
@@ -76,6 +77,19 @@
           function (result) {
             document.getElementById('result').innerHTML = 
 	    "Success:  " + dojo.toJson(result);
+            // Determine if return agrees with json schema specified in smd.
+	    var returnSchema=typejson._smd.services[methodText].returns;
+	    var valida=dojox.json.schema.validate(result, returnSchema);
+            if(valida.valid){
+              document.getElementById('result').style.color = "green";
+	    } else {
+              document.getElementById('result').style.color = "red";
+	      for(i=0; i<valida.errors.length; i++){
+  	        console.log("Invalid return: " + 
+                            valida.errors[i].property + 
+                             " message: " + valida.errors[i].message);
+              }
+            }
             document.getElementById('turn').value=typejson._requestId;
         }, 
 	// error conditiion handler:
@@ -126,6 +140,19 @@
 		}
 		dojo.addOnLoad(init);
 	</script>
+<script>
+   dojo.require("dojox.json.schema");
+   var inp=[{a: "f", b: 6}, {b: 3, a: "g"},{a: "6"}];
+ //  var sch={items: {type: {type: "object", additionalProperties: false,
+   //                 properties: { a: {type: "string"}, 
+    //                b: {optional: true, type: "number"}}}}};
+var sch={items: {type: "object", additionalProperties: false,
+                    properties: { a: {type: "string"}, 
+                    b: {optional: true, type: "number"}}}};    
+    var va=dojox.json.schema.validate(inp,sch);
+    console.log("test case: " + va.valid + " " 
+     + (va.errors.length>0 ? va.errors[0].message: " "));
+</script>
   </head>
 
   <body class="tundra">
