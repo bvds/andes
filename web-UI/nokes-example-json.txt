@@ -63,7 +63,7 @@ the text.
   {"action": "new-object", "id":  2.5, "type": "phrase", "mode": "right", 
 	     "x": 200, "y": 75, 
 	     "text": "T0 is the time."},
-  {"action": "log", "score": {"NSH_BO_Call_Count": [0,0], 
+  {"action": "log", "subscores": {"NSH_BO_Call_Count": [0,0], 
              "WWH_BO_Call_Count": [0,0],
 	     "Correct_Entries_V_Entries": [0,0,0],  
 	     "Correct_Answer_Entries_V_Answer_Entries":  [0,0,0]}}
@@ -441,7 +441,7 @@ may persist after a problem is closed.
 
 [
   {"action": "show-hint", "text": "Finished working on problem s2e."},
-  {"action": "log", "score": {"NSH_BO_Call_Count": [-0.05, 0], 
+  {"action": "log", "subcores": {"NSH_BO_Call_Count": [-0.05, 0], 
   "WWH_BO_Call_Count": [-0.05,0],
 	     "Correct_Entries_V_Entries": [0.05,17,19],  
 	   " Correct_Answer_Entries_V_Answer_Entries":  [0.05,1,2]}}
