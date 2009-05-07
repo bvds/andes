@@ -80,7 +80,7 @@ If there was previous work, it would be included in the above response.
 	   "x": 66, "y": 188, "radius": 25, "text": "ball"}, "id": 2}
 
 [
-  {"action": "log", "assoc": {"DRAW-BODY": "(BODY BALL)"}},
+  {"action": "log", "assoc": {"DRAW-BODY": "(BODY BALL)"}, "id": "a3"},
   {"action": "set-score", "score", 15},
   {"action": "modify-object", "id": "a3", "mode": "right"}
 ]
@@ -97,7 +97,8 @@ is shown on the screen when the vector is being dragged out.
 	   "x-label": "x", "y-label": "y"}, "id": 3}
 
 [
-  {"action": "log", "assoc": {"DRAW-UNROTATED-AXES": "(DRAW-AXES 0)"}},
+  {"action": "log", "assoc": {"DRAW-UNROTATED-AXES": "(DRAW-AXES 0)"}, 
+           "id": "a4"},
   {"action": "set-score", "score", 25},
   {"action": "modify-object", "id": "a4", "mode": "right"}
 ]
@@ -132,8 +133,8 @@ agnostic about object positions; Andes3 is not.
 
 [
   {"action": "log", "assoc": {"DEFINE-MASS": "(DEFINE-VAR (MASS BALL))"}, 
-            "id": "a5"}
-  {"action": "log", {"parse": "(= m_BALL (DNUM 2.0 kg))"},
+           "id": "a5"}
+  {"action": "log", "parse": "(= m_BALL (DNUM 2.0 kg))", "id": "a5"},
   {"action": "set-score", "score", 40},
   {"action": "modify-object", "id": "a5", "mode": "right"}
 ]
@@ -149,7 +150,8 @@ is shown on the screen when the vector is being dragged out.
 	   "text": "Fwall1 is force due to wall1 acting on ball"}, "id": 7}
 
 [
-  {"action": "log", "assoc": {"DRAW-NORMAL": "VECTOR (FORCE BALL WALL1 NORMAL :TIME 1) (DNUM 120 deg))"},
+  {"action": "log", "assoc": {"DRAW-NORMAL": "VECTOR (FORCE BALL WALL1 NORMAL :TIME 1) (DNUM 120 deg))", 
+           "id": "a6"},
   {"action": "modify-object", "id": "a6", "mode": "right"}
 ]
 
@@ -163,7 +165,8 @@ is shown on the screen when the vector is being dragged out.
 	   "text": "Fwall2 is force due to wall2"}, "id": 8}
 
 [
-  {"action": "log", "assoc": {"DRAW-NORMAL": "VECTOR (FORCE BALL WALL3 NORMAL :TIME 1) (DNUM 40 deg))"},
+  {"action": "log", "assoc": {"DRAW-NORMAL": "VECTOR (FORCE BALL WALL3 NORMAL :TIME 1) (DNUM 40 deg))",
+           "id": "a7"},
   {"action": "modify-object", "id": "a7", "mode": "right"}
 ]
 
@@ -177,7 +180,8 @@ is shown on the screen when the vector is being dragged out.
 	   "text": "Fearth is force due to gravity"}, "id": 9}
 
 [
-  {"action": "log", "assoc": {"DRAW-WEIGHT": "VECTOR (FORCE BALL EARTH WEIGHT :TIME 1) (DNUM 270 deg))"},
+  {"action": "log", "assoc": {"DRAW-WEIGHT": "VECTOR (FORCE BALL EARTH WEIGHT :TIME 1) (DNUM 270 deg))",
+           "id": "a8"},
   {"action": "modify-object", "id": "a8", "mode": "right"}
 ]
 
@@ -190,9 +194,11 @@ is shown on the screen when the vector is being dragged out.
 	   "text": "Fwall1_x = Fwall1 * cos (\\thetaFwall1)"}, "id": 10}
 
 [
-  {"action": "log", "parse": "(= Xc_Fn_BALL_WALL1_1_0 (* Fn_BALL_WALL1_1 (COS OFn_BALL_WALL1_1)))"},
+  {"action": "log", "parse": "(= Xc_Fn_BALL_WALL1_1_0 (* Fn_BALL_WALL1_1 (COS OFn_BALL_WALL1_1)))",
+           "id": "a9"},
   {"action": "log", "assoc": {"COMPO-GENERAL-CASE": "(EQN (= Xc_Fn_BALL_WALL1_1_0 (* Fn_BALL_WALL1_1 (COS (- (DNUM 120 deg) (DNUM 0 deg))))))", 
-	 "WRITE-IMPLICIT-EQN": "IMPLICIT-EQN (= OFn_BALL_WALL1_1 (DNUM 120 deg)))"},
+	 "WRITE-IMPLICIT-EQN": "IMPLICIT-EQN (= OFn_BALL_WALL1_1 (DNUM 120 deg)))",
+           "id": "a9"},
   {"action": "modify-object", "id": "a9", "mode": "right"}
 ]
 
@@ -205,9 +211,11 @@ is shown on the screen when the vector is being dragged out.
 	   "text": "Fwall1_y = Fwall1 * sin (\\thetaFwall1)"}, "id": 11}
 
 [
-  {"action": "log", "parse": "(= Xc_Fn_BALL_WALL1_1_0 (* Fn_BALL_WALL1_1 (COS OFn_BALL_WALL1_1)))"},
+  {"action": "log", "parse": "(= Xc_Fn_BALL_WALL1_1_0 (* Fn_BALL_WALL1_1 (COS OFn_BALL_WALL1_1)))",
+           "id": "10"},
   {"action": "log", "assoc": {"COMPO-GENERAL-CASE": "(EQN (= Xc_Fn_BALL_WALL1_1_0 (* Fn_BALL_WALL1_1 (COS (- (DNUM 120 deg) (DNUM 0 deg))))))", 
-	 "WRITE-IMPLICIT-EQN": "IMPLICIT-EQN (= OFn_BALL_WALL1_1 (DNUM 120 deg)))"},
+	 "WRITE-IMPLICIT-EQN": "IMPLICIT-EQN (= OFn_BALL_WALL1_1 (DNUM 120 deg)))",
+           "id": "10"},
   {"action": "modify-object", "id": "a10", "mode": "right"}
 ]
 
