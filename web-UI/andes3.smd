@@ -220,13 +220,7 @@
     
     "close-problem": {
       "description": "Called when student hits submit button.  Also called when \"back\" button is hit or window is closed",
-      "parameters": [
-	{
-	  "name": "work-around for json smd bug: can't just inherit parameters and get named parameters",
-	  "type": "string",
-	  "optional": true
-	}
-      ],
+      "parameters": [],
       "returns": {
 	"type": "array",
 	"items": {
