@@ -23,7 +23,8 @@
 	    "action": {
 	      "type": "string",
 	      "optional": false,
-	      "enum":["new-object","set-score","log"]
+	      "enum":["new-object","set-score","log","show-hint"],
+	      "description": "show-hint needed in the case of an error"
 	    },
 	    "id": {
 	      "type": "string",
@@ -62,6 +63,21 @@
 	      "type": "object", 
 	      "optional": true,
 	      "description": "Only for log"
+	    },
+	    "errorType": {
+	      "type": "string", 
+	      "optional": true,
+	      "description": "Only for error log"
+	    },
+	    "error": {
+	      "type": "string", 
+	      "optional": true,
+	      "description": "Only for error log"
+	    },
+	    "backtrace": {
+	      "type": "string", 
+	      "optional": true,
+	      "description": "Only for error log"
 	    }
 	  }
 	}  
