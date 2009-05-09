@@ -141,10 +141,13 @@
   ;; use problem name as seed for random elt
   (initialize-random-elt (string-downcase name)) 
 
-;;********************* BvdS:  done to here *******************
   ;; Load the current problem and set into global *cp* 
   ;; NB: for case-sensitive filesystems, ensure we convert the problem name, 
   ;; passed as a string, to canonical upper case used for problem ids.
+  ;;  
+  ;; In this case, the problems are each time the files
+  ;; are loaded.  They are kept separate from the problem
+  ;; registry created by defproblem.
   (setf *cp* (read-problem-file (string-upcase name) 
 				:path (andes-path "solutions/")))
 

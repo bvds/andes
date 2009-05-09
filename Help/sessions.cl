@@ -146,6 +146,7 @@
 
 (webserver:defun-method "/help" open-problem (&key time problem user) 
   "initial problem statement" 
+  
   ;; Need to think about error handling for the case where 
   ;; the session already exists.
   (assert (null webserver:*env*))
@@ -156,48 +157,59 @@
   (setq webserver:*env* (make-help-env :student user :problem problem))
   
   (env-wrap
-    (setq **base-Htime** (universal-time->htime (get-universal-time)))
-    (solver-load)
-    (solver-logging *solver-logging*)
-
-    ;; Andes2 had the following calls that can be found in log files:
-    ;;   read-student-info; the only remaining step is:
-    (Load-Config-File)			
-    ;;   set-condition none
-    (set-condition 'none) ;Any experimental condition
-    ;;     ****** done up to here *******
-    ;;   read-problem-info  (useful, but need to figure out memoize)
-    ;;   check-entries T
-    ;;     load any history from log files
-    ;;     [define-variable assert-x-axis assert-object lookup-vector
-    ;;      lookup-eqn-string check-answer etc.]
-    ;;   check-entries nil
-    ;;   set-stats (if there was an old score)
-    ;;
-    ;;  New:  return problem statement, any graphic, any work
-    ;;  done, and score to the client.
-    `(((:action . "new-object") (:id . "a0") (:type . "phrase") 
-       (:mode . "locked") (:x . 3) (:y . 5) (:width . 80) 
-       (:text . "A spherical ball with a mass of 2.00 kg rests in the notch ..."))
-      ((:action . "new-object") (:id . "a1") (:type . "graphics") 
-       (:mode . "locked") (:x . 53) (:y . 15) (:width . 150) (:height . 180)
-       (:href . "/images/s2e.gif"))
-
-      ((:action . "new-object") (:id . "a2") (:type . "phrase") 
-       (:mode . "right") (:x . 200) (:y . 55) 
-       (:text . "g = 9.8 m/s^2 is the gravitational acceleration \nnear the surface of the earth."))
-
-      ((:action . "new-object") (:id .  "a2.5") (:type . "phrase") 
-       (:mode . "right") (:x . 200) (:y . 75) (:text . "T0 is the time."))
-
-      ((:action . "log") 
-       (:subscores . (("NSH_BO_Call_Count" . (0 0))
-		      ("WWH_BO_Call_Count" . (0  0))
-		      ("Correct_Entries_V_Entries" . (0 0 0)) 
-		      ("Correct_Answer_Entries_V_Answer_Entries" .  (0 0 0)))))
-
-      ((:action . "set-score") (:score . 0)))))
-
+    (let (replies)
+      (setq **base-Htime** (universal-time->htime (get-universal-time)))
+      (solver-load)
+      (solver-logging *solver-logging*)
+      
+      ;; Andes2 had the following calls that can be found in log files:
+      ;;   read-student-info; the only remaining step is:
+      (Load-Config-File)			
+      ;;   set-condition none
+      (set-condition 'none) ;Any experimental condition
+      ;;  Most of the set-up is done here
+      ;; The return for this may be of some use.
+      (read-problem-info problem)
+      ;;
+      ;;   check-entries T
+      ;;     load any history from log files
+      ;;     [define-variable assert-x-axis assert-object lookup-vector
+      ;;      lookup-eqn-string check-answer etc.]
+      ;;   check-entries nil
+      ;;   set-stats (if there was an old score)
+      ;;
+      (push `((:action . "new-object") (:id . "statement") (:type . "phrase") 
+	      (:mode . "locked") (:x . 3) (:y . 5) (:width . 80) 
+	      (:text . ,(problem-text *cp*))) replies)
+      (when (problem-graphic *cp*)
+	(push `((:action . "new-object") (:id . "a1") (:type . "graphics") 
+		(:mode . "locked") (:x . 53) (:y . 15) (:width . 150) 
+		(:height . 180)
+		(:href . ,(strcat "/images/" (problem-graphic *cp*)))) 
+	      replies)
+	
+	;;  New:  return problem statement, any graphic, any predefs, any work
+	;;  done, and score to the client.
+	
+	(push `((:action . "new-object") (:id . "a2") (:type . "phrase") 
+	 (:mode . "right") (:x . 200) (:y . 55) 
+		(:text . "g = 9.8 m/s^2 is the gravitational acceleration \nnear the surface of the earth.")) replies)
+	
+	(push `((:action . "new-object") (:id .  "a2.5") (:type . "phrase") 
+		(:mode . "right") (:x . 200) (:y . 75) (:text . "T0 is the time.")) 
+	      replies)
+	
+	(push `((:action . "log") 
+		(:subscores . (("NSH_BO_Call_Count" . (0 0))
+			       ("WWH_BO_Call_Count" . (0  0))
+			       ("Correct_Entries_V_Entries" . (0 0 0)) 
+			       ("Correct_Answer_Entries_V_Answer_Entries" .  (0 0 0)))))
+	      replies)
+	
+	(push `((:action . "set-score") (:score . 0)) replies)
+	
+	replies))))
+  
 
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
