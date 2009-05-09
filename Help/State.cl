@@ -36,8 +36,8 @@
 ;;========================================================
 ;; Storage elements.
 
-(defvar *cp* Nil)                  ; the current problem
-(defvar *StudentEntries* NIL)  ; list of current student entries
+(defvar *cp*)                  ; the current problem
+(defvar *StudentEntries*)  ; list of current student entries
 
 ;;; The Andes2 Configuration file is a lisp-source file that is
 ;;; loaded (and evaluated) at runtime.  This file is intended to
@@ -134,12 +134,14 @@
 
   (parse-initialize) 	;clear out hash tables in parser
   ;; reset run-time data structures for new problem:
-  ;; BvdS:  this has not been fixed..
-  (symbols-reset)   	;clear out symbol table
-  (clear-entries)	;clear out student entry list
+  (setf **grammar** nil)
+  (grammar-add-grammar '**grammar** **common-grammar**)
+  (setf *variables* nil)
+  (setf *StudentEntries* nil)
   ;; use problem name as seed for random elt
   (initialize-random-elt (string-downcase name)) 
 
+;;********************* BvdS:  done to here *******************
   ;; Load the current problem and set into global *cp* 
   ;; NB: for case-sensitive filesystems, ensure we convert the problem name, 
   ;; passed as a string, to canonical upper case used for problem ids.
@@ -150,10 +152,9 @@
   ;; to the workbench in order to make the case known.  If not then the 
   ;; code will set up the problem for use and then return a color-green
   ;; turn.  
-  (if (null *cp*) 
-      (make-red-turn)
-      (do-read-problem-info-setup)))
-
+  (if *cp* 
+      (do-read-problem-info-setup)
+      (make-red-turn)))
 
 ;; Once the problem has been loaded successfully into the *cp* parameter
 ;; then we need to setup the struct for runtime use.  This code will do 
@@ -174,11 +175,7 @@
   (enter-predefs)
   
   ;; re-initialize the dialog state
-  (reset-next-step-help)
-
-  
-  ;; return T for success. 
-  (make-green-turn))  ;; Return a color green result.
+  (reset-next-step-help))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; close-problem -- close the specified problem 
@@ -192,8 +189,9 @@
 (defun do-close-problem (name Done)
    (declare (ignore name)) 
    ;; empty symbol table and entry list
-   (symbols-reset) 
-   (clear-entries)
+   (setf *variables* nil)
+   (setf **grammar** nil)
+   (setq *StudentEntries* nil)
 
    ;; unload current problem with its sgraph structures
    (setf *cp* NIL)
@@ -303,14 +301,6 @@
 (defun find-entry (Id)
   "find student entry by workbench assigned entry id"
   (find id *StudentEntries* :key #'StudentEntry-ID :test #'equal))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; clear-entries  -- remove all student entries (no arguments).
-;; Note this does *not* undo the entry effects -- it just empties the list.
-;; This is suitable when just discarding all existing state on a new problem.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun clear-entries ()
-  (setq *StudentEntries* nil))
 
 ;;=============================================================================
 ;; Helpers for implicit equation entries associated with diagram entries

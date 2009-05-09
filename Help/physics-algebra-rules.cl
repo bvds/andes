@@ -33,11 +33,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; initialize rules for andes physics equations grammar
 (defun physics-algebra-rules-initialize ()
-  (declare (special **Identifier-Grammar**))
   ;;
   ;; first make grammar for identifier terminals
   ;;
-  (grammar-initialize '**identifier-grammar**)
+  (setf **identifier-grammar** nil)
 
   ;; now add the terminal rules for digits
   (grammar-add-terminal '**identifier-grammar** 'digit0 #\0)
@@ -123,243 +122,241 @@
   ;;
   ;; creation and initialization of the base andes physics grammar
   ;;
-  (grammar-initialize '**grammar**)
-
-  ;; now copy rules for identifier terminals
-  (grammar-add-grammar '**grammar** **identifier-grammar**)
+  (setf **common-grammar** nil)
+  (grammar-add-grammar '**common-grammar** **identifier-grammar**)
 
   ;;
   ;; add some more terminals
   ;;
 
   ;; white space characters
-  (grammar-add-terminal '**grammar** 'space '(#\Space #\Return #\NewLine #\Page #\Tab))
+  (grammar-add-terminal '**common-grammar** 'space '(#\Space #\Return #\NewLine #\Page #\Tab))
 
   ;; left and right parenthesis
-  (grammar-add-terminal '**grammar** 'l-paren #\()
-  (grammar-add-terminal '**grammar** 'r-paren #\))
+  (grammar-add-terminal '**common-grammar** 'l-paren #\()
+  (grammar-add-terminal '**common-grammar** 'r-paren #\))
 
   ;; equality
-  (grammar-add-terminal '**grammar** 'equals #\=)
+  (grammar-add-terminal '**common-grammar** 'equals #\=)
 
   ;;
   ;; after lexical terminals are defined let's define the non-terminal parses
   ;;
 
   ;; group the 'unary operators
-  (grammar-add-nonterminal '**grammar** 'unary-op '((plus) (dash)))
+  (grammar-add-nonterminal '**common-grammar** 'unary-op '((plus) (dash)))
 
   ;; only binary operators to be found in units
-  (grammar-add-nonterminal '**grammar** 'unit-op '((times) (divide)))
+  (grammar-add-nonterminal '**common-grammar** 'unit-op '((times) (divide)))
 
   ;; binary operations
-  (grammar-add-nonterminal '**grammar** 'bops '((plus) (dash) (unit-op) (raised)))
+  (grammar-add-nonterminal '**common-grammar** 'bops '((plus) (dash) (unit-op) (raised)))
 
   ;; digits are 0-9 ... assumes base 10
-  (grammar-add-nonterminal '**grammar** 'digit '((digit0) (digit1) (digit2) (digit3) (digit4)
+  (grammar-add-nonterminal '**common-grammar** 'digit '((digit0) (digit1) (digit2) (digit3) (digit4)
 						 (digit5) (digit6) (digit7) (digit8) (digit9)
 						 ))
 
   ;; 'e lhs's for case insensitive parses ... 
   ;; like sin == Sin == SIN == SIn ..etc
-  (grammar-add-nonterminal '**grammar** 'ea '((la) (uA)))
-  (grammar-add-nonterminal '**grammar** 'eb '((lb) (uB)))
-  (grammar-add-nonterminal '**grammar** 'ec '((lc) (uC)))
-  (grammar-add-nonterminal '**grammar** 'ed '((ld) (uD)))
-  (grammar-add-nonterminal '**grammar** 'ee '((le) (uE)))
-  (grammar-add-nonterminal '**grammar** 'ef '((lf) (uF)))
-  (grammar-add-nonterminal '**grammar** 'eg '((lg) (uG)))
-  (grammar-add-nonterminal '**grammar** 'eh '((lh) (uH)))
-  (grammar-add-nonterminal '**grammar** 'ei '((li) (uI)))
-  (grammar-add-nonterminal '**grammar** 'ej '((lj) (uJ)))
-  (grammar-add-nonterminal '**grammar** 'ek '((lk) (uK)))
-  (grammar-add-nonterminal '**grammar** 'el '((ll) (uL)))
-  (grammar-add-nonterminal '**grammar** 'em '((lm) (uM)))
-  (grammar-add-nonterminal '**grammar** 'en '((ln) (uN)))
-  (grammar-add-nonterminal '**grammar** 'eo '((lo) (uO)))
-  (grammar-add-nonterminal '**grammar** 'ep '((lp) (uP)))
-  (grammar-add-nonterminal '**grammar** 'eq '((lq) (uQ)))
-  (grammar-add-nonterminal '**grammar** 'er '((lr) (uR)))
-  (grammar-add-nonterminal '**grammar** 'es '((ls) (uS)))
-  (grammar-add-nonterminal '**grammar** 'et '((lt) (uT)))
-  (grammar-add-nonterminal '**grammar** 'eu '((lu) (uU)))
-  (grammar-add-nonterminal '**grammar** 'ev '((lv) (uV)))
-  (grammar-add-nonterminal '**grammar** 'ew '((lw) (uW)))
-  (grammar-add-nonterminal '**grammar** 'ex '((lx) (uX)))
-  (grammar-add-nonterminal '**grammar** 'ey '((ly) (uY)))
-  (grammar-add-nonterminal '**grammar** 'ez '((lz) (uZ)))
+  (grammar-add-nonterminal '**common-grammar** 'ea '((la) (uA)))
+  (grammar-add-nonterminal '**common-grammar** 'eb '((lb) (uB)))
+  (grammar-add-nonterminal '**common-grammar** 'ec '((lc) (uC)))
+  (grammar-add-nonterminal '**common-grammar** 'ed '((ld) (uD)))
+  (grammar-add-nonterminal '**common-grammar** 'ee '((le) (uE)))
+  (grammar-add-nonterminal '**common-grammar** 'ef '((lf) (uF)))
+  (grammar-add-nonterminal '**common-grammar** 'eg '((lg) (uG)))
+  (grammar-add-nonterminal '**common-grammar** 'eh '((lh) (uH)))
+  (grammar-add-nonterminal '**common-grammar** 'ei '((li) (uI)))
+  (grammar-add-nonterminal '**common-grammar** 'ej '((lj) (uJ)))
+  (grammar-add-nonterminal '**common-grammar** 'ek '((lk) (uK)))
+  (grammar-add-nonterminal '**common-grammar** 'el '((ll) (uL)))
+  (grammar-add-nonterminal '**common-grammar** 'em '((lm) (uM)))
+  (grammar-add-nonterminal '**common-grammar** 'en '((ln) (uN)))
+  (grammar-add-nonterminal '**common-grammar** 'eo '((lo) (uO)))
+  (grammar-add-nonterminal '**common-grammar** 'ep '((lp) (uP)))
+  (grammar-add-nonterminal '**common-grammar** 'eq '((lq) (uQ)))
+  (grammar-add-nonterminal '**common-grammar** 'er '((lr) (uR)))
+  (grammar-add-nonterminal '**common-grammar** 'es '((ls) (uS)))
+  (grammar-add-nonterminal '**common-grammar** 'et '((lt) (uT)))
+  (grammar-add-nonterminal '**common-grammar** 'eu '((lu) (uU)))
+  (grammar-add-nonterminal '**common-grammar** 'ev '((lv) (uV)))
+  (grammar-add-nonterminal '**common-grammar** 'ew '((lw) (uW)))
+  (grammar-add-nonterminal '**common-grammar** 'ex '((lx) (uX)))
+  (grammar-add-nonterminal '**common-grammar** 'ey '((ly) (uY)))
+  (grammar-add-nonterminal '**common-grammar** 'ez '((lz) (uZ)))
 
-  (grammar-add-nonterminal '**grammar** 'letter '((ea) (eb) (ec) (ed) (ee) (ef) (eg) (eh) (ei)
+  (grammar-add-nonterminal '**common-grammar** 'letter '((ea) (eb) (ec) (ed) (ee) (ef) (eg) (eh) (ei)
 						  (ej) (ek) (el) (em) (en) (eo) (ep) (eq) (er)
 						  (es) (et) (eu) (ev) (ew) (ex) (ey) (ez)))
   ;; white space
-  (grammar-add-nonterminal '**grammar** 'wspace (expand-wild-symbols '(space ?wspace)))
+  (grammar-add-nonterminal '**common-grammar** 'wspace (expand-wild-symbols '(space ?wspace)))
 
   ;; integers
-  (grammar-add-nonterminal '**grammar** 'integer (expand-wild-symbols '(digit ?integer)))
+  (grammar-add-nonterminal '**common-grammar** 'integer (expand-wild-symbols '(digit ?integer)))
 
   ;; fixed point numbers
-  (grammar-add-nonterminal '**grammar** 'fpnum '((period integer)))
-  (grammar-add-nonterminal '**grammar** 'fpnum (expand-wild-symbols '(integer period ?integer)))
+  (grammar-add-nonterminal '**common-grammar** 'fpnum '((period integer)))
+  (grammar-add-nonterminal '**common-grammar** 'fpnum (expand-wild-symbols '(integer period ?integer)))
 
   ;; floating point numbers (scientific notation
-  (grammar-add-nonterminal '**grammar** 'exponent (expand-wild-symbols '(eE ?unary-op integer)))
-  (grammar-add-nonterminal '**grammar** 'exponent (expand-wild-symbols '(eE ?unary-op fpnum)))
+  (grammar-add-nonterminal '**common-grammar** 'exponent (expand-wild-symbols '(eE ?unary-op integer)))
+  (grammar-add-nonterminal '**common-grammar** 'exponent (expand-wild-symbols '(eE ?unary-op fpnum)))
 
-  (grammar-add-nonterminal '**grammar** 'scinum
+  (grammar-add-nonterminal '**common-grammar** 'scinum
 			   (expand-wild-symbols '(fpnum ?wspace exponent)))
-  (grammar-add-nonterminal '**grammar** 'scinum
+  (grammar-add-nonterminal '**common-grammar** 'scinum
 			   (expand-wild-symbols '(integer ?wspace exponent)))
 
   ;; unit prefixes
-  (grammar-add-special '**grammar** 'unit-prefix "a" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-prefix "f" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-prefix "p" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-prefix "n" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-prefix "mu" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-prefix "$m" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-prefix "m" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-prefix "c" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-prefix "d" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-prefix "k" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-prefix "K" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-prefix "M" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-prefix "G" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-prefix "T" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-prefix "P" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-prefix "E" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-prefix "atto" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-prefix "femto" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-prefix "pico" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-prefix "nano" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-prefix "micro" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-prefix "milli" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-prefix "centi" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-prefix "deci" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-prefix "da" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-prefix "deka" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-prefix "h" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-prefix "hecto" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-prefix "kilo" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-prefix "mega" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-prefix "giga" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-prefix "tera" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-prefix "peta" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-prefix "exa" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-prefix "a" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-prefix "f" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-prefix "p" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-prefix "n" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-prefix "mu" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-prefix "$m" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-prefix "m" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-prefix "c" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-prefix "d" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-prefix "k" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-prefix "K" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-prefix "M" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-prefix "G" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-prefix "T" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-prefix "P" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-prefix "E" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-prefix "atto" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-prefix "femto" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-prefix "pico" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-prefix "nano" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-prefix "micro" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-prefix "milli" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-prefix "centi" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-prefix "deci" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-prefix "da" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-prefix "deka" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-prefix "h" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-prefix "hecto" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-prefix "kilo" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-prefix "mega" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-prefix "giga" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-prefix "tera" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-prefix "peta" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-prefix "exa" nil **identifier-grammar**)
   
   ;; unit names
-  (grammar-add-special '**grammar** 'unit-name "m" nil **identifier-grammar**)
-;;  (grammar-add-special '**grammar** 'unit-rname "kg" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "s" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "C" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "K" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "g" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "N" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "J" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "V" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "A" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "T" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "Wb" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "ohm" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "$W" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "Hz" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "Pa" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "F" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "H" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "W" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "dB" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "m/s" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "m/s^2" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "N.m" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "J.s" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "kg.m^2" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "N/m" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "N.s/m^2" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "N/m^2" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "deg" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "rad" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-rname "rev" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-rname "lb" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-rname "day" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-rname "hr" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-rname "h" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-rname "min" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-rname "yr" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "liter" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-rname "ft" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-rname "in" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-rname "mi" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-rname "slug" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-rname "gal" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-rname "u" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "eV" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "dyne" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "erg" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-name "cal" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-rname "lbs" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-rname "ozW" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-rname "ozVUS" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-rname "knot" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-rname "rpm" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-rname "psi" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-rname "block" nil **identifier-grammar**)
-  (grammar-add-special '**grammar** 'unit-rname "blocks" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "m" nil **identifier-grammar**)
+;;  (grammar-add-special '**common-grammar** 'unit-rname "kg" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "s" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "C" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "K" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "g" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "N" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "J" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "V" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "A" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "T" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "Wb" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "ohm" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "$W" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "Hz" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "Pa" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "F" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "H" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "W" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "dB" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "m/s" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "m/s^2" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "N.m" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "J.s" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "kg.m^2" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "N/m" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "N.s/m^2" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "N/m^2" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "deg" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "rad" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-rname "rev" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-rname "lb" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-rname "day" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-rname "hr" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-rname "h" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-rname "min" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-rname "yr" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "liter" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-rname "ft" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-rname "in" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-rname "mi" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-rname "slug" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-rname "gal" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-rname "u" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "eV" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "dyne" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "erg" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "cal" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-rname "lbs" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-rname "ozW" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-rname "ozVUS" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-rname "knot" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-rname "rpm" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-rname "psi" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-rname "block" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-rname "blocks" nil **identifier-grammar**)
 
-  ;;(grammar-add-special '**grammar** 'unit-name "meter" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-name "meters" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-name "gram" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-name "grams" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-name "second" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-name "seconds" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-name "amp" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-name "Ampere" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-name "Coulomb" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-name "Newton" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-name "Joule" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-name "degrees Kelvin" nil **grammar**) ;; ???
-  ;;(grammar-add-special '**grammar** 'unit-name "volt" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-name "tesla" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-name "weber" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-name "Hertz" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-name "Pascal" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-name "Farad" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-name "Henry" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-name "Watt" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-name "degree" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-name "radian" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-name "meter" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-name "meters" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-name "gram" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-name "grams" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-name "second" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-name "seconds" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-name "amp" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-name "Ampere" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-name "Coulomb" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-name "Newton" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-name "Joule" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-name "degrees Kelvin" nil **common-grammar**) ;; ???
+  ;;(grammar-add-special '**common-grammar** 'unit-name "volt" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-name "tesla" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-name "weber" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-name "Hertz" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-name "Pascal" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-name "Farad" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-name "Henry" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-name "Watt" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-name "degree" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-name "radian" nil **identifier-grammar**)
   
-  ;;(grammar-add-special '**grammar** 'unit-rname "mol" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "mole" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "revolution" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "inch" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "foot" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "mile" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "Atomic mass" nil **grammar**) ;; ???
-  ;;(grammar-add-special '**grammar** 'unit-rname "minute" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "hour" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "year" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "pound" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "pounds" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "electron Volt" nil **grammar**) ;; ???
-  ;;(grammar-add-special '**grammar** 'unit-rname "calory" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "Btu" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "British Thermal Unit" nil **grammar**) ;; ???
-  ;;(grammar-add-special '**grammar** 'unit-rname "Wh" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "watt-hour" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "atm" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "atmosphere" nil **identifier-grammar**)
-  ;;(grammar-add-special '**grammar** 'unit-rname "degrees Fahrenheit" nil **grammar**) ;; ???
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "mol" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "mole" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "revolution" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "inch" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "foot" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "mile" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "Atomic mass" nil **common-grammar**) ;; ???
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "minute" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "hour" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "year" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "pound" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "pounds" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "electron Volt" nil **common-grammar**) ;; ???
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "calory" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "Btu" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "British Thermal Unit" nil **common-grammar**) ;; ???
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "Wh" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "watt-hour" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "atm" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "atmosphere" nil **identifier-grammar**)
+  ;;(grammar-add-special '**common-grammar** 'unit-rname "degrees Fahrenheit" nil **common-grammar**) ;; ???
 
   ;; units ... NOTE: no white-space
-  (grammar-add-nonterminal '**grammar** 'a-unit
+  (grammar-add-nonterminal '**common-grammar** 'a-unit
 			   (expand-wild-symbols '(?unit-prefix unit-name)))
-  (grammar-add-nonterminal '**grammar** 'a-unit '((unit-rname)))
+  (grammar-add-nonterminal '**common-grammar** 'a-unit '((unit-rname)))
 
-  (grammar-add-nonterminal '**grammar** 'a-unit '((a-unit raised integer)))
-  (grammar-add-nonterminal '**grammar** 'a-unit '((a-unit raised unary-op integer)))
-  (grammar-add-nonterminal '**grammar** 'a-unit '((l-paren a-unit r-paren)))
+  (grammar-add-nonterminal '**common-grammar** 'a-unit '((a-unit raised integer)))
+  (grammar-add-nonterminal '**common-grammar** 'a-unit '((a-unit raised unary-op integer)))
+  (grammar-add-nonterminal '**common-grammar** 'a-unit '((l-paren a-unit r-paren)))
   
-  (grammar-add-nonterminal '**grammar** 'unit '((a-unit)
+  (grammar-add-nonterminal '**common-grammar** 'unit '((a-unit)
 						(a-unit unit-op unit)
 						(a-unit period unit)
 						(l-paren unit r-paren)
@@ -367,7 +364,7 @@
   
   
   ;; function names ... NOTE: case-insensitive
-  (grammar-add-nonterminal '**grammar** 'func '((es ei en)
+  (grammar-add-nonterminal '**common-grammar** 'func '((es ei en)
 						(ec eo es)
 						(et ea en)
 						(el eo eg digit1 digit0)
@@ -379,18 +376,18 @@
 						))
   
   ;; variable/identifiers
-  (grammar-add-nonterminal '**grammar** 'rest-of-unknown 
+  (grammar-add-nonterminal '**common-grammar** 'rest-of-unknown 
 			   (expand-wild-symbols '(letter ?rest-of-unknown)))
-  (grammar-add-nonterminal '**grammar** 'rest-of-unknown 
+  (grammar-add-nonterminal '**common-grammar** 'rest-of-unknown 
 			   (expand-wild-symbols '(dollars letter ?rest-of-unknown)))
-  (grammar-add-nonterminal '**grammar** 'rest-of-unknown 
+  (grammar-add-nonterminal '**common-grammar** 'rest-of-unknown 
 			   (expand-wild-symbols '(digit ?rest-of-unknown)))
-  (grammar-add-nonterminal '**grammar** 'rest-of-unknown 
+  (grammar-add-nonterminal '**common-grammar** 'rest-of-unknown 
 			   (expand-wild-symbols '(underscore ?rest-of-unknown)))
   
-  (grammar-add-nonterminal '**grammar** 'unknown
+  (grammar-add-nonterminal '**common-grammar** 'unknown
 			   (expand-wild-symbols '(letter ?rest-of-unknown)))
-  (grammar-add-nonterminal '**grammar** 'unknown
+  (grammar-add-nonterminal '**common-grammar** 'unknown
 			   (expand-wild-symbols '(dollars letter ?rest-of-unknown)))
 
   ;;
@@ -398,67 +395,67 @@
   ;;
   
   ;; define number
-  (grammar-add-nonterminal '**grammar** 'number '((integer)
+  (grammar-add-nonterminal '**common-grammar** 'number '((integer)
 						  (fpnum)
 						  (scinum)
 						  (dollars lp)
 						  ))
   
   ;; arithmetic deals with numbers and operations on numbers
-  (grammar-add-nonterminal '**grammar** 'p-arithmetic
+  (grammar-add-nonterminal '**common-grammar** 'p-arithmetic
 			   '((number)))
 
-  (grammar-add-nonterminal '**grammar** 'arithmetic
+  (grammar-add-nonterminal '**common-grammar** 'arithmetic
 			   '((p-arithmetic)))
   
-  (grammar-add-nonterminal '**grammar** 'p-arithmetic
+  (grammar-add-nonterminal '**common-grammar** 'p-arithmetic
 			   (expand-wild-symbols '(l-paren ?wspace arithmetic ?wspace r-paren)))
 
-  (grammar-add-nonterminal '**grammar** 'arithmetic
+  (grammar-add-nonterminal '**common-grammar** 'arithmetic
   			   (expand-wild-symbols '(arithmetic ?wspace bops ?wspace p-arithmetic)))
 
 
-  (grammar-add-nonterminal '**grammar** 'dnum
+  (grammar-add-nonterminal '**common-grammar** 'dnum
 			   (expand-wild-symbols '(arithmetic ?wspace unit)))
 
   ;; funarg are valid arguments to functions
-  (grammar-add-nonterminal '**grammar** 'funarg '((dnum)
+  (grammar-add-nonterminal '**common-grammar** 'funarg '((dnum)
 						  (unknown)))
   
   ;; funcall are functions with one argument
-  (grammar-add-nonterminal '**grammar** 'funcall-a
+  (grammar-add-nonterminal '**common-grammar** 'funcall-a
 			   (expand-wild-symbols '(func ?wspace arithmetic)))
-  (grammar-add-nonterminal '**grammar** 'p-arithmetic
+  (grammar-add-nonterminal '**common-grammar** 'p-arithmetic
 			   '((funcall-a)))
   
-  (grammar-add-nonterminal '**grammar** 'funcall
+  (grammar-add-nonterminal '**common-grammar** 'funcall
 			   (expand-wild-symbols '(func ?wspace funarg)))
-  (grammar-add-nonterminal '**grammar** 'funcall
+  (grammar-add-nonterminal '**common-grammar** 'funcall
 			   (expand-wild-symbols
 			    '(func ?wspace l-paren ?wspace funarg ?wspace r-paren)))
   
-  (grammar-add-nonterminal '**grammar** 'funcall '((funcall-a)))
+  (grammar-add-nonterminal '**common-grammar** 'funcall '((funcall-a)))
   
-  (grammar-add-nonterminal '**grammar** 'funarg '((funcall)))
+  (grammar-add-nonterminal '**common-grammar** 'funarg '((funcall)))
   
   ;; an expression is a value
-  (grammar-add-nonterminal '**grammar** 'p-expression '((funarg)
+  (grammar-add-nonterminal '**common-grammar** 'p-expression '((funarg)
 							(arithmetic)))
 
   ;; funcall may have parenthesized expression as an argument
-  (grammar-add-nonterminal '**grammar** 'funcall
+  (grammar-add-nonterminal '**common-grammar** 'funcall
 			   (expand-wild-symbols '(func ?wspace p-expression)))
   
   ;; expressions continued
-  (grammar-add-nonterminal '**grammar** 'expression '((p-expression)))
-  (grammar-add-nonterminal '**grammar** 'expression
+  (grammar-add-nonterminal '**common-grammar** 'expression '((p-expression)))
+  (grammar-add-nonterminal '**common-grammar** 'expression
 			   (expand-wild-symbols '(expression ?wspace bops ?wspace p-expression)))
   
-  (grammar-add-nonterminal '**grammar** 'p-expression
+  (grammar-add-nonterminal '**common-grammar** 'p-expression
 			   (expand-wild-symbols '(l-paren ?wspace expression ?wspace r-paren)))
   
   ;; final in this case is an equation something equals something
-  (grammar-add-nonterminal '**grammar** 'final
+  (grammar-add-nonterminal '**common-grammar** 'final
 			   (expand-wild-symbols '(expression ?wspace equals ?wspace expression)))
 
 )

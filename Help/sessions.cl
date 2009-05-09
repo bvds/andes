@@ -96,7 +96,7 @@
 	  *NSH-GIVENS* *NSH-AXIS-ENTRIES* *NSH-BODYSETS* *NSH-VALID-ENTRIES* 
 	  *NSH-PROBLEM-TYPE* **ALTERNATE-COMMAND-INTERPRETER** *VARIABLES* 
 	  *STUDENTENTRIES* *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*
-          **Condition**  mt19937::*random-state*
+          **Condition**  mt19937::*random-state* **grammar**
 	  ;; Session-specific variables in Help/Interface.cl
 	  **last-api-call** **current-cmd-stack** **current-cmd** 
 	  *last-tutor-turn* *last-score*

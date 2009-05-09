@@ -28,7 +28,6 @@
 ;;  5 July 2003 (c?l) removing depreciated definition of and calls to replace-greek.
 ;;  12 July 2003 (c?l) added declarations:
 ;;   ignored some instances of unused variables to suppress warnings.
-;;   declared used of **Grammar** special
 ;;   commented out setting of Result and Tmp in Bad-Vars-In-Answer as they were unused.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -67,7 +66,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun do-lookup-equation-string (eq id location)
-  (declare (special **Grammar**)) ;suppresses the warning.
   (let ((equation eq) (tmp nil))
     (if (= 0 (length (remove #\Space equation)))
 	(setf tmp (handle-empty-equation id))
@@ -88,7 +86,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun test-parse (eq)
-  (declare (special **Grammar**)) ;suppresses the warning.
   (let ((equation eq))
     (if (= 0 (length (remove #\Space equation)))
 	(format nil "Empty Equation <~W>~%" eq)
@@ -778,13 +775,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; kill all variables that have been added
-(defun grammar-clear-variables ()
-  (grammar-remove-identifiers '**grammar** 'variable))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; For answers, we allow student to enter either a full assignment equation of form sought_var = rhs
 ;; or just the answer expression rhs alone. 
@@ -806,7 +796,6 @@
 
 (defun do-check-answer (inputo sought-quant id)
   ;;(format t "Okay start!!!<~A>[~A]~%" input sought-quant)
-  (declare (special **Grammar**)) ;suppressing warning.
   (let ((entry (make-studententry :id id
 			  ;; not system answer entries so no real prop for these,
 			  ;; following will let us find if answer entered for a quant.
@@ -1245,7 +1234,6 @@
 	 bad-answer-bad-sought-ErrorInterp
 	 bad-answer-bad-lhs-ErrorInterp
 	 do-check-answer
-	 grammar-clear-variables
 
 	 unused-variables-ErrorInterp
 	 undef-variables-ErrorInterp

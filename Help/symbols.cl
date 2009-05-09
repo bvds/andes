@@ -98,12 +98,6 @@
 ; Symbol table manipulation functions:
 ;-----------------------------------------------------------------------------
 
-(defun symbols-reset ()
-  "Clear all existing symbol table entries"
-   ; clear equation grammar and symbol table
-   (grammar-clear-variables)
-   (setf *variables* NIL))
-
 (defun symbols-enter (label referent entries &optional sysvar)
   "enter info about a student label into the symbol table"
   ; Allow a single entry id argument here for the usual case where 
