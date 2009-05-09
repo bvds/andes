@@ -76,6 +76,7 @@
 
   (doSafety :in2pre)
 
+  (parse-initialize)   ;set up memoization for parse functions
   (physics-algebra-rules-initialize) ;initialize grammar
 
   ;; start webserver

@@ -129,10 +129,9 @@
 ;; returns: T for success, NIL or 'WRONG-VERSION-PRB for error
 ;; note(s):
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun read-problem-info (name &optional kb-type (bn-alg 0))
- (declare (ignore kb-type bn-alg))
+(defun read-problem-info (name)
 
-  (parse-initialize) 	;clear out hash tables in parser
+  (parse-initialize) 	;set up session-local memoized functions
   ;; reset run-time data structures for new problem:
   (setf **grammar** nil)
   (grammar-add-grammar '**grammar** **common-grammar**)
