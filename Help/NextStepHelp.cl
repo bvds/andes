@@ -571,7 +571,6 @@
   (setq *nsh-givens* (remove-if-not #'nsh-given-principle-p *nsh-Nodes*)))
 
 
-
 ;;; ---------------------- Multiple Choice ----------------------------------
 ;;; Multiple choice-only problems are those in which the student only needs
 ;;; to answer a set of multiple choice questions.  No other steps need occur

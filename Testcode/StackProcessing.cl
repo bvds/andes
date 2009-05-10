@@ -229,7 +229,7 @@
 	  '(EXPLAIN-MORE 
 	    HANDLE-STUDENT-RESPONSE)))
 
-;;; A help stack is capped (started) by a get-proc-help, 
+;;; A help stack is capped (started) by a next-step-help, 
 ;;; why-wrong-* help or any other entry that returns a 
 ;;; show hint command with a menu.
 (defun help-stack-capp (cmd)
@@ -239,9 +239,9 @@
 ;;; Return the matching item name to signify what type of help 
 ;;; cap this is.  
 (defun help-stack-help-capp (cmd)
-  "If this is a why-wrong-* call or a get-proc-help call."
+  "If this is a why-wrong-* call or a next-step-help call."
   (find (car (cmd-call cmd)) 
-	'(get-proc-help 
+	'(next-step-help 
 	  why-wrong-object 
 	  why-wrong-equation)))
 
@@ -270,7 +270,7 @@
 ;;;; the type of the stack's cap.  
 
 (defun get-proc-help-stackp (Stack)
-  "Is this a helpstack capped with a get-proc-help call?"
+  "Is this a helpstack capped with a next-step-help call?"
   (let ((S (help-stackc Stack)))
     (when S (get-proc-help-cmdp (car S)))))
 
@@ -452,7 +452,7 @@
 ;;;;  2. Help Stackc returns a stack on the cdr of the list.
 ;;;;  3. The Car of the list is either:
 ;;;;     a. a non-help cmd.
-;;;;     b. Or a help cap cmd such as get-proc-help.
+;;;;     b. Or a help cap cmd such as next-step-help.
 ;;;;     this test is done by simply checking to see if this is 
 ;;;;     not a cont cmd.
 

@@ -258,9 +258,9 @@
 ;;; that we want to track and make use of.
 
 (defun get-proc-help-cmdp (CMD)
-  "Is this a get-proc-help call?"
+  "Is this a next-step-help call?"
   (and (help-cmdp CMD) 
-       (equalp (cmd-call-func CMD) 'GET-PROC-HELP)))
+       (equalp (cmd-call-func CMD) 'next-step-help)))
 
 (defun why-wrong-cmdp (CMD)
   "Is this a why-wrong-equation or why-wrong-object call?"

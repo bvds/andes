@@ -41,32 +41,26 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Notes that the equation was located in the equation window instead of the answer box.
-;; Called Entry-API, Commands and gr-pa-spprt
 
-;;; Given an equation string fix quotes within it returning 
-;;; an acceptable form for later use.  
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; lookup-eqn-string -- check correctness of a student equation entry
+;; argument(s):
+;;  eqn-string: the equation as the student entered is
+;;  id: the slot the workbench holds the students input in (0 based indexing)
+;; returns:
+;;  entry status return value -- see end of code for description of this
+;; note(s):
+;;  This is a hack-ish way to get the assoc value but (for now), it works.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;; Start here.
 
-
-;; eq:  The raw equation string.
-;; id:  The entry id itself.
-;; keyword :log  -- log entry info (default T)
-(defun do-lookup-eqn-string (eq id &key (log T))
+(defun lookup-eqn-string (eq id &key (log T))
     (prog1 ; first form gets our return value
        (do-lookup-equation-string (fix-eqn-string (trim-eqn eq)) id 'equation)
        (when log (log-entry-info (find-entry id)))))
 
-
-
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
 (defun do-lookup-equation-string (eq id location)
-  (let ((equation eq) (tmp nil))
+  (let ((equation eq) tmp)
     (if (= 0 (length (remove #\Space equation)))
 	(setf tmp (handle-empty-equation id))
       (let* ((parses (parse-equation **grammar** equation))

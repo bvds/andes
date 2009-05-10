@@ -427,19 +427,6 @@
 ;;; Eqn-entry
 ;;; Equation entry commands.
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; lookup-eqn-string -- check correctness of a student equation entry
-;; argument(s):
-;;  eqn-string: the equation as the student entered is
-;;  id: the slot the workbench holds the students input in (0 based indexing)
-;; returns:
-;;  entry status return value -- see end of code for description of this
-;; note(s):
-;;  This is a hack-ish way to get the assoc value but (for now), it works.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun lookup-eqn-string (eqn-string &optional id)
-  (do-lookup-eqn-string eqn-string id))
-
 ;;; ===========================================================================
 ;;; Algebra API calls.
 
@@ -822,19 +809,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun why-wrong-equation (id)
   (do-whats-wrong id))
-    
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; get-proc-help -- Begins the next step help process for the student/
-;; argument(s):
-;;  NONE
-;; returns:
-;;  Turn -- A tutor turn that 
-;; note(s):
-;;  updates the assessor bayesioan to reflect the fact that the student has re-
-;;  cieved this hint  Also updates the *studentactions* log if that is set.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun get-proc-help ()
-  (next-step-help))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; explain-more triggered when the studfent clicks on "explain further". gives

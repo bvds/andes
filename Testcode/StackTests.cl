@@ -51,7 +51,7 @@
 ;;;; whether it meets some other threshold requirement.  
 ;;;;
 ;;;; A help stack is defined as a sequence of help commands and replies that
-;;;; start at the top with a help call such as a get-proc-help, why-wong-*
+;;;; start at the top with a help call such as a next-step-help, why-wong-*
 ;;;; or some command that returns a show-hint result. It is then continued
 ;;;; with interim help commands such as explain-more and handle-student-response.
 ;;;; See the utils functions for the definition of these.  
@@ -105,7 +105,7 @@
 
 
 ;;; Return t if the topmost cmd is a bottom-out hint and the help cap
-;;; is a call to get-proc-help.
+;;; is a call to next-step-help.
 (defun Proc_bottom_out_hintp (Stack) 
   (proc-bottom-out-hintp Stack))
 
@@ -151,7 +151,7 @@
 
 
 ;;; A naked bottom-out-hint is one where the student has not called 
-;;; get-proc-help or some other help call but been given an unsolicited
+;;; next-step-help or some other help call but been given an unsolicited
 ;;; hint sequence and then followed it to the tail.
 (defun unsolicited_bottom_out_hintp (Stack)
   "Is this the tail of a het-proc-help call?"
@@ -338,10 +338,10 @@
       hpp_why_wrong_EQN_pairp
       hpp_why_wrong_obj_pairp))
 
-;;; Return t if the helpstack in the pair exists and is a get-proc-help stack
+;;; Return t if the helpstack in the pair exists and is a next-step-help stack
 ;;; and the cmd-pred (if supplied) holds true.
 (defun hpp_get_proc_help_pairp (Stack &optional (Cmd-Pred #'Identity))
-  "Return t if the helpstack is capped by a get-proc-help."
+  "Return t if the helpstack is capped by a next-step-help."
   (helpstack-predicate-pairp 
    Stack :Cmd-Pred Cmd-Pred 
    :help-Pred #'(lambda (S) (get-proc-help-cmdp (car S)))))
@@ -397,7 +397,7 @@
 
 
 (defun hpp_get_proc_help_answer_pairp (Stack)
-  "Return t if the cmd is an answer and the helpstack is get-proc-help capped."
+  "Return t if the cmd is an answer and the helpstack is next-step-help capped."
   (hpp_get_proc_help_pairp Stack #'answer-cmdp))
 
 (defun hpp_why_wrong_cmdp_answer_pairp (Stack)
@@ -418,7 +418,7 @@
 ;;; incorrect-answer and the stack leading it is of the specified type.
 
 (defun hpp_get_proc_help_incorrect_answer_pairp (Stack)
-  "Return t if the cmd is an incorrect-answer and the helpstack is get-proc-help capped."
+  "Return t if the cmd is an incorrect-answer and the helpstack is next-step-help capped."
   (hpp_get_proc_help_pairp Stack #'incorrect-answer-cmdp))
 
 (defun hpp_why_wrong_cmdp_incorrect_answer_pairp (Stack)
@@ -439,7 +439,7 @@
 ;;; correct-answer and the stack leading it is of the specified type.
 
 (defun hpp_get_proc_help_correct_answer_pairp (Stack)
-  "Return t if the cmd is an correct-answer and the helpstack is get-proc-help capped."
+  "Return t if the cmd is an correct-answer and the helpstack is next-step-help capped."
   (hpp_get_proc_help_pairp Stack #'correct-answer-cmdp))
 
 (defun hpp_why_wrong_cmdp_correct_answer_pairp (Stack)
@@ -475,7 +475,7 @@
 
 
 (defun hpp_get_proc_help_entry_pairp (Stack)
-  "Return t if the cmd is an entry and the helpstack is get-proc-help capped."
+  "Return t if the cmd is an entry and the helpstack is next-step-help capped."
   (hpp_get_proc_help_pairp Stack #'entry-cmdp))
 
 (defun hpp_why_wrong_cmdp_entry_pairp (Stack)
@@ -495,7 +495,7 @@
 ;;; These tests handle incorrect-entry commands and entries of specific types.
 
 (defun hpp_get_proc_help_incorrect_entry_pairp (Stack)
-  "Return t if the cmd is an incorrect-entry and the helpstack is get-proc-help capped."
+  "Return t if the cmd is an incorrect-entry and the helpstack is next-step-help capped."
   (hpp_get_proc_help_pairp Stack #'incorrect-entry-cmdp))
 
 (defun hpp_why_wrong_cmdp_incorrect_entry_pairp (Stack)
@@ -515,7 +515,7 @@
 ;;; These tests handle correct-entry commands and entries of specific types.
 
 (defun hpp_get_proc_help_correct_entry_pairp (Stack)
-  "Return t if the cmd is an correct-entry and the helpstack is get-proc-help capped."
+  "Return t if the cmd is an correct-entry and the helpstack is next-step-help capped."
   (hpp_get_proc_help_pairp Stack #'correct-entry-cmdp))
 
 (defun hpp_why_wrong_cmdp_correct_entry_pairp (Stack)
@@ -553,7 +553,7 @@
   
 
 (defun hpp_get_proc_help_eq_entry_pairp (Stack)
-  "Return t if the cmd is an eq-entry and the helpstack is get-proc-help capped."
+  "Return t if the cmd is an eq-entry and the helpstack is next-step-help capped."
   (hpp_get_proc_help_pairp Stack #'eq-entry-cmdp))
 
 (defun hpp_why_wrong_cmdp_eq_entry_pairp (Stack)
@@ -573,7 +573,7 @@
 ;;; These tests handle incorrect-eq-entry commands and entries of specific types.
 
 (defun hpp_get_proc_help_incorrect_eq_entry_pairp (Stack)
-  "Return t if the cmd is an incorrect-eq-entry and the helpstack is get-proc-help capped."
+  "Return t if the cmd is an incorrect-eq-entry and the helpstack is next-step-help capped."
   (hpp_get_proc_help_pairp Stack #'incorrect-eq-entry-cmdp))
 
 (defun hpp_why_wrong_cmdp_incorrect_eq_entry_pairp (Stack)
@@ -593,7 +593,7 @@
 ;;; These tests handle correct-eq-entry commands and entries of specific types.
 
 (defun hpp_get_proc_help_correct_eq_entry_pairp (Stack)
-  "Return t if the cmd is an correct-eq-entry and the helpstack is get-proc-help capped."
+  "Return t if the cmd is an correct-eq-entry and the helpstack is next-step-help capped."
   (hpp_get_proc_help_pairp Stack #'correct-eq-entry-cmdp))
 
 (defun hpp_why_wrong_cmdp_correct_eq_entry_pairp (Stack)
@@ -630,7 +630,7 @@
       hpp_why_wrong_objp_correct_noneq_entry_pairp))
 
 (defun hpp_get_proc_help_noneq_entry_pairp (Stack)
-  "Return t if the cmd is an noneq-entry and the helpstack is get-proc-help capped."
+  "Return t if the cmd is an noneq-entry and the helpstack is next-step-help capped."
   (hpp_get_proc_help_pairp Stack #'noneq-entry-cmdp))
 
 (defun hpp_why_wrong_cmdp_noneq_entry_pairp (Stack)
@@ -650,7 +650,7 @@
 ;;; These tests handle incorrect-noneq-entry commands and entries of specific types.
 
 (defun hpp_get_proc_help_incorrect_noneq_entry_pairp (Stack)
-  "Return t if the cmd is an incorrect-noneq-entry and the helpstack is get-proc-help capped."
+  "Return t if the cmd is an incorrect-noneq-entry and the helpstack is next-step-help capped."
   (hpp_get_proc_help_pairp Stack #'incorrect-noneq-entry-cmdp))
 
 (defun hpp_why_wrong_cmdp_incorrect_noneq_entry_pairp (Stack)
@@ -670,7 +670,7 @@
 ;;; These tests handle correct-noneq-entry commands and entries of specific types.
 
 (defun hpp_get_proc_help_correct_noneq_entry_pairp (Stack)
-  "Return t if the cmd is an correct-noneq-entry and the helpstack is get-proc-help capped."
+  "Return t if the cmd is an correct-noneq-entry and the helpstack is next-step-help capped."
   (hpp_get_proc_help_pairp Stack #'correct-noneq-entry-cmdp))
 
 (defun hpp_why_wrong_cmdp_correct_noneq_entry_pairp (Stack)
@@ -706,7 +706,7 @@
       hpp_why_wrong_objp_correct_assertion_pairp))
 
 (defun hpp_get_proc_help_assertion_pairp (Stack)
-  "Return t if the cmd is an assertion and the helpstack is get-proc-help capped."
+  "Return t if the cmd is an assertion and the helpstack is next-step-help capped."
   (hpp_get_proc_help_pairp Stack #'assertion-cmdp))
 
 (defun hpp_why_wrong_cmdp_assertion_pairp (Stack)
@@ -726,7 +726,7 @@
 ;;; These tests handle incorrect-assertion commands and entries of specific types.
 
 (defun hpp_get_proc_help_incorrect_assertion_pairp (Stack)
-  "Return t if the cmd is an incorrect-assertion and the helpstack is get-proc-help capped."
+  "Return t if the cmd is an incorrect-assertion and the helpstack is next-step-help capped."
   (hpp_get_proc_help_pairp Stack #'incorrect-assertion-cmdp))
 
 (defun hpp_why_wrong_cmdp_incorrect_assertion_pairp (Stack)
@@ -746,7 +746,7 @@
 ;;; These tests handle correct-assertion commands and entries of specific types.
 
 (defun hpp_get_proc_help_correct_assertion_pairp (Stack)
-  "Return t if the cmd is an correct-assertion and the helpstack is get-proc-help capped."
+  "Return t if the cmd is an correct-assertion and the helpstack is next-step-help capped."
   (hpp_get_proc_help_pairp Stack #'correct-assertion-cmdp))
 
 (defun hpp_why_wrong_cmdp_correct_assertion_pairp (Stack)
@@ -783,7 +783,7 @@
       hpp_why_wrong_objp_correct_solution_state_change_pairp))
 
 (defun hpp_get_proc_help_solution_state_change_pairp (Stack)
-  "Return t if the cmd is an solution-state-change and the helpstack is get-proc-help capped."
+  "Return t if the cmd is an solution-state-change and the helpstack is next-step-help capped."
   (hpp_get_proc_help_pairp Stack #'solution-state-change-cmdp))
 
 (defun hpp_why_wrong_cmdp_solution_state_change_pairp (Stack)
@@ -803,7 +803,7 @@
 ;;; These tests handle incorrect-solution-state-change commands and entries of specific types.
 
 (defun hpp_get_proc_help_incorrect_solution_state_change_pairp (Stack)
-  "Return t if the cmd is an incorrect-solution-state-change and the helpstack is get-proc-help capped."
+  "Return t if the cmd is an incorrect-solution-state-change and the helpstack is next-step-help capped."
   (hpp_get_proc_help_pairp Stack #'incorrect-solution-state-change-cmdp))
 
 (defun hpp_why_wrong_cmdp_incorrect_solution_state_change_pairp (Stack)
@@ -823,7 +823,7 @@
 ;;; These tests handle correct-solution-state-change commands and entries of specific types.
 
 (defun hpp_get_proc_help_correct_solution_state_change_pairp (Stack)
-  "Return t if the cmd is an correct-solution-state-change and the helpstack is get-proc-help capped."
+  "Return t if the cmd is an correct-solution-state-change and the helpstack is next-step-help capped."
   (hpp_get_proc_help_pairp Stack #'correct-solution-state-change-cmdp))
 
 (defun hpp_why_wrong_cmdp_correct_solution_state_change_pairp (Stack)
@@ -858,7 +858,7 @@
       hpp_why_wrong_objp_correct_solution_action_pairp))
 
 (defun hpp_get_proc_help_solution_action_pairp (Stack)
-  "Return t if the cmd is an solution-action and the helpstack is get-proc-help capped."
+  "Return t if the cmd is an solution-action and the helpstack is next-step-help capped."
   (hpp_get_proc_help_pairp Stack #'solution-action-cmdp))
 
 (defun hpp_why_wrong_cmdp_solution_action_pairp (Stack)
@@ -878,7 +878,7 @@
 ;;; These tests handle incorrect-solution-action commands and entries of specific types.
 
 (defun hpp_get_proc_help_incorrect_solution_action_pairp (Stack)
-  "Return t if the cmd is an incorrect-solution-action and the helpstack is get-proc-help capped."
+  "Return t if the cmd is an incorrect-solution-action and the helpstack is next-step-help capped."
   (hpp_get_proc_help_pairp Stack #'incorrect-solution-action-cmdp))
 
 (defun hpp_why_wrong_cmdp_incorrect_solution_action_pairp (Stack)
@@ -898,7 +898,7 @@
 ;;; These tests handle correct-solution-action commands and entries of specific types.
 
 (defun hpp_get_proc_help_correct_solution_action_pairp (Stack)
-  "Return t if the cmd is an correct-solution-action and the helpstack is get-proc-help capped."
+  "Return t if the cmd is an correct-solution-action and the helpstack is next-step-help capped."
   (hpp_get_proc_help_pairp Stack #'correct-solution-action-cmdp))
 
 (defun hpp_why_wrong_cmdp_correct_solution_action_pairp (Stack)

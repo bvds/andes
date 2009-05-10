@@ -223,7 +223,7 @@
       ))
 
 (defun get_proc_help_commandp (Command)
-  "Is this command a Get-Proc-Help call?"
+  "Is this command a next-step-help call?"
   (get-proc-help-cmdp Command))
 
 (defun why_wrong_commandp (Command)

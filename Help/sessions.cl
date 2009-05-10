@@ -235,15 +235,18 @@
     ;; assert-compound-object
     ;; label-radius label-angle
     ;; lookup-force lookup-torque lookup-line
-    ;; lookup-vector lookup-eqn-string
+    ;; lookup-vector
     ;; lookup-mc-answer
     ;; delete-object
     ;; check-answer
     ;; calculate-equation-string (find variable on lhs of equation)
     ;;                           (probably not in Andes3)
+    ;; BvdS:  May want to switch inner and outer cond:
     (cond
       ((string= action "new-object")
        (cond 
+	 ((string= type "equation")
+	  (lookup-eqn-string text id)) ;Unmodified Andes2 call
 	 ((string= type "circle")
 	  `(((:action . "log") 
 	     (:assoc . (("DRAW-BODY" . "(BODY BALL)"))) 
@@ -273,8 +276,11 @@
 	    ((:action . "modify-object") (:id . ,id) (:mode . "right"))))))
 
       ((string= action "modify-object")
-       `(((:action . "set-score") (:score . 57))
-	 ((:action . "modify-object") (:id . ,id) (:mode . "right"))))
+       (cond 
+	 ((string= type "equation")
+	  (lookup-eqn-string text id)) ;Unmodified Andes2 call
+	 (t  `(((:action . "set-score") (:score . 57))
+	       ((:action . "modify-object") (:id . ,id) (:mode . "right"))))))
 
       ((string= action "delete-object")
        `(((:action . "set-score") (:score . 52))
@@ -288,7 +294,7 @@
   "ask for help, or do a step in a help dialog" 
   (env-wrap 
     ;; Andes2 had calls to:
-    ;; get-proc-help (help-hint)
+    ;; next-step-help
     ;; explain-more
     ;; handle-student-response  (choose a quantity or a principle; in new version, typed in help chat window)
     ;; why-wrong-equation (what's wrong error)
