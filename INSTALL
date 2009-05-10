@@ -20,6 +20,9 @@ to download this library is (from the Andes root directory):
 Likewise, at least for Andes2, one can use the solutions repository:
    git clone ssh://git@andestutor.org/home/git/Andes-solutions.git/ solutions
 
+ImageMagick http://www.imagemagick.org is used to dimension graphics
+files.  This is included in standard linux distributions.
+
 =============== Web Server =================================
 
 # Install the hunchentoot web server ttp://www.weitz.de/hunchentoot/
