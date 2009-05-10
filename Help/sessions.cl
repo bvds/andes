@@ -179,38 +179,48 @@
       ;;   check-entries nil
       ;;   set-stats (if there was an old score)
       ;;
-      (push `((:action . "new-object") (:id . "statement") (:type . "phrase") 
-	      (:mode . "locked") (:x . 3) (:y . 5) (:width . 80) 
-	      (:text . ,(problem-text *cp*))) replies)
-      (when (problem-graphic *cp*)
-	(push `((:action . "new-object") (:id . "a1") (:type . "graphics") 
-		(:mode . "locked") (:x . 53) (:y . 15) (:width . 150) 
-		(:height . 180)
-		(:href . ,(strcat "/images/" (problem-graphic *cp*)))) 
-	      replies)
+      (let ((y 10) (i 0))
+	(dolist  (line (problem-statement *cp*))
+	  (push `((:action . "new-object") (:type . "phrase") 
+		  (:id . ,(format nil "statement~A" (incf i))) 
+		  (:mode . "locked") (:x . 3) (:y . ,(setf y (+ y 10))) 
+		  (:width . 80) (:text . ,line)) replies))
+
+	(when (problem-graphic *cp*)
+	  (let ((dims (problem-graphic-dimensions (problem-graphic *cp*))))
+	    (if dims		
+		(push `((:action . "new-object") (:id . "graphic") 
+			(:type . "graphics") (:mode . "locked") 
+			(:x . 10) (:y . ,(+ y 5)) 
+			(:width . ,(car dims)) (:height . ,(cadr dims))
+			;; This is the URL for the graphic, which may not
+			;; match its location on the server filesystem.
+			(:href . ,(strcat "/images/" (problem-graphic *cp*))))
+		replies)
+		(error "Problem graphic file ~A missing" 
+		       (problem-graphic *cp*))))))
+      
+      ;;  New:  return any predefs, any work done, and score to the client.
+      
+      (push `((:action . "new-object") (:id . "a2") (:type . "phrase") 
+	      (:mode . "right") (:x . 200) (:y . 55) 
+	      (:text . "g = 9.8 m/s^2 is the gravitational acceleration \nnear the surface of the earth.")) 
+	    replies)
 	
-	;;  New:  return problem statement, any graphic, any predefs, any work
-	;;  done, and score to the client.
-	
-	(push `((:action . "new-object") (:id . "a2") (:type . "phrase") 
-	 (:mode . "right") (:x . 200) (:y . 55) 
-		(:text . "g = 9.8 m/s^2 is the gravitational acceleration \nnear the surface of the earth.")) replies)
-	
-	(push `((:action . "new-object") (:id .  "a2.5") (:type . "phrase") 
+      (push `((:action . "new-object") (:id .  "a2.5") (:type . "phrase") 
 		(:mode . "right") (:x . 200) (:y . 75) (:text . "T0 is the time.")) 
-	      replies)
-	
-	(push `((:action . "log") 
-		(:subscores . (("NSH_BO_Call_Count" . (0 0))
-			       ("WWH_BO_Call_Count" . (0  0))
-			       ("Correct_Entries_V_Entries" . (0 0 0)) 
-			       ("Correct_Answer_Entries_V_Answer_Entries" .  (0 0 0)))))
-	      replies)
-	
-	(push `((:action . "set-score") (:score . 0)) replies)
-	
-	replies))))
-  
+	    replies)
+      
+      (push `((:action . "log") 
+	      (:subscores . (("NSH_BO_Call_Count" . (0 0))
+			     ("WWH_BO_Call_Count" . (0  0))
+			     ("Correct_Entries_V_Entries" . (0 0 0)) 
+			     ("Correct_Answer_Entries_V_Answer_Entries" .  (0 0 0)))))
+	    replies)
+      
+      (push `((:action . "set-score") (:score . 0)) replies)
+      
+      replies)))
 
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
@@ -311,8 +321,9 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
   (env-wrap 
     ;; Andes2 had calls to:
     ;; get-stats (instead, we need to send grade to LMS)
-    ;; close-problem
     ;; need to maybe store state
+
+    (close-problem)
     (solver-unload)
 
     (let ((prob (help-env-problem webserver:*env*)))

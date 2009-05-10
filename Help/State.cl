@@ -181,15 +181,10 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; close-problem -- close the specified problem 
-;; argument(s): 
-;;  Name:  The problem id
-;;  Done:  If t singifies that the student is done with the problem and that
-;;    we should give them a message dealing with their scores.
 ;; returns: unused
 ;; note(s): should be current problem
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun do-close-problem (name Done)
-   (declare (ignore name)) 
+(defun close-problem ()
    ;; empty symbol table and entry list
    (setf *variables* nil)
    (setf **grammar** nil)
@@ -199,15 +194,8 @@
    (setf *cp* NIL)
 
    ;; Set the current problem instance time from the universal time.
-   (setq *Current-Problem-Instance-Start-UTime* (get-universal-time))
+   (setq *Current-Problem-Instance-Start-UTime* (get-universal-time)))
    
-   ;; Test whether or not the student has signalled that they are "done."
-   ;; IF not then just generate a green-turn.  If they do say done then in
-   ;; the future we will generate a green-turn here but we will leave that
-   ;; stubbed for now.
-   (if (null Done) 
-       (make-green-turn)
-     (make-green-turn)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

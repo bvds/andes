@@ -286,12 +286,6 @@
   "Lookup the specified api-names id index."
   (cadr (assoc (car API-Call) **Entry-API-ID-Locs**)))
 
-
-;;; Given a list representing an API call lookup the entry api locs
-;;; and return the api-call id.
-;;(defun lookup-api-call-id-loc (Call)
-;;  (cadr (assoc (car Call) **Entry-API-ID-Locs**)))
-
 ;;; Given an api call look up its id loc and then 
 ;;; extract the id from it.
 (defun api-lookup-id (Call)

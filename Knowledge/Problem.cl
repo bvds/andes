@@ -606,7 +606,7 @@
     (problem-graph Problem)))))
 
 (defun problem-graphic-dimensions (graphic)
-  "Return list with witdth and height of graphic file"
+  "Return list with width and height of graphic file"
   ;; Assume all images are in this subdirectory:
   (let* ((graphic-dir (merge-pathnames "images/" *andes-path*))
 	 (file (namestring (merge-pathnames graphic graphic-dir)))
