@@ -604,7 +604,18 @@
 		    (collect-psmgraph-optags
 		     (enode-path n))))
     (problem-graph Problem)))))
-	  
+
+(defun problem-graphic-dimensions (graphic)
+  "Return list with witdth and height of graphic file"
+  ;; Assume all images are in this subdirectory:
+  (let* ((graphic-dir (merge-pathnames "images/" *andes-path*))
+	 (file (namestring (merge-pathnames graphic graphic-dir)))
+	 (id (sb-ext:run-program "identify" 
+				 (list "-ping" "-format" "(%w %h)" file)
+				 :output :stream :search t)))
+    ;; Only return something if the program was successful.
+    (when (= 0 (sb-ext:process-exit-code id))
+      (read (sb-ext:process-output id)))))
 
 #|  This is disused at present since noone is using the flag.
 ;;; Problem testing
