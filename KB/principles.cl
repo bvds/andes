@@ -1084,7 +1084,7 @@
 ;;;   script to fix the math notation
 ;;;   perl -pi.orig -e 's/& /&amp; /g; s/([^_])_([xyz])/$1<sub>$2<\/sub>/g; s/\^(.)/<sup>$1<\/sup>/g; s/\*/ /g;' principles.json
 ;;;   script to fix the special characters
-;;;   perl -pi.orig -e 's/\$w/&omega;/g; s/\$p/&pi;/g; s/\$S/&Sigma/g; s/\$q/&theta;/g; s/\$l/&lambda;/g; s/\$a/&alpha;/g; s/\$r/&rho;/g; s/\$F/&Phi;/g; s/\$e/&epsilon;/g; s/\$m/&mu;/g; s/\$t/&tau;/g; s/\$b/&beta;/g;' principles.json
+;;;   perl -pi.orig -e 's/\$W/&Omega;/g; s/\$w/&omega;/g; s/\$p/&pi;/g; s/\$S/&Sigma/g; s/\$q/&theta;/g; s/\$l/&lambda;/g; s/\$a/&alpha;/g; s/\$r/&rho;/g; s/\$F/&Phi;/g; s/\$e/&epsilon;/g; s/\$m/&mu;/g; s/\$t/&tau;/g; s/\$b/&beta;/g;' principles.json
 
 
 (defun principles-json-file ()
