@@ -329,14 +329,14 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
     ;; get-stats (instead, we need to send grade to LMS)
     ;; need to maybe store state
 
-    (close-problem)
+    (do-close-problem)
     (solver-unload)
 
     (let ((prob (help-env-problem webserver:*env*)))
       ;; this tells the session manager that the session is over.
       (setf webserver:*env* nil)
-      `(((:action . "show-hint") 
-	 (:text . ,(format nil "Finished working on problem ~A." prob)))
+      `(((:action . "problem-closed") 
+	 (:URL . "http://www.webassign.net/someting/or/other"))
 	((:action . "log") 
 	 (:subscores . (("NSH_BO_Call_Count" . (-0.05 0)) 
 			("WWH_BO_Call_Count" . (-0.05 0))

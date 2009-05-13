@@ -276,12 +276,12 @@ For the rest of this, I am going to skip the log stuff.
   {"action": "modify-object", "id": "a14", "mode": "right"}
 ]
 
-10:22 Ask for a hint.  The student replies by typing in the chat window.
+10:22 Ask for a hint.  The student replies by typing in the help area.
 
 {"method": "seek-help", "params": {"time": 571.001,
 	   "action": "help-button"}, "id": 17}
 
-Make the chat window text box come into focus.
+Make the help text entry box come into focus.
 
 [
   {"action": "show-hint", "text": "Now that you have stated all of the given information, you should start on the major principles. What quantity is the problem seeking?"},
@@ -361,11 +361,10 @@ combined.
 ]
 
 Student asks for help by pressing the help button.  They can also ask for
-help by typing "help" or "?" in the help window.  Pressing the help button
-creates the help window if it doesn't exist and brings the hint window into 
-focus.  
+help by typing "help" or "?" in the help text entry box.  Pressing the help 
+button opens the help pane.
 
-Unlike Andes2, there is only one help button.  Also, the help window is 
+Unlike Andes2, there is only one help button.  Also, the help pane is 
 non-blocking, thus there is no need for the "OK" button seen in Andes2.
 
 {"method": "seek-help", "params": {"time": 860.001,
@@ -396,7 +395,7 @@ non-blocking, thus there is no need for the "OK" button seen in Andes2.
 
 15:05  Ask for Fwall1.  I would like to avoid another button on the interface.
 We will allow two methods:  "Fwall1=?" in an equation box or something like
-"solve for Fwall1" in the hint window.  The latter is shown here.
+"solve for Fwall1" in the help pane.  The latter is shown here.
 
 {"method": "seek-help", "params": {"time": 905.001,
 	   "action": "get-help", "text": "Solve for Fwall1"}, "id": 27}
@@ -443,17 +442,16 @@ box included with the original problem statement with "text" set to
 ]
 
 16:24  Close problem.  This is done by clicking on the browser back button, 
-the browsers reload button, or the close window button.  The hint window
-may persist after a problem is closed.
+the browsers reload button, the submit button, or the close window button.
 
 {"method": "close-problem", "params": {"time": 984.200}, "id": 31}
 
 [
-  {"action": "show-hint", "text": "Finished working on problem s2e."},
+  {"action": "problem-closed", "url": "http://www.webassign.net/something"},
   {"action": "log", "subcores": {"NSH_BO_Call_Count": [-0.05, 0], 
   "WWH_BO_Call_Count": [-0.05,0],
-	     "Correct_Entries_V_Entries": [0.05,17,19],  
-	   " Correct_Answer_Entries_V_Answer_Entries":  [0.05,1,2]}}
+	   "Correct_Entries_V_Entries": [0.05,17,19],  
+	   "Correct_Answer_Entries_V_Answer_Entries":  [0.05,1,2]}}
 ]
 
 *******************************************************************************

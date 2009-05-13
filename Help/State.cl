@@ -184,7 +184,7 @@
 ;; returns: unused
 ;; note(s): should be current problem
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun close-problem ()
+(defun do-close-problem ()
    ;; empty symbol table and entry list
    (setf *variables* nil)
    (setf **grammar** nil)

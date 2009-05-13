@@ -246,7 +246,7 @@
 	    "action": {
 	      "type": "string",
 	      "optional": false,
-	      "enum": ["set-score","log","show-hint","show-hint-link","focus-hint-text-box"]
+	      "enum": ["set-score","log","problem-closed"]
 	    },
 	    "text": {"type": "string", "optional": true},
 	    "score": {
@@ -254,15 +254,15 @@
 	      "optional": true,
 	      "description": "Only for set-score"
 	    },
+	    "url": {
+	      "type": "string",
+	      "optional": true,
+	      "description": "Only for problem-closed.  Next URL for the browser to go to.  Not yet sure if this will be used."
+	    },
 	    "subscores": {
 	      "type": "object",
 	      "optional": true,
 	      "description": "Only for log"
-	    },
-	    "value": {
-	      "type": "string",
-	      "optional": true,
-	      "description": "only for hints"
 	    }
 	  }
 	}
