@@ -261,33 +261,36 @@
 	  (studententry-id entry) (studententry-prop entry))
   (push Entry *StudentEntries*))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; remove-entry -- remove existing student entry, undoing its effects on state
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; delete-object -- remove existing student entry, undoing its effects on state
 ;; Arguments: id  	the workbench-assigned entry id
-;; Returns: T or NIL according as an entry was actually deleted
-;; Note: safe to call if there is no existing entry.
+;; Returns:  modify-object mode to deleted
+;;           Should update score.
+;;           In Andes2, this was done as a "DDE-POST", no reply.
 ;;
 ;; Calls back to undo-entry in EntryInterpreter module to do the work of
 ;; undoing an entry, because that is where the knowledge of what to do is.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun remove-entry (Id)
- "Remove any existing student entry with specified ID, undoing its effects"
- (let ((old-entry (find-entry Id)))
-   (when old-entry
-      (format *debug-help* "Removing entry: ~A ~S~%" 
-	      (studententry-id old-entry) (studententry-prop old-entry))
-      (undo-entry old-entry))
-      ; and remove it from Entry listS
-      (setf *StudentEntries*
-        (delete Id *StudentEntries* :key #'StudentEntry-ID :test #'equal))
-      ; in case useful: return T if entry was in fact deleted
-      T))
-	
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun delete-object (Id)
+  "Remove any existing student entry with specified ID, undoing its effects"
+  (let ((old-entry (find-entry Id)))
+    (unless old-entry (error "Can't delete entry ~A:  missing." id))
+    (format *debug-help* "Removing entry: ~A ~S~%" 
+	    (studententry-id old-entry) (studententry-prop old-entry))
+    (undo-entry old-entry)
+    ;; and remove it from Entry listS
+    (setf *StudentEntries*
+	  (delete Id *StudentEntries* :key #'StudentEntry-ID :test #'equal))
+    ;; Should also update score?
+    `(((:action . "modify-object") (:id . ,id) (:mode . "deleted")))
+      (error "Can't delete entry ~A:  missing." id)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; find-entry -- lookup student entry by ID
 ;; Arguments: id   workbench-assigned entry id
 ;; Returns: student entry structure or NIL if not found
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun find-entry (Id)
   "find student entry by workbench assigned entry id"
   (find id *StudentEntries* :key #'StudentEntry-ID :test #'equal))

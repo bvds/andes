@@ -243,6 +243,9 @@
     ;;                           (probably not in Andes3)
     ;; BvdS:  May want to switch inner and outer cond:
     (cond
+      ((string= action "delete-object")
+       (delete-object id))
+
       ((string= action "new-object")
        (cond 
 	 ((string= type "equation")
@@ -282,10 +285,7 @@
 	 (t  `(((:action . "set-score") (:score . 57))
 	       ((:action . "modify-object") (:id . ,id) (:mode . "right"))))))
 
-      ((string= action "delete-object")
-       `(((:action . "set-score") (:score . 52))
-	 ((:action . "object-deleted") (:id . ,id))))
-      (t (error "undefined action ~A" action)))))
+      (t (error "Undefined action ~A." action)))))
 
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  

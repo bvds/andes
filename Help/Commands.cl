@@ -711,26 +711,6 @@
      ;; In the event that an unrecognized type is supplied handle it like so.
      (t (error "Unrecognized mc-answer entry supplied: ~a ~a" ID Value)))))
 
-
-
-;;; ===========================================================================
-;;; Delete types
-;;; Deletions are kept separate because of the
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; delete-object -- delete the student defined object with the given label and
-;;  or id from the student entries list
-;; argument(s):
-;;  label: the label given to the object by the student
-;;  id: the unique is assigned to the object by the workbench
-;; returns:
-;;  the newe student-entries list. return value is ignored by the workbench
-;; note(s):
-;;  marks the corresponding system entries as "unentered" If the object involves
-;;  a variable, the removes that variable from the symbol table.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun delete-object (label &optional id)
-  (on-delete-object label id))
   
 ;;; ===========================================================================
 ;;; Help API Types.
