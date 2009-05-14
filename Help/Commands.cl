@@ -79,29 +79,14 @@
 (in-package :cl-user)
 
 
-
-
-
-		     
-;;;; ============================================================================
-;;;; Utility functions.
-;;;; These functions are called by many of the api calls located below.
-
-
-;; general procedure to apply to non-equation entries
-;; The result (generated here) will 
-;; be passed back via return-turn.
-(defun handle-non-eq (Entry)
-  (check-noneq-entry entry))
-
-;;; =============================================================================
+;;; ===========================================================================
 ;;; State API calls.
 ;;; The do definitions are located in state.cl
 
 
-;;------------------------------------------------------------------------------
+;;-----------------------------------------------------------------------------
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Check-entries -- start or stop loading saved entries.
 ;; argument:
 ;;  State: T or nil indicating that the workbench is beginning to or will now
@@ -117,15 +102,15 @@
       (warn "Unmatched check-entries call made for ~A." State)
     (setq **Checking-Entries** State)))
 
-;;; ============================================================================
+;;; ===========================================================================
 ;;; Statistics component.
 ;;; The code in this section is used to query the automatic statistics code 
 ;;; for student grading.  
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; get-stats -- Get the current saved statistics.
-;;   This function when called returns a stat-turn containing a space-separated 
-;;   string of tuples representing the student's scores.  
+;;   This function when called returns a stat-turn containing a 
+;;   space-separated string of tuples representing the student's scores.  
 ;; Argument:
 ;;  Type:  Either 'scores' or 'all' or 'persist
 ;;    If 'stats' then the values will be the total list of stats that Andes is
@@ -134,7 +119,7 @@
 ;;       weights assigned to them for computation of the total.
 ;;    If 'persist then only 
 ;; Result:  A stat-turn containing the result values.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun get-stats (Type)
   (on-stats-get-stats Type))
 
@@ -142,8 +127,8 @@
 ;; set-stats -- restore specified score values
 ;;
 ;; This is used by the workbench to restore persistent scores saved in the
-;; the solution file on problem open. The implementation function that does the 
-;; work is in HelpStructs/RuntimeTest.cl
+;; the solution file on problem open. The implementation function that does 
+;; the work is in HelpStructs/RuntimeTest.cl
 ;;
 ;; Argument list for this API call should be a Lisp-readable sequence of pairs 
 ;; of the form (score value-expr) (score value-expr) (score value-expr) ...
@@ -165,7 +150,7 @@
   (set-runtime-test-stats score-value-list))
 
 
-;;; ============================================================================
+;;; ===========================================================================
 ;;; NonEq-Entry commands
 ;;; The APIs in this section handle NonEq entries.
 ;;;
@@ -193,7 +178,7 @@
 ;;  table this name paired with the system's name for the same quantity.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun assert-object (label name &optional time id xpos ypos)
-  (handle-non-eq (on-assert-object label name time id xpos ypos)))
+  (check-noneq-entry (on-assert-object label name time id xpos ypos)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; assert-compound-object - checks the correctness of a student defined com-
@@ -211,7 +196,7 @@
 ;;  bol table this name paired with the system's name for the same quantity.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun assert-compound-object (label names &optional time id)
-  (handle-non-eq (on-assert-compound-object label names time id)))
+  (check-noneq-entry (on-assert-compound-object label names time id)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-vector -- check the correctness of a vector drawn by the student. May
@@ -237,10 +222,10 @@
 ;;  if the vector is correct, the help system marks the corresponding system
 ;;  entry as "entered", defines the magnitude and direction variables, and
 ;;  enters the variables in the symbol table.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun lookup-vector (label avg-inst type system dir mag time id 
                        &key given-mag given-xc given-yc given-zc drawn-dir)
-  (handle-non-eq 
+  (check-noneq-entry 
      (on-lookup-vector label avg-inst type system dir mag time id
                         given-mag given-xc given-yc given-zc drawn-dir)))
 
@@ -264,12 +249,12 @@
 ;;  if the line is correct, the help system marks the corresponding system
 ;;  entry as "entered", defines the magnitude and direction variables, and
 ;;  enters the variables in the symbol table.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun lookup-line (label body dir mag &optional time id)
-  (handle-non-eq 
+  (check-noneq-entry 
      (on-lookup-line label body dir mag time id)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-force - check correctness of a force vector drawn by the student
 ;; argument(s):
 ;;  label: the force label
@@ -288,8 +273,8 @@
 ;;   magnitude of the force (zero vs. non-zero) or nil if unspecified
 ;;  time:
 ;;   the time period during which the force is constant; if nil and system is
-;;   a student-defined system, the time will be taken from the system definition
-;;  id:
+;;   a student-defined system, the time will be taken from the system 
+;;  definition id:
 ;;   id assigned to the force vector by the workbench
 ;; returns:
 ;;  entry status return value -- see end of code for description of this
@@ -297,14 +282,14 @@
 ;;   if the force is correct then the help system marks the corresponding sys-
 ;;   tem entry as "entered" it also defines magnitude and direction variables
 ;;   for the force, and enters them into the symbol table.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun lookup-force (label type system agent dir mag &optional time id
                      &key given-mag given-xc given-yc given-zc drawn-dir)
-  (handle-non-eq 
+  (check-noneq-entry 
     (on-lookup-force label type system agent dir mag time id
                      given-mag given-xc given-yc given-zc drawn-dir)))
   
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-torque - check correctness of a torque vector drawn by student
 ;; Arguments:
 ;; label: the torque label
@@ -323,14 +308,14 @@
 ;; Returns:  entry status return value
 ;; 
 ;; Side Effects: Updates state as for other vector entries
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun lookup-torque (label net body axis dir mag time id
                       &key given-mag given-xc given-yc given-zc drawn-dir)
- (handle-non-eq  
+ (check-noneq-entry  
    (on-lookup-torque label net body axis dir mag time id
                      given-mag given-xc given-yc given-zc drawn-dir)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; label-angle -- assigns the given label to the angle between two objects with
 ;;  given degrees size
 ;; argument(s):
@@ -345,9 +330,9 @@
 ;;  entry status return value -- see end of code for description of this
 ;; note(s):
 ;;  adds angle label to the list of variables
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun label-angle (label degrees id-vector1 id-vector2 id-angle &optional axis)
- (handle-non-eq
+ (check-noneq-entry
   (on-label-angle label degrees id-vector1 id-vector2 id-angle axis)))
 
 ;;
@@ -356,10 +341,10 @@
 ;; Full description to be added.
 ;;
 (defun define-angle-variable (label degrees label1 label2 id-angle)
- (handle-non-eq
+ (check-noneq-entry
   (on-define-angle-variable label degrees label1 label2 id-angle)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; label-radius -- label radius of revolution of an object moving in a circle
 ;; argument(s):
 ;;  label: the label given to the radius by the student
@@ -371,7 +356,7 @@
 ;;  add a variable for the radius to the list of variables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun label-radius (label id name)
- (handle-non-eq (on-label-radius label id name)))
+ (check-noneq-entry (on-label-radius label id name)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; define-variable - define a variable to stand for a certain quantity. this is
@@ -401,8 +386,9 @@
 ;;  as "entered" and enters the student's variable name into the symbol table
 ;;  paired with the corresponding system variable
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun define-variable (var type quant body time agent id &optional directionp)
-  (handle-non-eq
+  (check-noneq-entry
    (on-define-variable var type quant body time agent id directionp)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -417,10 +403,10 @@
 ;;  entry status return value -- see end of code for description of this
 ;; note(s):
 ;;  adds x and y axes to (student entries) -- asserts observed to assessor
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun assert-x-axis (body dir
 		      &optional id (x-label "x") (y-label "y") (z-label "z"))
- (handle-non-eq
+ (check-noneq-entry
    (on-assert-x-axis body dir id x-label y-label z-label)))
 
 ;;; ===========================================================================
@@ -430,7 +416,7 @@
 ;;; ===========================================================================
 ;;; Algebra API calls.
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; calculate-equation-string -- takes an equation, substitutes all known values
 ;;  that have been entered by the student into it and the simplifies the result.
 ;;  returns the simplified string. lookup-eqn-string will be called on the ori-
@@ -447,7 +433,7 @@
 ;;  otherwise nil
 ;; note(s):
 ;;  creates a new equation entry representing the newly simplified equation
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun eqn-match (s1 s2) 
     (equal (trim-eqn s1) (trim-eqn s2)))
 
@@ -543,7 +529,7 @@
     (make-eqn-turn studText)
     ))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; solve-for-var -- solve for the given var using the equations the student has
 ;;  entered so far. Only uses correct equations, so the result must also be
 ;;  correct
@@ -557,11 +543,11 @@
 ;;  the value of the var if possible, otherwise it gives an equation with all
 ;;  other known values substituded in.
 ;; note(s):
-;;  adds the new equation to the list of entered equations, and the value of the
-;;  variable, if found, to the value of the corresponding scalar/magnitude.
+;;  adds the new equation to the list of entered equations, and the value of 
+;; the variable, if found, to the value of the corresponding scalar/magnitude.
 ;;
 ;; It is also designed to log the result of the call for future use.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun solve-for-var (var new-id)
   (let* ((tmp (student-to-canonical var))
 	 (result (if tmp (solver-power-solve 31 (student-to-canonical var) new-id) nil))
@@ -613,10 +599,10 @@
 
 
 
-;;; =============================================================================
+;;; ===========================================================================
 ;;; Answer API Calls
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; check-answer -- lookup a students answer in the answer box
 ;; argument(s):
 ;;  answer: the contents of the answer field the student entered
@@ -627,7 +613,7 @@
 ;; note(s):
 ;;  This uses the same hack on lookup-eqn-string to obtain the entry.  It works
 ;;  but it ain't exactly clean.  
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun check-answer (answer answer-id)
   ; for Skatz experiment, and maybe generally:
   ; remember done state before checking answer to detect event of
@@ -668,7 +654,7 @@
        (format NIL "http://136.142.94.84/cgi-bin/navalkcds?user=~a;prob=~a"
                    (help-env-student webserver:*env*) (problem-name *cp*)))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-mc-answer
 ;; Argument(s):
 ;;   ID:  The MC answer ID e.g. "Done-1" being selected.
@@ -720,18 +706,18 @@
      ;; Handle the multiple choice case by generating an entry and then
      ;; handling it like any other.
      ((string-equal IDPref "MC") 
-      (handle-non-eq (do-check-mc-multiple-choice-answer ID Value)))
+      (check-noneq-entry (do-check-mc-multiple-choice-answer ID Value)))
 
      ;; In the event that an unrecognized type is supplied handle it like so.
      (t (error "Unrecognized mc-answer entry supplied: ~a ~a" ID Value)))))
 
 
 
-;;; =============================================================================
+;;; ===========================================================================
 ;;; Delete types
 ;;; Deletions are kept separate because of the
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; delete-object -- delete the student defined object with the given label and
 ;;  or id from the student entries list
 ;; argument(s):
@@ -742,7 +728,7 @@
 ;; note(s):
 ;;  marks the corresponding system entries as "unentered" If the object involves
 ;;  a variable, the removes that variable from the symbol table.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun delete-object (label &optional id)
   (on-delete-object label id))
   
@@ -781,7 +767,7 @@
 		       response-code)
 	       NIL))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; why-wrong-object -- get a message explaining why an entry was judged to be
 ;;  incorrect. the message is displayed in the workbench window. the messages
 ;;  for why-wrong-object are created when the object is first entered, so all
@@ -792,11 +778,11 @@
 ;; returns:
 ;;  HintSpec -- see end of this file for further description
 ;; note(s):
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun why-wrong-object (&optional label id)
   (do-whats-wrong id))
   
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;; why-wrong-equation - get a message explaining why the equation entry is not
 ;;  correct. unlike with diagram objects, computing the what's wrong is done
 ;;  when why-wrong-equation is called, rather than when the equation is entered,
@@ -806,11 +792,11 @@
 ;; returns:
 ;;  HintSpec -- see end of this file for further description
 ;; note(s):
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun why-wrong-equation (id)
   (do-whats-wrong id))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; explain-more triggered when the studfent clicks on "explain further". gives
 ;;  more specific information about the last hint that was given. 
 ;; argument(s):
@@ -820,11 +806,11 @@
 ;; Notes: now delegates to the generic "handle-student-response" routine.
 ;; In the future, the workbench may call that directly; for backwards compatibility
 ;; with Andes1 protocol, we handle this old API here.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun explain-more ()
   (handle-student-response 'explain-more))
   
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Entry Status Return Values are 3+ field strings of the form:
 ;;   StatusCode;ErrorList!Command  where
 ;;  StatusCode -> T | NIL | <nada>
@@ -870,7 +856,4 @@
 ;;                     selected.
 ;;          Support for Greek alphabet names (ie $a short for greek alpha char)
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; end of file commands.lsp/cl
-;; Copyright (C) 2001 by ??????????????????????????????? -- All Rights Reserved.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

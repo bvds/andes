@@ -1822,7 +1822,7 @@
 ;; answer-id of the form "MC-#".  The code below will handle this appropriately.
 ;; Given an id of the form "MC-#" and a numerical value this code will produce
 ;; a non-eqn entry of the appropriate form, and then enter it before passing it
-;; back to the handle-non-eq code for testing.  
+;; back to the check-noneq-entry code for testing.  
 ;;
 ;; The Entry-proposition that will be produced is of the form: 
 ;;  (CHOOSE-ANSWER MC-# #)
