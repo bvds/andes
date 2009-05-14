@@ -62,18 +62,6 @@
 (defun register-method-for-service (uri method method-name)
   (setf (gethash (list uri method-name) *service-methods*) method))
 
-;; Still needs to be done:
-;;  Need to handle errors with bad json (hard, since clients already check json)
-;;  Generate smd from methods (the client is supposed to test posts against
-;;       the smd, just need to make sure smd matches the methods).
-;;  Need webserver handler for helpsystem timeout (returning json rpc?).
-;;  There is no provision for timing out (hung help system).  Need webserver
-;;       timeout set to larger than helpsystem timeout.  Maybe only kill turn
-;;       after timeout if there is a subsequent turn waiting?
-;;  How to handle turns that never make it to the webserver?  This will
-;;       cause subsequent turns to hang.  Maybe timeout if a subsequent
-;;       turn is waiting and session is unlocked.
-
 (defun handle-json-rpc ()
   "Handles json-rpc 1.0 and 2.0"
   (setf (content-type*) "application/json; charset=UTF-8")
@@ -104,6 +92,8 @@
 			  (:message . "missing http header client-id"))
 			(format nil "missing http header client-id"))))
       ((null method)
+       ;; Need more general checks for bad json-rpc.  This is a bit
+       ;; hard because the clients already do this.
        (setq error1 (if version
 			`((:code . -32600) (:message . "Method missing."))
 			(format nil "Method missing"))))
@@ -115,9 +105,7 @@
 				method service-uri))))
       ;; need error handler for the case where the arguments don't 
       ;; match the function...
-      (t 
-       (setq result (execute-session client-id turn 
-				     method-func params))))
+      (t (setq result (execute-session client-id turn method-func params))))
     (format *stdout* "  result ~S error ~S~%" result error1)
     ;; only give a response when there is an error or id is given
     (when (or error1 turn)
@@ -130,10 +118,32 @@
 ;;; 
 ;;;     Session and turn management
 ;;;
+;; json-rpc messages are asynchronous:  if several messages are sent
+;; to the server, they are not guaranteed to arrive in order.  There
+;; are two possible strategies:  
+;;   1.  Several json-rpc messages may be sent at once.  In this case the
+;;       server must ensure the order of messages and the client
+;;       must ensure the order of replies.  In the case of a dropped
+;;       message, error handling is difficult.
+;;   2.  The client sends one message at a time, awaiting a reply from 
+;;       the server.  If a message times out, the client may re-send 
+;;       a message.  
+;; We have chosen the latter approach.  We need to handle three kinds of 
+;; errors:
+;;   1.  A json-rpc message is lost on the way to the server.  In this
+;;       case, the server does nothing special.
+;;   2.  A session turn hangs (help system bug).  The server receives
+;;       a request for a session that is locked.  If the turn is the 
+;;       same, it waits and rechecks the lock.  If still locked, it
+;;       interrupts the earlier turn, and returns a json-rpc error.
+;;       The earlier turn will reply with a lisp error condition.
+;;   3.  A json-rpc reply is lost on the way back to the client.
+;;       The server receives a repeat request (same id) as the last
+;;       request.  It returns the earlier reply.
 
 (defparameter *sessions* (make-hash-table :test #'equal) 
   "A list of active sessions")
-(defstruct ssn turn lock queue time environment)
+(defstruct ssn turn turns lock mutex reply time environment)
 ;; Each thread has the variable *env* available to store
 ;; sesssion-specific information between turns.
 ;; If a method sets *env* to nil, this indicates the session is finished.
@@ -147,74 +157,114 @@
 			 (ssn-environment session)))
 	     *sessions*))
 
-(defun get-session (session turn)
+(defun count-active-sessions ()
+  "Count number of currently active (locked) sessions."
+  (let ((i 0))
+    (maphash #'(lambda (k v) (declare (ignore k)) 
+		       (when (ssn-lock v) (incf i)))
+	     *sessions*)
+    i))
+  
+(defun get-session (session)
   "Return a session for a given hash or create a new one"
   (or (gethash session *sessions*)
       (setf (gethash session *sessions*) 
-	    (make-ssn 
-	     :queue #+sbcl(sb-thread:make-waitqueue :name "turn queue")
-	     :lock #+sbcl(sb-thread:make-mutex :name "turn lock")
-	     :time (get-internal-real-time) :turn turn))))
+	    (make-ssn :time (get-internal-real-time)
+		      :mutex (or #+sbcl (sb-thread:make-mutex)
+				 #+bordeaux-threads 
+				 (bordeaux-threads:make-lock))))))
 
 (defun close-idle-sessions (&optional (idle 7200))
-  "Close all (idle) sessions."
+  "Close all (idle) sessions.  idle is time in seconds."
   (let ((cutoff (- (get-internal-real-time) 
 		   (* idle internal-time-units-per-second))))
     (maphash #'(lambda (id session) 
 		 (when (< (ssn-time session) cutoff)
 		   ;; when a session is locked, we should 
-		   ;; force it to return an error
-		   #+sbcl(when (sb-thread:mutex-value (ssn-lock session))
-			    (sb-thread:interrupt-thread 
-			     (sb-thread:mutex-value (ssn-lock session))
-			     #'hung-session-error))
-		   ;; Don't know how to access other threads
-                   ;; in non-sbcl case.
-		   #-sbcl(when (ssn-lock session))
+		   ;; force it to return an error.
+		   (when (ssn-lock session)
+		     #+sbcl (sb-thread:interrupt-thread 
+			     (ssn-lock session) #'hung-session-error)
+		     ;; Don't know how to access other threads
+		     ;; in non-sbcl case.
+		     #-sbcl (error "killing dead threads only in sbcl"))
 		   (remhash id *sessions*))) *sessions*)))
+
+(defconstant *time-per-turn* 1.0 "Estimate of maximum time in seconds needed to execute a single turn.")
 
 (defun hung-session-error ()
   (error "Help system running for too long, killing turn."))
 
-(defun lock-session (session turn)
-  "locks session based on turn number"
-  ;; There are dire warnings in sbcl documentation about
-  ;; using get-mutex and interrupts.
-  #+sbcl(sb-thread:get-mutex (ssn-lock session) nil t)
-  ;; If turns can be numbered, wait until this turn is next
-  (when (numberp turn)
-     ;; wait until earlier turns are all done
-    (loop while (> turn (+ (ssn-turn session) 1))
-	  ;; Estimate minimum time needed to process  
-	  ;; number of turns waiting times number of sessions
-	  do #-sbcl(sleep (* (/ (hash-table-count *sessions*) 
-				internal-time-units-per-second)
-			     (- turn (+ (ssn-turn session) 1))))
-	  #+sbcl(sb-thread:condition-wait (ssn-queue session) 
-					  (ssn-lock session))))
-  ;; lock session.
-  #-sbcl(progn (loop until (not (ssn-lock session)) 
-		     do (sleep (/ (hash-table-count *sessions*) 
-				  internal-time-units-per-second)))
-	       (setf (ssn-lock session) turn))
-  (setf (ssn-turn session) turn))
+(defmacro with-a-lock (args &body body)
+  "Choose method for setting mutex"
+  (or #+sbcl `(sb-thread:with-mutex ,args ,@body)
+      #+bordeaux-threads `(bordeaux-threads:with-lock-held ,@body)
+      '(error "no thread locking, possible race condition")))
 
-(defun unlock-session (session)
-  "unlocks session"
+(defun lock-session (session turn)
+  "Attempt to lock a session; return a result or error if unsuccessful."
+  ;; If previous attempt at this turn is still locked, give it
+  ;; a chance to finish up.  This handles the case where the
+  ;; connection is lost and then restored.
+  (when (and (ssn-lock session) (equalp (ssn-turn session) turn))
+    (sleep (* (count-active-sessions) *time-per-turn*)))
+  ;; Set mutex to avoid possible race condition
+  ;; with several threads trying to set (ssn-lock session).
+  (with-a-lock ((ssn-mutex session) :wait-p t)
+    (if (ssn-lock session)
+	(progn 
+	  ;; If session is still locked, try to interrupt other thread,
+	  ;; so that it will return a lisp error.
+	  #+sbcl (sb-thread:interrupt-thread (ssn-lock session)
+					     #'hung-session-error)
+	  #+(and (not sbcl) bordeaux-threads)
+	  (bordeaux-threads:interrupt-thread (ssn-lock session)
+					    #'hung-session-error)
+	  #-(or sbcl bordeaux-threads) (error "can't kill hung thread")
+	  ;; return message, since client doesn't have to 
+	  ;; act on this, just log it.
+	  '(((:action . "log") (:error-type . "interrupt-turn")
+		 (:error . "Sent interrupt to thread running turn."))))
+	(cond ((equalp (ssn-turn session) turn) 
+	       ;; Return same reply we sent last time.
+	       ;; This handles the case where the rpc-json reply was lost
+	       (ssn-reply session))
+	      ;; Message from earlier turn arrives late.
+	      ((if (and (numberp turn) (numberp (ssn-turn session)))
+		   (< turn (ssn-turn session))
+		   (member turn (ssn-turns session) :test #'equalp))
+	       ;; return message, since client doesn't have to 
+	       ;; act on this, just log it.
+	       '(((:action . "log") (:error-type . "old-turn")
+		 (:error . "Reply already sent for this turn."))))
+	      ;; Normal case where turn is new and session is unlocked.
+	      (t     
+	       (setf (ssn-lock session) 
+		     #+sbcl sb-thread:*current-thread*
+		     #+(and (not sbcl) bordeaux-threads) 
+		     (bordeaux-threads:current-thread)  
+		     #-(or sbcl bordeaux-threads) t)
+	       (setf (ssn-turn session) turn)
+	       (unless (numberp turn) (push turn (ssn-turns session)))
+	       nil)))))
+
+(defun unlock-session (session reply)
+  "unlocks session, saving reply"
   ;; time used to determine idle sessions.
   (setf (ssn-time session) (get-internal-real-time))
-  ;; unlock session and wake other turns in session
-  #-sbcl(setf (ssn-lock session) nil)
-  #+sbcl(progn (sb-thread:condition-broadcast (ssn-queue session))
-		(sb-thread:release-mutex (ssn-lock session))))
+  (setf (ssn-reply session) reply)
+  (setf (ssn-lock session) nil))
 
 (defun execute-session (session-hash turn func params)
   "Execute a function in the context of a given session when its turn comes.  If the session doesn't exist, create it.  If there is nothing to save in *env*, delete session."
-  (let (func-return 
-	(session (get-session session-hash turn))
+  (let (func-return
+	(session (get-session session-hash))
 	;; Make thread-local binding of special variable *env*
 	*env*)
-    (lock-session session turn)
+    ;; try to lock a session, if not return the reply
+    (let ((ret (lock-session session turn)))
+      ;; if lock was unsuccessful, return with message.
+      (when ret (return-from execute-session ret)))
     ;; set up session environment for this session
     ;; env is local to the thread.
     (setf *env* (ssn-environment session))
@@ -242,7 +292,7 @@
 	;; if environment has been removed, remove session from table.
 	(remhash session-hash *sessions*))
     ;; unlock session, if locked
-    (unlock-session session)
+    (unlock-session session func-return)
     func-return))
 
 (defun alistp (x) 
