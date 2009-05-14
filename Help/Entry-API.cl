@@ -621,9 +621,11 @@
 ;;  id: is assigned to this object by the work-bench
 ;; returns: StudentEntry
 ;; note(s):
-;;  Defines a mass variable whose name has "m" concatenated to the given label.
+;;  marks the corresponding system entry as "entered". defines a mass variable
+;;  whose name has "m" concatenated to the given label. Enters into the symbol
+;;  table this name paired with the system's name for the same quantity.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-assert-object (label name &optional time id xpos ypos)
+(defun assert-object (label name &optional time id xpos ypos)
   (let* ((body-term (arg-to-body name))
 	 (time-term (arg-to-time time))
 	 (action   `(body ,body-term :time ,time-term))
@@ -644,7 +646,7 @@
   ;; referenced in subsequent quantity definitions for compound's attributes.
   (when (compound-bodyp body-term)
   	(check-symbols-enter label body-term id))
-  entry))  ;finally return entry 
+  (check-noneq-entry entry)))  ;finally return entry 
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -658,12 +660,14 @@
 ;;  id: is assigned to this object by the work-bench
 ;; returns: Studententry 
 ;; note(s):
-;;  Defines a mass variable whose name has "m" concatenated to the given label.
+;;  marks the corresponding system entry as "entered". defines a mass variable
+;;  whose name has "m" concatenateded to the given label. Enters into the sym-
+;;  bol table this name paired with the system's name for the same quantity.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-assert-compound-object (label names &optional time id)
+(defun assert-compound-object (label names &optional time id)
       ;; can just pass along to assert-object. arg-to-body knows how to make
       ;; compound body term out of list argument.
-      (on-assert-object label names time id))
+      (check-noneq-entry (assert-object label names time id)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-vector -- check the correctness of a vector drawn by the student. May
@@ -689,7 +693,7 @@
 ;;  entry as "entered", defines the magnitude and direction variables, and
 ;;  enters the variables in the symbol table.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-lookup-vector (label avg-inst type system dir drawn-mag time id 
+(defun lookup-vector (label avg-inst type system dir drawn-mag time id 
                          &optional given-mag given-xc given-yc given-zc drawn-dir)
  (let* ((vtype        (arg-to-id **vector-types** type))
         (body-term    (arg-to-body system))
@@ -722,8 +726,9 @@
 	                (T `(,vtype ,body-term))))
 	(dir-term (arg-to-dir dir drawn-mag)))
 
-    (make-vector-entry label vquant-term time-term dir-term id 
-                       given-mag given-xc given-yc given-zc drawn-dir)))
+    (check-noneq-entry 
+     (make-vector-entry label vquant-term time-term dir-term id 
+                       given-mag given-xc given-yc given-zc drawn-dir))))
 
 ;; worker routine to do generic tasks common to vector entries 
 ;; once the vector quantity has been formed
@@ -816,9 +821,26 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-line -- check the correctness of a line drawn by the student.
+;; argument(s):
+;;  label: the line label
+;;  body:  the ``body'' associated with the line.
+;;  dir: angle of the line from horizontal (0->360 degrees) or a nega-
+;;    tive number coding a z-axiz direction as follows (-1->out of plane; -2
+;;    is into plane; -3 unknown but along z axis
+;;  mag: length of line or nil if unspecified
+;;  time: the time period during which the vector is constant. if nil and
+;;    system is a student defined system, the time will be taken from
+;;     the system definition
+;;  id: id assigned to vector by the workbench
+;; returns:
+;;  entry status return value -- see end of code for description of this
+;; note(s):
+;;  if the line is correct, the help system marks the corresponding system
+;;  entry as "entered", defines the magnitude and direction variables, and
+;;  enters the variables in the symbol table.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun on-lookup-line (label body-arg dir mag &optional time id)
+(defun lookup-line (label body-arg dir mag &optional time id)
   (let* ((body-term (arg-to-body body-arg))
 	 (time-term (arg-to-time time))
 	 ;; note dir may be dnum or 'unknown (and maybe into/out-of)
@@ -859,7 +881,7 @@
 	(add-implicit-eqn entry (make-implicit-eqn-entry (eqn-algebra eqn)))))
     
     ;; finally return entry
-    entry))
+    (check-noneq-entry entry)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -890,8 +912,8 @@
 ;;   if the force is correct then the help system marks the corresponding sys-
 ;;   tem entry as "entered" it also defines magnitude and direction variables
 ;;   for the force, and enters them into the symbol table.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-lookup-force (label type system agent dir mag time id
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun lookup-force (label type system agent dir mag time id
                          given-mag given-xc given-yc given-zc drawn-dir)
    (let* ((body-term (arg-to-body system))
 	  (time-term (arg-to-time time))
@@ -902,10 +924,11 @@
 	                 `(force ,body-term ,agent-term ,type-term)))
 	  (dir-term (arg-to-dir dir mag)))
 
-    (make-vector-entry label vquant-term time-term dir-term id
-                       given-mag given-xc given-yc given-zc drawn-dir)))
+    (check-noneq-entry
+     (make-vector-entry label vquant-term time-term dir-term id
+                       given-mag given-xc given-yc given-zc drawn-dir))))
   
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-torque - check correctness of a torque vector drawn by student
 ;; Arguments:
 ;; label: the torque label
@@ -926,8 +949,8 @@
 ;; Returns:  entry status return value
 ;; 
 ;; Side Effects: Updates state as for other vector entries
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-lookup-torque (label type body axis dir mag time id
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun lookup-torque (label type body axis dir mag time id
                          &optional given-mag given-xc given-yc given-zc drawn-dir)
  (let* ((body-term   (arg-to-body body))
 	(time-term   (arg-to-time time))
@@ -946,9 +969,9 @@
 	              (t (find-torque-term body-term axis-term))))
 	(dir-term (arg-to-dir dir mag)))
 
+   (check-noneq-entry
     (make-vector-entry label vquant-term time-term dir-term id
-                       given-mag given-xc given-yc given-zc drawn-dir))
-)
+                       given-mag given-xc given-yc given-zc drawn-dir))))
 
 (defun find-torque-term (pt axis)
   "fill in fully explicit torque term implicitly defined by point of force application and axis"
@@ -978,7 +1001,7 @@
     ;; return the torque quantity
     `(torque ,dipole ,field-term) ))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; label-angle -- assigns the given label to the angle between two objects with
 ;;  given degrees size
 ;; argument(s):
@@ -996,15 +1019,16 @@
 ;; the relevant objects -- vectors or coordinate systems. The complete 
 ;; specification of an axis includes the coordinate system id plus the 
 ;; code posx, posy etc.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-label-angle (label degrees id-vector1 id-vector2 id-angle &optional axis)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun label-angle (label degrees id-vector1 id-vector2 id-angle &optional axis)
   ; if angle between vectors then have to make entry and check for match.
   ; if angle between vector and axis, then just install it in symbol table
   ; as label for appropriate angle expression.  Dispatch based on angle type:
-  (if axis (on-angle-with-axis label degrees id-vector1 id-vector2 
+ (check-noneq-entry
+  (if axis 
+      (on-angle-with-axis label degrees id-vector1 id-vector2 
                                id-angle axis)
-    (on-angle-between-vectors label degrees id-vector1 id-vector2 id-angle :drawn T))
-)
+      (on-angle-between-vectors label degrees id-vector1 id-vector2 id-angle :drawn T))))
 
 ;; Worker routine to handle entry of term for angle between vectors.  
 ;; "Drawn" argument specifies if drawn as diagram entry or defined as variable
@@ -1013,7 +1037,7 @@
    (declare (ignore drawn)) ; AW: no longer used
    ;; need to map entry id to referent vectors. Note this may now be used for 
    ;; drawn line entries as well.  Code should work without change, because 
-   ;; on-lookup-line enters line label as symbol for (mag (line ...)) 
+   ;; lookup-line enters line label as symbol for (mag (line ...)) 
    ;; exactly as for vectors.
    ;; Take second to extract time-indexed vector quant terms from (mag ?vector)
    (let* ((v1-term (second (symbols-entry-referent '(mag ?vector) id-vector1)))
@@ -1078,7 +1102,7 @@
 	  "on its name in the variable window and select Solve-For.")
   )
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; define-angle-variable: undocumented special Andes1 API used for defining 
 ;;                        angle variable without drawing it
 ;;
@@ -1091,11 +1115,11 @@
 ;; is bad for case-sensitive Andes2 symbols, so changed workbench in 
 ;; Andes 6.0.3 workbench to wrap args in vbars. So now use case-insensitive
 ;; sym-match test to check for axis id symbols with lower case!
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun axis-codep (arg) ; arg should be symbol
   (member arg '(posx posy negx negy) :test #'sym-match))
 
-(defun on-define-angle-variable (label degrees label1 label2 id-angle)
+(defun define-angle-variable (label degrees label1 label2 id-angle)
  ; lookup syminfo (si) to convert label args to entry id args used by 
  ; label-angle worker routines
  (let*  ((si1 (if (axis-codep label1) 
@@ -1108,9 +1132,10 @@
 	 (id2 (if si2 (first (sym-entries si2))))
 	 (axis (first (or (axis-codep label1) (axis-codep label2)))))
     ; then delegate to appropriate hander
-    (if (not axis) ; angle between vectors: must specify not drawn for match
-        (on-angle-between-vectors label degrees id1 id2 id-angle :drawn NIL) 
-     (on-angle-with-axis label degrees id1 id2 id-angle axis))))
+    (check-noneq-entry
+     (if (not axis) ; angle between vectors: must specify not drawn for match
+	 (on-angle-between-vectors label degrees id1 id2 id-angle :drawn NIL) 
+	 (on-angle-with-axis label degrees id1 id2 id-angle axis)))))
 
 ; helper for wb-quant -- get angle between quantity from two student labels
 (defun make-angle-quant (label1 label2)
@@ -1120,7 +1145,7 @@
 	  (v2-term (second (symbols-referent (string label2)))))
      `(angle-between orderless ,v1-term ,v2-term)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; label-radius -- label radius of revolution of an object moving in a circle
 ;; argument(s):
 ;;  label: the label given to the radius by the student
@@ -1139,11 +1164,12 @@
 ;; generally happen since uniform circular motion is a steady state. However,
 ;; we could be interested in uniform circular motion before and after coupling,
 ;; in a conservation of angular momentum problem.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-label-radius (label id name)
-  (on-define-variable label NIL 'revolution-radius name 'T0 NIL id))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun label-radius (label id name)
+  (check-noneq-entry 
+   (define-variable label NIL 'revolution-radius name 'T0 NIL id)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; define-variable - define a variable to stand for a certain quantity. this is
 ;;  called when the student uses the "variable" menu, but not when variables are
 ;;  defined by other tools such as the force drawing tool or the body tool.
@@ -1169,28 +1195,29 @@
 ;;  if the variable definition is correct, marks the corresponding system entry
 ;;  as "entered" and enters the student's variable name into the symbol table
 ;;  paired with the corresponding system variable
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-define-variable (var type quant body time body2 id &optional value)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun define-variable (var type quant body time body2 id &optional value)
  (let* ((quant-term (make-quant type quant body body2 time))
 	(action    `(define-var ,quant-term))
 	(entry      (make-StudentEntry :id id :prop action)))
 
-  ; install new variable in symbol table
+  ;; install new variable in symbol table
   (add-entry entry)
   (check-symbols-enter var quant-term id)
 
-  ; record associated given value equation entry
+  ;; record associated given value equation entry
   (when value  ; NIL => unspecified. (Empty string => unknown)
     (add-given-eqn entry (make-given-eqn-entry var value 'value)))
-    ; NB! make-given-eqn-entry can return NIL if no system var found for studvar.
-    ; Normally means var def will be incorrect. No given-eqn added in this case.
-    ; But maybe better have a dangling given eqn entry anyway?
+    ;; NB! make-given-eqn-entry can return NIL if no system var found for 
+  ;; studvar.
+    ;; Normally means var def will be incorrect. No given-eqn added in this case.
+    ;; But maybe better have a dangling given eqn entry anyway?
 
-  ; finally return entry 
-  entry))
+  ;; finally return entry 
+    (check-noneq-entry entry)))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; assert-x-axis - check correctness of coordinate axis drawn by student
 ;; argument(s):
 ;;  body: the label given to the body the axis applies to
@@ -1201,8 +1228,8 @@
 ;; returns: StudentEntry
 ;; note(s):
 ;;  adds x and y axes to (student entries) -- asserts observed to assessor
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-assert-x-axis (body dir
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun assert-x-axis (body dir
 		      &optional id (x-label "x") (y-label "y") (z-label "z"))
   (declare (ignore body))
   ;; workbench doesn't associate axes with bodies yet, so we leave this
@@ -1246,34 +1273,13 @@
         (check-symbols-enter compo-var compo-term (list id vector-entry-id)))))
 
   ; finally return entry
-  entry))
+   (check-noneq-entry entry)))
 
 ;-----------------------------------------------------------------------------
 ;; for processing deletions of entries
 ;-----------------------------------------------------------------------------
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; delete-object -- delete the student defined object with the given label and
-;;  or id from the student entries list
-;; argument(s):
-;;  label: the label given to the object by the student
-;;  id: the unique is assigned to the object by the workbench
-;; returns: garbage
-;; note(s):
-;;  marks the corresponding system entries as "unentered" If the object involves
-;;  a variable, the removes that variable from the symbol table.
-;; Note that elsewhere label arguments are passsed as quoted strings, so
-;; case is preserved, but in this API argument is sent as naked symbol -- 
-;; so gets upcased when command string is read. 
-;; Happily we should be able to ignore it and rely on entry id.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-delete-object (label &optional id)
-  (declare (ignore label))
-  ;; Remove from entry list. This function knows to call back to undo-entry 
-  (remove-entry id) 
-)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Undo-entry -- undo all state effects of a particular Student entry
 ;; Argument: enty -- the StudentEntry to be undone.
 ;;
@@ -1683,7 +1689,7 @@
      (sg-enter-StudentEntry eqn-entry)
   ))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; check-answer -- lookup a students answer in the answer box
 ;; argument(s):
 ;;  answer: the contents of the answer field the student entered
@@ -1691,7 +1697,7 @@
 ;;    string "ANSWER"
 ;; returns: StudentEntry
 ;; note(s):
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;
 ;; Do-Check-Answer -- worker routine handle answer submission via check-answer
@@ -1748,7 +1754,7 @@
 ;; do-check-answer moved to parse-andes.cl
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; MC Answers
 ;; Lookup-mc-answer is sent for multiple choice answers.  This is used for both 
 ;; the n-way multiple choice questions of the type in faa1 where the student is

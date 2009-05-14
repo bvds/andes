@@ -229,7 +229,7 @@
 			text width height radius symbol x-label y-label angle) 
   "problem-solving step"
   (env-wrap 
-    ;; Andes2 had calls to:
+    ;; Andes2 also had calls to:
     ;; define-variable define-angle-variable
     ;; assert-x-axis assert-object
     ;; assert-compound-object
@@ -237,7 +237,6 @@
     ;; lookup-force lookup-torque lookup-line
     ;; lookup-vector
     ;; lookup-mc-answer
-    ;; delete-object
     ;; check-answer
     ;; calculate-equation-string (find variable on lhs of equation)
     ;;                           (probably not in Andes3)
@@ -296,9 +295,8 @@
     ;; Andes2 had calls to:
     ;; next-step-help
     ;; explain-more
-    ;; handle-student-response  (choose a quantity or a principle; in new version, typed in help chat window)
-    ;; why-wrong-equation (what's wrong error)
-    ;; why-wrong-object
+    ;; handle-student-response  (choose a quantity or a principle)
+    ;; do-whats-wrong (for why-wrong-equation & why-wrong-object)
     ;; solve-for-var (could also be under solve steps..., or own method)
 
     (cond

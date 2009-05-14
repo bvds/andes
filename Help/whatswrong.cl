@@ -34,6 +34,17 @@
 ;;; ================= called from entry-api.cl ========================
    
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; why-wrong-object -- get a message explaining why an entry was judged to be
+;;  incorrect. the message is displayed in the workbench window. the messages
+;;  for why-wrong-object are created when the object is first entered, so all
+;;  this function has to do is find the string and return it.
+;; argument(s):
+;;  id: the unique id assigned to the object by the workbench
+;; returns:
+;;  HintSpec -- see end of this file for further description
+;; note(s):
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; top level call is do-whats-wrong (identifier for student entry)
 (defun do-whats-wrong (id)
   "Given the id selected by the student in what's wrong help, returns a 

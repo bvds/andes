@@ -90,6 +90,19 @@
 
 |#
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; get-stats -- Get the current saved statistics.
+;;   This function when called returns a stat-turn containing a 
+;;   space-separated string of tuples representing the student's scores.  
+;; Argument:
+;;  Type:  Either 'scores' or 'all' or 'persist
+;;    If 'stats' then the values will be the total list of stats that Andes is
+;;       collecting irrespective of their weigths.  
+;;    If 'scores' then the result will be the statistics that have had non-zero
+;;       weights assigned to them for computation of the total.
+;;    If 'persist then only 
+;; Result:  A stat-turn containing the result values.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Most of the code to operate this file is actually located in other parts
 ;;; this file only defines one function, that is the on-get-stats function
@@ -101,7 +114,7 @@
 ;;; the map-tests->listresults to translate the list 
 ;;; of testsets into a list of 3-tuples for testing
 ;;; this may be changed later.
-(defun on-stats-get-stats (Type)
+(defun get-stats (Type)
   (make-stat-turn
    (map-tests->list-results
     ; set to map:

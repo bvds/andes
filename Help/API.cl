@@ -170,8 +170,7 @@
       ;; Hint-return-val.
       (Help
        (handle-student-response
-	why-wrong-object
-	why-wrong-equation
+	do-whats-wrong
 	get-proc-help
 	explain-more
 	))      

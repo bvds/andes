@@ -586,14 +586,38 @@
   (Scores Nil))
 
 
+;; set-stats -- restore specified score values
+;;
+;; This is used by the workbench to restore persistent scores saved in the
+;; the solution file on problem open. The implementation function that does 
+;; the work is in HelpStructs/RuntimeTest.cl
+;;
+;; Argument list for this API call should be a Lisp-readable sequence of pairs 
+;; of the form (score value-expr) (score value-expr) (score value-expr) ...
+;; Currently the only value types we persist will be either a number for a 
+;; simple count or a list of two numbers for a fractional score.  
+;; Example command string:
+;;
+;;   (set-stats (NSH_BO_Call_Count 3) (WWH_BO_Call_Count 2) 
+;;          (Correct_Entries_V_Entries (3 5))
+;;          (Correct_Answer_Entries_V_Answer_Entries (0 6)))
+;;
+;; [Quote is not needed in command strings sent from the workbench because they
+;; are Lisp read then dispatched by (funcall (first cmd) (rest cmd)) so args 
+;; are not evaluated, though they must be readable.]
+;;
+;; Result: normally NIL. No indication of success or failure.
 
-;;; Following supports new persistence via storage of persistent stats in workbench 
-;;; solution file, to be restored by an API call from the workbench on problem load.
+;;; Following supports new persistence via storage of persistent stats in 
+;;; workbench solution file, to be restored by an API call from the workbench 
+;;; on problem load.
 ;;; Argument for this function should be list of pairs of the form
 ;;;        ((score value-expr) (score value-expr) (score value-expr))
-;;; where value-expr is a Lisp expression suitable as an argument set-rt-score-value. 
-;;; Currently the only value types we persist will be either a number for a simple count 
-;;; or a list of two numbers for a fractional score.  Example list:
+;;; where value-expr is a Lisp expression suitable as an argument 
+;;; set-rt-score-value. 
+;;; Currently the only value types we persist will be either a number for 
+;;; a simple count or a list of two numbers for a fractional score.  
+;;; Example list:
 ;;;         ((NSH_BO_Call_Count 3) (WWH_BO_Call_Count 2) 
 ;;;          (Correct_Entries_V_Entries (3 5))
 ;;;          (Correct_Answer_Entries_V_Answer_Entries (0 6))))
@@ -609,7 +633,7 @@
 ;;; like the correct entry rate, the numerator is bumped on every entry. (See
 ;;; test update functions in Testcode/Tests.cl)
 ;;;  
-(defun set-runtime-test-stats (score-value-pair-list)
+(defun set-stats (score-value-pair-list)
   (dolist (pair score-value-pair-list)
      (let ((test (lookup-name->runtime-test (first pair))))
         (when (and Test (runtime-test-activep test))

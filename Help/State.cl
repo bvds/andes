@@ -266,7 +266,7 @@
 ;; Arguments: id  	the workbench-assigned entry id
 ;; Returns:  modify-object mode to deleted
 ;;           Should update score.
-;;           In Andes2, this was done as a "DDE-POST", no reply.
+;;           In Andes2, this was done as a "DDE-POST":  no reply.
 ;;
 ;; Calls back to undo-entry in EntryInterpreter module to do the work of
 ;; undoing an entry, because that is where the knowledge of what to do is.
