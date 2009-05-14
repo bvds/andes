@@ -143,7 +143,7 @@
 
 (defparameter *sessions* (make-hash-table :test #'equal) 
   "A list of active sessions")
-(defstruct ssn turn turns lock mutex reply time environment)
+(defstruct ssn turn lock mutex reply time environment)
 ;; Each thread has the variable *env* available to store
 ;; sesssion-specific information between turns.
 ;; If a method sets *env* to nil, this indicates the session is finished.
@@ -230,9 +230,10 @@
 	       ;; This handles the case where the rpc-json reply was lost
 	       (ssn-reply session))
 	      ;; Message from earlier turn arrives late.
-	      ((if (and (numberp turn) (numberp (ssn-turn session)))
-		   (< turn (ssn-turn session))
-		   (member turn (ssn-turns session) :test #'equalp))
+	      ;; Right now, this only works if turns are labeled
+	      ;; by consecutive integers.
+	      ((and (numberp turn) (numberp (ssn-turn session))
+		   (< turn (ssn-turn session)))
 	       ;; return message, since client doesn't have to 
 	       ;; act on this, just log it.
 	       '(((:action . "log") (:error-type . "old-turn")
@@ -245,7 +246,6 @@
 		     (bordeaux-threads:current-thread)  
 		     #-(or sbcl bordeaux-threads) t)
 	       (setf (ssn-turn session) turn)
-	       (unless (numberp turn) (push turn (ssn-turns session)))
 	       nil)))))
 
 (defun unlock-session (session reply)
