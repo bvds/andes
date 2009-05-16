@@ -32,11 +32,9 @@
 ;;; State.cl.  
 ;;;
 ;;; This code will form the requisite cmd struct and then dispatch
-;;; the api command with arguments by calling it with the 
-;;; safe-apply function.  
+;;; the api command with arguments by calling it.  
 ;;;
-;;; The result of the safe-apply is assumed to be an error trap, nil,
-;;; or a tutor-turn of some kind.  That turn will be used to form the
+;;; The resulting turn will be used to form the
 ;;; cmdresult.  Lastly, the system will pass the turn to return-turn
 ;;; which will send it back to the workbench.
 ;;;
@@ -116,12 +114,12 @@
 ;;;
 ;;; This function will begin by logging the command in **last-api-call**.  It 
 ;;; will then generate a new cmd for the action and execute the command directly
-;;; using a safe-apply or via the **Alternate-Command-Interpreter** if there is
-;;; one again using a safe apply.  The result from that execution will be one of
+;;; or via the **Alternate-Command-Interpreter** if there is
+;;; one.  The result from that execution will be one of
 ;;; t, NIL, :Error or a tutor turn.  
 ;;;
 ;;; If the result is a tutor-turn it will be translated into a string for return 
-;;; to the workbench again within a safe-apply.  This is done because there are 
+;;; to the workbench again.  This is done because there are 
 ;;; some errors that can be signalled within this process and it is necessary
 ;;; to trap them before the cmdresult is formed or the results are tested.  
 ;;;
@@ -137,7 +135,7 @@
 ;;;
 ;;; NOTE:: I am carrying out the string parsing before handling the cmdresult
 ;;;   in order to trap errors in the same way that they were trapped by the 
-;;;   previous versions of Andes that ran the return-turn code within safe-apply.
+;;;   previous versions of Andes that ran the return-turn code.
 ;;;
 ;;; NOTE:: if they remain unused the **last-api-call** and 
 ;;;      **Alternate-Command-Interpreter** code will be removed from
@@ -150,15 +148,14 @@
   (setq **last-api-call** (cons Command Arguments))
   (let* (Tmp (NewCmd (iface-generate-log-cmd DDE Command Arguments))
 	 (Result (iface-internal-exec-andes-command Command Arguments))
-	 (Str (if (turn-p Result) (safe-apply 'return-turn (list Result)))))
+	 (Str (if (turn-p Result) (return-turn (list Result)))))
 
     ;; Once the command has been executed and any result parsed then we
     ;; need to add the cmdresult to the current cmd iff the cmd was a 
     ;; DDE (and will therefore get a reply.  This occurs here.  The pprint
     ;; is for debugging only.  
     (when DDE 
-      (setq Tmp (safe-apply 
-		 'iface-add-cmdresult-to-cmd 
+      (setq Tmp (iface-add-cmdresult-to-cmd 
 		 (list NewCMD (if (equalp Str :Error) Str Result))))
       (if (equalp Tmp :Error) (pprint "Error in Cmdresult addition.")))
     
@@ -167,9 +164,7 @@
     ;; the code in AutoCalc.cl and will handle the send-fbd command 
     ;; as necessary.
     ;;
-    ;; The safe-apply should allow this to fail without throwing
-    ;; an unreasonable error.
-    (setq Tmp (safe-apply 'iface-handle-Statistics (list NewCmd)))
+    (setq Tmp (iface-handle-Statistics (list NewCmd)))
     (if (equalp Tmp :Error) (pprint "Error in Statistics."))
 
     (format *debug-help* "Result ~A~%" Result)
@@ -219,11 +214,11 @@
 ;;; if not then execute the command itself.  Return the result to 
 ;;; execute andes-command.
 (defun iface-internal-exec-andes-command (Command Arguments)
-  "Call the command itself with in a safe-apply and return the results."
+  "Call the command itself and return the results."
   (if **Alternate-command-interpreter**
       (safe-apply **Alternate-command-Interpreter** 
 		  (list Command Arguments))
-      (safe-apply command arguments)))
+      (apply command arguments)))
 
 
 ;;; ===================================================================
@@ -500,10 +495,6 @@
 ;;;  However, that kind of behavior is unlikely and so we won't worry 
 ;;;  about it much.  
 ;;;
-;;;  Errors will be trapped by safe-apply and the result value in that 
-;;;  case will be the symbol :Error.  In that case thos code will record
-;;;  a DDE-failed and go with that.  
-;;;
 ;;; NOTE:: It may seem odd to be writing this code to translate tutor 
 ;;;  turns into a different structural format within the help system.  
 ;;;  Especially since that format was origianlly written to reverse
@@ -514,12 +505,6 @@
 ;;;  nice to alter the structure of the tests and the files but time
 ;;;  does not permit it now.  
 
-;;; There are two essential "root" cases that need to be handled.  If
-;;; the code returns :Error or any other value.  The result will be 
-;;; :Error if the API function crashed and threw an error that was 
-;;; caught by safe-apply.  In that case a dde-failed result will be 
-;;; returned.  If not then we must select an appropriate result based 
-;;; upon the type of the command.  
 ;;; 
 ;;; The result-type/command matching is located in API.  That code will
 ;;; be used here.  
@@ -903,14 +888,14 @@
    ; switch on type of command, from API.cl
    (case (lookup-command->class cmd)
       ;; all following cmd classes can just be dispatched as usual
-      ((State Answer Statistics Delete Control) (safe-apply cmd args))
+      ((State Answer Statistics Delete Control) (apply cmd args))
       ;; Entries should be left black
       ((noneq-entry eq-entry) (make-black-turn))
       ;; Help requests: assume explain more could only be followup to allowed 
       ;; help -- presumably unsolicited help for wrong answers -- so process it. 
       ;; Reject all others help requests.
       (Help (case cmd 
-                  (explain-more (safe-apply cmd args))
+                  (explain-more (apply cmd args))
                   (otherwise (make-end-dialog-turn "Help is not available on this problem."))))
       ;; Algebra gets null answer
       (Algebra (make-eqn-failure-turn "The Andes calculator is not available on this problem."))

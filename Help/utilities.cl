@@ -70,19 +70,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; For runtime dist, trap all Lisp errors and return special :error value
-;; When debugging, manually redefine safe-apply as apply to debug on errors.
-(defun SafeApply (fn &rest args)
-  (if (isSafe :safe-apply)
-      (let (result)
-	(handler-case (setf result (apply fn args))
-	  (error (c)  nil)
-	  (:no-error (c) (declare (ignore c)) result)))
-    (apply fn args)))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun find-all (item sequence
 		 &rest keyword-args

@@ -1588,9 +1588,7 @@
   ; don't waste time adding info when checking init entries 
   ; ?? might we want it anyway ??
   (when (not **checking-entries**)
-     ; trap errors so any bug in lightly tested logging code 
-     ; won't crash the whole entry handling:
-     (safe-apply #'do-log-entry-info (list entry))))
+     (do-log-entry-info (list entry))))
   
 (defun do-log-entry-info (entry)
   (let ((target-entries)

@@ -343,29 +343,3 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; For runtime dist, trap all Lisp errors and return special :error value
-;; instead. When debugging, just use apply to debug on errors.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#+allegro-cl-runtime 
-(defvar *ignore-errors* T)	; T => trap LISP errors in command execution
-#-allegro-cl-runtime 
-(defvar *ignore-errors* NIL)    
-
-;; Apply function to args, trapping Lisp errors and returning :error in this
-;; case as controlled by *ignore-errors* flag
-(defun safe-apply (fn &optional (args nil)) 
-  (if (not *ignore-errors*) 
-      (apply fn args)
-  ; else trap errors
-  (let (result)
-    (handler-case 
-	(setf result (apply fn args))
-      (error (c) 
-    	(format nil "Executing command: ~A" c)
-        :error)
-      (:no-error (c) 
-	(declare (ignore c))
-    	result)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

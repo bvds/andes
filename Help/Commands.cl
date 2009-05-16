@@ -62,18 +62,18 @@
 ;; When the student initiates a command on the workbench it will produce an 
 ;; appropriate api call and then send it through the TCP/IP stream.  Initially
 ;; these calls were read directly off from the stream by the server code in 
-;; Andes2-Main.cl and called using a safe-apply.  Now the calls are passed on 
+;; Andes2-Main.cl.  Now the calls are passed on 
 ;; to the execute-andes-command which generates a cmd struct for them and then
-;; calls them using the safe-apply function.  
+;; calls them.  
 ;;
 ;; It might be feasible to move some of the processing that is done in interface.cl
 ;; into the functions here but I have chosen to locate it there for semantic
 ;; purposes.
 
 ;; Initially those calls were read directlyu off of the TCP/IP stream by the 
-;; server code in Andes2-Main and called using a safe-apply.  Now the calls
+;; server code in Andes2-Main and called.  Now the calls
 ;; are passed to the execute-andes-command function located in interface.cl
-;; before being called using a safe-apply.  
+;; before being called.  
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (in-package :cl-user)

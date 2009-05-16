@@ -998,7 +998,7 @@
 ;; sequence of hints.  Note that for printing reasons
 (defun make-function-hseq (Hint &optional (Prefix ""))
   "Call the specified function."
-  (let ((result (safe-apply (car Hint) (cdr Hint))))
+  (let ((result (apply (car Hint) (cdr Hint))))
     (when (eq (type-of result) 'turn) ; succeeded w/turn
        ; prepend prefix to existing text in result turn.
        (setf (turn-text result)
