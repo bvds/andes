@@ -57,10 +57,10 @@ the text.
   {"action": "new-object", "id": "a1", "type": "graphics", "mode": "locked", 
 	     "x": 53, "y": 15, "dx": 150, "dy": "180", 
 	     "href": "http://www.andestutor.org/web-UI/s2e.gif"},
-  {"action": "new-object", "id": "a2", "type": "phrase", "mode": "right", 
+  {"action": "new-object", "id": "a2", "type": "phrase", "mode": "correct", 
 	     "x": 200, "y": 55, 
 	     "text": "g = 9.8 m/s^2 is the gravitational acceleration \nnear the surface of the earth."},
-  {"action": "new-object", "id":  "a2.5", "type": "phrase", "mode": "right", 
+  {"action": "new-object", "id":  "a2.5", "type": "phrase", "mode": "correct", 
 	     "x": 200, "y": 75, 
 	     "text": "T0 is the time."},
   {"action": "log", "subscores": {"NSH_BO_Call_Count": [0,0], 
@@ -82,7 +82,7 @@ If there was previous work, it would be included in the above response.
 [
   {"action": "log", "assoc": {"DRAW-BODY": "(BODY BALL)"}, "id": "a3"},
   {"action": "set-score", "score", 15},
-  {"action": "modify-object", "id": "a3", "mode": "right"}
+  {"action": "modify-object", "id": "a3", "mode": "correct"}
 ]
 
 1:09  Student draws axes.  Unlike Andes2, the angle of the vector
@@ -100,7 +100,7 @@ is shown on the screen when the vector is being dragged out.
   {"action": "log", "assoc": {"DRAW-UNROTATED-AXES": "(DRAW-AXES 0)"}, 
            "id": "a4"},
   {"action": "set-score", "score", 25},
-  {"action": "modify-object", "id": "a4", "mode": "right"}
+  {"action": "modify-object", "id": "a4", "mode": "correct"}
 ]
 
 1:14 student moves ball, client changes it to "unknown"  Andes2 is
@@ -111,7 +111,7 @@ agnostic about object positions; Andes3 is not.
 	   "x": 88, "y": 99}, "id": 4}
 
 [
-  {"action": "modify-object", "id": "a3", "mode": "right"}
+  {"action": "modify-object", "id": "a3", "mode": "correct"}
 ]
 
 1:16 student moves axes, client changes it to "unknown"
@@ -120,7 +120,7 @@ agnostic about object positions; Andes3 is not.
 	   "action": "modify-object", "id": "a4", "x": 108, "y": 109}, "id": 5}
 
 [
-  {"action": "modify-object", "id": "a4", "mode": "right"}
+  {"action": "modify-object", "id": "a4", "mode": "correct"}
 ]
 
 1:57 define mass of ball
@@ -136,7 +136,7 @@ agnostic about object positions; Andes3 is not.
            "id": "a5"}
   {"action": "log", "parse": "(= m_BALL (DNUM 2.0 kg))", "id": "a5"},
   {"action": "set-score", "score", 40},
-  {"action": "modify-object", "id": "a5", "mode": "right"}
+  {"action": "modify-object", "id": "a5", "mode": "correct"}
 ]
 
 3:18 draw first force vector.  Unlike Andes2, the angle of the vector
@@ -152,7 +152,7 @@ is shown on the screen when the vector is being dragged out.
 [
   {"action": "log", "assoc": {"DRAW-NORMAL": "VECTOR (FORCE BALL WALL1 NORMAL :TIME 1) (DNUM 120 deg))", 
            "id": "a6"},
-  {"action": "modify-object", "id": "a6", "mode": "right"}
+  {"action": "modify-object", "id": "a6", "mode": "correct"}
 ]
 
 4:21 draw second force vector
@@ -167,7 +167,7 @@ is shown on the screen when the vector is being dragged out.
 [
   {"action": "log", "assoc": {"DRAW-NORMAL": "VECTOR (FORCE BALL WALL3 NORMAL :TIME 1) (DNUM 40 deg))",
            "id": "a7"},
-  {"action": "modify-object", "id": "a7", "mode": "right"}
+  {"action": "modify-object", "id": "a7", "mode": "correct"}
 ]
 
 5:09 draw third force vector
@@ -182,7 +182,7 @@ is shown on the screen when the vector is being dragged out.
 [
   {"action": "log", "assoc": {"DRAW-WEIGHT": "VECTOR (FORCE BALL EARTH WEIGHT :TIME 1) (DNUM 270 deg))",
            "id": "a8"},
-  {"action": "modify-object", "id": "a8", "mode": "right"}
+  {"action": "modify-object", "id": "a8", "mode": "correct"}
 ]
 
 6:25 First equation, client has to encode the backslash.
@@ -199,7 +199,7 @@ is shown on the screen when the vector is being dragged out.
   {"action": "log", "assoc": {"COMPO-GENERAL-CASE": "(EQN (= Xc_Fn_BALL_WALL1_1_0 (* Fn_BALL_WALL1_1 (COS (- (DNUM 120 deg) (DNUM 0 deg))))))", 
 	 "WRITE-IMPLICIT-EQN": "IMPLICIT-EQN (= OFn_BALL_WALL1_1 (DNUM 120 deg)))",
            "id": "a9"},
-  {"action": "modify-object", "id": "a9", "mode": "right"}
+  {"action": "modify-object", "id": "a9", "mode": "correct"}
 ]
 
 7:01 Second equation
@@ -216,7 +216,7 @@ is shown on the screen when the vector is being dragged out.
   {"action": "log", "assoc": {"COMPO-GENERAL-CASE": "(EQN (= Xc_Fn_BALL_WALL1_1_0 (* Fn_BALL_WALL1_1 (COS (- (DNUM 120 deg) (DNUM 0 deg))))))", 
 	 "WRITE-IMPLICIT-EQN": "IMPLICIT-EQN (= OFn_BALL_WALL1_1 (DNUM 120 deg)))",
            "id": "10"},
-  {"action": "modify-object", "id": "a10", "mode": "right"}
+  {"action": "modify-object", "id": "a10", "mode": "correct"}
 ]
 
 7:39 Third equation
@@ -229,7 +229,7 @@ For the rest of this, I am going to skip the log stuff.
 	   "text": "Fwall2_x = Fwall2 * cos (\\thetaFwall2)"}, "id": 12}
 
 [
-  {"action": "modify-object", "id": "a11", "mode": "right"}
+  {"action": "modify-object", "id": "a11", "mode": "correct"}
 ]
 
 8:02 Fourth equation
@@ -241,7 +241,7 @@ For the rest of this, I am going to skip the log stuff.
 	   "text": "Fwall2_y = Fwall2 * sin(\\thetaFwall2)"}, "id": 13}
 
 [
-  {"action": "modify-object", "id": "a12", "mode": "right"}
+  {"action": "modify-object", "id": "a12", "mode": "correct"}
 ]
 
 8:37 Fifth equation
@@ -253,7 +253,7 @@ For the rest of this, I am going to skip the log stuff.
 	   "text": "Fearth_x = 0"}, "id": 14}
 
 [
-  {"action": "modify-object", "id": "a13", "mode": "right"}
+  {"action": "modify-object", "id": "a13", "mode": "correct"}
 ]
 
 9:31 Sixth equation (with error and fix)
@@ -265,7 +265,7 @@ For the rest of this, I am going to skip the log stuff.
 	   "text": "Fearth_y = Fearth_y * sin (\\thetaFearth)"}, "id": 15}
 
 [
-  {"action": "modify-object", "id": "a14", "mode": "wrong"}
+  {"action": "modify-object", "id": "a14", "mode": "incorrect"}
 ]
 
 {"method": "solution-step", "params": {"time": 590.001, 
@@ -273,7 +273,7 @@ For the rest of this, I am going to skip the log stuff.
 	   "text": "Fearth_y = Fearth * sin (\\thetaFearth)"}, "id": 16}
 
 [
-  {"action": "modify-object", "id": "a14", "mode": "right"}
+  {"action": "modify-object", "id": "a14", "mode": "correct"}
 ]
 
 10:22 Ask for a hint.  The student replies by typing in the help area.
@@ -318,7 +318,7 @@ combined.
 	   "text": "Fearth is force due to gravity"}, "id": 20}
 
 [
-  {"action": "modify-object", "id": "a15", "mode": "right"}
+  {"action": "modify-object", "id": "a15", "mode": "correct"}
 ]
 
 12:30 Seventh equation
@@ -331,7 +331,7 @@ combined.
 
 [
   {"action": "set-score", "score", 57},
-  {"action": "modify-object", "id": "a16", "mode": "right"}
+  {"action": "modify-object", "id": "a16", "mode": "correct"}
 ]
 
 13:01 Eighth equation
@@ -344,7 +344,7 @@ combined.
 
 [
   {"action": "set-score", "score", 75},
-  {"action": "modify-object", "id": "a17", "mode": "right"}
+  {"action": "modify-object", "id": "a17", "mode": "correct"}
 ]
 
 14:11 Ninth equation, turns red, ask for help.
@@ -357,7 +357,7 @@ combined.
 
 [
   {"action": "set-score", "score", 74},
-  {"action": "modify-object", "id": "a18", "mode": "wrong"}
+  {"action": "modify-object", "id": "a18", "mode": "incorrect"}
 ]
 
 Student asks for help by pressing the help button.  They can also ask for
@@ -390,7 +390,7 @@ non-blocking, thus there is no need for the "OK" button seen in Andes2.
 	   "text": "Fearth_y = -m*g"}, "id": 26}
 
 [
-  {"action": "modify-object", "id": "a18", "mode": "right"}
+  {"action": "modify-object", "id": "a18", "mode": "correct"}
 ]
 
 15:05  Ask for Fwall1.  I would like to avoid another button on the interface.
@@ -422,7 +422,7 @@ box included with the original problem statement with "text" set to
 [
   {"action": "show-hint", "text": "Forgot to put units on a number."},
   {"action": "show-hint-link", "text": "Explain more", "value": "Explain-More"},
-  {"action": "modify-object", "id": "a19", "mode": "wrong"}
+  {"action": "modify-object", "id": "a19", "mode": "incorrect"}
 ]
 
 {"method": "seek-help", "params": {"time": 918.001,
@@ -438,7 +438,7 @@ box included with the original problem statement with "text" set to
 
 [
   {"action": "set-score", "score", 97},
-  {"action": "modify-object", "id": "a19", "mode": "right"}
+  {"action": "modify-object", "id": "a19", "mode": "correct"}
 ]
 
 16:24  Close problem.  This is done by clicking on the browser back button, 

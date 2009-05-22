@@ -39,9 +39,9 @@
 	    },
 	    "mode":{
 	      "type": "string",
-	      "enum": ["unknown","right","wrong","locked","fade"],
+	      "enum": ["unknown","correct","incorrect","locked","fade"],
 	      "optional": true,
-	      "description": "State of the item; unknown: black; correct: green; wrong: red; locked: black(not user selectable); fade: gray (not user selectable)"
+	      "description": "State of the item; unknown: black; correct: green; incorrect: red; locked: black(not user selectable); fade: gray (not user selectable)"
 	    },
 	    "x":	{"type": "number",  "optional": true},
 	    "y":	{"type": "number",  "optional": true},
@@ -108,15 +108,20 @@
 	{
 	  "name": "mode",
 	  "type": "string",
-	  "enum": ["unknown","right","wrong","locked","fade"],
+	  "enum": ["unknown","correct","incorrect","locked","fade"],
 	  "optional": true,
-	  "description": "State of the item; black; correct: green; wrong: red; locked:  black (not user selectable) fade:  gray (not user selectable)"
+	  "description": "State of the item; black; correct: green; incorrect: red; locked:  black (not user selectable) fade:  gray (not user selectable)"
 	},
-	{"name": "x", 		"type": "number"},
-	{"name": "y",	 	"type": "number"},
+	{"name": "x", 		"type": "number", 	"optional": true},
+	{"name": "y",	 	"type": "number", 	"optional": true},
 	{"name": "width", 	"type": "number", 	"optional": true}, 
 	{"name": "height", 	"type": "number",	"optional": true},
-	{"name": "text", 	"type": "string", 	"optional": true},
+	{
+	  "name": "text", 	
+	  "type": "string", 	
+	  "optional": true,
+	  "description": "Manditory for equation, phrase."
+	},
 	{"name": "radius", 	"type": "number", 	"optional": true},
 	{"name": "symbol", 	"type": "string", 	"optional": true},
 	{"name": "x-label", "type": "string", 	"optional": true},
@@ -141,9 +146,9 @@
 	    },
 	    "mode": {
 	      "type": "string",
-	      "enum": ["unknown","right","wrong","locked","fade","deleted"],
+	      "enum": ["unknown","correct","incorrect","locked","fade","deleted"],
 	      "optional": true,
-	      "description": "State of the item; unknown: black; correct: green; wrong: red; locked: black(not user selectable); fade: gray (not user selectable); deleted: remove from canvas.  Required for modify-object."
+	      "description": "State of the item; unknown: black; correct: green; incorrect: red; locked: black(not user selectable); fade: gray (not user selectable); deleted: remove from canvas.  Required for modify-object."
 	    },
 	    "text":	{
 	      "type": "string", 	
