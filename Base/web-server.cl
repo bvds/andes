@@ -69,51 +69,54 @@
   (unless (search "application/json" (header-in* :content-type))
     ;; with the wrong content-type, just send string back
     (return-from handle-json-rpc "\"content-type must be application/json\""))
-  (let* (result error1 reply
-		(in-json (decode-json-from-string 
-			  (raw-post-data :force-text t)))
-		(service-uri (request-uri*))
-		(method (cdr (assoc :method in-json)))
-		(params (cdr (assoc :params in-json)))
-		(turn (cdr (assoc :id in-json)))
-		(client-id (header-in* :client-id))
-		(version (assoc :jsonrpc in-json))
-		(method-func (gethash (list service-uri method) 
-				      *service-methods*)))
+  (let* (reply
+	 (in-json (decode-json-from-string 
+		   (raw-post-data :force-text t)))
+	 (service-uri (request-uri*))
+	 (method (cdr (assoc :method in-json)))
+	 (params (cdr (assoc :params in-json)))
+	 (turn (cdr (assoc :id in-json)))
+	 (client-id (header-in* :client-id))
+	 (version (assoc :jsonrpc in-json))
+	 (method-func (gethash (list service-uri method) 
+			       *service-methods*)))
     (format *stdout* "session ~A calling ~A with ~S~%" 
 	    client-id method params)
-    (cond
-      ;; Here, we assume that the client generates the user-problem
-      ;; session id.  Alternatively, we could have the server generate it and
-      ;; return it to the client at the beginning of a new session
-      ((null client-id)
-       (setq error1 (if version
-			`((:code . -32000) 
-			  (:message . "missing http header client-id"))
-			(format nil "missing http header client-id"))))
-      ((null method)
-       ;; Need more general checks for bad json-rpc.  This is a bit
-       ;; hard because the clients already do this.
-       (setq error1 (if version
-			`((:code . -32600) (:message . "Method missing."))
-			(format nil "Method missing"))))
-      ((null method-func)
-       (setq error1 (if version
-			`((:code . -32601) (:message . "Method not found")
-			  (:data . ,method))
-			(format nil "Can't find method ~S for service ~A" 
-				method service-uri))))
-      ;; need error handler for the case where the arguments don't 
-      ;; match the function...
-      (t (setq result (execute-session client-id turn method-func params))))
-    (format *stdout* "  result ~S error ~S~%" result error1)
-    ;; only give a response when there is an error or id is given
-    (when (or error1 turn)
-      (when (or error1 (not version)) (push (cons :error error1) reply))
-      (when (or result (not version)) (push (cons :result result) reply))
-      (push (cons :id turn) reply)
-      (when version (push version reply))
-      (encode-json-alist-to-string reply))))
+    
+    (multiple-value-bind (result error1)
+	(cond
+	  ;; Here, we assume that the client generates the user-problem
+	  ;; session id.  Alternatively, we could have the server generate it and
+	  ;; return it to the client at the beginning of a new session
+	  ((null client-id)
+	   (values nil (if version
+			   `((:code . -32000) 
+			     (:message . "missing http header client-id"))
+			   (format nil "missing http header client-id"))))
+	  ((null method)
+	   ;; Need more general checks for bad json-rpc.  This is a bit
+	   ;; hard because the clients already do this.
+	   (values nil (if version
+			   `((:code . -32600) (:message . "Method missing."))
+			   (format nil "Method missing"))))
+	  ((null method-func)
+	   (values nil (if version
+			   `((:code . -32601) (:message . "Method not found")
+			     (:data . ,method))
+			   (format nil "Can't find method ~S for service ~A" 
+				   method service-uri))))
+	  ;; need error handler for the case where the arguments don't 
+	  ;; match the function...
+	  (t (execute-session client-id turn method-func params)))
+      
+      (format *stdout* "  result ~S error ~S~%" result error1)
+      ;; only give a response when there is an error or id is given
+      (when (or error1 turn)
+	(when (or error1 (not version)) (push (cons :error error1) reply))
+	(when (or result (not version)) (push (cons :result result) reply))
+	(push (cons :id turn) reply)
+	(when version (push version reply))
+	(encode-json-alist-to-string reply)))))
 
 ;;; 
 ;;;     Session and turn management
@@ -231,7 +234,8 @@
 	       (ssn-reply session))
 	      ;; Message from earlier turn arrives late.
 	      ;; Right now, this only works if turns are labeled
-	      ;; by consecutive integers.
+	      ;; by increasing numbers.  
+	      ;; Otherwise, we would need to create a list of old ids.
 	      ((and (numberp turn) (numberp (ssn-turn session))
 		   (< turn (ssn-turn session)))
 	       ;; return message, since client doesn't have to 
@@ -255,13 +259,28 @@
   (setf (ssn-reply session) reply)
   (setf (ssn-lock session) nil))
 
+(defun error-hint (condition)
+  "Message shown to the user after a lisp error has occurred."
+  `(((:action . "show-hint")
+     (:text . ,(format nil "An error occurred:~%     ~A,~%Please try again." 		       condition)))))
+
+(defun log-error (condition)
+  "Log after an error or warning has occurred."
+  `((:action . "log")
+     (:error-type . ,(string (type-of condition)))
+     (:error . ,(format nil "~A" condition))
+     (:backtrace . ,(with-output-to-string 
+		     (stream)
+		     ;; sbcl-specific function 
+		     #+sbcl(sb-debug:backtrace 10 stream)))))
+
 (defun execute-session (session-hash turn func params)
   "Execute a function in the context of a given session when its turn comes.  If the session doesn't exist, create it.  If there is nothing to save in *env*, delete session."
-  (let (func-return
+  (let (func-return log-warn
 	(session (get-session session-hash))
 	;; Make thread-local binding of special variable *env*
 	*env*)
-    ;; try to lock a session, if not return the reply
+    ;; try to lock a session, if not return the reply or error
     (let ((ret (lock-session session turn)))
       ;; if lock was unsuccessful, return with message.
       (when ret (return-from execute-session ret)))
@@ -269,23 +288,25 @@
     ;; env is local to the thread.
     (setf *env* (ssn-environment session))
     (setf func-return 
-	  ;; Lisp errors not treated as Json rpc errors, since there
+	  ;; Lisp errors are not treated as Json rpc errors, since there
 	  ;; is little the client can do to handle them.
-	  (handler-case 
+	  ;; We log both errors and warnings.  The strategy is to use
+	  ;; a warning whenever possible in the helpsystem code.
+	  (block unwind
+	    (handler-bind 
+		;; For errors, we log and break, sending a message to 
+		;; the user.
+		((error #'(lambda (c) (push (log-error c) log-warn) 
+				  (return-from unwind (error-hint c))))
+		 ;; For warnings, we log the situation and continue
+		 (warning #'(lambda (c) (push (log-error c) log-warn) 
+				    (continue))))
 	      ;; execute the method
 	      (apply func (if (alistp params) 
-			      (flatten-alist params) params))
-	    (error (condition) 
-	      `(((:action . "show-hint")
-		 (:text . ,(format nil "An error occurred:~%     ~A" 
-				   condition)))
-		((:action . "log")
-		 (:error-type . ,(string (type-of condition)))
-		 (:error . ,(format nil "~A" condition))
-		 (:backtrace . ,(with-output-to-string 
-				 (stream)
-				 ;; sbcl-specific function 
-				 #+sbcl(sb-debug:backtrace 10 stream))))))))
+			      (flatten-alist params) params)))))
+    ;; Add any log messages for warnings or errors to the return
+    (setf func-return (append func-return log-warn))
+    
     (if *env*
 	;; save session environment for next turn
 	(setf (ssn-environment session) *env*)
