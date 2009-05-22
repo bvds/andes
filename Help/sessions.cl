@@ -222,6 +222,21 @@
       
       replies)))
 
+(defmacro assoc-from-variables (&rest x) 
+  "Make alist of symbol value pairs from all variables that are non-null."
+  `(remove nil 
+    (list ,@(mapcar #'(lambda (y) (list 'cons (intern (string y) "KEYWORD") y)) 
+		    x))
+    :key #'cdr))
+
+(defun update-alist (x update)
+  "Update elements in first alist by matching elements in second alist; returns nil."
+  (let (a) 
+    (dolist (ue update)
+      (if (setf a (assoc (car ue) x))
+         (setf (cdr a) (cdr ue))
+         (warn "member ~A missing from alist ~A" (car ue) x)))))
+
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
 (webserver:defun-method "/help" solution-step 
@@ -240,15 +255,91 @@
     ;; check-answer
     ;; calculate-equation-string (find variable on lhs of equation)
     ;;                           (probably not in Andes3)
-    ;; BvdS:  May want to switch inner and outer cond:
+
+    ;; get or create the appropriate student entry
+    (let ((entry (find-entry id)))
+
+  #|    (cond ((string= action "new-object")
+	     (if entry 
+		 (progn (warn "New object ~A already exists, updating old object." id)
+			;; update old object
+			nil)
+		 ;; create new object
+		 (make-entry ???)))
+	    ((or (string= action "delete-object")
+		 (string= action "modify-object"))
+	     (if entry
+		 ;; update entry with new attributes, check object type
+		 nil
+		 ;;
+		 (warn "Trying to modify non-existant object ~A, creating new object."))))
+|#
+       
     (cond
       ((string= action "delete-object")
-       (delete-object id))
+       (delete-object entry))
+
+      ;; Andes2 does not distinguish between a new entry and a 
+      ;; modified entry since all the information about an object 
+      ;; is resent every  time.  So, it just clobbers
+      ;; the old information, if the entry already existed.
+     
+      ;; Andes3 allows partial information to be sent in the case
+      ;; of an update.  We need a way of merging attributes in the
+      ;; case of a modified object.  
+
+      ;; The following tests should probably occur when the update
+      ;; of *StudentEntries* is attempted:
+
+      ;; type can't be updated, needs stored elsewhere
+    ;  (assoc-from-variables mode x y
+	;		text width height radius symbol x-label y-label angle) 
+
+
+      ;; Since "text" is the only attribute and is required, 
+      ;; we don't have to worry about merging.
+      ;; But eventually, we will want to include position.
+      ((string= type "equation")
+       (unless text (error "Equation must always have text"))
+       (lookup-eqn-string text id)) ;Unmodified Andes2 call
+
+      ((string= type "phrase")
+       (unless text (error "Definition must always have text"))
+       (define-variable :text text :symbol symbol :id id))
+
+      ;; Andes2 does not distinguish between a new entry and a 
+      ;; modified entry since all the information about an object 
+      ;; is resent every  time.  So, it just clobbers
+      ;; the old information, if the entry already existed.
+     
+      ;; Andes3 allows partial information to be sent in the case
+      ;; of an update.  We need a way of merging attributes in the
+      ;; case of a modified object.  
+
+      ;; The following tests should probably occur when the update
+      ;; of *StudentEntries* is attempted:
+
+      ((and (string= action "modify-object")
+	    (not (find-entry id)))
+       (error "Attempting to modify object ~A which doesn't exist." id))
+
+      ((and (string= action "new-object")
+	    (find-entry id))
+       (error "Attempting to create object ~A which already exists." id))
+
+      ;; Since "text" is the only attribute and is required, 
+      ;; we don't have to worry about merging.
+      ;; But eventually, we will want to include position.
+      ((string= type "equation")
+       (unless text (error "Equation must always have text"))
+       (lookup-eqn-string text id)) ;Unmodified Andes2 call
+
+      ((string= type "phrase")
+       (unless text (error "Definition must always have text"))
+       (define-variable :text text :symbol symbol :id id))
 
       ((string= action "new-object")
        (cond 
-	 ((string= type "equation")
-	  (lookup-eqn-string text id)) ;Unmodified Andes2 call
 	 ((string= type "circle")
 	  `(((:action . "log") 
 	     (:assoc . (("DRAW-BODY" . "(BODY BALL)"))) 
@@ -261,14 +352,6 @@
 	    (:id . ,id))
 	   ((:action . "set-score") (:score . 25))
 	   ((:action . "modify-object") (:id . ,id) (:mode . "right"))))
-	 ((string= type "phrase")
-	  `(((:action . "log") 
-	     (:assoc . (("DEFINE-MASS" . "(DEFINE-VAR (MASS BALL))"))) 
-	     (:id . ,id))
-	    ((:action . "log") (:parse . "(= m_BALL (DNUM 2.0 kg))") 
-	     (:id . ,id))
-	    ((:action . "set-score") (:score . 40))
-	    ((:action . "modify-object") (:id . ,id) (:mode . "right"))))
 	 (t 
 	  `(((:action . "log") 
 	     (:assoc . (("DRAW-NORMAL" . "VECTOR (FORCE BALL WALL1 NORMAL :TIME 1) (DNUM 120 deg))"))) 
@@ -279,12 +362,10 @@
 
       ((string= action "modify-object")
        (cond 
-	 ((string= type "equation")
-	  (lookup-eqn-string text id)) ;Unmodified Andes2 call
 	 (t  `(((:action . "set-score") (:score . 57))
 	       ((:action . "modify-object") (:id . ,id) (:mode . "right"))))))
 
-      (t (error "Undefined action ~A." action)))))
+      (t (error "Undefined action ~A." action))))))
 
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  

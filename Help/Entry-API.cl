@@ -1196,7 +1196,7 @@
 ;;  as "entered" and enters the student's variable name into the symbol table
 ;;  paired with the corresponding system variable
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun define-variable (var type quant body time body2 id &optional value)
+(defun define-variable (&key text )
  (let* ((quant-term (make-quant type quant body body2 time))
 	(action    `(define-var ,quant-term))
 	(entry      (make-StudentEntry :id id :prop action)))

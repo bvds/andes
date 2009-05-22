@@ -32,8 +32,8 @@
 
 
 (defstruct (StudentEntry (:print-function print-StudentEntry))
-  Id	 ;Workbench assigned Identifier.
-  ;; When the workbench says something is deleted, this is the ID that it uses.
+  Id	 ;Client assigned Identifier.
+  type   ;can be phrase, equation, circle, rectangle, axes, vector, line
   Prop   ;Entry proposition (Equalp to SystemEntry-prop.)
   State           ;One of correct, inefficient, dead-path, forbidden, incorrect.
   CInterp         ;The Selected set of any SystemEntries that constitute 
@@ -91,4 +91,12 @@
   "Return the subset of all entries that are in the specified state."
   (subset State Entries :test #'equalp :key #'StudentEntry-State))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; find-entry -- lookup student entry by ID
+;; Arguments: id   workbench-assigned entry id
+;; Returns: student entry structure or NIL if not found
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun find-entry (Id)
+  "find student entry by workbench assigned entry id"
+  (find id *StudentEntries* :key #'StudentEntry-ID :test #'equal))
 
