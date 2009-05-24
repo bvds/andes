@@ -234,8 +234,8 @@
 ;; However, the list management functions are designed to do certain updates 
 ;; automatically as side effects to ensure consistency:
 ;;
-;; add-entry automatically removes any existing entry via remove-entry
-;;   remove-entry automatically undoes entry's effects via undo-entry
+;; add-entry automatically removes any existing entry via delete-object
+;;    delete-object automatically undoes entry's effects via undo-entry
 ;;     undo-entry (in entry interpreter) resets all state, including the
 ;;                undoing of solution graph updates for correct entries.
 ;;       undo-eqn-entry does further undoing specific to equation entries
@@ -249,13 +249,13 @@
 ;; Returns: garbage
 ;;
 ;; Important: To ensure consistency, if an entry with same id exists, it is 
-;; automatically deleted via remove-entry. This will call undo-entry on the
+;; automatically deleted via delete-object. This will call undo-entry on the
 ;; existing entry to undo its effects as well, see below.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun add-entry (Entry)
   "Add the specified student entry struct, deleting any existing entry."
   ; remove any existing entry with same id 
-  (remove-entry (StudentEntry-ID Entry)) 
+  (delete-object Entry)
   ; add new entry
   (format *debug-help* "Adding entry: ~A ~S~%" 
 	  (studententry-id entry) (studententry-prop entry))

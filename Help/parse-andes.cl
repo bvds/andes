@@ -100,7 +100,7 @@
 
 ;;
 (defun handle-empty-equation (id)
-  (remove-entry id)
+  (delete-object (find-entry id))
   (make-noop-turn)) ; no coloring on empty eqn -- noop leaves "black"
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -851,7 +851,8 @@
 			    (setf (StudentEntry-ParsedEqn entry) ; parse maybe useful
 			      (StudentEntry-ParsedEqn temp-entry))
 			    ;; remove temp from saved entry list
-			    (remove-entry *solver-temp-eqn-slot*)) ; clears algebra slot
+			    ;; clears algebra slot
+			    (delete-object (find-entry *solver-temp-eqn-slot*)))
 			  (symbols-delete "Answer"))
 			 (T ; answer has non-parameter vars
 			  (setf (StudentEntry-ErrInterp entry) 
@@ -1104,7 +1105,8 @@
 
 	  ;; don't save the temp equation entry on our main list anymore
 	  ;; if it's correct, caller should add subentry like an implicit equation
-	  (remove-entry *solver-temp-eqn-slot*) ; clears algebra slot automatically
+	  ;; clears algebra slot automatically
+	  (delete-object (find-entry *solver-temp-eqn-slot*))
 	  ;; finally return turn
 	  result-turn
 	  )))))

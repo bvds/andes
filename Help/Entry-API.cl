@@ -1283,7 +1283,7 @@
 ;; Undo-entry -- undo all state effects of a particular Student entry
 ;; Argument: enty -- the StudentEntry to be undone.
 ;;
-;; Note: This worker routine is automatically invoked by the remove-entry 
+;; Note: This worker routine is automatically invoked by the delete-object 
 ;; function to cleanup state on removal of an entry from the entry list -- 
 ;; a bit like a C++ destructor for student entries.  That ensures that
 ;; entry effects are always undone when a student entry is removed.
@@ -1788,7 +1788,7 @@
 	    (error "Value not numberp in do-check-mc-answer: ~A" Value))
         ;; if cleared done button, delete any prior entry for this button
 	;; and leave control black. 
-	((= 0 Value) (remove-entry ID)
+	((= 0 Value) (delete-object (find-entry ID))
 	             (make-black-turn))
 	;; Treat any non-zero value as T, just in case other non-zero 
 	;; comes from C 
