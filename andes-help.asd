@@ -89,7 +89,6 @@
 			:depends-on ("Help" "HelpStructs")
 			:components (
 				     (:file "StackProcessing")
-				     (:file "CMDTests")
 				     (:file "StackTests")
 				     (:file "EntryPair")
 				     (:file "ProcDepth")
