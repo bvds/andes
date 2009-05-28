@@ -25,7 +25,7 @@ my $id_counter = 1;
 
 # load existing mapping from specified mapping file
 open MAPFILE, "<$filename" or die "Couldn't open $filename for reading: $!\n"  ;
-%idmap = map /(.*)\t(.*)\r/, <MAPFILE>; # gulps in hash. Assumes DOS mode \r is read
+%idmap = map /(.*)\t(\w*)/, <MAPFILE>; # gulps in hash. 
 close MAPFILE;
 if (0) { # debugging printout
 	$maplength = (keys idmap);
@@ -124,7 +124,7 @@ while (<>)
 if ($modified_map) {
  open MAPFILE, ">$filename" or die "Couldn't open $filename for updating: $!\n";
  while( ($k, $v) = each %idmap) {
-        print MAPFILE "$k\t$v\r\n";
+        print MAPFILE "$k\t$v\n";
  }
  close MAPFILE;
 }

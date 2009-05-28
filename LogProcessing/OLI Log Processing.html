@@ -396,7 +396,8 @@ At the end of the
 conversion, this set of directories should be zipped up and delivered
 to the DataShop for
 dropoff. The DataShop should give you ssh access to a dropbox location
-on their "cooker" server for this purpose.<br>
+on <code>the-cooker.pslc.cs.cmu.edu</code> for this purpose.<br>
+
 <h5>Info files</h5>
 Although the basic conversion is simple, the converter makes use of
 several external files to patch in information not included in the
@@ -446,6 +447,12 @@ as<br>
 <br>
 &nbsp;&nbsp;&nbsp; perl mapidcol.pl idmap.txt 1 &lt; raw-classmap.txt
 &gt; classmap.txt<br>
+<br>
+Or use the one-liner:
+<pre>
+perl -p -e "s/(\w+) +(\w+)/\2 USNA/" log/Spring2009-USNA-mapping.txt > Info/classmap.txt
+</pre>
+
 <h6>Class information</h6>
 The Info file class-XXX.xml specifies the full xml element to patch
 into the conversion output for specifying the class of students mapped
