@@ -1,8 +1,7 @@
 
 This is an example the client-server API for the Tim Nokes demo solution.
 See http://www.andestutor.org/AAPT-2007 .  The API is expressed in a form that 
-should be compatible with json-rpc-2.0.  This is just a first attempt at
-an API, any suggestions are welcome.
+should be compatible with json-rpc-2.0.
 
 Comments explain places where the Andes3 behavior is different than Andes2, 
 as well as some details of the user interface behavior.  In particular,
