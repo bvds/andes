@@ -120,7 +120,7 @@ $DataSet =~ s/\r//;
 
 # load the problem to unit mapping table, if it exists
 if (open UNITMAP, "<Info/unitmap.txt") {
-     %unitmap = map /(.*)\t([^\r]*)/, <UNITMAP>;
+     %unitmap = map /(.*)\t([^\r^\n]*)/, <UNITMAP>;
      close UNITMAP;
      $have_unitmap = 1;
      #print STDERR "loaded unit map\n";
@@ -130,7 +130,7 @@ if (open UNITMAP, "<Info/unitmap.txt") {
 # we may get a condition from a conditionmap file, or else from set-condition
 # above. If both are set, condition map will override.
 if (open CONDITIONMAP, "<Info/conditionmap.txt") {
-	%conditionmap = map /(.*)\t([^\r]*)/, <CONDITIONMAP>;
+	%conditionmap = map /(.*)\t([^\r^\n]*)/, <CONDITIONMAP>;
         close CONDITIONS;
 	$have_conditionmap = 1;
      #print STDERR "loaded condition map\n";
@@ -138,7 +138,7 @@ if (open CONDITIONMAP, "<Info/conditionmap.txt") {
 
 # load the student to class mapping table, if it exists
 if (open CLASSMAP, "<Info/classmap.txt") {
-	%classmap = map /(.*)\t([^\r]*)/, <CLASSMAP>;
+	%classmap = map /(.*) +([^\r^\n]+)/, <CLASSMAP>;
         close CLASSMAP;
 	$have_classmap = 1;
 }
@@ -153,8 +153,13 @@ while (<>) {
     # Log header line begins a new log. We could reset and get date from this, but
     # in fact we get it from initial set-session-id call below. However, need to 
     # get the year from here since it's not in the session id.
-    if (/# Log of Andes session begun [\w]+, [\w]+ [\d]+, ([\d]+) [\d:]+ by/) {
+    if (/# Log of Andes session begun \w+, \w+ \d+, (\d+) /) {
         # Example:                   Monday, October 22, 2005 02:13:52
+    	$year = $1;
+    }
+    # case with AM/PM time zone format
+    elsif (/# Log of Andes session begun [\w]+ \d+ \w+ (\d+) /) {
+        # Example:                   Sun 08 Feb 2009 01:49 PM EST
     	$year = $1;
     }
 

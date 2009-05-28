@@ -185,6 +185,7 @@ file, and an Andes log file is tself a multi-line Windows-format&nbsp;
 text file in which the lines end with carriage-return linefeed pairs.
 One effect of this is that when viewed in a text editor, there will
 appears to be a blank line after each log file. <br>
+
 <h2><span style="font-weight: bold;">Anonymizing the logs</span></h2>
 <h2><span style="font-weight: bold;"></span></h2>
 <br>
@@ -192,6 +193,7 @@ There are different scripts for anonymizing USNA logs, where our
 students are supposed to use their alphas, aka mid numbers, as user
 ids, and anonymizing arbitrary student logs, where the ids may take any
 form.<br>
+
 <h5>Anonymizing USNA midshipmen logs: mkanon-usna.pl<br>
 </h5>
 To anonymize mid logs, obtain the file mkanon-usna.pl.template. Edit it
@@ -217,6 +219,13 @@ will be passed through unchanged. Normally such ids are limited to
 instructor or TA accounts. So, these untranslated ids should then be
 identifiable in the anonymized output by the fact that they differ in
 form from all the student ids. <br>
+
+<p>The user id appears twice in each session:  in cases where there
+is some ambiguity, it can be useful to compare the two:
+<pre>
+cat log/Spring2009-USNA.dat | perl -ne 'm/# Log .* by (.+) on / and print "$1 "; m/read-student-info "(.*)"/ and print "$1\n"' | sort | uniq
+</pre>
+
 <h5>Using OLI class rosters</h5>
 It is generally useful to save copies of the OLI roster tables. OLI
 does not provide any method to export the rosters, so the method for
@@ -396,7 +405,8 @@ At the end of the
 conversion, this set of directories should be zipped up and delivered
 to the DataShop for
 dropoff. The DataShop should give you ssh access to a dropbox location
-on their "cooker" server for this purpose.<br>
+on <code>the-cooker.pslc.cs.cmu.edu</code> for this purpose.<br>
+
 <h5>Info files</h5>
 Although the basic conversion is simple, the converter makes use of
 several external files to patch in information not included in the
@@ -446,6 +456,12 @@ as<br>
 <br>
 &nbsp;&nbsp;&nbsp; perl mapidcol.pl idmap.txt 1 &lt; raw-classmap.txt
 &gt; classmap.txt<br>
+<br>
+Or use the one-liner:
+<pre>
+perl -p -e "s/(\w+) +(\w+)/\2 USNA/" log/Spring2009-USNA-mapping.txt > Info/classmap.txt
+</pre>
+
 <h6>Class information</h6>
 The Info file class-XXX.xml specifies the full xml element to patch
 into the conversion output for specifying the class of students mapped
