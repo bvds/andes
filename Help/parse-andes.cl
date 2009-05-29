@@ -54,10 +54,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defun lookup-eqn-string (eq id &key (log T))
+(defun lookup-eqn-string (entry &key (log T))
+  "Minimally modified Andes2 call"
+  (let ((eq (StudentEntry-text entry))
+	(id (StudentEntry-id entry)))
+    (unless eq (warn "Equation must always have text") (setf eq ""))
     (prog1 ; first form gets our return value
-       (do-lookup-equation-string (fix-eqn-string (trim-eqn eq)) id 'equation)
-       (when log (log-entry-info (find-entry id)))))
+	(do-lookup-equation-string (fix-eqn-string (trim-eqn eq)) id 'equation)
+      (when log (log-entry-info (find-entry id))))))
 
 (defun do-lookup-equation-string (eq id location)
   (let ((equation eq) tmp)
@@ -100,7 +104,7 @@
 
 ;;
 (defun handle-empty-equation (id)
-  (delete-object (find-entry id))
+  (delete-object id)
   (make-noop-turn)) ; no coloring on empty eqn -- noop leaves "black"
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -852,7 +856,7 @@
 			      (StudentEntry-ParsedEqn temp-entry))
 			    ;; remove temp from saved entry list
 			    ;; clears algebra slot
-			    (delete-object (find-entry *solver-temp-eqn-slot*)))
+			    (delete-object *solver-temp-eqn-slot*))
 			  (symbols-delete "Answer"))
 			 (T ; answer has non-parameter vars
 			  (setf (StudentEntry-ErrInterp entry) 
@@ -1106,7 +1110,7 @@
 	  ;; don't save the temp equation entry on our main list anymore
 	  ;; if it's correct, caller should add subentry like an implicit equation
 	  ;; clears algebra slot automatically
-	  (delete-object (find-entry *solver-temp-eqn-slot*))
+	  (delete-object *solver-temp-eqn-slot*)
 	  ;; finally return turn
 	  result-turn
 	  )))))

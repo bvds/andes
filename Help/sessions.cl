@@ -222,27 +222,14 @@
       
       replies)))
 
-(defmacro assoc-from-variables (&rest x) 
-  "Make alist of symbol value pairs from all variables that are non-null."
-  `(remove nil 
-    (list ,@(mapcar #'(lambda (y) (list 'cons (intern (string y) "KEYWORD") y)) 
-		    x))
-    :key #'cdr))
-
-(defun update-alist (x update)
-  "Update elements in first alist by matching elements in second alist; returns nil."
-  (let (a) 
-    (dolist (ue update)
-      (if (setf a (assoc (car ue) x))
-         (setf (cdr a) (cdr ue))
-         (warn "member ~A missing from alist ~A" (car ue) x)))))
-
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
 (webserver:defun-method "/help" solution-step 
     (&key time id action type mode x y
 			text width height radius symbol x-label y-label angle) 
   "problem-solving step"
+  ;; fixed attributes:      type id
+  ;; updatable attributes:  mode x y text width height radius symbol x-label y-label angle
   (env-wrap 
     ;; Andes2 also had calls to:
     ;; define-variable define-angle-variable
@@ -256,97 +243,89 @@
     ;; calculate-equation-string (find variable on lhs of equation)
     ;;                           (probably not in Andes3)
 
-    ;; get or create the appropriate student entry
-    (let ((entry (find-entry id)))
+    ;; Andes2 does not distinguish between a new entry and a 
+    ;; modified entry since all the information about an object 
+    ;; is present every  time.  So, it just clobbers
+    ;; the old information, if the entry already existed.
+    
+    ;; Andes3 allows partial information to be sent in the case
+    ;; of an update.  We need a way of merging attributes in the
+    ;; case of a modified object.  
+    
+    ;; The strategy here is to first make a minimal change to the 
+    ;; old set-up and get things working, and then make changes to
+    ;; move the handling of StudentEntries to the top level.
 
-  #|    (cond ((string= action "new-object")
-	     (if entry 
-		 (progn (warn "New object ~A already exists, updating old object." id)
-			;; update old object
-			nil)
-		 ;; create new object
-		 (make-entry ???)))
-	    ((or (string= action "delete-object")
-		 (string= action "modify-object"))
-	     (if entry
-		 ;; update entry with new attributes, check object type
-		 nil
-		 ;;
-		 (warn "Trying to modify non-existant object ~A, creating new object."))))
-|#
-       
-    (cond
-      ((string= action "delete-object")
-       (delete-object entry))
+    (let ((old-entry (find-entry id)) new-entry)
 
-      ;; Andes2 does not distinguish between a new entry and a 
-      ;; modified entry since all the information about an object 
-      ;; is resent every  time.  So, it just clobbers
-      ;; the old information, if the entry already existed.
-     
-      ;; Andes3 allows partial information to be sent in the case
-      ;; of an update.  We need a way of merging attributes in the
-      ;; case of a modified object.  
+      (when (and old-entry (equal action "new-object"))
+	(warn "Object ~A already exists, updating old object." id))
 
-      ;; The following tests should probably occur when the update
-      ;; of *StudentEntries* is attempted:
+      (unless (and old-entry (or (equal action "modify-object")
+				 (equal action "delete-object")))
+	(warn "Object ~A does not exist, creating new object." id))
 
-      ;; type can't be updated, needs stored elsewhere
-    ;  (assoc-from-variables mode x y
-	;		text width height radius symbol x-label y-label angle) 
+      ;; check type, if there is no old entry
+      (unless (or old-entry (member type *allowed-studententry-types* :test #'equal))
+	(warn "Attribute type=~A not allowed." type)
+	(setf type nil))
 
+      (when (and old-entry 
+		 (not (equal (StudentEntry-type new-entry)
+			     (StudentEntry-type old-entry))))
+	(warn "Attempting to change type from ~A to ~A"
+	      (StudentEntry-type old-entry)
+	      (StudentEntry-type new-entry)))
 
-      ;; Since "text" is the only attribute and is required, 
-      ;; we don't have to worry about merging.
-      ;; But eventually, we will want to include position.
-      ((string= type "equation")
-       (unless text (error "Equation must always have text"))
-       (lookup-eqn-string text id)) ;Unmodified Andes2 call
+      ;; create new object
+      (setf new-entry (make-entry :id id :type type))
 
-      ((string= type "phrase")
-       (unless text (error "Definition must always have text"))
-       (define-variable :text text :symbol symbol :id id))
+      ;; update attributes from old object
+      (when old-entry
+	(update-entry-from-entry 
+	 new-entry old-entry 
+	 type mode x y text width height radius symbol x-label y-label angle))
 
-      ;; Andes2 does not distinguish between a new entry and a 
-      ;; modified entry since all the information about an object 
-      ;; is resent every  time.  So, it just clobbers
-      ;; the old information, if the entry already existed.
-     
-      ;; Andes3 allows partial information to be sent in the case
-      ;; of an update.  We need a way of merging attributes in the
-      ;; case of a modified object.  
+      ;; update new object from variables
+      (update-entry-from-variables 
+       new-entry  
+       mode x y text width height radius symbol x-label y-label angle)
+      
+      (cond
+	((equal action "delete-object")
+	 ;; Eventually, we will pass the object to be deleted rather than the id.
+	 (delete-object (StudentEntry-id new-entry)))
+	
+	;; Since "text" is the  attribute and is required. 
+	((equal type "equation")
+	 (lookup-eqn-string new-entry)) ;Almost unmodified Andes2 call
+	
+	((equal type "phrase")
+	 (define-variable new-entry))
+	 
+	((equal type "graphics")
+	 (warn "Can't modify a graphic object, id=~A" (studententry-id new-entry)))
+	
+	((equal type "circle")
+	 (assert-object new-entry))
 
-      ;; The following tests should probably occur when the update
-      ;; of *StudentEntries* is attempted:
+	((equal type "rectangle")
+	 (assert-object new-entry))
 
-      ((and (string= action "modify-object")
-	    (not (find-entry id)))
-       (error "Attempting to modify object ~A which doesn't exist." id))
+        ;; BvdS:  done to here, still need to do axes, vector, line
+	((equal type "axes")
+	 (assert-object new-entry))
+	
 
-      ((and (string= action "new-object")
-	    (find-entry id))
-       (error "Attempting to create object ~A which already exists." id))
-
-      ;; Since "text" is the only attribute and is required, 
-      ;; we don't have to worry about merging.
-      ;; But eventually, we will want to include position.
-      ((string= type "equation")
-       (unless text (error "Equation must always have text"))
-       (lookup-eqn-string text id)) ;Unmodified Andes2 call
-
-      ((string= type "phrase")
-       (unless text (error "Definition must always have text"))
-       (define-variable :text text :symbol symbol :id id))
-
-      ((string= action "new-object")
+      ((equal action "new-object")
        (cond 
-	 ((string= type "circle")
+	 ((equal type "circle")
 	  `(((:action . "log") 
 	     (:assoc . (("DRAW-BODY" . "(BODY BALL)"))) 
 	     (:id . ,id))
 	    ((:action . "set-score") (:score . 15))
 	    ((:action . "modify-object") (:id . ,id) (:mode . "right"))))
-	 ((string= type "axes")
+	 ((equal type "axes")
 	 `(((:action . "log") 
 	    (:assoc . (("DRAW-UNROTATED-AXES" . "(DRAW-AXES 0)"))) 
 	    (:id . ,id))
@@ -360,7 +339,7 @@
 	    ((:action . "set-score") (:score . 40))
 	    ((:action . "modify-object") (:id . ,id) (:mode . "right"))))))
 
-      ((string= action "modify-object")
+      ((equal action "modify-object")
        (cond 
 	 (t  `(((:action . "set-score") (:score . 57))
 	       ((:action . "modify-object") (:id . ,id) (:mode . "right"))))))
@@ -381,7 +360,7 @@
     ;; solve-for-var (could also be under solve steps..., or own method)
 
     (cond
-      ((string= action "get-help")
+      ((equal action "get-help")
        '(((:action . "show-hint") 
 	  (:text . "Because the vector is parallel to the Y axis 
 but in the negative direction, the projection equation is Fearth_y = - Fearth so
@@ -389,11 +368,11 @@ but in the negative direction, the projection equation is Fearth_y = - Fearth so
 	 ((:action . "show-hint-link") 
 	  (:text . "Explain more") 
 	  (:value . "Explain-More"))))
-      ((string= action "help-button")
+      ((equal action "help-button")
        '(((:action . "show-hint") 
 	  (:text . "Now that you have stated all of the given information, you should start on the major principles. What quantity is the problem seeking?"))
 	 ((:action . "focus-hint-text-box"))))
-      ((string= action "principles-menu")
+      ((equal action "principles-menu")
        '(((:action . "show-hint") 
 	  (:text . "Right indeed. Notice that the ball is at rest at T0."))
 	 ((:action . "show-hint-link") 

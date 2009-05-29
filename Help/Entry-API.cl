@@ -625,8 +625,14 @@
 ;;  whose name has "m" concatenated to the given label. Enters into the symbol
 ;;  table this name paired with the system's name for the same quantity.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun assert-object (label name &optional time id xpos ypos)
-  (let* ((body-term (arg-to-body name))
+(defun assert-object (entry)
+  (let* ((id (StudentEntry-id entry))
+	 (name (StudentEntry-text entry))
+	 (label (StudentEntry-symbol entry))
+	 (xpos (StudentEntry-x entry))
+	 (ypos (StudentEntry-y entry))
+	 (body-term (arg-to-body name))
+	 ;; need to find time
 	 (time-term (arg-to-time time))
 	 (action   `(body ,body-term :time ,time-term))
 	 (entry     (make-StudentEntry :id id :prop action))
@@ -1196,10 +1202,15 @@
 ;;  as "entered" and enters the student's variable name into the symbol table
 ;;  paired with the corresponding system variable
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun define-variable (&key text )
- (let* ((quant-term (make-quant type quant body body2 time))
-	(action    `(define-var ,quant-term))
-	(entry      (make-StudentEntry :id id :prop action)))
+(defun define-variable (entry)
+  (let* ((id (StudentEntry-id entry))
+	 (text (StudentEntry-text entry))
+	 (quant-term (make-quant type quant body body2 time))
+	 (action    `(define-var ,quant-term))
+	 (entry      (make-StudentEntry :id id :prop action)))
+
+       (unless text (warn "Definition must always have text")
+	       (setf text ""))
 
   ;; install new variable in symbol table
   (add-entry entry)
@@ -1687,69 +1698,6 @@
      (sg-enter-StudentEntry eqn-entry)
   ))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; check-answer -- lookup a students answer in the answer box
-;; argument(s):
-;;  answer: the contents of the answer field the student entered
-;;  answer-id: the author-defined id for the answer field. must start with the
-;;    string "ANSWER"
-;; returns: StudentEntry
-;; note(s):
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;
-;; Do-Check-Answer -- worker routine handle answer submission via check-answer
-;; Returns: tutor-turn.
-;;
-#|
-(defun Do-Check-Answer (answer-str sought-quant)
-  (format T"~&Checking answer ~A = ~A~%" sought-quant answer-str)
-  ; ignore blank answer box submissions
-  (when (= 0 (length (remove #\Space answer-str)) )
-       (return-from Do-Check-Answer NIL))
-
-  ; cheap method -- pretend it's just another equation. 
-  ; Later will add code to make sure it has correct form for answer
-  ; Note student may or may not type "var =" in answer box
-  ; !!! if they did, must verify var is the right one
-  (let* ((stud-var (symbols-label sought-quant))
-	 (answer-var stud-var)	; default, unless NIL, see below
-	 (answer-eqn answer-str) ; default unless no =, see below
-	 result-turn)
-      ; verify there is a system variable for sought
-      (unless (quant-to-sysvar sought-quant)
-         (error "No system variable for ~A. Possible mismatch with answer box."
-                 sought-quant))
-      ; We need to build a student equation. If no student variable for answer
-      ; quant has been defined, we define a temporary one. 
-      ; !!! should ensure no conflict with any real one.
-      (when (not stud-var)
-          (symbols-enter "Answer" sought-quant sought-quant)
-	  (setf answer-var "Answer"))
-      ; construct a student equation unless entered in eqn form
-      (unless (find #\= answer-str) 
-          (setf answer-eqn (format NIL "~A=~A" answer-var answer-str)))
-
-      ; do the work of checking an answer eqn, different from other eqns
-      ; !! might want unwind-protect here to ensure cleanup
-      (setf result-turn (check-answer-eqn answer-eqn Solver-*temp-eqn-slot*))
-
-      ; undo temporary state changes for checking answer
-      ; !!! We don't save entry so can't ask whats wrong!
-      (solver-StudentEmptySlot Solver-*temp-eqn-slot*)
-      (symbols-delete "Answer")
-
-      ;finally return result 
-      result-turn))
-
-; this function no longer used by revised Do-Check-Answer
-(defun check-answer-eqn (student-answer-eqn-str slot)
-   ; temp: delegate to student equation checker.
-   ; NB: not do-lookup-eqn-string, which does a return-turn
-   (do-lookup-equation-answer-string student-answer-eqn-str slot))
-
-|#
-;; do-check-answer moved to parse-andes.cl
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1788,7 +1736,7 @@
 	    (error "Value not numberp in do-check-mc-answer: ~A" Value))
         ;; if cleared done button, delete any prior entry for this button
 	;; and leave control black. 
-	((= 0 Value) (delete-object (find-entry ID))
+	((= 0 Value) (delete-object ID)
 	             (make-black-turn))
 	;; Treat any non-zero value as T, just in case other non-zero 
 	;; comes from C 

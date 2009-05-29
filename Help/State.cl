@@ -255,7 +255,7 @@
 (defun add-entry (Entry)
   "Add the specified student entry struct, deleting any existing entry."
   ; remove any existing entry with same id 
-  (delete-object Entry)
+  (delete-object (StudentEntry-id Entry))
   ; add new entry
   (format *debug-help* "Adding entry: ~A ~S~%" 
 	  (studententry-id entry) (studententry-prop entry))
@@ -272,18 +272,19 @@
 ;; undoing an entry, because that is where the knowledge of what to do is.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun delete-object (entry)
+(defun delete-object (Id)
   "Remove any existing student entry with specified ID, undoing its effects"
-  (format *debug-help* "Removing entry: ~A ~S~%" 
-	  (studententry-id entry) (studententry-prop entry))
-  (undo-entry entry)
-  ;; and remove it from Entry listS
-  (setf *StudentEntries*
-	(delete Id *StudentEntries* :key #'StudentEntry-ID 
-		:test #'equal))
-  ;; Should also update score?
-  `(((:action . "modify-object") (:id . , (studententry-id entry)) 
-     (:mode . "deleted"))))
+  (let ((old-entry (find-entry Id)))
+    (unless old-entry (error "Can't delete entry ~A:  missing." id))
+    (format *debug-help* "Removing entry: ~A ~S~%" 
+	    (studententry-id old-entry) (studententry-prop old-entry))
+    (undo-entry old-entry)
+    ;; and remove it from Entry listS
+    (setf *StudentEntries*
+	  (delete Id *StudentEntries* :key #'StudentEntry-ID :test #'equal))
+    ;; Should also update score?
+  `(((:action . "modify-object") (:id . ,Id) 
+     (:mode . "deleted")))))
 
 ;;=============================================================================
 ;; Helpers for implicit equation entries associated with diagram entries

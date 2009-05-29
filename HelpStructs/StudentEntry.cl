@@ -34,8 +34,11 @@
 (defstruct (StudentEntry (:print-function print-StudentEntry))
   Id	 ;Client assigned Identifier.
   type   ;can be phrase, equation, circle, rectangle, axes, vector, line
-  Prop   ;Entry proposition (Equalp to SystemEntry-prop.)
+  ;; The following are properties of an object
+  mode x y text width height radius symbol x-label y-label angle
+  ;; State overlaps with mode (need to fix this).
   State           ;One of correct, inefficient, dead-path, forbidden, incorrect.
+  Prop   ;Entry proposition (Equalp to SystemEntry-prop.)
   CInterp         ;The Selected set of any SystemEntries that constitute 
   ;; the final Interpretation of the student entry.
   PossibleCInterps ;A list of all the sets of possible correct interpretations.
@@ -74,6 +77,29 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Student entry list functions.
+
+(defun get-studententry-symbol (y)
+  (or (find-symbol (strcat "STUDENTENTRY-" (symbol-name y)))
+      (error "StudentEntry does not have member ~A" y)))
+
+(defmacro update-entry-from-variables (entry &rest x) 
+  "Update StudentEntry object from given list of variables."
+  (cons 'progn 
+	(mapcar #'(lambda (y) 
+		    `(when ,y 
+		      (setf ,(list (get-studententry-symbol y) entry) ,y))) 
+		x)))
+
+(defmacro update-entry-from-entry (new-entry old-entry &rest x) 
+  "Update StudentEntry object from old for given list of members."
+  (cons 'progn 
+	(mapcar #'(lambda (y) 
+		    `(setf ,(list  (get-studententry-symbol y) new-entry) 
+		      ,(list (get-studententry-symbol y) old-entry)))
+		x)))
+
+(defparameter *allowed-studententry-types* 
+  '("phrase" "graphics" "equation" "circle" "rectangle" "axes" "vector" "line"))
 
 (defun get-id (ID Entries)
   "Return the student entry for the specified ID if it has been done."
