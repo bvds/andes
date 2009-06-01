@@ -377,9 +377,6 @@
 ; disable constraint loss filter
 (setq **Filter-Constraint-losses** NIL)
 
-; frequency with which to highlight error fields when known.
-(setq *slot-flag-frequency* 1.00)
-
 (setq *followup-problems* '(PRETEST s1f s2e s4b s6a dt1a dt11a rots1a rots4a 
 rots7a dt13b dt7b e1b e2b e8b e10a e6a e7a pow3a pow4a pow5a lmom2a lmom2b 
 imp1 imp2 lmom3a lmom4a POSTTEST))
