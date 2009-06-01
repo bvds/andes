@@ -104,7 +104,7 @@
           ;; Variables set in Config.cl, which is loaded for each session.
           *Runtime-Testset* *Runtime-Score-Testset*
 	  **Testing-Pause-Time-Threshold** **Filter-Constraint-losses**
-          *slot-flag-frequency* *followup-problems*
+          *followup-problems*
 	  ;; Variables holding session-local memos.
 	  *parse-memo* *grammar-get-rhs-memo* *grammar-get-rhs-with-first*
 	  )
