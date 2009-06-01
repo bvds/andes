@@ -203,12 +203,12 @@
       ;;  New:  return any predefs, any work done, and score to the client.
       
       (push `((:action . "new-object") (:id . "a2") (:type . "phrase") 
-	      (:mode . "right") (:x . 200) (:y . 55) 
+	      (:mode . "correct") (:x . 200) (:y . 55) 
 	      (:text . "g = 9.8 m/s^2 is the gravitational acceleration \nnear the surface of the earth.")) 
 	    replies)
 	
       (push `((:action . "new-object") (:id .  "a2.5") (:type . "phrase") 
-		(:mode . "right") (:x . 200) (:y . 75) (:text . "T0 is the time.")) 
+		(:mode . "correct") (:x . 200) (:y . 75) (:text . "T0 is the time.")) 
 	    replies)
       
       (push `((:action . "log") 
@@ -254,13 +254,13 @@
 	     (:assoc . (("DRAW-BODY" . "(BODY BALL)"))) 
 	     (:id . ,id))
 	    ((:action . "set-score") (:score . 15))
-	    ((:action . "modify-object") (:id . ,id) (:mode . "right"))))
+	    ((:action . "modify-object") (:id . ,id) (:mode . "correct"))))
 	 ((string= type "axes")
 	 `(((:action . "log") 
 	    (:assoc . (("DRAW-UNROTATED-AXES" . "(DRAW-AXES 0)"))) 
 	    (:id . ,id))
 	   ((:action . "set-score") (:score . 25))
-	   ((:action . "modify-object") (:id . ,id) (:mode . "right"))))
+	   ((:action . "modify-object") (:id . ,id) (:mode . "correct"))))
 	 ((string= type "phrase")
 	  `(((:action . "log") 
 	     (:assoc . (("DEFINE-MASS" . "(DEFINE-VAR (MASS BALL))"))) 
@@ -268,21 +268,21 @@
 	    ((:action . "log") (:parse . "(= m_BALL (DNUM 2.0 kg))") 
 	     (:id . ,id))
 	    ((:action . "set-score") (:score . 40))
-	    ((:action . "modify-object") (:id . ,id) (:mode . "right"))))
+	    ((:action . "modify-object") (:id . ,id) (:mode . "correct"))))
 	 (t 
 	  `(((:action . "log") 
 	     (:assoc . (("DRAW-NORMAL" . "VECTOR (FORCE BALL WALL1 NORMAL :TIME 1) (DNUM 120 deg))"))) 
 	     (:id . ,id))
 	    ((:action . "log") (:parse . "(= m_BALL (DNUM 2.0 kg))"))
 	    ((:action . "set-score") (:score . 40))
-	    ((:action . "modify-object") (:id . ,id) (:mode . "right"))))))
+	    ((:action . "modify-object") (:id . ,id) (:mode . "correct"))))))
 
       ((string= action "modify-object")
        (cond 
 	 ((string= type "equation")
 	  (lookup-eqn-string text id)) ;Unmodified Andes2 call
 	 (t  `(((:action . "set-score") (:score . 57))
-	       ((:action . "modify-object") (:id . ,id) (:mode . "right"))))))
+	       ((:action . "modify-object") (:id . ,id) (:mode . "correct"))))))
 
       (t (error "Undefined action ~A." action)))))
 
