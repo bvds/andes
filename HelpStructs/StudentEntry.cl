@@ -35,7 +35,7 @@
   Id	 ;Client assigned Identifier.
   type   ;can be phrase, equation, circle, rectangle, axes, vector, line
   ;; The following are properties of an object
-  mode x y text width height radius symbol x-label y-label angle
+  mode x y text width height radius symbol x-label y-label z-label angle
   ;; State overlaps with mode (need to fix this).
   State           ;One of correct, inefficient, dead-path, forbidden, incorrect.
   Prop   ;Entry proposition (Equalp to SystemEntry-prop.)

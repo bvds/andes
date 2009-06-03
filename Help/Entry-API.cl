@@ -635,25 +635,24 @@
 	 ;; need to find time
 	 (time-term (arg-to-time time))
 	 (action   `(body ,body-term :time ,time-term))
-	 (entry     (make-StudentEntry :id id :prop action))
 	 ;; this entry automatically defines a mass variable named m+label
 	 ;; we build an implicit entry for this to mark it done as well.
          (mass-label  (concatenate 'string "m" label))
 	 (mass-term `(mass ,body-term))
 	 (mass-var-entry (make-StudentEntry :id id 
 	                                    :prop `(define-var ,mass-term))))
-
-  ;; associate implicit entry
-  ;(add-implicit-eqn entry mass-var-entry) ; take out automass
-
+    
+    ;; associate implicit entry
+    ;;(add-implicit-eqn entry mass-var-entry) ; take out automass
+    
+    (setf (StudentEntry-action entry) action)
   (add-entry entry)   ;remove existing info and update
-  ;(symbols-enter mass-label mass-term id) ; take out automass
+  ;; (symbols-enter mass-label mass-term id) ; take out automass
   ;; for compound bodies, enter body label so it can be recognized when
   ;; referenced in subsequent quantity definitions for compound's attributes.
   (when (compound-bodyp body-term)
-  	(check-symbols-enter label body-term id))
+    (check-symbols-enter label body-term id))
   (check-noneq-entry entry)))  ;finally return entry 
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; assert-compound-object - checks the correctness of a student defined com-
@@ -699,58 +698,68 @@
 ;;  entry as "entered", defines the magnitude and direction variables, and
 ;;  enters the variables in the symbol table.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun lookup-vector (label avg-inst type system dir drawn-mag time id 
-                         &optional given-mag given-xc given-yc given-zc drawn-dir)
- (let* ((vtype        (arg-to-id **vector-types** type))
-        (body-term    (arg-to-body system))
-        (time-term    (arg-to-time time))
-        ;; avg-inst choice is redundant with time -- WB ensures consistency
-	;; However, for vector types with two arguments, arg carries 
-	;; the second body argument 
-	;; also, field quant forms are odd in that it includes field type slot
-        (vquant-term (cond 
+(defun lookup-vector (entry)
+  (let* ((dir (StudentEntry-angle entry))
+	 (drawn-mag (StudenEntry-radius entry))
+	 ;; must be determined from parsing
+	 time avg-inst system type
+	 ;; For now, these are all null
+	 given-mag given-xc given-yc given-zc
+	 (drawn-dir (StudentEntry-angle entry))
+	 (vtype        (arg-to-id **vector-types** type))
+	 (body-term    (arg-to-body system))
+	 (time-term    (arg-to-time time))
+	 ;; avg-inst choice is redundant with time -- WB ensures consistency
+	 ;; However, for vector types with two arguments, arg carries 
+	 ;; the second body argument 
+	 ;; also, field quant forms are odd in that it includes field type slot
+	 (vquant-term (cond 
 	               ((equal vtype 'E-field) 
-			    (if (null avg-inst) ;null agent => net-field
-			          `(net-field ,body-term electric)
-		             `(field ,body-term electric ,(arg-to-body avg-inst))))
-                        ((equal vtype 'B-field) 
-			    (if (null avg-inst) ;null agent => net-field
-			          `(net-field ,body-term magnetic)
-		             `(field ,body-term magnetic ,(arg-to-body avg-inst))))
-			; WB unit vector type codes pack in kb subtype argument:
-			((equal vtype 'unit-Normal) 
-			     `(unit-vector normal-to ,body-term :at NIL))
-			((equal vtype 'unit-towards)
+			(if (null avg-inst) ;null agent => net-field
+			    `(net-field ,body-term electric)
+			    `(field ,body-term electric ,(arg-to-body avg-inst))))
+		       ((equal vtype 'B-field) 
+			(if (null avg-inst) ;null agent => net-field
+			    `(net-field ,body-term magnetic)
+			    `(field ,body-term magnetic ,(arg-to-body avg-inst))))
+		       ;; WB unit vector type codes pack in kb subtype argument:
+		       ((equal vtype 'unit-Normal) 
+			`(unit-vector normal-to ,body-term :at NIL))
+		       ((equal vtype 'unit-towards)
 			     `(unit-vector towards ,(arg-to-body avg-inst) :at ,body-term))
-			((equal vtype 'unit-away-from)
-			     `(unit-vector away-from ,(arg-to-body avg-inst) :at ,body-term))
-	                ;; a two-argument vector type:
-	                ((or (equal vtype 'relative-position) (equal vtype 'relative-vel)
-			     (equal vtype 'impulse) (equal vtype 'dipole-moment))
-		           `(,vtype ,body-term ,(arg-to-body avg-inst)))
-		        ;; else single argument vector: 
-	                (T `(,vtype ,body-term))))
-	(dir-term (arg-to-dir dir drawn-mag)))
+		       ((equal vtype 'unit-away-from)
+			`(unit-vector away-from ,(arg-to-body avg-inst) :at ,body-term))
+		       ;; a two-argument vector type:
+		       ((or (equal vtype 'relative-position) (equal vtype 'relative-vel)
+			    (equal vtype 'impulse) (equal vtype 'dipole-moment))
+			`(,vtype ,body-term ,(arg-to-body avg-inst)))
+		       ;; else single argument vector: 
+		       (T `(,vtype ,body-term))))
+	 (dir-term (arg-to-dir dir drawn-mag)))
 
     (check-noneq-entry 
-     (make-vector-entry label vquant-term time-term dir-term id 
-                       given-mag given-xc given-yc given-zc drawn-dir))))
+     (make-vector-entry entry vquant-term time-term dir-term))))
 
 ;; worker routine to do generic tasks common to vector entries 
 ;; once the vector quantity has been formed
-(defun make-vector-entry (label vquant-term time-term dir-term id 
-                          &optional given-mag given-xc given-yc given-zc drawn-dir)
-   (let* ((vector-term (append vquant-term `(:time ,time-term)))
-          (action      `(vector ,vector-term ,dir-term))
-          (entry        (make-StudentEntry :id id :prop action))
-	  ;; this defines magnitude and direction variables
-	  (vector-mag-term `(mag ,vector-term))
-	  (vector-dir-term `(dir ,vector-term))
-	  ; xy plane vectors get theta prefix, z axis ones get phi
-	  ; Greek symbols expressed by $ + char position in symbol font
-	  (dir-label  (format NIL "~A~A" (if (z-dir-spec dir-term) "$j" "$q")
-                                        label)))
-    ; remove existing entry and update
+(defun make-vector-entry (entry vquant-term time-term dir-term)
+  (let* ((id (StudentEntry-id entry))
+	 (label (StudentEntry-symbol entry))
+	 ;; not in current version:
+	 given-mag given-xc given-yc given-zc
+	 ;;
+	 (vector-term (append vquant-term `(:time ,time-term)))
+	 (action      `(vector ,vector-term ,dir-term))
+	 ;; this defines magnitude and direction variables
+	 (vector-mag-term `(mag ,vector-term))
+	 (vector-dir-term `(dir ,vector-term))
+	 ;; xy plane vectors get theta prefix, z axis ones get phi
+	 ;; Greek symbols expressed by $ + char position in symbol font
+	 (dir-label  (format NIL "~A~A" (if (z-dir-spec dir-term) "$j" "$q")
+			     label)))
+
+    (setf (StudentEntry-prop entry) action)
+    ;; remove existing entry and update
     (add-entry entry)
     (check-symbols-enter label vector-mag-term id)
     (check-symbols-enter dir-label vector-dir-term id)
@@ -765,33 +774,39 @@
 	    )
         (check-symbols-enter compo-var compo-term (list id axis-entry-id))))
 
-    ; Different given values are handled in different ways:
-    ; 1. Direction value or unknown or zero-mag values get checked automatically as part 
-    ; of the vector entry proposition. These continue to use the implicit equation 
-    ; machinery so as to record their equations as side effects, but not to check them. 
-    ; 2. For non-zero-mag vectors, given mag or compos handled via the given
-    ; equation mechanism, which checks their values.
-    ; We currently rely on drawn-mag argument to detect zero-mag vector, not :given-mag. 
-    ; This is OK because workbench updates drawn-mag if non-zero mag is specified.
+    ;; Different given values are handled in different ways:
+    ;; 1. Direction value or unknown or zero-mag values get checked 
+    ;; automatically as part of the vector entry proposition.  These continue 
+    ;; to use the implicit equation machinery so as to record their equations 
+    ;; as side effects, but not to check them. 
+    ;; 2. For non-zero-mag vectors, given mag or compos handled via the given
+    ;; equation mechanism, which checks their values.
+    ;; We currently rely on drawn-mag argument to detect zero-mag vector, 
+    ;; not :given-mag. 
+    ;; This is OK because workbench updates drawn-mag if non-zero mag is 
+    ;; specified.
 
-    ; !!! Now if student specifies values by components, workbench automatically
-    ; sends dir as unknown. This could be a problem if dir represented as known.
+    ;; !!! Now if student specifies values by components, workbench 
+    ;; automatically sends dir as unknown.  This could be a problem if dir 
+    ;; represented as known.
 
-    ; if vector is zero-length, associate implicit equation magV = 0
-    ; also add component eqns vc = 0 for all component variables in solution.
+    ;; if vector is zero-length, associate implicit equation magV = 0
+    ;; also add component eqns vc = 0 for all component variables in solution.
     (when (equal dir-term 'zero)
        (add-implicit-eqn entry (make-implicit-assignment-entry label 0))
        (dolist (syscomp (get-soln-compo-vars vector-term))
-            ; skip make-implicit-assignment-entry since we have sysvar, not studvar
-            (add-implicit-eqn entry (make-implicit-eqn-entry `(= ,syscomp 0)))))
+	 ;; skip make-implicit-assignment-entry since we have sysvar, 
+	 ;; not studvar
+	 (add-implicit-eqn entry (make-implicit-eqn-entry `(= ,syscomp 0)))))
 
-    ; if vector not zero-length, record given equations for any specified magnitude 
-    ; or component values. Note given eqn maker takes student variable args.
+    ;; if vector not zero-length, record given equations for any specified 
+    ;; magnitude or component values.  Note given eqn maker takes student 
+    ;; variable args.
     (when (not (equal dir-term 'zero))
        (when given-mag
-           (add-given-eqn entry (make-given-eqn-entry label given-mag 'given-mag)))  
-       ; Components in reverse order because add-given-eqn pushes at front. 
-       ; Want xc to wind up first so error there gets reported first.
+	 (add-given-eqn entry (make-given-eqn-entry label given-mag 'given-mag)))  
+       ;; Components in reverse order because add-given-eqn pushes at front. 
+       ;; Want xc to wind up first so error there gets reported first.
        (when given-zc
            (add-given-eqn entry 
 	       (make-given-eqn-entry (strcat label "_z") given-zc 'given-zc)))
@@ -846,14 +861,20 @@
 ;;  enters the variables in the symbol table.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun lookup-line (label body-arg dir mag &optional time id)
-  (let* ((body-term (arg-to-body body-arg))
+(defun lookup-line (entry)
+  (let* ((id (StudentEntry-id entry))
+	 ;; Needs to be determined from natural language 
+	 time body-arg
+	 ;;
+	 (mag (StudenEntry-radius entry))
+	 (dir (StudentEntry-angle entry))
+	 (label (StudentEntry-symbol entry))
+	 (body-term (arg-to-body body-arg))
 	 (time-term (arg-to-time time))
 	 ;; note dir may be dnum or 'unknown (and maybe into/out-of)
 	 (dir-term (arg-to-dir dir mag 180)) ;lines defined mod 180 deg
 	 (line-term `(line ,body-term :time ,time-term))
 	 (action `(draw-line ,line-term ,dir-term)) 
-	 (entry (make-StudentEntry :id id :prop action))
 	 ;; this defines magnitude and direction variables
 	 (line-mag-term `(mag ,line-term))
 	 (line-dir-term `(dir ,line-term))
@@ -861,6 +882,8 @@
 	 ;; Greek symbols expressed by $ + char position in symbol font
 	 (dir-label  (format NIL "~A~A" (if (z-dir-spec dir-term) "$j" "$q")
 			     label)))
+
+    (setf (StudentEntry-action entry) action)
     ;; remove existing entry and update
     (add-entry entry)
     (check-symbols-enter label line-mag-term id)
@@ -1206,25 +1229,25 @@
   (let* ((id (StudentEntry-id entry))
 	 (text (StudentEntry-text entry))
 	 (quant-term (make-quant type quant body body2 time))
-	 (action    `(define-var ,quant-term))
-	 (entry      (make-StudentEntry :id id :prop action)))
-
-       (unless text (warn "Definition must always have text")
+	 (action    `(define-var ,quant-term)))
+    
+    (unless text (warn "Definition must always have text")
 	       (setf text ""))
+    
+    (setf (StudentEntry-action entry) action)
+    ;; install new variable in symbol table
+    (add-entry entry)
+    (check-symbols-enter var quant-term id)
 
-  ;; install new variable in symbol table
-  (add-entry entry)
-  (check-symbols-enter var quant-term id)
-
-  ;; record associated given value equation entry
-  (when value  ; NIL => unspecified. (Empty string => unknown)
-    (add-given-eqn entry (make-given-eqn-entry var value 'value)))
+    ;; record associated given value equation entry
+    (when value  ; NIL => unspecified. (Empty string => unknown)
+      (add-given-eqn entry (make-given-eqn-entry var value 'value)))
     ;; NB! make-given-eqn-entry can return NIL if no system var found for 
-  ;; studvar.
+    ;; studvar.
     ;; Normally means var def will be incorrect. No given-eqn added in this case.
     ;; But maybe better have a dangling given eqn entry anyway?
 
-  ;; finally return entry 
+    ;; finally return entry 
     (check-noneq-entry entry)))
 
 
@@ -1240,21 +1263,24 @@
 ;; note(s):
 ;;  adds x and y axes to (student entries) -- asserts observed to assessor
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun assert-x-axis (body dir
-		      &optional id (x-label "x") (y-label "y") (z-label "z"))
-  (declare (ignore body))
+(defun assert-x-axis (entry)
   ;; workbench doesn't associate axes with bodies yet, so we leave this
   ;; out of the entry proposition we match (see KB/Ontology.cl).
   ;; !! need to make sure axis between zero and 90 and canonicalize if
   ;; not
-  (let* ((action  `(draw-axes ,dir)) ; dir is naked degree value
-	 (entry    (make-StudentEntry :id id :prop action))
+  (let* ((dir (StudentEntry-angle entry))
+	 (id (StudentEntry-id entry))
+	 (x-label (StudentEntry-x-label entry))
+	 (y-label (StudentEntry-y-label entry))
+	 (z-label (StudentEntry-z-label entry))
+	 (action  `(draw-axes ,dir)) ; dir is naked degree value
 	 (x-term  `(axis x ,dir))
 	 (y-term  `(axis y ,dir))
 	 (z-term  `(axis z ,dir))
 	 (xdir-dnum `(dnum ,dir |deg|))
 	)
 
+    (setf (StudentEntry-action entry) action)
    ;; install symbols for x, y, and z axes
    ;; these can't be used by themselves in equations but are needed by us
    ;; later when autodefining vector component variables for existing axes. 

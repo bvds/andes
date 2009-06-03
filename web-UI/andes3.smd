@@ -52,6 +52,7 @@
 	    "symbol":	{"type": "string", 	"optional": true},
 	    "x-label":	{"type": "string", 	"optional": true},
 	    "y-label":	{"type": "string", 	"optional": true},
+	    "z-label":	{"type": "string", 	"optional": true},
 	    "angle":	{"type": "number", 	"optional": true},
 	    "href" :    {"type": "string",	"optional": true},
 	    "score": {
@@ -126,6 +127,7 @@
 	{"name": "symbol", 	"type": "string", 	"optional": true},
 	{"name": "x-label", "type": "string", 	"optional": true},
 	{"name": "y-label", "type": "string", 	"optional": true},
+	{"name": "z-label", "type": "string", 	"optional": true},
 	{"name": "angle", 	"type": "number", 	"optional": true}
       ],
       "returns": {

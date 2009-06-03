@@ -203,12 +203,12 @@
       ;;  New:  return any predefs, any work done, and score to the client.
       
       (push `((:action . "new-object") (:id . "a2") (:type . "phrase") 
-	      (:mode . "right") (:x . 200) (:y . 55) 
+	      (:mode . "correct") (:x . 200) (:y . 55) 
 	      (:text . "g = 9.8 m/s^2 is the gravitational acceleration \nnear the surface of the earth.")) 
 	    replies)
 	
       (push `((:action . "new-object") (:id .  "a2.5") (:type . "phrase") 
-		(:mode . "right") (:x . 200) (:y . 75) (:text . "T0 is the time.")) 
+		(:mode . "correct") (:x . 200) (:y . 75) (:text . "T0 is the time.")) 
 	    replies)
       
       (push `((:action . "log") 
@@ -226,20 +226,16 @@
 ;; (webserver:*env* is null).  
 (webserver:defun-method "/help" solution-step 
     (&key time id action type mode x y
-			text width height radius symbol x-label y-label angle) 
+	  text width height radius symbol x-label y-label z-label angle) 
   "problem-solving step"
   ;; fixed attributes:      type id
-  ;; updatable attributes:  mode x y text width height radius symbol x-label y-label angle
+  ;; updatable attributes:  mode x y text width height radius symbol 
+  ;;                         x-label y-label z-label angle
   (env-wrap 
     ;; Andes2 also had calls to:
-    ;; define-variable define-angle-variable
-    ;; assert-x-axis assert-object
-    ;; assert-compound-object
-    ;; label-radius label-angle
-    ;; lookup-force lookup-torque lookup-line
-    ;; lookup-vector
-    ;; lookup-mc-answer
-    ;; check-answer
+    ;; define-angle-variable assert-compound-object
+    ;; label-radius label-angle lookup-force lookup-torque
+    ;; lookup-mc-answer check-answer
     ;; calculate-equation-string (find variable on lhs of equation)
     ;;                           (probably not in Andes3)
 
@@ -284,16 +280,17 @@
       (when old-entry
 	(update-entry-from-entry 
 	 new-entry old-entry 
-	 type mode x y text width height radius symbol x-label y-label angle))
+	 type mode x y text width height radius symbol 
+	 x-label y-label z-label angle))
 
       ;; update new object from variables
       (update-entry-from-variables 
        new-entry  
-       mode x y text width height radius symbol x-label y-label angle)
+       mode x y text width height radius symbol x-label y-label z-label angle)
       
       (cond
 	((equal action "delete-object")
-	 ;; Eventually, we will pass the object to be deleted rather than the id.
+	 ;; We should pass the object to be deleted rather than the id.
 	 (delete-object (StudentEntry-id new-entry)))
 	
 	;; Since "text" is the  attribute and is required. 
@@ -304,7 +301,8 @@
 	 (define-variable new-entry))
 	 
 	((equal type "graphics")
-	 (warn "Can't modify a graphic object, id=~A" (studententry-id new-entry)))
+	 (warn "Can't modify a graphic object, id=~A" 
+	       (studententry-id new-entry)))
 	
 	((equal type "circle")
 	 (assert-object new-entry))
@@ -312,39 +310,16 @@
 	((equal type "rectangle")
 	 (assert-object new-entry))
 
-        ;; BvdS:  done to here, still need to do axes, vector, line
 	((equal type "axes")
-	 (assert-object new-entry))
-	
+	 (assert-x-axis new-entry))
 
-      ((equal action "new-object")
-       (cond 
-	 ((equal type "circle")
-	  `(((:action . "log") 
-	     (:assoc . (("DRAW-BODY" . "(BODY BALL)"))) 
-	     (:id . ,id))
-	    ((:action . "set-score") (:score . 15))
-	    ((:action . "modify-object") (:id . ,id) (:mode . "right"))))
-	 ((equal type "axes")
-	 `(((:action . "log") 
-	    (:assoc . (("DRAW-UNROTATED-AXES" . "(DRAW-AXES 0)"))) 
-	    (:id . ,id))
-	   ((:action . "set-score") (:score . 25))
-	   ((:action . "modify-object") (:id . ,id) (:mode . "right"))))
-	 (t 
-	  `(((:action . "log") 
-	     (:assoc . (("DRAW-NORMAL" . "VECTOR (FORCE BALL WALL1 NORMAL :TIME 1) (DNUM 120 deg))"))) 
-	     (:id . ,id))
-	    ((:action . "log") (:parse . "(= m_BALL (DNUM 2.0 kg))"))
-	    ((:action . "set-score") (:score . 40))
-	    ((:action . "modify-object") (:id . ,id) (:mode . "right"))))))
+	((equal type "vector")
+	 (lookup-vector new-entry))
 
-      ((equal action "modify-object")
-       (cond 
-	 (t  `(((:action . "set-score") (:score . 57))
-	       ((:action . "modify-object") (:id . ,id) (:mode . "right"))))))
+	((equal type "line")
+	 (lookup-line new-entry))
 
-      (t (error "Undefined action ~A." action))))))
+      (t (warn "Undefined type ~A." type))))))
 
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  

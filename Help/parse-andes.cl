@@ -56,26 +56,26 @@
 
 (defun lookup-eqn-string (entry &key (log T))
   "Minimally modified Andes2 call"
-  (let ((eq (StudentEntry-text entry))
-	(id (StudentEntry-id entry)))
+  (let ((eq (StudentEntry-text entry)))
     (unless eq (warn "Equation must always have text") (setf eq ""))
     (prog1 ; first form gets our return value
-	(do-lookup-equation-string (fix-eqn-string (trim-eqn eq)) id 'equation)
-      (when log (log-entry-info (find-entry id))))))
+	(do-lookup-equation-string (fix-eqn-string (trim-eqn eq)) 
+	  entry 'equation)
+      (when log (log-entry-info (find-entry (StudentEntry-id entry)))))))
 
-(defun do-lookup-equation-string (eq id location)
+(defun do-lookup-equation-string (eq entry location)
   (let ((equation eq) tmp)
     (if (= 0 (length (remove #\Space equation)))
-	(setf tmp (handle-empty-equation id))
+	(setf tmp (handle-empty-equation entry))
       (let* ((parses (parse-equation **grammar** equation))
 	     (complete (parse-get-complete parses))
 	     (valid (parse-get-valid 'final complete)))
 	;;(format T "lookup-eqn-str got ~A valid parses~%" (length valid))
 	(cond
 	 ((null valid)
-	  (setf tmp (handle-bad-syntax-equation eq id parses)))
+	  (setf tmp (handle-bad-syntax-equation eq entry parses)))
 	 (t
-	  (setf tmp (handle-ambiguous-equation eq id valid location))))))
+	  (setf tmp (handle-ambiguous-equation eq entry valid location))))))
     ;;(format t "at end is ~A~%" tmp)
     tmp))
 ;;
@@ -103,28 +103,28 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;
-(defun handle-empty-equation (id)
-  (delete-object id)
-  (make-noop-turn)) ; no coloring on empty eqn -- noop leaves "black"
+(defun handle-empty-equation (entry)
+  (let ((id (StudentEntry-id entry)))
+    (delete-object id)
+    (make-noop-turn))) ; no coloring on empty eqn -- noop leaves "black"
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 
-(defun handle-bad-syntax-equation (equation id parses)
+(defun handle-bad-syntax-equation (equation entry parses)
   "Given a student equation, its id and the parses, 
    creates a student entry, adds it to the *student-entries*,
    creates an error interpretation for it, and returns
    the first tutor turn of the error interpretation's hint sequence."
-  (let ((se (make-StudentEntry :id id
-			       :verbatim equation
-			       :parsedeqn parses
-			       :prop (list 'eqn equation)
-			       :state **Incorrect**)))
-    (add-entry se)
-    (setf (StudentEntry-ErrInterp se) (bad-syntax-ErrorInterp equation))
-    (ErrorInterp-remediation (StudentEntry-ErrInterp se))))
+    (setf (StudenEntry-verbatim entry) equation)
+    (setf (StudenEntry-parsedeqn entry) parses)
+    (setf (StudenEntry-verbatim prop) (list 'eqn equation))
+    (setf (StudenEntry-verbatim state) **incorrect**)
+    (add-entry entry)
+    (setf (StudentEntry-ErrInterp entry) (bad-syntax-ErrorInterp equation))
+    (ErrorInterp-remediation (StudentEntry-ErrInterp entry)))
 
 ; This returns a plain ErrorInterp:
 (defun bad-syntax-ErrorInterp (equation)
@@ -171,14 +171,16 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun handle-ambiguous-equation (equation id parses location)
+(defun handle-ambiguous-equation (equation entry parses location)
   ;(prl parses)
-  (let ((tmp nil) (bad nil) (cont t) (result nil) (se nil) (save nil))
+  (let ((id (StudentEntry-id entry))
+	tmp bad (cont t) result se save)
     (dolist (parse parses)
       (when (and cont (not (member parse save :test #'equal)))
 	(setf save (append save (list parse)))
-	;; Build a candidate entry containing this parse. The candidate with the winning
-	;; parse will be saved permanently with add-entry when we know which one it is.
+	;; Build a candidate entry containing this parse. The candidate 
+	;;with the winning parse will be saved permanently with add-entry 
+	;; when we know which one it is.
 	(setf se (make-StudentEntry :id id
 				    :verbatim equation
 				    :parsedeqn parse
@@ -187,13 +189,17 @@
 	(setf tmp (parse-handler se location))
 	(cond
 	 ((equal **Color-Green** (turn-coloring tmp))
-	  (setf (StudentEntry-State se) **Correct**)
 	  ;; know this entry has winning parse so save entry now 
-	  (add-entry se) 	
-	  (setf result se)
+	  ;; Copy over information into the entry.
+	  (setf (StudentEntry-verbatim entry) equation)
+	  (setf (StudentEntry-parsedeqn entry) parse)
+	  (setf (studentEntry-prop entry) (list 'eqn equation))
+	  (setf (StudentEntry-State entry) **Correct**)
+	  (add-entry entry) 	
 	  (setf cont nil))
 	 (t ;;(equal **Color-Red** (turn-coloring tmp))
 	  (setf bad (append bad (list (list tmp se))))))))
+
     (cond
      (cont
       (setf tmp (choose-ambiguous-bad-turn bad)) ; does add-entry on winning candidate
@@ -204,9 +210,10 @@
       ;; testing)
       ;; NB: If we later reject it for some reason (because forbidden, 
       ;; premature, etc), algebra slot should be cleared.
-      (if (stringp (solver-studentAddOkay (StudentEntry-Id se) (StudentEntry-ParsedEqn se)))
+      (if (stringp (solver-studentAddOkay (StudentEntry-Id se) 
+					  (StudentEntry-ParsedEqn se)))
 	  (setf tmp (make-red-turn)) ;; to trap exceptions
-	(setf tmp (interpret-equation result location)))
+	(setf tmp (interpret-equation entry location)))
       (cond
        ((equal **Color-Green** (turn-coloring tmp))
 	(sg-Enter-StudentEntry se)
