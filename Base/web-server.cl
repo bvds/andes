@@ -129,20 +129,24 @@
 ;;       must ensure the order of replies.  In the case of a dropped
 ;;       message, error handling is difficult.
 ;;   2.  The client sends one message at a time, awaiting a reply from 
-;;       the server.  If a message times out, the client may re-send 
-;;       a message.  
+;;       the server before sending another.  If a message times out, the 
+;;       client may re-send a message, using the same id.
 ;; We have chosen the latter approach.  We need to handle three kinds of 
 ;; errors:
 ;;   1.  A json-rpc message is lost on the way to the server.  In this
-;;       case, the server does nothing special.
-;;   2.  A session turn hangs (help system bug).  The server receives
-;;       a request for a session that is locked.  If the turn is the 
-;;       same, it waits and rechecks the lock.  If still locked, it
-;;       interrupts the earlier turn, and returns a json-rpc error.
-;;       The earlier turn will reply with a lisp error condition.
+;;       case, the server does nothing special.  However, the server
+;;       must handle the arrival of several messages with the same id.  
+;;       We specify that the server will return the same reply to 
+;;       to any subsequent messages having the same id.
+;;   2.  A session turn hangs (help system bug).  In this case the server
+;;       receives a message for a session that is locked.  
+;;       If the turn (id) is the same, it waits and rechecks the lock.  
+;;       If the session is still locked, the server interrupts the earlier 
+;;       turn, and returns a log message.  The earlier turn will reply 
+;;       with a lisp error condition.
 ;;   3.  A json-rpc reply is lost on the way back to the client.
 ;;       The server receives a repeat request (same id) as the last
-;;       request.  It returns the earlier reply.
+;;       request.  The server returns the earlier reply.
 
 (defparameter *sessions* (make-hash-table :test #'equal) 
   "A list of active sessions")

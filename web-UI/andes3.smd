@@ -33,7 +33,7 @@
 	    },
 	    "type": {
 	      "type": "string",
-	      "enum": ["phrase", "graphics", "equation", "circle", "rectangle", "axes", "vector", "line"],
+	      "enum": ["statement", "graphics", "equation", "circle", "rectangle", "axes", "vector", "line"],
 	      "optional": true,
 	      "description": "kind of drawn object.  Required for new-object"
 	    },
@@ -101,7 +101,7 @@
 	{
 	  "name": "type",
 	  "type": "string",
-	  "enum": ["phrase", "graphics", "equation", "circle", "rectangle", "axes", "vector", "line"],
+	  "enum": ["statement", "graphics", "equation", "circle", "rectangle", "axes", "vector", "line"],
 	  "optional": true,
 	  "description": "kind of drawn object; manditory for new-object and optional for modify-object or delete-object"
 	},
