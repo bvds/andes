@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+		"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>Statics:  s2e</title>
+    <style type="text/css">
+	        @import "dojotoolkit/dojo/resources/dojo.css";
+    </style>
+
+    <!-- required: the default dijit theme: -->
+    <link id="themeStyles" rel="stylesheet" href="dojotoolkit/dijit/themes/tundra/tundra.css">
+
+    <!-- need to parse dojoType after creating toolbar -->
+    <script src="dojotoolkit/dojo/dojo.js" type="text/javascript" 
+                djConfig="parseOnLoad:false"></script>
+
+    <!--  Demo for json-rpc to server and back -->
+    <script type="text/javascript">
+      dojo.require("dojo.parser");
+      dojo.require("dijit.form.Button");
+      dojo.provide("dojox.rpc.Client");
+      dojo.require("dojox.rpc.Service");
+      dojo.require("dojox.rpc.JsonRPC");
+      dojo.require("dojox.json.schema");
+      var typejson = new dojox.rpc.Service("andes3.smd");
+
+      // AOP-style function replacement that performs before-advice 
+      // to add to the headers on all XHR requests.  See dojox/rpc/Client.js
+      (function() {
+	dojo._defaultXhr = dojo.xhr;
+	dojo.xhr = function(method,args){
+		var headers = args.headers = args.headers || {};
+		headers["Client-Id"] = dojox.rpc.Client.clientId;
+		return dojo._defaultXhr.apply(dojo,arguments);
+	}
+      })();
+ 
+      function sendString() {
+        dojox.rpc.Client.clientId = document.getElementById('ups').value;
+        var jsonInput = document.getElementById('jsonstring').value;
+        typejson._requestId = document.getElementById('turn').value;
+        document.getElementById('inputString').innerHTML = 
+	       "Send:  " + jsonInput;
+	var methodField = document.getElementById('help-method');
+	var methodText = methodField.options[methodField.selectedIndex].text;
+        var deferred = typejson[methodText](dojo.fromJson(jsonInput));
+        deferred.addCallbacks(
+          function (result) {
+            document.getElementById('result').innerHTML = 
+	    "Success:  " + dojo.toJson(result);
+            // Determine if return agrees with json schema specified in smd.
+	    var returnSchema=typejson._smd.services[methodText].returns;
+	    var valida=dojox.json.schema.validate(result, returnSchema);
+            if(valida.valid){
+              document.getElementById('result').style.color = "green";
+	    } else {
+              document.getElementById('result').style.color = "red";
+	      for(i=0; i<valida.errors.length; i++){
+  	        console.log("Invalid return: " + 
+                            valida.errors[i].property + 
+                             " message: " + valida.errors[i].message);
+              }
+            }
+            document.getElementById('turn').value=typejson._requestId;
+        }, 
+	// error conditiion handler:
+          function (result) {
+            document.getElementById('result').innerHTML = 
+	         "Failure:  " + dojo.toJson(result);
+        });
+      }
+
+    </script>
+
+    <script type="text/javascript">
+        function init(){
+               // can't do layout until toolbar and canvas are created
+	      dojo.parser.parse();
+	}
+	dojo.addOnLoad(init);
+    </script>
+  </head>
+
+  <body class="tundra">
+    <h1>Text client for testing Andes3 server</h1>
+
+    <p>  One may use messages from 
+         <a href="nokes-example-json.txt">the Nokes demo solution</a>.&nbsp;
+         The "params" can be simply copied and pasted into the "params"
+         field here.
+
+    <p>  user/problem session: 
+          <input type="text" id="ups" value="32345" size="6"/>&nbsp;
+      method: <select id="help-method">
+            <!-- This list must match methods in andes3.smd -->
+            <option>open-problem</option>
+            <option>solution-step</option>
+            <option>seek-help</option>
+            <option>close-problem</option>
+      </select>&nbsp;  
+       params: <input type="text" id="jsonstring" size="50"/>&nbsp;
+       requestId: <input type="text" id="turn" value="0" size="3"/>&nbsp;
+       <button dojoType="dijit.form.Button" onclick="sendString">
+           Do JSON-RPC call</button>
+    <p>
+       <div id="inputString">Input</div>
+       <div id="result">Result</div>
+
+    <p>
+      Target:&nbsp;
+      <select>
+        <option selected label="help" 
+	        onclick="typejson._smd.target='/help';">
+           /help</option>
+        <option label="help"
+                onclick="typejson._smd.target='/help-test';">
+          /help-test</option>
+     </select>
+     (The target /help should always be available.)
+  </body>
+</html>
