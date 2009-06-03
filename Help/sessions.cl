@@ -181,7 +181,7 @@
       ;;
       (let ((y 10) (i 0))
 	(dolist  (line (problem-statement *cp*))
-	  (push `((:action . "new-object") (:type . "phrase") 
+	  (push `((:action . "new-object") (:type . "statement") 
 		  (:id . ,(format nil "statement~A" (incf i))) 
 		  (:mode . "locked") (:x . 3) (:y . ,(setf y (+ y 10))) 
 		  (:width . 80) (:text . ,line)) replies))
@@ -202,12 +202,12 @@
       
       ;;  New:  return any predefs, any work done, and score to the client.
       
-      (push `((:action . "new-object") (:id . "a2") (:type . "phrase") 
+      (push `((:action . "new-object") (:id . "a2") (:type . "statement") 
 	      (:mode . "correct") (:x . 200) (:y . 55) 
 	      (:text . "g = 9.8 m/s^2 is the gravitational acceleration \nnear the surface of the earth.")) 
 	    replies)
 	
-      (push `((:action . "new-object") (:id .  "a2.5") (:type . "phrase") 
+      (push `((:action . "new-object") (:id .  "a2.5") (:type . "statement") 
 		(:mode . "correct") (:x . 200) (:y . 75) (:text . "T0 is the time.")) 
 	    replies)
       
@@ -297,7 +297,7 @@
 	((equal type "equation")
 	 (lookup-eqn-string new-entry)) ;Almost unmodified Andes2 call
 	
-	((equal type "phrase")
+	((equal type "statement")
 	 (define-variable new-entry))
 	 
 	((equal type "graphics")

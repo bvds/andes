@@ -51,16 +51,16 @@ set explicitly by "width" in em units or implicitly by newlines in
 the text.  
 
 [
-  {"action": "new-object", "id": "a0", "type": "phrase", "mode": "locked", 
+  {"action": "new-object", "id": "a0", "type": "statement", "mode": "locked", 
 	     "x": 3, "y": 5, "width": 80,
 	     "text": "A spherical ball with a mass of 2.00 kg rests in the notch ..."},
   {"action": "new-object", "id": "a1", "type": "graphics", "mode": "locked", 
 	     "x": 53, "y": 15, "dx": 150, "dy": "180", 
 	     "href": "http://www.andestutor.org/web-UI/s2e.gif"},
-  {"action": "new-object", "id": "a2", "type": "phrase", "mode": "correct", 
+  {"action": "new-object", "id": "a2", "type": "statement", "mode": "correct", 
 	     "x": 200, "y": 55, 
 	     "text": "g = 9.8 m/s^2 is the gravitational acceleration \nnear the surface of the earth."},
-  {"action": "new-object", "id":  "a2.5", "type": "phrase", "mode": "correct", 
+  {"action": "new-object", "id":  "a2.5", "type": "statement", "mode": "correct", 
 	     "x": 200, "y": 75, 
 	     "text": "T0 is the time."},
   {"action": "log", "subscores": {"NSH_BO_Call_Count": [0,0], 
@@ -127,7 +127,7 @@ agnostic about object positions; Andes3 is not.
 
 {"method": "solution-step", "params": {"time": 117.001, 
 	   "action": "new-object", "id": "a5",  
-	   "type": "phrase", "mode": "unknown", 
+	   "type": "statement", "mode": "unknown", 
 	   "x": 177, "y": 188, "width": 66, 
 	   "text": "m=2 kg is the mass of the ball"}, "id": 6}
 
@@ -415,7 +415,7 @@ box included with the original problem statement with "text" set to
 
 {"method": "solution-step", "params": {"time": 913.001, 
 	   "action": "new-object", "id": "a19",  
-	   "type": "phrase", "mode": "unknown", 
+	   "type": "statement", "mode": "unknown", 
 	   "x": 15, "y": 390, 
 	   "text": "answer:  15.2"}, "id": 28}
 
