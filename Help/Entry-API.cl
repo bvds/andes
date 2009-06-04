@@ -322,6 +322,7 @@
   `(field region ,type unspecified)
 )
 
+
 (defun ndiffs (set1 set2)
   (length (set-difference set1 set2)))
  
@@ -503,7 +504,8 @@
 	 (drawn-mag (StudenEntry-radius entry))
 	 ;; must be determined from parsing
 	 time avg-inst system type
-	 ;; For now, these are all null
+	 ;; For now, these are all null, since they are done 
+	 ;; as separate steps
 	 given-mag given-xc given-yc given-zc
 	 (drawn-dir (StudentEntry-angle entry))
 	 (vtype        (arg-to-id **vector-types** type))
@@ -970,23 +972,6 @@
 ;; define-variable - define a variable to stand for a certain quantity. this is
 ;;  called when the student uses the "variable" menu, but not when variables are
 ;;  defined by other tools such as the force drawing tool or the body tool.
-;; argument(s):
-;;  var: the variable assigned to the object
-;;  type: depends on the value of quant (below) --
-;;    if quant is "force" the type of force
-;;    if quant is "energy" the type of energy
-;;        (one of 'total, 'spring, 'potential, 'kinetic)
-;;    if quant is velocity, acceleration, speed either average or instantaneous
-;;    otherwise nil
-;;  quant: the type of quantity. one of the following
-;;    velocity, acceleration, force, displacement, distance between, distance
-;;    travelled, gravitational acceleration, duration, speed, radius,
-;;    spring-constant, comp-dist, energy, mass
-;;  body: the body the quantity is a property of
-;;  time: the time during which the quantity exists
-;;  agent: the agent of the force, if it is a force; otherwise nil
-;;  id: the id assigned to the variable by workbench
-;;  directionp: WAS: t if the quantity is a direction; nil otherwise
 ;; returns: StudentEntry
 ;; note(s):
 ;;  if the variable definition is correct, marks the corresponding system entry
@@ -996,13 +981,41 @@
 (defun define-variable (entry)
   (let* ((id (StudentEntry-id entry))
 	 (text (StudentEntry-text entry))
+	 (symbol (StudentEntry-symbol entry))
+	 best
 	 quant-term
-	 (action    `(define-var ,quant-term)))
-    
+	 action)
+
     (unless text (warn "Definition must always have text")
 	       (setf text ""))
-    
-    (setf (StudentEntry-action entry) action)
+ 
+    ;; match up text with systementry
+    ;; Right now, this is a simple first effort:
+    ;; Here is what is missing:
+    ;;  Should tokenize the text and the model texts and do
+    ;;     combination of tree matching and minimum edit distance
+    ;;     for tree leaves.
+    ;;  Should include "bad" quantity definitions in matching.
+    ;;  Should have minimum acceptable match cutoff.
+    ;;  Should have criteria for almost equivalent matches.
+    ;;  Should have alternative texts for matching.
+    ;;  Should correctly handle "Let xxx be ... " wrapper, matching to 
+    ;;     symbol from client.
+    (setf best (best-matches 
+		;; strip out the leading "Let x be ..."
+		(subseq text (+ 3 (search "be" text)))
+		(mapcar #'(lambda (x) (cons (nlg x) x)) 
+			(mapcar #'qnode-exp 
+				(first (problem-graph *cp*))))))
+
+    ;; Need error handlers for the following cases:
+    ;; no match:  "Cannot understand entry" and hint sequence
+    ;; two matches:  "Did you mean this or this?" and hint sequence.
+    ;; more than two:  "Your definition is ambiguous"" and hint sequence.
+    (when (= (length best) 1)
+      (setf quant-term (car best)))
+
+    (setf (StudentEntry-action entry) `(define-var ,quant-term))
     ;; install new variable in symbol table
     (add-entry entry)
     (check-symbols-enter var quant-term id)

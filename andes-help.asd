@@ -52,9 +52,11 @@
 				     (:file "symbols")
 				     (:file "State")
 				     (:file "clips-vars")
+				     (:file "match")
 				     (:file "Entry-API"
-					    :depends-on ("HelpMessages")
-					    :depends-on ("SolutionGraph"))
+					    :depends-on ("HelpMessages"
+							 "SolutionGraph" 
+							 "match"))
 				     
 				     ;; Equation parser/interpreter
 				     (:file "grammar")

@@ -267,16 +267,15 @@
 	(warn "Attribute type=~A not allowed." type)
 	(setf type nil))
 
+
       (when (and old-entry 
-		 (not (equal (StudentEntry-type new-entry)
-			     (StudentEntry-type old-entry))))
+		 (not (equal type (StudentEntry-type old-entry))))
 	(warn "Attempting to change type from ~A to ~A"
-	      (StudentEntry-type old-entry)
-	      (StudentEntry-type new-entry)))
+	      (StudentEntry-type old-entry) type))
 
-      ;; create new object
+     ;; create new object
       (setf new-entry (make-entry :id id :type type))
-
+ 
       ;; update attributes from old object
       (when old-entry
 	(update-entry-from-entry 
