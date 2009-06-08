@@ -37,7 +37,9 @@ selections:<br>
 <br>
 &nbsp;&nbsp; Step 1: Select scope of data<br>
 &nbsp;&nbsp;&nbsp;&nbsp; Go down to "Course Sections" and select the
-course sections you want. The available ones for you should be
+course sections you want.&nbsp; Generally, download one section at 
+a time, so that section information is not lost in the DataShop.&nbsp; 
+The available ones for you should be
 highlighted. OLI may have to configure your access to particular course
 logs.
 Otherwise you will see them but not be able to select them in the Data
@@ -459,7 +461,7 @@ as<br>
 <br>
 Or use the one-liner:
 <pre>
-perl -p -e "s/(\w+) +(\w+)/\2 USNA/" log/Spring2009-USNA-mapping.txt > Info/classmap.txt
+perl -p -e "s/(\w+)\W+(\w+)/\2 USNA/" log/Spring2009-USNA-mapping.txt > Info/classmap.txt
 </pre>
 
 <h6>Class information</h6>
