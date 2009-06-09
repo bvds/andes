@@ -1,9 +1,51 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html lang="en">
 <head>
-    <title><!-- Insert your title here --></title>
+    <title>Andes 3</title>
+	<link href="css/andes.css" rel="stylesheet" />
+	<script>
+		djConfig = {
+			isDebug:true,
+			modulePaths: {'drawing': '../../js/drawing', 'andes':'../../js/andes'},
+			parseOnLoad:true
+		}
+	</script>
+	<script src="dojotoolkit/dojo/dojo.js"></script>
+	<script>
+		dojo.require("dojo.parser");
+		dojo.require("dijit.layout.BorderContainer");
+		dojo.require("dijit.layout.ContentPane");
+		
+		dojo.require("andes.main");
+		//dojo.require("drawing.Drawing");
+	</script>
+	
 </head>
-<body>
-    <!-- Insert your content here -->
+<body class="tundra">
+	<div id="main" dojoType="dijit.layout.BorderContainer" gutters="false">
+		
+		<div id="menuPane" dojoType="dijit.layout.ContentPane" region="top">
+			Menu
+		</div>
+	
+	
+		<div id="toolPane" dojoType="dijit.layout.ContentPane" region="left"  splitter="false">
+				Toolbar
+		</div>
+		
+		<div id="mainPane" dojoType="dijit.layout.BorderContainer" gutters="false" region="center" liveSplitters="true">
+		
+			<div id="drawingPane" dojoType="dijit.layout.ContentPane" region="center" >
+					main / Drawing
+			</div>
+			
+			<div id="helpPane" dojoType="dijit.layout.ContentPane" region="right" splitter="true">
+				Help
+			</div>
+		
+		</div>
+	
+	</div>
+    
 </body>
 </html>

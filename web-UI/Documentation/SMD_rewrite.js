@@ -5,6 +5,14 @@ var foo = // this line is here so my IDE parser works with json
 	"target": "/help",
 	"SMDVersion": "2.0",
 	"parameters": [
+		//jsonRPC ID
+		{"name": "time", "type": "number"}
+	],
+	"returnParameters": [
+		{},
+		{},
+		{}
+		{"log"},
 		{"name": "time", "type": "number"}
 	],
 	"services": {
@@ -142,6 +150,9 @@ var foo = // this line is here so my IDE parser works with json
 		
 		
 		"seek-help": {
+			//
+			// may mod score
+			//
 			"parameters": [
 				{
 					"name": "action",

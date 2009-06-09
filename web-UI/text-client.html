@@ -22,52 +22,48 @@
       dojo.require("dojox.rpc.Service");
       dojo.require("dojox.rpc.JsonRPC");
       dojo.require("dojox.json.schema");
-      var typejson = new dojox.rpc.Service("andes3.smd");
+      var typejson = new dojox.rpc.Service("js/andes/andes3.smd");
 
       // AOP-style function replacement that performs before-advice 
       // to add to the headers on all XHR requests.  See dojox/rpc/Client.js
       (function() {
-	dojo._defaultXhr = dojo.xhr;
-	dojo.xhr = function(method,args){
-		var headers = args.headers = args.headers || {};
-		headers["Client-Id"] = dojox.rpc.Client.clientId;
-		return dojo._defaultXhr.apply(dojo,arguments);
-	}
+		dojo._defaultXhr = dojo.xhr;
+		dojo.xhr = function(method,args){
+			var headers = args.headers = args.headers || {};
+			headers["Client-Id"] = dojox.rpc.Client.clientId;
+			return dojo._defaultXhr.apply(dojo,arguments);
+		}
       })();
  
       function sendString() {
-        dojox.rpc.Client.clientId = document.getElementById('ups').value;
-        var jsonInput = document.getElementById('jsonstring').value;
-        typejson._requestId = document.getElementById('turn').value;
-        document.getElementById('inputString').innerHTML = 
-	       "Send:  " + jsonInput;
-	var methodField = document.getElementById('help-method');
-	var methodText = methodField.options[methodField.selectedIndex].text;
+        dojox.rpc.Client.clientId = dojo.byId('ups').value;
+        var jsonInput = dojo.byId('jsonstring').value;
+        typejson._requestId = dojo.byId('turn').value;
+        dojo.byId('inputString').innerHTML = "Send:  " + jsonInput;
+		var methodField = dojo.byId('help-method');
+		var methodText = methodField.options[methodField.selectedIndex].text;
         var deferred = typejson[methodText](dojo.fromJson(jsonInput));
-        deferred.addCallbacks(
-          function (result) {
-            document.getElementById('result').innerHTML = 
-	    "Success:  " + dojo.toJson(result);
-            // Determine if return agrees with json schema specified in smd.
-	    var returnSchema=typejson._smd.services[methodText].returns;
-	    var valida=dojox.json.schema.validate(result, returnSchema);
-            if(valida.valid){
-              document.getElementById('result').style.color = "green";
-	    } else {
-              document.getElementById('result').style.color = "red";
-	      for(i=0; i<valida.errors.length; i++){
-  	        console.log("Invalid return: " + 
-                            valida.errors[i].property + 
-                             " message: " + valida.errors[i].message);
-              }
-            }
-            document.getElementById('turn').value=typejson._requestId;
-        }, 
-	// error conditiion handler:
-          function (result) {
-            document.getElementById('result').innerHTML = 
-	         "Failure:  " + dojo.toJson(result);
-        });
+		
+		deferred.addCallbacks(function (result) {
+			dojo.byId('result').innerHTML = "Success:  " + dojo.toJson(result);
+			// Determine if return agrees with json schema specified in smd.
+			var returnSchema=typejson._smd.services[methodText].returns;
+			var valida=dojox.json.schema.validate(result, returnSchema);
+			if(valida.valid){
+				dojo.byId('result').style.color = "green";
+			} else {
+				dojo.byId('result').style.color = "red";
+				for(i=0; i<valida.errors.length; i++){
+					console.log("Invalid return: " + valida.errors[i].property + " message: " + valida.errors[i].message);
+				}
+			}
+			dojo.byId('turn').value=typejson._requestId;
+		}, 
+		// error conditiion handler:
+		function (result) {
+			dojo.byId('result').innerHTML = "Failure:  " + dojo.toJson(result);
+		});
+		
       }
 
     </script>
