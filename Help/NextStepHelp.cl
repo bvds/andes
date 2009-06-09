@@ -1029,7 +1029,7 @@
   (nsh-prompt-Node  
    "Why don't you continue working on "
    *nsh-last-Node*
-   :Assoc `(nsh prompt-last-node ,(nsh-node-expression *nsh-last-node*))))
+   :Assoc `(nsh prompt-last-node ,(bgnode-exp *nsh-last-node*))))
 
 
 
@@ -1336,7 +1336,7 @@
 	   "all of the useful given quantities in the problem"  )
    "why don't you start with "
    (car *nsh-givens*)
-   :Assoc `(nsh prompt-start-givens ,(nsh-node-expression (car *nsh-givens*)))))
+   :Assoc `(nsh prompt-start-givens ,(bgnode-exp (car *nsh-givens*)))))
 
 
 (defun nsh-prompt-continue-givens ()
@@ -1396,7 +1396,7 @@
 		       "Why don't you start with "
 		       Principle
 		       :Assoc `(nsh start-no-quant-explain-more
-				    ,(nsh-node-expression Principle))))) 
+				    ,(bgnode-exp Principle))))) 
      :Assoc `(nsh start-no-quant))))
 
 
@@ -1628,28 +1628,6 @@
 	     :key #'(lambda (S) (format Nil "~a" (nth 1 S))))))
 
 
-
-
-(defun nsh-trace-mc-only ()
-  (trace nsh-mc-only-done?
-	 nsh-mc-only-done-rec
-	 nsh-mc-only-match-SE
-	 nsh-mc-only-prompt-done
-	 nsh-mc-only-prompt-done-correct
-	 nsh-mc-only-prompt-done-incorrect
-	 nsh-mc-only-prompt-done-reconsider
-	 nsh-mc-only-start
-	 nsh-mc-only-prompt
-	 nsh-collect-mc-only-incorrect-attempts
-	 nsh-incorrect-mc-entries-made-p
-	 nsh-mc-only-prompt-reconsider
-	 nsh-mc-only-prompt-do-reconsider 
-	 nsh-mc-only-prompt-next
-	 nsh-mc-only-pick-next-undone-sought))
-	 
-
-
-
 ;;;; ================ prompting the sought/first principle ====================
 ;;;; Once the student has completed the givens we want to prompt them to 
 ;;;; identify whant quantities the problem is seeking and then what major 
@@ -1836,22 +1814,6 @@
 		     "" (match-exp->qnode Sought (problem-graph *cp*))))
      :Assoc `(nsh tell-sought ,Case ,Sought))))
 
-
-;;; Sought tracing.
-(defun trace-nsh-ask-sought ()
-  (trace nsh-ask-sought? nsh-ask-sought-and-fp
-	 nsh-asfp-given-str nsh-asfp-sought-str
-	 nsh-ask-sought 
-
-	 nsh-check-sought-resp
-	 nsh-convert-response->quantity
-	 nsh-sought-resp-rep
-	 nsh-sought-resp-nil
-	 nsh-sought-resp-ns
-	 
-	 nsh-wrong-sought-resp
-	 nsh-tell-sought))
-	 
 	 
 ;;; --------------- ask first principle -------------------------------------
 ;;; prompting the first principle is a matter of selecting the appropriate
@@ -1900,7 +1862,7 @@
    :responder #'(lambda (response)
 		  (nsh-check-first-principle-response
 		   Response sought past))
-   :Assoc `(nsh ask-first-principle ,(nsh-node-expression Sought))))
+   :Assoc `(nsh ask-first-principle ,(bgnode-exp Sought))))
 
    
 
@@ -1929,7 +1891,7 @@
    :responder #'(lambda (response)
 		  (nsh-check-first-principle-response
 		   response sought past))
-   :Assoc `(nsh ask-first-principle-cont ,Case ,(nsh-node-expression Sought))))
+   :Assoc `(nsh ask-first-principle-cont ,Case ,(bgnode-exp Sought))))
 
 
 ;;; When the student responds incorrectly to the first-principle selection
@@ -2259,20 +2221,6 @@
     (loop for P in Principles
 	when (member Sought (nsh-principle-quantities P) :test #'equalp)
 	return t)))
-
-
-(defun trace-nsh-first-principles ()
-  (trace nsh-cfp-collect-valid-fps
-	 
-	 nsh-collect-first-principles 
-	 nsh-recursively-collect-fps
-	 nsh-collect-soughts-successors
-	 nsh-collect-principles-successors
-	 	 
-	 nsh-collect-old-first-principles
-	 
-	 nsh-acceptable-fp-typep))
-
 
 
 ;;; ------------------- null principles ------------------------------
@@ -2707,7 +2655,7 @@
    :Responder #'(lambda (Resp)
 		  (when (eq Resp **Explain-More**)
 		    (nsh-prompt-solution "Why don't you work on " Solution)))
-   :Assoc `(nsh cfp-success-completed ,(nsh-Node-expression Best))))
+   :Assoc `(nsh cfp-success-completed ,(bgnode-exp Best))))
 
 
 
@@ -2818,59 +2766,6 @@
    Principle
    :Assoc `(nsh prompt-fp-solution ,Case ,(enode-id Principle))))
 
-
-
-
-;;;; Trace afp.
-(defun trace-nsh-ask-first-principle ()
-  (trace nsh-ask-first-principle 
-	 nsh-ask-first-principle-cont
-	 
-	 nsh-check-first-principle-response 
-	 nsh-lookup-principle-type
-	 nsh-cfp-principle-null
-	 
-	 nsh-cfp-check-filter
-	 nsh-filter-principles-by-form
-	 nsh-cfp-collect-valid-fps
-	 
-	 nsh-cfp-filter-null
-	 nsh-cfp-change-axis
-	 nsh-cfp-filter-null-resp
-	 nsh-cfp-invalid-axis-resp
-	 nsh-cfp-prompt-change-axis
-	 
-	 nsh-cfp-choose-best-fp
-	 nsh-cbf-filter-solutions
-	 nsh-cbf-invalid
-	 nsh-cbf-invalid-axis
-	 
-	 nsh-cbf-prompt-change
-	 nsh-cbf-change-yes
-	 nsh-cbf-change-no
-	 nsh-cbf-axis-change-prompt
-	 nsh-cbf-axis-draw-prompt
-	 
-	 nsh-cbf-success
-	 nsh-cfp-match-fp-sol
-	 nsh-cfp-success-completed
-	 nsh-cfp-success-uncompleted
-	 
-	 nsh-cfp-invalid
-	 
-	 nsh-wrong-fp-resp
-	 nsh-pick-fp
-	 nsh-pick-best-fp
-	 nsh-prompt-done-fp
-	 nsh-prompt-fp-solution))
-
-
-
-;;; Tracing ask.
-(defun trace-nsh-ask ()
-  (trace-nsh-ask-sought)
-  (trace-nsh-ask-first-principle))
-
 	 
 ;;;; ===================== Prompting Done =====================================
 ;;;; If the student has completed all of the work in a given solution, then we 
@@ -2924,12 +2819,6 @@
 	(T **nsh-single-sought-done-str**)))
 
 
-
-(defun trace-nsh-done ()
-  (trace nsh-done? nsh-prompt-done
-	 nsh-prompt-done-string))
-
-
 ;;;; =================== nsh-start-principle-free ==============================
 ;;;; On problems that contain no principles we want the students to simply work
 ;;;; on the ideal solution without asking them what the sought is.  For now this
@@ -2959,11 +2848,6 @@
 		     (car *nsh-current-solutions*))))
    :Assoc '(nsh start-principle-free)))
 
-
-
-(defun trace-nsh-start-principle-free ()
-  (trace nsh-start-principle-free?
-	 nsh-start-principle-free))
 	 
 ;;;; =================== nsh-continue-solutions ===============================
 ;;;; NSH-Prompt-continue-solution
@@ -3001,7 +2885,7 @@
   (let ((next (find-if #'(lambda (P) (not (nsh-Node-completed-p P))) Solution)))
     (nsh-prompt-Node
      prefix Next
-     :Assoc (or Assoc `(nsh prompt-solution ,(nsh-node-expression Next))))))
+     :Assoc (or Assoc `(nsh prompt-solution ,(bgnode-exp Next))))))
 
 
 
@@ -3019,7 +2903,7 @@
 		  (when (eq Resp **Explain-More**)
 		    (nsh-prompt-node 
 		     Prefix Node
-		     :Assoc `(nsh dialog-prompting-node ,(nsh-node-expression Node)))))
+		     :Assoc `(nsh dialog-prompting-node ,(bgnode-exp Node)))))
    :Assoc Assoc))
 
 
@@ -3071,7 +2955,7 @@
   "Prompt the student to work on the parameter."
   (setq *nsh-last-node* Parameter)
   (make-dialog-turn 
-   (strcat prefix (nlg (nsh-Node-expression Parameter) 'psm-exp) ".  ")
+   (strcat prefix (nlg (bgnode-exp Parameter) 'psm-exp) ".  ")
    **Explain-More**
    :responder #'(lambda (Response)
 		  (when (equal Response **Explain-More**)
@@ -3150,31 +3034,11 @@
    :Assoc Assoc))
 
 
-
-
-;;; Tracing prompting
-(defun trace-nsh-prompting ()
-  (trace nsh-prompt-solution
-	 nsh-dialog-prompt-node
-	 nsh-prompt-node
-	 nsh-prompt-quantity
-	 nsh-prompt-parameter
-	 nsh-prompt-principle
-	 nsh-prompt-goal-principle
-	 nsh-prompt-major-principle
-	 nsh-prompt-given-principle
-	 nsh-prompt-minor-principle
-	 nsh-prompt-principle-final))
-
-
-
-
-
-;;;; ======================== Support functions ===================================
+;;;; ======================== Support functions ==================================
 ;;;; The functions following this line are general-use code that will be called in
 ;;;; multiple locations within NSH.
 
-;;; ---------------------------------------------------------------------------------
+;;; ------------------------------------------------------------------------------
 ;;; Return t if at least one of the axes in the solution has been entered or if the
 ;;; solution has no axes in it at all.
 (defun nsh-1solution-axis-enteredp (Solution)
@@ -3361,30 +3225,6 @@
     R))
 
 
-
-
-(defun trace-nsh-solutions ()
-  (trace nsh-pick-best-solution
-	 nsh-pick-best-solution-ad
-	 nsh-pick-best-solution-sa
-	 
-	 nsh-pick-least-work-solutions
-	 nsh-pick-most-worked-solutions
-	 nsh-pick-axes-done-solutions
-
-	 nsh-filter-solutions-by-axis
-	 nsh-filter-solutions-by-axes
-	 nsh-filter-solutions-by-fps
-	 
-	 nsh-collect-solution-axes-entries
-	 nsh-collect-solution-axes
-	 nsh-multi-axis-solutionp
-	 nsh-solution-completed-p
-	 nsh-solution-numUndone
-	 nsh-solution-numDone
-	 ))
-
-
 ;;; =========================== Nodes =======================================
 ;;; It is possible for the quantities as well as principles to contain paths
 ;;; and entries.  This code generalizes accessing the two to make it possible
@@ -3397,15 +3237,6 @@
   ;;;(psmg-path-enteredp (enode-path principle)))  ;; Doesn't work not sure why yet.
   (path-completedp (bgnode-path Node)))
 
-
-;;; Has the specified node been completed?  
-;;; Uses the psmg entered values.
-(defun nsh-node-uncompleted-p (Node)
-  "Return t iff the specified principle has been completed."
-  ;;;(psmg-path-enteredp (enode-path principle)))  ;; Doesn't work not sure why yet.
-  (not (path-completedp (bgnode-path Node))))
-
-
 ;;; Has the student begun working on the node at 
 ;;; all or is it completely empty.  
 (defun nsh-node-started-p (Node)
@@ -3413,69 +3244,24 @@
   (and (bgnode-entries Node)
        (member-if #'SystemEntry-entered (bgnode-entries Node))))
 
-
-;;; Has the student begun working on the node at 
-;;; all but not completed it?
-(defun nsh-node-only-started-p (Node)
-  "Has the student begiun working on the principle but not completed it?"
-  (and (bgnode-entries Node)
-       (member-if #'SystemEntry-entered (bgnode-entries Node))
-       (member-if-not #'SystemEntry-entered (bgnode-entries Node))))
-
-
 ;;; Collect the node's entries
 (defun nsh-node-entries (Node)
   "Collect the node entries."
   (bgnode-entries Node))
-
-
-(defun nsh-node-expression (Node)
-  (bgnode-exp Node))
-
-
-(defun trace-nsh-nodes ()
-  (trace nsh-node-graph
-	 nsh-node-completed-p
-	 nsh-node-uncompleted-p
-	 nsh-node-started-p
-	 nsh-node-only-started-p
-	 nsh-node-entries
-	 nsh-node-expression))
-
-
 
 ;;; ====================== quantities =========================
 
 (defun nsh-quantity-p (Q)
   (Qnode-P Q))
 
-
 (defun nsh-quantity-parameter-p (Q)
   "Get the expression form of a quantity."
   (qnode-parameterp Q))
-
-(defun nsh-quantity-answer-enteredp (Q)
-  "Has the specified quantitry been entered in an answer box?"
-  (declare (ignore q))
-  nil)
-
-(defun nsh-quantity-expression (Q)
-  "Get the expression form of a quantity."
-  (qnode-exp Q))
 
 (defun nsh-quantity-principles (Q)
   "Get the principles connected to quantity."
   (qnode-eqns Q))
 
-
-(defun trace-nsh-quantities ()
-  (trace nsh-quantity-p
-	 nsh-quantity-parameter-p
-	 nsh-quantity-soughtp
-	 ;;nsh-answer-enteredp
-	 nsh-quantity-expression
-	 nsh-quantity-principles))
-	 
 	
 
 
@@ -3563,19 +3349,6 @@
 (defun nsh-principle-quantities (Principle)
   "Given a principle collect the quantities within it."
   (enode-qnodes Principle))
-
-(defun trace-nsh-principles ()
-  (trace nsh-principle-completed-p
-	 nsh-principle-uncompleted-p
-	 nsh-principle-started-p
-	 nsh-principle-only-started-p
-	 nsh-given-principle-p
-	 nsh-major-principle-p
-	 nsh-goal-principle-p
-	 nsh-principle-entries
-	 nsh-lookup-principle-class
-	 nsh-principle-quantities))
-
 
 
 ;;;; ===================== random text generation code ========================
@@ -4199,11 +3972,6 @@
   (funcall **nsh-next-call**))
 
 
-(defun trace-nsh-next-call ()
-  (trace nsh-set-next-call nsh-clear-next-call
-	 nsh-next-call-set? nsh-execute-next-call))
-
-
 ;;=============================================================================
 ;; Failure to solve messages:
 ;; 
@@ -4286,21 +4054,3 @@
   (T (format NIL "Although you seem to have enough equations, the Andes solver is unable to solve them for ~a in their current form.  Try entering algebraic combinations to isolate a calculable expression for ~a yourself.  Combining equations and plugging in numbers for variables, solving for intermediate unknowns if needed, might get you closer to a form that Andes can solve.  If not, you will just have to finish the problem on your own."  var var))
          
  )))
-
-
-;;; =================== Trace functions ========================================
-
-(defun trace-nsh ()
-  ;;(trace-nsh-setup)
-  (trace-nsh-ask)
-  (trace-nsh-done)
-  (trace nsh-continue-solutions)
-  (trace-nsh-start-principle-free)
-  (trace nsh-1solution-axis-enteredp
-	 nsh-collect-student-axes)
-  (trace-nsh-solutions)
-  (trace-nsh-nodes)
-  (trace-nsh-quantities)
-  (trace-nsh-principles)
-  (trace-nsh-next-call))
-
