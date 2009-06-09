@@ -291,12 +291,6 @@
 		  (subst-bindings b r))
 	       (list r))))
 
-(defun lookup-exptype-fromWorkbench (exptype) 
-"Fetch the from workbench form for given exptype"
-  (let ((s (lookup-exptype-struct exptype)))
-    (when s 
-        (exptype-fromWorkbench s))))
-
 ;;;;============================================================
 ;;;; Entry Propositions.
 ;;;; The entry propositions exists to provide information for the

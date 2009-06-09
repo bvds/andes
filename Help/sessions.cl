@@ -234,10 +234,11 @@
   (env-wrap 
     ;; Andes2 also had calls to:
     ;; define-angle-variable assert-compound-object
-    ;; label-radius label-angle lookup-force lookup-torque
+    ;; label-angle lookup-force lookup-torque
     ;; lookup-mc-answer check-answer
     ;; calculate-equation-string (find variable on lhs of equation)
     ;;                           (probably not in Andes3)
+    ;; Andes2 but not in Andes3:  label-radius
 
     ;; Andes2 does not distinguish between a new entry and a 
     ;; modified entry since all the information about an object 

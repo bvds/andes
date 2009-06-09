@@ -314,171 +314,6 @@
    (zc (vector-compo vector-term '(axis z 0)))
    (otherwise vector-term)))
 
-
-;;; make-quant -- Build a quantity expr from define-variable arg list. 
-;;; Note args come in workbench form. They should be converted to helpsys
-;;; form before the case. 
-;;;
-;;; Prior to Andes 5.0* students could define vector variables without drawing
-;;; them, so could also specify vector quantities this way. We handle these
-;;; also because this argument list will also be used to send quantity choice 
-;;; responses, even though define-variable won't send them. 
-;; optional prop is vector attribute to use, 
-(defun make-quant (type quant body body2 time &optional (prop 'mag))
-  (let* ((quant-type (arg-to-id **quantity-types** quant))
-	 (subtype    (if (eq quant-type 'force) (arg-to-id **force-types** type)
-		       (arg-to-id **quantity-types** type)))
-	 (time-term  (arg-to-time time))
-	 (body-term  (arg-to-body body))
-	 (body2-term (arg-to-body body2))
-	 (fromWorkbench-fn (lookup-exptype-fromWorkbench quant-type)))
-    ;; if quantity has registered a fromWorkbench handler in ontology, 
-    ;; just use that
-    (when fromWorkbench-fn
-      (return-from make-quant 
-	(apply fromWorkbench-fn (list subtype body-term body2-term time-term))))
-    
-    ;; else use forms coded here. These blocks could be moved to ontology, 
-    ;; but generally use that for simple translations, and 
-    ;; leave more involved code here.
-    (case quant-type
-      ;; scalar quantities:
-      (work				; work may be net work, work-nc, or work by an agent
-       (cond ((or (null body2-term) (string-equal body2-term '|all forces|))
-	      `(net-work ,body-term :time ,time-term))
-	     ((or (string-equal body2-term '|nonconservative|)
-		  ;; NB: arg-to-body converts hyphen in '|non-conservative forces|
-		  (string-equal body2-term '|non_conservative forces|)) 
-	      `(work-nc ,body-term :time ,time-term))
-	     (T     `(work ,body-term ,body2-term :time ,time-term))))
-      (power				; may be net power or power from an agent
-       (if (or (null body2-term) (string-equal body2-term '|all forces|)) 
-	   `(net-power ,body-term :time ,time-term)
-	 `(power ,body-term ,body2-term :time ,time-term)))
-      (energy      (case subtype
-		     (total   `(total-energy ,body-term :time ,time-term))
-		     (kinetic `(kinetic-energy ,body-term :time ,time-term))
-		     (rotational `(rotational-energy ,body-term :time ,time-term))
-		     ;; new style:
-		     ;; Change 9.0.2: add agent slot to PE quants
-		     (electric `(electric-energy ,body-term ,body2-term :time ,time-term))
-		     (gravitational `(grav-energy ,body-term ,body2-term :time ,time-term))
-		     (elastic   `(spring-energy ,body-term ,body2-term :time ,time-term))
-		     ;; nuisance: for dipoles we have to construct relevant field term from
-		     ;; specified body and type. 
-		     (electric-dipole `(dipole-energy ,body-term 
-		                           ,(find-dipole-field body-term 'electric)
-					   :time ,time-term))
-		     (magnetic-dipole `(dipole-energy ,body-term 
-		                           ,(find-dipole-field body-term 'magnetic)
-					   :time ,time-term))
-
-		     ;; old style: same subtype was sent for all types of P.E:
-                  (potential 
-		   ;; URGH, whether PE is elastic or gravitational can only be
-	           ;; determined by type of body (spring or planet). .
-		   ;; Also allow args in any order. Prefer grav if they include 
-		   ;; planet. 
-		   (cond ((planetp body2-term) 
-			  `(grav-energy ,body-term :time ,time-term))
-			 ((planetp body-term) 
-			  `(grav-energy ,body2-term :time ,time-term))
-			 ((springp body2-term)
-			  `(spring-energy ,body-term :time ,time-term))
-			 ((springp body-term)
-			  `(spring-energy ,body2-term :time ,time-term))
-			 (T		; no planet or spring! Use grav, it always exists.
-					; include both terms so error handlers can detect
-			  `(grav-energy (,body-term ,body2-term :time ,time-term))))
-		   )))
-      (coef-friction			; !!!student has to get body args in right order:
-       (if (null subtype) `(coef-friction ,body-term ,body2-term static)
-	 `(coef-friction ,body-term ,body2-term ,subtype)))
-      (voltage    (case subtype
-		    (across		; body-term may denote (resistance (a b c)) for equiv.
-		     (if (atom body-term) `(voltage-across ,(component-elements body-term) :time ,time-term)
-                       `(voltage-across ,(second body-term) :time ,time-term)))
-		    (otherwise		; no longer used
-		     `(voltage-btwn ,body-term ,body2-term :time ,time-term))))
-      (current     (case subtype
-		     (through		; now body-term always comes as '(compound orderless A B C)
-		      (if (atom body-term) `(current-thru ,body-term :time  ,time-term)
-		         ; used to be arg might come here (resistance (a b c)) for current through student-defined 
-		         ; equivalent Rabc. Can't happen any more since revised current dialog no longer includes named
-			 ; equivalents as choices.
-		          `(current-thru ,(find-closest-current-list (bodyterm-complist body-term)) :time ,time-term)))
-		     (in        `(current-in ,body-term :time ,time-term))))
-      (current-change `(rate-of-change (current-thru ,(find-closest-current-list (list body-term) 'current-change)
-                                          :time ,time-term)))  ; NB: body-term always comes as atom from old dialog
-      (resistance			; body-term may come here as (compound a b c) for equivalent resistance
-       (if (atom body-term) `(resistance ,body-term)
-	 `(resistance ,(bodyterm-complist body-term))))
-      (capacitance			; body-term may come here as (compound a b c) for equivalent capacitance
-       (if (atom body-term) `(capacitance,body-term)
-	 `(capacitance ,(bodyterm-complist body-term))))
-      
-      ;;
-      ;; vector quantities -- form appropriate prop (mag or dir or compo)
-      ;;
-      ((relative-position position)	; include workbench type id to be safe
-       (vec-prop prop `(relative-position ,body-term ,body2-term
-			   :time ,time-term)))
-      (relative-vel (vec-prop prop `(relative-vel ,body-term ,body2-term
-					:time ,time-term)))
-      (E-field      (vec-prop prop 
-			      (if (or (null body2-term) (string-equal body2-term '|all sources|))
-				  `(net-field ,body-term electric :time ,time-term)
-				`(field ,body-term electric ,body2-term :time ,time-term))))
-      (B-field      (vec-prop prop 
-			      (if (or (null body2-term) (string-equal body2-term '|all sources|))
-				  `(net-field ,body-term magnetic :time ,time-term)
-				`(field ,body-term magnetic ,body2-term :time ,time-term))))
-      (displacement (vec-prop prop `(displacement ,body-term :time ,time-term)))
-      (velocity     (vec-prop prop `(velocity ,body-term :time ,time-term)))
-      ((accel acceleration)		; include workbench type id to be safe
-       (vec-prop prop `(accel ,body-term :time ,time-term)))
-      (force        (vec-prop prop 
-			      (if (eq subtype 'Net) 
-				  `(net-force ,body-term :time ,time-term)
-				`(force ,body-term ,body2-term ,subtype :time ,time-term))))
-      (momentum     (vec-prop prop `(momentum ,body-term :time ,time-term)))
-      (impulse      (vec-prop prop `(impulse ,body-term ,body2-term :time ,time-term)))
-      ((ang-accel ang-acceleration)	; include workbench type id to be safe
-       (vec-prop prop `(ang-accel ,body-term :time ,time-term)))
-      (ang-velocity (vec-prop prop `(ang-velocity ,body-term :time ,time-term)))
-      (ang-displacement 
-       (vec-prop prop `(ang-displacement ,body-term :time ,time-term)))
-      (ang-momentum (vec-prop prop `(ang-momentum ,body-term :time ,time-term)))
-      (torque       (vec-prop prop 
-			      (cond ((eq subtype 'net) 
-				     `(net-torque ,body-term ,body2-term 
-						  :time ,time-term))
-				    ((eq subtype 'couple)
-				     `(torque ,body-term
-					      (couple orderless ,body-term 
-						      ,body2-term) 
-					      :time ,time-term))
-				    ((eq subtype 'dipole)
-				     (set-time (find-dipole-torque-term 
-						body-term body2-term) 
-					       time-term))
-				    (t (set-time (find-torque-term 
-						  body-term body2-term) 
-						 time-term)))))
-      (mag-dipole  (vec-prop prop `(dipole-moment ,body-term magnetic :time ,time-term)))
-      (elec-dipole (vec-prop prop `(dipole-moment ,body-term electric :time ,time-term)))
-      (line        (vec-prop prop  `(line ,body-term :time ,time-term)))
-      ; unit-normal, unit-from, unit-towards: assume these will never be soughts so will
-      ; never appear on quantity choice menu.
-      ;; unknown:
-      (otherwise (warn "~&Warning!! unknown type to make-quant: ~A~%" 
-			   quant-type)
-		   ;; what the hey, give it our best shot:
-		   (set-time
-			    (if body2-term `(,quant-type ,body-term ,body2-term) 
-			      `(,quant-type ,body-term)) time-term))
-      )))
-
 (defun find-dipole-field (body type)
 "given dipole name and field type, return term for field dipole is in in this problem, if any"
   ; temporary hack: point is always 'region, source is always 'unspecified
@@ -1132,30 +967,6 @@
 	 (on-angle-with-axis label degrees id1 id2 id-angle axis)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; label-radius -- label radius of revolution of an object moving in a circle
-;; argument(s):
-;;  label: the label given to the radius by the student
-;;  id: the id of the radius object
-;;  name: the body that is moving in a circle with this radius
-;; returns: StudentEntry
-;; note(s):
-;;  add a variable for the radius to the list of variables
-;;
-;; This API is called when a revolution-radius is drawn on the diagram 
-;; rather than defined in the variable window. Since we don't care about
-;; the difference, we just translate it into a define-variable call. 
-;; [Workbench could be changed to do this just as well, but this is simpler.]
-;; !!! Note Workbench API for this quant doesn't include a time -- so really
-;; only usable if default time on steady-state problem is OK. That should 
-;; generally happen since uniform circular motion is a steady state. However,
-;; we could be interested in uniform circular motion before and after coupling,
-;; in a conservation of angular momentum problem.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun label-radius (label id name)
-  (check-noneq-entry 
-   (define-variable label NIL 'revolution-radius name 'T0 NIL id)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; define-variable - define a variable to stand for a certain quantity. this is
 ;;  called when the student uses the "variable" menu, but not when variables are
 ;;  defined by other tools such as the force drawing tool or the body tool.
@@ -1185,7 +996,7 @@
 (defun define-variable (entry)
   (let* ((id (StudentEntry-id entry))
 	 (text (StudentEntry-text entry))
-	 (quant-term (make-quant type quant body body2 time))
+	 quant-term
 	 (action    `(define-var ,quant-term)))
     
     (unless text (warn "Definition must always have text")
