@@ -367,6 +367,15 @@ while (<>) { # loop over andes files/sessions
 #############################################################################
 
 
+# print out number of problems attempted by each student
+# This is not affected by any of the cutoffs
+if (1) {
+    foreach $student (keys %times) {
+	my $i =  keys %{$times{$student}};
+	print "$student $i\n";
+    }
+}    
+
 # print out score histogram in Mathematica notation
 # This is not affected by any of the cutoffs
 if (0) {

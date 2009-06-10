@@ -1,0 +1,34 @@
+@import url("../dojotoolkit/dojo/resources/dojo.css");
+@import url("../dojotoolkit/dijit/themes/dijit.css");
+@import url("../dojotoolkit/dijit/themes/tundra/layout/BorderContainer.css");
+@import url("../dojotoolkit/dijit/themes/tundra/layout/ContentPane.css");
+@import url("../dojotoolkit/dijit/themes/tundra/tundra.css");
+
+html, body, #main{	
+	width: 100%;	/* make the body expand to fill the visible window */
+	height: 100%;
+	overflow: hidden;	/* erase window level scrollbars */
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+	font: 10pt Arial,Myriad,Tahoma,Verdana,sans-serif;
+}
+
+/* layout */
+#menuPane{
+	height:40px;
+	background:#666666;
+}
+#toolPane{
+	width:60px;
+	background:#cccccc;
+}
+#mainPane{
+	
+}
+#drawingPane{
+	
+}
+#helpPane{
+	width:200px;
+	background:#ff0000;
+}

@@ -1,0 +1,26 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en">
+<head>
+    <title>Drawing Test</title>
+	<script>
+		djConfig = {
+			isDebug:true,
+			modulePaths: {'drawing': '../../js/drawing', 'andes':'../../js/andes'},
+			parseOnLoad:true
+		}
+	</script>
+	<script src="../dojotoolkit/dojo/dojo.js"></script>
+	<script>
+		dojo.require("dojo.parser");
+		dojo.require("andes.main");
+		dojo.require("drawing.Drawing");
+	</script>
+	
+</head>
+<body>
+    <h2>Drawing Test</h2>
+	<div id="wraper">
+		<div dojoType="drawing.Drawing" id="drawingNode" style="width:800px; height:500px; border:1px solid #000; margin-top:20px; cursor:crosshair;"></div>
+	</div>
+</body>
+</html>
