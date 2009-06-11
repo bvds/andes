@@ -435,25 +435,15 @@
 	 (body-term (arg-to-body name))
 	 ;; need to find time
 	 (time-term (arg-to-time time))
-	 (action   `(body ,body-term :time ,time-term))
-	 ;; this entry automatically defines a mass variable named m+label
-	 ;; we build an implicit entry for this to mark it done as well.
-         (mass-label  (concatenate 'string "m" label))
-	 (mass-term `(mass ,body-term))
-	 (mass-var-entry (make-StudentEntry :id id 
-	                                    :prop `(define-var ,mass-term))))
-    
-    ;; associate implicit entry
-    ;;(add-implicit-eqn entry mass-var-entry) ; take out automass
-    
+	 (action   `(body ,body-term :time ,time-term)))
+
     (setf (StudentEntry-action entry) action)
-  (add-entry entry)   ;remove existing info and update
-  ;; (symbols-enter mass-label mass-term id) ; take out automass
-  ;; for compound bodies, enter body label so it can be recognized when
-  ;; referenced in subsequent quantity definitions for compound's attributes.
-  (when (compound-bodyp body-term)
-    (check-symbols-enter label body-term id))
-  (check-noneq-entry entry)))  ;finally return entry 
+    (add-entry entry)   ;remove existing info and update
+    ;; for compound bodies, enter body label so it can be recognized when
+    ;; referenced in subsequent quantity definitions for compound's attributes.
+    (when (compound-bodyp body-term)
+      (check-symbols-enter label body-term id))
+    (check-noneq-entry entry)))  ;finally return entry 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; assert-compound-object - checks the correctness of a student defined com-
