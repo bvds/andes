@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <title>Drawing Test</title>
+	<link href="../js/drawing/resources/drawing.css" rel="stylesheet" />
 	<script>
 		djConfig = {
 			isDebug:true,
@@ -12,14 +13,18 @@
 	<script src="../dojotoolkit/dojo/dojo.js"></script>
 	<script>
 		dojo.require("dojo.parser");
-		dojo.require("andes.main");
 		dojo.require("drawing.Drawing");
+		dojo.require("drawing.Toolbar");
 	</script>
 	
 </head>
 <body>
     <h2>Drawing Test</h2>
 	<div id="wraper">
+		<div dojoType="drawing.Toolbar" drawingId="drawingNode">
+			<button type="drawing.stencil.Line" >Line</button>
+			<button type="drawing.stencil.Rect" selected="true">Rect</button>
+		</div>
 		<div dojoType="drawing.Drawing" id="drawingNode" style="width:800px; height:500px; border:1px solid #000; margin-top:20px; cursor:crosshair;"></div>
 	</div>
 </body>
