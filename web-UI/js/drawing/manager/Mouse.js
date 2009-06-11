@@ -49,7 +49,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		
 		_broadcastEvent:function(strEvt, obj){
 			if(strEvt!="onMove"){
-				console.log("mse----> ", strEvt);
+				//console.log("mse----> ", strEvt);
 			}
 			if(this._shapeClick){
 				if(strEvt=="onUp"){

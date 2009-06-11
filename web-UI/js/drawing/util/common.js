@@ -31,6 +31,13 @@ dojo.provide("drawing.util.common");
 			str = str || "shape";
 			uidMap[str] = uidMap[str]===undefined ? 0 : uidMap[str] + 1;
 			return uidMap[str];
+		},
+		objects:{}, //private?
+		register: function(obj){
+			this.objects[obj.id] = obj;	
+		},
+		byId: function(id){
+			return this.objects[id];
 		}
 	};
 	
