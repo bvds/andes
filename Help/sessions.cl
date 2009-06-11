@@ -274,7 +274,7 @@
 	      (StudentEntry-type old-entry) type))
 
      ;; create new object
-      (setf new-entry (make-entry :id id :type type))
+      (setf new-entry (make-StudentEntry :id id :type type))
  
       ;; update attributes from old object
       (when old-entry
