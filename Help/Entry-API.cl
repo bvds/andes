@@ -314,41 +314,6 @@
    (zc (vector-compo vector-term '(axis z 0)))
    (otherwise vector-term)))
 
-;;;; ===========================================================================
-;;;; wb-quant -- convert a variable-defining API call to a quantity
-;;;;
-;;;; Following is used to handle quantity choice results. The two
-;;;; arguments are: first, an unevaluated API call call which is either 
-;;;; define-variable or define-angle-variable. This is the call that would be
-;;;; sent if the student had actually defined a var in the relevant dialog.
-;;;; This is convenient way of packaging the spec because the workbench already 
-;;;; has code to build these api calls at the end of definition dialogs. 
-;;;; The second argument is an optional vector-attribute id, which tells which
-;;;; attribute of the vector is to be used, default mag.
-;;;; Usage examples:
-;;;;    (wb-quant '(define-variable "" average Velocity car T1 NIL NIL) 'mag)
-;;;; or for angle quantities
-;;;;    (wb-quant '(define-angle-variable "" 270 posx "vf" NIL))
-;;;; Return value is the quantity term specified.
-;;;;
-;;;; In fact the workbench is clever and uses this as follows: when the student
-;;;; response is a quantity selection, it sends a command of the form
-;;;; (handle-student-response #.(wb-quant (define-variable ....) mag)
-;;;; When read by the dispatcher, this has the effect of
-;;;;       (handle-student-response <quant-term>)
-;;;; so responder code doesn't have to know about the translation.
-
-(defun wb-quant (api-call &optional (vecprop 'mag))
-  (case (first api-call)
-    ('define-variable (make-quant (third api-call) (fourth api-call) 
-				  (fifth api-call) (seventh api-call)
-				  (sixth api-call) vecprop))
-    ('define-angle-variable (make-angle-quant (fourth api-call) 
-                                              (fifth api-call)))
-    (otherwise
-    	(warn "wb-quant: Unrecognized quantity spec: ~A~%" api-call)
-	`(unrecognized ,api-call))))
-
 
 ;;; make-quant -- Build a quantity expr from define-variable arg list. 
 ;;; Note args come in workbench form. They should be converted to helpsys
@@ -1112,15 +1077,7 @@
         (on-angle-between-vectors label degrees id1 id2 id-angle :drawn NIL) 
      (on-angle-with-axis label degrees id1 id2 id-angle axis))))
 
-; helper for wb-quant -- get angle between quantity from two student labels
-(defun make-angle-quant (label1 label2)
-   ; take second because referent is (mag (?vector-type . ?args))
-   ; works for vectors AND lines because lines register as (mag (line...))
-   (let* ((v1-term (second (symbols-referent (string label1))))
-	  (v2-term (second (symbols-referent (string label2)))))
-     `(angle-between orderless ,v1-term ,v2-term)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; label-radius -- label radius of revolution of an object moving in a circle
 ;; argument(s):
 ;;  label: the label given to the radius by the student
