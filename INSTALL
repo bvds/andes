@@ -42,6 +42,12 @@ files.  This is included in standard linux distributions.
     ErrorDocument 502 "{\"jsonrpc\": \"2.0\", \"error\": {\"code\": 502, \"message\": \"Andes help server:  proxy error\"}, \"id\": null}"  
     ErrorDocument 503 "{\"jsonrpc\": \"2.0\", \"error\": {\"code\": 503, \"message\": \"Andes help server:  Service Temporarily Unavailable\"}, \"id\": null}"  
   </Location>
+# For older versions of Apache, use something like:
+  <IfModule mod_proxy.c>
+    ProxyRequests Off
+    ProxyPass /help http://localhost:8080/help
+    ProxyPassReverse /help htttp://localhost:8080/help
+  </IfModule>
 # add links to web-UI and images in /var/www/html
 # Then restart:
   /sbin/service httpd reload
