@@ -23,19 +23,12 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;  12/6/2003 - (cl) -- fixing compiler warnings.
-;;    1. Declared references to **dead-path-help**, **Forbidden-Help** and **Nogood-Help**
-;;       in Interpret-equation to be special. 
-;;    2. Declared references to **Premature-before-compo-eqn-help**, **Premature-subst-help**
-;;       and **premature-entry-help** in get-premature-msg to be special.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun interpret-equation (se		;struct StudentEntry
                            &optional (location 'equation)) ; vs 'answer if answer-box entry
-  (declare (special **Dead-Path-Help** **Forbidden-Help** **Nogood-Help**))
   (sg-match-StudentEntry se) ;; fills in PossibleCInterps
   (let* ((interps (StudentEntry-PossibleCInterps se))
 	 (correct-or-premature (find-all-correct-interpretations interps location))
@@ -416,8 +409,6 @@
     ;(when premature-result (format t "~%Correct but Premature:~%~W~%" premature-result))
     (list correct-result premature-result)))
 
-; !! Might want a special message for premature answer entries to the effect
-; that not all work has been shown yet.
 
 ; ! Urg, we must run tests *again* after interpretation choice to fetch message. Should 
 ; recode to be able to associate msg with entry at time we detect constraint violoation.
@@ -427,7 +418,6 @@
 (defun get-premature-msg (se)
   "return appropriate hint sequence for equation entry interpreted as premature"
   ; some message text in HelpMessages.cl
-  (declare (special **Premature-subst-help** **premature-entry-help**))
  ; (assert (eq (studententry-state se) **Premature-Entry**))
  (let* ((interp (studententry-cinterp se))
         (missing (get-needed-eqn-names interp)))
