@@ -6,6 +6,7 @@ dojo.require("drawing.util.common");
 dojo.require("drawing.manager.keys");
 dojo.require("drawing.manager.Mouse");
 dojo.require("drawing.manager.Stencil");
+dojo.require("drawing.manager.Anchors");
 dojo.require("drawing.stencil.Stencil");
 dojo.require("drawing.stencil.Line");
 dojo.require("drawing.stencil.Rect");
@@ -45,9 +46,10 @@ dojo.require("drawing.stencil.Rect");
 			console.log("create surface");
 			createSurface(this.domNode, this.width, this.height, this.util.uid("surface"));
 			this.mouse = new drawing.manager.Mouse({container:this.domNode});
-			this.keys = drawing.manager.keys
+			this.keys = drawing.manager.keys;
+			this.anchors = new drawing.manager.Anchors({mouse:this.mouse});
 			console.log("create stencils")
-			this.stencils = new drawing.manager.Stencil({surface:surface, mouse:this.mouse, keys:this.keys, grid:{gap:100}});
+			this.stencils = new drawing.manager.Stencil({surface:surface, mouse:this.mouse, keys:this.keys, anchors:this.anchors, grid:{gap:100}});
 			
 			this.stencils.register(new drawing.stencil.Rect({
 				parent:surface.createGroup(),

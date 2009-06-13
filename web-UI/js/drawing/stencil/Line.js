@@ -10,6 +10,7 @@ drawing.stencil.Line = drawing.util.oo.declare(
 		}
 	},
 	{
+		anchorType: "single",
 		dataToPoints: function(obj){
 			this.points = [
 				{x:obj.x1, y:obj.y1},

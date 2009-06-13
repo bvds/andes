@@ -4,20 +4,19 @@ dojo.provide("drawing.stencil.Rect");
 drawing.stencil.Rect = drawing.util.oo.declare(
 	drawing.stencil.Stencil,
 	function(options){
-		// NAME! data? properties? description?
-		// data AND OR points
 		if(options.data || options.points){
 			this.points = options.points || this.dataToPoints(options.data);
 			this.render();
 		}
 	},
 	{
+		anchorType: "group",
 		dataToPoints: function(obj){
 			return [
-				{x:obj.x, y:obj.y}, 			// TL
-				{x:obj.x + obj.width, y:obj.y},		// TR
-				{x:obj.x + obj.width, y:obj.y + obj.height},				// BR
-				{x:obj.x, y:obj.y + obj.height}		// BL
+				{x:obj.x, y:obj.y}, 						// TL
+				{x:obj.x + obj.width, y:obj.y},				// TR
+				{x:obj.x + obj.width, y:obj.y + obj.height},// BR
+				{x:obj.x, y:obj.y + obj.height}				// BL
 			];
 		},
 		pointsToData: function(){

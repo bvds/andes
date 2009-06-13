@@ -35,9 +35,8 @@ dojo.provide("drawing.manager.keys");
 				if(evt.keyCode==224){
 					this.cmmd = true;
 				}
-				if(this.shift || this.ctrl || this.cmmd){
-					this.meta = true;
-				}
+				
+				this.meta = this.shift || this.ctrl || this.cmmd;
 				
 				if(evt.keyCode==8 || evt.keyCode==46){
 					//this.onDelete(); on down or up?
@@ -55,9 +54,8 @@ dojo.provide("drawing.manager.keys");
 				if(evt.keyCode==224){
 					this.cmmd = false;
 				}
-				if(!this.shift && !this.ctrl && !this.cmmd){
-					this.meta = false;
-				}
+				
+				this.meta = this.shift || this.ctrl || this.cmmd;
 				
 				if(evt.keyCode==13){
 					this.onEnter(evt);
@@ -89,7 +87,6 @@ dojo.provide("drawing.manager.keys");
 				if(evt.keyCode==40){ //down
 					y = inc;
 				}
-				console.log("PRESS:", evt.x, " ", evt.y)
 				if(x || y){
 					evt.x = x;
 					evt.y = y;

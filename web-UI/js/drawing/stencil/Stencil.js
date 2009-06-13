@@ -19,7 +19,13 @@ dojo.provide("drawing.stencil.Stencil");
 			style:{
 				line:{
 					width:3,
-					color:"#FF0000",
+					color:"#0000FF",
+					style:"Solid",
+					cap:"round" // square?, butt, round
+				},
+				lineSelected:{
+					width:3,
+					color:"#FFFF00",
 					style:"Solid",
 					cap:"round" // square?, butt, round
 				},
@@ -57,7 +63,6 @@ dojo.provide("drawing.stencil.Stencil");
 					}else{
 						var k = key.substring(key.lastIndexOf(".")+1)
 						prop = dojo.getObject(key.substring(0, key.lastIndexOf(".")), false, this);
-						console.log("val str", prop)
 						prop[k] = value;
 					}
 					this.render();
@@ -77,10 +82,11 @@ dojo.provide("drawing.stencil.Stencil");
 				// notified of drag completion. This should fire
 				// at the *end* of each render (not during drag)
 				// (Maybe should be onRenderComplete?)
-		console.warn("stencil.onRender")
+		
 				if(!this._postRenderCon){
 					this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
 				}
+				this.shape.moveToBack();
 				this.createSelectionOutline();
 				this.created = true;
 				this.connectShape();
@@ -91,40 +97,50 @@ dojo.provide("drawing.stencil.Stencil");
 			},
 			
 			
-			
-			
 			select: function(){
 				// on mouse down - always select
 				this.selected = true;
-				this.attr("style.line.color", "#FFFF00");
+				//this.attr("style.line.color", "#FFFF00");
+				this.shape.setStroke(this.style.lineSelected);
 			},
 			deselect: function(){
 				// on mouse down - always select
 				this.selected = false;
-				this.attr("style.line.color", "#FF0000");
+				//this.attr("style.line.color", "#FF0000");
+				this.shape.setStroke(this.style.line);
+				
 			},
+			
+			toggleSelected: function(){
+				this._upselected = !this._upselected;
+				this.selected = this._upselected;
+			},
+			
 			transformPoints: function(mx){
 				//
 				// should have two sets of points
 				// bounding box points - for transforms
 				// and shape points - for editing
 				//
-				console.warn("transformPoints")
 				dojo.forEach(this.points, function(o){
 					o.x += mx.dx;
 					o.y += mx.dy;
 				});
 				this.render();
 			},
-			toggleSelected: function(){
-				this._upselected = !this._upselected;
-				this.selected = this._upselected;
+			
+			setTransform: function(mx){
+				this.transformPoints(mx);
 			},
-			setParent: function(container){
-				this.parent = container || this.orgParent;
-				console.log(this.id, "set parent", this.parent.rawNode)
-				this.parent.add(this.shape);
+			
+			getPoints: function(){
+				return this.points || [];
 			},
+			
+			onTransformPoint: function(point){
+				
+			},
+			
 			destroy: function(){
 				// unregistering selection or shapes
 				// needs to be done outside of this object
@@ -190,18 +206,10 @@ dojo.provide("drawing.stencil.Stencil");
 			
 			// Should be overwritten by sub class:
 			createSelectionOutline: function(){},
-			onDown: function(){
-				console.log("shape down");
-			},
-			onMove: function(){
-				//console.log("shape move");	
-			},
-			onDrag: function(){
-				console.log("shape drag");
-			},
-			onUp: function(){
-				console.log("shape up");
-			}
+			onDown: function(){},
+			onMove: function(){},
+			onDrag: function(){},
+			onUp: function(){}
 		}
 	);
 })();

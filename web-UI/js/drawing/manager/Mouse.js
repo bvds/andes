@@ -68,18 +68,23 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		},
 		
 		onDown: function(obj){
-			this._broadcastEvent(this._shapeClick ? "onShapeDown" : "onDown", obj);			
+			this._broadcastEvent(this.eventName("down"), obj);			
 		},
 		onDrag: function(obj){
-			this._broadcastEvent(this._shapeClick ? "onShapeDrag" : "onDrag", obj);	
+			//console.info(this.eventName("drag"))
+			this._broadcastEvent(this.eventName("drag"), obj);	
 		},
 		onMove: function(obj){
 			this._broadcastEvent("onMove", obj);
 		},
 		onUp: function(obj){
-			this._broadcastEvent(this._shapeClick ? "onShapeUp" : "onUp", obj);
+			this._broadcastEvent(this.eventName("up"), obj);
 		},
-		
+		eventName: function(name){
+			name = name.charAt(0).toUpperCase() + name.substring(1);
+			var t = this.drawingType=="" ? "" : this.drawingType.charAt(0).toUpperCase() + this.drawingType.substring(1);
+			return "on"+t+name;
+		},
 		origin:{},
 		up: function(evt){
 			var o = this.create(evt);
@@ -101,11 +106,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			this._lastx = x;
 			this._lasty = y;
 			
-			var t = dojo.attr(evt.target, "drawingType");
-			if(t=="stencil"){
-				this._shapeClick = true;
-			}
-			
+			this.drawingType = dojo.attr(evt.target, "drawingType") || "";
 			
 			this.onDown({x:x,y:y, id:evt.target.id});
 			dojo.stopEvent(evt);
@@ -114,7 +115,9 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			this.onMove(this.create(evt));
 		},
 		drag: function(evt){
-			this.onDrag(this.create(evt));
+			var o = this.create(evt);
+			o.id = evt.target.id;
+			this.onDrag(o);
 		},
 		create: function(evt){
 			var dim = this._getXY(evt);

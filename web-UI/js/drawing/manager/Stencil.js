@@ -11,7 +11,7 @@ dojo.provide("drawing.manager.Stencil");
 			}
 			this.mouse = options.mouse;
 			this.keys = options.keys;
-			//this.anchors = options.anchors;
+			this.anchors = options.anchors
 			this.items = {};
 			this.selectedItems = {};
 			this._mouseHandle = this.mouse.register(this);
@@ -23,7 +23,7 @@ dojo.provide("drawing.manager.Stencil");
 			_wasDragged:false,
 			_secondClick:false,
 			register: function(item){
-				console.log("Selection.register ::::::", item.id)
+				//console.log("Selection.register ::::::", item.id)
 				this.items[item.id] = item;
 			},
 			
@@ -34,9 +34,9 @@ dojo.provide("drawing.manager.Stencil");
 			},
 			setSelectionGroup: function(){
 				
-				for(var n in this.selectedItems){
-					this.onDeselect(this.selectedItems[n], true);
-				}
+				this.withSelected(function(m){
+					this.onDeselect(m, true);
+				});
 				
 				if(this.group){
 					surface.remove(this.group);
@@ -45,64 +45,81 @@ dojo.provide("drawing.manager.Stencil");
 				this.group = surface.createGroup();
 				this.group.setTransform({dx:0, dy: 0});
 				
-				for(var n in this.selectedItems){
-					this.group.add(this.selectedItems[n].shape);
-				}
+				this.withSelected(function(m){
+					this.group.add(m.parent);
+					m.select();
+				});
+				
 			},
 			onSelect: function(item){
 				if(this.selectedItems[item.id]){ return; }
 				this.selectedItems[item.id] = item;
-				this.group.add(item.shape);
-				//this.anchors.add(item, this.group);
-				
+				this.group.add(item.parent);
+				if(this.isSelected()==1){
+					this.anchors.add(item, this.group);
+				}
+				item.select();
 			},
 			onDeselect: function(item, keepObject){
 				
-				//this.anchors.remove(item);
-				item.setParent();
-				item.transformPoints(this.group.getTransform()); // which re-renders item in new loc
-				//item.shape.applyTransform(this.group.getTransform()); // which doesn't
+				this.anchors.remove(item);
+				surface.add(item.parent);
+				item.setTransform(this.group.getTransform());
+				item.deselect();
 				if(!keepObject){
 					delete this.selectedItems[item.id];
 				}
 			},
 			deselect: function(){ // all? items?
 				this.withSelected(function(m){
-					m.deselect();
 					this.onDeselect(m);
-					console.log("ITEM:", m)
 				});
 				this._dragBegun = false;
 				this._wasDragged = false;
 			},
-			onShapeDown: function(obj){
-				
-				//
-				// - check items if this is in there
-				//
-				if(this.selectedItems[obj.id]){
-					//console.log("same shape(s)");
+			onStencilDown: function(obj){
+				console.log("------> meta", this.keys.meta)
+				if(this.selectedItems[obj.id] && this.keys.meta){
+					console.log("shift remove");
+					this.onDeselect(this.selectedItems[obj.id]);
+					if(this.isSelected()==1){
+						this.withSelected(function(m){
+							this.anchors.add(m, this.group);
+						});
+					}
+					this.group.moveToFront();
 					return;
-				}else if(!this.keys.meta){
-					this.deselect();
-				}
-				this.setSelectionGroup();
 				
+				}else if(this.selectedItems[obj.id]){
+					console.log("same shape(s)");
+					return;
+				
+				}else if(!this.keys.meta){
+					console.log("deselect all");
+					this.deselect();
+				
+				}else{
+					console.log("reset sel and add item")
+				}
+				
+				// add an item
+				this.setSelectionGroup();
 				var item = this.items[obj.id];
-				item.select();
 				this.onSelect(item);
+				this.group.moveToFront();
 				dojo.style(surfaceNode, "cursor", "pointer");
 			},
+			
 			onDown: function(obj){
 				this.deselect();
 			},
 			
-			onShapeUp: function(obj){
+			onStencilUp: function(obj){
 
 			},
 			
 			
-			onShapeDrag: function(obj){
+			onStencilDrag: function(obj){
 				if(!this._dragBegun){
 					this.onBeginDrag(obj);
 					this._dragBegun = true;
@@ -131,11 +148,11 @@ dojo.provide("drawing.manager.Stencil");
 				this._wasDragged = true;
 			},
 			
-			onShapeOver: function(evt, item){
+			onStencilOver: function(evt, item){
 				console.log("OVER", surface)
 				dojo.style(surfaceNode, "cursor", "move");
 			},
-			onShapeOut: function(evt, item){
+			onStencilOut: function(evt, item){
 				console.log("OUT")
 				dojo.style(surfaceNode, "cursor", "crosshair");
 			},
@@ -148,11 +165,9 @@ dojo.provide("drawing.manager.Stencil");
 				}
 			},
 			isSelected: function(){
-				// at least one item is selected
+				// returns number of selected
 				var ln = 0;
-				for(var m in this.selectedItems){
-					ln++;
-				}
+				for(var m in this.selectedItems){ ln++; }
 				return ln;
 			},
 			
