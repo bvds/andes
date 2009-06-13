@@ -276,7 +276,7 @@
      (:backtrace . ,(with-output-to-string 
 		     (stream)
 		     ;; sbcl-specific function 
-		     #+sbcl(sb-debug:backtrace 10 stream)))))
+		     #+sbcl(sb-debug:backtrace 20 stream)))))
 
 (defun execute-session (session-hash turn func params)
   "Execute a function in the context of a given session when its turn comes.  If the session doesn't exist, create it.  If there is nothing to save in *env*, delete session."

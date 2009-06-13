@@ -275,16 +275,16 @@
 (defun delete-object (Id)
   "Remove any existing student entry with specified ID, undoing its effects"
   (let ((old-entry (find-entry Id)))
-    (unless old-entry (error "Can't delete entry ~A:  missing." id))
-    (format *debug-help* "Removing entry: ~A ~S~%" 
-	    (studententry-id old-entry) (studententry-prop old-entry))
-    (undo-entry old-entry)
-    ;; and remove it from Entry listS
-    (setf *StudentEntries*
-	  (delete Id *StudentEntries* :key #'StudentEntry-ID :test #'equal))
-    ;; Should also update score?
-  `(((:action . "modify-object") (:id . ,Id) 
-     (:mode . "deleted")))))
+    (when old-entry 
+      (format *debug-help* "Removing entry: ~A ~S~%" 
+	      (studententry-id old-entry) (studententry-prop old-entry))
+      (undo-entry old-entry)
+      ;; and remove it from Entry listS
+      (setf *StudentEntries*
+	    (delete Id *StudentEntries* :key #'StudentEntry-ID :test #'equal))
+      ;; Should also update score?
+      `(((:action . "modify-object") (:id . ,Id) 
+     (:mode . "deleted"))))))
 
 ;;=============================================================================
 ;; Helpers for implicit equation entries associated with diagram entries

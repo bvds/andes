@@ -427,22 +427,38 @@
 ;;  table this name paired with the system's name for the same quantity.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun assert-object (entry)
-  (let* ((id (StudentEntry-id entry))
-	 (name (StudentEntry-text entry))
+  (let ((id (StudentEntry-id entry))
+	 (text (StudentEntry-text entry))
 	 (label (StudentEntry-symbol entry))
 	 (xpos (StudentEntry-x entry))
 	 (ypos (StudentEntry-y entry))
-	 (body-term (arg-to-body name))
-	 ;; need to find time
-	 (time-term (arg-to-time time))
-	 (action   `(body ,body-term :time ,time-term)))
+	 best
+	 sysent)
 
-    (setf (StudentEntry-action entry) action)
+    ;; see comments in define-variable
+    (setf best (best-matches 
+		;; If there is a symbol strip out the leading "Let x be ..."
+		(if label (subseq text (+ 3 (search "be" text))) text)
+		(mapcar #'(lambda (x) (cons (nlg (cadr (SystemEntry-prop x))) x))
+			(remove '(body . ?rest) *sg-entries* 
+				:key #'SystemEntry-prop :test-not #'unify))))
+
+    ;; see comments in define-variable
+    ;; Should have real help error handling for bad matching...
+    (cond ((= (length best) 1)
+	   (setf sysent (car best)))
+	  ((= (length best) 0)
+	   (error "Can't find any matches for ~A from ~A" text *sg-entries*))
+	  (t (error "too many matches: ~A" best)))
+
+
+    (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
     (add-entry entry)   ;remove existing info and update
     ;; for compound bodies, enter body label so it can be recognized when
     ;; referenced in subsequent quantity definitions for compound's attributes.
-    (when (compound-bodyp body-term)
-      (check-symbols-enter label body-term id))
+    (when (compound-bodyp (SystemEntry-prop sysent))
+    ;; probaby should switch to whole SystemEntry
+      (check-symbols-enter label (SystemEntry-prop sysent) id))
     (check-noneq-entry entry)))  ;finally return entry 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -675,7 +691,7 @@
 	 (dir-label  (format NIL "~A~A" (if (z-dir-spec dir-term) "$j" "$q")
 			     label)))
 
-    (setf (StudentEntry-action entry) action)
+    (setf (StudentEntry-prop entry) action)
     ;; remove existing entry and update
     (add-entry entry)
     (check-symbols-enter label line-mag-term id)
@@ -969,17 +985,16 @@
 ;;  paired with the corresponding system variable
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun define-variable (entry)
-  (let* ((id (StudentEntry-id entry))
+  (let ((id (StudentEntry-id entry))
 	 (text (StudentEntry-text entry))
 	 (symbol (StudentEntry-symbol entry))
-	 best
-	 quant-term
-	 action)
+	 value ;not in Andes3
+	 best sysent)
 
     (unless text (warn "Definition must always have text")
 	       (setf text ""))
  
-    ;; match up text with systementry
+    ;; match up text with SystemEntry
     ;; Right now, this is a simple first effort:
     ;; Here is what is missing:
     ;;  Should tokenize the text and the model texts and do
@@ -991,24 +1006,26 @@
     ;;  Should have alternative texts for matching.
     ;;  Should correctly handle "Let xxx be ... " wrapper, matching to 
     ;;     symbol from client.
-    (setf best (best-matches 
+    (setf best (best-matches
+		;; should have test that symbol exists
 		;; strip out the leading "Let x be ..."
 		(subseq text (+ 3 (search "be" text)))
-		(mapcar #'(lambda (x) (cons (nlg x) x)) 
-			(mapcar #'qnode-exp 
-				(first (problem-graph *cp*))))))
+		(mapcar #'(lambda (x) (cons (nlg (cadr (SystemEntry-prop x))) x))
+			(remove '(define-var . ?rest) *sg-entries* 
+				:key #'SystemEntry-prop :test-not #'unify))))
 
     ;; Need error handlers for the following cases:
     ;; no match:  "Cannot understand entry" and hint sequence
     ;; two matches:  "Did you mean this or this?" and hint sequence.
     ;; more than two:  "Your definition is ambiguous"" and hint sequence.
     (when (= (length best) 1)
-      (setf quant-term (car best)))
+      (setf sysent (car best)))
 
-    (setf (StudentEntry-action entry) `(define-var ,quant-term))
+    (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
     ;; install new variable in symbol table
     (add-entry entry)
-    (check-symbols-enter var quant-term id)
+    ;; probaby should switch to whole SystemEntry
+    (check-symbols-enter var (SystemEntry-prop sysent) id)
 
     ;; record associated given value equation entry
     (when value  ; NIL => unspecified. (Empty string => unknown)
@@ -1051,7 +1068,7 @@
 	 (xdir-dnum `(dnum ,dir |deg|))
 	)
 
-    (setf (StudentEntry-action entry) action)
+    (setf (StudentEntry-prop entry) action)
    ;; install symbols for x, y, and z axes
    ;; these can't be used by themselves in equations but are needed by us
    ;; later when autodefining vector component variables for existing axes. 
@@ -1300,7 +1317,7 @@
   (let ((vector-entry (sg-find-vector-entry vector-quant)))
     ; true if either drawn non-unknown... 
     (or (and vector-entry    ; prop form is (vector ?quant ?dir)
-             (not (eq (third (systemEntry-prop vector-entry)) 
+             (not (eq (third (SystemEntry-prop vector-entry)) 
 	               'unknown)))
 	; ... or mag has a given value
         (given-quant-p `(mag ,vector-quant)))))
@@ -1396,7 +1413,7 @@
   ; don't waste time adding info when checking init entries 
   ; ?? might we want it anyway ??
   (when (not **checking-entries**)
-     (do-log-entry-info (list entry))))
+     (do-log-entry-info entry)))
   
 (defun do-log-entry-info (entry)
   (let ((target-entries)
@@ -1442,7 +1459,7 @@
            (format nil "assoc step ~{~S~^,~}" 
 	                                  (mapcar #'SystemEntry-prop target-entries))
            (format nil "assoc op ~{~S~^,~}" 
-                                         (mapcar #'sg-map-systementry->opname target-entries))))
+                                         (mapcar #'sg-map-SystemEntry->opname target-entries))))
      ))))
 
 

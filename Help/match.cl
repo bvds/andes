@@ -22,7 +22,7 @@
     (dolist (x good)
       ;; Normalize by maximum possible distance.
       (setf this (/ (levenshtein-distance text (car x)) 
-		    (max (length text) (length x))))
+		    (max (length text) (length (car x)))))
       (cond ((< this best) 
 	     (setf best this)
 	     (setf quants (list (cdr x))))

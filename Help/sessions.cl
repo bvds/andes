@@ -258,8 +258,8 @@
       (when (and old-entry (equal action "new-object"))
 	(warn "Object ~A already exists, updating old object." id))
 
-      (unless (and old-entry (or (equal action "modify-object")
-				 (equal action "delete-object")))
+      (when (and (not old-entry) (or (equal action "modify-object")
+				     (equal action "delete-object")))
 	(warn "Object ~A does not exist, creating new object." id))
 
       ;; check type, if there is no old entry
