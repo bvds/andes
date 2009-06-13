@@ -32,10 +32,12 @@ drawing.util.oo = {
 		var a = arguments, sub = a[0];
 		if(a.length<2){ console.error("gfx.oo.extend; not enough arguments")}
 		var f = function (){
-			sub.prototype.constructor.apply(this, arguments);
 			for(var i=1;i<a.length;i++){
 				a[i].prototype.constructor.apply(this, arguments);
 			}
+			// sub should fire last
+			sub.prototype.constructor.apply(this, arguments);
+			
 		}
 		for(var i=1;i<a.length;i++){
 			for(var n in a[i].prototype){

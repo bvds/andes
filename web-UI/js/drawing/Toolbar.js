@@ -13,30 +13,26 @@ dojo.provide("drawing.Toolbar");
 			
 			dojo.addOnLoad(this, function(){
 				this.domNode = dojo.byId(node);
-				
 				this.buildRendering();
 				this.postCreate();
 			});
 		},
 		buildRendering: function(){
-			console.log("Toolbar buildRendering", this.domNode);
-			
 			var drawingId = dojo.attr(this.domNode, "drawingId");
 			console.warn("drawingId::", drawingId)
 		},
 		postCreate: function(){
 			this.domNode.className = this.baseClass;
 			this.drawing = drawing.util.common.byId(dojo.attr(this.domNode, "drawingId"));
-			console.log("Toolbar postCreate / drawing:", this.drawing);
 			this.toolNodes = {};
 			var _sel;
-			dojo.query("[type]", this.domNode).forEach(function(node, i){
+			dojo.query("[tool]", this.domNode).forEach(function(node, i){
 				node.className = this.buttonClass;
-				var type = dojo.attr(node, "type");
+				var type = dojo.attr(node, "tool");
 				if(i==0 || dojo.attr(node, "selected")){
 					_sel = type;
 				}
-				console.log("   type:", type, dojo.getObject(type))
+				console.log("TYPE:", type)
 				this.toolNodes[type] = node;
 				this.drawing.registerTool(type, dojo.getObject(type));
 				dojo.connect(node, "click", this, function(evt){

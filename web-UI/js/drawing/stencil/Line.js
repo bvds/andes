@@ -4,9 +4,18 @@ dojo.provide("drawing.stencil.Line");
 drawing.stencil.Line = drawing.util.oo.declare(
 	drawing.stencil.Stencil,
 	function(options){
-		
+		if(options.data || options.points){
+			this.points = options.points || this.dataToPoints(options.data);
+			this.render();
+		}
 	},
 	{
+		dataToPoints: function(obj){
+			this.points = [
+				{x:obj.x1, y:obj.y1},
+				{x:obj.x2, y:obj.y2}
+			];
+		},
 		pointsToData: function(){
 			return {
 				x1: this.points[0].x,
@@ -19,15 +28,11 @@ drawing.stencil.Line = drawing.util.oo.declare(
 			this.remove(this.hit, this.shape);
 			this.shape = this.parent.createLine(this.pointsToData())
 				.setStroke(this.style.line);
-			
-			this._onRender(data);
 		},
-		createHitline: function(){
+		createSelectionOutline: function(){
 			this.hit = this.parent.createLine(this.pointsToData())
 				.setStroke(this.style.hitline);
-				
-			this.shape.moveToFront();	
-			
+			this.shape.moveToFront();
 		},
 		
 		onDrag: function(obj){
@@ -44,21 +49,20 @@ drawing.stencil.Line = drawing.util.oo.declare(
 		},
 		
 		onDown: function(obj){
-			this._onRender = function(){}
+			dojo.disconnect(this._postRenderCon);
+			this._postRenderCon = null;	
 		},
 		
 		onUp: function(obj){
 			if(this.created || !this.shape){ return; }
 			
 			// if too small, need to reset
-			
-			// SHOULD anchors and renderData be the same?
-			// For native shapes maybe?
-			
-			this.createHitline();
-			this.created = true;
+			var o = this.pointsToData();
+			if(Math.abs(o.x2-o.x1)<this.minimumSize && Math.abs(o.y2-o.y1)<this.minimumSize){
+				this.remove();
+				return;
+			}
 			this.onRender(this);
-			this._onRender = this.onRender;
 		}
 	}
 );

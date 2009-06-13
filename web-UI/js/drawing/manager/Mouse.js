@@ -1,7 +1,12 @@
 dojo.provide("drawing.manager.Mouse");
 
 drawing.manager.Mouse = drawing.util.oo.declare(
-	
+	//
+	// singleton? Would need to:
+	// track multiple containers & drawings
+	// comm back only to that drawing
+	// more difficult to maintain selection
+	//
 	function(options){
 		this.container = options.container;
 		var pos = dojo.coords(this.container);
@@ -27,7 +32,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			}
 		});
 		dojo.connect(this.container, "mouseup", this, function(evt){
-			if(!this._shapeClick){
+			if(evt.target.id.indexOf("surface")>-1){
 				this.onCanvasUp(evt);
 			}
 		});
@@ -35,6 +40,8 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 	
 	{
 		registerd:{},
+		_lastx:0,
+		_lasty:0,
 		__reg:0,
 		_shapeClick:false,
 		register: function(scope){
@@ -48,139 +55,98 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		},
 		
 		_broadcastEvent:function(strEvt, obj){
-			if(strEvt!="onMove"){
-				//console.log("mse----> ", strEvt);
-			}
-			if(this._shapeClick){
-				if(strEvt=="onUp"){
-					this._shapeClick = false;
-				}
-			}else{
-				for(var nm in this.registerd){
-					this.registerd[nm][strEvt](obj);
-				}
+			for(var nm in this.registerd){
+				if(this.registerd[nm][strEvt]) this.registerd[nm][strEvt](obj);
 			}
 		},
 		
-		onShapeDown: function(shape){
-			//console.log("mouse onShapeDown")
-			this._shapeClick = true;	
-		},
-		onShapeUp: function(shape){
-			//console.log("mouse onShapeUp")
-			//this._shapeClick = false;	
-		},
+		
 		
 		onCanvasUp: function(evt){
-			//
+			//console.log("mouse onCanvasUp")
+			this._shapeClick = false;	
 		},
+		
 		onDown: function(obj){
-			this._broadcastEvent("onDown", obj);			
+			this._broadcastEvent(this._shapeClick ? "onShapeDown" : "onDown", obj);			
 		},
 		onDrag: function(obj){
-			this._broadcastEvent("onDrag", obj);	
+			this._broadcastEvent(this._shapeClick ? "onShapeDrag" : "onDrag", obj);	
 		},
 		onMove: function(obj){
 			this._broadcastEvent("onMove", obj);
 		},
 		onUp: function(obj){
-			this._broadcastEvent("onUp", obj);
+			this._broadcastEvent(this._shapeClick ? "onShapeUp" : "onUp", obj);
 		},
 		
 		origin:{},
 		up: function(evt){
 			var o = this.create(evt);
+			o.id = evt.target.id;
 			this.onUp(o);
-			this.origin.lastx = o.x;
-			this.origin.lasty = o.y;
-			dojo.stopEvent(evt);
+			this._shapeClick = false;
 		},
 		down: function(evt){
-			dojo.fixEvent(evt, evt.target)
-			var x = evt.pageX - this.origin.x;
-			var y = evt.pageY - this.origin.y;
+			var dim = this._getXY(evt);
+			var x = dim.x - this.origin.x;
+			var y = dim.y - this.origin.y;
+			
+			var t = dojo.attr(evt.target, "drawingType")
+			//console.log("MSEDWN EVT: ", evt.target.tagName, " ",t, " ",evt.target.id, " pagex:", evt.pageX)
+			
+			
 			this.origin.startx = x;
 			this.origin.starty = y;
-			this.origin.lastx = x;
-			this.origin.lasty = y;
-			this.onDown({x:x,y:y});
+			this._lastx = x;
+			this._lasty = y;
+			
+			var t = dojo.attr(evt.target, "drawingType");
+			if(t=="stencil"){
+				this._shapeClick = true;
+			}
+			
+			
+			this.onDown({x:x,y:y, id:evt.target.id});
 			dojo.stopEvent(evt);
 		},
 		move: function(evt){
-			var o = this.create(evt);
-			this.onMove(o);
-			this.origin.lastx = o.x;
-			this.origin.lasty = o.y;
-			dojo.stopEvent(evt);
+			this.onMove(this.create(evt));
 		},
 		drag: function(evt){
-			var o = this.create(evt);
-			this.onDrag(o);
-			this.origin.lastx = o.x;
-			this.origin.lasty = o.y;
-			dojo.stopEvent(evt);
+			this.onDrag(this.create(evt));
 		},
 		create: function(evt){
-			dojo.fixEvent(evt, evt.target);
-			
-			var ox = this.origin.startx;
-			var oy = this.origin.starty;
-			
-			var x = evt.pageX - this.origin.x;
-			var y = evt.pageY - this.origin.y;
-			var w = x - ox;
-			var h = y - oy;
-			
-			var last = {};
-			last.x = this.origin.lastx;
-			last.y = this.origin.lasty;
-			
-			var start = {};
-			start.x = this.origin.startx;
-			start.y = this.origin.starty;
-			
-			var amtx = x - last.x;
-			var amty = y - last.y;
-			
-			return {
+			var dim = this._getXY(evt);
+			var x = dim.x - this.origin.x;
+			var y = dim.y - this.origin.y;
+			watch("mse x:", x)
+			watch("mse last x:", this._lastx)
+			var ret = {
 				x:x,
 				y:y,
-				w:w,
-				h:h,
-				last:last,
-				start:start,
-				amtx:amtx,
-				amty:amty
+				last:{
+					x: this._lastx,
+					y: this._lasty
+				},
+				start:{
+					x: this.origin.startx,
+					y: this.origin.starty
+				}
 			};
-			
+			this._lastx = x;
+			this._lasty = y;
+			dojo.stopEvent(evt);
+			return ret;
 		},
-		calc: function(evt){
-			dojo.fixEvent(evt, evt.target);
-			
-			var ox = this.origin.startx;
-			var oy = this.origin.starty;
-			
-			var x = evt.pageX - this.origin.x;
-			var y = evt.pageY - this.origin.y;
-			var w = x - ox;
-			var h = y - oy;
-			
-			var last = {};
-			last.x = this.origin.lastx;
-			last.y = this.origin.lasty;
-			
-			var start = {};
-			start.x = this.origin.startx;
-			start.y = this.origin.starty;
-			
-			return {
-				x:x,
-				y:y,
-				w:w,
-				h:h,
-				last:last,
-				start:start
-			};
+		
+		_getXY: function(evt){
+			if(dojo.isIE){
+				return {x:evt.pageX, y:evt.pageY};
+				return {x:evt.screenX, y:evt.screenY};
+			}else{
+				return {x:evt.pageX, y:evt.pageY};
+			}
 		}
 	}
 );
