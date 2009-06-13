@@ -34,11 +34,13 @@
 	
 		djConfig = {
 			isDebug:true,
-			modulePaths: {'drawing': '../../js/drawing', 'andes':'../../js/andes'},
+			//modulePaths: {'drawing': '../../js/drawing'},
+			modulePaths: {'drawing': '../../../drawing'},
 			parseOnLoad:true
 		}
 	</script>
-	<script src="../dojotoolkit/dojo/dojo.js"></script>
+	<!--<script src="../dojotoolkit/dojo/dojo.js"></script>-->
+	<script src="../js/dojoxGFX/dojo/dojo/dojo.js"></script>
 	<script>
 		dojo.require("dojo.parser");
 		dojo.require("drawing.Drawing");

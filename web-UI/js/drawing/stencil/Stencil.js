@@ -11,8 +11,8 @@ dojo.provide("drawing.stencil.Stencil");
 			this.id = options.id || this.util.uid(this.type);
 			this._shapeCons = [];
 			this.connectMouse();
-			//dojo.attr(this.parent.rawNode, "id", "G_"+this.id);
-			//console.log("GROUP", this.parent.id)
+			dojo.attr(this.parent.rawNode, "id", this.id);
+			console.log("GROUP", this.parent.id)
 			this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
 		},
 		{
@@ -25,13 +25,13 @@ dojo.provide("drawing.stencil.Stencil");
 				},
 				lineSelected:{
 					width:3,
-					color:"#FFFF00",
+					color:{r:0, g:255, b:255, a:1},
 					style:"Solid",
 					cap:"round" // square?, butt, round
 				},
 				hitline:{
 					width:10,
-					color:"#FFFF00",
+					color:{r:255, g:255, b:0, a:0},
 					style:"Solid",
 					cap:"round"
 				},
@@ -91,7 +91,7 @@ dojo.provide("drawing.stencil.Stencil");
 				this.created = true;
 				this.connectShape();
 				dojo.attr(this.shape.rawNode, "drawingType", "stencil");
-				dojo.attr(this.shape.rawNode, "id", this.id);
+				//dojo.attr(this.shape.rawNode, "id", this.id);
 				this.disconnectMouse();
 				
 			},

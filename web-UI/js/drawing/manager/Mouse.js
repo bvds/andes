@@ -87,9 +87,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		},
 		origin:{},
 		up: function(evt){
-			var o = this.create(evt);
-			o.id = evt.target.id;
-			this.onUp(o);
+			this.onUp(this.create(evt));
 			this._shapeClick = false;
 		},
 		down: function(evt){
@@ -108,16 +106,14 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			
 			this.drawingType = dojo.attr(evt.target, "drawingType") || "";
 			
-			this.onDown({x:x,y:y, id:evt.target.id});
+			this.onDown({x:x,y:y, id:this._getId(evt)});
 			dojo.stopEvent(evt);
 		},
 		move: function(evt){
 			this.onMove(this.create(evt));
 		},
 		drag: function(evt){
-			var o = this.create(evt);
-			o.id = evt.target.id;
-			this.onDrag(o);
+			this.onDrag(this.create(evt));
 		},
 		create: function(evt){
 			var dim = this._getXY(evt);
@@ -135,21 +131,19 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 				start:{
 					x: this.origin.startx,
 					y: this.origin.starty
-				}
+				},
+				id:this._getId(evt)
 			};
 			this._lastx = x;
 			this._lasty = y;
 			dojo.stopEvent(evt);
 			return ret;
 		},
-		
+		_getId: function(evt){
+			return evt.target.id || evt.target.parentNode.id;
+		},
 		_getXY: function(evt){
-			if(dojo.isIE){
-				return {x:evt.pageX, y:evt.pageY};
-				return {x:evt.screenX, y:evt.screenY};
-			}else{
-				return {x:evt.pageX, y:evt.pageY};
-			}
+			return {x:evt.pageX, y:evt.pageY};
 		}
 	}
 );
