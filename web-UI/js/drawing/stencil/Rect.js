@@ -22,35 +22,43 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 		pointsToData: function(){
 			var s = this.points[0];
 			var e = this.points[2];
+			
 			return {
-				x: s.x < e.x ? s.x : e.x,
-				y: s.y < e.y ? s.y : e.y,
-				width: s.x < e.x ? e.x-s.x : s.x-e.x,
-				height: s.y < e.y ? e.y-s.y : s.y-e.y
-			};
+				x: s.x,
+				y: s.y,
+				width: e.x-s.x,
+				height: e.y-s.y
+			}
+			
+			
 		},
 		render: function(){
-			//console.info("render", this._onRender.toString())
 			this.remove();
 			var d = this.pointsToData()
 			//console.log("pts:", dojo.toJson(this.pointsToData()))
-			
-			// prevent IE8 Infinity bug
-			//if(!d.width || !d.height){
-			//	return; //////////////////////////////////// check into dojo
-			//}
-			
+
 			this.shape = this.parent.createRect(d)
 				.setStroke(this.style.line)
 				.setFill(this.style.fill);
 			
 		},
 		onDrag: function(obj){
+			var s = obj.start, e = obj;
+			var	x = s.x < e.x ? s.x : e.x,
+				y = s.y < e.y ? s.y : e.y,
+				w = s.x < e.x ? e.x-s.x : s.x-e.x,
+				h = s.y < e.y ? e.y-s.y : s.y-e.y;
+			
+			if(this.keys.shift){ w = h = Math.max(w,h); }
+			
+			if(this.keys.alt){
+				x-=w; y-=h; w*=2; h*=2;
+			}
 			this.points = [
-				{x:obj.start.x, y:obj.start.y}, // TL
-				{x:obj.x, y:obj.start.y},		// TR
-				{x:obj.x, y:obj.y},				// BR
-				{x:obj.start.x, y:obj.y}		// BL
+				{x:x, y:y}, // TL
+				{x:x+w, y:y},		// TR
+				{x:x+w, y:y+h},				// BR
+				{x:x, y:y+h}		// BL
 			];
 			this.render();
 		},
@@ -67,11 +75,6 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 			
 			this.onRender(this);
 			
-		},
-		
-		onDown: function(obj){
-			dojo.disconnect(this._postRenderCon);
-			this._postRenderCon = null;
 		}
 		
 	}

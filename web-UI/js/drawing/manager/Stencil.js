@@ -17,6 +17,7 @@ dojo.provide("drawing.manager.Stencil");
 			this._mouseHandle = this.mouse.register(this);
 			dojo.connect(this.keys, "onArrow", this, "onArrow");
 			dojo.connect(this.keys, "onEsc", this, "deselect");
+			dojo.connect(this.keys, "onDelete", this, "onDelete");
 		},
 		{
 			_dragBegun: false,
@@ -32,6 +33,15 @@ dojo.provide("drawing.manager.Stencil");
 					this.group.applyTransform({dx:evt.x, dy: evt.y});
 				}
 			},
+			
+			onDelete: function(){
+				this.withSelected(function(m){
+					this.anchors.remove(m);
+					m.destroy();
+				});
+				this.selectedItems = {};
+			},
+			
 			setSelectionGroup: function(){
 				
 				this.withSelected(function(m){

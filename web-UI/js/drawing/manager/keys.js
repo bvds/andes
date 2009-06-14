@@ -7,6 +7,7 @@ dojo.provide("drawing.manager.keys");
 		
 		shift:false,
 		ctrl:false,
+		alt:false,	// also option key
 		cmmd:false, // apple key
 		meta:false, // any meta key
 		
@@ -32,11 +33,14 @@ dojo.provide("drawing.manager.keys");
 				if(evt.keyCode==17){
 					this.ctrl = true;
 				}
+				if(evt.keyCode==18){
+					this.alt = true;
+				}
 				if(evt.keyCode==224){
 					this.cmmd = true;
 				}
 				
-				this.meta = this.shift || this.ctrl || this.cmmd;
+				this.meta = this.shift || this.ctrl || this.cmmd || this.alt;
 				
 				if(evt.keyCode==8 || evt.keyCode==46){
 					//this.onDelete(); on down or up?
@@ -44,18 +48,21 @@ dojo.provide("drawing.manager.keys");
 				}
 			});
 			dojo.connect(document, "keyup", this, function(evt){
-				//console.log("KEY UP:", evt)
+				console.log("KEY UP:", evt)
 				if(evt.keyCode==16){
 					this.shift = false;
 				}
 				if(evt.keyCode==17){
 					this.ctrl = false;
 				}
+				if(evt.keyCode==18){
+					this.alt = false;
+				}
 				if(evt.keyCode==224){
 					this.cmmd = false;
 				}
 				
-				this.meta = this.shift || this.ctrl || this.cmmd;
+				this.meta = this.shift || this.ctrl || this.cmmd || this.alt;
 				
 				if(evt.keyCode==13){
 					this.onEnter(evt);

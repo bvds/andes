@@ -8,6 +8,7 @@ dojo.provide("drawing.stencil.Stencil");
 			this.util = drawing.util.common;
 			this.parent = this.orgParent = options.parent;
 			this.mouse = options.mouse;
+			this.keys = options.keys || {};
 			this.id = options.id || this.util.uid(this.type);
 			this._shapeCons = [];
 			this.connectMouse();
@@ -206,7 +207,13 @@ dojo.provide("drawing.stencil.Stencil");
 			
 			// Should be overwritten by sub class:
 			createSelectionOutline: function(){},
-			onDown: function(){},
+			onDown: function(obj){
+				// by default, object is ready to accept data
+				// turn this off for dragging or onRender will
+				// keep firing and register the shape
+				dojo.disconnect(this._postRenderCon);
+				this._postRenderCon = null;
+			},
 			onMove: function(){},
 			onDrag: function(){},
 			onUp: function(){}

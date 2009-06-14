@@ -10,6 +10,7 @@ dojo.require("drawing.manager.Anchors");
 dojo.require("drawing.stencil.Stencil");
 dojo.require("drawing.stencil.Line");
 dojo.require("drawing.stencil.Rect");
+dojo.require("drawing.stencil.Ellipse");
 
 // not using widget, but just dojo.declare
 // could add a widget that extends this
@@ -56,11 +57,15 @@ dojo.require("drawing.stencil.Rect");
 				mouse:this.mouse,
 				data:{x:100, y:100, width:100, height:100}							  
 			}));
-			this.stencils.register(new drawing.stencil.Rect({
+			
+			
+			this.stencils.register(new drawing.stencil.Ellipse({
 				parent:surface.createGroup(),
 				mouse:this.mouse,
-				data:{x:150, y:150, width:100, height:100}							  
+				data:{cx:150, cy:150, rx:50, ry:50}							  
 			}));
+			
+			
 			this.stencils.register(new drawing.stencil.Line({
 				parent:surface.createGroup(),
 				mouse:this.mouse,
