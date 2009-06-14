@@ -33,9 +33,6 @@
 				     (:file "TutorTurn"
 					    :depends-on ("CMD"))
 				     (:file "ErrorInterp")
-				     (:file "StudentAction"
-					    :depends-on ("TutorTurn")
-					    :depends-on ("StudentEntry"))
 				     (:file "CMD")
 				     (:file "RuntimeTestScore")
 				     (:file "RuntimeTest")

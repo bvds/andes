@@ -99,7 +99,7 @@
 	  *STUDENTENTRIES* *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*
           **Condition**  mt19937::*random-state* **grammar**
 	  ;; Session-specific variables in Help/Interface.cl
-	  **last-api-call** **current-cmd-stack** **current-cmd** 
+	  **current-cmd-stack** **current-cmd** 
 	  *last-tutor-turn* *last-score*
           ;; Variables set in Config.cl, which is loaded for each session.
           *Runtime-Testset* *Runtime-Score-Testset*

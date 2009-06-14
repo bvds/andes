@@ -52,10 +52,6 @@
 ;;;; These parameters are set and used by the code below.  And in some 
 ;;;; cases by other APIs in the system.  
 
-;;; This parameter stores the last api call made.  This is used for internal 
-;;; logging as we do not have a strict layering heiarchy for keeping track 
-;;;; of the state.
-(defparameter **last-api-call** () "The last call made to the help system, set by dispatch-stream-event.")
 
 ;;; An alternate command interpreter function.  If this is parameter has a 
 ;;; value then it will be called with the Command and arguments as its 
@@ -97,9 +93,9 @@
 ;;;; returned it is assumed to be a formatted reply string that can be passed
 ;;;; to the workbench along with the requisite contact info.  
 ;;;;
-;;;; The main function here will handle the maintenance of the cmd list as well 
-;;;; as the storage of the **last-api-call** value.  It will also execute the
-;;;; code with the **alternate-command-interpreter** if that is set.
+;;;; The main function here will handle the maintenance of the cmd list.  
+;;;; It will also execute the code with the **alternate-command-interpreter**
+;;;; if that is set.
 
 
 
@@ -112,9 +108,8 @@
 ;;; andes2-main will parse the command off of the stream and pass it to the 
 ;;; execute-andes-command function below.
 ;;;
-;;; This function will begin by logging the command in **last-api-call**.  It 
-;;; will then generate a new cmd for the action and execute the command directly
-;;; or via the **Alternate-Command-Interpreter** if there is
+;;; This function will generate a new cmd for the action and execute the command 
+;;; directly or via the **Alternate-Command-Interpreter** if there is
 ;;; one.  The result from that execution will be one of
 ;;; t, NIL, :Error or a tutor turn.  
 ;;;
@@ -137,18 +132,14 @@
 ;;;   in order to trap errors in the same way that they were trapped by the 
 ;;;   previous versions of Andes that ran the return-turn code.
 ;;;
-;;; NOTE:: if they remain unused the **last-api-call** and 
-;;;      **Alternate-Command-Interpreter** code will be removed from
-;;;      this code at some point.
 ;;;
 
 (defun execute-andes-command (Command Arguments DDE)
   "Execute the api call with the command and arguments."
   ;; Set the last api call to be this call.
-  (setq **last-api-call** (cons Command Arguments))
   (let* (Tmp (NewCmd (iface-generate-log-cmd DDE Command Arguments))
 	 (Result (iface-internal-exec-andes-command Command Arguments))
-	 (Str (if (turn-p Result) (return-turn (list Result)))))
+	 (Str (if (turn-p Result) (return-turn Result))))
 
     ;; Once the command has been executed and any result parsed then we
     ;; need to add the cmdresult to the current cmd iff the cmd was a 
@@ -156,7 +147,7 @@
     ;; is for debugging only.  
     (when DDE 
       (setq Tmp (iface-add-cmdresult-to-cmd 
-		 (list NewCMD (if (equalp Str :Error) Str Result))))
+		 NewCMD (if (equalp Str :Error) Str Result)))
       (if (equalp Tmp :Error) (pprint "Error in Cmdresult addition.")))
     
     ;; This is the primary call to autograding.  It will handle the 
@@ -164,7 +155,7 @@
     ;; the code in AutoCalc.cl and will handle the send-fbd command 
     ;; as necessary.
     ;;
-    (setq Tmp (iface-handle-Statistics (list NewCmd)))
+    (setq Tmp (iface-handle-Statistics NewCmd))
     (if (equalp Tmp :Error) (pprint "Error in Statistics."))
 
     (format *debug-help* "Result ~A~%" Result)
@@ -216,7 +207,7 @@
 (defun iface-internal-exec-andes-command (Command Arguments)
   "Call the command itself and return the results."
   (if **Alternate-command-interpreter**
-      (safe-apply **Alternate-command-Interpreter** 
+      (apply **Alternate-command-Interpreter** 
 		  (list Command Arguments))
       (apply command arguments)))
 
