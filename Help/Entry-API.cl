@@ -429,16 +429,15 @@
 (defun assert-object (entry)
   (let ((id (StudentEntry-id entry))
 	 (text (StudentEntry-text entry))
-	 (label (StudentEntry-symbol entry))
-	 (xpos (StudentEntry-x entry))
-	 (ypos (StudentEntry-y entry))
+	 (symbol (StudentEntry-symbol entry))
 	 best
-	 sysent)
+	 sysent
+	body-term)
 
     ;; see comments in define-variable
     (setf best (best-matches 
 		;; If there is a symbol strip out the leading "Let x be ..."
-		(if label (subseq text (+ 3 (search "be" text))) text)
+		(if symbol (subseq text (+ 3 (search "be" text))) text)
 		(mapcar #'(lambda (x) (cons (nlg (cadr (SystemEntry-prop x))) x))
 			(remove '(body . ?rest) *sg-entries* 
 				:key #'SystemEntry-prop :test-not #'unify))))
@@ -451,14 +450,17 @@
 	   (error "Can't find any matches for ~A from ~A" text *sg-entries*))
 	  (t (error "too many matches: ~A" best)))
 
+    ;; Should used unify for this...
+    (setf body-term (second (SystemEntry-prop sysent)))
 
     (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
     (add-entry entry)   ;remove existing info and update
     ;; for compound bodies, enter body label so it can be recognized when
     ;; referenced in subsequent quantity definitions for compound's attributes.
-    (when (compound-bodyp (SystemEntry-prop sysent))
-    ;; probaby should switch to whole SystemEntry
-      (check-symbols-enter label (SystemEntry-prop sysent) id))
+    (when (compound-bodyp body-term)
+    ;; probaby should switch to whole SystemEntry or at least prop
+      (check-symbols-enter symbol body-term id))
+
     (check-noneq-entry entry)))  ;finally return entry 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -507,7 +509,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun lookup-vector (entry)
   (let* ((dir (StudentEntry-angle entry))
-	 (drawn-mag (StudenEntry-radius entry))
+	 (drawn-mag (StudentEntry-radius entry))
 	 ;; must be determined from parsing
 	 time avg-inst system type
 	 ;; For now, these are all null, since they are done 
@@ -674,7 +676,7 @@
 	 ;; Needs to be determined from natural language 
 	 time body-arg
 	 ;;
-	 (mag (StudenEntry-radius entry))
+	 (mag (StudentEntry-radius entry))
 	 (dir (StudentEntry-angle entry))
 	 (label (StudentEntry-symbol entry))
 	 (body-term (arg-to-body body-arg))
@@ -986,10 +988,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun define-variable (entry)
   (let ((id (StudentEntry-id entry))
-	 (text (StudentEntry-text entry))
-	 (symbol (StudentEntry-symbol entry))
-	 value ;not in Andes3
-	 best sysent)
+	(text (StudentEntry-text entry))
+	(symbol (StudentEntry-symbol entry))
+	body-term
+	value ;not in Andes3
+	best sysent)
 
     (unless text (warn "Definition must always have text")
 	       (setf text ""))
@@ -1021,15 +1024,18 @@
     (when (= (length best) 1)
       (setf sysent (car best)))
 
+    ;; this is almost certainly wrong for some variables ....
+    (setf body-term (second (SystemEntry-prop sysent)))
+
     (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
     ;; install new variable in symbol table
     (add-entry entry)
     ;; probaby should switch to whole SystemEntry
-    (check-symbols-enter var (SystemEntry-prop sysent) id)
+    (check-symbols-enter symbol body-term id)
 
     ;; record associated given value equation entry
     (when value  ; NIL => unspecified. (Empty string => unknown)
-      (add-given-eqn entry (make-given-eqn-entry var value 'value)))
+      (add-given-eqn entry (make-given-eqn-entry symbol value 'value)))
     ;; NB! make-given-eqn-entry can return NIL if no system var found for 
     ;; studvar.
     ;; Normally means var def will be incorrect. No given-eqn added in this case.
@@ -1178,14 +1184,14 @@
 ;;
 ;; Note, could be done differently with a cond or two.
 (defun Check-NonEq-Entry (entry)
-  
+
   ;; Special Case: Entry-API handler has failed to build an entry for some 
   ;; reason and wants to send back a message.  If the entry is a string then
   ;; we will produce and return a color-red show-hint turn and return the
   ;; message with no menu.
   (when (stringp Entry)
     (return-from Check-NonEq-Entry (make-red-turn entry)))
-      
+
   ;; special case: Entry-API handler can return T or NIL rather than an entry
   ;; when the status is determined without looking for a system entry. This
   ;; happens for some but not all angle entries.  Return appropriate turn.
@@ -1193,7 +1199,7 @@
     (return-from Check-NonEq-Entry (make-red-turn)))
   (when (eq entry T) 
     (return-from Check-NonEq-Entry (make-green-turn)))
-     
+
   ;; special case: Entry-API handler can attach an error interp for certain
   ;; errors such as symbol redefinitions that prevent the entry from
   ;; being processed further. Return appropriate turn with unsolicited 

@@ -48,7 +48,8 @@
   (setf *server* (start (make-instance 'acceptor :port port))))
 
 (defun json-rpc-error-message (err)
-  (format nil "{\"jsonrpc\": \"2.0\", \"error\": {\"code\": ~A, \"message\": \"Hunchentoot error:  ~A\"}, \"id\": null}" err (reason-phrase err)))
+  (format nil "{\"jsonrpc\": \"2.0\", \"error\": {\"code\": ~A, \"message\": \"Hunchentoot error:  ~A\"}, \"id\": null}" 
+	  err (reason-phrase err)))
 
 (defun stop-json-rpc-service ()
   (stop *server*) (setf *server* nil))
@@ -308,9 +309,17 @@
 	      ;; execute the method
 	      (apply func (if (alistp params) 
 			      (flatten-alist params) params)))))
+
+    ;; Make sure method actually returned a list
+    (unless (listp func-return)
+      (setf func-return `(((:action . "log")
+			   (:error-type . "return-format")
+			   (:error . ,(format nil "Return must be a list, not ~S" 
+					      func-return))))))
+
     ;; Add any log messages for warnings or errors to the return
     (setf func-return (append func-return log-warn))
-    
+
     (if *env*
 	;; save session environment for next turn
 	(setf (ssn-environment session) *env*)
