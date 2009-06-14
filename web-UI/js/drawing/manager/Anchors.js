@@ -5,6 +5,7 @@ dojo.provide("drawing.manager.Anchors");
 	drawing.manager.Anchors = drawing.util.oo.declare(
 		function(options){
 			this.mouse = options.mouse;
+			this.undo = options.undo;
 			this.items = {};
 		},
 		{
@@ -23,7 +24,6 @@ dojo.provide("drawing.manager.Anchors");
 				}, this);
 			},
 			onTransformPoint: function(anchor){
-				console.log("onTransformPoint")
 				var anchors = this.items[anchor.stencil.id].anchors;
 				dojo.forEach(anchors, function(a){
 					if(anchor.id != a.id){

@@ -23,7 +23,30 @@ dojo.provide("drawing.manager.keys");
 		onArrow: function(evt){
 			// stub
 		},
+		onKeyDown: function(evt){
+			// stub
+		},
+		onKeyUp: function(evt){
+			// stub
+		},
 		
+		listeners:[],
+		register: function(options){
+			var _handle = drawing.util.uid("listener");
+			this.listeners.push({
+				handle:_handle,
+				scope: options.scope || window,
+				callback:options.callback,
+				keyCode:options.keyCode
+			});	
+		},
+		mixin: function(evt){
+			evt.meta = this.meta;
+			evt.shift = this.shift;
+			evt.alt = this.alt;
+			evt.cmmd = this.cmmd;
+			return evt;
+		},
 		init: function(){
 			dojo.mixin(this, dojo.keys);
 			dojo.connect(document, "keydown", this, function(evt){
@@ -42,6 +65,7 @@ dojo.provide("drawing.manager.keys");
 				
 				this.meta = this.shift || this.ctrl || this.cmmd || this.alt;
 				
+				this.onKeyDown(this.mixin(evt));
 				if(evt.keyCode==8 || evt.keyCode==46){
 					//this.onDelete(); on down or up?
 					dojo.stopEvent(evt);
@@ -63,6 +87,7 @@ dojo.provide("drawing.manager.keys");
 				}
 				
 				this.meta = this.shift || this.ctrl || this.cmmd || this.alt;
+				this.onKeyUp(this.mixin(evt));
 				
 				if(evt.keyCode==13){
 					this.onEnter(evt);

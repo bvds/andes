@@ -9,6 +9,7 @@ dojo.provide("drawing.manager.Stencil");
 			if(options.grid){
 				this.setGrid(options.grid);
 			}
+			this.undo = options.undo;
 			this.mouse = options.mouse;
 			this.keys = options.keys;
 			this.anchors = options.anchors
@@ -30,11 +31,56 @@ dojo.provide("drawing.manager.Stencil");
 			
 			onArrow: function(evt){
 				if(this.isSelected()){
+					this.saveThrottledState();
 					this.group.applyTransform({dx:evt.x, dy: evt.y});
 				}
 			},
 			
-			onDelete: function(){
+			
+			_throttleVrl:null,
+			_throttle: false,
+			throttleTime:400,
+			_lastmxx:-1,
+			_lastmxy:-1,
+			saveMoveState: function(){
+				var mx = this.group.getTransform();
+				if(mx.dx == this._lastmxx && mx.dy == this._lastmxy){ return; }
+				this._lastmxx = mx.dx;
+				this._lastmxy = mx.dy;
+				console.warn("SAVE MOVE!", mx.dx, mx.dy);
+				this.undo.add({
+					before:dojo.hitch(this.group, "setTransform", mx)
+				});
+			},
+			
+			saveThrottledState: function(){
+				clearTimeout(this._throttleVrl);
+				clearInterval(this._throttleVrl);
+				this._throttleVrl = setTimeout(dojo.hitch(this, function(){
+					this._throttle = false;
+					this.saveMoveState();
+				}), this.throttleTime)
+				if(this._throttle){ return; }
+				this._throttle = true;
+				
+				this.saveMoveState();					
+				
+			},
+			unDelete: function(items){
+				console.log("unDelete:", items);
+				for(var s in items){
+					items[s].render();
+					this.onSelect(items[s]);
+				}
+			},
+			onDelete: function(noundo){
+				console.log("onDelete", noundo)
+				if(noundo!==true){
+					this.undo.add({
+						before:dojo.hitch(this, "unDelete", this.selectedItems),
+						after:dojo.hitch(this, "onDelete", true)
+					});
+				}
 				this.withSelected(function(m){
 					this.anchors.remove(m);
 					m.destroy();
@@ -88,8 +134,9 @@ dojo.provide("drawing.manager.Stencil");
 				this._wasDragged = false;
 			},
 			onStencilDown: function(obj){
-				console.log("------> meta", this.keys.meta)
+				
 				if(this.selectedItems[obj.id] && this.keys.meta){
+					
 					console.log("shift remove");
 					this.onDeselect(this.selectedItems[obj.id]);
 					if(this.isSelected()==1){
@@ -101,10 +148,12 @@ dojo.provide("drawing.manager.Stencil");
 					return;
 				
 				}else if(this.selectedItems[obj.id]){
+					
 					console.log("same shape(s)");
 					return;
 				
 				}else if(!this.keys.meta){
+					
 					console.log("deselect all");
 					this.deselect();
 				
@@ -118,6 +167,15 @@ dojo.provide("drawing.manager.Stencil");
 				this.onSelect(item);
 				this.group.moveToFront();
 				dojo.style(surfaceNode, "cursor", "pointer");
+				
+				this.undo.add({
+					before:function(){
+						
+					},
+					after: function(){
+						
+					}
+				});
 			},
 			
 			onDown: function(obj){
@@ -134,20 +192,17 @@ dojo.provide("drawing.manager.Stencil");
 					this.onBeginDrag(obj);
 					this._dragBegun = true;
 				}else{
+					this.saveThrottledState();
 					// bug, in FF anyway - first mouse move shows x=0
 					// the 'else' fixes it
 					var x = obj.x - obj.last.x;
 					var y = obj.y - obj.last.y;
-					//console.log("drag:::", obj.x, ", ", obj.start.x, "===>", x)
-					watch("drag x:", x)
-					watch("last x:", obj.last.x)
 					
 					this.group.applyTransform({
 						dx: x,
 						dy: y
 					});
 
-					watch("trans x:", this.group.getTransform().dx)
 				}
 			},
 			

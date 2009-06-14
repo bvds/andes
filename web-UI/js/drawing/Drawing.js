@@ -3,6 +3,7 @@ dojo.provide("drawing.Drawing");
 dojo.require("dojox.gfx");
 dojo.require("drawing.util.oo");
 dojo.require("drawing.util.common");
+dojo.require("drawing.manager.Undo");
 dojo.require("drawing.manager.keys");
 dojo.require("drawing.manager.Mouse");
 dojo.require("drawing.manager.Stencil");
@@ -44,13 +45,14 @@ dojo.require("drawing.stencil.Ellipse");
 			var dim = dojo.contentBox(this.domNode);
 			this.height = dim.h;
 			this.width = dim.w;
-			console.log("create surface");
 			createSurface(this.domNode, this.width, this.height, this.util.uid("surface"));
+			
 			this.mouse = new drawing.manager.Mouse({container:this.domNode});
 			this.keys = drawing.manager.keys;
-			this.anchors = new drawing.manager.Anchors({mouse:this.mouse});
-			console.log("create stencils")
-			this.stencils = new drawing.manager.Stencil({surface:surface, mouse:this.mouse, keys:this.keys, anchors:this.anchors, grid:{gap:100}});
+			this.undo = new drawing.manager.Undo({keys:this.keys});
+			this.anchors = new drawing.manager.Anchors({mouse:this.mouse, undo:this.undo});
+			
+			this.stencils = new drawing.manager.Stencil({surface:surface, mouse:this.mouse, undo:this.undo, keys:this.keys, anchors:this.anchors, grid:{gap:100}});
 			
 			this.stencils.register(new drawing.stencil.Rect({
 				parent:surface.createGroup(),
