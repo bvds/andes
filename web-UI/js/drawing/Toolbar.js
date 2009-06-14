@@ -43,6 +43,14 @@ dojo.provide("drawing.Toolbar");
 			
 			dojo.connect(this.drawing, "setTool", this, "onSetTool");	
 			this.drawing.setTool(_sel);
+			
+			
+			dojo.query("[action]", this.domNode).forEach(function(node, i){
+				node.className = this.buttonClass;
+				var action = dojo.attr(node, "action");
+				
+				dojo.connect(node, "click", this.drawing, action);
+			}, this);
 		},
 		onClick: function(type){
 			console.log("click:", type);

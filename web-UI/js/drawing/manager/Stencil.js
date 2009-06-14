@@ -234,39 +234,6 @@ dojo.provide("drawing.manager.Stencil");
 				var ln = 0;
 				for(var m in this.selectedItems){ ln++; }
 				return ln;
-			},
-			
-			
-			// TODO put this somewhere else
-			setGrid: function(options){
-				
-				var x1,x2,y1,y2;
-				var d = options.gap;
-				var dim = surface.getDimensions();
-				var s = surface.createGroup();
-				var w = dim.width;
-				var h = dim.height;
-				var b = 1;
-				var c = "#A3ECFE";
-				
-				
-				var createGridLine = function(x1,y1,x2,y2){
-					s.createLine({x1: x1, y1: y1, x2: x2, y2: y2}).setStroke({style: "Solid", width: b, cap: "round", color:c});
-				}
-				// horz
-				for(var i=1,len = h/d; i<len; i++){
-					x1 = 0, x2 = w;
-					y1 = d*i, y2 = y1;
-					createGridLine(x1,y1,x2,y2);
-				}
-				// vert
-				for(var i=1,len = w/d; i<len; i++){
-					y1 = 0, y2 = h;
-					x1 = d*i, x2 = x1;
-					createGridLine(x1,y1,x2,y2);
-				}
-				
-				return s;
 			}
 		}
 		
