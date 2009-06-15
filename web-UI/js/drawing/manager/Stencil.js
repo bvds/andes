@@ -9,6 +9,7 @@ dojo.provide("drawing.manager.Stencil");
 			if(options.grid){
 				this.setGrid(options.grid);
 			}
+			this.undo = options.undo;
 			this.mouse = options.mouse;
 			this.keys = options.keys;
 			this.anchors = options.anchors
@@ -17,6 +18,7 @@ dojo.provide("drawing.manager.Stencil");
 			this._mouseHandle = this.mouse.register(this);
 			dojo.connect(this.keys, "onArrow", this, "onArrow");
 			dojo.connect(this.keys, "onEsc", this, "deselect");
+			dojo.connect(this.keys, "onDelete", this, "onDelete");
 		},
 		{
 			_dragBegun: false,
@@ -29,9 +31,63 @@ dojo.provide("drawing.manager.Stencil");
 			
 			onArrow: function(evt){
 				if(this.isSelected()){
+					this.saveThrottledState();
 					this.group.applyTransform({dx:evt.x, dy: evt.y});
 				}
 			},
+			
+			
+			_throttleVrl:null,
+			_throttle: false,
+			throttleTime:400,
+			_lastmxx:-1,
+			_lastmxy:-1,
+			saveMoveState: function(){
+				var mx = this.group.getTransform();
+				if(mx.dx == this._lastmxx && mx.dy == this._lastmxy){ return; }
+				this._lastmxx = mx.dx;
+				this._lastmxy = mx.dy;
+				console.warn("SAVE MOVE!", mx.dx, mx.dy);
+				this.undo.add({
+					before:dojo.hitch(this.group, "setTransform", mx)
+				});
+			},
+			
+			saveThrottledState: function(){
+				clearTimeout(this._throttleVrl);
+				clearInterval(this._throttleVrl);
+				this._throttleVrl = setTimeout(dojo.hitch(this, function(){
+					this._throttle = false;
+					this.saveMoveState();
+				}), this.throttleTime)
+				if(this._throttle){ return; }
+				this._throttle = true;
+				
+				this.saveMoveState();					
+				
+			},
+			unDelete: function(items){
+				console.log("unDelete:", items);
+				for(var s in items){
+					items[s].render();
+					this.onSelect(items[s]);
+				}
+			},
+			onDelete: function(noundo){
+				console.log("onDelete", noundo)
+				if(noundo!==true){
+					this.undo.add({
+						before:dojo.hitch(this, "unDelete", this.selectedItems),
+						after:dojo.hitch(this, "onDelete", true)
+					});
+				}
+				this.withSelected(function(m){
+					this.anchors.remove(m);
+					m.destroy();
+				});
+				this.selectedItems = {};
+			},
+			
 			setSelectionGroup: function(){
 				
 				this.withSelected(function(m){
@@ -78,8 +134,9 @@ dojo.provide("drawing.manager.Stencil");
 				this._wasDragged = false;
 			},
 			onStencilDown: function(obj){
-				console.log("------> meta", this.keys.meta)
+				
 				if(this.selectedItems[obj.id] && this.keys.meta){
+					
 					console.log("shift remove");
 					this.onDeselect(this.selectedItems[obj.id]);
 					if(this.isSelected()==1){
@@ -91,10 +148,12 @@ dojo.provide("drawing.manager.Stencil");
 					return;
 				
 				}else if(this.selectedItems[obj.id]){
+					
 					console.log("same shape(s)");
 					return;
 				
 				}else if(!this.keys.meta){
+					
 					console.log("deselect all");
 					this.deselect();
 				
@@ -108,6 +167,15 @@ dojo.provide("drawing.manager.Stencil");
 				this.onSelect(item);
 				this.group.moveToFront();
 				dojo.style(surfaceNode, "cursor", "pointer");
+				
+				this.undo.add({
+					before:function(){
+						
+					},
+					after: function(){
+						
+					}
+				});
 			},
 			
 			onDown: function(obj){
@@ -124,20 +192,17 @@ dojo.provide("drawing.manager.Stencil");
 					this.onBeginDrag(obj);
 					this._dragBegun = true;
 				}else{
+					this.saveThrottledState();
 					// bug, in FF anyway - first mouse move shows x=0
 					// the 'else' fixes it
 					var x = obj.x - obj.last.x;
 					var y = obj.y - obj.last.y;
-					//console.log("drag:::", obj.x, ", ", obj.start.x, "===>", x)
-					watch("drag x:", x)
-					watch("last x:", obj.last.x)
 					
 					this.group.applyTransform({
 						dx: x,
 						dy: y
 					});
 
-					watch("trans x:", this.group.getTransform().dx)
 				}
 			},
 			
@@ -169,39 +234,6 @@ dojo.provide("drawing.manager.Stencil");
 				var ln = 0;
 				for(var m in this.selectedItems){ ln++; }
 				return ln;
-			},
-			
-			
-			// TODO put this somewhere else
-			setGrid: function(options){
-				
-				var x1,x2,y1,y2;
-				var d = options.gap;
-				var dim = surface.getDimensions();
-				var s = surface.createGroup();
-				var w = dim.width;
-				var h = dim.height;
-				var b = 1;
-				var c = "#A3ECFE";
-				
-				
-				var createGridLine = function(x1,y1,x2,y2){
-					s.createLine({x1: x1, y1: y1, x2: x2, y2: y2}).setStroke({style: "Solid", width: b, cap: "round", color:c});
-				}
-				// horz
-				for(var i=1,len = h/d; i<len; i++){
-					x1 = 0, x2 = w;
-					y1 = d*i, y2 = y1;
-					createGridLine(x1,y1,x2,y2);
-				}
-				// vert
-				for(var i=1,len = w/d; i<len; i++){
-					y1 = 0, y2 = h;
-					x1 = d*i, x2 = x1;
-					createGridLine(x1,y1,x2,y2);
-				}
-				
-				return s;
 			}
 		}
 		

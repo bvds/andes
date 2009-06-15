@@ -50,11 +50,6 @@ drawing.stencil.Line = drawing.util.oo.declare(
 			this.render();
 		},
 		
-		onDown: function(obj){
-			dojo.disconnect(this._postRenderCon);
-			this._postRenderCon = null;	
-		},
-		
 		onUp: function(obj){
 			if(this.created || !this.shape){ return; }
 			

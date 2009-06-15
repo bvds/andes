@@ -80,9 +80,15 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		onUp: function(obj){
 			this._broadcastEvent(this.eventName("up"), obj);
 		},
+		
+		zoom: 1,
+		setZoom: function(zoom){
+			this.zoom = 1/zoom;
+		},
+		
 		eventName: function(name){
 			name = name.charAt(0).toUpperCase() + name.substring(1);
-			var t = this.drawingType=="" ? "" : this.drawingType.charAt(0).toUpperCase() + this.drawingType.substring(1);
+			var t = !this.drawingType ? "" : this.drawingType.charAt(0).toUpperCase() + this.drawingType.substring(1);
 			return "on"+t+name;
 		},
 		origin:{},
@@ -95,9 +101,8 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			var x = dim.x - this.origin.x;
 			var y = dim.y - this.origin.y;
 			
-			var t = dojo.attr(evt.target, "drawingType")
-			//console.log("MSEDWN EVT: ", evt.target.tagName, " ",t, " ",evt.target.id, " pagex:", evt.pageX)
-			
+			x*= this.zoom;
+			y*= this.zoom;
 			
 			this.origin.startx = x;
 			this.origin.starty = y;
@@ -119,8 +124,11 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			var dim = this._getXY(evt);
 			var x = dim.x - this.origin.x;
 			var y = dim.y - this.origin.y;
-			watch("mse x:", x)
-			watch("mse last x:", this._lastx)
+			
+			x*= this.zoom;
+			y*= this.zoom;
+			
+			
 			var ret = {
 				x:x,
 				y:y,

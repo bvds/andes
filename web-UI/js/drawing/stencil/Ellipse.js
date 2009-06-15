@@ -1,7 +1,7 @@
-dojo.provide("drawing.stencil.Rect");
+dojo.provide("drawing.stencil.Ellipse");
 
 
-drawing.stencil.Rect = drawing.util.oo.declare(
+drawing.stencil.Ellipse = drawing.util.oo.declare(
 	drawing.stencil.Stencil,
 	function(options){
 		if(options.data || options.points){
@@ -12,11 +12,16 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 	{
 		anchorType: "group",
 		dataToPoints: function(obj){
+			var x = obj.cx - obj.rx,
+				y = obj.cy - obj.ry,
+				w = obj.rx*2,
+				h = obj.ry*2
+			
 			return [
-				{x:obj.x, y:obj.y}, 						// TL
-				{x:obj.x + obj.width, y:obj.y},				// TR
-				{x:obj.x + obj.width, y:obj.y + obj.height},// BR
-				{x:obj.x, y:obj.y + obj.height}				// BL
+				{x:x, y:y}, 	// TL
+				{x:x+w, y:y},	// TR
+				{x:x+w, y:y+h},	// BR
+				{x:x, y:y+h}	// BL
 			];
 		},
 		pointsToData: function(){
@@ -24,24 +29,25 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 			var e = this.points[2];
 			
 			return {
-				x: s.x,
-				y: s.y,
-				width: e.x-s.x,
-				height: e.y-s.y
-			}
-			
-			
+				cx: s.x + (e.x - s.x)/2,
+				cy: s.y + (e.y - s.y)/2,
+				rx: (e.x - s.x)*.5,
+				ry: (e.y - s.y)*.5
+			};
+		
 		},
 		render: function(){
+			//console.info("render", this._onRender.toString())
 			this.remove();
 			var d = this.pointsToData()
 			//console.log("pts:", dojo.toJson(this.pointsToData()))
-
-			this.shape = this.parent.createRect(d)
+			
+			this.shape = this.parent.createEllipse(d)
 				.setStroke(this.style.line)
 				.setFill(this.style.fill);
 			
 		},
+		
 		onDrag: function(obj){
 			var s = obj.start, e = obj;
 			var	x = s.x < e.x ? s.x : e.x,
@@ -50,14 +56,12 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 				h = s.y < e.y ? e.y-s.y : s.y-e.y;
 			
 			if(this.keys.shift){ w = h = Math.max(w,h); }
+			if(!this.keys.alt){	x+=w/2; y+=h/2; w/=2; h/=2; } // ellipse is normally on center
 			
-			if(this.keys.alt){
-				x-=w; y-=h; w*=2; h*=2;
-			}
 			this.points = [
-				{x:x, y:y}, // TL
-				{x:x+w, y:y},		// TR
-				{x:x+w, y:y+h},				// BR
+				{x:x-w, y:y-h}, 	// TL
+				{x:x+w, y:y-h},		// TR
+				{x:x+w, y:y+h},		// BR
 				{x:x, y:y+h}		// BL
 			];
 			this.render();
@@ -68,7 +72,7 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 			
 			// if too small, need to reset
 			var o = this.pointsToData();
-			if(o.width<this.minimumSize && o.height < this.minimumSize){
+			if(o.rx*2<this.minimumSize && o.ry*2 < this.minimumSize){
 				this.remove();
 				return;
 			}
