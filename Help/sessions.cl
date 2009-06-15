@@ -74,8 +74,6 @@
   #-asdf (setf *Base-Andes-Module-Path* (namestring *andes-path*))
   (format T "Starting Andes, *andes-path* = ~A~%" *andes-path*)
 
-  (doSafety :in2pre)
-
   (parse-initialize)   ;set up memoization for parse functions
   (physics-algebra-rules-initialize) ;initialize grammar
 
