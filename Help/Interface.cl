@@ -278,9 +278,6 @@
 ;;; that they recieve on each problem-instance.
 (defun iface-handle-stats-close (NewCmd)
   (update-runtime-testset-scores)  ; AW: maybe not still needed
-  ; AW: no longer save stats in history file
-  ; (store-runtime-test-stats 
-  ;   (read-from-string (second (cmd-call NewCmd))))
   (setq **Current-Cmd-Stack** Nil)
   (setq **Current-Cmd** Nil)
   (reset-runtime-testset-scores)
@@ -299,9 +296,6 @@
   (setq **Current-Cmd-Stack** (list NewCmd))
   (setq **current-cmd** NewCmd)
   (reset-runtime-testset-scores)
-  ; AW: no longer load stats from history file
-  ;(load-stored-runtime-test-stats 
-  ; (read-from-string (second (cmd-call NewCmd))))
   (update-runtime-testset-scores)) ; AW: maybe not still needed
 
 

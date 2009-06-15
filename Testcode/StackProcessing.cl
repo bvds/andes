@@ -109,24 +109,6 @@
 	    (cdr Stack) Test (cons A Result)))
 	  (t Result))))
 
-
-
-
-
-;;; -----------------------------------------------------------------------
-;;; Repeated calls of CLASS
-;;; Given a class return the length of the sequence of calls in the stack
-;;; whose class match the supplied class.
-
-(defun class-Call-stackc (Stack Class &optional (Count 0) (Result Nil))
-  "Get the length of the sequence of repeated calls of CLASS."
-  (if (and Stack (cmd-p (car Stack)) (equalp Class (Cmd-Class (car Stack))))
-      (class-call-stackc (cdr Stack) Class (+ 1 Count) (cons (car Stack) Result))
-    Result))
-
-
-
-
 ;;; -------------------------------------------------------------------------
 ;;; Max Time-Diff Stackc
 ;;; Given a list of cmds collect the stack rotted at the base of commands

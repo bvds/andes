@@ -300,28 +300,3 @@
       (append (subseq Call 1 Loc)
 	      (subseq Call (+ 1 Loc) (length Call))))))
 
-
-;;; Given two api calls return t if they have the same ID.
-;;(defun api-calls-id-equalp (Call1 Call2)
-;;  "Return t if the two calls have the same id's"
-;;  (equalp (lookup-api-call-id Call1)
-;;	  (lookup-api-call-id Call2)))
-
-
-;;; Given two api calls lists return t if they are of the same type.
-;;(defun api-calls-call-equalp (Call1 Call2)
-;;  "Given two api calls lists return t if they are of the same type."
-;;  (equalp (car Call1) (car Call2)))
-
-
-;;; Given two api calls return t if they are equal but for the api call.
-;;(defun api-calls-field-equalp (Call1 Call2)
-;;  (let ((loc (lookup-api-call-id-loc Call1)))
-;;    (and Loc (api-calls-call-equalp Call1 Call2)
-;;	 (equalp (subseq Call1 1 Loc) (subseq Call2 1 Loc))
-;;	 (equalp (subseq Call1 (+ 1 Loc) (length Call1))
-;;		 (subseq Call2 (+ 1 Loc) (length Call2))))))
-
-
-
-

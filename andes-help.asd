@@ -88,7 +88,6 @@
 			:components (
 				     (:file "StackProcessing")
 				     (:file "StackTests")
-				     (:file "EntryPair")
 				     (:file "ProcDepth")
 				     (:file "UtilFuncs")
 				     ;; file must be loaded before compile
