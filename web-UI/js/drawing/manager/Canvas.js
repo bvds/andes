@@ -3,29 +3,44 @@ dojo.provide("drawing.manager.Canvas");
 (function(){
 	
 	var _surface;
+	//dojox.gfx.renderer
 	
 	drawing.manager.Canvas = drawing.util.oo.declare(
 		function(options){
+			//dojo.mixin(this, options);
 			this.domNode = options.node;
 			this.id = options.id || drawing.util.common.uid("surface");
 			this.width = options.width || options.w;
 			this.height = options.height || options.h;
 			
 			_surface = dojox.gfx.createSurface(this.domNode, this.width, this.height);
-			if(dojo.isIE){
-				_surface.rawNode.parentNode.id = this.id;
-			}else{
-				_surface.rawNode.id = this.id;
-			}
-			
-			//console.dir(_surface)
-			
-			this.surface = _surface.createGroup();
-			this.surface.setTransform({dx:0, dy:0,xx:1,yy:1});
-			this.surface.getDimensions = dojo.hitch(_surface, "getDimensions");
-			
+			_surface.whenLoaded(this, function(){
+				setTimeout(dojo.hitch(this, function(){
+					if(dojo.isIE){
+						//_surface.rawNode.parentNode.id = this.id;
+					}else{
+						//_surface.rawNode.id = this.id;
+					}
+					
+					this.surface = _surface.createGroup();
+					this.surface.setTransform({dx:0, dy:0,xx:1,yy:1});
+					this.surface.getDimensions = dojo.hitch(_surface, "getDimensions");
+					if(options.callback){
+						options.callback();
+					}
+				}),0);
+			});
 		},
 		{
+			id:"",
+			width:0,
+			height:0,
+			domNode:null,
+			
+			setDimensions: function(width, height){
+				//TODO		
+			},
+			
 			setZoom: function(zoom){
 				this.surface.setTransform({xx:zoom, yy:zoom});
 				this.setGrid(zoom);

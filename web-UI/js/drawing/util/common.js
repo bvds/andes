@@ -38,6 +38,9 @@ dojo.provide("drawing.util.common");
 		},
 		byId: function(id){
 			return this.objects[id];
+		},
+		attr: function(/* element */ elem, /* property */ prop, /* ? value */ value){
+			return dojo.attr.apply(dojo, arguments);
 		}
 	};
 	

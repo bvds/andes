@@ -13,6 +13,7 @@ dojo.require("drawing.stencil.Stencil");
 dojo.require("drawing.stencil.Line");
 dojo.require("drawing.stencil.Rect");
 dojo.require("drawing.stencil.Ellipse");
+dojo.require("drawing.stencil.TextBlock");
 
 // not using widget, but just dojo.declare
 // could add a widget that extends this
@@ -43,11 +44,22 @@ dojo.require("drawing.stencil.Ellipse");
 			var dim = dojo.contentBox(this.domNode);
 			this.height = dim.h;
 			this.width = dim.w;
-			createSurface(this.domNode, this.width, this.height, this.util.uid("surface"));
-			
+			//createSurface(this.domNode, this.width, this.height, this.util.uid("surface"));
+			canvas = new drawing.manager.Canvas({
+				node:this.domNode,
+				w:this.width,
+				h:this.height,
+				id:this.util.uid("surface"),
+				callback: dojo.hitch(this, "onSurfaceReady")
+			});
+			console.log("C:", canvas)
+		},
+		onSurfaceReady: function(){
+			console.log("THIS:", canvas)
+			surface = canvas.surface;
 			canvas.setGrid({gap:100});
 			
-			this.mouse = new drawing.manager.Mouse({container:this.domNode});
+			this.mouse = new drawing.manager.Mouse({container:this.domNode, util:this.util});
 			this.keys = drawing.manager.keys;
 			this.undo = new drawing.manager.Undo({keys:this.keys});
 			this.anchors = new drawing.manager.Anchors({mouse:this.mouse, undo:this.undo});
@@ -81,7 +93,13 @@ dojo.require("drawing.stencil.Ellipse");
 			this.tools[type] = constr;
 		},
 		setTool: function(type){
-	//return;
+			if(!surface){
+				var c = dojo.connect(this, "onSurfaceReady", this, function(){
+					dojo.disconnect(c);
+					this.setTool(type);
+				});
+				return;
+			}
 			if(this.currentStencil){
 				this.unSetTool();
 			}

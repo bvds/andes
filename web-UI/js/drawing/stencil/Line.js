@@ -33,7 +33,8 @@ drawing.stencil.Line = drawing.util.oo.declare(
 		createSelectionOutline: function(){
 			this.hit = this.parent.createLine(this.pointsToData())
 				.setStroke(this.style.hitline);
-			dojo.attr(this.hit.rawNode, "drawingType", "stencil");
+			
+			this.util.attr(this.hit.rawNode, "drawingType", "stencil");
 			this.hit.moveToBack();
 		},
 		

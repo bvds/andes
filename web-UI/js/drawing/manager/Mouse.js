@@ -9,6 +9,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 	//
 	function(options){
 		this.container = options.container;
+		this.util = options.util;
 		var pos = dojo.coords(this.container);
 		this.origin.x = pos.x;
 		this.origin.y = pos.y;
@@ -109,7 +110,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			this._lastx = x;
 			this._lasty = y;
 			
-			this.drawingType = dojo.attr(evt.target, "drawingType") || "";
+			this.drawingType = this.util.attr(evt.target, "drawingType") || "";
 			
 			this.onDown({x:x,y:y, id:this._getId(evt)});
 			dojo.stopEvent(evt);
@@ -148,7 +149,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			return ret;
 		},
 		_getId: function(evt){
-			return evt.target.id || evt.target.parentNode.id;
+			return this.util.attr(evt.target, "id") || this.util.attr(evt.target.parentNode, "id");
 		},
 		_getXY: function(evt){
 			return {x:evt.pageX, y:evt.pageY};
