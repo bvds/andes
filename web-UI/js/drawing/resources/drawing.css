@@ -25,3 +25,9 @@ html, body{
 	background-color:#D1F3AD;
 	cursor:default;
 }
+
+.drawingCanvas, #drawingNode{
+	/*
+	works, but scroll also draws may need a div within a div....
+	overflow:scroll;*/
+}

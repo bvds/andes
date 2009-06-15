@@ -34,13 +34,14 @@
 	
 		djConfig = {
 			isDebug:true,
-			//modulePaths: {'drawing': '../../js/drawing'},
-			modulePaths: {'drawing': '../../../drawing'},
+			modulePaths: {'drawing': '../../js/drawing'},
+			//modulePaths: {'drawing': '../../../drawing'},
+			//gfxRenderer:'silverlight',
 			parseOnLoad:true
 		}
 	</script>
-	<!--<script src="../dojotoolkit/dojo/dojo.js"></script>-->
-	<script src="../js/dojoxGFX/dojo/dojo/dojo.js"></script>
+	<script src="../dojotoolkit/dojo/dojo.js"></script>
+	<!--<script src="../js/dojoxGFX/dojo/dojo/dojo.js"></script>-->
 	<script>
 		dojo.require("dojo.parser");
 		dojo.require("drawing.Drawing");
@@ -52,10 +53,11 @@
     <h2>Drawing Test</h2>
 	<textarea id="ta" ></textarea>
 	<div id="wrapper">
-		<div dojoType="drawing.Toolbar" drawingId="drawingNode">
+		<div dojoType="drawing.Toolbar" drawingId="drawingNode" class="drawingCanvas">
 			<button tool="drawing.stencil.Line" >Line</button>
-			<button tool="drawing.stencil.Rect">Rect</button>
-			<button tool="drawing.stencil.Ellipse" selected="true">Ellipse</button>
+			<button tool="drawing.stencil.Rect" selected="true">Rect</button>
+			<button tool="drawing.stencil.Ellipse">Ellipse</button>
+			<button tool="drawing.stencil.TextBlock" >Text</button>
 			&nbsp;&nbsp;&nbsp;
 			<button action="zoomIn">Zoom In</button>
 			<button action="zoom100">100%</button>

@@ -12,8 +12,16 @@ dojo.provide("drawing.stencil.Stencil");
 			this.id = options.id || this.util.uid(this.type);
 			this._shapeCons = [];
 			this.connectMouse();
+			
+			this.util.attr(this.parent.rawNode, "id", this.id);
+			
+			console.log("SET ID", this.id, this.util.attr(this.parent.rawNode, "id"))
+			
 			dojo.attr(this.parent.rawNode, "id", this.id);
-			console.log("GROUP", this.parent.id)
+			console.log("GET ID:", dojo.attr(this.parent.rawNode, "id"))
+			
+			
+			
 			this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
 		},
 		{
@@ -91,7 +99,7 @@ dojo.provide("drawing.stencil.Stencil");
 				this.createSelectionOutline();
 				this.created = true;
 				this.connectShape();
-				dojo.attr(this.shape.rawNode, "drawingType", "stencil");
+				this.util.attr(this.shape.rawNode, "drawingType", "stencil");
 				//dojo.attr(this.shape.rawNode, "id", this.id);
 				this.disconnectMouse();
 				
