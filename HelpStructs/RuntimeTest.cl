@@ -747,8 +747,7 @@
 ;;;;
 ;;;; In these cases it will be necessary (some :time point) to merge the 
 ;;;; disconnected files.  The code in this subsection will be used to merge
-;;;; mutliple sets of saved scores.  Other code will handle the merging
-;;;; of other studentfile portions.  
+;;;; mutliple sets of saved scores.  
 ;;;;
 ;;;; Given several sets of saved scores the system will merge them in the 
 ;;;; following fasion.

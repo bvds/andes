@@ -305,8 +305,8 @@
   (update-runtime-testset-scores)) ; AW: maybe not still needed
 
 
-;;; On a read-student-info command we need to load in the 
-;;; studentfile and to reset the stored stats variable.  
+;;; On a read-student-info command we need to reset the 
+;;; stored stats variable.  
 (defun iface-handle-stats-student ()
   (update-runtime-testset-scores))  ; AW: maybe not still needed
 

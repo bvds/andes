@@ -723,28 +723,17 @@
 
 (defun pick-kcd-spec (Specs)
   "Can a kcd spec be used?"
-  (let ((val) (lst (member 'kcd Specs :key #'hintspec-type)))
-  (when (and **play-kcds** lst)
-    (setq Val (studentFile-Ask (format nil "kcd~w" (car lst))))
-    (cond ((and val (>= val **Max-kcd-repeats**)) ;; If the kcd has not been seen or
-	   (pick-kcd-spec (cdr lst)))             ;; is beloiw the threshold skip it.
-	  
-	  (t (studentfile-increment               ;; Else show it and increment the
-	      (format nil "kcd~w" (car lst)))     ;; count of how often it has been 
-	     (car lst))))))                       ;; seen.
-
+  (let ((lst (member 'kcd Specs :key #'hintspec-type)))
+    (when (and **play-kcds** lst)
+      (car lst))))
 
 (defun pick-minil-spec (Specs)
   "Can a kcd spec be used?"
-  (let ((val) (lst (member 'minilesson Specs :key #'hintspec-type)))
+  (let ((lst (member 'minilesson Specs :key #'hintspec-type)))
     (when (and **play-minilessons** lst)
-      (setq val (StudentFile-ask (car lst)))
-      (cond ((and (or (null val) (< val **Max-Minilesson-repeats**)) 
-		  (probe-minilesson (car lst)))
-	     (StudentFile-increment (car lst))
-	     (car lst))
-	    (t (pick-minil-spec (cdr lst)))))))
-
+      (if (probe-minilesson (car lst))
+	  (car lst)
+	  (pick-minil-spec (cdr lst))))))
 
 (defun probe-minilesson (minilesson)
   "Determine if the minilesson file is present."
