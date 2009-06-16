@@ -585,35 +585,31 @@
 ;; of a hybrid problem including quantitative soughts. 
 
 (defun sg-setup-solutions-no-quant (Graph SG-Eqns)
- ; only do if we have some equations
- ; note each element in sg-eqns is a list formed by eqns->help-sys-eqns
- ; containing index, algebra, and system entry
- ; e.g (1 (= 0 foo) [System-Entry: ...])
- (when SG-Eqns
-  ;; instead of sg-add-solution above:
-  ;; look through eqn index. For every equation matching one 
-  ;; in SG-Eqns, add it's sg index to current set 0
-  (dolist (E (Problem-EqnIndex *cp*))
-      (when (eqn-entry-type-p (eqn-type E)) 
-	(if (setq eq (find (Eqn-Algebra E) SG-Eqns
-			   :key #'cadr :test #'equalp))
-	    (Solver-IndyAddEq2Set 0 (car Eq)))))
-  ;; instead of sg-encode-solution above
-  ;; map solution 0 to all entries in all eq-nodes
-  (let ((entries 
-	  ; maybe could use:
-	  ; (reduce #'union (mapcar #'BGNode-Entries (bubble-graph-Enodes Graph)))
-          (remove-duplicates
-               (loop for N in (bubblegraph-Enodes Graph)
-		     append (BGNode-Entries N)))))
-     (setf *Sg-Solutions*
-         (list (make-sgsol :num 0
-	                   :Entries entries))))))
-
-
-
-
-
+  ;; only do if we have some equations
+  ;; note each element in sg-eqns is a list formed by eqns->help-sys-eqns
+  ;; containing index, algebra, and system entry
+  ;; e.g (1 (= 0 foo) [System-Entry: ...])
+  (when SG-Eqns
+    ;; instead of sg-add-solution above:
+    ;; look through eqn index. For every equation matching one 
+    ;; in SG-Eqns, add it's sg index to current set 0
+    (let (eq)
+      (dolist (E (Problem-EqnIndex *cp*))
+	(when (eqn-entry-type-p (eqn-type E)) 
+	  (if (setq eq (find (Eqn-Algebra E) SG-Eqns
+			     :key #'cadr :test #'equalp))
+	      (Solver-IndyAddEq2Set 0 (car Eq))))))
+    ;; instead of sg-encode-solution above
+    ;; map solution 0 to all entries in all eq-nodes
+    (let ((entries 
+	   ;; maybe could use:
+	   ;; (reduce #'union (mapcar #'BGNode-Entries (bubble-graph-Enodes Graph)))
+	   (remove-duplicates
+	    (loop for N in (bubblegraph-Enodes Graph)
+	       append (BGNode-Entries N)))))
+      (setf *Sg-Solutions*
+	    (list (make-sgsol :num 0
+			      :Entries entries))))))
 
 
 ;;=========================================================================

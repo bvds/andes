@@ -74,8 +74,9 @@
 	   ((member (car obj) leaveAlone)
 	    (setf r (append r (list obj))))
 	   ((member (car obj) special)
-	    (setf r (append r (doSafe :in2pre (car obj) obj 
-				      leaveAlone unary binary special))))
+	    (setf r (append r (apply (car obj) 
+				   (list (list obj leaveAlone 
+					 unary binary special))))))
 	   ((member (car obj) unary)
 	    (setf r (append r (list
 			       (cons (car obj)

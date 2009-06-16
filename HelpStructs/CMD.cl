@@ -21,7 +21,8 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; This file contains the CMD struct along with specific predicates
 ;; to test and set various portions of the struct.  This file appears
@@ -41,7 +42,6 @@
 ;; actions such as color-red, color-green etc.  These results can be used
 ;; as necessary to keep track of the students behavior and the systems 
 ;; responses.
-|#
 
 ;;;; ===================================================================
 ;;;; CMD Struct
@@ -50,27 +50,11 @@
 
 (defstruct CMD
   Class    ;; One of Help-Request, State, Post, etc
-  Type     ;; Either DDE, DDE-POST, 
+  Type     ;; Either DDE, DDE-POST,
   Time     ;; The Time that it occured (Htime)
   Call     ;; The Help system call.
   Result   ;; The result either Nil DDE-Res or DDE-Failed
   )
-
-
-;;;; --------------------------------------------
-;;;; CMD typechecks
-
-(defun dde-post-cmdp (Cmd)
-  "Is this cmd a dde-post?"
-  (equal (cmd-type CMD) 'dde-post))
-
-(defun dde-cmdp (Cmd)
-  "Is this cmd a dde-post?"
-  (equal (cmd-type CMD) 'dde))
-
-(defun dde-command-cmdp (Cmd)
-  "Is this cmd a dde-post?"
-  (equal (cmd-type CMD) 'dde-command))
 
 
 ;;;; --------------------------------------------
@@ -146,7 +130,6 @@
   (equalp (cmd-Class CMD) 'UNKNOWN))
 
 
-
 ;;;; --------------------------------------------
 ;;;; Composite types
 ;;;; These predicates detect supersets of the specific classes that 
@@ -159,7 +142,6 @@
   (or (eq-entry-cmdp Cmd)
       (noneq-entry-cmdp Cmd)))
 
-
 ;;; solution-action-cmdp
 ;;; This describes the superset of all commands that Kurt considers
 ;;; to be solution actions.  These being the commands that represent
@@ -170,7 +152,6 @@
       (help-cmdp Cmd)
       (delete-cmdp Cmd)
       (Answer-cmdp Cmd)))
-
 
 ;;; Solution-state-change-cmdp 
 ;;; This superset describes all entry actions that changes the solution
@@ -184,13 +165,11 @@
       (delete-cmdp Cmd)
       (answer-cmdp Cmd)))
 
-
 ;;; Assertion-cmdp
 ;;; Assertion commands change the solution state of the system by asserting
 ;;; new objects.  They are either Answer assertions or entry assertions.
 (defun assertion-cmdp (Cmd)
   (or (entry-cmdp Cmd) (answer-cmdp Cmd)))
-
 
 
 ;;;; ---------------------------------------------------------------------
@@ -222,23 +201,6 @@
   "Collect the API function CMD calls."
   (car (cmd-call CMD)))
 
-
-;;; Given a cmd return the id index if it is supposed to 
-;;; have an id.  That is, if this is one of the commands 
-;;; that have been encoded with an ID index in API.cl
-(defun cmd-call-id-index (Cmd)
-  (when (cmd-call Cmd)
-    (api-lookup-id-index (cmd-call Cmd))))
-
-
-;;; Given a CMD lookup its id if it has one and return
-;;; it.  Return nil if it does not have an id.
-(defun cmd-call-id (Cmd)
-  (when (cmd-call Cmd)
-    (api-Lookup-id (cmd-call Cmd))))
-    
-
-
 ;;; Given a cmd we want to collect the api-arguments
 ;;; from it's call for later use.  This can include
 ;;; comparisons of the type below or other changes
@@ -248,8 +210,6 @@
 (defun cmd-call-args (Cmd)
   (when (cmd-call Cmd)
     (api-collect-args (cmd-Call Cmd))))
-
-
 
 
 ;;; --------------------------------------------
@@ -278,13 +238,8 @@
   (and (help-cmdp CMD) 
        (equalp (cmd-call-func CMD) 'WHY-WRONG-OBJECT)))
   
-(defun delete-object-cmdp (CMD)
-  "Tests whether or not this is a delete-object command."
-  (and (delete-cmdp CMD) 
-       (equalp (cmd-call-func CMD) 'DELETE-OBJECT)))
-
-; Note: delete-cmdp does not work for equation deletions
-; sent as DDE-POST of (lookup-eqn-string "" id) [Bug 1254]
+;; Note: delete-cmdp does not work for equation deletions
+;; sent as DDE-POST of (lookup-eqn-string "" id) [Bug 1254]
 (defun delete-equation-cmdp (CMD)
   "Test whether this is a delete-equation or lookup-eqn-string \"\""
   (and (equal (cmd-type CMD) 'DDE-POST)
@@ -296,24 +251,15 @@
   (and (cmd-call Cmd) 
        (equalp (cmd-call-func Cmd) 'read-problem-info)))
 
-
 (defun close-problem-cmdp (CMD)
   "Return t if this is a close-problem command."
   (and (cmd-call Cmd) 
        (equalp (cmd-call-func Cmd) 'close-problem)))
 
-
-
 (defun read-student-info-cmdp (CMD)
   "Return t if this is an open-problem command."
   (and (cmd-call Cmd) 
        (equalp (cmd-call-func Cmd) 'read-student-info)))
-
-
-
-
-
-
 
 
 ;;;; ========================================================================
@@ -412,14 +358,6 @@
   "Is this a show-hint dde result."
   (equal (dde-result-command Result) **show-hint**))
 
-(defun ddr-show-lessonp (Result)
-  "Is this a show-hint dde result."
-  (equal (dde-result-command Result) **show-lesson**))
-
-(defun ddr-training-cardp (Result)
-  "Is this a show-hint dde result."
-  (equal (dde-result-command Result) **training-card**))
-
 ;; NOTE:: This code probably will not get exercised as the deletions
 ;;  are currently called using a dde-post that does not return a result
 ;;  however, the vode exists to produce those results in turn->wb-reply
@@ -433,10 +371,6 @@
 ;;; When dealing with show-hints the value will be a tuple of the form
 ;;; (<HintString> <Menu>) This code facilitates getting that for the
 ;;; user if it is appropriate.  (note no typechecking is done.)
-(defun show-hint-ddr-hintstring (Result)
-  "The dde result hintstring is returned."
-  ;;(nth 0 (dde-result-value Result)))
-  (dde-result-value Result))
   
 (defun show-hint-ddr-menu (Result)
   "The dde result menu is returned."
@@ -459,17 +393,6 @@
 	       (equal (dde-result-command Result) **show-hint**))
       ;;(nth 0 (dde-result-value Result)))))
       (dde-result-value Result))))
-      
-(defun show-hint-cmd-hintmenu (Cmd)
-  "Extract the hint text from the cmd returns nil if this has no hint."
-  (let ((Result (cmd-result CMD)))
-    (when (and Result (cmdresult-p Result)
-	       (setq Result (cmdresult-value Result)) ;; returns the val.
-	       (dde-result-p Result)
-	       (equal (dde-result-command Result) **show-hint**))
-      ;;(nth 1 (dde-result-value Result)))))
-      (dde-result-menu Result))))
-
 
 
 ;;;; ========================================================================
@@ -534,134 +457,6 @@
   (and (entry-cmdp Command)
        (correct-cmdp Command)))
 
-(defun unvalued-entry-cmdp (Command)
-  "Is this an unvalued entry?"
-  (and (entry-cmdp Command)
-       (unvalued-cmdp Command)))
-
-
-;;; ------------------------------------------------
-;;; Test whether the incoming command is an entry of 
-;;; the specified type and return a result.
-(defun incorrect-noneq-entry-cmdp (Command)
-  "Is this an incorrect noneq entry?"
-  (and (noneq-entry-cmdp Command)
-       (incorrect-cmdp Command)))
-
-(defun correct-noneq-entry-cmdp (Command)
-  "Is this a correct noneq entry?"
-  (and (noneq-entry-cmdp Command)
-       (correct-cmdp Command)))
-
-(defun unvalued-noneq-entry-cmdp (Command)
-  "Is this an unvalued noneq entry?"
-  (and (noneq-entry-cmdp Command)
-       (unvalued-cmdp Command)))
-
-
-(defun incorrect-eq-entry-cmdp (Command)
-  "Is this an incorrect eqn entry?"
-  (and (eq-entry-cmdp Command)
-       (incorrect-cmdp Command)))
-
-(defun correct-eq-entry-cmdp (Command)
-  "Is this a correct eqn entry?"
-  (and (eq-entry-cmdp Command)
-       (correct-cmdp Command)))
-
-(defun unvalued-eq-entry-cmdp (Command)
-  "Is this an unvalued eqn entry?"
-  (and (eq-entry-cmdp Command)
-       (unvalued-cmdp Command)))
-
-
-;;; -----------------------------------------
-;;; Test whether the specified command is an 
-;;; answer and return the result.
-(defun incorrect-Answer-cmdp (Command)
-  "Is this an incorrect Answer?"
-  (and (Answer-cmdp Command)
-       (incorrect-cmdp Command)))
-
-(defun correct-Answer-cmdp (Command)
-  "Is this a correct Answer?"
-  (and (Answer-cmdp Command)
-       (correct-cmdp Command)))
-
-(defun unvalued-Answer-cmdp (Command)
-  "Is this an unvalued answer?"
-  (and (answer-cmdp Command)
-       (unvalued-cmdp Command)))
-
-
-;;; ---------------------------------------------------
-;;; Test whether the specified command is an assertion
-;;; and test its state.
-(defun incorrect-Assertion-cmdp (Command)
-  "Is this an incorrect Assertion?"
-  (and (Assertion-cmdp Command)
-       (incorrect-cmdp Command)))
-
-(defun correct-Assertion-cmdp (Command)
-  "Is this a correct Assertion?"
-  (and (Assertion-cmdp Command)
-       (correct-cmdp Command)))
-
-(defun unvalued-Assertion-cmdp (Command)
-  "Is this an unvalued assertion?"
-  (and (assertion-cmdp Command)
-       (unvalued-cmdp Command)))
-
-
-;;; Solution State Changes
-;;; The entries and answers can be correct and will
-;;; be tested.  The deletions will be treated as correct.
-(defun incorrect-solution-state-change-cmdp (Command)
-  "Is this an incorrect solution-state-change-cmd?"
-  (and (solution-state-change-cmdp Command)
-       (not (delete-cmdp Command))
-       (incorrect-cmdp Command)))
-
-(defun correct-solution-state-change-cmdp (Command)
-  "Is this a correct solution-state-change-cmd?"
-  (and (solution-state-change-cmdp Command)
-       (or (delete-cmdp Command) 
-	   (correct-cmdp Command))))
-
-(defun unvalued-solution-state-change-cmdp (Command)
-  "Is this an unvalued solution-state-change-cmd?"
-  (and (assertion-cmdp Command)
-       (not (delete-cmdp Command))
-       (unvalued-cmdp Command)))
-
-
-;;; ---------------------------------------------------
-;;; Solution actions
-;;; The entries and answers can be correct and will
-;;; be tested.  The deletions will be treated as correct.
-;;; The help calls will be treated as unvalued.
-(defun incorrect-solution-action-cmdp (Command)
-  "Is this an incorrect solution-state-change-cmd?"
-  (and (solution-state-change-cmdp Command)
-       (not (delete-cmdp Command))
-       (not (help-cmdp Command))
-       (incorrect-cmdp Command)))
-
-(defun correct-solution-action-cmdp (Command)
-  "Is this a correct solution-state-change-cmd?"
-  (and (solution-state-change-cmdp Command)
-       (not (help-cmdp Command))
-       (or (delete-cmdp Command) 
-	   (correct-cmdp Command))))
-
-(defun unvalued-solution-action-cmdp (Command)
-  "Is this an unvalued solution-state-change-cmd?"
-  (and (assertion-cmdp Command)
-       (not (delete-cmdp Command))
-       (or (help-cmdp Command)
-	   (unvalued-cmdp Command))))
-
-
 
 ;;;; ----------------------------------------------------------------------
 ;;;; Hint Tests.
@@ -709,52 +504,6 @@
        (show-hint-cmdp Command)))
 
 
-
-
-
-
-
-
-
-;;;; ==================================================================
-;;;; Command Comparison
-;;;; The code in this section is used to conduct comparison tests on 
-;;;; pairs of commands.  As with the other direct command tests this
-;;;; code is used primarily by the predicates for testing purposes.
-
-
-
-
-
-;;; -----------------------------------------------------------------
-;;; Comparing commands for field equality.
-;;;
-;;; Given a pair of commands return t if they are both have the same
-;;; id.  Note that I am not checking to ensure that they are both 
-;;; entries or deletes only that, if they both contain ids, the ids 
-;;; are the same.  This is being done so that I can attempt to match
-;;; deletions with the entries that created them and so on.
-;;;
-;;; Note that this does not check types.  I make no attempt to match 
-;;; delete-object with non-eq entries I am merely relying on the fact 
-;;; that equation ids are always numbers and non-equation-ids are 
-;;; always symbols of the form: TYPE-###
-(defun cmds-id-equalp (Cmd1 Cmd2)
-  "Check if the two cmds are entries or deletes and are id equalp."
-  (and (cmd-call Cmd1) (cmd-Call Cmd2) 
-       (equalp (cmd-call-id Cmd1) (cmd-call-id Cmd2))))
-
-
-;;; -----------------------------------------------------------------------
-;;; Return t if the two command supplied use the same api call.  This is
-;;; used largely for debugging purposes.
-(defun cmds-same-api-callp (C1 C2)
-  (and (cmd-call C1) (cmd-call C2)
-       (equalp (cmd-call-func C1)
-	       (cmd-call-func C2))))
-
-
-
 ;;; --------------------------------------------------------
 ;;; commands time diff.
 ;;; Given a pair of commands relate them acc
@@ -762,38 +511,3 @@
 (defun cmds-time-diff (A B)
   "Return the amount of time elapsed between Cmd A and Cmd B."
   (sub-htimes (cmd-Time A) (cmd-time B)))
-
-
-(defun cmds-time-thresh-diff (A B Diff)
-  "Return t if the time elapsed between Cmds A and B <= Diff."
-  (Htimes>= diff (sub-htimes (cmd-Time A) (cmd-time B))))
-
-
-
-
-
-;;; --------------------------------------------------------------------
-;;; Entry Comparison
-;;; Given a pair on noneq-entries and a threshold ensure that the
-;;; two entries have the same api and that they have less differences
-;;; between them (irrespective of the id) than the threshold amount.
-(defun thresh-equalp-noneq-ents (A B Threshold)
-  (and (equalp (cmd-call-func A) (cmd-call-func B))
-       (>= Threshold (list-diff (cmd-call-args A) 
-				(cmd-call-args B)))))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

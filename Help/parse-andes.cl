@@ -118,10 +118,10 @@
    creates a student entry, adds it to the *student-entries*,
    creates an error interpretation for it, and returns
    the first tutor turn of the error interpretation's hint sequence."
-    (setf (StudenEntry-verbatim entry) equation)
-    (setf (StudenEntry-parsedeqn entry) parses)
-    (setf (StudenEntry-verbatim prop) (list 'eqn equation))
-    (setf (StudenEntry-verbatim state) **incorrect**)
+    (setf (StudentEntry-verbatim entry) equation)
+    (setf (StudentEntry-parsedeqn entry) parses)
+    (setf (StudentEntry-prop entry) (list 'eqn equation))
+    (setf (StudentEntry-state entry) **incorrect**)
     (add-entry entry)
     (setf (StudentEntry-ErrInterp entry) (bad-syntax-ErrorInterp equation))
     (ErrorInterp-remediation (StudentEntry-ErrInterp entry)))
@@ -1076,7 +1076,10 @@
 	    ((studeqn (concatenate 'string studvar "=" value-str))
 	     ;; suppress normal eqn entry logging so we can do modified logging
 	     ;; here, noting different errors and filling in target entry
-	     (result-turn (do-lookup-eqn-string 
+
+	     ;; BvdS:  this is expecting an StudentEntry struct,
+	     ;; not a raw string....
+	     (result-turn (lookup-eqn-string 
 			   studeqn *solver-temp-eqn-slot* :log NIL))
 	     (temp-entry (find-entry *solver-temp-eqn-slot*))
 	     (correct-eqn  (eq (StudentEntry-State temp-entry) **Correct**)))
@@ -1230,33 +1233,6 @@
     (setf (turn-coloring rem) **color-red**)
     rem))
 
-
-;;----------------------------------------------------------------
-;; Debugging code.
-
-(defun trace-parse-andes ()
-  (trace handle-answer verify-parameters
-	 bad-variables-vs-parameters-ErrorInterp
-	 bad-answer-syntax-ErrorInterp
-	 bad-answer-bad-sought-ErrorInterp
-	 bad-answer-bad-lhs-ErrorInterp
-	 do-check-answer
-
-	 unused-variables-ErrorInterp
-	 undef-variables-ErrorInterp
-	 handle-undefined-variables-equation
-	 wrong-units-ErrorInterp
-	 forgot-units-ErrorInterp
-	 parse-handler
-	 choose-ambiguous-bad-turn
-	 handle-ambiguous-equation
-	 
-	 bad-syntax-ErrorInterp
-	 handle-bad-syntax-equation
-	 do-lookup-equation-string
-	 
-	 do-lookup-eqn-string
-	 do-lookup-equation-answer-string))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; end of parse-andes.cl

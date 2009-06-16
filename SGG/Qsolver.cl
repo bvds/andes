@@ -355,6 +355,9 @@
 ;; contain lower ranked operators, but never have to be checked for having 
 ;; higher rank than anything in the current accumulated result.
 
+(defparameter *watch-merge* nil
+  "enable trace message on merging paths")
+
 (defun merge-paths (P1 P2)
   "return merge of path P2 into P1; NIL if not done"
   ;; must match without any bindings needed.
@@ -471,9 +474,6 @@
 
 (defparameter *actions* nil 
   "Controls whether note-action will trace.")
-
-(defvar *watch-merge* nil
-  "enable trace message on merging paths")
 
 ;;; action types used as part of actions that appear in action lists
 ;;; and solution graphs

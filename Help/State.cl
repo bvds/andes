@@ -36,9 +36,6 @@
 ;;========================================================
 ;; Storage elements.
 
-(defvar *cp*)                  ; the current problem
-(defvar *StudentEntries*)  ; list of current student entries
-
 ;;; The Andes2 Configuration file is a lisp-source file that is
 ;;; loaded (and evaluated) at runtime.  This file is intended to
 ;;; set parameters and make any modifications that are necessary
@@ -430,18 +427,6 @@
 (defun load-config-file ()
   "Load the configuration file."
   (load (andes-path **Config-File-Name**)))
-
-;;; Log the student's action call, and its result
-;;; all the necessary values are supplied.
-(defun log-studentaction (Call &optional (Result nil) (Assoc nil) (Time nil))
-  "Generate a studentaction log and store the value."
-  (let ((action (make-studentaction
-		 :type (car Call) 
-		 :Call Call
-		 :Result Result
-		 :Assoc Assoc)))
-    (if Time (setf (Studentaction-Time Action) Time))
-    action))
 
 ;;;; =====================================================================
 ;;;; Shared utility problems

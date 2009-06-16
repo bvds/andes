@@ -137,57 +137,47 @@
 (defun calculate-equation-string (eqn-str new-id)
  ;; No longer needed. (return-turn 
   ;; need to map equation string to slot number
-  (let ((eqn-entry (find-eqn-entry eqn-str))
-	;; Log the studentaction (this will be updated later)
-	(action (log-studentaction **last-api-call**)))
+  (let ((eqn-entry (find-eqn-entry eqn-str)))
     
     (cond 
      ;; If no mathching entry can be found then set the action and return an error.
      ((null eqn-entry)
-      (setf (studentaction-result action) 'error)
-      (setf (studentaction-assoc action) "Internal error: entry for equation not found!")
       (make-eqn-failure-turn "Internal error: entry for equation not found!"))
      
      ;; If the selected equation is not correct then send an error. 
      ((not (equal (StudentEntry-state eqn-entry) **correct**))
-      (setf (studentaction-result action) 'error)
-      (setf (studentaction-assoc action) "Only correct equations may be simplified.")
       (make-eqn-failure-turn "Only correct equations may be simplified."))
 
-     (t (calculate-equation-string-internal eqn-str new-id eqn-entry action)))))
+     (t (calculate-equation-string-internal eqn-str new-id eqn-entry)))))
 
 
 ;;; If we have gotten to this point then the student's equation exists and
 ;;; is correct.  Therefore, the equation computation proceeds as normal and
 ;;; either an entry is produced and entered, or the system produces a runtime
 ;;; error.
-(defun calculate-equation-string-internal (eqn-str new-id eqn-entry action)
+(defun calculate-equation-string-internal (eqn-str new-id eqn-entry)
   (let ((result (solver-eqn-simplify (StudentEntry-id eqn-entry) new-id)))
     (cond  ;; result may be equation s-expr, NIL or error message string
      
      ((and result (listp result)) ;; If the result is valid, then we want to generate an entry and store it.
-      (calculate-equation-string-success result new-id action))
+      (calculate-equation-string-success result new-id))
      
      ((stringp result) ;; Else if the result is a string then we need to deal with it.
-      (calculate-equation-string-int-err eqn-str result action))
+      (calculate-equation-string-int-err eqn-str result))
 
      ;; Else we have a generic error and need to deal with it.
-     (T (calculate-equation-string-int eqn-str action)))))
+     (T (calculate-equation-string-int eqn-str)))))
 
 
 ;; Given a string error signal it to the student and return.
-(defun calculate-equation-string-int-err (eqn-str result action)
+(defun calculate-equation-string-int-err (eqn-str result)
   (let ((error (format NIL "Unable to simplify ~A: ~A" eqn-str result)))
-    (setf (studentaction-result action) 'error)
-    (setf (studentaction-assoc action) error)
     (make-eqn-failure-turn error)))
 
 
 ;; Given a generic error log it and signal it to the student.
-(defun calculate-equation-string-int (eqn-str action)
+(defun calculate-equation-string-int (eqn-str)
   (let ((error (format NIL "Unable to simplify ~A" eqn-str)))
-    (setf (studentaction-result action) 'error)
-    (setf (studentaction-assoc action) error)
     (make-eqn-failure-turn error)))
      
 
@@ -195,7 +185,7 @@
 ;; generate and store the equation entry and then go through the process
 ;; of storing the entry and then reporting the equation string back to 
 ;; the workbench.
-(defun calculate-equation-string-success (result new-id action)
+(defun calculate-equation-string-success (result new-id)
   ;; just return eqn text until appropriate turns are implemented
   (let* ((studEqn  (subst-student-vars (pre2in result)))
 	 ;; suppress *print-pretty* since it could insert newlines 
@@ -209,18 +199,13 @@
 				   :prop `(eqn ,studText)
 				   :parsedEqn result
 				   :state **Correct**)))
-    
-    ;; for later, and then update entry list and the results.
-    (setf (studentaction-result action) studtext)
-    (setf (studentaction-assoc action) entry)
-    
+        
     ;; save final result as if it were a new student entry. We need to 
     ;; remember slot is occupied for add-entry to trigger automatic
     ;; cleanup of equation in algebra on new entry.
     (add-entry entry)
     ;; finally return student equation turn
-    (make-eqn-turn studText)
-    ))
+    (make-eqn-turn studText)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; solve-for-var -- solve for the given var using the equations the student has
@@ -243,18 +228,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun solve-for-var (var new-id)
   (let* ((tmp (student-to-canonical var))
-	 (result (if tmp (solver-power-solve 31 (student-to-canonical var) new-id) nil))
-	 (action (log-studentaction **last-api-call**)))
+	 (result (if tmp (solver-power-solve 31 (student-to-canonical var) new-id) nil)))
     
-    (cond ((and result (listp result)) (solve-for-var-success new-id result action))
+    (cond ((and result (listp result)) (solve-for-var-success new-id result))
 	  ((stringp result) 
-	   (solve-for-var-error 
-	    (format NIL "Unable to solve for ~A: ~A" var result) action))
-	  (t (solve-for-var-error
-	      (get-failure-to-solve-hint var)  ; implemented in next-step-help.cl
-	      action)))))
+	   (make-eqn-failure-turn 
+	    (format NIL "Unable to solve for ~A: ~A" var result)))
+	  (t (make-eqn-failure-turn
+	      ;; implemented in next-step-help.cl
+	      (get-failure-to-solve-hint var))))))
 
-(defun solve-for-var-success (new-id result action)
+(defun solve-for-var-success (new-id result)
   (let* ((studEqn  (subst-student-vars (pre2in result)))
 	 ;; suppress *print-pretty* since it could insert newlines 
 	 ;; into long result, and WB requires single-line eqn string
@@ -267,29 +251,13 @@
 				   :prop `(eqn ,studText)
 				   :parsedEqn result
 				   :state **Correct**)))
-    
-    ;; Store the result in the action
-    (setf (studentaction-result action) studText)
-    (setf (studentaction-assoc action) entry)
-    
+        
     ;; save final result as if it were a new student entry. We need to 
     ;; remember slot is occupied for add-entry to trigger automatic
     ;; cleanup of equation in algebra on new entry.
     (add-entry entry)
     ;; finally return student equation turn
     (make-eqn-turn studText)))
-
-
-(defun solve-for-var-error (error action)
-  ;; Store the result in the action
-  (setf (studentaction-result action) 'error)
-  (setf (studentaction-assoc action) error)
-  ;; and return it
-  (make-eqn-failure-turn error))
-
-
-
-
 
 
 ;;; ===========================================================================

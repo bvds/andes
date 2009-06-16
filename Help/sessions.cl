@@ -74,8 +74,6 @@
   #-asdf (setf *Base-Andes-Module-Path* (namestring *andes-path*))
   (format T "Starting Andes, *andes-path* = ~A~%" *andes-path*)
 
-  (doSafety :in2pre)
-
   (parse-initialize)   ;set up memoization for parse functions
   (physics-algebra-rules-initialize) ;initialize grammar
 
@@ -91,15 +89,14 @@
 	*help-env-vars* 
 	;; These are all the variables that are be set by API commands
         ;; listed in Andes2 log files or their descendants.
-	'(*CP* **STUDENTFILE** 
-	  **NSH-NEXT-CALL** *NSH-NODES* *NSH-FIRST-PRINCIPLES*
+	'(*CP* **NSH-NEXT-CALL** *NSH-NODES* *NSH-FIRST-PRINCIPLES*
 	  *NSH-CURRENT-SOLUTIONS* *NSH-LAST-NODE* *NSH-SOLUTION-SETS* 
 	  *NSH-GIVENS* *NSH-AXIS-ENTRIES* *NSH-BODYSETS* *NSH-VALID-ENTRIES* 
 	  *NSH-PROBLEM-TYPE* **ALTERNATE-COMMAND-INTERPRETER** *VARIABLES* 
 	  *STUDENTENTRIES* *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*
           **Condition**  mt19937::*random-state* **grammar**
 	  ;; Session-specific variables in Help/Interface.cl
-	  **last-api-call** **current-cmd-stack** **current-cmd** 
+	  **current-cmd-stack** **current-cmd** 
 	  *last-tutor-turn* *last-score*
           ;; Variables set in Config.cl, which is loaded for each session.
           *Runtime-Testset* *Runtime-Score-Testset*

@@ -333,7 +333,7 @@
 (defun rotate-existing-axes ()
 "TRUE at help time if should rotate axes rather than drawing new ones"
  (and (axes-drawnp)                   ; have already drawn at least one
-      (not nsh-multi-axis-problemp))) ; only one is required for solution 
+      (not (nsh-multi-axis-problemp)))) ; only one is required for solution 
 
 (defoperator use-system-axes (?b ?rot)
    :specifications 

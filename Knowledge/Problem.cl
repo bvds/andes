@@ -120,6 +120,8 @@
   wm                 ;; Collection of the solver working memory.
   )
 
+(defvar *cp*)                  ; the current problem
+
 ;;-----------------------------------------------------------------------------
 ;; Problem output
 
@@ -147,7 +149,6 @@
 (defun Print-problem-bubblegraph (Problem &optional (form 'graph))
   "Print out the bubblegraph associated with a problem in the specified form."
   (print-bubblegraph (Problem-Graph Problem) t 0 form))
-
 
 ;;-----------------------------------------------------------------------------
 ;; Write-Problem-File

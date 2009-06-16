@@ -33,9 +33,6 @@
 				     (:file "TutorTurn"
 					    :depends-on ("CMD"))
 				     (:file "ErrorInterp")
-				     (:file "StudentAction"
-					    :depends-on ("TutorTurn")
-					    :depends-on ("StudentEntry"))
 				     (:file "CMD")
 				     (:file "RuntimeTestScore")
 				     (:file "RuntimeTest")
@@ -50,7 +47,8 @@
 				     				     
 				     ;; Entry Intepreter: generic + non-eq
 				     (:file "symbols")
-				     (:file "State")
+				     (:file "State"
+					    :depends-on ("symbols"))
 				     (:file "clips-vars")
 				     (:file "match")
 				     (:file "Entry-API"
@@ -91,7 +89,6 @@
 			:components (
 				     (:file "StackProcessing")
 				     (:file "StackTests")
-				     (:file "EntryPair")
 				     (:file "ProcDepth")
 				     (:file "UtilFuncs")
 				     ;; file must be loaded before compile
