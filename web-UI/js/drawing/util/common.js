@@ -39,8 +39,66 @@ dojo.provide("drawing.util.common");
 		byId: function(id){
 			return this.objects[id];
 		},
-		attr: function(/* element */ elem, /* property */ prop, /* ? value */ value){
-			return dojo.attr.apply(dojo, arguments);
+		attr: function(/* Object */ elem, /* property */ prop, /* ? value */ value){
+			if(!elem) { return false; }
+			try{
+				
+				if(dojox.gfx.renderer=="silverlight"){
+					
+					var t;
+					if(elem.superTarget){
+						t = elem.superTarget;
+					}else if(elem.superClass){
+						t = elem.superClass; 
+					}else if(elem.target){
+						t = elem.target;
+					}else{
+						t = elem;
+					}
+					
+					if(value!==undefined){
+						elem[prop] = value;
+						return value;
+					}
+					
+					if(t.tagName){
+						if(prop=="drawingType" && t.tagName.toLowerCase()=="object"){
+							return "surface";
+						}
+						var r =  dojo.attr(t, prop);
+					}
+					var r = t[prop];
+					return r
+				}
+				
+				// NOT silverlight - can set atts on nodes
+				
+				// util is a crappy check, but we need to tell the diff
+				// between a Drawing shape and a GFX shape
+				if(elem.shape && elem.util){
+					elem = elem.shape;
+				}
+				
+				if(arguments.length==2 && prop=="id" && elem.target){
+					return dojo.attr(elem.target, "id") || dojo.attr(elem.target.parentNode, "id");
+				}
+				
+				if(elem.rawNode || elem.target){
+					var args = Array.prototype.slice.call(arguments);
+					args[0] = elem.rawNode || elem.target;
+					return dojo.attr.apply(dojo, args);	
+				}
+					
+				return dojo.attr(elem, "id");
+				
+				
+				
+			}catch(e){
+				console.error("BAD ATTR: prop:", prop, "el:", elem)
+				console.error(e)
+				console.trace();
+				return false;
+			}
 		}
 	};
 	

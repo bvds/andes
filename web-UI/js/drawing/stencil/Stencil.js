@@ -13,14 +13,7 @@ dojo.provide("drawing.stencil.Stencil");
 			this._shapeCons = [];
 			this.connectMouse();
 			
-			this.util.attr(this.parent.rawNode, "id", this.id);
-			
-			console.log("SET ID", this.id, this.util.attr(this.parent.rawNode, "id"))
-			
-			dojo.attr(this.parent.rawNode, "id", this.id);
-			console.log("GET ID:", dojo.attr(this.parent.rawNode, "id"))
-			
-			
+			this.util.attr(this.parent, "id", this.id);
 			
 			this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
 		},
@@ -81,11 +74,13 @@ dojo.provide("drawing.stencil.Stencil");
 			
 			
 			
+			
 			_onPostRender: function(/*Object*/data){
 				// drag-create should call onRender
 				// afterwards, this calls onRender
 				this.onRender(data);
 			},
+			
 			onRender: function(/*Object*/stencil){
 				// Drawing connects to this (once!) to be
 				// notified of drag completion. This should fire
@@ -99,9 +94,11 @@ dojo.provide("drawing.stencil.Stencil");
 				this.createSelectionOutline();
 				this.created = true;
 				this.connectShape();
-				this.util.attr(this.shape.rawNode, "drawingType", "stencil");
-				//dojo.attr(this.shape.rawNode, "id", this.id);
+				this.util.attr(this, "drawingType", "stencil");
+				//dojo.attr(this.shape, "id", this.id);
 				this.disconnectMouse();
+				
+				this.shape.superClass = this;
 				
 			},
 			

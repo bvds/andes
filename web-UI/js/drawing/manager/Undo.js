@@ -19,7 +19,7 @@ drawing.manager.Undo = drawing.util.oo.declare(
 			
 		},
 		add: function(stack){
-			console.log("undo add", stack)
+			//console.log("undo add", stack)
 			stack.args = dojo.mixin({}, stack.args);
 			this.undostack.push(stack);	
 		},

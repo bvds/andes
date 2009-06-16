@@ -32,11 +32,11 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 				this.move(evt);
 			}
 		});
-		dojo.connect(this.container, "mouseup", this, function(evt){
-			if(evt.target.id.indexOf("surface")>-1){
-				this.onCanvasUp(evt);
-			}
-		});
+		//dojo.connect(this.container, "mouseup", this, function(evt){
+			//if(evt.target.id.indexOf("surface")>-1){
+				//this.onCanvasUp(evt);
+			//}
+		//});
 	},
 	
 	{
@@ -89,7 +89,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		
 		eventName: function(name){
 			name = name.charAt(0).toUpperCase() + name.substring(1);
-			var t = !this.drawingType ? "" : this.drawingType.charAt(0).toUpperCase() + this.drawingType.substring(1);
+			var t = !this.drawingType || this.drawingType=="surface" ? "" : this.drawingType.charAt(0).toUpperCase() + this.drawingType.substring(1);
 			return "on"+t+name;
 		},
 		origin:{},
@@ -110,13 +110,16 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			this._lastx = x;
 			this._lasty = y;
 			
-			this.drawingType = this.util.attr(evt.target, "drawingType") || "";
-			
+			this.drawingType = this.util.attr(evt, "drawingType") || "";
+		
+		console.log("evt:", evt);
+		console.log("this.drawingType:", this.drawingType)
+		
 			this.onDown({x:x,y:y, id:this._getId(evt)});
 			dojo.stopEvent(evt);
 		},
 		move: function(evt){
-			this.onMove(this.create(evt));
+			//this.onMove(this.create(evt));
 		},
 		drag: function(evt){
 			this.onDrag(this.create(evt));
@@ -149,7 +152,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			return ret;
 		},
 		_getId: function(evt){
-			return this.util.attr(evt.target, "id") || this.util.attr(evt.target.parentNode, "id");
+				return this.util.attr(evt, "id") || this.util.attr(evt.target.parentNode, "id");
 		},
 		_getXY: function(evt){
 			return {x:evt.pageX, y:evt.pageY};
