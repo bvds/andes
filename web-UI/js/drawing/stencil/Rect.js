@@ -35,8 +35,9 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 		render: function(){
 			this.remove();
 			var d = this.pointsToData()
-			//console.log("pts:", dojo.toJson(this.pointsToData()))
-
+			//console.log(this.id, "pts:", dojo.toJson(this.points))
+			//console.log(this.id, "data:", dojo.toJson(d))
+				
 			this.shape = this.parent.createRect(d)
 				.setStroke(this.style.line)
 				.setFill(this.style.fill);

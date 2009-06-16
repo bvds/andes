@@ -5,7 +5,8 @@ dojo.provide("drawing.manager.Stencil");
 	drawing.manager.Stencil = drawing.util.oo.declare(
 		function(options){
 			surface = options.surface;
-			surfaceNode = surface.rawNode.parentNode;
+			//used for cursor:
+			//surfaceNode = surface.rawNode.parentNode;
 			if(options.grid){
 				this.setGrid(options.grid);
 			}
@@ -47,7 +48,7 @@ dojo.provide("drawing.manager.Stencil");
 				if(mx.dx == this._lastmxx && mx.dy == this._lastmxy){ return; }
 				this._lastmxx = mx.dx;
 				this._lastmxy = mx.dy;
-				console.warn("SAVE MOVE!", mx.dx, mx.dy);
+				//console.warn("SAVE MOVE!", mx.dx, mx.dy);
 				this.undo.add({
 					before:dojo.hitch(this.group, "setTransform", mx)
 				});
@@ -107,7 +108,9 @@ dojo.provide("drawing.manager.Stencil");
 				});
 				
 			},
-			onSelect: function(item){
+			onSelect: function(item){ 
+				//console.trace();
+				console.warn("SELECT:", item)
 				if(this.selectedItems[item.id]){ return; }
 				this.selectedItems[item.id] = item;
 				this.group.add(item.parent);
@@ -119,7 +122,9 @@ dojo.provide("drawing.manager.Stencil");
 			onDeselect: function(item, keepObject){
 				
 				this.anchors.remove(item);
+				
 				surface.add(item.parent);
+				
 				item.setTransform(this.group.getTransform());
 				item.deselect();
 				if(!keepObject){
@@ -134,7 +139,7 @@ dojo.provide("drawing.manager.Stencil");
 				this._wasDragged = false;
 			},
 			onStencilDown: function(obj){
-				
+				console.info("onStencilDown:", obj)
 				if(this.selectedItems[obj.id] && this.keys.meta){
 					
 					console.log("shift remove");
@@ -166,7 +171,9 @@ dojo.provide("drawing.manager.Stencil");
 				var item = this.items[obj.id];
 				this.onSelect(item);
 				this.group.moveToFront();
-				dojo.style(surfaceNode, "cursor", "pointer");
+				
+				
+				//  dojo.style(surfaceNode, "cursor", "pointer");
 				
 				this.undo.add({
 					before:function(){

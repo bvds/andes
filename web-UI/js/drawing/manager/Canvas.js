@@ -18,16 +18,31 @@ dojo.provide("drawing.manager.Canvas");
 				setTimeout(dojo.hitch(this, function(){
 					if(dojo.isIE){
 						//_surface.rawNode.parentNode.id = this.id;
+					}else if(dojox.gfx.renderer == "silverlight"){
+						this.id = this.domNode.firstChild.id
 					}else{
 						//_surface.rawNode.id = this.id;
 					}
-					
+					//console.log("SURFACE", _surface.rawNode)
 					this.surface = _surface.createGroup();
+					
+					
 					this.surface.setTransform({dx:0, dy:0,xx:1,yy:1});
 					this.surface.getDimensions = dojo.hitch(_surface, "getDimensions");
 					if(options.callback){
 						options.callback();
 					}
+					/*
+					
+					_surface.connect("onmousedown", this, function(evt){
+						console.warn("------------------------------------- click")
+					});
+					
+					dojo.connect(dojo.byId("drawingNode"), "mousedown", this, function(evt){
+						console.warn("------------------------------------- click")
+					});
+					*/
+								
 				}),0);
 			});
 		},

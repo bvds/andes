@@ -31,10 +31,11 @@ drawing.stencil.Line = drawing.util.oo.declare(
 				.setStroke(this.style.line);
 		},
 		createSelectionOutline: function(){
+			//return
 			this.hit = this.parent.createLine(this.pointsToData())
 				.setStroke(this.style.hitline);
 			
-			this.util.attr(this.hit.rawNode, "drawingType", "stencil");
+			//this.util.attr(this.hit, "drawingType", "stencil");
 			this.hit.moveToBack();
 		},
 		

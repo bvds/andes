@@ -14,6 +14,7 @@ dojo.require("drawing.stencil.Line");
 dojo.require("drawing.stencil.Rect");
 dojo.require("drawing.stencil.Ellipse");
 dojo.require("drawing.stencil.TextBlock");
+dojo.require("drawing.manager.Silverlight");
 
 // not using widget, but just dojo.declare
 // could add a widget that extends this
@@ -52,25 +53,26 @@ dojo.require("drawing.stencil.TextBlock");
 				id:this.util.uid("surface"),
 				callback: dojo.hitch(this, "onSurfaceReady")
 			});
-			console.log("C:", canvas)
 		},
 		onSurfaceReady: function(){
-			console.log("THIS:", canvas)
+			
 			surface = canvas.surface;
 			canvas.setGrid({gap:100});
 			
 			this.mouse = new drawing.manager.Mouse({container:this.domNode, util:this.util});
 			this.keys = drawing.manager.keys;
 			this.undo = new drawing.manager.Undo({keys:this.keys});
-			this.anchors = new drawing.manager.Anchors({mouse:this.mouse, undo:this.undo});
+			this.anchors = new drawing.manager.Anchors({mouse:this.mouse, undo:this.undo, util:this.util});
 			this.stencils = new drawing.manager.Stencil({surface:surface, mouse:this.mouse, undo:this.undo, keys:this.keys, anchors:this.anchors});
+			
+			new drawing.manager.Silverlight({mouse:this.mouse, stencils:this.stencils, anchors:this.anchors, canvas:canvas});
 			
 			this.stencils.register(new drawing.stencil.Rect({
 				parent:surface.createGroup(),
 				mouse:this.mouse,
 				data:{x:100, y:100, width:100, height:100}							  
 			}));
-			
+			/*
 			this.stencils.register(new drawing.stencil.Ellipse({
 				parent:surface.createGroup(),
 				mouse:this.mouse,
@@ -82,6 +84,7 @@ dojo.require("drawing.stencil.TextBlock");
 				mouse:this.mouse,
 				points:[{x:300,y:100},{x:500,y:200}]							  
 			}));
+			*/
 		},
 		onRenderStencil: function(stencil){
 			console.log("onRenderStencil:", stencil)
