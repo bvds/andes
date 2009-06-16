@@ -186,12 +186,15 @@
 ;;;   for our purposes.
 
 
-(defun iface-generate-log-cmd (DDE Command Arguments)
+(defun iface-generate-log-cmd (DDE Command text)
   "Generate an initial cmd and add it to the set for processing."
+  ;; This is the only place where cmd is constructed
   (let ((C (make-cmd :Class (lookup-command->class Command)
 		     :Type (if DDE 'DDE 'DDE-POST)
 		     :Time (get-current-htime)
-		     :Call (cons Command Arguments))))
+		     :command command
+		     :text text  ;; used only for delete-equation-cmdp
+		     )))
     (push C **Current-Cmd-Stack**)
     (setq **Current-CMD** C)
     C))
@@ -699,6 +702,7 @@
 ;;; set the class, value, assocs, and commands.
 (defun iface-set-cmdresult (Cmd &key (Class 'DDE-Result) Value Assoc Commands)
   (setf (cmd-result Cmd)
+	;; this is the only place where this is created.
     (make-cmdresult
      :Class Class
      :Time (get-current-htime)

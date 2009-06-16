@@ -765,10 +765,6 @@
     #'(lambda (E) (and (equalp (studententry-state E) **correct**)
 		       (equalp (car (studententry-prop E)) 'lookup-mc-Answer)))
     *Studententries*)))
-
-;;(cond ((not (equalp (car (cmd-call **current-cmd**)) 'lookup-mc-answer)) Count)
-;;((correct-cmdp **current-cmd**) (+ 1 Count))
-;;(t (if (= 0 Count) 0 (- Count 1)))))
 	
 (add-runtime-test
  MC_Answer_Entry_Subscore

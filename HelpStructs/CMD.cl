@@ -52,7 +52,8 @@
   Class    ;; One of Help-Request, State, Post, etc
   Type     ;; Either DDE, DDE-POST,
   Time     ;; The Time that it occured (Htime)
-  Call     ;; The Help system call.
+  command
+  text     ;; used only for delete-equation-cmdp
   Result   ;; The result either Nil DDE-Res or DDE-Failed
   )
 
@@ -192,26 +193,6 @@
 ;;;;        relavent infornmation is compiled into the cmd for faster 
 ;;;;        access.  For now the interface will be left as-is.
 
-;;; -----------------------------------------
-;;; Extract portions of the call.
-
-;;; Extract the specific function that the user has called 
-;;; from the cmd itself.  
-(defun cmd-call-func (Cmd)
-  "Collect the API function CMD calls."
-  (car (cmd-call CMD)))
-
-;;; Given a cmd we want to collect the api-arguments
-;;; from it's call for later use.  This can include
-;;; comparisons of the type below or other changes
-;;; This call returns the call list sans function name
-;;; and id.  This function will preserve the order of 
-;;; the arguments.
-(defun cmd-call-args (Cmd)
-  (when (cmd-call Cmd)
-    (api-collect-args (cmd-Call Cmd))))
-
-
 ;;; --------------------------------------------
 ;;; Call tests.
 ;;; These functions are used to id specific api-calls
@@ -220,46 +201,46 @@
 (defun get-proc-help-cmdp (CMD)
   "Is this a next-step-help call?"
   (and (help-cmdp CMD) 
-       (equalp (cmd-call-func CMD) 'next-step-help)))
+       (equalp (cmd-command CMD) 'next-step-help)))
 
 (defun why-wrong-cmdp (CMD)
   "Is this a why-wrong-equation or why-wrong-object call?"
   (and (help-cmdp CMD)
-       (or (equalp (cmd-call-func CMD) 'WHY-WRONG-OBJECT)
-	   (equalp (cmd-call-func CMD) 'WHY-WRONG-EQUATION))))
+       (or (equalp (cmd-command CMD) 'WHY-WRONG-OBJECT)
+	   (equalp (cmd-command CMD) 'WHY-WRONG-EQUATION))))
 
 (defun why-wrong-EQN-cmdp (CMD)
   "Is this a why-wrong-equation or why-wrong-object call?"
   (and (help-cmdp CMD) 
-       (equalp (cmd-call-func CMD) 'WHY-WRONG-EQUATION)))
+       (equalp (cmd-command CMD) 'WHY-WRONG-EQUATION)))
 
 (defun why-wrong-OBJ-cmdp (CMD)
   "Is this a why-wrong-equation or why-wrong-object call?"
   (and (help-cmdp CMD) 
-       (equalp (cmd-call-func CMD) 'WHY-WRONG-OBJECT)))
+       (equalp (cmd-command CMD) 'WHY-WRONG-OBJECT)))
   
 ;; Note: delete-cmdp does not work for equation deletions
 ;; sent as DDE-POST of (lookup-eqn-string "" id) [Bug 1254]
 (defun delete-equation-cmdp (CMD)
   "Test whether this is a delete-equation or lookup-eqn-string \"\""
   (and (equal (cmd-type CMD) 'DDE-POST)
-       (or (and (equalp (cmd-call-func CMD) 'LOOKUP-EQN-STRING)
-                (equalp (first (cmd-call-args CMD)) "")))))
+       (equalp (cmd-command CMD) 'LOOKUP-EQN-STRING)
+       (equalp (cmd-text CMD) "")))
 
 (defun read-problem-info-cmdp (CMD)
   "Return t if this is an open-problem command."
-  (and (cmd-call Cmd) 
-       (equalp (cmd-call-func Cmd) 'read-problem-info)))
+  (and (cmd-command Cmd) 
+       (equalp (cmd-command Cmd) 'read-problem-info)))
 
 (defun close-problem-cmdp (CMD)
   "Return t if this is a close-problem command."
-  (and (cmd-call Cmd) 
-       (equalp (cmd-call-func Cmd) 'close-problem)))
+  (and (cmd-command Cmd) 
+       (equalp (cmd-command Cmd) 'close-problem)))
 
 (defun read-student-info-cmdp (CMD)
   "Return t if this is an open-problem command."
-  (and (cmd-call Cmd) 
-       (equalp (cmd-call-func Cmd) 'read-student-info)))
+  (and (cmd-command Cmd) 
+       (equalp (cmd-command Cmd) 'read-student-info)))
 
 
 ;;;; ========================================================================
@@ -374,7 +355,6 @@
   
 (defun show-hint-ddr-menu (Result)
   "The dde result menu is returned."
-  ;;(nth 1 (dde-result-value Result)))
   (dde-result-menu Result))
 
 

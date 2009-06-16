@@ -207,7 +207,7 @@
 ;;; a cmd is a help cont if it is an explain-more or
 ;;; a handle student response.
 (defun help-stack-cont-cmdp (cmd)
-  (member (car (cmd-call cmd))
+  (member (cmd-command cmd)
 	  '(EXPLAIN-MORE 
 	    HANDLE-STUDENT-RESPONSE)))
 
@@ -222,7 +222,7 @@
 ;;; cap this is.  
 (defun help-stack-help-capp (cmd)
   "If this is a why-wrong-* call or a next-step-help call."
-  (find (car (cmd-call cmd)) 
+  (find (cmd-command cmd) 
 	'(next-step-help 
 	  why-wrong-object 
 	  why-wrong-equation)))
