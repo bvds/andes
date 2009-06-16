@@ -1443,29 +1443,33 @@
       ;; needs formatting for json-rpc?
       (list 
        (when (consp parse)  ; non-NIL => either prefix eqn or list of parse trees
-           (format nil "assoc parse ~S" 
-	                               (if (eq (type-of (first parse)) 'parse) '? parse)))
+	 ;; was send-fbd-command
+	 (format nil "assoc parse ~S" 
+		 (if (eq (type-of (first parse)) 'parse) '? parse)))
 
        ; For non-eq entries, show entry prop in our notation, so we can identify common errors.
        ; For correct non-eq entries, it will be the step, but for errors we add it.
        (when (and (not (eq (first (studentEntry-prop entry)) 'eqn))
                   (eq (StudentEntry-state entry) **Incorrect**))
-            (format nil "assoc entry ~S" (studentEntry-prop entry)))
+	 ;; was send-fbd-command
+	 (format nil "assoc entry ~S" (studentEntry-prop entry)))
 
        ; log the error tag if one was found
        (when (StudentEntry-ErrInterp entry)
-           (format nil "assoc error ~S" 
-				     (ErrorInterp-name (StudentEntry-ErrInterp Entry))))
+	 ;; was send-fbd-command
+	 (format nil "assoc error ~S" 
+		 (ErrorInterp-name (StudentEntry-ErrInterp Entry))))
 
         ; log the target entry info if we have any. This shows comma-separated lists of entry props
 	; ("steps") and parallel list of opnames
        (when target-entries
 	 ;; needs formatting for json-rpc
-	 (list
-           (format nil "assoc step ~{~S~^,~}" 
-	                                  (mapcar #'SystemEntry-prop target-entries))
-           (format nil "assoc op ~{~S~^,~}" 
-                                         (mapcar #'sg-map-SystemEntry->opname target-entries))))
+	 ;; was send-fbd-command
+	 (format nil "assoc step ~{~S~^,~}" 
+		 (mapcar #'SystemEntry-prop target-entries))
+	 ;; was send-fbd-command
+	 (format nil "assoc op ~{~S~^,~}" 
+		 (mapcar #'sg-map-SystemEntry->opname target-entries)))
      ))))
 
 

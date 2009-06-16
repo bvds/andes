@@ -233,6 +233,7 @@
     (when (not (equal current-score *last-score*))
       (setf *last-score* current-score)
       ;; needs to be formatted for json-rpc
+      ;; was send-fbd-command
       (format Nil "set-score ~a" current-score)
       )))
 
@@ -308,16 +309,18 @@
   ;; the stream.  This allows us to wrap multiple workbench actions into 
   ;; the result of a single command and is used primarily for opening and
   ;; closing separate browser windows.
-  (list   
-   (when (and turn (turn-commands Turn))
-     (turn-commands Turn))
-   ;; if there is assoc info in the turn, send async command to record it in
-   ;; the workbench log. 
-   (when (and turn (turn-assoc turn))
+  (when (and turn (turn-commands Turn))
+    ;; was send-fbd-command. 
+    ;; (turn-commands Turn) could be single string or list...
+    (turn-commands Turn))
+  ;; if there is assoc info in the turn, send async command to record it in
+  ;; the workbench log. 
+  (when (and turn (turn-assoc turn))
+    ;; was send-fbd-command
     (strcat "assoc " (write-to-string (turn-assoc turn)
 				       :escape t ;make it lisp-readable
 				       :pretty NIL)))   ;turn off line breaks 
-  (turn->WB-Reply turn)))    
+  (turn->WB-Reply turn))    
 
 
 ;;-----------------------------------------------------------------------------
