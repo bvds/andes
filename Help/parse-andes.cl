@@ -120,8 +120,8 @@
    the first tutor turn of the error interpretation's hint sequence."
     (setf (StudentEntry-verbatim entry) equation)
     (setf (StudentEntry-parsedeqn entry) parses)
-    (setf (StudentEntry-verbatim prop) (list 'eqn equation))
-    (setf (StudentEntry-verbatim state) **incorrect**)
+    (setf (StudentEntry-prop entry) (list 'eqn equation))
+    (setf (StudentEntry-state entry) **incorrect**)
     (add-entry entry)
     (setf (StudentEntry-ErrInterp entry) (bad-syntax-ErrorInterp equation))
     (ErrorInterp-remediation (StudentEntry-ErrInterp entry)))

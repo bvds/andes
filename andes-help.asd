@@ -47,7 +47,8 @@
 				     				     
 				     ;; Entry Intepreter: generic + non-eq
 				     (:file "symbols")
-				     (:file "State")
+				     (:file "State"
+					    :depends-on ("symbols"))
 				     (:file "clips-vars")
 				     (:file "match")
 				     (:file "Entry-API"

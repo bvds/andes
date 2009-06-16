@@ -49,16 +49,19 @@
 			:depends-on ("Base" "HelpStructs" "Algebra")
 			:components ((:file "eqn")         
 				     (:file "Nogood")    
+				     (:file "Problem") ;depends on HelpStructs
 				     (:file "Operators")  
-				     (:file "qvar")
+				     (:file "qvar"
+					    :depends-on ("Problem"))
 				     (:file "BubbleGraph" 
 				     ;; also depends on HelpStructs
-					    :depends-on ("qvar" "eqn"))  
-				     (:file "ErrorClass")  
+					    :depends-on ("qvar" "eqn" "Problem"))
+				     (:file "ErrorClass"
+					    :depends-on ("Problem"))
 				     ;; NLG not defined
 				     (:no-compile-file "Ontology")  
-				     (:file "Problem") ;depends on HelpStructs
-				     (:file "Solution")))	       
+				     (:file "Solution"
+					    :depends-on ("Problem"))))	       
 	       (:module "KB"
 ;;;	    	:description "Knowledge Base"
 			:depends-on ("Knowledge" "Base")

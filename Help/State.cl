@@ -36,9 +36,6 @@
 ;;========================================================
 ;; Storage elements.
 
-(defvar *cp*)                  ; the current problem
-(defvar *StudentEntries*)  ; list of current student entries
-
 ;;; The Andes2 Configuration file is a lisp-source file that is
 ;;; loaded (and evaluated) at runtime.  This file is intended to
 ;;; set parameters and make any modifications that are necessary
