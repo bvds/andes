@@ -246,9 +246,7 @@
 ;;;; ========================================================================
 ;;;; Result Struct
 ;;;; The result struct is an internal storage device for the DDE-Results and
-;;;; the dde-faileds.  If the dde is a dde-failed then the value slot will 
-;;;; contain only the string representing the dde call that this is associated
-;;;; with.
+;;;; the dde-faileds.  
 ;;;;
 ;;;; If this is a dde-result then the value slot will contain one of the 
 ;;;; dde-result classes and their value(s).  
@@ -256,7 +254,8 @@
 (defstruct CMDResult
   Class    ;; one of dde-failed or dde-result.
   Time     ;; The Time that it occured (Htime)
-  Value    ;; The value of the result.)
+  Value    ;; The value of the result:
+           ;; status-return-val or dde-result or nil
   
   Assoc    ;; An assoc if one is present
   Score    ;; A set-score if one is present.  This is new in 2004.

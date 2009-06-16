@@ -137,7 +137,8 @@
 (defun execute-andes-command (Command Arguments DDE)
   "Execute the api call with the command and arguments."
   ;; Set the last api call to be this call.
-  (let* (Tmp (NewCmd (iface-generate-log-cmd DDE Command Arguments))
+  ;; need to connect this to StudentEntry-text:
+  (let* (Tmp (NewCmd (iface-generate-log-cmd DDE Command text))
 	 (Result (iface-internal-exec-andes-command Command Arguments))
 	 (Str (if (turn-p Result) (return-turn Result))))
 
@@ -505,7 +506,7 @@
 (defun iface-Add-cmdresult-to-cmd (CMD Result)
   "Generate a cmdresult appropriate for the cmd from Result and store it."
   (if (equalp Result :Error) 
-      (iface-set-cmdresult Cmd :Class 'DDE-Failed :Value (Cmd-Call Cmd))
+      (iface-set-cmdresult Cmd :Class 'DDE-Failed)
     (case (lookup-commandclass->resultclass (cmd-class Cmd))
       (Status-Return-Val (iface-add-srv-cmdresult Cmd Result))
       (Eqn-Result (iface-add-eqr-cmdresult Cmd Result))
@@ -535,17 +536,9 @@
 ;;; This is an internal function that takes the individual values for
 ;;; the status-return-val and the cmdresult and sets them appropriately
 ;;; before updating the cmd.  
-(defun iface-add-srv-int (Cmd &key Command Value Coloring Errors Assoc Commands)
-  (iface-set-cmdresult 
-   Cmd
-   :Value (make-status-return-val
-	   :Command Command
-	   :Value Value
-	   :Coloring Coloring
-	   :Errors Errors)
-   :Assoc Assoc
-   :Commands Commands))
-
+(defun iface-add-srv-int (Cmd &key Coloring)
+  (iface-set-cmdresult Cmd :Value (make-status-return-val 
+				   :Coloring Coloring)))
 
 ;;; IF we are adding a status return val based upon a tutor turn then it
 ;;; is necessary to pull the individual elements from the turn itself 
@@ -617,10 +610,6 @@
   "Add an incorrect eqn-result."
   (iface-set-cmdresult
    Cmd
-   :Value (make-eqn-result
-	   :Command **Show-hint**
-	   :Value (wb-text Result)
-	   :Menu (turn-menu Result))
    :Assoc (turn-assoc Result)
    :Commands (turn-commands Result)))
 
@@ -629,10 +618,6 @@
   "Add a correct eqn-result."
   (iface-set-cmdresult
    Cmd
-   :Value (make-eqn-result
-	   :Command **Show-hint**
-	   :Value (wb-text Result)
-	   :Menu (turn-menu Result))
    :Assoc (turn-assoc Result)
    :Commands (turn-commands Result)))
 
@@ -675,14 +660,13 @@
     (error "non-turn passed to iface-add-stat-cmdresult."))
   (iface-set-cmdresult
    Cmd
-   :Value (make-stat-result :Value (turn-value Result))
    :Assoc (turn-assoc Result)
    :Commands (turn-commands Result)))
    
 ;;; ---------------------------------------------------------------------
 ;;; Ignore commands.
 ;;; Ignore cmdresults are largely empty and contain the command in the 
-;;; result soley as a dummy measure.
+;;; result solely as a dummy measure.
 (defun iface-add-ignore-cmdresult (Cmd Result)
   "Add the ignore cmdresult."
   (if (not (turn-p Result))
@@ -702,13 +686,13 @@
 ;;; set the class, value, assocs, and commands.
 (defun iface-set-cmdresult (Cmd &key (Class 'DDE-Result) Value Assoc Commands)
   (setf (cmd-result Cmd)
-	;; this is the only place where this is created.
-    (make-cmdresult
-     :Class Class
-     :Time (get-current-htime)
-     :Value Value
-     :Assoc Assoc
-     :Commands Commands)))
+	;; this is the only place where cmdresult is created.
+	(make-cmdresult
+	 :Class Class
+	 :Time (get-current-htime)
+	 :Value Value
+	 :Assoc Assoc
+	 :Commands Commands)))
 
 
 
