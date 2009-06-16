@@ -53,14 +53,6 @@
 ;;;; cases by other APIs in the system.  
 
 
-;;; An alternate command interpreter function.  If this is parameter has a 
-;;; value then it will be called with the Command and arguments as its 
-;;; arguments in lieu of dispatching the command directly.  This allows us 
-;;; to alter how commands are 
-;;; evaluated for specialized situations such as the walk-prompt mode.
-(defparameter **Alternate-Command-Interpreter** () 
-  "An alternate command interpreter func for later use.")
-
 ;;; As the CMDs are generated they will be added to the **current-cmd-stack** 
 ;;; list until an open-problem dde is encountered.  At which point the list 
 ;;; will be  cleared but for the open-problem cmd. 
@@ -72,7 +64,7 @@
 
 ;;; *last-tutor-turn* -- record of the last tutor turn made
 ;;; This is used in handle-student-response to deal with the student's 
-;;; continuation of ongoing diologues.  It is set bu return-turn below.
+;;; continuation of ongoing diologues.  It is set by return-turn below.
 (defvar *last-tutor-turn*)
 
 ;;; *last-score* -- last integer score we sent to workbench
@@ -94,9 +86,6 @@
 ;;;; to the workbench along with the requisite contact info.  
 ;;;;
 ;;;; The main function here will handle the maintenance of the cmd list.  
-;;;; It will also execute the code with the **alternate-command-interpreter**
-;;;; if that is set.
-
 
 
 
@@ -108,9 +97,8 @@
 ;;; andes2-main will parse the command off of the stream and pass it to the 
 ;;; execute-andes-command function below.
 ;;;
-;;; This function will generate a new cmd for the action and execute the command 
-;;; directly or via the **Alternate-Command-Interpreter** if there is
-;;; one.  The result from that execution will be one of
+;;; This function will generate a new cmd for the action and execute the 
+;;; command.  The result from that execution will be one of
 ;;; t, NIL, :Error or a tutor turn.  
 ;;;
 ;;; If the result is a tutor-turn it will be translated into a string for return 
@@ -134,13 +122,20 @@
 ;;;
 ;;;
 
-(defun execute-andes-command (Command Arguments DDE)
+(defun execute-andes-command (Command entry)
   "Execute the api call with the command and arguments."
-  ;; Set the last api call to be this call.
-  ;; need to connect this to StudentEntry-text:
-  (let* (Tmp (NewCmd (iface-generate-log-cmd DDE Command text))
-	 (Result (iface-internal-exec-andes-command Command Arguments))
-	 (Str (if (turn-p Result) (return-turn Result))))
+  (let* ((text (StudentEntry-text entry))
+	 (Arguments (list entry))
+	 (dde t)
+	 ;; Set the last api call to be this call.
+	 Tmp (NewCmd (iface-generate-log-cmd DDE Command text))
+	 (Result (if (member 'answer-only-mode (problem-features *cp*))
+		     (answer-only-dispatcher Command Arguments)
+		     (apply command Arguments)))
+	 (Str (when (turn-p Result) (progn 
+				      (format webserver:*stdout* "execute-andes-command apply got ~S~%" result) (return-turn Result)))))
+
+    (format webserver:*stdout* "execute-andes-command return-turn got ~S~%" str) 
 
     ;; Once the command has been executed and any result parsed then we
     ;; need to add the cmdresult to the current cmd iff the cmd was a 
@@ -149,7 +144,7 @@
     (when DDE 
       (setq Tmp (iface-add-cmdresult-to-cmd 
 		 NewCMD (if (equalp Str :Error) Str Result)))
-      (if (equalp Tmp :Error) (pprint "Error in Cmdresult addition.")))
+      (when (equalp Tmp :Error) (warn "Error in Cmdresult addition.")))
     
     ;; This is the primary call to autograding.  It will handle the 
     ;; execution of any tests and the updating of results.  It calls 
@@ -157,12 +152,11 @@
     ;; as necessary.
     ;;
     (setq Tmp (iface-handle-Statistics NewCmd))
-    (if (equalp Tmp :Error) (pprint "Error in Statistics."))
+    (when (equalp Tmp :Error) (warn "Error in Statistics."))
 
     (format *debug-help* "Result ~A~%" Result)
 
     (if Str Str Result)))
-
 
 
 ;;; =========================================================================
@@ -199,21 +193,6 @@
     (push C **Current-Cmd-Stack**)
     (setq **Current-CMD** C)
     C))
-
-
-
-;;; =======================================================================
-;;; Internal Execution.
-;;; Execute the supplied Andes command with the specified arguments.  
-;;; If an alternate command interpreter has been supplied then use it
-;;; if not then execute the command itself.  Return the result to 
-;;; execute andes-command.
-(defun iface-internal-exec-andes-command (Command Arguments)
-  "Call the command itself and return the results."
-  (if **Alternate-command-interpreter**
-      (apply **Alternate-command-Interpreter** 
-		  (list Command Arguments))
-      (apply command arguments)))
 
 
 ;;; ===================================================================
@@ -436,15 +415,6 @@
 (defun wb-text (turn)
 "return adjust text from turn by replacing any disallowed newlines with spaces"
   (substitute #\Space #\Newline (turn-text turn)))
-
-
-
-
-
-
-
-
-
 
 
 
@@ -853,9 +823,6 @@
 ;; outside of problem via flag setting or parameter in problem set to
 ;; be communicated to help system.
 ;;
-(defun answer-only-mode-p ()
-    (member 'answer-only-mode (problem-features *cp*)))
-
 (defun answer-only-dispatcher (cmd args)
 "dispatch a command in answer-only mode"
    ; switch on type of command, from API.cl
@@ -875,12 +842,4 @@
       ;; anything else: empty string should function as null return value.
       (otherwise (warn "unclassifed api command: ~A~%" cmd)
                   "")))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; iface-set-dispatch-mode -- set dispatcher in appropriate mode for *cp*
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun iface-set-dispatch-mode ()
-"set the appropriate command dispatcher mode to use for current problem'"
- (setf **alternate-command-interpreter**
-     (if (answer-only-mode-p) #'answer-only-dispatcher)))
 

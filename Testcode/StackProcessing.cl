@@ -167,12 +167,11 @@
 ;;; order.  The stack will contain only help commands and may contain only one
 ;;; entry.  
 
-;; (iterate-st-logfiles "Log/Sample/*/*/" :ResultFuncs '(help-stackc) :type ".hp")
 
-(defun Help-Stackc (Stack &optional (Result Nil))
+(defun Help-Stackc (Stack)
   (let ((CMD (car Stack)))
     (if (or (help-cmdp CMD) (help-stack-nohelp-capp CMD))
-	(help-stackc-test Cmd (cdr Stack) Result 0))))
+	(help-stackc-test Cmd (cdr Stack) nil 0))))
 
 
 ;;; Once we have a valid help command then test it by type and

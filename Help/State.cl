@@ -162,10 +162,6 @@
   "Setup the loaded problem."
   (format *debug-help* "Current Problem now ~A~%" (problem-name *cp*))
   
-  ;; set appropriate command dispatch mode. This implements answer-only
-  ;; mode for certain problems.
-  (iface-set-dispatch-mode)
-
   ;; Initialize sg structures
   (sg-setup *cp*)
   ;;(format T "~&Solution Entries:~%~{~A~}" *sg-entries*)

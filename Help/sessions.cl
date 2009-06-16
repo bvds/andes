@@ -292,29 +292,29 @@
 	
 	;; Since "text" is the  attribute and is required. 
 	((equal type "equation")
-	 (lookup-eqn-string new-entry)) ;Almost unmodified Andes2 call
+	 (execute-andes-command #'lookup-eqn-string new-entry))
 	
 	((equal type "statement")
-	 (define-variable new-entry))
+	 (execute-andes-command #'define-variable new-entry))
 	 
 	((equal type "graphics")
 	 (warn "Can't modify a graphic object, id=~A" 
 	       (studententry-id new-entry)))
 	
 	((equal type "circle")
-	 (assert-object new-entry))
+	 (execute-andes-command #'assert-object new-entry))
 
 	((equal type "rectangle")
-	 (assert-object new-entry))
+	 (execute-andes-command #'assert-object new-entry))
 
 	((equal type "axes")
-	 (assert-x-axis new-entry))
+	 (execute-andes-command #'assert-x-axis new-entry))
 
 	((equal type "vector")
-	 (lookup-vector new-entry))
+	 (execute-andes-command #'lookup-vector new-entry))
 
 	((equal type "line")
-	 (lookup-line new-entry))
+	 (execute-andes-command #'lookup-line new-entry))
 
       (t (warn "Undefined type ~A." type))))))
 
