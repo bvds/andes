@@ -344,9 +344,7 @@
 	responses)  ; codes menu of responses to offer student
     (case (turn-coloring turn)
       (color-green  (setf result "T"))
-      (color-red    (setf result ; may append list of slots to flag
-		        (format NIL "NIL~{;~A~}" 
-			    (decide-slot-flags turn))))
+      (color-red    (setf result "NIL"))
       ((no-op NIL)  (setf result ""))
       ; delete turn not implemented yet
       ; for delete response, turn text must be entry ID
@@ -407,13 +405,6 @@
       )
     ;; assemble final result string from parts and return it
     (concatenate 'string result cmd)))
-  
-(defun decide-slot-flags (turn)
-"return effective list of slots to flag for this turn, NIL if none"
-  ; in cases in which we have a slot to flag, apply random
-  ; process to use them with *flag-frequency* probability
-  (when (turn-flag-slots turn)
-      (turn-flag-slots turn)))
 
 (defun wb-text (turn)
 "return adjust text from turn by replacing any disallowed newlines with spaces"

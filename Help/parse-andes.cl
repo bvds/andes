@@ -1012,11 +1012,8 @@
       ;  copy relevant info from subentry into main student entry
       (setf (StudentEntry-State main-entry) (StudentEntry-State eqn-entry))
       (setf (StudentEntry-ErrInterp main-entry) (StudentEntry-ErrInterp eqn-entry))
-      ; if error, include dialog slot id in result turn for main entry.
-      (when (eq (turn-coloring result-turn) **color-red**)
-          (setf (turn-flag-slots result-turn) (list (StudentEntry-id eqn-entry))))
-      ; finally return result
-       result-turn))
+      ;; finally return result
+      result-turn))
 
 ;; check a given value equation subentry 
 ;; Fills in subentry state with result of check

@@ -1223,8 +1223,6 @@
                (StudentEntry-GivenEqns Entry))
         (setf result (Check-Vector-Given-Form Entry))
 	(when (not (eq (turn-coloring result) **color-green**))
-            (setf (turn-flag-slots result) ;; copy from remediation turn
-	   	(turn-flag-slots (ErrorInterp-Remediation (StudentEntry-ErrInterp Entry))))
 	    (return-from Check-NonEq-Entry result))) ; early exit
 
     ;; Get set of candidate interpretations into PossibleCInterps.  
@@ -1247,10 +1245,7 @@
         ;; For now, log error tag and target info here.  Really should be 
 	;; recorded in result turn for inserting with other assocs though. 
 	(log-entry-info Entry)
-	; build turn to return, copying flag-slots from remediation field
 	(setf result (make-red-turn))
-	(setf (turn-flag-slots result)
-	   (turn-flag-slots (ErrorInterp-Remediation (StudentEntry-ErrInterp Entry))))
 	(return-from Check-NonEq-Entry result)) ; go no further
 
     ;; else got a match: set state and correctness from candidate
@@ -1386,8 +1381,7 @@
        ; unclear what intended should be
        ; :intended (get-given-interp quant)
        :remediation rem))
-    (setf (turn-coloring rem) **color-red**)
-    (flag 'magdir rem)))
+    (setf (turn-coloring rem) **color-red**)))
 
 (defun should-be-magdir-form (se quant)
   (declare (ignore quant))
@@ -1399,8 +1393,7 @@
        ; unclear what intended should be, maybe eqn for one given compo
        ; :intended (get-given-interp `(compo x 0 ,quant))
        :remediation rem))
-    (setf (turn-coloring rem) **color-red**)
-    (flag 'compo rem)))
+    (setf (turn-coloring rem) **color-red**)))
 
 ; 
 ; log-entry-info -- insert extra info for entry into Andes log

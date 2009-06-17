@@ -121,7 +121,6 @@
   responder
   Assoc    
   Commands 
-  flag-slots  ; list of workbench dialog slot ids to flag on error
   )
 
 (defconstant **Color-Red** 'Color-Red)
@@ -266,15 +265,6 @@
   (make-turn :coloring NIL
 	     :type (if message **Dialog-Turn**)
 	     :text message))
-
-;; convenience func to set flag-slot(s) on a tutor turn
-;; accepts single slot id or list of several 
-;; returns turn arg so can wrap a result turn being returned
-(defun flag (slot-id turn)
-  (setf (turn-flag-slots turn) 
-        (if (atom slot-id) (list slot-id) 
-	   slot-id))
-  turn)
 
 (defun nil-turn-resp (x)
   "A function used for non-response turns."
