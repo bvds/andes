@@ -1242,9 +1242,10 @@
 	; run whatswrong help to set error interp now, so diagnosis
 	; can be included in log even if student never asks whatswrong
         (diagnose Entry)
-	(setf result (make-red-turn))
+	(setf result (make-red-turn :id (StudentEntry-id Entry)))
 	;; log and push onto result list.
-	(push (log-entry-info Entry) (turn-result result))
+	(setf (turn-result result)
+	      (append (log-entry-info Entry) (turn-result result)))
 	(return-from Check-NonEq-Entry result)) ; go no further
 
     ;; else got a match: set state and correctness from candidate
@@ -1274,7 +1275,7 @@
       (dolist (e (StudentEntry-GivenEqns entry))
          (enter-given-eqn e))
       ; Everything is OK!
-      (setf result (make-green-turn)))
+      (setf result (make-green-turn :id (StudentEntry-id entry))))
 
      ;; give special messages for some varieties of incorrectness:
      ('Forbidden (setf result (chain-explain-more **Forbidden-Help**)))
@@ -1282,16 +1283,17 @@
      		 (setf result (chain-explain-more **Premature-Entry-Help**)))
      ('Dead-Path (setf result (chain-explain-more **Dead-Path-Help**)))
      ('Nogood' (setf result (chain-explain-more **Nogood-Help**)))
-     (otherwise (error "Unrecognized interp state! ~A~%" 
+     (otherwise (warn "Unrecognized interp state! ~A~%" 
                         (StudentEntry-state entry))
-                 (setf result (make-red-turn))))
+                 (setf result (make-red-turn :id (StudentEntry-id entry)))))
 
     ;; Note for variables with given equations, we are
     ;; logging correctness of the variable definition substep, 
     ;; but the given value substep, hence whole entry, 
     ;; might still be wrong.
 
-    (push (log-entry-info Entry) (turn-result result))
+    (setf (turn-result result)
+	  (append (log-entry-info Entry) (turn-result result)))
 
     ;; finally return result
     result))
@@ -1332,8 +1334,8 @@
     (and (eq (first (StudentEntry-prop entry)) 'eqn)
          (componentp  (symbols-referent (second (StudentEntry-prop entry))))))
 	
-; Give special message if student chooses wrong form (mag/dir vs.
-; components) for given values of vector attributes.
+;; Give special message if student chooses wrong form (mag/dir vs.
+;; components) for given values of vector attributes.
 (defun Check-Vector-Given-Form (entry)
 "check given values sent with a vector entry"
   (let ((stud-form   (if (some #'compo-assignment-p
@@ -1355,7 +1357,7 @@
 	     (should-be-compo-form entry vector-quant)))))
 
    ; get here=> no errors. Signal with green turn
-   (make-green-turn))
+   (make-green-turn :id (StudentEntry-id entry)))
 
 (defun should-be-compo-form (se quant)
   (declare (ignore quant))
@@ -1419,7 +1421,7 @@
       ;; print parse of ? for this
       (when (consp parse)  ; non-NIL => either prefix eqn or list of parse trees
 	(push `((:action . "log") 
-		(:assoc . ,(format nil "~S" 
+		(:parse . ,(format nil "~S" 
 				   (if (eq (type-of (first parse)) 
 					   'parse) '? parse))))
 	      result))
@@ -1429,16 +1431,14 @@
       ;; the step, but for errors we add it.
       (when (and (not (eq (first (studentEntry-prop entry)) 'eqn))
 		 (eq (StudentEntry-state entry) **Incorrect**))
-	(warn "Need to add ASSOC ENTRY to API")
 	(push `((:action . "log") 
-		(:assoc-entry . ,(format nil "~S" (studentEntry-prop entry))))
+		(:entry . ,(format nil "~S" (studentEntry-prop entry))))
 	      result))
       
       ;; log the error tag if one was found
       (when (StudentEntry-ErrInterp entry)
-	(warn "Need to add ASSOC ERROR to API")
 	(push `((:action . "log") 
-		(:assoc-entry . ,(format nil "~S" 
+		(:error-type . ,(format nil "~S" 
 					 (ErrorInterp-name 
 					  (StudentEntry-ErrInterp Entry)))))
 	      result))
@@ -1449,6 +1449,7 @@
 	(push `((:action . "log") 
 		(:assoc . ,(mapcar #'opname-prop-pair target-entries)))
 	      result)))
+
     result))
 
 (defun opname-prop-pair (x)
@@ -1543,7 +1544,7 @@
         ;; if cleared done button, delete any prior entry for this button
 	;; and leave control black. 
 	((= 0 Value) (delete-object ID)
-	             (make-black-turn))
+	             (make-black-turn :id id))
 	;; Treat any non-zero value as T, just in case other non-zero 
 	;; comes from C 
 	(T (check-mc-no-quant-done-answer-sought ID))))
@@ -1555,24 +1556,24 @@
   (let ((PSM (match-exp->enode (get-answer-quant ID) (problem-graph *cp*)))
         (Entry (make-StudentEntry :ID ID :prop `(lookup-mc-answer ,ID))))
     (cond 
-     ;; If the PSM is not found then we need to throw an error saying that.
-     ((null PSM) 
-      (make-bad-problem-turn 
-       :error (format nil "No problem step found for button labelled ~a" ID)))
+      ;; If the PSM is not found then we need to throw an error saying that.
+      ((null PSM) 
+       (make-bad-problem-turn 
+	(format nil "No problem step found for button labelled ~a" ID)))
      
-     ;; If this is not a non-quant psm then we also need to thro an error 
-     ;; asserting that fact. 
-     ((not (enode-has-mark? PSM 'non-quant))
-      (make-bad-problem-turn 
-       :Error (format nil "Unmarked enode matching non-quant IDNum ~a ~a" PSM ID)))
+      ;; If this is not a non-quant psm then we also need to thro an error 
+      ;; asserting that fact. 
+      ((not (enode-has-mark? PSM 'non-quant))
+       (make-bad-problem-turn 
+	(format nil "Unmarked enode matching non-quant IDNum ~a ~a" PSM ID)))
      
-     ;; Otherwize test to see if it present and behave appropriately.
-     (t    (add-entry Entry)  ; save the entry
-	   (cond ((psmg-path-enteredp (enode-path PSM))
-		          (setf (StudentEntry-state entry) **CORRECT**)
-		          (make-green-turn))
-	         (T (setf (StudentEntry-state entry) **INCORRECT**)
-		    (make-red-turn)))))))
+      ;; Otherwize test to see if it present and behave appropriately.
+      (t    (add-entry Entry)  ; save the entry
+	    (cond ((psmg-path-enteredp (enode-path PSM))
+		   (setf (StudentEntry-state entry) **CORRECT**)
+		   (make-green-turn :id (StudentEntry-id entry)))
+		  (T (setf (StudentEntry-state entry) **INCORRECT**)
+		     (make-red-turn :id (StudentEntry-id entry))))))))
 
 
 

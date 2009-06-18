@@ -60,8 +60,9 @@
     (unless eq (warn "Equation must always have text") (setf eq ""))
     (setf result (do-lookup-equation-string (fix-eqn-string (trim-eqn eq)) 
 		   entry 'equation))
-    (push (log-entry-info (find-entry (StudentEntry-id entry))) 
-	  (turn-result result))
+    (setf (turn-result result) 
+	  (append (log-entry-info (find-entry (StudentEntry-id entry))) 
+		  (turn-result result)))
     result))
 
 (defun do-lookup-equation-string (eq entry location)
@@ -213,7 +214,8 @@
       ;; premature, etc), algebra slot should be cleared.
       (if (stringp (solver-studentAddOkay (StudentEntry-Id se) 
 					  (StudentEntry-ParsedEqn se)))
-	  (setf tmp (make-red-turn)) ;; to trap exceptions
+	  ;; to trap exceptions
+	  (setf tmp (make-red-turn :id (StudentEntry-Id se))) 
 	(setf tmp (interpret-equation entry location)))
       (cond
        ((equal **Color-Green** (turn-coloring tmp))
@@ -422,9 +424,10 @@
 	       (inaccurate
 		;; not currently used because What's wrong checks for 
 		;; inaccuracy but only after checking for other error classes
-		(make-red-turn))
+		(warn "inaccurate in parse-handler")
+		(make-red-turn :id (StudentEntry-id se)))
 	       (wrong
-		(make-red-turn))
+		(make-red-turn :id (StudentEntry-id se)))
 	       ;; Following mainly occurs for parses giving rise to bad syntax
 	       ;; equations. Usually when this happens another parse will
 	       ;; produce legal equation so its not a problem. But we need 
@@ -432,7 +435,7 @@
 	       (solver-exception 
 		(solver-exception-interp se))
 	       (otherwise
-		(make-green-turn)))))))))
+		(make-green-turn :id (StudentEntry-id se))))))))))
 
 ;
 ; Note: several canned routines here for particular error interpretations are
@@ -894,12 +897,12 @@
 		  (setf result-turn (ErrorInterp-remediation (StudentEntry-ErrInterp entry)))))
 		)))
 	  ;;(format t "Zero length"))
-      (error "No system variable for ~A. Possible mismatch with answer box." sought-quant))
+      (warn "No system variable for ~A. Possible mismatch with answer box." sought-quant))
     (cond (result-turn) ;; if we got result from check above return it
           (T ;; else failed somewhere. !!! Should process syntax errors same as eqn.
 	     ;;(format T "~&failed to get result for answer~%")
 	     (setf (StudentEntry-state entry) **incorrect**)
-	     (make-red-turn)))))
+	     (make-red-turn :id (StudentEntry-id entry))))))
 
 (defun bad-answer-bad-lhs-ErrorInterp (equation why)
   "LHS of equation is not a variable."
@@ -1009,7 +1012,8 @@
    ; and copy its state back into the main entry.
    (let ((result-turn (check-given-value-eqn eqn-entry)))
       ;; log the subentry details
-      (push (log-entry-info eqn-entry) (turn-result result-turn))
+      (setf (turn-result result-turn)
+	    (append (log-entry-info eqn-entry) (turn-result result-turn)))
       ;  copy relevant info from subentry into main student entry
       (setf (StudentEntry-State main-entry) (StudentEntry-State eqn-entry))
       (setf (StudentEntry-ErrInterp main-entry) (StudentEntry-ErrInterp eqn-entry))
@@ -1045,7 +1049,7 @@
      ((blank-given-value-entry eqn-entry)
       (cond (is-optionally-given 
 	     (setf (StudentEntry-state eqn-entry) **correct**)
-	     (make-green-turn))
+	     (make-green-turn :id (StudentEntry-id eqn-entry)))
 	    (is-given 
 	     (setf (StudentEntry-state eqn-entry) **Incorrect**)
 	     (should-be-given-ErrorInterp eqn-entry quant))
@@ -1054,7 +1058,7 @@
 	     (should-be-known-ErrorInterp eqn-entry quant))
 	    (T ; quant is not given => OK
 	     (setf (StudentEntry-state eqn-entry) **correct**)
-	     (make-green-turn))))
+	     (make-green-turn :id (StudentEntry-id eqn-entry)))))
      
      ;; get here => student specified a given value
      ((not (or is-given is-optionally-given is-known-constant))

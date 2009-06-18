@@ -180,41 +180,34 @@
 ;;----------------------------------------------------------
 ;; define specific tutor turn types.
 
-(defun make-green-dialog-turn (text menu &key (Responder #'nil-turn-resp) 
-					      (Assoc nil))
+(defun make-green-dialog-turn (text menu &key (Responder #'nil-turn-resp))
   "Produce a green coloring dialog type tutor turn."
   (make-turn :coloring **Color-Green**
 	     :type **Dialog-Turn**
 	     :text text 
 	     :menu menu 
-	     :Responder Responder
-	     :Assoc Assoc))
+	     :Responder Responder))
 		  
 
-(defun make-dialog-turn (text menu &key (color nil) (Responder #'nil-turn-resp) 
-					(Assoc nil))
+(defun make-dialog-turn (text menu &key (Responder #'nil-turn-resp) Assoc)
   "Produce a dialog type tutor turn."
-  (make-turn :coloring color
-	     :type **Dialog-Turn**
+  (make-turn :type **Dialog-Turn**
 	     :text text
 	     :menu Menu
 	     :responder Responder
 	     :Assoc Assoc))
 
-(defun make-end-dialog-turn (text &key (color nil)  (Assoc nil))
+(defun make-end-dialog-turn (text &key Assoc)
   "Make a turn that ends the dialog."
-  (make-turn :coloring color
-	     :type **Dialog-Turn**
+  (make-turn :type **Dialog-Turn**
 	     :text text
 	     :responder #'nil-turn-resp
 	     :Assoc Assoc))
 	     
 			    
-(defun make-minil-turn (url &key (color nil) (Responder #'nil-turn-resp) 
-				 (Assoc nil))
+(defun make-minil-turn (url &key (Responder #'nil-turn-resp) Assoc)
   "Produce a minilesson type tutor turn."
-  (make-turn :coloring color
-	     :type **Minil-Turn**
+  (make-turn :type **Minil-Turn**
 	     :text url
 	     :responder Responder
 	     :Assoc Assoc))
@@ -223,37 +216,37 @@
 ;; eqn turn text may hold EITHER result equation if successful OR error 
 ;; message if failure.
 ;; we set turn coloring to red to indicate failure case, green for success.
-(defun make-eqn-turn (Eqn)
+(defun make-eqn-turn (Eqn &key id)
   "Generate an eqn entry turn."
-  (declare (ignore responder))
+  (unless id (warn "no id in make-eqn-turn"))
   (make-turn :type **Eqn-Turn**
              :coloring **Color-Green**
+	     :id id
 	     :text Eqn
 	     :Responder #'(lambda (x) (declare (ignore x)) nil)))
 
-(defun make-eqn-failure-turn (Msg)
+(defun make-eqn-failure-turn (Msg &key id)
   "Generate an eqn entry turn."
+  (unless id (warn "no id in make-eqn-failure-turn"))
   (make-turn :type **Eqn-Turn**
              :coloring **Color-Red**
 	     :text Msg
 	     :Responder #'(lambda (x) (declare (ignore x)) nil)))
 	     
-; red/green convenience funcs take optional unsolicited message string:
-(defun make-red-turn (&optional message)
+;; red/green convenience funcs take optional unsolicited message string:
+(defun make-red-turn (&key id)
+  (unless id (warn "no id in make-red-turn"))
   (make-turn :coloring **Color-Red**
-	     :type (if message **dialog-turn**)
-	     :text message))
+	     :id id))
 
-(defun make-green-turn (&optional message)
+(defun make-green-turn (&key id)
+  (unless id (warn "no id in make-green-turn"))
   (make-turn :coloring **Color-Green**
-	     :type (if message **dialog-turn**)
-	     :text message))
+	     :id id))
 
-(defun make-black-turn (&optional message)
+(defun make-black-turn (&key id)
   "Make a nil coloring (color black) turn."
-  (make-turn :coloring NIL
-	     :type (if message **Dialog-Turn**)
-	     :text message))
+  (make-turn :id id))
 
 (defun nil-turn-resp (x)
   "A function used for non-response turns."
@@ -279,45 +272,19 @@
   "Make a statistics turn."
   (make-turn :Type **stat-turn** :Value Stats))
 
-;;; ----------------------------------------------------------------------
-;;; Make Error Turn
-;;; Arguments:
-;;;   Message:  The string supplied to the student.
-;;;   &key
-;;;     Error:  An optional error value that will be associated with the turn.
-;;;     Color:  A color value if we wish to supply it.
-;;;     Responder:  By default there is none.
-;;;
-;;; Error turns are used to handle times when the system wants to supply
-;;; a specific error string to the student and we want to keep track of 
-;;; their current state.  The assoc field for these turns will be the
-;;; error itself.
-(defun make-error-turn (Message &key (Error nil) (Color **Color-Red**) 
-				     (Responder Nil))
-  "Make an error dialog turn and return it to the student."
-  (make-turn 
-   :Coloring Color
-   :type **Dialog-Turn**
-   :text Message
-   :Responder Responder
-   :Assoc Error))
-
 
 ;;; This is a specialized error turn that gives the student a 
 ;;; "this problem is bad, move on..." message and is associated
 ;;; with the optional error.  This facilitates oops locations in
 ;;; the code.
-(defun make-bad-problem-turn (&key (Error "Bad problem") (Color **Color-Red**) 
-				   (Responder Nil) (Commands Nil))
+(defun make-bad-problem-turn (assoc)
   "Make a bad-problem error turn."
-  (make-error-turn
-   (strcat "This is an incorrectly formed problem, please save a printout"
-	   " and give it to your professor.  After that why don't you try"
-	   " a different problem.")
-   :Error Error
-   :Color Color
-   :Responder Responder
-   :Commands Commands))
+  (warn "make-bad-problem-turn: ~A" assoc)
+  (make-turn 
+   :Coloring **Color-Red**
+   :type **Dialog-Turn**
+   :text "This is an incorrectly formed problem.  Please try a different problem."
+   :Assoc assoc))
 
 
 ;;; KCDS consist of a series of dialogs with free text responses by

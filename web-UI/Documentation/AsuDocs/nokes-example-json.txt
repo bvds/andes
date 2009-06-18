@@ -91,7 +91,7 @@ is shown on the screen when the vector is being dragged out.
 {"method": "solution-step", "params": {"time": 69.000, 
 	   "action": "new-object", "id": "a4",  
 	   "type": "axes", "mode": "unknown", 
-	   "x": 77, "y": 88, "angle": 88,  "radius": 120, 
+	   "x": 77, "y": 88, "angle": 0,  "radius": 120, 
 	   "x-label": "x", "y-label": "y"}, "id": 3}
 
 [
@@ -115,7 +115,8 @@ agnostic about object positions; Andes3 is not.
 1:16 student moves axes, client changes it to "unknown"
 
 {"method": "solution-step", "params": {"time": 76.000, 
-	   "action": "modify-object", "id": "a4", "x": 108, "y": 109}, "id": 5}
+	   "action": "modify-object", "mode": "unknown", 
+	   "id": "a4", "x": 108, "y": 109}, "id": 5}
 
 [
   {"action": "modify-object", "id": "a4", "mode": "correct"}

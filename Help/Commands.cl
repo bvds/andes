@@ -142,11 +142,13 @@
     (cond 
      ;; If no mathching entry can be found then set the action and return an error.
      ((null eqn-entry)
-      (make-eqn-failure-turn "Internal error: entry for equation not found!"))
+      (make-eqn-failure-turn "Internal error: entry for equation not found!"
+			     :id new-id))
      
      ;; If the selected equation is not correct then send an error. 
      ((not (equal (StudentEntry-state eqn-entry) **correct**))
-      (make-eqn-failure-turn "Only correct equations may be simplified."))
+      (make-eqn-failure-turn "Only correct equations may be simplified."
+			     :id new-id))
 
      (t (calculate-equation-string-internal eqn-str new-id eqn-entry)))))
 
@@ -158,29 +160,25 @@
 (defun calculate-equation-string-internal (eqn-str new-id eqn-entry)
   (let ((result (solver-eqn-simplify (StudentEntry-id eqn-entry) new-id)))
     (cond  ;; result may be equation s-expr, NIL or error message string
-     
-     ((and result (listp result)) ;; If the result is valid, then we want to generate an entry and store it.
-      (calculate-equation-string-success result new-id))
-     
-     ((stringp result) ;; Else if the result is a string then we need to deal with it.
-      (calculate-equation-string-int-err eqn-str result))
-
-     ;; Else we have a generic error and need to deal with it.
-     (T (calculate-equation-string-int eqn-str)))))
-
-
-;; Given a string error signal it to the student and return.
-(defun calculate-equation-string-int-err (eqn-str result)
-  (let ((error (format NIL "Unable to simplify ~A: ~A" eqn-str result)))
-    (make-eqn-failure-turn error)))
-
-
-;; Given a generic error log it and signal it to the student.
-(defun calculate-equation-string-int (eqn-str)
-  (let ((error (format NIL "Unable to simplify ~A" eqn-str)))
-    (make-eqn-failure-turn error)))
-     
-
+      
+      ;; If the result is valid, then we want to generate an entry 
+      ;; and store it.
+      ((and result (listp result)) 
+       (calculate-equation-string-success result new-id))
+      
+      ;; Else if the result is a string then we need to deal with it.
+      ;; Given a string error signal it to the student and return.
+      ((stringp result) 
+       (make-eqn-failure-turn 
+	(format NIL "Unable to simplify ~A: ~A" eqn-str result)
+	:id (StudentEntry-id eqn-entry)))
+      
+      ;; Else we have a generic error and need to deal with it.
+      ;; Given a generic error log it and signal it to the student.
+      (T (make-eqn-failure-turn (format NIL "Unable to simplify ~A" eqn-str)
+				:id (StudentEntry-id eqn-entry))))))
+    
+    
 ;; In the event of this being a successful simplification we need to 
 ;; generate and store the equation entry and then go through the process
 ;; of storing the entry and then reporting the equation string back to 
@@ -205,7 +203,7 @@
     ;; cleanup of equation in algebra on new entry.
     (add-entry entry)
     ;; finally return student equation turn
-    (make-eqn-turn studText)))
+    (make-eqn-turn studText :id (StudentEntry-id entry))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; solve-for-var -- solve for the given var using the equations the student has
@@ -233,10 +231,12 @@
     (cond ((and result (listp result)) (solve-for-var-success new-id result))
 	  ((stringp result) 
 	   (make-eqn-failure-turn 
-	    (format NIL "Unable to solve for ~A: ~A" var result)))
+	    (format NIL "Unable to solve for ~A: ~A" var result)
+	    :id new-id))
 	  (t (make-eqn-failure-turn
 	      ;; implemented in next-step-help.cl
-	      (get-failure-to-solve-hint var))))))
+	      (get-failure-to-solve-hint var)
+	      :id new-id)))))
 
 (defun solve-for-var-success (new-id result)
   (let* ((studEqn  (subst-student-vars (pre2in result)))
@@ -257,7 +257,7 @@
     ;; cleanup of equation in algebra on new entry.
     (add-entry entry)
     ;; finally return student equation turn
-    (make-eqn-turn studText)))
+    (make-eqn-turn studText :id (StudentEntry-id entry))))
 
 
 ;;; ===========================================================================

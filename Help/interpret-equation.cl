@@ -47,11 +47,11 @@
       (setf (StudentEntry-CInterp se) nil)
       (warn "interpret-equation: can't find interpretations for ~A" se)
       (setf (StudentEntry-State se) **Incorrect**)
-      (setf result (make-red-turn)))
+      (setf result (make-red-turn :id (StudentEntry-id se))))
      (correct1
       (setf (StudentEntry-CInterp se) correct1)
       (setf (StudentEntry-State se) **Correct**)
-      (setf result (make-green-turn)))
+      (setf result (make-green-turn :id (StudentEntry-id se))))
      (deadpath1
       (setf (StudentEntry-CInterp se) deadpath1)
       (setf (StudentEntry-State se) **Dead-Path**)
@@ -75,7 +75,7 @@
 	    (StudentEntry-ParsedEqn se))
       (setf (StudentEntry-CInterp se) shortest)
       (setf (StudentEntry-State se) **Correct**)
-      (setf result (make-green-turn))))
+      (setf result (make-green-turn :id (StudentEntry-id se)))))
     result))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -443,7 +443,7 @@
        
     (T ; didn't find missing! shouldn't happen
        (format T "get-premature-msg called but couldn't find missing equations!~%")
-       (make-green-turn)))))
+       (make-green-turn  :id (StudentEntry-id se))))))
 
 
 ;;

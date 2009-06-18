@@ -68,17 +68,17 @@
 	    "errorType": {
 	      "type": "string", 
 	      "optional": true,
-	      "description": "Only for error log"
+	      "description": "Only for error log, student error"
 	    },
 	    "error": {
 	      "type": "string", 
 	      "optional": true,
-	      "description": "Only for error log"
+	      "description": "Only for error log, help system errors."
 	    },
 	    "backtrace": {
 	      "type": "string", 
 	      "optional": true,
-	      "description": "Only for error log"
+	      "description": "Only for error log, help system errors."
 	    }
 	  }
 	}  
@@ -172,10 +172,15 @@
 	      "optional": true,
 	      "description": "Only for log"
 	    },
+	    "entry": {
+	      "type": "string",
+	      "optional": true,
+	      "description": "Only for log"
+	    },
 	    "assoc": {
 	      "type": "object",
 	      "optional": true,
-	      "description": "Only for log"
+	      "description": "Only for log, list of (op . step)"
 	    },
 	    "value": {
 	      "type": "string",
@@ -185,17 +190,17 @@
 	    "errorType": {
 	      "type": "string", 
 	      "optional": true,
-	      "description": "Only for error log"
+	      "description": "Only for error log, student error"
 	    },
 	    "error": {
 	      "type": "string", 
 	      "optional": true,
-	      "description": "Only for error log"
+	      "description": "Only for error log, help system errors."
 	    },
 	    "backtrace": {
 	      "type": "string", 
 	      "optional": true,
-	      "description": "Only for error log"
+	      "description": "Only for error log, help system errors."
 	    }
 	  }  
 	}
@@ -241,10 +246,15 @@
 	      "optional": true,
 	      "description": "Only for log"
 	    },
+	    "entry": {
+	      "type": "string",
+	      "optional": true,
+	      "description": "Only for log"
+	    },
 	    "assoc": {
 	      "type": "object",
 	      "optional": true,
-	      "description": "Only for log"
+	      "description": "Only for log, list of (op . step)"
 	    },
 	    "value": {
 	      "type": "string",
@@ -254,17 +264,17 @@
 	    "errorType": {
 	      "type": "string", 
 	      "optional": true,
-	      "description": "Only for error log"
+	      "description": "Only for error log, student error"
 	    },
 	    "error": {
 	      "type": "string", 
 	      "optional": true,
-	      "description": "Only for error log"
+	      "description": "Only for error log, help system errors."
 	    },
 	    "backtrace": {
 	      "type": "string", 
 	      "optional": true,
-	      "description": "Only for error log"
+	      "description": "Only for error log, help system errors."
 	    }
 	  }
 	}
@@ -304,17 +314,17 @@
 	    "errorType": {
 	      "type": "string", 
 	      "optional": true,
-	      "description": "Only for error log"
+	      "description": "Only for error log, student error"
 	    },
 	    "error": {
 	      "type": "string", 
 	      "optional": true,
-	      "description": "Only for error log"
+	      "description": "Only for error log, help system errors."
 	    },
 	    "backtrace": {
 	      "type": "string", 
 	      "optional": true,
-	      "description": "Only for error log"
+	      "description": "Only for error log, help system errors."
 	    }
 	  }
 	}

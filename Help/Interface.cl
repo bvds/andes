@@ -132,10 +132,7 @@
 	 (Result (if (member 'answer-only-mode (problem-features *cp*))
 		     (answer-only-dispatcher Command Arguments)
 		     (apply command Arguments)))
-	 (Str (when (turn-p Result) (progn 
-				      (format webserver:*stdout* "execute-andes-command apply got ~S~%" result) (return-turn Result)))))
-
-    (format webserver:*stdout* "execute-andes-command return-turn got ~S~%" str) 
+	 (Str (when (turn-p Result) (return-turn Result))))
 
     ;; Once the command has been executed and any result parsed then we
     ;; need to add the cmdresult to the current cmd iff the cmd was a 
@@ -303,8 +300,7 @@
   (when (and turn (not (equalp (turn-type Turn) **No-Op-Turn**)))
     (setf *last-tutor-turn* turn))
 
-  ;; if there is assoc info in the turn, send async command to record it in
-  ;; the workbench log. 
+  ;; if there is assoc info in the turn, add to repoly
   (when (and turn (turn-assoc turn))
     (push `((:action . "log") 
 	    (:assoc . ,(write-to-string (turn-assoc turn)
@@ -331,13 +327,12 @@
     (return-from turn->WB-Reply "")) 
   ;; non-dialog result string part (status or equation)
   (let ((result (turn-result turn))
-	(id (turn-id turn))
-	responses)  ; codes menu of responses to offer student
+	(id (turn-id turn)))
     (case (turn-coloring turn)
       (color-green (push `((:action . "modify-object") (:id . ,id)
 			    (:mode . "correct")) result))
       (color-red (push `((:action . "modify-object") (:id . ,id)
-			    (:mode . "incorred")) result))
+			    (:mode . "incorrect")) result))
       (delete (push `((:action . "modify-object") (:id . ,id)
 			    (:mode . "deleted")) result))
     )
@@ -362,7 +357,7 @@
 		       (if (consp (turn-menu turn)) ; list => menu spec
 			   ;; for now, only one level permitted.
 			   ;; format list with vbar delimiters
-			   (warn "menu spec ~A" (turn-menu turn))
+			   (warn "menu spec ~A unimplemented" (turn-menu turn))
 			   ;; else predefined menu:
 			   (case (turn-menu turn)
 			     ;; predefined menus have single-letter codes:
@@ -796,7 +791,8 @@
       ;; all following cmd classes can just be dispatched as usual
       ((State Answer Statistics Delete Control) (apply cmd args))
       ;; Entries should be left black
-      ((noneq-entry eq-entry) (make-black-turn))
+      ((noneq-entry eq-entry) (make-black-turn 
+			       :id (StudentEntry-id (car args))))
       ;; Help requests: assume explain more could only be followup to allowed 
       ;; help -- presumably unsolicited help for wrong answers -- so process it. 
       ;; Reject all others help requests.
@@ -804,7 +800,9 @@
                   (explain-more (apply cmd args))
                   (otherwise (make-end-dialog-turn "Help is not available on this problem."))))
       ;; Algebra gets null answer
-      (Algebra (make-eqn-failure-turn "The Andes calculator is not available on this problem."))
+      (Algebra (make-eqn-failure-turn 
+		"The Andes calculator is not available on this problem."
+		:id (StudentEntry-id (car args))))
       ;; anything else: empty string should function as null return value.
       (otherwise (warn "unclassifed api command: ~A~%" cmd)
                   "")))
