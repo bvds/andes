@@ -16,6 +16,7 @@ dojo.provide("drawing.stencil.Stencil");
 			this.util.attr(this.parent, "id", this.id);
 			
 			this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
+			
 		},
 		{
 			style:{

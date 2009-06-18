@@ -69,7 +69,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		},
 		
 		onDown: function(obj){
-			console.info(this.eventName("down"))
+			//console.info(this.eventName("down"))
 			this._broadcastEvent(this.eventName("down"), obj);			
 		},
 		onDrag: function(obj){

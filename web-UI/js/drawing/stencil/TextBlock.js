@@ -31,6 +31,7 @@ dojo.provide("drawing.stencil.TextBlock");
 		return conEdit;
 	};
 	var hideEditNode = function(){
+		conEdit.blur();
 		conEdit.parentNode.removeChild(conEdit);
 		dojo.destroy(wrapNode);
 	};
@@ -67,7 +68,9 @@ dojo.provide("drawing.stencil.TextBlock");
 						.setFont({family: this.textStyle.fontFamily, size: this.textStyle.size+"pt", weight: "normal"})
 						.setFill("black");
 				}, this);
-					
+				console.warn("onRender::", this.id);
+				this.onRender(this);
+				
 			},
 			getLineBreaks: function(/* node or String */ s){
 				var el;
@@ -135,14 +138,16 @@ dojo.provide("drawing.stencil.TextBlock");
 				
 				el.innerHTML = "";
 				
-				var kc1 = dojo.connect(el, "keyup", this, function(evt){
+				var kc1, kc2,kc3,kc4,kc5;
+				
+				kc1 = dojo.connect(el, "keyup", this, function(evt){
 					if(!this._editheight){
 						dojo.style(el, "height", "auto");
 					}
 			
 					var h = dojo.marginBox(el).h;
 					if(this._editheight!=h){
-						console.warn("HEIGHT CHANGE", h, "from:", this._editheight)
+						//console.warn("HEIGHT CHANGE", h, "from:", this._editheight)
 						this._editheight = h;
 						
 						var s = this.points[0],
@@ -157,22 +162,48 @@ dojo.provide("drawing.stencil.TextBlock");
 						this.points = this.dataToPoints(data);
 						this.render();
 					}
+					if(evt.keyCode==13){ dojo.stopEvent(evt); }
 				});
 				
-				var kc2 = dojo.connect(el, "keydown", this, function(evt){
+				
+				var self = this, exec = function(){
+					console.time("linebreaks");
+					var strAr = self.getLineBreaks(el);
+					console.timeEnd("linebreaks");
+					console.dir(strAr);
+					hideEditNode();
 					
+					
+					dojo.forEach([kc1,kc2,kc3,kc4,kc5], dojo.disconnect, dojo);
+					
+					
+					el = null;
+					self.renderText(strAr);
+					
+				}
+				kc2 = dojo.connect(el, "keydown", this, function(evt){
+					console.log("KEY:", evt.keyCode)
 					if(evt.keyCode==13){
-						console.time("linebreaks");
-						var strAr = this.getLineBreaks(el);
-						console.timeEnd("linebreaks");
-						console.dir(strAr);
-						hideEditNode();
-						dojo.disconnect(kc1);
-						dojo.disconnect(kc2);
-						this.renderText(strAr);
-						dojo.stopEvent(evt);		
+						exec();
+						dojo.stopEvent(evt);
 					}
+					
 				});
+				
+				// need to allow clicking within the field
+				kc3 = dojo.connect(this, "onUp", this, function(evt){
+					exec();
+				});
+				
+				// for dev:
+				kc4 = dojo.connect(el, "focus", this, function(evt){
+					console.log("FOCUS");
+				});
+				kc5 = dojo.connect(el, "blur", this, function(evt){
+					console.log("BLUR");
+				});
+				
+				
 				el.focus();
 				// once again for Silverlight:
 				setTimeout(function(){ el.focus();}, 500);
@@ -196,10 +227,10 @@ dojo.provide("drawing.stencil.TextBlock");
 			},
 			
 			onUp: function(obj){
-				if(!this.shape){ return; }
+				//if(!this.shape){ return; }
 				if(Math.abs(obj.x-obj.start.x<this.textStyle.minWidth)){
 					if(obj.x<obj.start.x){
-						obj.x = obj.start.x - this.textStyle.minWidth;
+						obj.start.x = obj.start.x + this.textStyle.minWidth;
 					}else{
 						obj.x = obj.start.x + this.textStyle.minWidth;
 					}
@@ -210,11 +241,11 @@ dojo.provide("drawing.stencil.TextBlock");
 				this._offsetX = obj.orgX;
 				this._offsetY = obj.orgY;
 				
-				console.warn("SHOW TEXT", obj)
-				this.showText(obj);
+				this.onDown = function(evt){}
+				this.onUp = function(evt){}
+				this.onDrag = function(evt){}
 				
-				this.onDown = function(){}
-				this.onUp = function(){}
+				this.showText(obj);
 			}
 		}
 	);

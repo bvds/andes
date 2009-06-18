@@ -87,6 +87,7 @@ dojo.require("drawing.manager.Silverlight");
 			*/
 		},
 		onRenderStencil: function(stencil){
+			
 			console.log("onRenderStencil:", stencil)
 			this.stencils.register(stencil);
 			this.unSetTool();
