@@ -4,7 +4,9 @@ dojo.provide("drawing.stencil.Rect");
 drawing.stencil.Rect = drawing.util.oo.declare(
 	drawing.stencil.Stencil,
 	function(options){
-		if(options.data || (options.points && options.points.length)){
+		// options.data.text--? sme kind of definitive switch saying don't render
+		// maybe a prop in sub class?
+		if((options.data && !options.data.text) || (options.points && options.points.length)){
 			console.log("RENDER RECT", options.points)
 			this.points = options.points || this.dataToPoints(options.data);
 			this.render();
