@@ -54,14 +54,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defun lookup-eqn-string (entry &key (log T))
+(defun lookup-eqn-string (entry)
   "Minimally modified Andes2 call"
-  (let ((eq (StudentEntry-text entry)))
+  (let (result (eq (StudentEntry-text entry)))
     (unless eq (warn "Equation must always have text") (setf eq ""))
-    (prog1 ; first form gets our return value
-	(do-lookup-equation-string (fix-eqn-string (trim-eqn eq)) 
-	  entry 'equation)
-      (when log (log-entry-info (find-entry (StudentEntry-id entry)))))))
+    (setf result (do-lookup-equation-string (fix-eqn-string (trim-eqn eq)) 
+		   entry 'equation))
+    (push (log-entry-info (find-entry (StudentEntry-id entry))) 
+	  (turn-result result))
+    result))
 
 (defun do-lookup-equation-string (eq entry location)
   (let ((equation eq) tmp)
@@ -1007,16 +1008,13 @@
    ; check the "subentry" alone, log its result
    ; and copy its state back into the main entry.
    (let ((result-turn (check-given-value-eqn eqn-entry)))
-      ; log the subentry details
-      (log-entry-info eqn-entry)
+      ;; log the subentry details
+      (push (log-entry-info eqn-entry) (turn-result result-turn))
       ;  copy relevant info from subentry into main student entry
       (setf (StudentEntry-State main-entry) (StudentEntry-State eqn-entry))
       (setf (StudentEntry-ErrInterp main-entry) (StudentEntry-ErrInterp eqn-entry))
-      ; if error, include dialog slot id in result turn for main entry.
-      (when (eq (turn-coloring result-turn) **color-red**)
-          (setf (turn-flag-slots result-turn) (list (StudentEntry-id eqn-entry))))
-      ; finally return result
-       result-turn))
+      ;; finally return result
+      result-turn))
 
 ;; check a given value equation subentry 
 ;; Fills in subentry state with result of check

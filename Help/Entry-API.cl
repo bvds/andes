@@ -1223,8 +1223,6 @@
                (StudentEntry-GivenEqns Entry))
         (setf result (Check-Vector-Given-Form Entry))
 	(when (not (eq (turn-coloring result) **color-green**))
-            (setf (turn-flag-slots result) ;; copy from remediation turn
-	   	(turn-flag-slots (ErrorInterp-Remediation (StudentEntry-ErrInterp Entry))))
 	    (return-from Check-NonEq-Entry result))) ; early exit
 
     ;; Get set of candidate interpretations into PossibleCInterps.  
@@ -1244,13 +1242,9 @@
 	; run whatswrong help to set error interp now, so diagnosis
 	; can be included in log even if student never asks whatswrong
         (diagnose Entry)
-        ;; For now, log error tag and target info here.  Really should be 
-	;; recorded in result turn for inserting with other assocs though. 
-	(log-entry-info Entry)
-	; build turn to return, copying flag-slots from remediation field
 	(setf result (make-red-turn))
-	(setf (turn-flag-slots result)
-	   (turn-flag-slots (ErrorInterp-Remediation (StudentEntry-ErrInterp Entry))))
+	;; log and push onto result list.
+	(push (log-entry-info Entry) (turn-result result))
 	(return-from Check-NonEq-Entry result)) ; go no further
 
     ;; else got a match: set state and correctness from candidate
@@ -1258,12 +1252,8 @@
     (setf (StudentEntry-CInterp entry) (cdr cand))
     (setf match (first (StudentEntry-CInterp entry)))
     (format *debug-help* "Matched ~A system entry: ~S~%" (car cand) match)
-    ; For now, write this log info here. Note for variables with given equations, we are
-    ; logging correctness of the variable definition substep, but the given value substep, 
-    ; hence whole entry, might still be wrong.
-    (log-entry-info Entry)
 
-    ; decide what to return based on major state of entry
+    ;; decide what to return based on major state of entry
     (case (StudentEntry-State entry)
      ('correct 
       ; check any given value equations associated. At first one that is wrong, its
@@ -1272,7 +1262,7 @@
        (dolist (e (StudentEntry-GivenEqns entry))
         (let ((result (Check-Given-Value-Entry entry e)))
           (when (not (eq (turn-coloring result) **color-green**))
-	       (return-from Check-NonEq-Entry result))))
+	    (return-from Check-NonEq-Entry result))))
 
       ; enter step as done in solution graph
        (sg-enter-StudentEntry Entry)
@@ -1296,25 +1286,16 @@
                         (StudentEntry-state entry))
                  (setf result (make-red-turn))))
 
+    ;; Note for variables with given equations, we are
+    ;; logging correctness of the variable definition substep, 
+    ;; but the given value substep, hence whole entry, 
+    ;; might still be wrong.
+
+    (push (log-entry-info Entry) (turn-result result))
+
     ;; finally return result
     result))
 
-#|
-(defun Check-Given-Values (entry)
-"check the given value eqns associated with an entry, returning turn"
-  ; check vector givens specially for custom error messages
-  (when (eq (first (StudentEntry-prop  entry)) 'vector)
-     (return-from Check-Given-Values (Check-Vector-Givens entry))) 
-
-  ;else non-vector:
-   ; check each eqn in list. early return at first bad one found
-   (dolist (e (StudentEntry-GivenEqns entry))
-       (let ((result (Check-Given-Value-Entry entry e)))
-         (when (not (eq (turn-coloring result) **color-green**))
-	       (return-from Check-Given-Values result))))
-   ; get here=> no errors. Signal with green turn
-   (make-green-turn))
-|#
 
 
 (defun sol-gives-magdir (vector-quant)
@@ -1386,8 +1367,7 @@
        ; unclear what intended should be
        ; :intended (get-given-interp quant)
        :remediation rem))
-    (setf (turn-coloring rem) **color-red**)
-    (flag 'magdir rem)))
+    (setf (turn-coloring rem) **color-red**)))
 
 (defun should-be-magdir-form (se quant)
   (declare (ignore quant))
@@ -1399,8 +1379,7 @@
        ; unclear what intended should be, maybe eqn for one given compo
        ; :intended (get-given-interp `(compo x 0 ,quant))
        :remediation rem))
-    (setf (turn-coloring rem) **color-red**)
-    (flag 'compo rem)))
+    (setf (turn-coloring rem) **color-red**)))
 
 ; 
 ; log-entry-info -- insert extra info for entry into Andes log
@@ -1414,64 +1393,67 @@
 ; the entries go before the final result in the log.
 ;
 (defun log-entry-info (entry)
-  (when (null entry) 
-       (return-from log-entry-info NIL)) ; just in case
   ; don't waste time adding info when checking init entries 
   ; ?? might we want it anyway ??
-  (when (not **checking-entries**)
+  (when (and entry (not **checking-entries**))
      (do-log-entry-info entry)))
   
 (defun do-log-entry-info (entry)
-  (let ((target-entries)
-        (parse (StudentEntry-ParsedEqn entry)))
-    ; fetch target entry list for correct or incorrect entries 
+  (let (result (target-entries)
+	       (parse (StudentEntry-ParsedEqn entry)))
+    ;; fetch target entry list for correct or incorrect entries 
     (cond ((eq (StudentEntry-state entry) **Incorrect**)
-	    ; if needed, run whatswrong help to set error interp now, so diagnosis
-	    ; can be included in log even if student never asks whatswrong
-            (unless (StudentEntry-ErrInterp entry) (diagnose Entry))
-	    (setf target-entries (ErrorInterp-Intended (StudentEntry-ErrInterp Entry))))
-
+	   ;; if needed, run whatswrong help to set error interp now, so diagnosis
+	   ;; can be included in log even if student never asks whatswrong
+	   (unless (StudentEntry-ErrInterp entry) (diagnose Entry))
+	   (setf target-entries (ErrorInterp-Intended (StudentEntry-ErrInterp Entry))))
+	  
 	  ((eq (StudentEntry-state entry) **correct**)
-	     (setf target-entries (studententry-Cinterp entry))))
-   
-    ; OK, do the logging
-    (let ((*print-pretty* NIL))   ; no line breaks when formatting cmd strings!
+	   (setf target-entries (studententry-Cinterp entry))))
+    
+    ;; OK, do the logging
+    (let ((*print-pretty* NIL)) ;no line breaks when formatting cmd strings!
+      
+      ;; log the parse if we have it.  Note for syntax errors it may be list 
+      ;; containing partial parse tree printed as (#S(PARSE :TREE (LM m) :REM =x8*/7))
+      ;; print parse of ? for this
+      (when (consp parse)  ; non-NIL => either prefix eqn or list of parse trees
+	(push `((:action . "log") 
+		(:assoc . ,(format nil "~S" 
+				   (if (eq (type-of (first parse)) 
+					   'parse) '? parse))))
+	      result))
+      
+      ;; For non-eq entries, show entry prop in our notation, so we can 
+      ;; identify common errors.   For correct non-eq entries, it will be 
+      ;; the step, but for errors we add it.
+      (when (and (not (eq (first (studentEntry-prop entry)) 'eqn))
+		 (eq (StudentEntry-state entry) **Incorrect**))
+	(warn "Need to add ASSOC ENTRY to API")
+	(push `((:action . "log") 
+		(:assoc-entry . ,(format nil "~S" (studentEntry-prop entry))))
+	      result))
+      
+      ;; log the error tag if one was found
+      (when (StudentEntry-ErrInterp entry)
+	(warn "Need to add ASSOC ERROR to API")
+	(push `((:action . "log") 
+		(:assoc-entry . ,(format nil "~S" 
+					 (ErrorInterp-name 
+					  (StudentEntry-ErrInterp Entry)))))
+	      result))
+      
+      ;; log the target entry info if we have any. This shows 
+      ;; pairs of opnames and entry props "steps."
+      (when target-entries
+	(push `((:action . "log") 
+		(:assoc . ,(mapcar #'opname-prop-pair target-entries)))
+	      result)))
+    result))
 
-       ; log the parse if we have it.  Note for syntax errors it may be list 
-       ; containing partial parse tree printed as (#S(PARSE :TREE (LM m) :REM =x8*/7))
-       ; print parse of ? for this
-      ;; needs formatting for json-rpc?
-      (list 
-       (when (consp parse)  ; non-NIL => either prefix eqn or list of parse trees
-	 ;; was send-fbd-command
-	 (format nil "assoc parse ~S" 
-		 (if (eq (type-of (first parse)) 'parse) '? parse)))
-
-       ; For non-eq entries, show entry prop in our notation, so we can identify common errors.
-       ; For correct non-eq entries, it will be the step, but for errors we add it.
-       (when (and (not (eq (first (studentEntry-prop entry)) 'eqn))
-                  (eq (StudentEntry-state entry) **Incorrect**))
-	 ;; was send-fbd-command
-	 (format nil "assoc entry ~S" (studentEntry-prop entry)))
-
-       ; log the error tag if one was found
-       (when (StudentEntry-ErrInterp entry)
-	 ;; was send-fbd-command
-	 (format nil "assoc error ~S" 
-		 (ErrorInterp-name (StudentEntry-ErrInterp Entry))))
-
-        ; log the target entry info if we have any. This shows comma-separated lists of entry props
-	; ("steps") and parallel list of opnames
-       (when target-entries
-	 ;; needs formatting for json-rpc
-	 ;; was send-fbd-command
-	 (format nil "assoc step ~{~S~^,~}" 
-		 (mapcar #'SystemEntry-prop target-entries))
-	 ;; was send-fbd-command
-	 (format nil "assoc op ~{~S~^,~}" 
-		 (mapcar #'sg-map-SystemEntry->opname target-entries)))
-     ))))
-
+(defun opname-prop-pair (x)
+  (cons (sg-map-SystemEntry->opname x) 
+	(format nil "~s" (SystemEntry-prop x))))
 
 
 ; following does the work of entering an implicit entry associated with

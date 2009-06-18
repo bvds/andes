@@ -113,6 +113,8 @@
 
 
 (defstruct (Turn (:print-function print-Turn))
+  result  ;list of items to add to reply
+  id      ;object to be modified
   coloring   
   type
   text
@@ -120,8 +122,6 @@
   value
   responder
   Assoc    
-  Commands 
-  flag-slots  ; list of workbench dialog slot ids to flag on error
   )
 
 (defconstant **Color-Red** 'Color-Red)
@@ -175,80 +175,68 @@
   
   (when (Turn-Assoc Turn)
     (pprint-indent :block Level Stream)
-    (format Stream " Assoc: ~a~%" (Turn-Assoc Turn)))
-  
-  (when (Turn-Commands Turn)
-    (pprint-indent :block Level Stream)
-    (format Stream " Commands: ~a~%" (Turn-Commands Turn))))
+    (format Stream " Assoc: ~a~%" (Turn-Assoc Turn))))
 
 ;;----------------------------------------------------------
 ;; define specific tutor turn types.
 
 (defun make-green-dialog-turn (text menu &key (Responder #'nil-turn-resp) 
-					      (Assoc nil) (Commands Nil))
+					      (Assoc nil))
   "Produce a green coloring dialog type tutor turn."
   (make-turn :coloring **Color-Green**
 	     :type **Dialog-Turn**
 	     :text text 
 	     :menu menu 
 	     :Responder Responder
-	     :Assoc Assoc
-	     :Commands Commands))
+	     :Assoc Assoc))
 		  
 
 (defun make-dialog-turn (text menu &key (color nil) (Responder #'nil-turn-resp) 
-					(Assoc nil) (Commands Nil))
+					(Assoc nil))
   "Produce a dialog type tutor turn."
   (make-turn :coloring color
 	     :type **Dialog-Turn**
 	     :text text
 	     :menu Menu
 	     :responder Responder
-	     :Assoc Assoc
-	     :Commands Commands))
+	     :Assoc Assoc))
 
-(defun make-end-dialog-turn (text &key (color nil)  (Assoc nil) (Commands Nil))
+(defun make-end-dialog-turn (text &key (color nil)  (Assoc nil))
   "Make a turn that ends the dialog."
   (make-turn :coloring color
 	     :type **Dialog-Turn**
 	     :text text
 	     :responder #'nil-turn-resp
-	     :Assoc Assoc
-	     :Commands Commands))
+	     :Assoc Assoc))
 	     
 			    
 (defun make-minil-turn (url &key (color nil) (Responder #'nil-turn-resp) 
-				 (Assoc nil) (Commands Nil))
+				 (Assoc nil))
   "Produce a minilesson type tutor turn."
   (make-turn :coloring color
 	     :type **Minil-Turn**
 	     :text url
 	     :responder Responder
-	     :Assoc Assoc
-	     :Commands Commands))
+	     :Assoc Assoc))
 
-; eqn turn holds calculate or solve-for result.
-; eqn turn text may hold EITHER result equation if successful OR error message if failure.
-; we set turn coloring to red to indicate failure case, green for success.
-(defun make-eqn-turn (Eqn &key (Responder Nil) (Assoc nil) (Commands Nil))
+;; eqn turn holds calculate or solve-for result.
+;; eqn turn text may hold EITHER result equation if successful OR error 
+;; message if failure.
+;; we set turn coloring to red to indicate failure case, green for success.
+(defun make-eqn-turn (Eqn)
   "Generate an eqn entry turn."
   (declare (ignore responder))
   (make-turn :type **Eqn-Turn**
              :coloring **Color-Green**
 	     :text Eqn
-	     :Responder #'(lambda (x) (declare (ignore x)) nil)
-	     :Assoc Assoc
-	     :Commands Commands))
+	     :Responder #'(lambda (x) (declare (ignore x)) nil)))
 
-(defun make-eqn-failure-turn (Msg &key (Responder Nil) (Assoc nil) (Commands Nil))
+(defun make-eqn-failure-turn (Msg)
   "Generate an eqn entry turn."
-  (declare (ignore responder))
   (make-turn :type **Eqn-Turn**
              :coloring **Color-Red**
 	     :text Msg
-	     :Responder #'(lambda (x) (declare (ignore x)) nil)
-	     :Assoc Assoc
-	     :Commands Commands))
+	     :Responder #'(lambda (x) (declare (ignore x)) nil)))
 	     
 ; red/green convenience funcs take optional unsolicited message string:
 (defun make-red-turn (&optional message)
@@ -266,15 +254,6 @@
   (make-turn :coloring NIL
 	     :type (if message **Dialog-Turn**)
 	     :text message))
-
-;; convenience func to set flag-slot(s) on a tutor turn
-;; accepts single slot id or list of several 
-;; returns turn arg so can wrap a result turn being returned
-(defun flag (slot-id turn)
-  (setf (turn-flag-slots turn) 
-        (if (atom slot-id) (list slot-id) 
-	   slot-id))
-  turn)
 
 (defun nil-turn-resp (x)
   "A function used for non-response turns."
@@ -314,15 +293,14 @@
 ;;; their current state.  The assoc field for these turns will be the
 ;;; error itself.
 (defun make-error-turn (Message &key (Error nil) (Color **Color-Red**) 
-				     (Responder Nil) (Commands Nil))
+				     (Responder Nil))
   "Make an error dialog turn and return it to the student."
   (make-turn 
    :Coloring Color
    :type **Dialog-Turn**
    :text Message
    :Responder Responder
-   :Assoc Error
-   :Commands Commands))
+   :Assoc Error))
 
 
 ;;; This is a specialized error turn that gives the student a 
@@ -409,7 +387,8 @@
 	     :responder #'(lambda (r) 
 			    (kcd-responder-func r Rest Assoc))
 	     :Assoc Assoc
-	     :Commands (if Image (format-wb-open-browser-command Image))))
+	     :Result (list (when Image 
+			     (format-wb-open-browser-command Image)))))
 
 ;;; When a kcd response is received then the response
 ;;; will be fed to the (Atlas:next-turn) call and the
@@ -436,8 +415,8 @@
 			    (when (eq R **Explain-More**)
 			      (make-hint-seq Rest)))
 	     :Assoc Assoc
-	     :Commands (if Image (format-wb-open-browser-command Image))))
-
+	     :Result (list (when Image 
+			     (format-wb-open-browser-command Image)))))
 
 
 ;;; When the kcd is done then it will return a final 
@@ -460,7 +439,8 @@
 	     ;;  formerly the responder #'(lambda (R) 
 	     ;; (declare (ignore R)) (wb-close-browser))
 	     :Assoc Assoc
-	     :Commands (if Image (format-wb-open-browser-command Image))))
+	     :Result (list (when Image 
+			     (format-wb-open-browser-command Image)))))
 
 
 ;;; Once the kcd has completed then we need to send a final
@@ -468,7 +448,7 @@
 ;;; here.
 (defun make-kcd-end-seq-turn-resp (R)
   (declare (ignore R))
-  (make-turn :Commands (format-wb-close-browser-command)))
+  (make-turn :Result (list (format-wb-close-browser-command))))
 
 
 
@@ -838,15 +818,6 @@
       :Assoc (or Assoc `(OPHint ,OHType MiniLesson ,(format-hintspec Minil) . , OpTail))))
 
 
-
-
-
-
-
-
-
-
-
 ;;---------------------------------------------------------------
 ;; Goal hints are of the form (goal <Str> <Goaltag>)  where 
 ;; 'Goal' is the header tag that identifies them.  <Str> is 
@@ -1018,37 +989,4 @@
    (strcat "An error has occured in the help sequence.  You "
 	   "may still continue but please inform your professor "
 	   "or the Andes Development team of the Problem.")))
-
-
-;;---------------------------------------------------------------
-;; HSeq Tracing.
-(defun trace-hseq ()
-  (trace make-hint-seq
-	 make-end-hseq
-	 make-next-hseq
-	 
-	 make-string-hseq
-	 make-string-end-hseq
-	 
-	 make-kcd-hseq
-	 make-kcd-end-hseq
-	 
-	 make-minil-hseq
-	 make-minil-end-hseq
-	 
-	 make-eval-hseq
-	 
-	 make-function-hseq
-	 
-	 make-ophint-hseq
-	 make-ophint-end-hseq
-	 
-	 pick-kcd-spec
-	 pick-minil-spec
-	 probe-minilesson
-	 pick-other-spec
-	 
-	 make-error-hseq
-	 make-error-end-hseq))
-	 
 

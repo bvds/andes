@@ -152,11 +152,11 @@
     ;; as necessary.
     ;;
     (setq Tmp (iface-handle-Statistics NewCmd))
-    (when (equalp Tmp :Error) (warn "Error in Statistics."))
+    (when Tmp (if str (push Tmp str) (push tmp result)))
 
     (format *debug-help* "Result ~A~%" Result)
 
-    (if Str Str Result)))
+    (or Str Result)))
 
 
 ;;; =========================================================================
@@ -232,10 +232,8 @@
   (let ((current-score (get-current-runtime-total-score)))
     (when (not (equal current-score *last-score*))
       (setf *last-score* current-score)
-      ;; needs to be formatted for json-rpc
-      ;; was send-fbd-command
-      (format Nil "set-score ~a" current-score)
-      )))
+      `((:action . "set-score") (:score . ,current-score)))
+      ))
 
 ;;; AW: now we no longer load and save problem statistics in the
 ;;; student history file. Instead, the workbench will fetch the 
@@ -304,22 +302,15 @@
   ;; which comes later.
   (when (and turn (not (equalp (turn-type Turn) **No-Op-Turn**)))
     (setf *last-tutor-turn* turn))
-  ;; If there are any commands in the turn then send an async command for
-  ;; each one back to the workbench before the final result is placed on
-  ;; the stream.  This allows us to wrap multiple workbench actions into 
-  ;; the result of a single command and is used primarily for opening and
-  ;; closing separate browser windows.
-  (when (and turn (turn-commands Turn))
-    ;; was send-fbd-command. 
-    ;; (turn-commands Turn) could be single string or list...
-    (turn-commands Turn))
+
   ;; if there is assoc info in the turn, send async command to record it in
   ;; the workbench log. 
   (when (and turn (turn-assoc turn))
-    ;; was send-fbd-command
-    (strcat "assoc " (write-to-string (turn-assoc turn)
-				       :escape t ;make it lisp-readable
+    (push `((:action . "log") 
+	    (:assoc . ,(write-to-string (turn-assoc turn)
+					:escape t ;make it lisp-readable
 				       :pretty NIL)))   ;turn off line breaks 
+	  (turn-result turn)))
   (turn->WB-Reply turn))    
 
 
@@ -338,87 +329,65 @@
   ; null turn is special case
   (when (null turn)
     (return-from turn->WB-Reply "")) 
-
-  (let (result 	    ; non-dialog result string part (status or equation)
-        cmd         ; command string part (show-hint, show-lesson, delete)
+  ;; non-dialog result string part (status or equation)
+  (let ((result (turn-result turn))
+	(id (turn-id turn))
 	responses)  ; codes menu of responses to offer student
     (case (turn-coloring turn)
-      (color-green  (setf result "T"))
-      (color-red    (setf result ; may append list of slots to flag
-		        (format NIL "NIL~{;~A~}" 
-			    (decide-slot-flags turn))))
-      ((no-op NIL)  (setf result ""))
-      ; delete turn not implemented yet
-      ; for delete response, turn text must be entry ID
-      (delete (setf result "")
-	      (when (null (turn-text turn))
-	         (error "Delete turn should contain entry id in turn-text"))
-	      (setf cmd (format NIL "!delete-entry ~A" (turn-text turn))))
+      (color-green (push `((:action . "modify-object") (:id . ,id)
+			    (:mode . "correct")) result))
+      (color-red (push `((:action . "modify-object") (:id . ,id)
+			    (:mode . "incorred")) result))
+      (delete (push `((:action . "modify-object") (:id . ,id)
+			    (:mode . "deleted")) result))
     )
-    ; switch on type to see what message commnd we have to append to result
-    ; also have to check for an equation result to return
+    ;; switch on type to see what message commnd we have to append to result
+    ;; also have to check for an equation result to return
     (case (turn-type turn)
       (Eqn-turn (when (null (turn-text turn)) 
-                    (error "Eqn turn with no equation text!"))
-		; red -> text is hintspec for error msg. Precede with !
-		; but no show-hint command (its implicit in eq rseturns).
+		  (warn "Eqn turn with no equation text!"))
+		;; red -> text is hintspec for error msg. Precede with !
+		;; but no show-hint command (its implicit in eq rseturns).
 		(if (eq (turn-coloring turn) 'color-red)
-		    (setf result (format NIL "!~A" (wb-text turn)))
-		 ; else just return result equation text
-                 (setf result (turn-text turn))))
+		    (push `((:action . "show-hint")
+			    (:text . ,(turn-text turn))) result)
+		    ;; else just return result equation text
+		    (warn "Andes2 just returned equation text? ~A" 
+			  (turn-text turn))))
       (dialog-turn (when (turn-text turn) 
-                    (setf cmd (format NIL "!show-hint ~A" (wb-text turn)))
-		    ; add followup codes if any
-		    (when (turn-menu turn)
-		     (if (consp (turn-menu turn)) ; list => menu spec
-		       ; for now, only one level permitted.
-		       ; format list with vbar delimiters
-		       (setf responses (format NIL "|~{~A|~}" (turn-menu turn)))
-		      ; else predefined menu:
-		      (case (turn-menu turn)
-			; predefined menus have single-letter codes:
-		        (explain-more      (setf responses "e"))
-			(quant-menu        (setf responses "Q"))
-			(psm-menu          (setf responses "P"))
-			(equation-menu     (setf responses "E"))
-		        (T  (warn "WB menu code unimplemented: ~A" 
-			          (turn-menu turn))))))
-		     ; always append tilde, even if response list is empty, so wb 
-		     ; can split at last tilde even if msg happens to contain tildes
-		     (setf cmd (concatenate 'string cmd "~" responses))))
-      (tcard-turn (when (null (turn-text turn)) 
-                    (error "Training card turn with no card-id text"))
-		  (setf cmd (format NIL "!training-card ~A" (turn-text turn))))
-      (minil-turn (when (null (turn-text turn)) 
-                    (error "Minilesson turn with no filename text"))
-		  (setf cmd (format NIL "!show-lesson ~A" (turn-text turn))))
-      (end-dialog ; (setf cmd "!end-dialog") ; not implemented in WB yet
-		  (setf cmd nil)
-                  (setf result ""))
-      (kcd-turn (case (Turn-menu turn)
-		  (Free-Text (setf cmd (format NIL "!show-hint ~A~~?" (wb-text turn))))
-		  (Explain-More (setf cmd (format NIL "!show-hint ~A~~e" (wb-text turn))))
-		  (otherwize (setf cmd (format NIL "!show-hint ~A" (wb-text turn))))))
+		     (push `((:action . "show-hint")
+			     (:text . ,(turn-text turn))) result)
+		     ;; add followup codes if any
+		     (when (turn-menu turn)
+		       (if (consp (turn-menu turn)) ; list => menu spec
+			   ;; for now, only one level permitted.
+			   ;; format list with vbar delimiters
+			   (warn "menu spec ~A" (turn-menu turn))
+			   ;; else predefined menu:
+			   (case (turn-menu turn)
+			     ;; predefined menus have single-letter codes:
+			     (explain-more (warn "explain-more menu"))
+			     (quant-menu    (warn "quant menu"))
+			     (psm-menu      (warn "psm menu"))
+			     (equation-menu  (warn "equation menu"))
+			     (T  (warn "WB menu code unimplemented: ~A" 
+				       (turn-menu turn))))))))
+      (tcard-turn (warn "Training card turn with ~A." (turn-text turn)))
+      (minil-turn (warn "Minilesson card turn with ~A." (turn-text turn)))
+      (end-dialog (warn "end-dialog turn.  What is this?"))
+      (kcd-turn (push `((:action . "show-hint") 
+			(:text . ,(turn-text turn))) result)
+		(case (Turn-menu turn)
+		  (Free-Text (warn "kcd free text."))
+		  (Explain-More (warn "kcd explain more."))
+		  (otherwize (warn "kcd otherwize."))))
       ;; Format the stat turn as a list of values for the workbench.  
       ;; this code will set the return value ignoring any coloring that
       ;; may have occurred.  No cmd will be set.
-      (stat-turn (setf result (format NIL "~{~a ~a ~a~}~{~{;~a ~a ~a~}~}" 
-			 (car (turn-value turn)) (cdr (turn-value turn)))))
+      (stat-turn (push `((:action . "log") (:subscores . ,(turn-value turn)))
+		       result))
       )
-    ;; assemble final result string from parts and return it
-    (concatenate 'string result cmd)))
-  
-(defun decide-slot-flags (turn)
-"return effective list of slots to flag for this turn, NIL if none"
-  ; in cases in which we have a slot to flag, apply random
-  ; process to use them with *flag-frequency* probability
-  (when (turn-flag-slots turn)
-      (turn-flag-slots turn)))
-
-(defun wb-text (turn)
-"return adjust text from turn by replacing any disallowed newlines with spaces"
-  (substitute #\Space #\Newline (turn-text turn)))
-
+    result))
 
 
 ;;; ==========================================================================
@@ -528,8 +497,7 @@
     ;; Generate a cmdresult and set the necessary vals.
     (iface-set-cmdresult 
      Cmd :Value Val 
-     :Assoc (turn-assoc Result)
-     :Commands (turn-commands Result))))
+     :Assoc (turn-assoc Result))))
 
 
 ;;; There are four possible turn-colorings: Red, Green, no-op
@@ -583,16 +551,14 @@
   "Add an incorrect eqn-result."
   (iface-set-cmdresult
    Cmd
-   :Assoc (turn-assoc Result)
-   :Commands (turn-commands Result)))
+   :Assoc (turn-assoc Result)))
 
 
 (defun iface-add-eqr-g-cmdresult (Cmd Result)
   "Add a correct eqn-result."
   (iface-set-cmdresult
    Cmd
-   :Assoc (turn-assoc Result)
-   :Commands (turn-commands Result)))
+   :Assoc (turn-assoc Result)))
 
 
 ;;; -----------------------------------------------------------------------
@@ -612,14 +578,12 @@
     ;; Handle the turns.
     (when (turn-p Result) 
       (iface-set-ddr-turn-command Val Result)
-      (setq Assoc (turn-assoc Result))
-      (setq Commands (turn-commands Result)))
+      (setq Assoc (turn-assoc Result)))
 
     (iface-set-cmdresult
      Cmd
      :Value Val
-     :Assoc Assoc
-     :Commands Commands)))
+     :Assoc Assoc)))
 
 
 ;;; ---------------------------------------------------------------------
@@ -633,8 +597,7 @@
     (error "non-turn passed to iface-add-stat-cmdresult."))
   (iface-set-cmdresult
    Cmd
-   :Assoc (turn-assoc Result)
-   :Commands (turn-commands Result)))
+   :Assoc (turn-assoc Result)))
    
 ;;; ---------------------------------------------------------------------
 ;;; Ignore commands.
@@ -647,8 +610,7 @@
     (iface-set-cmdresult 
      Cmd
      :Value Result ;; will need to be changed later.
-     :Assoc (turn-assoc Result)
-     :Commands (turn-commands Result))))
+     :Assoc (turn-assoc Result))))
 
 
 ;;; ---------------------------------------------------------------------
@@ -794,7 +756,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun format-wb-open-browser-command (file)
   "Send an asynchronous command to open a browser."
-  (format nil "open-browser ~A" file))
+  (warn "format-wb-open-browser-command not implemented.")
+  ``((:action . "show-hint-link") (:text . ,(format nil "~A" file))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; format-WB-Close-Browser-command
@@ -806,7 +769,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun format-wb-close-browser-command ()
   "Tell the workbench to close a browser."
-  "close-browser")
+  (warn "format-wb-close-browser-command not implemented") nil)
 
 ;;
 ;; Alternate command dispatcher used to implement answer-only-mode: 

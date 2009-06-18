@@ -48,7 +48,6 @@
   order           ;List of dotted pairs giving order specification
 					;when several tests are apply
 					;choose those with maximal order
-  flag-slots    ; list of ids of workbench dialog slots to flag 
   )
 
 (defun clear-entry-tests ()
@@ -60,7 +59,7 @@
 ;;;
 
 (defmacro def-Error-Class (name arguments conditions &key (Probability 0.1) 
-				(Utility 1.0) (flag NIL))
+				(Utility 1.0))
   `(push (make-EntryTest :name (quote ,name)
 			   :preconditions (quote ,conditions)
 			   :apply 'no-match
@@ -68,7 +67,6 @@
 			   :hint (quote ,(cons name arguments))
 			   :order (quote ((expected-utility .
 					   (* ,probability ,utility))))
-			   :flag-slots (quote ,flag)
 			   )
 	 **entry-tests**))
 
