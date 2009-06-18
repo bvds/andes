@@ -11,9 +11,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		this.container = options.container;
 		this.util = options.util;
 		var pos = dojo.coords(this.container);
-		this.origin.x = pos.x;
-		this.origin.y = pos.y;
-		
+		this.origin = dojo.clone(pos);
 		var c;
 		var _isDown = false;
 		dojo.connect(this.container, "mousedown", this, function(evt){
@@ -69,7 +67,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		},
 		
 		onDown: function(obj){
-			//console.info(this.eventName("down"))
+			console.info(this.eventName("down"))
 			this._broadcastEvent(this.eventName("down"), obj);			
 		},
 		onDrag: function(obj){
@@ -80,6 +78,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			this._broadcastEvent("onMove", obj);
 		},
 		onUp: function(obj){
+			//console.info(this.eventName("up"))
 			this._broadcastEvent(this.eventName("up"), obj);
 		},
 		
@@ -89,16 +88,19 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		},
 		
 		eventName: function(name){
+			
 			name = name.charAt(0).toUpperCase() + name.substring(1);
 			var dt = !this.drawingType || this.drawingType=="surface" || this.drawingType=="canvas" ? "" : this.drawingType;
-			var t = dt ? "" : dt.charAt(0).toUpperCase() + dt.substring(1);
+			var t = !dt ? "" : dt.charAt(0).toUpperCase() + dt.substring(1);
+			console.log("EVT NAME: T:", t, "DT:", dt)
 			return "on"+t+name;
 		},
-		origin:{},
+		
 		up: function(evt){
 			this.onUp(this.create(evt));
 			this._shapeClick = false;
 		},
+		
 		down: function(evt){
 			var dim = this._getXY(evt);
 			var x = dim.x - this.origin.x;
@@ -130,6 +132,9 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			var dim = this._getXY(evt);
 			var x = dim.x - this.origin.x;
 			var y = dim.y - this.origin.y;
+			var o = this.origin;
+			
+			var withinCanvas = x>=0 && y>=0 && x<=o.w && y<=o.h;
 			
 			x*= this.zoom;
 			y*= this.zoom;
@@ -140,8 +145,8 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 				y:y,
 				pageX:dim.x,
 				pageY:dim.y,
-				orgX:this.origin.x,
-				orgY:this.origin.y,
+				orgX:o.x,
+				orgY:o.y,
 				last:{
 					x: this._lastx,
 					y: this._lasty
@@ -150,7 +155,8 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 					x: this.origin.startx,
 					y: this.origin.starty
 				},
-				id:this._getId(evt)
+				id:this._getId(evt),
+				withinCanvas:withinCanvas
 			};
 			this._lastx = x;
 			this._lasty = y;

@@ -43,6 +43,7 @@ dojo.provide("drawing.stencil.TextBlock");
 				//this.points = options.points || this.dataToPoints(options.data);
 				//this.render();
 			}
+			this.points = [];
 			this.style.line = this.style.outline;
 			this.style.fill = {r:255,g:255,b:255,a:.5};
 			this._lineHeight = this.textStyle.size * 1.5//this.textStyle.pad*2
@@ -64,11 +65,14 @@ dojo.provide("drawing.stencil.TextBlock");
 				
 				dojo.forEach(strAr, function(ar, i){
 					var txt = ar.join(" ");
-					this.textblock.createText({x: x, y: y+(h*i), text: txt, align: "start"})
+					var tb = this.textblock.createText({x: x, y: y+(h*i), text: txt, align: "start"})
 						.setFont({family: this.textStyle.fontFamily, size: this.textStyle.size+"pt", weight: "normal"})
 						.setFill("black");
+					
+					this.util.attr(tb, "drawingType", "stencil");
+					
 				}, this);
-				console.warn("onRender::", this.id);
+				this.util.attr(this.textblock, "drawingType", "stencil");
 				this.onRender(this);
 				
 			},
@@ -82,16 +86,12 @@ dojo.provide("drawing.stencil.TextBlock");
 				dojo.style(el, "height", "auto");
 				var txt = el.innerHTML;
 				txt = txt.replace(/<br>/g, " ");
-				console.warn("TXT:", txt);
+				txt = txt.replace(/&nbsp;/g, " ");
 				txt = dojo.trim(txt);
 				// remove double spaces, since SVG doesn't show them anyway
 				txt = txt.replace(/\s{2,}/g, " ");
 				el.innerHTML = "X";
 				var h = dojo.marginBox(el).h;
-				
-				console.warn("REAL HEIGHT:", h)
-				console.warn("_lineHeight:", this._lineHeight)
-				console.warn("size:", this.textStyle.size)
 				
 				el.innerHTML = txt;
 				if(dojo.marginBox(el).h == h){
@@ -138,7 +138,7 @@ dojo.provide("drawing.stencil.TextBlock");
 				
 				el.innerHTML = "";
 				
-				var kc1, kc2,kc3,kc4,kc5;
+				var kc1, kc2,kc3,kc4,kc5,kc6;
 				
 				kc1 = dojo.connect(el, "keyup", this, function(evt){
 					if(!this._editheight){
@@ -173,16 +173,13 @@ dojo.provide("drawing.stencil.TextBlock");
 					console.dir(strAr);
 					hideEditNode();
 					
-					
-					dojo.forEach([kc1,kc2,kc3,kc4,kc5], dojo.disconnect, dojo);
-					
-					
+					dojo.forEach([kc1,kc2,kc3,kc4,kc5,kc6], dojo.disconnect, dojo);
 					el = null;
 					self.renderText(strAr);
 					
 				}
 				kc2 = dojo.connect(el, "keydown", this, function(evt){
-					console.log("KEY:", evt.keyCode)
+					//console.log("KEY:", evt.keyCode)
 					if(evt.keyCode==13){
 						exec();
 						dojo.stopEvent(evt);
@@ -191,18 +188,18 @@ dojo.provide("drawing.stencil.TextBlock");
 				});
 				
 				// need to allow clicking within the field
-				kc3 = dojo.connect(this, "onUp", this, function(evt){
-					exec();
+				var _elClicked = false;
+				kc3 = dojo.connect(el, "mousedown", this, function(evt){
+					_elClicked = true;
+				});
+				kc4 = dojo.connect(this, "onUp", this, function(evt){
+					if(!_elClicked){ exec(); }
+					_elClicked = false;
 				});
 				
 				// for dev:
-				kc4 = dojo.connect(el, "focus", this, function(evt){
-					console.log("FOCUS");
-				});
-				kc5 = dojo.connect(el, "blur", this, function(evt){
-					console.log("BLUR");
-				});
-				
+				kc5 = dojo.connect(el, "focus", this, function(evt){ /*console.log("FOCUS");*/ });
+				kc6 = dojo.connect(el, "blur", this, function(evt){	/*console.log("BLUR");*/ });
 				
 				el.focus();
 				// once again for Silverlight:
@@ -227,7 +224,7 @@ dojo.provide("drawing.stencil.TextBlock");
 			},
 			
 			onUp: function(obj){
-				//if(!this.shape){ return; }
+				if(!this.shape && !obj.withinCanvas){ return; }
 				if(Math.abs(obj.x-obj.start.x<this.textStyle.minWidth)){
 					if(obj.x<obj.start.x){
 						obj.start.x = obj.start.x + this.textStyle.minWidth;

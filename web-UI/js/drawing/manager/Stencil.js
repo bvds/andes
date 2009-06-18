@@ -109,8 +109,6 @@ dojo.provide("drawing.manager.Stencil");
 				
 			},
 			onSelect: function(item){ 
-				//console.trace();
-				console.warn("SELECT:", item)
 				if(this.selectedItems[item.id]){ return; }
 				this.selectedItems[item.id] = item;
 				this.group.add(item.parent);
