@@ -5,6 +5,8 @@ dojo.provide("drawing.stencil.Stencil");
 	drawing.stencil.Stencil = drawing.util.oo.declare(
 		
 		function(options){
+			// clone style so changes are reflected in future shapes
+			this.style = dojo.clone(this.style);
 			this.util = drawing.util.common;
 			this.parent = this.orgParent = options.parent;
 			this.mouse = options.mouse;

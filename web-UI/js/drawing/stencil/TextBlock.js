@@ -39,14 +39,17 @@ dojo.provide("drawing.stencil.TextBlock");
 	drawing.stencil.TextBlock = drawing.util.oo.declare(
 		drawing.stencil.Rect,
 		function(options){
-			if(options.data || options.points){
-				//this.points = options.points || this.dataToPoints(options.data);
-				//this.render();
-			}
 			this.points = [];
 			this.style.line = this.style.outline;
 			this.style.fill = {r:255,g:255,b:255,a:.5};
 			this._lineHeight = this.textStyle.size * 1.5//this.textStyle.pad*2
+			if(options.data){
+				var strAr = this.getLineBreaks(options.data);
+				this.render();
+				this.renderText(strAr);
+			}else{
+				this.points = [];
+			}
 		},
 		{
 			textStyle:{
@@ -62,8 +65,8 @@ dojo.provide("drawing.stencil.TextBlock");
 				var y = d.y + this._lineHeight - (this.textStyle.size*.3);
 				var h = this._lineHeight;
 				this.textblock = this.parent.createGroup();
-				
-				dojo.forEach(strAr, function(ar, i){
+				this._textArray = strAr || this._textArray;
+				dojo.forEach(this._textArray, function(ar, i){
 					var txt = ar.join(" ");
 					var tb = this.textblock.createText({x: x, y: y+(h*i), text: txt, align: "start"})
 						.setFont({family: this.textStyle.fontFamily, size: this.textStyle.size+"pt", weight: "normal"})
@@ -74,15 +77,34 @@ dojo.provide("drawing.stencil.TextBlock");
 				}, this);
 				this.util.attr(this.textblock, "drawingType", "stencil");
 				this.onRender(this);
-				
+				dojo.connect(this, "render", this, "renderText");
 			},
+
 			getLineBreaks: function(/* node or String */ s){
+				console.log("BREAKS:", s, this._lineHeight)
 				var el;
-				if(typeof(s) == "string"){
+				if(!s.nodeType){
+					var d = s;
+					var p = this.textStyle.pad;
+					// offsets are the diffs from the page to the canvas
+					var x = 10;
+					var y = 10;
+					el = showEditNode(x, y);
+					
+					// FF needs a height or the cursor blinks above
+					// the input when there's no text
+					dojo.style(el, {
+						width:d.width-(p*2)+"px",
+						fontSize:this.textStyle.size+"pt",
+						fontFamily:this.textStyle.fontFamily
+					});
+					
+					el.innerHTML = d.text;
 					
 				}else{
 					el = s;
 				}
+				
 				dojo.style(el, "height", "auto");
 				var txt = el.innerHTML;
 				txt = txt.replace(/<br>/g, " ");
@@ -96,23 +118,43 @@ dojo.provide("drawing.stencil.TextBlock");
 				el.innerHTML = txt;
 				if(dojo.marginBox(el).h == h){
 					// no line breaks
-					return [[txt]];
-				}
-				var ar = txt.split(" ");
-				var strAr = [[]];
-				var line = 0;
-				el.innerHTML = "";
-				while(ar.length){
-					var word = ar.shift();
-					el.innerHTML += word+" "; //urk, always an extra space
-					if(dojo.marginBox(el).h > h){
-						line++;
-						strAr[line] = [];
-						el.innerHTML = word+" ";
+					var strAr = [[txt]];
+				}else{
+					var ar = txt.split(" ");
+					var strAr = [[]];
+					var line = 0;
+					el.innerHTML = "";
+					while(ar.length){
+						var word = ar.shift();
+						el.innerHTML += word+" "; //urk, always an extra space
+						if(dojo.marginBox(el).h > h){
+							line++;
+							strAr[line] = [];
+							el.innerHTML = word+" ";
+						}
+						strAr[line].push(word)
 					}
-					strAr[line].push(word)
 				}
 				
+				if(!s.nodeType){
+					//we need to get our dimensions
+					var txt = [];
+					dojo.forEach(strAr, function(ar, i){
+						txt.push(ar.join(" "));
+					});
+					el.innerHTML = txt.join("<br/>");
+					var dim = dojo.marginBox(el);
+					var data = {
+						x:d.x,
+						y:d.y,
+						width:d.width || dim.w,
+						height:dim.h
+					}
+					this.points = this.dataToPoints(data);
+					console.log("POINTS:", this.points)
+					hideEditNode();
+					el = null;
+				}
 				
 				return strAr;
 			},

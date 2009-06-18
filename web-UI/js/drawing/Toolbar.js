@@ -29,10 +29,10 @@ dojo.provide("drawing.Toolbar");
 			dojo.query("[tool]", this.domNode).forEach(function(node, i){
 				node.className = this.buttonClass;
 				var type = dojo.attr(node, "tool");
-				if(i==0 || dojo.attr(node, "selected")){
+				if(i==0 || dojo.attr(node, "selected")=="true"){
 					_sel = type;
 				}
-				console.log("TYPE:", type)
+				console.log("TYPE:", type, dojo.attr(node, "selected"))
 				this.toolNodes[type] = node;
 				this.drawing.registerTool(type, dojo.getObject(type));
 				dojo.connect(node, "click", this, function(evt){
