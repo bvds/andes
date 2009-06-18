@@ -31,50 +31,51 @@
 	
 </head>
 <body class="tundra">
-	<div id="main" dojoType="dijit.layout.BorderContainer" gutters="false">
-
-		<div dojoType="dijit.MenuBar" id="navMenu" region="top" splitter="false">
-				<div dojoType="dijit.PopupMenuBarItem">
-						<span>File</span>
-						<div dojoType="dijit.Menu" id="menuFile">
-								<div id="menuFile1" dojoType="dijit.MenuItem">File #1</div>
-								<div id="menuFile2" dojoType="dijit.MenuItem">File #2</div>
-						</div>
-				</div>
-				<div dojoType="dijit.PopupMenuBarItem">
-						<span>Edit</span>
-						<div dojoType="dijit.Menu" id="menuEdit">
-								<div id="menuEdit1" dojoType="dijit.MenuItem">Edit #1</div>
-								<div id="menuEdit2" dojoType="dijit.MenuItem">Edit #2</div>
-						</div>
-				</div>
+	<div id="outer" dojoType="dijit.layout.BorderContainer" gutters="false">
+		<div dojoType="andes.widget.ExpandoPane" id="upgradeBar" splitter="false" region="top" startExpanded="false">
+			Upgrade bar
 		</div>
 
-
-		<div id="toolPane" dojoType="dijit.layout.ContentPane" region="left"  splitter="false">
-				Toolbar
-		</div>
-
-		<div id="mainPane" dojoType="dijit.layout.BorderContainer" gutters="false" region="center" liveSplitters="true">
-
-			<div id="drawingPane" dojoType="dijit.layout.ContentPane" region="center" >
-					main / Drawing
+		<div id="main" dojoType="dijit.layout.BorderContainer" gutters="false" region="center" splitter="false">
+			<div dojoType="dijit.MenuBar" id="navMenu" region="top" splitter="false">
+					<div dojoType="dijit.PopupMenuBarItem">
+							<span>File</span>
+							<div dojoType="dijit.Menu" id="menuFile">
+									<div id="menuFile1" dojoType="dijit.MenuItem">File #1</div>
+									<div id="menuFile2" dojoType="dijit.MenuItem">File #2</div>
+							</div>
+					</div>
+					<div dojoType="dijit.PopupMenuBarItem">
+							<span>Edit</span>
+							<div dojoType="dijit.Menu" id="menuEdit">
+									<div id="menuEdit1" dojoType="dijit.MenuItem">Edit #1</div>
+									<div id="menuEdit2" dojoType="dijit.MenuItem">Edit #2</div>
+							</div>
+					</div>
 			</div>
 
-			<div id="helpPane" dojoType="andes.widget.ExpandoPane" region="right" splitter="true">
-				<div id="helpWrapPane" dojoType="dijit.layout.BorderContainer" gutters="false">
-					<div id="helpContentPane" dojoType="dijit.layout.ContentPane" region="center">
-						Help content
-					</div>
+			<div id="toolPane" dojoType="dijit.layout.ContentPane" region="left" splitter="false">
+					Toolbar
+			</div>
 
-					<div id="helpInputPane" dojoType="dijit.layout.ContentPane" region="bottom">
-						Help form
+			<div id="mainPane" dojoType="dijit.layout.BorderContainer" gutters="false" region="center" liveSplitters="true">
+				<div id="drawingPane" dojoType="dijit.layout.ContentPane" region="center" >
+						main / Drawing
+				</div>
+
+				<div id="helpPane" dojoType="andes.widget.ExpandoPane" region="right" splitter="true">
+					<div id="helpWrapPane" dojoType="dijit.layout.BorderContainer" gutters="false">
+						<div id="helpContentPane" dojoType="dijit.layout.ContentPane" region="center">
+							Help content
+						</div>
+
+						<div id="helpInputPane" dojoType="dijit.layout.ContentPane" region="bottom">
+							Help form
+						</div>
 					</div>
 				</div>
 			</div>
-
 		</div>
-
 	</div>
     
 </body>
