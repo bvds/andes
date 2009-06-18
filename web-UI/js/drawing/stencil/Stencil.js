@@ -38,7 +38,7 @@ dojo.provide("drawing.stencil.Stencil");
 					cap:"round"
 				},
 				outline:{
-					width:4,
+					width:1,
 					color:"#666666",
 					style:"Dash"
 				},

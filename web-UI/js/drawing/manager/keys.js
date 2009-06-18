@@ -1,6 +1,9 @@
 dojo.provide("drawing.manager.keys");
 
 (function(){
+	
+	var isEdit = false;
+	
 	drawing.manager.keys = {
 		arrowIncrement:1,
 		arrowShiftIncrement:10,
@@ -47,8 +50,11 @@ dojo.provide("drawing.manager.keys");
 			evt.cmmd = this.cmmd;
 			return evt;
 		},
+		editMode: function(_isedit){
+			isEdit = _isedit;
+		},
 		init: function(){
-			dojo.mixin(this, dojo.keys);
+			
 			dojo.connect(document, "keydown", this, function(evt){
 				if(evt.keyCode==16){
 					this.shift = true;
@@ -68,11 +74,14 @@ dojo.provide("drawing.manager.keys");
 				this.onKeyDown(this.mixin(evt));
 				if(evt.keyCode==8 || evt.keyCode==46){
 					//this.onDelete(); on down or up?
-					dojo.stopEvent(evt);
+					if(!isEdit){
+						dojo.stopEvent(evt);	
+					}
 				}
 			});
 			dojo.connect(document, "keyup", this, function(evt){
-				console.log("KEY UP:", evt)
+				//console.log("KEY UP:", evt.keyCode);
+				var _stop = false;
 				if(evt.keyCode==16){
 					this.shift = false;
 				}
@@ -91,15 +100,19 @@ dojo.provide("drawing.manager.keys");
 				
 				if(evt.keyCode==13){
 					this.onEnter(evt);
-					dojo.stopEvent(evt);
+					_stop = true;
 				}
 				if(evt.keyCode==27){
 					this.onEsc(evt);
-					dojo.stopEvent(evt);
+					_stop = true;
 				}
 				if(evt.keyCode==8 || evt.keyCode==46){
 					this.onDelete(evt);
-					dojo.stopEvent(evt);
+					_stop = true;
+				}
+				
+				if(_stop && !isEdit){
+					dojo.stopEvent(evt);	
 				}
 			});
 			
@@ -124,7 +137,9 @@ dojo.provide("drawing.manager.keys");
 					evt.y = y;
 					evt.shift = this.shift;
 					this.onArrow(evt);
-					dojo.stopEvent(evt);
+					if(!isEdit){
+						dojo.stopEvent(evt);	
+					}
 				}
 			});
 		}

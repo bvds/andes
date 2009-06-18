@@ -69,6 +69,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		},
 		
 		onDown: function(obj){
+			console.info(this.eventName("down"))
 			this._broadcastEvent(this.eventName("down"), obj);			
 		},
 		onDrag: function(obj){
@@ -89,7 +90,8 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		
 		eventName: function(name){
 			name = name.charAt(0).toUpperCase() + name.substring(1);
-			var t = !this.drawingType || this.drawingType=="surface" ? "" : this.drawingType.charAt(0).toUpperCase() + this.drawingType.substring(1);
+			var dt = !this.drawingType || this.drawingType=="surface" || this.drawingType=="canvas" ? "" : this.drawingType;
+			var t = dt ? "" : dt.charAt(0).toUpperCase() + dt.substring(1);
 			return "on"+t+name;
 		},
 		origin:{},
@@ -136,6 +138,10 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			var ret = {
 				x:x,
 				y:y,
+				pageX:dim.x,
+				pageY:dim.y,
+				orgX:this.origin.x,
+				orgY:this.origin.y,
 				last:{
 					x: this._lastx,
 					y: this._lasty

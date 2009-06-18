@@ -2,6 +2,7 @@
 <head>
     <title>Drawing Test</title>
 	<link href="../js/drawing/resources/drawing.css" rel="stylesheet" />
+
 	<style>
 		href, body{
 			overflow:hidden;
@@ -16,6 +17,7 @@
 	</style>
 	
 	<script>
+
 		var watched = {};
 		var ta;
 		watch = function(name, value){
@@ -36,7 +38,8 @@
 			isDebug:true,
 			modulePaths: {'drawing': '../../js/drawing'},
 			//modulePaths: {'drawing': '../../../drawing'},
-			gfxRenderer:'silverlight',
+			//gfxRenderer:'silverlight',
+			//gfxRenderer:'vml',
 			parseOnLoad:true
 		}
 	</script>
@@ -51,6 +54,7 @@
 				console._log(a);
 			}
 		}
+
 		dojo.require("dojo.parser");
 		dojo.require("drawing.Drawing");
 		dojo.require("drawing.Toolbar");
@@ -60,12 +64,13 @@
 <body>
     <h2>Drawing Test</h2>
 	<textarea id="ta" ></textarea>
+	<div id="conEdit" contenteditable="true"></div>
 	<div id="wrapper">
 		<div dojoType="drawing.Toolbar" drawingId="drawingNode" class="drawingCanvas"> <!-- TODO! Add DYNAMICALLY!-->
 			<button tool="drawing.stencil.Line" >Line</button>
-			<button tool="drawing.stencil.Rect" selected="true">Rect</button>
+			<button tool="drawing.stencil.Rect" selected="false">Rect</button>
 			<button tool="drawing.stencil.Ellipse">Ellipse</button>
-			<button tool="drawing.stencil.TextBlock" >Text</button>
+			<button tool="drawing.stencil.TextBlock" selected="true">Text</button>
 			&nbsp;&nbsp;&nbsp;
 			<button action="zoomIn">Zoom In</button>
 			<button action="zoom100">100%</button>

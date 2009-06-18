@@ -31,3 +31,11 @@ html, body{
 	works, but scroll also draws may need a div within a div....
 	overflow:scroll;*/
 }
+
+#conEdit{
+	border:0;
+	border:1px solid #ff0000;
+	/*outline:none;*/
+	padding:0;
+	margin:0;
+}

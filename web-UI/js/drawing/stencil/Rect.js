@@ -34,7 +34,7 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 		},
 		render: function(){
 			this.remove();
-			var d = this.pointsToData()
+			var d = this.pointsToData();
 			//console.log(this.id, "pts:", dojo.toJson(this.points))
 			//console.log(this.id, "data:", dojo.toJson(d))
 				

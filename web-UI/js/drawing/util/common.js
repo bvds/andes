@@ -2,6 +2,7 @@ dojo.provide("drawing.util.common");
 
 (function(){
 	var uidMap = {};
+
 	drawing.util.common	= {
 		// MAFF
 		radToDeg: function(angle) {
@@ -32,6 +33,7 @@ dojo.provide("drawing.util.common");
 			uidMap[str] = uidMap[str]===undefined ? 0 : uidMap[str] + 1;
 			return str + uidMap[str];
 		},
+		
 		objects:{}, //private?
 		register: function(obj){
 			this.objects[obj.id] = obj;	
@@ -72,7 +74,7 @@ dojo.provide("drawing.util.common");
 				}
 				
 				// NOT silverlight - can set atts on nodes
-				
+			
 				// util is a crappy check, but we need to tell the diff
 				// between a Drawing shape and a GFX shape
 				if(elem.shape && elem.util){
@@ -87,8 +89,7 @@ dojo.provide("drawing.util.common");
 					var args = Array.prototype.slice.call(arguments);
 					args[0] = elem.rawNode || elem.target;
 					return dojo.attr.apply(dojo, args);	
-				}
-					
+				}		
 				return dojo.attr(elem, "id");
 				
 				
