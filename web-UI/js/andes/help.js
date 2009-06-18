@@ -1,0 +1,2 @@
+dojo.provide("andes.help");
+

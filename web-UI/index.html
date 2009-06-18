@@ -15,6 +15,7 @@
 		dojo.require("dojo.parser");
 		dojo.require("dijit.layout.BorderContainer");
 		dojo.require("dijit.layout.ContentPane");
+		dojo.require("andes.widget.ExpandoPane");
 
 		dojo.require("dijit.MenuBar");
 		dojo.require("dijit.PopupMenuBarItem");
@@ -24,13 +25,14 @@
 
 		dojo.require("andes.main");
 		dojo.require("andes.menu");
+		dojo.require("andes.help");
 		//dojo.require("drawing.Drawing");
 	</script>
 	
 </head>
 <body class="tundra">
 	<div id="main" dojoType="dijit.layout.BorderContainer" gutters="false">
-		
+
 		<div dojoType="dijit.MenuBar" id="navMenu" region="top" splitter="false">
 				<div dojoType="dijit.PopupMenuBarItem">
 						<span>File</span>
@@ -59,8 +61,16 @@
 					main / Drawing
 			</div>
 
-			<div id="helpPane" dojoType="dijit.layout.ContentPane" region="right" splitter="true">
-				Help
+			<div id="helpPane" dojoType="andes.widget.ExpandoPane" region="right" splitter="true">
+				<div id="helpWrapPane" dojoType="dijit.layout.BorderContainer" gutters="false">
+					<div id="helpContentPane" dojoType="dijit.layout.ContentPane" region="center">
+						Help content
+					</div>
+
+					<div id="helpInputPane" dojoType="dijit.layout.ContentPane" region="bottom">
+						Help form
+					</div>
+				</div>
 			</div>
 
 		</div>

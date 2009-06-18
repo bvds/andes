@@ -29,6 +29,21 @@ html, body, #main{
 	
 }
 #helpPane{
-	width:200px;
-	background:#ff0000;
+	width:300px;
+}
+#helpInputPane{
+	height:70px;
+}
+#helpPane .dojoxExpandoTitle{
+	background:#ccc;
+	position:relative;
+	height:0;
+}
+#helpPane .dojoxExpandoIcon{
+	left:0;
+	cursor:pointer;
+	width:20px;
+	height:30px;
+	margin:4px 0 0 -25px;;
+	border:1px solid #999;
 }
