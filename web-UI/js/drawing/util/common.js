@@ -82,7 +82,11 @@ dojo.provide("drawing.util.common");
 				}
 				
 				if(arguments.length==2 && prop=="id" && elem.target){
-					return dojo.attr(elem.target, "id") || dojo.attr(elem.target.parentNode, "id");
+					var n = elem.target;
+					while(!dojo.attr(n, "id")){
+						n = n.parentNode;
+					}
+					return dojo.attr(n, "id");
 				}
 				
 				if(elem.rawNode || elem.target){

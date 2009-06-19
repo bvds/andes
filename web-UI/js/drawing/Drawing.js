@@ -59,8 +59,8 @@ dojo.require("drawing.manager.Silverlight");
 			surface = canvas.surface;
 			canvas.setGrid({gap:100});
 			
-			this.mouse = new drawing.manager.Mouse({container:this.domNode, util:this.util});
 			this.keys = drawing.manager.keys;
+			this.mouse = new drawing.manager.Mouse({container:this.domNode, util:this.util, keys:this.keys});
 			this.undo = new drawing.manager.Undo({keys:this.keys});
 			this.anchors = new drawing.manager.Anchors({mouse:this.mouse, undo:this.undo, util:this.util});
 			this.stencils = new drawing.manager.Stencil({surface:surface, mouse:this.mouse, undo:this.undo, keys:this.keys, anchors:this.anchors});
@@ -71,6 +71,12 @@ dojo.require("drawing.manager.Silverlight");
 				parent:surface.createGroup(),
 				mouse:this.mouse,
 				data:{x:100, y:100, width:100, height:100}							  
+			}));
+			
+			this.stencils.register(new drawing.stencil.TextBlock({
+				parent:surface.createGroup(),
+				mouse:this.mouse,
+				data:{x:300, y:100, width:300, text:"Dynamic Text"}							  
 			}));
 			/*
 			this.stencils.register(new drawing.stencil.Ellipse({

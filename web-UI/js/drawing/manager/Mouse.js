@@ -10,6 +10,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 	function(options){
 		this.container = options.container;
 		this.util = options.util;
+		this.keys = options.keys;
 		var pos = dojo.coords(this.container);
 		this.origin = dojo.clone(pos);
 		var c;
@@ -19,7 +20,6 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			_isDown = true;
 			c = dojo.connect(document, "mousemove", this, "drag");
 		});
-		// FIXME: connect on surface hover
 		dojo.connect(document, "mouseup", this, function(evt){
 			dojo.disconnect(c);
 			_isDown = false;
@@ -30,11 +30,9 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 				this.move(evt);
 			}
 		});
-		//dojo.connect(this.container, "mouseup", this, function(evt){
-			//if(evt.target.id.indexOf("surface")>-1){
-				//this.onCanvasUp(evt);
-			//}
-		//});
+		dojo.connect(this.keys, "onEsc", this, function(evt){
+			this._dragged = false;	
+		});
 	},
 	
 	{
@@ -67,19 +65,27 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		},
 		
 		onDown: function(obj){
-			console.info(this.eventName("down"))
+			//console.info(this.eventName("down"))
 			this._broadcastEvent(this.eventName("down"), obj);			
 		},
 		onDrag: function(obj){
-			//console.info(this.eventName("drag"))
+			console.info(this.eventName("drag"))
 			this._broadcastEvent(this.eventName("drag"), obj);	
+			this._dragged = true;
 		},
 		onMove: function(obj){
 			this._broadcastEvent("onMove", obj);
 		},
 		onUp: function(obj){
-			//console.info(this.eventName("up"))
-			this._broadcastEvent(this.eventName("up"), obj);
+			// blocking first click-off, largely for TextBlock
+			// TODO: should have param to make this optional
+			var nm = this.eventName("up");
+			if(this._dragged && nm == "onUp"){
+				nm = "onShapeUp";
+				this._dragged = false;
+			}
+			//console.info(nm)
+			this._broadcastEvent(nm, obj);
 		},
 		
 		zoom: 1,
@@ -88,11 +94,9 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		},
 		
 		eventName: function(name){
-			
 			name = name.charAt(0).toUpperCase() + name.substring(1);
 			var dt = !this.drawingType || this.drawingType=="surface" || this.drawingType=="canvas" ? "" : this.drawingType;
 			var t = !dt ? "" : dt.charAt(0).toUpperCase() + dt.substring(1);
-			console.log("EVT NAME: T:", t, "DT:", dt)
 			return "on"+t+name;
 		},
 		
