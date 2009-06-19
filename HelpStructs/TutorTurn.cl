@@ -230,6 +230,7 @@
   (unless id (warn "no id in make-eqn-failure-turn"))
   (make-turn :type **Eqn-Turn**
              :coloring **Color-Red**
+	     :id id
 	     :text Msg
 	     :Responder #'(lambda (x) (declare (ignore x)) nil)))
 	     

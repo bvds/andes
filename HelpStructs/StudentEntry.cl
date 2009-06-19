@@ -99,9 +99,6 @@
 		      ,(list (get-studententry-symbol y) old-entry)))
 		x)))
 
-(defparameter *allowed-studententry-types* 
-  '("phrase" "graphics" "equation" "circle" "rectangle" "axes" "vector" "line"))
-
 (defun get-id (ID Entries)
   "Return the student entry for the specified ID if it has been done."
   (find ID Entries :test #'equalp :key #'StudentEntry-ID))

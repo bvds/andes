@@ -236,7 +236,7 @@
     ;; calculate-equation-string (find variable on lhs of equation)
     ;;                           (probably not in Andes3)
     ;; Andes2 but not in Andes3:  label-radius
-
+    
     ;; Andes2 does not distinguish between a new entry and a 
     ;; modified entry since all the information about an object 
     ;; is present every  time.  So, it just clobbers
@@ -259,13 +259,7 @@
 				     (equal action "delete-object")))
 	(warn "Object ~A does not exist, creating new object." id))
 
-      ;; check type, if there is no old entry
-      (unless (or old-entry (member type *allowed-studententry-types* :test #'equal))
-	(warn "Attribute type=~A not allowed." type)
-	(setf type nil))
-
-
-      (when (and old-entry 
+      (when (and type old-entry 
 		 (not (equal type (StudentEntry-type old-entry))))
 	(warn "Attempting to change type from ~A to ~A"
 	      (StudentEntry-type old-entry) type))
@@ -280,43 +274,43 @@
 	 type mode x y text width height radius symbol 
 	 x-label y-label z-label angle))
 
-      ;; update new object from variables
+      ;; update new object from non-null variables
       (update-entry-from-variables 
        new-entry  
        mode x y text width height radius symbol x-label y-label z-label angle)
-      
+
       (cond
 	((equal action "delete-object")
 	 ;; We should pass the object to be deleted rather than the id.
 	 (delete-object (StudentEntry-id new-entry)))
 	
 	;; Since "text" is the  attribute and is required. 
-	((equal type "equation")
+	((equal (StudentEntry-type new-entry) "equation")
 	 (execute-andes-command #'lookup-eqn-string new-entry))
 	
-	((equal type "statement")
+	((equal (StudentEntry-type new-entry) "statement")
 	 (execute-andes-command #'define-variable new-entry))
 	 
-	((equal type "graphics")
+	((equal (StudentEntry-type new-entry) "graphics")
 	 (warn "Can't modify a graphic object, id=~A" 
 	       (studententry-id new-entry)))
 	
-	((equal type "circle")
+	((equal (StudentEntry-type new-entry) "circle")
 	 (execute-andes-command #'assert-object new-entry))
 
-	((equal type "rectangle")
+	((equal (StudentEntry-type new-entry) "rectangle")
 	 (execute-andes-command #'assert-object new-entry))
 
-	((equal type "axes")
+	((equal (StudentEntry-type new-entry) "axes")
 	 (execute-andes-command #'assert-x-axis new-entry))
 
-	((equal type "vector")
+	((equal (StudentEntry-type new-entry) "vector")
 	 (execute-andes-command #'lookup-vector new-entry))
 
-	((equal type "line")
+	((equal (StudentEntry-type new-entry) "line")
 	 (execute-andes-command #'lookup-line new-entry))
 
-      (t (warn "Undefined type ~A." type))))))
+      (t (warn "Undefined type ~A."  (StudentEntry-type new-entry)))))))
 
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
