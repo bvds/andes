@@ -436,8 +436,7 @@
 
     ;; see comments in define-variable
     (setf best (best-matches 
-		;; If there is a symbol strip out the leading "Let x be ..."
-		(if symbol (subseq text (+ 3 (search "be" text))) text)
+		(pull-out-quantity symbol text)
 		(mapcar #'(lambda (x) (cons (nlg (cadr (SystemEntry-prop x))) x))
 			(remove '(body . ?rest) *sg-entries* 
 				:key #'SystemEntry-prop :test-not #'unify))))
@@ -1009,11 +1008,12 @@
     ;;  Should have alternative texts for matching.
     ;;  Should correctly handle "Let xxx be ... " wrapper, matching to 
     ;;     symbol from client.
+    ;;  Should have something to handle extra stuff like setting
+    ;;     given values in definition.  (either handle it or warning/error).
     (setf best (best-matches
-		;; should have test that symbol exists
-		;; strip out the leading "Let x be ..."
-		(subseq text (+ 3 (search "be" text)))
-		(mapcar #'(lambda (x) (cons (nlg (cadr (SystemEntry-prop x))) x))
+		(pull-out-quantity symbol text)
+		(mapcar #'(lambda (x) 
+			    (cons (nlg (cadr (SystemEntry-prop x))) x))
 			(remove '(define-var . ?rest) *sg-entries* 
 				:key #'SystemEntry-prop :test-not #'unify))))
 
@@ -1030,7 +1030,7 @@
     (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
     ;; install new variable in symbol table
     (add-entry entry)
-    ;; probaby should switch to whole SystemEntry
+    ;; probably should switch to whole SystemEntry
     (check-symbols-enter symbol body-term id)
 
     ;; record associated given value equation entry
