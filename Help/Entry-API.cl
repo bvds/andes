@@ -507,70 +507,59 @@
 ;;  enters the variables in the symbol table.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun lookup-vector (entry)
-  (let* ((dir (StudentEntry-angle entry))
+  (let* ((id (StudentEntry-id entry))
+	 (text (StudentEntry-text entry))
+	 (symbol (StudentEntry-symbol entry))
 	 (drawn-mag (StudentEntry-radius entry))
-	 ;; must be determined from parsing
-	 time avg-inst system type
+	 best sysent
 	 ;; For now, these are all null, since they are done 
 	 ;; as separate steps
 	 given-mag given-xc given-yc given-zc
-	 (drawn-dir (StudentEntry-angle entry))
-	 (vtype        (arg-to-id **vector-types** type))
-	 (body-term    (arg-to-body system))
-	 (time-term    (arg-to-time time))
-	 ;; avg-inst choice is redundant with time -- WB ensures consistency
-	 ;; However, for vector types with two arguments, arg carries 
-	 ;; the second body argument 
-	 ;; also, field quant forms are odd in that it includes field type slot
-	 (vquant-term (cond 
-	               ((equal vtype 'E-field) 
-			(if (null avg-inst) ;null agent => net-field
-			    `(net-field ,body-term electric)
-			    `(field ,body-term electric ,(arg-to-body avg-inst))))
-		       ((equal vtype 'B-field) 
-			(if (null avg-inst) ;null agent => net-field
-			    `(net-field ,body-term magnetic)
-			    `(field ,body-term magnetic ,(arg-to-body avg-inst))))
-		       ;; WB unit vector type codes pack in kb subtype argument:
-		       ((equal vtype 'unit-Normal) 
-			`(unit-vector normal-to ,body-term :at NIL))
-		       ((equal vtype 'unit-towards)
-			     `(unit-vector towards ,(arg-to-body avg-inst) :at ,body-term))
-		       ((equal vtype 'unit-away-from)
-			`(unit-vector away-from ,(arg-to-body avg-inst) :at ,body-term))
-		       ;; a two-argument vector type:
-		       ((or (equal vtype 'relative-position) (equal vtype 'relative-vel)
-			    (equal vtype 'impulse) (equal vtype 'dipole-moment))
-			`(,vtype ,body-term ,(arg-to-body avg-inst)))
-		       ;; else single argument vector: 
-		       (T `(,vtype ,body-term))))
-	 (dir-term (arg-to-dir dir drawn-mag)))
-
-    (check-noneq-entry 
-     (make-vector-entry entry vquant-term time-term dir-term))))
-
-;; worker routine to do generic tasks common to vector entries 
-;; once the vector quantity has been formed
-(defun make-vector-entry (entry vquant-term time-term dir-term)
-  (let* ((id (StudentEntry-id entry))
-	 (label (StudentEntry-symbol entry))
-	 ;; not in current version:
-	 given-mag given-xc given-yc given-zc
 	 ;;
-	 (vector-term (append vquant-term `(:time ,time-term)))
-	 (action      `(vector ,vector-term ,dir-term))
-	 ;; this defines magnitude and direction variables
-	 (vector-mag-term `(mag ,vector-term))
-	 (vector-dir-term `(dir ,vector-term))
+	 ;; defined after match
+	 action vector-term vector-mag-term vector-dir-term
+	 ;;
+	 ;; In Andes3, there is no user-interface command to specify
+	 ;; the direction as "unknown."  If the student happens to get
+	 ;; the correct direction (if the direction can eventually be 
+	 ;; calculated), then fine.  
+	 ;; Otherwise, we check the drawn direction of the vector against 
+	 ;; other vector and axis directions, and their opposites.
+	 ;; If there is a match, provide unsolicited hint that another 
+	 ;; direction should be chosen.  Something like,
+	 ;; "The direction of F1 is unknown.  Drawing it in the direction
+	 ;;  180 degrees suggests that it is parallel to the velocity of 
+	 ;;  the ball.  Please choose another direction."
+	 (dir (StudentEntry-angle entry))
+	 (dir-term (arg-to-dir dir drawn-mag))
 	 ;; xy plane vectors get theta prefix, z axis ones get phi
 	 ;; Greek symbols expressed by $ + char position in symbol font
-	 (dir-label  (format NIL "~A~A" (if (z-dir-spec dir-term) "$j" "$q")
-			     label)))
+	 (dir-label (format NIL "~A~A" (if (z-dir-spec dir-term) "$j" "$q")
+			    symbol)))
+
+    ;; see comments in define-variable
+    (setf best (best-matches
+		(pull-out-quantity symbol text)
+		(mapcar #'(lambda (x) 
+			    (cons (nlg (cadr (SystemEntry-prop x))) x))
+			(remove '(vector . ?rest) *sg-entries* 
+
+    ;; See comments in define-variable
+    (when (= (length best) 1)
+      (setf sysent (car best)))
+				:key #'SystemEntry-prop :test-not #'unify))))
+
+    (setf action (SystemEntry-prop sysent))
+    ;; dir-term could just as well be gotten from action...
+    ;; how to we check the two?
+    (setf vector-term (second action))
+    (setf vector-mag-term `(mag ,vector-term))
+    (setf vector-dir-term `(dir ,vector-term))
 
     (setf (StudentEntry-prop entry) action)
     ;; remove existing entry and update
     (add-entry entry)
-    (check-symbols-enter label vector-mag-term id)
+    (check-symbols-enter symbol vector-mag-term id)
     (check-symbols-enter dir-label vector-dir-term id)
 
     ;; if any axes are defined must add all component variables as well
@@ -578,7 +567,7 @@
       (let* ((axis-label (sym-label axis-sym))
              (axis-term  (sym-referent axis-sym))
 	     (axis-entry-id (first (sym-entries axis-sym)))
-             (compo-var  (format NIL "~A_~A" label axis-label))
+             (compo-var  (format NIL "~A_~A" symbol axis-label))
 	     (compo-term (vector-compo vector-term axis-term)) ; Physics-Funcs
 	    )
         (check-symbols-enter compo-var compo-term (list id axis-entry-id))))
@@ -602,7 +591,7 @@
     ;; if vector is zero-length, associate implicit equation magV = 0
     ;; also add component eqns vc = 0 for all component variables in solution.
     (when (equal dir-term 'zero)
-       (add-implicit-eqn entry (make-implicit-assignment-entry label 0))
+       (add-implicit-eqn entry (make-implicit-assignment-entry symbol 0))
        (dolist (syscomp (get-soln-compo-vars vector-term))
 	 ;; skip make-implicit-assignment-entry since we have sysvar, 
 	 ;; not studvar
@@ -613,22 +602,22 @@
     ;; variable args.
     (when (not (equal dir-term 'zero))
        (when given-mag
-	 (add-given-eqn entry (make-given-eqn-entry label given-mag 'given-mag)))  
+	 (add-given-eqn entry (make-given-eqn-entry symbol given-mag 'given-mag)))  
        ;; Components in reverse order because add-given-eqn pushes at front. 
        ;; Want xc to wind up first so error there gets reported first.
        (when given-zc
            (add-given-eqn entry 
-	       (make-given-eqn-entry (strcat label "_z") given-zc 'given-zc)))
+	       (make-given-eqn-entry (strcat symbol "_z") given-zc 'given-zc)))
        (when given-yc
            (add-given-eqn entry 
-	       (make-given-eqn-entry (strcat label "_y") given-yc 'given-yc)))  
+	       (make-given-eqn-entry (strcat symbol "_y") given-yc 'given-yc)))  
        (when given-xc
            (add-given-eqn entry 
-	       (make-given-eqn-entry (strcat label "_x") given-xc 'given-xc))))
+	       (make-given-eqn-entry (strcat symbol "_x") given-xc 'given-xc))))
  
     ; if vector is a unit vector, associate implicit equation magV = 1 
     (when (eq (first vector-term) 'unit-vector)
-        (add-implicit-eqn entry (make-implicit-assignment-entry label 1)))
+        (add-implicit-eqn entry (make-implicit-assignment-entry symbol 1)))
     ; if direction is known, associate implicit equation dirV = dir deg.
     (when (degree-specifierp dir-term)          ; known xy plane direction
        (add-implicit-eqn entry (make-implicit-assignment-entry dir-label dir-term)))
@@ -636,10 +625,10 @@
                (not (equal dir-term 'z-unknown))) ; known z axis direction
        (add-implicit-eqn entry (make-implicit-assignment-entry dir-label (zdir-phi dir-term))))
    
-    ; Associated eqns will be entered later if entry is found correct.
+    ;; Associated eqns will be entered later if entry is found correct.
 
-    ; finally return entry
-    entry))
+    ;; finally return entry
+     (check-noneq-entry entry)))
 
 ; fetch list of system vars denoting components of vector term
 (defun get-soln-compo-vars (vector-term)
@@ -721,123 +710,6 @@
     ;; finally return entry
     (check-noneq-entry entry)))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; lookup-force - check correctness of a force vector drawn by the student
-;; argument(s):
-;;  label: the force label
-;;  type: tension or grav or spring or friction ... a net force is indicated
-;;   by putting NET here
-;;  system: the label given to the body the force is acting on. may be either
-;;   system label or body name
-;;  agent:
-;;   the label given to the body the force is exerted by. NIL if this is a
-;;   net force
-;;  dir:
-;;   angle of the force vector from horizontal 0->360 degrees or a negative
-;;   number coding a z-axis direction as follows -1 => out of page, -2 into
-;;   page, -3 => unknown but along the z-axis
-;;  mag:
-;;   magnitude of the force (zero vs. non-zero) or nil if unspecified
-;;  time:
-;;   the time period during which the force is constant; if nil and system is
-;;   a student-defined system, the time will be taken from the system definition
-;;  id:
-;;   id assigned to the force vector by the workbench
-;; returns:
-;;  entry status return value -- see end of code for description of this
-;; note(s):
-;;   if the force is correct then the help system marks the corresponding sys-
-;;   tem entry as "entered" it also defines magnitude and direction variables
-;;   for the force, and enters them into the symbol table.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun lookup-force (label type system agent dir mag time id
-                         given-mag given-xc given-yc given-zc drawn-dir)
-   (let* ((body-term (arg-to-body system))
-	  (time-term (arg-to-time time))
-	  (agent-term (arg-to-body agent))
-          (type-term (arg-to-id **force-types** type))
-	  ; net force is special:
-	  (vquant-term (if (eq type-term 'Net) `(net-force ,body-term)
-	                 `(force ,body-term ,agent-term ,type-term)))
-	  (dir-term (arg-to-dir dir mag)))
-
-    (check-noneq-entry
-     (make-vector-entry label vquant-term time-term dir-term id
-                       given-mag given-xc given-yc given-zc drawn-dir))))
-  
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; lookup-torque - check correctness of a torque vector drawn by student
-;; Arguments:
-;; label: the torque label
-;; type: net, couple, or other.
-;; body: Net torque: the label of the whole torqued body. 
-;;       Individual torque: the point of application of the force
-;; axis: dipole torque:  the agent of the field
-;;       couple:  the other body
-;;       the pt about which the rotation axis is located
-;; dir: angle of the torque vector from horizontal: 0<=dir<360
-;;       If the vector is out of the screen, value is -1, 
-;;       if it is into the screen, value is -2
-;; mag: magnitude of the torque or NIL if unspecified
-;; time: the time period during which the torque is constant
-;;       if the whole problem this can be NIL
-;; id: numerical id assigned to the force vector by the workbench
-;; 
-;; Returns:  entry status return value
-;; 
-;; Side Effects: Updates state as for other vector entries
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun lookup-torque (label type body axis dir mag time id
-                         &optional given-mag given-xc given-yc given-zc drawn-dir)
- (let* ((body-term   (arg-to-body body))
-	(time-term   (arg-to-time time))
-	(axis-term   (arg-to-body axis))
-	;; net torque is easy. For individual torques, must find body 
-	;; containing the point of application as part and also full term 
-	;; for force applied at that point, assumed to be unique.  Note if 
-	;; no such force we can't determine a full quantity spec at all.
-	(vquant-term (cond
-		      ((eq type '|Net|) `(net-torque ,body-term ,axis-term))
-		      ((eq type '|Couple|) 
-		       `(torque ,body-term 
-				(couple orderless ,body-term ,axis-term)))
-		      ((eq type '|Dipole|)
-		       (find-dipole-torque-term body-term axis-term))
-	              (t (find-torque-term body-term axis-term))))
-	(dir-term (arg-to-dir dir mag)))
-
-   (check-noneq-entry
-    (make-vector-entry label vquant-term time-term dir-term id
-                       given-mag given-xc given-yc given-zc drawn-dir))))
-
-(defun find-torque-term (pt axis)
-  "fill in fully explicit torque term implicitly defined by point of force application and axis"
-  (let* (
-	 ;; get force by searching entries for force at pt of application
-	 (force-matches (sg-fetch-entry-props 
-			 `(vector (force ,pt ?agent ?type :time ?t) ?dir)))
-	 (force-match   (if (= (length force-matches) 1)
-			    (remove-time (second (first force-matches)))
-	                  `(force ,pt unknown unknown)))
-	 ;; get main body by searching problem givens for point-on-body
-	 (body-matches (filter-expressions `(point-on-body ,pt ?b) 
-					   (problem-givens *cp*)))
-	 (body-match   (if (= (length body-matches) 1) (car body-matches)))
-	 (body-term    (if body-match (third body-match) 'unknown)))
-    ;; return the torque quantity
-    `(torque ,body-term ,force-match :axis ,axis) 
-    ))
-
-(defun find-dipole-torque-term (dipole field-name)
-  ;; second arg is student's label for field. Find in symbol table
-  ;; referent should be (mag (field ... ... ... :time ...))
-  (let* ((field-match (symbols-referent (string field-name)))
-         (field-term  (if field-match (remove-time (second field-match))
-	               ; else referent not found! shouldn't happen
-	                  `(field nil nil nil))))
-    ;; return the torque quantity
-    `(torque ,dipole ,field-term) ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; label-angle -- assigns the given label to the angle between two objects with

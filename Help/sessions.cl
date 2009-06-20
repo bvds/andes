@@ -147,7 +147,8 @@
   
   ;; Need to think about error handling for the case where 
   ;; the session already exists.
-  (assert (null webserver:*env*))
+  (when webserver:*env* 
+    (warn "webserver:*env* already exists.  Session in progress?"))
   ;; tracing/debugging print
   (format webserver:*stdout* "open-problem opening problem ~A~%" problem)
   
@@ -231,11 +232,11 @@
   (env-wrap 
     ;; Andes2 also had calls to:
     ;; define-angle-variable assert-compound-object
-    ;; label-angle lookup-force lookup-torque
+    ;; label-angle
     ;; lookup-mc-answer check-answer
     ;; calculate-equation-string (find variable on lhs of equation)
     ;;                           (probably not in Andes3)
-    ;; Andes2 but not in Andes3:  label-radius
+    ;; Andes2 but not in Andes3:  label-radius lookup-torque lookup-force
     
     ;; Andes2 does not distinguish between a new entry and a 
     ;; modified entry since all the information about an object 
