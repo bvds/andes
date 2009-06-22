@@ -2,6 +2,9 @@ dojo.provide("drawing.manager.Anchors");
 
 (function(){
 	
+	//
+	// FIXME: constrain anchors to not go past each other
+	//
 	drawing.manager.Anchors = drawing.util.oo.declare(
 		function(options){
 			this.mouse = options.mouse;
@@ -18,6 +21,7 @@ dojo.provide("drawing.manager.Anchors");
 					item:item,
 					anchors:[]
 				};
+				if(item.anchorType=="none"){ return; }
 				var pts = item.getPoints();
 				dojo.forEach(pts, function(p){
 					var a = new drawing.manager.Anchor({stencil:item, point:p, mouse:this.mouse, util:this.util});
@@ -63,6 +67,7 @@ dojo.provide("drawing.manager.Anchors");
 	
 	drawing.manager.Anchor = drawing.util.oo.declare(
 		function(options){
+			this.style = drawing.defaults.copy();
 			this.id = options.id || drawing.util.common.uid("anchor");
 			this.mouse = options.mouse;
 			this.point = options.point;
@@ -86,15 +91,27 @@ dojo.provide("drawing.manager.Anchors");
 				fill:"#FFFFFF"
 			},
 			render: function(){
+				var d = this.style.anchors,
+					b = d.width,
+					s = d.size,
+					p = s/2,
+					line = {
+						width:b,
+						style:d.style,
+						color:d.color,
+						cap:d.cap
+					};
+					
+		
 				var _r = {
-					x: this.point.x-this.size/2,
-					y: this.point.y-this.size/2,
-					width: this.size,
-					height: this.size
+					x: this.point.x-p,
+					y: this.point.y-p,
+					width: s,
+					height: s
 				};
 				this.shape = this.stencil.parent.createRect(_r)
-					.setStroke(this.style.line)
-					.setFill(this.style.fill);
+					.setStroke(line)
+					.setFill(d.fill);
 				
 				this.shape.setTransform({dx:0, dy:0});
 				this.util.attr(this, "drawingType", "anchor");
@@ -123,7 +140,7 @@ dojo.provide("drawing.manager.Anchors");
 					});
 					this.point.x += x;
 					this.point.y += y;
-					this.stencil.render();
+					this.stencil.render(); /// ------------- rendering, not transforming
 					this.onTransformPoint(this);
 				}
 			},

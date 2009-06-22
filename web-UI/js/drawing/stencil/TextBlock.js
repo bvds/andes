@@ -1,4 +1,5 @@
 dojo.provide("drawing.stencil.TextBlock");
+dojo.require("drawing.stencil.Text");
 
 (function(){
 	
@@ -9,118 +10,180 @@ dojo.provide("drawing.stencil.TextBlock");
 		//	DOCTYPE. But this has the side effect that causes a bug
 		//	where contenteditable divs cannot be made dynamically.
 		//	The solution is to include one in the main document
-		//	that can be added and removed as necessary:
+		//	that can be appended and removed as necessary:
 		//	<div id="conEdit" contenteditable="true"></div>
 		//
 		conEdit = dojo.byId("conEdit");
 		if(!conEdit){
 			console.error("A contenteditable div is missing from the main document.")
+		}else{
+			conEdit.parentNode.removeChild(conEdit);
 		}
-		conEdit.parentNode.removeChild(conEdit);
 	});
 	
-	var showEditNode = function(x, y){
-		wrapNode = dojo.doc.createElement("div");
-		wrapNode.appendChild(conEdit);
-		dojo.style(wrapNode, {
-			position:"absolute",
-			left:x+10+"px",
-			top:y+10+"px"
-		});
-		document.body.appendChild(wrapNode);
-		return conEdit;
-	};
-	var hideEditNode = function(){
-		conEdit.blur();
-		conEdit.parentNode.removeChild(conEdit);
-		dojo.destroy(wrapNode);
-	};
-	
 	drawing.stencil.TextBlock = drawing.util.oo.declare(
-		drawing.stencil.Rect,
+		//
+		// TODO - handle zoom - and zoom while showing
+		// disable?
+		//
+		drawing.stencil.Text,
 		function(options){
-			this.points = [];
-			this.style.line = this.style.outline;
-			this.style.fill = {r:255,g:255,b:255,a:.5};
-			this._lineHeight = this.textStyle.size * 1.5//this.textStyle.pad*2
-			if(options.data){
-				var strAr = this.getLineBreaks(options.data);
-				this.render();
-				this.renderText(strAr);
-			}else{
-				this.points = [];
-			}
+			this.util = drawing.util.common;
+			this.mouse = options.mouse;
+			this.keys = options.keys || {};
+			this._lineHeight = this.style.text.size * 1.5;
 		},
 		{
-			textStyle:{
-				minWidth:150,
-				size:24,
-				pad:3,
-				fontFamily:"serif"
-			},
-			renderText: function(strAr){
-				this.remove(this.textblock);
-				var d = this.pointsToData();
-				var x = d.x + this.textStyle.pad*2;
-				var y = d.y + this._lineHeight - (this.textStyle.size*.3);
-				var h = this._lineHeight;
-				this.textblock = this.parent.createGroup();
-				this._textArray = strAr || this._textArray;
-				dojo.forEach(this._textArray, function(ar, i){
-					var txt = ar.join(" ");
-					var tb = this.textblock.createText({x: x, y: y+(h*i), text: txt, align: "start"})
-						.setFont({family: this.textStyle.fontFamily, size: this.textStyle.size+"pt", weight: "normal"})
-						.setFill("black");
-					
-					this.util.attr(tb, "drawingType", "stencil");
-					
-				}, this);
-				this.util.attr(this.textblock, "drawingType", "stencil");
-				this.onRender(this);
-				dojo.connect(this, "render", this, "renderText");
-			},
-
-			getLineBreaks: function(/* node or String */ s){
-				console.log("BREAKS:", s, this._lineHeight)
-				var el;
-				if(!s.nodeType){
-					var d = s;
-					var p = this.textStyle.pad;
-					// offsets are the diffs from the page to the canvas
-					var x = 10;
-					var y = 10;
-					el = showEditNode(x, y);
-					
-					// FF needs a height or the cursor blinks above
-					// the input when there's no text
-					dojo.style(el, {
-						width:d.width-(p*2)+"px",
-						fontSize:this.textStyle.size+"pt",
-						fontFamily:this.textStyle.fontFamily
-					});
-					
-					el.innerHTML = d.text;
-					
-				}else{
-					el = s;
-				}
+			
+			showParent: function(obj){
+				if(this.parentNode){ return; }
+				console.log("SHOW PARENT OBJ:", obj)
+				var x = obj.pageX || 10;
+				var y = obj.pageY || 10;
+				this.parentNode = dojo.doc.createElement("div");
+				this.parentNode.id = this.id;
+				var d = this.style.text.mode.create;
+				this._box = {
+					left:x,
+					top:y,
+					width:obj.width || 1,
+					height:obj.height || this._lineHeight,
+					border:d.width+"px "+d.style+" "+d.color,
+					position:"absolute",
+					toPx: function(){
+						var o = {};
+						for(var nm in this){
+							o[nm] = typeof(this[nm])=="number" ? this[nm] + "px" : this[nm];
+						}
+						return o;
+					}
+				};
 				
-				dojo.style(el, "height", "auto");
-				var txt = el.innerHTML;
-				txt = txt.replace(/<br>/g, " ");
+				dojo.style(this.parentNode, this._box);
+				document.body.appendChild(this.parentNode);
+			},
+			createTextField: function(txt){
+				// style parent
+				var d = this.style.text.mode.edit;
+				this._box.border = d.width+"px "+d.style+" "+d.color;
+				this._box.height = "auto";
+				this._box.width = Math.max(this._box.width, this.style.text.minWidth);
+				dojo.style(this.parentNode, this._box.toPx());
+				// style input
+				this.parentNode.appendChild(conEdit);
+				dojo.style(conEdit, {
+					height: txt ? "auto" : this._lineHeight+"px",
+					fontSize:this.style.text.size+"pt",
+					fontFamily:this.style.text.fontFamily
+				});
+				conEdit.innerHTML = txt || "";
+				
+				return conEdit;
+			},
+			connectTextField: function(){
+				this.keys.editMode(true);
+				var kc1, kc2, kc3, self = this, _autoSet = false,
+					exec = function(){
+						dojo.forEach([kc1,kc2,kc3], dojo.disconnect, dojo);
+						self.keys.editMode(true);
+						self.execText();
+					}
+					
+				kc1 = dojo.connect(conEdit, "keyup", this, function(evt){
+					if(!_autoSet){
+						dojo.style(conEdit, "height", "auto"); _autoSet = true;
+					}
+					if(evt.keyCode==13 || evt.keyCode==27){
+						dojo.stopEvent(evt);
+						exec();
+					}
+				});
+				kc2 = dojo.connect(conEdit, "keydown", this, function(evt){
+					if(evt.keyCode==13 || evt.keyCode==27){ // TODO: make escape an option
+						dojo.stopEvent(evt);
+					}
+				});
+				kc3 = dojo.connect(conEdit, "mouseup", this, function(evt){
+					dojo.stopEvent(evt);
+				});
+				this.createAnchors();
+				conEdit.focus();
+				// once again for Silverlight:
+				//setTimeout(function(){ conEdit.focus();}, 500);
+				
+				this.onDown = function(){}
+				this.onDrag = function(){}
+				this.onUp = function(){
+					if(!self._onAnchor){
+						this.disconnectMouse();
+						exec();
+					}
+				}
+			},
+			execText: function(){
+				var d = dojo.marginBox(this.parentNode);
+				var txt = this.cleanText(conEdit.innerHTML, true);
+				conEdit.innerHTML = "";
+				conEdit.blur();
+				this.destroyAnchors();
+				var o = this.getLineBreaks(txt);
+				
+				var x = this._box.left - this._offX;
+				var y = this._box.top - this._offY;
+				this.points = [
+					{x:x, y:y},
+					{x:x+d.w, y:y},
+					{x:x+d.w, y:y+o.h},
+					{x:x, y:y+o.h}
+				];
+		
+				this.render(o.text);
+			},
+			
+			edit: function(){ console.log("--onStencilDoubleClick--", this.id,this.parentNode, this.points)
+				// NOTE: no mouse obj
+				if(this.parentNode || !this.points){ return; }
+				var d = this.pointsToData();
+				var obj = {
+					pageX: d.x + this._offX,
+					pageY: d.y + this._offY,
+					width:d.width,
+					height:d.height
+				}
+				this.remove(this.shape, this.hit);
+				this.showParent(obj);
+				this.createTextField(this._text.replace("/n", " "));
+				this.connectTextField();
+				
+			},
+			cleanText: function(txt, removeBreaks){
+				if(removeBreaks){
+					dojo.forEach(['<br>', '<br/>', '<br />', '\\n', '\\r'], function(br){
+						txt = txt.replace(new RegExp(br, 'gi'), " ");
+					});
+				}
 				txt = txt.replace(/&nbsp;/g, " ");
 				txt = dojo.trim(txt);
 				// remove double spaces, since SVG doesn't show them anyway
 				txt = txt.replace(/\s{2,}/g, " ");
+				return txt;
+			},
+			
+			getLineBreaks: function(/* String */ str){
+				console.log("BREAKS:", this._lineHeight)
+				this.showParent({width:300, height:"auto"});
+				
+				var txt = "";
+				var el = conEdit;
 				el.innerHTML = "X";
 				var h = dojo.marginBox(el).h;
 				
-				el.innerHTML = txt;
+				el.innerHTML = str;
 				if(dojo.marginBox(el).h == h){
 					// no line breaks
-					var strAr = [[txt]];
+					txt = str;
 				}else{
-					var ar = txt.split(" ");
+					var ar = str.split(" ");
 					var strAr = [[]];
 					var line = 0;
 					el.innerHTML = "";
@@ -134,157 +197,122 @@ dojo.provide("drawing.stencil.TextBlock");
 						}
 						strAr[line].push(word)
 					}
-				}
-				
-				if(!s.nodeType){
-					//we need to get our dimensions
-					var txt = [];
+					
 					dojo.forEach(strAr, function(ar, i){
-						txt.push(ar.join(" "));
-					});
-					el.innerHTML = txt.join("<br/>");
-					var dim = dojo.marginBox(el);
-					var data = {
-						x:d.x,
-						y:d.y,
-						width:d.width || dim.w,
-						height:dim.h
-					}
-					this.points = this.dataToPoints(data);
-					console.log("POINTS:", this.points)
-					hideEditNode();
-					el = null;
+						strAr[i] = ar.join(" ");
+					});	
+					txt = strAr.join("\n");
+					
+					// get the resultant height
+					el.innerHTML = txt.replace("\n", "<br/>");
+					h = dojo.marginBox(el).h;
 				}
 				
-				return strAr;
-			},
-			
-			showText: function(obj){
-				this.keys.editMode(true);
-				var d = this.pointsToData();
-				var p = this.textStyle.pad;
-				// offsets are the diffs from the page to the canvas
-				var x = d.x + this._offsetX - p;
-				var y = d.y + this._offsetY - (this.textStyle.size*.3) - p;
-				var el = showEditNode(x, y);
+				console.log("TEXT BREAKS:::", txt);
 				
-				// FF needs a height or the cursor blinks above
-				// the input when there's no text
-				dojo.style(el, {
-					width:d.width-(p*2)+"px",
-					height:this._lineHeight+"px",
-					fontSize:this.textStyle.size+"pt",
-					fontFamily:this.textStyle.fontFamily
-				});
+				conEdit.parentNode.removeChild(conEdit);
+				dojo.destroy(this.parentNode);
+				this.parentNode = null;
 				
-				
-				el.innerHTML = "";
-				
-				var kc1, kc2,kc3,kc4,kc5,kc6;
-				
-				kc1 = dojo.connect(el, "keyup", this, function(evt){
-					if(!this._editheight){
-						dojo.style(el, "height", "auto");
-					}
-			
-					var h = dojo.marginBox(el).h;
-					if(this._editheight!=h){
-						//console.warn("HEIGHT CHANGE", h, "from:", this._editheight)
-						this._editheight = h;
-						
-						var s = this.points[0],
-							e = this.points[2],
-							data =  {
-								x: s.x,
-								y: s.y,
-								width: d.width,
-								height: h
-							}
-							
-						this.points = this.dataToPoints(data);
-						this.render();
-					}
-					if(evt.keyCode==13){ dojo.stopEvent(evt); }
-				});
-				
-				
-				var self = this, exec = function(){
-					console.time("linebreaks");
-					var strAr = self.getLineBreaks(el);
-					console.timeEnd("linebreaks");
-					console.dir(strAr);
-					hideEditNode();
-					
-					dojo.forEach([kc1,kc2,kc3,kc4,kc5,kc6], dojo.disconnect, dojo);
-					el = null;
-					self.renderText(strAr);
-					
-				}
-				kc2 = dojo.connect(el, "keydown", this, function(evt){
-					//console.log("KEY:", evt.keyCode)
-					if(evt.keyCode==13){
-						exec();
-						dojo.stopEvent(evt);
-					}
-					
-				});
-				
-				// need to allow clicking within the field
-				var _elClicked = false;
-				kc3 = dojo.connect(el, "mousedown", this, function(evt){
-					_elClicked = true;
-				});
-				kc4 = dojo.connect(this, "onUp", this, function(evt){
-					if(!_elClicked){ exec(); }
-					_elClicked = false;
-				});
-				
-				// for dev:
-				kc5 = dojo.connect(el, "focus", this, function(evt){ /*console.log("FOCUS");*/ });
-				kc6 = dojo.connect(el, "blur", this, function(evt){	/*console.log("BLUR");*/ });
-				
-				el.focus();
-				// once again for Silverlight:
-				setTimeout(function(){ el.focus();}, 500);
+				return {h:h, text:txt};
 			},
 			
 			onDrag: function(obj){
+				//console.log(" >>>>>> HtmlTextBlock drag");
+				if(!this.parentNode){
+					this.showParent(obj);
+				}
 				var s = obj.start, e = obj;
-				var	x = s.x < e.x ? s.x : e.x,
-					y = s.y,
-					w = (s.x < e.x ? e.x-s.x : s.x-e.x) + this.textStyle.pad,
-					h = this._lineHeight;
-				
-				this.points = [
-					{x:x, y:y}, 	// TL
-					{x:x+w, y:y},	// TR
-					{x:x+w, y:y+h},	// BR
-					{x:x, y:y+h}	// BL
-				];
-				this.render();
-				
+				this._box.left = (s.x < e.x ? s.x : e.x) + obj.orgX;
+				this._box.top = s.y + obj.orgY;
+				this._box.width = (s.x < e.x ? e.x-s.x : s.x-e.x) + this.style.text.pad;
+				dojo.style(this.parentNode, this._box.toPx());
+				this._offX = obj.orgX;
+				this._offY = obj.orgY;
 			},
 			
 			onUp: function(obj){
-				if(!this.shape && !obj.withinCanvas){ return; }
-				if(Math.abs(obj.x-obj.start.x<this.textStyle.minWidth)){
-					if(obj.x<obj.start.x){
-						obj.start.x = obj.start.x + this.textStyle.minWidth;
-					}else{
-						obj.x = obj.start.x + this.textStyle.minWidth;
-					}
-					obj.y = obj.start.y + this.textStyle.size + this.textStyle.pad*2;
-					
-					this.onDrag(obj);
+				if(!this.shape && !obj.withinCanvas || !this._box){ return; }
+				console.log(" >>> >>> HtmlTextBlock up");
+				this.createTextField();
+				this.connectTextField();
+			},
+			
+			onDown: function(){},
+			onMove: function(){},
+			
+			destroyAnchors: function(){
+				for(var n in this._anchors){
+					dojo.forEach(this._anchors[n].con, dojo.disconnect, dojo);
+					dojo.destroy(this._anchors[n].a);
 				}
-				this._offsetX = obj.orgX;
-				this._offsetY = obj.orgY;
+			},
+			
+			createAnchors: function(){
+				this._anchors = {}, self = this;
+				var d = this.style.anchors,
+					b = d.width,
+					w = d.size-b*2,
+					h = d.size-b*2,
+					p = (d.size)/2*-1 + "px";
 				
-				this.onDown = function(evt){}
-				this.onUp = function(evt){}
-				this.onDrag = function(evt){}
-				
-				this.showText(obj);
+				var s = {
+					position:"absolute",
+					width:w+"px",
+					height:h+"px",
+					backgroundColor:d.fill,
+					border:b+"px " + d.style + " "+d.color
+				}
+				var ss = [
+					{top: p, left:p},
+					{top:p, right:p},
+					{bottom:p, right:p},
+					{bottom:p,left:p}
+				];
+				for(var i=0;i<4;i++){
+					var isLeft = (i==0) || (i==3);
+					var id = this.util.uid(isLeft ? "left_anchor" : "right_anchor");
+					
+					var a = dojo.create("div", {id:id}, this.parentNode);
+					dojo.style(a, dojo.mixin(dojo.clone(s), ss[i]));
+					
+					var md, mm, mu;
+					var md = dojo.connect(a, "mousedown", this, function(evt){
+						isLeft = evt.target.id.indexOf("left")>-1;
+						console.log("DOWN", isLeft);
+						self._onAnchor = true;
+						var orgX = evt.pageX;
+						var orgW = this._box.width;
+						dojo.stopEvent(evt);
+						
+							
+						mm = dojo.connect(document, "mousemove", this, function(evt){
+							var x = evt.pageX;
+							if(isLeft){
+								this._box.left = x;
+								this._box.width = orgW + orgX - x;
+							}else{
+								this._box.width = x + orgW - orgX;
+							}
+							dojo.style(this.parentNode, this._box.toPx());
+						});
+						
+						mu = dojo.connect(document, "mouseup", this, function(evt){
+							orgX = this._box.left;
+							orgW = this._box.width;
+							dojo.disconnect(mm);
+							dojo.disconnect(mu);
+							self._onAnchor = false;
+							conEdit.focus();
+							dojo.stopEvent(evt);
+						});
+					});
+					
+					this._anchors[id] = {
+						a:a,
+						cons:[md]
+					}
+				}
 			}
 		}
 	);

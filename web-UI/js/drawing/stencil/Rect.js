@@ -4,7 +4,7 @@ dojo.provide("drawing.stencil.Rect");
 drawing.stencil.Rect = drawing.util.oo.declare(
 	drawing.stencil.Stencil,
 	function(options){
-		// options.data.text--? sme kind of definitive switch saying don't render
+		// options.data.text--? some kind of definitive switch saying don't render
 		// maybe a prop in sub class?
 		if((options.data && !options.data.text) || (options.points && options.points.length)){
 			console.log("RENDER RECT", options.points)
@@ -42,9 +42,18 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 			//console.log(this.id, "data:", dojo.toJson(d))
 				
 			this.shape = this.parent.createRect(d)
-				.setStroke(this.style.line)
-				.setFill(this.style.fill);
+				.setStroke(this.currentStyle)
+				.setFill(this.currentStyle.fill);
 			
+		},
+		createSelectionOutline: function(){
+			this.remove(this.hit);
+			this.hit = this.parent.createRect(this.pointsToData())
+				.setStroke(this.currentHitStyle)
+				.setFill(this.currentHitStyle.fill);
+			
+			//this.util.attr(this.hit, "drawingType", "stencil");
+			this.hit.moveToBack();
 		},
 		onDrag: function(obj){
 			var s = obj.start, e = obj;

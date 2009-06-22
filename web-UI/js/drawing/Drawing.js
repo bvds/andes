@@ -3,6 +3,7 @@ dojo.provide("drawing.Drawing");
 dojo.require("dojox.gfx");
 dojo.require("drawing.util.oo");
 dojo.require("drawing.util.common");
+dojo.require("drawing.defaults");
 dojo.require("drawing.manager.Canvas");
 dojo.require("drawing.manager.Undo");
 dojo.require("drawing.manager.keys");
@@ -13,6 +14,7 @@ dojo.require("drawing.stencil.Stencil");
 dojo.require("drawing.stencil.Line");
 dojo.require("drawing.stencil.Rect");
 dojo.require("drawing.stencil.Ellipse");
+dojo.require("drawing.stencil.Text");
 dojo.require("drawing.stencil.TextBlock");
 dojo.require("drawing.manager.Silverlight");
 
@@ -72,13 +74,13 @@ dojo.require("drawing.manager.Silverlight");
 				mouse:this.mouse,
 				data:{x:100, y:100, width:100, height:100}							  
 			}));
-			
+			/*
 			this.stencils.register(new drawing.stencil.TextBlock({
 				parent:surface.createGroup(),
 				mouse:this.mouse,
 				data:{x:300, y:100, width:300, text:"Dynamic Text"}							  
 			}));
-			/*
+			
 			this.stencils.register(new drawing.stencil.Ellipse({
 				parent:surface.createGroup(),
 				mouse:this.mouse,
@@ -94,7 +96,7 @@ dojo.require("drawing.manager.Silverlight");
 		},
 		onRenderStencil: function(stencil){
 			
-			console.log("onRenderStencil:", stencil)
+			console.info("drawing.onRenderStencil:", stencil)
 			this.stencils.register(stencil);
 			this.unSetTool();
 			this.setTool(this.currentType);

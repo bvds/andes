@@ -36,14 +36,14 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 	},
 	
 	{
+		doublClickSpeed:400,
 		registerd:{},
 		_lastx:0,
 		_lasty:0,
 		__reg:0,
-		_shapeClick:false,
 		register: function(scope){
-			var handle = "reg_"+(this.__reg++);
-			this.registerd[handle] = scope;
+			var handle = scope.id || "reg_"+(this.__reg++);
+			if(!this.registerd[handle]) { this.registerd[handle] = scope; }
 			return handle;
 		},
 		unregister: function(handle){
@@ -61,7 +61,6 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		
 		onCanvasUp: function(evt){
 			//console.log("mouse onCanvasUp")
-			this._shapeClick = false;	
 		},
 		
 		onDown: function(obj){
@@ -69,23 +68,42 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			this._broadcastEvent(this.eventName("down"), obj);			
 		},
 		onDrag: function(obj){
-			console.info(this.eventName("drag"))
-			this._broadcastEvent(this.eventName("drag"), obj);	
-			this._dragged = true;
+			var nm = this.eventName("drag");
+			if(this._selected && nm == "onDrag"){
+				nm = "onStencilDrag"
+			}
+			this._broadcastEvent(nm, obj);
 		},
 		onMove: function(obj){
 			this._broadcastEvent("onMove", obj);
 		},
 		onUp: function(obj){
-			// blocking first click-off, largely for TextBlock
-			// TODO: should have param to make this optional
+			// blocking first click-off (deselect), largely for TextBlock
+			// TODO: should have param to make this optional??
 			var nm = this.eventName("up");
-			if(this._dragged && nm == "onUp"){
-				nm = "onShapeUp";
-				this._dragged = false;
+			//console.info("1)", nm, this._selected)
+			
+			if(nm == "onStencilUp"){
+				this._selected  = true;
+			}else if(this._selected && nm == "onUp"){ //////////////////////////////////////////
+				nm = "onStencilUp";
+				this._selected = false;
 			}
-			//console.info(nm)
+			//console.info("2)", nm, this._selected)
 			this._broadcastEvent(nm, obj);
+			
+			this._clickTime = new Date().getTime();
+			if(this._lastClickTime){
+				if(this._clickTime-this._lastClickTime<this.doublClickSpeed){
+					var dnm = this.eventName("doubleClick");
+					console.warn("DOUBLE CLICK", dnm);
+					this._broadcastEvent(dnm, obj);
+				}else{
+					console.log("    slow:", this._clickTime-this._lastClickTime)
+				}
+			}
+			this._lastClickTime = this._clickTime;
+			
 		},
 		
 		zoom: 1,
@@ -102,7 +120,6 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		
 		up: function(evt){
 			this.onUp(this.create(evt));
-			this._shapeClick = false;
 		},
 		
 		down: function(evt){
@@ -123,7 +140,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		console.log("evt:", evt);
 		console.log("this.drawingType:", this.drawingType)
 		
-			this.onDown({x:x,y:y, id:this._getId(evt)});
+			this.onDown({x:x,y:y, pageX:dim.x, pageY:dim.y, id:this._getId(evt)});
 			dojo.stopEvent(evt);
 		},
 		move: function(evt){
