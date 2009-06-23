@@ -92,11 +92,14 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			//console.info("2)", nm, this._selected)
 			this._broadcastEvent(nm, obj);
 			
+			// Silverlight double-click handled in Silverlight class
+			if(dojox.gfx.renderer == "silverlight"){ return; }
+			
 			this._clickTime = new Date().getTime();
 			if(this._lastClickTime){
 				if(this._clickTime-this._lastClickTime<this.doublClickSpeed){
 					var dnm = this.eventName("doubleClick");
-					console.warn("DOUBLE CLICK", dnm);
+					console.warn("DOUBLE CLICK", dnm, obj);
 					this._broadcastEvent(dnm, obj);
 				}else{
 					console.log("    slow:", this._clickTime-this._lastClickTime)

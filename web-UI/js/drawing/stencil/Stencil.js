@@ -85,6 +85,10 @@ dojo.provide("drawing.stencil.Stencil");
 				this.onRender(this);
 			},
 			
+			onBeforeRender: function(/*Object*/stencil){
+				//stub
+			},
+			
 			onRender: function(/*Object*/stencil){
 				// Drawing connects to this (once!) to be
 				// notified of drag completion. This should fire
@@ -102,17 +106,20 @@ dojo.provide("drawing.stencil.Stencil");
 				
 				this.shape.superClass = this;
 				
+				console.warn("stencil.onRender", this._text)
+				
 			},
 			
 			select: function(){
 				// on mouse down - always select
 				this.selected = true;
 				this.currentStyle = this.style.selected;
-				this.shape.setStroke(this.currentStyle).setFill(this.currentStyle.fill);
+				//this.shape.setStroke(this.currentStyle).setFill(this.currentStyle.fill);
 				if(this.hit){
 					this.currentHitStyle = this.style.hitSelected;
-					this.hit.setStroke(this.currentHitStyle).setFill(this.currentHitStyle.fill);
+					//this.hit.setStroke(this.currentHitStyle).setFill(this.currentHitStyle.fill);
 				}
+				this.render();
 			},
 			
 			deselect: function(){
@@ -120,12 +127,13 @@ dojo.provide("drawing.stencil.Stencil");
 				// on mouse down - always select
 				this.selected = false;
 				this.currentStyle = this.style.norm;
-				this.shape.setStroke(this.currentStyle).setFill(this.currentStyle.fill);
+				//this.shape.setStroke(this.currentStyle).setFill(this.currentStyle.fill);
 				if(this.hit){
 					this.currentHitStyle = this.style.hitNorm;
-					this.hit.setStroke(this.currentHitStyle).setFill(this.currentHitStyle.fill);
+					//this.hit.setStroke(this.currentHitStyle).setFill(this.currentHitStyle.fill);
 					console.warn("STENCILL DESELCT", this.currentHitStyle)
 				}
+				this.render();
 			},
 			
 			toggleSelected: function(){
@@ -162,7 +170,8 @@ dojo.provide("drawing.stencil.Stencil");
 			destroy: function(){
 				// unregistering selection or shapes
 				// needs to be done outside of this object
-				console.info("shape.destroy", this.id)
+				console.info("shape.destroy", this.id);
+				this.onBeforeRender(this);
 				this.disconnectMouse();
 				this.disconnectShape();
 				dojo.disconnect(this._postRenderCon);

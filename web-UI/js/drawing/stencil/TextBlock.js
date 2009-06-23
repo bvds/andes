@@ -120,7 +120,7 @@ dojo.require("drawing.stencil.Text");
 				this.createAnchors();
 				conEdit.focus();
 				// once again for Silverlight:
-				//setTimeout(function(){ conEdit.focus();}, 500);
+				setTimeout(function(){ conEdit.focus();}, 500);
 				
 				this.onDown = function(){}
 				this.onDrag = function(){}
@@ -133,7 +133,8 @@ dojo.require("drawing.stencil.Text");
 			},
 			execText: function(){
 				var d = dojo.marginBox(this.parentNode);
-				var w = Math.max(d.width, this.style.text.minWidth)
+				console.warn("TEXT BIX:", d, this.style)
+				var w = Math.max(d.w, this.style.text.minWidth)
 				
 				var txt = this.cleanText(conEdit.innerHTML, true);
 				conEdit.innerHTML = "";
@@ -183,7 +184,7 @@ dojo.require("drawing.stencil.Text");
 			},
 			
 			measureText: function(/* String */ str, /* ? Number */width){
-				console.log("BREAKS:", this._lineHeight)
+				console.log("BREAKS:", width, "x", this._lineHeight)
 				this.showParent({width:width || "auto", height:"auto"});
 				this.createTextField(str);
 				var txt = "";
