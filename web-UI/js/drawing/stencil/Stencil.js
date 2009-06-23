@@ -105,12 +105,10 @@ dojo.provide("drawing.stencil.Stencil");
 				this.disconnectMouse();
 				
 				this.shape.superClass = this;
-				
-				console.warn("stencil.onRender", this._text)
-				
 			},
 			
 			select: function(){
+				// NOTE: Can't setStroke because Silverlight throws error
 				// on mouse down - always select
 				this.selected = true;
 				this.currentStyle = this.style.selected;
@@ -123,7 +121,7 @@ dojo.provide("drawing.stencil.Stencil");
 			},
 			
 			deselect: function(){
-				
+				// NOTE: Can't setStroke because Silverlight throws error
 				// on mouse down - always select
 				this.selected = false;
 				this.currentStyle = this.style.norm;
@@ -131,7 +129,6 @@ dojo.provide("drawing.stencil.Stencil");
 				if(this.hit){
 					this.currentHitStyle = this.style.hitNorm;
 					//this.hit.setStroke(this.currentHitStyle).setFill(this.currentHitStyle.fill);
-					console.warn("STENCILL DESELCT", this.currentHitStyle)
 				}
 				this.render();
 			},

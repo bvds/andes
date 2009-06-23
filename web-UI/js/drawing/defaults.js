@@ -41,7 +41,8 @@ drawing.defaults = {
 		color:"#999",
 		style:"solid",
 		fill:"#ccc",
-		cap:"square"
+		cap:"square",
+		minSize:10
 	},
 	text:{
 		minWidth:150,

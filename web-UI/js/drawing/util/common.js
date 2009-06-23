@@ -5,7 +5,7 @@ dojo.provide("drawing.util.common");
 
 	drawing.util.common	= {
 		// MAFF
-		radToDeg: function(angle) {
+		XXradToDeg: function(angle) {
 			// 0 degrees is center to left.
 			// 90 degrees is center straight up.
 			var d = ((angle*180) / Math.PI);
@@ -14,17 +14,61 @@ dojo.provide("drawing.util.common");
 			}
 			return d;
 		},
+		radToDeg: function(a) {
+			//	summary
+			//	Convert the passed number to degrees.
+			return (a*180)/Math.PI;	//	Number
+		},
+		degToRad: function(r) {
+			//	summary
+			//	Convert the passed number to radians.
+			return (r*Math.PI)/180;	// Number
+		},
 		angle: function(obj){
 			return this.radToDeg(this.radians(obj));
 		},
 		radians: function(obj){
-			return Math.atan2(obj.last.y-obj.y,obj.last.x-obj.x);
+			return Math.atan2(obj.start.y-obj.y,obj.start.x-obj.x);
 		},
-		length: function(x1,y1,x2,y2){
+		length: function(obj){
+			var x1 = obj.start.x,y1=obj.start.y,x2=obj.x,y2=obj.y;
 			return Math.sqrt(Math.pow(x1-x2, 2)+Math.pow(y1-y2, 2));
 		},
-		distance: function(x1,y1,x2,y2){
+		distance: function(obj){
+			var x1 = obj.start.x,y1=obj.start.y,x2=obj.x,y2=obj.y;
 			return Math.abs(Math.sqrt(Math.pow(x1-x2, 2)+Math.pow(y1-y2, 2)));
+		},
+		pointOnCircle: function(cx, cy, radius, a){
+			radians =  a * Math.PI / 180.0;
+			var x = radius * Math.cos(radians) * -1;
+			var y = radius * Math.sin(radians) * -1;
+			watch("px:", x)
+			watch("py:", y)
+			return {
+				x:cx+x,
+				y:cy+y
+			}
+		},
+		
+		constrainAngle: function(obj, ca){
+			// summary:
+			//	Snaps a line to the nearest angle
+			//		obj: Mouse object (see drawing.Mouse)
+			//		ca: Fractional amount to snap to
+			//			A decimal number fraction of a half circle
+			//			.5 would snap to 90 degrees
+			//			.25  would snap to 45 degrees
+			//			.125 would snap to 22.5 degrees, etc.
+			//
+			var radians = this.radians(obj),
+				angle = this.angle(obj),
+				radius = this.length(obj),
+				seg = Math.PI * ca,
+				rnd = Math.round(radians/seg),
+				new_radian = rnd*seg,
+				new_angle = this.radToDeg(new_radian),
+				pt = this.pointOnCircle(obj.start.x,obj.start.y,radius,new_angle);
+			return pt;
 		},
 		
 		// helpers

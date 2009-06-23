@@ -102,19 +102,6 @@ dojo.provide("drawing.manager.Anchors");
 		{
 			y_anchor:null,
 			x_anchor:null,
-			minSize:10,
-			lastx:0,
-			lasty:0,
-			size:10,
-			style:{
-				line:{
-					color:"#666666",
-					width:1,
-					style:"Solid",
-					cap:"round"
-				},
-				fill:"#FFFFFF"
-			},
 			render: function(){
 				var d = this.style.anchors,
 					b = d.width,
@@ -154,32 +141,26 @@ dojo.provide("drawing.manager.Anchors");
 			onAnchorDrag: function(obj){
 				if(this.selected){
 					var mx = this.shape.getTransform();
-					this.lastx = mx.dx; ///////////////////////////////// ????
-					this.lasty = mx.dy;
 					
-					
-					var x, y;
+					var x, y, s = this.style.anchors.minSize;
 					if(this.y_anchor){
-						watch(" y:", obj.y);
-						watch(" y constrain:", this.y_anchor.point.y);
-						watch(" point y:", this.point.y)
 						
 						if(this.org.y > this.y_anchor.org.y){
 							
-							if(obj.y >= this.y_anchor.point.y+this.minSize){
+							if(obj.y >= this.y_anchor.point.y + s){
 								y = obj.y - obj.last.y;
-							}else if(this.point.y > this.y_anchor.point.y + this.minSize){
-								y = this.y_anchor.point.y + this.minSize - this.point.y
+							}else if(this.point.y > this.y_anchor.point.y + s){
+								y = this.y_anchor.point.y + s - this.point.y
 							}else{
 								y = 0;
 							}
 							
 						}else{
 							
-							if(obj.y <= this.y_anchor.point.y - this.minSize){
+							if(obj.y <= this.y_anchor.point.y - s){
 								y = obj.y - obj.last.y;
-							}else if(this.point.y < this.y_anchor.point.y - this.minSize){
-								y = this.y_anchor.point.y - this.minSize - this.point.y
+							}else if(this.point.y < this.y_anchor.point.y - s){
+								y = this.y_anchor.point.y - s - this.point.y
 							}else{
 								y = 0;
 							}
@@ -191,20 +172,20 @@ dojo.provide("drawing.manager.Anchors");
 					if(this.x_anchor){
 						if(this.org.x>this.x_anchor.org.x){
 							
-							if(obj.x >= this.x_anchor.point.x+this.minSize){
+							if(obj.x >= this.x_anchor.point.x+s){
 								x = obj.x - obj.last.x;
-							}else if(this.point.x > this.x_anchor.point.x + this.minSize){
-								x = this.x_anchor.point.x + this.minSize - this.point.x
+							}else if(this.point.x > this.x_anchor.point.x + s){
+								x = this.x_anchor.point.x + s - this.point.x
 							}else{
 								x = 0;
 							}
 							
 						}else{
 							
-							if(obj.x <= this.x_anchor.point.x - this.minSize){
+							if(obj.x <= this.x_anchor.point.x - s){
 								x = obj.x - obj.last.x;
-							}else if(this.point.x < this.x_anchor.point.x - this.minSize){
-								x = this.x_anchor.point.x - this.minSize - this.point.x
+							}else if(this.point.x < this.x_anchor.point.x - s){
+								x = this.x_anchor.point.x - s - this.point.x
 							}else{
 								x = 0;
 							}
