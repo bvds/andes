@@ -74,10 +74,11 @@ dojo.require("drawing.manager.Silverlight");
 				mouse:this.mouse,
 				data:{x:100, y:100, width:100, height:100}							  
 			}));
-			/*
+			
 			this.stencils.register(new drawing.stencil.TextBlock({
 				parent:surface.createGroup(),
 				mouse:this.mouse,
+				keys:this.keys,
 				data:{x:300, y:100, width:300, text:"Dynamic Text"}							  
 			}));
 			
@@ -86,7 +87,7 @@ dojo.require("drawing.manager.Silverlight");
 				mouse:this.mouse,
 				data:{cx:150, cy:150, rx:50, ry:50}							  
 			}));
-			
+			/*
 			this.stencils.register(new drawing.stencil.Line({
 				parent:surface.createGroup(),
 				mouse:this.mouse,

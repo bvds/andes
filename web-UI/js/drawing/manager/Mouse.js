@@ -156,7 +156,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			var o = this.origin;
 			
 			var withinCanvas = x>=0 && y>=0 && x<=o.w && y<=o.h;
-			
+			var id = withinCanvas ? this._getId(evt) : "";
 			x*= this.zoom;
 			y*= this.zoom;
 			
@@ -176,7 +176,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 					x: this.origin.startx,
 					y: this.origin.starty
 				},
-				id:this._getId(evt),
+				id:id,
 				withinCanvas:withinCanvas
 			};
 			this._lastx = x;

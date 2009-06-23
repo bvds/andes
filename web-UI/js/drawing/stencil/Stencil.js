@@ -98,7 +98,6 @@ dojo.provide("drawing.stencil.Stencil");
 				this.created = true;
 				this.connectShape();
 				this.util.attr(this, "drawingType", "stencil");
-				//dojo.attr(this.shape, "id", this.id);
 				this.disconnectMouse();
 				
 				this.shape.superClass = this;

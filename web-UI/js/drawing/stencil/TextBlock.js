@@ -28,10 +28,21 @@ dojo.require("drawing.stencil.Text");
 		//
 		drawing.stencil.Text,
 		function(options){
-			this.util = drawing.util.common;
-			this.mouse = options.mouse;
-			this.keys = options.keys || {};
-			this._lineHeight = this.style.text.size * 1.5;
+			if(options.data){
+				this._offX = this.mouse.origin.x;
+				this._offY = this.mouse.origin.y;
+				var d = options.data;
+				var w = Math.max(d.width, this.style.text.minWidth)
+				var o = this.measureText(this.cleanText(d.text, false), w);
+				this.points = [
+					{x:d.x, y:d.y},
+					{x:d.x+w, y:d.y},
+					{x:d.x+w, y:d.y+o.h},
+					{x:d.x, y:d.y+o.h}
+				];
+				this.render(d.text);
+				
+			}
 		},
 		{
 			
@@ -122,18 +133,20 @@ dojo.require("drawing.stencil.Text");
 			},
 			execText: function(){
 				var d = dojo.marginBox(this.parentNode);
+				var w = Math.max(d.width, this.style.text.minWidth)
+				
 				var txt = this.cleanText(conEdit.innerHTML, true);
 				conEdit.innerHTML = "";
 				conEdit.blur();
 				this.destroyAnchors();
-				var o = this.getLineBreaks(txt);
+				var o = this.measureText(txt, w);
 				
 				var x = this._box.left - this._offX;
 				var y = this._box.top - this._offY;
 				this.points = [
 					{x:x, y:y},
-					{x:x+d.w, y:y},
-					{x:x+d.w, y:y+o.h},
+					{x:x+w, y:y},
+					{x:x+w, y:y+o.h},
 					{x:x, y:y+o.h}
 				];
 		
@@ -169,10 +182,10 @@ dojo.require("drawing.stencil.Text");
 				return txt;
 			},
 			
-			getLineBreaks: function(/* String */ str){
+			measureText: function(/* String */ str, /* ? Number */width){
 				console.log("BREAKS:", this._lineHeight)
-				this.showParent({width:300, height:"auto"});
-				
+				this.showParent({width:width || "auto", height:"auto"});
+				this.createTextField(str);
 				var txt = "";
 				var el = conEdit;
 				el.innerHTML = "X";
@@ -180,10 +193,14 @@ dojo.require("drawing.stencil.Text");
 				
 				el.innerHTML = str;
 				if(dojo.marginBox(el).h == h){
-					// no line breaks
-					txt = str;
+					// one line
+					txt = str;console.log("measureText.singleLine");
+				}else if(!width){
+					// has line breaks in text
+					txt = str; console.log("measureText.textLineBreaks");
 				}else{
-					var ar = str.split(" ");
+					// text wraps
+					var ar = str.split(" ");console.log("measureText.wraps");
 					var strAr = [[]];
 					var line = 0;
 					el.innerHTML = "";
@@ -205,16 +222,18 @@ dojo.require("drawing.stencil.Text");
 					
 					// get the resultant height
 					el.innerHTML = txt.replace("\n", "<br/>");
-					h = dojo.marginBox(el).h;
+					
 				}
 				
-				console.log("TEXT BREAKS:::", txt);
+				var dim = dojo.marginBox(el);
 				
+				console.log("TEXT BREAKS:::", txt);
+				console.log("conEdit", conEdit);
 				conEdit.parentNode.removeChild(conEdit);
 				dojo.destroy(this.parentNode);
 				this.parentNode = null;
 				
-				return {h:h, text:txt};
+				return {h:dim.h, w:dim.w, text:txt};
 			},
 			
 			onDrag: function(obj){

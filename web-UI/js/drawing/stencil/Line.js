@@ -28,14 +28,12 @@ drawing.stencil.Line = drawing.util.oo.declare(
 		render: function(data){
 			this.remove(this.hit, this.shape);
 			this.shape = this.parent.createLine(this.pointsToData())
-				.setStroke(this.style.line);
+				.setStroke(this.currentStyle);
 		},
 		createSelectionOutline: function(){
-			//return
 			this.hit = this.parent.createLine(this.pointsToData())
-				.setStroke(this.style.hitline);
-			
-			//this.util.attr(this.hit, "drawingType", "stencil");
+				.setStroke(this.currentHitStyle);
+			this.util.attr(this.hit, "drawingType", "stencil");
 			this.hit.moveToBack();
 		},
 		

@@ -25,13 +25,35 @@ dojo.provide("drawing.manager.Anchors");
 				var pts = item.getPoints();
 				dojo.forEach(pts, function(p){
 					var a = new drawing.manager.Anchor({stencil:item, point:p, mouse:this.mouse, util:this.util});
+					
 					if(item.anchorType=="group"){
 						this.items[item.id]._con = dojo.connect(a, "onTransformPoint", this, "onTransformPoint");
 					}
+					
 					this.items[item.id].anchors.push(a);
 					this.onAddAnchor(a);
 				}, this);
+				
+				if(item.anchorType=="group"){
+					dojo.forEach(this.items[item.id].anchors, function(anchor){
+						dojo.forEach(this.items[item.id].anchors, function(a){
+							if(anchor.id != a.id){
+								if(anchor.org.y == a.org.y){
+									anchor.x_anchor = a;
+								}else if(anchor.org.x == a.org.x){
+									anchor.y_anchor = a;
+								}
+							}
+						},this);	
+					},this);
+					
+				}
 			},
+			
+			_findConstrinPoint: function(pts, p){
+				
+			},
+			
 			onTransformPoint: function(anchor){
 				var anchors = this.items[anchor.stencil.id].anchors;
 				dojo.forEach(anchors, function(a){
@@ -78,6 +100,9 @@ dojo.provide("drawing.manager.Anchors");
 			this.connectMouse();
 		},
 		{
+			y_anchor:null,
+			x_anchor:null,
+			minSize:10,
 			lastx:0,
 			lasty:0,
 			size:10,
@@ -129,11 +154,65 @@ dojo.provide("drawing.manager.Anchors");
 			onAnchorDrag: function(obj){
 				if(this.selected){
 					var mx = this.shape.getTransform();
-					this.lastx = mx.dx;
+					this.lastx = mx.dx; ///////////////////////////////// ????
 					this.lasty = mx.dy;
 					
-					var x = obj.x - obj.last.x;
-					var y = obj.y - obj.last.y;
+					
+					var x, y;
+					if(this.y_anchor){
+						watch(" y:", obj.y);
+						watch(" y constrain:", this.y_anchor.point.y);
+						watch(" point y:", this.point.y)
+						
+						if(this.org.y > this.y_anchor.org.y){
+							
+							if(obj.y >= this.y_anchor.point.y+this.minSize){
+								y = obj.y - obj.last.y;
+							}else if(this.point.y > this.y_anchor.point.y + this.minSize){
+								y = this.y_anchor.point.y + this.minSize - this.point.y
+							}else{
+								y = 0;
+							}
+							
+						}else{
+							
+							if(obj.y <= this.y_anchor.point.y - this.minSize){
+								y = obj.y - obj.last.y;
+							}else if(this.point.y < this.y_anchor.point.y - this.minSize){
+								y = this.y_anchor.point.y - this.minSize - this.point.y
+							}else{
+								y = 0;
+							}
+						}
+					}else{
+						y = obj.y - obj.last.y;
+					}
+					
+					if(this.x_anchor){
+						if(this.org.x>this.x_anchor.org.x){
+							
+							if(obj.x >= this.x_anchor.point.x+this.minSize){
+								x = obj.x - obj.last.x;
+							}else if(this.point.x > this.x_anchor.point.x + this.minSize){
+								x = this.x_anchor.point.x + this.minSize - this.point.x
+							}else{
+								x = 0;
+							}
+							
+						}else{
+							
+							if(obj.x <= this.x_anchor.point.x - this.minSize){
+								x = obj.x - obj.last.x;
+							}else if(this.point.x < this.x_anchor.point.x - this.minSize){
+								x = this.x_anchor.point.x - this.minSize - this.point.x
+							}else{
+								x = 0;
+							}
+						}
+					}else{
+						x = obj.x - obj.last.x;
+					}
+					
 					this.shape.applyTransform({
 						dx: x,
 						dy: y

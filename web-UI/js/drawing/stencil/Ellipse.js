@@ -37,15 +37,18 @@ drawing.stencil.Ellipse = drawing.util.oo.declare(
 		
 		},
 		render: function(){
-			//console.info("render", this._onRender.toString())
 			this.remove();
 			var d = this.pointsToData()
-			//console.log("pts:", dojo.toJson(this.pointsToData()))
-			
 			this.shape = this.parent.createEllipse(d)
-				.setStroke(this.style.line)
-				.setFill(this.style.fill);
-			
+				.setStroke(this.currentStyle)
+				.setFill(this.currentStyle.fill);
+		},
+		createSelectionOutline: function(){
+			this.remove(this.hit);
+			this.hit = this.parent.createEllipse(this.pointsToData())
+				.setStroke(this.currentHitStyle)
+				.setFill(this.currentHitStyle.fill);
+			this.hit.moveToBack();
 		},
 		
 		onDrag: function(obj){
@@ -62,7 +65,7 @@ drawing.stencil.Ellipse = drawing.util.oo.declare(
 				{x:x-w, y:y-h}, 	// TL
 				{x:x+w, y:y-h},		// TR
 				{x:x+w, y:y+h},		// BR
-				{x:x, y:y+h}		// BL
+				{x:x-w, y:y+h}		// BL
 			];
 			this.render();
 		},
