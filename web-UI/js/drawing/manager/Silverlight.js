@@ -1,6 +1,11 @@
 dojo.provide("drawing.manager.Silverlight");
 
 drawing.manager.Silverlight = drawing.util.oo.declare(
+	
+	//
+	// 
+	//
+	//
 	function(options){
 		if(dojox.gfx.renderer != "silverlight"){ return; }
 		this.mouse = options.mouse;
@@ -10,25 +15,34 @@ drawing.manager.Silverlight = drawing.util.oo.declare(
 	
 		
 		dojo.connect(this.stencils, "register", this, function(item){
-			var c1;
-			c1 = item.shape.connect("onmousedown", this.mouse, function(evt){
-				evt.superTarget = item;
-				this.down(evt)
-			});
-			
-			var c2 = dojo.connect(item, "setTransform", this, function(){
-				dojo.disconnect(c1);
-			});
-			
-			var c3 = dojo.connect(item, "deselect", this, function(){
-				c1 = item.shape.connect("onmousedown", this.mouse, function(evt){
+			var c1, c2, c3, c4, c5, self = this;
+			var conMouse = function(){
+				console.info("------connect shape", item.id)
+				
+				// Connect to PARENT (SL Canvas) , not SHAPE 
+				c1 = item.parent.connect("onmousedown", function(evt){
+					console.info("----------------------------------SHAPE DOWN", item.parent)
 					evt.superTarget = item;
-					this.down(evt)
+					self.mouse.down(evt);
 				});
+			}
+			conMouse();
+			
+			c2 = dojo.connect(item, "setTransform", this, function(){
+				//dojo.disconnect(c1);
 			});
 			
-			var c4 = dojo.connect(item, "destroy", this, function(){
-				dojo.forEach([c1,c2,c3,c4], dojo.disconnect, dojo);
+			c3 = dojo.connect(item, "onBeforeRender", function(){
+				//dojo.disconnect(c1);
+			});
+			
+			
+			c4 = dojo.connect(item, "onRender", this, function(){
+				//conMouse();
+			});
+			
+			c5 = dojo.connect(item, "destroy", this, function(){
+				dojo.forEach([c1,c2,c3,c4,c5], dojo.disconnect, dojo);
 			});
 		});
 		
@@ -60,10 +74,22 @@ drawing.manager.Silverlight = drawing.util.oo.declare(
 			
 			this.drawingType = this.util.attr(evt, "drawingType") || "";
 			var id = this._getId(evt);
-			
+			var obj = {x:x,y:y, id:id};
 			console.log(" > > > id:", id, "drawingType:", this.drawingType, "evt:", evt)
 		
-			this.onDown({x:x,y:y, id:id});
+			this.onDown(obj);
+			
+			this._clickTime = new Date().getTime();
+			if(this._lastClickTime){
+				if(this._clickTime-this._lastClickTime<this.doublClickSpeed){
+					var dnm = this.eventName("doubleClick");
+					console.warn("DOUBLE CLICK", dnm, obj);
+					this._broadcastEvent(dnm, obj);
+				}else{
+					//console.log("    slow:", this._clickTime-this._lastClickTime)
+				}
+			}
+			this._lastClickTime = this._clickTime;
 			
 			// throws errors in IE silverlight. Oddness.
 			//dojo.stopEvent(evt);
@@ -74,10 +100,12 @@ drawing.manager.Silverlight = drawing.util.oo.declare(
 			if(this.util.attr(evt, "drawingType")=="surface"){
 				this.__downInv = setTimeout(dojo.hitch(this, function(){
 					this._down(evt);		
-				}),10);
+				}),500);
 				return;
 			}
 			this._down(evt);
+			
+			
 		}
 		
 		this.mouse._getXY =  function(evt){
@@ -86,9 +114,9 @@ drawing.manager.Silverlight = drawing.util.oo.declare(
 				return {x:evt.pageX, y:evt.pageY, cancelBubble:true};
 			}
 			console.log("EVT", evt)
-			console.log("EVT", evt.pageX)
+			//console.log("EVT", evt.pageX)
 			for(var nm in evt){
-				console.log("..."+nm+"="+evt[nm]);
+				//console.log("..."+nm+"="+evt[nm]);
 			}
 			console.log("EVTX", evt.x)
 			if(evt.x !== undefined){

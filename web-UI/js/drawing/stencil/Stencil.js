@@ -6,7 +6,10 @@ dojo.provide("drawing.stencil.Stencil");
 		
 		function(options){
 			// clone style so changes are reflected in future shapes
-			this.style = dojo.clone(this.style);
+			this.style = drawing.defaults.copy();
+			this.currentStyle = this.style.norm;
+			this.currentHitStyle = this.style.hitNorm;
+			
 			this.util = drawing.util.common;
 			this.parent = this.orgParent = options.parent;
 			this.mouse = options.mouse;
@@ -14,9 +17,7 @@ dojo.provide("drawing.stencil.Stencil");
 			this.id = options.id || this.util.uid(this.type);
 			this._shapeCons = [];
 			this.connectMouse();
-			
 			this.util.attr(this.parent, "id", this.id);
-			
 			this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
 			
 		},
@@ -81,7 +82,11 @@ dojo.provide("drawing.stencil.Stencil");
 			_onPostRender: function(/*Object*/data){
 				// drag-create should call onRender
 				// afterwards, this calls onRender
-				this.onRender(data);
+				this.onRender(this);
+			},
+			
+			onBeforeRender: function(/*Object*/stencil){
+				//stub
 			},
 			
 			onRender: function(/*Object*/stencil){
@@ -89,7 +94,6 @@ dojo.provide("drawing.stencil.Stencil");
 				// notified of drag completion. This should fire
 				// at the *end* of each render (not during drag)
 				// (Maybe should be onRenderComplete?)
-		
 				if(!this._postRenderCon){
 					this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
 				}
@@ -98,26 +102,35 @@ dojo.provide("drawing.stencil.Stencil");
 				this.created = true;
 				this.connectShape();
 				this.util.attr(this, "drawingType", "stencil");
-				//dojo.attr(this.shape, "id", this.id);
 				this.disconnectMouse();
 				
 				this.shape.superClass = this;
-				
 			},
-			
 			
 			select: function(){
+				// NOTE: Can't setStroke because Silverlight throws error
 				// on mouse down - always select
 				this.selected = true;
-				//this.attr("style.line.color", "#FFFF00");
-				this.shape.setStroke(this.style.lineSelected);
+				this.currentStyle = this.style.selected;
+				//this.shape.setStroke(this.currentStyle).setFill(this.currentStyle.fill);
+				if(this.hit){
+					this.currentHitStyle = this.style.hitSelected;
+					//this.hit.setStroke(this.currentHitStyle).setFill(this.currentHitStyle.fill);
+				}
+				this.render();
 			},
+			
 			deselect: function(){
+				// NOTE: Can't setStroke because Silverlight throws error
 				// on mouse down - always select
 				this.selected = false;
-				//this.attr("style.line.color", "#FF0000");
-				this.shape.setStroke(this.style.line);
-				
+				this.currentStyle = this.style.norm;
+				//this.shape.setStroke(this.currentStyle).setFill(this.currentStyle.fill);
+				if(this.hit){
+					this.currentHitStyle = this.style.hitNorm;
+					//this.hit.setStroke(this.currentHitStyle).setFill(this.currentHitStyle.fill);
+				}
+				this.render();
 			},
 			
 			toggleSelected: function(){
@@ -136,6 +149,7 @@ dojo.provide("drawing.stencil.Stencil");
 					o.y += mx.dy;
 				});
 				this.render();
+				this.createSelectionOutline();
 			},
 			
 			setTransform: function(mx){
@@ -153,7 +167,8 @@ dojo.provide("drawing.stencil.Stencil");
 			destroy: function(){
 				// unregistering selection or shapes
 				// needs to be done outside of this object
-				console.info("shape.destroy", this.id)
+				console.info("shape.destroy", this.id);
+				this.onBeforeRender(this);
 				this.disconnectMouse();
 				this.disconnectShape();
 				dojo.disconnect(this._postRenderCon);
@@ -163,6 +178,9 @@ dojo.provide("drawing.stencil.Stencil");
 				this.disconnectShape();
 				var a = arguments;
 				if(!a.length){
+					if(!this.shape){
+						return;
+					}
 					a = [this.shape];
 				}
 				for(var i=0;i<a.length;i++){

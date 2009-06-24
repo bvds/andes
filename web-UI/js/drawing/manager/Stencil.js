@@ -108,7 +108,8 @@ dojo.provide("drawing.manager.Stencil");
 				});
 				
 			},
-			onSelect: function(item){ 
+			onSelect: function(item){
+				console.log("stencil.onSelect", item)
 				if(this.selectedItems[item.id]){ return; }
 				this.selectedItems[item.id] = item;
 				this.group.add(item.parent);
@@ -122,13 +123,14 @@ dojo.provide("drawing.manager.Stencil");
 				this.anchors.remove(item);
 				
 				surface.add(item.parent);
-				
-				item.setTransform(this.group.getTransform());
 				item.deselect();
+				item.setTransform(this.group.getTransform());
+				
 				if(!keepObject){
 					delete this.selectedItems[item.id];
 				}
 			},
+			
 			deselect: function(){ // all? items?
 				this.withSelected(function(m){
 					this.onDeselect(m);
@@ -136,6 +138,20 @@ dojo.provide("drawing.manager.Stencil");
 				this._dragBegun = false;
 				this._wasDragged = false;
 			},
+			
+			onStencilDoubleClick: function(obj){
+				console.info("mgr.onStencilDoubleClick:", obj)
+				if(this.selectedItems[obj.id]){
+					console.warn("EDIT:", this.selectedItems[obj.id]);
+					if(this.selectedItems[obj.id].edit){
+						var m = this.selectedItems[obj.id];
+						this.deselect();
+						m.edit();
+					}
+				}
+				
+			},
+			
 			onStencilDown: function(obj){
 				console.info("onStencilDown:", obj)
 				if(this.selectedItems[obj.id] && this.keys.meta){

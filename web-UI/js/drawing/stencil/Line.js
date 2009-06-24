@@ -28,27 +28,46 @@ drawing.stencil.Line = drawing.util.oo.declare(
 		render: function(data){
 			this.remove(this.hit, this.shape);
 			this.shape = this.parent.createLine(this.pointsToData())
-				.setStroke(this.style.line);
+				.setStroke(this.currentStyle);
 		},
 		createSelectionOutline: function(){
-			//return
 			this.hit = this.parent.createLine(this.pointsToData())
-				.setStroke(this.style.hitline);
-			
-			//this.util.attr(this.hit, "drawingType", "stencil");
+				.setStroke(this.currentHitStyle);
+			this.util.attr(this.hit, "drawingType", "stencil");
 			this.hit.moveToBack();
 		},
 		
 		onDrag: function(obj){
 			if(this.created){ return; }
-			// TODO
-			// Check SHIFT and constrain angle
+			
+			var x1 = obj.start.x,
+				y1 = obj.start.y,
+				x2 = obj.x,
+				y2 = obj.y;
+			
+			if(this.keys.shift){
+				var pt = this.util.constrainAngle(obj, .25, this.keys.alt);
+				x2 = pt.x;
+				y2 = pt.y;
+			}
+			
+			if(this.keys.alt){
+				// FIXME:
+				//	should double the length of the line
+				var dx = x2>x1 ? ((x2-x1)/2) : ((x1-x2)/-2);
+				var dy = y2>y1 ? ((y2-y1)/2) : ((y1-y2)/-2);
+				//dx*=2;
+				//dy*=2;
+				x1 -= dx;
+				x2 -= dx;
+				y1 -= dy;
+				y2 -= dy;
+			}
 			
 			this.points = [
-				{x:obj.start.x, y:obj.start.y},
-				{x:obj.x, y:obj.y}
+				{x:x1, y:y1},
+				{x:x2, y:y2}
 			];
-			
 			this.render();
 		},
 		

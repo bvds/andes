@@ -29,13 +29,15 @@ html, body{
 .drawingCanvas, #drawingNode{
 	/*
 	works, but scroll also draws may need a div within a div....
+	
 	overflow:scroll;*/
 }
 
 #conEdit{
 	border:0;
+	/*background:#ccc;
 	border:1px solid #ff0000;
-	/*outline:none;*/
-	padding:0;
+	outline:none;*/
+	padding:3px;
 	margin:0;
 }
