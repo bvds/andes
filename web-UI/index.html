@@ -3,6 +3,7 @@
 <head>
     <title>Andes 3</title>
 	<link href="css/andes.css" rel="stylesheet" />
+	<link href="js/andes/widget/UpgradeBar/UpgradeBar.css" rel="stylesheet" />
 	<script>
 		djConfig = {
 			isDebug:true,
@@ -16,6 +17,7 @@
 		dojo.require("dijit.layout.BorderContainer");
 		dojo.require("dijit.layout.ContentPane");
 		dojo.require("andes.widget.ExpandoPane");
+		dojo.require("andes.widget.UpgradeBar");
 
 		dojo.require("dijit.MenuBar");
 		dojo.require("dijit.PopupMenuBarItem");
@@ -31,51 +33,47 @@
 	
 </head>
 <body class="tundra">
-	<div id="outer" dojoType="dijit.layout.BorderContainer" gutters="false">
-		<div dojoType="andes.widget.ExpandoPane" id="upgradeBar" splitter="false" region="top" startExpanded="false">
-			Upgrade bar
+	<div id="main" dojoType="dijit.layout.BorderContainer" gutters="false">
+		<div dojoType="dijit.MenuBar" id="navMenu" region="top" splitter="false">
+				<div dojoType="dijit.PopupMenuBarItem">
+						<span>File</span>
+						<div dojoType="dijit.Menu" id="menuFile">
+								<div id="menuFile1" dojoType="dijit.MenuItem">File #1</div>
+								<div id="menuFile2" dojoType="dijit.MenuItem">File #2</div>
+						</div>
+				</div>
+				<div dojoType="dijit.PopupMenuBarItem">
+						<span>Edit</span>
+						<div dojoType="dijit.Menu" id="menuEdit">
+								<div id="menuEdit1" dojoType="dijit.MenuItem">Edit #1</div>
+								<div id="menuEdit2" dojoType="dijit.MenuItem">Edit #2</div>
+						</div>
+				</div>
 		</div>
 
-		<div id="main" dojoType="dijit.layout.BorderContainer" gutters="false" region="center" splitter="false">
-			<div dojoType="dijit.MenuBar" id="navMenu" region="top" splitter="false">
-					<div dojoType="dijit.PopupMenuBarItem">
-							<span>File</span>
-							<div dojoType="dijit.Menu" id="menuFile">
-									<div id="menuFile1" dojoType="dijit.MenuItem">File #1</div>
-									<div id="menuFile2" dojoType="dijit.MenuItem">File #2</div>
-							</div>
-					</div>
-					<div dojoType="dijit.PopupMenuBarItem">
-							<span>Edit</span>
-							<div dojoType="dijit.Menu" id="menuEdit">
-									<div id="menuEdit1" dojoType="dijit.MenuItem">Edit #1</div>
-									<div id="menuEdit2" dojoType="dijit.MenuItem">Edit #2</div>
-							</div>
-					</div>
-			</div>
+		<div id="toolPane" dojoType="dijit.layout.ContentPane" region="left" splitter="false">
+				Toolbar
+		</div>
 
-			<div id="toolPane" dojoType="dijit.layout.ContentPane" region="left" splitter="false">
-					Toolbar
-			</div>
+		<div id="drawingPane" dojoType="dijit.layout.ContentPane" region="center" >
+				main / Drawing
+		</div>
 
-			<div id="mainPane" dojoType="dijit.layout.BorderContainer" gutters="false" region="center" liveSplitters="true">
-				<div id="drawingPane" dojoType="dijit.layout.ContentPane" region="center" >
-						main / Drawing
+		<div id="helpPane" dojoType="andes.widget.ExpandoPane" region="right" splitter="true">
+			<div id="helpWrapPane" dojoType="dijit.layout.BorderContainer" gutters="false">
+				<div id="helpContentPane" dojoType="dijit.layout.ContentPane" region="center">
+					Help content
 				</div>
 
-				<div id="helpPane" dojoType="andes.widget.ExpandoPane" region="right" splitter="true">
-					<div id="helpWrapPane" dojoType="dijit.layout.BorderContainer" gutters="false">
-						<div id="helpContentPane" dojoType="dijit.layout.ContentPane" region="center">
-							Help content
-						</div>
-
-						<div id="helpInputPane" dojoType="dijit.layout.ContentPane" region="bottom">
-							Help form
-						</div>
-					</div>
+				<div id="helpInputPane" dojoType="dijit.layout.ContentPane" region="bottom">
+					Help form
 				</div>
 			</div>
 		</div>
+	</div>
+
+	<div dojoType="andes.widget.UpgradeBar" id="upgradeBar">
+		Upgrade bar
 	</div>
     
 </body>
