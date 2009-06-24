@@ -4,7 +4,7 @@
 @import url("../dojotoolkit/dijit/themes/tundra/layout/ContentPane.css");
 @import url("../dojotoolkit/dijit/themes/tundra/tundra.css");
 
-html, body, #outer, #main{
+html, body, #main{
 	width: 100%;	/* make the body expand to fill the visible window */
 	height: 100%;
 	overflow: hidden;	/* erase window level scrollbars */
@@ -26,9 +26,6 @@ html, body, #outer, #main{
 #toolPane{
 	width:60px;
 	background:#cccccc;
-}
-#mainPane{
-	
 }
 #drawingPane{
 	

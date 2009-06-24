@@ -1,0 +1,43 @@
+
+.andesUpgradeBar {
+	position:absolute;
+	left:0;
+	top:0;
+	width:100%;
+	height:1.6em;
+	line-height:1.6em;
+	overflow:hidden;
+	z-index:100;
+	background:#ddd;
+}
+
+.andesUpgradeBarMessage {
+	position:absolute;
+	left:0;
+	top:0;
+	width:100%;
+	bottom:0;
+	margin-right:250px;
+}
+
+.andesUpgradeBarControls {
+	position:absolute;
+	right:0;
+	top:0;
+	bottom:0;
+	width:250px;
+	text-align:right;
+}
+
+.andesUpgradeBarReminderButton {
+	display:inline;
+	line-height:1.6em;
+}
+
+.andesUpgradeBarCloseIcon {
+	display:inline;
+	width:16px;
+	height:16px;
+	line-height:1.6em;
+	border:1px solid blue;
+}
