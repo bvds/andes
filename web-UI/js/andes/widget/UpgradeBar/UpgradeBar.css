@@ -9,11 +9,12 @@
 	overflow:hidden;
 	z-index:100;
 	background:#ddd;
+	/* FIXME: add a background-image */
 }
 
 .andesUpgradeBarMessage {
 	position:absolute;
-	left:0;
+	left:30px;
 	top:0;
 	width:100%;
 	bottom:0;
@@ -22,7 +23,7 @@
 
 .andesUpgradeBarControls {
 	position:absolute;
-	right:0;
+	right:10px;
 	top:0;
 	bottom:0;
 	width:250px;
@@ -35,9 +36,11 @@
 }
 
 .andesUpgradeBarCloseIcon {
+	cursor:pointer;
 	display:inline;
 	width:16px;
 	height:16px;
+	margin-left:8px;
 	line-height:1.6em;
 	border:1px solid blue;
 }
