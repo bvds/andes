@@ -26,8 +26,9 @@ dojo.provide("drawing.custom.positioning");
 		// This will make force diagrams less crowded
 		var align = end.x<start.x ? "end" : "start";
 		
-		if(end.y<start.y){
-			y += textYOffset;
+	        // box vertical aligned from top
+		if(end.y>start.y){
+			y -= textYOffset;
 		}
 		
 		return { x:x, y:y, foo:"bar", align:align};
@@ -49,9 +50,8 @@ dojo.provide("drawing.custom.positioning");
 		// want text to be clockwise from vector
 		// to match angle measurement from x-axis
 		var align = end.y>start.y ? "end" : "start";
-		if(end.x > start.x){
-			y += textYOffset;
-		}
+	        // box vertical aligned from middle
+	        y += end.x > start.x ? 0.5*textYOffset :  -0.5*textYOffset;
 		
 		return { x:x, y:y, align:align};
 	}
