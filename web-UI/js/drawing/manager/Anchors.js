@@ -138,7 +138,7 @@ dojo.provide("drawing.manager.Anchors");
 			},
 			onAnchorUp: function(obj){
 				this.selected = false;
-				this.stencil.onTransformDone(this);
+				this.stencil.onTransformEnd(this);
 			},
 			onAnchorDrag: function(obj){
 				if(this.selected){

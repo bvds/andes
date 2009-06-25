@@ -130,14 +130,21 @@ dojo.provide("drawing.stencil.Stencil");
 				this.selected = this._upselected;
 			},
 			
-			onTransformDone: function(anchor){
+			onTransformBegin: function(anchor){
+				// called from anchor point up mouse down
+				this.isBeingModified = true;
+			},
+			
+			onTransformEnd: function(anchor){
 				// called from anchor point up mouse up
 				this.isBeingModified = false;
 			},
 			
 			onTransform: function(anchor){
-				// called from anchor point
-				this.isBeingModified = true;
+				// called from anchor point mouse drag
+				if(!this.isBeingModified){
+					this.onTransformBegin();
+				}
 				this.render();			
 			},
 			

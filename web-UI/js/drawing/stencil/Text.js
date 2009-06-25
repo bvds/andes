@@ -45,6 +45,7 @@ dojo.provide("drawing.stencil.Text");
 				//console.timeEnd("render text");
 			},
 			renderOutline: function(){
+				if(this.annotation){ return; }
 				var d = this.pointsToData();
 				this.hit = this.parent.createRect(d)
 					.setStroke(this.style.currentHit)

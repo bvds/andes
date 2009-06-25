@@ -4,9 +4,10 @@ drawing.custom.Vector = drawing.util.oo.declare(
 	drawing.library.Arrow,
 	function(options){
 		this.con([
-			["render", "showAngle"],
-			["onModify", "showAngle"],
-			["onRender", "onRendered"]
+			["onDrag", "showAngle"],
+			["onUp", "hideAngle"],
+			["onTransformBegin", "showAngle"],
+			["onTransformEnd", "hideAngle"]
 		]);
 		this.angleSnap = 10;//id:this.id, 
 		this.labelText = new drawing.stencil.Text({style:this.style, annotation:true, parent:this.parent, mouse:this.mouse});
@@ -91,7 +92,7 @@ drawing.custom.Vector = drawing.util.oo.declare(
 			return this._angleNode;
 		},
 		
-		onRendered: function(){
+		hideAngle: function(){
 			console.warn("DONE");
 			if(this._angleNode){
 				
