@@ -2,6 +2,12 @@ dojo.provide("drawing.defaults");
 
 drawing.defaults = {
 	
+	// current will point to either null or selected
+	current:null,
+	
+	//currentHit will point to either hitNorm or hitSelected
+	currentHit:null,
+	
 	norm:{
 		width:3,
 		color:"#0000FF",
@@ -18,7 +24,7 @@ drawing.defaults = {
 	},
 	hitNorm:{
 		width:10,
-		color:{r:255, g:255, b:0, a:0},
+		color:{r:0, g:255, b:255, a:0},
 		style:"Solid",
 		cap:"round",
 		fill:{r:255, g:255, b:255, a:0}
@@ -44,11 +50,15 @@ drawing.defaults = {
 		cap:"square",
 		minSize:10
 	},
+	arrows:{
+		length:30,
+		width:16
+	},
 	text:{
 		minWidth:150,
-		size:24,
+		size:12,
 		pad:3,
-		fontFamily:"serif",
+		fontFamily:"sans-serif",
 		mode:{
 			create:{
 				width:2,
@@ -77,8 +87,6 @@ drawing.defaults = {
 		}
 	},
 	
-	fill:"#FF00FF",
-	
 	copy: function(){
 		var cpy = function(obj){
 			var o = {};
@@ -93,7 +101,10 @@ drawing.defaults = {
 			}
 			return o;
 		}
-		return cpy(this);
+		var o = cpy(this);
+		o.current = o.norm;
+		o.currentHit = o.hitNorm;
+		return o;
 	}
 	
 };

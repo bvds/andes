@@ -10,6 +10,7 @@ drawing.stencil.Line = drawing.util.oo.declare(
 		}
 	},
 	{
+		type:"drawing.stencil.Line",
 		anchorType: "single",
 		dataToPoints: function(obj){
 			this.points = [
@@ -25,21 +26,22 @@ drawing.stencil.Line = drawing.util.oo.declare(
 				y2: this.points[1].y
 			};
 		},
-		render: function(data){
-			this.remove(this.hit, this.shape);
-			this.shape = this.parent.createLine(this.pointsToData())
-				.setStroke(this.currentStyle);
+		_create: function(shp, d, sty){
+			this.remove(this[shp]);
+			this[shp] = this.parent.createLine(d)
+				.setStroke(sty);
+			this.util.attr(this[shp], "drawingType", "stencil");
 		},
-		createSelectionOutline: function(){
-			this.hit = this.parent.createLine(this.pointsToData())
-				.setStroke(this.currentHitStyle);
-			this.util.attr(this.hit, "drawingType", "stencil");
-			this.hit.moveToBack();
+		
+		render: function(){
+			var d = this.pointsToData()
+			this.onBeforeRender(this);
+			this._create("hit", d, this.style.currentHit);
+			this._create("shape", d, this.style.current);
 		},
 		
 		onDrag: function(obj){
 			if(this.created){ return; }
-			
 			var x1 = obj.start.x,
 				y1 = obj.start.y,
 				x2 = obj.x,
@@ -80,6 +82,7 @@ drawing.stencil.Line = drawing.util.oo.declare(
 				this.remove();
 				return;
 			}
+			this.renderedOnce = true;
 			this.onRender(this);
 		}
 	}

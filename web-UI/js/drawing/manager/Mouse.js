@@ -150,16 +150,16 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			//this.onMove(this.create(evt));
 		},
 		drag: function(evt){
-			this.onDrag(this.create(evt));
+			this.onDrag(this.create(evt, true));
 		},
-		create: function(evt){
+		create: function(evt, squelchErrors){
 			var dim = this._getXY(evt);
 			var x = dim.x - this.origin.x;
 			var y = dim.y - this.origin.y;
 			var o = this.origin;
 			
 			var withinCanvas = x>=0 && y>=0 && x<=o.w && y<=o.h;
-			var id = withinCanvas ? this._getId(evt) : "";
+			var id = withinCanvas ? this._getId(evt, squelchErrors) : "";
 			x*= this.zoom;
 			y*= this.zoom;
 			
@@ -187,8 +187,8 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			dojo.stopEvent(evt);
 			return ret;
 		},
-		_getId: function(evt){
-				return this.util.attr(evt, "id") || this.util.attr(evt.target.parentNode, "id");
+		_getId: function(evt, squelchErrors){
+				return this.util.attr(evt, "id", null, squelchErrors);// || this.util.attr(evt.target.parentNode, "id", null, squelchErrors);
 		},
 		_getXY: function(evt){
 			return {x:evt.pageX, y:evt.pageY};

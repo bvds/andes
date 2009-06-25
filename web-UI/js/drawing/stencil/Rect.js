@@ -22,6 +22,7 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 				{x:obj.x, y:obj.y + obj.height}				// BL
 			];
 		},
+		
 		pointsToData: function(){
 			var s = this.points[0];
 			var e = this.points[2];
@@ -35,26 +36,22 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 			
 			
 		},
+		
+		_create: function(shp, d, sty){
+			this.remove(this[shp]);
+			this[shp] = this.parent.createRect(d)
+				.setStroke(sty)
+				.setFill(sty.fill);
+			this.util.attr(this[shp], "drawingType", "stencil");
+		},
+		
 		render: function(){
-			this.remove();
-			var d = this.pointsToData();
-			//console.log(this.id, "pts:", dojo.toJson(this.points))
-			//console.log(this.id, "data:", dojo.toJson(d))
-				
-			this.shape = this.parent.createRect(d)
-				.setStroke(this.currentStyle)
-				.setFill(this.currentStyle.fill);
-			
+			this.onBeforeRender(this);
+			var d = this.pointsToData()
+			this._create("hit", d, this.style.currentHit);
+			this._create("shape", d, this.style.current);
 		},
-		createSelectionOutline: function(){
-			this.remove(this.hit);
-			this.hit = this.parent.createRect(this.pointsToData())
-				.setStroke(this.currentHitStyle)
-				.setFill(this.currentHitStyle.fill);
-			
-			//this.util.attr(this.hit, "drawingType", "stencil");
-			this.hit.moveToBack();
-		},
+		
 		onDrag: function(obj){
 			var s = obj.start, e = obj;
 			var	x = s.x < e.x ? s.x : e.x,

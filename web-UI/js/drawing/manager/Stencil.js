@@ -109,14 +109,18 @@ dojo.provide("drawing.manager.Stencil");
 				
 			},
 			onSelect: function(item){
-				console.log("stencil.onSelect", item)
+				console.log("stencil.onSelect", item);
+				if(!item){
+					console.error("null item is not selected:", this.items)
+				}
 				if(this.selectedItems[item.id]){ return; }
 				this.selectedItems[item.id] = item;
 				this.group.add(item.parent);
+				item.select();
 				if(this.isSelected()==1){
 					this.anchors.add(item, this.group);
 				}
-				item.select();
+				
 			},
 			onDeselect: function(item, keepObject){
 				
@@ -153,7 +157,7 @@ dojo.provide("drawing.manager.Stencil");
 			},
 			
 			onStencilDown: function(obj){
-				console.info("onStencilDown:", obj)
+				console.info("onStencilDown:", obj.id)
 				if(this.selectedItems[obj.id] && this.keys.meta){
 					
 					console.log("shift remove");
