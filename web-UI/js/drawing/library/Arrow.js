@@ -24,6 +24,9 @@ drawing.library.Arrow = drawing.util.oo.declare(
 				this.endArrow.points = this.util.arrowHead(c.x, c.y, o.x, o.y, this.style);
 			});
 		}
+		if(this.data || this.points && this.points.length){
+			this.render();
+		}
 	},
 	{
 		type:"drawing.library.Arrow",

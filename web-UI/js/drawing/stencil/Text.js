@@ -15,6 +15,7 @@ dojo.provide("drawing.stencil.Text");
 			anchorType:"none",
 			align:"start", 	// start, middle, end
 			valign:"top",	// top, middle, bottom (TODO: bottom )
+			_lineHeight:1,
 			
 			render: function(/* String | Array */text){
 				
@@ -71,23 +72,29 @@ dojo.provide("drawing.stencil.Text");
 				this.hit.moveToBack();
 			},
 			
-			dataToPoints: function(obj){
-				return [
-					{x:obj.x, y:obj.y}, 						// TL
-					{x:obj.x + obj.width, y:obj.y},				// TR
-					{x:obj.x + obj.width, y:obj.y + (obj.height || this._lineHeight)},// BR
-					{x:obj.x, y:obj.y + (obj.height || this._lineHeight)}				// BL
+			dataToPoints: function(o){
+				o = o || this.data;
+				var w = o.width =="auto" ? 1 : o.width;
+				var h = o.height || this._lineHeight;
+				this.points = [
+					{x:o.x, y:o.y}, 						// TL
+					{x:o.x + w, y:o.y},				// TR
+					{x:o.x + w, y:o.y + h},	// BR
+					{x:o.x, y:o.y + h}				// BL
 				];
+				return this.points;
 			},
-			pointsToData: function(){
-				var s = this.points[0];
-				var e = this.points[2];
-				return {
+			pointsToData: function(p){
+				p = p || this.points;
+				var s = p[0];
+				var e = p[2];
+				this.data = {
 					x: s.x,
 					y: s.y,
 					width: e.x-s.x,
 					height: e.y-s.y
-				}
+				};
+				return this.data;
 			}
 		}
 	);

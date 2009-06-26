@@ -89,7 +89,18 @@ dojo.require("dojox.math.round");
 			}
 		},
 		
-		constrainAngle: function(obj, ca){
+		constrainAngle: function(obj, min, max){
+			var angle = this.angle(obj);
+			if(angle >= min && angle <= max){
+				return obj;	
+			}
+			var radius = this.length(obj);
+			var diff = min-((360-(max-min))/2);
+			var new_angle = angle > max ? max : min - angle < 100 ? min : max;
+			return this.pointOnCircle(obj.start.x,obj.start.y,radius, new_angle);
+		},
+		
+		snapAngle: function(obj, ca){
 			// summary:
 			//	Snaps a line to the nearest angle
 			//		obj: Mouse object (see drawing.Mouse)

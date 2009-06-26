@@ -22,15 +22,17 @@ dojo.provide("drawing.manager.Anchors");
 					anchors:[]
 				};
 				if(item.anchorType=="none"){ return; }
-				var pts = item.getPoints();
+				var pts = item.points;
 				dojo.forEach(pts, function(p){
 					if(p.noAnchor){ return; }
 					var a = new drawing.manager.Anchor({stencil:item, point:p, mouse:this.mouse, util:this.util});
-					
+					this.items[item.id]._cons = [
+						dojo.connect(a, "onRenderStencil", this, "onRenderStencil"),
+						dojo.connect(a, "reset", this, "onReset")
+					];
 					if(item.anchorType=="group"){
-						this.items[item.id]._con = dojo.connect(a, "onTransformPoint", this, "onTransformPoint");
+						this.items[item.id]._cons.push(dojo.connect(a, "onTransformPoint", this, "onTransformPoint"));
 					}
-					
 					this.items[item.id].anchors.push(a);
 					this.onAddAnchor(a);
 				}, this);
@@ -51,8 +53,20 @@ dojo.provide("drawing.manager.Anchors");
 				}
 			},
 			
-			_findConstrinPoint: function(pts, p){
-				
+			onReset: function(){
+				for(var nm in this.items){
+					dojo.forEach(this.items[nm].anchors, function(a){
+						a.render();
+					});
+				}
+			},
+			
+			onRenderStencil: function(){
+				for(var nm in this.items){
+					dojo.forEach(this.items[nm].anchors, function(a){
+						a.shape.moveToFront();
+					});
+				}
 			},
 			
 			onTransformPoint: function(anchor){
@@ -82,7 +96,7 @@ dojo.provide("drawing.manager.Anchors");
 				dojo.forEach(this.items[item.id].anchors, function(a){
 					a.destroy();
 				});
-				dojo.disconnect(this.items[item.id]._con);
+				dojo.forEach(this.items[item.id]._cons, dojo.disconnect, dojo);
 				this.items[item.id].anchors = null;
 				delete this.items[item.id];
 			}
@@ -92,10 +106,10 @@ dojo.provide("drawing.manager.Anchors");
 	drawing.manager.Anchor = drawing.util.oo.declare(
 		function(options){
 			this.style = drawing.defaults.copy();
-			this.id = options.id || drawing.util.common.uid("anchor");
 			this.mouse = options.mouse;
 			this.point = options.point;
 			this.util = options.util;
+			this.id = options.id || this.util.uid("anchor");
 			this.org = dojo.mixin({}, this.point);
 			this.stencil = options.stencil;
 			this.render();
@@ -105,6 +119,7 @@ dojo.provide("drawing.manager.Anchors");
 			y_anchor:null,
 			x_anchor:null,
 			render: function(){
+				this.shape && this.shape.removeShape();
 				var d = this.style.anchors,
 					b = d.width,
 					s = d.size,
@@ -130,6 +145,9 @@ dojo.provide("drawing.manager.Anchors");
 				this.shape.setTransform({dx:0, dy:0});
 				this.util.attr(this, "drawingType", "anchor");
 				this.util.attr(this, "id", this.id);
+			},
+			onRenderStencil: function(){
+				//stub
 			},
 			onTransformPoint: function(/* this */ anchor){
 				//stub
@@ -205,7 +223,8 @@ dojo.provide("drawing.manager.Anchors");
 					this.point.y += y;
 					this.onTransformPoint(this);
 					this.stencil.onTransform(this); /// ------------- rendering, not transforming
-					this.shape.moveToFront();
+					this.onRenderStencil();
+					//this.shape.moveToFront();
 				}
 			},
 			setPoint: function(mx){
@@ -218,6 +237,9 @@ dojo.provide("drawing.manager.Anchors");
 			},
 			disconnectMouse: function(){
 				this.mouse.unregister(this._mouseHandle);
+			},
+			reset: function(){
+				// stub
 			},
 			destroy: function(){
 				this.disconnectMouse();

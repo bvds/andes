@@ -6,20 +6,13 @@ dojo.provide("drawing.stencil.Stencil");
 		
 		function(options){
 			// clone style so changes are reflected in future shapes
-			console.log("mixin:", options)
+			console.log(this.type, "mixin:", options)
 			dojo.mixin(this, options);
 			
-			/*this.annotation = options.annotation || false;
-			this.util = drawing.util.common;
-			this.parent = options.parent;
-			this.mouse = options.mouse;
-			this.keys = options.keys || {};
-			this.subShape = options.subShape
-			*/
 			this.style = options.style || drawing.defaults.copy();
 			
 			this.id = options.id || this.util.uid(this.type);
-			console.log("ID:", this.id, ":::::", this.type, this)
+			//console.log("ID:", this.id, ":::::", this.type, this)
 			this._cons = [];
 			
 			if(!this.subShape){
@@ -32,6 +25,14 @@ dojo.provide("drawing.stencil.Stencil");
 			
 			this._offX = this.mouse.origin.x;
 			this._offY = this.mouse.origin.y;
+			
+			if(options.points){
+				this.setPoints(options.points);
+				this.render();
+			}else if(options.data){
+				this.setData(options.data);
+				this.render();
+			}
 		},
 		{
 			
@@ -44,12 +45,27 @@ dojo.provide("drawing.stencil.Stencil");
 			util:null,
 			mouse:null,
 			keys:null,
+			points:[],
+			data:null,
 			
 			//readonly
 			created: false,
+			
 			//private
 			_cons:[],
 			
+			setData: function(d){
+				
+				this.data = d;
+				this.points = this.dataToPoints();
+			},
+			setPoints: function(p){
+				this.points = p;
+				// Path doesn't do data
+				if(this.pointsToData){
+					this.data = this.pointsToData();
+				}
+			},
 			
 			attr: function(/*String*/key, /* optional anything */value){
 				//experimenting. currently only works with style object
@@ -160,7 +176,6 @@ dojo.provide("drawing.stencil.Stencil");
 			onTransformEnd: function(anchor){
 				// called from anchor point up mouse up
 				this.isBeingModified = false;
-				console.warn("TRANS END")
 			},
 			
 			onTransform: function(anchor){
@@ -168,6 +183,7 @@ dojo.provide("drawing.stencil.Stencil");
 				if(!this.isBeingModified){
 					this.onTransformBegin();
 				}
+				this.setPoints(this.points);
 				this.render();			
 			},
 			
@@ -188,11 +204,6 @@ dojo.provide("drawing.stencil.Stencil");
 			setTransform: function(mx){
 				this.transformPoints(mx);
 			},
-			
-			getPoints: function(){
-				return this.points || [];
-			},
-			
 			
 			
 			destroy: function(){

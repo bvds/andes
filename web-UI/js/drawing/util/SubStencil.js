@@ -4,7 +4,7 @@ drawing.util.SubStencil = drawing.util.oo.declare(
 	
 	function(master){
 		this.master = master;
-		this._props = {style:this.master.style, id:this.master.id, parent:this.master.parent, mouse:this.master.mouse};
+		this._props = {style:this.master.style, id:this.master.id, util:this.master.util, parent:this.master.parent, mouse:this.master.mouse};
 		this.slaves = [];
 		
 		this._cons = [];

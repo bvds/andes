@@ -9,11 +9,11 @@ drawing.custom.Base = drawing.util.oo.declare(
 			["onTransform", "showAngle"],
 			["onTransformEnd", "hideAngle"]
 		]);
-		this.angleSnap = 10;//id:this.id,
+		this.angleSnap = 1;//id:this.id,
 		if(this.type=="drawing.custom.Vector"){
-			this.labelText = new drawing.stencil.Text({style:this.style, annotation:true, parent:this.parent, mouse:this.mouse});
+			this.labelText = new drawing.stencil.Text({style:this.style, util:this.util, annotation:true, parent:this.parent, mouse:this.mouse});
 		}else if(this.type=="drawing.custom.Axes"){
-			var props = {style:this.style, align:"middle", valign:"middle", annotation:true, parent:this.parent, mouse:this.mouse}
+			var props = {style:this.style, align:"middle", valign:"middle", util:this.util, annotation:true, parent:this.parent, mouse:this.mouse}
 			this.labelX = new drawing.stencil.Text(props);
 			this.labelY = new drawing.stencil.Text(props);
 		}

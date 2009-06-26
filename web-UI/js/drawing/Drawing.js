@@ -73,6 +73,7 @@ dojo.require("drawing.manager.Silverlight");
 			new drawing.manager.Silverlight({mouse:this.mouse, stencils:this.stencils, anchors:this.anchors, canvas:canvas});
 			
 			
+			/*			
 			this.stencils.register(new drawing.stencil.TextBlock({
 				parent:surface.createGroup(),
 				util:this.util,
@@ -84,6 +85,16 @@ dojo.require("drawing.manager.Silverlight");
 			}));
 			
 			
+			this.stencils.register(new drawing.stencil.TextBlock({
+				parent:surface.createGroup(),
+				mouse:this.mouse,
+				keys:this.keys,
+				util:this.util,
+				data:{x:300, y:100, width:300, text:"Dynamic Text"}							  
+			}));
+			
+			
+			
 			this.stencils.register(new drawing.stencil.Rect({
 				parent:surface.createGroup(),
 				util:this.util,
@@ -92,13 +103,6 @@ dojo.require("drawing.manager.Silverlight");
 				data:{x:100, y:100, width:100, height:100}							  
 			}));
 			
-			this.stencils.register(new drawing.stencil.TextBlock({
-				parent:surface.createGroup(),
-				mouse:this.mouse,
-				keys:this.keys,
-				util:this.util,
-				data:{x:300, y:100, width:300, text:"Dynamic Text"}							  
-			}));
 			
 			this.stencils.register(new drawing.stencil.Ellipse({
 				parent:surface.createGroup(),
@@ -115,7 +119,7 @@ dojo.require("drawing.manager.Silverlight");
 				util:this.util,
 				points:[{x:300,y:300},{x:500,y:200}]							  
 			}));
-			/**/
+			*/
 			
 		},
 		onRenderStencil: function(stencil){
@@ -140,12 +144,14 @@ dojo.require("drawing.manager.Silverlight");
 				this.unSetTool();
 			}
 			this.currentType = type;
+			console.log("REG TOOL :", this.currentType)
 			try{
-				this.currentStencil = new this.tools[this.currentType]({parent:surface.createGroup(), mouse:this.mouse, keys:this.keys});
+				this.currentStencil = new this.tools[this.currentType]({parent:surface.createGroup(), util:this.util, mouse:this.mouse, keys:this.keys});
 				this._toolCon = dojo.connect(this.currentStencil, "onRender", this, "onRenderStencil");
 			}catch(e){
 				console.error("Drawing.setTool Error:", e);
 				console.error(this.currentType + " is not a constructor: ", this.tools[this.currentType]);
+				//console.trace();
 			}
 		},
 		unSetTool: function(){
