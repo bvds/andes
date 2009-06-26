@@ -26,7 +26,7 @@ dojo.declare("andes.widget.UpgradeBar", [dijit._Widget, dijit._Templated], {
 		}
 	},
 
-	ask: function(msg){
+	notify: function(msg){
 		if(msg){
 			this.attr("message", msg);
 		}
