@@ -512,9 +512,6 @@
 	 (symbol (StudentEntry-symbol entry))
 	 (drawn-mag (StudentEntry-radius entry))
 	 best sysent
-	 ;; For now, these are all null, since they are done 
-	 ;; as separate steps
-	 given-mag given-xc given-yc given-zc
 	 ;;
 	 ;; defined after match
 	 action vector-term vector-mag-term vector-dir-term
@@ -532,9 +529,11 @@
 	 ;;  the ball.  Please choose another direction."
 	 (dir (StudentEntry-angle entry))
 	 (dir-term (arg-to-dir dir drawn-mag))
+	 ;; 
+	 ;; No user-interface method in Andes3 for z-dir yet.
 	 ;; xy plane vectors get theta prefix, z axis ones get phi
-	 ;; Greek symbols expressed by $ + char position in symbol font
-	 (dir-label (format NIL "~A~A" (if (z-dir-spec dir-term) "$j" "$q")
+	 ;; Greek symbols expressed in LaTeX form, for now.
+	 (dir-label (format NIL "~A~A" (if (z-dir-spec dir-term) "$j" "\\theta")
 			    symbol)))
 
     ;; see comments in define-variable
@@ -543,12 +542,17 @@
 		(mapcar #'(lambda (x) 
 			    (cons (nlg (cadr (SystemEntry-prop x))) x))
 			(remove '(vector . ?rest) *sg-entries* 
-
-    ;; See comments in define-variable
-    (when (= (length best) 1)
-      (setf sysent (car best)))
 				:key #'SystemEntry-prop :test-not #'unify))))
 
+    ;; See comments in define-variable
+    (cond ((= (length best) 1)
+	   (setf sysent (car best)))
+	  ((= (length best) 0)
+	   (error "Can't find any matches for ~A from ~A" text *sg-entries*))
+	  (t (error "too many matches: ~A" 
+		    (mapcar #'(lambda (x) (nlg (cadr (SystemEntry-prop x))))
+			       best))))
+    
     (setf action (SystemEntry-prop sysent))
     ;; dir-term could just as well be gotten from action...
     ;; how to we check the two?
@@ -579,8 +583,7 @@
     ;; as side effects, but not to check them. 
     ;; 2. For non-zero-mag vectors, given mag or compos handled via the given
     ;; equation mechanism, which checks their values.
-    ;; We currently rely on drawn-mag argument to detect zero-mag vector, 
-    ;; not :given-mag. 
+    ;; We currently rely on drawn-mag argument to detect zero-mag vector 
     ;; This is OK because workbench updates drawn-mag if non-zero mag is 
     ;; specified.
 
@@ -597,23 +600,6 @@
 	 ;; not studvar
 	 (add-implicit-eqn entry (make-implicit-eqn-entry `(= ,syscomp 0)))))
 
-    ;; if vector not zero-length, record given equations for any specified 
-    ;; magnitude or component values.  Note given eqn maker takes student 
-    ;; variable args.
-    (when (not (equal dir-term 'zero))
-       (when given-mag
-	 (add-given-eqn entry (make-given-eqn-entry symbol given-mag 'given-mag)))  
-       ;; Components in reverse order because add-given-eqn pushes at front. 
-       ;; Want xc to wind up first so error there gets reported first.
-       (when given-zc
-           (add-given-eqn entry 
-	       (make-given-eqn-entry (strcat symbol "_z") given-zc 'given-zc)))
-       (when given-yc
-           (add-given-eqn entry 
-	       (make-given-eqn-entry (strcat symbol "_y") given-yc 'given-yc)))  
-       (when given-xc
-           (add-given-eqn entry 
-	       (make-given-eqn-entry (strcat symbol "_x") given-xc 'given-xc))))
  
     ; if vector is a unit vector, associate implicit equation magV = 1 
     (when (eq (first vector-term) 'unit-vector)
@@ -867,10 +853,12 @@
 
     (unless text (warn "Definition must always have text")
 	       (setf text ""))
- 
+
+
     ;; match up text with SystemEntry
     ;; Right now, this is a simple first effort:
     ;; Here is what is missing:
+    ;;  Handle case where symbol is nil
     ;;  Should tokenize the text and the model texts and do
     ;;     combination of tree matching and minimum edit distance
     ;;     for tree leaves.
@@ -882,6 +870,7 @@
     ;;     symbol from client.
     ;;  Should have something to handle extra stuff like setting
     ;;     given values in definition.  (either handle it or warning/error).
+    ;;  
     (setf best (best-matches
 		(pull-out-quantity symbol text)
 		(mapcar #'(lambda (x) 

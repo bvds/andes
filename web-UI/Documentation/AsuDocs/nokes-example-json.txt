@@ -122,20 +122,33 @@ agnostic about object positions; Andes3 is not.
   {"action": "modify-object", "id": "a4", "mode": "correct"}
 ]
 
-1:57 define mass of ball
+1:57 define mass of ball.  In Andes2, the given value is done
+in the same step.  In Andes3, it is separate.
 
 {"method": "solution-step", "params": {"time": 117.001, 
 	   "action": "new-object", "id": "a5",  
 	   "type": "statement", "mode": "unknown", 
-	   "x": 177, "y": 188, "width": 66, 
-	   "text": "m=2 kg is the mass of the ball"}, "id": 6}
+	   "x": 177, "y": 188, "width": 66, "symbol": "m",
+	   "text": "m is the mass of the ball"}, "id": 6}
 
 [
   {"action": "log", "assoc": {"DEFINE-MASS": "(DEFINE-VAR (MASS BALL))"}, 
-           "id": "a5"}
-  {"action": "log", "parse": "(= m_BALL (DNUM 2.0 kg))", "id": "a5"},
-  {"action": "set-score", "score", 40},
-  {"action": "modify-object", "id": "a5", "mode": "correct"}
+           "id": "a5a"}
+ {"action": "set-score", "score", 40},
+  {"action": "modify-object", "id": "a5a", "mode": "correct"}
+]
+
+
+{"method": "solution-step", "params": {"time": 118.001, 
+	   "action": "new-object", "id": "a5b",  
+	   "type": "equation", "mode": "unknown", 
+	   "x": 177, "y": 192, "width": 66, 
+	   "text": "m=2 kg"}, "id": 6.5}
+
+[
+  {"action": "log", "parse": "(= m_BALL (DNUM 2.0 kg))", "id": "a5b"},
+  {"action": "set-score", "score", 41},
+  {"action": "modify-object", "id": "a5b", "mode": "correct"}
 ]
 
 3:18 draw first force vector.  Unlike Andes2, the angle of the vector
@@ -146,7 +159,7 @@ is shown on the screen when the vector is being dragged out.
 	   "type": "vector", "mode": "unknown", 
 	   "x": 240, "y": 222, "angle": 120,  "radius": 60,
 	   "symbol": "Fwall1", "x-label": 300, "y-label": 350,
-	   "text": "Fwall1 is force due to wall1 acting on ball"}, "id": 7}
+	   "text": "Fwall1 is the normal force on the ball due to wall1"}, "id": 7}
 
 [
   {"action": "log", "assoc": {"DRAW-NORMAL": "VECTOR (FORCE BALL WALL1 NORMAL :TIME 1) (DNUM 120 deg))", 
@@ -176,7 +189,7 @@ is shown on the screen when the vector is being dragged out.
 	   "type": "vector", "mode": "unknown", 
 	   "x": 245, "y": 224, "angle": 270, "radius": 77,
 	   "symbol": "Fearth", "x-label": 300, "y-label": 370,
-	   "text": "Fearth is force due to gravity"}, "id": 9}
+	   "text": "Fearth is the weight force on the ball due to the earth"}, "id": 9}
 
 [
   {"action": "log", "assoc": {"DRAW-WEIGHT": "VECTOR (FORCE BALL EARTH WEIGHT :TIME 1) (DNUM 270 deg))",
