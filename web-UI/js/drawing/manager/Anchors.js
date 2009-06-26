@@ -24,6 +24,7 @@ dojo.provide("drawing.manager.Anchors");
 				if(item.anchorType=="none"){ return; }
 				var pts = item.getPoints();
 				dojo.forEach(pts, function(p){
+					if(p.noAnchor){ return; }
 					var a = new drawing.manager.Anchor({stencil:item, point:p, mouse:this.mouse, util:this.util});
 					
 					if(item.anchorType=="group"){

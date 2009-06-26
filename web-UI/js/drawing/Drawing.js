@@ -9,6 +9,7 @@ dojo.require("drawing.manager.Undo");
 dojo.require("drawing.manager.keys");
 dojo.require("drawing.manager.Mouse");
 dojo.require("drawing.manager.Stencil");
+dojo.require("drawing.util.SubStencil");
 dojo.require("drawing.manager.Anchors");
 dojo.require("drawing.stencil.Stencil");
 dojo.require("drawing.stencil.Line");
@@ -71,7 +72,18 @@ dojo.require("drawing.manager.Silverlight");
 			
 			new drawing.manager.Silverlight({mouse:this.mouse, stencils:this.stencils, anchors:this.anchors, canvas:canvas});
 			
-			/*this.stencils.register(new drawing.stencil.Rect({
+			/*
+			this.stencils.register(new drawing.stencil.TextBlock({
+				parent:surface.createGroup(),
+				mouse:this.mouse,
+				keys:this.keys,
+				align:"end",
+				valign:"middle",
+				data:{x:300, y:100, width:"auto", text:"Mike's\nFantabulous Dynamic\nText"}							  
+			}));
+			
+			
+			this.stencils.register(new drawing.stencil.Rect({
 				parent:surface.createGroup(),
 				mouse:this.mouse,
 				data:{x:100, y:100, width:100, height:100}							  

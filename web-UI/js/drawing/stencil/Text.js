@@ -5,6 +5,9 @@ dojo.provide("drawing.stencil.Text");
 	drawing.stencil.Text = drawing.util.oo.declare(
 		drawing.stencil.Stencil,
 		function(options){
+			
+			this.align = options.align || this.align;
+			this.valign = options.valign || this.valign;
 			this._lineHeight = this.style.text.size * 1.5;
 		},
 		{
@@ -13,6 +16,9 @@ dojo.provide("drawing.stencil.Text");
 			//
 			type:"drawing.stencil.Text",
 			anchorType:"none",
+			align:"start", //start, middle, end
+			valign:"top",//top, middle, bottom (TODO: bottom )
+			
 			render: function(/* String | Array */text, /* ? String */align){
 				//console.time("render text");
 				this.remove(this.shape, this.hit);
@@ -22,18 +28,26 @@ dojo.provide("drawing.stencil.Text");
 					this._textArray = text.split("\n");	
 				}
 				align = align || "start";
-				//console.log("render text:", this._text);
 					
 				var d = this.pointsToData();
-				var x = d.x + this.style.text.pad*2;
-				var y = d.y + this._lineHeight - (this.style.text.size*.3);
+				
+				//console.log("render text:", this._text);
+				//console.log("DATA:", d)
+				var w = d.width;
 				var h = this._lineHeight;
+				
+				var x = d.x + this.style.text.pad*2;
+
+				var y = d.y + this._lineHeight - (this.style.text.size*.3);
+				
+				if(this.valign=="middle"){
+					y -= h/2;
+				}
 				this.shape = this.parent.createGroup();
 				
 				dojo.forEach(this._textArray, function(txt, i){
-					console.log("align:", align)
-					var tb = this.shape.createText({x: x, y: y+(h*i), text: txt, align: "start"})
-						.setFont({family: this.style.text.fontFamily, size: this.style.text.size+"pt", weight: "normal", align:align})
+					var tb = this.shape.createText({x: x, y: y+(h*i), text: txt, align: this.align})
+						.setFont({family: this.style.text.fontFamily, size: this.style.text.size+"pt", weight: "normal"})
 						.setFill("black");
 					this.util.attr(tb, "drawingType", "stencil");
 					
@@ -47,6 +61,20 @@ dojo.provide("drawing.stencil.Text");
 			renderOutline: function(){
 				if(this.annotation){ return; }
 				var d = this.pointsToData();
+				
+				if(this.align=="middle"){
+					d.x -= d.width/2 - this.style.text.pad * 2;
+				}else if(this.align=="start"){
+					d.x += this.style.text.pad;
+				}else if(this.align=="end"){
+					d.x -= d.width - this.style.text.pad * 3;
+				}
+				
+				if(this.valign=="middle"){
+					d.y -= (this._lineHeight )/2 - this.style.text.pad;
+				}
+				
+				d.y -= (this.style.text.size*.3)
 				this.hit = this.parent.createRect(d)
 					.setStroke(this.style.currentHit)
 					.setFill(this.style.currentHit.fill);

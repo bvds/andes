@@ -34,7 +34,6 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 				height: e.y-s.y
 			}
 			
-			
 		},
 		
 		_create: function(shp, d, sty){

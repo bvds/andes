@@ -37,6 +37,7 @@ drawing.stencil.Line = drawing.util.oo.declare(
 			var d = this.pointsToData()
 			this.onBeforeRender(this);
 			this._create("hit", d, this.style.currentHit);
+			//if(!this.annotation)
 			this._create("shape", d, this.style.current);
 		},
 		
