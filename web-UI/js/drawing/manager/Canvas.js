@@ -12,7 +12,7 @@ dojo.provide("drawing.manager.Canvas");
 			this.id = options.id || drawing.util.common.uid("surface");
 			this.width = options.width || options.w;
 			this.height = options.height || options.h;
-			
+			this.util = options.util;
 			_surface = dojox.gfx.createSurface(this.domNode, this.width, this.height);
 			_surface.whenLoaded(this, function(){
 				setTimeout(dojo.hitch(this, function(){
@@ -95,6 +95,7 @@ dojo.provide("drawing.manager.Canvas");
 				}
 				s.moveToBack();
 				this.grid = s;
+				this.util.attr(s, "id", "grid");
 				return s;
 			}
 		}

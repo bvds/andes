@@ -33,6 +33,9 @@
 .andesUpgradeBarReminderButton {
 	display:inline;
 	line-height:1.6em;
+	font-size:80%;
+	text-decoration:underline;
+	cursor:pointer;
 }
 
 .andesUpgradeBarCloseIcon {

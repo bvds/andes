@@ -1,49 +1,64 @@
 dojo.provide("drawing.util.common");
+dojo.require("dojox.math.round");
 
 (function(){
 	var uidMap = {};
 
 	drawing.util.common	= {
 		// MAFF
-		XXradToDeg: function(angle) {
-			// 0 degrees is center to left.
-			// 90 degrees is center straight up.
-			var d = ((angle*180) / Math.PI);
-			if(d < 0){
-				d = 180 + (180 + d);
-			}
-			return d;
-		},
-		radToDeg: function(a) {
+		radToDeg: function(n) {
 			//	summary
 			//	Convert the passed number to degrees.
-			return (a*180)/Math.PI;	//	Number
+			return (n*180)/Math.PI;	//	Number
 		},
-		degToRad: function(r) {
+		
+		degToRad: function(n) {
 			//	summary
 			//	Convert the passed number to radians.
-			return (r*Math.PI)/180;	// Number
+			return (n*Math.PI)/180;	// Number
 		},
-		angle: function(obj){
-			return this.radToDeg(this.radians(obj));
+		
+		angle: function(obj, /* ? Float */snap){
+			// summary:
+			//	Return angle based on mouse object
+			// snap:
+			//	Returns nearest angle within snap limits
+			if(snap){
+				snap = snap/180;
+				var radians = this.radians(obj),
+					radius = this.length(obj),
+					seg = Math.PI * snap,
+					rnd = dojox.math.round(radians/seg),
+					new_radian = rnd*seg;
+				return dojox.math.round(this.radToDeg(new_radian)); // Whole Number
+			
+			}else{
+				return this.radToDeg(this.radians(obj)); // Float
+			}
 		},
+		
 		radians: function(obj){
 			return Math.atan2(obj.start.y-obj.y,obj.start.x-obj.x);
 		},
+		
 		length: function(obj){
 			var x1 = obj.start.x,y1=obj.start.y,x2=obj.x,y2=obj.y;
 			return Math.sqrt(Math.pow(x1-x2, 2)+Math.pow(y1-y2, 2));
 		},
+		
 		distance: function(obj){
 			var x1 = obj.start.x,y1=obj.start.y,x2=obj.x,y2=obj.y;
 			return Math.abs(Math.sqrt(Math.pow(x1-x2, 2)+Math.pow(y1-y2, 2)));
+		},
+		
+		slope:function(p1, p2){
+			if(!(p1.x-p2.x)){ return 0; }
+			return ((p1.y-p2.y)/(p1.x-p2.x));
 		},
 		pointOnCircle: function(cx, cy, radius, a){
 			radians =  a * Math.PI / 180.0;
 			var x = radius * Math.cos(radians) * -1;
 			var y = radius * Math.sin(radians) * -1;
-			watch("px:", x)
-			watch("py:", y)
 			return {
 				x:cx+x,
 				y:cy+y
@@ -85,7 +100,7 @@ dojo.provide("drawing.util.common");
 		byId: function(id){
 			return this.objects[id];
 		},
-		attr: function(/* Object */ elem, /* property */ prop, /* ? value */ value){
+		attr: function(/* Object */ elem, /* property */ prop, /* ? value */ value, squelchErrors){
 			if(!elem) { return false; }
 			try{
 				
@@ -125,7 +140,7 @@ dojo.provide("drawing.util.common");
 					elem = elem.shape;
 				}
 				
-				if(arguments.length==2 && prop=="id" && elem.target){
+				if(!value && prop=="id" && elem.target){
 					var n = elem.target;
 					while(!dojo.attr(n, "id")){
 						n = n.parentNode;
@@ -143,9 +158,11 @@ dojo.provide("drawing.util.common");
 				
 				
 			}catch(e){
-				console.error("BAD ATTR: prop:", prop, "el:", elem)
-				console.error(e)
-				console.trace();
+				if(!squelchErrors){
+					console.error("BAD ATTR: prop:", prop, "el:", elem)
+					console.error(e)
+					console.trace();
+				}
 				return false;
 			}
 		}

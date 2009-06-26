@@ -14,6 +14,7 @@ dojo.require("drawing.stencil.Stencil");
 dojo.require("drawing.stencil.Line");
 dojo.require("drawing.stencil.Rect");
 dojo.require("drawing.stencil.Ellipse");
+dojo.require("drawing.stencil.Path");
 dojo.require("drawing.stencil.Text");
 dojo.require("drawing.stencil.TextBlock");
 dojo.require("drawing.manager.Silverlight");
@@ -52,6 +53,7 @@ dojo.require("drawing.manager.Silverlight");
 				node:this.domNode,
 				w:this.width,
 				h:this.height,
+				util:this.util,
 				id:this.util.uid("surface"),
 				callback: dojo.hitch(this, "onSurfaceReady")
 			});
@@ -69,7 +71,7 @@ dojo.require("drawing.manager.Silverlight");
 			
 			new drawing.manager.Silverlight({mouse:this.mouse, stencils:this.stencils, anchors:this.anchors, canvas:canvas});
 			
-			this.stencils.register(new drawing.stencil.Rect({
+			/*this.stencils.register(new drawing.stencil.Rect({
 				parent:surface.createGroup(),
 				mouse:this.mouse,
 				data:{x:100, y:100, width:100, height:100}							  
@@ -85,15 +87,17 @@ dojo.require("drawing.manager.Silverlight");
 			this.stencils.register(new drawing.stencil.Ellipse({
 				parent:surface.createGroup(),
 				mouse:this.mouse,
+				keys:this.keys,
 				data:{cx:150, cy:150, rx:50, ry:50}							  
 			}));
-			/*
-			this.stencils.register(new drawing.stencil.Line({
+			
+			this.stencils.register(new drawing.library.Arrow({
 				parent:surface.createGroup(),
 				mouse:this.mouse,
-				points:[{x:300,y:100},{x:500,y:200}]							  
-			}));
-			*/
+				keys:this.keys,
+				points:[{x:300,y:300},{x:500,y:200}]							  
+			}));*/
+			
 		},
 		onRenderStencil: function(stencil){
 			

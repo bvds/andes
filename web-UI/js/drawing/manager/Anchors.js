@@ -70,6 +70,7 @@ dojo.provide("drawing.manager.Anchors");
 								dy: 0
 							});
 						}
+						a.shape.moveToFront();
 					}
 				});
 			},
@@ -137,6 +138,7 @@ dojo.provide("drawing.manager.Anchors");
 			},
 			onAnchorUp: function(obj){
 				this.selected = false;
+				this.stencil.onTransformEnd(this);
 			},
 			onAnchorDrag: function(obj){
 				if(this.selected){
@@ -200,8 +202,9 @@ dojo.provide("drawing.manager.Anchors");
 					});
 					this.point.x += x;
 					this.point.y += y;
-					this.stencil.render(); /// ------------- rendering, not transforming
 					this.onTransformPoint(this);
+					this.stencil.onTransform(this); /// ------------- rendering, not transforming
+					this.shape.moveToFront();
 				}
 			},
 			setPoint: function(mx){

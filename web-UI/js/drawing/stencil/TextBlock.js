@@ -29,8 +29,6 @@ dojo.require("drawing.stencil.Text");
 		drawing.stencil.Text,
 		function(options){
 			if(options.data){
-				this._offX = this.mouse.origin.x;
-				this._offY = this.mouse.origin.y;
 				var d = options.data;
 				var w = Math.max(d.width, this.style.text.minWidth)
 				var o = this.measureText(this.cleanText(d.text, false), w);
@@ -45,7 +43,7 @@ dojo.require("drawing.stencil.Text");
 			}
 		},
 		{
-			
+			type:"drawing.stencil.TextBlock",
 			showParent: function(obj){
 				if(this.parentNode){ return; }
 				console.log("SHOW PARENT OBJ:", obj)

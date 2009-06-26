@@ -9,7 +9,7 @@ dojo.declare("andes.widget.UpgradeBar", [dijit._Widget, dijit._Templated], {
 
 	startExpanded: false,
 
-	templateString: "<div class=\"andesUpgradeBar\"><div class=\"andesUpgradeBarMessage\" dojoAttachPoint=\"messageNode\">message</div><div class=\"andesUpgradeBarControls\" dojoAttachPoint=\"controlsNode\"><button type=\"button\" class=\"andesUpgradeBarReminderButton\" dojoAttachPoint=\"dontRemindButtonNode\" dojoAttachEvent=\"onclick:_onDontRemindClick\">Don't Remind Me Again</button><div class=\"andesUpgradeBarCloseIcon\" dojoAttachPoint=\"closeIconNode\" dojoAttachEvent=\"onclick:_onCloseClick\">X</div></div></div>",
+	templateString: "<div class=\"andesUpgradeBar\"><div class=\"andesUpgradeBarMessage\" dojoAttachPoint=\"messageNode\">message</div><div class=\"andesUpgradeBarControls\" dojoAttachPoint=\"controlsNode\"><div class=\"andesUpgradeBarReminderButton\" dojoAttachPoint=\"dontRemindButtonNode\" dojoAttachEvent=\"onclick:_onDontRemindClick\">Don't Remind Me Again</div><div class=\"andesUpgradeBarCloseIcon\" dojoAttachPoint=\"closeIconNode\" dojoAttachEvent=\"onclick:_onCloseClick\">X</div></div></div>",
 
 	postCreate: function(){
 		this.inherited(arguments);
@@ -26,7 +26,7 @@ dojo.declare("andes.widget.UpgradeBar", [dijit._Widget, dijit._Templated], {
 		}
 	},
 
-	ask: function(msg){
+	notify: function(msg){
 		if(msg){
 			this.attr("message", msg);
 		}

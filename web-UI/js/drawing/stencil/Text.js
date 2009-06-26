@@ -8,15 +8,21 @@ dojo.provide("drawing.stencil.Text");
 			this._lineHeight = this.style.text.size * 1.5;
 		},
 		{
+			//
+			// TODO - width:auto
+			//
+			type:"drawing.stencil.Text",
 			anchorType:"none",
-			render: function(/* String | Array */text){
+			render: function(/* String | Array */text, /* ? String */align){
+				//console.time("render text");
 				this.remove(this.shape, this.hit);
-			
+				this.renderOutline();
 				if(text){
 					this._text = text;
 					this._textArray = text.split("\n");	
 				}
-				console.log("render", this._text);
+				align = align || "start";
+				//console.log("render text:", this._text);
 					
 				var d = this.pointsToData();
 				var x = d.x + this.style.text.pad*2;
@@ -25,22 +31,28 @@ dojo.provide("drawing.stencil.Text");
 				this.shape = this.parent.createGroup();
 				
 				dojo.forEach(this._textArray, function(txt, i){
+					console.log("align:", align)
 					var tb = this.shape.createText({x: x, y: y+(h*i), text: txt, align: "start"})
-						.setFont({family: this.style.text.fontFamily, size: this.style.text.size+"pt", weight: "normal"})
+						.setFont({family: this.style.text.fontFamily, size: this.style.text.size+"pt", weight: "normal", align:align})
 						.setFill("black");
-					
 					this.util.attr(tb, "drawingType", "stencil");
 					
 				}, this);
-				this.util.attr(this.shape, "drawingType", "stencil");
+				if(!this.annotation){
+					this.util.attr(this.shape, "drawingType", "stencil");
+				}
+				//this.util.attr(this.shape, "id", this.id);
+				//console.timeEnd("render text");
 			},
-			createSelectionOutline: function(){
+			renderOutline: function(){
+				if(this.annotation){ return; }
 				var d = this.pointsToData();
 				this.hit = this.parent.createRect(d)
-					.setStroke(this.currentHitStyle)
-					.setFill(this.currentHitStyle.fill);
-				
-				this.util.attr(this.hit, "drawingType", "stencil");
+					.setStroke(this.style.currentHit)
+					.setFill(this.style.currentHit.fill);
+				if(!this.annotation){
+					this.util.attr(this.hit, "drawingType", "stencil");
+				}
 				this.hit.moveToBack();
 			},
 			
@@ -48,8 +60,8 @@ dojo.provide("drawing.stencil.Text");
 				return [
 					{x:obj.x, y:obj.y}, 						// TL
 					{x:obj.x + obj.width, y:obj.y},				// TR
-					{x:obj.x + obj.width, y:obj.y + obj.height},// BR
-					{x:obj.x, y:obj.y + obj.height}				// BL
+					{x:obj.x + obj.width, y:obj.y + (obj.height || this._lineHeight)},// BR
+					{x:obj.x, y:obj.y + (obj.height || this._lineHeight)}				// BL
 				];
 			},
 			pointsToData: function(){

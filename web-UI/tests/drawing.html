@@ -10,7 +10,7 @@
 		textarea{
 			position:absolute;
 			top:5px;
-			left:200px;
+			left:500px;
 			width:300px;
 			overflow:hidden;
 		}
@@ -58,6 +58,12 @@
 		dojo.require("dojo.parser");
 		dojo.require("drawing.Drawing");
 		dojo.require("drawing.Toolbar");
+		
+		dojo.require("drawing.custom.positioning");
+		dojo.require("drawing.library.Arrow");
+		dojo.require("drawing.custom.Vector");
+		
+
 	</script>
 	
 </head>
@@ -66,11 +72,13 @@
 	<textarea id="ta" ></textarea>
 	<div id="conEdit" contenteditable="true"></div>
 	<div id="wrapper">
-		<div dojoType="drawing.Toolbar" drawingId="drawingNode" class="drawingCanvas"> <!-- TODO! Add DYNAMICALLY!-->
-			<button tool="drawing.stencil.Line" selected="true">Line</button>
+		<div dojoType="drawing.Toolbar" drawingId="drawingNode" class="drawingCanvas"> <!-- TODO! Add DYNAMICALLY???-->
+			<button tool="drawing.stencil.Line" selected="false">Line</button>
 			<button tool="drawing.stencil.Rect" selected="false">Rect</button>
 			<button tool="drawing.stencil.Ellipse" selected="false">Ellipse</button>
 			<button tool="drawing.stencil.TextBlock" selected="false">Text</button>
+			<button tool="drawing.library.Arrow" selected="false">Arrow</button>
+			<button tool="drawing.custom.Vector" selected="true">Vector</button>
 			&nbsp;&nbsp;&nbsp;
 			<button action="zoomIn">Zoom In</button>
 			<button action="zoom100">100%</button>

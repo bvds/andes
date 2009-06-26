@@ -36,19 +36,20 @@ drawing.stencil.Ellipse = drawing.util.oo.declare(
 			};
 		
 		},
-		render: function(){
-			this.remove();
-			var d = this.pointsToData()
-			this.shape = this.parent.createEllipse(d)
-				.setStroke(this.currentStyle)
-				.setFill(this.currentStyle.fill);
+		
+		_create: function(shp, d, sty){
+			this.remove(this[shp]);
+			this[shp] = this.parent.createEllipse(d)
+				.setStroke(sty)
+				.setFill(sty.fill);
+			this.util.attr(this[shp], "drawingType", "stencil");
 		},
-		createSelectionOutline: function(){
-			this.remove(this.hit);
-			this.hit = this.parent.createEllipse(this.pointsToData())
-				.setStroke(this.currentHitStyle)
-				.setFill(this.currentHitStyle.fill);
-			this.hit.moveToBack();
+		
+		render: function(){
+			this.onBeforeRender(this);
+			var d = this.pointsToData()
+			this._create("hit", d, this.style.currentHit);
+			this._create("shape", d, this.style.current);
 		},
 		
 		onDrag: function(obj){
