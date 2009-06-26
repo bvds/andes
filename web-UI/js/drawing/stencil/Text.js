@@ -11,35 +11,24 @@ dojo.provide("drawing.stencil.Text");
 			this._lineHeight = this.style.text.size * 1.5;
 		},
 		{
-			//
-			// TODO - width:auto
-			//
 			type:"drawing.stencil.Text",
 			anchorType:"none",
-			align:"start", //start, middle, end
-			valign:"top",//top, middle, bottom (TODO: bottom )
+			align:"start", 	// start, middle, end
+			valign:"top",	// top, middle, bottom (TODO: bottom )
 			
-			render: function(/* String | Array */text, /* ? String */align){
-				//console.time("render text");
+			render: function(/* String | Array */text){
+				
 				this.remove(this.shape, this.hit);
 				this.renderOutline();
 				if(text){
 					this._text = text;
 					this._textArray = text.split("\n");	
 				}
-				align = align || "start";
-					
 				var d = this.pointsToData();
-				
-				//console.log("render text:", this._text);
-				//console.log("DATA:", d)
 				var w = d.width;
 				var h = this._lineHeight;
-				
 				var x = d.x + this.style.text.pad*2;
-
 				var y = d.y + this._lineHeight - (this.style.text.size*.3);
-				
 				if(this.valign=="middle"){
 					y -= h/2;
 				}
@@ -55,8 +44,6 @@ dojo.provide("drawing.stencil.Text");
 				if(!this.annotation){
 					this.util.attr(this.shape, "drawingType", "stencil");
 				}
-				//this.util.attr(this.shape, "id", this.id);
-				//console.timeEnd("render text");
 			},
 			renderOutline: function(){
 				if(this.annotation){ return; }

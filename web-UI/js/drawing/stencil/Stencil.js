@@ -6,13 +6,18 @@ dojo.provide("drawing.stencil.Stencil");
 		
 		function(options){
 			// clone style so changes are reflected in future shapes
-			this.style = options.style || drawing.defaults.copy();
-			this.annotation = options.annotation || false;
+			console.log("mixin:", options)
+			dojo.mixin(this, options);
+			
+			/*this.annotation = options.annotation || false;
 			this.util = drawing.util.common;
-			this.parent = this.orgParent = options.parent;
+			this.parent = options.parent;
 			this.mouse = options.mouse;
 			this.keys = options.keys || {};
 			this.subShape = options.subShape
+			*/
+			this.style = options.style || drawing.defaults.copy();
+			
 			this.id = options.id || this.util.uid(this.type);
 			console.log("ID:", this.id, ":::::", this.type, this)
 			this._cons = [];
@@ -29,9 +34,23 @@ dojo.provide("drawing.stencil.Stencil");
 			this._offY = this.mouse.origin.y;
 		},
 		{
+			
+			//public
 			type:"drawing.stencil",
-			created: false,
 			minimumSize:10,
+			annotation:false,
+			subShape:false,
+			style:null,
+			util:null,
+			mouse:null,
+			keys:null,
+			
+			//readonly
+			created: false,
+			//private
+			_cons:[],
+			
+			
 			attr: function(/*String*/key, /* optional anything */value){
 				//experimenting. currently only works with style object
 				

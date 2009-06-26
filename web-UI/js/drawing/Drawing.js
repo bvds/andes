@@ -72,19 +72,22 @@ dojo.require("drawing.manager.Silverlight");
 			
 			new drawing.manager.Silverlight({mouse:this.mouse, stencils:this.stencils, anchors:this.anchors, canvas:canvas});
 			
-			/*
+			
 			this.stencils.register(new drawing.stencil.TextBlock({
 				parent:surface.createGroup(),
+				util:this.util,
 				mouse:this.mouse,
 				keys:this.keys,
 				align:"end",
 				valign:"middle",
-				data:{x:300, y:100, width:"auto", text:"Mike's\nFantabulous Dynamic\nText"}							  
+				data:{x:500, y:400, width:"auto", text:"Mike's\nFantabulous Dynamic\nText"}							  
 			}));
 			
 			
 			this.stencils.register(new drawing.stencil.Rect({
 				parent:surface.createGroup(),
+				util:this.util,
+				keys:this.keys,
 				mouse:this.mouse,
 				data:{x:100, y:100, width:100, height:100}							  
 			}));
@@ -93,6 +96,7 @@ dojo.require("drawing.manager.Silverlight");
 				parent:surface.createGroup(),
 				mouse:this.mouse,
 				keys:this.keys,
+				util:this.util,
 				data:{x:300, y:100, width:300, text:"Dynamic Text"}							  
 			}));
 			
@@ -100,6 +104,7 @@ dojo.require("drawing.manager.Silverlight");
 				parent:surface.createGroup(),
 				mouse:this.mouse,
 				keys:this.keys,
+				util:this.util,
 				data:{cx:150, cy:150, rx:50, ry:50}							  
 			}));
 			
@@ -107,8 +112,10 @@ dojo.require("drawing.manager.Silverlight");
 				parent:surface.createGroup(),
 				mouse:this.mouse,
 				keys:this.keys,
+				util:this.util,
 				points:[{x:300,y:300},{x:500,y:200}]							  
-			}));*/
+			}));
+			/**/
 			
 		},
 		onRenderStencil: function(stencil){
