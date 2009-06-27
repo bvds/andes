@@ -328,6 +328,7 @@
   ;; non-dialog result string part (status or equation)
   (let ((result (turn-result turn))
 	(id (turn-id turn)))
+    (unless (turn-id turn) (warn "turn->WB-Reply has no id for ~S" turn))
     (case (turn-coloring turn)
       (color-green (push `((:action . "modify-object") (:id . ,id)
 			    (:mode . "correct")) result))

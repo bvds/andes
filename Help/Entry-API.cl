@@ -1019,25 +1019,27 @@
 ;; NB: if entries is not a singleton, the error is hung on the first
 ;; one, which should be the principal entry being evaluated
 (defun check-symbols-enter (label referent entry-ids &optional sysvar)
-   (cond ((symbols-lookup label) ;; variable already defined!
-      ;; find entry. entry-ids arg may be atom or list, but should not be nil
-      (let ((entry (find-entry (if (atom entry-ids) entry-ids (first entry-ids))))
-	     rem)
-	  ;; build the error remediation turn
-	  (setf rem (make-hint-seq (list
-		 (format nil "The variable ~A is in use to define ~A. Please choose a different label." 
-		         label (nlg (symbols-referent label))))))
-	  (setf (turn-coloring rem) **color-red**)
-	  ;; set state of entry and attach error. But only do if not done already, so 
-	  ;; only report on the first error found.
-	  (unless (studentEntry-ErrInterp entry)
+  (cond ((symbols-lookup label) ;; variable already defined!
+	 ;; find entry. entry-ids arg may be atom or list, but should not be nil
+	 (let ((entry (find-entry (if (atom entry-ids) entry-ids (first entry-ids))))
+	       rem)
+	   ;; build the error remediation turn
+	   (setf rem (make-hint-seq (list
+				     (format nil "The variable ~A is in use to define ~A. Please choose a different label." 
+					     label (nlg (symbols-referent label))))))
+	   
+	   (setf (turn-id rem) (StudentEntry-id entry))
+	   (setf (turn-coloring rem) **color-red**)
+	   ;; set state of entry and attach error. But only do if not done already, so 
+	   ;; only report on the first error found.
+	   (unless (studentEntry-ErrInterp entry)
 	     (setf (studentEntry-state entry) 'incorrect)
              (setf (studentEntry-ErrInterp entry)
-       	          (make-ErrorInterp :diagnosis '(variable-already-in-use)
-                                    :remediation rem)))))
-
-	  ;; else no conflict: just make the definition
-          (T (symbols-enter label referent entry-ids sysvar))))
+		   (make-ErrorInterp :diagnosis '(variable-already-in-use)
+				     :remediation rem)))))
+	
+	;; else no conflict: just make the definition
+	(T (symbols-enter label referent entry-ids sysvar))))
 
 ;;
 ;; Check-NonEq-Entry -- Generic checker for non-equation student entry 
@@ -1230,6 +1232,8 @@
        ; unclear what intended should be
        ; :intended (get-given-interp quant)
        :remediation rem))
+
+    (setf (turn-id rem) (StudentEntry-id se))
     (setf (turn-coloring rem) **color-red**)))
 
 (defun should-be-magdir-form (se quant)
@@ -1242,6 +1246,8 @@
        ; unclear what intended should be, maybe eqn for one given compo
        ; :intended (get-given-interp `(compo x 0 ,quant))
        :remediation rem))
+
+    (setf (turn-id rem) (StudentEntry-id se))
     (setf (turn-coloring rem) **color-red**)))
 
 ; 

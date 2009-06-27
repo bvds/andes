@@ -125,11 +125,13 @@
     (setf (StudentEntry-prop entry) (list 'eqn equation))
     (setf (StudentEntry-state entry) **incorrect**)
     (add-entry entry)
-    (setf (StudentEntry-ErrInterp entry) (bad-syntax-ErrorInterp equation))
+
+    (setf (StudentEntry-ErrInterp entry) 
+	  (bad-syntax-ErrorInterp equation :id (StudentEntry-id entry)))
     (ErrorInterp-remediation (StudentEntry-ErrInterp entry)))
 
 ; This returns a plain ErrorInterp:
-(defun bad-syntax-ErrorInterp (equation)
+(defun bad-syntax-ErrorInterp (equation &key id)
   "Given a syntactically ill-formed equation, returns an error interpretation for it."
   (let (rem)				; remediation hint seq to be assigned
     ;; cheap tests for a few common sources of errors
@@ -166,7 +168,10 @@
 		    (format nil "Syntax error in ~a" equation)
 		    "The equation or the {\\l units}{\\v units.html} in it are not in a recognizable form."
 		    "Though I can't tell exactly what the mistake is, a few common sources of errors are: (a) {\\l Unit symbols}{\\v units.html} are case sensitive. (b) Multiplication always requires an explicit multiplication sign: W=m*g, NOT W=mg. (c) Units attach only to numbers, not to variables or expressions.")))))
+
+    (setf (turn-id rem) id)
     (setf (turn-coloring rem) **color-red**)
+
     (make-ErrorInterp
      :diagnosis '(Syntax-error-in-eqn)
      :remediation rem)))
@@ -199,8 +204,7 @@
 	  (setf (StudentEntry-State entry) **Correct**)
 	  (add-entry entry) 	
 	  (setf cont nil))
-	 (t ;;(equal **Color-Red** (turn-coloring tmp))
-	  (setf bad (append bad (list (list tmp se))))))))
+	 (t (setf bad (append bad (list (list tmp se))))))))
 
     (cond
      (cont
@@ -465,7 +469,10 @@
       (make-ErrorInterp
        :diagnosis '(forgot-units)
        :remediation rem))
+
+    (setf (turn-id rem) (StudentEntry-id se))
     (setf (turn-coloring rem) **color-red**)
+
     rem))
 
 
@@ -499,7 +506,10 @@
       (make-ErrorInterp
        :diagnosis '(maybe-forgot-units)
        :remediation rem))
+
+    (setf (turn-id rem) (StudentEntry-id se))
     (setf (turn-coloring rem) **color-red**)
+
     rem))
 
 ; If this is a simple numerical assignment statement, we can say more specifically
@@ -515,7 +525,10 @@
       (make-ErrorInterp
        :diagnosis '(wrong-units)
        :remediation rem))
+
+    (setf (turn-id rem) (StudentEntry-id se))
     (setf (turn-coloring rem) **color-red**)
+
     rem))
 
 (defun solver-exception-interp (se)
@@ -538,8 +551,10 @@
   (let ((defined-but-not-sysvars (remove-if-not #'symbols-lookup strings)))
     (setf (StudentEntry-ErrInterp se)
       (if defined-but-not-sysvars
-	  (unused-variables-ErrorInterp defined-but-not-sysvars)
-	(undef-variables-ErrorInterp strings)))
+	  (unused-variables-ErrorInterp defined-but-not-sysvars
+					:id (StudentEntry-id se))
+	  (undef-variables-ErrorInterp strings 
+				       :id (StudentEntry-id se))))
     (ErrorInterp-remediation (StudentEntry-ErrInterp se))))
 
 
@@ -561,7 +576,7 @@
      (when sym (sym-label sym))))
 
 
-(defun undef-variables-ErrorInterp (undef-vars)
+(defun undef-variables-ErrorInterp (undef-vars &key id)
   "Given a list of undefined vars (as strings), returns the error interpretation that will be both stored in the student entry and used to give the student an unsolicited warning."
   (let* ((is-comp-var (has-comp-vars-p undef-vars))
 	 (tmp-msg "Variables must be defined before being used in an equation.  Vectors are defined by the drawing tools (the buttons along the left edge of the window) and scalars are defined by the clicking on the 'Variable' button at the top of the window.\\n  If all variables have been defined, the problem may be incorrect unit symbols, including case errors.  For example, 'N', not 'n', is the symbol for Newtons.")
@@ -581,12 +596,15 @@
 			  (format nil "The variables: ~a may be defined by drawing coordinate axes" is-comp-var)
 			(format nil "The variable: ~a may be defined by drawing coordinate axes." (car is-comp-var)))
 		    tmp-msg))))))
+
+    (setf (turn-id rem) id)
     (setf (turn-coloring rem) **color-red**)
+
     (make-ErrorInterp
      :diagnosis (cons 'Undefined-variables undef-vars)
      :remediation rem)))
 
-(defun unused-variables-ErrorInterp (undef-vars)
+(defun unused-variables-ErrorInterp (undef-vars &key id)
   "Given a list of unused vars (as strings), returns the error interpretation that will be both stored in the student entry and used to give the student an unsolicited warning."
   (let ((rem (make-hint-seq
 		 (list
@@ -595,9 +613,9 @@
 		    (format nil "These variables are not used in any solution I know of: ~a." undef-vars))
 		  "I can only recognize equations and variables from solutions I know about. This variable is not used in any of the solutions I have recorded for this problem. It's possible you are pursuing a solution that I don't know about, but if so, I can't help you with it and simpler solutions are probably available."))))
 
-    ; To leave black: comment out next line and use following one w/NIL 
+    (setf (turn-id rem) id)
     (setf (turn-coloring rem) **color-red**)  
-    ;(setf (turn-coloring rem) NIL)  ; NIL color => leave black
+
     (make-ErrorInterp
      :diagnosis (cons 'Unused-variables undef-vars)
      :remediation rem)))
@@ -872,28 +890,30 @@
 			 (T ; answer has non-parameter vars
 			  (setf (StudentEntry-ErrInterp entry) 
 			    (bad-variables-vs-parameters-ErrorInterp input 
-			                         (bad-vars-in-answer valid)))
+			                         (bad-vars-in-answer valid)
+						 :id id))
 			  (setf result-turn (ErrorInterp-remediation
 					     (StudentEntry-ErrInterp entry)))))
 		      (progn ; didn't parse. Note re message that input might not have been a full equation.
-			(setf (StudentEntry-ErrInterp entry) (bad-syntax-ErrorInterp 
-			                                        (if ep input (strcat lhs "=" rhs))))
+			(setf (StudentEntry-ErrInterp entry) 
+			      (bad-syntax-ErrorInterp
+			       (if ep input (strcat lhs "=" rhs)) :id id))
 			(setf result-turn (ErrorInterp-remediation
 					   (StudentEntry-ErrInterp entry))))))
 		(cond ; failed to get a candidate to test.
 		 ((and why (equal (car why) 'bad-var))
 		  (warn "do-check-answer bad var ~A~%" entry)
 		  (setf (StudentEntry-ErrInterp entry)
-		    (bad-answer-bad-lhs-ErrorInterp input why))
+		    (bad-answer-bad-lhs-ErrorInterp input why :id id))
 		  (setf result-turn (ErrorInterp-remediation (StudentEntry-ErrInterp entry))))
 		 ((and why (equal (car why) 'bad-sought))
 		  (warn "do-check-answer bad sought ~A~%" entry)
 		  (setf (StudentEntry-ErrInterp entry)
-		    (bad-answer-bad-sought-ErrorInterp input why))
+		    (bad-answer-bad-sought-ErrorInterp input why :id id))
 		  (setf result-turn (ErrorInterp-remediation (StudentEntry-ErrInterp entry))))
 		 (t
 		  (setf (StudentEntry-ErrInterp entry)
-		    (bad-answer-syntax-ErrorInterp input))
+		    (bad-answer-syntax-ErrorInterp input :id id))
 		  (setf result-turn (ErrorInterp-remediation (StudentEntry-ErrInterp entry)))))
 		)))
 	  ;;(format t "Zero length"))
@@ -904,35 +924,44 @@
 	     (setf (StudentEntry-state entry) **incorrect**)
 	     (make-red-turn :id (StudentEntry-id entry))))))
 
-(defun bad-answer-bad-lhs-ErrorInterp (equation why)
+(defun bad-answer-bad-lhs-ErrorInterp (equation why &key id)
   "LHS of equation is not a variable."
   (let ((rem (make-hint-seq
 	      (list
 	       (format nil "'~A' is not a defined variable." (second why))))))
+
+    (setf (turn-id rem) id)
     (setf (turn-coloring rem) **color-red**)
+
     (make-ErrorInterp
      :diagnosis '(answer-sought-is-undefined)
      :remediation rem)))
 
-(defun bad-answer-bad-sought-ErrorInterp (equation why)
+(defun bad-answer-bad-sought-ErrorInterp (equation why &key id)
   "Answer is malformed"
   (declare (ignore Equation)) ;suppressing warning.
   (let ((rem (make-hint-seq
 	      (list
 	       "Answers can be expressed as a simple equation with the name of the variable for the quantity that the problem asks you to find on the left hand side of equation."
 	       (format nil "'~A' is not the value we are looking for." (second why))))))
+
+    (setf (turn-id rem) id)
     (setf (turn-coloring rem) **color-red**)
+
     (make-ErrorInterp
      :diagnosis '(answer-is-not-sought)
      :remediation rem)))
 
-(defun bad-answer-syntax-ErrorInterp (equation)
+(defun bad-answer-syntax-ErrorInterp (equation &key id)
   "Answer is malformed"
   (let ((rem (make-hint-seq
 	      (list
 	       (format nil "Answers can be expressed as an explicit equation assigning a value to the sought, or by giving a single value only. (~a)" equation)
 	       "Try removing the left-hand side of the equation."))))
+
+    (setf (turn-id rem) id)
     (setf (turn-coloring rem) **color-red**)
+
     (make-ErrorInterp
      :diagnosis '(answer-is-malformed)
      :remediation rem)))
@@ -941,13 +970,16 @@
 ;;; Could distinguish two cases: 1. problem asks for purely numerical answer 
 ;;; (so any var in answer is illegal); 2. problem asks for answer in terms of 
 ;;; some parameters (so only some vars illegal and we can say which are legal.)
-(defun bad-variables-vs-parameters-ErrorInterp (equation badvars)
+(defun bad-variables-vs-parameters-ErrorInterp (equation badvars &key id)
   "Equation has non-parameter variables in answer"
   (let ((rem (make-hint-seq
 	      (list
 	       (format NIL "This expression contains variables not allowed in the answer: ~a" badvars)
 	       "In most Andes problems a final answer should give an explicit numerical value (with units) for the sought. A few problems may ask you to express the value symbolically in terms of specified other quantities. Read the problem statement to see which variables, if any, are allowed in the answer."))))
+
+    (setf (turn-id rem) id)
     (setf (turn-coloring rem) **color-red**)
+
     (make-ErrorInterp
      :diagnosis '(using-variables-in-answer)
      :remediation rem)))
@@ -1148,7 +1180,10 @@
       (make-ErrorInterp
        :diagnosis '(should-be-unknown)
        :remediation rem))
+
+    (setf (turn-id rem) (StudentEntry-id se))
     (setf (turn-coloring rem) **color-red**)
+
     rem))
 
 ; fetch the systementry giving a value for this quantity.
@@ -1184,7 +1219,10 @@
        :diagnosis '(should-be-given)
        :intended (get-given-interp quant)
        :remediation rem))
+
+    (setf (turn-id rem) (StudentEntry-id se))
     (setf (turn-coloring rem) **color-red**)
+
     rem))
 
 (defun get-known-interp (quant)
@@ -1203,7 +1241,10 @@
        :diagnosis '(should-be-known)
        :intended (get-known-interp quant)
        :remediation rem))
+
+    (setf (turn-id rem) (StudentEntry-id se))
     (setf (turn-coloring rem) **color-red**)
+
     rem))
 
 ; delegate to wrong-given-value (var wrongval) in kb/errors.cl which applies to equations.
@@ -1216,11 +1257,7 @@
       (make-ErrorInterp
        :diagnosis '(wrong-given-value)
        :intended (get-given-interp quant)
-       :remediation rem))
-    ; don't return this as unsolicited hint -- leave it as whatswrong help
-    ;(setf (turn-coloring rem) **color-red**)
-    ;rem
-    ))
+       :remediation rem))))
 
 (defun more-than-given-ErrorInterp (se quant)
   (let ((rem (make-hint-seq
@@ -1232,7 +1269,10 @@
        :diagnosis '(more-than-given)
        :intended (get-given-interp quant)
        :remediation rem))
+
+    (setf (turn-id rem) (StudentEntry-id se))
     (setf (turn-coloring rem) **color-red**)
+
     rem))
 
 

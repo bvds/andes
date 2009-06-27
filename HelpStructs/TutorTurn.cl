@@ -462,7 +462,7 @@
 
 ;;=============================================================
 ;; Hint sequences 
-;; During next step-help and what-sworng-help it is often
+;; During next step-help and whats-wrong-help it is often
 ;; necessary to pass the student a sequence of hints for them
 ;; to use.  Those sequences may consists of a set of strings
 ;; interspersed with a set of operator hints.  This code deals
