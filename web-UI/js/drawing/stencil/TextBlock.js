@@ -26,16 +26,21 @@ dojo.require("drawing.stencil.Text");
 		// TODO - handle zoom - and zoom while showing
 		// disable?
 		//
+		// TODO:
+		//	Handles width: auto, align:middle, etc. but for
+		//	display only, edit is out of whack
+		//
 		drawing.stencil.Text,
 		function(options){
 			if(options.data){
 				var d = options.data;
-				var w = Math.max(d.width, this.style.text.minWidth)
+				var w = d.width=="auto" ? "auto" : Math.max(d.width, this.style.text.minWidth)
 				var o = this.measureText(this.cleanText(d.text, false), w);
+				console.log("MEASURED:", o)
 				this.points = [
 					{x:d.x, y:d.y},
-					{x:d.x+w, y:d.y},
-					{x:d.x+w, y:d.y+o.h},
+					{x:d.x+o.w, y:d.y},
+					{x:d.x+o.w, y:d.y+o.h},
 					{x:d.x, y:d.y+o.h}
 				];
 				this.render(d.text);
@@ -182,7 +187,9 @@ dojo.require("drawing.stencil.Text");
 			},
 			
 			measureText: function(/* String */ str, /* ? Number */width){
-				console.log("BREAKS:", width, "x", this._lineHeight)
+				console.log(">>>>measureText:", width, "x", this._lineHeight);
+				
+				var r = "(<br\\s*/*>)|(\\n)|(\\r)";
 				this.showParent({width:width || "auto", height:"auto"});
 				this.createTextField(str);
 				var txt = "";
@@ -191,12 +198,18 @@ dojo.require("drawing.stencil.Text");
 				var h = dojo.marginBox(el).h;
 				
 				el.innerHTML = str;
-				if(dojo.marginBox(el).h == h){
-					// one line
-					txt = str;console.log("measureText.singleLine");
-				}else if(!width){
+				
+				if(!width || new RegExp(r, "gi").test(str)){
 					// has line breaks in text
-					txt = str; console.log("measureText.textLineBreaks");
+					txt = str.replace(new RegExp(r, "gi"), "\n");
+					el.innerHTML = str.replace(new RegExp(r, "gi"), "<br/>");
+					console.log("measureText.textLineBreaks", txt);
+				
+				}else if(dojo.marginBox(el).h == h){
+					// one line
+					txt = str;
+					console.log("measureText.singleLine");
+					
 				}else{
 					// text wraps
 					var ar = str.split(" ");console.log("measureText.wraps");
@@ -226,7 +239,7 @@ dojo.require("drawing.stencil.Text");
 				
 				var dim = dojo.marginBox(el);
 				
-				console.log("TEXT BREAKS:::", txt);
+				console.log("TEXT BREAKS:::", el.innerHTML);
 				console.log("conEdit", conEdit);
 				conEdit.parentNode.removeChild(conEdit);
 				dojo.destroy(this.parentNode);

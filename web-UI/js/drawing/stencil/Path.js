@@ -5,6 +5,7 @@ drawing.stencil.Path = drawing.util.oo.declare(
 	drawing.stencil.Stencil,
 	function(options){
 		dojo.disconnect(this._postRenderCon);
+		
 		if(options.points){
 			this.points = options.points;
 			this.render();
@@ -12,10 +13,12 @@ drawing.stencil.Path = drawing.util.oo.declare(
 	},
 	{
 		type:"drawing.stencil.Path",
+		closePath: true,
 		
 		_create: function(shp, sty){
 			this.remove(this[shp]);
-			this[shp] = this.parent.createPath({}).setStroke(sty).setFill(sty.fill);
+			this[shp] = this.parent.createPath({}).setStroke(sty);
+			this.closePath && this[shp].setFill(sty.fill);
 			dojo.forEach(this.points, function(o, i){
 				if(i==0){
 					this[shp].moveTo(o.x, o.y);
@@ -23,7 +26,7 @@ drawing.stencil.Path = drawing.util.oo.declare(
 					this[shp].lineTo(o.x, o.y);
 				}
 			}, this);
-			this[shp].closePath();
+			this.closePath && this[shp].closePath();
 			this.util.attr(this[shp], "drawingType", "stencil");
 		},
 		

@@ -6,30 +6,67 @@ dojo.provide("drawing.stencil.Stencil");
 		
 		function(options){
 			// clone style so changes are reflected in future shapes
+			console.log(this.type, "mixin:", options)
+			dojo.mixin(this, options);
+			
 			this.style = options.style || drawing.defaults.copy();
-			this.currentStyle = this.style.norm;
-			this.currentHitStyle = this.style.hitNorm;
-			this.annotation = options.annotation || false;
-			this.util = drawing.util.common;
-			this.parent = this.orgParent = options.parent;
-			this.mouse = options.mouse;
-			this.keys = options.keys || {};
+			
 			this.id = options.id || this.util.uid(this.type);
-			console.log("ID:", this.id, ":::::", this.type, this)
+			//console.log("ID:", this.id, ":::::", this.type, this)
 			this._cons = [];
-			this.connectMouse();
-			if(!this.annotation){
+			
+			if(!this.subShape){
+				this.connectMouse();
+				this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
+			}
+			if(!this.annotation && !this.subShape){
 				this.util.attr(this.parent, "id", this.id);
 			}
-			this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
 			
 			this._offX = this.mouse.origin.x;
 			this._offY = this.mouse.origin.y;
+			
+			if(options.points){
+				this.setPoints(options.points);
+				this.render();
+			}else if(options.data){
+				this.setData(options.data);
+				this.render();
+			}
 		},
 		{
+			
+			//public
 			type:"drawing.stencil",
-			created: false,
 			minimumSize:10,
+			annotation:false,
+			subShape:false,
+			style:null,
+			util:null,
+			mouse:null,
+			keys:null,
+			points:[],
+			data:null,
+			
+			//readonly
+			created: false,
+			
+			//private
+			_cons:[],
+			
+			setData: function(d){
+				
+				this.data = d;
+				this.points = this.dataToPoints();
+			},
+			setPoints: function(p){
+				this.points = p;
+				// Path doesn't do data
+				if(this.pointsToData){
+					this.data = this.pointsToData();
+				}
+			},
+			
 			attr: function(/*String*/key, /* optional anything */value){
 				//experimenting. currently only works with style object
 				
@@ -55,9 +92,6 @@ dojo.provide("drawing.stencil.Stencil");
 				}
 				return prop;
 			},
-			
-			
-			
 			
 			_onPostRender: function(/*Object*/data){
 				// drag-create should call onRender
@@ -92,13 +126,16 @@ dojo.provide("drawing.stencil.Stencil");
 				if(!this._postRenderCon){
 					this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
 				}
-				//this.shape.moveToBack();
-				//this.renderOutline();
+				
 				this.created = true;
 				this.disconnectMouse();
 				
 				// for Silverlight 
-				this.shape.superClass = this;
+				if(this.shape) {
+					this.shape.superClass = this;
+				}else{
+					this.parent.superClass = this;
+				}
 				this.util.attr(this, "drawingType", "stencil");
 				
 			},
@@ -109,7 +146,7 @@ dojo.provide("drawing.stencil.Stencil");
 				this.style.current = this.style.selected;
 				this.style.currentHit = this.style.hitSelected;
 				this.isBeingModified = true;
-				console.log("select", this.id)
+				console.info("stencil.select", this.id)
 				this.render();
 			},
 			
@@ -130,6 +167,7 @@ dojo.provide("drawing.stencil.Stencil");
 				this.selected = this._upselected;
 			},
 			
+			// change these to onModify's
 			onTransformBegin: function(anchor){
 				// called from anchor point up mouse down
 				this.isBeingModified = true;
@@ -145,6 +183,7 @@ dojo.provide("drawing.stencil.Stencil");
 				if(!this.isBeingModified){
 					this.onTransformBegin();
 				}
+				this.setPoints(this.points);
 				this.render();			
 			},
 			
@@ -158,17 +197,13 @@ dojo.provide("drawing.stencil.Stencil");
 					o.x += mx.dx;
 					o.y += mx.dy;
 				});
-				this.render();
+				this.onTransform();
+				this.onTransformEnd();
 			},
 			
 			setTransform: function(mx){
 				this.transformPoints(mx);
 			},
-			
-			getPoints: function(){
-				return this.points || [];
-			},
-			
 			
 			
 			destroy: function(){
@@ -204,7 +239,7 @@ dojo.provide("drawing.stencil.Stencil");
 				}
 			},
 			
-			con: function(){
+			connectMult: function(){
 				// summary:
 				//	Convenience method for batches of quick connects
 				// 	Handles are not returned and therefore cannot be

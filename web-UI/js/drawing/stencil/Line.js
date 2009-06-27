@@ -4,27 +4,28 @@ dojo.provide("drawing.stencil.Line");
 drawing.stencil.Line = drawing.util.oo.declare(
 	drawing.stencil.Stencil,
 	function(options){
-		if(options.data || options.points){
-			this.points = options.points || this.dataToPoints(options.data);
-			this.render();
-		}
+		
 	},
 	{
 		type:"drawing.stencil.Line",
 		anchorType: "single",
-		dataToPoints: function(obj){
+		dataToPoints: function(o){
+			o = o || this.data;
 			this.points = [
-				{x:obj.x1, y:obj.y1},
-				{x:obj.x2, y:obj.y2}
+				{x:o.x1, y:o.y1},
+				{x:o.x2, y:o.y2}
 			];
+			return this.points;
 		},
-		pointsToData: function(){
-			return {
-				x1: this.points[0].x,
-				y1: this.points[0].y,
-				x2: this.points[1].x,
-				y2: this.points[1].y
+		pointsToData: function(p){
+			p = p || this.points;
+			this.data = {
+				x1: p[0].x,
+				y1: p[0].y,
+				x2: p[1].x,
+				y2: p[1].y
 			};
+			return this.data;
 		},
 		_create: function(shp, d, sty){
 			this.remove(this[shp]);
@@ -34,9 +35,10 @@ drawing.stencil.Line = drawing.util.oo.declare(
 		},
 		
 		render: function(){
-			var d = this.pointsToData()
+			var d = this.data;
 			this.onBeforeRender(this);
 			this._create("hit", d, this.style.currentHit);
+			//if(!this.annotation)
 			this._create("shape", d, this.style.current);
 		},
 		
@@ -48,7 +50,7 @@ drawing.stencil.Line = drawing.util.oo.declare(
 				y2 = obj.y;
 			
 			if(this.keys.shift){
-				var pt = this.util.constrainAngle(obj, .25, this.keys.alt);
+				var pt = this.util.snapAngle(obj, .25, this.keys.alt);
 				x2 = pt.x;
 				y2 = pt.y;
 			}
@@ -66,10 +68,10 @@ drawing.stencil.Line = drawing.util.oo.declare(
 				y2 -= dy;
 			}
 			
-			this.points = [
+			this.setPoints([
 				{x:x1, y:y1},
 				{x:x2, y:y2}
-			];
+			]);
 			this.render();
 		},
 		

@@ -23,6 +23,7 @@ dojo.require("dojox.math.round");
 			//	Return angle based on mouse object
 			// snap:
 			//	Returns nearest angle within snap limits
+			//obj = this.argsToObj.apply(this, arguments);
 			if(snap){
 				snap = snap/180;
 				var radians = this.radians(obj),
@@ -37,18 +38,41 @@ dojo.require("dojox.math.round");
 			}
 		},
 		
-		radians: function(obj){
-			return Math.atan2(obj.start.y-obj.y,obj.start.x-obj.x);
+		radians: function(o){
+			//var o = this.argsToObj.apply(this, arguments);
+			return Math.atan2(o.start.y-o.y,o.start.x-o.x);
 		},
 		
-		length: function(obj){
-			var x1 = obj.start.x,y1=obj.start.y,x2=obj.x,y2=obj.y;
-			return Math.sqrt(Math.pow(x1-x2, 2)+Math.pow(y1-y2, 2));
+		length: function(o){
+			return Math.sqrt(Math.pow(o.start.x-o.x, 2)+Math.pow(o.start.y-o.y, 2));
 		},
 		
-		distance: function(obj){
-			var x1 = obj.start.x,y1=obj.start.y,x2=obj.x,y2=obj.y;
-			return Math.abs(Math.sqrt(Math.pow(x1-x2, 2)+Math.pow(y1-y2, 2)));
+		lineSub: function(x1, y1, x2, y2, amt){
+			var len = this.distance(this.argsToObj.apply(this, arguments));
+			len = len < amt ? amt : len;
+			var pc = (len-amt)/len;
+			var x = x1 - (x1-x2) * pc;
+			var y = y1 - (y1-y2) * pc;
+			return {x:x, y:y}
+		},
+		
+		argsToObj: function(){
+			var a = arguments;
+			if(a.length < 4){ return a[0]; }
+			return {
+				start:{
+					x:a[0],
+					y:a[1]
+				},
+				x:a[2],
+				y:a[3]//,
+				//snap:a[4]
+			};
+		},
+		
+		distance: function(){
+			var o = this.argsToObj.apply(this, arguments);
+			return Math.abs(Math.sqrt(Math.pow(o.start.x-o.x, 2)+Math.pow(o.start.y-o.y, 2)));
 		},
 		
 		slope:function(p1, p2){
@@ -65,7 +89,18 @@ dojo.require("dojox.math.round");
 			}
 		},
 		
-		constrainAngle: function(obj, ca){
+		constrainAngle: function(obj, min, max){
+			var angle = this.angle(obj);
+			if(angle >= min && angle <= max){
+				return obj;	
+			}
+			var radius = this.length(obj);
+			var diff = min-((360-(max-min))/2);
+			var new_angle = angle > max ? max : min - angle < 100 ? min : max;
+			return this.pointOnCircle(obj.start.x,obj.start.y,radius, new_angle);
+		},
+		
+		snapAngle: function(obj, ca){
 			// summary:
 			//	Snaps a line to the nearest angle
 			//		obj: Mouse object (see drawing.Mouse)
@@ -84,6 +119,37 @@ dojo.require("dojox.math.round");
 				new_angle = this.radToDeg(new_radian),
 				pt = this.pointOnCircle(obj.start.x,obj.start.y,radius,new_angle);
 			return pt;
+		},
+		
+		// graphics
+		
+		arrowHead: function(x1, y1, x2, y2, style){
+			var obj = {
+				start:{
+					x:x1,
+					y:y1
+				},
+				x:x2,
+				y:y2
+			}
+			var angle = this.angle(obj);
+			
+			//var angle = this.angle(x1, y1, x2, y2);
+				
+			var lineLength = this.length(obj); 
+			var al = style.arrows.length;
+			var aw = style.arrows.width/2;
+			if(lineLength<al){
+				al = lineLength/2;
+			}
+			var p1 = this.pointOnCircle(x2, y2, -al, angle-aw);
+			var p2 = this.pointOnCircle(x2, y2, -al, angle+aw);
+			
+			return [
+				{x:x2, y:y2},
+				p1,
+				p2
+			];
 		},
 		
 		// helpers

@@ -11,29 +11,31 @@ drawing.stencil.Ellipse = drawing.util.oo.declare(
 	},
 	{
 		anchorType: "group",
-		dataToPoints: function(obj){
-			var x = obj.cx - obj.rx,
-				y = obj.cy - obj.ry,
-				w = obj.rx*2,
-				h = obj.ry*2
-			
-			return [
+		dataToPoints: function(o){
+			o = o || this.data;
+			var x = o.cx - o.rx,
+				y = o.cy - o.ry,
+				w = o.rx*2,
+				h = o.ry*2
+			this.points = [
 				{x:x, y:y}, 	// TL
 				{x:x+w, y:y},	// TR
 				{x:x+w, y:y+h},	// BR
 				{x:x, y:y+h}	// BL
 			];
+			return this.points;
 		},
-		pointsToData: function(){
-			var s = this.points[0];
-			var e = this.points[2];
-			
-			return {
+		pointsToData: function(p){
+			p = p || this.points;
+			var s = p[0];
+			var e = p[2];
+			this.data = {
 				cx: s.x + (e.x - s.x)/2,
 				cy: s.y + (e.y - s.y)/2,
 				rx: (e.x - s.x)*.5,
 				ry: (e.y - s.y)*.5
 			};
+			return this.data;
 		
 		},
 		
