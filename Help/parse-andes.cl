@@ -37,7 +37,7 @@
 ;; do-lookup-equation-string is the special case kludge covered above.
 ;; Called from Entry-API.
 (defun do-lookup-equation-answer-string (eq id)
-  (do-lookup-equation-string (trim-eqn (fix-eqn-string eq)) id 'answer))
+  (do-lookup-equation-string (trim-eqn eq) id 'answer))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -58,7 +58,7 @@
   "Minimally modified Andes2 call"
   (let (result (eq (StudentEntry-text entry)))
     (unless eq (warn "Equation must always have text") (setf eq ""))
-    (setf result (do-lookup-equation-string (fix-eqn-string (trim-eqn eq)) 
+    (setf result (do-lookup-equation-string (trim-eqn eq) 
 		   entry 'equation))
     (setf (turn-result result) 
 	  (append (log-entry-info (find-entry (StudentEntry-id entry))) 
@@ -72,7 +72,6 @@
       (let* ((parses (parse-equation **grammar** equation))
 	     (complete (parse-get-complete parses))
 	     (valid (parse-get-valid 'final complete)))
-	;;(format T "lookup-eqn-str got ~A valid parses~%" (length valid))
 	(cond
 	 ((null valid)
 	  (setf tmp (handle-bad-syntax-equation eq entry parses)))
@@ -672,58 +671,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;
-;; fix-eqn-string: remove illegal characters from a student equation string
-;;
-;; AW: This was originally intended to be applied to the string argument of lookup-eqn-string, 
-;; before the whole raw argument string is parsed into a list of objects by Lisp read. It was
-;; applied in special pre-read processing in Andes2main.cl to ensure that string contents a student 
-;; might have typed in an equation box were appropriately escaped, since otherwise the API call fail 
-;; when passed through Lisp read. That use should not be needed now that the workbench has been changed
-;; to ensure that all strings sent in an API calls are suitably escaped. 
-;; HOWEVER: this function as implemented also scans for lots of other funny characters, changing them 
-;; to spaces, so they wind up effectively ignored, and this is done even on the post-read equation string. 
-;; We might want to change this, since it means no error is signalled to the user, and the string we
-;; analyze can differ from the one they typed, which is apparent on "syntax error in ..." messages.
-;; This also changes brackets to parentheses, which allows them to be used as alternate parens, which
-;; could be useful, though it might more appropriately be handled in the parser. 
-(defparameter ***bad-character-codes***
-    '(33 34 35 37 38 39 44 58 59 60 62 63 64 91 92 93 96))
-;      !  "  #  %  &  '  ,  :  ;  <  >  ?  @  [  \  ]  `
-; Also filtered by > 122 test below:
-;      { | } ~
-(defparameter ***to-swap-character-codes***
-    '(91 93))
-(defparameter ***to-swap-with-character-codes***
-    '(40 41))
-(defun fix-eqn-string (string)
-  (let ((len (length string)))
-    (if (> len 0)
-	(do ((i 0 (+ i 1)))
-	    ((>= i len) string)
-	  (cond
-	   ((< (char-code (char string i)) 32) (setf (char string i) #\Space))
-	   ((> (char-code (char string i)) 122) (setf (char string i) #\Space))
-	   ((= (char-code (char string i)) 91) (setf (char string i) #\())
-	   ((= (char-code (char string i)) 93) (setf (char string i) #\)))
-	   (t (if (member (char-code (char string i)) ***bad-character-codes***)
-		  (setf (char string i) #\Space)))))
-      string)))
-
-; older simpler version: just replace embedded quotes with spaces.
-(defun lht-fix-quotes (string)
-  (if (> (length string) 0)
-      (let ((s (position #\" string))
-	    (e (position #\" string :from-end (length string))))
-	(if (and s e (> (- e s) 0))
-	    (substitute #\Space #\" string :start s :end (+ e 1))
-	  string))
-    ""))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
 (defun andes-in2pre (equation)
   (let* ((eq (read-from-string (concatenate 'string "(" equation ")")))
 	 (leaveAlone nil)
@@ -829,7 +776,7 @@
                           :prop `(answer ,sought-quant)
                           :verbatim inputo))
 	(result-turn)
-	(input (trim-eqn (fix-eqn-string inputo))))
+	(input (trim-eqn inputo)))
     (add-entry entry) ;save entry immediately 
     (if (quant-to-sysvar sought-quant)
 	(if (/= (length (remove #\Space input)) 0)
