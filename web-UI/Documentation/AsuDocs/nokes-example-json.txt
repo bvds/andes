@@ -281,7 +281,7 @@ For the rest of this, I am going to skip the log stuff.
 ]
 
 {"method": "solution-step", "params": {"time": 590.001, 
-	   "action": "modify-object", "id": 13,
+	   "action": "modify-object", "id": "a14",
 	   "text": "Fearth_y = Fearth * sin (\\thetaFearth)"}, "id": 16}
 
 [
