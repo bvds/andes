@@ -92,7 +92,7 @@
 	'(*CP* **NSH-NEXT-CALL** *NSH-NODES* *NSH-FIRST-PRINCIPLES*
 	  *NSH-CURRENT-SOLUTIONS* *NSH-LAST-NODE* *NSH-SOLUTION-SETS* 
 	  *NSH-GIVENS* *NSH-AXIS-ENTRIES* *NSH-BODYSETS* *NSH-VALID-ENTRIES* 
-	  *NSH-PROBLEM-TYPE* **ALTERNATE-COMMAND-INTERPRETER** *VARIABLES* 
+	  *NSH-PROBLEM-TYPE* *VARIABLES* 
 	  *STUDENTENTRIES* *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*
           **Condition**  mt19937::*random-state* **grammar**
 	  ;; Session-specific variables in Help/Interface.cl
@@ -270,6 +270,8 @@
  
       ;; update attributes from old object
       (when old-entry
+	(format webserver:*stdout* 
+		"update attributes from old object, type was ~A~%" (StudentEntry-type old-entry))
 	(update-entry-from-entry 
 	 new-entry old-entry 
 	 type mode x y text width height radius symbol 
@@ -279,6 +281,9 @@
       (update-entry-from-variables 
        new-entry  
        mode x y text width height radius symbol x-label y-label z-label angle)
+
+	(format webserver:*stdout* 
+		"Now, type should always be defined, is ~A~%" (StudentEntry-type new-entry))
 
       (cond
 	((equal action "delete-object")

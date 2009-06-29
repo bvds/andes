@@ -185,6 +185,7 @@
 ;; the workbench.
 (defun calculate-equation-string-success (result new-id)
   ;; just return eqn text until appropriate turns are implemented
+  (warn "Can't make valid studententry since type, location etc missing")
   (let* ((studEqn  (subst-student-vars (pre2in result)))
 	 ;; suppress *print-pretty* since it could insert newlines 
 	 ;; into long result, and WB requires single-line eqn string
@@ -239,7 +240,8 @@
 	      :id new-id)))))
 
 (defun solve-for-var-success (new-id result)
-  (let* ((studEqn  (subst-student-vars (pre2in result)))
+  (warn "Can't make valid studententry since type, location etc missing")
+ (let* ((studEqn  (subst-student-vars (pre2in result)))
 	 ;; suppress *print-pretty* since it could insert newlines 
 	 ;; into long result, and WB requires single-line eqn string
 	 (infixStr (write-to-string studEqn :pretty NIL :escape NIL))
