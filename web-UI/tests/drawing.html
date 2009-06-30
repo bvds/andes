@@ -67,6 +67,7 @@
 		
 		dojo.require("drawing.plugins.ScrollingCanvas");
 		dojo.require("drawing.plugins.CanvasGrid");
+		dojo.require("drawing.plugins.Zoom");
 		
 	</script>
 	
@@ -86,12 +87,11 @@
 			<button tool="drawing.custom.Vector" selected="false">Vector</button>
 			<button tool="drawing.custom.Axes" selected="false">Axes</button>
 			&nbsp;&nbsp;&nbsp;
-			<!-- action should access a class, not drawing - or extend drawing -->
-			<button action="zoomIn">Zoom In</button>
-			<button action="zoom100">100%</button>
-			<button action="zoomOut">Zoom Out</button>
+			
+			<button plugin="drawing.plugins.Zoom" options="{zoomInc:.1,minZoom:.5,maxZoom:2}">Zoom</button>
+			
 			&nbsp;&nbsp;&nbsp;
-			<button action="pan" selected="false">Pan</button>
+			<button action="pan" target="drawing.plugins.ScrollingCanvas" selected="false">Pan</button>
 		</div>
 		<div dojoType="drawing.Drawing" id="drawingNode" drawingType="canvas"
 			 plugins="[{'name':'drawing.plugins.ScrollingCanvas'},

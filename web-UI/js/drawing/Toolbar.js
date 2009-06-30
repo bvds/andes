@@ -3,7 +3,9 @@ dojo.provide("drawing.Toolbar");
 (function(){
 	
 	dojo.declare("drawing.Toolbar", [], {
-		
+		//
+		// TODO: Toolbar works in markup only. Need programmatic.
+		//
 		width:0,
 		height:0,
 		grid:"",
@@ -14,31 +16,79 @@ dojo.provide("drawing.Toolbar");
 			dojo.addOnLoad(this, function(){
 				this.domNode = dojo.byId(node);
 				this.buildRendering();
-				this.postCreate();
+				this.parse();
 			});
 		},
+		
 		buildRendering: function(){
 			var drawingId = dojo.attr(this.domNode, "drawingId");
 			console.warn("drawingId::", drawingId)
 		},
-		postCreate: function(){
+		
+		createTool: function(node){
+			var type = dojo.attr(node, "tool");
+			this.toolNodes[type] = node;
+			this.drawing.registerTool(type, dojo.getObject(type));
+			dojo.connect(node, "click", this, function(evt){
+				dojo.stopEvent(evt);
+				this.onClick(type);
+			});
+		},
+		
+		createAction: function(node){
+			dojo.connect(node, "click", this.drawing, function(evt){
+				var sel = dojo.attr(node, "selected");
+				var action = dojo.attr(node, "action");
+				if(sel=="false"){
+					dojo.attr(node, "selected", "true");
+					dojo.addClass(node, "selected");
+					sel = true;
+				}else if(sel=="true"){
+					dojo.attr(node, "selected", "false");
+					dojo.removeClass(node, "selected");
+					sel = false;
+				}
+				this[action](evt, sel);
+			});
+		},
+		
+		parse: function(){
 			this.domNode.className = this.baseClass;
 			this.drawing = drawing.util.common.byId(dojo.attr(this.domNode, "drawingId"));
+			!this.drawing && console.error("Drawing not found based on 'drawingId' in Toolbar. ");
 			this.toolNodes = {};
 			var _sel;
-			dojo.query("[tool]", this.domNode).forEach(function(node, i){
+			dojo.query(">", this.domNode).forEach(function(node, i){
+				
+				
 				node.className = this.buttonClass;
-				var type = dojo.attr(node, "tool");
-				if(i==0 || dojo.attr(node, "selected")=="true"){
-					_sel = type;
+				var tool = dojo.attr(node, "tool");
+				var action = dojo.attr(node, "action");
+				var plugin = dojo.attr(node, "plugin");
+				if(tool){
+					//console.warn("TOOL:::::", dojo.attr(node, "tool"))
+					if(i==0 || dojo.attr(node, "selected")=="true"){
+						_sel = tool;
+					}
+					this.createTool(node);
+				}else if(action){
+					//console.warn("ACTION:::::", dojo.attr(node, "action"))
+					this.createAction(node);
+				}else if(plugin){
+					console.warn("PLUGIN:::::", plugin, "options:", dojo.attr(node, "options"))
+					var p = {name:plugin, options:{}},
+						opt = dojo.attr(node, "options");
+					if(opt){
+						console.log("EVAL THIS:", opt)
+						
+						p.options = eval("("+opt+")");
+						console.log("TIS:", p.options)
+					}
+					p.options.node = node;
+					//p.options.toolbar = this;
+					
+					this.drawing.addPlugin(p);
 				}
-				//console.log("TYPE:", type, dojo.attr(node, "selected"))
-				this.toolNodes[type] = node;
-				this.drawing.registerTool(type, dojo.getObject(type));
-				dojo.connect(node, "click", this, function(evt){
-					dojo.stopEvent(evt);
-					this.onClick(type);
-				});
 			}, this);
 			
 			dojo.connect(this.drawing, "setTool", this, "onSetTool");	
@@ -49,20 +99,7 @@ dojo.provide("drawing.Toolbar");
 				node.className = this.buttonClass;
 				var action = dojo.attr(node, "action");
 				
-				dojo.connect(node, "click", this.drawing, function(evt){
-					var sel = dojo.attr(node, "selected");
-					console.log("SEL::", sel, sel=="false")
-					if(sel=="false"){
-						dojo.attr(node, "selected", "true");
-						dojo.addClass(node, "selected");
-						sel = true;
-					}else if(sel=="true"){
-						dojo.attr(node, "selected", "false");
-						dojo.removeClass(node, "selected");
-						sel = false;
-					}
-					this[action](evt, sel);
-				});
+				
 			}, this);
 		},
 		onClick: function(type){

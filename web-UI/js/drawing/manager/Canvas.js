@@ -12,7 +12,6 @@ dojo.provide("drawing.manager.Canvas");
 			var dim = dojo.contentBox(this.srcRefNode);
 			this.height = this.parentHeight = dim.h;
 			this.width = this.parentWidth = dim.w;
-	console.warn(">>>>>>>>>>>>>>HEIGHT:", this.width, this.height)
 			this.domNode = dojo.create("div", {id:"canvasNode"}, this.srcRefNode);
 			dojo.style(this.domNode, {
 				width:this.width,
@@ -33,7 +32,6 @@ dojo.provide("drawing.manager.Canvas");
 					}else{
 						//_surface.rawNode.id = this.id;
 					}
-					console.log("SURFACE", _surface)
 					
 					this.underlay = _surface.createGroup();
 					this.surface = _surface.createGroup();
@@ -47,10 +45,6 @@ dojo.provide("drawing.manager.Canvas");
 				}),0);
 			});
 			this._mouseHandle = this.mouse.register(this);
-			dojo.connect(this.domNode.parentNode, "scroll", this, function(evt){
-				this._scrollBlocked && dojo.stopEvent(evt);
-			});
-			//dojo.connect(this.mouse, "onDrag", this, "onScroll");
 		},
 		{
 			id:"",

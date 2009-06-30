@@ -3,7 +3,6 @@ dojo.provide("drawing.plugins.CanvasGrid");
 drawing.plugins.CanvasGrid = drawing.util.oo.declare(
 	function(options){
 		dojo.mixin(this, options);
-		console.warn("CanvasGrid")
 	},
 	{
 		util:null,
@@ -16,7 +15,6 @@ drawing.plugins.CanvasGrid = drawing.util.oo.declare(
 		gap:100,
 		
 		onSurfaceReady: function(){
-			console.warn("READY...........................")
 			this.setGrid();	
 		},
 		setGrid: function(options){
@@ -28,7 +26,6 @@ drawing.plugins.CanvasGrid = drawing.util.oo.declare(
 			//
 			var d = this.gap 
 			
-			console.warn("GRID - SET IT")
 			this.grid && this.grid.removeShape();
 			
 			var x1,x2,y1,y2;

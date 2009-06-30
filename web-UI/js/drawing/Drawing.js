@@ -64,8 +64,12 @@ dojo.require("drawing.manager.Silverlight");
 			}, data || {});
 		},
 		
+		addPlugin: function(plugin){
+			console.warn("ADD PLUGIN", plugin);
+			this.plugins.push(plugin);
+		},
 		initPlugins: function(){
-			
+			console.log("INIT PLUGINS:", this.plugins);
 			dojo.forEach(this.plugins, function(p, i){
 				console.log("PLUGIN:", p)
 				var props = dojo.mixin({
@@ -171,29 +175,6 @@ dojo.require("drawing.manager.Silverlight");
 			
 		},
 		
-		zoomFactor:1,
-		zoomInc:.1,
-		zoomIn: function(evt){
-			dojo.stopEvent(evt);
-			this.zoomFactor += this.zoomInc;
-			this.canvas.setZoom(this.zoomFactor);
-			this.mouse.setZoom(this.zoomFactor);
-			watch("zoom:", this.zoomFactor);
-		},
-		zoom100: function(evt){
-			dojo.stopEvent(evt);
-			this.zoomFactor = 1;
-			this.canvas.setZoom(this.zoomFactor);
-			this.mouse.setZoom(this.zoomFactor);
-			watch("zoom:", this.zoomFactor);
-		},
-		zoomOut: function(evt){
-			dojo.stopEvent(evt);
-			this.zoomFactor -= this.zoomInc;
-			this.canvas.setZoom(this.zoomFactor);
-			this.mouse.setZoom(this.zoomFactor);
-			watch("zoom:", this.zoomFactor);
-		},
 		pan:function(evt, sel){
 			this.canvas.setPan(sel)
 		},

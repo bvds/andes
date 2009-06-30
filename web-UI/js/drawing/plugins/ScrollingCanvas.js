@@ -3,8 +3,8 @@ dojo.provide("drawing.plugins.ScrollingCanvas");
 drawing.plugins.ScrollingCanvas = drawing.util.oo.declare(
 	function(options){
 		dojo.mixin(this, options);
-		console.warn("drawing.plugins.ScrollingCanvas", options);
 		dojo.connect(this.anchors, "onAnchorUp", this, "checkBounds");
+		var _scrollTimeout;
 		dojo.connect(this.canvas, "onScroll", this, function(){
 			if(this._blockScroll){
 				this._blockScroll = false;
@@ -14,13 +14,6 @@ drawing.plugins.ScrollingCanvas = drawing.util.oo.declare(
 			_scrollTimeout = setTimeout(dojo.hitch(this, "checkBounds"), 200);
 		});
 		this._mouseHandle = this.mouse.register(this);
-		
-		// This HAS to be called after setting initial objects or things get screwy.
-		
-		setTimeout(dojo.hitch(this, function(){
-		
-		}),0)
-			
 	},{
 		util:null,
 		keys:null,
@@ -30,7 +23,7 @@ drawing.plugins.ScrollingCanvas = drawing.util.oo.declare(
 		anchors:null,
 		canvas:null,
 		onSurfaceReady: function(){
-			console.warn("READY...........................")
+			// This HAS to be called after setting initial objects or things get screwy.
 			this.checkBounds();	
 		},
 		onStencilUp: function(obj){

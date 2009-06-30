@@ -229,12 +229,6 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 				withinCanvas:withinCanvas
 			};
 			
-			watch("y:", ret.y)
-			watch("org y:", ret.orgY)
-			watch("page y:", ret.page.y - ret.orgY)
-			watch("start.y:", ret.start.y)
-			watch("sc.y:", ret.scroll.top)
-			
 			//console.warn("MSE LAST:", x-this._lastx, y-this._lasty)
 			this._lastx = x;
 			this._lasty = y;
