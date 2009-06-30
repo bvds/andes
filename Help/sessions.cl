@@ -92,8 +92,8 @@
 	'(*CP* **NSH-NEXT-CALL** *NSH-NODES* *NSH-FIRST-PRINCIPLES*
 	  *NSH-CURRENT-SOLUTIONS* *NSH-LAST-NODE* *NSH-SOLUTION-SETS* 
 	  *NSH-GIVENS* *NSH-AXIS-ENTRIES* *NSH-BODYSETS* *NSH-VALID-ENTRIES* 
-	  *NSH-PROBLEM-TYPE* *VARIABLES* 
-	  *STUDENTENTRIES* *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*
+	  *NSH-PROBLEM-TYPE* *VARIABLES* *STUDENTENTRIES* 
+	  *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*
           **Condition**  mt19937::*random-state* **grammar**
 	  ;; Session-specific variables in Help/Interface.cl
 	  **current-cmd-stack** **current-cmd** 
@@ -113,28 +113,33 @@
 (defstruct help-env "Quantities that must be saved between turns of a session.  Member vals contains list of values for *help-env-vars*." 
 	   student problem vals)
 
+(defun save-help-env-vals ()
+  "Save local variables back to *env*.  Should be called at compile-time."
+  ;; body of env-wrap may set webserver:*env* to null.
+  `(when webserver:*env* (setf (help-env-vals webserver:*env*) 
+			       (list ,@*help-env-vars*))))
+
 (defmacro env-wrap (&body body)
   "Make session-local copy of global variables, retrieving values from webserver:*env* at the beginning of a turn and saving them there at the end of that turn"
-  (let ((result (gensym)) (vals 'webserver:*env*))
-    `(progn
-      ;; should check for use of "assert" in other code I have written.
-      ;; maybe grep for "(unless .*(error " or "(when .*(error "
-
-      ;; An error here indicates that the student is trying to work
-      ;; on a session that has timed out or has not been initialized:  
-      ;; probably should have a appropriate handler that gives instructions
-      ;; to start a new session
-      (assert ,vals)
-      ;; further sanity check.
-      (assert (help-env-p ,vals))
-      (let ,(cons result 
-		  (mapcar 
-		   #'(lambda (x) (list x `(pop (help-env-vals ,vals))))
-		   *help-env-vars*))
-	(setf ,result (progn ,@body))
-	(when ,vals (setf (help-env-vals ,vals) (list ,@*help-env-vars*)))
-	,result))))
-
+  `(progn
+     ;; An error here indicates that the student is trying to work
+     ;; on a session that has timed out or has not been initialized:  
+     ;; probably should have a appropriate handler that gives instructions
+     ;; to start a new session
+     (assert webserver:*env*)
+     ;; further sanity check.
+     (assert (help-env-p webserver:*env*))
+     (let ,(mapcar 
+	   #'(lambda (x) (list x '(pop (help-env-vals webserver:*env*))))
+	   *help-env-vars*)
+       ;; If there is an error, need to save current values
+       ;; back to the environment variable before passing control
+       ;; on to error handler.
+       (prog1 (handler-bind
+		  ((error #'(lambda (c) (declare (ignore c)) 
+				    ,(save-help-env-vals))))
+		,@body)
+	 ,(save-help-env-vals)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -332,6 +337,8 @@
     ;; do-whats-wrong (for why-wrong-equation & why-wrong-object)
     ;; solve-for-var (could also be under solve steps..., or own method)
 
+    ;; Doesn't correctly handle case where "Explain-more" is clicked after
+    ;; a bottom-out hint.
     (cond
       ;; Press help button.  
       ;; call next-step-help or do-whats-wrong
@@ -366,8 +373,10 @@
     (solver-unload)
 
     (let ((prob (help-env-problem webserver:*env*)))
+
       ;; this tells the session manager that the session is over.
       (setf webserver:*env* nil)
+
       `(((:action . "problem-closed") 
 	 (:URL . "http://www.webassign.net/someting/or/other"))
 	((:action . "log") 
