@@ -55,7 +55,17 @@ dojo.provide("drawing.manager.keys");
 		},
 		init: function(){
 			
+			dojo.connect(document, "blur", this, function(evt){
+				// when command tabbing to another application, the key "sticks"
+				// this clears any key used for such activity
+				this.meta = this.shift = this.ctrl = this.cmmd = this.alt = false;
+			});
+			
 			dojo.connect(document, "keydown", this, function(evt){
+				//
+				// FIXME: command stays down when using command + tab to changes appliations
+				//	perhaps look into key press?
+				//
 				if(evt.keyCode==16){
 					this.shift = true;
 				}
@@ -67,15 +77,16 @@ dojo.provide("drawing.manager.keys");
 				}
 				if(evt.keyCode==224){
 					this.cmmd = true;
+					//console.error("COMMAND DOWN")
 				}
 				
 				this.meta = this.shift || this.ctrl || this.cmmd || this.alt;
 				
-				this.onKeyDown(this.mixin(evt));
-				if(evt.keyCode==8 || evt.keyCode==46){
-					//this.onDelete(); on down or up?
-					if(!isEdit){
-						dojo.stopEvent(evt);	
+				if(!isEdit){
+					this.onKeyDown(this.mixin(evt));
+					if(evt.keyCode==8 || evt.keyCode==46){
+						//this.onDelete(); on down or up?
+						dojo.stopEvent(evt);
 					}
 				}
 			});
@@ -96,7 +107,8 @@ dojo.provide("drawing.manager.keys");
 				}
 				
 				this.meta = this.shift || this.ctrl || this.cmmd || this.alt;
-				this.onKeyUp(this.mixin(evt));
+				
+				!isEdit && this.onKeyUp(this.mixin(evt));
 				
 				if(evt.keyCode==13){
 					this.onEnter(evt);
@@ -120,6 +132,9 @@ dojo.provide("drawing.manager.keys");
 				var inc = this.shift ? this.arrowIncrement*this.arrowShiftIncrement : this.arrowIncrement;
 				
 				var x =0, y =0;
+				if(evt.keyCode==32 && !isEdit){ //space
+					dojo.stopEvent(evt);
+				}
 				if(evt.keyCode==37){ //left
 					x = -inc;
 				}

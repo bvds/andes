@@ -28,7 +28,10 @@ dojo.provide("drawing.manager.Anchors");
 					var a = new drawing.manager.Anchor({stencil:item, point:p, mouse:this.mouse, util:this.util});
 					this.items[item.id]._cons = [
 						dojo.connect(a, "onRenderStencil", this, "onRenderStencil"),
-						dojo.connect(a, "reset", this, "onReset")
+						dojo.connect(a, "reset", this, "onReset"),
+						dojo.connect(a, "onAnchorUp", this, "onAnchorUp"),
+						dojo.connect(a, "onAnchorDown", this, "onAnchorDown"),
+						dojo.connect(a, "onAnchorDrag", this, "onAnchorDrag")
 					];
 					if(item.anchorType=="group"){
 						this.items[item.id]._cons.push(dojo.connect(a, "onTransformPoint", this, "onTransformPoint"));
@@ -88,6 +91,16 @@ dojo.provide("drawing.manager.Anchors");
 						a.shape.moveToFront();
 					}
 				});
+			},
+			
+			onAnchorUp: function(anchor){
+				//stub
+			},
+			onAnchorDown: function(anchor){
+				//stub
+			},
+			onAnchorDrag: function(anchor){
+				//stub
 			},
 			remove: function(item){
 				if(!this.items[item.id]){

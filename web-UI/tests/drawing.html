@@ -57,13 +57,17 @@
 
 		dojo.require("dojo.parser");
 		dojo.require("drawing.Drawing");
+		
 		dojo.require("drawing.Toolbar");
 		
-		dojo.require("drawing.custom.positioning");
+		
 		dojo.require("drawing.library.Arrow");
 		dojo.require("drawing.custom.Vector");
 		dojo.require("drawing.custom.Axes");		
-
+		
+		dojo.require("drawing.plugins.ScrollingCanvas");
+		dojo.require("drawing.plugins.CanvasGrid");
+		
 	</script>
 	
 </head>
@@ -72,20 +76,29 @@
 	<textarea id="ta" ></textarea>
 	<div id="conEdit" contenteditable="true"></div>
 	<div id="wrapper">
-		<div dojoType="drawing.Toolbar" drawingId="drawingNode" class="drawingCanvas"> <!-- TODO! Add DYNAMICALLY???-->
-			<button tool="drawing.stencil.Line" selected="true">Line</button>
-			<button tool="drawing.stencil.Rect" selected="false">Rect</button>
+		<div dojoType="drawing.Toolbar" drawingId="drawingNode" class="drawingCanvas"> <!-- TODO! Add class DYNAMICALLY???-->
+			<!-- change 'tool' to 'plugin' -->
+			<button tool="drawing.stencil.Line" selected="false">Line</button>
+			<button tool="drawing.stencil.Rect" selected="true">Rect</button>
 			<button tool="drawing.stencil.Ellipse" selected="false">Ellipse</button>
 			<button tool="drawing.stencil.TextBlock" selected="false">Text</button>
 			<button tool="drawing.library.Arrow" selected="false">Arrow</button>
 			<button tool="drawing.custom.Vector" selected="false">Vector</button>
-			<button tool="drawing.custom.Axes" selected="true">Axes</button>
+			<button tool="drawing.custom.Axes" selected="false">Axes</button>
 			&nbsp;&nbsp;&nbsp;
+			<!-- action should access a class, not drawing - or extend drawing -->
 			<button action="zoomIn">Zoom In</button>
 			<button action="zoom100">100%</button>
 			<button action="zoomOut">Zoom Out</button>
+			&nbsp;&nbsp;&nbsp;
+			<button action="pan" selected="false">Pan</button>
 		</div>
-		<div dojoType="drawing.Drawing" id="drawingNode" drawingType="canvas" style="width:800px; height:500px; border:1px solid #000; margin-top:20px; cursor:crosshair;"></div>
+		<div dojoType="drawing.Drawing" id="drawingNode" drawingType="canvas"
+			 plugins="[{'name':'drawing.plugins.ScrollingCanvas'},
+			 {'name':'drawing.plugins.CanvasGrid', 'options':{gap:50}}]"
+			 style="width:800px; height:500px; margin-top:20px; cursor:crosshair;">
+			
+		</div>
 	</div>
 </body>
 </html>

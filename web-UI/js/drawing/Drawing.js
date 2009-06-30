@@ -25,13 +25,6 @@ dojo.require("drawing.manager.Silverlight");
 
 (function(){
 	
-	var surface, canvas;
-	var createSurface = function(node, w, h, uid){
-		console.warn("canvas")
-		canvas = new drawing.manager.Canvas({node:node, w:w, h:h, id:uid});
-		surface = canvas.surface;
-	};
-	
 	dojo.declare("drawing.Drawing", [], {
 		width:0,
 		height:0,
@@ -40,87 +33,103 @@ dojo.require("drawing.manager.Silverlight");
 			this.id = node.id;
 			this.util = drawing.util.common;
 			this.util.register(this);
-			this.domNode = node;
+			this.keys = drawing.manager.keys;
+			this.mouse = new drawing.manager.Mouse({util:this.util, keys:this.keys});
+			dojo.connect(this.keys, "onKeyUp", this, "onKeyUp");
+			dojo.connect(this.keys, "onKeyDown", this, "onKeyDown");
 			this.tools = {};
-			this.postCreate();
-		},
-		postCreate: function(){
-			dojo.setSelectable(this.domNode, false);
-			var dim = dojo.contentBox(this.domNode);
-			this.height = dim.h;
-			this.width = dim.w;
-			//createSurface(this.domNode, this.width, this.height, this.util.uid("surface"));
-			canvas = new drawing.manager.Canvas({
-				node:this.domNode,
-				w:this.width,
-				h:this.height,
+			this.srcRefNode = node;
+			var str = dojo.attr(node, "plugins");
+			if(str){
+				console.log("plugins:", str)
+				this.plugins = eval(str);
+				console.dir(this.plugins);
+			}
+			this.canvas = new drawing.manager.Canvas({
+				srcRefNode:node,
 				util:this.util,
-				id:this.util.uid("surface"),
+				mouse:this.mouse,
 				callback: dojo.hitch(this, "onSurfaceReady")
 			});
+			
+		},
+		
+		getShapeProps: function(data) {
+			// convenience. May or may not be in final code.
+			return dojo.mixin({
+				parent:this.canvas.surface.createGroup(),
+				util:this.util,
+				keys:this.keys,
+				mouse:this.mouse
+			}, data || {});
+		},
+		
+		initPlugins: function(){
+			
+			dojo.forEach(this.plugins, function(p, i){
+				console.log("PLUGIN:", p)
+				var props = dojo.mixin({
+					util:this.util,
+					keys:this.keys,
+					mouse:this.mouse,
+					drawing:this,
+					stencils:this.stencils,
+					anchors:this.anchors,
+					canvas:this.canvas
+				}, p.options || {});
+				this.registerTool(p.name, dojo.getObject(p.name));
+				this.plugins[i] = new this.tools[p.name](props);
+			}, this);
+					
 		},
 		onSurfaceReady: function(){
-			
-			surface = canvas.surface;
-			canvas.setGrid({gap:100});
-			
-			this.keys = drawing.manager.keys;
-			this.mouse = new drawing.manager.Mouse({container:this.domNode, util:this.util, keys:this.keys});
+			this.domNode = this.canvas.domNode;
+			this.mouse.init(this.domNode);
 			this.undo = new drawing.manager.Undo({keys:this.keys});
 			this.anchors = new drawing.manager.Anchors({mouse:this.mouse, undo:this.undo, util:this.util});
-			this.stencils = new drawing.manager.Stencil({surface:surface, mouse:this.mouse, undo:this.undo, keys:this.keys, anchors:this.anchors});
+			this.stencils = new drawing.manager.Stencil({canvas:this.canvas, surface:this.canvas.surface, mouse:this.mouse, undo:this.undo, keys:this.keys, anchors:this.anchors});
 			
-			new drawing.manager.Silverlight({mouse:this.mouse, stencils:this.stencils, anchors:this.anchors, canvas:canvas});
+			// plugin??
+			new drawing.manager.Silverlight({mouse:this.mouse, stencils:this.stencils, anchors:this.anchors, canvas:this.canvas});
 			
+			this.initPlugins();
 			
-			/*			
-			this.stencils.register(new drawing.stencil.TextBlock({
-				parent:surface.createGroup(),
-				util:this.util,
-				mouse:this.mouse,
-				keys:this.keys,
-				align:"end",
-				valign:"middle",
-				data:{x:500, y:400, width:"auto", text:"Mike's\nFantabulous Dynamic\nText"}							  
-			}));
+			// objects for testing. Final code will move these into test HTML
+			this.stencils.register(new drawing.stencil.Rect(this.getShapeProps(
+				{data:{x:100, y:-100, width:200, height:200}}
+			)));
+	
+		/*	this.stencils.register(new drawing.stencil.Rect(this.getShapeProps(
+				{data:{x:400, y:100, width:200, height:200}}
+			)));
 			
+			this.stencils.register(new drawing.stencil.TextBlock(this.getShapeProps(
+				{	align:"end",
+					valign:"middle",
+					data:{x:200, y:300, width:"auto", text:"Mike's\nFantabulous Dynamic\nText"}}
+			)));
 			
-			this.stencils.register(new drawing.stencil.TextBlock({
-				parent:surface.createGroup(),
-				mouse:this.mouse,
-				keys:this.keys,
-				util:this.util,
-				data:{x:300, y:100, width:300, text:"Dynamic Text"}							  
-			}));
+			this.stencils.register(new drawing.stencil.TextBlock(this.getShapeProps(
+				{	align:"end",
+					valign:"middle",
+					data:{x:300, y:150, width:300, text:"Dynamic Text"}}
+			)));
 			
+			this.stencils.register(new drawing.stencil.Ellipse(this.getShapeProps(
+				{data:{cx:150, cy:150, rx:50, ry:50}}
+			)));
 			
+			this.stencils.register(new drawing.stencil.Ellipse(this.getShapeProps(
+				{points:[{x:300,y:300},{x:500,y:300},{x:500,y:400},{x:300,y:400}]}
+			)));
 			
-			this.stencils.register(new drawing.stencil.Rect({
-				parent:surface.createGroup(),
-				util:this.util,
-				keys:this.keys,
-				mouse:this.mouse,
-				data:{x:100, y:100, width:100, height:100}							  
-			}));
+			this.stencils.register(new drawing.library.Arrow(this.getShapeProps(
+				{points:[{x:300,y:300},{x:500,y:200}]}
+			)));*/
 			
-			
-			this.stencils.register(new drawing.stencil.Ellipse({
-				parent:surface.createGroup(),
-				mouse:this.mouse,
-				keys:this.keys,
-				util:this.util,
-				data:{cx:150, cy:150, rx:50, ry:50}							  
-			}));
-			
-			this.stencils.register(new drawing.library.Arrow({
-				parent:surface.createGroup(),
-				mouse:this.mouse,
-				keys:this.keys,
-				util:this.util,
-				points:[{x:300,y:300},{x:500,y:200}]							  
-			}));
-			*/
-			
+			dojo.forEach(this.plugins, function(p){
+				p.onSurfaceReady && p.onSurfaceReady();	
+			});
 		},
 		onRenderStencil: function(stencil){
 			
@@ -133,7 +142,7 @@ dojo.require("drawing.manager.Silverlight");
 			this.tools[type] = constr;
 		},
 		setTool: function(type){
-			if(!surface){
+			if(!this.canvas.surface){
 				var c = dojo.connect(this, "onSurfaceReady", this, function(){
 					dojo.disconnect(c);
 					this.setTool(type);
@@ -146,7 +155,7 @@ dojo.require("drawing.manager.Silverlight");
 			this.currentType = type;
 			console.log("REG TOOL :", this.currentType)
 			try{
-				this.currentStencil = new this.tools[this.currentType]({parent:surface.createGroup(), util:this.util, mouse:this.mouse, keys:this.keys});
+				this.currentStencil = new this.tools[this.currentType]({parent:this.canvas.surface.createGroup(), util:this.util, mouse:this.mouse, keys:this.keys});
 				this._toolCon = dojo.connect(this.currentStencil, "onRender", this, "onRenderStencil");
 			}catch(e){
 				console.error("Drawing.setTool Error:", e);
@@ -167,23 +176,34 @@ dojo.require("drawing.manager.Silverlight");
 		zoomIn: function(evt){
 			dojo.stopEvent(evt);
 			this.zoomFactor += this.zoomInc;
-			canvas.setZoom(this.zoomFactor);
+			this.canvas.setZoom(this.zoomFactor);
 			this.mouse.setZoom(this.zoomFactor);
 			watch("zoom:", this.zoomFactor);
 		},
 		zoom100: function(evt){
 			dojo.stopEvent(evt);
 			this.zoomFactor = 1;
-			canvas.setZoom(this.zoomFactor);
+			this.canvas.setZoom(this.zoomFactor);
 			this.mouse.setZoom(this.zoomFactor);
 			watch("zoom:", this.zoomFactor);
 		},
 		zoomOut: function(evt){
 			dojo.stopEvent(evt);
 			this.zoomFactor -= this.zoomInc;
-			canvas.setZoom(this.zoomFactor);
+			this.canvas.setZoom(this.zoomFactor);
 			this.mouse.setZoom(this.zoomFactor);
 			watch("zoom:", this.zoomFactor);
+		},
+		pan:function(evt, sel){
+			this.canvas.setPan(sel)
+		},
+		onKeyUp: function(evt){
+			this.pan(null, false);
+		},
+		onKeyDown: function(evt){
+			if(evt.keyCode == 32){
+				this.pan(null, true);
+			}
 		}
 	});
 	

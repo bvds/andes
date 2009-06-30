@@ -33,6 +33,7 @@ dojo.require("drawing.stencil.Text");
 		drawing.stencil.Text,
 		function(options){
 			if(options.data){
+				console.warn("TEXT BLOCK")
 				var d = options.data;
 				var w = d.width=="auto" ? "auto" : Math.max(d.width, this.style.text.minWidth)
 				var o = this.measureText(this.cleanText(d.text, false), w);
@@ -99,7 +100,7 @@ dojo.require("drawing.stencil.Text");
 				var kc1, kc2, kc3, self = this, _autoSet = false,
 					exec = function(){
 						dojo.forEach([kc1,kc2,kc3], dojo.disconnect, dojo);
-						self.keys.editMode(true);
+						self.keys.editMode(false);
 						self.execText();
 					}
 					
@@ -143,10 +144,21 @@ dojo.require("drawing.stencil.Text");
 				conEdit.innerHTML = "";
 				conEdit.blur();
 				this.destroyAnchors();
-				var o = this.measureText(txt, w);
 				
-				var x = this._box.left - this._offX;
-				var y = this._box.top - this._offY;
+				var o = this.measureText(txt, w);
+				var sc = this.mouse.scrollOffset();
+				var org = this.mouse.origin;
+				
+				var x = this._box.left + sc.left - org.x;
+				var y = this._box.top + sc.top - org.y;
+				
+				console.warn(">>>>>>>>>>>>>>>")
+				console.log("BOX:", this._box);
+				
+				console.log("Y", this._box.left)
+				console.log("SY", sc.top)
+				console.log("orgY", org.y)
+				
 				this.points = [
 					{x:x, y:y},
 					{x:x+w, y:y},
@@ -157,13 +169,22 @@ dojo.require("drawing.stencil.Text");
 				this.render(o.text);
 			},
 			
-			edit: function(){ console.log("--onStencilDoubleClick--", this.id,this.parentNode, this.points)
+			edit: function(){
+				console.log("--onStencilDoubleClick--", this.id,this.parentNode, this.points)
 				// NOTE: no mouse obj
 				if(this.parentNode || !this.points){ return; }
 				var d = this.pointsToData();
+				
+				var sc = this.mouse.scrollOffset();
+				var org = this.mouse.origin;
+				console.warn(">>>>>>>>>>>>>>>")
+				console.log("Y", d.y)
+				console.log("SY", sc.top)
+				console.log("orgY", org.y)
+				
 				var obj = {
-					pageX: d.x + this._offX,
-					pageY: d.y + this._offY,
+					pageX: d.x  - sc.left + org.x,
+					pageY: d.y - sc.top + org.y,
 					width:d.width,
 					height:d.height
 				}
@@ -249,17 +270,16 @@ dojo.require("drawing.stencil.Text");
 			},
 			
 			onDrag: function(obj){
-				//console.log(" >>>>>> HtmlTextBlock drag");
+				//console.log(" >>>>>> HtmlTextBlock drag", obj);
 				if(!this.parentNode){
 					this.showParent(obj);
 				}
-				var s = obj.start, e = obj;
-				this._box.left = (s.x < e.x ? s.x : e.x) + obj.orgX;
-				this._box.top = s.y + obj.orgY;
+				var s = this._startdrag, e = obj.page;
+				this._box.left = (s.x < e.x ? s.x : e.x);
+				this._box.top = s.y;
 				this._box.width = (s.x < e.x ? e.x-s.x : s.x-e.x) + this.style.text.pad;
+				
 				dojo.style(this.parentNode, this._box.toPx());
-				this._offX = obj.orgX;
-				this._offY = obj.orgY;
 			},
 			
 			onUp: function(obj){
@@ -269,7 +289,12 @@ dojo.require("drawing.stencil.Text");
 				this.connectTextField();
 			},
 			
-			onDown: function(){},
+			onDown: function(obj){
+				this._startdrag = {
+					x: obj.pageX,
+					y: obj.pageY
+				};
+			},
 			onMove: function(){},
 			
 			destroyAnchors: function(){

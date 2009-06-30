@@ -6,7 +6,6 @@ dojo.provide("drawing.stencil.Stencil");
 		
 		function(options){
 			// clone style so changes are reflected in future shapes
-			console.log(this.type, "mixin:", options)
 			dojo.mixin(this, options);
 			
 			this.style = options.style || drawing.defaults.copy();
@@ -66,8 +65,28 @@ dojo.provide("drawing.stencil.Stencil");
 					this.data = this.pointsToData();
 				}
 			},
+			getBounds: function(){
+				// NOTE: Won't work for paths or annotations (labels, arrow tips)
+				var p = this.points;
+				var idx = p.length==2 ? 1 : 2;
+				return {
+					x1:p[0].x,
+					y1:p[0].y,
+					x2:p[idx].x,
+					y2:p[idx].y,
+					x:p[0].x,
+					y:p[0].y,
+					w:p[idx].x - p[0].x,
+					h:p[idx].y - p[0].y
+				}
+			},
 			
 			attr: function(/*String*/key, /* optional anything */value){
+				
+				// CURRENTLY NOT USED
+				// looking for a solution still. Haven't implemented
+				// changing styles yet (switching yes, changing, no).
+				
 				//experimenting. currently only works with style object
 				
 				var prop;
