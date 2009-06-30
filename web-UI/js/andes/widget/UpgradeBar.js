@@ -20,8 +20,7 @@ dojo.declare("andes.widget.UpgradeBar", [dijit._Widget, dijit._Templated], {
 
 		this._bodyMarginTop = dojo.style(dojo.body(), "marginTop");
 		this._size = dojo.contentBox(this.domNode).h;
-		this._showing = this.startExpanded;
-		if(!this._showing){
+		if(!this.startExpanded){
 			dojo.style(this.domNode, "display", "none");
 		}
 	},
