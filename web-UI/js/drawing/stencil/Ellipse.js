@@ -5,8 +5,8 @@ drawing.stencil.Ellipse = drawing.util.oo.declare(
 	drawing.stencil.Stencil,
 	function(options){
 		if(options.data || options.points){
-			this.points = options.points || this.dataToPoints(options.data);
-			this.render();
+			//this.points = options.points || this.dataToPoints(options.data);
+			//this.render();
 		}
 	},
 	{
@@ -26,6 +26,7 @@ drawing.stencil.Ellipse = drawing.util.oo.declare(
 			return this.points;
 		},
 		pointsToData: function(p){
+			// TODO: Should we handle 2 points? aka, like rect(pt,pt)
 			p = p || this.points;
 			var s = p[0];
 			var e = p[2];

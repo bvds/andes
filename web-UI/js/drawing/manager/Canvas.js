@@ -7,12 +7,22 @@ dojo.provide("drawing.manager.Canvas");
 	
 	drawing.manager.Canvas = drawing.util.oo.declare(
 		function(options){
-			//dojo.mixin(this, options);
-			this.domNode = options.node;
-			this.id = options.id || drawing.util.common.uid("surface");
-			this.width = options.width || options.w;
-			this.height = options.height || options.h;
-			this.util = options.util;
+			dojo.mixin(this, options);
+			
+			var dim = dojo.contentBox(this.srcRefNode);
+			this.height = this.parentHeight = dim.h;
+			this.width = this.parentWidth = dim.w;
+	console.warn(">>>>>>>>>>>>>>HEIGHT:", this.width, this.height)
+			this.domNode = dojo.create("div", {id:"canvasNode"}, this.srcRefNode);
+			dojo.style(this.domNode, {
+				width:this.width,
+				height:"auto"
+			});
+			
+			dojo.setSelectable(this.domNode, false);
+			
+			this.id = this.id || this.util.uid("surface");
+			
 			_surface = dojox.gfx.createSurface(this.domNode, this.width, this.height);
 			_surface.whenLoaded(this, function(){
 				setTimeout(dojo.hitch(this, function(){
@@ -23,80 +33,171 @@ dojo.provide("drawing.manager.Canvas");
 					}else{
 						//_surface.rawNode.id = this.id;
 					}
-					//console.log("SURFACE", _surface.rawNode)
-					this.surface = _surface.createGroup();
+					console.log("SURFACE", _surface)
 					
+					this.underlay = _surface.createGroup();
+					this.surface = _surface.createGroup();
+					this.overlay = _surface.createGroup();
 					
 					this.surface.setTransform({dx:0, dy:0,xx:1,yy:1});
 					this.surface.getDimensions = dojo.hitch(_surface, "getDimensions");
 					if(options.callback){
-						options.callback();
-					}
-					/*
-					
-					_surface.connect("onmousedown", this, function(evt){
-						console.warn("------------------------------------- click")
-					});
-					
-					dojo.connect(dojo.byId("drawingNode"), "mousedown", this, function(evt){
-						console.warn("------------------------------------- click")
-					});
-					*/
-								
+						options.callback(this.domNode);
+					}								
 				}),0);
 			});
+			this._mouseHandle = this.mouse.register(this);
+			dojo.connect(this.domNode.parentNode, "scroll", this, function(evt){
+				this._scrollBlocked && dojo.stopEvent(evt);
+			});
+			//dojo.connect(this.mouse, "onDrag", this, "onScroll");
 		},
 		{
 			id:"",
 			width:0,
 			height:0,
+			parentHeight:0, // may change on pane or browser resize
+			parentWidth:0, // may change on pane or browser resize
 			domNode:null,
+			srcRefNode:null,
+			util:null,
+			mouse:null,
+			useScrollbars: true,
 			
-			setDimensions: function(width, height){
-				//TODO		
+			blockScrollbars: function(block){
+				this._scrollBlocked = block;
+			},
+			layout: function(box){
+				
+				// plugin?
+				
+				// the parent node has changed size, due to a browser
+				// resize or BorderContainer resize
+				
+				//TODO
+			},
+			
+			onDown: function(obj){
+				this.blockScrollbars(true);
+			},
+			onUp: function(obj){
+				this.blockScrollbars(false);
+			},
+			showScrollbars: function(showing){
+				if(this.useScrollbars && showing){
+					dojo.style(this.domNode.parentNode, {
+						overflowY: this.height > this.parentHeight ? "scroll" : "hidden",
+						overflowX: this.width > this.parentWidth ? "scroll" : "hidden"
+					});
+				}else{
+					dojo.style(this.domNode.parentNode, {
+						overflowY: "hidden",
+						overflowX: "hidden"
+					});
+				}
+				
+			},
+			setDimensions: function(width, height, scrollx, scrolly){
+				// changing the size of the surface and setting scroll
+				// if items are off screen
+				//
+				
+				var sw = this.getScrollWidth() //+ 10;
+				this.width = Math.max(width, this.parentWidth);
+				this.height = Math.max(height, this.parentHeight);
+				
+				if(this.height>this.parentHeight){
+					this.width -= sw;
+				}
+				if(this.width>this.parentWidth){
+					this.height -= sw;
+				}
+				
+				_surface.setDimensions(this.width, this.height);
+				var d = _surface.getDimensions();
+		
+				this.domNode.parentNode.scrollTop = scrolly;
+				this.domNode.parentNode.scrollLeft = scrollx;
+				
+				
+				if(this.useScrollbars){
+					console.info("Set Canvas Scroll", (this.height > this.parentHeight), this.height, this.parentHeight)
+					dojo.style(this.domNode.parentNode, {
+						overflowY: this.height > this.parentHeight ? "scroll" : "hidden",
+						overflowX: this.width > this.parentWidth ? "scroll" : "hidden"
+					});
+				}else{
+					dojo.style(this.domNode.parentNode, {
+						overflowY: "hidden",
+						overflowX: "hidden"
+					});
+				}
+				//this.setGrid();
+			},
+			
+			onScroll: function(){
+				// stub 	
+			},
+			
+			setPan: function(sel){
+				this.mouse.setPan(sel);
+			},
+			
+			onPanDown: function(evt){
+				this._lastx = evt.pageX;
+				this._lasty = evt.pageY;
+				console.log("DOWN")
+			},
+			onPanUp: function(evt){
+				
+			},
+			XonPanDrag: function(evt){
+				
+				var x = evt.pageX - this._lastx;
+				var y = evt.pageY - this._lasty;
+				console.log("DRAG:", x, y)
+				this.domNode.parentNode.scrollTop -= y;
+				this.domNode.parentNode.scrollLeft -= x;
+				
+				this._lastx = evt.pageX;
+				this._lasty = evt.pageY;
+			},
+			onPanDrag: function(obj){
+				var x = obj.x - obj.last.x;
+				var y = obj.y - obj.last.y;
+				
+				this.domNode.parentNode.scrollTop -= obj.move.y;
+				this.domNode.parentNode.scrollLeft -= obj.move.x;
+				
+				this.onScroll();
+				//console.warn("DRAGPAN:", x, y);	
+			},
+			
+			getScrollOffset: function(){
+				return {
+					top:this.domNode.parentNode.scrollTop,
+					left:this.domNode.parentNode.scrollLeft		
+				};
 			},
 			
 			setZoom: function(zoom){
 				this.surface.setTransform({xx:zoom, yy:zoom});
-				this.setGrid(zoom);
+				//this.setGrid(zoom);
 			},
-			
-			setGrid: function(options){
-				var d;
-				if(typeof(options)=="number"){
-					if(!this.grid){ return false; }
-					d = this.gap * options;
-					this.grid.removeShape();
-				}else{
-					d = this.gap = options.gap;
+						
+			getScrollWidth: function() {
+				var p = dojo.create('div');
+				p.innerHTML = '<div style="width:50px;height:50px;overflow:hidden;position:absolute;top:0px;left:-1000px;"><div style="height:100px;"></div>';
+				var div = p.firstChild;
+				dojo.body().appendChild(div);
+				var noscroll = dojo.contentBox(div).h;
+				dojo.style(div, "overflow", "scroll")
+				var scrollWidth = noscroll - dojo.contentBox(div).h;
+				dojo.destroy(div);
+				this.getScrollWidth = function(){
+					return scrollWidth;
 				}
-				var x1,x2,y1,y2;
-				var s = _surface.createGroup();
-				var w = this.width;
-				var h = this.height;
-				var b = 1;
-				var c = "#A3ECFE";
-				
-				
-				var createGridLine = function(x1,y1,x2,y2){
-					s.createLine({x1: x1, y1: y1, x2: x2, y2: y2}).setStroke({style: "Solid", width: b, cap: "round", color:c});
-				}
-				// horz
-				for(var i=1,len = h/d; i<len; i++){
-					x1 = 0, x2 = w;
-					y1 = d*i, y2 = y1;
-					createGridLine(x1,y1,x2,y2);
-				}
-				// vert
-				for(var i=1,len = w/d; i<len; i++){
-					y1 = 0, y2 = h;
-					x1 = d*i, x2 = x1;
-					createGridLine(x1,y1,x2,y2);
-				}
-				s.moveToBack();
-				this.grid = s;
-				this.util.attr(s, "id", "grid");
-				return s;
+				return scrollWidth;
 			}
 		}
 	);

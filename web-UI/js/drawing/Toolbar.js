@@ -32,7 +32,7 @@ dojo.provide("drawing.Toolbar");
 				if(i==0 || dojo.attr(node, "selected")=="true"){
 					_sel = type;
 				}
-				console.log("TYPE:", type, dojo.attr(node, "selected"))
+				//console.log("TYPE:", type, dojo.attr(node, "selected"))
 				this.toolNodes[type] = node;
 				this.drawing.registerTool(type, dojo.getObject(type));
 				dojo.connect(node, "click", this, function(evt){
@@ -49,7 +49,20 @@ dojo.provide("drawing.Toolbar");
 				node.className = this.buttonClass;
 				var action = dojo.attr(node, "action");
 				
-				dojo.connect(node, "click", this.drawing, action);
+				dojo.connect(node, "click", this.drawing, function(evt){
+					var sel = dojo.attr(node, "selected");
+					console.log("SEL::", sel, sel=="false")
+					if(sel=="false"){
+						dojo.attr(node, "selected", "true");
+						dojo.addClass(node, "selected");
+						sel = true;
+					}else if(sel=="true"){
+						dojo.attr(node, "selected", "false");
+						dojo.removeClass(node, "selected");
+						sel = false;
+					}
+					this[action](evt, sel);
+				});
 			}, this);
 		},
 		onClick: function(type){

@@ -1,4 +1,5 @@
 dojo.provide("drawing.custom.Base");
+dojo.require("drawing.custom.positioning");
 
 drawing.custom.Base = drawing.util.oo.declare(
 	function(options){

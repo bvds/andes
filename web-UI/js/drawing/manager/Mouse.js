@@ -8,31 +8,8 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 	// more difficult to maintain selection
 	//
 	function(options){
-		this.container = options.container;
 		this.util = options.util;
 		this.keys = options.keys;
-		var pos = dojo.coords(this.container);
-		this.origin = dojo.clone(pos);
-		var c;
-		var _isDown = false;
-		dojo.connect(this.container, "mousedown", this, function(evt){
-			this.down(evt);
-			_isDown = true;
-			c = dojo.connect(document, "mousemove", this, "drag");
-		});
-		dojo.connect(document, "mouseup", this, function(evt){
-			dojo.disconnect(c);
-			_isDown = false;
-			this.up(evt);
-		});
-		dojo.connect(document, "mousemove", this, function(evt){
-			if(!_isDown){
-				this.move(evt);
-			}
-		});
-		dojo.connect(this.keys, "onEsc", this, function(evt){
-			this._dragged = false;	
-		});
 	},
 	
 	{
@@ -41,6 +18,39 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		_lastx:0,
 		_lasty:0,
 		__reg:0,
+		
+		init: function(node){
+			this.container = node;
+			var pos = dojo.coords(this.container.parentNode);
+			this.origin = dojo.clone(pos);
+			var c;
+			var _isDown = false;
+			dojo.connect(this.container, "mousedown", this, function(evt){
+				this.down(evt);
+				_isDown = true;
+				c = dojo.connect(document, "mousemove", this, "drag");
+			});
+			dojo.connect(document, "mouseup", this, function(evt){
+				dojo.disconnect(c);
+				_isDown = false;
+				this.up(evt);
+			});
+			dojo.connect(document, "mousemove", this, function(evt){
+				if(!_isDown){
+					this.move(evt);
+				}
+			});
+			dojo.connect(this.keys, "onEsc", this, function(evt){
+				this._dragged = false;	
+			});
+		},
+		
+		scrollOffset: function(){
+			return {
+				top:this.container.parentNode.scrollTop,
+				left:this.container.parentNode.scrollLeft		
+			};
+		},
 		register: function(scope){
 			var handle = scope.id || "reg_"+(this.__reg++);
 			if(!this.registerd[handle]) { this.registerd[handle] = scope; }
@@ -52,6 +62,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		},
 		
 		_broadcastEvent:function(strEvt, obj){
+			//console.log("mouse.broadcast:", strEvt, obj)
 			for(var nm in this.registerd){
 				if(this.registerd[nm][strEvt]) this.registerd[nm][strEvt](obj);
 			}
@@ -102,7 +113,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 					console.warn("DOUBLE CLICK", dnm, obj);
 					this._broadcastEvent(dnm, obj);
 				}else{
-					console.log("    slow:", this._clickTime-this._lastClickTime)
+					//console.log("    slow:", this._clickTime-this._lastClickTime)
 				}
 			}
 			this._lastClickTime = this._clickTime;
@@ -114,11 +125,19 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			this.zoom = 1/zoom;
 		},
 		
+		setPan: function(sel){
+			this.panMode = sel;
+		},
+		
 		eventName: function(name){
 			name = name.charAt(0).toUpperCase() + name.substring(1);
-			var dt = !this.drawingType || this.drawingType=="surface" || this.drawingType=="canvas" ? "" : this.drawingType;
-			var t = !dt ? "" : dt.charAt(0).toUpperCase() + dt.substring(1);
-			return "on"+t+name;
+			if(this.panMode){
+				return "onPan"+name;		
+			}else{
+				var dt = !this.drawingType || this.drawingType=="surface" || this.drawingType=="canvas" ? "" : this.drawingType;
+				var t = !dt ? "" : dt.charAt(0).toUpperCase() + dt.substring(1);
+				return "on"+t+name;
+			}
 		},
 		
 		up: function(evt){
@@ -126,12 +145,17 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		},
 		
 		down: function(evt){
+			var sc = this.scrollOffset();
 			var dim = this._getXY(evt);
+			this._lastpagex = dim.x;
+			this._lastpagey = dim.y;
 			var x = dim.x - this.origin.x;
 			var y = dim.y - this.origin.y;
 			
 			x*= this.zoom;
 			y*= this.zoom;
+			x += sc.left;
+			y += sc.top;
 			
 			this.origin.startx = x;
 			this.origin.starty = y;
@@ -140,8 +164,8 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			
 			this.drawingType = this.util.attr(evt, "drawingType") || "";
 		
-		console.log("evt:", evt);
-		console.log("this.drawingType:", this.drawingType)
+		//console.log("evt:", evt);
+		//console.log("this.drawingType:", this.drawingType)
 		
 			this.onDown({x:x,y:y, pageX:dim.x, pageY:dim.y, id:this._getId(evt)});
 			dojo.stopEvent(evt);
@@ -153,15 +177,28 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			this.onDrag(this.create(evt, true));
 		},
 		create: function(evt, squelchErrors){
+			var sc = this.scrollOffset();
 			var dim = this._getXY(evt);
+			
+			var pagex = dim.x;
+			var pagey = dim.y;
+			
 			var x = dim.x - this.origin.x;
 			var y = dim.y - this.origin.y;
 			var o = this.origin;
 			
-			var withinCanvas = x>=0 && y>=0 && x<=o.w && y<=o.h;
+			x += sc.left;
+			y += sc.top;
+			
+			var withinCanvas = x>=0 && y>=0 && x<=o.w && y<=o.h; /////////// will need to change on canvas resize
+			
 			var id = withinCanvas ? this._getId(evt, squelchErrors) : "";
+			
 			x*= this.zoom;
 			y*= this.zoom;
+			
+			
+			
 			
 			
 			var ret = {
@@ -169,6 +206,10 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 				y:y,
 				pageX:dim.x,
 				pageY:dim.y,
+				page:{
+					x:dim.x,
+					y:dim.y
+				},
 				orgX:o.x,
 				orgY:o.y,
 				last:{
@@ -176,14 +217,29 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 					y: this._lasty
 				},
 				start:{
-					x: this.origin.startx,
-					y: this.origin.starty
+					x: this.origin.startx, //+ sc.left,
+					y: this.origin.starty //+ sc.top
 				},
+				move:{
+					x:pagex - this._lastpagex,
+					y:pagey - this._lastpagey
+				},
+				scroll:sc,
 				id:id,
 				withinCanvas:withinCanvas
 			};
+			
+			watch("y:", ret.y)
+			watch("org y:", ret.orgY)
+			watch("page y:", ret.page.y - ret.orgY)
+			watch("start.y:", ret.start.y)
+			watch("sc.y:", ret.scroll.top)
+			
+			//console.warn("MSE LAST:", x-this._lastx, y-this._lasty)
 			this._lastx = x;
 			this._lasty = y;
+			this._lastpagex = pagex;
+			this._lastpagey = pagey;
 			dojo.stopEvent(evt);
 			return ret;
 		},

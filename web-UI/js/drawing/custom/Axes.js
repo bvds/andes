@@ -34,20 +34,12 @@ drawing.custom.Axes = drawing.util.oo.declare(
 			
 			var o = this.points[0];
 			var c = this.points[1];
-			
-			watch("x:", o.x)
-			watch("y:", o.y)
 			var pt = this.util.constrainAngle({start:{x:c.x, y:c.y}, x:o.x, y:o.y}, 91, 180);
-			
-			watch("pt.x:", pt.x)
-			watch("pt.y:", pt.y)
-			
-			//
-			// changing the point breaks the link to the anchor point. this won't work.
-			//
 			if(pt.x==o.x && pt.y == o.y){
 				return;
 			}
+			// careful changing these points. The anchors are
+			// linked as an instance to the objects
 			this.points[0].x = pt.x
 			this.points[0].y = pt.y;
 			o = this.points[0];
@@ -55,41 +47,21 @@ drawing.custom.Axes = drawing.util.oo.declare(
 			var ox = c.x - (c.y - o.y);
 			var oy = c.y - (o.x - c.x);
 			
-			
 			this.points[2] = {x:ox, y:oy, noAnchor:true};
 			this.setPoints(this.points);
 			this.render();	
 			anchor.reset();
+			this.showLabel();
 		},
 		
 		onTransform: function(anchor){
-			//
-			//	tell anchor to go to prev point if wrong
-			//
 			// the xaxis point has changed - the center will not.
 			// need to find the yaxis point.
 			
 			var o = this.points[0];
 			var c = this.points[1];
-			/*
-			watch("x:", o.x)
-			watch("y:", o.y)
-			var pt = this.util.constrainAngle({start:{x:c.x, y:c.y}, x:o.x, y:o.y}, 91, 180);
-			
-			watch("pt.x:", pt.x)
-			watch("pt.y:", pt.y)
-			
-			//
-			// changing the point breaks the link to the anchor point. this won't work.
-			//
-			if(pt.x!=o.x && pt.y != o.y){
-				//this.points[0] = {x:pt.x, y:pt.y};
-			}
-			*/
-			
 			var ox = c.x - (c.y - o.y);
 			var oy = c.y - (o.x - c.x);
-			
 			
 			this.points[2] = {x:ox, y:oy, noAnchor:true};
 			this.setPoints(this.points);
@@ -110,13 +82,9 @@ drawing.custom.Axes = drawing.util.oo.declare(
 			var pt = this.util.constrainAngle(obj, 91, 180);
 			obj.x = pt.x;
 			obj.y = pt.y;
-			//var a = this.util.angle(obj);
-			
-			
 			this.points = [{x:obj.x, y:obj.y}, {x:obj.start.x, y:obj.start.y, noAnchor:true}]
 			var ox = obj.start.x - (obj.start.y - obj.y);
 			var oy = obj.start.y - (obj.x - obj.start.x);
-			
 			
 			this.points.push({x:ox, y:oy, noAnchor:true});
 			this.render();
