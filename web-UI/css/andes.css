@@ -49,3 +49,10 @@ html, body, #main{
 	margin:4px 0 0 -25px;;
 	border:1px solid #999;
 }
+
+#andesErrorDialog_underlay{
+	background-color:#eef;
+}
+.andesButtonPage{
+	text-align:center;
+}

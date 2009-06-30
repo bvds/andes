@@ -1,5 +1,8 @@
 dojo.provide("andes.main");
+dojo.require("andes.menu");
+dojo.require("andes.help");
 dojo.require("andes.api");
+dojo.require("andes.error");
 
 (function(){
 
