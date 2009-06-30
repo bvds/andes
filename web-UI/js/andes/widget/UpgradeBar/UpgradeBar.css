@@ -8,17 +8,20 @@
 	line-height:1.6em;
 	overflow:hidden;
 	z-index:100;
-	background:#ddd;
-	/* FIXME: add a background-image */
+	background:#f3f2af url("barBg.png") repeat-x left bottom;
+	box-shadow:0 2px 6px #444;
+	-webkit-box-shadow:0 1px 6px #444;
+	-moz-box-shadow:0 1px 6px #444;
 }
 
 .andesUpgradeBarMessage {
 	position:absolute;
-	left:30px;
-	top:0;
+	padding-left:25px;
+	top:50%;
+	margin-top:-.75em;
+	left:5px;
 	width:100%;
-	bottom:0;
-	margin-right:250px;
+	margin-right:140px;
 }
 
 .andesUpgradeBarControls {
@@ -26,24 +29,35 @@
 	right:10px;
 	top:0;
 	bottom:0;
-	width:250px;
+	width:140px;
 	text-align:right;
 }
 
 .andesUpgradeBarReminderButton {
-	display:inline;
-	line-height:1.6em;
+	position:absolute;
+	left:0;
+	top:50%;
+	margin-top:-1em;
 	font-size:80%;
 	text-decoration:underline;
 	cursor:pointer;
 }
+.dj_ie6 .andesUpgradeBarReminderButton {
+	margin-top:2px;
+}
 
 .andesUpgradeBarCloseIcon {
 	cursor:pointer;
-	display:inline;
+	position:absolute;
+	right:0;
+	top:50%;
+	margin-top:-8px;
 	width:16px;
-	height:16px;
-	margin-left:8px;
-	line-height:1.6em;
+	height:0;
+	padding-top:16px;
+	overflow:hidden;
 	border:1px solid blue;
+}
+.dj_ie6 .andesUpgradeBarCloseIcon {
+	margin-top:5px;
 }
