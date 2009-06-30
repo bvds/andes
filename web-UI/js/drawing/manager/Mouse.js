@@ -125,14 +125,14 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			this.zoom = 1/zoom;
 		},
 		
-		setPan: function(sel){
-			this.panMode = sel;
+		setEventMode: function(mode){
+			this.mode = mode ? "on" + mode.charAt(0).toUpperCase() + mode.substring(1) :  "";
 		},
 		
 		eventName: function(name){
 			name = name.charAt(0).toUpperCase() + name.substring(1);
-			if(this.panMode){
-				return "onPan"+name;		
+			if(this.mode){
+				return this.mode + name;		
 			}else{
 				var dt = !this.drawingType || this.drawingType=="surface" || this.drawingType=="canvas" ? "" : this.drawingType;
 				var t = !dt ? "" : dt.charAt(0).toUpperCase() + dt.substring(1);

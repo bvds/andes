@@ -91,11 +91,12 @@
 			<button plugin="drawing.plugins.Zoom" options="{zoomInc:.1,minZoom:.5,maxZoom:2}">Zoom</button>
 			
 			&nbsp;&nbsp;&nbsp;
-			<button action="pan" target="drawing.plugins.ScrollingCanvas" selected="false">Pan</button>
+			
+			<button plugin="drawing.plugins.ScrollingCanvas" options="{}">Pan</button>
+			
 		</div>
 		<div dojoType="drawing.Drawing" id="drawingNode" drawingType="canvas"
-			 plugins="[{'name':'drawing.plugins.ScrollingCanvas'},
-			 {'name':'drawing.plugins.CanvasGrid', 'options':{gap:50}}]"
+			 plugins="[{'name':'drawing.plugins.CanvasGrid', 'options':{gap:50}}]"
 			 style="width:800px; height:500px; margin-top:20px; cursor:crosshair;">
 			
 		</div>

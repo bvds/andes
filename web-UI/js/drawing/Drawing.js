@@ -35,8 +35,6 @@ dojo.require("drawing.manager.Silverlight");
 			this.util.register(this);
 			this.keys = drawing.manager.keys;
 			this.mouse = new drawing.manager.Mouse({util:this.util, keys:this.keys});
-			dojo.connect(this.keys, "onKeyUp", this, "onKeyUp");
-			dojo.connect(this.keys, "onKeyDown", this, "onKeyDown");
 			this.tools = {};
 			this.srcRefNode = node;
 			var str = dojo.attr(node, "plugins");
@@ -173,18 +171,6 @@ dojo.require("drawing.manager.Silverlight");
 				this.currentStencil.destroy();	
 			}
 			
-		},
-		
-		pan:function(evt, sel){
-			this.canvas.setPan(sel)
-		},
-		onKeyUp: function(evt){
-			this.pan(null, false);
-		},
-		onKeyDown: function(evt){
-			if(evt.keyCode == 32){
-				this.pan(null, true);
-			}
 		}
 	});
 	

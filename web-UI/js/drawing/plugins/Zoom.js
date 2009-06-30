@@ -3,7 +3,7 @@ dojo.require("drawing.plugins._Plugin");
 
 drawing.plugins.Zoom = drawing.util.oo.declare(
 	drawing.plugins._Plugin,
-	function(options, node){
+	function(options){
 		console.dir(options);
 		var cls = options.node.className;
 		var txt = options.node.innerHTML;

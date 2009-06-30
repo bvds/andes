@@ -129,42 +129,14 @@ dojo.provide("drawing.manager.Canvas");
 				//this.setGrid();
 			},
 			
+			
+			setZoom: function(zoom){
+				this.surface.setTransform({xx:zoom, yy:zoom});
+				//this.setGrid(zoom);
+			},
+			
 			onScroll: function(){
 				// stub 	
-			},
-			
-			setPan: function(sel){
-				this.mouse.setPan(sel);
-			},
-			
-			onPanDown: function(evt){
-				this._lastx = evt.pageX;
-				this._lasty = evt.pageY;
-				console.log("DOWN")
-			},
-			onPanUp: function(evt){
-				
-			},
-			XonPanDrag: function(evt){
-				
-				var x = evt.pageX - this._lastx;
-				var y = evt.pageY - this._lasty;
-				console.log("DRAG:", x, y)
-				this.domNode.parentNode.scrollTop -= y;
-				this.domNode.parentNode.scrollLeft -= x;
-				
-				this._lastx = evt.pageX;
-				this._lasty = evt.pageY;
-			},
-			onPanDrag: function(obj){
-				var x = obj.x - obj.last.x;
-				var y = obj.y - obj.last.y;
-				
-				this.domNode.parentNode.scrollTop -= obj.move.y;
-				this.domNode.parentNode.scrollLeft -= obj.move.x;
-				
-				this.onScroll();
-				//console.warn("DRAGPAN:", x, y);	
 			},
 			
 			getScrollOffset: function(){
@@ -174,11 +146,6 @@ dojo.provide("drawing.manager.Canvas");
 				};
 			},
 			
-			setZoom: function(zoom){
-				this.surface.setTransform({xx:zoom, yy:zoom});
-				//this.setGrid(zoom);
-			},
-						
 			getScrollWidth: function() {
 				var p = dojo.create('div');
 				p.innerHTML = '<div style="width:50px;height:50px;overflow:hidden;position:absolute;top:0px;left:-1000px;"><div style="height:100px;"></div>';

@@ -1,10 +1,16 @@
 dojo.provide("drawing.plugins.ScrollingCanvas");
+dojo.require("drawing.plugins._Plugin");
 
 drawing.plugins.ScrollingCanvas = drawing.util.oo.declare(
+	drawing.plugins._Plugin,
 	function(options){
-		dojo.mixin(this, options);
-		dojo.connect(this.anchors, "onAnchorUp", this, "checkBounds");
+		
+		this.domNode = options.node;
 		var _scrollTimeout;
+		dojo.connect(this.domNode, "click", this, "onSetPan");
+		dojo.connect(this.keys, "onKeyUp", this, "onKeyUp");
+		dojo.connect(this.keys, "onKeyDown", this, "onKeyDown");
+		dojo.connect(this.anchors, "onAnchorUp", this, "checkBounds");
 		dojo.connect(this.canvas, "onScroll", this, function(){
 			if(this._blockScroll){
 				this._blockScroll = false;
@@ -15,17 +21,44 @@ drawing.plugins.ScrollingCanvas = drawing.util.oo.declare(
 		});
 		this._mouseHandle = this.mouse.register(this);
 	},{
-		util:null,
-		keys:null,
-		mouse:null,
-		drawing:null,
-		stencils:null,
-		anchors:null,
-		canvas:null,
+		selected:false,
 		onSurfaceReady: function(){
 			// This HAS to be called after setting initial objects or things get screwy.
 			this.checkBounds();	
 		},
+		
+		onKeyUp: function(evt){
+			if(evt.keyCode == 32){
+				this.onSetPan(false);
+			}
+		},
+		onKeyDown: function(evt){
+			if(evt.keyCode == 32){
+				this.onSetPan(true);
+			}
+		},
+		onSetPan: function(/*Boolean | Event*/ bool){
+			if(bool === true || bool === false){
+				this.selected = !bool;
+			}
+			if(this.selected){
+				this.selected = false;
+				dojo.removeClass(this.domNode, "selected");
+			}else{
+				this.selected = true;
+				dojo.addClass(this.domNode, "selected");
+			}
+			this.mouse.setEventMode(this.selected ? "pan" : "");
+		},
+		
+		onPanDrag: function(obj){
+			var x = obj.x - obj.last.x;
+			var y = obj.y - obj.last.y;
+			this.canvas.domNode.parentNode.scrollTop -= obj.move.y;
+			this.canvas.domNode.parentNode.scrollLeft -= obj.move.x;
+			this.canvas.onScroll();
+		},
+		
 		onStencilUp: function(obj){
 			// this gets called even on click-off because of the
 			// issues with TextBlock deselection
