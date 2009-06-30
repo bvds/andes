@@ -713,7 +713,7 @@
    :responder #'(lambda (r)
 		  (when (eq R **Explain-More**)
 		    (make-hint-seq Next :Assoc Assoc :OpTail OpTail)))
-   :Assoc (or Assoc `(OpHint ,OHType String . ,OpTail))))
+   :Assoc (or Assoc `((OpHint ,OHType String . ,OpTail)))))
 
 
 (defun make-string-end-Ophseq (Hint &optional (Prefix "") Assoc OHType OpTail)
@@ -722,7 +722,7 @@
    (strcat Prefix (if (hintspec-p Hint)
 		      (format-hintspec Hint)
 		    Hint))
-   :Assoc (or Assoc `(OpHint ,OHType String . ,OpTail))))
+   :Assoc (or Assoc `((OpHint ,OHType String . ,OpTail)))))
      
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -771,7 +771,7 @@
 			   Next)
 		     :Assoc Assoc
 		     :OpTail OpTail)))
-   :Assoc (or Assoc `(OPHint ,OHType MiniLesson ,(format-hintspec Minil) . ,OpTail))))
+   :Assoc (or Assoc `((OPHint ,OHType MiniLesson ,(format-hintspec Minil) . ,OpTail)))))
 
 
 (defun make-minil-end-Ophseq (Minil &optional Assoc OHType OpTail)
@@ -783,7 +783,7 @@
 		    (make-end-dialog-turn
 		     (strcat "If you wish for more "
 			     "help run NSH again."))))
-      :Assoc (or Assoc `(OPHint ,OHType MiniLesson ,(format-hintspec Minil) . , OpTail))))
+      :Assoc (or Assoc `((OPHint ,OHType MiniLesson ,(format-hintspec Minil) . , OpTail)))))
 
 
 ;;---------------------------------------------------------------

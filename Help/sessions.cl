@@ -316,7 +316,8 @@
 	((equal (StudentEntry-type new-entry) "line")
 	 (execute-andes-command #'lookup-line new-entry))
 
-      (t (warn "Undefined type ~A."  (StudentEntry-type new-entry)))))))
+      (t (warn "Undefined type ~A, doing nothing."  
+	       (StudentEntry-type new-entry)))))))
 
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
@@ -326,31 +327,33 @@
   (env-wrap 
     ;; Andes2 had calls to:
     ;; next-step-help
-    ;; explain-more
-    ;; handle-student-response  (choose a quantity or a principle)
+    ;; handle-student-response  (explain-more or 
+    ;;                           choose a quantity or a principle)
     ;; do-whats-wrong (for why-wrong-equation & why-wrong-object)
     ;; solve-for-var (could also be under solve steps..., or own method)
 
     (cond
-      ((equal action "get-help")
-       '(((:action . "show-hint") 
-	  (:text . "Because the vector is parallel to the Y axis 
-but in the negative direction, the projection equation is Fearth_y = - Fearth so
- Fearth_y stands for a negative value."))
-	 ((:action . "show-hint-link") 
-	  (:text . "Explain more") 
-	  (:value . "Explain-More"))))
+      ;; Press help button.  
+      ;; call next-step-help or do-whats-wrong
       ((equal action "help-button")
-       '(((:action . "show-hint") 
-	  (:text . "Now that you have stated all of the given information, you should start on the major principles. What quantity is the problem seeking?"))
-	 ((:action . "focus-hint-text-box"))))
+       (execute-andes-command  #'next-step-help))
+      ;; Student has typed text in help pane.
+      ;; call to do-whats-wrong or handle-student-response
+      ((and (equal action "get-help") text)
+       (execute-andes-command  #'next-step-help))
+      ;; Student has clicked a link associated with the help.
+      ((and (equal action "get-help") value)
+       (let ((response-code (find-symbol (string-upcase value))))
+	 (unless response-code (warn "Unknown value ~A, using nil." value))
+	 (execute-andes-command  #'handle-student-response response-code)))
+      ;; clicked on principles menu, should call handle-student-response
       ((equal action "principles-menu")
        '(((:action . "show-hint") 
 	  (:text . "Right indeed. Notice that the ball is at rest at T0."))
 	 ((:action . "show-hint-link") 
 	  (:text . "Explain more") 
 	  (:value . "Explain-More"))))
-      (t (error "undefined action ~A" action)))))
+      (t (warn "undefined action ~A, doing nothing." action)))))
 
 (webserver:defun-method "/help" close-problem (&key  time) 
   "shut problem down" 

@@ -354,12 +354,13 @@
 
 
 ;;; A word on ASSOCS
-;;; For the purposes of hinting NSH uses assocs to facilitate machine catologuing
-;;; of the later activities.  NSH calls that use assocs will be of the form 
-;;; (nsh <FuncName> <Values>) where Funcname is the assoc being called and 
-;;; the values are the values relevant to reconstructing the hint independent
-;;; of the text itself.  These values will typically be axes or other calls
-;;; and will be dependent upon the <FuncName> in question.
+;;; For the purposes of hinting NSH uses assocs to facilitate machine 
+;;;;cataloging of the later activities.  NSH calls that use assocs will 
+;;; be of the form (nsh <FuncName> <Values>) where Funcname is the assoc 
+;;; being called and the values are the values relevant to reconstructing 
+;;; the hint independent of the text itself.  These values will typically 
+;;; be axes or other calls and will be dependent upon the <FuncName> in 
+;;; question.
 
 
 ;;;=====================================================================
@@ -1029,7 +1030,7 @@
   (nsh-prompt-Node  
    "Why don't you continue working on "
    *nsh-last-Node*
-   :Assoc `(nsh prompt-last-node ,(bgnode-exp *nsh-last-node*))))
+   :Assoc `((nsh prompt-last-node ,(bgnode-exp *nsh-last-node*)))))
 
 
 
@@ -1141,7 +1142,7 @@
 	     "the bodies that are involved.  Please draw the bodies "
 	     "that are important for solving this problem.")
      Body
-     :Assoc `(nsh start-bodies ,(SystemEntry-prop Body)))))
+     :Assoc `((nsh start-bodies ,(SystemEntry-prop Body))))))
 
 
 
@@ -1169,8 +1170,7 @@
      (strcat "You should continue enumerating all of "
 	     "the necessary bodies for this problem.")
      Body
-     :Assoc `(nsh continue-bodies ,(SystemEntry-prop Body)))))
-
+     :Assoc `((nsh continue-bodies ,(SystemEntry-prop Body))))))
 
 ;;; As with solutions, we want to favor the ideal activity possible
 ;;; for the student.  In this case, if they have not started any 
@@ -1219,7 +1219,7 @@
      :Responder #'(lambda (Response)
 		    (when (equal Response **Explain-More**)
 		      (nsh-make-axis-prompt Rot)))
-     :Assoc `(nsh prompt-axis ,Rot))))
+     :Assoc `((nsh prompt-axis ,Rot)))))
 
 		      
     
@@ -1237,7 +1237,7 @@
      :Responder #'(lambda (Response)
 		    (when (equal Response **Explain-More**)
 		      (nsh-make-axis-prompt Rot)))
-     :Assoc `(nsh new-start-axis ,Rot))))
+     :Assoc `((nsh new-start-axis ,Rot)))))
 
 
 ;;; Once we begin prompting the student to work on axes we 
@@ -1251,7 +1251,7 @@
    (if (= Rot 0) (list **nsh-standard-axis-prompt**)
      (list (format Nil **nsh-rotated-axis-prompt** (nsh-get-axis-rot))
 	   (format Nil **nsh-rotated-axis-bottom-prompt** (nsh-get-axis-rot))))
-   :Assoc `(nsh make-axis-prompt ,Rot)))
+   :Assoc `((nsh make-axis-prompt ,Rot))))
 
 
 
@@ -1326,7 +1326,7 @@
 	   "the given quantities.  Why don't you start by doing "
 	   "that now.  Why don't you work on ")
    (car *nsh-givens*)
-   :Assoc `(nsh new-start-givens ,(enode-id (car *nsh-givens*)))))
+   :Assoc `((nsh new-start-givens ,(enode-id (car *nsh-givens*))))))
 
 
 (defun nsh-prompt-start-givens ()
@@ -1336,7 +1336,7 @@
 	   "all of the useful given quantities in the problem"  )
    "why don't you start with "
    (car *nsh-givens*)
-   :Assoc `(nsh prompt-start-givens ,(bgnode-exp (car *nsh-givens*)))))
+   :Assoc `((nsh prompt-start-givens ,(bgnode-exp (car *nsh-givens*))))))
 
 
 (defun nsh-prompt-continue-givens ()
@@ -1346,7 +1346,7 @@
      (strcat "You should finish entering all of the useful given "
 	     "quantities in the problem.  Why don't you work on ")
      Given
-     :Assoc `(nsh prompt-continue-givens ,(enode-id Given)))))
+     :Assoc `((nsh prompt-continue-givens ,(enode-id Given))))))
 
 
 
@@ -1395,9 +1395,9 @@
 		      (nsh-prompt-Node 
 		       "Why don't you start with "
 		       Principle
-		       :Assoc `(nsh start-no-quant-explain-more
-				    ,(bgnode-exp Principle))))) 
-     :Assoc `(nsh start-no-quant))))
+		       :Assoc `((nsh start-no-quant-explain-more
+				    ,(bgnode-exp Principle))))) )
+     :Assoc `((nsh . start-no-quant)))))
 
 
 
@@ -1417,7 +1417,7 @@
   (make-end-dialog-turn
    (strcat "You have completed all of the principles necessary "
 	   "in this problem.  " (nsh-get-no-quant-done-str))
-   :Assoc '(nsh prompt-no-quant-done)))
+   :Assoc '((nsh . prompt-no-quant-done))))
 
 (defun nsh-get-no-quant-done-str ()
   (if (< 1 (length (problem-soughts *cp*)))
@@ -1485,7 +1485,7 @@
    (strcat "You have correctly completed all of the multiple-choice "
 	   "questions on this problem.  There is no more that you "
 	   "need to do.  You can now move on to the next problem.")
-   :Assoc '(nsh mc-only prompt-done-correct)))
+   :Assoc '((nsh mc-only prompt-done-correct))))
 
 
 (defun nsh-mc-only-prompt-done-incorrect ()
@@ -1499,7 +1499,7 @@
    :Responder #'(lambda (Response)
 		  (when (equalp Response **Explain-More**)
 		    (nsh-mc-only-prompt-done-reconsider)))
-   :Assoc '(nsh mc-only prompt-done-incorrect)))
+   :Assoc '((nsh mc-only prompt-done-incorrect))))
 
 ;;; If the students are done but incorrect we can offer them the chance
 ;;; to reconsider some of their incorrect answers by listing them here.
@@ -1509,7 +1509,7 @@
 	   (nlg (studententry-prop 
 		 (nsh-mc-only-select-first-incorrect)) 
 		'nlg-entryprop))
-   :Assoc '(nsh mc-only prompt-done-reconsider)))
+   :Assoc '((nsh mc-only prompt-done-reconsider))))
 
 
 
@@ -1527,7 +1527,7 @@
    :Responder #'(lambda (Response)
 		  (when (equal Response **Explain-More**)
 		    (nsh-mc-only-prompt-next)))
-   :Assoc '(nsh mc-only start)))
+   :Assoc '((nsh mc-only start))))
 
 
 ;;; -------------------------------- Next -------------------------------------
@@ -1548,7 +1548,7 @@
 		    (if (nsh-incorrect-mc-entries-made-p)
 			(nsh-mc-only-prompt-reconsider)
 		      (nsh-mc-only-prompt-next))))
-   :Assoc '(nsh mc-only prompt)))
+   :Assoc '((nsh mc-only prompt))))
 
 
 ;;; If the student has made any incorrect entries then we want to locate them
@@ -1591,7 +1591,7 @@
 		    (if (string-equal Response "Reconsider")
 			(nsh-mc-only-prompt-do-reconsider Incorrect)
 		      (nsh-mc-only-prompt-next)))
-     :Assoc '(nsh mc-only prompt-reconsider))))
+     :Assoc '((nsh mc-only prompt-reconsider)))))
 
 
 ;;; If the student elects to reconsider one or more of their incorrect
@@ -1607,7 +1607,7 @@
     (make-end-dialog-turn
      (format Nil "Why don't you reconsider your ~a."
 	     (nlg (studententry-prop Entry) 'nlg-entryprop))
-     :Assoc `(nsh mc-only prompt-do-reconsider ,(studententry-prop Entry)))))
+     :Assoc `((nsh mc-only prompt-do-reconsider ,(studententry-prop Entry))))))
 
 
 ;;; If the student is starting the problem, has made no incorrect entries
@@ -1618,7 +1618,7 @@
     (make-end-dialog-turn
      (format Nil "Why don't you work on ~a" 
 	     (nlg Next 'nlg-entryprop))
-     :Assoc `(nsh mc-only prompt-next ,Next))))
+     :Assoc `((nsh mc-only prompt-next ,Next)))))
 
 
 (defun nsh-mc-only-pick-next-undone-sought ()
@@ -1717,7 +1717,7 @@
    **Quant-Menu**
    :responder #'(lambda (resp)
 		  (nsh-check-sought-resp resp past))
-   :Assoc `(nsh ask-sought ,Case)))
+   :Assoc `((nsh ask-sought ,Case))))
 
 
 ;;; Once the student has selected their sought we jump to checking it
@@ -1812,7 +1812,7 @@
 		    (declare (ignore response))
 		    (nsh-ask-first-principle 
 		     "" (match-exp->qnode Sought (problem-graph *cp*))))
-     :Assoc `(nsh tell-sought ,Case ,Sought))))
+     :Assoc `((nsh tell-sought ,Case ,Sought)))))
 
 	 
 ;;; --------------- ask first principle -------------------------------------
@@ -1862,7 +1862,7 @@
    :responder #'(lambda (response)
 		  (nsh-check-first-principle-response
 		   Response sought past))
-   :Assoc `(nsh ask-first-principle ,(bgnode-exp Sought))))
+   :Assoc `((nsh ask-first-principle ,(bgnode-exp Sought)))))
 
    
 
@@ -1891,7 +1891,7 @@
    :responder #'(lambda (response)
 		  (nsh-check-first-principle-response
 		   response sought past))
-   :Assoc `(nsh ask-first-principle-cont ,Case ,(bgnode-exp Sought))))
+   :Assoc `((nsh ask-first-principle-cont ,Case ,(bgnode-exp Sought)))))
 
 
 ;;; When the student responds incorrectly to the first-principle selection
@@ -2306,7 +2306,7 @@
 		    (nsh-cfp-choose-best-fp
 		     (nsh-cfp-collect-valid-fps Choices Sought) 
 		     Sought Past)))
-   :Assoc `(nsh cfp-prompt-change-axis ,Axis)))
+   :Assoc `((nsh cfp-prompt-change-axis ,Axis))))
 
 
 
@@ -2397,7 +2397,7 @@
 		      (nsh-cbf-invalid-Axis
 		       Best Solutions Principles Sought Past)
 		    (nsh-wrong-fp-resp "" Sought Past :case 'cbf-invalid-no)))
-   :Assoc '(nsh cbf-invalid)))
+   :Assoc '((nsh . cbf-invalid))))
 
 
 ;;; If the student elects to change their axes then we need to determine what an acceptable
@@ -2470,7 +2470,7 @@
 			   ;; closure that gets stored in invalid-axis.  This allows the 
 			   ;; system to be dealing with the appropriate axes.
 			   (nsh-cbf-invalid-axis Best Solutions Principles Sought Past))))
-     :Assoc `(nsh cbf-invalid-different ,New ,Prompt))))
+     :Assoc `((nsh cbf-invalid-different ,New ,Prompt)))))
 
 
 ;;; If the student's choices are compatible but the student's chosen axes are not the same
@@ -2493,7 +2493,7 @@
 		  (if (string-equal Response "Yes")
 		      (nsh-cbf-change-yes Best Solutions Principles Sought Past)
 		    (nsh-cbf-change-no Solutions Principles Sought Past)))
-   :Assoc `(nsh cbf-prompt-change)))
+   :Assoc `((nsh . cbf-prompt-change))))
 
 
 ;;; If the student elects to change their solution then we will go ahead and prompt them
@@ -2568,7 +2568,7 @@
 			   ;; closure that gets stored in change-yes.  This allows the 
 			   ;; system to be dealing with the appropriate axes.
 			   (nsh-cbf-change-yes Best Solutions Principles Sought Past))))
-     :Assoc `(nsh cbf-change-different ,New ,Prompt))))
+     :Assoc `((nsh cbf-change-different ,New ,Prompt)))))
 
   
 
@@ -2591,7 +2591,7 @@
     (strcat "You should change your X axes to " (format Nil "~a" Prompt) " degrees.")
     (strcat "You should doubleclick on the axes that you have already drawn and "
 	    "change the angle in the dialog to " (format Nil "~a" Prompt) " degrees."))
-   :Assoc `(nsh cbf-axis-change-prompt ,Axes ,Prompt)))
+   :Assoc `((nsh cbf-axis-change-prompt ,Axes ,Prompt))))
 
 
 ;;; When we are prompting the students to change their axes and they delete
@@ -2605,7 +2605,7 @@
 	    "axes at " (format Nil "~a" Prompt) " degrees.  By selecting the "
 	    "tool, drawing the axes, and then entering " (format Nil "~a" Prompt)
 	    " into the dialog box when it appears."))
-   :Assoc `(nsh cbf-axes-draw-prompt ,Prompt)))
+   :Assoc `((nsh cbf-axes-draw-prompt ,Prompt))))
 
 
 ;;; ---------------------------- Success --------------------------------------
@@ -2655,7 +2655,7 @@
    :Responder #'(lambda (Resp)
 		  (when (eq Resp **Explain-More**)
 		    (nsh-prompt-solution "Why don't you work on " Solution)))
-   :Assoc `(nsh cfp-success-completed ,(bgnode-exp Best))))
+   :Assoc `((nsh cfp-success-completed ,(bgnode-exp Best)))))
 
 
 
@@ -2752,7 +2752,7 @@
    :Responder #'(lambda (Response)
 		  (when (equal Response **Explain-More**)
 		    (nsh-prompt-solution "Why don't you work on " Solution)))
-   :Assoc `(nsh prompt-done-fp ,Case ,(enode-id Principle))))
+   :Assoc `((nsh prompt-done-fp ,Case ,(enode-id Principle)))))
 
 
 
@@ -2764,7 +2764,7 @@
   (nsh-prompt-principle 
    (strcat Message "  Lets just assume that you will work on ")
    Principle
-   :Assoc `(nsh prompt-fp-solution ,Case ,(enode-id Principle))))
+   :Assoc `((nsh prompt-fp-solution ,Case ,(enode-id Principle)))))
 
 	 
 ;;;; ===================== Prompting Done =====================================
@@ -2789,7 +2789,7 @@
   (make-end-dialog-turn
    (strcat "You have applied all of the principles "
 	   "necessary to solve this problem.  " (nsh-prompt-done-string))
-   :assoc '(nsh prompt-done)))
+   :assoc '((nsh . prompt-done))))
 
 
 (defparameter **nsh-single-sought-done-str**
@@ -2846,7 +2846,7 @@
 		    (nsh-prompt-solution 
 		     "Why don't you begin by " 
 		     (car *nsh-current-solutions*))))
-   :Assoc '(nsh start-principle-free)))
+   :Assoc '((nsh . start-principle-free))))
 
 	 
 ;;;; =================== nsh-continue-solutions ===============================
@@ -2860,7 +2860,7 @@
   (nsh-prompt-solution 
    "Why don't you continue with the solution by working on "
    (nsh-pick-best-solution *nsh-current-solutions*)
-   :Assoc `(nsh continue-solutions)))
+   :Assoc `((nsh . continue-solutions))))
 
 
 
@@ -2885,7 +2885,7 @@
   (let ((next (find-if #'(lambda (P) (not (nsh-Node-completed-p P))) Solution)))
     (nsh-prompt-Node
      prefix Next
-     :Assoc (or Assoc `(nsh prompt-solution ,(bgnode-exp Next))))))
+     :Assoc (or Assoc `((nsh prompt-solution ,(bgnode-exp Next)))))))
 
 
 
@@ -2903,7 +2903,7 @@
 		  (when (eq Resp **Explain-More**)
 		    (nsh-prompt-node 
 		     Prefix Node
-		     :Assoc `(nsh dialog-prompting-node ,(bgnode-exp Node)))))
+		     :Assoc `((nsh dialog-prompting-node ,(bgnode-exp Node))))))
    :Assoc Assoc))
 
 
@@ -3939,12 +3939,7 @@
    :Assoc Assoc))
 
 
-
-  
-
-
-
-;;;; ============================================================================
+;;;; ============= ============================================================
 ;;;; Next-call-facility
 ;;;; It is possible for the help system to specify alternate NSH functions to be
 ;;;; executed at runtime.  This NSH-next-call facility allows us to prompt the 

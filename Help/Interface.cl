@@ -122,10 +122,12 @@
 ;;;
 ;;;
 
-(defun execute-andes-command (Command entry)
+(defun execute-andes-command (Command &optional entry)
   "Execute the api call with the command and arguments."
-  (let* ((text (StudentEntry-text entry))
-	 (Arguments (list entry))
+  ;; Generally, the solution steps are StudentEntry structs
+  ;; and the help calls are not
+  (let* ((text (and entry (StudentEntry-p entry) (StudentEntry-text entry)))
+	 (Arguments (and entry (list entry)))
 	 (dde t)
 	 ;; Set the last api call to be this call.
 	 Tmp (NewCmd (iface-generate-log-cmd DDE Command text))
@@ -300,12 +302,13 @@
   (when (and turn (not (equalp (turn-type Turn) **No-Op-Turn**)))
     (setf *last-tutor-turn* turn))
 
-  ;; if there is assoc info in the turn, add to repoly
+  ;; if there is assoc info in the turn, add to reply
+  ;; :assoc has the format of an alist.
   (when (and turn (turn-assoc turn))
     (push `((:action . "log") 
-	    (:assoc . ,(write-to-string (turn-assoc turn)
-					:escape t ;make it lisp-readable
-				       :pretty NIL)))   ;turn off line breaks 
+	    (:assoc . ,(mapcar #'(lambda (x) (cons (string (car x))
+						 (format nil "~S" (cdr x))))
+			       (turn-assoc turn))))
 	  (turn-result turn)))
   (turn->WB-Reply turn))    
 
@@ -328,7 +331,8 @@
   ;; non-dialog result string part (status or equation)
   (let ((result (turn-result turn))
 	(id (turn-id turn)))
-    (unless (turn-id turn) (warn "turn->WB-Reply has no id for ~S" turn))
+    (when (and (turn-coloring turn) (not (turn-id turn))) 
+      (warn "turn->WB-Reply has no id for ~S" turn))
     (case (turn-coloring turn)
       (color-green (push `((:action . "modify-object") (:id . ,id)
 			    (:mode . "correct")) result))
@@ -362,7 +366,11 @@
 			   ;; else predefined menu:
 			   (case (turn-menu turn)
 			     ;; predefined menus have single-letter codes:
-			     (explain-more (warn "explain-more menu"))
+			     (explain-more 
+			      (push '((:action . "show-hint-link")
+				      (:text . "Explain more") 
+				      (:value . "explain-more"))
+				    result))
 			     (quant-menu    (warn "quant menu"))
 			     (psm-menu      (warn "psm menu"))
 			     (equation-menu  (warn "equation menu"))
