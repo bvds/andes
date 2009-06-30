@@ -249,8 +249,6 @@
   "Add the specified student entry struct, deleting any existing entry."
   ; remove any existing entry with same id 
   (delete-object (StudentEntry-id Entry))
-  (format webserver:*stdout* "Adding entry: ~A type ~S~%" 
-	  (studententry-id entry) (studententry-type entry))
   ; add new entry
   (format *debug-help* "Adding entry: ~A ~S~%" 
 	  (studententry-id entry) (studententry-prop entry))

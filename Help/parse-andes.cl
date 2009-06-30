@@ -180,12 +180,12 @@
 (defun handle-ambiguous-equation (equation entry parses location)
   ;(prl parses)
   (let ((id (StudentEntry-id entry))
-	tmp bad (cont t) result se save)
+	tmp bad (cont t) se save)
     (dolist (parse parses)
       (when (and cont (not (member parse save :test #'equal)))
 	(setf save (append save (list parse)))
 	;; Build a candidate entry containing this parse. The candidate 
-	;;with the winning parse will be saved permanently with add-entry 
+	;; with the winning parse will be saved permanently with add-entry 
 	;; when we know which one it is.
 	(setf se (make-StudentEntry :id id
 				    :verbatim equation

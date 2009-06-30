@@ -92,8 +92,8 @@
 	'(*CP* **NSH-NEXT-CALL** *NSH-NODES* *NSH-FIRST-PRINCIPLES*
 	  *NSH-CURRENT-SOLUTIONS* *NSH-LAST-NODE* *NSH-SOLUTION-SETS* 
 	  *NSH-GIVENS* *NSH-AXIS-ENTRIES* *NSH-BODYSETS* *NSH-VALID-ENTRIES* 
-	  *NSH-PROBLEM-TYPE* *VARIABLES* 
-	  *STUDENTENTRIES* *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*
+	  *NSH-PROBLEM-TYPE* *VARIABLES* *STUDENTENTRIES* 
+	  *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*
           **Condition**  mt19937::*random-state* **grammar**
 	  ;; Session-specific variables in Help/Interface.cl
 	  **current-cmd-stack** **current-cmd** 
@@ -113,27 +113,37 @@
 (defstruct help-env "Quantities that must be saved between turns of a session.  Member vals contains list of values for *help-env-vars*." 
 	   student problem vals)
 
-(defmacro env-wrap (&body body)
-  "Make session-local copy of global variables, retrieving values from webserver:*env* at the beginning of a turn and saving them there at the end of that turn"
-  (let ((result (gensym)) (vals 'webserver:*env*))
-    `(progn
-      ;; should check for use of "assert" in other code I have written.
-      ;; maybe grep for "(unless .*(error " or "(when .*(error "
+;; Should be useful for debugging.
+(defun get-session-variable (session var)
+  "Get a session local variable for a given session (string)."
+  (nth (position var *help-env-vars*)
+       (help-env-vals (webserver:get-session-env session))))
 
-      ;; An error here indicates that the student is trying to work
-      ;; on a session that has timed out or has not been initialized:  
-      ;; probably should have a appropriate handler that gives instructions
-      ;; to start a new session
-      (assert ,vals)
-      ;; further sanity check.
-      (assert (help-env-p ,vals))
-      (let ,(cons result 
-		  (mapcar 
-		   #'(lambda (x) (list x `(pop (help-env-vals ,vals))))
-		   *help-env-vars*))
-	(setf ,result (progn ,@body))
-	(when ,vals (setf (help-env-vals ,vals) (list ,@*help-env-vars*)))
-	,result))))
+(defmacro save-help-env-vals ()
+  "Save local variables back to *env*."
+  `(setf (help-env-vals webserver:*env*) (list ,@*help-env-vars*)))
+
+(defmacro env-wrap (&body body)
+  "Make session-local copy of global variables, retrieving values from webserver:*env* at the beginning of a turn and saving them again at the end of the turn"
+  `(progn
+     ;; An error here indicates that the student is trying to work
+     ;; on a session that has timed out or has not been initialized:  
+     ;; probably should have a appropriate handler that gives instructions
+     ;; to start a new session
+     (assert webserver:*env*)
+     ;; further sanity check.
+     (assert (help-env-p webserver:*env*))
+     (let ,(mapcar 
+	   #'(lambda (x) (list x '(pop (help-env-vals webserver:*env*))))
+	   *help-env-vars*)
+       ;; If there is an error, need to save current values
+       ;; back to the environment variable before passing control
+       ;; on to error handler.
+       (prog1 (handler-bind
+		  ((error #'(lambda (c) (declare (ignore c)) 
+				    (save-help-env-vals))))
+		,@body)
+	 (save-help-env-vals)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -149,8 +159,6 @@
   ;; the session already exists.
   (when webserver:*env* 
     (warn "webserver:*env* already exists.  Session in progress?"))
-  ;; tracing/debugging print
-  (format webserver:*stdout* "open-problem opening problem ~A~%" problem)
   
   ;; webserver:*env* needs to be initialized before the wrapper
   (setq webserver:*env* (make-help-env :student user :problem problem))
@@ -270,8 +278,6 @@
  
       ;; update attributes from old object
       (when old-entry
-	(format webserver:*stdout* 
-		"update attributes from old object, type was ~A~%" (StudentEntry-type old-entry))
 	(update-entry-from-entry 
 	 new-entry old-entry 
 	 type mode x y text width height radius symbol 
@@ -281,9 +287,6 @@
       (update-entry-from-variables 
        new-entry  
        mode x y text width height radius symbol x-label y-label z-label angle)
-
-	(format webserver:*stdout* 
-		"Now, type should always be defined, is ~A~%" (StudentEntry-type new-entry))
 
       (cond
 	((equal action "delete-object")
@@ -332,6 +335,8 @@
     ;; do-whats-wrong (for why-wrong-equation & why-wrong-object)
     ;; solve-for-var (could also be under solve steps..., or own method)
 
+    ;; Doesn't correctly handle case where "Explain-more" is clicked after
+    ;; a bottom-out hint.
     (cond
       ;; Press help button.  
       ;; call next-step-help or do-whats-wrong
@@ -355,26 +360,30 @@
 	  (:value . "Explain-More"))))
       (t (warn "undefined action ~A, doing nothing." action)))))
 
-(webserver:defun-method "/help" close-problem (&key  time) 
+(webserver:defun-method "/help" close-problem 
+  (&key time) 
   "shut problem down" 
-  (env-wrap 
-    ;; Andes2 had calls to:
-    ;; get-stats (instead, we need to send grade to LMS)
-    ;; need to maybe store state
+  (prog1
+      (env-wrap 
+       ;; Andes2 had calls to:
+       ;; get-stats (instead, we need to send grade to LMS)
+       ;; need to maybe store state
+       
+       (do-close-problem)
+       (solver-unload)
+       
+       `(((:action . "problem-closed") 
+	  (:URL . "http://www.webassign.net/someting/or/other"))
+	 ((:action . "log") 
+	  (:subscores . (("NSH_BO_Call_Count" . (-0.05 0)) 
+			 ("WWH_BO_Call_Count" . (-0.05 0))
+			 ("Correct_Entries_V_Entries" . (0.05 17 19))
+			 ("Correct_Answer_Entries_V_Answer_Entries" 
+			  . (0.05 1 2)))))))
+    ;; Tell the session manager that the session is over.
+    ;; Must be done after env-wrap
+    (setf webserver:*env* nil)))
 
-    (do-close-problem)
-    (solver-unload)
-
-    (let ((prob (help-env-problem webserver:*env*)))
-      ;; this tells the session manager that the session is over.
-      (setf webserver:*env* nil)
-      `(((:action . "problem-closed") 
-	 (:URL . "http://www.webassign.net/someting/or/other"))
-	((:action . "log") 
-	 (:subscores . (("NSH_BO_Call_Count" . (-0.05 0)) 
-			("WWH_BO_Call_Count" . (-0.05 0))
-			("Correct_Entries_V_Entries" . (0.05 17 19))
-			("Correct_Answer_Entries_V_Answer_Entries" . (0.05 1 2)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

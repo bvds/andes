@@ -23,7 +23,8 @@
 (defpackage :webserver
   (:use :cl :hunchentoot :json)
   (:export :defun-method :start-json-rpc-service :stop-json-rpc-service 
-	   :*stdout* :print-sessions :*env* :close-idle-sessions))
+	   :*stdout* :print-sessions :*env* :close-idle-sessions
+	   :get-session-env))
 
 (in-package :webserver)
 
@@ -159,11 +160,15 @@
 
 (defun print-sessions (&optional str)
   "Print sessions to see what is going on."
+  (let ((*print-length* 50))
     (maphash #'(lambda (id session) 
 		 (format str "session ~A with turn ~A, time ~A,~%   env ~A~%" 
 			 id (ssn-turn session) (ssn-time session)
 			 (ssn-environment session)))
-	     *sessions*))
+	     *sessions*)))
+
+(defun get-session-env (session)
+  (ssn-environment (gethash session *sessions*)))
 
 (defun count-active-sessions ()
   "Count number of currently active (locked) sessions."
