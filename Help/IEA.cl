@@ -136,7 +136,7 @@
    **Equation-Menu** 
    :Responder #'(lambda (Response)
 		  (iea-check-response Response))
-   :Assoc '(iea Main)))
+   :Assoc '((iea . Main))))
 
 
 ;;;; -------------------- Check Response ----------------------------
@@ -209,7 +209,7 @@
    (format Nil **IEA-platonic-form** 
 	   (eval-print-spec (Psmclass-EqnFormat Equation) bindings))
     Nil ;; Menu is nil so that no response wil occur.
-   :Assoc `(IEA platonic-prompt ,(PSMClass-name Equation))))
+   :Assoc `((IEA platonic-prompt ,(PSMClass-name Equation)))))
 
 
 
@@ -264,7 +264,7 @@
 		  (if (String-equal Response "Yes")
 		      (iea-prompt-alt-axes-yes Equation Bindings NewAxis)
 		    (iea-prompt-alt-axes-no)))
-   :Assoc `(IEA prompt-alternate-axes ,(PSMClass-name equation) ,Bindings ,NewAxis)))
+   :Assoc `((IEA prompt-alternate-axes ,(PSMClass-name equation) ,Bindings ,NewAxis))))
 
 
 
@@ -276,7 +276,7 @@
      (format Nil **IEA-alt-axes-yes**
 	     (eval-print-spec (PSMClass-EqnFormat Equation) NewBinds))
      Nil ;; Menu is nil so no excess entry is sent.
-     :Assoc `(IEA prompt-alt-axes-yes ,(PSMClass-name Equation) ,Bindings ,NewAxis))))
+     :Assoc `((IEA prompt-alt-axes-yes ,(PSMClass-name Equation) ,Bindings ,NewAxis)))))
 
 
 
@@ -286,7 +286,7 @@
   (make-dialog-turn
    **IEA-alt-axes-no**
    Nil ;; Menu is nil so that no response is sent.
-   :Assoc `(iea iea-prompt-alt-axes-no)))
+   :Assoc `((iea . iea-prompt-alt-axes-no))))
 
 
 ;;; ------------------------ incorrect prompt ------------------------------------
@@ -312,7 +312,7 @@
 	       **IEA-Incorrect-Multi**
 	     **IEA-Incorrect-Single**))
    Nil ;; Menu is nil so that no response will occur.
-   :Assoc `(IEA Incorrect ,(PSMClass-name Equation))))
+   :Assoc `((IEA Incorrect ,(PSMClass-name Equation)))))
 
 
 

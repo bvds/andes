@@ -185,6 +185,7 @@
 ;; the workbench.
 (defun calculate-equation-string-success (result new-id)
   ;; just return eqn text until appropriate turns are implemented
+  (warn "Can't make valid studententry since type, location etc missing")
   (let* ((studEqn  (subst-student-vars (pre2in result)))
 	 ;; suppress *print-pretty* since it could insert newlines 
 	 ;; into long result, and WB requires single-line eqn string
@@ -239,7 +240,8 @@
 	      :id new-id)))))
 
 (defun solve-for-var-success (new-id result)
-  (let* ((studEqn  (subst-student-vars (pre2in result)))
+  (warn "Can't make valid studententry since type, location etc missing")
+ (let* ((studEqn  (subst-student-vars (pre2in result)))
 	 ;; suppress *print-pretty* since it could insert newlines 
 	 ;; into long result, and WB requires single-line eqn string
 	 (infixStr (write-to-string studEqn :pretty NIL :escape NIL))
@@ -408,23 +410,7 @@
 		       response-code)
 	       NIL))))
 
-  
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; explain-more triggered when the studfent clicks on "explain further". gives
-;;  more specific information about the last hint that was given. 
-;; argument(s):
-;;  NONE
-;; returns:
-;;  HintSpec -- see end of this file for further description
-;; Notes: now delegates to the generic "handle-student-response" routine.
-;; In the future, the workbench may call that directly; for backwards compatibility
-;; with Andes1 protocol, we handle this old API here.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun explain-more ()
-  (handle-student-response 'explain-more))
-  
+    
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Entry Status Return Values are 3+ field strings of the form:
 ;;   StatusCode;ErrorList!Command  where

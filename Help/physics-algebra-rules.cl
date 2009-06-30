@@ -111,6 +111,7 @@
   (grammar-add-terminal '**identifier-grammar** 'dash #\-)
   (grammar-add-terminal '**identifier-grammar** 'period #\.)
   (grammar-add-terminal '**identifier-grammar** 'dollars #\$)
+  (grammar-add-terminal '**identifier-grammar** 'backslash #\\)
 
   ;; operators placed here because units can have these
   (grammar-add-terminal '**identifier-grammar** 'plus #\+)
@@ -379,16 +380,17 @@
   (grammar-add-nonterminal '**common-grammar** 'rest-of-unknown 
 			   (expand-wild-symbols '(letter ?rest-of-unknown)))
   (grammar-add-nonterminal '**common-grammar** 'rest-of-unknown 
-			   (expand-wild-symbols '(dollars letter ?rest-of-unknown)))
+			   (expand-wild-symbols '(backslash ?rest-of-unknown)))
   (grammar-add-nonterminal '**common-grammar** 'rest-of-unknown 
 			   (expand-wild-symbols '(digit ?rest-of-unknown)))
   (grammar-add-nonterminal '**common-grammar** 'rest-of-unknown 
 			   (expand-wild-symbols '(underscore ?rest-of-unknown)))
   
+  ;; Variable name can't start with digit or underscore.
   (grammar-add-nonterminal '**common-grammar** 'unknown
 			   (expand-wild-symbols '(letter ?rest-of-unknown)))
   (grammar-add-nonterminal '**common-grammar** 'unknown
-			   (expand-wild-symbols '(dollars letter ?rest-of-unknown)))
+			   (expand-wild-symbols '(backslash ?rest-of-unknown)))
 
   ;;
   ;; rules are juggled to avoid forward references

@@ -37,7 +37,7 @@
 ;; do-lookup-equation-string is the special case kludge covered above.
 ;; Called from Entry-API.
 (defun do-lookup-equation-answer-string (eq id)
-  (do-lookup-equation-string (trim-eqn (fix-eqn-string eq)) id 'answer))
+  (do-lookup-equation-string (trim-eqn eq) id 'answer))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -58,7 +58,7 @@
   "Minimally modified Andes2 call"
   (let (result (eq (StudentEntry-text entry)))
     (unless eq (warn "Equation must always have text") (setf eq ""))
-    (setf result (do-lookup-equation-string (fix-eqn-string (trim-eqn eq)) 
+    (setf result (do-lookup-equation-string (trim-eqn eq) 
 		   entry 'equation))
     (setf (turn-result result) 
 	  (append (log-entry-info (find-entry (StudentEntry-id entry))) 
@@ -72,7 +72,6 @@
       (let* ((parses (parse-equation **grammar** equation))
 	     (complete (parse-get-complete parses))
 	     (valid (parse-get-valid 'final complete)))
-	;;(format T "lookup-eqn-str got ~A valid parses~%" (length valid))
 	(cond
 	 ((null valid)
 	  (setf tmp (handle-bad-syntax-equation eq entry parses)))
@@ -195,60 +194,60 @@
 				    :State **InCorrect**))
 	(setf tmp (parse-handler se location))
 	(cond
-	 ((equal **Color-Green** (turn-coloring tmp))
-	  ;; know this entry has winning parse so save entry now 
-	  ;; Copy over information into the entry.
-	  (setf (StudentEntry-verbatim entry) equation)
-	  (setf (StudentEntry-parsedeqn entry) parse)
-	  (setf (studentEntry-prop entry) (list 'eqn equation))
-	  (setf (StudentEntry-State entry) **Correct**)
-	  (add-entry entry) 	
-	  (setf cont nil))
-	 (t (setf bad (append bad (list (list tmp se))))))))
-
+	  ((equal **Color-Green** (turn-coloring tmp))
+	   ;; know this entry has winning parse so save entry now 
+	   ;; Copy over information into the entry.
+	   (setf (StudentEntry-verbatim entry) equation)
+	   (setf (StudentEntry-parsedeqn entry) parse)
+	   (setf (studentEntry-prop entry) (list 'eqn equation))
+	   (setf (StudentEntry-State entry) **Correct**)
+	   (add-entry entry) 	
+	   (setf cont nil))
+	  (t (setf bad (append bad (list (list tmp se))))))))
+    
     (cond
-     (cont
-      (setf tmp (choose-ambiguous-bad-turn bad)) ; does add-entry on winning candidate
-      (if (null tmp)
-	  (setf tmp (make-red-turn "Should not see this error: (1) Notify Instructor"))))
-     (t
-      ;; Record correct eqn in algebra. (Must happen before interpretation 
-      ;; testing)
-      ;; NB: If we later reject it for some reason (because forbidden, 
-      ;; premature, etc), algebra slot should be cleared.
-      (if (stringp (solver-studentAddOkay (StudentEntry-Id se) 
-					  (StudentEntry-ParsedEqn se)))
-	  ;; to trap exceptions
-	  (setf tmp (make-red-turn :id (StudentEntry-Id se))) 
-	(setf tmp (interpret-equation entry location)))
-      (cond
-       ((equal **Color-Green** (turn-coloring tmp))
-	(sg-Enter-StudentEntry se)
-
-	; also enter scalar variables whose only uses are in this entry's interp
-	(let ((eqn-interp (StudentEntry-Cinterp se))
-	      unneeded-vardefs)
-	  ; collect list of variable entries no longer needed
-	  (when eqn-interp ; if interp is empty, don't reduce #'union NIL, Bug 949
-	    (dolist (var (reduce #'union (mapcar #'(lambda (sysent) 
-	                                            (vars-in-eqn (sysent-algebra sysent)))
-					         eqn-interp)))
-	      (when (and (var-to-sysentry var) ;nil for vector quantities, ignore
-		         (subsetp (syseqns-containing-var var) eqn-interp))
+      (cont
+       (setf tmp (choose-ambiguous-bad-turn bad entry)) ; does add-entry on winning candidate
+       (if (null tmp)
+	   (setf tmp (warn "Should not see this error: (1) Notify Instructor"))))
+      (t
+       ;; Record correct eqn in algebra. (Must happen before interpretation 
+       ;; testing)
+       ;; NB: If we later reject it for some reason (because forbidden, 
+       ;; premature, etc), algebra slot should be cleared.
+       (if (stringp (solver-studentAddOkay (StudentEntry-Id se) 
+					   (StudentEntry-ParsedEqn se)))
+	   ;; to trap exceptions
+	   (setf tmp (make-red-turn :id (StudentEntry-Id se))) 
+	   (setf tmp (interpret-equation entry location)))
+       (cond
+	 ((equal **Color-Green** (turn-coloring tmp))
+	  (sg-Enter-StudentEntry se)
+	  
+	  ;; also enter scalar variables whose only uses are in this entry's interp
+	  (let ((eqn-interp (StudentEntry-Cinterp se))
+		unneeded-vardefs)
+					; collect list of variable entries no longer needed
+	    (when eqn-interp ; if interp is empty, don't reduce #'union NIL, Bug 949
+	      (dolist (var (reduce #'union (mapcar #'(lambda (sysent) 
+						       (vars-in-eqn (sysent-algebra sysent)))
+						   eqn-interp)))
+		(when (and (var-to-sysentry var) ;nil for vector quantities, ignore
+			   (subsetp (syseqns-containing-var var) eqn-interp))
 	          (pushnew (var-to-sysentry var) unneeded-vardefs))))
-	  (when unneeded-vardefs
-	     ; temporarily munge this entry's interpretations to get variable definition entries 
-	     ; associated with it to be marked as entered by this student entry, restore when done. 
-	     ; Note sg-delete-StudentEntry adjusted to undo this on equation entry deletions.
-	     (format *debug-help* "entering unneeded vardefs: ~s~%" 
-		     unneeded-vardefs)
-	     (setf (StudentEntry-Cinterp se) unneeded-vardefs)
-	     (sg-Enter-StudentEntry se)
-	     (setf (StudentEntry-Cinterp se) eqn-interp)))
-       )
-       (t
-	;; empty slot since it failed
-	(solver-studentEmptySlot (StudentEntry-Id se))))))
+	    (when unneeded-vardefs
+					; temporarily munge this entry's interpretations to get variable definition entries 
+					; associated with it to be marked as entered by this student entry, restore when done. 
+					; Note sg-delete-StudentEntry adjusted to undo this on equation entry deletions.
+	      (format *debug-help* "entering unneeded vardefs: ~s~%" 
+		      unneeded-vardefs)
+	      (setf (StudentEntry-Cinterp se) unneeded-vardefs)
+	      (sg-Enter-StudentEntry se)
+	      (setf (StudentEntry-Cinterp se) eqn-interp)))
+	  )
+	 (t
+	  ;; empty slot since it failed
+	  (solver-studentEmptySlot (StudentEntry-Id se))))))
     ;;(format t "*(*(*( ~A~%" tmp)
     tmp))
 
@@ -279,9 +278,9 @@
 ; RETURN: chosen turn to use
 ; Side effects: Saves chosen entry on entry list, setting its state to incorrect.
 ;
-(defun choose-ambiguous-bad-turn (badlist)
+(defun choose-ambiguous-bad-turn (badlist entry)
   ;(prl badlist)
-  (let ((choice nil) (wrong nil) (unk nil) (uni nil) (mis nil) (err nil) (unused nil))
+  (let (choice wrong unk uni mis err unused)
     (dolist (te badlist)
       ; collect sets of results of each distinguished class
       ; (format T "choose-ambiguous: parse w/tag ~a~%" (te-error-tag te))
@@ -334,10 +333,16 @@
           ;; else just pick the first one given (exception?) -- shouldn't happen
 	  (first badlist)))
 
-    ;; Set state on chosen entry:
-    (setf (StudentEntry-State (second choice)) **Incorrect**)
+    ;; Set state to chosen entry:
+    (setf (StudentEntry-State entry) **Incorrect**)
+    (setf (StudentEntry-verbatim entry) 
+	  (StudentEntry-verbatim (second choice)))
+    (setf (StudentEntry-parsedeqn entry) 
+	  (StudentEntry-parsedeqn (second choice)))
+    (setf (studentEntry-prop entry) 
+	  (studentEntry-prop (second choice)))
     ;; The chosen entry is the one saved on the list:
-    (add-entry (second choice))
+    (add-entry entry)
     ;;(format t "Entry is ~W~%Turn is ~W~%" (second choice) (first choice))
     ;; return value is chosen *turn*
     (first choice)))
@@ -672,58 +677,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;
-;; fix-eqn-string: remove illegal characters from a student equation string
-;;
-;; AW: This was originally intended to be applied to the string argument of lookup-eqn-string, 
-;; before the whole raw argument string is parsed into a list of objects by Lisp read. It was
-;; applied in special pre-read processing in Andes2main.cl to ensure that string contents a student 
-;; might have typed in an equation box were appropriately escaped, since otherwise the API call fail 
-;; when passed through Lisp read. That use should not be needed now that the workbench has been changed
-;; to ensure that all strings sent in an API calls are suitably escaped. 
-;; HOWEVER: this function as implemented also scans for lots of other funny characters, changing them 
-;; to spaces, so they wind up effectively ignored, and this is done even on the post-read equation string. 
-;; We might want to change this, since it means no error is signalled to the user, and the string we
-;; analyze can differ from the one they typed, which is apparent on "syntax error in ..." messages.
-;; This also changes brackets to parentheses, which allows them to be used as alternate parens, which
-;; could be useful, though it might more appropriately be handled in the parser. 
-(defparameter ***bad-character-codes***
-    '(33 34 35 37 38 39 44 58 59 60 62 63 64 91 92 93 96))
-;      !  "  #  %  &  '  ,  :  ;  <  >  ?  @  [  \  ]  `
-; Also filtered by > 122 test below:
-;      { | } ~
-(defparameter ***to-swap-character-codes***
-    '(91 93))
-(defparameter ***to-swap-with-character-codes***
-    '(40 41))
-(defun fix-eqn-string (string)
-  (let ((len (length string)))
-    (if (> len 0)
-	(do ((i 0 (+ i 1)))
-	    ((>= i len) string)
-	  (cond
-	   ((< (char-code (char string i)) 32) (setf (char string i) #\Space))
-	   ((> (char-code (char string i)) 122) (setf (char string i) #\Space))
-	   ((= (char-code (char string i)) 91) (setf (char string i) #\())
-	   ((= (char-code (char string i)) 93) (setf (char string i) #\)))
-	   (t (if (member (char-code (char string i)) ***bad-character-codes***)
-		  (setf (char string i) #\Space)))))
-      string)))
-
-; older simpler version: just replace embedded quotes with spaces.
-(defun lht-fix-quotes (string)
-  (if (> (length string) 0)
-      (let ((s (position #\" string))
-	    (e (position #\" string :from-end (length string))))
-	(if (and s e (> (- e s) 0))
-	    (substitute #\Space #\" string :start s :end (+ e 1))
-	  string))
-    ""))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
 (defun andes-in2pre (equation)
   (let* ((eq (read-from-string (concatenate 'string "(" equation ")")))
 	 (leaveAlone nil)
@@ -823,13 +776,14 @@
 
 (defun do-check-answer (inputo sought-quant id)
   ;;(format t "Okay start!!!<~A>[~A]~%" input sought-quant)
+  (warn "Can't make valid studententry since type, location etc missing")
   (let ((entry (make-studententry :id id
 			  ;; not system answer entries so no real prop for these,
 			  ;; following will let us find if answer entered for a quant.
                           :prop `(answer ,sought-quant)
                           :verbatim inputo))
 	(result-turn)
-	(input (trim-eqn (fix-eqn-string inputo))))
+	(input (trim-eqn inputo)))
     (add-entry entry) ;save entry immediately 
     (if (quant-to-sysvar sought-quant)
 	(if (/= (length (remove #\Space input)) 0)

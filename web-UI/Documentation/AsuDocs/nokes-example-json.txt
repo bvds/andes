@@ -281,7 +281,7 @@ For the rest of this, I am going to skip the log stuff.
 ]
 
 {"method": "solution-step", "params": {"time": 590.001, 
-	   "action": "modify-object", "id": 13,
+	   "action": "modify-object", "id": "a14",
 	   "text": "Fearth_y = Fearth * sin (\\thetaFearth)"}, "id": 16}
 
 [
@@ -317,7 +317,7 @@ combined.
 
 [
   {"action": "show-hint", "text": "Right indeed. Notice that the ball is at rest at T0."},
-  {"action": "show-hint-link", "text": "Explain more", "value": "Explain-More"}
+  {"action": "show-hint-link", "text": "Explain more", "value": "explain-more"}
 ]
 
 11:51 Draw acceleration vector
@@ -384,15 +384,15 @@ non-blocking, thus there is no need for the "OK" button seen in Andes2.
 
 [
   {"action": "show-hint", "text": "Think about the direction of the weight force on the ball at T0 due to the earth."},
-  {"action": "show-hint-link", "text": "Explain more", "value": "Explain-More"}
+  {"action": "show-hint-link", "text": "Explain more", "value": "explain-more"}
 ]
 
 {"method": "seek-help", "params": {"time": 671.001,
-	   "action": "get-help", "value": "Explain-More"}, "id": 25}
+	   "action": "get-help", "value": "explain-more"}, "id": 25}
 
 [
   {"action": "show-hint", "text": "Because the vector is parallel to the Y axis but in the negative direction, the projection equation is Fearth_y = - Fearth so Fearth_y stands for a negative value."},
-  {"action": "show-hint-link", "text": "Explain more", "value": "Explain-More"}
+  {"action": "show-hint-link", "text": "Explain more", "value": "explain-more"}
 ]
 
 14:58 Ninth equation, again.
@@ -433,12 +433,12 @@ box included with the original problem statement with "text" set to
 
 [
   {"action": "show-hint", "text": "Forgot to put units on a number."},
-  {"action": "show-hint-link", "text": "Explain more", "value": "Explain-More"},
+  {"action": "show-hint-link", "text": "Explain more", "value": "explain-more"},
   {"action": "modify-object", "id": "a19", "mode": "incorrect"}
 ]
 
 {"method": "seek-help", "params": {"time": 918.001,
-	   "action": "get-help", "value": "Explain-More"}, "id": 29}
+	   "action": "get-help", "value": "explain-more"}, "id": 29}
 
 [
   {"action": "show-hint", "text": "This equation is dimensionally inconsistent. When numbers are used in equations, they must include the appropriate units. It looks like one of the numbers you've used is lacking the units."}
