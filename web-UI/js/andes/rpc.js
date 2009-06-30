@@ -1,5 +1,4 @@
 dojo.provide("andes.rpc");
-dojo.provide("dojox.rpc.Client");
 dojo.require("dojox.rpc.Service");
 dojo.require("dojox.rpc.JsonRPC");
 dojo.require("dojox.json.schema");
