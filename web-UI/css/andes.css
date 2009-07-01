@@ -50,6 +50,17 @@ html, body, #main{
 	border:1px solid #999;
 }
 
+#navMenu .dijitButtonNode{
+	padding:0 .2em .05em .2em;
+}
+.dj_webkit #navMenu .dijitButtonNode{
+	padding:.0 .4em .25em .4em;
+}
+#submitButton .dijitButtonText{
+	font-size:.8em;
+	padding:0;
+}
+
 #andesErrorDialog_underlay{
 	background-color:#eef;
 }
