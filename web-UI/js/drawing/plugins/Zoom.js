@@ -4,7 +4,6 @@ dojo.require("drawing.plugins._Plugin");
 drawing.plugins.Zoom = drawing.util.oo.declare(
 	drawing.plugins._Plugin,
 	function(options){
-		console.dir(options);
 		var cls = options.node.className;
 		var txt = options.node.innerHTML;
 		this.domNode = dojo.create("span", {id:"btnZoom"}, options.node, "replace");
@@ -21,9 +20,9 @@ drawing.plugins.Zoom = drawing.util.oo.declare(
 		minZoom:.1,
 		zoomFactor:1,
 		zoomIn: function(evt){
-			console.warn("ZOOM")
 			dojo.stopEvent(evt);
 			this.zoomFactor += this.zoomInc;
+			this.zoomFactor = Math.min(this.zoomFactor, this.maxZoom);
 			this.canvas.setZoom(this.zoomFactor);
 			this.mouse.setZoom(this.zoomFactor);
 			watch("zoom:", this.zoomFactor);
@@ -38,6 +37,7 @@ drawing.plugins.Zoom = drawing.util.oo.declare(
 		zoomOut: function(evt){
 			dojo.stopEvent(evt);
 			this.zoomFactor -= this.zoomInc;
+			this.zoomFactor = Math.max(this.zoomFactor, this.minZoom);
 			this.canvas.setZoom(this.zoomFactor);
 			this.mouse.setZoom(this.zoomFactor);
 			watch("zoom:", this.zoomFactor);
