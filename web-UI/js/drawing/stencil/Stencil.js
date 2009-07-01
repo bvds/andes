@@ -54,7 +54,6 @@ dojo.provide("drawing.stencil.Stencil");
 			_cons:[],
 			
 			setData: function(d){
-				
 				this.data = d;
 				this.points = this.dataToPoints();
 			},
@@ -330,6 +329,8 @@ dojo.provide("drawing.stencil.Stencil");
 			// Should be overwritten by sub class:
 			render: function(){},
 			renderOutline: function(){},
+			dataToPoints: function(o){},
+			pointsToData: function(p){},
 			onDown: function(obj){
 				// by default, object is ready to accept data
 				// turn this off for dragging or onRender will
