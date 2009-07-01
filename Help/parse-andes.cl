@@ -187,7 +187,7 @@
 	;; when we know which one it is.
 	;; Start with given entry since that has all user parameters
 	;; and modify
-	(setf se entry)
+	(setf se (copy-StudentEntry entry))
 	(setf (StudentEntry-verbatim se) equation)
 	(setf (StudentEntry-parsedeqn se) parse)
 	(setf (StudentEntry-prop se) (list 'eqn equation))
