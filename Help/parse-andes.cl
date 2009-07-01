@@ -114,20 +114,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 
-(defun handle-bad-syntax-equation (equation entry parses)
+(defun handle-bad-syntax-equation (equation se parses)
   "Given a student equation, its id and the parses, 
    creates a student entry, adds it to the *student-entries*,
    creates an error interpretation for it, and returns
    the first tutor turn of the error interpretation's hint sequence."
-    (setf (StudentEntry-verbatim entry) equation)
-    (setf (StudentEntry-parsedeqn entry) parses)
-    (setf (StudentEntry-prop entry) (list 'eqn equation))
-    (setf (StudentEntry-state entry) **incorrect**)
-    (add-entry entry)
-
-    (setf (StudentEntry-ErrInterp entry) 
-	  (bad-syntax-ErrorInterp equation :id (StudentEntry-id entry)))
-    (ErrorInterp-remediation (StudentEntry-ErrInterp entry)))
+    (setf (StudentEntry-verbatim se) equation)
+    (setf (StudentEntry-parsedeqn se) parses)
+    (setf (StudentEntry-prop se) (list 'eqn equation))
+    (setf (StudentEntry-state se) **incorrect**)
+    (add-entry se)
+    (setf (StudentEntry-ErrInterp se) (bad-syntax-ErrorInterp equation :id (StudentEntry-id se)))
+    (ErrorInterp-remediation (StudentEntry-ErrInterp se)))
 
 ; This returns a plain ErrorInterp:
 (defun bad-syntax-ErrorInterp (equation &key id)
@@ -180,34 +178,33 @@
 (defun handle-ambiguous-equation (equation entry parses location)
   ;(prl parses)
   (let ((id (StudentEntry-id entry))
-	tmp bad (cont t) se save)
+	tmp bad (cont t) result se save)
     (dolist (parse parses)
       (when (and cont (not (member parse save :test #'equal)))
 	(setf save (append save (list parse)))
 	;; Build a candidate entry containing this parse. The candidate 
 	;; with the winning parse will be saved permanently with add-entry 
 	;; when we know which one it is.
-	(setf se (make-StudentEntry :id id
-				    :verbatim equation
-				    :parsedeqn parse
-				    :prop (list 'eqn equation)
-				    :State **InCorrect**))
+	;; Start with given entry since that has all user parameters
+	;; and modify
+	(setf se entry)
+	(setf (StudentEntry-verbatim se) equation)
+	(setf (StudentEntry-parsedeqn se) parse)
+	(setf (StudentEntry-prop se) (list 'eqn equation))
+	(setf (StudentEntry-State se) **InCorrect**)
 	(setf tmp (parse-handler se location))
 	(cond
 	  ((equal **Color-Green** (turn-coloring tmp))
+	   (setf (StudentEntry-State se) **Correct**)
 	   ;; know this entry has winning parse so save entry now 
-	   ;; Copy over information into the entry.
-	   (setf (StudentEntry-verbatim entry) equation)
-	   (setf (StudentEntry-parsedeqn entry) parse)
-	   (setf (studentEntry-prop entry) (list 'eqn equation))
-	   (setf (StudentEntry-State entry) **Correct**)
-	   (add-entry entry) 	
+	   (add-entry se) 	
+	   (setf result se)
 	   (setf cont nil))
-	  (t (setf bad (append bad (list (list tmp se))))))))
-    
+        (t ;;(equal **Color-Red** (turn-coloring tmp))
+          (setf bad (append bad (list (list tmp se))))))))    
     (cond
       (cont
-       (setf tmp (choose-ambiguous-bad-turn bad entry)) ; does add-entry on winning candidate
+       (setf tmp (choose-ambiguous-bad-turn bad se)) ; does add-entry on winning candidate
        (if (null tmp)
 	   (setf tmp (warn "Should not see this error: (1) Notify Instructor"))))
       (t
@@ -215,11 +212,9 @@
        ;; testing)
        ;; NB: If we later reject it for some reason (because forbidden, 
        ;; premature, etc), algebra slot should be cleared.
-       (if (stringp (solver-studentAddOkay (StudentEntry-Id se) 
-					   (StudentEntry-ParsedEqn se)))
-	   ;; to trap exceptions
-	   (setf tmp (make-red-turn :id (StudentEntry-Id se))) 
-	   (setf tmp (interpret-equation entry location)))
+       (if (stringp (solver-studentAddOkay (StudentEntry-Id se) (StudentEntry-ParsedEqn se)))
+	   (setf tmp (make-red-turn :id (StudentEntry-Id se))) ;; to trap exceptions
+	   (setf tmp (interpret-equation result location)))
        (cond
 	 ((equal **Color-Green** (turn-coloring tmp))
 	  (sg-Enter-StudentEntry se)
