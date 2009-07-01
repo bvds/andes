@@ -1,5 +1,6 @@
 dojo.provide("andes.api");
 dojo.require("andes.rpc");
+dojo.require("andes.error");
 
 (function(){
 
@@ -51,7 +52,12 @@ dojo.require("andes.rpc");
 					}, RETRY_TIMEOUT);
 				}else{
 					req.dfd.errback(error);
-					console.error("TODO: do a dialog here to notify the user that the connection is wrecked.");
+					//console.error(error);
+					andes.error({
+						title: "Connection Error",
+						message: "The connection to the server failed and couldn't be re-established after retrying " + MAX_RETRIES + " times; giving up.",
+						dialogType: andes.error.OK
+					});
 				}
 			}
 		);
