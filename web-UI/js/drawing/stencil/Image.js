@@ -2,7 +2,7 @@ dojo.provide("drawing.stencil.Image");
 
 
 drawing.stencil.Image = drawing.util.oo.declare(
-	drawing.stencil.Stencil,
+	drawing.stencil._Base,
 	function(options){
 		if(options.data){
 			console.warn(" - - - IMAGE", options.data.src)
@@ -90,3 +90,5 @@ drawing.stencil.Image = drawing.util.oo.declare(
 		}
 	}
 );
+drawing.stencil.Image.name = "Image";
+drawing.stencil.Image.drawable = false;

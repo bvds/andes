@@ -3,7 +3,7 @@ dojo.provide("drawing.stencil.Text");
 (function(){
 	
 	drawing.stencil.Text = drawing.util.oo.declare(
-		drawing.stencil.Stencil,
+		drawing.stencil._Base,
 		function(options){
 			
 			this.align = options.align || this.align;
@@ -98,5 +98,8 @@ dojo.provide("drawing.stencil.Text");
 			}
 		}
 	);
+	
+	drawing.stencil.Text.name = "Text";
+	drawing.stencil.Text.drawable = false;
 	
 })();

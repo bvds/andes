@@ -11,7 +11,7 @@ dojo.require("drawing.manager.Mouse");
 dojo.require("drawing.manager.Stencil");
 dojo.require("drawing.util.SubStencil");
 dojo.require("drawing.manager.Anchors");
-dojo.require("drawing.stencil.Stencil");
+dojo.require("drawing.stencil._Base");
 dojo.require("drawing.stencil.Line");
 dojo.require("drawing.stencil.Rect");
 dojo.require("drawing.stencil.Ellipse");
@@ -149,7 +149,9 @@ dojo.require("drawing.manager.Silverlight");
 			this.unSetTool();
 			this.setTool(this.currentType);
 		},
-		registerTool: function(type, constr){
+		registerTool: function(type){
+			var constr = dojo.getObject(type);
+			console.warn("DRAWBLE:", constr.name, "drawable:", constr.drawable)
 			this.tools[type] = constr;
 		},
 		setTool: function(type){

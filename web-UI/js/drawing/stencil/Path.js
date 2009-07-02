@@ -2,7 +2,7 @@ dojo.provide("drawing.stencil.Path");
 
 
 drawing.stencil.Path = drawing.util.oo.declare(
-	drawing.stencil.Stencil,
+	drawing.stencil._Base,
 	function(options){
 		dojo.disconnect(this._postRenderCon);
 		
@@ -38,3 +38,5 @@ drawing.stencil.Path = drawing.util.oo.declare(
 		
 	}
 );
+drawing.stencil.Path.name = "Path";
+drawing.stencil.Path.drawable = false;

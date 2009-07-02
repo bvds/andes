@@ -1,8 +1,7 @@
 dojo.provide("drawing.stencil.Line");
 
-
 drawing.stencil.Line = drawing.util.oo.declare(
-	drawing.stencil.Stencil,
+	drawing.stencil._Base,
 	function(options){
 		
 	},
@@ -89,3 +88,5 @@ drawing.stencil.Line = drawing.util.oo.declare(
 		}
 	}
 );
+drawing.stencil.Line.name = "Line";
+drawing.stencil.Line.drawable = true;

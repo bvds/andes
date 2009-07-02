@@ -372,4 +372,6 @@ dojo.require("drawing.stencil.Text");
 			}
 		}
 	);
+	drawing.stencil.TextBlock.name = "TextBlock";
+	drawing.stencil.TextBlock.drawable = true;
 })();
