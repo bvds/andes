@@ -64,6 +64,16 @@ dojo.require("dijit.form.Button");
 			this.buttonsNode = container;
 		},
 
+		_onKey: function(evt){
+			if(this.dialogType == andes.error.FATAL){
+				if(evt.charOrCode == dojo.keys.ESC || evt.charOrCode == dojo.keys.TAB){
+					dojo.stopEvent(evt);
+				}
+				return;
+			}
+			this.inherited(arguments);
+		},
+
 		show: function(){
 			dojo.query(".andesButtonPage", this.buttonsNode).style("display", "none");
 			var node = this._chooseButtonPageNode();
