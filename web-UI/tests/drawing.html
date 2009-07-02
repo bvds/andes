@@ -2,6 +2,7 @@
 <head>
     <title>Drawing Test</title>
 	<link href="../js/drawing/resources/drawing.css" rel="stylesheet" />
+	<link href="../js/drawing/resources/toolbar.css" rel="stylesheet" />
 
 	<style>
 		href, body{
@@ -10,7 +11,7 @@
 		textarea{
 			position:absolute;
 			top:5px;
-			left:500px;
+			left:200px;
 			width:300px;
 			overflow:hidden;
 		}
@@ -73,34 +74,30 @@
 		dojo.require("drawing.plugins.drawing.Grid");
 		
 	</script>
-	
+	<style>
+		
+	</style>
 </head>
 <body>
     <h2>Drawing Test</h2>
 	<textarea id="ta" ></textarea>
 	<div id="conEdit" contenteditable="true"></div>
 	<div id="wrapper">
-		<div dojoType="drawing.Toolbar" drawingId="drawingNode" class="drawingCanvas"> <!-- TODO! Add class DYNAMICALLY???-->
-			<!-- change 'tool' to 'plugin' -->
-			<button tool="drawing.tools.Line" selected="false">Line</button>
-			<button tool="drawing.tools.Rect" selected="true">Rect</button>
-			<button tool="drawing.tools.Ellipse" selected="false">Ellipse</button>
-			<button tool="drawing.tools.TextBlock" selected="false">Text</button>
-			<button tool="drawing.tools.Arrow" selected="false">Arrow</button>
-			<button tool="drawing.tools.custom.Vector" selected="false">Vector</button>
-			<button tool="drawing.tools.custom.Axes" selected="false">Axes</button>
-			&nbsp;&nbsp;&nbsp;
-			
-			<button plugin="drawing.plugins.tools.Zoom" options="{zoomInc:.1,minZoom:.5,maxZoom:2}">Zoom</button>
-			
-			&nbsp;&nbsp;&nbsp;
-			
-			<button plugin="drawing.plugins.tools.Pan" options="{}">Pan</button>
+		<div dojoType="drawing.Toolbar" drawingId="drawingNode" class="drawingToolbar vertical">
+			<div tool="drawing.tools.Line" selected="false">Line</div>
+			<div tool="drawing.tools.Rect" selected="true">Rect</div>
+			<div tool="drawing.tools.Ellipse" selected="false">Ellipse</div>
+			<div tool="drawing.tools.TextBlock" selected="false">Text</div>
+			<div tool="drawing.tools.Arrow" selected="false">Arrow</div>
+			<div tool="drawing.tools.custom.Vector" selected="false">Vector</div>
+			<div tool="drawing.tools.custom.Axes" selected="false">Axes</div>
+			<div plugin="drawing.plugins.tools.Pan" options="{}">Pan</div>
+			<div plugin="drawing.plugins.tools.Zoom" options="{zoomInc:.1,minZoom:.5,maxZoom:2}">Zoom</div>
 			
 		</div>
-		<div dojoType="drawing.Drawing" id="drawingNode" drawingType="canvas"
-			 plugins="[{'name':'drawing.plugins.drawing.Grid', 'options':{gap:100}}]"
-			 style="width:800px; height:500px; margin-top:20px; cursor:crosshair;">
+		
+		<div dojoType="drawing.Drawing" id="drawingNode" drawingType="canvas" class="drawing"
+			 plugins="[{'name':'drawing.plugins.drawing.Grid', 'options':{gap:100}}]">
 			
 		</div>
 	</div>

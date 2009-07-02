@@ -5,10 +5,7 @@ drawing.stencil.Image = drawing.util.oo.declare(
 	drawing.stencil._Base,
 	function(options){
 		if(options.data){
-			console.warn(" - - - IMAGE", options.data.src)
 			this.src = options.data.src;
-		//dojo.create("img", {src:options.data.url}, dojo.body())
-			//this.render();
 		}
 	},
 	{
@@ -17,28 +14,16 @@ drawing.stencil.Image = drawing.util.oo.declare(
 		_createHilite: function(){
 			this.remove(this.hit);
 			this.hit = this.parent.createRect(this.data)
-				.setStroke(this.style.current)
-				.setFill(this.style.current.fill);
+				.setStroke(this.style.currentHit)
+				.setFill(this.style.currentHit.fill);
 			this.util.attr(this.hit, "drawingType", "stencil");
-			console.info("hitNode:", this.hit.rawNode)
 		},
 		_create: function(shp, d, sty){
 			this.remove(this[shp]);
-			console.warn("IMAGE SRC::::", d)
-			console.warn("parent::::", d.src, this.parent.getEventSource()) //)
-			console.warn("parent::::", d.src, this.parent) //._getParentSurface())
-			
-			var s = this.parent._getParentSurface();
-			
+			var s = this.parent.getParent();//_getParentSurface();
 			this[shp] = s.createImage(d)
-				//.setStroke(sty)
-				//.setFill(sty.fill);
-			
-			console.info("rawNode:", this[shp].rawNode)
 			this.parent.add(this[shp]);
-			
 			this.util.attr(this[shp], "drawingType", "stencil");
-			
 		},
 		
 		render: function(){
@@ -51,17 +36,19 @@ drawing.stencil.Image = drawing.util.oo.declare(
 			this._create("shape", this.data, this.style.current);
 		},
 		getImageSize: function(render){
-			var img = dojo.create("img", {src:this.data.src}, dojo.body())
-			var dim = dojo.marginBox(img);
-			this.setData({
-				x:this.data.x,
-				y:this.data.y,
-				src:this.data.src,
-				width:dim.w,
-				height:dim.h
+			var img = dojo.create("img", {src:this.data.src}, dojo.body());
+			dojo.connect(img, "load", this, function(){
+				var dim = dojo.marginBox(img);
+				this.setData({
+					x:this.data.x,
+					y:this.data.y,
+					src:this.data.src,
+					width:dim.w,
+					height:dim.h
+				});
+				dojo.destroy(img);
+				render && this.render();
 			});
-			dojo.destroy(img);
-			render && this.render();
 		},
 		dataToPoints: function(o){
 			o = o || this.data;

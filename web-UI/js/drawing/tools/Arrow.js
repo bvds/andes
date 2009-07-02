@@ -35,3 +35,9 @@ drawing.tools.Arrow = drawing.util.oo.declare(
 		arrowEnd:true
 	}
 );
+
+drawing.tools.Arrow.setup = {
+	name:"drawing.tools.Arrow",
+	tooltip:"Arrow Tool",
+	iconClass:"iconArrow"
+};

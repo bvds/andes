@@ -36,10 +36,22 @@ dojo.require("andes.error");
 		requestInFlight = true;
 		andes.rpc[req.method](request).addCallbacks(
 			function(result){
-				// FIXME: introspect this to look for errors
-				req.dfd.callback(result);
+				//console.dir(result);
 				requestInFlight = false;
-				nextRequest();
+				if(result[0] && result[0].error || result[0].errorType){
+					req.dfd.errback(result[0]);
+					andes.error({
+						title: "General Error",
+						message: "<p>The server reported an error:</p><pre>" + result[0].error + "</pre>",
+						errorType: andes.error.OK
+					});
+					// FIXME: Not calling nextRequest() here means we freeze
+					//        processing the queue and don't start up again.
+					//        What *is* the correct behavior?
+				}else{
+					req.dfd.callback(result);
+					nextRequest();
+				}
 			},
 			function(error){
 				// FIXME: What other kind of errors come up here? Are we

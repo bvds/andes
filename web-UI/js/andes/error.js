@@ -20,6 +20,7 @@ dojo.require("dijit.form.Button");
 	};
 
 	// dialogType constants
+	andes.error.FATAL = 0;
 	andes.error.OK = 1;
 
 	dojo.declare("andes.error._Error", dijit.Dialog, {
@@ -63,14 +64,33 @@ dojo.require("dijit.form.Button");
 			this.buttonsNode = container;
 		},
 
+		_onKey: function(evt){
+			if(this.dialogType == andes.error.FATAL){
+				if(evt.charOrCode == dojo.keys.ESC || evt.charOrCode == dojo.keys.TAB){
+					dojo.stopEvent(evt);
+				}
+				return;
+			}
+			this.inherited(arguments);
+		},
+
 		show: function(){
 			dojo.query(".andesButtonPage", this.buttonsNode).style("display", "none");
-			dojo.style(this._chooseButtonPageNode(), "display", "block");
+			var node = this._chooseButtonPageNode();
+			if(node){
+				dojo.style(node, "display", "block");
+				dojo.style(this.closeButtonNode, "display", "block");
+			}else{
+				dojo.style(this.closeButtonNode, "display", "none");
+			}
 			this.inherited(arguments);
 		},
 
 		_chooseButtonPageNode: function(){
 			switch(this.dialogType){
+				case andes.error.FATAL:
+					return null; // fatal errors won't have any dialog buttons
+					break;
 				case andes.error.OK:
 				default:
 					return "andesButtonPageDefault";

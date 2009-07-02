@@ -219,3 +219,9 @@ drawing.plugins.tools.Pan = drawing.util.oo.declare(
 		}
 	}
 );
+
+drawing.plugins.tools.Pan.setup = {
+	name:"drawing.tools.Pan",
+	tooltip:"Pan Tool",
+	iconClass:"iconPan"
+};
