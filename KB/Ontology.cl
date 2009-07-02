@@ -321,11 +321,22 @@
 	     ;; test whether acceleration for earth is needed
 	     (member '(gravitational-acceleration earth) 
 		     (problem-varindex problem) :test #'unify :key #'qvar-exp)
-	     ;; test whether it has been done already
-	     (notany #'(lambda (x) (search "gravitational-acceleration" x))
-		     (problem-predefs problem)))
-    ;; in principle, should also test if it already has been defined
-    (push "Var-Entry gravitational-acceleration g Var-666 1 _ gravitational#acceleration earth _ _ gravitational#acceleration#at#surface#of#earth 9.8#m/s^2"
+	     ;; test whether it has been done as predef already
+	     (not (member '(define-var 
+			    (gravitational-acceleration ?place))
+			  (problem-predefs problem) :key #'car :test #'unify)))
+    ;; Add definition plus equation
+    ;; The help system will give these an appropriate color
+    ;; when the problem is loaded.
+    (push '((define-var (gravitational-acceleration earth)) . 
+	    ((:action . "new-object") (:id . "gest") (:type . "statement")
+	     (:text . "g is the acceleration of gravity on earth")
+	     (:symbol . "g") (:mode . "unknown") (:x . 200) (:y . 55)))
+	  (problem-predefs problem))
+    (push '((EQN (= |g_EARTH| (DNUM 9.8 |m/s^2|))) . 
+	    ((:action . "new-object") (:id . "geeq") (:type . "equation")
+	     (:text . "g=9.8 m/s^2")
+	     (:mode . "unknown") (:x . 200) (:y . 75)))
 	  (problem-predefs problem))))
 
 (def-qexp num-forces (num-forces ?body :time ?time)

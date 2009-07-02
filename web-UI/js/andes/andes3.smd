@@ -23,7 +23,7 @@
 	    "action": {
 	      "type": "string",
 	      "optional": false,
-	      "enum":["new-object","set-score","log","show-hint"],
+	      "enum":["new-object","modify-object","set-score","log","show-hint"],
 	      "description": "show-hint needed in the case of an error"
 	    },
 	    "id": {
@@ -91,7 +91,7 @@
 	  "name": "action",
 	  "type": "string",
 	  "optional": false,
-	  "enum":["new-object","modify-object", "delete-object"]
+	  "enum":["new-object","modify-object","delete-object"]
 	},
 	{
 	  "name": "id",

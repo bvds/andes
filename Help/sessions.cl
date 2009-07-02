@@ -163,8 +163,8 @@
   ;; webserver:*env* needs to be initialized before the wrapper
   (setq webserver:*env* (make-help-env :student user :problem problem))
   
-  (env-wrap
-    (let (replies)
+  (let (replies solution-step-replies)
+    (env-wrap
       (setq **base-Htime** (universal-time->htime (get-universal-time)))
       (solver-load)
       (solver-logging *solver-logging*)
@@ -178,20 +178,40 @@
       ;; The return for this may be of some use.
       (read-problem-info problem)
       ;;
-      ;;   check-entries T
-      ;;     load any history from log files
-      ;;     [define-variable assert-x-axis assert-object lookup-vector
-      ;;      lookup-eqn-string check-answer etc.]
-      ;;   check-entries nil
-      ;;   set-stats (if there was an old score)
-      ;;
+      
+      ;; do predefs
+      (dolist (predef (problem-predefs *cp*))
+	(push (cdr predef) replies))
+      
+      ;;  Push any work done, to the client here. (to do)
+      
+    (check-entries t))
+ 
+    ;; Send pre-defined quantities to the help system by sending them
+    ;; to the solution-step method.  
+    ;; Execute outside of env-wrap and with check-entries turned on.
+    (dolist (reply replies)
+      (setf solution-step-replies
+	    (append (apply #'solution-step 
+			   ;; flatten the alist
+			   (mapcan #'(lambda (x) (list (car x) (cdr x))) 
+				   reply))
+		    solution-step-replies)))
+    (env-wrap
+      (check-entries nil)      
+
+      ;;  Push times to client.  (to do)
+      (push `((:action . "new-object") (:id .  "a2.5") (:type . "statement") 
+	      (:mode . "locked") (:x . 200) (:y . 75) (:text . "T0 is the time.")) 
+	    replies)
+      
       (let ((y 10) (i 0))
 	(dolist  (line (problem-statement *cp*))
 	  (push `((:action . "new-object") (:type . "statement") 
 		  (:id . ,(format nil "statement~A" (incf i))) 
 		  (:mode . "locked") (:x . 3) (:y . ,(setf y (+ y 10))) 
 		  (:width . 80) (:text . ,line)) replies))
-
+	
 	(when (problem-graphic *cp*)
 	  (let ((dims (problem-graphic-dimensions (problem-graphic *cp*))))
 	    (if dims		
@@ -203,20 +223,12 @@
 			;; match its location on the server filesystem.
 			(:href . ,(strcat "/images/" (problem-graphic *cp*))))
 		replies)
-		(error "Problem graphic file ~A missing" 
+		(warn "Problem graphic file ~A missing" 
 		       (problem-graphic *cp*))))))
-      
-      ;;  New:  return any predefs, any work done, and score to the client.
-      
-      (push `((:action . "new-object") (:id . "a2") (:type . "statement") 
-	      (:mode . "correct") (:x . 200) (:y . 55) 
-	      (:text . "g = 9.8 m/s^2 is the gravitational acceleration \nnear the surface of the earth.")) 
-	    replies)
-	
-      (push `((:action . "new-object") (:id .  "a2.5") (:type . "statement") 
-		(:mode . "correct") (:x . 200) (:y . 75) (:text . "T0 is the time.")) 
-	    replies)
-      
+
+  
+      ;;   set-stats (if there was an old score) (to do)
+
       (push `((:action . "log") 
 	      (:subscores . (("NSH_BO_Call_Count" . (0 0))
 			     ("WWH_BO_Call_Count" . (0  0))
@@ -224,9 +236,9 @@
 			     ("Correct_Answer_Entries_V_Answer_Entries" .  (0 0 0)))))
 	    replies)
       
-      (push `((:action . "set-score") (:score . 0)) replies)
+      (push `((:action . "set-score") (:score . 0)) replies))
       
-      replies)))
+    (append replies solution-step-replies)))
 
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
@@ -272,11 +284,15 @@
 		 (not (equal type (StudentEntry-type old-entry))))
 	(warn "Attempting to change type from ~A to ~A"
 	      (StudentEntry-type old-entry) type))
+      ;; If time slot is missing, set time to zero.
+      ;; Predefs generally don't have a time slot.
+      ;; Client always should send a time.
+      (unless time (setf time 0.0))
 
      ;; create new object
-      (setf new-entry (make-StudentEntry :id id :type type))
+      (setf new-entry (make-StudentEntry :id id :type type :time time))
  
-      ;; update attributes from old object
+      ;; update attributes from old object (but not time!)
       (when old-entry
 	(update-entry-from-entry 
 	 new-entry old-entry 
@@ -322,6 +338,7 @@
       (t (warn "Undefined type ~A, doing nothing."  
 	       (StudentEntry-type new-entry)))))))
 
+
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
 (webserver:defun-method "/help" seek-help 
@@ -329,7 +346,6 @@
   "ask for help, or do a step in a help dialog" 
   (env-wrap 
     ;; Andes2 also had calls to:
-    ;; do-whats-wrong (for why-wrong-equation & why-wrong-object)
     ;; solve-for-var (could also be under solve steps..., or own method)
 
     ;; Doesn't correctly handle case where "Explain-more" is clicked after
@@ -338,9 +354,17 @@
       ;; Press help button.  
       ;; call next-step-help or do-whats-wrong
       ((equal action "help-button")
-       (execute-andes-command  #'next-step-help))
+       ;; Find if there are any current errors.
+       (let ((mistakes (member **incorrect** *studententries* 
+			       :key #'StudentEntry-state)))
+	 (if mistakes
+	     (execute-andes-command  #'do-whats-wrong 
+				     ;; find most recent mistake, time-wise
+				     (car (sort mistakes #'> 
+						:key  #'StudentEntry-time)))
+	     (execute-andes-command  #'next-step-help))))
       ;; Student has typed text in help pane.
-     ((and (equal action "get-help") text)
+      ((and (equal action "get-help") text)
        (execute-andes-command  #'handle-student-response text))
       ;; Student has clicked a link associated with the help.
       ((and (equal action "get-help") value)

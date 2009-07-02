@@ -46,14 +46,11 @@
 ;; note(s):
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; top level call is do-whats-wrong (identifier for student entry)
-(defun do-whats-wrong (id)
+(defun do-whats-wrong (student)
   "Given the id selected by the student in what's wrong help, returns a 
    tutor turn containing the associated error interpretation."
-  (let ((student (find-entry id)))
-    (if student 
-	(progn (diagnose student)
-	       (ErrorInterp-Remediation (StudentEntry-ErrInterp student)))
-      (no-error-interpretation))))
+    (diagnose student)
+    (ErrorInterp-Remediation (StudentEntry-ErrInterp student)))
 
 
 ;;; Given a student entry, returns a error interpretation.  If the
@@ -589,13 +586,14 @@
 
 ;;; Used to be more complicated
 (defun call-ww-turn-generator (ei)
-  ; wrapper attaches function name as assoc info to turn
+  ;; wrapper attaches function name as assoc info to turn
   (let ((form (ErrorInterp-diagnosis ei))
         ; need to fetch the EntryTest class to get its flag slots
-        (test (find (ErrorInterp-name ei) **entry-tests** :key #'EntryTest-name))
+        (test (find (ErrorInterp-name ei) **entry-tests** 
+		    :key #'EntryTest-name))
          result-turn)
      (setf result-turn (apply (car form) (cdr form)))
-     (setf (turn-assoc result-turn) (car form))
+     (setf (turn-assoc result-turn) (list form))
      result-turn))
 
 ;;; ================ called inside errors.cl functions =================

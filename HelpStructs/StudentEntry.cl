@@ -99,21 +99,6 @@
 		      ,(list (get-studententry-symbol y) old-entry)))
 		x)))
 
-(defun get-id (ID Entries)
-  "Return the student entry for the specified ID if it has been done."
-  (find ID Entries :test #'equalp :key #'StudentEntry-ID))
-
-(defun get-entry-prop (Prop Entries)
-  "Return the student entry for the specified prop if it has been done."
-  (find Prop Entries :test #'equalp :key #'StudentEntry-Prop))
-
-(defun get-verbatim-done (Verb Entries)
-  "Return the verbatim element iff it has been done in the list."
-  (find Verb Entries :test #'equalp :#'StudentEntry-Verbatim))
-
-(defun get-state-entries (State Entries)
-  "Return the subset of all entries that are in the specified state."
-  (subset State Entries :test #'equalp :key #'StudentEntry-State))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; find-entry -- lookup student entry by ID
