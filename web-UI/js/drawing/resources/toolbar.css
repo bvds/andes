@@ -11,6 +11,14 @@
 	left:5px;
 	border:1px solid #ccc;
 }
+.horizontal.drawingToolbar{
+	width:800px;
+	height:32px;
+	padding:5px;
+	position:absolute;
+	left:5px;
+	border:1px solid #ccc;
+}
 
 .drawingToolbar{}
 .drawingToolbar .drawingButton{
@@ -24,6 +32,11 @@
 	margin-bottom:5px;
 	cursor:pointer;
 }
+.horizontal.drawingToolbar .drawingButton{
+	float:left;
+	margin:0px;
+	margin-right:5px;
+}
 .drawingToolbar .drawingButton.hover{
 	background-position:-32px 0px;
 }
@@ -33,18 +46,22 @@
 .drawingToolbar .drawingButton.selected{
 	background-position:-96px 0px;
 }
-.drawingToolbar .drawingButton.selected:hover{
-	
-}
+.drawingToolbar .drawingButton.selected:hover{}
 
-.drawingToolbar .drawingButton.toolCombo{
-	
-}
+.drawingToolbar .drawingButton.toolCombo{}
 .drawingToolbar .toolCombo .drawingButton.toolComboTop{
 	background-position:-128px 0px;
 	margin:0;
 	margin-top:10px;
 	border-bottom:1px solid #d6d6d6;
+}
+.horizontal.drawingToolbar .toolCombo .drawingButton.toolComboTop{
+	background-position:-512px 0px;
+	margin:0;
+	margin-left:10px;
+	border:0px;
+	border-right:1px solid #d6d6d6;
+
 }
 .drawingToolbar .toolCombo .drawingButton.toolComboMid{
 	background-position:-384px 0px;
@@ -55,17 +72,34 @@
 	width:30px;
 	margin:0;
 }
+
+.horizontal.drawingToolbar .toolCombo .drawingButton.toolComboMid{
+	background-position:-384px 0px;
+	border-style:solid;
+	border-width:1px;
+	border-color:#cccccc #d6d6d6 #cccccc #fff;
+	height:30px;
+	width:31px;
+	margin:0;
+}
 .drawingToolbar .toolCombo .drawingButton.toolComboBot{
 	background-position:-256px 0px;
 	border-top:1px solid #fff;
 	margin:0;
 }
+.horizontal.drawingToolbar .toolCombo .drawingButton.toolComboBot{
+	background-position:-640px 0px;
+	border-left:1px solid #fff;
+	margin:0;
+	margin-top:-1px;
+	margin-right:-1px;
+}
 
 .drawingToolbar .toolCombo .drawingButton.toolComboTop.hover{
-	background-position:-160px 0px;
+	background-position:-544px 0px;
 }
 .drawingToolbar .toolCombo .drawingButton.toolComboTop.active{
-	background-position:-192px 0px;
+	background-position:-576px 0px;
 }
 .drawingToolbar .toolCombo .drawingButton.toolComboMid.hover{
 	background-position:-416px 0px;
@@ -74,10 +108,10 @@
 	background-position:-448px 0px;
 }
 .drawingToolbar .toolCombo .drawingButton.toolComboBot.hover{
-	background-position:-288px 0px;
+	background-position:-673px 0px;
 }
 .drawingToolbar .toolCombo .drawingButton.toolComboBot.active{
-	background-position:-320px 0px;
+	background-position:-704px 0px;
 }
 .drawingToolbar .drawingButton .icon{
 	background-image:url("images/tool_icons.png");

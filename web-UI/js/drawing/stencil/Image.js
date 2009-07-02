@@ -14,20 +14,16 @@ drawing.stencil.Image = drawing.util.oo.declare(
 		_createHilite: function(){
 			this.remove(this.hit);
 			this.hit = this.parent.createRect(this.data)
-				.setStroke(this.style.current)
-				.setFill(this.style.current.fill);
+				.setStroke(this.style.currentHit)
+				.setFill(this.style.currentHit.fill);
 			this.util.attr(this.hit, "drawingType", "stencil");
 		},
 		_create: function(shp, d, sty){
 			this.remove(this[shp]);
 			var s = this.parent._getParentSurface();
-			
 			this[shp] = s.createImage(d)
-			
 			this.parent.add(this[shp]);
-			
 			this.util.attr(this[shp], "drawingType", "stencil");
-			
 		},
 		
 		render: function(){
