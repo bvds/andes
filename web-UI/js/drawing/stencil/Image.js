@@ -20,7 +20,7 @@ drawing.stencil.Image = drawing.util.oo.declare(
 		},
 		_create: function(shp, d, sty){
 			this.remove(this[shp]);
-			var s = this.parent._getParentSurface();
+			var s = this.parent.getParent();//_getParentSurface();
 			this[shp] = s.createImage(d)
 			this.parent.add(this[shp]);
 			this.util.attr(this[shp], "drawingType", "stencil");

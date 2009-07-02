@@ -4,14 +4,14 @@
 	height:500px;
 }
 
-.vertical.drawingToolbar{
+.drawingToolbar.vertical{
 	width:32px;
 	padding:5px;
 	position:absolute;
 	left:5px;
 	border:1px solid #ccc;
 }
-.horizontal.drawingToolbar{
+.drawingToolbar.horizontal{
 	width:800px;
 	height:32px;
 	padding:5px;
@@ -32,7 +32,7 @@
 	margin-bottom:5px;
 	cursor:pointer;
 }
-.horizontal.drawingToolbar .drawingButton{
+.drawingToolbar.horizontal .drawingButton{
 	float:left;
 	margin:0px;
 	margin-right:5px;
@@ -55,7 +55,7 @@
 	margin-top:10px;
 	border-bottom:1px solid #d6d6d6;
 }
-.horizontal.drawingToolbar .toolCombo .drawingButton.toolComboTop{
+.drawingToolbar.horizontal .toolCombo .drawingButton.toolComboTop{
 	background-position:-512px 0px;
 	margin:0;
 	margin-left:10px;
@@ -73,7 +73,7 @@
 	margin:0;
 }
 
-.horizontal.drawingToolbar .toolCombo .drawingButton.toolComboMid{
+.drawingToolbar.horizontal .toolCombo .drawingButton.toolComboMid{
 	background-position:-384px 0px;
 	border-style:solid;
 	border-width:1px;
@@ -87,7 +87,7 @@
 	border-top:1px solid #fff;
 	margin:0;
 }
-.horizontal.drawingToolbar .toolCombo .drawingButton.toolComboBot{
+.drawingToolbar.horizontal .toolCombo .drawingButton.toolComboBot{
 	background-position:-640px 0px;
 	border-left:1px solid #fff;
 	margin:0;
