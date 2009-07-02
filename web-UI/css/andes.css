@@ -13,6 +13,19 @@ html, body, #main{
 	font: 10pt Arial,Myriad,Tahoma,Verdana,sans-serif;
 }
 
+#splashOverlay{
+	position:absolute;
+	left:0;
+	top:0;
+	right:0;
+	bottom:0;
+	background:#fff;
+	z-index:100;
+}
+.dj_ie6 #splashOverlay{
+	width:100%;
+	height:100%;
+}
 
 /* layout */
 #upgradeBar{

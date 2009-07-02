@@ -21,6 +21,16 @@ dojo.require("andes.error");
 	andes.userId = query.u;
 	andes.projectId = query.p;
 
+	dojo.addOnLoad(function(){
+		var splashNode = dojo.byId("splashOverlay"),
+		    anim = dojo.fadeOut({node:dojo.byId("splashOverlay")}),
+		    _h = dojo.connect(anim, "onEnd", function(){
+		    	dojo.disconnect(_h);
+		    	dojo.style(splashNode, "display", "none");
+		    	console.log("andes.main loaded");
+		    });
+		anim.play();
+	});
+
 })();
 
-console.log("andes.main loaded");
