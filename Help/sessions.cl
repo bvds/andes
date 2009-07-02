@@ -119,31 +119,31 @@
   (nth (position var *help-env-vars*)
        (help-env-vals (webserver:get-session-env session))))
 
-(defmacro save-help-env-vals ()
-  "Save local variables back to *env*."
-  `(setf (help-env-vals webserver:*env*) (list ,@*help-env-vars*)))
 
 (defmacro env-wrap (&body body)
   "Make session-local copy of global variables, retrieving values from webserver:*env* at the beginning of a turn and saving them again at the end of the turn"
-  `(progn
-     ;; An error here indicates that the student is trying to work
-     ;; on a session that has timed out or has not been initialized:  
-     ;; probably should have a appropriate handler that gives instructions
-     ;; to start a new session
-     (assert webserver:*env*)
-     ;; further sanity check.
-     (assert (help-env-p webserver:*env*))
-     (let ,(mapcar 
-	   #'(lambda (x) (list x '(pop (help-env-vals webserver:*env*))))
-	   *help-env-vars*)
-       ;; If there is an error, need to save current values
-       ;; back to the environment variable before passing control
-       ;; on to error handler.
-       (prog1 (handler-bind
-		  ((error #'(lambda (c) (declare (ignore c)) 
-				    (save-help-env-vals))))
-		,@body)
-	 (save-help-env-vals)))))
+  (let ((save-help-env-vals
+	 ;; Save local variables back to *env*.
+	 `(setf (help-env-vals webserver:*env*) (list ,@*help-env-vars*)))) 
+    `(progn
+      ;; An error here indicates that the student is trying to work
+      ;; on a session that has timed out or has not been initialized:  
+      ;; probably should have a appropriate handler that gives instructions
+      ;; to start a new session
+      (assert webserver:*env*)
+      ;; further sanity check.
+      (assert (help-env-p webserver:*env*))
+      (let ,(mapcar 
+	     #'(lambda (x) (list x '(pop (help-env-vals webserver:*env*))))
+	     *help-env-vars*)
+	;; If there is an error, need to save current values
+	;; back to the environment variable before passing control
+	;; on to error handler.
+	(prog1 (handler-bind
+		   ((error #'(lambda (c) (declare (ignore c)) 
+				     ,save-help-env-vals)))
+		 ,@body)
+	  ,save-help-env-vals)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -328,10 +328,7 @@
     (&key time action href value text) 
   "ask for help, or do a step in a help dialog" 
   (env-wrap 
-    ;; Andes2 had calls to:
-    ;; next-step-help
-    ;; handle-student-response  (explain-more or 
-    ;;                           choose a quantity or a principle)
+    ;; Andes2 also had calls to:
     ;; do-whats-wrong (for why-wrong-equation & why-wrong-object)
     ;; solve-for-var (could also be under solve steps..., or own method)
 
@@ -343,21 +340,15 @@
       ((equal action "help-button")
        (execute-andes-command  #'next-step-help))
       ;; Student has typed text in help pane.
-      ;; call to do-whats-wrong or handle-student-response
-      ((and (equal action "get-help") text)
-       (execute-andes-command  #'next-step-help))
+     ((and (equal action "get-help") text)
+       (execute-andes-command  #'handle-student-response text))
       ;; Student has clicked a link associated with the help.
       ((and (equal action "get-help") value)
        (let ((response-code (find-symbol (string-upcase value))))
 	 (unless response-code (warn "Unknown value ~A, using nil." value))
 	 (execute-andes-command  #'handle-student-response response-code)))
-      ;; clicked on principles menu, should call handle-student-response
       ((equal action "principles-menu")
-       '(((:action . "show-hint") 
-	  (:text . "Right indeed. Notice that the ball is at rest at T0."))
-	 ((:action . "show-hint-link") 
-	  (:text . "Explain more") 
-	  (:value . "Explain-More"))))
+       (execute-andes-command  #'handle-student-response value))
       (t (warn "undefined action ~A, doing nothing." action)))))
 
 (webserver:defun-method "/help" close-problem 

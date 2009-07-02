@@ -533,7 +533,8 @@
 	 ;; No user-interface method in Andes3 for z-dir yet.
 	 ;; xy plane vectors get theta prefix, z axis ones get phi
 	 ;; Greek symbols expressed in LaTeX form, for now.
-	 (dir-label (format NIL "~A~A" (if (z-dir-spec dir-term) "$j" "\\theta")
+	 (dir-label (format NIL "~A~A" 
+			    (if (z-dir-spec dir-term) "\\phi" "\\theta")
 			    symbol)))
 
     ;; see comments in define-variable

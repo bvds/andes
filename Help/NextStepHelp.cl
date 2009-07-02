@@ -1741,10 +1741,20 @@
 
 
 (defun nsh-convert-response->quantity (Q)
-  "Convert the kb-style quantity expression response to a quantity (qnode.)"
-  (cond ((not (quantity-expression-p Q))
-	 (error "Non-quantity-expression ~A returned as response." Q))
-	(t (match-exp->qnode Q (problem-graph *cp*)))))
+  "Find qnode associated with entered variable name or definition"
+  ;; This is a really brain-dead version:  it only matches symbol
+  ;; names and not definitions.  Also, It does not test a threshold.
+  ;; needs error handling for >1 match or no matches.
+  ;; It should have handling for case errors.
+  (let (best)
+    (setf best (best-matches
+		Q
+		(mapcar #'(lambda (x) 
+			    (cons (sym-label x)
+				  (match-exp->qnode (sym-referent x) 
+						    (problem-graph *cp*))))
+			*variables*)))
+    (car best)))
 
 
 
@@ -1945,8 +1955,9 @@
 	    "You need to choose something different."))
 
 
-(defun nsh-check-first-principle-response (response sought past)
-  (let (Type (Value (if (listp response) Response (list Response))))
+(defun nsh-check-first-principle-response (rstring sought past)
+  (let* ((response (read-from-string rstring))
+	 Type (Value (if (listp response) Response (list Response))))
     (cond ((member Value past :test #'equal) 
 	   (nsh-wrong-fp-resp **nsh-repeat-fp-resp** Sought Past
 			      :Case 'Repeat))

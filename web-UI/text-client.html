@@ -59,19 +59,79 @@
 			}
 			dojo.byId('turn').value=typejson._requestId;
 		}, 
-		// error conditiion handler:
+		// error condition handler:
 		function (result) {
 			dojo.byId('result').innerHTML = "Failure:  " + dojo.toJson(result);
 		});
 		
       }
 
+      function sendSession() {
+        dojox.rpc.Client.clientId = dojo.byId('upss').value;
+	var st=dojo.byId('sessions');
+        // remove existing content
+	while(st.rows.length>0){
+          st.deleteRow(0);
+        }
+	var dorow = function(thisrow,posts){
+	  console.log("starting i="+thisrow);
+	  var item=posts[thisrow++];
+	  var row = document.createElement("tr");
+	  var cell = document.createElement("div");
+	  var to = document.createTextNode(dojo.toJson(item));
+          cell.appendChild(to);
+          row.appendChild(cell);
+          var deferred = typejson[item.method](item.params);
+          deferred.addCallbacks(
+              function (result) {
+	        var cell = document.createElement("div");
+	        var fro = document.createTextNode(dojo.toJson(result));
+                cell.appendChild(fro);
+	        // Determine if return agrees with json schema specified in smd.
+                var returnSchema=typejson._smd.services[item.method].returns;
+	        var valida=dojox.json.schema.validate(result,returnSchema);
+	        if(valida.valid){
+	          cell.style.color = "green";
+	        } else {
+	          cell.style.color = "red";
+		  for(i=0; i<valida.errors.length; i++){
+		    console.log("Invalid return: " + valida.errors[i].property + " message: " + valida.errors[i].message);
+		  }
+	        }
+                row.appendChild(cell);
+        	st.appendChild(row);
+		if(thisrow<posts.length){dorow(thisrow,posts);}
+	      }, 
+	      // error conditiion handler:
+	    function (result) {
+	      var cell = document.createElement("div");
+              var fro = document.createTextNode(
+                                  "Failure:  " + dojo.toJson(result));
+	      cell.appendChild(fro);
+              row.appendChild(cell);
+              st.appendChild(row);
+              if(thisrow<posts.length){dorow(thisrow,posts);}
+            }
+          );
+        }
+	dorow(0,posts);
+      }
+
     </script>
 
     <script type="text/javascript">
+        var posts;
         function init(){
                // can't do layout until toolbar and canvas are created
 	      dojo.parser.parse();
+	      dojo.xhrGet({
+	         url: "Documentation/AsuDocs/nokes-inputs.json",
+                 handleAs: "json",
+		 load:  function(data){
+                    posts=data;
+                 }
+              });
+	      
 	}
 	dojo.addOnLoad(init);
     </script>
@@ -101,7 +161,11 @@
     <p>
        <div id="inputString">Input</div>
        <div id="result">Result</div>
-
+    <p> user/problem session: 
+          <input type="text" id="upss" value="32345" size="6"/>&nbsp;
+       <button dojoType="dijit.form.Button" onclick="sendSession">
+           Send entire session</button>
+       <table><tbody id="sessions"></tbody></table>
     <p>
       Target:&nbsp;
       <select>
@@ -114,5 +178,6 @@
 
      <p>Original <a href="Documentation/AsuDocs/sitepen-spec.html">
                       description of new user interface.</a>
+
   </body>
 </html>

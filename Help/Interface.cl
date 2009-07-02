@@ -371,8 +371,13 @@
 				      (:text . "Explain more") 
 				      (:value . "explain-more"))
 				    result))
-			     (quant-menu    (warn "quant menu"))
-			     (psm-menu      (warn "psm menu"))
+			     (quant-menu  
+			      ;; In Andes3, this is text entry.
+			      (push '((:action . "focus-hint-text-box"))
+				    result))
+			     (psm-menu 
+			      (push '((:action . "focus-major-principles"))
+				    result))
 			     (equation-menu  (warn "equation menu"))
 			     (T  (warn "WB menu code unimplemented: ~A" 
 				       (turn-menu turn))))))))
