@@ -11,12 +11,13 @@ dojo.require("drawing.manager.Mouse");
 dojo.require("drawing.manager.Stencil");
 dojo.require("drawing.util.SubStencil");
 dojo.require("drawing.manager.Anchors");
-dojo.require("drawing.stencil.Stencil");
+dojo.require("drawing.stencil._Base");
 dojo.require("drawing.stencil.Line");
 dojo.require("drawing.stencil.Rect");
 dojo.require("drawing.stencil.Ellipse");
 dojo.require("drawing.stencil.Path");
 dojo.require("drawing.stencil.Text");
+dojo.require("drawing.stencil.Image");
 dojo.require("drawing.stencil.TextBlock");
 dojo.require("drawing.manager.Silverlight");
 
@@ -53,7 +54,7 @@ dojo.require("drawing.manager.Silverlight");
 		},
 		
 		getShapeProps: function(data) {
-			// convenience. May or may not be in final code.
+			// For convenience. May or may not be in final code.
 			return dojo.mixin({
 				parent:this.canvas.surface.createGroup(),
 				util:this.util,
@@ -63,13 +64,13 @@ dojo.require("drawing.manager.Silverlight");
 		},
 		
 		addPlugin: function(plugin){
-			console.warn("ADD PLUGIN", plugin);
+			// summary:
+			//	Add a toolbar plugin object to plugins array
+			//	to be parsed
 			this.plugins.push(plugin);
 		},
 		initPlugins: function(){
-			console.log("INIT PLUGINS:", this.plugins);
 			dojo.forEach(this.plugins, function(p, i){
-				console.log("PLUGIN:", p)
 				var props = dojo.mixin({
 					util:this.util,
 					keys:this.keys,
@@ -99,6 +100,14 @@ dojo.require("drawing.manager.Silverlight");
 			// objects for testing. Final code will move these into test HTML
 			this.stencils.register(new drawing.stencil.Rect(this.getShapeProps(
 				{data:{x:100, y:-100, width:200, height:200}}
+			)));
+			
+			this.stencils.register(new drawing.stencil.Image(this.getShapeProps(
+				{data:{src:"images/BallOnWall.png", x:110, y:110, width:220, height:220}}
+			)));
+			
+			this.stencils.register(new drawing.stencil.Image(this.getShapeProps(
+				{data:{src:"images/BallOnWall.png", x:310, y:160, width:"auto"}}
 			)));
 	
 		/*	this.stencils.register(new drawing.stencil.Rect(this.getShapeProps(
@@ -140,7 +149,9 @@ dojo.require("drawing.manager.Silverlight");
 			this.unSetTool();
 			this.setTool(this.currentType);
 		},
-		registerTool: function(type, constr){
+		registerTool: function(type){
+			var constr = dojo.getObject(type);
+			console.warn("DRAWBLE:", constr.name, "drawable:", constr.drawable)
 			this.tools[type] = constr;
 		},
 		setTool: function(type){

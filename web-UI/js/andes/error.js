@@ -10,14 +10,17 @@ dojo.require("dijit.form.Button");
 	andes.error = function(spec){
 		var message = spec.message || "An unknown error occurred.",
 		    title = spec.title || "Error",
-		    errorType = spec.errorType || 0;
+		    dialogType = spec.dialogType || 0;
 		dialog.attr({
 			content: message,
 			title: title,
-			errorType: errorType
+			dialogType: dialogType
 		});
 		dialog.show();
 	};
+
+	// dialogType constants
+	andes.error.OK = 1;
 
 	dojo.declare("andes.error._Error", dijit.Dialog, {
 		postCreate: function(){
@@ -58,18 +61,17 @@ dojo.require("dijit.form.Button");
 
 			dojo.place(container, this.domNode);
 			this.buttonsNode = container;
-			console.log(this.containerNode);
 		},
 
 		show: function(){
-			console.log(this.attr("errorType"), this.containerNode);
 			dojo.query(".andesButtonPage", this.buttonsNode).style("display", "none");
 			dojo.style(this._chooseButtonPageNode(), "display", "block");
 			this.inherited(arguments);
 		},
 
 		_chooseButtonPageNode: function(){
-			switch(this.errorType){
+			switch(this.dialogType){
+				case andes.error.OK:
 				default:
 					return "andesButtonPageDefault";
 			}

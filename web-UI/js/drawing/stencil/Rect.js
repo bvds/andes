@@ -2,7 +2,7 @@ dojo.provide("drawing.stencil.Rect");
 
 
 drawing.stencil.Rect = drawing.util.oo.declare(
-	drawing.stencil.Stencil,
+	drawing.stencil._Base,
 	function(options){
 
 	},
@@ -84,3 +84,5 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 		
 	}
 );
+drawing.stencil.Rect.name = "Rect";
+drawing.stencil.Rect.drawable = true;

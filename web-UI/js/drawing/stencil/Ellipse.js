@@ -2,7 +2,7 @@ dojo.provide("drawing.stencil.Ellipse");
 
 
 drawing.stencil.Ellipse = drawing.util.oo.declare(
-	drawing.stencil.Stencil,
+	drawing.stencil._Base,
 	function(options){
 		if(options.data || options.points){
 			//this.points = options.points || this.dataToPoints(options.data);
@@ -90,3 +90,5 @@ drawing.stencil.Ellipse = drawing.util.oo.declare(
 		
 	}
 );
+drawing.stencil.Ellipse.name = "Ellipse";
+drawing.stencil.Ellipse.drawable = true;

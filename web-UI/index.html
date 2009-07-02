@@ -24,6 +24,7 @@
 		dojo.require("dijit.Menu");
 		dojo.require("dijit.MenuItem");
 		dojo.require("dijit.PopupMenuItem");
+		dojo.require("dijit.form.Button");
 
 		dojo.require("andes.main");
 		//dojo.require("drawing.Drawing");
@@ -47,6 +48,21 @@
 								<div id="menuEdit2" dojoType="dijit.MenuItem">Edit #2</div>
 						</div>
 				</div>
+				<div dojoType="dijit.PopupMenuBarItem">
+						<span>Preferences</span>
+						<div dojoType="dijit.Menu" id="menuPreferences">
+								<div id="menuPreferences1" dojoType="dijit.MenuItem">Prefs #1</div>
+								<div id="menuPreferences2" dojoType="dijit.MenuItem">Prefs #2</div>
+						</div>
+				</div>
+				<div dojoType="dijit.PopupMenuBarItem">
+						<span>Physics</span>
+						<div dojoType="dijit.Menu" id="menuPhysics">
+								<div id="menuPhysics1" dojoType="dijit.MenuItem">Physics #1</div>
+								<div id="menuPhysics2" dojoType="dijit.MenuItem">Physics #2</div>
+						</div>
+				</div>
+				<div dojoType="dijit.form.Button" id="submitButton" style="position:absolute; top:0; right:10px; margin:0;">Submit</div>
 		</div>
 
 		<div id="toolPane" dojoType="dijit.layout.ContentPane" region="left" splitter="false">

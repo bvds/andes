@@ -59,33 +59,25 @@ dojo.provide("drawing.Toolbar");
 			this.toolNodes = {};
 			var _sel;
 			dojo.query(">", this.domNode).forEach(function(node, i){
-				
-				
 				node.className = this.buttonClass;
 				var tool = dojo.attr(node, "tool");
 				var action = dojo.attr(node, "action");
 				var plugin = dojo.attr(node, "plugin");
 				if(tool){
-					//console.warn("TOOL:::::", dojo.attr(node, "tool"))
 					if(i==0 || dojo.attr(node, "selected")=="true"){
 						_sel = tool;
 					}
 					this.createTool(node);
 				}else if(action){
-					//console.warn("ACTION:::::", dojo.attr(node, "action"))
+					// are actions deprecated?
 					this.createAction(node);
 				}else if(plugin){
-					console.warn("PLUGIN:::::", plugin, "options:", dojo.attr(node, "options"))
 					var p = {name:plugin, options:{}},
 						opt = dojo.attr(node, "options");
 					if(opt){
-						console.log("EVAL THIS:", opt)
-						
 						p.options = eval("("+opt+")");
-						console.log("TIS:", p.options)
 					}
 					p.options.node = node;
-					//p.options.toolbar = this;
 					
 					this.drawing.addPlugin(p);
 				}
@@ -93,14 +85,6 @@ dojo.provide("drawing.Toolbar");
 			
 			dojo.connect(this.drawing, "setTool", this, "onSetTool");	
 			this.drawing.setTool(_sel);
-			
-			
-			dojo.query("[action]", this.domNode).forEach(function(node, i){
-				node.className = this.buttonClass;
-				var action = dojo.attr(node, "action");
-				
-				
-			}, this);
 		},
 		onClick: function(type){
 			console.log("click:", type);

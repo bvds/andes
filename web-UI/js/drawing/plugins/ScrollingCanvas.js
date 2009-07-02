@@ -64,7 +64,7 @@ drawing.plugins.ScrollingCanvas = drawing.util.oo.declare(
 			// issues with TextBlock deselection
 			this.checkBounds();
 		},
-		checkBounds: function(){
+		checkBounds: function(){ return;
 			// summary:
 			//	Scans all items on the canvas and checks if they are out of
 			// bounds. If so, a scroll bar (in Canvas) is shown. If the position
