@@ -1,4 +1,4 @@
-dojo.provide("drawing.custom.positioning");	
+dojo.provide("drawing.util.positioning");	
 
 (function(){
 	
@@ -6,7 +6,7 @@ dojo.provide("drawing.custom.positioning");
 	var textYOffset = 20;  // height of text box
 	
 	
-	drawing.custom.positioning.label = function(start, end){
+	drawing.util.positioning.label = function(start, end){
 		// text position
 		// label at middle of vector
 		var x = 0.5*(start.x+end.x);
@@ -34,7 +34,7 @@ dojo.provide("drawing.custom.positioning");
 		return { x:x, y:y, foo:"bar", align:align};
 	};
 	
-	drawing.custom.positioning.angle = function(start, end){
+	drawing.util.positioning.angle = function(start, end){
 		
 		// angle at first third of vector
 	        var x = 0.7*start.x+0.3*end.x;

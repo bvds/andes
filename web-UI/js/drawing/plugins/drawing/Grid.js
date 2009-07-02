@@ -1,6 +1,6 @@
-dojo.provide("drawing.plugins.CanvasGrid");
+dojo.provide("drawing.plugins.drawing.Grid");
 
-drawing.plugins.CanvasGrid = drawing.util.oo.declare(
+drawing.plugins.drawing.Grid = drawing.util.oo.declare(
 	function(options){
 		dojo.mixin(this, options);
 	},

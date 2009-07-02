@@ -1,7 +1,7 @@
-dojo.provide("drawing.custom.Base");
-dojo.require("drawing.custom.positioning");
+dojo.provide("drawing.tools.custom._Base");
+dojo.require("drawing.util.positioning");
 
-drawing.custom.Base = drawing.util.oo.declare(
+drawing.tools.custom._Base = drawing.util.oo.declare(
 	function(options){
 		this.connectMult([
 			["onDrag", "showAngle"],
@@ -10,23 +10,23 @@ drawing.custom.Base = drawing.util.oo.declare(
 			["onTransform", "showAngle"],
 			["onTransformEnd", "hideAngle"]
 		]);
-		this.angleSnap = 1;//id:this.id,
-		if(this.type=="drawing.custom.Vector"){
+		this.angleSnap = 1;
+		if(this.type=="drawing.tools.custom.Vector"){
 			this.labelText = new drawing.stencil.Text({style:this.style, util:this.util, annotation:true, parent:this.parent, mouse:this.mouse});
-		}else if(this.type=="drawing.custom.Axes"){
+		}else if(this.type=="drawing.tools.custom.Axes"){
 			var props = {style:this.style, align:"middle", valign:"middle", util:this.util, annotation:true, parent:this.parent, mouse:this.mouse}
 			this.labelX = new drawing.stencil.Text(props);
 			this.labelY = new drawing.stencil.Text(props);
 		}
 	},
 	{
-		type:"drawing.custom",
+		type:"drawing.tools.custom",
 		
 		showLabel: function(){
 			var d = this.pointsToData();
 			
-			if(this.type=="drawing.custom.Vector"){
-				var pt = drawing.custom.positioning.label({x:d.x1,y:d.y1},{x:d.x2,y:d.y2});
+			if(this.type=="drawing.tools.custom.Vector"){
+				var pt = drawing.util.positioning.label({x:d.x1,y:d.y1},{x:d.x2,y:d.y2});
 				// do transform instead of rebuilding text
 				this.labelText.points = this.labelText.dataToPoints({
 					x:  pt.x,
@@ -36,7 +36,7 @@ drawing.custom.Base = drawing.util.oo.declare(
 				this.labelText.align = pt.align;
 				this.labelText.render("My Label");
 			
-			}else if(this.type=="drawing.custom.Axes"){
+			}else if(this.type=="drawing.tools.custom.Axes"){
 				var ax = this.points[0];
 				var c =  this.points[1];
 				var ay = this.points[2];
@@ -89,7 +89,7 @@ drawing.custom.Base = drawing.util.oo.declare(
 			};
 			var angle = this.util.angle(obj, this.angleSnap);
 
-			var pt = drawing.custom.positioning.angle({x:d.x1,y:d.y1},{x:d.x2,y:d.y2});
+			var pt = drawing.util.positioning.angle({x:d.x1,y:d.y1},{x:d.x2,y:d.y2});
 			
 			// adding _offX & _offY since this is HTML
 			// and we are from the page corner, not

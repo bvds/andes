@@ -1,11 +1,11 @@
-dojo.provide("drawing.library.Arrow");
+dojo.provide("drawing.tools.Arrow");
+dojo.require("drawing.stencil._Slave");
 
-
-drawing.library.Arrow = drawing.util.oo.declare(
-	drawing.stencil.Line,
+drawing.tools.Arrow = drawing.util.oo.declare(
+	drawing.tools.Line,
 	function(options){
 		
-		this.slaves = new drawing.util.SubStencil(this);
+		this.slaves = new drawing.stencil._Slave(this);
 		
 		if(this.arrowStart){
 			this.begArrow = this.slaves.add(drawing.stencil.Path);
@@ -29,7 +29,8 @@ drawing.library.Arrow = drawing.util.oo.declare(
 		}
 	},
 	{
-		type:"drawing.library.Arrow",
+		draws:true,
+		type:"drawing.tools.Arrow",
 		arrowStart:false,
 		arrowEnd:true
 	}

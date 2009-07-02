@@ -1,4 +1,4 @@
-dojo.provide("drawing.stencil.TextBlock");
+dojo.provide("drawing.tools.TextBlock");
 dojo.require("drawing.stencil.Text");
 
 (function(){
@@ -21,7 +21,7 @@ dojo.require("drawing.stencil.Text");
 		}
 	});
 	
-	drawing.stencil.TextBlock = drawing.util.oo.declare(
+	drawing.tools.TextBlock = drawing.util.oo.declare(
 		//
 		// TODO - handle zoom - and zoom while showing
 		// disable?
@@ -49,6 +49,7 @@ dojo.require("drawing.stencil.Text");
 			}
 		},
 		{
+			draws:true,
 			type:"drawing.stencil.TextBlock",
 			showParent: function(obj){
 				if(this.parentNode){ return; }
@@ -372,6 +373,10 @@ dojo.require("drawing.stencil.Text");
 			}
 		}
 	);
-	drawing.stencil.TextBlock.name = "TextBlock";
-	drawing.stencil.TextBlock.drawable = true;
+	
+	drawing.tools.TextBlock.setup = {
+		name:"drawing.tools.TextBlock",
+		tooltip:"Text Tool",
+		iconClass:"iconText"
+	}
 })();

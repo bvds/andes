@@ -1,7 +1,7 @@
-dojo.provide("drawing.plugins.Zoom");
+dojo.provide("drawing.plugins.tools.Zoom");
 dojo.require("drawing.plugins._Plugin");
 
-drawing.plugins.Zoom = drawing.util.oo.declare(
+drawing.plugins.tools.Zoom = drawing.util.oo.declare(
 	drawing.plugins._Plugin,
 	function(options){
 		var cls = options.node.className;

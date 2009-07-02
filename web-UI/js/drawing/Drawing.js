@@ -9,7 +9,6 @@ dojo.require("drawing.manager.Undo");
 dojo.require("drawing.manager.keys");
 dojo.require("drawing.manager.Mouse");
 dojo.require("drawing.manager.Stencil");
-dojo.require("drawing.util.SubStencil");
 dojo.require("drawing.manager.Anchors");
 dojo.require("drawing.stencil._Base");
 dojo.require("drawing.stencil.Line");
@@ -18,8 +17,12 @@ dojo.require("drawing.stencil.Ellipse");
 dojo.require("drawing.stencil.Path");
 dojo.require("drawing.stencil.Text");
 dojo.require("drawing.stencil.Image");
-dojo.require("drawing.stencil.TextBlock");
 dojo.require("drawing.manager.Silverlight");
+
+dojo.require("drawing.tools.TextBlock");
+dojo.require("drawing.tools.Rect");
+dojo.require("drawing.tools.Ellipse");
+dojo.require("drawing.tools.Line");
 
 // not using widget, but just dojo.declare
 // could add a widget that extends this
@@ -151,7 +154,10 @@ dojo.require("drawing.manager.Silverlight");
 		},
 		registerTool: function(type){
 			var constr = dojo.getObject(type);
-			console.warn("DRAWBLE:", constr.name, "drawable:", constr.drawable)
+			if(constr.setup){
+				console.info("setup ", constr.setup.name, "::", constr.setup)
+			}
+			//console.warn("DRAWBLE:", constr.name, "drawable:", constr.drawable)
 			this.tools[type] = constr;
 		},
 		setTool: function(type){

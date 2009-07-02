@@ -1,7 +1,7 @@
-dojo.provide("drawing.plugins.ScrollingCanvas");
+dojo.provide("drawing.plugins.tools.Pan");
 dojo.require("drawing.plugins._Plugin");
 
-drawing.plugins.ScrollingCanvas = drawing.util.oo.declare(
+drawing.plugins.tools.Pan = drawing.util.oo.declare(
 	drawing.plugins._Plugin,
 	function(options){
 		

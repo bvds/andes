@@ -1,5 +1,7 @@
 dojo.provide("drawing.Toolbar");
 
+console.warn("drawing.Toolbar LOADED");
+
 (function(){
 	
 	dojo.declare("drawing.Toolbar", [], {

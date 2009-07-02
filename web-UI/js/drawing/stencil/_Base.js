@@ -14,7 +14,7 @@ dojo.provide("drawing.stencil._Base");
 			//console.log("ID:", this.id, ":::::", this.type, this)
 			this._cons = [];
 			
-			if(!this.subShape){
+			if(this.draws){
 				this.connectMouse();
 				this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
 			}

@@ -1,6 +1,6 @@
-dojo.provide("drawing.util.SubStencil");
+dojo.provide("drawing.stencil._Slave");
 
-drawing.util.SubStencil = drawing.util.oo.declare(
+drawing.stencil._Slave = drawing.util.oo.declare(
 	
 	function(master){
 		this.master = master;

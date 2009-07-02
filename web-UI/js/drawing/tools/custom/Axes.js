@@ -1,14 +1,18 @@
-dojo.provide("drawing.custom.Axes");
+dojo.provide("drawing.tools.custom.Axes");
+dojo.require("drawing.stencil.Path");
+dojo.require("drawing.stencil._Slave");
+dojo.require("drawing.tools.custom._Base");
 
-drawing.custom.Axes = drawing.util.oo.declare(
+
+drawing.tools.custom.Axes = drawing.util.oo.declare(
 	drawing.stencil.Path,
-	drawing.custom.Base,
+	drawing.tools.custom._Base,
 	function(options){
 		//this.style.norm.fill = null;
 		//this.style.selected.fill = null;
 		this.closePath = false;
 		
-		this.slaves = new drawing.util.SubStencil(this);
+		this.slaves = new drawing.stencil._Slave(this);
 		this.xArrow = this.slaves.add(drawing.stencil.Path);
 		this.yArrow = this.slaves.add(drawing.stencil.Path);
 		
@@ -25,6 +29,7 @@ drawing.custom.Axes = drawing.util.oo.declare(
 		});
 	},
 	{
+		draws:true,
 		type:"drawing.custom.Axes",
 		
 		onTransformEnd: function(anchor){
@@ -93,4 +98,10 @@ drawing.custom.Axes = drawing.util.oo.declare(
 			this.onRender(this);
 		}
 	}
-)
+);
+
+drawing.tools.custom.Axes.setup = {
+	name:"drawing.tools.custom.Axes",
+	tooltip:"Axes Tool",
+	iconClass:"iconAxes"
+};
