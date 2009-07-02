@@ -1955,8 +1955,9 @@
 	    "You need to choose something different."))
 
 
-(defun nsh-check-first-principle-response (response sought past)
-  (let (Type (Value (if (listp response) Response (list Response))))
+(defun nsh-check-first-principle-response (rstring sought past)
+  (let* ((response (read-from-string rstring))
+	 Type (Value (if (listp response) Response (list Response))))
     (cond ((member Value past :test #'equal) 
 	   (nsh-wrong-fp-resp **nsh-repeat-fp-resp** Sought Past
 			      :Case 'Repeat))

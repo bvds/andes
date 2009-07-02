@@ -328,10 +328,7 @@
     (&key time action href value text) 
   "ask for help, or do a step in a help dialog" 
   (env-wrap 
-    ;; Andes2 had calls to:
-    ;; next-step-help
-    ;; handle-student-response  (explain-more or 
-    ;;                           choose a quantity or a principle)
+    ;; Andes2 also had calls to:
     ;; do-whats-wrong (for why-wrong-equation & why-wrong-object)
     ;; solve-for-var (could also be under solve steps..., or own method)
 
@@ -350,13 +347,8 @@
        (let ((response-code (find-symbol (string-upcase value))))
 	 (unless response-code (warn "Unknown value ~A, using nil." value))
 	 (execute-andes-command  #'handle-student-response response-code)))
-      ;; clicked on principles menu, should call handle-student-response
       ((equal action "principles-menu")
-       '(((:action . "show-hint") 
-	  (:text . "Right indeed. Notice that the ball is at rest at T0."))
-	 ((:action . "show-hint-link") 
-	  (:text . "Explain more") 
-	  (:value . "Explain-More"))))
+       (execute-andes-command  #'handle-student-response value))
       (t (warn "undefined action ~A, doing nothing." action)))))
 
 (webserver:defun-method "/help" close-problem 

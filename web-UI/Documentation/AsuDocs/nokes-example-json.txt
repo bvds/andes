@@ -313,7 +313,7 @@ combined.
 ]
 
 {"method": "seek-help", "params": {"time": 671.001,
-	   "action": "principles-menu", "value": "(nsl((?axis.x)))"}, "id": 19}
+	   "action": "principles-menu", "value": "(nsl ((?axis . x)))"}, "id": 19}
 
 [
   {"action": "show-hint", "text": "Right indeed. Notice that the ball is at rest at T0."},
@@ -326,8 +326,8 @@ combined.
 	   "action": "new-object", "id": "a15",
 	   "type": "vector", "mode": "unknown", 
 	   "x": 245, "y": 224, "angle": 270, "radius": 0, 
-	   "symbol": "Fearth", "x-label": 300, "y-label": 370,
-	   "text": "Fearth is force due to gravity"}, "id": 20}
+	   "symbol": "a", "x-label": 300, "y-label": 370,
+	   "text": "a is the acceleration of the ball"}, "id": 20}
 
 [
   {"action": "modify-object", "id": "a15", "mode": "correct"}

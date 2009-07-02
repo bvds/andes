@@ -375,7 +375,9 @@
 			      ;; In Andes3, this is text entry.
 			      (push '((:action . "focus-hint-text-box"))
 				    result))
-			     (psm-menu      (warn "psm menu"))
+			     (psm-menu 
+			      (push '((:action . "focus-major-principles"))
+				    result))
 			     (equation-menu  (warn "equation menu"))
 			     (T  (warn "WB menu code unimplemented: ~A" 
 				       (turn-menu turn))))))))
