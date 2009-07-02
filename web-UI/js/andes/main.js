@@ -8,7 +8,14 @@ dojo.require("andes.error");
 
 	var query = dojo.queryToObject(window.location.search.substring(1));
 	if(!query.u || !query.p){
-		console.error("FIXME: do a dialog and send the user back to the WebAssign page");
+		dojo.addOnLoad(function(){
+			console.error("FIXME: Finalize the error message for needing to return to WebAssign.");
+			andes.error({
+				title: "Fatal Error",
+				message: "No user and/or problem data was provided; cannot continue. Please return to the WebAssign page.",
+				dialogType: andes.error.FATAL
+			});
+		});
 	}
 
 	andes.userId = query.u;
