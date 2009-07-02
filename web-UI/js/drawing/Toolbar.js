@@ -13,27 +13,72 @@ console.warn("drawing.Toolbar LOADED");
 		grid:"",
 		baseClass:"drawingToolbar",
 		buttonClass:"drawingButton",
+		iconClass:"icon",
 		constructor: function(props, node){
 			
 			dojo.addOnLoad(this, function(){
 				this.domNode = dojo.byId(node);
-				this.buildRendering();
+				dojo.addClass(this.domNode, this.baseClass);
 				this.parse();
 			});
 		},
 		
-		buildRendering: function(){
-			var drawingId = dojo.attr(this.domNode, "drawingId");
-			console.warn("drawingId::", drawingId)
+		createIcon: function(node, constr){
+			var setup = constr && constr.setup ? constr.setup : {};
+			var icon = setup.iconClass ? setup.iconClass : "iconNone";
+			var tip = setup.tooltip ? setup.tooltip : "Tool";
+			
+			var iNode = dojo.create("div", {title:tip}, node);
+			dojo.addClass(iNode, this.iconClass);
+			dojo.addClass(iNode, icon);
+			if(setup.iconClass){
+				dojo.connect(node, "mouseup", function(evt){
+					dojo.stopEvent(evt);
+					dojo.removeClass(node, "active");
+				});
+				dojo.connect(node, "mouseover", function(evt){
+					dojo.stopEvent(evt);
+					dojo.addClass(node, "hover");
+				});
+				dojo.connect(node, "mousedown", this, function(evt){
+					dojo.stopEvent(evt);
+					dojo.addClass(node, "active");
+				});
+				
+				dojo.connect(node, "mouseout", this, function(evt){
+					dojo.stopEvent(evt);
+					dojo.removeClass(node, "hover");
+				});
+			}
 		},
 		
 		createTool: function(node){
+			node.innerHTML = "";
 			var type = dojo.attr(node, "tool");
 			this.toolNodes[type] = node;
-			this.drawing.registerTool(type, dojo.getObject(type));
-			dojo.connect(node, "click", this, function(evt){
+			dojo.attr(node, "tabIndex", 1)
+			var constr = dojo.getObject(type);
+			
+			this.createIcon(node, constr)	
+			
+			this.drawing.registerTool(type, constr);
+			dojo.connect(node, "mouseup", this, function(evt){
 				dojo.stopEvent(evt);
+				dojo.removeClass(node, "active");
 				this.onClick(type);
+			});
+			dojo.connect(node, "mouseover", function(evt){
+				dojo.stopEvent(evt);
+				dojo.addClass(node, "hover");
+			});
+			dojo.connect(node, "mousedown", this, function(evt){
+				dojo.stopEvent(evt);
+				dojo.addClass(node, "active");
+			});
+			
+			dojo.connect(node, "mouseout", this, function(evt){
+				dojo.stopEvent(evt);
+				dojo.removeClass(node, "hover");
 			});
 		},
 		
@@ -55,8 +100,8 @@ console.warn("drawing.Toolbar LOADED");
 		},
 		
 		parse: function(){
-			this.domNode.className = this.baseClass;
-			this.drawing = drawing.util.common.byId(dojo.attr(this.domNode, "drawingId"));
+			var drawingId = dojo.attr(this.domNode, "drawingId");
+			this.drawing = drawing.util.common.byId(drawingId);
 			!this.drawing && console.error("Drawing not found based on 'drawingId' in Toolbar. ");
 			this.toolNodes = {};
 			var _sel;
@@ -73,6 +118,7 @@ console.warn("drawing.Toolbar LOADED");
 				}else if(action){
 					// are actions deprecated?
 					this.createAction(node);
+					
 				}else if(plugin){
 					var p = {name:plugin, options:{}},
 						opt = dojo.attr(node, "options");
@@ -80,9 +126,12 @@ console.warn("drawing.Toolbar LOADED");
 						p.options = eval("("+opt+")");
 					}
 					p.options.node = node;
-					
+					node.innerHTML = "";
+					console.warn("PLUG:", p.options)
+					this.createIcon(node, dojo.getObject(dojo.attr(node, "plugin")));
 					this.drawing.addPlugin(p);
 				}
+				
 			}, this);
 			
 			dojo.connect(this.drawing, "setTool", this, "onSetTool");	

@@ -57,7 +57,7 @@ dojo.provide("drawing.manager.Canvas");
 			util:null,
 			mouse:null,
 			useScrollbars: true,
-			
+			baseClass:"drawingCanvas",
 			blockScrollbars: function(block){
 				this._scrollBlocked = block;
 			},

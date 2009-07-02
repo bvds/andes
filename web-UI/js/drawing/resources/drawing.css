@@ -3,28 +3,7 @@ html, body{
 	height:100%;
 	font-family:sans-serif;
 }
-.drawingToolbar{}
-.drawingToolbar .drawingButton{
-	font-size:9px;
-	color:#23487E;
-	border-width:1px;
-	border-style:solid;
-	background-color:#D0DEF2;
-	border-color:#E4ECF8 #D0DEF2 #87AADE #A9C2E7;
-	cursor:pointer;
-}
-.drawingToolbar .drawingButton:hover{
-	color:#D0DEF2;
-	background-color:#23487E;
-}
-.drawingToolbar .drawingButton.selected{
-	background-color:#D1F3AD;
-}
-.drawingToolbar .drawingButton.selected:hover{
-	color:#23487E;
-	background-color:#D1F3AD;
-	cursor:default;
-}
+
 
 .drawingCanvas, #drawingNode{
 	/*
