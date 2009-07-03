@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+	"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" 
+	xmlns:xlink="http://www.w3.org/1999/xlink" 
+	xmlns:dojoxsketch="dojotoolkit/dojox/sketch" 
+	width="600" height="400">
+	<g>
+		<image xlink:href="images/s2e.gif" x="50" y="130" width="247" height="139" />
+		<text x="10" y="10">
+<tspan x="10" dy="15">A spherical ball with a mass of 2.00 kg rests in the notch</tspan>
+<tspan x="10" dy="15">shown below. If there is no friction between the ball and</tspan>
+<tspan x="10" dy="15">the walls, what is the magnitude of the force exerted on</tspan>
+<tspan x="10" dy="15">the ball by wall1?</tspan>
+</text>
+	</g>
+</svg>

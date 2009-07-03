@@ -1,0 +1,118 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" >
+<head>
+    <title>Drawing Test</title>
+	<link href="../js/drawing/resources/drawing.css" rel="stylesheet" />
+	<style>
+		href, body{
+			overflow:hidden;
+		}
+	</style>
+	
+	<script>
+		djConfig = {
+			isDebug:true,
+			//modulePaths: {'drawing': '../../js/drawing'},
+			//modulePaths: {'drawing': '../../../drawing'},
+			gfxRenderer:'silverlight',
+			parseOnLoad:true
+		}
+	</script>
+	<script src="../dojotoolkit/dojo/dojo.js"></script>
+	<script>
+	if(dojo.isIE){
+		console._log = console.log;
+		console.log = function(){
+			a = Array.prototype.slice.call(arguments);
+			a = a.join("  ")
+			console._log(a);
+		}
+	}
+	dojo.require("dojox.gfx");
+	dojo.addOnLoad(function(){
+		
+		var node = dojo.byId("drawingNode");
+		surface = dojox.gfx.createSurface(node, 500, 500);
+		surface.whenLoaded(function(){
+			
+			this.style ={
+				line:{
+					width:3,
+					color:"#0000FF",
+					style:"Solid",
+					cap:"round" // square?, butt, round
+				},
+				lineSelected:{
+					width:3,
+					color:{r:0, g:255, b:255, a:1},
+					style:"Solid",
+					cap:"round" // square?, butt, round
+				},
+				hitline:{
+					width:10,
+					color:{r:255, g:255, b:0, a:0},
+					style:"Solid",
+					cap:"round"
+				},
+				outline:{
+					width:4,
+					color:"#666666",
+					style:"Dash"
+				},
+				fill:"#FF00FF"
+			}
+			
+			
+			var d = {x:50, y:50, width:100, height:100}
+			var s2 = surface.createRect(d)
+					.setStroke(this.style.line)
+					.setFill(this.style.fill);
+					
+			var d = {x:100, y:100, width:120, height:120}
+			s1 = surface.createRect(d)
+					.setStroke(this.style.line)
+					.setFill(this.style.fill);
+			
+			s2.connect("onclick", s2, function(evt){
+				console.log("S2 CLICK", this)
+				for(var n in evt){
+					//console.log(n+"="+evt[n])
+				}
+				//console.log("CLICK")
+				for(var n in evt.target){
+					//console.log(n+"="+evt.target[n])
+				}
+			})
+			var group = surface.createGroup();
+			var inGroup = false;
+			//this.shape.rawNode.id = "FOO"
+			surface.connect("onclick", function(evt){
+				//console.log("SURF CLICK")
+			});
+			dojo.connect(node, "onclick", function(evt){
+				//console.log("NODE CLICK")
+			});
+			s1.connect("onmousedown", this.shape, function(evt){
+				console.log("SHAPE MOUSEDOWN", 1,2,3,4,5)
+				if(inGroup){
+					inGroup = false;
+					surface.add(s1)
+				}else{
+					inGroup = true;
+					group.add(s1)
+				}
+			})
+		
+		
+		})
+	})
+	</script>
+	
+</head>
+<body>
+    <h2>Silverlight Test</h2>
+	<textarea id="ta" ></textarea>
+	<div id="wrapper">
+		<div id="drawingNode" style="width:500px; height:500px; border:1px solid #000; margin-top:20px; cursor:crosshair;"></div>
+	</div>
+</body>
+</html>

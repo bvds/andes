@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en">
+<head>
+    <title>Trig</title>
+	
+	<style>
+		#dot{
+			position:absolute;
+			width:20px;
+			height:20px;
+			background:#0000ff;
+		}
+		#center{
+			position:absolute;
+			width:10px;
+			height:10px;
+			background:#ffff00;
+		}
+		#inp{
+			position:absolute;
+			top:10px;
+			left:450px;
+		}
+	</style>
+	<script>
+		/*
+		r = 100
+		a = 180 * Math.PI / 180
+		console.log("tx:", (r * Math.cos(a)));
+		
+		console.log("sx:", (r * ((1-a*a)/(1+a*a))));
+		*/
+		window.onload = function(){
+			var n = document.getElementById("dot");
+			var cen = document.getElementById("center");
+			var inp = document.getElementById("inp");
+			cenX = 200;
+			cenY = 200;
+			
+			cen.style.left = cenX+"px";
+			cen.style.top = cenY+"px";
+			
+			//radius = 100;		
+			angle = 0;
+			
+			setXY = function(cx, cy, radius, a){
+				radians =  a * Math.PI / 180;
+				var x = radius * Math.cos(radians) * -1;
+				var y = radius * Math.sin(radians) * -1;
+				
+				
+				n.style.left = (cx + x) + "px";
+				n.style.top =  (cy + y) + "px";
+			
+			}
+			
+			return;
+		
+			setInterval(function(){
+				angle += 10;
+				if(angle>360){
+					angle = 0;
+				}
+				
+				inp.value = angle;
+				setXY(angle);	
+			},100);
+			
+		}
+	</script>
+</head>
+<body>
+    <h1>Trig</h1>
+	<input type="text" id="inp"/>
+	<div id="dot"></div>
+	<div id="center"></div>
+</body>
+</html>

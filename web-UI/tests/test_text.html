@@ -1,0 +1,149 @@
+<html  >
+<head>
+    <title>Test Text Entry</title>
+	<style>
+		href, body{
+			overflow:hidden;
+		}
+		textarea{
+			width:300px;
+		}
+		#ce{
+			width:300px;
+			border:1px solid #ccc;
+			
+		}
+		#ceWrap{
+			position:absolute;
+		}
+	</style>
+	<script>
+	djConfig = {
+			isDebug:true
+			//modulePaths: {'drawing': '../../js/drawing'},
+			//modulePaths: {'drawing': '../../../drawing'},
+			//parseOnLoad:true
+		}
+	</script>
+	<script src="../dojotoolkit/dojo/dojo.js"></script>
+	<script>
+		showText = function(){
+			var d = {
+				x:400,
+				y:200,
+				width:300,
+				height:30
+			};
+			var wrap = dojo.doc.createElement("div");
+			var el = dojo.doc.createElement("div");
+			
+			dojo.attr(el, "contenteditable", "true");
+			//dojo.attr(el, "contenteditable", true);
+			dojo.attr(el, "tabIndex", 1);
+			
+			dojo.style(wrap, {
+				position:"absolute",
+				left:d.x+"px",
+				top:d.y+20+"px",
+				width:d.width+"px",
+				height:d.height+"px"
+			});
+			dojo.style(el, {
+				width:d.width+"px",
+				fontSize:"36px"
+			});
+			
+			
+			el.innerHTML = "type_";
+			
+			wrap.appendChild(el);
+			dojo.body().appendChild(wrap);
+			
+			// NEED TO UNBLOCK KEYS DELETE
+			/*dojo.connect(el, "keyup", this, function(){
+				this._text = dojo.trim(el.innerHTML) + " _";
+				console.log("TEXT", this._text)
+				//this.render();
+			})
+			setTimeout(function(){
+				console.warn("FOCUS")
+				el.focus();	
+			},1000)
+			
+			el.focus();
+			*/
+			setTimeout(function(){
+				console.log("false")
+				dojo.attr(el, "contenteditable", "false");
+			},100)
+			setTimeout(function(){
+			
+				console.log("true")
+				dojo.attr(el, "contenteditable", "true");
+			},500)
+			
+			setTimeout(function(){
+				console.log("false")
+				dojo.attr(el, "contenteditable", "false");
+			},1000)
+			
+			setTimeout(function(){
+				console.log("true")
+				dojo.attr(el, "contenteditable", true);
+			el.focus();
+			},1500)	
+		}
+		showText2 = function(){
+			var el = dojo.byId("ta");
+			var ce = dojo.byId("ce");
+			
+			/*dojo.connect(ce, "keyup", function(){
+				console.time("test")
+				console.log(dojo.trim(ce.innerHTML));
+				var b = dojo.marginBox(ce)
+				console.log("H:", b.h)
+				console.timeEnd("test")
+			})*/
+			setTimeout(function(){
+				dojo.attr(ce, "contenteditable", "true");
+			},100)
+			
+			setTimeout(function(){
+				dojo.attr(ce, "contenteditable", "false");
+			},200)
+			
+			setTimeout(function(){
+				dojo.attr(ce, "contenteditable", "true");
+			},300)
+		}
+		
+		var ce;
+		remText = function(){
+			ce = dojo.byId("ce");
+			ce = ce.parentNode.removeChild(ce);
+		}
+		
+		addText = function(){
+			document.body.appendChild(ce);
+		}
+		dojo.addOnLoad(function(){
+			
+			remText();
+			addText();
+		})
+	</script>
+	
+</head>
+<body>
+    <h2>Test Text Entry</h2>
+	
+	<textarea id="ta2" name="ta2" rows="1" cols="30" value="Single line"></textarea>
+	
+	<textarea id="ta" value="Let's turn to the design of the resulting SVG code. First off, I want a container SVG text element where I will put the text. You can have as many tspan elements as you want, but you only want a single text."></textarea>
+	<div id="ceWrap">
+	<div id="ce" contenteditable="true">
+		EDITABLE Let's turn to the design of the resulting SVG code. First off, I want a container SVG
+	</div>
+	</div>
+</body>
+</html>
