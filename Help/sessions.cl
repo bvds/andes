@@ -309,9 +309,17 @@
 	 ;; We should pass the object to be deleted rather than the id.
 	 (delete-object (StudentEntry-id new-entry)))
 	
-	;; Since "text" is the  attribute and is required. 
+	;; Since "text" is the  attribute and is required.
+	;; Right now, look for an "=" and subsequent "?"
+	;; Should be done using parsed expression, checking that
+	;; the LHS is a single variable.
 	((equal (StudentEntry-type new-entry) "equation")
-	 (execute-andes-command #'lookup-eqn-string new-entry))
+	 (let ((eq (search "=" text)))
+	   (cond ((and eq (search "?" (subseq text eq)))
+		  (setf (StudentEntry-symbol new-entry) 
+			(string-trim *whitespace* (subseq text 0 eq)))
+		  (execute-andes-command #'solve-for-var new-entry))
+		 (t (execute-andes-command #'lookup-eqn-string new-entry)))))
 	
 	((equal (StudentEntry-type new-entry) "statement")
 	 (execute-andes-command #'define-variable new-entry))

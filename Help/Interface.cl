@@ -352,8 +352,8 @@
 		    (push `((:action . "show-hint")
 			    (:text . ,(turn-text turn))) result)
 		    ;; else just return result equation text
-		    (warn "Andes2 just returned equation text? ~A" 
-			  (turn-text turn))))
+		      (push `((:action . "modify-object") (:id . ,id)
+			      (:text . ,(turn-text turn))) result)))
       (dialog-turn (when (turn-text turn) 
 		     (push `((:action . "show-hint")
 			     (:text . ,(turn-text turn))) result)

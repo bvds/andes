@@ -406,14 +406,17 @@ non-blocking, thus there is no need for the "OK" button seen in Andes2.
 ]
 
 15:05  Ask for Fwall1.  I would like to avoid another button on the interface.
-We will allow two methods:  "Fwall1=?" in an equation box or something like
-"solve for Fwall1" in the help pane.  The latter is shown here.
+The equation "Fwall1=?" in an equation box will start the calculator.
 
-{"method": "seek-help", "params": {"time": 905.001,
-	   "action": "get-help", "text": "Solve for Fwall1"}, "id": 27}
+{"method": "solution-step", "params": {"time": 905.001,
+	   "action": "new-object", "id": "a18.5", "type": "equation", "mode": "unknown",
+	   "text": "Fwall1=?"}, "id": 27}
+
+The two returns could be combined:
 
 [
-  {"action": "show-hint", "text": "Fwall1 = 15.24609350323404 N"}
+  {"action": "modify-object", "id": "a18.5", "mode": "correct"}
+  {"action": "modify-object", "id": "a18.5", "text": "Fwall1 = 15.24609350323404 N"}
 ]
 
 15:13  Submit final answer.  There are several methods for this:  write an 

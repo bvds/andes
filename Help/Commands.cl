@@ -225,11 +225,15 @@
 ;;
 ;; It is also designed to log the result of the call for future use.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun solve-for-var (var new-id)
-  (let* ((tmp (student-to-canonical var))
-	 (result (if tmp (solver-power-solve 31 (student-to-canonical var) new-id) nil)))
+(defun solve-for-var (entry)
+  (let* ((new-id (StudentEntry-id entry))
+	 (var (StudentEntry-symbol entry))
+	 (tmp (student-to-canonical var))
+	 (result (when tmp (solver-power-solve 
+			    31 (student-to-canonical var) new-id))))
     
-    (cond ((and result (listp result)) (solve-for-var-success new-id result))
+    (cond ((and result (listp result)) 
+	   (solve-for-var-success entry result))
 	  ((stringp result) 
 	   (make-eqn-failure-turn 
 	    (format NIL "Unable to solve for ~A: ~A" var result)
@@ -239,21 +243,20 @@
 	      (get-failure-to-solve-hint var)
 	      :id new-id)))))
 
-(defun solve-for-var-success (new-id result)
-  (warn "Can't make valid studententry since type, location etc missing")
- (let* ((studEqn  (subst-student-vars (pre2in result)))
+(defun solve-for-var-success (entry result)
+  (let* ((studEqn  (subst-student-vars (pre2in result)))
 	 ;; suppress *print-pretty* since it could insert newlines 
 	 ;; into long result, and WB requires single-line eqn string
 	 (infixStr (write-to-string studEqn :pretty NIL :escape NIL))
 	 ;; strip outer parens from equation string
-	 (studText (subseq infixStr 1 (- (length infixStr) 1)))
-	 ;; Generate the studententry
-	 (entry (make-StudentEntry :id new-id
-				   :verbatim studText
-				   :prop `(eqn ,studText)
-				   :parsedEqn result
-				   :state **Correct**)))
-        
+	 (studText (subseq infixStr 1 (- (length infixStr) 1))))
+    
+    ;; Update the studententry
+    (setf (StudentEntry-verbatim entry) studText)
+    (setf (StudentEntry-prop entry) `(eqn ,studText))
+    (setf (StudentEntry-parsedEqn entry) result)
+    (setf (StudentEntry-state entry) **correct**)
+    
     ;; save final result as if it were a new student entry. We need to 
     ;; remember slot is occupied for add-entry to trigger automatic
     ;; cleanup of equation in algebra on new entry.

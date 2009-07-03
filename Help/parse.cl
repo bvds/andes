@@ -291,7 +291,7 @@
     (dolist (x (flatten parse))
       (if (stringp x)
 	  (setf tmp (concatenate 'string tmp " " x))))
-    (string-trim " " tmp)))
+    (string-trim *whitespace* tmp)))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

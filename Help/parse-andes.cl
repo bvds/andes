@@ -394,7 +394,8 @@
    calls color-by-numbers on it, and return a tutor turn.
    If the equation is incorrect, set the ErrInterp slot of the student entry."
   (let* ((parse (StudentEntry-ParsedEqn se))
-	 (answer (subst-canonical-vars (parse-pack-lhs 'unknown (parse-tree parse))))
+	 (answer (subst-canonical-vars 
+		  (parse-pack-lhs 'unknown (parse-tree parse))))
 	 (strings-in-answer (contains-strings answer)))
     (cond
      (strings-in-answer (handle-undefined-variables-equation se strings-in-answer))
@@ -416,7 +417,7 @@
 	  (setf answer (andes-in2pre answer)))
       (cond ((stringp answer)		;in2pre makes a list
 	     (make-red-turn "Should not see this error: (2) Notify Instructor"))
-	    (t				;use equation-redp so candidate is tested but not added to slot
+	    (t	 ;use equation-redp so candidate is tested but not added to slot
 	     (setf (StudentEntry-ParsedEqn se) answer)
 	     (case (solver-equation-redp answer location)
 	       (forgot-units-but-ok
@@ -654,8 +655,8 @@
   (if (> (length eq) 0)
       (let ((p (position #\; eq)))
 	(if p
-	    (string-trim " " (subseq eq 0 p))
-	  (string-trim " " eq)))
+	    (string-trim *whitespace* (subseq eq 0 p))
+	  (string-trim *whitespace* eq)))
     eq))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -808,7 +809,8 @@
 	      (if (not stud-var)
 		  (symbols-enter "Answer" sought-quant id)) ;; !! NB: want to delete this temp in all paths
 	      (if valid
-		  (let* ((parses (parse-equation **grammar** (string-trim " " rhs)))
+		  (let* ((parses (parse-equation **grammar** 
+						 (string-trim *whitespace* rhs)))
 			 (complete (parse-get-complete parses))
 			 (valid (parse-get-valid 'expression complete)))
 		    ;;(format t "Parsed ~A~%" (concatenate 'string lhs "=" (string-trim " " rhs)))
