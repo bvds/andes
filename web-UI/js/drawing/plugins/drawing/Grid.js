@@ -1,23 +1,15 @@
 dojo.provide("drawing.plugins.drawing.Grid");
 
 drawing.plugins.drawing.Grid = drawing.util.oo.declare(
+	drawing.plugins._Plugin,
 	function(options){
-		dojo.mixin(this, options);
+		this.setGrid();	
 	},
 	{
-		util:null,
-		keys:null,
-		mouse:null,
-		drawing:null,
-		stencils:null,
-		anchors:null,
-		canvas:null,
 		gap:100,
-		
-		onSurfaceReady: function(){
-			this.setGrid();	
-		},
+		type:"drawing.plugins.drawing.Grid",
 		setGrid: function(options){
+			
 			//
 			// TODO: Shift grid for scroll
 			// TODO: major minor lines
