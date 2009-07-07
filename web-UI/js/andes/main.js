@@ -5,8 +5,15 @@ dojo.require("andes.api");
 dojo.require("andes.error");
 
 (function(){
-
-	var query = dojo.queryToObject(window.location.search.substring(1));
+	var devMode = true, query;
+	if(devMode){
+		query = {
+			p:"32345",
+			u:"joe"
+		}
+	}else{
+		query = dojo.queryToObject(window.location.search.substring(1));
+	}
 	if(!query.u || !query.p){
 		dojo.addOnLoad(function(){
 			console.error("FIXME: Finalize the error message for needing to return to WebAssign.");

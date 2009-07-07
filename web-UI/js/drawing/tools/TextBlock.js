@@ -15,7 +15,7 @@ dojo.require("drawing.stencil.Text");
 		//
 		conEdit = dojo.byId("conEdit");
 		if(!conEdit){
-			console.error("A contenteditable div is missing from the main document.")
+			console.error("A contenteditable div is missing from the main document. See 'drawing.tools.TextBlock'")
 		}else{
 			conEdit.parentNode.removeChild(conEdit);
 		}

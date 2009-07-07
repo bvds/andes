@@ -12,6 +12,21 @@ html, body, #main{
 	margin: 0 0 0 0;
 	font: 10pt Arial,Myriad,Tahoma,Verdana,sans-serif;
 }
+/* Border Container Color */
+.tundra .dijitSplitterV, .tundra .dijitGutterV,
+body, .tundra .dijitSplitter, #navMenu{
+	background:#CEE3EC;
+}
+
+/* Pane BK Color and Inset borders of Panes*/
+#toolPane, #helpPane, #drawingPane{
+	background:#F2F2F2;
+	border:1px solid;
+	border-color:#BBBBBB #E1E1E1 #FFFFFF #CCCCCC;
+}
+
+
+
 
 #splashOverlay{
 	position:absolute;
@@ -28,23 +43,25 @@ html, body, #main{
 }
 
 /* layout */
-#upgradeBar{
-	height:26px;
+
+.tundra .dijitSplitterV, .tundra .dijitGutterV {
+	width:4px;
 }
-#upgradeBar .dojoxExpandoTitle{
-	display:none;
-}
-#navMenu{
-}
+
+
 #toolPane{
-	width:60px;
-	background:#cccccc;
+	width:50px;
+	margin-left:5px;
+	margin-right:4px;
 }
 #drawingPane{
 	
 }
+
+
 #helpPane{
-	width:300px;
+	width:200px;
+	margin-right:5px;
 }
 #helpInputPane{
 	height:70px;
@@ -62,13 +79,23 @@ html, body, #main{
 	margin:4px 0 0 -25px;;
 	border:1px solid #999;
 }
+#footerPane{
+	height:5px;
+	margin-top:7px;
+}
 
+#navMenu{}
 #navMenu .dijitButtonNode{
 	padding:0 .2em .05em .2em;
 }
 .dj_webkit #navMenu .dijitButtonNode{
 	padding:.0 .4em .25em .4em;
 }
+.tundra .dijitMenu, .tundra .dijitMenuBar {
+	border:0;
+}
+
+
 #submitButton .dijitButtonText{
 	font-size:.8em;
 	padding:0;
@@ -88,4 +115,10 @@ html, body, #main{
 }
 .andesButtonPage{
 	text-align:center;
+}
+#upgradeBar{
+	height:26px;
+}
+#upgradeBar .dojoxExpandoTitle{
+	display:none;
 }
