@@ -253,7 +253,7 @@
     ;; Andes2 also had calls to:
     ;; define-angle-variable assert-compound-object
     ;; label-angle
-    ;; lookup-mc-answer check-answer
+    ;; lookup-mc-answer
     ;; calculate-equation-string (find variable on lhs of equation)
     ;;                           (probably not in Andes3)
     ;; Andes2 but not in Andes3:  label-radius lookup-torque lookup-force
@@ -271,7 +271,8 @@
     ;; old set-up and get things working, and then make changes to
     ;; move the handling of StudentEntries to the top level.
 
-    (let ((old-entry (find-entry id)) new-entry)
+    (let ((old-entry (find-entry id)) new-entry 
+	  (ans "Answer:"))
 
       (when (and old-entry (equal action "new-object"))
 	(warn "Object ~A already exists, updating old object." id))
@@ -308,22 +309,34 @@
 	((equal action "delete-object")
 	 ;; We should pass the object to be deleted rather than the id.
 	 (delete-object (StudentEntry-id new-entry)))
+
+	;; Look for answer box marked by "Answer: "
+	;; This should come before "equation" and "statement"
+	((and (> (length text) (length ans))
+	      (string-equal (string-left-trim *whitespace* text)
+			    ans :end1 (length ans)))
+	 ;; In Andes2 this was set in do-check-answer
+	 (setf (StudentEntry-verbatim new-entry) 
+	       (string-trim *whitespace* (subseq text (length ans))))
+	 (execute-andes-command #'check-answer new-entry))
 	
-	;; Since "text" is the  attribute and is required.
-	;; Right now, look for an "=" and subsequent "?"
-	;; Should be done using parsed expression, checking that
-	;; the LHS is a single variable.
 	((equal (StudentEntry-type new-entry) "equation")
 	 (let ((eq (search "=" text)))
-	   (cond ((and eq (search "?" (subseq text eq)))
-		  (setf (StudentEntry-symbol new-entry) 
-			(string-trim *whitespace* (subseq text 0 eq)))
-		  (execute-andes-command #'solve-for-var new-entry))
-		 (t (execute-andes-command #'lookup-eqn-string new-entry)))))
+	   (cond 
+	     ;; solve for variable:
+	     ;; Right now, look for an "=" and subsequent "?"
+	     ;; Should be done using parsed expression, checking that
+	     ;; the LHS is a single variable.
+	     ((and eq (search "?" (subseq text eq)))
+	      (setf (StudentEntry-symbol new-entry) 
+		    (string-trim *whitespace* (subseq text 0 eq)))
+	      (execute-andes-command #'solve-for-var new-entry))
+	     ;; Default case: ordinary equation
+	     (t (execute-andes-command #'lookup-eqn-string new-entry)))))
 	
 	((equal (StudentEntry-type new-entry) "statement")
 	 (execute-andes-command #'define-variable new-entry))
-	 
+	
 	((equal (StudentEntry-type new-entry) "graphics")
 	 (warn "Can't modify a graphic object, id=~A" 
 	       (studententry-id new-entry)))
@@ -353,9 +366,6 @@
     (&key time action href value text) 
   "ask for help, or do a step in a help dialog" 
   (env-wrap 
-    ;; Andes2 also had calls to:
-    ;; solve-for-var (could also be under solve steps..., or own method)
-
     ;; Doesn't correctly handle case where "Explain-more" is clicked after
     ;; a bottom-out hint.
     (cond

@@ -32,17 +32,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; This is called when the equation to be looked up appeared in the
-;; answer box.  The only real difference between this and
-;; do-lookup-equation-string is the special case kludge covered above.
-;; Called from Entry-API.
-(defun do-lookup-equation-answer-string (eq id)
-  (do-lookup-equation-string (trim-eqn eq) id 'answer))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-eqn-string -- check correctness of a student equation entry
 ;; argument(s):
 ;;  eqn-string: the equation as the student entered is
@@ -51,8 +40,7 @@
 ;;  entry status return value -- see end of code for description of this
 ;; note(s):
 ;;  This is a hack-ish way to get the assoc value but (for now), it works.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun lookup-eqn-string (entry)
   "Minimally modified Andes2 call"
@@ -752,34 +740,52 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; For answers, we allow student to enter either a full assignment equation of form sought_var = rhs
-;; or just the answer expression rhs alone. 
+;; For answers, we allow student to enter either a full assignment equation 
+;; of form sought_var = rhs or just the answer expression rhs alone. 
 ;;
-;; If they didn't enter a full equation, we effectively construct an appropriate equation. 
-;; If a student variable for the sought is defined, we can use that to construct an equation;
-;; else we temporarily install a student variable "Answer" for use while constructing a student equation
-;; to test. 
+;; If they didn't enter a full equation, we effectively construct an 
+;; appropriate equation.  If a student variable for the sought is defined, 
+;; we can use that to construct an equation;
+;; else we temporarily install a student variable "Answer" for use while 
+;; constructing a student equation to test. 
 ;;
 ;; There are further tests we apply that are specific to answers:
-;; - We have to check that the rhs has the form required for an answer. To allow for
-;; answers as complex expressions in terms of parameters, we make sure there are no non-parameter
-;; variables in the rhs expression. !! Note this currently allows complex arithmetic expressions to be accepted, 
-;; even in problems for which no parameters are defined. !! Should also allow answers in terms of constants like pi.
-;; - If they typed a full equation, we have to verify it is an assignment statement and lhs is the correct variable.
-;;
-;; Once we have an equation we can test the answer equation up to answer accuracy to see if its correct.
+;; - We have to check that the rhs has the form required for an answer. 
+;; To allow for answers as complex expressions in terms of parameters, 
+;; we make sure there are no non-parameter variables in the rhs expression. 
+;; !! Note this currently allows complex arithmetic expressions to be accepted,
+;; even in problems for which no parameters are defined. !! 
+;; Should also allow answers in terms of constants like pi.
+;; - If they typed a full equation, we have to verify it is an assignment 
+;; statement and lhs is the correct variable.
+;; Once we have an equation we can test the answer equation up to answer 
+;; accuracy to see if its correct.
 ;;
 
-(defun do-check-answer (inputo sought-quant id)
-  ;;(format t "Okay start!!!<~A>[~A]~%" input sought-quant)
-  (warn "Can't make valid studententry since type, location etc missing")
-  (let ((entry (make-studententry :id id
-				  ;; not system answer entries so no real prop for these,
-				  ;; following will let us find if answer entered for a quant.
-				  :prop `(answer ,sought-quant)
-				  :verbatim inputo))
-	(result-turn)
+(defun do-check-answer (entry)
+  (let* ((inputo (StudentEntry-verbatim entry))
+	sought-quant
+	(id (StudentEntry-id entry))
+	result-turn
 	(input (trim-eqn inputo)))
+
+    ;; Determine sought quantity by looking at position on the canvas
+    ;; of the answer box relative to other answer boxes.
+    (let ((previous (remove-if 
+		     #'(lambda (x) (or (equal (StudentEntry-id entry)
+					      (StudentEntry-id x))
+				       (< (StudentEntry-y entry) 
+					  (StudentEntry-y x))))
+		     ;; get list of all previous answers.
+		     (remove '(answer ?quant) *StudentEntries* 
+			     :key #'StudentEntry-prop :test-not #'unify))))
+      (setf sought-quant (nth (length previous) (problem-soughts *cp*)))
+      (format webserver:*stdout* "do-check-answer all previous answers: ~%   ~A~%"
+	      (remove '(answer ?quant) *StudentEntries* 
+		      :key #'StudentEntry-prop :test-not #'unify))
+      (format webserver:*stdout* "do-check-answer (length previous) inputo sought-quant id input:~%    ~A~%" (list (length previous) inputo sought-quant id input)))
+
+    (setf (StudentEntry-prop entry) `(answer ,sought-quant))
     (add-entry entry) ;save entry immediately 
     (if (quant-to-sysvar sought-quant)
 	(if (/= (length (remove #\Space input)) 0)
@@ -819,24 +825,13 @@
 			(cond
 			 ((not (bad-vars-in-answer valid)) ; checks no non-parameter vars in answer expression
 			  ;;(format t "Okay here!!!~%")
-			  ;; Check as if student equation was entered in *temp-eqn-slot*.
-			  (setf result-turn (do-lookup-equation-answer-string
+			  ;; Check equation as if student wrote it.
+			  ;; This will add an equation to the solver marked
+			  ;; by id.
+			  (setf result-turn (do-lookup-equation-string
 					     (concatenate 'string lhs "=" rhs)
-					     'check-answer-equation))
-			  ;; That saved a temp equation entry under *temp-eqn-slot*. 
-			  ;; Copy relevant entry state -- esp ErrInterp for later 
-			  ;; whatswrong  -- into real answer entry and remove temp.
-			  ;;(format t "Result Answer is <~W>~%" result-turn)
-			  (let ((temp-entry (find-entry 'check-answer-equation)))
-			    (setf (StudentEntry-State entry)
-			      (StudentEntry-State temp-entry))
-			    (setf (StudentEntry-ErrInterp entry)
-			      (StudentEntry-ErrInterp temp-entry))
-			    (setf (StudentEntry-ParsedEqn entry) ; parse maybe useful
-			      (StudentEntry-ParsedEqn temp-entry))
-			    ;; remove temp from saved entry list
-			    ;; clears algebra slot
-			    (delete-object 'check-answer-equation))
+					      entry
+					     'answer))
 			  (symbols-delete "Answer"))
 			 (T ; answer has non-parameter vars
 			  (setf (StudentEntry-ErrInterp entry) 

@@ -357,22 +357,6 @@
    ; finally: return best arg or student's list if no match found
    (or bestarg studset)))
 
-;;
-;; Answer box identifiers
-;;
-;; In Andes2 problems, we expect the ids to be of the form Answer-N,
-;; where N is the 1-based ordinal of the quantity in the problem soughts.
-;; So we prepare for this case as well.
-(defun get-answer-quant (answer-id)
-  (let* ((id-str (string answer-id))
-         (pos (position #\- id-str))
-         (quant-id-part (if pos (subseq id-str (1+ pos))
-	                    id-str))
-	 (quant-id (read-from-string quant-id-part)))
-    (if (numberp quant-id) 
-        (nth (1- quant-id) (problem-soughts *cp*))
-      (error "Answer should be of the form Answer-N, not ~A" answer-id))))
-
 
 ;;-----------------------------------------------------------------------------
 ;; Workbench Entry API Handler functions

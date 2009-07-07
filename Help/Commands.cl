@@ -280,12 +280,12 @@
 ;;  This uses the same hack on lookup-eqn-string to obtain the entry.  It works
 ;;  but it ain't exactly clean.  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun check-answer (answer answer-id)
-  ; for Skatz experiment, and maybe generally:
-  ; remember done state before checking answer to detect event of
-  ; "finishing" problem.
+(defun check-answer (entry)
+  ;; for Skatz experiment, and maybe generally:
+  ;; remember done state before checking answer to detect event of
+  ;; "finishing" problem.
   (let ((was-done (all-answers-done-p))
-        (result (Do-Check-Answer answer (get-answer-quant answer-id) answer-id)))
+        (result (Do-Check-Answer entry)))
     (when (and (not was-done)
                (all-answers-done-p)    ; is now done
 	       (not-curr-checking-problemp)) ; ignore if in initial entry check
