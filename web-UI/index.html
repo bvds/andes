@@ -4,6 +4,8 @@
     <title>Andes 3</title>
 	<link href="css/andes.css" rel="stylesheet" />
 	<link href="js/andes/widget/UpgradeBar/UpgradeBar.css" rel="stylesheet" />
+	<link href="js/drawing/resources/drawing.css" rel="stylesheet" />
+	<link href="js/drawing/resources/toolbar.css" rel="stylesheet" />
 	<script>
 		djConfig = {
 			isDebug:true,
@@ -25,14 +27,24 @@
 		dojo.require("dijit.MenuItem");
 		dojo.require("dijit.PopupMenuItem");
 		dojo.require("dijit.form.Button");
-
+		
 		dojo.require("andes.main");
-		//dojo.require("drawing.Drawing");
+		
+	/*	dojo.require("drawing.Drawing");
+		dojo.require("drawing.Toolbar");
+		dojo.require("drawing.tools.custom.Vector");
+		dojo.require("drawing.tools.custom.Axes");				
+		dojo.require("drawing.tools.Arrow");
+		dojo.require("drawing.plugins.tools.Pan");
+		dojo.require("drawing.plugins.tools.Zoom");
+		dojo.require("drawing.plugins.drawing.Grid");
+	*/
 	</script>
 	
 </head>
 <body class="tundra">
 	<div id="splashOverlay"></div>
+	<div id="conEdit" contenteditable="true"></div>
 	<div id="main" dojoType="dijit.layout.BorderContainer" gutters="false">
 		<div dojoType="dijit.MenuBar" id="navMenu" region="top" splitter="false">
 				<div dojoType="dijit.PopupMenuBarItem">
@@ -67,11 +79,23 @@
 		</div>
 
 		<div id="toolPane" dojoType="dijit.layout.ContentPane" region="left" splitter="false">
-				Toolbar
+				<!--<div dojoType="drawing.Toolbar" drawingId="drawingNode" class="drawingToolbar vertical">
+					<div tool="drawing.tools.Line" selected="false">Line</div>
+					<div tool="drawing.tools.Rect" selected="true">Rect</div>
+					<div tool="drawing.tools.Ellipse" selected="false">Ellipse</div>
+					<div tool="drawing.tools.TextBlock" selected="false">Text</div>
+					<div tool="drawing.tools.Arrow" selected="false">Arrow</div>
+					<div tool="drawing.tools.custom.Vector" selected="false">Vector</div>
+					<div tool="drawing.tools.custom.Axes" selected="false">Axes</div>
+					<div plugin="drawing.plugins.tools.Pan" options="{}">Pan</div>
+					<div plugin="drawing.plugins.tools.Zoom" options="{zoomInc:.1,minZoom:.5,maxZoom:2}">Zoom</div>
+				</div>-->
 		</div>
 
 		<div id="drawingPane" dojoType="dijit.layout.ContentPane" region="center" >
-				main / Drawing
+				<!--<div dojoType="drawing.Drawing" id="drawingNode" drawingType="canvas" class="drawing"
+					plugins="[{'name':'drawing.plugins.drawing.Grid', 'options':{gap:100}}]">   
+			   </div>-->
 		</div>
 
 		<div id="helpPane" dojoType="andes.widget.ExpandoPane" region="right" splitter="true">
@@ -85,6 +109,7 @@
 				</div>
 			</div>
 		</div>
+		<div id="footerPane" dojoType="dijit.layout.ContentPane" region="bottom"></div>
 	</div>
 
 	<div dojoType="andes.widget.UpgradeBar" id="upgradeBar">
