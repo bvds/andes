@@ -360,28 +360,18 @@
 ;;
 ;; Answer box identifiers
 ;;
-;; In Andes1 problems, the ids on answer boxes were of form Answer-CLIPSVAR
-;; where CLIPSVAR specified the relevant quantity by giving its variable in
-;; the CLIPS solutions. This id was embedded in the .fbd problem file loaded
-;; by the workbench. In order to handle messages from these old files without
-;; change, this routine breaks out the CLIPSVAR and returns the Andes2 KB 
-;; quantity expression for it. All the work is in functions in clips-vars.cl.
-;;
-;; In future Andes2 problems, we expect the ids to be of the form Answer-N,
+;; In Andes2 problems, we expect the ids to be of the form Answer-N,
 ;; where N is the 1-based ordinal of the quantity in the problem soughts.
 ;; So we prepare for this case as well.
 (defun get-answer-quant (answer-id)
   (let* ((id-str (string answer-id))
-         (pos    (position #\- id-str))
-         (quant-id-part  (if pos (subseq id-str (1+ pos))
+         (pos (position #\- id-str))
+         (quant-id-part (if pos (subseq id-str (1+ pos))
 	                    id-str))
-	 (quant-id  (read-from-string quant-id-part)))
+	 (quant-id (read-from-string quant-id-part)))
     (if (numberp quant-id) 
         (nth (1- quant-id) (problem-soughts *cp*))
-      (clips-var->quant quant-id))))
-
-
-
+      (error "Answer should be of the form Answer-N, not ~A" answer-id))))
 
 
 ;;-----------------------------------------------------------------------------

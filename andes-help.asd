@@ -49,7 +49,6 @@
 				     (:file "symbols")
 				     (:file "State"
 					    :depends-on ("symbols"))
-				     (:file "clips-vars")
 				     (:file "match")
 				     (:file "Entry-API"
 					    :depends-on ("HelpMessages"
