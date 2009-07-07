@@ -52,10 +52,6 @@ string simplifyEqn(const int sourceSlot, const int destSlot)
   int q;
   DBG(cout << "Entering simplifyEqn(" << sourceSlot<< ", " << destSlot 
       << ")" << endl;);
-  if (destSlot >= STUDEQSZ) throw(string("destination slot ") 
-				  + itostr(destSlot) + " doesn't exist");
-  if (sourceSlot >= STUDEQSZ) throw(string("source slot ") 
-				  + itostr(sourceSlot) + " doesn't exist");
   if (studeqf[sourceSlot] == (binopexp *) NULL)
     throw(string("Asked to simplify an empty equation"));
   expr * simp = copyexpr(studeqf[sourceSlot]);

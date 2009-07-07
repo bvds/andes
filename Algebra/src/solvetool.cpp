@@ -76,8 +76,6 @@ string powersolve(const int howstrong, const varindx sought,
        << (*canonvars)[sought]->clipsname
        << ", " << destslot << endl;);
   vector<binopexp *> eqn;
-  if (destslot >= STUDEQSZ) throw(string("destination slot ") 
-				  + itostr(destslot) + " doesn't exist");
   // gather student equations in list eqn
   for (q = 0; q < HELPEQSZ; q++)
     if (studeqf[q] != (binopexp *)NULL) 

@@ -671,11 +671,10 @@
 (defun sg-decompose-eqn (Algebra)
   "Decompose the supplied eqn algebra."
   (when (not (solver-equation-redp algebra))
-    (let ((R (solver-studentaddokay 
-	    *Solver-temp-eqn-slot* Algebra)))    
+    (let ((R (solver-studentaddokay 'sg-decompose-equation Algebra)))
       (setq R (when (and (not (stringp R)) (= 0 R))
-		  (remove nil (sg-match-eqn-num *Solver-temp-eqn-slot*))))
-      (solver-studentemptyslot *Solver-temp-eqn-slot*)
+		(remove nil (sg-match-eqn-num 'sg-decompose-equation))))
+      (solver-studentemptyslot 'sg-decompose-equation)
       R)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

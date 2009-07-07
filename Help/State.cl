@@ -458,65 +458,6 @@
 ;;=============================================================================
 ;; Helpers for implicit equation entries associated with diagram entries
 ;;
-;; Certain diagram entries determine "implicit equations". For example, drawing
-;; a zero-length vector determines that that magV = 0, and drawing a vector at
-;; a known angle determines thetaV = angle deg. Since these do not come 
-;; from student equation box entries, they have to be reported to the algebra
-;; module separately, so they can be exploited by the solve tool. In addition
-;; these are fundamental equations in the solution graph so must be marked
-;; when entered.
-;; 
-;; The algebra module provides slots above the number reserved for student
-;; equation entries for this purpose. We need to be able to find an unused
-;; slot number when we need them and also associate the implicit equations
-;; with source entry ids, so that we can undo them if the source entry is
-;; removed. We build an associated equation student entry which dangles
-;; off the main diagram entry for these. These dangling entry structs are
-;; not placed on the main student entry list but only accessed through their
-;; containing diagram entry.
-
-;; How we manage the slot range provided by the solver dll:
-;; First 40 slots (index 0 ->39) are for student equation entries 
-;; since this is the number in the workbench.
-;; Our convention is to use most of the extra slot range to store 
-;; implicit equation entries (see state.cl), but reserve the very last slot 
-;; for use as a general purpose temp "register" for querying candidate eqns.
-(defconstant *num-workbench-slots*  40)
-(defconstant *max-student-slot*     (1- *num-workbench-slots*))
-(defconstant *first-implicit-slot*  (1+ *max-student-slot*)) 
-(defconstant *max-implicit-slot*    (1- *solver-max-eqn-slot*))
-
-(defun StudentEntry-ImplicitEqnSlots (entry)
-"Return list of implicit equation slot number used by a student entry"
-  (mapcar #'StudentEntry-ID (StudentEntry-ImplicitEqns entry)))
-
-(defun StudentEntry-GivenEqnSlots (entry)
-"return list of given equation slots used by a student entry"
-  (mapcar #'StudentEntry-ID (StudentEntry-GivenEqns entry)))
-
-(defun entry-uses-slot (entry slot)
-"true if student entry uses eqn slot for dependent entry"
-  (or (member slot (StudentEntry-ImplicitEqnSlots entry))
-      (member slot (StudentEntry-GivenEqnSlots entry)
-              :test #'eql)))
-	     
-(defun eqn-slot-in-use (slot)
-"return true if slot number is in use for a dependent equation entry"
-  (some #'(lambda (e) (entry-uses-slot e slot))
-        *StudentEntries*))
-       
-
-(defun get-unused-implicit-slot ()
-  "return next high equation slot not in use by any entry, NIL if no more"
-   (let (slot)
-     (dotimes (offset (- *max-implicit-slot* *first-implicit-slot*))
-       (setf slot (+ *first-implicit-slot* offset))
-       (when (not (eqn-slot-in-use slot))
-          (return-from get-unused-implicit-slot slot))))
-   ; get here => failed to find one
-   (warn "Ran out of implicit equation slots!")
-   NIL)
-
 ;; Make implicit assignment entry -- initialize and return a candidate
 ;; StudentEntry struct for equation setting student variable to given value.
 ;; Value should be either a dnum term or dimensionless 0

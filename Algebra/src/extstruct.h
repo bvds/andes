@@ -43,7 +43,6 @@
 #define INITDO(A)
 #endif
 //////////////////////////////////////////////////////////////////////////////
-const int STUDEQSZ = 40;	/* number of actual student equation slots */
 const int HELPEQSZ = 70;	/* number of slots including implicit eqs */
 // This is a bit larger than machine epsilon in case there is
 // some accumulated roundoff error

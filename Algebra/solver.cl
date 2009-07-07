@@ -59,9 +59,9 @@
 ;;;	dstSlot -- destination to place solution equation in
 ;;;      returns: nil if not solution; the equation (lisp format); or an error message
 ;;;	  
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; solver routines above      
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;;    (indyAddVar (arg) - used to provide independence checker with variable names
 ;;;	        their values and their units (or nil) for a group of equations
@@ -162,6 +162,8 @@
 		     nil
 		     :search nil :wait nil
 		     :input :stream :output :stream)))
+  ;; set up mapping between equation id's and solver slots
+  (reset-solver-slots)
   ;; on load, ensure logging set to Lisp variable value
   (solver-logging *solver-logging*))
  
@@ -179,9 +181,42 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; eq slot range defined in DLL. NB: must stay in sync w/DLL!
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defconstant *solver-max-eqn-slot*     69) ; provides 70 slots numbered 0 - 69
-(defconstant *solver-temp-eqn-slot* *solver-max-eqn-slot*  
-  "Labelling for the temporary modification slot.")  
+(defconstant *solver-max-eqn-slot*     70) ; provides 70 slots numbered 0 - 69
+
+;; Andes2 had a fixed number of equations labeled by integers.
+;; Andes3 stores objects in a hash tables, labeled by strings.
+;; In principle, we should change the solver also store equations
+;; in a hash table, but this would involve modifying the solver code.  
+;; Instead, we provide a mapping between the object
+;; labels and the solver equation slots.
+
+(defvar *id-solver-slot-map* "alist containing map between studenentry-id's and solver slots")
+(defvar *solver-free-slots* "list of free slots")
+
+(defun reset-solver-slots ()
+  (setf *id-solver-slot-map* nil)
+  (setf *solver-free-slots* nil)
+  (dotimes (i *solver-max-eqn-slot*) 
+    (push (- *solver-max-eqn-slot* i 1) *solver-free-slots*)))
+
+(defun id2solver-slot (id)
+  (or (cdr (find id *id-solver-slot-map* :key #'car :test #'equal))
+      (let ((slot (pop *solver-free-slots*)))
+	(push (cons id slot) *id-solver-slot-map*)
+	slot)))
+
+(defun solver-slot2id (slot)
+  (car (find slot *id-solver-slot-map* :key #'cdr :test #'equal)))
+
+(defun remove-id (id)
+  (let ((slot (cdr (find id *id-solver-slot-map* :key #'car :test #'equal))))
+    (when slot
+      (push slot *solver-free-slots*) 
+      (setf *id-solver-slot-map*
+	    (remove id *id-solver-slot-map* :key #'car :test #'equal)))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defmacro do-solver-turn (name &optional input)
   `(progn 
@@ -233,11 +268,16 @@
     (write-to-string arg :pretty NIL :escape T)))
 
 (defun solver-new-problem ()
+  (reset-solver-slots)
   (do-solver-turn "solveClear"))
 
 (defun solver-isIndependent (setID equationID)
-  (do-solver-turn "c_indyCanonHowIndy"
-		   (format nil "(~A ~A)" setID equationID)))
+  (let ((result (do-solver-turn "c_indyCanonHowIndy"
+		  (format nil "(~A ~A)" setID (id2solver-slot equationID)))))
+    ;; map from solver slot back to equation id
+    (setf (second result) (mapcar #'solver-slot2id (second result)))
+    (setf (third result) (mapcar #'solver-slot2id (third result)))
+    result))
 
 (defun solver-indyAddVar (arg)
   ;; suppress pretty printing -- it may insert line breaks on very long 
@@ -253,50 +293,53 @@
 (defun solver-indyAddEquation (equationID equation)
   (do-solver-turn  "c_indyAddEquation" 
     ;; :escape T so keywords have colons [for :error]
-     (write-to-string (list equationID equation) :pretty NIL :escape t)))
+     (write-to-string (list (id2solver-slot equationID) equation) 
+		      :pretty NIL :escape t)))
 
 (defun solver-indyEmpty ()
+  (reset-solver-slots)
   (do-solver-turn "c_indyEmpty"))
 
 (defun solver-indyAddEq2Set (setID equationID)
   (do-solver-turn "c_indyAddEq2Set"
-		   (format nil "(~A ~A)" setID equationID)))
+		   (format nil "(~A ~A)" setID (id2solver-slot equationID))))
 
 (defun solver-indyKeepN (setID numberToKeep)
   (do-solver-turn "c_indyKeepNOfSet"
 		   (format nil "(~A ~A)" setID numberToKeep)))
 
 (defun solver-studentIsIndependent (setID equationID)
-  (do-solver-turn "c_indyStudHowIndy"
-		   (format nil "(~A ~A)" setID equationID)))
+   (let ((result (do-solver-turn "c_indyStudHowIndy"
+		   (format nil "(~A ~A)" setID (id2solver-slot equationID)))))
+    ;; map from solver slot back to equation id
+    (setf (second result) (mapcar #'solver-slot2id (second result)))
+    (setf (third result) (mapcar #'solver-slot2id (third result)))
+    result))
 
 (defun solver-studentAddOkay (equationID equation)
   (do-solver-turn "c_indyStudentAddEquationOkay" 
     ;; no vertical bars on units
-     (write-to-string (list equationID equation) :pretty NIL :escape nil)))
+     (write-to-string (list (id2solver-slot equationID) equation) 
+		      :pretty NIL :escape nil)))
 
-(defun solver-studentEmptySlot (slot)
-   (solver-studentAddOkay slot "")) ;result should = 8
+(defun solver-studentEmptySlot (equationID)
+  (prog1 (solver-studentAddOkay equationID "") ;result should = 8
+    (remove-id equationID)))
 
 (defun solver-studentIsOkay (equation)
   (do-solver-turn "c_indyIsStudentEquationOkay" 
      ;; no vertical bars on units 
     (write-to-string (list equation) :pretty nil :escape nil)))
 
-(defun solver-eqn-subst-var (assignmentID eqnID destID)
-  (do-solver-turn "c_subInOneEqn"
-		   (format nil "(~A ~A ~A)" assignmentID eqnID destID)))
-
-(defun solver-power-solve (strength varName slot)
+(defun solver-power-solve (strength varName equationID)
   (do-solver-turn "c_powersolve"
-		   (format nil "(~A ~A ~A)" strength varName slot)))
+		   (format nil "(~A ~A ~A)" strength varName 
+			   (id2solver-slot equationID))))
 
-(defun solver-eqn-solve (name equationSlot destinationSlot)
-  (do-solver-turn "c_solveOneEqn"
-    (format nil "(~A ~A ~A)" name equationSlot destinationSlot)))
-
-(defun solver-eqn-simplify (equationSlot destinationSlot)
-  (do-solver-turn "c_simplifyEqn" (format nil "(~A ~A)" equationSlot destinationSlot)))
+(defun solver-eqn-simplify (equationID destinationID)
+  (do-solver-turn "c_simplifyEqn" 
+    (format nil "(~A ~A)" (id2solver-slot equationID) 
+	    (id2solver-slot destinationID))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; utility routine to read as lisp string only when not an error

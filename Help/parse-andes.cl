@@ -817,10 +817,10 @@
   ;;(format t "Okay start!!!<~A>[~A]~%" input sought-quant)
   (declare (special **Grammar**)) ;suppressing warning.
   (let ((entry (make-studententry :id id
-			  ;; not system answer entries so no real prop for these,
-			  ;; following will let us find if answer entered for a quant.
-                          :prop `(answer ,sought-quant)
-                          :verbatim inputo))
+				  ;; not system answer entries so no real prop for these,
+				  ;; following will let us find if answer entered for a quant.
+				  :prop `(answer ,sought-quant)
+				  :verbatim inputo))
 	(result-turn)
 	(input (trim-eqn (fix-eqn-string inputo))))
     (add-entry entry) ;save entry immediately 
@@ -836,19 +836,19 @@
 		  (if (/= (length (remove #\Space rhs)) 0)
 		      (if (/= (length (remove #\Space lhs)) 0)
 			  (let ((nvar (subst-canonical-vars (list lhs))))
-				  (cond
-				   ((contains-strings nvar) ; lhs expr is (or contains) undefined var
-				    (setf why (list 'bad-var lhs))
-				    (setf valid nil))
-				   ((and stud-var (equalp lhs stud-var))) ; lhs = student's var for sought 
-				   (t (setf why (list 'bad-sought lhs))
-				      (setf valid nil))))
-			;; else eqn has empty lhs, e.g. student typed "= 5 N". Allow it.
-			(setf lhs (if stud-var stud-var "Answer")))
-		    ;; else eqn has empty rhs, so bad.
-		    (setf valid nil))
-		;; else student only entered rhs: fill in lhs student variable.
-		(setf lhs (if stud-var stud-var "Answer")))
+			    (cond
+			      ((contains-strings nvar) ; lhs expr is (or contains) undefined var
+			       (setf why (list 'bad-var lhs))
+			       (setf valid nil))
+			      ((and stud-var (equalp lhs stud-var))) ; lhs = student's var for sought 
+			      (t (setf why (list 'bad-sought lhs))
+				 (setf valid nil))))
+			  ;; else eqn has empty lhs, e.g. student typed "= 5 N". Allow it.
+			  (setf lhs (if stud-var stud-var "Answer")))
+		      ;; else eqn has empty rhs, so bad.
+		      (setf valid nil))
+		  ;; else student only entered rhs: fill in lhs student variable.
+		  (setf lhs (if stud-var stud-var "Answer")))
 	      (if (not stud-var)
 		  (symbols-enter "Answer" sought-quant id)) ;; !! NB: want to delete this temp in all paths
 	      (if valid
@@ -859,60 +859,60 @@
 		    ;;(format t "Okay parse!!!~%~A~%" valid)
 		    (if valid
 			(cond
-			 ((not (bad-vars-in-answer valid)) ; checks no non-parameter vars in answer expression
-			  ;;(format t "Okay here!!!~%")
-			  ;; Check as if student equation was entered in *temp-eqn-slot*.
-			  (setf result-turn (do-lookup-equation-answer-string
-					     (concatenate 'string lhs "=" rhs)
-					     *solver-temp-eqn-slot*))
-			  ;; That saved a temp equation entry under *temp-eqn-slot*. 
-			  ;; Copy relevant entry state -- esp ErrInterp for later 
-			  ;; whatswrong  -- into real answer entry and remove temp.
-			  ;;(format t "Result Answer is <~W>~%" result-turn)
-			  (let ((temp-entry (find-entry *solver-temp-eqn-slot*)))
-			    (setf (StudentEntry-State entry)
-			      (StudentEntry-State temp-entry))
-			    (setf (StudentEntry-ErrInterp entry)
-			      (StudentEntry-ErrInterp temp-entry))
-			    (setf (StudentEntry-ParsedEqn entry) ; parse maybe useful
-			      (StudentEntry-ParsedEqn temp-entry))
-			    ;; remove temp from saved entry list
-			    (remove-entry *solver-temp-eqn-slot*)) ; clears algebra slot
-			  (symbols-delete "Answer"))
-			 (T ; answer has non-parameter vars
-			  (setf (StudentEntry-ErrInterp entry) 
-			    (bad-variables-vs-parameters-ErrorInterp input 
-			                         (bad-vars-in-answer valid)))
-			  (setf result-turn (ErrorInterp-remediation
-					     (StudentEntry-ErrInterp entry)))))
-		      (progn ; didn't parse. Note re message that input might not have been a full equation.
-			(setf (StudentEntry-ErrInterp entry) (bad-syntax-ErrorInterp 
+			  ((not (bad-vars-in-answer valid)) ; checks no non-parameter vars in answer expression
+			   ;;(format t "Okay here!!!~%")
+			   ;; Check as if student equation was entered in *temp-eqn-slot*.
+			   (setf result-turn (do-lookup-equation-answer-string
+						 (concatenate 'string lhs "=" rhs)
+					       'check-answer-equation))
+			   ;; That saved a temp equation entry under *temp-eqn-slot*. 
+			   ;; Copy relevant entry state -- esp ErrInterp for later 
+			   ;; whatswrong  -- into real answer entry and remove temp.
+			   ;;(format t "Result Answer is <~W>~%" result-turn)
+			   (let ((temp-entry (find-entry 'check-answer-equation)))
+			     (setf (StudentEntry-State entry)
+				   (StudentEntry-State temp-entry))
+			     (setf (StudentEntry-ErrInterp entry)
+				   (StudentEntry-ErrInterp temp-entry))
+			     (setf (StudentEntry-ParsedEqn entry) ; parse maybe useful
+				   (StudentEntry-ParsedEqn temp-entry))
+			     ;; remove temp from saved entry list
+			     (remove-entry 'check-answer-equation)) ; clears algebra slot
+			   (symbols-delete "Answer"))
+			  (T ; answer has non-parameter vars
+			   (setf (StudentEntry-ErrInterp entry) 
+				 (bad-variables-vs-parameters-ErrorInterp input 
+									  (bad-vars-in-answer valid)))
+			   (setf result-turn (ErrorInterp-remediation
+					      (StudentEntry-ErrInterp entry)))))
+			(progn ; didn't parse. Note re message that input might not have been a full equation.
+			  (setf (StudentEntry-ErrInterp entry) (bad-syntax-ErrorInterp 
 			                                        (if ep input (strcat lhs "=" rhs))))
-			(setf result-turn (ErrorInterp-remediation
-					   (StudentEntry-ErrInterp entry))))))
-		(cond ; failed to get a candidate to test.
-		 ((and why (equal (car why) 'bad-var))
-		  (warn "do-check-answer bad var ~A~%" entry)
-		  (setf (StudentEntry-ErrInterp entry)
-		    (bad-answer-bad-lhs-ErrorInterp input why))
-		  (setf result-turn (ErrorInterp-remediation (StudentEntry-ErrInterp entry))))
-		 ((and why (equal (car why) 'bad-sought))
-		  (warn "do-check-answer bad sought ~A~%" entry)
-		  (setf (StudentEntry-ErrInterp entry)
-		    (bad-answer-bad-sought-ErrorInterp input why))
-		  (setf result-turn (ErrorInterp-remediation (StudentEntry-ErrInterp entry))))
-		 (t
-		  (setf (StudentEntry-ErrInterp entry)
-		    (bad-answer-syntax-ErrorInterp input))
-		  (setf result-turn (ErrorInterp-remediation (StudentEntry-ErrInterp entry)))))
-		)))
-	  ;;(format t "Zero length"))
-      (error "No system variable for ~A. Possible mismatch with answer box." sought-quant))
+			  (setf result-turn (ErrorInterp-remediation
+					     (StudentEntry-ErrInterp entry))))))
+		  (cond ; failed to get a candidate to test.
+		    ((and why (equal (car why) 'bad-var))
+		     (warn "do-check-answer bad var ~A~%" entry)
+		     (setf (StudentEntry-ErrInterp entry)
+			   (bad-answer-bad-lhs-ErrorInterp input why))
+		     (setf result-turn (ErrorInterp-remediation (StudentEntry-ErrInterp entry))))
+		    ((and why (equal (car why) 'bad-sought))
+		     (warn "do-check-answer bad sought ~A~%" entry)
+		     (setf (StudentEntry-ErrInterp entry)
+			   (bad-answer-bad-sought-ErrorInterp input why))
+		     (setf result-turn (ErrorInterp-remediation (StudentEntry-ErrInterp entry))))
+		    (t
+		     (setf (StudentEntry-ErrInterp entry)
+			   (bad-answer-syntax-ErrorInterp input))
+		     (setf result-turn (ErrorInterp-remediation (StudentEntry-ErrInterp entry)))))
+		  )))
+	;;(format t "Zero length"))
+	(error "No system variable for ~A. Possible mismatch with answer box." sought-quant))
     (cond (result-turn) ;; if we got result from check above return it
           (T ;; else failed somewhere. !!! Should process syntax errors same as eqn.
-	     ;;(format T "~&failed to get result for answer~%")
-	     (setf (StudentEntry-state entry) **incorrect**)
-	     (make-red-turn)))))
+	   ;;(format T "~&failed to get result for answer~%")
+	   (setf (StudentEntry-state entry) **incorrect**)
+	   (make-red-turn)))))
 
 (defun bad-answer-bad-lhs-ErrorInterp (equation why)
   "LHS of equation is not a variable."
@@ -1091,8 +1091,8 @@
 	     ;; suppress normal eqn entry logging so we can do modified logging
 	     ;; here, noting different errors and filling in target entry
 	     (result-turn (do-lookup-eqn-string 
-			   studeqn *solver-temp-eqn-slot* :log NIL))
-	     (temp-entry (find-entry *solver-temp-eqn-slot*))
+			   studeqn 'check-given-value-equation :log NIL))
+	     (temp-entry (find-entry 'check-given-value-equation))
 	     (correct-eqn  (eq (StudentEntry-State temp-entry) **Correct**)))
 	  ;; copy (provisional!) filled-in eqn check info from temp entry into 
 	  ;; the main entry's dangling dependent equation subentry.  
@@ -1130,7 +1130,7 @@
 
 	  ;; don't save the temp equation entry on our main list anymore
 	  ;; if it's correct, caller should add subentry like an implicit equation
-	  (remove-entry *solver-temp-eqn-slot*) ; clears algebra slot automatically
+	  (remove-entry 'check-given-value-equation) ; clear algebra slot
 	  ;; finally return turn
 	  result-turn
 	  )))))

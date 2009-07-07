@@ -1709,9 +1709,13 @@
 (defun enter-subentry-eqn (eqn-entry eqn)
   (let* (; Set entry id to free high equation slot, aborting entry
 	 ; if ran out of slots (should ensure enough so never happens)
-         (slot (or (setf (StudentEntry-ID eqn-entry) (get-unused-implicit-slot))
+         (slot (if *solver-free-slots*
+		   (setf (StudentEntry-ID eqn-entry) 
+			 ;; Need a name that won't collide with Andes3 or Andes2 
+			 ;; StudentEntry-ID's and be unique.
+			 (format nil "subentry-eqn-~a" (car *solver-free-slots*)))
 	           (return-from enter-subentry-eqn)))
-	 ; verify it with algebra and enter it in slot
+	 ;; verify it with algebra and enter it in slot
          (result (solver-StudentAddOkay slot eqn)))
 
      ; if equation is not judged algebraically correct something is seriously 
@@ -1732,70 +1736,6 @@
      ; equations: just go on to mark it done in the solution graph in any case
      (sg-enter-StudentEntry eqn-entry)
   ))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; check-answer -- lookup a students answer in the answer box
-;; argument(s):
-;;  answer: the contents of the answer field the student entered
-;;  answer-id: the author-defined id for the answer field. must start with the
-;;    string "ANSWER"
-;; returns: StudentEntry
-;; note(s):
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;
-;; Do-Check-Answer -- worker routine handle answer submission via check-answer
-;; Returns: tutor-turn.
-;;
-#|
-(defun Do-Check-Answer (answer-str sought-quant)
-  (format T"~&Checking answer ~A = ~A~%" sought-quant answer-str)
-  ; ignore blank answer box submissions
-  (when (= 0 (length (remove #\Space answer-str)) )
-       (return-from Do-Check-Answer NIL))
-
-  ; cheap method -- pretend it's just another equation. 
-  ; Later will add code to make sure it has correct form for answer
-  ; Note student may or may not type "var =" in answer box
-  ; !!! if they did, must verify var is the right one
-  (let* ((stud-var (symbols-label sought-quant))
-	 (answer-var stud-var)	; default, unless NIL, see below
-	 (answer-eqn answer-str) ; default unless no =, see below
-	 result-turn)
-      ; verify there is a system variable for sought
-      (unless (quant-to-sysvar sought-quant)
-         (error "No system variable for ~A. Possible mismatch with answer box."
-                 sought-quant))
-      ; We need to build a student equation. If no student variable for answer
-      ; quant has been defined, we define a temporary one. 
-      ; !!! should ensure no conflict with any real one.
-      (when (not stud-var)
-          (symbols-enter "Answer" sought-quant sought-quant)
-	  (setf answer-var "Answer"))
-      ; construct a student equation unless entered in eqn form
-      (unless (find #\= answer-str) 
-          (setf answer-eqn (format NIL "~A=~A" answer-var answer-str)))
-
-      ; do the work of checking an answer eqn, different from other eqns
-      ; !! might want unwind-protect here to ensure cleanup
-      (setf result-turn (check-answer-eqn answer-eqn Solver-*temp-eqn-slot*))
-
-      ; undo temporary state changes for checking answer
-      ; !!! We don't save entry so can't ask whats wrong!
-      (solver-StudentEmptySlot Solver-*temp-eqn-slot*)
-      (symbols-delete "Answer")
-
-      ;finally return result 
-      result-turn))
-
-; this function no longer used by revised Do-Check-Answer
-(defun check-answer-eqn (student-answer-eqn-str slot)
-   ; temp: delegate to student equation checker.
-   ; NB: not do-lookup-eqn-string, which does a return-turn
-   (do-lookup-equation-answer-string student-answer-eqn-str slot))
-
-|#
-;; do-check-answer moved to parse-andes.cl
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
