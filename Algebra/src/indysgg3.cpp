@@ -59,10 +59,6 @@ string solveOneEqn(const char * const varName, const int sourceSlot,
   binopexp * simpeq;
   DBG(cout<<"Entering solveOneEqn with " << varName << ", "
       << sourceSlot << ", " << destSlot << endl;);
-  if (destSlot >= STUDEQSZ) throw(string("destination slot ") 
-				  + itostr(destSlot) + " doesn't exist");
-  if (sourceSlot >= STUDEQSZ) throw(string("source slot ") 
-				  + itostr(sourceSlot) + " doesn't exist");
   if (studeqf[sourceSlot] == (binopexp *) NULL)
     throw(string("Asked to solve an empty equation"));
   if (studeqf[destSlot] != (binopexp *) NULL) {
@@ -226,8 +222,6 @@ subInOneEqn(const int sourceSlot, const int targetSlot, const int destSlot)
 {
   DBG(cout << "Entering subInOneEqn(" << sourceSlot << ", "
            << targetSlot << ", " << destSlot << endl;);
-  if (destSlot >= STUDEQSZ) throw(string("destination slot ") 
-				  + itostr(destSlot) + " doesn't exist");
   if (sourceSlot >= HELPEQSZ) throw(string("source slot ") 
 				  + itostr(sourceSlot) + " doesn't exist");
   if (targetSlot >= HELPEQSZ) throw(string("target slot ") 

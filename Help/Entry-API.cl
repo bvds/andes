@@ -1349,9 +1349,13 @@
 (defun enter-subentry-eqn (eqn-entry eqn)
   (let* (; Set entry id to free high equation slot, aborting entry
 	 ; if ran out of slots (should ensure enough so never happens)
-         (slot (or (setf (StudentEntry-ID eqn-entry) (get-unused-implicit-slot))
+         (slot (if *solver-free-slots*
+		   (setf (StudentEntry-ID eqn-entry) 
+			 ;; Need a name that won't collide with Andes3 or Andes2 
+			 ;; StudentEntry-ID's and be unique.
+			 (format nil "subentry-eqn-~a" (car *solver-free-slots*)))
 	           (return-from enter-subentry-eqn)))
-	 ; verify it with algebra and enter it in slot
+	 ;; verify it with algebra and enter it in slot
          (result (solver-StudentAddOkay slot eqn)))
 
      ; if equation is not judged algebraically correct something is seriously 
@@ -1374,8 +1378,7 @@
   ))
 
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; MC Answers
 ;; Lookup-mc-answer is sent for multiple choice answers.  This is used for both 
 ;; the n-way multiple choice questions of the type in faa1 where the student is

@@ -774,10 +774,10 @@
   ;;(format t "Okay start!!!<~A>[~A]~%" input sought-quant)
   (warn "Can't make valid studententry since type, location etc missing")
   (let ((entry (make-studententry :id id
-			  ;; not system answer entries so no real prop for these,
-			  ;; following will let us find if answer entered for a quant.
-                          :prop `(answer ,sought-quant)
-                          :verbatim inputo))
+				  ;; not system answer entries so no real prop for these,
+				  ;; following will let us find if answer entered for a quant.
+				  :prop `(answer ,sought-quant)
+				  :verbatim inputo))
 	(result-turn)
 	(input (trim-eqn inputo)))
     (add-entry entry) ;save entry immediately 
@@ -793,19 +793,19 @@
 		  (if (/= (length (remove #\Space rhs)) 0)
 		      (if (/= (length (remove #\Space lhs)) 0)
 			  (let ((nvar (subst-canonical-vars (list lhs))))
-				  (cond
-				   ((contains-strings nvar) ; lhs expr is (or contains) undefined var
-				    (setf why (list 'bad-var lhs))
-				    (setf valid nil))
-				   ((and stud-var (equalp lhs stud-var))) ; lhs = student's var for sought 
-				   (t (setf why (list 'bad-sought lhs))
-				      (setf valid nil))))
-			;; else eqn has empty lhs, e.g. student typed "= 5 N". Allow it.
-			(setf lhs (if stud-var stud-var "Answer")))
-		    ;; else eqn has empty rhs, so bad.
-		    (setf valid nil))
-		;; else student only entered rhs: fill in lhs student variable.
-		(setf lhs (if stud-var stud-var "Answer")))
+			    (cond
+			      ((contains-strings nvar) ; lhs expr is (or contains) undefined var
+			       (setf why (list 'bad-var lhs))
+			       (setf valid nil))
+			      ((and stud-var (equalp lhs stud-var))) ; lhs = student's var for sought 
+			      (t (setf why (list 'bad-sought lhs))
+				 (setf valid nil))))
+			  ;; else eqn has empty lhs, e.g. student typed "= 5 N". Allow it.
+			  (setf lhs (if stud-var stud-var "Answer")))
+		      ;; else eqn has empty rhs, so bad.
+		      (setf valid nil))
+		  ;; else student only entered rhs: fill in lhs student variable.
+		  (setf lhs (if stud-var stud-var "Answer")))
 	      (if (not stud-var)
 		  (symbols-enter "Answer" sought-quant id)) ;; !! NB: want to delete this temp in all paths
 	      (if valid
@@ -822,12 +822,12 @@
 			  ;; Check as if student equation was entered in *temp-eqn-slot*.
 			  (setf result-turn (do-lookup-equation-answer-string
 					     (concatenate 'string lhs "=" rhs)
-					     *solver-temp-eqn-slot*))
+					     'check-answer-equation))
 			  ;; That saved a temp equation entry under *temp-eqn-slot*. 
 			  ;; Copy relevant entry state -- esp ErrInterp for later 
 			  ;; whatswrong  -- into real answer entry and remove temp.
 			  ;;(format t "Result Answer is <~W>~%" result-turn)
-			  (let ((temp-entry (find-entry *solver-temp-eqn-slot*)))
+			  (let ((temp-entry (find-entry 'check-answer-equation)))
 			    (setf (StudentEntry-State entry)
 			      (StudentEntry-State temp-entry))
 			    (setf (StudentEntry-ErrInterp entry)
@@ -836,7 +836,7 @@
 			      (StudentEntry-ParsedEqn temp-entry))
 			    ;; remove temp from saved entry list
 			    ;; clears algebra slot
-			    (delete-object *solver-temp-eqn-slot*))
+			    (delete-object 'check-answer-equation))
 			  (symbols-delete "Answer"))
 			 (T ; answer has non-parameter vars
 			  (setf (StudentEntry-ErrInterp entry) 
@@ -1051,7 +1051,7 @@
      ;; else the quantity does have a given value:
      (t (let*  
 	    ;; form a studentese equation and check it like any other equation,
-	    ;; as if it were entered in *solver-temp-eqn-slot*.  This will us 
+	    ;; as if it were entered in 'check-answer-equation.  This will us 
 	    ;; a result turn, and record a (temp) entry struct containing its
 	    ;; interp.  We remove the temp-entry when done with it. Note that
 	    ;; the temp-entry != eqn-entry above, so we may have to update
@@ -1065,8 +1065,8 @@
 	     ;; BvdS:  this is expecting an StudentEntry struct,
 	     ;; not a raw string....
 	     (result-turn (lookup-eqn-string 
-			   studeqn *solver-temp-eqn-slot* :log NIL))
-	     (temp-entry (find-entry *solver-temp-eqn-slot*))
+			   studeqn 'check-given-value-equation :log NIL))
+	     (temp-entry (find-entry 'check-given-value-equation))
 	     (correct-eqn  (eq (StudentEntry-State temp-entry) **Correct**)))
 	  ;; copy (provisional!) filled-in eqn check info from temp entry into 
 	  ;; the main entry's dangling dependent equation subentry.  
@@ -1104,8 +1104,7 @@
 
 	  ;; don't save the temp equation entry on our main list anymore
 	  ;; if it's correct, caller should add subentry like an implicit equation
-	  ;; clears algebra slot automatically
-	  (delete-object *solver-temp-eqn-slot*)
+	  (remove-entry 'check-given-value-equation) ; clear algebra slot
 	  ;; finally return turn
 	  result-turn
 	  )))))

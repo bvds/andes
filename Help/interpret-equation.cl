@@ -268,21 +268,6 @@
 		      (studentEntry-GivenEqns studEntry))))
         EntryList))
 
-; might want this instead, if we care about order of solution equations:
-(defun entered-explicitly-before (syseqn N)
-"true if syseqn is explicitly entered in student entries before eqn N"
-    (entered-explicitly syseqn (eqn-entries-before N)))
-
-; Equation entries not necessarily in order in *StudentEntries* so have
-; to filter out all equation entries with indices (=ids) < N 
-(defun eqn-entries-before (N)
-"return list of student equation entries before eqn N"
-   (remove-if-not #'(lambda (studEnt)
-	                   (and (numberp (StudentEntry-Id studEnt)) ; only equation entries
-			        (< (StudentEntry-ID studEnt) N)))
-	          *StudentEntries*))
-
-
 ;; For use when detecting premature substitution of numerical values:
 ;; Instructors also want to allow implicit combination of given magnitudes 
 ;; magV = K units with projection equation V_x = V cos (N deg - M deg) 
