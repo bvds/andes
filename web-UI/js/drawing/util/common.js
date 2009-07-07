@@ -225,9 +225,10 @@ dojo.require("dojox.math.round");
 				
 			}catch(e){
 				if(!squelchErrors){
-					console.error("BAD ATTR: prop:", prop, "el:", elem)
-					console.error(e)
-					console.trace();
+					// For debugging only. These errors actually cause errors in IE's console
+					//console.error("BAD ATTR: prop:", prop, "el:", elem)
+					//console.error(e)
+					//console.trace();
 				}
 				return false;
 			}

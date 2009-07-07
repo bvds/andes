@@ -10,6 +10,7 @@ dojo.provide("drawing.manager.Stencil");
 			surface = options.surface;
 			this.canvas = options.canvas;
 			
+			this.defaults = drawing.defaults.copy();
 			this.undo = options.undo;
 			this.mouse = options.mouse;
 			this.keys = options.keys;
@@ -35,6 +36,7 @@ dojo.provide("drawing.manager.Stencil");
 			},
 			
 			onArrow: function(evt){
+				// FIXME: Check constraints
 				if(this.hasSelected()){
 					this.saveThrottledState();
 					this.group.applyTransform({dx:evt.x, dy: evt.y});
@@ -112,6 +114,15 @@ dojo.provide("drawing.manager.Stencil");
 				});
 				
 			},
+			setConstraint: function(){
+				var t = 0; l = 0;
+				this.withSelected(function(m){
+					var o = m.getBounds();
+					t = Math.max(o.y1, t);
+					l = Math.max(o.x1, l);
+				});
+				this.constrain = {l:-l, t:-t};
+			},
 			onSelect: function(item){
 				//console.log("stencil.onSelect", item);
 				if(!item){
@@ -160,11 +171,15 @@ dojo.provide("drawing.manager.Stencil");
 				
 			},
 			
+			
+			onAnchorUp: function(){
+				this.setConstraint();
+			},
 			onStencilDown: function(obj){
 				console.info("onStencilDown:", obj.id, this.keys.meta)
 				if(this.selectedItems[obj.id] && this.keys.meta){
 					
-					console.log("shift remove", this.keys);
+					console.log("shift remove");
 					this.onDeselect(this.selectedItems[obj.id]);
 					if(this.hasSelected()==1){
 						this.withSelected(function(m){
@@ -172,11 +187,14 @@ dojo.provide("drawing.manager.Stencil");
 						});
 					}
 					this.group.moveToFront();
+					this.setConstraint();
 					return;
 				
 				}else if(this.selectedItems[obj.id]){
-					
-					console.log("same shape(s)");
+					// RESET OFFSETS
+					var mx = this.group.getTransform();
+					this._offx = obj.x - mx.dx; 
+					this._offy = obj.y - mx.dy;
 					return;
 				
 				}else if(!this.keys.meta){
@@ -193,6 +211,14 @@ dojo.provide("drawing.manager.Stencil");
 				var item = this.items[obj.id];
 				this.onSelect(item);
 				this.group.moveToFront();
+				this.setConstraint();
+				
+				var mx = this.group.getTransform();
+				this._offx = obj.x - mx.dx; 
+				this._offy = obj.y - mx.dx;
+				
+				this.orgx = obj.x;
+				this.orgy = obj.y;
 				
 				// TODO:
 				//  dojo.style(surfaceNode, "cursor", "pointer");
@@ -218,20 +244,36 @@ dojo.provide("drawing.manager.Stencil");
 			
 			onStencilDrag: function(obj){
 				if(!this._dragBegun){
+					// bug, in FF anyway - first mouse move shows x=0
+					// the 'else' fixes it
 					this.onBeginDrag(obj);
 					this._dragBegun = true;
 				}else{
 					this.saveThrottledState();
-					// bug, in FF anyway - first mouse move shows x=0
-					// the 'else' fixes it
-					var x = obj.x - obj.last.x;
-					var y = obj.y - obj.last.y;
 					
-					this.group.applyTransform({
+					var x = obj.x - obj.last.x,
+						y = obj.y - obj.last.y,
+						mx = this.group.getTransform(),
+						c = this.constrain,
+						mz = this.defaults.anchors.marginZero;
+					
+					
+					x = obj.x - this._offx;
+					y = obj.y - this._offy;
+					
+					if(x < c.l + mz){
+						x = c.l + mz;
+					}
+					if(y < c.t + mz){
+						y = c.t + mz;
+					}
+					
+					this.group.setTransform({
 						dx: x,
 						dy: y
 					});
-
+					
+					
 				}
 			},
 			

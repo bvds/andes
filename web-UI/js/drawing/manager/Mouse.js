@@ -22,6 +22,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		init: function(node){
 			this.container = node;
 			var pos = dojo.coords(this.container.parentNode);
+			console.warn("SET MOUSE COORDS")
 			this.origin = dojo.clone(pos);
 			var c;
 			var _isDown = false;
@@ -44,7 +45,11 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 				this._dragged = false;	
 			});
 		},
-		
+		setCanvas: function(){
+			var pos = dojo.coords(this.container.parentNode);
+			console.warn("SET MOUSE COORDS")
+			this.origin = dojo.clone(pos);
+		},
 		scrollOffset: function(){
 			return {
 				top:this.container.parentNode.scrollTop,
@@ -92,7 +97,6 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			// blocking first click-off (deselect), largely for TextBlock
 			// TODO: should have param to make this optional??
 			var nm = this.eventName("up");
-			//console.info("1)", nm, this._selected)
 			
 			if(nm == "onStencilUp"){
 				this._selected  = true;
@@ -100,12 +104,16 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 				nm = "onStencilUp";
 				this._selected = false;
 			}
-			//console.info("2)", nm, this._selected)
+			
+			console.info("Up Event:", nm);
 			this._broadcastEvent(nm, obj);
 			
 			// Silverlight double-click handled in Silverlight class
 			if(dojox.gfx.renderer == "silverlight"){ return; }
 			
+			// Check Double Click
+			// If a double click is detected, the onDoubleClick event fires,
+			// but does not replace the normal event. They both fire.
 			this._clickTime = new Date().getTime();
 			if(this._lastClickTime){
 				if(this._clickTime-this._lastClickTime<this.doublClickSpeed){
@@ -196,7 +204,6 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			
 			x*= this.zoom;
 			y*= this.zoom;
-			
 			
 			
 			

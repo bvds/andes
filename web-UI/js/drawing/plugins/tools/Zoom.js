@@ -22,6 +22,7 @@ drawing.plugins.tools.Zoom = drawing.util.oo.declare(
 		topClass:"toolComboTop",
 		midClass:"toolComboMid",
 		botClass:"toolComboBot",
+		type:"drawing.plugins.tools.Zoom",
 		makeButton: function(name, cls){
 			
 			var node = dojo.create("div", {id:"btn"+name, "class":this.baseClass+" "+cls,
@@ -57,20 +58,17 @@ drawing.plugins.tools.Zoom = drawing.util.oo.declare(
 			this.zoomFactor = Math.min(this.zoomFactor, this.maxZoom);
 			this.canvas.setZoom(this.zoomFactor);
 			this.mouse.setZoom(this.zoomFactor);
-			watch("zoom:", this.zoomFactor);
 		},
 		onZoom100: function(){
 			this.zoomFactor = 1;
 			this.canvas.setZoom(this.zoomFactor);
 			this.mouse.setZoom(this.zoomFactor);
-			watch("zoom:", this.zoomFactor);
 		},
 		onZoomOut: function(){
 			this.zoomFactor -= this.zoomInc;
 			this.zoomFactor = Math.max(this.zoomFactor, this.minZoom);
 			this.canvas.setZoom(this.zoomFactor);
 			this.mouse.setZoom(this.zoomFactor);
-			watch("zoom:", this.zoomFactor);
 		}
 	}
 );

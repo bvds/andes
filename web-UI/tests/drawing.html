@@ -50,24 +50,23 @@
 		if(dojo.isIE){
 			console._log = console.log;
 			console.log = function(){
-				a = Array.prototype.slice.call(arguments);
-				a = a.join("  ")
-				console._log(a);
+				console._log(Array.prototype.slice.call(arguments).join("  "));
 			}
+			console._warn = console.warn;
+			console.warn = function(){
+				console._warn(Array.prototype.slice.call(arguments).join("  "));
+			}
+			// if console is closed this throws an error
+			try{
+			console.clear();
+			}catch(e){}
 		}
 
 		dojo.require("dojo.parser");
 		dojo.require("drawing.Drawing");
-		
-		
-		
-		
 		dojo.require("drawing.Toolbar");
-		
-		
 		dojo.require("drawing.tools.custom.Vector");
-		dojo.require("drawing.tools.custom.Axes");		
-		
+		dojo.require("drawing.tools.custom.Axes");				
 		dojo.require("drawing.tools.Arrow");
 		dojo.require("drawing.plugins.tools.Pan");
 		dojo.require("drawing.plugins.tools.Zoom");

@@ -28,22 +28,27 @@ dojo.require("drawing.tools.Line");
 // could add a widget that extends this
 
 (function(){
-	
+	var _plugsInitialized = false;
 	dojo.declare("drawing.Drawing", [], {
 		width:0,
 		height:0,
 		grid:"",
 		constructor: function(props, node){
+			// FIXME:
+			// currently most objects get their styles/defaults
+			// like:drawing.defaults.copy();
+			// - is this good or should the object always be passed?
+			this.defaults = drawing.defaults;
+			
 			this.id = node.id;
 			this.util = drawing.util.common;
-			this.util.register(this);
+			this.util.register(this); // So Toolbar can find this Drawing
 			this.keys = drawing.manager.keys;
 			this.mouse = new drawing.manager.Mouse({util:this.util, keys:this.keys});
 			this.tools = {};
 			this.srcRefNode = node;
 			var str = dojo.attr(node, "plugins");
 			if(str){
-				console.log("plugins:", str)
 				this.plugins = eval(str);
 				console.dir(this.plugins);
 			}
@@ -70,9 +75,21 @@ dojo.require("drawing.tools.Line");
 			// summary:
 			//	Add a toolbar plugin object to plugins array
 			//	to be parsed
+			
 			this.plugins.push(plugin);
 		},
 		initPlugins: function(){
+			// called from Toolbar after last plugin has been loaded
+			// The call to this coming from toobar is a bit funky as the timing
+			// of IE for canvas load is different than other browsers
+			console.info("init plugs?", this.canvas.surfaceReady)
+			if(!this.canvas.surfaceReady){
+				var c = dojo.connect(this, "onSurfaceReady", this, function(){
+					dojo.disconnect(c);
+					this.initPlugins();
+				})
+				return;
+			}
 			dojo.forEach(this.plugins, function(p, i){
 				var props = dojo.mixin({
 					util:this.util,
@@ -86,9 +103,14 @@ dojo.require("drawing.tools.Line");
 				this.registerTool(p.name, dojo.getObject(p.name));
 				this.plugins[i] = new this.tools[p.name](props);
 			}, this);
-					
+			this.plugins = [];
+			_plugsInitialized = true;
+			// In IE, because the timing is different we have to get the
+			// cnvas position after everything has drawn. *sigh*
+			this.mouse.setCanvas();
 		},
 		onSurfaceReady: function(){
+			console.warn("----------------------------------->>>Surface ready")
 			this.domNode = this.canvas.domNode;
 			this.mouse.init(this.domNode);
 			this.undo = new drawing.manager.Undo({keys:this.keys});
@@ -98,22 +120,28 @@ dojo.require("drawing.tools.Line");
 			// plugin??
 			new drawing.manager.Silverlight({mouse:this.mouse, stencils:this.stencils, anchors:this.anchors, canvas:this.canvas});
 			
-			this.initPlugins();
-			
 			// objects for testing. Final code will move these into test HTML
-			this.stencils.register(new drawing.stencil.Rect(this.getShapeProps(
-				{data:{x:100, y:-100, width:200, height:200}}
+			
+			
+			
+		 	this.stencils.register(new drawing.stencil.Rect(this.getShapeProps(
+				{data:{x:100, y:100, width:100, height:100}}
 			)));
 			
-			this.stencils.register(new drawing.stencil.Image(this.getShapeProps(
-				{data:{src:"images/BallOnWall.png", x:110, y:110, width:220, height:220}}
-			)));
-			
-			this.stencils.register(new drawing.stencil.Image(this.getShapeProps(
-				{data:{src:"images/BallOnWall.png", x:310, y:160, width:"auto"}}
+			this.stencils.register(new drawing.stencil.Line(this.getShapeProps(
+				{points:[{x:300,y:300},{x:500,y:200}]}
 			)));
 	
-		/*	this.stencils.register(new drawing.stencil.Rect(this.getShapeProps(
+		/*
+			this.stencils.register(new drawing.stencil.Image(this.getShapeProps(
+				{data:{src:"images/BallOnWall.png", x:300, y:200, width:"auto"}}
+			)));
+			
+			this.stencils.register(new drawing.stencil.Image(this.getShapeProps(
+				{data:{src:"images/BallOnWall.png", x:110, y:110, width:320, height:220}}
+			)));
+		 	
+		 	this.stencils.register(new drawing.stencil.Rect(this.getShapeProps(
 				{data:{x:400, y:100, width:200, height:200}}
 			)));
 			
@@ -155,9 +183,8 @@ dojo.require("drawing.tools.Line");
 		registerTool: function(type){
 			var constr = dojo.getObject(type);
 			if(constr.setup){
-				console.info("setup ", constr.setup.name, "::", constr.setup)
+				//console.info("setup ", constr.setup.name, "::", constr.setup)
 			}
-			//console.warn("DRAWBLE:", constr.name, "drawable:", constr.drawable)
 			this.tools[type] = constr;
 		},
 		setTool: function(type){
@@ -172,7 +199,6 @@ dojo.require("drawing.tools.Line");
 				this.unSetTool();
 			}
 			this.currentType = type;
-			console.log("REG TOOL :", this.currentType)
 			try{
 				this.currentStencil = new this.tools[this.currentType]({parent:this.canvas.surface.createGroup(), util:this.util, mouse:this.mouse, keys:this.keys});
 				this._toolCon = dojo.connect(this.currentStencil, "onRender", this, "onRenderStencil");

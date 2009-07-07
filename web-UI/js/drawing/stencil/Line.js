@@ -34,11 +34,10 @@ drawing.stencil.Line = drawing.util.oo.declare(
 		},
 		
 		render: function(){
-			var d = this.data;
 			this.onBeforeRender(this);
-			this._create("hit", d, this.style.currentHit);
+			this._create("hit", this.data, this.style.currentHit);
 			//if(!this.annotation)
-			this._create("shape", d, this.style.current);
+			this._create("shape", this.data, this.style.current);
 		}		
 		
 	}

@@ -25,6 +25,7 @@ dojo.provide("drawing.manager.Canvas");
 			_surface = dojox.gfx.createSurface(this.domNode, this.width, this.height);
 			_surface.whenLoaded(this, function(){
 				setTimeout(dojo.hitch(this, function(){
+					this.surfaceReady = true;
 					if(dojo.isIE){
 						//_surface.rawNode.parentNode.id = this.id;
 					}else if(dojox.gfx.renderer == "silverlight"){
@@ -41,7 +42,7 @@ dojo.provide("drawing.manager.Canvas");
 					this.surface.getDimensions = dojo.hitch(_surface, "getDimensions");
 					if(options.callback){
 						options.callback(this.domNode);
-					}								
+					}
 				}),0);
 			});
 			this._mouseHandle = this.mouse.register(this);
@@ -58,6 +59,8 @@ dojo.provide("drawing.manager.Canvas");
 			mouse:null,
 			useScrollbars: true,
 			baseClass:"drawingCanvas",
+			surfaceReady:false,
+			
 			blockScrollbars: function(block){
 				this._scrollBlocked = block;
 			},
@@ -91,11 +94,22 @@ dojo.provide("drawing.manager.Canvas");
 				}
 				
 			},
+			setXYWH: function(){
+				this.width = 900;
+				this.height = 600
+				_surface.setDimensions(this.width, this.height);
+				this.domNode.parentNode.scrollTop = 100;
+				this.domNode.parentNode.scrollLeft = 0;
+				dojo.style(this.domNode.parentNode, {
+					overflowY: this.height > this.parentHeight ? "scroll" : "hidden",
+					overflowX: this.width > this.parentWidth ? "scroll" : "hidden"
+				});
+			},
 			setDimensions: function(width, height, scrollx, scrolly){
 				// changing the size of the surface and setting scroll
 				// if items are off screen
 				//
-				
+			//console.warn("SET DIM")
 				var sw = this.getScrollWidth() //+ 10;
 				this.width = Math.max(width, this.parentWidth);
 				this.height = Math.max(height, this.parentHeight);

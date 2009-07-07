@@ -48,7 +48,8 @@ drawing.defaults = {
 		style:"solid",
 		fill:"#ccc",
 		cap:"square",
-		minSize:10
+		minSize:10,
+		marginZero:5 // not really an anchor prop
 	},
 	arrows:{
 		length:30,

@@ -3,7 +3,8 @@ dojo.provide("drawing.manager.Anchors");
 (function(){
 	
 	//
-	// FIXME: constrain anchors to not go past each other
+	// FIXME: constrain anchors to not go past ZERO
+	// FIXME: Need to set points to keep anchors in line with rect
 	//
 	drawing.manager.Anchors = drawing.util.oo.declare(
 		function(options){
@@ -33,9 +34,9 @@ dojo.provide("drawing.manager.Anchors");
 						dojo.connect(a, "onAnchorDown", this, "onAnchorDown"),
 						dojo.connect(a, "onAnchorDrag", this, "onAnchorDrag")
 					];
-					if(item.anchorType=="group"){
+					//if(item.anchorType=="group"){
 						this.items[item.id]._cons.push(dojo.connect(a, "onTransformPoint", this, "onTransformPoint"));
-					}
+					//}
 					this.items[item.id].anchors.push(a);
 					this.onAddAnchor(a);
 				}, this);
@@ -73,10 +74,19 @@ dojo.provide("drawing.manager.Anchors");
 			},
 			
 			onTransformPoint: function(anchor){
+				// summary:
+				//		Fired on anchor drag
+				//		If anchors are a "group", it's corresponding anchor
+				//		is set. All anchors then moved to front.
 				var anchors = this.items[anchor.stencil.id].anchors;
-				dojo.forEach(anchors, function(a){
-					if(anchor.id != a.id){
-						var mx = anchor.shape.getTransform();
+				var item = this.items[anchor.stencil.id].item
+				var pts = [];
+				dojo.forEach(anchors, function(a, i){
+					
+					
+					if(anchor.id == a.id){
+						// nothing ?
+					}else{
 						if(anchor.org.y == a.org.y){
 							a.setPoint({
 								dx: 0,
@@ -90,7 +100,21 @@ dojo.provide("drawing.manager.Anchors");
 						}
 						a.shape.moveToFront();
 					}
-				});
+					
+					var mx = a.shape.getTransform();
+					pts.push({x:mx.dx + a.org.x, y:mx.dy+ a.org.y});
+					
+					watch("anchor"+i, Math.ceil(mx.dx)+" x " + Math.ceil(mx.dy))
+					watch("point0", Math.ceil(item.points[0].x)+" x " +Math.ceil(item.points[0].y))
+					watch("point1", Math.ceil(item.points[1].x)+" x " +Math.ceil(item.points[1].y))
+					/*watch("point2", Math.ceil(item.points[2].x)+" x " +Math.ceil(item.points[2].y))
+					watch("point3", Math.ceil(item.points[3].x)+" x " +Math.ceil(item.points[3].y))
+					*/
+					
+				}, this);
+				item.setPoints(pts);
+				item.onTransform(anchor);
+				this.onRenderStencil();
 			},
 			
 			onAnchorUp: function(anchor){
@@ -118,7 +142,7 @@ dojo.provide("drawing.manager.Anchors");
 	
 	drawing.manager.Anchor = drawing.util.oo.declare(
 		function(options){
-			this.style = drawing.defaults.copy();
+			this.defaults = drawing.defaults.copy();
 			this.mouse = options.mouse;
 			this.point = options.point;
 			this.util = options.util;
@@ -133,7 +157,7 @@ dojo.provide("drawing.manager.Anchors");
 			x_anchor:null,
 			render: function(){
 				this.shape && this.shape.removeShape();
-				var d = this.style.anchors,
+				var d = this.defaults.anchors,
 					b = d.width,
 					s = d.size,
 					p = s/2,
@@ -174,76 +198,107 @@ dojo.provide("drawing.manager.Anchors");
 			},
 			onAnchorDrag: function(obj){
 				if(this.selected){
+					// mx is the original transform from when the anchor
+					// was created. It does not change
 					var mx = this.shape.getTransform();
 					
-					var x, y, s = this.style.anchors.minSize;
+					var pmx = this.shape.getParent().getParent().getTransform();
+					
+					var marginZero = this.defaults.anchors.marginZero;
+					
+					var orgx = pmx.dx + this.org.x,
+						orgy = pmx.dy + this.org.y,
+						x = obj.x - orgx;
+						y = obj.y - orgy;
+						s = this.defaults.anchors.minSize;
+					
+					var conL, conR, conT, conB;
+					
 					if(this.y_anchor){
-						
+						// prevent y overlap of opposite anchor
 						if(this.org.y > this.y_anchor.org.y){
+							// bottom anchor
 							
-							if(obj.y >= this.y_anchor.point.y + s){
-								y = obj.y - obj.last.y;
-							}else if(this.point.y > this.y_anchor.point.y + s){
-								y = this.y_anchor.point.y + s - this.point.y
-							}else{
-								y = 0;
+							conT = this.y_anchor.point.y + s - this.org.y;
+							conB = Infinity;
+							
+							if(y < conT){
+								// overlapping other anchor
+								y = conT
 							}
 							
-						}else{
 							
-							if(obj.y <= this.y_anchor.point.y - s){
-								y = obj.y - obj.last.y;
-							}else if(this.point.y < this.y_anchor.point.y - s){
-								y = this.y_anchor.point.y - s - this.point.y
-							}else{
-								y = 0;
+						}else{
+							// top anchor
+							
+							conT = -orgy + marginZero;
+							conB = this.y_anchor.point.y - s - this.org.y;
+							
+							if(y < conT){
+								// less than zero
+								y = conT;
+							}else if(y > conB){
+								// overlapping other anchor
+								y = conB; 
 							}
 						}
 					}else{
-						y = obj.y - obj.last.y;
+						// Lines - check for zero
+						conT = -orgy + marginZero;
+						if(y < conT){
+							// less than zero
+							y = conT
+						}
 					}
+					
+					
+					
 					
 					if(this.x_anchor){
+						// prevent x overlap of opposite anchor
+						
 						if(this.org.x>this.x_anchor.org.x){
+							// right anchor
 							
-							if(obj.x >= this.x_anchor.point.x+s){
-								x = obj.x - obj.last.x;
-							}else if(this.point.x > this.x_anchor.point.x + s){
-								x = this.x_anchor.point.x + s - this.point.x
-							}else{
-								x = 0;
-							}
+							conL = this.x_anchor.point.x + s - this.org.x;
+							conR = Infinity;
+							
+							if(x < conL){
+								// overlapping other anchor
+								x = conL
+							}							
 							
 						}else{
+							// left anchor
 							
-							if(obj.x <= this.x_anchor.point.x - s){
-								x = obj.x - obj.last.x;
-							}else if(this.point.x < this.x_anchor.point.x - s){
-								x = this.x_anchor.point.x - s - this.point.x
-							}else{
-								x = 0;
+							conL = -orgx + marginZero;
+							conR = this.x_anchor.point.x - s - this.org.x;
+							
+							if(x < conL){
+								x = conL;
+							}else if(x > conR){
+								// overlapping other anchor
+								x = conR; 
 							}
 						}
 					}else{
-						x = obj.x - obj.last.x;
+						// Lines check for zero
+						conL = -orgx + marginZero;
+						if(x < conL){
+							x = conL;
+						}
 					}
 					
-					this.shape.applyTransform({
-						dx: x,
-						dy: y
+					
+					this.shape.setTransform({
+						dx:x,
+						dy:y
 					});
-					this.point.x += x;
-					this.point.y += y;
 					this.onTransformPoint(this);
-					this.stencil.onTransform(this); /// ------------- rendering, not transforming
-					this.onRenderStencil();
-					//this.shape.moveToFront();
 				}
 			},
 			setPoint: function(mx){
 				this.shape.applyTransform(mx);
-				this.point.x += mx.dx;
-				this.point.y += mx.dy;
 			},
 			connectMouse: function(){
 				this._mouseHandle = this.mouse.register(this);

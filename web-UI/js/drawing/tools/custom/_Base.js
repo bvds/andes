@@ -97,7 +97,7 @@ drawing.tools.custom._Base = drawing.util.oo.declare(
 			dojo.style(node, {
 				left:  this._offX + pt.x + "px",
 				top: this._offY + pt.y + "px",
-				textAlign:pt.align
+				align:pt.align
 			});
 			
 			// reversing the angle for display: 0 -> 180, 90 -> 270

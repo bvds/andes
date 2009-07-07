@@ -13,7 +13,7 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 			this.points = [
 				{x:o.x, y:o.y}, 						// TL
 				{x:o.x + o.width, y:o.y},				// TR
-				{x:o.x + o.width, y:o.y + o.height},// BR
+				{x:o.x + o.width, y:o.y + o.height},	// BR
 				{x:o.x, y:o.y + o.height}				// BL
 			];
 			return this.points;

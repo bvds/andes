@@ -9,8 +9,9 @@ dojo.provide("drawing.stencil._Base");
 			dojo.mixin(this, options);
 			
 			this.style = options.style || drawing.defaults.copy();
-			
+			this.marginZero = options.marginZero || this.style.anchors.marginZero;
 			this.id = options.id || this.util.uid(this.type);
+			
 			//console.log("ID:", this.id, ":::::", this.type, this)
 			this._cons = [];
 			
@@ -21,6 +22,8 @@ dojo.provide("drawing.stencil._Base");
 			if(!this.annotation && !this.subShape){
 				this.util.attr(this.parent, "id", this.id);
 			}
+			
+			this.connect(this, "onBeforeRender", "preventNegativePos");
 			
 			this._offX = this.mouse.origin.x;
 			this._offY = this.mouse.origin.y;
@@ -36,6 +39,7 @@ dojo.provide("drawing.stencil._Base");
 		{
 			
 			//public
+			parent:null, // shape(s) container TODO: change to 'container'
 			type:"drawing.stencil",
 			minimumSize:10,
 			annotation:false,
@@ -46,6 +50,8 @@ dojo.provide("drawing.stencil._Base");
 			keys:null,
 			points:[],
 			data:null,
+			// how close shape can get to y or x ÐÊzero may show bugs in VML
+			zeroMargin:0,
 			
 			//readonly
 			created: false,
@@ -64,19 +70,53 @@ dojo.provide("drawing.stencil._Base");
 					this.data = this.pointsToData();
 				}
 			},
+			
+			preventNegativePos: function(){
+				// summary:
+				//	Prevent item from being drawn/rendered less than zero
+				// on the X or Y.
+				//
+				// if being modified anchors will prevent less than zero.
+				if(this.isBeingModified){ return; }
+				// why is this sometimes empty?
+				if(!this.points.length){ return; }
+				
+				dojo.forEach(this.points, function(p){
+					p.x = p.x < 0 ? this.zeroMargin : p.x;
+					p.y = p.y < 0 ? this.zeroMargin : p.y;
+				});
+				this.setPoints(this.points);
+			},
+			
 			getBounds: function(){
 				// NOTE: Won't work for paths or annotations (labels, arrow tips)
 				var p = this.points;
-				var idx = p.length==2 ? 1 : 2;
-				return {
-					x1:p[0].x,
-					y1:p[0].y,
-					x2:p[idx].x,
-					y2:p[idx].y,
-					x:p[0].x,
-					y:p[0].y,
-					w:p[idx].x - p[0].x,
-					h:p[idx].y - p[0].y
+				if(p.length==2){
+					var x1 = p[0].x < p[1].x ? p[0].x : p[1].x;
+					var y1 = p[0].y < p[1].y ? p[0].y : p[1].y;
+					var x2 = p[0].x < p[1].x ? p[1].x : p[0].x;
+					var y2 = p[0].y < p[1].y ? p[1].y : p[0].y;
+					return {
+						x1:x1,
+						y1:y1,
+						x2:x2,
+						y2:y2,
+						x:x1,
+						y:y1,
+						w:x2-x1,
+						h:y2-y1
+					};
+				}else{
+					return {
+						x1:p[0].x,
+						y1:p[0].y,
+						x2:p[2].x,
+						y2:p[2].y,
+						x:p[0].x,
+						y:p[0].y,
+						w:p[2].x - p[0].x,
+						h:p[2].y - p[0].y
+					};
 				}
 			},
 			
@@ -198,6 +238,7 @@ dojo.provide("drawing.stencil._Base");
 			
 			onTransform: function(anchor){
 				// called from anchor point mouse drag
+				// also called right away from plugins.Pan.checkBounds
 				if(!this.isBeingModified){
 					this.onTransformBegin();
 				}
