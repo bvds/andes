@@ -57,7 +57,7 @@ body, .tundra .dijitSplitter, #navMenu{
 	margin-right:4px;
 }
 #drawingPane{
-	
+	position:relative;
 }
 
 
@@ -69,17 +69,28 @@ body, .tundra .dijitSplitter, #navMenu{
 	height:70px;
 }
 #helpPane .dojoxExpandoTitle{
-	background:#ccc;
+	background:#cee3ec;
 	position:relative;
-	height:0;
 }
 #helpPane .dojoxExpandoIcon{
-	left:0;
 	cursor:pointer;
-	width:20px;
-	height:30px;
-	margin:4px 0 0 -25px;;
-	border:1px solid #999;
+	width:16px;
+	height:16px;
+}
+.dojoxExpandoClosed .dojoxExpandoIcon,
+.dojoxExpandoClosed .dojoxExpandoTitle{
+	display:none;
+}
+#helpPaneOpenButton{
+	position:absolute;
+	right:0;
+	top:5px;
+	padding:3px;
+	cursor:pointer;
+	background:#cee3ec;
+	border:1px solid;
+	border-color:#fff #000 #bbb #ccc;
+	border-right:none;
 }
 #footerPane{
 	height:5px;
@@ -120,7 +131,4 @@ body, .tundra .dijitSplitter, #navMenu{
 }
 #upgradeBar{
 	height:26px;
-}
-#upgradeBar .dojoxExpandoTitle{
-	display:none;
 }

@@ -9,7 +9,7 @@
 		#drawingNode{
 			/*border:1px solid #ff0000;*/
 			cursor:crosshair;
-			
+
 		}
 		#drawingPane{
 			/*overflow:hidden;*/
@@ -49,20 +49,20 @@
 		dojo.require("dijit.MenuItem");
 		dojo.require("dijit.PopupMenuItem");
 		dojo.require("dijit.form.Button");
-		
+
 		dojo.require("andes.main");
-		
+
 		dojo.require("drawing.Drawing");
 		dojo.require("drawing.plugins.drawing.Grid");
 	/*	dojo.require("drawing.Toolbar");
 		dojo.require("drawing.tools.custom.Vector");
-		dojo.require("drawing.tools.custom.Axes");				
+		dojo.require("drawing.tools.custom.Axes");
 		dojo.require("drawing.tools.Arrow");
 		dojo.require("drawing.plugins.tools.Pan");
 		dojo.require("drawing.plugins.tools.Zoom");
 	*/
 	</script>
-	
+
 </head>
 <body class="tundra">
 	<div id="splashOverlay"></div>
@@ -123,10 +123,10 @@
 					plugins="[{'name':'drawing.plugins.drawing.Grid', 'options':{gap:100}}]" region="center" >
 		</div>-->
 			
-		<!--
 		<div id="helpPane" dojoType="andes.widget.ExpandoPane" region="right" splitter="true">
-		-->
+		<!--
 		<div id="helpPane" dojoType="dijit.layout.ContentPane" region="right" splitter="true">
+		-->
 			<div id="helpWrapPane" dojoType="dijit.layout.BorderContainer" gutters="false">
 				<div id="helpContentPane" dojoType="dijit.layout.ContentPane" region="center">
 					Help content
@@ -137,15 +137,15 @@
 				</div>
 			</div>
 		</div>
-		
-		
-		
+
+
+
 		<div id="footerPane" dojoType="dijit.layout.ContentPane" region="bottom"></div>
 	</div>
 
 	<div dojoType="andes.widget.UpgradeBar" id="upgradeBar">
 		Upgrade bar
 	</div>
-    
+
 </body>
 </html>
