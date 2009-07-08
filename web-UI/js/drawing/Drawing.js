@@ -46,6 +46,7 @@ dojo.require("drawing.tools.Line");
 			this.keys = drawing.manager.keys;
 			this.mouse = new drawing.manager.Mouse({util:this.util, keys:this.keys});
 			this.tools = {};
+			this.stencilTypes = {};
 			this.srcRefNode = node; // need this?
 			this.domNode = node;
 			var str = dojo.attr(node, "plugins");
@@ -82,11 +83,6 @@ dojo.require("drawing.tools.Line");
 			}else{
 				this.canvas.resize(box.w, box.h);
 			}
-			
-			clearTimeout(this.vrl);
-			this.vrl = setTimeout(dojo.hitch(this, function(){
-				console.info("resize drawing:", box, this.domNode)
-			}),100)
 		},
 		startup: function(){
 			console.info("drawing startup")
@@ -112,7 +108,7 @@ dojo.require("drawing.tools.Line");
 			// called from Toolbar after last plugin has been loaded
 			// The call to this coming from toobar is a bit funky as the timing
 			// of IE for canvas load is different than other browsers
-			console.info("init plugs?", this.canvas.surfaceReady)
+			
 			if(!this.canvas.surfaceReady){
 				var c = dojo.connect(this, "onSurfaceReady", this, function(){
 					dojo.disconnect(c);
@@ -136,7 +132,7 @@ dojo.require("drawing.tools.Line");
 			this.plugins = [];
 			_plugsInitialized = true;
 			// In IE, because the timing is different we have to get the
-			// cnvas position after everything has drawn. *sigh*
+			// canvas position after everything has drawn. *sigh*
 			this.mouse.setCanvas();
 		},
 		onSurfaceReady: function(){
@@ -151,17 +147,15 @@ dojo.require("drawing.tools.Line");
 			
 			// objects for testing. Final code will move these into test HTML
 			
-			
-			console.log("create RECT")
-		 	this.stencils.register(new drawing.stencil.Rect(this.getShapeProps(
+			/*
+			this.stencils.register(new drawing.stencil.Rect(this.getShapeProps(
 				{data:{x:100, y:100, width:93, height:93}}
 			)));
-			console.log("create LINE")
-			/*this.stencils.register(new drawing.stencil.Line(this.getShapeProps(
+			
+			this.stencils.register(new drawing.stencil.Line(this.getShapeProps(
 				{points:[{x:300,y:300},{x:500,y:200}]}
-			)));*/
-	console.log("create LINE done")
-		/*
+			)));
+		
 			this.stencils.register(new drawing.stencil.Image(this.getShapeProps(
 				{data:{src:"images/BallOnWall.png", x:300, y:200, width:"auto"}}
 			)));
@@ -201,7 +195,18 @@ dojo.require("drawing.tools.Line");
 			dojo.forEach(this.plugins, function(p){
 				p.onSurfaceReady && p.onSurfaceReady();	
 			});
+			
+			// register stencils that are not in the tool bar
+			this.registerTool("drawing.stencil.Image");
+			this.registerTool("drawing.stencil.Path");
+			this.registerTool("drawing.stencil.Text");
 		},
+		
+		
+		addStencil: function(type, options){
+			return this.stencils.register( new this.stencilTypes[type](this.getShapeProps(options)));
+		},
+		
 		onRenderStencil: function(stencil){
 			
 			console.info("drawing.onRenderStencil:", stencil)
@@ -209,13 +214,15 @@ dojo.require("drawing.tools.Line");
 			this.unSetTool();
 			this.setTool(this.currentType);
 		},
+		
 		registerTool: function(type){
 			var constr = dojo.getObject(type);
-			if(constr.setup){
-				//console.info("setup ", constr.setup.name, "::", constr.setup)
-			}
 			this.tools[type] = constr;
+			var abbr = type.substring(type.lastIndexOf(".")+1).charAt(0).toLowerCase()
+				+ type.substring(type.lastIndexOf(".")+2);
+			this.stencilTypes[abbr] = constr;
 		},
+		
 		setTool: function(type){
 			if(!this.canvas.surface){
 				var c = dojo.connect(this, "onSurfaceReady", this, function(){
@@ -237,6 +244,7 @@ dojo.require("drawing.tools.Line");
 				//console.trace();
 			}
 		},
+		
 		unSetTool: function(){
 			dojo.disconnect(this._toolCon);
 			if(!this.currentStencil.created){

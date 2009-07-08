@@ -2,7 +2,9 @@
 @import url("../dojotoolkit/dijit/themes/dijit.css");
 @import url("../dojotoolkit/dijit/themes/tundra/layout/BorderContainer.css");
 @import url("../dojotoolkit/dijit/themes/tundra/layout/ContentPane.css");
-@import url("../dojotoolkit/dijit/themes/tundra/tundra.css");
+@import url("../dojotoolkit/dijit/themes/tundra/form/Button.css");
+@import url("../dojotoolkit/dijit/themes/tundra/Menu.css");
+@import url("../dojotoolkit/dijit/themes/tundra/Dialog.css");
 
 html, body, #main{
 	width: 100%;	/* make the body expand to fill the visible window */
@@ -20,7 +22,7 @@ body, .tundra .dijitSplitter, #navMenu{
 
 /* Pane BK Color and Inset borders of Panes*/
 #toolPane, #helpPane, #drawingPane{
-	background:#F2F2F2;
+	background:#FAFAFA;
 	border:1px solid;
 	border-color:#BBBBBB #E1E1E1 #FFFFFF #CCCCCC;
 }

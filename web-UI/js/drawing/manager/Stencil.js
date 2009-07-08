@@ -33,6 +33,7 @@ dojo.provide("drawing.manager.Stencil");
 			register: function(item){
 				//console.log("Selection.register ::::::", item.id)
 				this.items[item.id] = item;
+				return item;
 			},
 			
 			onArrow: function(evt){
