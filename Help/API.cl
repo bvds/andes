@@ -180,10 +180,9 @@
 ;;;  accessed by the user.  
 (defun lookup-command->class (Type &optional (Types **Andes-Command-classes**))
   "Given a command lookup its class."
-  (when Types
-    (if (member Type (cadar Types)) (caar Types)
-      (lookup-command->Class Type (cdr Types)))))
-
+  (when types (if (member Type (cadar Types)) 
+		  (caar Types)
+		  (lookup-command->Class Type (cdr Types)))))
 
 
 ;;; ----------------------------------------------------------------------------

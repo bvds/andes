@@ -118,9 +118,10 @@
   (make-stat-turn
    (map-tests->list-results
     ; set to map:
-    (cond ((eq Type 'score) (collect-runtime-score-tests))
-          ((eq Type 'persist) (collect-persistent-score-tests))
-	  (T (collect-all-runtime-tests)))
+    (cond ((eq Type 'score) *Runtime-Score-Testset*)
+          ((eq Type 'persist) 
+	   (remove-if-not #'runtime-test-loadable *Runtime-Score-Testset*))
+	  (T *Runtime-testset*))
     ; use friendly name for score, else internal id
     :name-fn (if (eq Type 'score) #'runtime-test-PrintStr 
                #'runtime-test-name))))

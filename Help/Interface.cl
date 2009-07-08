@@ -131,7 +131,8 @@
 	 (dde t)
 	 ;; Set the last api call to be this call.
 	 Tmp (NewCmd (iface-generate-log-cmd DDE Command text))
-	 (Result (if (member 'answer-only-mode (problem-features *cp*))
+	 (Result (if (and *cp* 
+			  (member 'answer-only-mode (problem-features *cp*)))
 		     (answer-only-dispatcher Command Arguments)
 		     (apply command Arguments)))
 	 (Str (when (turn-p Result) (return-turn Result))))
@@ -225,7 +226,11 @@
 	((read-student-info-cmdp NewCmd)
 	 (iface-handle-stats-student))
 	(t (update-runtime-testset-scores)))
-  
+
+  (format webserver:*stdout* "iface-handle-Statistics ~A, solution ~A~%" 
+	  *Runtime-Testset-current-total-score* 
+	  *Runtime-testset-current-Solindex*)
+ 
   ;; Irrespective of the entry we need to inform the workbench of
   ;; the current total score if it has changed since last sent
   (let ((current-score (get-current-runtime-total-score)))

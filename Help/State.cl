@@ -495,6 +495,3 @@
 (defun add-Entry-to-filter (Entry &optional (Filter **current-API-Filter**))
   (when (not (member Entry (api-filter-Commands Filter)))
     (push Entry (api-filter-Commands Filter))))
-
-
-

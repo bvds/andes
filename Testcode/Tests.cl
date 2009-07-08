@@ -195,14 +195,10 @@
 
 (defparameter *test-cache-eqn-entries* ())
 (defparameter *test-cache-given-eqn-entries* ())
-;;(defparameter *test-cache-derived-eqn-entries* ())
-;;(defparameter *test-cache-implicit-eqn-entries* ())
-;;(defparameter *test-cache-vector-entries* ())
 (defparameter *test-cache-axis-entries* ())
 
 (defparameter *test-cache-objects* ())
-;;(defparameter *test-cache-body-entries* ())
-; for drawing-only problems:
+;; for drawing-only problems:
 (defparameter *test-cache-drawing-entries* ())
 
 
@@ -1659,15 +1655,3 @@
  :ActiveCond #'not-curr-checking-problemp 
  :MergeFunc #'mergefunc-sum-values
  )
-
-
-
-
-
-;;; =========================================================================
-;;; Initialization code.
-;;; Initialize the scores of the newly loaded tests.
-(sort-runtime-tests-by-weight)
-(reset-runtime-testset-scores)
-
-

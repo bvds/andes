@@ -96,15 +96,23 @@
 	  *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*
           **Condition**  mt19937::*random-state* **grammar**
 	  ;; slot mapping for Algebra/solver.cl
-	   *id-solver-slot-map* *solver-free-slots*
+	  *id-solver-slot-map* *solver-free-slots*
 	  ;; Session-specific variables in Help/Interface.cl
 	  **current-cmd-stack** **current-cmd** *last-tutor-turn* *last-score*
           ;; Variables set in Config.cl, which is loaded for each session.
-          *Runtime-Testset* *Runtime-Score-Testset*
 	  **Testing-Pause-Time-Threshold** **Filter-Constraint-losses**
           *followup-problems*
+	  ;; Variables used for scoring in Help/RunTimeTest.cl
+          *Runtime-Testset* *Runtime-Score-Testset*
+	  *Runtime-testset-current-Solindex*
+	  *Runtime-Testset-current-total-score*
 	  ;; Variables holding session-local memos.
 	  *parse-memo* *grammar-get-rhs-memo* *grammar-get-rhs-with-first*
+	  ;; Cache variables in Testcode/Tests.cl
+	  *test-cache-eqn-entries* *test-cache-given-eqn-entries*
+	  *test-cache-axis-entries* *test-cache-objects* 
+	  *test-cache-drawing-entries* **Current-Body-Expression-Form**
+	  **Current-Prob-Requires-nonanswer-entries** **entry-entered**
 	  )
 	#-sbcl "List of global variables that need to be saved between turns in a session."
 	#+sbcl #'equalp
@@ -170,14 +178,17 @@
       (solver-load)
       (solver-logging *solver-logging*)
       
+      ;; Config modifies *runtime-testset*, so we
+      ;; need to make the session-local copy first. 
+      (session-local-runtime-testset)
       ;; Andes2 had the following calls that can be found in log files:
       ;;   read-student-info; the only remaining step is:
       (Load-Config-File)			
       ;;   set-condition none
       (set-condition 'none) ;Any experimental condition
-      ;;  Most of the set-up is done here
+      ;;  Most of the set-up is done here.
       ;; The return for this may be of some use.
-      (read-problem-info problem)
+      (execute-andes-command #'read-problem-info problem)
       ;;
       
       ;; do predefs
@@ -230,13 +241,17 @@
   
       ;;   set-stats (if there was an old score) (to do)
 
+      (set-stats '(("NSH_BO_Call_Count" . 0)
+		   ("WWH_BO_Call_Count" . 0)
+		   ("Correct_Entries_V_Entries" . (0 0)) 
+		   ("Correct_Answer_Entries_V_Answer_Entries" .  (0 0))))
+   
       (push `((:action . "log") 
-	      (:subscores . (("NSH_BO_Call_Count" . (0 0))
-			     ("WWH_BO_Call_Count" . (0  0))
-			     ("Correct_Entries_V_Entries" . (0 0 0)) 
-			     ("Correct_Answer_Entries_V_Answer_Entries" .  (0 0 0)))))
-	    replies)
-      
+	      (:subscores . (("NSH_BO_Call_Count" . 0)
+			     ("WWH_BO_Call_Count" . 0)
+			     ("Correct_Entries_V_Entries" . (0 0)) 
+			     ("Correct_Answer_Entries_V_Answer_Entries" .  (0 0)))))
+	    replies)      
       (push `((:action . "set-score") (:score . 0)) replies))
       
     (append replies solution-step-replies)))

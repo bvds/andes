@@ -243,7 +243,7 @@
   (cond
    ((rt-score-p Val) (rt-score->display-form Val))
    ((rt-solset-p Val) (rt-solset->display-form Val :Index Index))
-   (t (error "ERROR:: Unrecognized type ~a supplied to map-rt-val->float"
+   (t (error "ERROR:: Unrecognized type ~a supplied to map-rt-val->display-form"
 	     (type-of Val)))))
 
 

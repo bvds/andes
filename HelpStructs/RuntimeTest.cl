@@ -43,6 +43,7 @@
 ;;; that are to be updated during this run of Andes.  These will have to be 
 ;;; loaded at runtime and used by the execution and update code.  
 (defparameter *Runtime-Testset* () "The runtime autocalc tests.")
+(defparameter *global-Runtime-Testset* () "The runtime autocalc tests.")
 
 ;;; The list of grade-testsets consists of only those testsets that have 
 ;;; nonzero weight and are used to compute the student's runtime score. 
@@ -74,15 +75,6 @@
 ;;; avoid unnecessary repetition.  When the score is requested for return 
 ;;; it will be taken from here.
 (defparameter *Runtime-Testset-current-total-score* 0 "The current total score.")
-
-
-;;; The Saved-Scores parameter is used to store the saved score results that 
-;;; are stored to and read from the Student.dat.  These scores will be stored
-;;; in a single struct that is read from the student.dat file when it is 
-;;; loaded and then stored to it when Andes is closed.  Each time that the 
-;;; scores are set to be reset the struct itself will be updated and the 
-;;; results reloaded.
-(defparameter *Runtime-Testset-saved-stats* Nil "Saved-Stats.")
 
 
 ;;;; =======================================================================
@@ -184,21 +176,30 @@
 		       :Activecond ,ActiveCond
 		       :Loadable ,Loadable
 		       :MergeFunc ,MergeFunc))))
-     (if (not (= 0 (runtime-test-Weight Test)))
-	 (push Test *Runtime-Score-Testset*))
-     (push Test *Runtime-Testset*)
+    (push Test *global-Runtime-Testset*)
      Test))
  
-
-
 ;;; Clear the list of stored tests by setting the 
 ;;; list to nil and making it possible for a new 
 ;;; set of tests to be added.
 (defun clear-runtime-testsets ()
   "Clear the current tests and scores."
-  (setq *Runtime-Testset* Nil)
-  (setq *Runtime-Score-Testset* Nil))
-;;(setq *Stats-Current-Scores* Nil))
+  (setq *global-Runtime-Testset* Nil))
+
+;;; Make session copy of runtime testsets
+(defun session-local-runtime-testset ()
+  "Make session-local copy of *runtime-testset*"
+  (setq *Runtime-Testset* nil)
+  (setq *Runtime-Score-Testset* nil)
+  (dolist (global-test *global-Runtime-Testset*)
+    (let ((Test (copy-runtime-test global-test)))
+      (push Test *Runtime-Testset*)
+      (when (not (= 0 (runtime-test-Weight Test)))
+	(push Test *Runtime-Score-Testset*))))
+  ;; In Andes2, these were applied at compile-time
+  ;; in Testcode/Tests.cl
+  (sort-runtime-tests-by-weight)
+  (reset-runtime-testset-scores))
 
 
 ;;; Given a runtime test name obtain the matching runtime test
@@ -212,7 +213,6 @@
       (find (string Name) *Runtime-Testset*
 	:key #'runtime-test-PrintStr
 	:test #'string-equal)))
-
 
 ;;; The runtime testsets are entered into the parameters in a FIFO order. 
 ;;; This function if called will sort them in descending order by weight
@@ -331,7 +331,6 @@
   (setq *runtime-testset-prep-funcs*
     (append *runtime-testset-prep-funcs* (list Func))))
 
-
 (defun execute-runtime-test-prep-funcs ()
   (dolist (Func *runtime-testset-prep-funcs*)
     (funcall Func)))
@@ -375,6 +374,8 @@
   (execute-runtime-test-prep-funcs)
   (dolist (Test *Runtime-Testset*)
       (when (Runtime-test-activep Test)
+	(format webserver:*stdout* "reset-runtime-testset-scores init ~A~%"
+		(runtime-test-name test))
         (runtime-test-init-value Test)))
   (reset-runtime-score-testset)
   (select-current-runtime-testset-solution))
@@ -392,19 +393,20 @@
 ;;; is in the process of checking entries.  I.E. when **checking-entries**
 ;;; is t.
 (defun update-runtime-testset-scores ()
+  (format webserver:*stdout* " update-runtime-testset-scores checking ~A tests ~a~%" (not **checking-entries**) (length *Runtime-Testset*))
   (when (not **checking-entries**)
     (dolist (Test *Runtime-Testset*)
       (when (runtime-test-activep Test)
-	; AW: following error sometimes occurs after reloads in development environment:
+	;; Andes2 comments suggest that this can only occur
+	;; as an error.  But it seems that some tests
+	;; can only be activated this way. 
 	(when (null (runtime-test-CurrVal Test)) 
-	     (format T "Warning: score update found ~A active but not initialized! Initializing now.~%" 
-	               (runtime-test-name Test))
-	     (runtime-test-init-value Test))
-	 ; (format T "updating ~A (Currval=~A)~%" (runtime-test-name Test) (runtime-test-CurrVal Test))
-	 (funcall (Runtime-test-func Test) 
-		  (runtime-test-CurrVal Test))))
+	  (runtime-test-init-value Test))
+	(format webserver:*stdout* "   runningchecking test ~a~%" 
+		(runtime-test-name test))
+	(funcall (Runtime-test-func Test) 
+		 (runtime-test-CurrVal Test))))
     (select-current-runtime-testset-solution)))
-
 
 
 ;;; Each time that the score is updated or reset we need to determine
@@ -459,11 +461,17 @@
     (dolist (Test *Runtime-Score-TestSet*)
       (when (runtime-test-activep test)
 	;;(pprint (runtime-test-name Test))
+	(format webserver:*stdout* "     test ~A val ~A weight ~A~%" 
+		(runtime-test-name test)  (map-rt-val->float 
+			   (runtime-test-currval Test) 
+			   SolIndex) (runtime-test-ScaledWeight Test))
 	(setq Score
-	  (+ Score (* (map-rt-val->float 
-		       (runtime-test-currval Test) 
-		       SolIndex)
-		      (runtime-test-ScaledWeight Test))))))
+	      (+ Score (* (map-rt-val->float 
+			   (runtime-test-currval Test) 
+			   SolIndex)
+			  (runtime-test-ScaledWeight Test))))))
+    (format webserver:*stdout* "  calculate-runtime-total-score ~A got ~A~%"
+	    SolIndex score)
     Score))
 
 
@@ -481,23 +489,6 @@
 ;;; change later on when the renormalization is put in place.
 (defun get-current-runtime-total-score ()
   (round (* 100 *Runtime-Testset-current-total-score*)))
-
-
-;;; This is a simple wrapper function for the collection to abstract how
-;;; the score tests are stored.
-(defun collect-runtime-score-tests ()
-  *Runtime-Score-Testset*)
-
-
-;;; This is a simple wrapper function to abstract how all of the
-;;; tests are stored.  
-(defun collect-all-runtime-tests ()
-  *Runtime-testset*)
-
-;;; This returns those tests whose value must persist across sessions
-;;; NB: only returns tests used in score, not all tracked stats.
-(defun collect-persistent-score-tests ()
-  (remove-if-not #'runtime-test-loadable *Runtime-Score-Testset*))
 
 
 ;;; Given a set of runtime tests translate it into a list of 3-tuples
@@ -598,13 +589,10 @@
 ;; simple count or a list of two numbers for a fractional score.  
 ;; Example command string:
 ;;
-;;   (set-stats (NSH_BO_Call_Count 3) (WWH_BO_Call_Count 2) 
-;;          (Correct_Entries_V_Entries (3 5))
-;;          (Correct_Answer_Entries_V_Answer_Entries (0 6)))
+;;   (set-stats (NSH_BO_Call_Count . 3) (WWH_BO_Call_Count . 2) 
+;;          (Correct_Entries_V_Entries . (3 5))
+;;          (Correct_Answer_Entries_V_Answer_Entries . (0 6)))
 ;;
-;; [Quote is not needed in command strings sent from the workbench because they
-;; are Lisp read then dispatched by (funcall (first cmd) (rest cmd)) so args 
-;; are not evaluated, though they must be readable.]
 ;;
 ;; Result: normally NIL. No indication of success or failure.
 
@@ -612,15 +600,15 @@
 ;;; workbench solution file, to be restored by an API call from the workbench 
 ;;; on problem load.
 ;;; Argument for this function should be list of pairs of the form
-;;;        ((score value-expr) (score value-expr) (score value-expr))
+;;;        ((score . value-expr) (score . value-expr) (score . value-expr))
 ;;; where value-expr is a Lisp expression suitable as an argument 
 ;;; set-rt-score-value. 
 ;;; Currently the only value types we persist will be either a number for 
 ;;; a simple count or a list of two numbers for a fractional score.  
 ;;; Example list:
-;;;         ((NSH_BO_Call_Count 3) (WWH_BO_Call_Count 2) 
-;;;          (Correct_Entries_V_Entries (3 5))
-;;;          (Correct_Answer_Entries_V_Answer_Entries (0 6))))
+;;;         ((NSH_BO_Call_Count . 3) (WWH_BO_Call_Count . 2) 
+;;;          (Correct_Entries_V_Entries . (3 5))
+;;;          (Correct_Answer_Entries_V_Answer_Entries . (0 6))))
 ;;;
 ;;; Note: This routine may not work on other possible types of score values (e.g. the 
 ;;; per-solution value lists), but it works on what we need now.
@@ -635,367 +623,8 @@
 ;;;  
 (defun set-stats (score-value-pair-list)
   (dolist (pair score-value-pair-list)
-     (let ((test (lookup-name->runtime-test (first pair))))
+     (let ((test (lookup-name->runtime-test (car pair))))
         (when (and Test (runtime-test-activep test))
            (set-rt-score-value (runtime-test-currval test) 
-	                       (second pair)))))) 
+	                       (cdr pair)))))) 
 
-;;;; ------------------------------------------------------------------------
-;;;; ------------------------------------------------------------------------
-;;;; Saved stats manipulation/
-;;;; The code in this subsection is for use in loading and manipulating the 
-;;;; saved stats in batch mode from the student.dat files.  This code will
-;;;; be used for storing the scores into the update database and to make 
-;;;; other changes such as merging two or more sets of saved scores.
-;;;;
-;;;; In this code I have deliberately avoided making use of the global variables
-;;;; that exist above.  My goal in doing so is to avoiud stomping on that code
-;;;; and to avoid any necessary hacks that would result from using them.
-;;;;
-;;;; Tasks supported:
-;;;;   Score database generation/update.
-;;;;   Score merging for multiple branches.
-;;;;   
-;;;;
-;;;; NOTE: For now some of the columns in the code will generate Nil values while 
-;;;; others do not.  This may be changed later on.  
-
-;;; ---------------------------------------------------------------------------
-;;; Load saved stats set.
-;;; Given a specific set of saved stats load it into the current runtime 
-;;; testset.  This can then be used for output or other selection.  
-;;; This is similar to the load-stored-runtime-test-stats function above 
-;;; but will be used for score storage in the database not runtime score 
-;;; loading.  
-
-(defun load-saved-stats->runtime-testset (Saved-Stats &key (LoadAll t))
-  "Iterate over the stats for later use."
-  (let (Test)
-    (dolist (Val (saved-stats-scores Saved-Stats))
-      (setq Test (lookup-name->runtime-test (car val)))
-      (if (null Test) 
-	  (error "Supplied Runtime test not recognized.")
-	(when (or Loadall (and (runtime-test-activep Test) (runtime-test-loadable Test)))
-	  (setf (runtime-test-currval Test)
-	    (unpack-rt-val (cadr Val))))))))
-
-
-
-
-
-;;; --------------------------------------------------------------------
-;;; Score Iterating.
-;;; For the purposes of iterating over the runtime scores it is sometimes
-;;; necessary to explicitly load the old scores not just the most recent
-;;; set.  This code will iterate over all of the saved stats calling
-;;; the supplid function on them.
-;;;
-;;; The function is assumed to take a single argument which is the
-;;; saved stats.
-
-(defun iterate-score-lambda (Func Saved-Scores)
-  "Iterate over the problems and scores in the Saved-Scores list."
-  (dolist (Scores Saved-Scores)
-    ;;(pprint (list "SCORES" Scores))
-    (dolist (Stats (cdr Scores))
-      ;;(pprint (list "STATS" stats))
-      (funcall Func Stats))))
-
-
-;;; -------------------------------------------------------------------
-;;; -------------------------------------------------------------------
-;;; Database output.  
-;;; The code in this subsection is used to facilitate database output.
-;;; It will be used to form database table specs for the 
-
-;;; Given the current set of runtime testsets iterate over them to 
-;;; obtain a list of the form: ((<Testname> <ExternalType>) ...)
-;;; Where TestName is the name of the test and ExternalType is the 
-;;; lisp type that will be passed to the database code.  This type
-;;; will then be translated appropriately to obtain the requisite 
-;;; database format.  
-
-;;; AW: this routine currently unused. It had the only substantive 
-;;; use of the old ValType slot, now replaced by type-of. 
-
-(defun map-testset->names-externtype-lst ()
-  "Map the teset to names and external types."
-  (mapcar 
-   #'(lambda (Test)
-       ;;(pprint test)
-       (unless (runtime-test-CurrVal test)
-          (runtime-test-init-value Test))
-       (list (runtime-test-printstr Test)
-	     (map-rt-val-classname->externtype 
-	      (type-of (runtime-test-CurrVal Test)))))
-   *Runtime-testset*))
-       
-
-;;;; ----------------------------------------------------------------------
-;;;; Score Merging.
-;;;; The saved scores as stored in the student.dat files are intended to 
-;;;; reflect the student's state.  Unfortunately, few students ever 
-;;;; geneerate a single student.dat file.  Present versions of Andes load
-;;;; the student.dat file from the host machine when the user loggs in.  
-;;;; future versions may attempt to extract the state from a central server.
-;;;;
-;;;; Unfortunately, when the users work on other machines (with friends, 
-;;;; faculty, or in labs) the system may not properly load their initial 
-;;;; file.  Mistyped logins (p001 v P001 v 1) will also result in multiple
-;;;; files being generated.  Lastly, for notebook or other "untethered" 
-;;;; users, fetching the state from the server may not be an option.  
-;;;;
-;;;; In these cases it will be necessary (some :time point) to merge the 
-;;;; disconnected files.  The code in this subsection will be used to merge
-;;;; mutliple sets of saved scores.  
-;;;;
-;;;; Given several sets of saved scores the system will merge them in the 
-;;;; following fasion.
-;;;;    If a set of problem results occurs in only one of the sets then 
-;;;;     it will be copied directly into the result set.  
-;;;;    If a set of problem results occurs in more than one of the sets 
-;;;;     then the sets will be sorted in-order according to the problem
-;;;;     instance ID or, if that is nil (as it is in some early logs) 
-;;;;     then the SessionUtime and their order in the list.  
-;;;;    Once they are sorted a dummy sum value representing the sum of 
-;;;;     the values (combined using the test definitions).  The 
-;;;;     SessionUtime will be set to be set to the current time.  The
-;;;;     Merge flag will also be set to t.  The PITime will be set to 
-;;;;     Nil.  
-;;;;
-;;;;  The Individual runtime-tests are flagged with functions that specify
-;;;;  how the saved scores from them are meant to be combined.  These funcions
-;;;;  are assumed to take a set of saved score values of the appropriate 
-;;;;  type 
-
-(defun merge-saved-score-sets (&rest ScoresToMerge)
-  (merge-saved-score-sets-r ScoresToMerge))
-  
-				     
-(defun merge-saved-score-sets-r (ScoresToMerge &optional (Result Nil))
-  "Merge the sets of saved scores."
-  (if (null ScoresToMerge) Result 
-    (let ((Curr (car ScoresToMerge))
-	  (Others (cdr ScoresToMerge)) Matches)
-      (dolist (Prob Curr)
-	(setq Matches (msss-find-matching-probs Prob Others))
-	(if (null Matches) (setq Result (msss-add-prob Prob Result))
-	  (setq Result
-	    (msss-add-prob
-	     (msss-merge-probs (car Prob) (mapcar #'cdr (cons Prob Matches)))
-	     Result))))
-      (merge-saved-score-sets-r Others Result))))
-		
-
-;;; Given a problem saved stats set locate the other saved problem sets from 
-;;; the supplied list of scores.  Based upon sfm-find-matching-tells.
-(defun msss-find-matching-probs (Prob Others)
-  (let (R New)
-    (dotimes (N (length Others))
-      (setq New (find (car Prob) (nth N Others) :key #'car :test #'equalp))
-      (when New
-	(push New R)
-	(setf (nth N Others) (remove New (nth N Others)))))
-    R))
-
-
-;;; Given a problem and a result set add the problem to the list overwriting
-;;; any value if it is present or just pushing it on if it is not.
-(defun msss-add-prob (Prob Lst)
-  (let ((other (find (car Prob) Lst :key #'car :test #'equalp)))
-    (if (null Other) (cons Prob Lst)
-      (cons Prob (remove Other Lst)))))
-
-
-;;; Merging the problems has two tasks.  The first is to generate a new special
-;;; "merged" final score for the problem from the set of supplied sets of 
-;;; of problem instances.  This merged score will reflect all of the students
-;;; work up to this point.  
-;;;
-;;; The second is to sort those instances into a single problem set.  Because I
-;;; want the final order to continue to reflect the total order I have written 
-;;; my own sorting algorithm.  Initial saved-score sets do not include the PIUtime
-;;; and so it was necessary to write my own sorting algorithm. 
-;;;
-;;; In Absence of the PITime it is known that the items are in an ordered (LIFO)
-;;; stack.  They will be sorted as such into groups and then have a final merged
-;;; form generated for them once that is done.  The final form will have a time
-;;; set to the time that it is generated with no PITime.
-;;;
-;;; 
-;;;
-;;; NOTE:: Although this code has problem instance utimes the initial
-;;;    code did not so I have written this to keep all instances in a
-;;;    given session together (in the intial sets no PITimes existed.
-
-(defun msss-merge-probs (Name Probs);; &optional (Result Nil))
-  "Merge the contents of the problems."
-  (let ((R (list (msss-make-merged-scores Name (mapcar #'car Probs)))))
-    (do* ((NewProbs Probs (remove-if #'null NewProbs))
-	 (Next (msss-rmp-next NewProbs)
-	       (msss-rmp-next NewProbs)))
-	((Null (nth 1 Next)) (cons Name (reverse R)))
-      (push (nth 1 Next) R)
-      (setf (nth (car Next) NewProbs) 
-	(cdr (nth (car Next) NewProbs))))))
-
-
-
-;;; Get the next item from the list or return nil none can be found.
-(defun msss-rmp-next (Probs)
-  (let ((P1 (caar Probs)) (I 0) P2)
-    (dotimes (N (length Probs))
-      (setq P2 (car (nth N Probs)))
-      (when (< (Saved-Stats-SessionUtime P1) 
-	       (Saved-Stats-SessionUtime P2))
-	(setq P1 P2)
-	(setq I N)))
-    (list I P1)))
-
-
-;;; Given a list of the first (latest) scores from each of the saved
-;;; scores score sets.  Load them into the system and then merge the 
-;;; scores to generate a new value.
-;;;
-;;; Sort the scores initialy by date so that the oldest scores are 
-;;; handled first.  Note that this sorts soley on the session UTime 
-;;; since that is not shared between files and is assumed to be 
-;;; identical.
-(defun msss-make-merged-scores (Name Scores)
-  "Generate the merged scores."
-  (let* ((STime (Get-universal-time))
-	 (SortScores (sort Scores #'<  :key #'saved-stats-SessionUTime)))
-    (make-saved-stats
-     :ProblemName Name
-     :SessionID (make-merge-sessionid Stime)
-     :SessionUTime Stime
-     :PITime Nil
-     :Merge t
-     :Scores (msss-mknew (mapcar #'saved-stats-scores SortScores)))))
-
-
-;;; Temporary func to make a session-id for the merge-time.
-;; start here.
-(defun make-merge-sessionid (Stime)
-  (format nil "merge-~a" Stime))
-
-
-;;; Given pointers to the lists of (unread) saved-stat-scores
-;;; iterate over the sets reading each one in and then merging
-;;; the values for later use.  
-;;;
-;;; This merge process will copy the incoming lists and read in
-;;; the saved scores before moving on to merge the values and 
-;;; to store the results for later.  
-
-(defun msss-mknew (ScoreLists)
-  (do* ((Result (msss-mms-i
-		 (read-scoreset (car ScoreLists)) (cadr ScoreLists))
-		(msss-mms-i Result (car RestScores)))
-	(RestScores (cddr ScoreLists) (cdr RestScores)))
-      ((null RestScores) 
-       (mapcar #'(lambda (V) (list (nth 0 V) (pack-rt-val (nth 1 V))))
-	       Result))))
-
-
-
-;;; Given an unread list of scores iterate over the list generating a 
-;;; new set of score values and returning those to the user.
-(defun read-scoreset (ScoreList)
-  (loop for V in ScoreList
-      with V2
-      collect (list (nth 0 V) (unpack-rt-val (nth 1 V)))))
-
-;;; Given a pair of scoresets the first of which has been read in 
-;;; iterate over the latter locating matching values and merging 
-;;; in the results.  
-;;;
-;;; Given a list of scores Iterate over the sets and merge the values.
-;;; This is done using the score merging functions that are registered
-;;; with the Rumtime-Tests themselves.  If an unrecognized test name is
-;;; found then an error will be thrown.  Any values that are present in
-;;; one list but not in the other will simply be added to the set.  
-(defun msss-mms-i (Old New)
-  "Merge old and New."
-  (let (Result (NewSet New))
-    (do* ((OldSet Old (cdr OldSet))
-	  (O (car OldSet) (car OldSet))
-	  (NIndex (position (car O) NewSet 
-			    :Key #'car :Test #'equalp)
-		  (position (car O) NewSet 
-			    :Key #'car :Test #'equalp)))
-	((null OldSet) (append (read-scoreset NewSet) Result))
-      
-      ;;; When the NIndex exists then pop the value off the list and merge them
-      ;;; Else just add O to the result set.  
-      (cond 
-       ((null Nindex) (push O Result))
-       (t (push (msss-mms-i-merge O (nth NIndex NewSet)) Result)
-	  (setq NewSet (append (subseq NewSet 0 NIndex)
-			       (subseq NewSet (+ 1 NIndex)))))))))
-	  
-
-
-
-;;; Given a pair of score values locate the corresponding test and funcall
-;;; the score combination function on the values returning the result 
-;;; along with the TestName added.
-(defun msss-mms-i-merge (Old New)
-  "Merge old and new and return the result."
-  (let* ((TestName (car Old))
-	 (Test (lookup-name->runtime-test TestName)))
-    (cond 
-     ((null Test) (error "Unrecognized test: ~a Supplied" TestName))
-     ((null (runtime-test-mergefunc Test))
-      (error "Test ~a has no mergefunc." TestName))
-     (t (list 
-	 TestName
-	 (funcall (runtime-test-mergefunc Test)
-		  (cadr Old) (unpack-rt-val (cadr New))))))))
-
-
-
-
-
-
-
-
-
-
-
-      
-
-(defun trace-runtime-test-merge ()
-  (trace merge-saved-score-sets
-	 msss-find-matching-probs
-	 msss-add-prob
-	 msss-merge-probs
-	 ;; msss-recurse-merge-probs
-	 msss-rmp-next
-	 msss-make-merged-scores
-	 make-merge-sessionid
-	 msss-mknew
-	 read-scoreset
-	 msss-mms-i
-	 msss-mms-i-merge))
-	 
-;;	 msss-mms
-;;	 msss-mss-read-saved-scores
-;;	 msss-mms-i
-;;	 msss-mms-i-merge))
-  
-
-
-
-(defun trace-runtime-tests ()
-  (trace clear-runtime-testsets
-	 add-runtime-test
-	 runtime-test-activep
-	 reset-runtime-testset-scores
-	 update-runtime-testset-scores
-	 get-current-runtime-total-score
-	 collect-runtime-score-tests
-	 collect-all-runtime-tests
-	 map-tests->list-results
-	 ;;map-runtime-test-val->out
-	 ))
