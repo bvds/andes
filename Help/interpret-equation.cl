@@ -415,14 +415,14 @@
     ((and (null (cdr missing)) 
           (is-premature-before-compo-eqn-p interp)) 
        (chain-explain-more-green (list 
-	   (format NIL "Although equation ~A is correct, you have not displayed a fundamental vector principle written in component form on a line by itself." (1+ (studentEntry-ID se)))
+	   (format NIL "Although this equation is correct, you have not displayed a fundamental vector principle written in component form on a line by itself.")
            "It is good practice to identify the fundamental vector principles you are using by writing them purely symbolically in component form before combining them with other equations or given values.  Select \"Review Physics Equations\" on the Help menu to view a list of principles and their standard forms."
 	   (format NIL "A good solution would include ~A, written as ~:[a separate equation~;separate equations~]." (conjoined-names missing) (cdr missing)))))
        
     (missing ; better have at least one missing to mention
        (chain-explain-more-green 
          (list 
-          (format NIL "Although equation ~A is correct, you have not displayed a fundamental principle being used in symbolic form all by itself." (1+ (studentEntry-ID se)))
+          (format NIL "Although this equation is correct, you have not displayed a fundamental principle being used in symbolic form all by itself.")
            "It is good practice to identify the fundamental principles you are using by writing them purely symbolically in standard form before combining them with other equations or given values.  Select \"Review Physics Equations\" on the Help Menu to view  a list of principles and their standard forms."
 	   (format NIL "A good solution would include ~A, written as ~:[a separate equation~;separate equations~]." (conjoined-names missing) (cdr missing)))))
        

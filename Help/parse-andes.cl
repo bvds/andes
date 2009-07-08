@@ -779,11 +779,7 @@
 		     ;; get list of all previous answers.
 		     (remove '(answer ?quant) *StudentEntries* 
 			     :key #'StudentEntry-prop :test-not #'unify))))
-      (setf sought-quant (nth (length previous) (problem-soughts *cp*)))
-      (format webserver:*stdout* "do-check-answer all previous answers: ~%   ~A~%"
-	      (remove '(answer ?quant) *StudentEntries* 
-		      :key #'StudentEntry-prop :test-not #'unify))
-      (format webserver:*stdout* "do-check-answer (length previous) inputo sought-quant id input:~%    ~A~%" (list (length previous) inputo sought-quant id input)))
+      (setf sought-quant (nth (length previous) (problem-soughts *cp*))))
 
     (setf (StudentEntry-prop entry) `(answer ,sought-quant))
     (add-entry entry) ;save entry immediately 

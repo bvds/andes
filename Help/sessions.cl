@@ -95,9 +95,10 @@
 	  *NSH-PROBLEM-TYPE* *VARIABLES* *STUDENTENTRIES* 
 	  *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*
           **Condition**  mt19937::*random-state* **grammar**
+	  ;; slot mapping for Algebra/solver.cl
+	   *id-solver-slot-map* *solver-free-slots*
 	  ;; Session-specific variables in Help/Interface.cl
-	  **current-cmd-stack** **current-cmd** 
-	  *last-tutor-turn* *last-score*
+	  **current-cmd-stack** **current-cmd** *last-tutor-turn* *last-score*
           ;; Variables set in Config.cl, which is loaded for each session.
           *Runtime-Testset* *Runtime-Score-Testset*
 	  **Testing-Pause-Time-Threshold** **Filter-Constraint-losses**
