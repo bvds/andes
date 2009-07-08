@@ -22,7 +22,6 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		init: function(node){
 			this.container = node;
 			var pos = dojo.coords(this.container.parentNode);
-			console.warn("SET MOUSE COORDS")
 			this.origin = dojo.clone(pos);
 			var c;
 			var _isDown = false;
@@ -47,7 +46,6 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		},
 		setCanvas: function(){
 			var pos = dojo.coords(this.container.parentNode);
-			console.warn("SET MOUSE COORDS")
 			this.origin = dojo.clone(pos);
 		},
 		scrollOffset: function(){

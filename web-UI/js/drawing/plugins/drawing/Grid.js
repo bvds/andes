@@ -8,7 +8,7 @@ drawing.plugins.drawing.Grid = drawing.util.oo.declare(
 		dojo.connect(this.canvas, "resize", this, function(){
 			clearTimeout(vrl);
 			vrl = setTimeout(dojo.hitch(this, function(){
-				this.setGrid();
+				//this.setGrid();
 			}),100);
 		})
 		this.setGrid();	
@@ -17,7 +17,7 @@ drawing.plugins.drawing.Grid = drawing.util.oo.declare(
 		gap:100,
 		type:"drawing.plugins.drawing.Grid",
 		setGrid: function(options){
-			return
+			
 			console.log("SET GRID")
 			//
 			// TODO: Shift grid for scroll
@@ -31,8 +31,8 @@ drawing.plugins.drawing.Grid = drawing.util.oo.declare(
 			
 			var x1,x2,y1,y2;
 			var s = this.canvas.underlay.createGroup();
-			var w = this.canvas.width;
-			var h = this.canvas.height;
+			var w = 2000;//this.canvas.width;
+			var h = 1000;//this.canvas.height;
 			var b = 1;
 			var c = "#A3ECFE";
 			

@@ -89,8 +89,7 @@ drawing.plugins.tools.Pan = drawing.util.oo.declare(
 				//console.warn.apply(console, arguments);
 			}
 			//console.clear();
-			console.warn("Check Bounds");
-			console.time("check bounds");
+			//console.time("check bounds");
 			var t=Infinity, r=-Infinity, b=-Infinity, l=Infinity,
 				sx=0, sy=0, dy=0, dx=0,
 				mx = this.stencils.group ? this.stencils.group.getTransform() : {dx:0, dy:0},
@@ -163,7 +162,7 @@ drawing.plugins.tools.Pan = drawing.util.oo.declare(
 			
 			this.canvas.setDimensions(cw, ch, sx, sy);
 			
-			console.timeEnd("check bounds");
+			//console.timeEnd("check bounds");
 		}
 	}
 );

@@ -1,4 +1,5 @@
 dojo.provide("andes.main");
+dojo.require("andes.drawing");
 dojo.require("andes.menu");
 dojo.require("andes.help");
 dojo.require("andes.api");
@@ -8,7 +9,7 @@ dojo.require("andes.error");
 	var devMode = true, query;
 	if(devMode){
 		query = {
-			p:"32345",
+			p:"s2e",
 			u:"joe"
 		}
 	}else{
@@ -27,7 +28,8 @@ dojo.require("andes.error");
 
 	andes.userId = query.u;
 	andes.projectId = query.p;
-
+	andes.drawing.load(query);
+	
 	dojo.addOnLoad(function(){
 		var splashNode = dojo.byId("splashOverlay"),
 		    anim = dojo.fadeOut({node:dojo.byId("splashOverlay")}),

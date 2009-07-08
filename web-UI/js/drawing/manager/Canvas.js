@@ -118,15 +118,7 @@ dojo.provide("drawing.manager.Canvas");
 				}
 				
 				_surface.setDimensions(this.width, this.height);
-				//var d = _surface.getDimensions();
-		
-				
-				clearTimeout(this.vrl);
-					this.vrl = setTimeout(function(){
-					console.warn("SET DIM", this.width, this.height)
-				},100)
-			
-				//return;
+
 			
 				this.domNode.parentNode.scrollTop = scrolly || 0;
 				this.domNode.parentNode.scrollLeft = scrollx || 0;

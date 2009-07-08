@@ -6,6 +6,7 @@ dojo.provide("drawing.stencil._Base");
 		
 		function(options){
 			// clone style so changes are reflected in future shapes
+			console.log("SHAPE:", options)
 			dojo.mixin(this, options);
 			
 			this.style = options.style || drawing.defaults.copy();
@@ -33,7 +34,7 @@ dojo.provide("drawing.stencil._Base");
 				this.render();
 			}else if(options.data){
 				this.setData(options.data);
-				this.render();
+				this.render(options.data.text);
 			}
 		},
 		{

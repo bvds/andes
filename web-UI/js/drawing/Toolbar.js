@@ -134,7 +134,6 @@ dojo.provide("drawing.Toolbar");
 			this.drawing.initPlugins();
 			dojo.connect(this.drawing, "setTool", this, "onSetTool");	
 			this.drawing.setTool(_sel);
-			console.warn("TOOLS SET")
 		},
 		onClick: function(type){
 			this.drawing.setTool(type);

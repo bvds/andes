@@ -54,13 +54,13 @@
 
 		dojo.require("drawing.Drawing");
 		dojo.require("drawing.plugins.drawing.Grid");
-	/*	dojo.require("drawing.Toolbar");
+		dojo.require("drawing.Toolbar");
 		dojo.require("drawing.tools.custom.Vector");
 		dojo.require("drawing.tools.custom.Axes");
 		dojo.require("drawing.tools.Arrow");
 		dojo.require("drawing.plugins.tools.Pan");
 		dojo.require("drawing.plugins.tools.Zoom");
-	*/
+	
 	</script>
 
 </head>
@@ -101,7 +101,7 @@
 		</div>
 
 		<div id="toolPane" dojoType="dijit.layout.ContentPane" region="left" splitter="false">
-				<!--<div dojoType="drawing.Toolbar" drawingId="drawingNode" class="drawingToolbar vertical">
+				<div dojoType="drawing.Toolbar" drawingId="drawing" class="drawingToolbar vertical">
 					<div tool="drawing.tools.Line" selected="false">Line</div>
 					<div tool="drawing.tools.Rect" selected="true">Rect</div>
 					<div tool="drawing.tools.Ellipse" selected="false">Ellipse</div>
@@ -111,11 +111,11 @@
 					<div tool="drawing.tools.custom.Axes" selected="false">Axes</div>
 					<div plugin="drawing.plugins.tools.Pan" options="{}">Pan</div>
 					<div plugin="drawing.plugins.tools.Zoom" options="{zoomInc:.1,minZoom:.5,maxZoom:2}">Zoom</div>
-				</div>-->
+				</div>
 		</div>
 
 		<div id="drawingPane" dojoType="dijit.layout.ContentPane" region="center" >
-				<div dojoType="drawing.Drawing" id="drawingNode" drawingType="canvas" class="drawing"
+				<div dojoType="drawing.Drawing" id="drawing" drawingType="canvas" class="drawing"
 					plugins="[{'name':'drawing.plugins.drawing.Grid', 'options':{gap:100}}]">   
 			   </div>
 		</div>
