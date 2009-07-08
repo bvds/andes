@@ -104,13 +104,6 @@ dojo.provide("drawing.manager.Anchors");
 					var mx = a.shape.getTransform();
 					pts.push({x:mx.dx + a.org.x, y:mx.dy+ a.org.y});
 					
-					watch("anchor"+i, Math.ceil(mx.dx)+" x " + Math.ceil(mx.dy))
-					watch("point0", Math.ceil(item.points[0].x)+" x " +Math.ceil(item.points[0].y))
-					watch("point1", Math.ceil(item.points[1].x)+" x " +Math.ceil(item.points[1].y))
-					/*watch("point2", Math.ceil(item.points[2].x)+" x " +Math.ceil(item.points[2].y))
-					watch("point3", Math.ceil(item.points[3].x)+" x " +Math.ceil(item.points[3].y))
-					*/
-					
 				}, this);
 				item.setPoints(pts);
 				item.onTransform(anchor);

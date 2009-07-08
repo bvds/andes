@@ -47,7 +47,9 @@ body, .tundra .dijitSplitter, #navMenu{
 .tundra .dijitSplitterV, .tundra .dijitGutterV {
 	width:4px;
 }
-
+.tundra .dijitSplitter{
+	z-index:100;
+}
 
 #toolPane{
 	width:50px;

@@ -46,21 +46,51 @@ dojo.require("drawing.tools.Line");
 			this.keys = drawing.manager.keys;
 			this.mouse = new drawing.manager.Mouse({util:this.util, keys:this.keys});
 			this.tools = {};
-			this.srcRefNode = node;
+			this.srcRefNode = node; // need this?
+			this.domNode = node;
 			var str = dojo.attr(node, "plugins");
 			if(str){
 				this.plugins = eval(str);
-				console.dir(this.plugins);
 			}
+			
+			if(dijit){
+				this.widgetId = this.id;
+				dojo.attr(this.domNode, "widgetId", this.widgetId)
+				dijit.registry.add(this);
+			}else{
+				this._createCanvas();
+			}
+			
+		},
+		
+		_createCanvas: function(){
 			this.canvas = new drawing.manager.Canvas({
-				srcRefNode:node,
+				srcRefNode:this.domNode,
 				util:this.util,
 				mouse:this.mouse,
 				callback: dojo.hitch(this, "onSurfaceReady")
 			});
-			
+			this.initPlugins();
 		},
-		
+		resize: function(box){
+			dojo.style(this.domNode, {
+				width:box.w+"px",
+				height:box.h+"px"
+			});
+			if(!this.canvas){
+				this._createCanvas();		
+			}else{
+				this.canvas.resize(box.w, box.h);
+			}
+			
+			clearTimeout(this.vrl);
+			this.vrl = setTimeout(dojo.hitch(this, function(){
+				console.info("resize drawing:", box, this.domNode)
+			}),100)
+		},
+		startup: function(){
+			console.info("drawing startup")
+		},
 		getShapeProps: function(data) {
 			// For convenience. May or may not be in final code.
 			return dojo.mixin({
@@ -110,9 +140,8 @@ dojo.require("drawing.tools.Line");
 			this.mouse.setCanvas();
 		},
 		onSurfaceReady: function(){
-			console.warn("----------------------------------->>>Surface ready")
-			this.domNode = this.canvas.domNode;
-			this.mouse.init(this.domNode);
+			console.info("Surface ready")
+			this.mouse.init(this.canvas.domNode);
 			this.undo = new drawing.manager.Undo({keys:this.keys});
 			this.anchors = new drawing.manager.Anchors({mouse:this.mouse, undo:this.undo, util:this.util});
 			this.stencils = new drawing.manager.Stencil({canvas:this.canvas, surface:this.canvas.surface, mouse:this.mouse, undo:this.undo, keys:this.keys, anchors:this.anchors});
@@ -123,15 +152,15 @@ dojo.require("drawing.tools.Line");
 			// objects for testing. Final code will move these into test HTML
 			
 			
-			
+			console.log("create RECT")
 		 	this.stencils.register(new drawing.stencil.Rect(this.getShapeProps(
-				{data:{x:100, y:100, width:100, height:100}}
+				{data:{x:100, y:100, width:93, height:93}}
 			)));
-			
-			this.stencils.register(new drawing.stencil.Line(this.getShapeProps(
+			console.log("create LINE")
+			/*this.stencils.register(new drawing.stencil.Line(this.getShapeProps(
 				{points:[{x:300,y:300},{x:500,y:200}]}
-			)));
-	
+			)));*/
+	console.log("create LINE done")
 		/*
 			this.stencils.register(new drawing.stencil.Image(this.getShapeProps(
 				{data:{src:"images/BallOnWall.png", x:300, y:200, width:"auto"}}

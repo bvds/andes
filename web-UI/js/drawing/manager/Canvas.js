@@ -43,7 +43,7 @@ dojo.provide("drawing.manager.Canvas");
 					if(options.callback){
 						options.callback(this.domNode);
 					}
-				}),0);
+				}),500);
 			});
 			this._mouseHandle = this.mouse.register(this);
 		},
@@ -64,16 +64,7 @@ dojo.provide("drawing.manager.Canvas");
 			blockScrollbars: function(block){
 				this._scrollBlocked = block;
 			},
-			layout: function(box){
-				
-				// plugin?
-				
-				// the parent node has changed size, due to a browser
-				// resize or BorderContainer resize
-				
-				//TODO
-			},
-			
+
 			onDown: function(obj){
 				this.blockScrollbars(true);
 			},
@@ -105,11 +96,16 @@ dojo.provide("drawing.manager.Canvas");
 					overflowX: this.width > this.parentWidth ? "scroll" : "hidden"
 				});
 			},
+			resize: function(width, height){
+				this.parentWidth = width;
+				this.parentHeight = height;
+				this.setDimensions(width, height);
+			},
 			setDimensions: function(width, height, scrollx, scrolly){
 				// changing the size of the surface and setting scroll
 				// if items are off screen
 				//
-			//console.warn("SET DIM")
+			
 				var sw = this.getScrollWidth() //+ 10;
 				this.width = Math.max(width, this.parentWidth);
 				this.height = Math.max(height, this.parentHeight);
@@ -122,14 +118,22 @@ dojo.provide("drawing.manager.Canvas");
 				}
 				
 				_surface.setDimensions(this.width, this.height);
-				var d = _surface.getDimensions();
+				//var d = _surface.getDimensions();
 		
-				this.domNode.parentNode.scrollTop = scrolly;
-				this.domNode.parentNode.scrollLeft = scrollx;
+				
+				clearTimeout(this.vrl);
+					this.vrl = setTimeout(function(){
+					console.warn("SET DIM", this.width, this.height)
+				},100)
+			
+				//return;
+			
+				this.domNode.parentNode.scrollTop = scrolly || 0;
+				this.domNode.parentNode.scrollLeft = scrollx || 0;
 				
 				
 				if(this.useScrollbars){
-					console.info("Set Canvas Scroll", (this.height > this.parentHeight), this.height, this.parentHeight)
+					//console.info("Set Canvas Scroll", (this.height > this.parentHeight), this.height, this.parentHeight)
 					dojo.style(this.domNode.parentNode, {
 						overflowY: this.height > this.parentHeight ? "scroll" : "hidden",
 						overflowX: this.width > this.parentWidth ? "scroll" : "hidden"
@@ -140,13 +144,11 @@ dojo.provide("drawing.manager.Canvas");
 						overflowX: "hidden"
 					});
 				}
-				//this.setGrid();
 			},
 			
 			
 			setZoom: function(zoom){
 				this.surface.setTransform({xx:zoom, yy:zoom});
-				//this.setGrid(zoom);
 			},
 			
 			onScroll: function(){

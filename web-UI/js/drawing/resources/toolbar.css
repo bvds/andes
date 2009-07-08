@@ -1,10 +1,4 @@
-.drawing{
-	margin-left:52px;
-	width:800px;
-	height:400px;
-	border:1px solid #ff0000;
-	cursor:crosshair;
-}
+
 .horizontal.drawingToolbar{
 	position:relative;
 	width:auto;

@@ -1,4 +1,3 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html lang="en">
 <head>
     <title>Andes 3</title>
@@ -6,6 +5,16 @@
 	<link href="js/andes/widget/UpgradeBar/UpgradeBar.css" rel="stylesheet" />
 	<link href="js/drawing/resources/drawing.css" rel="stylesheet" />
 	<link href="js/drawing/resources/toolbar.css" rel="stylesheet" />
+	<style>
+		#drawingNode{
+			/*border:1px solid #ff0000;*/
+			cursor:crosshair;
+			
+		}
+		#drawingPane{
+			/*overflow:hidden;*/
+		}
+	</style>
 	<script>
 		djConfig = {
 			isDebug:true,
@@ -15,6 +24,19 @@
 	</script>
 	<script src="dojotoolkit/dojo/dojo.js"></script>
 	<script>
+		if(dojo.isIE){
+			// Fixing IE's console
+			console._log = console.log;
+			console.log = function(){
+				console._log(Array.prototype.slice.call(arguments).join("  "));
+			}
+			console._warn = console.warn;
+			console.warn = function(){
+				console._warn(Array.prototype.slice.call(arguments).join("  "));
+			}
+			// if console is closed this throws an error
+			try{console.clear();}catch(e){}
+		}
 		dojo.require("dojo.parser");
 		dojo.require("dijit.layout.BorderContainer");
 		dojo.require("dijit.layout.ContentPane");
@@ -30,14 +52,14 @@
 		
 		dojo.require("andes.main");
 		
-	/*	dojo.require("drawing.Drawing");
-		dojo.require("drawing.Toolbar");
+		dojo.require("drawing.Drawing");
+		dojo.require("drawing.plugins.drawing.Grid");
+	/*	dojo.require("drawing.Toolbar");
 		dojo.require("drawing.tools.custom.Vector");
 		dojo.require("drawing.tools.custom.Axes");				
 		dojo.require("drawing.tools.Arrow");
 		dojo.require("drawing.plugins.tools.Pan");
 		dojo.require("drawing.plugins.tools.Zoom");
-		dojo.require("drawing.plugins.drawing.Grid");
 	*/
 	</script>
 	
@@ -93,12 +115,18 @@
 		</div>
 
 		<div id="drawingPane" dojoType="dijit.layout.ContentPane" region="center" >
-				<!--<div dojoType="drawing.Drawing" id="drawingNode" drawingType="canvas" class="drawing"
+				<div dojoType="drawing.Drawing" id="drawingNode" drawingType="canvas" class="drawing"
 					plugins="[{'name':'drawing.plugins.drawing.Grid', 'options':{gap:100}}]">   
-			   </div>-->
+			   </div>
 		</div>
-
+		<!--<div dojoType="drawing.Drawing" id="drawingNode" drawingType="canvas" class="drawing"
+					plugins="[{'name':'drawing.plugins.drawing.Grid', 'options':{gap:100}}]" region="center" >
+		</div>-->
+			
+		<!--
 		<div id="helpPane" dojoType="andes.widget.ExpandoPane" region="right" splitter="true">
+		-->
+		<div id="helpPane" dojoType="dijit.layout.ContentPane" region="right" splitter="true">
 			<div id="helpWrapPane" dojoType="dijit.layout.BorderContainer" gutters="false">
 				<div id="helpContentPane" dojoType="dijit.layout.ContentPane" region="center">
 					Help content
@@ -109,6 +137,9 @@
 				</div>
 			</div>
 		</div>
+		
+		
+		
 		<div id="footerPane" dojoType="dijit.layout.ContentPane" region="bottom"></div>
 	</div>
 

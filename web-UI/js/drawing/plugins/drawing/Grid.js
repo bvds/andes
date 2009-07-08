@@ -1,15 +1,24 @@
 dojo.provide("drawing.plugins.drawing.Grid");
+dojo.require("drawing.plugins._Plugin");
 
 drawing.plugins.drawing.Grid = drawing.util.oo.declare(
 	drawing.plugins._Plugin,
 	function(options){
+		var vrl;
+		dojo.connect(this.canvas, "resize", this, function(){
+			clearTimeout(vrl);
+			vrl = setTimeout(dojo.hitch(this, function(){
+				this.setGrid();
+			}),100);
+		})
 		this.setGrid();	
 	},
 	{
 		gap:100,
 		type:"drawing.plugins.drawing.Grid",
 		setGrid: function(options){
-			
+			return
+			console.log("SET GRID")
 			//
 			// TODO: Shift grid for scroll
 			// TODO: major minor lines
