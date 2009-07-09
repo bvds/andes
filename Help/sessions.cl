@@ -56,11 +56,6 @@
   "start a server with help system, optionally specifying the port."
   ;; global setup
 
-  ;; Mainly for safety in runtime image: ensure Lisp reads floating point 
-  ;; numbers into doubles, no matter what setting had been in effect before.
-  (setq *read-default-float-format* 'double-float)
-
-
   ;; in runtime version only: set *andes-path* to process working directory
   #+allegro-cl-runtime (setf *andes-path* 
 			     (make-pathname 
@@ -163,7 +158,7 @@
 
 (webserver:defun-method "/help" open-problem (&key time problem user) 
   "initial problem statement" 
-  
+
   ;; Need to think about error handling for the case where 
   ;; the session already exists.
   (when webserver:*env* 
@@ -181,6 +176,7 @@
       ;; Config modifies *runtime-testset*, so we
       ;; need to make the session-local copy first. 
       (session-local-runtime-testset)
+
       ;; Andes2 had the following calls that can be found in log files:
       ;;   read-student-info; the only remaining step is:
       (Load-Config-File)			
@@ -209,6 +205,7 @@
 			   (mapcan #'(lambda (x) (list (car x) (cdr x))) 
 				   reply))
 		    solution-step-replies)))
+
     (env-wrap
       (check-entries nil)      
 

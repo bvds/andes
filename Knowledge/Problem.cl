@@ -276,7 +276,9 @@
 				    (Read-old-format nil))
   "Read the specified problem file into a new Problem Struct."
   (declare (ignore read-old-format))
-  (let ((Filename (problem-filename Name Path)) (Problem (make-Problem)))
+  ;; File format is double-precision
+  (let ((*read-default-float-format* 'double-float)
+	(Filename (problem-filename Name Path)) (Problem (make-Problem)))
     (when (probe-file (namestring FileName))
       (with-open-file (File 
 		       (namestring Filename)
@@ -309,7 +311,7 @@
 	(when (problem-Eqnindex Problem)                       
 	  (regen-bg-eindex-links (Problem-Graph Problem)      
 				 (Problem-EqnIndex Problem))) 
-	Problem))))                                         
+	Problem))))
 
 ;;; Return the problem struct.
 ;;; Regenerate the links between elements within

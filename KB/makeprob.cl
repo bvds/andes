@@ -116,9 +116,6 @@
 
 (defun andes-init ()
   "initialize parser and start up solver"
-  ;; Mainly for safety:  ensure Lisp reads floating point
-  ;; numbers into doubles, no matter what setting had been in effect before.
-  (setq *read-default-float-format* 'double-float)
   (physics-algebra-rules-initialize) ;initialize grammar
 
   (solver-load)
