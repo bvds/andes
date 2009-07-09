@@ -6,7 +6,7 @@ dojo.provide("drawing.stencil._Base");
 		
 		function(options){
 			// clone style so changes are reflected in future shapes
-			console.log("SHAPE:", options)
+			console.log("_Base.options:", options, this.type)
 			dojo.mixin(this, options);
 			
 			this.style = options.style || drawing.defaults.copy();
@@ -33,6 +33,9 @@ dojo.provide("drawing.stencil._Base");
 				this.setPoints(options.points);
 				this.render();
 			}else if(options.data){
+				options.data.width = options.data.width ? options.data.width : this.style.text.minWidth;
+				options.data.height = options.data.height ? options.data.height : this._lineHeight;
+				console.log("_Base.CONSTR render", options.data);
 				this.setData(options.data);
 				this.render(options.data.text);
 			}
@@ -66,9 +69,27 @@ dojo.provide("drawing.stencil._Base");
 			},
 			setPoints: function(p){
 				this.points = p;
+				//console.log("points:", this.points)
 				// Path doesn't do data
 				if(this.pointsToData){
 					this.data = this.pointsToData();
+				}
+				
+			},
+			
+			setLabel: function(text){
+				if(!this._label){
+					this._label = new drawing.stencil._Label({
+						text:text,
+						util:this.util,
+						mouse:this.mouse,
+						stencil:this,
+						annotation:true,
+						parent:this.parent,
+						labelPosition:this.labelPosition
+					});
+				}else if(text){
+					this._label.setLabel(text);
 				}
 			},
 			
@@ -90,8 +111,10 @@ dojo.provide("drawing.stencil._Base");
 			},
 			
 			getBounds: function(){
-				// NOTE: Won't work for paths or annotations (labels, arrow tips)
+				// NOTE: Won't work for paths or annotations (labels, Axes, arrow tips)
 				var p = this.points;
+				console.log("get bounds id:", this.id)
+				console.log("get bounds points:", p)
 				if(p.length==2){
 					var x1 = p[0].x < p[1].x ? p[0].x : p[1].x;
 					var y1 = p[0].y < p[1].y ? p[0].y : p[1].y;
@@ -185,7 +208,7 @@ dojo.provide("drawing.stencil._Base");
 				if(!this._postRenderCon){
 					this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
 				}
-				
+		console.warn("RENDERED**************")
 				this.created = true;
 				this.disconnectMouse();
 				
@@ -243,6 +266,8 @@ dojo.provide("drawing.stencil._Base");
 				if(!this.isBeingModified){
 					this.onTransformBegin();
 				}
+				// this is not needed for anchor moves, but it
+				// is for stencil move:
 				this.setPoints(this.points);
 				this.render();			
 			},

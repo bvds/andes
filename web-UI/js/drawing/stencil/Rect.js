@@ -7,6 +7,7 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 
 	},
 	{
+		type:"drawing.stencil.Rect",
 		anchorType: "group",
 		dataToPoints: function(o){
 			o = o || this.data;

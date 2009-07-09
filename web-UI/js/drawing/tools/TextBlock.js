@@ -33,24 +33,40 @@ dojo.require("drawing.stencil.Text");
 		drawing.stencil.Text,
 		function(options){
 			if(options.data){
-				console.warn("TEXT BLOCK")
+				console.warn("TEXT BLOCK", options.data.x, options.data.y)
 				var d = options.data;
-				var w = d.width=="auto" ? "auto" : Math.max(d.width, this.style.text.minWidth)
-				var o = this.measureText(this.cleanText(d.text, false), w);
-				console.log("MEASURED:", o)
+				var w = !d.width ? this.style.text.minWidth : d.width=="auto" ? "auto" : Math.max(d.width, this.style.text.minWidth)
+				var h = this._lineHeight;
+				if(d.text){
+					var o = this.measureText(this.cleanText(d.text, false), w);
+					console.log("MEASURED:", o)
+					w = o.w;
+					h = o.h;
+				}
 				this.points = [
 					{x:d.x, y:d.y},
-					{x:d.x+o.w, y:d.y},
-					{x:d.x+o.w, y:d.y+o.h},
-					{x:d.x, y:d.y+o.h}
+					{x:d.x+w, y:d.y},
+					{x:d.x+w, y:d.y+h},
+					{x:d.x, y:d.y+h}
 				];
-				this.render(d.text);
-				
+				if(d.showEmpty){
+					console.log("show empty", w, h);
+					this._text = "";
+					this.edit();
+				}else if(d.text){
+					console.log("render text", d.text)
+					this.render(d.text);
+				}
 			}
 		},
 		{
 			draws:true,
 			type:"drawing.stencil.TextBlock",
+			
+			onChange: function(value){
+				// stub
+			},
+			
 			showParent: function(obj){
 				if(this.parentNode){ return; }
 				console.log("SHOW PARENT OBJ:", obj)
@@ -66,10 +82,11 @@ dojo.require("drawing.stencil.Text");
 					height:obj.height || this._lineHeight,
 					border:d.width+"px "+d.style+" "+d.color,
 					position:"absolute",
+					zIndex:500,
 					toPx: function(){
 						var o = {};
 						for(var nm in this){
-							o[nm] = typeof(this[nm])=="number" ? this[nm] + "px" : this[nm];
+							o[nm] = typeof(this[nm])=="number" && nm!="zIndex" ? this[nm] + "px" : this[nm];
 						}
 						return o;
 					}
@@ -97,10 +114,16 @@ dojo.require("drawing.stencil.Text");
 				return conEdit;
 			},
 			connectTextField: function(){
+				if(this._textConnected){ return; } // good ol' IE and its double events
+				this._textConnected = true;
+				
 				this.keys.editMode(true);
 				var kc1, kc2, kc3, self = this, _autoSet = false,
 					exec = function(){
-						dojo.forEach([kc1,kc2,kc3], dojo.disconnect, dojo);
+						dojo.forEach([kc1,kc2,kc3], function(c){
+							dojo.disconnect(c)
+						});
+						self._textConnected = false;
 						self.keys.editMode(false);
 						self.execText();
 					}
@@ -125,20 +148,27 @@ dojo.require("drawing.stencil.Text");
 				this.createAnchors();
 				conEdit.focus();
 				// once again for Silverlight:
-				setTimeout(function(){ conEdit.focus();}, 500);
 				
 				this.onDown = function(){}
 				this.onDrag = function(){}
-				this.onUp = function(){
-					if(!self._onAnchor){
-						this.disconnectMouse();
-						exec();
-					}
-				}
+				
+				var self = this;
+				setTimeout(dojo.hitch(this, function(){
+					conEdit.focus();
+					
+					this.onUp = function(){
+						if(!self._onAnchor){
+							self.disconnectMouse();
+							exec();
+						}
+					}	
+				}), 500);
+				
+				
+				
 			},
 			execText: function(){
 				var d = dojo.marginBox(this.parentNode);
-				console.warn("TEXT BIX:", d, this.style)
 				var w = Math.max(d.w, this.style.text.minWidth)
 				
 				var txt = this.cleanText(conEdit.innerHTML, true);
@@ -153,21 +183,15 @@ dojo.require("drawing.stencil.Text");
 				var x = this._box.left + sc.left - org.x;
 				var y = this._box.top + sc.top - org.y;
 				
-				console.warn(">>>>>>>>>>>>>>>")
-				console.log("BOX:", this._box);
-				
-				console.log("Y", this._box.left)
-				console.log("SY", sc.top)
-				console.log("orgY", org.y)
-				
 				this.points = [
 					{x:x, y:y},
 					{x:x+w, y:y},
 					{x:x+w, y:y+o.h},
 					{x:x, y:y+o.h}
 				];
-		
+				
 				this.render(o.text);
+				this.onChange(txt);
 			},
 			
 			edit: function(){
@@ -178,10 +202,6 @@ dojo.require("drawing.stencil.Text");
 				
 				var sc = this.mouse.scrollOffset();
 				var org = this.mouse.origin;
-				console.warn(">>>>>>>>>>>>>>>")
-				console.log("Y", d.y)
-				console.log("SY", sc.top)
-				console.log("orgY", org.y)
 				
 				var obj = {
 					pageX: d.x  - sc.left + org.x,
@@ -285,7 +305,6 @@ dojo.require("drawing.stencil.Text");
 			
 			onUp: function(obj){
 				if(!this.shape && !obj.withinCanvas || !this._box){ return; }
-				console.log(" >>> >>> HtmlTextBlock up");
 				this.createTextField();
 				this.connectTextField();
 			},
@@ -306,7 +325,8 @@ dojo.require("drawing.stencil.Text");
 			},
 			
 			createAnchors: function(){
-				this._anchors = {}, self = this;
+				this._anchors = {};
+				var self = this;
 				var d = this.style.anchors,
 					b = d.width,
 					w = d.size-b*2,

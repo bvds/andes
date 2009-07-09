@@ -24,9 +24,9 @@ dojo.provide("drawing.manager.Anchors");
 				};
 				if(item.anchorType=="none"){ return; }
 				var pts = item.points;
-				dojo.forEach(pts, function(p){
+				dojo.forEach(pts, function(p, i){
 					if(p.noAnchor){ return; }
-					var a = new drawing.manager.Anchor({stencil:item, point:p, mouse:this.mouse, util:this.util});
+					var a = new drawing.manager.Anchor({stencil:item, point:p, pointIdx:i, mouse:this.mouse, util:this.util});
 					this.items[item.id]._cons = [
 						dojo.connect(a, "onRenderStencil", this, "onRenderStencil"),
 						dojo.connect(a, "reset", this, "onReset"),
@@ -138,6 +138,7 @@ dojo.provide("drawing.manager.Anchors");
 			this.defaults = drawing.defaults.copy();
 			this.mouse = options.mouse;
 			this.point = options.point;
+			this.pointIdx = options.pointIdx;
 			this.util = options.util;
 			this.id = options.id || this.util.uid("anchor");
 			this.org = dojo.mixin({}, this.point);
@@ -149,6 +150,10 @@ dojo.provide("drawing.manager.Anchors");
 			y_anchor:null,
 			x_anchor:null,
 			render: function(){
+				if(this.shape){
+					var mx = this.shape.getTransform();
+					console.warn(mx.dx, mx.dy)
+				}
 				this.shape && this.shape.removeShape();
 				var d = this.defaults.anchors,
 					b = d.width,
@@ -160,7 +165,8 @@ dojo.provide("drawing.manager.Anchors");
 						color:d.color,
 						cap:d.cap
 					};
-					
+				
+				console.log("REND ANC", this.point.x, this.point.y)
 		
 				var _r = {
 					x: this.point.x-p,
@@ -204,6 +210,9 @@ dojo.provide("drawing.manager.Anchors");
 						x = obj.x - orgx;
 						y = obj.y - orgy;
 						s = this.defaults.anchors.minSize;
+					
+					watch(" a.x", x)
+					watch(" a.y", y)
 					
 					var conL, conR, conT, conB;
 					

@@ -6,13 +6,21 @@
 	<link href="js/drawing/resources/drawing.css" rel="stylesheet" />
 	<link href="js/drawing/resources/toolbar.css" rel="stylesheet" />
 	<style>
-		#drawingNode{
+		#drawingNode, #drawingPane{
 			/*border:1px solid #ff0000;*/
 			cursor:crosshair;
 
 		}
-		#drawingPane{
-			/*overflow:hidden;*/
+		#toolPane{
+			overflow:hidden;
+		}
+		textarea{
+			position:absolute;
+			top:30px;
+			right:10px;
+			width:200px;
+			overflow:hidden;
+			z-index:10001;
 		}
 	</style>
 	<script>
@@ -37,6 +45,25 @@
 			// if console is closed this throws an error
 			try{console.clear();}catch(e){}
 		}
+		var watched = {};
+		var ta;
+		watch = function(name, value){
+			return;
+			if(!ta) {
+				ta = dojo.create("textarea", null, dojo.body());
+			}
+			if(typeof(value)=="number"){
+				value = Math.ceil(value);
+			}
+			watched[name] = value;
+			var lines=[];
+			for(var n in watched){
+				lines.push(n+": "+watched[n]);
+			}
+			dojo.attr(ta, "rows", lines.length);
+			ta.value = lines.join("\n");
+		}
+		
 		dojo.require("dojo.parser");
 		dojo.require("dijit.layout.BorderContainer");
 		dojo.require("dijit.layout.ContentPane");

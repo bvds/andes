@@ -11,6 +11,7 @@ dojo.require("drawing.manager.Mouse");
 dojo.require("drawing.manager.Stencil");
 dojo.require("drawing.manager.Anchors");
 dojo.require("drawing.stencil._Base");
+dojo.require("drawing.stencil._Label");
 dojo.require("drawing.stencil.Line");
 dojo.require("drawing.stencil.Rect");
 dojo.require("drawing.stencil.Ellipse");
@@ -18,6 +19,7 @@ dojo.require("drawing.stencil.Path");
 dojo.require("drawing.stencil.Text");
 dojo.require("drawing.stencil.Image");
 dojo.require("drawing.manager.Silverlight");
+
 
 dojo.require("drawing.tools.TextBlock");
 dojo.require("drawing.tools.Rect");
@@ -206,13 +208,17 @@ dojo.require("drawing.tools.Line");
 		addStencil: function(type, options){
 			return this.stencils.register( new this.stencilTypes[type](this.getShapeProps(options)));
 		},
+		removeStencil: function(stencil){
+			this.stencils.unregister(stencil);
+			stencil.destroy();
+		},
 		
 		onRenderStencil: function(stencil){
 			
 			console.info("drawing.onRenderStencil:", stencil)
 			this.stencils.register(stencil);
 			this.unSetTool();
-			this.setTool(this.currentType);
+			//this.setTool(this.currentType);
 		},
 		
 		registerTool: function(type){
