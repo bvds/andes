@@ -214,14 +214,14 @@
 
       ;;  Push times to client.  (to do)
       (push `((:action . "new-object") (:id .  "a2.5") (:type . "statement") 
-	      (:mode . "locked") (:x . 200) (:y . 75) (:text . "T0 is the time.")) 
+	      (:mode . "locked") (:x . 300) (:y . 75) (:text . "T0 is the time.")) 
 	    replies)
       
       (let ((y 10) (i 0))
 	(dolist  (line (problem-statement *cp*))
 	  (push `((:action . "new-object") (:type . "statement") 
 		  (:id . ,(format nil "statement~A" (incf i))) 
-		  (:mode . "locked") (:x . 3) (:y . ,(setf y (+ y 10))) 
+		  (:mode . "locked") (:x . 10) (:y . ,(setf y (+ y 40))) 
 		  (:width . 80) (:text . ,line)) replies))
 	
 	(when (problem-graphic *cp*)
@@ -229,7 +229,7 @@
 	    (if dims		
 		(push `((:action . "new-object") (:id . "graphic") 
 			(:type . "graphics") (:mode . "locked") 
-			(:x . 10) (:y . ,(+ y 5)) 
+			(:x . 10) (:y . ,(+ y 40)) 
 			(:width . ,(car dims)) (:height . ,(cadr dims))
 			;; This is the URL for the graphic, which may not
 			;; match its location on the server filesystem.
