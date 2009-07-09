@@ -71,9 +71,10 @@
   (unless (search "application/json" (header-in* :content-type))
     ;; with the wrong content-type, just send string back
     (return-from handle-json-rpc "\"content-type must be application/json\""))
-  (let* (reply
-	 (in-json (decode-json-from-string 
-		   (raw-post-data :force-text t)))
+  ;; Convert numbers into double-precision format.
+  (let* ((in-json (let ((*read-default-float-format* 'double-float))
+		    (decode-json-from-string 
+		     (raw-post-data :force-text t))))
 	 (service-uri (request-uri*))
 	 (method (cdr (assoc :method in-json)))
 	 (params (cdr (assoc :params in-json)))
@@ -81,7 +82,8 @@
 	 (client-id (header-in* :client-id))
 	 (version (assoc :jsonrpc in-json))
 	 (method-func (gethash (list service-uri method) 
-			       *service-methods*)))
+			       *service-methods*))
+	 reply)
     (format *stdout* "session ~A calling ~A with ~S~%" 
 	    client-id method params)
     

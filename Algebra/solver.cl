@@ -174,10 +174,6 @@
   (sb-ext:process-wait *process*)
   (sb-ext:process-close *process*))
 
-;; Ensure Lisp will read given values into double-precision floating points.
-;; Thus constants will have the format expected by the solver.
-(setf *read-default-float-format* 'double-float)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; eq slot range defined in DLL. NB: must stay in sync w/DLL!
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -219,7 +215,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defmacro do-solver-turn (name &optional input)
-  `(progn 
+  ;; Solver output is double-precision
+  `(let ((*read-default-float-format* 'double-float))
     (unless (and (sb-ext:process-p *process*) 
 		 (sb-ext:process-alive-p *process*))
       (error "external program not running."))
@@ -351,6 +348,7 @@
 	 (format T "~&!!! Error in SOLVER: ~A~%" x) ;trace msg on error returns
 	 x)
 	((= 0 (length x)) nil)
+	;; do-solver-turn sets read format as double-precision
 	(T (read-from-string x))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
