@@ -40,7 +40,10 @@ dojo.declare("andes.widget.ExpandoPane", dojox.layout.ExpandoPane, {
 	},
 
 	openHelp: function(){
-		// FIXME: probably want to fetch something here
+		dijit.byId("helpInput").attr("value", "");
+		if(dijit.byId("helpContentPane").attr("content").length == 0){
+			dijit.byId("helpSubmit").onClick();
+		}
 		this.toggle();
 	}
 });

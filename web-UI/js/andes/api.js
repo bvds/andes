@@ -106,7 +106,11 @@ dojo.require("andes.error");
 
 		step: function(params){
 			console.warn("andes.api.step", params);
-			return queueRequest("solution-step", params);
+			var dfd = queueRequest("solution-step", params);
+			dfd.addCallback(function(result){
+				andes.help.processStep(result);
+			});
+			return dfd;
 		},
 
 		help: function(params){
