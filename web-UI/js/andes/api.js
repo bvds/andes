@@ -99,19 +99,23 @@ dojo.require("andes.error");
 
 	andes.api = {
 		open: function(params){
+			console.warn("andes.api.open", params);
 			startTime = (new Date()).getTime();
 			return queueRequest("open-problem", params);
 		},
 
 		step: function(params){
+			console.warn("andes.api.step", params);
 			return queueRequest("solution-step", params);
 		},
 
 		help: function(params){
+			console.warn("andes.api.help", params);
 			return queueRequest("seek-help", params);
 		},
 
 		close: function(params){
+			console.warn("andes.api.close", params);
 			return queueRequest("close-problem", params);
 		}
 	};

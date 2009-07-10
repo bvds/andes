@@ -2,6 +2,7 @@
 <head>
     <title>Andes 3</title>
 	<link href="css/andes.css" rel="stylesheet" />
+	<link href="dojotoolkit/dojox/layout/resources/ExpandoPane.css" rel="stylesheet" />
 	<link href="js/andes/widget/UpgradeBar/UpgradeBar.css" rel="stylesheet" />
 	<link href="js/drawing/resources/drawing.css" rel="stylesheet" />
 	<link href="js/drawing/resources/toolbar.css" rel="stylesheet" />
@@ -76,6 +77,7 @@
 		dojo.require("dijit.MenuItem");
 		dojo.require("dijit.PopupMenuItem");
 		dojo.require("dijit.form.Button");
+		dojo.require("dijit.form.TextBox");
 
 		dojo.require("andes.main");
 
@@ -150,22 +152,17 @@
 					plugins="[{'name':'drawing.plugins.drawing.Grid', 'options':{gap:100}}]" region="center" >
 		</div>-->
 			
-		<div id="helpPane" dojoType="andes.widget.ExpandoPane" region="right" splitter="true">
-		<!--
-		<div id="helpPane" dojoType="dijit.layout.ContentPane" region="right" splitter="true">
-		-->
+		<div id="helpPane" dojoType="andes.widget.ExpandoPane" region="right" splitter="true" title="Help">
 			<div id="helpWrapPane" dojoType="dijit.layout.BorderContainer" gutters="false">
-				<div id="helpContentPane" dojoType="dijit.layout.ContentPane" region="center">
-					Help content
-				</div>
+				<div id="helpContentPane" dojoType="dijit.layout.ContentPane" region="center"></div>
 
 				<div id="helpInputPane" dojoType="dijit.layout.ContentPane" region="bottom">
-					Help form
+					<div id="helpQueryLabel">Enter your query...</div>
+					<div dojoType="dijit.form.TextBox" id="helpInput"></div>
+					<div dojoType="dijit.form.Button" id="helpSubmit">?</div>
 				</div>
 			</div>
 		</div>
-
-
 
 		<div id="footerPane" dojoType="dijit.layout.ContentPane" region="bottom"></div>
 	</div>
