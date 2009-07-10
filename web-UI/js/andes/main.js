@@ -4,13 +4,14 @@ dojo.require("andes.menu");
 dojo.require("andes.help");
 dojo.require("andes.api");
 dojo.require("andes.error");
+dojo.require("andes.variablename");
 
 (function(){
 	var devMode = true, query;
 	if(devMode){
 		query = {
 			p:"s2e",
-			u:"joe"
+			u:"joe3"
 		}
 	}else{
 		query = dojo.queryToObject(window.location.search.substring(1));

@@ -15,8 +15,6 @@ dojo.provide("drawing.util.positioning");
 		// move label a set distance from the line
 		var slope = drawing.util.common.slope(start, end);
 		
-		watch("slope:", slope)
-		
 		var deltay = textOffset/Math.sqrt(1.0+slope*slope);
 		if(end.y>start.y){deltay = -deltay;}
 		x += -deltay*slope;
