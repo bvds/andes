@@ -10,7 +10,7 @@ dojo.require("andes.variablename");
 	var devMode = true, query;
 	if(devMode){
 		query = {
-			p:"s2e",
+			p:"32345",
 			u:"joe3"
 		}
 	}else{

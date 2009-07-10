@@ -99,19 +99,29 @@ dojo.require("andes.error");
 
 	andes.api = {
 		open: function(params){
+			console.warn("andes.api.open", params);
 			startTime = (new Date()).getTime();
 			return queueRequest("open-problem", params);
 		},
 
 		step: function(params){
-			return queueRequest("solution-step", params);
+			console.warn("andes.api.step", params);
+			var dfd = queueRequest("solution-step", params);
+			dfd.addCallback(function(result){
+				// look for help embedded in the returned result, so we can
+				// queue it up in case the user opens the Help pane
+				andes.help.processStep(result);
+			});
+			return dfd;
 		},
 
 		help: function(params){
+			console.warn("andes.api.help", params);
 			return queueRequest("seek-help", params);
 		},
 
 		close: function(params){
+			console.warn("andes.api.close", params);
 			return queueRequest("close-problem", params);
 		}
 	};
