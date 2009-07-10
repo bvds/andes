@@ -121,17 +121,22 @@
 
     <script type="text/javascript">
         var posts;
-        function init(){
-               // can't do layout until toolbar and canvas are created
-	      dojo.parser.parse();
+
+        function getsession(myurl) {
 	      dojo.xhrGet({
-	         url: "Documentation/AsuDocs/nokes-inputs.json",
+	         url: myurl,
                  handleAs: "json",
 		 load:  function(data){
                     posts=data;
+                    console.log("loaded " + myurl);
                  }
               });
-	      
+        }
+
+        function init(){
+               // can't do layout until toolbar and canvas are created
+	      dojo.parser.parse();
+              getsession("Documentation/AsuDocs/nokes-inputs.json");
 	}
 	dojo.addOnLoad(init);
     </script>
@@ -163,6 +168,16 @@
        <div id="result">Result</div>
     <p> user/problem session: 
           <input type="text" id="upss" value="32345" size="6"/>&nbsp;
+      Problem:&nbsp;
+      <select>
+        <option selected onclick="getsession(
+	          &quot;Documentation/AsuDocs/nokes-inputs.json&quot;);">
+           nokes example</option>
+        <option onclick="getsession(
+	           &quot;Documentation/AsuDocs/s2e-correct.json&quot;);">
+           s2e correct</option>
+    </select>
+
        <button dojoType="dijit.form.Button" onclick="sendSession">
            Send entire session</button>
        <table><tbody id="sessions"></tbody></table>
@@ -174,7 +189,7 @@
         <option onclick="typejson._smd.target='/help-test';">
           /help-test</option>
      </select>
-     (The target /help should always be available.)
+    (The target /help should always be available.)
 
      <p>Original <a href="Documentation/AsuDocs/sitepen-spec.html">
                       description of new user interface.</a>
