@@ -313,29 +313,6 @@
     (sort-runtime-tests-by-weight)))
 
 
-
-;;;; ================================================================
-;;;; Preperatory Funcs
-;;;; The preperatory funcs are used to setup any caching or other 
-;;;; code for the runtime tests.  They will be called before the
-;;;; tests themselves are reset any time that reset-runtime-test-scores
-;;;; is called.  They are assumed to be zero-argument procedures.
-;;;;
-;;;; NOTE:: These funcs will be called in FIFO order.
-
-(defun clear-runtime-test-prep-funcs ()
-   (setf *runtime-testset-prep-funcs* NIL))
-
-(defun add-runtime-test-prep-func (func)
-  "Add a preperatory func to be executed."
-  (setq *runtime-testset-prep-funcs*
-    (append *runtime-testset-prep-funcs* (list Func))))
-
-(defun execute-runtime-test-prep-funcs ()
-  (dolist (Func *runtime-testset-prep-funcs*)
-    (funcall Func)))
-
-
 ;;;; ================================================================
 ;;;; Scores
 ;;;; The code in this section is used to manipulate the scores
@@ -371,11 +348,9 @@
 ;;; testset.  Doing so will ensure that the tests which are or are
 ;;; not to be used for scoring will be used properly.  
 (defun reset-runtime-testset-scores ()
-  (execute-runtime-test-prep-funcs)
+  (runtime-test-prep-func)
   (dolist (Test *Runtime-Testset*)
       (when (Runtime-test-activep Test)
-	(format webserver:*stdout* "reset-runtime-testset-scores init ~A~%"
-		(runtime-test-name test))
         (runtime-test-init-value Test)))
   (reset-runtime-score-testset)
   (select-current-runtime-testset-solution))
@@ -393,7 +368,6 @@
 ;;; is in the process of checking entries.  I.E. when **checking-entries**
 ;;; is t.
 (defun update-runtime-testset-scores ()
-  (format webserver:*stdout* " update-runtime-testset-scores checking ~A tests ~a~%" (not **checking-entries**) (length *Runtime-Testset*))
   (when (not **checking-entries**)
     (dolist (Test *Runtime-Testset*)
       (when (runtime-test-activep Test)
@@ -402,8 +376,6 @@
 	;; can only be activated this way. 
 	(when (null (runtime-test-CurrVal Test)) 
 	  (runtime-test-init-value Test))
-	(format webserver:*stdout* "   runningchecking test ~a~%" 
-		(runtime-test-name test))
 	(funcall (Runtime-test-func Test) 
 		 (runtime-test-CurrVal Test))))
     (select-current-runtime-testset-solution)))
@@ -461,20 +433,12 @@
     (dolist (Test *Runtime-Score-TestSet*)
       (when (runtime-test-activep test)
 	;;(pprint (runtime-test-name Test))
-	(format webserver:*stdout* "     test ~A val ~A weight ~A~%" 
-		(runtime-test-name test)  (map-rt-val->float 
-			   (runtime-test-currval Test) 
-			   SolIndex) (runtime-test-ScaledWeight Test))
 	(setq Score
 	      (+ Score (* (map-rt-val->float 
 			   (runtime-test-currval Test) 
 			   SolIndex)
 			  (runtime-test-ScaledWeight Test))))))
-    (format webserver:*stdout* "  calculate-runtime-total-score ~A got ~A~%"
-	    SolIndex score)
     Score))
-
-
 
 
 ;;;; ======================================================================

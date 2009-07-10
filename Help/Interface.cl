@@ -226,10 +226,6 @@
 	((read-student-info-cmdp NewCmd)
 	 (iface-handle-stats-student))
 	(t (update-runtime-testset-scores)))
-
-  (format webserver:*stdout* "iface-handle-Statistics ~A, solution ~A~%" 
-	  *Runtime-Testset-current-total-score* 
-	  *Runtime-testset-current-Solindex*)
  
   ;; Irrespective of the entry we need to inform the workbench of
   ;; the current total score if it has changed since last sent
@@ -398,7 +394,8 @@
       ;; Format the stat turn as a list of values for the workbench.  
       ;; this code will set the return value ignoring any coloring that
       ;; may have occurred.  No cmd will be set.
-      (stat-turn (push `((:action . "log") (:subscores . ,(turn-value turn)))
+      (stat-turn (push `((:action . "log") 
+			 (:subscores . ,(turn-value turn)))
 		       result))
       )
     result))
