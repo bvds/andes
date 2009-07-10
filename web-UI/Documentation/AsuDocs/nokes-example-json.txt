@@ -133,8 +133,7 @@ in the same step.  In Andes3, it is separate.
 
 [
   {"action": "log", "assoc": {"DEFINE-MASS": "(DEFINE-VAR (MASS BALL))"}, 
-           "id": "a5a"}
- {"action": "set-score", "score", 40},
+           "id": "a5a"},
   {"action": "modify-object", "id": "a5a", "mode": "correct"}
 ]
 
@@ -147,7 +146,7 @@ in the same step.  In Andes3, it is separate.
 
 [
   {"action": "log", "parse": "(= m_BALL (DNUM 2.0 kg))", "id": "a5b"},
-  {"action": "set-score", "score", 41},
+  {"action": "set-score", "score", 40},
   {"action": "modify-object", "id": "a5b", "mode": "correct"}
 ]
 

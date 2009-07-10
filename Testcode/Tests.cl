@@ -232,9 +232,6 @@
 
 ;;;; -------------------------------------------------------------------------
 ;;;; Cache Setup.
-;;;; This predicate will be added to the list of test-prep-functions and will
-;;;; execute the setup code at runtime in order to prep the entry and object 
-;;;; caches for use at runtime.
 
 ;;;; Add the cache code to the preperatory funcs list for
 ;;;; use at runtime.  Note that it must only run when a 
@@ -244,26 +241,23 @@
 ;;;; body entry form each time a new problem is loaded as a 
 ;;;; way of supporting kb reloads.  
 
-(clear-runtime-test-prep-funcs) ; do on loading before first add
+(defvar *sg-systementry-optional-p-memo* "memo for holding session-local info")
 
-(add-runtime-test-prep-func 
- #'(lambda () 
-     (when (problem-p *cp*) 
-       (setq **Current-Body-Expression-Form**
-	 (entryprop-helpform (lookup-entryprop-type 'body)))
-       ; optimization: optionality test does graph search. Memoize it on
-       ; each new problem so search is only done once for each systementry.
-       ; (each call to memoize clears memory of saved results.)
-       (memoize 'sg-systementry-optional-p :test #'eq)
-       (test-cache-solution-entries)
-       (test-cache-solution-objects)
-       (test-cache-drawing-entries)
-       ;(format T "required axes: ~A~%" *test-cache-axis-entries*)
-       ;(format T "required bodies: ~A~%" *test-cache-objects*)
-       (test-problem-nonanswer-entries))))
-
-
-
+(defun runtime-test-prep-func ()
+  (when (problem-p *cp*) 
+    (setq **Current-Body-Expression-Form**
+	  (entryprop-helpform (lookup-entryprop-type 'body)))
+    ;; optimization: optionality test does graph search. Memoize it on
+    ;; each new problem so search is only done once for each systementry.
+    ;; (each call to memoize clears memory of saved results.)
+    (memoize 'sg-systementry-optional-p :test #'eq 
+	     :var *sg-systementry-optional-p-memo*)
+    (test-cache-solution-entries)
+    (test-cache-solution-objects)
+    (test-cache-drawing-entries)
+    ;;(format T "required axes: ~A~%" *test-cache-axis-entries*)
+    ;;(format T "required bodies: ~A~%" *test-cache-objects*)
+    (test-problem-nonanswer-entries)))
 
 
 ;;; -----------------------------------------------------------------------

@@ -5,7 +5,6 @@ dojo.provide("drawing.stencil.Text");
 	drawing.stencil.Text = drawing.util.oo.declare(
 		drawing.stencil._Base,
 		function(options){
-			
 			this.align = options.align || this.align;
 			this.valign = options.valign || this.valign;
 			this._lineHeight = this.style.text.size * 1.5;
@@ -20,11 +19,12 @@ dojo.provide("drawing.stencil.Text");
 			render: function(/* String | Array */text){
 				
 				this.remove(this.shape, this.hit);
-				this.renderOutline();
+				!this.annotation && this.renderOutline();
 				if(text){
 					this._text = text;
-					this._textArray = text.split("\n");	
+					this._textArray = this._text.split("\n");	
 				}
+				
 				var d = this.pointsToData();
 				var w = d.width;
 				var h = this._lineHeight;
@@ -34,6 +34,7 @@ dojo.provide("drawing.stencil.Text");
 					y -= h/2;
 				}
 				this.shape = this.parent.createGroup();
+				//console.info("render text:", this._textArray, this.style);
 				
 				dojo.forEach(this._textArray, function(txt, i){
 					var tb = this.shape.createText({x: x, y: y+(h*i), text: txt, align: this.align})
@@ -48,6 +49,8 @@ dojo.provide("drawing.stencil.Text");
 			},
 			renderOutline: function(){
 				if(this.annotation){ return; }
+				console.info("points", dojo.toJson(this.points))
+				console.info("data", dojo.toJson(this.data))
 				var d = this.pointsToData();
 				
 				if(this.align=="middle"){
@@ -63,12 +66,13 @@ dojo.provide("drawing.stencil.Text");
 				}
 				
 				d.y -= (this.style.text.size*.3)
+				
+				
 				this.hit = this.parent.createRect(d)
 					.setStroke(this.style.currentHit)
 					.setFill(this.style.currentHit.fill);
-				if(!this.annotation){
-					this.util.attr(this.hit, "drawingType", "stencil");
-				}
+				
+				this.util.attr(this.hit, "drawingType", "stencil");
 				this.hit.moveToBack();
 			},
 			

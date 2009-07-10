@@ -27,10 +27,77 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			var c = this.points[1];
 			this.yArrow.points = this.util.arrowHead(c.x, c.y, o.x, o.y, this.style);
 		});
+		
+		
 	},
 	{
 		draws:true,
-		type:"drawing.custom.Axes",
+		type:"drawing.tools.custom.Axes",
+		
+		createLabels: function(){
+			var props = {style:this.style, align:"middle", valign:"middle", util:this.util, annotation:true, parent:this.parent, mouse:this.mouse, stencil:this};
+			this.labelX = new drawing.stencil._Label(dojo.mixin(props,{
+				labelPosition:this.setLabelX
+			}));
+			this.labelY = new drawing.stencil._Label(dojo.mixin(props,{
+				labelPosition:this.setLabelY
+			}));
+		},
+		setLabelX: function(){
+			var ax = this.points[0];
+			var c =  this.points[1];
+			var ay = this.points[2];
+			
+			var dist = 40;
+			var offdist = 20;
+			var pt, px, py, pt2;
+			
+			pt = this.util.lineSub(c.x, c.y, ax.x, ax.y, dist);
+			px = pt.x + (pt.y -ax.y);
+			py = pt.y + (ax.x - pt.x);
+			pt2 = this.util.lineSub(pt.x, pt.y, px, py, (dist-offdist));
+			
+			return {
+				x:  pt2.x,
+				y:  pt2.y,
+				width:20
+			};
+		},
+		setLabelY: function(){
+			var ax = this.points[0];
+			var c =  this.points[1];
+			var ay = this.points[2];
+			
+			var dist = 40;
+			var offdist = 20;
+			var pt, px, py, pt2;
+			pt = this.util.lineSub(c.x, c.y, ay.x, ay.y, dist);
+			px = pt.x + ( ay.y-pt.y);
+			py = pt.y + (pt.x - ay.x );
+			pt2 = this.util.lineSub(pt.x, pt.y, px, py, (dist-offdist));
+			pt2 = this.util.lineSub(pt.x, pt.y, px, py, (dist-offdist));
+			
+			return {
+				x:  pt2.x,
+				y:  pt2.y,
+				width:20
+			};
+		},
+		setLabel: function(value){
+			!this.labelX && this.createLabels();
+			var x = "X";
+			var y = "Y";
+			if(value){
+				value = value.replace(/and|(\+)/, " ")
+				var lbls = value.match(/(\b\w+\b)/g);
+				if(lbls.length==2){
+					x = lbls[0];
+					y = lbls[1];
+				}
+			}
+			this.labelX.setLabel(x);
+			this.labelY.setLabel(y);
+		},
 		
 		onTransformEnd: function(anchor){
 			//	tell anchor to go to prev point if wrong
@@ -53,10 +120,46 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			var oy = c.y - (o.x - c.x);
 			
 			this.points[2] = {x:ox, y:oy, noAnchor:true};
-			this.setPoints(this.points);
+			
 			this.render();	
-			anchor.reset();
-			this.showLabel();
+			
+			this.setPoints(this.points);
+			this.setLabel();
+			
+			// a desperate hack in order to get the anchor point to reset.
+			var st = this.util.byId("drawing").stencils;
+			st.onDeselect(this);
+			st.onSelect(this);
+			
+		},
+		
+		getBounds: function(){
+			var px = this.points[0],
+				pc = this.points[1],
+				py = this.points[2],
+			
+				x1 = py.x,
+				y1 = py.y < px.y ? py.y : px.y,
+				x2 = px.x,
+				y2 = pc.y;
+			
+			return {
+				x1:x1,
+				y1:y1,
+				x2:x2,
+				y2:y2,
+				x:x1,
+				y:y1,
+				w:x2-x1,
+				h:y2-y1
+			};
+		},
+		
+		_postSetPoints: function(pts){
+			this.points[0] = pts[0];
+			if(this.pointsToData){
+				this.data = this.pointsToData();
+			}
 		},
 		
 		onTransform: function(anchor){
@@ -67,18 +170,23 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			var c = this.points[1];
 			var ox = c.x - (c.y - o.y);
 			var oy = c.y - (o.x - c.x);
-			
+			// 'noAnchor' on a point indicates an anchor should
+			// not be rendered. This is the Y point being set.
 			this.points[2] = {x:ox, y:oy, noAnchor:true};
+			
 			this.setPoints(this.points);
+			if(!this.isBeingModified){
+				this.onTransformBegin();
+			}
 			this.render();	
 		},
 		pointsToData: function(){
-			var d = this.points;
+			var p = this.points;
 			return {
-				x1:d[1].x,
-				y1:d[1].y,
-				x2:d[0].x,
-				y2:d[0].y
+				x1:p[1].x,
+				y1:p[1].y,
+				x2:p[0].x,
+				y2:p[0].y
 			};
 		},
 		
@@ -96,6 +204,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 		},
 		onUp:function(){
 			this.onRender(this);
+			this.setPoints = this._postSetPoints;
 		}
 	}
 );

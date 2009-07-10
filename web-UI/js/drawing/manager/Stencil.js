@@ -35,6 +35,12 @@ dojo.provide("drawing.manager.Stencil");
 				this.items[item.id] = item;
 				return item;
 			},
+			unregister: function(item){
+				if(item.selected){
+					this.onDeselect(item);
+				}
+				delete this.items[item.id];
+			},
 			
 			onArrow: function(evt){
 				// FIXME: Check constraints

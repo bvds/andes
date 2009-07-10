@@ -662,7 +662,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun andes-in2pre (equation)
-  (let* ((eq (read-from-string (concatenate 'string "(" equation ")")))
+  ;; use double precision format for read-from-string
+  (let* ((*read-default-float-format* 'double-float) 
+	 (eq (read-from-string (concatenate 'string "(" equation ")")))
 	 (leaveAlone nil)
 	 (unary '(+ - ln abs sin cos tan log10 sqrt exp))
 	 (binary '(((= r)) ((- l) (+ l)) ((* l) (/ l)) ((^ l))))

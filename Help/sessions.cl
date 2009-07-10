@@ -56,11 +56,6 @@
   "start a server with help system, optionally specifying the port."
   ;; global setup
 
-  ;; Mainly for safety in runtime image: ensure Lisp reads floating point 
-  ;; numbers into doubles, no matter what setting had been in effect before.
-  (setq *read-default-float-format* 'double-float)
-
-
   ;; in runtime version only: set *andes-path* to process working directory
   #+allegro-cl-runtime (setf *andes-path* 
 			     (make-pathname 
@@ -113,6 +108,7 @@
 	  *test-cache-axis-entries* *test-cache-objects* 
 	  *test-cache-drawing-entries* **Current-Body-Expression-Form**
 	  **Current-Prob-Requires-nonanswer-entries** **entry-entered**
+	  *sg-systementry-optional-p-memo*
 	  )
 	#-sbcl "List of global variables that need to be saved between turns in a session."
 	#+sbcl #'equalp
@@ -163,7 +159,7 @@
 
 (webserver:defun-method "/help" open-problem (&key time problem user) 
   "initial problem statement" 
-  
+
   ;; Need to think about error handling for the case where 
   ;; the session already exists.
   (when webserver:*env* 
@@ -181,6 +177,7 @@
       ;; Config modifies *runtime-testset*, so we
       ;; need to make the session-local copy first. 
       (session-local-runtime-testset)
+
       ;; Andes2 had the following calls that can be found in log files:
       ;;   read-student-info; the only remaining step is:
       (Load-Config-File)			
@@ -188,7 +185,7 @@
       (set-condition 'none) ;Any experimental condition
       ;;  Most of the set-up is done here.
       ;; The return for this may be of some use.
-      (execute-andes-command #'read-problem-info problem)
+      (execute-andes-command 'read-problem-info problem)
       ;;
       
       ;; do predefs
@@ -209,6 +206,7 @@
 			   (mapcan #'(lambda (x) (list (car x) (cdr x))) 
 				   reply))
 		    solution-step-replies)))
+
     (env-wrap
       (check-entries nil)      
 
@@ -239,18 +237,19 @@
 		       (problem-graphic *cp*))))))
 
   
-      ;;   set-stats (if there was an old score) (to do)
+      ;; set-stats (if there was an old score) (to do)
+      ;; Should this be wrapped in execute-andes-command?
 
       (set-stats '(("NSH_BO_Call_Count" . 0)
 		   ("WWH_BO_Call_Count" . 0)
 		   ("Correct_Entries_V_Entries" . (0 0)) 
-		   ("Correct_Answer_Entries_V_Answer_Entries" .  (0 0))))
+		   ("Correct_Answer_Entries_V_Answer_Entries" . (0 0))))
    
       (push `((:action . "log") 
 	      (:subscores . (("NSH_BO_Call_Count" . 0)
 			     ("WWH_BO_Call_Count" . 0)
 			     ("Correct_Entries_V_Entries" . (0 0)) 
-			     ("Correct_Answer_Entries_V_Answer_Entries" .  (0 0)))))
+			     ("Correct_Answer_Entries_V_Answer_Entries" . (0 0)))))
 	    replies)      
       (push `((:action . "set-score") (:score . 0)) replies))
       
@@ -334,7 +333,7 @@
 	 ;; In Andes2 this was set in do-check-answer
 	 (setf (StudentEntry-verbatim new-entry) 
 	       (string-trim *whitespace* (subseq text (length ans))))
-	 (execute-andes-command #'check-answer new-entry))
+	 (execute-andes-command 'check-answer new-entry))
 	
 	((equal (StudentEntry-type new-entry) "equation")
 	 (let ((eq (search "=" text)))
@@ -346,31 +345,31 @@
 	     ((and eq (search "?" (subseq text eq)))
 	      (setf (StudentEntry-symbol new-entry) 
 		    (string-trim *whitespace* (subseq text 0 eq)))
-	      (execute-andes-command #'solve-for-var new-entry))
+	      (execute-andes-command 'solve-for-var new-entry))
 	     ;; Default case: ordinary equation
-	     (t (execute-andes-command #'lookup-eqn-string new-entry)))))
+	     (t (execute-andes-command 'lookup-eqn-string new-entry)))))
 	
 	((equal (StudentEntry-type new-entry) "statement")
-	 (execute-andes-command #'define-variable new-entry))
+	 (execute-andes-command 'define-variable new-entry))
 	
 	((equal (StudentEntry-type new-entry) "graphics")
 	 (warn "Can't modify a graphic object, id=~A" 
 	       (studententry-id new-entry)))
 	
 	((equal (StudentEntry-type new-entry) "circle")
-	 (execute-andes-command #'assert-object new-entry))
+	 (execute-andes-command 'assert-object new-entry))
 
 	((equal (StudentEntry-type new-entry) "rectangle")
-	 (execute-andes-command #'assert-object new-entry))
+	 (execute-andes-command 'assert-object new-entry))
 
 	((equal (StudentEntry-type new-entry) "axes")
-	 (execute-andes-command #'assert-x-axis new-entry))
+	 (execute-andes-command 'assert-x-axis new-entry))
 
 	((equal (StudentEntry-type new-entry) "vector")
-	 (execute-andes-command #'lookup-vector new-entry))
+	 (execute-andes-command 'lookup-vector new-entry))
 
 	((equal (StudentEntry-type new-entry) "line")
-	 (execute-andes-command #'lookup-line new-entry))
+	 (execute-andes-command 'lookup-line new-entry))
 
       (t (warn "Undefined type ~A, doing nothing."  
 	       (StudentEntry-type new-entry)))))))
@@ -392,43 +391,40 @@
        (let ((mistakes (member **incorrect** *studententries* 
 			       :key #'StudentEntry-state)))
 	 (if mistakes
-	     (execute-andes-command  #'do-whats-wrong 
-				     ;; find most recent mistake, time-wise
-				     (car (sort mistakes #'> 
-						:key  #'StudentEntry-time)))
-	     (execute-andes-command  #'next-step-help))))
+	     (execute-andes-command 'do-whats-wrong 
+				    ;; find most recent mistake, time-wise
+				    (car (sort mistakes #'> 
+					       :key  #'StudentEntry-time)))
+	     (execute-andes-command 'next-step-help))))
       ;; Student has typed text in help pane.
       ((and (equal action "get-help") text)
-       (execute-andes-command  #'handle-student-response text))
+       (execute-andes-command 'handle-student-response text))
       ;; Student has clicked a link associated with the help.
       ((and (equal action "get-help") value)
        (let ((response-code (find-symbol (string-upcase value))))
 	 (unless response-code (warn "Unknown value ~A, using nil." value))
-	 (execute-andes-command  #'handle-student-response response-code)))
+	 (execute-andes-command 'handle-student-response response-code)))
       ((equal action "principles-menu")
-       (execute-andes-command  #'handle-student-response value))
+       (execute-andes-command 'handle-student-response value))
       (t (warn "undefined action ~A, doing nothing." action)))))
 
 (webserver:defun-method "/help" close-problem 
   (&key time) 
   "shut problem down" 
   (prog1
-      (env-wrap 
-       ;; Andes2 had calls to:
-       ;; get-stats (instead, we need to send grade to LMS)
-       ;; need to maybe store state
-       
-       (do-close-problem)
-       (solver-unload)
-       
-       `(((:action . "problem-closed") 
-	  (:URL . "http://www.webassign.net/someting/or/other"))
-	 ((:action . "log") 
-	  (:subscores . (("NSH_BO_Call_Count" . (-0.05 0)) 
-			 ("WWH_BO_Call_Count" . (-0.05 0))
-			 ("Correct_Entries_V_Entries" . (0.05 17 19))
-			 ("Correct_Answer_Entries_V_Answer_Entries" 
-			  . (0.05 1 2)))))))
+      (env-wrap
+	(let ((result 
+	       `(((:action . "log") 
+		  (:subscores . ,(execute-andes-command 
+				  'get-stats 'persist))))))
+		 
+	  (do-close-problem)
+	  (solver-unload)
+	  
+	  (push `((:action . "problem-closed") 
+		  (:URL . "http://www.webassign.net/someting/or/other"))
+		result)
+	  result))
     ;; Tell the session manager that the session is over.
     ;; Must be done after env-wrap
     (setf webserver:*env* nil)))

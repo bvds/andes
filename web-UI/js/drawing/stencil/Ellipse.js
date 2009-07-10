@@ -10,6 +10,7 @@ drawing.stencil.Ellipse = drawing.util.oo.declare(
 		}
 	},
 	{
+		type:"drawing.stencil.Ellipse",
 		anchorType: "group",
 		dataToPoints: function(o){
 			o = o || this.data;

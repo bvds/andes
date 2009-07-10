@@ -1,3 +1,4 @@
+dojo.provide("andes.variablename");
 // pick out variable name from definition string
 // The forms that are matched:
 //    ?var is ...
@@ -16,7 +17,7 @@
 //    "H(green house) is the height of the house on Green St."
 //    "A_{t=0} is the initial area"
 
-function getVariableName(intext) {
+andes.variablename.parse = function(intext){
   if(intext){
     // canonicalize whitespace
     var cantext = intext.replace(/\s+/g," ");
