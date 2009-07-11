@@ -133,6 +133,9 @@ dojo.provide("drawing.stencil._Base");
 				
 				this.isBeingModified = true; // need this to prevent onRender
 				
+				//
+				// TODO - try mixin so if new style does not have fill, the norm.fill will be used
+				//
 				if(this.selected){
 					this.style.current = this.style.selected;
 					this.style.currentHit = this.style.hitSelected;

@@ -88,19 +88,19 @@ drawing.defaults = {
 		size:"12px",
 		family:"sans-serif",
 		weight:"normal",
-		fill:"#000000"
+		color:"#000000"
 	},
 	textHighlighted:{
 		size:"12px",
 		family:"sans-serif",
 		weight:"normal",
-		fill:"#000000"
+		color:"#000000"
 	},
 	textDisabled:{
 		size:"12px",
 		family:"sans-serif",
 		weight:"normal",
-		fill:"#cccccc"
+		color:"#cccccc"
 	},
 		// The following styles apply to the containing
 		//	text box, and not the text itself

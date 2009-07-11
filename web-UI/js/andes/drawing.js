@@ -123,10 +123,8 @@ dojo.provide("andes.drawing");
 			});
 		},
 		
-		load: function(auth){
-			this.user = auth.u;
-			this.project = auth.p;
-			andes.api.open({user:this.user, problem:this.project}).addCallback(this, "onLoad").addErrback(this, "onError");
+		load: function(){
+			andes.api.open({user:andes.userId, problem:andes.projectId}).addCallback(this, "onLoad").addErrback(this, "onError");
 		},
 		
 		onLoad: function(data){
@@ -152,10 +150,12 @@ dojo.provide("andes.drawing");
 			
 			// < ============================DEV 
 			//console.dir(data);
-			//andes.api.close();
+			andes.api.close();
 		},
 		onError: function(err){
 			console.error("There was an error loading project data:", err);
+			andes.api.close({});
+			dojo.cookie("andes", null, { expires: -1 });
 		}
 	};
 	

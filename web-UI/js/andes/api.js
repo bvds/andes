@@ -2,6 +2,7 @@ dojo.provide("andes.api");
 dojo.require("andes.rpc");
 dojo.require("andes.error");
 
+
 (function(){
 
 	var startTime = null,
@@ -15,11 +16,12 @@ dojo.require("andes.error");
 	// AOP-style function replacement that performs before-advice
 	// to add to the headers on all XHR requests. See dojox/rpc/Client.js
 	(function(){
+		console.info("api set headers", andes.sessionId)
 		andes._originalXhr = dojo.xhr;
 		dojo.xhr = function(method,args){
 			var headers = args.headers = args.headers || {};
 			headers["X-Client-Id"] = andes.projectId;
-			headers["Client-Id"] = andes.projectId;
+			headers["Client-Id"] = andes.sessionId;
 			return andes._originalXhr.apply(dojo,arguments);
 		};
 	})();
