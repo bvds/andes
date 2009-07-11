@@ -35,6 +35,12 @@ dojo.require("andes.api");
 		});
 	});
 
+	andes.help.processStep = function(result){
+		// look for any help coming back from the server (such as in
+		// the results from andes.api.step()
+		handleHelp(result);
+	};
+
 	andes.help.explain = function(s){
 		andes.api.help({action:"get-help", value:s}).addCallback(handleHelp);
 	};

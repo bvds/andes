@@ -386,7 +386,7 @@ non-blocking, thus there is no need for the "OK" button seen in Andes2.
   {"action": "show-hint-link", "text": "Explain more", "value": "explain-more"}
 ]
 
-{"method": "seek-help", "params": {"time": 671.001,
+{"method": "seek-help", "params": {"time": 871.001,
 	   "action": "get-help", "value": "explain-more"}, "id": 25}
 
 [
@@ -396,7 +396,7 @@ non-blocking, thus there is no need for the "OK" button seen in Andes2.
 
 14:58 Ninth equation, again.
 
-{"method": "solution-step", "params": {"time": 851.001, 
+{"method": "solution-step", "params": {"time": 881.001, 
 	   "action": "modify-object", "id": "a18", "mode": "unknown", 
 	   "text": "Fearth_y = -m*g"}, "id": 26}
 
