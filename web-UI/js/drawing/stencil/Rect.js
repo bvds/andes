@@ -39,7 +39,8 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 			this[shp] = this.parent.createRect(d)
 				.setStroke(sty)
 				.setFill(sty.fill);
-			this.util.attr(this[shp], "drawingType", "stencil");
+			
+			this._setNodeAtts(this[shp]);
 		},
 		
 		render: function(){

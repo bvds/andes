@@ -7,7 +7,8 @@ dojo.provide("drawing.stencil.Text");
 		function(options){
 			this.align = options.align || this.align;
 			this.valign = options.valign || this.valign;
-			this._lineHeight = this.style.text.size * 1.5;
+			this.textSize = parseInt(this.style.text.size, 10);
+			this._lineHeight = this.textSize * 1.5;
 		},
 		{
 			type:"drawing.stencil.Text",
@@ -29,28 +30,27 @@ dojo.provide("drawing.stencil.Text");
 				var w = d.width;
 				var h = this._lineHeight;
 				var x = d.x + this.style.text.pad*2;
-				var y = d.y + this._lineHeight - (this.style.text.size*.3);
+				var y = d.y + this._lineHeight - (this.textSize*.3);
 				if(this.valign=="middle"){
 					y -= h/2;
 				}
 				this.shape = this.parent.createGroup();
-				//console.info("render text:", this._textArray, this.style);
+				console.info("render text:", this._text, "enabled:", this.enabled);
 				
 				dojo.forEach(this._textArray, function(txt, i){
 					var tb = this.shape.createText({x: x, y: y+(h*i), text: txt, align: this.align})
-						.setFont({family: this.style.text.fontFamily, size: this.style.text.size+"pt", weight: "normal"})
-						.setFill("black");
-					this.util.attr(tb, "drawingType", "stencil");
+						.setFont(this.style.currentText)
+						.setFill(this.style.currentText.fill);
 					
+					this._setNodeAtts(tb);
+				
 				}, this);
-				if(!this.annotation){
-					this.util.attr(this.shape, "drawingType", "stencil");
-				}
+				
+				this._setNodeAtts(this.shape);
+				
 			},
 			renderOutline: function(){
 				if(this.annotation){ return; }
-				console.info("points", dojo.toJson(this.points))
-				console.info("data", dojo.toJson(this.data))
 				var d = this.pointsToData();
 				
 				if(this.align=="middle"){
@@ -65,14 +65,14 @@ dojo.provide("drawing.stencil.Text");
 					d.y -= (this._lineHeight )/2 - this.style.text.pad;
 				}
 				
-				d.y -= (this.style.text.size*.3)
+				d.y -= (this.textSize*.3)
 				
 				
 				this.hit = this.parent.createRect(d)
 					.setStroke(this.style.currentHit)
 					.setFill(this.style.currentHit.fill);
 				
-				this.util.attr(this.hit, "drawingType", "stencil");
+				this._setNodeAtts(this.hit);
 				this.hit.moveToBack();
 			},
 			
