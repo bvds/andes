@@ -258,8 +258,9 @@
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
 (webserver:defun-method "/help" solution-step 
-    (&key time id action type mode x y
-	  text width height radius symbol x-label y-label z-label angle) 
+  (&key time id action type mode x y
+	text width height radius symbol x-statement y-statement
+	x-label y-label z-label angle) 
   "problem-solving step"
   ;; fixed attributes:      type id
   ;; updatable attributes:  mode x y text width height radius symbol 
@@ -312,13 +313,14 @@
       (when old-entry
 	(update-entry-from-entry 
 	 new-entry old-entry 
-	 type mode x y text width height radius symbol 
+	 type mode x y text width height radius symbol x-statement y-statement
 	 x-label y-label z-label angle))
-
+      
       ;; update new object from non-null variables
       (update-entry-from-variables 
        new-entry  
-       mode x y text width height radius symbol x-label y-label z-label angle)
+       mode x y text width height radius symbol x-statement y-statement
+       x-label y-label z-label angle)
 
       (cond
 	((equal action "delete-object")
@@ -357,6 +359,9 @@
 	       (studententry-id new-entry)))
 	
 	((equal (StudentEntry-type new-entry) "circle")
+	 (execute-andes-command 'assert-object new-entry))
+
+	((equal (StudentEntry-type new-entry) "ellipse")
 	 (execute-andes-command 'assert-object new-entry))
 
 	((equal (StudentEntry-type new-entry) "rectangle")
@@ -413,10 +418,7 @@
   "shut problem down" 
   (prog1
       (env-wrap
-	(let ((result 
-	       `(((:action . "log") 
-		  (:subscores . ,(execute-andes-command 
-				  'get-stats 'persist))))))
+	(let ((result (execute-andes-command 'get-stats 'persist)))
 		 
 	  (do-close-problem)
 	  (solver-unload)

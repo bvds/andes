@@ -70,12 +70,14 @@ the text.
 
 If there was previous work, it would be included in the above response.  
 
-0:50 student draws ball
+0:50 student draws ball.  Since there is no "symbol", the statement
+is attached to the object, and x-statement and y-statement are not returned.
 
 {"method": "solution-step", "params": {"time": 50.000, 
 	   "action": "new-object", "id": "a3",  
-	   "type": "circle", "mode": "unknown", 
-	   "x": 66, "y": 188, "radius": 25, "text": "ball"}, "id": 2}
+	   "type": "ellipse", "mode": "unknown", 
+	   "x": 66, "y": 188, "width": 25,  "height": 30,
+           "text": "ball"}, "id": 2}
 
 [
   {"action": "log", "assoc": {"DRAW-BODY": "(BODY BALL)"}, "id": "a3"},
@@ -129,6 +131,7 @@ in the same step.  In Andes3, it is separate.
 	   "action": "new-object", "id": "a5",  
 	   "type": "statement", "mode": "unknown", 
 	   "x": 177, "y": 188, "width": 66, "symbol": "m",
+	   "x-statement": 365, "y-statement": 67,
 	   "text": "m is the mass of the ball"}, "id": 6}
 
 [
@@ -157,7 +160,7 @@ is shown on the screen when the vector is being dragged out.
 	   "action": "new-object", "id": "a6",  
 	   "type": "vector", "mode": "unknown", 
 	   "x": 240, "y": 222, "angle": 120,  "radius": 60,
-	   "symbol": "Fwall1", "x-label": 300, "y-label": 350,
+	   "symbol": "Fwall1", "x-statement": 300, "y-statement": 350,
 	   "text": "Fwall1 is the normal force on the ball due to wall1"}, "id": 7}
 
 [
@@ -172,7 +175,7 @@ is shown on the screen when the vector is being dragged out.
 	   "action": "new-object", "id": "a7",  
 	   "type": "vector", "mode": "unknown", 
 	   "x": 241, "y": 224, "angle": 40, "radius": 88,
-	   "symbol": "Fwall2", "x-label": 300, "y-label": 360,
+	   "symbol": "Fwall2", "x-statement": 300, "y-statement": 360,
 	   "text": "Fwall2 is force due to wall2"}, "id": 8}
 
 [
@@ -187,7 +190,7 @@ is shown on the screen when the vector is being dragged out.
 	   "action": "new-object", "id": "a8",
 	   "type": "vector", "mode": "unknown", 
 	   "x": 245, "y": 224, "angle": 270, "radius": 77,
-	   "symbol": "Fearth", "x-label": 300, "y-label": 370,
+	   "symbol": "Fearth", "x-statement": 300, "y-statement": 370,
 	   "text": "Fearth is the weight force on the ball due to the earth"}, "id": 9}
 
 [
@@ -325,7 +328,7 @@ combined.
 	   "action": "new-object", "id": "a15",
 	   "type": "vector", "mode": "unknown", 
 	   "x": 245, "y": 224, "angle": 270, "radius": 0, 
-	   "symbol": "a", "x-label": 300, "y-label": 370,
+	   "symbol": "a", "x-statement": 300, "y-statement": 370,
 	   "text": "a is the acceleration of the ball"}, "id": 20}
 
 [
@@ -375,7 +378,7 @@ Student asks for help by pressing the help button.  They can also ask for
 help by typing "help" or "?" in the help text entry box.  Pressing the help 
 button opens the help pane.
 
-Unlike Andes2, there is only one help button.  Also, the help pane is 
+14:20 Unlike Andes2, there is only one help button.  Also, the help pane is 
 non-blocking, thus there is no need for the "OK" button seen in Andes2.
 
 {"method": "seek-help", "params": {"time": 860.001,
@@ -386,7 +389,7 @@ non-blocking, thus there is no need for the "OK" button seen in Andes2.
   {"action": "show-hint-link", "text": "Explain more", "value": "explain-more"}
 ]
 
-{"method": "seek-help", "params": {"time": 871.001,
+{"method": "seek-help", "params": {"time": 882.001,
 	   "action": "get-help", "value": "explain-more"}, "id": 25}
 
 [
@@ -396,7 +399,7 @@ non-blocking, thus there is no need for the "OK" button seen in Andes2.
 
 14:58 Ninth equation, again.
 
-{"method": "solution-step", "params": {"time": 881.001, 
+{"method": "solution-step", "params": {"time": 898.001, 
 	   "action": "modify-object", "id": "a18", "mode": "unknown", 
 	   "text": "Fearth_y = -m*g"}, "id": 26}
 

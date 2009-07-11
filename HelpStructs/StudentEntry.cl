@@ -33,9 +33,12 @@
 
 (defstruct (StudentEntry (:print-function print-StudentEntry))
   Id	 ;Client assigned Identifier.
-  type   ;can be phrase, equation, circle, rectangle, axes, vector, line
+  ;; Can be: statement, equation, circle, ellipse, rectangle, axes, 
+  ;;         vector, line
+  type   
   ;; The following are properties of an object
-  mode x y text width height radius symbol x-label y-label z-label angle
+  mode x y text width height radius symbol x-statement y-statement
+  x-label y-label z-label angle
   ;; State overlaps with mode (need to fix this).
   State           ;One of correct, inefficient, dead-path, forbidden, incorrect.
   Prop   ;Entry proposition (Equalp to SystemEntry-prop.)
