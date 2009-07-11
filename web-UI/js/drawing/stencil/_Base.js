@@ -9,11 +9,7 @@ dojo.provide("drawing.stencil._Base");
 			dojo.mixin(this, options);
 			
 			this.style = options.style || drawing.defaults.copy();
-			if(this.type=="drawing.stencil.Text" || this.type=="drawing.tools.TextBlock"){
-				console.warn(" I AM TEXT", this.type);
-			}else{
-				console.warn(" I AM *NOT* TEXT", this.type);
-			}
+			this.isText = this.type=="drawing.stencil.Text" || this.type=="drawing.tools.TextBlock";
 			this.marginZero = options.marginZero || this.style.anchors.marginZero;
 			this.id = options.id || this.util.uid(this.type);
 			
@@ -32,6 +28,12 @@ dojo.provide("drawing.stencil._Base");
 			this._offX = this.mouse.origin.x;
 			this._offY = this.mouse.origin.y;
 			
+			if(this.isText){
+				this.align = options.align || this.align;
+				this.valign = options.valign || this.valign;
+				this.textSize = parseInt(this.style.text.size, 10);
+				this._lineHeight = this.textSize * 1.5;
+			}
 			if(options.points){
 				this.setPoints(options.points);
 				this.render();
@@ -48,6 +50,7 @@ dojo.provide("drawing.stencil._Base");
 			//public
 			parent:null, // shape(s) container TODO: change to 'container'
 			type:"drawing.stencil",
+			isText:false,
 			minimumSize:10,
 			annotation:false,
 			subShape:false,
@@ -172,6 +175,9 @@ dojo.provide("drawing.stencil._Base");
 					if(nm in n){ n[nm] = o[nm]; }
 					if(nm in h){ h[nm] = o[nm]; }
 					if(nm in t){ t[nm] = o[nm]; }
+				}
+				if(this.isText){
+					h.fill = "#FFFFFF";
 				}
 				this.render();
 			},

@@ -5,10 +5,7 @@ dojo.provide("drawing.stencil.Text");
 	drawing.stencil.Text = drawing.util.oo.declare(
 		drawing.stencil._Base,
 		function(options){
-			this.align = options.align || this.align;
-			this.valign = options.valign || this.valign;
-			this.textSize = parseInt(this.style.text.size, 10);
-			this._lineHeight = this.textSize * 1.5;
+			
 		},
 		{
 			type:"drawing.stencil.Text",
@@ -27,6 +24,7 @@ dojo.provide("drawing.stencil.Text");
 				}
 				
 				var d = this.pointsToData();
+				console.log("Y:", d.y, "TS:", this.textSize, "LH:", this._lineHeight)
 				var w = d.width;
 				var h = this._lineHeight;
 				var x = d.x + this.style.text.pad*2;
@@ -35,12 +33,12 @@ dojo.provide("drawing.stencil.Text");
 					y -= h/2;
 				}
 				this.shape = this.parent.createGroup();
-				console.info("render text:", this._text, "enabled:", this.enabled);
+				console.info("render text:", y, " ... ", this._text, "enabled:", this.enabled);
 				
 				dojo.forEach(this._textArray, function(txt, i){
 					var tb = this.shape.createText({x: x, y: y+(h*i), text: txt, align: this.align})
 						.setFont(this.style.currentText)
-						.setFill(this.style.currentText.fill);
+						.setFill(this.style.currentText.color);
 					
 					this._setNodeAtts(tb);
 				

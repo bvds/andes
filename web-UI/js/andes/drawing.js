@@ -90,10 +90,10 @@ dojo.provide("andes.drawing");
 						// statement connects
 						["onChange", function(value){
 							item.setLabel(andes.variablename.parse(value));
-							/*c.attr({
-								fill: "#99FF66",
-								color: "#99FF66"
-							});*/
+							c.attr({
+								fill: "#CCFFCC",
+								color: "#009900"
+							});
 						}]
 					]);
 				}

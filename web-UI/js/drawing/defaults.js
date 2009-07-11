@@ -23,7 +23,7 @@ drawing.defaults = {
 		fill:"#E11EBB"
 	},
 	highlighted:{
-		width:3,
+		width:1,
 		color:"#FF00FF",
 		style:"Solid",
 		cap:"round",
@@ -37,8 +37,8 @@ drawing.defaults = {
 		fill:"#cccccc"
 	},
 	hitNorm:{
-		width:10,
-		color:{r:0, g:255, b:255, a:0},
+		width:1,
+		color:{r:255, g:255, b:255, a:0},
 		style:"Solid",
 		cap:"round",
 		fill:{r:255, g:255, b:255, a:0}
@@ -51,7 +51,7 @@ drawing.defaults = {
 		fill:{r:255, g:255, b:255, a:0}
 	},
 	hitHighlighted:{
-		width:10,
+		width:1,
 		color:{r:255, g:0, b:0, a:1},
 		style:"solid",
 		cap:"round",
@@ -82,7 +82,7 @@ drawing.defaults = {
 		size:"12px",
 		family:"sans-serif",
 		weight:"normal",
-		fill:"#000000"
+		color:"#000000"
 	},
 	textSelected:{
 		size:"12px",

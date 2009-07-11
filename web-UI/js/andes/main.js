@@ -8,7 +8,7 @@ dojo.require("andes.variablename");
 
 (function(){
 	var devMode = true, query;
-	if(devMode){
+	if(!window.location.search){
 		query = {
 			p:"32500",
 			u:"joe1"
