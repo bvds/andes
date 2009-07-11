@@ -33,13 +33,11 @@ dojo.require("drawing.stencil.Text");
 		drawing.stencil.Text,
 		function(options){
 			if(options.data){
-				console.warn("TEXT BLOCK", options.data.x, options.data.y)
 				var d = options.data;
 				var w = !d.width ? this.style.text.minWidth : d.width=="auto" ? "auto" : Math.max(d.width, this.style.text.minWidth)
 				var h = this._lineHeight;
 				if(d.text){
 					var o = this.measureText(this.cleanText(d.text, false), w);
-					console.log("MEASURED:", o)
 					w = o.w;
 					h = o.h;
 				}
@@ -50,31 +48,24 @@ dojo.require("drawing.stencil.Text");
 					{x:d.x, y:d.y+h}
 				];
 				if(d.showEmpty){
-					console.log("show empty", w, h);
 					this._text = "";
 					this.edit();
 				}else if(d.text){
-					console.log("render text", d.text)
 					this.render(d.text);
 				}
 			}
 		},
 		{
 			draws:true,
-			type:"drawing.stencil.TextBlock",
-			
-			onChange: function(value){
-				// stub
-			},
+			type:"drawing.tools.TextBlock",
 			
 			showParent: function(obj){
 				if(this.parentNode){ return; }
-				console.log("SHOW PARENT OBJ:", obj)
 				var x = obj.pageX || 10;
 				var y = obj.pageY || 10;
 				this.parentNode = dojo.doc.createElement("div");
 				this.parentNode.id = this.id;
-				var d = this.style.text.mode.create;
+				var d = this.style.textMode.create;
 				this._box = {
 					left:x,
 					top:y,
@@ -97,7 +88,7 @@ dojo.require("drawing.stencil.Text");
 			},
 			createTextField: function(txt){
 				// style parent
-				var d = this.style.text.mode.edit;
+				var d = this.style.textMode.edit;
 				this._box.border = d.width+"px "+d.style+" "+d.color;
 				this._box.height = "auto";
 				this._box.width = Math.max(this._box.width, this.style.text.minWidth);
@@ -106,8 +97,8 @@ dojo.require("drawing.stencil.Text");
 				this.parentNode.appendChild(conEdit);
 				dojo.style(conEdit, {
 					height: txt ? "auto" : this._lineHeight+"px",
-					fontSize:this.style.text.size+"pt",
-					fontFamily:this.style.text.fontFamily
+					fontSize:this.textSize+"px",
+					fontFamily:this.style.text.family
 				});
 				conEdit.innerHTML = txt || "";
 				
@@ -195,7 +186,7 @@ dojo.require("drawing.stencil.Text");
 			},
 			
 			edit: function(){
-				console.log("--onStencilDoubleClick--", this.id,this.parentNode, this.points)
+				console.log("--onStencilDoubleClick EDIT TEXT--", this.id,this.parentNode, this.points)
 				// NOTE: no mouse obj
 				if(this.parentNode || !this.points){ return; }
 				var d = this.pointsToData();
@@ -229,7 +220,6 @@ dojo.require("drawing.stencil.Text");
 			},
 			
 			measureText: function(/* String */ str, /* ? Number */width){
-				console.log(">>>>measureText:", width, "x", this._lineHeight);
 				
 				var r = "(<br\\s*/*>)|(\\n)|(\\r)";
 				this.showParent({width:width || "auto", height:"auto"});
@@ -245,16 +235,14 @@ dojo.require("drawing.stencil.Text");
 					// has line breaks in text
 					txt = str.replace(new RegExp(r, "gi"), "\n");
 					el.innerHTML = str.replace(new RegExp(r, "gi"), "<br/>");
-					console.log("measureText.textLineBreaks", txt);
 				
 				}else if(dojo.marginBox(el).h == h){
 					// one line
 					txt = str;
-					console.log("measureText.singleLine");
 					
 				}else{
 					// text wraps
-					var ar = str.split(" ");console.log("measureText.wraps");
+					var ar = str.split(" ");
 					var strAr = [[]];
 					var line = 0;
 					el.innerHTML = "";
@@ -281,8 +269,6 @@ dojo.require("drawing.stencil.Text");
 				
 				var dim = dojo.marginBox(el);
 				
-				console.log("TEXT BREAKS:::", el.innerHTML);
-				console.log("conEdit", conEdit);
 				conEdit.parentNode.removeChild(conEdit);
 				dojo.destroy(this.parentNode);
 				this.parentNode = null;
@@ -291,7 +277,6 @@ dojo.require("drawing.stencil.Text");
 			},
 			
 			onDrag: function(obj){
-				//console.log(" >>>>>> HtmlTextBlock drag", obj);
 				if(!this.parentNode){
 					this.showParent(obj);
 				}
@@ -356,7 +341,6 @@ dojo.require("drawing.stencil.Text");
 					var md, mm, mu;
 					var md = dojo.connect(a, "mousedown", this, function(evt){
 						isLeft = evt.target.id.indexOf("left")>-1;
-						console.log("DOWN", isLeft);
 						self._onAnchor = true;
 						var orgX = evt.pageX;
 						var orgW = this._box.width;

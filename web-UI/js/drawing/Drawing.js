@@ -11,6 +11,8 @@ dojo.require("drawing.manager.Mouse");
 dojo.require("drawing.manager.Stencil");
 dojo.require("drawing.manager.Anchors");
 dojo.require("drawing.stencil._Base");
+dojo.require("drawing.stencil._Slave");
+dojo.require("drawing.stencil._Connection");
 dojo.require("drawing.stencil._Label");
 dojo.require("drawing.stencil.Line");
 dojo.require("drawing.stencil.Rect");
@@ -218,7 +220,14 @@ dojo.require("drawing.tools.Line");
 			console.info("drawing.onRenderStencil:", stencil)
 			this.stencils.register(stencil);
 			this.unSetTool();
-			//this.setTool(this.currentType);
+			this.setTool(this.currentType);
+		},
+		
+		onDeleteStencil: function(stencil){
+			// called from a stencil that has destroyed itself
+			// will also be called when it is removed by "removeStencil"
+			// or stencils.onDelete. 
+			this.stencils.unregister(stencil);
 		},
 		
 		registerTool: function(type){
@@ -243,7 +252,8 @@ dojo.require("drawing.tools.Line");
 			this.currentType = type;
 			try{
 				this.currentStencil = new this.tools[this.currentType]({parent:this.canvas.surface.createGroup(), util:this.util, mouse:this.mouse, keys:this.keys});
-				this._toolCon = dojo.connect(this.currentStencil, "onRender", this, "onRenderStencil");
+				this.currentStencil.connect(this.currentStencil, "onRender", this, "onRenderStencil");
+				this.currentStencil.connect(this.currentStencil, "destroy", this, "onDeleteStencil");
 			}catch(e){
 				console.error("Drawing.setTool Error:", e);
 				console.error(this.currentType + " is not a constructor: ", this.tools[this.currentType]);
@@ -252,7 +262,6 @@ dojo.require("drawing.tools.Line");
 		},
 		
 		unSetTool: function(){
-			dojo.disconnect(this._toolCon);
 			if(!this.currentStencil.created){
 				this.currentStencil.destroy();	
 			}

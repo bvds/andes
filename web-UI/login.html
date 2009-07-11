@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en">
+<head>
+    <title>Andes Login</title>
+	<style>
+		label, input{
+			display:block;
+			width:150px;
+		}
+		label{
+			margin-top:15px;
+		}
+		.loginbox{
+			width:300px;
+			height:auto;
+			padding:0 10px 20px 10px;
+			border:1px solid #ccc;
+			margin:10px auto;
+		}
+		h1{
+			text-align:center;
+		}
+	</style>
+	<script>
+		doSubmit = function(){
+			var u = document.getElementById("user").value;
+			var p = document.getElementById("problem").value;
+			document.location.href = "index.html?u="+u+"&p="+p;
+		}
+	</script>
+</head>
+
+<body>
+	<h1>Andes Login</h1>
+	<div class="loginbox">
+		<label>user:</label>
+		<input type="text" id="user" value="joe" size="6"/>
+		<label>problem session:</label> 
+		<input type="text" id="problem" value="32345" size="6"/>
+		<button onclick="doSubmit(); return false;">Submit</button>
+	</div>
+	
+</body>
+</html>

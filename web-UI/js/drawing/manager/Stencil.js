@@ -36,13 +36,16 @@ dojo.provide("drawing.manager.Stencil");
 				return item;
 			},
 			unregister: function(item){
-				if(item.selected){
+				if(item && item.selected){
 					this.onDeselect(item);
+					delete this.items[item.id];
 				}
-				delete this.items[item.id];
 			},
 			
 			onArrow: function(evt){
+				// summary:
+				// 	Moves selection based on keyboard arrow keys
+				//
 				// FIXME: Check constraints
 				if(this.hasSelected()){
 					this.saveThrottledState();

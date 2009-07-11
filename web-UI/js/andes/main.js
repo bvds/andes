@@ -10,8 +10,8 @@ dojo.require("andes.variablename");
 	var devMode = true, query;
 	if(devMode){
 		query = {
-			p:"32345",
-			u:"joe3"
+			p:"32500",
+			u:"joe1"
 		}
 	}else{
 		query = dojo.queryToObject(window.location.search.substring(1));

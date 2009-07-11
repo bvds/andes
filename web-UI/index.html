@@ -89,7 +89,12 @@
 		dojo.require("drawing.tools.Arrow");
 		dojo.require("drawing.plugins.tools.Pan");
 		dojo.require("drawing.plugins.tools.Zoom");
-	
+		
+		dojo.addOnLoad(function(){
+			dojo.connect(dojo.byId("submitButton"), "click", function(){
+				document.location.href = "login.html";
+			});
+		});
 	</script>
 
 </head>

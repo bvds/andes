@@ -9,7 +9,7 @@ drawing.defaults = {
 	currentHit:null,
 	
 	norm:{
-		width:3,
+		width:1,
 		color:"#0000FF",
 		style:"Solid",
 		cap:"round", // square, butt, round
@@ -22,6 +22,20 @@ drawing.defaults = {
 		cap:"round",
 		fill:"#E11EBB"
 	},
+	highlighted:{
+		width:3,
+		color:"#FF00FF",
+		style:"Solid",
+		cap:"round",
+		fill:"#E11EBB"
+	},
+	disabled:{
+		width:1,
+		color:"#666666",
+		style:"solid",
+		cap:"round",
+		fill:"#cccccc"
+	},
 	hitNorm:{
 		width:10,
 		color:{r:0, g:255, b:255, a:0},
@@ -30,9 +44,16 @@ drawing.defaults = {
 		fill:{r:255, g:255, b:255, a:0}
 	},
 	hitSelected:{
-		width:10,
+		width:1,
 		color:{r:255, g:255, b:0, a:1},
 		style:"Solid",
+		cap:"round",
+		fill:{r:255, g:255, b:255, a:0}
+	},
+	hitHighlighted:{
+		width:10,
+		color:{r:255, g:0, b:0, a:1},
+		style:"solid",
 		cap:"round",
 		fill:{r:255, g:255, b:255, a:0}
 	},
@@ -57,35 +78,66 @@ drawing.defaults = {
 	},
 	text:{
 		minWidth:150,
-		size:12,
 		pad:3,
-		fontFamily:"sans-serif",
-		mode:{
-			create:{
-				width:2,
-				style:"dotted",
-				color:"#ff0000",
-				fill:null
-			},
-			edit:{
-				width:3,
-				style:"dashed",
-				color:"#666",
-				fill:null
-			},
-			selected:{
-				width:8,
-				style:"solid",
-				color:"#ffff00",
-				fill:null
-			},
-			norm:{
-				width:0,
-				style:"solid",
-				color:null,
-				fill:null
-			}
+		size:"12px",
+		family:"sans-serif",
+		weight:"normal",
+		fill:"#000000"
+	},
+	textSelected:{
+		size:"12px",
+		family:"sans-serif",
+		weight:"normal",
+		fill:"#000000"
+	},
+	textHighlighted:{
+		size:"12px",
+		family:"sans-serif",
+		weight:"normal",
+		fill:"#000000"
+	},
+	textDisabled:{
+		size:"12px",
+		family:"sans-serif",
+		weight:"normal",
+		fill:"#cccccc"
+	},
+		// The following styles apply to the containing
+		//	text box, and not the text itself
+	textMode:{
+		create:{
+			width:2,
+			style:"dotted",
+			color:"#666666",
+			fill:null
+		},
+		edit:{
+			width:1,
+			style:"dashed",
+			color:"#666",
+			fill:null
+		},
+		
+		// NOT USED::::
+		selected:{
+			width:2,
+			style:"solid",
+			color:"#ffff00",
+			fill:null
+		},
+		highlighted:{
+			width:3,
+			color:"#000000",
+			style:"solid",
+			fill:null
+		},
+		norm:{
+			width:0,
+			style:"solid",
+			color:null,
+			fill:"#000000"
 		}
+	
 	},
 	
 	copy: function(){
@@ -105,6 +157,7 @@ drawing.defaults = {
 		var o = cpy(this);
 		o.current = o.norm;
 		o.currentHit = o.hitNorm;
+		o.currentText = o.text;
 		return o;
 	}
 	
