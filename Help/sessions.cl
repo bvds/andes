@@ -116,7 +116,7 @@
 
 ;; New method with 
 (defstruct help-env "Quantities that must be saved between turns of a session.  Member vals contains list of values for *help-env-vars*." 
-	   student problem vals)
+	   section student problem vals)
 
 ;; Should be useful for debugging.
 (defun get-session-variable (session var)
@@ -157,7 +157,7 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(webserver:defun-method "/help" open-problem (&key time problem user) 
+(webserver:defun-method "/help" open-problem (&key time problem user section) 
   "initial problem statement" 
 
   ;; Need to think about error handling for the case where 
@@ -166,7 +166,8 @@
     (warn "webserver:*env* already exists.  Session in progress?"))
   
   ;; webserver:*env* needs to be initialized before the wrapper
-  (setq webserver:*env* (make-help-env :student user :problem problem))
+  (setq webserver:*env* (make-help-env :student user :problem problem 
+				       :section section))
   
   (let (replies solution-step-replies)
     (env-wrap
@@ -212,14 +213,19 @@
 
       ;;  Push times to client.  (to do)
       (push `((:action . "new-object") (:id .  "a2.5") (:type . "statement") 
-	      (:mode . "locked") (:x . 200) (:y . 75) (:text . "T0 is the time.")) 
+	      (:mode . "locked") (:x . 300) (:y . 75) (:text . "T0 is the time.")) 
+	    replies)
+
+      ;;  Push initial hint to the client.  
+      ;;  Should only do this when help and grading is available
+      (push `((:action . "show-hint") (:text . "If you need help, click the help button (?) below.  Click the |> button above to hide this window.")) 
 	    replies)
       
       (let ((y 10) (i 0))
 	(dolist  (line (problem-statement *cp*))
 	  (push `((:action . "new-object") (:type . "statement") 
 		  (:id . ,(format nil "statement~A" (incf i))) 
-		  (:mode . "locked") (:x . 3) (:y . ,(setf y (+ y 10))) 
+		  (:mode . "locked") (:x . 10) (:y . ,(setf y (+ y 40))) 
 		  (:width . 80) (:text . ,line)) replies))
 	
 	(when (problem-graphic *cp*)
@@ -227,7 +233,7 @@
 	    (if dims		
 		(push `((:action . "new-object") (:id . "graphic") 
 			(:type . "graphics") (:mode . "locked") 
-			(:x . 10) (:y . ,(+ y 5)) 
+			(:x . 10) (:y . ,(+ y 40)) 
 			(:width . ,(car dims)) (:height . ,(cadr dims))
 			;; This is the URL for the graphic, which may not
 			;; match its location on the server filesystem.
@@ -258,8 +264,9 @@
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
 (webserver:defun-method "/help" solution-step 
-    (&key time id action type mode x y
-	  text width height radius symbol x-label y-label z-label angle) 
+  (&key time id action type mode x y
+	text width height radius symbol x-statement y-statement
+	x-label y-label z-label angle) 
   "problem-solving step"
   ;; fixed attributes:      type id
   ;; updatable attributes:  mode x y text width height radius symbol 
@@ -312,13 +319,14 @@
       (when old-entry
 	(update-entry-from-entry 
 	 new-entry old-entry 
-	 type mode x y text width height radius symbol 
+	 type mode x y text width height radius symbol x-statement y-statement
 	 x-label y-label z-label angle))
-
+      
       ;; update new object from non-null variables
       (update-entry-from-variables 
        new-entry  
-       mode x y text width height radius symbol x-label y-label z-label angle)
+       mode x y text width height radius symbol x-statement y-statement
+       x-label y-label z-label angle)
 
       (cond
 	((equal action "delete-object")
@@ -357,6 +365,9 @@
 	       (studententry-id new-entry)))
 	
 	((equal (StudentEntry-type new-entry) "circle")
+	 (execute-andes-command 'assert-object new-entry))
+
+	((equal (StudentEntry-type new-entry) "ellipse")
 	 (execute-andes-command 'assert-object new-entry))
 
 	((equal (StudentEntry-type new-entry) "rectangle")
@@ -413,10 +424,7 @@
   "shut problem down" 
   (prog1
       (env-wrap
-	(let ((result 
-	       `(((:action . "log") 
-		  (:subscores . ,(execute-andes-command 
-				  'get-stats 'persist))))))
+	(let ((result (execute-andes-command 'get-stats 'persist)))
 		 
 	  (do-close-problem)
 	  (solver-unload)

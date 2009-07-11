@@ -14,6 +14,9 @@ html, body, #main{
 	margin: 0 0 0 0;
 	font: 10pt Arial,Myriad,Tahoma,Verdana,sans-serif;
 }
+#main{
+	padding-right:5px;
+}
 /* Border Container Color */
 .tundra .dijitSplitterV, .tundra .dijitGutterV,
 body, .tundra .dijitSplitter, #navMenu{
@@ -65,23 +68,24 @@ body, .tundra .dijitSplitter, #navMenu{
 
 #helpPane{
 	width:200px;
-	margin-right:5px;
 }
 #helpInputPane{
-	height:70px;
+	height:60px;
 }
 #helpPane .dojoxExpandoTitle{
 	background:#cee3ec;
 	position:relative;
 }
-#helpPane .dojoxExpandoIcon{
-	cursor:pointer;
-	width:16px;
-	height:16px;
+#helpContentPane p{
+	margin:1em;
 }
 .dojoxExpandoClosed .dojoxExpandoIcon,
 .dojoxExpandoClosed .dojoxExpandoTitle{
 	display:none;
+}
+#helpPane .helpScore{
+	position:absolute;
+	right:10px;
 }
 #helpPaneOpenButton{
 	position:absolute;
@@ -94,6 +98,34 @@ body, .tundra .dijitSplitter, #navMenu{
 	border-color:#fff #000 #bbb #ccc;
 	border-right:none;
 }
+#helpQueryLabel{
+	position:absolute;
+	left:5px;
+	bottom:30px;
+	color:#999;
+	font-style:italic;
+}
+#helpInput{
+	position:absolute;
+	left:5px;
+	bottom:5px;
+	right:50px;
+	width:auto;
+	height:20px;
+	line-height:20px;
+}
+#helpInputPane .dijitButton{
+	margin:0;
+	position:absolute;
+	right:5px;
+	bottom:5px;
+}
+#helpSubmit{
+	width:30px;
+	height:15px;
+}
+
+
 #footerPane{
 	height:5px;
 	margin-top:7px;

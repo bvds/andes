@@ -1,11 +1,7 @@
 dojo.provide("drawing.manager.Anchors");
 
 (function(){
-	
-	//
-	// FIXME: constrain anchors to not go past ZERO
-	// FIXME: Need to set points to keep anchors in line with rect
-	//
+
 	drawing.manager.Anchors = drawing.util.oo.declare(
 		function(options){
 			this.mouse = options.mouse;
@@ -150,10 +146,7 @@ dojo.provide("drawing.manager.Anchors");
 			y_anchor:null,
 			x_anchor:null,
 			render: function(){
-				if(this.shape){
-					var mx = this.shape.getTransform();
-					console.warn(mx.dx, mx.dy)
-				}
+				
 				this.shape && this.shape.removeShape();
 				var d = this.defaults.anchors,
 					b = d.width,
@@ -166,7 +159,6 @@ dojo.provide("drawing.manager.Anchors");
 						cap:d.cap
 					};
 				
-				console.log("REND ANC", this.point.x, this.point.y)
 		
 				var _r = {
 					x: this.point.x-p,
@@ -210,9 +202,6 @@ dojo.provide("drawing.manager.Anchors");
 						x = obj.x - orgx;
 						y = obj.y - orgy;
 						s = this.defaults.anchors.minSize;
-					
-					watch(" a.x", x)
-					watch(" a.y", y)
 					
 					var conL, conR, conT, conB;
 					

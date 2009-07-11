@@ -9,7 +9,7 @@ dojo.provide("andes.drawing");
 		statement:"text",
 		equation:"text",
 		graphics:"image"
-	}
+	};
 	
 	// better name
 	var stencils = {
@@ -25,10 +25,11 @@ dojo.provide("andes.drawing");
 		"drawing.stencil.Ellipse":true,
 		"drawing.tools.custom.Vector":true,
 		"drawing.tools.custom.Axes":true
-	}
+	};
+	
 	var hasLabel = {
 		"drawing.tools.custom.Axes":true
-	}
+	};
 	
 	var items = {};
 	
@@ -38,7 +39,7 @@ dojo.provide("andes.drawing");
 			x:box.x2 + gap,
 			y:box.y1,
 			showEmpty:true
-		}}
+		}};
 	};
 	
 	
@@ -56,36 +57,56 @@ dojo.provide("andes.drawing");
 		
 		onRenderStencil: function(item){
 			console.log("drawing, new item:", item, "make label:", item.type);
-			items[item.id] = {
-				item:item
-			};
+		
+		if(items[item.id]){
+			console.warn("PREVENT RECURSE");
+			return;
+		}
+		this.add(item);
+		//item.disable();
+		
+		
+		
+		
+		//return;	
 			
-			if(hasStatement[item.type]){
+			
+			if(hasStatement[item.type] || hasLabel[item.type]){
 				var box = item.getBounds();
 				var props = getStatementPosition(box);
-				console.warn("statement...")
 				var statement = _drawing.addStencil("textBlock", props);
-				console.warn("statement !")
-				item.connect(statement, "onChange", function(value){
-					if(hasLabel[item.type]){
+				
+				if(hasLabel[item.type]){
+					item.connect(statement, "onChange", function(value){
 						item.setLabel(value);
 						_drawing.removeStencil(statement);
-					}else{
-						items[item.id].linked = statement;
-						items[statement.id] = {
-							item:statement,
-							linked:item
-						}
-						item.setLabel(andes.variablename.parse(value));
-						
-						//item.connect(statement, "destroy", item, "destroy");
-						//item.connect(item, "destroy", statement, "destroy");
-					}
-				});
-				
+					});
+				}else if(hasStatement[item.type]){
+					this.add(statement);
+					var c = new drawing.stencil._Connection(item);
+					c.add(statement, [
+						// item connects			  
+					], [
+						// statement connects
+						["onChange", function(value){
+							item.setLabel(andes.variablename.parse(value));
+							c.attr({
+								fill: "#CCFFCC",
+								color: "#009900"
+							});
+						}]
+					]);
+				}
 			}
-			
-			
+		},
+		
+		add: function(/* Stencil */ item){
+			items[item.id] = item;
+			var c = item.connect("onDelete", this, "remove");
+		},
+		
+		remove: function(/* Stencil */ item){
+			delete items[item.id];
 		},
 		
 		onSurfaceReady: function(){
@@ -98,14 +119,12 @@ dojo.provide("andes.drawing");
 					items[item.id] = {
 						item:item
 					}
-				}
+				};
 			});
 		},
 		
-		load: function(auth){
-			this.user = auth.u;
-			this.project = auth.p;
-			andes.api.open({user:this.user, problem:this.project}).addCallback(this, "onLoad").addErrback(this, "onError");
+		load: function(){
+		  andes.api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId}).addCallback(this, "onLoad").addErrback(this, "onError");
 		},
 		
 		onLoad: function(data){
@@ -118,13 +137,13 @@ dojo.provide("andes.drawing");
 			var y=30, h = 25;
 			dojo.forEach(this._initialData, function(obj, i){
 				if(obj.action =="new-object"){
-					if(i==0){
+					if(i===0){
 						y = obj.y
 					}else{
 						obj.y = y;
 						y += obj.height || h;
 					}
-					console.log("OBJECT:", obj)
+					console.log("OBJECT:", obj);
 				}
 			});
 			
@@ -135,6 +154,8 @@ dojo.provide("andes.drawing");
 		},
 		onError: function(err){
 			console.error("There was an error loading project data:", err);
+			andes.api.close({});
+			dojo.cookie("andes", null, { expires: -1 });
 		}
 	};
 	
