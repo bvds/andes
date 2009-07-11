@@ -116,7 +116,7 @@
 
 ;; New method with 
 (defstruct help-env "Quantities that must be saved between turns of a session.  Member vals contains list of values for *help-env-vars*." 
-	   student problem vals)
+	   section student problem vals)
 
 ;; Should be useful for debugging.
 (defun get-session-variable (session var)
@@ -157,7 +157,7 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(webserver:defun-method "/help" open-problem (&key time problem user) 
+(webserver:defun-method "/help" open-problem (&key time problem user section) 
   "initial problem statement" 
 
   ;; Need to think about error handling for the case where 
@@ -166,7 +166,8 @@
     (warn "webserver:*env* already exists.  Session in progress?"))
   
   ;; webserver:*env* needs to be initialized before the wrapper
-  (setq webserver:*env* (make-help-env :student user :problem problem))
+  (setq webserver:*env* (make-help-env :student user :problem problem 
+				       :section section))
   
   (let (replies solution-step-replies)
     (env-wrap
@@ -213,6 +214,11 @@
       ;;  Push times to client.  (to do)
       (push `((:action . "new-object") (:id .  "a2.5") (:type . "statement") 
 	      (:mode . "locked") (:x . 300) (:y . 75) (:text . "T0 is the time.")) 
+	    replies)
+
+      ;;  Push initial hint to the client.  
+      ;;  Should only do this when help and grading is available
+      (push `((:action . "show-hint") (:text . "If you need help, click the help button (?) below.  Click the |> button above to hide this window.")) 
 	    replies)
       
       (let ((y 10) (i 0))

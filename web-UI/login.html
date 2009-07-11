@@ -25,7 +25,8 @@
 		doSubmit = function(){
 			var u = document.getElementById("user").value;
 			var p = document.getElementById("problem").value;
-			document.location.href = "index.html?u="+u+"&p="+p;
+			var s = document.getElementById("section").value;
+			document.location.href = "index.html?s="+s+"&u="+u+"&p="+p;
 		}
 	</script>
 </head>
@@ -33,9 +34,11 @@
 <body>
 	<h1>Andes Login</h1>
 	<div class="loginbox">
+		<label>section:</label>
+		<input type="text" id="section" value="1234" size="6"/>
 		<label>user:</label>
 		<input type="text" id="user" value="joe" size="6"/>
-		<label>problem session:</label> 
+		<label>Andes problem:</label> 
 		<input type="text" id="problem" value="s2e" size="6"/>
 		<button onclick="doSubmit(); return false;">Submit</button>
 	</div>

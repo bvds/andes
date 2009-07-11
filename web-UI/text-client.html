@@ -159,14 +159,14 @@
             <option>seek-help</option>
             <option>close-problem</option>
       </select>&nbsp;  
-       params: <input type="text" id="jsonstring" size="50" value='{"time": 0.000, "problem": "s2e", "user": "joe"}'/>&nbsp;
+       params: <input type="text" id="jsonstring" size="50" value='{"time":0.000, "problem":"s2e", "user":"joe", "section":"1234"}'/>&nbsp;
        requestId: <input type="text" id="turn" value="0" size="3"/>&nbsp;
        <button dojoType="dijit.form.Button" onclick="sendString">
            Do JSON-RPC call</button>
-	   <br/><em>{"time": 0.000, "problem": "s2e", "user": "joe"}</em>
     <p>
        <div id="inputString">Input</div>
        <div id="result">Result</div>
+
     <p> user/problem session: 
           <input type="text" id="upss" value="32345" size="6"/>&nbsp;
       Problem:&nbsp;

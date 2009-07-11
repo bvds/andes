@@ -20,7 +20,6 @@ dojo.require("andes.error");
 		andes._originalXhr = dojo.xhr;
 		dojo.xhr = function(method,args){
 			var headers = args.headers = args.headers || {};
-			headers["X-Client-Id"] = andes.projectId;
 			headers["Client-Id"] = andes.sessionId;
 			return andes._originalXhr.apply(dojo,arguments);
 		};

@@ -124,7 +124,7 @@ dojo.provide("andes.drawing");
 		},
 		
 		load: function(){
-			andes.api.open({user:andes.userId, problem:andes.projectId}).addCallback(this, "onLoad").addErrback(this, "onError");
+		  andes.api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId}).addCallback(this, "onLoad").addErrback(this, "onError");
 		},
 		
 		onLoad: function(data){

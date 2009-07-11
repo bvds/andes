@@ -1,5 +1,5 @@
 [
-  {"method": "open-problem", "params": {"time": 0.000, "problem": "s2e", "user": "joe"}, "id": 1},
+  {"method": "open-problem", "params": {"time": 0.000, "problem": "s2e", "user": "joe","section":"1234"}, "id": 1},
 {"method": "solution-step", "params": {"time": 50.000,
 	   "action": "new-object", "id": "a3",
 	   "type": "ellipse", "mode": "unknown",

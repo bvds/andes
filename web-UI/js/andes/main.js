@@ -27,6 +27,7 @@ dojo.provide("andes.main");
 	
 	andes.userId = query.u;
 	andes.projectId = query.p;
+	andes.sectionId = query.s;
 	var ck = dojo.cookie("andes");
 	if(ck){
 		ck = dojo.fromJson(ck);

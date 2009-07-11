@@ -11,6 +11,7 @@
     
     "open-problem": {
       "parameters": [
+		{"name": "section", "type": "string"},
 		{"name": "user", "type": "string"},
 		{"name": "problem", "type": "string"}
       ],
