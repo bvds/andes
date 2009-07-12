@@ -91,13 +91,13 @@ dojo.require("drawing.stencil.Text");
 				var d = this.style.textMode.edit;
 				this._box.border = d.width+"px "+d.style+" "+d.color;
 				this._box.height = "auto";
-				this._box.width = Math.max(this._box.width, this.style.text.minWidth);
+				this._box.width = Math.max(this._box.width, this.style.text.minWidth*this.mouse.zoom);
 				dojo.style(this.parentNode, this._box.toPx());
 				// style input
 				this.parentNode.appendChild(conEdit);
 				dojo.style(conEdit, {
 					height: txt ? "auto" : this._lineHeight+"px",
-					fontSize:this.textSize+"px",
+					fontSize:(this.textSize/this.mouse.zoom)+"px",
 					fontFamily:this.style.text.family
 				});
 				// FIXME:
@@ -111,9 +111,9 @@ dojo.require("drawing.stencil.Text");
 				this._textConnected = true;
 				this.mouse.setEventMode("TEXT");
 				this.keys.editMode(true);
-				var kc1, kc2, kc3, kc4, self = this, _autoSet = false,
+				var kc1, kc2, kc3, kc4, kc5, self = this, _autoSet = false,
 					exec = function(){
-						dojo.forEach([kc1,kc2,kc3, kc4], function(c){
+						dojo.forEach([kc1,kc2,kc3, kc4,kc5], function(c){
 							dojo.disconnect(c)
 						});
 						self._textConnected = false;
@@ -142,11 +142,20 @@ dojo.require("drawing.stencil.Text");
 				});
 				
 				kc4 = dojo.connect(document, "mouseup", this, function(evt){
+					if(!this._onAnchor){
 					dojo.stopEvent(evt);
 					exec();
+					}
 				});
 				
 				this.createAnchors();
+				
+				kc5 = dojo.connect(this.mouse, "setZoom", this, function(evt){
+					console.warn("MOUSE ZOOM************************")
+					exec();
+				});
+				
+				
 				conEdit.focus();
 				
 				this.onDown = function(){}
@@ -170,7 +179,8 @@ dojo.require("drawing.stencil.Text");
 			},
 			execText: function(){
 				var d = dojo.marginBox(this.parentNode);
-				var w = Math.max(d.w, this.style.text.minWidth)
+				var w = Math.max(d.w, this.style.text.minWidth);
+				
 				var txt = this.cleanText(conEdit.innerHTML, true);
 				conEdit.innerHTML = "";
 				conEdit.blur();
@@ -182,6 +192,12 @@ dojo.require("drawing.stencil.Text");
 				
 				var x = this._box.left + sc.left - org.x;
 				var y = this._box.top + sc.top - org.y;
+				
+				x *= this.mouse.zoom;
+				y *= this.mouse.zoom;
+				w *= this.mouse.zoom;
+				o.h *= this.mouse.zoom;
+				
 				
 				this.points = [
 					{x:x, y:y},
@@ -204,10 +220,13 @@ dojo.require("drawing.stencil.Text");
 				var org = this.mouse.origin;
 				
 				var obj = {
-					pageX: d.x  - sc.left + org.x,
-					pageY: d.y - sc.top + org.y,
-					width:d.width,
-					height:d.height
+					pageX: (d.x  - sc.left + org.x) / this.mouse.zoom,
+					pageY: (d.y - sc.top + org.y) / this.mouse.zoom,
+					width:d.width / this.mouse.zoom,
+					height:d.height / this.mouse.zoom
+				}
+				for(var nm in obj){
+					//obj[nm] /= this.mouse.zoom;
 				}
 				this.remove(this.shape, this.hit);
 				this.showParent(obj);
