@@ -182,7 +182,7 @@ dojo.require("drawing.stencil.Text");
 				];
 				
 				this.render(o.text);
-				this.onChange(txt);
+				this.onChangeText(txt);
 			},
 			
 			edit: function(){

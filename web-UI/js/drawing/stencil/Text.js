@@ -28,7 +28,7 @@ dojo.provide("drawing.stencil.Text");
 				var w = d.width;
 				var h = this._lineHeight;
 				var x = d.x + this.style.text.pad*2;
-				var y = d.y + this._lineHeight - (this.textSize*.3);
+				var y = d.y + this._lineHeight - (this.textSize*.4);
 				if(this.valign=="middle"){
 					y -= h/2;
 				}
@@ -62,9 +62,6 @@ dojo.provide("drawing.stencil.Text");
 				if(this.valign=="middle"){
 					d.y -= (this._lineHeight )/2 - this.style.text.pad;
 				}
-				
-				d.y -= (this.textSize*.3)
-				
 				
 				this.hit = this.parent.createRect(d)
 					.setStroke(this.style.currentHit)

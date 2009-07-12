@@ -88,7 +88,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			var x = "X";
 			var y = "Y";
 			if(value){
-				value = value.replace(/and|(\+)/, " ")
+				value = value.replace(/and|(\+)/, " "); // what other words would they use?
 				var lbls = value.match(/(\b\w+\b)/g);
 				if(lbls.length==2){
 					x = lbls[0];
@@ -134,6 +134,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 		},
 		
 		getBounds: function(){
+			// custom getBounds
 			var px = this.points[0],
 				pc = this.points[1],
 				py = this.points[2],

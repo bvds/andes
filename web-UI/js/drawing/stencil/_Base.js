@@ -1,7 +1,7 @@
 dojo.provide("drawing.stencil._Base");
 
 (function(){
-	
+		
 	drawing.stencil._Base = drawing.util.oo.declare(
 		
 		function(options){
@@ -12,9 +12,7 @@ dojo.provide("drawing.stencil._Base");
 			this.isText = this.type=="drawing.stencil.Text" || this.type=="drawing.tools.TextBlock";
 			this.marginZero = options.marginZero || this.style.anchors.marginZero;
 			this.id = options.id || this.util.uid(this.type);
-			
 			this._cons = [];
-			
 			if(this.draws){
 				this.connectMouse();
 				this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
@@ -33,6 +31,8 @@ dojo.provide("drawing.stencil._Base");
 				this.valign = options.valign || this.valign;
 				this.textSize = parseInt(this.style.text.size, 10);
 				this._lineHeight = this.textSize * 1.5;
+				this.style.hitSelected.width *= 0.5;
+				this.style.hitHighlighted.width *= 0.5;
 			}
 			if(options.points){
 				this.setPoints(options.points);
@@ -66,16 +66,14 @@ dojo.provide("drawing.stencil._Base");
 			//readonly
 			created: false,
 			enabled:true,
-			
-			//private
-			_cons:[],
-			
-			
+			highlighted:false,
+			selected:false,
+			draws:false,
 			
 			onDelete: function(/* Stencil */ stencil){
 				// summary:
 				//	Stub - fires before this is destroyed
-				console.info("onDelete", this.id)
+				console.info("onDelete", this.id);
 			},
 			
 			onBeforeRender: function(/*Object*/ stencil){
@@ -87,15 +85,16 @@ dojo.provide("drawing.stencil._Base");
 				// summary:
 				//	Stub - fires on change of any property,
 				// including style properties
+				
 			},
 			
-			onDataChange: function(/*Object*/ stencil){
+			onChangeData: function(/*Object*/ stencil){
 				// summary:
 				//	Stub - fires on change of dimensional
 				//	properties or a text change	
 			},
 			
-			onChange: function(value){ // value or 'this' ?
+			onChangeText: function(value){ // value or 'this' ?
 				// summary:
 				//	Stub - fires on change of text in a
 				//	TextBlock tool only
@@ -131,20 +130,21 @@ dojo.provide("drawing.stencil._Base");
 			
 			onChangeStyle: function(/*Object*/stencil){ 
 				
-				this.isBeingModified = true; // need this to prevent onRender
+				this._isBeingModified = true; // need this to prevent onRender
 				
+				// TODO: Make this _changeStyle and call onChangeSyyle
 				//
-				// TODO - try mixin so if new style does not have fill, the norm.fill will be used
+				// ??? -> TODO - try mixin so if new style does not have fill, the norm.fill will be used
 				//
 				if(this.selected){
-					this.style.current = this.style.selected;
+					//this.style.current = this.style.selected;
 					this.style.currentHit = this.style.hitSelected;
-					this.style.currentText = this.style.textSelected;
+					//this.style.currentText = this.style.textSelected;
 					
 				}else if(this.highlighted){
-					this.style.current = this.style.highlighted;
+					//this.style.current = this.style.highlighted;
 					this.style.currentHit = this.style.hitHighlighted;
-					this.style.currentText = this.style.textHighlighted;
+					//this.style.currentText = this.style.textHighlighted;
 					
 				}else if(!this.enabled){
 					this.style.current = this.style.disabled;
@@ -156,7 +156,6 @@ dojo.provide("drawing.stencil._Base");
 					this.style.currentHit = this.style.hitNorm;
 					this.style.currentText = this.style.text;
 				}
-				
 				// NOTE: Can't just change props like setStroke
 				//	because Silverlight throws error
 				this.render();
@@ -164,7 +163,7 @@ dojo.provide("drawing.stencil._Base");
 			
 			attr: function(/*String | Object*/key, /* ? String | Number */value){
 				// summary
-				//	Changes properties in the normal style.
+				//	Changes properties in the normal-style.
 				var n = this.style.norm, h = this.style.hitNorm, t = this.style.text, o;
 				
 				if(typeof(key)!="object"){
@@ -173,18 +172,21 @@ dojo.provide("drawing.stencil._Base");
 				}else{
 					o = key;
 				}
-				console.log("SET ATT, o:", o, key)
 				for(var nm in o){
 					if(nm in n){ n[nm] = o[nm]; }
-					if(nm in h){ h[nm] = o[nm]; }
+					//if(nm in h){ h[nm] = o[nm]; }
 					if(nm in t){ t[nm] = o[nm]; }
 				}
 				if(this.isText){
-					h.fill = "#FFFFFF";
+					//h.fill = {r:255, g:255, b:255, a:0}
 				}
 				this.render();
 			},
 			
+			//	TODO:
+			// 		Makes these all called by att()
+			//		Should points and data be?
+			//
 			disable: function(){
 				console.info("disable:", this.id)
 				this.enabled = false;
@@ -197,6 +199,7 @@ dojo.provide("drawing.stencil._Base");
 			},
 			
 			select: function(){
+				console.log("------------select-------------")
 				this.selected = true;
 				this.onChangeStyle(this);
 			},
@@ -210,7 +213,7 @@ dojo.provide("drawing.stencil._Base");
 			},
 			
 			highlight: function(){
-				// NOTE: Can't setStroke because Silverlight throws error
+				console.log("HIGHT:", this.id)
 				this.highlighted = true;
 				this.onChangeStyle(this);
 			},
@@ -220,26 +223,22 @@ dojo.provide("drawing.stencil._Base");
 				this.onChangeStyle(this);
 			},
 			
-			/*toggleSelected: function(){
-				this._upselected = !this._upselected;
-				this.selected = this._upselected;
-			},*/
 			
 			onTransformBegin: function(anchor){
 				// called from anchor point up mouse down
-				this.isBeingModified = true;
+				this._isBeingModified = true;
 			},
 			
 			onTransformEnd: function(anchor){
 				// called from anchor point up mouse up
-				this.isBeingModified = false;
+				this._isBeingModified = false;
 				this.onModify(this);
 			},
 			
 			onTransform: function(anchor){
 				// called from anchor point mouse drag
 				// also called right away from plugins.Pan.checkBounds
-				if(!this.isBeingModified){
+				if(!this._isBeingModified){
 					this.onTransformBegin();
 				}
 				// this is not needed for anchor moves, but it
@@ -339,7 +338,7 @@ dojo.provide("drawing.stencil._Base");
 				// on the X or Y.
 				//
 				// if being modified anchors will prevent less than zero.
-				if(this.isBeingModified){ return; }
+				if(this._isBeingModified){ return; }
 				// why is this sometimes empty?
 				if(!this.points.length){ return; }
 				
@@ -355,11 +354,20 @@ dojo.provide("drawing.stencil._Base");
 			_onPostRender: function(/*Object*/data){
 				// drag-create should call onRender
 				// afterwards, this calls onRender
-				if(this.isBeingModified){
+				if(this._isBeingModified){
 					this.onModify(this);
-					this.isBeingModified = false;
+					this._isBeingModified = false;
 				}else{
 					this.onRender(this);	
+				}
+				if(!this.selected && this._prevData && dojo.toJson(this._prevData) != dojo.toJson(this.data)){
+					this.onChangeData(this);
+					this._prevData = dojo.clone(this.data);
+				}else if(!this._prevData && (!this.isText || this._text)){
+					console.warn("SET PREV FIRST TIME", this.data, this._text)
+					this._prevData = dojo.clone(this.data);
+				}else{
+					//console.info("data not changed:");console.info("prev:", dojo.toJson(this._prevData));console.info("curr:", dojo.toJson(this.data))
 				}
 				
 			},
@@ -388,8 +396,10 @@ dojo.provide("drawing.stencil._Base");
 				//
 				// prevent loops:
 				if(this.destroyed){ return; }
-				this.onDelete(this);
-				console.info("shape.destroy", this.id);
+				if(this.data || this.points && this.points.length){
+					this.onDelete(this);
+				}
+				console.info("shape.destroy", this.id, this.points);
 				this.disconnectMouse();
 				this.disconnect(this._cons);
 				dojo.disconnect(this._postRenderCon);
@@ -480,7 +490,7 @@ dojo.provide("drawing.stencil._Base");
 			},
 			
 			disconnect: function(handles){
-				if(handles) return;
+				if(!handles) { return };
 				if(typeof(handles)!="array"){ handle=[handle]; }
 				dojo.forEach(handles, dojo.disconnect, dojo);
 			},

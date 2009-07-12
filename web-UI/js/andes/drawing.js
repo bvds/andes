@@ -2,17 +2,50 @@ dojo.provide("andes.drawing");
 
 
 (function(){
+	var theme = {
+		correct:{
+			fill:  "#CCFFCC",
+			color: "#009900"
+		},
+		incorrect:{
+			fill:  "#FE7070",
+			color: "#D20202"
+		},
+		unknown:{
+			fill:  "#CCCCCC",
+			color: "#000000"
+		},
+		text:{
+			size:"14px",
+			minWidth:100
+		}
+	};
+	
+	var dtc = 0;
+	var getDevTheme = function(){
+		dtc = dtc==2 ? 0 : dtc + 1;
+		if(dtc==1){
+			return theme.correct;
+		}else if(dtc==2){
+			return theme.incorrect;
+		}
+		return theme.unknown;
+	};
+	
 	var drawingId = "drawing";
 	var _drawing;
 	var domLoaded = false;
+	
+	// better name
 	var stencilMods = {
 		statement:"text",
 		equation:"text",
 		graphics:"image"
 	};
 	
-	// better name
+	
 	var stencils = {
+		line: "drawing.stencil.Line",
 		rect: "drawing.stencil.Rect",
 		ellipse: "drawing.stencil.Ellipse",
 		vector: "drawing.tools.custom.Vector",
@@ -21,6 +54,7 @@ dojo.provide("andes.drawing");
 	};
 	
 	var hasStatement = {
+		"drawing.stencil.Line":true,
 		"drawing.stencil.Rect":true,
 		"drawing.stencil.Ellipse":true,
 		"drawing.tools.custom.Vector":true,
@@ -48,6 +82,11 @@ dojo.provide("andes.drawing");
 		_drawing = dijit.byId(drawingId);
 		var cn = dojo.connect(_drawing, "onSurfaceReady", function(){
 			dojo.disconnect(cn);
+			drawing.defaults.norm.color = theme.unknown.color;
+			drawing.defaults.norm.fill = theme.unknown.fill;
+			drawing.defaults.text.minWidth = theme.text.minWidth;
+			drawing.defaults.text.size = theme.text.size;
+			
 			andes.drawing.onSurfaceReady();
 		});
 		dojo.connect(_drawing, "onRenderStencil", andes.drawing, "onRenderStencil");
@@ -56,21 +95,13 @@ dojo.provide("andes.drawing");
 	andes.drawing = {
 		
 		onRenderStencil: function(item){
+			if(items[item.id]){ return; }
+			
 			console.log("drawing, new item:", item, "make label:", item.type);
 		
-		if(items[item.id]){
-			console.warn("PREVENT RECURSE");
-			return;
-		}
-		this.add(item);
-		//item.disable();
-		
-		
-		
-		
-		//return;	
-			
-			
+			this.add(item);
+			//item.disable();
+
 			if(hasStatement[item.type] || hasLabel[item.type]){
 				var box = item.getBounds();
 				var props = getStatementPosition(box);
@@ -84,16 +115,16 @@ dojo.provide("andes.drawing");
 				}else if(hasStatement[item.type]){
 					this.add(statement);
 					var c = new drawing.stencil._Connection(item);
+					item.connection = c;
+					statement.connection = c;
+					c.statement = statement;
 					c.add(statement, [
-						// item connects			  
+						// master connects (none)			  
 					], [
 						// statement connects
-						["onChange", function(value){
+						["onChangeText", function(value){
 							item.setLabel(andes.variablename.parse(value));
-							c.attr({
-								fill: "#CCFFCC",
-								color: "#009900"
-							});
+							c.attr(getDevTheme());
 						}]
 					]);
 				}
@@ -102,10 +133,21 @@ dojo.provide("andes.drawing");
 		
 		add: function(/* Stencil */ item){
 			items[item.id] = item;
-			var c = item.connect("onDelete", this, "remove");
+			item.connect("onDelete", this, "remove");
+			
+			item.connect("onModify", this, function(item){
+				//console.log("onModify", item.id);
+			});
+			item.connect("onChangeText", this, function(value){
+				console.log("---------------------------------> onChangeText", value);
+			});
+			item.connect("onChangeData", this, function(item){
+				console.log("---------------------------------> onChangeData", item.id, dojo.toJson(item.data));
+			});
 		},
 		
 		remove: function(/* Stencil */ item){
+			console.log("---------------------------------> onDelete", item.id, "connection:", !!item.connection);
 			delete items[item.id];
 		},
 		
@@ -124,7 +166,7 @@ dojo.provide("andes.drawing");
 		},
 		
 		load: function(){
-		  andes.api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId}).addCallback(this, "onLoad").addErrback(this, "onError");
+		  //andes.api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId}).addCallback(this, "onLoad").addErrback(this, "onError");
 		},
 		
 		onLoad: function(data){
