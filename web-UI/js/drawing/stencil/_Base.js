@@ -491,8 +491,12 @@ dojo.provide("drawing.stencil._Base");
 			
 			disconnect: function(handles){
 				if(!handles) { return };
-				if(typeof(handles)!="array"){ handle=[handle]; }
+				if(!dojo.isArray(handles)){ handles=[handles]; }
+				//console.log("HANDLES:", typeof(handles), handles)
 				dojo.forEach(handles, dojo.disconnect, dojo);
+				//dojo.forEach(handles, function(h){
+				//	dojo.disconnect(h);
+				//})
 			},
 			
 			connectMouse: function(){

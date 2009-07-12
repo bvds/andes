@@ -134,6 +134,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 		},
 		
 		getBounds: function(){
+			console.trace()
 			// custom getBounds
 			var px = this.points[0],
 				pc = this.points[1],

@@ -16,8 +16,7 @@ drawing.tools.custom._Base = drawing.util.oo.declare(
 		type:"drawing.tools.custom",
 		
 		showAngle: function(){
-			console.warn("SHOW ANGLE showing:", this._angleShowing)
-			console.trace();
+			
 			var node = this.getAngleNode();
 			var d = this.pointsToData();
 			var obj = {
@@ -45,7 +44,7 @@ drawing.tools.custom._Base = drawing.util.oo.declare(
 			angle = 180 - angle; angle = angle==360 ? 0 : angle;
 			
 			node.innerHTML = Math.ceil(angle);
-			this._angleShowing = true;
+			//watch("angle", angle);
 		},
 		
 		getAngleNode: function(){
@@ -58,14 +57,13 @@ drawing.tools.custom._Base = drawing.util.oo.declare(
 		},
 		
 		hideAngle: function(){
-			console.warn("HIDE ANGLE showing:", this._angleShowing)
-			if(this._angleNode && this._angleShowing){
-				var self = this;
+			console.warn("DONE");
+			if(this._angleNode){
+				
 				dojo.fadeOut({node:this._angleNode,
 					duration:500,
 					onEnd: function(node){
 						dojo.destroy(node);
-						self._angleShowing = false;
 					}
 				}).play();
 				this._angleNode = null;

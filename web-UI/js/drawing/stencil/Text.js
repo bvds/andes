@@ -36,7 +36,7 @@ dojo.provide("drawing.stencil.Text");
 				//console.info("render text:", y, " ... ", this._text, "enabled:", this.enabled);
 				
 				dojo.forEach(this._textArray, function(txt, i){
-					var tb = this.shape.createText({x: x, y: y+(h*i), text: txt, align: this.align})
+					var tb = this.shape.createText({x: x, y: y+(h*i), text: unescape(txt), align: this.align})
 						.setFont(this.style.currentText)
 						.setFill(this.style.currentText.color);
 					
