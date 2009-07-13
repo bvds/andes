@@ -23,10 +23,11 @@ drawing.tools.Line = drawing.util.oo.declare(
 			if(this.keys.alt){
 				// FIXME:
 				//	should double the length of the line
+				// FIXME:
+				//	if alt dragging past ZERO it seems to work
+				//	but select/deselect shows bugs
 				var dx = x2>x1 ? ((x2-x1)/2) : ((x1-x2)/-2);
 				var dy = y2>y1 ? ((y2-y1)/2) : ((y1-y2)/-2);
-				//dx*=2;
-				//dy*=2;
 				x1 -= dx;
 				x2 -= dx;
 				y1 -= dy;

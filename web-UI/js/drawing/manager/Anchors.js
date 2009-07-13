@@ -192,8 +192,14 @@ dojo.provide("drawing.manager.Anchors");
 			},
 			
 			anchorPositionCheck: function(x, y, anchor){
-				console.warn("CHECK ANCHOR ORG")
-				return true;
+				// summary:
+				//	To be over written by tool!
+				//	Add a anchorPositionCheck method to the tool
+				//	and it will automatically overwrite this stub.
+				//	Should return x and y coords. Success is both
+				//	being greater than zero, fail is if one or both
+				//	are less than zero. 
+				return {x:1, y:1};
 			},
 			
 			onAnchorDrag: function(obj){
@@ -214,13 +220,17 @@ dojo.provide("drawing.manager.Anchors");
 					
 					var conL, conR, conT, conB;
 					
-					//
-					// - add a look-ahead test function to see if the move is okay
-					//
-					watch("anc x", x)
-					watch("anc y", y)
-					
-					if(!this.anchorPositionCheck(x, y, this)){ return; }
+					var chk = this.anchorPositionCheck(x, y, this);
+					if(chk.x<0){
+						while(this.anchorPositionCheck(x, y, this).x<0){
+							this.shape.getParent().getParent().applyTransform({dx:2, dy:0});
+						}
+					}
+					if(chk.y<0){
+						while(this.anchorPositionCheck(x, y, this).y<0){
+							this.shape.getParent().getParent().applyTransform({dx:0, dy:2});
+						}
+					}
 					
 					if(this.y_anchor){
 						// prevent y overlap of opposite anchor
@@ -302,9 +312,6 @@ dojo.provide("drawing.manager.Anchors");
 						dx:x,
 						dy:y
 					});
-					
-					watch("good anc x", x)
-					watch("good anc y", y)
 					
 					this.onTransformPoint(this);
 				}

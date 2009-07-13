@@ -178,7 +178,7 @@ dojo.provide("andes.drawing");
 		
 		load: function(){
 			// called from the very bottom of main.js
-			//return;
+			return;
 			this.loadProject = function(){
 				andes.api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId}).addCallback(this, "onLoad").addErrback(this, "onError");
 			}

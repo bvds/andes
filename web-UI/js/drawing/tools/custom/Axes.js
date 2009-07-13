@@ -114,18 +114,8 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			var ox = c.x - (c.y - o.y);
 			var oy = c.y - (o.x - c.x);
 			
-			watch("X x", o.x);
-			watch("X y", o.y);
+			return {x:ox, y:oy};
 			
-			watch("cen x", c.x);
-			watch("cen y", c.y);
-			
-			watch("Y x", ox);
-			watch("Y y", oy);
-			if(ox<0 || oy<0){
-				return false;
-			}
-			return true;
 		},
 		
 		onTransformBegin: function(anchor){

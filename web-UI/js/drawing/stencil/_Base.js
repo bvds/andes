@@ -265,6 +265,10 @@ dojo.provide("drawing.stencil._Base");
 				this.transformPoints(mx);
 			},
 			
+			getTransform: function(){
+				return this.selected ? this.parent.getParent().getTransform() : {dx:0, dy:0};
+			},
+			
 			setData: function(d){
 				this.data = d;
 				this.points = this.dataToPoints();
