@@ -199,7 +199,7 @@ dojo.provide("drawing.stencil._Base");
 			},
 			
 			select: function(){
-				console.log("------------select-------------")
+				console.log("------------select-------------", this.id)
 				this.selected = true;
 				this.onChangeStyle(this);
 			},

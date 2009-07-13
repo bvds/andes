@@ -31,13 +31,14 @@ dojo.provide("drawing.manager.Stencil");
 			
 			
 			register: function(item){
-				//console.log("Selection.register ::::::", item.id)
+				console.log("Selection.register ::::::", item.id)
 				this.items[item.id] = item;
 				return item;
 			},
 			unregister: function(item){
-				if(item && item.selected){
-					this.onDeselect(item);
+				console.log("Selection.unregister ::::::", item.id)
+				if(item){
+					item.selected && this.onDeselect(item);
 					delete this.items[item.id];
 				}
 			},

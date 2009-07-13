@@ -8,8 +8,6 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 	drawing.stencil.Path,
 	drawing.tools.custom._Base,
 	function(options){
-		//this.style.norm.fill = null;
-		//this.style.selected.fill = null;
 		this.closePath = false;
 		
 		this.slaves = new drawing.stencil._Slave(this);
@@ -28,7 +26,10 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			this.yArrow.points = this.util.arrowHead(c.x, c.y, o.x, o.y, this.style);
 		});
 		
-		
+		this.connect("onDelete", this, function(){
+			this.yArrow.destroy();
+			this.xArrow.destroy();
+		});
 	},
 	{
 		draws:true,
@@ -101,6 +102,11 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 		
 		
 		anchorPositionCheck: function(x, y, anchor){
+			// summary:
+			//	Gets called from anchor to check if its current
+			//	position is ok. If not, its x or y transform will
+			// be changed until this passes.
+			//
 			var pm = this.parent.getParent().getTransform();
 			var am = anchor.shape.getTransform();
 			

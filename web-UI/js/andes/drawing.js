@@ -108,9 +108,11 @@ dojo.provide("andes.drawing");
 				var statement = _drawing.addStencil("textBlock", props);
 				
 				if(hasLabel[item.type]){
+					var s = statement;
 					item.connect(statement, "onChangeText", function(value){
+						
 						item.setLabel(value);
-						_drawing.removeStencil(statement);
+						_drawing.removeStencil(s);
 					});
 				}else if(hasStatement[item.type]){
 					this.add(statement);
@@ -133,7 +135,10 @@ dojo.provide("andes.drawing");
 		
 		add: function(/* Stencil */ item){
 			items[item.id] = item;
-			item.connect("onDelete", this, "remove");
+			item.connect("onDelete", this, function(item){
+				console.log("--------------------------------> onDelete", item.id);
+				this.remove(item);
+			});
 			
 			item.connect("onModify", this, function(item){
 				//console.log("onModify", item.id);
@@ -178,7 +183,7 @@ dojo.provide("andes.drawing");
 		
 		load: function(){
 			// called from the very bottom of main.js
-			return;
+			//return;
 			this.loadProject = function(){
 				andes.api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId}).addCallback(this, "onLoad").addErrback(this, "onError");
 			}

@@ -15,7 +15,7 @@ dojo.provide("drawing.stencil.Text");
 			_lineHeight:1,
 			
 			render: function(/* String | Array */text){
-				
+				//console.trace();
 				this.remove(this.shape, this.hit);
 				!this.annotation && this.renderOutline();
 				if(text){
@@ -24,7 +24,7 @@ dojo.provide("drawing.stencil.Text");
 				}
 				
 				var d = this.pointsToData();
-				//console.log("Y:", d.y, "TS:", this.textSize, "LH:", this._lineHeight)
+				console.log("Y:", d.y, "TS:", this.textSize, "LH:", this._lineHeight)
 				var w = d.width;
 				var h = this._lineHeight;
 				var x = d.x + this.style.text.pad*2;

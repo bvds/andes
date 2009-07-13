@@ -3,7 +3,7 @@ dojo.require("drawing.stencil.Text");
 
 (function(){
 	
-	var conEdit, wrapNode;
+	var conEdit;
 	dojo.addOnLoad(function(){
 		// summary:
 		//	In order to use VML in IE, it's necessary to remove the
@@ -60,6 +60,7 @@ dojo.require("drawing.stencil.Text");
 			type:"drawing.tools.TextBlock",
 			
 			showParent: function(obj){
+				console.warn("PARNET TXT", this.id);
 				if(this.parentNode){ return; }
 				var x = obj.pageX || 10;
 				var y = obj.pageY || 10;
@@ -87,6 +88,7 @@ dojo.require("drawing.stencil.Text");
 				document.body.appendChild(this.parentNode);
 			},
 			createTextField: function(txt){
+				console.warn("CREATE TXT", this.id);
 				// style parent
 				var d = this.style.textMode.edit;
 				this._box.border = d.width+"px "+d.style+" "+d.color;
@@ -330,7 +332,8 @@ dojo.require("drawing.stencil.Text");
 			},
 			
 			onUp: function(obj){
-				if(!this.shape && !obj.withinCanvas || !this._box){ return; }
+				console.warn("TEXTBLOCK UP", this.id);
+				if(!this.created && (!this.shape && !obj.withinCanvas || !this._box)){ return; }
 				this.createTextField();
 				this.connectTextField();
 			},

@@ -45,7 +45,6 @@ drawing.tools.custom._Base = drawing.util.oo.declare(
 			angle = 180 - angle; angle = angle==360 ? 0 : angle;
 			
 			node.innerHTML = Math.ceil(angle);
-			//watch("angle", angle);
 		},
 		
 		getAngleNode: function(){
