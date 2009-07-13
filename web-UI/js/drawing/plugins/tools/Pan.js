@@ -126,25 +126,27 @@ drawing.plugins.tools.Pan = drawing.util.oo.declare(
 			
 		
 				
-			if(b > pch ){ 
+			if(b > pch || sc.top ){ 
 				warn("BOTTOM SCROLL:", "b:", b, "ch:", ch, "pcj:", pch, "top:", sc.top, "sy:", sy);
 				// item off bottom
-				ch = Math.max(b, pch+sy);
+				ch = Math.max(b, pch + sc.top);
+				sy = sc.top;
 				warn("BOTTOM SCROLL RES:", ch);
 			}else if(!sy && ch>pch){
 				warn("BOTTOM REMOVE", "b:", b, "ch:", ch, "pcj:", pch, "top:", sc.top, "sy:", sy);
 				// item moved from bottom
-				ch = pch
+				ch = pch;
 			}
 			
-			if(r > pcw ){
+			if(r > pcw || sc.left){
 				warn("RIGHT SCROLL");
 				// item off right
-				cw = Math.max(r, pcw + sx);
+				cw = Math.max(r, pcw + sc.left);
+				sx = sc.left;
 			}else if(!sx && cw>pcw){
 				warn("RIGHT REMOVE");
 				// item moved from right
-				cw = pcw
+				cw = pcw;
 			}
 			
 			

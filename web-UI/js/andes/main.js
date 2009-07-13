@@ -22,18 +22,7 @@ dojo.provide("andes.main");
 			});
 		});
 	}
-	
-	//dojo.cookie("andes", null, { expires: -1 });
-	
-	andes.userId = query.u;
-	andes.projectId = query.p;
-	andes.sectionId = query.s;
-	var ck = dojo.cookie("andes");
-	if(ck){
-		ck = dojo.fromJson(ck);
-		console.info("cookie:", ck)
-		andes.sessionId = ck.sid;
-	}else{
+	var setCookie = function(){
 		andes.sessionId = andes.userId + andes.projectId + new Date().getTime();
 		 var andesCookie = {
 			u:andes.userId,
@@ -41,10 +30,26 @@ dojo.provide("andes.main");
 			sid:andes.sessionId,
 			closed:false
 		};
-		dojo.cookie("andes", dojo.toJson(andesCookie), { expires: 1 });
+		dojo.cookie("andes", dojo.toJson(andesCookie), { expires: 999 });
 	}
-	
-	console.info("main sid", andes.sessionId)
+	//dojo.cookie("andes", null, { expires: -1 });
+	andes.closeFirst = false;
+	andes.userId = query.u;
+	andes.projectId = query.p;
+	andes.sectionId = query.s;
+	var ck = dojo.cookie("andes");
+	if(ck){
+		// There was already a cookie here
+		if(ck.u==andes.userId && ck.p==andes.projectId){
+			// we can continue the same session
+			andes.sessionId = ck.sid;
+		}else{
+			andes.closeFirst = true;
+			setCookie();
+		}
+	}else{
+		setCookie();	
+	}
 	
 	dojo.addOnLoad(function(){
 		dojo.connect(dojo.byId("submitButton"), "click", function(){
@@ -54,12 +59,12 @@ dojo.provide("andes.main");
 		});
 	
 		var splashNode = dojo.byId("splashOverlay"),
-		    anim = dojo.fadeOut({node:dojo.byId("splashOverlay")}),
-		    _h = dojo.connect(anim, "onEnd", function(){
-		    	dojo.disconnect(_h);
-		    	dojo.style(splashNode, "display", "none");
-		    	console.log("andes.main loaded");
-		    });
+		anim = dojo.fadeOut({node:dojo.byId("splashOverlay")}),
+		_h = dojo.connect(anim, "onEnd", function(){
+			dojo.disconnect(_h);
+			dojo.style(splashNode, "display", "none");
+			console.log("andes.main loaded");
+		});
 		anim.play();
 	});
 

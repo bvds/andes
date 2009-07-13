@@ -105,7 +105,7 @@ dojo.provide("drawing.manager.Canvas");
 				// changing the size of the surface and setting scroll
 				// if items are off screen
 				//
-			
+			console.log("drawing.pan.setDimensions",  width, height, scrollx, scrolly);
 				var sw = this.getScrollWidth() //+ 10;
 				this.width = Math.max(width, this.parentWidth);
 				this.height = Math.max(height, this.parentHeight);

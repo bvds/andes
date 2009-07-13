@@ -34,7 +34,7 @@ dojo.provide("andes.drawing");
 	
 	var drawingId = "drawing";
 	var _drawing;
-	var domLoaded = false;
+	var _surfaceLoaded = false;
 	
 	// better name
 	var stencilMods = {
@@ -78,14 +78,14 @@ dojo.provide("andes.drawing");
 	
 	
 	dojo.addOnLoad(function(){
-		domLoaded = true;
 		_drawing = dijit.byId(drawingId);
 		var cn = dojo.connect(_drawing, "onSurfaceReady", function(){
 			dojo.disconnect(cn);
-			drawing.defaults.norm.color = theme.unknown.color;
-			drawing.defaults.norm.fill = theme.unknown.fill;
-			drawing.defaults.text.minWidth = theme.text.minWidth;
-			drawing.defaults.text.size = theme.text.size;
+			var d = drawing.defaults;
+			d.norm.color = theme.unknown.color;
+			d.norm.fill = theme.unknown.fill;
+			d.text.minWidth = theme.text.minWidth;
+			d.text.size = theme.text.size;
 			
 			andes.drawing.onSurfaceReady();
 		});
@@ -151,10 +151,9 @@ dojo.provide("andes.drawing");
 			delete items[item.id];
 		},
 		
-		onSurfaceReady: function(){
-			//drawing.addStencil("image", {data:{src:"tests/images/BallOnWall.png", x:300, y:200, width:"auto"}});
-			if(!this._initialData){ return; }
-			dojo.forEach(this._initialData, function(obj){
+		
+		loadProjectData: function(data){
+			dojo.forEach(data, function(obj){
 				if(obj.action =="new-object"){
 					if(obj.href) { obj.src = obj.href; }
 					var item = _drawing.addStencil(stencilMods[obj.type], {data:obj});
@@ -163,10 +162,31 @@ dojo.provide("andes.drawing");
 					}
 				};
 			});
+			data = null;
+		},
+		
+		onSurfaceReady: function(){
+			//_drawing.addStencil("image", {data:{src:"tests/images/BallOnWall.png", x:300, y:200, width:"auto"}});
+			_drawing.addStencil("rect", {data:{x:100, y:200, width:100, height:100}});
+			
+			_surfaceLoaded = true;
+			if(this._initialData){
+				this.loadProjectData(this._initialData);
+				this._initialData = null;
+			}
 		},
 		
 		load: function(){
-		  //andes.api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId}).addCallback(this, "onLoad").addErrback(this, "onError");
+			// called from the very bottom of main.js
+			return;
+			this.loadProject = function(){
+				andes.api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId}).addCallback(this, "onLoad").addErrback(this, "onError");
+			}
+			if(andes.closeFirst){
+				andes.api.close({}).addCallback(this, "loadProject").addErrback(this, "onError");
+			}else{
+				this.loadProject();
+			}
 		},
 		
 		onLoad: function(data){
@@ -189,10 +209,15 @@ dojo.provide("andes.drawing");
 				}
 			});
 			
+			//console.dir(data);
+			//andes.api.close();
 			
 			// < ============================DEV 
-			//console.dir(data);
-			andes.api.close();
+		
+			if(_surfaceLoaded){
+				this.loadProjectData(this._initialData);
+				this._initialData = null;
+			}
 		},
 		onError: function(err){
 			console.error("There was an error loading project data:", err);
