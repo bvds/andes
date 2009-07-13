@@ -167,7 +167,7 @@ dojo.provide("andes.drawing");
 		
 		onSurfaceReady: function(){
 			//_drawing.addStencil("image", {data:{src:"tests/images/BallOnWall.png", x:300, y:200, width:"auto"}});
-			_drawing.addStencil("rect", {data:{x:100, y:200, width:100, height:100}});
+			_drawing.addStencil("rect", {data:{x:100, y:500, width:100, height:100}});
 			
 			_surfaceLoaded = true;
 			if(this._initialData){

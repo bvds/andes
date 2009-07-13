@@ -17,6 +17,7 @@ drawing.tools.custom._Base = drawing.util.oo.declare(
 		
 		showAngle: function(){
 			
+			var sc = this.mouse.scrollOffset();
 			var node = this.getAngleNode();
 			var d = this.pointsToData();
 			var obj = {
@@ -35,8 +36,8 @@ drawing.tools.custom._Base = drawing.util.oo.declare(
 			// and we are from the page corner, not
 			// the canvas corner
 			dojo.style(node, {
-				left:  this._offX + pt.x + "px",
-				top: this._offY + pt.y + "px",
+				left:  this._offX + pt.x - sc.left + "px",
+				top: this._offY + pt.y - sc.top + "px",
 				align:pt.align
 			});
 			

@@ -11,6 +11,7 @@ drawing.plugins.tools.Pan = drawing.util.oo.declare(
 		dojo.connect(this.keys, "onKeyUp", this, "onKeyUp");
 		dojo.connect(this.keys, "onKeyDown", this, "onKeyDown");
 		dojo.connect(this.anchors, "onAnchorUp", this, "checkBounds");
+		dojo.connect(this.stencils, "register", this, "checkBounds");
 		dojo.connect(this.canvas, "onScroll", this, function(){
 			if(this._blockScroll){
 				this._blockScroll = false;
@@ -21,7 +22,7 @@ drawing.plugins.tools.Pan = drawing.util.oo.declare(
 		});
 		this._mouseHandle = this.mouse.register(this);
 		// This HAS to be called after setting initial objects or things get screwy.
-			this.checkBounds();	
+		//this.checkBounds();	
 	},{
 		selected:false,
 		type:"drawing.plugins.tools.Pan",
