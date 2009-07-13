@@ -110,10 +110,10 @@ dojo.provide("andes.drawing");
 				if(hasLabel[item.type]){
 					var s = statement;
 					item.connect(statement, "onChangeText", function(value){
-						
 						item.setLabel(value);
 						_drawing.removeStencil(s);
 					});
+					
 				}else if(hasStatement[item.type]){
 					this.add(statement);
 					var c = new drawing.stencil._Connection(item);

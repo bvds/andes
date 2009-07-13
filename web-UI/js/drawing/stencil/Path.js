@@ -24,15 +24,15 @@ drawing.stencil.Path = drawing.util.oo.declare(
 		closePath: true,
 		
 		_create: function(shp, sty){
-			// NOTE:
-			// In order to avoid the Safari d="" errors,
-			// we'll need to build a string and set that.
+			
 			this.remove(this[shp]);
 			
 			var beg = new Date().getTime();
 			
 			if(dojox.gfx.renderer=="svg"){
-				
+				// NOTE:
+				// In order to avoid the Safari d="" errors,
+				// we'll need to build a string and set that.
 				var strAr = []
 				dojo.forEach(this.points, function(o, i){
 					if(i==0){

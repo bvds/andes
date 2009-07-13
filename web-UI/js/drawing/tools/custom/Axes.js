@@ -37,7 +37,8 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 		minimumSize:30,
 		
 		createLabels: function(){
-			var props = {style:this.style, align:"middle", valign:"middle", util:this.util, annotation:true, parent:this.parent, mouse:this.mouse, stencil:this};
+			// NOTE: Not passing style into text because it's changing it
+			var props = {align:"middle", valign:"middle", util:this.util, annotation:true, parent:this.parent, mouse:this.mouse, stencil:this};
 			this.labelX = new drawing.stencil._Label(dojo.mixin(props,{
 				labelPosition:this.setLabelX
 			}));

@@ -43,7 +43,7 @@ dojo.provide("drawing.stencil._Base");
 				this.setData(options.data);
 				this.render(options.data.text);
 			}
-			
+			console.log("ITEM", this.id, this.style)
 		},
 		{
 			
@@ -158,6 +158,7 @@ dojo.provide("drawing.stencil._Base");
 				}
 				// NOTE: Can't just change props like setStroke
 				//	because Silverlight throws error
+				console.log("CHANGE STY:", this.id, this.style.currentHit)
 				this.render();
 			},
 			
@@ -188,7 +189,6 @@ dojo.provide("drawing.stencil._Base");
 			//		Should points and data be?
 			//
 			disable: function(){
-				console.info("disable:", this.id)
 				this.enabled = false;
 				this.onChangeStyle(this);
 			},

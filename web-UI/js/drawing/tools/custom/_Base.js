@@ -16,7 +16,7 @@ drawing.tools.custom._Base = drawing.util.oo.declare(
 		type:"drawing.tools.custom",
 		
 		showAngle: function(){
-			
+			if(!this.selected && this.created){ return; }
 			var sc = this.mouse.scrollOffset();
 			var node = this.getAngleNode();
 			var d = this.pointsToData();
@@ -57,8 +57,7 @@ drawing.tools.custom._Base = drawing.util.oo.declare(
 		},
 		
 		hideAngle: function(){
-			console.warn("DONE");
-			if(this._angleNode){
+			if(this._angleNode && dojo.style(this._angleNode, "opacity")>0.9){
 				
 				dojo.fadeOut({node:this._angleNode,
 					duration:500,
