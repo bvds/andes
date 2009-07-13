@@ -6,7 +6,7 @@ dojo.provide("andes.main");
 	var devMode = true, query;
 	if(!window.location.search){
 		query = {
-			p:"32500",
+			p:"s2e",
 			u:"joe1"
 		};
 	}else{
@@ -36,7 +36,7 @@ dojo.provide("andes.main");
 	andes.closeFirst = false;
 	andes.userId = query.u;
 	andes.projectId = query.p;
-	andes.sectionId = query.s;
+	andes.sectionId = query.s || 1234;
 	var ck = dojo.cookie("andes");
 	if(ck){
 		// There was already a cookie here

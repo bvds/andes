@@ -108,7 +108,7 @@ dojo.provide("andes.drawing");
 				var statement = _drawing.addStencil("textBlock", props);
 				
 				if(hasLabel[item.type]){
-					item.connect(statement, "onChange", function(value){
+					item.connect(statement, "onChangeText", function(value){
 						item.setLabel(value);
 						_drawing.removeStencil(statement);
 					});
@@ -167,7 +167,7 @@ dojo.provide("andes.drawing");
 		
 		onSurfaceReady: function(){
 			//_drawing.addStencil("image", {data:{src:"tests/images/BallOnWall.png", x:300, y:200, width:"auto"}});
-			_drawing.addStencil("rect", {data:{x:100, y:500, width:100, height:100}});
+			//_drawing.addStencil("rect", {data:{x:100, y:500, width:100, height:100}});
 			
 			_surfaceLoaded = true;
 			if(this._initialData){
@@ -178,7 +178,7 @@ dojo.provide("andes.drawing");
 		
 		load: function(){
 			// called from the very bottom of main.js
-			return;
+			//return;
 			this.loadProject = function(){
 				andes.api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId}).addCallback(this, "onLoad").addErrback(this, "onError");
 			}

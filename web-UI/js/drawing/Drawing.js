@@ -217,7 +217,7 @@ dojo.require("drawing.tools.Line");
 		
 		onRenderStencil: function(stencil){
 			
-			console.info("drawing.onRenderStencil:", stencil)
+			console.info("--------------------------------------drawing.onRenderStencil:", stencil.id);
 			this.stencils.register(stencil);
 			this.unSetTool();
 			this.setTool(this.currentType);

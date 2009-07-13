@@ -34,7 +34,7 @@ drawing.tools.Rect = drawing.util.oo.declare(
 			// if too small, need to reset
 			var o = this.data;
 			if(o.width<this.minimumSize && o.height < this.minimumSize){
-				this.remove();
+				this.remove(this.shape, this.hit);
 				return;
 			}
 			

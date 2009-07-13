@@ -32,7 +32,7 @@ drawing.tools.Ellipse = drawing.util.oo.declare(
 			// if too small, need to reset
 			var o = this.pointsToData();
 			if(o.rx*2<this.minimumSize && o.ry*2 < this.minimumSize){
-				this.remove();
+				this.remove(this.shape, this.hit);
 				return;
 			}
 			

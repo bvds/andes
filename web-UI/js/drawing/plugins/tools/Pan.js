@@ -12,6 +12,7 @@ drawing.plugins.tools.Pan = drawing.util.oo.declare(
 		dojo.connect(this.keys, "onKeyDown", this, "onKeyDown");
 		dojo.connect(this.anchors, "onAnchorUp", this, "checkBounds");
 		dojo.connect(this.stencils, "register", this, "checkBounds");
+		dojo.connect(this.canvas, "resize", this, "checkBounds");
 		dojo.connect(this.canvas, "onScroll", this, function(){
 			if(this._blockScroll){
 				this._blockScroll = false;

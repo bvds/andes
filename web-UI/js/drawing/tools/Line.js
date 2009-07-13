@@ -44,9 +44,10 @@ drawing.tools.Line = drawing.util.oo.declare(
 			if(this.created || !this.shape){ return; }
 			
 			// if too small, need to reset
-			var o = this.pointsToData();
-			if(Math.abs(o.x2-o.x1)<this.minimumSize && Math.abs(o.y2-o.y1)<this.minimumSize){
-				this.remove();
+			var p = this.points;
+			var len = this.util.distance(p[0].x,p[0].y,p[1].x,p[1].y);
+			if(len<this.minimumSize){
+				this.remove(this.shape, this.hit);
 				return;
 			}
 			this.renderedOnce = true;

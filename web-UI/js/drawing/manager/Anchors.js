@@ -139,6 +139,9 @@ dojo.provide("drawing.manager.Anchors");
 			this.id = options.id || this.util.uid("anchor");
 			this.org = dojo.mixin({}, this.point);
 			this.stencil = options.stencil;
+			if(this.stencil.anchorPositionCheck){
+				this.anchorPositionCheck = dojo.hitch(this.stencil, this.stencil.anchorPositionCheck);
+			}
 			this.render();
 			this.connectMouse();
 		},
@@ -187,6 +190,12 @@ dojo.provide("drawing.manager.Anchors");
 				this.selected = false;
 				this.stencil.onTransformEnd(this);
 			},
+			
+			anchorPositionCheck: function(x, y, anchor){
+				console.warn("CHECK ANCHOR ORG")
+				return true;
+			},
+			
 			onAnchorDrag: function(obj){
 				if(this.selected){
 					// mx is the original transform from when the anchor
@@ -204,6 +213,14 @@ dojo.provide("drawing.manager.Anchors");
 						s = this.defaults.anchors.minSize;
 					
 					var conL, conR, conT, conB;
+					
+					//
+					// - add a look-ahead test function to see if the move is okay
+					//
+					watch("anc x", x)
+					watch("anc y", y)
+					
+					if(!this.anchorPositionCheck(x, y, this)){ return; }
 					
 					if(this.y_anchor){
 						// prevent y overlap of opposite anchor
@@ -285,6 +302,10 @@ dojo.provide("drawing.manager.Anchors");
 						dx:x,
 						dy:y
 					});
+					
+					watch("good anc x", x)
+					watch("good anc y", y)
+					
 					this.onTransformPoint(this);
 				}
 			},
