@@ -53,12 +53,11 @@ dojo.provide("drawing.manager.Anchors");
 				}
 			},
 			
-			onReset: function(){
-				for(var nm in this.items){
-					dojo.forEach(this.items[nm].anchors, function(a){
-						a.render();
-					});
-				}
+			onReset: function(stencil){
+				// a desperate hack in order to get the anchor point to reset.
+				var st = this.util.byId("drawing").stencils;
+				st.onDeselect(stencil);
+				st.onSelect(stencil);
 			},
 			
 			onRenderStencil: function(){
@@ -80,7 +79,7 @@ dojo.provide("drawing.manager.Anchors");
 				dojo.forEach(anchors, function(a, i){
 					
 					
-					if(anchor.id == a.id){
+					if(anchor.id == a.id || anchor.stencil.anchorType!="group"){
 						// nothing ?
 					}else{
 						if(anchor.org.y == a.org.y){
@@ -222,11 +221,13 @@ dojo.provide("drawing.manager.Anchors");
 					
 					var chk = this.anchorPositionCheck(x, y, this);
 					if(chk.x<0){
+						console.warn("X<0 Shift");
 						while(this.anchorPositionCheck(x, y, this).x<0){
 							this.shape.getParent().getParent().applyTransform({dx:2, dy:0});
 						}
 					}
 					if(chk.y<0){
+						console.warn("Y<0 Shift");
 						while(this.anchorPositionCheck(x, y, this).y<0){
 							this.shape.getParent().getParent().applyTransform({dx:0, dy:2});
 						}
@@ -325,7 +326,7 @@ dojo.provide("drawing.manager.Anchors");
 			disconnectMouse: function(){
 				this.mouse.unregister(this._mouseHandle);
 			},
-			reset: function(){
+			reset: function(stencil){
 				// stub
 			},
 			destroy: function(){

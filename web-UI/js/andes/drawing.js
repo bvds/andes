@@ -3,6 +3,7 @@ dojo.provide("andes.drawing");
 
 (function(){
 	var theme = {
+		DTheta:1,
 		correct:{
 			fill:  "#CCFFCC",
 			color: "#009900"
@@ -83,6 +84,7 @@ dojo.provide("andes.drawing");
 			dojo.disconnect(cn);
 			// setting styles
 			var d = drawing.defaults;
+			d.angleSnap = theme.DTheta;
 			d.norm.color = theme.unknown.color;
 			d.norm.fill = theme.unknown.fill;
 			d.text.minWidth = theme.text.minWidth;

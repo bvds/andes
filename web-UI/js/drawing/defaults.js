@@ -12,6 +12,11 @@ drawing.defaults = {
 	//currentHit will point to either hitNorm or hitSelected
 	currentHit:null,
 	
+	// line, arrows, vector and axes will all snap to this angle on mouse up
+	// shown angle also reflects the snap
+	// currently cannot accept less than 1 degree
+	angleSnap:1,
+	
 	norm:{
 		width:1,
 		color:"#000000",

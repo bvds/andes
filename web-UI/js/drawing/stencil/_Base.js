@@ -9,6 +9,7 @@ dojo.provide("drawing.stencil._Base");
 			dojo.mixin(this, options);
 			
 			this.style = options.style || drawing.defaults.copy();
+			this.angleSnap = this.style.angleSnap || 1;
 			this.isText = this.type=="drawing.stencil.Text" || this.type=="drawing.tools.TextBlock";
 			this.marginZero = options.marginZero || this.style.anchors.marginZero;
 			this.id = options.id || this.util.uid(this.type);

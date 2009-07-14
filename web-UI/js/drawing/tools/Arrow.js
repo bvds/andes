@@ -40,6 +40,8 @@ drawing.tools.Arrow = drawing.util.oo.declare(
 		type:"drawing.tools.Arrow",
 		arrowStart:false,
 		arrowEnd:true,
+		
+		
 		onUp: function(obj){
 			if(this.created || !this.shape){ return; }
 			
@@ -52,6 +54,13 @@ drawing.tools.Arrow = drawing.util.oo.declare(
 				this.endArrow && this.endArrow.remove(this.endArrow.shape, this.endArrow.hit);
 				return;
 			}
+			
+			var pt = this.util.snapAngle(obj, this.angleSnap/180);
+			this.setPoints([
+				{x:p[0].x, y:p[0].y},
+				{x:pt.x, y:pt.y}
+			]);
+			
 			this.renderedOnce = true;
 			this.onRender(this);
 		}

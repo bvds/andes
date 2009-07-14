@@ -10,7 +10,6 @@ drawing.tools.custom._Base = drawing.util.oo.declare(
 			["onTransform", "showAngle"],
 			["onTransformEnd", "hideAngle"]
 		]);
-		this.angleSnap = 1;
 	},
 	{
 		type:"drawing.tools.custom",
