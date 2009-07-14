@@ -328,15 +328,18 @@
     ;; Add definition plus equation
     ;; The help system will give these an appropriate color
     ;; when the problem is loaded.
+    ;; Not a good idea to have the positions hard-coded like this.
+    ;; need to work out a scheme for positioning.
+    (push '((EQN (= |g_EARTH| (DNUM 9.8 |m/s^2|))) . 
+	    ((:action . "new-object") (:id . "geeq") (:type . "equation")
+	     (:text . "g=9.8 m/s^2") (:width . 300)
+	     (:mode . "unknown") (:x . 450) (:y . 40)))
+	  (problem-predefs problem))
     (push '((define-var (gravitational-acceleration earth)) . 
 	    ((:action . "new-object") (:id . "gest") (:type . "statement")
 	     (:text . "g is the acceleration of gravity on earth")
-	     (:symbol . "g") (:mode . "unknown") (:x . 300) (:y . 55)))
-	  (problem-predefs problem))
-    (push '((EQN (= |g_EARTH| (DNUM 9.8 |m/s^2|))) . 
-	    ((:action . "new-object") (:id . "geeq") (:type . "equation")
-	     (:text . "g=9.8 m/s^2")
-	     (:mode . "unknown") (:x . 300) (:y . 75)))
+	     (:width . 300)
+	     (:symbol . "g") (:mode . "unknown") (:x . 450) (:y . 15)))
 	  (problem-predefs problem))))
 
 (def-qexp num-forces (num-forces ?body :time ?time)

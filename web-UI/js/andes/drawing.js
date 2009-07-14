@@ -199,6 +199,7 @@ dojo.provide("andes.drawing");
 			this._initialData = data;
 			
 			//DEV============================= >
+		 /*
 			this._initialData = andes.drawing._initialData.reverse()
 			
 			var y=30, h = 25;
@@ -210,15 +211,15 @@ dojo.provide("andes.drawing");
 						obj.y = y;
 						y += obj.height || h;
 					}
-					console.log("OBJECT:", obj);
+				        console.log("OBJECT:", obj);
 				}
 			});
 			
-			//console.dir(data);
-			//andes.api.close();
-			
+			console.dir(data);
+			andes.api.close();
+		*/	
 			// < ============================DEV 
-		
+
 			if(_surfaceLoaded){
 				this.loadProjectData(this._initialData);
 				this._initialData = null;
