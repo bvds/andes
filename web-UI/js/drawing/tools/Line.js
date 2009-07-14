@@ -23,10 +23,11 @@ drawing.tools.Line = drawing.util.oo.declare(
 			if(this.keys.alt){
 				// FIXME:
 				//	should double the length of the line
+				// FIXME:
+				//	if alt dragging past ZERO it seems to work
+				//	but select/deselect shows bugs
 				var dx = x2>x1 ? ((x2-x1)/2) : ((x1-x2)/-2);
 				var dy = y2>y1 ? ((y2-y1)/2) : ((y1-y2)/-2);
-				//dx*=2;
-				//dy*=2;
 				x1 -= dx;
 				x2 -= dx;
 				y1 -= dy;
@@ -44,9 +45,10 @@ drawing.tools.Line = drawing.util.oo.declare(
 			if(this.created || !this.shape){ return; }
 			
 			// if too small, need to reset
-			var o = this.pointsToData();
-			if(Math.abs(o.x2-o.x1)<this.minimumSize && Math.abs(o.y2-o.y1)<this.minimumSize){
-				this.remove();
+			var p = this.points;
+			var len = this.util.distance(p[0].x,p[0].y,p[1].x,p[1].y);
+			if(len<this.minimumSize){
+				this.remove(this.shape, this.hit);
 				return;
 			}
 			this.renderedOnce = true;

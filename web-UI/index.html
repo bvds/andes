@@ -12,7 +12,7 @@
 			cursor:crosshair;
 
 		}
-		#toolPane{
+		#toolPane, #drawingPane{
 			overflow:hidden;
 		}
 		textarea{
@@ -49,7 +49,7 @@
 		var watched = {};
 		var ta;
 		watch = function(name, value){
-			return;
+			//return;
 			if(!ta) {
 				ta = dojo.create("textarea", null, dojo.body());
 			}
@@ -132,12 +132,11 @@
 		<div id="toolPane" dojoType="dijit.layout.ContentPane" region="left" splitter="false">
 				<div dojoType="drawing.Toolbar" drawingId="drawing" class="drawingToolbar vertical">
 					<div tool="drawing.tools.Line" selected="false">Line</div>
-					<div tool="drawing.tools.Rect" selected="true">Rect</div>
+					<div tool="drawing.tools.Rect" selected="false">Rect</div>
 					<div tool="drawing.tools.Ellipse" selected="false">Ellipse</div>
 					<div tool="drawing.tools.TextBlock" selected="false">Text</div>
-					<div tool="drawing.tools.Arrow" selected="false">Arrow</div>
 					<div tool="drawing.tools.custom.Vector" selected="false">Vector</div>
-					<div tool="drawing.tools.custom.Axes" selected="false">Axes</div>
+					<div tool="drawing.tools.custom.Axes" selected="true">Axes</div>
 					<div plugin="drawing.plugins.tools.Pan" options="{}">Pan</div>
 					<div plugin="drawing.plugins.tools.Zoom" options="{zoomInc:.1,minZoom:.5,maxZoom:2}">Zoom</div>
 				</div>

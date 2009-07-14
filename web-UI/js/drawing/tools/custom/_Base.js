@@ -16,7 +16,8 @@ drawing.tools.custom._Base = drawing.util.oo.declare(
 		type:"drawing.tools.custom",
 		
 		showAngle: function(){
-			
+			if(!this.selected && this.created){ return; }
+			var sc = this.mouse.scrollOffset();
 			var node = this.getAngleNode();
 			var d = this.pointsToData();
 			var obj = {
@@ -35,15 +36,15 @@ drawing.tools.custom._Base = drawing.util.oo.declare(
 			// and we are from the page corner, not
 			// the canvas corner
 			dojo.style(node, {
-				left:  this._offX + pt.x + "px",
-				top: this._offY + pt.y + "px",
+				left:  this._offX + pt.x - sc.left + "px",
+				top: this._offY + pt.y - sc.top + "px",
 				align:pt.align
 			});
 			
 			// reversing the angle for display: 0 -> 180, 90 -> 270
 			angle = 180 - angle; angle = angle==360 ? 0 : angle;
+			
 			node.innerHTML = Math.ceil(angle);
-			//watch("angle", angle);
 		},
 		
 		getAngleNode: function(){
@@ -56,8 +57,7 @@ drawing.tools.custom._Base = drawing.util.oo.declare(
 		},
 		
 		hideAngle: function(){
-			console.warn("DONE");
-			if(this._angleNode){
+			if(this._angleNode && dojo.style(this._angleNode, "opacity")>0.9){
 				
 				dojo.fadeOut({node:this._angleNode,
 					duration:500,

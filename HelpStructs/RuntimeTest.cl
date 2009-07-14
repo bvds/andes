@@ -430,14 +430,20 @@
 (defun calculate-runtime-total-score (SolIndex)
   "Return the current runtime score."
   (let ((Score 0))
+    ;; (format webserver:*stdout* "Score for solution ~A~%" SolIndex)
     (dolist (Test *Runtime-Score-TestSet*)
       (when (runtime-test-activep test)
-	;;(pprint (runtime-test-name Test))
+	;;(format webserver:*stdout* "    ~s val ~A, weight ~A~%" 
+	;;	(runtime-test-name Test) (map-rt-val->float 
+	;;				  (runtime-test-currval Test) 
+	;;				  SolIndex) 
+	;;	(runtime-test-ScaledWeight Test))
 	(setq Score
 	      (+ Score (* (map-rt-val->float 
 			   (runtime-test-currval Test) 
 			   SolIndex)
 			  (runtime-test-ScaledWeight Test))))))
+    ;; (format webserver:*stdout* "              total ~A~%" Score)
     Score))
 
 

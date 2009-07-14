@@ -766,11 +766,11 @@
 
 (defun do-check-answer (entry)
   (let* ((inputo (StudentEntry-verbatim entry))
-	sought-quant
-	(id (StudentEntry-id entry))
-	result-turn
-	(input (trim-eqn inputo)))
-
+	 sought-quant
+	 (id (StudentEntry-id entry))
+	 result-turn
+	 (input (trim-eqn inputo)))
+    
     ;; Determine sought quantity by looking at position on the canvas
     ;; of the answer box relative to other answer boxes.
     (let ((previous (remove-if 
@@ -782,7 +782,7 @@
 		     (remove '(answer ?quant) *StudentEntries* 
 			     :key #'StudentEntry-prop :test-not #'unify))))
       (setf sought-quant (nth (length previous) (problem-soughts *cp*))))
-
+    
     (setf (StudentEntry-prop entry) `(answer ,sought-quant))
     (add-entry entry) ;save entry immediately 
     (if (quant-to-sysvar sought-quant)
@@ -821,19 +821,38 @@
 		    ;;(format t "Okay parse!!!~%~A~%" valid)
 		    (if valid
 			(cond
-			 ((not (bad-vars-in-answer valid)) ; checks no non-parameter vars in answer expression
-			  ;;(format t "Okay here!!!~%")
-			  ;; Check equation as if student wrote it.
-			  ;; This will add an equation to the solver marked
-			  ;; by id.
-			  (setf result-turn (do-lookup-equation-string
-					     (concatenate 'string lhs "=" rhs)
-					      entry
-					     'answer))
-			  (symbols-delete "Answer"))
-			 (T ; answer has non-parameter vars
-			  (setf (StudentEntry-ErrInterp entry) 
-			    (bad-variables-vs-parameters-ErrorInterp input 
+			  ((not (bad-vars-in-answer valid)) ; checks no non-parameter vars in answer expression
+			   ;;(format t "Okay here!!!~%")
+			   ;; Check as if student equation was entered in 'check-answer-equation.
+			   (let ((temp-entry (copy-studententry entry)))
+			     ;; need to make a fake entry with different id
+			     ;; so real entry is not overwritten.
+			     ;; Fake entry is deleted below.
+			     (setf (studententry-id temp-entry) 
+				   'check-answer-equation)
+			     (setf result-turn (do-lookup-equation-string
+						   (concatenate 'string lhs "=" rhs)
+						 temp-entry
+						 'answer))
+			     ;; The result will reference the fake entry,
+			     (setf (turn-id result-turn) id))
+			   ;; That saved a temp equation entry under *temp-eqn-slot*.
+			   ;; Copy relevant entry state -- esp ErrInterp for later
+			   ;; whatswrong  -- into real answer entry and remove temp.
+			   ;;(format t "Result Answer is <~W>~%" result-turn)
+			   (let ((temp-entry (find-entry 'check-answer-equation)))                           
+			     (setf (StudentEntry-State entry)
+				   (StudentEntry-State temp-entry))
+			     (setf (StudentEntry-ErrInterp entry)
+				   (StudentEntry-ErrInterp temp-entry))
+			     (setf (StudentEntry-ParsedEqn entry) ; parse maybe useful
+				   (StudentEntry-ParsedEqn temp-entry))
+			     ;; remove temp from saved entry list
+			     (delete-object 'check-answer-equation)) ;clears algebra slot
+			   (symbols-delete "Answer"))
+			  (T ; answer has non-parameter vars
+			   (setf (StudentEntry-ErrInterp entry) 
+				 (bad-variables-vs-parameters-ErrorInterp input 
 			                         (bad-vars-in-answer valid)
 						 :id id))
 			  (setf result-turn (ErrorInterp-remediation

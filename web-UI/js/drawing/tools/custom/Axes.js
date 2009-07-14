@@ -8,8 +8,6 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 	drawing.stencil.Path,
 	drawing.tools.custom._Base,
 	function(options){
-		//this.style.norm.fill = null;
-		//this.style.selected.fill = null;
 		this.closePath = false;
 		
 		this.slaves = new drawing.stencil._Slave(this);
@@ -28,14 +26,19 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			this.yArrow.points = this.util.arrowHead(c.x, c.y, o.x, o.y, this.style);
 		});
 		
-		
+		this.connect("onDelete", this, function(){
+			this.yArrow.destroy();
+			this.xArrow.destroy();
+		});
 	},
 	{
 		draws:true,
 		type:"drawing.tools.custom.Axes",
+		minimumSize:30,
 		
 		createLabels: function(){
-			var props = {style:this.style, align:"middle", valign:"middle", util:this.util, annotation:true, parent:this.parent, mouse:this.mouse, stencil:this};
+			// NOTE: Not passing style into text because it's changing it
+			var props = {align:"middle", valign:"middle", util:this.util, annotation:true, parent:this.parent, mouse:this.mouse, stencil:this};
 			this.labelX = new drawing.stencil._Label(dojo.mixin(props,{
 				labelPosition:this.setLabelX
 			}));
@@ -76,7 +79,6 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			py = pt.y + (pt.x - ay.x );
 			pt2 = this.util.lineSub(pt.x, pt.y, px, py, (dist-offdist));
 			pt2 = this.util.lineSub(pt.x, pt.y, px, py, (dist-offdist));
-			
 			return {
 				x:  pt2.x,
 				y:  pt2.y,
@@ -88,7 +90,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			var x = "X";
 			var y = "Y";
 			if(value){
-				value = value.replace(/and|(\+)/, " ")
+				value = value.replace(/and|(\+)/, " "); // what other words would they use?
 				var lbls = value.match(/(\b\w+\b)/g);
 				if(lbls.length==2){
 					x = lbls[0];
@@ -97,6 +99,35 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			}
 			this.labelX.setLabel(x);
 			this.labelY.setLabel(y);
+		},
+		
+		
+		anchorPositionCheck: function(x, y, anchor){
+			// summary:
+			//	Gets called from anchor to check if its current
+			//	position is ok. If not, its x or y transform will
+			// be changed until this passes.
+			//
+			var pm = this.parent.getParent().getTransform();
+			var am = anchor.shape.getTransform();
+			
+			// the xaxis point has changed and is not yet set as a point
+			//	- but the center should be good (except for the transform).
+			// Now check the yaxis point.
+			
+			var p = this.points;
+			var o = {x:am.dx+anchor.org.x+pm.dx, y:am.dy+anchor.org.y+pm.dy};
+			var c = {x:p[1].x+pm.dx, y:p[1].y+pm.dy};
+			var ox = c.x - (c.y - o.y);
+			var oy = c.y - (o.x - c.x);
+			
+			return {x:ox, y:oy};
+			
+		},
+		
+		onTransformBegin: function(anchor){
+			// called from anchor point up mouse down
+			this._isBeingModified = true;
 		},
 		
 		onTransformEnd: function(anchor){
@@ -134,6 +165,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 		},
 		
 		getBounds: function(){
+			// custom getBounds
 			var px = this.points[0],
 				pc = this.points[1],
 				py = this.points[2],
@@ -170,6 +202,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			var c = this.points[1];
 			var ox = c.x - (c.y - o.y);
 			var oy = c.y - (o.x - c.x);
+			
 			// 'noAnchor' on a point indicates an anchor should
 			// not be rendered. This is the Y point being set.
 			this.points[2] = {x:ox, y:oy, noAnchor:true};
@@ -195,14 +228,28 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			var pt = this.util.constrainAngle(obj, 91, 180);
 			obj.x = pt.x;
 			obj.y = pt.y;
-			this.points = [{x:obj.x, y:obj.y}, {x:obj.start.x, y:obj.start.y, noAnchor:true}]
 			var ox = obj.start.x - (obj.start.y - obj.y);
 			var oy = obj.start.y - (obj.x - obj.start.x);
+			
+			if(ox<0 || oy<0){
+				return;
+			}
+			this.points = [{x:obj.x, y:obj.y}, {x:obj.start.x, y:obj.start.y, noAnchor:true}]
 			
 			this.points.push({x:ox, y:oy, noAnchor:true});
 			this.render();
 		},
 		onUp:function(){
+			var p = this.points;
+			var len = this.util.distance(p[1].x,p[1].y,p[0].x,p[0].y);
+			if(!p || !p.length){
+				return;
+			}else if(len < this.minimumSize){
+				this.remove(this.shape, this.hit);
+				this.xArrow.remove(this.xArrow.shape, this.xArrow.hit);
+				this.yArrow.remove(this.yArrow.shape, this.yArrow.hit);
+				return;
+			}
 			this.onRender(this);
 			this.setPoints = this._postSetPoints;
 		}

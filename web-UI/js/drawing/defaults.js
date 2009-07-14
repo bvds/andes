@@ -1,5 +1,9 @@
 dojo.provide("drawing.defaults");
 
+
+// TODO
+// mix styles based on primary (borders, text) and secondary (shape fills) colors
+//
 drawing.defaults = {
 	
 	// current will point to either null or selected
@@ -10,20 +14,20 @@ drawing.defaults = {
 	
 	norm:{
 		width:1,
-		color:"#0000FF",
+		color:"#000000",
 		style:"Solid",
 		cap:"round", // square, butt, round
-		fill:"#BCE4FE"
+		fill:"#CCCCCC"
 	},
 	selected:{
-		width:3,
+		width:6,
 		color:"#00FF00",
 		style:"Solid",
 		cap:"round",
 		fill:"#E11EBB"
 	},
 	highlighted:{
-		width:1,
+		width:6,
 		color:"#FF00FF",
 		style:"Solid",
 		cap:"round",
@@ -37,37 +41,34 @@ drawing.defaults = {
 		fill:"#cccccc"
 	},
 	hitNorm:{
-		width:1,
-		color:{r:255, g:255, b:255, a:0},
+		width:6,
+		color:{r:0, g:255, b:255, a:0},
 		style:"Solid",
 		cap:"round",
 		fill:{r:255, g:255, b:255, a:0}
 	},
 	hitSelected:{
-		width:1,
-		color:{r:255, g:255, b:0, a:1},
+		width:6,
+		color:"#FF9900",
 		style:"Solid",
 		cap:"round",
 		fill:{r:255, g:255, b:255, a:0}
 	},
 	hitHighlighted:{
-		width:1,
-		color:{r:255, g:0, b:0, a:1},
-		style:"solid",
+		width:6,
+		color:"#FFFF00",
+		style:"Solid",
 		cap:"round",
+		//fill:"#FFFF99"
 		fill:{r:255, g:255, b:255, a:0}
 	},
-	outline:{ //used??
-		width:1,
-		color:"#666666",
-		style:"Dash"
-	},
+
 	anchors:{
 		size:10,
 		width:2,
 		color:"#999",
 		style:"solid",
-		fill:"#ccc",
+		fill:"#fff",
 		cap:"square",
 		minSize:10,
 		marginZero:5 // not really an anchor prop
@@ -79,12 +80,12 @@ drawing.defaults = {
 	text:{
 		minWidth:150,
 		pad:3,
-		size:"12px",
+		size:"20px",
 		family:"sans-serif",
 		weight:"normal",
 		color:"#000000"
 	},
-	textSelected:{
+	/*textSelected:{
 		size:"12px",
 		family:"sans-serif",
 		weight:"normal",
@@ -101,7 +102,7 @@ drawing.defaults = {
 		family:"sans-serif",
 		weight:"normal",
 		color:"#cccccc"
-	},
+	},*/
 		// The following styles apply to the containing
 		//	text box, and not the text itself
 	textMode:{
@@ -116,26 +117,6 @@ drawing.defaults = {
 			style:"dashed",
 			color:"#666",
 			fill:null
-		},
-		
-		// NOT USED::::
-		selected:{
-			width:2,
-			style:"solid",
-			color:"#ffff00",
-			fill:null
-		},
-		highlighted:{
-			width:3,
-			color:"#000000",
-			style:"solid",
-			fill:null
-		},
-		norm:{
-			width:0,
-			style:"solid",
-			color:null,
-			fill:"#000000"
 		}
 	
 	},

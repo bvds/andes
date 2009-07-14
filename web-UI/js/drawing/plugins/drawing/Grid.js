@@ -4,28 +4,26 @@ dojo.require("drawing.plugins._Plugin");
 drawing.plugins.drawing.Grid = drawing.util.oo.declare(
 	drawing.plugins._Plugin,
 	function(options){
-		var vrl;
-		dojo.connect(this.canvas, "resize", this, function(){
-			clearTimeout(vrl);
-			vrl = setTimeout(dojo.hitch(this, function(){
-				//this.setGrid();
-			}),100);
-		})
-		this.setGrid();	
+		this.setGrid();
+		dojo.connect(this.canvas, "setZoom", this, "setZoom");
 	},
 	{
 		gap:100,
+		zoom:1,
 		type:"drawing.plugins.drawing.Grid",
+		setZoom: function(zoom){
+			this.zoom = zoom;
+			this.setGrid();
+		},
 		setGrid: function(options){
 			
-			console.log("SET GRID")
 			//
-			// TODO: Shift grid for scroll
+			// TODO: Shift grid for scroll -?
 			// TODO: major minor lines
 			//	minors dont show on zoom out
 			//	draw minors first
 			//
-			var d = this.gap 
+			var d = this.gap * this.zoom;
 			
 			this.grid && this.grid.removeShape();
 			

@@ -200,7 +200,7 @@
     ;; Send pre-defined quantities to the help system by sending them
     ;; to the solution-step method.  
     ;; Execute outside of env-wrap and with check-entries turned on.
-    (dolist (reply replies)
+    (dolist (reply (reverse replies)) ;using push makes replies backwards.
       (setf solution-step-replies
 	    (append (apply #'solution-step 
 			   ;; flatten the alist
@@ -213,27 +213,24 @@
 
       ;;  Push times to client.  (to do)
       (push `((:action . "new-object") (:id .  "a2.5") (:type . "statement") 
-	      (:mode . "locked") (:x . 300) (:y . 75) (:text . "T0 is the time.")) 
-	    replies)
-
-      ;;  Push initial hint to the client.  
-      ;;  Should only do this when help and grading is available
-      (push `((:action . "show-hint") (:text . "If you need help, click the help button (?) below.  Click the |> button above to hide this window.")) 
+	      (:mode . "locked") (:width . 300) (:x . 450) (:y . 75) (:text . "T0 is the time.")) 
 	    replies)
       
       (let ((y 10) (i 0))
 	(dolist  (line (problem-statement *cp*))
 	  (push `((:action . "new-object") (:type . "statement") 
-		  (:id . ,(format nil "statement~A" (incf i))) 
-		  (:mode . "locked") (:x . 10) (:y . ,(setf y (+ y 40))) 
-		  (:width . 80) (:text . ,line)) replies))
+		  (:id . ,(format nil "statement~A" i))
+		  (:mode . "locked") (:x . 10) (:y . ,y) 
+		  (:width . 400) (:text . ,line)) replies)
+	  (incf i)
+	  (setf y (+ y 25)))
 	
 	(when (problem-graphic *cp*)
 	  (let ((dims (problem-graphic-dimensions (problem-graphic *cp*))))
 	    (if dims		
 		(push `((:action . "new-object") (:id . "graphic") 
 			(:type . "graphics") (:mode . "locked") 
-			(:x . 10) (:y . ,(+ y 40)) 
+			(:x . 10) (:y . ,y) 
 			(:width . ,(car dims)) (:height . ,(cadr dims))
 			;; This is the URL for the graphic, which may not
 			;; match its location on the server filesystem.
@@ -242,6 +239,10 @@
 		(warn "Problem graphic file ~A missing" 
 		       (problem-graphic *cp*))))))
 
+      ;;  Push initial hint to the client.  
+      ;;  Should only do this when help and grading is available
+      (push `((:action . "show-hint") (:text . "If you need help, click the help button (?) below.  Click the |> button above to hide this window.")) 
+	    replies)
   
       ;; set-stats (if there was an old score) (to do)
       ;; Should this be wrapped in execute-andes-command?
@@ -258,8 +259,8 @@
 			     ("Correct_Answer_Entries_V_Answer_Entries" . (0 0)))))
 	    replies)      
       (push `((:action . "set-score") (:score . 0)) replies))
-      
-    (append replies solution-step-replies)))
+
+    (append (reverse replies) solution-step-replies)))
 
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
@@ -333,7 +334,7 @@
 	 ;; We should pass the object to be deleted rather than the id.
 	 (delete-object (StudentEntry-id new-entry)))
 
-	;; Look for answer box marked by "Answer: "
+	;; Look for text box marked by "Answer: "
 	;; This should come before "equation" and "statement"
 	((and (> (length text) (length ans))
 	      (string-equal (string-left-trim *whitespace* text)

@@ -33,7 +33,22 @@ drawing.tools.Arrow = drawing.util.oo.declare(
 		draws:true,
 		type:"drawing.tools.Arrow",
 		arrowStart:false,
-		arrowEnd:true
+		arrowEnd:true,
+		onUp: function(obj){
+			if(this.created || !this.shape){ return; }
+			
+			// if too small, need to reset
+			var p = this.points;
+			var len = this.util.distance(p[0].x,p[0].y,p[1].x,p[1].y);
+			if(len<this.minimumSize){
+				this.remove(this.shape, this.hit);
+				this.begArrow && this.begArrow.remove(this.begArrow.shape, this.begArrow.hit);
+				this.endArrow && this.endArrow.remove(this.endArrow.shape, this.endArrow.hit);
+				return;
+			}
+			this.renderedOnce = true;
+			this.onRender(this);
+		}
 	}
 );
 

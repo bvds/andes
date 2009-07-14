@@ -3,7 +3,7 @@ dojo.require("drawing.stencil.Text");
 
 (function(){
 	
-	var conEdit, wrapNode;
+	var conEdit;
 	dojo.addOnLoad(function(){
 		// summary:
 		//	In order to use VML in IE, it's necessary to remove the
@@ -60,6 +60,7 @@ dojo.require("drawing.stencil.Text");
 			type:"drawing.tools.TextBlock",
 			
 			showParent: function(obj){
+				console.warn("PARNET TXT", this.id);
 				if(this.parentNode){ return; }
 				var x = obj.pageX || 10;
 				var y = obj.pageY || 10;
@@ -87,19 +88,22 @@ dojo.require("drawing.stencil.Text");
 				document.body.appendChild(this.parentNode);
 			},
 			createTextField: function(txt){
+				console.warn("CREATE TXT", this.id);
 				// style parent
 				var d = this.style.textMode.edit;
 				this._box.border = d.width+"px "+d.style+" "+d.color;
 				this._box.height = "auto";
-				this._box.width = Math.max(this._box.width, this.style.text.minWidth);
+				this._box.width = Math.max(this._box.width, this.style.text.minWidth*this.mouse.zoom);
 				dojo.style(this.parentNode, this._box.toPx());
 				// style input
 				this.parentNode.appendChild(conEdit);
 				dojo.style(conEdit, {
 					height: txt ? "auto" : this._lineHeight+"px",
-					fontSize:this.textSize+"px",
+					fontSize:(this.textSize/this.mouse.zoom)+"px",
 					fontFamily:this.style.text.family
 				});
+				// FIXME:
+				// In Safari, if the txt ends with '&' it gets stripped
 				conEdit.innerHTML = txt || "";
 				
 				return conEdit;
@@ -107,15 +111,16 @@ dojo.require("drawing.stencil.Text");
 			connectTextField: function(){
 				if(this._textConnected){ return; } // good ol' IE and its double events
 				this._textConnected = true;
-				
+				this.mouse.setEventMode("TEXT");
 				this.keys.editMode(true);
-				var kc1, kc2, kc3, self = this, _autoSet = false,
+				var kc1, kc2, kc3, kc4, kc5, self = this, _autoSet = false,
 					exec = function(){
-						dojo.forEach([kc1,kc2,kc3], function(c){
+						dojo.forEach([kc1,kc2,kc3, kc4,kc5], function(c){
 							dojo.disconnect(c)
 						});
 						self._textConnected = false;
 						self.keys.editMode(false);
+						self.mouse.setEventMode();
 						self.execText();
 					}
 					
@@ -133,18 +138,34 @@ dojo.require("drawing.stencil.Text");
 						dojo.stopEvent(evt);
 					}
 				});
+				
 				kc3 = dojo.connect(conEdit, "mouseup", this, function(evt){
 					dojo.stopEvent(evt);
 				});
+				
+				kc4 = dojo.connect(document, "mouseup", this, function(evt){
+					if(!this._onAnchor){
+					dojo.stopEvent(evt);
+					exec();
+					}
+				});
+				
 				this.createAnchors();
+				
+				kc5 = dojo.connect(this.mouse, "setZoom", this, function(evt){
+					console.warn("MOUSE ZOOM************************")
+					exec();
+				});
+				
+				
 				conEdit.focus();
-				// once again for Silverlight:
 				
 				this.onDown = function(){}
 				this.onDrag = function(){}
 				
 				var self = this;
 				setTimeout(dojo.hitch(this, function(){
+					// once again for Silverlight:
 					conEdit.focus();
 					
 					this.onUp = function(){
@@ -160,7 +181,7 @@ dojo.require("drawing.stencil.Text");
 			},
 			execText: function(){
 				var d = dojo.marginBox(this.parentNode);
-				var w = Math.max(d.w, this.style.text.minWidth)
+				var w = Math.max(d.w, this.style.text.minWidth);
 				
 				var txt = this.cleanText(conEdit.innerHTML, true);
 				conEdit.innerHTML = "";
@@ -174,19 +195,25 @@ dojo.require("drawing.stencil.Text");
 				var x = this._box.left + sc.left - org.x;
 				var y = this._box.top + sc.top - org.y;
 				
+				x *= this.mouse.zoom;
+				y *= this.mouse.zoom;
+				w *= this.mouse.zoom;
+				o.h *= this.mouse.zoom;
+				
+				
 				this.points = [
 					{x:x, y:y},
 					{x:x+w, y:y},
 					{x:x+w, y:y+o.h},
 					{x:x, y:y+o.h}
 				];
-				
+				console.info("TEXT:", o.text);
 				this.render(o.text);
-				this.onChange(txt);
+				this.onChangeText(txt);
 			},
 			
 			edit: function(){
-				console.log("--onStencilDoubleClick EDIT TEXT--", this.id,this.parentNode, this.points)
+				console.log("EDIT TEXT:", this._text, " ", this._text.replace("/n", " "));
 				// NOTE: no mouse obj
 				if(this.parentNode || !this.points){ return; }
 				var d = this.pointsToData();
@@ -195,10 +222,13 @@ dojo.require("drawing.stencil.Text");
 				var org = this.mouse.origin;
 				
 				var obj = {
-					pageX: d.x  - sc.left + org.x,
-					pageY: d.y - sc.top + org.y,
-					width:d.width,
-					height:d.height
+					pageX: (d.x  - sc.left + org.x) / this.mouse.zoom,
+					pageY: (d.y - sc.top + org.y) / this.mouse.zoom,
+					width:d.width / this.mouse.zoom,
+					height:d.height / this.mouse.zoom
+				}
+				for(var nm in obj){
+					//obj[nm] /= this.mouse.zoom;
 				}
 				this.remove(this.shape, this.hit);
 				this.showParent(obj);
@@ -207,12 +237,25 @@ dojo.require("drawing.stencil.Text");
 				
 			},
 			cleanText: function(txt, removeBreaks){
+				var replaceHtmlCodes = function(str){
+					var chars = {
+						"&lt;":"<",
+						"&gt;":">",
+						"&amp;":"&"
+					};
+					for(var nm in chars){
+						str = str.replace(new RegExp(nm, "gi"), chars[nm])
+					}
+					return str
+				}
+
 				if(removeBreaks){
 					dojo.forEach(['<br>', '<br/>', '<br />', '\\n', '\\r'], function(br){
 						txt = txt.replace(new RegExp(br, 'gi'), " ");
 					});
 				}
 				txt = txt.replace(/&nbsp;/g, " ");
+				txt = replaceHtmlCodes(txt);
 				txt = dojo.trim(txt);
 				// remove double spaces, since SVG doesn't show them anyway
 				txt = txt.replace(/\s{2,}/g, " ");
@@ -289,7 +332,8 @@ dojo.require("drawing.stencil.Text");
 			},
 			
 			onUp: function(obj){
-				if(!this.shape && !obj.withinCanvas || !this._box){ return; }
+				console.warn("TEXTBLOCK UP", this.id);
+				if(!this.created && (!this.shape && !obj.withinCanvas || !this._box)){ return; }
 				this.createTextField();
 				this.connectTextField();
 			},

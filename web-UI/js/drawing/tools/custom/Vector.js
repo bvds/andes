@@ -12,6 +12,7 @@ drawing.tools.custom.Vector = drawing.util.oo.declare(
 	{
 		draws:true,
 		type:"drawing.tools.custom.Vector",
+		minimumSize:30,
 		
 		labelPosition: function(){
 			var d = this.data;
