@@ -278,6 +278,9 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 				return;
 			}
 			
+			var o = p[0];
+			var c = p[1];
+			obj = {start:{x:c.x,y:c.y},x:o.x,y:o.y};
 			var pt = this.util.snapAngle(obj, this.angleSnap/180);
 			obj.x = pt.x;
 			obj.y = pt.y;
