@@ -143,13 +143,17 @@ dojo.provide("andes.drawing");
 							c.attr(getDevTheme());
 							console.log("--------------------------------> onNewItem", item.id);
 							self.add(item);
+							self.add(statement);
 						}]
 					]);
 				}
+			}else{
+				// statement or equation
+				this.add(item);
 			}
 		},
 		
-		add: function(/* Stencil */ item, /*Boolean*/ noConnect){
+		add: function(/* Stencil */ item, /*Boolean*/ fromServer){
 			// summary:
 			//	items added here may be from the server OR drag-created.
 			//	They should most often be combo items with _Connection,
@@ -165,7 +169,6 @@ dojo.provide("andes.drawing");
 			
 			items[item.id] = item;
 			
-			if(noConnect){ return; }
 			
 			item.connect("onDelete", this, function(item){
 				console.log("--------------------------------> onDelete", item.id);
@@ -181,6 +184,12 @@ dojo.provide("andes.drawing");
 			item.connect("onChangeData", this, function(item){
 				console.log("---------------------------------> onChangeData", item.id, dojo.toJson(item.data));
 			});
+			
+			if(!fromServer){
+				// we need to save it to the server
+				
+				console.warn("SAVE TO SERVER", this.transform.drawingToAndes(item))
+			}
 		},
 		
 		remove: function(/* Stencil */ item){
@@ -210,7 +219,7 @@ dojo.provide("andes.drawing");
 				}
 				return obj;
 			},
-			drawingToAndes: function(){
+			drawingToAndes: function(item){
 				
 			}
 		},
@@ -248,7 +257,7 @@ dojo.provide("andes.drawing");
 		
 		load: function(){
 			// called from the very bottom of main.js
-			return;
+			//return;
 			this.loadProject = function(){
 				andes.api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId}).addCallback(this, "onLoad").addErrback(this, "onError");
 			}

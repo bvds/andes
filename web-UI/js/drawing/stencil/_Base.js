@@ -211,7 +211,6 @@ dojo.provide("drawing.stencil._Base");
 			},
 			
 			select: function(){
-				console.log("------------select-------------", this.id)
 				this.selected = true;
 				this.onChangeStyle(this);
 			},
@@ -373,7 +372,7 @@ dojo.provide("drawing.stencil._Base");
 			
 			_onPostRender: function(/*Object*/data){
 				
-				console.warn("_onPostRender", this.id, this._postRenderCon)
+				//console.warn("_onPostRender", this.id, this._postRenderCon)
 				
 				// drag-create should call onRender
 				// afterwards, this calls onRender
@@ -385,13 +384,13 @@ dojo.provide("drawing.stencil._Base");
 					//this.onRender(this);	
 				}
 				if(!this.selected && this._prevData && dojo.toJson(this._prevData) != dojo.toJson(this.data)){
-					console.warn("DATA CHANGE", dojo.toJson(this.data))
+					//console.warn("DATA CHANGE", dojo.toJson(this.data))
 					this.onChangeData(this);
 					this._prevData = dojo.clone(this.data);
 				}else if(!this._prevData && (!this.isText || this._text)){
 					this._prevData = dojo.clone(this.data);
 				}else{
-					console.info("data not changed:");console.info("prev:", dojo.toJson(this._prevData));console.info("curr:", dojo.toJson(this.data))
+					//console.info("data not changed:");console.info("prev:", dojo.toJson(this._prevData));console.info("curr:", dojo.toJson(this.data))
 				}
 				
 			},
