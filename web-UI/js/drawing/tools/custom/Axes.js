@@ -86,9 +86,10 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			};
 		},
 		setLabel: function(value){
+			if(this._labelsCreated){ return; }
 			!this.labelX && this.createLabels();
-			var x = "X";
-			var y = "Y";
+			var x = "x";
+			var y = "y";
 			if(value){
 				value = value.replace(/and|(\+)/, " "); // what other words would they use?
 				var lbls = value.match(/(\b\w+\b)/g);
@@ -99,6 +100,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			}
 			this.labelX.setLabel(x);
 			this.labelY.setLabel(y);
+			this._labelsCreated = true;
 		},
 		
 		

@@ -47,15 +47,28 @@ dojo.require("drawing.stencil.Text");
 					{x:d.x+w, y:d.y+h},
 					{x:d.x, y:d.y+h}
 				];
-				if(d.showEmpty){
-					this._text = d.text || "";
-					this.edit();
-				}else if(d.text && d.editMode){
-					this._text = "";
-					this.edit();
-				}else if(d.text){
-					this.render(d.text);
+				
+				if(d.showEmpty || d.text){
+					this.editMode = true;
+					this.connect(this, "render", this, "onRender", true);
+					if(d.showEmpty){
+						this._text = d.text || "";
+						this.edit();
+					}else if(d.text && d.editMode){
+						this._text = "";
+						this.edit();
+					}else if(d.text){
+						this.render(d.text);
+					}
+					setTimeout(dojo.hitch(this, function(){
+						this.editMode = false;	
+					}),100)
+					
 				}
+				
+			}else{
+				this.connectMouse();
+				this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
 			}
 			console.log("TextBlock:", this.id)
 		},

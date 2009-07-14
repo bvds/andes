@@ -14,10 +14,7 @@ dojo.provide("drawing.stencil._Base");
 			this.marginZero = options.marginZero || this.style.anchors.marginZero;
 			this.id = options.id || this.util.uid(this.type);
 			this._cons = [];
-			if(this.draws){
-				this.connectMouse();
-				this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
-			}
+			
 			if(!this.annotation && !this.subShape){
 				this.util.attr(this.parent, "id", this.id);
 			}
@@ -43,13 +40,19 @@ dojo.provide("drawing.stencil._Base");
 			
 			if(options.points){
 				this.setPoints(options.points);
+				this.connect(this, "render", this, "onRender", true);
 				this.render();
 			}else if(options.data){
 				options.data.width = options.data.width ? options.data.width : this.style.text.minWidth;
 				options.data.height = options.data.height ? options.data.height : this._lineHeight;
 				this.setData(options.data);
+				this.connect(this, "render", this, "onRender", true);
 				this.render(options.data.text);
+			}else if(this.draws){
+				this.connectMouse();
+				this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
 			}
+			
 			if(!this.enabled){
 				this.disable();
 			}
@@ -368,13 +371,9 @@ dojo.provide("drawing.stencil._Base");
 				this.setPoints(this.points);
 			},
 			
-			onCreate: function(/*Object*/stencil){
-				this.created = true;
-			},
-			
 			_onPostRender: function(/*Object*/data){
 				
-				//console.warn("_onPostRender", this.id, this._postRenderCon)
+				console.warn("_onPostRender", this.id, this._postRenderCon)
 				
 				// drag-create should call onRender
 				// afterwards, this calls onRender
@@ -386,12 +385,13 @@ dojo.provide("drawing.stencil._Base");
 					//this.onRender(this);	
 				}
 				if(!this.selected && this._prevData && dojo.toJson(this._prevData) != dojo.toJson(this.data)){
+					console.warn("DATA CHANGE", dojo.toJson(this.data))
 					this.onChangeData(this);
 					this._prevData = dojo.clone(this.data);
 				}else if(!this._prevData && (!this.isText || this._text)){
 					this._prevData = dojo.clone(this.data);
 				}else{
-					//console.info("data not changed:");console.info("prev:", dojo.toJson(this._prevData));console.info("curr:", dojo.toJson(this.data))
+					console.info("data not changed:");console.info("prev:", dojo.toJson(this._prevData));console.info("curr:", dojo.toJson(this.data))
 				}
 				
 			},

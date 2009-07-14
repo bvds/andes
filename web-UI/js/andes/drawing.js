@@ -40,7 +40,7 @@ dojo.provide("andes.drawing");
 	// better name
 	var stencilMods = {
 		statement:"text",
-		equation:"text",
+		equation:"textBlock",
 		graphics:"image"
 	};
 	
@@ -114,7 +114,7 @@ dojo.provide("andes.drawing");
 				var box = item.getBounds();
 				var props = getStatementPosition(box);
 				if(hasLabel[item.type]){
-					props.data.text = "X Y";
+					props.data.text = "x and y";
 				}
 				var statement = _drawing.addStencil("textBlock", props);
 				
@@ -248,7 +248,7 @@ dojo.provide("andes.drawing");
 		
 		load: function(){
 			// called from the very bottom of main.js
-			//return;
+			return;
 			this.loadProject = function(){
 				andes.api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId}).addCallback(this, "onLoad").addErrback(this, "onError");
 			}
