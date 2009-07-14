@@ -128,7 +128,7 @@ dojo.provide("drawing.stencil._Base");
 					this.parent.superClass = this;
 				}
 				this._setNodeAtts(this);
-				console.warn("ONRENDER", this.id)
+				//console.warn("ONRENDER", this.id)
 				
 			},
 			
@@ -367,6 +367,9 @@ dojo.provide("drawing.stencil._Base");
 			
 			
 			_onPostRender: function(/*Object*/data){
+				
+				//console.warn("_onPostRender", this.id, this._postRenderCon)
+				
 				// drag-create should call onRender
 				// afterwards, this calls onRender
 				if(this._isBeingModified){

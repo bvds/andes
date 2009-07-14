@@ -93,7 +93,6 @@ dojo.require("drawing.stencil.Text");
 				this._box.border = d.width+"px "+d.style+" "+d.color;
 				this._box.height = "auto";
 				this._box.width = Math.max(this._box.width, this.style.text.minWidth*this.mouse.zoom);
-				console.log("PAR:", this.id, this.parentNode)
 				dojo.style(this.parentNode, this._box.toPx());
 				// style input
 				this.parentNode.appendChild(conEdit);
@@ -230,9 +229,7 @@ dojo.require("drawing.stencil.Text");
 					width:d.width / this.mouse.zoom,
 					height:d.height / this.mouse.zoom
 				}
-				for(var nm in obj){
-					//obj[nm] /= this.mouse.zoom;
-				}
+				
 				this.remove(this.shape, this.hit);
 				this.showParent(obj);
 				this.createTextField(this._text.replace("/n", " "));
@@ -335,8 +332,17 @@ dojo.require("drawing.stencil.Text");
 			},
 			
 			onUp: function(obj){
-				if(!this.created && (!this.shape && !obj.withinCanvas || !this._box)){ return; }
-				console.log("ON UP", this.id, this.created)
+				if(!obj.withinCanvas){ return; }
+				
+				console.log("ON UP", this.id, this._postRenderCon)
+				
+				var c = dojo.connect(this, "render", this, function(){
+					dojo.disconnect(c);
+					this.onRender(this);	
+					
+				});
+				
+				this.showParent(obj);
 				this.created = true;
 				this.createTextField();
 				this.connectTextField();
@@ -347,6 +353,8 @@ dojo.require("drawing.stencil.Text");
 					x: obj.pageX,
 					y: obj.pageY
 				};
+				dojo.disconnect(this._postRenderCon);
+				this._postRenderCon = null;
 			},
 			onMove: function(){},
 			

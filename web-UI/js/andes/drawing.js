@@ -140,6 +140,7 @@ dojo.provide("andes.drawing");
 							c.attr(getDevTheme());
 							console.log("--------------------------------> onNewItem", item.id);
 							self.add(item);
+							//statement.select();
 						}]
 					]);
 				}
