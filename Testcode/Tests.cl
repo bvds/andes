@@ -45,7 +45,7 @@
 ;;;
 ;;; Score reporting may involve multiple mechanisms.  Updating the students
 ;;; scores at runtime to the workbench will be done by using a dde-command
-;;; attached to the tutor turn.  Sending the stoces to te faculty members 
+;;; attached to the tutor turn.  Sending the scores to the faculty members 
 ;;; will either be done by the workbench in which case the raw scores will 
 ;;; have to be requested by the workbench using a new API command and then 
 ;;; returned using a new tutor-turn type.  Failing that they will be send to
@@ -85,7 +85,7 @@
 ;;;  4. Obtaining the raw scores as opposed to the weighted values.  (called
 ;;;     intermittently by the workbench.  
 ;;;
-;;;  The wieights along with a total score will be submitted back to the workbenc
+;;;  The weights along with a total score will be submitted back to the workbenc
 ;;;  at runtime, further changes will vary as necessary.  
 
 
@@ -99,7 +99,7 @@
 ;;;; and to return the best of all possible scores after each entry and upon each
 ;;;; score requests.  This policy will extend to the final scores as well.  
 ;;;;
-;;;; This raises towo potential problems.  The foirst is that maintaining these 
+;;;; This raises two potential problems.  The first is that maintaining these 
 ;;;; parallel scores will excess computation time.  This is probably surmountable
 ;;;; as it is possible to eliminate those requirements fairly easily. 
 ;;;;
@@ -696,10 +696,10 @@
    (remove-if-not 
     #'(lambda (E) (and (equalp (studententry-state E) **correct**)
 		       (or ; quantitative answer:
-		           (eq (car (studententry-prop E)) 'Answer)
-			   ; multiple choice answer on answer-only quant probs
-		           (and (answer-only-quant-problem-p)
-			        (eq (car (studententry-prop E)) 'choose-answer)))))
+			(eq (car (studententry-prop E)) 'Answer)
+			;; multiple choice answer on answer-only quant probs
+			(and (answer-only-quant-problem-p)
+			     (eq (car (studententry-prop E)) 'choose-answer)))))
     *Studententries*)))
 
 (add-runtime-test

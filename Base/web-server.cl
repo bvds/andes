@@ -162,7 +162,7 @@
   "Print sessions to see what is going on."
   (let ((*print-length* 50))
     (maphash #'(lambda (id session) 
-		 (format str "session ~A with turn ~A, time ~A,~%   env ~A~%" 
+		 (format str "session ~S with turn ~A, time ~A,~%   env ~A~%" 
 			 id (ssn-turn session) (ssn-time session)
 			 (ssn-environment session)))
 	     *sessions*)))

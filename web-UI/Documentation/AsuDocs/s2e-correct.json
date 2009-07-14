@@ -105,5 +105,7 @@
 	   "type": "statement", "mode": "unknown",
 	   "x": 15, "y": 390,
 				       "text": "answer:  15.2 N"}, "id": 28},
+{"method": "seek-help", "params": {"time": 924.001,
+				   "action": "help-button"}, "id": 24},
 {"method": "close-problem", "params": {"time": 984.200}, "id": 31}
 ]
