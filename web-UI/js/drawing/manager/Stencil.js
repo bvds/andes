@@ -31,10 +31,10 @@ dojo.provide("drawing.manager.Stencil");
 			
 			
 			register: function(item){
-				console.log("Selection.register ::::::", item.id, "TEXT:", item._text)
+				//console.log("Selection.register ::::::", item.id, "TEXT:", item._text)
 				this.items[item.id] = item;
 				if(item.execText){
-					if(item._text){
+					if(item._text && !item.editMode){
 						this.selectItem(item);
 					}
 					item.connect("execText", this, function(){

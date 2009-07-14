@@ -48,6 +48,9 @@ dojo.require("drawing.stencil.Text");
 					{x:d.x, y:d.y+h}
 				];
 				if(d.showEmpty){
+					this._text = d.text || "";
+					this.edit();
+				}else if(d.text && d.editMode){
 					this._text = "";
 					this.edit();
 				}else if(d.text){
@@ -210,11 +213,13 @@ dojo.require("drawing.stencil.Text");
 					{x:x+w, y:y+o.h},
 					{x:x, y:y+o.h}
 				];
+				this.editMode = false;
 				this.render(o.text);
 				this.onChangeText(txt);
 			},
 			
 			edit: function(){
+				this.editMode = true;
 				console.log("EDIT TEXT:", this._text, " ", this._text.replace("/n", " "));
 				// NOTE: no mouse obj
 				if(this.parentNode || !this.points){ return; }
@@ -341,7 +346,7 @@ dojo.require("drawing.stencil.Text");
 					this.onRender(this);	
 					
 				});
-				
+				this.editMode = true;
 				this.showParent(obj);
 				this.created = true;
 				this.createTextField();

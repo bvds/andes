@@ -89,7 +89,7 @@ dojo.require("drawing.tools.Line");
 			}
 		},
 		startup: function(){
-			console.info("drawing startup")
+			//console.info("drawing startup")
 		},
 		getShapeProps: function(data) {
 			// For convenience. May or may not be in final code.

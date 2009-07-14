@@ -35,6 +35,12 @@ dojo.provide("drawing.stencil._Base");
 				this.style.hitSelected.width *= 0.5;
 				this.style.hitHighlighted.width *= 0.5;
 			}
+			
+			if(this.type == "drawing.tools.TextBlock"){
+				// TextBlock will handle rendering itself
+				return;
+			}
+			
 			if(options.points){
 				this.setPoints(options.points);
 				this.render();
@@ -128,7 +134,7 @@ dojo.provide("drawing.stencil._Base");
 					this.parent.superClass = this;
 				}
 				this._setNodeAtts(this);
-				//console.warn("ONRENDER", this.id)
+				console.warn("ONRENDER", this.id)
 				
 			},
 			
@@ -194,8 +200,6 @@ dojo.provide("drawing.stencil._Base");
 			disable: function(){
 				this.enabled = false;
 				this.onChangeStyle(this);
-				if(this.type=="drawing.stencil.Image")
-				console.log("DISABLED:", this)
 			},
 			
 			enable: function(){
@@ -364,7 +368,9 @@ dojo.provide("drawing.stencil._Base");
 				this.setPoints(this.points);
 			},
 			
-			
+			onCreate: function(/*Object*/stencil){
+				this.created = true;
+			},
 			
 			_onPostRender: function(/*Object*/data){
 				
@@ -375,7 +381,8 @@ dojo.provide("drawing.stencil._Base");
 				if(this._isBeingModified){
 					this.onModify(this);
 					this._isBeingModified = false;
-				}else{
+				}else if(!this.created){
+					//this.onCreate(this);
 					//this.onRender(this);	
 				}
 				if(!this.selected && this._prevData && dojo.toJson(this._prevData) != dojo.toJson(this.data)){
@@ -528,8 +535,8 @@ dojo.provide("drawing.stencil._Base");
 				// by default, object is ready to accept data
 				// turn this off for dragging or onRender will
 				// keep firing and register the shape
-				dojo.disconnect(this._postRenderCon);
-				this._postRenderCon = null;
+				//dojo.disconnect(this._postRenderCon);
+				//this._postRenderCon = null;
 			},
 			onMove: function(){},
 			onDrag: function(){},

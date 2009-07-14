@@ -113,6 +113,9 @@ dojo.provide("andes.drawing");
 			if(hasStatement[item.type] || hasLabel[item.type]){
 				var box = item.getBounds();
 				var props = getStatementPosition(box);
+				if(hasLabel[item.type]){
+					props.data.text = "X Y";
+				}
 				var statement = _drawing.addStencil("textBlock", props);
 				
 				if(hasLabel[item.type]){
@@ -153,7 +156,10 @@ dojo.provide("andes.drawing");
 			// 	with the exception of Axes and (standalone) Statements.
 			//
 			
-			if(items[item.id]){ return; }
+			if(items[item.id]){
+				console.log("ITEM EXISTS:", item.id)
+				return;
+			}
 			
 			console.warn("ADD ITEM", item);
 			
@@ -182,18 +188,50 @@ dojo.provide("andes.drawing");
 			delete items[item.id];
 		},
 		
+		transform:{
+			andesToDrawing: function(o){
+				var obj = {
+					id:o.id,
+					stencilType:stencilMods[o.type],
+					data:{
+						x:o.x,
+						y:o.y,
+						width:o.width,
+						height:o.height
+					},
+					enabled:o.mode!="locked"
+				};
+				
+				if(o.text){
+					obj.data.text = o.text;
+				}
+				if(o.href){
+					obj.data.src = o.href;
+				}
+				return obj;
+			},
+			drawingToAndes: function(){
+				
+			}
+		},
 		
 		loadProjectData: function(data){
+			var mods = [];
 			dojo.forEach(data, function(obj){
 				if(obj.action =="new-object"){
-					if(obj.href) { obj.src = obj.href; }
-					if(obj.mode=="locked"){ obj.enabled = false; }
-					var item = _drawing.addStencil(stencilMods[obj.type], {data:obj, enabled:obj.mode!="locked"});
-					items[item.id] = {
-						item:item
-					}
-				};
-			});
+					var o = this.transform.andesToDrawing(obj);
+					var item = _drawing.addStencil(o.stencilType, o);
+					console.log(" --- add", item);
+					this.add(item);
+				}else if(obj.action=="modify-object"){
+					mods.push(obj);
+				}
+			}, this);
+			
+			dojo.forEach(mods, function(obj){
+				items[obj.id].attr(theme[obj.mode]);
+			},this);
+			
 			data = null;
 		},
 		
@@ -224,31 +262,7 @@ dojo.provide("andes.drawing");
 		onLoad: function(data){
 			console.info("Project Data Loaded");
 			this._initialData = data;
-			
-			//DEV============================= >
-			/*this._initialData = andes.drawing._initialData.reverse()
-			
-			
-			var y=30, h = 25;
-			dojo.forEach(this._initialData, function(obj, i){
-				if(obj.action =="new-object"){
-					if(i===0){
-						y = obj.y
-					}else{
-						obj.y = y;
-						y += obj.height || h;
-					}
-					if(obj.mode=="locked"){
-						obj.enabled = false;
-					}
-					console.log("OBJECT:", obj);
-				}
-			});
-			*/
-			//console.dir(data);
-			//andes.api.close();
-			
-			// < ============================DEV 
+			console.dir(data);
 		
 			if(_surfaceLoaded){
 				this.loadProjectData(this._initialData);
