@@ -85,6 +85,12 @@ drawing.defaults = {
 		weight:"normal",
 		color:"#000000"
 	},
+	textDisabled:{
+		size:"12px",
+		family:"sans-serif",
+		weight:"normal",
+		color:"#cccccc"
+	},
 	/*textSelected:{
 		size:"12px",
 		family:"sans-serif",
@@ -97,12 +103,7 @@ drawing.defaults = {
 		weight:"normal",
 		color:"#000000"
 	},
-	textDisabled:{
-		size:"12px",
-		family:"sans-serif",
-		weight:"normal",
-		color:"#cccccc"
-	},*/
+	*/
 		// The following styles apply to the containing
 		//	text box, and not the text itself
 	textMode:{

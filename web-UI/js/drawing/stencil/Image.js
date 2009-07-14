@@ -9,14 +9,14 @@ drawing.stencil.Image = drawing.util.oo.declare(
 		}
 	},
 	{
+		type:"drawing.stencil.Image",
 		anchorType: "group",
-		//renderedOnce:false,
 		_createHilite: function(){
 			this.remove(this.hit);
 			this.hit = this.parent.createRect(this.data)
 				.setStroke(this.style.current)
 				.setFill(this.style.current.fill);
-			this.util.attr(this.hit, "drawingType", "stencil");
+			this._setNodeAtts(this.hit);
 		},
 		_create: function(shp, d, sty){
 			
@@ -24,8 +24,7 @@ drawing.stencil.Image = drawing.util.oo.declare(
 			var s = this.parent.getParent();
 			this[shp] = s.createImage(d)
 			this.parent.add(this[shp]);
-			this.util.attr(this[shp], "drawingType", "stencil");
-			//this.renderedOnce = true;
+			this._setNodeAtts(this[shp]);
 		},
 		
 		render: function(dbg){

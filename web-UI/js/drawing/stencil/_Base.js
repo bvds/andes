@@ -43,7 +43,9 @@ dojo.provide("drawing.stencil._Base");
 				this.setData(options.data);
 				this.render(options.data.text);
 			}
-			console.log("ITEM", this.id, this.style)
+			if(!this.enabled){
+				this.disable();
+			}
 		},
 		{
 			
@@ -125,6 +127,7 @@ dojo.provide("drawing.stencil._Base");
 					this.parent.superClass = this;
 				}
 				this._setNodeAtts(this);
+				console.warn("ONRENDER", this.id)
 				
 			},
 			
@@ -158,7 +161,6 @@ dojo.provide("drawing.stencil._Base");
 				}
 				// NOTE: Can't just change props like setStroke
 				//	because Silverlight throws error
-				console.log("CHANGE STY:", this.id, this.style.currentHit)
 				this.render();
 			},
 			
@@ -191,6 +193,8 @@ dojo.provide("drawing.stencil._Base");
 			disable: function(){
 				this.enabled = false;
 				this.onChangeStyle(this);
+				if(this.type=="drawing.stencil.Image")
+				console.log("DISABLED:", this)
 			},
 			
 			enable: function(){
@@ -213,7 +217,6 @@ dojo.provide("drawing.stencil._Base");
 			},
 			
 			highlight: function(){
-				console.log("HIGHT:", this.id)
 				this.highlighted = true;
 				this.onChangeStyle(this);
 			},
@@ -223,6 +226,13 @@ dojo.provide("drawing.stencil._Base");
 				this.onChangeStyle(this);
 			},
 			
+			moveToFront: function(){
+				this.parent && this.parent.moveToFront();
+			},
+			
+			moveToBack: function(){
+				this.parent && this.parent.moveToBack();
+			},
 			
 			onTransformBegin: function(anchor){
 				// called from anchor point up mouse down
@@ -362,13 +372,12 @@ dojo.provide("drawing.stencil._Base");
 					this.onModify(this);
 					this._isBeingModified = false;
 				}else{
-					this.onRender(this);	
+					//this.onRender(this);	
 				}
 				if(!this.selected && this._prevData && dojo.toJson(this._prevData) != dojo.toJson(this.data)){
 					this.onChangeData(this);
 					this._prevData = dojo.clone(this.data);
 				}else if(!this._prevData && (!this.isText || this._text)){
-					console.warn("SET PREV FIRST TIME", this.data, this._text)
 					this._prevData = dojo.clone(this.data);
 				}else{
 					//console.info("data not changed:");console.info("prev:", dojo.toJson(this._prevData));console.info("curr:", dojo.toJson(this.data))
@@ -403,7 +412,7 @@ dojo.provide("drawing.stencil._Base");
 				if(this.data || this.points && this.points.length){
 					this.onDelete(this);
 				}
-				console.info("shape.destroy", this.id, this.points);
+				console.info("shape.destroy", this.id);
 				this.disconnectMouse();
 				this.disconnect(this._cons);
 				dojo.disconnect(this._postRenderCon);
@@ -496,11 +505,7 @@ dojo.provide("drawing.stencil._Base");
 			disconnect: function(handles){
 				if(!handles) { return };
 				if(!dojo.isArray(handles)){ handles=[handles]; }
-				//console.log("HANDLES:", typeof(handles), handles)
 				dojo.forEach(handles, dojo.disconnect, dojo);
-				//dojo.forEach(handles, function(h){
-				//	dojo.disconnect(h);
-				//})
 			},
 			
 			connectMouse: function(){

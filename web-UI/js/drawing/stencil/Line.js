@@ -30,7 +30,7 @@ drawing.stencil.Line = drawing.util.oo.declare(
 			this.remove(this[shp]);
 			this[shp] = this.parent.createLine(d)
 				.setStroke(sty);
-			this.util.attr(this[shp], "drawingType", "stencil");
+			this._setNodeAtts(this[shp]);
 		},
 		
 		render: function(){

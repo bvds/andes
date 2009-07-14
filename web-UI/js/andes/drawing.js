@@ -81,11 +81,13 @@ dojo.provide("andes.drawing");
 		_drawing = dijit.byId(drawingId);
 		var cn = dojo.connect(_drawing, "onSurfaceReady", function(){
 			dojo.disconnect(cn);
+			// setting styles
 			var d = drawing.defaults;
 			d.norm.color = theme.unknown.color;
 			d.norm.fill = theme.unknown.fill;
 			d.text.minWidth = theme.text.minWidth;
 			d.text.size = theme.text.size;
+			d.textDisabled.size = theme.text.size;
 			
 			andes.drawing.onSurfaceReady();
 		});
@@ -95,11 +97,15 @@ dojo.provide("andes.drawing");
 	andes.drawing = {
 		
 		onRenderStencil: function(item){
+			// summary:
+			//	Called on drag-create. This method should call add()
+			//	then save info to the server.
+			//
 			if(items[item.id]){ return; }
 			
-			console.log("drawing, new item:", item, "make label:", item.type);
+			console.log("-----------> drawing, new item:", item.id);
 		
-			this.add(item);
+			
 			//item.disable();
 
 			if(hasStatement[item.type] || hasLabel[item.type]){
@@ -109,17 +115,20 @@ dojo.provide("andes.drawing");
 				
 				if(hasLabel[item.type]){
 					var s = statement;
-					item.connect(statement, "onChangeText", function(value){
+					item.connect(statement, "onChangeText", this, function(value){
 						item.setLabel(value);
+						console.log("--------------------------------> onNewItem(Axes)", item.id);
+						this.add(item);
 						_drawing.removeStencil(s);
 					});
 					
 				}else if(hasStatement[item.type]){
-					this.add(statement);
+					//this.add(statement, true);
+					var self = this;
 					var c = new drawing.stencil._Connection(item);
-					item.connection = c;
-					statement.connection = c;
-					c.statement = statement;
+					//item.connection = c;
+					//statement.connection = c;
+					//c.statement = statement;
 					c.add(statement, [
 						// master connects (none)			  
 					], [
@@ -127,14 +136,29 @@ dojo.provide("andes.drawing");
 						["onChangeText", function(value){
 							item.setLabel(andes.variablename.parse(value));
 							c.attr(getDevTheme());
+							console.log("--------------------------------> onNewItem", item.id);
+							self.add(item);
 						}]
 					]);
 				}
 			}
 		},
 		
-		add: function(/* Stencil */ item){
+		add: function(/* Stencil */ item, /*Boolean*/ noConnect){
+			// summary:
+			//	items added here may be from the server OR drag-created.
+			//	They should most often be combo items with _Connection,
+			// 	with the exception of Axes and (standalone) Statements.
+			//
+			
+			if(items[item.id]){ return; }
+			
+			console.warn("ADD ITEM", item);
+			
 			items[item.id] = item;
+			
+			if(noConnect){ return; }
+			
 			item.connect("onDelete", this, function(item){
 				console.log("--------------------------------> onDelete", item.id);
 				this.remove(item);
@@ -144,7 +168,7 @@ dojo.provide("andes.drawing");
 				//console.log("onModify", item.id);
 			});
 			item.connect("onChangeText", this, function(value){
-				console.log("---------------------------------> onChangeText", value);
+				console.log("---------------------------------> onChangeText", item.id, value);
 			});
 			item.connect("onChangeData", this, function(item){
 				console.log("---------------------------------> onChangeData", item.id, dojo.toJson(item.data));
@@ -161,7 +185,8 @@ dojo.provide("andes.drawing");
 			dojo.forEach(data, function(obj){
 				if(obj.action =="new-object"){
 					if(obj.href) { obj.src = obj.href; }
-					var item = _drawing.addStencil(stencilMods[obj.type], {data:obj});
+					if(obj.mode=="locked"){ obj.enabled = false; }
+					var item = _drawing.addStencil(stencilMods[obj.type], {data:obj, enabled:obj.mode!="locked"});
 					items[item.id] = {
 						item:item
 					}
@@ -199,8 +224,8 @@ dojo.provide("andes.drawing");
 			this._initialData = data;
 			
 			//DEV============================= >
-		 /*
-			this._initialData = andes.drawing._initialData.reverse()
+			/*this._initialData = andes.drawing._initialData.reverse()
+			
 			
 			var y=30, h = 25;
 			dojo.forEach(this._initialData, function(obj, i){
@@ -211,15 +236,18 @@ dojo.provide("andes.drawing");
 						obj.y = y;
 						y += obj.height || h;
 					}
-				        console.log("OBJECT:", obj);
+					if(obj.mode=="locked"){
+						obj.enabled = false;
+					}
+					console.log("OBJECT:", obj);
 				}
 			});
+			*/
+			//console.dir(data);
+			//andes.api.close();
 			
-			console.dir(data);
-			andes.api.close();
-		*/	
 			// < ============================DEV 
-
+		
 			if(_surfaceLoaded){
 				this.loadProjectData(this._initialData);
 				this._initialData = null;

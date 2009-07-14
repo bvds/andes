@@ -54,13 +54,13 @@ dojo.require("drawing.stencil.Text");
 					this.render(d.text);
 				}
 			}
+			console.log("TextBlock:", this.id)
 		},
 		{
 			draws:true,
 			type:"drawing.tools.TextBlock",
 			
 			showParent: function(obj){
-				console.warn("PARNET TXT", this.id);
 				if(this.parentNode){ return; }
 				var x = obj.pageX || 10;
 				var y = obj.pageY || 10;
@@ -88,12 +88,12 @@ dojo.require("drawing.stencil.Text");
 				document.body.appendChild(this.parentNode);
 			},
 			createTextField: function(txt){
-				console.warn("CREATE TXT", this.id);
 				// style parent
 				var d = this.style.textMode.edit;
 				this._box.border = d.width+"px "+d.style+" "+d.color;
 				this._box.height = "auto";
 				this._box.width = Math.max(this._box.width, this.style.text.minWidth*this.mouse.zoom);
+				console.log("PAR:", this.id, this.parentNode)
 				dojo.style(this.parentNode, this._box.toPx());
 				// style input
 				this.parentNode.appendChild(conEdit);
@@ -113,9 +113,9 @@ dojo.require("drawing.stencil.Text");
 				this._textConnected = true;
 				this.mouse.setEventMode("TEXT");
 				this.keys.editMode(true);
-				var kc1, kc2, kc3, kc4, kc5, self = this, _autoSet = false,
+				var kc1, kc2, kc3, kc4, kc5, kc6, self = this, _autoSet = false,
 					exec = function(){
-						dojo.forEach([kc1,kc2,kc3, kc4,kc5], function(c){
+						dojo.forEach([kc1,kc2,kc3,kc4,kc5,kc6], function(c){
 							dojo.disconnect(c)
 						});
 						self._textConnected = false;
@@ -153,7 +153,6 @@ dojo.require("drawing.stencil.Text");
 				this.createAnchors();
 				
 				kc5 = dojo.connect(this.mouse, "setZoom", this, function(evt){
-					console.warn("MOUSE ZOOM************************")
 					exec();
 				});
 				
@@ -168,10 +167,15 @@ dojo.require("drawing.stencil.Text");
 					// once again for Silverlight:
 					conEdit.focus();
 					
+					// this is a pretty odd chunk of code here.
+					// specifcally need to overwrite old onUp
+					// however, this still gets called. its
+					// not disconnecting.
 					this.onUp = function(){
-						if(!self._onAnchor){
+						if(!self._onAnchor && this.parentNode){
 							self.disconnectMouse();
 							exec();
+							self.onUp = function(){}
 						}
 					}	
 				}), 500);
@@ -207,7 +211,6 @@ dojo.require("drawing.stencil.Text");
 					{x:x+w, y:y+o.h},
 					{x:x, y:y+o.h}
 				];
-				console.info("TEXT:", o.text);
 				this.render(o.text);
 				this.onChangeText(txt);
 			},
@@ -332,8 +335,9 @@ dojo.require("drawing.stencil.Text");
 			},
 			
 			onUp: function(obj){
-				console.warn("TEXTBLOCK UP", this.id);
 				if(!this.created && (!this.shape && !obj.withinCanvas || !this._box)){ return; }
+				console.log("ON UP", this.id, this.created)
+				this.created = true;
 				this.createTextField();
 				this.connectTextField();
 			},
