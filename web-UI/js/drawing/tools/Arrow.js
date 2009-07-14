@@ -14,6 +14,9 @@ drawing.tools.Arrow = drawing.util.oo.declare(
 				var c = this.points[1];
 				this.begArrow.points = this.util.arrowHead(c.x, c.y, o.x, o.y, this.style);
 			});
+			this.connect("onDelete", this, function(){
+				this.begArrow.destroy();
+			});
 		}
 		
 		if(this.arrowEnd){
@@ -22,6 +25,9 @@ drawing.tools.Arrow = drawing.util.oo.declare(
 				var o = this.points[1];
 				var c = this.points[0];
 				this.endArrow.points = this.util.arrowHead(c.x, c.y, o.x, o.y, this.style);
+			});
+			this.connect("onDelete", this, function(){
+				this.endArrow.destroy();
 			});
 		}
 		
