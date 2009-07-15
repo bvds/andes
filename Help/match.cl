@@ -26,10 +26,9 @@
 	     (nosym (string-left-trim *whitespace* (subseq text si))))
 	;; The empty string is a catch-all in case there is no match
 	(dolist (equality '("is " ":" "=" "be " "as " "to be " ""))
-	  (when (string= equality (string-downcase nosym) 
-			 :end2 (length equality))
-	    (format t "found ~s ~s ~s~%" nosym equality
-		    (subseq nosym (length equality)))
+	  (when (and (>= (length nosym) (length equality))
+		     (string= equality (string-downcase nosym) 
+			      :end2 (length equality)))
 	    (return-from pull-out-quantity
 	      (string-trim *whitespace* (subseq nosym (length equality)))))))
       text))
