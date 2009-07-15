@@ -1,9 +1,29 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html lang="en">
 <head>
     <title>Andes 3</title>
 	<link href="css/andes.css" rel="stylesheet" />
+	<link href="dojotoolkit/dojox/layout/resources/ExpandoPane.css" rel="stylesheet" />
 	<link href="js/andes/widget/UpgradeBar/UpgradeBar.css" rel="stylesheet" />
+	<link href="js/drawing/resources/drawing.css" rel="stylesheet" />
+	<link href="js/drawing/resources/toolbar.css" rel="stylesheet" />
+	<style>
+		#drawingNode, #drawingPane{
+			/*border:1px solid #ff0000;*/
+			cursor:crosshair;
+
+		}
+		#toolPane, #drawingPane{
+			overflow:hidden;
+		}
+		textarea{
+			position:absolute;
+			top:30px;
+			right:10px;
+			width:200px;
+			overflow:hidden;
+			z-index:10001;
+		}
+	</style>
 	<script>
 		djConfig = {
 			isDebug:true,
@@ -13,6 +33,38 @@
 	</script>
 	<script src="dojotoolkit/dojo/dojo.js"></script>
 	<script>
+		if(dojo.isIE){
+			// Fixing IE's console
+			console._log = console.log;
+			console.log = function(){
+				console._log(Array.prototype.slice.call(arguments).join("  "));
+			}
+			console._warn = console.warn;
+			console.warn = function(){
+				console._warn(Array.prototype.slice.call(arguments).join("  "));
+			}
+			// if console is closed this throws an error
+			try{console.clear();}catch(e){}
+		}
+		var watched = {};
+		var ta;
+		watch = function(name, value){
+			//return;
+			if(!ta) {
+				ta = dojo.create("textarea", null, dojo.body());
+			}
+			if(typeof(value)=="number"){
+				value = Math.ceil(value);
+			}
+			watched[name] = value;
+			var lines=[];
+			for(var n in watched){
+				lines.push(n+": "+watched[n]);
+			}
+			dojo.attr(ta, "rows", lines.length);
+			ta.value = lines.join("\n");
+		}
+		
 		dojo.require("dojo.parser");
 		dojo.require("dijit.layout.BorderContainer");
 		dojo.require("dijit.layout.ContentPane");
@@ -25,14 +77,26 @@
 		dojo.require("dijit.MenuItem");
 		dojo.require("dijit.PopupMenuItem");
 		dojo.require("dijit.form.Button");
-
+		dojo.require("dijit.form.TextBox");
+		
 		dojo.require("andes.main");
-		//dojo.require("drawing.Drawing");
+
+		dojo.require("drawing.Drawing");
+		dojo.require("drawing.plugins.drawing.Grid");
+		dojo.require("drawing.Toolbar");
+		dojo.require("drawing.tools.custom.Vector");
+		dojo.require("drawing.tools.custom.Axes");
+		dojo.require("drawing.tools.custom.Equation");
+		dojo.require("drawing.tools.Arrow");
+		dojo.require("drawing.plugins.tools.Pan");
+		dojo.require("drawing.plugins.tools.Zoom");
+		
 	</script>
-	
+
 </head>
 <body class="tundra">
 	<div id="splashOverlay"></div>
+	<div id="conEdit" contenteditable="true"></div>
 	<div id="main" dojoType="dijit.layout.BorderContainer" gutters="false">
 		<div dojoType="dijit.MenuBar" id="navMenu" region="top" splitter="false">
 				<div dojoType="dijit.PopupMenuBarItem">
@@ -67,29 +131,46 @@
 		</div>
 
 		<div id="toolPane" dojoType="dijit.layout.ContentPane" region="left" splitter="false">
-				Toolbar
+				<div dojoType="drawing.Toolbar" drawingId="drawing" class="drawingToolbar vertical">
+					<div tool="drawing.tools.Line" selected="false">Line</div>
+					<div tool="drawing.tools.Rect" selected="false">Rect</div>
+					<div tool="drawing.tools.Ellipse" selected="false">Ellipse</div>
+					<div tool="drawing.tools.TextBlock" selected="true">Text</div>
+					<div tool="drawing.tools.custom.Equation" selected="false">Equation</div>
+					<div tool="drawing.tools.custom.Vector" selected="false">Vector</div>
+					<div tool="drawing.tools.custom.Axes" selected="false">Axes</div>
+					<div plugin="drawing.plugins.tools.Pan" options="{}">Pan</div>
+					<div plugin="drawing.plugins.tools.Zoom" options="{zoomInc:.1,minZoom:.5,maxZoom:2}">Zoom</div>
+				</div>
 		</div>
 
 		<div id="drawingPane" dojoType="dijit.layout.ContentPane" region="center" >
-				main / Drawing
+				<div dojoType="drawing.Drawing" id="drawing" drawingType="canvas" class="drawing"
+					plugins="[{'name':'drawing.plugins.drawing.Grid', 'options':{gap:100}}]">   
+			   </div>
 		</div>
-
-		<div id="helpPane" dojoType="andes.widget.ExpandoPane" region="right" splitter="true">
+		<!--<div dojoType="drawing.Drawing" id="drawingNode" drawingType="canvas" class="drawing"
+					plugins="[{'name':'drawing.plugins.drawing.Grid', 'options':{gap:100}}]" region="center" >
+		</div>-->
+			
+		<div id="helpPane" dojoType="andes.widget.ExpandoPane" region="right" splitter="true" title="Help" startExpanded="false">
 			<div id="helpWrapPane" dojoType="dijit.layout.BorderContainer" gutters="false">
-				<div id="helpContentPane" dojoType="dijit.layout.ContentPane" region="center">
-					Help content
-				</div>
+				<div id="helpContentPane" dojoType="dijit.layout.ContentPane" region="center"></div>
 
 				<div id="helpInputPane" dojoType="dijit.layout.ContentPane" region="bottom">
-					Help form
+					<div id="helpQueryLabel">Enter your query...</div>
+					<div dojoType="dijit.form.TextBox" id="helpInput"></div>
+					<div dojoType="dijit.form.Button" id="helpSubmit">?</div>
 				</div>
 			</div>
 		</div>
+
+		<div id="footerPane" dojoType="dijit.layout.ContentPane" region="bottom"></div>
 	</div>
 
 	<div dojoType="andes.widget.UpgradeBar" id="upgradeBar">
 		Upgrade bar
 	</div>
-    
+
 </body>
 </html>

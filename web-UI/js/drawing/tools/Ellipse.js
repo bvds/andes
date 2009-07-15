@@ -15,7 +15,12 @@ drawing.tools.Ellipse = drawing.util.oo.declare(
 				h = s.y < e.y ? e.y-s.y : s.y-e.y;
 			
 			if(this.keys.shift){ w = h = Math.max(w,h); }
-			if(!this.keys.alt){	x+=w/2; y+=h/2; w/=2; h/=2; } // ellipse is normally on center
+			if(!this.keys.alt){ // ellipse is normally on center
+				x+=w/2; y+=h/2; w/=2; h/=2;
+			} else{
+				if(y - h < 0){ h = y; }
+				if(x - w < 0){ w = x; }
+			}
 			
 			this.points = [
 				{x:x-w, y:y-h}, 	// TL
@@ -32,7 +37,7 @@ drawing.tools.Ellipse = drawing.util.oo.declare(
 			// if too small, need to reset
 			var o = this.pointsToData();
 			if(o.rx*2<this.minimumSize && o.ry*2 < this.minimumSize){
-				this.remove();
+				this.remove(this.shape, this.hit);
 				return;
 			}
 			

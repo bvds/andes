@@ -9,25 +9,27 @@ drawing.stencil.Image = drawing.util.oo.declare(
 		}
 	},
 	{
+		type:"drawing.stencil.Image",
 		anchorType: "group",
-		
 		_createHilite: function(){
 			this.remove(this.hit);
 			this.hit = this.parent.createRect(this.data)
-				.setStroke(this.style.currentHit)
-				.setFill(this.style.currentHit.fill);
-			this.util.attr(this.hit, "drawingType", "stencil");
+				.setStroke(this.style.current)
+				.setFill(this.style.current.fill);
+			this._setNodeAtts(this.hit);
 		},
 		_create: function(shp, d, sty){
+			
 			this.remove(this[shp]);
-			var s = this.parent.getParent();//_getParentSurface();
+			var s = this.parent.getParent();
 			this[shp] = s.createImage(d)
 			this.parent.add(this[shp]);
-			this.util.attr(this[shp], "drawingType", "stencil");
+			this._setNodeAtts(this[shp]);
 		},
 		
-		render: function(){
-			if(this.data.width == "auto"){
+		render: function(dbg){
+			
+			if(this.data.width == "auto" || isNaN(this.data.width)){
 				this.getImageSize(true);
 				return;
 			}
@@ -36,8 +38,10 @@ drawing.stencil.Image = drawing.util.oo.declare(
 			this._create("shape", this.data, this.style.current);
 		},
 		getImageSize: function(render){
+			if(this._gettingSize){ return; } // IE gets it twice (will need to mod if src changes)
+			this._gettingSize = true;
 			var img = dojo.create("img", {src:this.data.src}, dojo.body());
-			dojo.connect(img, "load", this, function(){
+			var c = dojo.connect(img, "load", this, function(){
 				var dim = dojo.marginBox(img);
 				this.setData({
 					x:this.data.x,
@@ -46,8 +50,9 @@ drawing.stencil.Image = drawing.util.oo.declare(
 					width:dim.w,
 					height:dim.h
 				});
+				dojo.disconnect(c);
 				dojo.destroy(img);
-				render && this.render();
+				render && this.render(true);
 			});
 		},
 		dataToPoints: function(o){

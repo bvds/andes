@@ -30,15 +30,14 @@ drawing.stencil.Line = drawing.util.oo.declare(
 			this.remove(this[shp]);
 			this[shp] = this.parent.createLine(d)
 				.setStroke(sty);
-			this.util.attr(this[shp], "drawingType", "stencil");
+			this._setNodeAtts(this[shp]);
 		},
 		
 		render: function(){
-			var d = this.data;
 			this.onBeforeRender(this);
-			this._create("hit", d, this.style.currentHit);
+			this._create("hit", this.data, this.style.currentHit);
 			//if(!this.annotation)
-			this._create("shape", d, this.style.current);
+			this._create("shape", this.data, this.style.current);
 		}		
 		
 	}

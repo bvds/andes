@@ -3,7 +3,7 @@ dojo.require("drawing.stencil.Text");
 
 (function(){
 	
-	var conEdit, wrapNode;
+	var conEdit;
 	dojo.addOnLoad(function(){
 		// summary:
 		//	In order to use VML in IE, it's necessary to remove the
@@ -15,7 +15,7 @@ dojo.require("drawing.stencil.Text");
 		//
 		conEdit = dojo.byId("conEdit");
 		if(!conEdit){
-			console.error("A contenteditable div is missing from the main document.")
+			console.error("A contenteditable div is missing from the main document. See 'drawing.tools.TextBlock'")
 		}else{
 			conEdit.parentNode.removeChild(conEdit);
 		}
@@ -33,32 +33,56 @@ dojo.require("drawing.stencil.Text");
 		drawing.stencil.Text,
 		function(options){
 			if(options.data){
-				console.warn("TEXT BLOCK")
 				var d = options.data;
-				var w = d.width=="auto" ? "auto" : Math.max(d.width, this.style.text.minWidth)
-				var o = this.measureText(this.cleanText(d.text, false), w);
-				console.log("MEASURED:", o)
+				var w = !d.width ? this.style.text.minWidth : d.width=="auto" ? "auto" : Math.max(d.width, this.style.text.minWidth)
+				var h = this._lineHeight;
+				if(d.text){
+					var o = this.measureText(this.cleanText(d.text, false), w);
+					w = o.w;
+					h = o.h;
+				}
 				this.points = [
 					{x:d.x, y:d.y},
-					{x:d.x+o.w, y:d.y},
-					{x:d.x+o.w, y:d.y+o.h},
-					{x:d.x, y:d.y+o.h}
+					{x:d.x+w, y:d.y},
+					{x:d.x+w, y:d.y+h},
+					{x:d.x, y:d.y+h}
 				];
-				this.render(d.text);
 				
+				if(d.showEmpty || d.text){
+					this.editMode = true;
+					this.connect(this, "render", this, "onRender", true);
+					if(d.showEmpty){
+						this._text = d.text || "";
+						this.edit();
+					}else if(d.text && d.editMode){
+						this._text = "";
+						this.edit();
+					}else if(d.text){
+						this.render(d.text);
+					}
+					setTimeout(dojo.hitch(this, function(){
+						this.editMode = false;	
+					}),100)
+					
+				}
+				
+			}else{
+				this.connectMouse();
+				this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
 			}
+			console.log("TextBlock:", this.id)
 		},
 		{
 			draws:true,
-			type:"drawing.stencil.TextBlock",
+			type:"drawing.tools.TextBlock",
+			
 			showParent: function(obj){
 				if(this.parentNode){ return; }
-				console.log("SHOW PARENT OBJ:", obj)
 				var x = obj.pageX || 10;
 				var y = obj.pageY || 10;
 				this.parentNode = dojo.doc.createElement("div");
 				this.parentNode.id = this.id;
-				var d = this.style.text.mode.create;
+				var d = this.style.textMode.create;
 				this._box = {
 					left:x,
 					top:y,
@@ -66,10 +90,11 @@ dojo.require("drawing.stencil.Text");
 					height:obj.height || this._lineHeight,
 					border:d.width+"px "+d.style+" "+d.color,
 					position:"absolute",
+					zIndex:500,
 					toPx: function(){
 						var o = {};
 						for(var nm in this){
-							o[nm] = typeof(this[nm])=="number" ? this[nm] + "px" : this[nm];
+							o[nm] = typeof(this[nm])=="number" && nm!="zIndex" ? this[nm] + "px" : this[nm];
 						}
 						return o;
 					}
@@ -80,28 +105,37 @@ dojo.require("drawing.stencil.Text");
 			},
 			createTextField: function(txt){
 				// style parent
-				var d = this.style.text.mode.edit;
+				var d = this.style.textMode.edit;
 				this._box.border = d.width+"px "+d.style+" "+d.color;
 				this._box.height = "auto";
-				this._box.width = Math.max(this._box.width, this.style.text.minWidth);
+				this._box.width = Math.max(this._box.width, this.style.text.minWidth*this.mouse.zoom);
 				dojo.style(this.parentNode, this._box.toPx());
 				// style input
 				this.parentNode.appendChild(conEdit);
 				dojo.style(conEdit, {
 					height: txt ? "auto" : this._lineHeight+"px",
-					fontSize:this.style.text.size+"pt",
-					fontFamily:this.style.text.fontFamily
+					fontSize:(this.textSize/this.mouse.zoom)+"px",
+					fontFamily:this.style.text.family
 				});
+				// FIXME:
+				// In Safari, if the txt ends with '&' it gets stripped
 				conEdit.innerHTML = txt || "";
 				
 				return conEdit;
 			},
 			connectTextField: function(){
+				if(this._textConnected){ return; } // good ol' IE and its double events
+				this._textConnected = true;
+				this.mouse.setEventMode("TEXT");
 				this.keys.editMode(true);
-				var kc1, kc2, kc3, self = this, _autoSet = false,
+				var kc1, kc2, kc3, kc4, kc5, kc6, self = this, _autoSet = false,
 					exec = function(){
-						dojo.forEach([kc1,kc2,kc3], dojo.disconnect, dojo);
+						dojo.forEach([kc1,kc2,kc3,kc4,kc5,kc6], function(c){
+							dojo.disconnect(c)
+						});
+						self._textConnected = false;
 						self.keys.editMode(false);
+						self.mouse.setEventMode();
 						self.execText();
 					}
 					
@@ -119,27 +153,54 @@ dojo.require("drawing.stencil.Text");
 						dojo.stopEvent(evt);
 					}
 				});
+				
 				kc3 = dojo.connect(conEdit, "mouseup", this, function(evt){
 					dojo.stopEvent(evt);
 				});
+				
+				kc4 = dojo.connect(document, "mouseup", this, function(evt){
+					if(!this._onAnchor){
+					dojo.stopEvent(evt);
+					exec();
+					}
+				});
+				
 				this.createAnchors();
+				
+				kc5 = dojo.connect(this.mouse, "setZoom", this, function(evt){
+					exec();
+				});
+				
+				
 				conEdit.focus();
-				// once again for Silverlight:
-				setTimeout(function(){ conEdit.focus();}, 500);
 				
 				this.onDown = function(){}
 				this.onDrag = function(){}
-				this.onUp = function(){
-					if(!self._onAnchor){
-						this.disconnectMouse();
-						exec();
-					}
-				}
+				
+				var self = this;
+				setTimeout(dojo.hitch(this, function(){
+					// once again for Silverlight:
+					conEdit.focus();
+					
+					// this is a pretty odd chunk of code here.
+					// specifcally need to overwrite old onUp
+					// however, this still gets called. its
+					// not disconnecting.
+					this.onUp = function(){
+						if(!self._onAnchor && this.parentNode){
+							self.disconnectMouse();
+							exec();
+							self.onUp = function(){}
+						}
+					}	
+				}), 500);
+				
+				
+				
 			},
 			execText: function(){
 				var d = dojo.marginBox(this.parentNode);
-				console.warn("TEXT BIX:", d, this.style)
-				var w = Math.max(d.w, this.style.text.minWidth)
+				var w = Math.max(d.w, this.style.text.minWidth);
 				
 				var txt = this.cleanText(conEdit.innerHTML, true);
 				conEdit.innerHTML = "";
@@ -153,12 +214,11 @@ dojo.require("drawing.stencil.Text");
 				var x = this._box.left + sc.left - org.x;
 				var y = this._box.top + sc.top - org.y;
 				
-				console.warn(">>>>>>>>>>>>>>>")
-				console.log("BOX:", this._box);
+				x *= this.mouse.zoom;
+				y *= this.mouse.zoom;
+				w *= this.mouse.zoom;
+				o.h *= this.mouse.zoom;
 				
-				console.log("Y", this._box.left)
-				console.log("SY", sc.top)
-				console.log("orgY", org.y)
 				
 				this.points = [
 					{x:x, y:y},
@@ -166,29 +226,28 @@ dojo.require("drawing.stencil.Text");
 					{x:x+w, y:y+o.h},
 					{x:x, y:y+o.h}
 				];
-		
+				this.editMode = false;
 				this.render(o.text);
+				this.onChangeText(txt);
 			},
 			
 			edit: function(){
-				console.log("--onStencilDoubleClick--", this.id,this.parentNode, this.points)
+				this.editMode = true;
+				console.log("EDIT TEXT:", this._text, " ", this._text.replace("/n", " "));
 				// NOTE: no mouse obj
 				if(this.parentNode || !this.points){ return; }
 				var d = this.pointsToData();
 				
 				var sc = this.mouse.scrollOffset();
 				var org = this.mouse.origin;
-				console.warn(">>>>>>>>>>>>>>>")
-				console.log("Y", d.y)
-				console.log("SY", sc.top)
-				console.log("orgY", org.y)
 				
 				var obj = {
-					pageX: d.x  - sc.left + org.x,
-					pageY: d.y - sc.top + org.y,
-					width:d.width,
-					height:d.height
+					pageX: (d.x  - sc.left + org.x) / this.mouse.zoom,
+					pageY: (d.y - sc.top + org.y) / this.mouse.zoom,
+					width:d.width / this.mouse.zoom,
+					height:d.height / this.mouse.zoom
 				}
+				
 				this.remove(this.shape, this.hit);
 				this.showParent(obj);
 				this.createTextField(this._text.replace("/n", " "));
@@ -196,12 +255,25 @@ dojo.require("drawing.stencil.Text");
 				
 			},
 			cleanText: function(txt, removeBreaks){
+				var replaceHtmlCodes = function(str){
+					var chars = {
+						"&lt;":"<",
+						"&gt;":">",
+						"&amp;":"&"
+					};
+					for(var nm in chars){
+						str = str.replace(new RegExp(nm, "gi"), chars[nm])
+					}
+					return str
+				}
+
 				if(removeBreaks){
 					dojo.forEach(['<br>', '<br/>', '<br />', '\\n', '\\r'], function(br){
 						txt = txt.replace(new RegExp(br, 'gi'), " ");
 					});
 				}
 				txt = txt.replace(/&nbsp;/g, " ");
+				txt = replaceHtmlCodes(txt);
 				txt = dojo.trim(txt);
 				// remove double spaces, since SVG doesn't show them anyway
 				txt = txt.replace(/\s{2,}/g, " ");
@@ -209,7 +281,6 @@ dojo.require("drawing.stencil.Text");
 			},
 			
 			measureText: function(/* String */ str, /* ? Number */width){
-				console.log(">>>>measureText:", width, "x", this._lineHeight);
 				
 				var r = "(<br\\s*/*>)|(\\n)|(\\r)";
 				this.showParent({width:width || "auto", height:"auto"});
@@ -225,16 +296,14 @@ dojo.require("drawing.stencil.Text");
 					// has line breaks in text
 					txt = str.replace(new RegExp(r, "gi"), "\n");
 					el.innerHTML = str.replace(new RegExp(r, "gi"), "<br/>");
-					console.log("measureText.textLineBreaks", txt);
 				
 				}else if(dojo.marginBox(el).h == h){
 					// one line
 					txt = str;
-					console.log("measureText.singleLine");
 					
 				}else{
 					// text wraps
-					var ar = str.split(" ");console.log("measureText.wraps");
+					var ar = str.split(" ");
 					var strAr = [[]];
 					var line = 0;
 					el.innerHTML = "";
@@ -261,8 +330,6 @@ dojo.require("drawing.stencil.Text");
 				
 				var dim = dojo.marginBox(el);
 				
-				console.log("TEXT BREAKS:::", el.innerHTML);
-				console.log("conEdit", conEdit);
 				conEdit.parentNode.removeChild(conEdit);
 				dojo.destroy(this.parentNode);
 				this.parentNode = null;
@@ -271,7 +338,6 @@ dojo.require("drawing.stencil.Text");
 			},
 			
 			onDrag: function(obj){
-				//console.log(" >>>>>> HtmlTextBlock drag", obj);
 				if(!this.parentNode){
 					this.showParent(obj);
 				}
@@ -284,8 +350,18 @@ dojo.require("drawing.stencil.Text");
 			},
 			
 			onUp: function(obj){
-				if(!this.shape && !obj.withinCanvas || !this._box){ return; }
-				console.log(" >>> >>> HtmlTextBlock up");
+				if(!obj.withinCanvas){ return; }
+				
+				console.log("ON UP", this.id, this._postRenderCon)
+				
+				var c = dojo.connect(this, "render", this, function(){
+					dojo.disconnect(c);
+					this.onRender(this);	
+					
+				});
+				this.editMode = true;
+				this.showParent(obj);
+				this.created = true;
 				this.createTextField();
 				this.connectTextField();
 			},
@@ -295,6 +371,8 @@ dojo.require("drawing.stencil.Text");
 					x: obj.pageX,
 					y: obj.pageY
 				};
+				dojo.disconnect(this._postRenderCon);
+				this._postRenderCon = null;
 			},
 			onMove: function(){},
 			
@@ -306,7 +384,8 @@ dojo.require("drawing.stencil.Text");
 			},
 			
 			createAnchors: function(){
-				this._anchors = {}, self = this;
+				this._anchors = {};
+				var self = this;
 				var d = this.style.anchors,
 					b = d.width,
 					w = d.size-b*2,
@@ -336,7 +415,6 @@ dojo.require("drawing.stencil.Text");
 					var md, mm, mu;
 					var md = dojo.connect(a, "mousedown", this, function(evt){
 						isLeft = evt.target.id.indexOf("left")>-1;
-						console.log("DOWN", isLeft);
 						self._onAnchor = true;
 						var orgX = evt.pageX;
 						var orgW = this._box.width;

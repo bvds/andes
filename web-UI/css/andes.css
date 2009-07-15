@@ -2,7 +2,9 @@
 @import url("../dojotoolkit/dijit/themes/dijit.css");
 @import url("../dojotoolkit/dijit/themes/tundra/layout/BorderContainer.css");
 @import url("../dojotoolkit/dijit/themes/tundra/layout/ContentPane.css");
-@import url("../dojotoolkit/dijit/themes/tundra/tundra.css");
+@import url("../dojotoolkit/dijit/themes/tundra/form/Button.css");
+@import url("../dojotoolkit/dijit/themes/tundra/Menu.css");
+@import url("../dojotoolkit/dijit/themes/tundra/Dialog.css");
 
 html, body, #main{
 	width: 100%;	/* make the body expand to fill the visible window */
@@ -12,6 +14,24 @@ html, body, #main{
 	margin: 0 0 0 0;
 	font: 10pt Arial,Myriad,Tahoma,Verdana,sans-serif;
 }
+#main{
+	padding-right:5px;
+}
+/* Border Container Color */
+.tundra .dijitSplitterV, .tundra .dijitGutterV,
+body, .tundra .dijitSplitter, #navMenu{
+	background:#CEE3EC;
+}
+
+/* Pane BK Color and Inset borders of Panes*/
+#toolPane, #helpPane, #drawingPane{
+	background:#FAFAFA;
+	border:1px solid;
+	border-color:#BBBBBB #E1E1E1 #FFFFFF #CCCCCC;
+}
+
+
+
 
 #splashOverlay{
 	position:absolute;
@@ -28,47 +48,101 @@ html, body, #main{
 }
 
 /* layout */
-#upgradeBar{
-	height:26px;
+
+.tundra .dijitSplitterV, .tundra .dijitGutterV {
+	width:4px;
 }
-#upgradeBar .dojoxExpandoTitle{
-	display:none;
-}
-#navMenu{
-}
-#toolPane{
-	width:60px;
-	background:#cccccc;
-}
-#drawingPane{
-	
-}
-#helpPane{
-	width:300px;
-}
-#helpInputPane{
-	height:70px;
-}
-#helpPane .dojoxExpandoTitle{
-	background:#ccc;
-	position:relative;
-	height:0;
-}
-#helpPane .dojoxExpandoIcon{
-	left:0;
-	cursor:pointer;
-	width:20px;
-	height:30px;
-	margin:4px 0 0 -25px;;
-	border:1px solid #999;
+.tundra .dijitSplitter{
+	z-index:100;
 }
 
+#toolPane{
+	width:50px;
+	margin-left:5px;
+	margin-right:4px;
+}
+#drawingPane{
+	position:relative;
+}
+
+
+#helpPane{
+	width:200px;
+}
+#helpInputPane{
+	height:60px;
+}
+#helpPane .dojoxExpandoTitle{
+	background:#cee3ec;
+	position:relative;
+}
+#helpContentPane p{
+	margin:1em;
+}
+.dojoxExpandoClosed .dojoxExpandoIcon,
+.dojoxExpandoClosed .dojoxExpandoTitle{
+	display:none;
+}
+#helpPane .helpScore{
+	position:absolute;
+	right:10px;
+}
+#helpPaneOpenButton{
+	position:absolute;
+	right:0;
+	top:5px;
+	padding:3px;
+	cursor:pointer;
+	background:#cee3ec;
+	border:1px solid;
+	border-color:#fff #000 #bbb #ccc;
+	border-right:none;
+}
+#helpQueryLabel{
+	position:absolute;
+	left:5px;
+	bottom:30px;
+	color:#999;
+	font-style:italic;
+}
+#helpInput{
+	position:absolute;
+	left:5px;
+	bottom:5px;
+	right:50px;
+	width:auto;
+	height:20px;
+	line-height:20px;
+}
+#helpInputPane .dijitButton{
+	margin:0;
+	position:absolute;
+	right:5px;
+	bottom:5px;
+}
+#helpSubmit{
+	width:30px;
+	height:15px;
+}
+
+
+#footerPane{
+	height:5px;
+	margin-top:7px;
+}
+
+#navMenu{}
 #navMenu .dijitButtonNode{
 	padding:0 .2em .05em .2em;
 }
 .dj_webkit #navMenu .dijitButtonNode{
 	padding:.0 .4em .25em .4em;
 }
+.tundra .dijitMenu, .tundra .dijitMenuBar {
+	border:0;
+}
+
+
 #submitButton .dijitButtonText{
 	font-size:.8em;
 	padding:0;
@@ -88,4 +162,7 @@ html, body, #main{
 }
 .andesButtonPage{
 	text-align:center;
+}
+#upgradeBar{
+	height:26px;
 }

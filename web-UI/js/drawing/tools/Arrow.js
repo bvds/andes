@@ -14,6 +14,9 @@ drawing.tools.Arrow = drawing.util.oo.declare(
 				var c = this.points[1];
 				this.begArrow.points = this.util.arrowHead(c.x, c.y, o.x, o.y, this.style);
 			});
+			this.connect("onDelete", this, function(){
+				this.begArrow.destroy();
+			});
 		}
 		
 		if(this.arrowEnd){
@@ -23,7 +26,11 @@ drawing.tools.Arrow = drawing.util.oo.declare(
 				var c = this.points[0];
 				this.endArrow.points = this.util.arrowHead(c.x, c.y, o.x, o.y, this.style);
 			});
+			this.connect("onDelete", this, function(){
+				this.endArrow.destroy();
+			});
 		}
+		
 		if(this.data || this.points && this.points.length){
 			this.render();
 		}
@@ -32,7 +39,31 @@ drawing.tools.Arrow = drawing.util.oo.declare(
 		draws:true,
 		type:"drawing.tools.Arrow",
 		arrowStart:false,
-		arrowEnd:true
+		arrowEnd:true,
+		
+		
+		onUp: function(obj){
+			if(this.created || !this.shape){ return; }
+			
+			// if too small, need to reset
+			var p = this.points;
+			var len = this.util.distance(p[0].x,p[0].y,p[1].x,p[1].y);
+			if(len<this.minimumSize){
+				this.remove(this.shape, this.hit);
+				this.begArrow && this.begArrow.remove(this.begArrow.shape, this.begArrow.hit);
+				this.endArrow && this.endArrow.remove(this.endArrow.shape, this.endArrow.hit);
+				return;
+			}
+			
+			var pt = this.util.snapAngle(obj, this.angleSnap/180);
+			this.setPoints([
+				{x:p[0].x, y:p[0].y},
+				{x:pt.x, y:pt.y}
+			]);
+			
+			this.renderedOnce = true;
+			this.onRender(this);
+		}
 	}
 );
 

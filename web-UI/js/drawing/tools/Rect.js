@@ -7,6 +7,7 @@ drawing.tools.Rect = drawing.util.oo.declare(
 	},
 	{
 		draws:true,
+		
 		onDrag: function(obj){
 			var s = obj.start, e = obj;
 			var	x = s.x < e.x ? s.x : e.x,
@@ -18,6 +19,8 @@ drawing.tools.Rect = drawing.util.oo.declare(
 			
 			if(this.keys.alt){
 				x-=w; y-=h; w*=2; h*=2;
+				x = Math.max(x, 0);
+				y = Math.max(y, 0);
 			}
 			this.setPoints ([
 				{x:x, y:y}, 	// TL
@@ -34,7 +37,7 @@ drawing.tools.Rect = drawing.util.oo.declare(
 			// if too small, need to reset
 			var o = this.data;
 			if(o.width<this.minimumSize && o.height < this.minimumSize){
-				this.remove();
+				this.remove(this.shape, this.hit);
 				return;
 			}
 			

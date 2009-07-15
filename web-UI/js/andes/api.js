@@ -2,6 +2,7 @@ dojo.provide("andes.api");
 dojo.require("andes.rpc");
 dojo.require("andes.error");
 
+
 (function(){
 
 	var startTime = null,
@@ -15,11 +16,11 @@ dojo.require("andes.error");
 	// AOP-style function replacement that performs before-advice
 	// to add to the headers on all XHR requests. See dojox/rpc/Client.js
 	(function(){
+		console.info("api set headers", andes.sessionId)
 		andes._originalXhr = dojo.xhr;
 		dojo.xhr = function(method,args){
 			var headers = args.headers = args.headers || {};
-			headers["X-Client-Id"] = andes.projectId;
-			headers["Client-Id"] = andes.projectId;
+			headers["Client-Id"] = andes.sessionId;
 			return andes._originalXhr.apply(dojo,arguments);
 		};
 	})();
@@ -99,19 +100,29 @@ dojo.require("andes.error");
 
 	andes.api = {
 		open: function(params){
+			console.warn("andes.api.open", params);
 			startTime = (new Date()).getTime();
 			return queueRequest("open-problem", params);
 		},
 
 		step: function(params){
-			return queueRequest("solution-step", params);
+			console.warn("andes.api.step", params);
+			var dfd = queueRequest("solution-step", params);
+			dfd.addCallback(function(result){
+				// look for help embedded in the returned result, so we can
+				// queue it up in case the user opens the Help pane
+				andes.help.processStep(result);
+			});
+			return dfd;
 		},
 
 		help: function(params){
+			console.warn("andes.api.help", params);
 			return queueRequest("seek-help", params);
 		},
 
 		close: function(params){
+			console.warn("andes.api.close", params);
 			return queueRequest("close-problem", params);
 		}
 	};

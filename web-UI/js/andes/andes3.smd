@@ -11,6 +11,7 @@
     
     "open-problem": {
       "parameters": [
+		{"name": "section", "type": "string"},
 		{"name": "user", "type": "string"},
 		{"name": "problem", "type": "string"}
       ],
@@ -33,7 +34,7 @@
 	    },
 	    "type": {
 	      "type": "string",
-	      "enum": ["statement", "graphics", "equation", "circle", "rectangle", "axes", "vector", "line"],
+	      "enum": ["statement", "graphics", "equation", "ellipse", "circle", "rectangle", "axes", "vector", "line"],
 	      "optional": true,
 	      "description": "kind of drawn object.  Required for new-object"
 	    },
@@ -50,6 +51,8 @@
 	    "text":		{"type": "string", 	"optional": true},
 	    "radius":	{"type": "number", 	"optional": true},
 	    "symbol":	{"type": "string", 	"optional": true},
+	    "x-statement":	{"type": "number", 	"optional": true},
+	    "y-statement":	{"type": "number", 	"optional": true},
 	    "x-label":	{"type": "string", 	"optional": true},
 	    "y-label":	{"type": "string", 	"optional": true},
 	    "z-label":	{"type": "string", 	"optional": true},
@@ -102,7 +105,7 @@
 	{
 	  "name": "type",
 	  "type": "string",
-	  "enum": ["statement", "graphics", "equation", "circle", "rectangle", "axes", "vector", "line"],
+	  "enum": ["statement", "graphics", "equation", "circle", "ellipse", "rectangle", "axes", "vector", "line"],
 	  "optional": true,
 	  "description": "kind of drawn object; manditory for new-object and optional for modify-object or delete-object"
 	},
@@ -123,8 +126,11 @@
 	  "optional": true,
 	  "description": "Manditory for equation, phrase."
 	},
-	{"name": "radius", 	"type": "number", 	"optional": true},
+	{"name": "radius", 	"type": "number", "optional": true, 
+	                "description": "circle radius, line & vector length"},
 	{"name": "symbol", 	"type": "string", 	"optional": true},
+	{"name": "x-statement", "type": "number", 	"optional": true},
+	{"name": "y-statement", "type": "number", 	"optional": true},
 	{"name": "x-label", "type": "string", 	"optional": true},
 	{"name": "y-label", "type": "string", 	"optional": true},
 	{"name": "z-label", "type": "string", 	"optional": true},

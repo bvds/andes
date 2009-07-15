@@ -1,5 +1,9 @@
 dojo.provide("drawing.defaults");
 
+
+// TODO
+// mix styles based on primary (borders, text) and secondary (shape fills) colors
+//
 drawing.defaults = {
 	
 	// current will point to either null or selected
@@ -8,47 +12,71 @@ drawing.defaults = {
 	//currentHit will point to either hitNorm or hitSelected
 	currentHit:null,
 	
+	// line, arrows, vector and axes will all snap to this angle on mouse up
+	// shown angle also reflects the snap
+	// currently cannot accept less than 1 degree
+	angleSnap:1,
+	
 	norm:{
-		width:3,
-		color:"#0000FF",
+		width:1,
+		color:"#000000",
 		style:"Solid",
 		cap:"round", // square, butt, round
-		fill:"#BCE4FE"
+		fill:"#CCCCCC"
 	},
 	selected:{
-		width:3,
+		width:6,
 		color:"#00FF00",
 		style:"Solid",
 		cap:"round",
 		fill:"#E11EBB"
 	},
+	highlighted:{
+		width:6,
+		color:"#FF00FF",
+		style:"Solid",
+		cap:"round",
+		fill:"#E11EBB"
+	},
+	disabled:{
+		width:1,
+		color:"#666666",
+		style:"solid",
+		cap:"round",
+		fill:"#cccccc"
+	},
 	hitNorm:{
-		width:10,
+		width:6,
 		color:{r:0, g:255, b:255, a:0},
 		style:"Solid",
 		cap:"round",
 		fill:{r:255, g:255, b:255, a:0}
 	},
 	hitSelected:{
-		width:10,
-		color:{r:255, g:255, b:0, a:1},
+		width:6,
+		color:"#FF9900",
 		style:"Solid",
 		cap:"round",
 		fill:{r:255, g:255, b:255, a:0}
 	},
-	outline:{ //used??
-		width:1,
-		color:"#666666",
-		style:"Dash"
+	hitHighlighted:{
+		width:6,
+		color:"#FFFF00",
+		style:"Solid",
+		cap:"round",
+		//fill:"#FFFF99"
+		fill:{r:255, g:255, b:255, a:0}
 	},
+
 	anchors:{
 		size:10,
 		width:2,
 		color:"#999",
 		style:"solid",
-		fill:"#ccc",
+		fill:"#fff",
 		cap:"square",
-		minSize:10
+		minSize:10,
+		marginZero:5 // not really an anchor prop
 	},
 	arrows:{
 		length:30,
@@ -56,35 +84,47 @@ drawing.defaults = {
 	},
 	text:{
 		minWidth:150,
-		size:12,
 		pad:3,
-		fontFamily:"sans-serif",
-		mode:{
-			create:{
-				width:2,
-				style:"dotted",
-				color:"#ff0000",
-				fill:null
-			},
-			edit:{
-				width:3,
-				style:"dashed",
-				color:"#666",
-				fill:null
-			},
-			selected:{
-				width:8,
-				style:"solid",
-				color:"#ffff00",
-				fill:null
-			},
-			norm:{
-				width:0,
-				style:"solid",
-				color:null,
-				fill:null
-			}
+		size:"20px",
+		family:"sans-serif",
+		weight:"normal",
+		color:"#000000"
+	},
+	textDisabled:{
+		size:"12px",
+		family:"sans-serif",
+		weight:"normal",
+		color:"#cccccc"
+	},
+	/*textSelected:{
+		size:"12px",
+		family:"sans-serif",
+		weight:"normal",
+		color:"#000000"
+	},
+	textHighlighted:{
+		size:"12px",
+		family:"sans-serif",
+		weight:"normal",
+		color:"#000000"
+	},
+	*/
+		// The following styles apply to the containing
+		//	text box, and not the text itself
+	textMode:{
+		create:{
+			width:2,
+			style:"dotted",
+			color:"#666666",
+			fill:null
+		},
+		edit:{
+			width:1,
+			style:"dashed",
+			color:"#666",
+			fill:null
 		}
+	
 	},
 	
 	copy: function(){
@@ -104,6 +144,7 @@ drawing.defaults = {
 		var o = cpy(this);
 		o.current = o.norm;
 		o.currentHit = o.hitNorm;
+		o.currentText = o.text;
 		return o;
 	}
 	

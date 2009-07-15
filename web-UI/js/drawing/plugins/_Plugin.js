@@ -13,11 +13,6 @@ drawing.plugins._Plugin = drawing.util.oo.declare(
 		anchors:null,
 		canvas:null,
 		node:null,
-		
-		onSurfaceReady: function(){
-			// summary:
-			//	Called when Canvas surface is ready to draw to
-			// Can be connected to or overwritten
-		}
+		type:"drawing.plugins._Plugin"
 	}
 );

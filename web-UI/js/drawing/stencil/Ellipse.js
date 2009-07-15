@@ -10,6 +10,7 @@ drawing.stencil.Ellipse = drawing.util.oo.declare(
 		}
 	},
 	{
+		type:"drawing.stencil.Ellipse",
 		anchorType: "group",
 		dataToPoints: function(o){
 			o = o || this.data;
@@ -50,9 +51,8 @@ drawing.stencil.Ellipse = drawing.util.oo.declare(
 		
 		render: function(){
 			this.onBeforeRender(this);
-			var d = this.pointsToData()
-			this._create("hit", d, this.style.currentHit);
-			this._create("shape", d, this.style.current);
+			this._create("hit", this.data, this.style.currentHit);
+			this._create("shape", this.data, this.style.current);
 		}
 		
 	}

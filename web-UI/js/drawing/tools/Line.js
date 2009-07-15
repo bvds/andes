@@ -7,6 +7,23 @@ drawing.tools.Line = drawing.util.oo.declare(
 	},
 	{
 		draws:true,
+		
+		onTransformEnd: function(anchor){
+			var d = this.data;
+			var obj = {start:{x:d.x1,y:d.y1},x:d.x2,y:d.y2};
+			var pt = this.util.snapAngle(obj, this.angleSnap/180);
+			this.setPoints([
+				{x:d.x1, y:d.y1},
+				{x:pt.x, y:pt.y}
+			]);
+			
+			this._isBeingModified = false;
+			this.onModify(this);
+			
+				
+			anchor && anchor.reset(this);
+		},
+		
 		onDrag: function(obj){
 			if(this.created){ return; }
 			var x1 = obj.start.x,
@@ -15,7 +32,7 @@ drawing.tools.Line = drawing.util.oo.declare(
 				y2 = obj.y;
 			
 			if(this.keys.shift){
-				var pt = this.util.snapAngle(obj, .25, this.keys.alt);
+				var pt = this.util.snapAngle(obj, 45/180);
 				x2 = pt.x;
 				y2 = pt.y;
 			}
@@ -23,10 +40,11 @@ drawing.tools.Line = drawing.util.oo.declare(
 			if(this.keys.alt){
 				// FIXME:
 				//	should double the length of the line
+				// FIXME:
+				//	if alt dragging past ZERO it seems to work
+				//	but select/deselect shows bugs
 				var dx = x2>x1 ? ((x2-x1)/2) : ((x1-x2)/-2);
 				var dy = y2>y1 ? ((y2-y1)/2) : ((y1-y2)/-2);
-				//dx*=2;
-				//dy*=2;
 				x1 -= dx;
 				x2 -= dx;
 				y1 -= dy;
@@ -42,13 +60,22 @@ drawing.tools.Line = drawing.util.oo.declare(
 		
 		onUp: function(obj){
 			if(this.created || !this.shape){ return; }
-			
 			// if too small, need to reset
-			var o = this.pointsToData();
-			if(Math.abs(o.x2-o.x1)<this.minimumSize && Math.abs(o.y2-o.y1)<this.minimumSize){
-				this.remove();
+			var p = this.points;
+			var len = this.util.distance(p[0].x,p[0].y,p[1].x,p[1].y);
+			if(len<this.minimumSize){
+				this.remove(this.shape, this.hit);
 				return;
 			}
+			
+			var pt = this.util.snapAngle(obj, this.angleSnap/180);
+			var p = this.points;
+			this.setPoints([
+				{x:p[0].x, y:p[0].y},
+				{x:pt.x, y:pt.y}
+			]);
+			
+			
 			this.renderedOnce = true;
 			this.onRender(this);
 		}

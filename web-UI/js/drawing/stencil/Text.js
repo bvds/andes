@@ -6,9 +6,6 @@ dojo.provide("drawing.stencil.Text");
 		drawing.stencil._Base,
 		function(options){
 			
-			this.align = options.align || this.align;
-			this.valign = options.valign || this.valign;
-			this._lineHeight = this.style.text.size * 1.5;
 		},
 		{
 			type:"drawing.stencil.Text",
@@ -18,33 +15,37 @@ dojo.provide("drawing.stencil.Text");
 			_lineHeight:1,
 			
 			render: function(/* String | Array */text){
-				
+				//console.trace();
 				this.remove(this.shape, this.hit);
-				this.renderOutline();
+				!this.annotation && this.renderOutline();
 				if(text){
 					this._text = text;
-					this._textArray = text.split("\n");	
+					this._textArray = this._text.split("\n");	
 				}
+				
 				var d = this.pointsToData();
+				//console.log("Y:", d.y, "TS:", this.textSize, "LH:", this._lineHeight)
 				var w = d.width;
 				var h = this._lineHeight;
 				var x = d.x + this.style.text.pad*2;
-				var y = d.y + this._lineHeight - (this.style.text.size*.3);
+				var y = d.y + this._lineHeight - (this.textSize*.4);
 				if(this.valign=="middle"){
 					y -= h/2;
 				}
 				this.shape = this.parent.createGroup();
+				//console.info("render text:", y, " ... ", this._text, "enabled:", this.enabled);
 				
 				dojo.forEach(this._textArray, function(txt, i){
-					var tb = this.shape.createText({x: x, y: y+(h*i), text: txt, align: this.align})
-						.setFont({family: this.style.text.fontFamily, size: this.style.text.size+"pt", weight: "normal"})
-						.setFill("black");
-					this.util.attr(tb, "drawingType", "stencil");
+					var tb = this.shape.createText({x: x, y: y+(h*i), text: unescape(txt), align: this.align})
+						.setFont(this.style.currentText)
+						.setFill(this.style.currentText.color);
 					
+					this._setNodeAtts(tb);
+				
 				}, this);
-				if(!this.annotation){
-					this.util.attr(this.shape, "drawingType", "stencil");
-				}
+				
+				this._setNodeAtts(this.shape);
+				
 			},
 			renderOutline: function(){
 				if(this.annotation){ return; }
@@ -62,13 +63,11 @@ dojo.provide("drawing.stencil.Text");
 					d.y -= (this._lineHeight )/2 - this.style.text.pad;
 				}
 				
-				d.y -= (this.style.text.size*.3)
 				this.hit = this.parent.createRect(d)
 					.setStroke(this.style.currentHit)
 					.setFill(this.style.currentHit.fill);
-				if(!this.annotation){
-					this.util.attr(this.hit, "drawingType", "stencil");
-				}
+				
+				this._setNodeAtts(this.hit);
 				this.hit.moveToBack();
 			},
 			
