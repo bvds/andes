@@ -102,7 +102,13 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			this.labelY.setLabel(y);
 			this._labelsCreated = true;
 		},
-		
+		getLabel: function(){
+			if(!this.labelX){ return {}; }
+			return {
+				x:this.labelX._text,
+				y:this.labelY._text
+			};
+		},
 		
 		anchorPositionCheck: function(x, y, anchor){
 			// summary:
@@ -139,7 +145,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			
 			//	tell anchor to go to prev point if wrong
 			// called from anchor point up mouse up
-			this.isBeingModified = false;
+			this._isBeingModified = false;
 			
 			var o = this.points[0];
 			var c = this.points[1];
@@ -161,10 +167,24 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 				
 				this.points.push({x:ox, y:oy, noAnchor:true});
 				
-				this.render();	
-			
+				
 				this.setPoints(this.points);
 				this.setLabel();
+				console.info("trans end snap")
+				
+				var d = this.pointsToData();
+				var obj = {
+					start:{
+						x:d.x1,
+						y:d.y1
+					},
+					x:d.x2,
+					y:d.y2
+				};
+				this.angle = this.util.angle(obj, this.angleSnap);
+				this.angle = 180 - this.angle; this.angle = this.angle==360 ? 0 : this.angle;
+				
+				this.render();	
 				
 				anchor.reset(this);
 				
@@ -181,22 +201,50 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			
 			this.points[2] = {x:ox, y:oy, noAnchor:true};
 			
-			this.render();	
+				
 			
 			this.setPoints(this.points);
 			this.setLabel();
+			
+			var d = this.pointsToData();
+			var obj = {
+				start:{
+					x:d.x1,
+					y:d.y1
+				},
+				x:d.x2,
+				y:d.y2
+			};
+			this.angle = this.util.angle(obj, this.angleSnap);
+			this.angle = 180 - this.angle; this.angle = this.angle==360 ? 0 : this.angle;
+			
+			console.info("trans end constrain")
+			this.render();
 			
 			anchor.reset(this);
 			
 		},
 		
-		getBounds: function(){
+		getBounds: function(absolute){
 			// custom getBounds
 			var px = this.points[0],
 				pc = this.points[1],
-				py = this.points[2],
+				py = this.points[2];
+				
+			if(absolute){
+				return {
+					x:pc.x,
+					y:pc.y,
+					x1:pc.x,
+					y1:pc.y,
+					x2:px.x,
+					y2:px.y,
+					x3:py.x,
+					y3:py.y
+				};
+			}
 			
-				x1 = py.x,
+			var	x1 = py.x,
 				y1 = py.y < px.y ? py.y : px.y,
 				x2 = px.x,
 				y2 = pc.y;
@@ -237,7 +285,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			this.points[2] = {x:ox, y:oy, noAnchor:true};
 			
 			this.setPoints(this.points);
-			if(!this.isBeingModified){
+			if(!this._isBeingModified){
 				this.onTransformBegin();
 			}
 			this.render();	
@@ -295,6 +343,11 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			this.points = [{x:obj.x, y:obj.y}, {x:obj.start.x, y:obj.start.y, noAnchor:true}];
 			
 			this.points.push({x:ox, y:oy, noAnchor:true});
+			
+			// FIXME:
+			// This is apparently connected and shouldn't be. 
+			//dojo.disconnect(this._postRenderCon);
+			//this._postRenderCon = null;
 			
 			this.onRender(this);
 			this.setPoints = this._postSetPoints;
