@@ -20,6 +20,7 @@
 
 (defun pull-out-quantity (symbol text)
   "Pull the quantity phrase out of a definition:  should match variablname.js"
+  (when symbol
     (if (not (search symbol text))
 	(warn "Bad symbol definition, ~S should be found in ~S."
 	      symbol text)
