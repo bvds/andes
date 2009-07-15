@@ -92,6 +92,9 @@
 .drawingToolbar .drawingButton .icon.iconPan{
 	background-position:-192px 0px;
 }
+.drawingToolbar .drawingButton .icon.iconEq{
+	background-position:-351px 0px;
+}
 
 
 

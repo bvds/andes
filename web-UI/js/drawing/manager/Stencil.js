@@ -31,8 +31,16 @@ dojo.provide("drawing.manager.Stencil");
 			
 			
 			register: function(item){
-				console.log("Selection.register ::::::", item.id)
+				//console.log("Selection.register ::::::", item.id, "TEXT:", item._text)
 				this.items[item.id] = item;
+				if(item.execText){
+					if(item._text && !item.editMode){
+						this.selectItem(item);
+					}
+					item.connect("execText", this, function(){
+						this.selectItem(item);
+					});
+				}
 				return item;
 			},
 			unregister: function(item){
@@ -186,11 +194,20 @@ dojo.provide("drawing.manager.Stencil");
 			onAnchorUp: function(){
 				this.setConstraint();
 			},
+			selectItem: function(/*String|Object*/ idOrItem){
+				var id = typeof(idOrItem)=="string" ? idOrItem : idOrItem.id;
+				var item = this.items[id];
+				this.setSelectionGroup();
+				this.onSelect(item);
+				this.group.moveToFront();
+				this.setConstraint();
+			},
+			
 			onStencilDown: function(obj){
-				console.info("onStencilDown:", obj.id, this.keys.meta)
+				//console.info("onStencilDown:", obj.id, this.keys.meta)
 				if(this.selectedItems[obj.id] && this.keys.meta){
 					
-					console.log("shift remove");
+					//console.log("shift remove");
 					this.onDeselect(this.selectedItems[obj.id]);
 					if(this.hasSelected()==1){
 						this.withSelected(function(m){
@@ -210,19 +227,15 @@ dojo.provide("drawing.manager.Stencil");
 				
 				}else if(!this.keys.meta){
 					
-					console.log("deselect all");
+					//console.log("deselect all");
 					this.deselect();
 				
 				}else{
-					console.log("reset sel and add item")
+					//console.log("reset sel and add item")
 				}
 				
 				// add an item
-				this.setSelectionGroup();
-				var item = this.items[obj.id];
-				this.onSelect(item);
-				this.group.moveToFront();
-				this.setConstraint();
+				this.selectItem(obj.id);
 				
 				var mx = this.group.getTransform();
 				this._offx = obj.x - mx.dx; 

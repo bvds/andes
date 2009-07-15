@@ -9,14 +9,12 @@ dojo.provide("drawing.stencil._Base");
 			dojo.mixin(this, options);
 			
 			this.style = options.style || drawing.defaults.copy();
+			this.angleSnap = this.style.angleSnap || 1;
 			this.isText = this.type=="drawing.stencil.Text" || this.type=="drawing.tools.TextBlock";
 			this.marginZero = options.marginZero || this.style.anchors.marginZero;
 			this.id = options.id || this.util.uid(this.type);
 			this._cons = [];
-			if(this.draws){
-				this.connectMouse();
-				this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
-			}
+			
 			if(!this.annotation && !this.subShape){
 				this.util.attr(this.parent, "id", this.id);
 			}
@@ -34,16 +32,30 @@ dojo.provide("drawing.stencil._Base");
 				this.style.hitSelected.width *= 0.5;
 				this.style.hitHighlighted.width *= 0.5;
 			}
+			
+			if(this.type == "drawing.tools.TextBlock"){
+				// TextBlock will handle rendering itself
+				return;
+			}
+			
 			if(options.points){
 				this.setPoints(options.points);
+				this.connect(this, "render", this, "onRender", true);
 				this.render();
 			}else if(options.data){
 				options.data.width = options.data.width ? options.data.width : this.style.text.minWidth;
 				options.data.height = options.data.height ? options.data.height : this._lineHeight;
 				this.setData(options.data);
+				this.connect(this, "render", this, "onRender", true);
 				this.render(options.data.text);
+			}else if(this.draws){
+				this.connectMouse();
+				this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
 			}
-			console.log("ITEM", this.id, this.style)
+			
+			if(!this.enabled){
+				this.disable();
+			}
 		},
 		{
 			
@@ -125,6 +137,7 @@ dojo.provide("drawing.stencil._Base");
 					this.parent.superClass = this;
 				}
 				this._setNodeAtts(this);
+				//console.warn("ONRENDER", this.id)
 				
 			},
 			
@@ -136,6 +149,18 @@ dojo.provide("drawing.stencil._Base");
 				//
 				// ??? -> TODO - try mixin so if new style does not have fill, the norm.fill will be used
 				//
+				
+				if(!this.enabled){
+					this.style.current = this.style.disabled;
+					this.style.currentText = this.style.textDisabled;	
+					this.style.currentHit = this.style.hitNorm;
+					
+				}else{
+					this.style.current = this.style.norm;
+					this.style.currentHit = this.style.hitNorm;
+					this.style.currentText = this.style.text;
+				}
+				
 				if(this.selected){
 					//this.style.current = this.style.selected;
 					this.style.currentHit = this.style.hitSelected;
@@ -146,19 +171,11 @@ dojo.provide("drawing.stencil._Base");
 					this.style.currentHit = this.style.hitHighlighted;
 					//this.style.currentText = this.style.textHighlighted;
 					
-				}else if(!this.enabled){
-					this.style.current = this.style.disabled;
-					this.style.currentText = this.style.textDisabled;	
-					this.style.currentHit = this.style.hitNorm;
-					
-				}else{
-					this.style.current = this.style.norm;
-					this.style.currentHit = this.style.hitNorm;
-					this.style.currentText = this.style.text;
 				}
+				
+				
 				// NOTE: Can't just change props like setStroke
 				//	because Silverlight throws error
-				console.log("CHANGE STY:", this.id, this.style.currentHit)
 				this.render();
 			},
 			
@@ -181,7 +198,8 @@ dojo.provide("drawing.stencil._Base");
 				if(this.isText){
 					//h.fill = {r:255, g:255, b:255, a:0}
 				}
-				this.render();
+				this.onChangeStyle(this);
+				//this.render();
 			},
 			
 			//	TODO:
@@ -199,21 +217,26 @@ dojo.provide("drawing.stencil._Base");
 			},
 			
 			select: function(){
-				console.log("------------select-------------", this.id)
 				this.selected = true;
 				this.onChangeStyle(this);
 			},
 			
-			deselect: function(){
-				this.selected = false;
-				this.onChangeStyle(this);
+			deselect: function(useDelay){
 				// should not have to render here because the deselection
 				// re-renders after the transform
 				// but... oh well.
+				if(useDelay){
+					setTimeout(dojo.hitch(this, function(){
+						this.selected = false;
+						this.onChangeStyle(this);
+					}),0);
+				}else{
+					this.selected = false;
+					this.onChangeStyle(this);
+				}
 			},
 			
 			highlight: function(){
-				console.log("HIGHT:", this.id)
 				this.highlighted = true;
 				this.onChangeStyle(this);
 			},
@@ -223,6 +246,13 @@ dojo.provide("drawing.stencil._Base");
 				this.onChangeStyle(this);
 			},
 			
+			moveToFront: function(){
+				this.parent && this.parent.moveToFront();
+			},
+			
+			moveToBack: function(){
+				this.parent && this.parent.moveToBack();
+			},
 			
 			onTransformBegin: function(anchor){
 				// called from anchor point up mouse down
@@ -248,11 +278,6 @@ dojo.provide("drawing.stencil._Base");
 			},
 			
 			transformPoints: function(mx){
-				//
-				// should have two sets of points
-				// bounding box points - for transforms
-				// and shape points - for editing
-				//
 				dojo.forEach(this.points, function(o){
 					o.x += mx.dx;
 					o.y += mx.dy;
@@ -299,17 +324,33 @@ dojo.provide("drawing.stencil._Base");
 				}
 			},
 			
+			getLabel: function(){
+				if(this._label){
+					return this._label._text;
+				}
+				return null;
+			},
 			
-			
-			getBounds: function(){
+			getBounds: function(absolute){
 				// NOTE: Won't work for paths or annotations (labels, Axes, arrow tips)
 				//	They should overwrite.
-				var p = this.points;
+				// NOTE: Primarily used for checking for if shape is off
+				//	canvas. Therefore Lines could get flipped. Use absolute
+				//	to prevent this.
+				//
+				var p = this.points, x1, x1, x2, y2;
 				if(p.length==2){
-					var x1 = p[0].x < p[1].x ? p[0].x : p[1].x;
-					var y1 = p[0].y < p[1].y ? p[0].y : p[1].y;
-					var x2 = p[0].x < p[1].x ? p[1].x : p[0].x;
-					var y2 = p[0].y < p[1].y ? p[1].y : p[0].y;
+					if(absolute){
+						x1 = p[0].x;
+						y1 = p[0].y;
+						x2 = p[1].x
+						y2 = p[1].y
+					}else{
+						x1 = p[0].x < p[1].x ? p[0].x : p[1].x;
+						y1 = p[0].y < p[1].y ? p[0].y : p[1].y;
+						x2 = p[0].x < p[1].x ? p[1].x : p[0].x;
+						y2 = p[0].y < p[1].y ? p[1].y : p[0].y;
+					}
 					return {
 						x1:x1,
 						y1:y1,
@@ -353,24 +394,37 @@ dojo.provide("drawing.stencil._Base");
 				this.setPoints(this.points);
 			},
 			
-			
-			
 			_onPostRender: function(/*Object*/data){
-				// drag-create should call onRender
-				// afterwards, this calls onRender
+				// summary:
+				//	drag-create should call onRender
+				//	afterwards, this calls _onPostRender
+				//
+				// TODO: can this be onModify? Is that clear?
+				//
+				//if(this.type == "drawing.tools.TextBlock")
+					//console.warn("_onPostRender", this.id, this._postRenderCon)
+				
 				if(this._isBeingModified){
 					this.onModify(this);
 					this._isBeingModified = false;
-				}else{
-					this.onRender(this);	
+				}else if(!this.created){
+					//this.onCreate(this);
+					//this.onRender(this);	
 				}
+				
 				if(!this.selected && this._prevData && dojo.toJson(this._prevData) != dojo.toJson(this.data)){
+					
+					//if(this.type == "drawing.tools.TextBlock") console.warn("DATA CHANGE", dojo.toJson(this.data))
+					
 					this.onChangeData(this);
 					this._prevData = dojo.clone(this.data);
+				
 				}else if(!this._prevData && (!this.isText || this._text)){
-					console.warn("SET PREV FIRST TIME", this.data, this._text)
 					this._prevData = dojo.clone(this.data);
-				}else{
+					if(this.type == "drawing.tools.custom.Axes") console.log("NO PREV DATA")
+				
+				}else if(this.type == "drawing.tools.TextBlock"){
+					
 					//console.info("data not changed:");console.info("prev:", dojo.toJson(this._prevData));console.info("curr:", dojo.toJson(this.data))
 				}
 				
@@ -403,7 +457,7 @@ dojo.provide("drawing.stencil._Base");
 				if(this.data || this.points && this.points.length){
 					this.onDelete(this);
 				}
-				console.info("shape.destroy", this.id, this.points);
+				console.info("shape.destroy", this.id);
 				this.disconnectMouse();
 				this.disconnect(this._cons);
 				dojo.disconnect(this._postRenderCon);
@@ -496,11 +550,7 @@ dojo.provide("drawing.stencil._Base");
 			disconnect: function(handles){
 				if(!handles) { return };
 				if(!dojo.isArray(handles)){ handles=[handles]; }
-				//console.log("HANDLES:", typeof(handles), handles)
 				dojo.forEach(handles, dojo.disconnect, dojo);
-				//dojo.forEach(handles, function(h){
-				//	dojo.disconnect(h);
-				//})
 			},
 			
 			connectMouse: function(){
@@ -519,6 +569,7 @@ dojo.provide("drawing.stencil._Base");
 				// by default, object is ready to accept data
 				// turn this off for dragging or onRender will
 				// keep firing and register the shape
+				// NOTE: Not needed for all stencils. Axes needs it. 
 				dojo.disconnect(this._postRenderCon);
 				this._postRenderCon = null;
 			},

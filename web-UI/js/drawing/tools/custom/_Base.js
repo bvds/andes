@@ -10,10 +10,10 @@ drawing.tools.custom._Base = drawing.util.oo.declare(
 			["onTransform", "showAngle"],
 			["onTransformEnd", "hideAngle"]
 		]);
-		this.angleSnap = 1;
 	},
 	{
 		type:"drawing.tools.custom",
+		angle:0,
 		
 		showAngle: function(){
 			if(!this.selected && this.created){ return; }
@@ -40,9 +40,14 @@ drawing.tools.custom._Base = drawing.util.oo.declare(
 				top: this._offY + pt.y - sc.top + "px",
 				align:pt.align
 			});
+			//watch("angle:", angle)
 			
 			// reversing the angle for display: 0 -> 180, 90 -> 270
 			angle = 180 - angle; angle = angle==360 ? 0 : angle;
+			
+			//watch("display:", angle)
+			
+			this.angle = angle;
 			
 			node.innerHTML = Math.ceil(angle);
 		},

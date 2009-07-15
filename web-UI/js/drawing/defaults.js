@@ -12,6 +12,11 @@ drawing.defaults = {
 	//currentHit will point to either hitNorm or hitSelected
 	currentHit:null,
 	
+	// line, arrows, vector and axes will all snap to this angle on mouse up
+	// shown angle also reflects the snap
+	// currently cannot accept less than 1 degree
+	angleSnap:1,
+	
 	norm:{
 		width:1,
 		color:"#000000",
@@ -85,6 +90,12 @@ drawing.defaults = {
 		weight:"normal",
 		color:"#000000"
 	},
+	textDisabled:{
+		size:"12px",
+		family:"sans-serif",
+		weight:"normal",
+		color:"#cccccc"
+	},
 	/*textSelected:{
 		size:"12px",
 		family:"sans-serif",
@@ -97,12 +108,7 @@ drawing.defaults = {
 		weight:"normal",
 		color:"#000000"
 	},
-	textDisabled:{
-		size:"12px",
-		family:"sans-serif",
-		weight:"normal",
-		color:"#cccccc"
-	},*/
+	*/
 		// The following styles apply to the containing
 		//	text box, and not the text itself
 	textMode:{

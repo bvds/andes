@@ -89,7 +89,7 @@ dojo.require("drawing.tools.Line");
 			}
 		},
 		startup: function(){
-			console.info("drawing startup")
+			//console.info("drawing startup")
 		},
 		getShapeProps: function(data) {
 			// For convenience. May or may not be in final code.
@@ -208,7 +208,14 @@ dojo.require("drawing.tools.Line");
 		
 		
 		addStencil: function(type, options){
-			return this.stencils.register( new this.stencilTypes[type](this.getShapeProps(options)));
+			//console.log("this.stencilTypes:", this.stencilTypes)
+			var s = this.stencils.register( new this.stencilTypes[type](this.getShapeProps(options)));
+			
+			//s.connect(s, "onRender", this, "onRenderStencil");
+			//s.connect(s, "destroy", this, "onDeleteStencil");
+				
+			this.currentStencil && this.currentStencil.moveToFront();
+			return s;
 		},
 		removeStencil: function(stencil){
 			this.stencils.unregister(stencil);
@@ -216,8 +223,7 @@ dojo.require("drawing.tools.Line");
 		},
 		
 		onRenderStencil: function(stencil){
-			
-			console.info("--------------------------------------drawing.onRenderStencil:", stencil.id);
+			//console.info("--------------------------------------drawing.onRenderStencil:", stencil.id);
 			this.stencils.register(stencil);
 			this.unSetTool();
 			this.setTool(this.currentType);

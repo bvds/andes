@@ -7,13 +7,13 @@ drawing.stencil.Path = drawing.util.oo.declare(
 		dojo.disconnect(this._postRenderCon);
 		
 		this.times = [];
-		this.connect(this, "onRender", this, function(){
+		/*this.connect(this, "onRender", this, function(){
 			var t = 0;
 			dojo.forEach(this.times, function(tm){
 				t += tm;
 			})
 			console.warn("AVERGAE TIME:", t/this.times.length)
-		})
+		});*/
 		if(options.points){
 			this.points = options.points;
 			this.render();
@@ -66,7 +66,7 @@ drawing.stencil.Path = drawing.util.oo.declare(
 			var end = new Date().getTime();
 			this.times.push(end-beg);
 			
-			this.util.attr(this[shp], "drawingType", "stencil");
+			this._setNodeAtts(this[shp]);
 		},
 		
 		render: function(){

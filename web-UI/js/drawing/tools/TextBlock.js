@@ -47,20 +47,49 @@ dojo.require("drawing.stencil.Text");
 					{x:d.x+w, y:d.y+h},
 					{x:d.x, y:d.y+h}
 				];
-				if(d.showEmpty){
-					this._text = "";
-					this.edit();
-				}else if(d.text){
-					this.render(d.text);
+				
+				if(d.showEmpty || d.text){
+					this.editMode = true;
+					
+				
+					dojo.disconnect(this._postRenderCon);
+					this._postRenderCon = null;
+					this.connect(this, "render", this, "onRender", true);
+					
+					if(d.showEmpty){
+						this._text = d.text || "";
+						this.edit();
+					}else if(d.text && d.editMode){
+						this._text = "";
+						this.edit();
+					}else if(d.text){
+						this.render(d.text);
+					}
+					setTimeout(dojo.hitch(this, function(){
+						this.editMode = false;	
+					}),100)
+					
+					console.warn("DIS POST REND", this._postRenderCon)	
 				}
+				
+			}else{
+				console.warn("CONNECT POST REND")
+				this.connectMouse();
+				this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
 			}
+			console.log("TextBlock:", this.id)
 		},
 		{
 			draws:true,
 			type:"drawing.tools.TextBlock",
 			
+			setText: function(text){
+				this._text = text;
+				this._textArray = [];
+				this.render(text);
+			},
+			
 			showParent: function(obj){
-				console.warn("PARNET TXT", this.id);
 				if(this.parentNode){ return; }
 				var x = obj.pageX || 10;
 				var y = obj.pageY || 10;
@@ -88,7 +117,6 @@ dojo.require("drawing.stencil.Text");
 				document.body.appendChild(this.parentNode);
 			},
 			createTextField: function(txt){
-				console.warn("CREATE TXT", this.id);
 				// style parent
 				var d = this.style.textMode.edit;
 				this._box.border = d.width+"px "+d.style+" "+d.color;
@@ -113,9 +141,9 @@ dojo.require("drawing.stencil.Text");
 				this._textConnected = true;
 				this.mouse.setEventMode("TEXT");
 				this.keys.editMode(true);
-				var kc1, kc2, kc3, kc4, kc5, self = this, _autoSet = false,
+				var kc1, kc2, kc3, kc4, kc5, kc6, self = this, _autoSet = false,
 					exec = function(){
-						dojo.forEach([kc1,kc2,kc3, kc4,kc5], function(c){
+						dojo.forEach([kc1,kc2,kc3,kc4,kc5,kc6], function(c){
 							dojo.disconnect(c)
 						});
 						self._textConnected = false;
@@ -153,7 +181,6 @@ dojo.require("drawing.stencil.Text");
 				this.createAnchors();
 				
 				kc5 = dojo.connect(this.mouse, "setZoom", this, function(evt){
-					console.warn("MOUSE ZOOM************************")
 					exec();
 				});
 				
@@ -168,10 +195,15 @@ dojo.require("drawing.stencil.Text");
 					// once again for Silverlight:
 					conEdit.focus();
 					
+					// this is a pretty odd chunk of code here.
+					// specifcally need to overwrite old onUp
+					// however, this still gets called. its
+					// not disconnecting.
 					this.onUp = function(){
-						if(!self._onAnchor){
+						if(!self._onAnchor && this.parentNode){
 							self.disconnectMouse();
 							exec();
+							self.onUp = function(){}
 						}
 					}	
 				}), 500);
@@ -207,12 +239,16 @@ dojo.require("drawing.stencil.Text");
 					{x:x+w, y:y+o.h},
 					{x:x, y:y+o.h}
 				];
-				console.info("TEXT:", o.text);
+				this.editMode = false;
+				
+				
+		console.log("EXEC TEXT::::", this._postRenderCon);
 				this.render(o.text);
 				this.onChangeText(txt);
 			},
 			
 			edit: function(){
+				this.editMode = true;
 				console.log("EDIT TEXT:", this._text, " ", this._text.replace("/n", " "));
 				// NOTE: no mouse obj
 				if(this.parentNode || !this.points){ return; }
@@ -227,9 +263,7 @@ dojo.require("drawing.stencil.Text");
 					width:d.width / this.mouse.zoom,
 					height:d.height / this.mouse.zoom
 				}
-				for(var nm in obj){
-					//obj[nm] /= this.mouse.zoom;
-				}
+				
 				this.remove(this.shape, this.hit);
 				this.showParent(obj);
 				this.createTextField(this._text.replace("/n", " "));
@@ -332,8 +366,18 @@ dojo.require("drawing.stencil.Text");
 			},
 			
 			onUp: function(obj){
-				console.warn("TEXTBLOCK UP", this.id);
-				if(!this.created && (!this.shape && !obj.withinCanvas || !this._box)){ return; }
+				if(!obj.withinCanvas){ return; }
+				
+				console.log("ON UP", this.id, this._postRenderCon)
+				
+				var c = dojo.connect(this, "render", this, function(){
+					dojo.disconnect(c);
+					this.onRender(this);	
+					
+				});
+				this.editMode = true;
+				this.showParent(obj);
+				this.created = true;
 				this.createTextField();
 				this.connectTextField();
 			},
@@ -343,6 +387,8 @@ dojo.require("drawing.stencil.Text");
 					x: obj.pageX,
 					y: obj.pageY
 				};
+				dojo.disconnect(this._postRenderCon);
+				this._postRenderCon = null;
 			},
 			onMove: function(){},
 			

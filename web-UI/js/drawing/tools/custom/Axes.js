@@ -86,9 +86,10 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			};
 		},
 		setLabel: function(value){
+			if(this._labelsCreated){ return; }
 			!this.labelX && this.createLabels();
-			var x = "X";
-			var y = "Y";
+			var x = "x";
+			var y = "y";
 			if(value){
 				value = value.replace(/and|(\+)/, " "); // what other words would they use?
 				var lbls = value.match(/(\b\w+\b)/g);
@@ -99,8 +100,15 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			}
 			this.labelX.setLabel(x);
 			this.labelY.setLabel(y);
+			this._labelsCreated = true;
 		},
-		
+		getLabel: function(){
+			if(!this.labelX){ return {}; }
+			return {
+				x:this.labelX._text,
+				y:this.labelY._text
+			};
+		},
 		
 		anchorPositionCheck: function(x, y, anchor){
 			// summary:
@@ -131,18 +139,59 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 		},
 		
 		onTransformEnd: function(anchor){
+			// Gets called on anchor mouseup
+			//	also gets called by checkBounds - we don't want that.
+			if(!anchor){ return; }
+			
 			//	tell anchor to go to prev point if wrong
 			// called from anchor point up mouse up
-			this.isBeingModified = false;
+			this._isBeingModified = false;
 			
 			var o = this.points[0];
 			var c = this.points[1];
 			var pt = this.util.constrainAngle({start:{x:c.x, y:c.y}, x:o.x, y:o.y}, 91, 180);
 			if(pt.x==o.x && pt.y == o.y){
+				// we're within the constraint, so now we snap
+				var obj = {start:{x:c.x,y:c.y},x:o.x, y:o.y};
+				pt = this.util.snapAngle(obj, this.angleSnap/180);
+				
+				obj.x = pt.x;
+				obj.y = pt.y;
+				var ox = obj.start.x - (obj.start.y - obj.y);
+				var oy = obj.start.y - (obj.x - obj.start.x);
+				
+				if(ox<0 || oy<0){
+					return;
+				}
+				this.points = [{x:obj.x, y:obj.y}, {x:obj.start.x, y:obj.start.y, noAnchor:true}];
+				
+				this.points.push({x:ox, y:oy, noAnchor:true});
+				
+				
+				this.setPoints(this.points);
+				this.setLabel();
+				console.info("trans end snap")
+				
+				var d = this.pointsToData();
+				var obj = {
+					start:{
+						x:d.x1,
+						y:d.y1
+					},
+					x:d.x2,
+					y:d.y2
+				};
+				this.angle = this.util.angle(obj, this.angleSnap);
+				this.angle = 180 - this.angle; this.angle = this.angle==360 ? 0 : this.angle;
+				
+				this.render();	
+				
+				anchor.reset(this);
+				
 				return;
 			}
-			// careful changing these points. The anchors are
-			// linked as an instance to the objects
+			
+			// we're outside of the constraint. Set to the low or high.
 			this.points[0].x = pt.x
 			this.points[0].y = pt.y;
 			o = this.points[0];
@@ -152,25 +201,50 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			
 			this.points[2] = {x:ox, y:oy, noAnchor:true};
 			
-			this.render();	
+				
 			
 			this.setPoints(this.points);
 			this.setLabel();
 			
-			// a desperate hack in order to get the anchor point to reset.
-			var st = this.util.byId("drawing").stencils;
-			st.onDeselect(this);
-			st.onSelect(this);
+			var d = this.pointsToData();
+			var obj = {
+				start:{
+					x:d.x1,
+					y:d.y1
+				},
+				x:d.x2,
+				y:d.y2
+			};
+			this.angle = this.util.angle(obj, this.angleSnap);
+			this.angle = 180 - this.angle; this.angle = this.angle==360 ? 0 : this.angle;
+			
+			console.info("trans end constrain")
+			this.render();
+			
+			anchor.reset(this);
 			
 		},
 		
-		getBounds: function(){
+		getBounds: function(absolute){
 			// custom getBounds
 			var px = this.points[0],
 				pc = this.points[1],
-				py = this.points[2],
+				py = this.points[2];
+				
+			if(absolute){
+				return {
+					x:pc.x,
+					y:pc.y,
+					x1:pc.x,
+					y1:pc.y,
+					x2:px.x,
+					y2:px.y,
+					x3:py.x,
+					y3:py.y
+				};
+			}
 			
-				x1 = py.x,
+			var	x1 = py.x,
 				y1 = py.y < px.y ? py.y : px.y,
 				x2 = px.x,
 				y2 = pc.y;
@@ -188,6 +262,9 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 		},
 		
 		_postSetPoints: function(pts){
+			// summary:
+			// 	Because Axes only has one anchor,
+			// 	we substitute a special setPoints method
 			this.points[0] = pts[0];
 			if(this.pointsToData){
 				this.data = this.pointsToData();
@@ -208,7 +285,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			this.points[2] = {x:ox, y:oy, noAnchor:true};
 			
 			this.setPoints(this.points);
-			if(!this.isBeingModified){
+			if(!this._isBeingModified){
 				this.onTransformBegin();
 			}
 			this.render();	
@@ -234,12 +311,12 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			if(ox<0 || oy<0){
 				return;
 			}
-			this.points = [{x:obj.x, y:obj.y}, {x:obj.start.x, y:obj.start.y, noAnchor:true}]
+			this.points = [{x:obj.x, y:obj.y}, {x:obj.start.x, y:obj.start.y, noAnchor:true}];
 			
 			this.points.push({x:ox, y:oy, noAnchor:true});
 			this.render();
 		},
-		onUp:function(){
+		onUp:function(obj){
 			var p = this.points;
 			var len = this.util.distance(p[1].x,p[1].y,p[0].x,p[0].y);
 			if(!p || !p.length){
@@ -250,6 +327,28 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 				this.yArrow.remove(this.yArrow.shape, this.yArrow.hit);
 				return;
 			}
+			
+			var o = p[0];
+			var c = p[1];
+			obj = {start:{x:c.x,y:c.y},x:o.x,y:o.y};
+			var pt = this.util.snapAngle(obj, this.angleSnap/180);
+			obj.x = pt.x;
+			obj.y = pt.y;
+			var ox = obj.start.x - (obj.start.y - obj.y);
+			var oy = obj.start.y - (obj.x - obj.start.x);
+			
+			if(ox<0 || oy<0){
+				return;
+			}
+			this.points = [{x:obj.x, y:obj.y}, {x:obj.start.x, y:obj.start.y, noAnchor:true}];
+			
+			this.points.push({x:ox, y:oy, noAnchor:true});
+			
+			// FIXME:
+			// This is apparently connected and shouldn't be. 
+			//dojo.disconnect(this._postRenderCon);
+			//this._postRenderCon = null;
+			
 			this.onRender(this);
 			this.setPoints = this._postSetPoints;
 		}
