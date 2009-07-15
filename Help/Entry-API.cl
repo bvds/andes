@@ -867,10 +867,10 @@
     ;; install new variable in symbol table
     (add-entry entry)
     ;; probably should switch to whole SystemEntry
-    (check-symbols-enter symbol body-term id)
+    (when symbol (check-symbols-enter symbol body-term id))
 
     ;; record associated given value equation entry
-    (when value  ; NIL => unspecified. (Empty string => unknown)
+    (when (and symbol value)  ;NIL => unspecified. (Empty string => unknown)
       (add-given-eqn entry (make-given-eqn-entry symbol value 'value)))
     ;; NB! make-given-eqn-entry can return NIL if no system var found for 
     ;; studvar.
@@ -903,12 +903,11 @@
 	 (x-label (StudentEntry-x-label entry))
 	 (y-label (StudentEntry-y-label entry))
 	 (z-label (StudentEntry-z-label entry))
-	 (action  `(draw-axes ,dir)) ; dir is naked degree value
-	 (x-term  `(axis x ,dir))
-	 (y-term  `(axis y ,dir))
-	 (z-term  `(axis z ,dir))
-	 (xdir-dnum `(dnum ,dir |deg|))
-	)
+	 (action `(draw-axes ,dir)) ; dir is naked degree value
+	 (x-term `(axis x ,dir))
+	 (y-term `(axis y ,dir))
+	 (z-term `(axis z ,dir))
+	 (xdir-dnum `(dnum ,dir |deg|)))
 
     (setf (StudentEntry-prop entry) action)
    ;; install symbols for x, y, and z axes
@@ -917,17 +916,18 @@
    ;; They would also be needed for referring to the axes by label in help 
    ;; messages if there is more than one set of axes.
    (add-entry entry)
-   (check-symbols-enter x-label x-term id)
-   (check-symbols-enter y-label y-term id)
-   (check-symbols-enter z-label z-term id) 
+   (when x-label (check-symbols-enter x-label x-term id))
+   (when y-label (check-symbols-enter y-label y-term id))
+   (when z-label (check-symbols-enter z-label z-term id))
 
    ;; automatically define thetaX as label for direction of positive x-axis
-   (check-symbols-enter (strcat "$q" x-label) xdir-dnum id xdir-dnum)
+   (when x-label (check-symbols-enter (strcat "$q" x-label) 
+				      xdir-dnum id xdir-dnum))
 
   ;; if any vectors are defined add all component variables along 
   ;; these new axes as well
   (dolist (vector-sym (symbols-fetch '(mag ?vector)))
-    (dolist (axis-label (list x-label y-label z-label))
+    (dolist (axis-label (remove nil (list x-label y-label z-label)))
       (let* ((vector-label (sym-label vector-sym))
              (mag-term     (sym-referent vector-sym))
 	     (vector-entry-id (first (sym-entries vector-sym)))
@@ -994,27 +994,29 @@
 ;; NB: if entries is not a singleton, the error is hung on the first
 ;; one, which should be the principal entry being evaluated
 (defun check-symbols-enter (label referent entry-ids &optional sysvar)
-  (cond ((symbols-lookup label) ;; variable already defined!
-	 ;; find entry. entry-ids arg may be atom or list, but should not be nil
-	 (let ((entry (find-entry (if (atom entry-ids) entry-ids (first entry-ids))))
-	       rem)
-	   ;; build the error remediation turn
-	   (setf rem (make-hint-seq (list
-				     (format nil "The variable ~A is in use to define ~A. Please choose a different label." 
-					     label (nlg (symbols-referent label))))))
-	   
-	   (setf (turn-id rem) (StudentEntry-id entry))
-	   (setf (turn-coloring rem) **color-red**)
-	   ;; set state of entry and attach error. But only do if not done already, so 
-	   ;; only report on the first error found.
-	   (unless (studentEntry-ErrInterp entry)
-	     (setf (studentEntry-state entry) 'incorrect)
-             (setf (studentEntry-ErrInterp entry)
-		   (make-ErrorInterp :diagnosis '(variable-already-in-use)
-				     :remediation rem)))))
-	
-	;; else no conflict: just make the definition
-	(T (symbols-enter label referent entry-ids sysvar))))
+  (cond
+    ((null label) (warn "check-symbols-enter received null symbol"))
+    ((symbols-lookup label) ;; variable already defined!
+     ;; find entry. entry-ids arg may be atom or list, but should not be nil
+     (let ((entry (find-entry (if (atom entry-ids) entry-ids (first entry-ids))))
+	   rem)
+       ;; build the error remediation turn
+       (setf rem (make-hint-seq (list
+				 (format nil "The variable ~A is in use to define ~A. Please choose a different label." 
+					 label (nlg (symbols-referent label))))))
+       
+       (setf (turn-id rem) (StudentEntry-id entry))
+       (setf (turn-coloring rem) **color-red**)
+       ;; set state of entry and attach error. But only do if not done already, so 
+       ;; only report on the first error found.
+       (unless (studentEntry-ErrInterp entry)
+	 (setf (studentEntry-state entry) 'incorrect)
+	 (setf (studentEntry-ErrInterp entry)
+	       (make-ErrorInterp :diagnosis '(variable-already-in-use)
+				 :remediation rem)))))
+    
+    ;; else no conflict: just make the definition
+    (T (symbols-enter label referent entry-ids sysvar))))
 
 ;;
 ;; Check-NonEq-Entry -- Generic checker for non-equation student entry 
