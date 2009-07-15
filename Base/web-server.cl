@@ -71,7 +71,9 @@
   (unless (search "application/json" (header-in* :content-type))
     ;; with the wrong content-type, just send string back
     (return-from handle-json-rpc "\"content-type must be application/json\""))
-  (let* ((in-json 
+  ;; By default, cl-json turns dashes into camelcase:  we don't want that.
+  (let* ((*lisp-identifier-name-to-json* #'string-downcase)
+	 (in-json 
 	  ;; It would be much better if we gave the source of the error.
 	  (ignore-errors (decode-json-from-string 
 			  (raw-post-data :force-text t))))

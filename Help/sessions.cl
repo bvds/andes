@@ -218,10 +218,16 @@
       
       (let ((y 10) (i 0))
 	(dolist  (line (problem-statement *cp*))
-	  (push `((:action . "new-object") (:type . "statement") 
+	  (cond ((unify line '(answer . ?rest))
+		 (push `((:action . "new-object") (:type . "statement") 
+		  (:id . ,(format nil "statement~A" i))
+		  (:mode . "unknown") (:x . 10) (:y . ,y) 
+		  (:width . 100) (:text . "Answer:       ")) replies))
+		(t 
+		 (push `((:action . "new-object") (:type . "statement") 
 		  (:id . ,(format nil "statement~A" i))
 		  (:mode . "locked") (:x . 10) (:y . ,y) 
-		  (:width . 400) (:text . ,line)) replies)
+		  (:width . 400) (:text . ,line)) replies)))
 	  (incf i)
 	  (setf y (+ y 25)))
 	
