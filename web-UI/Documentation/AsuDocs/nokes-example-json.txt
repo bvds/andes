@@ -131,7 +131,6 @@ in the same step.  In Andes3, it is separate.
 	   "action": "new-object", "id": "a5",  
 	   "type": "statement", "mode": "unknown", 
 	   "x": 177, "y": 188, "width": 66, "symbol": "m",
-	   "x-statement": 365, "y-statement": 67,
 	   "text": "m is the mass of the ball"}, "id": 6}
 
 [
