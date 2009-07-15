@@ -2,8 +2,19 @@ dojo.provide("andes.drawing");
 
 
 (function(){
+	
+	//dojo.cookie("mikeDev", "{load:true}", { expires: 999 });
+	//console.log("COOKIE:", dojo.fromJson(dojo.cookie("mikeDev")));
+	//console.log("Fwall1_x = Fwall1 * cos (\\thetaFwall1)");
+	
 	var theme = {
 		DTheta:1,
+		locked:{
+			//TODO
+		},
+		fade:{
+			//TODO
+		},
 		correct:{
 			fill:  "#CCFFCC",
 			color: "#009900"
@@ -39,12 +50,13 @@ dojo.provide("andes.drawing");
 	
 	// better name
 	var stencilMods = {
-		statement:"text",
-		equation:"textBlock",
-		graphics:"image"
+		statement:	"textBlock",
+		equation:	"textBlock",
+		graphics:	"image"
 	};
 	
-	
+	//"enum": ["statement", "graphics", "equation", "circle", "ellipse", "rectangle", "axes", "vector", "line"],
+	  
 	var stencils = {
 		line: "drawing.stencil.Line",
 		rect: "drawing.stencil.Rect",
@@ -53,6 +65,18 @@ dojo.provide("andes.drawing");
 		axes: "drawing.tools.custom.Axes",
 		textBlock:"drawing.tools.TextBlock"
 	};
+	
+	var andesTypes = {
+		"drawing.stencil.Line":"line",
+		"drawing.stencil.Rect":"rectangle",
+		"drawing.stencil.Ellipse":"ellipse", // or circle
+		"drawing.tools.custom.Vector":"vector",
+		"drawing.tools.custom.Axes":"axes",
+		"drawing.tools.custom.Equation":"equation",
+		"drawing.stencil.Image":"graphics",
+		"drawing.tools.TextBlock":"statement" // or statement.... hmmmm
+	};
+	
 	
 	var hasStatement = {
 		"drawing.stencil.Line":true,
@@ -105,12 +129,13 @@ dojo.provide("andes.drawing");
 			//
 			if(items[item.id]){ return; }
 			
-			console.log("-----------> drawing, new item:", item.id);
+			console.log("-----------> drawing, new item:", item.id, items);
 		
 			
 			//item.disable();
 
 			if(hasStatement[item.type] || hasLabel[item.type]){
+				
 				var box = item.getBounds();
 				var props = getStatementPosition(box);
 				if(hasLabel[item.type]){
@@ -123,7 +148,7 @@ dojo.provide("andes.drawing");
 					item.connect(statement, "onChangeText", this, function(value){
 						item.setLabel(value);
 						console.log("--------------------------------> onNewItem(Axes)", item.id);
-						this.add(item);
+						this.add(item, true);
 						_drawing.removeStencil(s);
 					});
 					
@@ -139,11 +164,20 @@ dojo.provide("andes.drawing");
 					], [
 						// statement connects
 						["onChangeText", function(value){
-							item.setLabel(andes.variablename.parse(value));
-							c.attr(getDevTheme());
-							console.log("--------------------------------> onNewItem", item.id);
-							self.add(item);
-							self.add(statement);
+							
+							var label = andes.variablename.parse(value);
+							if(label){
+								item.setLabel(label);
+							}else{
+								item.setLabel(value);
+								statement.setText("");
+								statement.deselect(true);
+								
+							}
+							
+							console.log("--------------------------------> onNewItem", c.id);
+							self.add(c, true);
+							//self.add(statement);
 						}]
 					]);
 				}
@@ -153,7 +187,7 @@ dojo.provide("andes.drawing");
 			}
 		},
 		
-		add: function(/* Stencil */ item, /*Boolean*/ fromServer){
+		add: function(/* Stencil */ item, /*Boolean*/ saveToServer, /*Boolean*/noConnect){
 			// summary:
 			//	items added here may be from the server OR drag-created.
 			//	They should most often be combo items with _Connection,
@@ -165,30 +199,34 @@ dojo.provide("andes.drawing");
 				return;
 			}
 			
-			console.warn("ADD ITEM", item);
+			//console.warn("ADD ITEM", item.type);
+			
+			
 			
 			items[item.id] = item;
 			
+			if(noConnect){
+				return;
+			}
 			
 			item.connect("onDelete", this, function(item){
 				console.log("--------------------------------> onDelete", item.id);
 				this.remove(item);
 			});
 			
-			item.connect("onModify", this, function(item){
-				//console.log("onModify", item.id);
-			});
-			item.connect("onChangeText", this, function(value){
-				console.log("---------------------------------> onChangeText", item.id, value);
-			});
 			item.connect("onChangeData", this, function(item){
-				console.log("---------------------------------> onChangeData", item.id, dojo.toJson(item.data));
+				console.log("---------------------------------> onChangeData", item.id, item.type);//dojo.toJson(item.data));
+				console.log("items:", items)
+				var data = this.transform.drawingToAndes(item, "modify-object")
+				console.warn("SAVE TO SERVER", data);
+				this.save(data);
 			});
 			
-			if(!fromServer){
+			if(saveToServer){
 				// we need to save it to the server
-				
-				console.warn("SAVE TO SERVER", this.transform.drawingToAndes(item))
+				var data = this.transform.drawingToAndes(item, "new-object")
+				console.warn("SAVE TO SERVER", data);
+				this.save(data);
 			}
 		},
 		
@@ -210,7 +248,9 @@ dojo.provide("andes.drawing");
 					},
 					enabled:o.mode!="locked"
 				};
-				
+				if(o.type=="statement" && (o.mode=="locked" || o.mode=="fade")){
+					obj.stencilType = "text";
+				}
 				if(o.text){
 					obj.data.text = o.text;
 				}
@@ -219,25 +259,116 @@ dojo.provide("andes.drawing");
 				}
 				return obj;
 			},
-			drawingToAndes: function(item){
+			drawingToAndes: function(item, action){
 				
+				var round = function(b){
+					for(var nm in b){
+						b[nm] = Math.round(b[nm]);
+					}
+					return b;
+				}
+				// combo...............
+				var combo, statement, sbox, id = item.id;
+				if(item.type=="drawing.stencil._Connection"){
+					statement = item.getItem();
+					item = item.master;
+					combo = true;
+					sbox = round(item.getBounds());
+				}
+				var type = andesTypes[item.type];
+				if(type=="statement" && item instanceof drawing.tools.custom.Equation){
+					type = "equation";
+				}
+				var box = round(item.getBounds(true));
+				var obj = {
+					x:box.x,
+					y:box.y,
+					action:action,
+					type:type,
+					id:id,
+					mode: "unknown"
+				}
+				
+				if(type!="vector" && type!="line" && type!="axes"){
+					obj.width = box.w;
+					obj.height = box.h;
+				}else if(type!="axes"){
+					var line = {start:{x:box.x1, y:box.y1}, x:box.x2, y:box.y2};
+					obj.radius = Math.round(_drawing.util.length(line));
+					obj.angle = item.angle;
+				}
+				
+				if(type == "statement" || type == "equation"){
+					obj.text = item._text || "EMPTY STATEMENT";
+				
+				}else if(type != "axes"){
+					obj.text = statement._text || "NOTHING SHOULD BE HERE";
+					obj.symbol = item.getLabel();
+					obj["x-statement"] = sbox.x;
+					obj["y-statement"] = sbox.y;
+				
+				}else if(type == "axes"){
+					var lbl = item.getLabel();
+					obj["x-label"] = lbl.x;
+					obj["y-label"] = lbl.y;
+					
+					var line = {start:{x:box.x1, y:box.y1}, x:box.x2, y:box.y2};
+					obj.radius = Math.round(_drawing.util.length(line));
+					obj.angle = item.angle;
+				}
+				
+				if(combo){//item.getLabel();//
+					obj.text = statement._text || "EMPTY COMBO";
+				}
+				
+				if(type=="vector"){
+					
+				}
+				
+				window.cItem = item;
+				console.log("window item:", cItem);
+				
+				return obj;
 			}
 		},
 		
-		loadProjectData: function(data){
+		save: function(data){
+			var devCookie = dojo.fromJson(dojo.cookie("mikeDev"));
+			if(devCookie && devCookie.load==false){
+				return;
+			}
+			andes.api.step(data).addCallback(this, "handleServerActions").addErrback(this, "onError");	
+		},
+		
+		/*
+		{"method": "solution-step", "params": {"time": 198.001, 
+	   "action": "new-object", "id": "a6",  
+	   "type": "vector", "mode": "unknown", 
+	   "x": 240, "y": 222, "angle": 120,  "radius": 60,
+	   "symbol": "Fwall1", "x-statement": 300, "y-statement": 350,
+	   "text": "Fwall1 is the normal force on the ball due to wall1"}, "id": 7}
+		*/
+		
+		handleServerActions: function(data){
+			console.log("handleServerActions");
+			console.dir(data);
 			var mods = [];
 			dojo.forEach(data, function(obj){
 				if(obj.action =="new-object"){
 					var o = this.transform.andesToDrawing(obj);
 					var item = _drawing.addStencil(o.stencilType, o);
-					console.log(" --- add", item);
+					//console.log(" --- add", item);
 					this.add(item);
 				}else if(obj.action=="modify-object"){
 					mods.push(obj);
+				}else if(obj.action=="set-score"){
+					andes.help.score(obj.score);
 				}
 			}, this);
 			
 			dojo.forEach(mods, function(obj){
+				console.warn("MOD ITEM", obj.id);
+				console.log("   items:", items);
 				items[obj.id].attr(theme[obj.mode]);
 			},this);
 			
@@ -250,14 +381,17 @@ dojo.provide("andes.drawing");
 			
 			_surfaceLoaded = true;
 			if(this._initialData){
-				this.loadProjectData(this._initialData);
+				this.handleServerActions(this._initialData);
 				this._initialData = null;
 			}
 		},
 		
 		load: function(){
 			// called from the very bottom of main.js
-			//return;
+			var devCookie = dojo.fromJson(dojo.cookie("mikeDev"));
+			if(devCookie && devCookie.load==false){
+				return;
+			}
 			this.loadProject = function(){
 				andes.api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId}).addCallback(this, "onLoad").addErrback(this, "onError");
 			}
@@ -271,10 +405,8 @@ dojo.provide("andes.drawing");
 		onLoad: function(data){
 			console.info("Project Data Loaded");
 			this._initialData = data;
-			console.dir(data);
-		
 			if(_surfaceLoaded){
-				this.loadProjectData(this._initialData);
+				this.handleServerActions(this._initialData);
 				this._initialData = null;
 			}
 		},

@@ -50,7 +50,12 @@ dojo.require("drawing.stencil.Text");
 				
 				if(d.showEmpty || d.text){
 					this.editMode = true;
+					
+				
+					dojo.disconnect(this._postRenderCon);
+					this._postRenderCon = null;
 					this.connect(this, "render", this, "onRender", true);
+					
 					if(d.showEmpty){
 						this._text = d.text || "";
 						this.edit();
@@ -64,9 +69,11 @@ dojo.require("drawing.stencil.Text");
 						this.editMode = false;	
 					}),100)
 					
+					console.warn("DIS POST REND", this._postRenderCon)	
 				}
 				
 			}else{
+				console.warn("CONNECT POST REND")
 				this.connectMouse();
 				this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
 			}
@@ -75,6 +82,12 @@ dojo.require("drawing.stencil.Text");
 		{
 			draws:true,
 			type:"drawing.tools.TextBlock",
+			
+			setText: function(text){
+				this._text = text;
+				this._textArray = [];
+				this.render(text);
+			},
 			
 			showParent: function(obj){
 				if(this.parentNode){ return; }
@@ -227,6 +240,9 @@ dojo.require("drawing.stencil.Text");
 					{x:x, y:y+o.h}
 				];
 				this.editMode = false;
+				
+				
+		console.log("EXEC TEXT::::", this._postRenderCon);
 				this.render(o.text);
 				this.onChangeText(txt);
 			},

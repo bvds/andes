@@ -32,7 +32,7 @@ dojo.provide("andes.main");
 		};
 		dojo.cookie("andes", dojo.toJson(andesCookie), { expires: 999 });
 	}
-	//dojo.cookie("andes", null, { expires: -1 });
+	
 	andes.closeFirst = false;
 	andes.userId = query.u;
 	andes.projectId = query.p;

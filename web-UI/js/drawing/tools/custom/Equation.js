@@ -7,7 +7,7 @@ drawing.tools.custom.Equation = drawing.util.oo.declare(
 		
 	},
 	{
-		
+		//type:"drawing.tools.custom.Equation"
 	}
 );
 

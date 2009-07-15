@@ -204,10 +204,10 @@ dojo.provide("drawing.manager.Stencil");
 			},
 			
 			onStencilDown: function(obj){
-				console.info("onStencilDown:", obj.id, this.keys.meta)
+				//console.info("onStencilDown:", obj.id, this.keys.meta)
 				if(this.selectedItems[obj.id] && this.keys.meta){
 					
-					console.log("shift remove");
+					//console.log("shift remove");
 					this.onDeselect(this.selectedItems[obj.id]);
 					if(this.hasSelected()==1){
 						this.withSelected(function(m){
@@ -227,11 +227,11 @@ dojo.provide("drawing.manager.Stencil");
 				
 				}else if(!this.keys.meta){
 					
-					console.log("deselect all");
+					//console.log("deselect all");
 					this.deselect();
 				
 				}else{
-					console.log("reset sel and add item")
+					//console.log("reset sel and add item")
 				}
 				
 				// add an item
