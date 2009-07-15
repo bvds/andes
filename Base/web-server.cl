@@ -71,22 +71,29 @@
   (unless (search "application/json" (header-in* :content-type))
     ;; with the wrong content-type, just send string back
     (return-from handle-json-rpc "\"content-type must be application/json\""))
-  (let* ((in-json (decode-json-from-string 
-		     (raw-post-data :force-text t)))
+  (let* ((in-json 
+	  ;; It would be much better if we gave the source of the error.
+	  (ignore-errors (decode-json-from-string 
+			  (raw-post-data :force-text t))))
 	 (service-uri (request-uri*))
 	 (method (cdr (assoc :method in-json)))
 	 (params (cdr (assoc :params in-json)))
 	 (turn (cdr (assoc :id in-json)))
 	 (client-id (header-in* :client-id))
-	 (version (assoc :jsonrpc in-json))
+	 ;; If I can't parse the json, assume it is 2.0.
+	 (version (if in-json (assoc :jsonrpc in-json) '(:jsonrpc . "2.0")))
 	 (method-func (gethash (list service-uri method) 
 			       *service-methods*))
 	 reply)
-    (format *stdout* "session ~A calling ~A with ~S~%" 
+    (format *stdout* "session ~A calling ~A with~%     ~S~%" 
 	    client-id method params)
     
     (multiple-value-bind (result error1)
 	(cond
+	  ((null in-json)
+	   (values nil (if version
+			   `((:code . -32700) (:message . "json parse error"))
+			   "Parse error")))
 	  ;; Here, we assume that the client generates the user-problem
 	  ;; session id.  Alternatively, we could have the server generate it and
 	  ;; return it to the client at the beginning of a new session
@@ -100,7 +107,7 @@
 	   ;; hard because the clients already do this.
 	   (values nil (if version
 			   `((:code . -32600) (:message . "Method missing."))
-			   (format nil "Method missing"))))
+			   "Method missing")))
 	  ((null method-func)
 	   (values nil (if version
 			   `((:code . -32601) (:message . "Method not found")
@@ -111,7 +118,7 @@
 	  ;; match the function...
 	  (t (execute-session client-id turn method-func params)))
       
-      (format *stdout* "  result ~S error ~S~%" result error1)
+      (format *stdout* "result ~S~%~@[error ~S~%~]" result error1)
       ;; only give a response when there is an error or id is given
       (when (or error1 turn)
 	(when (or error1 (not version)) (push (cons :error error1) reply))

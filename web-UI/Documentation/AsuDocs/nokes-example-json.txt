@@ -71,7 +71,7 @@ the text.
 If there was previous work, it would be included in the above response.  
 
 0:50 student draws ball.  Since there is no "symbol", the statement
-is attached to the object, and x-statement and y-statement are not returned.
+is attached to the object, and the x-statement and y-statement are optional.
 
 {"method": "solution-step", "params": {"time": 50.000, 
 	   "action": "new-object", "id": "a3",  

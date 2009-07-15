@@ -414,14 +414,6 @@ consed on if lists or as list otherwize."
   
 ;;; -------------------------------------------------
 
-;;; Sort things by the length that they 
-;;; appear as strings.
-(defun sort-ascending-string-length (lst)
-  (if (not (listp lst)) lst
-    (mapcar #'read-from-string 
-	    (sort (mapcar #'princ-to-string lst)
-		  #'length-LE-comp))))
-
 
 ;; Given a sequence and a set of subsequences search for 
 ;; them in priority order and return the location of the 

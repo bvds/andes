@@ -20,18 +20,22 @@
 
 (defun pull-out-quantity (symbol text)
   "Pull the quantity phrase out of a definition:  should match variablname.js"
-  (if symbol
-      ;; this should be done as a parser.
-      (let* ((si (+ (search symbol text) (length symbol)))
-	     (nosym (string-left-trim *whitespace* (subseq text si))))
-	;; The empty string is a catch-all in case there is no match
-	(dolist (equality '("is " ":" "=" "be " "as " "to be " ""))
-	  (when (and (>= (length nosym) (length equality))
-		     (string= equality (string-downcase nosym) 
-			      :end2 (length equality)))
-	    (return-from pull-out-quantity
-	      (string-trim *whitespace* (subseq nosym (length equality)))))))
-      text))
+  (when symbol
+    (if (not (search symbol text))
+	(warn "Bad symbol definition, ~S should be found in ~S."
+	      symbol text)
+	;; this should be done as a parser.
+	(let* ((si (+ (search symbol text) (length symbol)))
+	       (nosym (string-left-trim *whitespace* (subseq text si))))
+	  ;; The empty string is a catch-all in case there is no match
+	  (dolist (equality '("is " ":" "=" "be " "as " "to be " ""))
+	    (when (and (>= (length nosym) (length equality))
+		       (string= equality (string-downcase nosym) 
+				:end2 (length equality)))
+	      (return-from pull-out-quantity
+		(string-trim *whitespace* 
+			     (subseq nosym (length equality)))))))))
+  text)
 
 (defun best-matches (text good)
   "Returns array of best matches to text.  Use minimum edit distance."
