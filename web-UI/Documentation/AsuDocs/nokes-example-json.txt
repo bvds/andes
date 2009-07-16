@@ -42,7 +42,7 @@ script.
 
 0:02 Initial login
 
-{"method": "open-problem", "params": {"section":"1234"}, "id": 1}
+{"method": "open-problem", "params": {"time": 0.000, "problem": "s2e", "user": "joe", "section":"1234"}, "id": 1}
 
 This request may also send the WebAssign session id.  Width of a text box is 
 set explicitly by "width" in em units or implicitly by newlines in 
