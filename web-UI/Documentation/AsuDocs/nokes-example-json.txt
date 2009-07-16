@@ -93,7 +93,7 @@ is shown on the screen when the vector is being dragged out.
 {"method": "solution-step", "params": {"time": 69.000, 
 	   "action": "new-object", "id": "a4",  
 	   "type": "axes", "mode": "unknown", 
-	   "x": 77, "y": 88, "angle": 0,  "radius": 120, 
+	   "x": 277, "y": 188, "angle": 0,  "radius": 120, 
 	   "x-label": "x", "y-label": "y"}, "id": 3}
 
 [
@@ -118,7 +118,7 @@ agnostic about object positions; Andes3 is not.
 
 {"method": "solution-step", "params": {"time": 76.000, 
 	   "action": "modify-object", "mode": "unknown", 
-	   "id": "a4", "x": 108, "y": 109}, "id": 5}
+	   "id": "a4", "x": 308, "y": 209}, "id": 5}
 
 [
   {"action": "modify-object", "id": "a4", "mode": "correct"}
@@ -410,7 +410,8 @@ non-blocking, thus there is no need for the "OK" button seen in Andes2.
 The equation "Fwall1=?" in an equation box will start the calculator.
 
 {"method": "solution-step", "params": {"time": 905.001,
-	   "action": "new-object", "id": "a18.5", "type": "equation", "mode": "unknown",
+	   "action": "new-object", "id": "a18.5", "type": "equation", 
+           "mode": "unknown", "x": 200, "y": 380,
 	   "text": "Fwall1=?"}, "id": 27}
 
 The two returns could be combined:
