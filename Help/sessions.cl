@@ -169,7 +169,9 @@
   (setq webserver:*env* (make-help-env :student user :problem problem 
 				       :section section))
   
-  (let (replies solution-step-replies)
+  (let (replies solution-step-replies
+		;; Override global variable on start-up
+		(*simulate-loaded-server* nil))
     (env-wrap
       (setq **base-Htime** (universal-time->htime (get-universal-time)))
       (solver-load)
@@ -268,6 +270,8 @@
 
     (append (reverse replies) solution-step-replies)))
 
+(defvar *simulate-loaded-server* t "Put in delay in solution steps")
+
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
 (webserver:defun-method "/help" solution-step 
@@ -302,6 +306,8 @@
 
     (let ((old-entry (find-entry id)) new-entry 
 	  (ans "Answer:"))
+
+      (when *simulate-loaded-server* (sleep 2))
 
       (when (and old-entry (equal action "new-object"))
 	(warn "Object ~A already exists, updating old object." id))
