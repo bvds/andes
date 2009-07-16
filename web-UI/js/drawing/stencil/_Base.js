@@ -517,7 +517,7 @@ dojo.provide("drawing.stencil._Base");
 				if(this.data || this.points && this.points.length){
 					this.onDelete(this);
 				}
-				console.info("shape.destroy", this.id);
+		console.info("shape.destroy", this.id);
 				this.disconnectMouse();
 				this.disconnect(this._cons);
 				dojo.disconnect(this._postRenderCon);
