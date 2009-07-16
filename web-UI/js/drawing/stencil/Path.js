@@ -5,15 +5,7 @@ drawing.stencil.Path = drawing.util.oo.declare(
 	drawing.stencil._Base,
 	function(options){
 		dojo.disconnect(this._postRenderCon);
-		
-		this.times = [];
-		/*this.connect(this, "onRender", this, function(){
-			var t = 0;
-			dojo.forEach(this.times, function(tm){
-				t += tm;
-			})
-			console.warn("AVERGAE TIME:", t/this.times.length)
-		});*/
+
 		if(options.points){
 			this.points = options.points;
 			this.render();
@@ -27,13 +19,11 @@ drawing.stencil.Path = drawing.util.oo.declare(
 			
 			this.remove(this[shp]);
 			
-			var beg = new Date().getTime();
-			
 			if(dojox.gfx.renderer=="svg"){
 				// NOTE:
 				// In order to avoid the Safari d="" errors,
 				// we'll need to build a string and set that.
-				var strAr = []
+				var strAr = [];
 				dojo.forEach(this.points, function(o, i){
 					if(i==0){
 						strAr.push("M " + o.x +" "+ o.y);
@@ -62,9 +52,6 @@ drawing.stencil.Path = drawing.util.oo.declare(
 				}, this);
 				this.closePath && this[shp].closePath();
 			}
-			
-			var end = new Date().getTime();
-			this.times.push(end-beg);
 			
 			this._setNodeAtts(this[shp]);
 		},

@@ -30,6 +30,9 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			this.yArrow.destroy();
 			this.xArrow.destroy();
 		});
+		if(this.points && this.points.length){
+			this.setPoints = this._postSetPoints;
+		}
 	},
 	{
 		draws:true,
@@ -283,7 +286,6 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			// 'noAnchor' on a point indicates an anchor should
 			// not be rendered. This is the Y point being set.
 			this.points[2] = {x:ox, y:oy, noAnchor:true};
-			
 			this.setPoints(this.points);
 			if(!this._isBeingModified){
 				this.onTransformBegin();
@@ -293,13 +295,50 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 		pointsToData: function(){
 			var p = this.points;
 			return {
-				x1:p[1].x,
-				y1:p[1].y,
-				x2:p[0].x,
-				y2:p[0].y
+				x1:p[0].x,
+				y1:p[0].y,
+				x2:p[1].x,
+				y2:p[1].y,
+				x3:p[2].x,
+				y3:p[2].y
 			};
 		},
-		
+		dataToPoints: function(o){
+			o = o || this.data;
+			if(o.radius || o.angle){
+				// instead of using x1,x2,y1,y1,
+				// it's been set as x,y,angle,radius
+				
+				// reversing the angle for display: 0 -> 180, 90 -> 270
+				//angle = 180 - angle; angle = angle==360 ? 0 : angle;
+				
+				var was = o.angle
+				o.angle = (180-o.angle)<0 ? 180-o.angle+360 : 180-o.angle;
+				
+				//console.log(" ---- angle:", was, "to:", o.angle)
+				var pt = this.util.pointOnCircle(o.x,o.y,o.radius,o.angle);
+				//console.log(" ---- pts:", pt.x, pt.y);
+				
+				var ox = o.x - (o.y - pt.y);
+				var oy = o.y - (pt.x - o.x);
+				
+				this.data = o = {
+					x2:o.x,
+					y2:o.y,
+					x1:pt.x,
+					y1:pt.y,
+					x3:ox,
+					y3:oy
+				}
+				
+			}
+			this.points = [
+				{x:o.x1, y:o.y1},
+				{x:o.x2, y:o.y2, noAnchor:true},
+				{x:o.x3, y:o.y3, noAnchor:true}
+			];
+			return this.points;
+		},
 		onDrag: function(obj){
 			
 			var pt = this.util.constrainAngle(obj, 91, 180);
@@ -343,12 +382,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			this.points = [{x:obj.x, y:obj.y}, {x:obj.start.x, y:obj.start.y, noAnchor:true}];
 			
 			this.points.push({x:ox, y:oy, noAnchor:true});
-			
-			// FIXME:
-			// This is apparently connected and shouldn't be. 
-			//dojo.disconnect(this._postRenderCon);
-			//this._postRenderCon = null;
-			
+
 			this.onRender(this);
 			this.setPoints = this._postSetPoints;
 		}

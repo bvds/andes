@@ -158,7 +158,14 @@ dojo.require("dojox.math.round");
 			uidMap[str] = uidMap[str]===undefined ? 0 : uidMap[str] + 1;
 			return str + uidMap[str];
 		},
-		
+		checkData: function(o){
+			//return;
+			for(var n in o){
+				if(typeof(o[n]) != "number"){
+					console.warn("PROBLEM:", n, "==", o[n])
+				}
+			}
+		},
 		objects:{}, //private?
 		register: function(obj){
 			this.objects[obj.id] = obj;	
