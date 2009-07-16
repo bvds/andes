@@ -186,8 +186,10 @@ dojo.provide("andes.drawing");
 			}
 			
 			item.connect("onDelete", this, function(item){
-				console.log("--------------------------------> onDelete", item.id);
+				var id = item.id;
+				console.log("--------------------------------> onDelete", id);
 				this.remove(item);
+				this.save({action:"delete-object", id:item.id});
 			});
 			
 			item.connect("onChangeData", this, function(item){
@@ -207,7 +209,6 @@ dojo.provide("andes.drawing");
 		},
 		
 		remove: function(/* Stencil */ item){
-			console.log("---------------------------------> onDelete", item.id, "connection:", !!item.connection);
 			delete items[item.id];
 		},
 		

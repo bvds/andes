@@ -20,6 +20,8 @@ andes.Combo = drawing.util.oo.declare(
 			}]
 		]);
 		
+		var s = this.statement;
+		var m = this.master;
 		this.statement.connectMult([
 			[this.statement, "onChangeText", this, function(value){
 				var label = andes.variablename.parse(value);
@@ -39,13 +41,15 @@ andes.Combo = drawing.util.oo.declare(
 			[this.master, "deselect", this.statement, "unhighlight"],
 			[this.statement, "select", this.master, "highlight"],
 			[this.statement, "deselect", this.master, "unhighlight"],
-			[this.statement, "destroy", this.master, function(){
+			[this.statement, "destroy", this, function(){
 				if(!this.master.destroyed){
+					this.onDelete(this);
 					this.master.destroy();
 				}
 			}],
-			[this.master, "destroy", this.statement, function(){
+			[this.master, "destroy", this, function(){
 				if(!this.statement.destroyed){
+					this.onDelete(this);
 					this.statement.destroy();
 				}
 			}]
