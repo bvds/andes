@@ -7,6 +7,7 @@ dojo.provide("andes.main");
 	if(!window.location.search){
 		query = {
 			p:"s2e",
+			//p:"s2esolved",
 			u:"joe1"
 		};
 	}else{
@@ -38,13 +39,14 @@ dojo.provide("andes.main");
 	andes.projectId = query.p;
 	andes.sectionId = query.s || 1234;
 	var ck = dojo.cookie("andes");
-	if(ck){
+	if(ck && ck.u){
 		// There was already a cookie here
 		if(ck.u==andes.userId && ck.p==andes.projectId){
 			// we can continue the same session
 			andes.sessionId = ck.sid;
 		}else{
 			andes.closeFirst = true;
+			console.warn("Closing previous session", ck.u, andes.userId, ck.p, andes.projectId)
 			setCookie();
 		}
 	}else{

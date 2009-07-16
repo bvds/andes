@@ -48,6 +48,9 @@ dojo.provide("drawing.stencil._Base");
 				this.setData(options.data);
 				this.connect(this, "render", this, "onRender", true);
 				this.render(options.data.text);
+				if(options.label){
+					this.setLabel(options.label);
+				}
 			}else if(this.draws){
 				this.connectMouse();
 				this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
@@ -55,6 +58,7 @@ dojo.provide("drawing.stencil._Base");
 			
 			if(!this.enabled){
 				this.disable();
+				this.moveToBack();
 			}
 		},
 		{
@@ -73,7 +77,7 @@ dojo.provide("drawing.stencil._Base");
 			points:[],
 			data:null,
 			// how closely shape can get to y:0 or x:0 ÐÊzero may show bugs in VML
-			zeroMargin:0,
+			marginZero:0,
 			
 			//readonly
 			created: false,
@@ -182,21 +186,38 @@ dojo.provide("drawing.stencil._Base");
 			attr: function(/*String | Object*/key, /* ? String | Number */value){
 				// summary
 				//	Changes properties in the normal-style.
-				var n = this.style.norm, h = this.style.hitNorm, t = this.style.text, o;
-				
+				var n = this.style.norm, h = this.style.hitNorm, t = this.style.text, o, nm;
+				var coords = {
+					x:true,
+					y:true
+				};
+				var propChange = false;
 				if(typeof(key)!="object"){
 					o = {};
 					o[key] = value;
 				}else{
 					o = key;
 				}
-				for(var nm in o){
+				for(nm in o){
 					if(nm in n){ n[nm] = o[nm]; }
 					//if(nm in h){ h[nm] = o[nm]; }
 					if(nm in t){ t[nm] = o[nm]; }
+					
+					if(nm in coords){
+						coords[nm] = o[nm];
+						propChange = true;
+					}
 				}
-				if(this.isText){
-					//h.fill = {r:255, g:255, b:255, a:0}
+				
+				if(propChange){
+					var box = this.getBounds(true);
+					var mx = { dx:0, dy:0 };	
+					for(nm in coords){
+						if(typeof(coords[nm])=="number"){
+							mx["d"+nm] = coords[nm] - box[nm];
+						}
+					}
+					this.transformPoints(mx);
 				}
 				this.onChangeStyle(this);
 				//this.render();
@@ -278,15 +299,34 @@ dojo.provide("drawing.stencil._Base");
 			},
 			
 			transformPoints: function(mx){
+				// summary:
+				//	Moves object to a new X Y location
+				//	mx is additive. So mx.dx=1 will move the shape
+				//	1 pixel to the right from wherever it was.
+				// An attempt is made to prevent < 0 errors, but
+				// this won't work on all shapes (like Axes)
+				//
+				var backup = dojo.clone(this.points), abort = false;
 				dojo.forEach(this.points, function(o){
 					o.x += mx.dx;
 					o.y += mx.dy;
+					if(o.x<this.marginZero || o.y<this.marginZero){
+						abort = true;
+					}
 				});
+				if(abort){
+					this.points = backup;
+					console.error("Attempt to set object '"+this.id+"' to less than zero.");
+					return;
+				}
 				this.onTransform();
 				this.onTransformEnd();
 			},
 			
 			setTransform: function(mx){
+				// FIXME:
+				// need setTransform and applyTransform
+				// this does apply
 				this.transformPoints(mx);
 			},
 			
@@ -387,10 +427,30 @@ dojo.provide("drawing.stencil._Base");
 				// why is this sometimes empty?
 				if(!this.points.length){ return; }
 				
-				dojo.forEach(this.points, function(p){
-					p.x = p.x < 0 ? this.zeroMargin : p.x;
-					p.y = p.y < 0 ? this.zeroMargin : p.y;
-				});
+				if(this.type=="drawing.tools.custom.Axes"){
+					// this scenario moves all points if < 0
+					var minY = this.marginZero, minX = this.marginZero;
+					dojo.forEach(this.points, function(p){ minY = Math.min(p.y, minY); });
+					dojo.forEach(this.points, function(p){ minX = Math.min(p.x, minX); });
+					
+					if(minY<this.marginZero){
+						dojo.forEach(this.points, function(p, i){
+							p.y = p.y + (this.marginZero-minY)
+						}, this);
+					}
+					if(minX<this.marginZero){
+						dojo.forEach(this.points, function(p){
+							p.x += (this.marginZero-minX)
+						}, this);
+					}
+					
+				}else{
+					// this scenario moves just the one point that is < 0
+					dojo.forEach(this.points, function(p){
+						p.x = p.x < 0 ? this.marginZero : p.x;
+						p.y = p.y < 0 ? this.marginZero : p.y;
+					});
+				}
 				this.setPoints(this.points);
 			},
 			
@@ -457,7 +517,7 @@ dojo.provide("drawing.stencil._Base");
 				if(this.data || this.points && this.points.length){
 					this.onDelete(this);
 				}
-				console.info("shape.destroy", this.id);
+		console.info("shape.destroy", this.id);
 				this.disconnectMouse();
 				this.disconnect(this._cons);
 				dojo.disconnect(this._postRenderCon);

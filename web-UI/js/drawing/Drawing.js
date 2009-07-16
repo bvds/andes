@@ -208,12 +208,9 @@ dojo.require("drawing.tools.Line");
 		
 		
 		addStencil: function(type, options){
-			//console.log("this.stencilTypes:", this.stencilTypes)
 			var s = this.stencils.register( new this.stencilTypes[type](this.getShapeProps(options)));
-			
-			//s.connect(s, "onRender", this, "onRenderStencil");
+			// need this or not?
 			//s.connect(s, "destroy", this, "onDeleteStencil");
-				
 			this.currentStencil && this.currentStencil.moveToFront();
 			return s;
 		},

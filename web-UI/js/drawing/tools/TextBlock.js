@@ -40,6 +40,9 @@ dojo.require("drawing.stencil.Text");
 					var o = this.measureText(this.cleanText(d.text, false), w);
 					w = o.w;
 					h = o.h;
+				}else{
+					w = this.style.text.minWidth;
+					this._text = "";
 				}
 				this.points = [
 					{x:d.x, y:d.y},
@@ -69,15 +72,13 @@ dojo.require("drawing.stencil.Text");
 						this.editMode = false;	
 					}),100)
 					
-					console.warn("DIS POST REND", this._postRenderCon)	
 				}
 				
 			}else{
-				console.warn("CONNECT POST REND")
 				this.connectMouse();
 				this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
 			}
-			console.log("TextBlock:", this.id)
+			//console.log("TextBlock:", this.id)
 		},
 		{
 			draws:true,
