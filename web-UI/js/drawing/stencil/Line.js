@@ -59,7 +59,7 @@ drawing.stencil.Line = drawing.util.oo.declare(
 		},
 		_create: function(shp, d, sty){
 			this.remove(this[shp]);
-			this[shp] = this.parent.createLine(d)
+			this[shp] = this.container.createLine(d)
 				.setStroke(sty);
 			this._setNodeAtts(this[shp]);
 		},

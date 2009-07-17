@@ -1,5 +1,4 @@
 dojo.provide("drawing.tools.Arrow");
-dojo.require("drawing.stencil._Slave");
 
 drawing.tools.Arrow = drawing.util.oo.declare(
 	drawing.tools.Line,

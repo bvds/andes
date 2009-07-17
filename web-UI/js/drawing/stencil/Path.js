@@ -34,12 +34,12 @@ drawing.stencil.Path = drawing.util.oo.declare(
 				if(this.closePath){
 					strAr.push("Z");
 				}
-				this[shp] = this.parent.createPath(strAr.join(", ")).setStroke(sty);
+				this[shp] = this.container.createPath(strAr.join(", ")).setStroke(sty);
 				this.closePath && this[shp].setFill(sty.fill);
 				
 			}else{
 				// Leaving this code for VML. It seems slightly faster but times vary.
-				this[shp] = this.parent.createPath({}).setStroke(sty);
+				this[shp] = this.container.createPath({}).setStroke(sty);
 				
 				this.closePath && this[shp].setFill(sty.fill);
 				

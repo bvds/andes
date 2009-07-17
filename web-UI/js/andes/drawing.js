@@ -474,6 +474,7 @@ dojo.provide("andes.drawing");
 		
 		load: function(){
 			// called from the very bottom of main.js
+			//
 			var devCookie = dojo.fromJson(dojo.cookie("mikeDev"));
 			if(devCookie && devCookie.load==false){
 		//return;
@@ -568,14 +569,3 @@ dojo.provide("andes.drawing");
 	};
 	
 })();
-
-/*
- var cb = function(){ console.warn("IN CALLBACK"); };
-var eb = function(){ console.error("IN ERRBACK"); };
-
-andes.api.open({user:"joe", problem:"s2e"}).addCallbacks(cb,eb);
-
-andes.api.step({action:"new-object", id:"a3", type:"circle", mode:"unknown", x:66, y:188, radius:25, text:"ball"});
-
-andes.api.close().addCallbacks(cb,eb);
-*/

@@ -36,7 +36,7 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 		
 		_create: function(shp, d, sty){
 			this.remove(this[shp]);
-			this[shp] = this.parent.createRect(d)
+			this[shp] = this.container.createRect(d)
 				.setStroke(sty)
 				.setFill(sty.fill);
 			

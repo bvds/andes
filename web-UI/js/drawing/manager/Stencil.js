@@ -128,7 +128,7 @@ dojo.provide("drawing.manager.Stencil");
 				this.group.setTransform({dx:0, dy: 0});
 				
 				this.withSelected(function(m){
-					this.group.add(m.parent);
+					this.group.add(m.container);
 					m.select();
 				});
 				
@@ -149,7 +149,7 @@ dojo.provide("drawing.manager.Stencil");
 				}
 				if(this.selectedItems[item.id]){ return; }
 				this.selectedItems[item.id] = item;
-				this.group.add(item.parent);
+				this.group.add(item.container);
 				item.select();
 				if(this.hasSelected()==1){
 					this.anchors.add(item, this.group);
@@ -160,7 +160,7 @@ dojo.provide("drawing.manager.Stencil");
 				
 				this.anchors.remove(item);
 				
-				surface.add(item.parent);
+				surface.add(item.container);
 				item.deselect();
 				item.setTransform(this.group.getTransform());
 				

@@ -22,7 +22,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 		
 		createLabels: function(){
 			// NOTE: Not passing style into text because it's changing it
-			var props = {align:"middle", valign:"middle", util:this.util, annotation:true, parent:this.parent, mouse:this.mouse, stencil:this};
+			var props = {align:"middle", valign:"middle", util:this.util, annotation:true, container:this.container, mouse:this.mouse, stencil:this};
 			this.labelX = new drawing.annotations.Label(dojo.mixin(props,{
 				labelPosition:this.setLabelX
 			}));
@@ -100,7 +100,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			//	position is ok. If not, its x or y transform will
 			// be changed until this passes.
 			//
-			var pm = this.parent.getParent().getTransform();
+			var pm = this.container.getParent().getTransform();
 			var am = anchor.shape.getTransform();
 			
 			// the xaxis point has changed and is not yet set as a point

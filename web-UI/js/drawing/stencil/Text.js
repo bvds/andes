@@ -32,7 +32,7 @@ dojo.provide("drawing.stencil.Text");
 				if(this.valign=="middle"){
 					y -= h/2;
 				}
-				this.shape = this.parent.createGroup();
+				this.shape = this.container.createGroup();
 				//console.info("render text:", y, " ... ", this._text, "enabled:", this.enabled);
 				
 				dojo.forEach(this._textArray, function(txt, i){
@@ -63,7 +63,7 @@ dojo.provide("drawing.stencil.Text");
 					d.y -= (this._lineHeight )/2 - this.style.text.pad;
 				}
 				
-				this.hit = this.parent.createRect(d)
+				this.hit = this.container.createRect(d)
 					.setStroke(this.style.currentHit)
 					.setFill(this.style.currentHit.fill);
 				

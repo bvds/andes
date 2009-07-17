@@ -13,7 +13,7 @@ drawing.stencil.Image = drawing.util.oo.declare(
 		anchorType: "group",
 		_createHilite: function(){
 			this.remove(this.hit);
-			this.hit = this.parent.createRect(this.data)
+			this.hit = this.container.createRect(this.data)
 				.setStroke(this.style.current)
 				.setFill(this.style.current.fill);
 			this._setNodeAtts(this.hit);
@@ -21,9 +21,9 @@ drawing.stencil.Image = drawing.util.oo.declare(
 		_create: function(shp, d, sty){
 			
 			this.remove(this[shp]);
-			var s = this.parent.getParent();
+			var s = this.container.getParent();
 			this[shp] = s.createImage(d)
-			this.parent.add(this[shp]);
+			this.container.add(this[shp]);
 			this._setNodeAtts(this[shp]);
 		},
 		

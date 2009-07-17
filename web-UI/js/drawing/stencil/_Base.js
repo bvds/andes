@@ -12,7 +12,7 @@ dojo.provide("drawing.stencil._Base");
 				this.stencil = options.stencil;
 				this.util = options.stencil.util;
 				this.mouse = options.stencil.mouse;
-				this.parent = options.stencil.parent;
+				this.container = options.stencil.container;
 				this.style = options.stencil.style;
 			}
 			this.angleSnap = this.style.angleSnap || 1;
@@ -22,7 +22,7 @@ dojo.provide("drawing.stencil._Base");
 			this._cons = [];
 			
 			if(!this.annotation && !this.subShape){
-				this.util.attr(this.parent, "id", this.id);
+				this.util.attr(this.container, "id", this.id);
 			}
 			
 			this.connect(this, "onBeforeRender", "preventNegativePos");
@@ -74,7 +74,7 @@ dojo.provide("drawing.stencil._Base");
 		{
 			
 			//public
-			parent:null, // shape(s) container TODO: change to 'container'
+			container:null, // shape(s) container TODO: change to 'container'
 			type:"drawing.stencil",
 			isText:false,
 			minimumSize:10,
@@ -148,7 +148,7 @@ dojo.provide("drawing.stencil._Base");
 				if(this.shape) {
 					this.shape.superClass = this;
 				}else{
-					this.parent.superClass = this;
+					this.container.superClass = this;
 				}
 				this._setNodeAtts(this);
 				//console.warn("ONRENDER", this.id)
@@ -278,11 +278,11 @@ dojo.provide("drawing.stencil._Base");
 			},
 			
 			moveToFront: function(){
-				this.parent && this.parent.moveToFront();
+				this.container && this.container.moveToFront();
 			},
 			
 			moveToBack: function(){
-				this.parent && this.parent.moveToBack();
+				this.container && this.container.moveToBack();
 			},
 			
 			onTransformBegin: function(anchor){
@@ -341,7 +341,7 @@ dojo.provide("drawing.stencil._Base");
 			},
 			
 			getTransform: function(){
-				return this.selected ? this.parent.getParent().getTransform() : {dx:0, dy:0};
+				return this.selected ? this.container.getParent().getTransform() : {dx:0, dy:0};
 			},
 			
 			setData: function(d){
@@ -366,7 +366,7 @@ dojo.provide("drawing.stencil._Base");
 						mouse:this.mouse,
 						stencil:this,
 						annotation:true,
-						parent:this.parent,
+						container:this.container,
 						labelPosition:this.labelPosition
 					});
 				}else if(text){
@@ -564,7 +564,7 @@ dojo.provide("drawing.stencil._Base");
 				// 	No args defaults to this.shape
 				//	Pass in multiple args to remove multiple shapes
 				//
-				//this.parent.clear(); return;
+				//this.container.clear(); return;
 				var a = arguments;
 				if(!a.length){
 					if(!this.shape){ return; }
