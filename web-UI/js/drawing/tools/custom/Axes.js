@@ -167,30 +167,15 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 					return;
 				}
 				this.points = [{x:obj.x, y:obj.y}, {x:obj.start.x, y:obj.start.y, noAnchor:true}];
-				
 				this.points.push({x:ox, y:oy, noAnchor:true});
-				
 				
 				this.setPoints(this.points);
 				this.setLabel();
 				console.info("trans end snap")
 				
-				var d = this.pointsToData();
-				var obj = {
-					start:{
-						x:d.x1,
-						y:d.y1
-					},
-					x:d.x2,
-					y:d.y2
-				};
-				this.angle = this.util.angle(obj, this.angleSnap);
-				this.angle = 180 - this.angle; this.angle = this.angle==360 ? 0 : this.angle;
-				
+				this.angle = this.getAngle();
 				this.render();	
-				
 				anchor.reset(this);
-				
 				return;
 			}
 			
@@ -203,25 +188,9 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			var oy = c.y - (o.x - c.x);
 			
 			this.points[2] = {x:ox, y:oy, noAnchor:true};
-			
-				
-			
 			this.setPoints(this.points);
 			this.setLabel();
-			
-			var d = this.pointsToData();
-			var obj = {
-				start:{
-					x:d.x1,
-					y:d.y1
-				},
-				x:d.x2,
-				y:d.y2
-			};
-			this.angle = this.util.angle(obj, this.angleSnap);
-			this.angle = 180 - this.angle; this.angle = this.angle==360 ? 0 : this.angle;
-			
-			console.info("trans end constrain")
+			this.angle = this.getAngle();
 			this.render();
 			
 			anchor.reset(this);
@@ -295,10 +264,10 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 		pointsToData: function(){
 			var p = this.points;
 			return {
-				x1:p[0].x,
-				y1:p[0].y,
-				x2:p[1].x,
-				y2:p[1].y,
+				x1:p[1].x,
+				y1:p[1].y,
+				x2:p[0].x,
+				y2:p[0].y,
 				x3:p[2].x,
 				y3:p[2].y
 			};
@@ -309,16 +278,8 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 				// instead of using x1,x2,y1,y1,
 				// it's been set as x,y,angle,radius
 				
-				// reversing the angle for display: 0 -> 180, 90 -> 270
-				//angle = 180 - angle; angle = angle==360 ? 0 : angle;
-				
-				var was = o.angle
 				o.angle = (180-o.angle)<0 ? 180-o.angle+360 : 180-o.angle;
-				
-				//console.log(" ---- angle:", was, "to:", o.angle)
 				var pt = this.util.pointOnCircle(o.x,o.y,o.radius,o.angle);
-				//console.log(" ---- pts:", pt.x, pt.y);
-				
 				var ox = o.x - (o.y - pt.y);
 				var oy = o.y - (pt.x - o.x);
 				
