@@ -55,22 +55,36 @@ dojo.require("andes.error");
 				}
 			},
 			function(error){
-				// FIXME: What other kind of errors come up here? Are we
-				//        safe in assuming this is something we can simply
-				//        try again?
 				requestInFlight = false;
-				if(++tries <= MAX_RETRIES){
-					setTimeout(function(){
-						sendRequest(req);
-					}, RETRY_TIMEOUT);
-				}else{
+				if(error._rpcErrorObject){
 					req.dfd.errback(error);
-					//console.error(error);
+					var msg = "<p>The server reported an error:</p><pre>" + error.name + ": " + error.message;
+					if(error._rpcErrorObject.code){
+						msg += " (code " + error._rpcErrorObject.code + ")";
+					}
+					msg += "</pre>";
 					andes.error({
-						title: "Connection Error",
-						message: "The connection to the server failed and couldn't be re-established after retrying " + MAX_RETRIES + " times; giving up.",
-						dialogType: andes.error.OK
+						title: "Server Error",
+						message: msg,
+						errorType: andes.error.OK
 					});
+				}else{
+					// FIXME: What other kind of errors come up here? Are we
+					//        safe in assuming this is something we can simply
+					//        try again?
+					if(++tries <= MAX_RETRIES){
+						setTimeout(function(){
+							sendRequest(req);
+						}, RETRY_TIMEOUT);
+					}else{
+						req.dfd.errback(error);
+						//console.error(error);
+						andes.error({
+							title: "Connection Error",
+							message: "The connection to the server failed and couldn't be re-established after retrying " + MAX_RETRIES + " times; giving up.",
+							dialogType: andes.error.OK
+						});
+					}
 				}
 			}
 		);
