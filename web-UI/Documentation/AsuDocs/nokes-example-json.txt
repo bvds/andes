@@ -81,7 +81,7 @@ is attached to the object, and the x-statement and y-statement are optional.
 
 [
   {"action": "log", "assoc": {"DRAW-BODY": "(BODY BALL)"}, "id": "a3"},
-  {"action": "set-score", "score", 15},
+  {"action": "set-score", "score": 15},
   {"action": "modify-object", "id": "a3", "mode": "correct"}
 ]
 
@@ -99,7 +99,7 @@ is shown on the screen when the vector is being dragged out.
 [
   {"action": "log", "assoc": {"DRAW-UNROTATED-AXES": "(DRAW-AXES 0)"}, 
            "id": "a4"},
-  {"action": "set-score", "score", 25},
+  {"action": "set-score", "score": 25},
   {"action": "modify-object", "id": "a4", "mode": "correct"}
 ]
 
@@ -148,7 +148,7 @@ in the same step.  In Andes3, it is separate.
 
 [
   {"action": "log", "parse": "(= m_BALL (DNUM 2.0 kg))", "id": "a5b"},
-  {"action": "set-score", "score", 40},
+  {"action": "set-score", "score": 40},
   {"action": "modify-object", "id": "a5b", "mode": "correct"}
 ]
 
@@ -343,7 +343,7 @@ combined.
 	   "text": "Fwall1_x + Fwall2_x + Fearth_x = m *a"}, "id": 21}
 
 [
-  {"action": "set-score", "score", 57},
+  {"action": "set-score", "score": 57},
   {"action": "modify-object", "id": "a16", "mode": "correct"}
 ]
 
@@ -356,7 +356,7 @@ combined.
 	   "text": "Fwall1_y + Fwall2_y + Fearth_y = m*a"}, "id": 22}
 
 [
-  {"action": "set-score", "score", 75},
+  {"action": "set-score", "score": 75},
   {"action": "modify-object", "id": "a17", "mode": "correct"}
 ]
 
@@ -369,7 +369,7 @@ combined.
 	   "text": "Fearth_y = m*g"}, "id": 23}
 
 [
-  {"action": "set-score", "score", 74},
+  {"action": "set-score", "score": 74},
   {"action": "modify-object", "id": "a18", "mode": "incorrect"}
 ]
 
@@ -454,7 +454,7 @@ box included with the original problem statement with "text" set to
 	   "text": "answer:  15.2 N"}, "id": 30}
 
 [
-  {"action": "set-score", "score", 97},
+  {"action": "set-score", "score": 97},
   {"action": "modify-object", "id": "a19", "mode": "correct"}
 ]
 
