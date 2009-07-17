@@ -367,7 +367,8 @@ dojo.require("drawing.stencil.Text");
 			},
 			
 			onUp: function(obj){
-				if(!obj.withinCanvas){ return; }
+				if(!this._downOnCanvas){ return; }
+				this._downOnCanvas = false;
 				
 				console.log("ON UP", this.id, this._postRenderCon)
 				
@@ -383,6 +384,7 @@ dojo.require("drawing.stencil.Text");
 				this.connectTextField();
 			},
 			
+			_downOnCanvas:false,
 			onDown: function(obj){
 				this._startdrag = {
 					x: obj.pageX,
@@ -390,6 +392,7 @@ dojo.require("drawing.stencil.Text");
 				};
 				dojo.disconnect(this._postRenderCon);
 				this._postRenderCon = null;
+				this._downOnCanvas = true;
 			},
 			onMove: function(){},
 			

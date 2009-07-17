@@ -52,12 +52,15 @@ dojo.provide("andes.main");
 	}else{
 		setCookie();	
 	}
-	
+	dojo.addOnUnload(function(){
+		andes.api.close({});
+		// but don't clear cookie
+	});
 	dojo.addOnLoad(function(){
 		dojo.connect(dojo.byId("submitButton"), "click", function(){
 			andes.api.close({});
 			dojo.cookie("andes", null, { expires: -1 });
-			//document.location.href = "login.html";
+			document.location.href = "login.html";
 		});
 	
 		var splashNode = dojo.byId("splashOverlay"),

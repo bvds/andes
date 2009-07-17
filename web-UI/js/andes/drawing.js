@@ -3,7 +3,7 @@ dojo.provide("andes.drawing");
 
 (function(){
 	
-	//dojo.cookie("mikeDev", "{load:true}", { expires: 999 });
+	dojo.cookie("mikeDev", "{load:false}", { expires: 999 });
 
 	var theme = {
 		DTheta:1,
