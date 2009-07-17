@@ -376,7 +376,7 @@ dojo.provide("drawing.stencil._Base");
 			
 			getLabel: function(){
 				if(this._label){
-					return this._label._text;
+					return this._label.getText();
 				}
 				return null;
 			},
@@ -400,7 +400,12 @@ dojo.provide("drawing.stencil._Base");
 				angle = 180 - angle; angle = angle==360 ? 0 : angle;
 				return angle;
 			},
-			
+			getRadius: function(){
+				var box = this.getBounds(true);
+				var line = {start:{x:box.x1, y:box.y1}, x:box.x2, y:box.y2};
+				//var line = {start:{x:box.x1, y:box.y1}, x:box.x2, y:box.y2};
+				return this.util.length(line);
+			},
 			getBounds: function(absolute){
 				// NOTE: Won't work for paths or annotations (labels, Axes, arrow tips)
 				//	They should overwrite.
@@ -509,7 +514,7 @@ dojo.provide("drawing.stencil._Base");
 					this.onChangeData(this);
 					this._prevData = dojo.clone(this.data);
 				
-				}else if(!this._prevData && (!this.isText || this._text)){
+				}else if(!this._prevData && (!this.isText || this.getText())){
 					this._prevData = dojo.clone(this.data);
 					//if(this.type == "drawing.tools.custom.Axes") console.log("NO PREV DATA")
 				

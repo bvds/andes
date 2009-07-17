@@ -84,12 +84,6 @@ dojo.require("drawing.stencil.Text");
 			draws:true,
 			type:"drawing.tools.TextBlock",
 			
-			setText: function(text){
-				this._text = text;
-				this._textArray = [];
-				this.render(text);
-			},
-			
 			showParent: function(obj){
 				if(this.parentNode){ return; }
 				var x = obj.pageX || 10;

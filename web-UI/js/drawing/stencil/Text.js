@@ -14,6 +14,16 @@ dojo.provide("drawing.stencil.Text");
 			valign:"top",	// top, middle, bottom (TODO: bottom )
 			_lineHeight:1,
 			
+			setText: function(text){
+				this._text = text;
+				this._textArray = [];
+				this.render(text);
+			},
+			
+			getText: function(){
+				return this._text;	
+			},
+			
 			render: function(/* String | Array */text){
 				//console.trace();
 				this.remove(this.shape, this.hit);

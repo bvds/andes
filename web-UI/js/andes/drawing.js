@@ -144,18 +144,12 @@ dojo.provide("andes.drawing");
 		add: function(/* Stencil */ item, /*Boolean*/ saveToServer, /*Boolean*/noConnect){
 			// summary:
 			//	items added here may be from the server OR drag-created.
-			//	They should most often be combo items with _Connection,
+			//	They should most often be combo items with andes.Combo,
 			// 	with the exception of Axes and (standalone) Statements.
 			//
-			//console.log("ADD ITEM", item);
-			//return;	
 			if(items[item.id]){
-				//console.log("ITEM EXISTS:", item.id)
 				return;
 			}
-			
-			
-			
 			
 			items[item.id] = item;
 			
@@ -202,12 +196,6 @@ dojo.provide("andes.drawing");
 					//console.warn("ANDES OBJECT V"); console.dir(obj);
 					var o = andes.convert.andesToDrawing(obj);
 					var t = o.stencilType;
-					
-					//
-					// add ID to items first?
-					// make combo item create items within it?
-					//
-					
 					if(t=="vector" || t=="line" || t=="ellipse" || t=="rect"){
 						
 						// prevent adding items via onRenderStencil
@@ -216,22 +204,15 @@ dojo.provide("andes.drawing");
 						var masterId = _drawing.util.uid(t);
 						items[statementId] = true;
 						items[masterId] = true;
-						// statement:
 						var statement = _drawing.addStencil("textBlock", o.statement);
-						// vector:	
 						var master = _drawing.addStencil(o.stencilType, o.master);
-						// combo:
 						var combo = new andes.Combo({master:master, statement:statement, id:o.id});
 						this.add(combo);
 					
-						
 					}else{ // image, statement, equation
-						//if(o.stencilType=="image") return;
 						var item = _drawing.addStencil(o.stencilType, o);
 						this.add(item);
 					}
-					
-					
 				
 				}else if(obj.action=="modify-object"){
 					mods.push(obj);
@@ -242,7 +223,6 @@ dojo.provide("andes.drawing");
 			
 			dojo.forEach(mods, function(obj){
 				if(items[obj.id]){
-					//console.warn("MOD:", obj); //a3 a4
 					items[obj.id].attr(theme[obj.mode]);
 					if(obj.x!==undefined){
 						items[obj.id].attr({

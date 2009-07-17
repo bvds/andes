@@ -2,7 +2,12 @@ dojo.provide("andes.convert");
 
 (function(){
 	
-	// better name
+	var drawingId = "drawing";
+	var _drawing;
+	dojo.addOnLoad(function(){
+		_drawing = dijit.byId(drawingId);
+	});
+	
 	var stencilMods = {
 		statement:	"textBlock",
 		equation:	"textBlock",
@@ -138,12 +143,12 @@ dojo.provide("andes.convert");
 				obj.height = box.h;
 			}else if(type!="axes"){
 				var line = {start:{x:box.x1, y:box.y1}, x:box.x2, y:box.y2};
-				obj.radius = Math.round(_drawing.util.length(line));
+				obj.radius = Math.ceil(item.getRadius());
 				obj.angle = item.getAngle();
 			}
 			
 			if(type == "statement" || type == "equation"){
-				obj.text = item._text || "SHOULD NOT BE HERE";
+				obj.text = item.getText() || "SHOULD NOT BE HERE";
 				if(type == "statement"){
 					// need to add a potential 'symbol' derived from variablename.js
 					var symbol = andes.variablename.parse(obj.text);
@@ -152,7 +157,7 @@ dojo.provide("andes.convert");
 					}
 				}
 			}else if(type != "axes"){
-				obj.text = statement._text || "SHOULD NOT BE HERE";
+				obj.text = statement.getText() || "SHOULD NOT BE HERE";
 				obj.symbol = item.getLabel() || "";
 				obj["x-statement"] = sbox.x;
 				obj["y-statement"] = sbox.y;
@@ -161,14 +166,12 @@ dojo.provide("andes.convert");
 				var lbl = item.getLabel();
 				obj["x-label"] = lbl.x;
 				obj["y-label"] = lbl.y;
-				
-				var line = {start:{x:box.x1, y:box.y1}, x:box.x2, y:box.y2};
-				obj.radius = Math.round(_drawing.util.length(line));
+				obj.radius = Math.ceil(item.getRadius());
 				obj.angle = item.getAngle();
 			}
 			
 			if(combo){
-				var txt = statement._text || "";
+				var txt = statement.getText() || "";
 				var lbl = item.getLabel() || "";
 				if(txt && lbl){
 					obj.text = txt;

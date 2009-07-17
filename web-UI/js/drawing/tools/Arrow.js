@@ -20,7 +20,7 @@ drawing.tools.Arrow = drawing.util.oo.declare(
 	{
 		draws:true,
 		type:"drawing.tools.Arrow",
-		arrowStart:true,
+		arrowStart:false,
 		arrowEnd:true,
 		
 		
