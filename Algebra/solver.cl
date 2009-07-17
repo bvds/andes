@@ -269,12 +269,8 @@
   (do-solver-turn "solveClear"))
 
 (defun solver-isIndependent (setID equationID)
-  (let ((result (do-solver-turn "c_indyCanonHowIndy"
-		  (format nil "(~A ~A)" setID (id2solver-slot equationID)))))
-    ;; map from solver slot back to equation id
-    (setf (second result) (mapcar #'solver-slot2id (second result)))
-    (setf (third result) (mapcar #'solver-slot2id (third result)))
-    result))
+  (do-solver-turn "c_indyCanonHowIndy"
+    (format nil "(~A ~A)" setID equationID)))
 
 (defun solver-indyAddVar (arg)
   ;; suppress pretty printing -- it may insert line breaks on very long 
@@ -290,8 +286,7 @@
 (defun solver-indyAddEquation (equationID equation)
   (do-solver-turn  "c_indyAddEquation" 
     ;; :escape T so keywords have colons [for :error]
-     (write-to-string (list (id2solver-slot equationID) equation) 
-		      :pretty NIL :escape t)))
+     (write-to-string (list equationID equation) :pretty NIL :escape t)))
 
 (defun solver-indyEmpty ()
   (reset-solver-slots)
@@ -299,7 +294,7 @@
 
 (defun solver-indyAddEq2Set (setID equationID)
   (do-solver-turn "c_indyAddEq2Set"
-		   (format nil "(~A ~A)" setID (id2solver-slot equationID))))
+		   (format nil "(~A ~A)" setID equationID)))
 
 (defun solver-indyKeepN (setID numberToKeep)
   (do-solver-turn "c_indyKeepNOfSet"
