@@ -7,8 +7,14 @@ dojo.provide("drawing.stencil._Base");
 		function(options){
 			// clone style so changes are reflected in future shapes
 			dojo.mixin(this, options);
-			
 			this.style = options.style || drawing.defaults.copy();
+			if(options.stencil){
+				this.stencil = options.stencil;
+				this.util = options.stencil.util;
+				this.mouse = options.stencil.mouse;
+				this.parent = options.stencil.parent;
+				this.style = options.stencil.style;
+			}
 			this.angleSnap = this.style.angleSnap || 1;
 			this.isText = this.type=="drawing.stencil.Text" || this.type=="drawing.tools.TextBlock";
 			this.marginZero = options.marginZero || this.style.anchors.marginZero;
@@ -54,6 +60,10 @@ dojo.provide("drawing.stencil._Base");
 			}else if(this.draws){
 				this.connectMouse();
 				this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
+			}
+			
+			if(this.showAngle){
+				this.angleLabel = new drawing.annotations.Angle({stencil:this});
 			}
 			
 			if(!this.enabled){
@@ -350,7 +360,7 @@ dojo.provide("drawing.stencil._Base");
 			
 			setLabel: function(text){
 				if(!this._label){
-					this._label = new drawing.stencil._Label({
+					this._label = new drawing.annotations.Label({
 						text:text,
 						util:this.util,
 						mouse:this.mouse,
@@ -369,6 +379,26 @@ dojo.provide("drawing.stencil._Base");
 					return this._label._text;
 				}
 				return null;
+			},
+			
+			getAngle: function(){
+				// summary:
+				//	Gets angle of shape
+				// NOTE: Only works for Lines, Arrows, Vectors and Axes
+				//	
+				var d = this.pointsToData();
+				var obj = {
+					start:{
+						x:d.x1,
+						y:d.y1
+					},
+					x:d.x2,
+					y:d.y2
+				};
+				var angle = this.util.angle(obj, this.angleSnap);
+				// reversing the angle for display: 0 -> 180, 90 -> 270
+				angle = 180 - angle; angle = angle==360 ? 0 : angle;
+				return angle;
 			},
 			
 			getBounds: function(absolute){
@@ -481,12 +511,13 @@ dojo.provide("drawing.stencil._Base");
 				
 				}else if(!this._prevData && (!this.isText || this._text)){
 					this._prevData = dojo.clone(this.data);
-					if(this.type == "drawing.tools.custom.Axes") console.log("NO PREV DATA")
+					//if(this.type == "drawing.tools.custom.Axes") console.log("NO PREV DATA")
 				
-				}else if(this.type == "drawing.tools.TextBlock"){
+				}
+				//else if(this.type == "drawing.tools.TextBlock"){
 					
 					//console.info("data not changed:");console.info("prev:", dojo.toJson(this._prevData));console.info("curr:", dojo.toJson(this.data))
-				}
+				//}
 				
 			},
 			

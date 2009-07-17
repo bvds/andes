@@ -1,7 +1,7 @@
-dojo.provide("drawing.stencil._Label");
+dojo.provide("drawing.annotations.Label");
 dojo.require("drawing.stencil.Text");
 
-drawing.stencil._Label = drawing.util.oo.declare(
+drawing.annotations.Label = drawing.util.oo.declare(
 	drawing.stencil.Text,	
 	function(options){
 		this.master = options.stencil;

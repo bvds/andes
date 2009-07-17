@@ -12,8 +12,7 @@ dojo.require("drawing.manager.Stencil");
 dojo.require("drawing.manager.Anchors");
 dojo.require("drawing.stencil._Base");
 dojo.require("drawing.stencil._Slave");
-dojo.require("drawing.stencil._Connection");
-dojo.require("drawing.stencil._Label");
+
 dojo.require("drawing.stencil.Line");
 dojo.require("drawing.stencil.Rect");
 dojo.require("drawing.stencil.Ellipse");
@@ -28,8 +27,13 @@ dojo.require("drawing.tools.Rect");
 dojo.require("drawing.tools.Ellipse");
 dojo.require("drawing.tools.Line");
 
-// not using widget, but just dojo.declare
-// could add a widget that extends this
+dojo.require("drawing.annotations.Label");
+dojo.require("drawing.annotations.Angle");
+dojo.require("drawing.annotations.Arrow");
+
+// not using Widget, just dojo.declare
+// however, if dijit is available, this
+// is registered as a widget
 
 (function(){
 	var _plugsInitialized = false;

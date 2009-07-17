@@ -1,11 +1,9 @@
 dojo.provide("drawing.tools.custom.Vector");
-dojo.require("drawing.tools.custom._Base");
 dojo.require("drawing.tools.Arrow");
 dojo.require("drawing.util.positioning");
 
 drawing.tools.custom.Vector = drawing.util.oo.declare(
 	drawing.tools.Arrow,
-	drawing.tools.custom._Base,
 	function(options){
 		//
 	},
@@ -13,6 +11,7 @@ drawing.tools.custom.Vector = drawing.util.oo.declare(
 		draws:true,
 		type:"drawing.tools.custom.Vector",
 		minimumSize:30,
+		showAngle:true,
 		
 		labelPosition: function(){
 			var d = this.data;

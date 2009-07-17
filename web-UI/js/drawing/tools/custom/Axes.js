@@ -1,35 +1,15 @@
 dojo.provide("drawing.tools.custom.Axes");
 dojo.require("drawing.stencil.Path");
-dojo.require("drawing.stencil._Slave");
-dojo.require("drawing.tools.custom._Base");
 
 
 drawing.tools.custom.Axes = drawing.util.oo.declare(
 	drawing.stencil.Path,
-	drawing.tools.custom._Base,
 	function(options){
 		this.closePath = false;
 		
-		this.slaves = new drawing.stencil._Slave(this);
-		this.xArrow = this.slaves.add(drawing.stencil.Path);
-		this.yArrow = this.slaves.add(drawing.stencil.Path);
+		this.xArrow = new drawing.annotations.Arrow({stencil:this, idx1:0, idx2:1});
+		this.yArrow = new drawing.annotations.Arrow({stencil:this, idx1:2, idx2:1});
 		
-		this.connect(this.xArrow, "onBeforeRender", this, function(){
-			var o = this.points[0];
-			var c = this.points[1];
-			this.xArrow.points = this.util.arrowHead(c.x, c.y, o.x, o.y, this.style);
-		});
-		
-		this.connect(this.yArrow, "onBeforeRender", this, function(){
-			var o = this.points[2];
-			var c = this.points[1];
-			this.yArrow.points = this.util.arrowHead(c.x, c.y, o.x, o.y, this.style);
-		});
-		
-		this.connect("onDelete", this, function(){
-			this.yArrow.destroy();
-			this.xArrow.destroy();
-		});
 		if(this.points && this.points.length){
 			this.setPoints = this._postSetPoints;
 		}
@@ -38,14 +18,15 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 		draws:true,
 		type:"drawing.tools.custom.Axes",
 		minimumSize:30,
+		showAngle:true,
 		
 		createLabels: function(){
 			// NOTE: Not passing style into text because it's changing it
 			var props = {align:"middle", valign:"middle", util:this.util, annotation:true, parent:this.parent, mouse:this.mouse, stencil:this};
-			this.labelX = new drawing.stencil._Label(dojo.mixin(props,{
+			this.labelX = new drawing.annotations.Label(dojo.mixin(props,{
 				labelPosition:this.setLabelX
 			}));
-			this.labelY = new drawing.stencil._Label(dojo.mixin(props,{
+			this.labelY = new drawing.annotations.Label(dojo.mixin(props,{
 				labelPosition:this.setLabelY
 			}));
 		},
@@ -173,7 +154,6 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 				this.setLabel();
 				console.info("trans end snap")
 				
-				this.angle = this.getAngle();
 				this.render();	
 				anchor.reset(this);
 				return;
@@ -190,7 +170,6 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			this.points[2] = {x:ox, y:oy, noAnchor:true};
 			this.setPoints(this.points);
 			this.setLabel();
-			this.angle = this.getAngle();
 			this.render();
 			
 			anchor.reset(this);

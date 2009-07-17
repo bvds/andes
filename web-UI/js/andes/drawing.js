@@ -3,7 +3,7 @@ dojo.provide("andes.drawing");
 
 (function(){
 	
-	dojo.cookie("mikeDev", "{load:false}", { expires: 999 });
+	//dojo.cookie("mikeDev", "{load:false}", { expires: 999 });
 
 	var theme = {
 		DTheta:1,
@@ -172,7 +172,7 @@ dojo.provide("andes.drawing");
 			// 	with the exception of Axes and (standalone) Statements.
 			//
 			//console.log("ADD ITEM", item);
-			
+	return;	
 			if(items[item.id]){
 				//console.log("ITEM EXISTS:", item.id)
 				return;
@@ -340,7 +340,7 @@ dojo.provide("andes.drawing");
 				}else if(type!="axes"){
 					var line = {start:{x:box.x1, y:box.y1}, x:box.x2, y:box.y2};
 					obj.radius = Math.round(_drawing.util.length(line));
-					obj.angle = item.angle;
+					obj.angle = item.getAngle();
 				}
 				
 				if(type == "statement" || type == "equation"){
@@ -365,7 +365,7 @@ dojo.provide("andes.drawing");
 					
 					var line = {start:{x:box.x1, y:box.y1}, x:box.x2, y:box.y2};
 					obj.radius = Math.round(_drawing.util.length(line));
-					obj.angle = item.angle;
+					obj.angle = item.getAngle();
 				}
 				
 				if(combo){

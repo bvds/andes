@@ -2,10 +2,7 @@
 <head>
     <title>Andes 3</title>
 	<link href="css/andes.css" rel="stylesheet" />
-	<link href="dojotoolkit/dojox/layout/resources/ExpandoPane.css" rel="stylesheet" />
-	<link href="js/andes/widget/UpgradeBar/UpgradeBar.css" rel="stylesheet" />
-	<link href="js/drawing/resources/drawing.css" rel="stylesheet" />
-	<link href="js/drawing/resources/toolbar.css" rel="stylesheet" />
+
 	<style>
 		#drawingNode, #drawingPane{
 			/*border:1px solid #ff0000;*/
@@ -32,6 +29,7 @@
 		}
 	</script>
 	<script src="dojotoolkit/dojo/dojo.js"></script>
+	<!--<script src="js/release/dojo/dojo/dojo.js"></script>-->
 	<script>
 		if(dojo.isIE){
 			// Fixing IE's console
@@ -134,10 +132,11 @@
 		<div id="toolPane" dojoType="dijit.layout.ContentPane" region="left" splitter="false">
 				<div dojoType="drawing.Toolbar" drawingId="drawing" class="drawingToolbar vertical">
 					
+					<div tool="drawing.tools.Arrow" 				selected="true">	Line</div>
 					<div tool="drawing.tools.Line" 				selected="false">	Line</div>
 					<div tool="drawing.tools.Rect" 				selected="false">	Rect</div>
 					<div tool="drawing.tools.Ellipse" 			selected="false">	Ellipse</div>
-					<div tool="drawing.tools.TextBlock" 		selected="true">	Statement</div>
+					<div tool="drawing.tools.TextBlock" 		selected="false">	Statement</div>
 					<div tool="drawing.tools.custom.Equation" 	selected="false">	Equation</div>
 					<div tool="drawing.tools.custom.Vector" 	selected="false">	Vector</div>
 					<div tool="drawing.tools.custom.Axes" 		selected="false">	Axes</div>
