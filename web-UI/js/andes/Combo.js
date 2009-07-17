@@ -2,13 +2,13 @@ dojo.provide("andes.Combo");
 
 andes.Combo = drawing.util.oo.declare(
 	
-	function(master, statement, id){
-		this.master = master;
-		this.statement = statement;
+	function(options){
+		this.master = options.master;
+		this.statement = options.statement;
 		
 		this._props = {style:this.master.style, util:this.master.util, parent:this.master.parent, mouse:this.master.mouse};
 		dojo.mixin(this, this._props);
-		this.id = id || this.util.uid(this.type);
+		this.id = options.id || this.util.uid(this.type);
 		this.linked = [];
 		this._cons = [];
 		this.master.connectMult([
@@ -20,6 +20,8 @@ andes.Combo = drawing.util.oo.declare(
 			}]
 		]);
 		
+		this.created = options.onCreate ? false : true
+			
 		var s = this.statement;
 		var m = this.master;
 		this.statement.connectMult([
@@ -32,7 +34,13 @@ andes.Combo = drawing.util.oo.declare(
 					this.statement.setText("");
 					this.statement.deselect(true);
 				}
+				if(!this.created){
+					this.created = true;
+					options.onCreate();
+				}
+				
 				this.onChangeText(this);
+			
 			}],
 			[this.statement, "onChangeData", this, function(){
 				this.onChangeData(this);

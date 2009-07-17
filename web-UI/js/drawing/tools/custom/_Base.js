@@ -15,10 +15,7 @@ drawing.tools.custom._Base = drawing.util.oo.declare(
 		type:"drawing.tools.custom",
 		angle:0,
 		
-		showAngle: function(){
-			if(!this.selected && this.created){ return; }
-			var sc = this.mouse.scrollOffset();
-			var node = this.getAngleNode();
+		getAngle: function(){
 			var d = this.pointsToData();
 			var obj = {
 				start:{
@@ -29,7 +26,16 @@ drawing.tools.custom._Base = drawing.util.oo.declare(
 				y:d.y2
 			};
 			var angle = this.util.angle(obj, this.angleSnap);
-
+			// reversing the angle for display: 0 -> 180, 90 -> 270
+			angle = 180 - angle; angle = angle==360 ? 0 : angle;
+			return angle;
+		},
+		
+		showAngle: function(){
+			if(!this.selected && this.created){ return; }
+			var sc = this.mouse.scrollOffset();
+			var node = this.getAngleNode();
+			var d = this.pointsToData();
 			var pt = drawing.util.positioning.angle({x:d.x1,y:d.y1},{x:d.x2,y:d.y2});
 			
 			// adding _offX & _offY since this is HTML
@@ -42,14 +48,9 @@ drawing.tools.custom._Base = drawing.util.oo.declare(
 			});
 			//watch("angle:", angle)
 			
-			// reversing the angle for display: 0 -> 180, 90 -> 270
-			angle = 180 - angle; angle = angle==360 ? 0 : angle;
+			this.angle = this.getAngle();
 			
-			//watch("display:", angle)
-			
-			this.angle = angle;
-			
-			node.innerHTML = Math.ceil(angle);
+			node.innerHTML = Math.ceil(this.angle);
 		},
 		
 		getAngleNode: function(){

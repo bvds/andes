@@ -154,8 +154,10 @@ dojo.provide("andes.drawing");
 					});
 					
 				}else if(hasStatement[item.type]){
-					var c = new andes.Combo(item, statement);
-					this.add(c, true);
+					var c = new andes.Combo({master:item, statement:statement, onCreate: dojo.hitch(this, function(){
+						this.add(c, true);		
+					})});
+					
 				}
 			}else{
 				// statement or equation
@@ -415,7 +417,7 @@ dojo.provide("andes.drawing");
 						// vector:	
 						var master = _drawing.addStencil(o.stencilType, o.master);
 						// combo:
-						var combo = new andes.Combo(master, statement, o.id);
+						var combo = new andes.Combo({master:master, statement:statement, id:o.id});
 						this.add(combo);
 					
 						
