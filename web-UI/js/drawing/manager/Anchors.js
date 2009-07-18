@@ -168,7 +168,7 @@ dojo.provide("drawing.manager.Anchors");
 					width: s,
 					height: s
 				};
-				this.shape = this.stencil.parent.createRect(_r)
+				this.shape = this.stencil.container.createRect(_r)
 					.setStroke(line)
 					.setFill(d.fill);
 				

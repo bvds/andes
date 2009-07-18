@@ -42,7 +42,7 @@ drawing.stencil.Ellipse = drawing.util.oo.declare(
 		
 		_create: function(shp, d, sty){
 			this.remove(this[shp]);
-			this[shp] = this.parent.createEllipse(d)
+			this[shp] = this.container.createEllipse(d)
 				.setStroke(sty)
 				.setFill(sty.fill);
 			this.util.attr(this[shp], "drawingType", "stencil");

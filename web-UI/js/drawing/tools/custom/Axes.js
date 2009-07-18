@@ -1,35 +1,15 @@
 dojo.provide("drawing.tools.custom.Axes");
 dojo.require("drawing.stencil.Path");
-dojo.require("drawing.stencil._Slave");
-dojo.require("drawing.tools.custom._Base");
 
 
 drawing.tools.custom.Axes = drawing.util.oo.declare(
 	drawing.stencil.Path,
-	drawing.tools.custom._Base,
 	function(options){
 		this.closePath = false;
 		
-		this.slaves = new drawing.stencil._Slave(this);
-		this.xArrow = this.slaves.add(drawing.stencil.Path);
-		this.yArrow = this.slaves.add(drawing.stencil.Path);
+		this.xArrow = new drawing.annotations.Arrow({stencil:this, idx1:0, idx2:1});
+		this.yArrow = new drawing.annotations.Arrow({stencil:this, idx1:2, idx2:1});
 		
-		this.connect(this.xArrow, "onBeforeRender", this, function(){
-			var o = this.points[0];
-			var c = this.points[1];
-			this.xArrow.points = this.util.arrowHead(c.x, c.y, o.x, o.y, this.style);
-		});
-		
-		this.connect(this.yArrow, "onBeforeRender", this, function(){
-			var o = this.points[2];
-			var c = this.points[1];
-			this.yArrow.points = this.util.arrowHead(c.x, c.y, o.x, o.y, this.style);
-		});
-		
-		this.connect("onDelete", this, function(){
-			this.yArrow.destroy();
-			this.xArrow.destroy();
-		});
 		if(this.points && this.points.length){
 			this.setPoints = this._postSetPoints;
 		}
@@ -38,14 +18,15 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 		draws:true,
 		type:"drawing.tools.custom.Axes",
 		minimumSize:30,
+		showAngle:true,
 		
 		createLabels: function(){
 			// NOTE: Not passing style into text because it's changing it
-			var props = {align:"middle", valign:"middle", util:this.util, annotation:true, parent:this.parent, mouse:this.mouse, stencil:this};
-			this.labelX = new drawing.stencil._Label(dojo.mixin(props,{
+			var props = {align:"middle", valign:"middle", util:this.util, annotation:true, container:this.container, mouse:this.mouse, stencil:this};
+			this.labelX = new drawing.annotations.Label(dojo.mixin(props,{
 				labelPosition:this.setLabelX
 			}));
-			this.labelY = new drawing.stencil._Label(dojo.mixin(props,{
+			this.labelY = new drawing.annotations.Label(dojo.mixin(props,{
 				labelPosition:this.setLabelY
 			}));
 		},
@@ -119,7 +100,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			//	position is ok. If not, its x or y transform will
 			// be changed until this passes.
 			//
-			var pm = this.parent.getParent().getTransform();
+			var pm = this.container.getParent().getTransform();
 			var am = anchor.shape.getTransform();
 			
 			// the xaxis point has changed and is not yet set as a point
@@ -167,30 +148,14 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 					return;
 				}
 				this.points = [{x:obj.x, y:obj.y}, {x:obj.start.x, y:obj.start.y, noAnchor:true}];
-				
 				this.points.push({x:ox, y:oy, noAnchor:true});
-				
 				
 				this.setPoints(this.points);
 				this.setLabel();
 				console.info("trans end snap")
 				
-				var d = this.pointsToData();
-				var obj = {
-					start:{
-						x:d.x1,
-						y:d.y1
-					},
-					x:d.x2,
-					y:d.y2
-				};
-				this.angle = this.util.angle(obj, this.angleSnap);
-				this.angle = 180 - this.angle; this.angle = this.angle==360 ? 0 : this.angle;
-				
 				this.render();	
-				
 				anchor.reset(this);
-				
 				return;
 			}
 			
@@ -203,25 +168,8 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			var oy = c.y - (o.x - c.x);
 			
 			this.points[2] = {x:ox, y:oy, noAnchor:true};
-			
-				
-			
 			this.setPoints(this.points);
 			this.setLabel();
-			
-			var d = this.pointsToData();
-			var obj = {
-				start:{
-					x:d.x1,
-					y:d.y1
-				},
-				x:d.x2,
-				y:d.y2
-			};
-			this.angle = this.util.angle(obj, this.angleSnap);
-			this.angle = 180 - this.angle; this.angle = this.angle==360 ? 0 : this.angle;
-			
-			console.info("trans end constrain")
 			this.render();
 			
 			anchor.reset(this);
@@ -295,10 +243,10 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 		pointsToData: function(){
 			var p = this.points;
 			return {
-				x1:p[0].x,
-				y1:p[0].y,
-				x2:p[1].x,
-				y2:p[1].y,
+				x1:p[1].x,
+				y1:p[1].y,
+				x2:p[0].x,
+				y2:p[0].y,
 				x3:p[2].x,
 				y3:p[2].y
 			};
@@ -309,16 +257,8 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 				// instead of using x1,x2,y1,y1,
 				// it's been set as x,y,angle,radius
 				
-				// reversing the angle for display: 0 -> 180, 90 -> 270
-				//angle = 180 - angle; angle = angle==360 ? 0 : angle;
-				
-				var was = o.angle
 				o.angle = (180-o.angle)<0 ? 180-o.angle+360 : 180-o.angle;
-				
-				//console.log(" ---- angle:", was, "to:", o.angle)
 				var pt = this.util.pointOnCircle(o.x,o.y,o.radius,o.angle);
-				//console.log(" ---- pts:", pt.x, pt.y);
-				
 				var ox = o.x - (o.y - pt.y);
 				var oy = o.y - (pt.x - o.x);
 				

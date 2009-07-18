@@ -18,6 +18,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		_lastx:0,
 		_lasty:0,
 		__reg:0,
+		_downOnCanvas:false,
 		
 		init: function(node){
 			this.container = node;
@@ -78,7 +79,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		},
 		
 		onDown: function(obj){
-			//console.info(this.eventName("down"))
+			console.info("onDown:", this.eventName("down"))
 			this._broadcastEvent(this.eventName("down"), obj);			
 		},
 		onDrag: function(obj){
@@ -103,7 +104,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 				this._selected = false;
 			}
 			
-			///console.info("Up Event:", nm);
+			console.info("Up Event:", nm);
 			this._broadcastEvent(nm, obj);
 			
 			// Silverlight double-click handled in Silverlight class
@@ -151,6 +152,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		},
 		
 		down: function(evt){
+			this._downOnCanvas = true;
 			var sc = this.scrollOffset();
 			var dim = this._getXY(evt);
 			this._lastpagex = dim.x;

@@ -7,8 +7,14 @@ dojo.provide("drawing.stencil._Base");
 		function(options){
 			// clone style so changes are reflected in future shapes
 			dojo.mixin(this, options);
-			
 			this.style = options.style || drawing.defaults.copy();
+			if(options.stencil){
+				this.stencil = options.stencil;
+				this.util = options.stencil.util;
+				this.mouse = options.stencil.mouse;
+				this.container = options.stencil.container;
+				this.style = options.stencil.style;
+			}
 			this.angleSnap = this.style.angleSnap || 1;
 			this.isText = this.type=="drawing.stencil.Text" || this.type=="drawing.tools.TextBlock";
 			this.marginZero = options.marginZero || this.style.anchors.marginZero;
@@ -16,7 +22,7 @@ dojo.provide("drawing.stencil._Base");
 			this._cons = [];
 			
 			if(!this.annotation && !this.subShape){
-				this.util.attr(this.parent, "id", this.id);
+				this.util.attr(this.container, "id", this.id);
 			}
 			
 			this.connect(this, "onBeforeRender", "preventNegativePos");
@@ -56,6 +62,10 @@ dojo.provide("drawing.stencil._Base");
 				this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
 			}
 			
+			if(this.showAngle){
+				this.angleLabel = new drawing.annotations.Angle({stencil:this});
+			}
+			
 			if(!this.enabled){
 				this.disable();
 				this.moveToBack();
@@ -64,7 +74,7 @@ dojo.provide("drawing.stencil._Base");
 		{
 			
 			//public
-			parent:null, // shape(s) container TODO: change to 'container'
+			container:null, // shape(s) container TODO: change to 'container'
 			type:"drawing.stencil",
 			isText:false,
 			minimumSize:10,
@@ -138,7 +148,7 @@ dojo.provide("drawing.stencil._Base");
 				if(this.shape) {
 					this.shape.superClass = this;
 				}else{
-					this.parent.superClass = this;
+					this.container.superClass = this;
 				}
 				this._setNodeAtts(this);
 				//console.warn("ONRENDER", this.id)
@@ -268,11 +278,11 @@ dojo.provide("drawing.stencil._Base");
 			},
 			
 			moveToFront: function(){
-				this.parent && this.parent.moveToFront();
+				this.container && this.container.moveToFront();
 			},
 			
 			moveToBack: function(){
-				this.parent && this.parent.moveToBack();
+				this.container && this.container.moveToBack();
 			},
 			
 			onTransformBegin: function(anchor){
@@ -331,7 +341,7 @@ dojo.provide("drawing.stencil._Base");
 			},
 			
 			getTransform: function(){
-				return this.selected ? this.parent.getParent().getTransform() : {dx:0, dy:0};
+				return this.selected ? this.container.getParent().getTransform() : {dx:0, dy:0};
 			},
 			
 			setData: function(d){
@@ -350,13 +360,13 @@ dojo.provide("drawing.stencil._Base");
 			
 			setLabel: function(text){
 				if(!this._label){
-					this._label = new drawing.stencil._Label({
+					this._label = new drawing.annotations.Label({
 						text:text,
 						util:this.util,
 						mouse:this.mouse,
 						stencil:this,
 						annotation:true,
-						parent:this.parent,
+						container:this.container,
 						labelPosition:this.labelPosition
 					});
 				}else if(text){
@@ -366,11 +376,36 @@ dojo.provide("drawing.stencil._Base");
 			
 			getLabel: function(){
 				if(this._label){
-					return this._label._text;
+					return this._label.getText();
 				}
 				return null;
 			},
 			
+			getAngle: function(){
+				// summary:
+				//	Gets angle of shape
+				// NOTE: Only works for Lines, Arrows, Vectors and Axes
+				//	
+				var d = this.pointsToData();
+				var obj = {
+					start:{
+						x:d.x1,
+						y:d.y1
+					},
+					x:d.x2,
+					y:d.y2
+				};
+				var angle = this.util.angle(obj, this.angleSnap);
+				// reversing the angle for display: 0 -> 180, 90 -> 270
+				angle = 180 - angle; angle = angle==360 ? 0 : angle;
+				return angle;
+			},
+			getRadius: function(){
+				var box = this.getBounds(true);
+				var line = {start:{x:box.x1, y:box.y1}, x:box.x2, y:box.y2};
+				//var line = {start:{x:box.x1, y:box.y1}, x:box.x2, y:box.y2};
+				return this.util.length(line);
+			},
 			getBounds: function(absolute){
 				// NOTE: Won't work for paths or annotations (labels, Axes, arrow tips)
 				//	They should overwrite.
@@ -479,14 +514,15 @@ dojo.provide("drawing.stencil._Base");
 					this.onChangeData(this);
 					this._prevData = dojo.clone(this.data);
 				
-				}else if(!this._prevData && (!this.isText || this._text)){
+				}else if(!this._prevData && (!this.isText || this.getText())){
 					this._prevData = dojo.clone(this.data);
-					if(this.type == "drawing.tools.custom.Axes") console.log("NO PREV DATA")
+					//if(this.type == "drawing.tools.custom.Axes") console.log("NO PREV DATA")
 				
-				}else if(this.type == "drawing.tools.TextBlock"){
+				}
+				//else if(this.type == "drawing.tools.TextBlock"){
 					
 					//console.info("data not changed:");console.info("prev:", dojo.toJson(this._prevData));console.info("curr:", dojo.toJson(this.data))
-				}
+				//}
 				
 			},
 			
@@ -533,7 +569,7 @@ dojo.provide("drawing.stencil._Base");
 				// 	No args defaults to this.shape
 				//	Pass in multiple args to remove multiple shapes
 				//
-				//this.parent.clear(); return;
+				//this.container.clear(); return;
 				var a = arguments;
 				if(!a.length){
 					if(!this.shape){ return; }

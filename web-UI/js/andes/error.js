@@ -95,6 +95,7 @@ dojo.require("dijit.form.Button");
 				default:
 					return "andesButtonPageDefault";
 			}
+			return null;
 		}
 	});
 

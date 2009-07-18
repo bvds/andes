@@ -5,6 +5,11 @@
 @import url("../dojotoolkit/dijit/themes/tundra/form/Button.css");
 @import url("../dojotoolkit/dijit/themes/tundra/Menu.css");
 @import url("../dojotoolkit/dijit/themes/tundra/Dialog.css");
+@import url("../dojotoolkit/dojox/layout/resources/ExpandoPane.css");
+@import url("../js/andes/widget/UpgradeBar/UpgradeBar.css");
+@import url("../js/drawing/resources/drawing.css");
+@import url("../js/drawing/resources/toolbar.css");
+
 
 html, body, #main{
 	width: 100%;	/* make the body expand to fill the visible window */

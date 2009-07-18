@@ -3,7 +3,7 @@ dojo.provide("andes.drawing");
 
 (function(){
 	
-	//dojo.cookie("mikeDev", "{load:true}", { expires: 999 });
+	dojo.cookie("mikeDev", "{load:true}", { expires: 999 });
 
 	var theme = {
 		DTheta:1,
@@ -46,18 +46,6 @@ dojo.provide("andes.drawing");
 	var _drawing;
 	var _surfaceLoaded = false;
 	
-	// better name
-	var stencilMods = {
-		statement:	"textBlock",
-		equation:	"textBlock",
-		graphics:	"image",
-		vector:		"vector",
-		axes:		"axes",
-		ellipse:	"ellipse"
-	};
-	
-	//"enum": ["statement", "graphics", "equation", "circle", "ellipse", "rectangle", "axes", "vector", "line"],
-	  
 	var stencils = {
 		line: 		"drawing.stencil.Line",
 		rect: 		"drawing.stencil.Rect",
@@ -66,18 +54,6 @@ dojo.provide("andes.drawing");
 		axes: 		"drawing.tools.custom.Axes",
 		textBlock:	"drawing.tools.TextBlock"
 	};
-	
-	var andesTypes = {
-		"drawing.stencil.Line":"line",
-		"drawing.stencil.Rect":"rectangle",
-		"drawing.stencil.Ellipse":"ellipse", // or circle
-		"drawing.tools.custom.Vector":"vector",
-		"drawing.tools.custom.Axes":"axes",
-		"drawing.tools.custom.Equation":"equation",
-		"drawing.stencil.Image":"graphics",
-		"drawing.tools.TextBlock":"statement" // or statement.... hmmmm
-	};
-	
 	
 	var hasStatement = {
 		"drawing.stencil.Line":true,
@@ -154,8 +130,10 @@ dojo.provide("andes.drawing");
 					});
 					
 				}else if(hasStatement[item.type]){
-					var c = new andes.Combo(item, statement);
-					this.add(c, true);
+					var c = new andes.Combo({master:item, statement:statement, onCreate: dojo.hitch(this, function(){
+						this.add(c, true);		
+					})});
+					
 				}
 			}else{
 				// statement or equation
@@ -166,18 +144,12 @@ dojo.provide("andes.drawing");
 		add: function(/* Stencil */ item, /*Boolean*/ saveToServer, /*Boolean*/noConnect){
 			// summary:
 			//	items added here may be from the server OR drag-created.
-			//	They should most often be combo items with _Connection,
+			//	They should most often be combo items with andes.Combo,
 			// 	with the exception of Axes and (standalone) Statements.
 			//
-			//console.log("ADD ITEM", item);
-			
 			if(items[item.id]){
-				//console.log("ITEM EXISTS:", item.id)
 				return;
 			}
-			
-			
-			
 			
 			items[item.id] = item;
 			
@@ -195,14 +167,14 @@ dojo.provide("andes.drawing");
 			item.connect("onChangeData", this, function(item){
 				console.log("---------------------------------> onChangeData", item.id, item.type);//dojo.toJson(item.data));
 				console.log("items:", items)
-				var data = this.transform.drawingToAndes(item, "modify-object")
+				var data = andes.convert.drawingToAndes(item, "modify-object")
 				console.info("Save to server", data);
 				this.save(data);
 			});
 			
 			if(saveToServer){
 				// we need to save it to the server
-				var data = this.transform.drawingToAndes(item, "new-object")
+				var data = andes.convert.drawingToAndes(item, "new-object")
 				console.info("Save to server:", data);
 				this.save(data);
 			}
@@ -210,178 +182,6 @@ dojo.provide("andes.drawing");
 		
 		remove: function(/* Stencil */ item){
 			delete items[item.id];
-		},
-		
-		transform:{
-			andesToDrawing: function(o){
-				//console.warn(" ---------------> andesToDrawing:", o.type)
-				if(o.x==undefined || o.y===undefined){
-					console.error("Imported Object '" + o.id + "' contains no X or Y coordinates.");
-					console.warn("Bad Imported object:", o);
-				}
-				var obj = {
-					id:o.id,
-					stencilType:stencilMods[o.type],
-					data:{
-						x:o.x,
-						y:o.y
-					},
-					enabled:o.mode!="locked"
-				};
-				
-				if(o.type!="vector" && o.type!="line" && o.type!="axes" && o.type!="ellipse"){
-					obj.data.width = o.width;
-					obj.data.height = o.height;
-				
-				}else if(o.type=="ellipse"){
-					obj.data = {
-						cx:o.x + o.width/2,
-						cy:o.y + o.height/2,
-						rx:o.width/2,
-						ry:o.height/2
-					}
-				}else{
-					// vector, line, axes
-					obj.data.radius = o.radius || 100;
-					obj.data.angle = o.angle;
-				}
-				if(o.type=="statement" && (o.mode=="locked" || o.mode=="fade")){
-					obj.stencilType = "text";
-				}
-				
-				if(o.type=="line" || o.type=="vector" || o.type=="rect" || o.type=="ellipse"){
-					// seperate objects
-					var lbl = o.symbol;
-					var txt = o.text;
-					if(!lbl){
-						lbl = txt;
-						txt = "";
-					}
-					// master
-					obj.master = {
-						data:obj.data,
-						label:lbl
-					};
-					var xs = o['x-statement'];
-					var ys = o['y-statement'];
-					
-					if(xs === undefined){
-						var pt = getStatementPosition({
-							y1:o.y,
-							x2:o.x+o.width
-						}).data;
-						xs = pt.x;
-						ys = pt.y;
-					}
-					obj.statement = {
-						data:{
-							x:xs,
-							y:ys,
-							text:txt,
-							width:"auto"
-						}
-					}
-				}else if(o.type=="statement" || o.type=="equation"){
-					obj.data.text = o.text;
-				}else if(o.type=="axes"){
-					obj.label = o['x-label']+" and "+o['y-label'];
-				}
-				
-				
-				
-				if(o.type=="vector"){
-					if(obj.master.label=="a"){
-						console.warn("VECTOR OBJ: 'a':::", o);	
-					}
-				}
-				
-				
-				
-				if(o.href){
-					obj.data.src = o.href;
-				}
-				return obj;
-			},
-			drawingToAndes: function(item, action){
-				
-				var round = function(b){
-					for(var nm in b){
-						b[nm] = Math.round(b[nm]);
-					}
-					return b;
-				}
-				// combo...............
-				var combo, statement, sbox, id = item.id;
-				if(item.type=="andes.Combo"){
-					statement = item.statement;
-					item = item.master;
-					combo = true;
-					sbox = round(item.getBounds());
-				}
-				var type = andesTypes[item.type];
-				if(type=="statement" && item instanceof drawing.tools.custom.Equation){
-					type = "equation";
-				}
-				var box = round(item.getBounds(true));
-				var obj = {
-					x:box.x,
-					y:box.y,
-					action:action,
-					type:type,
-					id:id,
-					mode: "unknown"
-				}
-				
-				if(type!="vector" && type!="line" && type!="axes"){
-					obj.width = box.w;
-					obj.height = box.h;
-				}else if(type!="axes"){
-					var line = {start:{x:box.x1, y:box.y1}, x:box.x2, y:box.y2};
-					obj.radius = Math.round(_drawing.util.length(line));
-					obj.angle = item.angle;
-				}
-				
-				if(type == "statement" || type == "equation"){
-					obj.text = item._text || "SHOULD NOT BE HERE";
-					if(type == "statement"){
-						// need to add a potential 'symbol' derived from variablename.js
-						var symbol = andes.variablename.parse(obj.text);
-						if(symbol){
-							obj.symbol = symbol;
-						}
-					}
-				}else if(type != "axes"){
-					obj.text = statement._text || "SHOULD NOT BE HERE";
-					obj.symbol = item.getLabel() || "";
-					obj["x-statement"] = sbox.x;
-					obj["y-statement"] = sbox.y;
-				
-				}else if(type == "axes"){
-					var lbl = item.getLabel();
-					obj["x-label"] = lbl.x;
-					obj["y-label"] = lbl.y;
-					
-					var line = {start:{x:box.x1, y:box.y1}, x:box.x2, y:box.y2};
-					obj.radius = Math.round(_drawing.util.length(line));
-					obj.angle = item.angle;
-				}
-				
-				if(combo){
-					var txt = statement._text || "";
-					var lbl = item.getLabel() || "";
-					if(txt && lbl){
-						obj.text = txt;
-						obj.symbol = lbl;	
-					}else{
-						obj.text = txt;
-						obj.symbol = "";
-					}
-					
-				
-				}
-				
-				return obj;
-			}
 		},
 		
 		
@@ -394,14 +194,8 @@ dojo.provide("andes.drawing");
 				if(obj.action =="new-object"){
 					//if(i<min || i>max) return;
 					//console.warn("ANDES OBJECT V"); console.dir(obj);
-					var o = this.transform.andesToDrawing(obj);
+					var o = andes.convert.andesToDrawing(obj);
 					var t = o.stencilType;
-					
-					//
-					// add ID to items first?
-					// make combo item create items within it?
-					//
-					
 					if(t=="vector" || t=="line" || t=="ellipse" || t=="rect"){
 						
 						// prevent adding items via onRenderStencil
@@ -410,22 +204,15 @@ dojo.provide("andes.drawing");
 						var masterId = _drawing.util.uid(t);
 						items[statementId] = true;
 						items[masterId] = true;
-						// statement:
 						var statement = _drawing.addStencil("textBlock", o.statement);
-						// vector:	
 						var master = _drawing.addStencil(o.stencilType, o.master);
-						// combo:
-						var combo = new andes.Combo(master, statement, o.id);
+						var combo = new andes.Combo({master:master, statement:statement, id:o.id});
 						this.add(combo);
 					
-						
 					}else{ // image, statement, equation
-						//if(o.stencilType=="image") return;
 						var item = _drawing.addStencil(o.stencilType, o);
 						this.add(item);
 					}
-					
-					
 				
 				}else if(obj.action=="modify-object"){
 					mods.push(obj);
@@ -436,7 +223,6 @@ dojo.provide("andes.drawing");
 			
 			dojo.forEach(mods, function(obj){
 				if(items[obj.id]){
-					//console.warn("MOD:", obj); //a3 a4
 					items[obj.id].attr(theme[obj.mode]);
 					if(obj.x!==undefined){
 						items[obj.id].attr({
@@ -472,6 +258,7 @@ dojo.provide("andes.drawing");
 		
 		load: function(){
 			// called from the very bottom of main.js
+			//
 			var devCookie = dojo.fromJson(dojo.cookie("mikeDev"));
 			if(devCookie && devCookie.load==false){
 		//return;
@@ -566,14 +353,3 @@ dojo.provide("andes.drawing");
 	};
 	
 })();
-
-/*
- var cb = function(){ console.warn("IN CALLBACK"); };
-var eb = function(){ console.error("IN ERRBACK"); };
-
-andes.api.open({user:"joe", problem:"s2e"}).addCallbacks(cb,eb);
-
-andes.api.step({action:"new-object", id:"a3", type:"circle", mode:"unknown", x:66, y:188, radius:25, text:"ball"});
-
-andes.api.close().addCallbacks(cb,eb);
-*/

@@ -13,14 +13,15 @@
 	<script src="../dojotoolkit/dojo/dojo.js"></script>
 	<script>
 		andes = {
-			userId:"joe",
+			userId:"joe1",
 			projectId:"s2e"
 		};
+		andes.sessionId = andes.userId + andes.projectId + new Date().getTime();
 		dojo.require("andes.api");
 
 		dojo.addOnLoad(function(){
-			var cb = function(){ console.warn("IN CALLBACK"); },
-			    eb = function(){ console.error("IN ERRBACK"); };
+			var cb = function(){ console.warn("IN CALLBACK"); console.log(arguments); },
+			    eb = function(){ console.warn("IN ERRBACK"); console.error(arguments); };
 
 			andes.api.open({user:"joe", problem:"s2e"}).addCallbacks(cb,eb);
 			andes.api.step({action:"new-object", id:"a3", type:"circle", mode:"unknown", x:66, y:188, radius:25, text:"ball"});

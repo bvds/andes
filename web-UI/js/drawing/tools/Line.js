@@ -7,7 +7,7 @@ drawing.tools.Line = drawing.util.oo.declare(
 	},
 	{
 		draws:true,
-		
+		showAngle:true,
 		onTransformEnd: function(anchor){
 			var d = this.data;
 			var obj = {start:{x:d.x1,y:d.y1},x:d.x2,y:d.y2};

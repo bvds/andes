@@ -1,14 +1,17 @@
-dojo.provide("drawing.tools.custom._Base");
+dojo.provide("drawing.annotations.Angle");
 
-
-drawing.tools.custom._Base = drawing.util.oo.declare(
+drawing.annotations.Angle = drawing.util.oo.declare(
 	function(options){
-		this.connectMult([
-			["onDrag", "showAngle"],
-			["onUp", "hideAngle"],
-			["onTransformBegin", "showAngle"],
-			["onTransform", "showAngle"],
-			["onTransformEnd", "hideAngle"]
+		this.stencil = options.stencil;
+		this.util = options.stencil.util;
+		this.mouse = options.stencil.mouse;
+		
+		this.stencil.connectMult([
+			["onDrag", this, "showAngle"],
+			["onUp", this, "hideAngle"],
+			["onTransformBegin", this, "showAngle"],
+			["onTransform", this, "showAngle"],
+			["onTransformEnd", this, "hideAngle"]
 		]);
 	},
 	{
@@ -16,40 +19,22 @@ drawing.tools.custom._Base = drawing.util.oo.declare(
 		angle:0,
 		
 		showAngle: function(){
-			if(!this.selected && this.created){ return; }
+			if(!this.stencil.selected && this.stencil.created){ return; }
 			var sc = this.mouse.scrollOffset();
 			var node = this.getAngleNode();
-			var d = this.pointsToData();
-			var obj = {
-				start:{
-					x:d.x1,
-					y:d.y1
-				},
-				x:d.x2,
-				y:d.y2
-			};
-			var angle = this.util.angle(obj, this.angleSnap);
-
+			var d = this.stencil.pointsToData();
 			var pt = drawing.util.positioning.angle({x:d.x1,y:d.y1},{x:d.x2,y:d.y2});
 			
 			// adding _offX & _offY since this is HTML
 			// and we are from the page corner, not
 			// the canvas corner
 			dojo.style(node, {
-				left:  this._offX + pt.x - sc.left + "px",
-				top: this._offY + pt.y - sc.top + "px",
+				left:  this.stencil._offX + pt.x - sc.left + "px",
+				top: this.stencil._offY + pt.y - sc.top + "px",
 				align:pt.align
 			});
-			//watch("angle:", angle)
 			
-			// reversing the angle for display: 0 -> 180, 90 -> 270
-			angle = 180 - angle; angle = angle==360 ? 0 : angle;
-			
-			//watch("display:", angle)
-			
-			this.angle = angle;
-			
-			node.innerHTML = Math.ceil(angle);
+			node.innerHTML = Math.ceil(this.stencil.getAngle());
 		},
 		
 		getAngleNode: function(){

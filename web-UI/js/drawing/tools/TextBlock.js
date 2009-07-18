@@ -84,12 +84,6 @@ dojo.require("drawing.stencil.Text");
 			draws:true,
 			type:"drawing.tools.TextBlock",
 			
-			setText: function(text){
-				this._text = text;
-				this._textArray = [];
-				this.render(text);
-			},
-			
 			showParent: function(obj){
 				if(this.parentNode){ return; }
 				var x = obj.pageX || 10;
@@ -367,7 +361,8 @@ dojo.require("drawing.stencil.Text");
 			},
 			
 			onUp: function(obj){
-				if(!obj.withinCanvas){ return; }
+				if(!this._downOnCanvas){ return; }
+				this._downOnCanvas = false;
 				
 				console.log("ON UP", this.id, this._postRenderCon)
 				
@@ -383,6 +378,7 @@ dojo.require("drawing.stencil.Text");
 				this.connectTextField();
 			},
 			
+			_downOnCanvas:false,
 			onDown: function(obj){
 				this._startdrag = {
 					x: obj.pageX,
@@ -390,6 +386,7 @@ dojo.require("drawing.stencil.Text");
 				};
 				dojo.disconnect(this._postRenderCon);
 				this._postRenderCon = null;
+				this._downOnCanvas = true;
 			},
 			onMove: function(){},
 			

@@ -52,7 +52,10 @@ dojo.provide("andes.main");
 	}else{
 		setCookie();	
 	}
-	
+	dojo.addOnUnload(function(){
+		andes.api.close({});
+		// but don't clear cookie
+	});
 	dojo.addOnLoad(function(){
 		dojo.connect(dojo.byId("submitButton"), "click", function(){
 			andes.api.close({});
@@ -78,5 +81,6 @@ dojo.require("andes.help");
 dojo.require("andes.api");
 dojo.require("andes.error");
 dojo.require("andes.variablename");
+dojo.require("andes.convert");
 
 andes.drawing.load();
