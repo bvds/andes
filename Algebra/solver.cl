@@ -301,12 +301,8 @@
 		   (format nil "(~A ~A)" setID numberToKeep)))
 
 (defun solver-studentIsIndependent (setID equationID)
-   (let ((result (do-solver-turn "c_indyStudHowIndy"
-		   (format nil "(~A ~A)" setID (id2solver-slot equationID)))))
-    ;; map from solver slot back to equation id
-    (setf (second result) (mapcar #'solver-slot2id (second result)))
-    (setf (third result) (mapcar #'solver-slot2id (third result)))
-    result))
+   (do-solver-turn "c_indyStudHowIndy"
+		   (format nil "(~A ~A)" setID (id2solver-slot equationID))))
 
 (defun solver-studentAddOkay (equationID equation)
   (do-solver-turn "c_indyStudentAddEquationOkay" 
