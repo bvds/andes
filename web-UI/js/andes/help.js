@@ -5,6 +5,7 @@ dojo.require("andes.api");
 
 	function handleHelp(result){
 		var hlp = dijit.byId("helpContentPane");
+		dijit.byId("helpPane").open();
 		dojo.forEach(result, function(r){
 			var c = hlp.attr("content");
 			switch(r.action){

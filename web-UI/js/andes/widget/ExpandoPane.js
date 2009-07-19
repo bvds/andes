@@ -22,6 +22,12 @@ dojo.declare("andes.widget.ExpandoPane", dojox.layout.ExpandoPane, {
 		dojo.addOnLoad(this, "initLayout");
 	},
 	
+	open: function(){
+		if(!this._showing){
+			this.toggle();
+		}
+	},
+	
 	_setCookie: function(){
 		var _isOpen = this._showing ? "open" : "closed";
 		dojo.cookie("helpPane", _isOpen, { expires: 999 });
