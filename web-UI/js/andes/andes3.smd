@@ -68,7 +68,7 @@
 	      "optional": true,
 	      "description": "Only for log"
 	    },
-	    "errorType": {
+	    "error-type": {
 	      "type": "string", 
 	      "optional": true,
 	      "description": "Only for error log, student error"
@@ -193,7 +193,7 @@
 	      "optional": true,
 	      "description": "only for hints"
 	    },
-	    "errorType": {
+	    "error-type": {
 	      "type": "string", 
 	      "optional": true,
 	      "description": "Only for error log, student error"
@@ -267,7 +267,7 @@
 	      "optional": true,
 	      "description": "only for hints"
 	    },
-	    "errorType": {
+	    "error-type": {
 	      "type": "string", 
 	      "optional": true,
 	      "description": "Only for error log, student error"
@@ -317,7 +317,7 @@
 	      "optional": true,
 	      "description": "Only for log"
 	    },
-	    "errorType": {
+	    "error-type": {
 	      "type": "string", 
 	      "optional": true,
 	      "description": "Only for error log, student error"

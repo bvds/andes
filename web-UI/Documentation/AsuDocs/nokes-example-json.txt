@@ -80,8 +80,8 @@ is attached to the object, and the x-statement and y-statement are optional.
            "text": "ball"}, "id": 2}
 
 [
-  {"action": "log", "assoc": {"DRAW-BODY": "(BODY BALL)"}, "id": "a3"},
-  {"action": "set-score", "score", 15},
+  {"action": "log", "assoc": {"DRAW-BODY": "(BODY BALL)"}},
+  {"action": "set-score", "score": 15},
   {"action": "modify-object", "id": "a3", "mode": "correct"}
 ]
 
@@ -97,9 +97,8 @@ is shown on the screen when the vector is being dragged out.
 	   "x-label": "x", "y-label": "y"}, "id": 3}
 
 [
-  {"action": "log", "assoc": {"DRAW-UNROTATED-AXES": "(DRAW-AXES 0)"}, 
-           "id": "a4"},
-  {"action": "set-score", "score", 25},
+  {"action": "log", "assoc": {"DRAW-UNROTATED-AXES": "(DRAW-AXES 0)"}},
+  {"action": "set-score", "score": 25},
   {"action": "modify-object", "id": "a4", "mode": "correct"}
 ]
 
@@ -128,14 +127,13 @@ agnostic about object positions; Andes3 is not.
 in the same step.  In Andes3, it is separate.
 
 {"method": "solution-step", "params": {"time": 117.001, 
-	   "action": "new-object", "id": "a5",  
+	   "action": "new-object", "id": "a5a",  
 	   "type": "statement", "mode": "unknown", 
 	   "x": 177, "y": 188, "width": 66, "symbol": "m",
 	   "text": "m is the mass of the ball"}, "id": 6}
 
 [
-  {"action": "log", "assoc": {"DEFINE-MASS": "(DEFINE-VAR (MASS BALL))"}, 
-           "id": "a5a"},
+  {"action": "log", "assoc": {"DEFINE-MASS": "(DEFINE-VAR (MASS BALL))"}},
   {"action": "modify-object", "id": "a5a", "mode": "correct"}
 ]
 
@@ -147,8 +145,8 @@ in the same step.  In Andes3, it is separate.
 	   "text": "m=2 kg"}, "id": 6.5}
 
 [
-  {"action": "log", "parse": "(= m_BALL (DNUM 2.0 kg))", "id": "a5b"},
-  {"action": "set-score", "score", 40},
+  {"action": "log", "parse": "(= m_BALL (DNUM 2.0 kg))"},
+  {"action": "set-score", "score": 40},
   {"action": "modify-object", "id": "a5b", "mode": "correct"}
 ]
 
@@ -163,8 +161,7 @@ is shown on the screen when the vector is being dragged out.
 	   "text": "Fwall1 is the normal force on the ball due to wall1"}, "id": 7}
 
 [
-  {"action": "log", "assoc": {"DRAW-NORMAL": "VECTOR (FORCE BALL WALL1 NORMAL :TIME 1) (DNUM 120 deg))", 
-           "id": "a6"},
+  {"action": "log", "assoc": {"DRAW-NORMAL": "(VECTOR (FORCE BALL WALL1 NORMAL :TIME 1) (DNUM 120 deg))"}},
   {"action": "modify-object", "id": "a6", "mode": "correct"}
 ]
 
@@ -178,8 +175,7 @@ is shown on the screen when the vector is being dragged out.
 	   "text": "Fwall2 is force due to wall2"}, "id": 8}
 
 [
-  {"action": "log", "assoc": {"DRAW-NORMAL": "VECTOR (FORCE BALL WALL3 NORMAL :TIME 1) (DNUM 40 deg))",
-           "id": "a7"},
+  {"action": "log", "assoc": {"DRAW-NORMAL": "(VECTOR (FORCE BALL WALL3 NORMAL :TIME 1) (DNUM 40 deg))"}},
   {"action": "modify-object", "id": "a7", "mode": "correct"}
 ]
 
@@ -193,8 +189,7 @@ is shown on the screen when the vector is being dragged out.
 	   "text": "Fearth is the weight force on the ball due to the earth"}, "id": 9}
 
 [
-  {"action": "log", "assoc": {"DRAW-WEIGHT": "VECTOR (FORCE BALL EARTH WEIGHT :TIME 1) (DNUM 270 deg))",
-           "id": "a8"},
+  {"action": "log", "assoc": {"DRAW-WEIGHT": "(VECTOR (FORCE BALL EARTH WEIGHT :TIME 1) (DNUM 270 deg))"}},
   {"action": "modify-object", "id": "a8", "mode": "correct"}
 ]
 
@@ -207,11 +202,9 @@ is shown on the screen when the vector is being dragged out.
 	   "text": "Fwall1_x = Fwall1 * cos (\\thetaFwall1)"}, "id": 10}
 
 [
-  {"action": "log", "parse": "(= Xc_Fn_BALL_WALL1_1_0 (* Fn_BALL_WALL1_1 (COS OFn_BALL_WALL1_1)))",
-           "id": "a9"},
+  {"action": "log", "parse": "(= Xc_Fn_BALL_WALL1_1_0 (* Fn_BALL_WALL1_1 (COS OFn_BALL_WALL1_1)))"},
   {"action": "log", "assoc": {"COMPO-GENERAL-CASE": "(EQN (= Xc_Fn_BALL_WALL1_1_0 (* Fn_BALL_WALL1_1 (COS (- (DNUM 120 deg) (DNUM 0 deg))))))", 
-	 "WRITE-IMPLICIT-EQN": "IMPLICIT-EQN (= OFn_BALL_WALL1_1 (DNUM 120 deg)))",
-           "id": "a9"},
+	 "WRITE-IMPLICIT-EQN": "(IMPLICIT-EQN (= OFn_BALL_WALL1_1 (DNUM 120 deg)))"}},
   {"action": "modify-object", "id": "a9", "mode": "correct"}
 ]
 
@@ -224,11 +217,9 @@ is shown on the screen when the vector is being dragged out.
 	   "text": "Fwall1_y = Fwall1 * sin (\\thetaFwall1)"}, "id": 11}
 
 [
-  {"action": "log", "parse": "(= Xc_Fn_BALL_WALL1_1_0 (* Fn_BALL_WALL1_1 (COS OFn_BALL_WALL1_1)))",
-           "id": "10"},
+  {"action": "log", "parse": "(= Xc_Fn_BALL_WALL1_1_0 (* Fn_BALL_WALL1_1 (COS OFn_BALL_WALL1_1)))"},
   {"action": "log", "assoc": {"COMPO-GENERAL-CASE": "(EQN (= Xc_Fn_BALL_WALL1_1_0 (* Fn_BALL_WALL1_1 (COS (- (DNUM 120 deg) (DNUM 0 deg))))))", 
-	 "WRITE-IMPLICIT-EQN": "IMPLICIT-EQN (= OFn_BALL_WALL1_1 (DNUM 120 deg)))",
-           "id": "10"},
+	 "(WRITE-IMPLICIT-EQN": "IMPLICIT-EQN (= OFn_BALL_WALL1_1 (DNUM 120 deg)))"}},
   {"action": "modify-object", "id": "a10", "mode": "correct"}
 ]
 
@@ -238,7 +229,7 @@ For the rest of this, I am going to skip the log stuff.
 {"method": "solution-step", "params": {"time": 459.001, 
 	   "action": "new-object", "id": "a11",
 	   "type": "equation", "mode": "unknown", 
-	   "x": 15, "y": 320, 
+	   "x": 15, "y": 320,
 	   "text": "Fwall2_x = Fwall2 * cos (\\thetaFwall2)"}, "id": 12}
 
 [
@@ -343,7 +334,7 @@ combined.
 	   "text": "Fwall1_x + Fwall2_x + Fearth_x = m *a"}, "id": 21}
 
 [
-  {"action": "set-score", "score", 57},
+  {"action": "set-score", "score": 57},
   {"action": "modify-object", "id": "a16", "mode": "correct"}
 ]
 
@@ -356,7 +347,7 @@ combined.
 	   "text": "Fwall1_y + Fwall2_y + Fearth_y = m*a"}, "id": 22}
 
 [
-  {"action": "set-score", "score", 75},
+  {"action": "set-score", "score": 75},
   {"action": "modify-object", "id": "a17", "mode": "correct"}
 ]
 
@@ -369,7 +360,7 @@ combined.
 	   "text": "Fearth_y = m*g"}, "id": 23}
 
 [
-  {"action": "set-score", "score", 74},
+  {"action": "set-score", "score": 74},
   {"action": "modify-object", "id": "a18", "mode": "incorrect"}
 ]
 
@@ -454,7 +445,7 @@ box included with the original problem statement with "text" set to
 	   "text": "answer:  15.2 N"}, "id": 30}
 
 [
-  {"action": "set-score", "score", 97},
+  {"action": "set-score", "score": 97},
   {"action": "modify-object", "id": "a19", "mode": "correct"}
 ]
 

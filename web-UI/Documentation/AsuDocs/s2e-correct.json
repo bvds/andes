@@ -17,7 +17,7 @@
 	   "action": "modify-object", "mode": "unknown",
 				       "id": "a4", "x": 308, "y": 209}, "id": 5},
 {"method": "solution-step", "params": {"time": 117.001,
-	   "action": "new-object", "id": "a5",
+	   "action": "new-object", "id": "a5a",
 	   "type": "statement", "mode": "unknown",
 	   "x": 177, "y": 188, "width": 66, "symbol": "m",
 				       "text": "m is the mass of the ball"}, "id": 6},
