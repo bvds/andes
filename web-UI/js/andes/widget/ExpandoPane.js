@@ -14,8 +14,25 @@ dojo.declare("andes.widget.ExpandoPane", dojox.layout.ExpandoPane, {
 
 		var scoreContainerNode = dojo.create("span", {className:"helpScore", innerHTML:"Score: <span>0</span>%"}, this.titleWrapper, "last");
 		this.scoreNode = dojo.query("span", scoreContainerNode)[0];
+		
+		dojo.connect(this, "toggle", this, function(arg){
+			this._setCookie();
+		});
+		dojo.addOnLoad(this, "_getLastPosition");
 	},
-
+	
+	_setCookie: function(){
+		var _isOpen = this._showing ? "open" : "closed";
+		dojo.cookie("helpPane", _isOpen, { expires: 999 });
+	},
+	
+	_getLastPosition: function(){
+		var ck = dojo.cookie("helpPane");
+		if(ck && ck == "open"){
+			this.toggle();
+		}
+	},
+	
 	_setupAnims: function(){
 		this._closedSize = 0;
 		this.inherited(arguments);

@@ -55,6 +55,16 @@ dojo.provide("drawing.manager.keys");
 		},
 		init: function(){
 			
+			setTimeout(dojo.hitch(this, function(){
+				dojo.query("input").forEach(function(n){
+					dojo.connect(n, "focus", this, function(evt){
+						this.editMode(true);	
+					});
+					dojo.connect(n, "blur", this, function(evt){
+						this.editMode(false);	
+					});
+				}, this);
+			}), 500);
 			dojo.connect(document, "blur", this, function(evt){
 				// when command tabbing to another application, the key "sticks"
 				// this clears any key used for such activity
