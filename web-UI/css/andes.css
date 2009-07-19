@@ -84,6 +84,10 @@ body, .tundra .dijitSplitter, #navMenu{
 #helpContentPane p{
 	margin:1em;
 }
+
+#helpContentPane p em{
+	color:#999;
+}
 .dojoxExpandoClosed .dojoxExpandoIcon,
 .dojoxExpandoClosed .dojoxExpandoTitle{
 	display:none;
