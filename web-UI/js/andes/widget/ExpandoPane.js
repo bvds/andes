@@ -18,7 +18,8 @@ dojo.declare("andes.widget.ExpandoPane", dojox.layout.ExpandoPane, {
 		dojo.connect(this, "toggle", this, function(arg){
 			this._setCookie();
 		});
-		dojo.addOnLoad(this, "_getLastPosition");
+		
+		dojo.addOnLoad(this, "initLayout");
 	},
 	
 	_setCookie: function(){
@@ -26,11 +27,21 @@ dojo.declare("andes.widget.ExpandoPane", dojox.layout.ExpandoPane, {
 		dojo.cookie("helpPane", _isOpen, { expires: 999 });
 	},
 	
-	_getLastPosition: function(){
+	initLayout: function(){
 		var ck = dojo.cookie("helpPane");
 		if(ck && ck == "open"){
 			this.toggle();
 		}
+		
+		dojo.connect(dijit.byId("helpInput"), "onKeyUp", this, function(evt){
+			if(evt.keyCode==13){
+				dijit.byId("helpSubmit").onClick();
+			}
+		});
+		
+		dojo.connect(this, "resize", this, function(){
+			dojo.style(dijit.byId("helpInput").domNode, "width", this._contentBox.w - 52 + "px");
+		});
 	},
 	
 	_setupAnims: function(){

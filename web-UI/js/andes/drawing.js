@@ -187,7 +187,7 @@ dojo.provide("andes.drawing");
 		
 		handleServerActions: function(data){
 			console.log("handleServerActions", data.length);
-			//console.dir(data);
+			console.dir(data);
 			var mods = [];
 			var min = 2, max = 5;
 			dojo.forEach(data, function(obj, i){
@@ -218,6 +218,8 @@ dojo.provide("andes.drawing");
 					mods.push(obj);
 				}else if(obj.action=="set-score"){
 					andes.help.score(obj.score);
+				}else{
+					console.warn("UNUSED ANDES OBJECT:", obj)
 				}
 			}, this);
 			

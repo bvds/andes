@@ -2,7 +2,10 @@ dojo.provide("drawing.manager.keys");
 
 (function(){
 	
+	// isEdit allows events to happen in Drawing.TextBlocks
 	var isEdit = false;
+	// enabled = false allows inputs outside of drawing to function
+	var enabled = true;
 	
 	drawing.manager.keys = {
 		arrowIncrement:1,
@@ -43,6 +46,7 @@ dojo.provide("drawing.manager.keys");
 				keyCode:options.keyCode
 			});	
 		},
+		
 		mixin: function(evt){
 			evt.meta = this.meta;
 			evt.shift = this.shift;
@@ -50,18 +54,26 @@ dojo.provide("drawing.manager.keys");
 			evt.cmmd = this.cmmd;
 			return evt;
 		},
+		
 		editMode: function(_isedit){
+			
 			isEdit = _isedit;
 		},
+		
+		enable: function(_enabled){
+			console.log("key.enabled:", _enabled);
+			enabled = _enabled;
+		},
+		
 		init: function(){
 			
 			setTimeout(dojo.hitch(this, function(){
 				dojo.query("input").forEach(function(n){
 					dojo.connect(n, "focus", this, function(evt){
-						this.editMode(true);	
+						this.enable(false);	
 					});
 					dojo.connect(n, "blur", this, function(evt){
-						this.editMode(false);	
+						this.enable(true);	
 					});
 				}, this);
 			}), 500);
@@ -72,6 +84,7 @@ dojo.provide("drawing.manager.keys");
 			});
 			
 			dojo.connect(document, "keydown", this, function(evt){
+				if(!enabled){ return; }
 				//
 				// FIXME: command stays down when using command + tab to changes appliations
 				//	perhaps look into key press?
@@ -101,6 +114,7 @@ dojo.provide("drawing.manager.keys");
 				}
 			});
 			dojo.connect(document, "keyup", this, function(evt){
+				if(!enabled){ return; }
 				//console.log("KEY UP:", evt.keyCode);
 				var _stop = false;
 				if(evt.keyCode==16){
@@ -121,6 +135,7 @@ dojo.provide("drawing.manager.keys");
 				!isEdit && this.onKeyUp(this.mixin(evt));
 				
 				if(evt.keyCode==13){
+					console.warn("KEY ENTER")
 					this.onEnter(evt);
 					_stop = true;
 				}
@@ -139,6 +154,7 @@ dojo.provide("drawing.manager.keys");
 			});
 			
 			dojo.connect(document, "keypress", this, function(evt){
+				if(!enabled){ return; }
 				var inc = this.shift ? this.arrowIncrement*this.arrowShiftIncrement : this.arrowIncrement;
 				
 				var x =0, y =0;
