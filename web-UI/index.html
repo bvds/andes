@@ -77,6 +77,7 @@
 		dojo.require("dijit.form.Button");
 		dojo.require("dijit.form.TextBox");
 		
+		dojo.require("andes.defaults");
 		dojo.require("andes.main");
 
 		dojo.require("drawing.Drawing");
@@ -147,6 +148,7 @@
 
 		<div id="drawingPane" dojoType="dijit.layout.ContentPane" region="center" >
 				<div dojoType="drawing.Drawing" id="drawing" drawingType="canvas" class="drawing"
+					 defaults="andes.defaults"
 					plugins="[{'name':'drawing.plugins.drawing.Grid', 'options':{gap:100}}]">   
 			   </div>
 		</div>

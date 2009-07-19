@@ -4,49 +4,17 @@ dojo.provide("andes.drawing");
 (function(){
 	
 	//dojo.cookie("mikeDev", "{load:true}", { expires: 999 });
-
-	var theme = {
-		DTheta:1,
-		locked:{
-			//TODO
-		},
-		fade:{
-			//TODO
-		},
-		correct:{
-			fill:  "#CCFFCC",
-			color: "#009900"
-		},
-		incorrect:{
-			fill:  "#FE7070",
-			color: "#D20202"
-		},
-		unknown:{
-			fill:  "#CCCCCC",
-			color: "#000000"
-		},
-		text:{
-			size:"14px",
-			minWidth:100
-		}
-	};
 	
-	var dtc = 0;
-	var getDevTheme = function(){
-		dtc = dtc==2 ? 0 : dtc + 1;
-		if(dtc==1){
-			return theme.correct;
-		}else if(dtc==2){
-			return theme.incorrect;
-		}
-		return theme.unknown;
-	};
-	
+	// the html ID in index for the drawing app
 	var drawingId = "drawing";
 	var _drawing;
 	var _surfaceLoaded = false;
 	
+	
 	var stencils = {
+		// used for mapping objects between andes
+		// and Drawing
+		//
 		line: 		"drawing.stencil.Line",
 		rect: 		"drawing.stencil.Rect",
 		ellipse: 	"drawing.stencil.Ellipse",
@@ -55,7 +23,10 @@ dojo.provide("andes.drawing");
 		textBlock:	"drawing.tools.TextBlock"
 	};
 	
+	
 	var hasStatement = {
+		// These objects get statements associated with them
+		//
 		"drawing.stencil.Line":true,
 		"drawing.stencil.Rect":true,
 		"drawing.stencil.Ellipse":true,
@@ -64,12 +35,19 @@ dojo.provide("andes.drawing");
 	};
 	
 	var hasLabel = {
+		// Special case for Axes and its double-label
+		//
 		"drawing.tools.custom.Axes":true
 	};
 	
-	var items = {};
+	
 	
 	var getStatementPosition = function(box){
+		// summary:
+		//	Simple method for determining position of
+		// 	statements next to objects. If changed, do not
+		// 	change 'showEmpty'.
+		//
 		var gap = 10;
 		return {data:{
 			x:box.x2 + gap,
@@ -78,20 +56,12 @@ dojo.provide("andes.drawing");
 		}};
 	};
 	
+	var items = {};
 	
 	dojo.addOnLoad(function(){
 		_drawing = dijit.byId(drawingId);
 		var cn = dojo.connect(_drawing, "onSurfaceReady", function(){
 			dojo.disconnect(cn);
-			// setting styles
-			var d = drawing.defaults;
-			d.angleSnap = theme.DTheta;
-			d.norm.color = theme.unknown.color;
-			d.norm.fill = theme.unknown.fill;
-			d.text.minWidth = theme.text.minWidth;
-			d.text.size = theme.text.size;
-			d.textDisabled.size = theme.text.size;
-			
 			andes.drawing.onSurfaceReady();
 		});
 		dojo.connect(_drawing, "onRenderStencil", andes.drawing, "onRenderStencil");
@@ -225,7 +195,7 @@ dojo.provide("andes.drawing");
 			
 			dojo.forEach(mods, function(obj){
 				if(items[obj.id]){
-					items[obj.id].attr(theme[obj.mode]);
+					items[obj.id].attr(andes.defaults[obj.mode]);
 					if(obj.x!==undefined){
 						items[obj.id].attr({
 							x:obj.x,

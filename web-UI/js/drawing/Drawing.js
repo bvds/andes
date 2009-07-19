@@ -41,12 +41,22 @@ dojo.require("drawing.annotations.Arrow");
 		height:0,
 		grid:"",
 		constructor: function(props, node){
+			console.dir(props)
+			// props is always null since this is not a real widget
 			// FIXME:
 			// currently most objects get their styles/defaults
 			// like:drawing.defaults.copy();
 			// - is this good or should the object always be passed?
-			this.defaults = drawing.defaults;
 			
+			var def = dojo.attr(node, "defaults");
+			if(def){
+				drawing.defaults =  dojo.getObject(def);
+			}
+			this.defaults =  drawing.defaults;
+			
+			console.log("DEF:", this.defaults)
+			this.defaults = window[this.defaults];
+			console.dir(this.defaults)
 			this.id = node.id;
 			this.util = drawing.util.common;
 			this.util.register(this); // So Toolbar can find this Drawing

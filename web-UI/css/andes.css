@@ -102,10 +102,12 @@ body, .tundra .dijitSplitter, #navMenu{
 	top:5px;
 	padding:3px;
 	cursor:pointer;
-	background:#cee3ec;
+	background:#cee3ec url("../js/drawing/resources/images/tool_icons.png") no-repeat -384px 0px ;
 	border:1px solid;
-	border-color:#fff #000 #bbb #ccc;
+	border-color:#fff #000 #bbb #ccc ;
 	border-right:none;
+	width:24px;
+	height:24px;
 }
 #helpQueryLabel{
 	position:absolute;

@@ -156,10 +156,12 @@ dojo.provide("drawing.stencil._Base");
 			},
 			
 			onChangeStyle: function(/*Object*/stencil){ 
-				
+				// summary:
+				//	Fire when styles of shape has changed
+				//
 				this._isBeingModified = true; // need this to prevent onRender
 				
-				// TODO: Make this _changeStyle and call onChangeSyyle
+				// ??? -> TODO: Make this _changeStyle and call onChangeSyyle
 				//
 				// ??? -> TODO - try mixin so if new style does not have fill, the norm.fill will be used
 				//
@@ -195,8 +197,12 @@ dojo.provide("drawing.stencil._Base");
 			
 			attr: function(/*String | Object*/key, /* ? String | Number */value){
 				// summary
-				//	Changes properties in the normal-style.
-				var n = this.style.norm, h = this.style.hitNorm, t = this.style.text, o, nm;
+				//	Changes properties in the normal-style. Also can be used to
+				//	change x/y props.
+				// TODO:
+				//	Expand this to change more properties, like width, radius, angle
+				//
+				var n = this.style.norm, t = this.style.text, o, nm;
 				var coords = {
 					x:true,
 					y:true
@@ -230,7 +236,7 @@ dojo.provide("drawing.stencil._Base");
 					this.transformPoints(mx);
 				}
 				this.onChangeStyle(this);
-				//this.render();
+			
 			},
 			
 			//	TODO:

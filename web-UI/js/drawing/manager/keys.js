@@ -56,12 +56,10 @@ dojo.provide("drawing.manager.keys");
 		},
 		
 		editMode: function(_isedit){
-			
 			isEdit = _isedit;
 		},
 		
 		enable: function(_enabled){
-			console.log("key.enabled:", _enabled);
 			enabled = _enabled;
 		},
 		
