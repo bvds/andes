@@ -15,7 +15,11 @@ drawing.annotations.Arrow = drawing.util.oo.declare(
 		this.connect("onBeforeRender", this, function(){
 			var o = this.stencil.points[this.idx1];
 			var c = this.stencil.points[this.idx2];
-			this.points = this.arrowHead(c.x, c.y, o.x, o.y, this.style);
+			if(this.stencil.getRadius() >= this.minimumSize){
+				this.points = this.arrowHead(c.x, c.y, o.x, o.y, this.style);
+			}else{
+				this.points = [];
+			}
 		});
 		
 	},
@@ -24,6 +28,7 @@ drawing.annotations.Arrow = drawing.util.oo.declare(
 		idx2:1,
 		
 		subShape:true,
+		minimumSize:30,
 		//annotation:true, NOT!
 		
 		arrowHead: function(x1, y1, x2, y2, style){

@@ -14,7 +14,7 @@ drawing.tools.Arrow = drawing.util.oo.declare(
 		}
 		
 		if(this.data || this.points && this.points.length){
-			this.render();
+			// ??? this.render();
 		}
 	},
 	{

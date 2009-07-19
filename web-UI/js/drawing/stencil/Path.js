@@ -18,6 +18,7 @@ drawing.stencil.Path = drawing.util.oo.declare(
 		_create: function(shp, sty){
 			
 			this.remove(this[shp]);
+			if(!this.points.length){ return; }
 			
 			if(dojox.gfx.renderer=="svg"){
 				// NOTE:

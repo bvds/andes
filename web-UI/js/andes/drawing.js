@@ -3,7 +3,7 @@ dojo.provide("andes.drawing");
 
 (function(){
 	
-	dojo.cookie("mikeDev", "{load:true}", { expires: 999 });
+	//dojo.cookie("mikeDev", "{load:false}", { expires: 999 });
 
 	var theme = {
 		DTheta:1,
@@ -263,20 +263,20 @@ dojo.provide("andes.drawing");
 			if(devCookie && devCookie.load==false){
 		//return;
 				this._initialData = [
-			/*	{
+				{
 					"action": "new-object",
 					"id": "a6",  
 					"type": "vector",
 					"mode": "unknown", 
 					"x": 240, "y": 222,
 					"angle": 120,
-					"radius": 160,
+					"radius": 0,
 					"symbol": "Fwall1",
 					"x-statement": 300,
 					"y-statement": 350,
 					"text": "Fwall1 is the normal force on the ball due to wall1"
 				},
-				{
+				/*{
 					"action": "new-object",
 					"id": "a4",  
 					"type": "axes",

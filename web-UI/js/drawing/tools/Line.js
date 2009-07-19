@@ -61,9 +61,8 @@ drawing.tools.Line = drawing.util.oo.declare(
 		onUp: function(obj){
 			if(this.created || !this.shape){ return; }
 			// if too small, need to reset
-			var p = this.points;
-			var len = this.util.distance(p[0].x,p[0].y,p[1].x,p[1].y);
-			if(len<this.minimumSize){
+			
+			if(this.getRadius()<this.minimumSize){
 				this.remove(this.shape, this.hit);
 				return;
 			}

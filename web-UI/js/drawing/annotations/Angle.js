@@ -20,6 +20,10 @@ drawing.annotations.Angle = drawing.util.oo.declare(
 		
 		showAngle: function(){
 			if(!this.stencil.selected && this.stencil.created){ return; }
+			if(this.stencil.getRadius() < this.stencil.minimumSize){
+				this.hideAngle();
+				return;
+			}
 			var sc = this.mouse.scrollOffset();
 			var node = this.getAngleNode();
 			var d = this.stencil.pointsToData();

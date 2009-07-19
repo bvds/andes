@@ -5,7 +5,7 @@ dojo.provide("andes.convert");
 	var drawingId = "drawing";
 	var _drawing;
 	dojo.addOnLoad(function(){
-		_drawing = dijit.byId(drawingId);
+		//_drawing = dijit.byId(drawingId);
 	});
 	
 	var stencilMods = {
@@ -26,6 +26,16 @@ dojo.provide("andes.convert");
 		"drawing.tools.custom.Equation":"equation",
 		"drawing.stencil.Image":"graphics",
 		"drawing.tools.TextBlock":"statement" // or statement.... hmmmm
+	};
+	
+	// dupe code:
+	var getStatementPosition = function(box){
+		var gap = 10;
+		return {data:{
+			x:box.x2 + gap,
+			y:box.y1,
+			showEmpty:true
+		}};
 	};
 	
 	andes.convert ={
@@ -58,7 +68,7 @@ dojo.provide("andes.convert");
 				}
 			}else{
 				// vector, line, axes
-				obj.data.radius = o.radius || 100;
+				obj.data.radius = o.radius || 0;
 				obj.data.angle = o.angle;
 			}
 			if(o.type=="statement" && (o.mode=="locked" || o.mode=="fade")){
