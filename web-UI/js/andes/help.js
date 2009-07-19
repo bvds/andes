@@ -24,6 +24,8 @@ dojo.require("andes.api");
 					// no-op
 			}
 		});
+		
+		hlp.domNode.scrollTop = 10000;
 	}
 
 	dojo.addOnLoad(function(){
@@ -46,6 +48,7 @@ dojo.require("andes.api");
 		var c = hlp.attr("content");;
 		c  += value;
 		hlp.attr("content", c);
+		hlp.domNode.scrollTop = 10000;
 	};
 	
 	andes.help.processStep = function(result){
