@@ -2,6 +2,8 @@ dojo.provide("andes.main");
 
 
 (function(){
+	// summary:
+	//	Handles loading of app and the timing of how items load.
 	
 	var devMode = true, query;
 	if(!window.location.search){
@@ -52,10 +54,12 @@ dojo.provide("andes.main");
 	}else{
 		setCookie();	
 	}
+	
 	dojo.addOnUnload(function(){
 		andes.api.close({});
 		// but don't clear cookie
 	});
+	
 	dojo.addOnLoad(function(){
 		dojo.connect(dojo.byId("submitButton"), "click", function(){
 			andes.api.close({});

@@ -2,11 +2,7 @@ dojo.provide("andes.convert");
 
 (function(){
 	
-	var drawingId = "drawing";
-	var _drawing;
-	dojo.addOnLoad(function(){
-		//_drawing = dijit.byId(drawingId);
-	});
+	
 	
 	var stencilMods = {
 		statement:	"textBlock",
@@ -38,8 +34,16 @@ dojo.provide("andes.convert");
 		}};
 	};
 	
-	andes.convert ={
+	andes.convert = {
+		// summary:
+		//	The conversion object used to transform objects
+		//	from and ande object to a drawing object and
+		//	vice versa.
+		//
 		andesToDrawing: function(o){
+			// summary:
+			//	Converts from andes to drawing
+			
 			//console.warn(" ---------------> andesToDrawing:", o.type)
 			if(o.x==undefined || o.y===undefined){
 				console.error("Imported Object '" + o.id + "' contains no X or Y coordinates.");
@@ -118,8 +122,11 @@ dojo.provide("andes.convert");
 			}
 			return obj;
 		},
+		
 		drawingToAndes: function(item, action){
-			
+			// summary:
+			//	Converts from Drawing to andes
+			//
 			var round = function(b){
 				for(var nm in b){
 					b[nm] = Math.round(b[nm]);

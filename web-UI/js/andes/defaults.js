@@ -27,12 +27,12 @@ dojo.provide("andes.defaults");
 
 		// object states
 		locked:{
-			fill:  "#CCFFCC",
-			color: "#009900"
+			fill:  "#cccccc",
+			color: "#000000"
 		},
 		fade:{
-			fill:  "#CCFFCC",
-			color: "#009900"
+			fill:  "#cccccc",
+			color: "#000000"
 		},
 		correct:{
 			fill:  "#CCFFCC",

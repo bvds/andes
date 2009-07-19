@@ -3,11 +3,23 @@ dojo.provide("andes.widget.ExpandoPane");
 dojo.require("dojox.layout.ExpandoPane");
 
 dojo.declare("andes.widget.ExpandoPane", dojox.layout.ExpandoPane, {
+	// summary:
+	//	Allows the expandable Help Pane.
+	// 	extends dojox.layout.ExpandoPane
+	
+	// minimum size the pane can be set
 	minSize: 160,
+	
+	// if true remembers whether pane was open or close
+	//	when page loads
+	rememberState:true,
 
 	startup: function(){
 		this.inherited(arguments);
+		
+		// create open button that shows when pane is closed
 		this.openButtonNode = dojo.create("div", {id:"helpPaneOpenButton", innerHTML:"&nbsp;"});
+		
 		dojo.style(this.openButtonNode, "display", "none");
 		dojo.place(this.openButtonNode, dojo.byId("drawingPane"), "last");
 		dojo.connect(this.openButtonNode, "onclick", this, "openHelp");
@@ -15,17 +27,13 @@ dojo.declare("andes.widget.ExpandoPane", dojox.layout.ExpandoPane, {
 		var scoreContainerNode = dojo.create("span", {className:"helpScore", innerHTML:"Score: <span>0</span>%"}, this.titleWrapper, "last");
 		this.scoreNode = dojo.query("span", scoreContainerNode)[0];
 		
-		dojo.connect(this, "toggle", this, function(arg){
-			this._setCookie();
-		});
+		if(this.rememberState){
+			dojo.connect(this, "toggle", this, function(arg){
+				this._setCookie();
+			});
+		}
 		
 		dojo.addOnLoad(this, "initLayout");
-	},
-	
-	open: function(){
-		if(!this._showing){
-			this.toggle();
-		}
 	},
 	
 	_setCookie: function(){
@@ -67,13 +75,22 @@ dojo.declare("andes.widget.ExpandoPane", dojox.layout.ExpandoPane, {
 	},
 
 	score: function(value){
+		// set score
 		if(typeof value != "undefined"){
 			this.scoreNode.innerHTML = value;
 		}
 		return this.scoreNode.innerHTML;
 	},
-
+	
+	open: function(){
+		// explicitly opens pane (if closed)
+		if(!this._showing){
+			this.toggle();
+		}
+	},
+	
 	openHelp: function(){
+		// actually this toggles
 		dijit.byId("helpInput").attr("value", "");
 		if(dijit.byId("helpContentPane").attr("content").length == 0){
 			dijit.byId("helpSubmit").onClick();

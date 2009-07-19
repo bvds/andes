@@ -67,8 +67,13 @@ dojo.provide("andes.drawing");
 		dojo.connect(_drawing, "onRenderStencil", andes.drawing, "onRenderStencil");
 		
 	});
+	
+	
 	andes.drawing = {
-		
+		// summary:
+		//	The master object that controls behavior of Drawing items
+		//	and handles transfer of data between server and client
+		//
 		onRenderStencil: function(item){
 			// summary:
 			//	Called on drag-create. This method should call add()
@@ -76,21 +81,20 @@ dojo.provide("andes.drawing");
 			//
 			if(items[item.id]){ return; }
 			
-			console.log("-----------> drawing, new item:", item.id, items);
-		
-			
-			//item.disable();
-
 			if(hasStatement[item.type] || hasLabel[item.type]){
-				
+				// vector, rect, ellipse, or axes
 				var box = item.getBounds();
 				var props = getStatementPosition(box);
 				if(hasLabel[item.type]){
+					// axes
+					// default labels for an axes
 					props.data.text = "x and y";
 				}
+				// create statement for vector, rect, ellipse, or axes
 				var statement = _drawing.addStencil("textBlock", props);
 				
 				if(hasLabel[item.type]){
+					// axes
 					var s = statement;
 					item.connect(statement, "onChangeText", this, function(value){
 						item.setLabel(value);
@@ -99,7 +103,9 @@ dojo.provide("andes.drawing");
 						_drawing.removeStencil(s);
 					});
 					
+				
 				}else if(hasStatement[item.type]){
+					// vector, rect, ellipse
 					var c = new andes.Combo({master:item, statement:statement, onCreate: dojo.hitch(this, function(){
 						this.add(c, true);		
 					})});
@@ -151,19 +157,28 @@ dojo.provide("andes.drawing");
 		},
 		
 		remove: function(/* Stencil */ item){
+			// summary:
+			//	Just removes reference. See item.connect.onDelete above
 			delete items[item.id];
 		},
 		
 		
 		handleServerActions: function(data){
+			// summary:
+			//	Handle objects returned from server.
+			//	Handles all returns, including open-problem
+			//	and solution-step.
+			//
+			//	NOTE: andes.help intercepts calls and handles
+			//	any help associated with the data.
+			//
 			console.log("handleServerActions", data.length);
-			console.dir(data);
+			//console.dir(data);
 			var mods = [];
 			var min = 2, max = 5;
 			dojo.forEach(data, function(obj, i){
+				
 				if(obj.action =="new-object"){
-					//if(i<min || i>max) return;
-					//console.warn("ANDES OBJECT V"); console.dir(obj);
 					var o = andes.convert.andesToDrawing(obj);
 					var t = o.stencilType;
 					if(t=="vector" || t=="line" || t=="ellipse" || t=="rect"){
@@ -186,14 +201,17 @@ dojo.provide("andes.drawing");
 				
 				}else if(obj.action=="modify-object"){
 					mods.push(obj);
+					
 				}else if(obj.action=="set-score"){
 					andes.help.score(obj.score);
+				
 				}else{
 					console.warn("UNUSED ANDES OBJECT:", obj)
 				}
 			}, this);
 			
 			dojo.forEach(mods, function(obj){
+				// handles any object modifications
 				if(items[obj.id]){
 					items[obj.id].attr(andes.defaults[obj.mode]);
 					if(obj.x!==undefined){
@@ -209,31 +227,36 @@ dojo.provide("andes.drawing");
 		},
 		
 		onSurfaceReady: function(){
-			//_drawing.addStencil("image", {data:{src:"tests/images/BallOnWall.png", x:300, y:200, width:"auto"}});
-			//_drawing.addStencil("rect", {data:{x:100, y:500, width:100, height:100}});
-			
+			// Drawing is ready.
 			_surfaceLoaded = true;
 			if(this._initialData){
-				console.log("------------> load actions surface loaded")
 				this.handleServerActions(this._initialData);
-				this._initialData = null;
 			}
 		},
 		
 		save: function(data){
+			// summary:
+			//	Save an object to the server.
+			//
+			// DEV:
 			var devCookie = dojo.fromJson(dojo.cookie("mikeDev"));
 			if(devCookie && devCookie.load==false){
 				return;
 			}
+			
 			andes.api.step(data).addCallback(this, "handleServerActions").addErrback(this, "onError");	
 		},
 		
 		load: function(){
+			// summary:
+			//	loads project data
+			//
 			// called from the very bottom of main.js
 			//
+			// DEV ===================>
 			var devCookie = dojo.fromJson(dojo.cookie("mikeDev"));
 			if(devCookie && devCookie.load==false){
-		//return;
+		
 				this._initialData = [
 				{
 					"action": "new-object",
@@ -287,9 +310,9 @@ dojo.provide("andes.drawing");
 					"text": "m=2 kg"
 				}
 				
-				
-				
 				];
+				// <================ DEV
+				
 				if(_surfaceLoaded){
 					console.log("------------> load actions DEV")
 					this.handleServerActions(this._initialData);
@@ -302,6 +325,7 @@ dojo.provide("andes.drawing");
 				andes.api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId}).addCallback(this, "onLoad").addErrback(this, "onError");
 			}
 			if(andes.closeFirst){
+				// a previous project session is open. close it.
 				andes.api.close({}).addCallback(this, "loadProject").addErrback(this, "onError");
 			}else{
 				this.loadProject();
@@ -309,18 +333,21 @@ dojo.provide("andes.drawing");
 		},
 		
 		onLoad: function(data){
-			console.info("Project Data Loaded");
+			// summary:
+			//	Project Data Loaded
 			this._initialData = data;
 			if(_surfaceLoaded){
-				console.log("------------> load actions onLoad")
 				this.handleServerActions(this._initialData);
-				this._initialData = null;
 			}
 		},
 		onError: function(err){
 			console.error("There was an error loading project data:", err);
-			andes.api.close({});
-			dojo.cookie("andes", null, { expires: -1 });
+			if(!this._initialData){
+				// apparently an error on open-problem. Try closing session.
+				andes.api.close({});
+				dojo.cookie("andes", null, { expires: -1 });
+			}
+			// call andes.error?
 		}
 	};
 	

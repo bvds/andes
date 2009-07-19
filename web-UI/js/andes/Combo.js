@@ -1,7 +1,16 @@
 dojo.provide("andes.Combo");
 
 andes.Combo = drawing.util.oo.declare(
-	
+	// summary:
+	//	A special object used to combine an Andes Stencil
+	//	(Vector, Rect, Ellipse)
+	//	and a Statement. Objects are implicitly linked.
+	//	Selecting one highlights the other. Moving one does
+	//	*not* move the other. Deleting one *does* delete the other.
+	//
+	//	This object is what relays events to andes.drawing, not the
+	//	individual items.
+	//
 	function(options){
 		this.master = options.master;
 		this.statement = options.statement;
@@ -88,11 +97,12 @@ andes.Combo = drawing.util.oo.declare(
 		},
 		
 		getItem: function(){
-			console.warn("CHANGED: access this.statement directly")
+			// NOT USED
 			return this.statement;
 		},
 
 		attr: function(a1, a2){
+			// see Drawing.stencil._Base
 			this.master.attr.call(this.master, a1, a2);
 			this.statement.attr.call(this.statement, a1, a2);
 		},

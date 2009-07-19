@@ -4,6 +4,9 @@ dojo.require("andes.api");
 (function(){
 
 	function handleHelp(result){
+		// summary:
+		//	Handles text returned from server
+		//
 		var hlp = dijit.byId("helpContentPane");
 		dijit.byId("helpPane").open();
 		dojo.forEach(result, function(r){
@@ -41,6 +44,9 @@ dojo.require("andes.api");
 	});
 	
 	andes.help.echo = function(value){
+		// summary:
+		//	Remove text from Input and place it in the help pane.
+		//
 		if(value == '!'){
 			value = "You are a lover of the mystery of life, yet sometimes you long for straightforward answers. Unfortunately, there's no easy way out; you must be satisfied exploring for a solution to your questions, rather than finding exactly what you're looking for today. However, keep in mind that this is not about giving up; it's about letting go."
 		}
@@ -53,6 +59,7 @@ dojo.require("andes.api");
 	};
 	
 	andes.help.processStep = function(result){
+		// summary:
 		// look for any help coming back from the server (such as in
 		// the results from andes.api.step()
 		handleHelp(result);
@@ -63,6 +70,8 @@ dojo.require("andes.api");
 	};
 
 	andes.help.link = function(href){
+		// summary:
+		//	Calls api after a link in help pane has been clicked.
 		dojo.xhrGet({
 			url: href,
 			handleAs: "text",
@@ -74,6 +83,8 @@ dojo.require("andes.api");
 	};
 
 	andes.help.score = function(value){
+		// summary:
+		// updates score
 		return dijit.byId("helpPane").score(value);
 	};
 })();
