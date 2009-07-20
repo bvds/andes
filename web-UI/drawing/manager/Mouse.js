@@ -1,29 +1,122 @@
 dojo.provide("drawing.manager.Mouse");
 
 drawing.manager.Mouse = drawing.util.oo.declare(
+	// summary:
+	//		Master object (instance) that tracks mouse
+	//		events. A new instance is created for each
+	//		Drawing object.
+	// description:
+	//		You could connect to any method or event in this
+	//		class, but it is designed to have the object
+	//		'registered'. All objects with the current event
+	//		will be called directly.
 	//
-	// singleton? Would need to:
-	// track multiple containers & drawings
-	// comm back only to that drawing
-	// more difficult to maintain selection
+	//		Custom events are used often. In addition to
+	//		standard events onDown, onUp, onDrag, etc, if
+	//		a certain object is clicked upon (or dragged, etc),
+	//		that object's drawingType will create the custom event,
+	//		such as onAnchorDown, or onStencilDown.
 	//
-	function(options){
+	function(/* Object */options){
 		this.util = options.util;
 		this.keys = options.keys;
 	},
 	
 	{
+		// doublClickSpeed: Number
+		//		Milliseconds between clicks to
+		//		register as for onDoubleClick
 		doublClickSpeed:400,
+		// private properties
 		registerd:{},
 		_lastx:0,
 		_lasty:0,
 		__reg:0,
 		_downOnCanvas:false,
 		
-		init: function(node){
+		/*=====
+		dojox.__MouseEvents = function(){
+			// summary:
+			//		An Object that has registered with manager.Mouse
+			//		can contain any or all of the following methods
+			//		and they will be called as mouse events. All events
+			//		will be sent a dojox.__MangerMouseEvent.
+			//	NOTE:
+			//		Events happen anywhere in the document unless
+			//		otherwise noted.
+			//
+			//	onMove
+			//		Fires on mousemove when mouse is up
+			//	onDown
+			//		Fires on mousedown *on the canvas*
+			//	onDrag
+			//		Fires on mousemove when mouse is down
+			//	onUp
+			//		Fires on mouseup, anywhere in the document
+			//	onStencilDown
+			//		Fired on mousedown on a Stencil
+			//	onStencilDrag
+			//		Fired when mouse moves and mose is down on a Stencil
+			//	onStencilUp
+			//		Fired on mouseup off of a Stencil
+			//	on[Custom]Up|Down|Move
+			//		Custom events can bet set and fired by setting a
+			//		different drawingType on a Stencil, or by calling
+			//		setEventMode(customEventName)
+		}
+		=====*/
+		
+		/*=====
+		dojox.__MangerMouseEvent = function(){
+			// summary:
+			//		The custom event that is sent to registered objects
+			//		and their respective methods.
+			//	NOTE: Most event objects are the same with the exception
+			//		of the onDown events, which have fewer.
+			//
+			// All event properties included onDown:
+			//
+			//	id: String
+			//		Id of the focused object
+			//	pageX: Number
+			//		The X coordinate of the mouse from the left side of
+			//		the document.
+			//	pageY: Number
+			//		The Y coordinate of the mouse from the top of
+			//		the document.
+			//	x:	Number
+			//		The X coordinate of the mouse from the left side
+			//		of the canvas
+			//	y:	Number
+			//		The Y coordinate of the mouse from the top
+			//		of the canvas
+			//
+			// These event properties are *not* in onDown:
+			//
+			//	last:	Object
+			//		The x and y coordinates of the last mousemove
+			//		relative to the canvas
+			//	move: Object
+			//		The x and y amounts the mouse moved since the last event
+			//	orgX:	Number
+			//		The left side of the canvas from the side of the document
+			//	orgY:	Number
+			//		The top of the canvas from the top of the document
+			//	scroll: Object
+			//		The 'top' and 'left' scroll amounts of the canvas.
+			//	start:	Object
+			//		The x and y coordinates of the mousedown event
+			//	withinCanvas: Boolean
+			//		Whether the event happened within the Canvas or not
+			
+		}
+		=====*/
+			
+		init: function(/* HTMLNode*/node){
+			//	summary:
+			//	Internal. Initializes mouse.
 			this.container = node;
-			var pos = dojo.coords(this.container.parentNode);
-			this.origin = dojo.clone(pos);
+			this.setCanvas();
 			var c;
 			var _isDown = false;
 			dojo.connect(this.container, "mousedown", this, function(evt){
@@ -45,27 +138,49 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 				this._dragged = false;	
 			});
 		},
+		
 		setCanvas: function(){
+			// summary:
+			//	Internal. Sets canvas position
 			var pos = dojo.coords(this.container.parentNode);
 			this.origin = dojo.clone(pos);
 		},
+		
 		scrollOffset: function(){
+			// summary:
+			// 	Gets scroll offset of canvas
 			return {
 				top:this.container.parentNode.scrollTop,
 				left:this.container.parentNode.scrollLeft		
-			};
+			}; // Object
 		},
-		register: function(scope){
+		register: function(/* Object*/scope){
+			// summary:
+			//		All objects (Stencils) should register here if they
+			//		use mouse events. When registering, the object will
+			//		be called if it has that method.
+			//	argument:
+			//		The object to be called
+			//	Returns: handle
+			//		Keep the handle to be used for disconnection.
+			// See: dojox.__MouseEvents and dojox.__MangerMouseEvent
+			//
 			var handle = scope.id || "reg_"+(this.__reg++);
 			if(!this.registerd[handle]) { this.registerd[handle] = scope; }
-			return handle;
+			return handle; // String
 		},
 		unregister: function(handle){
+			// summary:
+			// 		Disconnects object. Mouse events are no longer
+			//		called for it.
 			if(!this.registerd[handle]){ return; }
 			delete this.registerd[handle];
 		},
 		
 		_broadcastEvent:function(strEvt, obj){
+			// summary:
+			//		Fire events to all registered objects.
+			//
 			//console.log("mouse.broadcast:", strEvt, obj)
 			for(var nm in this.registerd){
 				if(this.registerd[nm][strEvt]) this.registerd[nm][strEvt](obj);
@@ -75,7 +190,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		
 		
 		onCanvasUp: function(evt){
-			//console.log("mouse onCanvasUp")
+			console.log(" ----------------------- mouse onCanvasUp")
 		},
 		
 		onDown: function(obj){
