@@ -157,6 +157,8 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defvar *simulate-loaded-server* t "Put in delay in solution steps")
+
 (webserver:defun-method "/help" open-problem (&key time problem user section) 
   "initial problem statement" 
 
@@ -269,8 +271,6 @@
       (push `((:action . "set-score") (:score . 0)) replies))
 
     (append (reverse replies) solution-step-replies)))
-
-(defvar *simulate-loaded-server* t "Put in delay in solution steps")
 
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
