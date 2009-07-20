@@ -19,7 +19,7 @@
 		}
 		
 		if(djConfig.isDebug){
-			djConfig.modulePaths = {'drawing': '../../drawing', 'andes':'../../andes'};
+			djConfig.modulePaths = {'drawing': '../drawing', 'andes':'../andes'};
 			document.write('<link href="css/andes.css" rel="stylesheet" />');
 			document.write('<scr'+'ipt src="dojo/dojo.js"></scr'+'ipt>');
 		}else{
@@ -109,7 +109,7 @@
 		<div id="toolPane" dojoType="dijit.layout.ContentPane" region="left" splitter="false">
 				<div dojoType="drawing.Toolbar" drawingId="drawing" class="drawingToolbar vertical">
 					
-					<div tool="drawing.tools.Line" 				selected="falswe">	Line</div>
+					<div tool="drawing.tools.Line" 				selected="false">	Line</div>
 					<div tool="drawing.tools.Rect" 				selected="false">	Rect</div>
 					<div tool="drawing.tools.Ellipse" 			selected="false">	Ellipse</div>
 					<div tool="drawing.tools.TextBlock" 		selected="false">	Statement</div>
@@ -128,9 +128,6 @@
 					plugins="[{'name':'drawing.plugins.drawing.Grid', 'options':{gap:100}}]">   
 			   </div>
 		</div>
-		<!--<div dojoType="drawing.Drawing" id="drawingNode" drawingType="canvas" class="drawing"
-					plugins="[{'name':'drawing.plugins.drawing.Grid', 'options':{gap:100}}]" region="center" >
-		</div>-->
 			
 		<div id="helpPane" dojoType="andes.widget.ExpandoPane" region="right" splitter="true" title="Help" startExpanded="false">
 			<div id="helpWrapPane" dojoType="dijit.layout.BorderContainer" gutters="false">

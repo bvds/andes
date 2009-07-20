@@ -2,12 +2,15 @@ dojo.provide("drawing.manager.keys");
 
 (function(){
 	
-	// isEdit allows events to happen in Drawing.TextBlocks
+	// Ref: isEdit allows events to happen in Drawing.TextBlocks
 	var isEdit = false;
-	// enabled = false allows inputs outside of drawing to function
+	
+	// Ref: enabled = false allows inputs outside of drawing to function
 	var enabled = true;
 	
 	drawing.manager.keys = {
+		// summary:
+		//	Singleton object that detects keyboard events
 		arrowIncrement:1,
 		arrowShiftIncrement:10,
 		
@@ -75,6 +78,10 @@ dojo.provide("drawing.manager.keys");
 					});
 				}, this);
 			}), 500);
+			
+			
+			
+			
 			dojo.connect(document, "blur", this, function(evt){
 				// when command tabbing to another application, the key "sticks"
 				// this clears any key used for such activity
