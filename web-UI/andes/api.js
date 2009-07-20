@@ -116,7 +116,7 @@ dojo.require("andes.error");
 		open: function(params){
 			console.warn("andes.api.open", params);
 			startTime = (new Date()).getTime();
-			return queueRequest("open-problem", params);
+			return queueRequest("open-problemo", params);
 		},
 
 		step: function(params){

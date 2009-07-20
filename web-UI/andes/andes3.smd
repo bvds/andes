@@ -9,7 +9,7 @@
   ],
   "services": {
     
-    "open-problem": {
+    "open-problemo": {
       "parameters": [
 		{"name": "section", "type": "string"},
 		{"name": "user", "type": "string"},
