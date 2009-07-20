@@ -2,9 +2,15 @@ dojo.provide("drawing.annotations.Arrow");
 dojo.require("drawing.stencil.Path");
 
 drawing.annotations.Arrow = drawing.util.oo.declare(
+	// summary:
+	//	An annotation called internally to put an arrowhead
+	//	on ether end of a Line. Initiated in Arrow (and Vector)
+	//	with the optional params: arrowStart and arrowEnd. Both
+	//	default true for Axes.
+	//
 	drawing.stencil.Path,
-	function(options){
-				
+	function(/* dojox.__stencilArgs */options){
+		// arguments: See stencil._Base
 		this.stencil.connectMult([
 			[this.stencil, "select", this, "select"],
 			[this.stencil, "deselect", this, "deselect"],
@@ -32,6 +38,9 @@ drawing.annotations.Arrow = drawing.util.oo.declare(
 		//annotation:true, NOT!
 		
 		arrowHead: function(x1, y1, x2, y2, style){
+			// summary:
+			//	Creates data used to draw arrow head.
+			//
 			var obj = {
 				start:{
 					x:x1,

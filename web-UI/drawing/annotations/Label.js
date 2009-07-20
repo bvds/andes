@@ -2,8 +2,19 @@ dojo.provide("drawing.annotations.Label");
 dojo.require("drawing.stencil.Text");
 
 drawing.annotations.Label = drawing.util.oo.declare(
-	drawing.stencil.Text,	
-	function(options){
+	// summary:
+	// 	An annotation called internally to label an Stencil.
+	// description:
+	//	Annotation is positioned with drawing.util.positioning.lable
+	//	That method should be overwritten for custom placement. Or,
+	//	add a 'setLabelCustom' method to the Stencil and it will be used.
+	//
+	drawing.stencil.Text,
+	function(/*Object*/options){
+		// arguments:
+		//	options: Object
+		//		One key value: the stencil that called this.
+		//
 		this.master = options.stencil;
 		this.labelPosition = options.labelPosition || "BR"; // TL, TR, BR, BL, or function
 		if(dojo.isFunction(this.labelPosition)){
@@ -15,7 +26,10 @@ drawing.annotations.Label = drawing.util.oo.declare(
 	},{
 		_align:"start",
 		
-		setLabelCustom: function(text){
+		setLabelCustom: function(/* ? String */text){
+			// summary:
+			//	Attaches to custom positioning within a Stencil
+			//
 			var d = dojo.hitch(this.master, this.labelPosition)();
 			this.setData({
 				x:d.x,
@@ -30,7 +44,11 @@ drawing.annotations.Label = drawing.util.oo.declare(
 			this.render(text);
 		},
 		
-		setLabel: function(text){
+		setLabel: function(/* String */text){
+			// summary:
+			//	Sets the text of the label. Not called directy. Should
+			//	be called within Stencil. See stencil._Base
+			//
 			// onTransform will pass an object here
 			var x, y, box = this.master.getBounds();
 			
@@ -58,7 +76,6 @@ drawing.annotations.Label = drawing.util.oo.declare(
 				this.labelWidth = this.style.text.minWidth
 				this.render(text);
 				
-				
 			}else{
 				
 				this.setData({
@@ -70,9 +87,6 @@ drawing.annotations.Label = drawing.util.oo.declare(
 				
 				this.render();	
 			}
-			
-			
-			
 			
 		}
 	}

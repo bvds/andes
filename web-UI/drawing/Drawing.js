@@ -35,28 +35,113 @@ dojo.require("drawing.annotations.Arrow");
 // is registered as a widget
 
 (function(){
+	
 	var _plugsInitialized = false;
+	
 	dojo.declare("drawing.Drawing", [], {
+		// summary:
+		//	Drawing is a project that sits on top of DojoX GFX and uses SVG and
+		//	VML vector graphics to draw and display.
+		// description:
+		//	Drawing is similar to DojoX Sketch, but is designed to be more versatile
+		//	extendable and customizeable.
+		//	Drawing currently only initiates from HTML although it's technically not
+		//	a Dijit to keep the file size light. But if Dijit is available, Drawing
+		//	will register itself with it and can be accessed dijit.byId('myDrawing')
+		//
+		//The files are laid out as such:
+		//	- Drawing
+		//		The master class. More than one instance of a Drawing can be placed
+		//		on a page at one time (although this has not yet been tested). Plugins
+		//		can be added in markup.
+		// - Toolbar
+		//		Like Drawing, Toolbar is a psudeo Dijit that does not need Dijit. It is
+		//		optional. It can be oriented horizontal or vertical by placing one of
+		//		those params in the class (at least one is required).  Plugins
+		//		can be added in markup. A drawingId is required to point toolbar to 
+		//		the drawing.
+		//	- defaults
+		//		Contains the default styles and dimensions for Stencils. An individual
+		//		Stencil can be changed by calling stencil.att({color obj}); To change
+		//		all styles, a custom defaults file should be used.
+		//	-Stencils
+		//		Drawing uses a concept of 'Stencils' to avoid confusion between a
+		//		Dojox Shape and a Drawing Shape. The classes in the 'stencils' package
+		//		are display only, they are not used for actually drawing (see 'tools').
+		//		This package contains _Base from which stencils inherit most of their
+		//		methods.(Path and Image are display only and not found in Tools)
+		//	- Tools
+		//		The Tools package contains Stencils that are attached to mouse events
+		//		and can be used for drawing. Items in this package can also be selected
+		//		and modified.
+		//	- Tools / Custom
+		//		Holds tools that do not directly extend Stencil base classes and often
+		//		have very custom code.
+		//	- Library (not implemented)
+		//		The Library package, which is not yet implemented, will be the place to
+		//		hold stencils that have very specific data points that result in a picture.
+		//		Flag-like-banners, fancy borders, or other complex shapes would go here.
+		//	- Annotations
+		//		Annotations 'decorate' and attach to other Stencils, such as a 'Label'
+		//		that can show text on a stencil, or an 'Angle' that shows while dragging
+		//		or modifying a Vector, or an Arrow head that is attached to the beggining
+		//		or end of a line.
+		//	- Manager
+		//		Contains classes that control functionality of a Drawing.
+		//	- Plugins
+		//		Contains optional classes that are 'plugged into' a Drawing. There are two
+		//		types: 'drawing' plugins that modify the canvas, and 'tools' which would
+		//		show in the toolbar.
+		//	- Util
+		//		A collection of common tasks.
+		//
+		// example:
+		//	|	<div dojoType="drawing.Drawing" id="drawing" defaults="myCustom.defaults"
+		//	|		plugins="[{'name':'drawing.plugins.drawing.Grid', 'options':{gap:100}}]">   
+		//	|   </div>
+		//
+		//	example:
+		//	|	<div dojoType="drawing.Toolbar" drawingId="drawing" class="drawingToolbar vertical">
+		//	|		<div tool="drawing.tools.Line" 					selected="false">	Line</div>
+		//	|		<div tool="drawing.tools.Rect" 				selected="false">	Rect</div>
+		//	|		<div tool="drawing.tools.Ellipse" 			selected="false">	Ellipse</div>
+		//	|		<div tool="drawing.tools.TextBlock" 		selected="false">	Statement</div>
+		//	|		<div tool="drawing.tools.custom.Equation" 	selected="false">	Equation</div>
+		//	|		<div plugin="drawing.plugins.tools.Pan" options="{}">Pan</div>
+		//	|		<div plugin="drawing.plugins.tools.Zoom" options="{zoomInc:.1,minZoom:.5,maxZoom:2}">Zoom</div>
+		//	|	</div>
+		//
+		//	NOTES:
+		//		Although not Drawing and Toolbar, all other objects are created with a custom
+		//		declare. See drawing.util.oo
+		//
+		// width: Number
+		//	Width of the canvas
 		width:0,
+		//
+		// height: Number
+		//	Height of the canvas
 		height:0,
-		grid:"",
-		constructor: function(props, node){
-			console.dir(props)
-			// props is always null since this is not a real widget
-			// FIXME:
-			// currently most objects get their styles/defaults
-			// like:drawing.defaults.copy();
-			// - is this good or should the object always be passed?
-			
+		//
+		// defaults : Object
+		//	Optional replacements for native defaults.
+		// plugins: Object
+		//	Key values of plugins that apply to canvas.
+		//
+		constructor: function(/* Object */props, /* HTMLNode */node){
+			// summary:
+			//	Drawing is not a Dijit. This is the master method.
+			//	NOTE:
+			// 		props is always null since this is not a real widget
+			//		Will change when Drawing can be created programmatically.
+			//
 			var def = dojo.attr(node, "defaults");
 			if(def){
 				drawing.defaults =  dojo.getObject(def);
 			}
 			this.defaults =  drawing.defaults;
-			
-			console.log("DEF:", this.defaults)
 			this.defaults = window[this.defaults];
-			console.dir(this.defaults)
+			
 			this.id = node.id;
 			this.util = drawing.util.common;
 			this.util.register(this); // So Toolbar can find this Drawing
@@ -71,6 +156,7 @@ dojo.require("drawing.annotations.Arrow");
 				this.plugins = eval(str);
 			}
 			
+			// If Dijit is available in the page, register with it
 			if(dijit){
 				this.widgetId = this.id;
 				dojo.attr(this.domNode, "widgetId", this.widgetId)
@@ -90,7 +176,13 @@ dojo.require("drawing.annotations.Arrow");
 			});
 			this.initPlugins();
 		},
-		resize: function(box){
+		
+		resize: function(/* Object */box){
+			// summary:
+			//	Resizes the canvas.
+			//	If within a ContentPane this will get called automatically.
+			//	Can also be called directly.
+			//
 			dojo.style(this.domNode, {
 				width:box.w+"px",
 				height:box.h+"px"
@@ -101,11 +193,16 @@ dojo.require("drawing.annotations.Arrow");
 				this.canvas.resize(box.w, box.h);
 			}
 		},
+		
 		startup: function(){
 			//console.info("drawing startup")
 		},
-		getShapeProps: function(data) {
-			// For convenience. May or may not be in final code.
+		
+		getShapeProps: function(/* Object */data) {
+			// summary:
+			// 	The common objects that are mixed into
+			//	a new Stencil.Mostlhy internal, but could be used.
+			//
 			return dojo.mixin({
 				container:this.canvas.surface.createGroup(),
 				util:this.util,
@@ -114,7 +211,7 @@ dojo.require("drawing.annotations.Arrow");
 			}, data || {});
 		},
 		
-		addPlugin: function(plugin){
+		addPlugin: function(/* Object */plugin){
 			// summary:
 			//	Add a toolbar plugin object to plugins array
 			//	to be parsed
@@ -122,9 +219,10 @@ dojo.require("drawing.annotations.Arrow");
 			this.plugins.push(plugin);
 		},
 		initPlugins: function(){
-			// called from Toolbar after last plugin has been loaded
-			// The call to this coming from toobar is a bit funky as the timing
-			// of IE for canvas load is different than other browsers
+			// summary:
+			// 	Called from Toolbar after a plugin has been loaded
+			// 	The call to this coming from toobar is a bit funky as the timing
+			//	of IE for canvas load is different than other browsers
 			
 			if(!this.canvas.surfaceReady){
 				var c = dojo.connect(this, "onSurfaceReady", this, function(){
@@ -152,7 +250,12 @@ dojo.require("drawing.annotations.Arrow");
 			// canvas position after everything has drawn. *sigh*
 			this.mouse.setCanvas();
 		},
+		
 		onSurfaceReady: function(){
+			// summary:
+			//	Event that to which can be connected.
+			//	Fired when the canvas is ready and can be drawn to.
+			//
 			console.info("Surface ready")
 			this.mouse.init(this.canvas.domNode);
 			this.undo = new drawing.manager.Undo({keys:this.keys});
@@ -161,53 +264,6 @@ dojo.require("drawing.annotations.Arrow");
 			
 			// plugin??
 			new drawing.manager.Silverlight({mouse:this.mouse, stencils:this.stencils, anchors:this.anchors, canvas:this.canvas});
-			
-			// objects for testing. Final code will move these into test HTML
-			
-			/*
-			this.stencils.register(new drawing.stencil.Rect(this.getShapeProps(
-				{data:{x:100, y:100, width:93, height:93}}
-			)));
-			
-			this.stencils.register(new drawing.stencil.Line(this.getShapeProps(
-				{points:[{x:300,y:300},{x:500,y:200}]}
-			)));
-		
-			this.stencils.register(new drawing.stencil.Image(this.getShapeProps(
-				{data:{src:"images/BallOnWall.png", x:300, y:200, width:"auto"}}
-			)));
-			
-			this.stencils.register(new drawing.stencil.Image(this.getShapeProps(
-				{data:{src:"images/BallOnWall.png", x:110, y:110, width:320, height:220}}
-			)));
-		 	
-		 	this.stencils.register(new drawing.stencil.Rect(this.getShapeProps(
-				{data:{x:400, y:100, width:200, height:200}}
-			)));
-			
-			this.stencils.register(new drawing.stencil.TextBlock(this.getShapeProps(
-				{	align:"end",
-					valign:"middle",
-					data:{x:200, y:300, width:"auto", text:"Mike's\nFantabulous Dynamic\nText"}}
-			)));
-			
-			this.stencils.register(new drawing.stencil.TextBlock(this.getShapeProps(
-				{	align:"end",
-					valign:"middle",
-					data:{x:300, y:150, width:300, text:"Dynamic Text"}}
-			)));
-			
-			this.stencils.register(new drawing.stencil.Ellipse(this.getShapeProps(
-				{data:{cx:150, cy:150, rx:50, ry:50}}
-			)));
-			
-			this.stencils.register(new drawing.stencil.Ellipse(this.getShapeProps(
-				{points:[{x:300,y:300},{x:500,y:300},{x:500,y:400},{x:300,y:400}]}
-			)));
-			
-			this.stencils.register(new drawing.library.Arrow(this.getShapeProps(
-				{points:[{x:300,y:300},{x:500,y:200}]}
-			)));*/
 			
 			dojo.forEach(this.plugins, function(p){
 				p.onSurfaceReady && p.onSurfaceReady();	
@@ -220,33 +276,61 @@ dojo.require("drawing.annotations.Arrow");
 		},
 		
 		
-		addStencil: function(type, options){
+		addStencil: function(/* String */type, /* Object */options){
+			// summary:
+			//	Use this method to programmatically add Stencils that display on
+			//	the canvas.
+			//	FIXME: Currently only supports Stencils that have been registered,
+			//		which is items in the toolbar, and the additional Stencils at the
+			//		end of onSurfaceReady. This covers all Stencils, but you can't
+			//		use 'display only' Stencils for Line, Rect, and Ellipse.
+			//	arguments:
+			//		type: String
+			//			The final name of the tool, lower case: 'image', 'line', 'textBlock'
+			//	options:
+			//		type: Object
+			//			The parameters used to draw the object. See stencil._Base and each
+			//			tool for specific parameters of teh data or points objects.
+			//
 			var s = this.stencils.register( new this.stencilTypes[type](this.getShapeProps(options)));
 			// need this or not?
 			//s.connect(s, "destroy", this, "onDeleteStencil");
 			this.currentStencil && this.currentStencil.moveToFront();
 			return s;
 		},
-		removeStencil: function(stencil){
+		removeStencil: function(/* Object */stencil){
+			// summary:
+			//	Use this method to programmatically remove Stencils from the canvas.
+			// arguments:
+			//	Stencil: Object
+			//		The Stencil to be removed
+			//
 			this.stencils.unregister(stencil);
 			stencil.destroy();
 		},
 		
-		onRenderStencil: function(stencil){
+		onRenderStencil: function(/* Object */stencil){
+			// summary:
+			//	Event that fires when a stencil is drawn. Does not fire from
+			//	'addStencil'.
 			//console.info("--------------------------------------drawing.onRenderStencil:", stencil.id);
 			this.stencils.register(stencil);
 			this.unSetTool();
 			this.setTool(this.currentType);
 		},
 		
-		onDeleteStencil: function(stencil){
-			// called from a stencil that has destroyed itself
-			// will also be called when it is removed by "removeStencil"
-			// or stencils.onDelete. 
+		onDeleteStencil: function(/* Object */stencil){
+			// summary:
+			//	Event fired from a stencil that has destroyed itself
+			// 	will also be called when it is removed by "removeStencil"
+			// 	or stencils.onDelete. 
+			//
 			this.stencils.unregister(stencil);
 		},
 		
-		registerTool: function(type){
+		registerTool: function(/* String */type){
+			// summary:
+			// Registers a tool that can be accessed. Internal.
 			var constr = dojo.getObject(type);
 			this.tools[type] = constr;
 			var abbr = type.substring(type.lastIndexOf(".")+1).charAt(0).toLowerCase()
@@ -254,7 +338,12 @@ dojo.require("drawing.annotations.Arrow");
 			this.stencilTypes[abbr] = constr;
 		},
 		
-		setTool: function(type){
+		setTool: function(/* String */type){
+			// summary:
+			//	Sets up a new class to be used to draw. Called from Toolbar,
+			//	and this class... after a tool is used a new one of the same
+			//	type is initialized. Could be called externally.
+			//
 			if(!this.canvas.surface){
 				var c = dojo.connect(this, "onSurfaceReady", this, function(){
 					dojo.disconnect(c);
@@ -278,6 +367,8 @@ dojo.require("drawing.annotations.Arrow");
 		},
 		
 		unSetTool: function(){
+			// summary:
+			//	Destroys current tool
 			if(!this.currentStencil.created){
 				this.currentStencil.destroy();	
 			}
