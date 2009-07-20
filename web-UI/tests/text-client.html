@@ -4,14 +4,14 @@
   <head>
     <title>Andes3 text client</title>
     <style type="text/css">
-	        @import "dojotoolkit/dojo/resources/dojo.css";
+	        @import "../dojo/resources/dojo.css";
     </style>
 
     <!-- required: the default dijit theme: -->
-    <link id="themeStyles" rel="stylesheet" href="dojotoolkit/dijit/themes/tundra/tundra.css">
+    <link id="themeStyles" rel="stylesheet" href="../dijit/themes/tundra/tundra.css">
 
     <!-- need to parse dojoType after creating toolbar -->
-    <script src="dojotoolkit/dojo/dojo.js" type="text/javascript" 
+    <script src="../dojo/dojo.js" type="text/javascript" 
                 djConfig="parseOnLoad:false"></script>
 
     <!--  Demo for json-rpc to server and back -->
@@ -22,7 +22,7 @@
       dojo.require("dojox.rpc.Service");
       dojo.require("dojox.rpc.JsonRPC");
       dojo.require("dojox.json.schema");
-      var typejson = new dojox.rpc.Service("js/andes/andes3.smd");
+      var typejson = new dojox.rpc.Service("../andes/andes3.smd");
 
       // AOP-style function replacement that performs before-advice 
       // to add to the headers on all XHR requests.  See dojox/rpc/Client.js
@@ -136,7 +136,7 @@
         function init(){
                // can't do layout until toolbar and canvas are created
 	      dojo.parser.parse();
-              getsession("Documentation/AsuDocs/nokes-inputs.json");
+              getsession("../Documentation/AsuDocs/nokes-inputs.json");
 	}
 	dojo.addOnLoad(init);
     </script>
@@ -146,7 +146,7 @@
     <h1>Text client for testing Andes3 server</h1>
 
     <p>  One may use messages from 
-         <a href="Documentation/AsuDocs/nokes-example-json.txt">the Nokes demo solution</a>.&nbsp;
+         <a href="../Documentation/AsuDocs/nokes-example-json.txt">the Nokes demo solution</a>.&nbsp;
          The "params" can be simply copied and pasted into the "params"
          field here.
 
@@ -172,10 +172,10 @@
       Problem:&nbsp;
       <select>
         <option selected onclick="getsession(
-	          &quot;Documentation/AsuDocs/nokes-inputs.json&quot;);">
+	          &quot;../Documentation/AsuDocs/nokes-inputs.json&quot;);">
            nokes example</option>
         <option onclick="getsession(
-	           &quot;Documentation/AsuDocs/s2e-correct.json&quot;);">
+	           &quot;../Documentation/AsuDocs/s2e-correct.json&quot;);">
            s2e correct</option>
     </select>
 
@@ -192,7 +192,7 @@
      </select>
     (The target /help should always be available.)
 
-     <p>Original <a href="Documentation/AsuDocs/sitepen-spec.html">
+     <p>Original <a href="../Documentation/AsuDocs/sitepen-spec.html">
                       description of new user interface.</a>
 
   </body>
