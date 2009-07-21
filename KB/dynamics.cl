@@ -56,7 +56,7 @@
   ((variable ?var (mass ?b :time ?t))
    (define-var (mass ?b :time ?t)))
   :hint
-  ((bottom-out (string "You can use the variable definition tools, which are under the variables menu, in order to define a variable for mass."))
+  ((bottom-out (string "You can use the text tool (T) to define a variable for mass."))
    ))
 
 ;;; Magnitude of derivative of mass with respect to time
@@ -76,7 +76,7 @@
   ((variable ?var (mass-change-magnitude ?b ?agent :time ?t))
    (define-var (mass-change-magnitude ?b ?agent :time ?t)))
   :hint
-  ((bottom-out (string "You can use the variable definition tools, which are under the variables menu, in order to define a variable for the magnitude of the change in mass."))
+  ((bottom-out (string "You can use the text tool (T) to define a variable for the magnitude of the change in mass."))
    ))
 
 (defoperator mass-compound-contains (?sought)
@@ -209,7 +209,7 @@
   :hint
   ((point (string "Notice that ~a is near ~a." ?b ?planet))
    (teach (string "When an object is near a planet, the planet exerts a weight force on the object."))
-   (bottom-out (string "Because ~a is near the planet ~a, the planet exerts a weight force on it, so use the force drawing tool to draw a force on ~a due to ~a of type weight ~a pointing straight down (270 deg)." ?b ?planet ?b (?planet agent) (?t pp)))
+   (bottom-out (string "Because ~a is near the planet ~a, the planet exerts a weight force on it, so use the vector tool to draw a force on ~a due to ~a of type weight ~a pointing straight down (270 deg)." ?b ?planet ?b (?planet agent) (?t pp)))
    ))
 
 ;; For rigid body problems: treat weight of body as force acting at body's
@@ -256,7 +256,7 @@
   :hint
   ((point (string "Notice that ~a is near ~a." ?b ?planet))
    (teach (string "When a rigid body is near a planet, each portion of the body is acted on by the force of gravity. The net effect of all these forces is equivalent to that of a single weight force of magnitude m * g acting at a single point called the center of gravity, which normally is the same as the center of mass."))
-   (bottom-out (string "Because ~a is near the planet ~a, ~a exerts a weight force on it which can be treated as acting at the center of mass, so use the force drawing tool to draw a weight force vector acting at ~a due to ~a ~a pointing straight down (270 deg)." ?b ?planet ?planet ?cm (?planet agent) (?t pp)))
+   (bottom-out (string "Because ~a is near the planet ~a, ~a exerts a weight force on it which can be treated as acting at the center of mass, so use the vector tool to draw a weight force vector acting at ~a due to ~a ~a pointing straight down (270 deg)." ?b ?planet ?planet ?cm (?planet agent) (?t pp)))
    ))
 
 
@@ -2572,8 +2572,7 @@
     (teach (string "A ~A vector represents the tendency of a force acting on a rigid body to rotate the body about some axis.  In Andes problems a ~A vector will lie in the z axis, pointing in the positive direction (out of the plane of the diagram) for ~As that tend to cause ccw rotations, and in the negative direction (into the plane) for ~As that tend to cause cw rotations."
 		   (nil moment-name) (nil moment-name) 
 		   (nil moment-name)  (nil moment-name)))
-    (bottom-out (string "Use the ~A vector drawing tool (labelled ~A) to draw the ~A about ~a due to the force acting at ~A ~A and set the direction to point ~A"  
-			(nil moment-name) (nil moment-symbol)  
+    (bottom-out (string "Use vector tool to draw the ~A about ~a due to the force acting at ~A ~A and set the direction to point ~A"    
 			(nil moment-name)
 			?axis ?pt (?t pp) (?torque-dir adj)))
     ))
@@ -2606,8 +2605,7 @@
     (point (string "Notice that there is a couple between ~A."
 		   (?points conjoined-defnp)))
     (teach (string "A couple is a way of expressing the rotational part of the forces between two bodies."))
-    (bottom-out (string "Use the ~A vector drawing tool (labelled ~A) to draw the ~A  due to the couple from ~A ~A and set the direction to point ~A"  
-			(nil moment-name) (nil moment-symbol)  
+    (bottom-out (string "Use the vector tool to draw the ~A  due to the couple from ~A ~A and set the direction to point ~A"  
 			(nil moment-name) ?agent
 			(?t pp) (?torque-dir adj)))
     ))
@@ -2637,8 +2635,7 @@
    (
     (point (string "You were given the direction of the net ~A on ~a about ~a ~a in this situation." 
 		   (nil moment-name) ?b ?axis (?t pp)))
-    (bottom-out (string "Use the ~A vector drawing tool (labelled ~A) to draw the net ~A on ~a about ~a ~A and set the direction to point ~A" 
-			(nil moment-name) (nil moment-symbol) 
+    (bottom-out (string "Use the vector tool to draw the net ~A on ~a about ~a ~A and set the direction to point ~A" 
 			(nil moment-name) 
 			?b ?axis (?time pp) (?dir adj))) 
     ))
@@ -2675,8 +2672,8 @@
     (point (string "You should be able to determine the direction of the angular acceleration of ~a ~a from the problem description.  You can use that to determine the direction of the net ~A." ?b (?t pp) (nil moment-name)))
     (teach (string "Newton's second law for rotation says that the net ~A on an object is proportional to its angular acceleration.  This is a vector relation, therefore the net ~A will point in the same direction as the angular acceleration vector." 
 		   (nil moment-name) (nil moment-name)))
-    (bottom-out (string "Since the angular acceleration is known to be directed ~A, use the ~A vector drawing tool (labelled ~A) to draw the net ~A on ~a about ~a ~A and set the direction to point ~A" 
-			(?dir adj) (nil moment-name) (nil moment-symbol)
+    (bottom-out (string "Since the angular acceleration is known to be directed ~A, use the vector tool to draw the net ~A on ~a about ~a ~A and set the direction to point ~A" 
+			(?dir adj)
 			(nil moment-name) ?b ?axis (?time pp) (?dir adj))) 
     ))
 
@@ -2702,8 +2699,7 @@
 			 ?b (?t pp) (nil moment-name)))
 	  (teach (string "A rigid object is said to be in rotational equilibrium if the net ~A acting on it is zero, so it has no tendency to rotate." 
 			 (nil moment-name)))
-     (bottom-out (string "Since the object is in rotational equilibrium, use the ~A vector drawing tool (labelled ~A) to draw a zero length vector representing the net ~A on ~a about ~a ~A." 
-			 (nil moment-name) (nil moment-symbol) 
+     (bottom-out (string "Since the object is in rotational equilibrium, use the vector tool to draw a zero length vector representing the net ~A on ~a about ~a ~A." 
 			 (nil moment-name) ?b ?axis (?t pp) (?dir adj))) 
    ))
 
@@ -2740,7 +2736,7 @@
 	  (point (string "You need to introduce a term for the net ~A on ~a ~a"  
 			 (nil moment-name) ?b (?t pp)))
      (teach (string "The net ~A on a rigid body will represent the tendency of the body to rotate cw or ccw by a vector along the z axis in accordance with the right hand rule.  Although you know the net ~A vector lies along the z axis, it requires calculation to determine whether it points into or out of the plane. Therefore you should specify its direction as Unknown Z direction in the dialog box after drawing it." (nil moment-name) (nil moment-name)))
-     (bottom-out (string "Use the ~A vector drawing tool (labelled ~A) to draw a non-zero net ~A vector on ~A about ~a ~A, selecting \"Unknown Z direction\" from the direction menu in the dialog box." 
+     (bottom-out (string "Use the vector tool to draw a non-zero net ~A vector on ~A about ~a ~A, selecting \"Unknown Z direction\" from the direction menu in the dialog box." 
 			 (nil moment-name) (nil moment-symbol) 
 			 (nil moment-name) ?b ?axis (?t pp)))
    ))
