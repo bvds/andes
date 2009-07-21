@@ -4,7 +4,6 @@ dojo.require("drawing.plugins._Plugin");
 drawing.plugins.tools.Zoom = drawing.util.oo.declare(
 	drawing.plugins._Plugin,
 	function(options){
-		console.warn("-------------------ZOOM")
 		var cls = options.node.className;
 		var txt = options.node.innerHTML;
 		this.domNode = dojo.create("div", {id:"btnZoom", "class":"toolCombo"}, options.node, "replace");

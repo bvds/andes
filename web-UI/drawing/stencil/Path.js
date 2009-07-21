@@ -15,8 +15,26 @@ drawing.stencil.Path = drawing.util.oo.declare(
 		type:"drawing.stencil.Path",
 		closePath: true,
 		
-		_create: function(shp, sty){
-			
+		/*=====
+		dojox.__StencilData = {
+			// NOT SUPPORTED FOR PATH
+		}
+		
+		dojox.__StencilPoints = [
+			// summary:
+			//	An Array of objects that describe the Stencil
+			// 0: Object
+			//	First point
+			// [1, 2, 3...] more points
+		]
+		=====*/
+		
+		_create: function(/*String*/shp, /*Object*/sty){
+			// summary:
+			//	Creates a dojox.gfx.shape based on passed arguments.
+			//	Can be called many times by implementation to create
+			//	multiple shapes in one stencil.
+			//
 			this.remove(this[shp]);
 			if(!this.points.length){ return; }
 			
@@ -58,6 +76,11 @@ drawing.stencil.Path = drawing.util.oo.declare(
 		},
 		
 		render: function(){
+			// summary:
+			//	Renders the 'hit' object (the shape used for an expanded
+			//	hit area and for highlighting) and the'shape' (the actual
+			//	display object).
+			//
 			this.onBeforeRender(this);
 			this._create("hit", this.style.currentHit);
 			this._create("shape", this.style.current);

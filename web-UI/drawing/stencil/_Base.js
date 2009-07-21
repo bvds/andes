@@ -179,6 +179,16 @@ dojo.provide("drawing.stencil._Base");
 				draws:false,
 				
 			}
+			
+			dojox.__StencilPoint = {
+				// summary:
+				//	One point Object in the points Array 
+				//	x: Number
+				//		x position of point
+				//	y: Number
+				//		y position of point
+			}
+			
 			=====*/
 			
 			// type: String

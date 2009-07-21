@@ -36,15 +36,6 @@ drawing.stencil.Ellipse = drawing.util.oo.declare(
 			// 3: Object
 			//	Bottom left point
 		]
-		
-		dojox.__StencilPoint = {
-			// summary:
-			//	One point Object in the points Array
-			//	x: Number
-			//		x position of point
-			//	y: Number
-			//		y position of point
-		}
 		=====*/
 		
 		type:"drawing.stencil.Ellipse",
