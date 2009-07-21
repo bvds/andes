@@ -157,6 +157,8 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defvar *simulate-loaded-server* t "Put in delay in solution steps")
+
 (webserver:defun-method "/help" open-problem (&key time problem user section) 
   "initial problem statement" 
 
@@ -270,8 +272,6 @@
 
     (append (reverse replies) solution-step-replies)))
 
-(defvar *simulate-loaded-server* t "Put in delay in solution steps")
-
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
 (webserver:defun-method "/help" solution-step 
@@ -307,7 +307,10 @@
     (let ((old-entry (find-entry id)) new-entry 
 	  (ans "Answer:"))
 
-      (when *simulate-loaded-server* (sleep 2))
+      (when *simulate-loaded-server* 
+	(format webserver:*stdout* 
+		"  *simulate-loaded-server* induced sleep.~%")
+	(sleep 2))
 
       (when (and old-entry (equal action "new-object"))
 	(warn "Object ~A already exists, updating old object." id))
