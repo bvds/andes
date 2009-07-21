@@ -9,7 +9,9 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 	{
 		type:"drawing.stencil.Rect",
 		anchorType: "group",
-		dataToPoints: function(d){
+		dataToPoints: function(/*Object*/o){
+			//summary:
+			//	Converts data to points.
 			d = d || this.data;
 			this.points = [
 				{x:d.x, y:d.y}, 						// TL
@@ -20,7 +22,9 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 			return this.points;
 		},
 		
-		pointsToData: function(p){
+		pointsToData: function(/*Array*/p){
+			// summary:
+			//	Converts points to data
 			p = p || this.points;
 			var s = p[0];
 			var e = p[2];
@@ -34,7 +38,12 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 			
 		},
 		
-		_create: function(shp, d, sty){
+		_create: function(/*String*/shp, /*dojox.__StencilData*/d, /*Object*/sty){
+			// summary:
+			//	Creates a dojox.gfx.shape based on passed arguments.
+			//	Can be called many times by implementation to create
+			//	multiple shapes in one stencil.
+			//
 			this.remove(this[shp]);
 			this[shp] = this.container.createRect(d)
 				.setStroke(sty)
@@ -44,6 +53,11 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 		},
 		
 		render: function(){
+			// summary:
+			//	Renders the 'hit' object (the shape used for an expanded
+			//	hit area and for highlighting) and the'shape' (the actual
+			//	display object).
+			//
 			this.onBeforeRender(this);
 			this._create("hit", this.data, this.style.currentHit);
 			this._create("shape", this.data, this.style.current);

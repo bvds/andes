@@ -32,7 +32,7 @@ dojo.provide("drawing.manager.Canvas");
 			this.gfxSurface = dojox.gfx.createSurface(this.domNode, this.width, this.height);
 			this.gfxSurface.whenLoaded(this, function(){
 				setTimeout(dojo.hitch(this, function(){
-					this.gfxSurfaceReady = true;
+					this.surfaceReady = true;
 					if(dojo.isIE){
 						//this.gfxSurface.rawNode.parentNode.id = this.id;
 					}else if(dojox.gfx.renderer == "silverlight"){

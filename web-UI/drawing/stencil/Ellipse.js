@@ -2,17 +2,57 @@ dojo.provide("drawing.stencil.Ellipse");
 
 
 drawing.stencil.Ellipse = drawing.util.oo.declare(
+	// summary:
+	//	Creates an Ellipse based on data or points.
+	//
 	drawing.stencil._Base,
 	function(options){
-		if(options.data || options.points){
-			//this.points = options.points || this.dataToPoints(options.data);
-			//this.render();
-		}
+
 	},
 	{
+		/*=====
+		dojox.__StencilData = {
+			// summary:
+			//	the data used to create the dojox.gfx Shape
+			// cx: Number
+			//	Center point x
+			// cy: Number
+			//	Center point y
+			// rx: Number
+			//	Horizontal radius
+			// ry: Number
+			//	Vertical radius
+		}
+		
+		dojox.__StencilPoints = [
+			// summary:
+			//	An Array of objects that describe the Stencil
+			// 0: Object
+			//	Top left point
+			// 1: Object
+			//	Top right point
+			// 2: Object
+			//	Bottom right point
+			// 3: Object
+			//	Bottom left point
+		]
+		
+		dojox.__StencilPoint = {
+			// summary:
+			//	One point Object in the points Array
+			//	x: Number
+			//		x position of point
+			//	y: Number
+			//		y position of point
+		}
+		=====*/
+		
 		type:"drawing.stencil.Ellipse",
 		anchorType: "group",
-		dataToPoints: function(o){
+		
+		dataToPoints: function(/*Object*/o){
+			//summary:
+			//	Converts data to points.
 			o = o || this.data;
 			var x = o.cx - o.rx,
 				y = o.cy - o.ry,
@@ -24,9 +64,12 @@ drawing.stencil.Ellipse = drawing.util.oo.declare(
 				{x:x+w, y:y+h},	// BR
 				{x:x, y:y+h}	// BL
 			];
-			return this.points;
+			return this.points; //Array
 		},
-		pointsToData: function(p){
+		
+		pointsToData: function(/*Array*/p){
+			// summary:
+			//	Converts points to data
 			p = p || this.points;
 			var s = p[0];
 			var e = p[2];
@@ -36,11 +79,16 @@ drawing.stencil.Ellipse = drawing.util.oo.declare(
 				rx: (e.x - s.x)*.5,
 				ry: (e.y - s.y)*.5
 			};
-			return this.data;
+			return this.data; //Object
 		
 		},
 		
-		_create: function(shp, d, sty){
+		_create: function(/*String*/shp, /*dojox.__StencilData*/d, /*Object*/sty){
+			// summary:
+			//	Creates a dojox.gfx.shape based on passed arguments.
+			//	Can be called many times by implementation to create
+			//	multiple shapes in one stencil.
+			//
 			this.remove(this[shp]);
 			this[shp] = this.container.createEllipse(d)
 				.setStroke(sty)
@@ -49,6 +97,11 @@ drawing.stencil.Ellipse = drawing.util.oo.declare(
 		},
 		
 		render: function(){
+			// summary:
+			//	Renders the 'hit' object (the shape used for an expanded
+			//	hit area and for highlighting) and the'shape' (the actual
+			//	display object).
+			//
 			this.onBeforeRender(this);
 			this._create("hit", this.data, this.style.currentHit);
 			this._create("shape", this.data, this.style.current);

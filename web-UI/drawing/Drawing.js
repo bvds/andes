@@ -154,6 +154,8 @@ dojo.require("drawing.annotations.Arrow");
 			var str = dojo.attr(node, "plugins");
 			if(str){
 				this.plugins = eval(str);
+			}else{
+				this.plugins = [];
 			}
 			
 			// If Dijit is available in the page, register with it
@@ -215,7 +217,6 @@ dojo.require("drawing.annotations.Arrow");
 			// summary:
 			//	Add a toolbar plugin object to plugins array
 			//	to be parsed
-			
 			this.plugins.push(plugin);
 		},
 		initPlugins: function(){
@@ -231,6 +232,7 @@ dojo.require("drawing.annotations.Arrow");
 				})
 				return;
 			}
+			
 			dojo.forEach(this.plugins, function(p, i){
 				var props = dojo.mixin({
 					util:this.util,

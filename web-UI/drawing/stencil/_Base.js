@@ -79,10 +79,16 @@ dojo.provide("drawing.stencil._Base");
 		{
 			/*=====
 			dojox.__stencilArgs = function(options){
-				//	container: dojo.gfx.group
+				//	container: [readonly] dojo.gfx.group
 				//		The parent shape that contains all
 				//		shapes used in a Stencil
 				container:null,
+				//
+				//	anchorType: String
+				//		Optionally blank or 'group'. 'group' tells
+				//		an anchor point that it must constrain
+				//		itself to other anchor points.
+				anchorType:""
 				//
 				// 	isText: Boolean
 				//		Whether this is a text object or not
@@ -117,7 +123,7 @@ dojo.provide("drawing.stencil._Base");
 				//		Pointer to the keys class
 				keys:null,
 				//
-				//	points: Array
+				//	points: dojox.__StencilPoints
 				//		Points is an array of objects that make up the
 				//		description of a Stencil. The points to a Rect
 				//		that is 100x100 and at x:10 and y:10 would look like:
@@ -130,13 +136,13 @@ dojo.provide("drawing.stencil._Base");
 				//		setPoints()
 				points:[],
 				//
-				//	data: Object
+				//	data: dojox.__StencilData
 				//		A data object typically (but not always) resembles the data
 				//		that is used to create the dojox.gfx Shape. The same Rect
 				//		example shown in points above would look like:
 				//		{x:10, y:10, width:100, height:100}
 				//		And an Ellipse with the same coordinates:
-				//		{x:55, y:55, rx:50, ry:50}
+				//		{cx:55, cy:55, rx:50, ry:50}
 				//		The only Stencil that does not support data (at this time)
 				//		is the Path. While x1,x2,x3... culd be used in a data object
 				//		it doesn't provide much benefit.
@@ -190,14 +196,23 @@ dojo.provide("drawing.stencil._Base");
 			//		Whether the Stencil is enabled or not.
 			enabled:true,
 			
+			points:[],
 			
-			setData: function(d){ ////////////////////////////////////////////////////////////////////////////////////////
-				this.data = d;
+			setData: function(/*dojox.__StencilData*/data){
+				// summary:
+				//	Setter for Stencil data; also converts
+				//	data to points. See individual Stencils
+				//	for specific data properties.
+				this.data = data;
 				this.points = this.dataToPoints();
 			},
 			
-			setPoints: function(p){
-				this.points = p;
+			setPoints: function(/*dojox.__StencilPoints*/points){
+				// summary:
+				//	Setter for Stencil points; also converts
+				//	points to data. See individual Stencils
+				//	for specific points properties.
+				this.points = points;
 				// Path doesn't do data
 				if(this.pointsToData){
 					this.data = this.pointsToData();
@@ -435,7 +450,6 @@ dojo.provide("drawing.stencil._Base");
 			},
 			
 			onTransformBegin: function(/* ? manager.Anchor */anchor){
-				console.warn("onTransformBegin", anchor)
 				// summary:
 				//	Fired at the start of a transform. This would be
 				//	an anchor drag or a selection.
