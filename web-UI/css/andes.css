@@ -1,14 +1,14 @@
-@import url("../dojotoolkit/dojo/resources/dojo.css");
-@import url("../dojotoolkit/dijit/themes/dijit.css");
-@import url("../dojotoolkit/dijit/themes/tundra/layout/BorderContainer.css");
-@import url("../dojotoolkit/dijit/themes/tundra/layout/ContentPane.css");
-@import url("../dojotoolkit/dijit/themes/tundra/form/Button.css");
-@import url("../dojotoolkit/dijit/themes/tundra/Menu.css");
-@import url("../dojotoolkit/dijit/themes/tundra/Dialog.css");
-@import url("../dojotoolkit/dojox/layout/resources/ExpandoPane.css");
-@import url("../js/andes/widget/UpgradeBar/UpgradeBar.css");
-@import url("../js/drawing/resources/drawing.css");
-@import url("../js/drawing/resources/toolbar.css");
+@import url("../dojo/resources/dojo.css");
+@import url("../dijit/themes/dijit.css");
+@import url("../dijit/themes/tundra/layout/BorderContainer.css");
+@import url("../dijit/themes/tundra/layout/ContentPane.css");
+@import url("../dijit/themes/tundra/form/Button.css");
+@import url("../dijit/themes/tundra/Menu.css");
+@import url("../dijit/themes/tundra/Dialog.css");
+@import url("../dojox/layout/resources/ExpandoPane.css");
+@import url("../andes/widget/UpgradeBar/UpgradeBar.css");
+@import url("../drawing/resources/drawing.css");
+@import url("../drawing/resources/toolbar.css");
 
 
 html, body, #main{
@@ -33,6 +33,15 @@ body, .tundra .dijitSplitter, #navMenu{
 	background:#FAFAFA;
 	border:1px solid;
 	border-color:#BBBBBB #E1E1E1 #FFFFFF #CCCCCC;
+}
+
+
+#drawingNode, #drawingPane{
+	cursor:crosshair;
+
+}
+#toolPane, #drawingPane{
+	overflow:hidden;
 }
 
 
@@ -84,6 +93,10 @@ body, .tundra .dijitSplitter, #navMenu{
 #helpContentPane p{
 	margin:1em;
 }
+
+#helpContentPane p em{
+	color:#999;
+}
 .dojoxExpandoClosed .dojoxExpandoIcon,
 .dojoxExpandoClosed .dojoxExpandoTitle{
 	display:none;
@@ -98,10 +111,12 @@ body, .tundra .dijitSplitter, #navMenu{
 	top:5px;
 	padding:3px;
 	cursor:pointer;
-	background:#cee3ec;
+	background:#cee3ec url("../drawing/resources/images/tool_icons.png") no-repeat -384px 0px ;
 	border:1px solid;
-	border-color:#fff #000 #bbb #ccc;
+	border-color:#fff #000 #bbb #ccc ;
 	border-right:none;
+	width:24px;
+	height:24px;
 }
 #helpQueryLabel{
 	position:absolute;

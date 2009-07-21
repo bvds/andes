@@ -2804,17 +2804,14 @@
 
 
 (defparameter **nsh-single-sought-done-str**
-    (strcat "Right click in the first empty line in the equation pane "
-            "and use 'Solve For...' to find a value for "
-	    "the sought quantity (if you have not already) and then "
-	    "enter that value in the answer box."))
-
+    (strcat "Choose the equation tool (=) and write an equation"
+	    "of the form var=? where var is the sought quantity."
+	    "Then enter the value in the answer box."))
 
 (defparameter **nsh-multi-sought-done-str**
-    (strcat "Right click in the first empty line in the equation pane "
-            "and use 'Solve For ...' to find a value for each of the "
-	    "sought quantities (if you have not already) and then "
-	    "enter those values in the answer boxes."))
+    (strcat "Choose the equation tool (=) and write an equation"
+	    "of the form var=? where var is a sought quantity."
+	    "Then enter the value in the appropriate answer box."))
 
 (defparameter **nsh-answer-var-done-str**
     (strcat "Do whatever algebra is necessary to obtain an expression "

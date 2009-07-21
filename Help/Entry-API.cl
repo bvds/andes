@@ -528,9 +528,9 @@
 		    (mapcar #'(lambda (x) (nlg (cadr (SystemEntry-prop x))))
 			       best))))
     
-    (setf action (SystemEntry-prop sysent))
-    ;; dir-term could just as well be gotten from action...
-    ;; how to we check the two?
+    ;; Use the quantity from the best match with angle we actually got.
+    (setf action (list 'vector (second (SystemEntry-prop sysent)) dir-term))
+
     (setf vector-term (second action))
     (setf vector-mag-term `(mag ,vector-term))
     (setf vector-dir-term `(dir ,vector-term))

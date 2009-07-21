@@ -1,17 +1,7 @@
 <html lang="en">
 <head>
     <title>Andes 3</title>
-	<link href="css/andes.css" rel="stylesheet" />
-
 	<style>
-		#drawingNode, #drawingPane{
-			/*border:1px solid #ff0000;*/
-			cursor:crosshair;
-
-		}
-		#toolPane, #drawingPane{
-			overflow:hidden;
-		}
 		textarea{
 			position:absolute;
 			top:30px;
@@ -21,15 +11,27 @@
 			z-index:10001;
 		}
 	</style>
+	
 	<script>
 		djConfig = {
-			isDebug:true,
-			modulePaths: {'drawing': '../../js/drawing', 'andes':'../../js/andes'},
+			isDebug:false,
 			parseOnLoad:true
 		}
+		
+		if(djConfig.isDebug){
+			djConfig.modulePaths = {'drawing': '../drawing', 'andes':'../andes'};
+			document.write('<link href="css/andes.css" rel="stylesheet" />');
+			document.write('<scr'+'ipt src="dojo/dojo.js"></scr'+'ipt>');
+		}else{
+			djConfig.modulePaths = {'drawing': '../drawing', 'andes':'../andes'};
+			document.write('<link href="release/dojo/css/andes.css" rel="stylesheet" />');
+			document.write('<scr'+'ipt src="release/dojo/dojo/dojo.js"></scr'+'ipt>');
+		}
+	
+	
 	</script>
-	<script src="dojotoolkit/dojo/dojo.js"></script>
-	<!--<script src="js/release/dojo/dojo/dojo.js"></script>-->
+
+	
 	<script>
 		if(dojo.isIE){
 			// Fixing IE's console
@@ -63,33 +65,8 @@
 			ta.value = lines.join("\n");
 		}
 		
-		dojo.require("dojo.parser");
-		dojo.require("dijit.layout.BorderContainer");
-		dojo.require("dijit.layout.ContentPane");
-		dojo.require("andes.widget.ExpandoPane");
-		dojo.require("andes.widget.UpgradeBar");
-
-		dojo.require("dijit.MenuBar");
-		dojo.require("dijit.PopupMenuBarItem");
-		dojo.require("dijit.Menu");
-		dojo.require("dijit.MenuItem");
-		dojo.require("dijit.PopupMenuItem");
-		dojo.require("dijit.form.Button");
-		dojo.require("dijit.form.TextBox");
+		dojo.require("andes.profile");
 		
-		dojo.require("andes.main");
-
-		dojo.require("drawing.Drawing");
-		dojo.require("drawing.plugins.drawing.Grid");
-		dojo.require("drawing.Toolbar");
-		dojo.require("drawing.tools.custom.Vector");
-		dojo.require("drawing.tools.custom.Axes");
-		dojo.require("drawing.tools.custom.Equation");
-		dojo.require("drawing.tools.Arrow");
-		dojo.require("drawing.plugins.tools.Pan");
-		dojo.require("drawing.plugins.tools.Zoom");
-		// needs to be loaded after Drawing:
-		dojo.require("andes.Combo");
 	</script>
 
 </head>
@@ -137,7 +114,7 @@
 					<div tool="drawing.tools.Ellipse" 			selected="false">	Ellipse</div>
 					<div tool="drawing.tools.TextBlock" 		selected="false">	Statement</div>
 					<div tool="drawing.tools.custom.Equation" 	selected="false">	Equation</div>
-					<div tool="drawing.tools.custom.Vector" 	selected="false">	Vector</div>
+					<div tool="drawing.tools.custom.Vector" 	selected="true">	Vector</div>
 					<div tool="drawing.tools.custom.Axes" 		selected="false">	Axes</div>
 					
 					<div plugin="drawing.plugins.tools.Pan" options="{}">Pan</div>
@@ -147,19 +124,15 @@
 
 		<div id="drawingPane" dojoType="dijit.layout.ContentPane" region="center" >
 				<div dojoType="drawing.Drawing" id="drawing" drawingType="canvas" class="drawing"
-					plugins="[{'name':'drawing.plugins.drawing.Grid', 'options':{gap:100}}]">   
+					 defaults="andes.defaults">   
 			   </div>
 		</div>
-		<!--<div dojoType="drawing.Drawing" id="drawingNode" drawingType="canvas" class="drawing"
-					plugins="[{'name':'drawing.plugins.drawing.Grid', 'options':{gap:100}}]" region="center" >
-		</div>-->
 			
 		<div id="helpPane" dojoType="andes.widget.ExpandoPane" region="right" splitter="true" title="Help" startExpanded="false">
 			<div id="helpWrapPane" dojoType="dijit.layout.BorderContainer" gutters="false">
 				<div id="helpContentPane" dojoType="dijit.layout.ContentPane" region="center"></div>
 
 				<div id="helpInputPane" dojoType="dijit.layout.ContentPane" region="bottom">
-					<div id="helpQueryLabel">Enter your query...</div>
 					<div dojoType="dijit.form.TextBox" id="helpInput"></div>
 					<div dojoType="dijit.form.Button" id="helpSubmit">?</div>
 				</div>

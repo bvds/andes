@@ -247,8 +247,8 @@
   :hint (
 	(point (string "Notice that ~A contains a constant ~A field."
 	               ?loc (?type adj) ?loc)) 
-	(bottom-out (string "Use the ~A field drawing tool to draw the ~A field at ~a due to ~a in the given direction of ~A." 
-		     (?type adj) (?type adj) ?loc (?source agent) (?dir-f adj)))
+	(bottom-out (string "Use the vector tool to draw the ~A field at ~a due to ~a in the given direction of ~A." 
+		     (?type adj) ?loc (?source agent) (?dir-f adj)))
         )) 
 
 
@@ -279,7 +279,7 @@
   :hint (
 	 (point (string "Not that ~A is inside a conductor." ?loc)) 
 	 (teach (string "Inside a good conductor, the electric field is almost zero." ?loc)) 
-	 (bottom-out (string "Use the E field drawing tool to draw a zero-length vector for the electric field at ~a ." 
+	 (bottom-out (string "Use the vector tool to draw a zero-length vector for the electric field at ~a ." 
 			     ?loc))
 	 ))
 
@@ -333,7 +333,7 @@
   :hint (
 	 (point (string "Think about how the direction of the electric force at ~a due to ~a is related to the direction of the electric field vector at ~a" ?loc (?source agent) ?loc))
 	 (teach (string "The electric field vector points in the same direction as the electric force experienced by a positive charge, or in the opposite direction for a negative charge."))
-	 (bottom-out (string "Because the charge of ~a is ~a,  use the electric field drawing tool (labeled E) to draw the electric field vector at ~a due to ~a in the ~a direction as the electric force that ~A undergoes, namely ~A." 
+	 (bottom-out (string "Because the charge of ~a is ~a,  use the vector tool to draw the electric field vector at ~a due to ~a in the ~a direction as the electric force that ~A undergoes, namely ~A." 
 			     ?b (?pos-neg adj) ?loc (?source agent) 
 			     (?same-or-opposite adj) ?b (?field-dir adj)))
 	 ))
@@ -521,7 +521,7 @@
             )
   :hint (
     (point (string "You were given that there is an electric force on ~a." ?b))
-    (bottom-out (string "Use the force drawing tool to draw the electric force on ~a due to ~a ~a at ~a." ?b (?source agent) (?t pp) ?dir))
+    (bottom-out (string "Use the vector tool to draw the electric force on ~a due to ~a ~a at ~a." ?b (?source agent) (?t pp) ?dir))
 ))
 
 ;; Force due to a Coulombs law interaction where the electric field
@@ -585,7 +585,7 @@
 :hint (
        (point (string "Think about how the direction of the electric force on ~A due to ~a is related to the relative position of the two bodies." ?b (?source agent)))
        (teach (string "Remember that opposite charges attract and like charges repel."))
-       (bottom-out (string "Use the force drawing tool (labeled F) to draw the electric force on ~a due to ~a in the ~a direction." 
+       (bottom-out (string "Use the vector tool to draw the electric force on ~a due to ~a in the ~a direction." 
 			   ?b (?source agent) (?F-dir adj)))
        ))
 
@@ -608,7 +608,7 @@
   (
    (point (string "Note that ~A and ~A are both charged particles." ?b (?source agent)))
    (point (string "Charged particles experience a force due to other charged particles."))
-   (bottom-out (string "Use the force drawing tool to draw the electric force on ~a due to ~a ~a, direction unknown." ?b (?source agent) (?t pp)))
+   (bottom-out (string "Use the vector tool to draw the electric force on ~a due to ~a ~a, direction unknown." ?b (?source agent) (?t pp)))
    ))
 
 ;; if given E field vector dir
@@ -669,7 +669,7 @@
 :hint (
        (point (string "Think about how the direction of the electric force on ~A due to ~a is related to the direction of the electric field vector." ?b (?source agent)))
        (teach (string "The electric field vector points in the same direction as the electric force experienced by a positive charge, or in the opposite direction for a negative charge."))
-       (bottom-out (string "Because the charge of ~a is ~a, use the force drawing tool (labeled F) to draw the electric force on ~a due to ~a in the ~a direction as the electric field at that location, namely ~A." 
+       (bottom-out (string "Because the charge of ~a is ~a, use the vector tool to draw the electric force on ~a due to ~a in the ~a direction as the electric field at that location, namely ~A." 
 			   ?b (?pos-neg adj) ?b (?source agent) (?same-or-opposite adj) 
 			   (?F-dir adj)))
        ))
@@ -1338,8 +1338,8 @@
   :hint (
 	 (point (string "You can determine the direction of the net ~A field at ~a from the problem statement."
 	                (?type adj) ?loc)) 
-	 (bottom-out (string "Use the ~A field drawing tool to draw the net ~A field at ~a in the given direction of ~A." 
-			     (?type adj) (?type adj) ?loc (?dir-f adj)))
+	 (bottom-out (string "Use the vector tool to draw the net ~A field at ~a in the given direction of ~A." 
+			     (?type adj) ?loc (?dir-f adj)))
 	 )) 
 
 (defoperator draw-net-field-given-zero (?type ?t)
@@ -1358,8 +1358,8 @@
   :hint (
 	 (point (string "At the point ~A, the ~A fields add up to zero."
 	                ?loc (?type adj))) 
-	 (bottom-out (string "Use the ~A field drawing tool to draw a zero-length vector for the net ~A field at ~a ." 
-			     (?type adj) (?type adj) ?loc))
+	 (bottom-out (string "Use the vector tool to draw a zero-length vector for the net ~A field at ~a ." 
+			     (?type adj) ?loc))
 	 ))
 
 (defoperator draw-net-field-from-fields (?loc ?type ?t)
@@ -1390,8 +1390,8 @@
   :hint (
 	 (point (string "Since the ~A field at ~A due to each source is pointing in the same direction, the direction of the net ~A field is known."
 	                (?type adj) ?loc (?type adj))) 
-	 (bottom-out (string "Use the ~A field drawing tool to draw the net ~A field at ~a in the direction ~A." 
-			     (?type adj) (?type adj) ?loc (?net-dir adj)))
+	 (bottom-out (string "Use the vector tool to draw the net ~A field at ~a in the direction ~A." 
+			     (?type adj) ?loc (?net-dir adj)))
 	 )) 
 
 (defoperator draw-net-field-unknown (?loc ?type ?t)
@@ -1620,7 +1620,7 @@
   :hint
   ((point (string "The problem specifies the direction of the ~A dipole moment of ~a ~a." 
 		  (?type adj) ?dipole (?t pp)))
-    (bottom-out (string "Use the vector drawing tool to draw the ~A dipole moment of ~a ~a oriented in the direction ~a." 
+    (bottom-out (string "Use the vector tool to draw the ~A dipole moment of ~a ~a oriented in the direction ~a." 
 			(?type adj) ?b (?t pp) ?dir))
     ))
 
@@ -1653,7 +1653,7 @@
   :hint (
 	 (point (string "You were given the position of ~A relative to ~A.  What does this tell you about the electric dipole moment?" ?positive-charge ?negative-charge))
 	 (teach (string "The dipole moment of a pair of charges is in the same direction as a vector starting at the negative charge and going to the positive charge."))
-         (bottom-out (string "Use the electric dipole moment drawing tool (labeled P) to draw the electric dipole moment of ~a in the given direction of ~A." 
+         (bottom-out (string "Use the vector tool to draw the electric dipole moment of ~a in the given direction of ~A." 
 			     ?dipole ?dir))
          ))
 
@@ -1687,7 +1687,7 @@
   ( (point (string "What is the direction of ~A?  What does this tell you about the magnetic dipole moment?" 
 		   ((unit-vector normal-to ?surface :time ?t) def-np)))
     (teach (string "The magnetic dipole moment vector for a loop of current is given by the following right hand rule:  the fingers curl around the loop in the direction of the current and the extended thumb points in the direction of $m."))
-    (bottom-out (string "Use the magnetic dipole moment drawing tool (labeled $m) to draw the magnetic dipole moment of ~a in the given direction of ~A." 
+    (bottom-out (string "Use the vector tool to draw the magnetic dipole moment of ~a in the given direction of ~A." 
 			?current-loop ?dir))
     ))
 
@@ -2195,7 +2195,7 @@
  (
   (point (string "The torque on a dipole is the cross product of its ~A dipole moment and the ~A field vector at the same location." (?type adj) (?type adj))) 
   (teach (string "The torque vector on a dipole points in a direction perpendicular to the plane formed by the dipole moment and ~A field vectors, in a direction determined by the right hand rule:  curl the fingers of your right hand from the dipole moment vector to the ~A field vector, and your thumb will point in the direction of the torque." (?type adj) (?type adj)))
-  (bottom-out (string "Because the ~A moment has direction ~a and the ~A field direction is ~a, the right-hand rule determines the direction of torque to be ~a. Use the torque drawing tool (labeled $t) to draw the torque on ~a due to ~a in the direction of ~A." 
+  (bottom-out (string "Because the ~A moment has direction ~a and the ~A field direction is ~a, the right-hand rule determines the direction of torque to be ~a. Use the vector tool to draw the torque on ~a due to ~a in the direction of ~A." 
 		      (?type adj) (?dir-d adj) 
 		      (?type adj) (?dir-f adj) (?tau-dir adj) 
 		      ?dipole ?field (?tau-dir adj)))
@@ -2235,7 +2235,7 @@
 		 (?type adj) (?type adj))) 
   (teach (string "Remember the magnitude of a cross product of two vectors is proportional to the sine of the angle between them."))
   (teach (string "If two vectors are parallel or anti-parallel, the sine of the angle betwen them is zero, so their cross-product is a zero-length vector."))
-  (bottom-out (string "Because the cross product of the dipole moment and the ~A field direction is zero in this case, use the torque drawing tool (labeled $t) to draw a zero-length vector for torque on ~a due to ~a." 
+  (bottom-out (string "Because the cross product of the dipole moment and the ~A field direction is zero in this case, use the vector tool to draw a zero-length vector for torque on ~a due to ~a." 
 			     (?type adj) ?dipole ?field))
   ))
 
@@ -2398,7 +2398,7 @@
       ;; This should be replaced by a tutorial.  It is rather cumbersome
       ;; to explain in word form.
       (teach (string "Look up the Biot-Savart law in your textbook."))
-      (bottom-out (string "The velocity vector points in the direction ~A.  The relative position of ~A is in the direction ~A.  Thus, the cross product is in the direction ~A.  Since the charge is ~A, the resulting magnetic field is in the ~A direction.  Use the magnetic field drawing tool (labeled B) to draw the magnetic field at ~a due to ~a in the direction, ~A." 
+      (bottom-out (string "The velocity vector points in the direction ~A.  The relative position of ~A is in the direction ~A.  Thus, the cross product is in the direction ~A.  Since the charge is ~A, the resulting magnetic field is in the ~A direction.  Use the vector tool to draw the magnetic field at ~a due to ~a in the direction, ~A." 
            (?dir-v adj) ?loc (?dir-r adj) (?cross-dir adj) (?pos-neg adj)
 	   (?same-or-opposite adj) ?loc ?b (?dir-B adj)))
   ))
@@ -2423,7 +2423,7 @@
       ;; This should be replaced by a tutorial.  It is rather cumbersome
       ;; to explain in word form.
       (teach (string "Look up the Biot-Savart law in your textbook."))
-      (bottom-out (string "The velocity vector points in the direction ~A.  The relative position of ~A is in the direction ~A.  Since these two vectors point in the same (or opposite) direction, the cross product is zero.  Use the magnetic field drawing tool (labeled B) to draw a zero magnetic field at ~a due to ~a." 
+      (bottom-out (string "The velocity vector points in the direction ~A.  The relative position of ~A is in the direction ~A.  Since these two vectors point in the same (or opposite) direction, the cross product is zero.  Use the vector tool to draw a zero magnetic field at ~a due to ~a." 
            (?dir-v adj) ?loc (?dir-r adj) ?loc ?b))
   ))
 
@@ -2457,7 +2457,7 @@
   :hint (
       (point (string "The direction of the magnetic field lines around a straight current-carrying wire can be determined by a use of the right-hand rule."))
       (teach (string "Magnetic field lines near a straight current-carrying wire take the form of concentric circles with the wire at their center. If you grasp the wire with your right hand with the thumb pointing in the direction of the current, your fingers curl around the wire in the direction of the magnetic field lines."))
-      (bottom-out (string "Curling your right hand around the wire with the thumb in the direction of the current, ~a, your fingers at ~a point in the direction ~a.  Use the magnetic field drawing tool (labeled B) to draw the magnetic field at ~a due to ~a in that direction, ~A." 
+      (bottom-out (string "Curling your right hand around the wire with the thumb in the direction of the current, ~a, your fingers at ~a point in the direction ~a.  Use the vector tool to draw the magnetic field at ~a due to ~a in that direction, ~A." 
            (?dir-l adj) ?loc (?dir-B adj) ?loc ?wire (?dir-B adj)))
   ))
 
@@ -2489,7 +2489,7 @@
   :hint (
       (point (string "The direction of the magnetic field at the center of a current-carrying coil can be determined by a use of the right-hand rule."))
       (teach (string "If you grasp the wire with your right hand with the thumb pointing in the direction of the current, your fingers curl around the wire in the direction of the magnetic field lines."))
-      (bottom-out (string "Curling your right hand around ~A with the thumb in the direction of the current, ~a.  At ~A, your fingers point in the direction ~a.  Use the magnetic field drawing tool (labeled B) to draw the magnetic field at ~a due to ~a in that direction, ~A." 
+      (bottom-out (string "Curling your right hand around ~A with the thumb in the direction of the current, ~a.  At ~A, your fingers point in the direction ~a.  Use the vector tool to draw the magnetic field at ~a due to ~a in that direction, ~A." 
            ?wire (?dir-i adj) ?loc (?dir-B adj) ?loc ?wire (?dir-B adj)))
   ))
 
@@ -2552,7 +2552,7 @@
   (
    (point (string "The magnetic force on a ~Aly charged particle points in the ~A direction as the cross product of the velocity and magnetic field vectors." (?porn adj) (?saop adj))) 
    (teach (string "The magnetic force vector on a moving charge points in a direction perpendicular to the plane formed by the velocity and magnetic field vectors, in a direction determined by the right hand rule:  orient your right hand so that your outstretched fingers point in the direction of the velocity and when you curl them in they point in the direction of the magnetic field.  Your thumb will then point in the direction of the cross product.  For a ~A charge, the force is in the ~A direction." (?porn adj) (?saop adj)))
-   (bottom-out (string "Because the velocity of ~a has direction ~a, the magnetic field direction is ~a, and the charge is ~A, the right-hand rule determines the direction of force to be ~a. Use the force drawing tool (labeled F) to draw the magnetic force on ~a due to ~a in the direction of ~A." 
+   (bottom-out (string "Because the velocity of ~a has direction ~a, the magnetic field direction is ~a, and the charge is ~A, the right-hand rule determines the direction of force to be ~a. Use the vector tool to draw the magnetic force on ~a due to ~a in the direction of ~A." 
 		       ?b (?dir-V adj) (?dir-B adj) (?porn adj) (?F-dir adj) 
 		       ?b (?source agent) (?F-dir adj)))
    ))
@@ -2580,7 +2580,7 @@
 	(point (string "The magnetic force on a positively charged particle points in the direction of the cross product of its velocity vector and the magnetic field vector at its location.")) 
 	(teach (string "Remember the magnitude of a cross product of two vectors is proportional to the sine of the angle between them."))
 	(teach (string "If two vectors are parallel or anti-parallel, the sine of the angle betwen them is zero, so their cross-product is a zero-length vector."))
-        (bottom-out (string "Because the cross product of the velocity of ~a and the magnetic field is zero in this case, use the force drawing tool (labeled F) to draw a zero-length vector for the magnetic force on ~a due to ~a " 
+        (bottom-out (string "Because the cross product of the velocity of ~a and the magnetic field is zero in this case, use the vector tool to draw a zero-length vector for the magnetic force on ~a due to ~a " 
 			     ?b ?b (?source agent)))
  ))
 
@@ -2715,7 +2715,7 @@
  :hint (
 	(point (string "Let n_w to be a unit vector pointing in the direction of the current flow.  The magnetic force on ~A points is equal to the current times the cross product of n_w and the magnetic field." ?b)) 
 	(teach (string "The magnetic force vector on a current carrying wire points in a direction perpendicular to the plane formed by the wire and the magnetic field vector, in a direction determined by the right hand rule:  orient your right hand so that your outstretched fingers point in the direction of the current and when you curl them in they point in the direction of the magnetic field.  Your thumb will then point in the direction of the force."))
-        (bottom-out (string "Because the current in ~a has direction ~a and the magnetic field direction is ~a, the right-hand rule determines the direction of force to be ~a. Use the force drawing tool (labeled F) to draw the magnetic force on ~a due to ~a in the direction of ~A." 
+        (bottom-out (string "Because the current in ~a has direction ~a and the magnetic field direction is ~a, the right-hand rule determines the direction of force to be ~a. Use the vector tool to draw the magnetic force on ~a due to ~a in the direction of ~A." 
 			    ?b (?dir-i adj) (?dir-B adj) (?F-dir adj) ?b 
 			    (?source agent) (?F-dir adj)))
  ))
@@ -2742,7 +2742,7 @@
  :hint (
 	(point (string "Notice that a current is flowing through ~A and there is a constant magnetic field." ?b)) 
 	(teach (string "The magnetic force vector on a current carrying wire points in a direction perpendicular to the plane formed by the wire and the magnetic field vector, in a direction determined by the right hand rule:  orient your right hand so that your outstretched fingers point in the direction of the current and when you curl them in they point in the direction of the magnetic field.  Your thumb will then point in the direction of the force."))
-        (bottom-out (string "In this case, the direction of the current or the magnetic field was not given (although you may be able to figure it out).  Use the force drawing tool (labeled F) to draw the magnetic force on ~a due to ~a in an unknown direction." 
+        (bottom-out (string "In this case, the direction of the current or the magnetic field was not given (although you may be able to figure it out).  Use the vector tool to draw the magnetic force on ~a due to ~a in an unknown direction." 
 			    ?b (?source agent)))
  ))
 
