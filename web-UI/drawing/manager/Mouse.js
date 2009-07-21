@@ -27,6 +27,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		//		Milliseconds between clicks to
 		//		register as for onDoubleClick
 		doublClickSpeed:400,
+		
 		// private properties
 		registerd:{},
 		_lastx:0,
@@ -115,6 +116,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		init: function(/* HTMLNode*/node){
 			//	summary:
 			//	Internal. Initializes mouse.
+			//
 			this.container = node;
 			this.setCanvas();
 			var c;
@@ -179,7 +181,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		
 		_broadcastEvent:function(strEvt, obj){
 			// summary:
-			//		Fire events to all registered objects.
+			//	Fire events to all registered objects.
 			//
 			//console.log("mouse.broadcast:", strEvt, obj)
 			for(var nm in this.registerd){
@@ -187,29 +189,44 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			}
 		},
 		
-		
-		
-		onCanvasUp: function(evt){
-			console.log(" ----------------------- mouse onCanvasUp")
-		},
-		
 		onDown: function(obj){
+			// summary:
+			// 	Create on[xx]Down event and send to broadcaster.
+			//	Could be connected to.
+			//
 			console.info("onDown:", this.eventName("down"))
 			this._broadcastEvent(this.eventName("down"), obj);			
 		},
+		
 		onDrag: function(obj){
+			// summary:
+			// 	Create on[xx]Drag event and send to broadcaster.
+			//	Could be connected to.
+			//
 			var nm = this.eventName("drag");
 			if(this._selected && nm == "onDrag"){
 				nm = "onStencilDrag"
 			}
 			this._broadcastEvent(nm, obj);
 		},
+		
 		onMove: function(obj){
+			// summary:
+			// 	Create onMove event and send to broadcaster.
+			//	Could be connected to.
+			//	Note: onMove never uses a custom event
+			//	Note: onMove is currently not enabled in the app.
+			//
 			this._broadcastEvent("onMove", obj);
 		},
+		
 		onUp: function(obj){
+			// summary:
+			// 	Create on[xx]Up event and send to broadcaster.
+			//	Could be connected to.
+			//
 			// blocking first click-off (deselect), largely for TextBlock
-			// TODO: should have param to make this optional??
+			// TODO: should have param to make this optional?
 			var nm = this.eventName("up");
 			
 			if(nm == "onStencilUp"){
@@ -244,14 +261,27 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		
 		zoom: 1,
 		setZoom: function(zoom){
+			// summary:
+			// Internal. Sets the mouse zoom percentage to
+			//	that of the canvas
 			this.zoom = 1/zoom;
 		},
 		
 		setEventMode: function(mode){
+			// summary:
+			//	Sets the mouse mode s that custom events can be called.
+			//	Also can 'disable' events by using a bogus mode:
+			// 	|	mouse.setEventMode("DISABLED")
+			//	|		-> onDisabledDown (unless any object subscribes to this event,
+			//				it is effectively disabled)
+			//
 			this.mode = mode ? "on" + mode.charAt(0).toUpperCase() + mode.substring(1) :  "";
 		},
 		
 		eventName: function(name){
+			// summary:
+			//	Internal. Determine the event name
+			//
 			name = name.charAt(0).toUpperCase() + name.substring(1);
 			if(this.mode){
 				return this.mode + name;		
@@ -263,10 +293,16 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		},
 		
 		up: function(evt){
+			// summary:
+			//	Internal. Create onUp event
+			//
 			this.onUp(this.create(evt));
 		},
 		
 		down: function(evt){
+			// summary:
+			//	Internal. Create onDown event
+			//
 			this._downOnCanvas = true;
 			var sc = this.scrollOffset();
 			var dim = this._getXY(evt);
@@ -287,19 +323,26 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			
 			this.drawingType = this.util.attr(evt, "drawingType") || "";
 		
-		//console.log("evt:", evt);
-		//console.log("this.drawingType:", this.drawingType)
-		
+			//console.log("evt:", evt);
+			//console.log("this.drawingType:", this.drawingType)
 			this.onDown({x:x,y:y, pageX:dim.x, pageY:dim.y, id:this._getId(evt)});
 			dojo.stopEvent(evt);
 		},
 		move: function(evt){
+			// summary:
+			//	Internal.
+			// TODO: move currently disabled
 			//this.onMove(this.create(evt));
 		},
 		drag: function(evt){
+			// summary:
+			//	Internal. Create onDrag event
 			this.onDrag(this.create(evt, true));
 		},
 		create: function(evt, squelchErrors){
+			// summary:
+			//	Internal. Create dojox.__MangerMouseEvent
+			//
 			var sc = this.scrollOffset();
 			var dim = this._getXY(evt);
 			
@@ -357,13 +400,17 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			this._lastpagex = pagex;
 			this._lastpagey = pagey;
 			dojo.stopEvent(evt);
-			return ret;
+			return ret; //Object
 		},
 		_getId: function(evt, squelchErrors){
-				return this.util.attr(evt, "id", null, squelchErrors);// || this.util.attr(evt.target.parentNode, "id", null, squelchErrors);
+			// summary:
+			//	Internal. Gets ID of focused node.
+			return this.util.attr(evt, "id", null, squelchErrors); // String
 		},
 		_getXY: function(evt){
-			return {x:evt.pageX, y:evt.pageY};
+			// summary:
+			//	Internal. Gets mouse coords to page.
+			return {x:evt.pageX, y:evt.pageY}; // Object
 		}
 	}
 );
