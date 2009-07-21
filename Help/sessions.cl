@@ -307,7 +307,10 @@
     (let ((old-entry (find-entry id)) new-entry 
 	  (ans "Answer:"))
 
-      (when *simulate-loaded-server* (sleep 2))
+      (when *simulate-loaded-server* 
+	(format webserver:*stdout* 
+		"  *simulate-loaded-server* induced sleep.~%")
+	(sleep 2))
 
       (when (and old-entry (equal action "new-object"))
 	(warn "Object ~A already exists, updating old object." id))
