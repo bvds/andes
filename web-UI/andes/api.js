@@ -55,7 +55,7 @@ dojo.require("andes.error");
 				}
 			},
 			function(error){
-				requestInFlight = false;
+				//requestInFlight = false;
 				if(error._rpcErrorObject){
 					req.dfd.errback(error);
 					var msg = "<p>The server reported an error:</p><pre>" + error.name + ": " + error.message;
@@ -78,7 +78,7 @@ dojo.require("andes.error");
 						}, RETRY_TIMEOUT);
 					}else{
 						req.dfd.errback(error);
-						//console.error(error);
+						console.error(error);
 						andes.error({
 							title: "Connection Error",
 							message: "The connection to the server failed and couldn't be re-established after retrying " + MAX_RETRIES + " times; giving up.",

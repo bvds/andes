@@ -175,15 +175,35 @@ dojo.provide("drawing.stencil._Base");
 			}
 			=====*/
 			
-			//public
-			
-			
+			// type: String
+			//		The type of Stencil this is. Should be overridden
+			//		by extending classes.
+			//	FIXME: should this be declaredClass?
 			type:"drawing.stencil",
-			
+			//
+			//	minimumSize: Number
+			//		The minimum size allowed for a render. If the size
+			//		is less, the shape is destroyed.
 			minimumSize:10,
+			//
+			//	enabled [readonly] Boolean
+			//		Whether the Stencil is enabled or not.
 			enabled:true,
 			
-			//readonly
+			
+			setData: function(d){ ////////////////////////////////////////////////////////////////////////////////////////
+				this.data = d;
+				this.points = this.dataToPoints();
+			},
+			
+			setPoints: function(p){
+				this.points = p;
+				// Path doesn't do data
+				if(this.pointsToData){
+					this.data = this.pointsToData();
+				}
+			},
+			
 			
 			onDelete: function(/* Stencil */ stencil){
 				// summary:
@@ -224,8 +244,12 @@ dojo.provide("drawing.stencil._Base");
 				// 	itself does not register it.
 				//
 				// 	This should fire
-				// 	at the *end* of each render (not during drag)
-				// 	(Maybe should be onRenderComplete?)
+				// 	at the *end* of creation (not during drag)
+				//
+				//	FIXME:
+				//		This should probably be onCreate. It should
+				//		only fire once. But the mechanism for determining
+				//		this is more complicated than it sounds.
 				//
 				if(!this._postRenderCon){
 					this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
@@ -246,14 +270,9 @@ dojo.provide("drawing.stencil._Base");
 			
 			onChangeStyle: function(/*Object*/stencil){ 
 				// summary:
-				//	Fire when styles of shape has changed
+				//	Fires when styles of shape has changed
 				//
 				this._isBeingModified = true; // need this to prevent onRender
-				
-				// ??? -> TODO: Make this _changeStyle and call onChangeSyyle
-				//
-				// ??? -> TODO - try mixin so if new style does not have fill, the norm.fill will be used
-				//
 				
 				if(!this.enabled){
 					this.style.current = this.style.disabled;
@@ -333,21 +352,46 @@ dojo.provide("drawing.stencil._Base");
 			//		Should points and data be?
 			//
 			disable: function(){
+				// summary:
+				//		Disables Stencil so it is not selectable.
+				//		Changes the color to the disabled style.
 				this.enabled = false;
 				this.onChangeStyle(this);
 			},
 			
 			enable: function(){
+				// summary:
+				//		Enables Stencil so it is not selectable (if
+				//		it was selectable to begin with). Changes the
+				//		color to the current style.
 				this.enabled = true;
 				this.onChangeStyle(this);
 			},
 			
 			select: function(){
+				// summary:
+				//		Called when the Stencil is selected.
+				//		NOTE: Calling this will not select the Stencil
+				//		calling this just sets the style to the 'selected'
+				//		theme. 'manager.Stencil' should be used for selecting
+				//		Stencils.
+				//		
 				this.selected = true;
 				this.onChangeStyle(this);
 			},
 			
-			deselect: function(useDelay){
+			deselect: function(/*Boolean*/useDelay){
+				// summary:
+				//		Called when the Stencil is deselected.
+				//		NOTE: Calling this will not deselect the Stencil
+				//		calling this just sets the style to the current
+				//		theme. 'manager.Stencil' should be used for selecting
+				//		and deselecting Stencils.
+				//
+				//	arguments:
+				//		useDelay: Boolean
+				//			Adds  slight delay before the style is set.
+				//
 				// should not have to render here because the deselection
 				// re-renders after the transform
 				// but... oh well.
@@ -363,37 +407,53 @@ dojo.provide("drawing.stencil._Base");
 			},
 			
 			highlight: function(){
+				// summary:
+				//		Changes style to the highlight theme.
 				this.highlighted = true;
 				this.onChangeStyle(this);
 			},
 			
 			unhighlight: function(){
+				// summary:
+				//		Changes style to the current theme.
 				this.highlighted = false;
 				this.onChangeStyle(this);
 			},
 			
 			moveToFront: function(){
+				// summary:
+				//		Moves Stencil to the front of all other items
+				//		on the canvas.
 				this.container && this.container.moveToFront();
 			},
 			
 			moveToBack: function(){
+				// summary:
+				//		Moves Stencil to the back of all other items
+				//		on the canvas.
 				this.container && this.container.moveToBack();
 			},
 			
-			onTransformBegin: function(anchor){
-				// called from anchor point up mouse down
+			onTransformBegin: function(/* ? manager.Anchor */anchor){
+				console.warn("onTransformBegin", anchor)
+				// summary:
+				//	Fired at the start of a transform. This would be
+				//	an anchor drag or a selection.
+				//
 				this._isBeingModified = true;
 			},
 			
-			onTransformEnd: function(anchor){
-				// called from anchor point up mouse up
+			onTransformEnd: function(/* manager.Anchor */anchor){
+				// summary:
+				// 	Called from anchor point up mouse up
 				this._isBeingModified = false;
 				this.onModify(this);
 			},
 			
-			onTransform: function(anchor){
-				// called from anchor point mouse drag
-				// also called right away from plugins.Pan.checkBounds
+			onTransform: function(/* ? manager.Anchor */anchor){
+				// summary:
+				// 	Called from anchor point mouse drag
+				// 	also called from plugins.Pan.checkBounds
 				if(!this._isBeingModified){
 					this.onTransformBegin();
 				}
@@ -428,32 +488,43 @@ dojo.provide("drawing.stencil._Base");
 				this.onTransformEnd();
 			},
 			
-			setTransform: function(mx){
-				// FIXME:
-				// need setTransform and applyTransform
-				// this does apply
+			applyTransform: function(mx){
+				// summary:
+				//	Applies the transform to the stencil
+				//	NOTE: PARTIALLY IMPLEMENTED
+				//		Only applies x y coords
 				this.transformPoints(mx);
 			},
 			
+			setTransform: function(/*Object*/mx){
+				// summary:
+				//	Sets the transform to the stencil
+				//	NOTE: PARTIALLY IMPLEMENTED
+				//		Only applies x y coords
+				this.attr({
+					x:mx.dx,
+					y:mx.dy
+				});
+			},
+			
 			getTransform: function(){
-				return this.selected ? this.container.getParent().getTransform() : {dx:0, dy:0};
+				// summary:
+				//	Returns the current transform (position) of the Stencil's
+				//	container
+				return this.selected ? this.container.getParent().getTransform() : {dx:0, dy:0}; // Object
 			},
 			
-			setData: function(d){
-				this.data = d;
-				this.points = this.dataToPoints();
-			},
 			
-			setPoints: function(p){
-				this.points = p;
-				// Path doesn't do data
-				if(this.pointsToData){
-					this.data = this.pointsToData();
-				}
-				
-			},
-			
-			setLabel: function(text){
+			setLabel: function(/*String*/text){
+				// summary:
+				//	Creates and sets a label annotation for the Stencil.
+				//	If Stencil contains a labelPosition method, that will
+				//	be used for positioning. Otherwise
+				//	drawing.util.positioning.label is used.
+				// arguments:
+				//	text: String
+				//		The text to set as the label.
+				//
 				if(!this._label){
 					this._label = new drawing.annotations.Label({
 						text:text,
@@ -470,17 +541,20 @@ dojo.provide("drawing.stencil._Base");
 			},
 			
 			getLabel: function(){
+				// summary:
+				//	Get the text of the label.
+				//
 				if(this._label){
-					return this._label.getText();
+					return this._label.getText(); // String
 				}
-				return null;
+				return null; //null
 			},
 			
 			getAngle: function(){
 				// summary:
-				//	Gets angle of shape
+				//	Gets angle of Stencil
 				// NOTE: Only works for Lines, Arrows, Vectors and Axes
-				//	
+				//	(works on points, not transforms)
 				var d = this.pointsToData();
 				var obj = {
 					start:{
@@ -496,12 +570,23 @@ dojo.provide("drawing.stencil._Base");
 				return angle;
 			},
 			getRadius: function(){
+				// summary:
+				//	Gets radius (length) of Stencil
+				// NOTE: Only works for Lines, Arrows, Vectors and Axes
+				//	(not for Ellipse)
+				//
 				var box = this.getBounds(true);
 				var line = {start:{x:box.x1, y:box.y1}, x:box.x2, y:box.y2};
-				//var line = {start:{x:box.x1, y:box.y1}, x:box.x2, y:box.y2};
 				return this.util.length(line);
 			},
-			getBounds: function(absolute){
+			getBounds: function(/* ? Boolean*/absolute){
+				// summary:
+				//	Returns the coordinates of the Stencil. This is often
+				//	different than the data or the points.
+				//	arguments:
+				//		absolute: Boolean
+				//			Keeps lines from flipping (see note).
+				//
 				// NOTE: Won't work for paths or annotations (labels, Axes, arrow tips)
 				//	They should overwrite.
 				// NOTE: Primarily used for checking for if shape is off
@@ -530,7 +615,7 @@ dojo.provide("drawing.stencil._Base");
 						y:y1,
 						w:x2-x1,
 						h:y2-y1
-					};
+					}; // Object
 				}else{
 					return {
 						x1:p[0].x,
@@ -541,20 +626,19 @@ dojo.provide("drawing.stencil._Base");
 						y:p[0].y,
 						w:p[2].x - p[0].x,
 						h:p[2].y - p[0].y
-					};
+					}; // Object
 				}
 			},
 			
 			
 			preventNegativePos: function(){
-				// PRIVATE
 				// summary:
-				//	Prevent item from being drawn/rendered less than zero
-				// on the X or Y.
+				//	Internal. Prevent item from being drawn/rendered less
+				//	than zero on the X or Y.
 				//
 				// if being modified anchors will prevent less than zero.
 				if(this._isBeingModified){ return; }
-				// why is this sometimes empty?
+				// FIXME: why is this sometimes empty?
 				if(!this.points.length){ return; }
 				
 				if(this.type=="drawing.tools.custom.Axes"){
@@ -586,13 +670,12 @@ dojo.provide("drawing.stencil._Base");
 			
 			_onPostRender: function(/*Object*/data){
 				// summary:
-				//	drag-create should call onRender
-				//	afterwards, this calls _onPostRender
+				//	drag-create or programmatic create calls onRender
+				//	and afterwards, _onPostRender is called and
+				//	manages further events.
 				//
-				// TODO: can this be onModify? Is that clear?
+				// TODO: can this be onModify? Is that more clear?
 				//
-				//if(this.type == "drawing.tools.TextBlock")
-					//console.warn("_onPostRender", this.id, this._postRenderCon)
 				
 				if(this._isBeingModified){
 					this.onModify(this);
@@ -604,32 +687,25 @@ dojo.provide("drawing.stencil._Base");
 				
 				if(!this.selected && this._prevData && dojo.toJson(this._prevData) != dojo.toJson(this.data)){
 					
-					//if(this.type == "drawing.tools.TextBlock") console.warn("DATA CHANGE", dojo.toJson(this.data))
-					
 					this.onChangeData(this);
 					this._prevData = dojo.clone(this.data);
 				
 				}else if(!this._prevData && (!this.isText || this.getText())){
 					this._prevData = dojo.clone(this.data);
-					//if(this.type == "drawing.tools.custom.Axes") console.log("NO PREV DATA")
-				
-				}
-				//else if(this.type == "drawing.tools.TextBlock"){
 					
-					//console.info("data not changed:");console.info("prev:", dojo.toJson(this._prevData));console.info("curr:", dojo.toJson(this.data))
-				//}
+				}
 				
 			},
 			
 			_setNodeAtts: function(shape){
 				// summary:
-				//	Sets the rawNode attribute. (Or in Silverlight
+				//	Internal. Sets the rawNode attribute. (Or in Silverlight
 				//	an "object attribute". "stencil" is
 				// 	used by the application to determine if
 				//	something is selectable or not. This also
 				//	sets the mouse custom events like:
 				//	"onStencilUp". To disable the selectability,
-				//	make the att "", which causes  standard
+				//	make the att "", which causes a standard
 				//	mouse event.
 				var att = this.enabled && !this.annotation ? "stencil" : "";
 				this.util.attr(shape, "drawingType", att);
@@ -640,21 +716,19 @@ dojo.provide("drawing.stencil._Base");
 				// summary:
 				//	Destroys this Stencil
 				// Note:
-				//	Can connect to this, or connect
-				//	to onDelete
+				//	Can connect to this, but it's better to
+				//	connect to onDelete
 				//
 				// prevent loops:
 				if(this.destroyed){ return; }
 				if(this.data || this.points && this.points.length){
 					this.onDelete(this);
 				}
-		console.info("shape.destroy", this.id);
+				
 				this.disconnectMouse();
 				this.disconnect(this._cons);
 				dojo.disconnect(this._postRenderCon);
 				this.remove(this.shape, this.hit);
-				// silly I know, but we need to know it's going to be gone
-				// before it is:
 				this.destroyed = true;
 			},
 			
@@ -664,21 +738,21 @@ dojo.provide("drawing.stencil._Base");
 				// 	No args defaults to this.shape
 				//	Pass in multiple args to remove multiple shapes
 				//
-				//this.container.clear(); return;
+				// FIXME: Use an Array of all shapes
+				//
 				var a = arguments;
 				if(!a.length){
 					if(!this.shape){ return; }
 					a = [this.shape];
 				}
 				for(var i=0;i<a.length;i++){
-					//a[i] && a[i].removeShape();
 					if(a[i]) {
 						a[i].removeShape();
 					}
 				}
 			},
 			
-			connectMult: function(){
+			connectMult: function(/*dojo.connect ARGS*/){
 				// summary:
 				//	Convenience method for batches of quick connects
 				// 	Handles are not returned and therefore cannot be
@@ -738,25 +812,47 @@ dojo.provide("drawing.stencil._Base");
 				return c;
 			},
 			
-			disconnect: function(handles){
+			disconnect: function(/*handle | Array*/handles){
+				// summary:
+				//	Removes connections based on passed
+				//	handles arguments
 				if(!handles) { return };
 				if(!dojo.isArray(handles)){ handles=[handles]; }
 				dojo.forEach(handles, dojo.disconnect, dojo);
 			},
 			
 			connectMouse: function(){
+				// summary:
+				//	Internal. Registers this Stencil to receive
+				//	mouse events.
 				this._mouseHandle = this.mouse.register(this);
 			},
 			disconnectMouse: function(){
+				// summary:
+				//	Internal. Unregisters this Stencil from receiving
+				//	mouse events.
 				this.mouse.unregister(this._mouseHandle);
 			},
 			
 			// Should be overwritten by sub class:
-			render: function(){},
-			renderOutline: function(){},
-			dataToPoints: function(o){},
-			pointsToData: function(p){},
-			onDown: function(obj){
+			render: function(){
+				// summary:
+				// This Stencil's render description. Often
+				//	calls 'sub render' methods.
+			},
+			//renderOutline: function(){},
+			dataToPoints: function(/*Object*/data){
+				//summary:
+				//	Converts data to points. 
+			},
+			pointsToData: function(/*Array*/points){
+				// summary:
+				//	Converts points to data
+			},
+			onDown: function(/*dojox.__MangerMouseEvent*/obj){
+				// summary:
+				//	Mouse event, fired on mousedown on canvas
+				//
 				// by default, object is ready to accept data
 				// turn this off for dragging or onRender will
 				// keep firing and register the shape
@@ -764,9 +860,21 @@ dojo.provide("drawing.stencil._Base");
 				dojo.disconnect(this._postRenderCon);
 				this._postRenderCon = null;
 			},
-			onMove: function(){},
-			onDrag: function(){},
-			onUp: function(){}
+			onMove: function(/*dojox.__MangerMouseEvent*/obj){
+				// summary:
+				//	Mouse event, fired on mousemove while mouse
+				//	is not down.
+				//	NOTE: Not currently implemented
+			},
+			onDrag: function(/*dojox.__MangerMouseEvent*/obj){
+				// summary:
+				//	Mouse event, fired on mousemove while mouse
+				// is down on canvas
+			},
+			onUp: function(/*dojox.__MangerMouseEvent*/obj){
+				// summary:
+				//	Mouse event, fired on mouseup
+			}
 		}
 	);
 })();

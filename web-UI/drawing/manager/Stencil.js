@@ -162,7 +162,7 @@ dojo.provide("drawing.manager.Stencil");
 				
 				surface.add(item.container);
 				item.deselect();
-				item.setTransform(this.group.getTransform());
+				item.applyTransform(this.group.getTransform());
 				
 				if(!keepObject){
 					delete this.selectedItems[item.id];
