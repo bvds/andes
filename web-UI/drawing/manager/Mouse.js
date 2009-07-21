@@ -38,10 +38,11 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		/*=====
 		dojox.__MouseEvents = function(){
 			// summary:
-			//		An Object that has registered with manager.Mouse
-			//		can contain any or all of the following methods
+			//		The custom event method that an Object that has
+			//		registered with manager.Mouse can receive.
+			//		Can contain any or all of the following methods
 			//		and they will be called as mouse events. All events
-			//		will be sent a dojox.__MangerMouseEvent.
+			//		will be sent a dojox.__MangerMouseEvent event object.
 			//	NOTE:
 			//		Events happen anywhere in the document unless
 			//		otherwise noted.
@@ -70,7 +71,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 		/*=====
 		dojox.__MangerMouseEvent = function(){
 			// summary:
-			//		The custom event that is sent to registered objects
+			//		The custom event object that is sent to registered objects
 			//		and their respective methods.
 			//	NOTE: Most event objects are the same with the exception
 			//		of the onDown events, which have fewer.

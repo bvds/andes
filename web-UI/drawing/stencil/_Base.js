@@ -3,7 +3,12 @@ dojo.provide("drawing.stencil._Base");
 (function(){
 		
 	drawing.stencil._Base = drawing.util.oo.declare(
-		
+		// summary:
+		//	The base class used for all Stencils.
+		// description:
+		//	All stencils extend this base class.
+		//	Most methods and events can be found here.
+		//
 		function(options){
 			// clone style so changes are reflected in future shapes
 			dojo.mixin(this, options);
@@ -72,29 +77,113 @@ dojo.provide("drawing.stencil._Base");
 			}
 		},
 		{
+			/*=====
+			dojox.__stencilArgs = function(options){
+				//	container: dojo.gfx.group
+				//		The parent shape that contains all
+				//		shapes used in a Stencil
+				container:null,
+				//
+				// 	isText: Boolean
+				//		Whether this is a text object or not
+				//		(either stencil.text or tools.TextBlock)
+				isText:false,
+				//
+				//	annotation: Boolean
+				//		A Stencil used within a Stencil. An annotation
+				//		is not selectable or clickable. A Label would
+				//		be one example.
+				annotation:false,
+				//
+				//	subShape: Boolean
+				//		A Stencil used within a Stencil. A subShape
+				//		is clickable. An arrow head would be an example.
+				subShape:false,
+				//
+				//	style: Object
+				//		An instance of the styles and defaults used within
+				//		the Stencil.
+				style:null,
+				//
+				//	util: Object
+				//		Pointer to the util package
+				util:null,
+				//
+				//	mouse: Object
+				//		Pointer to the mouse instance
+				mouse:null,
+				//
+				//	keys: Object
+				//		Pointer to the keys class
+				keys:null,
+				//
+				//	points: Array
+				//		Points is an array of objects that make up the
+				//		description of a Stencil. The points to a Rect
+				//		that is 100x100 and at x:10 and y:10 would look like:
+				//		[{x:10,y:10}, {x:110, y:10}, {x:110, y:110}, {x:10, y:110}]
+				//		Points go clockwise from the top left. In the case of Paths,
+				//		they would go in the order that the Stencil would be drawn.
+				//		Always when the points Array is set, a data Object is created
+				//		as well. So never set points directly, always use setPoints().
+				//	See:
+				//		setPoints()
+				points:[],
+				//
+				//	data: Object
+				//		A data object typically (but not always) resembles the data
+				//		that is used to create the dojox.gfx Shape. The same Rect
+				//		example shown in points above would look like:
+				//		{x:10, y:10, width:100, height:100}
+				//		And an Ellipse with the same coordinates:
+				//		{x:55, y:55, rx:50, ry:50}
+				//		The only Stencil that does not support data (at this time)
+				//		is the Path. While x1,x2,x3... culd be used in a data object
+				//		it doesn't provide much benefit.
+				//		Always when a data object is set, a set of points is created
+				//		as well. So never set data directly, always use setData().
+				//	See:
+				//		setData()
+				data:null,
+				//
+				// 	marginZero [readonly] Number
+				// 		How closely shape can get to y:0 or x:0. Less than zero has
+				//		bugs in VML. This is set with defaults, and should be equal
+				//		to half the size of an anchor point (5 px)
+				marginZero:0,
+				//
+				//	created [readonly] Boolean
+				//		Whether the Stencil has been rendered for the first time or
+				//		not.
+				created: false,
+				//
+				//	highlighted [readonly] Boolean
+				//		Whether the Stencil is highlighted or not.
+				highlighted:false,
+				//
+				//	selected [readonly] Boolean
+				//		Whether the Stencil is selected or not.
+				selected:false,
+				//
+				//	draws [readonly] Boolean
+				//		Whether the Stencil can draw with a mouse drag or can just
+				//		be created programmtically. If the Stencil comes from the
+				//		stencil package, it should be draw:false. If it comes from
+				//		the tools package it should be draw:true.
+				draws:false,
+				
+			}
+			=====*/
 			
 			//public
-			container:null, // shape(s) container TODO: change to 'container'
+			
+			
 			type:"drawing.stencil",
-			isText:false,
+			
 			minimumSize:10,
-			annotation:false,
-			subShape:false,
-			style:null,
-			util:null,
-			mouse:null,
-			keys:null,
-			points:[],
-			data:null,
-			// how closely shape can get to y:0 or x:0 – zero may show bugs in VML
-			marginZero:0,
+			enabled:true,
 			
 			//readonly
-			created: false,
-			enabled:true,
-			highlighted:false,
-			selected:false,
-			draws:false,
 			
 			onDelete: function(/* Stencil */ stencil){
 				// summary:
