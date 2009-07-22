@@ -121,12 +121,11 @@
 					<div plugin="drawing.plugins.tools.Zoom" options="{zoomInc:.1,minZoom:.5,maxZoom:2}">Zoom</div>
 				</div>
 		</div>
-
 		<div id="drawingPane" dojoType="dijit.layout.ContentPane" region="center" >
 				<div dojoType="drawing.Drawing" id="drawing" drawingType="canvas" class="drawing"
-					 plugins="[{'name':'drawing.plugins.drawing.Grid', 'options':{gap:100}}]"
 					 defaults="andes.defaults">   
 			   </div>
+<!-- plugins="[{'name':'drawing.plugins.drawing.Grid', 'options':{gap:100}}]" -->
 		</div>
 			
 		<div id="helpPane" dojoType="andes.widget.ExpandoPane" region="right" splitter="true" title="Help" startExpanded="false">

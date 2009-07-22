@@ -22,7 +22,7 @@ drawing.stencil.Path = drawing.util.oo.declare(
 		
 		dojox.__StencilPoints = [
 			// summary:
-			//	An Array of objects that describe the Stencil
+			//	An Array of dojox.__StencilPoint objects that describe the Stencil
 			// 0: Object
 			//	First point
 			// [1, 2, 3...] more points

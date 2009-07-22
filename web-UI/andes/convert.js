@@ -109,7 +109,9 @@ dojo.provide("andes.convert");
 						y:ys,
 						text:txt,
 						width:"auto"
-					}
+					},
+					deleteEmptyCreate: false,
+					deleteEmptyModify: false
 				}
 			}else if(o.type=="statement" || o.type=="equation"){
 				obj.data.text = o.text;

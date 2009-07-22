@@ -33,7 +33,9 @@ andes.Combo = drawing.util.oo.declare(
 			
 		var s = this.statement;
 		var m = this.master;
-		this.statement.deleteEmptyModify = false;
+		
+		console.log("combo statement:", this.statement)
+		
 		this.statement.connectMult([
 			[this.statement, "onChangeText", this, function(value){
 				var label = andes.variablename.parse(value);

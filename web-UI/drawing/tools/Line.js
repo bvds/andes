@@ -81,6 +81,13 @@ drawing.tools.Line = drawing.util.oo.declare(
 	}
 );
 
+/*=====
+	dojox.__ToolsSetup = {
+		// summary:
+		//	
+	}
+=====*/
+
 drawing.tools.Line.setup = {
 	name:"drawing.tools.Line",
 	tooltip:"Line Tool",

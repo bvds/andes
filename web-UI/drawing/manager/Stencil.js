@@ -32,10 +32,10 @@ dojo.provide("drawing.manager.Stencil");
 			
 			register: function(item){
 				console.log("Selection.register ::::::", item.id, "TEXT:", item._text)
-				if(!item.editMode && item.isText && item.deleteEmptyCreate && !item.getText()){
+				if(item.isText && !item.editMode && item.deleteEmptyCreate && !item.getText()){
 					// created empty text field
 					// defaults say to delete
-					console.warn("EMPTY CREATE DELETE")
+					console.warn("EMPTY CREATE DELETE", item)
 					item.destroy();
 					return false;
 				}
@@ -46,7 +46,7 @@ dojo.provide("drawing.manager.Stencil");
 					}
 					item.connect("execText", this, function(){
 						if(item.isText && item.deleteEmptyModify && !item.getText()){
-							console.warn("EMPTY MOD DELETE")
+							console.warn("EMPTY MOD DELETE", item)
 							// text deleted
 							// defaults say to delete
 							this.deleteItem(item);

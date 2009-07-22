@@ -42,8 +42,9 @@ dojo.provide("drawing.stencil._Base");
 				this._lineHeight = this.textSize * 1.5;
 				this.style.hitSelected.width *= 0.5;
 				this.style.hitHighlighted.width *= 0.5;
-				this.deleteEmptyCreate = this.style.text.deleteEmptyCreate;
-				this.deleteEmptyModify = this.style.text.deleteEmptyModify;
+				// ouch. how verbose. My mixin is weak....
+				this.deleteEmptyCreate = options.deleteEmptyCreate!==undefined ? options.deleteEmptyCreate : this.style.text.deleteEmptyCreate;
+				this.deleteEmptyModify = options.deleteEmptyModify!==undefined ? options.deleteEmptyModify : this.style.text.deleteEmptyModify;
 			}
 			
 			if(this.type == "drawing.tools.TextBlock"){
@@ -333,12 +334,16 @@ dojo.provide("drawing.stencil._Base");
 				// summary
 				//	Changes properties in the normal-style. Also can be used to
 				//	change x/y props.
+				
 				// NOTE: JUST A SETTTER!! TODO!
+				
 				// TODO:
 				//	Expand this to change more properties, like width, radius, angle
+				
 				// FIXME?
 				//	Changing atts isn't triggering onDataChange because it would likely
 				//	be a loop. If its needed, this will need to be fixed.
+				
 				var n = this.style.norm, t = this.style.text, o, nm;
 				var coords = {
 					x:true,

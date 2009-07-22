@@ -8,8 +8,8 @@ dojo.provide("andes.main");
 	var devMode = true, query;
 	if(!window.location.search){
 		query = {
-			p:"s2e",
-			//p:"s2esolved",
+			//p:"s2e",
+			p:"s2esolved",
 			u:"joe1"
 		};
 	}else{
