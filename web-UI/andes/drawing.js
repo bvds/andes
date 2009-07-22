@@ -3,7 +3,7 @@ dojo.provide("andes.drawing");
 
 (function(){
 	
-	dojo.cookie("mikeDev", "{load:true}", { expires: 999 });
+	//dojo.cookie("mikeDev", "{load:true}", { expires: 999 });
 	
 	// the html ID in index for the drawing app
 	var drawingId = "drawing";
@@ -199,7 +199,6 @@ dojo.provide("andes.drawing");
 						this.add(combo);
 					
 					}else{ // image, statement, equation
-						console.log(" --> ADD ", o.stencilType, obj)
 						var item = _drawing.addStencil(o.stencilType, o);
 						item.andesType = obj.type; // to tell between equation and statement
 						this.add(item);
