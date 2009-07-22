@@ -38,7 +38,9 @@ dojo.provide("drawing.manager.Stencil");
 						this.selectItem(item);
 					}
 					item.connect("execText", this, function(){
-						this.selectItem(item);
+						if(item.selectOnExec){
+							this.selectItem(item);
+						}
 					});
 				}
 				return item;
@@ -180,9 +182,12 @@ dojo.provide("drawing.manager.Stencil");
 			onStencilDoubleClick: function(obj){
 				console.info("mgr.onStencilDoubleClick:", obj)
 				if(this.selectedItems[obj.id]){
-					console.warn("EDIT:", this.selectedItems[obj.id]);
 					if(this.selectedItems[obj.id].edit){
+						console.info("Mgr Stencil Edit -> ", this.selectedItems[obj.id]);
 						var m = this.selectedItems[obj.id];
+						// deselect must happen first to set the transform
+						// then edit knows where to set the text box
+						m.editMode = true;
 						this.deselect();
 						m.edit();
 					}

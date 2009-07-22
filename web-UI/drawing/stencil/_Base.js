@@ -393,7 +393,7 @@ dojo.provide("drawing.stencil._Base");
 				this.onChangeStyle(this);
 			},
 			
-			select: function(){
+			select: function(){ 
 				// summary:
 				//		Called when the Stencil is selected.
 				//		NOTE: Calling this will not select the Stencil
@@ -424,7 +424,7 @@ dojo.provide("drawing.stencil._Base");
 					setTimeout(dojo.hitch(this, function(){
 						this.selected = false;
 						this.onChangeStyle(this);
-					}),0);
+					}),200);
 				}else{
 					this.selected = false;
 					this.onChangeStyle(this);
@@ -495,6 +495,10 @@ dojo.provide("drawing.stencil._Base");
 				// An attempt is made to prevent < 0 errors, but
 				// this won't work on all shapes (like Axes)
 				//
+				if(!mx.dx && !mx.dy){
+					// no change
+					return;
+				}
 				var backup = dojo.clone(this.points), abort = false;
 				dojo.forEach(this.points, function(o){
 					o.x += mx.dx;
@@ -709,12 +713,13 @@ dojo.provide("drawing.stencil._Base");
 					//this.onRender(this);	
 				}
 				
-				if(!this.selected && this._prevData && dojo.toJson(this._prevData) != dojo.toJson(this.data)){
-					
+				if(!this.editMode && !this.selected && this._prevData && dojo.toJson(this._prevData) != dojo.toJson(this.data)){
+					console.info("_Base data changed ----> : this.editMode:", this.editMode)
 					this.onChangeData(this);
 					this._prevData = dojo.clone(this.data);
 				
 				}else if(!this._prevData && (!this.isText || this.getText())){
+					console.info("_Base no prevData..........................");
 					this._prevData = dojo.clone(this.data);
 					
 				}
