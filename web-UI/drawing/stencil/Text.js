@@ -42,7 +42,7 @@ dojo.provide("drawing.stencil.Text");
 					y -= h/2;
 				}
 				this.shape = this.container.createGroup();
-				console.info("render text:", y, " ... ", this._text, "enabled:", this.enabled);
+				//console.info("render text:", y, " ... ", this._text, "enabled:", this.enabled);
 				
 				dojo.forEach(this._textArray, function(txt, i){
 					var tb = this.shape.createText({x: x, y: y+(h*i), text: unescape(txt), align: this.align})

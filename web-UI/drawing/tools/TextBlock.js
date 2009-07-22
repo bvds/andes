@@ -242,7 +242,12 @@ dojo.require("drawing.stencil.Text");
 				this.editMode = false;
 				
 				
-		console.log("EXEC TEXT::::", this._postRenderCon);
+				console.log("EXEC TEXT::::", this._postRenderCon);
+				
+				if(!o.text){
+					this._text = "";
+					this._textArray = [];
+				}
 				this.render(o.text);
 				this.onChangeText(txt);
 			},

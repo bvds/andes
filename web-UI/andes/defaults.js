@@ -136,7 +136,9 @@ dojo.provide("andes.defaults");
 			//
 			// there's no code to keep this from going off the stage
 			// or over the Help pane. So it should be kept small.
-			minWidth:150, 
+			minWidth:150,
+			deleteEmptyCreate:true,
+			deleteEmptyModify:true,
 			pad:3,
 			size:"12px",
 			family:"sans-serif",

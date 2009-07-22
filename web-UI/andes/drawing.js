@@ -113,6 +113,10 @@ dojo.provide("andes.drawing");
 				}
 			}else{
 				// statement or equation
+				if(item.isText && andes.defaults.text.deleteEmptyCreate && !item.getText()){
+					// no text. will be deleted.
+					return;
+				}
 				this.add(item, true);
 			}
 		},

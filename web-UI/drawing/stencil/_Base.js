@@ -42,6 +42,8 @@ dojo.provide("drawing.stencil._Base");
 				this._lineHeight = this.textSize * 1.5;
 				this.style.hitSelected.width *= 0.5;
 				this.style.hitHighlighted.width *= 0.5;
+				this.deleteEmptyCreate = this.style.text.deleteEmptyCreate;
+				this.deleteEmptyModify = this.style.text.deleteEmptyModify;
 			}
 			
 			if(this.type == "drawing.tools.TextBlock"){
@@ -714,12 +716,12 @@ dojo.provide("drawing.stencil._Base");
 				}
 				
 				if(!this.editMode && !this.selected && this._prevData && dojo.toJson(this._prevData) != dojo.toJson(this.data)){
-					console.info("_Base data changed ----> : this.editMode:", this.editMode)
+					//console.info("_Base data changed ----> : this.editMode:", this.editMode)
 					this.onChangeData(this);
 					this._prevData = dojo.clone(this.data);
 				
 				}else if(!this._prevData && (!this.isText || this.getText())){
-					console.info("_Base no prevData..........................");
+					//console.info("_Base no prevData..........................");
 					this._prevData = dojo.clone(this.data);
 					
 				}

@@ -108,6 +108,8 @@ drawing.defaults = {
 	text:{
 		// style of text
 		minWidth:300,
+		deleteEmptyCreate:true,
+		deleteEmptyModify:true,
 		pad:3,
 		size:"12px",
 		family:"sans-serif",

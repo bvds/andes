@@ -31,14 +31,26 @@ dojo.provide("drawing.manager.Stencil");
 			
 			
 			register: function(item){
-				//console.log("Selection.register ::::::", item.id, "TEXT:", item._text)
+				console.log("Selection.register ::::::", item.id, "TEXT:", item._text)
+				if(!item.editMode && item.isText && item.deleteEmptyCreate && !item.getText()){
+					// created empty text field
+					// defaults say to delete
+					console.warn("EMPTY CREATE DELETE")
+					item.destroy();
+					return false;
+				}
 				this.items[item.id] = item;
 				if(item.execText){
 					if(item._text && !item.editMode){
 						this.selectItem(item);
 					}
 					item.connect("execText", this, function(){
-						if(item.selectOnExec){
+						if(item.isText && item.deleteEmptyModify && !item.getText()){
+							console.warn("EMPTY MOD DELETE")
+							// text deleted
+							// defaults say to delete
+							this.deleteItem(item);
+						}else if(item.selectOnExec){
 							this.selectItem(item);
 						}
 					});
@@ -63,7 +75,6 @@ dojo.provide("drawing.manager.Stencil");
 					this.group.applyTransform({dx:evt.x, dy: evt.y});
 				}
 			},
-			
 			
 			_throttleVrl:null,
 			_throttle: false,
@@ -114,6 +125,38 @@ dojo.provide("drawing.manager.Stencil");
 					m.destroy();
 				});
 				this.selectedItems = {};
+			},
+			
+			deleteItem: function(item){
+				
+				// manipulating the selction to fire onDelete properly
+				if(this.hasSelected()){
+					// there is a selection
+					var sids = [];
+					for(var m in this.selectedItems){
+						if(this.selectedItems.id == item.id){
+							if(this.hasSelected()==1){
+								// the deleting item is the only one selected
+								this.onDelete();
+								return;
+							}
+						}else{
+							sids.push(this.selectedItems.id);
+						}
+					}
+					// remove selection, delete, restore selection
+					this.deselect();
+					this.selectItem(item);
+					this.onDelete();
+					dojo.forEach(sids, function(id){
+						this.selectItem(id);
+					}, this);
+				}else{
+					// there is not a selection. select it, delete it
+					this.selectItem(item);
+					// now delete selection
+					this.onDelete();
+				}
 			},
 			
 			setSelectionGroup: function(){
