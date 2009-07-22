@@ -324,7 +324,6 @@ dojo.provide("drawing.stencil._Base");
 					
 				}
 				
-				
 				// NOTE: Can't just change props like setStroke
 				//	because Silverlight throws error
 				this.render();

@@ -46,7 +46,7 @@ drawing.annotations.Label = drawing.util.oo.declare(
 		
 		setLabel: function(/* String */text){
 			// summary:
-			//	Sets the text of the label. Not called directy. Should
+			//	Sets the text of the label. Not called directly. Should
 			//	be called within Stencil. See stencil._Base
 			//
 			// onTransform will pass an object here

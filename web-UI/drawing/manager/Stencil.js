@@ -55,6 +55,21 @@ dojo.provide("drawing.manager.Stencil");
 						}
 					});
 				}
+				
+				item.connect("deselect", this, function(){
+					if(this.isSelected(item)){
+						// called from within item. do action.
+						this.deselectItem(item);
+					}
+				});
+				
+				item.connect("select", this, function(){
+					if(!this.isSelected(item)){
+						// called from within item. do action.
+						this.selectItem(item);
+					}
+				});
+				
 				return item;
 			},
 			unregister: function(item){
@@ -202,19 +217,24 @@ dojo.provide("drawing.manager.Stencil");
 				
 			},
 			onDeselect: function(item, keepObject){
-				
+				if(!keepObject){
+					delete this.selectedItems[item.id];
+				}
 				this.anchors.remove(item);
 				
 				surface.add(item.container);
 				item.deselect();
 				item.applyTransform(this.group.getTransform());
 				
-				if(!keepObject){
-					delete this.selectedItems[item.id];
-				}
+				
 			},
 			
-			deselect: function(){ // all? items?
+			deselectItem: function(item){
+				// note: just keeping with standardized methods
+				this.onDeselect(item);
+			},
+			
+			deselect: function(){ // all items
 				this.withSelected(function(m){
 					this.onDeselect(m);
 				});
@@ -391,6 +411,9 @@ dojo.provide("drawing.manager.Stencil");
 				var ln = 0;
 				for(var m in this.selectedItems){ ln++; }
 				return ln;
+			},
+			isSelected: function(item){
+				return !!this.selectedItems[item.id];
 			}
 		}
 		
