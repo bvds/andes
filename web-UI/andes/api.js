@@ -116,7 +116,14 @@ dojo.require("andes.error");
 		open: function(params){
 			console.warn("andes.api.open", params);
 			startTime = (new Date()).getTime();
-			return queueRequest("open-problem", params);
+			var dfd = queueRequest("open-problem", params);
+			
+			dfd.addCallback(function(result){
+				// look for help embedded in the returned result, so we can
+				// queue it up in case the user opens the Help pane
+				andes.help.processStep(result);
+			});
+			return dfd;
 		},
 
 		step: function(params){

@@ -109,7 +109,9 @@ dojo.provide("andes.convert");
 						y:ys,
 						text:txt,
 						width:"auto"
-					}
+					},
+					deleteEmptyCreate: false,
+					deleteEmptyModify: false
 				}
 			}else if(o.type=="statement" || o.type=="equation"){
 				obj.data.text = o.text;
@@ -141,10 +143,8 @@ dojo.provide("andes.convert");
 				combo = true;
 				sbox = round(item.getBounds());
 			}
-			var type = andesTypes[item.type];
-			if(type=="statement" && item instanceof drawing.tools.custom.Equation){
-				type = "equation";
-			}
+			var type = item.andesType || andesTypes[item.type];
+			
 			var box = round(item.getBounds(true));
 			var obj = {
 				x:box.x,

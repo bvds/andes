@@ -84,6 +84,11 @@ dojo.require("drawing.stencil.Text");
 			draws:true,
 			type:"drawing.tools.TextBlock",
 			
+			// selectOnExec: Boolean
+			//		Whether the Stencil is selected when the text field
+			//		is executed or not	
+			selectOnExec:true,
+			
 			showParent: function(obj){
 				if(this.parentNode){ return; }
 				var x = obj.pageX || 10;
@@ -237,7 +242,12 @@ dojo.require("drawing.stencil.Text");
 				this.editMode = false;
 				
 				
-		console.log("EXEC TEXT::::", this._postRenderCon);
+				console.log("EXEC TEXT::::", this._postRenderCon);
+				
+				if(!o.text){
+					this._text = "";
+					this._textArray = [];
+				}
 				this.render(o.text);
 				this.onChangeText(txt);
 			},

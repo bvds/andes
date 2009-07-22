@@ -130,10 +130,13 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			//	tell anchor to go to prev point if wrong
 			// called from anchor point up mouse up
 			this._isBeingModified = false;
+			this.deselect();
+			console.log("before:", Math.ceil(this.points[1].x), " x ", Math.ceil(this.points[1].y))
 			
 			var o = this.points[0];
 			var c = this.points[1];
 			var pt = this.util.constrainAngle({start:{x:c.x, y:c.y}, x:o.x, y:o.y}, 91, 180);
+			
 			if(pt.x==o.x && pt.y == o.y){
 				// we're within the constraint, so now we snap
 				var obj = {start:{x:c.x,y:c.y},x:o.x, y:o.y};
@@ -145,17 +148,19 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 				var oy = obj.start.y - (obj.x - obj.start.x);
 				
 				if(ox<0 || oy<0){
+					console.warn("AXES ERROR LESS THAN ZERO - ABORT");
 					return;
 				}
 				this.points = [{x:obj.x, y:obj.y}, {x:obj.start.x, y:obj.start.y, noAnchor:true}];
 				this.points.push({x:ox, y:oy, noAnchor:true});
-				
 				this.setPoints(this.points);
-				this.setLabel();
-				console.info("trans end snap")
 				
-				this.render();	
-				anchor.reset(this);
+				// reset handles render
+				//anchor.reset(this);
+				this.select();
+				
+			console.log("after:", Math.ceil(this.points[1].x), " x ", Math.ceil(this.points[1].y))
+			
 				return;
 			}
 			
@@ -169,10 +174,14 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			
 			this.points[2] = {x:ox, y:oy, noAnchor:true};
 			this.setPoints(this.points);
-			this.setLabel();
-			this.render();
 			
-			anchor.reset(this);
+			// reset handles render
+			//anchor.reset(this);
+			
+			this.labelX.setLabel();
+			this.labelY.setLabel();
+			
+			this.select();
 			
 		},
 		

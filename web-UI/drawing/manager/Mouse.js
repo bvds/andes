@@ -195,7 +195,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			// 	Create on[xx]Down event and send to broadcaster.
 			//	Could be connected to.
 			//
-			console.info("onDown:", this.eventName("down"))
+			//console.info("onDown:", this.eventName("down"))
 			this._broadcastEvent(this.eventName("down"), obj);			
 		},
 		
@@ -237,7 +237,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 				this._selected = false;
 			}
 			
-			console.info("Up Event:", nm);
+			//console.info("Up Event:", nm);
 			this._broadcastEvent(nm, obj);
 			
 			// Silverlight double-click handled in Silverlight class
@@ -250,7 +250,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			if(this._lastClickTime){
 				if(this._clickTime-this._lastClickTime<this.doublClickSpeed){
 					var dnm = this.eventName("doubleClick");
-					console.warn("DOUBLE CLICK", dnm, obj);
+					//console.warn("DOUBLE CLICK", dnm, obj);
 					this._broadcastEvent(dnm, obj);
 				}else{
 					//console.log("    slow:", this._clickTime-this._lastClickTime)

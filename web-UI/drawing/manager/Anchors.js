@@ -100,6 +100,17 @@ dojo.provide("drawing.manager.Anchors");
 				//	Event fired when anchor is moved
 			},
 			
+			onChangeStyle: function(/*Object*/stencil){
+				// if the Stencil changes color while were's selected
+				// this moves the anchors to the back. Fix it.
+				
+				for(var nm in this.items){
+					dojo.forEach(this.items[nm].anchors, function(a){
+						a.shape.moveToFront();
+					});
+				}
+			},
+			
 			add: function(/*Stencil*/item){
 				// summary:
 				//	Creates anchor points on a Stencil, based on the
@@ -119,11 +130,12 @@ dojo.provide("drawing.manager.Anchors");
 						dojo.connect(a, "reset", this, "onReset"),
 						dojo.connect(a, "onAnchorUp", this, "onAnchorUp"),
 						dojo.connect(a, "onAnchorDown", this, "onAnchorDown"),
-						dojo.connect(a, "onAnchorDrag", this, "onAnchorDrag")
+						dojo.connect(a, "onAnchorDrag", this, "onAnchorDrag"),
+						dojo.connect(a, "onTransformPoint", this, "onTransformPoint"),
+						// FIXME: this will fire for each anchor. yech.
+						dojo.connect(item, "onChangeStyle", this, "onChangeStyle"),
 					];
-					//if(item.anchorType=="group"){
-						this.items[item.id]._cons.push(dojo.connect(a, "onTransformPoint", this, "onTransformPoint"));
-					//}
+					
 					this.items[item.id].anchors.push(a);
 					this.onAddAnchor(a);
 				}, this);

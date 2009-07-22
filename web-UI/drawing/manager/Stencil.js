@@ -31,16 +31,45 @@ dojo.provide("drawing.manager.Stencil");
 			
 			
 			register: function(item){
-				//console.log("Selection.register ::::::", item.id, "TEXT:", item._text)
+				console.log("Selection.register ::::::", item.id, "TEXT:", item._text)
+				if(item.isText && !item.editMode && item.deleteEmptyCreate && !item.getText()){
+					// created empty text field
+					// defaults say to delete
+					console.warn("EMPTY CREATE DELETE", item)
+					item.destroy();
+					return false;
+				}
 				this.items[item.id] = item;
 				if(item.execText){
 					if(item._text && !item.editMode){
 						this.selectItem(item);
 					}
 					item.connect("execText", this, function(){
-						this.selectItem(item);
+						if(item.isText && item.deleteEmptyModify && !item.getText()){
+							console.warn("EMPTY MOD DELETE", item)
+							// text deleted
+							// defaults say to delete
+							this.deleteItem(item);
+						}else if(item.selectOnExec){
+							this.selectItem(item);
+						}
 					});
 				}
+				
+				item.connect("deselect", this, function(){
+					if(this.isSelected(item)){
+						// called from within item. do action.
+						this.deselectItem(item);
+					}
+				});
+				
+				item.connect("select", this, function(){
+					if(!this.isSelected(item)){
+						// called from within item. do action.
+						this.selectItem(item);
+					}
+				});
+				
 				return item;
 			},
 			unregister: function(item){
@@ -61,7 +90,6 @@ dojo.provide("drawing.manager.Stencil");
 					this.group.applyTransform({dx:evt.x, dy: evt.y});
 				}
 			},
-			
 			
 			_throttleVrl:null,
 			_throttle: false,
@@ -114,6 +142,38 @@ dojo.provide("drawing.manager.Stencil");
 				this.selectedItems = {};
 			},
 			
+			deleteItem: function(item){
+				
+				// manipulating the selction to fire onDelete properly
+				if(this.hasSelected()){
+					// there is a selection
+					var sids = [];
+					for(var m in this.selectedItems){
+						if(this.selectedItems.id == item.id){
+							if(this.hasSelected()==1){
+								// the deleting item is the only one selected
+								this.onDelete();
+								return;
+							}
+						}else{
+							sids.push(this.selectedItems.id);
+						}
+					}
+					// remove selection, delete, restore selection
+					this.deselect();
+					this.selectItem(item);
+					this.onDelete();
+					dojo.forEach(sids, function(id){
+						this.selectItem(id);
+					}, this);
+				}else{
+					// there is not a selection. select it, delete it
+					this.selectItem(item);
+					// now delete selection
+					this.onDelete();
+				}
+			},
+			
 			setSelectionGroup: function(){
 				
 				this.withSelected(function(m){
@@ -157,19 +217,24 @@ dojo.provide("drawing.manager.Stencil");
 				
 			},
 			onDeselect: function(item, keepObject){
-				
+				if(!keepObject){
+					delete this.selectedItems[item.id];
+				}
 				this.anchors.remove(item);
 				
 				surface.add(item.container);
 				item.deselect();
 				item.applyTransform(this.group.getTransform());
 				
-				if(!keepObject){
-					delete this.selectedItems[item.id];
-				}
+				
 			},
 			
-			deselect: function(){ // all? items?
+			deselectItem: function(item){
+				// note: just keeping with standardized methods
+				this.onDeselect(item);
+			},
+			
+			deselect: function(){ // all items
 				this.withSelected(function(m){
 					this.onDeselect(m);
 				});
@@ -180,9 +245,12 @@ dojo.provide("drawing.manager.Stencil");
 			onStencilDoubleClick: function(obj){
 				console.info("mgr.onStencilDoubleClick:", obj)
 				if(this.selectedItems[obj.id]){
-					console.warn("EDIT:", this.selectedItems[obj.id]);
 					if(this.selectedItems[obj.id].edit){
+						console.info("Mgr Stencil Edit -> ", this.selectedItems[obj.id]);
 						var m = this.selectedItems[obj.id];
+						// deselect must happen first to set the transform
+						// then edit knows where to set the text box
+						m.editMode = true;
 						this.deselect();
 						m.edit();
 					}
@@ -343,6 +411,9 @@ dojo.provide("drawing.manager.Stencil");
 				var ln = 0;
 				for(var m in this.selectedItems){ ln++; }
 				return ln;
+			},
+			isSelected: function(item){
+				return !!this.selectedItems[item.id];
 			}
 		}
 		
