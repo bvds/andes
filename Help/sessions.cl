@@ -251,7 +251,7 @@
 
       ;;  Push initial hint to the client.  
       ;;  Should only do this when help and grading is available
-      (push `((:action . "show-hint") (:text . "If you need help, click the help button (?) below.  Click the |> button above to hide this window.")) 
+      (push `((:action . "show-hint") (:text . "If you need help, click the help button <span dojoType=\"dijit.form.Button\" disabled=\"true\">?</span> below.&nbsp; Click the <span class=\"dojoxExpandoIcon dojoxExpandoIconRight\" style=\"float:none;display:inline-block;margin-right:6px;\" disabled=\"true\"></span> button above to hide this window.")) 
 	    replies)
   
       ;; set-stats (if there was an old score) (to do)

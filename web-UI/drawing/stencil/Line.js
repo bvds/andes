@@ -8,7 +8,45 @@ drawing.stencil.Line = drawing.util.oo.declare(
 	{
 		type:"drawing.stencil.Line",
 		anchorType: "single",
+		
+		/*=====
+		dojox.__StencilData = {
+			// summary:
+			//	the data used to create the dojox.gfx Shape
+			// x1: Number
+			//	First point x
+			// y1: Number
+			//	First point y
+			// x2: Number
+			//	Second point x
+			// y2: Number
+			//	Second point y
+			
+			// ALTERNATIVE:
+			
+			// x: Number
+			//	First point x
+			// y: Number
+			//	First point y
+			// angle: Number
+			//	angle of line
+			// radius: Number
+			//	length of line
+		}
+		
+		dojox.__StencilPoints = [
+			// summary:
+			//	An Array of dojox.__StencilPoint objects that describe the Stencil
+			// 0: Object
+			//	First point
+			// 1: Object
+			//	Second point
+		]
+		=====*/
+		
 		dataToPoints: function(o){
+			//summary:
+			//	Converts data to points.
 			o = o || this.data;
 			if(o.radius || o.angle){
 				// instead of using x1,x2,y1,y1,
@@ -48,6 +86,8 @@ drawing.stencil.Line = drawing.util.oo.declare(
 			return this.points;
 		},
 		pointsToData: function(p){
+			// summary:
+			//	Converts points to data
 			p = p || this.points;
 			this.data = {
 				x1: p[0].x,
@@ -57,7 +97,13 @@ drawing.stencil.Line = drawing.util.oo.declare(
 			};
 			return this.data;
 		},
-		_create: function(shp, d, sty){
+		
+		_create: function(/*String*/shp, /*dojox.__StencilData*/d, /*Object*/sty){
+			// summary:
+			//	Creates a dojox.gfx.shape based on passed arguments.
+			//	Can be called many times by implementation to create
+			//	multiple shapes in one stencil.
+			//
 			this.remove(this[shp]);
 			this[shp] = this.container.createLine(d)
 				.setStroke(sty);
@@ -65,13 +111,15 @@ drawing.stencil.Line = drawing.util.oo.declare(
 		},
 		
 		render: function(){
+			// summary:
+			//	Renders the 'hit' object (the shape used for an expanded
+			//	hit area and for highlighting) and the'shape' (the actual
+			//	display object).
+			//
 			this.onBeforeRender(this);
 			this._create("hit", this.data, this.style.currentHit);
-			//if(!this.annotation)
 			this._create("shape", this.data, this.style.current);
 		}		
 		
 	}
 );
-drawing.stencil.Line.name = "Line";
-drawing.stencil.Line.drawable = true;

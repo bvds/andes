@@ -84,7 +84,7 @@ body, .tundra .dijitSplitter, #navMenu{
 	width:200px;
 }
 #helpInputPane{
-	height:60px;
+	height:30px;
 }
 #helpPane .dojoxExpandoTitle{
 	background:#cee3ec;
@@ -118,13 +118,6 @@ body, .tundra .dijitSplitter, #navMenu{
 	width:24px;
 	height:24px;
 }
-#helpQueryLabel{
-	position:absolute;
-	left:5px;
-	bottom:30px;
-	color:#999;
-	font-style:italic;
-}
 #helpInput{
 	position:absolute;
 	left:5px;
@@ -140,12 +133,6 @@ body, .tundra .dijitSplitter, #navMenu{
 	right:5px;
 	bottom:5px;
 }
-#helpSubmit{
-	width:30px;
-	height:15px;
-}
-
-
 #footerPane{
 	height:5px;
 	margin-top:7px;

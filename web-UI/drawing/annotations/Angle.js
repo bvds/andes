@@ -46,12 +46,14 @@ drawing.annotations.Angle = drawing.util.oo.declare(
 			var d = this.stencil.pointsToData();
 			var pt = drawing.util.positioning.angle({x:d.x1,y:d.y1},{x:d.x2,y:d.y2});
 			
+			var mx = this.stencil.getTransform();
+			
 			// adding _offX & _offY since this is HTML
 			// and we are from the page corner, not
 			// the canvas corner
 			dojo.style(node, {
-				left:  this.stencil._offX + pt.x - sc.left + "px",
-				top: this.stencil._offY + pt.y - sc.top + "px",
+				left:  this.stencil._offX + pt.x - sc.left + mx.dx + "px",
+				top: this.stencil._offY + pt.y - sc.top + mx.dy + "px",
 				align:pt.align
 			});
 			

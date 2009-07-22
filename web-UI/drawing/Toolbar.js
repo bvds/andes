@@ -3,17 +3,41 @@ dojo.provide("drawing.Toolbar");
 (function(){
 	
 	dojo.declare("drawing.Toolbar", [], {
+		// summary:
+		//	Creates a Toolbar to be used with a DojoX Drawing.
+		// description:
+		//	Currently works in markup only. A class is required with
+		//	either horizontal or vertical as a class (IE prevented using
+		//	either as a default). Assign an attribute of 'drawingId' with
+		//	the id of the DojoX Drawing to which this is assigned.
+		//	The node children will be assigned as the Tools in the toolbar.
+		//	Plugins can also be assigned.
+		//	The Toolbar is largely self contained and has no real public
+		//	methods or events. the Drawing object should be used.
+		//
+		// example:
+		//	|	<div dojoType="drawing.Toolbar" drawingId="drawing" class="drawingToolbar vertical">
+		//	|		<div tool="drawing.tools.Line" 				selected="false">	Line</div>
+		//	|		<div tool="drawing.tools.Rect" 				selected="true">	Rect</div>
+		//	|		<div plugin="drawing.plugins.tools.Zoom" options="{zoomInc:.1,minZoom:.5,maxZoom:2}">Zoom</div>
+		//	|	</div>
 		//
 		// TODO: Toolbar works in markup only. Need programmatic.
+		// NOTE: There are plans to make the toolbar out of dojox.gfx vectors.
+		//		 This may change the APIs in the future.
 		//
-		width:0,
-		height:0,
-		grid:"",
+		//	baseClass:String
+		//		The CSS style to apply to the toolbar node
 		baseClass:"drawingToolbar",
+		//	buttonClass:String
+		//		The CSS style to apply to each button node
 		buttonClass:"drawingButton",
+		//	iconClass:String
+		//		The CSS style to apply to each button icon node
 		iconClass:"icon",
+		//
 		constructor: function(props, node){
-			
+			// props is null from markup
 			dojo.addOnLoad(this, function(){
 				this.domNode = dojo.byId(node);
 				dojo.addClass(this.domNode, this.baseClass);
@@ -21,7 +45,18 @@ dojo.provide("drawing.Toolbar");
 			});
 		},
 		
-		createIcon: function(node, constr){
+		createIcon: function(/*HTMLNode*/node, /* ? Function*/constr){
+			// summary:
+			//	Internal. Creates an icon node for each button.
+			// arguments:
+			//	node: HTMLNode
+			//		The button node.
+			//	constr: [optional] Function
+			//		Optional. If not supplied, an icon is not created.
+			//		Information for each icon is derived from
+			//		the dojox.__ToolsSetup object defined at the end
+			//		of each tool. See: drawing.tools.Line
+			//
 			var setup = constr && constr.setup ? constr.setup : {};
 			if(setup.iconClass){
 				var icon = setup.iconClass ? setup.iconClass : "iconNone";
@@ -51,7 +86,15 @@ dojo.provide("drawing.Toolbar");
 			}
 		},
 		
-		createTool: function(node){
+		createTool: function(/*HTMLNode*/node){
+			// summary:
+			//	Creates a button on the Toolbar that is
+			//  a Tool, not a Plugin. Tools draw Stencils,
+			//	Plugins do actions.
+			// arguments:
+			//	node: HTMLNode
+			//		The button node.
+			//
 			node.innerHTML = "";
 			var type = dojo.attr(node, "tool");
 			this.toolNodes[type] = node;
@@ -81,24 +124,11 @@ dojo.provide("drawing.Toolbar");
 			});
 		},
 		
-		createAction: function(node){
-			dojo.connect(node, "click", this.drawing, function(evt){
-				var sel = dojo.attr(node, "selected");
-				var action = dojo.attr(node, "action");
-				if(sel=="false"){
-					dojo.attr(node, "selected", "true");
-					dojo.addClass(node, "selected");
-					sel = true;
-				}else if(sel=="true"){
-					dojo.attr(node, "selected", "false");
-					dojo.removeClass(node, "selected");
-					sel = false;
-				}
-				this[action](evt, sel);
-			});
-		},
-		
 		parse: function(){
+			// summary:
+			//	Initializing method that reads the dom node and its
+			//	children for tools and plugins.
+			//
 			var drawingId = dojo.attr(this.domNode, "drawingId");
 			this.drawing = drawing.util.common.byId(drawingId);
 			!this.drawing && console.error("Drawing not found based on 'drawingId' in Toolbar. ");
@@ -114,9 +144,6 @@ dojo.provide("drawing.Toolbar");
 						_sel = tool;
 					}
 					this.createTool(node);
-				}else if(action){
-					// are actions deprecated?
-					this.createAction(node);
 					
 				}else if(plugin){
 					var p = {name:plugin, options:{}},
@@ -135,10 +162,19 @@ dojo.provide("drawing.Toolbar");
 			dojo.connect(this.drawing, "setTool", this, "onSetTool");	
 			this.drawing.setTool(_sel);
 		},
-		onClick: function(type){
+		onClick: function(/*String*/type){
+			// summary:
+			//	Event fired from clicking a Tool, not a PLugin.
+			//	Plugin clicks are handled within the plugin's class.
+			// arguments:
+			//	type: Fully qualified name of class. ex:
+			//			drawing.tools.Ellipse
+			//
 			this.drawing.setTool(type);
 		},
-		onSetTool: function(type){
+		onSetTool: function(/*String*/type){
+			// summary:
+			// handles buttons clicks and selects or deselects
 			for(var n in this.toolNodes){
 				if(n == type){
 					dojo.addClass(this.toolNodes[type], "selected")	

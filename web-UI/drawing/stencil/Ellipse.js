@@ -26,7 +26,7 @@ drawing.stencil.Ellipse = drawing.util.oo.declare(
 		
 		dojox.__StencilPoints = [
 			// summary:
-			//	An Array of objects that describe the Stencil
+			//	An Array of dojox.__StencilPoint objects that describe the Stencil
 			// 0: Object
 			//	Top left point
 			// 1: Object

@@ -42,6 +42,9 @@ dojo.provide("drawing.stencil._Base");
 				this._lineHeight = this.textSize * 1.5;
 				this.style.hitSelected.width *= 0.5;
 				this.style.hitHighlighted.width *= 0.5;
+				// ouch. how verbose. My mixin is weak....
+				this.deleteEmptyCreate = options.deleteEmptyCreate!==undefined ? options.deleteEmptyCreate : this.style.text.deleteEmptyCreate;
+				this.deleteEmptyModify = options.deleteEmptyModify!==undefined ? options.deleteEmptyModify : this.style.text.deleteEmptyModify;
 			}
 			
 			if(this.type == "drawing.tools.TextBlock"){
@@ -322,7 +325,6 @@ dojo.provide("drawing.stencil._Base");
 					
 				}
 				
-				
 				// NOTE: Can't just change props like setStroke
 				//	because Silverlight throws error
 				this.render();
@@ -332,9 +334,16 @@ dojo.provide("drawing.stencil._Base");
 				// summary
 				//	Changes properties in the normal-style. Also can be used to
 				//	change x/y props.
+				
+				// NOTE: JUST A SETTTER!! TODO!
+				
 				// TODO:
 				//	Expand this to change more properties, like width, radius, angle
-				//
+				
+				// FIXME?
+				//	Changing atts isn't triggering onDataChange because it would likely
+				//	be a loop. If its needed, this will need to be fixed.
+				
 				var n = this.style.norm, t = this.style.text, o, nm;
 				var coords = {
 					x:true,
@@ -355,6 +364,9 @@ dojo.provide("drawing.stencil._Base");
 					if(nm in coords){
 						coords[nm] = o[nm];
 						propChange = true;
+					}
+					if(nm == "text"){
+						this.setText(o.text);
 					}
 				}
 				
@@ -393,7 +405,7 @@ dojo.provide("drawing.stencil._Base");
 				this.onChangeStyle(this);
 			},
 			
-			select: function(){
+			select: function(){ 
 				// summary:
 				//		Called when the Stencil is selected.
 				//		NOTE: Calling this will not select the Stencil
@@ -424,7 +436,7 @@ dojo.provide("drawing.stencil._Base");
 					setTimeout(dojo.hitch(this, function(){
 						this.selected = false;
 						this.onChangeStyle(this);
-					}),0);
+					}),200);
 				}else{
 					this.selected = false;
 					this.onChangeStyle(this);
@@ -495,6 +507,10 @@ dojo.provide("drawing.stencil._Base");
 				// An attempt is made to prevent < 0 errors, but
 				// this won't work on all shapes (like Axes)
 				//
+				if(!mx.dx && !mx.dy){
+					// no change
+					return;
+				}
 				var backup = dojo.clone(this.points), abort = false;
 				dojo.forEach(this.points, function(o){
 					o.x += mx.dx;
@@ -709,12 +725,13 @@ dojo.provide("drawing.stencil._Base");
 					//this.onRender(this);	
 				}
 				
-				if(!this.selected && this._prevData && dojo.toJson(this._prevData) != dojo.toJson(this.data)){
-					
+				if(!this.editMode && !this.selected && this._prevData && dojo.toJson(this._prevData) != dojo.toJson(this.data)){
+					//console.info("_Base data changed ----> : this.editMode:", this.editMode)
 					this.onChangeData(this);
 					this._prevData = dojo.clone(this.data);
 				
 				}else if(!this._prevData && (!this.isText || this.getText())){
+					//console.info("_Base no prevData..........................");
 					this._prevData = dojo.clone(this.data);
 					
 				}

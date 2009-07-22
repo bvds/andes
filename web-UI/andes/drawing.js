@@ -113,6 +113,10 @@ dojo.provide("andes.drawing");
 				}
 			}else{
 				// statement or equation
+				if(item.isText && andes.defaults.text.deleteEmptyCreate && !item.getText()){
+					// no text. will be deleted.
+					return;
+				}
 				this.add(item, true);
 			}
 		},
@@ -196,6 +200,7 @@ dojo.provide("andes.drawing");
 					
 					}else{ // image, statement, equation
 						var item = _drawing.addStencil(o.stencilType, o);
+						item.andesType = obj.type; // to tell between equation and statement
 						this.add(item);
 					}
 				
@@ -213,13 +218,20 @@ dojo.provide("andes.drawing");
 			dojo.forEach(mods, function(obj){
 				// handles any object modifications
 				if(items[obj.id]){
+					// style
 					items[obj.id].attr(andes.defaults[obj.mode]);
+					// x, y
 					if(obj.x!==undefined){
 						items[obj.id].attr({
 							x:obj.x,
 							y:obj.y
 						});
 					}
+					// text
+					if(obj.text){
+						items[obj.id].attr({text:obj.text});
+					}
+					
 				}
 			},this);
 			
@@ -258,7 +270,12 @@ dojo.provide("andes.drawing");
 			if(devCookie && devCookie.load==false){
 		
 				this._initialData = [
-				{
+					{"action":"new-object","id":"a18.5","x":200,"y":380,"type":"equation",
+"mode":"unknown","text":"Fwall1=?"},
+
+{"action": "modify-object", "id": "a18.5",
+"text": "Fwall1 = 15.24609350323404 N"},
+				/*{
 					"action": "new-object",
 					"id": "a6",  
 					"type": "vector",
@@ -271,7 +288,7 @@ dojo.provide("andes.drawing");
 					"y-statement": 350,
 					"text": "Fwall1 is the normal force on the ball due to wall1"
 				},
-				/*{
+				{
 					"action": "new-object",
 					"id": "a4",  
 					"type": "axes",
@@ -281,7 +298,7 @@ dojo.provide("andes.drawing");
 					"radius": 120, 
 					"x-label": "x",
 					"y-label": "y"
-				},*/
+				},
 				{
 					"action": "new-object",
 					"id": "a3",  
@@ -308,7 +325,7 @@ dojo.provide("andes.drawing");
 					"x": 177, "y": 230,
 					"width": 66, 
 					"text": "m=2 kg"
-				}
+				}*/
 				
 				];
 				// <================ DEV
