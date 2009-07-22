@@ -3,7 +3,7 @@ dojo.provide("andes.drawing");
 
 (function(){
 	
-	//dojo.cookie("mikeDev", "{load:true}", { expires: 999 });
+	dojo.cookie("mikeDev", "{load:false}", { expires: 999 });
 	
 	// the html ID in index for the drawing app
 	var drawingId = "drawing";
@@ -199,7 +199,9 @@ dojo.provide("andes.drawing");
 						this.add(combo);
 					
 					}else{ // image, statement, equation
+						console.log(" --> ADD ", o.stencilType, obj)
 						var item = _drawing.addStencil(o.stencilType, o);
+						item.andesType = obj.type; // to tell between equation and statement
 						this.add(item);
 					}
 				
@@ -262,7 +264,9 @@ dojo.provide("andes.drawing");
 			if(devCookie && devCookie.load==false){
 		
 				this._initialData = [
-				{
+					{"action":"new-object","id":"a18.5","x":200,"y":380,"type":"equation",
+"mode":"unknown","text":"Fwall1=?"},
+				/*{
 					"action": "new-object",
 					"id": "a6",  
 					"type": "vector",
@@ -275,7 +279,7 @@ dojo.provide("andes.drawing");
 					"y-statement": 350,
 					"text": "Fwall1 is the normal force on the ball due to wall1"
 				},
-				/*{
+				{
 					"action": "new-object",
 					"id": "a4",  
 					"type": "axes",
@@ -285,7 +289,7 @@ dojo.provide("andes.drawing");
 					"radius": 120, 
 					"x-label": "x",
 					"y-label": "y"
-				},*/
+				},
 				{
 					"action": "new-object",
 					"id": "a3",  
@@ -312,7 +316,7 @@ dojo.provide("andes.drawing");
 					"x": 177, "y": 230,
 					"width": 66, 
 					"text": "m=2 kg"
-				}
+				}*/
 				
 				];
 				// <================ DEV

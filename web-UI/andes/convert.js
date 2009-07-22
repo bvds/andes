@@ -141,10 +141,8 @@ dojo.provide("andes.convert");
 				combo = true;
 				sbox = round(item.getBounds());
 			}
-			var type = andesTypes[item.type];
-			if(type=="statement" && item instanceof drawing.tools.custom.Equation){
-				type = "equation";
-			}
+			var type = item.andesType || andesTypes[item.type];
+			
 			var box = round(item.getBounds(true));
 			var obj = {
 				x:box.x,
