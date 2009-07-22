@@ -333,9 +333,12 @@ dojo.provide("drawing.stencil._Base");
 				// summary
 				//	Changes properties in the normal-style. Also can be used to
 				//	change x/y props.
+				// NOTE: JUST A SETTTER!! TODO!
 				// TODO:
 				//	Expand this to change more properties, like width, radius, angle
-				//
+				// FIXME?
+				//	Changing atts isn't triggering onDataChange because it would likely
+				//	be a loop. If its needed, this will need to be fixed.
 				var n = this.style.norm, t = this.style.text, o, nm;
 				var coords = {
 					x:true,
@@ -356,6 +359,9 @@ dojo.provide("drawing.stencil._Base");
 					if(nm in coords){
 						coords[nm] = o[nm];
 						propChange = true;
+					}
+					if(nm == "text"){
+						this.setText(o.text);
 					}
 				}
 				

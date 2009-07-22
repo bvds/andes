@@ -3,7 +3,7 @@ dojo.provide("andes.drawing");
 
 (function(){
 	
-	//dojo.cookie("mikeDev", "{load:true}", { expires: 999 });
+	//dojo.cookie("mikeDev", "{load:false}", { expires: 999 });
 	
 	// the html ID in index for the drawing app
 	var drawingId = "drawing";
@@ -218,13 +218,20 @@ dojo.provide("andes.drawing");
 			dojo.forEach(mods, function(obj){
 				// handles any object modifications
 				if(items[obj.id]){
+					// style
 					items[obj.id].attr(andes.defaults[obj.mode]);
+					// x, y
 					if(obj.x!==undefined){
 						items[obj.id].attr({
 							x:obj.x,
 							y:obj.y
 						});
 					}
+					// text
+					if(obj.text){
+						items[obj.id].attr({text:obj.text});
+					}
+					
 				}
 			},this);
 			
@@ -265,6 +272,9 @@ dojo.provide("andes.drawing");
 				this._initialData = [
 					{"action":"new-object","id":"a18.5","x":200,"y":380,"type":"equation",
 "mode":"unknown","text":"Fwall1=?"},
+
+{"action": "modify-object", "id": "a18.5",
+"text": "Fwall1 = 15.24609350323404 N"},
 				/*{
 					"action": "new-object",
 					"id": "a6",  
