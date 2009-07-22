@@ -2601,7 +2601,7 @@
    (list 
     (strcat "You should change your X axes to " (format Nil "~a" Prompt) " degrees.")
     (strcat "You should doubleclick on the axes that you have already drawn and "
-	    "change the angle in the dialog to " (format Nil "~a" Prompt) " degrees."))
+	    "change the angle to " (format Nil "~a" Prompt) " degrees."))
    :Assoc `((nsh cbf-axis-change-prompt ,Axes ,Prompt))))
 
 
@@ -2613,9 +2613,7 @@
    (list 
     (strcat "You should draw axes at " (format Nil "~a" Prompt) " degrees.")
     (strcat "You should use the axes tool (looks like a +) to draw a pair of"
-	    "axes at " (format Nil "~a" Prompt) " degrees.  By selecting the "
-	    "tool, drawing the axes, and then entering " (format Nil "~a" Prompt)
-	    " into the dialog box when it appears."))
+	    "axes at " (format Nil "~a" Prompt) " degrees."))
    :Assoc `((nsh cbf-axes-draw-prompt ,Prompt))))
 
 
@@ -2804,13 +2802,13 @@
 
 
 (defparameter **nsh-single-sought-done-str**
-    (strcat "Choose the equation tool (=) and write an equation"
-	    "of the form var=? where var is the sought quantity."
+    (strcat "Choose the equation tool (=) and write an equation "
+	    "of the form var=? where var is the sought quantity.  "
 	    "Then enter the value in the answer box."))
 
 (defparameter **nsh-multi-sought-done-str**
-    (strcat "Choose the equation tool (=) and write an equation"
-	    "of the form var=? where var is a sought quantity."
+    (strcat "Choose the equation tool (=) and write an equation "
+	    "of the form var=? where var is a sought quantity.  "
 	    "Then enter the value in the appropriate answer box."))
 
 (defparameter **nsh-answer-var-done-str**
@@ -2827,11 +2825,11 @@
 	(T **nsh-single-sought-done-str**)))
 
 
-;;;; =================== nsh-start-principle-free ==============================
-;;;; On problems that contain no principles we want the students to simply work
-;;;; on the ideal solution without asking them what the sought is.  For now this
-;;;; will tell them that they need to begin working on the core of the problem
-;;;; but nothing else. 
+;;;; =================== nsh-start-principle-free ============================
+;;;; On problems that contain no principles we want the students to simply
+;;;; work on the ideal solution without asking them what the sought is.  
+;;;; For now this will tell them that they need to begin working on 
+;;;; the core of the problem but nothing else. 
 
 (defun nsh-start-principle-free? ()
   (and (or (null *nsh-givens*) (nsh-solution-completed-P *nsh-givens*))
@@ -4029,7 +4027,7 @@
   ;; Maybe really want a predicate like all-equations-done. Still, this 
   ;; does indicate that nsh will give a step.
   ((not (nsh-done?))
-      (format NIL "Unable to solve for ~A. Try the light-bulb if you need a hint about a step that still needs to be done." var))
+      (format NIL "Unable to solve for ~A.  Ask for help if you are unsure what to do next." var))
 
   ;; reach here => have done everything 
 
