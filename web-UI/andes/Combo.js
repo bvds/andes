@@ -50,6 +50,8 @@ andes.Combo = drawing.util.oo.declare(
 				if(!this.created){
 					this.created = true;
 					options.onCreate();
+				}else{
+					this.onChangeData(this);
 				}
 				
 				this.onChangeText(this);
