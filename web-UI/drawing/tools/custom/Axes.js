@@ -288,8 +288,9 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			];
 			return this.points;
 		},
-		onDrag: function(obj){
-			
+		onDrag: function(/*dojox.__MangerMouseEvent*/obj){
+			// summary: See stencil._Base.onDrag
+			//
 			var pt = this.util.constrainAngle(obj, 91, 180);
 			obj.x = pt.x;
 			obj.y = pt.y;
@@ -304,7 +305,9 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			this.points.push({x:ox, y:oy, noAnchor:true});
 			this.render();
 		},
-		onUp:function(obj){
+		onUp: function(/*dojox.__MangerMouseEvent*/obj){
+			// summary: See stencil._Base.onUp
+			//
 			var p = this.points;
 			var len = this.util.distance(p[1].x,p[1].y,p[0].x,p[0].y);
 			if(!p || !p.length){
@@ -339,6 +342,8 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 );
 
 drawing.tools.custom.Axes.setup = {
+	// summary: See stencil._Base dojox.__ToolsSetup
+	//
 	name:"drawing.tools.custom.Axes",
 	tooltip:"Axes Tool",
 	iconClass:"iconAxes"

@@ -1,9 +1,13 @@
 dojo.provide("drawing.stencil.Line");
 
 drawing.stencil.Line = drawing.util.oo.declare(
+	// summary:
+	//	Creates a dojox.gfx Line based on data or points provided.
+	//
 	drawing.stencil._Base,
 	function(options){
-		
+		// summary:
+		//	constructor
 	},
 	{
 		type:"drawing.stencil.Line",

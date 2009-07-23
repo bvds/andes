@@ -1,30 +1,36 @@
 dojo.provide("drawing.tools.Arrow");
 
 drawing.tools.Arrow = drawing.util.oo.declare(
+	// summary:
+	//	Extends stencil.Line and adds an arrow head
+	//	to the end and or start.
+	//
 	drawing.tools.Line,
 	function(options){
-		
-		
+		// summary: constructor
 		if(this.arrowStart){
 			this.begArrow = new drawing.annotations.Arrow({stencil:this, idx1:0, idx2:1});
 		}
-		
 		if(this.arrowEnd){
 			this.endArrow = new drawing.annotations.Arrow({stencil:this, idx1:1, idx2:0});
-		}
-		
-		if(this.data || this.points && this.points.length){
-			// ??? this.render();
 		}
 	},
 	{
 		draws:true,
 		type:"drawing.tools.Arrow",
+		
+		// arrowStart: Boolean
+		//	Whether or not to place an arrow on start.
 		arrowStart:false,
+		//
+		// arrowEnd: Boolean
+		//	Whether or not to place an arrow on end.
 		arrowEnd:true,
 		
 		
-		onUp: function(obj){
+		onUp: function(/*dojox.__MangerMouseEvent*/obj){
+			// summary: See stencil._Base.onUp
+			//
 			if(this.created || !this.shape){ return; }
 			
 			// if too small, need to reset
@@ -32,8 +38,6 @@ drawing.tools.Arrow = drawing.util.oo.declare(
 			var len = this.util.distance(p[0].x,p[0].y,p[1].x,p[1].y);
 			if(len<this.minimumSize){
 				this.remove(this.shape, this.hit);
-				//this.begArrow && this.begArrow.remove(this.begArrow.shape, this.begArrow.hit);
-				//this.endArrow && this.endArrow.remove(this.endArrow.shape, this.endArrow.hit);
 				return;
 			}
 			
@@ -50,6 +54,8 @@ drawing.tools.Arrow = drawing.util.oo.declare(
 );
 
 drawing.tools.Arrow.setup = {
+	// summary: See stencil._Base dojox.__ToolsSetup
+	//
 	name:"drawing.tools.Arrow",
 	tooltip:"Arrow Tool",
 	iconClass:"iconArrow"

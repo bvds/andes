@@ -2,6 +2,9 @@ dojo.provide("drawing.stencil.Path");
 
 
 drawing.stencil.Path = drawing.util.oo.declare(
+	// summary:
+	//	Creates a dojox.gfx Path based on points provided.
+	//
 	drawing.stencil._Base,
 	function(options){
 		dojo.disconnect(this._postRenderCon);

@@ -18,7 +18,7 @@ dojo.require("drawing.stencil.Ellipse");
 dojo.require("drawing.stencil.Path");
 dojo.require("drawing.stencil.Text");
 dojo.require("drawing.stencil.Image");
-dojo.require("drawing.manager.Silverlight");
+dojo.require("drawing.plugins.drawing.Silverlight");
 
 
 dojo.require("drawing.tools.TextBlock");
@@ -159,7 +159,7 @@ dojo.require("drawing.annotations.Arrow");
 			}
 			
 			// If Dijit is available in the page, register with it
-			if(dijit){
+			if(dijit && dijit.registry){
 				this.widgetId = this.id;
 				dojo.attr(this.domNode, "widgetId", this.widgetId)
 				dijit.registry.add(this);
@@ -264,9 +264,9 @@ dojo.require("drawing.annotations.Arrow");
 			this.anchors = new drawing.manager.Anchors({mouse:this.mouse, undo:this.undo, util:this.util});
 			this.stencils = new drawing.manager.Stencil({canvas:this.canvas, surface:this.canvas.surface, mouse:this.mouse, undo:this.undo, keys:this.keys, anchors:this.anchors});
 			
-			// plugin??
-			new drawing.manager.Silverlight({mouse:this.mouse, stencils:this.stencils, anchors:this.anchors, canvas:this.canvas});
-			
+			if(dojox.gfx.renderer=="silverlight"){
+				new drawing.plugins.drawing.Silverlight({util:this.util, mouse:this.mouse, stencils:this.stencils, anchors:this.anchors, canvas:this.canvas});
+			}
 			dojo.forEach(this.plugins, function(p){
 				p.onSurfaceReady && p.onSurfaceReady();	
 			});

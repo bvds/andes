@@ -1,15 +1,36 @@
 dojo.provide("drawing.stencil.Text");
 
 drawing.stencil.Text = drawing.util.oo.declare(
+	// summary:
+	//	Creates a dojox.gfx Text (SVG or VML) based on data provided.
+	// description:
+	//	There are two text classes. TextBlock extends this one and
+	//	adds editable functionality, discovers text width etc.
+	//	This class displays text only. There is no line wrapping.
+	//	Multiple lines can be acheived by inserting \n linebreaks
+	//	in the text.
+	//
 	drawing.stencil._Base,
 	function(options){
-		
+		// summary: constructor.
 	},
 	{
 		type:"drawing.stencil.Text",
 		anchorType:"none",
-		align:"start", 	// start, middle, end
-		valign:"top",	// top, middle, bottom (TODO: bottom )
+		
+		// align: String
+		//	Text horizontal alignment.
+		//		Options: start, middle, end
+		align:"start",
+		//
+		// valign:String
+		//	Text vertical alignment
+		//		Options: top, middle, bottom (FIXME: bottom not supported)
+		valign:"top",
+		//
+		// _lineHeight: [readonly] Number
+		// 	The height of each line of text. Based on style information
+		//	and font size.
 		_lineHeight:1,
 		
 		/*=====

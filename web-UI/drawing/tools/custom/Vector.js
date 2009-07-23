@@ -55,7 +55,9 @@ drawing.tools.custom.Vector = drawing.util.oo.declare(
 				this._createZeroVector("shape", this.data, this.style.current);
 			}
 		},
-		onUp: function(obj){
+		onUp: function(/*dojox.__MangerMouseEvent*/obj){
+			// summary: See stencil._Base.onUp
+			//
 			if(this.created || !this.shape){ return; }
 			// if too small, need to reset
 			
@@ -80,6 +82,8 @@ drawing.tools.custom.Vector = drawing.util.oo.declare(
 );
 
 drawing.tools.custom.Vector.setup = {
+	// summary: See stencil._Base dojox.__ToolsSetup
+	//
 	name:"drawing.tools.custom.Vector",
 	tooltip:"Vector Tool",
 	iconClass:"iconVector"

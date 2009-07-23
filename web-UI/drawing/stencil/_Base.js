@@ -192,6 +192,25 @@ dojo.provide("drawing.stencil._Base");
 				//		y position of point
 			}
 			
+			dojox.__ToolsSetup  = {
+				// summary:
+				//	An object attached to a Tool's constructor
+				//	used to inform the toolbar of its information
+				//	and properties.
+				// description:
+				//	This object is inserted into the *function* of
+				//	a tool (not a stencil). Like: function.ToolsSetup
+				//	It must be attached after constructr creation, so
+				//	this object is found at the botton of the file.
+				//
+				//	name:String
+				//		Fully qualified name of constructor
+				//	tooltip: Stirng
+				//		Text to display on toolbar button hover
+				//	iconClass: String
+				//		CSS class with icon information to attach
+				//		to toolbar button.
+			}
 			=====*/
 			
 			// type: String
@@ -231,7 +250,6 @@ dojo.provide("drawing.stencil._Base");
 					this.data = this.pointsToData();
 				}
 			},
-			
 			
 			onDelete: function(/* Stencil */ stencil){
 				// summary:

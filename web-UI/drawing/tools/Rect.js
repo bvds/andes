@@ -8,7 +8,9 @@ drawing.tools.Rect = drawing.util.oo.declare(
 	{
 		draws:true,
 		
-		onDrag: function(obj){
+		onDrag: function(/*dojox.__MangerMouseEvent*/obj){
+			// summary: See stencil._Base.onDrag
+			//
 			var s = obj.start, e = obj;
 			var	x = s.x < e.x ? s.x : e.x,
 				y = s.y < e.y ? s.y : e.y,
@@ -31,7 +33,9 @@ drawing.tools.Rect = drawing.util.oo.declare(
 			this.render();
 		},
 		
-		onUp: function(obj){
+		onUp: function(/*dojox.__MangerMouseEvent*/obj){
+			// summary: See stencil._Base.onUp
+			//
 			if(this.created || !this.shape){ return; }
 			
 			// if too small, need to reset
@@ -48,6 +52,8 @@ drawing.tools.Rect = drawing.util.oo.declare(
 );
 
 drawing.tools.Rect.setup = {
+	// summary: See stencil._Base dojox.__ToolsSetup
+	//
 	name:"drawing.tools.Rect",
 	tooltip:"Rectangle Tool",
 	iconClass:"iconRect"

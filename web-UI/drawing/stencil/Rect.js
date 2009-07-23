@@ -2,9 +2,13 @@ dojo.provide("drawing.stencil.Rect");
 
 
 drawing.stencil.Rect = drawing.util.oo.declare(
+	// summary:
+	//	Creates a dojox.gfx rectangle based on data or points provided.
+	//
 	drawing.stencil._Base,
 	function(options){
-
+		// summary:
+		//	constructor
 	},
 	{
 		type:"drawing.stencil.Rect",
