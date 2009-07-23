@@ -94,8 +94,9 @@
 	(cond
 	  ((null in-json)
 	   (values nil (if version
-			   `((:code . -32700) (:message . "json parse error"))
-			   "Parse error")))
+			   `((:code . -32700) (:message . "JSON parse error")
+			     (:data . ,(raw-post-data :force-text t)))
+			   "JSON parse error")))
 	  ;; Here, we assume that the client generates the user-problem
 	  ;; session id.  Alternatively, we could have the server generate it and
 	  ;; return it to the client at the beginning of a new session
