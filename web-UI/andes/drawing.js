@@ -3,7 +3,7 @@ dojo.provide("andes.drawing");
 
 (function(){
 	
-	//dojo.cookie("mikeDev", "{load:true}", { expires: 999 });
+	dojo.cookie("mikeDev", null, { expires: -1 });
 	
 	// the html ID in index for the drawing app
 	var drawingId = "drawing";
@@ -117,8 +117,9 @@ dojo.provide("andes.drawing");
 					// no text. will be deleted.
 					return;
 				}
-				this.add(item, true);
-			}
+					console.log("ADD EQU OR STT>>>", item.customType)
+					this.add(item, true);
+				}
 		},
 		
 		add: function(/* Stencil */ item, /*Boolean*/ saveToServer, /*Boolean*/noConnect){
@@ -256,7 +257,13 @@ dojo.provide("andes.drawing");
 				return;
 			}
 			
-			andes.api.step(data).addCallback(this, "handleServerActions").addErrback(this, "onError");	
+			var dfd = andes.api.step(data);
+			dfd.addCallback(this, function(data){
+				setTimeout(dojo.hitch(this, function(){
+					this.handleServerActions(data);
+				}),0);
+			});
+			dfd.addErrback(this, "onError");	
 		},
 		
 		load: function(){
@@ -358,7 +365,7 @@ dojo.provide("andes.drawing");
 			}
 		},
 		onError: function(err){
-			console.error("There was an error loading project data:", err);
+			console.error("There was an error in the project data:", err);
 			if(!this._initialData){
 				// apparently an error on open-problem. Try closing session.
 				andes.api.close({});

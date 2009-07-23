@@ -37,9 +37,8 @@ dojo.require("andes.error");
 		requestInFlight = true;
 		andes.rpc[req.method](request).addCallbacks(
 			function(result){
-				//console.dir(result);
 				requestInFlight = false;
-				if(result[0] && result[0].error || result[0].errorType){
+				if(result[0] && result[0].action!="log" && result[0].error || result[0].errorType){
 					req.dfd.errback(result[0]);
 					andes.error({
 						title: "General Error",
@@ -50,6 +49,8 @@ dojo.require("andes.error");
 					//        processing the queue and don't start up again.
 					//        What *is* the correct behavior?
 				}else{
+					console.warn("CALLBACK!")
+					console.dir(result);
 					req.dfd.callback(result);
 					nextRequest();
 				}
@@ -130,6 +131,7 @@ dojo.require("andes.error");
 			console.warn("andes.api.step", params);
 			var dfd = queueRequest("solution-step", params);
 			dfd.addCallback(function(result){
+				console.log("HELP CALLBACK", result)
 				// look for help embedded in the returned result, so we can
 				// queue it up in case the user opens the Help pane
 				andes.help.processStep(result);
