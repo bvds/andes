@@ -7,6 +7,12 @@ dojo.require("andes.api");
 		// summary:
 		//	Handles text returned from server
 		//
+		if(!dijit.byId("helpPane")){
+			setTimeout(function(){
+				handleHelp(result);
+			}, 500);
+			return;
+		}
 		var hlp = dijit.byId("helpContentPane");
 		dijit.byId("helpPane").open();
 		dojo.forEach(result, function(r){

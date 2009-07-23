@@ -272,81 +272,15 @@ dojo.provide("andes.drawing");
 			//
 			// called from the very bottom of main.js
 			//
-			// DEV ===================>
-			var devCookie = dojo.fromJson(dojo.cookie("mikeDev"));
-			if(devCookie && devCookie.load==false){
-		
-				this._initialData = [
-					{"action":"new-object","id":"a18.5","x":200,"y":380,"type":"equation",
-"mode":"unknown","text":"Fwall1=?"},
-
-{"action": "modify-object", "id": "a18.5",
-"text": "Fwall1 = 15.24609350323404 N"},
-				/*{
-					"action": "new-object",
-					"id": "a6",  
-					"type": "vector",
-					"mode": "unknown", 
-					"x": 240, "y": 222,
-					"angle": 120,
-					"radius": 0,
-					"symbol": "Fwall1",
-					"x-statement": 300,
-					"y-statement": 350,
-					"text": "Fwall1 is the normal force on the ball due to wall1"
-				},
-				{
-					"action": "new-object",
-					"id": "a4",  
-					"type": "axes",
-					"mode": "unknown", 
-					"x": 77, "y": 130,
-					"angle": 0,
-					"radius": 120, 
-					"x-label": "x",
-					"y-label": "y"
-				},
-				{
-					"action": "new-object",
-					"id": "a3",  
-					"type": "ellipse",
-					"mode": "unknown", 
-					"x": 66, "y": 188,
-					"width": 25,  "height": 30,
-					"text": "ball"
-				},
-				{
-					"action": "new-object",
-					"id": "a5",  
-					"type": "statement",
-					"mode": "unknown", 
-					"x": 177, "y": 188,
-					"width": 66, "symbol": "m",
-					"text": "m is the mass of the ball"
-				},
-				{
-					"action": "new-object",
-					"id": "a5b",  
-					"type": "equation",
-					"mode": "unknown", 
-					"x": 177, "y": 230,
-					"width": 66, 
-					"text": "m=2 kg"
-				}*/
-				
-				];
-				// <================ DEV
-				
-				if(_surfaceLoaded){
-					console.log("------------> load actions DEV")
-					this.handleServerActions(this._initialData);
-				}
-				return;
-			}
-			
 			// setting 'this'
 			this.loadProject = function(){
-				andes.api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId}).addCallback(this, "onLoad").addErrback(this, "onError");
+				andes.api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId})
+					.addCallback(this, function(data){
+						setTimeout(dojo.hitch(this, function(){
+							this.onLoad(data);
+						}),0);
+					})
+					.addErrback(this, "onError");
 			}
 			if(andes.closeFirst){
 				// a previous project session is open. close it.
@@ -371,7 +305,6 @@ dojo.provide("andes.drawing");
 				andes.api.close({});
 				dojo.cookie("andes", null, { expires: -1 });
 			}
-			// call andes.error?
 		}
 	};
 	
