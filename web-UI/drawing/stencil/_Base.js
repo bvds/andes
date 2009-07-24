@@ -40,8 +40,8 @@ dojo.provide("drawing.stencil._Base");
 				this.valign = options.valign || this.valign;
 				this.textSize = parseInt(this.style.text.size, 10);
 				this._lineHeight = this.textSize * 1.5;
-				this.style.hitSelected.width *= 0.5;
-				this.style.hitHighlighted.width *= 0.5;
+				//this.style.hitSelected.width *= 0.5;
+				//this.style.hitHighlighted.width *= 0.5;
 				// ouch. how verbose. My mixin is weak....
 				this.deleteEmptyCreate = options.deleteEmptyCreate!==undefined ? options.deleteEmptyCreate : this.style.text.deleteEmptyCreate;
 				this.deleteEmptyModify = options.deleteEmptyModify!==undefined ? options.deleteEmptyModify : this.style.text.deleteEmptyModify;
@@ -53,10 +53,12 @@ dojo.provide("drawing.stencil._Base");
 			}
 			
 			if(options.points){
+				console.log("__________Base.constr", this.type, "options points")
 				this.setPoints(options.points);
 				this.connect(this, "render", this, "onRender", true);
 				this.render();
 			}else if(options.data){
+				console.log("___________Base.constr", this.type, "options data")
 				options.data.width = options.data.width ? options.data.width : this.style.text.minWidth;
 				options.data.height = options.data.height ? options.data.height : this._lineHeight;
 				this.setData(options.data);
@@ -66,6 +68,7 @@ dojo.provide("drawing.stencil._Base");
 					this.setLabel(options.label);
 				}
 			}else if(this.draws){
+				console.log("_____________Base.constr", this.type, "draws")
 				this.connectMouse();
 				this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
 			}
@@ -78,6 +81,7 @@ dojo.provide("drawing.stencil._Base");
 				this.disable();
 				this.moveToBack();
 			}
+			
 		},
 		{
 			/*=====
@@ -297,9 +301,9 @@ dojo.provide("drawing.stencil._Base");
 				//		only fire once. But the mechanism for determining
 				//		this is more complicated than it sounds.
 				//
-				if(!this._postRenderCon){
+				//if(!this._postRenderCon){
 					this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
-				}
+				//}
 				this.created = true;
 				this.disconnectMouse();
 				
@@ -310,8 +314,7 @@ dojo.provide("drawing.stencil._Base");
 					this.container.superClass = this;
 				}
 				this._setNodeAtts(this);
-				//console.warn("ONRENDER", this.id)
-				
+				//console.warn("ONRENDER", this.type, this._postRenderCon)
 			},
 			
 			onChangeStyle: function(/*Object*/stencil){ 
@@ -734,6 +737,7 @@ dojo.provide("drawing.stencil._Base");
 				//
 				// TODO: can this be onModify? Is that more clear?
 				//
+				//console.info("...........post render.....");
 				
 				if(this._isBeingModified){
 					this.onModify(this);

@@ -2,9 +2,16 @@ dojo.provide("drawing.util.common");
 dojo.require("dojox.math.round");
 
 (function(){
+	
 	var uidMap = {};
 
 	drawing.util.common	= {
+		// summary:
+		//	A collection of common methods used for DojoX Drawing.
+		//	This singleton is accessible in most Drawing classes
+		//	as this.util
+		//
+		//
 		// MAFF
 		radToDeg: function(n) {
 			//	summary
@@ -38,7 +45,7 @@ dojo.require("dojox.math.round");
 			}
 		},
 		
-		radians: function(o){
+		radians: function(/*dojox.__MangerMouseEvent*/o){
 			//var o = this.argsToObj.apply(this, arguments);
 			return Math.atan2(o.start.y-o.y,o.start.x-o.x);
 		},

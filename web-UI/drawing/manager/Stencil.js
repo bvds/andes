@@ -31,7 +31,7 @@ dojo.provide("drawing.manager.Stencil");
 			
 			
 			register: function(item){
-				console.log("Selection.register ::::::", item.id, "TEXT:", item._text)
+				//console.log("Selection.register ::::::", item.id, "TEXT:", item._text)
 				if(item.isText && !item.editMode && item.deleteEmptyCreate && !item.getText()){
 					// created empty text field
 					// defaults say to delete
