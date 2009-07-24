@@ -1,0 +1,22 @@
+[
+{"method":"open-problem","params":{"time":0,"user":"joe","problem":"kt1a","section":"1234"},"id":1},
+{"method":"seek-help","params":{"time":33.12,"action":"help-button"},"id":2},
+{"method":"seek-help","params":{"time":37.088,"action":"get-help","value":"explain-more"},"id":3},
+{"method":"solution-step","params":{"time":146.96,"x":468,"y":187,"action":"new-object","type":"ellipse","id":"andes.Combo0","mode":"unknown","width":52,"height":28,"text":"","symbol":"","x-statement":468,"y-statement":187},"id":4},
+{"method":"solution-step","params":{"time":159.214,"x":439,"y":240,"action":"new-object","type":"axes","id":"drawing.tools.custom.Axes0","mode":"unknown","x-label":"x","y-label":"y","radius":179,"angle":0},"id":5},
+{"method":"solution-step","params":{"time":262.385,"x":448,"y":279,"action":"new-object","type":"statement","id":"drawing.tools.TextBlock4","mode":"unknown","width":200,"height":36,"text":"s=speed of the aircraft between time T0 and T1","symbol":"s"},"id":6},
+{"method":"solution-step","params":{"time":306.264,"x":465,"y":339,"action":"new-object","type":"statement","id":"drawing.tools.TextBlock5","mode":"unknown","width":152,"height":66,"text":"d=distance traveled byt the aircraft between time T0 and T1","symbol":"d"},"id":7},
+{"method":"solution-step","params":{"time":320.476,"x":465,"y":339,"action":"modify-object","type":"statement","id":"drawing.tools.TextBlock5","mode":"unknown","width":227,"height":36,"text":"d=distance traveled byt the aircraft between time T0 and T1","symbol":"d"},"id":8},
+{"method":"solution-step","params":{"time":323.861,"x":441,"y":324,"action":"modify-object","type":"statement","id":"drawing.tools.TextBlock5","mode":"unknown","width":227,"height":36,"text":"d=distance traveled byt the aircraft between time T0 and T1","symbol":"d"},"id":9},
+{"method":"solution-step","params":{"time":328.725,"x":438,"y":277,"action":"modify-object","type":"statement","id":"drawing.tools.TextBlock4","mode":"unknown","width":200,"height":36,"text":"s=speed of the aircraft between time T0 and T1","symbol":"s"},"id":10},
+{"method":"solution-step","params":{"time":353.466,"x":441,"y":363,"action":"new-object","type":"statement","id":"drawing.tools.TextBlock7","mode":"unknown","width":187,"height":36,"text":"t=duration of time between T0 and T1","symbol":"t"},"id":11},
+{"method":"solution-step","params":{"time":361.489,"x":441,"y":363,"action":"modify-object","type":"statement","id":"drawing.tools.TextBlock7","mode":"unknown","width":252,"height":21,"text":"t=duration of time between T0 and T1","symbol":"t"},"id":12},
+{"method":"solution-step","params":{"time":383.955,"x":154,"y":318,"action":"new-object","type":"equation","id":"drawing.tools.TextBlock9","mode":"unknown","width":194,"height":21,"text":"t=3hr+47 min +36 s"},"id":13},
+{"method":"solution-step","params":{"time":398.625,"x":156,"y":355,"action":"new-object","type":"equation","id":"drawing.tools.TextBlock10","mode":"unknown","width":152,"height":21,"text":"d=8790 km"},"id":14},
+{"method":"solution-step","params":{"time":403.74,"x":154,"y":341,"action":"modify-object","type":"equation","id":"drawing.tools.TextBlock10","mode":"unknown","width":152,"height":21,"text":"d=8790 km"},"id":15},
+{"method":"seek-help","params":{"time":33.12,"action":"help-button"},"id":16},
+{"method":"solution-step","params":{"time":412.449,"x":151,"y":364,"action":"new-object","type":"equation","id":"drawing.tools.TextBlock11","mode":"unknown","width":179,"height":21,"text":"s=d\/t"},"id":17},
+{"method":"solution-step","params":{"time":423.184,"x":239,"y":172,"action":"new-object","type":"equation","id":"drawing.tools.TextBlock12","mode":"unknown","width":152,"height":21,"text":"s=?"},"id":18},
+{"method":"solution-step","params":{"time":434.749,"x":10,"y":135,"action":"modify-object","type":"statement","id":"statement5","mode":"unknown","width":152,"height":21,"text":"Answer:643 m\/s"},"id":19},
+{"method":"close-problem","params":{"time":454.749},"id":20}
+]

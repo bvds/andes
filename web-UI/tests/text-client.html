@@ -136,7 +136,7 @@
         function init(){
                // can't do layout until toolbar and canvas are created
 	      dojo.parser.parse();
-              getsession("../Documentation/AsuDocs/nokes-inputs.json");
+              getsession("nokes-inputs.json");
 	}
 	dojo.addOnLoad(init);
     </script>
@@ -172,11 +172,14 @@
       Problem:&nbsp;
       <select>
         <option selected onclick="getsession(
-	          &quot;../Documentation/AsuDocs/nokes-inputs.json&quot;);">
+	          &quot;nokes-inputs.json&quot;);">
            nokes example</option>
         <option onclick="getsession(
-	           &quot;../Documentation/AsuDocs/s2e-correct.json&quot;);">
+	           &quot;s2e-correct.json&quot;);">
            s2e correct</option>
+        <option onclick="getsession(
+	           &quot;kt1a-solution.json&quot;);">
+           kt1a</option>
     </select>
 
        <button dojoType="dijit.form.Button" onclick="sendSession">
