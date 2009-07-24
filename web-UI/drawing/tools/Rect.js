@@ -1,9 +1,12 @@
 dojo.provide("drawing.tools.Rect");
 
 drawing.tools.Rect = drawing.util.oo.declare(
+	// summary:
+	// Class for a drawable rectangle
+	//
 	drawing.stencil.Rect,
 	function(){
-		
+		// summary: constructor
 	},
 	{
 		draws:true,

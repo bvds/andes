@@ -3,7 +3,9 @@ dojo.require("drawing.tools.TextBlock");
 
 drawing.tools.custom.Equation = drawing.util.oo.declare(
 	// summary:
-	
+	//	Essentially the same as the TextBlock tool, but
+	//	allows for a different icon and tooltip title.
+	//
 	drawing.tools.TextBlock,
 	function(options){
 	

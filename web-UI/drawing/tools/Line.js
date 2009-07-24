@@ -1,14 +1,19 @@
 dojo.provide("drawing.tools.Line");
 
 drawing.tools.Line = drawing.util.oo.declare(
+	// summary:
+	//	Class for a drawable Line
 	drawing.stencil.Line,
 	function(){
-		
+		// summary: constructor
 	},
 	{
 		draws:true,
 		showAngle:true,
-		onTransformEnd: function(anchor){
+		onTransformEnd: function(/*manager.Anchor*/anchor){
+			// summary:
+			//	Overwrites _Base.onTransformEnd
+			//
 			this.deselect();
 			var d = this.data;
 			var obj = {start:{x:d.x1,y:d.y1},x:d.x2,y:d.y2};

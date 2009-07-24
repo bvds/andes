@@ -11,25 +11,45 @@ dojo.require("dojox.math.round");
 		//	This singleton is accessible in most Drawing classes
 		//	as this.util
 		//
+		// NOTE:
+		//	A lot of functions use a dojox.__MangerMouseEvent
+		//	as an argument. An attempt was made to accept
+		//	either that object or a list of numbers. That wasn't
+		//	finished (it didn't work well in all cases) but is
+		//	likely to happen in the future.
+		//	In cases where you are not sending a Mouse object,
+		//	form your argument like so:
+		//	var obj = {
+		//		start:{
+		//				x:Number,  	// start x
+		//				y:Number	// start y
+		//			},
+		//			x: Number,		// end x
+		//			y:Number		// end y
+		//		}
 		//
-		// MAFF
-		radToDeg: function(n) {
-			//	summary
+		//
+		radToDeg: function(/*Numer*/n) {
+			// summary:
 			//	Convert the passed number to degrees.
 			return (n*180)/Math.PI;	//	Number
 		},
 		
-		degToRad: function(n) {
-			//	summary
+		degToRad: function(/*Numer*/n) {
+			// summary:
 			//	Convert the passed number to radians.
 			return (n*Math.PI)/180;	// Number
 		},
 		
-		angle: function(obj, /* ? Float */snap){
+		angle: function(/*dojox.__MangerMouseEvent*/obj, /* ? Float */snap){
 			// summary:
 			//	Return angle based on mouse object
-			// snap:
-			//	Returns nearest angle within snap limits
+			// arguments:
+			//		obj: dojox.__MangerMouseEvent
+			//			Manager.Mouse event.
+			// 		snap: Float 
+			//			Returns nearest angle within snap limits
+			//
 			//obj = this.argsToObj.apply(this, arguments);
 			if(snap){
 				snap = snap/180;
@@ -46,24 +66,43 @@ dojo.require("dojox.math.round");
 		},
 		
 		radians: function(/*dojox.__MangerMouseEvent*/o){
+			// summary:
+			//	Return the radians derived from the coordinates
+			//	in the Mouse object.
+			//
 			//var o = this.argsToObj.apply(this, arguments);
 			return Math.atan2(o.start.y-o.y,o.start.x-o.x);
 		},
 		
-		length: function(o){
+		length: function(/*dojox.__MangerMouseEvent*/o){
+			// summary:
+			//	Return the length derived from the coordinates
+			//	in the Mouse object.
+			//
 			return Math.sqrt(Math.pow(o.start.x-o.x, 2)+Math.pow(o.start.y-o.y, 2));
 		},
 		
-		lineSub: function(x1, y1, x2, y2, amt){
+		lineSub: function(/*Number*/x1, /*Number*/y1, /*Number*/x2, /*Number*/y2, /*Number*/amt){
+			// summary:
+			//	Subtract an amount from a line
+			// description:
+			//	x1,y1,x2,y2 represents the Line. 'amt' represnets the amount
+			//	to subtract from it.
+			//
 			var len = this.distance(this.argsToObj.apply(this, arguments));
 			len = len < amt ? amt : len;
 			var pc = (len-amt)/len;
 			var x = x1 - (x1-x2) * pc;
 			var y = y1 - (y1-y2) * pc;
-			return {x:x, y:y}
+			return {x:x, y:y}; // Object
 		},
 		
 		argsToObj: function(){
+			// summary:
+			//	Attempts to determine in a Mouse Object
+			//	was passed or indiviual numbers. Returns
+			//	an object.
+			//
 			var a = arguments;
 			if(a.length < 4){ return a[0]; }
 			return {
@@ -74,40 +113,58 @@ dojo.require("dojox.math.round");
 				x:a[2],
 				y:a[3]//,
 				//snap:a[4]
-			};
+			}; // Object
 		},
 		
-		distance: function(){
+		distance: function(/*dojox.__MangerMouseEvent or x1,y1,x2,y2*/){
+			// summary:
+			//	Return the length derived from the coordinates
+			//	in the Mouse object. Different from util.length
+			//	in that this always returns an absolute value.
+			//
 			var o = this.argsToObj.apply(this, arguments);
-			return Math.abs(Math.sqrt(Math.pow(o.start.x-o.x, 2)+Math.pow(o.start.y-o.y, 2)));
+			return Math.abs(Math.sqrt(Math.pow(o.start.x-o.x, 2)+Math.pow(o.start.y-o.y, 2))); // Number
 		},
 		
-		slope:function(p1, p2){
+		slope:function(/*Object*/p1, /*Object*/p2){
+			// summary:
+			//	Given two poits of a line, returns the slope.
 			if(!(p1.x-p2.x)){ return 0; }
-			return ((p1.y-p2.y)/(p1.x-p2.x));
+			return ((p1.y-p2.y)/(p1.x-p2.x)); // Number
 		},
-		pointOnCircle: function(cx, cy, radius, a){
-			radians =  a * Math.PI / 180.0;
+		
+		pointOnCircle: function(/*Number*/cx, /*Number*/cy, /*Number*/radius, /*Number*/angle){
+			// summary:
+			//	A *very* helpful method. If you know the center
+			//	(or starting) point, length and angle, find the
+			//	x,y point at the end of that line.
+			//
+			radians =  angle * Math.PI / 180.0;
 			var x = radius * Math.cos(radians) * -1;
 			var y = radius * Math.sin(radians) * -1;
 			return {
 				x:cx+x,
 				y:cy+y
-			}
+			}; // Object
 		},
 		
-		constrainAngle: function(obj, min, max){
+		constrainAngle: function(/*dojox.__MangerMouseEvent*/obj, /*Number*/min, /*Number*/max){
+			// summary:
+			//	Ensures the angle in the Mouse Object is within the
+			//	min and max limits. If not one of those limits is used.
+			//	Returns an x,y point for the angle used.
+			//
 			var angle = this.angle(obj);
 			if(angle >= min && angle <= max){
-				return obj;	
+				return obj;	 // Object
 			}
 			var radius = this.length(obj);
 			var diff = min-((360-(max-min))/2);
 			var new_angle = angle > max ? max : min - angle < 100 ? min : max;
-			return this.pointOnCircle(obj.start.x,obj.start.y,radius, new_angle);
+			return this.pointOnCircle(obj.start.x,obj.start.y,radius, new_angle); // Object
 		},
 		
-		snapAngle: function(obj, ca){
+		snapAngle: function(/*dojox.__MangerMouseEvent*/obj, /*Float*/ca){
 			// summary:
 			//	Snaps a line to the nearest angle
 			//		obj: Mouse object (see drawing.Mouse)
@@ -125,45 +182,21 @@ dojo.require("dojox.math.round");
 				new_radian = rnd*seg,
 				new_angle = this.radToDeg(new_radian),
 				pt = this.pointOnCircle(obj.start.x,obj.start.y,radius,new_angle);
-			return pt;
-		},
-		
-		// graphics
-		
-		arrowHead: function(x1, y1, x2, y2, style){
-			var obj = {
-				start:{
-					x:x1,
-					y:y1
-				},
-				x:x2,
-				y:y2
-			}
-			var angle = this.angle(obj);
-			
-			//var angle = this.angle(x1, y1, x2, y2);
-				
-			var lineLength = this.length(obj); 
-			var al = style.arrows.length;
-			var aw = style.arrows.width/2;
-			if(lineLength<al){
-				al = lineLength/2;
-			}
-			var p1 = this.pointOnCircle(x2, y2, -al, angle-aw);
-			var p2 = this.pointOnCircle(x2, y2, -al, angle+aw);
-			
-			return [
-				{x:x2, y:y2},
-				p1,
-				p2
-			];
+			return pt;  // Object
 		},
 		
 		// helpers
-		uid: function(str){
+		uid: function(/* ? String */str){
+			// summary:
+			//	Creates a unique ID.
+			// arguments:
+			//		str: String
+			//			If provided, kept in a map, incremented
+			//			and used in the id. Otherwise 'shape' is used.
+			//
 			str = str || "shape";
 			uidMap[str] = uidMap[str]===undefined ? 0 : uidMap[str] + 1;
-			return str + uidMap[str];
+			return str + uidMap[str]; // String
 		},
 		
 		objects:{}, //private?
