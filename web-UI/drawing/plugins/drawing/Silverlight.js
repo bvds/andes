@@ -1,17 +1,30 @@
-dojo.provide("drawing.manager.Silverlight");
+dojo.provide("drawing.plugins.drawing.Silverlight");
 
 drawing.manager.Silverlight = drawing.util.oo.declare(
-	
+	// summary:
+	// 	"Plugin" to allow the Silverlight plugin to work
+	//	with DojoX Drawing.
 	//
-	// 
-	//
+	//	WARNING: This is not completely implemented. For the most
+	//	part, DojoX Drawing does not support Silverlight. This class
+	//	was created in an attempt for support, but there were too many
+	//	obstacles and not enough time. The basic functionality is here
+	//	and there's a good head start if anyone elase wishes to pick up
+	//	where I left off.
 	//
 	function(options){
+		// summary:
+		//	The constructor is the only method in this class.
+		//	What is happening here is other methods in other
+		//	classes are being overridden to adapt to Silverlight.
+		//
+ 		
 		if(dojox.gfx.renderer != "silverlight"){ return; }
 		this.mouse = options.mouse;
 		this.stencils = options.stencils;
 		this.anchors = options.anchors;
 		this.canvas = options.canvas;
+		this.util = options.util;
 	
 		
 		dojo.connect(this.stencils, "register", this, function(item){
@@ -133,6 +146,46 @@ drawing.manager.Silverlight = drawing.util.oo.declare(
 			return this.util.attr(evt, "id");
 		}
 		
+		this.util.attr = function(/* Object */ elem, /* property */ prop, /* ? value */ value, squelchErrors){
+			if(!elem) { return false; }
+			try{
+				
+				var t;
+				if(elem.superTarget){
+					t = elem.superTarget;
+				}else if(elem.superClass){
+					t = elem.superClass; 
+				}else if(elem.target){
+					t = elem.target;
+				}else{
+					t = elem;
+				}
+				
+				if(value!==undefined){
+					elem[prop] = value;
+					return value;
+				}
+				
+				if(t.tagName){
+					if(prop=="drawingType" && t.tagName.toLowerCase()=="object"){
+						return "surface";
+					}
+					var r =  dojo.attr(t, prop);
+				}
+				var r = t[prop];
+				return r
+			
+				
+			}catch(e){
+				if(!squelchErrors){
+					// For debugging only. These errors actually cause more errors in IE's console
+					//console.error("BAD ATTR: prop:", prop, "el:", elem)
+					//console.error(e)
+					//console.trace();
+				}
+				return false;
+			}
+		}
 	},
 	{
 		

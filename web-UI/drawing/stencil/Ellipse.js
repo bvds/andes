@@ -3,11 +3,12 @@ dojo.provide("drawing.stencil.Ellipse");
 
 drawing.stencil.Ellipse = drawing.util.oo.declare(
 	// summary:
-	//	Creates an Ellipse based on data or points.
+	//	Creates a dojox.gfx Ellipse based on data or points provided.
 	//
 	drawing.stencil._Base,
 	function(options){
-
+		// summary:
+		//	constructor
 	},
 	{
 		/*=====

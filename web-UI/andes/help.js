@@ -7,18 +7,27 @@ dojo.require("andes.api");
 		// summary:
 		//	Handles text returned from server
 		//
+		if(!dijit.byId("helpPane")){
+			setTimeout(function(){
+				handleHelp(result);
+			}, 500);
+			return;
+		}
 		var hlp = dijit.byId("helpContentPane");
 		dijit.byId("helpPane").open();
 		dojo.forEach(result, function(r){
 			var c = hlp.attr("content");
+			// note:
+			//	setting to the node and not with attr
+			// 	because ContentPane is throwing errors that way
 			switch(r.action){
 				case "show-hint-link":
 					var fn = r.href ? "link" : "explain",
 					    val = r.href || r.value;
-					hlp.attr("content", c + "\n<p><a href=\"#\" onclick=\"andes.help." + fn + "('" + val + "'); return false\">" + r.text + "</a></p>");
+						hlp.containerNode.innerHTML = c + "\n<p><a href=\"#\" onclick=\"andes.help." + fn + "('" + val + "'); return false\">" + r.text + "</a></p>";
 					break;
 				case "show-hint":
-					hlp.attr("content", c + "\n<p>" + r.text + "</p>");
+					hlp.containerNode.innerHTML = c + "\n<p>" + r.text + "</p>";
 					break;
 				case "focus-hint-text-box":
 					dijit.focus(dojo.byId("helpInput"));

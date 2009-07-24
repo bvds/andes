@@ -23,8 +23,13 @@ dojo.declare("andes.widget.ExpandoPane", dojox.layout.ExpandoPane, {
 		dojo.style(this.openButtonNode, "display", "none");
 		dojo.place(this.openButtonNode, dojo.byId("drawingPane"), "last");
 		dojo.connect(this.openButtonNode, "onclick", this, "openHelp");
-
-		var scoreContainerNode = dojo.create("span", {className:"helpScore", innerHTML:"Score: <span>0</span>%"}, this.titleWrapper, "last");
+		
+		if(dojo.isIE){
+			dojo.addClass(this.iconNode, "IEHelpIconFix");
+			dojo.addClass(this.titleNode, "IEHelpTileFix");
+			dojo.style(this.titleWrapper, "height", "30px");
+		}
+		var scoreContainerNode = dojo.create("div", {className:"helpScore", innerHTML:"Score: <span>0</span>%"}, this.titleWrapper, "last");
 		this.scoreNode = dojo.query("span", scoreContainerNode)[0];
 		
 		if(this.rememberState){
@@ -54,7 +59,9 @@ dojo.declare("andes.widget.ExpandoPane", dojox.layout.ExpandoPane, {
 		});
 		
 		dojo.connect(this, "resize", this, function(){
-			dojo.style(dijit.byId("helpInput").domNode, "width", this._contentBox.w - 52 + "px");
+			if(this._contentBox.w){
+				dojo.style(dijit.byId("helpInput").domNode, "width", this._contentBox.w - 52 + "px");
+			}
 		});
 	},
 	

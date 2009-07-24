@@ -7,7 +7,9 @@ drawing.tools.Ellipse = drawing.util.oo.declare(
 	},
 	{
 		draws:true,
-		onDrag: function(obj){
+		onDrag: function(/*dojox.__MangerMouseEvent*/obj){
+			// summary: See stencil._Base.onDrag
+			//
 			var s = obj.start, e = obj;
 			var	x = s.x < e.x ? s.x : e.x,
 				y = s.y < e.y ? s.y : e.y,
@@ -31,7 +33,9 @@ drawing.tools.Ellipse = drawing.util.oo.declare(
 			this.render();
 		},
 		
-		onUp: function(obj){
+		onUp: function(/*dojox.__MangerMouseEvent*/obj){
+			// summary: See stencil._Base.onUp
+			//
 			if(this.created || !this.shape){ return; }
 			
 			// if too small, need to reset
@@ -48,6 +52,8 @@ drawing.tools.Ellipse = drawing.util.oo.declare(
 );
 
 drawing.tools.Ellipse.setup = {
+	// summary: See stencil._Base dojox.__ToolsSetup
+	//	
 	name:"drawing.tools.Ellipse",
 	tooltip:"Ellipse Tool",
 	iconClass:"iconEllipse"

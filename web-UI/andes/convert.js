@@ -143,7 +143,7 @@ dojo.provide("andes.convert");
 				combo = true;
 				sbox = round(item.getBounds());
 			}
-			var type = item.andesType || andesTypes[item.type];
+			var type = item.andesType || item.customType || andesTypes[item.type];
 			
 			var box = round(item.getBounds(true));
 			var obj = {

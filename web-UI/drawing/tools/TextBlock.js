@@ -32,6 +32,8 @@ dojo.require("drawing.stencil.Text");
 		//
 		drawing.stencil.Text,
 		function(options){
+			// summary: constructor
+			//
 			if(options.data){
 				var d = options.data;
 				var w = !d.width ? this.style.text.minWidth : d.width=="auto" ? "auto" : Math.max(d.width, this.style.text.minWidth)
@@ -88,8 +90,52 @@ dojo.require("drawing.stencil.Text");
 			//		Whether the Stencil is selected when the text field
 			//		is executed or not	
 			selectOnExec:true,
+			//
+			// showEmpty: Boolean
+			//		If true and there is no text in the data, the TextBlock
+			//		Is displayed and focused and awaits input.
+			showEmpty: false,
 			
-			showParent: function(obj){
+			onDrag: function(/*dojox.__MangerMouseEvent*/obj){
+				// summary: See stencil._Base.onDrag
+				//
+				if(!this.parentNode){
+					this.showParent(obj);
+				}
+				var s = this._startdrag, e = obj.page;
+				this._box.left = (s.x < e.x ? s.x : e.x);
+				this._box.top = s.y;
+				this._box.width = (s.x < e.x ? e.x-s.x : s.x-e.x) + this.style.text.pad;
+				
+				dojo.style(this.parentNode, this._box.toPx());
+			},
+			
+			onUp: function(/*dojox.__MangerMouseEvent*/obj){
+				// summary: See stencil._Base.onUp
+				//
+
+				if(!this._downOnCanvas){ return; }
+				this._downOnCanvas = false;
+				
+				console.log("ON UP", this.id, this._postRenderCon)
+				
+				var c = dojo.connect(this, "render", this, function(){
+					dojo.disconnect(c);
+					this.onRender(this);	
+					
+				});
+				this.editMode = true;
+				this.showParent(obj);
+				this.created = true;
+				this.createTextField();
+				this.connectTextField();
+			},
+			
+			showParent: function(/*dojox.__MangerMouseEvent*/obj){
+				// summary:
+				//	Internal. Builds the parent node for the
+				//	contenteditable HTML node.
+				//
 				if(this.parentNode){ return; }
 				var x = obj.pageX || 10;
 				var y = obj.pageY || 10;
@@ -116,7 +162,11 @@ dojo.require("drawing.stencil.Text");
 				dojo.style(this.parentNode, this._box);
 				document.body.appendChild(this.parentNode);
 			},
-			createTextField: function(txt){
+			createTextField: function(/*String*/txt){
+				// summary:
+				//	Internal. Inserts the contenteditable HTML node
+				//	into its parent node, and styles it.
+				//
 				// style parent
 				var d = this.style.textMode.edit;
 				this._box.border = d.width+"px "+d.style+" "+d.color;
@@ -134,9 +184,13 @@ dojo.require("drawing.stencil.Text");
 				// In Safari, if the txt ends with '&' it gets stripped
 				conEdit.innerHTML = txt || "";
 				
-				return conEdit;
+				return conEdit; //HTMLNade
 			},
 			connectTextField: function(){
+				// summary:
+				//	Internal. Creates the connections to the
+				//	contenteditable HTML node.
+				//
 				if(this._textConnected){ return; } // good ol' IE and its double events
 				this._textConnected = true;
 				this.mouse.setEventMode("TEXT");
@@ -207,11 +261,13 @@ dojo.require("drawing.stencil.Text");
 						}
 					}	
 				}), 500);
-				
-				
-				
 			},
+			
 			execText: function(){
+				// summary:
+				//	Internal. Method fired when text is executed,
+				//	via mouse-click-off, ESC key or Enter key.
+				//
 				var d = dojo.marginBox(this.parentNode);
 				var w = Math.max(d.w, this.style.text.minWidth);
 				
@@ -253,6 +309,10 @@ dojo.require("drawing.stencil.Text");
 			},
 			
 			edit: function(){
+				// summary:
+				//	Internal?
+				//	Method used to instanciate the contenteditable HTML node.
+				//
 				this.editMode = true;
 				console.log("EDIT TEXT:", this._text, " ", this._text.replace("/n", " "));
 				// NOTE: no mouse obj
@@ -275,7 +335,10 @@ dojo.require("drawing.stencil.Text");
 				this.connectTextField();
 				
 			},
-			cleanText: function(txt, removeBreaks){
+			cleanText: function(/*String*/txt, /*Boolean*/removeBreaks){
+				// summary:
+				//	Cleans text. Strings HTML chars and double spaces
+				//  and optionally removes line breaks.
 				var replaceHtmlCodes = function(str){
 					var chars = {
 						"&lt;":"<",
@@ -298,11 +361,28 @@ dojo.require("drawing.stencil.Text");
 				txt = dojo.trim(txt);
 				// remove double spaces, since SVG doesn't show them anyway
 				txt = txt.replace(/\s{2,}/g, " ");
-				return txt;
+				return txt; //String
 			},
 			
 			measureText: function(/* String */ str, /* ? Number */width){
-				
+				// summary:
+				//	Mechanism for measuring text.
+				//	SVG nor VML have a way of determining the width or
+				//	height of a block of text. This method creates an
+				//	HTML text block and those measurements are used for
+				//	displaying the SVG/VML text.
+				// arguments:
+				//	str: String
+				//		The text to display and measure.
+				//	width: [optional] Number 
+				//		If the width is not provided, it will be assumed
+				//		that the text is one line and the width will be
+				//		measured and the _lineHeight used for th height.
+				//		If width is provided, word-wrap is assumed, and
+				//		line breaks will be inserted into the text at each
+				//		point where a word wraps in the HTML. The height is
+				//		then measured.
+				//
 				var r = "(<br\\s*/*>)|(\\n)|(\\r)";
 				this.showParent({width:width || "auto", height:"auto"});
 				this.createTextField(str);
@@ -355,41 +435,13 @@ dojo.require("drawing.stencil.Text");
 				dojo.destroy(this.parentNode);
 				this.parentNode = null;
 				
-				return {h:dim.h, w:dim.w, text:txt};
-			},
-			
-			onDrag: function(obj){
-				if(!this.parentNode){
-					this.showParent(obj);
-				}
-				var s = this._startdrag, e = obj.page;
-				this._box.left = (s.x < e.x ? s.x : e.x);
-				this._box.top = s.y;
-				this._box.width = (s.x < e.x ? e.x-s.x : s.x-e.x) + this.style.text.pad;
-				
-				dojo.style(this.parentNode, this._box.toPx());
-			},
-			
-			onUp: function(obj){
-				if(!this._downOnCanvas){ return; }
-				this._downOnCanvas = false;
-				
-				console.log("ON UP", this.id, this._postRenderCon)
-				
-				var c = dojo.connect(this, "render", this, function(){
-					dojo.disconnect(c);
-					this.onRender(this);	
-					
-				});
-				this.editMode = true;
-				this.showParent(obj);
-				this.created = true;
-				this.createTextField();
-				this.connectTextField();
+				return {h:dim.h, w:dim.w, text:txt}; //Object
 			},
 			
 			_downOnCanvas:false,
-			onDown: function(obj){
+			onDown: function(/*dojox.__MangerMouseEvent*/obj){
+				// summary: See stencil._Base.onDown
+				//
 				this._startdrag = {
 					x: obj.pageX,
 					y: obj.pageY
@@ -398,16 +450,13 @@ dojo.require("drawing.stencil.Text");
 				this._postRenderCon = null;
 				this._downOnCanvas = true;
 			},
-			onMove: function(){},
-			
-			destroyAnchors: function(){
-				for(var n in this._anchors){
-					dojo.forEach(this._anchors[n].con, dojo.disconnect, dojo);
-					dojo.destroy(this._anchors[n].a);
-				}
-			},
 			
 			createAnchors: function(){
+				// summary:
+				//	Internal. Creates HTML nodes at each corner
+				//	of the contenteditable div. These nodes are
+				//	draggable and will resize the div horizontally.
+				//
 				this._anchors = {};
 				var self = this;
 				var d = this.style.anchors,
@@ -472,11 +521,22 @@ dojo.require("drawing.stencil.Text");
 						cons:[md]
 					}
 				}
+			},
+			
+			destroyAnchors: function(){
+				// summary:
+				//	Internal. Destroys HTML anchors.
+				for(var n in this._anchors){
+					dojo.forEach(this._anchors[n].con, dojo.disconnect, dojo);
+					dojo.destroy(this._anchors[n].a);
+				}
 			}
 		}
 	);
 	
 	drawing.tools.TextBlock.setup = {
+		// summary: See stencil._Base dojox.__ToolsSetup
+		//
 		name:"drawing.tools.TextBlock",
 		tooltip:"Text Tool",
 		iconClass:"iconText"

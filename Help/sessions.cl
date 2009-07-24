@@ -90,6 +90,9 @@
 	  *NSH-PROBLEM-TYPE* *VARIABLES* *STUDENTENTRIES* 
 	  *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*
           **Condition**  mt19937::*random-state* **grammar**
+	  ;; Solver process (could easily be replaced by function argument
+	  ;; in solver-load and solver-unload)
+	  *process*
 	  ;; slot mapping for Algebra/solver.cl
 	  *id-solver-slot-map* *solver-free-slots*
 	  ;; Session-specific variables in Help/Interface.cl
@@ -124,12 +127,33 @@
   (nth (position var *help-env-vars*)
        (help-env-vals (webserver:get-session-env session))))
 
+(eval-when (:load-toplevel :compile-toplevel)
+  (defun globally-special-p (s)
+    "Utility function to determine if a variable has been declared special."
+    #+abcl (values (EXT:SPECIAL-VARIABLE-P symbol t)) 
+    #+cmu (eql (ext:info :variable :kind s) :special)
+    #+sbcl (eql (sb-int:info :variable :kind s) :special)
+    #-(or sbcl cmu abcl) 
+    ;; Try to make a closure over S and return T if it won't close.
+    (eval `(let ((maybe-closure (let ((,s nil))
+				  (lambda () ,s))))
+	     (let ((,s t))
+	       (declare (ignorable ,s))
+	       (funcall maybe-closure))))))
 
 (defmacro env-wrap (&body body)
   "Make session-local copy of global variables, retrieving values from webserver:*env* at the beginning of a turn and saving them again at the end of the turn"
   (let ((save-help-env-vals
 	 ;; Save local variables back to *env*.
 	 `(setf (help-env-vals webserver:*env*) (list ,@*help-env-vars*)))) 
+    
+    ;; If the variable is not already declared special (via defvar,
+    ;; for instance), then its scope will not be dynamic and env-wrap
+    ;; will fail.
+    (dolist (var *help-env-vars*) 
+      (assert (globally-special-p var) nil
+	      "Variable ~A not declared special" var))
+
     `(progn
       ;; An error here indicates that the student is trying to work
       ;; on a session that has timed out or has not been initialized:  

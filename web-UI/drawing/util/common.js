@@ -2,9 +2,16 @@ dojo.provide("drawing.util.common");
 dojo.require("dojox.math.round");
 
 (function(){
+	
 	var uidMap = {};
 
 	drawing.util.common	= {
+		// summary:
+		//	A collection of common methods used for DojoX Drawing.
+		//	This singleton is accessible in most Drawing classes
+		//	as this.util
+		//
+		//
 		// MAFF
 		radToDeg: function(n) {
 			//	summary
@@ -38,7 +45,7 @@ dojo.require("dojox.math.round");
 			}
 		},
 		
-		radians: function(o){
+		radians: function(/*dojox.__MangerMouseEvent*/o){
 			//var o = this.argsToObj.apply(this, arguments);
 			return Math.atan2(o.start.y-o.y,o.start.x-o.x);
 		},
@@ -158,55 +165,30 @@ dojo.require("dojox.math.round");
 			uidMap[str] = uidMap[str]===undefined ? 0 : uidMap[str] + 1;
 			return str + uidMap[str];
 		},
-		checkData: function(o){
-			//return;
-			for(var n in o){
-				if(typeof(o[n]) != "number"){
-					console.warn("PROBLEM:", n, "==", o[n])
-				}
-			}
-		},
+		
 		objects:{}, //private?
-		register: function(obj){
+		register: function(/*Object*/obj){
+			// summary:
+			//	Since util is the only Singleton in Drawing (besides
+			//	keys) it is used to help connect the Drawing object
+			//	the Toolbar. Since multiple drawings can be on one
+			//	page, this function serves a little more use than
+			//	on first apearance.
 			this.objects[obj.id] = obj;	
 		},
-		byId: function(id){
+		byId: function(/*String*/id){
+			// summary:
+			//	Get an object that was registered with util.register
+			//
 			return this.objects[id];
 		},
 		attr: function(/* Object */ elem, /* property */ prop, /* ? value */ value, squelchErrors){
+			// summary:
+			//	Helper function to attach attributes to SVG and VML raw nodes.
+			//
 			if(!elem) { return false; }
 			try{
 				
-				if(dojox.gfx.renderer=="silverlight"){
-					
-					var t;
-					if(elem.superTarget){
-						t = elem.superTarget;
-					}else if(elem.superClass){
-						t = elem.superClass; 
-					}else if(elem.target){
-						t = elem.target;
-					}else{
-						t = elem;
-					}
-					
-					if(value!==undefined){
-						elem[prop] = value;
-						return value;
-					}
-					
-					if(t.tagName){
-						if(prop=="drawingType" && t.tagName.toLowerCase()=="object"){
-							return "surface";
-						}
-						var r =  dojo.attr(t, prop);
-					}
-					var r = t[prop];
-					return r
-				}
-				
-				// NOT silverlight - can set atts on nodes
-			
 				// util is a crappy check, but we need to tell the diff
 				// between a Drawing shape and a GFX shape
 				if(elem.shape && elem.util){

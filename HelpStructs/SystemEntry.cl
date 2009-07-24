@@ -34,6 +34,10 @@
 (defconstant **Dead-Path** 'Dead-Path "Dead path interpretation.")
 (defconstant **Incorrect** 'Incorrect "The Entry has no interpretation.")
 
+(defvar *SG-Solutions* () "The set of solutions to be done.")
+(defvar *SG-Entries* () "The System entries from the bubblegraph.")
+(defvar *SG-Eqns* () "Equation list with eqn-index->entry mappings.")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; The constants below are used only by the Help Solutiongraph 
 (defconstant **Premature-Entry** 'Premature-Entry 

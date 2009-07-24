@@ -103,8 +103,26 @@ body, .tundra .dijitSplitter, #navMenu{
 }
 #helpPane .helpScore{
 	position:absolute;
-	right:10px;
+	right:5px;
+	top:5px;
 }
+.dj_ie #helpPane .helpScore{
+	right:25px;
+}
+
+.IEHelpIconFix{
+	float:none !important;
+	position:absolute;
+	left:10px;
+	top:5px;
+}
+.IEHelpTileFix{
+	float:none !important;
+	position:absolute;
+	left:30px;
+	top:5px;
+}
+
 #helpPaneOpenButton{
 	position:absolute;
 	right:0;

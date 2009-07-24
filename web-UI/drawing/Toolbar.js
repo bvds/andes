@@ -55,7 +55,7 @@ dojo.provide("drawing.Toolbar");
 			//		Optional. If not supplied, an icon is not created.
 			//		Information for each icon is derived from
 			//		the dojox.__ToolsSetup object defined at the end
-			//		of each tool. See: drawing.tools.Line
+			//		of each tool. See: stencil._Base
 			//
 			var setup = constr && constr.setup ? constr.setup : {};
 			if(setup.iconClass){

@@ -3,7 +3,7 @@ dojo.provide("andes.drawing");
 
 (function(){
 	
-	//dojo.cookie("mikeDev", "{load:true}", { expires: 999 });
+	dojo.cookie("mikeDev", null, { expires: -1 });
 	
 	// the html ID in index for the drawing app
 	var drawingId = "drawing";
@@ -117,8 +117,9 @@ dojo.provide("andes.drawing");
 					// no text. will be deleted.
 					return;
 				}
-				this.add(item, true);
-			}
+					console.log("ADD EQU OR STT>>>", item.customType)
+					this.add(item, true);
+				}
 		},
 		
 		add: function(/* Stencil */ item, /*Boolean*/ saveToServer, /*Boolean*/noConnect){
@@ -128,6 +129,7 @@ dojo.provide("andes.drawing");
 			// 	with the exception of Axes and (standalone) Statements.
 			//
 			if(items[item.id]){
+				console.warn("BLOCKED:", item.id)
 				return;
 			}
 			
@@ -181,7 +183,7 @@ dojo.provide("andes.drawing");
 			var mods = [];
 			var min = 2, max = 5;
 			dojo.forEach(data, function(obj, i){
-				
+				//if(obj.type!="axes"){ return; }
 				if(obj.action =="new-object"){
 					var o = andes.convert.andesToDrawing(obj);
 					var t = o.stencilType;
@@ -198,9 +200,10 @@ dojo.provide("andes.drawing");
 						var combo = new andes.Combo({master:master, statement:statement, id:o.id});
 						this.add(combo);
 					
-					}else{ // image, statement, equation
+					}else{ // image, statement, equation, axes
 						var item = _drawing.addStencil(o.stencilType, o);
 						item.andesType = obj.type; // to tell between equation and statement
+						
 						this.add(item);
 					}
 				
@@ -211,7 +214,7 @@ dojo.provide("andes.drawing");
 					andes.help.score(obj.score);
 				
 				}else{
-					console.warn("UNUSED ANDES OBJECT:", obj)
+					//console.warn("UNUSED ANDES OBJECT:", obj)
 				}
 			}, this);
 			
@@ -249,14 +252,14 @@ dojo.provide("andes.drawing");
 		save: function(data){
 			// summary:
 			//	Save an object to the server.
-			//
-			// DEV:
-			var devCookie = dojo.fromJson(dojo.cookie("mikeDev"));
-			if(devCookie && devCookie.load==false){
-				return;
-			}
 			
-			andes.api.step(data).addCallback(this, "handleServerActions").addErrback(this, "onError");	
+			var dfd = andes.api.step(data);
+			dfd.addCallback(this, function(data){
+				setTimeout(dojo.hitch(this, function(){
+					this.handleServerActions(data);
+				}),0);
+			});
+			dfd.addErrback(this, "onError");	
 		},
 		
 		load: function(){
@@ -265,81 +268,15 @@ dojo.provide("andes.drawing");
 			//
 			// called from the very bottom of main.js
 			//
-			// DEV ===================>
-			var devCookie = dojo.fromJson(dojo.cookie("mikeDev"));
-			if(devCookie && devCookie.load==false){
-		
-				this._initialData = [
-					{"action":"new-object","id":"a18.5","x":200,"y":380,"type":"equation",
-"mode":"unknown","text":"Fwall1=?"},
-
-{"action": "modify-object", "id": "a18.5",
-"text": "Fwall1 = 15.24609350323404 N"},
-				/*{
-					"action": "new-object",
-					"id": "a6",  
-					"type": "vector",
-					"mode": "unknown", 
-					"x": 240, "y": 222,
-					"angle": 120,
-					"radius": 0,
-					"symbol": "Fwall1",
-					"x-statement": 300,
-					"y-statement": 350,
-					"text": "Fwall1 is the normal force on the ball due to wall1"
-				},
-				{
-					"action": "new-object",
-					"id": "a4",  
-					"type": "axes",
-					"mode": "unknown", 
-					"x": 77, "y": 130,
-					"angle": 0,
-					"radius": 120, 
-					"x-label": "x",
-					"y-label": "y"
-				},
-				{
-					"action": "new-object",
-					"id": "a3",  
-					"type": "ellipse",
-					"mode": "unknown", 
-					"x": 66, "y": 188,
-					"width": 25,  "height": 30,
-					"text": "ball"
-				},
-				{
-					"action": "new-object",
-					"id": "a5",  
-					"type": "statement",
-					"mode": "unknown", 
-					"x": 177, "y": 188,
-					"width": 66, "symbol": "m",
-					"text": "m is the mass of the ball"
-				},
-				{
-					"action": "new-object",
-					"id": "a5b",  
-					"type": "equation",
-					"mode": "unknown", 
-					"x": 177, "y": 230,
-					"width": 66, 
-					"text": "m=2 kg"
-				}*/
-				
-				];
-				// <================ DEV
-				
-				if(_surfaceLoaded){
-					console.log("------------> load actions DEV")
-					this.handleServerActions(this._initialData);
-				}
-				return;
-			}
-			
 			// setting 'this'
 			this.loadProject = function(){
-				andes.api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId}).addCallback(this, "onLoad").addErrback(this, "onError");
+				andes.api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId})
+					.addCallback(this, function(data){
+						setTimeout(dojo.hitch(this, function(){
+							this.onLoad(data);
+						}),0);
+					})
+					.addErrback(this, "onError");
 			}
 			if(andes.closeFirst){
 				// a previous project session is open. close it.
@@ -358,13 +295,12 @@ dojo.provide("andes.drawing");
 			}
 		},
 		onError: function(err){
-			console.error("There was an error loading project data:", err);
+			console.error("There was an error in the project data:", err);
 			if(!this._initialData){
 				// apparently an error on open-problem. Try closing session.
 				andes.api.close({});
 				dojo.cookie("andes", null, { expires: -1 });
 			}
-			// call andes.error?
 		}
 	};
 	

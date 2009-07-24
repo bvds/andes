@@ -2,11 +2,14 @@ dojo.provide("drawing.stencil.Image");
 
 
 drawing.stencil.Image = drawing.util.oo.declare(
+	// summary:
+	//	Creates an dojox.gfx Image based on the data
+	//	provided.
+	//
 	drawing.stencil._Base,
 	function(options){
-		if(options.data){
-			this.src = options.data.src;
-		}
+		// summary:
+		//	constructor
 	},
 	{
 		type:"drawing.stencil.Image",

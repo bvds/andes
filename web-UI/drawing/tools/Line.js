@@ -24,7 +24,9 @@ drawing.tools.Line = drawing.util.oo.declare(
 			this.select();
 		},
 		
-		onDrag: function(obj){
+		onDrag: function(/*dojox.__MangerMouseEvent*/obj){
+			// summary: See stencil._Base.onDrag
+			//
 			if(this.created){ return; }
 			var x1 = obj.start.x,
 				y1 = obj.start.y,
@@ -58,7 +60,9 @@ drawing.tools.Line = drawing.util.oo.declare(
 			this.render();
 		},
 		
-		onUp: function(obj){
+		onUp: function(/*dojox.__MangerMouseEvent*/obj){
+			// summary: See stencil._Base.onUp
+			//
 			if(this.created || !this.shape){ return; }
 			// if too small, need to reset
 			
@@ -81,14 +85,9 @@ drawing.tools.Line = drawing.util.oo.declare(
 	}
 );
 
-/*=====
-	dojox.__ToolsSetup = {
-		// summary:
-		//	
-	}
-=====*/
-
 drawing.tools.Line.setup = {
+	// summary: See stencil._Base dojox.__ToolsSetup
+	//
 	name:"drawing.tools.Line",
 	tooltip:"Line Tool",
 	iconClass:"iconLine"

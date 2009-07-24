@@ -48,7 +48,7 @@
 				     ;; Entry Intepreter: generic + non-eq
 				     (:file "symbols")
 				     (:file "State"
-					    :depends-on ("symbols"))
+					    :depends-on ("symbols" "grammar"))
 				     (:file "match")
 				     (:file "Entry-API"
 					    :depends-on ("HelpMessages"
@@ -63,7 +63,7 @@
 				     (:file "pre2in")
 				     (:file "in2pre")
 				     (:file "parse-andes"
-					    :depends-on ("SolutionGraph"))
+					    :depends-on ("SolutionGraph" "grammar"))
 				     (:file "interpret-equation"
 					    :depends-on ("SolutionGraph"))
 				     
@@ -80,9 +80,15 @@
 				     ;; Top-level manager
 		 		     (:file "Interface") ;The interface api.
 	 			     (:file "Commands"
-					    :depends-on ("Entry-API"))
+					    :depends-on ("Entry-API" 
+							 "Interface"))
  				     (:file "API")
-				     (:file "sessions")))
+				     (:file "sessions"
+					    ;; Mostly for *help-env-vars*
+					    :depends-on ("NextStepHelp"
+							 "parse" "State" 
+							 "grammar" 
+							 "Commands"))))
 	       (:module "Testcode"
 			:depends-on ("Help" "HelpStructs")
 			:components (
