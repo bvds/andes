@@ -19,7 +19,7 @@ dojo.provide("andes.convert");
 		"drawing.stencil.Ellipse":"ellipse", // or circle
 		"drawing.tools.custom.Vector":"vector",
 		"drawing.tools.custom.Axes":"axes",
-		"drawing.tools.custom.Equation":"equation",
+		//"drawing.tools.custom.Equation":"equation",
 		"drawing.stencil.Image":"graphics",
 		"drawing.tools.TextBlock":"statement" // or statement.... hmmmm
 	};
