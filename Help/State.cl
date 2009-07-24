@@ -41,14 +41,6 @@
 ;;; set parameters and make any modifications that are necessary
 ;;; but cannot be hardcoded into the distribution.  
 (defparameter **Config-File-Name** "Config.cl")
-
-;;; Checking entries is a global flag that is used to indicate
-;;; whether or not the workbench is currently sending saved entries
-;;; to the help system.  If it is t then any entry that comes in is
-;;; assumed to be a saved entry that is being sent automatically.  If
-;;; it is nil then it is assumed to be a user entry.
-(defparameter **Checking-Entries** Nil)
-
 ;;; The Session ID is a value that is sent by the Workbench when it 
 ;;; loggs in.  This ID consists of a date-time pair in the following
 ;;; format: <Month><DAY>-<HR>-<Min>-<Sec>  

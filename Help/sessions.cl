@@ -41,9 +41,6 @@
 (defun andes-path (relative-path)
 "merge relative path with *andes-path* returning new pathname"
     (merge-pathnames relative-path *andes-path*))
-
-(defvar *debug-help* t
-  "The stream showing help system runtime activities.")
      
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

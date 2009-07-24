@@ -530,10 +530,6 @@
 
 ;;; ---------- Phase 4: Generating the dialog turn --------------------
 
-;; dynamically bound to correct entry if known before calling turn
-;; generator, so generating functions can use it. Generating functions
-;; should know if error handlers set a correct entry or not.
-(defvar *correct-entry* NIL)
 
 ;;; I wish there was a version of the case statement that evaluated the keys
 (defun generate-ww-turn (ei)

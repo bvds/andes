@@ -399,6 +399,13 @@
   (select-current-runtime-testset-solution))
 
 
+;;; Checking entries is a global flag that is used to indicate
+;;; whether or not the workbench is currently sending saved entries
+;;; to the help system.  If it is t then any entry that comes in is
+;;; assumed to be a saved entry that is being sent automatically.  If
+;;; it is nil then it is assumed to be a user entry.
+(defparameter **Checking-Entries** Nil)
+
 ;;; Iterate over the tests funcalling their funcs to set the new scores.
 ;;; Each func is assumed to take a single argument which is the current 
 ;;; score value.
@@ -410,6 +417,7 @@
 ;;; In order to avoid overcounting this code will not run when the system
 ;;; is in the process of checking entries.  I.E. when **checking-entries**
 ;;; is t.
+
 (defun update-runtime-testset-scores ()
   (when (not **checking-entries**)
     (dolist (Test *Runtime-Testset*)

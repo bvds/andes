@@ -38,6 +38,11 @@
 (defvar *SG-Entries* () "The System entries from the bubblegraph.")
 (defvar *SG-Eqns* () "Equation list with eqn-index->entry mappings.")
 
+;; dynamically bound to correct entry if known before calling turn
+;; generator, so generating functions can use it. Generating functions
+;; should know if error handlers set a correct entry or not.
+(defvar *correct-entry* NIL)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; The constants below are used only by the Help Solutiongraph 
 (defconstant **Premature-Entry** 'Premature-Entry 

@@ -1400,7 +1400,9 @@
 ;; Having done that look up the corresponding PSM and determine if the PSM 
 ;; has been completed if so then the value is green if not then don't. 
 (defun check-mc-no-quant-done-answer-sought (ID)
-  (let ((PSM (match-exp->enode (get-answer-quant ID) (problem-graph *cp*)))
+  (error "check-mc-no-quant-done-answer-sought not ready")
+  ;; Used to have (get-answer-quant ID)
+  (let ((PSM (match-exp->enode ID (problem-graph *cp*)))
         (Entry (make-StudentEntry :ID ID :prop `(lookup-mc-answer ,ID))))
     (cond 
       ;; If the PSM is not found then we need to throw an error saying that.
