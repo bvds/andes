@@ -101,12 +101,6 @@
 ;;=========================================================
 ;; Memory Storage.
 
-(defvar *SG-Solutions* () "The set of solutions to be done.")
-(defvar *SG-Entries* () "The System entries from the bubblegraph.")
-(defvar *SG-Eqns* () "Equation list with eqn-index->entry mappings.")
-
-
-
 (defvar **Test-For-Premature-Subst** nil "If t tests for premature substitutions.")
 (defvar **Test-For-Prematurity** nil "If t tests for premature entries.")
 

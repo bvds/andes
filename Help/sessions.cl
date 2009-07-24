@@ -90,6 +90,9 @@
 	  *NSH-PROBLEM-TYPE* *VARIABLES* *STUDENTENTRIES* 
 	  *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*
           **Condition**  mt19937::*random-state* **grammar**
+	  ;; Solver process (could easily be replaced by function argument
+	  ;; in solver-load and solver-unload)
+	  *process*
 	  ;; slot mapping for Algebra/solver.cl
 	  *id-solver-slot-map* *solver-free-slots*
 	  ;; Session-specific variables in Help/Interface.cl
