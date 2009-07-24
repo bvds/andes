@@ -370,6 +370,10 @@
 	 ;; We should pass the object to be deleted rather than the id.
 	 (delete-object (StudentEntry-id new-entry)))
 
+	;; For debugging only, should be turned off in production
+	((and webserver:*debug* (equal text "help-test-error")
+	      (error "help-test-error response.")))
+
 	;; Look for text box marked by "Answer: "
 	;; This should come before "equation" and "statement"
 	((and (> (length text) (length ans))

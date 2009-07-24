@@ -23,7 +23,7 @@
 (defpackage :webserver
   (:use :cl :hunchentoot :json)
   (:export :defun-method :start-json-rpc-service :stop-json-rpc-service 
-	   :*stdout* :print-sessions :*env* :close-idle-sessions
+	   :*stdout* :print-sessions :*env* :close-idle-sessions *debug*
 	   :get-session-env))
 
 (in-package :webserver)
@@ -31,6 +31,8 @@
 (defvar *server* nil)
 (defvar *stdout* *standard-output*)
 (defvar *service-methods* (make-hash-table :test #'equal))
+
+(defvar *debug* t "Special error conditions for debugging")
 
 (defun start-json-rpc-service (uri &key (port 8080))
   "Start a web server that runs a single service for handling json-rpc"
@@ -117,6 +119,12 @@
 			     (:data . ,method))
 			   (format nil "Can't find method ~S for service ~A" 
 				   method service-uri))))
+	  ((and *debug* (equal (cdr (assoc :text params)) 
+			       "json-rpc-test-error"))
+	   (values nil (if version 
+			   `((:code . -32602) 
+			     (:message . "json-rpc-test-error response."))
+			   "json-rpc-test-error response.")))
 	  ;; need error handler for the case where the arguments don't 
 	  ;; match the function...
 	  (t (execute-session client-id turn method-func params)))
