@@ -25,15 +25,6 @@
 ;;;
 ;; ChangeLog:
 ;;   6/12/2003 - (Cl) - fixing compiler warnings.
-;;    1. Declared *nsh-solution-sets* to be special in nsh-multi-axis-problemp.
-;;    2. Declared **nsh-standard-axis-prompt**, **nsh-rotated-axis-bottom-prompt**,
-;;       and **nsh-rotated-axis-prompt** to be special in nsh-make-axis-prompt.
-;;    3. removed bad ignore declaration from nsh-pick-fp.
-;;
-;;   1/6/2004 - (CL) - Added note reflecting exposed state of 
-;;      nsh-collect-principle-bodyents and added note to the effect on 
-;;      todo list.
-;;
 
 ;;; This file provides next-step-help for the andes2 system.  It 
 ;;; was based initially on psudocode written by Kurt VanLehn and 
@@ -451,18 +442,6 @@
 ;;;; 2. Determine if nsh-collect-old-first-principles is still used on 
 ;;;     any problem and if not remove it.  
 
-
-;;;; ======================== Public utility code =============================
-;;;; This section contains some public utility code designed to aid in Andes2
-;;;; Development that makes sense here.
-
-;;; Return t if one of the stored solutions contains more than one axis.
-(defun nsh-multi-axis-problemp ()
-  "Return t if one of the stored solutions contains more than one axis."
-  (declare (special *nsh-solution-sets*))
-  (member-if #'nsh-multi-axis-solutionp *nsh-solution-sets*))
-
-
 ;;;; ========================= Stored params =================================
 ;;;; The following parameters store the current state of the help system and 
 ;;;; keep track of the student's work for later use.  
@@ -508,6 +487,15 @@
 (defparameter *nsh-nodes* () "The nodes that can be hinted.")
 
 
+
+;;;; ======================== Public utility code =============================
+;;;; This section contains some public utility code designed to aid in Andes2
+;;;; Development that makes sense here.
+
+;;; Return t if one of the stored solutions contains more than one axis.
+(defun nsh-multi-axis-problemp ()
+  "Return t if one of the stored solutions contains more than one axis."
+  (member-if #'nsh-multi-axis-solutionp *nsh-solution-sets*))
 
 ;;;; ======================== Setup code ======================================
 ;;;; The clear-nsh and main nsh functions are used to clear NSH and then to

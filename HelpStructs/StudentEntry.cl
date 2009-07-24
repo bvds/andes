@@ -77,7 +77,8 @@
   (pprint-indent :block Level Stream)
   (format Stream "ParsedEqn: ~A~%" (StudentEntry-ParsedEqn Entry)))
 
-(defvar *StudentEntries*)  ; list of current student entries
+(defvar *StudentEntries*)  ;list of current student entries
+(defvar *variables*)	;list of student variable names
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Student entry list functions.

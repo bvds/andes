@@ -91,7 +91,6 @@
   (declare (ignore Level))
   (format stream "<SYM ~A ~A>" (sym-label sym) (sym-referent sym)))
 
-(defvar *variables*)	; session-local
 (defvar *watch-symbols* NIL)  ; set to trace symbol table changes
 
 ;-----------------------------------------------------------------------------
