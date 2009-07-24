@@ -352,6 +352,7 @@
 ;; The code below identifies the case that we are in and then calls the 
 ;; appropriate handler code in entry-api.  
 (defun lookup-mc-answer (ID Value)
+  (error "lookup-mc-answer not ready for Andes3")
   (let* ((Result)
 	 (IDStr (format Nil "~a" ID))
 	 (pos (position #\- IDStr))

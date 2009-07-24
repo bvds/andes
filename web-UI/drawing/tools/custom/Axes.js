@@ -3,6 +3,14 @@ dojo.require("drawing.stencil.Path");
 
 
 drawing.tools.custom.Axes = drawing.util.oo.declare(
+	// summary:
+	//	Draws a right-angle Axes (shaped like an L, not a +)
+	// description:
+	//	This Stencil is created with a Path so that the L shape
+	//	is one continuous piece. Arrow heads are placed at the end
+	// 	of each axis. The Axes can be rotated. There are custom
+	// 	label methods.
+	//
 	drawing.stencil.Path,
 	function(options){
 		this.closePath = false;
@@ -29,6 +37,9 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 		closePath:false,
 		
 		createLabels: function(){
+			// summary:
+			//	Creates the label for each axis.
+			//
 			// NOTE: Not passing style into text because it's changing it
 			var props = {align:"middle", valign:"middle", util:this.util, annotation:true, container:this.container, mouse:this.mouse, stencil:this};
 			this.labelX = new drawing.annotations.Label(dojo.mixin(props,{
@@ -39,6 +50,9 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			}));
 		},
 		setLabelX: function(){
+			// summary:
+			//	Custom placement for x-axis label
+			//
 			var ax = this.points[0];
 			var c =  this.points[1];
 			var ay = this.points[2];
@@ -59,6 +73,9 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			};
 		},
 		setLabelY: function(){
+			// summary:
+			//	Custom placement for y-axis label
+			//
 			var ax = this.points[0];
 			var c =  this.points[1];
 			var ay = this.points[2];
@@ -77,7 +94,17 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 				width:20
 			};
 		},
-		setLabel: function(value){
+		setLabel: function(/* ? String*/value){
+			// summary:
+			//	Set the text of the labels. The text would be
+			//	broken up into the two labels.
+			// arguments:
+			//		value: [optional] String
+			//			If no argument is passed, defaults to lables
+			//			'x' and 'y'. If an arugument is passed, that
+			//			text will be split on the word 'and' to determine
+			//			the two labels.
+			//
 			if(this._labelsCreated){ return; }
 			!this.labelX && this.createLabels();
 			var x = "x";
@@ -95,18 +122,21 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			this._labelsCreated = true;
 		},
 		getLabel: function(){
+			// summary:
+			//	Getter for the labels. returns an object.
+			//
 			if(!this.labelX){ return {}; }
 			return {
 				x:this.labelX._text,
 				y:this.labelY._text
-			};
+			}; // Object
 		},
 		
-		anchorPositionCheck: function(x, y, anchor){
+		anchorPositionCheck: function(/*Number*/x, /*Number*/y, /*manager.Anchor*/anchor){
 			// summary:
 			//	Gets called from anchor to check if its current
 			//	position is ok. If not, its x or y transform will
-			// be changed until this passes.
+			// 	be changed until this passes.
 			//
 			var pm = this.container.getParent().getTransform();
 			var am = anchor.shape.getTransform();
@@ -125,12 +155,18 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			
 		},
 		
-		onTransformBegin: function(anchor){
+		onTransformBegin: function(/*manager.Anchor*/anchor){
+			// summary:
+			//	Overwrites _Base.onTransformBegin
+			//
 			// called from anchor point up mouse down
 			this._isBeingModified = true;
 		},
 		
-		onTransformEnd: function(anchor){
+		onTransformEnd: function(/*manager.Anchor*/anchor){
+			// summary:
+			//	Overwrites _Base.onTransformEnd
+			//
 			// Gets called on anchor mouseup
 			//	also gets called by checkBounds - we don't want that.
 			if(!anchor){ return; }
@@ -191,8 +227,10 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 				
 		},
 		
-		getBounds: function(absolute){
-			// custom getBounds
+		getBounds: function(/*Boolean*/absolute){
+			// summary:
+			//	Custom getBounds overwrites _Base.getBounds
+			//
 			var px = this.points[0],
 				pc = this.points[1],
 				py = this.points[2];
@@ -227,17 +265,21 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			};
 		},
 		
-		_postSetPoints: function(pts){
+		_postSetPoints: function(/*Array*/pts){
 			// summary:
 			// 	Because Axes only has one anchor,
 			// 	we substitute a special setPoints method
+			//
 			this.points[0] = pts[0];
 			if(this.pointsToData){
 				this.data = this.pointsToData();
 			}
 		},
 		
-		onTransform: function(anchor){
+		onTransform: function(/*Number*/anchor){
+			// summary:
+			//	Overwrites _Base.onTransform
+			//
 			// the xaxis point has changed - the center will not.
 			// need to find the yaxis point.
 			
@@ -256,6 +298,8 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			this.render();	
 		},
 		pointsToData: function(){
+			//summary:
+			//	Converts points to data. 
 			var p = this.points;
 			return {
 				x1:p[1].x,
@@ -266,7 +310,10 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 				y3:p[2].y
 			};
 		},
-		dataToPoints: function(o){
+		
+		dataToPoints: function(/* ? Object*/o){
+			//summary:
+			//	Converts data to points. 
 			o = o || this.data;
 			if(o.radius || o.angle){
 				// instead of using x1,x2,y1,y1,
@@ -294,6 +341,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			];
 			return this.points;
 		},
+		
 		onDrag: function(/*dojox.__MangerMouseEvent*/obj){
 			// summary: See stencil._Base.onDrag
 			//
@@ -311,6 +359,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			this.points.push({x:ox, y:oy, noAnchor:true});
 			this.render();
 		},
+		
 		onUp: function(/*dojox.__MangerMouseEvent*/obj){
 			// summary: See stencil._Base.onUp
 			//

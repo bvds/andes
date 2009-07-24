@@ -432,12 +432,12 @@
 ;;;============================================================================
 ;;; Debug code.
 
+(defparameter *gg-debug-depth* 0)
+
 (defun gg-debug (format &rest stuff)
   (when *Debug-gg* 
     (format t "~A ~A:  ~?~%" (print-outline-indent 1) *gg-debug-depth*
 	    format stuff)))
-
-(defparameter *gg-debug-depth* 0)
 
 (defun gg-debug-incdepth ()
   (incf *gg-debug-depth*))

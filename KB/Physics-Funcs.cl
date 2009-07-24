@@ -485,6 +485,15 @@
 ;;; ============
 ;;; Algebraic manipulation
 
+;;;
+;;;  Yuck!  This should match the operators independently re-defined in:
+;;;  Help/parse-andes.cl
+;;;  Help/pre2in.cl
+;;;  ReportGenerators/SolcompRep.cl
+;;;  ReportGenerators/SolutionComponents.cl
+;;;
+(defparameter *algebraic-operators* 
+    '(= + - * / ^ sin cos tan abs ln log10 sqrt exp))
 
 ;;; vars-in-eqn returns the variables in a given equation.
 ;;; It assumes any atom that is not a number, parameter,  dimensioned number
@@ -501,15 +510,6 @@
          ((symbolp eqn) (list eqn))
          ((consp eqn) (union (vars-in-eqn (car eqn)) (vars-in-eqn (cdr eqn))))
          (T (error "~&Non-eqn ~a" eqn))))
-;;;
-;;;  Yuck!  This should match the operators independently re-defined in:
-;;;  Help/parse-andes.cl
-;;;  Help/pre2in.cl
-;;;  ReportGenerators/SolcompRep.cl
-;;;  ReportGenerators/SolutionComponents.cl
-;;;
-(defparameter *algebraic-operators* 
-    '(= + - * / ^ sin cos tan abs ln log10 sqrt exp))
 
 (defun dimensioned-numberp (x)
   "Non-null if the argument has the form (dnum number units :error err)"

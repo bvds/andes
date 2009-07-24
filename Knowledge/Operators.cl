@@ -170,6 +170,16 @@
 	  (operator-arguments Operator)))
 
 
+;; mapping for symbols which may be used as operator order values 
+(defvar *op-order-ids* '(
+    (LOWEST . 1)
+    (LOW . 3)
+    (NORMAL . 5)
+    (HIGH . 7)
+    (HIGHEST . 9) 
+  ))
+
+
 ;;-----------------------------------------------------------------------------
 ;; Operator Definition.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -226,14 +236,6 @@
     
     Op))				;and return it.
 
-;; mapping for symbols which may be used as operator order values 
-(defvar *op-order-ids* '(
-    (LOWEST . 1)
-    (LOW . 3)
-    (NORMAL . 5)
-    (HIGH . 7)
-    (HIGHEST . 9) 
-  ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; subst-nlg-funcs

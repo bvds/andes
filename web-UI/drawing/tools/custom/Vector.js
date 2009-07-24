@@ -3,6 +3,15 @@ dojo.require("drawing.tools.Arrow");
 dojo.require("drawing.util.positioning");
 
 drawing.tools.custom.Vector = drawing.util.oo.declare(
+	// summary:
+	//	Creates a Vector Stencil.
+	// description:
+	//	Generally the same as an arrow, except that the arrow
+	//	head is only at the end. There is additionaly functionality
+	//	to allow for a 'zero vector' - one with no length.
+	// TODO: Zero Vectors are less than the minimumSize. But if
+	//	you get the radius, it will report a length.
+	//
 	drawing.tools.Arrow,
 	function(options){
 		this.minimumSize = this.style.arrows.length;
@@ -14,6 +23,9 @@ drawing.tools.custom.Vector = drawing.util.oo.declare(
 		showAngle:true,
 		
 		labelPosition: function(){
+			// summary:
+			//	The custom position used for the label
+			//
 			var d = this.data;
 			var pt = drawing.util.positioning.label({x:d.x1,y:d.y1},{x:d.x2,y:d.y2});
 			return {
@@ -22,12 +34,10 @@ drawing.tools.custom.Vector = drawing.util.oo.declare(
 			}
 		},
 		
-		
-		
-		onBeforeRender: function(){
-			
-		},
 		_createZeroVector: function(shp, d, sty){
+			// summary:
+			//	Special creation function for the zero-vector shape
+			//
 			var s = shp=="hit" ? this.minimumSize : this.minimumSize/2;
 			var f = shp=="hit" ? sty.fill : null;
 			d = {
@@ -43,7 +53,14 @@ drawing.tools.custom.Vector = drawing.util.oo.declare(
 				.setFill(f);
 			this.util.attr(this[shp], "drawingType", "stencil");
 		},
+		
 		render: function(){
+			// summary:
+			//	Renders the 'hit' object (the shape used for an expanded
+			//	hit area and for highlighting) and the'shape' (the actual
+			//	display object). Additionally checks if Vector should be
+			//	drawn as an arrow or a circle (zero-length)
+			//
 			this.onBeforeRender(this);
 			if(this.getRadius() >= this.minimumSize){
 				this._create("hit", this.data, this.style.currentHit);

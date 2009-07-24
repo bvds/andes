@@ -28,8 +28,11 @@
 					    :depends-on ("mt19937"))))
 	       (:module "HelpStructs"
 			:depends-on ("Base")
-			;; PSMgraph and SystemEntry are defined in "andes"
+			;; PsmGraph, StudentEntry SystemEntry are also 
+			;; defined in "andes"
 			:components ((:file "StudentEntry")
+				     (:file "SystemEntry")
+				     (:file "PsmGraph")
 				     (:file "TutorTurn"
 					    :depends-on ("CMD"))
 				     (:file "ErrorInterp")
