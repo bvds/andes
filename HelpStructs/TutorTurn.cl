@@ -544,6 +544,8 @@
 ;; and values.  they will be of the form (op, <type> <Class>)
 ;; where type is one of {Point, Teach, Apply} and <Class> is
 ;; one of {String, KCD, MiniLesson, etc.}  
+
+
 (defun make-hint-seq (Hints &key (Prefix nil) (Assoc nil) (OpTail nil))
   "make the appropriate hint sequence."
   (when Hints
