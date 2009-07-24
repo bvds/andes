@@ -12,6 +12,13 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 		
 		if(this.points && this.points.length){
 			this.setPoints = this._postSetPoints;
+			// need to call render again. It's already been called in the _Base
+			// constructor by the time we get to this constructor
+			this.render();
+			// 	I don't know why Axes is different, but post-render calls won't
+			// 	happen with pre-data unless we call this here. It *should* happen
+			//	on first render.
+			this.onRender();
 		}
 	},
 	{
@@ -19,6 +26,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 		type:"drawing.tools.custom.Axes",
 		minimumSize:30,
 		showAngle:true,
+		closePath:false,
 		
 		createLabels: function(){
 			// NOTE: Not passing style into text because it's changing it
@@ -129,6 +137,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			
 			//	tell anchor to go to prev point if wrong
 			// called from anchor point up mouse up
+			
 			this._isBeingModified = false;
 			this.deselect();
 			console.log("before:", Math.ceil(this.points[1].x), " x ", Math.ceil(this.points[1].y))
@@ -155,12 +164,8 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 				this.points.push({x:ox, y:oy, noAnchor:true});
 				this.setPoints(this.points);
 				
-				// reset handles render
-				//anchor.reset(this);
 				this.select();
-				
-			console.log("after:", Math.ceil(this.points[1].x), " x ", Math.ceil(this.points[1].y))
-			
+				this.onModify(this);
 				return;
 			}
 			
@@ -182,7 +187,8 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			this.labelY.setLabel();
 			
 			this.select();
-			
+			this.onModify(this);
+				
 		},
 		
 		getBounds: function(absolute){

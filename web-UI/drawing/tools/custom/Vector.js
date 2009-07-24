@@ -49,8 +49,6 @@ drawing.tools.custom.Vector = drawing.util.oo.declare(
 				this._create("hit", this.data, this.style.currentHit);
 				this._create("shape", this.data, this.style.current);
 			}else{
-				//this.endArrow.remove(this.endArrow.shape, this.endArrow.hit);
-				//this.remove(this.shape, this.hit);
 				this._createZeroVector("hit", this.data, this.style.currentHit);
 				this._createZeroVector("shape", this.data, this.style.current);
 			}

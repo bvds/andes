@@ -129,6 +129,7 @@ dojo.provide("andes.drawing");
 			// 	with the exception of Axes and (standalone) Statements.
 			//
 			if(items[item.id]){
+				console.warn("BLOCKED:", item.id)
 				return;
 			}
 			
@@ -182,7 +183,7 @@ dojo.provide("andes.drawing");
 			var mods = [];
 			var min = 2, max = 5;
 			dojo.forEach(data, function(obj, i){
-				
+				//if(obj.type!="axes"){ return; }
 				if(obj.action =="new-object"){
 					var o = andes.convert.andesToDrawing(obj);
 					var t = o.stencilType;
@@ -199,9 +200,10 @@ dojo.provide("andes.drawing");
 						var combo = new andes.Combo({master:master, statement:statement, id:o.id});
 						this.add(combo);
 					
-					}else{ // image, statement, equation
+					}else{ // image, statement, equation, axes
 						var item = _drawing.addStencil(o.stencilType, o);
 						item.andesType = obj.type; // to tell between equation and statement
+						
 						this.add(item);
 					}
 				
@@ -212,7 +214,7 @@ dojo.provide("andes.drawing");
 					andes.help.score(obj.score);
 				
 				}else{
-					console.warn("UNUSED ANDES OBJECT:", obj)
+					//console.warn("UNUSED ANDES OBJECT:", obj)
 				}
 			}, this);
 			
@@ -250,12 +252,6 @@ dojo.provide("andes.drawing");
 		save: function(data){
 			// summary:
 			//	Save an object to the server.
-			//
-			// DEV:
-			var devCookie = dojo.fromJson(dojo.cookie("mikeDev"));
-			if(devCookie && devCookie.load==false){
-				return;
-			}
 			
 			var dfd = andes.api.step(data);
 			dfd.addCallback(this, function(data){

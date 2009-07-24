@@ -72,6 +72,7 @@ drawing.stencil.Path = drawing.util.oo.declare(
 						this[shp].lineTo(o.x, o.y);
 					}
 				}, this);
+				
 				this.closePath && this[shp].closePath();
 			}
 			
@@ -87,6 +88,7 @@ drawing.stencil.Path = drawing.util.oo.declare(
 			this.onBeforeRender(this);
 			this._create("hit", this.style.currentHit);
 			this._create("shape", this.style.current);
+			//console.log("path render")
 		}		
 		
 	}

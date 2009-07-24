@@ -49,8 +49,6 @@ dojo.require("andes.error");
 					//        processing the queue and don't start up again.
 					//        What *is* the correct behavior?
 				}else{
-					console.warn("CALLBACK!")
-					console.dir(result);
 					req.dfd.callback(result);
 					nextRequest();
 				}

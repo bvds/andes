@@ -144,15 +144,6 @@
 (clear-runtime-testsets)
 
 
-;;;; ===============================================================
-;;;; Parameter Data.
-
-;;; This is the pause htime total.  It will be 
-;;; used at runtime as a threshold for detecting
-;;; a pause.
-(defparameter **Testing-Pause-Time-Threshold** (make-htime :Sec 20))
-
-
 ;;;; ==================================================================
 ;;;; Cached Data
 ;;;; In order to speed up some tests It is necessary to pre-cache data
@@ -193,41 +184,7 @@
 ;;;; bodies and axes.  Vectors can be added later if it becomes necessary to
 ;;;; do so.  
 
-(defparameter *test-cache-eqn-entries* ())
-(defparameter *test-cache-given-eqn-entries* ())
-(defparameter *test-cache-axis-entries* ())
 
-(defparameter *test-cache-objects* ())
-;; for drawing-only problems:
-(defparameter *test-cache-drawing-entries* ())
-
-
-;;; This parameter is used in the test-cbe-get-object function below 
-;;; and in the runtime test-cache-entered-objects-count function below
-;;; that.  This is a handy way of caching the lookup so that it doesn't
-;;; need to be re-done constantly while still staying kb-driven.
-;;;
-;;; Becuase of the need to reload the kb at runtime I have set this code
-;;; so that this lookup will only be performed if a problem has been 
-;;; loaded.  In fact this parameter will be reset each time a new 
-;;; problem is loaded.  This is somewhat inefficient but it is a 
-;;; nice brute-force method of handling the reload issue.  
-(defparameter **Current-Body-Expression-Form** Nil
-  "Cache the help-expression form of the body entryprop for later use.")
-
-
-
-
-;;; On the multiple choice problems the student can only make 
-;;; check-answer entries.  We want to flag these problems so
-;;; that we do not penalize the students on the correct entry
-;;; rate component for not making any other entries like 
-;;; equations or drawings on them. This now generalized
-;;; to apply to problems tagged with feature 'Final-Answer-only, 
-;;; (e.g. kinematics graph reading problems that call only for
-;;; entering "given" values in answer boxes).  These problems may
-;;; have entries in the solution graph but they are effectively optional. 
-(defparameter **Current-Prob-Requires-nonanswer-entries** t)
 
 
 ;;;; -------------------------------------------------------------------------
@@ -240,8 +197,6 @@
 ;;;; This code will reset the global parameter containing the 
 ;;;; body entry form each time a new problem is loaded as a 
 ;;;; way of supporting kb reloads.  
-
-(defvar *sg-systementry-optional-p-memo* "memo for holding session-local info")
 
 (defun runtime-test-prep-func ()
   (when (problem-p *cp*) 
@@ -1384,7 +1339,6 @@
 ;;; we need to ensure that there is at least one non-answer entry that
 ;;; the student can make.  
 
-(defparameter **entry-entered** nil)
 
 (defun art-correctent-ent-test (Score)
   "The Correct entries v entries overall."
