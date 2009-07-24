@@ -230,13 +230,13 @@
 ;;; The first class is that of premature entries.  In 
 ;;; This case there exist prerequisties of the entry
 ;;; that have not themseleces been entered.    
-(defun SystemEntry-PrematureP (Entry)
+(defun SystemEntry-PrematureP (Entry problem)
   "Return t iff prerequisite entries of this entry have not yet been entered."
   (when (SystemEntry-Prereqs Entry)
     (let ((r (test-systementry-prereqs Entry))) 
       (format t "****************************************************************************~%")
       (format t "Match results:~% ~W~%"
-	      (match-systementry->eqn-type entry (problem-eqnindex *cp*)))
+	      (match-systementry->eqn-type entry (problem-eqnindex problem)))
       (when **Debug-Prematurity-Tests**
 	(format t "All Prereqs: ~A~%Unfinished Prereqs:~A~%" (SystemEntry-Prereqs Entry) r))
       (not (member nil R)))))
@@ -247,13 +247,13 @@
       collect (remove-if #'SystemEntry-Entered P)))
 
        
-(defun SystemEntries-PrematureP (Entries)
+(defun SystemEntries-PrematureP (Entries problem)
   "Test if the list of system entries is premature."
   (when **debug-Prematurity-tests**
     (format t "Testing for prematurity ~%~A~%" Entries)) 
   
   (let ((r (loop for E in Entries
-	       when (SystemEntry-PrematureP E)
+	       when (SystemEntry-PrematureP E problem)
 	       return it)))
 
     (when **Debug-Prematurity-tests**

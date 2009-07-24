@@ -42,6 +42,7 @@
 	       (:module "HelpStructs"
 			:depends-on ("Base")
 			:components ((:file "PsmGraph")
+				     (:file "StudentEntry")
 				     (:file "SystemEntry"
 					    :depends-on ("PsmGraph"))
 				     ))

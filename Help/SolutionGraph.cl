@@ -754,7 +754,7 @@
     ;; Check for **Forbidden** **Dead-path**
     (if (and **Test-For-Prematurity**
 	     (eq **Correct** State)
-	     (SystemEntries-Prematurep (sg-unmark-interp Interp)))
+	     (SystemEntries-Prematurep (sg-unmark-interp Interp) *cp*))
 	**Premature-Entry**
       State)))
 
