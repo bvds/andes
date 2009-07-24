@@ -1073,12 +1073,11 @@
 	    ((studeqn (concatenate 'string studvar "=" value-str))
 	     ;; suppress normal eqn entry logging so we can do modified logging
 	     ;; here, noting different errors and filling in target entry
-
-	     ;; BvdS:  this is expecting an StudentEntry struct,
-	     ;; not a raw string....
-	     (result-turn (lookup-eqn-string 
-			   studeqn 'check-given-value-equation :log NIL))
-	     (temp-entry (find-entry 'check-given-value-equation))
+	     (temp-entry (make-StudentEntry 
+			  :text studeqn 
+			  :id 'check-given-value-equation))
+	     ;; test equation we just created.
+	     (result-turn (lookup-eqn-string temp-entry))
 	     (correct-eqn  (eq (StudentEntry-State temp-entry) **Correct**)))
 	  ;; copy (provisional!) filled-in eqn check info from temp entry into 
 	  ;; the main entry's dangling dependent equation subentry.  
@@ -1115,8 +1114,9 @@
 	    (should-be-known-ErrorInterp eqn-entry quant))
 
 	  ;; don't save the temp equation entry on our main list anymore
-	  ;; if it's correct, caller should add subentry like an implicit equation
-	  (remove-entry 'check-given-value-equation) ; clear algebra slot
+	  ;; if it's correct, caller should add subentry like an 
+	  ;; implicit equation
+	  (delete-object 'check-given-value-equation) ;also clear algebra slot
 	  ;; finally return turn
 	  result-turn
 	  )))))
