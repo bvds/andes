@@ -71,11 +71,11 @@
 					    :depends-on ("SolutionGraph"))
 				     
 				     ;;  Help
+				     (:file "nlg") ;Natural language.
 				     (:file "HelpMessages")
 				     (:file "whatswrong")
 				     (:file "NextStepHelp")
 				     (:file "IEA")
-				     (:file "nlg") ;Natural language.
 				     
 				     ;; Automatic statistics code.
 				     (:file "Statistics")

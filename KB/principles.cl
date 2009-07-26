@@ -1063,84 +1063,99 @@
 ;;;   perl -pi.orig -e 's/\$W/&Omega;/g; s/\$w/&omega;/g; s/\$p/&pi;/g; s/\$S/&Sigma/g; s/\$q/&theta;/g; s/\$l/&lambda;/g; s/\$a/&alpha;/g; s/\$r/&rho;/g; s/\$F/&Phi;/g; s/\$e/&epsilon;/g; s/\$m/&mu;/g; s/\$t/&tau;/g; s/\$b/&beta;/g;' principles.json
 
 
-(defun principles-json-file ()
-  "construct file Documentation/principles.json"
-  (let ((Stream  (open 
-		 (merge-pathnames  "Documentation/principles.json" *Andes-Path*)
-		   :direction :output :if-exists :supersede)))
-  (andes-init)
-  (setf jsonc 0)
-  ;;  Assume stream has UTF-8 encoding (default for sbcl)
-  ;;  Should test this is actually true or change the charset to match
-  ;;  the actual character code being used by the stream
-  ;;  something like:
-  (when (streamp Stream) 
-    #+sbcl (unless (eq (stream-external-format Stream) ':utf-8)
-	     (error "Wrong character code ~A, should be UTF-8" 
-		    (stream-external-format Stream))))
+(defun principles-json-file (&key (file "web-UI/andes/principles.json") sets)
+  "Construct JSON file containing principle tree."
+  (let ((Stream  (open (merge-pathnames file *Andes-Path*)
+		       :direction :output :if-exists :supersede))
+	;; shut off pretty printing so we don't have 
+	;; line breaks in expressions
+	(*print-pretty* nil))
+    (andes-init)
+    (setf jsonc 0)
+    ;;  Assume stream has UTF-8 encoding (default for sbcl)
+    ;;  Should test this is actually true or change the charset to match
+    ;;  the actual character code being used by the stream
+    ;;  something like:
+    (when (streamp Stream) 
+      #+sbcl (unless (eq (stream-external-format Stream) ':utf-8)
+	       (error "Wrong character code ~A, should be UTF-8" 
+		      (stream-external-format Stream))))
     (format Stream 
 	    (strcat "{~%"
-		    "  identifier: 'id',~%"
-		    "  label: 'label',~%"
-		    "  items: [~%"
+		    "  \"identifier\": \"id'\",~%"
+		    "  \"label\": \"label\",~%"
+		    "  \"items\": [~%"
 		    ))
-
-    (dolist (p *principle-tree*) (principle-branch-print-json stream p)
+    
+    (dolist (p *principle-tree*) (principle-branch-print-json stream p 
+							      :sets sets)
 	    (format stream "~@[,~]~%" 
 		    (not (eq p (car (last *principle-tree*))))))
-
+    
     (format Stream (strcat
 		    "  ]~%"
 		    "}~%"))
     (when (streamp stream) (close stream))))
 
-(defun principle-branch-print-json (stream p)
+(defun principle-branch-print-json (stream p &key sets)
   "prints a group in Documentation/principles.json"
   (cond ((eq (car p) 'group)
-	(format stream "  {id: \"~A~A\", label: \"~A\", items: [~%" 
+	(format stream "  {\"id\": \"~A~A\", \"label\": \"~A\", \"items\": [~%" 
 		(cadr p) (incf jsonc) (cadr p))
 	 (dolist (pp (cddr p)) 
-	   (principle-branch-print-json stream pp)
+	   (principle-branch-print-json stream pp :sets sets)
 		 (format stream "~@[,~]~%" (not (eq pp (car (last (cddr p)))))))
 	 (format stream "  ]}"))
 	((eq (car p) 'leaf)
-	(apply #'principle-leaf-print-json (cons stream (cdr p)))
-	 (incf jsonc)
-)))
+	 (apply #'principle-leaf-print-json 
+		(cons stream (append (cdr p) (list :sets sets))))
+	 (incf jsonc))))
 
 ;; keywords :short-name and :EqnFormat override definitions in Ontology
-(defun principle-leaf-print-json (stream class &key tutorial (bindings no-bindings)
-				  EqnFormat short-name) 
-  (format t "print leaf ~A~%" class)
+(defun principle-leaf-print-json (stream class &key tutorial 
+				  (bindings no-bindings)
+				  EqnFormat short-name sets) 
+  ;(format t "print leaf ~A~%" class)
   (let ((cont nil) 
 	(pc (lookup-psmclass-name class)))
- 	(format stream "    {id: '~A~A', label: \"~A    ~A\", items: [~%" 
-		(subst-bindings bindings (psmclass-name pc))
-		(incf jsonc)
-		(eval-print-spec (or EqnFormat (psmclass-EqnFormat pc)) bindings)
+    (format stream "    {\"id\": \"~A~A\", \"label\": \"~A    ~A\"" 
+	    (subst-bindings bindings (psmclass-name pc))
+	    (incf jsonc)
+	    (eval-print-spec (or EqnFormat (psmclass-EqnFormat pc)) bindings)
 	    (eval-print-spec (or short-name (psmclass-short-name pc)) bindings))
-    (dolist (set *sets*)
-      (let ((probs (remove-if-not
-		    #'(lambda (Prob)
-			(when Prob 
-			  (unless (problem-graph Prob)
-			    (read-problem-info (string (problem-name prob)))
-			    (when *cp* (setf (problem-graph Prob) 
-					     (problem-graph *cp*))))
-			  (some #'(lambda (enode)
-				    (unify (psmclass-form pc)
+    (when sets 
+      (format stream ", \"items\": [~%")
+      (dolist (set *sets*)
+	(let ((probs (remove-if-not
+		      #'(lambda (Prob)
+			  (when Prob 
+			    (unless (problem-graph Prob)
+			      (read-problem-info (string (problem-name prob)))
+			      (when *cp* (setf (problem-graph Prob) 
+					       (problem-graph *cp*))))
+			    (some #'(lambda (enode)
+				      (unify (psmclass-form pc)
 					   (enode-id enode) bindings)) 
-				(second (problem-graph Prob)))))
-		    (mapcar #'get-problem (second set)))))
-	(when probs 
-	  (when cont (format stream ",~%"))
-	  (setf cont t)
-	  (problem-lines-json stream probs (car set) jsonc))))
-    (format stream "    ]}")))
+				  (second (problem-graph Prob)))))
+		      (mapcar #'get-problem (second set)))))
+	  (when probs 
+	    (when cont (format stream ",~%"))
+	    (setf cont t)
+	    (problem-lines-json stream probs (car set) jsonc))))
+      (format stream "    ]"))
+    (unless sets
+      (format stream ", \"psmclass-name\": \"~S\""
+	      (if (eq bindings no-bindings) (psmclass-name pc)
+	  ;; if bindings have been supplied, construct list
+	  ;; turn off pretty-print to prevent line breaks
+	  (list (psmclass-name pc) bindings)))
+      (when tutorial 
+	(format stream ", \"tutorial\": \"~A\"" tutorial)))
+    (format stream "}")))
 
 (defun problem-lines-json (stream probs &optional set id)
   (dolist (prob probs)
-    (format stream "        {id: '~A~@[~A~]', expand: \"~(~A~).html\", ~@[graphic: \"~A\", ~] ~@[set: \"~A\",~] label: \"~(~A~): ~@[~,1Fm~] ~@[~A%~]\"}~@[,~]~%"
+    (format stream "        {\"id\": \"~A~@[~A~]\", expand: \"~(~A~).html\", ~@[\"graphic\": \"~A\", ~] ~@[\"set\": \"~A\",~] \"label\": \"~(~A~): ~@[~,1Fm~] ~@[~A%~]\"}~@[,~]~%"
 	    (problem-name prob) id
 	    (problem-name prob)
 	    (problem-graphic prob)
