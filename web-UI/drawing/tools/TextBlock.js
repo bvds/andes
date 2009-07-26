@@ -5,7 +5,6 @@ dojo.require("drawing.stencil.Text");
 	
 	var conEdit;
 	dojo.addOnLoad(function(){
-		// summary:
 		//	In order to use VML in IE, it's necessary to remove the
 		//	DOCTYPE. But this has the side effect that causes a bug
 		//	where contenteditable divs cannot be made dynamically.
@@ -22,11 +21,20 @@ dojo.require("drawing.stencil.Text");
 	});
 	
 	drawing.tools.TextBlock = drawing.util.oo.declare(
+		// summary:
+		//	A tool to create text fields on a canvas.
+		// description:
+		//	Extends stencil.Text by adding an HTML layer that
+		//	can be dragged out to a certain size, and accept
+		//	a text entry. Will wrap text to the width of the
+		//	html field.
+		//	When created programmtically, use 'auto' to shrink
+		//	the width to the size of the text. Use line breaks
+		//	( \n ) to create new lines.
 		//
-		// TODO - handle zoom - and zoom while showing
-		// disable?
+		// TODO - disable zoom while showing?
 		//
-		// TODO:
+		// FIXME:
 		//	Handles width: auto, align:middle, etc. but for
 		//	display only, edit is out of whack
 		//
@@ -85,6 +93,24 @@ dojo.require("drawing.stencil.Text");
 		{
 			draws:true,
 			type:"drawing.tools.TextBlock",
+			
+			/*=====
+			dojox.__StencilData = {
+				// summary:
+				//	the data used to create the dojox.gfx Text
+				// x: Number
+				//	Left point x
+				// y: Number
+				//	Top point y
+				// width: ? Number|String
+				//	Optional width of Text. Not required but reccommended.
+				//	for auto-sizing, use 'auto'
+				// height: ? Number
+				//	Optional height of Text. If not provided, _lineHeight is used.
+				// text: String
+				//	The string content. If not provided, may auto-delete depending on defaults.
+			}
+			=====*/
 			
 			// selectOnExec: Boolean
 			//		Whether the Stencil is selected when the text field

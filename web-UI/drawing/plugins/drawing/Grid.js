@@ -2,23 +2,39 @@ dojo.provide("drawing.plugins.drawing.Grid");
 dojo.require("drawing.plugins._Plugin");
 
 drawing.plugins.drawing.Grid = drawing.util.oo.declare(
+	// summary:
+	//	Plugin that displays a grid on the Drawing canvas.
+	// example:
+	//	|	<div dojoType="drawing.Drawing" id="drawingNode"
+	//	|		plugins="[{'name':'drawing.plugins.drawing.Grid', 'options':{gap:50}}]">
+	//	|	</div>
+	//
 	drawing.plugins._Plugin,
 	function(options){
 		this.setGrid();
 		dojo.connect(this.canvas, "setZoom", this, "setZoom");
 	},
 	{
-		gap:100,
-		zoom:1,
 		type:"drawing.plugins.drawing.Grid",
+		//
+		// gap: Number
+		//	How far apart to set the grid lines
+		gap:100,
+		//
+		// zoom: [readonly] Number
+		//	The current zoom of the grid
+		zoom:1,
+		
 		setZoom: function(zoom){
+			// summary:
+			//	Set's the zoom of the canvas
 			this.zoom = zoom;
 			this.setGrid();
 		},
 		setGrid: function(options){
-			
+			// summary:
+			//	Renders grid
 			//
-			// TODO: Shift grid for scroll -?
 			// TODO: major minor lines
 			//	minors dont show on zoom out
 			//	draw minors first

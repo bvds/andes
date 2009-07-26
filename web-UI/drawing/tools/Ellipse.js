@@ -1,9 +1,12 @@
 dojo.provide("drawing.tools.Ellipse");
 
 drawing.tools.Ellipse = drawing.util.oo.declare(
+	// summary:
+	//	A drawable Ellipse.
+	//
 	drawing.stencil.Ellipse,
 	function(){
-		
+		// summary: constructor
 	},
 	{
 		draws:true,

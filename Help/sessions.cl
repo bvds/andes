@@ -217,9 +217,7 @@
       ;; do predefs
       (dolist (predef (problem-predefs *cp*))
 	(push (cdr predef) replies))
-      
-      ;;  Push any work done, to the client here. (to do)
-      
+            
     (check-entries t))
  
     ;; Send pre-defined quantities to the help system by sending them
@@ -233,14 +231,11 @@
 				   reply))
 		    solution-step-replies)))
 
+      ;;  Also, push any work done, to the client here. (to do)
+
     (env-wrap
       (check-entries nil)      
-
-      ;;  Push times to client.  (to do)
-      (push `((:action . "new-object") (:id .  "a2.5") (:type . "statement") 
-	      (:mode . "locked") (:width . 300) (:x . 450) (:y . 75) (:text . "T0 is the time.")) 
-	    replies)
-      
+		      
       (let ((y 10) (i 0))
 	(dolist  (line (problem-statement *cp*))
 	  (cond ((unify line '(answer . ?rest))
@@ -255,7 +250,7 @@
 		  (:width . 400) (:text . ,line)) replies)))
 	  (incf i)
 	  (setf y (+ y 25)))
-	
+
 	(when (problem-graphic *cp*)
 	  (let ((dims (problem-graphic-dimensions (problem-graphic *cp*))))
 	    (if dims		
@@ -266,9 +261,20 @@
 			;; This is the URL for the graphic, which may not
 			;; match its location on the server filesystem.
 			(:href . ,(strcat "/images/" (problem-graphic *cp*))))
-		replies)
+		      replies)
 		(warn "Problem graphic file ~A missing" 
-		       (problem-graphic *cp*))))))
+		      (problem-graphic *cp*)))
+	    (setf y (+ y (second dims) 15))))
+	
+	;;  Push times to client.
+	(dolist (time-sentence (problem-times-english *cp*))
+	  (push `((:action . "new-object") 
+		  (:id .  ,(format nil "time~A" (incf i)))
+		  (:type . "statement") (:mode . "locked") 
+		      (:width . 250) (:x . 10) (:y . ,y) 
+		  (:text . ,time-sentence))
+		replies)
+	  (setf y (+ y 25))))
 
       ;;  Push initial hint to the client.  
       ;;  Should only do this when help and grading is available

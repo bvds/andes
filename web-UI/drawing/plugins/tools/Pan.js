@@ -2,6 +2,18 @@ dojo.provide("drawing.plugins.tools.Pan");
 dojo.require("drawing.plugins._Plugin");
 
 drawing.plugins.tools.Pan = drawing.util.oo.declare(
+	// summary:
+	//	A plugin that allows for a scrolling canvas. An action
+	//	tool is added to the toolbar that allows for panning. Holding
+	//	the space bar is a shortcut to that action. The canvas will
+	//	only pan and scroll if there are objects out of the viewable
+	//	area.
+	// example:
+	//	|	<div dojoType="drawing.Toolbar" drawingId="drawingNode" class="drawingToolbar vertical">
+	//	|		<div tool="drawing.tools.Line" selected="true">Line</div>
+	//	|		<div plugin="drawing.plugins.tools.Pan" options="{}">Pan</div>
+	//	|	</div>
+	//
 	drawing.plugins._Plugin,
 	function(options){
 		

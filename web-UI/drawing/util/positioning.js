@@ -6,8 +6,11 @@ dojo.provide("drawing.util.positioning");
 	var textYOffset = 20;  // height of text box
 	
 	
-	drawing.util.positioning.label = function(start, end){
-		// text position
+	drawing.util.positioning.label = function(/*Object*/start, /*Object*/end){
+		// summary:
+		//	Returns the optimal position for annotations.Label.
+		//
+		// 	text position
 		// label at middle of vector
 		var x = 0.5*(start.x+end.x);
 		var y = 0.5*(start.y+end.y);
@@ -29,11 +32,13 @@ dojo.provide("drawing.util.positioning");
 			y -= textYOffset;
 		}
 		
-		return { x:x, y:y, foo:"bar", align:align};
+		return { x:x, y:y, foo:"bar", align:align}; // Object
 	};
 	
-	drawing.util.positioning.angle = function(start, end){
-		
+	drawing.util.positioning.angle = function(/*Object*/start, /*Object*/end){
+		// summary:
+		//	Returns the optimal position for annotations.Angle.
+		//
 		// angle at first third of vector
 	        var x = 0.7*start.x+0.3*end.x;
 	        var y = 0.7*start.y+0.3*end.y;
@@ -51,7 +56,7 @@ dojo.provide("drawing.util.positioning");
 	        // box vertical aligned from middle
 	        y += end.x > start.x ? 0.5*textYOffset :  -0.5*textYOffset;
 		
-		return { x:x, y:y, align:align};
+		return { x:x, y:y, align:align}; // Object
 	}
 	
 })();

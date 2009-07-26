@@ -3,6 +3,14 @@ dojo.provide("drawing.manager.Stencil");
 (function(){
 	var surface, surfaceNode;
 	drawing.manager.Stencil = drawing.util.oo.declare(
+		// summary:
+		//	The main class for tracking Stencils that are cretaed, added,
+		//	selected, or deleted. Also handles selections, multiple
+		//	selections, adding and removing from selections, and dragging
+		//	selections. It's this class that triggers the anchors to
+		//	appear on a Stencil and whther there are anchor on a multiple
+		//	select or not (currently not)
+		//
 		function(options){
 			//
 			// TODO: mixin props
@@ -15,8 +23,8 @@ dojo.provide("drawing.manager.Stencil");
 			this.mouse = options.mouse;
 			this.keys = options.keys;
 			this.anchors = options.anchors;
-			this.items = {};
-			this.selectedItems = {};
+			this.stencils = {};
+			this.selectedStencils = {};
 			this._mouseHandle = this.mouse.register(this);
 			var _scrollTimeout;
 			dojo.connect(this.keys, "onArrow", this, "onArrow");
@@ -30,57 +38,68 @@ dojo.provide("drawing.manager.Stencil");
 			_secondClick:false,
 			
 			
-			register: function(item){
-				//console.log("Selection.register ::::::", item.id, "TEXT:", item._text)
-				if(item.isText && !item.editMode && item.deleteEmptyCreate && !item.getText()){
+			register: function(/*Object*/stencil){
+				// summary:
+				//	Key method for adding Stencils. Stencils
+				//	can be added to the canvas without adding
+				//	them to this, but they won't have selection
+				//	or drag ability.
+				//
+				//console.log("Selection.register ::::::", stencil.id, "TEXT:", stencil._text)
+				if(stencil.isText && !stencil.editMode && stencil.deleteEmptyCreate && !stencil.getText()){
 					// created empty text field
 					// defaults say to delete
-					console.warn("EMPTY CREATE DELETE", item)
-					item.destroy();
+					console.warn("EMPTY CREATE DELETE", stencil)
+					stencil.destroy();
 					return false;
 				}
-				this.items[item.id] = item;
-				if(item.execText){
-					if(item._text && !item.editMode){
-						this.selectItem(item);
+				this.stencils[stencil.id] = stencil;
+				if(stencil.execText){
+					if(stencil._text && !stencil.editMode){
+						this.selectItem(stencil);
 					}
-					item.connect("execText", this, function(){
-						if(item.isText && item.deleteEmptyModify && !item.getText()){
-							console.warn("EMPTY MOD DELETE", item)
+					stencil.connect("execText", this, function(){
+						if(stencil.isText && stencil.deleteEmptyModify && !stencil.getText()){
+							console.warn("EMPTY MOD DELETE", stencil)
 							// text deleted
 							// defaults say to delete
-							this.deleteItem(item);
-						}else if(item.selectOnExec){
-							this.selectItem(item);
+							this.deleteItem(stencil);
+						}else if(stencil.selectOnExec){
+							this.selectItem(stencil);
 						}
 					});
 				}
 				
-				item.connect("deselect", this, function(){
-					if(this.isSelected(item)){
-						// called from within item. do action.
-						this.deselectItem(item);
+				stencil.connect("deselect", this, function(){
+					if(this.isSelected(stencil)){
+						// called from within stencil. do action.
+						this.deselectItem(stencil);
 					}
 				});
 				
-				item.connect("select", this, function(){
-					if(!this.isSelected(item)){
-						// called from within item. do action.
-						this.selectItem(item);
+				stencil.connect("select", this, function(){
+					if(!this.isSelected(stencil)){
+						// called from within stencil. do action.
+						this.selectItem(stencil);
 					}
 				});
 				
-				return item;
+				return stencil;
 			},
-			unregister: function(item){
-				console.log("Selection.unregister ::::::", item.id)
-				if(item){
-					item.selected && this.onDeselect(item);
-					delete this.items[item.id];
+			unregister: function(/*Object*/stencil){
+				// summary:
+				//	Method for removing Stencils from the manager.
+				//	This doesn't delete them, only removes them from
+				// the list.
+				//
+				console.log("Selection.unregister ::::::", stencil.id)
+				if(stencil){
+					stencil.selected && this.onDeselect(stencil);
+					delete this.stencils[this.selectedStencils.id];
 				}
 			},
 			
-			onArrow: function(evt){
+			onArrow: function(/*Key Event*/evt){
 				// summary:
 				// 	Moves selection based on keyboard arrow keys
 				//
@@ -97,6 +116,10 @@ dojo.provide("drawing.manager.Stencil");
 			_lastmxx:-1,
 			_lastmxy:-1,
 			saveMoveState: function(){
+				// summary:
+				//	Internal. Used for the prototype undo stack.
+				// Saves selection position.
+				//
 				var mx = this.group.getTransform();
 				if(mx.dx == this._lastmxx && mx.dy == this._lastmxy){ return; }
 				this._lastmxx = mx.dx;
@@ -108,6 +131,11 @@ dojo.provide("drawing.manager.Stencil");
 			},
 			
 			saveThrottledState: function(){
+				// summary:
+				//	Internal. Used for the prototype undo stack.
+				//	Prevents an undo point on every mouse move.
+				//	Only does a point when the mouse hesitates.
+				//
 				clearTimeout(this._throttleVrl);
 				clearInterval(this._throttleVrl);
 				this._throttleVrl = setTimeout(dojo.hitch(this, function(){
@@ -120,18 +148,24 @@ dojo.provide("drawing.manager.Stencil");
 				this.saveMoveState();					
 				
 			},
-			unDelete: function(items){
-				console.log("unDelete:", items);
-				for(var s in items){
-					items[s].render();
-					this.onSelect(items[s]);
+			unDelete: function(/*Array*/stencils){
+				// summary:
+				//	Undeletes a stencil. Used in undo stack.
+				//
+				console.log("unDelete:", stencils);
+				for(var s in stencils){
+					stencils[s].render();
+					this.onSelect(stencils[s]);
 				}
 			},
-			onDelete: function(noundo){
+			onDelete: function(/*Boolean*/noundo){
+				// summary:
+				//	Event fired on deletion of a stencil
+				//
 				console.log("onDelete", noundo)
 				if(noundo!==true){
 					this.undo.add({
-						before:dojo.hitch(this, "unDelete", this.selectedItems),
+						before:dojo.hitch(this, "unDelete", this.selectedStencils),
 						after:dojo.hitch(this, "onDelete", true)
 					});
 				}
@@ -139,43 +173,49 @@ dojo.provide("drawing.manager.Stencil");
 					this.anchors.remove(m);
 					m.destroy();
 				});
-				this.selectedItems = {};
+				this.selectedStencils = {};
 			},
 			
-			deleteItem: function(item){
-				
+			deleteItem: function(/*Object*/stencil){
+				// summary:
+				//	Deletes a stencil.
+				//	NOTE: supports limited undo.
+				//
 				// manipulating the selction to fire onDelete properly
 				if(this.hasSelected()){
 					// there is a selection
 					var sids = [];
-					for(var m in this.selectedItems){
-						if(this.selectedItems.id == item.id){
+					for(var m in this.selectedStencils){
+						if(this.selectedStencils.id == stencil.id){
 							if(this.hasSelected()==1){
-								// the deleting item is the only one selected
+								// the deleting stencil is the only one selected
 								this.onDelete();
 								return;
 							}
 						}else{
-							sids.push(this.selectedItems.id);
+							sids.push(this.selectedStencils.id);
 						}
 					}
 					// remove selection, delete, restore selection
 					this.deselect();
-					this.selectItem(item);
+					this.selectItem(stencil);
 					this.onDelete();
 					dojo.forEach(sids, function(id){
 						this.selectItem(id);
 					}, this);
 				}else{
 					// there is not a selection. select it, delete it
-					this.selectItem(item);
+					this.selectItem(stencil);
 					// now delete selection
 					this.onDelete();
 				}
 			},
 			
 			setSelectionGroup: function(){
-				
+				// summary:
+				//	Internal. Creates a new selection group
+				//	used to hold selected stencils.
+				//
 				this.withSelected(function(m){
 					this.onDeselect(m, true);
 				});
@@ -191,9 +231,14 @@ dojo.provide("drawing.manager.Stencil");
 					this.group.add(m.container);
 					m.select();
 				});
-				
 			},
+			
 			setConstraint: function(){
+				// summary:
+				//	Internal. Gets all selected stencils' coordinates
+				//	and determines how far left and up the selection
+				//	can go without going below zero
+				//
 				var t = 0; l = 0;
 				this.withSelected(function(m){
 					var o = m.getBounds();
@@ -202,39 +247,50 @@ dojo.provide("drawing.manager.Stencil");
 				});
 				this.constrain = {l:-l, t:-t};
 			},
-			onSelect: function(item){
-				//console.log("stencil.onSelect", item);
-				if(!item){
-					console.error("null item is not selected:", this.items)
+			
+			onSelect: function(/*Object*/stencil){
+				// summary:
+				//	Event fired on selection of a stencil
+				//
+				//console.log("stencil.onSelect", stencil);
+				if(!stencil){
+					console.error("null stencil is not selected:", this.stencils)
 				}
-				if(this.selectedItems[item.id]){ return; }
-				this.selectedItems[item.id] = item;
-				this.group.add(item.container);
-				item.select();
+				if(this.selectedStencils[stencil.id]){ return; }
+				this.selectedStencils[stencil.id] = stencil;
+				this.group.add(stencil.container);
+				stencil.select();
 				if(this.hasSelected()==1){
-					this.anchors.add(item, this.group);
+					this.anchors.add(stencil, this.group);
 				}
-				
 			},
-			onDeselect: function(item, keepObject){
+			
+			onDeselect: function(stencil, keepObject){
+				// summary:
+				//	Event fired on deselection of a stencil
+				//
 				if(!keepObject){
-					delete this.selectedItems[item.id];
+					delete this.selectedStencils[stencil.id];
 				}
-				this.anchors.remove(item);
+				this.anchors.remove(stencil);
 				
-				surface.add(item.container);
-				item.deselect();
-				item.applyTransform(this.group.getTransform());
-				
-				
+				surface.add(stencil.container);
+				stencil.deselect();
+				stencil.applyTransform(this.group.getTransform());
 			},
 			
-			deselectItem: function(item){
+			deselectItem: function(/*Object*/stencil){
+				// summary:
+				//	Deselect passed stencil
+				//
 				// note: just keeping with standardized methods
-				this.onDeselect(item);
+				this.onDeselect(stencil);
 			},
 			
-			deselect: function(){ // all items
+			deselect: function(){ // all stencils
+				// summary:
+				//	Deselect all stencils
+				//
 				this.withSelected(function(m){
 					this.onDeselect(m);
 				});
@@ -242,12 +298,15 @@ dojo.provide("drawing.manager.Stencil");
 				this._wasDragged = false;
 			},
 			
-			onStencilDoubleClick: function(obj){
+			onStencilDoubleClick: function(/*dojox.__MangerMouseEvent*/obj){
+				// summary:
+				//	Event fired on the double-click of a stencil
+				//
 				console.info("mgr.onStencilDoubleClick:", obj)
-				if(this.selectedItems[obj.id]){
-					if(this.selectedItems[obj.id].edit){
-						console.info("Mgr Stencil Edit -> ", this.selectedItems[obj.id]);
-						var m = this.selectedItems[obj.id];
+				if(this.selectedStencils[obj.id]){
+					if(this.selectedStencils[obj.id].edit){
+						console.info("Mgr Stencil Edit -> ", this.selectedStencils[obj.id]);
+						var m = this.selectedStencils[obj.id];
 						// deselect must happen first to set the transform
 						// then edit knows where to set the text box
 						m.editMode = true;
@@ -258,25 +317,33 @@ dojo.provide("drawing.manager.Stencil");
 				
 			},
 			
-			
 			onAnchorUp: function(){
+				// summary:
+				//	Event fire on mouseup off of an anchor point
 				this.setConstraint();
 			},
+			
 			selectItem: function(/*String|Object*/ idOrItem){
+				// summary:
+				//	Method used to select a stencil.
+				//
 				var id = typeof(idOrItem)=="string" ? idOrItem : idOrItem.id;
-				var item = this.items[id];
+				var stencil = this.stencils[id];
 				this.setSelectionGroup();
-				this.onSelect(item);
+				this.onSelect(stencil);
 				this.group.moveToFront();
 				this.setConstraint();
 			},
 			
-			onStencilDown: function(obj){
+			onStencilDown: function(/*dojox.__MangerMouseEvent*/obj){
+				// summary:
+				//	Event fired on mousedown on a stencil
+				//
 				//console.info("onStencilDown:", obj.id, this.keys.meta)
-				if(this.selectedItems[obj.id] && this.keys.meta){
+				if(this.selectedStencils[obj.id] && this.keys.meta){
 					
 					//console.log("shift remove");
-					this.onDeselect(this.selectedItems[obj.id]);
+					this.onDeselect(this.selectedStencils[obj.id]);
 					if(this.hasSelected()==1){
 						this.withSelected(function(m){
 							this.anchors.add(m, this.group);
@@ -286,7 +353,7 @@ dojo.provide("drawing.manager.Stencil");
 					this.setConstraint();
 					return;
 				
-				}else if(this.selectedItems[obj.id]){
+				}else if(this.selectedStencils[obj.id]){
 					// RESET OFFSETS
 					var mx = this.group.getTransform();
 					this._offx = obj.x - mx.dx; 
@@ -299,10 +366,10 @@ dojo.provide("drawing.manager.Stencil");
 					this.deselect();
 				
 				}else{
-					//console.log("reset sel and add item")
+					//console.log("reset sel and add stencil")
 				}
 				
-				// add an item
+				// add an stencil
 				this.selectItem(obj.id);
 				
 				var mx = this.group.getTransform();
@@ -326,15 +393,16 @@ dojo.provide("drawing.manager.Stencil");
 				});
 			},
 			
-			onDown: function(obj){
-				this.deselect();
+			onStencilUp: function(/*dojox.__MangerMouseEvent*/obj){
+				// summary:
+				//	Event fired on mouseup off of a stencil
+				//
 			},
 			
-			onStencilUp: function(obj){
-				
-			},
-			
-			onStencilDrag: function(obj){
+			onStencilDrag: function(/*dojox.__MangerMouseEvent*/obj){
+				// summary:
+				//	Event fired on every mousemove of a stencil drag
+				//	
 				if(!this._dragBegun){
 					// bug, in FF anyway - first mouse move shows x=0
 					// the 'else' fixes it
@@ -369,51 +437,89 @@ dojo.provide("drawing.manager.Stencil");
 				}
 			},
 			
-			onDragEnd: function(obj){
+			onDragEnd: function(/*dojox.__MangerMouseEvent*/obj){
+				// summary:
+				//	Event fired at the end of a stencil drag
+				//
 				this._dragBegun = false;
 			},
-			onBeginDrag: function(obj){
+			onBeginDrag: function(/*dojox.__MangerMouseEvent*/obj){
+				// summary:
+				//	Event fired at the beginning of a stencil drag
+				//
 				this._wasDragged = true;
 			},
 			
-			onStencilOver: function(evt, item){
+			onDown: function(/*dojox.__MangerMouseEvent*/obj){
+				// summary:
+				//	Event fired on mousedown on the canvas
+				//
+				this.deselect();
+			},
+			
+			/*
+			onStencilOver: function(evt, stencil){
+				// summary:
+				//	TODO: This is currently not supported.
 				console.log("OVER", surface)
 				dojo.style(surfaceNode, "cursor", "move");
 			},
-			onStencilOut: function(evt, item){
+			
+			onStencilOut: function(evt, stencil){
+				// summary:
+				//	TODO: This is currently not supported.
 				console.log("OUT")
 				dojo.style(surfaceNode, "cursor", "crosshair");
 			},
+			*/
 			
-			withSelected: function(func){
-				// convenience function
+			withSelected: function(/*Function*/func){
+				// summary:
+				//	Convenience function calls function on
+				//	all selected stencils
 				var f = dojo.hitch(this, func);
-				for(var m in this.selectedItems){
-					f(this.selectedItems[m]);
+				for(var m in this.selectedStencils){
+					f(this.selectedStencils[m]);
 				}
 			},
-			withUnselected: function(func){
-				// convenience function
+			
+			withUnselected: function(/*Function*/func){
+				// summary:
+				//	Convenience function calls function on
+				//	all stencils that are not selected
 				var f = dojo.hitch(this, func);
-				for(var m in this.items){
-					!this.items[m].selected && f(this.items[m]);
+				for(var m in this.stencils){
+					!this.stencils[m].selected && f(this.stencils[m]);
 				}
 			},
-			withItems: function(func){
-				// convenience function
+			
+			withStencils: function(/*Function*/func){
+				// summary:
+				//	Convenience function calls function on
+				//	all stencils
 				var f = dojo.hitch(this, func);
-				for(var m in this.items){
-					f(this.items[m]);
+				for(var m in this.stencils){
+					f(this.stencils[m]);
 				}
 			},
+			
 			hasSelected: function(){
-				// returns number of selected - should be areSelected?
+				// summary:
+				// returns number of selected (generally used
+				//	as truthy or falsey)
+				//
+				// FIXME: should be areSelected?
 				var ln = 0;
-				for(var m in this.selectedItems){ ln++; }
-				return ln;
+				for(var m in this.selectedStencils){ ln++; }
+				return ln; // Number
 			},
-			isSelected: function(item){
-				return !!this.selectedItems[item.id];
+			
+			isSelected: function(/*Object*/stencil){
+				// summary:
+				//	Returns if passed stencil is selected or not
+				//	based on internal collection, not on stencil
+				//	boolean
+				return !!this.selectedStencils[stencil.id]; // Boolean
 			}
 		}
 		
