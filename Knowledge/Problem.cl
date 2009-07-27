@@ -77,6 +77,7 @@
   ; can be omitted if a workbench .fbd file has been created for the problem
   Times		  ;; time legend as list of (time point, description) pairs. Ex:
                   ;; Ex: ((1 "car starts moving") (2 "car hits driveway"))
+                  ;; See problem-times-english for details.
   Choices	  ;; list of choice category members for menus. Ex:
                   ;; ((bodies (car driveway wall Earth))
 		  ;;  (branches (Br1 Br2 Br3)))
@@ -620,18 +621,23 @@
     (when (= 0 (sb-ext:process-exit-code id))
       (read (sb-ext:process-output id)))))
 
-#|  This is disused at present since noone is using the flag.
-;;; Problem testing
-;;; Assorted utility functions for help code.
-
-(defun multi-axis-problemp (Problem)
-  "Is the problem a multi-axis problem?"
-  (member 'multi-axis-problem 
-	  (problem-features Problem)))
-
-(defun single-axis-problemp (Problem)
-  "Is the problem a multi-axis problem?"
-  (not (member 'multi-axis-problem 
-	       (problem-features Problem))))
-
-|#
+(defun problem-times-english (problem)
+  "Return list of English sentences defining times."
+  (let ((times (problem-times problem)))
+    (cond ((null times) '("Define time T0."))
+	  ((eql times 'none) nil)
+	  ((listp (problem-times problem))
+	   (remove nil (mapcar #'problem-time-english times)))
+	  (t (warn "Invalid time specifications ~A" times)))))
+  
+(defun problem-time-english (time)
+  "Return English sentence for a given problem-times specification."
+  (cond 
+    ((eql (car time) 'during)
+     (when (fourth time)
+       (format nil "~A: ~A." 
+	       (string-upcase (nlg (subseq time 0 3)) :end 1) (fourth time))))
+    ((numberp (car time))
+     (format nil "Define time ~A~@[:  ~A~]." 
+	     (nlg (car time) 'moment) (second time)))
+    (t (warn "Bad time specification ~A" time))))

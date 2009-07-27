@@ -89,8 +89,8 @@
 	 (method-func (gethash (list service-uri method) 
 			       *service-methods*))
 	 reply)
-    (format *stdout* "session ~A calling ~A with~%     ~S~%" 
-	    client-id method params)
+    (when *debug* (format *stdout* "session ~A calling ~A with~%     ~S~%" 
+			  client-id method params))
     
     (multiple-value-bind (result error1)
 	(cond
@@ -129,7 +129,8 @@
 	  ;; match the function...
 	  (t (execute-session client-id turn method-func params)))
       
-      (format *stdout* "result ~S~%~@[error ~S~%~]" result error1)
+      (when *debug* 
+	(format *stdout* "result ~S~%~@[error ~S~%~]" result error1))
       ;; only give a response when there is an error or id is given
       (when (or error1 turn)
 	(when (or error1 (not version)) (push (cons :error error1) reply))

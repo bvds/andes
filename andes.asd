@@ -49,8 +49,10 @@
 	       (:module "Knowledge"
 			:depends-on ("Base" "HelpStructs" "Algebra")
 			:components ((:file "eqn")         
-				     (:file "Nogood")    
-				     (:file "Problem") ;depends on HelpStructs
+				     (:file "Nogood")  
+				     ;; depends on HelpStructs, nlg  
+				     (:file "Problem")
+				     ;; depends on nlg
 				     (:file "Operators")  
 				     (:file "qvar"
 					    :depends-on ("Problem"))
@@ -59,12 +61,13 @@
 					    :depends-on ("qvar" "eqn" "Problem"))
 				     (:file "ErrorClass"
 					    :depends-on ("Problem"))
-				     ;; NLG not defined
+				     ;; depends on nlg
 				     (:no-compile-file "Ontology")  
 				     (:file "Solution"
 					    :depends-on ("Problem"))))	       
 	       (:module "KB"
 ;;;	    	:description "Knowledge Base"
+			;; Also depends on nlg
 			:depends-on ("Knowledge" "Base")
 			:default-component-class no-compile-file
   			:serial t  ;real dependancies would be better
