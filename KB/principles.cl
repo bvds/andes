@@ -1063,7 +1063,7 @@
 ;;;   perl -pi.orig -e 's/\$W/&Omega;/g; s/\$w/&omega;/g; s/\$p/&pi;/g; s/\$S/&Sigma/g; s/\$q/&theta;/g; s/\$l/&lambda;/g; s/\$a/&alpha;/g; s/\$r/&rho;/g; s/\$F/&Phi;/g; s/\$e/&epsilon;/g; s/\$m/&mu;/g; s/\$t/&tau;/g; s/\$b/&beta;/g;' principles.json
 
 
-(defun principles-json-file (&key (file "web-UI/andes/principles.json") sets)
+(defun principles-json-file (&key (file "review/principles.json") sets)
   "Construct JSON file containing principle tree."
   (let ((Stream  (open (merge-pathnames file *Andes-Path*)
 		       :direction :output :if-exists :supersede))

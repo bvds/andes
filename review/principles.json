@@ -1,0 +1,373 @@
+{
+  "identifier": "id'",
+  "label": "label",
+  "items": [
+  {"id": "Write a Principle1", "label": "Write a Principle", "items": [
+  {"id": "Kinematics2", "label": "Kinematics", "items": [
+  {"id": "Translational3", "label": "Translational", "items": [
+    {"id": "SDD4", "label": "v(avg) = s/t    average speed", "psmclass-name": "SDD", "tutorial": "Average speed"},
+    {"id": "AVG-VELOCITY6", "label": "v(avg)_x = d_x/t    average velocity", "psmclass-name": "(AVG-VELOCITY ((?AXIS . X)))", "tutorial": "Average velocity"},
+    {"id": "AVG-VELOCITY8", "label": "v(avg)_y = d_y/t    average velocity", "psmclass-name": "(AVG-VELOCITY ((?AXIS . Y)))", "tutorial": "Average velocity"},
+    {"id": "LK-NO-S10", "label": "a(avg)_x = (vf_x - vi_x)/t    ", "psmclass-name": "(LK-NO-S ((?AXIS . X)))", "tutorial": "Average acceleration"},
+    {"id": "LK-NO-S12", "label": "a(avg)_y = (vf_y - vi_y)/t    ", "psmclass-name": "(LK-NO-S ((?AXIS . Y)))", "tutorial": "Average acceleration"},
+    {"id": "LK-NO-VF14", "label": "d_x = v0_x*t + 0.5*a_x*t^2    [a_x is constant]", "psmclass-name": "(LK-NO-VF ((?AXIS . X)))", "tutorial": "Constant acceleration"},
+    {"id": "LK-NO-VF16", "label": "d_y = v0_y*t + 0.5*a_y*t^2    [a_y is constant]", "psmclass-name": "(LK-NO-VF ((?AXIS . Y)))", "tutorial": "Constant acceleration"},
+    {"id": "LK-NO-S18", "label": "vf_x = vi_x + a(avg)_x*t    ", "psmclass-name": "(LK-NO-S ((?AXIS . X)))", "tutorial": "Constant acceleration"},
+    {"id": "LK-NO-S20", "label": "vf_y = vi_y + a(avg)_y*t    ", "psmclass-name": "(LK-NO-S ((?AXIS . Y)))", "tutorial": "Constant acceleration"},
+    {"id": "LK-NO-T22", "label": "v_x^2 = v0_x^2 + 2*a_x*d_x    [a_x is constant]", "psmclass-name": "(LK-NO-T ((?AXIS . X)))", "tutorial": "Constant acceleration"},
+    {"id": "LK-NO-T24", "label": "v_y^2 = v0_y^2 + 2*a_y*d_y    [a_y is constant]", "psmclass-name": "(LK-NO-T ((?AXIS . Y)))", "tutorial": "Constant acceleration"},
+    {"id": "SDD-CONSTVEL26", "label": "d_x = v_x * t    [a_x=0; v_x is constant]", "psmclass-name": "(SDD-CONSTVEL ((?AXIS . X)))", "tutorial": "Constant velocity component"},
+    {"id": "SDD-CONSTVEL28", "label": "d_y = v_y * t    [a_y=0; v_y is constant]", "psmclass-name": "(SDD-CONSTVEL ((?AXIS . Y)))", "tutorial": "Constant velocity component"},
+    {"id": "CONST-V30", "label": "vf_x = vi_x    ", "psmclass-name": "(CONST-V ((?AXIS . X)))", "tutorial": "Constant velocity component"},
+    {"id": "CONST-V32", "label": "vf_y = vi_y    ", "psmclass-name": "(CONST-V ((?AXIS . Y)))", "tutorial": "Constant velocity component"},
+    {"id": "CENTRIPETAL-ACCEL34", "label": "ac = v^2/r    centripetal acceleration (instantaneous)", "psmclass-name": "CENTRIPETAL-ACCEL", "tutorial": "Centripetal acceleration"},
+    {"id": "CENTRIPETAL-ACCEL-COMPO36", "label": "ac_x = -v^2/r * r_x/r    centripetal acceleration (x component)", "psmclass-name": "(CENTRIPETAL-ACCEL-COMPO ((?AXIS . X)))", "tutorial": "Centripetal acceleration"},
+    {"id": "CENTRIPETAL-ACCEL-COMPO38", "label": "ac_y = -v^2/r * r_y/r    centripetal acceleration (y component)", "psmclass-name": "(CENTRIPETAL-ACCEL-COMPO ((?AXIS . Y)))", "tutorial": "Centripetal acceleration"},
+    {"id": "RELATIVE-VEL40", "label": "Vac_x = Vab_x + Vbc_x    relative velocity", "psmclass-name": "(RELATIVE-VEL ((?AXIS . X)))", "tutorial": "Relative Velocity"},
+    {"id": "RELATIVE-VEL42", "label": "Vac_y = Vab_y + Vbc_y    relative velocity", "psmclass-name": "(RELATIVE-VEL ((?AXIS . Y)))", "tutorial": "Relative Velocity"}
+  ]},
+  {"id": "Rotational44", "label": "Rotational", "items": [
+    {"id": "ANG-SDD45", "label": "$w(avg) = $q/t    average angular velocity", "psmclass-name": "ANG-SDD", "tutorial": "Angular velocity"},
+    {"id": "RK-NO-S47", "label": "$a(avg) = ($wf - $wi)/t    average anglular acceleration", "psmclass-name": "RK-NO-S", "tutorial": "Angular acceleration"},
+    {"id": "RK-NO-VF49", "label": "$q_z = $w0_z*t + 0.5*$a_z*t^2    [$a_z is constant]", "psmclass-name": "RK-NO-VF", "tutorial": "Constant angular acceleration"},
+    {"id": "RK-NO-S51", "label": "$wf = $wi + $a(avg)*t    average anglular acceleration", "psmclass-name": "RK-NO-S", "tutorial": "Constant angular acceleration"},
+    {"id": "RK-NO-T53", "label": "$w_z^2 = $w0_z^2 + 2*$a_z*$q_z    [$a_z is constant]", "psmclass-name": "RK-NO-T", "tutorial": "Constant angular acceleration"},
+    {"id": "LINEAR-VEL55", "label": "v = $w*r    linear velocity at a certain radius", "psmclass-name": "LINEAR-VEL", "tutorial": "Linear velocity"},
+    {"id": "ROLLING-VEL57", "label": "v = $w*r    linear velocity of rolling object", "psmclass-name": "ROLLING-VEL", "tutorial": "Linear velocity"}
+  ]}
+  ]},
+  {"id": "Newton's Laws59", "label": "Newton's Laws", "items": [
+  {"id": "Translational60", "label": "Translational", "items": [
+    {"id": "NSL61", "label": "F1_x + F2_x + ... = m*a_x    Newton's second law", "psmclass-name": "(NSL ((?AXIS . X)))", "tutorial": "Newton's Second Law"},
+    {"id": "NSL63", "label": "F1_y + F2_y + ... = m*a_y    Newton's second law", "psmclass-name": "(NSL ((?AXIS . Y)))", "tutorial": "Newton's Second Law"},
+    {"id": "NET-FORCE65", "label": "Fnet_x = F1_x + F2_x + ...    net force (x component)", "psmclass-name": "(NET-FORCE ((?AXIS . X)))", "tutorial": "Newton's Second Law"},
+    {"id": "NET-FORCE67", "label": "Fnet_y = F1_y + F2_y + ...    net force (y component)", "psmclass-name": "(NET-FORCE ((?AXIS . Y)))", "tutorial": "Newton's Second Law"},
+    {"id": "NTL69", "label": "Fof1on2 = Fof2on1    Newton's Third law (magnitudes)", "psmclass-name": "NTL", "tutorial": "Newton's Third Law"},
+    {"id": "NTL-VECTOR71", "label": "F12_x = - F21_x    Newton's Third law (components)", "psmclass-name": "(NTL-VECTOR ((?AXIS . X)))", "tutorial": "Newton's Third Law"},
+    {"id": "NTL-VECTOR73", "label": "F12_y = - F21_y    Newton's Third law (components)", "psmclass-name": "(NTL-VECTOR ((?AXIS . Y)))", "tutorial": "Newton's Third Law"},
+    {"id": "UG75", "label": "Fg = G*m1*m2/r^2    universal gravitation", "psmclass-name": "UG", "tutorial": "Universal Gravitation"}
+  ]},
+  {"id": "Rotational77", "label": "Rotational", "items": [
+    {"id": "NFL-ROT78", "label": "0 = $t1_z + $t2_z + ...    rotational form of Newton's 2nd law ($a =0)", "psmclass-name": "NFL-ROT", "tutorial": "Newton's Law for rotation"},
+    {"id": "NSL-ROT80", "label": "$tnet_z = I*$a_z    rotational form of Newton's 2nd law", "psmclass-name": "NSL-ROT", "tutorial": "Newton's Law for rotation"},
+    {"id": "MAG-TORQUE82", "label": "$t = r*F*sin($q)    torque defined (magnitude)", "psmclass-name": "MAG-TORQUE", "tutorial": "Individual torque magnitude"},
+    {"id": "TORQUE84", "label": "$t_x = r_y*F_z - r_z*F_y    torque defined (x component)", "psmclass-name": "(TORQUE ((?XYZ . X)))", "tutorial": "Individual torque magnitude"},
+    {"id": "TORQUE86", "label": "$t_y = r_z*F_x - r_x*F_z    torque defined (y component)", "psmclass-name": "(TORQUE ((?XYZ . Y)))", "tutorial": "Individual torque magnitude"},
+    {"id": "TORQUE88", "label": "$t_z = r*F*sin($qF-$qr)) or $t_z = r_x*F_y - r_y*F_x    torque defined (z component)", "psmclass-name": "(TORQUE ((?XYZ . Z)))", "tutorial": "Individual torque magnitude"},
+    {"id": "NET-TORQUE-ZC90", "label": "$tnet_z = $t1_z + $t2_z + ...    net torque defined", "psmclass-name": "NET-TORQUE-ZC", "tutorial": "Net torque"}
+  ]}
+  ]},
+  {"id": "Work Energy and Power92", "label": "Work Energy and Power", "items": [
+    {"id": "WORK93", "label": "W = F*d*cos($q) or W = F_x*d_x + F_y*d_y    work defined", "psmclass-name": "WORK", "tutorial": "Work done by a force"},
+    {"id": "NET-WORK95", "label": "Wnet = WF1 + WF2 + ...    net work defined", "psmclass-name": "NET-WORK", "tutorial": "Net work"},
+    {"id": "WORK-NC97", "label": "Wnc = Wncf1 + Wncf2 + ...    work by non-conservative", "psmclass-name": "WORK-NC", "tutorial": "Conservation of Energy"},
+    {"id": "WORK-ENERGY99", "label": "Wnet = Kf - Ki    work-energy theorem", "psmclass-name": "WORK-ENERGY", "tutorial": "Work-Energy"},
+    {"id": "MECHANICAL-ENERGY101", "label": "ME = KE + $S Ui    mechanical energy defined", "psmclass-name": "MECHANICAL-ENERGY", "tutorial": "Conservation of Energy"},
+    {"id": "CHANGE-ME103", "label": "Wnc = ME2 - ME1    change in mechanical energy", "psmclass-name": "CHANGE-ME", "tutorial": "Conservation of Energy"},
+    {"id": "CONS-ENERGY105", "label": "ME1 = ME2    [Wnc=0] conservation of mechanical energy", "psmclass-name": "CONS-ENERGY", "tutorial": "Conservation of Energy"},
+    {"id": "POTENTIAL-ENERGY-DEFINITION107", "label": "U2 - U1 = -W12    definition of potential energy", "psmclass-name": "POTENTIAL-ENERGY-DEFINITION"},
+    {"id": "KINETIC-ENERGY109", "label": "KE = 0.5*m*v^2    kinetic energy defined", "psmclass-name": "KINETIC-ENERGY", "tutorial": "Conservation of Energy"},
+    {"id": "ROTATIONAL-ENERGY111", "label": "KE = 0.5*I*$w^2    rotational kinetic energy defined", "psmclass-name": "ROTATIONAL-ENERGY", "tutorial": "Conservation of Energy"},
+    {"id": "GRAV-ENERGY113", "label": "Ug = m*g*h    gravitational potential energy", "psmclass-name": "GRAV-ENERGY", "tutorial": "Conservation of Energy"},
+    {"id": "GRAVITATIONAL-ENERGY-POINT115", "label": "Ug = -G*m1*m2/r    gravitational potential energy, spherical source", "psmclass-name": "GRAVITATIONAL-ENERGY-POINT"},
+    {"id": "SPRING-ENERGY117", "label": "Us = 0.5*k*d^2    spring potential energy", "psmclass-name": "SPRING-ENERGY", "tutorial": "Conservation of Energy"},
+    {"id": "ELECTRIC-ENERGY119", "label": "U = q*Vnet    electric potential energy", "psmclass-name": "ELECTRIC-ENERGY", "tutorial": "Electric Potential"},
+    {"id": "POWER121", "label": "P(avg) = W/t    average power defined", "psmclass-name": "POWER", "tutorial": "Power"},
+    {"id": "NET-POWER123", "label": "Pnet = Wnet/t    average net power defined", "psmclass-name": "NET-POWER", "tutorial": "Power"},
+    {"id": "INST-POWER125", "label": "P = F*v*cos($q) or P = F_x*v_x + F_y*v_y    instantaneous power", "psmclass-name": "INST-POWER", "tutorial": "Power"},
+    {"id": "SPHERICAL-INTENSITY-TO-POWER127", "label": "P = 4*$p*r^2*I    relation of power and intensity (spherical emitter)", "psmclass-name": "SPHERICAL-INTENSITY-TO-POWER", "tutorial": "Intensity"},
+    {"id": "UNIFORM-INTENSITY-TO-POWER129", "label": "P = I*A    relation of power and intensity (uniform over surface)", "psmclass-name": "UNIFORM-INTENSITY-TO-POWER", "tutorial": "Intensity"},
+    {"id": "NET-INTENSITY131", "label": "Inet = I1 + I2 + ...    net intensity defined", "psmclass-name": "NET-INTENSITY", "tutorial": "Intensity"},
+    {"id": "INTENSITY-TO-DECIBELS133", "label": "$b = 10*log10(I/Iref)    intensity & decibels", "psmclass-name": "INTENSITY-TO-DECIBELS", "tutorial": "Intensity"},
+    {"id": "INTENSITY-TO-DECIBELS135", "label": "I = Iref*10^($b/10)    intensity & decibels", "psmclass-name": "INTENSITY-TO-DECIBELS", "tutorial": "Intensity"},
+    {"id": "INTENSITY-TO-POYNTING-VECTOR-MAGNITUDE137", "label": "I = S    intensity & magnitude of the Poynting vector", "psmclass-name": "INTENSITY-TO-POYNTING-VECTOR-MAGNITUDE", "tutorial": "Intensity"}
+  ]},
+  {"id": "Momentum and Impulse139", "label": "Momentum and Impulse", "items": [
+  {"id": "Translational140", "label": "Translational", "items": [
+    {"id": "MOMENTUM-COMPO141", "label": "p_x = m*v_x    momentum defined (x component)", "psmclass-name": "(MOMENTUM-COMPO ((?AXIS . X)))", "tutorial": "Conservation of Momentum"},
+    {"id": "MOMENTUM-COMPO143", "label": "p_y = m*v_y    momentum defined (y component)", "psmclass-name": "(MOMENTUM-COMPO ((?AXIS . Y)))", "tutorial": "Conservation of Momentum"},
+    {"id": "CONS-LINMOM145", "label": "p1i_x + p2i_x + ... = p1f_x + p2f_x + ...    conservation of momentum", "psmclass-name": "(CONS-LINMOM ((?AXIS . X)))", "tutorial": "Conservation of Momentum"},
+    {"id": "CONS-LINMOM147", "label": "p1i_y + p2i_y + ... = p1f_y + p2f_y + ...    conservation of momentum", "psmclass-name": "(CONS-LINMOM ((?AXIS . Y)))", "tutorial": "Conservation of Momentum"},
+    {"id": "CONS-KE-ELASTIC149", "label": "KEf = KEi    elastic collision defined", "psmclass-name": "CONS-KE-ELASTIC", "tutorial": "Elastic collisions"},
+    {"id": "IMPULSE-FORCE151", "label": "J_x = F(avg)_x*t    impulse and force", "psmclass-name": "(IMPULSE-FORCE ((?AXIS . X)))", "tutorial": "Impulse"},
+    {"id": "IMPULSE-FORCE153", "label": "J_y = F(avg)_y*t    impulse and force", "psmclass-name": "(IMPULSE-FORCE ((?AXIS . Y)))", "tutorial": "Impulse"},
+    {"id": "IMPULSE-MOMENTUM155", "label": "J1_x + J2_x + ... = pf_x - pi_x    Newton's second law", "psmclass-name": "(IMPULSE-MOMENTUM ((?AXIS . X)))", "tutorial": "Impulse"},
+    {"id": "IMPULSE-MOMENTUM157", "label": "J1_y + J2_y + ... = pf_y - pi_y    Newton's second law", "psmclass-name": "(IMPULSE-MOMENTUM ((?AXIS . Y)))", "tutorial": "Impulse"},
+    {"id": "NTL-IMPULSE159", "label": "J12 = J21    Newton's third law (magnitude)", "psmclass-name": "NTL-IMPULSE", "tutorial": "Impulse"},
+    {"id": "NTL-IMPULSE-VECTOR161", "label": "J12_x = -J21_x    Newton's third law (x component)", "psmclass-name": "(NTL-IMPULSE-VECTOR ((?AXIS . X)))", "tutorial": "Impulse"},
+    {"id": "NTL-IMPULSE-VECTOR163", "label": "J12_y = -J21_y    Newton's third law (y component)", "psmclass-name": "(NTL-IMPULSE-VECTOR ((?AXIS . Y)))", "tutorial": "Impulse"},
+    {"id": "CENTER-OF-MASS-COMPO165", "label": "Rcm_x = (m1*r1_x + m2*r2_x + ...)/(m1 + m2 + ...)    center of mass", "psmclass-name": "(CENTER-OF-MASS-COMPO ((?AXIS . X)))", "tutorial": "Center of Mass"},
+    {"id": "CENTER-OF-MASS-COMPO167", "label": "Rcm_y = (m1*r1_y + m2*r2_y + ...)/(m1 + m2 + ...)    center of mass", "psmclass-name": "(CENTER-OF-MASS-COMPO ((?AXIS . Y)))", "tutorial": "Center of Mass"}
+  ]},
+  {"id": "Rotational169", "label": "Rotational", "items": [
+    {"id": "ANG-MOMENTUM170", "label": "L_z = I*$w_z    angular momentum defined", "psmclass-name": "ANG-MOMENTUM", "tutorial": "Angular momentum definition"},
+    {"id": "CONS-ANGMOM172", "label": "L1i_z + L2i_z + ... = L1f_z + L2f_z + ...    conservation of angular momentum", "psmclass-name": "CONS-ANGMOM", "tutorial": "Conservation of Angular momentum"}
+  ]}
+  ]},
+  {"id": "Fluids174", "label": "Fluids", "items": [
+    {"id": "PRESSURE-HEIGHT-FLUID175", "label": "P2 - P1 = $r*g*(h1-h2)    pressure in fluid", "psmclass-name": "PRESSURE-HEIGHT-FLUID", "tutorial": "Pressure Height"},
+    {"id": "BERNOULLI177", "label": "0.5*$r*v1^2 + $r*g*h1 + P1 = 0.5*$r*v2^2 + $r*g*h2 + P2    Bernoulli equation", "psmclass-name": "BERNOULLI", "tutorial": "Bernoulli's Principle"},
+    {"id": "EQUATION-OF-CONTINUITY179", "label": "A1*v1 = A2*v2    equation of continuity", "psmclass-name": "EQUATION-OF-CONTINUITY", "tutorial": "Bernoulli's Principle"},
+    {"id": "PRESSURE-FORCE181", "label": "Fp = P*A    pressure defined", "psmclass-name": "PRESSURE-FORCE", "tutorial": "Pressure"},
+    {"id": "DENSITY183", "label": "$r = m/V    mass density defined", "psmclass-name": "DENSITY", "tutorial": "Mass Density"},
+    {"id": "ARCHIMEDES185", "label": "Fb = $rf*V*g    Archimedes principle (buoyant force)", "psmclass-name": "ARCHIMEDES", "tutorial": "Buoyant Force"}
+  ]},
+  {"id": "Electricity and Magnetism187", "label": "Electricity and Magnetism", "items": [
+    {"id": "CHARGED-PARTICLES188", "label": "Q = N*q    charged particles", "psmclass-name": "CHARGED-PARTICLES"},
+    {"id": "COULOMB190", "label": "F = kelec*abs(q1*q2)/r^2    Coulomb's law (magnitude)", "psmclass-name": "COULOMB"},
+    {"id": "COULOMB-COMPO192", "label": "F_x = (kelec*q1*q2/r^2) * r_x/r    Coulomb's law (x component)", "psmclass-name": "(COULOMB-COMPO ((?AXIS . X)))"},
+    {"id": "COULOMB-COMPO194", "label": "F_y = (kelec*q1*q2/r^2) * r_y/r    Coulomb's law (y component)", "psmclass-name": "(COULOMB-COMPO ((?AXIS . Y)))"},
+    {"id": "CHARGE-FORCE-EFIELD-MAG196", "label": "F = abs(q)*E    electric field (magnitude)", "psmclass-name": "CHARGE-FORCE-EFIELD-MAG", "tutorial": "Electric Field"},
+    {"id": "CHARGE-FORCE-EFIELD198", "label": "F_x = q*E_x    electric field", "psmclass-name": "(CHARGE-FORCE-EFIELD ((?AXIS . X)))", "tutorial": "Electric Field"},
+    {"id": "CHARGE-FORCE-EFIELD200", "label": "F_y = q*E_y    electric field", "psmclass-name": "(CHARGE-FORCE-EFIELD ((?AXIS . Y)))", "tutorial": "Electric Field"},
+    {"id": "POINT-CHARGE-EFIELD-MAG202", "label": "E = kelec*abs(q)/r^2    point charge field (magnitude)", "psmclass-name": "POINT-CHARGE-EFIELD-MAG", "tutorial": "Point Charge Field"},
+    {"id": "POINT-CHARGE-EFIELD204", "label": "E_x = (kelec*q/r^2) * r_x/r    point charge field (x component)", "psmclass-name": "(POINT-CHARGE-EFIELD ((?AXIS . X)))", "tutorial": "Point Charge Field"},
+    {"id": "POINT-CHARGE-EFIELD206", "label": "E_y = (kelec*q/r^2) * r_y/r    point charge field (y component)", "psmclass-name": "(POINT-CHARGE-EFIELD ((?AXIS . Y)))", "tutorial": "Point Charge Field"},
+    {"id": "NET-FIELD-ELECTRIC208", "label": "Enet_x = E1_x + E2_x + ...    net electric field (x component)", "psmclass-name": "(NET-FIELD-ELECTRIC ((?AXIS . X)))", "tutorial": "Electric Field"},
+    {"id": "NET-FIELD-ELECTRIC210", "label": "Enet_y = E1_y + E2_y + ...    net electric field (y component)", "psmclass-name": "(NET-FIELD-ELECTRIC ((?AXIS . Y)))", "tutorial": "Electric Field"},
+    {"id": "ELECTRIC-FLUX-CONSTANT-FIELD212", "label": "$Fe = A*E*cos($qE - $qn) or $Fe = A*(E_x*n_x + E_y*n_y)    electric flux (uniform field)", "psmclass-name": "ELECTRIC-FLUX-CONSTANT-FIELD"},
+    {"id": "ELECTRIC-FLUX-CONSTANT-FIELD-CHANGE214", "label": "d$Fe/dt = E.n*dA/dt    derivative of electric flux, uniform field", "psmclass-name": "ELECTRIC-FLUX-CONSTANT-FIELD-CHANGE"},
+    {"id": "SUM-FLUXES216", "label": "$F = $F1 + $F2 + ...    adding fluxes", "psmclass-name": "SUM-FLUXES"},
+    {"id": "POINT-CHARGE-POTENTIAL218", "label": "V = kelec*q/r    point charge potential", "psmclass-name": "POINT-CHARGE-POTENTIAL", "tutorial": "Electric Potential"},
+    {"id": "NET-POTENTIAL220", "label": "Vnet = V1 + V2 + ...    net potential", "psmclass-name": "NET-POTENTIAL", "tutorial": "Electric Potential"},
+    {"id": "ELECTRIC-ENERGY222", "label": "U = q*Vnet    electric potential energy", "psmclass-name": "ELECTRIC-ENERGY", "tutorial": "Electric Potential"},
+    {"id": "GAUSS-LAW224", "label": "$Fe = Q/$e0    Gauss' law", "psmclass-name": "GAUSS-LAW"},
+    {"id": "ELECTRIC-DIPOLE-MOMENT-MAG226", "label": "p = abs(q)*r    electric dipole moment (magnitude)", "psmclass-name": "ELECTRIC-DIPOLE-MOMENT-MAG", "tutorial": "Dipoles"},
+    {"id": "ELECTRIC-DIPOLE-MOMENT228", "label": "p_x = q*r_x    electric dipole moment (x component)", "psmclass-name": "(ELECTRIC-DIPOLE-MOMENT ((?AXIS . X)))", "tutorial": "Dipoles"},
+    {"id": "ELECTRIC-DIPOLE-MOMENT230", "label": "p_y = q*r_y    electric dipole moment (y component)", "psmclass-name": "(ELECTRIC-DIPOLE-MOMENT ((?AXIS . Y)))", "tutorial": "Dipoles"},
+    {"id": "ELECTRIC-DIPOLE-TORQUE-MAG232", "label": "$t = p*E*sin($q)    torque for electric dipole (magnitude)", "psmclass-name": "ELECTRIC-DIPOLE-TORQUE-MAG", "tutorial": "Dipoles"},
+    {"id": "ELECTRIC-DIPOLE-TORQUE234", "label": "$t_z = p*E*sin($qE-$qp)) or $t_z = p_x*E_y - p_y*E_x    torque for electric dipole (z component)", "psmclass-name": "(ELECTRIC-DIPOLE-TORQUE ((?AXIS . Z)))", "tutorial": "Dipoles"},
+    {"id": "ELECTRIC-DIPOLE-ENERGY236", "label": "U = -p*E*cos($qp - $qE) or U = -(p_x*E_x + p_y*E_y)    potential energy of electric dipole", "psmclass-name": "ELECTRIC-DIPOLE-ENERGY", "tutorial": "Dipoles"},
+    {"id": "CHARGE-FORCE-BFIELD-MAG238", "label": "F = abs(q)*v*B*sin($q)    magnetic force (magnitude)", "psmclass-name": "CHARGE-FORCE-BFIELD-MAG", "tutorial": "Magnetic Field"},
+    {"id": "CHARGE-FORCE-BFIELD240", "label": "F_x = q*(v_y*B_z - v_z*B_y)    magnetic force (x component)", "psmclass-name": "(CHARGE-FORCE-BFIELD ((?AXIS . X)))", "tutorial": "Magnetic Field"},
+    {"id": "CHARGE-FORCE-BFIELD242", "label": "F_y = q*(v_z*B_x - v_x*B_z)    magnetic force (y component)", "psmclass-name": "(CHARGE-FORCE-BFIELD ((?AXIS . Y)))", "tutorial": "Magnetic Field"},
+    {"id": "CHARGE-FORCE-BFIELD244", "label": "F_z = q*v*B*sin($qB-$qv) or F_z = q*(v_x*B_y - v_y*B_x)    magnetic force (z component)", "psmclass-name": "(CHARGE-FORCE-BFIELD ((?AXIS . Z)))", "tutorial": "Magnetic Field"},
+    {"id": "CURRENT-FORCE-BFIELD-MAG246", "label": "F = I*L*B*sin($q)    magnetic force on a wire (magnitude)", "psmclass-name": "CURRENT-FORCE-BFIELD-MAG"},
+    {"id": "BIOT-SAVERT-POINT-PARTICLE-MAG248", "label": "B = $m0*abs(q)*v*sin($q)/(4*$p*r^2)    Biot-Savart law for a point charge (magnitude)", "psmclass-name": "BIOT-SAVERT-POINT-PARTICLE-MAG"},
+    {"id": "BIOT-SAVERT-POINT-PARTICLE250", "label": "B_x = $m0*q*(v_y*n_z - v_z*n_y)/(4*$p*r^2)    Biot-Savart law for a point charge (x component)", "psmclass-name": "(BIOT-SAVERT-POINT-PARTICLE ((?AXIS . X)))"},
+    {"id": "BIOT-SAVERT-POINT-PARTICLE252", "label": "B_y = $m0*q*(v_z*n_x - v_x*n_z)/(4*$p*r^2)    Biot-Savart law for a point charge (y component)", "psmclass-name": "(BIOT-SAVERT-POINT-PARTICLE ((?AXIS . Y)))"},
+    {"id": "BIOT-SAVERT-POINT-PARTICLE254", "label": "B_z = $m0*q*v*sin($qn-$qv)/(4*$p*r^2) or B_z = $m0*q*(v_x*n_y - v_y*n_x)/(4*$p*r^2)    Biot-Savart law for a point charge (z component)", "psmclass-name": "(BIOT-SAVERT-POINT-PARTICLE ((?AXIS . Z)))"},
+    {"id": "STRAIGHT-WIRE-BFIELD256", "label": "B = $m0*I/(2*$p*r)    magnetic field of a straight wire", "psmclass-name": "STRAIGHT-WIRE-BFIELD"},
+    {"id": "CENTER-COIL-BFIELD258", "label": "B = $m0*N*I/(2*r)    magnetic field at center of a thin coil", "psmclass-name": "CENTER-COIL-BFIELD"},
+    {"id": "INSIDE-SOLENOID-BFIELD260", "label": "B = $m0*n*I    magnetic field inside a long solenoid", "psmclass-name": "INSIDE-SOLENOID-BFIELD"},
+    {"id": "NET-FIELD-MAGNETIC262", "label": "Bnet_x = B1_x + B2_x + ...    net magnetic field (x component)", "psmclass-name": "(NET-FIELD-MAGNETIC ((?AXIS . X)))"},
+    {"id": "NET-FIELD-MAGNETIC264", "label": "Bnet_y = B1_y + B2_y + ...    net magnetic field (y component)", "psmclass-name": "(NET-FIELD-MAGNETIC ((?AXIS . Y)))"},
+    {"id": "NET-FIELD-MAGNETIC266", "label": "Bnet_z = B1_z + B2_z + ...    net magnetic field (z component)", "psmclass-name": "(NET-FIELD-MAGNETIC ((?AXIS . Z)))"},
+    {"id": "MAGNETIC-FLUX-CONSTANT-FIELD268", "label": "$Fb = A*B*cos($qB - $qn) or $Fb = A*(B_x*n_x + B_y*n_y)    magnetic flux (constant field)", "psmclass-name": "MAGNETIC-FLUX-CONSTANT-FIELD"},
+    {"id": "MAGNETIC-FLUX-CONSTANT-FIELD-CHANGE270", "label": "d$Fb/dt = B.n*dA/dt    rate of change in magnetic flux (constant field)", "psmclass-name": "MAGNETIC-FLUX-CONSTANT-FIELD-CHANGE"},
+    {"id": "FARADAYS-LAW272", "label": "V = -N*d$Fb/dt    Faraday's law", "psmclass-name": "FARADAYS-LAW"},
+    {"id": "AMPERES-LAW274", "label": "int B = $m0*(±I1 ± I2 ± ...)    Ampère's law", "psmclass-name": "AMPERES-LAW", "tutorial": "Ampere's Law"},
+    {"id": "MAGNETIC-DIPOLE-MOMENT-MAG276", "label": "$m = N*I*A    magnetic dipole moment (magnitude)", "psmclass-name": "MAGNETIC-DIPOLE-MOMENT-MAG", "tutorial": "Dipoles"},
+    {"id": "MAGNETIC-DIPOLE-MOMENT278", "label": "$m_x = N*I*A*n_x    magnetic dipole moment (x component)", "psmclass-name": "(MAGNETIC-DIPOLE-MOMENT ((?AXIS . X)))", "tutorial": "Dipoles"},
+    {"id": "MAGNETIC-DIPOLE-MOMENT280", "label": "$m_y = N*I*A*n_y    magnetic dipole moment (y component)", "psmclass-name": "(MAGNETIC-DIPOLE-MOMENT ((?AXIS . Y)))", "tutorial": "Dipoles"},
+    {"id": "MAGNETIC-DIPOLE-MOMENT282", "label": "$m_z = N*I*A*n_z    magnetic dipole moment (z component)", "psmclass-name": "(MAGNETIC-DIPOLE-MOMENT ((?AXIS . Z)))", "tutorial": "Dipoles"},
+    {"id": "MAGNETIC-DIPOLE-TORQUE-MAG284", "label": "$t = $m*B*sin($q)    torque for magnetic dipole (magnitude)", "psmclass-name": "MAGNETIC-DIPOLE-TORQUE-MAG", "tutorial": "Dipoles"},
+    {"id": "MAGNETIC-DIPOLE-TORQUE286", "label": "$t_x = $m_y*B_z - $m_z*B_y    torque for magnetic dipole (x component)", "psmclass-name": "(MAGNETIC-DIPOLE-TORQUE ((?AXIS . X)))", "tutorial": "Dipoles"},
+    {"id": "MAGNETIC-DIPOLE-TORQUE288", "label": "$t_y = $m_z*B_x - $m_x*B_z    torque for magnetic dipole (y component)", "psmclass-name": "(MAGNETIC-DIPOLE-TORQUE ((?AXIS . Y)))", "tutorial": "Dipoles"},
+    {"id": "MAGNETIC-DIPOLE-TORQUE290", "label": "$t_z = $m*B*sin($qB-$q$m)) or $t_z = $m_x*B_y - $m_y*B_x    torque for magnetic dipole (z component)", "psmclass-name": "(MAGNETIC-DIPOLE-TORQUE ((?AXIS . Z)))", "tutorial": "Dipoles"},
+    {"id": "MAGNETIC-DIPOLE-ENERGY292", "label": "U = -$m*B*cos($q$m - $qB) or U = -($m_x*B_x + $m_y*B_y)    potential energy of magnetic dipole", "psmclass-name": "MAGNETIC-DIPOLE-ENERGY", "tutorial": "Dipoles"},
+    {"id": "ELECTROMAGNETIC-WAVE-FIELD-AMPLITUDE294", "label": "E = B*c    ratio of fields in electromagnetic wave", "psmclass-name": "ELECTROMAGNETIC-WAVE-FIELD-AMPLITUDE"}
+  ]},
+  {"id": "Circuits296", "label": "Circuits", "items": [
+    {"id": "LOOP-RULE297", "label": "V1 + V2 + V3 ... = 0    Kirchoff's loop rule", "psmclass-name": "LOOP-RULE", "tutorial": "Loop Rule"},
+    {"id": "JUNCTION-RULE299", "label": "Iin = Iout    Kirchoff's junction rule", "psmclass-name": "JUNCTION-RULE", "tutorial": "Junction Rule"},
+    {"id": "ELECTRIC-POWER301", "label": "P = V*I    electric power", "psmclass-name": "ELECTRIC-POWER", "tutorial": "Electric Power"},
+  {"id": "Resistance303", "label": "Resistance", "items": [
+    {"id": "EQUIV-RESISTANCE-SERIES304", "label": "Req = R1 + R2 + ...    equivalent resistance series", "psmclass-name": "EQUIV-RESISTANCE-SERIES", "tutorial": "Series Resistors"},
+    {"id": "EQUIV-RESISTANCE-PARALLEL306", "label": "1/Req = 1/R1 + 1/R2 + ...    equivalent resistance parallel", "psmclass-name": "EQUIV-RESISTANCE-PARALLEL", "tutorial": "Parallel Resistors"},
+    {"id": "OHMS-LAW308", "label": "V = I*R    Ohm's Law", "psmclass-name": "OHMS-LAW", "tutorial": "Ohm's Law"}
+  ]},
+  {"id": "Capacitance310", "label": "Capacitance", "items": [
+    {"id": "CAPACITANCE-DEFINITION311", "label": "C = q/V    capacitance defined", "psmclass-name": "CAPACITANCE-DEFINITION", "tutorial": "Capacitance"},
+    {"id": "EQUIV-CAPACITANCE-PARALLEL313", "label": "Ceq = C1 + C2 + ...    equivalent capacitance parallel", "psmclass-name": "EQUIV-CAPACITANCE-PARALLEL", "tutorial": "Parallel Capacitors"},
+    {"id": "EQUIV-CAPACITANCE-SERIES315", "label": "1/Ceq = 1/C1 + 1/C2 + ...    equivalent capacitance series", "psmclass-name": "EQUIV-CAPACITANCE-SERIES", "tutorial": "Series Capacitors"},
+    {"id": "CHARGE-SAME-CAPS-IN-BRANCH317", "label": "q1 = q2    charge on series capacitors", "psmclass-name": "CHARGE-SAME-CAPS-IN-BRANCH", "tutorial": "Series Capacitors"},
+    {"id": "JUNCTION-RULE-CAP319", "label": "Qin = Qout    capacitor junction rule", "psmclass-name": "JUNCTION-RULE-CAP"},
+    {"id": "CAP-ENERGY321", "label": "U = 0.5*C*V^2    energy stored in a capacitor", "psmclass-name": "CAP-ENERGY", "tutorial": "Capacitor Energy"},
+    {"id": "RC-TIME-CONSTANT323", "label": "$t = R*C    RC time constant", "psmclass-name": "RC-TIME-CONSTANT", "tutorial": "RC Circuits"},
+    {"id": "CHARGING-CAPACITOR-AT-TIME325", "label": "q = C*Vb*(1 - exp(-t/$t))    charge on capacitor in RC circuit with battery", "psmclass-name": "CHARGING-CAPACITOR-AT-TIME", "tutorial": "RC Circuits"},
+    {"id": "DISCHARGING-CAPACITOR-AT-TIME327", "label": "q = qi*exp(-t/$t)    charge on capacitor in RC circuit", "psmclass-name": "DISCHARGING-CAPACITOR-AT-TIME", "tutorial": "RC Circuits"},
+    {"id": "CURRENT-IN-RC-AT-TIME329", "label": "I = (Vb/R)*exp(-t/$t)    current in RC circuit", "psmclass-name": "CURRENT-IN-RC-AT-TIME", "tutorial": "RC Circuits"},
+    {"id": "CHARGE-CAPACITOR-PERCENT-MAX331", "label": "q = fraction*C*Vb    RC charge as fraction of max", "psmclass-name": "CHARGE-CAPACITOR-PERCENT-MAX", "tutorial": "RC Circuits"}
+  ]},
+  {"id": "Inductance333", "label": "Inductance", "items": [
+    {"id": "INDUCTOR-EMF334", "label": "V = -L*dIdt    inductor EMF", "psmclass-name": "INDUCTOR-EMF", "tutorial": "Inductance"},
+    {"id": "MUTUAL-INDUCTOR-EMF336", "label": "V2 = -M12*dI1dt    mutual inductor EMF", "psmclass-name": "MUTUAL-INDUCTOR-EMF", "tutorial": "Inductance"},
+    {"id": "INDUCTOR-ENERGY338", "label": "U = 0.5*L*I^2    energy stored in inductor", "psmclass-name": "INDUCTOR-ENERGY", "tutorial": "Inductance"},
+    {"id": "SOLENOID-SELF-INDUCTANCE340", "label": "L = $m0*N^2*A/l    self-inductance of long, uniform solenoid", "psmclass-name": "SOLENOID-SELF-INDUCTANCE", "tutorial": "Inductance"},
+    {"id": "LR-TIME-CONSTANT342", "label": "$t = L/R    LR time constant", "psmclass-name": "LR-TIME-CONSTANT", "tutorial": "LR Circuits"},
+    {"id": "LR-CURRENT-GROWTH344", "label": "I = Imax*(1 - exp(-t/$t))    LR current growth", "psmclass-name": "LR-CURRENT-GROWTH", "tutorial": "LR Circuits"},
+    {"id": "LR-GROWTH-IMAX346", "label": "Imax = Vb/R    LR growth final current", "psmclass-name": "LR-GROWTH-IMAX", "tutorial": "LR Circuits"},
+    {"id": "LR-CURRENT-DECAY348", "label": "I = I0*exp(-t/$t)    LR current decay", "psmclass-name": "LR-CURRENT-DECAY", "tutorial": "LR Circuits"},
+    {"id": "LR-DECAY-IMAX350", "label": "I0 = Vb/R    LR circuit initial current", "psmclass-name": "LR-DECAY-IMAX", "tutorial": "LR Circuits"},
+    {"id": "LC-ANGULAR-FREQUENCY352", "label": "$w = 1/sqrt(L*C)    LC angular frequency", "psmclass-name": "LC-ANGULAR-FREQUENCY", "tutorial": "LC Circuits"},
+    {"id": "RLC-TIME-CONSTANT354", "label": "$t = 2*L/R    RLC time constant", "psmclass-name": "RLC-TIME-CONSTANT", "tutorial": "RLC Circuits"},
+    {"id": "RLC-ANGULAR-FREQUENCY356", "label": "$w = sqrt(1/(L*C)-R^2/(2*L)^2)    RLC angular frequency", "psmclass-name": "RLC-ANGULAR-FREQUENCY", "tutorial": "RLC Circuits"},
+    {"id": "TRANSFORMER-VOLTAGE358", "label": "V1/N1 = V2/N2    transformer voltage relation", "psmclass-name": "TRANSFORMER-VOLTAGE"},
+    {"id": "TRANSFORMER-POWER360", "label": "P1 = P2    transformer power relation", "psmclass-name": "TRANSFORMER-POWER"}
+  ]}
+  ]},
+  {"id": "Optics362", "label": "Optics", "items": [
+    {"id": "LENS-EQN363", "label": "1/do + 1/di = 1/f    thin lens/mirror equation", "psmclass-name": "LENS-EQN", "tutorial": "Lens Equation"},
+    {"id": "MAGNIFICATION-EQN365", "label": "m = -di/do    (lateral) magnification", "psmclass-name": "MAGNIFICATION-EQN", "tutorial": "Magnification"},
+    {"id": "FOCAL-LENGTH-MIRROR367", "label": "f = r/2    focal length of mirror", "psmclass-name": "FOCAL-LENGTH-MIRROR", "tutorial": "Spherical Mirror"},
+    {"id": "LENS-COMBO369", "label": "do2 = d12 - di1    combination of lenses", "psmclass-name": "LENS-COMBO", "tutorial": "Combined Lenses"},
+    {"id": "COMBO-MAGNIFICATION371", "label": "m12 = m1*m2    combined magnification", "psmclass-name": "COMBO-MAGNIFICATION", "tutorial": "Magnification"},
+    {"id": "COMPOUND-FOCAL-LENGTH373", "label": "1/f12 = 1/f1 + 1/f2    compound lens (touching lenses)", "psmclass-name": "COMPOUND-FOCAL-LENGTH", "tutorial": "Touching Lenses"},
+    {"id": "WAVE-SPEED-REFRACTION375", "label": "n = c/v    index of refraction", "psmclass-name": "WAVE-SPEED-REFRACTION"},
+    {"id": "REFRACTION-VACUUM377", "label": "n=1    index of refraction of vacuum", "psmclass-name": "REFRACTION-VACUUM"},
+    {"id": "SNELLS-LAW379", "label": "n1*sin($q1) = n2*sin($q2)    Snell's law", "psmclass-name": "SNELLS-LAW"},
+    {"id": "TOTAL-INTERNAL-REFLECTION381", "label": "n1*sin($q1) = n2    total internal reflection (minimum angle)", "psmclass-name": "TOTAL-INTERNAL-REFLECTION"},
+    {"id": "BREWSTERS-LAW383", "label": "n1*tan($q1) = n2    Brewster's law", "psmclass-name": "BREWSTERS-LAW"},
+    {"id": "POLARIZER-INTENSITY385", "label": "If = Ii*cos($q)^2    Malus' law", "psmclass-name": "(POLARIZER-INTENSITY ((?FRACTION . 1)))"},
+    {"id": "POLARIZER-INTENSITY387", "label": "If = 0.5*Ii    polarizer and unpolarized light", "psmclass-name": "(POLARIZER-INTENSITY ((?FRACTION . 0)))"},
+    {"id": "SLIT-INTERFERENCE389", "label": "d*sin($q) = n*$l    interference for parallel slits", "psmclass-name": "SLIT-INTERFERENCE"},
+    {"id": "FRAUENHOFER-DIFFRACTION391", "label": "w*sin($q) = n*$l    single slit diffraction (minima)", "psmclass-name": "FRAUENHOFER-DIFFRACTION"},
+    {"id": "RESOLUTION-CIRCULAR-APERTURE393", "label": "$q = 1.22*$l/d    resolution (circular)", "psmclass-name": "RESOLUTION-CIRCULAR-APERTURE"},
+    {"id": "RADIATION-PRESSURE395", "label": "Fp = 2*I/c    radiation pressure (reflector)", "psmclass-name": "RADIATION-PRESSURE"}
+  ]},
+  {"id": "Waves and Oscillations397", "label": "Waves and Oscillations", "items": [
+    {"id": "WAVENUMBER-LAMBDA-WAVE398", "label": "k = 2*$p/$l    wavenumber", "psmclass-name": "WAVENUMBER-LAMBDA-WAVE"},
+    {"id": "FREQUENCY-OF-WAVE400", "label": "f = $w/(2*$p)    frequency", "psmclass-name": "FREQUENCY-OF-WAVE"},
+    {"id": "PERIOD-OF-WAVE402", "label": "T = 1/f    period of oscillation", "psmclass-name": "PERIOD-OF-WAVE"},
+    {"id": "SPEED-OF-WAVE404", "label": "vw = $l*f or vw = $w/k    speed of a wave", "psmclass-name": "SPEED-OF-WAVE"},
+    {"id": "SPEED-EQUALS-WAVE-SPEED406", "label": "vp = vw    speed of pulse is wave speed", "psmclass-name": "SPEED-EQUALS-WAVE-SPEED"},
+    {"id": "WAVE-SPEED-STRING408", "label": "vw = sqrt(Ft/$m)    speed of waves on a string", "psmclass-name": "WAVE-SPEED-STRING"},
+    {"id": "MAX-TRANSVERSE-SPEED-WAVE410", "label": "vmax = A*$w    maximum speed of oscillation", "psmclass-name": "MAX-TRANSVERSE-SPEED-WAVE"},
+    {"id": "MAX-TRANSVERSE-ABS-ACCELERATION-WAVE412", "label": "amax = A*$w^2    maximum acceleration of oscillation", "psmclass-name": "MAX-TRANSVERSE-ABS-ACCELERATION-WAVE"},
+    {"id": "SPRING-MASS-OSCILLATION414", "label": "T = 2*$p*sqrt(m/k)    period of spring-mass system", "psmclass-name": "SPRING-MASS-OSCILLATION"},
+    {"id": "PENDULUM-OSCILLATION416", "label": "T = 2*$p*sqrt(l/g)    period of simple pendulum", "psmclass-name": "PENDULUM-OSCILLATION"},
+    {"id": "DOPPLER-FREQUENCY418", "label": "fo=fs*(vw±vo)/(vw±vs)    frequency shift from doppler effect", "psmclass-name": "DOPPLER-FREQUENCY"},
+    {"id": "HARMONIC-OF420", "label": "fn = n*f1 or $ln = $l1/n    n-th harmonic", "psmclass-name": "HARMONIC-OF"},
+    {"id": "BEAT-FREQUENCY422", "label": "fbeat = abs(f1-f2)/2    beat frequency", "psmclass-name": "BEAT-FREQUENCY"},
+    {"id": "ENERGY-DECAY424", "label": "E = Ei*exp(-2*t/$t)    energy decay", "psmclass-name": "ENERGY-DECAY"},
+    {"id": "WAVE-SPEED-LIGHT426", "label": "vw = c    speed of light", "psmclass-name": "WAVE-SPEED-LIGHT"}
+  ]}
+  ]},
+  {"id": "Apply a Definition or Auxiliary Law428", "label": "Apply a Definition or Auxiliary Law", "items": [
+  {"id": "Kinematics429", "label": "Kinematics", "items": [
+  {"id": "Translational430", "label": "Translational", "items": [
+    {"id": "NET-DISP431", "label": "dnet_x = d1_x + d2_x + ...    net displacement", "psmclass-name": "(NET-DISP ((?AXIS . X)))", "tutorial": "Net Displacement"},
+    {"id": "NET-DISP433", "label": "dnet_y = d1_y + d2_y + ...    net displacement", "psmclass-name": "(NET-DISP ((?AXIS . Y)))", "tutorial": "Net Displacement"},
+    {"id": "AVG-VELOCITY435", "label": "v(avg)_x = d_x/t    average velocity", "psmclass-name": "(AVG-VELOCITY ((?AXIS . X)))", "tutorial": "Average velocity"},
+    {"id": "AVG-VELOCITY437", "label": "v(avg)_y = d_y/t    average velocity", "psmclass-name": "(AVG-VELOCITY ((?AXIS . Y)))", "tutorial": "Average velocity"},
+    {"id": "LK-NO-S439", "label": "a(avg)_x = (vf_x - vi_x)/t    ", "psmclass-name": "(LK-NO-S ((?AXIS . X)))", "tutorial": "Average acceleration"},
+    {"id": "LK-NO-S441", "label": "a(avg)_y = (vf_y - vi_y)/t    ", "psmclass-name": "(LK-NO-S ((?AXIS . Y)))", "tutorial": "Average acceleration"},
+    {"id": "FREE-FALL-ACCEL443", "label": "a = g    accel in free-fall", "psmclass-name": "FREE-FALL-ACCEL", "tutorial": "Free fall acceleration"},
+    {"id": "STD-CONSTANT-G445", "label": "g = 9.8 m/s^2    g near Earth", "psmclass-name": "STD-CONSTANT-G", "tutorial": "Value of g near Earth"},
+    {"id": "PERIOD-CIRCLE447", "label": "T = 2*$p*r/v    period of uniform circular motion", "psmclass-name": "PERIOD-CIRCLE", "tutorial": "Period Circular"}
+  ]},
+  {"id": "Rotational449", "label": "Rotational", "items": [
+    {"id": "ANG-SDD450", "label": "$w(avg) = $q/t    average angular velocity", "psmclass-name": "ANG-SDD", "tutorial": "Angular velocity"},
+    {"id": "RK-NO-S452", "label": "$wf = $wi + $a(avg)*t    average anglular acceleration", "psmclass-name": "RK-NO-S", "tutorial": "Angular acceleration"}
+  ]}
+  ]},
+  {"id": "Newton's Laws454", "label": "Newton's Laws", "items": [
+  {"id": "Translational455", "label": "Translational", "items": [
+  {"id": "Force Laws456", "label": "Force Laws", "items": [
+    {"id": "WT-LAW457", "label": "Fw = m*g    weight law", "psmclass-name": "WT-LAW", "tutorial": "Weight Law"},
+    {"id": "KINETIC-FRICTION459", "label": "Ff = $mk*Fn    kinetic friction", "psmclass-name": "KINETIC-FRICTION", "tutorial": "Kinetic Friction"},
+    {"id": "STATIC-FRICTION461", "label": "Ff = $ms*Fn    static friction (at max)", "psmclass-name": "STATIC-FRICTION", "tutorial": "Static Friction max"},
+    {"id": "SPRING-LAW463", "label": "F = k*d    Hooke's law", "psmclass-name": "SPRING-LAW", "tutorial": "Hooke's Law"},
+    {"id": "TENSIONS-EQUAL465", "label": "Ft1 = Ft2    equal tensions at both ends", "psmclass-name": "TENSIONS-EQUAL", "tutorial": "Equal tensions at both ends"},
+    {"id": "THRUST-FORCE467", "label": "F = v*abs(dmdt)    thrust force (magnitudes)", "psmclass-name": "THRUST-FORCE", "tutorial": "thrust force"},
+    {"id": "THRUST-FORCE-VECTOR469", "label": "F_x = -v_x*dmdt    thrust force (x components)", "psmclass-name": "(THRUST-FORCE-VECTOR ((?AXIS . X)))", "tutorial": "thrust force"},
+    {"id": "THRUST-FORCE-VECTOR471", "label": "F_y = -v_y*dmdt    thrust force (y components)", "psmclass-name": "(THRUST-FORCE-VECTOR ((?AXIS . Y)))", "tutorial": "thrust force"},
+    {"id": "DRAG-FORCE-TURBULENT473", "label": "F = K*v^2    drag force", "psmclass-name": "DRAG-FORCE-TURBULENT", "tutorial": "drag force"}
+  ]},
+  {"id": "Compound Bodies475", "label": "Compound Bodies", "items": [
+    {"id": "MASS-COMPOUND476", "label": "M = m1 + m2 + ...    mass of compound", "psmclass-name": "MASS-COMPOUND", "tutorial": "Mass of a compound body"},
+    {"id": "VOLUME-COMPOUND478", "label": "V = V1 + V2 + ...    volume of compound", "psmclass-name": "VOLUME-COMPOUND"},
+    {"id": "KINE-COMPOUND480", "label": "v_compound = v_part    velocity of compound", "psmclass-name": "(KINE-COMPOUND ((?VEC-TYPE . VELOCITY)))", "tutorial": "Kinematics of compound same as part"},
+    {"id": "KINE-COMPOUND482", "label": "v_compound = v_part    velocity of compound", "psmclass-name": "(KINE-COMPOUND ((?VEC-TYPE . ACCELERATION)))", "tutorial": "Kinematics of compound same as part"},
+    {"id": "FORCE-COMPOUND484", "label": "F_on_part = F_on_compound    force on compound", "psmclass-name": "FORCE-COMPOUND", "tutorial": "Force on a compound body"}
+  ]}
+  ]},
+  {"id": "Rotational486", "label": "Rotational", "items": [
+    {"id": "NET-TORQUE-ZC487", "label": "$tnet_z = $t1_z + $t2_z + ...    net torque defined", "psmclass-name": "NET-TORQUE-ZC", "tutorial": "Net torque"},
+    {"id": "TORQUE489", "label": "$t_z = r*F*sin($qF-$qr)) or $t_z = r_x*F_y - r_y*F_x    torque defined (z component)", "psmclass-name": "(TORQUE ((?XYZ . Z)))", "tutorial": "Individual torque magnitude"},
+    {"id": "MAG-TORQUE491", "label": "$t = r*F*sin($q)    torque defined (magnitude)", "psmclass-name": "MAG-TORQUE", "tutorial": "Individual torque magnitude"},
+  {"id": "Moment of Inertia493", "label": "Moment of Inertia", "items": [
+    {"id": "I-PARTICLE494", "label": "I = m*R^2    moment of point mass", "psmclass-name": "I-PARTICLE"},
+    {"id": "PARALLEL-AXIS-THEOREM496", "label": "I = M*R^2 + Icm    parallel axis theorem", "psmclass-name": "PARALLEL-AXIS-THEOREM"},
+    {"id": "I-DISK-CM498", "label": "I = 0.5*m*r^2    disk about center", "psmclass-name": "I-DISK-CM", "tutorial": "disk about center of mass"},
+    {"id": "I-ROD-CM500", "label": "I = (1/12) m*L^2    rod about center", "psmclass-name": "I-ROD-CM", "tutorial": "Long thin rod about center of mass"},
+    {"id": "I-ROD-END502", "label": "I = (1/3) m*L^2    rod about end", "psmclass-name": "I-ROD-END", "tutorial": "Long thin rod about end"},
+    {"id": "I-HOOP-CM504", "label": "I = m*r^2    hoop", "psmclass-name": "I-HOOP-CM", "tutorial": "Hoop about center of mass"},
+    {"id": "I-RECT-CM506", "label": "I = (1/12) m*(L^2 + W^2)    rectangular plate", "psmclass-name": "I-RECT-CM", "tutorial": "Rectangle about center of mass"},
+    {"id": "I-COMPOUND508", "label": "I12 = I1 + I2    compound body", "psmclass-name": "I-COMPOUND", "tutorial": "Compound body"}
+  ]}
+  ]}
+  ]},
+  {"id": "Work and Energy510", "label": "Work and Energy", "items": [
+    {"id": "WORK-NC511", "label": "Wnc = Wncf1 + Wncf2 + ...    work by non-conservative", "psmclass-name": "WORK-NC", "tutorial": "Conservation of Energy"},
+    {"id": "MECHANICAL-ENERGY513", "label": "ME = KE + $S Ui    mechanical energy defined", "psmclass-name": "MECHANICAL-ENERGY", "tutorial": "Conservation of Energy"},
+    {"id": "HEIGHT-DY515", "label": "h2 - h1 = d12_y    change in height", "psmclass-name": "HEIGHT-DY", "tutorial": "Height and Displacement"}
+  ]},
+  {"id": "Fluids517", "label": "Fluids", "items": [
+    {"id": "PRESSURE-AT-OPEN-TO-ATMOSPHERE518", "label": "P = Pr0    point 1 open to atmosphere", "psmclass-name": "PRESSURE-AT-OPEN-TO-ATMOSPHERE", "tutorial": "Atmospheric Pressure"},
+    {"id": "STD-CONSTANT-PR0520", "label": "Pr0 = 1.013E5 Pa    atmospheric pressure", "psmclass-name": "(STD-CONSTANT-PR0 0)", "tutorial": "Atmospheric Pressure"}
+  ]}
+  ]},
+  {"id": "Calculate a vector component522", "label": "Calculate a vector component", "items": [
+  {"id": "Displacement523", "label": "Displacement", "items": [
+    {"id": "PROJECTION524", "label": "d_x = d*cos($qd - $qx)    on x-axis", "psmclass-name": "(PROJECTION ((?AXIS . X) (?VECTOR DISPLACEMENT . ?REST)))", "tutorial": "Projection Equations"},
+    {"id": "PROJECTION526", "label": "d_y = d*sin($qd - $qy)    on y-axis", "psmclass-name": "(PROJECTION ((?AXIS . Y) (?VECTOR DISPLACEMENT . ?REST)))", "tutorial": "Projection Equations"}
+  ]},
+  {"id": "Velocity528", "label": "Velocity", "items": [
+    {"id": "PROJECTION529", "label": "v_x = v*cos($qv - $qx)    on x-axis", "psmclass-name": "(PROJECTION ((?AXIS . X) (?VECTOR VELOCITY . ?REST)))", "tutorial": "Projection Equations"},
+    {"id": "PROJECTION531", "label": "v_y = v*sin($qv - $qy)    on y-axis", "psmclass-name": "(PROJECTION ((?AXIS . Y) (?VECTOR VELOCITY . ?REST)))", "tutorial": "Projection Equations"}
+  ]},
+  {"id": "Acceleration533", "label": "Acceleration", "items": [
+    {"id": "PROJECTION534", "label": "a_x = a*cos($qa - $qx)    on x-axis", "psmclass-name": "(PROJECTION ((?AXIS . X) (?VECTOR ACCELERATION . ?REST)))", "tutorial": "Projection Equations"},
+    {"id": "PROJECTION536", "label": "a_y = a*sin($qa - $qy)    on y-axis", "psmclass-name": "(PROJECTION ((?AXIS . Y) (?VECTOR ACCELERATION . ?REST)))", "tutorial": "Projection Equations"}
+  ]},
+  {"id": "Force538", "label": "Force", "items": [
+    {"id": "PROJECTION539", "label": "F_x = F*cos($qF - $qx)    on x-axis", "psmclass-name": "(PROJECTION ((?AXIS . X) (?VECTOR FORCE . ?REST)))", "tutorial": "Projection Equations"},
+    {"id": "PROJECTION541", "label": "F_y = F*sin($qF - $qy)    on y-axis", "psmclass-name": "(PROJECTION ((?AXIS . Y) (?VECTOR FORCE . ?REST)))", "tutorial": "Projection Equations"}
+  ]},
+  {"id": "Relative Position543", "label": "Relative Position", "items": [
+    {"id": "PROJECTION544", "label": "r_x = r*cos($qr - $qx)    on x-axis", "psmclass-name": "(PROJECTION ((?AXIS . X) (?VECTOR RELATIVE-POSITION . ?REST)))", "tutorial": "Projection Equations"},
+    {"id": "PROJECTION546", "label": "r_y = r*sin($qr - $qy)    on y-axis", "psmclass-name": "(PROJECTION ((?AXIS . Y) (?VECTOR RELATIVE-POSITION . ?REST)))", "tutorial": "Projection Equations"}
+  ]},
+  {"id": "Momentum548", "label": "Momentum", "items": [
+    {"id": "PROJECTION549", "label": "p_x = p*cos($qp - $qx)    on x-axis", "psmclass-name": "(PROJECTION ((?AXIS . X) (?VECTOR MOMENTUM . ?REST)))", "tutorial": "Projection Equations"},
+    {"id": "PROJECTION551", "label": "p_y = p*sin($qp - $qy)    on y-axis", "psmclass-name": "(PROJECTION ((?AXIS . Y) (?VECTOR MOMENTUM . ?REST)))", "tutorial": "Projection Equations"}
+  ]}
+  ]},
+  {"id": "Use information specific to this problem553", "label": "Use information specific to this problem", "items": [
+    {"id": "EQUALS554", "label": "val1 = ±val2    equivalent quantities", "psmclass-name": "EQUALS"},
+    {"id": "ANGLE-DIRECTION556", "label": "$q12 = $q2 - $q1 or 180-($q2-$q1)    angle between", "psmclass-name": "ANGLE-DIRECTION"},
+    {"id": "DISPLACEMENT-DISTANCE558", "label": "|d| = s    distance & displacement", "psmclass-name": "DISPLACEMENT-DISTANCE"},
+    {"id": "CURRENT-THRU-WHAT560", "label": "Icomp = Ibranch    current in branch", "psmclass-name": "CURRENT-THRU-WHAT"},
+    {"id": "NUM-FORCES562", "label": "nf = (count forces)    number of forces", "psmclass-name": "NUM-FORCES"},
+    {"id": "GIVEN-FRACTION564", "label": "val1 = fraction*val2    fraction of", "psmclass-name": "GIVEN-FRACTION"},
+    {"id": "OPPOSITE-RELATIVE-POSITION566", "label": "R12 = R21    relative position equality", "psmclass-name": "OPPOSITE-RELATIVE-POSITION"},
+    {"id": "RELATIVE-POSITION-DISPLACEMENT568", "label": "Rab2x = da12_x - db12_x Rab1_x    relative position and displacement", "psmclass-name": "(RELATIVE-POSITION-DISPLACEMENT ((?AXIS . X)))"},
+    {"id": "RELATIVE-POSITION-DISPLACEMENT570", "label": "Rab2y = da12_y - db12_y Rab1_y    relative position and displacement", "psmclass-name": "(RELATIVE-POSITION-DISPLACEMENT ((?AXIS . Y)))"},
+    {"id": "SUM-TIMES572", "label": "tac = tab + tbc    sum of times", "psmclass-name": "SUM-TIMES", "tutorial": "Sum of times"},
+    {"id": "SUM-DISTANCES574", "label": "sac = sab + sbc    sum distance travelled", "psmclass-name": "SUM-DISTANCES"},
+    {"id": "SUM-DISTANCE576", "label": "rAC = rAB + rBC    sum collinear distances", "psmclass-name": "SUM-DISTANCE"},
+    {"id": "PYTH-THM578", "label": "c^2 = a^2 + b^2    Pythagorean Thm", "psmclass-name": "PYTH-THM", "tutorial": "Pythagorean Theorem"},
+    {"id": "UNIT-VECTOR-MAG580", "label": "n = 1    length of unit vector", "psmclass-name": "UNIT-VECTOR-MAG"},
+    {"id": "CONNECTED-ACCELS582", "label": "a1 = a2    connected accelerations", "psmclass-name": "CONNECTED-ACCELS", "tutorial": "Equal accelerations"},
+    {"id": "CONNECTED-VELOCITIES584", "label": "v1 = v2    connected velocities", "psmclass-name": "CONNECTED-VELOCITIES", "tutorial": "Equal velocities"},
+    {"id": "COMPLIMENTARY-ANGLES586", "label": "$q1 + $q2 = 90 deg    complimentary angles", "psmclass-name": "COMPLIMENTARY-ANGLES"},
+    {"id": "SUPPLEMENTARY-ANGLES588", "label": "$q1 + $q2 = 180 deg    supplementary angles", "psmclass-name": "SUPPLEMENTARY-ANGLES"},
+    {"id": "RIGHT-TRIANGLE-TANGENT590", "label": "tan($q) = opposite/adjacent    tangent for right triangle", "psmclass-name": "RIGHT-TRIANGLE-TANGENT"},
+    {"id": "TENSIONS-EQUAL592", "label": "Ft1 = Ft2    equal tensions at both ends", "psmclass-name": "TENSIONS-EQUAL", "tutorial": "Equal tensions at both ends"},
+    {"id": "VECTOR-MAGNITUDE594", "label": "A = sqrt(A_x^2 + A_y^2)    vector magnitude", "psmclass-name": "VECTOR-MAGNITUDE", "tutorial": "Pythagorean Theorem"},
+    {"id": "RDIFF596", "label": "r21_x = x2 - x1    relative position from coordinates", "psmclass-name": "(RDIFF ((?AXIS . X)))"},
+    {"id": "RDIFF598", "label": "r21_y = y2 - y1    relative position from coordinates", "psmclass-name": "(RDIFF ((?AXIS . Y)))"},
+    {"id": "AREA-OF-RECTANGLE600", "label": "A = w*l    area of rectangle", "psmclass-name": "AREA-OF-RECTANGLE"},
+    {"id": "AREA-OF-RECTANGLE-CHANGE602", "label": "dA/dt = w*dl/dt    derivative of area of rectangle (constant width)", "psmclass-name": "AREA-OF-RECTANGLE-CHANGE"},
+    {"id": "AREA-OF-CIRCLE604", "label": "A = $p*r^2    area of circle", "psmclass-name": "AREA-OF-CIRCLE"},
+    {"id": "CIRCUMFERENCE-OF-CIRCLE-R606", "label": "c = 2*$p*r    circumference of circle", "psmclass-name": "CIRCUMFERENCE-OF-CIRCLE-R"},
+    {"id": "CIRCUMFERENCE-OF-CIRCLE-D608", "label": "c = $p*d    circumference of circle", "psmclass-name": "CIRCUMFERENCE-OF-CIRCLE-D"},
+    {"id": "VOLUME-OF-CYLINDER610", "label": "V = A*l    volume of a cylinder", "psmclass-name": "VOLUME-OF-CYLINDER"},
+    {"id": "MASS-PER-LENGTH-EQN612", "label": "$l = m/L    mass per unit length", "psmclass-name": "MASS-PER-LENGTH-EQN"},
+    {"id": "TURNS-PER-LENGTH-DEFINITION614", "label": "n = N/l    turns per unit length", "psmclass-name": "TURNS-PER-LENGTH-DEFINITION"},
+    {"id": "AVERAGE-RATE-OF-CHANGE616", "label": "dy/dt_avg = (y2-y1)/(t2-t1)    average rate of change", "psmclass-name": "AVERAGE-RATE-OF-CHANGE"}
+  ]}
+  ]
+}

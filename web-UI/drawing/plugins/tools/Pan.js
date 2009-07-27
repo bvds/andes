@@ -25,6 +25,7 @@ drawing.plugins.tools.Pan = drawing.util.oo.declare(
 		dojo.connect(this.anchors, "onAnchorUp", this, "checkBounds");
 		dojo.connect(this.stencils, "register", this, "checkBounds");
 		dojo.connect(this.canvas, "resize", this, "checkBounds");
+		dojo.connect(this.canvas, "setZoom", this, "checkBounds");
 		dojo.connect(this.canvas, "onScroll", this, function(){
 			if(this._blockScroll){
 				this._blockScroll = false;
@@ -114,6 +115,7 @@ drawing.plugins.tools.Pan = drawing.util.oo.declare(
 				// ch, cw: the current size of the canvas
 				ch = this.canvas.height,
 				cw = this.canvas.width,
+				z = this.canvas.zoom,
 				// pch, pcw: the normal size of the canvas (not scrolled)
 				// these could change if the container resizes.
 				pch = this.canvas.parentHeight,
@@ -138,27 +140,27 @@ drawing.plugins.tools.Pan = drawing.util.oo.declare(
 				l = Math.min(o.x1, l);
 			});
 			
-		
-				
+			b *= z;
+			log("Bottom test", "b:", b, "z:", z, "ch:", ch, "pch:", pch, "top:", sc.top, "sy:", sy);
 			if(b > pch || sc.top ){ 
-				warn("BOTTOM SCROLL:", "b:", b, "ch:", ch, "pcj:", pch, "top:", sc.top, "sy:", sy);
+				log("*bottom scroll*");
 				// item off bottom
 				ch = Math.max(b, pch + sc.top);
 				sy = sc.top;
-				warn("BOTTOM SCROLL RES:", ch);
 			}else if(!sy && ch>pch){
-				warn("BOTTOM REMOVE", "b:", b, "ch:", ch, "pcj:", pch, "top:", sc.top, "sy:", sy);
+				log("*bottom remove*");
 				// item moved from bottom
 				ch = pch;
 			}
 			
+			r *= z;
 			if(r > pcw || sc.left){
-				warn("RIGHT SCROLL");
+				//log("*right scroll*");
 				// item off right
 				cw = Math.max(r, pcw + sc.left);
 				sx = sc.left;
 			}else if(!sx && cw>pcw){
-				warn("RIGHT REMOVE");
+				//log("*right remove*");
 				// item moved from right
 				cw = pcw;
 			}

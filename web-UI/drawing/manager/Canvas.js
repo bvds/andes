@@ -97,6 +97,10 @@ dojo.provide("drawing.manager.Canvas");
 				surfaceReady:false,
 			}
 			=====*/
+			
+			// zoom: [readonly] Number
+			//	The amount teh canvas is zoomed
+			zoom:1,
 						
 			useScrollbars: true,
 			baseClass:"drawingCanvas",
@@ -155,7 +159,9 @@ dojo.provide("drawing.manager.Canvas");
 			setZoom: function(zoom){
 				// summary:
 				//	Internal. Zooms canvas in and out.
+				this.zoom = zoom;
 				this.surface.setTransform({xx:zoom, yy:zoom});
+				this.setDimensions(this.width*zoom, this.height*zoom)
 			},
 			
 			onScroll: function(){

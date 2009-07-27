@@ -48,7 +48,8 @@ files.  This is included in standard linux distributions.
     ProxyPass /help http://localhost:8080/help
     ProxyPassReverse /help htttp://localhost:8080/help
   </IfModule>
-# add links to web-UI and images in /var/www/html
+# add links to web-UI, review, and images in /var/www/html 
+#                          (or /Library/webServer/Documents/ in OS X)
 # Then restart:
   /sbin/service httpd reload
 

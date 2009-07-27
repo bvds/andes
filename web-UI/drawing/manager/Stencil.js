@@ -36,7 +36,7 @@ dojo.provide("drawing.manager.Stencil");
 			_dragBegun: false,
 			_wasDragged:false,
 			_secondClick:false,
-			
+			_isBusy:false,
 			
 			register: function(/*Object*/stencil){
 				// summary:
@@ -71,14 +71,14 @@ dojo.provide("drawing.manager.Stencil");
 				}
 				
 				stencil.connect("deselect", this, function(){
-					if(this.isSelected(stencil)){
+					if(!this._isBusy && this.isSelected(stencil)){
 						// called from within stencil. do action.
 						this.deselectItem(stencil);
 					}
 				});
 				
 				stencil.connect("select", this, function(){
-					if(!this.isSelected(stencil)){
+					if(!this._isBusy && !this.isSelected(stencil)){
 						// called from within stencil. do action.
 						this.selectItem(stencil);
 					}
@@ -230,6 +230,7 @@ dojo.provide("drawing.manager.Stencil");
 				this.withSelected(function(m){
 					this.group.add(m.container);
 					m.select();
+					console.log('reselect:', m)
 				});
 			},
 			
@@ -272,6 +273,7 @@ dojo.provide("drawing.manager.Stencil");
 				if(!keepObject){
 					delete this.selectedStencils[stencil.id];
 				}
+				console.log('onDeselect, keep:', keepObject, "stencil:", stencil.type)
 				this.anchors.remove(stencil);
 				
 				surface.add(stencil.container);
@@ -340,6 +342,7 @@ dojo.provide("drawing.manager.Stencil");
 				//	Event fired on mousedown on a stencil
 				//
 				//console.info("onStencilDown:", obj.id, this.keys.meta)
+				this._isBusy = true;
 				if(this.selectedStencils[obj.id] && this.keys.meta){
 					
 					//console.log("shift remove");
@@ -354,6 +357,7 @@ dojo.provide("drawing.manager.Stencil");
 					return;
 				
 				}else if(this.selectedStencils[obj.id]){
+					// clicking on same selected item(s)
 					// RESET OFFSETS
 					var mx = this.group.getTransform();
 					this._offx = obj.x - mx.dx; 
@@ -362,14 +366,15 @@ dojo.provide("drawing.manager.Stencil");
 				
 				}else if(!this.keys.meta){
 					
-					//console.log("deselect all");
+					console.log("deselect all");
 					this.deselect();
 				
 				}else{
+					// meta-key add
 					//console.log("reset sel and add stencil")
 				}
 				
-				// add an stencil
+				// add a stencil
 				this.selectItem(obj.id);
 				
 				var mx = this.group.getTransform();
@@ -378,6 +383,8 @@ dojo.provide("drawing.manager.Stencil");
 				
 				this.orgx = obj.x;
 				this.orgy = obj.y;
+				
+				this._isBusy = false;
 				
 				// TODO:
 				//  dojo.style(surfaceNode, "cursor", "pointer");
