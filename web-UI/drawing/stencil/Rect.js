@@ -42,7 +42,7 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 		]
 		=====*/
 		
-		dataToPoints: function(/*Object*/o){
+		dataToPoints: function(/*Object*/d){
 			//summary:
 			//	Converts data to points.
 			d = d || this.data;
@@ -77,6 +77,7 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 			//	Can be called many times by implementation to create
 			//	multiple shapes in one stencil.
 			//
+			//console.log("render rect", d)
 			this.remove(this[shp]);
 			this[shp] = this.container.createRect(d)
 				.setStroke(sty)

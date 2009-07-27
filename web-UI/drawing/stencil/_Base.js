@@ -53,12 +53,12 @@ dojo.provide("drawing.stencil._Base");
 			}
 			
 			if(options.points){
-				console.log("__________Base.constr", this.type, "options points")
+				//console.log("__________Base.constr", this.type, "options points")
 				this.setPoints(options.points);
 				this.connect(this, "render", this, "onRender", true);
 				this.render();
 			}else if(options.data){
-				console.log("___________Base.constr", this.type, "options data")
+				//console.log("___________Base.constr", this.type, "options data", options.data)
 				options.data.width = options.data.width ? options.data.width : this.style.text.minWidth;
 				options.data.height = options.data.height ? options.data.height : this._lineHeight;
 				this.setData(options.data);
@@ -68,7 +68,7 @@ dojo.provide("drawing.stencil._Base");
 					this.setLabel(options.label);
 				}
 			}else if(this.draws){
-				console.log("_____________Base.constr", this.type, "draws")
+				//console.log("_____________Base.constr", this.type, "draws")
 				this.connectMouse();
 				this._postRenderCon = dojo.connect(this, "render", this, "_onPostRender");
 			}

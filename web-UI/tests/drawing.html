@@ -79,6 +79,12 @@
 		dojo.require("drawing.plugins.tools.Zoom");
 		dojo.require("drawing.plugins.drawing.Grid");
 		
+		dojo.addOnLoad(function(){
+			var drawing = dijit.byId("drawingNode");
+			console.log("DRAWING:", drawing);
+			drawing.addStencil("rect", {data:{x:50, y:50, width:100, height:100}});
+			drawing.addStencil("ellipse", {data:{cx:200, cy:200, rx:100, ry:50}});
+		});
 	</script>
 	<style>
 		
