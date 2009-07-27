@@ -286,8 +286,6 @@ dojo.provide("drawing.manager.Stencil");
 				//	Deselect passed stencil
 				//
 				// note: just keeping with standardized methods
-				console.trace();
-				console.log("deselectIte:", stencil.type)
 				this.onDeselect(stencil);
 			},
 			
@@ -343,11 +341,11 @@ dojo.provide("drawing.manager.Stencil");
 				// summary:
 				//	Event fired on mousedown on a stencil
 				//
-				console.info("onStencilDown:", obj.id, this.keys.meta)
+				//console.info("onStencilDown:", obj.id, this.keys.meta)
 				this._isBusy = true;
 				if(this.selectedStencils[obj.id] && this.keys.meta){
 					
-					console.log("shift remove");
+					//console.log("shift remove");
 					this.onDeselect(this.selectedStencils[obj.id]);
 					if(this.hasSelected()==1){
 						this.withSelected(function(m){
@@ -373,7 +371,7 @@ dojo.provide("drawing.manager.Stencil");
 				
 				}else{
 					// meta-key add
-					console.log("reset sel and add stencil")
+					//console.log("reset sel and add stencil")
 				}
 				
 				// add a stencil
