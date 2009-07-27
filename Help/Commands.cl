@@ -187,6 +187,8 @@
   ;; just return eqn text until appropriate turns are implemented
   (warn "Can't make valid studententry since type, location etc missing")
   (let* ((studEqn  (subst-student-vars (pre2in result)))
+	 ;; Setting default format affects write-to-string.
+	 (*read-default-float-format* 'double-float)
 	 ;; suppress *print-pretty* since it could insert newlines 
 	 ;; into long result, and WB requires single-line eqn string
 	 (infixStr (write-to-string studEqn :pretty NIL :escape NIL))
@@ -245,6 +247,8 @@
 
 (defun solve-for-var-success (entry result)
   (let* ((studEqn  (subst-student-vars (pre2in result)))
+	 ;; Setting default format affects write-to-string.
+	 (*read-default-float-format* 'double-float)
 	 ;; suppress *print-pretty* since it could insert newlines 
 	 ;; into long result, and WB requires single-line eqn string
 	 (infixStr (write-to-string studEqn :pretty NIL :escape NIL))
