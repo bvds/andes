@@ -115,6 +115,9 @@ dojo.require("drawing.annotations.Arrow");
 		//		Although not Drawing and Toolbar, all other objects are created with a custom
 		//		declare. See drawing.util.oo
 		//
+		// ready: Boolean
+		//	Whether or not the canvas has been created and Stencils can be added
+		ready:false,
 		// width: Number
 		//	Width of the canvas
 		width:0,
@@ -158,12 +161,24 @@ dojo.require("drawing.annotations.Arrow");
 				this.plugins = [];
 			}
 			
+			this.widgetId = this.id;
+			dojo.attr(this.domNode, "widgetId", this.widgetId)
 			// If Dijit is available in the page, register with it
 			if(dijit && dijit.registry){
-				this.widgetId = this.id;
-				dojo.attr(this.domNode, "widgetId", this.widgetId)
 				dijit.registry.add(this);
 			}else{
+				// else fake dijit.byId
+				// FIXME: This seems pretty hacky.
+				dijit.registry = {
+					objs:{},
+					add:function(obj){
+						this.objs[obj.id] = obj;
+					}
+				};
+				dijit.byId = function(id){
+					return dijit.registry.objs[id];
+				};
+				dijit.registry.add(this);
 				this._createCanvas();
 			}
 			
@@ -258,6 +273,7 @@ dojo.require("drawing.annotations.Arrow");
 			//	Event that to which can be connected.
 			//	Fired when the canvas is ready and can be drawn to.
 			//
+			this.ready = true;
 			console.info("Surface ready")
 			this.mouse.init(this.canvas.domNode);
 			this.undo = new drawing.manager.Undo({keys:this.keys});
@@ -294,12 +310,20 @@ dojo.require("drawing.annotations.Arrow");
 			//			The parameters used to draw the object. See stencil._Base and each
 			//			tool for specific parameters of teh data or points objects.
 			//
+			if(!this.ready){
+				var c = dojo.connect(this, "onSurfaceReady", this, function(){
+					dojo.disconnect(c);
+					this.addStencil(type, options);
+				})
+				return false;
+			}
 			var s = this.stencils.register( new this.stencilTypes[type](this.getShapeProps(options)));
 			// need this or not?
 			//s.connect(s, "destroy", this, "onDeleteStencil");
 			this.currentStencil && this.currentStencil.moveToFront();
 			return s;
 		},
+		
 		removeStencil: function(/* Object */stencil){
 			// summary:
 			//	Use this method to programmatically remove Stencils from the canvas.
