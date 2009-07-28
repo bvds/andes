@@ -37,7 +37,7 @@ dojo.require("andes.api");
 					// no-op
 			}
 		});
-		
+
 		hlp.domNode.scrollTop = 10000;
 	}
 
@@ -45,28 +45,31 @@ dojo.require("andes.api");
 		dojo.connect(dijit.byId("helpSubmit"), "onClick", function(){
 			var q = dijit.byId("helpInput").attr("value"),
 			    h = q ? {action:"get-help", text:q} : {action:"help-button"};
-				
+
 			andes.help.echo(q);
 			dijit.byId("helpInput").attr("value", "");
 			andes.api.help(h).addCallback(handleHelp);
 		});
 	});
-	
+
 	andes.help.echo = function(value){
 		// summary:
-		//	Remove text from Input and place it in the help pane.
+		//	Echo any input text in the help pane.
 		//
 		if(value == '!'){
-			value = "You are a lover of the mystery of life, yet sometimes you long for straightforward answers. Unfortunately, there's no easy way out; you must be satisfied exploring for a solution to your questions, rather than finding exactly what you're looking for today. However, keep in mind that this is not about giving up; it's about letting go."
+			value = "Ha! A rotten easter egg!"
 		}
-		value = '<p><em>'+value+'</em></p>';
-		var hlp = dijit.byId("helpContentPane");
-		var c = hlp.attr("content");;
-		c  += value;
-		hlp.attr("content", c);
-		hlp.domNode.scrollTop = 10000;
+		if(value.length>0){
+		        var hlp = dijit.byId("helpContentPane");
+			var c = hlp.attr("content");
+			// note:
+	                //	setting to the node and not with attr
+	                // 	because ContentPane is throwing errors that way
+      			hlp.containerNode.innerHTML = c + "\n<p><em>" + value + "</em></p>";
+			hlp.domNode.scrollTop = 10000;
+		}
 	};
-	
+
 	andes.help.processStep = function(result){
 		// summary:
 		// look for any help coming back from the server (such as in
