@@ -10,7 +10,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 	//
 	function(options){
 		
-		//console.log("______Base______")
+		console.log("______Base______")
 		// clone style so changes are reflected in future shapes
 		dojo.mixin(this, options);
 		this.style = options.style || drawing.defaults.copy();
@@ -34,6 +34,20 @@ drawing.stencil._Base = drawing.util.oo.declare(
 		if(!this.renderHit && this.style.renderHitLines && this.isLine){
 			this.renderHit = true;
 		}
+		if(!this.renderHit && this.style.useSelectedStyle){
+			this.useSelectedStyle = true;
+			this.selCopy = dojo.clone(this.style.selected);
+			for(var nm in this.style.norm){
+				if(this.style.selected[nm]===undefined){
+					this.style.selected[nm] = this.style.norm[nm];
+				}
+			}
+			this.textSelected = dojo.clone(this.style.text);
+			this.textSelected.color = this.style.selected.fill;
+			
+		}
+		
+		
 		this.angleSnap = this.style.angleSnap || 1;
 		
 		this.marginZero = options.marginZero || this.style.anchors.marginZero;
@@ -354,9 +368,11 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			}
 			
 			if(this.selected){
-				this.style.current = this.style.selected;
+				if(this.useSelectedStyle){
+					this.style.current = this.style.selected;
+					this.style.currentText = this.textSelected;
+				}
 				this.style.currentHit = this.style.hitSelected;
-				//this.style.currentText = this.style.textSelected;
 				
 			}else if(this.highlighted){
 				//this.style.current = this.style.highlighted;
@@ -364,6 +380,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 				//this.style.currentText = this.style.textHighlighted;
 				
 			}
+			
 			// NOTE: Can't just change props like setStroke
 			//	because Silverlight throws error
 			this.render();
@@ -385,6 +402,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			
 			var n = this.style.norm,
 				t = this.style.text,
+				ts = this.textSelected,
 				o,
 				nm,
 				width,
@@ -416,6 +434,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			for(nm in o){
 				if(nm in n){ n[nm] = o[nm]; }
 				if(nm in t){ t[nm] = o[nm]; }
+				if(nm in ts){ ts[nm] = o[nm]; }
 				
 				if(nm in coords){
 					coords[nm] = o[nm];
@@ -436,7 +455,17 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			if(o.borderWidth){
 				n.width = o.borderWidth;
 			}
+			if(this.useSelectedStyle){
+				// using the orginal selected style copy as
+				// a reference map of what props to copy
+				for(var nm in this.style.norm){
+					if(this.selCopy[nm]===undefined){
+						this.style.selected[nm] = this.style.norm[nm];
+					}
+				}
+				this.textSelected.color = this.style.selected.color;
 			
+			}
 			if(o.x!==undefined){
 				var box = this.getBounds(true);
 				var mx = { dx:0, dy:0 };	

@@ -36,6 +36,9 @@ drawing.defaults = {
 	//	renderHitLines setting.
 	renderHitLayer:false,
 	
+	//
+	useSelectedStyle: true,
+	
 	norm:{
 		// normal style of all shapes
 		// will get overridden by
@@ -49,15 +52,15 @@ drawing.defaults = {
 	
 	selected:{
 		// selected style of all shapes
+		// styles not shown will used from
+		//	norm
 		width:6,
-		color:"#00FF00",
-		style:"Solid",
-		cap:"round",
-		fill:"#E11EBB"
+		color:"#00FF00"
 	},
 	
 	highlighted:{
 		// highlighted style of all shapes
+		// NOT CURRENTLY BEING USED
 		width:6,
 		color:"#FF00FF",
 		style:"Solid",

@@ -72,19 +72,23 @@
 		dojo.addOnLoad(function(){
 			// myDrawing referenced by jsId
 			dojo.connect(myDrawing, "onSurfaceReady", function(){
-				var arrow = myDrawing.addStencil("arrow", {data:{x1:400, y1:200, x2:500, y2:300}});
-				arrow.attr({angle:210, radius:200, borderWidth:3, label:"My Arrow"})
 				
+				
+				var textBlock = myDrawing.addStencil("textBlock", {data:{x:20, y:30, width:200, text:"DojoX Drawing Rocks"}});
+				textBlock.attr({fill:{r:256,g:0,b:0,a:.5}, width:10, color:"#0000FF", size:"24px", weight:"bold"});
+				
+				/*
 				var ellipse = myDrawing.addStencil("ellipse", {data:{cx:200, cy:200, rx:100, ry:50}});
 				ellipse.attr({fill:{r:256,g:0,b:0,a:.5}, width:500, height:200, color:"#0000FF"});
 				
-				/*
+				var arrow = myDrawing.addStencil("arrow", {data:{x1:400, y1:200, x2:500, y2:300}});
+				arrow.attr({angle:210, radius:200, borderWidth:3, label:"My Arrow"})
+				
+				
 				var rect = myDrawing.addStencil("rect", {data:{x:50, y:275, width:100, height:100}});
 			
 				var text = myDrawing.addStencil("text", {data:{x:300, y:260, width:200, text:"This is just text"}});
 				
-				var textBlock = myDrawing.addStencil("textBlock", {data:{x:300, y:300, width:200, text:"DojoX Drawing Rocks"}});
-				textBlock.attr({fill:{r:256,g:0,b:0,a:.5}, width:10, color:"#0000FF", size:"24px", weight:"bold"});
 				*/		
 			});
 			
