@@ -56,6 +56,7 @@ dojo.provide("drawing.manager.Stencil");
 				this.stencils[stencil.id] = stencil;
 				if(stencil.execText){
 					if(stencil._text && !stencil.editMode){
+						console.log("select text")
 						this.selectItem(stencil);
 					}
 					stencil.connect("execText", this, function(){

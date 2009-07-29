@@ -124,6 +124,7 @@ drawing.stencil.Line = drawing.util.oo.declare(
 			this.onBeforeRender(this);
 			this.renderHit && this._create("hit", this.data, this.style.currentHit);
 			this._create("shape", this.data, this.style.current);
+			
 		}		
 		
 	}

@@ -73,8 +73,10 @@
 			var drawing = dijit.byId("drawingNode");
 			console.log("DRAWING:", drawing);
 			dojo.connect(drawing, "onSurfaceReady", function(){
-				var arrow = drawing.addStencil("arrow", {data:{x1:500, y1:50, x2:700, y2:300}});
-				/**/var rect = drawing.addStencil("rect", {data:{x:50, y:275, width:100, height:100}});
+				var arrow = drawing.addStencil("arrow", {data:{x1:400, y1:200, x2:500, y2:300}});
+				arrow.attr({angle:210, radius:200, width:10, label:"My Arrow"})
+				
+				var rect = drawing.addStencil("rect", {data:{x:50, y:275, width:100, height:100}});
 				var ellipse = drawing.addStencil("ellipse", {data:{cx:200, cy:200, rx:100, ry:50}});
 				ellipse.attr({fill:{r:256,g:0,b:0,a:.5}, width:10, color:"#0000FF"});
 			
@@ -85,7 +87,7 @@
 				
 				var textBlock = drawing.addStencil("textBlock", {data:{x:300, y:300, width:200, text:"DojoX Drawing Rocks"}});
 				textBlock.attr({fill:{r:256,g:0,b:0,a:.5}, width:10, color:"#0000FF", size:"24px", weight:"bold"});
-								
+							
 			})
 		});
 	</script>

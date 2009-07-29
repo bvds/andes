@@ -364,8 +364,6 @@ drawing.stencil._Base = drawing.util.oo.declare(
 				//this.style.currentText = this.style.textHighlighted;
 				
 			}
-			console.log("    new size 2:", this.style.currentText.size)
-			
 			// NOTE: Can't just change props like setStroke
 			//	because Silverlight throws error
 			this.render();
@@ -385,10 +383,12 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			//	Changing atts isn't triggering onDataChange because it would likely
 			//	be a loop. If its needed, this will need to be fixed.
 			
-			var n = this.style.norm, t = this.style.text, o, nm;
+			var n = this.style.norm, t = this.style.text, o, nm, styleWas = dojo.toJson(n), textWas = dojo.toJson(t);
 			var coords = {
 				x:true,
-				y:true
+				y:true,
+				radius:true,
+				angle:true
 			};
 			var propChange = false;
 			if(typeof(key)!="object"){
@@ -400,32 +400,50 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			for(nm in o){
 				if(nm in n){ n[nm] = o[nm]; }
 				//if(nm in h){ h[nm] = o[nm]; }
-				if(nm in t){
-					
-					console.log("          text prop:", nm, o[nm])
-					t[nm] = o[nm]; }
+				if(nm in t){ t[nm] = o[nm]; }
 				
 				if(nm in coords){
 					coords[nm] = o[nm];
 					propChange = true;
+					if(nm == "radius" && o.angle===undefined){
+						o.angle = coords.angle = this.getAngle();
+					}else if(nm == "angle" && o.radius===undefined){
+						o.radius = coords.radius = this.getRadius();
+					}
 				}
 				if(nm == "text"){
 					this.setText(o.text);
 				}
+				if(nm == "label"){
+					this.setLabel(o.label);
+				}
 			}
 			
-			if(propChange){
+			if(o.x!==undefined){
 				var box = this.getBounds(true);
 				var mx = { dx:0, dy:0 };	
-				for(nm in coords){
-					if(typeof(coords[nm])=="number"){
-						mx["d"+nm] = coords[nm] - box[nm];
+				for(nm in o){
+					if(nm=="x" || nm =="y"){
+						mx["d"+nm] = o[nm] - box[nm];
 					}
 				}
 				this.transformPoints(mx);
 			}
-			console.log("    new size:", this.style.text.size)
-			this.onChangeStyle(this);
+			
+			if(o.angle!==undefined){
+				this.dataToPoints({
+					x:this.data.x1,
+					y:this.data.y1,
+					angle:o.angle,
+					radius:o.radius
+				});
+			}
+				
+			if(propChange || textWas!=dojo.toJson(t) || styleWas != dojo.toJson(n)){
+				// to trigger the render
+				// other events will be called post render
+				this.onChangeStyle(this);
+			}
 		
 		},
 		
