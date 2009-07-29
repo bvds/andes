@@ -382,7 +382,9 @@ dojo.require("drawing.annotations.Arrow");
 			}
 			this.currentType = type;
 			try{
+				console.log("new tool ", this.currentType)
 				this.currentStencil = new this.tools[this.currentType]({container:this.canvas.surface.createGroup(), util:this.util, mouse:this.mouse, keys:this.keys});
+				console.log("new tool is:", this.currentStencil.id, this.currentStencil);
 				this.currentStencil.connect(this.currentStencil, "onRender", this, "onRenderStencil");
 				this.currentStencil.connect(this.currentStencil, "destroy", this, "onDeleteStencil");
 			}catch(e){

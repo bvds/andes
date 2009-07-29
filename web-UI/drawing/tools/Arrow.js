@@ -14,10 +14,14 @@ drawing.tools.Arrow = drawing.util.oo.declare(
 		if(this.arrowEnd){
 			this.endArrow = new drawing.annotations.Arrow({stencil:this, idx1:1, idx2:0});
 		}
+		if(this.points.length){
+			this.render();
+		}
 	},
 	{
 		draws:true,
 		type:"drawing.tools.Arrow",
+		baseRender:false,
 		
 		// arrowStart: Boolean
 		//	Whether or not to place an arrow on start.

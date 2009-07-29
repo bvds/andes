@@ -45,7 +45,7 @@ dojo.provide("drawing.manager.Stencil");
 				//	them to this, but they won't have selection
 				//	or drag ability.
 				//
-				//console.log("Selection.register ::::::", stencil.id, "TEXT:", stencil._text)
+			console.log("Selection.register ::::::", stencil.id, "TEXT:", stencil._text)
 				if(stencil.isText && !stencil.editMode && stencil.deleteEmptyCreate && !stencil.getText()){
 					// created empty text field
 					// defaults say to delete

@@ -356,7 +356,8 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			
 			x += sc.left;
 			y += sc.top;
-			
+			watch("x:", x)
+			watch("y:", y)
 			var withinCanvas = x>=0 && y>=0 && x<=o.w && y<=o.h; /////////// will need to change on canvas resize
 			
 			var id = withinCanvas ? this._getId(evt, squelchErrors) : "";

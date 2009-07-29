@@ -35,6 +35,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 		minimumSize:30,
 		showAngle:true,
 		closePath:false,
+		baseRender:false,
 		
 		createLabels: function(){
 			// summary:

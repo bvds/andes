@@ -1,6 +1,6 @@
 dojo.provide("drawing.plugins.drawing.Silverlight");
 
-drawing.manager.Silverlight = drawing.util.oo.declare(
+drawing.plugins.drawing.Silverlight = drawing.util.oo.declare(
 	// summary:
 	// 	"Plugin" to allow the Silverlight plugin to work
 	//	with DojoX Drawing.
@@ -30,11 +30,11 @@ drawing.manager.Silverlight = drawing.util.oo.declare(
 		dojo.connect(this.stencils, "register", this, function(item){
 			var c1, c2, c3, c4, c5, self = this;
 			var conMouse = function(){
-				console.info("------connect shape", item.id)
+				//console.info("------connect shape", item.id)
 				
 				// Connect to PARENT (SL Canvas) , not SHAPE 
-				c1 = item.parent.connect("onmousedown", function(evt){
-					console.info("----------------------------------SHAPE DOWN", item.parent)
+				c1 = item.container.connect("onmousedown", function(evt){
+					//console.info("----------------------------------SHAPE DOWN", item.container)
 					evt.superTarget = item;
 					self.mouse.down(evt);
 				});

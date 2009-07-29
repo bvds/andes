@@ -14,6 +14,7 @@ drawing.stencil.Image = drawing.util.oo.declare(
 	{
 		type:"drawing.stencil.Image",
 		anchorType: "group",
+		baseRender:true,
 		
 		/*=====
 		dojox.__StencilData = {
@@ -111,7 +112,7 @@ drawing.stencil.Image = drawing.util.oo.declare(
 				return;
 			}
 			this.onBeforeRender(this);
-			this._createHilite();
+			this.renderHit && this._createHilite();
 			this._create("shape", this.data, this.style.current);
 		},
 		getImageSize: function(render){

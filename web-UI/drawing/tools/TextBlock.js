@@ -92,6 +92,7 @@ dojo.require("drawing.stencil.Text");
 		},
 		{
 			draws:true,
+			baseRender:false,
 			type:"drawing.tools.TextBlock",
 			
 			/*=====
@@ -143,8 +144,6 @@ dojo.require("drawing.stencil.Text");
 				if(!this._downOnCanvas){ return; }
 				this._downOnCanvas = false;
 				
-				console.log("ON UP", this.id, this._postRenderCon)
-				
 				var c = dojo.connect(this, "render", this, function(){
 					dojo.disconnect(c);
 					this.onRender(this);	
@@ -172,7 +171,7 @@ dojo.require("drawing.stencil.Text");
 					left:x,
 					top:y,
 					width:obj.width || 1,
-					height:obj.height || this._lineHeight,
+					height:obj.height && obj.height>8 ? obj.height : this._lineHeight,
 					border:d.width+"px "+d.style+" "+d.color,
 					position:"absolute",
 					zIndex:500,
@@ -186,6 +185,7 @@ dojo.require("drawing.stencil.Text");
 				};
 				
 				dojo.style(this.parentNode, this._box);
+				
 				document.body.appendChild(this.parentNode);
 			},
 			createTextField: function(/*String*/txt){
