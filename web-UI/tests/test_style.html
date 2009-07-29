@@ -70,25 +70,47 @@
 		dojo.require("drawing.plugins.drawing.Grid");
 		
 		dojo.addOnLoad(function(){
-			var drawing = dijit.byId("drawingNode");
-			console.log("DRAWING:", drawing);
-			dojo.connect(drawing, "onSurfaceReady", function(){
-				var arrow = drawing.addStencil("arrow", {data:{x1:400, y1:200, x2:500, y2:300}});
-				arrow.attr({angle:210, radius:200, width:10, label:"My Arrow"})
+			// myDrawing referenced by jsId
+			dojo.connect(myDrawing, "onSurfaceReady", function(){
+				var arrow = myDrawing.addStencil("arrow", {data:{x1:400, y1:200, x2:500, y2:300}});
+				arrow.attr({angle:210, radius:200, borderWidth:3, label:"My Arrow"})
 				
-				var rect = drawing.addStencil("rect", {data:{x:50, y:275, width:100, height:100}});
-				var ellipse = drawing.addStencil("ellipse", {data:{cx:200, cy:200, rx:100, ry:50}});
-				ellipse.attr({fill:{r:256,g:0,b:0,a:.5}, width:10, color:"#0000FF"});
+				var ellipse = myDrawing.addStencil("ellipse", {data:{cx:200, cy:200, rx:100, ry:50}});
+				ellipse.attr({fill:{r:256,g:0,b:0,a:.5}, width:500, height:200, color:"#0000FF"});
+				
+				/*
+				var rect = myDrawing.addStencil("rect", {data:{x:50, y:275, width:100, height:100}});
 			
+				var text = myDrawing.addStencil("text", {data:{x:300, y:260, width:200, text:"This is just text"}});
 				
-				
-				
-				var text = drawing.addStencil("text", {data:{x:300, y:260, width:200, text:"This is just text"}});
-				
-				var textBlock = drawing.addStencil("textBlock", {data:{x:300, y:300, width:200, text:"DojoX Drawing Rocks"}});
+				var textBlock = myDrawing.addStencil("textBlock", {data:{x:300, y:300, width:200, text:"DojoX Drawing Rocks"}});
 				textBlock.attr({fill:{r:256,g:0,b:0,a:.5}, width:10, color:"#0000FF", size:"24px", weight:"bold"});
-							
-			})
+				*/		
+			});
+			
+			dojo.connect(dojo.byId("red"), "click", function(){
+				myDrawing.changeDefaults({
+					norm:{
+						fill:"#ff0000",
+						width:5,
+						color:"#ff00ff"
+					}
+				});
+			});
+			dojo.connect(dojo.byId("blue"), "click", function(){
+				myDrawing.changeDefaults({
+					norm:{
+						fill:"#0000ff",
+						width:5,
+						color:"#ffff00"
+					}
+				});
+			});
+			dojo.connect(dojo.byId("yellow"), "click", function(){
+				myDrawing.toSelected("attr", {
+					fill:"#ffff00"	
+				});
+			});
 		});
 	</script>
 	<style>
@@ -96,23 +118,25 @@
 	</style>
 </head>
 <body>
-    <h2>Drawing Test</h2>
+    <h2>Drawing attr() Test</h2>
 	<div id="conEdit" contenteditable="true"></div>
 	<div id="wrapper">
 		<div dojoType="drawing.Toolbar" drawingId="drawingNode" class="drawingToolbar vertical">
 			<div tool="drawing.tools.Line" selected="false">Line</div>
 			<div tool="drawing.tools.Rect" selected="true">Rect</div>
 			<div tool="drawing.tools.Ellipse" selected="false">Ellipse</div>
-			<div tool="drawing.tools.TextBlock" selected="true">Text</div>
+			<div tool="drawing.tools.TextBlock" selected="false">Text</div>
 			<div tool="drawing.tools.Arrow" selected="false">Arrow</div>
 			<div tool="drawing.tools.custom.Vector" selected="false">Vector</div>
 			<div tool="drawing.tools.custom.Axes" selected="false">Axes</div>
 		</div>
 		
-		<div dojoType="drawing.Drawing" id="drawingNode" drawingType="canvas" class="drawing"
+		<div dojoType="drawing.Drawing" id="drawingNode" jsId="myDrawing" drawingType="canvas" class="drawing"
 			 plugins="[{'name':'drawing.plugins.drawing.Grid', 'options':{gap:100}}]">
-			
 		</div>
 	</div>
+	<button id="blue">Change defaults to Blue</button>
+	<button id="red">Change defaults to Red</button>
+	<button id="yellow">Change selected to Yellow</button>
 </body>
 </html>

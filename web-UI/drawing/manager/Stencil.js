@@ -45,7 +45,7 @@ dojo.provide("drawing.manager.Stencil");
 				//	them to this, but they won't have selection
 				//	or drag ability.
 				//
-			console.log("Selection.register ::::::", stencil.id, "TEXT:", stencil._text)
+				//console.log("Selection.register ::::::", stencil.id, "TEXT:", stencil._text)
 				if(stencil.isText && !stencil.editMode && stencil.deleteEmptyCreate && !stencil.getText()){
 					// created empty text field
 					// defaults say to delete
@@ -480,6 +480,17 @@ dojo.provide("drawing.manager.Stencil");
 				dojo.style(surfaceNode, "cursor", "crosshair");
 			},
 			*/
+			
+			toSelected: function(/*String*/func){
+				// summary:
+				//	Convenience function calls function *within*
+				//	all selected stencils
+				var args = Array.prototype.slice.call(arguments).splice(1);
+				for(var m in this.selectedStencils){
+					var item = this.selectedStencils[m];
+					item[func].apply(item, args);
+				}
+			},
 			
 			withSelected: function(/*Function*/func){
 				// summary:

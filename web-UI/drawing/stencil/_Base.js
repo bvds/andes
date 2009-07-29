@@ -49,7 +49,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 		this._offX = this.mouse.origin.x;
 		this._offY = this.mouse.origin.y;
 		
-		console.log(" ___Base isText", this.type, this.isText, this.type.search(textTypes))
+		//console.log(" ___Base isText", this.type, this.isText, this.type.search(textTypes))
 		if(this.isText){
 			this.align = options.align || this.align;
 			this.valign = options.valign || this.valign;
@@ -354,7 +354,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			}
 			
 			if(this.selected){
-				//this.style.current = this.style.selected;
+				this.style.current = this.style.selected;
 				this.style.currentHit = this.style.hitSelected;
 				//this.style.currentText = this.style.textSelected;
 				
@@ -372,18 +372,25 @@ drawing.stencil._Base = drawing.util.oo.declare(
 		attr: function(/*String | Object*/key, /* ? String | Number */value){
 			// summary
 			//	Changes properties in the normal-style. Also can be used to
-			//	change x/y props.
+			//	change most position and size props.
 			
 			// NOTE: JUST A SETTTER!! TODO!
 			
-			// TODO:
-			//	Expand this to change more properties, like width, radius, angle
+			// WARNING:
+			//	Not doing any Stencil-type checking here. Setting a height
+			//	on a line or an angle on a rectangle will just not render.
 			
-			// FIXME?
-			//	Changing atts isn't triggering onDataChange because it would likely
-			//	be a loop. If its needed, this will need to be fixed.
+			// FIXME
+			// 'width' attr is used for line width. How to change the width of a stencil?
 			
-			var n = this.style.norm, t = this.style.text, o, nm, styleWas = dojo.toJson(n), textWas = dojo.toJson(t);
+			var n = this.style.norm,
+				t = this.style.text,
+				o,
+				nm,
+				width,
+				styleWas = dojo.toJson(n),
+				textWas = dojo.toJson(t);
+			
 			var coords = {
 				x:true,
 				y:true,
@@ -397,9 +404,17 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			}else{
 				o = key;
 			}
+			
+			if(o.width){
+				// using width for size,
+				// borderWidth should be used
+				// for line thickness
+				width = o.width;
+				delete o.width;
+			}
+			
 			for(nm in o){
 				if(nm in n){ n[nm] = o[nm]; }
-				//if(nm in h){ h[nm] = o[nm]; }
 				if(nm in t){ t[nm] = o[nm]; }
 				
 				if(nm in coords){
@@ -418,6 +433,9 @@ drawing.stencil._Base = drawing.util.oo.declare(
 					this.setLabel(o.label);
 				}
 			}
+			if(o.borderWidth){
+				n.width = o.borderWidth;
+			}
 			
 			if(o.x!==undefined){
 				var box = this.getBounds(true);
@@ -430,6 +448,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 				this.transformPoints(mx);
 			}
 			
+			var p = this.points;
 			if(o.angle!==undefined){
 				this.dataToPoints({
 					x:this.data.x1,
@@ -437,8 +456,15 @@ drawing.stencil._Base = drawing.util.oo.declare(
 					angle:o.angle,
 					radius:o.radius
 				});
+			} else if(width!==undefined){
+				p[1].x = p[2].x = p[0].x + width;
+				this.pointsToData(p);	
 			}
+			if(o.height!==undefined && o.angle===undefined){
 				
+				p[2].y = p[3].y = p[0].y + o.height;
+				this.pointsToData(p);
+			}
 			if(propChange || textWas!=dojo.toJson(t) || styleWas != dojo.toJson(n)){
 				// to trigger the render
 				// other events will be called post render
