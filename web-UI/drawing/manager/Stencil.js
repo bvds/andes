@@ -56,6 +56,7 @@ dojo.provide("drawing.manager.Stencil");
 				this.stencils[stencil.id] = stencil;
 				if(stencil.execText){
 					if(stencil._text && !stencil.editMode){
+						console.log("select text")
 						this.selectItem(stencil);
 					}
 					stencil.connect("execText", this, function(){
@@ -479,6 +480,17 @@ dojo.provide("drawing.manager.Stencil");
 				dojo.style(surfaceNode, "cursor", "crosshair");
 			},
 			*/
+			
+			toSelected: function(/*String*/func){
+				// summary:
+				//	Convenience function calls function *within*
+				//	all selected stencils
+				var args = Array.prototype.slice.call(arguments).splice(1);
+				for(var m in this.selectedStencils){
+					var item = this.selectedStencils[m];
+					item[func].apply(item, args);
+				}
+			},
 			
 			withSelected: function(/*Function*/func){
 				// summary:

@@ -9,21 +9,31 @@ dojo.provide("andes.defaults");
 		//	overwrites that one to help protect intended styles from
 		// 	future changes made in Dojox.
 		
-		// current object. do not edit.
+		// current: Object
+		//  current will point to either null or selected
 		current:null,
 		
-		//currentHit object. do not edit.
+		// currentHit: Object
+		//	currentHit will point to either hitNorm or hitSelected
 		currentHit:null,
 		
-		// The angle snap for lines and vectors
-		DTheta:1,
-		
-		//
+		// angleSnap: Number
 		// line, arrows, vector and axes will all snap to this angle on mouse up
 		// shown angle also reflects the snap
 		// currently cannot accept less than 1 degree
 		angleSnap:1,
 		
+		// renderHitLines: Boolean
+		//	If true, renders a second, larger layer for lines to make
+		// 	them more easily clickable. 
+		renderHitLines: true,
+		// 
+		// renderHitLayer:
+		// 	If true, renders a second layer for each Stencil, one
+		// 	acting as a 'hit' object for a wider mouse-click area.
+		// 	It also doubles as a hilight. If true, overrides
+		//	renderHitLines setting.
+		renderHitLayer:true,
 
 		// object states
 		locked:{

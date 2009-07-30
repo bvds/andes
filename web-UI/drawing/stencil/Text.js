@@ -17,6 +17,7 @@ drawing.stencil.Text = drawing.util.oo.declare(
 	{
 		type:"drawing.stencil.Text",
 		anchorType:"none",
+		baseRender:true,
 		
 		// align: String
 		//	Text horizontal alignment.
@@ -122,14 +123,13 @@ drawing.stencil.Text = drawing.util.oo.declare(
 			//			not to call this directly.
 			//
 			this.remove(this.shape, this.hit);
-			!this.annotation && this._renderOutline();
+			!this.annotation && this.renderHit && this._renderOutline();
 			if(text){
 				this._text = text;
 				this._textArray = this._text.split("\n");	
 			}
 			
 			var d = this.pointsToData();
-			//console.log("Y:", d.y, "TS:", this.textSize, "LH:", this._lineHeight)
 			var w = d.width;
 			var h = this._lineHeight;
 			var x = d.x + this.style.text.pad*2;
@@ -138,8 +138,12 @@ drawing.stencil.Text = drawing.util.oo.declare(
 				y -= h/2;
 			}
 			this.shape = this.container.createGroup();
-			//console.info("render text:", y, " ... ", this._text, "enabled:", this.enabled);
 			
+			/*console.log("    render ", this.type, this.id)
+			console.log("    render Y:", d.y, "textSize:", this.textSize, "LH:", this._lineHeight)
+			console.log("    render text:", y, " ... ", this._text, "enabled:", this.enabled);
+			console.log("    render text:", this.style.currentText);
+			*/
 			dojo.forEach(this._textArray, function(txt, i){
 				var tb = this.shape.createText({x: x, y: y+(h*i), text: unescape(txt), align: this.align})
 					.setFont(this.style.currentText)

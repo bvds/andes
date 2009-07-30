@@ -9,10 +9,14 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 	function(options){
 		// summary:
 		//	constructor
+		if(this.points.length){
+			//this.render();
+		}
 	},
 	{
 		type:"drawing.stencil.Rect",
 		anchorType: "group",
+		baseRender:true,
 		
 		/*=====
 		dojox.__StencilData = {
@@ -93,7 +97,7 @@ drawing.stencil.Rect = drawing.util.oo.declare(
 			//	display object).
 			//
 			this.onBeforeRender(this);
-			this._create("hit", this.data, this.style.currentHit);
+			this.renderHit && this._create("hit", this.data, this.style.currentHit);
 			this._create("shape", this.data, this.style.current);
 		}
 	}

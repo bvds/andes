@@ -10,13 +10,14 @@ drawing.stencil.Path = drawing.util.oo.declare(
 		dojo.disconnect(this._postRenderCon);
 
 		if(options.points){
-			this.points = options.points;
-			this.render();
+			//this.points = options.points;
+			//this.render();
 		}
 	},
 	{
 		type:"drawing.stencil.Path",
 		closePath: true,
+		baseRender:true,
 		
 		/*=====
 		dojox.__StencilData = {
@@ -86,7 +87,7 @@ drawing.stencil.Path = drawing.util.oo.declare(
 			//	display object).
 			//
 			this.onBeforeRender(this);
-			this._create("hit", this.style.currentHit);
+			this.renderHit && this._create("hit", this.style.currentHit);
 			this._create("shape", this.style.current);
 			//console.log("path render")
 		}		

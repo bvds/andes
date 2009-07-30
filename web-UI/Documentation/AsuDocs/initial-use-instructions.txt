@@ -1,0 +1,35 @@
+                                 Andes3 Use Instructions
+
+These instructions are intended to get you started using Andes3 to solve
+problems.
+
+1.  Define scalar variables using the Text Tool using sentences like
+     the ones provided with the problem (the match does not have to be
+    *exact*).
+
+2.  When using text to define a variable, possible forms include:
+	a.  "m is the mass of the ball”
+	b.  "m: mass of the ball”
+	c.  "m=mass of the ball”
+
+3.  Define vector variables using the text box of the Vector Tool.  When you
+     define a vector, variables for the magnitude, components, and angle 
+     are defined automatically.  So, for vector F, the magnitude is F, 
+     components F_x F_y, and angle \thetaF are defined.
+
+4.  Define coordinate system before vectors using the Axes Tool.
+
+5.  Write equations using the Equation Tool, but variables used must
+     be previously defined.
+
+7.  Double click on a text or equation box to make a correction, then reenter.
+
+8.  Hit enter after entering any information in a text box.
+
+9.  To find the numerical value of a quantity:
+	a.  Enter equations and value assignments required to solve for variable "V”.
+	b.  In an equation box enter "V=?”
+
+6.  Enter the final answer in a text box in the form like 
+     "answer:  1.23 m/s” or  "answer: v1=1.23 m/s”
+

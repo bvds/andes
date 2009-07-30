@@ -4,12 +4,15 @@
 Andes works with several varieties of lisp, but
 has been used most extensively with sbcl and Allegro lisp.
 The webserver functionality has only been developed for sbcl.
-A sample ~/.sbclrc file has been included as sbclrc-sample.
+For sbcl, a sample startup file has been included as sbclrc-sample.
+You can modify the file (you may need to change the path) and 
+copy it to your home directory:
+  cp sbclrc-sample ~/.sbclrc
 Andes uses asdf as its package manager; both the sbcl and 
 Allegro lisp distributions include asdf.
 
 Compile the solver library and executable:
-  cd Algebra/src/; make solver-program
+  cd Algebra/src/; make solver-program ; cd ../../
 
 For the system to work, a library of problem definitions 
 must be included.  The original Andes problem definitions
@@ -25,7 +28,7 @@ files.  This is included in standard linux distributions.
 
 =============== Web Server =================================
 
-# Install the hunchentoot web server ttp://www.weitz.de/hunchentoot/
+# Install the hunchentoot web server http://www.weitz.de/hunchentoot/
 # using asdf-install.  asdf-install broken in that it will try to load
 # packages we said we didn't need, like cl+ssl and its dependent cffi.
 # Check that the permissions in /usr/local/lib/sbcl/site* are OK
@@ -48,15 +51,15 @@ files.  This is included in standard linux distributions.
     ProxyPass /help http://localhost:8080/help
     ProxyPassReverse /help htttp://localhost:8080/help
   </IfModule>
-# add links to web-UI, review, and images in /var/www/html 
-#                          (or /Library/webServer/Documents/ in OS X)
+# add links to web-UI, review, and images to /var/www/html 
+#     (or to /Library/webServer/Documents/ in OS X)
 # Then restart:
   /sbin/service httpd reload
 
 # To run server in lisp:
   (rhelp)
   (start-help)
-# There is a bug, which causes this to hang, see
+# There is a bug, which causes shut-down to hang, see
 # http://common-lisp.net/pipermail/tbnl-devel/2009-February/004608.html
 # http://common-lisp.net/pipermail/tbnl-devel/2009-February/004589.html
   (stop-help)

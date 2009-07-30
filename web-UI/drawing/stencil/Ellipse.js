@@ -1,3 +1,4 @@
+
 dojo.provide("drawing.stencil.Ellipse");
 
 
@@ -41,7 +42,7 @@ drawing.stencil.Ellipse = drawing.util.oo.declare(
 		
 		type:"drawing.stencil.Ellipse",
 		anchorType: "group",
-		
+		baseRender:true,
 		dataToPoints: function(/*Object*/o){
 			//summary:
 			//	Converts data to points.
@@ -95,7 +96,7 @@ drawing.stencil.Ellipse = drawing.util.oo.declare(
 			//	display object).
 			//
 			this.onBeforeRender(this);
-			this._create("hit", this.data, this.style.currentHit);
+			this.renderHit && this._create("hit", this.data, this.style.currentHit);
 			this._create("shape", this.data, this.style.current);
 		}
 		

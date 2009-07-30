@@ -12,6 +12,7 @@ drawing.stencil.Line = drawing.util.oo.declare(
 	{
 		type:"drawing.stencil.Line",
 		anchorType: "single",
+		baseRender:true,
 		
 		/*=====
 		dojox.__StencilData = {
@@ -121,8 +122,9 @@ drawing.stencil.Line = drawing.util.oo.declare(
 			//	display object).
 			//
 			this.onBeforeRender(this);
-			this._create("hit", this.data, this.style.currentHit);
+			this.renderHit && this._create("hit", this.data, this.style.currentHit);
 			this._create("shape", this.data, this.style.current);
+			
 		}		
 		
 	}
