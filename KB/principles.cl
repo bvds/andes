@@ -1205,3 +1205,50 @@ F-8\">~%"
   (format stream (strcat "</body>~%" 
 			 "</html>~%"))
   (when (streamp stream) (close stream)))))
+
+
+;; Use the above perl script to fix the math formatting after the files
+;; are generated.
+;; (problem-xml-files #P"/Users/bvds/Andes2/xml/")
+;; cp solutions/*.gif 
+;; cp solutions/*.jpg ~/problems/
+(defun problem-xml-files (&optional (path *andes-path*))
+  "construct xml files for all problems"
+  (dolist (prob (listprobs))
+    (let ((*print-pretty* NIL) ;disble line breaks
+	  (stream (open (merge-pathnames 
+			 (format nil "~(~A~).xhtml" (problem-name prob)) path)
+			:direction :output :if-exists :supersede)))
+      
+  ;    (format t "starting problem ~A~%" (problem-name prob))
+
+      ;;  Assume stream has UTF-8 encoding (default for sbcl)
+      ;;  Should test this is actually true or change the charset to match
+      ;;  the actual character code being used by the stream
+      ;;  something like:
+      (when (streamp Stream) 
+	#+sbcl (unless (eq (stream-external-format Stream) ':utf-8)
+		 (error "Wrong character code ~A, should be UTF-8" 
+			(stream-external-format Stream))))
+      (format Stream 
+	      (strcat
+	       "<!DOCTYPE html PUBLIC "
+	       "\"-//W3C//DTD XHTML 1.0 Strict//EN\"~%"
+	       "  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">~%"
+	       "<html xmlns=\"http://www.w3.org/1999/xhtml\" version=\"XHTML 1.2\" xml:lang=\"en\">~%"
+	       "<head>~%"
+	       "  <title>~(~A~)</title>~%"
+	       "</head>~%"
+	       "<body>~%  <p>~%") (problem-name prob))
+      (dolist (liner (problem-statement prob))
+	(cond 
+	  ((listp liner) nil)
+	  ((equal "" (string-trim *whitespace* liner))
+	   (format stream  "  </p>~%  <p>~%"))
+	  (t (format stream "    ~A~%" liner))))
+      (format stream "  </p>~%")
+      (when (problem-graphic prob)
+	(format stream "  <p><img src=\"/images/~A\" alt=\"figure\" /></p>~%" 
+		(problem-graphic prob)))
+      (format stream (strcat "</body>~%</html>~%"))
+      (when (streamp stream) (close stream)))))
