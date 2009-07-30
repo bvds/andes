@@ -481,6 +481,14 @@ dojo.provide("drawing.manager.Stencil");
 			},
 			*/
 			
+			exporter: function(){
+				var items = [];
+				for(var m in this.stencils){
+					items.push(this.stencils[m].exporter());
+				}
+				return items;
+			},
+			
 			toSelected: function(/*String*/func){
 				// summary:
 				//	Convenience function calls function *within*

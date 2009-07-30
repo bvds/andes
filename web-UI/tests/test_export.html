@@ -1,0 +1,145 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" >
+<head>
+    <title>Drawing Export Test</title>
+	<link href="../drawing/resources/drawing.css" rel="stylesheet" />
+	<link href="../drawing/resources/toolbar.css" rel="stylesheet" />
+
+	<style>
+		href, body{
+			overflow:hidden;
+		}
+		textarea{
+			position:absolute;
+			top:5px;
+			left:200px;
+			width:300px;
+			overflow:hidden;
+		}
+		.drawing{
+			margin-left:52px;
+			width:800px;
+			height:400px;
+			border:1px solid #ccc;
+			cursor:crosshair;
+		}
+	</style>
+	
+	<script>
+
+		var watched = {};
+		var ta;
+		watch = function(name, value){
+			return;
+		}
+	
+		djConfig = {
+			isDebug:true,
+			modulePaths: {'drawing': '../drawing'},
+			//modulePaths: {'drawing': '../../../drawing'},
+			//gfxRenderer:'silverlight',
+			//gfxRenderer:'vml',
+			parseOnLoad:true
+		}
+	</script>
+	<script src="../dojo/dojo.js"></script>
+	<!--<script src="../js/dojoxGFX/dojo/dojo/dojo.js"></script>-->
+	<script>
+		if(dojo.isIE){
+			console._log = console.log;
+			console.log = function(){
+				console._log(Array.prototype.slice.call(arguments).join("  "));
+			}
+			console._warn = console.warn;
+			console.warn = function(){
+				console._warn(Array.prototype.slice.call(arguments).join("  "));
+			}
+			// if console is closed this throws an error
+			try{
+				console.clear();
+			}catch(e){}
+		}
+
+		dojo.require("dojo.parser");
+		dojo.require("drawing.Drawing");
+		dojo.require("drawing.Toolbar");
+		dojo.require("drawing.tools.custom.Vector");
+		dojo.require("drawing.tools.custom.Axes");				
+		dojo.require("drawing.tools.Arrow");
+		dojo.require("drawing.plugins.tools.Pan");
+		dojo.require("drawing.plugins.tools.Zoom");
+		dojo.require("drawing.plugins.drawing.Grid");
+		
+		var json = '[{"color":"#0000FF","style":"Solid","cap":"round","fill":{"r":256,"g":0,"b":0,"a":0.5},"borderWidth":1,"x":413,"y":366,"width":100,"height":32,"type":"textBlock","text":"DojoX Drawing is Mike","pad":3,"size":"12px","family":"sans-serif","weight":"normal"},{"color":"#0000FF","style":"Solid","cap":"round","fill":{"r":256,"g":0,"b":0,"a":0.5},"borderWidth":1,"cx":732.5,"cy":197.54166412353516,"rx":54.5,"ry":187.54166412353516,"type":"ellipse"},{"color":"#000000","style":"Solid","cap":"round","fill":"#CCCCCC","borderWidth":1,"x1":430,"y1":342.0833282470703,"x2":675.4108328989848,"y2":143.3535541923843,"type":"line"},{"color":"#000000","style":"Solid","cap":"round","fill":"#CCCCCC","borderWidth":1,"x":499,"y":199.0833282470703,"width":100,"height":103,"type":"rect"},{"color":"#0000FF","style":"Solid","cap":"round","fill":{"r":256,"g":0,"b":0,"a":0.5},"borderWidth":1,"x":395,"y":354,"width":269,"height":19,"type":"textBlock","text":"DojoX Rocks with Socks","pad":3,"size":"24px","family":"sans-serif","weight":"bold"},{"color":"#0000FF","style":"Solid","cap":"round","fill":{"r":256,"g":0,"b":0,"a":0.5},"borderWidth":1,"cx":510.5,"cy":167.04166412353516,"rx":89.5,"ry":17.041664123535156,"type":"ellipse"}]';
+		var imported = dojo.fromJson(json);
+		console.log("JSON:")
+		console.dir(imported)
+			
+		var doExport = function(){
+			var o = myDrawing.exporter();		
+			console.log("EXPORT:")
+			console.dir(o)
+			console.log(dojo.toJson(o))
+		}
+		
+		dojo.addOnLoad(function(){
+			// myDrawing referenced by jsId
+			dojo.connect(myDrawing, "onSurfaceReady", function(){
+				
+				
+				dojo.forEach(imported, function(m){
+					myDrawing.addStencil(m.type, m);
+				})
+				
+				
+				var textBlock = myDrawing.addStencil("textBlock", {data:{x:20, y:30, width:200, text:"DojoX Drawing Rocks"}});
+				textBlock.attr({fill:{r:256,g:0,b:0,a:.5}, width:10, color:"#0000FF", size:"24px", weight:"bold"});
+				
+				
+				var ellipse = myDrawing.addStencil("ellipse", {data:{cx:200, cy:200, rx:100, ry:50}});
+				ellipse.attr({fill:{r:256,g:0,b:0,a:.5}, width:500, height:200, color:"#0000FF"});
+				/*
+				
+				var arrow = myDrawing.addStencil("arrow", {data:{x1:400, y1:200, x2:500, y2:300}});
+				arrow.attr({angle:210, radius:200, borderWidth:3, label:"My Arrow"})
+				
+				
+				var rect = myDrawing.addStencil("rect", {data:{x:50, y:275, width:100, height:100}});
+			
+				var text = myDrawing.addStencil("text", {data:{x:300, y:260, width:200, text:"This is just text"}});
+				
+				*/
+				doExport();
+			});
+			
+			dojo.connect(dojo.byId("import"), "click", function(){
+				
+			});
+			dojo.connect(dojo.byId("export"), "click", doExport);
+		});
+	</script>
+	<style>
+		
+	</style>
+</head>
+<body>
+    <h2>Drawing attr() Test</h2>
+	<div id="conEdit" contenteditable="true"></div>
+	<div id="wrapper">
+		<div dojoType="drawing.Toolbar" drawingId="drawingNode" class="drawingToolbar vertical">
+			<div tool="drawing.tools.Line" selected="false">Line</div>
+			<div tool="drawing.tools.Rect" selected="true">Rect</div>
+			<div tool="drawing.tools.Ellipse" selected="false">Ellipse</div>
+			<div tool="drawing.tools.TextBlock" selected="false">Text</div>
+			<div tool="drawing.tools.Arrow" selected="false">Arrow</div>
+			<div tool="drawing.tools.custom.Vector" selected="false">Vector</div>
+			<div tool="drawing.tools.custom.Axes" selected="false">Axes</div>
+		</div>
+		
+		<div dojoType="drawing.Drawing" id="drawingNode" jsId="myDrawing" drawingType="canvas" class="drawing"
+			 plugins="[{'name':'drawing.plugins.drawing.Grid', 'options':{gap:100}}]">
+		</div>
+	</div>
+	<button id="import">Import</button>
+	<button id="export">Export</button>
+</body>
+</html>

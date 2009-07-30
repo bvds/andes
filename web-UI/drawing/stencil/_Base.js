@@ -10,7 +10,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 	//
 	function(options){
 		
-		console.log("______Base______")
+		//console.log("______Base______")
 		// clone style so changes are reflected in future shapes
 		dojo.mixin(this, options);
 		this.style = options.style || drawing.defaults.copy();
@@ -22,7 +22,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			this.style = options.stencil.style;
 		}
 		
-		// don't use the global on these, it affects
+		// don't use the 'g' on these, it affects
 		// the global RegExp
 		var lineTypes = /Line|Vector|Axes|Arrow/;
 		var textTypes = /Text/;
@@ -63,22 +63,23 @@ drawing.stencil._Base = drawing.util.oo.declare(
 		this._offX = this.mouse.origin.x;
 		this._offY = this.mouse.origin.y;
 		
-		//console.log(" ___Base isText", this.type, this.isText, this.type.search(textTypes))
 		if(this.isText){
 			this.align = options.align || this.align;
 			this.valign = options.valign || this.valign;
 			this.textSize = parseInt(this.style.text.size, 10);
 			this._lineHeight = this.textSize * 1.5;
+			// TODO: thinner text selection
 			//this.style.hitSelected.width *= 0.5;
-			//this.style.hitHighlighted.width *= 0.5;
+			//
 			// ouch. how verbose. My mixin is weak....
 			this.deleteEmptyCreate = options.deleteEmptyCreate!==undefined ? options.deleteEmptyCreate : this.style.text.deleteEmptyCreate;
 			this.deleteEmptyModify = options.deleteEmptyModify!==undefined ? options.deleteEmptyModify : this.style.text.deleteEmptyModify;
 		}
+		this.attr(options.data);
 		
 		// make truthy
 		// add to renders below
-		// this.baseRender && rdenr()
+		// this.baseRender && render()
 		//if(this.type == "drawing.tools.TextBlock"){
 		if(this.noBaseRender){	
 			// TextBlock will handle rendering itself
@@ -402,7 +403,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			
 			var n = this.style.norm,
 				t = this.style.text,
-				ts = this.textSelected,
+				ts = this.textSelected || {},
 				o,
 				nm,
 				width,
@@ -466,6 +467,11 @@ drawing.stencil._Base = drawing.util.oo.declare(
 				this.textSelected.color = this.style.selected.color;
 			
 			}
+			
+			if(!this.created){
+				return;
+			}
+			
 			if(o.x!==undefined){
 				var box = this.getBounds(true);
 				var mx = { dx:0, dy:0 };	
@@ -501,6 +507,29 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			}
 		
 		},
+		
+		exporter: function(){
+			var type = this.type.substring(this.type.lastIndexOf(".")+1).charAt(0).toLowerCase()
+				+ this.type.substring(this.type.lastIndexOf(".")+2);
+			var o = dojo.clone(this.style.norm);
+			o.borderWidth = o.width;
+			delete o.width;
+			o = dojo.mixin(o, this.data);
+			o.type = type;
+			if(this.isText){
+				o.text = this.getText();
+				o = dojo.mixin(o, this.style.text);
+				delete o.minWidth;
+				delete o.deleteEmptyCreate;
+				delete o.deleteEmptyModify;
+			}
+			var lbl = this.getLabel();
+			if(lbl){
+				o.label = lbl;
+			}
+			return o;
+		},
+	
 		
 		//	TODO:
 		// 		Makes these all called by att()

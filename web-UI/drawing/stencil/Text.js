@@ -71,7 +71,7 @@ drawing.stencil.Text = drawing.util.oo.declare(
 			//
 			this._text = text;
 			this._textArray = [];
-			this.render(text);
+			this.created && this.render(text);
 		},
 		
 		getText: function(){

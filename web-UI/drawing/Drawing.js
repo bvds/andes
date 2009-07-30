@@ -317,6 +317,9 @@ dojo.require("drawing.annotations.Arrow");
 				})
 				return false;
 			}
+			if(options && !options.data){
+				options = {data:options}
+			}
 			var s = this.stencils.register( new this.stencilTypes[type](this.getShapeProps(options)));
 			// need this or not?
 			//s.connect(s, "destroy", this, "onDeleteStencil");
@@ -336,7 +339,18 @@ dojo.require("drawing.annotations.Arrow");
 		},
 		
 		toSelected: function(/*String*/func /*[args, ...]*/){
+			// summary:
+			//	Call a function within all selected Stencils
+			//	like attr()
+			// example:
+			//	myDrawing.toSelected('attr', {x:10})
+			//
 			this.stencils.toSelected.apply(this.stencils, arguments);
+		},
+		
+		exporter: function(){
+			console.log("this.stencils", this.stencils)
+			return this.stencils.exporter();
 		},
 		
 		changeDefaults: function(/*Object*/newStyle){
