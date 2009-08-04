@@ -21,6 +21,7 @@
   :components (
 	       (:module "Base"
 			:components ((:file "memoize")
+				     (:file "match")
 				     ;; mt19937 had its own asd file, 
 				     ;; but we don't use it
 				     (:file "mt19937") 
@@ -52,7 +53,6 @@
 				     (:file "symbols")
 				     (:file "State"
 					    :depends-on ("symbols" "grammar"))
-				     (:file "match")
 				     (:file "Entry-API"
 					    :depends-on ("HelpMessages"
 							 "SolutionGraph" 
