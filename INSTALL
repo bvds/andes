@@ -63,3 +63,17 @@ files.  This is included in standard linux distributions.
 # http://common-lisp.net/pipermail/tbnl-devel/2009-February/004608.html
 # http://common-lisp.net/pipermail/tbnl-devel/2009-February/004589.html
   (stop-help)
+
+============================ MySql =======================================
+
+To save sessions, we use MySql.  First, mysql server must be started.
+As root:
+  /sbin/chkconfig mysqld on
+  /sbin/service mysqld start
+Then set the root password and restart:
+  /usr/bin/mysqladmin -u root password 'sin(0)=0'
+  /sbin/service mysqld start
+
+[Next, need to set up database, need to install and load clsql and
+clsql-mysql to access database in lisp.  ]
+

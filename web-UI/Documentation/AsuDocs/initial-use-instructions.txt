@@ -12,9 +12,9 @@ problems.
     *exact*).
 
 2.  When using text to define a variable, possible forms include:
-	a.  "m is the mass of the ball”
-	b.  "m: mass of the ball”
-	c.  "m=mass of the ball”
+	a.  "m is the mass of the ball"
+	b.  "m: mass of the ball"
+	c.  "m=mass of the ball:
 
 3.  Define vector variables using the text box of the Vector Tool.  When you
      define a vector, variables for the magnitude, components, and angle 
@@ -31,20 +31,21 @@ problems.
 7.  Hit enter after entering any information in a text box.
 
 8.  To find the numerical value of a quantity:
-	a.  Enter equations and value assignments required to solve for variable "V”.
+	a.  Enter equations and value assignments required to solve 
+            for variable "V".
 	b.  In an equation box enter "V=?"
 
 9.  Enter the final answer in a text box in the form like 
      "answer:  1.23 m/s" or  "answer: v1=1.23 m/s"
 
-**********************************************************************************
+*******************************************************************************
 
                           Known Issues
 
 There are plenty of known problems:
 1.  The sentence matching for definitions is really primitive:
     definitions need to be pretty close to the "official Andes sentence"
-     For now, a list of sentences is shown on the drawing "canvas."statement.
+    For now, a list of sentences is shown on the drawing "canvas."statement.
 2.  If you get an unsolicited hint and later ask for help,
     you get the hint again.
 3.  Multiple-choice and check boxes don't work.
@@ -52,7 +53,7 @@ There are plenty of known problems:
 5.  There is no mechanism for choosing a principle of physics.
 6.  Math notation (esp. Greek letters) is not handled
 7.  Problems where you need to draw a vector in an unknown direction
-     don't work.
+    don't work.
 .
 .
 .
@@ -63,4 +64,4 @@ use Andes.  See
 http://gideon.eas.asu.edu/web-UI/Documentation/AsuDocs/narrative-22.pdf
 pages 16, 31 for a description of our proposed scaffolding mechanism.
 
-**********************************************************************************
+*******************************************************************************
