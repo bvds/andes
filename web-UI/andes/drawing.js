@@ -270,6 +270,7 @@ dojo.provide("andes.drawing");
 			//
 			// setting 'this'
 			this.loadProject = function(){
+				console.info("load server data", andes.userId, andes.projectId, andes.sectionId)
 				andes.api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId})
 					.addCallback(this, function(data){
 						setTimeout(dojo.hitch(this, function(){

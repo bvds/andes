@@ -46,6 +46,9 @@ drawing.annotations.Angle = drawing.util.oo.declare(
 			var d = this.stencil.pointsToData();
 			var pt = drawing.util.positioning.angle({x:d.x1,y:d.y1},{x:d.x2,y:d.y2});
 			
+			pt.x /= this.mouse.zoom;
+			pt.y /= this.mouse.zoom;
+			
 			var mx = this.stencil.getTransform();
 			
 			// adding _offX & _offY since this is HTML
