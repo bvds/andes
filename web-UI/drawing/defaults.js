@@ -129,14 +129,14 @@ drawing.defaults = {
 		deleteEmptyCreate:true,
 		deleteEmptyModify:true,
 		pad:3,
-		size:"12px",
+		size:"18px",
 		family:"sans-serif",
 		weight:"normal",
 		color:"#000000"
 	},
 	textDisabled:{
 		// style of disabled text
-		size:"12px",
+		size:"18px",
 		family:"sans-serif",
 		weight:"normal",
 		color:"#cccccc"

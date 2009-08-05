@@ -349,8 +349,8 @@ dojo.require("drawing.stencil.Text");
 				var org = this.mouse.origin;
 				
 				var obj = {
-					pageX: (d.x  - sc.left + org.x) / this.mouse.zoom,
-					pageY: (d.y - sc.top + org.y) / this.mouse.zoom,
+					pageX: (d.x  ) / this.mouse.zoom - sc.left + org.x,
+					pageY: (d.y  ) / this.mouse.zoom- sc.top + org.y,
 					width:d.width / this.mouse.zoom,
 					height:d.height / this.mouse.zoom
 				}

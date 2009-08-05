@@ -241,11 +241,14 @@ dojo.provide("drawing.manager.Stencil");
 				//	and determines how far left and up the selection
 				//	can go without going below zero
 				//
-				var t = 0; l = 0;
+				console.warn("stencil.setConstraint")
+				var t = Infinity; l = Infinity;
 				this.withSelected(function(m){
 					var o = m.getBounds();
-					t = Math.max(o.y1, t);
-					l = Math.max(o.x1, l);
+					console.dir(o)
+					t = Math.min(o.y1, t);
+					l = Math.min(o.x1, l);
+					console.log("t:", t, "l:", l);
 				});
 				this.constrain = {l:-l, t:-t};
 			},
