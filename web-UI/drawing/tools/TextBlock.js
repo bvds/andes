@@ -233,9 +233,15 @@ dojo.require("drawing.stencil.Text");
 					}
 					
 				kc1 = dojo.connect(conEdit, "keyup", this, function(evt){
-					if(!_autoSet){
+					// 	if text is empty, we need a height so the field's height
+					//	doesn't collapse
+					if(dojo.trim(conEdit.innerHTML) && !_autoSet){
 						dojo.style(conEdit, "height", "auto"); _autoSet = true;
+					}else if(!dojo.trim(conEdit.innerHTML) && _autoSet){
+						dojo.style(conEdit, "height", this._lineHeight+"px"); _autoSet = false;
 					}
+					
+					
 					if(evt.keyCode==13 || evt.keyCode==27){
 						dojo.stopEvent(evt);
 						exec();
@@ -253,8 +259,8 @@ dojo.require("drawing.stencil.Text");
 				
 				kc4 = dojo.connect(document, "mouseup", this, function(evt){
 					if(!this._onAnchor){
-					dojo.stopEvent(evt);
-					exec();
+						dojo.stopEvent(evt);
+						exec();
 					}
 				});
 				

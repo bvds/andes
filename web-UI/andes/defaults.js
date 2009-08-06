@@ -34,14 +34,19 @@ dojo.provide("andes.defaults");
 		// 	It also doubles as a hilight. If true, overrides
 		//	renderHitLines setting.
 		renderHitLayer:true,
-
+		
+		// labelSameColor:
+		//	If true, the label text color will be the same as the
+		//	Stencil's line color.
+		labelSameColor:true,
+		
 		// object states
 		locked:{
-			fill:  "#cccccc",
+			fill:  "#262626",
 			color: "#000000"
 		},
 		fade:{
-			fill:  "#cccccc",
+			fill:  "#262626",
 			color: "#000000"
 		},
 		correct:{

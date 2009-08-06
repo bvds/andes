@@ -49,11 +49,15 @@ dojo.provide("andes.drawing");
 		// 	change 'showEmpty'.
 		//
 		var gap = 10;
-		return {data:{
-			x:box.x2 + gap,
-			y:box.y1,
-			showEmpty:true
-		}};
+		return {
+			deleteEmptyCreate:false,
+			deleteEmptyModify:false,
+			data:{
+				x:box.x2 + gap,
+				y:box.y1,
+				showEmpty:true
+			}
+		};
 	};
 	
 	var items = {};

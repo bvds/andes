@@ -8,7 +8,7 @@
 @import url("../dojox/layout/resources/ExpandoPane.css");
 @import url("../andes/widget/UpgradeBar/UpgradeBar.css");
 @import url("../drawing/resources/drawing.css");
-@import url("../drawing/resources/toolbar.css");
+/*@import url("../drawing/resources/toolbar.css");*/
 
 
 html, body, #main{
@@ -182,6 +182,12 @@ body, .tundra .dijitSplitter, #navMenu{
 	font-size:.9em;
 	border-width:1px;
 }
+
+#andesErrorDialog .action{
+	margin-top:15px;
+}
+
+
 #andesErrorDialog_underlay{
 	background-color:#eef;
 }
