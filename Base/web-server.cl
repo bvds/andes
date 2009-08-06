@@ -122,7 +122,7 @@
 	  ((and *debug* (equal (cdr (assoc :text params)) 
 			       "json-rpc-test-error"))
 	   (values nil (if version 
-			   `((:code . -32602) 
+			   `((:code . -32099) 
 			     (:message . "json-rpc-test-error response."))
 			   "json-rpc-test-error response.")))
 	  ;; need error handler for the case where the arguments don't 

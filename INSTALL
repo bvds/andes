@@ -74,17 +74,17 @@ Then set the root password and restart:
   /usr/bin/mysqladmin -u root password 'sin(0)=0'
   /sbin/service mysqld start
 (In OS X, go to http://dev.mysql.com, install mysql and MySQLStartupItem,
-add /usr/local/mysql/bin to PATH in ~/.profile, and execute
-sudo /Library/StartupItems/MySQLCOM/MySQLCOM start, and set
-root password using the above command.) 
+add /usr/local/mysql/bin to PATH in ~/.profile, execute
+"sudo /Library/StartupItems/MySQLCOM/MySQLCOM start", and set
+the root mysql password using the above command.) 
 
 clsql doesn't work well with asdf-install.  So we install this manually:
 Download tarball from http://clsql.b9.com and install in
 /usr/local/lib/sbcl/site.  Then make links:
   cd /usr/local/lib/sbcl/site-systems/
   ln -s ../site/clsql-*/*.asd .
-Modify clsql.asd so that it depends on cffi-uffi-compat; change
-line 21 to be:  #+clisp +sbcl
+Modify the file clsql.asd so that it depends on cffi-uffi-compat; 
+change line 21 of this file to be:  #+clisp +sbcl
 In lisp, load using:
   (asdf:operate 'asdf:load-op 'clsql)
   #+darwin (push #P"/usr/local/mysql/lib/" CLSQL-SYS:*FOREIGN-LIBRARY-SEARCH-PATHS*)
