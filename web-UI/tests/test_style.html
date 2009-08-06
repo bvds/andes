@@ -77,6 +77,12 @@
 				var textBlock = myDrawing.addStencil("textBlock", {data:{x:20, y:30, width:200, text:"DojoX Drawing Rocks"}});
 				textBlock.attr({fill:{r:256,g:0,b:0,a:.5}, width:10, color:"#0000FF", size:"24px", weight:"bold"});
 				
+				
+				
+				var rect = myDrawing.addStencil("rect", {label:"My Rectangle", data:{x:50, y:275, width:100, height:100}});
+				rect.attr({fill:"#ff0000", color:"#ffff00"})
+				
+				
 				/*
 				var ellipse = myDrawing.addStencil("ellipse", {data:{cx:200, cy:200, rx:100, ry:50}});
 				ellipse.attr({fill:{r:256,g:0,b:0,a:.5}, width:500, height:200, color:"#0000FF"});

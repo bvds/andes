@@ -36,6 +36,11 @@ drawing.defaults = {
 	//	renderHitLines setting.
 	renderHitLayer:false,
 	
+	// labelSameColor:
+	//	If true, the label text color will be the same as the
+	//	Stencil's line color.
+	labelSameColor:false,
+	
 	//
 	useSelectedStyle: true,
 	

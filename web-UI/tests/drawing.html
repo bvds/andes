@@ -8,13 +8,6 @@
 		href, body{
 			overflow:hidden;
 		}
-		textarea{
-			position:absolute;
-			top:5px;
-			left:200px;
-			width:300px;
-			overflow:hidden;
-		}
 		.drawing{
 			margin-left:52px;
 			width:800px;
@@ -26,21 +19,6 @@
 	
 	<script>
 
-		var watched = {};
-		var ta;
-		watch = function(name, value){
-			if(!ta) {
-				ta = dojo.create("textarea", null, dojo.body());
-			}
-			watched[name] = value;
-			var lines=[];
-			for(var n in watched){
-				lines.push(n+": "+watched[n]);
-			}
-			dojo.attr(ta, "rows", lines.length);
-			ta.value = lines.join("\n");
-		}
-	
 		djConfig = {
 			isDebug:true,
 			modulePaths: {'drawing': '../drawing'},

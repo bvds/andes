@@ -36,30 +36,6 @@ dojo.require("dijit.form.Button");
 				type:"submit"
 			}, dojo.create("div", null, page1));
 
-			/*
-			// andesButtonPageOkCancel -- OK, Cancel
-			props = {className:"andesButtonPage", id:"andesButtonPageOkCancel", style:"display:none;"};
-			var page2 = dojo.create("div", props, container);
-			var btn2_OK = new dijit.form.Button({
-				label:"OK",
-				type:"submit"
-			}, dojo.create("div", null, page2));
-			var btn2_Cancel = new dijit.form.Button({
-				label:"Cancel",
-				onClick: dojo.hitch(this, "hide")
-			}, dojo.create("div", null, page2));
-			*/
-
-			/*
-			 * TODO: create other button pages
-			 *
-			dojo.create("div", {className:"andesButtonPage", id:"andesButtonPageType2"}, container);
-			dojo.create("div", {className:"andesButtonPage", id:"andesButtonPageType3"}, container);
-			*/
-
-			// FIXME: We probably need some hooks for app code to be triggered when
-			//        the user clicks OK, Cancel, etc.
-
 			dojo.place(container, this.domNode);
 			this.buttonsNode = container;
 		},

@@ -61,13 +61,27 @@
 .drawingToolbar .drawingButton .icon{
 	background-image:url("images/tool_icons.png");
 	width:32px;
-	height:32px;
+	height:64px;
 	position:absolute;
 	left:0px;
 	top:0px;
 	margin:0;
 	padding:0;
+	clip: rect(0px 32px 32px 0px);
 }
+
+
+.drawingToolbar .drawingButton.selected .icon{
+	/*
+	background-position-y is not supported in Firefox
+	The workaround is to shift the icon with 'top'
+	and hide a portion of it with 'clip'
+	*/
+	top:-32px;
+	clip: rect(32px 32px 64px 0px);
+}
+
+
 .drawingToolbar .drawingButton .icon.iconLine{
 	background-position:-64px 0px;
 }
