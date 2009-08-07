@@ -221,9 +221,9 @@ dojo.require("drawing.stencil.Text");
 				this._textConnected = true;
 				this.mouse.setEventMode("TEXT");
 				this.keys.editMode(true);
-				var kc1, kc2, kc3, kc4, kc5, kc6, self = this, _autoSet = false,
+				var kc1, kc2, kc3, kc4, self = this, _autoSet = false,
 					exec = function(){
-						dojo.forEach([kc1,kc2,kc3,kc4,kc5,kc6], function(c){
+						dojo.forEach([kc1,kc2,kc3,kc4], function(c){
 							dojo.disconnect(c)
 						});
 						self._textConnected = false;
@@ -237,7 +237,7 @@ dojo.require("drawing.stencil.Text");
 					//	doesn't collapse
 					if(dojo.trim(conEdit.innerHTML) && !_autoSet){
 						dojo.style(conEdit, "height", "auto"); _autoSet = true;
-					}else if(!dojo.trim(conEdit.innerHTML) && _autoSet){
+					}else if(dojo.trim(conEdit.innerHTML).length<2 && _autoSet){
 						dojo.style(conEdit, "height", this._lineHeight+"px"); _autoSet = false;
 					}
 					
@@ -253,20 +253,16 @@ dojo.require("drawing.stencil.Text");
 					}
 				});
 				
-				kc3 = dojo.connect(conEdit, "mouseup", this, function(evt){
+				kc3 = dojo.connect(document, "mouseup", this, function(evt){
 					dojo.stopEvent(evt);
-				});
-				
-				kc4 = dojo.connect(document, "mouseup", this, function(evt){
 					if(!this._onAnchor){
-						dojo.stopEvent(evt);
 						exec();
 					}
 				});
 				
 				this.createAnchors();
 				
-				kc5 = dojo.connect(this.mouse, "setZoom", this, function(evt){
+				kc4 = dojo.connect(this.mouse, "setZoom", this, function(evt){
 					exec();
 				});
 				

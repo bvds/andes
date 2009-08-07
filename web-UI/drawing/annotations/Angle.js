@@ -41,22 +41,24 @@ drawing.annotations.Angle = drawing.util.oo.declare(
 				this.hideAngle();
 				return;
 			}
-			var sc = this.mouse.scrollOffset();
 			var node = this.getAngleNode();
 			var d = this.stencil.pointsToData();
 			var pt = drawing.util.positioning.angle({x:d.x1,y:d.y1},{x:d.x2,y:d.y2});
-			
+			var sc = this.mouse.scrollOffset();
+			var mx = this.stencil.getTransform();
+			var dx = mx.dx / this.mouse.zoom;
+			var dy = mx.dy / this.mouse.zoom;
 			pt.x /= this.mouse.zoom;
 			pt.y /= this.mouse.zoom;
-			
-			var mx = this.stencil.getTransform();
 			
 			// adding _offX & _offY since this is HTML
 			// and we are from the page corner, not
 			// the canvas corner
+			var x = this.stencil._offX + pt.x - sc.left + dx;
+			var y = this.stencil._offY + pt.y - sc.top + dy;
 			dojo.style(node, {
-				left:  this.stencil._offX + pt.x - sc.left + mx.dx + "px",
-				top: this.stencil._offY + pt.y - sc.top + mx.dy + "px",
+				left:  	x + "px",
+				top: 	y + "px",
 				align:pt.align
 			});
 			

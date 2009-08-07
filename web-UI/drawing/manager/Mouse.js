@@ -314,8 +314,8 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			
 			x*= this.zoom;
 			y*= this.zoom;
-			x += sc.left;
-			y += sc.top;
+			x += sc.left*this.zoom;
+			y += sc.top*this.zoom;
 			
 			this.origin.startx = x;
 			this.origin.starty = y;

@@ -15,6 +15,14 @@
 			border:1px solid #ccc;
 			cursor:crosshair;
 		}
+		textarea{
+			position:absolute;
+			top:30px;
+			right:10px;
+			width:200px;
+			overflow:hidden;
+			z-index:10001;
+		}
 	</style>
 	
 	<script>
@@ -45,7 +53,25 @@
 				console.clear();
 			}catch(e){}
 		}
-
+		var watched = {};
+		var ta;
+		watch = function(name, value){
+			//return;
+			if(!ta) {
+				ta = dojo.create("textarea", null, dojo.body());
+			}
+			if(typeof(value)=="number"){
+				value = Math.ceil(value);
+			}
+			watched[name] = value;
+			var lines=[];
+			for(var n in watched){
+				lines.push(n+": "+watched[n]);
+			}
+			dojo.attr(ta, "rows", lines.length);
+			ta.value = lines.join("\n");
+		}
+		
 		dojo.require("dojo.parser");
 		dojo.require("drawing.Drawing");
 		dojo.require("drawing.Toolbar");
@@ -77,7 +103,7 @@
 			<div tool="drawing.tools.Ellipse" selected="false">Ellipse</div>
 			<div tool="drawing.tools.TextBlock" selected="false">Text</div>
 			<div tool="drawing.tools.Arrow" selected="false">Arrow</div>
-			<div tool="drawing.tools.custom.Vector" selected="false">Vector</div>
+			<div tool="drawing.tools.custom.Vector" selected="true">Vector</div>
 			<div tool="drawing.tools.custom.Axes" selected="false">Axes</div>
 			<div plugin="drawing.plugins.tools.Pan" options="{}">Pan</div>
 			<div plugin="drawing.plugins.tools.Zoom" options="{zoomInc:.1,minZoom:.5,maxZoom:2}">Zoom</div>

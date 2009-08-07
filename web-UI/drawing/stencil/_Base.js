@@ -67,7 +67,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			this.align = options.align || this.align;
 			this.valign = options.valign || this.valign;
 			this.textSize = parseInt(this.style.text.size, 10);
-			this._lineHeight = this.textSize * 1.5;
+			this._lineHeight = this.textSize * 1.4;
 			// TODO: thinner text selection
 			//this.style.hitSelected.width *= 0.5;
 			//
@@ -90,14 +90,14 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			//console.log("__________Base.constr", this.type, "options points")
 			this.setPoints(options.points);
 			this.connect(this, "render", this, "onRender", true);
-			this.baseRender && this.render();
+			this.baseRender && this.enabled && this.render();
 		}else if(options.data){
 			//console.log("___________Base.constr", this.type, "options data", options.data)
 			options.data.width = options.data.width ? options.data.width : this.style.text.minWidth;
 			options.data.height = options.data.height ? options.data.height : this._lineHeight;
 			this.setData(options.data);
 			this.connect(this, "render", this, "onRender", true);
-			this.baseRender && this.render(options.data.text);
+			this.baseRender && this.enabled && this.render(options.data.text);
 			if(options.label){
 				this.setLabel(options.label);
 			}
@@ -114,6 +114,8 @@ drawing.stencil._Base = drawing.util.oo.declare(
 		if(!this.enabled){
 			this.disable();
 			this.moveToBack();
+			// some things render some don't...
+			this.render(options.data.text);
 		}
 		
 	},
@@ -540,6 +542,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			//		Disables Stencil so it is not selectable.
 			//		Changes the color to the disabled style.
 			this.enabled = false;
+			this.renderHit = false;
 			this.onChangeStyle(this);
 		},
 		
@@ -549,6 +552,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			//		it was selectable to begin with). Changes the
 			//		color to the current style.
 			this.enabled = true;
+			this.renderHit = true;
 			this.onChangeStyle(this);
 		},
 		

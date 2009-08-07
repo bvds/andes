@@ -4,7 +4,7 @@ dojo.require("dojo.parser");
 dojo.require("dijit.layout.BorderContainer");
 dojo.require("dijit.layout.ContentPane");
 dojo.require("andes.widget.ExpandoPane");
-dojo.require("andes.widget.UpgradeBar");
+//dojo.require("andes.widget.UpgradeBar");
 
 dojo.require("dijit.MenuBar");
 dojo.require("dijit.PopupMenuBarItem");

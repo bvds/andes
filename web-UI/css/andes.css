@@ -8,7 +8,7 @@
 @import url("../dojox/layout/resources/ExpandoPane.css");
 @import url("../andes/widget/UpgradeBar/UpgradeBar.css");
 @import url("../drawing/resources/drawing.css");
-/*@import url("../drawing/resources/toolbar.css");*/
+@import url("../drawing/resources/toolbar.css");
 
 
 html, body, #main{
