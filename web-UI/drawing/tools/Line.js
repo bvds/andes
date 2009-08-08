@@ -14,8 +14,9 @@ drawing.tools.Line = drawing.util.oo.declare(
 			// summary:
 			//	Overwrites _Base.onTransformEnd
 			//
-			var toggle = this.selected;
-			toggle && this.deselect();
+			//var toggle = this.selected;
+			//toggle && this.deselect();
+			this._toggleSelected();
 			var d = this.data;
 			var obj = {start:{x:d.x1,y:d.y1},x:d.x2,y:d.y2};
 			var pt = this.util.snapAngle(obj, this.angleSnap/180);
@@ -27,7 +28,7 @@ drawing.tools.Line = drawing.util.oo.declare(
 			this._isBeingModified = false;
 			this.onModify(this);
 			
-			toggle && this.select();
+			//toggle && this.select();
 		},
 		
 		onDrag: function(/*dojox.__MangerMouseEvent*/obj){

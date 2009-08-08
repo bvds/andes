@@ -29,6 +29,10 @@
 	border:0;
 	cursor:pointer;
 }
+.dj_ie6 .drawingToolbar .drawingButton {
+	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=true, sizingMethod=image src='images/tool_sprites.png');
+	
+}
 .horizontal.drawingToolbar .drawingButton{
 	float:left;
 	margin-right:5px;
@@ -70,6 +74,10 @@
 	clip: rect(0px 32px 32px 0px);
 }
 
+.dj_ie6 .drawingToolbar .drawingButton .icon {
+	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=true, sizingMethod=image src='images/tool_icons.png');
+	
+}
 
 .drawingToolbar .drawingButton.selected .icon{
 	/*

@@ -176,7 +176,8 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			// called from anchor point up mouse up
 			
 			this._isBeingModified = false;
-			this.deselect();
+			//this.deselect();
+			this._toggleSelected();
 			console.log("before:", Math.ceil(this.points[1].x), " x ", Math.ceil(this.points[1].y))
 			
 			var o = this.points[0];
@@ -201,7 +202,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 				this.points.push({x:ox, y:oy, noAnchor:true});
 				this.setPoints(this.points);
 				
-				this.select();
+				//this.select();
 				this.onModify(this);
 				return;
 			}
@@ -223,7 +224,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			this.labelX.setLabel();
 			this.labelY.setLabel();
 			
-			this.select();
+			//this.select();
 			this.onModify(this);
 				
 		},
@@ -365,7 +366,9 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			// summary: See stencil._Base.onUp
 			//
 			var p = this.points;
-			var len = this.util.distance(p[1].x,p[1].y,p[0].x,p[0].y);
+			if(!p.length){ return; }
+
+			var len = this.util.distance(p[1].x ,p[1].y ,p[0].x ,p[0].y );
 			if(!p || !p.length){
 				return;
 			}else if(len < this.minimumSize){

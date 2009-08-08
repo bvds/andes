@@ -93,10 +93,10 @@ dojo.provide("drawing.manager.Stencil");
 				//	This doesn't delete them, only removes them from
 				// the list.
 				//
-				console.log("Selection.unregister ::::::", stencil.id)
+				console.log("Selection.unregister ::::::", stencil.id, "sel:", stencil.selected)
 				if(stencil){
 					stencil.selected && this.onDeselect(stencil);
-					delete this.stencils[this.selectedStencils.id];
+					delete this.stencils[stencil.id];
 				}
 			},
 			
@@ -278,7 +278,7 @@ dojo.provide("drawing.manager.Stencil");
 				this.anchors.remove(stencil);
 				
 				surface.add(stencil.container);
-				stencil.deselect();
+				stencil.selected && stencil.deselect();
 				stencil.applyTransform(this.group.getTransform());
 			},
 			

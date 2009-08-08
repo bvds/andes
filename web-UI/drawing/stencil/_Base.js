@@ -593,6 +593,11 @@ drawing.stencil._Base = drawing.util.oo.declare(
 				this.onChangeStyle(this);
 			}
 		},
+		_toggleSelected: function(){
+			if(!this.selected){ return; }
+			this.deselect();
+			setTimeout(dojo.hitch(this, "select"), 0);
+		},
 		
 		highlight: function(){
 			// summary:

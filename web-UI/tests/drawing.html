@@ -3,7 +3,7 @@
     <title>Drawing Test</title>
 	<link href="../drawing/resources/drawing.css" rel="stylesheet" />
 	<link href="../drawing/resources/toolbar.css" rel="stylesheet" />
-
+	<link href="../dojox/widget/UpgradeBar/UpgradeBar.css" rel="stylesheet" />
 	<style>
 		href, body{
 			overflow:hidden;
@@ -29,6 +29,7 @@
 
 		djConfig = {
 			isDebug:true,
+			popup:true,
 			modulePaths: {'drawing': '../drawing'},
 			//modulePaths: {'drawing': '../../../drawing'},
 			//gfxRenderer:'silverlight',
@@ -39,20 +40,7 @@
 	<script src="../dojo/dojo.js"></script>
 	<!--<script src="../js/dojoxGFX/dojo/dojo/dojo.js"></script>-->
 	<script>
-		if(dojo.isIE){
-			console._log = console.log;
-			console.log = function(){
-				console._log(Array.prototype.slice.call(arguments).join("  "));
-			}
-			console._warn = console.warn;
-			console.warn = function(){
-				console._warn(Array.prototype.slice.call(arguments).join("  "));
-			}
-			// if console is closed this throws an error
-			try{
-				console.clear();
-			}catch(e){}
-		}
+		
 		var watched = {};
 		var ta;
 		watch = function(name, value){
@@ -81,6 +69,7 @@
 		dojo.require("drawing.plugins.tools.Pan");
 		dojo.require("drawing.plugins.tools.Zoom");
 		dojo.require("drawing.plugins.drawing.Grid");
+		dojo.require("dojox.widget.UpgradeBar");
 		
 		dojo.addOnLoad(function(){
 			var drawing = dijit.byId("drawingNode");
@@ -115,5 +104,11 @@
 			
 		</div>
 	</div>
+	
+	<div dojoType="dojox.widget.UpgradeBar" id="upgradeBar">
+		<div validate="dojo.isIE<7">
+			<span>There may be performance problems with IE 6.0. An upgrade is recommended.</span>
+			<a href="http://www.microsoft.com/windows/internet-explorer/default.aspx?">Download IE 8.0</a>	
+		</div>
 </body>
 </html>

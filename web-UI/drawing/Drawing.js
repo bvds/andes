@@ -240,7 +240,7 @@ dojo.require("drawing.annotations.Arrow");
 			// 	The call to this coming from toobar is a bit funky as the timing
 			//	of IE for canvas load is different than other browsers
 			
-			if(!this.canvas.surfaceReady){
+			if(!this.canvas || !this.canvas.surfaceReady){
 				var c = dojo.connect(this, "onSurfaceReady", this, function(){
 					dojo.disconnect(c);
 					this.initPlugins();
@@ -418,7 +418,7 @@ dojo.require("drawing.annotations.Arrow");
 			//	and this class... after a tool is used a new one of the same
 			//	type is initialized. Could be called externally.
 			//
-			if(!this.canvas.surface){
+			if(!this.canvas || !this.canvas.surface){
 				var c = dojo.connect(this, "onSurfaceReady", this, function(){
 					dojo.disconnect(c);
 					this.setTool(type);

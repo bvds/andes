@@ -12,10 +12,12 @@
 		}
 	</style>
 	<link href="drawing/resources/toolbar.css" rel="stylesheet" />
+	<link href="dojox/widget/UpgradeBar/UpgradeBar.css" rel="stylesheet" />
 	<script>
 		djConfig = {
 			isDebug:true,
-			parseOnLoad:true
+			parseOnLoad:true,
+			popup:true
 		}
 		
 		if(djConfig.isDebug){
@@ -142,9 +144,11 @@
 		<div id="footerPane" dojoType="dijit.layout.ContentPane" region="bottom"></div>
 	</div>
 
-	<!--<div dojoType="andes.widget.UpgradeBar" id="upgradeBar">
-		Upgrade bar
-	</div>-->
-
+	<div dojoType="dojox.widget.UpgradeBar" id="upgradeBar">
+		<div validate="dojo.isIE<7">
+			<span>There may be performance problems with IE 6.0. An upgrade is recommended.</span>
+			<a href="http://www.microsoft.com/windows/internet-explorer/default.aspx?">Download IE 8.0</a>	
+		</div>
+	</div>
 </body>
 </html>
