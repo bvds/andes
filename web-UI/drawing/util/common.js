@@ -219,6 +219,7 @@ dojo.require("dojox.math.round");
 			// summary:
 			//	Helper function to attach attributes to SVG and VML raw nodes.
 			//
+			
 			if(!elem) { return false; }
 			try{
 				
@@ -229,6 +230,7 @@ dojo.require("dojox.math.round");
 				}
 				
 				if(!value && prop=="id" && elem.target){
+			
 					var n = elem.target;
 					while(!dojo.attr(n, "id")){
 						n = n.parentNode;
