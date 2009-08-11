@@ -141,12 +141,14 @@ drawing.plugins.tools.Pan = drawing.util.oo.declare(
 			});
 			
 			b *= z;
+			var xscroll = 0, yscroll = 0;
 			log("Bottom test", "b:", b, "z:", z, "ch:", ch, "pch:", pch, "top:", sc.top, "sy:", sy);
 			if(b > pch || sc.top ){ 
 				log("*bottom scroll*");
 				// item off bottom
 				ch = Math.max(b, pch + sc.top);
 				sy = sc.top;
+				xscroll += this.canvas.getScrollWidth();
 			}else if(!sy && ch>pch){
 				log("*bottom remove*");
 				// item moved from bottom
@@ -159,13 +161,17 @@ drawing.plugins.tools.Pan = drawing.util.oo.declare(
 				// item off right
 				cw = Math.max(r, pcw + sc.left);
 				sx = sc.left;
+				yscroll += this.canvas.getScrollWidth();
 			}else if(!sx && cw>pcw){
 				//log("*right remove*");
 				// item moved from right
 				cw = pcw;
 			}
 			
-			
+			// add extra space for scrollbars
+			// double it to give some breathing room
+			cw += xscroll*2;
+			ch += yscroll*2;
 			
 			this._blockScroll = true;
 			

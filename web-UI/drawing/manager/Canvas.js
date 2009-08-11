@@ -29,6 +29,7 @@ dojo.provide("drawing.manager.Canvas");
 			
 			this.id = this.id || this.util.uid("surface");
 			
+			console.info("create canvas");
 			this.gfxSurface = dojox.gfx.createSurface(this.domNode, this.width, this.height);
 			this.gfxSurface.whenLoaded(this, function(){
 				setTimeout(dojo.hitch(this, function(){
