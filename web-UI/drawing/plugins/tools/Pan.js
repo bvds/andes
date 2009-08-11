@@ -98,7 +98,7 @@ drawing.plugins.tools.Pan = drawing.util.oo.declare(
 			// logging stuff here so it can be turned on and off. This method is
 			// very high maintenance.
 			var log = function(){
-				//console.log.apply(console, arguments);
+				///console.log.apply(console, arguments);
 			}
 			var warn = function(){
 				//console.warn.apply(console, arguments);

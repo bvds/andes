@@ -46,14 +46,16 @@ dojo.require("drawing.stencil.Text");
 				var d = options.data;
 				var w = !d.width ? this.style.text.minWidth : d.width=="auto" ? "auto" : Math.max(d.width, this.style.text.minWidth)
 				var h = this._lineHeight;
-				if(d.text){
+				
+				if(d.text && w=="auto"){
 					var o = this.measureText(this.cleanText(d.text, false), w);
 					w = o.w;
 					h = o.h;
 				}else{
-					w = this.style.text.minWidth;
+					//	w = this.style.text.minWidth;
 					this._text = "";
 				}
+				
 				this.points = [
 					{x:d.x, y:d.y},
 					{x:d.x+w, y:d.y},
@@ -254,9 +256,18 @@ dojo.require("drawing.stencil.Text");
 				});
 				
 				kc3 = dojo.connect(document, "mouseup", this, function(evt){
-					dojo.stopEvent(evt);
-					if(!this._onAnchor){
+					// note: _onAnchor means an anchor has been clicked upon
+					
+					if(!this._onAnchor && evt.target.id != "conEdit"){
+						dojo.stopEvent(evt);
 						exec();
+					}else{
+						// wonky stuff happens when you click on the 
+						// field when its empty.
+						conEdit.blur();
+						setTimeout(function(){
+							conEdit.focus();
+						},200)
 					}
 				});
 				

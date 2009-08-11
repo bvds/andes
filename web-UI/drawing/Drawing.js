@@ -187,6 +187,7 @@ dojo.require("drawing.annotations.Arrow");
 		},
 		
 		_createCanvas: function(){
+			console.info("drawing create canvas...")
 			this.canvas = new drawing.manager.Canvas({
 				srcRefNode:this.domNode,
 				util:this.util,

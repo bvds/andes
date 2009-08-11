@@ -75,6 +75,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			this.deleteEmptyCreate = options.deleteEmptyCreate!==undefined ? options.deleteEmptyCreate : this.style.text.deleteEmptyCreate;
 			this.deleteEmptyModify = options.deleteEmptyModify!==undefined ? options.deleteEmptyModify : this.style.text.deleteEmptyModify;
 		}
+		
 		this.attr(options.data);
 		
 		// make truthy
@@ -423,7 +424,8 @@ drawing.stencil._Base = drawing.util.oo.declare(
 				o = {};
 				o[key] = value;
 			}else{
-				o = key;
+				// prevent changing actual data
+				o = dojo.clone(key);
 			}
 			
 			if(o.width){
@@ -507,7 +509,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 				// other events will be called post render
 				this.onChangeStyle(this);
 			}
-		
+			o.width = width;
 		},
 		
 		exporter: function(){
