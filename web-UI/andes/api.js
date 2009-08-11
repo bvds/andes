@@ -72,7 +72,7 @@ dojo.require("andes.messages");
 					var mo = andes.messages.server();
 					var msg = "<p>"+mo.message+"</p><pre>" + error.name + ": " + error.message;
 					if(error._rpcErrorObject.code){
-						msg += " (code " + error._rpcErrorObject.code + ")";
+						msg += "\n(code " + error._rpcErrorObject.code + ")";
 					}
 					msg += "</pre><div class='action'>"+mo.action+"</div>";
 					andes.error({
