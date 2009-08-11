@@ -103,13 +103,13 @@
 	   this chunk
 	   (rest (copy-list student)))
        (loop	     
-	  (setf this (+ (match-model chunk (car model)
-				     :deletes deletes)
-			(match-model rest (cdr model)
-				     :deletes deletes)))
-	  (when (< this best) (setf best this))
-	  (when (null rest) (error "need to exit loop"))
-	  (setf chunk (append chunk (list (pop rest)))))
+	(setf this (+ (match-model chunk (car model)
+				   :deletes deletes)
+		      (match-model rest (cdr model)
+				   :deletes deletes)))
+	(when (< this best) (setf best this))
+	(when (null rest) (error "need to exit loop"))
+	(setf chunk (append chunk (list (pop rest)))))
        best))
     ((eql (car model) 'and) 
      (if (cdr model) 
@@ -130,8 +130,7 @@
 			 student item :deletes deletes))
 	     (when (< this best) (setf best this)))
 	   best)
-	 (match-model student nil :deletes deletes)))
-    
+	 (match-model student nil :deletes deletes)))))
      
      
 (defun pull-out-quantity (symbol text)
