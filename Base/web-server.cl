@@ -48,6 +48,9 @@
   (setq *show-lisp-errors-p* t)
   (setf *http-error-handler* 'json-rpc-error-message)
 
+  ;; Set up database
+  (create-data-objects)
+
   (setf *server* (start (make-instance 'acceptor :port port))))
 
 (defun json-rpc-error-message (err)
@@ -55,6 +58,7 @@
 	  err (reason-phrase err)))
 
 (defun stop-json-rpc-service ()
+  (destroy-data-objects)
   (stop *server*) (setf *server* nil))
 
 (defmacro defun-method (uri name lambda-list &body body)
@@ -89,8 +93,10 @@
 	 (method-func (gethash (list service-uri method) 
 			       *service-methods*))
 	 reply)
+    (write-problem-transaction-to-database "client" client-id
+					   (raw-post-data :force-text t))
     (when *debug* (format *stdout* "session ~A calling ~A with~%     ~S~%" 
-			  client-id method params))
+			  client-id method (raw-post-data :force-text t)))
     
     (multiple-value-bind (result error1)
 	(cond
@@ -131,14 +137,154 @@
       
       (when *debug* 
 	(format *stdout* "result ~S~%~@[error ~S~%~]" result error1))
+
       ;; only give a response when there is an error or id is given
       (when (or error1 turn)
 	(when (or error1 (not version)) (push (cons :error error1) reply))
 	(when (or result (not version)) (push (cons :result result) reply))
 	(push (cons :id turn) reply)
 	(when version (push version reply))
-	(encode-json-alist-to-string reply)))))
+	(let ((return-json (encode-json-alist-to-string reply)))
+	  ;; send to mysql
+	  (write-problem-transaction-to-database "server" client-id 
+						 return-json)
+	  return-json)))))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;         Send to database
+;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun destroy-data-objects ()
+  (clsql:disconnect))
+
+(defun create-data-objects ()
+
+    (clsql:connect '(nil "andes" "root" "sin(0)=0") :database-type :mysql)
+
+    ;; in mysql:  describe class_information;
+    (clsql:def-view-class class_information ()
+      ((classID
+	:db-kind :key
+	:db-constraints :not-null
+	:type integer
+	:initarg :classid)
+       (name
+	:accessor name
+	:type (varchar 45)
+	:initarg :name)
+       (school
+	:accessor school
+	:type (varchar 45)
+	:initarg :school)
+       (period
+	:accessor period
+	:type (varchar 45)
+	:initarg :period)
+       (description
+	:accessor description
+	:type (varchar 250)
+	:initarg :description)
+       (instructorName
+	:accessor instructorName
+	:type (varchar 50)
+	:initarg :instructorName)
+       (schoolyearInfo
+	:accessor schoolyearInfo
+	:type (varchar 50)
+	:initarg :schoolyearInfo)
+       (datasetID
+	:type integer
+	:initarg :datasetID))
+      (:base-table student_dataset))
+  
+  ;; describe student_dataset;
+  (clsql:def-view-class student_dataset ()
+    ((datasetID
+      :db-kind :key
+      :db-constraints :not-null
+      :type integer
+      :initarg :datasetID)
+     (datasetname
+      :accessor datasetname
+      :type (varchar 250)
+      :initarg :datasetname)
+     (modulename
+      :accessor modulename
+      :type (varchar 45)
+      :initarg :modulename)
+     (groupname
+      :accessor groupname
+      :type (varchar 45)
+      :initarg :groupname)
+     (problemname
+      :accessor problemname
+      :type (varchar 45)
+      :initarg :problemname)))
+  
+  ;; describe problem_attempt
+    (clsql:def-view-class problem_attempt ()
+      ((attemptID
+	:db-kind :key
+	:db-constraints :not-null
+	:type integer
+	:initarg :attemptID)
+       (userName
+	:accessor userName
+	:type (varchar 20)
+	:initarg :userName)
+       (sessionID
+	:accessor sessionID
+	:type (varchar 45)
+	:initarg :sessionID)
+       (startTime
+	:accessor startTime
+	:type date
+	:initarg :startTime)
+       (classinformationID
+	:type integer
+	:initarg :classinformationID))
+      (:base-table class_information))
+
+  ;; describe problem_attempt_transaction;
+  (clsql:def-view-class problem_attempt_transaction ()
+    ((tID
+      :db-kind :key
+      :db-constraints :not-null
+      :type integer
+      :initarg :tID)
+     (attemptID
+      :db-kind :key
+      :db-constraints :not-null
+      :type integer
+      :initarg :attemptID)
+     (problem_attempt
+      :accessor transaction_problem
+      :db-kind join
+      :db-info (:join-class problem_attempt
+                            :home-key attemptID
+                            :foreign-key attemptID
+                            :set nil)) 
+     (command
+      :accessor command
+      :type (varchar 2000)
+      :initarg :command)
+     (initiatingParty
+      :accessor initiatingParty
+      :type (varchar 30)  ;is enum in database
+      :initarg :initiatingParty)))
+
+    (setf clsql:*db-auto-sync* t)
+
+ )
+
+(defun write-problem-transaction-to-database (direction client-id j-string)
+(let (( newProblemAttemptTransaction clsql:make-instance 'problem_attempt_transaction :attemptID client-id :command j-string :initiatingParty direction)))  
+  j-string)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 
 ;;;     Session and turn management
 ;;;
