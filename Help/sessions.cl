@@ -69,12 +69,18 @@
   (parse-initialize)   ;set up memoization for parse functions
   (physics-algebra-rules-initialize) ;initialize grammar
 
+  ;; Set up database
+  (andes-database:create)
+
   ;; start webserver
-  (webserver:start-json-rpc-service "/help" :port port))
+  (webserver:start-json-rpc-service 
+   "/help" :port port :log-function #'andes-database:write-transaction))
 
 (defun stop-help () 
   "stop the web server running this service"
-  (webserver:stop-json-rpc-service))
+  (webserver:stop-json-rpc-service)
+  ;; Stop database.
+  (andes-database:destroy))
 
 ;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
 (#-sbcl defconstant #+sbcl sb-int:defconstant-eqx

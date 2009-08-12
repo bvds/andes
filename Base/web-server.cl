@@ -29,12 +29,13 @@
 (in-package :webserver)
 
 (defvar *server* nil)
+(defvar *log-function* nil "Logging function, function of 3 variables.")
 (defvar *stdout* *standard-output*)
 (defvar *service-methods* (make-hash-table :test #'equal))
 
 (defvar *debug* t "Special error conditions for debugging")
 
-(defun start-json-rpc-service (uri &key (port 8080))
+(defun start-json-rpc-service (uri &key (port 8080) log-function)
   "Start a web server that runs a single service for handling json-rpc"
   ;; One could easily extend this to multiple web servers or multiple
   ;; services, but we don't need that now.
@@ -47,9 +48,7 @@
   ;; Error handlers
   (setq *show-lisp-errors-p* t)
   (setf *http-error-handler* 'json-rpc-error-message)
-
-  ;; Set up database
-  (create-data-objects)
+  (setf *log-function* log-function)
 
   (setf *server* (start (make-instance 'acceptor :port port))))
 
@@ -58,7 +57,6 @@
 	  err (reason-phrase err)))
 
 (defun stop-json-rpc-service ()
-  (destroy-data-objects)
   (stop *server*) (setf *server* nil))
 
 (defmacro defun-method (uri name lambda-list &body body)
@@ -93,10 +91,17 @@
 	 (method-func (gethash (list service-uri method) 
 			       *service-methods*))
 	 reply)
-    (write-problem-transaction-to-database "client" client-id
-					   (raw-post-data :force-text t))
+
+    ;; Log incoming raw json-rpc and user/problem session id
+    (when *log-function* 
+      (handler-case (funcall *log-function* "client" client-id
+			     (raw-post-data :force-text t))
+	;; Need better handling for this:  need to inform user
+	;; and system administrator.
+	(error (c) (format *stdout* "Database post error ~A" c))))
+
     (when *debug* (format *stdout* "session ~A calling ~A with~%     ~S~%" 
-			  client-id method (raw-post-data :force-text t)))
+			  client-id method params))
     
     (multiple-value-bind (result error1)
 	(cond
@@ -145,144 +150,13 @@
 	(push (cons :id turn) reply)
 	(when version (push version reply))
 	(let ((return-json (encode-json-alist-to-string reply)))
-	  ;; send to mysql
-	  (write-problem-transaction-to-database "server" client-id 
-						 return-json)
+	  ;; Log reply message raw json string
+	  (when *log-function*
+	    ;; Error handling needs work:  need to inform administrator.
+	    (handler-case (funcall *log-function* "server" 
+				   client-id return-json)
+	      (error (c) (format *stdout* "Database reply error ~A" c))))
 	  return-json)))))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;
-;;;;         Send to database
-;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun destroy-data-objects ()
-  (clsql:disconnect))
-
-(defun create-data-objects ()
-
-    (clsql:connect '(nil "andes" "root" "sin(0)=0") :database-type :mysql)
-
-    ;; in mysql:  describe class_information;
-    (clsql:def-view-class class_information ()
-      ((classID
-	:db-kind :key
-	:db-constraints :not-null
-	:type integer
-	:initarg :classid)
-       (name
-	:accessor name
-	:type (varchar 45)
-	:initarg :name)
-       (school
-	:accessor school
-	:type (varchar 45)
-	:initarg :school)
-       (period
-	:accessor period
-	:type (varchar 45)
-	:initarg :period)
-       (description
-	:accessor description
-	:type (varchar 250)
-	:initarg :description)
-       (instructorName
-	:accessor instructorName
-	:type (varchar 50)
-	:initarg :instructorName)
-       (schoolyearInfo
-	:accessor schoolyearInfo
-	:type (varchar 50)
-	:initarg :schoolyearInfo)
-       (datasetID
-	:type integer
-	:initarg :datasetID))
-      (:base-table student_dataset))
-  
-  ;; describe student_dataset;
-  (clsql:def-view-class student_dataset ()
-    ((datasetID
-      :db-kind :key
-      :db-constraints :not-null
-      :type integer
-      :initarg :datasetID)
-     (datasetname
-      :accessor datasetname
-      :type (varchar 250)
-      :initarg :datasetname)
-     (modulename
-      :accessor modulename
-      :type (varchar 45)
-      :initarg :modulename)
-     (groupname
-      :accessor groupname
-      :type (varchar 45)
-      :initarg :groupname)
-     (problemname
-      :accessor problemname
-      :type (varchar 45)
-      :initarg :problemname)))
-  
-  ;; describe problem_attempt
-    (clsql:def-view-class problem_attempt ()
-      ((attemptID
-	:db-kind :key
-	:db-constraints :not-null
-	:type integer
-	:initarg :attemptID)
-       (userName
-	:accessor userName
-	:type (varchar 20)
-	:initarg :userName)
-       (sessionID
-	:accessor sessionID
-	:type (varchar 45)
-	:initarg :sessionID)
-       (startTime
-	:accessor startTime
-	:type date
-	:initarg :startTime)
-       (classinformationID
-	:type integer
-	:initarg :classinformationID))
-      (:base-table class_information))
-
-  ;; describe problem_attempt_transaction;
-  (clsql:def-view-class problem_attempt_transaction ()
-    ((tID
-      :db-kind :key
-      :db-constraints :not-null
-      :type integer
-      :initarg :tID)
-     (attemptID
-      :db-kind :key
-      :db-constraints :not-null
-      :type integer
-      :initarg :attemptID)
-     (problem_attempt
-      :accessor transaction_problem
-      :db-kind join
-      :db-info (:join-class problem_attempt
-                            :home-key attemptID
-                            :foreign-key attemptID
-                            :set nil)) 
-     (command
-      :accessor command
-      :type (varchar 2000)
-      :initarg :command)
-     (initiatingParty
-      :accessor initiatingParty
-      :type (varchar 30)  ;is enum in database
-      :initarg :initiatingParty)))
-
-    (setf clsql:*db-auto-sync* t)
-
- )
-
-(defun write-problem-transaction-to-database (direction client-id j-string)
-(let (( newProblemAttemptTransaction clsql:make-instance 'problem_attempt_transaction :attemptID client-id :command j-string :initiatingParty direction)))  
-  j-string)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 

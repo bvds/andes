@@ -1,3 +1,9 @@
+#
+#  clsql can be obtained from http://clsql.b9.com
+#  However, it does not work well with asdf-install and cffi.
+#  So we include a local copy which we patch and install in the system-wide
+#  sbcl libraries.
+#
 install-clsql:
 	tar zxf clsql-4.0.5.tgz
 	patch -p0 < clsql-4.0.5.patch

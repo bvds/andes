@@ -69,7 +69,7 @@ files.  This is included in standard linux distributions.
 
 ============================ MySql =======================================
 
-To save sessions, we use MySql.  First, mysql server must be started.
+To save session data, we use MySql.  First, mysql server must be started.
 As root:
   /sbin/chkconfig mysqld on
   /sbin/service mysqld start
@@ -82,14 +82,8 @@ execute "(cd /usr/local/lib; ln -s ../mysql/lib/lib*.{a,dylib} .)"
 execute "sudo /Library/StartupItems/MySQLCOM/MySQLCOM start", and
 set the root mysql password using the above command.) 
 
-clsql (http://clsql.b9.com) doesn't work with asdf-install or cffi.  
-So we patch and install:
-	make install-clsql
+clsql doesn't work with asdf-install or cffi.  
+Instead, we patch a local copy and install:
+  make install-clsql
 
-In lisp, load using:
-  (asdf:operate 'asdf:load-op 'clsql)
-  #+darwin (push #P"/usr/local/mysql/lib/" CLSQL-SYS:*FOREIGN-LIBRARY-SEARCH-PATHS*) ;push-library-path
-  (asdf:operate 'asdf:load-op 'clsql-mysql)
-
-[Next, need to set up database.  Need to dump]
-
+[Next, need to set up database.]
