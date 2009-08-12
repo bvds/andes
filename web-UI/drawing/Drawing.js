@@ -166,6 +166,7 @@ dojo.require("drawing.annotations.Arrow");
 			// If Dijit is available in the page, register with it
 			if(dijit && dijit.registry){
 				dijit.registry.add(this);
+				console.log("using dijit")
 			}else{
 				// else fake dijit.byId
 				// FIXME: This seems pretty hacky.
@@ -179,12 +180,14 @@ dojo.require("drawing.annotations.Arrow");
 					return dijit.registry.objs[id];
 				};
 				dijit.registry.add(this);
-				this._createCanvas();
+				//this._createCanvas(); why was this here? doesn't make sense...
 			}
+			this._createCanvas();
 			
 		},
 		
 		_createCanvas: function(){
+			console.info("drawing create canvas...")
 			this.canvas = new drawing.manager.Canvas({
 				srcRefNode:this.domNode,
 				util:this.util,
@@ -239,7 +242,6 @@ dojo.require("drawing.annotations.Arrow");
 			// 	Called from Toolbar after a plugin has been loaded
 			// 	The call to this coming from toobar is a bit funky as the timing
 			//	of IE for canvas load is different than other browsers
-			
 			if(!this.canvas || !this.canvas.surfaceReady){
 				var c = dojo.connect(this, "onSurfaceReady", this, function(){
 					dojo.disconnect(c);

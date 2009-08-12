@@ -72,7 +72,7 @@ dojo.require("andes.messages");
 					var mo = andes.messages.server();
 					var msg = "<p>"+mo.message+"</p><pre>" + error.name + ": " + error.message;
 					if(error._rpcErrorObject.code){
-						msg += " (code " + error._rpcErrorObject.code + ")";
+						msg += "\n(code " + error._rpcErrorObject.code + ")";
 					}
 					msg += "</pre><div class='action'>"+mo.action+"</div>";
 					andes.error({
@@ -130,7 +130,7 @@ dojo.require("andes.messages");
 
 	andes.api = {
 		open: function(params){
-			console.info("andes.api.open", params);
+			//console.info("andes.api.open", params);
 			startTime = (new Date()).getTime();
 			var dfd = queueRequest("open-problem", params);
 			
@@ -143,10 +143,9 @@ dojo.require("andes.messages");
 		},
 
 		step: function(params){
-			console.info("andes.api.step", params);
+			//console.info("andes.api.step", params);
 			var dfd = queueRequest("solution-step", params);
 			dfd.addCallback(function(result){
-				console.log("HELP CALLBACK", result)
 				// look for help embedded in the returned result, so we can
 				// queue it up in case the user opens the Help pane
 				andes.help.processStep(result);
@@ -155,7 +154,7 @@ dojo.require("andes.messages");
 		},
 
 		help: function(params){
-			console.info("andes.api.help", params);
+			//console.info("andes.api.help", params);
 			return queueRequest("seek-help", params);
 		},
 

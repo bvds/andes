@@ -34,7 +34,7 @@ drawing.defaults = {
 	// 	acting as a 'hit' object for a wider mouse-click area.
 	// 	It also doubles as a hilight. If true, overrides
 	//	renderHitLines setting.
-	renderHitLayer:false,
+	renderHitLayer:true,
 	
 	// labelSameColor:
 	//	If true, the label text color will be the same as the

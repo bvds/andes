@@ -76,6 +76,14 @@
 			console.log("DRAWING:", drawing);
 			drawing.addStencil("rect", {data:{x:50, y:275, width:100, height:100}});
 			drawing.addStencil("ellipse", {data:{cx:200, cy:200, rx:100, ry:50}});
+			
+			var textBlock = drawing.addStencil("textBlock", {data:{x:20, y:30, width:250, text:"Dojo Rocks"}});
+		
+			var textBlock2 = drawing.addStencil("textBlock", {data:{x:500, y:300, width:250, text:"Dijit Rocks"}});
+		
+			var textBlock3 = drawing.addStencil("textBlock", {data:{x:200, y:150, width:250, text:"DojoX Rocks"}});
+		
+		
 		});
 	</script>
 	<style>

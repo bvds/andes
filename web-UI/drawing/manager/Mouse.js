@@ -237,7 +237,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 				this._selected = false;
 			}
 			
-			//console.info("Up Event:", nm, "id:", obj.id);
+			console.info("Up Event:", nm, "id:", obj.id);
 			this._broadcastEvent(nm, obj);
 			
 			// Silverlight double-click handled in Silverlight class
