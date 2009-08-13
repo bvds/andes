@@ -1,0 +1,67 @@
+diff -ur clsql-4.0.5/clsql-mysql.asd new-clsql-4.0.5/clsql-mysql.asd
+--- clsql-4.0.5/clsql-mysql.asd	2009-08-11 15:38:41.000000000 -0400
++++ new-clsql-4.0.5/clsql-mysql.asd	2009-08-06 14:26:05.000000000 -0400
+@@ -21,7 +21,7 @@
+ 
+ (eval-when (:compile-toplevel :load-toplevel :execute)
+   (unless (find-package 'uffi)
+-    (asdf:operate 'asdf:load-op 'uffi)))
++    (asdf:operate 'asdf:load-op 'cffi-uffi-compat)))
+ 
+ (defvar *library-file-dir* (append (pathname-directory *load-truename*)
+ 				   (list "db-mysql")))
+@@ -80,7 +80,7 @@
+   :description "Common Lisp SQL MySQL Driver"
+   :long-description "cl-sql-mysql package provides a database driver to the MySQL database system."
+ 
+-  :depends-on (uffi clsql clsql-uffi)
++  :depends-on (cffi-uffi-compat clsql clsql-uffi)
+   :components
+   ((:module :db-mysql
+ 	    :components
+diff -ur clsql-4.0.5/clsql-uffi.asd new-clsql-4.0.5/clsql-uffi.asd
+--- clsql-4.0.5/clsql-uffi.asd	2009-08-11 15:38:42.000000000 -0400
++++ new-clsql-4.0.5/clsql-uffi.asd	2009-08-06 14:23:01.000000000 -0400
+@@ -79,7 +79,7 @@
+   :description "Common UFFI Helper functions for Common Lisp SQL Interface Library"
+   :long-description "cl-sql-uffi package provides common helper functions using the UFFI for the CLSQL package."
+ 
+-  :depends-on (uffi clsql)
++  :depends-on (cffi-uffi-compat clsql)
+ 
+   :components
+   ((:module :uffi
+diff -ur clsql-4.0.5/clsql.asd new-clsql-4.0.5/clsql.asd
+--- clsql-4.0.5/clsql.asd	2009-08-11 15:38:42.000000000 -0400
++++ new-clsql-4.0.5/clsql.asd	2009-08-06 14:24:35.000000000 -0400
+@@ -18,7 +18,7 @@
+ (defpackage #:clsql-system (:use #:asdf #:cl))
+ (in-package #:clsql-system)
+ 
+-#+clisp
++#+clisp +sbcl
+ (progn
+   (asdf:operate 'asdf:load-op 'cffi)
+   (asdf:operate 'asdf:load-op 'cffi-uffi-compat)
+@@ -27,7 +27,7 @@
+ ;; need to load uffi for below perform :after method
+ (eval-when (:compile-toplevel :load-toplevel :execute)
+   (unless (find-package 'uffi)
+-    (asdf:operate 'asdf:load-op 'uffi)))
++    (asdf:operate 'asdf:load-op 'cffi-uffi-compat)))
+ 
+ (defsystem clsql
+     :name "CLSQL"
+diff -ur clsql-4.0.5/db-mysql/Makefile new-clsql-4.0.5/db-mysql/Makefile
+--- clsql-4.0.5/db-mysql/Makefile	2009-08-11 15:38:42.000000000 -0400
++++ new-clsql-4.0.5/db-mysql/Makefile	2009-08-11 15:47:56.000000000 -0400
+@@ -32,7 +32,7 @@
+ 
+ ifneq ($(OS_CYGWIN),0)
+   CFLAGS=-I /cygdrive/c/Program\ Files/MySQL/MySQL\ Server\ 5.0/include
+-  LDFLAGS=-L/usr/local/lib64/mysql -L/usr/local/lib/mysql -L/usr/lib/mysql -L/sw/lib -L/opt/local/lib/mysql -L/usr/lib/gcc/i686-pc-cygwin/3.4.4 -lmysqlclient -lpthread -lz -lm -lgcc -lc
++  LDFLAGS=-L/usr/local/mysql/lib -L/usr/local/lib64/mysql -L/usr/local/lib/mysql -L/usr/lib/mysql -L/sw/lib -L/opt/local/lib/mysql -L/usr/lib/gcc/i686-pc-cygwin/3.4.4 -lmysqlclient -lpthread -lz -lm -lgcc -lc
+ endif
+ 
+ $(shared_lib): $(source) Makefile
+Only in new-clsql-4.0.5/db-mysql: Makefile~
