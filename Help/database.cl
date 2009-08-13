@@ -22,7 +22,7 @@
 
 (defpackage :andes-database
   (:use :cl :clsql)
-  (:export :write-transaction :destroy :create))
+  (:export :write-transaction :destroy :create :set-session))
 
 (in-package :andes-database)
 
@@ -168,3 +168,8 @@
 ;  (let ((newProblemAttemptTransaction 
 ;	 (make-instance 'problem_attempt_transaction :attemptID client-id :command j-string :initiatingParty direction))))
   j-string)
+
+(defun set-session (client-id &key student problem section)
+  ;; get session labeled by client-id
+  ;; add above info to database
+)

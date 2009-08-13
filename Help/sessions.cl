@@ -197,6 +197,10 @@
   ;; webserver:*env* needs to be initialized before the wrapper
   (setq webserver:*env* (make-help-env :student user :problem problem 
 				       :section section))
+
+  ;; Update logging with session information
+  (andes-database:set-session 
+   webserver:*log-id* :student user :problem problem :section section)
   
   (let (replies solution-step-replies
 		;; Override global variable on start-up
@@ -300,7 +304,7 @@
 
       ;;  Push initial hint to the client.  
       ;;  Should only do this when help and grading is available
-      (push `((:action . "show-hint") (:text . "If you need help, click the help button <span dojoType=\"dijit.form.Button\" disabled=\"true\">?</span> below.&nbsp; Click the <span class=\"dojoxExpandoIcon dojoxExpandoIconRight\" style=\"float:none;display:inline-block;margin-right:6px;\" disabled=\"true\"></span> button above to hide this window.")) 
+      (push '((:action . "show-hint") (:text . "If you need help, click the help button <span dojoType=\"dijit.form.Button\" disabled=\"true\">?</span> below.&nbsp; Click the <span class=\"dojoxExpandoIcon dojoxExpandoIconRight\" style=\"float:none;display:inline-block;margin-right:6px;\" disabled=\"true\"></span> button above to hide this window.")) 
 	    replies)
   
       ;; set-stats (if there was an old score) (to do)
@@ -319,6 +323,7 @@
 	    replies)      
       (push `((:action . "set-score") (:score . 0)) replies))
 
+    ;; assemble list of replies to send to client.
     (append (reverse replies) solution-step-replies)))
 
 ;; need error handler for case where the session isn't active
