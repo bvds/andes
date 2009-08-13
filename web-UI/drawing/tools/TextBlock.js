@@ -372,7 +372,11 @@ dojo.require("drawing.stencil.Text");
 				this.showParent(obj);
 				this.createTextField(this._text.replace("/n", " "));
 				this.connectTextField();
-				
+				if(this._text){
+					//setTimeout(dojo.hitch(this, function(){
+					this.setSelection(conEdit, "end")
+					//}), 500)
+				}
 			},
 			cleanText: function(/*String*/txt, /*Boolean*/removeBreaks){
 				// summary:
@@ -511,6 +515,10 @@ dojo.require("drawing.stencil.Text");
 					backgroundColor:d.fill,
 					border:b+"px " + d.style + " "+d.color
 				}
+				if(dojo.isIE){
+					s.paddingLeft = w + "px";
+					s.fontSize = w + "px"
+				}
 				var ss = [
 					{top: p, left:p},
 					{top:p, right:p},
@@ -568,6 +576,58 @@ dojo.require("drawing.stencil.Text");
 				for(var n in this._anchors){
 					dojo.forEach(this._anchors[n].con, dojo.disconnect, dojo);
 					dojo.destroy(this._anchors[n].a);
+				}
+			},
+			setSelection: function(node, what){
+				console.warn("setSelection:");
+				if (dojo.doc.selection) { // IE
+					var r = dojo.body().createTextRange();
+					r.moveToElementText(node);
+					r.collapse(false);
+					r.select();
+					
+				} else {
+					var getAllChildren = function(node, children){
+						children = children || [];
+						for(var i=0;i<node.childNodes.length; i++){
+							var n = node.childNodes[i];
+							if(n.nodeType==3){
+								children.push(n);
+							}else if(n.tagName && n.tagName.toLowerCase()=="img"){
+								children.push(n);
+							}
+							
+							if(n.childNodes && n.childNodes.length){
+								getAllChildren(n, children);
+							}
+						}
+						return children;
+					};
+					console.log("ff node:", node)
+					node.focus();
+					var selection = dojo.global.getSelection();
+					selection.removeAllRanges();
+					console.log(1)
+					var r = dojo.doc.createRange();
+					r.selectNodeContents(node);
+					console.log(2)
+					var nodes = getAllChildren(node);
+					console.log(3)
+					if (what == "end") {
+						console.log("len:", nodes[nodes.length - 1].textContent.length)
+						r.setStart(nodes[nodes.length - 1], nodes[nodes.length - 1].textContent.length);
+						r.setEnd(nodes[nodes.length - 1], nodes[nodes.length - 1].textContent.length);
+					}else if(what=="beg" || what == "start"){
+						r.setStart(nodes[0], 0);
+						r.setEnd(nodes[0], 0);
+					}else if(what=="all"){
+						r.setStart(nodes[0], 0);
+						r.setEnd(nodes[nodes.length - 1], nodes[nodes.length - 1].textContent.length);
+					}
+					
+					selection.addRange(r);
+					
+					console.log("sel ", what, " on ", node)
 				}
 			}
 		}
