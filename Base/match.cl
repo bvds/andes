@@ -21,118 +21,119 @@
 ;; Not sure how to handle punctuation here.
 ;;
 ;; Syntax <model>: (<model> ...)  ordered sequence
-;;               (and <model> ...) orderless sequence 
-;;               (or <model> ...)  this is exclusive or
-;;               (var <quant>)   match student variable for <quant>
-;;               (ont <quant>)   match with ontology
-;;               (preferred <model>) optional, but hinted for
-;;               (allowed <model>)  optional, but not hinted for
-;;               <string>        leaf nodes, after resolution, are strings
-;;        Not sure if we need the following
-;;        and unsure of proper name, maybe merge with (and ...) above
-;;               (nl-and <model> ...) orderless list, expressed with "and"
-;;               (nl-or <model> ...) orderless list, expressed with "or"
+;;                 (and <model> ...) orderless sequence 
+;;                 (or <model> ...)  this is exclusive or
+;;                 (var <quant>)   match student variable for <quant>
+;;                 (ont <quant>)   match with ontology
+;;                 (preferred <model>) optional, but hinted for
+;;                 (allowed <model>)  optional, but not hinted for
+;;                 <string>      leaf nodes, after resolution, are strings
+;; Not sure if we need the following
+;; and unsure of proper name, maybe merge with (and ...) above
+;;    (nl-and <model> ...) orderless list, expressed with "and"
+;;    (nl-or <model> ...) orderless list, expressed with "or"
 ;;
-;;  Parse of student sentence is <student>: (<student> ...)
-;;                                           <string>
-;;               This allows chunking based on punctuation.
+;; Parse of student sentence is (<string> ...)
+;; Could also have more complicated structure:
+;;     <student>: (<student> ...)
+;;                <string>
+;; Which would allow chunking based on punctuation.  But reasonable matching
+;; is much more difficult in that case.
 ;;
 
 ;; operations:  Resolve <quant> references, break up strings.
-;;              expand to expression (or <string> ...) for testing
+;;              Expand to expression (or <string> ...) for testing
 ;;                  with flag for preferred/allowed. 
 ;;              Compare <student> with <model> giving a distance metric.
+;;                  Metric is minimum number of words added and deleted to
+;;                  match model sentence.
 ;;              Make <model> subtrees (preferred ...) based on Gricean 
 ;;                  conversational maxims (minimum needed to distinguish
 ;;                  quantity).
 ;;
 
-(defun word-count (model & key max)
-  "find minimum word count in model"
+(defun word-count (model &key max)
+  "find minimum (or maximum) word count in model"
   (cond 
+    ((null model) 0)
     ((stringp model) 1) ;; or count words in string
     ((or (listp (car model)) (stringp (car model)))
      (+ (word-count (car model) :max max) 
 	(word-count (cdr model) :max max)))
     ((eql (car model) 'and)
-     (pop model)
-     (if model
-	 (+ (word-count (car model) :max max)
+     (if (cdr model)
+	 (+ (word-count (cadr model) :max max)
 	    ;; putting the 'and back in not really necessary 
-	    (word-count (cdr model) :max max))
+	    (word-count (cddr model) :max max))
 	 0))
     ((eql (car model) 'or)
-     (pop model)
-     (if model
+     (if (cdr model)
 	 (funcall (if max #'max #'min) 
-		  (word-count (car model) :max max) 
-		  (word-count (cons 'or (cdr model)) :max max))
+		  (word-count (cadr model) :max max) 
+		  (word-count (cons 'or (cddr model)) :max max))
 	 0))
     ((member (car model) '(allowed preferred)) 
      (if max (word-count (cdr model) :max max) 0))
-    ((member (car model) '(var ont)) 1)
-    (t (warn "word-count found unexpected form ~A" model) 10000)))
+    (t (warn "word-count found unexpected form ~A" model) (if max 10000 0))))
 
 
-(defun match-model (student model &key (deletes 0) (best 1000))
-  "Recursive depth-first match to tree, with cut-off for score, returns minimum word insertion/addition for match."
-  ;; If the situation is hopeless, don't do anything.
-  (let ((lower-bound 
-	 (+ (max (- (word-count model) (word-count student :max t))
-		 (- (word-count student) (word-count model :max t))
-		 0) 
-	    deletes)))
-    (when (> lower-bound best)
-      (return-from match-model lower-bound)))
-  
+(defun match-model (student model)
+  "Recursive match to tree, returns minimum word insertion/addition for match."
   (cond 
-    ((null student) (+ (word-count model) deletes))
-    ((null model) (+ (word-count student) deletes))
-    ((and (stringp student) (stringp model))
-     (+ (normalized-levenshtein-distance student model)
-	deletes))
-    ((and (listp student) (stringp model))
-     (min
-      (+ deletes (match-model (cdr student) model)
-	 (word-count (car student)))
-      (+ deletes (match-model (car student) model)
-	 (word-count (cdr student)))))
-    ((or (listp (car model)) (stringp (car model)))
-     (let ((best (match-model (cdr student) model 
-			      :deletes (+ 1 deletes)))
-	   this chunk
-	   (rest (copy-list student)))
-       (loop	     
-	(setf this (+ (match-model chunk (car model)
-				   :deletes deletes)
-		      (match-model rest (cdr model)
-				   :deletes deletes)))
-	(when (< this best) (setf best this))
-	(when (null rest) (error "need to exit loop"))
-	(setf chunk (append chunk (list (pop rest)))))
-       best))
-    ((eql (car model) 'and) 
-     (if (cdr model) 
-	 (let ((best 1000000) this)
-	   (dolist (item (cdr model))
-	     (setf this (match-model 
-			 student 
-			 (list item (drop item model)) ;non-destrutive
-			 :deletes deletes))
-	     (when (< this best) (setf best this)))
+    ((null student) (word-count model))
+    ((null model) (word-count student))
+    ((stringp model)
+     (let ((best 10000) this)
+       (dolist (item student)
+	 (setf this (normalized-levenshtein-distance item model))
+	 (when (< this best) (setf best this)))
+       ;; best fit plus any extra student words.
+       (+ best (- (word-count student) 1))))
+    ;; model optional
+    ((member (car model) '(preferred allowed))
+     (min (match-model student (second model))
+	  (word-count student))) ;don't match model
+    ;; Case (<model> ...)
+    ((or (stringp (car model)) (listp (car model)))
+     (if (cdr model)
+	 (let ((best
+		;; Case where we don't match the first student word
+		(+ 1 (match-model (cdr student) model)))
+	       this chunk
+	       (rest (copy-list student)))
+	   (loop
+	      (setf this (+ (match-model chunk (car model))
+			    (match-model rest (cdr model))))
+	      (when (< this best) (setf best this))
+	      (when (null rest) (return))
+	      ;; take first member of rest and put it at end of chunk
+	      (setf chunk (append chunk (list (pop rest)))))
 	   best)
-	 (match-model student nil :deletes deletes)))
-    ((eql (car model) 'or) 
-     (if (cdr model) 
-	 (let ((best 10000) this)
-	   (dolist (item (cdr model))
-	     (setf this (match-model 
-			 student item :deletes deletes))
-	     (when (< this best) (setf best this)))
-	   best)
-	 (match-model student nil :deletes deletes)))))
-     
-     
+	 (match-model student (car model)))) ;one element in list
+    ((eql (car model) 'and)
+     (cond 
+       ((cddr model) ;two or more arguments of "and"
+	(let ((best 10000) this)
+	  (dolist (item (cdr model))
+	    (setf this (match-model 
+			student 
+			(list item (remove item model)))) ;non-destrutive
+	    (when (< this best) (setf best this)))
+	  best))
+       ((cdr model) (match-model student (second model)))
+       (t (word-count student)))) ;empty "and"
+    ((eql (car model) 'or)
+     (cond 
+       ((cddr model) ;two or more arguments of "or"
+	(let ((best 10000) this)
+	  (dolist (item (cdr model))
+	    (setf this (match-model student item))
+	    (when (< this best) (setf best this)))
+	  best))
+       ((cdr model) (match-model student (second model)))
+       (t (word-count student)))) ;empty "or"
+    (t (error "Bad trees ~A ~A" student model))))
+   
 (defun pull-out-quantity (symbol text)
   "Pull the quantity phrase out of a definition:  should match variablname.js"
   (when symbol
