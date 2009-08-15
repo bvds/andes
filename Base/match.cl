@@ -76,64 +76,95 @@
      (if max (word-count (cdr model) :max max) 0))
     (t (warn "word-count found unexpected form ~A" model) (if max 10000 0))))
 
+(defmacro update-bound (best x)
+  `(let ((this ,x))
+     (when (< this ,best) (setf ,best this))))
 
-(defun match-model (student model)
+;; The method used here does a depth-first match from student sentence
+;; to the model tree.  For lists, the search space goes as a factorial 
+;; in the number of words.
+
+(defun match-model (student model &key (best 20000))
   "Recursive match to tree, returns minimum word insertion/addition for match."
+
+  ;; When bound is given, see if there is any hope, based on word count,
+  ;; of doing better.
+  (when (< best 10000)
+      (let ((this (max (- (length student) (word-count model :max t))
+		       (- (word-count model) (length student))
+		       0)))
+	(unless (< this best) (return-from match-model this))))
+
   (cond 
     ((null student) (word-count model))
     ((null model) (word-count student))
     ((stringp model)
-     (let ((best 10000) this)
+     (let ((best 10000)) ;ignore any global value of best
        (dolist (item student)
-	 (setf this (normalized-levenshtein-distance item model))
-	 (when (< this best) (setf best this)))
+	 (update-bound best (normalized-levenshtein-distance item model)))
        ;; best fit plus any extra student words.
        (+ best (- (word-count student) 1))))
     ;; model optional
     ((member (car model) '(preferred allowed))
-     (min (match-model student (second model))
-	  (word-count student))) ;don't match model
+     (update-bound best (word-count student)) ;don't match model
+     (update-bound best (match-model student (second model) :best best))
+     best)
     ;; Case (<model> ...)
     ((or (stringp (car model)) (listp (car model)))
-     (if (cdr model)
-	 (let ((best
-		;; Case where we don't match the first student word
-		(+ 1 (match-model (cdr student) model)))
-	       this chunk
-	       (rest (copy-list student)))
-	   (loop
-	      (setf this (+ (match-model chunk (car model))
-			    (match-model rest (cdr model))))
-	      (when (< this best) (setf best this))
-	      (when (null rest) (return))
-	      ;; take first member of rest and put it at end of chunk
-	      (setf chunk (append chunk (list (pop rest)))))
-	   best)
-	 (match-model student (car model)))) ;one element in list
+     (if 
+      (cdr model)
+      ;; for n student words and m elements of the model list,
+      ;; there are (m+n)!/(n! m!) different possible matches.
+      (let (chunk (rest (copy-list student)))
+	;; This loop takes the student list and divides it into
+	;; "chunk" and "rest."  Then "chunk" is matched with the 
+	;; first term of the model and rest is matched with the 
+	;; rest of the model list.
+	;;
+	;; One possible improvent would be to estimate what order
+	;; the loop should be executed basd on word count.
+	;; Alternatively, one could calculate all the first terms,
+	;; then calculate the second term an order based on
+	;; the best matches to the first term.
+	(loop
+	   ;; Use the result of the first term to set a more precise
+	   ;; bound for the second term.
+	   ;; The first term should have a better bound estimate.
+	   (let ((first-term (match-model chunk (car model) :best best)))
+	     (update-bound best 
+			   (+ first-term
+			      (match-model rest (cdr model)
+					   :best (- best first-term)))))
+	   (when (null rest) (return))
+	   ;; take first member of rest and put it at end of chunk
+	   (setf chunk (append chunk (list (pop rest)))))
+	best)
+      (match-model student (car model) :best best)))
     ((eql (car model) 'and)
+     ;; for m arguments of the model "and", there are m! possible
+     ;; list matches (see above).
      (cond 
        ((cddr model) ;two or more arguments of "and"
-	(let ((best 10000) this)
-	  (dolist (item (cdr model))
-	    (setf this (match-model 
-			student 
-			(list item (remove item model)))) ;non-destrutive
-	    (when (< this best) (setf best this)))
-	  best))
-       ((cdr model) (match-model student (second model)))
+	(dolist (item (cdr model))
+	  (update-bound best 
+			(match-model 
+			 student 
+			 (list item (remove item model))  ;non-destrutive
+			 :best best)))
+	best)
+       ((cdr model) (match-model student (second model) :best best))
        (t (word-count student)))) ;empty "and"
     ((eql (car model) 'or)
      (cond 
        ((cddr model) ;two or more arguments of "or"
-	(let ((best 10000) this)
-	  (dolist (item (cdr model))
-	    (setf this (match-model student item))
-	    (when (< this best) (setf best this)))
-	  best))
-       ((cdr model) (match-model student (second model)))
+	(dolist (item (cdr model))
+	  (update-bound best (match-model student item :best best)))
+	best)
+       ((cdr model) (match-model student (second model) :best best))
        (t (word-count student)))) ;empty "or"
     (t (error "Bad trees ~A ~A" student model))))
-   
+
+
 (defun pull-out-quantity (symbol text)
   "Pull the quantity phrase out of a definition:  should match variablname.js"
   (when symbol
