@@ -472,25 +472,6 @@ consed on if lists or as list otherwize."
   (apply #'format t form)
   (format t "  ~A~%" Bar))
 
-
-;;; This function is not called by anyone so I am 
-;;; commenting it out for the time being.
-;;(defun print-flat-by-size (lst &optional (Stream t) (Level 0))
-;;  (dolist (n (sort #'shortest lst))
-;;    (format-with-padding Level "~A~%" n)))
-
-
-(defun segment-string (String &optional (Segment #\space))
-  (let ((L) (S String) (n))
-    (do () ((String= S ""))
-      (when (setq n (or (position Segment S)))      
-	(push (subseq S 0 n) L)
-	(setq S (subseq S (+ n 1)))))
-    (reverse (cons S L))))
-
-
-
-
 ;;; ------------------------------------------------------------------
 ;;; Given a list of values filter them by the supplied function
 ;;; all elements that return t on the function are grouped 

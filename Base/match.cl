@@ -37,8 +37,8 @@
 ;; Could also have more complicated structure:
 ;;     <student>: (<student> ...)
 ;;                <string>
-;; Which would allow chunking based on punctuation.  But reasonable matching
-;; is much more difficult in that case.
+;; which would allow chunking based on punctuation.  But matching
+;; to the model is much more difficult in that case.
 ;;
 
 ;; operations:  Resolve <quant> references, break up strings.
@@ -51,6 +51,15 @@
 ;;                  conversational maxims (minimum needed to distinguish
 ;;                  quantity).
 ;;
+
+(defun word-parse (str &key parse)
+  "Break up a string into a list of words, removing spaces, commas."
+  (let ((p (position '(#\space #\tab #\,) str
+		     :test #'(lambda (x y) (member y x)))))
+    (if p
+	(word-parse (subseq str (+ p 1)) :parse 
+		    (if (> p 0) (push (subseq str 0 p) parse) parse))
+	(reverse (if (> (length str) 0) (push str parse) parse)))))
 
 (defun word-count (model &key max)
   "find minimum (or maximum) word count in model"
@@ -114,17 +123,17 @@
      (if 
       (cdr model)
       ;; for n student words and m elements of the model list,
-      ;; there are (m+n)!/(n! m!) different possible matches.
+      ;; there are (m+n-1)!/(n! (m-1)!) different possible matches.
       (let (chunk (rest (copy-list student)))
 	;; This loop takes the student list and divides it into
 	;; "chunk" and "rest."  Then "chunk" is matched with the 
-	;; first term of the model and rest is matched with the 
+	;; first term of the model and "rest" is matched with the 
 	;; rest of the model list.
 	;;
-	;; One possible improvent would be to estimate what order
+	;; One possible improvement would be to estimate what order
 	;; the loop should be executed basd on word count.
 	;; Alternatively, one could calculate all the first terms,
-	;; then calculate the second term an order based on
+	;; then calculate the second term using an order based on
 	;; the best matches to the first term.
 	(loop
 	   ;; Use the result of the first term to set a more precise
