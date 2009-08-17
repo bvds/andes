@@ -123,31 +123,26 @@
      (if 
       (cdr model)
       ;; for n student words and m elements of the model list,
-      ;; there are (m+n-1)!/(n! (m-1)!) different possible matches.
-      (let (chunk (rest (copy-list student)))
-	;; This loop takes the student list and divides it into
-	;; "chunk" and "rest."  Then "chunk" is matched with the 
-	;; first term of the model and "rest" is matched with the 
-	;; rest of the model list.
-	;;
-	;; One possible improvement would be to estimate what order
-	;; the loop should be executed basd on word count.
-	;; Alternatively, one could calculate all the first terms,
-	;; then calculate the second term using an order based on
-	;; the best matches to the first term.
-	(loop
-	   ;; Use the result of the first term to set a more precise
-	   ;; bound for the second term.
-	   ;; The first term should have a better bound estimate.
-	   (let ((first-term (match-model chunk (car model) :best best)))
-	     (update-bound best 
-			   (+ first-term
-			      (match-model rest (cdr model)
-					   :best (- best first-term)))))
-	   (when (null rest) (return))
-	   ;; take first member of rest and put it at end of chunk
-	   (setf chunk (append chunk (list (pop rest)))))
-	best)
+      ;; m n (n+1)/2 matches must be evaluated.  The following
+      ;; is based on the Levenstein minimum edit distance algorithm.
+      (let* ((width (1+ (length student)))
+	     (height (1+ (length model)))
+	     (d (make-array (list height width))))
+	(dotimes (y width)
+	  (setf (aref d 0 y) y)) ;student is one word per slot
+	(dotimes (x (length model))
+	  (dotimes (y width)
+	    (let ((mini (+ (word-count (nth x model)) (aref d x y))))
+	      (dotimes (z y)
+		(update-bound 
+		 mini
+		 (+ (aref d x z)
+		    (match-model (subseq student z y) (nth x model)
+				 ;; Need to determine empirically
+				 ;; if including bound improves speed.
+				 :best (- (min best mini) (aref d x z))))))
+	      (setf (aref d (1+ x) y) mini))))
+	(aref d (length model) (length student)))
       (match-model student (car model) :best best)))
     ((eql (car model) 'and)
      ;; for m arguments of the model "and", there are m! possible
@@ -229,12 +224,12 @@
     (dotimes (x (length s1))
       (dotimes (y (length s2))
 	(setf (aref d (1+ y) (1+ x))
-	            (min (1+ (aref d y (1+ x)))
-			    (1+ (aref d (1+ y) x))
-			       (+ (aref d y x)
-				        (if (char= (aref s1 x) (aref s2 y))
-					      0
-					        1))))))
+	      (min (1+ (aref d y (1+ x)))
+		   (1+ (aref d (1+ y) x))
+		   (+ (aref d y x)
+		      (if (char= (aref s1 x) (aref s2 y))
+			  0
+			  1))))))
     (aref d (1- height) (1- width))))
 
 
