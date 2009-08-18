@@ -145,29 +145,58 @@
 	(aref d (length model) (length student)))
       (match-model student (car model) :best best)))
     ((eql (car model) 'and)
-     ;; for m arguments of the model "and", there are m! possible
-     ;; list matches (see above).
+     (pop model)
      (cond 
-       ((cddr model) ;two or more arguments of "and"
-	(dolist (item (cdr model))
-	  (update-bound best 
-			(match-model 
-			 student 
-			 (list item (remove item model))  ;non-destrutive
-			 :best best)))
-	best)
-       ((cdr model) (match-model student (second model) :best best))
+       ((cdr model) ;two or more arguments of "and"
+	;; For m arguments of the model "and", the number of matches that 
+	;; must be evaluated is the same as for list matches (see above).  
+	;; However, calculating the best match takes m! times more 
+	;; operations.
+	(let (matches)
+	  (dotimes (length model)
+	    (push (make-array (list (length student) (length student))) matches))
+	  (min (match-model-and student model matches :best best))))
+       (model (match-model student (car model) :best best))
        (t (word-count student)))) ;empty "and"
     ((eql (car model) 'or)
+     (pop model)
      (cond 
-       ((cddr model) ;two or more arguments of "or"
-	(dolist (item (cdr model))
+       ((cdr model) ;two or more arguments of "or"
+	(dolist (item model)
 	  (update-bound best (match-model student item :best best)))
 	best)
-       ((cdr model) (match-model student (second model) :best best))
+       (model (match-model student (car model) :best best))
        (t (word-count student)))) ;empty "or"
     (t (error "Bad trees ~A ~A" student model))))
 
+(defun match-model-and (student model matches &key best)
+  "Match model and to student recursively, saving word matches."
+  (error "not working yet!")
+  (let* ((width (1+ (length student)))
+	 (dd (array (list width))))
+    (if model
+	(dolist (item model)
+	  (let ((d (match-model-and 
+		    student (remove item model)
+		    (remove (nth x matches) matches) :best best)))
+	    (dotimes (y width)
+	      (let ((mini (+ (word-count item) (aref d x y))))
+		(dotimes (z y)
+		  (update-bound 
+		   mini
+		   (+ (aref d z)
+		      (or (aref x z (nth x matches))
+			  (setf (aref x z (nth x matches))
+				(match-model (subseq student z y) 
+					     item
+					     ;; Need to determine empirically
+					     ;; if including bound improves speed.
+					     :best (- (min best mini) (aref d z)))))))
+		  (setf (aref dd y) mini))))))
+	(dotimes (y width)
+	  (setf (aref dd y) y)))
+    dd))
+  
 
 (defun pull-out-quantity (symbol text)
   "Pull the quantity phrase out of a definition:  should match variablname.js"
