@@ -1,5 +1,5 @@
 ;; Author(s):
-;;   Brett van de Sande, V...
+;;   Brett van de Sande, Nicholas Vaidyanathan
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
 ;;;
@@ -44,6 +44,7 @@
 
   (unless (probe-database '(nil "andes" "root" "sin(0)=0") :database-type :mysql)
     ;; create database
+    create-database '("localhost" "andes" "root" "sin(0)=0") :database-type :mysql)
 )
  
 ;     (connect '(nil "andes" "root" "sin(0)=0") :database-type :mysql)
@@ -51,7 +52,7 @@
     (def-view-class class_information ()
       ((classID
 	:db-kind :key
-	:db-constraints :not-null
+	:db-constraints :not-null :auto-increment
 	:type integer
 	:initarg :classid)
        (name
@@ -87,7 +88,7 @@
   (def-view-class student_dataset ()
     ((datasetID
       :db-kind :key
-      :db-constraints :not-null
+      :db-constraints :not-null :auto-increment
       :type integer
       :initarg :datasetID)
      (datasetname
@@ -111,7 +112,7 @@
     (def-view-class problem_attempt ()
       ((attemptID
 	:db-kind :key
-	:db-constraints :not-null
+	:db-constraints :not-null :auto-increment
 	:type integer
 	:initarg :attemptID)
        (userName
@@ -135,7 +136,7 @@
   (def-view-class problem_attempt_transaction ()
     ((tID
       :db-kind :key
-      :db-constraints :not-null
+      :db-constraints :not-null :auto-increment
       :type integer
       :initarg :tID)
      (attemptID
@@ -166,10 +167,29 @@
 (defun write-transaction (direction client-id j-string)
 ;; should use insert-record
 ;  (let ((newProblemAttemptTransaction 
-;	 (make-instance 'problem_attempt_transaction :attemptID client-id :command j-string :initiatingParty direction))))
+	 (make-instance 'problem_attempt_transaction :attemptID client-id :command j-string :initiatingParty direction))))
   j-string)
 
 (defun set-session (client-id &key student problem section)
   ;; get session labeled by client-id
+  (let session ( "fill in with logic here"
+               )
+  )
   ;; add above info to database
+  
+  ; section is a string that is expected to be used to get the classinformation values from web assign, including
+  ; the class name, school, period, description, instructorName, and school year info. This information is
+  ; used by the DataShop XML format, so it should be retrieved from somewhere. For now, we will use a dummy
+  ; class information created specifically for testing -- 08-19-2009 NV
+  (let (testClassInformation
+  			(select 'classInfo :where [= [slot-value 'class_information 'classID] 1 ])
+       )
+  )
+  (let (currentTime
+  			(query "SELECT NOW();" :field-names nil :flatp t :result-types date)
+       )
+  )
+      
+  
+  (make-instance 'problem_attempt :userName student :sessionID session :startTime currentTime :classInformationID testClassInformation )
 )
