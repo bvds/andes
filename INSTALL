@@ -26,18 +26,32 @@ Likewise, at least for Andes2, one can use the solutions repository:
 ImageMagick http://www.imagemagick.org is used to dimension graphics
 files.  This is included in standard linux distributions.
 
-=============== Web Server =================================
+============================ MySql =======================================
 
-# Install the hunchentoot web server http://www.weitz.de/hunchentoot/
-# using asdf-install.  asdf-install broken in that it will try to load
-# packages we said we didn't need, like cl+ssl and its dependent cffi.
-# Modify ownership/permissions in /usr/local/lib/sbcl/site* so that you
-# have write permission.
-# Start sbcl and run:
-  (require 'asdf-install)
-  (push :hunchentoot-no-ssl *features*) ;we have apache to do this
-  (asdf-install:install 'hunchentoot)
-  (asdf-install:install 'cl-json)
+# To save session data, we use MySql.  First, mysql server must be started.
+# As root:
+  /sbin/chkconfig mysqld on
+  /sbin/service mysqld start
+# Then set the root password and restart:
+  /usr/bin/mysqladmin -u root password 'sin(0)=0'
+  /sbin/service mysqld start
+# (In OS X, go to http://dev.mysql.com, install mysql and MySQLStartupItem,
+# add /usr/local/mysql/bin to PATH in ~/.profile,
+# execute "(cd /usr/local/lib; ln -s ../mysql/lib/lib*.{a,dylib} .)"
+# execute "sudo /Library/StartupItems/MySQLCOM/MySQLCOM start", and
+# set the root mysql password using the above command.) 
+
+# clsql doesn't work with asdf-install or cffi.  
+# Instead, we patch a local copy and install. 
+# In the Andes directory, execute:
+  make install-clsql
+
+=============== Apache Web Server =================================
+
+# To serve static files, we use Apache.  First, start up Apache.
+# As root:
+  /sbin/chkconfig mysqld on
+  /sbin/service mysqld start
 
 # Next, configure Apache as reverse proxy server, with json-rpc 
 # error messages.  In httpd.conf, add:
@@ -58,32 +72,31 @@ files.  This is included in standard linux distributions.
 # Then restart:
   /sbin/service httpd reload
 
-# To run server in lisp:
+====================== Lisp Web Server ===============================
+
+;; Install the hunchentoot web server http://www.weitz.de/hunchentoot/
+;; using asdf-install.  asdf-install broken in that it will try to load
+;; packages we said we didn't need, like cl+ssl and its dependent cffi.
+;; Modify ownership/permissions in /usr/local/lib/sbcl/site* so that you
+;; have write permission.
+;; Start sbcl by typing "sbcl" and run:
+  (require 'asdf-install)
+  (push :hunchentoot-no-ssl *features*) ;we have apache to do this
+  (asdf-install:install 'hunchentoot)
+  (asdf-install:install 'cl-json)
+
+
+;; To run server in lisp, type "screen" on the command line,
+;; then type "sbcl" to start up lisp, then:
   (rhelp)
   (start-help)
-# There is a bug, which causes shut-down to hang, see
-# http://common-lisp.net/pipermail/tbnl-devel/2009-February/004608.html
-# http://common-lisp.net/pipermail/tbnl-devel/2009-February/004589.html
+;; To stop the lisp server:
   (stop-help)
-# the unix command "screen" may be useful here.
+;; There is a bug, which causes shut-down to hang, see
+;; http://common-lisp.net/pipermail/tbnl-devel/2009-February/004608.html
+;; http://common-lisp.net/pipermail/tbnl-devel/2009-February/004589.html
 
-============================ MySql =======================================
+;; to exit lisp:
+  (quit)
 
-To save session data, we use MySql.  First, mysql server must be started.
-As root:
-  /sbin/chkconfig mysqld on
-  /sbin/service mysqld start
-Then set the root password and restart:
-  /usr/bin/mysqladmin -u root password 'sin(0)=0'
-  /sbin/service mysqld start
-(In OS X, go to http://dev.mysql.com, install mysql and MySQLStartupItem,
-add /usr/local/mysql/bin to PATH in ~/.profile,
-execute "(cd /usr/local/lib; ln -s ../mysql/lib/lib*.{a,dylib} .)"
-execute "sudo /Library/StartupItems/MySQLCOM/MySQLCOM start", and
-set the root mysql password using the above command.) 
-
-clsql doesn't work with asdf-install or cffi.  
-Instead, we patch a local copy and install:
-  make install-clsql
-
-[Next, need to set up database.]
+============================================================================
