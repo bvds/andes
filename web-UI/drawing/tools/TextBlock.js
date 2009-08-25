@@ -261,13 +261,13 @@ dojo.require("drawing.stencil.Text");
 					if(!this._onAnchor && evt.target.id != "conEdit"){
 						dojo.stopEvent(evt);
 						exec();
-					}else{
+					}else if(!dojo.trim(conEdit.innerHTML)){
 						// wonky stuff happens when you click on the 
 						// field when its empty.
 						conEdit.blur();
 						setTimeout(function(){
 							conEdit.focus();
-						},200)
+						},200);
 					}
 				});
 				
