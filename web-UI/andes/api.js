@@ -49,7 +49,7 @@ dojo.require("andes.messages");
 					var mo = andes.messages.general();
 					andes.error({
 						title: mo.title,
-						message: "<p>"+mo.message+"</p><pre>" + result[0].error + "</pre><div class='action'>"+mo.action+"</div>",
+						message: "<p>"+mo.message+"</p><div class='errMsg'>" + result[0].error + "</div><div class='action'>"+mo.action+"</div>",
 						errorType: andes.error.OK
 					});
 					// FIXME: Not calling nextRequest() here means we freeze
@@ -70,11 +70,11 @@ dojo.require("andes.messages");
 					//
 					req.dfd.errback(error);
 					var mo = andes.messages.server();
-					var msg = "<p>"+mo.message+"</p><pre>" + error.name + ": " + error.message;
+					var msg = "<p>"+mo.message+"</p><div class='errMsg'>" + error.name + ": " + error.message;
 					if(error._rpcErrorObject.code){
 						msg += "\n(code " + error._rpcErrorObject.code + ")";
 					}
-					msg += "</pre><div class='action'>"+mo.action+"</div>";
+					msg += "</div><div class='action'>"+mo.action+"</div>";
 					andes.error({
 						title: mo.title,
 						message: msg,

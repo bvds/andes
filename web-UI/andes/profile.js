@@ -30,4 +30,4 @@ dojo.require("drawing.plugins.tools.Zoom");
 
 // needs to be loaded after Drawing:
 dojo.require("andes.Combo");
-dojo.require("andes.positioning");	
+dojo.require("andes.positioning");
