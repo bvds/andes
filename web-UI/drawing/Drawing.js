@@ -166,6 +166,7 @@ dojo.require("drawing.annotations.Arrow");
 			// If Dijit is available in the page, register with it
 			if(dijit && dijit.registry){
 				dijit.registry.add(this);
+				console.log("using dijit")
 			}else{
 				// else fake dijit.byId
 				// FIXME: This seems pretty hacky.
@@ -179,12 +180,14 @@ dojo.require("drawing.annotations.Arrow");
 					return dijit.registry.objs[id];
 				};
 				dijit.registry.add(this);
-				this._createCanvas();
+				//this._createCanvas(); why was this here? doesn't make sense...
 			}
+			this._createCanvas();
 			
 		},
 		
 		_createCanvas: function(){
+			console.info("drawing create canvas...")
 			this.canvas = new drawing.manager.Canvas({
 				srcRefNode:this.domNode,
 				util:this.util,
@@ -239,8 +242,7 @@ dojo.require("drawing.annotations.Arrow");
 			// 	Called from Toolbar after a plugin has been loaded
 			// 	The call to this coming from toobar is a bit funky as the timing
 			//	of IE for canvas load is different than other browsers
-			
-			if(!this.canvas.surfaceReady){
+			if(!this.canvas || !this.canvas.surfaceReady){
 				var c = dojo.connect(this, "onSurfaceReady", this, function(){
 					dojo.disconnect(c);
 					this.initPlugins();
@@ -317,6 +319,9 @@ dojo.require("drawing.annotations.Arrow");
 				})
 				return false;
 			}
+			if(options && !options.data){
+				options = {data:options}
+			}
 			var s = this.stencils.register( new this.stencilTypes[type](this.getShapeProps(options)));
 			// need this or not?
 			//s.connect(s, "destroy", this, "onDeleteStencil");
@@ -336,7 +341,18 @@ dojo.require("drawing.annotations.Arrow");
 		},
 		
 		toSelected: function(/*String*/func /*[args, ...]*/){
+			// summary:
+			//	Call a function within all selected Stencils
+			//	like attr()
+			// example:
+			//	myDrawing.toSelected('attr', {x:10})
+			//
 			this.stencils.toSelected.apply(this.stencils, arguments);
+		},
+		
+		exporter: function(){
+			console.log("this.stencils", this.stencils)
+			return this.stencils.exporter();
 		},
 		
 		changeDefaults: function(/*Object*/newStyle){
@@ -404,7 +420,7 @@ dojo.require("drawing.annotations.Arrow");
 			//	and this class... after a tool is used a new one of the same
 			//	type is initialized. Could be called externally.
 			//
-			if(!this.canvas.surface){
+			if(!this.canvas || !this.canvas.surface){
 				var c = dojo.connect(this, "onSurfaceReady", this, function(){
 					dojo.disconnect(c);
 					this.setTool(type);

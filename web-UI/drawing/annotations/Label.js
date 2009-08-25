@@ -5,7 +5,7 @@ drawing.annotations.Label = drawing.util.oo.declare(
 	// summary:
 	// 	An annotation called internally to label an Stencil.
 	// description:
-	//	Annotation is positioned with drawing.util.positioning.lable
+	//	Annotation is positioned with drawing.util.positioning.label
 	//	That method should be overwritten for custom placement. Or,
 	//	add a 'setLabelCustom' method to the Stencil and it will be used.
 	//
@@ -23,6 +23,10 @@ drawing.annotations.Label = drawing.util.oo.declare(
 		this.setLabel(options.text || "");
 		this.connect(this.master, "onTransform", this, "setLabel");
 		this.connect(this.master, "destroy", this, "destroy");
+		
+		if(this.style.labelSameColor){
+			this.connect(this.master, "attr", this, "beforeAttr");		
+		}
 	},{
 		_align:"start",
 		
@@ -88,6 +92,19 @@ drawing.annotations.Label = drawing.util.oo.declare(
 				this.render();	
 			}
 			
+		},
+		beforeAttr: function(key, value){
+			if(value!==undefined){
+				// make it an object
+				var k = key; key = {}; key[k] = value;	
+			}
+			delete key.x;
+			delete key.y;
+			delete key.width;
+			delete key.height;
+			this.attr(key);
+			 // FIXME: this.created should already be set, shouldn't it?
+			!this.created && this.render();
 		}
 	}
 

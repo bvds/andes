@@ -4,7 +4,7 @@ dojo.require("dojo.parser");
 dojo.require("dijit.layout.BorderContainer");
 dojo.require("dijit.layout.ContentPane");
 dojo.require("andes.widget.ExpandoPane");
-dojo.require("andes.widget.UpgradeBar");
+dojo.require("dojox.widget.UpgradeBar");
 
 dojo.require("dijit.MenuBar");
 dojo.require("dijit.PopupMenuBarItem");
@@ -30,4 +30,4 @@ dojo.require("drawing.plugins.tools.Zoom");
 
 // needs to be loaded after Drawing:
 dojo.require("andes.Combo");
-dojo.require("andes.positioning");	
+dojo.require("andes.positioning");

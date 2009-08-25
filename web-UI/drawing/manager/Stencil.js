@@ -93,10 +93,10 @@ dojo.provide("drawing.manager.Stencil");
 				//	This doesn't delete them, only removes them from
 				// the list.
 				//
-				console.log("Selection.unregister ::::::", stencil.id)
+				console.log("Selection.unregister ::::::", stencil.id, "sel:", stencil.selected)
 				if(stencil){
 					stencil.selected && this.onDeselect(stencil);
-					delete this.stencils[this.selectedStencils.id];
+					delete this.stencils[stencil.id];
 				}
 			},
 			
@@ -241,11 +241,11 @@ dojo.provide("drawing.manager.Stencil");
 				//	and determines how far left and up the selection
 				//	can go without going below zero
 				//
-				var t = 0; l = 0;
+				var t = Infinity; l = Infinity;
 				this.withSelected(function(m){
 					var o = m.getBounds();
-					t = Math.max(o.y1, t);
-					l = Math.max(o.x1, l);
+					t = Math.min(o.y1, t);
+					l = Math.min(o.x1, l);
 				});
 				this.constrain = {l:-l, t:-t};
 			},
@@ -278,7 +278,7 @@ dojo.provide("drawing.manager.Stencil");
 				this.anchors.remove(stencil);
 				
 				surface.add(stencil.container);
-				stencil.deselect();
+				stencil.selected && stencil.deselect();
 				stencil.applyTransform(this.group.getTransform());
 			},
 			
@@ -480,6 +480,14 @@ dojo.provide("drawing.manager.Stencil");
 				dojo.style(surfaceNode, "cursor", "crosshair");
 			},
 			*/
+			
+			exporter: function(){
+				var items = [];
+				for(var m in this.stencils){
+					items.push(this.stencils[m].exporter());
+				}
+				return items;
+			},
 			
 			toSelected: function(/*String*/func){
 				// summary:

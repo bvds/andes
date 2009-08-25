@@ -71,7 +71,7 @@ drawing.stencil.Text = drawing.util.oo.declare(
 			//
 			this._text = text;
 			this._textArray = [];
-			this.render(text);
+			this.created && this.render(text);
 		},
 		
 		getText: function(){
@@ -123,6 +123,7 @@ drawing.stencil.Text = drawing.util.oo.declare(
 			//			not to call this directly.
 			//
 			this.remove(this.shape, this.hit);
+			//console.log("text render, outline:", !this.annotation, this.renderHit, (!this.annotation && this.renderHit))
 			!this.annotation && this.renderHit && this._renderOutline();
 			if(text){
 				this._text = text;
@@ -179,6 +180,7 @@ drawing.stencil.Text = drawing.util.oo.declare(
 			this.hit = this.container.createRect(d)
 				.setStroke(this.style.currentHit)
 				.setFill(this.style.currentHit.fill);
+				//.setFill("#ffff00");
 			
 			this._setNodeAtts(this.hit);
 			this.hit.moveToBack();

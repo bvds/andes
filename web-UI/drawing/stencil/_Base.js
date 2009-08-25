@@ -22,7 +22,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			this.style = options.stencil.style;
 		}
 		
-		// don't use the global on these, it affects
+		// don't use the 'g' on these, it affects
 		// the global RegExp
 		var lineTypes = /Line|Vector|Axes|Arrow/;
 		var textTypes = /Text/;
@@ -34,6 +34,20 @@ drawing.stencil._Base = drawing.util.oo.declare(
 		if(!this.renderHit && this.style.renderHitLines && this.isLine){
 			this.renderHit = true;
 		}
+		if(!this.renderHit && this.style.useSelectedStyle){
+			this.useSelectedStyle = true;
+			this.selCopy = dojo.clone(this.style.selected);
+			for(var nm in this.style.norm){
+				if(this.style.selected[nm]===undefined){
+					this.style.selected[nm] = this.style.norm[nm];
+				}
+			}
+			this.textSelected = dojo.clone(this.style.text);
+			this.textSelected.color = this.style.selected.fill;
+			
+		}
+		
+		
 		this.angleSnap = this.style.angleSnap || 1;
 		
 		this.marginZero = options.marginZero || this.style.anchors.marginZero;
@@ -49,22 +63,24 @@ drawing.stencil._Base = drawing.util.oo.declare(
 		this._offX = this.mouse.origin.x;
 		this._offY = this.mouse.origin.y;
 		
-		//console.log(" ___Base isText", this.type, this.isText, this.type.search(textTypes))
 		if(this.isText){
 			this.align = options.align || this.align;
 			this.valign = options.valign || this.valign;
 			this.textSize = parseInt(this.style.text.size, 10);
-			this._lineHeight = this.textSize * 1.5;
+			this._lineHeight = this.textSize * 1.4;
+			// TODO: thinner text selection
 			//this.style.hitSelected.width *= 0.5;
-			//this.style.hitHighlighted.width *= 0.5;
+			//
 			// ouch. how verbose. My mixin is weak....
 			this.deleteEmptyCreate = options.deleteEmptyCreate!==undefined ? options.deleteEmptyCreate : this.style.text.deleteEmptyCreate;
 			this.deleteEmptyModify = options.deleteEmptyModify!==undefined ? options.deleteEmptyModify : this.style.text.deleteEmptyModify;
 		}
 		
+		this.attr(options.data);
+		
 		// make truthy
 		// add to renders below
-		// this.baseRender && rdenr()
+		// this.baseRender && render()
 		//if(this.type == "drawing.tools.TextBlock"){
 		if(this.noBaseRender){	
 			// TextBlock will handle rendering itself
@@ -75,14 +91,14 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			//console.log("__________Base.constr", this.type, "options points")
 			this.setPoints(options.points);
 			this.connect(this, "render", this, "onRender", true);
-			this.baseRender && this.render();
+			this.baseRender && this.enabled && this.render();
 		}else if(options.data){
 			//console.log("___________Base.constr", this.type, "options data", options.data)
 			options.data.width = options.data.width ? options.data.width : this.style.text.minWidth;
 			options.data.height = options.data.height ? options.data.height : this._lineHeight;
 			this.setData(options.data);
 			this.connect(this, "render", this, "onRender", true);
-			this.baseRender && this.render(options.data.text);
+			this.baseRender && this.enabled && this.render(options.data.text);
 			if(options.label){
 				this.setLabel(options.label);
 			}
@@ -99,6 +115,8 @@ drawing.stencil._Base = drawing.util.oo.declare(
 		if(!this.enabled){
 			this.disable();
 			this.moveToBack();
+			// some things render some don't...
+			this.render(options.data.text);
 		}
 		
 	},
@@ -354,9 +372,11 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			}
 			
 			if(this.selected){
-				this.style.current = this.style.selected;
+				if(this.useSelectedStyle){
+					this.style.current = this.style.selected;
+					this.style.currentText = this.textSelected;
+				}
 				this.style.currentHit = this.style.hitSelected;
-				//this.style.currentText = this.style.textSelected;
 				
 			}else if(this.highlighted){
 				//this.style.current = this.style.highlighted;
@@ -364,6 +384,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 				//this.style.currentText = this.style.textHighlighted;
 				
 			}
+			
 			// NOTE: Can't just change props like setStroke
 			//	because Silverlight throws error
 			this.render();
@@ -385,6 +406,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			
 			var n = this.style.norm,
 				t = this.style.text,
+				ts = this.textSelected || {},
 				o,
 				nm,
 				width,
@@ -402,7 +424,8 @@ drawing.stencil._Base = drawing.util.oo.declare(
 				o = {};
 				o[key] = value;
 			}else{
-				o = key;
+				// prevent changing actual data
+				o = dojo.clone(key);
 			}
 			
 			if(o.width){
@@ -416,6 +439,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			for(nm in o){
 				if(nm in n){ n[nm] = o[nm]; }
 				if(nm in t){ t[nm] = o[nm]; }
+				if(nm in ts){ ts[nm] = o[nm]; }
 				
 				if(nm in coords){
 					coords[nm] = o[nm];
@@ -435,6 +459,21 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			}
 			if(o.borderWidth){
 				n.width = o.borderWidth;
+			}
+			if(this.useSelectedStyle){
+				// using the orginal selected style copy as
+				// a reference map of what props to copy
+				for(var nm in this.style.norm){
+					if(this.selCopy[nm]===undefined){
+						this.style.selected[nm] = this.style.norm[nm];
+					}
+				}
+				this.textSelected.color = this.style.selected.color;
+			
+			}
+			
+			if(!this.created){
+				return;
 			}
 			
 			if(o.x!==undefined){
@@ -470,8 +509,31 @@ drawing.stencil._Base = drawing.util.oo.declare(
 				// other events will be called post render
 				this.onChangeStyle(this);
 			}
-		
+			o.width = width;
 		},
+		
+		exporter: function(){
+			var type = this.type.substring(this.type.lastIndexOf(".")+1).charAt(0).toLowerCase()
+				+ this.type.substring(this.type.lastIndexOf(".")+2);
+			var o = dojo.clone(this.style.norm);
+			o.borderWidth = o.width;
+			delete o.width;
+			o = dojo.mixin(o, this.data);
+			o.type = type;
+			if(this.isText){
+				o.text = this.getText();
+				o = dojo.mixin(o, this.style.text);
+				delete o.minWidth;
+				delete o.deleteEmptyCreate;
+				delete o.deleteEmptyModify;
+			}
+			var lbl = this.getLabel();
+			if(lbl){
+				o.label = lbl;
+			}
+			return o;
+		},
+	
 		
 		//	TODO:
 		// 		Makes these all called by att()
@@ -482,6 +544,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			//		Disables Stencil so it is not selectable.
 			//		Changes the color to the disabled style.
 			this.enabled = false;
+			this.renderHit = false;
 			this.onChangeStyle(this);
 		},
 		
@@ -491,6 +554,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			//		it was selectable to begin with). Changes the
 			//		color to the current style.
 			this.enabled = true;
+			this.renderHit = true;
 			this.onChangeStyle(this);
 		},
 		
@@ -530,6 +594,11 @@ drawing.stencil._Base = drawing.util.oo.declare(
 				this.selected = false;
 				this.onChangeStyle(this);
 			}
+		},
+		_toggleSelected: function(){
+			if(!this.selected){ return; }
+			this.deselect();
+			setTimeout(dojo.hitch(this, "select"), 0);
 		},
 		
 		highlight: function(){

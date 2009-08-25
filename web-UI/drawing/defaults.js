@@ -34,7 +34,15 @@ drawing.defaults = {
 	// 	acting as a 'hit' object for a wider mouse-click area.
 	// 	It also doubles as a hilight. If true, overrides
 	//	renderHitLines setting.
-	renderHitLayer:false,
+	renderHitLayer:true,
+	
+	// labelSameColor:
+	//	If true, the label text color will be the same as the
+	//	Stencil's line color.
+	labelSameColor:false,
+	
+	//
+	useSelectedStyle: true,
 	
 	norm:{
 		// normal style of all shapes
@@ -49,15 +57,15 @@ drawing.defaults = {
 	
 	selected:{
 		// selected style of all shapes
+		// styles not shown will used from
+		//	norm
 		width:6,
-		color:"#00FF00",
-		style:"Solid",
-		cap:"round",
-		fill:"#E11EBB"
+		color:"#00FF00"
 	},
 	
 	highlighted:{
 		// highlighted style of all shapes
+		// NOT CURRENTLY BEING USED
 		width:6,
 		color:"#FF00FF",
 		style:"Solid",
@@ -126,14 +134,14 @@ drawing.defaults = {
 		deleteEmptyCreate:true,
 		deleteEmptyModify:true,
 		pad:3,
-		size:"12px",
+		size:"18px",
 		family:"sans-serif",
 		weight:"normal",
 		color:"#000000"
 	},
 	textDisabled:{
 		// style of disabled text
-		size:"12px",
+		size:"18px",
 		family:"sans-serif",
 		weight:"normal",
 		color:"#cccccc"

@@ -109,6 +109,7 @@ drawing.stencil.Image = drawing.util.oo.declare(
 			//
 			if(this.data.width == "auto" || isNaN(this.data.width)){
 				this.getImageSize(true);
+				console.warn("Image size not provided. Acquiring...")
 				return;
 			}
 			this.onBeforeRender(this);

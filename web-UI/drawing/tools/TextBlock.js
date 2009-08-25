@@ -46,14 +46,16 @@ dojo.require("drawing.stencil.Text");
 				var d = options.data;
 				var w = !d.width ? this.style.text.minWidth : d.width=="auto" ? "auto" : Math.max(d.width, this.style.text.minWidth)
 				var h = this._lineHeight;
-				if(d.text){
+				
+				if(d.text && w=="auto"){
 					var o = this.measureText(this.cleanText(d.text, false), w);
 					w = o.w;
 					h = o.h;
 				}else{
-					w = this.style.text.minWidth;
+					//	w = this.style.text.minWidth;
 					this._text = "";
 				}
+				
 				this.points = [
 					{x:d.x, y:d.y},
 					{x:d.x+w, y:d.y},
@@ -221,9 +223,9 @@ dojo.require("drawing.stencil.Text");
 				this._textConnected = true;
 				this.mouse.setEventMode("TEXT");
 				this.keys.editMode(true);
-				var kc1, kc2, kc3, kc4, kc5, kc6, self = this, _autoSet = false,
+				var kc1, kc2, kc3, kc4, self = this, _autoSet = false,
 					exec = function(){
-						dojo.forEach([kc1,kc2,kc3,kc4,kc5,kc6], function(c){
+						dojo.forEach([kc1,kc2,kc3,kc4], function(c){
 							dojo.disconnect(c)
 						});
 						self._textConnected = false;
@@ -233,9 +235,15 @@ dojo.require("drawing.stencil.Text");
 					}
 					
 				kc1 = dojo.connect(conEdit, "keyup", this, function(evt){
-					if(!_autoSet){
+					// 	if text is empty, we need a height so the field's height
+					//	doesn't collapse
+					if(dojo.trim(conEdit.innerHTML) && !_autoSet){
 						dojo.style(conEdit, "height", "auto"); _autoSet = true;
+					}else if(dojo.trim(conEdit.innerHTML).length<2 && _autoSet){
+						dojo.style(conEdit, "height", this._lineHeight+"px"); _autoSet = false;
 					}
+					
+					
 					if(evt.keyCode==13 || evt.keyCode==27){
 						dojo.stopEvent(evt);
 						exec();
@@ -247,20 +255,25 @@ dojo.require("drawing.stencil.Text");
 					}
 				});
 				
-				kc3 = dojo.connect(conEdit, "mouseup", this, function(evt){
-					dojo.stopEvent(evt);
-				});
-				
-				kc4 = dojo.connect(document, "mouseup", this, function(evt){
-					if(!this._onAnchor){
-					dojo.stopEvent(evt);
-					exec();
+				kc3 = dojo.connect(document, "mouseup", this, function(evt){
+					// note: _onAnchor means an anchor has been clicked upon
+					
+					if(!this._onAnchor && evt.target.id != "conEdit"){
+						dojo.stopEvent(evt);
+						exec();
+					}else if(!dojo.trim(conEdit.innerHTML)){
+						// wonky stuff happens when you click on the 
+						// field when its empty.
+						conEdit.blur();
+						setTimeout(function(){
+							conEdit.focus();
+						},200);
 					}
 				});
 				
 				this.createAnchors();
 				
-				kc5 = dojo.connect(this.mouse, "setZoom", this, function(evt){
+				kc4 = dojo.connect(this.mouse, "setZoom", this, function(evt){
 					exec();
 				});
 				
@@ -349,8 +362,8 @@ dojo.require("drawing.stencil.Text");
 				var org = this.mouse.origin;
 				
 				var obj = {
-					pageX: (d.x  - sc.left + org.x) / this.mouse.zoom,
-					pageY: (d.y - sc.top + org.y) / this.mouse.zoom,
+					pageX: (d.x  ) / this.mouse.zoom - sc.left + org.x,
+					pageY: (d.y  ) / this.mouse.zoom- sc.top + org.y,
 					width:d.width / this.mouse.zoom,
 					height:d.height / this.mouse.zoom
 				}
@@ -359,7 +372,11 @@ dojo.require("drawing.stencil.Text");
 				this.showParent(obj);
 				this.createTextField(this._text.replace("/n", " "));
 				this.connectTextField();
-				
+				if(this._text){
+					//setTimeout(dojo.hitch(this, function(){
+					this.setSelection(conEdit, "end")
+					//}), 500)
+				}
 			},
 			cleanText: function(/*String*/txt, /*Boolean*/removeBreaks){
 				// summary:
@@ -498,6 +515,10 @@ dojo.require("drawing.stencil.Text");
 					backgroundColor:d.fill,
 					border:b+"px " + d.style + " "+d.color
 				}
+				if(dojo.isIE){
+					s.paddingLeft = w + "px";
+					s.fontSize = w + "px"
+				}
 				var ss = [
 					{top: p, left:p},
 					{top:p, right:p},
@@ -555,6 +576,58 @@ dojo.require("drawing.stencil.Text");
 				for(var n in this._anchors){
 					dojo.forEach(this._anchors[n].con, dojo.disconnect, dojo);
 					dojo.destroy(this._anchors[n].a);
+				}
+			},
+			setSelection: function(node, what){
+				console.warn("setSelection:");
+				if (dojo.doc.selection) { // IE
+					var r = dojo.body().createTextRange();
+					r.moveToElementText(node);
+					r.collapse(false);
+					r.select();
+					
+				} else {
+					var getAllChildren = function(node, children){
+						children = children || [];
+						for(var i=0;i<node.childNodes.length; i++){
+							var n = node.childNodes[i];
+							if(n.nodeType==3){
+								children.push(n);
+							}else if(n.tagName && n.tagName.toLowerCase()=="img"){
+								children.push(n);
+							}
+							
+							if(n.childNodes && n.childNodes.length){
+								getAllChildren(n, children);
+							}
+						}
+						return children;
+					};
+					console.log("ff node:", node)
+					node.focus();
+					var selection = dojo.global.getSelection();
+					selection.removeAllRanges();
+					console.log(1)
+					var r = dojo.doc.createRange();
+					r.selectNodeContents(node);
+					console.log(2)
+					var nodes = getAllChildren(node);
+					console.log(3)
+					if (what == "end") {
+						console.log("len:", nodes[nodes.length - 1].textContent.length)
+						r.setStart(nodes[nodes.length - 1], nodes[nodes.length - 1].textContent.length);
+						r.setEnd(nodes[nodes.length - 1], nodes[nodes.length - 1].textContent.length);
+					}else if(what=="beg" || what == "start"){
+						r.setStart(nodes[0], 0);
+						r.setEnd(nodes[0], 0);
+					}else if(what=="all"){
+						r.setStart(nodes[0], 0);
+						r.setEnd(nodes[nodes.length - 1], nodes[nodes.length - 1].textContent.length);
+					}
+					
+					selection.addRange(r);
+					
+					console.log("sel ", what, " on ", node)
 				}
 			}
 		}

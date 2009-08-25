@@ -26,16 +26,16 @@ problems.
 5.  Write equations using the Equation Tool, but variables used must
      be previously defined.
 
-7.  Double click on a text or equation box to make a correction, then reenter.
+6.  Double click on a text or equation box to make a correction, then reenter.
 
-8.  Hit enter after entering any information in a text box.
+7.  Hit enter after entering any information in a text box.
 
-9.  To find the numerical value of a quantity:
+8.  To find the numerical value of a quantity:
 	a.  Enter equations and value assignments required to solve 
             for variable "V".
 	b.  In an equation box enter "V=?"
 
-6.  Enter the final answer in a text box in the form like 
+9.  Enter the final answer in a text box in the form like 
      "answer:  1.23 m/s" or  "answer: v1=1.23 m/s"
 
 *******************************************************************************

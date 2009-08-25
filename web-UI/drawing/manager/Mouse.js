@@ -237,7 +237,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 				this._selected = false;
 			}
 			
-			//console.info("Up Event:", nm);
+			console.info("Up Event:", nm, "id:", obj.id);
 			this._broadcastEvent(nm, obj);
 			
 			// Silverlight double-click handled in Silverlight class
@@ -250,7 +250,7 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			if(this._lastClickTime){
 				if(this._clickTime-this._lastClickTime<this.doublClickSpeed){
 					var dnm = this.eventName("doubleClick");
-					//console.warn("DOUBLE CLICK", dnm, obj);
+					console.warn("DOUBLE CLICK", dnm, obj);
 					this._broadcastEvent(dnm, obj);
 				}else{
 					//console.log("    slow:", this._clickTime-this._lastClickTime)
@@ -314,8 +314,8 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			
 			x*= this.zoom;
 			y*= this.zoom;
-			x += sc.left;
-			y += sc.top;
+			x += sc.left*this.zoom;
+			y += sc.top*this.zoom;
 			
 			this.origin.startx = x;
 			this.origin.starty = y;
@@ -356,17 +356,11 @@ drawing.manager.Mouse = drawing.util.oo.declare(
 			
 			x += sc.left;
 			y += sc.top;
-			watch("x:", x)
-			watch("y:", y)
-			var withinCanvas = x>=0 && y>=0 && x<=o.w && y<=o.h; /////////// will need to change on canvas resize
-			
-			var id = withinCanvas ? this._getId(evt, squelchErrors) : "";
-			
 			x*= this.zoom;
 			y*= this.zoom;
 			
-			
-			
+			var withinCanvas = x>=0 && y>=0 && x<=o.w && y<=o.h;
+			var id = withinCanvas ? this._getId(evt, squelchErrors) : "";
 			
 			var ret = {
 				x:x,
