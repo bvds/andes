@@ -109,11 +109,11 @@
   
   ;; describe problem_attempt
     (def-view-class problem_attempt ()
-      ((attemptID
+      ((clientID
 	:db-kind :key
-	:db-constraints (:not-null :auto-increment)
-	:type integer
-	:initarg :attemptID)
+	:db-constraints (:not-null)
+	:type (varchar 50)
+	:initarg :clientID)
        (userName
 	:accessor userName
 	:type (varchar 20)
@@ -138,17 +138,17 @@
       :db-constraints (:not-null :auto-increment)
       :type integer
       :initarg :tID)
-     (attemptID
+     (clientID
       :db-kind :key
       :db-constraints (:not-null)
-      :type integer
-      :initarg :attemptID)
+      :type (varchar 50)
+      :initarg :clientID)
      (problem_attempt
       :accessor transaction_problem
       :db-kind join
       :db-info (:join-class problem_attempt
-                            :home-key attemptID
-                            :foreign-key attemptID
+                            :home-key clientID
+                            :foreign-key clientID
                             :set nil)) 
      (command
       :accessor command
@@ -164,7 +164,9 @@
  )
 
 (defun write-transaction (direction client-id j-string)
-	 (make-instance 'problem_attempt_transaction :attemptID client-id :command j-string :initiatingParty direction)
+  ;; select from problem_attempt where client-id is input client-id
+  ;; find or create
+	 (make-instance 'problem_attempt_transaction :clientID client-id :command j-string :initiatingParty direction)
   j-string)
 
 (defun set-session (client-id &key student problem section)
@@ -179,9 +181,15 @@
   ;; so it should be retrieved from somewhere. For now, we will use a dummy
   ;; class information created specifically for testing -- 08-19-2009 NV
   (let ((testClassInformation
-	 (select 'classInfo :where [= [slot-value 'class_information 'classID] 1 ]))
+	; (select 'classInfo :where [= [slot-value 'class_information 'classID] 1 ])
+
+;	 (query "SELECT classID FROM CLASS_INFORMATION WHERE classID=1" 
+;		:field-names nil :flatp t :result-types :auto)
+)
 	(currentTime
-	 (query "SELECT NOW();" :field-names nil :flatp t :result-types date)))
-    (make-instance 'problem_attempt :userName student :sessionID client-id 
-		   :startTime (car currentTime)
-		   :classInformationID (car testClassInformation))))
+;	 (query "SELECT NOW();" :field-names nil :flatp t :result-types :date)
+))
+;    (make-instance 'problem_attempt :userName student :sessionID client-id 
+;		   :startTime (car currentTime)
+;		   :classInformationID (car testClassInformation))
+))
