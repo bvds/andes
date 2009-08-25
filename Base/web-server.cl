@@ -137,7 +137,7 @@
 			       "json-rpc-test-error"))
 	   (values nil (if version 
 			   `((:code . -32099) 
-			     (:message . "json-rpc-test-error response."))
+			     (:message . "json-rpc-test-error response:  yes error messages should be consise, but the client should still be able to handle longer ones."))
 			   "json-rpc-test-error response.")))
 	  ;; need error handler for the case where the arguments don't 
 	  ;; match the function...
