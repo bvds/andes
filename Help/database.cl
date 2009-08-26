@@ -166,8 +166,14 @@
 (defun write-transaction (direction client-id j-string)
   ;; select from problem_attempt where client-id is input client-id
   ;; find or create
-	 (make-instance 'problem_attempt_transaction :clientID client-id :command j-string :initiatingParty direction)
+  ;; check with Brett to see if LISP makes sense
+   (let (queryString (concatenate 'string "SELECT clientID FROM PROBLEM_ATTEMPT WHERE clientID =" client-id))) 
+   (let (checkInDatabase (query queryString :field-names nil :flatp t :result-types :auto  )))
+   (cond 
+        ((nil query) make-instance 'problem_attempt_transaction :command j-string :initiatingParty direction)
   j-string)
+	 (make-instance 'problem_attempt_transaction :client-id client-id :command j-string :initiatingParty direction))
+)
 
 (defun set-session (client-id &key student problem section)
   ;;  session is labeled by client-id
