@@ -155,21 +155,22 @@
 	;; It is unclear whether this generalization has a polynomial-time
 	;; solution.
 
-#|
 	;; Here, we try to find best fit using greedy search alogrithm.
 	;; Hopefully, this will speed up the exhaustive (slow) search after.
 	(let* ((width (1+ (length student)))
 	      (matches (make-array (list (length model) width (length student))))
-	      (model-free (loop for i from 0 to (length model) collect i)))
+	      (model-free (loop for i below (length model) collect i)))
 	  ;; Blindly collecting all possible matches is itself inefficient
 	  (dotimes (m (length model))
+	    (dotimes (y (length student))
+	      (setf (aref matches m y y) (word-count (nth m model))))
 	    (dotimes (y width)
 	      (dotimes (z y)
 		(setf (aref matches m y z) 
 		      (match-model (subseq student z y) (nth m model) 
 				   :best best)))))
-	  (update-bound best (match-model-and matches model-free 0 width)))
-|#
+	 ; (update-bound best (match-model-and matches model-free 0 width))
+	  )
 	
 	;; Simply iterate through all possibilities.
 	;; For n student words and m elements of the model list,
@@ -205,16 +206,22 @@
 	  ((= y upper)) 
 	(do ((z lower (1+ z)))
 	    ((= z y))
+	  ;; (format t "doing m y z=~A~%" (list m y z))
 	  (let ((score (- y z (aref matches m y z))))
 	    (when (> score best-score)
 	      (setf best-score score)
-		(setf best-m m)
-		(setf best-y y)
-		(setf best-z z))))))
+	      (setf best-m m)
+	      (setf best-y y)
+	      (setf best-z z))))))
+    ;; (format t "doing m y z=~A~%" (list best-m best-y best-z))
     ;; Find matches before and after this match.
-    (+ (match-model-and matches (remove best-m free) lower best-z)
+    (+ (if (and (remove best-m free) (> best-z lower))
+	   (match-model-and matches (remove best-m free) lower best-z)
+	   0)
        (aref matches best-m best-y best-z)
-     (match-model-and matches (remove best-m free) best-y upper))))
+       (if (and (remove best-m free) (< best-y upper))
+	   (match-model-and matches (remove best-m free) best-y upper)
+	   0))))
 
 (defun pull-out-quantity (symbol text)
   "Pull the quantity phrase out of a definition:  should match variablname.js"
