@@ -67,19 +67,18 @@
     ((null model) 0)
     ((stringp model) 1) ;; or count words in string
     ((or (listp (car model)) (stringp (car model)))
-     (+ (word-count (car model) :max max) 
-	(word-count (cdr model) :max max)))
+     (loop for x in model sum (word-count x :max max)))
     ((eql (car model) 'and)
      (if (cdr model)
-	 (+ (word-count (cadr model) :max max)
-	    ;; putting the 'and back in not really necessary 
-	    (word-count (cddr model) :max max))
+	 (word-count (cdr model) :max max) 	 ;remove the 'and 
 	 0))
     ((eql (car model) 'or)
      (if (cdr model)
-	 (funcall (if max #'max #'min) 
-		  (word-count (cadr model) :max max) 
-		  (word-count (cons 'or (cddr model)) :max max))
+	 ;; don't use loop here because we have to switch between
+	 ;; maximize and minimize
+	 (apply (if max #'max #'min)
+		  (mapcar #'(lambda (x) (word-count x :max max)) 
+			  (cdr model)))
 	 0))
     ((member (car model) '(allowed preferred)) 
      (if max (word-count (cdr model) :max max) 0))
@@ -89,9 +88,12 @@
   `(let ((this ,x))
      (when (< this ,best) (setf ,best this))))
 
-;; The method used here does a depth-first match from student sentence
-;; to the model tree.  For lists, the search space goes as a factorial 
-;; in the number of words.
+(defun match-bound (student model)
+  "Gives lower bound for a match based on word count"
+  ;; assume student is list of words.
+  (max (- (length student) (word-count model :max t))
+       (- (word-count model) (length student))
+       0))
 
 (defun match-model (student model &key (best 20000))
   "Recursive match to tree, returns minimum word insertion/addition for match."
@@ -99,9 +101,7 @@
   ;; When bound is given, see if there is any hope, based on word count,
   ;; of doing better.
   (when (< best 10000)
-      (let ((this (max (- (length student) (word-count model :max t))
-		       (- (word-count model) (length student))
-		       0)))
+      (let ((this (match-bound student model)))
 	(unless (< this best) (return-from match-model this))))
 
   (cond 
@@ -148,6 +148,24 @@
      (pop model)
      (cond 
        ((cdr model) ;two or more arguments of "and"
+	
+	;; The problem here is a generalization of the "Assignment 
+	;; problem"  The generalization being that several consecutive
+	;; student words may be assigned to one element of the model list.
+	;; It is unclear whether this generalization has a polynomial-time
+	;; solution.
+	
+	;; Simply iterate through all possibilities.
+	;; for n student words and m elements of the model list,
+	;; there are m! (m+n-1)!/(n! (m-1)!) different possible matches.
+	(dolist (item (cdr model))
+         (update-bound best
+                       (match-model
+                        student
+                        (list item (remove item model))  ;non-destrutive
+                        :best best)))
+	
+#|
 	;; For m arguments of the model "and", the number of matches that 
 	;; must be evaluated is the same as for list matches (see above).  
 	;; However, calculating the best match takes m! times more 
@@ -155,7 +173,10 @@
 	(let (matches)
 	  (dotimes (length model)
 	    (push (make-array (list (length student) (length student))) matches))
-	  (min (match-model-and student model matches :best best))))
+;; should be last
+	  (min (match-model-and student model matches :best best)))
+|#
+	)
        (model (match-model student (car model) :best best))
        (t (word-count student)))) ;empty "and"
     ((eql (car model) 'or)
@@ -169,6 +190,7 @@
        (t (word-count student)))) ;empty "or"
     (t (error "Bad trees ~A ~A" student model))))
 
+#|
 (defun match-model-and (student model matches &key best)
   "Match model and to student recursively, saving word matches."
   (error "not working yet!")
@@ -196,7 +218,7 @@
 	(dotimes (y width)
 	  (setf (aref dd y) y)))
     dd))
-  
+ |#
 
 (defun pull-out-quantity (symbol text)
   "Pull the quantity phrase out of a definition:  should match variablname.js"
