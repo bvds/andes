@@ -204,13 +204,12 @@
 ;; If a method sets *env* to nil, this indicates the session is finished.
 (defvar *env*) ;Declare *env* to be special, but don't bind it globally.
 
-(defun print-sessions (&optional str)
+(defun print-sessions (&optional (str *stdout*))
   "Print sessions to see what is going on."
   (let ((*print-length* 50))
     (maphash #'(lambda (id session) 
-		 (format str "session ~S with turn ~A, time ~A,~%   env ~A~%" 
-			 id (ssn-turn session) (ssn-time session)
-			 (ssn-environment session)))
+		 (format str "session ~S with turn ~A, time ~A~%" 
+			 id (ssn-turn session) (ssn-time session)))
 	     *sessions*)))
 
 (defun get-session-env (session)

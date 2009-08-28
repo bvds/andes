@@ -154,29 +154,34 @@
 	;; student words may be assigned to one element of the model list.
 	;; It is unclear whether this generalization has a polynomial-time
 	;; solution.
+
+#|
+	;; Here, we try to find best fit using greedy search alogrithm.
+	;; Hopefully, this will speed up the exhaustive (slow) search after.
+	(let* ((width (1+ (length student)))
+	      (matches (make-array (list (length model) width (length student))))
+	      (model-free (loop for i from 0 to (length model) collect i)))
+	  ;; Blindly collecting all possible matches is itself inefficient
+	  (dotimes (m (length model))
+	    (dotimes (y width)
+	      (dotimes (z y)
+		(setf (aref matches m y z) 
+		      (match-model (subseq student z y) (nth m model) 
+				   :best best)))))
+	  (update-bound best (match-model-and matches model-free 0 width)))
+|#
 	
 	;; Simply iterate through all possibilities.
-	;; for n student words and m elements of the model list,
+	;; For n student words and m elements of the model list,
 	;; there are m! (m+n-1)!/(n! (m-1)!) different possible matches.
-	(dolist (item (cdr model))
+	(dolist (item model)
          (update-bound best
                        (match-model
                         student
-                        (list item (remove item model))  ;non-destrutive
+			;; remove is non-destrutive
+                        (list item (cons 'and (remove item model)))
                         :best best)))
-	
-#|
-	;; For m arguments of the model "and", the number of matches that 
-	;; must be evaluated is the same as for list matches (see above).  
-	;; However, calculating the best match takes m! times more 
-	;; operations.
-	(let (matches)
-	  (dotimes (length model)
-	    (push (make-array (list (length student) (length student))) matches))
-;; should be last
-	  (min (match-model-and student model matches :best best)))
-|#
-	)
+	best)
        (model (match-model student (car model) :best best))
        (t (word-count student)))) ;empty "and"
     ((eql (car model) 'or)
@@ -190,35 +195,26 @@
        (t (word-count student)))) ;empty "or"
     (t (error "Bad trees ~A ~A" student model))))
 
-#|
-(defun match-model-and (student model matches &key best)
-  "Match model and to student recursively, saving word matches."
+(defun match-model-and (matches free lower upper)
+  "Greedy best fit tree search. Not necessarily global best."
   (error "not working yet!")
-  (let* ((width (1+ (length student)))
-	 (dd (array (list width))))
-    (if model
-	(dolist (item model)
-	  (let ((d (match-model-and 
-		    student (remove item model)
-		    (remove (nth x matches) matches) :best best)))
-	    (dotimes (y width)
-	      (let ((mini (+ (word-count item) (aref d x y))))
-		(dotimes (z y)
-		  (update-bound 
-		   mini
-		   (+ (aref d z)
-		      (or (aref x z (nth x matches))
-			  (setf (aref x z (nth x matches))
-				(match-model (subseq student z y) 
-					     item
-					     ;; Need to determine empirically
-					     ;; if including bound improves speed.
-					     :best (- (min best mini) (aref d z)))))))
-		  (setf (aref dd y) mini))))))
-	(dotimes (y width)
-	  (setf (aref dd y) y)))
-    dd))
- |#
+  (let* ((best-score -10000) best-m best-y best-z)
+    ;; Find match that uses the most words.
+    (dolist (m free)
+      (do ((y lower (1+ y)))
+	  ((= y upper)) 
+	(do ((z lower (1+ z)))
+	    ((= z y))
+	  (let ((score (- y z (aref matches m y z))))
+	    (when (> score best-score)
+	      (setf best-score score)
+		(setf best-m m)
+		(setf best-y y)
+		(setf best-z z))))))
+    ;; Find matches before and after this match.
+    (+ (match-model-and matches (remove best-m free) lower best-z)
+       (aref matches best-m best-y best-z)
+     (match-model-and matches (remove best-m free) best-y upper))))
 
 (defun pull-out-quantity (symbol text)
   "Pull the quantity phrase out of a definition:  should match variablname.js"
