@@ -177,7 +177,7 @@
 		      (match-model (subseq student z y) (nth m model) 
 				   :best best)))))
 	  (update-bound best (match-model-and matches model-free 
-					      0 (length student)))
+					      (list (list 0 (length student)))))
 	  )
 	
 	;; Simply iterate through all possibilities.
@@ -209,34 +209,45 @@
 
 ;; This is designed to be fast, and may lead to a 
 ;; polynomial time global best fit algorithm.
-(defun match-model-and (matches free lower upper)
+(defun match-model-and (matches model-free student-intervals)
   "Greedy best fit tree search. Not necessarily global best."
-  (let* ((best-score -10000) best-m best-y best-z)
+  (let* ((best-score -10000) best-m best-y best-z best-interval)
     ;; Find match that uses the most words.
-    (dolist (m free)
-      (do ((y lower (1+ y)))
-	  ((= y (1+ upper))) 
-	(do ((z lower (1+ z)))
-	    ((= z (max y (1+ lower)))) ;Loop over first diagonal element only.
-	  (let ((score (- (- y z) ;number of student words
-			  ;; Weight must be larger than 1 to favor
-			  ;; fewer words when additions don't improve match.
-			  ;; Weight must be less than infinity to favor
-			  ;; longer matches over shorter matches.
-			  (* 2 (aref matches m y z)))))
-	    ;; (format t "  looping m y z=~A score=~A~%" (list m y z) score)
-	    (when (> score best-score)
-	      (setf best-score score)
-	      (setf best-m m)
-	      (setf best-y y)
-	      (setf best-z z))))))
+    (dolist (m model-free)
+      (dolist (interval student-intervals)
+	(let ((lower (first interval)) (upper (second interval)))
+	  ;; (format t " interval ~A~%" interval)
+	  (do ((y lower (1+ y)))
+	      ((= y (1+ upper))) 
+	    (do ((z lower (1+ z)))
+		;; Loop over lower triangle and first diagonal element only.
+		((= z (max y (1+ lower)))) 
+	      (let ((score (- (- y z) ;number of student words
+			      ;; Weight must be larger than 1 to favor
+			      ;; fewer words when additions don't improve match.
+			      ;; Weight must be less than infinity to favor
+			      ;; longer matches over shorter matches.
+			      (* 2 (aref matches m y z)))))
+		;; (format t "  looping m y z=~A score=~A~%" (list m y z) score)
+		(when (> score best-score)
+		  (setf best-score score)
+		  (setf best-m m)
+		  (setf best-interval interval)
+		  (setf best-y y)
+		  (setf best-z z))))))))
     ;; (format t "choose m y z=~A score=~a~%" (list best-m best-y best-z) best-score)
-    ;; Find matches before and after this match.
-    (+ (if (remove best-m free)
-	   (+ (match-model-and matches (remove best-m free) lower best-z)
-	      (match-model-and matches (remove best-m free) best-y upper))
-	   0)
-       (aref matches best-m best-y best-z))))
+    ;; add new intervals
+    (let ((new-student (remove best-interval student-intervals)))
+      (push (list (first best-interval) best-z) new-student)
+      (push (list best-y (second best-interval)) new-student)
+      
+      ;; Find matches before and after this match.
+      (+ (if (remove best-m model-free)
+	     (match-model-and matches (remove best-m model-free) new-student)
+	     ;; count remaining student words
+	     (apply #'+ (mapcar #'(lambda (x) (- (second x) (first x))) 
+				new-student)))
+	 (aref matches best-m best-y best-z)))))
 
 (defun pull-out-quantity (symbol text)
   "Pull the quantity phrase out of a definition:  should match variablname.js"
