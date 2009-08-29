@@ -157,24 +157,35 @@
 
 	;; Here, we try to find best fit using greedy search alogrithm.
 	;; Hopefully, this will speed up the exhaustive (slow) search after.
+
+	;; It is not clear that it is worth further optimizing 
+	;; this, since it does not help with the search over all
+	;; systementries.  It may make better sense to find a strategy
+	;; that is optimized for the search over systementries.
+
 	(let* ((width (1+ (length student)))
-	      (matches (make-array (list (length model) width (length student))))
+	      (matches (make-array (list (length model) width width)))
 	      (model-free (loop for i below (length model) collect i)))
 	  ;; Blindly collecting all possible matches is itself inefficient
 	  (dotimes (m (length model))
-	    (dotimes (y (length student))
-	      (setf (aref matches m y y) (word-count (nth m model))))
 	    (dotimes (y width)
+	      ;; diagonal elements are all the same.
+	      (setf (aref matches m y y) (word-count (nth m model)))
+	      ;; do one triangle of off-diagonal elements
 	      (dotimes (z y)
 		(setf (aref matches m y z) 
 		      (match-model (subseq student z y) (nth m model) 
 				   :best best)))))
-	 ; (update-bound best (match-model-and matches model-free 0 width))
+	  (update-bound best (match-model-and matches model-free 
+					      0 (length student)))
 	  )
 	
 	;; Simply iterate through all possibilities.
 	;; For n student words and m elements of the model list,
 	;; there are m! (m+n-1)!/(n! (m-1)!) different possible matches.
+
+	;; This is pretty slow!  The previous alorithm may, in practice,
+	;; be sufficient to get a "good enough" match.
 	(dolist (item model)
          (update-bound best
                        (match-model
@@ -196,32 +207,36 @@
        (t (word-count student)))) ;empty "or"
     (t (error "Bad trees ~A ~A" student model))))
 
+;; This is designed to be fast, and may lead to a 
+;; polynomial time global best fit algorithm.
 (defun match-model-and (matches free lower upper)
   "Greedy best fit tree search. Not necessarily global best."
-  (error "not working yet!")
   (let* ((best-score -10000) best-m best-y best-z)
     ;; Find match that uses the most words.
     (dolist (m free)
       (do ((y lower (1+ y)))
-	  ((= y upper)) 
+	  ((= y (1+ upper))) 
 	(do ((z lower (1+ z)))
-	    ((= z y))
-	  ;; (format t "doing m y z=~A~%" (list m y z))
-	  (let ((score (- y z (aref matches m y z))))
+	    ((= z (max y (1+ lower)))) ;Loop over first diagonal element only.
+	  (let ((score (- (- y z) ;number of student words
+			  ;; Weight must be larger than 1 to favor
+			  ;; fewer words when additions don't improve match.
+			  ;; Weight must be less than infinity to favor
+			  ;; longer matches over shorter matches.
+			  (* 2 (aref matches m y z)))))
+	    ;; (format t "  looping m y z=~A score=~A~%" (list m y z) score)
 	    (when (> score best-score)
 	      (setf best-score score)
 	      (setf best-m m)
 	      (setf best-y y)
 	      (setf best-z z))))))
-    ;; (format t "doing m y z=~A~%" (list best-m best-y best-z))
+    ;; (format t "choose m y z=~A score=~a~%" (list best-m best-y best-z) best-score)
     ;; Find matches before and after this match.
-    (+ (if (and (remove best-m free) (> best-z lower))
-	   (match-model-and matches (remove best-m free) lower best-z)
+    (+ (if (remove best-m free)
+	   (+ (match-model-and matches (remove best-m free) lower best-z)
+	      (match-model-and matches (remove best-m free) best-y upper))
 	   0)
-       (aref matches best-m best-y best-z)
-       (if (and (remove best-m free) (< best-y upper))
-	   (match-model-and matches (remove best-m free) best-y upper)
-	   0))))
+       (aref matches best-m best-y best-z))))
 
 (defun pull-out-quantity (symbol text)
   "Pull the quantity phrase out of a definition:  should match variablname.js"
