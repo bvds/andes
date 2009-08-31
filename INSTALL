@@ -4,10 +4,7 @@
 Andes works with several varieties of lisp, but
 has been used most extensively with sbcl and Allegro lisp.
 The webserver functionality has only been developed for sbcl.
-For sbcl, a sample startup file has been included as sbclrc-sample.
-You can modify the file (you may need to change the path) and 
-copy it to your home directory:
-  cp sbclrc-sample ~/.sbclrc
+
 Andes uses asdf as its package manager; both the sbcl and 
 Allegro lisp distributions include asdf.
 
@@ -25,6 +22,21 @@ Likewise, at least for Andes2, one can use the solutions repository:
 
 ImageMagick http://www.imagemagick.org is used to dimension graphics
 files.  This is included in standard linux distributions.
+
+====================== SBCL ===============================
+
+#Go to http://sbcl.sourceforge.net/ and click on downloads
+#Download the appropriate package, unarchive it and follow
+#the install instructions.
+
+mkdir /usr/local/lib/sbcl/site/
+
+For sbcl, a sample startup file has been included as sbclrc-sample.
+You can modify the file (you may need to change the path) and 
+copy it to your home directory:
+  cp sbclrc-sample ~/.sbclrc
+
+Change the path in the sample file to your path.
 
 ============================ MySql =======================================
 
@@ -79,10 +91,13 @@ files.  This is included in standard linux distributions.
 ;; packages we said we didn't need, like cl+ssl and its dependent cffi.
 ;; Modify ownership/permissions in /usr/local/lib/sbcl/site* so that you
 ;; have write permission.
+
+chown -r $USER /usr/local/lib/sbcl/site*
+
 ;; Start sbcl by typing "sbcl" and run:
   (require 'asdf-install)
   (push :hunchentoot-no-ssl *features*) ;we have apache to do this
-  (asdf-install:install 'hunchentoot)
+  (asdf-install:install 'hunchentoot) ;here it will say package not trusted multiple times
   (asdf-install:install 'cl-json)
 
 
