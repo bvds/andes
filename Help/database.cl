@@ -44,9 +44,14 @@
   
   (unless (probe-database '(nil "andes" "root" "sin(0)=0") :database-type :mysql)
     ;; create database
-    create-database '("localhost" "andes" "root" "sin(0)=0") :database-type :mysql)
+    (format t "Creating database~%")
+    (create-database '("localhost" "andes" "root" "sin(0)=0") :database-type :mysql))
 
-  ;;     (connect '(nil "andes" "root" "sin(0)=0") :database-type :mysql)
+
+  (connect '(nil "andes" "root" "sin(0)=0") :database-type :mysql)
+  
+  (format t "Connected databases after ~A~%" (connected-databases))
+
   ;; in mysql:  describe class_information;
   (def-view-class class_information ()
     ((classID
@@ -124,8 +129,7 @@
 	:initarg :sessionID)
        (startTime
 	:accessor startTime
-	:type date
-	:initarg :startTime)
+	:type wall-time)
        (classinformationID
 	:type integer
 	:initarg :classinformationID))
@@ -167,17 +171,20 @@
   ;; select from problem_attempt where client-id is input client-id
   ;; find or create
   ;; check with Brett to see if LISP makes sense
-   (let (queryString (concatenate 'string "SELECT clientID FROM PROBLEM_ATTEMPT WHERE clientID =" client-id))) 
-   (let (checkInDatabase (query queryString :field-names nil :flatp t :result-types :auto  )))
-   (cond 
-        ((nil query) make-instance 'problem_attempt_transaction :command j-string :initiatingParty direction)
-  j-string)
-	 (make-instance 'problem_attempt_transaction :client-id client-id :command j-string :initiatingParty direction))
-)
+  (let* 
+      ((queryString (format nil "SELECT clientID FROM PROBLEM_ATTEMPT WHERE clientID = '~A'" client-id)) 
+       (checkInDatabase (query queryString :field-names nil :flatp t :result-types :auto)))
+    (format webserver:*stdout* "query string is ~S~%" queryString)
+    ;; (unless queryString (make-instance 'problem_attempt :sessionID client-id))
+    (if checkInDatabase
+	(make-instance 'problem_attempt_transaction :client-id client-id :command j-string :initiatingParty direction)
+	(make-instance 'problem_attempt_transaction :command j-string :initiatingParty direction)
+	)
+    ))
 
 (defun set-session (client-id &key student problem section)
   ;;  session is labeled by client-id
-
+  
   ;; add above info to database
   
   ;; section is a string that is expected to be used to get the 
@@ -186,16 +193,15 @@
   ;; school year info. This information is used by the DataShop XML format, 
   ;; so it should be retrieved from somewhere. For now, we will use a dummy
   ;; class information created specifically for testing -- 08-19-2009 NV
+  (format webserver:*stdout* "Connected databases ~A~%" (connected-databases))
   (let ((testClassInformation
-	; (select 'classInfo :where [= [slot-value 'class_information 'classID] 1 ])
-
-;	 (query "SELECT classID FROM CLASS_INFORMATION WHERE classID=1" 
-;		:field-names nil :flatp t :result-types :auto)
-)
-	(currentTime
-;	 (query "SELECT NOW();" :field-names nil :flatp t :result-types :date)
-))
-;    (make-instance 'problem_attempt :userName student :sessionID client-id 
-;		   :startTime (car currentTime)
-;		   :classInformationID (car testClassInformation))
-))
+	 ;; (select 'classInfo :where [= [slot-value 'class_information 'classID] 1 ])
+	 
+	 (query "SELECT classID FROM CLASS_INFORMATION WHERE classID=1" 
+		:field-names nil :flatp t :result-types :auto)
+	  ))
+    (format webserver:*stdout* "testClassInformation is ~S~%" 
+	    testClassInformation)
+    (make-instance 'problem_attempt :userName student :sessionID client-id 
+		   :classInformationID (car testClassInformation))
+    ))
