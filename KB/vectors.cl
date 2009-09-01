@@ -2210,7 +2210,6 @@
      :units |m^2|
      :restrictions positive
      :nlg-english ("the area of ~A" (nlg ?shape))
-     :fromworkbench `(area ,body)
 )
 
 (def-qexp area-change (rate-of-change (area ?shape))
@@ -2220,7 +2219,6 @@
      :units |m^2/s|
      :restrictions positive
      :nlg-english ("the rate of change of the area of ~A" (nlg ?shape))
-     :fromworkbench `(rate-of-change (area ,body))
 )
 
 (defoperator define-area (?shape)
@@ -2239,7 +2237,6 @@
      :units |m|
      :restrictions positive
      :nlg-english ("the radius of ~A" (nlg ?body))
-     :fromworkbench `(radius-of-circle ,body)
    )
 
 (defoperator define-radius-of-circle (?body)
@@ -2260,7 +2257,6 @@
   :units |m|
   :restrictions positive
   :nlg-english ("the diameter of ~A" (nlg ?body))
-  :fromworkbench `(diameter-of-circle ,body)
   )
 
 (defoperator define-diameter-of-circle (?body)
@@ -2281,7 +2277,6 @@
      :units |m|
      :restrictions positive
      :nlg-english ("the circumference of ~A" (nlg ?body))
-     :fromworkbench `(circumference-of-circle ,body)
    )
 
 (defoperator define-circumference-of-circle (?body)

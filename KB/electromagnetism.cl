@@ -3279,7 +3279,6 @@
   :units NIL  ;dimensionless
      :restrictions positive
      :nlg-english ("the number of turns wrapping around ~A" (nlg ?body))
-     :fromworkbench `(turns ,body)
    )
 
 (defoperator define-turns (?body)
@@ -3300,7 +3299,6 @@
      :units |m^-1|
      :restrictions positive
      :nlg-english ("the number of turns per length wrapping around ~A" (nlg ?body))
-     :fromworkbench `(turns-per-length ,body)
    )
 
 (defoperator define-turns-per-length (?body)
@@ -3353,7 +3351,6 @@
   :short-name "electric flux"	
   :dialog-text "through [body:bodies] at time [time:times]"
      :units |V.m|
-     :fromworkbench `(flux ,body electric :time ,time)
      :nlg-english ("electric flux through ~A~@[ ~A~]" 
 	       (nlg ?surface) (nlg ?t 'pp)))
 
@@ -3363,7 +3360,6 @@
   :short-name "rate of change in electric flux"	
   :dialog-text "through [body:bodies] at time [time:times]"
      :units |V.m/s|
-     :fromworkbench `(rate-of-change (flux ,body electric :time ,time))
      :nlg-english ("rate of change in electric flux through ~A~@[ ~A~]" 
 	       (nlg ?surface) (nlg ?t 'pp)))
 
@@ -3372,7 +3368,6 @@
   :short-name "magnetic flux"	
   :dialog-text "through [body:bodies] at time [time:times]"
      :units |T.m^2|
-     :fromworkbench `(flux ,body magnetic :time ,time)
      :nlg-english ("magnetic flux through ~A~@[ ~A~]" 
 	       (nlg ?surface) (nlg ?t 'pp)))
 
@@ -3382,7 +3377,6 @@
   :short-name "rate of change in magnetic flux"	
   :dialog-text "through [body:bodies] at time [time:times]"
      :units |T.m^2/s|
-     :fromworkbench `(rate-of-change (flux ,body magnetic :time ,time))
      :nlg-english ("rate of change in magnetic flux through ~A~@[ ~A~]" 
 	       (nlg ?surface) (nlg ?t 'pp)))
 
@@ -3783,7 +3777,6 @@
   :pre-dialog-text "line integral of the net magnetic field"
   :dialog-text "along path [body:positions]"
   :units |T.m|
-  :fromworkbench `(line-integral (net-field ,body magnetic))
   :nlg-english ("line integral of the net magnetic field along path ~A~@[ ~A~]" 
 	       (nlg ?path) (nlg ?t 'pp)))
 

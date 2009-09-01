@@ -47,7 +47,6 @@
   :dialog-text "with respect to [body:bodies]"
    :units |m|
    :nlg-english ("the distance of the object from ~A" (nlg ?lens))
-   :fromWorkbench `(object-distance ,body)
 )
 
 (defoperator define-object-distance (?lens)
@@ -65,7 +64,6 @@
   :dialog-text "with respect to [body:bodies]"
    :units |m|
    :nlg-english ("the distance of the image from ~A" (nlg ?lens))
-   :fromWorkbench `(image-distance ,body)
 )
 
 (defoperator define-image-distance (?lens)
@@ -83,7 +81,6 @@
   :dialog-text "of [body:bodies]"
    :units |m|
    :nlg-english ("the focal length of ~A" (nlg ?lens))
-   :fromWorkbench `(focal-length ,body)
 )
 
 (defoperator define-focal-length (?lens)
@@ -101,7 +98,6 @@
   :dialog-text "of [body:bodies]"
   :units NIL
    :nlg-english ("the magnification of ~A" (nlg ?lens))
-   :fromWorkbench `(magnification ,body)
 ) 
 
 (defoperator define-magnification (?lens)
@@ -119,7 +115,6 @@
   :dialog-text "of [body:bodies]"
    :units |m|
    :nlg-english ("the radius of curvature of ~A" (nlg ?mirror))
-   :fromWorkbench `(radius-of-curvature ,body)
 )
 
 (defoperator define-radius-of-curvature (?mirror)
@@ -137,7 +132,6 @@
   :dialog-text "between [body:bodies] and [body2:bodies]"
   :units |m|
   :nlg-english ("the distance between ~a" (nlg ?objects 'conjoined-defnp))
-  :fromWorkbench `(distance-between orderless ,body ,body2) 
   ) 
 
 (defoperator define-distance-between (?objects)
@@ -158,7 +152,6 @@
   :units |m|
   :restrictions positive
   :nlg-english ("the distance between slits in ~A" (nlg ?grating))
-  :fromWorkbench `(slit-separation ,body)
   )
 
 (defoperator define-slit-separation (?grating)
@@ -178,7 +171,6 @@
   :units |deg|
   :restrictions positive
   :nlg-english ("the minimum angle of resolution for ~A" (nlg ?grating))
-  :fromWorkbench `(resolution-angle ,body)
   )
 
 (defoperator define-resolution-angle (?grating)

@@ -34,7 +34,6 @@
    :units |kg/m^3|
    :restrictions nonnegative   
    :nlg-english ("the mass density of ~A" (nlg ?material))
-   :fromWorkbench `(mass-density ,body)
 )
 
 (defoperator define-mass-density (?material)
@@ -96,7 +95,6 @@
    :units |Pa|
    :nlg-english ("the pressure at ~a" 
 	     (nlg ?position 'at-time ?time))
-   :fromWorkbench `(pressure ,body :time ,time)
 )
 
 (defoperator define-pressure (?point ?time)
@@ -122,7 +120,6 @@
   :short-name "standard atmosphere"
   :dialog-text ""
   :nlg-english ("the pressure of one standard atmosphere")
-  :fromWorkbench `(atmosphere)
 )
 
 ; should normally be predefined in fluids problems:
@@ -379,7 +376,6 @@
      :units |m^2|
      :restrictions positive
      :nlg-english ("the cross-sectional area at ~A" (nlg ?position 'at-time ?time))
-     :fromworkbench `(area-at ,body :time ,time)
 )
 
 (defoperator define-area-at (?point ?time)
@@ -570,7 +566,6 @@
      :units |m^3|
      :restrictions nonnegative ; we allow zero-volume for negligible parts of compound bodies
      :nlg-english ("the volume of ~A" (nlg ?body 'at-time ?time))
-     :fromworkbench `(volume ,body :time ,time)
    )
 
 (defoperator define-volume (?body ?time)

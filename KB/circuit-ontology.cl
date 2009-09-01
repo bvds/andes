@@ -71,7 +71,6 @@
   :short-name "charge"	
   :dialog-text "on [body:bodies]"
   :units |C|
-  :fromWorkbench (if time `(charge ,body :time ,time) `(charge ,body))
   :nlg-english ("the charge on ~A" (nlg ?name 'at-time ?time)))
 
 ;;; in the workbench, the time slot is added if feature changing-voltage
@@ -81,7 +80,6 @@
   :short-name "number"	
   :dialog-text "of [body:bodies]"
   :units nil ;dimensionless
-  :fromWorkbench (if time `(number-of ,body :time ,time) `(number-of ,body))
   :nlg-english ("the number of ~As" (nlg ?name)))
 
 ;; variation for surface, where "in" is appropriate
@@ -91,8 +89,6 @@
   :short-name "charge"	
   :dialog-text "in [body:bodies]"
   :units |C|
-  :fromWorkbench (if time `(charge ,body :surface t :time ,time)
-		   `(charge ,body :surface t))
   :nlg-english ("the charge in ~A" (nlg ?name 'at-time ?time)))
 
 (def-qexp max-charge (max-charge ?name :time ?time)
@@ -103,7 +99,6 @@
   :short-name "self-inductance"	
   :dialog-text "of [body:bodies]"
   :units |H|
-  :fromWorkbench `(self-inductance ,body)
   :nlg-english ("the inductance of ~A" (nlg ?inductor)))
 
 (def-qexp mutual-inductance (mutual-inductance orderless . ?inductors)
@@ -111,7 +106,6 @@
   :short-name "mutual inductance"	
   :dialog-text "between [body:bodies] and [body2:bodies]"
   :units |H|
-  :fromWorkbench `(mutual-inductance orderless ,body ,body2)
   :nlg-english ("the mutual inductance of ~A" 
 	    (nlg ?inductors 'conjoined-defnp)))
 
@@ -123,7 +117,6 @@
   :short-name "electric power"	
   :dialog-text "transferred through [body:bodies] at time [time:times]"
   :units W
-  :fromWorkbench `(electric-power ,body :time ,time)
   :nlg-english ("power transferred through ~a" (nlg ?b 'at-time ?time)))
 ;; We could define a generic rate-of-change function, but we don't have a way 
 ;; to define units as function of units of base ?quant over time, 
@@ -135,7 +128,6 @@
   :short-name "rate of change of current"	
   :dialog-text "through [body:bodies] at time [time:times]"
   :units |A/s|
-  ; :fromWorkbench  custom handling in Entry-API.cl
   :nlg-english ("the rate of change of the current through ~a" 
 	    (nlg ?comp 'at-time ?time)))
 
@@ -145,7 +137,6 @@
   :dialog-text "for circuit elements [body:bodies] and [body2:bodies]"
   :units |s|
   ;; translated wb body arg is (compound orderless comp1 comp2 ...)
-  :fromWorkbench `(time-constant orderless ,@(bodyterm-complist body))
   :nlg-english ("the time constant for ~A" 
 		       (nlg ?quants 'conjoined-defnp)))
 
@@ -174,9 +165,6 @@
   :short-name "electric potential"	
   :dialog-text "at [body:positions] due to [body2:bodies] at time [time:times]"
   :units |V|
-  :fromWorkbench (if (or (null body2) (string-equal body2 '|all sources|))
-                     `(net-potential ,body :time ,time)
-                  `(potential ,body ,body2 :time ,time))
   :nlg-english ("the electric potential at ~a due to ~A~@[ ~A~]" 
 	       (nlg ?loc) (nlg ?source 'agent) (nlg ?time 'pp)))
 
@@ -197,6 +185,5 @@
   :short-name "energy stored"	
   :dialog-text "in [body:bodies] at time [time:times]"
   :units |J|
-  :fromWorkbench `(stored-energy ,body :time ,time)
   :nlg-english ("the electric energy stored in ~a" 
 	    (nlg ?component 'at-time ?time)))

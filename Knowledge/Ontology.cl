@@ -141,9 +141,7 @@
   restrictions  ;; a list of atoms such as nonnegative placing restictions on the value.
   documentation ;; A documentation string for the item
 
-  VarFunc       ;; Function that translates the Expression to a var.
-  FromWorkbench ;; constructs expression from workbench api args (see make-quant)
-  
+  VarFunc       ;; Function that translates the Expression to a var.  
   nlg-english       ;; a format style string determining the english expression of this
                 ;; expresson.  not used at present.
   )
@@ -159,7 +157,6 @@
 			restrictions
 			documentation
 			VarFunc
-			FromWorkbench
 			nlg-english)
   "Define a quantity expression."
   (define-exptype :type type 
@@ -173,7 +170,6 @@
     :restrictions Restrictions
     :documentation documentation
     :varfunc Varfunc
-    :FromWorkbench FromWorkbench
     :nlg-English nlg-English))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -193,7 +189,7 @@
 			    units 
 			    restrictions 
 			    documentation
-			    varfunc nlg-english fromWorkbench)
+			    varfunc nlg-english)
   "Define and store the specified expression if possible."
   (when (expression-type-p type) 
     (error "exptype ~A already exists." type))
@@ -215,9 +211,6 @@
 	    :restrictions restrictions
 	    :Varfunc varfunc
 	    ;; if supplied, arg should be body of fn to be called with these args
-	    :fromWorkbench (when fromWorkbench
-	                     (coerce `(lambda (subtype body body2 time) 
-	                                   ,fromWorkbench) 'function))
 	    :nlg-english nlg-english)))
     (postpend *Ontology-ExpTypes* E)
     E))

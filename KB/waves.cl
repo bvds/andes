@@ -32,7 +32,7 @@
   :units |m|
   :restrictions positive  ;needed for harmonics problems to work
   :nlg-english ("the wavelength of ~A moving in ~A" (nlg ?wave) (nlg ?medium))
-  :fromworkbench `(wavelength ,body ,body2))
+)
 
 (defoperator define-wavelength (?wave ?medium)
   :preconditions
@@ -52,7 +52,7 @@
   :units |rad/m|
   :restrictions nonnegative  
   :nlg-english ("the wavenumber of ~A moving in ~A" (nlg ?wave) (nlg ?medium))
-   :fromWorkbench `(wavenumber ,body ,body2))
+)
 
 (defoperator define-wavenumber (?wave ?medium)
   :preconditions 
@@ -111,7 +111,7 @@
   :units |Hz|
   :restrictions nonnegative 
   :nlg-english ("the frequency of ~A" (nlg ?wave))
-  :fromWorkbench `(frequency ,body))
+)
 
 (defoperator define-frequency (?wave)
   :preconditions((bind ?freq-var (format-sym "freq_~A" (body-name ?wave))))
@@ -137,7 +137,7 @@
   :restrictions nonnegative 
   :nlg-english ("the frequency of ~A as observed by ~A" 
 	       (nlg ?wave) (nlg ?me 'at-time ?time))
-  :fromWorkbench `(observed-frequency ,body ,body2 :time ,time))
+)
 
 (defoperator define-observed-frequency (?wave ?me ?t)
   :preconditions
@@ -173,7 +173,6 @@
   :dialog-text "of oscillations of [body:bodies]"
   :units |s|
   :restrictions positive
-  :fromWorkbench `(period ,body)
   :nlg-english ("the period of the motion of ~A" (nlg ?body)))
 
 (defoperator define-period-var (?b)
@@ -196,7 +195,7 @@
   :units |rad/s|
   :restrictions nonnegative 
   :nlg-english ("the angular-frequency of ~A" (nlg ?wave))
-  :fromworkbench `(angular-frequency ,body))
+)
 
 (defoperator define-angular-frequency (?wave)
   :preconditions((bind ?omega-var (format-sym "omega_~A" (body-name ?wave))))
@@ -414,7 +413,7 @@
   :units |m/s|
   :restrictions nonnegative
   :nlg-english ("the speed of waves in ~A" (nlg ?medium)) ;see entry in errors.cl
-  :fromworkbench `(wave-speed ,body))
+)
 
 (defoperator define-wave-speed (?medium)
   :preconditions
@@ -533,7 +532,7 @@
   :units NIL  ;dimensionless
   :restrictions nonnegative
   :nlg-english ("the index of refraction of ~A" (nlg ?medium))
-  :fromworkbench `(index-of-refraction ,body))
+)
 
 (defoperator define-index-of-refraction (?medium)
   :preconditions
@@ -665,7 +664,7 @@
   :units |N|
   :restrictions nonnegative 
   :nlg-english ("the string-tension of ~A" (nlg ?rope))
-  :fromworkbench `(string-tension ,body))
+)
 
 (defoperator define-string-tension (?rope)
   :preconditions(
@@ -724,7 +723,7 @@
   :units |m|
   :restrictions nonnegative 
   :nlg-english ("the amplitude of ~A" (nlg ?wave))
-  :fromworkbench `(amplitude ,body))
+)
 
 (defoperator define-amplitude (?wave ?type)
   :preconditions((bind ?lambda-var 
@@ -745,7 +744,7 @@
   :units |m/s|
   :restrictions nonnegative 
   :nlg-english ("the maximum speed of ~A" (nlg ?wave))
-  :fromworkbench `(amplitude-max-speed ,body))
+)
 
 (defoperator define-amplitude-max-speed (?wave)
   :preconditions((bind ?lambda-var (format-sym "vmax_~A" (body-name ?wave))))
@@ -799,7 +798,7 @@
   :units |m/s^2|
   :restrictions nonnegative 
   :nlg-english ("the |maximum acceleration of ~A|" (nlg ?wave))
-  :fromworkbench `(amplitude-max-abs-acceleration ,body))
+)
 
 (defoperator define-amplitude-max-abs-acceleration (?wave)
   :preconditions((bind ?lambda-var (format-sym "amax_~A" (body-name ?wave))))
@@ -1064,9 +1063,7 @@
   :restrictions positive
   :nlg-english ("the intensity supplied to ~A due to ~A" 
 	       (nlg ?wave 'at-time ?time) (nlg ?agent 'agent))
-   :fromWorkbench (if (string-equal body2 '|all sources|)
-                     `(net-intensity ,body :time ,time)
-                  `(intensity ,body ,body2 :time ,time)))
+)
 
 (defoperator define-intensity (?wave ?agent ?t)
   :preconditions
@@ -1085,7 +1082,6 @@
   :dialog-text "at [body:positions] of [body2:bodies]"
   :units |W/m^2|
   :restrictions positive
-  :fromWorkbench `(intensity ,body2 at ,body :time ,time)
   :nlg-english ("the intensity of ~A at ~A" (nlg ?body)
           (nlg ?position 'at-time ?time)))
 
@@ -1202,9 +1198,7 @@
   :units |dB|
   :nlg-english ("the intensity supplied to ~A due to ~A in decibels" 
 	       (nlg ?wave 'at-time ?time) (nlg ?agent 'agent))
-  :fromWorkbench (if (string-equal body2 '|all sources|)
-                     `(net-db-intensity ,body :time ,time)
-                  `(db-intensity ,body ,body2 :time ,time)))
+)
 
 (defoperator define-db-intensity (?wave ?agent ?t)
   :preconditions
@@ -1463,7 +1457,7 @@
   :units |V/m|
   :restrictions nonnegative 
   :nlg-english ("the amplitude of the electric field in ~A" (nlg ?wave))
-  :fromworkbench `(amplitude ,body :type electric))
+)
 
 (def-qexp amplitude-magnetic (amplitude ?wave :type magnetic)
   :symbol-base |B|     
@@ -1472,8 +1466,7 @@
   :units |T|
   :restrictions nonnegative 
   :nlg-english ("the amplitude of the magnetic field in ~A" (nlg ?wave))
-  :fromworkbench `(amplitude ,body :type magnetic))
-
+)
 
 (def-psmclass electromagnetic-wave-field-amplitude (electromagnetic-wave-field-amplitude ?wave)
   :complexity major  ; must explicitly use
