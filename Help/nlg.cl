@@ -68,11 +68,12 @@
 	 (args (subst-bindings-quoted bindings (rest spec))))
     (when spec
       (eval `(format nil ,format ,@args)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun nlg-list-default (x &rest args)
   (cond ((null x) nil) 
-	((nlg-find x *Ontology-ExpTypes* #'ExpType-Form #'ExpType-English))
+	((nlg-find x *Ontology-ExpTypes* #'ExpType-Form #'ExpType-nlg-english))
 	(t (format nil "~A" x))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -290,7 +291,7 @@
 (defun goal (x &rest args)
   (if (atom x)
       (lower-case x args)
-    (or (nlg-find x *Ontology-GoalProp-Types* #'GoalProp-Form #'GoalProp-English)
+    (or (nlg-find x *Ontology-GoalProp-Types* #'GoalProp-Form #'GoalProp-nlg-english)
 	(format nil "[GOAL: ~A]" x))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -299,26 +300,26 @@
       (nlg-atom-default x args)
     (or (nlg-find x *Ontology-PSMClasses* #'PSMClass-Form #'PSMClass-ExpFormat)
 	(nlg-find x *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-ExpFormat)
-	(nlg-find x *Ontology-PSMClasses* #'PSMClass-Form #'PSMClass-English)
-	(nlg-find x *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-English)
+	(nlg-find x *Ontology-PSMClasses* #'PSMClass-Form #'PSMClass-nlg-english)
+	(nlg-find x *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-nlg-english)
 	(format nil "[PSM: ~A]" x))))
 
 (defun psm-group (x &rest args)
 "kvl: returns the english for the group, of which this psm is a part"
   (cond ((atom x)
 	 (nlg-atom-default x args))
-	((nlg-find x *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-English))
+	((nlg-find x *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-nlg-english))
 	((loop for c in *Ontology-PSMClasses* with bindings 
 	     when (setf bindings (unify (PSMClass-form c) x)) 
-	     do (return (nlg-find (PSMClass-group c) *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-English))))
-	((nlg-find x *Ontology-PSMClasses* #'PSMClass-Form #'PSMClass-English))
+	     do (return (nlg-find (PSMClass-group c) *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-nlg-english))))
+	((nlg-find x *Ontology-PSMClasses* #'PSMClass-Form #'PSMClass-nlg-english))
 	(T (format nil "[PSM: ~A]" x))))
 
 (defun psm-english (x &rest args)
   (if (atom x)
       (nlg-atom-default x args)
-    (or (nlg-find x *Ontology-PSMClasses* #'PSMClass-Form #'PSMClass-English)
-	(nlg-find x *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-English)
+    (or (nlg-find x *Ontology-PSMClasses* #'PSMClass-Form #'PSMClass-nlg-english)
+	(nlg-find x *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-nlg-english)
 	(format nil "[PSM: ~A]" x))))
 
 
@@ -327,16 +328,16 @@
 (defun nlg-entryprop (x &rest args)
   (if (atom x) 
       (nlg-atom-default x args)
-    (or (nlg-find x *Ontology-EntryProp-Types* #'EntryProp-KBForm #'EntryProp-English)
-	(nlg-find x *Ontology-EntryProp-Types* #'EntryProp-HelpForm #'EntryProp-English)
+    (or (nlg-find x *Ontology-EntryProp-Types* #'EntryProp-KBForm #'EntryProp-nlg-english)
+	(nlg-find x *Ontology-EntryProp-Types* #'EntryProp-HelpForm #'EntryProp-nlg-english)
 	(format Nil "[EntryProp: ~a]" x))))
 	
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun psm-type (x &rest args)
-    (cond ((psmgroup-p x) (car (PSMGroup-English x)))
-	  ((psmclass-p x) (car (PSMclass-english x)))
+    (cond ((psmgroup-p x) (car (PSMGroup-nlg-english x)))
+	  ((psmclass-p x) (car (PSMclass-nlg-english x)))
 	  (T (format nil "[PSM type: ~A]" x))))
 
 
@@ -344,14 +345,14 @@
 ;; Given an ExpType nlg it resulting in the appropriate form.
 (defun nlg-exp (x &rest args)
   (cond ((atom x) (format nil "~A" x))
-	((nlg-find x *Ontology-ExpTypes* #'Exptype-form #'ExpType-English))
+	((nlg-find x *Ontology-ExpTypes* #'Exptype-form #'ExpType-nlg-english))
 	(t (format nil "exp:[~A]" x))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Given an Equation nlg it resulting in the appropriate form.
 (defun nlg-equation (x &rest args)
   (cond ((atom x) (format nil "~A" x))
-	((nlg-find x *Ontology-PSMClasses* #'PSMClass-form #'PSMClass-English))
+	((nlg-find x *Ontology-PSMClasses* #'PSMClass-form #'PSMClass-nlg-english))
 	(t (format nil "equation:[~A]" x))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

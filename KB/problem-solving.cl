@@ -635,7 +635,7 @@
 
 ;; define English for goal used as sought in planning-only problem 
 (def-goalprop read-problem (read-problem)
-  :english ("reading the problem statement then indicating you have done so."))
+  :nlg-english ("reading the problem statement then indicating you have done so."))
 
 ;;; =================== Generic: Multiple choice answer ======================
 ;;;
@@ -779,7 +779,7 @@
 ;;;;
 ;; this goal used as sought in vector-drawing-only problem (magtor*)
 (def-goalprop motion-diagram (motion-diagram ?b . ?rest)
-  :english ("drawing a motion diagram for ~A" (nlg ?b)))
+  :nlg-english ("drawing a motion diagram for ~A" (nlg ?b)))
 
 (defoperator do-motion-diagram (?b)
   :preconditions 
@@ -857,7 +857,7 @@
 (def-PSMclass given-fraction (given-fraction ?q1 ?q2)
   :complexity connect ;just like (equals ...)
   :short-name "fraction of"
-  :english ("one quantity as given fraction of another")
+  :nlg-english ("one quantity as given fraction of another")
   :eqnFormat ("val1 = fraction*val2"))
 
 (defoperator given-fraction-contains (?sought)

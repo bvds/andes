@@ -31,7 +31,7 @@
   :dialog-text "of [body:bodies] moving in [body2:positions]"
   :units |m|
   :restrictions positive  ;needed for harmonics problems to work
-  :english ("the wavelength of ~A moving in ~A" (nlg ?wave) (nlg ?medium))
+  :nlg-english ("the wavelength of ~A moving in ~A" (nlg ?wave) (nlg ?medium))
   :fromworkbench `(wavelength ,body ,body2))
 
 (defoperator define-wavelength (?wave ?medium)
@@ -51,7 +51,7 @@
   :dialog-text "of [body:bodies] moving in [body2:positions]"
   :units |rad/m|
   :restrictions nonnegative  
-  :english ("the wavenumber of ~A moving in ~A" (nlg ?wave) (nlg ?medium))
+  :nlg-english ("the wavenumber of ~A moving in ~A" (nlg ?wave) (nlg ?medium))
    :fromWorkbench `(wavenumber ,body ,body2))
 
 (defoperator define-wavenumber (?wave ?medium)
@@ -70,7 +70,7 @@
 (def-psmclass wavenumber-lambda-wave (wavenumber-lambda-wave ?wave ?medium)
   :complexity definition  ;substitute implicitly into major equation
   :short-name "wavenumber"
-  :english ("relation between wavelength and wavenumber")
+  :nlg-english ("relation between wavelength and wavenumber")
   :ExpFormat 
   ("applying the equation relating wavenumber and wavelength of ~A in ~A"
 	      (nlg ?wave) (nlg ?medium))
@@ -110,7 +110,7 @@
   :dialog-text "of oscillations of [body:bodies]"
   :units |Hz|
   :restrictions nonnegative 
-  :english ("the frequency of ~A" (nlg ?wave))
+  :nlg-english ("the frequency of ~A" (nlg ?wave))
   :fromWorkbench `(frequency ,body))
 
 (defoperator define-frequency (?wave)
@@ -135,7 +135,7 @@
   :dialog-text "of [body:bodies] as observed by [body2:bodies] at time [time:times]"
   :units |Hz|
   :restrictions nonnegative 
-  :english ("the frequency of ~A as observed by ~A" 
+  :nlg-english ("the frequency of ~A as observed by ~A" 
 	       (nlg ?wave) (nlg ?me 'at-time ?time))
   :fromWorkbench `(observed-frequency ,body ,body2 :time ,time))
 
@@ -174,7 +174,7 @@
   :units |s|
   :restrictions positive
   :fromWorkbench `(period ,body)
-  :english ("the period of the motion of ~A" (nlg ?body)))
+  :nlg-english ("the period of the motion of ~A" (nlg ?body)))
 
 (defoperator define-period-var (?b)
   :preconditions ( 
@@ -195,7 +195,7 @@
   :dialog-text "for oscillations of [body:bodies]"
   :units |rad/s|
   :restrictions nonnegative 
-  :english ("the angular-frequency of ~A" (nlg ?wave))
+  :nlg-english ("the angular-frequency of ~A" (nlg ?wave))
   :fromworkbench `(angular-frequency ,body))
 
 (defoperator define-angular-frequency (?wave)
@@ -210,7 +210,7 @@
 (def-psmclass frequency-of-wave (frequency-of-wave ?object)
   :complexity definition  ;substitute implicitly into major equation
   :short-name "frequency"
-  :english ("the equation for the frequency of a wave")
+  :nlg-english ("the equation for the frequency of a wave")
   :ExpFormat ("applying the definition angular frequency to ~A"
 	      (nlg ?object))
   :EqnFormat ("f = $w/(2*$p)")) 
@@ -246,7 +246,7 @@
 (def-psmclass beat-frequency (beat-frequency ?wbeat ?w1 ?w2 ?me ?t)
   :complexity major 
   :short-name "beat frequency"
-  :english ("the beat frequency of two waves")
+  :nlg-english ("the beat frequency of two waves")
   :ExpFormat ("finding the beat frequency of waves ~A and ~A"
 	      (nlg ?w1) (nlg ?w2))
   :EqnFormat ("fbeat = abs(f1-f2)/2")) 
@@ -312,7 +312,7 @@
 (def-psmclass period-of-wave (period-of-wave ?object)
   :complexity definition      ;substitute implicitly into major equation
   :short-name "period of oscillation"
-  :english ("the equation for the period")
+  :nlg-english ("the equation for the period")
   :ExpFormat ("applying the definition of period to ~A"
 	      (nlg ?object))
   :EqnFormat ("T = 1/f")) 
@@ -347,7 +347,7 @@
 (def-psmclass harmonic-of (harmonic-of ?waven ?wave1 ?form)
   :complexity minor
   :short-name "n-th harmonic"
-  :english ("harmonic of a standing wave")
+  :nlg-english ("harmonic of a standing wave")
   :ExpFormat ("using the fact that ~A is a harmonic of ~A"
 	      (nlg ?waven) (nlg ?wave1))
   :eqnFormat ("fn = n*f1 or $ln = $l1/n"))
@@ -413,7 +413,7 @@
   :dialog-text "moving in [body:positions]"
   :units |m/s|
   :restrictions nonnegative
-  :english ("the speed of waves in ~A" (nlg ?medium)) ;see entry in errors.cl
+  :nlg-english ("the speed of waves in ~A" (nlg ?medium)) ;see entry in errors.cl
   :fromworkbench `(wave-speed ,body))
 
 (defoperator define-wave-speed (?medium)
@@ -433,7 +433,7 @@
 (def-psmclass speed-of-wave (speed-of-wave ?object ?medium ?form)
   :complexity major ; must use explicitly 
   :short-name "speed of a wave"
-  :english ("the equation of the speed of a wave")
+  :nlg-english ("the equation of the speed of a wave")
   :ExpFormat ("relating wavelength and frequency to the speed of wave ~A"
 	      (nlg ?object))
   :EqnFormat ("vw = $l*f or vw = $w/k")) 
@@ -488,7 +488,7 @@
 (def-psmclass speed-equals-wave-speed (speed-equals-wave-speed ?object ?rope ?t)
   :complexity minor ; used implicitly 
   :short-name "speed of pulse is wave speed"
-  :english ("the speed of any wave is the same")
+  :nlg-english ("the speed of any wave is the same")
   :ExpFormat ("noting the speed of ~A is the same as the wave speed of ~A"
 	      (nlg ?object) (nlg ?rope))
   :EqnFormat ("vp = vw")
@@ -532,7 +532,7 @@
   :dialog-text "of [body:positions]" ; prb should list media as "positions"
   :units NIL  ;dimensionless
   :restrictions nonnegative
-  :english ("the index of refraction of ~A" (nlg ?medium))
+  :nlg-english ("the index of refraction of ~A" (nlg ?medium))
   :fromworkbench `(index-of-refraction ,body))
 
 (defoperator define-index-of-refraction (?medium)
@@ -550,7 +550,7 @@
 (def-psmclass wave-speed-refraction (wave-speed-refraction ?medium ?vacuum)
   :complexity major			; must explicitly use
   :short-name "index of refraction"
-  :english ("the definition of index of refraction")
+  :nlg-english ("the definition of index of refraction")
   :ExpFormat ("relating the speed of waves in ~A to the index of refraction" 
 	      (nlg ?medium 'conjoined-defnp))
   :EqnFormat ("n = c/v")) 
@@ -587,7 +587,7 @@
 (def-psmclass wave-speed-light (wave-speed-light ?quant)
   :complexity definition
   :short-name "speed of light"
-  :english ("the speed of a light or radio wave")
+  :nlg-english ("the speed of a light or radio wave")
   :ExpFormat("setting the speed to c")
   :EqnFormat("vw = c"))
 
@@ -626,7 +626,7 @@
 (def-psmclass refraction-vacuum (refraction-vacuum ?medium)
   :complexity definition
   :short-name "index of refraction of vacuum"
-  :english ("the index of refraction of a vacuum")
+  :nlg-english ("the index of refraction of a vacuum")
   :ExpFormat("setting the index of refraction to 1")
   :EqnFormat("n=1"))
 
@@ -664,7 +664,7 @@
   :dialog-text "on [body:bodies]"
   :units |N|
   :restrictions nonnegative 
-  :english ("the string-tension of ~A" (nlg ?rope))
+  :nlg-english ("the string-tension of ~A" (nlg ?rope))
   :fromworkbench `(string-tension ,body))
 
 (defoperator define-string-tension (?rope)
@@ -682,7 +682,7 @@
 (def-psmclass wave-speed-string (wave-speed-string ?wave)
   :complexity major			; must explicitly use
   :short-name "speed of waves on a string"
-  :english ("Transverse wave velocity of a string")
+  :nlg-english ("Transverse wave velocity of a string")
   :ExpFormat ("using formula for transverse wave speed on a string")
   :EqnFormat ("vw = sqrt(Ft/$m)")) 
 
@@ -723,7 +723,7 @@
   :dialog-text "for oscillations of [body:bodies]"
   :units |m|
   :restrictions nonnegative 
-  :english ("the amplitude of ~A" (nlg ?wave))
+  :nlg-english ("the amplitude of ~A" (nlg ?wave))
   :fromworkbench `(amplitude ,body))
 
 (defoperator define-amplitude (?wave ?type)
@@ -744,7 +744,7 @@
   :dialog-text "for oscillations of [body:bodies]"
   :units |m/s|
   :restrictions nonnegative 
-  :english ("the maximum speed of ~A" (nlg ?wave))
+  :nlg-english ("the maximum speed of ~A" (nlg ?wave))
   :fromworkbench `(amplitude-max-speed ,body))
 
 (defoperator define-amplitude-max-speed (?wave)
@@ -759,7 +759,7 @@
 (def-psmclass max-transverse-speed-wave (max-transverse-speed-wave ?wave)
   :complexity major  ; must explicitly use
   :short-name "maximum speed of oscillation"
-  :english ("Formula for maximum speed of an oscillation")
+  :nlg-english ("Formula for maximum speed of an oscillation")
   :ExpFormat ("applying the formula for maximum speed of an oscillation")
   :EqnFormat ("vmax = A*$w")) 
 
@@ -798,7 +798,7 @@
   :dialog-text "for oscillations of [body:bodies]"
   :units |m/s^2|
   :restrictions nonnegative 
-  :english ("the |maximum acceleration of ~A|" (nlg ?wave))
+  :nlg-english ("the |maximum acceleration of ~A|" (nlg ?wave))
   :fromworkbench `(amplitude-max-abs-acceleration ,body))
 
 (defoperator define-amplitude-max-abs-acceleration (?wave)
@@ -813,7 +813,7 @@
 (def-psmclass max-transverse-abs-acceleration-wave (max-transverse-abs-acceleration-wave ?wave)
   :complexity major  ; must explicitly use
   :short-name "maximum acceleration of oscillation"
-  :english ("Formula for |maximum acceleration| of an oscillation")
+  :nlg-english ("Formula for |maximum acceleration| of an oscillation")
   :ExpFormat ("applying the formula for |maximum acceleration| of an oscillation")
   :EqnFormat ("amax = A*$w^2")) 
 
@@ -852,7 +852,7 @@
 (def-psmclass spring-mass-oscillation (spring-mass-oscillation ?block ?spring)
   :complexity major			; must explicitly use
   :short-name "period of spring-mass system"
-  :english ("Formula for period of mass and spring")
+  :nlg-english ("Formula for period of mass and spring")
   :ExpFormat ("using formula for period of oscillations of a mass and spring")
   :EqnFormat ("T = 2*$p*sqrt(m/k)")) 
 
@@ -892,7 +892,7 @@
 (def-psmclass pendulum-oscillation (pendulum-oscillation ?block ?rod ?planet)
   :complexity major			; must explicitly use
   :short-name "period of simple pendulum"
-  :english ("Formula for period of a simple pendulum")
+  :nlg-english ("Formula for period of a simple pendulum")
   :ExpFormat ("using formula for period of a pendulum")
   :EqnFormat ("T = 2*$p*sqrt(l/g)")) 
 
@@ -938,7 +938,7 @@
 						   ?t-s ?t-o)
   :complexity major			; must explicitly use
   :short-name "frequency shift from doppler effect"
-  :english ("Formula for doppler frequency shift")
+  :nlg-english ("Formula for doppler frequency shift")
   :ExpFormat ("using formula for doppler frequency")
   ;; use implicit format args to insert the plus-minus character code into 
   ;; the EqnFormat string using only standard characters in our source text
@@ -1062,7 +1062,7 @@
   :dialog-text "supplied to [body:bodies] by [body2:bodies] at time [time:times]"
   :units |W/m^2|
   :restrictions positive
-  :english ("the intensity supplied to ~A due to ~A" 
+  :nlg-english ("the intensity supplied to ~A due to ~A" 
 	       (nlg ?wave 'at-time ?time) (nlg ?agent 'agent))
    :fromWorkbench (if (string-equal body2 '|all sources|)
                      `(net-intensity ,body :time ,time)
@@ -1086,7 +1086,7 @@
   :units |W/m^2|
   :restrictions positive
   :fromWorkbench `(intensity ,body2 at ,body :time ,time)
-  :english ("the intensity of ~A at ~A" (nlg ?body)
+  :nlg-english ("the intensity of ~A at ~A" (nlg ?body)
           (nlg ?position 'at-time ?time)))
 
 (defoperator define-intensity-at (?body ?position ?t)
@@ -1102,7 +1102,7 @@
 
 (def-qexp poynting-vector (poynting-vector ?loc ?agent :time ?time)
   :units |W/m^2|
-  :english ("the Poynting vector at ~A due to ~A"
+  :nlg-english ("the Poynting vector at ~A due to ~A"
 	    (nlg ?loc) (nlg ?agent 'at-time ?time)))
 
 (defoperator draw-poynting-vector-given-dir (?b ?agent ?t)
@@ -1137,7 +1137,7 @@
 (def-qexp net-intensity (net-intensity ?wave :time ?time)
   :units |W/m^2|
   :restrictions positive  
-  :english ("the net intensity supplied to ~A" (nlg ?wave 'at-time ?time)))
+  :nlg-english ("the net intensity supplied to ~A" (nlg ?wave 'at-time ?time)))
 
 ;; based on define-net-work
 (defoperator define-net-intensity (?wave ?t)
@@ -1153,7 +1153,7 @@
 (def-psmclass net-intensity (net-intensity ?body ?time) 
   :complexity definition
   :short-name "net intensity defined"
-  :english ("the definition of net intensity")
+  :nlg-english ("the definition of net intensity")
   :expformat ("calculating the net intensity on ~a"
 	      (nlg ?body 'at-time ?time))
   :EqnFormat ("Inet = I1 + I2 + ..."))
@@ -1200,7 +1200,7 @@
   :pre-dialog-text "intensity (in decibels)" 
   :dialog-text "supplied to [body:bodies] by [body2:bodies] at time [time:times]"
   :units |dB|
-  :english ("the intensity supplied to ~A due to ~A in decibels" 
+  :nlg-english ("the intensity supplied to ~A due to ~A in decibels" 
 	       (nlg ?wave 'at-time ?time) (nlg ?agent 'agent))
   :fromWorkbench (if (string-equal body2 '|all sources|)
                      `(net-db-intensity ,body :time ,time)
@@ -1226,7 +1226,7 @@
 ;; see def-qexp for db-intensity
 (def-qexp net-db-intensity (net-db-intensity ?wave :time ?time)
   :units |dB|
-  :english ("the total intensity supplied to ~A, in decibels" 
+  :nlg-english ("the total intensity supplied to ~A, in decibels" 
 	       (nlg ?wave 'at-time ?time)))
 
 (defoperator define-net-db-intensity (?wave ?t)
@@ -1246,7 +1246,7 @@
 (def-psmclass intensity-to-decibels (intensity-to-decibels ?wave ?agent ?t)
   :complexity major			;must explicitly use
   :short-name "intensity & decibels"
-  :english ("express intensity in decibels")
+  :nlg-english ("express intensity in decibels")
   :ExpFormat ("expressing the intensity in decibels")
   :EqnFormat ("$b = 10*log10(I/Iref)")) 
 
@@ -1290,7 +1290,7 @@
   (intensity-to-poynting-vector-magnitude ?wave ?source ?)
   :complexity definition  ;want this to be freely substituted into expressions
   :short-name "intensity & magnitude of the Poynting vector"
-  :english ("relate intensity to the magnitude of the Poynting vector")
+  :nlg-english ("relate intensity to the magnitude of the Poynting vector")
   :ExpFormat ("relating the intensity to the magnitude of the Poynting vector")
   :EqnFormat ("I = S")) 
 
@@ -1326,7 +1326,7 @@
   (spherical-intensity-to-power ?wave ?source ?t ?b-list)
   :complexity major  ;must explicitly use
   :short-name "relation of power and intensity (spherical emitter)"
-  :english ("relate intensity to power in a spherical geometry")
+  :nlg-english ("relate intensity to power in a spherical geometry")
   :ExpFormat ("relating the intensity to power (spherical symmetry)")
   :EqnFormat ("P = 4*$p*r^2*I")) 
 
@@ -1371,7 +1371,7 @@
   (uniform-intensity-to-power ?wave ?source ?t)
   :complexity major  ;must explicitly use
   :short-name "relation of power and intensity (uniform over surface)"
-  :english ("relate uniform intensity to power")
+  :nlg-english ("relate uniform intensity to power")
   :ExpFormat ("relating the intensity to power (uniform intensity)")
   :EqnFormat ("P = I*A")) 
 
@@ -1412,7 +1412,7 @@
 (def-psmclass energy-decay (energy-decay ?system ?time) 
   :complexity major
   :short-name "energy decay"
-  :english ("Energy in a damped system")
+  :nlg-english ("Energy in a damped system")
   :eqnFormat ("E = Ei*exp(-2*t/$t)"))
 
 (defoperator energy-decay-contains (?sought)
@@ -1462,7 +1462,7 @@
   :dialog-text "for oscillations of [body:bodies]"
   :units |V/m|
   :restrictions nonnegative 
-  :english ("the amplitude of the electric field in ~A" (nlg ?wave))
+  :nlg-english ("the amplitude of the electric field in ~A" (nlg ?wave))
   :fromworkbench `(amplitude ,body :type electric))
 
 (def-qexp amplitude-magnetic (amplitude ?wave :type magnetic)
@@ -1471,14 +1471,14 @@
   :dialog-text "for oscillations of [body:bodies]"
   :units |T|
   :restrictions nonnegative 
-  :english ("the amplitude of the magnetic field in ~A" (nlg ?wave))
+  :nlg-english ("the amplitude of the magnetic field in ~A" (nlg ?wave))
   :fromworkbench `(amplitude ,body :type magnetic))
 
 
 (def-psmclass electromagnetic-wave-field-amplitude (electromagnetic-wave-field-amplitude ?wave)
   :complexity major  ; must explicitly use
   :short-name "ratio of fields in electromagnetic wave"
-  :english ("Formula for maximum speed of an oscillation")
+  :nlg-english ("Formula for maximum speed of an oscillation")
   :ExpFormat ("applying the formula for maximum speed of an oscillation")
   :EqnFormat ("E = B*c")) 
 
@@ -1511,7 +1511,7 @@
   (radiation-pressure ?body ?wave elastic ?t)
   :complexity major  
   :short-name "radiation pressure (reflector)"
-  :english ("the radiation pressure for a reflector")
+  :nlg-english ("the radiation pressure for a reflector")
   :ExpFormat ("finding the radiation pressure on ~A due to ~A" 
 	      (nlg ?body) (nlg ?wave))
   :EqnFormat ("Fp = 2*I/c"))

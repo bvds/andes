@@ -100,74 +100,74 @@
     (if result (cdr result) (format NIL "~A" x))))
 
 (def-qexp dnum (dnum ?value ?unit :error ?err)
-  :english ("~A~:[~2*~;~A~A~] ~A" (identity ?value) ?err (code-char 177) 
+  :nlg-english ("~A~:[~2*~;~A~A~] ~A" (identity ?value) ?err (code-char 177) 
 	    ?err (translate-units ?unit)))
 
 ;;;; vector quantities:
 
 (def-qexp relative-position (relative-position ?to-pt ?from-pt :time ?time)
   :units |m|
-  :english ("the relative position of ~A with respect to ~A" 
+  :nlg-english ("the relative position of ~A with respect to ~A" 
 	    (nlg ?to-pt) (nlg ?from-pt 'at-time ?time)))
 (def-qexp displacement (displacement ?body :time ?time)
   :units |m|
-  :english ("the displacement of ~A" (nlg ?body 'at-time ?time)))
+  :nlg-english ("the displacement of ~A" (nlg ?body 'at-time ?time)))
 (def-qexp velocity (velocity ?body :time ?time)
   :units |m/s|
-  :english ("the velocity of ~A" (nlg ?body 'at-time ?time)))
+  :nlg-english ("the velocity of ~A" (nlg ?body 'at-time ?time)))
 (def-qexp relative-vel (relative-vel ?to-pt ?from-pt :time ?time)
   :units |m/s|
-  :english ("the relative velocity of ~A with respect to ~A" 
+  :nlg-english ("the relative velocity of ~A with respect to ~A" 
 	    (nlg ?to-pt) (nlg ?from-pt 'at-time ?time)))
 (def-qexp accel	(accel ?body :time ?time)
   :units |m/s^2|
-  :english ("the acceleration of ~A" (nlg ?body 'at-time ?time)))
+  :nlg-english ("the acceleration of ~A" (nlg ?body 'at-time ?time)))
 (def-qexp momentum (momentum ?body :time ?time)
   :units |kg.m/s|
-  :english ("the momentum of ~A" (nlg ?body 'at-time ?time)))
+  :nlg-english ("the momentum of ~A" (nlg ?body 'at-time ?time)))
 (def-qexp force (force ?body ?agent ?type :time ?time)
   :units N
-  :english ("~A force on ~A due to ~A" 
+  :nlg-english ("~A force on ~A due to ~A" 
 	    (nlg ?type) (nlg ?body 'at-time ?time) (nlg ?agent 'agent)))
 
 (def-qexp net-force (net-force ?body :time ?time)
   :units N
-  :english ("the net force on ~A" (nlg ?body 'at-time ?time)))
+  :nlg-english ("the net force on ~A" (nlg ?body 'at-time ?time)))
 (def-qexp ang-displacement (ang-displacement ?body :time ?time)
   :units |rad|
-  :english ("the angular displacement of ~A" (nlg ?body 'at-time ?time)))
+  :nlg-english ("the angular displacement of ~A" (nlg ?body 'at-time ?time)))
 (def-qexp ang-velocity (ang-velocity ?body :time ?time)
   :units |rad/s|
-  :english ("the angular velocity of ~A" (nlg ?body 'at-time ?time)))
+  :nlg-english ("the angular velocity of ~A" (nlg ?body 'at-time ?time)))
 (def-qexp ang-accel (ang-accel ?body :time ?time)
   :units |rad/s^2|
-  :english ("the angular acceleration of ~A" (nlg ?body 'at-time ?time)))
+  :nlg-english ("the angular acceleration of ~A" (nlg ?body 'at-time ?time)))
 (def-qexp ang-momentum (ang-momentum ?body :time ?time)
   :units |kg.m^2/s|
-  :english ("the angular momentum of ~A" (nlg ?body 'at-time ?time)))
+  :nlg-english ("the angular momentum of ~A" (nlg ?body 'at-time ?time)))
 (def-qexp torque (torque ?body ?agent :axis ?axis :time ?time)
   :units |N.m|
-  :english ("the ~A on ~A~@[ about ~A~] due to ~A" 
+  :nlg-english ("the ~A on ~A~@[ about ~A~] due to ~A" 
 	       (moment-name) (nlg ?body) (nlg ?axis)
 	       (nlg ?agent 'at-time ?time)))
 (def-qexp net-torque (net-torque ?body ?axis :time ?time)
   :units |N.m|
-  :english ("the net ~A on ~A about ~A" 
+  :nlg-english ("the net ~A on ~A about ~A" 
 	       (moment-name) (nlg ?body) (nlg ?axis 'at-time ?time)))
 (def-qexp couple (couple orderless . ?bodies)
-  :english ("the couple between ~A"
+  :nlg-english ("the couple between ~A"
 	       (nlg ?bodies 'conjoined-defnp)))
 ;; attributes of vectors:
 (def-qexp compo	(compo ?xyz ?rot ?vector)
   :units ?vector
-  :english ("the ~A component of ~A" (nlg ?xyz 'adj) (nlg ?vector)))
+  :nlg-english ("the ~A component of ~A" (nlg ?xyz 'adj) (nlg ?vector)))
 (def-qexp mag (mag ?vector)
   :units ?vector
   :restrictions nonnegative
-  :english ("the magnitude of ~A" (nlg ?vector)))
+  :nlg-english ("the magnitude of ~A" (nlg ?vector)))
 (def-qexp dir	(dir ?vector)
   :units |deg|
-  :english ("the direction of ~A" (nlg ?vector)))
+  :nlg-english ("the direction of ~A" (nlg ?vector)))
 
 ;; this is only used by implicit-eqns, so it should never be visible
 ;; to the user
@@ -178,7 +178,7 @@
 ;; Special axis terms entered into the symbol table. These are not
 ;; used as quantities, but may need to be Englished.
 (def-qexp axis (axis ?xyz ?angle)
-   :english ("the axis at ~A degrees" ?angle))
+   :nlg-english ("the axis at ~A degrees" ?angle))
 
 ;;;; scalar quantities
 
@@ -191,7 +191,7 @@
   :units |kg|
   :restrictions positive
   :fromWorkbench (if time `(mass ,body :time ,time) `(mass ,body))
-  :english ("the mass of ~A" (nlg ?body 'at-time ?time)))
+  :nlg-english ("the mass of ~A" (nlg ?body 'at-time ?time)))
 
 (def-qexp mass-change-magnitude	(mass-change-magnitude ?body ?agent :time ?t)
   :symbol-base |dmdt|     
@@ -200,7 +200,7 @@
   :units |kg/s|
   :restrictions nonnegative
   :fromWorkbench `(mass-change-magnitude ,body ,body2 :time ,time)
-  :english ("the magnitude of the change of mass of ~A per unit time due to ~A~@[ ~A~]" 
+  :nlg-english ("the magnitude of the change of mass of ~A per unit time due to ~A~@[ ~A~]" 
 	       (nlg ?body) (nlg ?agent 'agent) (nlg ?t 'pp)))
 (def-qexp mass-per-length (mass-per-length ?rope)
   :symbol-base |$l|     
@@ -208,7 +208,7 @@
   :dialog-text "of [body:bodies]"
   :units |kg/m|
   :restrictions nonnegative 
-  :english ("the mass-per-length of ~A" (nlg ?rope))
+  :nlg-english ("the mass-per-length of ~A" (nlg ?rope))
   :fromworkbench `(mass-per-length ,body))
 (def-qexp distance (distance ?body :time ?time)
   :symbol-base |s|     
@@ -216,7 +216,7 @@
   :dialog-text "by [body:bodies] at time [time:times]"
   :units |m|
   :fromWorkbench (if time `(distance ,body :time ,time) `(distance ,body))
-  :english ("the distance travelled by ~A" (nlg ?body 'at-time ?time)))
+  :nlg-english ("the distance travelled by ~A" (nlg ?body 'at-time ?time)))
 
 (def-qexp duration (duration (during ?t1 ?t2))
   :symbol-base |t|     
@@ -225,7 +225,7 @@
   :units |s|
   :restrictions positive
   :fromWorkbench  `(duration ,time)
-  :english ("the duration of time between ~A and ~A" 
+  :nlg-english ("the duration of time between ~A and ~A" 
             (nlg ?t1 'moment) (nlg ?t2 'moment)))
 (def-qexp speed (speed ?body :time ?time)
   :symbol-base |v|     
@@ -233,14 +233,14 @@
   :dialog-text ""  ;custom dialog box
   :units |m/s|
   :fromWorkbench (if time `(speed ,body :time ,time) `(speed ,body))
-  :english ("the speed of ~A" (nlg ?body 'at-time ?time)))
+  :nlg-english ("the speed of ~A" (nlg ?body 'at-time ?time)))
 
 (def-qexp coef-friction (coef-friction ?body1 ?body2 ?static-or-kinetic :time ?time)
   :symbol-base |$m|     
   :short-name "coef. of friction"	
   :dialog-text "between [body:bodies] and [body2:bodies]"
   :units NIL ;; dimensionless
-  :english ("coefficient of ~(~A~) friction between ~A and ~A" 
+  :nlg-english ("coefficient of ~(~A~) friction between ~A and ~A" 
             (nlg ?static-or-kinetic NIL) (nlg ?body1) 
 	    (nlg ?body2 'at-time ?time))) 
 
@@ -250,7 +250,7 @@
   :dialog-text "of [body:bodies] due to [body2:bodies] at [time:times]"
   :units |kg/m|
   :fromWorkbench `(coef-drag ,body ,body2 :type turbulent :time ,time)
-  :english ("coefficient of drag for ~A moving through ~A" 
+  :nlg-english ("coefficient of drag for ~A moving through ~A" 
             (nlg ?b) (nlg ?medium 'at-time ?time))) 
 
 ;; see constants.cl, function enter-predefs
@@ -261,7 +261,7 @@
   :units |m/s^2|
   :restrictions positive
   :fromWorkbench `(gravitational-acceleration ,body)
-  :english ("the gravitational acceleration due to ~A" (nlg ?planet)))
+  :nlg-english ("the gravitational acceleration due to ~A" (nlg ?planet)))
 
 (post-process add-gravitational-acceleration (problem)
   "if only the earth's gravity is used, add gravitational acceleration"
@@ -294,7 +294,7 @@
 	  (problem-predefs problem))))
 
 (def-qexp num-forces (num-forces ?body :time ?time)
-  :english ("the number of forces on ~A" (nlg ?body 'at-time ?time)))
+  :nlg-english ("the number of forces on ~A" (nlg ?body 'at-time ?time)))
 (def-qexp revolution-radius (revolution-radius ?body :time ?time)
   :symbol-base |r|     
   :short-name "radius of circular motion"	
@@ -302,39 +302,39 @@
   :units |m|
   :restrictions positive
   :fromWorkbench `(revolution-radius ,body :time ,time)
-  :english ("the radius of the circular motion of ~A" 
+  :nlg-english ("the radius of the circular motion of ~A" 
 	    (nlg ?body 'at-time ?time)))
 (def-qexp work (work ?b ?agent :time ?time)
   :symbol-base |W|     
   :short-name "work"	
   :dialog-text "done on [body:bodies] by [body2:bodies] at time [time:times]"
   :units |J|
-  :english ("the work done on ~A by ~A" 
+  :nlg-english ("the work done on ~A by ~A" 
 	    (nlg ?b) (nlg ?agent 'at-time ?time)))
 (def-qexp net-work (net-work ?b :time ?time)
   :units |J|
-  :english ("the net work done on ~A" (nlg ?b 'at-time ?time)))
+  :nlg-english ("the net work done on ~A" (nlg ?b 'at-time ?time)))
 (def-qexp work-nc (work-nc ?b :time ?time)
   :units |J|
-  :english ("the work done by non-conservative forces on ~A" 
+  :nlg-english ("the work done by non-conservative forces on ~A" 
 	    (nlg ?b 'at-time ?time)))
 (def-qexp power (power ?b ?agent :time ?time)
   :symbol-base |P|     
   :short-name "power"	
   :dialog-text "supplied to [body:bodies] by [body2:bodies] at time [time:times]"
   :units |W|
-  :english ("the power supplied to ~a from ~a" 
+  :nlg-english ("the power supplied to ~a from ~a" 
 	    (nlg ?b) (nlg ?agent 'at-time ?time)))
 (def-qexp net-power (net-power ?b :time ?time)
   :units |W|
-  :english ("the net power supplied to ~a" (nlg ?b 'at-time ?time)))
+  :nlg-english ("the net power supplied to ~a" (nlg ?b 'at-time ?time)))
 (def-qexp net-power-out (net-power-out ?source :time ?time)
   :symbol-base |P|     
   :short-name "power output" 
   :pre-dialog-text "total power" 
   :dialog-text "produced by [body:bodies] at time [time:times]"
   :units |W|
-  :english ("the total power produced by ~A" 
+  :nlg-english ("the total power produced by ~A" 
 	       (nlg ?source 'at-time ?time))
   :fromWorkbench (if time `(net-power-out ,body :time ,time) 
 		    `(net-power-out ,body)))
@@ -342,31 +342,31 @@
   ;; custom dialog box "angle"
   :units |deg|
   :restrictions nonnegative 
-  :english ("the angle between ~A" (nlg ?vecs 'conjoined-defnp)))
+  :nlg-english ("the angle between ~A" (nlg ?vecs 'conjoined-defnp)))
 (def-qexp total-energy (total-energy ?system :time ?time) 
   ;; custom dialog box "energy"
   :units |J|
-  :english ("the total mechanical energy of ~A" 
+  :nlg-english ("the total mechanical energy of ~A" 
 	    (nlg ?system 'at-time ?time)))
 (def-qexp kinetic-energy (kinetic-energy ?body :time ?time)
   ;; custom dialog box "energy"
   :units |J|
-  :english ("the kinetic energy of ~A" (nlg ?body 'at-time ?time)))
+  :nlg-english ("the kinetic energy of ~A" (nlg ?body 'at-time ?time)))
 (def-qexp rotational-energy (rotational-energy ?body :time ?time)
   ;; custom dialog box "energy"
   :units |J|
-  :english ("the rotational kinetic energy of ~A" 
+  :nlg-english ("the rotational kinetic energy of ~A" 
 	    (nlg ?body 'at-time ?time)))
 (def-qexp grav-energy (grav-energy ?body ?agent :time ?time)
   ;; custom dialog box "energy"
   :units |J|
-  :english ("the gravitational potential energy of ~A" 
+  :nlg-english ("the gravitational potential energy of ~A" 
 	    (nlg ?body 'at-time ?time)))
 ;; see bug 1463
 (def-qexp spring-energy (spring-energy ?body ?spring :time ?time) 
   ;; custom dialog box "energy"
   :units |J|
-  :english ("the elastic potential energy transmittable to ~A" 
+  :nlg-english ("the elastic potential energy transmittable to ~A" 
 	    (nlg ?body 'at-time ?time)))
 (def-qexp compression (compression ?spring :time ?time)
   :symbol-base |d|     
@@ -374,7 +374,7 @@
   :dialog-text "of [body:bodies] at time [time:times]"
   :units |m|
   :fromWorkbench `(compression ,body :time ,time)
-  :english ("the compression distance of ~A" (nlg ?spring 'at-time ?time)))
+  :nlg-english ("the compression distance of ~A" (nlg ?spring 'at-time ?time)))
 (def-qexp spring-constant (spring-constant ?spring)
   :symbol-base |k|     
   :short-name "spring constant"	
@@ -382,14 +382,14 @@
   :units |N/m|
   :restrictions positive
   :fromWorkbench `(spring-constant ,body)
-  :english ("the spring constant of ~A" (nlg ?spring)))
+  :nlg-english ("the spring constant of ~A" (nlg ?spring)))
 (def-qexp height (height ?body :time ?time)
   :symbol-base |h|     
   :short-name "height"	
   :dialog-text "of [body:bodies] at time [time:times]"
   :units |m|
   :fromWorkbench `(height ,body :time ,time)
-  :english ("the height of ~A above the zero level" 
+  :nlg-english ("the height of ~A above the zero level" 
 	    (nlg ?body 'at-time ?time)))
 (def-qexp moment-of-inertia (moment-of-inertia ?body :axis ?axis :time ?time)
   :symbol-base |I|     
@@ -399,7 +399,7 @@
   :restrictions positive
   :fromWorkbench (if time `(moment-of-inertia ,body :axis ,body2 :time ,time) 
 		     `(moment-of-inertia ,body :axis ,body2))
-  :english ("the moment of inertia of ~A about ~A" 
+  :nlg-english ("the moment of inertia of ~A about ~A" 
 	    (nlg ?body) (nlg ?axis 'at-time ?time)))
 ;; for dimensions of certain rigid bodies:
 (def-qexp length (length ?body)
@@ -408,33 +408,33 @@
   :dialog-text "of [body:bodies]"
   :units |m|
   :fromWorkbench `(length ,body)
-  :english ("the length of ~A" (nlg ?body)))
+  :nlg-english ("the length of ~A" (nlg ?body)))
 (def-qexp length-change (rate-of-change (length ?body))
   :symbol-base ||     
   :short-name "rate of change in length"	
   :dialog-text "of [body:bodies]"
   :units |m/s|
   :fromWorkbench `(rate-of-change (length ,body))
-  :english ("the rate of change of the length of ~A" (nlg ?body)))
+  :nlg-english ("the rate of change of the length of ~A" (nlg ?body)))
 (def-qexp width  (width ?body)
   :symbol-base ||     
   :short-name "width"	  
   :dialog-text "of [body:bodies]"
   :units |m|
   :fromWorkbench `(width ,body) 
-  :english ("the width of ~A" (nlg ?body)))
+  :nlg-english ("the width of ~A" (nlg ?body)))
 (def-qexp num-torques (num-torques ?body ?axis :time ?time)
-  :english ("the number of ~As on ~A about ~A" 
+  :nlg-english ("the number of ~As on ~A about ~A" 
 	     (moment-name) (nlg ?body) (nlg ?axis 'at-time ?time)))
 
 (def-qexp compound (compound orderless . ?bodies)
-  :english ("the compound of ~A" (nlg ?bodies 'conjoined-defnp)))
+  :nlg-english ("the compound of ~A" (nlg ?bodies 'conjoined-defnp)))
 
 (def-qexp system (system . ?bodies)
-  :english ("a system of ~A" (nlg ?bodies 'conjoined-defnp)))
+  :nlg-english ("a system of ~A" (nlg ?bodies 'conjoined-defnp)))
 
 (def-qexp during (during ?t0 ?t1) 
-  :english ("from ~A to ~A" (nlg ?t0 'moment) (nlg ?t1 'moment)))
+  :nlg-english ("from ~A to ~A" (nlg ?t0 'moment) (nlg ?t1 'moment)))
 
 
 ;; Note when nlg'ing other time arguments in format strings: 
@@ -447,7 +447,7 @@
 ;; Entry Propositions.
 (def-entryprop body (body ?body :time ?t)
   :Doc "The body tool."
-  :English ("the body for ~a" (nlg ?body 'at-time ?t)))
+  :nlg-english ("the body for ~a" (nlg ?body 'at-time ?t)))
 
 
 ;;; Nlging the vector is complex.  The dir term can be an angle
@@ -470,7 +470,7 @@
 (def-entryprop vector (vector ?body ?quantity ?direction)
   :helpform (vector ?quantity ?direction)
   :Doc "The generic vector entry tool."
-  :English ("a ~a" (ont-vector-entryprop-format-func ?body ?quantity ?direction)))
+  :nlg-english ("a ~a" (ont-vector-entryprop-format-func ?body ?quantity ?direction)))
 
 (defun ont-vector-entryprop-format-func (Body Quantity Direction)
   "Format the vector entry."
@@ -489,7 +489,7 @@
 
 (def-entryprop draw-line (draw-line ?line ?dir)
   :Doc "The line drawing tool"
-  :English ("a line ~A representing ~A" 
+  :nlg-english ("a line ~A representing ~A" 
 	    (draw-line-entryprop ?dir) (nlg ?line)))
 
 (defun draw-line-entryprop (dir)
@@ -501,13 +501,13 @@
   ;; leave them out of the entry proposition for axes
   :helpform (draw-axes ?x-direction)
   :Doc "The Axes drawing tool."
-  :English ("a pair of axes on ~a rotated to ~a" 
+  :nlg-english ("a pair of axes on ~a rotated to ~a" 
 	    ?body  (nlg ?x-direction)))
   
 
 (def-entryprop define-var (define-var ?quantity)
   :Doc "Defining a variable for a specific quantity"
-  :English ("a variable for ~a" (nlg ?Quantity)))
+  :nlg-english ("a variable for ~a" (nlg ?Quantity)))
 
 (defun choose-answer-ontology-fixfunc (ID)
   (let ((D (format Nil "~a" ID)))
@@ -517,24 +517,24 @@
 
 (def-entryprop choose-answer (choose-answer ?question-id ?answer-num)
   :doc "Select multiple choice question answer"
-  :English ("answer for multiple-choice question number ~A" 
+  :nlg-english ("answer for multiple-choice question number ~A" 
 	    (choose-answer-ontology-fixfunc ?question-id)))
 
 (def-eqn-entryprop eqn (eqn ?equation ?eqn-id) 
   :helpform (eqn ?equation)
   :Doc "Entering an equation with the specified id."
-  :English ("the equation ~a in slot ~a" ?Equation ?Eqn-ID))
+  :nlg-english ("the equation ~a in slot ~a" ?Equation ?Eqn-ID))
 
 (def-eqn-entryprop given-eqn (given-eqn ?equation ?quantity) 
   :helpform (eqn ?equation)
   :Doc "A given equation entry."
-  :English ("the given equation ~a for: ~a" 
+  :nlg-english ("the given equation ~a for: ~a" 
 	       ?Equation (nlg ?Quantity 'def-np)))
   
 (def-eqn-entryprop implicit-eqn (implicit-eqn ?equation ?quantity) 
   :helpform (implicit-eqn ?equation)
   :Doc "An implicit equation entry."
-  :English ("the implicit equation ~a for: ~a"
+  :nlg-english ("the implicit equation ~a for: ~a"
 	     ?Equation (nlg ?quantity 'def-np)))
 
 ;;========================================================
@@ -563,7 +563,7 @@
 
 (def-goalprop lk-fbd (vector-diagram ?rot (lk ?body ?time))
    :doc "diagram showing all lk vectors and axes"
-   :english ("drawing a diagram showing all of the needed kinematic vectors of ~A ~A and coordinate axes" 
+   :nlg-english ("drawing a diagram showing all of the needed kinematic vectors of ~A ~A and coordinate axes" 
               (nlg ?body ) (nlg ?time 'pp)))
 
 #| ;; Experimental, maybe following 2 are better handled by operator hints on entries.
@@ -573,7 +573,7 @@
 ;; We assume first argument is relevant body to mention
 (def-goalprop vec-drawn (vector ?axis-body (?vec-type . (?body . ?args)) 
 				?direction)
-   :english ("drawing a ~a vector for ~a." (nlg ?vec-type 'adjective) (nlg ?body 'def-np)))
+   :nlg-english ("drawing a ~a vector for ~a." (nlg ?vec-type 'adjective) (nlg ?body 'def-np)))
 
 ;; Subgoal hint for goal of defining a variable: We use one hint for vector 
 ;; [mag] variables, another for all others, to show that vector vars are 
@@ -583,64 +583,64 @@
 ;; (which may be given)
 ;; -- maybe should insert another variant for that case.
 (def-goalprop vector-var (variable ?var (mag (?vec-type . (?body . ?args) )))
-   :english ("drawing a ~a vector for ~a." (nlg ?vec-type 'adjective) 
+   :nlg-english ("drawing a ~a vector for ~a." (nlg ?vec-type 'adjective) 
 					   (nlg ?body 'def-np)))
 |# ;; end experimental
 
 (def-goalprop other-var (variable ?var ?quantity)
-   :english ("introducing a variable for ~A" (nlg ?quantity)))
+   :nlg-english ("introducing a variable for ~A" (nlg ?quantity)))
 
 (def-goalprop axes-chosen (axes-for ?body ?rotation)
   ;; !! this goal can be achieved in some cases without drawing 
   ;; by re-using existing axes.
-   :english ("setting coordinate axes"))
+   :nlg-english ("setting coordinate axes"))
 
 (def-goalprop write-projections
       (projections ?component-variables ?component-expressions)
-    :english ("writing projection equations for all the component variables in the equation you are using"))
+    :nlg-english ("writing projection equations for all the component variables in the equation you are using"))
 
 (def-goalprop avg-vel-fbd (vector-diagram ?rot (avg-velocity ?body ?time))
-   :english ("drawing a diagram showing all of the needed vectors for ~A ~A and coordinate axes" 
+   :nlg-english ("drawing a diagram showing all of the needed vectors for ~A ~A and coordinate axes" 
              (nlg ?body) (nlg ?time 'pp)))
    
 (def-goalprop net-disp-fbd (vector-diagram ?rot (sum-disp ?body ?time))
-   :english ("drawing a diagram showing all of the needed displacements of ~A ~A and coordinate axes" 
+   :nlg-english ("drawing a diagram showing all of the needed displacements of ~A ~A and coordinate axes" 
               (nlg ?body) (nlg ?time 'pp)))
 
 ;; next goal used as sought in fbd-only problem:
 (def-goalprop standard-fbd (fbd ?body ?time)
   :doc "free-body-diagram on its own."
-  :english ("drawing a free-body diagram for ~A ~A"
+  :nlg-english ("drawing a free-body diagram for ~A ~A"
             (nlg ?body) (nlg ?time 'pp))) ; time may be interval or instant
 
 (def-goalprop all-forces (forces ?body ?time ?all-forces)
-   :english ("drawing all the forces acting on ~A ~A" (nlg ?body) (nlg ?time 'pp)))
+   :nlg-english ("drawing all the forces acting on ~A ~A" (nlg ?body) (nlg ?time 'pp)))
 
 
 (def-goalprop all-torques (torques ?b ?axis ?time ?torques)
-  :english ("showing the ~A due to each force acting on ~A ~A" 
+  :nlg-english ("showing the ~A due to each force acting on ~A ~A" 
 	     (moment-name) (nlg ?b) (nlg ?time 'pp)))
 
 
 ;; this goal used as sought in vector-drawing-only problem (magtor*)
 (def-goalprop draw-vectors (draw-vectors ?vector-list)
-  :english ("drawing the vectors asked for in the problem statement"))
+  :nlg-english ("drawing the vectors asked for in the problem statement"))
 
 ;; this goal used as sought in variable-defining-only problems (q1)
 (def-goalprop define-scalar-variable (define-scalar-variable ?quant)
-  :english ("defining the variable asked for"))
+  :nlg-english ("defining the variable asked for"))
 
 ;; this goal used as sought in general qualitative problems (q5)
 (def-goalprop do-all-steps (do-all-steps . ?steps)
-  :english ("making the entries asked for in the problem statement"))
+  :nlg-english ("making the entries asked for in the problem statement"))
 
 ;; this goal used as subgoal in general qualitative problems (q5)
 (def-goalprop write-eqn (write-eqn ?eqn-name)
-  :english ("writing the equation asked for"))
+  :nlg-english ("writing the equation asked for"))
 
 ;; this goal used as sought in multiple-choice question problem
 (def-goalprop choose-mc-answer (choose-answer ?question-id ?answer)
-   :english ("answering question ~A" (str-after ?question-id)))
+   :nlg-english ("answering question ~A" (str-after ?question-id)))
 
 (defun str-after (id &optional (sep #\-))
 "return the part of string or symbol after separator ch (default hyphen)"
@@ -663,7 +663,7 @@
 (def-psmclass given (given ?quantity ?value :hint ?hint)
   :complexity simple
   :doc "enter given value"
-  :english ("the given value")
+  :nlg-english ("the given value")
   :ExpFormat ("~:[entering the given value of~;finding~] ~A" 
 	      ?hint (nlg ?quantity))
   :EqnFormat ("Var = N units"))
@@ -672,7 +672,7 @@
   :complexity connect
   :doc "projection equations"
   :short-name ("on ~A-axis" (axis-name ?axis))
-  :english ("projection equations")
+  :nlg-english ("projection equations")
   :ExpFormat ("writing the projection equation for ~a onto the ~a axis" 
 	      (nlg ?vector) (axis-name ?axis))
   :EqnFormat ("~a_~a = ~a*~:[sin~;cos~]($q~a - $q~a)"
@@ -716,7 +716,7 @@
   :complexity major
   :short-name "average speed"
   :doc "Distance = rate * time."
-  :english ("distance = average speed * time")
+  :nlg-english ("distance = average speed * time")
   :expFormat ((strcat "applying the \"distance = average speed "
 		      "* time\" principle with ~a as the body ~a")
 	      (nlg ?body) (nlg ?time))
@@ -726,12 +726,12 @@
   :complexity connect  ;since this is like (equals ...)
   :doc "Distance = Displacement."
   :short-name "distance & displacement"
-  :english ("distance = magnitude of displacment")
+  :nlg-english ("distance = magnitude of displacment")
   :expFormat ("noting that distance is the magnitude of the displacment")
   :EqnFormat ("|d| = s"))
  
 (def-goalprop sdd-eqn (eqn ?algebra (sdd ?body ?time))
-  :english ("writing an equation involving the speed of ~A ~A, and distance it travelled, and the duration of the trip" 
+  :nlg-english ("writing an equation involving the speed of ~A ~A, and distance it travelled, and the duration of the trip" 
 	    (nlg ?body) (nlg ?time 'pp)))
 
 (def-psmclass avg-velocity
@@ -740,14 +740,14 @@
     :complexity major    
     :Doc "Definition of average velocity."
     :short-name "average velocity"
-    :english ("the definition of average velocity") 
+    :nlg-english ("the definition of average velocity") 
     :ExpFormat ("applying the definition of average velocity on ~a ~a"
 		(nlg ?body) (nlg ?time 'pp))
     :EqnFormat ("v(avg)_~a = d_~a/t" (axis-name ?axis) (axis-name ?axis)))
 
 (def-goalprop avg-vel-eqn 
  (eqn ?algebra (compo-eqn avg-vel ?axis ?rot (avg-velocity ?body ?time)))
- :english ((strcat "writing an equation for the average velocity of ~A "
+ :nlg-english ((strcat "writing an equation for the average velocity of ~A "
 		   "~A in terms of components along the ~A axis")
 	   (nlg ?body) (nlg ?time 'pp) ?axis))
  
@@ -755,13 +755,13 @@
 (def-psmclass pyth-thm (pyth-thm ?body ?origin ?time0 ?time1)
   :complexity connect
   :short-name "Pythagorean Thm"
-  :english ("the Pythagorean theorem" )
+  :nlg-english ("the Pythagorean theorem" )
   :eqnFormat ("c^2 = a^2 + b^2"))
 
 (def-psmclass sum-distance (sum-distance ?b1 ?b2 ?b3 ?t)
    :complexity definition
    :short-name "sum collinear distances"
-   :english ("the relationship among the distances between ~a, ~a and ~a" 
+   :nlg-english ("the relationship among the distances between ~a, ~a and ~a" 
               (nlg ?b1) (nlg ?b2) (nlg ?b3))
    :ExpFormat ("relating the total distance between ~a and ~a to the distances from these points to ~a" (nlg ?b1) (nlg ?b3) (nlg ?b2))
    :EqnFormat ("rAC = rAB + rBC"))
@@ -770,14 +770,14 @@
 (def-psmclass net-disp (?eq-type sum-disp ?axis ?rot (sum-disp ?body ?time))
   :complexity minor   ;See Bug #1144
   :short-name "net displacement"
-  :english ("net displacement")
+  :nlg-english ("net displacement")
   :ExpFormat ("calculating the net displacement of ~a ~a" (nlg ?body) (nlg ?time))
   :EqnFormat ("dnet_~a = d1_~a + d2_~a + ..." (axis-name ?axis) 
 	      (axis-name ?axis) (axis-name ?axis)))
 
 (def-goalprop net-disp-eqn 
  (eqn ?algebra (compo-eqn sum-disp ?axis ?rot (sum-disp ?body ?time)))
- :english ((strcat "writing an equation for the component of net "
+ :nlg-english ((strcat "writing an equation for the component of net "
 		   "displacement of ~A ~A along the ~A axis") 
 	   (nlg ?body) (nlg ?time 'pp) ?axis))
 
@@ -796,7 +796,7 @@
 (def-psmclass free-fall-accel (free-fall-accel ?body ?time)
   :complexity simple
   :short-name "accel in free-fall"
-  :english ("free fall acceleration")
+  :nlg-english ("free fall acceleration")
   :ExpFormat ("determining the free fall acceleration for ~a"
 	      (nlg ?body 'at-time ?time))
   :EqnFormat ("a = g"))
@@ -804,7 +804,7 @@
 (def-psmclass std-constant-g (std-constant (gravitational-acceleration earth))
   :complexity simple 
   :short-name "g near Earth"
-  :english ("value of g on Earth")
+  :nlg-english ("value of g on Earth")
   :expformat ("defining the value of g on Earth")
   :EqnFormat ("g = 9.8 m/s^2"))
 
@@ -813,7 +813,7 @@
 (def-psmclass centripetal-accel (centripetal-accel ?body ?time)
   :complexity major
   :short-name "centripetal acceleration (instantaneous)"
-  :english ("centripetal acceleration equation: a = v^2/r")
+  :nlg-english ("centripetal acceleration equation: a = v^2/r")
   :ExpFormat ((strcat "writing the centripetal acceleration "
 		      "equation: a = v^2/r for ~a")
 	      (nlg ?body 'at-time ?time))
@@ -823,7 +823,7 @@
   :complexity major    
   :Doc "Definition of Coulomb's law, component form."
   :short-name ("centripetal acceleration (~A component)" (axis-name ?axis))
-  :english ("centripetal acceleration (component form)") 
+  :nlg-english ("centripetal acceleration (component form)") 
   :ExpFormat ("finding the centripetal acceleration of ~a ~a (component form)"
 	      (nlg ?body) (nlg ?time 'pp))
   :EqnFormat ("ac_~A = -v^2/r * r_~A/r" 
@@ -833,7 +833,7 @@
 (def-psmclass period-circle (period ?body ?time circular)
    :complexity minor
   :short-name "period of uniform circular motion"
-   :english ("the formula for the period of uniform circular motion")
+   :nlg-english ("the formula for the period of uniform circular motion")
    :ExpFormat ("calculating the period of the motion of ~A" (nlg ?body))
    :EqnFormat ("T = 2*$p*r/v"))
 
@@ -842,7 +842,7 @@
 (def-psmclass equals (equals ?quant1 ?quant2 :opposite ?flag . ?rest)
   :complexity connect
   :short-name "equivalent quantities"
-  :english ("find by equivalent quantity")
+  :nlg-english ("find by equivalent quantity")
   :ExpFormat ("applying the fact that ~a is the ~:[same as~;opposite of~] ~A"
               (nlg ?quant1) ?flag (nlg ?quant2))
   :EqnFormat ("val1 = ~Aval2" (code-char 177)))   ;plus/minus
@@ -851,7 +851,7 @@
 (def-psmclass sum-times (sum-times ?tt :middle ?ti)
   :complexity connect
   :short-name "sum of times"
-  :english ("tac = tab + tbc")
+  :nlg-english ("tac = tab + tbc")
   :ExpFormat ("calculating the sum of times ~A" (nlg ?tt 'pp)) 
   :EqnFormat ("tac = tab + tbc"))
 
@@ -859,7 +859,7 @@
 (def-psmclass sum-distances (sum-distances ?b ?tt)
   :complexity connect
   :short-name "sum distance travelled"
-  :english ("sac = sab + sbc")
+  :nlg-english ("sac = sab + sbc")
   :ExpFormat ("calculating the sum of distances travelled by ~A ~A" 
 	      (nlg ?b) (nlg ?tt 'pp))
   :EqnFormat ("sac = sab + sbc"))
@@ -868,7 +868,7 @@
 ;; NEWTONS LAW family of equations.
 (def-psmgroup NL
     :form (?eq-type ?compo-eqn-id ?axis ?rot (NL ?body ?time :net ?netp))
-    :english ("Newton's second law"))
+    :nlg-english ("Newton's second law"))
 
 ;; NSL now stands for all versions, same as group id:
 (def-psmclass NSL (?eq-type ?c-eqn-id ?axis ?rot (NL ?body ?time :net ?netp)) 
@@ -876,7 +876,7 @@
      :complexity major
      :doc "Newton's second law when accel is non-zero"
   :short-name "Newton's second law"
-     :english ("Newton's second law")
+     :nlg-english ("Newton's second law")
      :ExpFormat ("applying Newton's second law to ~a"
 		 (nlg ?body 'at-time ?time))
      :EqnFormat ("F1_~a + F2_~a + ... = m*a_~a" 
@@ -885,7 +885,7 @@
 (def-psmclass net-force (?eq-type definition ?axis ?rot (net-force ?body ?t))
   :complexity minor ;See Bug #1144
   :short-name ("net force (~A component)" (axis-name ?axis))
-  :english ("net force")
+  :nlg-english ("net force")
   :ExpFormat ("calculating the net force acting on ~a ~a" (nlg ?body) (nlg ?t))
   :EqnFormat ("Fnet_~a = F1_~a + F2_~a + ..." 
 	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
@@ -897,7 +897,7 @@
 (def-psmclass NTL (NTL (?Object0 ?Object1) ?force-type ?time)
   :complexity major
   :short-name "Newton's Third law (magnitudes)"
-  :english ("Newton's Third law")
+  :nlg-english ("Newton's Third law")
   :ExpFormat ("applying Newton's Third law to ~a and ~a"
 	      (nlg ?Object0) (nlg ?Object1 'at-time ?time))
   :EqnFormat ("Fof1on2 = Fof2on1"))
@@ -905,7 +905,7 @@
 (def-psmclass NTL-vector (?eq-type NTL ?axis ?rot (NTL-vector (?Object0 ?Object1) ?force-type ?time))
   :complexity major
   :short-name "Newton's Third law (components)"
-  :english ("Newton's Third law")
+  :nlg-english ("Newton's Third law")
   :ExpFormat ("applying Newton's Third law to ~a and ~a"
 	      (nlg ?Object0) (nlg ?Object1 'at-time ?time))
   :EqnFormat ("F12_~a = - F21_~a" (axis-name ?axis) (axis-name ?axis)))
@@ -914,14 +914,14 @@
 (def-psmclass wt-law (wt-law ?body ?time)
   :complexity minor
   :short-name "weight law"
-  :english ("Weight law")
+  :nlg-english ("Weight law")
   :ExpFormat ("applying the Weight law on ~a" (nlg ?body))
   :EqnFormat ("Fw = m*g"))
 
 (def-psmclass kinetic-friction (kinetic-friction ?body ?surface ?time)
   :complexity simple
   :short-name "kinetic friction"
-  :english ("Kinetic Friction law")
+  :nlg-english ("Kinetic Friction law")
   :ExpFormat ("applying the Kinetic friction law for ~a and ~a"
 	      (nlg ?body) (nlg ?surface 'at-time ?time))
   :EqnFormat ("Ff = $mk*Fn"))
@@ -929,7 +929,7 @@
 (def-psmclass static-friction (static-friction ?body ?surface ?time) 
   :complexity simple
   :short-name "static friction (at max)"
-  :english ("Static Friction at maximum")
+  :nlg-english ("Static Friction at maximum")
   :expformat ("applying the Definition of Static friction for ~a and ~a"
 	      (nlg ?body) (nlg ?surface 'at-time ?time))
   :EqnFormat ("Ff = $ms*Fn"))
@@ -937,7 +937,7 @@
 (def-psmclass drag-force-turbulent (drag-force ?body ?medium turbulent ?time)
   :complexity simple
   :short-name "drag force"
-  :english ("drag force")
+  :nlg-english ("drag force")
   :ExpFormat ("finding the drag force on ~a moving at high speed through ~A"
 	      (nlg ?body) (nlg ?medium 'at-time ?time))
   :EqnFormat ("F = K*v^2"))
@@ -946,7 +946,7 @@
 (def-psmclass num-forces (num-forces ?body ?time) 
   :complexity simple
   :short-name "number of forces" 
-  :english ("count forces")
+  :nlg-english ("count forces")
   :expformat ("counting the total number of forces acting on ~a"
 		 (nlg ?body 'at-time ?time))
   :EqnFormat "nf = (count forces)")
@@ -954,7 +954,7 @@
 (def-psmclass ug (ug ?body ?agent ?time ?distance-quant)
   :complexity major 
   :short-name "universal gravitation"
-  :english ("Newton's law of Universal Gravitation")
+  :nlg-english ("Newton's law of Universal Gravitation")
   :expformat ("applying Newton's law of Universal Gravitation for the force on ~a due to ~a" (nlg ?body) (nlg ?agent))
   :EqnFormat ("Fg = G*m1*m2/r^2"))
 
@@ -963,7 +963,7 @@
 (def-psmclass connected-accels (connected-accels ?body0 ?body1 ?time)
   :complexity connect
   :short-name "connected accelerations"
-  :english ("connected bodies have same acceleration")
+  :nlg-english ("connected bodies have same acceleration")
   :expformat ((strcat "using the fact that ~a and ~a are connected and "
 		      "therefore have the same acceleration")
 	      (nlg ?body0) (nlg ?body1))
@@ -972,7 +972,7 @@
 (def-psmclass connected-velocities (connected-velocities ?body0 ?body1 ?time)
   :complexity connect
   :short-name "connected velocities"
-  :english ("connected bodies have same velocity")
+  :nlg-english ("connected bodies have same velocity")
   :expformat ((strcat "using the fact that ~a and ~a are connected and "
 		      "therefore have the same velocity")
 	      (nlg ?body0) (nlg ?body1))
@@ -981,7 +981,7 @@
 (def-psmclass tensions-equal (tensions-equal ?string (?body0 ?body1) ?time)
   :complexity connect
   :short-name "equal tensions at both ends"
-  :english ("tension equal throughout string")
+  :nlg-english ("tension equal throughout string")
   :expformat ((strcat "using the fact that the tension forces are always "
 		      "equal at both ends of a string with ~a") (nlg ?string))
   :EqnFormat ("Ft1 = Ft2"))
@@ -992,7 +992,7 @@
 (def-psmclass mass-compound (mass-compound ?compound)  
   :complexity connect
   :short-name "mass of compound"
-  :english ("mass of a compound body is sum of masses of parts")
+  :nlg-english ("mass of a compound body is sum of masses of parts")
   :expformat ((strcat "using the fact that the mass of ~a "
 		      "is the sum of the masses of its parts") 
 	      (nlg ?compound))
@@ -1001,7 +1001,7 @@
 (def-psmclass kine-compound (kine-compound ?vec-type ?bi ?compound ?time) ; part, whole same kinematics
   :complexity connect
   :short-name "velocity of compound"
-  :english ("~A of compound same as part" (nlg ?vec-type))
+  :nlg-english ("~A of compound same as part" (nlg ?vec-type))
   :expformat ("applying the fact that the ~A of a compound is same as that of its parts" (nlg ?vec-type))
   :EqnFormat ("v_compound = v_part"))
 
@@ -1009,7 +1009,7 @@
 (def-psmclass force-compound (force-compound ?type ?agent ?compound ?time)
   :complexity connect
   :short-name "force on compound"
-  :english ("external force on a compound")
+  :nlg-english ("external force on a compound")
   :expformat ((strcat "applying the fact that there is an external force "
 		      "on ~a due to ~a ~a of type ~a")
 	      (nlg ?compound) (nlg ?agent 'agent) (nlg ?time 'pp) (nlg ?type))
@@ -1024,7 +1024,7 @@
 (def-psmclass work (work ?body ?agent (during ?time0 ?time1) ?rot)
   :complexity major ; definition, but can be first "principle" for sought
   :short-name "work defined"
-  :english ("the definition of work")
+  :nlg-english ("the definition of work")
   :expformat ("calculating the work done on ~a by ~a from ~a to ~a" 
 	      (nlg ?body) (nlg ?agent) (nlg ?time0 'time) (nlg ?time1 'time))
   :EqnFormat ("W = F*d*cos($q) or W = F_x*d_x + F_y*d_y"))
@@ -1036,7 +1036,7 @@
 (def-psmclass net-work (net-work ?body (during ?time0 ?time1)) ; by all forces
   :complexity major   ;See Bug #1144
   :short-name "net work defined"
-  :english ("the definition of net work")
+  :nlg-english ("the definition of net work")
   :expformat ("calculating the net work done by all forces on ~a from ~a to ~a"
 	      (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
   :EqnFormat ("Wnet = WF1 + WF2 + ..."))
@@ -1044,7 +1044,7 @@
 (def-psmclass work-nc (Wnc ?body (during ?time0 ?time1))
   :complexity minor  ; definition, but *can't* be first "principle" for sought
   :short-name "work by non-conservative"
-  :english ("the definition of Wnc")
+  :nlg-english ("the definition of Wnc")
   :expformat ("representing the work done on ~A by non-conservative forces"
               (nlg ?body))
   :EqnFormat ("Wnc = Wncf1 + Wncf2 + ..."))
@@ -1052,7 +1052,7 @@
 (def-psmclass work-energy (work-energy ?body (during ?time0 ?time1))
   :complexity major
   :short-name "work-energy theorem"
-  :english ("the work-kinetic energy theorem")
+  :nlg-english ("the work-kinetic energy theorem")
   :expformat ("applying the work-kinetic energy theorem to ~a from ~a to ~a"
 	      (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
   :EqnFormat ("Wnet = Kf - Ki"))
@@ -1060,7 +1060,7 @@
 (def-psmclass cons-energy (cons-energy ?body ?t1 ?t2)
   :complexity major
   :short-name "[Wnc=0] conservation of mechanical energy"
-  :english ("conservation of mechanical energy")
+  :nlg-english ("conservation of mechanical energy")
   :ExpFormat ((strcat "applying conservation of mechanical energy to ~a "
 		      "from ~a to ~a") 
 	      (nlg ?body) (nlg ?t1 'time) (nlg ?t2 'time))
@@ -1069,7 +1069,7 @@
 (def-psmclass change-ME (change-ME ?body ?t1 ?t2)
   :complexity major
   :short-name "change in mechanical energy"
-  :english ("change in mechanical energy")
+  :nlg-english ("change in mechanical energy")
   :ExpFormat ((strcat "applying change in mechanical energy to ~a "
 		      "from ~a to ~a") 
 	      (nlg ?body) (nlg ?t1 'time) (nlg ?t2 'time))
@@ -1078,7 +1078,7 @@
 (def-psmclass height-dy (height-dy ?body ?time)
   :complexity connect
   :short-name "change in height"
-  :english ("the height change-displacement relationship")
+  :nlg-english ("the height change-displacement relationship")
   :expformat ((strcat "relating the change in height of ~a ~a to the y "
 		      "component of its displacement")
 	      (nlg ?body) (nlg ?time 'pp))
@@ -1087,7 +1087,7 @@
 (def-psmclass power (power ?body ?agent ?time)
   :complexity major ; definition, but can be first "principle" for sought
   :short-name "average power defined"
-  :english ("the definition of average power")
+  :nlg-english ("the definition of average power")
   :expformat ("applying the definition of average power supplied to ~A by ~A ~A"
 	      (nlg ?body) (nlg ?agent) (nlg ?time 'pp))
   :EqnFormat("P(avg) = W/t"))
@@ -1095,7 +1095,7 @@
 (def-psmclass net-power (net-power ?body ?time)
    :complexity major  ;See Bug #1144
   :short-name "average net power defined"
-   :english ("the definition of net power")
+   :nlg-english ("the definition of net power")
    :expformat ("applying the definition of net power supplied to ~A ~A"
                (nlg ?body) (nlg ?time 'pp))
    :EqnFormat("Pnet = Wnet/t"))
@@ -1103,7 +1103,7 @@
 (def-psmclass inst-power (inst-power ?body ?agent ?time ?rot)
    :complexity major ; definition, but can be first "principle" for sought
   :short-name "instantaneous power"
-   :english ("the instantaneous power principle")
+   :nlg-english ("the instantaneous power principle")
    :expformat ("calculating the instantaneous power supplied to ~A by ~A ~A"
                (nlg ?body) (nlg ?agent) (nlg ?time 'pp))
    :EqnFormat("P = F*v*cos($q) or P = F_x*v_x + F_y*v_y"))
@@ -1113,32 +1113,32 @@
 
 (def-psmclass mechanical-energy  (total-energy-top ?body ?time) 
   :short-name "mechanical energy defined"
-  :english ("the definition of mechanical energy")
+  :nlg-english ("the definition of mechanical energy")
   :complexity definition
   :EqnFormat ("ME = KE + $S Ui"))
 
 ; These are now top level psms, not subequations:
 (def-psmclass kinetic-energy (kinetic-energy ?body ?time)
   :short-name "kinetic energy defined"
-  :english ("the definition of kinetic energy")
+  :nlg-english ("the definition of kinetic energy")
   :complexity definition
   :EqnFormat ("KE = 0.5*m*v^2"))
 
 (def-psmclass rotational-energy (rotational-energy ?body ?time)
   :short-name "rotational kinetic energy defined"
-  :english ("the definition of rotational kinetic energy")
+  :nlg-english ("the definition of rotational kinetic energy")
   :complexity definition
   :EqnFormat ("KE = 0.5*I*$w^2"))
 
 (def-psmclass grav-energy (grav-energy ?body ?planet ?time)
   :short-name "gravitational potential energy"
-   :english ("gravitational potential energy")
+   :nlg-english ("gravitational potential energy")
    :complexity definition
    :EqnFormat ("Ug = m*g*h"))
 
 (def-psmclass spring-energy (spring-energy ?body ?spring ?time)
   :short-name "spring potential energy"
-  :english ("spring potential energy")
+  :nlg-english ("spring potential energy")
   :complexity definition
   :EqnFormat ("Us = 0.5*k*d^2"))
 
@@ -1147,7 +1147,7 @@
 (def-psmclass cons-linmom (?eq-type lm-compo ?axis ?rot (cons-linmom ?bodies ?time))
   :complexity major
   :short-name "conservation of momentum"
-  :english ("conservation of momentum")
+  :nlg-english ("conservation of momentum")
   :expformat ("applying Conservation of Linear Momentum to ~a ~a"
 	      (nlg ?bodies 'conjoined-defnp) (nlg ?time 'time))
   :EqnFormat ("p1i_~a + p2i_~a + ... = p1f_~a + p2f_~a + ..." 
@@ -1157,7 +1157,7 @@
 (def-psmclass cons-ke-elastic (cons-ke-elastic ?bodies (during ?time0 ?time1))
   :complexity major
   :short-name "elastic collision defined"
-  :english ("conservation of kinetic energy in elastic collisions")
+  :nlg-english ("conservation of kinetic energy in elastic collisions")
   :expformat ((strcat "applying Conservation of Kinetic Energy to "
 		      "elastic collisions of ~a from ~a to ~a")
 	      (nlg ?bodies 'conjoined-defnp) (nlg ?time0 'time) (nlg ?time1 'time))
@@ -1168,7 +1168,7 @@
 (def-psmclass linear-vel (linear-vel ?pt ?time ?axis)
   :complexity major
   :short-name "linear velocity at a certain radius"
-  :english ("linear velocity of rotating point")
+  :nlg-english ("linear velocity of rotating point")
   :ExpFormat ("calculating the linear velocity of the rotating point ~a"
 	      (nlg ?pt 'at-time ?time))
   :EqnFormat ("v = $w*r"))
@@ -1176,7 +1176,7 @@
 (def-psmclass rolling-vel (rolling-vel ?body ?axis ?time)
   :complexity major
   :short-name "linear velocity of rolling object"
-  :english ("linear velocity of rolling object")
+  :nlg-english ("linear velocity of rolling object")
   :ExpFormat ("finding the relation between linear motion and rotational motion of ~A"
 	      (nlg ?body 'at-time ?time))
   :EqnFormat ("v = $w*r"))
@@ -1186,7 +1186,7 @@
 (def-psmclass mag-torque (mag-torque ?body ?pivot (force ?pt ?agent ?type) ?time)
   :complexity major ; definition, but can be first "principle" for sought
   :short-name ("~A defined (magnitude)" (moment-name))
-  :english ("the definition of ~A magnitude" (moment-name))
+  :nlg-english ("the definition of ~A magnitude" (moment-name))
   :expformat ((strcat "calculating the magnitude of the ~A "
 		      "on ~a ~a due to the force acting at ~a")
 	      (moment-name) (nlg ?body) (nlg ?time 'pp) (nlg ?pt))
@@ -1196,7 +1196,7 @@
   (torque ?xyz ?rot ?body ?pivot (force ?pt ?agent ?type) ?angle-flag ?time)
   :complexity major ; definition, but can be first "principle" for sought
   :short-name ("~A defined (~A component)" (moment-name) (axis-name ?xyz))
-  :english ("the definition of ~A" (moment-name))
+  :nlg-english ("the definition of ~A" (moment-name))
   :expformat ((strcat "calculating the ~A component of the ~A "
 		      "on ~a ~a due to the force acting at ~a")
 	      (axis-name ?xyz)

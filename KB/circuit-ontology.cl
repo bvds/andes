@@ -28,13 +28,13 @@
 (def-qexp voltage-across (voltage-across ?comp :time ?time)
   ;; custom dialog box "voltage"
   :units |V|
-  :english ("the voltage across ~A~@[ ~A~]" ?comp (nlg ?time 'pp)))
+  :nlg-english ("the voltage across ~A~@[ ~A~]" ?comp (nlg ?time 'pp)))
 
 (def-qexp resistance (resistance ?names)
   :symbol-base |R| 
   :short-name "resistance"
   :units |$W|
-  :english ("the resistance of ~A" (conjoined-names ?names)))
+  :nlg-english ("the resistance of ~A" (conjoined-names ?names)))
 
 ;;  The dialog box should look something like the resistance dialog box.
 ;;  After the student makes an entry, however, the helpsystem should
@@ -55,14 +55,14 @@
   :units |A|
   ;; No sign restriction on this quantity. A few prbs (LR1b,1c,2b) restrict 
   ;; currents to be positive on a per-problem basis with :VariableMarks
-  :english ("the current through ~A~@[ ~A~]" (conjoined-names ?component) 
+  :nlg-english ("the current through ~A~@[ ~A~]" (conjoined-names ?component) 
 	    (nlg ?time 'pp)))
 
 (def-qexp capacitance (capacitance ?name)
   :symbol-base |C|     
   :short-name "capacitance"
   :units |F|
-  :english ("the capacitance of ~A" ?name))
+  :nlg-english ("the capacitance of ~A" ?name))
 
 ;;; in the workbench, the time slot is added if feature changing-voltage
 ;;; is included.
@@ -72,7 +72,7 @@
   :dialog-text "on [body:bodies]"
   :units |C|
   :fromWorkbench (if time `(charge ,body :time ,time) `(charge ,body))
-  :english ("the charge on ~A" (nlg ?name 'at-time ?time)))
+  :nlg-english ("the charge on ~A" (nlg ?name 'at-time ?time)))
 
 ;;; in the workbench, the time slot is added if feature changing-voltage
 ;;; is included.
@@ -82,7 +82,7 @@
   :dialog-text "of [body:bodies]"
   :units nil ;dimensionless
   :fromWorkbench (if time `(number-of ,body :time ,time) `(number-of ,body))
-  :english ("the number of ~As" (nlg ?name)))
+  :nlg-english ("the number of ~As" (nlg ?name)))
 
 ;; variation for surface, where "in" is appropriate
 ;; see feature gauss
@@ -93,7 +93,7 @@
   :units |C|
   :fromWorkbench (if time `(charge ,body :surface t :time ,time)
 		   `(charge ,body :surface t))
-  :english ("the charge in ~A" (nlg ?name 'at-time ?time)))
+  :nlg-english ("the charge in ~A" (nlg ?name 'at-time ?time)))
 
 (def-qexp max-charge (max-charge ?name :time ?time)
   :units |C|)
@@ -104,7 +104,7 @@
   :dialog-text "of [body:bodies]"
   :units |H|
   :fromWorkbench `(self-inductance ,body)
-  :english ("the inductance of ~A" (nlg ?inductor)))
+  :nlg-english ("the inductance of ~A" (nlg ?inductor)))
 
 (def-qexp mutual-inductance (mutual-inductance orderless . ?inductors)
   :symbol-base |M|     
@@ -112,7 +112,7 @@
   :dialog-text "between [body:bodies] and [body2:bodies]"
   :units |H|
   :fromWorkbench `(mutual-inductance orderless ,body ,body2)
-  :english ("the mutual inductance of ~A" 
+  :nlg-english ("the mutual inductance of ~A" 
 	    (nlg ?inductors 'conjoined-defnp)))
 
 ;;; power as used in circuits problem has slightly different definition
@@ -124,7 +124,7 @@
   :dialog-text "transferred through [body:bodies] at time [time:times]"
   :units W
   :fromWorkbench `(electric-power ,body :time ,time)
-  :english ("power transferred through ~a" (nlg ?b 'at-time ?time)))
+  :nlg-english ("power transferred through ~a" (nlg ?b 'at-time ?time)))
 ;; We could define a generic rate-of-change function, but we don't have a way 
 ;; to define units as function of units of base ?quant over time, 
 ;; I don't think.  For now just define rate of change of a current 
@@ -136,7 +136,7 @@
   :dialog-text "through [body:bodies] at time [time:times]"
   :units |A/s|
   ; :fromWorkbench  custom handling in Entry-API.cl
-  :english ("the rate of change of the current through ~a" 
+  :nlg-english ("the rate of change of the current through ~a" 
 	    (nlg ?comp 'at-time ?time)))
 
 (def-qexp time-constant (time-constant orderless . ?quants)
@@ -146,27 +146,27 @@
   :units |s|
   ;; translated wb body arg is (compound orderless comp1 comp2 ...)
   :fromWorkbench `(time-constant orderless ,@(bodyterm-complist body))
-  :english ("the time constant for ~A" 
+  :nlg-english ("the time constant for ~A" 
 		       (nlg ?quants 'conjoined-defnp)))
 
 (def-qexp E-field (field ?region electric ?source :time ?time)
   :units |N/C|
-  :english ("the electric field at ~A due to ~A~@[ ~A~]" 
+  :nlg-english ("the electric field at ~A due to ~A~@[ ~A~]" 
 	    (nlg ?region 'at-time ?time) (nlg ?source 'agent) (nlg ?time 'pp)))
 
 (def-qexp B-field (field ?region magnetic ?source :time ?time)
   :units |T|
-  :english ("the magnetic field at ~A due to ~A~@[ ~A~]" 
+  :nlg-english ("the magnetic field at ~A due to ~A~@[ ~A~]" 
 	    (nlg ?region) (nlg ?source 'agent) (nlg ?time 'pp)))
 
 (def-qexp net-E-field (net-field ?region electric :time ?time)
   :units |N/C|
-  :english ("the net electric field at ~A~@[ ~A~]" 
+  :nlg-english ("the net electric field at ~A~@[ ~A~]" 
 	    (nlg ?region) (nlg ?time 'pp)))
 
 (def-qexp net-B-field (net-field ?region magnetic :time ?time)
   :units |T|
-  :english ("the net magnetic field at ~A~@[ ~A~]" 
+  :nlg-english ("the net magnetic field at ~A~@[ ~A~]" 
 	    (nlg ?region) (nlg ?time 'pp)))
   
 (def-qexp potential (potential ?loc ?source :time ?time)
@@ -177,19 +177,19 @@
   :fromWorkbench (if (or (null body2) (string-equal body2 '|all sources|))
                      `(net-potential ,body :time ,time)
                   `(potential ,body ,body2 :time ,time))
-  :english ("the electric potential at ~a due to ~A~@[ ~A~]" 
+  :nlg-english ("the electric potential at ~a due to ~A~@[ ~A~]" 
 	       (nlg ?loc) (nlg ?source 'agent) (nlg ?time 'pp)))
 
 (def-qexp net-potential (net-potential ?loc :time ?time)
   :units |V|
-  :english ("the net electric potential at ~a from all sources~@[ ~A~]" 
+  :nlg-english ("the net electric potential at ~a from all sources~@[ ~A~]" 
 	    (nlg ?loc) (nlg ?time 'pp)))
 
 (def-qexp electric-energy (electric-energy ?body ?source :time ?time)
   ;; custom dialog box "energy"
   :units |J|
   :short-name "electric potential energy"
-  :english ("the electric potential energy of ~A" 
+  :nlg-english ("the electric potential energy of ~A" 
 	    (nlg ?body 'at-time ?time)))
 
 (def-qexp stored-energy (stored-energy ?component :time ?time)
@@ -198,5 +198,5 @@
   :dialog-text "in [body:bodies] at time [time:times]"
   :units |J|
   :fromWorkbench `(stored-energy ,body :time ,time)
-  :english ("the electric energy stored in ~a" 
+  :nlg-english ("the electric energy stored in ~a" 
 	    (nlg ?component 'at-time ?time)))

@@ -876,7 +876,7 @@
 (def-psmclass vector-magnitude (vector-magnitude ?vector ?rot)
   :complexity minor 
   :short-name "vector magnitude"
-  :english ("the magnitude of a vector")
+  :nlg-english ("the magnitude of a vector")
   :ExpFormat ("calculating the magnitude of of ~a" (nlg ?vector))
   :EqnFormat ("A = sqrt(A_x^2 + A_y^2)"))
 
@@ -1150,7 +1150,7 @@
 (def-psmclass vector-direction (vector-direction ?vector)
   :complexity minor 
   :short-name "vector direction"
-  :english ("the direction of a vector")
+  :nlg-english ("the direction of a vector")
   :ExpFormat ("entering the direction of of ~a" (nlg ?vector))
   :EqnFormat ("$qv = N deg"))
 
@@ -1554,7 +1554,7 @@
 (def-psmclass angle-direction (angle-direction orderless . ?things)
   :complexity definition
   :short-name "angle between"
-  :english ("angle between")
+  :nlg-english ("angle between")
   :ExpFormat ("finding the angle between ~A" (nlg ?things 'conjoined-defnp))
   :eqnFormat ("$q12 = $q2 - $q1 or 180-($q2-$q1)"))
 
@@ -1718,7 +1718,7 @@
 
 (def-qexp unit-vector (unit-vector ?orientation ?body :at ?loc :time ?time)
   :units nil  ;dimensionless
-  :english ("a unit vector~@[ at ~A~] ~A ~A" ?loc 
+  :nlg-english ("a unit vector~@[ at ~A~] ~A ~A" ?loc 
 	    (unit-vector-orientation-name ?orientation)
 	    (nlg ?body 'at-time ?time)))
 
@@ -1785,7 +1785,7 @@
 (def-psmclass unit-vector-mag (unit-vector-mag . ?args)
   :complexity definition
   :short-name "length of unit vector"
-  :english ("the length of a unit vector")
+  :nlg-english ("the length of a unit vector")
   :ExpFormat("introducing a unit vector")
   :EqnFormat("n = 1"))
 
@@ -1838,7 +1838,7 @@
   :complexity minor  ;same as the moment of inertia formulas
   :doc "mass per length = mass/length"
   :short-name "mass per unit length"
-  :english ("mass per length = mass/length")
+  :nlg-english ("mass per length = mass/length")
   :expFormat ("using the mass per length of ~A" (nlg ?b))
   :EqnFormat ("$l = m/L"))
 
@@ -1896,7 +1896,7 @@
   ;; be a principle.
   :complexity definition
   :short-name "moment of point mass"
-  :english ("moment of inertia of a point mass")
+  :nlg-english ("moment of inertia of a point mass")
   :expformat ("calculating the moment of inertia of ~a about ~A" 
 	      (nlg ?body) (nlg ?axis))
   :EqnFormat ("I = m*R^2"))
@@ -1934,7 +1934,7 @@
   ;; be a principle.
   :complexity minor
   :short-name "parallel axis theorem"
-  :english ("parallel axis theorem")
+  :nlg-english ("parallel axis theorem")
   :expformat ("calculating the moment of inertia of ~a about ~A" 
 	      (nlg ?body) (nlg ?axis))
   :EqnFormat ("I = M*R^2 + Icm"))
@@ -1975,7 +1975,7 @@
 (def-psmclass I-rod-cm (I-rod-cm ?body ?cm)
   :complexity minor
   :short-name "rod about center"
-  :english ("moment of inertia of a rod about its center")
+  :nlg-english ("moment of inertia of a rod about its center")
   :expformat ("calculating the moment of inertia of ~a about ~A" 
 	      (nlg ?body) (nlg ?cm))
   :EqnFormat ("I = (1/12) m*L^2"))
@@ -2010,7 +2010,7 @@
 (def-psmclass I-rod-end (I-rod-end ?body ?end)
   :complexity minor
   :short-name "rod about end"
-  :english ("moment of inertia of a rod about its end")
+  :nlg-english ("moment of inertia of a rod about its end")
   :expformat ("moment of inertia of the rod ~a about ~A" (nlg ?body) (nlg ?end))
   :EqnFormat ("I = (1/3) m*L^2"))
 
@@ -2050,7 +2050,7 @@
 (def-psmclass I-hoop-cm (I-hoop-cm ?body ?cm)
   :complexity minor
   :short-name "hoop"
-  :english ("moment of inertia for a hoop about its center")
+  :nlg-english ("moment of inertia for a hoop about its center")
   :expformat ("moment of inertia for the hoop ~a about ~A" 
 	      (nlg ?body) (nlg ?cm))
   :EqnFormat ("I = m*r^2"))
@@ -2084,7 +2084,7 @@
 (def-psmclass I-disk-cm (I-disk-cm ?body ?cm)
   :complexity minor
   :short-name "disk about center"
-  :english ("moment of inertia of a disk about its center")
+  :nlg-english ("moment of inertia of a disk about its center")
   :expformat ("moment of inertia of the disk ~a about ~A" 
 	      (nlg ?body) (nlg ?cm))
   :EqnFormat ("I = 0.5*m*r^2"))
@@ -2114,7 +2114,7 @@
 (def-psmclass I-rect-cm (I-rect-cm ?body ?cm)
   :complexity minor
   :short-name "rectangular plate"
-  :english ("moment of inertia of a rectangle about its center")
+  :nlg-english ("moment of inertia of a rectangle about its center")
   :expformat ("moment of inertia of the rectangle ~a about ~A"
 	      (nlg ?body) (nlg ?cm))
   :EqnFormat ("I = (1/12) m*(L^2 + W^2)"))
@@ -2152,7 +2152,7 @@
 (def-psmclass I-compound (I-compound ?compound ?axis)
   :complexity minor
   :short-name "compound body"
-  :english ("moment of inertia of a compound body")
+  :nlg-english ("moment of inertia of a compound body")
   :expformat ("calculating the total moment of inertia of ~a about ~A"
 	      (nlg ?compound) (nlg ?axis))
   :EqnFormat ("I12 = I1 + I2"))
@@ -2209,7 +2209,7 @@
   :dialog-text "of [body:bodies]"
      :units |m^2|
      :restrictions positive
-     :english ("the area of ~A" (nlg ?shape))
+     :nlg-english ("the area of ~A" (nlg ?shape))
      :fromworkbench `(area ,body)
 )
 
@@ -2219,7 +2219,7 @@
   :dialog-text "of [body:bodies]"
      :units |m^2/s|
      :restrictions positive
-     :english ("the rate of change of the area of ~A" (nlg ?shape))
+     :nlg-english ("the rate of change of the area of ~A" (nlg ?shape))
      :fromworkbench `(rate-of-change (area ,body))
 )
 
@@ -2238,7 +2238,7 @@
   :dialog-text "of [body:bodies]"
      :units |m|
      :restrictions positive
-     :english ("the radius of ~A" (nlg ?body))
+     :nlg-english ("the radius of ~A" (nlg ?body))
      :fromworkbench `(radius-of-circle ,body)
    )
 
@@ -2259,7 +2259,7 @@
   :dialog-text "of [body:bodies]"
   :units |m|
   :restrictions positive
-  :english ("the diameter of ~A" (nlg ?body))
+  :nlg-english ("the diameter of ~A" (nlg ?body))
   :fromworkbench `(diameter-of-circle ,body)
   )
 
@@ -2280,7 +2280,7 @@
   :dialog-text "of [body:bodies]"
      :units |m|
      :restrictions positive
-     :english ("the circumference of ~A" (nlg ?body))
+     :nlg-english ("the circumference of ~A" (nlg ?body))
      :fromworkbench `(circumference-of-circle ,body)
    )
 
@@ -2298,7 +2298,7 @@
 (def-psmclass circumference-of-circle-r (circumference-of-circle-r ?body)
   :complexity minor  
   :short-name "circumference of circle"
-  :english ("the formula for circumference of a circle")
+  :nlg-english ("the formula for circumference of a circle")
   :ExpFormat ("finding the circumference of a circle")
   :EqnFormat ("c = 2*$p*r")) 
 
@@ -2334,7 +2334,7 @@
 (def-psmclass circumference-of-circle-d (circumference-of-circle-d ?body)
   :complexity minor  
   :short-name "circumference of circle"
-  :english ("the formula for the circumference of a circle")
+  :nlg-english ("the formula for the circumference of a circle")
   :ExpFormat ("finding the circumference of a circle")
   :EqnFormat ("c = $p*d")) 
 
@@ -2370,7 +2370,7 @@
 (def-psmclass area-of-circle (area-of-circle ?body)
   :complexity minor  
   :short-name "area of circle"
-  :english ("the formula for the area of a circle")
+  :nlg-english ("the formula for the area of a circle")
   :ExpFormat ("finding the area of a circle")
   :EqnFormat ("A = $p*r^2")) 
 
@@ -2402,7 +2402,7 @@
 (def-psmclass area-of-rectangle (area-of-rectangle ?body :square ?flag)
   :complexity minor  
   :short-name "area of rectangle"
-  :english ("the formula for area of a rectangle")
+  :nlg-english ("the formula for area of a rectangle")
   :ExpFormat ("finding the area of a ~:[rectangle~;square~]" 
 	      ?flag)
   :EqnFormat ("A = w*l")) 
@@ -2461,7 +2461,7 @@
 (def-psmclass area-of-rectangle-change (area-of-rectangle-change ?body)
   :complexity definition  
   :short-name "derivative of area of rectangle (constant width)"
-  :english ("the derivative of the area of a rectangle")
+  :nlg-english ("the derivative of the area of a rectangle")
   :ExpFormat ("taking the derivative of the formula for area")
   :EqnFormat ("dA/dt = w*dl/dt")) 
 
@@ -2492,7 +2492,7 @@
 (def-psmclass volume-of-cylinder (volume-of-cylinder ?body)
   :complexity minor  
   :short-name "volume of a cylinder"
-  :english ("the formula for the volume of a cylinder")
+  :nlg-english ("the formula for the volume of a cylinder")
   :ExpFormat ("finding the volume of a cylinder")
   :EqnFormat ("V = A*l")) 
 

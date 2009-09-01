@@ -144,7 +144,7 @@
   VarFunc       ;; Function that translates the Expression to a var.
   FromWorkbench ;; constructs expression from workbench api args (see make-quant)
   
-  english       ;; a format style string determining the english expression of this
+  nlg-english       ;; a format style string determining the english expression of this
                 ;; expresson.  not used at present.
   )
 
@@ -160,7 +160,7 @@
 			documentation
 			VarFunc
 			FromWorkbench
-			english)
+			nlg-english)
   "Define a quantity expression."
   (define-exptype :type type 
     :form Form
@@ -174,7 +174,7 @@
     :documentation documentation
     :varfunc Varfunc
     :FromWorkbench FromWorkbench
-    :English English))
+    :nlg-English nlg-English))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; define-exptype (Hidden)
@@ -193,7 +193,7 @@
 			    units 
 			    restrictions 
 			    documentation
-			    varfunc english fromWorkbench)
+			    varfunc nlg-english fromWorkbench)
   "Define and store the specified expression if possible."
   (when (expression-type-p type) 
     (error "exptype ~A already exists." type))
@@ -218,7 +218,7 @@
 	    :fromWorkbench (when fromWorkbench
 	                     (coerce `(lambda (subtype body body2 time) 
 	                                   ,fromWorkbench) 'function))
-	    :english english)))
+	    :nlg-english nlg-english)))
     (postpend *Ontology-ExpTypes* E)
     E))
 
@@ -303,7 +303,7 @@
   fields   ;; field types specific to the kb fields as help
            ;; fields are assumed to be a subset of them.  
   Doc      ;; Documentation.
-  english  ;; Englishification code.
+  nlg-english  ;; Englishification code.
   )
 
 ;;(defun print-entryprop (Prop &optional (Stream t) (Level 0))
@@ -315,9 +315,9 @@
 ;;  (format Stream "  Help: ~A~%" (EntryProp-Help Prop)))
   
 (defmacro def-entryprop (Type form
-			 &key (fields nil)
+			 &key fields
 			      (helpform form)
-			      (doc nil) (English Nil))
+			      doc nlg-English)
   "Define an Entry proposition type and store the value."
   (let ((E (make-entryProp 
 	    :type Type
@@ -326,7 +326,7 @@
 	    :fields (fill-field-defs 
 		     fields form helpform)
 	    :Doc Doc
-	    :English English)))
+	    :nlg-English nlg-English)))
     (postpend *Ontology-EntryProp-Types* E)
     E))
 
@@ -388,13 +388,13 @@
 
 (defmacro def-eqn-entryprop (type form
 			   &key (helpform form)
-				(doc nil) (English Nil))
+				doc nlg-English)
   "define an eqn entry proposition."
   `(progn (def-eqntype ',type)
 	  (def-entryprop ,type ,form
 	    :helpform ,helpform
 	    :doc ,doc
-	    :English ,English)))
+	    :nlg-English ,nlg-English)))
 
 (defun def-eqntype (type)
   "Define an equation type."
@@ -437,19 +437,18 @@
   Form     ;; Unification form for the goal.
   Doc      ;; Documentation.
   
-  english  ;; Englishification code.
+  nlg-english  ;; Englishification code.
   )
 
 
 (defmacro def-goalprop (Type form
-			&key (English nil)
-			     (doc nil))
+			&key nlg-English doc)
   "Define an Entry proposition type and store the value."
   (let ((E (make-goalProp 
 	    :type Type
 	    :form form
 	    :Doc Doc
-	    :english English)))
+	    :nlg-english nlg-English)))
     (postpend *Ontology-GoalProp-Types* E)
     E))
 
@@ -541,7 +540,7 @@
   supergroup ;; The superclass of this class if any.
   help       ;; hints or other help info.
   doc        ;; Documentation string info.
-  english    ;; English
+  nlg-english    ;; English
   expformat  ;; expform description.
   )
 
@@ -555,13 +554,13 @@
   (format Stream "  SuperGroup: ~A~%" (psmgroup-supergroup group))
   (format Stream "  Help:       ~A~%" (psmgroup-help group))
   (format Stream "  Doc:        ~A~%" (psmgroup-doc group))
-  (format Stream "  English:    ~A~%" (psmgroup-english group))
+  (format Stream "  English:    ~A~%" (psmgroup-nlg-english group))
   (format Stream "  expformat:    ~A}~%" (psmgroup-expformat group)))
 
 
 (defmacro def-psmgroup (name 
 			&key form members supergroup
-			     help doc english ExpFormat)
+			     help doc nlg-english ExpFormat)
   "Define a new psmgroup."
   (test-defpsmgroup-errors name supergroup members)
   (let* ((sup (lookup-psmgroup-name supergroup))
@@ -571,7 +570,7 @@
 	       :supergroup sup
 	       :help help
 	       :doc doc
-	       :english english
+	       :nlg-english nlg-english
 	       :expformat expformat)))
     
     (setf (psmgroup-members new)
@@ -639,7 +638,7 @@
   Complexity ;; Planning Commplexity clas (simple, link, major)
   help       ;; Help information.
   short-name ;; String with short name (for use in menu), see eval-print-spec
-  english    ;; Storage for english phrasing.
+  nlg-english    ;; Storage for english phrasing.
   ExpFormat  ;; Format string for expressions of this type (with vars).
   EqnFormat  ;; Format for the equation form of this psm, see eval-print-spec  
   doc        ;; description of the psm.
@@ -655,7 +654,7 @@
   (format Stream "  Complexity ~A~%" (psmclass-complexity class))
   (format Stream "  Help:      ~A~%" (psmclass-help class))
   (format Stream "  Short name ~A~%" (psmclass-short-name class))
-  (format Stream "  English:   ~A~%" (psmclass-english class))
+  (format Stream "  English:   ~A~%" (psmclass-nlg-english class))
   (format Stream "  Doc:       ~A]~%" (psmclass-doc class)))
 
 
@@ -666,13 +665,13 @@
   (declare (ignore level))
   (let ((form (strip-replace-exp-vars (psmclass-form Class))))
     (format Stream "~a~% \"~a\"~%  \"~a\"~2%"
-	    (psmclass-name Class) (nlg form 'psm-english) (nlg form 'psm-exp))))
+	    (psmclass-name Class) (nlg form 'psm-nlg-english) (nlg form 'psm-exp))))
 
 
 
 (defmacro def-psmclass (name form
 			&key fields group complexity
-			     help short-name english
+			     help short-name nlg-english
 			     doc  ExpFormat EqnFormat)
   "Define and store a psm type."
   (test-defpsmclass-errors name group)
@@ -686,7 +685,7 @@
 	       :complexity complexity
 	       :help help
 	       :short-name short-name
-	       :english english
+	       :nlg-english nlg-english
 	       :ExpFormat ExpFormat
 	       :EqnFormat EqnFormat
 	       :doc doc)))
