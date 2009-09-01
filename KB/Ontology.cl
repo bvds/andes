@@ -22,51 +22,6 @@
 ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;
-;;;  Check that all rules are in principles.tsv (tcsh script):
-;;;
-;;;  set list =  egrep '[^;]*def-(equation|psmclass)' KB/*.cl | sed -e 's/.*def-\w* \([^(]*\) (*.*/\1/'
-;;;  foreach i ($list)
-;;;     if (0 == `grep -c -i $i solutions/principles.tsv`) echo $i
-;;;  end
-;;;
-
-;;;          Generate file solutions/scalars.tsv
-
-(defun scalars-file ()
-  "construct file solutions/scalars.tsv"
-  (let ((str (open (merge-pathnames  "solutions/scalars.tsv" *Andes-Path*)
-		   :direction :output :if-exists :supersede
-		   ;; The workbench uses an older windows-specific 
-		   ;; character encoding
-		   :external-format #+sbcl :windows-1252 #+allegro :1252))
-	;; These correspond to custom dialog boxes which have
-	;; no direct counterpart in the Ontology
-	(dialogs '((angle nil "angle") (energy nil "energy") 
-		   (voltage |V| "voltage")))
-	non-scalars)
-    ;; Add all quantities with a non-null :dialog-text to list
-    (dolist (qexp *Ontology-ExpTypes*)
-      (if (exptype-dialog-text qexp)
-	(push (list (exptype-type qexp)
-		    (exptype-symbol-base qexp)
-		    (exptype-short-name qexp)
-		    (exptype-pre-dialog-text qexp)
-		    (exptype-dialog-text qexp)) dialogs)
-		(push (exptype-type qexp) non-scalars)))
-    ;; This might be useful to know:
-    (format t "Quantities not added to list of scalars:  ~{~W ~}~%" 
-	    (sort non-scalars #'expr<))
-    ;; sort by short name:
-    (dolist (qexp (sort dialogs #'string< :key #'third))
-      ;; File format needs five tab-separated columns.
-      ;; first column is downcased for looks
-      (format str "~(~A~)~C~@[~a~]~C~@[~a~]~C~@[~a~]~C~@[~a~]~%" 
-	      (first qexp) #\tab (second qexp) #\tab (third qexp) 
-	      #\tab (fourth qexp) #\tab (fifth qexp)))
-    (close str)))
-
-
 ;; should match entries in Algebra/src/units.h
 (defparameter unit-english
     '(
@@ -132,8 +87,6 @@
 ;;;;  ordinary functions but not special forms.
 
 (defun torque-switch (x y)
-  ;; will need another mechanism to construct principles.tsv
-  ;; for an engineering course
   (if (and *cp* (member 'engineering-names (problem-features *cp*))) x y))   
 (defun moment-symbol (&optional junk) ;optional arg for use with nlg
   (torque-switch "M" "$t"))

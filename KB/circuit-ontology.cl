@@ -33,8 +33,6 @@
 (def-qexp resistance (resistance ?names)
   :symbol-base |R| 
   :short-name "resistance"
-  ;; custom dialog box, need something here to make entry in scalars.tsv
-  :dialog-text ""  
   :units |$W|
   :english ("the resistance of ~A" (conjoined-names ?names)))
 
@@ -54,8 +52,6 @@
 (def-qexp current (current-thru ?component :time ?time)
   :symbol-base |I| 
   :short-name "current"
-  ;; custom dialog box, need something here to make entry in scalars.tsv
-  :dialog-text ""  
   :units |A|
   ;; No sign restriction on this quantity. A few prbs (LR1b,1c,2b) restrict 
   ;; currents to be positive on a per-problem basis with :VariableMarks
@@ -65,8 +61,6 @@
 (def-qexp capacitance (capacitance ?name)
   :symbol-base |C|     
   :short-name "capacitance"
-  ;; custom dialog box, need something here to make entry in scalars.tsv
-  :dialog-text ""  
   :units |F|
   :english ("the capacitance of ~A" ?name))
 

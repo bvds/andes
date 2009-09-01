@@ -1685,9 +1685,6 @@
 ;; Partially because these quantities correspond to distinct variable
 ;; choices in the user interface, a unique def-qexp will be needed for
 ;; each quantity.
-;;
-;; The hint is a bit weak because KB has no information about 
-;; the menu item name given in scalars.tsv
 
 (defoperator define-rate-of-change-var (?quant)
   :preconditions 
