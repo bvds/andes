@@ -1,8 +1,7 @@
 
       Instructions for Installing Andes
 
-Andes works with several varieties of lisp, but
-has been used most extensively with sbcl and Allegro lisp.
+Andes been used most extensively with sbcl and Allegro lisp.
 The webserver functionality has only been developed for sbcl.
 For sbcl, a sample startup file has been included as sbclrc-sample.
 You can modify the file (you may need to change the path) and 
@@ -24,7 +23,7 @@ Likewise, at least for Andes2, one can use the solutions repository:
    git clone ssh://git@andestutor.org/home/git/Andes-solutions.git/ solutions
 
 ImageMagick http://www.imagemagick.org is used to dimension graphics
-files.  This is included in standard linux distributions.
+files.  This is included in standard linux distributions (but not OS X).
 
 ============================ MySql =======================================
 
@@ -71,6 +70,20 @@ files.  This is included in standard linux distributions.
 #     (or to /Library/webServer/Documents/ in OS X)
 # Then restart:
   /sbin/service httpd reload
+
+====================== Javascript ===================================
+
+# make and build the javascript.  First we need to get 
+# the Dojo library, then we need to make an andes-specific
+# build.  Right now, this uses the development version of Dojo;
+# we should later switch to using releases of Dojo.
+cd web-UI
+svn co http://svn.dojotoolkit.org/src/dojo/trunk dojo
+svn co http://svn.dojotoolkit.org/src/dijit/trunk dijit
+svn co http://svn.dojotoolkit.org/src/dojox/trunk dojox
+svn co http://svn.dojotoolkit.org/src/utils/trunk utils
+andes.build.sh
+# verify that the file index.html has isDebug = false;
 
 ====================== Lisp Web Server ===============================
 
