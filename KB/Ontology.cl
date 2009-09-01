@@ -119,20 +119,51 @@
   :units |m/s|
   :nlg-english ("the relative velocity of ~A with respect to ~A" 
 	    (nlg ?to-pt) (nlg ?from-pt 'at-time ?time)))
+
 (def-qexp accel	(accel ?body :time ?time)
   :units |m/s^2|
+  :new-english ((preferred "the") (or "acceleration" "accel." "accel")
+		(and (preferred (property ?body))
+		     (preterred (time ?time))))
   :nlg-english ("the acceleration of ~A" (nlg ?body 'at-time ?time)))
+
 (def-qexp momentum (momentum ?body :time ?time)
   :units |kg.m/s|
   :nlg-english ("the momentum of ~A" (nlg ?body 'at-time ?time)))
 (def-qexp force (force ?body ?agent ?type :time ?time)
   :units N
+  :new-english ((preferred "the") (eval (force-types ?type)) "force"
+		(and (preferred (object ?body))
+		     (preferred (agent ?agent))
+		     (preferred (time ?time))))
   :nlg-english ("~A force on ~A due to ~A" 
 	    (nlg ?type) (nlg ?body 'at-time ?time) (nlg ?agent 'agent)))
 
+(defun force-types (type)
+  (case type 
+    (weight '(or "weight" "gravitational" "grav." "grav"))
+    (gravitational '(or "gravitational" "weight" "grav." "grav"))
+    (normal "normal")
+    (tension '(or "tension" "pulling"))
+    (applied '(allowed "applied")) ;catch-all force
+    (kinetic-friction '((preferred "kinetic") (or "friction" "frictional")))
+    (static-friction  '((preferred "staic") (or "friction" "frictional")))
+    (electric '(or "electric" "E" "coulomb"))
+    (magnetic '(or "magnetic" "B"))
+    (buoyant '(or "buoyant" "buoyancy"))
+    (thrust "thrust")
+    (spring "spring")
+    (pressure "pressure")
+    (drag '(or "drag" "friction"))
+    (t (warn "unknown force type ~A" type) (format nil "~(~A~)" type))))
+
 (def-qexp net-force (net-force ?body :time ?time)
   :units N
+  :new-english ((preferred "the") (or "net""total") 
+		"force" (and (preferred (object ?body))
+			     (preferred (time ?time))))
   :nlg-english ("the net force on ~A" (nlg ?body 'at-time ?time)))
+
 (def-qexp ang-displacement (ang-displacement ?body :time ?time)
   :units |rad|
   :nlg-english ("the angular displacement of ~A" (nlg ?body 'at-time ?time)))
@@ -180,6 +211,21 @@
 (def-qexp axis (axis ?xyz ?angle)
    :nlg-english ("the axis at ~A degrees" ?angle))
 
+;;;;         General phrases
+
+(def-qexp property (property ?body)
+    :new-english ("of" (eval (def-np ?body))))
+
+(def-qexp time (time ?time)
+    :new-english (eval (pp ?time)))
+
+(def-qexp object (object ?body)
+    :new-english ((or "acting on" "on") (eval (def-np ?body))))
+
+(def-qexp agent (agent ?body)
+    :new-english ((or "due to" "by" "from" "caused by") 
+		  (eval (def-np ?body))))
+
 ;;;; scalar quantities
 
 ;;; in the workbench, the time slot is added if feature changing-mass
@@ -190,6 +236,8 @@
   :dialog-text "of [body:bodies]"
   :units |kg|
   :restrictions positive
+  :new-english ((preferred "the") "mass" (and (preferred (property ?body))
+					   (preferred (time ?time))))
   :nlg-english ("the mass of ~A" (nlg ?body 'at-time ?time)))
 
 (def-qexp mass-change-magnitude	(mass-change-magnitude ?body ?agent :time ?t)
@@ -255,6 +303,12 @@
   :dialog-text "at surface of [body:bodies]"
   :units |m/s^2|
   :restrictions positive
+  :new-english ((preferred "the")
+		(or ((or "gravitational" "grav." "grav")
+		     (or "acceleration" "accel." "accel"))
+		    ((or "acceleration" "accel." "accel")
+		     (agent "gravity")))
+		(preferred (agent ?planet)))
   :nlg-english ("the gravitational acceleration due to ~A" (nlg ?planet)))
 
 (post-process add-gravitational-acceleration (problem)

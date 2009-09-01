@@ -23,10 +23,12 @@
 ;; Syntax <model>: (<model> ...)  ordered sequence
 ;;                 (and <model> ...) orderless sequence 
 ;;                 (or <model> ...)  this is exclusive or
-;;                 (var <quant>)   match student variable for <quant>
-;;                 (ont <quant>)   match with ontology
+;;                 (var <quant>)     match student variable for <quant>
+;;                 (eval <lisp>)  execute <lisp> as lisp code
 ;;                 (preferred <model>) optional, but hinted for
 ;;                 (allowed <model>)  optional, but not hinted for
+;;                 (<atom> ...)  if <atom> matches none of above, 
+;;                               match with ontology
 ;;                 <string>      leaf nodes, after resolution, are strings
 ;; Not sure if we need the following
 ;; and unsure of proper name, maybe merge with (and ...) above
@@ -231,7 +233,7 @@
 	best)
        (model (match-model student (car model) :best best))
        (t (word-count student)))) ;empty "or"
-    (t (error "Bad trees ~A ~A" student model))))
+    (t (error "Bad tree ~A" model))))
 
 ;; This is designed to be fast, but is not a global best fit.
 ;; However, it may possibly be a starting point for a 
@@ -299,17 +301,33 @@
 			     (subseq nosym (length equality)))))))))
   text)
 
+(defun best-model-matches (student models &key (cutoff 0.5) (equiv 1.25))
+  "Returns sorted array of best matches to text using match-model."
+  ;; cutoff is maximum ratio of words that don't match to student words.
+  ;; equiv is maximum number of words such that two matches are
+  ;;   considered to be of equal quality.
+  (let (this (best (- (* cutoff (word-count student)) equiv)) quants)
+    (dolist (x models)
+      (setf this (match-model student (car x) :best (+ best equiv)))
+      (when (< this best) (setf best this))
+      (when (< this (+ best equiv)) (push (cons this (cdr x)) quants)))
+    ;; remove any quantities that are not equivalent with
+    ;; best fit, and remove fit value. 
+    (mapcar #'cdr (remove-if 
+		      #'(lambda (x) (> (car x) (+ best equiv))) 
+		      quants))))
+
 (defun best-matches (text good)
   "Returns array of best matches to text.  Use minimum edit distance."
   (let (this (best 1000000) quants)
     (dolist (x good)
       ;; Normalize by maximum possible distance.
       (setf this (normalized-levenshtein-distance text (car x)))
-      (cond ((< this best) 
-	     (setf best this)
-	     (setf quants (list (cdr x))))
-	    ((= this best)
-	     (push (cdr x) quants))))
+      (cond ((< this best)
+            (setf best this)
+            (setf quants (list (cdr x))))
+           ((= this best)
+            (push (cdr x) quants))))
     quants))
 
 (defun normalized-levenshtein-distance (s1 s2)

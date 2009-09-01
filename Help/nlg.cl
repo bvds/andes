@@ -355,13 +355,49 @@
 	((nlg-find x *Ontology-PSMClasses* #'PSMClass-form #'PSMClass-nlg-english))
 	(t (format nil "equation:[~A]" x))))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; end of nlg.cl
-;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> -- All Rights Reserved.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+(defun expand-new-english (model &optional (bindings no-bindings))
+  "Expand model tree, expanding ontology expressions, substituting bindings, evaluating lisp code, and "
+  (cond ((stringp model) model)
+	((null model) model)
+	((variable-p model) 
+	 (expand-new-english (subst-bindings bindings model)))
+	((member (car model) '(preferred allowed and or))
+	 (let ((args (expand-new-english (cdr model) bindings)))
+	   (when args (cons (car model) args))))
+	((or (stringp (car model)) (listp (car model))) ;plain list
+	 (remove nil (mapcar 
+		      #'(lambda (x) (expand-new-english x bindings)) model)))
+	((eql (car model) 'var) (warn "var not done yet") model)
+	((eql (car model) 'eval) 
+	 (expand-new-english
+	  (eval (subst-bindings-quoted bindings (second model)))))
+	;; match with ontology, handles recursion
+	(t (multiple-value-bind (val match)
+	       (new-english-find model bindings)
+	     (if match val 
+		 (warn "No ontology match for ~A" model))))))
+
+;; For efficiency, this could be calculated for each 
+;; quantity when the problem opens.
+(defun SystemEntry-new-english (entry)
+  "Match SystemEntry to Ontology, pulling out model sentence."
+  (let ((prop (second (SystemEntry-prop entry))))
+     ;; this resolves bindings
+     (or (new-english-find prop)
+	 ;; If new-english does not exist use nlg:
+	 (word-parse (nlg prop)))))
 
 
-
-
+(defun new-english-find (prop &optional (bindings no-bindings))
+  (dolist (rule *Ontology-ExpTypes*)
+    (let ((new-bindings (unify (Exptype-form rule) prop bindings)))
+      (when new-bindings
+	(return-from new-english-find 
+	  (values
+	   (expand-new-english (ExpType-new-english rule) new-bindings)
+	   new-bindings))))))
