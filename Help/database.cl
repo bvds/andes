@@ -52,6 +52,7 @@
   
   (format t "Connected databases after ~A~%" (connected-databases))
 
+#|
   ;; in mysql:  describe class_information;
   (def-view-class class_information ()
     ((classID
@@ -164,9 +165,11 @@
       :initarg :initiatingParty)))
 
     (setf *db-auto-sync* t)
+|#
 
  )
 
+#|
 (defun write-transaction (direction client-id j-string)
   ;; select from problem_attempt where client-id is input client-id
   ;; find or create
@@ -205,3 +208,39 @@
     (make-instance 'problem_attempt :userName student :sessionID client-id 
 		   :classInformationID (car testClassInformation))
     ))
+|#
+
+(defun write-transaction (direction client-id j-string)
+  "Record raw transaction in database."
+  (let* 
+      ((queryString (format nil "SELECT clientID FROM PROBLEM_ATTEMPT WHERE clientID = '~A'" client-id))
+       (checkInDatabase (query queryString :field-names nil :flatp t :result-types :auto)))
+
+    (unless checkInDatabase 
+      (execute-command (format nil "INSERT into PROBLEM_ATTEMPT (clientID,classinformationID) values ('~A',1)" client-id)))
+    
+    (setf queryString (format nil "INSERT into PROBLEM_ATTEMPT_TRANSACTION (clientID, Command, initiatingParty) values ('~A','~A','~A')" 
+			      client-id j-string direction))
+    (execute-command queryString)
+	    
+    ))
+
+(defun set-session (client-id &key student problem section)
+  ;;  session is labeled by client-id
+  
+  ;; add above info to database
+  
+  ;; section is a string that is expected to be used to get the 
+  ;; classinformation values from web assign
+  (let* ((queryString 
+	  (format nil "SELECT classID FROM CLASS_INFORMATION WHERE classID=~A" section))
+	 (reply (query queryString)))
+    (if reply
+	; now select from student dataset where problemname = problem
+        ; if it doesn't exist, create it
+(execute-command (format nil "INSERT into PROBLEM_ATTEMPT (clientID,userName, classinformationID) values ('~A','~A', ~A)" client-id student (car reply))))   
+        
+    ;; if the query is null, the class doesn't exist in the database yet. Set to dummy
+ (execute-command (format nil "INSERT into PROBLEM_ATTEMPT (clientID,classinformationID) values ('~A',1)" client-id))
+  ;; otherwise, insert the problem attempt into the db with the class information 
+  ))
