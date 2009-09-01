@@ -453,15 +453,6 @@
     (postpend *Ontology-GoalProp-Types* E)
     E))
 
-
-
-(defun goalprop-type-p (type)
-  "Return t iff the specified type is an entry type."
-  (member type *Ontology-goalProp-Types*
-	  :key #'GoalProp-Type
-	  :test #'unify ))		;could use "equal"
-
-
 (defun goalprop-exp-p (exp)
   "Is the expression a goalprop expression?"
   (find-if #'(lambda (g) (unify exp g))
@@ -724,9 +715,9 @@
 
 
 (defun eval-print-spec (x &optional (bindings no-bindings))
-  "evaluate, using andes-eval, a printing specification in def-psmclass"
+  "evaluate, a printing specification in def-psmclass"
   (cond ((listp x)
-	 (format nil "~{~@?~}" (mapcar #'andes-eval 
+	 (format nil "~{~@?~}" (mapcar #'eval 
 				       (subst-bindings-quoted bindings x))))
 	((typep x 'string) x)
 	(t (error "invalid print spec ~A" x))))

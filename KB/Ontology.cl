@@ -83,8 +83,6 @@
 ;;;;
 ;;;;  Engineers like to use the term "moment" instead of "torque"
 ;;;;  This is turned on via the 'engineering-names problem feature.
-;;;;  Hints generally are evaluated using andes-eval, which can handle
-;;;;  ordinary functions but not special forms.
 
 (defun torque-switch (x y)
   (if (and *cp* (member 'engineering-names (problem-features *cp*))) x y))   

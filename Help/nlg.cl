@@ -66,8 +66,8 @@
   (let* ((spec (funcall ef rule)) ; may be NIL if no english specified
          (format (first spec))
 	 (args (subst-bindings-quoted bindings (rest spec))))
-    (if spec
-      (andes-eval `(format nil ,format ,@args)))))
+    (when spec
+      (eval `(format nil ,format ,@args)))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun nlg-list-default (x &rest args)
