@@ -214,17 +214,21 @@
 ;;;;         General phrases
 
 (def-qexp property (property ?body)
-    :new-english ("of" (eval (def-np ?body))))
+  :new-english ("of" (or (eval (def-np ?body))
+			 (var (body ?body)))))
 
 (def-qexp time (time ?time)
-    :new-english (eval (pp ?time)))
+  :new-english (eval (pp ?time)))
 
 (def-qexp object (object ?body)
-    :new-english ((or "acting on" "on") (eval (def-np ?body))))
+  :new-english ((or "acting on" "on") 
+		(or (eval (def-np ?body))
+		    (var (body ?body)))))
 
 (def-qexp agent (agent ?body)
-    :new-english ((or "due to" "by" "from" "caused by") 
-		  (eval (def-np ?body))))
+  :new-english ((or "due to" "by" "from" "caused by") 
+		(or (eval (def-np ?body))
+		    (var (body ?body)))))
 
 ;;;; scalar quantities
 

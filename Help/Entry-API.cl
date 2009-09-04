@@ -843,7 +843,7 @@
 	  (best-model-matches
 	   (word-parse (pull-out-quantity symbol text))
 	   (mapcar #'(lambda (x) 
-		       (cons (SystemEntry-new-english x) x))
+		       (cons (expand-vars (SystemEntry-new-english x)) x))
 		   (remove '(define-var . ?rest) *sg-entries* 
 			   :key #'SystemEntry-prop :test-not #'unify))))
     
