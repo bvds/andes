@@ -21,8 +21,6 @@
 ;;;;       list of PSMclasses grouped into catagories
 ;;;;   
 
-;; Use (principles-file) to generate file KB/principles.tsv
-
 (defparameter *principle-tree* '(
 (group "Write a Principle"
 (group "Kinematics" 
@@ -412,46 +410,6 @@
  (leaf average-rate-of-change)
  )
 ))
-
-
-;;;          Generate file KB/principles.tsv
-
-(defun principles-file ()
-  "construct file solutions/principles.tsv"
-  (let ((str (open (merge-pathnames  "solutions/principles.tsv" *Andes-Path*)
-		   :direction :output :if-exists :supersede
-		   ;; The workbench uses an older windows-specific 
-		   ;; character encoding
-	         :external-format #+sbcl :windows-1252 #+allegro :1252)))
-    (dolist (p *principle-tree*) (principle-branch-print str p))
-    (close str)))
-
-(defun principle-branch-print (str p)
-  "prints a group in KB/principles.tsv"
-  (cond ((eq (car p) 'group)
-	 ;; principles.tsv file format is 4 tab-separated columns
-	 (format str "GROUP~C~A~C~C~%" #\tab (cadr p) #\tab #\tab)
-	 (dolist (pp (cddr p)) (principle-branch-print str pp))
-	 (format str "END_GROUP~C~A~C~C~%"  #\tab (cadr p) #\tab #\tab))
-	((eq (car p) 'leaf)
-	 (apply #'principle-leaf-print (cons str (cdr p))))))
-
-;; keywords :short-name and :EqnFormat override definitions in Ontology
-(defun principle-leaf-print (str class &key tutorial (bindings no-bindings)
-					EqnFormat short-name) 
-  "prints a principle in KB/principles.tsv"
-  (let ((pc (lookup-psmclass-name class)))
-    (format str "LEAF~C~A    ~A~C~(~A~)~C~@[~A~]~%" #\tab 
-	    (eval-print-spec (or EqnFormat (psmclass-EqnFormat pc)) bindings)
-	    (eval-print-spec (or short-name (psmclass-short-name pc)) bindings)
-	    #\tab
-	    (if (eq bindings no-bindings) (psmclass-name pc)
-	      ;; if bindings have been supplied, construct list
-	      ;; turn off pretty-print to prevent line breaks
-	      (write-to-string (list (psmclass-name pc) bindings) :pretty nil))
-	    #\tab
-	    tutorial)))
-
 
 ;;; 
 ;;;            List of Andes distribution homework sets

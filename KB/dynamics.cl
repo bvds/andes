@@ -1115,7 +1115,7 @@
     :complexity minor  ;same as definitions of other forces
     :Doc "Definition of thrust force."
   :short-name "thrust force (magnitudes)"
-    :english ("the definition of thrust force") 
+    :nlg-english ("the definition of thrust force") 
     :ExpFormat ("applying the definition of thrust force on ~a ~a"
 		(nlg ?body) (nlg ?time 'pp))
     :EqnFormat ("F = v*abs(dmdt)"))
@@ -1156,7 +1156,7 @@
     :complexity minor    ;same as definitions of other forces
     :Doc "Definition of thrust force."
   :short-name ("thrust force (~A components)" (axis-name ?axis))
-    :english ("the definition of thrust force") 
+    :nlg-english ("the definition of thrust force") 
     :ExpFormat ("applying the definition of thrust-force on ~a ~a"
 		(nlg ?body) (nlg ?time 'pp))
     :EqnFormat ("F_~A = -v_~a*dmdt" (axis-name ?axis) (axis-name ?axis)))
@@ -1956,7 +1956,7 @@
 (def-PSMclass spring-law (spring-law ?body ?time)
   :complexity minor
   :short-name "Hooke's law"
-  :english ("Hooke's law")
+  :nlg-english ("Hooke's law")
   :expformat ("applying Hooke's law to ~a " (nlg ?body))
   :EqnFormat ("F = k*d" ))
 
@@ -2091,7 +2091,7 @@
 
 (def-goalprop nl-fbd (vector-diagram ?rot (nl ?body ?time))
   :doc "free-body-diagram for applying Newton's law"
-  :english ("drawing a free-body diagram for ~A ~A"
+  :nlg-english ("drawing a free-body diagram for ~A ~A"
             (nlg ?body) (nlg ?time 'pp))) ; time may be interval or instant
 
 (defoperator draw-nl-fbd (?rot ?b ?t)
@@ -2784,7 +2784,7 @@
 				      (net-torque ?body ?pivot ?time))
   :complexity major ;See Bug #1144
   :short-name ("net ~A defined" (moment-name))
-  :english ("the definition of net ~A" (moment-name))
+  :nlg-english ("the definition of net ~A" (moment-name))
   :expformat ("applying the definition of net ~A on ~a about ~A"
 	      (moment-name) (nlg ?body) (nlg ?pivot 'at-time ?time))
   :eqnformat ((torque-switch "Mnet_z = M1_z + M2_z + ..."
@@ -3064,7 +3064,7 @@
 
 (def-goalprop NL-rot-fbd  (vector-diagram ?rot (NL-rot ?b ?axis ?t))
   :doc "diagram for applying the rotational version of Newton's second law"
-  :english ("drawing a diagram showing all the ~As on ~A ~A, the angular acceleration, and coordinate axes"
+  :nlg-english ("drawing a diagram showing all the ~As on ~A ~A, the angular acceleration, and coordinate axes"
 	    (moment-name) (nlg ?b) (nlg ?t 'pp))) 
 
 (defoperator draw-nl-rot-fbd (?rot ?b ?t)
@@ -3096,7 +3096,7 @@
 (def-psmclass NFL-rot (?eqn-type NFL ?xyz ?rot (NL-rot ?body ?pivot ?time))
   :complexity major
   :short-name "rotational form of Newton's 2nd law ($a =0)"
-  :english ("rotational version of Newton's second law ($a=0)")
+  :nlg-english ("rotational version of Newton's second law ($a=0)")
   :expformat ("applying rotational version of Newton's second law to ~a about ~A"
 	      (nlg ?body) (nlg ?pivot 'at-time ?time))
   :eqnFormat ((torque-switch "0 = M1_z + M2_z + ..." 
@@ -3114,7 +3114,7 @@
 				 (NL-rot ?body ?pivot ?time :net ?netp))
   :complexity major
   :short-name "rotational form of Newton's 2nd law"
-  :english ("rotational version of Newton's second law")
+  :nlg-english ("rotational version of Newton's second law")
   :expformat ("applying rotational version of Newton's second law to ~a about ~A"
 	      (nlg ?body) (nlg ?pivot 'at-time ?time))
   :eqnFormat ((torque-switch "Mnet_z = I*$a_z" "$tnet_z = I*$a_z" )))

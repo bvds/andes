@@ -23,10 +23,12 @@
 ;; Syntax <model>: (<model> ...)  ordered sequence
 ;;                 (and <model> ...) orderless sequence 
 ;;                 (or <model> ...)  this is exclusive or
-;;                 (var <quant>)   match student variable for <quant>
-;;                 (ont <quant>)   match with ontology
+;;                 (var <quant>)     match student variable for <quant>
+;;                 (eval <lisp>)  execute <lisp> as lisp code
 ;;                 (preferred <model>) optional, but hinted for
 ;;                 (allowed <model>)  optional, but not hinted for
+;;                 (<atom> ...)  if <atom> matches none of above, 
+;;                               match with ontology
 ;;                 <string>      leaf nodes, after resolution, are strings
 ;; Not sure if we need the following
 ;; and unsure of proper name, maybe merge with (and ...) above
@@ -60,6 +62,25 @@
 	(word-parse (subseq str (+ p 1)) :parse 
 		    (if (> p 0) (push (subseq str 0 p) parse) parse))
 	(reverse (if (> (length str) 0) (push str parse) parse)))))
+
+(defun join-words (x)
+  (if (cdr x) (concatenate 'string (car x) " " (join-words (cdr x)))
+      (car x)))
+
+(defun word-string (model)
+  "Make string phrase out of model."
+  ;; Could randomize over order for (and ...) and choices for (or ...).
+  (cond 
+    ((stringp model) model)
+    ((or (stringp (car model)) (listp (car model)))
+     (join-words (remove nil (mapcar #'word-string model))))
+    ((eql (car model) 'and)
+     (when (cdr model) (word-string (cdr model))))
+    ((eql (car model) 'or)
+     (when (second model) (word-string (second model))))
+    ((eql (car model) 'allowed) nil)
+    ((eql (car model) 'preferred) (word-string (cdr model)))
+    (t (warn "word-string can't do ~A" model))))
 
 (defun word-count (model &key max)
   "find minimum (or maximum) word count in model"
@@ -159,18 +180,25 @@
 	;; Hopefully, this will speed up the exhaustive (slow) search after.
 
 	;; It is not clear that it is worth further optimizing 
-	;; this, since it does not help with the search over all
+	;; this, since this search does not include the search over all
 	;; systementries.  It may make better sense to find a strategy
 	;; that is optimized for the search over systementries.
 
 	(let* ((width (1+ (length student)))
-	      (matches (make-array (list (length model) width width)))
+	       ;; nil means skip
+	      (matches (make-array (list (length model) width width)
+				   :initial-element nil))
 	      (model-free (loop for i below (length model) collect i)))
-	  ;; Blindly collecting all possible matches is itself inefficient
+	  ;; Blindly collecting all possible matches is itself inefficient.
+	  ;; For instance, doing y-z > min word-count + max word-count
+	  ;; is pointless.  A more efficient algorithm would first
+	  ;; calculate points in band min word-count < y-z < max word-count
+          ;; and use the results to constrain what points outside that band
+	  ;; are calulated.
 	  (dotimes (m (length model))
+	      ;; diagonal elements are all the same.  Just do one.
+	    (setf (aref matches m 0 0) (word-count (nth m model)))
 	    (dotimes (y width)
-	      ;; diagonal elements are all the same.
-	      (setf (aref matches m y y) (word-count (nth m model)))
 	      ;; do one triangle of off-diagonal elements
 	      (dotimes (z y)
 		(setf (aref matches m y z) 
@@ -205,14 +233,15 @@
 	best)
        (model (match-model student (car model) :best best))
        (t (word-count student)))) ;empty "or"
-    (t (error "Bad trees ~A ~A" student model))))
+    (t (error "Bad tree ~A" model))))
 
-;; This is designed to be fast, and may lead to a 
+;; This is designed to be fast, but is not a global best fit.
+;; However, it may possibly be a starting point for a 
 ;; polynomial time global best fit algorithm.
 (defun match-model-and (matches model-free student-intervals)
   "Greedy best fit tree search. Not necessarily global best."
   (let* ((best-score -10000) best-m best-y best-z best-interval)
-    ;; Find match that uses the most words.
+    ;; Find best match that includes the most words.
     (dolist (m model-free)
       (dolist (interval student-intervals)
 	(let ((lower (first interval)) (upper (second interval)))
@@ -220,29 +249,33 @@
 	  (do ((y lower (1+ y)))
 	      ((= y (1+ upper))) 
 	    (do ((z lower (1+ z)))
-		;; Loop over lower triangle and first diagonal element only.
-		((= z (max y (1+ lower)))) 
-	      (let ((score (- (- y z) ;number of student words
-			      ;; Weight must be larger than 1 to favor
-			      ;; fewer words when additions don't improve match.
-			      ;; Weight must be less than infinity to favor
-			      ;; longer matches over shorter matches.
-			      (* 2 (aref matches m y z)))))
-		;; (format t "  looping m y z=~A score=~A~%" (list m y z) score)
-		(when (> score best-score)
-		  (setf best-score score)
-		  (setf best-m m)
-		  (setf best-interval interval)
-		  (setf best-y y)
-		  (setf best-z z))))))))
+		;; Loop over lower triangle and diagonals.
+		((> z y)) 
+	      ;; Ignore any elements that are nil.  Thus we don't have
+	      ;; to calculate elements that will never be a best fit.
+	      (when (aref matches m y z) 
+		(let ((score (- (- y z) ;number of student words
+				;; Weight must be larger than 1 to favor
+				;; fewer words when more doesn't improve match.
+				;; Weight must be less than infinity to favor
+				;; longer matches over shorter matches.
+				(* 2 (aref matches m y z)))))
+		  ;; (format t "  looping m y z=~A score=~A~%" (list m y z) score)
+		  (when (> score best-score)
+		    (setf best-score score)
+		    (setf best-m m)
+		    (setf best-interval interval)
+		    (setf best-y y)
+		    (setf best-z z)))))))))
     ;; (format t "choose m y z=~A score=~a~%" (list best-m best-y best-z) best-score)
-    ;; add new intervals
+
+    ;; remove best fit interval and add new intervals
     (let ((new-student (remove best-interval student-intervals)))
       (push (list (first best-interval) best-z) new-student)
       (push (list best-y (second best-interval)) new-student)
       
-      ;; Find matches before and after this match.
       (+ (if (remove best-m model-free)
+	     ;; Find best fit with this match removed.
 	     (match-model-and matches (remove best-m model-free) new-student)
 	     ;; count remaining student words
 	     (apply #'+ (mapcar #'(lambda (x) (- (second x) (first x))) 
@@ -268,17 +301,33 @@
 			     (subseq nosym (length equality)))))))))
   text)
 
+(defun best-model-matches (student models &key (cutoff 0.5) (equiv 1.25))
+  "Returns sorted array of best matches to text using match-model."
+  ;; cutoff is maximum ratio of words that don't match to student words.
+  ;; equiv is maximum number of words such that two matches are
+  ;;   considered to be of equal quality.
+  (let (this (best (- (* cutoff (word-count student)) equiv)) quants)
+    (dolist (x models)
+      (setf this (match-model student (car x) :best (+ best equiv)))
+      (when (< this best) (setf best this))
+      (when (< this (+ best equiv)) (push (cons this (cdr x)) quants)))
+    ;; remove any quantities that are not equivalent with
+    ;; best fit, and remove fit value. 
+    (mapcar #'cdr (remove-if 
+		      #'(lambda (x) (> (car x) (+ best equiv))) 
+		      quants))))
+
 (defun best-matches (text good)
   "Returns array of best matches to text.  Use minimum edit distance."
   (let (this (best 1000000) quants)
     (dolist (x good)
       ;; Normalize by maximum possible distance.
       (setf this (normalized-levenshtein-distance text (car x)))
-      (cond ((< this best) 
-	     (setf best this)
-	     (setf quants (list (cdr x))))
-	    ((= this best)
-	     (push (cdr x) quants))))
+      (cond ((< this best)
+            (setf best this)
+            (setf quants (list (cdr x))))
+           ((= this best)
+            (push (cdr x) quants))))
     quants))
 
 (defun normalized-levenshtein-distance (s1 s2)

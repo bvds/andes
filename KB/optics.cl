@@ -46,8 +46,7 @@
   :short-name "object distance"	
   :dialog-text "with respect to [body:bodies]"
    :units |m|
-   :english ("the distance of the object from ~A" (nlg ?lens))
-   :fromWorkbench `(object-distance ,body)
+   :nlg-english ("the distance of the object from ~A" (nlg ?lens))
 )
 
 (defoperator define-object-distance (?lens)
@@ -64,8 +63,7 @@
   :short-name "image distance"	
   :dialog-text "with respect to [body:bodies]"
    :units |m|
-   :english ("the distance of the image from ~A" (nlg ?lens))
-   :fromWorkbench `(image-distance ,body)
+   :nlg-english ("the distance of the image from ~A" (nlg ?lens))
 )
 
 (defoperator define-image-distance (?lens)
@@ -82,8 +80,7 @@
   :short-name "focal length"	
   :dialog-text "of [body:bodies]"
    :units |m|
-   :english ("the focal length of ~A" (nlg ?lens))
-   :fromWorkbench `(focal-length ,body)
+   :nlg-english ("the focal length of ~A" (nlg ?lens))
 )
 
 (defoperator define-focal-length (?lens)
@@ -100,8 +97,7 @@
   :short-name "magnification"	
   :dialog-text "of [body:bodies]"
   :units NIL
-   :english ("the magnification of ~A" (nlg ?lens))
-   :fromWorkbench `(magnification ,body)
+   :nlg-english ("the magnification of ~A" (nlg ?lens))
 ) 
 
 (defoperator define-magnification (?lens)
@@ -118,8 +114,7 @@
   :short-name "radius of curvature"	
   :dialog-text "of [body:bodies]"
    :units |m|
-   :english ("the radius of curvature of ~A" (nlg ?mirror))
-   :fromWorkbench `(radius-of-curvature ,body)
+   :nlg-english ("the radius of curvature of ~A" (nlg ?mirror))
 )
 
 (defoperator define-radius-of-curvature (?mirror)
@@ -136,8 +131,7 @@
   :short-name "distance"	
   :dialog-text "between [body:bodies] and [body2:bodies]"
   :units |m|
-  :english ("the distance between ~a" (nlg ?objects 'conjoined-defnp))
-  :fromWorkbench `(distance-between orderless ,body ,body2) 
+  :nlg-english ("the distance between ~a" (nlg ?objects 'conjoined-defnp))
   ) 
 
 (defoperator define-distance-between (?objects)
@@ -157,8 +151,7 @@
   :dialog-text "in [body:bodies]"
   :units |m|
   :restrictions positive
-  :english ("the distance between slits in ~A" (nlg ?grating))
-  :fromWorkbench `(slit-separation ,body)
+  :nlg-english ("the distance between slits in ~A" (nlg ?grating))
   )
 
 (defoperator define-slit-separation (?grating)
@@ -177,8 +170,7 @@
   :dialog-text "for [body:bodies]"
   :units |deg|
   :restrictions positive
-  :english ("the minimum angle of resolution for ~A" (nlg ?grating))
-  :fromWorkbench `(resolution-angle ,body)
+  :nlg-english ("the minimum angle of resolution for ~A" (nlg ?grating))
   )
 
 (defoperator define-resolution-angle (?grating)
@@ -199,7 +191,7 @@
 (def-psmclass focal-length-mirror (focal-length-mirror ?mirror)
   :complexity major  ; ??
   :short-name "focal length of mirror"
-  :english ("the focal length of spherical mirror")
+  :nlg-english ("the focal length of spherical mirror")
   :ExpFormat ("applying the formula for the focal length of a spherical mirror to ~A" (nlg ?mirror))
   :EqnFormat ("f = r/2")) 
 
@@ -236,7 +228,7 @@
 (def-psmclass lens-eqn (lens-eqn ?lens)
   :complexity major
   :short-name "thin lens/mirror equation"
-  :english ("the thin lens/mirror equation")
+  :nlg-english ("the thin lens/mirror equation")
   :ExpFormat ("applying the thin lens/mirror equation to ~A" (nlg ?lens))
   :EqnFormat ("1/do + 1/di = 1/f")) 
 
@@ -323,7 +315,7 @@
 (def-psmclass magnification-eqn (magnification-eqn ?lens)
   :complexity major
   :short-name "(lateral) magnification"
-  :english ("the formula for (lateral) magnification")
+  :nlg-english ("the formula for (lateral) magnification")
   :ExpFormat ("applying the formula for magnification to ~A" (nlg ?lens))
   :EqnFormat ("m = -di/do")) 
 
@@ -373,7 +365,7 @@
 (def-psmclass lens-combo (lens-combo ?lens1 ?lens2)
   :complexity major
   :short-name "combination of lenses"
-  :english ("the lens combination relation")
+  :nlg-english ("the lens combination relation")
   :ExpFormat ("applying the lens combination relation to ~A and ~A" 
 	      (nlg ?lens1) (nlg ?lens2))
   :EqnFormat ("do2 = d12 - di1")) 
@@ -410,7 +402,7 @@
 (def-psmclass combo-magnification (combo-magnification ?lens1 ?lens2)
   :complexity major
   :short-name "combined magnification"
-  :english ("combined lens magnification")
+  :nlg-english ("combined lens magnification")
   :ExpFormat ("applying the formula for magnification to ~A and ~A" (nlg ?lens1) (nlg ?lens2))
   :EqnFormat ("m12 = m1*m2")) 
 
@@ -451,7 +443,7 @@
 (def-psmclass compound-focal-length (compound-focal-length ?lens-name)
   :complexity major
   :short-name "compound lens (touching lenses)"
-  :english ("the focal length of a compound lens")
+  :nlg-english ("the focal length of a compound lens")
   :ExpFormat ("applying the formula for the focal length of a compound lens")
   :EqnFormat ("1/f12 = 1/f1 + 1/f2")) 
 
@@ -490,7 +482,7 @@
 
 (def-qexp line (line ?r)
   :units nil
-  :english ("~A" (nlg ?r)))
+  :nlg-english ("~A" (nlg ?r)))
 
 (defoperator draw-line-given-dir (?r)
   :preconditions
@@ -545,7 +537,7 @@
 (def-psmclass snells-law (snells-law (orderless . ?lines) ?angle-flag)
   :complexity major
   :short-name "Snell's law"
-  :english ("Snell's law")
+  :nlg-english ("Snell's law")
   :ExpFormat ("using Snell's law for ~A" (nlg ?lines 'conjoined-defnp))
   :eqnFormat ("n1*sin($q1) = n2*sin($q2)"))
 
@@ -649,7 +641,7 @@
   (total-internal-reflection ?line1 ?angle-flag)
   :complexity major
   :short-name "total internal reflection (minimum angle)"
-  :english ("Formula for angle of total internal reflection")
+  :nlg-english ("Formula for angle of total internal reflection")
   :ExpFormat ("using total internal reflection formula for ~A (minimum angle)" 
 	      (nlg ?line1))
   :eqnFormat ("n1*sin($q1) = n2"))
@@ -710,7 +702,7 @@
 (def-psmclass complimentary-angles (complimentary-angles orderless . ?angles)
   :complexity minor
   :short-name "complimentary angles"
-  :english ("Complimentary angles")
+  :nlg-english ("Complimentary angles")
   :ExpFormat ("using complimentary angles for ~A" 
 	      (nlg ?angles 'conjoined-defnp))
   :eqnFormat ("$q1 + $q2 = 90 deg"))
@@ -748,7 +740,7 @@
 (def-psmclass supplementary-angles (supplementary-angles orderless . ?angles)
   :complexity minor
   :short-name "supplementary angles"
-  :english ("Supplementary angles")
+  :nlg-english ("Supplementary angles")
   :ExpFormat ("using supplementary angles for ~A" 
 	      (nlg ?angles 'conjoined-defnp))
   :eqnFormat ("$q1 + $q2 = 180 deg"))
@@ -784,7 +776,7 @@
   (right-triangle-tangent ?angle ?opposite ?adjacent)
   :complexity minor
   :short-name "tangent for right triangle"
-  :english ("tangent formula for right triangles")
+  :nlg-english ("tangent formula for right triangles")
   :ExpFormat ("using the tangent formula for ~A"  (nlg ?angle))
   :eqnFormat ("tan($q) = opposite/adjacent"))
 
@@ -825,7 +817,7 @@
 (def-psmclass brewsters-law (brewsters-law ?normal ?line1 ?angle-flag)
   :complexity major
   :short-name "Brewster's law"
-  :english ("Formula for angle of Brewster's law")
+  :nlg-english ("Formula for angle of Brewster's law")
   :ExpFormat ("using Brewster's law formula for ~A" 
 	      (nlg (list 'line ?line1)))
   :eqnFormat ("n1*tan($q1) = n2"))
@@ -898,7 +890,7 @@
   (polarizer-intensity ?beam ?incoming ?outgoing ?fraction ?t ?angle-flag)
   :complexity major
   :short-name ((polarization-intensity-eqn-name ?fraction))
-  :english ("the effect of a polarizer on the intensity of a beam of light")
+  :nlg-english ("the effect of a polarizer on the intensity of a beam of light")
   :ExpFormat ("using the effect of a polarizer on the intensity of ~A light"
 	      (polarization-fraction ?fraction))
   :EqnFormat ((polarization-intensity-eqn ?fraction))) 
@@ -993,7 +985,7 @@
 						   ?max-flag ?angle-flag)
   :complexity major
   :short-name "interference for parallel slits"
-  :english ("the interference pattern for waves going through parallel slits")
+  :nlg-english ("the interference pattern for waves going through parallel slits")
   :ExpFormat ("finding the angles for ~:[destructive~;constructive~] interference"
 	      ?max-flag)
   :EqnFormat ("d*sin($q) = n*$l")) 
@@ -1070,7 +1062,7 @@
   (frauenhofer-diffraction ?grating ?light ?angle ?angle-flag)
   :complexity major
   :short-name "single slit diffraction (minima)"
-  :english ("the interference pattern for waves going through a single slit")
+  :nlg-english ("the interference pattern for waves going through a single slit")
   :ExpFormat ("finding the angles for destructive interference")
   :EqnFormat ("w*sin($q) = n*$l")) 
 
@@ -1126,7 +1118,7 @@
   (resolution-circular-aperture ?mirror ?light ?medium)
   :complexity major 
   :short-name "resolution (circular)"
-  :english ("the minimum angle of resolution for a circular aperture")
+  :nlg-english ("the minimum angle of resolution for a circular aperture")
   :ExpFormat ("applying the minimum angle of resolution for a system with a circular aperture")
   :EqnFormat "$q = 1.22*$l/d")
 

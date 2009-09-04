@@ -30,7 +30,7 @@
   (potential-energy ?body ?agent ?type ?time)
   :complexity definition
   :short-name "definition of potential energy"
-  :english ("the relation of potential energy to work done")
+  :nlg-english ("the relation of potential energy to work done")
   :ExpFormat ("relating the ~A of ~A to the work done by ~A"
 		 (nlg ?type 'adj) (nlg ?body) (nlg ?agent))
   :EqnFormat ("U2 - U1 = -W12" ))
@@ -95,7 +95,7 @@
   (gravitational-energy-point ?body ?agent ?zerop ?time)
   :complexity major
   :short-name "gravitational potential energy, spherical source"
-  :english ("the gravitational potential energy due to a spherical object")
+  :nlg-english ("the gravitational potential energy due to a spherical object")
   :ExpFormat ("calculating the gravitational potential of ~a due to ~a"
 		 (nlg ?body) (nlg ?agent))
   :EqnFormat ("Ug = -G*m1*m2/r" ))

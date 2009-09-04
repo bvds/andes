@@ -29,7 +29,7 @@
 				       (linear-momentum ?body ?time))
   :complexity definition ;so it can be substituted into momentum conservation
   :short-name ("momentum defined (~A component)" (axis-name ?axis))
-  :english ("the definition of momentum (component form)")
+  :nlg-english ("the definition of momentum (component form)")
   :expformat ("applying the definition of momentum to ~A" (nlg ?body))
   :EqnFormat ("p_~a = m*v_~a" (axis-name ?axis) (axis-name ?axis)))
 
@@ -231,7 +231,7 @@
 
 (def-goalprop linmom-fbd (vector-diagram ?rot (cons-linmom ?bodies (during ?t1 ?t2)))
    :doc "diagram showing all momentum vectors and axes"
-   :english ("drawing a diagram showing all of the needed kinematic vectors and coordinate axes" ))
+   :nlg-english ("drawing a diagram showing all of the needed kinematic vectors and coordinate axes" ))
 
 (defoperator draw-linmom-diagram (?rot ?bodies ?tt)
   :preconditions (
@@ -407,7 +407,7 @@
 				     (ang-momentum ?body ?axis ?time))
   :complexity definition ;definition, but can be first "principle" for sought
   :short-name "angular momentum defined"
-  :english ("definition of angular momentum")
+  :nlg-english ("definition of angular momentum")
   :expformat ("applying the definition of angular momentum on ~a"
 	      (nlg ?body 'at-time ?time))
   :EqnFormat ("L_z = I*$w_z"))
@@ -432,7 +432,7 @@
     ))
 
 (def-goalprop angmom-fbd (vector-diagram ?rot (ang-momentum ?b ?a ?t))
-   :english ("drawing a diagram showing all of the needed kinematic vectors and coordinate axes"))
+   :nlg-english ("drawing a diagram showing all of the needed kinematic vectors and coordinate axes"))
 
 (defoperator draw-ang-momentum-vectors (?rot ?b ?a ?t)
   :preconditions 
@@ -470,7 +470,7 @@
 				    (cons-angmom ?bodies ?ti))
   :complexity major
   :short-name "conservation of angular momentum"
-  :english ("conservation of angular momentum")
+  :nlg-english ("conservation of angular momentum")
   :expformat ("applying Conservation of Angular Momentum to ~a ~a"
 	      (nlg ?bodies 'conjoined-defnp) (nlg ?time 'time))
   :eqnformat ("L1i_z + L2i_z + ... = L1f_z + L2f_z + ..."))
@@ -600,7 +600,7 @@
 ;; which may be unknown
 (def-qexp impulse (impulse ?body ?agent :time ?time)
   :units |N.s|
-  :english ("Impulse on ~A due to ~A" 
+  :nlg-english ("Impulse on ~A due to ~A" 
 	    (nlg ?body 'at-time ?time) (nlg ?agent 'agent)))
 
 ;; Draw a "given" impulse at a certain direction. 
@@ -638,7 +638,7 @@
     :complexity major    
     :Doc "Definition of impulse."
     :short-name "impulse and force"
-    :english ("the definition of impulse") 
+    :nlg-english ("the definition of impulse") 
     :ExpFormat ("applying the definition of impulse on ~a ~a"
 		(nlg ?body) (nlg ?time 'pp))
     :EqnFormat ("J_~A = F(avg)_~a*t" (axis-name ?axis) (axis-name ?axis)))
@@ -740,7 +740,7 @@
      :complexity major
      :doc "equation relating impulse to change in momentum"
      :short-name "Newton's second law"
-     :english ("Relation between impulse and change in momentum")
+     :nlg-english ("Relation between impulse and change in momentum")
      :ExpFormat ("relating the impulse to the change in momentum of ~a"
 		 (nlg ?body))
      :EqnFormat ("J1_~a + J2_~a + ... = pf_~a - pi_~a" 
@@ -889,7 +889,7 @@ impulse ~A." (?b def-np) (?t pp)))
 (def-psmclass NTL-impulse (NTL-impulse (?Object0 ?Object1) ?time)
   :complexity major
   :short-name "Newton's third law (magnitude)"
-  :english ("Newton's third law applied to impulse")
+  :nlg-english ("Newton's third law applied to impulse")
   :ExpFormat ("applying Newton's third law to impulse between ~a and ~a"
 	      (nlg ?Object0) (nlg ?Object1 'at-time ?time))
   :EqnFormat ("J12 = J21"))
@@ -899,7 +899,7 @@ impulse ~A." (?b def-np) (?t pp)))
 					    (?Object0 ?Object1) ?time))
   :complexity major
   :short-name ("Newton's third law (~A component)" (axis-name ?axis))
-  :english ("Newton's third law applied to impulse")
+  :nlg-english ("Newton's third law applied to impulse")
   :ExpFormat ("applying Newton's third law to impulse between ~a and ~a"
 	      (nlg ?Object0) (nlg ?Object1 'at-time ?time))
   :EqnFormat ("J12_~a = -J21_~a" (axis-name ?axis) (axis-name ?axis)))
@@ -998,7 +998,7 @@ impulse ~A." (?b def-np) (?t pp)))
 (def-psmclass center-of-mass-compo (?eq-type definition ?axis ?rot 
 				       (center-of-mass ?com ?time))
   :short-name "center of mass"
-  :english ("definition of center of mass")
+  :nlg-english ("definition of center of mass")
   :complexity major ;we want the equation to be used explicitly
   :EqnFormat ("Rcm_~A = (m1*r1_~A + m2*r2_~A + ...)/(m1 + m2 + ...)" 
 	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))

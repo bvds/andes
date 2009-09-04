@@ -60,8 +60,9 @@
            ;; that must be satisfied to produce this.
   CogLoad  ;; The cognitive load of the systementry.
   Entered  ;; A list of student entries that have entered
-  )        ;; this system entry if nil it has not been entered.
-  
+           ;; this system entry if nil it has not been entered.
+  model    ;; Model sentence.
+  )
 
 (defun print-SystemEntry (Entry &optional (Stream t) (level 0))
   "Print out the system entry."

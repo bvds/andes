@@ -487,7 +487,7 @@
              (?eq-type rdiff ?axis ?rot (rdiff ?p1 ?p2 ?time)) 
   :complexity minor
   :short-name "relative position from coordinates"
-  :english ("the relative position definition")
+  :nlg-english ("the relative position definition")
   :ExpFormat ("computing the ~a component of the position of ~a relative to ~a"
 		 (axis-name ?axis) (nlg ?p2) (nlg ?p1) )
   :EqnFormat ("r21_~a = ~a2 - ~a1" (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
@@ -1162,7 +1162,7 @@
 (def-psmclass relative-vel (?eq-type relvel ?xy ?rot (relative-vel ?body1 ?b2 ?b3 ?t))
   :complexity major
   :short-name "relative velocity"
-  :english ("relative velocity equation")
+  :nlg-english ("relative velocity equation")
   :expformat ((strcat "applying the relative velocity equation to ~a "
                       "in relation to ~a and ~a")
               (nlg ?body1) (nlg ?b2) (nlg ?b3))
@@ -1183,7 +1183,7 @@
 ;;; following attaches a hint to the subgoal of drawing this diagram,
 ;;; see ontology.cl for examples
 (def-goalprop rel-vel-fbd (vector-diagram ?rot (relative-vel ?b1 ?b2 ?b3 ?t))
-   :english ("drawing a diagram showing all of the needed relative velocity vectors and coordinate axes" ))
+   :nlg-english ("drawing a diagram showing all of the needed relative velocity vectors and coordinate axes" ))
    
 (defoperator draw-rel-vel-diagram (?rot ?b1 ?t)
   :preconditions (
@@ -2074,11 +2074,11 @@
     :form (?eq-type ?Eqn-ID ?axis ?rot (lk ?body ?time))
     :supergroup Kinematics
     :doc "Equations for one dimensional motion with constant acceleration."
-    :english ("a constant acceleration equation"))
+    :nlg-english ("a constant acceleration equation"))
 
 (def-goalprop lk-eqn-chosen
       (compo-eqn-selected (LK ?body ?time) ?quantity (compo-eqn . ?eq-args))
-   :english ("choosing a particular kinematic equation containing ~A" 
+   :nlg-english ("choosing a particular kinematic equation containing ~A" 
              (nlg ?quantity)))
 
 ;;; This operator writes vf=vi+a*t.  That is, it leaves out displacement (s).
@@ -2094,7 +2094,7 @@
 (def-psmclass lk-no-s (?eq-type lk-no-s ?axis ?rot (lk ?body (during ?time0 ?time1))) 
   :group lk
   :complexity major
-  :english ("the definition of average acceleration")
+  :nlg-english ("the definition of average acceleration")
   :ExpFormat ("applying the definition of average acceleration on ~a from ~a to ~a"
 		 (nlg ?body) (nlg ?time0 'moment) (nlg ?time1 'moment))
   ;; alternative form in principles.cl
@@ -2102,7 +2102,7 @@
 	      (axis-name ?axis)))
 
 (def-goalprop lk-no-s-eqn (eqn ?algebra (compo-eqn lk-no-s ?axis ?rot (lk ?body ?time)))
-  :english ((strcat "writing the definition of average acceleration equation "
+  :nlg-english ((strcat "writing the definition of average acceleration equation "
 		    "in terms of vector components along the ~A axis") 
 	    (axis-name ?axis)))
 
@@ -2174,7 +2174,7 @@
 				(lk ?body (during ?time0 ?time1))) 
   :group lk
   :complexity minor
-  :english ("constant velocity")
+  :nlg-english ("constant velocity")
   :ExpFormat ("noting that the accelaration ~A has no ~A component between ~a to ~a, so the ~A component of velocity remains constant"
 	      (nlg ?body) (axis-name ?axis) (nlg ?time0 'moment) 
 	      (nlg ?time1 'moment) (axis-name ?axis))
@@ -2245,7 +2245,7 @@
   :complexity major
   :short-name ("[a_~A is constant]" (axis-name ?axis))
   :doc "Linear kinematics eqn w/o time."
-  :english ("the constant acceleration equation v_~a^2 = v0_~a^2 + 2*a_~a*d_~a" 
+  :nlg-english ("the constant acceleration equation v_~a^2 = v0_~a^2 + 2*a_~a*d_~a" 
                (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) (axis-name ?axis))
   :ExpFormat ((strcat "writing the constant acceleration equation "
                       "v_~a^2 = v0_~a^2 + 2*a_~a*d_~a "
@@ -2257,7 +2257,7 @@
 
 (def-goalprop lk-no-t-eqn 
    (eqn ?algebra (compo-eqn lk-no-t ?axis ?rot (lk ?body ?time)))
-   :english ("writing a constant acceleration equation in terms of vector components along the ~A axis" ?axis))
+   :nlg-english ("writing a constant acceleration equation in terms of vector components along the ~A axis" ?axis))
 
 (defoperator LK-no-t-contains (?quantity)
   :specifications "
@@ -2330,7 +2330,7 @@
   :complexity major
   :short-name ("[a_~A is constant]" (axis-name ?axis))
   :Doc "Linear kinematics eqn sans final velocity."
-  :english ("the constant acceleration equation d_~a = v0_~a*t + 0.5*a_~a*t^2"
+  :nlg-english ("the constant acceleration equation d_~a = v0_~a*t + 0.5*a_~a*t^2"
                             (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) )
   :ExpFormat ((strcat "writing the constant acceleration equation "
                       "d_~a = v0_~a*t + 0.5*a_~a*t^2 "
@@ -2341,7 +2341,7 @@
 
 (def-goalprop lk-no-vf-eqn 
    (eqn ?algebra (compo-eqn lk-no-vf ?axis ?rot (lk ?body ?time)))
-  :english ("writing a constant acceleration equation in terms of vector components along the ~A axis" ?axis))
+  :nlg-english ("writing a constant acceleration equation in terms of vector components along the ~A axis" ?axis))
 
 (defoperator LK-no-vf-contains (?quantity)
   :specifications "
@@ -2460,7 +2460,7 @@
   :group lk
   :complexity major
   :short-name ("[a_~A=0; v_~A is constant]" (axis-name ?axis) (axis-name ?axis))
-  :english ("displacement component = constant velocity component * time")
+  :nlg-english ("displacement component = constant velocity component * time")
   :ExpFormat ((strcat "calculating the ~a component of displacement as constant "
 		      "velocity component * time for ~a from ~a to ~a") 
 	      (axis-name ?axis) (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
@@ -2636,7 +2636,7 @@
 (def-PSMclass opposite-relative-position (opposite-relative-position (?Object0 ?Object1) ?time)
   :complexity minor
   :short-name "relative position equality"
-  :english ("relative position equality")
+  :nlg-english ("relative position equality")
   :ExpFormat ("applying relative position equality to ~a and ~a"
 	      (nlg ?Object0) (nlg ?Object1 'at-time ?time))
   :EqnFormat ("R12 = R21"))
@@ -2816,7 +2816,7 @@
     (?eq-type relative-position-displacement ?axis ?rot (relative-position-displacment ?a ?b ?time))
   :complexity minor
   :short-name "relative position and displacement"
-  :english ("relative positon and displacement for two bodies")
+  :nlg-english ("relative positon and displacement for two bodies")
   :ExpFormat ("calculating change in relative position between ~a and ~a ~a" (nlg ?a) (nlg ?b) (nlg ?time))
   :EqnFormat ("Rab2~a = da12_~a - db12_~a Rab1_~A" (axis-name ?axis)  
 	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
@@ -3399,7 +3399,7 @@
 				(rk ?body ?time))
   :complexity major
   :short-name "average angular velocity"
-  :english ("the definition of average angular velocity")
+  :nlg-english ("the definition of average angular velocity")
   :expformat ((strcat "applying the definition of Average Angular Velocity "
 		  "to ~a ~a") (nlg ?body) (nlg ?time 'time))
   :EqnFormat ("$w(avg) = $q/t"))
@@ -3456,7 +3456,7 @@
     :form (?eq-type ?Eqn-ID ?axis ?rot (rk ?body ?time))
     :supergroup Kinematics
     :doc "Equations for one dimensional motion with constant acceleration."
-    :english ("a constant acceleration equation"))
+    :nlg-english ("a constant acceleration equation"))
 
 ;; angular version of lk-no-s: omega_f = omega_i + alpha_avg * t
 ;; Because this uses average angular acceleration, it doesn't require
@@ -3466,7 +3466,7 @@
      :group rk
      :complexity major
   :short-name "average anglular acceleration"
-     :english ("constant angular acceleration kinematics")
+     :nlg-english ("constant angular acceleration kinematics")
      :EqnFormat ("$wf = $wi + $a(avg)*t")) ;alternative form in principles.cl
 
 (defoperator rk-no-s-contains (?sought)
@@ -3524,7 +3524,7 @@
      :group rk
      :complexity major
   :short-name "[$a_z is constant]"
-     :english ("constant angular acceleration kinematics")
+     :nlg-english ("constant angular acceleration kinematics")
      :EqnFormat ("$q_z = $w0_z*t + 0.5*$a_z*t^2"))
 
 (defoperator rk-no-vf-contains (?sought)
@@ -3585,7 +3585,7 @@
      :group rk
      :complexity major
   :short-name "[$a_z is constant]"
-     :english ("constant angular acceleration kinematics")
+     :nlg-english ("constant angular acceleration kinematics")
      :EqnFormat ("$w_z^2 = $w0_z^2 + 2*$a_z*$q_z"))
 
 (defoperator rk-no-t-contains (?sought)

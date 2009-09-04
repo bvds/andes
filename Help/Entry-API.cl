@@ -834,29 +834,23 @@
     ;; Right now, this is a simple first effort:
     ;; Here is what is missing:
     ;;  Handle case where symbol is nil
-    ;;  Should tokenize the text and the model texts and do
-    ;;     combination of tree matching and minimum edit distance
-    ;;     for tree leaves.
     ;;  Should include "bad" quantity definitions in matching.
-    ;;  Should have minimum acceptable match cutoff.
-    ;;  Should have criteria for almost equivalent matches.
-    ;;  Should have alternative texts for matching.
-    ;;  Should correctly handle "Let xxx be ... " wrapper, matching to 
-    ;;     symbol from client.
     ;;  Should have something to handle extra stuff like setting
     ;;     given values in definition.  (either handle it or warning/error).
-    ;;  
-    (setf best (best-matches
-		(pull-out-quantity symbol text)
-		(mapcar #'(lambda (x) 
-			    (cons (nlg (cadr (SystemEntry-prop x))) x))
-			(remove '(define-var . ?rest) *sg-entries* 
-				:key #'SystemEntry-prop :test-not #'unify))))
 
+    ;;  Can also set cutoff and equiv in best-model-matches.
+    (setf best 
+	  (best-model-matches
+	   (word-parse (pull-out-quantity symbol text))
+	   (mapcar #'(lambda (x) 
+		       (cons (expand-vars (SystemEntry-new-english x)) x))
+		   (remove '(define-var . ?rest) *sg-entries* 
+			   :key #'SystemEntry-prop :test-not #'unify))))
+    
     ;; Need error handlers for the following cases:
     ;; no match:  "Cannot understand entry" and hint sequence
     ;; two matches:  "Did you mean this or this?" and hint sequence.
-    ;; more than two:  "Your definition is ambiguous"" and hint sequence.
+    ;; more than two:  "Your definition is ambiguous" and hint sequence.
     (when (= (length best) 1)
       (setf sysent (car best)))
 
