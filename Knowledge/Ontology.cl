@@ -194,8 +194,15 @@
 			    documentation
 			    varfunc new-english nlg-english)
   "Define and store the specified expression if possible."
-  (when (expression-type-p type) 
-    (error "exptype ~A already exists." type))
+
+  ;; Remove any existing entry of this name (thus, allowing updates)
+  (when (expression-type-p type)
+    (warn "Replacing existing ExpType ~A." type)
+    (setf *Ontology-ExpTypes*
+	  (remove type *Ontology-ExpTypes* :key #'ExpType-Type :count 1)))
+
+  (when (matches-model-syntax form)
+    (error "Ontology ~A form ~A matches model syntax" type form))
 
   (when (lookup-expression-struct Form)
     (error "exptype ~A matching form already exists." 

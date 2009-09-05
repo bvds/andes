@@ -55,8 +55,8 @@
 ;;
 
 (defun word-parse (str &key parse)
-  "Break up a string into a list of words, removing spaces, commas."
-  (let ((p (position '(#\space #\tab #\,) str
+  "Break up a string into a list of words, removing whitespace, commas."
+  (let ((p (position (cons #\, *whitespace*) str
 		     :test #'(lambda (x y) (member y x)))))
     (if p
 	(word-parse (subseq str (+ p 1)) :parse 
@@ -64,6 +64,7 @@
 	(reverse (if (> (length str) 0) (push str parse) parse)))))
 
 (defun join-words (x)
+  "Join together a list of strings."
   (if (cdr x) (concatenate 'string (car x) " " (join-words (cdr x)))
       (car x)))
 
@@ -282,6 +283,15 @@
 				new-student)))
 	 (aref matches best-m best-y best-z)))))
 
+(defun matches-model-syntax (form)
+  "Top level of form matches model syntax." 
+  ;; If this function is true, then form will not be
+  ;; interpreted as being in the ontology
+  (or (null form)
+      (stringp form)
+      (or (listp (car form)) (stringp (car form)))
+      (member (car form) '(and or preferred allowed var eval))))
+
 (defun pull-out-quantity (symbol text)
   "Pull the quantity phrase out of a definition:  should match variablname.js"
   (when symbol
@@ -302,7 +312,7 @@
   text)
 
 (defun best-model-matches (student models &key (cutoff 0.5) (equiv 1.25))
-  "Returns sorted array of best matches to text using match-model."
+  "Returns alist of best matches to text using match-model."
   ;; cutoff is maximum ratio of words that don't match to student words.
   ;; equiv is maximum number of words such that two matches are
   ;;   considered to be of equal quality.
@@ -311,11 +321,8 @@
       (setf this (match-model student (car x) :best (+ best equiv)))
       (when (< this best) (setf best this))
       (when (< this (+ best equiv)) (push (cons this (cdr x)) quants)))
-    ;; remove any quantities that are not equivalent with
-    ;; best fit, and remove fit value. 
-    (mapcar #'cdr (remove-if 
-		      #'(lambda (x) (> (car x) (+ best equiv))) 
-		      quants))))
+    ;; remove any quantities that are not equivalent with best fit. 
+    (remove-if #'(lambda (x) (> (car x) (+ best equiv))) quants)))
 
 (defun best-matches (text good)
   "Returns array of best matches to text.  Use minimum edit distance."

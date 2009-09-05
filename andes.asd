@@ -36,6 +36,7 @@
 				     (:file "Unification")
 				     (:file "auxiliary")
 				     (:file "hash")
+				     (:file "match")
 				     (:file "Utility")))
 	       (:module "Algebra"
 			:components ((:file "solver")))

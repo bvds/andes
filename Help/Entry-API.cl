@@ -405,8 +405,7 @@
 	 (text (StudentEntry-text entry))
 	 (symbol (StudentEntry-symbol entry))
 	 best
-	 sysent
-	body-term)
+	 sysent)
 
     ;; see comments in define-variable
     (setf best (best-matches 
@@ -423,16 +422,9 @@
 	   (error "Can't find any matches for ~A from ~A" text *sg-entries*))
 	  (t (error "too many matches: ~A" best)))
 
-    ;; Should used unify for this...
-    (setf body-term (second (SystemEntry-prop sysent)))
-
     (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
     (add-entry entry)   ;remove existing info and update
-    ;; for compound bodies, enter body label so it can be recognized when
-    ;; referenced in subsequent quantity definitions for compound's attributes.
-    (when (compound-bodyp body-term)
-    ;; probaby should switch to whole SystemEntry or at least prop
-      (check-symbols-enter symbol body-term id))
+    (check-symbols-enter symbol (StudentEntry-prop entry) id)
 
     (check-noneq-entry entry)))  ;finally return entry 
 
@@ -838,21 +830,28 @@
     ;;  Should have something to handle extra stuff like setting
     ;;     given values in definition.  (either handle it or warning/error).
 
-    ;;  Can also set cutoff and equiv in best-model-matches.
     (setf best 
 	  (best-model-matches
 	   (word-parse (pull-out-quantity symbol text))
 	   (mapcar #'(lambda (x) 
 		       (cons (expand-vars (SystemEntry-new-english x)) x))
 		   (remove '(define-var . ?rest) *sg-entries* 
-			   :key #'SystemEntry-prop :test-not #'unify))))
+			   :key #'SystemEntry-prop :test-not #'unify))
+	   ;;  Set cutoff on minimum acceptable
+	   :cutoff 1.95 :equiv 1.25))
     
     ;; Need error handlers for the following cases:
     ;; no match:  "Cannot understand entry" and hint sequence
     ;; two matches:  "Did you mean this or this?" and hint sequence.
     ;; more than two:  "Your definition is ambiguous" and hint sequence.
+    (format webserver:*stdout* "Best match to ~s is~%   ~S~%" 
+	    (pull-out-quantity symbol text) 
+	    (mapcar 
+	     #'(lambda (x) (cons (car x) 
+				 (expand-vars (SystemEntry-model (cdr x)))))
+		    best))
     (when (= (length best) 1)
-      (setf sysent (car best)))
+      (setf sysent (cdr (car best))))
 
     ;; this is almost certainly wrong for some variables ....
     (setf body-term (second (SystemEntry-prop sysent)))

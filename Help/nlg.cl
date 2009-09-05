@@ -144,6 +144,21 @@
 	  ;; else assuming x is a common noun
 	  (T                (format nil "the ~(~A~)" x)))
     ))
+
+(defun def-np-model (x)
+  (if (listp x)
+      x  
+      ;; Assume x is an atom
+      (cond ((numberp x)      (format nil "~A" x))
+	    ((pronounp x) (format nil "~(~A~)" x))
+	    ((upper-case-namep x) (format nil "~A" x))
+	    ((proper-namep x) 
+	     ;; heuristic is not always correct, allow "the"
+	     `((allowed "the") ,(format nil "~(~A~)" x)))
+	    ;; else assume x is a common noun
+	    (T `((preferred "the") ,(format nil "~(~A~)" x))))
+      ))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun indef-np	(x &rest args)
@@ -383,8 +398,10 @@
 	   new-bindings))))))
 
 (defun expand-new-english (model &optional (bindings no-bindings))
-  "Expand model tree, expanding ontology expressions, substituting bindings, evaluating lisp code, and removing nils."
-  (cond ((stringp model) model)
+  "Expand model tree, expanding ontology expressions, parse strings into list of words, substituting bindings, evaluating lisp code, and removing nils."
+  (cond ((stringp model) 
+	 ;; If there is more than one word, break up into list of words.
+	 (let ((this (word-parse model))) (if (cdr this) this model)))
 	((null model) model)
 	((variable-p model) 
 	 (expand-new-english (subst-bindings bindings model)))
@@ -405,6 +422,7 @@
 	     (if match val 
 		 (warn "No ontology match for ~A" model))))))
 
+
 (defun expand-vars (model)
   "Expand (var ...) expressions and remove nils from model tree."
   (cond ((stringp model) model)
@@ -415,6 +433,6 @@
 	((or (stringp (car model)) (listp (car model))) ;plain list
 	 (remove nil (mapcar #'expand-vars model)))
 	;; expansion of var must be done at run-time.
-	((eql (car model) 'var) (symbols-label (second model)))
-	;; match with ontology, handles recursion
+	((eql (car model) 'var)
+	 (symbols-label (second model)))
 	(t (warn "Invalid expand ~A" model) model)))

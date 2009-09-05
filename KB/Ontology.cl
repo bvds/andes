@@ -214,7 +214,7 @@
 ;;;;         General phrases
 
 (def-qexp property (property ?body)
-  :new-english ("of" (or (eval (def-np ?body))
+  :new-english ("of" (or (eval (def-np-model ?body))
 			 (var (body ?body)))))
 
 (def-qexp time (time ?time)
@@ -222,12 +222,12 @@
 
 (def-qexp object (object ?body)
   :new-english ((or "acting on" "on") 
-		(or (eval (def-np ?body))
+		(or (eval (def-np-model ?body))
 		    (var (body ?body)))))
 
 (def-qexp agent (agent ?body)
   :new-english ((or "due to" "by" "from" "caused by") 
-		(or (eval (def-np ?body))
+		(or (eval (def-np-model ?body))
 		    (var (body ?body)))))
 
 ;;;; scalar quantities
@@ -307,12 +307,24 @@
   :dialog-text "at surface of [body:bodies]"
   :units |m/s^2|
   :restrictions positive
+  ;; Gianocolli: "acceleration due to gravity [on the Earth]"
+  ;; Cummings .. "gravitational acceleration constant"
+  ;;             "the earth's local gravitational strength"
+  ;; Hudson & Nelson "acceleration due to gravity at the surface of the earth"
+  ;;              "the acceleration of a freely falling object"
+  ;; Walker "the acceleration produced by gravity on the Earth's surface"
+  ;;        "... gravitational strength ..."
+  ;;        "the acceleration of gravity [on [the surface of] the Earth]"
+  ;;        "free-fall acceleration"
+  ;;        
   :new-english ((preferred "the")
 		(or ((or "gravitational" "grav." "grav")
-		     (or "acceleration" "accel." "accel"))
+		     (or "acceleration" "accel." "accel") (allowed "constant"))
 		    ((or "acceleration" "accel." "accel")
-		     (agent "gravity")))
-		(preferred (agent ?planet)))
+		     (or ((or "due to" "caused by" "of") "gravity")
+			 "of a freely falling object")))
+		(preferred ((or "at" "on") (preferred "the surface") 
+				 (property ?planet))))
   :nlg-english ("the gravitational acceleration due to ~A" (nlg ?planet)))
 
 (post-process add-gravitational-acceleration (problem)
