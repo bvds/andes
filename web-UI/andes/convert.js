@@ -194,8 +194,8 @@ dojo.provide("andes.convert");
 					obj.text = txt;
 					obj.symbol = lbl;	
 				}else{
-					obj.text = txt;
-					obj.symbol = "";
+					obj.text = "";
+					obj.symbol = lbl;
 				}
 			}
 			
