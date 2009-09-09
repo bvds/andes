@@ -814,21 +814,22 @@
   (let ((id (StudentEntry-id entry))
 	(text (StudentEntry-text entry))
 	(symbol (StudentEntry-symbol entry))
-	body-term
 	value ;not in Andes3
-	best sysent)
+	best)
 
+    ;; This should be handled as regular help
     (unless text (warn "Definition must always have text")
 	       (setf text ""))
 
 
     ;; match up text with SystemEntry
-    ;; Right now, this is a simple first effort:
+    ;;
     ;; Here is what is missing:
     ;;  Handle case where symbol is nil
     ;;  Should include "bad" quantity definitions in matching.
     ;;  Should have something to handle extra stuff like setting
     ;;     given values in definition.  (either handle it or warning/error).
+    ;;  Common routines for the various types of objects.
 
     (setf best 
 	  (best-model-matches
@@ -839,39 +840,59 @@
 			   :key #'SystemEntry-prop :test-not #'unify))
 	   ;;  Set cutoff on minimum acceptable
 	   :cutoff 1.95 :equiv 1.25))
-    
-    ;; Need error handlers for the following cases:
-    ;; no match:  "Cannot understand entry" and hint sequence
-    ;; two matches:  "Did you mean this or this?" and hint sequence.
-    ;; more than two:  "Your definition is ambiguous" and hint sequence.
+    ;; Debug printout:
     (format webserver:*stdout* "Best match to ~s is~%   ~S~%" 
 	    (pull-out-quantity symbol text) 
 	    (mapcar 
 	     #'(lambda (x) (cons (car x) 
 				 (expand-vars (SystemEntry-model (cdr x)))))
 		    best))
-    (when (= (length best) 1)
-      (setf sysent (cdr (car best))))
+    
+    ;; Handling for various numbers of matches is common across
+    ;; Should have common code for the various types of objects.
+    (cond
+      ((> (length best) 2)
+       ;; error handler for too many matches
+       ;; "your definition is ambiguous" and hint sequence
+       )
+      ((null best)
+       ;; No match  
+       ;; "I cannot understand your definition" and hint sequence. 
+       )
+      ((= (length best) 1)
+       ;; one match, proceed to evaluate it.
+       (let ((sysent (cdr (car best))))
 
-    ;; this is almost certainly wrong for some variables ....
-    (setf body-term (second (SystemEntry-prop sysent)))
-
-    (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
-    ;; install new variable in symbol table
-    (add-entry entry)
-    ;; probably should switch to whole SystemEntry
-    (when symbol (check-symbols-enter symbol body-term id))
-
-    ;; record associated given value equation entry
-    (when (and symbol value)  ;NIL => unspecified. (Empty string => unknown)
-      (add-given-eqn entry (make-given-eqn-entry symbol value 'value)))
-    ;; NB! make-given-eqn-entry can return NIL if no system var found for 
-    ;; studvar.
-    ;; Normally means var def will be incorrect. No given-eqn added in this case.
-    ;; But maybe better have a dangling given eqn entry anyway?
-
-    ;; finally return entry 
-    (check-noneq-entry entry)))
+	 ;; Determine if the student has already done this.
+	 ;; In Andes2, this step was done on the user interface.
+	 (when (find (SystemEntry-prop sysent) *StudentEntries* 
+		     :key #'StudentEntry-prop :test #'unify)
+	   (return-from define-variable 
+	     (warn  ;; need to figure out how to give unsolicited hint. 
+	      (format nil 
+		      "I believe that you have already defined ~A."
+		      ;; Use student symbol, if it exists.
+		      (or (symbols-label (second (SystemEntry-prop sysent)))
+			  (word-string (SystemEntry-new-english sysent)))))))
+	 
+	 (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
+	 ;; install new variable in symbol table
+	 (add-entry entry)
+	 (when symbol (check-symbols-enter symbol 
+					   ;; strip off the 'define-var
+					   (second (StudentEntry-prop entry)) 
+					   id))
+	 
+	 ;; record associated given value equation entry
+	 (when (and symbol value)  ;NIL => unspecified. (Empty string => unknown)
+	   (add-given-eqn entry (make-given-eqn-entry symbol value 'value)))
+	 ;; NB! make-given-eqn-entry can return NIL if no system var found for 
+	 ;; studvar.
+	 ;; Normally means var def will be incorrect. No given-eqn added in this case.
+	 ;; But maybe better have a dangling given eqn entry anyway?
+	 
+	 ;; finally return entry 
+	 (check-noneq-entry entry))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1017,14 +1038,14 @@
 ;;
 ;; Note, could be done differently with a cond or two.
 (defun Check-NonEq-Entry (entry)
-
+  
   ;; Special Case: Entry-API handler has failed to build an entry for some 
   ;; reason and wants to send back a message.  If the entry is a string then
   ;; we will produce and return a color-red show-hint turn and return the
   ;; message with no menu.
   (when (stringp Entry)
     (return-from Check-NonEq-Entry (make-red-turn entry)))
-
+  
   ;; special case: Entry-API handler can return T or NIL rather than an entry
   ;; when the status is determined without looking for a system entry. This
   ;; happens for some but not all angle entries.  Return appropriate turn.
@@ -1032,15 +1053,15 @@
     (return-from Check-NonEq-Entry (make-red-turn)))
   (when (eq entry T) 
     (return-from Check-NonEq-Entry (make-green-turn)))
-
+  
   ;; special case: Entry-API handler can attach an error interp for certain
   ;; errors such as symbol redefinitions that prevent the entry from
   ;; being processed further. Return appropriate turn with unsolicited 
   ;; error message in this case.
   (when (studentEntry-ErrInterp entry) 
     (return-from Check-NonEq-Entry 
-                     (ErrorInterp-remediation (studentEntry-ErrInterp entry))))
-
+      (ErrorInterp-remediation (studentEntry-ErrInterp entry))))
+  
   ;; else have a real student entry to check
   (format *debug-help* "Checking entry: ~S~%" (StudentEntry-prop entry))
   (let (cand		; candidate (state . interpretation) pair
@@ -1054,10 +1075,10 @@
     ;; compatible with old logs which never set any.
     (when (and (eq (first (StudentEntry-prop Entry)) 'vector)
                (StudentEntry-GivenEqns Entry))
-        (setf result (Check-Vector-Given-Form Entry))
-	(when (not (eq (turn-coloring result) **color-green**))
+      (setf result (Check-Vector-Given-Form Entry))
+      (when (not (eq (turn-coloring result) **color-green**))
 	    (return-from Check-NonEq-Entry result))) ; early exit
-
+    
     ;; Get set of candidate interpretations into PossibleCInterps.  
     ;; For generality needed for equation entries, an "interpretation" 
     ;; is a list of primitive system entries -- steps -- effected by this 
@@ -1070,64 +1091,64 @@
     ;; Interp itself should contain exactly one sysent.
     (sg-match-StudentEntry Entry)
     (unless  (setf cand (first (StudentEntry-PossibleCInterps Entry))) 
-        (format *debug-help* "No matching system entry found~%")
-	(setf (StudentEntry-state entry) **Incorrect**)
-	; run whatswrong help to set error interp now, so diagnosis
-	; can be included in log even if student never asks whatswrong
-        (diagnose Entry)
-	(setf result (make-red-turn :id (StudentEntry-id Entry)))
+      (format *debug-help* "No matching system entry found~%")
+      (setf (StudentEntry-state entry) **Incorrect**)
+      ;; run whatswrong help to set error interp now, so diagnosis
+      ;; can be included in log even if student never asks whatswrong
+      (diagnose Entry)
+      (setf result (make-red-turn :id (StudentEntry-id Entry)))
 	;; log and push onto result list.
-	(setf (turn-result result)
-	      (append (log-entry-info Entry) (turn-result result)))
-	(return-from Check-NonEq-Entry result)) ; go no further
-
+      (setf (turn-result result)
+	    (append (log-entry-info Entry) (turn-result result)))
+      (return-from Check-NonEq-Entry result)) ; go no further
+    
     ;; else got a match: set state and correctness from candidate
     (setf (StudentEntry-State entry) (car cand))
     (setf (StudentEntry-CInterp entry) (cdr cand))
     (setf match (first (StudentEntry-CInterp entry)))
     (format *debug-help* "Matched ~A system entry: ~S~%" (car cand) match)
-
+    
     ;; decide what to return based on major state of entry
     (case (StudentEntry-State entry)
-     ('correct 
-      ; check any given value equations associated. At first one that is wrong, its
-      ; result turn becomes the result for the main entry; checking routine 
-      ; updates main entry record with error interp of the bad equation.
+      ('correct 
+       ;; check any given value equations associated. At first one that is wrong, its
+       ;; result turn becomes the result for the main entry; checking routine 
+       ;; updates main entry record with error interp of the bad equation.
        (dolist (e (StudentEntry-GivenEqns entry))
-        (let ((result (Check-Given-Value-Entry entry e)))
-          (when (not (eq (turn-coloring result) **color-green**))
-	    (return-from Check-NonEq-Entry result))))
-
-      ; enter step as done in solution graph
+	 (let ((result (Check-Given-Value-Entry entry e)))
+	   (when (not (eq (turn-coloring result) **color-green**))
+	     (return-from Check-NonEq-Entry result))))
+       
+       ;; enter step as done in solution graph
        (sg-enter-StudentEntry Entry)
-      ; if entry has associated implicit equations, enter them as done well
+       ;; if entry has associated implicit equations, enter them as done well
        (dolist (e (StudentEntry-ImplicitEqns entry))
 	 (enter-implicit-entry e))
-      ; if entry has associated given value equations, enter them as well
-      ; Note we need parsed equation in systemese
-      (dolist (e (StudentEntry-GivenEqns entry))
+       ;; if entry has associated given value equations, enter them as well
+       ;; Note we need parsed equation in systemese
+       (dolist (e (StudentEntry-GivenEqns entry))
          (enter-given-eqn e))
-      ; Everything is OK!
-      (setf result (make-green-turn :id (StudentEntry-id entry))))
-
-     ;; give special messages for some varieties of incorrectness:
-     ('Forbidden (setf result (chain-explain-more **Forbidden-Help**)))
-     ('Premature-Entry 
-     		 (setf result (chain-explain-more **Premature-Entry-Help**)))
-     ('Dead-Path (setf result (chain-explain-more **Dead-Path-Help**)))
-     ('Nogood' (setf result (chain-explain-more **Nogood-Help**)))
-     (otherwise (warn "Unrecognized interp state! ~A~%" 
-                        (StudentEntry-state entry))
-                 (setf result (make-red-turn :id (StudentEntry-id entry)))))
+       ;; Everything is OK!
+       (setf result (make-green-turn :id (StudentEntry-id entry))))
+      
+      ;; give special messages for some varieties of incorrectness:
+      ('Forbidden (setf result (chain-explain-more **Forbidden-Help**)))
+      ('Premature-Entry 
+       (setf result (chain-explain-more **Premature-Entry-Help**)))
+      ('Dead-Path (setf result (chain-explain-more **Dead-Path-Help**)))
+      ('Nogood' (setf result (chain-explain-more **Nogood-Help**)))
+      (otherwise (warn "Unrecognized interp state! ~A~%" 
+		       (StudentEntry-state entry))
+		 (setf result (make-red-turn :id (StudentEntry-id entry)))))
 
     ;; Note for variables with given equations, we are
     ;; logging correctness of the variable definition substep, 
     ;; but the given value substep, hence whole entry, 
     ;; might still be wrong.
-
+    
     (setf (turn-result result)
 	  (append (log-entry-info Entry) (turn-result result)))
-
+    
     ;; finally return result
     result))
 
