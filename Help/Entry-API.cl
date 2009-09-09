@@ -407,26 +407,44 @@
 	 best
 	 sysent)
 
-    ;; see comments in define-variable
-    (setf best (best-matches 
-		(pull-out-quantity symbol text)
-		(mapcar #'(lambda (x) (cons (nlg (cadr (SystemEntry-prop x))) x))
-			(remove '(body . ?rest) *sg-entries* 
-				:key #'SystemEntry-prop :test-not #'unify))))
-
-    ;; see comments in define-variable
-    ;; Should have real help error handling for bad matching...
-    (cond ((= (length best) 1)
-	   (setf sysent (car best)))
-	  ((= (length best) 0)
-	   (error "Can't find any matches for ~A from ~A" text *sg-entries*))
-	  (t (error "too many matches: ~A" best)))
-
-    (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
     (add-entry entry)   ;remove existing info and update
-    (check-symbols-enter symbol (StudentEntry-prop entry) id)
 
-    (check-noneq-entry entry)))  ;finally return entry 
+    ;; see comments in define-variable
+    (setf best 
+	  (best-model-matches 
+	   (word-parse (pull-out-quantity symbol text))
+	   (mapcar #'(lambda (x) 
+		       (cons (expand-vars (SystemEntry-new-english x)) x))
+		   (remove '(body . ?rest) *sg-entries* 
+			   :key #'SystemEntry-prop :test-not #'unify))))
+    ;; Debug printout:
+    (format webserver:*stdout* "Best match to ~s is~%   ~S~%" 
+	    (pull-out-quantity symbol text) 
+	    (mapcar 
+	     #'(lambda (x) (cons (car x) 
+				 (expand-vars (SystemEntry-model (cdr x)))))
+		    best))
+
+    ;; Handling for various numbers of matches is common across object types.
+    ;; Should have common code for the various types of objects.
+    (cond
+      ((> (length best) 1)
+       ;; error handler for too many matches
+       ;; "your definition is ambiguous" and hint sequence
+       (too-many-matches-ErrorInterp entry))
+      ((null best)
+       ;; No match  
+       ;; "I cannot understand your definition" and hint sequence. 
+       (no-matches-ErrorInterp entry))
+      ((= (length best) 1)
+       ;; one match, proceed to evaluate it.
+       (let ((sysent (cdr (car best))))
+	 (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
+	 (check-symbols-enter symbol (StudentEntry-prop entry) id)
+
+	 (check-noneq-entry entry)))  ;finally return entry 
+      ;; more than one match
+      (t (too-many-matches-ErrorInterp entry (mapcar #'cdr best))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; assert-compound-object - checks the correctness of a student defined com-
@@ -503,85 +521,103 @@
 			    (if (z-dir-spec dir-term) "\\phi" "\\theta")
 			    symbol)))
 
-    ;; see comments in define-variable
-    (setf best (best-matches
-		(pull-out-quantity symbol text)
-		(mapcar #'(lambda (x) 
-			    (cons (nlg (cadr (SystemEntry-prop x))) x))
-			(remove '(vector . ?rest) *sg-entries* 
-				:key #'SystemEntry-prop :test-not #'unify))))
-
-    ;; See comments in define-variable
-    (cond ((= (length best) 1)
-	   (setf sysent (car best)))
-	  ((= (length best) 0)
-	   (error "Can't find any matches for ~A from ~A" text *sg-entries*))
-	  (t (error "too many matches: ~A" 
-		    (mapcar #'(lambda (x) (nlg (cadr (SystemEntry-prop x))))
-			       best))))
-    
-    ;; Use the quantity from the best match with angle we actually got.
-    (setf action (list 'vector (second (SystemEntry-prop sysent)) dir-term))
-
-    (setf vector-term (second action))
-    (setf vector-mag-term `(mag ,vector-term))
-    (setf vector-dir-term `(dir ,vector-term))
-
-    (setf (StudentEntry-prop entry) action)
     ;; remove existing entry and update
     (add-entry entry)
-    (check-symbols-enter symbol vector-mag-term id)
-    (check-symbols-enter dir-label vector-dir-term id)
 
-    ;; if any axes are defined must add all component variables as well
-    (dolist (axis-sym (symbols-fetch '(axis ?xyz ?dir)))
-      (let* ((axis-label (sym-label axis-sym))
+    ;; see comments in define-variable
+    (setf best 
+	  (best-model-matches
+	   (word-parse (pull-out-quantity symbol text))
+	   (mapcar #'(lambda (x) 
+		       (cons (expand-vars (SystemEntry-new-english x)) x))
+		   (remove '(define-var . ?rest) *sg-entries* 
+			   :key #'SystemEntry-prop :test-not #'unify))
+	   ;;  Set cutoff on minimum acceptable
+	   :cutoff 0.5 :equiv 1.25))
+    ;; Debug printout:
+    (format webserver:*stdout* "Best match to ~s is~%   ~S~%" 
+	    (pull-out-quantity symbol text) 
+	    (mapcar 
+	     #'(lambda (x) (cons (car x) 
+				 (expand-vars (SystemEntry-model (cdr x)))))
+		    best))
+
+    ;; See comments in define-variable
+    (cond
+      ((> (length best) 1)
+       ;; error handler for too many matches
+       ;; "your definition is ambiguous" and hint sequence
+       (too-many-matches-ErrorInterp entry))
+      ((null best)
+       ;; No match  
+       ;; "I cannot understand your definition" and hint sequence. 
+       (no-matches-ErrorInterp entry))
+      ((= (length best) 1)
+       ;; one match, proceed to evaluate it.
+       (let ((sysent (cdr (car best))))
+    
+	 ;; Use the quantity from the best match with angle we actually got.
+	 (setf action (list 'vector (second (SystemEntry-prop sysent)) dir-term))
+	 
+	 (setf vector-term (second action))
+	 (setf vector-mag-term `(mag ,vector-term))
+	 (setf vector-dir-term `(dir ,vector-term))
+	 
+	 (setf (StudentEntry-prop entry) action)
+	 (check-symbols-enter symbol vector-mag-term id)
+	 (check-symbols-enter dir-label vector-dir-term id)
+	 
+	 ;; if any axes are defined must add all component variables as well
+	 (dolist (axis-sym (symbols-fetch '(axis ?xyz ?dir)))
+	   (let* ((axis-label (sym-label axis-sym))
              (axis-term  (sym-referent axis-sym))
-	     (axis-entry-id (first (sym-entries axis-sym)))
-             (compo-var  (format NIL "~A_~A" symbol axis-label))
-	     (compo-term (vector-compo vector-term axis-term)) ; Physics-Funcs
-	    )
+		  (axis-entry-id (first (sym-entries axis-sym)))
+		  (compo-var  (format NIL "~A_~A" symbol axis-label))
+		  (compo-term (vector-compo vector-term axis-term)) ; Physics-Funcs
+		  )
         (check-symbols-enter compo-var compo-term (list id axis-entry-id))))
+	 
+	 ;; Different given values are handled in different ways:
+	 ;; 1. Direction value or unknown or zero-mag values get checked 
+	 ;; automatically as part of the vector entry proposition.  These continue 
+	 ;; to use the implicit equation machinery so as to record their equations 
+	 ;; as side effects, but not to check them. 
+	 ;; 2. For non-zero-mag vectors, given mag or compos handled via the given
+	 ;; equation mechanism, which checks their values.
+	 ;; We currently rely on drawn-mag argument to detect zero-mag vector 
+	 ;; This is OK because workbench updates drawn-mag if non-zero mag is 
+	 ;; specified.
+	 
+	 ;; !!! Now if student specifies values by components, workbench 
+	 ;; automatically sends dir as unknown.  This could be a problem if dir 
+	 ;; represented as known.
+	 
+	 ;; if vector is zero-length, associate implicit equation magV = 0
+	 ;; also add component eqns vc = 0 for all component variables in solution.
+	 (when (equal dir-term 'zero)
+	   (add-implicit-eqn entry (make-implicit-assignment-entry symbol 0))
+	   (dolist (syscomp (get-soln-compo-vars vector-term))
+	     ;; skip make-implicit-assignment-entry since we have sysvar, 
+	     ;; not studvar
+	     (add-implicit-eqn entry (make-implicit-eqn-entry `(= ,syscomp 0)))))
+	 
+	 
+	 ;; if vector is a unit vector, associate implicit equation magV = 1 
+	 (when (eq (first vector-term) 'unit-vector)
+	   (add-implicit-eqn entry (make-implicit-assignment-entry symbol 1)))
+	 ;; if direction is known, associate implicit equation dirV = dir deg.
+	 (when (degree-specifierp dir-term)          ; known xy plane direction
+	   (add-implicit-eqn entry (make-implicit-assignment-entry dir-label dir-term)))
+	 (when (and (z-dir-spec dir-term) 
+		    (not (equal dir-term 'z-unknown))) ; known z axis direction
+	   (add-implicit-eqn entry (make-implicit-assignment-entry dir-label (zdir-phi dir-term))))
+	 
+	 ;; Associated eqns will be entered later if entry is found correct.
 
-    ;; Different given values are handled in different ways:
-    ;; 1. Direction value or unknown or zero-mag values get checked 
-    ;; automatically as part of the vector entry proposition.  These continue 
-    ;; to use the implicit equation machinery so as to record their equations 
-    ;; as side effects, but not to check them. 
-    ;; 2. For non-zero-mag vectors, given mag or compos handled via the given
-    ;; equation mechanism, which checks their values.
-    ;; We currently rely on drawn-mag argument to detect zero-mag vector 
-    ;; This is OK because workbench updates drawn-mag if non-zero mag is 
-    ;; specified.
-
-    ;; !!! Now if student specifies values by components, workbench 
-    ;; automatically sends dir as unknown.  This could be a problem if dir 
-    ;; represented as known.
-
-    ;; if vector is zero-length, associate implicit equation magV = 0
-    ;; also add component eqns vc = 0 for all component variables in solution.
-    (when (equal dir-term 'zero)
-       (add-implicit-eqn entry (make-implicit-assignment-entry symbol 0))
-       (dolist (syscomp (get-soln-compo-vars vector-term))
-	 ;; skip make-implicit-assignment-entry since we have sysvar, 
-	 ;; not studvar
-	 (add-implicit-eqn entry (make-implicit-eqn-entry `(= ,syscomp 0)))))
-
- 
-    ; if vector is a unit vector, associate implicit equation magV = 1 
-    (when (eq (first vector-term) 'unit-vector)
-        (add-implicit-eqn entry (make-implicit-assignment-entry symbol 1)))
-    ; if direction is known, associate implicit equation dirV = dir deg.
-    (when (degree-specifierp dir-term)          ; known xy plane direction
-       (add-implicit-eqn entry (make-implicit-assignment-entry dir-label dir-term)))
-    (when (and (z-dir-spec dir-term) 
-               (not (equal dir-term 'z-unknown))) ; known z axis direction
-       (add-implicit-eqn entry (make-implicit-assignment-entry dir-label (zdir-phi dir-term))))
-   
-    ;; Associated eqns will be entered later if entry is found correct.
-
-    ;; finally return entry
-     (check-noneq-entry entry)))
+	 ;; finally return entry
+	 (check-noneq-entry entry)))
+      ;; more than one match
+      (t (too-many-matches-ErrorInterp entry (mapcar #'cdr best))))))
 
 ; fetch list of system vars denoting components of vector term
 (defun get-soln-compo-vars (vector-term)
@@ -821,6 +857,7 @@
     (unless text (warn "Definition must always have text")
 	       (setf text ""))
 
+    (add-entry entry)
 
     ;; match up text with SystemEntry
     ;;
@@ -839,7 +876,7 @@
 		   (remove '(define-var . ?rest) *sg-entries* 
 			   :key #'SystemEntry-prop :test-not #'unify))
 	   ;;  Set cutoff on minimum acceptable
-	   :cutoff 1.95 :equiv 1.25))
+	   :cutoff 0.5 :equiv 1.25))
     ;; Debug printout:
     (format webserver:*stdout* "Best match to ~s is~%   ~S~%" 
 	    (pull-out-quantity symbol text) 
@@ -847,37 +884,34 @@
 	     #'(lambda (x) (cons (car x) 
 				 (expand-vars (SystemEntry-model (cdr x)))))
 		    best))
-    
-    ;; Handling for various numbers of matches is common across
+
+   
+    ;; Handling for various numbers of matches is common across object types.
     ;; Should have common code for the various types of objects.
     (cond
-      ((> (length best) 2)
+      ((> (length best) 1)
        ;; error handler for too many matches
        ;; "your definition is ambiguous" and hint sequence
-       )
+       (too-many-matches-ErrorInterp entry))
       ((null best)
        ;; No match  
        ;; "I cannot understand your definition" and hint sequence. 
-       )
+       (no-matches-ErrorInterp entry))
       ((= (length best) 1)
        ;; one match, proceed to evaluate it.
        (let ((sysent (cdr (car best))))
+	 (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
 
-	 ;; Determine if the student has already done this.
-	 ;; In Andes2, this step was done on the user interface.
-	 (when (find (SystemEntry-prop sysent) *StudentEntries* 
+	 ;; Determine if the student has already done this
+	 ;; in a previous step.
+	 ;; In Andes2, this test was done on the user interface.
+	 (when (find (SystemEntry-prop sysent) 
+		     (remove id *StudentEntries* :key #'StudentEntry-id)
 		     :key #'StudentEntry-prop :test #'unify)
 	   (return-from define-variable 
-	     (warn  ;; need to figure out how to give unsolicited hint. 
-	      (format nil 
-		      "I believe that you have already defined ~A."
-		      ;; Use student symbol, if it exists.
-		      (or (symbols-label (second (SystemEntry-prop sysent)))
-			  (word-string (SystemEntry-new-english sysent)))))))
+	     (redundant-entry-ErrorInterp entry sysent)))
 	 
-	 (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
 	 ;; install new variable in symbol table
-	 (add-entry entry)
 	 (when symbol (check-symbols-enter symbol 
 					   ;; strip off the 'define-var
 					   (second (StudentEntry-prop entry)) 
@@ -892,7 +926,72 @@
 	 ;; But maybe better have a dangling given eqn entry anyway?
 	 
 	 ;; finally return entry 
-	 (check-noneq-entry entry))))))
+	 (check-noneq-entry entry)))
+      ;; more than one match
+      (t (too-many-matches-ErrorInterp entry (mapcar #'cdr best))))))
+
+
+(defun too-many-matches-ErrorInterp (entry &optional matches)
+  (let 
+      ((rem (make-hint-seq 
+	     (list 
+	      (format nil "Your definition ~@[of <var>~A</var> ~]is ambiguous." 
+		      (StudentEntry-symbol entry))
+	      (if matches
+		  (format nil "Did you mean?~%<ul>~%~{  <li>~A</li>~%~}</ul>"
+			  (mapcar #'(lambda (x) 
+				      (word-string (expand-vars 
+						    (SystemEntry-model x))))
+				  matches))
+		  "Try to be more specific in your definition.")))))
+    (setf (turn-id rem) (StudentEntry-id entry))
+    (setf (turn-coloring rem) **color-red**)
+    ;; set state of entry and attach error. But only do if not done already, so 
+    ;; only report on the first error found.
+    (unless (studentEntry-ErrInterp entry)
+      (setf (studentEntry-state entry) 'incorrect)
+      (setf (studentEntry-ErrInterp entry)
+	    (make-ErrorInterp :diagnosis '(definition-has-too-many-matches)
+			      :remediation rem))))
+  (make-red-turn :id (StudentEntry-id Entry)))
+
+(defun no-matches-ErrorInterp (entry)
+  (let ((rem (make-hint-seq 
+	      (list (format nil "I cannot understand your definition~@[ of <var>~A</var>~]." 
+			    (StudentEntry-symbol entry))
+		    "Try to write your definition in a form that you might find in your textbook."))))
+    (setf (turn-id rem) (StudentEntry-id entry))
+    (setf (turn-coloring rem) **color-red**)
+    ;; set state of entry and attach error. But only do if not done already, so 
+    ;; only report on the first error found.
+    (unless (studentEntry-ErrInterp entry)
+      (setf (studentEntry-state entry) 'incorrect)
+      (setf (studentEntry-ErrInterp entry)
+	    (make-ErrorInterp :diagnosis '(definition-has-no-matches)
+			      :remediation rem))))
+  (make-red-turn :id (StudentEntry-id Entry)))
+
+
+;; This was based on examples in parse-andes.cl
+;; Most unsolicited hints in Andes2 were associated with equations.
+(defun redundant-entry-ErrorInterp (se sysent)
+  "Given a student entry, return a tutor turn giving unsolicited feedback saying that the entry has already been done.  Also create an error interpretation in case the student asks a follow-up question, and put it in the student entry's err interp field."
+  (let ((rem (make-hint-seq
+	      (list (format nil 
+			    "I believe that you have already defined <var>~A</var>."
+			    ;; Use student symbol, if it exists.
+			    (or (symbols-label (second (SystemEntry-prop sysent)))
+				(word-string (SystemEntry-new-english sysent))))))))
+    (setf (StudentEntry-ErrInterp se)
+	  (make-ErrorInterp
+	   :diagnosis '(already-defined)   ;Not sure where/how this is referenced
+	   :remediation rem))
+    
+    (setf (turn-id rem) (StudentEntry-id se))
+    (setf (turn-coloring rem) **color-red**)
+    
+    rem))
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1067,6 +1166,7 @@
   (let (cand		; candidate (state . interpretation) pair
         match 		; correct system entry matched
         result) 	; final result to return
+
     
     ;; Special for vector entries: If any given eqns are set, ensure the 
     ;; form of the givens is correct before we do any other checking. 

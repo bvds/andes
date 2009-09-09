@@ -226,7 +226,9 @@
       
       ;; do predefs
       (dolist (predef (problem-predefs *cp*))
-	(push (cdr predef) replies))
+	(if (stringp (cdr predef))
+	    (warn "Bad predef format for ~A, Bug #1573" predef)
+	    (push (cdr predef) replies)))
             
     (check-entries t))
  
