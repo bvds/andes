@@ -434,7 +434,7 @@
     ;; Handling for various numbers of matches is common across object types.
     ;; Should have common code for the various types of objects.
     (cond
-      ((> (length best) 1)
+      ((> (length best) 2)
        ;; error handler for too many matches
        ;; "your definition is ambiguous" and hint sequence
        (too-many-matches-ErrorInterp entry))
@@ -562,7 +562,7 @@
 
     ;; See comments in define-variable
     (cond
-      ((> (length best) 1)
+      ((> (length best) 2)
        ;; error handler for too many matches
        ;; "your definition is ambiguous" and hint sequence
        (too-many-matches-ErrorInterp entry))
@@ -903,7 +903,7 @@
 		   (remove '(define-var . ?rest) *sg-entries* 
 			   :key #'SystemEntry-prop :test-not #'unify))
 	   ;;  Set cutoff on minimum acceptable
-	   :cutoff 0.5 :equiv 1.25))
+	   :cutoff 1.5 :equiv 1.25))
     ;; Debug printout:
     (format webserver:*stdout* "Best match to ~s is~%   ~S~%" 
 	    (pull-out-quantity symbol text) 
@@ -911,12 +911,11 @@
 	     #'(lambda (x) (cons (car x) 
 				 (expand-vars (SystemEntry-model (cdr x)))))
 		    best))
-
    
     ;; Handling for various numbers of matches is common across object types.
     ;; Should have common code for the various types of objects.
     (cond
-      ((> (length best) 1)
+      ((> (length best) 2)
        ;; error handler for too many matches
        ;; "your definition is ambiguous" and hint sequence
        (too-many-matches-ErrorInterp entry))
@@ -939,10 +938,10 @@
 	     (redundant-entry-ErrorInterp entry sysent)))
 	 
 	 ;; install new variable in symbol table
-	 (when symbol (check-symbols-enter symbol 
-					   ;; strip off the 'define-var
-					   (second (StudentEntry-prop entry)) 
-					   id))
+	 (check-symbols-enter symbol 
+			      ;; strip off the 'define-var
+			      (second (StudentEntry-prop entry)) 
+			      id)
 	 
 	 ;; record associated given value equation entry
 	 (when (and symbol value)  ;NIL => unspecified. (Empty string => unknown)
