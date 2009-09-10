@@ -530,7 +530,7 @@
 	   (word-parse (pull-out-quantity symbol text))
 	   (mapcar #'(lambda (x) 
 		       (cons (expand-vars (SystemEntry-new-english x)) x))
-		   (remove '(define-var . ?rest) *sg-entries* 
+		   (remove '(vector . ?rest) *sg-entries* 
 			   :key #'SystemEntry-prop :test-not #'unify))
 	   ;;  Set cutoff on minimum acceptable
 	   :cutoff 0.5 :equiv 1.25))
@@ -978,10 +978,9 @@
   "Given a student entry, return a tutor turn giving unsolicited feedback saying that the entry has already been done.  Also create an error interpretation in case the student asks a follow-up question, and put it in the student entry's err interp field."
   (let ((rem (make-hint-seq
 	      (list (format nil 
-			    "I believe that you have already defined <var>~A</var>."
-			    ;; Use student symbol, if it exists.
-			    (or (symbols-label (second (SystemEntry-prop sysent)))
-				(word-string (SystemEntry-new-english sysent))))))))
+			    "You have already defined ~A."
+			    (word-string (expand-vars 
+					  (SystemEntry-new-english sysent))))))))
     (setf (StudentEntry-ErrInterp se)
 	  (make-ErrorInterp
 	   :diagnosis '(already-defined)   ;Not sure where/how this is referenced

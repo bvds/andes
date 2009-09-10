@@ -124,12 +124,13 @@
   :units |m/s^2|
   :new-english ((preferred "the") (or "acceleration" "accel." "accel")
 		(and (preferred (property ?body))
-		     (preterred (time ?time))))
+		     (preferred (time ?time))))
   :nlg-english ("the acceleration of ~A" (nlg ?body 'at-time ?time)))
 
 (def-qexp momentum (momentum ?body :time ?time)
   :units |kg.m/s|
   :nlg-english ("the momentum of ~A" (nlg ?body 'at-time ?time)))
+
 (def-qexp force (force ?body ?agent ?type :time ?time)
   :units N
   :new-english ((preferred "the") (eval (force-types ?type)) "force"
@@ -225,10 +226,10 @@
 		(or (var (body ?body))
 		    (eval (def-np-model ?body)))))
 
-(def-qexp agent (agent ?body)
+(def-qexp agent (agent ?abody)
   :new-english ((or "due to" "by" "from" "caused by") 
-		(or (var (body ?body))
-		    (eval (def-np-model ?body)))))
+		(or (var (body ?abody))
+		    (eval (def-np-model ?abody)))))
 
 ;;;; scalar quantities
 
