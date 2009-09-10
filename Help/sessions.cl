@@ -286,23 +286,7 @@
 		      (:width . 250) (:x . 10) (:y . ,y) 
 		  (:text . ,time-sentence))
 		replies)
-	  (setf y (+ y 25)))
-
-	;;  Push definition sentences to client.
-	;; This is just for testing!!!
-	(when webserver:*debug*
-	  (let ((defs (print-problem-sentences problem :load nil)))
-	    (setf y (+ y 10))
-	    (push "Some phrases you can use:"
-		  defs)
-	    (dolist (defn defs)
-	      (push `((:action . "new-object") 
-		      (:id .  ,(format nil "debug~A" (incf i)))
-		      (:type . "statement") (:mode . "locked") 
-		      (:width . 250) (:x . 20) (:y . ,y) 
-		      (:text . ,defn))
-		    replies)
-	      (setf y (+ y 25))))))
+	  (setf y (+ y 25))))
 
       ;;  Push initial hint to the client.  
       ;;  Should only do this when help and grading is available
@@ -512,20 +496,6 @@
     ;; Tell the session manager that the session is over.
     ;; Must be done after env-wrap
     (setf webserver:*env* nil)))
-
-;; (format t "~{~A~%~}" (print-problem-sentences "s2e"))
-(defun print-problem-sentences (problem &key (load t))
-  "This is temporary code to print out model sentences."
-  (when load
-    (solver-load)
-    (read-problem-info problem))
-  ;; define-var body vector
-  (let (phrases)
-    (dolist (type '(vector define-var body))
-      (dolist (entry *sg-entries*)
-	(when (unify type (car (SystemEntry-prop entry)))
-	  (push (nlg (cadr (SystemEntry-prop entry))) phrases))))
-    phrases))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
