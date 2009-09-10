@@ -23,18 +23,20 @@
 (defpackage :webserver
   (:use :cl :hunchentoot :json)
   (:export :defun-method :start-json-rpc-service :stop-json-rpc-service 
-	   :*stdout* :print-sessions :*env* :close-idle-sessions *debug*
-	   :get-session-env))
+	   :*stdout* :print-sessions :*env* :close-idle-sessions :*debug*
+	   :get-session-env :*log-id*))
 
 (in-package :webserver)
 
 (defvar *server* nil)
+(defvar *log-function* nil "Logging function, function of 3 variables.")
+(defvar *log-id* nil "Id sent to the logging function.")
 (defvar *stdout* *standard-output*)
 (defvar *service-methods* (make-hash-table :test #'equal))
 
 (defvar *debug* t "Special error conditions for debugging")
 
-(defun start-json-rpc-service (uri &key (port 8080))
+(defun start-json-rpc-service (uri &key (port 8080) log-function)
   "Start a web server that runs a single service for handling json-rpc"
   ;; One could easily extend this to multiple web servers or multiple
   ;; services, but we don't need that now.
@@ -47,6 +49,7 @@
   ;; Error handlers
   (setq *show-lisp-errors-p* t)
   (setf *http-error-handler* 'json-rpc-error-message)
+  (setf *log-function* log-function)
 
   (setf *server* (start (make-instance 'acceptor :port port))))
 
@@ -73,22 +76,34 @@
   (unless (search "application/json" (header-in* :content-type))
     ;; with the wrong content-type, just send string back
     (return-from handle-json-rpc "\"content-type must be application/json\""))
-  ;; By default, cl-json turns dashes into camelcase:  we don't want that.
-  (let* ((*lisp-identifier-name-to-json* #'string-downcase)
-	 (in-json 
-	  ;; It would be much better if we gave the source of the error.
-	  (ignore-errors (decode-json-from-string 
-			  (raw-post-data :force-text t))))
+  (let* ((in-json 
+	  ;; By default, cl-json turns dashes into camelcase:  
+	  ;; we don't want that.
+	  (let ((*lisp-identifier-name-to-json* #'string-downcase))
+	    ;; It would be much better if we gave the source of the error.
+	    (ignore-errors (decode-json-from-string 
+			    (raw-post-data :force-text t)))))
 	 (service-uri (request-uri*))
 	 (method (cdr (assoc :method in-json)))
 	 (params (cdr (assoc :params in-json)))
 	 (turn (cdr (assoc :id in-json)))
 	 (client-id (header-in* :client-id))
+	 ;; Make thread local variable, this is the id used by logging
+	 (*log-id* client-id)
 	 ;; If I can't parse the json, assume it is 2.0.
 	 (version (if in-json (assoc :jsonrpc in-json) '(:jsonrpc . "2.0")))
 	 (method-func (gethash (list service-uri method) 
 			       *service-methods*))
-	 reply)
+	 reply return-json)
+    
+    ;; Log incoming raw json-rpc and user/problem session id
+    (when *log-function* 
+      (handler-case (funcall *log-function* "client" *log-id*
+			     (raw-post-data :force-text t))
+	;; Need better handling for this:  need to inform user
+	;; and system administrator.
+	(error (c) (format *stdout* "Database post error ~A" c))))
+
     (when *debug* (format *stdout* "session ~A calling ~A with~%     ~S~%" 
 			  client-id method params))
     
@@ -108,8 +123,6 @@
 			     (:message . "missing http header client-id"))
 			   (format nil "missing http header client-id"))))
 	  ((null method)
-	   ;; Need more general checks for bad json-rpc.  This is a bit
-	   ;; hard because the clients already do this.
 	   (values nil (if version
 			   `((:code . -32600) (:message . "Method missing."))
 			   "Method missing")))
@@ -119,6 +132,7 @@
 			     (:data . ,method))
 			   (format nil "Can't find method ~S for service ~A" 
 				   method service-uri))))
+	  ;; For testing client error handler
 	  ((and *debug* (equal (cdr (assoc :text params)) 
 			       "json-rpc-test-error"))
 	   (values nil (if version 
@@ -131,14 +145,25 @@
       
       (when *debug* 
 	(format *stdout* "result ~S~%~@[error ~S~%~]" result error1))
+
       ;; only give a response when there is an error or id is given
       (when (or error1 turn)
 	(when (or error1 (not version)) (push (cons :error error1) reply))
 	(when (or result (not version)) (push (cons :result result) reply))
 	(push (cons :id turn) reply)
 	(when version (push version reply))
-	(encode-json-alist-to-string reply)))))
+	;; Create raw json reply string
+	(setf return-json (encode-json-alist-to-string reply))
 
+	;; Log reply message raw json string
+	(when *log-function*
+	  ;; Error handling needs work:  need to inform administrator.
+	  (handler-case (funcall *log-function* "server" *log-id* return-json)
+	    (error (c) (format *stdout* "Database reply error ~A" c))))
+
+	return-json))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 
 ;;;     Session and turn management
 ;;;
@@ -171,19 +196,20 @@
 
 (defparameter *sessions* (make-hash-table :test #'equal) 
   "A list of active sessions")
+
 (defstruct ssn turn lock mutex reply time environment)
+
 ;; Each thread has the variable *env* available to store
 ;; sesssion-specific information between turns.
 ;; If a method sets *env* to nil, this indicates the session is finished.
 (defvar *env*) ;Declare *env* to be special, but don't bind it globally.
 
-(defun print-sessions (&optional str)
+(defun print-sessions (&optional (str *stdout*))
   "Print sessions to see what is going on."
   (let ((*print-length* 50))
     (maphash #'(lambda (id session) 
-		 (format str "session ~S with turn ~A, time ~A,~%   env ~A~%" 
-			 id (ssn-turn session) (ssn-time session)
-			 (ssn-environment session)))
+		 (format str "session ~S with turn ~A, time ~A~%" 
+			 id (ssn-turn session) (ssn-time session)))
 	     *sessions*)))
 
 (defun get-session-env (session)

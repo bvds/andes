@@ -40,18 +40,18 @@ using namespace std;
  * bool listchk(vector<int> * vchk)					*
  *	does the same check on a previously assembled list,		*
  ************************************************************************/
-bool listchk(vector<int> * vchk);
+bool listchk(vector<expr *> * vchk);
 
-bool treechk(const expr * const ex, vector<int> * vchk)
+bool treechk(const expr * const ex, vector<expr *> * vchk)
 {
   int k;
   bool topp = false;
-  if (vchk == (vector<int> *) NULL)
+  if (vchk == (vector<expr *> *) NULL)
     {
       topp = true;
-      vchk = new vector<int>;
+      vchk = new vector<expr *>;
     }
-  vchk->push_back((int) ex);
+  vchk->push_back((expr *) ex);
   switch (ex->etype)
     {
     case numval:
@@ -76,7 +76,7 @@ bool treechk(const expr * const ex, vector<int> * vchk)
   return (listchk(vchk));
 }
 
-bool listchk(vector<int> * vchk)
+bool listchk(vector<expr *> * vchk)
 {
   int k, q;
   bool retval = true;
@@ -94,7 +94,7 @@ bool listchk(vector<int> * vchk)
   if (retval)
     {
       delete vchk;
-      vchk = (vector<int> *) NULL;
+      vchk = (vector<expr *> *) NULL;
       return(true);
     }
   else

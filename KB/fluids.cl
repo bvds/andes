@@ -33,8 +33,7 @@
   :dialog-text "of [body:bodies]"
    :units |kg/m^3|
    :restrictions nonnegative   
-   :english ("the mass density of ~A" (nlg ?material))
-   :fromWorkbench `(mass-density ,body)
+   :nlg-english ("the mass density of ~A" (nlg ?material))
 )
 
 (defoperator define-mass-density (?material)
@@ -57,7 +56,7 @@
 (def-psmclass density (density ?body ?t)
   :complexity major
   :short-name "mass density defined"
-  :english ("the definition of mass density")
+  :nlg-english ("the definition of mass density")
   :expformat ("applying the definition of mass density")
   :EqnFormat ("$r = m/V"))
 
@@ -94,9 +93,8 @@
   :short-name "pressure"	
   :dialog-text "at [body:positions] at time [time:times]"
    :units |Pa|
-   :english ("the pressure at ~a" 
+   :nlg-english ("the pressure at ~a" 
 	     (nlg ?position 'at-time ?time))
-   :fromWorkbench `(pressure ,body :time ,time)
 )
 
 (defoperator define-pressure (?point ?time)
@@ -121,8 +119,7 @@
   :restrictions positive
   :short-name "standard atmosphere"
   :dialog-text ""
-  :english ("the pressure of one standard atmosphere")
-  :fromWorkbench `(atmosphere)
+  :nlg-english ("the pressure of one standard atmosphere")
 )
 
 ; should normally be predefined in fluids problems:
@@ -160,7 +157,7 @@
 (def-psmclass std-constant-Pr0 (std-constant (atmosphere))
   :complexity simple 
   :short-name "atmospheric pressure"
-  :english ("value of the atmospheric pressure Pr0 ")
+  :nlg-english ("value of the atmospheric pressure Pr0 ")
   :expformat ("defining the value of the atmospheric pressure Pr0")
   :EqnFormat ("Pr0 = 1.013E5 Pa"))
 
@@ -186,7 +183,7 @@
 (def-psmclass pressure-at-open-to-atmosphere (pressure-at-open-to-atmosphere ?point ?time)
   :complexity definition
   :short-name "point 1 open to atmosphere"
-  :english ("the formula for pressure at a point open to the atmosphere")
+  :nlg-english ("the formula for pressure at a point open to the atmosphere")
   :ExpFormat ("setting the pressure at a point open to the atmosphere")
   :EqnFormat ("P = Pr0")) 
 
@@ -223,7 +220,7 @@
 (def-psmclass pressure-height-fluid (pressure-height-fluid ?point ?time)
   :complexity major  
   :short-name "pressure in fluid"
-  :english ("the formula for pressure at a height in a fluid")
+  :nlg-english ("the formula for pressure at a height in a fluid")
   :ExpFormat ("finding the pressure at a level in a fluid")
   :EqnFormat ("P2 - P1 = $r*g*(h1-h2)")) 
 
@@ -271,7 +268,7 @@
 (def-psmclass bernoulli (bernoulli ?point1 ?point2 ?time)
   :complexity major  
   :short-name "Bernoulli equation"
-  :english ("Bernoulli's principle")
+  :nlg-english ("Bernoulli's principle")
   :ExpFormat ("applying Bernoulli's principle")
   :EqnFormat ("0.5*$r*v1^2 + $r*g*h1 + P1 = 0.5*$r*v2^2 + $r*g*h2 + P2")) 
 
@@ -328,7 +325,7 @@
 (def-psmclass equation-of-continuity (equation-of-continuity ?point1 ?point2 ?time)
   :complexity major  
   :short-name "equation of continuity"
-  :english ("the equation of continuity for incompressible fluid")
+  :nlg-english ("the equation of continuity for incompressible fluid")
   :ExpFormat ("applying the equation of continuity")
   :EqnFormat ("A1*v1 = A2*v2")) 
 
@@ -378,8 +375,7 @@
   :dialog-text "at [body:positions]  at time [time:times]"
      :units |m^2|
      :restrictions positive
-     :english ("the cross-sectional area at ~A" (nlg ?position 'at-time ?time))
-     :fromworkbench `(area-at ,body :time ,time)
+     :nlg-english ("the cross-sectional area at ~A" (nlg ?position 'at-time ?time))
 )
 
 (defoperator define-area-at (?point ?time)
@@ -486,7 +482,7 @@
 (def-psmclass pressure-force (pressure-force ?body ?time ?fluid)
   :complexity major  
   :short-name "pressure defined"
-  :english ("the definition of pressure")
+  :nlg-english ("the definition of pressure")
   :ExpFormat ("finding the pressure")
   :EqnFormat ("Fp = P*A"))
 
@@ -569,8 +565,7 @@
   :dialog-text "of [body:bodies] at time [time:times]"
      :units |m^3|
      :restrictions nonnegative ; we allow zero-volume for negligible parts of compound bodies
-     :english ("the volume of ~A" (nlg ?body 'at-time ?time))
-     :fromworkbench `(volume ,body :time ,time)
+     :nlg-english ("the volume of ~A" (nlg ?body 'at-time ?time))
    )
 
 (defoperator define-volume (?body ?time)
@@ -593,7 +588,7 @@
 (def-psmclass volume-compound (volume-compound ?compound ?t) 
   :complexity connect
   :short-name "volume of compound"
-  :english ("volume of a compound body is sum of volumes of parts")
+  :nlg-english ("volume of a compound body is sum of volumes of parts")
   :expformat ((strcat "using the fact that the volume of ~a "
 		      "is the sum of the volumes of its parts") 
 	      (nlg ?compound))
@@ -637,7 +632,7 @@
 (def-psmclass archimedes (archimedes ?body ?fluid ?t)
   :complexity major  
   :short-name "Archimedes principle (buoyant force)"
-  :english ("Archimedes' principle")
+  :nlg-english ("Archimedes' principle")
   :ExpFormat ("applying Archimedes' principle")
   :EqnFormat ("Fb = $rf*V*g"))
 

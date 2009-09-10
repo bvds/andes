@@ -61,7 +61,7 @@
 #define ISPOS    0x10000000	/* in ispos.cpp */
 #define LINONEV  0x20000000	/* in powonev and slvlinonev */
 #define POLY     0x40000000	/* in polysolve */
-#define RATEQ    0x80000000	/* in rationalize NOTE same as SLVTRIG!*/ 
+#define RATEQ    0x80000000	/* in rationalize NOTE same as SLVTRIG! */ 
 
 
 #define DBGF(FLAG,A) {if (dbglevel & FLAG) \
@@ -69,10 +69,10 @@
 #define DBGFM(FLAG,A) {if ((dbglevel & FLAG) && (dbglevel & MORE)) \
 	{cout << __FILE__ << ","<< __LINE__<<":  "; A;}}
 #define EQCHK(A) {if (dbglevel & DOEQCHK) \
-   { vector<int> *vchk = (vector<int>*) NULL; \
+   { vector<expr *> *vchk = (vector<expr *>*) NULL; \
      if (!treechk(A,vchk)) throw(string("Treechk bombs on ") +A->getInfix());}}
 #define VEQCHK(A) {if (dbglevel & DOEQCHK) \
-	{ vector<int> *vchk = new vector<int>;\
+	{ vector<expr *> *vchk = new vector<expr *>;\
 	unsigned int kc; \
 	for (kc = 0; kc < A->size(); kc++) treechk((*A)[kc],vchk); \
 	if (!listchk(vchk)) throw(string("Treechk bombs on " \

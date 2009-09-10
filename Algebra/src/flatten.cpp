@@ -296,9 +296,6 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 	    {
 	      DBGM(cout << "flatten of equality " << thisdbg << ": returns " 
 		     << e->getInfix()<< endl
-		     << "locs e[" << (int)e << "], e->lhs[" << 
-		     (int)(ebin->lhs) << "], e->rhs[" <<
-		     (int)(ebin->rhs) << "]" << endl
 		     << "returning " << ((answer) ? "true" : "false") 
 		     << endl);
 	      return(answer);

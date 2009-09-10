@@ -1,13 +1,9 @@
 
       Instructions for Installing Andes
 
-Andes works with several varieties of lisp, but
-has been used most extensively with sbcl and Allegro lisp.
+Andes been used most extensively with sbcl and Allegro lisp.
 The webserver functionality has only been developed for sbcl.
-For sbcl, a sample startup file has been included as sbclrc-sample.
-You can modify the file (you may need to change the path) and 
-copy it to your home directory:
-  cp sbclrc-sample ~/.sbclrc
+
 Andes uses asdf as its package manager; both the sbcl and 
 Allegro lisp distributions include asdf.
 
@@ -24,18 +20,49 @@ Likewise, at least for Andes2, one can use the solutions repository:
    git clone ssh://git@andestutor.org/home/git/Andes-solutions.git/ solutions
 
 ImageMagick http://www.imagemagick.org is used to dimension graphics
-files.  This is included in standard linux distributions.
+files.  This is included in standard linux distributions (but not OS X).
 
-=============== Web Server =================================
+====================== SBCL ===============================
 
-# Install the hunchentoot web server http://www.weitz.de/hunchentoot/
-# using asdf-install.  asdf-install broken in that it will try to load
-# packages we said we didn't need, like cl+ssl and its dependent cffi.
-# Check that the permissions in /usr/local/lib/sbcl/site* are OK
-  (require 'asdf-install)
-  (push :hunchentoot-no-ssl *features*) ;we have apache to do this
-  (asdf-install:install 'hunchentoot)
-  (asdf-install:install 'cl-json)
+#Go to http://sbcl.sourceforge.net/ and click on downloads
+#Download the appropriate package, unarchive it and follow
+#the install instructions.
+
+mkdir /usr/local/lib/sbcl/site/
+
+For sbcl, a sample startup file has been included as sbclrc-sample.
+You can modify the file (you may need to change the path) and 
+copy it to your home directory:
+  cp sbclrc-sample ~/.sbclrc
+
+Change the path in the sample file to your path.
+
+============================ MySql =======================================
+
+# To save session data, we use MySql.  First, mysql server must be started.
+# As root:
+  /sbin/chkconfig mysqld on
+  /sbin/service mysqld start
+# Then set the root password and restart:
+  /usr/bin/mysqladmin -u root password 'sin(0)=0'
+  /sbin/service mysqld start
+# (In OS X, go to http://dev.mysql.com, install mysql and MySQLStartupItem,
+# add /usr/local/mysql/bin to PATH in ~/.profile,
+# execute "(cd /usr/local/lib; ln -s ../mysql/lib/lib*.{a,dylib} .)"
+# execute "sudo /Library/StartupItems/MySQLCOM/MySQLCOM start", and
+# set the root mysql password using the above command.) 
+
+# clsql doesn't work with asdf-install or cffi.  
+# Instead, we patch a local copy and install. 
+# In the Andes directory, execute:
+  make install-clsql
+
+=============== Apache Web Server =================================
+
+# To serve static files, we use Apache.  First, start up Apache.
+# As root:
+  /sbin/chkconfig mysqld on
+  /sbin/service mysqld start
 
 # Next, configure Apache as reverse proxy server, with json-rpc 
 # error messages.  In httpd.conf, add:
@@ -56,24 +83,49 @@ files.  This is included in standard linux distributions.
 # Then restart:
   /sbin/service httpd reload
 
-# To run server in lisp:
+====================== Javascript ===================================
+
+# make and build the javascript.  First we need to get 
+# the Dojo library, then we need to make an andes-specific
+# build.  Right now, this uses the development version of Dojo;
+# we should later switch to using releases of Dojo.
+cd web-UI
+svn co http://svn.dojotoolkit.org/src/dojo/trunk dojo
+svn co http://svn.dojotoolkit.org/src/dijit/trunk dijit
+svn co http://svn.dojotoolkit.org/src/dojox/trunk dojox
+svn co http://svn.dojotoolkit.org/src/utils/trunk utils
+andes.build.sh
+# verify that the file index.html has isDebug = false;
+
+====================== Lisp Web Server ===============================
+
+;; Install the hunchentoot web server http://www.weitz.de/hunchentoot/
+;; using asdf-install.  asdf-install broken in that it will try to load
+;; packages we said we didn't need, like cl+ssl and its dependent cffi.
+;; Modify ownership/permissions in /usr/local/lib/sbcl/site* so that you
+;; have write permission.
+
+chown -r $USER /usr/local/lib/sbcl/site*
+
+;; Start sbcl by typing "sbcl" and run:
+  (require 'asdf-install)
+  (push :hunchentoot-no-ssl *features*) ;we have apache to do this
+  (asdf-install:install 'hunchentoot) ;here it will say package not trusted multiple times
+  (asdf-install:install 'cl-json)
+
+
+;; To run server in lisp, type "screen" on the command line,
+;; then type "sbcl" to start up lisp, then:
   (rhelp)
   (start-help)
-# There is a bug, which causes shut-down to hang, see
-# http://common-lisp.net/pipermail/tbnl-devel/2009-February/004608.html
-# http://common-lisp.net/pipermail/tbnl-devel/2009-February/004589.html
+;; To stop the lisp server:
   (stop-help)
 
-============================ MySql =======================================
+;; There is a bug, which causes shut-down to hang, see
+;; http://common-lisp.net/pipermail/tbnl-devel/2009-February/004608.html
+;; http://common-lisp.net/pipermail/tbnl-devel/2009-February/004589.html
 
-To save sessions, we use MySql.  First, mysql server must be started.
-As root:
-  /sbin/chkconfig mysqld on
-  /sbin/service mysqld start
-Then set the root password and restart:
-  /usr/bin/mysqladmin -u root password 'sin(0)=0'
-  /sbin/service mysqld start
+;; to exit lisp:
+  (quit)
 
-[Next, need to set up database, need to install and load clsql and
-clsql-mysql to access database in lisp.  ]
-
+============================================================================

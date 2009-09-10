@@ -21,8 +21,6 @@
 ;;;;       list of PSMclasses grouped into catagories
 ;;;;   
 
-;; Use (principles-file) to generate file KB/principles.tsv
-
 (defparameter *principle-tree* '(
 (group "Write a Principle"
 (group "Kinematics" 
@@ -412,46 +410,6 @@
  (leaf average-rate-of-change)
  )
 ))
-
-
-;;;          Generate file KB/principles.tsv
-
-(defun principles-file ()
-  "construct file solutions/principles.tsv"
-  (let ((str (open (merge-pathnames  "solutions/principles.tsv" *Andes-Path*)
-		   :direction :output :if-exists :supersede
-		   ;; The workbench uses an older windows-specific 
-		   ;; character encoding
-	         :external-format #+sbcl :windows-1252 #+allegro :1252)))
-    (dolist (p *principle-tree*) (principle-branch-print str p))
-    (close str)))
-
-(defun principle-branch-print (str p)
-  "prints a group in KB/principles.tsv"
-  (cond ((eq (car p) 'group)
-	 ;; principles.tsv file format is 4 tab-separated columns
-	 (format str "GROUP~C~A~C~C~%" #\tab (cadr p) #\tab #\tab)
-	 (dolist (pp (cddr p)) (principle-branch-print str pp))
-	 (format str "END_GROUP~C~A~C~C~%"  #\tab (cadr p) #\tab #\tab))
-	((eq (car p) 'leaf)
-	 (apply #'principle-leaf-print (cons str (cdr p))))))
-
-;; keywords :short-name and :EqnFormat override definitions in Ontology
-(defun principle-leaf-print (str class &key tutorial (bindings no-bindings)
-					EqnFormat short-name) 
-  "prints a principle in KB/principles.tsv"
-  (let ((pc (lookup-psmclass-name class)))
-    (format str "LEAF~C~A    ~A~C~(~A~)~C~@[~A~]~%" #\tab 
-	    (eval-print-spec (or EqnFormat (psmclass-EqnFormat pc)) bindings)
-	    (eval-print-spec (or short-name (psmclass-short-name pc)) bindings)
-	    #\tab
-	    (if (eq bindings no-bindings) (psmclass-name pc)
-	      ;; if bindings have been supplied, construct list
-	      ;; turn off pretty-print to prevent line breaks
-	      (write-to-string (list (psmclass-name pc) bindings) :pretty nil))
-	    #\tab
-	    tutorial)))
-
 
 ;;; 
 ;;;            List of Andes distribution homework sets
@@ -1205,3 +1163,50 @@ F-8\">~%"
   (format stream (strcat "</body>~%" 
 			 "</html>~%"))
   (when (streamp stream) (close stream)))))
+
+
+;; Use the above perl script to fix the math formatting after the files
+;; are generated.
+;; (problem-xml-files #P"/Users/bvds/Andes2/xml/")
+;; cp solutions/*.gif 
+;; cp solutions/*.jpg ~/problems/
+(defun problem-xml-files (&optional (path *andes-path*))
+  "construct xml files for all problems"
+  (dolist (prob (listprobs))
+    (let ((*print-pretty* NIL) ;disble line breaks
+	  (stream (open (merge-pathnames 
+			 (format nil "~(~A~).xhtml" (problem-name prob)) path)
+			:direction :output :if-exists :supersede)))
+      
+  ;    (format t "starting problem ~A~%" (problem-name prob))
+
+      ;;  Assume stream has UTF-8 encoding (default for sbcl)
+      ;;  Should test this is actually true or change the charset to match
+      ;;  the actual character code being used by the stream
+      ;;  something like:
+      (when (streamp Stream) 
+	#+sbcl (unless (eq (stream-external-format Stream) ':utf-8)
+		 (error "Wrong character code ~A, should be UTF-8" 
+			(stream-external-format Stream))))
+      (format Stream 
+	      (strcat
+	       "<!DOCTYPE html PUBLIC "
+	       "\"-//W3C//DTD XHTML 1.0 Strict//EN\"~%"
+	       "  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">~%"
+	       "<html xmlns=\"http://www.w3.org/1999/xhtml\" version=\"XHTML 1.2\" xml:lang=\"en\">~%"
+	       "<head>~%"
+	       "  <title>~(~A~)</title>~%"
+	       "</head>~%"
+	       "<body>~%  <p>~%") (problem-name prob))
+      (dolist (liner (problem-statement prob))
+	(cond 
+	  ((listp liner) nil)
+	  ((equal "" (string-trim *whitespace* liner))
+	   (format stream  "  </p>~%  <p>~%"))
+	  (t (format stream "    ~A~%" liner))))
+      (format stream "  </p>~%")
+      (when (problem-graphic prob)
+	(format stream "  <p><img src=\"/images/~A\" alt=\"figure\" /></p>~%" 
+		(problem-graphic prob)))
+      (format stream (strcat "</body>~%</html>~%"))
+      (when (streamp stream) (close stream)))))

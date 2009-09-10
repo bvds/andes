@@ -17,10 +17,11 @@
 (defsystem :andes-help
   :name "Andes help"
   :description "Andes physics tutor system: helpsystem"
-  :depends-on (problems web-server)
+  :depends-on (problems web-server clsql clsql-mysql)
   :components (
 	       (:module "Base"
 			:components ((:file "memoize")
+				     (:file "match")
 				     ;; mt19937 had its own asd file, 
 				     ;; but we don't use it
 				     (:file "mt19937") 
@@ -47,16 +48,17 @@
 	 			     (:file "SolutionGraph")
 				     
                                      (:file "utilities")
+
+				     ;; depends on clsql and clsql-mysql
+				     (:file "database")
 				     				     
 				     ;; Entry Intepreter: generic + non-eq
 				     (:file "symbols")
 				     (:file "State"
 					    :depends-on ("symbols" "grammar"))
-				     (:file "match")
 				     (:file "Entry-API"
 					    :depends-on ("HelpMessages"
-							 "SolutionGraph" 
-							 "match"))
+							 "SolutionGraph"))
 				     
 				     ;; Equation parser/interpreter
 				     (:file "grammar")
@@ -90,6 +92,7 @@
 					    ;; Mostly for *help-env-vars*
 					    :depends-on ("NextStepHelp"
 							 "parse" "State" 
+							 "database"
 							 "grammar" 
 							 "Commands"))))
 	       (:module "Testcode"

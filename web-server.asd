@@ -24,7 +24,7 @@
 (defsystem :web-server
   :name "Web Server"
   :description "Web Server"
-  :depends-on (hunchentoot cl-json)
+  :depends-on (hunchentoot cl-json clsql clsql-mysql)
   :components (
 	       (:module "Base"
 			:components ((:file "web-server")))))

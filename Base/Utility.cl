@@ -472,25 +472,6 @@ consed on if lists or as list otherwize."
   (apply #'format t form)
   (format t "  ~A~%" Bar))
 
-
-;;; This function is not called by anyone so I am 
-;;; commenting it out for the time being.
-;;(defun print-flat-by-size (lst &optional (Stream t) (Level 0))
-;;  (dolist (n (sort #'shortest lst))
-;;    (format-with-padding Level "~A~%" n)))
-
-
-(defun segment-string (String &optional (Segment #\space))
-  (let ((L) (S String) (n))
-    (do () ((String= S ""))
-      (when (setq n (or (position Segment S)))      
-	(push (subseq S 0 n) L)
-	(setq S (subseq S (+ n 1)))))
-    (reverse (cons S L))))
-
-
-
-
 ;;; ------------------------------------------------------------------
 ;;; Given a list of values filter them by the supplied function
 ;;; all elements that return t on the function are grouped 
@@ -576,25 +557,6 @@ consed on if lists or as list otherwize."
 (defun func-eval (expressions)
   "Evaluate the expression by wrapping it as a funcall and applying."
   (funcall (append '(lambda ()) expressions)))
-
-
-;;;----------------------------------------------------------------------------
-;;; Code by Lynwood Taylor.
-;;;
-;;; This is a replacement for eval.  According to the Allegro Lisp licensing,
-;;; one is not supposed to use eval (which compiles lisp code) in the
-;;; runtime code that is distributed.
-;;;
-(defun andes-eval (expr &optional (environment nil))
-  "For use in place of eval ... works in nlg.cl but may need further cases checked."
-  (cond
-   ((symbolp expr) 
-    (or (cdr (assoc expr environment)) (symbol-value expr)))
-   ((atom expr) expr)
-   ((eq (car expr) 'quote) (cadr expr))
-   ((atom (car expr)) (apply (car expr) (mapcar #'andes-eval (cdr expr))))
-   (t (apply (andes-eval (car expr)) (mapcar #'andes-eval (cdr expr))))))  
-
 
 ;;;----------------------------------------------------------------------
 ;;; Time decoding.

@@ -548,7 +548,7 @@
   (if (and (consp arg) 
            (eq (first arg) 'nlg))
     (apply #'nlg (rest arg))	; if nlg'ing, don't evaluate rest
-    (andes-eval arg)))
+    (eval arg)))
 
 
 ;;;----------------------------------------------------------------------------

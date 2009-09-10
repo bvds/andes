@@ -81,7 +81,7 @@ void kmult(expr * & ex, const double k);   // ex <-   k * ex	   normexpr
 void kmult(expr * & ex, numvalexp * nv);   // ex <-   *nv * ex	   normexpr
 bool linvarcoefs(const expr * ex, const varindx var, 		// slvlinonev
 	    expr * & coef, expr * & numer);
-bool listchk(vector<int> * vchk);				// treechk
+bool listchk(vector<expr *> * vchk);				// treechk
 bool lookslikeint(double, int &);				// lookslikeint
 void maketrigvars(vector<binopexp *> * eqexpr,			// solvetrig
 		  vector<expr *> * & trigvars);			// solvetrig
@@ -129,7 +129,7 @@ int solvetwoquads(binopexp * & ,  binopexp * & , 		// despquad
                   const varindx , const varindx );
 bool subexpin(expr * & , const binopexp *);			// subexpin
 bool substin(expr * & target, const binopexp * assign);		// substin
-bool treechk(const expr * const ex, vector<int> * vchk);	// treechk
+bool treechk(const expr * const ex, vector<expr *> * vchk);	// treechk
 bool trigsearch(const expr * const arg, expr *& coef,		// solvetrig
 		const expr * const ex, bool & iscos,
 		expr * & oside);	  

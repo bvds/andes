@@ -69,12 +69,18 @@
   (parse-initialize)   ;set up memoization for parse functions
   (physics-algebra-rules-initialize) ;initialize grammar
 
+  ;; Set up database
+  (andes-database:create)
+
   ;; start webserver
-  (webserver:start-json-rpc-service "/help" :port port))
+  (webserver:start-json-rpc-service 
+   "/help" :port port :log-function #'andes-database:write-transaction))
 
 (defun stop-help () 
   "stop the web server running this service"
-  (webserver:stop-json-rpc-service))
+  (webserver:stop-json-rpc-service)
+  ;; Stop database.
+  (andes-database:destroy))
 
 ;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
 (#-sbcl defconstant #+sbcl sb-int:defconstant-eqx
@@ -191,6 +197,10 @@
   ;; webserver:*env* needs to be initialized before the wrapper
   (setq webserver:*env* (make-help-env :student user :problem problem 
 				       :section section))
+
+  ;; Update logging with session information
+  (andes-database:set-session 
+   webserver:*log-id* :student user :problem problem :section section)
   
   (let (replies solution-step-replies
 		;; Override global variable on start-up
@@ -216,7 +226,9 @@
       
       ;; do predefs
       (dolist (predef (problem-predefs *cp*))
-	(push (cdr predef) replies))
+	(if (stringp (cdr predef))
+	    (warn "Bad predef format for ~A, Bug #1573" predef)
+	    (push (cdr predef) replies)))
             
     (check-entries t))
  
@@ -274,27 +286,11 @@
 		      (:width . 250) (:x . 10) (:y . ,y) 
 		  (:text . ,time-sentence))
 		replies)
-	  (setf y (+ y 25)))
-
-	;;  Push definition sentences to client.
-	;; This is just for testing!!!
-	(when webserver:*debug*
-	  (let ((defs (print-problem-sentences problem :load nil)))
-	    (setf y (+ y 10))
-	    (push "Some phrases you can use:"
-		  defs)
-	    (dolist (defn defs)
-	      (push `((:action . "new-object") 
-		      (:id .  ,(format nil "debug~A" (incf i)))
-		      (:type . "statement") (:mode . "locked") 
-		      (:width . 250) (:x . 20) (:y . ,y) 
-		      (:text . ,defn))
-		    replies)
-	      (setf y (+ y 25))))))
+	  (setf y (+ y 25))))
 
       ;;  Push initial hint to the client.  
       ;;  Should only do this when help and grading is available
-      (push `((:action . "show-hint") (:text . "If you need help, click the help button <span dojoType=\"dijit.form.Button\" disabled=\"true\">?</span> below.&nbsp; Click the <span class=\"dojoxExpandoIcon dojoxExpandoIconRight\" style=\"float:none;display:inline-block;margin-right:6px;\" disabled=\"true\"></span> button above to hide this window.")) 
+      (push '((:action . "show-hint") (:text . "If you need help, click the help button <span dojoType=\"dijit.form.Button\" disabled=\"true\">?</span> below.&nbsp; Click the <span class=\"dojoxExpandoIcon dojoxExpandoIconRight\" style=\"float:none;display:inline-block;margin-right:6px;\" disabled=\"true\"></span> button above to hide this window.")) 
 	    replies)
   
       ;; set-stats (if there was an old score) (to do)
@@ -313,6 +309,7 @@
 	    replies)      
       (push `((:action . "set-score") (:score . 0)) replies))
 
+    ;; assemble list of replies to send to client.
     (append (reverse replies) solution-step-replies)))
 
 ;; need error handler for case where the session isn't active
@@ -499,20 +496,6 @@
     ;; Tell the session manager that the session is over.
     ;; Must be done after env-wrap
     (setf webserver:*env* nil)))
-
-;; (format t "~{~A~%~}" (print-problem-sentences "s2e"))
-(defun print-problem-sentences (problem &key (load t))
-  "This is temporary code to print out model sentences."
-  (when load
-    (solver-load)
-    (read-problem-info problem))
-  ;; define-var body vector
-  (let (phrases)
-    (dolist (type '(vector define-var body))
-      (dolist (entry *sg-entries*)
-	(when (unify type (car (SystemEntry-prop entry)))
-	  (push (nlg (cadr (SystemEntry-prop entry))) phrases))))
-    phrases))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

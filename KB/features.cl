@@ -25,11 +25,6 @@
 ;;; If f1 is a feature in featureset A and f1 is also the name of an 
 ;;; eligible featureset B=f1, then the features in B are appended to A.
 ;;;
-;;; Routines for generating features.tsv appear at the end.
-;;;
-;;; The following features enable custom dialog boxes on the workbench:
-;;;   speed, angle, energy, current, voltage, resistance, capacitance,
-;;;   duration, probablity, time-constant
 
 ;; global features
 (setq *Ontology-features-ignore*  
@@ -147,20 +142,3 @@
 	      (member 'no-quant (problem-features problem)))
     (push 'no-quant (problem-features problem))))
 
-
-;;;             Utilities for constructing features file
-
-(defun print-features (str)
- "express features in the format needed for solutions/features.tsv"
-  (dolist (f *Ontology-features*)
-  (format str "~A~C~(~{~A;~}~)~%"  ;lower case, see Bug #788 
-	  (first f) #\tab (second f))))
-
-(defun features-file ()
- "construct file solutions/features.tsv"
-    (let ((str (open (merge-pathnames  "solutions/features.tsv" *Andes-Path*)
-		     :direction :output :if-exists :supersede
-		     ;; The workbench uses an older windows-specific 
-		     ;; character encoding
-		     :external-format #+sbcl :windows-1252 #+allegro :1252)))
-		   (print-features str) (close str)))

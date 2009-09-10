@@ -39,7 +39,7 @@
 (def-psmclass equiv-resistance-series (equiv-resistance-series ?res-list) 
   :complexity major
   :short-name "equivalent resistance series"
-  :english ("Equivalent resistance of series resistors")
+  :nlg-english ("Equivalent resistance of series resistors")
   :eqnFormat ("Req = R1 + R2 + ...") )
 
 (defoperator equiv-resistance-series-contains (?sought)
@@ -55,7 +55,7 @@
  def-psmclass equiv-resistance-parallel (equiv-resistance-parallel ?res-list) 
  :complexity major
   :short-name "equivalent resistance parallel"
- :english ("Equivalent resistance of parallel resistors")
+ :nlg-english ("Equivalent resistance of parallel resistors")
  :eqnFormat ("1/Req = 1/R1 + 1/R2 + ...") )
 
 (defoperator equiv-resistance-parallel-contains (?sought)
@@ -167,7 +167,7 @@
 (def-psmclass current-thru-what (current-thru-what ?what ?branch ?t) 
   :complexity minor 
   :short-name "current in branch"
-  :english ("Current in branch")
+  :nlg-english ("Current in branch")
   :Expformat ("Relating the current through ~A to the current in the branch containing it" ?what)
   :eqnFormat ("Icomp = Ibranch"))
 
@@ -283,7 +283,7 @@
 (def-psmclass ohms-law (ohms-law ?res ?t) 
   :complexity definition
   :short-name "Ohm's Law"
-  :english ("Ohm's Law")
+  :nlg-english ("Ohm's Law")
   :ExpFormat ("applying Ohm's law to ~A" (nlg ?res))
   :eqnFormat ("V = I*R"))
 
@@ -359,7 +359,7 @@
 (def-psmclass loop-rule  (loop-rule ?branch-list ?t)  
   :complexity major 
   :short-name "Kirchoff's loop rule"
-  :english ("Kirchoff's loop rule")
+  :nlg-english ("Kirchoff's loop rule")
   :eqnFormat ("V1 + V2 + V3 ... = 0"))
 
 (defoperator loop-rule-contains (?comp ?t)
@@ -714,7 +714,7 @@
 (def-psmclass junction-rule  (junction-rule ?junction ?t)  
   :complexity major 
   :short-name "Kirchoff's junction rule"
-  :english ("Kirchoff's junction rule")
+  :nlg-english ("Kirchoff's junction rule")
   :eqnFormat ("Iin = Iout"))
 
 (defoperator junction-rule-contains (?Sought)
@@ -788,7 +788,7 @@
 (def-psmclass equiv-capacitance-series (equiv-capacitance-series ?cap-list) 
   :complexity major
   :short-name "equivalent capacitance series"
-  :english ("Equivalent capacitance of series capacitors")
+  :nlg-english ("Equivalent capacitance of series capacitors")
   :eqnFormat ("1/Ceq = 1/C1 + 1/C2 + ...") )
 
 (defoperator equiv-capacitance-series-contains (?sought)
@@ -803,7 +803,7 @@
 (def-psmclass equiv-capacitance-parallel (equiv-capacitance-parallel ?cap-list) 
   :complexity major
   :short-name "equivalent capacitance parallel"
-  :english ("Equivalent capacitance of parallel capacitors")
+  :nlg-english ("Equivalent capacitance of parallel capacitors")
   :eqnFormat ("Ceq = C1 + C2 + ...") )
 
 (defoperator equiv-capacitance-parallel-contains (?sought)
@@ -883,7 +883,7 @@
 (def-psmclass charged-particles (number-of-particles charge ?p ?b) 
   :complexity definition
   :short-name "charged particles"
-  :english ("Number of charged particles")
+  :nlg-english ("Number of charged particles")
   ;; not the right part of speech for ?p, but the desired behavior
   :ExpFormat ("finding the number of charged ~As in ~A" (nlg ?p 'adj) (nlg ?b))
   :eqnFormat ("Q = N*q"))
@@ -927,7 +927,7 @@
 (def-psmclass capacitance-definition (capacitance-definition ?cap ?t) 
   :complexity definition
   :short-name "capacitance defined"
-  :english ("Definition of capacitance")
+  :nlg-english ("Definition of capacitance")
   :ExpFormat ("applying the definition of capacitance to ~A" (nlg ?cap))
   :eqnFormat ("C = q/V"))
 
@@ -1049,7 +1049,7 @@
 (def-psmclass junction-rule-cap (junction-rule-cap ?junction ?t)  
   :complexity major 
   :short-name "capacitor junction rule"
-  :english ("junction rule for capacitors")
+  :nlg-english ("junction rule for capacitors")
   :eqnFormat ("Qin = Qout"))
 
 (defoperator junction-rule-cap-contains (?Sought)
@@ -1119,7 +1119,7 @@
 (def-psmclass charge-same-caps-in-branch (charge-same-caps-in-branch ?caps ?t) 
   :complexity major
   :short-name "charge on series capacitors"
-  :english ("Charge on series capacitors")
+  :nlg-english ("Charge on series capacitors")
   :expformat("Using the fact that series capacitors have the same charge.")
   :eqnFormat ("q1 = q2"))
 
@@ -1158,7 +1158,7 @@
 (def-psmclass cap-energy (cap-energy ?cap ?t) 
   :complexity major 
   :short-name "energy stored in a capacitor"
-  :english ("The formula for energy stored in a capacitor")
+  :nlg-english ("The formula for energy stored in a capacitor")
   :expformat("Applying the formula for energy stored in a capacitor to ~A" (nlg ?cap))
   :eqnFormat ("U = 0.5*C*V^2"))
 
@@ -1218,7 +1218,7 @@
 (def-psmclass RC-time-constant (RC-time-constant ?res ?cap) 
   :complexity definition 
   :short-name "RC time constant"
-  :english ("RC time constant")
+  :nlg-english ("RC time constant")
   :eqnFormat ("$t = R*C"))
 
 (defoperator RC-time-constant-contains (?sought)
@@ -1253,7 +1253,7 @@
 (def-psmclass RLC-time-constant (RLC-time-constant ?circuit) 
   :complexity definition 
   :short-name "RLC time constant"
-  :english ("RLC time constant")
+  :nlg-english ("RLC time constant")
   :eqnFormat ("$t = 2*L/R"))
 
 (defoperator RLC-time-constant-contains (?sought)
@@ -1295,7 +1295,7 @@
 (def-psmclass LC-angular-frequency (LC-angular-frequency ?circuit) 
   :complexity definition 
   :short-name "LC angular frequency"
-  :english ("the angular frequency of an LC circuit")
+  :nlg-english ("the angular frequency of an LC circuit")
   :eqnFormat ("$w = 1/sqrt(L*C)"))
 
 (defoperator LC-angular-frequency-contains (?sought)
@@ -1337,7 +1337,7 @@
 (def-psmclass RLC-angular-frequency (RLC-angular-frequency ?circuit) 
   :complexity definition 
   :short-name "RLC angular frequency"
-  :english ("the angular frequency of an RLC circuit")
+  :nlg-english ("the angular frequency of an RLC circuit")
   :eqnFormat ("$w = sqrt(1/(L*C)-R^2/(2*L)^2)"))
 
 (defoperator RLC-angular-frequency-contains (?sought)
@@ -1388,7 +1388,7 @@
 					     ?components ?time) 
   :complexity major
   :short-name "charge on capacitor in RC circuit"
-  :english ("the charge on capacitor in RC circuit, initially full")
+  :nlg-english ("the charge on capacitor in RC circuit, initially full")
   :eqnFormat ("q = qi*exp(-t/$t)"))
 
 (defoperator discharging-capacitor-at-time-contains (?sought)
@@ -1440,7 +1440,7 @@
 					  ?components ?time) 
   :complexity major
   :short-name "charge on capacitor in RC circuit with battery"
-  :english ("the charge on capacitor in RC circuit, initially empty")
+  :nlg-english ("the charge on capacitor in RC circuit, initially empty")
   :eqnFormat ("q = C*Vb*(1 - exp(-t/$t))"))
 
 (defoperator charging-capacitor-at-time-contains (?sought)
@@ -1520,7 +1520,7 @@
 (def-psmclass current-in-RC-at-time (current-in-RC-at-time ?components ?time) 
   :complexity major
   :short-name "current in RC circuit"
-  :english ("Current in RC circuit")
+  :nlg-english ("Current in RC circuit")
   :eqnFormat ("I = (Vb/R)*exp(-t/$t)"))
 
 (defoperator current-in-RC-at-time-contains (?sought)
@@ -1572,7 +1572,7 @@
 (def-psmclass charge-capacitor-percent-max (charge-capacitor-percent-max ?cap . ?times) 
   :complexity minor 
   :short-name "RC charge as fraction of max"
-  :english ("the RC circuit charge as percent of maximum")
+  :nlg-english ("the RC circuit charge as percent of maximum")
   :eqnFormat ("q = fraction*C*Vb"))
 
 (defoperator charge-capacitor-percent-max-contains (?sought)
@@ -1643,7 +1643,7 @@
 (def-psmclass solenoid-self-inductance (solenoid-self-inductance ?solenoid)
   :complexity major
   :short-name "self-inductance of long, uniform solenoid"
-  :english ("the self-inductance of a long, uniform solenoid")
+  :nlg-english ("the self-inductance of a long, uniform solenoid")
   :ExpFormat ("finding the self-inductance of ~A" (nlg ?solenoid))
   :EqnFormat ("L = $m0*N^2*A/l" ))
 
@@ -1685,9 +1685,6 @@
 ;; Partially because these quantities correspond to distinct variable
 ;; choices in the user interface, a unique def-qexp will be needed for
 ;; each quantity.
-;;
-;; The hint is a bit weak because KB has no information about 
-;; the menu item name given in scalars.tsv
 
 (defoperator define-rate-of-change-var (?quant)
   :preconditions 
@@ -1719,7 +1716,7 @@
   ;; combined with other equations.
   :complexity definition 
   :short-name "average rate of change"
-  :english ("the average rate of change of quantity")
+  :nlg-english ("the average rate of change of quantity")
   :expformat ("applying definition of average rate of change to ~A" 
 	      (nlg ?quant)) 
   :EqnFormat ("dy/dt_avg = (y2-y1)/(t2-t1)"))
@@ -1791,7 +1788,7 @@
 (def-psmclass inductor-emf (inductor-emf ?inductor ?time) 
   :complexity major
   :short-name "inductor EMF"
-  :english ("EMF (voltage) across inductor")
+  :nlg-english ("EMF (voltage) across inductor")
   :ExpFormat ("finding the EMF across inductor ~A ~A" 
 	      (nlg ?inductor) (nlg ?time 'pp))
   :eqnFormat ("V = -L*dIdt") 
@@ -1829,7 +1826,7 @@
 (def-psmclass mutual-inductor-emf (mutual-inductor-emf ?ind1 ?ind2 ?time) 
   :complexity major
   :short-name "mutual inductor EMF"
-  :english ("induced EMF (voltage) across ~A due to ~A" 
+  :nlg-english ("induced EMF (voltage) across ~A due to ~A" 
 	    (nlg ?ind1) (nlg ?ind2))
   :eqnFormat ("V2 = -M12*dI1dt") 
   )
@@ -1870,7 +1867,7 @@
 (def-psmclass inductor-energy (inductor-energy ?ind ?t) 
   :complexity major 
   :short-name "energy stored in inductor"
-  :english ("the formula for energy stored in a inductor")
+  :nlg-english ("the formula for energy stored in a inductor")
   :expformat("Applying the formula for energy stored in a inductor to ~A" (nlg ?ind))
   :eqnFormat ("U = 0.5*L*I^2"))
 
@@ -1912,7 +1909,7 @@
 (def-psmclass LR-time-constant (LR-time-constant ?ind ?res) 
   :complexity definition 
   :short-name "LR time constant"
-  :english ("the LR circuit time constant")
+  :nlg-english ("the LR circuit time constant")
   :eqnFormat ("$t = L/R"))
 
 
@@ -1948,7 +1945,7 @@
 (def-psmclass LR-current-growth (LR-current-growth ?ind ?res ?branch . ?times) 
   :complexity major
   :short-name "LR current growth"
-  :english ("current growth in an LR circuit")
+  :nlg-english ("current growth in an LR circuit")
   :eqnFormat ("I = Imax*(1 - exp(-t/$t))"))
 
 (defoperator LR-current-growth-contains (?sought)
@@ -2004,7 +2001,7 @@
 (def-psmclass LR-growth-Imax (LR-growth-Imax ?res ?bat ?branch ?time)
   :complexity major 
   :short-name "LR growth final current"
-  :english ("LR circuit growth final current")
+  :nlg-english ("LR circuit growth final current")
   :eqnFormat ("Imax = Vb/R"))
 
 (defoperator LR-growth-Imax-contains (?sought)
@@ -2044,7 +2041,7 @@
 (def-psmclass LR-current-decay (LR-current-decay ?res ?ind ?branch ?time) 
   :complexity major
   :short-name "LR current decay"
-  :english ("current decay in an LR circuit")
+  :nlg-english ("current decay in an LR circuit")
   :eqnFormat ("I = I0*exp(-t/$t)"))
 
 (defoperator LR-current-decay-contains (?sought)
@@ -2095,7 +2092,7 @@
 (def-psmclass LR-decay-Imax (LR-decay-Imax ?res ?bat ?branch ?time)
   :complexity major 
   :short-name "LR circuit initial current"
-  :english ("LR circuit initial current")
+  :nlg-english ("LR circuit initial current")
   :eqnFormat ("I0 = Vb/R"))
 
 (defoperator LR-decay-Imax-contains (?sought)
@@ -2136,7 +2133,7 @@
 (def-psmclass electric-power (electric-power ?comp ?t)
   :complexity major
   :short-name "electric power"
-  :english ("the formula for electric power")
+  :nlg-english ("the formula for electric power")
   :eqnFormat ("P = V*I"))
 
 (defoperator electric-power-contains (?sought)
@@ -2188,7 +2185,7 @@
 (def-psmclass transformer-voltage (transformer-voltage ?coils ?t)
   :complexity major
   :short-name "transformer voltage relation"
-  :english ("the voltage relation for an ideal transformer")
+  :nlg-english ("the voltage relation for an ideal transformer")
   :eqnFormat ("V1/N1 = V2/N2"))
 
 (defoperator transformer-voltage-contains (?sought)
@@ -2228,7 +2225,7 @@
 (def-psmclass transformer-power (transformer-power ?coils ?t)
   :complexity major
   :short-name "transformer power relation"
-  :english ("the power relation for an ideal transformer")
+  :nlg-english ("the power relation for an ideal transformer")
   :eqnFormat ("P1 = P2"))
 
 (defoperator transformer-power-contains (?sought)

@@ -66,13 +66,15 @@
   (let* ((spec (funcall ef rule)) ; may be NIL if no english specified
          (format (first spec))
 	 (args (subst-bindings-quoted bindings (rest spec))))
-    (if spec
-      (andes-eval `(format nil ,format ,@args)))))
+    (when spec
+      (eval `(format nil ,format ,@args)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun nlg-list-default (x &rest args)
-  (cond ((null x) nil) 
-	((nlg-find x *Ontology-ExpTypes* #'ExpType-Form #'ExpType-English))
+  (cond ((null x) nil)
+	((new-english-find x) (word-string (expand-vars (new-english-find x))))
+	((nlg-find x *Ontology-ExpTypes* #'ExpType-Form #'ExpType-nlg-english))
 	(t (format nil "~A" x))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -143,6 +145,21 @@
 	  ;; else assuming x is a common noun
 	  (T                (format nil "the ~(~A~)" x)))
     ))
+
+(defun def-np-model (x)
+  (if (listp x)
+      x  
+      ;; Assume x is an atom
+      (cond ((numberp x)      (format nil "~A" x))
+	    ((pronounp x) (format nil "~(~A~)" x))
+	    ((upper-case-namep x) (format nil "~A" x))
+	    ((proper-namep x) 
+	     ;; heuristic is not always correct, allow "the"
+	     `((allowed "the") ,(format nil "~(~A~)" x)))
+	    ;; else assume x is a common noun
+	    (T `((preferred "the") ,(format nil "~(~A~)" x))))
+      ))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun indef-np	(x &rest args)
@@ -290,7 +307,7 @@
 (defun goal (x &rest args)
   (if (atom x)
       (lower-case x args)
-    (or (nlg-find x *Ontology-GoalProp-Types* #'GoalProp-Form #'GoalProp-English)
+    (or (nlg-find x *Ontology-GoalProp-Types* #'GoalProp-Form #'GoalProp-nlg-english)
 	(format nil "[GOAL: ~A]" x))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -299,26 +316,26 @@
       (nlg-atom-default x args)
     (or (nlg-find x *Ontology-PSMClasses* #'PSMClass-Form #'PSMClass-ExpFormat)
 	(nlg-find x *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-ExpFormat)
-	(nlg-find x *Ontology-PSMClasses* #'PSMClass-Form #'PSMClass-English)
-	(nlg-find x *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-English)
+	(nlg-find x *Ontology-PSMClasses* #'PSMClass-Form #'PSMClass-nlg-english)
+	(nlg-find x *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-nlg-english)
 	(format nil "[PSM: ~A]" x))))
 
 (defun psm-group (x &rest args)
 "kvl: returns the english for the group, of which this psm is a part"
   (cond ((atom x)
 	 (nlg-atom-default x args))
-	((nlg-find x *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-English))
+	((nlg-find x *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-nlg-english))
 	((loop for c in *Ontology-PSMClasses* with bindings 
 	     when (setf bindings (unify (PSMClass-form c) x)) 
-	     do (return (nlg-find (PSMClass-group c) *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-English))))
-	((nlg-find x *Ontology-PSMClasses* #'PSMClass-Form #'PSMClass-English))
+	     do (return (nlg-find (PSMClass-group c) *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-nlg-english))))
+	((nlg-find x *Ontology-PSMClasses* #'PSMClass-Form #'PSMClass-nlg-english))
 	(T (format nil "[PSM: ~A]" x))))
 
 (defun psm-english (x &rest args)
   (if (atom x)
       (nlg-atom-default x args)
-    (or (nlg-find x *Ontology-PSMClasses* #'PSMClass-Form #'PSMClass-English)
-	(nlg-find x *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-English)
+    (or (nlg-find x *Ontology-PSMClasses* #'PSMClass-Form #'PSMClass-nlg-english)
+	(nlg-find x *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-nlg-english)
 	(format nil "[PSM: ~A]" x))))
 
 
@@ -327,16 +344,16 @@
 (defun nlg-entryprop (x &rest args)
   (if (atom x) 
       (nlg-atom-default x args)
-    (or (nlg-find x *Ontology-EntryProp-Types* #'EntryProp-KBForm #'EntryProp-English)
-	(nlg-find x *Ontology-EntryProp-Types* #'EntryProp-HelpForm #'EntryProp-English)
+    (or (nlg-find x *Ontology-EntryProp-Types* #'EntryProp-KBForm #'EntryProp-nlg-english)
+	(nlg-find x *Ontology-EntryProp-Types* #'EntryProp-HelpForm #'EntryProp-nlg-english)
 	(format Nil "[EntryProp: ~a]" x))))
 	
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun psm-type (x &rest args)
-    (cond ((psmgroup-p x) (car (PSMGroup-English x)))
-	  ((psmclass-p x) (car (PSMclass-english x)))
+    (cond ((psmgroup-p x) (car (PSMGroup-nlg-english x)))
+	  ((psmclass-p x) (car (PSMclass-nlg-english x)))
 	  (T (format nil "[PSM type: ~A]" x))))
 
 
@@ -344,23 +361,82 @@
 ;; Given an ExpType nlg it resulting in the appropriate form.
 (defun nlg-exp (x &rest args)
   (cond ((atom x) (format nil "~A" x))
-	((nlg-find x *Ontology-ExpTypes* #'Exptype-form #'ExpType-English))
+	((new-english-find x) (word-string (expand-vars (new-english-find x))))
+	((nlg-find x *Ontology-ExpTypes* #'Exptype-form #'ExpType-nlg-english))
 	(t (format nil "exp:[~A]" x))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Given an Equation nlg it resulting in the appropriate form.
 (defun nlg-equation (x &rest args)
   (cond ((atom x) (format nil "~A" x))
-	((nlg-find x *Ontology-PSMClasses* #'PSMClass-form #'PSMClass-English))
+	((nlg-find x *Ontology-PSMClasses* #'PSMClass-form #'PSMClass-nlg-english))
 	(t (format nil "equation:[~A]" x))))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; end of nlg.cl
-;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> -- All Rights Reserved.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+;; For efficiency, this could be calculated for each 
+;; quantity when the problem opens.
+(defun SystemEntry-new-english (entry)
+  "Match SystemEntry to Ontology, pulling out model sentence."
+  (or (SystemEntry-model entry)
+      ;; this resolves bindings
+      (setf (SystemEntry-model entry)
+	    (let ((prop (second (SystemEntry-prop entry))))
+	      (or (new-english-find prop)
+		  ;; if it is a single word, use improved version of def-np
+		  (when (atom prop) (def-np-model prop))
+		  ;; If new-english does not exist, use nlg
+		  (word-parse (nlg prop)))))))
 
 
+(defun new-english-find (prop &optional (bindings no-bindings))
+  (dolist (rule *Ontology-ExpTypes*)
+    (let ((new-bindings (unify (Exptype-form rule) prop bindings)))
+      (when new-bindings
+       (return-from new-english-find
+         (values
+          (expand-new-english (ExpType-new-english rule) new-bindings)
+          new-bindings))))))
+
+(defun expand-new-english (model &optional (bindings no-bindings))
+  "Expand model tree, expanding ontology expressions, parse strings into list of words, substituting bindings, evaluating lisp code, and removing nils."
+  (cond ((stringp model) 
+	 ;; If there is more than one word, break up into list of words.
+	 (let ((this (word-parse model))) (if (cdr this) this model)))
+	((null model) model)
+	((variable-p model) 
+	 (expand-new-english (subst-bindings bindings model)))
+	((member (car model) '(preferred allowed and or))
+	 (let ((args (expand-new-english (cdr model) bindings)))
+	   (when args (cons (car model) args))))
+	((or (stringp (car model)) (listp (car model))) ;plain list
+	 (remove nil (mapcar 
+		      #'(lambda (x) (expand-new-english x bindings)) model)))
+	;; expansion of var must be done at run-time.
+	((eql (car model) 'var) (subst-bindings bindings model))
+	((eql (car model) 'eval) 
+	 (expand-new-english
+	  (eval (subst-bindings-quoted bindings (second model)))))
+	;; match with ontology, handles recursion
+	(t (multiple-value-bind (val match)
+	       (new-english-find model bindings)
+	     (if match val 
+		 (warn "No ontology match for ~A" model))))))
 
 
+(defun expand-vars (model)
+  "Expand (var ...) expressions and remove nils from model tree."
+  (cond ((stringp model) model)
+	((null model) model)
+	((member (car model) '(preferred allowed and or))
+	 (let ((args (expand-vars (cdr model))))
+	   (when args (cons (car model) args))))
+	((or (stringp (car model)) (listp (car model))) ;plain list
+	 (remove nil (mapcar #'expand-vars model)))
+	;; expansion of var must be done at run-time.
+	((eql (car model) 'var)
+	 (symbols-label (second model)))
+	(t (warn "Invalid expand ~A" model) model)))

@@ -38,7 +38,7 @@
 (def-psmclass coulomb (coulomb ?body ?agent ?time)
   :complexity major 
   :short-name "Coulomb's law (magnitude)"
-  :english ("Coulomb's law")
+  :nlg-english ("Coulomb's law")
   :expformat ("applying Coulombs's law for the force on ~a due to ~a" (nlg ?body) (nlg ?agent))
   :EqnFormat ("F = kelec*abs(q1*q2)/r^2"))
 
@@ -88,7 +88,7 @@
   :complexity major    
   :Doc "Definition of Coulomb's law, component form."
   :short-name ("Coulomb's law (~A component)" (axis-name ?axis))
-  :english ("Coulomb's law (component form)") 
+  :nlg-english ("Coulomb's law (component form)") 
   :ExpFormat ("applying Coulomb's law to ~a and ~A ~a"
 	      (nlg ?body) (nlg ?agent) (nlg ?time 'pp))
   :EqnFormat ("F_~A = (kelec*q1*q2/r^2) * r_~A/r" 
@@ -729,7 +729,7 @@
     (?eq-type qfe ?axis ?rot (charge-force-Efield ?body ?source ?time)) 
   :complexity major
   :short-name "electric field"
-  :english ("the definition of electric field")
+  :nlg-english ("the definition of electric field")
   :ExpFormat ("applying the definition of electric field on ~a ~a"
 		 (nlg ?body) (nlg ?time 'pp) )
   :EqnFormat ("F_~a = q*E_~a" (axis-name ?axis) (axis-name ?axis)))
@@ -819,7 +819,7 @@
              (charge-force-Efield-mag ?body ?source ?time) 
   :complexity major
   :short-name "electric field (magnitude)"
-  :english ("the definition of electric field magnitude")
+  :nlg-english ("the definition of electric field magnitude")
   :ExpFormat ("applying the definition of electric field magnitude at ~a ~a"
 		 (nlg ?body) (nlg ?time 'pp) )
   :EqnFormat ("F = abs(q)*E" ))
@@ -881,7 +881,7 @@
 (def-psmclass charge-force-Efield-dir 
              (charge-force-Efield-dir ?body ?source ?time) 
   :complexity minor 
-  :english ("the electric field field direction rule")
+  :nlg-english ("the electric field field direction rule")
   :ExpFormat ("applying the electric field direction rule") 
   :EqnFormat ("$qF = $qE (pos) or $qF = $qE + 180 deg (neg)" ))
 
@@ -929,7 +929,7 @@
   (?eq-type qpe ?axis ?rot (point-charge-Efield ?body ?loc ?time ?form)) 
   :complexity major
   :short-name ("point charge field (~A component)" (axis-name ?axis))
-  :english ("the formula for electric field due to a point charge")
+  :nlg-english ("the formula for electric field due to a point charge")
   :ExpFormat ("calculating the electric field at ~A due to ~a"
 	      (nlg ?loc) (nlg ?body) )
   :EqnFormat ("E_~a = (kelec*q/r^2) * r_~a/r" 
@@ -1022,7 +1022,7 @@
              (point-charge-Efield-mag ?body ?loc ?time) 
   :complexity major
   :short-name "point charge field (magnitude)"
-  :english ("the formula for the magnitude of the electric field due to a point charge")
+  :nlg-english ("the formula for the magnitude of the electric field due to a point charge")
   :ExpFormat ("applying the formula for the magnitude of the electric field due to a point charge to ~a ~a"
 		 (nlg ?loc) (nlg ?time 'pp) )
   :EqnFormat ("E = kelec*abs(q)/r^2" ))
@@ -1208,7 +1208,7 @@
   (?eq-type definition ?axis ?rot (net-field ?loc electric ?time))
   :complexity major
   :short-name ("net electric field (~A component)" (axis-name ?axis))
-  :english ("the definition of net electric field")
+  :nlg-english ("the definition of net electric field")
   :ExpFormat ("calculating the net electric field at ~a ~a" 
 	      (nlg ?loc) (nlg ?time 'pp))
   :EqnFormat ("Enet_~a = E1_~a + E2_~a + ..." (axis-name ?axis) 
@@ -1218,7 +1218,7 @@
   (?eq-type definition ?axis ?rot (net-field ?loc magnetic ?time))
   :complexity major
   :short-name ("net magnetic field (~A component)" (axis-name ?axis))
-  :english ("the definition of net magnetic field")
+  :nlg-english ("the definition of net magnetic field")
   :ExpFormat ("calculating the net magnetic field at ~a ~a" 
 	      (nlg ?loc) (nlg ?time 'pp))
   :EqnFormat ("Bnet_~a = B1_~a + B2_~a + ..." (axis-name ?axis) 
@@ -1431,7 +1431,7 @@
 (def-psmclass point-charge-potential (point-charge-potential ?body ?loc ?time)
   :complexity major
   :short-name "point charge potential"
-  :english ("the formula for the electric potential due to a point charge")
+  :nlg-english ("the formula for the electric potential due to a point charge")
   :ExpFormat ("calculating the electric potential at ~a due to ~a"
 		 (nlg ?loc) (nlg ?body))
   :EqnFormat ("V = kelec*q/r" ))
@@ -1480,7 +1480,7 @@
 (def-psmclass net-potential (net-potential ?loc ?time)
   :complexity major  ; want this in case it is the top psm on a problem
   :short-name "net potential"
-  :english ("the definition of net electric potential")
+  :nlg-english ("the definition of net electric potential")
   :ExpFormat ("calculating the net electric potential from all sources at ~a~a"
 		 (nlg ?loc) (nlg ?time 'pp) )
   :EqnFormat ("Vnet = V1 + V2 + ..." ))
@@ -1514,7 +1514,7 @@
 (def-psmclass electric-energy (electric-energy ?body ?source ?time)
   :complexity major
   :short-name "electric potential energy"
-  :english ("the formula for the electric potential energy")
+  :nlg-english ("the formula for the electric potential energy")
   :ExpFormat ("calculating the electric potential energy of ~a"
 		 (nlg ?body))
   :EqnFormat ("U = q*Vnet" ))
@@ -1588,12 +1588,12 @@
 
 (def-qexp electric-dipole-moment (dipole-moment ?dipole electric :time ?time)
   :units |C.m|
-  :english ("electric dipole moment of ~A~@[ ~A~]" 
+  :nlg-english ("electric dipole moment of ~A~@[ ~A~]" 
 	    (nlg ?dipole) (nlg ?time 'pp)))
 
 (def-qexp magnetic-dipole-moment (dipole-moment ?dipole magnetic :time ?time)
   :units |C.m^2/s|
-  :english ("magnetic dipole moment of ~A~@[ ~A~]" 
+  :nlg-english ("magnetic dipole moment of ~A~@[ ~A~]" 
 	    (nlg ?dipole) (nlg ?time 'pp)))
 
 ;; modification of draw-efield-vector
@@ -1699,7 +1699,7 @@
     (?eq-type definition ?axis ?rot (dipole-moment ?dipole electric ?time)) 
   :complexity major
   :short-name ("electric dipole moment (~A component)" (axis-name ?axis))
-  :english ("the electric dipole moment of two charges")
+  :nlg-english ("the electric dipole moment of two charges")
   :ExpFormat ("finding electric dipole moment for ~a ~a"
 		 (nlg ?dipole) (nlg ?time 'pp) )
   :EqnFormat ("p_~a = q*r_~a" (axis-name ?axis) (axis-name ?axis)))
@@ -1776,7 +1776,7 @@
              (electric-dipole-moment-mag ?dipole ?time) 
   :complexity major
   :short-name "electric dipole moment (magnitude)"
-  :english ("the magnitude of the electric dipole moment of two charges")
+  :nlg-english ("the magnitude of the electric dipole moment of two charges")
   :ExpFormat ("finding the magnitude of the electric dipole moment of ~a ~a"
 		 (nlg ?dipole) (nlg ?time 'pp) )
   :EqnFormat ("p = abs(q)*r" ))
@@ -1835,7 +1835,7 @@
     (?eq-type definition ?axis ?rot (dipole-moment ?dipole magnetic ?time)) 
   :complexity major
   :short-name ("magnetic dipole moment (~A component)" (axis-name ?axis))
-  :english ("the magnetic dipole moment of a flat current loop")
+  :nlg-english ("the magnetic dipole moment of a flat current loop")
   :ExpFormat ("finding the magnetic dipole moment of ~a ~a"
 		 (nlg ?dipole) (nlg ?time 'pp) )
   :EqnFormat ("$m_~a = N*I*A*n_~a" (axis-name ?axis) (axis-name ?axis)))
@@ -1905,7 +1905,7 @@
              (magnetic-dipole-moment-mag ?body ?time) 
   :complexity major
   :short-name "magnetic dipole moment (magnitude)"
-  :english ("the magnitude of the magnetic dipole moment of current loop")
+  :nlg-english ("the magnitude of the magnetic dipole moment of current loop")
   :ExpFormat ("finding the magnitude of the magnetic dipole moment of ~a ~a"
 		 (nlg ?body) (nlg ?time 'pp) )
   :EqnFormat ("$m = N*I*A" ))
@@ -1962,7 +1962,7 @@
   (dipole-torque-mag ?dipole (field ?region electric ?source) ?time)
   :complexity major ; definition, but can be first "principle" for sought
   :short-name "torque for electric dipole (magnitude)"
-  :english ("the magnitude of the ~A on a dipole in an electric field" 
+  :nlg-english ("the magnitude of the ~A on a dipole in an electric field" 
 	    (moment-name))
   :expformat ((strcat "calculating the magnitude of the ~A "
 		      "on ~a ~a due to the electric field in ~a")
@@ -1973,7 +1973,7 @@
   (dipole-torque-mag ?dipole (field ?region magnetic ?source) ?time)
   :complexity major ; definition, but can be first "principle" for sought
   :short-name ("~A for magnetic dipole (magnitude)" (moment-name))
-  :english ("the magnitude of the ~A on a dipole in a magnetic field" 
+  :nlg-english ("the magnitude of the ~A on a dipole in a magnetic field" 
 	    (moment-name))
   :expformat ((strcat "calculating the magnitude of the ~A "
 		      "on ~a ~a due to the magnetic field in ~a")
@@ -2036,7 +2036,7 @@
   (dipole-torque ?dipole (field ?region electric ?source) ?axis ?rot ?flag ?t) 
   :complexity major ; definition, but can be first "principle" for sought
   :short-name "torque for electric dipole (z component)"
-  :english ("the ~A on a dipole in an electric field" (moment-name))
+  :nlg-english ("the ~A on a dipole in an electric field" (moment-name))
   :expformat ((strcat "calculating the ~A component of the ~A "
 		      "on ~a ~a due to the electric field in ~A")
 	      (axis-name ?axis) (moment-name) (nlg ?dipole) (nlg ?t 'pp) 
@@ -2058,7 +2058,7 @@
   (dipole-torque ?dipole (field ?region magnetic ?source) ?axis ?rot ?flag ?t) 
   :complexity major ; definition, but can be first "principle" for sought
   :short-name ("torque for magnetic dipole (~A component)" (axis-name ?axis))
-  :english ("the ~A on a dipole in an magnetic field" (moment-name))
+  :nlg-english ("the ~A on a dipole in an magnetic field" (moment-name))
   :expformat ((strcat "calculating the ~A component of the ~A "
 		      "on ~a ~a due to the magnetic field in ~A")
 	      (axis-name ?axis) (moment-name) (nlg ?dipole) (nlg ?t 'pp) 
@@ -2247,7 +2247,7 @@
 (def-qexp dipole-energy (dipole-energy ?dipole ?field :time ?time)
   ;; custom dialog box "energy"
   :units |J|
-  :english ("the potential energy of ~A in ~A" 
+  :nlg-english ("the potential energy of ~A in ~A" 
 	    (nlg ?dipole) (nlg ?field 'at-time ?time)))
 
 ; called via define-energy-var, which generates variable name
@@ -2267,7 +2267,7 @@
   (dipole-energy ?dipole (field ?region electric . ?rest) ?time ?dot-type)
   :complexity major ; definition, but can be first "principle" for sought
   :short-name "potential energy of electric dipole"
-  :english ("the definition of the energy of a dipole in an electric field")
+  :nlg-english ("the definition of the energy of a dipole in an electric field")
   :expformat ("calculating the energy of ~a in ~A" 
 	      (nlg ?dipole) 
 	      (nlg (set-time (append (list 'field ?region 'electric) ?rest) ?time)))
@@ -2277,7 +2277,7 @@
   (dipole-energy ?dipole (field ?region magnetic . ?rest) ?time ?dot-type)
   :complexity major ; definition, but can be first "principle" for sought
   :short-name "potential energy of magnetic dipole"
-  :english ("the definition of the energy of a dipole in a magnetic field")
+  :nlg-english ("the definition of the energy of a dipole in a magnetic field")
   :expformat ("calculating the energy of ~a in ~A" 
 	      (nlg ?dipole) 
 	      (nlg (set-time (append (list 'field ?region 'magnetic) ?rest) ?time)))
@@ -2754,7 +2754,7 @@
 (def-psmclass charge-force-Bfield-mag (charge-force-Bfield-mag ?body ?time)
   :complexity major
   :short-name "magnetic force (magnitude)"
-  :english ("force on charge moving in a magnetic field")
+  :nlg-english ("force on charge moving in a magnetic field")
   :ExpFormat ("applying the formula for force on charge in a magnetic field")
   :EqnFormat ("F = abs(q)*v*B*sin($q)" ))
 
@@ -2823,7 +2823,7 @@
   (charge-force-Bfield ?axis ?rot ?body ?flag ?time)
   :complexity major
   :short-name ("magnetic force (~A component)" (axis-name ?axis))
-  :english ("the force on a moving charge due to a magnetic field")
+  :nlg-english ("the force on a moving charge due to a magnetic field")
   :ExpFormat ("finding the force (~A component) on ~A due to the magnetic field"
 	      (axis-name ?axis) (nlg ?body))
   :EqnFormat ((charge-force-Bfield-equation ?axis) ))
@@ -2921,7 +2921,7 @@
 (def-psmclass current-force-Bfield-mag (current-force-Bfield-mag ?body ?source ?time)
   :complexity major
   :short-name "magnetic force on a wire (magnitude)"
-  :english ("force on a current carrying wire in a magnetic field")
+  :nlg-english ("force on a current carrying wire in a magnetic field")
   :ExpFormat ("finding the force on ~A in a magnetic field" (nlg ?body))
   :EqnFormat ("F = I*L*B*sin($q)" ))
 
@@ -2981,7 +2981,7 @@
   (biot-savert-point-particle-mag ?loc ?b ?dir-vec ?time)
   :complexity major 
   :short-name "Biot-Savart law for a point charge (magnitude)"
-  :english ("the magnetic field due to a moving point charge")
+  :nlg-english ("the magnetic field due to a moving point charge")
   :expformat ((strcat "using the Biot-Savart law to find the magnetic field "
 		      "at ~A due to ~A")
 	      (nlg ?loc) (nlg ?b 'at-time ?time))
@@ -3040,7 +3040,7 @@
   :complexity major
   :short-name ("Biot-Savart law for a point charge (~A component)" 
 	       (axis-name ?axis))
-  :english ("the magnetic field due to a moving charge")
+  :nlg-english ("the magnetic field due to a moving charge")
   :expformat ((strcat "using the Biot-Savart law to find the ~A component "
 		      "of the magnetic field at ~A due to ~A")
 	      (axis-name ?axis) (nlg ?loc) (nlg ?b 'at-time ?time))
@@ -3135,7 +3135,7 @@
 (def-psmclass straight-wire-Bfield (straight-wire-Bfield ?point ?wire ?t)
   :complexity major
   :short-name "magnetic field of a straight wire"
-  :english ("the magnetic field from current flowing through a straight wire")
+  :nlg-english ("the magnetic field from current flowing through a straight wire")
   :ExpFormat ("finding the magnetic field due to a current flowing through ~A" (nlg ?wire))
   :EqnFormat ("B = $m0*I/(2*$p*r)" ))
 
@@ -3179,7 +3179,7 @@
   (center-coil-Bfield ?center ?coil ?t :loop ?flag)
   :complexity major
   :short-name "magnetic field at center of a thin coil"
-  :english ("the magnetic field at the center of a ~:[coil of N turns~;single loop~]" 
+  :nlg-english ("the magnetic field at the center of a ~:[coil of N turns~;single loop~]" 
 	    ?flag)
   :ExpFormat ("finding the magnetic field at the center of ~A" (nlg ?coil))
   :EqnFormat ("B = $m0*N*I/(2*r)" ))
@@ -3233,7 +3233,7 @@
 (def-psmclass inside-solenoid-Bfield (inside-solenoid-Bfield ?center ?solenoid ?t)
   :complexity major
   :short-name "magnetic field inside a long solenoid"
-  :english ("the magnetic field inside a long solenoid")
+  :nlg-english ("the magnetic field inside a long solenoid")
   :ExpFormat ("finding the magnetic field inside ~A" (nlg ?solenoid))
   :EqnFormat ("B = $m0*n*I" ))
 
@@ -3278,8 +3278,7 @@
   :dialog-text "wrapped around [body:bodies]"
   :units NIL  ;dimensionless
      :restrictions positive
-     :english ("the number of turns wrapping around ~A" (nlg ?body))
-     :fromworkbench `(turns ,body)
+     :nlg-english ("the number of turns wrapping around ~A" (nlg ?body))
    )
 
 (defoperator define-turns (?body)
@@ -3299,8 +3298,7 @@
   :dialog-text "wrapped around [body:bodies]"
      :units |m^-1|
      :restrictions positive
-     :english ("the number of turns per length wrapping around ~A" (nlg ?body))
-     :fromworkbench `(turns-per-length ,body)
+     :nlg-english ("the number of turns per length wrapping around ~A" (nlg ?body))
    )
 
 (defoperator define-turns-per-length (?body)
@@ -3318,7 +3316,7 @@
   :complexity definition
   :doc "turns per length = turns/length"
   :short-name "turns per unit length"
-  :english ("turns per length = turns/length")
+  :nlg-english ("turns per length = turns/length")
   :expFormat ("using the turns per length of ~A" (nlg ?b))
   :EqnFormat ("n = N/l"))
 
@@ -3353,8 +3351,7 @@
   :short-name "electric flux"	
   :dialog-text "through [body:bodies] at time [time:times]"
      :units |V.m|
-     :fromworkbench `(flux ,body electric :time ,time)
-     :english ("electric flux through ~A~@[ ~A~]" 
+     :nlg-english ("electric flux through ~A~@[ ~A~]" 
 	       (nlg ?surface) (nlg ?t 'pp)))
 
 (def-qexp electric-flux-change (rate-of-change 
@@ -3363,8 +3360,7 @@
   :short-name "rate of change in electric flux"	
   :dialog-text "through [body:bodies] at time [time:times]"
      :units |V.m/s|
-     :fromworkbench `(rate-of-change (flux ,body electric :time ,time))
-     :english ("rate of change in electric flux through ~A~@[ ~A~]" 
+     :nlg-english ("rate of change in electric flux through ~A~@[ ~A~]" 
 	       (nlg ?surface) (nlg ?t 'pp)))
 
 (def-qexp magnetic-flux (flux ?surface magnetic :time ?t)
@@ -3372,8 +3368,7 @@
   :short-name "magnetic flux"	
   :dialog-text "through [body:bodies] at time [time:times]"
      :units |T.m^2|
-     :fromworkbench `(flux ,body magnetic :time ,time)
-     :english ("magnetic flux through ~A~@[ ~A~]" 
+     :nlg-english ("magnetic flux through ~A~@[ ~A~]" 
 	       (nlg ?surface) (nlg ?t 'pp)))
 
 (def-qexp magnetic-flux-change (rate-of-change 
@@ -3382,8 +3377,7 @@
   :short-name "rate of change in magnetic flux"	
   :dialog-text "through [body:bodies] at time [time:times]"
      :units |T.m^2/s|
-     :fromworkbench `(rate-of-change (flux ,body magnetic :time ,time))
-     :english ("rate of change in magnetic flux through ~A~@[ ~A~]" 
+     :nlg-english ("rate of change in magnetic flux through ~A~@[ ~A~]" 
 	       (nlg ?surface) (nlg ?t 'pp)))
 
 (defoperator define-flux (?surface ?type ?t)
@@ -3404,7 +3398,7 @@
   (flux-constant-field ?surface electric ?time ?rot)
   :complexity major ; definition, but can be first "principle" for sought
   :short-name "electric flux (uniform field)"
-  :english ("the definition of electric flux through a surface")
+  :nlg-english ("the definition of electric flux through a surface")
   :expformat ("calculating the ~A" 
 	      (nlg (list 'flux ?surface 'electric :time ?time)))
   :EqnFormat ("$Fe = A*E*cos($qE - $qn) or $Fe = A*(E_x*n_x + E_y*n_y)"))
@@ -3413,7 +3407,7 @@
   (flux-constant-field ?surface magnetic ?time ?rot)
   :complexity major ; definition, but can be first "principle" for sought
   :short-name "magnetic flux (constant field)"
-  :english ("the definition of magnetic flux through a surface")
+  :nlg-english ("the definition of magnetic flux through a surface")
   :expformat ("calculating the ~A" 
 	      (nlg (list 'flux ?surface 'magnetic :time ?time)))
   :EqnFormat ("$Fb = A*B*cos($qB - $qn) or $Fb = A*(B_x*n_x + B_y*n_y)"))
@@ -3537,7 +3531,7 @@
   (flux-constant-field-change ?surface electric ?field ?time ?rot)
   :complexity major ; definition, but can be first "principle" for sought
   :short-name "derivative of electric flux, uniform field"
-  :english ("the time derivative of the definition of electric flux through a surface")
+  :nlg-english ("the time derivative of the definition of electric flux through a surface")
   :expformat ("calculating the ~A" 
 	      (nlg (list 'rate-of-change 
 			 (list 'flux ?surface 'electric :time ?time))))
@@ -3547,7 +3541,7 @@
   (flux-constant-field-change ?surface magnetic ?time ?rot)
   :complexity major ; definition, but can be first "principle" for sought
   :short-name "rate of change in magnetic flux (constant field)"
-  :english ("the time derivative of the definition of magnetic flux through a surface")
+  :nlg-english ("the time derivative of the definition of magnetic flux through a surface")
   :expformat ("calculating the ~A" 
 	      (nlg (list 'rate-of-change 
 			 (list 'flux ?surface 'magnetic :time ?time))))
@@ -3633,7 +3627,7 @@
 (def-psmclass gauss-law (gauss-law ?surface :sum ?flag :time ?t)
   :complexity major                   ; must explicitly use
   :short-name "Gauss' law"
-  :english ("Gauss' law")
+  :nlg-english ("Gauss' law")
   :ExpFormat ("using Gauss' law")
   :EqnFormat ("$Fe = Q/$e0"))
 
@@ -3692,7 +3686,7 @@
 (def-psmclass sum-fluxes (sum-fluxes ?b ?parts ?type ?t)
   :complexity minor
   :short-name "adding fluxes"
-  :english ("add ~A flux going through different surfaces" (nlg ?type 'adj))
+  :nlg-english ("add ~A flux going through different surfaces" (nlg ?type 'adj))
   :ExpFormat ("finding the total ~A flux through ~A" (nlg ?type 'adj) (nlg ?b))
   :EqnFormat ("$F = $F1 + $F2 + ..."))
 
@@ -3729,7 +3723,7 @@
 (def-psmclass faradays-law (faradays-law ?surface ?time)
   :complexity major ; definition, but can be first "principle" for sought
   :short-name "Faraday's law"
-  :english ("Faraday's law")
+  :nlg-english ("Faraday's law")
   :expformat ("applying Faradays law to ~A" (nlg ?surface)) 
   :EqnFormat ("V = -N*d$Fb/dt"))
 
@@ -3783,8 +3777,7 @@
   :pre-dialog-text "line integral of the net magnetic field"
   :dialog-text "along path [body:positions]"
   :units |T.m|
-  :fromworkbench `(line-integral (net-field ,body magnetic))
-  :english ("line integral of the net magnetic field along path ~A~@[ ~A~]" 
+  :nlg-english ("line integral of the net magnetic field along path ~A~@[ ~A~]" 
 	       (nlg ?path) (nlg ?t 'pp)))
 
 (defoperator define-line-integral (?path ?type ?t)
@@ -3809,7 +3802,7 @@
   :complexity major			;must explicitly use
   ;; Allegro lisp character encoding has trouble reading in "`e"
   :short-name ("Amp~Cre's law" (code-char 232))
-  :english ("Amp~Cre's law" (code-char 232))
+  :nlg-english ("Amp~Cre's law" (code-char 232))
   :ExpFormat ("applying Amp~Cre's law to ~A"  
 	      (code-char 232) (nlg ?S))
   ;; use implicit format args to insert the plus-minus character code into 
