@@ -80,9 +80,11 @@ dojo.provide("andes.convert");
 			}
 			
 			if(o.type=="line" || o.type=="vector" || o.type=="rect" || o.type=="ellipse"){
-				// seperate objects
+				// separate objects
+			        // match logic in drawingToAndes
 				var lbl = o.symbol;
-				var txt = o.text;
+				var txt = o.text || "";
+				// if there is no symbol, use text for label
 				if(!lbl){
 					lbl = txt;
 					txt = "";
@@ -175,7 +177,7 @@ dojo.provide("andes.convert");
 				}
 			}else if(type != "axes"){
 				obj.text = statement.getText() || "SHOULD NOT BE HERE";
-				obj.symbol = item.getLabel() || "";
+				obj.symbol = item.getLabel() || null;
 				obj["x-statement"] = sbox.x;
 				obj["y-statement"] = sbox.y;
 			
@@ -188,14 +190,17 @@ dojo.provide("andes.convert");
 			}
 			
 			if(combo){
-				var txt = statement.getText() || "";
+			        // match logic in andesToDrawing
+			        // Send empty string, rather than null
+                                // The server treats null as "not modified".
+				var txt = statement.getText();
 				var lbl = item.getLabel() || "";
-				if(txt && lbl){
+				if(txt){
 					obj.text = txt;
 					obj.symbol = lbl;	
 				}else{
-					obj.text = "";
-					obj.symbol = lbl;
+					obj.text = lbl;
+				        obj.symbol = "";
 				}
 			}
 			
