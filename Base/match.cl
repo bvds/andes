@@ -292,37 +292,20 @@
       (or (listp (car form)) (stringp (car form)))
       (member (car form) '(and or preferred allowed var eval))))
 
-(defun pull-out-quantity (symbol text)
-  "Pull the quantity phrase out of a definition:  should match variablname.js"
-  (when symbol
-    (if (not (search symbol text))
-	(warn "Bad symbol definition, ~S should be found in ~S."
-	      symbol text)
-	;; this should be done as a parser.
-	(let* ((si (+ (search symbol text) (length symbol)))
-	       (nosym (string-left-trim *whitespace* (subseq text si))))
-	  ;; The empty string is a catch-all in case there is no match
-	  (dolist (equality '("is " ":" "=" "be " "as " "to be " ""))
-	    (when (and (>= (length nosym) (length equality))
-		       (string= equality (string-downcase nosym) 
-				:end2 (length equality)))
-	      (return-from pull-out-quantity
-		(string-trim *whitespace* 
-			     (subseq nosym (length equality)))))))))
-  text)
-
 (defun best-model-matches (student models &key (cutoff 0.5) (equiv 1.25))
   "Returns alist of best matches to text using match-model."
-  ;; cutoff is maximum ratio of words that don't match to student words.
-  ;; equiv is maximum number of words such that two matches are
-  ;;   considered to be of equal quality.
-  (let (this (best (- (* cutoff (word-count student)) equiv)) quants)
+  ;; cutoff is ratio of maximum allowed score to number of student words.
+  ;; equiv maximum fraction of the best score such that a fit
+  ;;    is considered equivalent to the best fit.
+  (unless (> equiv 1.0) 
+    (warn "best-model-matches:  equiv=~A  must be larger than 1" equiv))
+  (let (this (best (/ (* cutoff (length student)) equiv)) quants)
     (dolist (x models)
-      (setf this (match-model student (car x) :best (+ best equiv)))
-      (when (< this best) (setf best this))
-      (when (< this (+ best equiv)) (push (cons this (cdr x)) quants)))
+      (setf this (match-model student (car x) :best (* best equiv)))
+      (when (< this (* best equiv)) (push (cons this (cdr x)) quants))
+      (when (< this best) (setf best this)))
     ;; remove any quantities that are not equivalent with best fit. 
-    (remove-if #'(lambda (x) (> (car x) (+ best equiv))) quants)))
+    (remove-if #'(lambda (x) (> (car x) (* best equiv))) quants)))
 
 (defun best-matches (text good)
   "Returns array of best matches to text.  Use minimum edit distance."

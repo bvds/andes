@@ -416,14 +416,20 @@
 	   (mapcar #'(lambda (x) 
 		       (cons (expand-vars (SystemEntry-new-english x)) x))
 		   (remove '(body . ?rest) *sg-entries* 
-			   :key #'SystemEntry-prop :test-not #'unify))))
+			   :key #'SystemEntry-prop :test-not #'unify))
+	   :cutoff 0.6 :equiv 1.25))
     ;; Debug printout:
-    (format webserver:*stdout* "Best match to ~s is~%   ~S~%" 
+    (format webserver:*stdout* "Best match to ~s is~%   ~S~% from ~S~%" 
 	    (pull-out-quantity symbol text) 
 	    (mapcar 
 	     #'(lambda (x) (cons (car x) 
 				 (expand-vars (SystemEntry-model (cdr x)))))
-		    best))
+		    best)
+	    (mapcar #'(lambda (x) 
+			(cons (expand-vars (SystemEntry-new-english x)) 
+			      (systementry-prop x)))
+		    (remove '(body . ?rest) *sg-entries* 
+			    :key #'SystemEntry-prop :test-not #'unify)))
 
     ;; Handling for various numbers of matches is common across object types.
     ;; Should have common code for the various types of objects.
@@ -440,7 +446,19 @@
        ;; one match, proceed to evaluate it.
        (let ((sysent (cdr (car best))))
 	 (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
-	 (check-symbols-enter symbol (StudentEntry-prop entry) id)
+
+	 ;; Determine if the student has already done this
+	 ;; in a previous step.
+	 ;; In Andes2, this test was done on the user interface.
+	 (when (find (SystemEntry-prop sysent) 
+		     (remove id *StudentEntries* :key #'StudentEntry-id)
+		     :key #'StudentEntry-prop :test #'unify)
+	   (return-from assert-object 
+	     (redundant-entry-ErrorInterp entry sysent)))
+	 
+	 ;; OK if there is no symbol defined.
+	 (when (> (length symbol) 0) ;not null string
+	   (check-symbols-enter symbol (StudentEntry-prop entry) id))
 
 	 (check-noneq-entry entry)))  ;finally return entry 
       ;; more than one match
@@ -533,7 +551,7 @@
 		   (remove '(vector . ?rest) *sg-entries* 
 			   :key #'SystemEntry-prop :test-not #'unify))
 	   ;;  Set cutoff on minimum acceptable
-	   :cutoff 0.5 :equiv 1.25))
+	   :cutoff 1.75 :equiv 1.25))
     ;; Debug printout:
     (format webserver:*stdout* "Best match to ~s is~%   ~S~%" 
 	    (pull-out-quantity symbol text) 
@@ -555,6 +573,15 @@
       ((= (length best) 1)
        ;; one match, proceed to evaluate it.
        (let ((sysent (cdr (car best))))
+
+	 ;; Determine if the student has already done this
+	 ;; in a previous step.
+	 ;; In Andes2, this test was done on the user interface.
+	 (when (find (SystemEntry-prop sysent) 
+		     (remove id *StudentEntries* :key #'StudentEntry-id)
+		     :key #'StudentEntry-prop :test #'unify)
+	   (return-from lookup-vector 
+	     (redundant-entry-ErrorInterp entry sysent)))
     
 	 ;; Use the quantity from the best match with angle we actually got.
 	 (setf action (list 'vector (second (SystemEntry-prop sysent)) dir-term))
@@ -991,6 +1018,24 @@
     
     rem))
 
+(defun pull-out-quantity (symbol text)
+  "Pull the quantity phrase out of a definition:  should match variablname.js"
+  (when symbol
+    (if (not (search symbol text))
+	(warn "Bad symbol definition, ~S should be found in ~S."
+	      symbol text)
+	;; this should be done as a parser.
+	(let* ((si (+ (search symbol text) (length symbol)))
+	       (nosym (string-left-trim *whitespace* (subseq text si))))
+	  ;; The empty string is a catch-all in case there is no match
+	  (dolist (equality '("is " ":" "=" "be " "as " "to be " ""))
+	    (when (and (>= (length nosym) (length equality))
+		       (string= equality (string-downcase nosym) 
+				:end2 (length equality)))
+	      (return-from pull-out-quantity
+		(string-trim *whitespace* 
+			     (subseq nosym (length equality)))))))))
+  text)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1107,7 +1152,9 @@
 ;; one, which should be the principal entry being evaluated
 (defun check-symbols-enter (label referent entry-ids &optional sysvar)
   (cond
-    ((null label) (warn "check-symbols-enter received null symbol"))
+    ((= (length label) 0) ;; null or empty
+     ;; should change call to get entry itself so we can do this easier
+     (warn "No symbol entered for ~A, need hints here, Bug #1575." referent)) 
     ((symbols-lookup label) ;; variable already defined!
      ;; find entry. entry-ids arg may be atom or list, but should not be nil
      (let ((entry (find-entry (if (atom entry-ids) entry-ids (first entry-ids))))
