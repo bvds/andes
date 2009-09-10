@@ -124,8 +124,7 @@
   :units |m/s^2|
   :new-english ((preferred "the") (or "acceleration" "accel." "accel")
 		(and (preferred (property ?body))
-		     (preferred (time ?time))))
-  :nlg-english ("the acceleration of ~A" (nlg ?body 'at-time ?time)))
+		     (preferred (time ?time)))))
 
 (def-qexp momentum (momentum ?body :time ?time)
   :units |kg.m/s|
@@ -133,37 +132,38 @@
 
 (def-qexp force (force ?body ?agent ?type :time ?time)
   :units N
-  :new-english ((preferred "the") (eval (force-types ?type)) "force"
+  :new-english ((preferred "the") (eval (force-types ?type))
 		(and (preferred (object ?body))
 		     (preferred (agent ?agent))
-		     (preferred (time ?time))))
-  :nlg-english ("~A force on ~A due to ~A" 
-	    (nlg ?type) (nlg ?body 'at-time ?time) (nlg ?agent 'agent)))
+		     (preferred (time ?time)))))
 
 (defun force-types (type)
   (case type 
-    (weight '(or "weight" "gravitational" "grav." "grav"))
-    (gravitational '(or "gravitational" "weight" "grav." "grav"))
-    (normal "normal")
-    (tension '(or "tension" "pulling"))
-    (applied '(allowed "applied")) ;catch-all force
-    (kinetic-friction '((preferred "kinetic") (or "friction" "frictional")))
-    (static-friction  '((preferred "staic") (or "friction" "frictional")))
-    (electric '(or "electric" "E" "coulomb"))
-    (magnetic '(or "magnetic" "B"))
-    (buoyant '(or "buoyant" "buoyancy"))
-    (thrust "thrust")
-    (spring "spring")
-    (pressure "pressure")
-    (drag '(or "drag" "friction"))
-    (t (warn "unknown force type ~A" type) (format nil "~(~A~)" type))))
+    (weight '(or "force of gravity"
+	      ((or "weight" "gravitational" "grav." "grav") "force")))
+    (gravitational '(or "force of gravity"
+		     ((or "gravitational" "weight" "grav." "grav") "force")))
+    (normal "normal force")
+    (tension '((or "tension" "pulling") "force"))
+    (applied '(allowed "applied force")) ;catch-all force
+    (kinetic-friction '(((preferred "kinetic") (or "friction" "frictional"))
+			"force"))
+    (static-friction  '(((preferred "static") (or "friction" "frictional")) 
+			"force"))
+    (electric '((or "electric" "E" "coulomb") "force"))
+    (magnetic '((or "magnetic" "B") "force"))
+    (buoyant '((or "buoyant" "buoyancy") "force"))
+    (thrust "thrust force")
+    (spring "spring force")
+    (pressure "pressure force")
+    (drag '((or "drag" "friction" "frictional") "force"))
+    (t (warn "unknown force type ~A" type) (format nil "~(~A~) force" type))))
 
 (def-qexp net-force (net-force ?body :time ?time)
   :units N
-  :new-english ((preferred "the") (or "net""total") 
+  :new-english ((preferred "the") (or "net" "total") 
 		"force" (and (preferred (object ?body))
-			     (preferred (time ?time))))
-  :nlg-english ("the net force on ~A" (nlg ?body 'at-time ?time)))
+			     (preferred (time ?time)))))
 
 (def-qexp ang-displacement (ang-displacement ?body :time ?time)
   :units |rad|
@@ -242,8 +242,7 @@
   :units |kg|
   :restrictions positive
   :new-english ((preferred "the") "mass" (and (preferred (property ?body))
-					   (preferred (time ?time))))
-  :nlg-english ("the mass of ~A" (nlg ?body 'at-time ?time)))
+					   (preferred (time ?time)))))
 
 (def-qexp mass-change-magnitude	(mass-change-magnitude ?body ?agent :time ?t)
   :symbol-base |dmdt|     
@@ -325,8 +324,7 @@
 		     (or ((or "due to" "caused by" "of") "gravity")
 			 "of a freely falling object")))
 		(preferred ((or "at" "on") (preferred "the surface") 
-				 (property ?planet))))
-  :nlg-english ("the gravitational acceleration due to ~A" (nlg ?planet)))
+				 (property ?planet)))))
 
 (post-process add-gravitational-acceleration (problem)
   "if only the earth's gravity is used, add gravitational acceleration"
