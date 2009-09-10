@@ -292,17 +292,26 @@
       (or (listp (car form)) (stringp (car form)))
       (member (car form) '(and or preferred allowed var eval))))
 
-(defun best-model-matches (student models &key (cutoff 0.5) (equiv 1.25))
+(defun best-model-matches (student models &key (cutoff 0.5) (equiv 1.25) 
+			   (epsilon 0.25))
   "Returns alist of best matches to text using match-model."
   ;; cutoff is ratio of maximum allowed score to number of student words.
   ;; equiv maximum fraction of the best score such that a fit
   ;;    is considered equivalent to the best fit.
+
+  ;; match-model only finds matches that are better than 
+  ;; than the given bound, else it may return the bound itself.  
+  ;; Thus, in the case where a perfect match has been found, 
+  ;; we need to adjust the bound so any other perfect matches 
+  ;; may also be found.
+  
   (unless (> equiv 1.0) 
     (warn "best-model-matches:  equiv=~A  must be larger than 1" equiv))
-  (let (this (best (/ (* cutoff (length student)) equiv)) quants)
+  (let (this (best (/ (* cutoff (length student)) equiv)) quants bound)
     (dolist (x models)
-      (setf this (match-model student (car x) :best (* best equiv)))
-      (when (< this (* best equiv)) (push (cons this (cdr x)) quants))
+      (setf bound (max epsilon (* best equiv)))
+      (setf this (match-model student (car x) :best bound))
+      (when (< this bound) (push (cons this (cdr x)) quants))
       (when (< this best) (setf best this)))
     ;; remove any quantities that are not equivalent with best fit. 
     (remove-if #'(lambda (x) (> (car x) (* best equiv))) quants)))
