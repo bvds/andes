@@ -85,7 +85,7 @@ public class ClientServerInteraction {
     }
 
     public boolean isServerHelp() throws JSONException {
-        if (getClientAction().getCommand() == getClientAction().getCommand().SEEK_HELP) {
+        if (getClientAction().getCommand() == Andes3ClientAction.ClientCommands.SEEK_HELP) {
             for (Andes3ServerAction act : getServerActions()) {
                 if (act.getAction().has("action") &&
                         act.getAction().getString("action").equals("show-hint")) {
