@@ -72,7 +72,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun nlg-list-default (x &rest args)
-  (cond ((null x) nil) 
+  (cond ((null x) nil)
+	((new-english-find x) (word-string (expand-vars (new-english-find x))))
 	((nlg-find x *Ontology-ExpTypes* #'ExpType-Form #'ExpType-nlg-english))
 	(t (format nil "~A" x))))
 
@@ -360,6 +361,7 @@
 ;; Given an ExpType nlg it resulting in the appropriate form.
 (defun nlg-exp (x &rest args)
   (cond ((atom x) (format nil "~A" x))
+	((new-english-find x) (word-string (expand-vars (new-english-find x))))
 	((nlg-find x *Ontology-ExpTypes* #'Exptype-form #'ExpType-nlg-english))
 	(t (format nil "exp:[~A]" x))))
 
@@ -384,7 +386,9 @@
       (setf (SystemEntry-model entry)
 	    (let ((prop (second (SystemEntry-prop entry))))
 	      (or (new-english-find prop)
-		  ;; If new-english does not exist use nlg:
+		  ;; if it is a single word, use improved version of def-np
+		  (when (atom prop) (def-np-model prop))
+		  ;; If new-english does not exist, use nlg
 		  (word-parse (nlg prop)))))))
 
 
@@ -392,10 +396,10 @@
   (dolist (rule *Ontology-ExpTypes*)
     (let ((new-bindings (unify (Exptype-form rule) prop bindings)))
       (when new-bindings
-	(return-from new-english-find 
-	  (values
-	   (expand-new-english (ExpType-new-english rule) new-bindings)
-	   new-bindings))))))
+       (return-from new-english-find
+         (values
+          (expand-new-english (ExpType-new-english rule) new-bindings)
+          new-bindings))))))
 
 (defun expand-new-english (model &optional (bindings no-bindings))
   "Expand model tree, expanding ontology expressions, parse strings into list of words, substituting bindings, evaluating lisp code, and removing nils."
