@@ -1450,7 +1450,7 @@
       ;; pairs of opnames and entry props "steps."
       (when target-entries
 	(push `((:action . "log") 
-		(:assoc . ,(mapcar #'opname-prop-pair target-entries)))
+		(:Assoc . ,(alist-warn (mapcar #'opname-prop-pair target-entries))))
 	      result)))
 
     result))

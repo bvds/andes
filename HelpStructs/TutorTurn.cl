@@ -136,6 +136,14 @@
 (defconstant **End-Dialog** 'End-Dialog)
 (defconstant **Stat-turn** 'stat-turn)
 
+(defmacro alist-warn (x)
+  "Debug macro to check that x is an alist."
+  (if nil  ;Turn on/off at compile-time.
+      `(let ((y ,x))  
+	(unless (and (listp y) (every #'consp y))
+	  (warn "turn-assoc is alist, not ~A~%" y)) y)
+      x))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Menu constants
 ;; These are the menus in use by the system.
@@ -195,14 +203,14 @@
 	     :text text
 	     :menu Menu
 	     :responder Responder
-	     :Assoc Assoc))
+	     :Assoc (alist-warn Assoc)))
 
 (defun make-end-dialog-turn (text &key Assoc)
   "Make a turn that ends the dialog."
   (make-turn :type **Dialog-Turn**
 	     :text text
 	     :responder #'nil-turn-resp
-	     :Assoc Assoc))
+	     :Assoc (alist-warn Assoc)))
 	     
 			    
 (defun make-minil-turn (url &key (Responder #'nil-turn-resp) Assoc)
@@ -210,7 +218,7 @@
   (make-turn :type **Minil-Turn**
 	     :text url
 	     :responder Responder
-	     :Assoc Assoc))
+	     :Assoc (alist-warn Assoc)))
 
 ;; eqn turn holds calculate or solve-for result.
 ;; eqn turn text may hold EITHER result equation if successful OR error 
@@ -285,7 +293,7 @@
    :Coloring **Color-Red**
    :type **Dialog-Turn**
    :text "This is an incorrectly formed problem.  Please try a different problem."
-   :Assoc assoc))
+   :Assoc (alist-warn assoc)))
 
 
 ;;; KCDS consist of a series of dialogs with free text responses by
@@ -354,7 +362,7 @@
 	     :text String
 	     :responder #'(lambda (r) 
 			    (kcd-responder-func r Rest Assoc))
-	     :Assoc Assoc
+	     :Assoc (alist-warn Assoc)
 	     :Result (list (when Image 
 			     (format-wb-open-browser-command Image)))))
 
@@ -382,7 +390,7 @@
 	     :responder #'(lambda (R) 
 			    (when (eq R **Explain-More**)
 			      (make-hint-seq Rest)))
-	     :Assoc Assoc
+	     :Assoc (alist-warn Assoc)
 	     :Result (list (when Image 
 			     (format-wb-open-browser-command Image)))))
 
@@ -406,7 +414,7 @@
 	     :responder #'make-kcd-end-seq-turn-resp
 	     ;;  formerly the responder #'(lambda (R) 
 	     ;; (declare (ignore R)) (wb-close-browser))
-	     :Assoc Assoc
+	     :Assoc (alist-warn Assoc)
 	     :Result (list (when Image 
 			     (format-wb-open-browser-command Image)))))
 
@@ -714,8 +722,8 @@
    **Explain-More**
    :responder #'(lambda (r)
 		  (when (eq R **Explain-More**)
-		    (make-hint-seq Next :Assoc Assoc :OpTail OpTail)))
-   :Assoc (or Assoc `((OpHint ,OHType String . ,OpTail)))))
+		    (make-hint-seq Next :Assoc (alist-warn Assoc) :OpTail OpTail)))
+   :Assoc (alist-warn (or Assoc `((OpHint ,OHType String . ,OpTail))))))
 
 
 (defun make-string-end-Ophseq (Hint &optional (Prefix "") Assoc OHType OpTail)
@@ -724,7 +732,7 @@
    (strcat Prefix (if (hintspec-p Hint)
 		      (format-hintspec Hint)
 		    Hint))
-   :Assoc (or Assoc `((OpHint ,OHType String . ,OpTail)))))
+   :Assoc (alist-warn (or Assoc `((OpHint ,OHType String . ,OpTail))))))
      
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -771,9 +779,9 @@
 		    (make-hint-seq 
 		     (cons "Do you wish for more hints?"
 			   Next)
-		     :Assoc Assoc
+		     :Assoc (alist-warn Assoc)
 		     :OpTail OpTail)))
-   :Assoc (or Assoc `((OPHint ,OHType MiniLesson ,(format-hintspec Minil) . ,OpTail)))))
+   :Assoc (alist-warn (or Assoc `((OPHint ,OHType MiniLesson ,(format-hintspec Minil) . ,OpTail))))))
 
 
 (defun make-minil-end-Ophseq (Minil &optional Assoc OHType OpTail)
@@ -785,7 +793,7 @@
 		    (make-end-dialog-turn
 		     (strcat "If you wish for more "
 			     "help run NSH again."))))
-      :Assoc (or Assoc `((OPHint ,OHType MiniLesson ,(format-hintspec Minil) . , OpTail)))))
+      :Assoc (alist-warn (or Assoc `((OPHint ,OHType MiniLesson ,(format-hintspec Minil) . , OpTail))))))
 
 
 ;;---------------------------------------------------------------
@@ -799,21 +807,19 @@
 
 (defun make-goalhint-hseq (Hint Next &optional (Prefix "") Assoc OpTail)
   "Make a string Hseq from the car of the hints."
-  (let ((str (nth 1 Hint)) (tag (nth 2 hint)))
-    (make-dialog-turn 
-     (strcat Prefix Str)
-     **Explain-More**
-     :responder #'(lambda (r)
-		    (when (eq R **Explain-More**)
-		      (make-hint-seq Next :Assoc Assoc :OpTail OpTail)))
-     :Assoc (or Assoc Tag))))
-
+  (make-dialog-turn 
+   (strcat Prefix (nth 1 Hint))
+   **Explain-More**
+   :responder #'(lambda (r)
+		  (when (eq R **Explain-More**)
+		    (make-hint-seq Next :Assoc (alist-warn Assoc) :OpTail OpTail)))
+   :Assoc (alist-warn (or Assoc (list (nth 2 hint))))))
 
 (defun make-goalhint-end-hseq (Hint &optional (Prefix "") Assoc)
   "Make an end-hseq string hint."
   (make-end-dialog-turn
    (strcat Prefix (nth 1 Hint))
-   :Assoc (or Assoc (nth 2 Hint))))
+   :Assoc (alist-warn (or Assoc (list (nth 2 Hint))))))
 	      
 
 ;;---------------------------------------------------------------
@@ -831,8 +837,8 @@
    **Explain-More**
    :responder #'(lambda (r)
 		  (when (eq R **Explain-More**)
-		    (make-hint-seq Next :Assoc Assoc :OpTail OpTail)))
-   :Assoc Assoc))
+		    (make-hint-seq Next :Assoc (alist-warn Assoc) :OpTail OpTail)))
+   :Assoc (alist-warn Assoc)))
 
 
 (defun make-string-end-hseq (Hint &optional (Prefix "") Assoc)
@@ -841,7 +847,7 @@
    (strcat Prefix (if (hintspec-p Hint)
 		      (format-hintspec Hint)
 		    Hint))
-   :Assoc Assoc))
+   :Assoc (alist-warn Assoc)))
      
 
 ;;----------------------------------------------------------------
@@ -888,9 +894,9 @@
 		    (make-hint-seq 
 		     (cons "Do you wish for more hints?"
 			   Next)
-		     :Assoc Assoc
+		     :Assoc (alist-warn Assoc)
 		     :OpTail OpTail)))
-   :Assoc Assoc))
+   :Assoc (alist-warn Assoc)))
 
 
 (defun make-minil-end-hseq (Minil &optional Assoc)
@@ -902,8 +908,8 @@
 		    (make-end-dialog-turn
 		     (strcat "If you wish for more "
 			     "help run NSH again.")
-		     :Assoc Assoc)))
-      :Assoc Assoc))
+		     :Assoc (alist-warn Assoc))))
+      :Assoc (alist-warn Assoc)))
 
 
 
