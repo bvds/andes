@@ -295,7 +295,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 		onDelete: function(/* Stencil */ stencil){
 			// summary:
 			//	Stub - fires before this is destroyed
-			console.info("onDelete", this.id);
+			console.info("base.onDelete", this.id);
 		},
 		
 		onBeforeRender: function(/*Object*/ stencil){

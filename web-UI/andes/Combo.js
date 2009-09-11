@@ -66,15 +66,17 @@ andes.Combo = drawing.util.oo.declare(
 			[this.master, "deselect", this.statement, "unhighlight"],
 			[this.statement, "select", this.master, "highlight"],
 			[this.statement, "deselect", this.master, "unhighlight"],
-			[this.statement, "destroy", this, function(){
-				if(!this.master.destroyed){
-					this.onDelete(this);
+			[this.statement, "onDelete", this, function(){
+				if(!this._masterDestroyed){
+					this._masterDestroyed = true;
+					!this._statementDestroyed && this.onDelete(this);
 					this.master.destroy();
 				}
 			}],
-			[this.master, "destroy", this, function(){
-				if(!this.statement.destroyed){
-					this.onDelete(this);
+			[this.master, "onDelete", this, function(){
+				if(!this._statementDestroyed){
+					this._statementDestroyed = true;
+					!this._masterDestroyed && this.onDelete(this);
 					this.statement.destroy();
 				}
 			}]
@@ -83,6 +85,8 @@ andes.Combo = drawing.util.oo.declare(
 	},
 	{
 		type:"andes.Combo",
+		_masterDestroyed: false,
+		_statementDestroyed: false,
 		onChangeData: function(/*Object*/ stencil){
 			console.log("--------------on change combo", stencil.id);
 			// summary:
@@ -98,6 +102,7 @@ andes.Combo = drawing.util.oo.declare(
 		},
 		
 		onDelete: function(value){ // value or 'this' ?
+			console.log("combo delete ", value)
 			// summary:
 			//	Stub - fires when master or an item is deleted
 			//	(which makes this _Connection worthless and it
