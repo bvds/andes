@@ -52,6 +52,7 @@
   
   (format t "Connected databases after ~A~%" (connected-databases))
  )
+
 (defun write-transaction (direction client-id j-string)
   "Record raw transaction in database."
   (let* 
@@ -59,7 +60,7 @@
        (checkInDatabase (query queryString :field-names nil :flatp t :result-types :auto)))
 
     (unless checkInDatabase 
-      (execute-command (format nil "INSERT into PROBLEM_ATTEMPT (clientID,classinformationID) values ('~A',2" client-id)))
+      (execute-command (format nil "INSERT into PROBLEM_ATTEMPT (clientID,classinformationID) values ('~A',2)" client-id)))
     
     (setf queryString (format nil "INSERT into PROBLEM_ATTEMPT_TRANSACTION (clientID, Command, initiatingParty) values ('~A','~A','~A')" 
 			      client-id j-string direction))
