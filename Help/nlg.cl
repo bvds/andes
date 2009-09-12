@@ -392,14 +392,14 @@
 		  (word-parse (nlg prop)))))))
 
 
-(defun new-english-find (prop &optional (bindings no-bindings))
+(defun new-english-find (prop)
   (dolist (rule *Ontology-ExpTypes*)
-    (let ((new-bindings (unify (Exptype-form rule) prop bindings)))
-      (when new-bindings
-       (return-from new-english-find
-         (values
-          (expand-new-english (ExpType-new-english rule) new-bindings)
-          new-bindings))))))
+    (let ((bindings (unify (Exptype-form rule) prop)))
+      (when bindings
+	(return-from new-english-find
+	  (values
+	   (expand-new-english (ExpType-new-english rule) bindings)
+	   bindings))))))
 
 (defun expand-new-english (model &optional (bindings no-bindings))
   "Expand model tree, expanding ontology expressions, parse strings into list of words, substituting bindings, evaluating lisp code, and removing nils."
@@ -422,7 +422,9 @@
 	  (eval (subst-bindings-quoted bindings (second model)))))
 	;; match with ontology, handles recursion
 	(t (multiple-value-bind (val match)
-	       (new-english-find model bindings)
+	       ;; bindings are local to one operator in the ontology
+	       ;; so we need to substitute in here
+	       (new-english-find (subst-bindings bindings model))
 	     (if match val 
 		 (warn "No ontology match for ~A" model))))))
 
