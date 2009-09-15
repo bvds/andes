@@ -30,6 +30,8 @@
 #include <iostream>
 #include "indysgg.h"
 #include "dbg.h"
+#include <cstdlib>
+#include <cstring>
 using namespace std;
 
 //////////////////////////////////////////////////////////////////////////////
