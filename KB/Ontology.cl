@@ -215,21 +215,18 @@
 ;;;;         General phrases
 
 (def-qexp property (property ?body)
-  :new-english ("of" (or (var (body ?body))
-			 (eval (def-np-model ?body)))))
+  :new-english ("of" (or (var (body ?body)) ?body)))
 
 (def-qexp time (time ?time)
   :new-english (eval (pp ?time)))
 
 (def-qexp object (object ?body)
   :new-english ((or "acting on" "on") 
-		(or (var (body ?body))
-		    (eval (def-np-model ?body)))))
+		(or (var (body ?body)) ?body)))
 
-(def-qexp agent (agent ?abody)
+(def-qexp agent (agent ?body)
   :new-english ((or "due to" "by" "from" "caused by") 
-		(or (var (body ?abody))
-		    (eval (def-np-model ?abody)))))
+		(or (var (body ?body)) ?body)))
 
 ;;;; scalar quantities
 
@@ -325,6 +322,12 @@
 			 "of a freely falling object")))
 		(preferred ((or "at" "on") (preferred "the surface") 
 				 (property ?planet)))))
+
+;; Add Earth to Ontology as a universal name
+;; Alternatively, it could be added to all problem ontologies
+;; involving the earth.
+(def-qexp the-Earth earth 
+  :new-english ((preferred "the") "Earth"))
 
 (post-process add-gravitational-acceleration (problem)
   "if only the earth's gravity is used, add gravitational acceleration"
