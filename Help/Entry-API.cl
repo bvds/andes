@@ -961,7 +961,8 @@
   (let 
       ((rem (make-hint-seq 
 	     (list 
-	      (format nil "Your definition ~@[of <var>~A</var> ~]is ambiguous." 
+	      (format nil "Your definition ~:[~;of <var>~A</var> ~]is ambiguous." 
+		      (> (length (StudentEntry-symbol entry)) 0)
 		      (StudentEntry-symbol entry))
 	      (if matches
 		  (format nil "Did you mean?~%<ul>~%~{  <li>~A</li>~%~}</ul>"
@@ -1450,7 +1451,7 @@
       ;; pairs of opnames and entry props "steps."
       (when target-entries
 	(push `((:action . "log") 
-		(:assoc . ,(mapcar #'opname-prop-pair target-entries)))
+		(:Assoc . ,(alist-warn (mapcar #'opname-prop-pair target-entries))))
 	      result)))
 
     result))

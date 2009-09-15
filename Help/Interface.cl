@@ -306,6 +306,7 @@
   ;; if there is assoc info in the turn, add to reply
   ;; :assoc has the format of an alist.
   (when (and turn (turn-assoc turn))
+    (alist-warn (turn-assoc turn))
     (push `((:action . "log") 
 	    (:assoc . ,(mapcar #'(lambda (x) (cons (string (car x))
 						 (format nil "~S" (cdr x))))
@@ -508,7 +509,7 @@
     ;; Generate a cmdresult and set the necessary vals.
     (iface-set-cmdresult 
      Cmd :Value Val 
-     :Assoc (turn-assoc Result))))
+     :Assoc (alist-warn (turn-assoc Result)))))
 
 
 ;;; There are four possible turn-colorings: Red, Green, no-op
@@ -562,14 +563,14 @@
   "Add an incorrect eqn-result."
   (iface-set-cmdresult
    Cmd
-   :Assoc (turn-assoc Result)))
+   :Assoc (alist-warn (turn-assoc Result))))
 
 
 (defun iface-add-eqr-g-cmdresult (Cmd Result)
   "Add a correct eqn-result."
   (iface-set-cmdresult
    Cmd
-   :Assoc (turn-assoc Result)))
+   :Assoc (alist-warn (turn-assoc Result))))
 
 
 ;;; -----------------------------------------------------------------------
@@ -594,7 +595,7 @@
     (iface-set-cmdresult
      Cmd
      :Value Val
-     :Assoc Assoc)))
+     :Assoc (alist-warn Assoc))))
 
 
 ;;; ---------------------------------------------------------------------
@@ -608,7 +609,7 @@
     (error "non-turn passed to iface-add-stat-cmdresult."))
   (iface-set-cmdresult
    Cmd
-   :Assoc (turn-assoc Result)))
+   :Assoc (alist-warn (turn-assoc Result))))
    
 ;;; ---------------------------------------------------------------------
 ;;; Ignore commands.
@@ -618,10 +619,11 @@
   "Add the ignore cmdresult."
   (if (not (turn-p Result))
       (iface-set-cmdresult Cmd :Value Result)
+
     (iface-set-cmdresult 
      Cmd
      :Value Result ;; will need to be changed later.
-     :Assoc (turn-assoc Result))))
+     :Assoc (alist-warn (turn-assoc Result)))))
 
 
 ;;; ---------------------------------------------------------------------
@@ -822,4 +824,3 @@
       ;; anything else: empty string should function as null return value.
       (otherwise (warn "unclassifed api command: ~A~%" cmd)
                   "")))
-

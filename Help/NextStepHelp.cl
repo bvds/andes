@@ -1251,16 +1251,17 @@
 
 
 (defparameter **nsh-standard-axis-prompt**
-    "Why don't you draw a pair of standard axes setting the positive X axis at 0 degrees.")
+    "Why don't you draw a pair of standard axes setting the positive <var>x</var> axis at 0 degrees.")
 
 (defparameter **nsh-rotated-axis-prompt**
     (strcat "On this problem you should draw a pair of axes with the "
-	    "positive X axis set to ~a degrees.  This will line them up "
+	    "positive <var>x</var> axis set to ~a degrees.&nbsp; " 
+	    "This will line them up "
 	    "with the vectors that you will be drawing and make your "
 	    "solution simpler."))
 
 (defparameter **nsh-rotated-axis-bottom-prompt**
-    "Draw a pair of axes setting the posivie X axis at ~a  degrees.")
+    "Draw a pair of axes setting the positive <var>x</var> axis at ~a degrees.")
 
 
 
@@ -1385,7 +1386,7 @@
 		       Principle
 		       :Assoc `((nsh start-no-quant-explain-more
 				    ,(bgnode-exp Principle))))) )
-     :Assoc `((nsh . start-no-quant)))))
+     :Assoc '((nsh . start-no-quant)))))
 
 
 
@@ -2786,7 +2787,7 @@
   (make-end-dialog-turn
    (strcat "You have applied all of the principles "
 	   "necessary to solve this problem.  " (nsh-prompt-done-string))
-   :assoc '((nsh . prompt-done))))
+   :Assoc '((nsh . prompt-done))))
 
 
 (defparameter **nsh-single-sought-done-str**
@@ -2879,7 +2880,7 @@
   (let ((next (find-if #'(lambda (P) (not (nsh-Node-completed-p P))) Solution)))
     (nsh-prompt-Node
      prefix Next
-     :Assoc (or Assoc `((nsh prompt-solution ,(bgnode-exp Next)))))))
+     :Assoc (alist-warn (or Assoc `((nsh prompt-solution ,(bgnode-exp Next))))))))
 
 
 
@@ -2898,7 +2899,7 @@
 		    (nsh-prompt-node 
 		     Prefix Node
 		     :Assoc `((nsh dialog-prompting-node ,(bgnode-exp Node))))))
-   :Assoc Assoc))
+   :Assoc (alist-warn Assoc)))
 
 
 
@@ -2926,8 +2927,8 @@
 (defun nsh-prompt-node (Prefix Node &key Assoc)
   "Prompt the node as appropriate."
   (if (nsh-quantity-p Node)
-      (nsh-prompt-quantity Prefix Node :Assoc Assoc)
-    (nsh-prompt-Principle Prefix Node :Assoc Assoc)))
+      (nsh-prompt-quantity Prefix Node :Assoc (alist-warn Assoc))
+    (nsh-prompt-Principle Prefix Node :Assoc (alist-warn Assoc))))
 
 
 ;;; ---------------------------------------------------------------------------
@@ -2938,7 +2939,7 @@
 ;;; change if we find it necessary.
 (defun nsh-prompt-quantity (Prefix Quantity &key Assoc)
   (cond ((nsh-quantity-parameter-P quantity) 
-	 (nsh-prompt-parameter Prefix Quantity :Assoc Assoc))
+	 (nsh-prompt-parameter Prefix Quantity :Assoc (alist-warn Assoc)))
 			       
 	(t (error "Inappropriate quantity passed to hint ~a" Quantity))))
 
@@ -2954,7 +2955,7 @@
    :responder #'(lambda (Response)
 		  (when (equal Response **Explain-More**)
 		    (nsh-walk-node-graph "" Parameter)))
-   :Assoc Assoc)) 
+   :Assoc (alist-warn Assoc)))
 
 
 ;;; ---------------------------------------------------------------------------
@@ -2987,7 +2988,7 @@
    :responder #'(lambda (response)
 		  (when (equal response **Explain-More**)
 		    (nsh-walk-Node-graph "" principle)))
-   :Assoc Assoc))
+   :Assoc (alist-warn Assoc)))
 
 
 
@@ -3025,7 +3026,7 @@
    :responder #'(lambda (response)
 		  (when (equal response **Explain-More**)
 		    (nsh-walk-Node-graph "" principle)))
-   :Assoc Assoc))
+   :Assoc (alist-warn Assoc)))
 
 
 ;;;; ======================== Support functions ==================================
@@ -3930,7 +3931,7 @@
 		     (collect-step-hints Source :types '(bottom-out))
 		     :OpTail (list (csdo-op Source))))))
    
-   :Assoc Assoc))
+   :Assoc (alist-warn Assoc)))
 
 
 ;;;; ============= ============================================================
