@@ -791,7 +791,7 @@ drawing.stencil._Base = drawing.util.oo.declare(
 			//	canvas. Therefore Lines could get flipped. Use absolute
 			//	to prevent this.
 			//
-			var p = this.points, x1, x1, x2, y2;
+			var p = this.points, x1, y1, x2, y2;
 			if(p.length==2){
 				if(absolute){
 					x1 = p[0].x;
