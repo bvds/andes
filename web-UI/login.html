@@ -5,13 +5,13 @@
 	<style>
 		label, input{
 			display:block;
-			width:275px;
+			width:250px;
 		}
 		label{
 			margin-top:15px;
 		}
 		.loginbox{
-			width:300px;
+			width:400px;
 			height:auto;
 			padding:0 10px 20px 10px;
 			border:1px solid #ccc;
@@ -24,6 +24,11 @@
 	<script>
 		doSubmit = function(){
 			var u = document.getElementById("user").value;
+			if(! u){
+			  alert("Please enter a user name.");
+			  form.user.focus();
+			  reutrn;
+}
 			var p = document.getElementById("problem").value;
 			var s = document.getElementById("section").value;
 			document.location.href = "index.html?s="+s+"&u="+u+"&p="+p;
@@ -37,9 +42,13 @@
 		<label>section:</label>
 		<input type="text" id="section" value="1234" size="6"/>
 		<label>user:</label>
-		<input type="text" id="user" value="joe" size="6"/>
-		<label>Andes problem: (try kt1a, kt1asolved, s2e, or s2esolved)</label> 
+		<input type="text" id="user" size="6"/>
+		<label>Andes problem: </label> 
 		<input type="text" id="problem" value="s2e" size="6"/>
+       <p>Try <var>kt1a</var>, <var>kt1asolved</var>, <var>s2e</var>, 
+       or <var>s2esolved</var>.&nbsp;  See the 
+       <a href="http://www.andestutor.org/sets/">
+       Problem Chooser</a> for more choices.</p>
 		<button onclick="doSubmit(); return false;">Submit</button>
 	</div>
 	

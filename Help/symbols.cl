@@ -244,11 +244,11 @@
   "True if the argument is a system variable"
   (and (symbolp sysvar) (sysvar-to-quant sysvar Problem)))
 
-; Solution graph may contain variables defined along dead-paths which have
-; no value determined for them. These cannot be used in equations since
-; the solver has no value for them. Following only returns translations
-; for variables that are valid in equations, else NIL. This is what
-; we store in the translation field of the symbol info.
+;; Solution graph may contain variables defined along dead-paths which have
+;; no value determined for them. These cannot be used in equations since
+;; the solver has no value for them. Following only returns translations
+;; for variables that are valid in equations, else NIL. This is what
+;; we store in the translation field of the symbol info.
 (defun quant-to-valid-sysvar (quant &optional (Problem *cp*)) 
   "lookup algebraically usable system variable name for quant in current problem, NIL if none"
   (let ((qvar (find quant (Problem-VarIndex Problem) 

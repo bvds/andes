@@ -120,6 +120,7 @@ chown -r $USER /usr/local/lib/sbcl/site*
   (start-help)
 ;; To stop the lisp server:
   (stop-help)
+
 ;; There is a bug, which causes shut-down to hang, see
 ;; http://common-lisp.net/pipermail/tbnl-devel/2009-February/004608.html
 ;; http://common-lisp.net/pipermail/tbnl-devel/2009-February/004589.html

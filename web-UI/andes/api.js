@@ -39,26 +39,8 @@ dojo.require("andes.messages");
 		andes.rpc[req.method](request).addCallbacks(
 			function(result){
 				requestInFlight = false;
-				if(result[0] && result[0].action!="log" && result[0].error || result[0].errorType){
-					//
-					//		Not sure when this error occurs -
-					//		This may have been nullified by removing the
-					//		catching of errors for Help
-					//
-					req.dfd.errback(result[0]);
-					var mo = andes.messages.general();
-					andes.error({
-						title: mo.title,
-						message: "<p>"+mo.message+"</p><div class='errMsg'>" + result[0].error + "</div><div class='action'>"+mo.action+"</div>",
-						errorType: andes.error.OK
-					});
-					// FIXME: Not calling nextRequest() here means we freeze
-					//        processing the queue and don't start up again.
-					//        What *is* the correct behavior?
-				}else{
-					req.dfd.callback(result);
-					nextRequest();
-				}
+				req.dfd.callback(result);
+				nextRequest();
 			},
 			function(error){
 				//requestInFlight = false;

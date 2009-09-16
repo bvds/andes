@@ -589,7 +589,7 @@
 		    :key #'EntryTest-name))
          result-turn)
      (setf result-turn (apply (car form) (cdr form)))
-     (setf (turn-assoc result-turn) (list form))
+     (setf (turn-assoc result-turn) (alist-warn (list form)))
      result-turn))
 
 ;;; ================ called inside errors.cl functions =================

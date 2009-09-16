@@ -73,16 +73,17 @@
   Name            ;; Symbolic version of the problem name e.g newt1c.
   Statement       ;; Text giving the problem statement.  This should be
                   ;; Identical to what the student will see at runtime.
-  ; following information is needed to display problem on workbench interface
-  ; can be omitted if a workbench .fbd file has been created for the problem
+  English         ;; Ontology information specific to this problem
+                  ;; format is an alist of pattern/model phrase pairs.
+  Graphic         ;; name of file containing problem graphic 
+  Predefs         ;; list of predefined solution items in workbench log line notation
+;; The following information is Andes2-specific
   Times		  ;; time legend as list of (time point, description) pairs. Ex:
                   ;; Ex: ((1 "car starts moving") (2 "car hits driveway"))
                   ;; See problem-times-english for details.
   Choices	  ;; list of choice category members for menus. Ex:
                   ;; ((bodies (car driveway wall Earth))
 		  ;;  (branches (Br1 Br2 Br3)))
-  Graphic         ;; name of file containing problem graphic 
-  Predefs         ;; list of predefined solution items in workbench log line notation
   ;; end workbench information
   Comments        ;; String commenting on the problem for developers.
   Features        ;; An optional list of atomic markings such as 
@@ -183,6 +184,7 @@
   (format Stream "Version       ~W~%" (problem-Version Problem))
   (format Stream "Moddate       ~W~%" (problem-Moddate Problem))
   (format Stream "Statement     ~W~%" (problem-Statement Problem))
+  (format Stream "English       ~W~%" (problem-English Problem))
   (format Stream "Times         ~W~%" (problem-Times Problem))
   (format Stream "Choices       ~W~%" (problem-Choices Problem))
   (format Stream "Graphic       ~W~%" (problem-Graphic Problem))
@@ -330,6 +332,7 @@
     (version       (setf (Problem-version Problem) (mpf-readret Stream)))
     (Moddate       (setf (Problem-Moddate Problem) (mpf-readret Stream)))
     (statement     (setf (Problem-statement Problem) (mpf-readret Stream)))
+    (english       (setf (Problem-English Problem) (mpf-readret Stream)))
     (Times         (setf (Problem-Times Problem) (mpf-readret Stream)))
     (Choices       (setf (Problem-Choices Problem) (mpf-readret Stream)))
     (Graphic       (setf (Problem-Graphic Problem) (mpf-readret Stream)))
@@ -401,12 +404,19 @@
 
 (defmacro defproblem (name &key (soughts ()) (Givens ())
 				(Statement "")
+		                (English nil)
 				(Comments NIL) (Features nil)
 				(ModDate nil) (Version *latest-file-version*) 
 				(ForbiddenPSMS nil) (IgnorePSMS nil)
 				(VariableMarks Nil) (Times nil)
 				(Choices nil) (Graphic nil) (Predefs nil))
   "Define a problem struct and store it."
+
+  (dolist (rule English)
+    (when (matches-model-syntax (car rule))
+      (error "Ontology member ~A matches model syntax" rule)))
+
+
   (let ((Prob (eval `(make-problem :Name ',name                     ;;Define the problem struct.
 				   :soughts ',(remove-answer
 					       (force-to-ll soughts))
@@ -415,6 +425,7 @@
 				   :IgnorePSMS ',(force-to-list IgnorePSMS)
 				   :VariableMarks ',VariableMarks
 				   :Statement ',(force-to-list Statement)
+				   :English ',English
 				   :Comments ',(force-to-list Comments)
 				   :Features ',Features
 				   :ModDate ',ModDate

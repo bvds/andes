@@ -239,9 +239,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun add-entry (Entry)
   "Add the specified student entry struct, deleting any existing entry."
-  ; remove any existing entry with same id 
+  ;; remove any existing entry with same id 
   (delete-object (StudentEntry-id Entry))
-  ; add new entry
+  ;; add new entry
   (format *debug-help* "Adding entry: ~A ~S~%" 
 	  (studententry-id entry) (studententry-prop entry))
   (push Entry *StudentEntries*))

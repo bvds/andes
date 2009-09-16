@@ -55,8 +55,8 @@
 ;;
 
 (defun word-parse (str &key parse)
-  "Break up a string into a list of words, removing spaces, commas."
-  (let ((p (position '(#\space #\tab #\,) str
+  "Break up a string into a list of words, removing whitespace, commas."
+  (let ((p (position (cons #\, *whitespace*) str
 		     :test #'(lambda (x y) (member y x)))))
     (if p
 	(word-parse (subseq str (+ p 1)) :parse 
@@ -64,6 +64,7 @@
 	(reverse (if (> (length str) 0) (push str parse) parse)))))
 
 (defun join-words (x)
+  "Join together a list of strings."
   (if (cdr x) (concatenate 'string (car x) " " (join-words (cdr x)))
       (car x)))
 
@@ -282,40 +283,40 @@
 				new-student)))
 	 (aref matches best-m best-y best-z)))))
 
-(defun pull-out-quantity (symbol text)
-  "Pull the quantity phrase out of a definition:  should match variablname.js"
-  (when symbol
-    (if (not (search symbol text))
-	(warn "Bad symbol definition, ~S should be found in ~S."
-	      symbol text)
-	;; this should be done as a parser.
-	(let* ((si (+ (search symbol text) (length symbol)))
-	       (nosym (string-left-trim *whitespace* (subseq text si))))
-	  ;; The empty string is a catch-all in case there is no match
-	  (dolist (equality '("is " ":" "=" "be " "as " "to be " ""))
-	    (when (and (>= (length nosym) (length equality))
-		       (string= equality (string-downcase nosym) 
-				:end2 (length equality)))
-	      (return-from pull-out-quantity
-		(string-trim *whitespace* 
-			     (subseq nosym (length equality)))))))))
-  text)
+(defun matches-model-syntax (form)
+  "Top level of form matches model syntax." 
+  ;; If this function is true, then form will not be
+  ;; interpreted as being in the ontology
+  (or (null form)
+      (stringp form)
+      (and (consp form) 
+	   (or (listp (car form)) (stringp (car form)) ;list
+	       (member (car form) '(and or preferred allowed var eval))))))
 
-(defun best-model-matches (student models &key (cutoff 0.5) (equiv 1.25))
-  "Returns sorted array of best matches to text using match-model."
-  ;; cutoff is maximum ratio of words that don't match to student words.
-  ;; equiv is maximum number of words such that two matches are
-  ;;   considered to be of equal quality.
-  (let (this (best (- (* cutoff (word-count student)) equiv)) quants)
+
+(defun best-model-matches (student models &key (cutoff 0.5) (equiv 1.25) 
+			   (epsilon 0.25))
+  "Returns alist of best matches to text using match-model."
+  ;; cutoff is ratio of maximum allowed score to number of student words.
+  ;; equiv maximum fraction of the best score such that a fit
+  ;;    is considered equivalent to the best fit.
+
+  ;; match-model only finds matches that are better than 
+  ;; than the given bound, else it may return the bound itself.  
+  ;; Thus, in the case where a perfect match has been found, 
+  ;; we need to adjust the bound so any other perfect matches 
+  ;; may also be found.
+  
+  (unless (> equiv 1.0) 
+    (warn "best-model-matches:  equiv=~A  must be larger than 1" equiv))
+  (let (this (best (/ (* cutoff (length student)) equiv)) quants bound)
     (dolist (x models)
-      (setf this (match-model student (car x) :best (+ best equiv)))
-      (when (< this best) (setf best this))
-      (when (< this (+ best equiv)) (push (cons this (cdr x)) quants)))
-    ;; remove any quantities that are not equivalent with
-    ;; best fit, and remove fit value. 
-    (mapcar #'cdr (remove-if 
-		      #'(lambda (x) (> (car x) (+ best equiv))) 
-		      quants))))
+      (setf bound (max epsilon (* best equiv)))
+      (setf this (match-model student (car x) :best bound))
+      (when (< this bound) (push (cons this (cdr x)) quants))
+      (when (< this best) (setf best this)))
+    ;; remove any quantities that are not equivalent with best fit. 
+    (remove-if #'(lambda (x) (> (car x) (* best equiv))) quants)))
 
 (defun best-matches (text good)
   "Returns array of best matches to text.  Use minimum edit distance."
