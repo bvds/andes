@@ -392,14 +392,25 @@
 		  (word-parse (nlg prop)))))))
 
 
-(defun new-english-find (prop &optional (bindings no-bindings))
+(defun new-english-find (prop)
+  "Match proposition to Ontology"
+  ;; First, determine if there is any problem-specific
+  ;; Ontology match to prop.
+  (dolist (rule (problem-english *cp*))
+    (let ((bindings (unify (car rule) prop)))
+      (when bindings 
+	(return-from new-english-find
+	  (values (expand-new-english (cdr rule) bindings)
+		  bindings)))))
+  ;; Then run through general Ontology to find match.
   (dolist (rule *Ontology-ExpTypes*)
-    (let ((new-bindings (unify (Exptype-form rule) prop bindings)))
-      (when new-bindings
-       (return-from new-english-find
-         (values
-          (expand-new-english (ExpType-new-english rule) new-bindings)
-          new-bindings))))))
+    (let ((bindings (unify (Exptype-form rule) prop)))
+      (when bindings
+	(return-from new-english-find
+	  (values
+	   (expand-new-english (ExpType-new-english rule) bindings)
+	   bindings))))))
+
 
 (defun expand-new-english (model &optional (bindings no-bindings))
   "Expand model tree, expanding ontology expressions, parse strings into list of words, substituting bindings, evaluating lisp code, and removing nils."
@@ -408,21 +419,27 @@
 	 (let ((this (word-parse model))) (if (cdr this) this model)))
 	((null model) model)
 	((variable-p model) 
-	 (expand-new-english (subst-bindings bindings model)))
-	((member (car model) '(preferred allowed and or))
+	 (if (all-boundp model bindings)
+	     (expand-new-english (subst-bindings bindings model))
+	     (warn "Unbound variable ~A" model)))
+	((and (consp model) (member (car model) '(preferred allowed and or)))
 	 (let ((args (expand-new-english (cdr model) bindings)))
 	   (when args (cons (car model) args))))
-	((or (stringp (car model)) (listp (car model))) ;plain list
+	;; plain list
+	((and (consp model) (or (stringp (car model)) (listp (car model)))) 
 	 (remove nil (mapcar 
 		      #'(lambda (x) (expand-new-english x bindings)) model)))
 	;; expansion of var must be done at run-time.
-	((eql (car model) 'var) (subst-bindings bindings model))
-	((eql (car model) 'eval) 
+	((and (consp model) (eql (car model) 'var)) 
+	 (subst-bindings bindings model))
+	((and (consp model) (eql (car model) 'eval))
 	 (expand-new-english
 	  (eval (subst-bindings-quoted bindings (second model)))))
 	;; match with ontology, handles recursion
 	(t (multiple-value-bind (val match)
-	       (new-english-find model bindings)
+	       ;; bindings are local to one operator in the ontology
+	       ;; so we need to substitute in here
+	       (new-english-find (subst-bindings bindings model))
 	     (if match val 
 		 (warn "No ontology match for ~A" model))))))
 

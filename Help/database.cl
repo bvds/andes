@@ -41,42 +41,56 @@
   
   ;; should test if it exists and create (using the below clos) if
   ;; it does not.
-  
-  (unless (probe-database '(nil "andes" "root" "sin(0)=0") :database-type :mysql)
+  (unless (probe-database '(nil "andes" "root" "sin(0)=0") 
+			  :database-type :mysql)
     ;; create database
-    (format t "Creating database~%")
-    (create-database '("localhost" "andes" "root" "sin(0)=0") :database-type :mysql))
-
-
-  (connect '(nil "andes" "root" "sin(0)=0") :database-type :mysql)
+    (create-database '("localhost" "andes" "root" "sin(0)=0") 
+		     :database-type :mysql))
   
-  (format t "Connected databases after ~A~%" (connected-databases))
- )
+
+  (connect '(nil "andes" "root" "sin(0)=0") :database-type :mysql))
+
+;; MySql drops connections that have been idle for over 8 hours.
+;; The following wrapper intercepts the resulting error, reconnects
+;; the database, and retries the function.
+;; This code can be tested by logging into MySql, and using
+;; SHOWPROCESSLIST; and KILL to drop a connection.
+
+(defmacro reconnect-when-needed (&body body)
+  "Intercep disconnected database error, reconnect and start over."
+  `(handler-bind ((clsql-sys:sql-database-data-error 
+		   #'(lambda (err)
+		       (when (eql 2006 (clsql:SQL-ERROR-ERROR-ID err)) 
+			 (clsql:reconnect)
+			 (invoke-restart (find-restart 'start-over))))))
+    (loop (restart-case (return (progn ,@body))
+	    (start-over ())))))
+
 
 (defun write-transaction (direction client-id j-string)
   "Record raw transaction in database."
-  (let* 
-      ((queryString (format nil "SELECT clientID FROM PROBLEM_ATTEMPT WHERE clientID = '~A'" client-id))
-       (checkInDatabase (query queryString :field-names nil :flatp t :result-types :auto)))
-
+  (let ((checkInDatabase 
+	 (reconnect-when-needed 
+	   (query 
+	    (format nil 
+		    "SELECT clientID FROM PROBLEM_ATTEMPT WHERE clientID = '~A'" client-id)
+	    :field-names nil :flatp t :result-types :auto))))
     (unless checkInDatabase 
-      (execute-command (format nil "INSERT into PROBLEM_ATTEMPT (clientID,classinformationID) values ('~A',2)" client-id)))
+      (execute-command 
+       (format nil 
+	       "INSERT into PROBLEM_ATTEMPT (clientID,classinformationID) values ('~A',2)" 
+	       client-id)))
     
-    (setf queryString (format nil "INSERT into PROBLEM_ATTEMPT_TRANSACTION (clientID, Command, initiatingParty) values ('~A','~A','~A')" 
-			      client-id j-string direction))
-    (execute-command queryString)
-	    
-    )
-)
+    (execute-command 
+     (format nil "INSERT into PROBLEM_ATTEMPT_TRANSACTION (clientID, Command, initiatingParty) values ('~A','~A','~A')" 
+	     client-id j-string direction))))
+
 
 (defun set-session (client-id &key student problem section)
   "Updates transaction with session information."
-  ;;  session is labeled by client-id
-  
-  ;; add above info to database
-  
+  ;;  session is labeled by client-id 
+  ;; add this info to database
   ;; update the problem attempt in the db with the requested parameters
-  (setf queryString (format nil "UPDATE PROBLEM_ATTEMPT SET userName='~A', userproblem='~A', userSection='~A' WHERE clientID='~A'" 
-			      student problem section client-id))
-    (execute-command queryString)
-)
+  (execute-command 
+   (format nil "UPDATE PROBLEM_ATTEMPT SET userName='~A', userproblem='~A', userSection='~A' WHERE clientID='~A'" 
+	   student problem section client-id)))
