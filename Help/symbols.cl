@@ -99,10 +99,10 @@
 
 (defun symbols-enter (label referent entries &optional sysvar)
   "enter info about a student label into the symbol table"
-  ; Allow a single entry id argument here for the usual case where 
-  ; symbol info derives from single entry. For component vars it will list
-  ; both vector and axes entry ids. Form singleton list for subsequent code.
-  ; if entries is NIL, as for predefs, leave it as empty list
+  ;; Allow a single entry id argument here for the usual case where 
+  ;; symbol info derives from single entry. For component vars it will list
+  ;; both vector and axes entry ids. Form singleton list for subsequent code.
+  ;; if entries is NIL, as for predefs, leave it as empty list
   (when (and entries (atom entries))
       (setf entries (list entries))) 
 
@@ -112,17 +112,17 @@
   (when (symbols-lookup label)
      (warn "symbols-enter: new entry shadowing existing def for ~A~%" label))
 
-  ; if no special sysvar specified, look up matching quantity as default
-  ; OK if NIL, not all referents will have matching system vars
+  ;; if no special sysvar specified, look up matching quantity as default
+  ;; OK if NIL, not all referents will have matching system vars
   (when (null sysvar)
      (setf sysvar (quant-to-valid-sysvar referent)))
 
-  ; build entry and add it to list
+  ;; build entry and add it to list
   (push (make-syminfo :label label :referent referent 
 		      :entries entries :sysvar sysvar)
         *variables*)
 
-  ; for debugging: dump symbol table contents after change
+  ;; for debugging: dump symbol table contents after change
   (when *watch-symbols* 
         (symbols-dump)))
 

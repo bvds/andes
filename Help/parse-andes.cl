@@ -165,8 +165,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun handle-ambiguous-equation (equation entry parses location)
   ;(prl parses)
-  (let ((id (StudentEntry-id entry))
-	tmp bad (cont t) result se save)
+  (let (tmp bad (cont t) result se save)
     (dolist (parse parses)
       (when (and cont (not (member parse save :test #'equal)))
 	(setf save (append save (list parse)))
@@ -889,6 +888,7 @@
 
 (defun bad-answer-bad-lhs-ErrorInterp (equation why &key id)
   "LHS of equation is not a variable."
+  (declare (ignore equation))
   (let ((rem (make-hint-seq
 	      (list
 	       (format nil "'~A' is not a defined variable." (second why))))))
@@ -935,6 +935,7 @@
 ;;; some parameters (so only some vars illegal and we can say which are legal.)
 (defun bad-variables-vs-parameters-ErrorInterp (equation badvars &key id)
   "Equation has non-parameter variables in answer"
+  (declare (ignore equation))
   (let ((rem (make-hint-seq
 	      (list
 	       (format NIL "This expression contains variables not allowed in the answer: ~a" badvars)

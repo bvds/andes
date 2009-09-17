@@ -189,6 +189,8 @@
 (webserver:defun-method "/help" open-problem (&key time problem user section) 
   "initial problem statement" 
 
+  (declare (ignore time)) ;Time is used by logging
+
   ;; Need to think about error handling for the case where 
   ;; the session already exists.
   (when webserver:*env* 
@@ -454,6 +456,11 @@
 (webserver:defun-method "/help" seek-help 
     (&key time action href value text) 
   "ask for help, or do a step in a help dialog" 
+  (declare (ignore time))  ;used by logging.
+
+  ;; for choosing principle of physics, not working yet.
+  (declare (ignore href))  
+
   (env-wrap 
     ;; Doesn't correctly handle case where "Explain-more" is clicked after
     ;; a bottom-out hint.
@@ -485,6 +492,7 @@
 (webserver:defun-method "/help" close-problem 
   (&key time) 
   "shut problem down" 
+  (declare (ignore time))  ;used by logging.
   (prog1
       (env-wrap
 	(let ((result (execute-andes-command 'get-stats 'persist)))

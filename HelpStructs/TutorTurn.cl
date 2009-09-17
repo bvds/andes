@@ -25,15 +25,6 @@
 ;; and other help modules including the what's next and what's wrong 
 ;; help and contain response functions to be called.
 ;;
-;; Note that thic code contains references to the kde code if that code 
-;; is not loaded then a series of undefined function warnings will appear
-;; so long as no attempt is made to reference the kde code this will cause
-;; no problems.  In future I plan to put macros around this code so that
-;; it will not be compiled.  For now that task and ensuring that it 
-;; doesn't mess with other code will have to wait. 
-;; 
-#-kcd (defun next-turn (dummy) nil)
-#-kcd (defun start-local-kcd (dummy) nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Changelog
@@ -44,9 +35,6 @@
 ;;  of NSH it will be associated with the goal or entry that 
 ;;  produced the desired hint along and its status (bottom-out, etc.)
 ;;  This will allow reconstruction from hints as necessary.
-;;
-;; 6/3/2003 Collin -- fixed typo in the make-kcd-end-ophseq def.
-;; 7/29/03  Collin -- Added commands field to tutor turn.
 ;;
 
 
@@ -296,177 +284,6 @@
    :Assoc (alist-warn assoc)))
 
 
-;;; KCDS consist of a series of dialogs with free text responses by
-;;; the students.  The sequence is begun by calling make-kcd-seq
-;;; this call is passed the kcd spec to be run, and an optional 
-;;; continuation.  The kcd spec is a hintspec of the form
-;;; (KCD <String> <vars>) which will be formatted into a kcd name
-;;; and passed to the Start-local-kcd function.  
-;;;
-;;; The Start-Local-Kcd function returns a 3-tuple of the form:
-;;; (<String> <Continue T/Nil> <Image>) Where:
-;;;   String:  is a dialog string that will be displayed.
-;;;   Continue: is a boolean value indicating whether the
-;;;             student should respond to this kcd or not.
-;;;   Image:  is the name of an image file which (if not nil)
-;;;           will be displayed to the student in a browser.
-;;;
-;;; This kcd description will be translated into a kcd turn
-;;; and passed to the workbench.  The student response to kcds
-;;; is free text which is typed into the dialgoue window.  
-;;; That text will be passed back to the next-turn function which
-;;; will return its own 3-tuple of the form defined above.  This 
-;;; will be translated into another kcd-turn and the system will
-;;; continue.
-;;;
-;;; Once a nil is encounterd in the continue slot of the kcd-3-tuple
-;;; the system will then test to see if any other turns have been 
-;;; supplied to rest.  If Rest is not nil then the system will print
-;;; the final turn with an explain-more menu allowing the students to
-;;; continue along.  If not then the system will print the dialog with
-;;; an ok menu signaling the end of the turn.  
-
-(defun make-kcd-seq (name &optional (Rest) Assoc)
-  "Start an initial kcd."
-  (make-kcd-turn (start-local-kcd Name) Rest Assoc))
-
-;;; This function performs the continuation test for a kcd.  When
-;;; it is passed a ktuple it will then generate the appropriate 
-;;; kcd turn based upon it.  If the continue flag is t then the
-;;; system will generate a free-text turn.  If the flag is nil
-;;; but the rest field has a value then the system will generate
-;;; a dialog turn with the explain-more / hide menu.  Else it will
-;;; generate a terminal dialog with an ok menu.  
-(defun make-kcd-turn (ktuple &optional (Rest nil) (Assoc nil))
-  "Make a kcd turn from the result."
-  (cond ((second ktuple) (make-kcd-continue-turn (first ktuple) (third ktuple) 
-						 Rest Assoc))
-	(Rest (make-kcd-end-turn (first ktuple) (third ktuple) Rest Assoc))
-	(t (make-kcd-end-seq-turn (first ktuple) (third ktuple) Assoc))))
-
-
-;;; When a non-terminal kcd is generated then it will
-;;; call for a free-text-response and based upon that
-;;; response it will generate another kcd result turn.
-;;; If Image is not nil then it will be displayed in
-;;; a browser window to the student.  The string will
-;;; always be displayed.
-;;; 
-;;; The wb-open browser command will be included if an image exists 
-;;; and will prompt the workbench to open a browser displaying the
-;;; image when the turn is activated.  
-(defun make-kcd-continue-turn (String Image Rest &optional (Assoc nil))
-  "Make and display a kcd turn to the student."
-  (make-turn :menu **Free-Text**
-	     :type **KCD-Turn**
-	     :text String
-	     :responder #'(lambda (r) 
-			    (kcd-responder-func r Rest Assoc))
-	     :Assoc (alist-warn Assoc)
-	     :Result (list (when Image 
-			     (format-wb-open-browser-command Image)))))
-
-;;; When a kcd response is received then the response
-;;; will be fed to the (Atlas:next-turn) call and the
-;;; result will be passed to the make-kcd-result-turn.
- (defun kcd-responder-func (Response Rest &optional (Assoc nil))
-  (make-kcd-turn (next-turn Response) Rest Assoc))
-   
-
-;;; When the kcd is done then it will return a final 
-;;; ktuple with a string and possible image but no
-;;; need for a free text response.  If there is a rest
-;;; value (I.E. more of a sequence to follow) then 
-;;; this function will be called and will generate an
-;;; explain-more / hide menu and continue the sequence
-;;; if explain-more is selected.  If an image is to be 
-;;; displayed then an open-browser command will be sent
-;;; to the workbench via the return-turn.  
-(defun make-kcd-end-turn (String Image Rest &optional (Assoc nil))
-  "Make a KCD end turn."
-  (make-turn :type **KCD-Turn**
-	     :text String
-	     :menu **Explain-More**
-	     :responder #'(lambda (R) 
-			    (when (eq R **Explain-More**)
-			      (make-hint-seq Rest)))
-	     :Assoc (alist-warn Assoc)
-	     :Result (list (when Image 
-			     (format-wb-open-browser-command Image)))))
-
-
-;;; When the kcd is done then it will return a final 
-;;; ktuple with a string and possible image but no
-;;; need for a free text response.  If there is no 
-;;; rest value (I.E. this is the end of the hint seq)
-;;; then this function will generate a sequence with
-;;; the ok menu and no response function.
-;;;
-;;; NOTE:: This code is not completely debugged.  On
-;;;  terminal hints the WB does not send back a reply so
-;;;  the result function may never be tripped.  If we
-;;;  start using kcds again then we may need to redo this
-;;;  code.
-(defun make-kcd-end-seq-turn (String Image &optional (Assoc nil))
-  "Make a KCD end turn."
-  (make-turn :type **KCD-Turn**
-	     :text String
-	     :responder #'make-kcd-end-seq-turn-resp
-	     ;;  formerly the responder #'(lambda (R) 
-	     ;; (declare (ignore R)) (wb-close-browser))
-	     :Assoc (alist-warn Assoc)
-	     :Result (list (when Image 
-			     (format-wb-open-browser-command Image)))))
-
-
-;;; Once the kcd has completed then we need to send a final
-;;; non-responder turn to close the browser.  This is done
-;;; here.
-(defun make-kcd-end-seq-turn-resp (R)
-  (declare (ignore R))
-  (make-turn :Result (list (format-wb-close-browser-command))))
-
-
-
-;;; Debugging code for testing the kcds' in console mode.
-(defun debug-kcd-seq (name)
-  (let ((k (make-kcd-seq name)) (x))
-    (loop while (turn-responder k)
-	do (format t "~A~%" (turn-text k))
-	   (setq x (read-line))
-	   (format t "~A~%" x)
-	   (setq k (funcall (turn-responder k) x)))
-    (pprint (turn-text k))))
-
-
-;;;----------------------------------------------------------
-;;; test loop the kcds.  
-;;; This code allows a user to call up kcds in a console
-;;; mode and loop through them calling and returning text only.
-
-(defparameter **kcd-debug-printcap** 60)
-
-(defun start-kcd-debug-loop ()
-  (do ((name (progn (format t "Enter KCD Name or 'quit': ")
-		    (read-line))))
-      ((equal (string-upcase name) "QUIT"))
-    (run-kcd-debug-loop (read-from-string name))
-    (format t "Done with KCD ~A~% " name)
-    (format t "Enter KCD Name or 'quit': ")
-    (setq name (read-line))))
-
-(defun run-kcd-debug-loop (name)
-  (let ((turn (start-local-kcd name)))
-    (format-justify-string 
-     (first turn) :cap **kcd-debug-printcap**)
-    (format t "~%=>")
-    (do () ((null (second turn)))
-      (setq turn (next-turn (read-line)))
-      (format-justify-string 
-       (first turn) :cap **kcd-debug-printcap**)
-      (format t "~%~%=>"))))
-          
-    
 
 ;;=============================================================
 ;; Hint sequences 
@@ -572,7 +389,7 @@
 	((OpHint-p Hint)             (make-ophint-hseq Hint rest Prefix Assoc OpTail))
 	((eq (car Hint) 'goal)       (make-goalhint-hseq Hint rest Prefix Assoc OpTail))
 	((eq (car Hint) 'String)     (make-string-hseq Hint rest Prefix Assoc OpTail))
-	((eq (car Hint) 'KCD)        (make-kcd-hseq Hint Rest Assoc OpTail))
+	((eq (car Hint) 'KCD)        (error "KCD's have been removed."))
 	((eq (car Hint) 'Minilesson) (make-minil-hseq Hint Rest Assoc OpTail))
 	((eq (car Hint) 'Eval)       (make-eval-hseq Hint Rest))
 	((eq (car Hint) 'Function)   (make-function-hseq (cdr Hint) Prefix))
@@ -589,7 +406,7 @@
 	((OpHint-p Hint)             (make-ophint-end-hseq Hint Prefix Assoc OpTail))
 	((eq (car Hint) 'goal)       (make-goalhint-end-hseq Hint Prefix Assoc))
 	((eq (car Hint) 'String)     (make-string-end-hseq Hint Prefix Assoc))
-	((eq (car Hint) 'KCD) 	     (make-kcd-end-hseq (cadr Hint) Assoc))
+	((eq (car Hint) 'KCD) 	     (error "KCD's have been removed."))
 	((eq (car Hint) 'Minilesson) (make-minil-end-hseq (cadr Hint) Assoc))
 	((eq (car Hint) 'Eval)       (make-eval-hseq (cadr Hint)))
 	((eq (car Hint) 'function)   (make-function-hseq (cdr Hint) Prefix))
@@ -645,10 +462,10 @@
 ;; Otherwise the code will use a separate assoc 
 
 (defun make-ophint-hseq (Hint Rest Prefix &optional Assoc OpTail)
+  (when (pick-kcd-spec (Ophint-HintSpecs Hint))
+    (error "KCD's have been removed"))
   (let (S)
-    (cond ((setq S (pick-kcd-spec (Ophint-HintSpecs Hint)))
-	   (make-kcd-ophseq S Rest Assoc (OpHint-Type Hint) OpTail))
-	  ((setq S (pick-minil-spec (Ophint-HintSpecs Hint)))
+    (cond ((setq S (pick-minil-spec (Ophint-HintSpecs Hint)))
 	   (make-minil-ophseq S Rest Assoc (OpHint-Type Hint) OpTail))
 	  ((setq S (pick-other-spec (OpHint-HintSpecs Hint)))
 	   (if (or (stringp S) (equalp (Hintspec-type S) 'String))
@@ -659,10 +476,10 @@
 
 
 (defun make-ophint-end-hseq (Hint Prefix &optional Assoc OpTail)
+  (when (pick-kcd-spec (Ophint-HintSpecs Hint))
+    (error "KCD's have been removed"))
   (let (S)
-    (cond ((setq S (pick-kcd-spec (Ophint-HintSpecs Hint)))
-	   (make-kcd-end-ophseq S Assoc (OpHint-Type Hint) OpTail))
-	  ((setq S (pick-minil-spec (Ophint-HintSpecs Hint)))
+    (cond ((setq S (pick-minil-spec (Ophint-HintSpecs Hint)))
 	   (make-minil-end-ophseq S Assoc (OpHint-Type Hint) OpTail))
 	  ((setq S (pick-other-spec (OpHint-HintSpecs Hint)))
 	   (if (or (stringp S) (equalp (Hintspec-type S) 'String))
@@ -734,28 +551,6 @@
 		    Hint))
    :Assoc (alist-warn (or Assoc `((OpHint ,OHType String . ,OpTail))))))
      
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; KCD Hints.
-;; kcd turns at present raise errors when they are encountered.
-;; When the KCDs are implemented then this code will be written.
-;; kcd specs appear in the form (kcd <Name>).
-;;
-;; If an Assoc is supplied then the KCD-hints will have that as 
-;; their assoc field.  That value will be passed on to 
-;; Note I need to clean up the kcd format code it just isn't clean
-;; enouigh in its own right.
-
-(defun make-kcd-Ophseq (kcd Next &optional Assoc OHType OpTail) 
-  (if **play-kcds-as-minilessons**
-      (make-minil-OpHseq (strcat (format-hintspec kcd) ".htm") Next Assoc OhType OpTail)
-    (make-kcd-seq (format-hintspec kcd) Next)))
-
-(defun make-kcd-end-Ophseq (kcd &optional Assoc OhType OpTail)
-  "Make a terminal kcd sequence."
-  (if **play-kcds-as-minilessons**
-      (make-minil-end-Ophseq (strcat (format-hintspec kcd) ".htm") Assoc OhType OpTail)
-    (make-kcd-seq (format-hintspec kcd))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -849,29 +644,6 @@
 		    Hint))
    :Assoc (alist-warn Assoc)))
      
-
-;;----------------------------------------------------------------
-;; KCD Hints.
-;; kcd turns at present raise errors when they are encountered.
-;; When the KCDs are implemented then this code will be written.
-;; kcd specs appear in the form (kcd <Name>).
-;;
-;; If an Assoc is supplied then the KCD-hints will have that as 
-;; their assoc field.  That value will be passed on to 
-;; Note I need to clean up the kcd format code it just isn't clean
-;; enouigh in its own right.
-
-(defun make-kcd-hseq (kcd Next &optional Assoc OpTail) 
-  (if **play-kcds-as-minilessons**
-      (make-minil-hseq (strcat (format-hintspec kcd) ".htm") Next Assoc OpTail)
-    (make-kcd-seq (format-hintspec kcd) Next)))
-
-(defun make-kcd-end-hseq (kcd &optional Assoc)
-  "Make a terminal kcd sequence."
-  (if **play-kcds-as-minilessons**
-      (make-minil-end-hseq (strcat (format-hintspec kcd) ".htm") Assoc)
-    (make-kcd-seq (format-hintspec kcd))))
-
 
 ;;----------------------------------------------------------------
 ;; Minilesson Hints.

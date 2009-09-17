@@ -541,14 +541,14 @@
   ; special handling for no-quant problems
   (if (no-quant-problem-p *cp*)
       (sg-setup-solutions-no-quant Graph Eqns)
-   (sg-setup-solutions-quant Solutions Graph Eqns)))
+   (sg-setup-solutions-quant Solutions Eqns)))
 
-(defun sg-setup-solutions-quant (Solutions Graph Eqns)
+(defun sg-setup-solutions-quant (Solutions Eqns)
   "Define the list of solutions and store them in the algebra system."
   (setf *Sg-Solutions*
     (loop for S below (length Solutions)
 	do (sg-add-solution S (nth S Solutions) Eqns)
-	collect (sg-encode-solution S (nth S Solutions) Graph))))
+	collect (sg-encode-solution S (nth S Solutions)))))
 
 (defun sg-add-solution (Num Solution Eqns)
   "Add the numbered solution to the system"
@@ -560,7 +560,7 @@
 	    (Solver-IndyAddEq2Set Num (car Eq))
 	  (error "NonIndy Solution Supplied ~A~% ~A." E Solution))))))
 
-(defun sg-encode-solution (Num Solution Graph)
+(defun sg-encode-solution (Num Solution)
   "Translate elements of the solution for use."
   (make-sgsol 
    :num Num
