@@ -27,7 +27,7 @@ DROP TABLE IF EXISTS `andes`.`PROBLEM_ATTEMPT_TRANSACTION`;
 \. create_PROBLEM_ATTEMPT_TRANSACTION.sql
 
 -- USE THE CREATED DATABASE
--- USE andes;
+USE andes;
 
 -- Attempts to populate with data. For simplicity, hardcoded to my user directory. MOST LIKELY AREA TO CHANGE
  LOAD DATA LOCAL INFILE 'student_dataset.csv' INTO TABLE STUDENT_DATASET FIELDS TERMINATED BY ',' LINES TERMINATED BY 
