@@ -39,22 +39,15 @@
 
 (defun create ()
   
-  ;; should test if it exists and create (using the below clos) if
-  ;; it does not.
-  (unless (probe-database '(nil "andes" "root" "sin(0)=0") 
-			  :database-type :mysql)
-    ;; create database
-    (create-database '("localhost" "andes" "root" "sin(0)=0") 
-		     :database-type :mysql))
-  
-
+  ;; Should remove at least password from lisp and make
+  ;; user enter when starting server.
   (connect '(nil "andes" "root" "sin(0)=0") :database-type :mysql))
 
 ;; MySql drops connections that have been idle for over 8 hours.
 ;; The following wrapper intercepts the resulting error, reconnects
 ;; the database, and retries the function.
 ;; This code can be tested by logging into MySql, and using
-;; SHOWPROCESSLIST; and KILL to drop a connection.
+;; SHOW PROCESSLIST; and KILL <Id>; to drop a connection.
 
 (defmacro reconnect-when-needed (&body body)
   "Intercep disconnected database error, reconnect and start over."
@@ -84,7 +77,7 @@
     ; escaping sql string per http://lists.b9.com/pipermail/clsql-help/2005-July/000456.html
      (execute-command 
      (format nil "INSERT into PROBLEM_ATTEMPT_TRANSACTION (clientID, Command, initiatingParty) values ('~A','~A','~A')" 
-	     client-id (sql-escape-quotes j-string) direction))))
+	     client-id (clsql-sys:sql-escape-quotes j-string) direction))))
 
 
 (defun set-session (client-id &key student problem section)
