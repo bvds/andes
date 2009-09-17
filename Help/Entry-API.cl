@@ -314,13 +314,6 @@
    (zc (vector-compo vector-term '(axis z 0)))
    (otherwise vector-term)))
 
-(defun find-dipole-field (body type)
-"given dipole name and field type, return term for field dipole is in in this problem, if any"
-  ; temporary hack: point is always 'region, source is always 'unspecified
-  ; could just do a find via unify over all valid dipole-energy quants in variable index 
-  ; still need to construct something if this is problem without dipole-energy, though.
-  `(field region ,type unspecified)
-)
 
 
 (defun ndiffs (set1 set2)
@@ -356,6 +349,176 @@
 
    ; finally: return best arg or student's list if no match found
    (or bestarg studset)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;                  Match student phrase to Ontology
+;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(defun match-student-phrase (entry sysentries &key cutoff equiv)
+  "Match student phrase to Ontology, returning best match, tutor turn (if there is an error) and any unsolicited hints."
+  (let* ((student (pull-out-quantity (StudentEntry-symbol entry) 
+				     (StudentEntry-text entry)))
+	 (best 
+	  (best-model-matches 
+	   (word-parse student)
+	   (mapcar #'(lambda (x) 
+		       (cons (expand-vars (SystemEntry-new-english x)) x))
+		   sysentries)
+	   :cutoff cutoff :equiv equiv))
+	 hints)
+    
+    ;; Debug printout:
+    (format webserver:*stdout* "Best match to ~s is~%   ~S~% from ~S~%" 
+	    student
+	    (mapcar 
+	     #'(lambda (x) (cons (car x) 
+				 (expand-vars (SystemEntry-model (cdr x)))))
+	     best)
+	    (mapcar #'(lambda (x) 
+			(cons (expand-vars (SystemEntry-new-english x)) 
+			      (systementry-prop x)))
+		    sysentries))
+    
+    (cond
+      ((null sysentries)
+       (values nil (nothing-to-match-ErrorInterp entry)))
+      ((> (length best) 3)
+       ;; error handler for too many matches
+       ;; "your definition is ambiguous" and hint sequence
+       (values nil (too-many-matches-ErrorInterp entry)))
+      ((null best)
+       ;; No match  
+       ;; "I cannot understand your definition" and hint sequence. 
+       (values nil (no-matches-ErrorInterp entry)))
+      ((= (length best) 1)
+       (let ((sysent (cdr (car best))))
+	 (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
+
+	 ;; If the best fit isn't too good, give an unsolicited hint.
+	 ;; Can't put in a tutor turn, since the turn might be good.
+	 (when (> (car (car best)) (* 0.2 (length (word-parse student))))
+	   (push `((:action . "show-hint")
+		   (:text . ,(strcat "I interpreted your definition as:&nbsp; "
+				     (word-string (expand-vars 
+						   (SystemEntry-model sysent)))
+				     "."))) hints))
+
+	 ;; Determine if the student has already done this
+	 ;; in a previous step.
+	 ;; In Andes2, this test was done on the user interface.
+	 (dolist (se (remove entry *StudentEntries*))
+	   (when (unify (SystemEntry-prop sysent) (studententry-prop se))
+	     (return-from match-student-phrase 
+	       (values nil (redundant-entry-ErrorInterp entry se sysent)))))
+	   
+	 ;; Return the best fit entry.
+	 (values sysent nil hints)))
+       (t (values nil (too-many-matches-ErrorInterp 
+		       entry (mapcar #'cdr best)))))))
+
+(defun nothing-to-match-ErrorInterp (entry)
+  (let ((rem (make-hint-seq 
+	      (list (format nil "In this problem, you do not need to define anything like ~A." 
+			    (StudentEntry-text entry))
+		    '(function next-step-help)))))
+    (setf (turn-id rem) (StudentEntry-id entry))
+    (setf (turn-coloring rem) **color-red**)
+    ;; set state of entry and attach error. But only do if not done already, 
+    ;; so only report on the first error found.
+    (unless (studentEntry-ErrInterp entry)
+      (setf (studentEntry-state entry) 'incorrect)
+      (setf (studentEntry-ErrInterp entry)
+	    (make-ErrorInterp :diagnosis '(definition-has-no-matches)
+			      :remediation rem))))
+  (make-red-turn :id (StudentEntry-id Entry)))
+
+(defun too-many-matches-ErrorInterp (entry &optional matches)
+  (let 
+      ((rem (make-hint-seq 
+	     (list 
+	      (format nil "Your definition ~:[~;of <var>~A</var> ~]is ambiguous." 
+		      (> (length (StudentEntry-symbol entry)) 0)
+		      (StudentEntry-symbol entry))
+	      (if matches
+		  (format nil "Did you mean?~%<ul>~%~{  <li>~A</li>~%~}</ul>"
+			  (mapcar #'(lambda (x) 
+				      (word-string (expand-vars 
+						    (SystemEntry-model x))))
+				  matches))
+		  "Try to be more specific in your definition.")))))
+    (setf (turn-id rem) (StudentEntry-id entry))
+    (setf (turn-coloring rem) **color-red**)
+    ;; set state of entry and attach error. But only do if not done already, 
+    ;; so only report on the first error found.
+    (unless (studentEntry-ErrInterp entry)
+      (setf (studentEntry-state entry) 'incorrect)
+      (setf (studentEntry-ErrInterp entry)
+	    (make-ErrorInterp :diagnosis '(definition-has-too-many-matches)
+			      :remediation rem))))
+  (make-red-turn :id (StudentEntry-id Entry)))
+
+(defun no-matches-ErrorInterp (entry)
+  (let ((rem (make-hint-seq 
+	      (list (format nil "I cannot understand your definition~@[ of <var>~A</var>~]." 
+			    (StudentEntry-symbol entry))
+		    '(function next-step-help)))))
+    (setf (turn-id rem) (StudentEntry-id entry))
+    (setf (turn-coloring rem) **color-red**)
+    ;; set state of entry and attach error. But only do if not done already, 
+    ;; so only report on the first error found.
+    (unless (studentEntry-ErrInterp entry)
+      (setf (studentEntry-state entry) 'incorrect)
+      (setf (studentEntry-ErrInterp entry)
+	    (make-ErrorInterp :diagnosis '(definition-has-no-matches)
+			      :remediation rem))))
+  (make-red-turn :id (StudentEntry-id Entry)))
+
+
+;; This was based on examples in parse-andes.cl
+;; Most unsolicited hints in Andes2 were associated with equations.
+(defun redundant-entry-ErrorInterp (se old sysent)
+  "Given a student entry, return a tutor turn giving unsolicited feedback saying that the entry has already been done.  Also create an error interpretation in case the student asks a follow-up question, and put it in the student entry's err interp field."
+  (let ((rem (make-hint-seq
+	      (list (format nil 
+			    "You have already defined ~A~@[ to be <var>~A</var>~].."
+			    (word-string 
+			     (expand-vars 
+			      (SystemEntry-new-english sysent)))
+			    (StudentEntry-symbol old))))))
+    (setf (StudentEntry-ErrInterp se)
+	  (make-ErrorInterp
+	   :diagnosis '(already-defined) ;Not sure where/how this is referenced
+	   :remediation rem))
+    
+    (setf (turn-id rem) (StudentEntry-id se))
+    (setf (turn-coloring rem) **color-red**)
+    
+    rem))
+
+
+(defun pull-out-quantity (symbol text)
+  "Pull the quantity phrase out of a definition:  should match variablname.js"
+  (when symbol
+    (if (not (search symbol text))
+	(warn "Bad symbol definition, ~S should be found in ~S."
+	      symbol text)
+	;; this should be done as a parser.
+	(let* ((si (+ (search symbol text) (length symbol)))
+	       (nosym (string-left-trim *whitespace* (subseq text si))))
+	  ;; The empty string is a catch-all in case there is no match
+	  (dolist (equality '("is " ":" "=" "be " "as " "to be " ""))
+	    (when (and (>= (length nosym) (length equality))
+		       (string= equality (string-downcase nosym) 
+				:end2 (length equality)))
+	      (return-from pull-out-quantity
+		(string-trim *whitespace* 
+			     (subseq nosym (length equality)))))))))
+  text)
+
 
 
 ;;-----------------------------------------------------------------------------
@@ -402,87 +565,24 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun assert-object (entry)
   (let ((id (StudentEntry-id entry))
-	 (text (StudentEntry-text entry))
-	 (symbol (StudentEntry-symbol entry))
-	 best
-	 sysent)
-
-    (add-entry entry)   ;remove existing info and update
-
-    ;; see comments in define-variable
-    (setf best 
-	  (best-model-matches 
-	   (word-parse (pull-out-quantity symbol text))
-	   (mapcar #'(lambda (x) 
-		       (cons (expand-vars (SystemEntry-new-english x)) x))
-		   (remove '(body . ?rest) *sg-entries* 
-			   :key #'SystemEntry-prop :test-not #'unify))
-	   :cutoff 0.6 :equiv 1.25))
-    ;; Debug printout:
-    (format webserver:*stdout* "Best match to ~s is~%   ~S~% from ~S~%" 
-	    (pull-out-quantity symbol text) 
-	    (mapcar 
-	     #'(lambda (x) (cons (car x) 
-				 (expand-vars (SystemEntry-model (cdr x)))))
-		    best)
-	    (mapcar #'(lambda (x) 
-			(cons (expand-vars (SystemEntry-new-english x)) 
-			      (systementry-prop x)))
-		    (remove '(body . ?rest) *sg-entries* 
-			    :key #'SystemEntry-prop :test-not #'unify)))
-
-    ;; Handling for various numbers of matches is common across object types.
-    ;; Should have common code for the various types of objects.
-    (cond
-      ((> (length best) 2)
-       ;; error handler for too many matches
-       ;; "your definition is ambiguous" and hint sequence
-       (too-many-matches-ErrorInterp entry))
-      ((null best)
-       ;; No match  
-       ;; "I cannot understand your definition" and hint sequence. 
-       (no-matches-ErrorInterp entry))
-      ((= (length best) 1)
-       ;; one match, proceed to evaluate it.
-       (let ((sysent (cdr (car best))))
-	 (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
-
-	 ;; Determine if the student has already done this
-	 ;; in a previous step.
-	 ;; In Andes2, this test was done on the user interface.
-	 (when (find (SystemEntry-prop sysent) 
-		     (remove id *StudentEntries* :key #'StudentEntry-id)
-		     :key #'StudentEntry-prop :test #'unify)
-	   (return-from assert-object 
-	     (redundant-entry-ErrorInterp entry sysent)))
-	 
+	(symbol (StudentEntry-symbol entry)))
+    (multiple-value-bind
+	  (sysent tturn hints)
+	(match-student-phrase 
+	 entry
+	 (remove '(body . ?rest) *sg-entries* 
+		 :key #'SystemEntry-prop :test-not #'unify)
+	 :cutoff 0.6 :equiv 1.25)
+  
+      (cond 
+	(sysent
 	 ;; OK if there is no symbol defined.
 	 (when (> (length symbol) 0) ;not null string
 	   (check-symbols-enter symbol (StudentEntry-prop entry) id))
+	 
+	 (check-noneq-entry entry :unsolicited-hints hints))  ;finally return entry 
+	(tturn)))))
 
-	 (check-noneq-entry entry)))  ;finally return entry 
-      ;; more than one match
-      (t (too-many-matches-ErrorInterp entry (mapcar #'cdr best))))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; assert-compound-object - checks the correctness of a student defined com-
-;;  pound body
-;; argument(s):
-;;  label: the label of the body
-;;  name(s): list of names as symbols of simple bodies making up the compound. 
-;; Each is KB name for that body.
-;;  time:  for backward compatability
-;;  id: is assigned to this object by the work-bench
-;; returns: Studententry 
-;; note(s):
-;;  marks the corresponding system entry as "entered". defines a mass variable
-;;  whose name has "m" concatenateded to the given label. Enters into the sym-
-;;  bol table this name paired with the system's name for the same quantity.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun assert-compound-object (label names &optional time id)
-      ;; can just pass along to assert-object. arg-to-body knows how to make
-      ;; compound body term out of list argument.
-      (check-noneq-entry (assert-object label names time id)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-vector -- check the correctness of a vector drawn by the student. May
@@ -513,7 +613,7 @@
 	 (text (StudentEntry-text entry))
 	 (symbol (StudentEntry-symbol entry))
 	 (drawn-mag (StudentEntry-radius entry))
-	 best sysent
+	 best
 	 ;;
 	 ;; defined after match
 	 action vector-term vector-mag-term vector-dir-term
@@ -893,7 +993,6 @@
     ;;  Should include "bad" quantity definitions in matching.
     ;;  Should have something to handle extra stuff like setting
     ;;     given values in definition.  (either handle it or warning/error).
-    ;;  Common routines for the various types of objects.
 
     (setf best 
 	  (best-model-matches
@@ -955,87 +1054,6 @@
 	 (check-noneq-entry entry)))
       ;; more than one match
       (t (too-many-matches-ErrorInterp entry (mapcar #'cdr best))))))
-
-
-(defun too-many-matches-ErrorInterp (entry &optional matches)
-  (let 
-      ((rem (make-hint-seq 
-	     (list 
-	      (format nil "Your definition ~:[~;of <var>~A</var> ~]is ambiguous." 
-		      (> (length (StudentEntry-symbol entry)) 0)
-		      (StudentEntry-symbol entry))
-	      (if matches
-		  (format nil "Did you mean?~%<ul>~%~{  <li>~A</li>~%~}</ul>"
-			  (mapcar #'(lambda (x) 
-				      (word-string (expand-vars 
-						    (SystemEntry-model x))))
-				  matches))
-		  "Try to be more specific in your definition.")))))
-    (setf (turn-id rem) (StudentEntry-id entry))
-    (setf (turn-coloring rem) **color-red**)
-    ;; set state of entry and attach error. But only do if not done already, so 
-    ;; only report on the first error found.
-    (unless (studentEntry-ErrInterp entry)
-      (setf (studentEntry-state entry) 'incorrect)
-      (setf (studentEntry-ErrInterp entry)
-	    (make-ErrorInterp :diagnosis '(definition-has-too-many-matches)
-			      :remediation rem))))
-  (make-red-turn :id (StudentEntry-id Entry)))
-
-(defun no-matches-ErrorInterp (entry)
-  (let ((rem (make-hint-seq 
-	      (list (format nil "I cannot understand your definition~@[ of <var>~A</var>~]." 
-			    (StudentEntry-symbol entry))
-		    "Try to write your definition in a form that you might find in your textbook."))))
-    (setf (turn-id rem) (StudentEntry-id entry))
-    (setf (turn-coloring rem) **color-red**)
-    ;; set state of entry and attach error. But only do if not done already, so 
-    ;; only report on the first error found.
-    (unless (studentEntry-ErrInterp entry)
-      (setf (studentEntry-state entry) 'incorrect)
-      (setf (studentEntry-ErrInterp entry)
-	    (make-ErrorInterp :diagnosis '(definition-has-no-matches)
-			      :remediation rem))))
-  (make-red-turn :id (StudentEntry-id Entry)))
-
-
-;; This was based on examples in parse-andes.cl
-;; Most unsolicited hints in Andes2 were associated with equations.
-(defun redundant-entry-ErrorInterp (se sysent)
-  "Given a student entry, return a tutor turn giving unsolicited feedback saying that the entry has already been done.  Also create an error interpretation in case the student asks a follow-up question, and put it in the student entry's err interp field."
-  (let ((rem (make-hint-seq
-	      (list (format nil 
-			    "You have already defined ~A."
-			    (word-string (expand-vars 
-					  (SystemEntry-new-english sysent))))))))
-    (setf (StudentEntry-ErrInterp se)
-	  (make-ErrorInterp
-	   :diagnosis '(already-defined)   ;Not sure where/how this is referenced
-	   :remediation rem))
-    
-    (setf (turn-id rem) (StudentEntry-id se))
-    (setf (turn-coloring rem) **color-red**)
-    
-    rem))
-
-(defun pull-out-quantity (symbol text)
-  "Pull the quantity phrase out of a definition:  should match variablname.js"
-  (when symbol
-    (if (not (search symbol text))
-	(warn "Bad symbol definition, ~S should be found in ~S."
-	      symbol text)
-	;; this should be done as a parser.
-	(let* ((si (+ (search symbol text) (length symbol)))
-	       (nosym (string-left-trim *whitespace* (subseq text si))))
-	  ;; The empty string is a catch-all in case there is no match
-	  (dolist (equality '("is " ":" "=" "be " "as " "to be " ""))
-	    (when (and (>= (length nosym) (length equality))
-		       (string= equality (string-downcase nosym) 
-				:end2 (length equality)))
-	      (return-from pull-out-quantity
-		(string-trim *whitespace* 
-			     (subseq nosym (length equality)))))))))
-  text)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1182,24 +1200,9 @@
 ;; Returns: tutor turn
 ;;
 ;; Note, could be done differently with a cond or two.
-(defun Check-NonEq-Entry (entry)
+(defun Check-NonEq-Entry (entry &key unsolicited-hints)
   
-  ;; Special Case: Entry-API handler has failed to build an entry for some 
-  ;; reason and wants to send back a message.  If the entry is a string then
-  ;; we will produce and return a color-red show-hint turn and return the
-  ;; message with no menu.
-  (when (stringp Entry)
-    (return-from Check-NonEq-Entry (make-red-turn entry)))
-  
-  ;; special case: Entry-API handler can return T or NIL rather than an entry
-  ;; when the status is determined without looking for a system entry. This
-  ;; happens for some but not all angle entries.  Return appropriate turn.
-  (when (eq entry NIL) 
-    (return-from Check-NonEq-Entry (make-red-turn)))
-  (when (eq entry T) 
-    (return-from Check-NonEq-Entry (make-green-turn)))
-  
-  ;; special case: Entry-API handler can attach an error interp for certain
+    ;; special case: Entry-API handler can attach an error interp for certain
   ;; errors such as symbol redefinitions that prevent the entry from
   ;; being processed further. Return appropriate turn with unsolicited 
   ;; error message in this case.
@@ -1291,6 +1294,9 @@
     ;; logging correctness of the variable definition substep, 
     ;; but the given value substep, hence whole entry, 
     ;; might still be wrong.
+
+    (setf (turn-result result) 
+	  (append unsolicited-hints (turn-result result)))
     
     (setf (turn-result result)
 	  (append (log-entry-info Entry) (turn-result result)))

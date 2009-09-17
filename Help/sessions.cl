@@ -384,6 +384,9 @@
        mode x y text width height radius symbol x-statement y-statement
        x-label y-label z-label angle)
 
+      (add-entry new-entry)   ;remove existing info and update
+
+
       (cond
 	((equal action "delete-object")
 	 ;; We should pass the object to be deleted rather than the id.
