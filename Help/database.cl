@@ -81,9 +81,10 @@
 	       "INSERT into PROBLEM_ATTEMPT (clientID,classinformationID) values ('~A',2)" 
 	       client-id)))
     
-    (execute-command 
+    ; escaping sql string per http://lists.b9.com/pipermail/clsql-help/2005-July/000456.html
+     (execute-command 
      (format nil "INSERT into PROBLEM_ATTEMPT_TRANSACTION (clientID, Command, initiatingParty) values ('~A','~A','~A')" 
-	     client-id j-string direction))))
+	     client-id (sql-escape-quotes j-string) direction))))
 
 
 (defun set-session (client-id &key student problem section)
