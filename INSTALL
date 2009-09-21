@@ -7,20 +7,29 @@ The webserver functionality has only been developed for sbcl.
 Andes uses asdf as its package manager; both the sbcl and 
 Allegro lisp distributions include asdf.
 
-Compile the solver library and executable:
+# Set up an account for yourself at github, providing
+# your ssh key (see http://github.com/guides/home), and send
+# your user name to help@andestutor.org.
+
+# To get the Andes repository from github use:
+  git clone git@github.com:bvds/andes.git andes
+# The Andes root directory is "andes"
+  cd andes
+
+# Compile the solver library and executable:
   cd Algebra/src/; make solver-program ; cd ../../
 
-For the system to work, a library of problem definitions 
-must be included.  The original Andes problem definitions
-are under copyright and not publicly available.  For access,
-send your ssh public key to help@andestutor.org  The git command
-to download this library is (from the Andes root directory):
+# For the system to work, a library of problem definitions 
+# must be included.  The original Andes problem definitions
+# are under copyright and not publicly available.  For access,
+# send your ssh public key to help@andestutor.org  The git command
+# to download this library is (from the Andes root directory):
    git clone ssh://git@andestutor.org/home/git/Andes-problems.git/ problems
-Likewise, at least for Andes2, one can use the solutions repository:
+# Likewise, at least for Andes2, one can use the solutions repository:
    git clone ssh://git@andestutor.org/home/git/Andes-solutions.git/ solutions
 
-ImageMagick http://www.imagemagick.org is used to dimension graphics
-files.  This is included in standard linux distributions (but not OS X).
+# ImageMagick http://www.imagemagick.org is used to dimension graphics
+# files.  This is included in standard linux distributions (but not OS X).
 
 ====================== SBCL ===============================
 
