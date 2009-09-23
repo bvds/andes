@@ -231,6 +231,11 @@
 	(if (stringp (cdr predef))
 	    (warn "Bad predef format for ~A, Bug #1573" predef)
 	    (push (cdr predef) replies)))
+
+      (dolist (old-step (andes-database:get-old-sessions 
+			 '("solution-step" "seek-help")
+			 :student student :problem problem :section section))
+	(push 
             
     (check-entries t))
  

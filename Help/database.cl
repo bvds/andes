@@ -88,21 +88,25 @@
    (format nil "UPDATE PROBLEM_ATTEMPT SET userName='~A', userproblem='~A', userSection='~A' WHERE clientID='~A'" 
 	   student problem section client-id)))
 
-(defun get-old-sessions (&key student problem section)
-  "Get solution-step and seek-help posts from all matching previous sessions."
-  (let ((result 
-	 (query 
-	  (format nil "SELECT command FROM PROBLEM_ATTEMPT,PROBLEM_ATTEMPT_TRANSACTION WHERE userName = '~A' AND userProblem='~A' AND userSection='~A' AND PROBLEM_ATTEMPT.clientID=PROBLEM_ATTEMPT_TRANSACTION.clientID AND PROBLEM_ATTEMPT_TRANSACTION.initiatingParty='client'" 
-		  student problem section)))
+;; (andes-database:get-old-sessions '("solution-step" "seek-help") :student "bvds" :problem "s2e" :section "1234")
+;;
+(defun get-old-sessions (methods &key student problem section)
+  "Get posts associated with the given methods from all matching previous sessions."
+  (let ((result (query 
+		 (format nil "SELECT PROBLEM_ATTEMPT.clientID,command FROM PROBLEM_ATTEMPT,PROBLEM_ATTEMPT_TRANSACTION WHERE userName = '~A' AND userProblem='~A' AND userSection='~A' AND PROBLEM_ATTEMPT.clientID=PROBLEM_ATTEMPT_TRANSACTION.clientID AND PROBLEM_ATTEMPT_TRANSACTION.initiatingParty='client'" 
+			 student problem section)))
 	;; By default, cl-json turns dashes into camelcase:  
 	;; we don't want that.
 	(*lisp-identifier-name-to-json* #'string-downcase))
     ;; pick out the solution-set and get-help methods
     (remove-if #'(lambda (x) (not (member (cdr (assoc :method x)) 
-					  '("solution-step" "seek-help")
+					  methods
 					  :test #'equal)))
 	       ;; parse json in each member of result
-	       (mapcar #'decode-json-from-string (mapcar #'car result)))))
+	       (mapcar 
+		#'(lambda (x) (cons (cons ':client-id (car x))
+				    (decode-json-from-string (cadr x))))
+		result))))
 
 
 
