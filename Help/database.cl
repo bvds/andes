@@ -22,8 +22,7 @@
 
 (defpackage :andes-database
   (:use :cl :clsql :json)
-  (:export :write-transaction :destroy :create :set-session))
-
+  (:export :write-transaction :destroy :create :set-session :get-old-sessions))
 (in-package :andes-database)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -90,18 +89,20 @@
 	   student problem section client-id)))
 
 (defun get-old-sessions (&key student problem section)
-(let ((result (query (format nil "SELECT command FROM PROBLEM_ATTEMPT,PROBLEM_ATTEMPT_TRANSACTION WHERE userName = '~A' AND userProblem='~A' AND userSection='~A' AND 
-PROBLEM_ATTEMPT.clientID=PROBLEM_ATTEMPT_TRANSACTION.clientID AND PROBLEM_ATTEMPT_TRANSACTION.initiatingParty='client'" student problem section)))
-;; parse json in each member of result
-;; pick out the solution-set and get-help methods
-;; return list
-))
+  "Get solution-step and seek-help posts from all matching previous sessions."
+  (let ((result 
+	 (query 
+	  (format nil "SELECT command FROM PROBLEM_ATTEMPT,PROBLEM_ATTEMPT_TRANSACTION WHERE userName = '~A' AND userProblem='~A' AND userSection='~A' AND PROBLEM_ATTEMPT.clientID=PROBLEM_ATTEMPT_TRANSACTION.clientID AND PROBLEM_ATTEMPT_TRANSACTION.initiatingParty='client'" 
+		  student problem section)))
+	;; By default, cl-json turns dashes into camelcase:  
+	;; we don't want that.
+	(*lisp-identifier-name-to-json* #'string-downcase))
+    ;; pick out the solution-set and get-help methods
+    (remove-if #'(lambda (x) (not (member (cdr (assoc :method x)) 
+					  '("solution-step" "seek-help")
+					  :test #'equal)))
+	       ;; parse json in each member of result
+	       (mapcar #'decode-json-from-string (mapcar #'car result)))))
 
-;; By default, cl-json turns dashes into camelcase:  
-	  ;; we don't want that.
-	  (let ((*lisp-identifier-name-to-json* #'string-downcase))
-	    ;; It would be much better if we gave the source of the error.
-	    (remove-if #'(lambda (x) (member (cdr x) '(solution-step seek-help))
-           (ignore-errors (map #'decode-json-from-string result))))
 
 
