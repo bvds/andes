@@ -20,7 +20,3 @@
 (defun rhelp ()
   "Load or reload help system using asdf"
   (asdf:operate 'asdf:load-op 'andes-help))
-
-(defun rhelp-core ()
-  "Load or reload help system without database or server using asdf"
-  (asdf:operate 'asdf:load-op 'andes-help-core))
