@@ -95,9 +95,9 @@
   (let ((result (query 
 		 (format nil "SELECT PROBLEM_ATTEMPT.clientID,command FROM PROBLEM_ATTEMPT,PROBLEM_ATTEMPT_TRANSACTION WHERE userName = '~A' AND userProblem='~A' AND userSection='~A' AND PROBLEM_ATTEMPT.clientID=PROBLEM_ATTEMPT_TRANSACTION.clientID AND PROBLEM_ATTEMPT_TRANSACTION.initiatingParty='client'" 
 			 student problem section)))
-	;; By default, cl-json turns dashes into camelcase:  
-	;; we don't want that.
-	(*lisp-identifier-name-to-json* #'string-downcase))
+	;; By default, cl-json turns camelcase into dashes:  
+	;; Instead, we are case insensitive, preserving dashes.
+	(*json-identifier-name-to-lisp* #'string-upcase))
     ;; pick out the solution-set and get-help methods
     (remove-if #'(lambda (x) (not (member (cdr (assoc :method x)) 
 					  methods
