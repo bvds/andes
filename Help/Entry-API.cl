@@ -976,7 +976,7 @@
 	 (remove '(define-var . ?rest) *sg-entries* 
 		 :key #'SystemEntry-prop :test-not #'unify)
 	 ;;  Set cutoff on minimum acceptable
-	 :cutoff 0.6 :equiv 1.25)
+	 :cutoff 0.5 :equiv 1.25)
       
       
       (cond 

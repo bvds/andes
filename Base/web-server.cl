@@ -158,7 +158,9 @@
 	       ;; By default, cl-json turns dashes into camel-case:  
 	       ;; Instead, we convert to lower case, preserving dashes.
 	       (let ((*lisp-identifier-name-to-json* #'string-downcase))
-		 (encode-json-alist-to-string reply))))
+		 ;; Error handling needs work:  need to inform administrator.
+		 (handler-case (encode-json-alist-to-string reply)
+		   (error (c) (format *stdout* "Encoding error ~A" c))))))
 	  
 	  ;; Log reply message raw json string
 	  (when *log-function*
@@ -365,11 +367,11 @@
 	      (apply func (if (alistp params) 
 			      (flatten-alist params) params)))))
 
-    ;; Make sure method actually returned a list
-    (unless (listp func-return)
+    ;; Make sure method returned a list of alists
+    (unless (and (listp func-return) (every #'alistp func-return))
       (setf func-return `(((:action . "log")
 			   (:error-type . "return-format")
-			   (:error . ,(format nil "Return must be a list, not ~S" 
+			   (:error . ,(format nil "Return must be a list of alists, not ~S" 
 					      func-return))))))
 
     ;; Add any log messages for warnings or errors to the return

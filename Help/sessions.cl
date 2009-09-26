@@ -204,7 +204,7 @@
   (andes-database:set-session 
    webserver:*log-id* :student user :problem problem :section section)
   
-  (let (replies solution-step-replies
+  (let (replies solution-step-replies predefs
 		;; Override global variable on start-up
 		(*simulate-loaded-server* nil))
     (env-wrap
@@ -227,33 +227,60 @@
       ;;
       
       ;; do predefs
-      (dolist (predef (problem-predefs *cp*))
-	(if (stringp (cdr predef))
-	    (warn "Bad predef format for ~A, Bug #1573" predef)
-	    (push (cdr predef) replies)))
-
-      (dolist (old-step (andes-database:get-old-sessions 
-			 '("solution-step" "seek-help")
-			 :student student :problem problem :section section))
-	(push 
-            
-    (check-entries t))
- 
-    ;; Send pre-defined quantities to the help system by sending them
-    ;; to the solution-step method.  
+      ;; This must be done within env-wrap since it uses *cp*
+      (setf predefs (problem-predefs *cp*))
+      
+      (check-entries t))
+    
+    ;; Send pre-defined quantities to the help system via
+    ;; the solution-step method.
     ;; Execute outside of env-wrap and with check-entries turned on.
-    (dolist (reply (reverse replies)) ;using push makes replies backwards.
-      (setf solution-step-replies
-	    (append (apply #'solution-step 
-			   ;; flatten the alist
-			   (mapcan #'(lambda (x) (list (car x) (cdr x))) 
-				   reply))
-		    solution-step-replies)))
+    (dolist (predef predefs)
+      (if (stringp (cdr predef))
+	  (warn "Bad predef format for ~A, Bug #1573" predef)
+	  (let ((reply (apply #'solution-step 
+			      ;; flatten the alist
+			      (mapcan 
+			       #'(lambda (x) (list (car x) (cdr x)))
+			       (cdr predef)))))
+	    (setf solution-step-replies 
+		  (append solution-step-replies 
+			  (cons (cdr predef) reply))))))
+      
+    (env-wrap (check-entries nil))     
+    
+    ;; Pull old sessions out of the database that match
+    ;; student, problem, & section.  Run turns through help system
+    ;; to set problem up and set scoring state.
+    (dolist (old-step (andes-database:get-matching-sessions 
+		       '("solution-step" "seek-help")
+		       :student user :problem problem :section section))
+      (let* ((method (cdr (assoc :method old-step))) 
+	     (params (assoc :params old-step))
+	     (reply (apply 
+		     (cond 
+		       ((equal method "solution-step") #'solution-step)
+		       ((equal method "seek-help") #'seek-help))
+		     ;; flatten the alist
+		     (mapcan #'(lambda (x) (list (car x) (cdr x))) 
+			     (cdr params))))) 
 
-      ;;  Also, push any work done, to the client here. (to do)
+	;; solution-steps and help result are passed back to client
+	;; to set up state on client.
+	;;
+	;; Help requests are handled silently by the help system,
+	;; just to get the grading correct.  Alternatively, we
+	;; could just send the solution steps to the help system
+	;; and then set the grading state by brute force.
+	;;  
+	;; Also, if this is an admin or researcher, or instructor,
+	;; previous hints and their replies should also be sent back to
+	;; the client.
+	(when (equal method "solution-step")
+	  (setf solution-step-replies
+		(append solution-step-replies (cons (cdr params) reply))))))
 
     (env-wrap
-      (check-entries nil)      
 		      
       (let ((y 10) (i 0))
 	(dolist  (line (problem-statement *cp*))
