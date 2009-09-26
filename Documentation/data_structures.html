@@ -24,6 +24,13 @@
 <Caption><a href="../Knowledge/Problem.cl">Problem</a></caption>
 <tr> <td>Name  </td> </tr>
 <tr> <td>Statement  </td> </tr>
+<tr> <td>English  </td> <td> ((<span class="choice">prop</span> . 
+                        <a href="../Base/match.cl">model</a>)
+                             &#8230;)</td></tr>
+<tr> <td>Predefs  </td> <td> ((<span class="choice">prop</span> . 
+                               <span class="choice">alist</span>)
+                            &#8230;)</td></tr>
+<tr> <td>Graphic  </td> <td class="choice">string</td></tr>
 <tr> <td> &#8230; </td> </tr>
 <tr> <td id="Problem-Soughts"> Soughts </td> </tr>
 <tr> <td>Graph </td> <td> ((<a href="#qnode">qnode</a> &#8230;)
@@ -108,6 +115,7 @@
 <Caption><a href="../HelpStructs/SystemEntry.cl">SystemEntry</a></caption>
 <tr> <td>Index</td> <td class="choice">integer</td></tr>
 <tr> <td>Prop</td> </tr>
+<tr> <td>model</td><td><a href="../Base/match.cl">model</a></td> </tr>
 <tr> <td>Sources</td> <td>(<a href="#csdo">csdo</a> &#8230;)</td>  </tr>
 <tr> <td>State</td> <td><a href="#state1" class="choice">state1</a></td></tr>
 <tr> <td>Prereqs</td> <td>((<a href="#SystemEntry">SystemEntry</a> &#8230;) &#8230;)</td> </tr>
@@ -159,6 +167,7 @@
 <tr> <td>result</td><td>(<span class="choice">alist</span> &#8230;)</td> </tr>
 <tr> <td>id</td> </tr>
 <tr> <td>coloring</td> </tr>
+<tr> <td>assoc</td> <td><span class="choice">alist</span></td> </tr>
 <tr> <td>&#8230;</td> </tr>
 </table>
 </div>
@@ -170,6 +179,8 @@
  <table id="ExpType" class="struct">
 <Caption><a href="../Knowledge/Ontology.cl">ExpType</a></caption>
 <tr> <td>form</td> <td>matches <a href="#Problem-Soughts">Problem-Soughts</a> <br> <a href="#Qnode-Exp">Qnode-Exp</a> <a href="#Qvar-Exp">Qvar-Exp</a></td></tr>
+<tr> <td>new-english</td><td><a href="../Base/match.cl">model</a> with
+                             <span class="choice">prop</span> </td></tr>
 <tr> <td>&#8230;</td> </tr>
 </table>
 
