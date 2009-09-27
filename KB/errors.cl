@@ -1411,7 +1411,9 @@
   ;; High probability since close match
   :probability 0.75)
 
-(defun default-should-be-unknown (object wrong-dir) ; used for both vectors and lines
+;; used for both vectors and lines
+(defun default-should-be-unknown (object wrong-dir) 
+  (declare (ignore wrong-dir))
   (make-hint-seq
    (list 
     (format nil (strcat "When the direction of a ~A is not given or easily "
@@ -3933,11 +3935,6 @@
 	(given-loc (or (first (cdr (assoc '?hint-arg bindings)))
 	               "from the problem statement"))
 	(more      (second (cdr (assoc '?hint-arg bindings))))  ; may be NIL
-        ;; use original value expression in preference to stored numerical 
-        ;; value in case it contains a complex expression like 2*pi rad 
-	;; which we want to preserve
-	(foo (format T "?val-expr binding is ~A => ~A~%" 
-	               (assoc '?val-expr bindings) (cdr (assoc '?val-expr bindings))))
 	(rightval (nlg (or (cdr (assoc '?val-expr bindings))
 	                   (get-var-value var)) 'algebra)))
   (make-hint-seq

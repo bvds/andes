@@ -24,6 +24,8 @@
 #include <vector>
 #include <iostream>
 #include <math.h>
+#include <cstring>
+#include <cstdlib>
 using namespace std;
 
 #include "dimens.h"

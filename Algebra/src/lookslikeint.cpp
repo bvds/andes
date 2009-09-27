@@ -20,6 +20,7 @@
 // changed fuzziness from 1.E-8 to RELERR, 4/23/01 No change in 100 prob sols.
 #include <math.h>
 #include "extstruct.h"
+#include <limits.h>
 
 // no diagnostics
 // Previously, there was no special handling for numbers near zero,

@@ -222,7 +222,7 @@
   (cond ((read-problem-info-cmdp NewCmd)
 	 (iface-handle-stats-read NewCmd))
 	((close-problem-cmdp NewCmd)
-	 (iface-handle-stats-close NewCmd))
+	 (iface-handle-stats-close))
 	((read-student-info-cmdp NewCmd)
 	 (iface-handle-stats-student))
 	(t (update-runtime-testset-scores)))
@@ -258,14 +258,11 @@
 ;;; This is being done so that any dde's that the student sends or
 ;;; time that they spend between problems will not effect the scores
 ;;; that they recieve on each problem-instance.
-(defun iface-handle-stats-close (NewCmd)
+(defun iface-handle-stats-close ()
   (update-runtime-testset-scores)  ; AW: maybe not still needed
   (setq **Current-Cmd-Stack** Nil)
   (setq **Current-Cmd** Nil)
-  (reset-runtime-testset-scores)
-  ; AW: no longer load stats from history file
-  ; (load-stored-runtime-test-stats Nil)
-)
+  (reset-runtime-testset-scores))
 
 
 ;;; On a read-problem-info cmd the system will store the current 
@@ -288,7 +285,7 @@
 
 
 ;; ---------------------------------------------------------------------
-;; This code handles the task of maintianing the *last-tutor-turn*
+;; This code handles the task of maintaining the *last-tutor-turn*
 ;; struct as well as other efforts.  
 ;;
 ;; return-turn -- wrapper for returning turn to workbench
@@ -585,7 +582,7 @@
 ;;; code below.
 
 (defun iface-add-hrv-cmdresult (Cmd Result)
-  (let (Assoc Commands (Val (make-hint-return-val)))
+  (let (Assoc (Val (make-hint-return-val)))
 
     ;; Handle the turns.
     (when (turn-p Result) 
@@ -752,37 +749,10 @@
       
 
 
-;;; -----------------------------------------------------------------------------
+;;; ---------------------------------------------------------------------------
 ;;; Commands submitted to the wb by the Help System.
 ;;; May need to move to interface.cl
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; format-WB-Open-Browser-command
-;; format an open-browser command for the workbench that can be appended to 
-;; the tutor turn.  The purpose of this command is to locate the workbench
-;; knowledge in a single place.  
-;;
-;; Argument:  
-;;   File -- A string-form filename that will be opened
-;;           relative to the <Andes2-Dir>/Review/ directory.
-;; 
-;; Returns: Nil.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun format-wb-open-browser-command (file)
-  "Send an asynchronous command to open a browser."
-  (warn "format-wb-open-browser-command not implemented.")
-  ``((:action . "show-hint-link") (:text . ,(format nil "~A" file))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; format-WB-Close-Browser-command
-;; Format an asynchronous close-browser command to be used by the help
-;; system when necessary.
-;;
-;; Arguments:  None.
-;; returns:    None.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun format-wb-close-browser-command ()
-  "Tell the workbench to close a browser."
-  (warn "format-wb-close-browser-command not implemented") nil)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;
 ;; Alternate command dispatcher used to implement answer-only-mode: 

@@ -189,6 +189,8 @@
 (webserver:defun-method "/help" open-problem (&key time problem user section) 
   "initial problem statement" 
 
+  (declare (ignore time)) ;Time is used by logging
+
   ;; Need to think about error handling for the case where 
   ;; the session already exists.
   (when webserver:*env* 
@@ -229,6 +231,11 @@
 	(if (stringp (cdr predef))
 	    (warn "Bad predef format for ~A, Bug #1573" predef)
 	    (push (cdr predef) replies)))
+
+      (dolist (old-step (andes-database:get-old-sessions 
+			 '("solution-step" "seek-help")
+			 :student student :problem problem :section section))
+	(push 
             
     (check-entries t))
  
@@ -384,6 +391,9 @@
        mode x y text width height radius symbol x-statement y-statement
        x-label y-label z-label angle)
 
+      (add-entry new-entry)   ;remove existing info and update
+
+
       (cond
 	((equal action "delete-object")
 	 ;; We should pass the object to be deleted rather than the id.
@@ -451,6 +461,11 @@
 (webserver:defun-method "/help" seek-help 
     (&key time action href value text) 
   "ask for help, or do a step in a help dialog" 
+  (declare (ignore time))  ;used by logging.
+
+  ;; for choosing principle of physics, not working yet.
+  (declare (ignore href))  
+
   (env-wrap 
     ;; Doesn't correctly handle case where "Explain-more" is clicked after
     ;; a bottom-out hint.
@@ -482,6 +497,7 @@
 (webserver:defun-method "/help" close-problem 
   (&key time) 
   "shut problem down" 
+  (declare (ignore time))  ;used by logging.
   (prog1
       (env-wrap
 	(let ((result (execute-andes-command 'get-stats 'persist)))

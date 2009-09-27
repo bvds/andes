@@ -16,7 +16,11 @@ import javax.persistence.Embeddable;
  */
 @Embeddable
 public class ProblemAttemptTransactionPK implements Serializable {
-    @Basic(optional = false)
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	@Basic(optional = false)
     @Column(name = "tID")
     private int tID;
     @Basic(optional = false)

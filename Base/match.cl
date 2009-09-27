@@ -289,8 +289,10 @@
   ;; interpreted as being in the ontology
   (or (null form)
       (stringp form)
-      (or (listp (car form)) (stringp (car form)))
-      (member (car form) '(and or preferred allowed var eval))))
+      (and (consp form) 
+	   (or (listp (car form)) (stringp (car form)) ;list
+	       (member (car form) '(and or preferred allowed var eval))))))
+
 
 (defun best-model-matches (student models &key (cutoff 0.5) (equiv 1.25) 
 			   (epsilon 0.25))

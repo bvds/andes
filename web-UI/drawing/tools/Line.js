@@ -17,6 +17,16 @@ drawing.tools.Line = drawing.util.oo.declare(
 			//var toggle = this.selected;
 			//toggle && this.deselect();
 			this._toggleSelected();
+			//ace: This sets the zero length vector to zero within the minimum size
+			if(this.getRadius()<this.minimumSize){
+				
+				var p = this.points;
+				this.setPoints([
+					{x:p[0].x, y:p[0].y},
+					{x:p[0].x, y:p[0].y}
+				]);
+				
+			} else {
 			var d = this.data;
 			var obj = {start:{x:d.x1,y:d.y1},x:d.x2,y:d.y2};
 			var pt = this.util.snapAngle(obj, this.angleSnap/180);
@@ -24,7 +34,7 @@ drawing.tools.Line = drawing.util.oo.declare(
 				{x:d.x1, y:d.y1},
 				{x:pt.x, y:pt.y}
 			]);
-			
+			}
 			this._isBeingModified = false;
 			this.onModify(this);
 			
@@ -72,7 +82,6 @@ drawing.tools.Line = drawing.util.oo.declare(
 			//
 			if(this.created || !this.shape){ return; }
 			// if too small, need to reset
-			
 			if(this.getRadius()<this.minimumSize){
 				this.remove(this.shape, this.hit);
 				return;
@@ -84,7 +93,6 @@ drawing.tools.Line = drawing.util.oo.declare(
 				{x:p[0].x, y:p[0].y},
 				{x:pt.x, y:pt.y}
 			]);
-			
 			
 			this.renderedOnce = true;
 			this.onRender(this);

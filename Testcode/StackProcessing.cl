@@ -170,7 +170,7 @@
 
 (defun Help-Stackc (Stack)
   (let ((CMD (car Stack)))
-    (if (or (help-cmdp CMD) (help-stack-nohelp-capp CMD))
+    (when (or (help-cmdp CMD) (help-stack-nohelp-capp CMD))
 	(help-stackc-test Cmd (cdr Stack) nil 0))))
 
 

@@ -1,0 +1,796 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ROOT SYSTEM "problem_attempt_transaction.dtd">
+<ROOT xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <row>
+      <field name="tID">1</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;open-problem&quot;,&quot;params&quot;:{&quot;time&quot;:0,&quot;problem&quot;:&quot;s2e&quot;,&quot;user&quot;:&quot;joe&quot;,&quot;section&quot;:&quot;1234&quot;},&quot;id&quot;:1}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">2</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;gest&quot;,&quot;type&quot;:&quot;statement&quot;,&quot;text&quot;:&quot;g is the acceleration of gravity on earth&quot;,&quot;width&quot;:300,&quot;symbol&quot;:&quot;g&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:450,&quot;y&quot;:15}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">3</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;geeq&quot;,&quot;type&quot;:&quot;equation&quot;,&quot;text&quot;:&quot;g=9.8 m/s^2&quot;,&quot;width&quot;:300,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:450,&quot;y&quot;:40}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">4</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;a2.5&quot;,&quot;type&quot;:&quot;statement&quot;,&quot;mode&quot;:&quot;locked&quot;,&quot;width&quot;:300,&quot;x&quot;:450,&quot;y&quot;:75,&quot;text&quot;:&quot;T0 is the time.&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">5</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;new-object&quot;,&quot;type&quot;:&quot;statement&quot;,&quot;id&quot;:&quot;statement0&quot;,&quot;mode&quot;:&quot;locked&quot;,&quot;x&quot;:10,&quot;y&quot;:10,&quot;width&quot;:400,&quot;text&quot;:&quot;A spherical ball with a mass of 2.00 kg rests in the notch &quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">6</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;new-object&quot;,&quot;type&quot;:&quot;statement&quot;,&quot;id&quot;:&quot;statement1&quot;,&quot;mode&quot;:&quot;locked&quot;,&quot;x&quot;:10,&quot;y&quot;:35,&quot;width&quot;:400,&quot;text&quot;:&quot;shown below.  If there is no friction between the ball and &quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">7</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;new-object&quot;,&quot;type&quot;:&quot;statement&quot;,&quot;id&quot;:&quot;statement2&quot;,&quot;mode&quot;:&quot;locked&quot;,&quot;x&quot;:10,&quot;y&quot;:60,&quot;width&quot;:400,&quot;text&quot;:&quot;the walls, what is the magnitude of the force exerted on &quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">8</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;new-object&quot;,&quot;type&quot;:&quot;statement&quot;,&quot;id&quot;:&quot;statement3&quot;,&quot;mode&quot;:&quot;locked&quot;,&quot;x&quot;:10,&quot;y&quot;:85,&quot;width&quot;:400,&quot;text&quot;:&quot;the ball by wall1?&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">9</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;new-object&quot;,&quot;type&quot;:&quot;statement&quot;,&quot;id&quot;:&quot;statement4&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:10,&quot;y&quot;:110,&quot;width&quot;:100,&quot;text&quot;:&quot;Answer:       &quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">10</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;graphic&quot;,&quot;type&quot;:&quot;graphics&quot;,&quot;mode&quot;:&quot;locked&quot;,&quot;x&quot;:10,&quot;y&quot;:135,&quot;width&quot;:247,&quot;height&quot;:139,&quot;href&quot;:&quot;/images/s2e.gif&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">11</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;show-hint&quot;,&quot;text&quot;:&quot;If you need help, click the help button &lt;span dojoType=\&quot;dijit.form.Button\&quot; disabled=\&quot;true\&quot;&gt;?&lt;/span&gt; below.&amp;nbsp; Click the &lt;span class=\&quot;dojoxExpandoIcon dojoxExpandoIconRight\&quot; style=\&quot;float:none;display:inline-block;margin-right:6px;\&quot; disabled=\&quot;true\&quot;&gt;&lt;/span&gt; button above to hide this window.&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">12</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;subscores&quot;:{&quot;NSH_BO_Call_Count&quot;:0,&quot;WWH_BO_Call_Count&quot;:0,&quot;Correct_Entries_V_Entries&quot;:[0,0],&quot;Correct_Answer_Entries_V_Answer_Entries&quot;:[0,0]}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">13</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;set-score&quot;,&quot;score&quot;:0}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">14</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;geeq&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">15</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;gest&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">16</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;error-type&quot;:&quot;SIMPLE-WARNING&quot;,&quot;error&quot;:&quot;webserver:*env* already exists.  Session in progress?&quot;,&quot;backtrace&quot;:&quot;0: (SB-DEBUG::MAP-BACKTRACE #&lt;CLOSURE (LAMBDA #) {DC2234D}&gt;)[:EXTERNAL]\n1: (BACKTRACE 20 #&lt;SB-IMPL::STRING-OUTPUT-STREAM {DC222F9}&gt;)\n2: (WEBSERVER::LOG-ERROR #&lt;SIMPLE-WARNING {DC21CC9}&gt;)\n3: ((FLET #:LAMBDA305) #&lt;SIMPLE-WARNING {DC21CC9}&gt;)\n4: (SIGNAL #&lt;SIMPLE-WARNING {DC21CC9}&gt;)[:EXTERNAL]\n5: (WARN \&quot;webserver:*env* already exists.  Session in progress?\&quot;)[:EXTERNAL]\n6: (OPEN-PROBLEM)[:EXTERNAL]\n7: (WEBSERVER::EXECUTE-SESSION\n    \&quot;32345\&quot;\n    1\n    #&lt;FUNCTION OPEN-PROBLEM&gt;\n    ((:TIME . 0) (:PROBLEM . \&quot;s2e\&quot;) (:USER . \&quot;joe\&quot;) (:SECTION . \&quot;1234\&quot;)))\n8: (WEBSERVER::HANDLE-JSON-RPC)\n9: ((SB-PCL::FAST-METHOD HUNCHENTOOT:PROCESS-REQUEST (T))\n    #&lt;unavailable argument&gt;\n    #&lt;unavailable argument&gt;\n    #&lt;HUNCHENTOOT:REQUEST {DC1BD41}&gt;)\n10: ((SB-PCL::FAST-METHOD HUNCHENTOOT:PROCESS-CONNECTION\n      (HUNCHENTOOT:ACCEPTOR T))\n     #&lt;unavailable argument&gt;\n     #&lt;unavailable argument&gt;\n     #&lt;HUNCHENTOOT:ACCEPTOR (host *, port 8080)&gt;\n     #&lt;USOCKET:STREAM-USOCKET {B7DFFA9}&gt;)\n11: ((SB-PCL::FAST-METHOD HUNCHENTOOT:PROCESS-CONNECTION :AROUND\n      (HUNCHENTOOT:ACCEPTOR T))\n     #&lt;unavailable argument&gt;\n     #S(SB-PCL::FAST-METHOD-CALL\n        :FUNCTION #&lt;FUNCTION #&gt;\n        :PV NIL\n        :NEXT-METHOD-CALL NIL\n        :ARG-INFO (2))\n     #&lt;HUNCHENTOOT:ACCEPTOR (host *, port 8080)&gt;\n     #&lt;USOCKET:STREAM-USOCKET {B7DFFA9}&gt;)\n12: ((FLET SB-THREAD::WITH-MUTEX-THUNK))\n13: ((FLET #:WITHOUT-INTERRUPTS-BODY-[CALL-WITH-MUTEX]477))\n14: (SB-THREAD::CALL-WITH-MUTEX\n     #&lt;CLOSURE (FLET SB-THREAD::WITH-MUTEX-THUNK) {B6C80215}&gt;\n     #S(SB-THREAD:MUTEX\n        :NAME \&quot;thread result lock\&quot;\n        :%OWNER #&lt;SB-THREAD:THREAD \&quot;Hunchentoot worker (client: 127.0.0.1:37975)\&quot; RUNNING {DBDED61}&gt;\n        :STATE 1)\n     #&lt;SB-THREAD:THREAD \&quot;Hunchentoot worker (client: 127.0.0.1:37975)\&quot; RUNNING {DBDED61}&gt;\n     T)\n15: ((LAMBDA ()))\n16: (\&quot;foreign function: #x806480C\&quot;)\n17: (\&quot;foreign function: #x8052C21\&quot;)\n18: (\&quot;foreign function: #x805BD9D\&quot;)\n19: (\&quot;foreign function: #xD2449B\&quot;)\n&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">17</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:50,&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;a3&quot;,&quot;type&quot;:&quot;ellipse&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:66,&quot;y&quot;:188,&quot;width&quot;:25,&quot;height&quot;:30,&quot;text&quot;:&quot;ball&quot;},&quot;id&quot;:2}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">18</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;set-score&quot;,&quot;score&quot;:15}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">19</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;draw-body&quot;:&quot;(BODY BALL)&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">20</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a3&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">21</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:69,&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;a4&quot;,&quot;type&quot;:&quot;axes&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:277,&quot;y&quot;:188,&quot;angle&quot;:0,&quot;radius&quot;:120,&quot;x-label&quot;:&quot;x&quot;,&quot;y-label&quot;:&quot;y&quot;},&quot;id&quot;:3}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">22</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;set-score&quot;,&quot;score&quot;:25}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">23</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;draw-unrotated-axes&quot;:&quot;(DRAW-AXES 0)&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">24</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a4&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">25</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:74,&quot;id&quot;:&quot;a3&quot;,&quot;action&quot;:&quot;modify-object&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:88,&quot;y&quot;:99},&quot;id&quot;:4}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">26</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;draw-body&quot;:&quot;(BODY BALL)&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">27</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a3&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">28</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:76,&quot;action&quot;:&quot;modify-object&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;id&quot;:&quot;a4&quot;,&quot;x&quot;:308,&quot;y&quot;:209},&quot;id&quot;:5}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">29</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;draw-unrotated-axes&quot;:&quot;(DRAW-AXES 0)&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">30</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a4&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">31</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:117.001,&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;a5a&quot;,&quot;type&quot;:&quot;statement&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:177,&quot;y&quot;:188,&quot;width&quot;:66,&quot;symbol&quot;:&quot;m&quot;,&quot;text&quot;:&quot;m is the mass of the ball&quot;},&quot;id&quot;:6}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">32</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;define-mass&quot;:&quot;(DEFINE-VAR (MASS BALL))&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">33</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a5a&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">34</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:118.001,&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;a5b&quot;,&quot;type&quot;:&quot;equation&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:177,&quot;y&quot;:192,&quot;width&quot;:66,&quot;text&quot;:&quot;m=2 kg&quot;},&quot;id&quot;:6.5}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">35</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;set-score&quot;,&quot;score&quot;:40}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">36</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;parse&quot;:&quot;(= |m_BALL| (DNUM 2 |kg|))&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">37</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;write-known-value-eqn&quot;:&quot;(EQN (= |m_BALL| (DNUM 2.0d0 |kg|)))&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">38</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a5b&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">39</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:198.001,&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;a6&quot;,&quot;type&quot;:&quot;vector&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:240,&quot;y&quot;:222,&quot;angle&quot;:120,&quot;radius&quot;:60,&quot;symbol&quot;:&quot;Fwall1&quot;,&quot;x-statement&quot;:300,&quot;y-statement&quot;:350,&quot;text&quot;:&quot;Fwall1 is the normal force on the ball due to wall1&quot;},&quot;id&quot;:7}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">40</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;draw-normal&quot;:&quot;(VECTOR (FORCE BALL WALL1 NORMAL :TIME 1) (DNUM 120 |deg|))&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">41</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a6&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">42</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:261.001,&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;a7&quot;,&quot;type&quot;:&quot;vector&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:241,&quot;y&quot;:224,&quot;angle&quot;:40,&quot;radius&quot;:88,&quot;symbol&quot;:&quot;Fwall2&quot;,&quot;x-statement&quot;:300,&quot;y-statement&quot;:360,&quot;text&quot;:&quot;Fwall2 is force due to wall2&quot;},&quot;id&quot;:8}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">43</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;draw-normal&quot;:&quot;(VECTOR (FORCE BALL WALL2 NORMAL :TIME 1) (DNUM 40 |deg|))&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">44</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a7&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">45</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:309.001,&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;a8&quot;,&quot;type&quot;:&quot;vector&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:245,&quot;y&quot;:224,&quot;angle&quot;:270,&quot;radius&quot;:77,&quot;symbol&quot;:&quot;Fearth&quot;,&quot;x-statement&quot;:300,&quot;y-statement&quot;:370,&quot;text&quot;:&quot;Fearth is the weight force on the ball due to the earth&quot;},&quot;id&quot;:9}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">46</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;draw-weight&quot;:&quot;(VECTOR (FORCE BALL EARTH WEIGHT :TIME 1) (DNUM 270 |deg|))&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">47</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a8&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">48</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:385.001,&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;a9&quot;,&quot;type&quot;:&quot;equation&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:15,&quot;y&quot;:300,&quot;text&quot;:&quot;Fwall1_x = Fwall1 * cos (\\thetaFwall1)&quot;},&quot;id&quot;:10}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">49</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;parse&quot;:&quot;(= |Xc_Fn_BALL_WALL1_1_0| (* |Fn_BALL_WALL1_1| (COS |OFn_BALL_WALL1_1|)))&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">50</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;compo-general-case&quot;:&quot;(EQN (= |Xc_Fn_BALL_WALL1_1_0| (* |Fn_BALL_WALL1_1| (COS (- (DNUM 120 |deg|) (DNUM 0 |deg|))))))&quot;,&quot;draw-normal&quot;:&quot;(IMPLICIT-EQN (= |OFn_BALL_WALL1_1| (DNUM 120 |deg|)))&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">51</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a9&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">52</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:421.001,&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;a10&quot;,&quot;type&quot;:&quot;equation&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:15,&quot;y&quot;:310,&quot;text&quot;:&quot;Fwall1_y = Fwall1 * sin (\\thetaFwall1)&quot;},&quot;id&quot;:11}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">53</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;parse&quot;:&quot;(= |Yc_Fn_BALL_WALL1_1_0| (* |Fn_BALL_WALL1_1| (SIN |OFn_BALL_WALL1_1|)))&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">54</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;draw-normal&quot;:&quot;(IMPLICIT-EQN (= |OFn_BALL_WALL1_1| (DNUM 120 |deg|)))&quot;,&quot;compo-general-case&quot;:&quot;(EQN (= |Yc_Fn_BALL_WALL1_1_0| (* |Fn_BALL_WALL1_1| (SIN (- (DNUM 120 |deg|) (DNUM 0 |deg|))))))&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">55</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a10&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">56</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:459.001,&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;a11&quot;,&quot;type&quot;:&quot;equation&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:15,&quot;y&quot;:320,&quot;text&quot;:&quot;Fwall2_x = Fwall2 * cos (\\thetaFwall2)&quot;},&quot;id&quot;:12}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">57</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;parse&quot;:&quot;(= |Xc_Fn_BALL_WALL2_1_0| (* |Fn_BALL_WALL2_1| (COS |OFn_BALL_WALL2_1|)))&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">58</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;compo-general-case&quot;:&quot;(EQN (= |Xc_Fn_BALL_WALL2_1_0| (* |Fn_BALL_WALL2_1| (COS (- (DNUM 40 |deg|) (DNUM 0 |deg|))))))&quot;,&quot;draw-normal&quot;:&quot;(IMPLICIT-EQN (= |OFn_BALL_WALL2_1| (DNUM 40 |deg|)))&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">59</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a11&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">60</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:482.001,&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;a12&quot;,&quot;type&quot;:&quot;equation&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:15,&quot;y&quot;:330,&quot;text&quot;:&quot;Fwall2_y = Fwall2 * sin(\\thetaFwall2)&quot;},&quot;id&quot;:13}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">61</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;parse&quot;:&quot;(= |Yc_Fn_BALL_WALL2_1_0| (* |Fn_BALL_WALL2_1| (SIN |OFn_BALL_WALL2_1|)))&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">62</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;compo-general-case&quot;:&quot;(EQN (= |Yc_Fn_BALL_WALL2_1_0| (* |Fn_BALL_WALL2_1| (SIN (- (DNUM 40 |deg|) (DNUM 0 |deg|))))))&quot;,&quot;draw-normal&quot;:&quot;(IMPLICIT-EQN (= |OFn_BALL_WALL2_1| (DNUM 40 |deg|)))&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">63</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a12&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">64</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:517.001,&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;a13&quot;,&quot;type&quot;:&quot;equation&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:15,&quot;y&quot;:340,&quot;text&quot;:&quot;Fearth_x = 0&quot;},&quot;id&quot;:14}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">65</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;parse&quot;:&quot;(= |Xc_Fw_BALL_EARTH_1_0| 0)&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">66</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;compo-perpendicular&quot;:&quot;(EQN (= |Xc_Fw_BALL_EARTH_1_0| 0))&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">67</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a13&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">68</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:571.001,&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;a14&quot;,&quot;type&quot;:&quot;equation&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:15,&quot;y&quot;:350,&quot;text&quot;:&quot;Fearth_y = Fearth_y * sin (\\thetaFearth)&quot;},&quot;id&quot;:15}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">69</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;parse&quot;:&quot;(= |Yc_Fw_BALL_EARTH_1_0| (* |Yc_Fw_BALL_EARTH_1_0| (SIN |OFw_BALL_EARTH_1|)))&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">70</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;error-type&quot;:&quot;UNDIAGNOSED-EQN-ERROR&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">71</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a14&quot;,&quot;mode&quot;:&quot;incorrect&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">72</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:590.001,&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a14&quot;,&quot;text&quot;:&quot;Fearth_y = Fearth * sin (\\thetaFearth)&quot;},&quot;id&quot;:16}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">73</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;parse&quot;:&quot;(= |Yc_Fw_BALL_EARTH_1_0| (* |Fw_BALL_EARTH_1| (SIN |OFw_BALL_EARTH_1|)))&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">74</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;compo-parallel-axis&quot;:&quot;(EQN (= |Yc_Fw_BALL_EARTH_1_0| (- |Fw_BALL_EARTH_1|)))&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">75</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a14&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">76</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;seek-help&quot;,&quot;params&quot;:{&quot;time&quot;:571.001,&quot;action&quot;:&quot;help-button&quot;},&quot;id&quot;:17}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">77</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;NSH&quot;:&quot;(ASK-SOUGHT INIT)&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">78</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;show-hint&quot;,&quot;text&quot;:&quot;Now that you have stated all of the given information, you should start on the major principles.  What quantity is the problem seeking?&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">79</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;focus-hint-text-box&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">80</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;seek-help&quot;,&quot;params&quot;:{&quot;time&quot;:657.001,&quot;action&quot;:&quot;get-help&quot;,&quot;text&quot;:&quot;Fwall1&quot;},&quot;id&quot;:18}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">81</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;NSH&quot;:&quot;(ASK-FIRST-PRINCIPLE (MAG (FORCE BALL WALL1 NORMAL :TIME 1)))&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">82</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;show-hint&quot;,&quot;text&quot;:&quot;Very good.  Which principle would you like to apply first?  Hint: this principle will usually be one that mentions the sought quantity explicitly.  If so, look for  a principle that includes the answer quantity.&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">83</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;focus-major-principles&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">84</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;seek-help&quot;,&quot;params&quot;:{&quot;time&quot;:671.001,&quot;action&quot;:&quot;principles-menu&quot;,&quot;value&quot;:&quot;(nsl ((?axis . x)))&quot;},&quot;id&quot;:19}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">85</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;OPHINT&quot;:&quot;(POINT STRING (ACCEL-AT-REST BALL 1))&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">86</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;show-hint&quot;,&quot;text&quot;:&quot;Yes.  Notice that the ball is at rest at T0.&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">87</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;show-hint-link&quot;,&quot;text&quot;:&quot;Explain more&quot;,&quot;value&quot;:&quot;explain-more&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">88</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:711.001,&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;a15&quot;,&quot;type&quot;:&quot;vector&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:245,&quot;y&quot;:224,&quot;angle&quot;:270,&quot;radius&quot;:0,&quot;symbol&quot;:&quot;a&quot;,&quot;x-statement&quot;:300,&quot;y-statement&quot;:370,&quot;text&quot;:&quot;a is the acceleration of the ball&quot;},&quot;id&quot;:20}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">89</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;accel-at-rest&quot;:&quot;(VECTOR (ACCEL BALL :TIME 1) ZERO)&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">90</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a15&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">91</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:750.001,&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;a16&quot;,&quot;type&quot;:&quot;equation&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:15,&quot;y&quot;:360,&quot;text&quot;:&quot;Fwall1_x + Fwall2_x + Fearth_x = m *a&quot;},&quot;id&quot;:21}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">92</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;set-score&quot;,&quot;score&quot;:57}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">93</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;parse&quot;:&quot;(= (+ (+ |Xc_Fn_BALL_WALL1_1_0| |Xc_Fn_BALL_WALL2_1_0|) |Xc_Fw_BALL_EARTH_1_0|) (* |m_BALL| |a_BALL_1|))&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">94</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;write-nfl-compo&quot;:&quot;(EQN (= (+ |Xc_Fw_BALL_EARTH_1_0| |Xc_Fn_BALL_WALL2_1_0| |Xc_Fn_BALL_WALL1_1_0|) 0))&quot;,&quot;accel-at-rest&quot;:&quot;(IMPLICIT-EQN (= |a_BALL_1| (DNUM 0 |m/s^2|)))&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">95</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a16&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">96</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:781.001,&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;a17&quot;,&quot;type&quot;:&quot;equation&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:15,&quot;y&quot;:370,&quot;text&quot;:&quot;Fwall1_y + Fwall2_y + Fearth_y = m*a&quot;},&quot;id&quot;:22}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">97</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;set-score&quot;,&quot;score&quot;:75}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">98</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;parse&quot;:&quot;(= (+ (+ |Yc_Fn_BALL_WALL1_1_0| |Yc_Fn_BALL_WALL2_1_0|) |Yc_Fw_BALL_EARTH_1_0|) (* |m_BALL| |a_BALL_1|))&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">99</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;accel-at-rest&quot;:&quot;(IMPLICIT-EQN (= |a_BALL_1| (DNUM 0 |m/s^2|)))&quot;,&quot;write-nfl-compo&quot;:&quot;(EQN (= (+ |Yc_Fw_BALL_EARTH_1_0| |Yc_Fn_BALL_WALL2_1_0| |Yc_Fn_BALL_WALL1_1_0|) 0))&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">100</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a17&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">101</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:851.001,&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;a18&quot;,&quot;type&quot;:&quot;equation&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:15,&quot;y&quot;:380,&quot;text&quot;:&quot;Fearth_y = m*g&quot;},&quot;id&quot;:23}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">102</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;set-score&quot;,&quot;score&quot;:74}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">103</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;parse&quot;:&quot;(= |Yc_Fw_BALL_EARTH_1_0| (* |m_BALL| |g_EARTH|))&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">104</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;error-type&quot;:&quot;MISSING-NEGATION-ON-VECTOR-COMPONENT&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">105</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;wt-law&quot;:&quot;(EQN (= |Fw_BALL_EARTH_1| (* |m_BALL| |g_EARTH|)))&quot;,&quot;compo-parallel-axis&quot;:&quot;(EQN (= |Yc_Fw_BALL_EARTH_1_0| (- |Fw_BALL_EARTH_1|)))&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">106</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a18&quot;,&quot;mode&quot;:&quot;incorrect&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">107</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;seek-help&quot;,&quot;params&quot;:{&quot;time&quot;:860.001,&quot;action&quot;:&quot;help-button&quot;},&quot;id&quot;:24}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">108</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;MISSING-NEGATION-ON-VECTOR-COMPONENT&quot;:&quot;((FORCE BALL EARTH WEIGHT :TIME 1) Y |Yc_Fw_BALL_EARTH_1_0| |Fw_BALL_EARTH_1|)&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">109</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;show-hint&quot;,&quot;text&quot;:&quot;Think about the direction of the weight force on the ball at T0 due to the earth.&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">110</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;show-hint-link&quot;,&quot;text&quot;:&quot;Explain more&quot;,&quot;value&quot;:&quot;explain-more&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">111</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;seek-help&quot;,&quot;params&quot;:{&quot;time&quot;:882.001,&quot;action&quot;:&quot;get-help&quot;,&quot;value&quot;:&quot;explain-more&quot;},&quot;id&quot;:25}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">112</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;show-hint&quot;,&quot;text&quot;:&quot;Because the vector is parallel to the Y axis but in the negative direction, the projection equation is Fearth_y = - Fearth so Fearth_y stands for a negative value.&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">113</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;show-hint-link&quot;,&quot;text&quot;:&quot;Explain more&quot;,&quot;value&quot;:&quot;explain-more&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">114</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:898.001,&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a18&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;text&quot;:&quot;Fearth_y = -m*g&quot;},&quot;id&quot;:26}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">115</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;set-score&quot;,&quot;score&quot;:75}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">116</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;parse&quot;:&quot;(= |Yc_Fw_BALL_EARTH_1_0| (* (- |m_BALL|) |g_EARTH|))&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">117</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;log&quot;,&quot;assoc&quot;:{&quot;wt-law&quot;:&quot;(EQN (= |Fw_BALL_EARTH_1| (* |m_BALL| |g_EARTH|)))&quot;,&quot;compo-parallel-axis&quot;:&quot;(EQN (= |Yc_Fw_BALL_EARTH_1_0| (- |Fw_BALL_EARTH_1|)))&quot;}}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">118</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a18&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">119</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:905.001,&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;a18.5&quot;,&quot;type&quot;:&quot;equation&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:200,&quot;y&quot;:380,&quot;text&quot;:&quot;Fwall1=?&quot;},&quot;id&quot;:27}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">120</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a18.5&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">121</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a18.5&quot;,&quot;text&quot;:&quot;Fwall1 = 15.246093503232041d0 N&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">122</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:913.001,&quot;action&quot;:&quot;new-object&quot;,&quot;id&quot;:&quot;a19&quot;,&quot;type&quot;:&quot;statement&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;x&quot;:15,&quot;y&quot;:390,&quot;text&quot;:&quot;answer:  15.2&quot;},&quot;id&quot;:28}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">123</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a19&quot;,&quot;mode&quot;:&quot;incorrect&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">124</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;show-hint&quot;,&quot;text&quot;:&quot;Forgot to put units on a number.&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">125</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;show-hint-link&quot;,&quot;text&quot;:&quot;Explain more&quot;,&quot;value&quot;:&quot;explain-more&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">126</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;seek-help&quot;,&quot;params&quot;:{&quot;time&quot;:918.001,&quot;action&quot;:&quot;get-help&quot;,&quot;value&quot;:&quot;explain-more&quot;},&quot;id&quot;:29}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">127</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;show-hint&quot;,&quot;text&quot;:&quot;This equation is dimensionally inconsistent. When numbers are used in equations, they must include the appropriate units.  It looks like one of the numbers you've used is lacking the units.&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">128</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;solution-step&quot;,&quot;params&quot;:{&quot;time&quot;:913.001,&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a19&quot;,&quot;mode&quot;:&quot;unknown&quot;,&quot;text&quot;:&quot;answer:  15.2 N&quot;},&quot;id&quot;:30}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">129</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;set-score&quot;,&quot;score&quot;:97}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">130</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;modify-object&quot;,&quot;id&quot;:&quot;a19&quot;,&quot;mode&quot;:&quot;correct&quot;}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+    <row>
+      <field name="tID">131</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;method&quot;:&quot;close-problem&quot;,&quot;params&quot;:{&quot;time&quot;:984.2},&quot;id&quot;:31}</field>
+      <field name="initiatingParty">client</field>
+    </row>
+    <row>
+      <field name="tID">132</field>
+      <field name="attemptID">1</field>
+      <field name="command">{&quot;action&quot;:&quot;problem-closed&quot;,&quot;url&quot;:&quot;http://www.webassign.net/someting/or/other&quot;},{&quot;action&quot;:&quot;log&quot;,&quot;subscores&quot;:[[&quot;wwh_bo_call_count&quot;,-0.05,&quot;0&quot;],[&quot;nsh_bo_call_count&quot;,-0.05,&quot;0&quot;],[&quot;correct_answer_entries_v_answer_entries&quot;,0.04999999970197678,&quot;1/2&quot;],[&quot;correct_entries_v_entries&quot;,0.04999999970197678,&quot;19/21&quot;]]}</field>
+      <field name="initiatingParty">server</field>
+    </row>
+</ROOT>
