@@ -143,7 +143,7 @@ dojo.provide("andes.convert");
 				statement = item.statement;
 				item = item.master;
 				combo = true;
-				sbox = round(item.getBounds());
+				sbox = round(statement.getBounds());
 			}
 			var type = item.andesType || item.customType || andesTypes[item.type];
 			
@@ -167,7 +167,7 @@ dojo.provide("andes.convert");
 			}
 			
 			if(type == "statement" || type == "equation"){
-				obj.text = item.getText() || "SHOULD NOT BE HERE";
+				obj.text = item.getText() || "";
 				if(type == "statement"){
 					// need to add a potential 'symbol' derived from variablename.js
 					var symbol = andes.variablename.parse(obj.text);
@@ -176,7 +176,7 @@ dojo.provide("andes.convert");
 					}
 				}
 			}else if(type != "axes"){
-				obj.text = statement.getText() || "SHOULD NOT BE HERE";
+				obj.text = statement.getText() || "";
 				obj.symbol = item.getLabel() || null;
 				obj["x-statement"] = sbox.x;
 				obj["y-statement"] = sbox.y;
