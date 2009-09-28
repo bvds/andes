@@ -21,11 +21,11 @@
 		}
 		
 		if(djConfig.isDebug){
-			djConfig.modulePaths = {'drawing': '../drawing', 'andes':'../andes'};
+			djConfig.modulePaths = {'drawing': '../dojox/drawing', 'andes':'../andes'};
 			document.write('<link href="css/andes.css" rel="stylesheet" />');
 			document.write('<scr'+'ipt src="dojo/dojo.js"></scr'+'ipt>');
 		}else{
-			djConfig.modulePaths = {'drawing': '../drawing', 'andes':'../andes'};
+			djConfig.modulePaths = {'drawing': '../dojox/drawing', 'andes':'../andes'};
 			document.write('<link href="release/dojo/css/andes.css" rel="stylesheet" />');
 			document.write('<scr'+'ipt src="release/dojo/dojo/dojo.js"></scr'+'ipt>');
 		}
@@ -95,39 +95,39 @@
 				<div dojoType="dijit.form.Button" id="submitButton" style="position:absolute; top:0; right:10px; margin:0;">Submit</div>
 		</div>
 
-		<div id="toolPane" dojoType="dijit.layout.ContentPane" region="left" splitter="false">
-				<div dojoType="drawing.Toolbar" drawingId="drawing" class="drawingToolbar vertical">
+		<div id="toolPane" dojoType="andes.ContentPane" region="left" splitter="false">
+				<div dojoType="dojox.drawing.ui.dom.Toolbar" drawingId="drawing" class="drawingToolbar vertical">
 					
-					<div tool="drawing.tools.Line" 				selected="false">	Line</div>
-					<div tool="drawing.tools.Rect" 				selected="true">	Rect</div>
-					<div tool="drawing.tools.Ellipse" 			selected="false">	Ellipse</div>
-					<div tool="drawing.tools.TextBlock" 		selected="false">	Statement</div>
-					<div tool="drawing.tools.custom.Equation" 	selected="false">	Equation</div>
-					<div tool="drawing.tools.custom.Vector" 	selected="false">	Vector</div>
-					<div tool="drawing.tools.custom.Axes" 		selected="false">	Axes</div>
+					<div tool="dojox.drawing.tools.Line" 				selected="false">	Line</div>
+					<div tool="dojox.drawing.tools.Rect" 				selected="true">	Rect</div>
+					<div tool="dojox.drawing.tools.Ellipse" 			selected="false">	Ellipse</div>
+					<div tool="dojox.drawing.tools.TextBlock" 			selected="false">	Statement</div>
+					<div tool="dojox.drawing.tools.custom.Equation" 	selected="false">	Equation</div>
+					<div tool="dojox.drawing.tools.custom.Vector" 		selected="false">	Vector</div>
+					<div tool="dojox.drawing.tools.custom.Axes" 		selected="false">	Axes</div>
 					
-					<div plugin="drawing.plugins.tools.Pan" options="{}">Pan</div>
-					<div plugin="drawing.plugins.tools.Zoom" options="{zoomInc:.1,minZoom:.5,maxZoom:2}">Zoom</div>
+					<div plugin="dojox.drawing.ui.dom.Pan" options="{}">Pan</div>
+					<div plugin="dojox.drawing.ui.dom.Zoom" options="{zoomInc:.1,minZoom:.5,maxZoom:2}">Zoom</div>
 				</div>
 		</div>
-		<div id="drawingPane" dojoType="dijit.layout.ContentPane" region="center" >
-				<div dojoType="drawing.Drawing" id="drawing" drawingType="canvas" class="drawing"
+		<div id="drawingPane" dojoType="andes.ContentPane" region="center" >
+				<div dojoType="dojox.drawing.Drawing" id="drawing" drawingType="canvas" class="drawing"
 					 defaults="andes.defaults">   
 			   </div>
 		</div>
 			
 		<div id="helpPane" dojoType="andes.widget.ExpandoPane" region="right" splitter="true" title="Help" startExpanded="false">
 			<div id="helpWrapPane" dojoType="dijit.layout.BorderContainer" gutters="false">
-				<div id="helpContentPane" dojoType="dijit.layout.ContentPane" region="center"></div>
+				<div id="helpContentPane" dojoType="andes.ContentPane" region="center"></div>
 
-				<div id="helpInputPane" dojoType="dijit.layout.ContentPane" region="bottom">
+				<div id="helpInputPane" dojoType="andes.ContentPane" region="bottom">
 					<div dojoType="dijit.form.TextBox" id="helpInput"></div>
 					<div dojoType="dijit.form.Button" id="helpSubmit">?</div>
 				</div>
 			</div>
 		</div>
 
-		<div id="footerPane" dojoType="dijit.layout.ContentPane" region="bottom"></div>
+		<div id="footerPane" dojoType="andes.ContentPane" region="bottom"></div>
 	</div>
 
 	<div dojoType="dojox.widget.UpgradeBar" id="upgradeBar">

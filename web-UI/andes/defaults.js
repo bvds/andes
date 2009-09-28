@@ -221,6 +221,5 @@ dojo.provide("andes.defaults");
 	a.disabled.color = a.locked.color;
 	a.disabled.fill = a.locked.fill;
 	a.textDisabled.color = a.locked.fill;
-	a.angleSnap = a.DTheta;
 
 })();
