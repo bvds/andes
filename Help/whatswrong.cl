@@ -568,7 +568,7 @@
 	(T (call-ww-turn-generator ei)))))
 
 
-;;; Given an error interpretation and a string, it warns the studen by
+;;; Given an error interpretation and a string, it warns the student by
 ;;; first presenting the string, then follows up with hint sequece
 ;;; that the error interpretation would cause if it the intended entry
 ;;; were correct.
@@ -584,9 +584,6 @@
 (defun call-ww-turn-generator (ei)
   ;; wrapper attaches function name as assoc info to turn
   (let ((form (ErrorInterp-diagnosis ei))
-        ; need to fetch the EntryTest class to get its flag slots
-        (test (find (ErrorInterp-name ei) **entry-tests** 
-		    :key #'EntryTest-name))
          result-turn)
      (setf result-turn (apply (car form) (cdr form)))
      (setf (turn-assoc result-turn) (alist-warn (list form)))
@@ -606,81 +603,40 @@
    or NIL if there is no matching student entry."
   (loop for se in *StudentEntries* thereis (unify pattern (StudentEntry-prop se) bindings)))
 
-
-;;; --------------------- debugging utilities -------------------
-
-(defun pwm ()
-  "prints contents of working memory"
-  (loop for fact in (problem-wm *cp*) do (print fact)))
-
-(defun pvars ()
-  "Prints correct variables"
-  (loop for v in (problem-VarIndex *cp*) do (print (qvar-exp v))))
-
-(defun pold ()
-  "Prints the old student entries"
-  (loop for s in *StudentEntries* do (print (studententry-prop s))))
-
-(defun psys ()
-  "Prints system entries"
-  (loop for s in *sg-entries* do (print (systemEntry-prop s))))
-
 (defparameter **watch-error-classes** nil
   "If t the error classes in **watched-error-classes** will be watched.")
 (defparameter **Watched-Error-Classes** () "The Error classes being watched.")
 
-;;; Trace the matching run for specific error tests using the 
+;;; Trace the matching run for specific error tests using the
 ;;; trace facility.
-(defun watch-error-class (name)
-  (setq **watch-error-classes** t)
-  (push name **Watched-error-classes**))
-
-(defun stop-watching-error-classes ()
-  (setq **watch-error-classes** nil)
-  (setq **watched-error-classes** nil))
-
-
 (defun watch-this-error-class-p (class)
   (and **Watch-error-classes**
        (member (EntryTest-name class) **Watched-error-classes**)))
 
-
-(defun trace-wwh ()
-  (trace diagnose do-whats-wrong
-	 make-failed-error-interpretation
-	 no-error-interpretation
-	 explain-premature-entry
-	 explain-premature-subst
-	 explain-forbidden
-	 yellow-error 
-	 new-error
-	 applicable-error-analyses
-	 ))
-
 (defun trace-class-checking ()
   (trace check-err-conditions
-	 check-err-student
-	 check-err-old-student
-	 check-err-correct
-	 check-err-no-correct
-	 check-err-test
-	 check-err-bind
-	 check-err-problem
-	 check-err-any-member
-	 check-err-eqn
-	 check-err-expr-loc
-	 check-err-var-loc))
+        check-err-student
+        check-err-old-student
+        check-err-correct
+        check-err-no-correct
+        check-err-test
+        check-err-bind
+        check-err-problem
+        check-err-any-member
+        check-err-eqn
+        check-err-expr-loc
+        check-err-var-loc))
 
 (defun untrace-class-checking ()
   (untrace check-err-conditions
-	 check-err-student
-	 check-err-old-student
-	 check-err-correct
-	 check-err-no-correct
-	 check-err-test
-	 check-err-bind
-	 check-err-problem
-	 check-err-any-member
-	 check-err-eqn
-	 check-err-expr-loc
-	 check-err-var-loc))
+        check-err-student
+        check-err-old-student
+        check-err-correct
+        check-err-no-correct
+        check-err-test
+        check-err-bind
+        check-err-problem
+        check-err-any-member
+        check-err-eqn
+        check-err-expr-loc
+        check-err-var-loc))

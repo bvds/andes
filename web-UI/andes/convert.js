@@ -1,9 +1,9 @@
 dojo.provide("andes.convert");
 
 (function(){
-	
-	
-	
+
+
+
 	var stencilMods = {
 		statement:	"textBlock",
 		equation:	"textBlock",
@@ -12,7 +12,7 @@ dojo.provide("andes.convert");
 		axes:		"axes",
 		ellipse:	"ellipse"
 	};
-	
+
 	var andesTypes = {
 		"drawing.stencil.Line":"line",
 		"drawing.stencil.Rect":"rectangle",
@@ -23,7 +23,7 @@ dojo.provide("andes.convert");
 		"drawing.stencil.Image":"graphics",
 		"drawing.tools.TextBlock":"statement" // or statement.... hmmmm
 	};
-	
+
 	// dupe code:
 	var getStatementPosition = function(box){
 		var gap = 10;
@@ -33,7 +33,7 @@ dojo.provide("andes.convert");
 			showEmpty:true
 		}};
 	};
-	
+
 	andes.convert = {
 		// summary:
 		//	The conversion object used to transform objects
@@ -43,7 +43,7 @@ dojo.provide("andes.convert");
 		andesToDrawing: function(o){
 			// summary:
 			//	Converts from andes to drawing
-			
+
 			//console.warn(" ---------------> andesToDrawing:", o.type)
 			if(o.x==undefined || o.y===undefined){
 				console.error("Imported Object '" + o.id + "' contains no X or Y coordinates.");
@@ -58,11 +58,11 @@ dojo.provide("andes.convert");
 				},
 				enabled:o.mode!="locked"
 			};
-			
+
 			if(o.type!="vector" && o.type!="line" && o.type!="axes" && o.type!="ellipse"){
 				obj.data.width = o.width;
 				obj.data.height = o.height;
-			
+
 			}else if(o.type=="ellipse"){
 				obj.data = {
 					cx:o.x + o.width/2,
@@ -78,7 +78,7 @@ dojo.provide("andes.convert");
 			if(o.type=="statement" && (o.mode=="locked" || o.mode=="fade")){
 				obj.stencilType = "text";
 			}
-			
+
 			if(o.type=="line" || o.type=="vector" || o.type=="rect" || o.type=="ellipse"){
 				// separate objects
 			        // match logic in drawingToAndes
@@ -96,7 +96,7 @@ dojo.provide("andes.convert");
 				};
 				var xs = o['x-statement'];
 				var ys = o['y-statement'];
-				
+
 				if(xs === undefined){
 					var pt = getStatementPosition({
 						y1:o.y,
@@ -120,13 +120,13 @@ dojo.provide("andes.convert");
 			}else if(o.type=="axes"){
 				obj.label = o['x-label']+" and "+o['y-label'];
 			}
-			
+
 			if(o.href){
 				obj.data.src = o.href;
 			}
 			return obj;
 		},
-		
+
 		drawingToAndes: function(item, action){
 			// summary:
 			//	Converts from Drawing to andes
@@ -143,10 +143,10 @@ dojo.provide("andes.convert");
 				statement = item.statement;
 				item = item.master;
 				combo = true;
-				sbox = round(item.getBounds());
+				sbox = round(statement.getBounds());
 			}
 			var type = item.andesType || item.customType || andesTypes[item.type];
-			
+
 			var box = round(item.getBounds(true));
 			var obj = {
 				x:box.x,
@@ -156,7 +156,7 @@ dojo.provide("andes.convert");
 				id:id,
 				mode: "unknown"
 			}
-			
+
 			if(type!="vector" && type!="line" && type!="axes"){
 				obj.width = box.w;
 				obj.height = box.h;
@@ -165,9 +165,9 @@ dojo.provide("andes.convert");
 				obj.radius = Math.ceil(item.getRadius());
 				obj.angle = item.getAngle();
 			}
-			
+
 			if(type == "statement" || type == "equation"){
-				obj.text = item.getText() || "SHOULD NOT BE HERE";
+				obj.text = item.getText() || "";
 				if(type == "statement"){
 					// need to add a potential 'symbol' derived from variablename.js
 					var symbol = andes.variablename.parse(obj.text);
@@ -176,11 +176,11 @@ dojo.provide("andes.convert");
 					}
 				}
 			}else if(type != "axes"){
-				obj.text = statement.getText() || "SHOULD NOT BE HERE";
+				obj.text = statement.getText() || "";
 				obj.symbol = item.getLabel() || null;
 				obj["x-statement"] = sbox.x;
 				obj["y-statement"] = sbox.y;
-			
+
 			}else if(type == "axes"){
 				var lbl = item.getLabel();
 				obj["x-label"] = lbl.x;
@@ -188,7 +188,7 @@ dojo.provide("andes.convert");
 				obj.radius = Math.ceil(item.getRadius());
 				obj.angle = item.getAngle();
 			}
-			
+
 			if(combo){
 			        // match logic in andesToDrawing
 			        // Send empty string, rather than null
@@ -197,15 +197,15 @@ dojo.provide("andes.convert");
 				var lbl = item.getLabel() || "";
 				if(txt){
 					obj.text = txt;
-					obj.symbol = lbl;	
+					obj.symbol = lbl;
 				}else{
 					obj.text = lbl;
 				        obj.symbol = "";
 				}
 			}
-			
+
 			return obj;
 		}
 	}
-	
+
 })();

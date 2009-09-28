@@ -71,7 +71,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-(defun nlg-list-default (x &rest args)
+(defun nlg-list-default (x)
   (cond ((null x) nil)
 	((new-english-find x) (word-string (expand-vars (new-english-find x))))
 	((nlg-find x *Ontology-ExpTypes* #'ExpType-Form #'ExpType-nlg-english))
@@ -79,7 +79,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-(defun nlg-atom-default (x &rest args)
+(defun nlg-atom-default (x)
   (format nil "~(~A~)" x))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -135,8 +135,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun def-np (x &rest args)
+  (declare (ignore args))
   (if (listp x)
-      (nlg-list-default x args)  
+      (nlg-list-default x)  
     ;; Assume x is an atom
     (cond ((numberp x)      (format nil "~A" x))
 	  ((pronounp x) (format nil "~(~A~)" x))
@@ -163,6 +164,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun indef-np	(x &rest args)
+  (declare (ignore args))
   (if (atom x)
       (if (stringp x)
 	  (if (member (char x 0) '(#\a #\e #\i #\o #\u #\A #\E #\I #\O #\U ))
@@ -171,13 +173,14 @@
 	(if (member (char (symbol-name x) 0) '(#\a #\e #\i #\o #\u #\A #\E #\I #\O #\U ))
 	    (format nil "an ~(~A~)" x)
 	  (format nil "a ~(~A~)" x)))
-    (nlg-list-default x args)))
+    (nlg-list-default x)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun pp (x &rest args) 
-"return a temporal prepositional phrase for the given time"
+  "return a temporal prepositional phrase for the given time"
+  (declare (ignore args))
   (cond ((null x) NIL) ; NB: must be prepared for NIL for timeless things.
-	((listp x) (nlg-list-default x args)) ;handles (during ...)
+	((listp x) (nlg-list-default x)) ;handles (during ...)
 	((numberp x) (format nil "at T~D" (- x 1)))
 	(t (format nil "at ~(~A~)" x))))
 
@@ -213,12 +216,13 @@
      ))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun adjective (x &rest args)
+  (declare (ignore args))
   (if (atom x)
       (let ((answer (assoc x adjectives)))
 	(if answer
 	    (format nil "~A" (cdr answer))
 	  (format nil "~(~A~)" x)))
-    (nlg-list-default x args)))
+    (nlg-list-default x)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun adj (x &rest args)
   (adjective x args))
@@ -235,7 +239,8 @@
    s))
 
 (defun algebra (x &rest args)
-    ;; x could be prefix expr (maybe DNUM), var or dimensionless number
+   (declare (ignore args))
+   ;; x could be prefix expr (maybe DNUM), var or dimensionless number
     (strip-outer-parens (format nil "~A" (subst-student-vars (pre2in x)))))
 
 ;; for concise reference to quantities in algebraic contexts:
@@ -249,58 +254,40 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun conjoined-defnp (x &rest args)
+  (declare (ignore args))
   (if (atom x)
-      (nlg-atom-default x args)
+      (nlg-atom-default x)
     (nlg-print-list x "and" 'def-np)))
 
 (defun conjoined-names (x &rest args)
   "assume list is proper names"
+  (declare (ignore args))
   (if (atom x)
       (format nil "~A" x)
     (nlg-print-list x "and" 'identity)))
 
-;; the rest are never used
-#|
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-(defun disjoined-defnp (x &rest args)
-  (if (atom x)
-      (nlg-atom-default x args)
-    (nlg-print-list x "or" 'def-np)))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
-(defun conjoined-indefnp (x &rest args)
-  (if (atom x)
-      (nlg-atom-default x args)
-    (nlg-print-list x "and" 'indef-np)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-(defun disjoined-indefnp (x &rest args)
-  (if (atom x)
-      (nlg-atom-default x args)
-    (nlg-print-list x "or" 'indef-np)))
-|#
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun moment (x &rest args)
+  (declare (ignore args))
   (if (atom x)
       (format nil "T~(~A~)" (if (numberp x) (1- x) x))
-    (nlg-list-default x args)))
+    (nlg-list-default x)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  This is a shortcut for including time when it exists
 (defun at-time (x &rest args)
   (if (= (length args) 1)
       (format nil "~A~@[ ~A~]" (nlg x) (nlg (car args) 'pp))
-    (nlg-list-default x args)))
+    (nlg-list-default x)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun lower-case (x &rest args)
+  (declare (ignore args))
   (if (atom x)
       (format nil "~(~A~)" x)
-    (nlg-list-default x args)))
+    (nlg-list-default x)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -312,28 +299,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun psm-exp (x &rest args)
+  (declare (ignore args))
   (if (atom x)
-      (nlg-atom-default x args)
+      (nlg-atom-default x)
     (or (nlg-find x *Ontology-PSMClasses* #'PSMClass-Form #'PSMClass-ExpFormat)
 	(nlg-find x *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-ExpFormat)
 	(nlg-find x *Ontology-PSMClasses* #'PSMClass-Form #'PSMClass-nlg-english)
 	(nlg-find x *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-nlg-english)
 	(format nil "[PSM: ~A]" x))))
 
-(defun psm-group (x &rest args)
-"kvl: returns the english for the group, of which this psm is a part"
-  (cond ((atom x)
-	 (nlg-atom-default x args))
-	((nlg-find x *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-nlg-english))
-	((loop for c in *Ontology-PSMClasses* with bindings 
-	     when (setf bindings (unify (PSMClass-form c) x)) 
-	     do (return (nlg-find (PSMClass-group c) *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-nlg-english))))
-	((nlg-find x *Ontology-PSMClasses* #'PSMClass-Form #'PSMClass-nlg-english))
-	(T (format nil "[PSM: ~A]" x))))
-
-(defun psm-english (x &rest args)
+(defun psm-english (x)
   (if (atom x)
-      (nlg-atom-default x args)
+      (nlg-atom-default x)
     (or (nlg-find x *Ontology-PSMClasses* #'PSMClass-Form #'PSMClass-nlg-english)
 	(nlg-find x *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-nlg-english)
 	(format nil "[PSM: ~A]" x))))
@@ -342,24 +319,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Handling Entry-Props
 (defun nlg-entryprop (x &rest args)
+  (declare (ignore args))
   (if (atom x) 
-      (nlg-atom-default x args)
+      (nlg-atom-default x)
     (or (nlg-find x *Ontology-EntryProp-Types* #'EntryProp-KBForm #'EntryProp-nlg-english)
 	(nlg-find x *Ontology-EntryProp-Types* #'EntryProp-HelpForm #'EntryProp-nlg-english)
 	(format Nil "[EntryProp: ~a]" x))))
 	
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-(defun psm-type (x &rest args)
-    (cond ((psmgroup-p x) (car (PSMGroup-nlg-english x)))
-	  ((psmclass-p x) (car (PSMclass-nlg-english x)))
-	  (T (format nil "[PSM type: ~A]" x))))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Given an ExpType nlg it resulting in the appropriate form.
 (defun nlg-exp (x &rest args)
+  (declare (ignore args))
   (cond ((atom x) (format nil "~A" x))
 	((new-english-find x) (word-string (expand-vars (new-english-find x))))
 	((nlg-find x *Ontology-ExpTypes* #'Exptype-form #'ExpType-nlg-english))
@@ -367,7 +338,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Given an Equation nlg it resulting in the appropriate form.
-(defun nlg-equation (x &rest args)
+(defun nlg-equation (x)
   (cond ((atom x) (format nil "~A" x))
 	((nlg-find x *Ontology-PSMClasses* #'PSMClass-form #'PSMClass-nlg-english))
 	(t (format nil "equation:[~A]" x))))

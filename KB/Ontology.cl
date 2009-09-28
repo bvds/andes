@@ -87,9 +87,11 @@
 (defun torque-switch (x y)
   (if (and *cp* (member 'engineering-names (problem-features *cp*))) x y))   
 (defun moment-symbol (&optional junk) ;optional arg for use with nlg
+  (declare (ignore junk))
   (torque-switch "M" "$t"))
 (defun moment-name (&optional junk) ;optional arg for use with nlg
-  (torque-switch "moment" "torque"))
+  (declare (ignore junk))
+ (torque-switch "moment" "torque"))
 
 
 ;;;             Quantity Terms:

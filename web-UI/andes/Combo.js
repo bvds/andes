@@ -14,7 +14,7 @@ andes.Combo = drawing.util.oo.declare(
 	function(options){
 		this.master = options.master;
 		this.statement = options.statement;
-		
+
 		this._props = {style:this.master.style, util:this.master.util, parent:this.master.parent, mouse:this.master.mouse};
 		dojo.mixin(this, this._props);
 		this.id = options.id || this.util.uid(this.type);
@@ -28,14 +28,14 @@ andes.Combo = drawing.util.oo.declare(
 				this.onChangeText(this);
 			}]
 		]);
-		
+
 		this.created = options.onCreate ? false : true
-			
+
 		var s = this.statement;
 		var m = this.master;
-		
+
 		console.log("combo statement:", this.statement)
-		
+
 		this.statement.connectMult([
 			[this.statement, "onChangeText", this, function(value){
 				var label = andes.variablename.parse(value);
@@ -55,9 +55,9 @@ andes.Combo = drawing.util.oo.declare(
 				}else{
 					this.onChangeData(this);
 				}
-				
+
 				this.onChangeText(this);
-			
+
 			}],
 			[this.statement, "onChangeData", this, function(){
 				this.onChangeData(this);
@@ -81,7 +81,7 @@ andes.Combo = drawing.util.oo.declare(
 				}
 			}]
 		]);
-	
+
 	},
 	{
 		type:"andes.Combo",
@@ -94,13 +94,13 @@ andes.Combo = drawing.util.oo.declare(
 			//	properties or a text change of the master
 			// or any item
 		},
-		
+
 		onChangeText: function(value){ // value or 'this' ?
 			// summary:
 			//	Stub - fires on change of text in a
 			//	TextBlock tool only
 		},
-		
+
 		onDelete: function(value){ // value or 'this' ?
 			console.log("combo delete ", value)
 			// summary:
@@ -108,7 +108,7 @@ andes.Combo = drawing.util.oo.declare(
 			//	(which makes this _Connection worthless and it
 			//	should be discarded)
 		},
-		
+
 		getItem: function(){
 			// NOT USED
 			return this.statement;
@@ -119,7 +119,7 @@ andes.Combo = drawing.util.oo.declare(
 			this.master.attr.call(this.master, a1, a2);
 			this.statement.attr.call(this.statement, a1, a2);
 		},
-		
+
 		//
 		// TODO: can I use master.connect if I apply it correctly?
 		//
@@ -160,9 +160,9 @@ andes.Combo = drawing.util.oo.declare(
 			this._cons.push(c);
 			return c;
 		},
-		
+
 		disconnect: function(handles){
-			if(!handles) { return };
+		  if(!handles) { return; }
 			if(!dojo.isArray(handles)){ handles=[handles]; }
 			dojo.forEach(handles, dojo.disconnect, dojo);
 		}

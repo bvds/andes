@@ -2,15 +2,15 @@ dojo.provide("andes.drawing");
 
 
 (function(){
-	
+
 	dojo.cookie("mikeDev", null, { expires: -1 });
-	
+
 	// the html ID in index for the drawing app
 	var drawingId = "drawing";
 	var _drawing;
 	var _surfaceLoaded = false;
-	
-	
+
+
 	var stencils = {
 		// used for mapping objects between andes
 		// and Drawing
@@ -22,8 +22,8 @@ dojo.provide("andes.drawing");
 		axes: 		"drawing.tools.custom.Axes",
 		textBlock:	"drawing.tools.TextBlock"
 	};
-	
-	
+
+
 	var hasStatement = {
 		// These objects get statements associated with them
 		//
@@ -33,15 +33,15 @@ dojo.provide("andes.drawing");
 		"drawing.tools.custom.Vector":true,
 		"drawing.tools.custom.Axes":true
 	};
-	
+
 	var hasLabel = {
 		// Special case for Axes and its double-label
 		//
 		"drawing.tools.custom.Axes":true
 	};
-	
-	
-	
+
+
+
 	var getStatementPosition = function(box){
 		// summary:
 		//	Simple method for determining position of
@@ -59,9 +59,9 @@ dojo.provide("andes.drawing");
 			}
 		};
 	};
-	
+
 	var items = {};
-	
+
 	dojo.addOnLoad(function(){
 		_drawing = dijit.byId(drawingId);
 		var cn = dojo.connect(_drawing, "onSurfaceReady", function(){
@@ -69,10 +69,10 @@ dojo.provide("andes.drawing");
 			andes.drawing.onSurfaceReady();
 		});
 		dojo.connect(_drawing, "onRenderStencil", andes.drawing, "onRenderStencil");
-		
+
 	});
-	
-	
+
+
 	andes.drawing = {
 		// summary:
 		//	The master object that controls behavior of Drawing items
@@ -84,7 +84,7 @@ dojo.provide("andes.drawing");
 			//	then save info to the server.
 			//
 			if(items[item.id]){ return; }
-			
+
 			if(hasStatement[item.type] || hasLabel[item.type]){
 				// vector, rect, ellipse, or axes
 				var box = item.getBounds();
@@ -96,7 +96,7 @@ dojo.provide("andes.drawing");
 				}
 				// create statement for vector, rect, ellipse, or axes
 				var statement = _drawing.addStencil("textBlock", props);
-				
+
 				if(hasLabel[item.type]){
 					// axes
 					var s = statement;
@@ -106,14 +106,14 @@ dojo.provide("andes.drawing");
 						this.add(item, true);
 						_drawing.removeStencil(s);
 					});
-					
-				
+
+
 				}else if(hasStatement[item.type]){
 					// vector, rect, ellipse
 					var c = new andes.Combo({master:item, statement:statement, onCreate: dojo.hitch(this, function(){
-						this.add(c, true);		
+						this.add(c, true);
 					})});
-					
+
 				}
 			}else{
 				// statement or equation
@@ -125,7 +125,7 @@ dojo.provide("andes.drawing");
 					this.add(item, true);
 				}
 		},
-		
+
 		add: function(/* Stencil */ item, /*Boolean*/ saveToServer, /*Boolean*/noConnect){
 			// summary:
 			//	items added here may be from the server OR drag-created.
@@ -136,20 +136,20 @@ dojo.provide("andes.drawing");
 				console.warn("BLOCKED:", item.id)
 				return;
 			}
-			
+
 			items[item.id] = item;
-			
+
 			if(noConnect){
 				return;
 			}
-			
+
 			item.connect("onDelete", this, function(item){
 				var id = item.id;
 				console.log("--------------------------------> onDelete", id);
 				this.remove(item);
 				this.save({action:"delete-object", id:item.id});
 			});
-			
+
 			item.connect("onChangeData", this, function(item){
 				console.log("---------------------------------> onChangeData", item.id, item.type);//dojo.toJson(item.data));
 				console.log("items:", items)
@@ -157,7 +157,7 @@ dojo.provide("andes.drawing");
 				console.info("Save to server", data);
 				this.save(data);
 			});
-			
+
 			if(saveToServer){
 				// we need to save it to the server
 				var data = andes.convert.drawingToAndes(item, "new-object")
@@ -165,14 +165,14 @@ dojo.provide("andes.drawing");
 				this.save(data);
 			}
 		},
-		
+
 		remove: function(/* Stencil */ item){
 			// summary:
 			//	Just removes reference. See item.connect.onDelete above
 			delete items[item.id];
 		},
-		
-		
+
+
 		handleServerActions: function(data){
 			// summary:
 			//	Handle objects returned from server.
@@ -192,7 +192,7 @@ dojo.provide("andes.drawing");
 					var o = andes.convert.andesToDrawing(obj);
 					var t = o.stencilType;
 					if(t=="vector" || t=="line" || t=="ellipse" || t=="rect"){
-						
+
 						// prevent adding items via onRenderStencil
 						// by adding the ids first:
 						var statementId = _drawing.util.uid("statement");
@@ -203,29 +203,39 @@ dojo.provide("andes.drawing");
 						var master = _drawing.addStencil(o.stencilType, o.master);
 						var combo = new andes.Combo({master:master, statement:statement, id:o.id});
 						this.add(combo);
-					
+
 					}else{ // image, statement, equation, axes
 						var item = _drawing.addStencil(o.stencilType, o);
 						item.andesType = obj.type; // to tell between equation and statement
-						
+
 						this.add(item);
 					}
-				
+
 				}else if(obj.action=="modify-object"){
 					mods.push(obj);
-					
+
+				}else if(obj.action=="delete-object"){
+				        // need error handling for non-existant objects.
+					if(items[obj.id]){
+						items[obj.id].destroy();
+						delete items[obj.id];
+					}
+
 				}else if(obj.action=="set-score"){
 					andes.help.score(obj.score);
-				
+
 				}else{
 					//console.warn("UNUSED ANDES OBJECT:", obj)
 				}
 			}, this);
-			
+
 			dojo.forEach(mods, function(obj){
 				// handles any object modifications
+				//
+				// obj.mod=="deleted" should never occur if
+				// items[obj.id] exists.
 				if(items[obj.id]){
-					// style
+				        // style
 					items[obj.id].attr(andes.defaults[obj.mode]);
 					// x, y
 					if(obj.x!==undefined){
@@ -238,13 +248,13 @@ dojo.provide("andes.drawing");
 					if(obj.text){
 						items[obj.id].attr({text:obj.text});
 					}
-					
+
 				}
 			},this);
-			
+
 			data = null;
 		},
-		
+
 		onSurfaceReady: function(){
 			// Drawing is ready.
 			_surfaceLoaded = true;
@@ -252,20 +262,20 @@ dojo.provide("andes.drawing");
 				this.handleServerActions(this._initialData);
 			}
 		},
-		
+
 		save: function(data){
 			// summary:
 			//	Save an object to the server.
-			
+
 			var dfd = andes.api.step(data);
 			dfd.addCallback(this, function(data){
 				setTimeout(dojo.hitch(this, function(){
 					this.handleServerActions(data);
 				}),0);
 			});
-			dfd.addErrback(this, "onError");	
+			dfd.addErrback(this, "onError");
 		},
-		
+
 		load: function(){
 			// summary:
 			//	loads project data
@@ -290,7 +300,7 @@ dojo.provide("andes.drawing");
 				this.loadProject();
 			}
 		},
-		
+
 		onLoad: function(data){
 			// summary:
 			//	Project Data Loaded
@@ -308,5 +318,5 @@ dojo.provide("andes.drawing");
 			}
 		}
 	};
-	
+
 })();

@@ -11,4 +11,9 @@ install-clsql:
 	(cd /usr/local/lib/sbcl/site-systems; ln -s ../site/clsql-4.0.5/*.asd .)
 clean-clsql:
 	rm -r -f /usr/local/lib/sbcl/site/clsql-4.0.5
-	rm -f /usr/local/lib/sbcl/site-systems/clsql*.asd	
+	rm -f /usr/local/lib/sbcl/site-systems/clsql*.asd
+
+install-database:
+	@echo "This will destroy any existing database!"
+	@echo "Enter mysql password"
+	(cd LogProcessing/databaseCreationScripts/; mysql -u root -p < AndesDatabaseCreationSQL.sql)

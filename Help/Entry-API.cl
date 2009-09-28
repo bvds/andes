@@ -357,6 +357,11 @@
 ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; Here is what is missing:
+;;  Handle case where symbol is nil
+;;  Should include "bad" quantity definitions in matching.
+;;  Should have something to handle extra stuff like setting
+;;     given values in definition.  (either handle it or warning/error).
 
 (defun match-student-phrase (entry sysentries &key cutoff equiv)
   "Match student phrase to Ontology, returning best match, tutor turn (if there is an error) and any unsolicited hints."
@@ -396,7 +401,6 @@
        (values nil (no-matches-ErrorInterp entry)))
       ((= (length best) 1)
        (let ((sysent (cdr (car best))))
-	 (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
 
 	 ;; If the best fit isn't too good, give an unsolicited hint.
 	 ;; Can't put in a tutor turn, since the turn might be good.
@@ -463,7 +467,8 @@
 
 (defun no-matches-ErrorInterp (entry)
   (let ((rem (make-hint-seq 
-	      (list (format nil "I cannot understand your definition~@[ of <var>~A</var>~]." 
+	      (list (format nil "I cannot understand your definition~:[~; of <var>~A</var>~]." 
+			    (> (length (StudentEntry-symbol entry)) 0)
 			    (StudentEntry-symbol entry))
 		    '(function next-step-help)))))
     (setf (turn-id rem) (StudentEntry-id entry))
@@ -484,10 +489,12 @@
   "Given a student entry, return a tutor turn giving unsolicited feedback saying that the entry has already been done.  Also create an error interpretation in case the student asks a follow-up question, and put it in the student entry's err interp field."
   (let ((rem (make-hint-seq
 	      (list (format nil 
-			    "You have already defined ~A~@[ to be <var>~A</var>~].."
+			    "You have already defined ~A~:[ as ~A~1*~;~1* to be <var>~A</var>~]."
 			    (word-string 
 			     (expand-vars 
 			      (SystemEntry-new-english sysent)))
+			    (> (length (StudentEntry-symbol old)) 0)
+			    (studentEntry-text old)
 			    (StudentEntry-symbol old))))))
     (setf (StudentEntry-ErrInterp se)
 	  (make-ErrorInterp
@@ -576,6 +583,7 @@
   
       (cond 
 	(sysent
+	 (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
 	 ;; OK if there is no symbol defined.
 	 (when (> (length symbol) 0) ;not null string
 	   (check-symbols-enter symbol (StudentEntry-prop entry) id))
@@ -610,10 +618,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun lookup-vector (entry)
   (let* ((id (StudentEntry-id entry))
-	 (text (StudentEntry-text entry))
 	 (symbol (StudentEntry-symbol entry))
 	 (drawn-mag (StudentEntry-radius entry))
-	 best
 	 ;;
 	 ;; defined after match
 	 action vector-term vector-mag-term vector-dir-term
@@ -639,50 +645,16 @@
 			    (if (z-dir-spec dir-term) "\\phi" "\\theta")
 			    symbol)))
 
-    ;; remove existing entry and update
-    (add-entry entry)
-
-    ;; see comments in define-variable
-    (setf best 
-	  (best-model-matches
-	   (word-parse (pull-out-quantity symbol text))
-	   (mapcar #'(lambda (x) 
-		       (cons (expand-vars (SystemEntry-new-english x)) x))
-		   (remove '(vector . ?rest) *sg-entries* 
-			   :key #'SystemEntry-prop :test-not #'unify))
-	   ;;  Set cutoff on minimum acceptable
-	   :cutoff 1.75 :equiv 1.25))
-    ;; Debug printout:
-    (format webserver:*stdout* "Best match to ~s is~%   ~S~%" 
-	    (pull-out-quantity symbol text) 
-	    (mapcar 
-	     #'(lambda (x) (cons (car x) 
-				 (expand-vars (SystemEntry-model (cdr x)))))
-		    best))
-
-    ;; See comments in define-variable
-    (cond
-      ((> (length best) 2)
-       ;; error handler for too many matches
-       ;; "your definition is ambiguous" and hint sequence
-       (too-many-matches-ErrorInterp entry))
-      ((null best)
-       ;; No match  
-       ;; "I cannot understand your definition" and hint sequence. 
-       (no-matches-ErrorInterp entry))
-      ((= (length best) 1)
-       ;; one match, proceed to evaluate it.
-       (let ((sysent (cdr (car best))))
-
-	 ;; Determine if the student has already done this
-	 ;; in a previous step.
-	 ;; In Andes2, this test was done on the user interface.
-	 (when (find (SystemEntry-prop sysent) 
-		     (remove id *StudentEntries* :key #'StudentEntry-id)
-		     :key #'StudentEntry-prop :test #'unify)
-	   (return-from lookup-vector 
-	     (redundant-entry-ErrorInterp entry sysent)))
-    
+    (multiple-value-bind
+	  (sysent tturn hints)
+	(match-student-phrase 
+	 entry
+	 (remove '(vector . ?rest) *sg-entries* 
+		 :key #'SystemEntry-prop :test-not #'unify)
+	 :cutoff 0.6 :equiv 1.25)
+      
+      (cond
+	(sysent    
 	 ;; Use the quantity from the best match with angle we actually got.
 	 (setf action (list 'vector (second (SystemEntry-prop sysent)) dir-term))
 	 
@@ -742,9 +714,9 @@
 	 ;; Associated eqns will be entered later if entry is found correct.
 
 	 ;; finally return entry
-	 (check-noneq-entry entry)))
-      ;; more than one match
-      (t (too-many-matches-ErrorInterp entry (mapcar #'cdr best))))))
+	 (check-noneq-entry entry  :unsolicited-hints hints))
+	(tturn)))))
+
 
 ; fetch list of system vars denoting components of vector term
 (defun get-soln-compo-vars (vector-term)
@@ -797,34 +769,47 @@
 	 (dir-label  (format NIL "~A~A" (if (z-dir-spec dir-term) "$j" "$q")
 			     label)))
 
-    (setf (StudentEntry-prop entry) action)
-    ;; remove existing entry and update
-    (add-entry entry)
-    (check-symbols-enter label line-mag-term id)
-    (check-symbols-enter dir-label line-dir-term id)
-    
-    ;; if direction is known, associate implicit equation dirV = dir deg.
-    (when (degree-specifierp dir-term)          ; known xy plane direction
-	 (add-implicit-eqn entry 
-			   (make-implicit-assignment-entry dir-label dir-term)))
-    (when (and (z-dir-spec dir-term) 
-	       (not (equal dir-term 'z-unknown))) ; known z axis direction
-      (add-implicit-eqn entry (make-implicit-assignment-entry dir-label (zdir-phi dir-term))))
-    ;; Associated eqns will be entered later if entry is found correct.
+    (multiple-value-bind
+	  (sysent tturn hints)
+	(match-student-phrase 
+	 entry
+	 (remove '(line . ?rest) *sg-entries* 
+		 :key #'SystemEntry-prop :test-not #'unify)
+	 :cutoff 0.6 :equiv 1.25)
 
-    ;; Include implicit equation cos angle = dummy, where dummy is 
-    ;; nonnegative.  This is associated with Snell's law, but it
-    ;; is convenient to add this eqn when drawing the line.
-    ;; Treat this equation as entered by the student so the solve tool can 
-    ;; solve student's system the same way as at sgg time.
-    (dolist (eqn (Problem-EqnIndex *cp*))
-      (when (and (unify '(angle-constraint t orderless . ?quants) 
-			(eqn-exp eqn)) (member line-term (eqn-exp eqn) 
-					       :test #'unify))
-	(add-implicit-eqn entry (make-implicit-eqn-entry (eqn-algebra eqn)))))
-    
-    ;; finally return entry
-    (check-noneq-entry entry)))
+      (cond 
+	(sysent
+	 (setf (StudentEntry-prop entry) action)
+	 (check-symbols-enter label line-mag-term id)
+	 (check-symbols-enter dir-label line-dir-term id)
+	 
+	 ;; if direction is known, associate implicit equation dirV = dir deg.
+	 (when (degree-specifierp dir-term)          ; known xy plane direction
+	   (add-implicit-eqn entry 
+			     (make-implicit-assignment-entry 
+			      dir-label dir-term)))
+	 (when (and (z-dir-spec dir-term) 
+		    (not (equal dir-term 'z-unknown))) ; known z axis direction
+	   (add-implicit-eqn entry 
+			     (make-implicit-assignment-entry 
+			      dir-label (zdir-phi dir-term))))
+	 ;; Associated eqns will be entered later if entry is found correct.
+	 
+	 ;; Include implicit equation cos angle = dummy, where dummy is 
+	 ;; nonnegative.  This is associated with Snell's law, but it
+	 ;; is convenient to add this eqn when drawing the line.
+	 ;; Treat this equation as entered by the student so the solve tool 
+	 ;; can solve student's system the same way as at sgg time.
+	 (dolist (eqn (Problem-EqnIndex *cp*))
+	   (when (and (unify '(angle-constraint t orderless . ?quants) 
+			     (eqn-exp eqn)) (member line-term (eqn-exp eqn) 
+						    :test #'unify))
+	     (add-implicit-eqn entry 
+			       (make-implicit-eqn-entry (eqn-algebra eqn)))))
+	 
+	 ;; finally return entry
+	 (check-noneq-entry entry :unsolicited-hints hints))
+	(tturn)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -873,8 +858,6 @@
           (entry (make-StudentEntry :id id-angle :prop action))
 	 )
 
-   ; delete existing entry info and update
-   (add-entry entry)
    (check-symbols-enter label angle-term id-angle)
    ; add implicit equation for variable if value known. This means they
    ; don't have to enter equation giving the value. Interface does
@@ -897,8 +880,9 @@
    ;; finally return entry
    entry))
 
-; Worker routine to handle labelling angle made with an axis. No matching entry ; in solution graph so doesn't 
-; matter whether angle was drawn or defined as a variable
+;; Worker routine to handle labelling angle made with an axis. 
+;; No matching entry ; in solution graph so doesn't 
+;; matter whether angle was drawn or defined as a variable
 (defun on-angle-with-axis (label degrees id-vector1 id-vector2 id-angle axis) 
   (declare (ignore id-vector1 id-vector2 axis))
   ; if degree value known, just treat label as term for degree value
@@ -946,20 +930,20 @@
   (member arg '(posx posy negx negy) :test #'sym-match))
 
 (defun define-angle-variable (label degrees label1 label2 id-angle)
- ; lookup syminfo (si) to convert label args to entry id args used by 
- ; label-angle worker routines
- (let*  ((si1 (if (axis-codep label1) 
-                    (first (symbols-fetch '(axis x ?dir))) ; should be only one
-                (symbols-lookup (string label1))))
-	 (id1 (if si1 (first (sym-entries si1))))
-	 (si2 (if (axis-codep label2) 
-                    (first (symbols-fetch '(axis x ?dir))) ; should be only one
-                (symbols-lookup (string label2))))
-	 (id2 (if si2 (first (sym-entries si2))))
-	 (axis (first (or (axis-codep label1) (axis-codep label2)))))
-    ; then delegate to appropriate hander
+  ;; lookup syminfo (si) to convert label args to entry id args used by 
+  ;; label-angle worker routines
+  (let*  ((si1 (if (axis-codep label1) 
+		   (first (symbols-fetch '(axis x ?dir))) ; should be only one
+		   (symbols-lookup (string label1))))
+	  (id1 (if si1 (first (sym-entries si1))))
+	  (si2 (if (axis-codep label2) 
+		   (first (symbols-fetch '(axis x ?dir))) ; should be only one
+		   (symbols-lookup (string label2))))
+	  (id2 (if si2 (first (sym-entries si2))))
+	  (axis (first (or (axis-codep label1) (axis-codep label2)))))
+    ;; then delegate to appropriate hander
     (check-noneq-entry
-     (if (not axis) ; angle between vectors: must specify not drawn for match
+     (if (not axis) ;angle between vectors: must specify not drawn for match
 	 (on-angle-between-vectors label degrees id1 id2 id-angle :drawn NIL) 
 	 (on-angle-with-axis label degrees id1 id2 id-angle axis)))))
 
@@ -977,65 +961,28 @@
   (let ((id (StudentEntry-id entry))
 	(text (StudentEntry-text entry))
 	(symbol (StudentEntry-symbol entry))
-	value ;not in Andes3
-	best)
+	value) ;not in Andes3
 
     ;; This should be handled as regular help
     (unless text (warn "Definition must always have text")
 	       (setf text ""))
-
-    (add-entry entry)
-
+    
     ;; match up text with SystemEntry
     ;;
-    ;; Here is what is missing:
-    ;;  Handle case where symbol is nil
-    ;;  Should include "bad" quantity definitions in matching.
-    ;;  Should have something to handle extra stuff like setting
-    ;;     given values in definition.  (either handle it or warning/error).
-
-    (setf best 
-	  (best-model-matches
-	   (word-parse (pull-out-quantity symbol text))
-	   (mapcar #'(lambda (x) 
-		       (cons (expand-vars (SystemEntry-new-english x)) x))
-		   (remove '(define-var . ?rest) *sg-entries* 
-			   :key #'SystemEntry-prop :test-not #'unify))
-	   ;;  Set cutoff on minimum acceptable
-	   :cutoff 1.5 :equiv 1.25))
-    ;; Debug printout:
-    (format webserver:*stdout* "Best match to ~s is~%   ~S~%" 
-	    (pull-out-quantity symbol text) 
-	    (mapcar 
-	     #'(lambda (x) (cons (car x) 
-				 (expand-vars (SystemEntry-model (cdr x)))))
-		    best))
-   
-    ;; Handling for various numbers of matches is common across object types.
-    ;; Should have common code for the various types of objects.
-    (cond
-      ((> (length best) 2)
-       ;; error handler for too many matches
-       ;; "your definition is ambiguous" and hint sequence
-       (too-many-matches-ErrorInterp entry))
-      ((null best)
-       ;; No match  
-       ;; "I cannot understand your definition" and hint sequence. 
-       (no-matches-ErrorInterp entry))
-      ((= (length best) 1)
-       ;; one match, proceed to evaluate it.
-       (let ((sysent (cdr (car best))))
+    (multiple-value-bind
+	  (sysent tturn hints)
+	(match-student-phrase 
+	 entry
+	 (remove '(define-var . ?rest) *sg-entries* 
+		 :key #'SystemEntry-prop :test-not #'unify)
+	 ;;  Set cutoff on minimum acceptable
+	 :cutoff 0.5 :equiv 1.25)
+      
+      
+      (cond 
+	(sysent
 	 (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
-
-	 ;; Determine if the student has already done this
-	 ;; in a previous step.
-	 ;; In Andes2, this test was done on the user interface.
-	 (when (find (SystemEntry-prop sysent) 
-		     (remove id *StudentEntries* :key #'StudentEntry-id)
-		     :key #'StudentEntry-prop :test #'unify)
-	   (return-from define-variable 
-	     (redundant-entry-ErrorInterp entry sysent)))
-	 
+	 	 
 	 ;; install new variable in symbol table
 	 (check-symbols-enter symbol 
 			      ;; strip off the 'define-var
@@ -1051,9 +998,8 @@
 	 ;; But maybe better have a dangling given eqn entry anyway?
 	 
 	 ;; finally return entry 
-	 (check-noneq-entry entry)))
-      ;; more than one match
-      (t (too-many-matches-ErrorInterp entry (mapcar #'cdr best))))))
+	 (check-noneq-entry entry :unsolicited-hints hints))
+	(tturn)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1259,7 +1205,7 @@
     
     ;; decide what to return based on major state of entry
     (case (StudentEntry-State entry)
-      ('correct 
+      (correct 
        ;; check any given value equations associated. At first one that is wrong, its
        ;; result turn becomes the result for the main entry; checking routine 
        ;; updates main entry record with error interp of the bad equation.
@@ -1281,11 +1227,11 @@
        (setf result (make-green-turn :id (StudentEntry-id entry))))
       
       ;; give special messages for some varieties of incorrectness:
-      ('Forbidden (setf result (chain-explain-more **Forbidden-Help**)))
-      ('Premature-Entry 
+      (Forbidden (setf result (chain-explain-more **Forbidden-Help**)))
+      (Premature-Entry 
        (setf result (chain-explain-more **Premature-Entry-Help**)))
-      ('Dead-Path (setf result (chain-explain-more **Dead-Path-Help**)))
-      ('Nogood' (setf result (chain-explain-more **Nogood-Help**)))
+      (Dead-Path (setf result (chain-explain-more **Dead-Path-Help**)))
+      (Nogood' (setf result (chain-explain-more **Nogood-Help**)))
       (otherwise (warn "Unrecognized interp state! ~A~%" 
 		       (StudentEntry-state entry))
 		 (setf result (make-red-turn :id (StudentEntry-id entry)))))
@@ -1611,3 +1557,4 @@
 	 (Entry (make-StudentEntry :ID ID :prop Prop)))
     (add-entry Entry)
     Entry))
+

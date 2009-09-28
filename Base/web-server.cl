@@ -77,9 +77,9 @@
     ;; with the wrong content-type, just send string back
     (return-from handle-json-rpc "\"content-type must be application/json\""))
   (let* ((in-json 
-	  ;; By default, cl-json turns dashes into camelcase:  
-	  ;; we don't want that.
-	  (let ((*lisp-identifier-name-to-json* #'string-downcase))
+	  ;; By default, cl-json turns camelcase into dashes:  
+	  ;; Instead, we are case insensitive, preserving dashes.
+	  (let ((*json-identifier-name-to-lisp* #'string-upcase))
 	    ;; It would be much better if we gave the source of the error.
 	    (ignore-errors (decode-json-from-string 
 			    (raw-post-data :force-text t)))))
@@ -94,7 +94,7 @@
 	 (version (if in-json (assoc :jsonrpc in-json) '(:jsonrpc . "2.0")))
 	 (method-func (gethash (list service-uri method) 
 			       *service-methods*))
-	 reply return-json)
+	 reply)
     
     ;; Log incoming raw json-rpc and user/problem session id
     (when *log-function* 
@@ -152,16 +152,23 @@
 	(when (or result (not version)) (push (cons :result result) reply))
 	(push (cons :id turn) reply)
 	(when version (push version reply))
+	
 	;; Create raw json reply string
-	(setf return-json (encode-json-alist-to-string reply))
-
-	;; Log reply message raw json string
-	(when *log-function*
-	  ;; Error handling needs work:  need to inform administrator.
-	  (handler-case (funcall *log-function* "server" *log-id* return-json)
-	    (error (c) (format *stdout* "Database reply error ~A" c))))
-
-	return-json))))
+	(let ((return-json 
+	       ;; By default, cl-json turns dashes into camel-case:  
+	       ;; Instead, we convert to lower case, preserving dashes.
+	       (let ((*lisp-identifier-name-to-json* #'string-downcase))
+		 ;; Error handling needs work:  need to inform administrator.
+		 (handler-case (encode-json-alist-to-string reply)
+		   (error (c) (format *stdout* "Encoding error ~A" c))))))
+	  
+	  ;; Log reply message raw json string
+	  (when *log-function*
+	    ;; Error handling needs work:  need to inform administrator.
+	    (handler-case (funcall *log-function* "server" *log-id* return-json)
+	      (error (c) (format *stdout* "Database reply error ~A" c))))
+	  
+ 	  return-json)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 
@@ -360,11 +367,11 @@
 	      (apply func (if (alistp params) 
 			      (flatten-alist params) params)))))
 
-    ;; Make sure method actually returned a list
-    (unless (listp func-return)
+    ;; Make sure method returned a list of alists
+    (unless (and (listp func-return) (every #'alistp func-return))
       (setf func-return `(((:action . "log")
 			   (:error-type . "return-format")
-			   (:error . ,(format nil "Return must be a list, not ~S" 
+			   (:error . ,(format nil "Return must be a list of alists, not ~S" 
 					      func-return))))))
 
     ;; Add any log messages for warnings or errors to the return

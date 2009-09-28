@@ -7,20 +7,29 @@ The webserver functionality has only been developed for sbcl.
 Andes uses asdf as its package manager; both the sbcl and 
 Allegro lisp distributions include asdf.
 
-Compile the solver library and executable:
+# Set up an account for yourself at github, providing
+# your ssh key (see http://github.com/guides/home), and send
+# your user name to help@andestutor.org.
+
+# To get the Andes repository from github use:
+  git clone git@github.com:bvds/andes.git andes
+# The Andes root directory is "andes"
+  cd andes
+
+# Compile the solver library and executable:
   cd Algebra/src/; make solver-program ; cd ../../
 
-For the system to work, a library of problem definitions 
-must be included.  The original Andes problem definitions
-are under copyright and not publicly available.  For access,
-send your ssh public key to help@andestutor.org  The git command
-to download this library is (from the Andes root directory):
+# For the system to work, a library of problem definitions 
+# must be included.  The original Andes problem definitions
+# are under copyright and not publicly available.  For access,
+# send your ssh public key to help@andestutor.org  The git command
+# to download this library is (from the Andes root directory):
    git clone ssh://git@andestutor.org/home/git/Andes-problems.git/ problems
-Likewise, at least for Andes2, one can use the solutions repository:
+# Likewise, at least for Andes2, one can use the solutions repository:
    git clone ssh://git@andestutor.org/home/git/Andes-solutions.git/ solutions
 
-ImageMagick http://www.imagemagick.org is used to dimension graphics
-files.  This is included in standard linux distributions (but not OS X).
+# ImageMagick http://www.imagemagick.org is used to dimension graphics
+# files.  This is included in standard linux distributions (but not OS X).
 
 ====================== SBCL ===============================
 
@@ -45,7 +54,7 @@ Change the path in the sample file to your path.
   /sbin/service mysqld start
 # Then set the root password and restart:
   /usr/bin/mysqladmin -u root password 'sin(0)=0'
-  /sbin/service mysqld start
+  /sbin/service mysqld restart
 # (In OS X, go to http://dev.mysql.com, install mysql and MySQLStartupItem,
 # add /usr/local/mysql/bin to PATH in ~/.profile,
 # execute "(cd /usr/local/lib; ln -s ../mysql/lib/lib*.{a,dylib} .)"
@@ -56,13 +65,15 @@ Change the path in the sample file to your path.
 # Instead, we patch a local copy and install. 
 # In the Andes directory, execute:
   make install-clsql
+# Set up tables in database:
+  make install-database
 
 =============== Apache Web Server =================================
 
 # To serve static files, we use Apache.  First, start up Apache.
 # As root:
-  /sbin/chkconfig mysqld on
-  /sbin/service mysqld start
+  /sbin/chkconfig httpd on
+  /sbin/service httpd start
 
 # Next, configure Apache as reverse proxy server, with json-rpc 
 # error messages.  In httpd.conf, add:
@@ -91,11 +102,14 @@ Change the path in the sample file to your path.
 # we should later switch to using releases of Dojo.
 cd web-UI
 svn co http://svn.dojotoolkit.org/src/dojo/trunk dojo
-svn co http://svn.dojotoolkit.org/src/dijit/trunk dijit
+# See http://www.andestutor.org/bugzilla/show_bug.cgi?id=1579 for dijit bug.
+svn co -r 20090 http://svn.dojotoolkit.org/src/dijit/trunk dijit
 svn co http://svn.dojotoolkit.org/src/dojox/trunk dojox
-svn co http://svn.dojotoolkit.org/src/utils/trunk utils
+svn co http://svn.dojotoolkit.org/src/util/trunk util
+
+# Make build:
+#   verify that the file index.html has isDebug = false;
 andes.build.sh
-# verify that the file index.html has isDebug = false;
 
 ====================== Lisp Web Server ===============================
 

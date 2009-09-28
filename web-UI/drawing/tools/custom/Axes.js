@@ -14,10 +14,10 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 	drawing.stencil.Path,
 	function(options){
 		this.closePath = false;
-		
+
 		this.xArrow = new drawing.annotations.Arrow({stencil:this, idx1:0, idx2:1});
 		this.yArrow = new drawing.annotations.Arrow({stencil:this, idx1:2, idx2:1});
-		
+
 		if(this.points && this.points.length){
 			this.setPoints = this._postSetPoints;
 			// need to call render again. It's already been called in the _Base
@@ -36,7 +36,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 		showAngle:true,
 		closePath:false,
 		baseRender:false,
-		
+
 		createLabels: function(){
 			// summary:
 			//	Creates the label for each axis.
@@ -57,16 +57,16 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			var ax = this.points[0];
 			var c =  this.points[1];
 			var ay = this.points[2];
-			
+
 			var dist = 40;
 			var offdist = 20;
 			var pt, px, py, pt2;
-			
+
 			pt = this.util.lineSub(c.x, c.y, ax.x, ax.y, dist);
 			px = pt.x + (pt.y -ax.y);
 			py = pt.y + (ax.x - pt.x);
 			pt2 = this.util.lineSub(pt.x, pt.y, px, py, (dist-offdist));
-			
+
 			return {
 				x:  pt2.x,
 				y:  pt2.y,
@@ -80,7 +80,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			var ax = this.points[0];
 			var c =  this.points[1];
 			var ay = this.points[2];
-			
+
 			var dist = 40;
 			var offdist = 20;
 			var pt, px, py, pt2;
@@ -101,8 +101,8 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			//	broken up into the two labels.
 			// arguments:
 			//		value: [optional] String
-			//			If no argument is passed, defaults to lables
-			//			'x' and 'y'. If an arugument is passed, that
+			//			If no argument is passed, defaults two labels
+			//			'x' and 'y'. If an argument is passed, that
 			//			text will be split on the word 'and' to determine
 			//			the two labels.
 			//
@@ -111,11 +111,16 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			var x = "x";
 			var y = "y";
 			if(value){
-				value = value.replace(/and|(\+)/, " "); // what other words would they use?
-				var lbls = value.match(/(\b\w+\b)/g);
-				if(lbls.length==2){
-					x = lbls[0];
-					y = lbls[1];
+				// match first "and" or "&" and trim whitespace.
+				// Non-greedy matches are not supported in older
+				// browsers such as Netscape Navigator 4 or
+				// Microsoft Internet Explorer 5.0.
+				value.replace(/^\s+/,"");
+				value.replace(/\s+$/,"");
+				var lbls = value.match(/(.*?)(and|&)(.*)/i);
+				if(lbls.length>2){
+					x = lbls[1].replace(/\s+$/,"");
+					y = lbls[3].replace(/^\s+/,"");
 				}
 			}
 			this.labelX.setLabel(x);
@@ -132,7 +137,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 				y:this.labelY._text
 			}; // Object
 		},
-		
+
 		anchorPositionCheck: function(/*Number*/x, /*Number*/y, /*manager.Anchor*/anchor){
 			// summary:
 			//	Gets called from anchor to check if its current
@@ -141,21 +146,21 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			//
 			var pm = this.container.getParent().getTransform();
 			var am = anchor.shape.getTransform();
-			
+
 			// the xaxis point has changed and is not yet set as a point
 			//	- but the center should be good (except for the transform).
 			// Now check the yaxis point.
-			
+
 			var p = this.points;
 			var o = {x:am.dx+anchor.org.x+pm.dx, y:am.dy+anchor.org.y+pm.dy};
 			var c = {x:p[1].x+pm.dx, y:p[1].y+pm.dy};
 			var ox = c.x - (c.y - o.y);
 			var oy = c.y - (o.x - c.x);
-			
+
 			return {x:ox, y:oy};
-			
+
 		},
-		
+
 		onTransformBegin: function(/*manager.Anchor*/anchor){
 			// summary:
 			//	Overwrites _Base.onTransformBegin
@@ -163,7 +168,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			// called from anchor point up mouse down
 			this._isBeingModified = true;
 		},
-		
+
 		onTransformEnd: function(/*manager.Anchor*/anchor){
 			// summary:
 			//	Overwrites _Base.onTransformEnd
@@ -171,29 +176,29 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			// Gets called on anchor mouseup
 			//	also gets called by checkBounds - we don't want that.
 			if(!anchor){ return; }
-			
+
 			//	tell anchor to go to prev point if wrong
 			// called from anchor point up mouse up
-			
+
 			this._isBeingModified = false;
 			//this.deselect();
 			this._toggleSelected();
 			console.log("before:", Math.ceil(this.points[1].x), " x ", Math.ceil(this.points[1].y))
-			
+
 			var o = this.points[0];
 			var c = this.points[1];
 			var pt = this.util.constrainAngle({start:{x:c.x, y:c.y}, x:o.x, y:o.y}, 91, 180);
-			
+
 			if(pt.x==o.x && pt.y == o.y){
 				// we're within the constraint, so now we snap
 				var obj = {start:{x:c.x,y:c.y},x:o.x, y:o.y};
 				pt = this.util.snapAngle(obj, this.angleSnap/180);
-				
+
 				obj.x = pt.x;
 				obj.y = pt.y;
 				var ox = obj.start.x - (obj.start.y - obj.y);
 				var oy = obj.start.y - (obj.x - obj.start.x);
-				
+
 				if(ox<0 || oy<0){
 					console.warn("AXES ERROR LESS THAN ZERO - ABORT");
 					return;
@@ -201,34 +206,34 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 				this.points = [{x:obj.x, y:obj.y}, {x:obj.start.x, y:obj.start.y, noAnchor:true}];
 				this.points.push({x:ox, y:oy, noAnchor:true});
 				this.setPoints(this.points);
-				
+
 				//this.select();
 				this.onModify(this);
 				return;
 			}
-			
+
 			// we're outside of the constraint. Set to the low or high.
 			this.points[0].x = pt.x
 			this.points[0].y = pt.y;
 			o = this.points[0];
-			
+
 			var ox = c.x - (c.y - o.y);
 			var oy = c.y - (o.x - c.x);
-			
+
 			this.points[2] = {x:ox, y:oy, noAnchor:true};
 			this.setPoints(this.points);
-			
+
 			// reset handles render
 			//anchor.reset(this);
-			
+
 			this.labelX.setLabel();
 			this.labelY.setLabel();
-			
+
 			//this.select();
 			this.onModify(this);
-				
+
 		},
-		
+
 		getBounds: function(/*Boolean*/absolute){
 			// summary:
 			//	Custom getBounds overwrites _Base.getBounds
@@ -236,7 +241,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			var px = this.points[0],
 				pc = this.points[1],
 				py = this.points[2];
-				
+
 			if(absolute){
 				return {
 					x:pc.x,
@@ -249,12 +254,12 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 					y3:py.y
 				};
 			}
-			
+
 			var	x1 = py.x,
 				y1 = py.y < px.y ? py.y : px.y,
 				x2 = px.x,
 				y2 = pc.y;
-			
+
 			return {
 				x1:x1,
 				y1:y1,
@@ -266,7 +271,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 				h:y2-y1
 			};
 		},
-		
+
 		_postSetPoints: function(/*Array*/pts){
 			// summary:
 			// 	Because Axes only has one anchor,
@@ -277,19 +282,19 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 				this.data = this.pointsToData();
 			}
 		},
-		
+
 		onTransform: function(/*Number*/anchor){
 			// summary:
 			//	Overwrites _Base.onTransform
 			//
 			// the xaxis point has changed - the center will not.
 			// need to find the yaxis point.
-			
+
 			var o = this.points[0];
 			var c = this.points[1];
 			var ox = c.x - (c.y - o.y);
 			var oy = c.y - (o.x - c.x);
-			
+
 			// 'noAnchor' on a point indicates an anchor should
 			// not be rendered. This is the Y point being set.
 			this.points[2] = {x:ox, y:oy, noAnchor:true};
@@ -297,11 +302,11 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			if(!this._isBeingModified){
 				this.onTransformBegin();
 			}
-			this.render();	
+			this.render();
 		},
 		pointsToData: function(){
 			//summary:
-			//	Converts points to data. 
+			//	Converts points to data.
 			var p = this.points;
 			return {
 				x1:p[1].x,
@@ -312,20 +317,20 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 				y3:p[2].y
 			};
 		},
-		
+
 		dataToPoints: function(/* ? Object*/o){
 			//summary:
-			//	Converts data to points. 
+			//	Converts data to points.
 			o = o || this.data;
 			if(o.radius || o.angle){
 				// instead of using x1,x2,y1,y1,
 				// it's been set as x,y,angle,radius
-				
+
 				o.angle = (180-o.angle)<0 ? 180-o.angle+360 : 180-o.angle;
 				var pt = this.util.pointOnCircle(o.x,o.y,o.radius,o.angle);
 				var ox = o.x - (o.y - pt.y);
 				var oy = o.y - (pt.x - o.x);
-				
+
 				this.data = o = {
 					x2:o.x,
 					y2:o.y,
@@ -334,7 +339,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 					x3:ox,
 					y3:oy
 				}
-				
+
 			}
 			this.points = [
 				{x:o.x1, y:o.y1},
@@ -343,7 +348,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			];
 			return this.points;
 		},
-		
+
 		onDrag: function(/*dojox.__MangerMouseEvent*/obj){
 			// summary: See stencil._Base.onDrag
 			//
@@ -352,16 +357,16 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			obj.y = pt.y;
 			var ox = obj.start.x - (obj.start.y - obj.y);
 			var oy = obj.start.y - (obj.x - obj.start.x);
-			
+
 			if(ox<0 || oy<0){
 				return;
 			}
 			this.points = [{x:obj.x, y:obj.y}, {x:obj.start.x, y:obj.start.y, noAnchor:true}];
-			
+
 			this.points.push({x:ox, y:oy, noAnchor:true});
 			this.render();
 		},
-		
+
 		onUp: function(/*dojox.__MangerMouseEvent*/obj){
 			// summary: See stencil._Base.onUp
 			//
@@ -377,7 +382,7 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 				this.yArrow.remove(this.yArrow.shape, this.yArrow.hit);
 				return;
 			}
-			
+
 			var o = p[0];
 			var c = p[1];
 			obj = {start:{x:c.x,y:c.y},x:o.x,y:o.y};
@@ -386,12 +391,12 @@ drawing.tools.custom.Axes = drawing.util.oo.declare(
 			obj.y = pt.y;
 			var ox = obj.start.x - (obj.start.y - obj.y);
 			var oy = obj.start.y - (obj.x - obj.start.x);
-			
+
 			if(ox<0 || oy<0){
 				return;
 			}
 			this.points = [{x:obj.x, y:obj.y}, {x:obj.start.x, y:obj.start.y, noAnchor:true}];
-			
+
 			this.points.push({x:ox, y:oy, noAnchor:true});
 
 			this.onRender(this);

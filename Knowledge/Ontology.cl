@@ -138,13 +138,15 @@
   pre-dialog-text  ;; hack to get starting text in variable definition dialog
   dialog-text   ;; remaining text in variable definition dialog.
   Units         ;; A function or atom returning the units.
-  restrictions  ;; a list of atoms such as nonnegative placing restictions on the value.
+  restrictions  ;; a list of atoms such as nonnegative placing restictions 
+                ;; on the value.
   documentation ;; A documentation string for the item
 
   VarFunc       ;; Function that translates the Expression to a var.  
-  new-english
-  nlg-english       ;; a format style string determining the english expression of this
-                ;; expresson.  not used at present.
+  new-english   ;; Model structure for matching, with multi-word
+                ;; strings allowed.  Any s-expressions are matched to ontology.
+  nlg-english   ;; a format style string determining the english expression 
+                ;;  of this expression. Deprecated.
   )
 
 

@@ -588,6 +588,7 @@
 
 (defun mergefunc-pick-newest (Old New)
   "Return the Newest value."
+  (declare (ignore old))
   New)
 
 ;;; Sum the two values together.
