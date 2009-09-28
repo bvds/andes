@@ -801,7 +801,7 @@
 ;; equality between scalar quantities in cases where it can be determined
 ;; that two differently-defined quantities are equal. In some problems
 ;; this may be given or derived by special rules from the problem situation, 
-;; e.g.  in a round trip, distance travelled out = distance travelled back.
+;; e.g.  in a round trip, distance traveled out = distance traveled back.
 ;; We use the generic "equals" rather than writing out the specific equality
 ;; first, so this info can be put in the givens; and second, so that it can
 ;; be used to mark cases where the substitution of equal quantities may be 

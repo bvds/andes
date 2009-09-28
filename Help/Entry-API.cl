@@ -275,7 +275,7 @@
 		      ;; Most of these mappings now obsolete since workbench 
 		      ;; changed to try to send the exact helpsys id. 
 		      ;; Just keeping them for backwards compatibility.
-		      (|distance travelled| . DISTANCE)
+		      (|distance traveled| . DISTANCE)
 		      (|distance between| . DISTANCE-BETWEEN) ; not used in Andes2 yet
 		      (|gravitational acceleration| . GRAVITATIONAL-ACCELERATION)
 		      (radius . REVOLUTION-RADIUS)
