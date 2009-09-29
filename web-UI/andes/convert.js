@@ -14,14 +14,14 @@ dojo.provide("andes.convert");
 	};
 
 	var andesTypes = {
-		"drawing.stencil.Line":"line",
-		"drawing.stencil.Rect":"rectangle",
-		"drawing.stencil.Ellipse":"ellipse", // or circle
-		"drawing.tools.custom.Vector":"vector",
-		"drawing.tools.custom.Axes":"axes",
-		"drawing.tools.custom.Equation":"equation",
-		"drawing.stencil.Image":"graphics",
-		"drawing.tools.TextBlock":"statement" // or statement.... hmmmm
+		"dojox.drawing.stencil.Line":"line",
+		"dojox.drawing.stencil.Rect":"rectangle",
+		"dojox.drawing.stencil.Ellipse":"ellipse", // or circle
+		"dojox.drawing.tools.custom.Vector":"vector",
+		"dojox.drawing.tools.custom.Axes":"axes",
+		"dojox.drawing.tools.custom.Equation":"equation",
+		"dojox.drawing.stencil.Image":"graphics",
+		"dojox.drawing.tools.TextBlock":"statement" // or statement.... hmmmm
 	};
 
 	// dupe code:

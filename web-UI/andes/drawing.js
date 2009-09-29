@@ -15,29 +15,29 @@ dojo.provide("andes.drawing");
 		// used for mapping objects between andes
 		// and Drawing
 		//
-		line: 		"drawing.stencil.Line",
-		rect: 		"drawing.stencil.Rect",
-		ellipse: 	"drawing.stencil.Ellipse",
-		vector: 	"drawing.tools.custom.Vector",
-		axes: 		"drawing.tools.custom.Axes",
-		textBlock:	"drawing.tools.TextBlock"
+		line: 		"dojox.drawing.stencil.Line",
+		rect: 		"dojox.drawing.stencil.Rect",
+		ellipse: 	"dojox.drawing.stencil.Ellipse",
+		vector: 	"dojox.drawing.tools.custom.Vector",
+		axes: 		"dojox.drawing.tools.custom.Axes",
+		textBlock:	"dojox.drawing.tools.TextBlock"
 	};
 
 
 	var hasStatement = {
 		// These objects get statements associated with them
 		//
-		"drawing.stencil.Line":true,
-		"drawing.stencil.Rect":true,
-		"drawing.stencil.Ellipse":true,
-		"drawing.tools.custom.Vector":true,
-		"drawing.tools.custom.Axes":true
+		"dojox.drawing.stencil.Line":true,
+		"dojox.drawing.stencil.Rect":true,
+		"dojox.drawing.stencil.Ellipse":true,
+		"dojox.drawing.tools.custom.Vector":true,
+		"dojox.drawing.tools.custom.Axes":true
 	};
 
 	var hasLabel = {
 		// Special case for Axes and its double-label
 		//
-		"drawing.tools.custom.Axes":true
+		"dojox.drawing.tools.custom.Axes":true
 	};
 
 
