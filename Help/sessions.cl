@@ -224,64 +224,8 @@
       ;;  Most of the set-up is done here.
       ;; The return for this may be of some use.
       (execute-andes-command 'read-problem-info problem)
-      ;;
-      
-      ;; do predefs
-      ;; This must be done within env-wrap since it uses *cp*
-      (setf predefs (problem-predefs *cp*))
-      
-      (check-entries t))
-    
-    ;; Send pre-defined quantities to the help system via
-    ;; the solution-step method.
-    ;; Execute outside of env-wrap and with check-entries turned on.
-    (dolist (predef predefs)
-      (if (stringp (cdr predef))
-	  (warn "Bad predef format for ~A, Bug #1573" predef)
-	  (let ((reply (apply #'solution-step 
-			      ;; flatten the alist
-			      (mapcan 
-			       #'(lambda (x) (list (car x) (cdr x)))
-			       (cdr predef)))))
-	    (setf solution-step-replies 
-		  (append solution-step-replies 
-			  (cons (cdr predef) reply))))))
-      
-    (env-wrap (check-entries nil))     
-    
-    ;; Pull old sessions out of the database that match
-    ;; student, problem, & section.  Run turns through help system
-    ;; to set problem up and set scoring state.
-    (dolist (old-step (andes-database:get-matching-sessions 
-		       '("solution-step" "seek-help")
-		       :student user :problem problem :section section))
-      (let* ((method (cdr (assoc :method old-step))) 
-	     (params (assoc :params old-step))
-	     (reply (apply 
-		     (cond 
-		       ((equal method "solution-step") #'solution-step)
-		       ((equal method "seek-help") #'seek-help))
-		     ;; flatten the alist
-		     (mapcan #'(lambda (x) (list (car x) (cdr x))) 
-			     (cdr params))))) 
-
-	;; solution-steps and help result are passed back to client
-	;; to set up state on client.
-	;;
-	;; Help requests are handled silently by the help system,
-	;; just to get the grading correct.  Alternatively, we
-	;; could just send the solution steps to the help system
-	;; and then set the grading state by brute force.
-	;;  
-	;; Also, if this is an admin or researcher, or instructor,
-	;; previous hints and their replies should also be sent back to
-	;; the client.
-	(when (equal method "solution-step")
-	  (setf solution-step-replies
-		(append solution-step-replies (cons (cdr params) reply))))))
-
-    (env-wrap
-		      
+     
+      ;; Write problem statement.	      
       (let ((y 10) (i 0))
 	(dolist  (line (problem-statement *cp*))
 	  (cond ((unify line '(answer . ?rest))
@@ -321,6 +265,93 @@
 		  (:text . ,time-sentence))
 		replies)
 	  (setf y (+ y 25))))
+      
+      ;; Collect and fill out any missing terms in prefs
+      ;; This allows us
+      
+      ;; This must be done within env-wrap since it uses *cp*
+      (setf predefs (problem-predefs *cp*))
+      ;; position objects and add common stuff.
+      (let ((y 15) (i 0))
+	(dolist (predef predefs)
+	  (unless (stringp (cdr predef)) ;see Bug #1573.
+	    ;; (format webserver:*stdout* "Working on ~A~%" (cdr predef))
+	    (unless (assoc :action (cdr predef)) 
+	      (push '(:action . "new-object") (cdr predef)))
+	    (unless (assoc :id (cdr predef)) 
+	      (push (cons :id (format nil "pre~A" (incf i))) (cdr predef)))
+	    (unless (assoc :mode (cdr predef)) 
+	      (push '(:mode . "unknown") (cdr predef)))
+	    (when (and (not (assoc :width (cdr predef)))
+		       (member (cdr (assoc :type (cdr predef)))
+			       '("statement" "equation") :test #'equal))
+	      (push '(:width . 300) (cdr predef)))
+	    ;; put all predefs in a second column
+	    (unless (assoc :x (cdr predef)) 
+	      (push '(:x . 450) (cdr predef)))
+	    (if (assoc :y (cdr predef))
+		;; If object overlaps this column, continue below it.
+		(when (> (+ (cdr (assoc :x (cdr predef)))
+			    (cdr (or (assoc :width (cdr predef))
+				     (assoc :radius (cdr predef)))))
+			 450)
+		  (setf y (max y (cdr (assoc :y (cdr predef))))))
+		(push `(:y . ,y) (cdr predef)))
+	    ;; (format webserver:*stdout* "  Turned to ~A~%" (cdr predef))
+	    (setf y (+ y 25)))))
+      
+
+      (check-entries t))
+    
+    ;; Send pre-defined quantities to the help system via
+    ;; the solution-step method.
+    ;; Execute outside of env-wrap and with check-entries turned on.
+    (dolist (predef (mapcar #'cdr predefs)) ;ignore any entry-prop
+      (if (stringp predef)
+	  (warn "Bad predef format for ~A, Bug #1573" predef)
+	  (let ((reply (apply #'solution-step 
+			      ;; flatten the alist
+			      (mapcan 
+			       #'(lambda (x) (list (car x) (cdr x)))
+			       predef))))
+	    (setf solution-step-replies 
+		  (append solution-step-replies 
+			  (cons predef reply))))))
+      
+    (env-wrap (check-entries nil))     
+    
+    ;; Pull old sessions out of the database that match
+    ;; student, problem, & section.  Run turns through help system
+    ;; to set problem up and set scoring state.
+    (dolist (old-step (andes-database:get-matching-sessions 
+		       '("solution-step" "seek-help")
+		       :student user :problem problem :section section))
+      (let* ((method (cdr (assoc :method old-step))) 
+	     (params (assoc :params old-step))
+	     (reply (apply 
+		     (cond 
+		       ((equal method "solution-step") #'solution-step)
+		       ((equal method "seek-help") #'seek-help))
+		     ;; flatten the alist
+		     (mapcan #'(lambda (x) (list (car x) (cdr x))) 
+			     (cdr params))))) 
+
+	;; solution-steps and help result are passed back to client
+	;; to set up state on client.
+	;;
+	;; Help requests are handled silently by the help system,
+	;; just to get the grading correct.  Alternatively, we
+	;; could just send the solution steps to the help system
+	;; and then set the grading state by brute force.
+	;;  
+	;; Also, if this is an admin or researcher, or instructor,
+	;; previous hints and their replies should also be sent back to
+	;; the client.
+	(when (equal method "solution-step")
+	  (setf solution-step-replies
+		(append solution-step-replies (cons (cdr params) reply))))))
+
+    (env-wrap
 
       ;;  Push initial hint to the client.  
       ;;  Should only do this when help and grading is available
