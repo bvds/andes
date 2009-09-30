@@ -295,3 +295,11 @@
     s))
 
 
+;;
+;;   Find systementry that matches a given prop
+;;
+(defun find-systementry (prop)
+  "Find systementry that matches a given prop"
+  (find prop *sg-entries* :key #'SystemEntry-prop :test #'unify))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

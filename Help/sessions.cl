@@ -282,6 +282,20 @@
 	      (push (cons :id (format nil "pre~A" (incf i))) (cdr predef)))
 	    (unless (assoc :mode (cdr predef)) 
 	      (push '(:mode . "unknown") (cdr predef)))
+	    (when (and (car predef) (not (assoc :type (cdr predef))))
+	      (push `(:type . ,(entryprop2type (car predef))) (cdr predef)))
+	    (when (and (car predef) (assoc :symbol (cdr predef))
+		       (not (assoc :text (cdr predef))))
+	      (let ((expr (strcat "Let " 
+				  (cdr (assoc :symbol (cdr predef)))
+				  " be " 
+				  (word-string 
+				   ;; no variables have been defined: 
+				   ;; remove any (var ...)
+				   (expand-vars 
+				    (systementry-new-english 
+				     (find-systementry (car predef))))))))
+		(push `(:text . ,expr) (cdr predef))))
 	    (when (and (not (assoc :width (cdr predef)))
 		       (member (cdr (assoc :type (cdr predef)))
 			       '("statement" "equation") :test #'equal))
@@ -376,6 +390,17 @@
 
     ;; assemble list of replies to send to client.
     (append (reverse replies) solution-step-replies)))
+
+;; helper function to guess api type from entryprop.
+(defun entryprop2type (prop)
+  "guess Andes3 api \"type\" from entryprop."
+  (case (car prop)
+    (eqn "equation")
+    (define-var "statement")
+    (body "ellipse") ;could also be rectangle
+    (vector "vector")
+    (line "line")
+    (draw-axes "axes")))
 
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
