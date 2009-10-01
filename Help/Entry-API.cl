@@ -405,12 +405,16 @@
 	 ;; If the best fit isn't too good, give an unsolicited hint.
 	 ;; Can't put in a tutor turn, since the turn might be good.
 	 (when (> (car (car best)) (* 0.2 (length (word-parse student))))
-	   (push `((:action . "show-hint")
-		   (:text . ,(strcat "I interpreted your definition as:&nbsp; "
-				     (word-string (expand-vars 
-						   (SystemEntry-model sysent)))
-				     "."))) hints))
-
+	   (let ((phr (format nil 
+			      "I interpreted your definition ~:[~;of <var>~A</var> ~]as:&nbsp; ~A."
+			      (> (length (StudentEntry-symbol entry)) 0)
+			      (StudentEntry-symbol entry)
+			      (word-string (expand-vars 
+					    (SystemEntry-model sysent)))
+			      )))
+	     (push `((:action . "show-hint")
+		     (:text . ,phr)) hints)))
+	 
 	 ;; Determine if the student has already done this
 	 ;; in a previous step.
 	 ;; In Andes2, this test was done on the user interface.
