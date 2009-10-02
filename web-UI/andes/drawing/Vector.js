@@ -5,12 +5,13 @@ dojo.require("dojox.drawing.util.positioning");
 dojox.drawing.tools.custom = {}
 dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 	// summary:
-	//	Creates a Vector Stencil.
+	//		Creates a Vector Stencil.
 	// description:
-	//	Generally the same as an arrow, except that the arrow
-	//	head is only at the end. There is additionaly functionality
-	//	to allow for a 'zero vector' - one with no length.
-	// TODO: Zero Vectors are less than the minimumSize. But if
+	//		Generally the same as an arrow, except that the arrow
+	//		head is only at the end. There is additionaly functionality
+	//		to allow for a 'zero vector' - one with no length.
+	//
+	// 	TODO: Zero Vectors are less than the minimumSize. But if
 	//	you get the radius, it will report a length.
 	//
 	dojox.drawing.tools.Arrow,
@@ -25,7 +26,7 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 		
 		labelPosition: function(){
 			// summary:
-			//	The custom position used for the label
+			//		The custom position used for the label
 			//
 			var d = this.data;
 			var pt = dojox.drawing.util.positioning.label({x:d.x1,y:d.y1},{x:d.x2,y:d.y2});
@@ -37,7 +38,7 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 		
 		_createZeroVector: function(shp, d, sty){
 			// summary:
-			//	Special creation function for the zero-vector shape
+			//		Special creation function for the zero-vector shape
 			//
 			var s = shp=="hit" ? this.minimumSize : this.minimumSize/6;
 			var f = shp=="hit" ? sty.fill : null;
@@ -57,10 +58,10 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 		
 		render: function(){
 			// summary:
-			//	Renders the 'hit' object (the shape used for an expanded
-			//	hit area and for highlighting) and the'shape' (the actual
-			//	display object). Additionally checks if Vector should be
-			//	drawn as an arrow or a circle (zero-length)
+			//		Renders the 'hit' object (the shape used for an expanded
+			//		hit area and for highlighting) and the'shape' (the actual
+			//		display object). Additionally checks if Vector should be
+			//		drawn as an arrow or a circle (zero-length)
 			//
 			this.onBeforeRender(this);
 			if(this.getRadius() >= this.minimumSize){
@@ -71,8 +72,9 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 				this._createZeroVector("shape", this.data, this.style.current);
 			}
 		},
-		onUp: function(/*dojox.__MangerMouseEvent*/obj){
+		onUp: function(/*EventObject*/obj){
 			// summary: See stencil._Base.onUp
+			//
 			if(this.created || !this.shape){ return; }
 			// if too small, need to reset
 			
@@ -104,9 +106,10 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 );
 
 dojox.drawing.tools.custom.Vector.setup = {
-	// summary: See stencil._Base dojox.__ToolsSetup
+	// summary: See stencil._Base ToolsSetup
 	//
 	name:"dojox.drawing.tools.custom.Vector",
 	tooltip:"Vector Tool",
 	iconClass:"iconVector"
 };
+dojox.drawing.register(dojox.drawing.tools.custom.Vector.setup, "tool");
