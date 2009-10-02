@@ -40,11 +40,11 @@ dojo.require("dojox.drawing.tools.custom.Equation");
 dojo.require("dojox.drawing.tools.custom.Axes");
 dojo.require("dojox.drawing.tools.Arrow");
 
-dojo.require("dojox.drawing.ui.dom.Pan");
-dojo.require("dojox.drawing.ui.dom.Zoom");
+dojo.require("andes.toolbar.Pan");
+dojo.require("andes.toolbar.Zoom");
 dojo.require("dojox.drawing.plugins.drawing.Grid");
 
-dojo.require("dojox.drawing.ui.dom.Toolbar");
+dojo.require("andes.toolbar.Toolbar");
 
 //Use these as soon as the programmatic toolbar is fixed
 /*
