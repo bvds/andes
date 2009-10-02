@@ -33,7 +33,8 @@
 ;;
 
 (defstruct EntryTest
-  Name        ;name of the test
+  name          ; name of error
+  arguments     ; list of variables specifying instance of error.
   preconditions  ;ordered list of conditions (see whatswrong.cl)
               ;this determines a match
   apply       ;Conditions of application
@@ -60,7 +61,8 @@
 
 (defmacro def-Error-Class (name arguments conditions &key (Probability 0.1) 
 				(Utility 1.0))
-  `(push (make-EntryTest :name (quote ,name)
+  `(push (make-EntryTest   :name (quote ,name)
+	                   :arguments (quote ,arguments)
 			   :preconditions (quote ,conditions)
 			   :apply 'no-match
 			   :state '**incorrect** ;these are all errors
@@ -81,6 +83,7 @@
 		:key #'EntryTest-name :test #'unify)
     (error "entry test ~A already exists." name))
   (let ((e (make-EntryTest :name name
+                            :arguments arguments
 			    :preconditions preconditions  
 			    :apply apply
 			    :state state

@@ -1399,7 +1399,7 @@
       (when (StudentEntry-ErrInterp entry)
 	(push `((:action . "log") 
 		(:error-type . ,(format nil "~S" 
-					 (ErrorInterp-name 
+					 (ErrorInterp-diagnosis 
 					  (StudentEntry-ErrInterp Entry)))))
 	      result))
       
