@@ -79,19 +79,21 @@
 
 (defmacro def-entry-test (name arguments &key preconditions apply state hint
 			       (order '((global . 1))))
-  (when (member (cons name arguments) **entry-tests** 
-		:key #'EntryTest-name :test #'unify)
-    (error "entry test ~A already exists." name))
-  (let ((e (make-EntryTest :name name
-                            :arguments arguments
-			    :preconditions preconditions  
-			    :apply apply
-			    :state state
-			    :hint `(make-hint-seq ,hint) 
-			    :order order
-			    )))
-    (push e **entry-tests**)
-    t))
+  `(progn 
+     ;; remove any existing test of this name (allowing updates).
+     (setf **entry-tests** (remove (quote ,name) **entry-tests** 
+				   :key #'EntryTest-name))
+
+     (push (make-EntryTest :name (quote ,name)
+                              :arguments (quote ,arguments)
+			      :preconditions (quote ,preconditions)
+			      :apply (quote ,apply)
+			      :state (quote ,state)
+			      :hint (quote (make-hint-seq ,hint))
+			      :order (quote ,order)
+			      )
+        **entry-tests**)))
+
 
 (defun get-error-class-by-name (name)
  (find name **entry-tests** :key #'EntryTest-name))
