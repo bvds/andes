@@ -2,7 +2,7 @@ dojo.provide("andes.drawing.Line");
 
 dojox.drawing.tools.Line = dojox.drawing.util.oo.declare(
 	// summary:
-	//	Class for a drawable Line
+	//		Class for a drawable Line
 	dojox.drawing.stencil.Line,
 	function(){
 		// summary: constructor
@@ -17,6 +17,7 @@ dojox.drawing.tools.Line = dojox.drawing.util.oo.declare(
 			//var toggle = this.selected;
 			//toggle && this.deselect();
 			this._toggleSelected();
+			
 			//ace: This sets the zero length vector to zero within the minimum size
 			if(this.getRadius()<this.minimumSize){
 				
@@ -41,7 +42,7 @@ dojox.drawing.tools.Line = dojox.drawing.util.oo.declare(
 			//toggle && this.select();
 		},
 		
-		onDrag: function(/*dojox.__MangerMouseEvent*/obj){
+		onDrag: function(/*EventObject*/obj){
 			// summary: See stencil._Base.onDrag
 			//
 			if(this.created){ return; }
@@ -77,11 +78,12 @@ dojox.drawing.tools.Line = dojox.drawing.util.oo.declare(
 			this.render();
 		},
 		
-		onUp: function(/*dojox.__MangerMouseEvent*/obj){
+		onUp: function(/*EventObject*/obj){
 			// summary: See stencil._Base.onUp
 			//
 			if(this.created || !this.shape){ return; }
 			// if too small, need to reset
+			
 			if(this.getRadius()<this.minimumSize){
 				this.remove(this.shape, this.hit);
 				return;
@@ -94,6 +96,7 @@ dojox.drawing.tools.Line = dojox.drawing.util.oo.declare(
 				{x:pt.x, y:pt.y}
 			]);
 			
+			
 			this.renderedOnce = true;
 			this.onRender(this);
 		}
@@ -101,9 +104,11 @@ dojox.drawing.tools.Line = dojox.drawing.util.oo.declare(
 );
 
 dojox.drawing.tools.Line.setup = {
-	// summary: See stencil._Base dojox.__ToolsSetup
+	// summary: See stencil._Base ToolsSetup
 	//
 	name:"dojox.drawing.tools.Line",
 	tooltip:"Line Tool",
 	iconClass:"iconLine"
 };
+
+dojox.drawing.register(dojox.drawing.tools.Line.setup, "tool");
