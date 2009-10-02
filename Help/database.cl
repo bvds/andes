@@ -74,9 +74,11 @@
 	       "INSERT into PROBLEM_ATTEMPT (clientID,classinformationID) values ('~A',2)" 
 	       client-id)))
     
-    ; escaping sql string per http://lists.b9.com/pipermail/clsql-help/2005-July/000456.html
+    ;; escaping sql string per http://lists.b9.com/pipermail/clsql-help/2005-July/000456.html
+    ;; If a post contains no json, j-string is lisp nil and 
+    ;; sql null is inserted into database.
      (execute-command 
-     (format nil "INSERT into PROBLEM_ATTEMPT_TRANSACTION (clientID, Command, initiatingParty) values ('~A','~A','~A')" 
+     (format nil "INSERT into PROBLEM_ATTEMPT_TRANSACTION (clientID, Command, initiatingParty) values ('~A',~:[null~;~:*'~A'~],'~A')" 
 	     client-id (clsql-sys:sql-escape-quotes j-string) direction))))
 
 
@@ -95,15 +97,18 @@
   "Get posts associated with the given methods from all matching previous sessions."
   (let ((result (query 
 		 (format nil "SELECT command FROM PROBLEM_ATTEMPT,PROBLEM_ATTEMPT_TRANSACTION WHERE userName = '~A' AND userProblem='~A' AND userSection='~A' AND PROBLEM_ATTEMPT.clientID=PROBLEM_ATTEMPT_TRANSACTION.clientID AND PROBLEM_ATTEMPT_TRANSACTION.initiatingParty='client'" 
-			 student problem section)))
+			 student problem section) :flatp t))
 	;; By default, cl-json turns camelcase into dashes:  
 	;; Instead, we are case insensitive, preserving dashes.
 	(*json-identifier-name-to-lisp* #'string-upcase))
+
     ;; pick out the solution-set and get-help methods
     (remove-if #'(lambda (x) (not (member (cdr (assoc :method x))
 					  methods
 					  :test #'equal)))
 	       ;; parse json in each member of result
 	       (mapcar 
-		#'(lambda (x) (decode-json-from-string (car x)))
+		;; A post with no json sent gets translated into nil;
+		;; see write-transaction.
+		#'(lambda (x) (and x (decode-json-from-string x)))
 		result))))

@@ -1,7 +1,7 @@
 CREATE TABLE `PROBLEM_ATTEMPT_TRANSACTION` (
   `tID` int(10) unsigned NOT NULL auto_increment,
   `clientID` varchar(50) NOT NULL,
-  `command` text NOT NULL,
+  `command` text,
   `initiatingParty` enum('client','server') NOT NULL,
   PRIMARY KEY  USING BTREE (`tID`,`clientID`),
   KEY `FK_transaction_problemstate` (`clientID`),

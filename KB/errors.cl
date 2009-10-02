@@ -27,7 +27,7 @@
 ;;       all variables
 ;;       mass
 ;;       distance between (not implemented yet)
-;;       distance travelled
+;;       distance traveled
 ;;       speed
 ;;       duration
 ;;       energy
@@ -362,53 +362,53 @@
 	 '(function next-step-help))))
 
 
-;;; =========== defining a distance-travelled variable ==============
-;;; The distance-travelled variable has two slots: body and time.
+;;; =========== defining a distance-traveled variable ==============
+;;; The distance-traveled variable has two slots: body and time.
 ;;; Thus, there are 3 default cases: (a) wrong body (ignoring time),
 ;;; (b) wrong time (handled by variable-with-wrong-time) and (c) no
 ;;; need for distance on this problem (handled by
 ;;; non-existent-variable).  There is a special case: Using distance
 ;;; when displacement is appropriate.
 
-;;; Default case: The student defines a distance-travelled variable
+;;; Default case: The student defines a distance-traveled variable
 ;;; for the wrong body.  We ignore time.  In particular, we don't
 ;;; favor interpretations where the student's time matches the correct
 ;;; time because the student is probably pretty confused.
-(def-error-class distance-travelled-wrong-body (?wrong-body 
+(def-error-class distance-traveled-wrong-body (?wrong-body 
 						?correct-body 
 						?time3)
   ((student (define-var (distance ?wrong-body :time ?time1)))
    (no-correct (define-var (distance ?wrong-body :time ?time2)))
    (correct (define-var (distance ?correct-body :time ?time3)))))
 
-(defun distance-travelled-wrong-body (wrong-body correct-body correct-time)
+(defun distance-traveled-wrong-body (wrong-body correct-body correct-time)
   (make-hint-seq
    (list (format nil (strcat "Are you sure you want to define the distance "
-			     "travelled by ~a?") 
+			     "traveled by ~a?") 
 		 (nlg wrong-body 'def-np))
 	 (format nil (strcat "For solving this problem, you need to define "
-			     "the distance travelled by ~a ~a.  If it is not "
+			     "the distance traveled by ~a ~a.  If it is not "
 			     "clear why this helps solve the problem, try "
 			     "clicking on the light bulb button or "
 			     "'explain further'.")
 		 (nlg correct-body 'def-np) (nlg correct-time 'pp))
 	 '(function next-step-help))))
 
-;;; Special case: The student defines a distance-travelled when
+;;; Special case: The student defines a distance-traveled when
 ;;; displacement of that same body is correct.  We ignore the time.
 ;;; Test this on kt9a.
-(def-error-class distance-travelled-should-be-displacement (?body ?correct-time)
+(def-error-class distance-traveled-should-be-displacement (?body ?correct-time)
   ((student (define-var (distance ?body :time ?time1)))
    (no-correct (define-var (distance ?body2 :time ?time2)))
    (correct (vector (displacement ?body :time ?correct-time) ?dir)))
   :utility 100)
 
-(defun distance-travelled-should-be-displacement (body correct-time)
+(defun distance-traveled-should-be-displacement (body correct-time)
   (setq body (nlg body 'def-np))
   (setq correct-time (nlg correct-time 'pp))
   (make-hint-seq
    (list (format nil (strcat "Although it is certainly correct to define "
-			     "a variable for the distance travelled by ~a, "
+			     "a variable for the distance traveled by ~a, "
 			     "it is only used in the equation <speed> = "
 			     "<distance> / <duration>, which isn't useful "
 			     "for solving this problem.  Can you think of a "
@@ -717,7 +717,7 @@
 ;;; the wrong body.  There is a special case for using a time interval
 ;;; rather than a time point. This variable is easily confused with
 ;;; displacement and the other spatial measures, so there are special
-;;; cases in displacement and distance travelled to redirect the
+;;; cases in displacement and distance traveled to redirect the
 ;;; student to use height.  Here there could be special case to
 ;;; redirect them to use the others, but since height is available on
 ;;; the menu only when it is relevant, there is no way to trigger
@@ -1860,7 +1860,7 @@
 (defun use-distance-instead-of-displacement (cbody ctime)
   (make-hint-seq
    (list "On this problem, you need to use distance rather than displacement."
-	 (format nil "Define a variable for the distance travelled by ~a ~a."
+	 (format nil "Define a variable for the distance traveled by ~a ~a."
 		 (nlg cbody 'def-np) (nlg ctime 'pp)))))
       
 ;;; On a few problems, one must use height instead of displacement.

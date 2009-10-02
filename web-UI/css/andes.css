@@ -7,8 +7,8 @@
 @import url("../dijit/themes/tundra/Dialog.css");
 @import url("../dojox/layout/resources/ExpandoPane.css");
 @import url("../andes/widget/UpgradeBar/UpgradeBar.css");
-@import url("../drawing/resources/drawing.css");
-@import url("../drawing/resources/toolbar.css");
+@import url("../dojox/drawing/resources/drawing.css");
+@import url("../dojox/drawing/resources/toolbar.css");
 
 
 html, body, #main{
@@ -129,7 +129,7 @@ body, .tundra .dijitSplitter, #navMenu{
 	top:5px;
 	padding:3px;
 	cursor:pointer;
-	background:#cee3ec url("../drawing/resources/images/tool_icons.png") no-repeat -384px 0px ;
+	background:#cee3ec url("../dojox/drawing/resources/images/tool_icons.png") no-repeat -384px 0px ;
 	border:1px solid;
 	border-color:#fff #000 #bbb #ccc ;
 	border-right:none;

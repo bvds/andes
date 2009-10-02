@@ -265,7 +265,7 @@
   :short-name "distance traveled"	
   :dialog-text "by [body:bodies] at time [time:times]"
   :units |m|
-  :nlg-english ("the distance travelled by ~A" (nlg ?body 'at-time ?time)))
+  :nlg-english ("the distance traveled by ~A" (nlg ?body 'at-time ?time)))
 
 (def-qexp duration (duration (during ?t1 ?t2))
   :symbol-base |t|     
@@ -350,15 +350,12 @@
     ;; Not a good idea to have the positions hard-coded like this.
     ;; need to work out a scheme for positioning.
     (push '((EQN (= |g_EARTH| (DNUM 9.8 |m/s^2|))) . 
-	    ((:action . "new-object") (:id . "geeq") (:type . "equation")
-	     (:text . "g=9.8 m/s^2") (:width . 300)
-	     (:mode . "unknown") (:x . 450) (:y . 40)))
+	    ((:type . "equation") (:text . "g=9.8 m/s^2")))
 	  (problem-predefs problem))
     (push '((define-var (gravitational-acceleration earth)) . 
-	    ((:action . "new-object") (:id . "gest") (:type . "statement")
+	    ((:type . "statement")
 	     (:text . "g is the acceleration of gravity on earth")
-	     (:width . 300)
-	     (:symbol . "g") (:mode . "unknown") (:x . 450) (:y . 15)))
+	     (:symbol . "g")))
 	  (problem-predefs problem))))
 
 (def-qexp num-forces (num-forces ?body :time ?time)
@@ -788,7 +785,7 @@
   :EqnFormat ("|d| = s"))
  
 (def-goalprop sdd-eqn (eqn ?algebra (sdd ?body ?time))
-  :nlg-english ("writing an equation involving the speed of ~A ~A, and distance it travelled, and the duration of the trip" 
+  :nlg-english ("writing an equation involving the speed of ~A ~A, and distance it traveled, and the duration of the trip" 
 	    (nlg ?body) (nlg ?time 'pp)))
 
 (def-psmclass avg-velocity
@@ -915,9 +912,9 @@
 
 (def-psmclass sum-distances (sum-distances ?b ?tt)
   :complexity connect
-  :short-name "sum distance travelled"
+  :short-name "sum distance traveled"
   :nlg-english ("sac = sab + sbc")
-  :ExpFormat ("calculating the sum of distances travelled by ~A ~A" 
+  :ExpFormat ("calculating the sum of distances traveled by ~A ~A" 
 	      (nlg ?b) (nlg ?tt 'pp))
   :EqnFormat ("sac = sab + sbc"))
 
