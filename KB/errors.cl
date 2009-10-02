@@ -1403,25 +1403,6 @@
 ;;; 'dir more intelligently: could flag only the substantive one, 
 ;;; or treat dir as a composite control and flag both.)
 
-(def-error-class default-should-be-unknown ("vector" ?wrong-dir)
-  ((student (vector ?descr ?wrong-dir))
-   (correct (vector ?descr unknown))
-   (test (not (equal ?wrong-dir 'zero)))  ; use should-be-non-zero below
-   (test (not (equal ?wrong-dir 'unknown))))
-  ;; High probability since close match
-  :probability 0.75)
-
-;; used for both vectors and lines
-(defun default-should-be-unknown (object wrong-dir) 
-  (declare (ignore wrong-dir))
-  (make-hint-seq
-   (list 
-    (format nil (strcat "When the direction of a ~A is not given or easily "
-			"inferred from the problem statement, you should mark "
-			"it unknown. ") object)
-    (format nil 
-	    "Double-click on the ~A in order to bring up its properties if necessary, then erase the number in the direction box to mark the direction unknown."
-	    object))))
 
 ;;; need should-be-z-unknown for unknown but in the z direction.
 (def-error-class default-should-be-z-unknown ()
@@ -1698,15 +1679,6 @@
 ;;; ==================== line drawing ===============================
 
 
-;;; NB: default-should-be-unknown and default-wrong-dir also name
-;;; vector error classes which share a common turn-generating function.
-
-(def-error-class default-should-be-unknown ("line" ?wrong-dir)
-  ((student (draw-line ?descr ?wrong-dir))
-   (correct (draw-line ?descr unknown))
-   (test (not (equal ?wrong-dir 'unknown))))
-;; High probability since close match
-  :probability 0.5)
 
 ;;; The student's line doesn't appear at any angle
 (def-error-class default-non-existent-line (?sline)
@@ -4143,7 +4115,7 @@
 )
 
 (defun undiagnosed-eqn-error(eqn)
-   ; following routine shows query and does all the work from there
+   ;; following routine shows query and does all the work from there
    (elicit-intended-equation eqn)
 )
 
@@ -4167,9 +4139,9 @@
   :order ((correct . 2))
   )
 
-; This test allows possibility of tolerance in direction via :error in
-; the correct direction dnum. Note non-dnum dirs including unknown must 
-; pass exact-match text so this test doesn't have to handle them.
+;; This test allows possibility of tolerance in direction via :error in
+;; the correct direction dnum. Note non-dnum dirs including unknown must 
+;; pass exact-match text so this test doesn't have to handle them.
 (def-entry-test match-vector (?quant) 
   :preconditions ((student (vector ?quant ?dir1))
 		  (correct (vector ?quant ?dir2)) ; may have :error
@@ -4178,4 +4150,73 @@
 			     (compare-dnums ?dir1 ?dir2))))
   :state **correct**
   :order ((correct . 2))
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;              Tests for vector of unknown direction
+;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; First, see if the student has guessed 
+;; the correct direction, as determined by the solver.
+(def-entry-test match-unknown-vector-to-solver (?quant ?dir1) 
+  :preconditions ((student (vector ?quant ?dir1))
+		  (correct (vector ?quant unknown))
+		  (test (match-direction-to-solver ?dir1 ?quant))
+		  )
+  :state **correct**
+  :order ((correct . 2) (unknown-vector . 4))
+  )
+
+(defun match-direction-to-solver (dir quant &key (epsilon 2.5))
+  "Determine if dir matches value determined by the solver."
+  (let ((at (match-exp->qvar `(dir ,quant) (problem-varindex *cp*))))
+    (and at (qvar-value at)
+	 (equal (qvar-units at) '|deg|) ;sanity check.
+	 (dimensioned-numberp dir)
+	 (< (mod (- (qvar-value at) (convert-dnum-to-number dir)) 360) 
+	    ;; error bound
+	    epsilon))))
+
+;; Then, make sure it doesn't align with any
+;; known vector directions.
+
+(def-entry-test align-unknown-vector-with-vector (?quant ?dir1) 
+  :preconditions ((student (vector ?quant ?dir1))
+		  (correct (vector ?quant unknown))
+		  (correct (vector ?any-quant ?dir2))
+		  (test (parallel-or-antiparallelp ?dir1 ?dir2))
+		  )
+  :state **incorrect**
+  :hint (list
+	 (format nil "Drawing the vector in the direction ~A suggests that it is aligned with ~A." (nlg ?dir1 'adj) (nlg ?quant))
+	 "However, the direction of this vector is not given.&nbsp;  Please choose another direction.")
+  :order ((correct . 2) (unknown-vector . 2))
+  )
+
+;; Then, make sure it doesn't align with any drawn axes.
+(def-entry-test align-unknown-vector-with-axes (?quant ?dir1) 
+  :preconditions ((student (vector ?quant ?dir1))
+		  (correct (vector ?quant unknown))
+		  (old-student (draw-axes ?dir2))
+		  (test (and (degrees-or-num ?dir1)
+			     (degrees-or-num ?dir2)
+			     (< (mod (- (convert-dnum-to-number ?dir1)
+					(convert-dnum-to-number ?dir2)) 90) 2)))
+		  )
+  :state **incorrect**
+  :hint (list
+	 (format nil "Drawing the vector in the direction ~A suggests that it is aligned with the axes you have drawn." (nlg ?dir1 'adj))
+	 "However, the direction of this vector is not given.&nbsp;  Please choose another direction.")
+  :order ((correct . 2) (unknown-vector . 1))
+  )
+
+;; Finally, accept vector, since it passed the other tests.
+(def-entry-test match-unknown-vector-to-solver (?quant ?dir1) 
+  :preconditions ((student (vector ?quant ?dir1))
+		  (correct (vector ?quant unknown))
+		  )
+  :state **correct**
+  :order ((correct . 2) (unknown-vector . 0))
   )
