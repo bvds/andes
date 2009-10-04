@@ -3274,8 +3274,6 @@
 (def-qexp turns (turns ?body)
   :symbol-base |N|     
   :short-name "turns" 
-  :pre-dialog-text "number of turns" 
-  :dialog-text "wrapped around [body:bodies]"
   :units NIL  ;dimensionless
      :restrictions positive
      :nlg-english ("the number of turns wrapping around ~A" (nlg ?body))
@@ -3294,8 +3292,6 @@
 (def-qexp turns-per-length (turns-per-length ?body)
   :symbol-base |n|     
   :short-name "turns per unit length" 
-  :pre-dialog-text "number of turns per unit length" 
-  :dialog-text "wrapped around [body:bodies]"
      :units |m^-1|
      :restrictions positive
      :nlg-english ("the number of turns per length wrapping around ~A" (nlg ?body))
@@ -3349,7 +3345,6 @@
 (def-qexp electric-flux (flux ?surface electric :time ?t)
   :symbol-base |$F|     
   :short-name "electric flux"	
-  :dialog-text "through [body:bodies] at time [time:times]"
      :units |V.m|
      :nlg-english ("electric flux through ~A~@[ ~A~]" 
 	       (nlg ?surface) (nlg ?t 'pp)))
@@ -3358,7 +3353,6 @@
 				(flux ?surface electric :time ?t))
   :symbol-base |d$Fdt|     
   :short-name "rate of change in electric flux"	
-  :dialog-text "through [body:bodies] at time [time:times]"
      :units |V.m/s|
      :nlg-english ("rate of change in electric flux through ~A~@[ ~A~]" 
 	       (nlg ?surface) (nlg ?t 'pp)))
@@ -3366,7 +3360,6 @@
 (def-qexp magnetic-flux (flux ?surface magnetic :time ?t)
   :symbol-base |$F|     
   :short-name "magnetic flux"	
-  :dialog-text "through [body:bodies] at time [time:times]"
      :units |T.m^2|
      :nlg-english ("magnetic flux through ~A~@[ ~A~]" 
 	       (nlg ?surface) (nlg ?t 'pp)))
@@ -3375,7 +3368,6 @@
 				(flux ?surface magnetic :time ?t))
   :symbol-base |d$Fdt|     
   :short-name "rate of change in magnetic flux"	
-  :dialog-text "through [body:bodies] at time [time:times]"
      :units |T.m^2/s|
      :nlg-english ("rate of change in magnetic flux through ~A~@[ ~A~]" 
 	       (nlg ?surface) (nlg ?t 'pp)))
@@ -3774,8 +3766,6 @@
 				  (net-field ?path magnetic :time ?t))
   :symbol-base |intB|     
   :short-name "line integral of B"
-  :pre-dialog-text "line integral of the net magnetic field"
-  :dialog-text "along path [body:positions]"
   :units |T.m|
   :nlg-english ("line integral of the net magnetic field along path ~A~@[ ~A~]" 
 	       (nlg ?path) (nlg ?t 'pp)))

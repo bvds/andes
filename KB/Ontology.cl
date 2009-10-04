@@ -237,7 +237,6 @@
 (def-qexp mass	(mass ?body :time ?time)
   :symbol-base |m|
   :short-name "mass"	
-  :dialog-text "of [body:bodies]"
   :units |kg|
   :restrictions positive
   :new-english ((preferred "the") "mass" (and (preferred (property ?body))
@@ -246,7 +245,6 @@
 (def-qexp mass-change-magnitude	(mass-change-magnitude ?body ?agent :time ?t)
   :symbol-base |dmdt|     
   :short-name "magnitude of mass change per unit time"	
-  :dialog-text "of [body:bodies] due to [body2:bodies] at [time:times]"
   :units |kg/s|
   :restrictions nonnegative
   :nlg-english ("the magnitude of the change of mass of ~A per unit time due to ~A~@[ ~A~]" 
@@ -254,7 +252,6 @@
 (def-qexp mass-per-length (mass-per-length ?rope)
   :symbol-base |$l|     
   :short-name "mass per length"	
-  :dialog-text "of [body:bodies]"
   :units |kg/m|
   :restrictions nonnegative 
   :nlg-english ("the mass-per-length of ~A" (nlg ?rope))
@@ -263,14 +260,12 @@
 (def-qexp distance (distance ?body :time ?time)
   :symbol-base |s|     
   :short-name "distance traveled"	
-  :dialog-text "by [body:bodies] at time [time:times]"
   :units |m|
   :nlg-english ("the distance traveled by ~A" (nlg ?body 'at-time ?time)))
 
 (def-qexp duration (duration (during ?t1 ?t2))
   :symbol-base |t|     
   :short-name "duration of time"	
-  :dialog-text "from [time:times]" ; WB knows to use only intervals 
   :units |s|
   :restrictions positive
   :nlg-english ("the duration of time between ~A and ~A" 
@@ -278,14 +273,12 @@
 (def-qexp speed (speed ?body :time ?time)
   :symbol-base |v|     
   :short-name "speed"	
-  :dialog-text ""  ;custom dialog box
   :units |m/s|
   :nlg-english ("the speed of ~A" (nlg ?body 'at-time ?time)))
 
 (def-qexp coef-friction (coef-friction ?body1 ?body2 ?static-or-kinetic :time ?time)
   :symbol-base |$m|     
   :short-name "coef. of friction"	
-  :dialog-text "between [body:bodies] and [body2:bodies]"
   :units NIL ;; dimensionless
   :nlg-english ("coefficient of ~(~A~) friction between ~A and ~A" 
             (nlg ?static-or-kinetic NIL) (nlg ?body1) 
@@ -294,7 +287,6 @@
 (def-qexp coef-drag-turbulent (coef-drag ?b ?medium :type turbulent :time ?time)
   :symbol-base |K|     
   :short-name "coef. of drag"	
-  :dialog-text "of [body:bodies] due to [body2:bodies] at [time:times]"
   :units |kg/m|
   :nlg-english ("coefficient of drag for ~A moving through ~A" 
             (nlg ?b) (nlg ?medium 'at-time ?time))) 
@@ -303,7 +295,6 @@
 (def-qexp gravitational-acceleration (gravitational-acceleration ?planet)
   :symbol-base |g|     
   :short-name "gravitational acceleration"	
-  :dialog-text "at surface of [body:bodies]"
   :units |m/s^2|
   :restrictions positive
   ;; Gianocolli: "acceleration due to gravity [on the Earth]"
@@ -363,7 +354,6 @@
 (def-qexp revolution-radius (revolution-radius ?body :time ?time)
   :symbol-base |r|     
   :short-name "radius of circular motion"	
-  :dialog-text "of [body:bodies] at [time:times]"
   :units |m|
   :restrictions positive
   :nlg-english ("the radius of the circular motion of ~A" 
@@ -371,7 +361,6 @@
 (def-qexp work (work ?b ?agent :time ?time)
   :symbol-base |W|     
   :short-name "work"	
-  :dialog-text "done on [body:bodies] by [body2:bodies] at time [time:times]"
   :units |J|
   :nlg-english ("the work done on ~A by ~A" 
 	    (nlg ?b) (nlg ?agent 'at-time ?time)))
@@ -385,7 +374,6 @@
 (def-qexp power (power ?b ?agent :time ?time)
   :symbol-base |P|     
   :short-name "power"	
-  :dialog-text "supplied to [body:bodies] by [body2:bodies] at time [time:times]"
   :units |W|
   :nlg-english ("the power supplied to ~a from ~a" 
 	    (nlg ?b) (nlg ?agent 'at-time ?time)))
@@ -395,8 +383,6 @@
 (def-qexp net-power-out (net-power-out ?source :time ?time)
   :symbol-base |P|     
   :short-name "power output" 
-  :pre-dialog-text "total power" 
-  :dialog-text "produced by [body:bodies] at time [time:times]"
   :units |W|
   :nlg-english ("the total power produced by ~A" 
 	       (nlg ?source 'at-time ?time)))
@@ -433,27 +419,23 @@
 (def-qexp compression (compression ?spring :time ?time)
   :symbol-base |d|     
   :short-name "compression distance"	
-  :dialog-text "of [body:bodies] at time [time:times]"
   :units |m|
   :nlg-english ("the compression distance of ~A" (nlg ?spring 'at-time ?time)))
 (def-qexp spring-constant (spring-constant ?spring)
   :symbol-base |k|     
   :short-name "spring constant"	
-  :dialog-text "of [body:bodies]"
   :units |N/m|
   :restrictions positive
   :nlg-english ("the spring constant of ~A" (nlg ?spring)))
 (def-qexp height (height ?body :time ?time)
   :symbol-base |h|     
   :short-name "height"	
-  :dialog-text "of [body:bodies] at time [time:times]"
   :units |m|
   :nlg-english ("the height of ~A above the zero level" 
 	    (nlg ?body 'at-time ?time)))
 (def-qexp moment-of-inertia (moment-of-inertia ?body :axis ?axis :time ?time)
   :symbol-base |I|     
   :short-name "moment of inertia"	
-  :dialog-text "of [body:bodies] about [body2:positions]"
   :units |kg.m^2|
   :restrictions positive
   :nlg-english ("the moment of inertia of ~A about ~A" 
@@ -462,19 +444,16 @@
 (def-qexp length (length ?body)
   :symbol-base ||     
   :short-name "length"	
-  :dialog-text "of [body:bodies]"
   :units |m|
   :nlg-english ("the length of ~A" (nlg ?body)))
 (def-qexp length-change (rate-of-change (length ?body))
   :symbol-base ||     
   :short-name "rate of change in length"	
-  :dialog-text "of [body:bodies]"
   :units |m/s|
   :nlg-english ("the rate of change of the length of ~A" (nlg ?body)))
 (def-qexp width  (width ?body)
   :symbol-base ||     
   :short-name "width"	  
-  :dialog-text "of [body:bodies]"
   :units |m|
   :nlg-english ("the width of ~A" (nlg ?body)))
 (def-qexp num-torques (num-torques ?body ?axis :time ?time)

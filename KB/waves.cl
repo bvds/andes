@@ -28,7 +28,6 @@
 (def-qexp wavelength (wavelength ?wave ?medium)
   :symbol-base |$l|     
   :short-name "wavelength"	
-  :dialog-text "of [body:bodies] moving in [body2:positions]"
   :units |m|
   :restrictions positive  ;needed for harmonics problems to work
   :nlg-english ("the wavelength of ~A moving in ~A" (nlg ?wave) (nlg ?medium))
@@ -48,7 +47,6 @@
 (def-qexp wavenumber (wavenumber ?wave ?medium)
   :symbol-base |k|     
   :short-name "wave-number"	
-  :dialog-text "of [body:bodies] moving in [body2:positions]"
   :units |rad/m|
   :restrictions nonnegative  
   :nlg-english ("the wavenumber of ~A moving in ~A" (nlg ?wave) (nlg ?medium))
@@ -107,7 +105,6 @@
 (def-qexp frequency (frequency ?wave)
   :symbol-base |f|     
   :short-name "frequency"	
-  :dialog-text "of oscillations of [body:bodies]"
   :units |Hz|
   :restrictions nonnegative 
   :nlg-english ("the frequency of ~A" (nlg ?wave))
@@ -131,8 +128,6 @@
 (def-qexp observed-frequency (observed-frequency ?wave ?me :time ?time)
   :symbol-base |f|     
   :short-name "frequency (observed)" 
-  :pre-dialog-text "frequency" 
-  :dialog-text "of [body:bodies] as observed by [body2:bodies] at time [time:times]"
   :units |Hz|
   :restrictions nonnegative 
   :nlg-english ("the frequency of ~A as observed by ~A" 
@@ -170,7 +165,6 @@
 (def-qexp period (period ?body)
   :symbol-base |T|     
   :short-name "period"	
-  :dialog-text "of oscillations of [body:bodies]"
   :units |s|
   :restrictions positive
   :nlg-english ("the period of the motion of ~A" (nlg ?body)))
@@ -191,7 +185,6 @@
 (def-qexp angular-frequency (angular-frequency ?wave)
   :symbol-base |$w|     
   :short-name "angular frequency"	
-  :dialog-text "for oscillations of [body:bodies]"
   :units |rad/s|
   :restrictions nonnegative 
   :nlg-english ("the angular-frequency of ~A" (nlg ?wave))
@@ -408,8 +401,6 @@
 (def-qexp wave-speed (wave-speed ?medium)
   :symbol-base |v|     
   :short-name "speed of wave" 
-  :pre-dialog-text "speed of waves" 
-  :dialog-text "moving in [body:positions]"
   :units |m/s|
   :restrictions nonnegative
   :nlg-english ("the speed of waves in ~A" (nlg ?medium)) ;see entry in errors.cl
@@ -528,7 +519,6 @@
 (def-qexp index-of-refraction (index-of-refraction ?medium)
   :symbol-base |n|     
   :short-name "index of refraction"	
-  :dialog-text "of [body:positions]" ; prb should list media as "positions"
   :units NIL  ;dimensionless
   :restrictions nonnegative
   :nlg-english ("the index of refraction of ~A" (nlg ?medium))
@@ -659,8 +649,6 @@
 (def-qexp string-tension (string-tension ?rope)
   :symbol-base |Ft|     
   :short-name "tension on a string" 
-  :pre-dialog-text "tension" 
-  :dialog-text "on [body:bodies]"
   :units |N|
   :restrictions nonnegative 
   :nlg-english ("the string-tension of ~A" (nlg ?rope))
@@ -719,7 +707,6 @@
 (def-qexp amplitude (amplitude ?wave)
   :symbol-base |A|     
   :short-name "amplitude"	
-  :dialog-text "for oscillations of [body:bodies]"
   :units |m|
   :restrictions nonnegative 
   :nlg-english ("the amplitude of ~A" (nlg ?wave))
@@ -740,7 +727,6 @@
 (def-qexp amplitude-max-speed (amplitude-max-speed ?wave)
   :symbol-base |vmax|     
   :short-name "maximum speed of oscillation"	
-  :dialog-text "for oscillations of [body:bodies]"
   :units |m/s|
   :restrictions nonnegative 
   :nlg-english ("the maximum speed of ~A" (nlg ?wave))
@@ -794,7 +780,6 @@
 (def-qexp amplitude-max-abs-acceleration (amplitude-max-abs-acceleration ?wave)
   :symbol-base |amax|     
   :short-name "maximum magnitude of acceleration"	
-  :dialog-text "for oscillations of [body:bodies]"
   :units |m/s^2|
   :restrictions nonnegative 
   :nlg-english ("the |maximum acceleration of ~A|" (nlg ?wave))
@@ -1058,7 +1043,6 @@
 (def-qexp intensity (intensity ?wave ?agent :time ?time)
   :symbol-base |I|     
   :short-name "intensity"	
-  :dialog-text "supplied to [body:bodies] by [body2:bodies] at time [time:times]"
   :units |W/m^2|
   :restrictions positive
   :nlg-english ("the intensity supplied to ~A due to ~A" 
@@ -1079,7 +1063,6 @@
 (def-qexp intensity-at (intensity ?body at ?position :time ?time)
   :symbol-base |I|
   :short-name "intensity"
-  :dialog-text "at [body:positions] of [body2:bodies]"
   :units |W/m^2|
   :restrictions positive
   :nlg-english ("the intensity of ~A at ~A" (nlg ?body)
@@ -1193,8 +1176,6 @@
 (def-qexp db-intensity (db-intensity ?wave ?agent :time ?time)
   :symbol-base |$b|     
   :short-name "decibels" 
-  :pre-dialog-text "intensity (in decibels)" 
-  :dialog-text "supplied to [body:bodies] by [body2:bodies] at time [time:times]"
   :units |dB|
   :nlg-english ("the intensity supplied to ~A due to ~A in decibels" 
 	       (nlg ?wave 'at-time ?time) (nlg ?agent 'agent))
@@ -1453,7 +1434,6 @@
 (def-qexp amplitude-electric (amplitude ?wave :type electric)
   :symbol-base |E|     
   :short-name "amplitude of electric field"	
-  :dialog-text "for oscillations of [body:bodies]"
   :units |V/m|
   :restrictions nonnegative 
   :nlg-english ("the amplitude of the electric field in ~A" (nlg ?wave))
@@ -1462,7 +1442,6 @@
 (def-qexp amplitude-magnetic (amplitude ?wave :type magnetic)
   :symbol-base |B|     
   :short-name "amplitude of magnetic field"	
-  :dialog-text "for oscillations of [body:bodies]"
   :units |T|
   :restrictions nonnegative 
   :nlg-english ("the amplitude of the magnetic field in ~A" (nlg ?wave))

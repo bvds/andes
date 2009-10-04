@@ -2206,7 +2206,6 @@
 (def-qexp area (area ?shape)
   :symbol-base |A|     
   :short-name "area"	
-  :dialog-text "of [body:bodies]"
      :units |m^2|
      :restrictions positive
      :nlg-english ("the area of ~A" (nlg ?shape))
@@ -2215,7 +2214,6 @@
 (def-qexp area-change (rate-of-change (area ?shape))
   :symbol-base |dAdt|     
   :short-name "rate of change in area"	
-  :dialog-text "of [body:bodies]"
      :units |m^2/s|
      :restrictions positive
      :nlg-english ("the rate of change of the area of ~A" (nlg ?shape))
@@ -2233,7 +2231,6 @@
 (def-qexp radius-of-circle (radius-of-circle ?body)
   :symbol-base |r|     
   :short-name "radius"	
-  :dialog-text "of [body:bodies]"
      :units |m|
      :restrictions positive
      :nlg-english ("the radius of ~A" (nlg ?body))
@@ -2253,7 +2250,6 @@
 (def-qexp diameter-of-circle (diameter-of-circle ?body)
   :symbol-base |d|     
   :short-name "diameter"	
-  :dialog-text "of [body:bodies]"
   :units |m|
   :restrictions positive
   :nlg-english ("the diameter of ~A" (nlg ?body))
@@ -2273,7 +2269,6 @@
 (def-qexp circumference-of-circle (circumference-of-circle ?body)
   :symbol-base |c|     
   :short-name "circumference"	
-  :dialog-text "of [body:bodies]"
      :units |m|
      :restrictions positive
      :nlg-english ("the circumference of ~A" (nlg ?body))
