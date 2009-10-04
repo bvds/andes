@@ -26,7 +26,6 @@
 ;; note arguments are usually proper names -- R1, PtA, etc -- not common nouns
 ;; so we don't use nlg types that add articles.
 (def-qexp voltage-across (voltage-across ?comp :time ?time)
-  ;; custom dialog box "voltage"
   :units |V|
   :nlg-english ("the voltage across ~A~@[ ~A~]" ?comp (nlg ?time 'pp)))
 
@@ -36,19 +35,6 @@
   :units |$W|
   :nlg-english ("the resistance of ~A" (conjoined-names ?names)))
 
-;;  The dialog box should look something like the resistance dialog box.
-;;  After the student makes an entry, however, the helpsystem should
-;;  match the student entry to any system entry that contains all of the 
-;;  components selected by the student as a subset.
-;;  It should contain the list of bodies and the list of positions.
-;;
-;; In order for the hints to be useful, it is necessary that 
-;; ?component would be a list of names that would mean something
-;; to the student.  For the current through a branch, we take components 
-;; defined by (circuit-element ...) 
-
-;;; in the workbench, the time slot is added if feature changing-voltage
-;;; is included.
 (def-qexp current (current-thru ?component :time ?time)
   :symbol-base |I| 
   :short-name "current"
@@ -165,7 +151,6 @@
 	    (nlg ?loc) (nlg ?time 'pp)))
 
 (def-qexp electric-energy (electric-energy ?body ?source :time ?time)
-  ;; custom dialog box "energy"
   :units |J|
   :short-name "electric potential energy"
   :nlg-english ("the electric potential energy of ~A" 

@@ -274,45 +274,39 @@
       ;; position objects and add common stuff.
       (let ((y 15) (i 0))
 	(dolist (predef predefs)
-	  (unless (stringp (cdr predef)) ;see Bug #1573.
-	    ;; (format webserver:*stdout* "Working on ~A~%" (cdr predef))
-	    (unless (assoc :action (cdr predef)) 
-	      (push '(:action . "new-object") (cdr predef)))
-	    (unless (assoc :id (cdr predef)) 
-	      (push (cons :id (format nil "pre~A" (incf i))) (cdr predef)))
-	    (unless (assoc :mode (cdr predef)) 
-	      (push '(:mode . "unknown") (cdr predef)))
-	    (when (and (car predef) (not (assoc :type (cdr predef))))
-	      (push `(:type . ,(entryprop2type (car predef))) (cdr predef)))
-	    (when (and (car predef) (assoc :symbol (cdr predef))
-		       (not (assoc :text (cdr predef))))
-	      (let ((expr (strcat "Let " 
-				  (cdr (assoc :symbol (cdr predef)))
-				  " be " 
-				  (word-string 
-				   ;; no variables have been defined: 
-				   ;; remove any (var ...)
-				   (expand-vars 
-				    (systementry-new-english 
-				     (find-systementry (car predef))))))))
-		(push `(:text . ,expr) (cdr predef))))
-	    (when (and (not (assoc :width (cdr predef)))
-		       (member (cdr (assoc :type (cdr predef)))
-			       '("statement" "equation") :test #'equal))
+	  ;; Debug text
+	  (format webserver:*stdout* "Working on ~A~%" (cdr predef))
+	  (unless (assoc :action (cdr predef)) 
+	    (push '(:action . "new-object") (cdr predef)))
+	  (unless (assoc :id (cdr predef)) 
+	    (push (cons :id (format nil "pre~A" (incf i))) (cdr predef)))
+	  (unless (assoc :mode (cdr predef)) 
+	    (push '(:mode . "unknown") (cdr predef)))
+	  (when (and (car predef) (not (assoc :type (cdr predef))))
+	    (push `(:type . ,(entryprop2type (car predef))) (cdr predef)))
+	  (when (and (car predef) (assoc :symbol (cdr predef))
+		     (not (assoc :text (cdr predef))))
+	    (push `(:text . ,(write-definition-text 
+			      (car predef) 
+			      (cdr (assoc :symbol (cdr predef))))) 
+		  (cdr predef)))
+	  (when (and (not (assoc :width (cdr predef)))
+		     (member (cdr (assoc :type (cdr predef)))
+			     '("statement" "equation") :test #'equal))
 	      (push '(:width . 300) (cdr predef)))
-	    ;; put all predefs in a second column
-	    (unless (assoc :x (cdr predef)) 
+	  ;; put all predefs in a second column
+	  (unless (assoc :x (cdr predef)) 
 	      (push '(:x . 450) (cdr predef)))
-	    (if (assoc :y (cdr predef))
-		;; If object overlaps this column, continue below it.
-		(when (> (+ (cdr (assoc :x (cdr predef)))
-			    (cdr (or (assoc :width (cdr predef))
-				     (assoc :radius (cdr predef)))))
-			 450)
-		  (setf y (max y (cdr (assoc :y (cdr predef))))))
-		(push `(:y . ,y) (cdr predef)))
-	    ;; (format webserver:*stdout* "  Turned to ~A~%" (cdr predef))
-	    (setf y (+ y 25)))))
+	  (if (assoc :y (cdr predef))
+	      ;; If object overlaps this column, continue below it.
+	      (when (> (+ (cdr (assoc :x (cdr predef)))
+			  (cdr (or (assoc :width (cdr predef))
+				   (assoc :radius (cdr predef)))))
+		       450)
+		(setf y (max y (cdr (assoc :y (cdr predef))))))
+	      (push `(:y . ,y) (cdr predef)))
+	  (format webserver:*stdout* "  Turned to ~A~%" (cdr predef))
+	  (setf y (+ y 25))))
       
 
       (check-entries t))
@@ -321,16 +315,17 @@
     ;; the solution-step method.
     ;; Execute outside of env-wrap and with check-entries turned on.
     (dolist (predef (mapcar #'cdr predefs)) ;ignore any entry-prop
-      (if (stringp predef)
-	  (warn "Bad predef format for ~A, Bug #1573" predef)
-	  (let ((reply (apply #'solution-step 
-			      ;; flatten the alist
-			      (mapcan 
-			       #'(lambda (x) (list (car x) (cdr x)))
-			       predef))))
-	    (setf solution-step-replies 
-		  (append solution-step-replies 
-			  (cons predef reply))))))
+      (format webserver:*stdout* "Sending predef ~A~%" (cdr predef))
+      (let ((reply (apply #'solution-step 
+			  ;; flatten the alist
+			  (mapcan 
+			   #'(lambda (x) (list (car x) (cdr x)))
+			   predef))))
+	(setf solution-step-replies 
+	      (append solution-step-replies 
+		      (cons predef reply))))
+      (format webserver:*stdout* "   done with predef ~A~%" (cdr predef))
+      )
       
     (env-wrap (check-entries nil))     
     
@@ -401,6 +396,18 @@
     (vector "vector")
     (line "line")
     (draw-axes "axes")))
+
+;; helper function to write out definition text based on Ontology.
+(defun write-definition-text (prop symbol)
+  "Write variable definition text for a given prop and symbol."
+  (if (find-systementry prop)
+      (strcat "Let " symbol " be " 
+	      (word-string 
+	       ;; no variables have been defined: 
+	       ;; remove any (var ...)
+	       (expand-vars 
+		(systementry-new-english (find-systementry prop)))))
+      (warn "predefs:  Can't find systementry for ~S" prop)))
 
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  

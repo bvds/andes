@@ -312,6 +312,7 @@
   (let (this (best (/ (* cutoff (length student)) equiv)) quants bound)
     (dolist (x models)
       (setf bound (max epsilon (* best equiv)))
+      (format t "Start match to ~s with bound ~A~%" (car x) bound)
       (setf this (match-model student (car x) :best bound))
       (when (< this bound) (push (cons this (cdr x)) quants))
       (when (< this best) (setf best this)))

@@ -364,9 +364,15 @@
   :units |J|
   :nlg-english ("the work done on ~A by ~A" 
 	    (nlg ?b) (nlg ?agent 'at-time ?time)))
-(def-qexp net-work (net-work ?b :time ?time)
+
+(def-qexp net-work (net-work ?body :time ?time)
   :units |J|
-  :nlg-english ("the net work done on ~A" (nlg ?b 'at-time ?time)))
+  :new-english (((preferred "the") (allowed (or "total" "net"))
+		 "work done" 
+		 (and (preferred (object ?body))
+		      (allowed (agent "non-conservative forces"))
+		      (preferred (time ?time))))))
+
 (def-qexp work-nc (work-nc ?b :time ?time)
   :units |J|
   :nlg-english ("the work done by non-conservative forces on ~A" 
@@ -387,52 +393,76 @@
   :nlg-english ("the total power produced by ~A" 
 	       (nlg ?source 'at-time ?time)))
 (def-qexp angle-between (angle-between orderless . ?vecs)
-  ;; custom dialog box "angle"
   :units |deg|
   :restrictions nonnegative 
   :nlg-english ("the angle between ~A" (nlg ?vecs 'conjoined-defnp)))
+
 (def-qexp total-energy (total-energy ?system :time ?time) 
-  ;; custom dialog box "energy"
   :units |J|
-  :nlg-english ("the total mechanical energy of ~A" 
-	    (nlg ?system 'at-time ?time)))
+  :new-english (((preferred "the") 
+		 (or ((or "total" "net") "mechanical energy") "TME")
+		 (and (preferred (property ?system)) 
+		      (preferred (time ?time))))))
+
 (def-qexp kinetic-energy (kinetic-energy ?body :time ?time)
-  ;; custom dialog box "energy"
   :units |J|
-  :nlg-english ("the kinetic energy of ~A" (nlg ?body 'at-time ?time)))
+  :new-english ((preferred "the") (allowed "translational")
+		(or "kinetic energy" "KE")
+		(and (preferred (property ?body)) 
+		     (preferred (time ?time)))))
+
 (def-qexp rotational-energy (rotational-energy ?body :time ?time)
-  ;; custom dialog box "energy"
   :units |J|
-  :nlg-english ("the rotational kinetic energy of ~A" 
-	    (nlg ?body 'at-time ?time)))
+  :new-english ((preferred "the") (or "rotational" "rot")
+		(or "kinetic energy" "KE")
+		(and (preferred (property ?body)) 
+		     (preferred (time ?time)))))
+
 (def-qexp grav-energy (grav-energy ?body ?agent :time ?time)
-  ;; custom dialog box "energy"
   :units |J|
-  :nlg-english ("the gravitational potential energy of ~A" 
-	    (nlg ?body 'at-time ?time)))
+  :new-english ((preferred "the") (or "gravitational" "grav") 
+		(or ((preferred (or "potential" "pot")) "energy") "PE")
+		(and (preferred (property ?body))
+		     (preferred (agent ?agent)) 
+		     (preferred (time ?time)))))
+
 ;; see bug 1463
 (def-qexp spring-energy (spring-energy ?body ?spring :time ?time) 
-  ;; custom dialog box "energy"
   :units |J|
-  :nlg-english ("the elastic potential energy transmittable to ~A" 
-	    (nlg ?body 'at-time ?time)))
+  :new-english ((preferred "the") (allowed "elastic") 
+		(or ((or "potential" "pot" "spring") "energy") "PE")
+		(and (preferred (or (property ?body) ("transmittable to" ?body)))
+		     ;; always include spring, since that defines force type.
+		     (agent ?spring)
+		     (preferred (time ?time)))))
+
 (def-qexp compression (compression ?spring :time ?time)
   :symbol-base |d|     
   :short-name "compression distance"	
   :units |m|
-  :nlg-english ("the compression distance of ~A" (nlg ?spring 'at-time ?time)))
+  :new-english ((preferred "the") "compression" (allowed "distance")
+		 (and (property ?spring) (preferred (time ?time)))))
+
 (def-qexp spring-constant (spring-constant ?spring)
   :symbol-base |k|     
   :short-name "spring constant"	
   :units |N/m|
   :restrictions positive
-  :nlg-english ("the spring constant of ~A" (nlg ?spring)))
+  :new-english ((preferred "the") "spring constant" 
+		(preferred (property ?spring))))
+
 (def-qexp height (height ?body :time ?time)
   :symbol-base |h|     
   :short-name "height"	
   :units |m|
-  :nlg-english ("the height of ~A above the zero level" 
-	    (nlg ?body 'at-time ?time)))
+  :new-english ((preferred "the") "height" 
+		(and (property ?body)
+		     (preferred ("above"
+				 (or ((preferred "the") 
+				     (or "axis" "origin" "zero level"))
+				     "zero")))
+		     (preferred (time ?time)))))
+
 (def-qexp moment-of-inertia (moment-of-inertia ?body :axis ?axis :time ?time)
   :symbol-base |I|     
   :short-name "moment of inertia"	
