@@ -199,7 +199,6 @@
 
   ;; Remove any existing entry of this name (thus, allowing updates)
   (when (expression-type-p type)
-    (warn "Replacing existing ExpType ~A." type)
     (setf *Ontology-ExpTypes*
 	  (remove type *Ontology-ExpTypes* :key #'ExpType-Type :count 1)))
 
@@ -225,7 +224,7 @@
 	    ;; if supplied, arg should be body of fn to be called with these args
 	    :new-english new-english
 	    :nlg-english nlg-english)))
-    (postpend *Ontology-ExpTypes* E)
+    (push E *Ontology-ExpTypes*)
     E))
 
 

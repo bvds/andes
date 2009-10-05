@@ -23,10 +23,10 @@
 
 ;;
 (defstruct (ErrorInterp (:print-function write-ErrorInterp))
-  test          ; name of test that provided this interp
   Intended      ; interpretation of student's intended action
   Remediation   ; a tutor turn. Typically contains a hint sequence
-  Diagnosis     ; lisp expression whose evaluation returns a list of hints.
+  Diagnosis     ; a cons containing name and parameters, for assoc.
+  hints         ; evaluates to a hint sequence
   Order         ; alist of specifications to determine priority
   State         ; (The following list is obsolete) 
 ;;; One of forbidden, premature, premature-subst, done-already, inefficient or none
@@ -39,9 +39,5 @@
 (defun write-ErrorInterp (E &optional (Stream t) (level 0))
   (declare (ignore level))
   (format Stream "[ErrorInterp name:~A~%]" 
-          (ErrorInterp-name e)))
+          (car (ErrorInterp-diagnosis e))))
 
-(defun ErrorInterp-name(ei) 	; maybe temporary until old/new are reconciled
-"return the name of the error handler"
- (or (ErrorInterp-test ei)  		 ; new style built by whatswrong 
-     (car (ErrorInterp-diagnosis ei)))) ; old style custom built in eqn checking
