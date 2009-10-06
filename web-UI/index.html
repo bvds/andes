@@ -15,17 +15,17 @@
 	<link href="dojox/widget/UpgradeBar/UpgradeBar.css" rel="stylesheet" />
 	<script>
 		djConfig = {
-			isDebug:true,
+			isDebug:false,
 			parseOnLoad:true,
 			popup:true
 		}
 		
 		if(djConfig.isDebug){
-			djConfig.modulePaths = {'drawing': '../dojox/drawing', 'andes':'../andes'};
+			djConfig.modulePaths = {'andes':'../andes'};
 			document.write('<link href="css/andes.css" rel="stylesheet" />');
 			document.write('<scr'+'ipt src="dojo/dojo.js"></scr'+'ipt>');
 		}else{
-			djConfig.modulePaths = {'drawing': '../dojox/drawing', 'andes':'../andes'};
+			djConfig.modulePaths = {'andes':'../andes'};
 			document.write('<link href="release/dojo/css/andes.css" rel="stylesheet" />');
 			document.write('<scr'+'ipt src="release/dojo/dojo/dojo.js"></scr'+'ipt>');
 		}
