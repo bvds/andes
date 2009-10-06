@@ -55,11 +55,24 @@ dojox.drawing.ui.dom.Pan = dojox.drawing.util.oo.declare(
 		},
 		
 		onKeyDown: function(evt){
-			if(evt.keyCode == 32){
-				this.onSetPan(true);
+			switch(evt.keyCode){
+				case 32:
+					this.onSetPan(true);
+				case 39:
+					this.canvas.domNode.parentNode.scrollLeft += 10;
+					break;
+				case 37:
+					this.canvas.domNode.parentNode.scrollLeft -= 10;
+					break;
+				case 38:
+					this.canvas.domNode.parentNode.scrollTop -= 10;
+					break;
+				case 40:
+					this.canvas.domNode.parentNode.scrollTop += 10;
+					break;
 			}
 		},
-		
+				
 		onSetPan: function(/*Boolean | Event*/ bool){
 			if(bool === true || bool === false){
 				this.selected = !bool;
