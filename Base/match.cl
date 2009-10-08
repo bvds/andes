@@ -120,7 +120,7 @@
 (defun match-model (student model &key (best 20000))
   "Recursive match to tree, returns minimum word insertion/addition for match."
 
-  (declare (notinline match-model-and)) ;for profiling
+  (declare (notinline match-model-and match-model-list)) ;for profiling
   ;; When bound is given, see if there is any hope, based on word count,
   ;; of doing better.
   (when (< best 10000)
@@ -132,8 +132,8 @@
     ((null model) (word-count student))
     ((stringp model)
      (let ((best 10000)) ;ignore any global value of best
-       ;; profiling shows that just calculating is
-       ;; faster than testing against the global best
+       ;; profiling shows that just calculating is slightly
+       ;; faster than also testing against the global best
        (dolist (item student)
          (update-bound best (normalized-levenshtein-distance item model)))
        ;; best fit plus any extra student words.
@@ -145,30 +145,9 @@
      best)
     ;; Case (<model> ...)
     ((or (stringp (car model)) (listp (car model)))
-     (if 
-      (cdr model)
-      ;; for n student words and m elements of the model list,
-      ;; m n (n+1)/2 matches must be evaluated.  The following
-      ;; is based on the Levenstein minimum edit distance algorithm.
-      (let* ((width (1+ (length student)))
-	     (height (1+ (length model)))
-	     (d (make-array (list height width))))
-	(dotimes (y width)
-	  (setf (aref d 0 y) y)) ;student is one word per slot
-	(dotimes (x (length model))
-	  (dotimes (y width)
-	    (let ((mini (+ (word-count (nth x model)) (aref d x y))))
-	      (dotimes (z y)
-		(update-bound 
-		 mini
-		 (+ (aref d x z)
-		    (match-model (subseq student z y) (nth x model)
-				 ;; Need to determine empirically
-				 ;; if including bound improves speed.
-				 :best (- (min best mini) (aref d x z))))))
-	      (setf (aref d (1+ x) y) mini))))
-	(aref d (length model) (length student)))
-      (match-model student (car model) :best best)))
+     (if (cdr model)
+	 (match-model-list student model :best best)
+	 (match-model student (car model) :best best)))
     ((eql (car model) 'and)
      (pop model)
      (cond 
@@ -188,6 +167,38 @@
        (t (word-count student)))) ;empty "or"
     (t (error "Bad tree ~A" model))))
 
+(defun match-model-list (student model &key best)
+  ;; for n student words and m elements of the model list,
+  ;; m n (n+1)/2 matches must be evaluated.  The following
+  ;; is based on the Levenstein minimum edit distance algorithm.
+  (let* ((width (1+ (length student)))
+	 (height (1+ (length model)))
+	 (d (make-array (list height width))))
+    (dotimes (y width)
+      (setf (aref d 0 y) y)) ;student is one word per slot
+
+    ;; When the we can't to better than best-minus-rest for an
+    ;; iteration of the z loop, then (aref d (1+ x) y) becomes 
+    ;; equal to best-minus-rest, then any
+    ;; matchings using that particular student word grouping will
+    ;; be above the bound "best."
+
+    (dotimes (x (length model))
+      (dotimes (y width)
+	(let ((mini (+ (word-count (nth x model)) (aref d x y)))
+	      (best-minus-rest (- best 
+				  (match-bound (- (length student) y) 
+					       (cdr (nthcdr x model))))))
+	  (dotimes (z y)
+	    (update-bound 
+	     mini
+	     (+ (aref d x z)
+		(match-model (subseq student z y) (nth x model)
+			     :best (- (min best-minus-rest mini) 
+				      (aref d x z))))))
+	  (setf (aref d (1+ x) y) mini))))
+    (aref d (length model) (length student))))
+  
 
 ;; The problem here is a generalization of the "Assignment 
 ;; problem"  The generalization being that several consecutive
@@ -219,19 +230,17 @@
       ;; q is the number of student words.
       (do ((q 1 (+ q 1)))
 	  ((= q width))
-	(do ((y q (+ y 1)))
-	    ((= y width))
-	  (let* ((z (- y q))
-		 (best-minus-rest 
-		  (- best (match-bound 
-			   (- (length student) q) 
-			   (remove (nth m model) model))))
-			  
-		 (this (match-model (subseq student z y) (nth m model) 
-				    :best best-minus-rest)))
-	    ;; This gives a modest (5%) improvement.
-	    (when (< this best-minus-rest) 
-	      (setf (aref matches m y z) this))))))
+	(let ((best-minus-rest (- best (match-bound 
+					(- (length student) q) 
+					(remove (nth m model) model)))))
+	  (do ((y q (+ y 1)))
+	      ((= y width))
+	    (let* ((z (- y q))			  
+		   (this (match-model (subseq student z y) (nth m model) 
+				      :best best-minus-rest)))
+	      ;; This gives a 50% improvement.
+	      (when (< this best-minus-rest) 
+		(setf (aref matches m y z) this)))))))
 
     ;; Quick, but does not get global minimum.
     (update-bound best (match-model-greedy 
