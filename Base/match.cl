@@ -413,30 +413,33 @@
   (/ (float (levenshtein-distance s1 s2))
 		    (float(max (length s1) (length s2)))))
 
-;;;; Levenshtein Distance function.  This implementation was converted from 
-;;;; the Scheme implementation given at 
-;;;; http://en.wikipedia.org/wiki/Levenshtein_distance
-;;;; See http://www.cliki.net/Levenshtein
-;;;; 
 
+;; Levenshtein Distance function.  
+;; From http://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance#Common_Lisp
+;; This is considerably faster than the one at 
+;;        http://www.cliki.net/Levenshtein 
 
-(defun levenshtein-distance (s1 s2)
-  (let* ((width (1+ (length s1)))
-	  (height (1+ (length s2)))
-	  (d (make-array (list height width))))
-    (dotimes (x width)
-      (setf (aref d 0 x) x))
-    (dotimes (y height)
-      (setf (aref d y 0) y))
-    (dotimes (x (length s1))
-      (dotimes (y (length s2))
-	(setf (aref d (1+ y) (1+ x))
-	      (min (1+ (aref d y (1+ x)))
-		   (1+ (aref d (1+ y) x))
-		   (+ (aref d y x)
-		      (if (char= (aref s1 x) (aref s2 y))
-			  0
-			  1))))))
-    (aref d (1- height) (1- width))))
-
-
+(defun levenshtein-distance (str1 str2)
+  "Calculates the Levenshtein distance between str1 and str2, returns an editing distance (int)."
+  (let ((n (length str1))
+	(m (length str2)))
+    ;; Check trivial cases
+    (cond ((= 0 n) (return-from levenshtein-distance m))
+	  ((= 0 m) (return-from levenshtein-distance n)))
+    (let ((col (make-array (1+ m) :element-type 'integer))
+	  (prev-col (make-array (1+ m) :element-type 'integer)))
+      ;; We need to store only two columns---the current one that
+      ;; is being built and the previous one
+      (dotimes (i (1+ m))
+	(setf (svref prev-col i) i))
+      ;; Loop across all chars of each string
+      (dotimes (i n)
+	(setf (svref col 0) (1+ i))
+	(dotimes (j m)
+	  (setf (svref col (1+ j))
+		(min (1+ (svref col j))
+		     (1+ (svref prev-col (1+ j)))
+		     (+ (svref prev-col j)
+			(if (char-equal (schar str1 i) (schar str2 j)) 0 1)))))
+	(rotatef col prev-col))
+      (svref prev-col m))))
