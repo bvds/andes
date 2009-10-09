@@ -78,7 +78,7 @@
     ;; If a post contains no json, j-string is lisp nil and 
     ;; sql null is inserted into database.
      (execute-command 
-     (format nil "INSERT into PROBLEM_ATTEMPT_TRANSACTION (clientID, Command, initiatingParty) values ('~A',~:[null~;~:*'~A'~],'~A')" 
+     (format nil "INSERT into PROBLEM_ATTEMPT_TRANSACTION (clientID, Command, initiatingParty) values ('~A',~:[null~;~:*'~s'~],'~A')" 
 	     client-id (clsql-sys:sql-escape-quotes j-string) direction))))
 
 
