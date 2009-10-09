@@ -74,12 +74,20 @@
 	       "INSERT into PROBLEM_ATTEMPT (clientID,classinformationID) values ('~A',2)" 
 	       client-id)))
     
-    ;; escaping sql string per http://lists.b9.com/pipermail/clsql-help/2005-July/000456.html
     ;; If a post contains no json, j-string is lisp nil and 
     ;; sql null is inserted into database.
      (execute-command 
-     (format nil "INSERT into PROBLEM_ATTEMPT_TRANSACTION (clientID, Command, initiatingParty) values ('~A',~:[null~;~:*'~s'~],'~A')" 
-	     client-id (clsql-sys:sql-escape-quotes j-string) direction))))
+     (format nil "INSERT into PROBLEM_ATTEMPT_TRANSACTION (clientID, Command, initiatingParty) values ('~A',~:[null~;~:*'~A'~],'~A')" 
+	     client-id (make-safe-string j-string) direction))))
+
+;; Escaping ' via '' follows ANSI SQL standard.
+;; If the Database escapes backslashes, must also do those.
+;; (In mysql, NO_BACKSLASH_ESCAPES is not set)
+;; See http://lists.b9.com/pipermail/clsql-help/2005-July/000456.html
+(defun make-safe-string (s)
+  "Escape strings for database export."
+  (and s (clsql-sys::substitute-chars-strings 
+	  s '((#\' . "''") (#\\ . "\\\\")))))
 
 
 (defun set-session (client-id &key student problem section)
