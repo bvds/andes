@@ -197,7 +197,7 @@
 ;;; explicitly specified in the givens when we want energy methods to be used, 
 ;;; this functions to restrict the problems in which energy solutions will be 
 ;;; found.  We don't have fully general rules that relate "height" to any 
-;;; other quantities such as displacement, distance travelled, or distance 
+;;; other quantities such as displacement, distance traveled, or distance 
 ;;; between points, even though change in height is in fact related to these. 
 ;;; (Also, even if we could get the *change* in height from these, we still 
 ;;; wouldn't know which height was the zero-level.) 

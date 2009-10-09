@@ -567,7 +567,7 @@
 (defun undef-variables-ErrorInterp (undef-vars &key id)
   "Given a list of undefined vars (as strings), returns the error interpretation that will be both stored in the student entry and used to give the student an unsolicited warning."
   (let* ((is-comp-var (has-comp-vars-p undef-vars))
-	 (tmp-msg "Variables must be defined before being used in an equation.  Vectors are defined by the drawing tools (the buttons along the left edge of the window) and scalars are defined by the clicking on the 'Variable' button at the top of the window.\\n  If all variables have been defined, the problem may be incorrect unit symbols, including case errors.  For example, 'N', not 'n', is the symbol for Newtons.")
+	 (tmp-msg "Variables must be defined before being used in an equation.&nbsp;  Vectors are defined with the Vector Tool and scalars are defined with the Text Tool.&nbsp;  Otherwise, the problem may be due to incorrect unit symbols, including case errors.&nbsp;  For example, 'N', not 'n', is the symbol for Newtons.")
 	 (near-misses (mapcar #'near-miss-var undef-vars))	; parallels undef-vars, e.g. (NIL v1 NIL v2 NIL)
 	 (i-first-miss (position-if-not #'null near-misses))    ; index of first var with near-mis, else NIL
 	 (rem (make-hint-seq

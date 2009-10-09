@@ -94,6 +94,7 @@
   (make-ErrorInterp
    :remediation (apply fn-msg nil)
    :diagnosis (list fn-msg)
+   :hints (apply fn-msg nil)
    :order '((expected-utility . 0))))
 
 
@@ -186,14 +187,14 @@
     (contextualize candidates)
     (when (cdr candidates) ; trace conflicts, so we can vet the results
       (format *debug-help* "  Error candidates: ~W~%" 
-	      (mapcar #'(lambda (x) (cons (ErrorInterp-name x)
+	      (mapcar #'(lambda (x) (cons (car (ErrorInterp-diagnosis x))
 					  (ErrorInterp-order x))) 
 		      (sort (copy-list candidates) #'alist< 
 			    :key #'ErrorInterp-order))))
     (setf best (if candidates 
 		   (select-error-interpretation candidates)
 		   (make-failed-error-interpretation)))
-    (format *debug-help* "  Choose: ~A~%" (ErrorInterp-test best))
+    (format *debug-help* "  Choose: ~A~%" (ErrorInterp-diagnosis best))
     ;; (format t "Best candidate is ~W" best)
     (setf (ErrorInterp-Remediation best) (generate-ww-turn best))
     best))
@@ -236,8 +237,12 @@
   (cond
    ((null conditions)
     (list (make-ErrorInterp
-	   :test (subst-bindings bindings (EntryTest-name eh))
-	   :diagnosis (subst-bindings bindings (EntryTest-hint eh))
+	   :diagnosis (subst-bindings bindings (cons 
+						(EntryTest-name eh)
+						(EntryTest-arguments eh)))
+	   ;; Can't evaluate this yet, because *correct-entry* has not 
+	   ;; been set.
+	   :hints (subst-bindings-quoted bindings (EntryTest-hint eh))
 	   :state (eval (subst-bindings-quoted bindings (EntryTest-state eh)))
 	   ;; for fix-eqn-by-replacing, sy has form (state . SystemEntries) 
 	   ;; for correct, sy has form (SystemEntry)
@@ -583,10 +588,9 @@
 ;;; Used to be more complicated
 (defun call-ww-turn-generator (ei)
   ;; wrapper attaches function name as assoc info to turn
-  (let ((form (ErrorInterp-diagnosis ei))
-         result-turn)
-     (setf result-turn (apply (car form) (cdr form)))
-     (setf (turn-assoc result-turn) (alist-warn (list form)))
+  (let ((result-turn (eval (ErrorInterp-hints ei))))
+     (setf (turn-assoc result-turn) 
+	   (alist-warn (list (ErrorInterp-diagnosis ei))))
      result-turn))
 
 ;;; ================ called inside errors.cl functions =================

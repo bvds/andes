@@ -275,7 +275,7 @@
 		      ;; Most of these mappings now obsolete since workbench 
 		      ;; changed to try to send the exact helpsys id. 
 		      ;; Just keeping them for backwards compatibility.
-		      (|distance travelled| . DISTANCE)
+		      (|distance traveled| . DISTANCE)
 		      (|distance between| . DISTANCE-BETWEEN) ; not used in Andes2 yet
 		      (|gravitational acceleration| . GRAVITATIONAL-ACCELERATION)
 		      (radius . REVOLUTION-RADIUS)
@@ -377,17 +377,18 @@
 	 hints)
     
     ;; Debug printout:
-    (format webserver:*stdout* "Best match to ~s is~%   ~S~% from ~S~%" 
-	    student
-	    (mapcar 
-	     #'(lambda (x) (cons (car x) 
-				 (expand-vars (SystemEntry-model (cdr x)))))
-	     best)
+    (when nil
+      (format webserver:*stdout* "Best match to ~s is~%   ~S~% from ~S~%" 
+	      student
+	      (mapcar 
+	       #'(lambda (x) (cons (car x) 
+				   (expand-vars (SystemEntry-model (cdr x)))))
+	       best)
 	    (mapcar #'(lambda (x) 
 			(cons (expand-vars (SystemEntry-new-english x)) 
 			      (systementry-prop x)))
-		    sysentries))
-    
+		    sysentries)))
+      
     (cond
       ((null sysentries)
        (values nil (nothing-to-match-ErrorInterp entry)))
@@ -405,12 +406,16 @@
 	 ;; If the best fit isn't too good, give an unsolicited hint.
 	 ;; Can't put in a tutor turn, since the turn might be good.
 	 (when (> (car (car best)) (* 0.2 (length (word-parse student))))
-	   (push `((:action . "show-hint")
-		   (:text . ,(strcat "I interpreted your definition as:&nbsp; "
-				     (word-string (expand-vars 
-						   (SystemEntry-model sysent)))
-				     "."))) hints))
-
+	   (let ((phr (format nil 
+			      "I interpreted your definition ~:[~;of <var>~A</var> ~]as:&nbsp; ~A."
+			      (> (length (StudentEntry-symbol entry)) 0)
+			      (StudentEntry-symbol entry)
+			      (word-string (expand-vars 
+					    (SystemEntry-model sysent)))
+			      )))
+	     (push `((:action . "show-hint")
+		     (:text . ,phr)) hints)))
+	 
 	 ;; Determine if the student has already done this
 	 ;; in a previous step.
 	 ;; In Andes2, this test was done on the user interface.
@@ -1395,7 +1400,7 @@
       (when (StudentEntry-ErrInterp entry)
 	(push `((:action . "log") 
 		(:error-type . ,(format nil "~S" 
-					 (ErrorInterp-name 
+					 (ErrorInterp-diagnosis 
 					  (StudentEntry-ErrInterp Entry)))))
 	      result))
       

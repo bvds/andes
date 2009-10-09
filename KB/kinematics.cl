@@ -233,7 +233,7 @@
   ((bottom-out (string "Use the speed menu item under the Variables menu to define a variable for the speed of ~a ~a." ?b (?t pp)))
    ))
 
-;; This operator defines a distance-travelled variable.  Same comments
+;; This operator defines a distance-traveled variable.  Same comments
 ;; as for the speed variable.
 
 (defoperator define-distance (?b ?interval)
@@ -250,7 +250,7 @@
   ((variable ?var (distance ?b :time ?interval))
    (define-var (distance ?b :time ?interval)))
   :hint
-  ((bottom-out (string "Use the distance menu item under the Variables menu to define a variable for the distance travelled by ~a ~a." ?b ?interval))
+  ((bottom-out (string "Use the distance menu item under the Variables menu to define a variable for the distance traveled by ~a ~a." ?b ?interval))
    ))
 
 ;;; This operator represents knowing what kinds of quantities occur in
@@ -262,7 +262,7 @@
 (defoperator sdd-contains (?quantity)
   :specifications "
    the speed-distance-duration equation (sdd) contains
-      the speed of ?b and the distance it travelled during ?t,
+      the speed of ?b and the distance it traveled during ?t,
       and the duration of ?t,
    where ?b is an object and ?t is a time interval."
   :preconditions
@@ -301,17 +301,17 @@
   :effects
   ((eqn (= ?s-var (/ ?d-var ?t-var)) (sdd ?b ?t)))
   :hint
-  ((point (string "Can you write an equation in terms of speed, distance travelled and duration?"))
-   (point (string "You need to write an equation for the speed of ~a ~a in terms of the distance travelled by ~a ~a and the duration of the interval ~a." ?b (?t pp) ?b (?t pp) ?t))
+  ((point (string "Can you write an equation in terms of speed, distance traveled and duration?"))
+   (point (string "You need to write an equation for the speed of ~a ~a in terms of the distance traveled by ~a ~a and the duration of the interval ~a." ?b (?t pp) ?b (?t pp) ?t))
    (teach (string "The speed of an object is defined to be the distance traveled by the object divided by the duration of its trip.")
 	  (kcd "speed"))
-   (bottom-out (string "Because ~a is the speed of ~a ~a, and ~a is the distance travelled, and ~a is the duration of the trip, write ~a=~a/~a." 
+   (bottom-out (string "Because ~a is the speed of ~a ~a, and ~a is the distance traveled, and ~a is the duration of the trip, write ~a=~a/~a." 
 		       (?s-var algebra) ?b (?t pp) (?d-var algebra) (?t-var algebra)
 		       (?s-var algebra) (?d-var algebra) (?t-var algebra)))
    ))
 
 ;;; 
-;;; Relate the distance travelled to the magnitude of displacement
+;;; Relate the distance traveled to the magnitude of displacement
 ;;; in the case of straight line motion.
 ;;; 
 
@@ -342,7 +342,7 @@
   :effects
   ((eqn (= ?s-var ?d-var) (displacement-distance ?b ?t)))
   :hint
-  ((point (string "How is distance travelled related to displacement?"))
+  ((point (string "How is distance traveled related to displacement?"))
    (teach (string "If ~A is moving in a straight line, the distance traveled ~A is equal to the magnitude of the displacment." ?b (?t pp)))
    (bottom-out (string "Write the equation ~A = ~A" (?s-var algebra) (?d-var algebra)))))
 
@@ -370,7 +370,7 @@
   :effects ( (eqn (= ?tt-var (+ . ?t-vars)) (sum-distances ?b ?tt)) )
   :hint
   ((point (string "Distances can be added together."))
-   (teach (string "The distance ~A has travelled ~A is equal to the sum of distances travelled during each sub-interval." 
+   (teach (string "The distance ~A has traveled ~A is equal to the sum of distances traveled during each sub-interval." 
 		  ?b (?tt pp)))
    (bottom-out (string "Write the equation ~a."
 		        ((= ?t02-var (+ . ?t-vars)) algebra)))
@@ -2025,7 +2025,7 @@
 ;; special case of sdd: time = distance/speed. But to use the sdd rule 
 ;; for this we would need to define a starting and ending time, and represent
 ;; the fact that the object makes one revolution in this interval, then add 
-;; a rule to deduce that the distance travelled in this interval = 2*pi*r.
+;; a rule to deduce that the distance traveled in this interval = 2*pi*r.
 ;; We would also need a rule that avg speed = mag velocity at any time for 
 ;; an object in circular motion.
 ;;
@@ -2057,7 +2057,7 @@
      (eqn (= ?T-var (/ (* 2 $P ?r) ?v)) (period ?b ?t circular))
    )
    :hint (
-      (teach (string "The period of an object in circular motion is the time to make one complete revolution. This time is equal to the distance travelled, which is 2*$p times the radius of the circle, divided by the speed."))
+      (teach (string "The period of an object in circular motion is the time to make one complete revolution. This time is equal to the distance traveled, which is 2*$p times the radius of the circle, divided by the speed."))
       (bottom-out (string "Write the equation ~A" 
                           ((= ?T-var (/ (* 2 $P ?r) ?v)) algebra)))
    )

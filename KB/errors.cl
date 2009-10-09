@@ -27,7 +27,7 @@
 ;;       all variables
 ;;       mass
 ;;       distance between (not implemented yet)
-;;       distance travelled
+;;       distance traveled
 ;;       speed
 ;;       duration
 ;;       energy
@@ -362,53 +362,53 @@
 	 '(function next-step-help))))
 
 
-;;; =========== defining a distance-travelled variable ==============
-;;; The distance-travelled variable has two slots: body and time.
+;;; =========== defining a distance-traveled variable ==============
+;;; The distance-traveled variable has two slots: body and time.
 ;;; Thus, there are 3 default cases: (a) wrong body (ignoring time),
 ;;; (b) wrong time (handled by variable-with-wrong-time) and (c) no
 ;;; need for distance on this problem (handled by
 ;;; non-existent-variable).  There is a special case: Using distance
 ;;; when displacement is appropriate.
 
-;;; Default case: The student defines a distance-travelled variable
+;;; Default case: The student defines a distance-traveled variable
 ;;; for the wrong body.  We ignore time.  In particular, we don't
 ;;; favor interpretations where the student's time matches the correct
 ;;; time because the student is probably pretty confused.
-(def-error-class distance-travelled-wrong-body (?wrong-body 
+(def-error-class distance-traveled-wrong-body (?wrong-body 
 						?correct-body 
 						?time3)
   ((student (define-var (distance ?wrong-body :time ?time1)))
    (no-correct (define-var (distance ?wrong-body :time ?time2)))
    (correct (define-var (distance ?correct-body :time ?time3)))))
 
-(defun distance-travelled-wrong-body (wrong-body correct-body correct-time)
+(defun distance-traveled-wrong-body (wrong-body correct-body correct-time)
   (make-hint-seq
    (list (format nil (strcat "Are you sure you want to define the distance "
-			     "travelled by ~a?") 
+			     "traveled by ~a?") 
 		 (nlg wrong-body 'def-np))
 	 (format nil (strcat "For solving this problem, you need to define "
-			     "the distance travelled by ~a ~a.  If it is not "
+			     "the distance traveled by ~a ~a.  If it is not "
 			     "clear why this helps solve the problem, try "
 			     "clicking on the light bulb button or "
 			     "'explain further'.")
 		 (nlg correct-body 'def-np) (nlg correct-time 'pp))
 	 '(function next-step-help))))
 
-;;; Special case: The student defines a distance-travelled when
+;;; Special case: The student defines a distance-traveled when
 ;;; displacement of that same body is correct.  We ignore the time.
 ;;; Test this on kt9a.
-(def-error-class distance-travelled-should-be-displacement (?body ?correct-time)
+(def-error-class distance-traveled-should-be-displacement (?body ?correct-time)
   ((student (define-var (distance ?body :time ?time1)))
    (no-correct (define-var (distance ?body2 :time ?time2)))
    (correct (vector (displacement ?body :time ?correct-time) ?dir)))
   :utility 100)
 
-(defun distance-travelled-should-be-displacement (body correct-time)
+(defun distance-traveled-should-be-displacement (body correct-time)
   (setq body (nlg body 'def-np))
   (setq correct-time (nlg correct-time 'pp))
   (make-hint-seq
    (list (format nil (strcat "Although it is certainly correct to define "
-			     "a variable for the distance travelled by ~a, "
+			     "a variable for the distance traveled by ~a, "
 			     "it is only used in the equation <speed> = "
 			     "<distance> / <duration>, which isn't useful "
 			     "for solving this problem.  Can you think of a "
@@ -717,7 +717,7 @@
 ;;; the wrong body.  There is a special case for using a time interval
 ;;; rather than a time point. This variable is easily confused with
 ;;; displacement and the other spatial measures, so there are special
-;;; cases in displacement and distance travelled to redirect the
+;;; cases in displacement and distance traveled to redirect the
 ;;; student to use height.  Here there could be special case to
 ;;; redirect them to use the others, but since height is available on
 ;;; the menu only when it is relevant, there is no way to trigger
@@ -1403,25 +1403,6 @@
 ;;; 'dir more intelligently: could flag only the substantive one, 
 ;;; or treat dir as a composite control and flag both.)
 
-(def-error-class default-should-be-unknown ("vector" ?wrong-dir)
-  ((student (vector ?descr ?wrong-dir))
-   (correct (vector ?descr unknown))
-   (test (not (equal ?wrong-dir 'zero)))  ; use should-be-non-zero below
-   (test (not (equal ?wrong-dir 'unknown))))
-  ;; High probability since close match
-  :probability 0.75)
-
-;; used for both vectors and lines
-(defun default-should-be-unknown (object wrong-dir) 
-  (declare (ignore wrong-dir))
-  (make-hint-seq
-   (list 
-    (format nil (strcat "When the direction of a ~A is not given or easily "
-			"inferred from the problem statement, you should mark "
-			"it unknown. ") object)
-    (format nil 
-	    "Double-click on the ~A in order to bring up its properties if necessary, then erase the number in the direction box to mark the direction unknown."
-	    object))))
 
 ;;; need should-be-z-unknown for unknown but in the z direction.
 (def-error-class default-should-be-z-unknown ()
@@ -1698,15 +1679,6 @@
 ;;; ==================== line drawing ===============================
 
 
-;;; NB: default-should-be-unknown and default-wrong-dir also name
-;;; vector error classes which share a common turn-generating function.
-
-(def-error-class default-should-be-unknown ("line" ?wrong-dir)
-  ((student (draw-line ?descr ?wrong-dir))
-   (correct (draw-line ?descr unknown))
-   (test (not (equal ?wrong-dir 'unknown))))
-;; High probability since close match
-  :probability 0.5)
 
 ;;; The student's line doesn't appear at any angle
 (def-error-class default-non-existent-line (?sline)
@@ -1860,7 +1832,7 @@
 (defun use-distance-instead-of-displacement (cbody ctime)
   (make-hint-seq
    (list "On this problem, you need to use distance rather than displacement."
-	 (format nil "Define a variable for the distance travelled by ~a ~a."
+	 (format nil "Define a variable for the distance traveled by ~a ~a."
 		 (nlg cbody 'def-np) (nlg ctime 'pp)))))
       
 ;;; On a few problems, one must use height instead of displacement.
@@ -4143,7 +4115,7 @@
 )
 
 (defun undiagnosed-eqn-error(eqn)
-   ; following routine shows query and does all the work from there
+   ;; following routine shows query and does all the work from there
    (elicit-intended-equation eqn)
 )
 
@@ -4167,9 +4139,9 @@
   :order ((correct . 2))
   )
 
-; This test allows possibility of tolerance in direction via :error in
-; the correct direction dnum. Note non-dnum dirs including unknown must 
-; pass exact-match text so this test doesn't have to handle them.
+;; This test allows possibility of tolerance in direction via :error in
+;; the correct direction dnum. Note non-dnum dirs including unknown must 
+;; pass exact-match text so this test doesn't have to handle them.
 (def-entry-test match-vector (?quant) 
   :preconditions ((student (vector ?quant ?dir1))
 		  (correct (vector ?quant ?dir2)) ; may have :error
@@ -4178,4 +4150,73 @@
 			     (compare-dnums ?dir1 ?dir2))))
   :state **correct**
   :order ((correct . 2))
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;              Tests for vector of unknown direction
+;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; First, see if the student has guessed 
+;; the correct direction, as determined by the solver.
+(def-entry-test match-unknown-vector-to-solver (?quant ?dir1) 
+  :preconditions ((student (vector ?quant ?dir1))
+		  (correct (vector ?quant unknown))
+		  (test (match-direction-to-solver ?dir1 ?quant))
+		  )
+  :state **correct**
+  :order ((correct . 2) (unknown-vector . 4))
+  )
+
+(defun match-direction-to-solver (dir quant &key (epsilon 2.5))
+  "Determine if dir matches value determined by the solver."
+  (let ((at (match-exp->qvar `(dir ,quant) (problem-varindex *cp*))))
+    (and at (qvar-value at)
+	 (equal (qvar-units at) '|deg|) ;sanity check.
+	 (dimensioned-numberp dir)
+	 (< (mod (- (qvar-value at) (convert-dnum-to-number dir)) 360) 
+	    ;; error bound
+	    epsilon))))
+
+;; Then, make sure it doesn't align with any
+;; known vector directions.
+
+(def-entry-test align-unknown-vector-with-vector (?quant ?dir1) 
+  :preconditions ((student (vector ?quant ?dir1))
+		  (correct (vector ?quant unknown))
+		  (correct (vector ?any-quant ?dir2))
+		  (test (parallel-or-antiparallelp ?dir1 ?dir2))
+		  )
+  :state **incorrect**
+  :hint (list
+	 (format nil "Drawing the vector in the direction ~A suggests that it is aligned with ~A." (nlg ?dir1 'adj) (nlg ?quant))
+	 "However, the direction of this vector is not given.&nbsp;  Please choose another direction.")
+  :order ((correct . 2) (unknown-vector . 2))
+  )
+
+;; Then, make sure it doesn't align with any drawn axes.
+(def-entry-test align-unknown-vector-with-axes (?quant ?dir1) 
+  :preconditions ((student (vector ?quant ?dir1))
+		  (correct (vector ?quant unknown))
+		  (old-student (draw-axes ?dir2))
+		  (test (and (degrees-or-num ?dir1)
+			     (degrees-or-num ?dir2)
+			     (< (mod (- (convert-dnum-to-number ?dir1)
+					(convert-dnum-to-number ?dir2)) 90) 2)))
+		  )
+  :state **incorrect**
+  :hint (list
+	 (format nil "Drawing the vector in the direction ~A suggests that it is aligned with the axes you have drawn." (nlg ?dir1 'adj))
+	 "However, the direction of this vector is not given.&nbsp;  Please choose another direction.")
+  :order ((correct . 2) (unknown-vector . 1))
+  )
+
+;; Finally, accept vector, since it passed the other tests.
+(def-entry-test match-unknown-vector-to-solver (?quant ?dir1) 
+  :preconditions ((student (vector ?quant ?dir1))
+		  (correct (vector ?quant unknown))
+		  )
+  :state **correct**
+  :order ((correct . 2) (unknown-vector . 0))
   )
