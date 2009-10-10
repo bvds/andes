@@ -265,17 +265,14 @@
 		  (:text . ,time-sentence))
 		replies)
 	  (setf y (+ y 25))))
-      
-      ;; Collect and fill out any missing terms in prefs
-      ;; This allows us
-      
+            
       ;; This must be done within env-wrap since it uses *cp*
       (setf predefs (problem-predefs *cp*))
       ;; position objects and add common stuff.
       (let ((y 15) (i 0))
 	(dolist (predef predefs)
 	  ;; Debug text
-	  (format webserver:*stdout* "Working on ~A~%" (cdr predef))
+	  ;; (format webserver:*stdout* "Working on ~A~%" (cdr predef))
 	  (unless (assoc :action (cdr predef)) 
 	    (push '(:action . "new-object") (cdr predef)))
 	  (unless (assoc :id (cdr predef)) 
@@ -305,7 +302,7 @@
 		       450)
 		(setf y (max y (cdr (assoc :y (cdr predef))))))
 	      (push `(:y . ,y) (cdr predef)))
-	  (format webserver:*stdout* "  Turned to ~A~%" (cdr predef))
+	  ;; (format webserver:*stdout* "  Turned to ~A~%" (cdr predef))
 	  (setf y (+ y 25))))
       
 
@@ -315,7 +312,7 @@
     ;; the solution-step method.
     ;; Execute outside of env-wrap and with check-entries turned on.
     (dolist (predef (mapcar #'cdr predefs)) ;ignore any entry-prop
-      (format webserver:*stdout* "Sending predef ~A~%" (cdr predef))
+      ;; (format webserver:*stdout* "Sending predef ~A~%" (cdr predef))
       (let ((reply (apply #'solution-step 
 			  ;; flatten the alist
 			  (mapcan 
@@ -324,7 +321,7 @@
 	(setf solution-step-replies 
 	      (append solution-step-replies 
 		      (cons predef reply))))
-      (format webserver:*stdout* "   done with predef ~A~%" (cdr predef))
+      ;; (format webserver:*stdout* "   done with predef ~A~%" (cdr predef))
       )
       
     (env-wrap (check-entries nil))     
@@ -407,7 +404,10 @@
 	       ;; remove any (var ...)
 	       (expand-vars 
 		(systementry-new-english (find-systementry prop)))))
-      (warn "predefs:  Can't find systementry for ~S" prop)))
+      (progn (warn "write-definition-text:  Can't find systementry for ~S" 
+		   prop)
+	     (strcat symbol ":  Can't find definition"))))
+
 
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  

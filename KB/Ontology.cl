@@ -370,13 +370,17 @@
   :new-english (((preferred "the") (allowed (or "total" "net"))
 		 "work done" 
 		 (and (preferred (object ?body))
-		      (allowed (agent "non-conservative forces"))
+		      (allowed (agent "all forces"))
 		      (preferred (time ?time))))))
 
-(def-qexp work-nc (work-nc ?b :time ?time)
+(def-qexp work-nc (work-nc ?body :time ?time)
   :units |J|
-  :nlg-english ("the work done by non-conservative forces on ~A" 
-	    (nlg ?b 'at-time ?time)))
+  :new-english (((preferred "the") (allowed (or "total" "net"))
+		 "work done" 
+		 (and (preferred (object ?body))
+		      (preferred (agent "non-conservative forces"))
+		      (preferred (time ?time))))))
+
 (def-qexp power (power ?b ?agent :time ?time)
   :symbol-base |P|     
   :short-name "power"	

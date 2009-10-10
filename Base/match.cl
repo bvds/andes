@@ -131,7 +131,7 @@
     ((null student) (word-count model))
     ((null model) (word-count student))
     ((stringp model)
-     (let ((best 10000)) ;ignore any global value of best
+     (let ((best 10000.0)) ;ignore any global value of best
        ;; profiling shows that just calculating is slightly
        ;; faster than also testing against the global best
        (dolist (item student)
@@ -168,6 +168,7 @@
     (t (error "Bad tree ~A" model))))
 
 (defun match-model-list (student model &key best)
+  (declare (notinline match-model)) ;for profiling
   ;; for n student words and m elements of the model list,
   ;; m n (n+1)/2 matches must be evaluated.  The following
   ;; is based on the Levenstein minimum edit distance algorithm.
@@ -212,6 +213,7 @@
 ;; that is optimized for the search over systementries.
 
 (defun match-model-and (student model &key best)
+  (declare (notinline match-model)) ;for profiling
   (let* ((width (1+ (length student)))
 	 ;; nil means skip
 	 (matches (make-array (list (length model) width width)
@@ -250,8 +252,6 @@
     ;; Simply iterate through all possibilities.
     ;; For n student words and m elements of the model list,
     ;; there are m! (m+n-1)!/(n! (m-1)!) different possible matches.
-
-    ;; This is pretty slow!  
     (update-bound best (match-model-slow 
 			matches model-free 
 			(list (list 0 (length student)))))
@@ -319,6 +319,14 @@
 ;; Simply iterate through all possibilities.
 ;; For n student words and m elements of the model list,
 ;; there are m! (m+n-1)!/(n! (m-1)!) different possible matches.
+
+;; If this proves to be too slow, may have to find a polynomial-time
+;; algorithm.  See:
+;; "QuickMatch: A Very Fast Algorithm for the Assignment Problem", 
+;;                  James B. Orlin, Yusin Lee
+;; Lecture notes "Bipartite Matching & the Hungarian Algorithm
+;;     http://www.cse.ust.hk/~golin/COMP572/Notes/Matching.pdf
+;; 
 (defun match-model-slow (matches model-free student-intervals)
   "Exhaustive (slow) search through all possibilities for matching student to orderless set of model phrases."
   (if model-free
@@ -381,7 +389,6 @@
   (let (this (best (/ (* cutoff (length student)) equiv)) quants bound)
     (dolist (x models)
       (setf bound (max epsilon (* best equiv)))
-      (format t "Start match to ~s with bound ~A~%" (car x) bound)
       (setf this (match-model student (car x) :best bound))
       (when (< this bound) (push (cons this (cdr x)) quants))
       (when (< this best) (setf best this)))
@@ -390,7 +397,7 @@
 
 (defun best-matches (text good)
   "Returns array of best matches to text.  Use minimum edit distance."
-  (let (this (best 1000000) quants)
+  (let (this (best 1000000.0) quants)
     (dolist (x good)
       ;; Normalize by maximum possible distance.
       (setf this (normalized-levenshtein-distance text (car x)))
@@ -402,34 +409,37 @@
     quants))
 
 (defun normalized-levenshtein-distance (s1 s2)
-  "Normalize levenshtein-distance so complete rewrite is 1."
-  (/ (levenshtein-distance s1 s2) 
-		    (max (length s1) (length s2))))
-
-;;;; Levenshtein Distance function.  This implementation was converted from 
-;;;; the Scheme implementation given at 
-;;;; http://en.wikipedia.org/wiki/Levenshtein_distance
-;;;; See http://www.cliki.net/Levenshtein
-;;;; 
+  "Normalize levenshtein-distance so complete rewrite is 1.0."
+  (/ (float (levenshtein-distance s1 s2))
+		    (float(max (length s1) (length s2)))))
 
 
-(defun levenshtein-distance (s1 s2)
-  (let* ((width (1+ (length s1)))
-	  (height (1+ (length s2)))
-	  (d (make-array (list height width))))
-    (dotimes (x width)
-      (setf (aref d 0 x) x))
-    (dotimes (y height)
-      (setf (aref d y 0) y))
-    (dotimes (x (length s1))
-      (dotimes (y (length s2))
-	(setf (aref d (1+ y) (1+ x))
-	      (min (1+ (aref d y (1+ x)))
-		   (1+ (aref d (1+ y) x))
-		   (+ (aref d y x)
-		      (if (char= (aref s1 x) (aref s2 y))
-			  0
-			  1))))))
-    (aref d (1- height) (1- width))))
+;; Levenshtein Distance function.  
+;; From http://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance#Common_Lisp
+;; This is considerably faster than the one at 
+;;        http://www.cliki.net/Levenshtein 
 
-
+(defun levenshtein-distance (str1 str2)
+  "Calculates the Levenshtein distance between str1 and str2, returns an editing distance (int)."
+  (let ((n (length str1))
+	(m (length str2)))
+    ;; Check trivial cases
+    (cond ((= 0 n) (return-from levenshtein-distance m))
+	  ((= 0 m) (return-from levenshtein-distance n)))
+    (let ((col (make-array (1+ m) :element-type 'integer))
+	  (prev-col (make-array (1+ m) :element-type 'integer)))
+      ;; We need to store only two columns---the current one that
+      ;; is being built and the previous one
+      (dotimes (i (1+ m))
+	(setf (svref prev-col i) i))
+      ;; Loop across all chars of each string
+      (dotimes (i n)
+	(setf (svref col 0) (1+ i))
+	(dotimes (j m)
+	  (setf (svref col (1+ j))
+		(min (1+ (svref col j))
+		     (1+ (svref prev-col (1+ j)))
+		     (+ (svref prev-col j)
+			(if (char-equal (schar str1 i) (schar str2 j)) 0 1)))))
+	(rotatef col prev-col))
+      (svref prev-col m))))
