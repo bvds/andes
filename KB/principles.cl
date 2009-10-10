@@ -1040,7 +1040,7 @@
 		      (stream-external-format Stream))))
     (format Stream 
 	    (strcat "{~%"
-		    "  \"identifier\": \"id'\",~%"
+		    "  \"identifier\": \"id\",~%"
 		    "  \"label\": \"label\",~%"
 		    "  \"items\": [~%"
 		    ))
