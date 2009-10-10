@@ -413,10 +413,7 @@
 		  (list response-code)))
 
 	;; else no responder!
-	(T (make-dialog-turn 
-	       (format NIL "An internal error occurred: no response found for ~A" 
-		       response-code)
-	       NIL))))
+	(T (make-end-dialog-turn "Your comment has been recorded.")))) 
 
     
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

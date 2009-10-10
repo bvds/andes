@@ -176,7 +176,7 @@
 ;;----------------------------------------------------------
 ;; define specific tutor turn types.
 
-(defun make-green-dialog-turn (text menu &key (Responder #'nil-turn-resp))
+(defun make-green-dialog-turn (text menu &key Responder)
   "Produce a green coloring dialog type tutor turn."
   (make-turn :coloring **Color-Green**
 	     :type **Dialog-Turn**
@@ -185,7 +185,7 @@
 	     :Responder Responder))
 		  
 
-(defun make-dialog-turn (text menu &key (Responder #'nil-turn-resp) Assoc)
+(defun make-dialog-turn (text menu &key Responder Assoc)
   "Produce a dialog type tutor turn."
   (make-turn :type **Dialog-Turn**
 	     :text text
@@ -197,11 +197,10 @@
   "Make a turn that ends the dialog."
   (make-turn :type **Dialog-Turn**
 	     :text text
-	     :responder #'nil-turn-resp
 	     :Assoc (alist-warn Assoc)))
 	     
 			    
-(defun make-minil-turn (url &key (Responder #'nil-turn-resp) Assoc)
+(defun make-minil-turn (url &key Responder Assoc)
   "Produce a minilesson type tutor turn."
   (make-turn :type **Minil-Turn**
 	     :text url
@@ -244,11 +243,6 @@
 (defun make-black-turn (&key id)
   "Make a nil coloring (color black) turn."
   (make-turn :id id))
-
-(defun nil-turn-resp (x)
-  "A function used for non-response turns."
-  (declare (ignore x))
-  nil)
 
 (defun make-noop-turn ()
   (make-turn :Type **No-Op-Turn**))

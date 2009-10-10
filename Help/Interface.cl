@@ -323,8 +323,8 @@
 ;; !show-hint command even where bare hint text was formerly expected, so we 
 ;; can safely use this in all cases in context-independent manner.
 (defun turn->WB-Reply (turn)
-"return reply string to send to wb for given tutor turn"
-  ; null turn is special case
+  "return reply string to send to wb for given tutor turn"
+  ;; null turn is special case
   (when (null turn)
     (return-from turn->WB-Reply "")) 
   ;; non-dialog result string part (status or equation)
