@@ -885,3 +885,17 @@
 			      ((= ?v1 (* ?fraction ?v2)) algebra)))
 	  ))
 
+;;; ============== Test pre-defined quantities  ========================
+;;;
+ 
+(post-process test-predefs (Problem)
+  "Test that pre-defs have the right form."
+  (dolist (predef (problem-predefs problem))
+    ;; Unfortunately, we can't test the car of the predef, 
+    ;; since the sytementry props are not available.
+    (when (cdr predef)
+      (unless (and (listp (cdr predef))
+		   (every #'consp (cdr predef))
+		   (every #'(lambda (x) (keywordp (car x))) (cdr predef))
+		   (notany #'(lambda (x) (consp (cdr x))) (cdr predef)))
+	(error "Predef should be alist, not ~S" (cdr predef))))))
