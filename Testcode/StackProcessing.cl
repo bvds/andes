@@ -199,9 +199,12 @@
 	; this will occur inside a hint sequence
 	((delete-cmdp CMD)   ; general, allows any object deletion.  
 	    (help-stackc-test (car Stack) (cdr Stack) Result 1))
-
-	(t (warn "unexpected event within hint sequence ~S" CMD)
-	   NIL)))
+	
+	;; Not too sure how this worked previously, but things
+	;; like read-problem-info end up on the stack and
+	;; we simply want to conclude that this is not a help
+	;; stack in such cases.
+	(t nil)))
 
 ;;; a cmd is a help cont if it is an explain-more or
 ;;; a handle student response.
