@@ -15,7 +15,7 @@
 	<link href="dojox/widget/UpgradeBar/UpgradeBar.css" rel="stylesheet" />
 	<script>
 		djConfig = {
-			isDebug:false,
+			isDebug:true,
 			parseOnLoad:true,
 			popup:true
 		}
@@ -27,12 +27,11 @@
 		}else{
 			djConfig.modulePaths = {'andes':'../andes'};
 			document.write('<link href="release/dojo/css/andes.css" rel="stylesheet" />');
-			document.write('<scr'+'ipt src="release/dojo/dojo/dojo.js"></scr'+'ipt>');
+			document.write('<scr'+'ipt src="release/dojo/dojo/dojo.js.uncompressed.js"></scr'+'ipt>');
 		}
 	
 	
 	</script>
-
 	
 	<script>
 		// debug stuff.

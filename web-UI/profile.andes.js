@@ -1,9 +1,6 @@
 dependencies = {
 	stripConsole: "normal",
 
-//Test to see if performance is affected by no layers.
-//Dojo is having trouble with andes.profile dependency here
-/*
 	layers: [
 		
 		{
@@ -13,7 +10,7 @@ dependencies = {
 			]
 		}
 	],
-*/
+
 	prefixes: [
 		[ "dijit", 		"../dijit" ],
 		[ "dojox", 		"../dojox" ],

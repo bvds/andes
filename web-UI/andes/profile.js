@@ -1,6 +1,7 @@
 dojo.provide("andes.profile");
 
 dojo.require("dojo.parser");
+dojo.require("andes.ContentPane");
 dojo.require("dijit.layout.BorderContainer");
 //dojo.require("dijit.layout.ContentPane");
 dojo.require("andes.widget.ExpandoPane");
@@ -17,7 +18,31 @@ dojo.require("dijit.form.TextBox");
 // needs to be loaded before Drawing:
 dojo.require("andes.defaults");
 dojo.require("andes.main");
-dojo.require("dojox.drawing");
+dojo.require("andes.draw");
+
+dojo.require("dojox.gfx");
+dojo.require("dojox.drawing.Drawing");
+dojo.require("dojox.drawing.util.oo");
+dojo.require("dojox.drawing.util.common");
+dojo.require("dojox.drawing.defaults");
+dojo.require("dojox.drawing.manager.Canvas");
+
+//interactive managers
+dojo.require("dojox.drawing.manager.Undo");
+dojo.require("dojox.drawing.manager.keys");
+dojo.require("dojox.drawing.manager.Mouse");
+dojo.require("dojox.drawing.manager.Stencil");
+dojo.require("dojox.drawing.manager.StencilUI"); // plugin? or as a require? good here? in toolbar?
+dojo.require("dojox.drawing.manager.Anchors");
+
+// standard stencils
+dojo.require("dojox.drawing.stencil._Base");
+dojo.require("dojox.drawing.stencil.Line");
+dojo.require("dojox.drawing.stencil.Rect");
+dojo.require("dojox.drawing.stencil.Ellipse");
+dojo.require("dojox.drawing.stencil.Path");
+dojo.require("dojox.drawing.stencil.Text");
+dojo.require("dojox.drawing.stencil.Image");
 
 // Previous includes in Drawing no longer in Dojox
 dojo.require("dojox.drawing.plugins.drawing.Silverlight");
@@ -58,4 +83,3 @@ dojo.require("dojox.drawing.library.icons");
 // needs to be loaded after Drawing:
 dojo.require("andes.Combo");
 dojo.require("andes.positioning");
-dojo.require("andes.ContentPane");
