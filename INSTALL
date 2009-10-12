@@ -102,8 +102,7 @@ Change the path in the sample file to your path.
 # we should later switch to using releases of Dojo.
 cd web-UI
 svn co http://svn.dojotoolkit.org/src/dojo/trunk dojo
-# See http://www.andestutor.org/bugzilla/show_bug.cgi?id=1579 for dijit bug.
-svn co -r 20090 http://svn.dojotoolkit.org/src/dijit/trunk dijit
+svn co http://svn.dojotoolkit.org/src/dijit/trunk dijit
 svn co http://svn.dojotoolkit.org/src/dojox/trunk dojox
 svn co http://svn.dojotoolkit.org/src/util/trunk util
 
@@ -117,7 +116,7 @@ andes.build.sh
 ;; using asdf-install.  asdf-install broken in that it will try to load
 ;; packages we said we didn't need, like cl+ssl and its dependent cffi.
 ;; Modify ownership/permissions in /usr/local/lib/sbcl/site* so that you
-;; have write permission.
+;; have write permission:
 
 chown -r $USER /usr/local/lib/sbcl/site*
 
@@ -126,12 +125,16 @@ chown -r $USER /usr/local/lib/sbcl/site*
   (push :hunchentoot-no-ssl *features*) ;we have apache to do this
   (asdf-install:install 'hunchentoot) ;here it will say package not trusted multiple times
   (asdf-install:install 'cl-json)
+  (quit)  ; exit the lisp server
 
+====================== Run Help Server ===============================
 
 ;; To run server in lisp, type "screen" on the command line,
 ;; then type "sbcl" to start up lisp, then:
   (rhelp)
   (start-help)
+;; At this point, you can type ctl-a ctl-d to detach from the 
+;; lisp process; see the documentation for screen.
 ;; To stop the lisp server:
   (stop-help)
 

@@ -3,89 +3,46 @@
 <head>
 <title>Choose a principle of physics</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<link href="../dojo/resources/dojo.css" rel="stylesheet" />
+<link href="../dijit/themes/tundra/tundra.css" rel="stylesheet" />
+
 <style type="text/css">
- div#graphic {
-       overflow: hidden;
-   }
-  div.tall {
+ div.tall {
       border-style: solid;
       border-color: #ddd;
       overflow: auto; height: 400px;
    }
 </style>
 
-	<script>
-		djConfig = {
-			isDebug:true,
-			parseOnLoad:true
-		}
-		
-		if(djConfig.isDebug){
-			djConfig.modulePaths = {'drawing': '../drawing', 'andes':'../andes'};
-			document.write('<link href="../css/andes.css" rel="stylesheet" />');
-			document.write('<scr'+'ipt src="../dojo/dojo.js"></scr'+'ipt>');
-		}else{
-			djConfig.modulePaths = {'drawing': '../drawing', 'andes':'../andes'};
-			document.write('<link href="../release/dojo/css/andes.css" rel="stylesheet" />');
-			document.write('<scr'+'ipt src="../release/dojo/dojo/dojo.js"></scr'+'ipt>');
-		}
-	
-	
-	</script>
+<!-- required: dojo.js -->
 
-	<script>
-		if(dojo.isIE){
-			// Fixing IE's console
-			console._log = console.log;
-			console.log = function(){
-				console._log(Array.prototype.slice.call(arguments).join("  "));
-			}
-			console._warn = console.warn;
-			console.warn = function(){
-				console._warn(Array.prototype.slice.call(arguments).join("  "));
-			}
-			// if console is closed this throws an error
-			try{console.clear();}catch(e){}
-		}
-		var watched = {};
-		var ta;
-		watch = function(name, value){
-			//return;
-			if(!ta) {
-				ta = dojo.create("textarea", null, dojo.body());
-			}
-			if(typeof(value)=="number"){
-				value = Math.ceil(value);
-			}
-			watched[name] = value;
-			var lines=[];
-			for(var n in watched){
-				lines.push(n+": "+watched[n]);
-			}
-			dojo.attr(ta, "rows", lines.length);
-			ta.value = lines.join("\n");
-		}
+<script type="text/javascript" src="../dojo/dojo.js"
+	djConfig="parseOnLoad: true, isDebug: true"></script>
 
-</script>
-  
 <script>
-  dojo.require("dojo.data.ItemFileWriteStore");
+  dojo.require("dijit.dijit"); 
+  dojo.require("dojo.data.ItemFileReadStore");
   dojo.require("dijit.Tree");
+  dojo.require("dijit.tree.ForestStoreModel");
   dojo.require("dojo.parser");
-  dojo.require("dijit.layout.ContentPane");
 </script>
 </head>
 <body class="tundra">
 
-<div dojoType="dojo.data.ItemFileWriteStore" url="/review/principles.json" jsId="principlesStore" /></div>
-  
   <h1>Test Principles of physics menu.</h1>
- 
-       <div dojoType="dijit.Tree" model="principlesStore" labelAttr="identifier" childrenAttr="items" class="tall">
+
+   <div dojoType="dojo.data.ItemFileReadStore" url="/review/principles.json"
+        jsId="principlesStore" /></div>
+	
+   <div dojoType="dijit.tree.ForestStoreModel" jsId="principlesModel" store="principlesStore"
+        rootLabel="All Principles" childrenAttrs="items"></div>
+
+   <div dojoType="dijit.Tree" model="principlesModel" showRoot="false"  class="tall">
 	  <script type="dojo/method" event="onClick" args="item">
-	  console.log("hi");
+              console.log("item:  "+principlesStore.getValue(item,"psmclass-name"));
 	  </script>
-	 hi
+	  List of Principles
 	</div>
 </body>
 </html>

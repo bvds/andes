@@ -135,8 +135,6 @@
   
   symbol-base   ;; Base to present for symbol name in dialog box
   short-name    ;; String with short name for quantity (for use in menu)
-  pre-dialog-text  ;; hack to get starting text in variable definition dialog
-  dialog-text   ;; remaining text in variable definition dialog.
   Units         ;; A function or atom returning the units.
   restrictions  ;; a list of atoms such as nonnegative placing restictions 
                 ;; on the value.
@@ -154,8 +152,6 @@
 		   &key Fields
                         symbol-base
                         short-name
-                        pre-dialog-text
-                        dialog-text
  			Units
 			restrictions
 			documentation
@@ -168,8 +164,6 @@
     :fields Fields
     :symbol-base symbol-base
     :short-name short-name
-    :pre-dialog-text pre-dialog-text
-    :dialog-text dialog-text
     :Units Units
     :restrictions Restrictions
     :documentation documentation
@@ -190,7 +184,6 @@
 ;; This function is not intended to be called directly
 ;; by the users.
 (defun define-exptype (&key type form fields symbol-base short-name 
-			    pre-dialog-text dialog-text 
 			    units 
 			    restrictions 
 			    documentation
@@ -216,8 +209,6 @@
 	    :documentation documentation
 	    :symbol-base symbol-base
 	    :short-name short-name
-	    :pre-dialog-text pre-dialog-text
-	    :dialog-text dialog-text
 	    :units Units
 	    :restrictions restrictions
 	    :Varfunc varfunc

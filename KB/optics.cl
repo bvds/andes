@@ -44,7 +44,6 @@
 (def-qexp object-distance (object-distance ?lens)
   :symbol-base |do|     
   :short-name "object distance"	
-  :dialog-text "with respect to [body:bodies]"
    :units |m|
    :nlg-english ("the distance of the object from ~A" (nlg ?lens))
 )
@@ -61,7 +60,6 @@
 (def-qexp image-distance (image-distance ?lens)
   :symbol-base |di|     
   :short-name "image distance"	
-  :dialog-text "with respect to [body:bodies]"
    :units |m|
    :nlg-english ("the distance of the image from ~A" (nlg ?lens))
 )
@@ -78,7 +76,6 @@
 (def-qexp focal-length (focal-length ?lens)
   :symbol-base |f|     
   :short-name "focal length"	
-  :dialog-text "of [body:bodies]"
    :units |m|
    :nlg-english ("the focal length of ~A" (nlg ?lens))
 )
@@ -95,7 +92,6 @@
 (def-qexp magnification (magnification ?lens)
   :symbol-base |m|     
   :short-name "magnification"	
-  :dialog-text "of [body:bodies]"
   :units NIL
    :nlg-english ("the magnification of ~A" (nlg ?lens))
 ) 
@@ -112,7 +108,6 @@
 (def-qexp radius-of-curvature (radius-of-curvature ?mirror)
   :symbol-base |r|     
   :short-name "radius of curvature"	
-  :dialog-text "of [body:bodies]"
    :units |m|
    :nlg-english ("the radius of curvature of ~A" (nlg ?mirror))
 )
@@ -129,7 +124,6 @@
 (def-qexp distance-between (distance-between orderless . ?objects)
   :symbol-base |d|     
   :short-name "distance"	
-  :dialog-text "between [body:bodies] and [body2:bodies]"
   :units |m|
   :nlg-english ("the distance between ~a" (nlg ?objects 'conjoined-defnp))
   ) 
@@ -147,8 +141,6 @@
 (def-qexp slit-separation (slit-separation ?grating)
   :symbol-base |d|     
   :short-name "slit separation"	
-  :pre-dialog-text "separation between slits"
-  :dialog-text "in [body:bodies]"
   :units |m|
   :restrictions positive
   :nlg-english ("the distance between slits in ~A" (nlg ?grating))
@@ -166,8 +158,6 @@
 (def-qexp resolution-angle (resolution-angle ?grating)
   :symbol-base |$q|     
   :short-name "angle of resolution"
-  :pre-dialog-text "minimum angle of resolution"	
-  :dialog-text "for [body:bodies]"
   :units |deg|
   :restrictions positive
   :nlg-english ("the minimum angle of resolution for ~A" (nlg ?grating))

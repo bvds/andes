@@ -377,17 +377,18 @@
 	 hints)
     
     ;; Debug printout:
-    (format webserver:*stdout* "Best match to ~s is~%   ~S~% from ~S~%" 
-	    student
-	    (mapcar 
-	     #'(lambda (x) (cons (car x) 
-				 (expand-vars (SystemEntry-model (cdr x)))))
-	     best)
+    (when nil
+      (format webserver:*stdout* "Best match to ~s is~%   ~S~% from ~S~%" 
+	      student
+	      (mapcar 
+	       #'(lambda (x) (cons (car x) 
+				   (expand-vars (SystemEntry-model (cdr x)))))
+	       best)
 	    (mapcar #'(lambda (x) 
 			(cons (expand-vars (SystemEntry-new-english x)) 
 			      (systementry-prop x)))
-		    sysentries))
-    
+		    sysentries)))
+      
     (cond
       ((null sysentries)
        (values nil (nothing-to-match-ErrorInterp entry)))

@@ -30,7 +30,6 @@
 (def-qexp mass-density (mass-density ?material)
   :symbol-base |$r|     
   :short-name "mass density"	
-  :dialog-text "of [body:bodies]"
    :units |kg/m^3|
    :restrictions nonnegative   
    :nlg-english ("the mass density of ~A" (nlg ?material))
@@ -91,7 +90,6 @@
 (def-qexp pressure (pressure ?position :time ?time)
   :symbol-base |P|     
   :short-name "pressure"	
-  :dialog-text "at [body:positions] at time [time:times]"
    :units |Pa|
    :nlg-english ("the pressure at ~a" 
 	     (nlg ?position 'at-time ?time))
@@ -118,7 +116,6 @@
   :units |Pa|
   :restrictions positive
   :short-name "standard atmosphere"
-  :dialog-text ""
   :nlg-english ("the pressure of one standard atmosphere")
 )
 
@@ -372,7 +369,6 @@
 (def-qexp area-at (area-at ?position :time ?time)
   :symbol-base |A|     
   :short-name "cross-sectional area"	
-  :dialog-text "at [body:positions]  at time [time:times]"
      :units |m^2|
      :restrictions positive
      :nlg-english ("the cross-sectional area at ~A" (nlg ?position 'at-time ?time))
@@ -562,7 +558,6 @@
 (def-qexp volume (volume ?body :time ?time)
   :symbol-base |V|     
   :short-name "volume"	
-  :dialog-text "of [body:bodies] at time [time:times]"
      :units |m^3|
      :restrictions nonnegative ; we allow zero-volume for negligible parts of compound bodies
      :nlg-english ("the volume of ~A" (nlg ?body 'at-time ?time))
