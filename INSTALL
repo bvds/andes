@@ -1,50 +1,49 @@
-
-      Instructions for Installing Andes
-
-Andes been used most extensively with sbcl and Allegro lisp.
-The webserver functionality has only been developed for sbcl.
-
-Andes uses asdf as its package manager; both the sbcl and 
-Allegro lisp distributions include asdf.
+#
+#      Instructions for Installing Andes
+#
+# Andes been used extensively with sbcl and Allegro lisp,
+# but the webserver functionality has only been developed for sbcl.
+# The following install procedure has been tested on Linux and OS X
 
 # Set up an account for yourself at github, providing
 # your ssh key (see http://github.com/guides/home), and send
 # your user name to help@andestutor.org.
 
-# To get the Andes repository from github use:
-  git clone git@github.com:bvds/andes.git andes
-# The Andes root directory is "andes"
-  cd andes
+# To install the Andes repository in directory "andes" use:
+git clone git@github.com:bvds/andes.git andes
+cd andes
 
 # Compile the solver library and executable:
-  cd Algebra/src/; make solver-program ; cd ../../
+make install-solver
 
 # For the system to work, a library of problem definitions 
 # must be included.  The original Andes problem definitions
 # are under copyright and not publicly available.  For access,
 # send your ssh public key to help@andestutor.org  The git command
 # to download this library is (from the Andes root directory):
-   git clone ssh://git@andestutor.org/home/git/Andes-problems.git/ problems
+git clone ssh://git@andestutor.org/home/git/Andes-problems.git/ problems
+
 # Likewise, at least for Andes2, one can use the solutions repository:
-   git clone ssh://git@andestutor.org/home/git/Andes-solutions.git/ solutions
+git clone ssh://git@andestutor.org/home/git/Andes-solutions.git/ solutions
 
 # ImageMagick http://www.imagemagick.org is used to dimension graphics
 # files.  This is included in standard linux distributions (but not OS X).
 
 ====================== SBCL ===============================
 
-#Go to http://sbcl.sourceforge.net/ and click on downloads
-#Download the appropriate package, unarchive it and follow
-#the install instructions.
+# Go to http://sbcl.sourceforge.net/ and click on downloads
+# Download the appropriate package, unarchive it and follow
+# the install instructions.
 
-mkdir /usr/local/lib/sbcl/site/
+# For sbcl, a sample startup file has been included as sbclrc-sample.
+# You can modify the file (you may need to change the path) and 
+# copy it to your home directory:
+cp sbclrc-sample ~/.sbclrc
+# Change the path in the sample file to your path.
 
-For sbcl, a sample startup file has been included as sbclrc-sample.
-You can modify the file (you may need to change the path) and 
-copy it to your home directory:
-  cp sbclrc-sample ~/.sbclrc
-
-Change the path in the sample file to your path.
+#Install site-wide sbcl libraries:
+su root
+make install-site-libraries
 
 ============================ MySql =======================================
 
@@ -61,38 +60,18 @@ Change the path in the sample file to your path.
 # execute "sudo /Library/StartupItems/MySQLCOM/MySQLCOM start", and
 # set the root mysql password using the above command.) 
 
-# clsql doesn't work with asdf-install or cffi.  
-# Instead, we patch a local copy and install. 
-# In the Andes directory, execute:
-  make install-clsql
 # Set up tables in database:
-  make install-database
+make install-database
 
 =============== Apache Web Server =================================
 
-# To serve static files, we use Apache.  First, start up Apache.
-# As root:
+# Configure Apache as reverse proxy server, with json-rpc 
+# error messages.  Add links to DocumentRoot.
+make configure-httpd
+
+# Start up Apache.  As root:
   /sbin/chkconfig httpd on
   /sbin/service httpd start
-
-# Next, configure Apache as reverse proxy server, with json-rpc 
-# error messages.  In httpd.conf, add:
-  <Location /help>
-    ProxyPath http://localhost:8080/help
-    ReverseProxyPath http://localhost:8080/help
-    ErrorDocument 502 "{\"jsonrpc\": \"2.0\", \"error\": {\"code\": 502, \"message\": \"Andes help server:  proxy error\"}, \"id\": null}"  
-    ErrorDocument 503 "{\"jsonrpc\": \"2.0\", \"error\": {\"code\": 503, \"message\": \"Andes help server:  Service Temporarily Unavailable\"}, \"id\": null}"  
-  </Location>
-# For older versions of Apache, use something like:
-  <IfModule mod_proxy.c>
-    ProxyRequests Off
-    ProxyPass /help http://localhost:8080/help
-    ProxyPassReverse /help htttp://localhost:8080/help
-  </IfModule>
-# add links to web-UI, review, and images to /var/www/html 
-#     (or to /Library/webServer/Documents/ in OS X)
-# Then restart:
-  /sbin/service httpd reload
 
 ====================== Javascript ===================================
 
@@ -100,49 +79,44 @@ Change the path in the sample file to your path.
 # the Dojo library, then we need to make an andes-specific
 # build.  Right now, this uses the development version of Dojo;
 # we should later switch to using releases of Dojo.
-cd web-UI
-svn co http://svn.dojotoolkit.org/src/dojo/trunk dojo
-svn co http://svn.dojotoolkit.org/src/dijit/trunk dijit
-svn co http://svn.dojotoolkit.org/src/dojox/trunk dojox
-svn co http://svn.dojotoolkit.org/src/util/trunk util
+make install-dojo
 
-# Make build:
-#   verify that the file index.html has isDebug = false;
-andes.build.sh
-
-====================== Lisp Web Server ===============================
-
-;; Install the hunchentoot web server http://www.weitz.de/hunchentoot/
-;; using asdf-install.  asdf-install broken in that it will try to load
-;; packages we said we didn't need, like cl+ssl and its dependent cffi.
-;; Modify ownership/permissions in /usr/local/lib/sbcl/site* so that you
-;; have write permission:
-
-chown -r $USER /usr/local/lib/sbcl/site*
-
-;; Start sbcl by typing "sbcl" and run:
-  (require 'asdf-install)
-  (push :hunchentoot-no-ssl *features*) ;we have apache to do this
-  (asdf-install:install 'hunchentoot) ;here it will say package not trusted multiple times
-  (asdf-install:install 'cl-json)
-  (quit)  ; exit the lisp server
+#   verify that the file web-UI/index.html has isDebug = false;
 
 ====================== Run Help Server ===============================
 
 ;; To run server in lisp, type "screen" on the command line,
 ;; then type "sbcl" to start up lisp, then:
-  (rhelp)
-  (start-help)
+(rhelp)
+(start-help)
 ;; At this point, you can type ctl-a ctl-d to detach from the 
 ;; lisp process; see the documentation for screen.
-;; To stop the lisp server:
-  (stop-help)
 
+;; To stop the lisp server:
+(stop-help)
 ;; There is a bug, which causes shut-down to hang, see
 ;; http://common-lisp.net/pipermail/tbnl-devel/2009-February/004608.html
 ;; http://common-lisp.net/pipermail/tbnl-devel/2009-February/004589.html
 
 ;; to exit lisp:
-  (quit)
+(quit)
+
+====================== Updates ===============================
+
+#  Update software:
+make update
+
+#  Restart the Andes help server; reattach to the server using screen:
+screen -r
+
+  ;; In lisp, stop the server, reload and restart:
+  (stop-help)
+  ;; There is a bug, which causes shut-down to hang, see
+  ;; http://common-lisp.net/pipermail/tbnl-devel/2009-February/004608.html
+  ;; http://common-lisp.net/pipermail/tbnl-devel/2009-February/004589.html
+  (rhelp)
+  (start-help)
+  ;; At this point, you can type ctl-a ctl-d to detach from the 
+  ;; lisp process; see the documentation for screen.
 
 ============================================================================
