@@ -1,6 +1,6 @@
 dojo.provide("andes.Combo");
 
-andes.Combo = drawing.util.oo.declare(
+andes.Combo = dojox.drawing.util.oo.declare(
 	// summary:
 	//	A special object used to combine an Andes Stencil
 	//	(Vector, Rect, Ellipse)
