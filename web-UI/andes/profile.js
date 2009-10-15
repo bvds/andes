@@ -1,7 +1,7 @@
 dojo.provide("andes.profile");
 
 dojo.require("dojo.parser");
-dojo.require("andes.ContentPane");
+dojo.require("dijit.layout.ContentPane");
 dojo.require("dijit.layout.BorderContainer");
 //dojo.require("dijit.layout.ContentPane");
 dojo.require("andes.widget.ExpandoPane");
