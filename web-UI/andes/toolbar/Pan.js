@@ -72,7 +72,7 @@ dojox.drawing.ui.dom.Pan = dojox.drawing.util.oo.declare(
 					break;
 			}
 		},
-				
+		
 		onSetPan: function(/*Boolean | Event*/ bool){
 			if(bool === true || bool === false){
 				this.selected = !bool;

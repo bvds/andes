@@ -1,9 +1,8 @@
 dojo.provide("andes.profile");
 
 dojo.require("dojo.parser");
-dojo.require("dijit.layout.ContentPane");
 dojo.require("dijit.layout.BorderContainer");
-//dojo.require("dijit.layout.ContentPane");
+dojo.require("dijit.layout.ContentPane");
 dojo.require("andes.widget.ExpandoPane");
 dojo.require("dojox.widget.UpgradeBar");
 
@@ -56,7 +55,7 @@ dojo.require("dojox.drawing.plugins.drawing.Silverlight");
 dojo.require("dojox.drawing.tools.TextBlock");
 dojo.require("dojox.drawing.tools.Rect");
 dojo.require("dojox.drawing.tools.Ellipse");
-dojo.require("andes.drawing.Line");
+dojo.require("dojox.drawing.tools.Line");
 dojo.require("dojox.drawing.tools.Path");
 dojo.require("dojox.drawing.tools.Pencil");
 
@@ -68,7 +67,7 @@ dojo.require("dojox.drawing.annotations.Arrow");
 dojo.require("dojox.drawing.annotations.BoxShadow");
 */
 
-dojo.require("andes.drawing.Vector");
+dojo.require("dojox.drawing.tools.custom.Vector");
 dojo.require("dojox.drawing.tools.custom.Equation");
 dojo.require("dojox.drawing.tools.custom.Axes");
 dojo.require("dojox.drawing.tools.Arrow");
