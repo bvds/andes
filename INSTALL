@@ -11,7 +11,10 @@
 
 # To install the Andes repository in directory "andes" use:
 git clone git@github.com:bvds/andes.git andes
-cd andes
+
+# Switch to the stable branch of Andes;  the "master"
+# branch is for development.
+cd andes; git checkout --track -b stable origin/stable
 
 # Compile the solver library and executable:
 make install-solver
@@ -31,15 +34,16 @@ git clone ssh://git@andestutor.org/home/git/Andes-solutions.git/ solutions
 
 ====================== SBCL ===============================
 
-# Go to http://sbcl.sourceforge.net/ and click on downloads
-# Download the appropriate package, unarchive it and follow
-# the install instructions.  
-
+# The sbcl website is http://sbcl.sourceforge.net/.
+# A list of all releases can be found at:
+# http://sourceforge.net/projects/sbcl/files/
 # You need a version that includes thread support.
+# (For example, sbcl-1.0.28-x86-linux contains thread support,
+# but sbcl-1.0.29-x86-linux does not.)
 # To test for thread support, start up sbcl and type the 
 # command "(find :sb-thread *features*)"
 
-# For sbcl, a sample startup file has been included as sbclrc-sample.
+# A sample sbcl startup file has been included as sbclrc-sample.
 # You can modify the file (you may need to change the path) and 
 # copy it to your home directory:
 cp sbclrc-sample ~/.sbclrc
