@@ -198,3 +198,6 @@ body, .tundra .dijitSplitter, #navMenu{
 #upgradeBar{
 	height:26px;
 }
+g{
+	cursor:pointer;	
+}

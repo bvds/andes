@@ -1,0 +1,37 @@
+Index: layout/ContentPane.js
+===================================================================
+--- layout/ContentPane.js	(revision 20091)
++++ layout/ContentPane.js	(revision 20090)
+@@ -172,6 +172,10 @@
+ 			dojo.forEach(this.getChildren(), function(child){
+ 				child.startup();
+ 			});
++
++			if(this.doLayout){
++				this._checkIfSingleChild();
++			}
+ 		}
+ 		
+ 		if(this._isShown()) {
+@@ -572,6 +576,10 @@
+ 				child.startup();
+ 			});
+ 
++			if(this.doLayout){
++				this._checkIfSingleChild();
++			}
++
+ 			// Call resize() on each of my child layout widgets,
+ 			// or resize() on my single child layout widget...
+ 			// either now (if I'm currently visible)
+@@ -615,10 +623,6 @@
+ 		//		(from an href, or from attr('content', ...))... but deferred until
+ 		//		the ContentPane is visible
+ 
+-		if(this.doLayout){
+-			this._checkIfSingleChild();
+-		}
+-
+ 		if(this._singleChild && this._singleChild.resize){
+ 			var cb = this._contentBox || dojo.contentBox(this.containerNode);
+ 

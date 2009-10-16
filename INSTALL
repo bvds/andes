@@ -2,8 +2,8 @@
 #      Instructions for Installing Andes
 #
 # Andes been used extensively with sbcl and Allegro lisp,
-# but the webserver functionality has only been developed for sbcl.
-# The following install procedure has been tested on Linux and OS X
+# but the webserver functionality has only been tested for sbcl.
+# The following install procedure has been tested on Linux and OS X.
 
 # Set up an account for yourself at github, providing
 # your ssh key (see http://github.com/guides/home), and send
@@ -33,7 +33,11 @@ git clone ssh://git@andestutor.org/home/git/Andes-solutions.git/ solutions
 
 # Go to http://sbcl.sourceforge.net/ and click on downloads
 # Download the appropriate package, unarchive it and follow
-# the install instructions.
+# the install instructions.  
+
+# You need a version that includes thread support.
+# To test for thread support, start up sbcl and type the 
+# command "(find :sb-thread *features*)"
 
 # For sbcl, a sample startup file has been included as sbclrc-sample.
 # You can modify the file (you may need to change the path) and 
