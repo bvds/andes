@@ -1,8 +1,7 @@
-dojo.provide("andes.drawing.Vector");
+dojo.provide("dojox.drawing.tools.custom.Vector");
 dojo.require("dojox.drawing.tools.Arrow");
 dojo.require("dojox.drawing.util.positioning");
 
-dojox.drawing.tools.custom = {}
 dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 	// summary:
 	//		Creates a Vector Stencil.
@@ -77,8 +76,7 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 			//
 			if(this.created || !this.shape){ return; }
 			// if too small, need to reset
-			
-			//ace: This sets the zero length vector to zero within the minimum size
+			//This sets the zero length vector to zero within the minimum size
 			if(this.getRadius()<this.minimumSize){
 				
 				var p = this.points;
@@ -89,7 +87,7 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 				
 			} else {
 			
-			//ace: needed as else to avoid zero length problem in snapAngle
+			//Needed as else to avoid zero length problem in snapAngle
 			var pt = this.util.snapAngle(obj, this.angleSnap/180);
 			var p = this.points;
 			this.setPoints([

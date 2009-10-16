@@ -51,14 +51,16 @@ install-solver:
 	cd Algebra/src; $(MAKE) executable
 
 ifeq ($(shell uname),Darwin)
-httpd-document-root = /Library/webServer/Documents/
+httpd-document-root = /Library/webServer/Documents
+httpd-conf-dir = /etc/http/conf.d
 else  # assume this is Linux
 httpd-document-root = /var/www/html
+httpd-conf-dir = /etc/httpd/users
 endif
 
 configure-httpd:
 	@echo "This must be run as root"
-	cp andes-server.conf /etc/httpd/conf.d
+	cp andes-server.conf $(httpd-conf-dir)
 	ln -s `pwd`/web-UI $(httpd-document-root)
 	ln -s `pwd`/review $(httpd-document-root)
 	ln -s `pwd`/images $(httpd-document-root)

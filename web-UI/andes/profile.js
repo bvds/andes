@@ -1,9 +1,8 @@
 dojo.provide("andes.profile");
 
 dojo.require("dojo.parser");
-dojo.require("andes.ContentPane");
 dojo.require("dijit.layout.BorderContainer");
-//dojo.require("dijit.layout.ContentPane");
+dojo.require("dijit.layout.ContentPane");
 dojo.require("andes.widget.ExpandoPane");
 dojo.require("dojox.widget.UpgradeBar");
 
@@ -18,6 +17,12 @@ dojo.require("dijit.form.TextBox");
 // needs to be loaded before Drawing:
 dojo.require("andes.defaults");
 dojo.require("andes.main");
+dojo.require("andes.draw");
+dojo.require("dojox.drawing");
+
+//Necessary if bypassing dojox.drawing.
+//In that case remove andes.draw from above.
+/* Extras to bypass dojox.drawing----
 dojo.require("andes.draw");
 
 dojo.require("dojox.gfx");
@@ -43,24 +48,26 @@ dojo.require("dojox.drawing.stencil.Ellipse");
 dojo.require("dojox.drawing.stencil.Path");
 dojo.require("dojox.drawing.stencil.Text");
 dojo.require("dojox.drawing.stencil.Image");
-
+*/
 // Previous includes in Drawing no longer in Dojox
 dojo.require("dojox.drawing.plugins.drawing.Silverlight");
 
 dojo.require("dojox.drawing.tools.TextBlock");
 dojo.require("dojox.drawing.tools.Rect");
 dojo.require("dojox.drawing.tools.Ellipse");
-dojo.require("andes.drawing.Line");
+dojo.require("dojox.drawing.tools.Line");
 dojo.require("dojox.drawing.tools.Path");
 dojo.require("dojox.drawing.tools.Pencil");
 
-//Already required in subfiles, Mike had his here
+//Necessary if bypassing dojox.drawing
+/*
 dojo.require("dojox.drawing.annotations.Label");
 dojo.require("dojox.drawing.annotations.Angle");
 dojo.require("dojox.drawing.annotations.Arrow");
 dojo.require("dojox.drawing.annotations.BoxShadow");
+*/
 
-dojo.require("andes.drawing.Vector");
+dojo.require("dojox.drawing.tools.custom.Vector");
 dojo.require("dojox.drawing.tools.custom.Equation");
 dojo.require("dojox.drawing.tools.custom.Axes");
 dojo.require("dojox.drawing.tools.Arrow");
