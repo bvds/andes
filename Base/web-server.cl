@@ -141,7 +141,7 @@
 			       "json-rpc-test-error"))
 	   (values nil (if version 
 			   `((:code . -32099) 
-			     (:message . "json-rpc-test-error response:  yes error messages should be consise, but the client should still be able to handle longer ones."))
+			     (:message . "json-rpc-test-error response:  Yes, error messages should be concise, but the client should still be able to handle longer ones."))
 			   "json-rpc-test-error response.")))
 	  ;; need error handler for the case where the arguments don't 
 	  ;; match the function...
@@ -156,23 +156,25 @@
 	(when (or result (not version)) (push (cons :result result) reply))
 	(push (cons :id turn) reply)
 	(when version (push version reply))
-	
-	;; Create raw json reply string
-	(let ((return-json 
-	       ;; By default, cl-json turns dashes into camel-case:  
-	       ;; Instead, we convert to lower case, preserving dashes.
-	       (let ((*lisp-identifier-name-to-json* #'string-downcase))
-		 ;; Error handling needs work:  need to inform administrator.
-		 (handler-case (encode-json-alist-to-string reply)
-		   (error (c) (format *stdout* "Encoding error ~A" c))))))
-	  
-	  ;; Log reply message raw json string
-	  (when *log-function*
-	    ;; Error handling needs work:  need to inform administrator.
-	    (handler-case (funcall *log-function* "server" *log-id* return-json)
-	      (error (c) (format *stdout* "Database reply error ~A" c))))
-	  
-  	  return-json)))))
+
+	(generate-json-and-log *log-id* reply)))))
+
+(defun generate-json-and-log (id reply)
+  "Create raw json reply string and log to database"
+  (let ((return-json 
+	 ;; By default, cl-json turns dashes into camel-case:  
+	 ;; Instead, we convert to lower case, preserving dashes.
+	 (let ((*lisp-identifier-name-to-json* #'string-downcase))
+	   ;; Error handling needs work:  need to inform administrator.
+	   (handler-case (encode-json-alist-to-string reply)
+	     (error (c) (format *stdout* "Encoding error ~A" c))))))
+    
+    ;; Log reply message raw json string
+    (when *log-function*
+      ;; Error handling needs work:  need to inform administrator.
+      (handler-case (funcall *log-function* "server" id return-json)
+	(error (c) (format *stdout* "Database reply error ~A" c))))
+    return-json))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 
@@ -219,8 +221,11 @@
   "Print sessions to see what is going on."
   (let ((*print-length* 50))
     (maphash #'(lambda (id session) 
-		 (format str "session ~S with turn ~A, time ~A~%" 
-			 id (ssn-turn session) (ssn-time session)))
+		 (format str "session ~S with turn ~A, idle ~As~%" 
+			 id (ssn-turn session) 
+			 (/ (float (- (get-internal-real-time) 
+				      (ssn-time session)))
+			    (float internal-time-units-per-second))))
 	     *sessions*)))
 
 (defun get-session-env (session)
@@ -243,21 +248,23 @@
 				 #+bordeaux-threads 
 				 (bordeaux-threads:make-lock))))))
 
-(defun close-idle-sessions (&optional (idle 7200))
-  "Close all (idle) sessions.  idle is time in seconds."
+(defun close-idle-sessions (&key (idle 7200) (method #'identity) params)
+  "Apply method to all (idle) sessions.  idle is time in seconds."
   (let ((cutoff (- (get-internal-real-time) 
 		   (* idle internal-time-units-per-second))))
-    (maphash #'(lambda (id session) 
-		 (when (< (ssn-time session) cutoff)
-		   ;; when a session is locked, we should 
-		   ;; force it to return an error.
-		   (when (ssn-lock session)
-		     #+sbcl (sb-thread:interrupt-thread 
-			     (ssn-lock session) #'hung-session-error)
-		     ;; Don't know how to access other threads
-		     ;; in non-sbcl case.
-		     #-sbcl (error "killing dead threads only in sbcl"))
-		   (remhash id *sessions*))) *sessions*)))
+    (maphash 
+     #'(lambda (id session)
+	 (when (< (ssn-time session) cutoff)
+	   (let* ((*log-id* id)  ;session-local id used in logging
+		  ;; execute-session only returns one value (no error).
+		  (result (execute-session id nil method params)))
+	     (when *debug* 
+	       (format *stdout* "Shutting down session ~A:~%    ~A~%" 
+		       id result))
+	     ;; We can't push reply back to the client;
+	     ;; but we do want to log it.
+	     (generate-json-and-log id `((:result . ,result))))))
+     *sessions*)))
 
 (defconstant *time-per-turn* 1.0 "Estimate of maximum time in seconds needed to execute a single turn.")
 
@@ -342,8 +349,8 @@
 
 (defun execute-session (session-hash turn func params)
   "Execute a function in the context of a given session when its turn comes.  If the session doesn't exist, create it.  If there is nothing to save in *env*, delete session."
-  (let (func-return log-warn
-	(session (get-session session-hash))
+  (let ((session (get-session session-hash))
+	func-return log-warn
 	;; Make thread-local binding of special variable *env*
 	*env*)
     ;; try to lock a session, if not return the reply or error

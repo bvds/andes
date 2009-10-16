@@ -49,6 +49,8 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defvar *cleanup-thread* "Function to clean up idle sessions")
+
 (defun start-help (&key (port 8080))
   "start a server with help system, optionally specifying the port."
   ;; global setup
@@ -74,10 +76,28 @@
 
   ;; start webserver
   (webserver:start-json-rpc-service 
-   "/help" :port port :log-function #'andes-database:write-transaction))
+   "/help" :port port :log-function #'andes-database:write-transaction)
+
+    (setf *cleanup-thread*
+	  #+sbcl (sb-thread:make-thread #'idle-cleanup-function)
+	  #-sbcl (error "cleanup not implemented")))
+
+(defun idle-cleanup-function ()
+  "Function that periodically cleans up idle sessions"
+  ;; Here, the cutoff is based entirely on idle time.
+  (let ((cutoff (* 2 3600)))
+    (loop
+     (sleep cutoff)
+     (webserver:close-idle-sessions :idle cutoff :method #'close-problem))))
+
 
 (defun stop-help () 
   "stop the web server running this service"
+
+  (when  *cleanup-thread*
+    #+sbcl (sb-thread:terminate-thread *cleanup-thread*)
+    #-sbcl (error "cleanup not implemented"))
+
   (webserver:stop-json-rpc-service)
   ;; Stop database.
   (andes-database:destroy))
@@ -596,7 +616,7 @@
 	  (solver-unload)
 	  
 	  (push `((:action . "problem-closed") 
-		  (:URL . "http://www.webassign.net/someting/or/other"))
+		  (:URL . "http://www.webassign.net/something/or/other"))
 		result)
 	  result))
     ;; Tell the session manager that the session is over.
