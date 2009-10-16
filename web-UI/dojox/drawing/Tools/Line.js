@@ -1,4 +1,4 @@
-dojo.provide("andes.drawing.Line");
+dojo.provide("dojox.drawing.tools.Line");
 
 dojox.drawing.tools.Line = dojox.drawing.util.oo.declare(
 	// summary:
@@ -17,8 +17,7 @@ dojox.drawing.tools.Line = dojox.drawing.util.oo.declare(
 			//var toggle = this.selected;
 			//toggle && this.deselect();
 			this._toggleSelected();
-			
-			//ace: This sets the zero length vector to zero within the minimum size
+			//This sets the zero length vector to zero within the minimum size
 			if(this.getRadius()<this.minimumSize){
 				
 				var p = this.points;
