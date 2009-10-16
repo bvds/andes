@@ -51,6 +51,10 @@
   (setf *http-error-handler* 'json-rpc-error-message)
   (setf *log-function* log-function)
 
+  ;; Test for multi-threading
+  (unless hunchentoot::*supports-threads-p*
+    (warn "Hunchentoot running without thread support, performance may be seriously degraded."))
+
   (setf *server* (start (make-instance 'acceptor :port port))))
 
 (defun json-rpc-error-message (err)
@@ -168,7 +172,7 @@
 	    (handler-case (funcall *log-function* "server" *log-id* return-json)
 	      (error (c) (format *stdout* "Database reply error ~A" c))))
 	  
- 	  return-json)))))
+  	  return-json)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 
