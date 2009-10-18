@@ -70,8 +70,12 @@ dojo.provide("andes.convert");
 					rx:o.width/2,
 					ry:o.height/2
 				}
+			}else if(o.type=="vector"){
+				//in case of zero vector
+				if(o.radius == 0) {obj.data.radius = 0; obj.data.angle = 1; } else { obj.data.radius = o.radius; obj.data.angle = o.angle; }
+				
 			}else{
-				// vector, line, axes
+				//line, axes
 				obj.data.radius = o.radius || 0;
 				obj.data.angle = o.angle;
 			}
