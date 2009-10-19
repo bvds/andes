@@ -6,14 +6,12 @@
 package andesdatashopcommunication;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -26,11 +24,11 @@ import javax.persistence.TemporalType;
 
 /**
  *
- * @author Andes Version 3 Tutoring System
+ * @author master
  */
 @Entity
-@Table(name = "problem_attempt")
-@NamedQueries({@NamedQuery(name = "ProblemAttempt.findAll", query = "SELECT p FROM ProblemAttempt p"), @NamedQuery(name = "ProblemAttempt.findByUserName", query = "SELECT p FROM ProblemAttempt p WHERE p.userName = :userName"), @NamedQuery(name = "ProblemAttempt.findBySessionID", query = "SELECT p FROM ProblemAttempt p WHERE p.sessionID = :sessionID"), @NamedQuery(name = "ProblemAttempt.findByStartTime", query = "SELECT p FROM ProblemAttempt p WHERE p.startTime = :startTime"), @NamedQuery(name = "ProblemAttempt.findByAttemptID", query = "SELECT p FROM ProblemAttempt p WHERE p.attemptID = :attemptID")})
+@Table(name = "PROBLEM_ATTEMPT")
+@NamedQueries({@NamedQuery(name = "ProblemAttempt.findAll", query = "SELECT p FROM ProblemAttempt p"), @NamedQuery(name = "ProblemAttempt.findByUserName", query = "SELECT p FROM ProblemAttempt p WHERE p.userName = :userName"), @NamedQuery(name = "ProblemAttempt.findBySessionID", query = "SELECT p FROM ProblemAttempt p WHERE p.sessionID = :sessionID"), @NamedQuery(name = "ProblemAttempt.findByStartTime", query = "SELECT p FROM ProblemAttempt p WHERE p.startTime = :startTime"), @NamedQuery(name = "ProblemAttempt.findByClientID", query = "SELECT p FROM ProblemAttempt p WHERE p.clientID = :clientID"), @NamedQuery(name = "ProblemAttempt.findByUserProblem", query = "SELECT p FROM ProblemAttempt p WHERE p.userProblem = :userProblem"), @NamedQuery(name = "ProblemAttempt.findByUserSection", query = "SELECT p FROM ProblemAttempt p WHERE p.userSection = :userSection")})
 public class ProblemAttempt implements Serializable {
     private static final long serialVersionUID = 1L;
     @Basic(optional = false)
@@ -44,25 +42,28 @@ public class ProblemAttempt implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date startTime;
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(name = "attemptID")
-    private Integer attemptID;
+    @Column(name = "clientID")
+    private String clientID;
+    @Column(name = "userProblem")
+    private String userProblem;
+    @Column(name = "userSection")
+    private String userSection;
     @JoinColumn(name = "classinformationID", referencedColumnName = "classID")
     @ManyToOne(optional = false)
-    private Classinformation classinformationID;
+    private ClassInformation classinformationID;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "problemAttempt")
-    private List<ProblemAttemptTransaction> problemAttemptTransactionCollection;
+    private List<ProblemAttemptTransaction> problemAttemptTransactionList;
 
     public ProblemAttempt() {
     }
 
-    public ProblemAttempt(Integer attemptID) {
-        this.attemptID = attemptID;
+    public ProblemAttempt(String clientID) {
+        this.clientID = clientID;
     }
 
-    public ProblemAttempt(Integer attemptID, String userName, String sessionID, Date startTime) {
-        this.attemptID = attemptID;
+    public ProblemAttempt(String clientID, String userName, String sessionID, Date startTime) {
+        this.clientID = clientID;
         this.userName = userName;
         this.sessionID = sessionID;
         this.startTime = startTime;
@@ -92,34 +93,50 @@ public class ProblemAttempt implements Serializable {
         this.startTime = startTime;
     }
 
-    public Integer getAttemptID() {
-        return attemptID;
+    public String getClientID() {
+        return clientID;
     }
 
-    public void setAttemptID(Integer attemptID) {
-        this.attemptID = attemptID;
+    public void setClientID(String clientID) {
+        this.clientID = clientID;
     }
 
-    public Classinformation getClassinformationID() {
+    public String getUserProblem() {
+        return userProblem;
+    }
+
+    public void setUserProblem(String userProblem) {
+        this.userProblem = userProblem;
+    }
+
+    public String getUserSection() {
+        return userSection;
+    }
+
+    public void setUserSection(String userSection) {
+        this.userSection = userSection;
+    }
+
+    public ClassInformation getClassinformationID() {
         return classinformationID;
     }
 
-    public void setClassinformationID(Classinformation classinformationID) {
+    public void setClassinformationID(ClassInformation classinformationID) {
         this.classinformationID = classinformationID;
     }
 
-    public List<ProblemAttemptTransaction> getProblemAttemptTransactionCollection() {
-        return problemAttemptTransactionCollection;
+    public List<ProblemAttemptTransaction> getProblemAttemptTransactionList() {
+        return problemAttemptTransactionList;
     }
 
-    public void setProblemAttemptTransactionCollection(List<ProblemAttemptTransaction> problemAttemptTransactionCollection) {
-        this.problemAttemptTransactionCollection = problemAttemptTransactionCollection;
+    public void setProblemAttemptTransactionList(List<ProblemAttemptTransaction> problemAttemptTransactionList) {
+        this.problemAttemptTransactionList = problemAttemptTransactionList;
     }
 
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (attemptID != null ? attemptID.hashCode() : 0);
+        hash += (clientID != null ? clientID.hashCode() : 0);
         return hash;
     }
 
@@ -130,7 +147,7 @@ public class ProblemAttempt implements Serializable {
             return false;
         }
         ProblemAttempt other = (ProblemAttempt) object;
-        if ((this.attemptID == null && other.attemptID != null) || (this.attemptID != null && !this.attemptID.equals(other.attemptID))) {
+        if ((this.clientID == null && other.clientID != null) || (this.clientID != null && !this.clientID.equals(other.clientID))) {
             return false;
         }
         return true;
@@ -138,7 +155,7 @@ public class ProblemAttempt implements Serializable {
 
     @Override
     public String toString() {
-        return "andesdatashopcommunication.ProblemAttempt[attemptID=" + attemptID + "]";
+        return "andesdatashopcommunication.ProblemAttempt[clientID=" + clientID + "]";
     }
 
 }

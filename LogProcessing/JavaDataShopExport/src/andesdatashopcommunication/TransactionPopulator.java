@@ -50,7 +50,8 @@ public class TransactionPopulator {
             }
             con.close();
         } catch (SQLException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.print("A SQL error occurred! " + ex.getSQLState() +
+                    ex.getLocalizedMessage());
         } catch (Exception e) {
             System.out.print("fail");
         } finally {

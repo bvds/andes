@@ -19,23 +19,22 @@ import javax.persistence.Table;
 
 /**
  *
- * @author Andes Version 3 Tutoring System
+ * @author master
  */
 @Entity
-@Table(name = "problem_attempt_transaction")
-@NamedQueries({@NamedQuery(name = "ProblemAttemptTransaction.findAll", query = "SELECT p FROM ProblemAttemptTransaction p"), @NamedQuery(name = "ProblemAttemptTransaction.findByTID", query = "SELECT p FROM ProblemAttemptTransaction p WHERE p.problemAttemptTransactionPK.tID = :tID"), @NamedQuery(name = "ProblemAttemptTransaction.findByAttemptID", query = "SELECT p FROM ProblemAttemptTransaction p WHERE p.problemAttemptTransactionPK.attemptID = :attemptID"), @NamedQuery(name = "ProblemAttemptTransaction.findByInitiatingParty", query = "SELECT p FROM ProblemAttemptTransaction p WHERE p.initiatingParty = :initiatingParty")})
+@Table(name = "PROBLEM_ATTEMPT_TRANSACTION")
+@NamedQueries({@NamedQuery(name = "ProblemAttemptTransaction.findAll", query = "SELECT p FROM ProblemAttemptTransaction p"), @NamedQuery(name = "ProblemAttemptTransaction.findByTID", query = "SELECT p FROM ProblemAttemptTransaction p WHERE p.problemAttemptTransactionPK.tID = :tID"), @NamedQuery(name = "ProblemAttemptTransaction.findByClientID", query = "SELECT p FROM ProblemAttemptTransaction p WHERE p.problemAttemptTransactionPK.clientID = :clientID"), @NamedQuery(name = "ProblemAttemptTransaction.findByInitiatingParty", query = "SELECT p FROM ProblemAttemptTransaction p WHERE p.initiatingParty = :initiatingParty")})
 public class ProblemAttemptTransaction implements Serializable {
     private static final long serialVersionUID = 1L;
     @EmbeddedId
     protected ProblemAttemptTransactionPK problemAttemptTransactionPK;
-    @Basic(optional = false)
     @Lob
     @Column(name = "command")
     private String command;
     @Basic(optional = false)
     @Column(name = "initiatingParty")
     private String initiatingParty;
-    @JoinColumn(name = "attemptID", referencedColumnName = "attemptID", insertable = false, updatable = false)
+    @JoinColumn(name = "clientID", referencedColumnName = "clientID", insertable = false, updatable = false)
     @ManyToOne(optional = false)
     private ProblemAttempt problemAttempt;
 
@@ -46,14 +45,13 @@ public class ProblemAttemptTransaction implements Serializable {
         this.problemAttemptTransactionPK = problemAttemptTransactionPK;
     }
 
-    public ProblemAttemptTransaction(ProblemAttemptTransactionPK problemAttemptTransactionPK, String command, String initiatingParty) {
+    public ProblemAttemptTransaction(ProblemAttemptTransactionPK problemAttemptTransactionPK, String initiatingParty) {
         this.problemAttemptTransactionPK = problemAttemptTransactionPK;
-        this.command = command;
         this.initiatingParty = initiatingParty;
     }
 
-    public ProblemAttemptTransaction(int tID, int attemptID) {
-        this.problemAttemptTransactionPK = new ProblemAttemptTransactionPK(tID, attemptID);
+    public ProblemAttemptTransaction(int tID, String clientID) {
+        this.problemAttemptTransactionPK = new ProblemAttemptTransactionPK(tID, clientID);
     }
 
     public ProblemAttemptTransactionPK getProblemAttemptTransactionPK() {
