@@ -34,13 +34,16 @@ public final class DatashopExporter {
             ClientServerInteractions backAndForth = new ClientServerInteractions(e);
             if(backAndForth.getInteractions().size() == 0)
                 return;
-            for (ClientServerInteraction anInteraction : backAndForth.getInteractions().subList(1, backAndForth.getInteractions().size() - 1)) {
+            for (ClientServerInteraction anInteraction :
+                backAndForth.getInteractions().subList(1, backAndForth.getInteractions().size() - 1)) {
                 /* skip the calls to open and close the problem, which don't need
                  * to be logged */
                 System.out.println(anInteraction);
                 ToolMessage toolMsg = ToolMessage.create(myMessage);
                 toolMsg.setProblemName(newProblem.getName());
-                toolMsg.addSai(anInteraction.getClientSelection(), anInteraction.getClientAction().getCommand().toString(), anInteraction.getClientInput());
+                toolMsg.addSai(anInteraction.getClientSelection(),
+                        anInteraction.getClientAction().getCommand().toString(),
+                        anInteraction.getClientInput());
                 switch (anInteraction.getClientAction().getCommand()) {
                     case SOLUTION_STEP:
                         toolMsg.setAsAttempt();
@@ -104,7 +107,7 @@ public final class DatashopExporter {
         }
         String[] sanitized = (args.length > 0) ? sanitizeUserInput(args) : args;
         if(args.length > 0)
-            possibilities = (args[1].equals("-i")) ? CommandOptions.INSTRUCTOR
+            possibilities = (args[0].equals("-i")) ? CommandOptions.INSTRUCTOR
                     : CommandOptions.DATE;
         EntityManager em =
                 Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).
@@ -197,8 +200,8 @@ public final class DatashopExporter {
                     //TO DO: GET INSTRUCTOR QUERY WORKING
                     query = "SELECT attempt FROM ProblemAttempt AS attempt " +
                             "INNER JOIN attempt.classinformationID AS info " +
-                            String.format("WITH info.instructorName = '\"%s %s\"'",
-                            args[1], args[2]);
+                            String.format("WITH info.instructorName = '\"%s\"'",
+                            args[1]);
                     break;
                 case DATE:
                     query = String.format("FROM ProblemAttempt where startTime='%s'"
@@ -207,15 +210,14 @@ public final class DatashopExporter {
                 default:
                     throw new UnsupportedOperationException("Invalid option!");
             }
-            }
+           }
         }
-
 
         return query;
     }
 
     public static void main(final String[] args) {
-        final String[] command = {"-d","2009-10-19 04:17:56"};
+        final String[] command = {"-i","Brian Brown"};
         DatashopExporter log = getInstance(command);
     }
 }
