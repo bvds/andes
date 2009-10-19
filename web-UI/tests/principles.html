@@ -26,6 +26,11 @@
   dojo.require("dijit.Tree");
   dojo.require("dijit.tree.ForestStoreModel");
   dojo.require("dojo.parser");
+
+  // Modify tree so that HTML is rendered in node labels
+  // See Bug #1603
+  dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
+
 </script>
 </head>
 <body class="tundra">

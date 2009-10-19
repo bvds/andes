@@ -5,7 +5,7 @@
   {"id": "Write a Principle1", "label": "Write a Principle", "items": [
   {"id": "Kinematics2", "label": "Kinematics", "items": [
   {"id": "Translational3", "label": "Translational", "items": [
-    {"id": "SDD4", "label": "v(avg) = s/t    average speed", "psmclass-name": "SDD", "tutorial": "Average speed"},
+    {"id": "SDD4", "label": "&alpha;<sup>2</sup>v(avg) = s/t    average speed", "psmclass-name": "SDD", "tutorial": "Average speed"},
     {"id": "AVG-VELOCITY6", "label": "v(avg)_x = d_x/t    average velocity", "psmclass-name": "(AVG-VELOCITY ((?AXIS . X)))", "tutorial": "Average velocity"},
     {"id": "AVG-VELOCITY8", "label": "v(avg)_y = d_y/t    average velocity", "psmclass-name": "(AVG-VELOCITY ((?AXIS . Y)))", "tutorial": "Average velocity"},
     {"id": "LK-NO-S10", "label": "a(avg)_x = (vf_x - vi_x)/t    ", "psmclass-name": "(LK-NO-S ((?AXIS . X)))", "tutorial": "Average acceleration"},
