@@ -1936,7 +1936,7 @@
 	    (eqn (= ?tau (/ ?L-var ?R-var)) (LR-time-constant ?ind ?res))
 	    )
   :hint (
-	 (point (string "The inductive time constant $t of an LR circuit is a function of the inductance and the resistance in the circuit."))
+	 (point (string "The inductive time constant &tau; of an LR circuit is a function of the inductance and the resistance in the circuit."))
 	 (teach (string "The inductive time constant of an LR circuit is equal to the inductance divided by the resistance."))
 	 (bottom-out (string "Write the equation ~A" ((= ?tau (/ ?L-var ?R-var)) algebra)))
 	 ))

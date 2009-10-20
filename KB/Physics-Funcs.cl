@@ -513,7 +513,7 @@
 
 (defun dimensioned-numberp (x)
   "Non-null if the argument has the form (dnum number units :error err)"
-  ;; NB: equations on rotational problems can have (DNUM $p rad/s). 
+  ;; NB: equations on rotational problems can have (DNUM \pi rad/s). 
   ;; We return NIL to prevent second arg from being used as a number
   ;; Means this doesn't test just for dnum-termhood.
   (unless (groundp x) (error "dimensioned-numberp with unbound ~A" x))

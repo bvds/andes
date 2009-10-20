@@ -2916,7 +2916,7 @@
    )
    :hint (
    (point (string "You need an expression for the magnitude of the ~A due to the ~A force acting at ~A" (nil moment-name) (?type adj) ?pt))
-   (teach (string "The magnitude of the ~A ~A resulting from a force of magnitude F acting at a point of perpendicular distance r from the axis is given by ~A = r * F * sin ($q), where $q is the smaller of two angles between the vectors r and F." (nil moment-name) (nil moment-symbol) (nil moment-symbol)))
+   (teach (string "The magnitude of the ~A ~A resulting from a force of magnitude F acting at a point of perpendicular distance r from the axis is given by ~A = r * F * sin(&theta;), where &theta; is the smaller of two angles between the vectors r and F." (nil moment-name) (nil moment-symbol) (nil moment-symbol)))
    (bottom-out (string "Write the equation ~A" 
                ((= ?tau-var (* ?r-var ?f-var (sin ?theta-var))) algebra)))
    ))
@@ -3096,7 +3096,7 @@
 (def-psmclass NFL-rot (?eqn-type NFL ?xyz ?rot (NL-rot ?body ?pivot ?time))
   :complexity major
   :short-name "rotational form of Newton's 2nd law (&alpha; =0)"
-  :nlg-english ("rotational version of Newton's second law ($a=0)")
+  :nlg-english ("rotational version of Newton's second law (&alpha;=0)")
   :expformat ("applying rotational version of Newton's second law to ~a about ~A"
 	      (nlg ?body) (nlg ?pivot 'at-time ?time))
   :eqnFormat ((torque-switch "0 = M1<sub>z</sub> + M2<sub>z</sub> + ..." 
@@ -3189,7 +3189,7 @@
   :hint
    ((point (string "You can apply the rotational version of Newton's second law to ~A.  Note that ~A has angular acceleration ~A." 
 		   ?b ?b (?t pp)))
-    (teach (string "The rotation version of Newton's second law is $t = m*$a.  The net torque $t is the vector sum of all torques acting on the object.  This can be applied component-wise."))
+    (teach (string "The rotation version of Newton's second law is &tau; = m &alpha;.&nbsp;  The net torque &tau; is the vector sum of all torques acting on the object.  This can be applied component-wise."))
     (bottom-out (string "Write the rotational version of Newton's second law in terms of component variables along the ~A axis as ~A" 
 			((axis ?xyz ?rot) symbols-label) ((= (+ . ?f-compo-vars)  (* ?m ?a-compo)) algebra)))
     ))

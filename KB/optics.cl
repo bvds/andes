@@ -889,7 +889,7 @@
   (if (unify fraction '0) "polarizer and unpolarized light" "Malus' law"))
 
 (defun polarization-intensity-eqn (fraction)
-  (if (unify fraction '0) "If = 0.5*Ii"	"If = Ii*cos($q)^2"))
+  (if (unify fraction '0) "If = 0.5*Ii"	"If = Ii*cos(&theta;)<sup>2</sup>"))
 
 (defun polarization-fraction (fraction)
   (cond ((unify fraction '0) "unpolarized")
@@ -952,7 +952,7 @@
    (bind ?fraction-term (if (= ?fraction 1)
 			 `(^ (cos ,?angle) 2) '0.5))
    (bind ?help (if (= ?fraction 1) 
-		   "polarized at an angle of $q relative to the transmission axis of the polarizer, the intensity of the transmitted beam is cos($q)^2 times the incoming intensity." 
+		   "polarized at an angle of &theta; relative to the transmission axis of the polarizer, the intensity of the transmitted beam is cos(&theta;)<sup>2</sup> times the incoming intensity." 
 		 "unpolarized, half the intensity is absorbed by the polarizer."))
    )
   :effects 

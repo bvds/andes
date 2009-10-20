@@ -3671,7 +3671,7 @@
   :hint
   ( (point (string "Note that you can relate the flux through ~A to the charge inside ~A."
 		   ?surface ?surface))
-    (teach (string "Gauss law states that the electric flux through a closed surface is equal to the total charge inside divided by $e0."))
+    (teach (string "Gauss law states that the electric flux through a closed surface is equal to the total charge inside divided by &epsilon;0."))
     (bottom-out (string "Write the equation ~A ."
 			((= ?phi (/ ?Q-term |eps0|)) algebra) )) ))
 

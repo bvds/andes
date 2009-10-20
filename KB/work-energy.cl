@@ -545,7 +545,7 @@
    )
   :hint (
   (point (string "Try writing the definition of rotational kinetic energy of ~a ~a" (?body def-np) (?t pp)))
-  (teach (string "The rotational kinetic energy of an object is defined as one half its moment of inertia times its angular velocity squared.  That is, 0.5*I *$w^2."))
+  (teach (string "The rotational kinetic energy of an object is defined as one half its moment of inertia times its angular velocity squared.  That is, 0.5 I &omega;<sup>2</sup>."))
   (bottom-out (string "Write the equation ~a" ((= ?ke-var (* 0.5 ?m-var (^ ?v-var 2))) algebra)))
   ))
 
@@ -895,7 +895,7 @@
 		       "If a force has no component in the direction of the displacement of an object, then the force does no work on that object."
 		     (strcat "The work done on a body by a constant force of magnitude F acting through a displacement of magnitude d is given by "
 			     (if ?rot "F_x * d_x + F_y d_y." 
-			       "F * d * cos ($q), where $q is the angle between the force and displacement vectors."))
+			       "F * d * cos (&theta;), where &theta; is the angle between the force and displacement vectors."))
 		     ))
     (variable ?work-var (work ?b ?agent :time ?t))
  )
@@ -1450,7 +1450,7 @@
 		       "If a force has no component in the direction of the movement of an object, then the force does no work on that object."
 		     (strcat "Power is the rate at which work is done.  The instantaneous power supplied from a force F to a body moving at velocity v is equal to " 
 			     (if ?rot "F_x * v_x + F_y v_y." 
-			       "F * v * cos ($q), where $q is the angle between the force and velocity vectors."))
+			       "F * v * cos (&theta;), where &theta; is the angle between the force and velocity vectors."))
 		     ))
     
     (variable ?P-var (power ?b ?agent :time ?t))

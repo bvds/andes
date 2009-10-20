@@ -136,7 +136,7 @@
      ((search "ohms" equation)
       (setf rem (make-hint-seq (list
 				(format nil "Syntax error in ~a" equation)
-				"If you are giving a resistance in Ohms, the correct SI symbol is $W, not ohms."))))
+				"If you are giving a resistance in Ohms, the correct SI symbol is &Omega;, not ohms."))))
      ;; BvdS:  There should be a handler for "unknown functions"
      ;; analogous to the handler for "unknown variables"
      ;; This is a work-around.
@@ -996,7 +996,7 @@
 ;
 ; Value is normally simple number plus units, but might be complex
 ; arithmetic expression including constants such as
-;      "3*$p/4 rad/s"
+;      "3*\pi/4 rad/s"
 ; This is similar to checking answer expressions: we must form
 ; an equation in systemese, check it, and ensure that rhs is of
 ; the right form. In this case must also check that value is given.

@@ -2572,7 +2572,7 @@
 ;;; =============== Sums of torque =================================
 ;;; In the case of some torque problems *cough* tor7a *cough* it
 ;;; is necessary or at least useful for the studets to define a sum 
-;;; of torque forces such as "$t_l_end + $t_r_end + $t_cm = 0" if 
+;;; of torque forces such as "\tau_l_end + \tau_r_end + \tau_cm = 0" if 
 ;;; they leave out one of the torque forces then the system should
 ;;; inform them of that in the same way that it does for other forces
 ;;; the error handler for forces is missing-forces in sums are the
@@ -3172,10 +3172,10 @@
            ;; !!! may not be projection they are trying to write, but dot or cross product.
 	   (strcat "If you are trying to calculate the component of a vector along an axis, "
 	           "here is a general formula that will always work: "
-		   "Let $qV be the angle as you move counterclockwise from the horizontal to "
-		   "the vector.  Let $qx be the rotation of the x-axis from the horizontal. "
-		   "($qV and $qx appear in the Variables window.) "
-		   "Then: V_x = V*cos($qV-$qx) and V_y = V*sin($qV-$qx).")
+		   "Let &theta;V be the angle as you move counterclockwise from the horizontal to "
+		   "the vector.  Let &theta;x be the rotation of the x-axis from the horizontal. "
+		   "(&theta;V and &theta;x appear in the Variables window.) "
+		   "Then: V_x = V*cos(&theta;V-&theta;x) and V_y = V*sin(&theta;V-&theta;x).")
 	   (format nil "Replace ~a with ~a." (nlg wrong 'algebra) (nlg right 'algebra)))))
 
 ;;; The student has used the wrong trig function where tangent is right
@@ -3263,12 +3263,12 @@
        (good-expr `(,trig-fn (- ,arg (dnum ,rot |deg|)))))
   (make-hint-seq
    (list
-    (format nil (strcat "Remember that the axes are rotated by $qx = ~A degrees "
+    (format nil (strcat "Remember that the axes are rotated by &theta;x = ~A degrees "
                         "from the horizontal-vertical system used for vector " 
 			"orientations. You need to take this into account when calculating the projection of a vector along the axis.")
 	    rot)
     ;; !!! general formula and link to minilesson here
-    (format nil (strcat "Because the positive x axis is rotated by $qx = ~A deg from the horizontal, change ~A to ~A in your equation.")
+    (format nil (strcat "Because the positive x axis is rotated by &theta;x = ~A deg from the horizontal, change ~A to ~A in your equation.")
             (algebra rot) (algebra bad-expr) (algebra good-expr))
    ))))
 

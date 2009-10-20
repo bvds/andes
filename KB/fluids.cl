@@ -256,7 +256,7 @@
    )
    :hint (
       (point (string "Remember the pressure at some depth in a fluid must be greater than the pressure at a higher point by an amount equal to the weight per unit area of the column of additional fluid above the lower point."))
-      (teach (string "The weight per unit area of a column of fluid of uniform density will be equal to the mass density $r times g times the positive height of the column, h_top - h_bottom. This will be the difference between the pressure at the bottom  and the pressure at the top.")) 
+      (teach (string "The weight per unit area of a column of fluid of uniform density will be equal to the mass density &rho; times g times the positive height of the column, h_top - h_bottom. This will be the difference between the pressure at the bottom  and the pressure at the top.")) 
       (bottom-out (string "Write the equation ~A" 
                      ((= (- ?Pr2 ?Pr1) (* ?rho ?g (- ?h1 ?h2))) algebra) ))
    ))
@@ -310,7 +310,7 @@
    )
    :hint (
       (point (string "Bernoulli's principle is a conservation principle which has the consequence that where velocity is high, pressure is low, and where velocity is high, pressure is low."))
-      (teach (string "Bernoulli's principle says that the sum (P + 0.5$rv^2 + $rgh) is conserved along a streamline."))
+      (teach (string "Bernoulli's principle says that the sum (P + 0.5 &rho; v<sup>2</sup> + &rho; g h) is conserved along a streamline."))
       (bottom-out (string "Write the equation ~A" 
                      ((= (+ (* 0.5 ?rho (^ ?v1 2)) (* ?rho ?g ?h1) ?Pr1) 
                          (+ (* 0.5 ?rho (^ ?v2 2)) (* ?rho ?g ?h2) ?Pr2))  

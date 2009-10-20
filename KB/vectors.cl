@@ -564,9 +564,9 @@
    )
   :hint
   ((point (string "Since ~A is not perpendicular to the ~A axis, it has a non-zero component along that axis."  ?vector ((axis ?xyz ?rot) symbols-label)))
-   (teach (string "In general, if a vector V is oriented at $qV and the positive x axis is oriented at $qx ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V_x = V * cos($qV - $qx)\\n   V_y = V * sin($qv - $qx)" )
+   (teach (string "In general, if a vector V is oriented at &theta;V and the positive x axis is oriented at &theta;x ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V_x = V * cos(&theta;V - &theta;x)\\n   V_y = V * sin(&theta;v - &theta;x)" )
 	  (kcd "write_x_trig_projection_equation"))
-   (bottom-out (string "Since the direction of ~A is $q~A (~A deg) and the orientation of the x axis is $q~A (~A deg), you can write the general formula ~A = ~A * ~A($q~A - $q~A)."
+   (bottom-out (string "Since the direction of ~A is &theta;~A (~A deg) and the orientation of the x axis is &theta;~A (~A deg), you can write the general formula ~A = ~A * ~A(&theta;~A - &theta;~A)."
 	       ?vector (?mag-var algebra) (?degrees adj)
 	       ;; symbols-label gets x axis label -- could be x, x1, x2
 	       ((axis x ?rot) symbols-label) (?x-rot adjective)
@@ -612,9 +612,9 @@
    )
   :hint
   ((point (string "Since ~a is not known to be perpendicular to the ~A axis, you should use a general formula for its component along that axis."  ?vector ((axis ?xyz ?rot) symbols-label)))
-   (teach (string "In general, if a vector V is oriented at $qV and the positive x axis is oriented at $qx ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V_x = V * cos($qV - $qx)\\n   V_y = V * sin($qv - $qx)" )
+   (teach (string "In general, if a vector V is oriented at &theta;V and the positive x axis is oriented at &theta;x ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V_x = V * cos(&theta;V - &theta;x)\\n   V_y = V * sin(&theta;v - &theta;x)" )
 	  (kcd "write_x_trig_projection_equation"))
-   (bottom-out (string "Since the direction of ~a is ~a, and the rotation of the x axis is $q~A (~a deg), you can write the general formula ~a = ~a * ~a(~a - $q~A)." 
+   (bottom-out (string "Since the direction of ~a is ~a, and the rotation of the x axis is &theta;~A (~a deg), you can write the general formula ~a = ~a * ~a(~a - &theta;~A)." 
 		       ?vector (?dir-var algebra) 
 		       ((axis ?x ?rot) symbols-label) (?x-rot adj)
 		       (?compo-var algebra)
@@ -2315,7 +2315,7 @@
    )
    :hint (
       (point (string "You can use the formula for the circumference of a circle"))
-      (teach (string "The circumference of a circle is 2*$p times the radius."))
+      (teach (string "The circumference of a circle is 2*&pi; times the radius."))
       (bottom-out (string "Write the equation ~A" 
                      ((= ?Ac (* 2 $P ?rc)) algebra)) ))
    )
@@ -2351,7 +2351,7 @@
    )
    :hint (
       (point (string "You can use the formula for the circumference of a circle"))
-      (teach (string "The circumference of a circle is $p times the diameter."))
+      (teach (string "The circumference of a circle is &pi; times the diameter."))
       (bottom-out (string "Write the equation ~A" 
                      ((= ?Ac (* $P ?dc)) algebra)) ))
    )
@@ -2384,7 +2384,7 @@
    )
    :hint (
       (point (string "You can use the formula for the area of a circle"))
-      (teach (string "The area of a circle is $p times the radius squared."))
+      (teach (string "The area of a circle is &pi; times the radius squared."))
       (bottom-out (string "Write the equation ~A" 
                      ((= ?Ac (* $P (^ ?rc 2))) algebra)) ))
    )
