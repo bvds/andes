@@ -57,7 +57,7 @@
   :short-name "mass density defined"
   :nlg-english ("the definition of mass density")
   :expformat ("applying the definition of mass density")
-  :EqnFormat ("$r = m/V"))
+  :EqnFormat ("&rho; = m/V"))
 
 (defoperator density-contains (?sought)
    :preconditions (
@@ -219,7 +219,7 @@
   :short-name "pressure in fluid"
   :nlg-english ("the formula for pressure at a height in a fluid")
   :ExpFormat ("finding the pressure at a level in a fluid")
-  :EqnFormat ("P2 - P1 = $r*g*(h1-h2)")) 
+  :EqnFormat ("P2 - P1 = &rho; g (h1-h2)")) 
 
 (defoperator pressure-height-fluid-contains (?sought)
    :preconditions (
@@ -267,7 +267,7 @@
   :short-name "Bernoulli equation"
   :nlg-english ("Bernoulli's principle")
   :ExpFormat ("applying Bernoulli's principle")
-  :EqnFormat ("0.5*$r*v1^2 + $r*g*h1 + P1 = 0.5*$r*v2^2 + $r*g*h2 + P2")) 
+  :EqnFormat ("0.5 &rho; v1<sup>2</sup> + &rho; g h1 + P1 = 0.5 &rho; v2<sup>2</sup> + &rho; g h2 + P2")) 
 
 (defoperator bernoulli-contains (?sought)
    :preconditions (
@@ -324,7 +324,7 @@
   :short-name "equation of continuity"
   :nlg-english ("the equation of continuity for incompressible fluid")
   :ExpFormat ("applying the equation of continuity")
-  :EqnFormat ("A1*v1 = A2*v2")) 
+  :EqnFormat ("A1 v1 = A2 v2")) 
 
 (defoperator continuity-contains (?sought)
    :preconditions (
@@ -480,7 +480,7 @@
   :short-name "pressure defined"
   :nlg-english ("the definition of pressure")
   :ExpFormat ("finding the pressure")
-  :EqnFormat ("Fp = P*A"))
+  :EqnFormat ("Fp = P A"))
 
 (defoperator pressure-force-contains (?sought)
   :preconditions(
@@ -629,7 +629,7 @@
   :short-name "Archimedes principle (buoyant force)"
   :nlg-english ("Archimedes' principle")
   :ExpFormat ("applying Archimedes' principle")
-  :EqnFormat ("Fb = $rf*V*g"))
+  :EqnFormat ("Fb = &rho;f V g"))
 
 (defoperator archimedes-contains (?sought)
   :preconditions (

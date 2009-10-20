@@ -1118,7 +1118,7 @@
     :nlg-english ("the definition of thrust force") 
     :ExpFormat ("applying the definition of thrust force on ~a ~a"
 		(nlg ?body) (nlg ?time 'pp))
-    :EqnFormat ("F = v*abs(dmdt)"))
+    :EqnFormat ("F = v abs(dmdt)"))
 
 (defoperator thrust-force-contains (?sought)
   :preconditions 
@@ -1159,7 +1159,7 @@
     :nlg-english ("the definition of thrust force") 
     :ExpFormat ("applying the definition of thrust-force on ~a ~a"
 		(nlg ?body) (nlg ?time 'pp))
-    :EqnFormat ("F_~A = -v_~a*dmdt" (axis-name ?axis) (axis-name ?axis)))
+    :EqnFormat ("F<sub>~A</sub> = -v<sub>~a</sub> dmdt" (axis-name ?axis) (axis-name ?axis)))
 
 
 (defoperator thrust-force-vector-diagram (?rot ?b ?agent ?t)
@@ -1958,7 +1958,7 @@
   :short-name "Hooke's law"
   :nlg-english ("Hooke's law")
   :expformat ("applying Hooke's law to ~a " (nlg ?body))
-  :EqnFormat ("F = k*d" ))
+  :EqnFormat ("F = k d" ))
 
 (defoperator spring-law-contains (?quantity)
   :specifications "
@@ -2787,8 +2787,8 @@
   :nlg-english ("the definition of net ~A" (moment-name))
   :expformat ("applying the definition of net ~A on ~a about ~A"
 	      (moment-name) (nlg ?body) (nlg ?pivot 'at-time ?time))
-  :eqnformat ((torque-switch "Mnet_z = M1_z + M2_z + ..."
-			     "$tnet_z = $t1_z + $t2_z + ...")))
+  :eqnformat ((torque-switch "Mnet<sub>z</sub> = M1<sub>z</sub> + M2<sub>z</sub> + ..."
+			     "&tau;net<sub>z</sub> = &tau;1<sub>z</sub> + &tau;2<sub>z</sub> + ...")))
 
 (defoperator net-torque-contains (?sought)
   :preconditions (
@@ -3095,12 +3095,12 @@
   
 (def-psmclass NFL-rot (?eqn-type NFL ?xyz ?rot (NL-rot ?body ?pivot ?time))
   :complexity major
-  :short-name "rotational form of Newton's 2nd law ($a =0)"
+  :short-name "rotational form of Newton's 2nd law (&alpha; =0)"
   :nlg-english ("rotational version of Newton's second law ($a=0)")
   :expformat ("applying rotational version of Newton's second law to ~a about ~A"
 	      (nlg ?body) (nlg ?pivot 'at-time ?time))
-  :eqnFormat ((torque-switch "0 = M1_z + M2_z + ..." 
-			    "0 = $t1_z + $t2_z + ...")))
+  :eqnFormat ((torque-switch "0 = M1<sub>z</sub> + M2<sub>z</sub> + ..." 
+			    "0 = &tau;1_z + &tau;2_z + ...")))
   
 (defoperator NFL-rot-zero-accel (?quantity)
   :preconditions 
@@ -3117,7 +3117,7 @@
   :nlg-english ("rotational version of Newton's second law")
   :expformat ("applying rotational version of Newton's second law to ~a about ~A"
 	      (nlg ?body) (nlg ?pivot 'at-time ?time))
-  :eqnFormat ((torque-switch "Mnet_z = I*$a_z" "$tnet_z = I*$a_z" )))
+  :eqnFormat ((torque-switch "Mnet<sub>z</sub> = I &alpha;<sub>z</sub>" "&tau;net<sub>z</sub> = I &alpha;<sub>z</sub>" )))
 
 (defoperator NSL-rot (?quantity)
   :preconditions 
@@ -3152,7 +3152,7 @@
    ((point (string "You can apply the rotational version Newton's second law to ~A.  Note that ~A has no angular acceleration ~A." 
 		   ?b ?b (?t pp)))
     (teach (string 
-    "The rotational version of Newton's second law $t = I*$a states that the net torque on an object = the object's moment of inertia times its angular acceleration.  In this case the angular acceleration is zero so you know the sum of all torques on the object must be zero."
+    "The rotational version of Newton's second law &tau; = I &alpha; states that the net torque on an object = the object's moment of inertia times its angular acceleration.  In this case the angular acceleration is zero so you know the sum of all torques on the object must be zero."
     ))
     (bottom-out (string "Because ~a is not accelerating ~a, write Newton's second law as ~A" 
 			?b (?t pp) ((= (+ . ?f-compo-vars) 0) algebra)))))

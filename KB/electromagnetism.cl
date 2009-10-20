@@ -40,7 +40,7 @@
   :short-name "Coulomb's law (magnitude)"
   :nlg-english ("Coulomb's law")
   :expformat ("applying Coulombs's law for the force on ~a due to ~a" (nlg ?body) (nlg ?agent))
-  :EqnFormat ("F = kelec*abs(q1*q2)/r^2"))
+  :EqnFormat ("F = kelec abs(q1 q2)/r<sup>2</sup>"))
 
 
 ;;; The equation is scalar equation containing vector magnitudes only.
@@ -91,7 +91,7 @@
   :nlg-english ("Coulomb's law (component form)") 
   :ExpFormat ("applying Coulomb's law to ~a and ~A ~a"
 	      (nlg ?body) (nlg ?agent) (nlg ?time 'pp))
-  :EqnFormat ("F_~A = (kelec*q1*q2/r^2) * r_~A/r" 
+  :EqnFormat ("F<sub>~A</sub> = (kelec q1 q2/r<sup>2</sup>)   r<sub>~A</sub>/r" 
 	      (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator coulomb-vector-contains (?sought)
@@ -732,7 +732,7 @@
   :nlg-english ("the definition of electric field")
   :ExpFormat ("applying the definition of electric field on ~a ~a"
 		 (nlg ?body) (nlg ?time 'pp) )
-  :EqnFormat ("F_~a = q*E_~a" (axis-name ?axis) (axis-name ?axis)))
+  :EqnFormat ("F<sub>~a</sub> = q E<sub>~a</sub>" (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator charge-force-Efield-contains (?sought)
   :preconditions 
@@ -822,7 +822,7 @@
   :nlg-english ("the definition of electric field magnitude")
   :ExpFormat ("applying the definition of electric field magnitude at ~a ~a"
 		 (nlg ?body) (nlg ?time 'pp) )
-  :EqnFormat ("F = abs(q)*E" ))
+  :EqnFormat ("F = abs(q) E" ))
 
 (defoperator charge-force-Efield-mag-contains (?sought)
   :preconditions 
@@ -883,7 +883,7 @@
   :complexity minor 
   :nlg-english ("the electric field field direction rule")
   :ExpFormat ("applying the electric field direction rule") 
-  :EqnFormat ("$qF = $qE (pos) or $qF = $qE + 180 deg (neg)" ))
+  :EqnFormat ("&theta;F = &theta;E (pos) or &theta;F = &theta;E + 180 deg (neg)" ))
 
 (defoperator charge-force-Efield-dir-contains (?sought)
   :preconditions 
@@ -932,7 +932,7 @@
   :nlg-english ("the formula for electric field due to a point charge")
   :ExpFormat ("calculating the electric field at ~A due to ~a"
 	      (nlg ?loc) (nlg ?body) )
-  :EqnFormat ("E_~a = (kelec*q/r^2) * r_~a/r" 
+  :EqnFormat ("E<sub>~a</sub> = (kelec q/r<sup>2</sup>)   r<sub>~a</sub>/r" 
 	      (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator point-charge-Efield-contains (?sought)
@@ -1025,7 +1025,7 @@
   :nlg-english ("the formula for the magnitude of the electric field due to a point charge")
   :ExpFormat ("applying the formula for the magnitude of the electric field due to a point charge to ~a ~a"
 		 (nlg ?loc) (nlg ?time 'pp) )
-  :EqnFormat ("E = kelec*abs(q)/r^2" ))
+  :EqnFormat ("E = kelec abs(q)/r<sup>2</sup>" ))
 
 (defoperator point-charge-Efield-mag-contains (?sought)
   :preconditions 
@@ -1211,7 +1211,7 @@
   :nlg-english ("the definition of net electric field")
   :ExpFormat ("calculating the net electric field at ~a ~a" 
 	      (nlg ?loc) (nlg ?time 'pp))
-  :EqnFormat ("Enet_~a = E1_~a + E2_~a + ..." (axis-name ?axis) 
+  :EqnFormat ("Enet<sub>~a</sub> = E1<sub>~a</sub> + E2<sub>~a</sub> + ..." (axis-name ?axis) 
 	      (axis-name ?axis) (axis-name ?axis)))
 
 (def-psmclass net-field-magnetic 
@@ -1221,7 +1221,7 @@
   :nlg-english ("the definition of net magnetic field")
   :ExpFormat ("calculating the net magnetic field at ~a ~a" 
 	      (nlg ?loc) (nlg ?time 'pp))
-  :EqnFormat ("Bnet_~a = B1_~a + B2_~a + ..." (axis-name ?axis) 
+  :EqnFormat ("Bnet<sub>~a</sub> = B1<sub>~a</sub> + B2<sub>~a</sub> + ..." (axis-name ?axis) 
 	      (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator net-field-contains (?sought)
@@ -1434,7 +1434,7 @@
   :nlg-english ("the formula for the electric potential due to a point charge")
   :ExpFormat ("calculating the electric potential at ~a due to ~a"
 		 (nlg ?loc) (nlg ?body))
-  :EqnFormat ("V = kelec*q/r" ))
+  :EqnFormat ("V = kelec q/r" ))
 
 (defoperator point-charge-potential-contains (?sought)
   :preconditions (
@@ -1517,7 +1517,7 @@
   :nlg-english ("the formula for the electric potential energy")
   :ExpFormat ("calculating the electric potential energy of ~a"
 		 (nlg ?body))
-  :EqnFormat ("U = q*Vnet" ))
+  :EqnFormat ("U = q Vnet" ))
 
 (defoperator electric-energy-contains (?sought)
   :preconditions (
@@ -1686,7 +1686,7 @@
   :hint 
   ( (point (string "What is the direction of ~A?  What does this tell you about the magnetic dipole moment?" 
 		   ((unit-vector normal-to ?surface :time ?t) def-np)))
-    (teach (string "The magnetic dipole moment vector for a loop of current is given by the following right hand rule:  the fingers curl around the loop in the direction of the current and the extended thumb points in the direction of $m."))
+    (teach (string "The magnetic dipole moment vector for a loop of current is given by the following right hand rule:  the fingers curl around the loop in the direction of the current and the extended thumb points in the direction of &mu;."))
     (bottom-out (string "Use the vector tool to draw the magnetic dipole moment of ~a in the given direction of ~A." 
 			?current-loop ?dir))
     ))
@@ -1702,7 +1702,7 @@
   :nlg-english ("the electric dipole moment of two charges")
   :ExpFormat ("finding electric dipole moment for ~a ~a"
 		 (nlg ?dipole) (nlg ?time 'pp) )
-  :EqnFormat ("p_~a = q*r_~a" (axis-name ?axis) (axis-name ?axis)))
+  :EqnFormat ("p<sub>~a</sub> = q r<sub>~a</sub>" (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator electric-dipole-moment-contains (?sought)
   :preconditions 
@@ -1779,7 +1779,7 @@
   :nlg-english ("the magnitude of the electric dipole moment of two charges")
   :ExpFormat ("finding the magnitude of the electric dipole moment of ~a ~a"
 		 (nlg ?dipole) (nlg ?time 'pp) )
-  :EqnFormat ("p = abs(q)*r" ))
+  :EqnFormat ("p = abs(q) r" ))
 
 (defoperator electric-dipole-moment-mag-contains (?sought)
   :preconditions 
@@ -1838,7 +1838,7 @@
   :nlg-english ("the magnetic dipole moment of a flat current loop")
   :ExpFormat ("finding the magnetic dipole moment of ~a ~a"
 		 (nlg ?dipole) (nlg ?time 'pp) )
-  :EqnFormat ("$m_~a = N*I*A*n_~a" (axis-name ?axis) (axis-name ?axis)))
+  :EqnFormat ("&mu;<sub>~a</sub> = N I A n<sub>~a</sub>" (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator magnetic-dipole-moment-contains (?sought)
   :preconditions 
@@ -1908,7 +1908,7 @@
   :nlg-english ("the magnitude of the magnetic dipole moment of current loop")
   :ExpFormat ("finding the magnitude of the magnetic dipole moment of ~a ~a"
 		 (nlg ?body) (nlg ?time 'pp) )
-  :EqnFormat ("$m = N*I*A" ))
+  :EqnFormat ("&mu; = N I A" ))
 
 (defoperator magnetic-dipole-moment-mag-contains (?sought)
   :preconditions 
@@ -1967,7 +1967,7 @@
   :expformat ((strcat "calculating the magnitude of the ~A "
 		      "on ~a ~a due to the electric field in ~a")
 	      (moment-name) (nlg ?dipole) (nlg ?time 'pp) (nlg ?region))
-  :EqnFormat ((torque-switch "M = p*E*sin($q)" "$t = p*E*sin($q)")))
+  :EqnFormat ((torque-switch "M = p E sin(&theta;)" "&tau; = p E sin(&theta;)")))
 
 (def-psmclass magnetic-dipole-torque-mag 
   (dipole-torque-mag ?dipole (field ?region magnetic ?source) ?time)
@@ -1978,7 +1978,7 @@
   :expformat ((strcat "calculating the magnitude of the ~A "
 		      "on ~a ~a due to the magnetic field in ~a")
 	      (moment-name) (nlg ?dipole) (nlg ?time 'pp) (nlg ?region))
-  :EqnFormat ((torque-switch "M = $m*B*sin($q)" "$t = $m*B*sin($q)")))
+  :EqnFormat ((torque-switch "M = &mu; B sin(&theta;)" "&tau; = &mu; B sin(&theta;)")))
 
 (defoperator dipole-torque-mag-contains (?sought)
   :preconditions 
@@ -2044,14 +2044,14 @@
   :EqnFormat ((electric-dipole-equation ?axis)))
 
 (defun electric-dipole-equation (xyz)
-  (cond ((eq xyz 'x) (torque-switch "M_x = p_y*E_z - p_z*E_y"
-				    "$t_x = p_y*E_z - p_z*E_y"))
-	((eq xyz 'y) (torque-switch "M_y = p_z*E_x - p_x*E_z"
-				    "$t_y = p_z*E_x - p_x*E_z"))
+  (cond ((eq xyz 'x) (torque-switch "M<sub>x</sub> = p<sub>y</sub> E<sub>z</sub> - p<sub>z</sub> E<sub>y</sub>"
+				    "&tau;<sub>x</sub> = p<sub>y</sub> E<sub>z</sub> - p<sub>z</sub> E<sub>y</sub>"))
+	((eq xyz 'y) (torque-switch "M<sub>y</sub> = p<sub>z</sub> E<sub>x</sub> - p<sub>x</sub> E<sub>z</sub>"
+				    "&tau;<sub>y</sub> = p<sub>z</sub> E<sub>x</sub> - p<sub>x</sub> E<sub>z</sub>"))
 	((eq xyz 'z) 
 	 (torque-switch 
-	  "M_z = p*E*sin($qE-$qp) or M_z = p_x*E_y - p_y*E_x"
-	  "$t_z = p*E*sin($qE-$qp)) or $t_z = p_x*E_y - p_y*E_x"))
+	  "M<sub>z</sub> = p E sin(&theta;E-&theta;p) or M<sub>z</sub> = p<sub>x</sub> E<sub>y</sub> - p<sub>y</sub> E<sub>x</sub>"
+	  "&tau;<sub>z</sub> = p E sin(&theta;E-&theta;p)) or &tau;<sub>z</sub> = p<sub>x</sub> E<sub>y</sub> - p<sub>y</sub> E<sub>x</sub>"))
 	(t (error "electric-dipole-equations invalid axis ~A" xyz))))
 
 (def-psmclass magnetic-dipole-torque 
@@ -2066,14 +2066,14 @@
   :EqnFormat ((magnetic-dipole-equation ?axis)))
 
 (defun magnetic-dipole-equation (xyz)
-  (cond ((eq xyz 'x) (torque-switch "M_x = $m_y*B_z - $m_z*B_y"
-				    "$t_x = $m_y*B_z - $m_z*B_y"))
-	((eq xyz 'y) (torque-switch "M_y = $m_z*B_x - $m_x*B_z"
-				    "$t_y = $m_z*B_x - $m_x*B_z"))
+  (cond ((eq xyz 'x) (torque-switch "M<sub>x</sub> = &mu;<sub>y</sub> B<sub>z</sub> - &mu;<sub>z</sub> B<sub>y</sub>"
+				    "&tau;<sub>x</sub> = &mu;<sub>y</sub> B<sub>z</sub> - &mu;<sub>z</sub> B<sub>y</sub>"))
+	((eq xyz 'y) (torque-switch "M<sub>y</sub> = &mu;<sub>z</sub> B<sub>x</sub> - &mu;<sub>x</sub> B<sub>z</sub>"
+				    "&tau;<sub>y</sub> = &mu;<sub>z</sub> B<sub>x</sub> - &mu;<sub>x</sub> B<sub>z</sub>"))
 	((eq xyz 'z) 
 	 (torque-switch 
-	  "M_z = $m*B*sin($qB-$q$m) or M_z = $m_x*B_y - $m_y*B_x"
-	  "$t_z = $m*B*sin($qB-$q$m)) or $t_z = $m_x*B_y - $m_y*B_x"))
+	  "M<sub>z</sub> = &mu; B sin(&theta;B-&theta;&mu;) or M<sub>z</sub> = &mu;<sub>x</sub> B<sub>y</sub> - &mu;<sub>y</sub> B<sub>x</sub>"
+	  "&tau;<sub>z</sub> = &mu; B sin(&theta;B-&theta;&mu;)) or &tau;<sub>z</sub> = &mu;<sub>x</sub> B<sub>y</sub> - &mu;<sub>y</sub> B<sub>x</sub>"))
 	(t (error "magnetic-dipole-equation invalid axis ~A" xyz))))
 
 (defoperator dipole-torque-contains-angle (?sought)
@@ -2271,7 +2271,7 @@
   :expformat ("calculating the energy of ~a in ~A" 
 	      (nlg ?dipole) 
 	      (nlg (set-time (append (list 'field ?region 'electric) ?rest) ?time)))
-  :EqnFormat ("U = -p*E*cos($qp - $qE) or U = -(p_x*E_x + p_y*E_y)"))
+  :EqnFormat ("U = -p E cos(&theta;p - &theta;E) or U = -(p<sub>x</sub> E<sub>x</sub> + p<sub>y</sub> E<sub>y</sub>)"))
 
 (def-psmclass magnetic-dipole-energy 
   (dipole-energy ?dipole (field ?region magnetic . ?rest) ?time ?dot-type)
@@ -2281,7 +2281,7 @@
   :expformat ("calculating the energy of ~a in ~A" 
 	      (nlg ?dipole) 
 	      (nlg (set-time (append (list 'field ?region 'magnetic) ?rest) ?time)))
-  :EqnFormat ("U = -$m*B*cos($q$m - $qB) or U = -($m_x*B_x + $m_y*B_y)"))
+  :EqnFormat ("U = -&mu; B cos(&theta;&mu; - &theta;B) or U = -(&mu;<sub>x</sub> B<sub>x</sub> + &mu;<sub>y</sub> B<sub>y</sub>)"))
 
 (defoperator dipole-energy-contains (?sought)
   :preconditions 
@@ -2344,11 +2344,11 @@
    (bind ?teaches 
 	 (if (eq ?type 'electric)
 	     (strcat "The electric dipole energy of a dipole P in an electric field E is given by "
-		     (if ?rot "- (p_x * E_x + p_y * E_y + p_z * E_z)." 
-			 "- p * E * cos ($q), where $q is the angle between the dipole and electric field vectors."))
-	     (strcat "The magnetic dipole energy of a dipole $m in a magnetic field B is given by "
-		     (if ?rot "- ($m_x * B_x + $m_y * B_y + $m_z * B_z)." 
-			 "- $m * B * cos ($q), where $q is the angle between the dipole and magnetic field vectors."))))
+		     (if ?rot "- (p<sub>x</sub>   E<sub>x</sub> + p<sub>y</sub>   E<sub>y</sub> + p<sub>z</sub>   E<sub>z</sub>)." 
+			 "- p   E   cos (&theta;), where &theta; is the angle between the dipole and electric field vectors."))
+	     (strcat "The magnetic dipole energy of a dipole &mu; in a magnetic field B is given by "
+		     (if ?rot "- (&mu;<sub>x</sub>   B<sub>x</sub> + &mu;<sub>y</sub>   B<sub>y</sub> + &mu;<sub>z</sub>   B<sub>z</sub>)." 
+			 "- &mu;   B   cos (&theta;), where &theta; is the angle between the dipole and magnetic field vectors."))))
    )
   :effects 
  ((eqn (= ?u-var (- ?dot))
@@ -2756,7 +2756,7 @@
   :short-name "magnetic force (magnitude)"
   :nlg-english ("force on charge moving in a magnetic field")
   :ExpFormat ("applying the formula for force on charge in a magnetic field")
-  :EqnFormat ("F = abs(q)*v*B*sin($q)" ))
+  :EqnFormat ("F = abs(q) v B sin(&theta;)" ))
 
 (defoperator charge-force-Bfield-mag-contains (?sought)
   :preconditions 
@@ -2829,10 +2829,10 @@
   :EqnFormat ((charge-force-Bfield-equation ?axis) ))
 
 (defun charge-force-Bfield-equation (axis)
-  (cond ((eq axis 'x) "F_x = q*(v_y*B_z - v_z*B_y)")
-	((eq axis 'y) "F_y = q*(v_z*B_x - v_x*B_z)")
+  (cond ((eq axis 'x) "F<sub>x</sub> = q (v<sub>y</sub> B<sub>z</sub> - v<sub>z</sub> B<sub>y</sub>)")
+	((eq axis 'y) "F<sub>y</sub> = q (v<sub>z</sub> B<sub>x</sub> - v<sub>x</sub> B<sub>z</sub>)")
 	((eq axis 'z) 
-	 "F_z = q*v*B*sin($qB-$qv) or F_z = q*(v_x*B_y - v_y*B_x)")
+	 "F<sub>z</sub> = q v B sin(&theta;B-&theta;v) or F<sub>z</sub> = q (v<sub>x</sub> B<sub>y</sub> - v<sub>y</sub> B<sub>x</sub>)")
 	(t (error "charge-force-bfield-equation invalid axis ~A" axis))))
 
 (defoperator charge-force-Bfield-contains (?sought)
@@ -2923,7 +2923,7 @@
   :short-name "magnetic force on a wire (magnitude)"
   :nlg-english ("force on a current carrying wire in a magnetic field")
   :ExpFormat ("finding the force on ~A in a magnetic field" (nlg ?body))
-  :EqnFormat ("F = I*L*B*sin($q)" ))
+  :EqnFormat ("F = I L B sin(&theta;)" ))
 
 (defoperator current-force-Bfield-mag-contains (?sought)
   :preconditions 
@@ -2985,7 +2985,7 @@
   :expformat ((strcat "using the Biot-Savart law to find the magnetic field "
 		      "at ~A due to ~A")
 	      (nlg ?loc) (nlg ?b 'at-time ?time))
-  :EqnFormat "B = $m0*abs(q)*v*sin($q)/(4*$p*r^2)")
+  :EqnFormat "B = &mu;0 abs(q) v sin(&theta;)/(4 &pi; r<sup>2</sup>)")
 
 (defoperator biot-savert-point-particle-mag-contains (?sought)
    :preconditions 
@@ -3047,9 +3047,9 @@
   :EqnFormat ((biot-savert-law-equation ?axis)))
 
 (defun biot-savert-law-equation (xyz)
-  (cond ((eq xyz 'x) "B_x = $m0*q*(v_y*n_z - v_z*n_y)/(4*$p*r^2)")
-	((eq xyz 'y) "B_y = $m0*q*(v_z*n_x - v_x*n_z)/(4*$p*r^2)")
-	((eq xyz 'z) "B_z = $m0*q*v*sin($qn-$qv)/(4*$p*r^2) or B_z = $m0*q*(v_x*n_y - v_y*n_x)/(4*$p*r^2)")
+  (cond ((eq xyz 'x) "B<sub>x</sub> = &mu;0 q (v<sub>y</sub> n<sub>z</sub> - v<sub>z</sub> n<sub>y</sub>)/(4 &pi; r<sup>2</sup>)")
+	((eq xyz 'y) "B<sub>y</sub> = &mu;0 q (v<sub>z</sub> n<sub>x</sub> - v<sub>x</sub> n<sub>z</sub>)/(4 &pi; r<sup>2</sup>)")
+	((eq xyz 'z) "B<sub>z</sub> = &mu;0 q v sin(&theta;n-&theta;v)/(4 &pi; r<sup>2</sup>) or B<sub>z</sub> = &mu;0 q (v<sub>x</sub> n<sub>y</sub> - v<sub>y</sub> n<sub>x</sub>)/(4 &pi; r<sup>2</sup>)")
 	(t (error "biot-savert-law-equation invalid axis ~A" xyz))))
 
 (defoperator biot-savert-point-particle-contains-angle (?sought)
@@ -3137,7 +3137,7 @@
   :short-name "magnetic field of a straight wire"
   :nlg-english ("the magnetic field from current flowing through a straight wire")
   :ExpFormat ("finding the magnetic field due to a current flowing through ~A" (nlg ?wire))
-  :EqnFormat ("B = $m0*I/(2*$p*r)" ))
+  :EqnFormat ("B = &mu;0 I/(2 &pi; r)" ))
 
 (defoperator straight-wire-bfield-contains (?sought)
   :preconditions 
@@ -3182,7 +3182,7 @@
   :nlg-english ("the magnetic field at the center of a ~:[coil of N turns~;single loop~]" 
 	    ?flag)
   :ExpFormat ("finding the magnetic field at the center of ~A" (nlg ?coil))
-  :EqnFormat ("B = $m0*N*I/(2*r)" ))
+  :EqnFormat ("B = &mu;0 N I/(2 r)" ))
 
 (defoperator center-coil-Bfield-contains (?sought)
   :preconditions 
@@ -3235,7 +3235,7 @@
   :short-name "magnetic field inside a long solenoid"
   :nlg-english ("the magnetic field inside a long solenoid")
   :ExpFormat ("finding the magnetic field inside ~A" (nlg ?solenoid))
-  :EqnFormat ("B = $m0*n*I" ))
+  :EqnFormat ("B = &mu;0 n I" ))
 
 (defoperator inside-solenoid-Bfield-contains (?sought)
   :preconditions 
@@ -3393,7 +3393,7 @@
   :nlg-english ("the definition of electric flux through a surface")
   :expformat ("calculating the ~A" 
 	      (nlg (list 'flux ?surface 'electric :time ?time)))
-  :EqnFormat ("$Fe = A*E*cos($qE - $qn) or $Fe = A*(E_x*n_x + E_y*n_y)"))
+  :EqnFormat ("&Phi;e = A E cos(&theta;E - &theta;n) or &Phi;e = A (E<sub>x</sub> n<sub>x</sub> + E<sub>y</sub> n<sub>y</sub>)"))
 
 (def-psmclass magnetic-flux-constant-field
   (flux-constant-field ?surface magnetic ?time ?rot)
@@ -3402,7 +3402,7 @@
   :nlg-english ("the definition of magnetic flux through a surface")
   :expformat ("calculating the ~A" 
 	      (nlg (list 'flux ?surface 'magnetic :time ?time)))
-  :EqnFormat ("$Fb = A*B*cos($qB - $qn) or $Fb = A*(B_x*n_x + B_y*n_y)"))
+  :EqnFormat ("&Phi;b = A B cos(&theta;B - &theta;n) or &Phi;b = A (B<sub>x</sub> n<sub>x</sub> + B<sub>y</sub> n<sub>y</sub>)"))
 
 (defoperator flux-constant-field-angle-contains (?sought)
   :preconditions 
@@ -3527,7 +3527,7 @@
   :expformat ("calculating the ~A" 
 	      (nlg (list 'rate-of-change 
 			 (list 'flux ?surface 'electric :time ?time))))
-  :EqnFormat ("d$Fe/dt = E.n*dA/dt"))
+  :EqnFormat ("d&Phi;e/dt = E.n dA/dt"))
 
 (def-psmclass magnetic-flux-constant-field-change
   (flux-constant-field-change ?surface magnetic ?time ?rot)
@@ -3537,7 +3537,7 @@
   :expformat ("calculating the ~A" 
 	      (nlg (list 'rate-of-change 
 			 (list 'flux ?surface 'magnetic :time ?time))))
-  :EqnFormat ("d$Fb/dt = B.n*dA/dt"))
+  :EqnFormat ("d&Phi;b/dt = B.n dA/dt"))
 
 (defoperator flux-constant-field-change-angle-contains (?sought)
   :preconditions 
@@ -3621,7 +3621,7 @@
   :short-name "Gauss' law"
   :nlg-english ("Gauss' law")
   :ExpFormat ("using Gauss' law")
-  :EqnFormat ("$Fe = Q/$e0"))
+  :EqnFormat ("&Phi;e = Q/&epsilon;0"))
 
 (defoperator gauss-law-contains (?sought)
   :preconditions
@@ -3680,7 +3680,7 @@
   :short-name "adding fluxes"
   :nlg-english ("add ~A flux going through different surfaces" (nlg ?type 'adj))
   :ExpFormat ("finding the total ~A flux through ~A" (nlg ?type 'adj) (nlg ?b))
-  :EqnFormat ("$F = $F1 + $F2 + ..."))
+  :EqnFormat ("&Phi; = &Phi;1 + &Phi;2 + ..."))
 
 (defoperator sum-fluxes-contains (?sought)
   :preconditions 
@@ -3717,7 +3717,7 @@
   :short-name "Faraday's law"
   :nlg-english ("Faraday's law")
   :expformat ("applying Faradays law to ~A" (nlg ?surface)) 
-  :EqnFormat ("V = -N*d$Fb/dt"))
+  :EqnFormat ("V = -N d&Phi;b/dt"))
 
 
 (defoperator faradays-law-contains (?sought)
@@ -3797,7 +3797,7 @@
 	      (code-char 232) (nlg ?S))
   ;; use implicit format args to insert the plus-minus character code into 
   ;; the EqnFormat string using only standard characters in our source text
-  :EqnFormat ("int B = $m0*(~CI1 ~C I2 ~C ...)" 
+  :EqnFormat ("int B = &mu;0 (~CI1 ~C I2 ~C ...)" 
 	      (code-char 177) (code-char 177) (code-char 177)))
 
 (defoperator amperes-law-contains (?sought)
@@ -3837,7 +3837,7 @@
   ( (point (string "You can apply Amp~Cre's law to surface ~A."
 		   (#\LATIN_SMALL_LETTER_E_WITH_GRAVE identity) ?s))
     (teach (string "Amp~Cre's law states that the line integral of the magnetic field around the boundary of a surface S is equal to the
-total current flowing through S times $m0.  The direction of positive current flow is given by the following right hand rule:  wrap you fingers around the boundary of the surface in the direction of the line integral; your thumb will be pointing in the direction of positive current flow." 
+total current flowing through S times &mu;0.  The direction of positive current flow is given by the following right hand rule:  wrap you fingers around the boundary of the surface in the direction of the line integral; your thumb will be pointing in the direction of positive current flow." 
 		   (#\LATIN_SMALL_LETTER_E_WITH_GRAVE identity)))
     (bottom-out (string "Write the equation ~A ."
 			((= ?lint-var (* |mu0| ?current-sum)) 

@@ -31,7 +31,7 @@
   :short-name ("momentum defined (~A component)" (axis-name ?axis))
   :nlg-english ("the definition of momentum (component form)")
   :expformat ("applying the definition of momentum to ~A" (nlg ?body))
-  :EqnFormat ("p_~a = m*v_~a" (axis-name ?axis) (axis-name ?axis)))
+  :EqnFormat ("p<sub>~a</sub> = m v<sub>~a</sub>" (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator momentum-contains (?sought)
   :preconditions 
@@ -410,7 +410,7 @@
   :nlg-english ("definition of angular momentum")
   :expformat ("applying the definition of angular momentum on ~a"
 	      (nlg ?body 'at-time ?time))
-  :EqnFormat ("L_z = I*$w_z"))
+  :EqnFormat ("L<sub>z</sub> = I &omega;<sub>z</sub>"))
 
 (defoperator ang-momentum-contains (?sought)
    :preconditions 
@@ -473,7 +473,7 @@
   :nlg-english ("conservation of angular momentum")
   :expformat ("applying Conservation of Angular Momentum to ~a ~a"
 	      (nlg ?bodies 'conjoined-defnp) (nlg ?time 'time))
-  :eqnformat ("L1i_z + L2i_z + ... = L1f_z + L2f_z + ..."))
+  :eqnformat ("L1i<sub>z</sub> + L2i<sub>z</sub> + ... = L1f<sub>z</sub> + L2f<sub>z</sub> + ..."))
 
 (defoperator cons-angmom-contains (?sought)
   :preconditions 
@@ -641,7 +641,7 @@
     :nlg-english ("the definition of impulse") 
     :ExpFormat ("applying the definition of impulse on ~a ~a"
 		(nlg ?body) (nlg ?time 'pp))
-    :EqnFormat ("J_~A = F(avg)_~a*t" (axis-name ?axis) (axis-name ?axis)))
+    :EqnFormat ("J<sub>~A</sub> = F(avg)<sub>~a</sub> t" (axis-name ?axis) (axis-name ?axis)))
 
 ;; Draw an impulse if associated force and interval known 
 (defoperator draw-impulse-given-force (?b ?agent ?t)
@@ -743,7 +743,7 @@
      :nlg-english ("Relation between impulse and change in momentum")
      :ExpFormat ("relating the impulse to the change in momentum of ~a"
 		 (nlg ?body))
-     :EqnFormat ("J1_~a + J2_~a + ... = pf_~a - pi_~a" 
+     :EqnFormat ("J1<sub>~a</sub> + J2<sub>~a</sub> + ... = pf<sub>~a</sub> - pi<sub>~a</sub>" 
                  (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) 
 		 (axis-name ?axis)))
 
@@ -902,7 +902,7 @@ impulse ~A." (?b def-np) (?t pp)))
   :nlg-english ("Newton's third law applied to impulse")
   :ExpFormat ("applying Newton's third law to impulse between ~a and ~a"
 	      (nlg ?Object0) (nlg ?Object1 'at-time ?time))
-  :EqnFormat ("J12_~a = -J21_~a" (axis-name ?axis) (axis-name ?axis)))
+  :EqnFormat ("J12<sub>~a</sub> = -J21<sub>~a</sub>" (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator NTL-impulse-contains (?quantity)
   :preconditions 
@@ -1000,7 +1000,7 @@ impulse ~A." (?b def-np) (?t pp)))
   :short-name "center of mass"
   :nlg-english ("definition of center of mass")
   :complexity major ;we want the equation to be used explicitly
-  :EqnFormat ("Rcm_~A = (m1*r1_~A + m2*r2_~A + ...)/(m1 + m2 + ...)" 
+  :EqnFormat ("Rcm<sub>~A</sub> = (m1 r1<sub>~A</sub> + m2 r2<sub>~A</sub> + ...)/(m1 + m2 + ...)" 
 	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator center-of-mass-contains (?sought)

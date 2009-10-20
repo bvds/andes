@@ -285,7 +285,7 @@
   :short-name "Ohm's Law"
   :nlg-english ("Ohm's Law")
   :ExpFormat ("applying Ohm's law to ~A" (nlg ?res))
-  :eqnFormat ("V = I*R"))
+  :eqnFormat ("V = I R"))
 
 ;;May need to uncomment (resistance) as a sought to get currents to work
 (defoperator ohms-law-contains-resistor (?sought)
@@ -886,7 +886,7 @@
   :nlg-english ("Number of charged particles")
   ;; not the right part of speech for ?p, but the desired behavior
   :ExpFormat ("finding the number of charged ~As in ~A" (nlg ?p 'adj) (nlg ?b))
-  :eqnFormat ("Q = N*q"))
+  :eqnFormat ("Q = N q"))
 
 (defoperator number-of-particles-contains (?sought)
   :preconditions
@@ -1160,7 +1160,7 @@
   :short-name "energy stored in a capacitor"
   :nlg-english ("The formula for energy stored in a capacitor")
   :expformat("Applying the formula for energy stored in a capacitor to ~A" (nlg ?cap))
-  :eqnFormat ("U = 0.5*C*V^2"))
+  :eqnFormat ("U = 0.5 C V<sup>2</sup>"))
 
 (defoperator cap-energy-contains (?sought)
   :preconditions 
@@ -1219,7 +1219,7 @@
   :complexity definition 
   :short-name "RC time constant"
   :nlg-english ("RC time constant")
-  :eqnFormat ("$t = R*C"))
+  :eqnFormat ("&tau; = R C"))
 
 (defoperator RC-time-constant-contains (?sought)
   :preconditions (
@@ -1254,7 +1254,7 @@
   :complexity definition 
   :short-name "RLC time constant"
   :nlg-english ("RLC time constant")
-  :eqnFormat ("$t = 2*L/R"))
+  :eqnFormat ("&tau; = 2 L/R"))
 
 (defoperator RLC-time-constant-contains (?sought)
   :preconditions 
@@ -1296,7 +1296,7 @@
   :complexity definition 
   :short-name "LC angular frequency"
   :nlg-english ("the angular frequency of an LC circuit")
-  :eqnFormat ("$w = 1/sqrt(L*C)"))
+  :eqnFormat ("&omega; = 1/sqrt(L C)"))
 
 (defoperator LC-angular-frequency-contains (?sought)
   :preconditions 
@@ -1338,7 +1338,7 @@
   :complexity definition 
   :short-name "RLC angular frequency"
   :nlg-english ("the angular frequency of an RLC circuit")
-  :eqnFormat ("$w = sqrt(1/(L*C)-R^2/(2*L)^2)"))
+  :eqnFormat ("&omega; = sqrt(1/(L C)-R<sup>2</sup>/(2 L)<sup>2</sup>)"))
 
 (defoperator RLC-angular-frequency-contains (?sought)
   :preconditions 
@@ -1389,7 +1389,7 @@
   :complexity major
   :short-name "charge on capacitor in RC circuit"
   :nlg-english ("the charge on capacitor in RC circuit, initially full")
-  :eqnFormat ("q = qi*exp(-t/$t)"))
+  :eqnFormat ("q = qi exp(-t/&tau;)"))
 
 (defoperator discharging-capacitor-at-time-contains (?sought)
   :preconditions
@@ -1441,7 +1441,7 @@
   :complexity major
   :short-name "charge on capacitor in RC circuit with battery"
   :nlg-english ("the charge on capacitor in RC circuit, initially empty")
-  :eqnFormat ("q = C*Vb*(1 - exp(-t/$t))"))
+  :eqnFormat ("q = C Vb (1 - exp(-t/&tau;))"))
 
 (defoperator charging-capacitor-at-time-contains (?sought)
   :preconditions
@@ -1521,7 +1521,7 @@
   :complexity major
   :short-name "current in RC circuit"
   :nlg-english ("Current in RC circuit")
-  :eqnFormat ("I = (Vb/R)*exp(-t/$t)"))
+  :eqnFormat ("I = (Vb/R) exp(-t/&tau;)"))
 
 (defoperator current-in-RC-at-time-contains (?sought)
   :preconditions
@@ -1573,7 +1573,7 @@
   :complexity minor 
   :short-name "RC charge as fraction of max"
   :nlg-english ("the RC circuit charge as percent of maximum")
-  :eqnFormat ("q = fraction*C*Vb"))
+  :eqnFormat ("q = fraction C Vb"))
 
 (defoperator charge-capacitor-percent-max-contains (?sought)
   :preconditions(
@@ -1645,7 +1645,7 @@
   :short-name "self-inductance of long, uniform solenoid"
   :nlg-english ("the self-inductance of a long, uniform solenoid")
   :ExpFormat ("finding the self-inductance of ~A" (nlg ?solenoid))
-  :EqnFormat ("L = $m0*N^2*A/l" ))
+  :EqnFormat ("L = &mu;0 N<sup>2</sup> A/l" ))
 
 (defoperator solenoid-self-inductance-contains (?sought)
   :preconditions 
@@ -1719,7 +1719,7 @@
   :nlg-english ("the average rate of change of quantity")
   :expformat ("applying definition of average rate of change to ~A" 
 	      (nlg ?quant)) 
-  :EqnFormat ("dy/dt_avg = (y2-y1)/(t2-t1)"))
+  :EqnFormat ("dy/dt<sub>a</sub>vg = (y2-y1)/(t2-t1)"))
 
 ;; This is rather incomplete:  it should also allow the time interval
 ;; or the end values to be the sought
@@ -1791,7 +1791,7 @@
   :nlg-english ("EMF (voltage) across inductor")
   :ExpFormat ("finding the EMF across inductor ~A ~A" 
 	      (nlg ?inductor) (nlg ?time 'pp))
-  :eqnFormat ("V = -L*dIdt") 
+  :eqnFormat ("V = -L dIdt") 
   )
 
 (defoperator inductor-emf-contains (?sought)
@@ -1828,7 +1828,7 @@
   :short-name "mutual inductor EMF"
   :nlg-english ("induced EMF (voltage) across ~A due to ~A" 
 	    (nlg ?ind1) (nlg ?ind2))
-  :eqnFormat ("V2 = -M12*dI1dt") 
+  :eqnFormat ("V2 = -M12 dI1dt") 
   )
 
 (defoperator mutual-inductor-emf-contains (?sought)
@@ -1869,7 +1869,7 @@
   :short-name "energy stored in inductor"
   :nlg-english ("the formula for energy stored in a inductor")
   :expformat("Applying the formula for energy stored in a inductor to ~A" (nlg ?ind))
-  :eqnFormat ("U = 0.5*L*I^2"))
+  :eqnFormat ("U = 0.5 L I<sup>2</sup>"))
 
 (defoperator inductor-energy-contains (?sought)
   :preconditions 
@@ -1910,7 +1910,7 @@
   :complexity definition 
   :short-name "LR time constant"
   :nlg-english ("the LR circuit time constant")
-  :eqnFormat ("$t = L/R"))
+  :eqnFormat ("&tau; = L/R"))
 
 
 (defoperator LR-time-constant-contains (?sought ?ind ?res)
@@ -1946,7 +1946,7 @@
   :complexity major
   :short-name "LR current growth"
   :nlg-english ("current growth in an LR circuit")
-  :eqnFormat ("I = Imax*(1 - exp(-t/$t))"))
+  :eqnFormat ("I = Imax (1 - exp(-t/&tau;))"))
 
 (defoperator LR-current-growth-contains (?sought)
   :preconditions
@@ -2042,7 +2042,7 @@
   :complexity major
   :short-name "LR current decay"
   :nlg-english ("current decay in an LR circuit")
-  :eqnFormat ("I = I0*exp(-t/$t)"))
+  :eqnFormat ("I = I0 exp(-t/&tau;)"))
 
 (defoperator LR-current-decay-contains (?sought)
   :preconditions
@@ -2134,7 +2134,7 @@
   :complexity major
   :short-name "electric power"
   :nlg-english ("the formula for electric power")
-  :eqnFormat ("P = V*I"))
+  :eqnFormat ("P = V I"))
 
 (defoperator electric-power-contains (?sought)
   :preconditions 
