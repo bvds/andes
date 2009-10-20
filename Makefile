@@ -51,11 +51,12 @@ install-solver:
 	cd Algebra/src; $(MAKE) executable
 
 ifeq ($(shell uname),Darwin)
-httpd-document-root = /Library/webServer/Documents
-httpd-conf-dir = /etc/http/conf.d
-else  # assume this is Linux
-httpd-document-root = /var/www/html
-httpd-conf-dir = /etc/httpd/users
+  httpd-document-root = /Library/webServer/Documents
+  httpd-conf-dir = /etc/httpd/users
+else ifeq ($(shell uname),Linux)
+  httpd-document-root = /var/www/html
+  httpd-conf-dir = $(if $(shell test -e /etc/apache2 && echo "1"),\
+                   /etc/apache2,/etc/httpd)/conf.d
 endif
 
 configure-httpd:
