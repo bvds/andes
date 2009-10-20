@@ -13,8 +13,8 @@ install:
 	-git checkout dojox 
 	-git checkout dijit 
 	-git checkout util
-	andes.build.sh
+	./andes.build.sh
 
 update:
 	svn update *
-	andes.build.sh
+	./andes.build.sh
