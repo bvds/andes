@@ -29,12 +29,12 @@
        (leaf avg-velocity :bindings ((?axis . x)) :tutorial "Average velocity")
        (leaf avg-velocity :bindings ((?axis . y)) :tutorial "Average velocity")
        ;; alternative form of equation
-       (leaf lk-no-s :EqnFormat ("a(avg)_~a = (vf_~a - vi_~a)/t" 
+       (leaf lk-no-s :EqnFormat ("a(avg)<sub>~a</sub> = (vf<sub>~a</sub> - vi<sub>~a</sub>)/t" 
 				 (axis-name ?axis) (axis-name ?axis) 
 				 (axis-name ?axis))
 	     :bindings ((?axis . x)) :tutorial "Average acceleration")
        ;; alternative form of equation
-       (leaf lk-no-s :EqnFormat ("a(avg)_~a = (vf_~a - vi_~a)/t" 
+       (leaf lk-no-s :EqnFormat ("a(avg)<sub>~a</sub> = (vf<sub>~a</sub> - vi<sub>~a</sub>)/t" 
 				 (axis-name ?axis) (axis-name ?axis) 
 				 (axis-name ?axis))
 	     :bindings ((?axis . y)) :tutorial "Average acceleration")
@@ -57,7 +57,7 @@
 (group "Rotational" 
        (leaf ang-sdd :tutorial "Angular velocity")
        ;; alternative form of equation
-       (leaf rk-no-s :EqnFormat "$a(avg) = ($wf - $wi)/t" 
+       (leaf rk-no-s :EqnFormat "&alpha;(avg) = (&omega;f - &omega;i)/t" 
 	     :tutorial "Angular acceleration")
        (leaf rk-no-vf :tutorial "Constant angular acceleration")
        (leaf rk-no-s :tutorial "Constant angular acceleration")
@@ -109,7 +109,7 @@
 	 (leaf uniform-intensity-to-power :tutorial "Intensity")
 	 (leaf net-intensity :tutorial "Intensity")
 	 (leaf intensity-to-decibels :tutorial "Intensity")
-	 (leaf intensity-to-decibels :EqnFormat "I = Iref*10^($b/10)" :tutorial "Intensity")
+	 (leaf intensity-to-decibels :EqnFormat "I = Iref 10<sup>&beta;/10</sup>" :tutorial "Intensity")
 	 (leaf intensity-to-poynting-vector-magnitude :tutorial "Intensity")
 	 )
  (group "Momentum and Impulse" 
@@ -284,12 +284,12 @@
 		 (leaf net-disp :bindings ((?axis . y)) :tutorial "Net Displacement")
 		 (leaf avg-velocity :bindings ((?axis . x)) :tutorial "Average velocity")
 		 (leaf avg-velocity :bindings ((?axis . y)) :tutorial "Average velocity")
-       (leaf lk-no-s :EqnFormat ("a(avg)_~a = (vf_~a - vi_~a)/t" 
+       (leaf lk-no-s :EqnFormat ("a(avg)<sub>~a</sub> = (vf<sub>~a</sub> - vi<sub>~a</sub>)/t" 
 				 (axis-name ?axis) (axis-name ?axis) 
 				 (axis-name ?axis))
 	     :bindings ((?axis . x)) :tutorial "Average acceleration")
        ;; alternative form of equation
-       (leaf lk-no-s :EqnFormat ("a(avg)_~a = (vf_~a - vi_~a)/t" 
+       (leaf lk-no-s :EqnFormat ("a(avg)<sub>~a</sub> = (vf<sub>~a</sub> - vi<sub>~a</sub>)/t" 
 				 (axis-name ?axis) (axis-name ?axis) 
 				 (axis-name ?axis))
 	     :bindings ((?axis . y)) :tutorial "Average acceleration")
@@ -1028,7 +1028,7 @@
 	;; shut off pretty printing so we don't have 
 	;; line breaks in expressions
 	(*print-pretty* nil))
-    (andes-init)
+    (when sets (andes-init))
     (setf jsonc 0)
     ;;  Assume stream has UTF-8 encoding (default for sbcl)
     ;;  Should test this is actually true or change the charset to match
@@ -1102,11 +1102,11 @@
 	    (problem-lines-json stream probs (car set) jsonc))))
       (format stream "    ]"))
     (unless sets
-      (format stream ", \"psmclass-name\": \"~S\""
-	      (if (eq bindings no-bindings) (psmclass-name pc)
-	  ;; if bindings have been supplied, construct list
-	  ;; turn off pretty-print to prevent line breaks
-	  (list (psmclass-name pc) bindings)))
+      ;; turn off pretty-print to prevent line breaks
+      (format stream ", \"psm\": \"~S\""
+	      (cons (psmclass-name pc) 
+		    (if (eq bindings no-bindings) nil bindings)))
+      (format stream ", \"complexity\": \"~(~A~)\"" (psmclass-complexity pc))
       (when tutorial 
 	(format stream ", \"tutorial\": \"~A\"" tutorial)))
     (format stream "}")))

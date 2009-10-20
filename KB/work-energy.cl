@@ -98,7 +98,7 @@
   :nlg-english ("the gravitational potential energy due to a spherical object")
   :ExpFormat ("calculating the gravitational potential of ~a due to ~a"
 		 (nlg ?body) (nlg ?agent))
-  :EqnFormat ("Ug = -G*m1*m2/r" ))
+  :EqnFormat ("Ug = -G m1 m2/r" ))
 
 (defoperator gravitational-energy-point-contains (?sought)
   :preconditions 

@@ -6,7 +6,7 @@
 package andesdatashopcommunication;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -23,12 +23,12 @@ import javax.persistence.Table;
 
 /**
  *
- * @author The_N_Channel
+ * @author master
  */
 @Entity
-@Table(name = "classinformation")
-@NamedQueries({@NamedQuery(name = "Classinformation.findAll", query = "SELECT c FROM Classinformation c"), @NamedQuery(name = "Classinformation.findByClassID", query = "SELECT c FROM Classinformation c WHERE c.classID = :classID"), @NamedQuery(name = "Classinformation.findByName", query = "SELECT c FROM Classinformation c WHERE c.name = :name"), @NamedQuery(name = "Classinformation.findBySchool", query = "SELECT c FROM Classinformation c WHERE c.school = :school"), @NamedQuery(name = "Classinformation.findByPeriod", query = "SELECT c FROM Classinformation c WHERE c.period = :period"), @NamedQuery(name = "Classinformation.findByDescription", query = "SELECT c FROM Classinformation c WHERE c.description = :description"), @NamedQuery(name = "Classinformation.findByInstructorName", query = "SELECT c FROM Classinformation c WHERE c.instructorName = :instructorName"), @NamedQuery(name = "Classinformation.findBySchoolyearInfo", query = "SELECT c FROM Classinformation c WHERE c.schoolyearInfo = :schoolyearInfo")})
-public class Classinformation implements Serializable {
+@Table(name = "CLASS_INFORMATION")
+@NamedQueries({@NamedQuery(name = "ClassInformation.findAll", query = "SELECT c FROM ClassInformation c"), @NamedQuery(name = "ClassInformation.findByClassID", query = "SELECT c FROM ClassInformation c WHERE c.classID = :classID"), @NamedQuery(name = "ClassInformation.findByName", query = "SELECT c FROM ClassInformation c WHERE c.name = :name"), @NamedQuery(name = "ClassInformation.findBySchool", query = "SELECT c FROM ClassInformation c WHERE c.school = :school"), @NamedQuery(name = "ClassInformation.findByPeriod", query = "SELECT c FROM ClassInformation c WHERE c.period = :period"), @NamedQuery(name = "ClassInformation.findByDescription", query = "SELECT c FROM ClassInformation c WHERE c.description = :description"), @NamedQuery(name = "ClassInformation.findByInstructorName", query = "SELECT c FROM ClassInformation c WHERE c.instructorName = :instructorName"), @NamedQuery(name = "ClassInformation.findBySchoolyearInfo", query = "SELECT c FROM ClassInformation c WHERE c.schoolyearInfo = :schoolyearInfo")})
+public class ClassInformation implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,19 +54,19 @@ public class Classinformation implements Serializable {
     @Column(name = "schoolyearInfo")
     private String schoolyearInfo;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "classinformationID")
-    private Collection<ProblemAttempt> problemAttemptCollection;
+    private List<ProblemAttempt> problemAttemptList;
     @JoinColumn(name = "datasetID", referencedColumnName = "datasetID")
     @ManyToOne(optional = false)
     private StudentDataset datasetID;
 
-    public Classinformation() {
+    public ClassInformation() {
     }
 
-    public Classinformation(Integer classID) {
+    public ClassInformation(Integer classID) {
         this.classID = classID;
     }
 
-    public Classinformation(Integer classID, String name, String school, String period, String description, String instructorName, String schoolyearInfo) {
+    public ClassInformation(Integer classID, String name, String school, String period, String description, String instructorName, String schoolyearInfo) {
         this.classID = classID;
         this.name = name;
         this.school = school;
@@ -132,12 +132,12 @@ public class Classinformation implements Serializable {
         this.schoolyearInfo = schoolyearInfo;
     }
 
-    public Collection<ProblemAttempt> getProblemAttemptCollection() {
-        return problemAttemptCollection;
+    public List<ProblemAttempt> getProblemAttemptList() {
+        return problemAttemptList;
     }
 
-    public void setProblemAttemptCollection(Collection<ProblemAttempt> problemAttemptCollection) {
-        this.problemAttemptCollection = problemAttemptCollection;
+    public void setProblemAttemptList(List<ProblemAttempt> problemAttemptList) {
+        this.problemAttemptList = problemAttemptList;
     }
 
     public StudentDataset getDatasetID() {
@@ -158,10 +158,10 @@ public class Classinformation implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Classinformation)) {
+        if (!(object instanceof ClassInformation)) {
             return false;
         }
-        Classinformation other = (Classinformation) object;
+        ClassInformation other = (ClassInformation) object;
         if ((this.classID == null && other.classID != null) || (this.classID != null && !this.classID.equals(other.classID))) {
             return false;
         }
@@ -170,7 +170,7 @@ public class Classinformation implements Serializable {
 
     @Override
     public String toString() {
-        return "andesdatashopcommunication.Classinformation[classID=" + classID + "]";
+        return "andesdatashopcommunication.ClassInformation[classID=" + classID + "]";
     }
 
 }
