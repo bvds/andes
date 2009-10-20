@@ -2161,7 +2161,7 @@
   :hint
    ((point (string "Can you think of an equation that relates the components of average acceleration to those of the initial velocity, final velocity, and duration?"))
     (teach (string "Acceleration is the rate of change of velocity.  The average acceleration vector over some time is defined as the difference between initial and final velocity vectors divided by the duration."))
-    (bottom-out (string "Write the equation ~a = ~a + ~a*~a" (?vf-compo algebra) (?vi-compo algebra) (?a-compo algebra) (?t algebra)))
+    (bottom-out (string "Write the equation ~a = ~a" (?vf-compo algebra) ((+ ?vi-compo (* ?a-compo ?t)) algebra)))
     ))
 
 ;;; zero component of non-zero acceleration
@@ -2245,10 +2245,10 @@
   :complexity major
   :short-name ("[a<sub>~A</sub> is constant]" (axis-name ?axis))
   :doc "Linear kinematics eqn w/o time."
-  :nlg-english ("the constant acceleration equation v_~a^2 = v0_~a^2 + 2*a_~a*d_~a" 
+  :nlg-english ("the constant acceleration equation v<sub>~a</sub><sup>2</sup> = v0<sub>~a</sub><sup>2</sup> + 2 a<sub>~a</sub> d<sub>~a</sub>" 
                (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) (axis-name ?axis))
   :ExpFormat ((strcat "writing the constant acceleration equation "
-                      "v_~a^2 = v0_~a^2 + 2*a_~a*d_~a "
+                      "v<sub>~a</sub><sup>2</sup> = v0<sub>~a</sub><sup>2</sup> + 2 a<sub>~a</sub> d<sub>~a</sub> "
 		      "for ~a from ~a to ~a") 
                       (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)
 		      (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
@@ -2330,10 +2330,10 @@
   :complexity major
   :short-name ("[a<sub>~A</sub> is constant]" (axis-name ?axis))
   :Doc "Linear kinematics eqn sans final velocity."
-  :nlg-english ("the constant acceleration equation d_~a = v0_~a*t + 0.5*a_~a*t^2"
+  :nlg-english ("the constant acceleration equation d<sub>~a</sub> = v0<sub>~a</sub> t + 0.5 a<sub>~a</sub> t<sup>2</sup>"
                             (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) )
   :ExpFormat ((strcat "writing the constant acceleration equation "
-                      "d_~a = v0_~a*t + 0.5*a_~a*t^2 "
+                      "d<sub>~a</sub> = v0<sub>~a</sub> t + 0.5 a<sub>~a</sub> t<sup>2</sup> "
 		      "for ~a from ~a to ~a") 
                       (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) 
 		      (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
@@ -2957,7 +2957,7 @@
 		  (std-constant (gravitational-acceleration earth))) )
   :hint
   ((point (string "You should know the value of g for the Earth"))
-   (teach (string "You can use 9.8 m/s^2 for the value of g near the surface of the Earth"))
+   (teach (string "You can use 9.8 m/s<sup>2</sup> for the value of g near the surface of the Earth"))
    (bottom-out (string "Write the equation ~A" ((= ?g-var (dnum 9.8 |m/s^2|)) algebra))) ))
 
 (defoperator define-grav-accel (?planet)
@@ -3446,8 +3446,8 @@
   :hint (
   (point (string "Can you write an equation in terms of components relating average angular velocity to angular displacement and duration?"))
    (teach (string "The average angular velocity of a rotating object over an interval is defined to be the angular displacement divided by the duration of the interval. This gives the rotational counterpart of distance = average speed * time. Writing vector relations like this in terms of the vector components is recommended to avoid sign errors."))
-   (bottom-out (string "Write the equation ~a=~a * ~a." 
-		       (?theta_z algebra) (?omega_z algebra) (?t-var algebra)))
+   (bottom-out (string "Write the equation ~a=~a." 
+		       (?theta_z algebra) ((* ?omega_z ?t-var) algebra)))
   ))
 
 ;;; ================ Rotational kinematics equations ========================
@@ -3513,9 +3513,8 @@
     :hint
    ((point (string "Can you think of an equation that relates the z component of average angular acceleration to that of the initial angular velocity, final angular velocity, and duration?"))
     (teach (string "Acceleration is the rate of change of velocity. The average acceleration vector over some time is defined as the difference between initial and final velocity vectors divided by the duration. This definition can be be applied in component form to relate ~A, ~A, ~A and ~A" (?omega2_z algebra) (?omega1_z algebra) (?alpha_z algebra) (?t-var algebra)))
-    (bottom-out (string "Write the equation ~a = ~a + ~a*~a" 
-                        (?omega2_z algebra) (?omega1_z algebra) 
-			(?alpha_z algebra) (?t-var algebra)))))
+    (bottom-out (string "Write the equation ~a = ~a" 
+                        (?omega2_z algebra) ((+ ?omega1_z (* ?alpha_z ?t-var)) algebra)))))
 
 ;; angular version of lk-no-vf: 
 ;;        theta12 = omega1 * t + 0.5 * alpha12 * t12^2

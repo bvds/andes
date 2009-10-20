@@ -2470,7 +2470,7 @@
 			"is ~a, it is accelerating.  And whenever a body has "
 			"a non-zero acceleration, the net force acting on "
 			"it must be non-zero.  This follows directly from "
-			"Newton's law, F=m*a.") speed-up-or-slow-down)
+			"Newton's law, <var>F</var>=<var>m</var> <var>a</var>.") speed-up-or-slow-down)
     (format nil (strcat "Because ~a is ~a ~a, it has non-zero acceleration.  "
 			"You should change the net force to make it "
 			"a non-zero vector.") 
@@ -3175,7 +3175,7 @@
 		   "Let &theta;V be the angle as you move counterclockwise from the horizontal to "
 		   "the vector.  Let &theta;x be the rotation of the x-axis from the horizontal. "
 		   "(&theta;V and &theta;x appear in the Variables window.) "
-		   "Then: V_x = V*cos(&theta;V-&theta;x) and V_y = V*sin(&theta;V-&theta;x).")
+		   "Then: V<sub>x</sub> = V cos(&theta;V-&theta;x) and V<sub>y</sub> = V sin(&theta;V-&theta;x).")
 	   (format nil "Replace ~a with ~a." (nlg wrong 'algebra) (nlg right 'algebra)))))
 
 ;;; The student has used the wrong trig function where tangent is right
@@ -3460,16 +3460,16 @@
   (make-hint-seq
    (list
     ;; teach wt-law-sign
-    (strcat "You probably recall the vector equation 'Fg = m*g' "
-	    "where Fg and g are vectors, namely the weight "
+    (strcat "You probably recall the vector equation <var>Fg</var> = <var>m</var> <var>g</var>' "
+	    "where <var>Fg</var> and <var>g</var> are vectors, namely the weight "
 	    "and gravitational acceleration.  This vector equation implies "
 	    "that the two vectors have the same direction (both are downward).  "
 	    "It also implies that their magnitudes are proportional, that is, "
-	    "that W=m*g where W and g stand for the MAGNITUDES of the weight "
+	    "that <var>W</var>=<var>m</var> <var>g</var> where <var>W</var> and <var>g</var> stand for the MAGNITUDES of the weight "
 	    "and gravitational acceleration.  Your version of this scalar "
 	    "equation has an unnecessary minus sign in it.  Just remember "
-	    "that in the scalar equation Fg = m*g, everything is positive: mass "
-	    "is a positive number, and because Fg and g stand for magnitudes, "
+	    "that in the scalar equation <var>Fg</var> = <var>m</var> <var>g</var>, everything is positive: mass "
+	    "is a positive number, and because <var>Fg</var> and <var>g</var> stand for magnitudes, "
 	    "they are positive numbers, too.")
     (format nil "Change your equation to ~a." (nlg eqn 'algebra)))))
 
@@ -4013,7 +4013,7 @@
 	             studval studvar (nlg quant))
 	(format nil 
 	      (strcat "Although final answers may be rounded off, Andes requires "
-	              "values in equations to agree to within one part in 10^11. "
+	              "values in equations to agree to within one part in 10<sup>11</sup>. "
 		      "It will be easier to stick to the symbol ~A throughout your "
 		      "solution equations. Use the 'Solve For' command to let Andes "
 		      "compute the final answer when you have entered enough equations "

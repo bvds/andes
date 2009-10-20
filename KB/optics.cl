@@ -889,7 +889,7 @@
   (if (unify fraction '0) "polarizer and unpolarized light" "Malus' law"))
 
 (defun polarization-intensity-eqn (fraction)
-  (if (unify fraction '0) "If = 0.5*Ii"	"If = Ii*cos(&theta;)<sup>2</sup>"))
+  (if (unify fraction '0) "If = 0.5 Ii"	"If = Ii cos(&theta;)<sup>2</sup>"))
 
 (defun polarization-fraction (fraction)
   (cond ((unify fraction '0) "unpolarized")

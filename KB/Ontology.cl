@@ -880,9 +880,9 @@
 (def-psmclass centripetal-accel (centripetal-accel ?body ?time)
   :complexity major
   :short-name "centripetal acceleration (instantaneous)"
-  :nlg-english ("centripetal acceleration equation: a = v^2/r")
+  :nlg-english ("centripetal acceleration equation: <var>a</var> = <var>v</var><sup>2</sup>/<var>r</var>")
   :ExpFormat ((strcat "writing the centripetal acceleration "
-		      "equation: a = v^2/r for ~a")
+		      "equation: <var>a</var> = <var>v</var><sup>2</sup>/<var>r</var> for ~a")
 	      (nlg ?body 'at-time ?time))
   :EqnFormat ("ac = v<sup>2</sup>/r"))
 (def-psmclass centripetal-accel-compo (?eqn-type definition ?axis ?rot 
@@ -893,7 +893,7 @@
   :nlg-english ("centripetal acceleration (component form)") 
   :ExpFormat ("finding the centripetal acceleration of ~a ~a (component form)"
 	      (nlg ?body) (nlg ?time 'pp))
-  :EqnFormat ("ac<sub>~A</sub> = -v<sup>2</sup>/r   r<sub>~A</sub>/r" 
+  :EqnFormat ("ac<sub>~A</sub> = -v<sup>2</sup>/r r<sub>~A</sub>/r" 
 	      (axis-name ?axis) (axis-name ?axis)))
 
 

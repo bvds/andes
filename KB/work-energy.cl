@@ -142,7 +142,7 @@
 	 (gravitational-energy-point ?body ?agent t ?t))
     )
   :hint (
-    (teach (string "Newton's law of universal gravitation states that the magnitude of the gravitational force between two bodies, masses m1 and m2, is equal to G*m1*m2/r^2.  If we integrate this over r, with r going from r=infinity to r=r1, we get the potential energy -G*m1*m2/r.  This applies to either m1 or m2."))
+    (teach (string "Newton's law of universal gravitation states that the magnitude of the gravitational force between two bodies, masses <var>m1</var> and <var>m2</var>, is equal to G <var>m1</var> <var>m2</var>/<var>r</var><sup>2</sup>.&nbsp;  If we integrate this over <var>r</var>, with <var>r</var> going from <var>r</var>=&infin; to <var>r</var>=<var>r1</var>, we get the potential energy -G <var>m1</var> <var>m2</var>/<var>r</var>.&nbsp;  This applies to either <var>m1</var> or <var>m2</var>."))
     (bottom-out (string "Write the equation ~A" 
                          ((= ?Ug (- (/ (* G ?m1 ?m2) ?r))) algebra) ))
   ))
@@ -510,7 +510,7 @@
   :hint (
   (point (string "What is the translational kinetic energy of ~a ~a?" 
 		 (?body def-np) (?t pp)))
-  (teach (string "The translational kinetic energy of an object is defined as one half its mass times its velocity squared.  That is, 0.5*m*v^2."))
+  (teach (string "The translational kinetic energy of an object is defined as one half its mass times its velocity squared.  That is, 0.5 <var>m</var> <var>v</var><sup>2</sup>."))
   (bottom-out (string "Write the equation ~a" ((= ?ke-var (* 0.5 ?m-var (^ ?v-var 2))) algebra)))
   ))
 
@@ -586,7 +586,7 @@
 	    )
   :hint (
    (point (string "Try writing an equation for gravitational potential energy of ~a ~a" (?body def-np) (?t pp)))
-   (teach (string "The gravitational potential energy of a body near the surface of a planet is m*g*h, its mass times the gravitational acceleration times its height above the stipulated zero level."))
+   (teach (string "The gravitational potential energy of a body near the surface of a planet is <var>m</var> <var>g</var> <var>h</var>, its mass times the gravitational acceleration times its height above the stipulated zero level."))
    (bottom-out (string "Write ~a" ((= ?PE-var (* ?m-var ?g-var ?h-var)) algebra)))
    ))
 
@@ -629,7 +629,7 @@
 
   :hint (
   (point (string "Try writing an equation for the elastic potential energy due to the interaction between ~a and ~a." ?body ?spring))
-  (teach (string "The elastic potential energy due to the interaction of a body with a compressed spring is 0.5*k*x^2 where k is the spring constant and x is the distance the spring is compressed or extended from its equilibrium length."))
+  (teach (string "The elastic potential energy due to the interaction of a body with a compressed spring is 0.5 <var>k</var> <var>x</var><sup>2</sup> where <var>k</var> is the spring constant and <var>x</var> is the distance the spring is compressed or extended from its equilibrium length."))
   (bottom-out (string "Write ~a" ((= ?PE-var (* 0.5 ?k-var (^ ?d-var 2))) algebra)))
   ))
 	 
@@ -894,8 +894,8 @@
     (bind ?teaches (if (equal ?dot 0)
 		       "If a force has no component in the direction of the displacement of an object, then the force does no work on that object."
 		     (strcat "The work done on a body by a constant force of magnitude F acting through a displacement of magnitude d is given by "
-			     (if ?rot "F_x * d_x + F_y d_y." 
-			       "F * d * cos (&theta;), where &theta; is the angle between the force and displacement vectors."))
+			     (if ?rot "F<sub>x</sub> d<sub>x</sub> + F<sub>y</sub> d<sub>y</sub>." 
+			       "F d cos(&theta;), where &theta; is the angle between the force and displacement vectors."))
 		     ))
     (variable ?work-var (work ?b ?agent :time ?t))
  )
@@ -1449,8 +1449,8 @@
     (bind ?teaches (if (equal ?dot 0)
 		       "If a force has no component in the direction of the movement of an object, then the force does no work on that object."
 		     (strcat "Power is the rate at which work is done.  The instantaneous power supplied from a force F to a body moving at velocity v is equal to " 
-			     (if ?rot "F_x * v_x + F_y v_y." 
-			       "F * v * cos (&theta;), where &theta; is the angle between the force and velocity vectors."))
+			     (if ?rot "F<sub>x</sub> v<sub>x</sub> + F<sub>y</sub> v<sub>y</sub>." 
+			       "F v cos(&theta;), where &theta; is the angle between the force and velocity vectors."))
 		     ))
     
     (variable ?P-var (power ?b ?agent :time ?t))

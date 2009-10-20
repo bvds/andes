@@ -3790,11 +3790,9 @@
 
 (def-psmclass amperes-law (amperes-law :surface ?S)
   :complexity major			;must explicitly use
-  ;; Allegro lisp character encoding has trouble reading in "`e"
-  :short-name ("Amp~Cre's law" (code-char 232))
-  :nlg-english ("Amp~Cre's law" (code-char 232))
-  :ExpFormat ("applying Amp~Cre's law to ~A"  
-	      (code-char 232) (nlg ?S))
+  :short-name "Amp&egrave;re's law"
+  :nlg-english ("Amp&egrave;re's law")
+  :ExpFormat ("applying Amp&egrave;re's law to ~A" (nlg ?S))
   ;; use implicit format args to insert the plus-minus character code into 
   ;; the EqnFormat string using only standard characters in our source text
   :EqnFormat ("int B = &mu;0 (~CI1 ~C I2 ~C ...)" 
@@ -3833,12 +3831,9 @@
   ( (eqn  (= ?lint-var (* |mu0| ?current-sum))
 	  (amperes-law :surface ?S)) )
   :hint
-  ;; Allegro lisp character encoding has trouble reading in "`e"
-  ( (point (string "You can apply Amp~Cre's law to surface ~A."
-		   (#\LATIN_SMALL_LETTER_E_WITH_GRAVE identity) ?s))
-    (teach (string "Amp~Cre's law states that the line integral of the magnetic field around the boundary of a surface S is equal to the
-total current flowing through S times &mu;0.  The direction of positive current flow is given by the following right hand rule:  wrap you fingers around the boundary of the surface in the direction of the line integral; your thumb will be pointing in the direction of positive current flow." 
-		   (#\LATIN_SMALL_LETTER_E_WITH_GRAVE identity)))
+  ( (point (string "You can apply Amp&egrave;re's law to surface ~A." ?s))
+    (teach (string "Amp&egrave;re's law states that the line integral of the magnetic field around the boundary of a surface S is equal to the
+total current flowing through S times &mu;0.  The direction of positive current flow is given by the following right hand rule:  wrap you fingers around the boundary of the surface in the direction of the line integral; your thumb will be pointing in the direction of positive current flow."))
     (bottom-out (string "Write the equation ~A ."
 			((= ?lint-var (* |mu0| ?current-sum)) 
 			 algebra)))))
