@@ -30,7 +30,6 @@
   // Modify tree so that HTML is rendered in node labels
   // See Bug #1603
   dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
-
 </script>
 </head>
 <body class="tundra">
@@ -40,14 +39,37 @@
    <div dojoType="dojo.data.ItemFileReadStore" url="/review/principles.json"
         jsId="principlesStore" /></div>
 	
-   <div dojoType="dijit.tree.ForestStoreModel" jsId="principlesModel" store="principlesStore"
+
+
+<table>
+<tr><th>All</th><th>Major</th></tr>
+<tr><td>
+
+   <div dojoType="dijit.tree.ForestStoreModel" jsId="allPrinciplesModel" 
+        store="principlesStore"
         rootLabel="All Principles" childrenAttrs="items"></div>
 
-   <div dojoType="dijit.Tree" model="principlesModel" showRoot="false"  class="tall">
+   <div dojoType="dijit.Tree" model="allPrinciplesModel" showRoot="false"  class="tall">
+	  <script type="dojo/method" event="onClick" args="item">
+              console.log("item:  "+principlesStore.getValue(item,"psm"));
+	  </script>
+	  List of All Principles
+	</div>
+
+</td><td>
+
+   <!-- The query filters out a sub-tree -->
+   <div dojoType="dijit.tree.ForestStoreModel" jsId="majorPrinciplesModel" 
+        store="principlesStore" query='{"complexity": "major"}'
+        rootLabel="Major Principles" childrenAttrs="items"></div>
+
+   <div dojoType="dijit.Tree" model="majorPrinciplesModel" showRoot="false"  class="tall">
 	  <script type="dojo/method" event="onClick" args="item">
               console.log("item:  "+principlesStore.getValue(item,"psm"));
 	  </script>
 	  List of Principles
 	</div>
+
+</td></tr></table>
 </body>
 </html>
