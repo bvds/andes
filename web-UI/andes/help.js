@@ -32,6 +32,14 @@ dojo.require("andes.api");
 				case "focus-hint-text-box":
 					dijit.focus(dojo.byId("helpInput"));
 					break;
+				case "focus-major-principles":
+					console.log("open major principles: " +
+						    r.text);
+					break;
+				case "focus-all-principles":
+					console.log("open all principles: " +
+						    r.text);
+					break;
 				case "log":
 				default:
 					// no-op

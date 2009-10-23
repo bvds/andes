@@ -21,10 +21,7 @@
 	djConfig="parseOnLoad: true, isDebug: true"></script>
 
 <script>
-  dojo.require("dijit.dijit"); 
-  dojo.require("dojo.data.ItemFileReadStore");
-  dojo.require("dijit.Tree");
-  dojo.require("dijit.tree.ForestStoreModel");
+  djConfig.modulePaths = {'andes':'../andes'};
   dojo.require("dojo.parser");
 
     dojo.require("dijit.layout.ContentPane");
@@ -35,8 +32,10 @@
     dojo.require("dijit.Menu");
     dojo.require("dijit.MenuItem");
     dojo.require("dijit.PopupMenuItem");
+    dojo.require("dijit.Dialog");
 
-   dojo.require("dijit.Dialog");
+    dojo.require("andes.principles");
+  
 
   // Modify tree so that HTML is rendered in node labels
   // See Bug #1603
@@ -53,44 +52,32 @@
 	// If this fails, open a Modal dialog.
 	if(!extp) {
            console.log("window.open failed");
-	   dijit.byId("modal").show();
+	   dijit.byId("allPrinciples").show();
 	}
       }
       extp && extp.focus();
   }
       
-
 </script>
 </head>
 <body class="tundra">
 
-     <div dojoType="dojo.data.ItemFileReadStore" url="/review/principles.json"
-        jsId="principlesStore"></div>
 
-   <!-- The query filters out a sub-tree -->
-   <div dojoType="dijit.tree.ForestStoreModel" jsId="majorPrinciplesModel" 
-        store="principlesStore" query='{"complexity": "major"}'
-        rootLabel="Major Principles" childrenAttrs="items"></div>
-
-   <div dojoType="dijit.tree.ForestStoreModel" jsId="allPrinciplesModel" 
-        store="principlesStore"
-        rootLabel="All Principles" childrenAttrs="items"></div>
-
-   <div id="majorModal" dojoType="dijit.Dialog" title="Principles">
-     <div dojoType="dijit.Tree" model="majorPrinciplesModel" showRoot="false"  class="tall">
+   <div id="majorPrinciples" dojoType="dijit.Dialog" title="Principles">
+     <div id="majorModalTree" class="tall">
 	  <script type="dojo/method" event="onClick" args="item">
               console.log("item:  "+principlesStore.getValue(item,"psm"));
 	  </script>
-	  List of Principles
+	  Loading list of major Principles
      </div>
   </div>
 
-   <div id="allModal" dojoType="dijit.Dialog" title="Principles">
-     <div dojoType="dijit.Tree" model="allPrinciplesModel" showRoot="false"  class="tall">
+   <div id="allPrinciples" dojoType="dijit.Dialog" title="Principles">
+     <div id="allModalTree" class="tall">
 	  <script type="dojo/method" event="onClick" args="item">
               console.log("item:  "+principlesStore.getValue(item,"psm"));
 	  </script>
-	  List of Principles
+	  Loading list of all Principles
      </div>
   </div>
 
@@ -101,9 +88,9 @@
 	<div dojoType="dijit.Menu" id="menuFile">
 	  <div id="menuFile0" dojoType="dijit.MenuItem" onclick="externP">
                External Principles</div>
-	  <div id="menuFile1" dojoType="dijit.MenuItem" onclick='dijit.byId("allModal").show();'>
+	  <div id="menuFile1" dojoType="dijit.MenuItem" onclick='dijit.byId("allPrinciples").show();'>
                All Principles</div>
-	  <div id="menuFile2" dojoType="dijit.MenuItem" onclick='dijit.byId("majorModal").show();'>
+	  <div id="menuFile2" dojoType="dijit.MenuItem" onclick='dijit.byId("majorPrinciples").show();'>
                Major Principles</div>
         </div>
       </div>

@@ -89,3 +89,5 @@ dojo.require("dojox.drawing.library.icons");
 // needs to be loaded after Drawing:
 dojo.require("andes.Combo");
 dojo.require("andes.positioning");
+// do this last
+dojo.require("andes.principles");
