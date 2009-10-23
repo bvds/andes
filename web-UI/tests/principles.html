@@ -27,49 +27,94 @@
   dojo.require("dijit.tree.ForestStoreModel");
   dojo.require("dojo.parser");
 
+    dojo.require("dijit.layout.ContentPane");
+    dojo.require("dijit.layout.BorderContainer");
+    dojo.require("dijit.MenuBar");
+    dojo.require("dijit.MenuBarItem");
+    dojo.require("dijit.PopupMenuBarItem");
+    dojo.require("dijit.Menu");
+    dojo.require("dijit.MenuItem");
+    dojo.require("dijit.PopupMenuItem");
+
+   dojo.require("dijit.Dialog");
+
   // Modify tree so that HTML is rendered in node labels
   // See Bug #1603
   dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
+
+  var extp;
+
+  function externP(){
+      if(!extp || extp.closed){
+        extp=window.open("/review/principles.html",
+          "Principles",
+          "width=400,height=500,directories=0,menubar=0,status=0,toolbar=0,location=0"
+        );
+	// If this fails, open a Modal dialog.
+	if(!extp) {
+           console.log("window.open failed");
+	   dijit.byId("modal").show();
+	}
+      }
+      extp && extp.focus();
+  }
+      
+
 </script>
 </head>
 <body class="tundra">
 
-  <h1>Test Principles of physics menu.</h1>
-
-   <div dojoType="dojo.data.ItemFileReadStore" url="/review/principles.json"
-        jsId="principlesStore" /></div>
-	
-
-
-<table>
-<tr><th>All</th><th>Major</th></tr>
-<tr><td>
-
-   <div dojoType="dijit.tree.ForestStoreModel" jsId="allPrinciplesModel" 
-        store="principlesStore"
-        rootLabel="All Principles" childrenAttrs="items"></div>
-
-   <div dojoType="dijit.Tree" model="allPrinciplesModel" showRoot="false"  class="tall">
-	  <script type="dojo/method" event="onClick" args="item">
-              console.log("item:  "+principlesStore.getValue(item,"psm"));
-	  </script>
-	  List of All Principles
-	</div>
-
-</td><td>
+     <div dojoType="dojo.data.ItemFileReadStore" url="/review/principles.json"
+        jsId="principlesStore"></div>
 
    <!-- The query filters out a sub-tree -->
    <div dojoType="dijit.tree.ForestStoreModel" jsId="majorPrinciplesModel" 
         store="principlesStore" query='{"complexity": "major"}'
         rootLabel="Major Principles" childrenAttrs="items"></div>
 
-   <div dojoType="dijit.Tree" model="majorPrinciplesModel" showRoot="false"  class="tall">
+   <div dojoType="dijit.tree.ForestStoreModel" jsId="allPrinciplesModel" 
+        store="principlesStore"
+        rootLabel="All Principles" childrenAttrs="items"></div>
+
+   <div id="majorModal" dojoType="dijit.Dialog" title="Principles">
+     <div dojoType="dijit.Tree" model="majorPrinciplesModel" showRoot="false"  class="tall">
 	  <script type="dojo/method" event="onClick" args="item">
               console.log("item:  "+principlesStore.getValue(item,"psm"));
 	  </script>
 	  List of Principles
-	</div>
+     </div>
+  </div>
 
-</td></tr></table>
+   <div id="allModal" dojoType="dijit.Dialog" title="Principles">
+     <div dojoType="dijit.Tree" model="allPrinciplesModel" showRoot="false"  class="tall">
+	  <script type="dojo/method" event="onClick" args="item">
+              console.log("item:  "+principlesStore.getValue(item,"psm"));
+	  </script>
+	  List of Principles
+     </div>
+  </div>
+
+  <div id="main" dojoType="dijit.layout.BorderContainer" gutters="false">
+    <div dojoType="dijit.MenuBar" id="navMenu" region="top" splitter="false">
+      <div dojoType="dijit.PopupMenuBarItem">
+        <span>Physics</span>
+	<div dojoType="dijit.Menu" id="menuFile">
+	  <div id="menuFile0" dojoType="dijit.MenuItem" onclick="externP">
+               External Principles</div>
+	  <div id="menuFile1" dojoType="dijit.MenuItem" onclick='dijit.byId("allModal").show();'>
+               All Principles</div>
+	  <div id="menuFile2" dojoType="dijit.MenuItem" onclick='dijit.byId("majorModal").show();'>
+               Major Principles</div>
+        </div>
+      </div>
+    </div>
+    
+    <div dojoType="dijit.layout.ContentPane">
+      <h1>Test Principles of physics menu.</h1>
+
+      <P>Menus contain link to external page, and modal dialog boxes containing all principles and major principles.</p>
+    </div>
+
+  </div>	
 </body>
 </html>
