@@ -13,7 +13,8 @@
       "parameters": [
 		{"name": "section", "type": "string"},
 		{"name": "user", "type": "string"},
-		{"name": "problem", "type": "string"}
+		{"name": "problem", "type": "string"},
+		{"name": "extra", "type": "string"}
       ],
       "returns": {
 	"type": "array",
