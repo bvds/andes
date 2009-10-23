@@ -204,7 +204,8 @@
 
 (defvar *simulate-loaded-server* t "Put in delay in solution steps")
 
-(webserver:defun-method "/help" open-problem (&key time problem user section) 
+(webserver:defun-method "/help" open-problem (&key time problem user 
+						   section extra) 
   "initial problem statement" 
 
   (declare (ignore time)) ;Time is used by logging
@@ -349,7 +350,8 @@
     ;; to set problem up and set scoring state.
     (dolist (old-step (andes-database:get-matching-sessions 
 		       '("solution-step" "seek-help")
-		       :student user :problem problem :section section))
+		       :student user :problem problem :section section
+		       :extra extra))
       (let* ((method (cdr (assoc :method old-step))) 
 	     (params (assoc :params old-step))
 	     (reply (apply 
