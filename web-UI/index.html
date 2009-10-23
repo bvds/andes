@@ -13,6 +13,10 @@
 	</style>
 	<link href="dojox/drawing/resources/toolbar.css" rel="stylesheet" />
 	<link href="dojox/widget/UpgradeBar/UpgradeBar.css" rel="stylesheet" />
+        <!-- For principles tree -->
+        <link href="dijit/themes/tundra/tundra.css" rel="stylesheet" />
+        <style type="text/css">
+        </style>
 	<script>
 		djConfig = {
 			isDebug:true,
@@ -87,7 +91,7 @@
 				<div dojoType="dijit.PopupMenuBarItem">
 						<span>Physics</span>
 						<div dojoType="dijit.Menu" id="menuPhysics">
-								<div id="menuPhysics1" dojoType="dijit.MenuItem">Physics #1</div>
+								<div id="menuPhysics1" dojoType="dijit.MenuItem" onclick="andes.principles.externP">Principles</div>
 								<div id="menuPhysics2" dojoType="dijit.MenuItem">Physics #2</div>
 						</div>
 				</div>
@@ -135,5 +139,27 @@
 			<a href="http://www.microsoft.com/windows/internet-explorer/default.aspx?">Download IE 8.0</a>	
 		</div>
 	</div>
+
+  <!-- Principles menus constructed last -->
+  <div id="majorPrinciples" dojoType="dijit.Dialog" title="Major Principles">
+     <div id="majorModalTree" class="tall">
+	  <script type="dojo/method" event="onClick" args="item">
+	      andes.help.explain(principlesStore.getValue(item,"psm"));
+              console.log("item:  "+principlesStore.getValue(item,"psm"));
+	  </script>
+	  Loading list of major Principles
+     </div>
+  </div>
+
+   <div id="allPrinciples" dojoType="dijit.Dialog" title="Principles">
+     <div id="allModalTree" class="tall">
+	  <script type="dojo/method" event="onClick" args="item">
+	      andes.help.explain(principlesStore.getValue(item,"psm"));
+              console.log("item:  "+principlesStore.getValue(item,"psm"));
+	  </script>
+	  Loading list of all Principles
+     </div>
+  </div>
+
 </body>
 </html>

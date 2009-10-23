@@ -11,7 +11,7 @@
  div.tall {
       border-style: solid;
       border-color: #ddd;
-      overflow: auto; height: 400px;
+      overflow: auto;
    }
 </style>
 
@@ -40,23 +40,6 @@
   // Modify tree so that HTML is rendered in node labels
   // See Bug #1603
   dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
-
-  var extp;
-
-  function externP(){
-      if(!extp || extp.closed){
-        extp=window.open("/review/principles.html",
-          "Principles",
-          "width=400,height=500,directories=0,menubar=0,status=0,toolbar=0,location=0"
-        );
-	// If this fails, open a Modal dialog.
-	if(!extp) {
-           console.log("window.open failed");
-	   dijit.byId("allPrinciples").show();
-	}
-      }
-      extp && extp.focus();
-  }
       
 </script>
 </head>
@@ -86,7 +69,7 @@
       <div dojoType="dijit.PopupMenuBarItem">
         <span>Physics</span>
 	<div dojoType="dijit.Menu" id="menuFile">
-	  <div id="menuFile0" dojoType="dijit.MenuItem" onclick="externP">
+	  <div id="menuFile0" dojoType="dijit.MenuItem" onclick="andes.principles.externP">
                External Principles</div>
 	  <div id="menuFile1" dojoType="dijit.MenuItem" onclick='dijit.byId("allPrinciples").show();'>
                All Principles</div>
