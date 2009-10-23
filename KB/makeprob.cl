@@ -116,8 +116,9 @@
 
 (defun andes-init ()
   "initialize parser and start up solver"
+  (parse-initialize)   ;set up memoization for parse functions
   (physics-algebra-rules-initialize) ;initialize grammar
-
+  
   (solver-load)
   (solver-logging *solver-logging*))
 
