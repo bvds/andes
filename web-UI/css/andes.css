@@ -203,6 +203,13 @@ g{
 }
 
 /* Percentage avoids the double scrollbar problem */
- div.tall {
+div.tall {
      height: 80%; overflow: auto;
    }
+
+p.tall {
+    margin-top: 0.5ex;
+    margin-bottom: 0.5ex;
+    /* need to wrap text, match width of most labels */
+    width: 50ex;  
+}

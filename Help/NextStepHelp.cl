@@ -1960,7 +1960,7 @@
 	  ;; determine if it is an appropriate type in its own right.  Once that 
 	  ;; is done then we can go ahead and test the type against the solutions.
 	  ((setq Type (nsh-lookup-principle-type (car Value)))
-	   (nsh-cfp-check-filter Type (if (cdr Value) (cdr Value) no-bindings) 
+	   (nsh-cfp-check-filter Type (or (cdr Value) no-bindings)
 				 Sought (cons Value past)))
 	  
 	  ;; If the principle is not of a recognized type then deal with it.

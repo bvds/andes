@@ -21,7 +21,8 @@ andes.principles={
 		    );
       // If this fails, open a Modal dialog.
       if(!this.extp) {
-	console.log("window.open failed");
+	// Delete any text leftover from old hints.
+   	dojo.byId("allModalTreeText").innerHTML = "";
 	dijit.byId("allPrinciples").show();
       }
     }
@@ -52,17 +53,17 @@ dojo.addOnLoad(function() {
 			 model: majorPrinciplesModel,
 			 showRoot: false,
 			 onClick: function(item,node) {
+			   andes.help.echo(principlesStore.getValue(item,"label"));
 			   andes.help.principles(principlesStore.getValue(item,"psm"));
 			   dijit.byId("majorPrinciples").hide();
 			 }
         },"majorModalTree");
 
-
-
         new dijit.Tree({
 		 model: allPrinciplesModel,
 			 showRoot: false,
 			 onClick: function(item,node) {
+			   andes.help.echo(principlesStore.getValue(item,"label"));
 			   andes.help.principles(principlesStore.getValue(item,"psm"));
 			   dijit.byId("allPrinciples").hide();
 			 }
