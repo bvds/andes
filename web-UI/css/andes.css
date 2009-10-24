@@ -201,3 +201,8 @@ body, .tundra .dijitSplitter, #navMenu{
 g{
 	cursor:pointer;	
 }
+
+/* Percentage avoids the double scrollbar problem */
+ div.tall {
+     height: 80%; overflow: auto;
+   }

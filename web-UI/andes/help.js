@@ -87,6 +87,10 @@ dojo.require("andes.api");
 		andes.api.help({action:"get-help", value:s}).addCallback(handleHelp);
 	};
 
+   	andes.help.principles = function(s){
+		andes.api.help({action:"principles-menu", value:s}).addCallback(handleHelp);
+	};
+
 	andes.help.link = function(href){
 		// summary:
 		//	Calls api after a link in help pane has been clicked.

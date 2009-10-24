@@ -7,11 +7,10 @@
 <link href="../dojo/resources/dojo.css" rel="stylesheet" />
 <link href="../dijit/themes/tundra/tundra.css" rel="stylesheet" />
 
+<!-- Percentage avoids the double scrollbar problem -->
 <style type="text/css">
  div.tall {
-      border-style: solid;
-      border-color: #ddd;
-      overflow: auto;
+     height: 80%; overflow: auto;
    }
 </style>
 
@@ -35,12 +34,7 @@
     dojo.require("dijit.Dialog");
 
     dojo.require("andes.principles");
-  
-
-  // Modify tree so that HTML is rendered in node labels
-  // See Bug #1603
-  dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
-      
+       
 </script>
 </head>
 <body class="tundra">
@@ -48,18 +42,12 @@
 
    <div id="majorPrinciples" dojoType="dijit.Dialog" title="Principles">
      <div id="majorModalTree" class="tall">
-	  <script type="dojo/method" event="onClick" args="item">
-              console.log("item:  "+principlesStore.getValue(item,"psm"));
-	  </script>
 	  Loading list of major Principles
      </div>
   </div>
 
    <div id="allPrinciples" dojoType="dijit.Dialog" title="Principles">
      <div id="allModalTree" class="tall">
-	  <script type="dojo/method" event="onClick" args="item">
-              console.log("item:  "+principlesStore.getValue(item,"psm"));
-	  </script>
 	  Loading list of all Principles
      </div>
   </div>
