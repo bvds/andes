@@ -858,7 +858,7 @@
   :complexity connect ;just like (equals ...)
   :short-name "fraction of"
   :nlg-english ("one quantity as given fraction of another")
-  :eqnFormat ("val1 = fraction*val2"))
+  :eqnFormat ("val1 = fraction val2"))
 
 (defoperator given-fraction-contains (?sought)
   :preconditions (

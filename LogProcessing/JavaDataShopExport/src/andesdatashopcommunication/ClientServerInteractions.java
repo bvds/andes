@@ -31,7 +31,7 @@ public class ClientServerInteractions {
         toGroup = aProblem;
         interactions = new ArrayList<ClientServerInteraction>();
         ListIterator<ProblemAttemptTransaction> iter =
-                toGroup.getProblemAttemptTransactionCollection().listIterator();
+                toGroup.getProblemAttemptTransactionList().listIterator();
         while(iter.hasNext())
         {
             ProblemAttemptTransaction newOne = iter.next(); //iterators start at -1
@@ -43,6 +43,7 @@ public class ClientServerInteractions {
                  ProblemAttemptTransaction servy = iter.next();// move past the client one
                  while(iter.hasNext() && servy.getInitiatingParty().equalsIgnoreCase("server"))
                  {
+                     System.out.println(servy.getCommand());
                      serverStuff.add(new Andes3ServerAction(servy.getCommand()));
                      servy = iter.next();//keep going until we see the next client
                  }

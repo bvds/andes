@@ -101,8 +101,10 @@
 
 ;; (andes-database:get-old-sessions '("solution-step" "seek-help") :student "bvds" :problem "s2e" :section "1234")
 ;;
-(defun get-matching-sessions (methods &key student problem section)
+(defun get-matching-sessions (methods &key student problem section extra)
   "Get posts associated with the given methods from all matching previous sessions."
+  (when extra 
+    (format webserver:*stdout* "Getting extra parameter ~A~%" extra))
   (let ((result (query 
 		 (format nil "SELECT command FROM PROBLEM_ATTEMPT,PROBLEM_ATTEMPT_TRANSACTION WHERE userName = '~A' AND userProblem='~A' AND userSection='~A' AND PROBLEM_ATTEMPT.clientID=PROBLEM_ATTEMPT_TRANSACTION.clientID AND PROBLEM_ATTEMPT_TRANSACTION.initiatingParty='client'" 
 			 student problem section) :flatp t))

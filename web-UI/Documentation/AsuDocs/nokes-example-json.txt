@@ -301,7 +301,7 @@ combined.
 
 [
   {"action": "show-hint", "text": "Right. What is the first principle application that you would like to work on? Hint: this principle application will usually be one that mentions the sought quantity explicitly. Therefore its equation may contain the sought quantity that the problem seeks."},
-  {"action" : "show-hint-link", "text": "Choose a principle", "href": "quantities.html"}
+  {"action" : "focus-major-principles", "text": "Choose a principle"}
 ]
 
 {"method": "seek-help", "params": {"time": 671.001,

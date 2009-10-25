@@ -1945,8 +1945,8 @@
 
 
 (defun nsh-check-first-principle-response (rstring sought past)
-  (let* ((response (read-from-string rstring))
-	 Type (Value (if (listp response) Response (list Response))))
+  (let* ((Value (read-from-string rstring))
+	 Type)
     (cond ((member Value past :test #'equal) 
 	   (nsh-wrong-fp-resp **nsh-repeat-fp-resp** Sought Past
 			      :Case 'Repeat))
@@ -1960,7 +1960,7 @@
 	  ;; determine if it is an appropriate type in its own right.  Once that 
 	  ;; is done then we can go ahead and test the type against the solutions.
 	  ((setq Type (nsh-lookup-principle-type (car Value)))
-	   (nsh-cfp-check-filter Type (if (cadr Value) (cadr Value) no-bindings) 
+	   (nsh-cfp-check-filter Type (or (cdr Value) no-bindings)
 				 Sought (cons Value past)))
 	  
 	  ;; If the principle is not of a recognized type then deal with it.

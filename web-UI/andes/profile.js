@@ -17,7 +17,6 @@ dojo.require("dijit.form.TextBox");
 // needs to be loaded before Drawing:
 dojo.require("andes.defaults");
 dojo.require("andes.main");
-dojo.require("andes.draw");
 dojo.require("dojox.drawing");
 
 //Necessary if bypassing dojox.drawing.
@@ -90,3 +89,5 @@ dojo.require("dojox.drawing.library.icons");
 // needs to be loaded after Drawing:
 dojo.require("andes.Combo");
 dojo.require("andes.positioning");
+// do this last
+dojo.require("andes.principles");

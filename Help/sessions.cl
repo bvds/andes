@@ -178,24 +178,22 @@
 	      "Variable ~A not declared special" var))
 
     `(progn
-      ;; An error here indicates that the student is trying to work
+      ;; Null webserver:*env* indicates that the student is trying to work
       ;; on a session that has timed out or has not been initialized:  
-      ;; probably should have a appropriate handler that gives instructions
-      ;; to start a new session
-      (assert webserver:*env*)
-      ;; further sanity check.
-      (assert (help-env-p webserver:*env*))
-      (let ,(mapcar 
-	     #'(lambda (x) (list x '(pop (help-env-vals webserver:*env*))))
-	     *help-env-vars*)
-	;; If there is an error, need to save current values
-	;; back to the environment variable before passing control
-	;; on to error handler.
-	(prog1 (handler-bind
-		   ((error #'(lambda (c) (declare (ignore c)) 
+      (if (and webserver:*env* (help-env-p webserver:*env*))
+	  (let ,(mapcar 
+		 #'(lambda (x) (list x '(pop (help-env-vals webserver:*env*))))
+		 *help-env-vars*)
+	    ;; If there is an error, need to save current values
+	    ;; back to the environment variable before passing control
+	    ;; on to error handler.
+	    (prog1 (handler-bind
+		       ((error #'(lambda (c) (declare (ignore c)) 
 				     ,save-help-env-vals)))
-		 ,@body)
-	  ,save-help-env-vals)))))
+		     ,@body)
+	      ,save-help-env-vals))
+	  '(((:action . "show-hint")
+	    (:text . "Your session is no longer active.&nbsp; Please reload this web page.")))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -206,7 +204,8 @@
 
 (defvar *simulate-loaded-server* t "Put in delay in solution steps")
 
-(webserver:defun-method "/help" open-problem (&key time problem user section) 
+(webserver:defun-method "/help" open-problem (&key time problem user 
+						   section extra) 
   "initial problem statement" 
 
   (declare (ignore time)) ;Time is used by logging
@@ -351,7 +350,8 @@
     ;; to set problem up and set scoring state.
     (dolist (old-step (andes-database:get-matching-sessions 
 		       '("solution-step" "seek-help")
-		       :student user :problem problem :section section))
+		       :student user :problem problem :section section
+		       :extra extra))
       (let* ((method (cdr (assoc :method old-step))) 
 	     (params (assoc :params old-step))
 	     (reply (apply 

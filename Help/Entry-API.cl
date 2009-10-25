@@ -770,8 +770,8 @@
 	 (line-mag-term `(mag ,line-term))
 	 (line-dir-term `(dir ,line-term))
 	 ;; xy plane lines get theta prefix, z axis ones get phi
-	 ;; Greek symbols expressed by $ + char position in symbol font
-	 (dir-label  (format NIL "~A~A" (if (z-dir-spec dir-term) "$j" "$q")
+	 ;; The help window takes HTML format.
+	 (dir-label  (format NIL "~A~A" (if (z-dir-spec dir-term) "&phi;" "&theta;")
 			     label)))
 
     (multiple-value-bind
@@ -912,9 +912,9 @@
   ; on this. Returning string sends a message to the workbench while leaving 
   ; the entry colored red as if an error occurred.
   (strcat "Variables for unknown angles are not supported. Use the "
-	  "automatically defined $q variables for orientation angles "
-	  "instead. To ask Andes to solve-for a $q variable, right-click "
-	  "on its name in the variable window and select Solve-For.")
+	  "automatically defined &theta; variables for orientation angles, "
+	  "instead.&nbsp; To ask Andes to solve for a variable, write an equation "
+	  "of the form \"variable=?\".")
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

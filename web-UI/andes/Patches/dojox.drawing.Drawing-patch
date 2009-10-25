@@ -1,0 +1,28 @@
+Index: Drawing.js
+===================================================================
+--- Drawing.js	(revision 20575)
++++ Drawing.js	(working copy)
+@@ -1,6 +1,5 @@
+ dojo.provide("dojox.drawing.Drawing");
+ 
+-
+ (function(){
+ 	
+ 	var _plugsInitialized = false;
+@@ -460,7 +459,15 @@
+ 			//console.info("--------------------------------------dojox.drawing.onRenderStencil:", stencil.id);
+ 			this.stencils.register(stencil);
+ 			this.unSetTool();
+-			this.setTool(this.currentType);
++			
++			tools = dojo.byId('toolPane').getElementsByTagName("div")[0].childNodes;
++			dojo.forEach(tools, function(n){
++				if(dojo.hasClass(n, "selected")){
++					dojo.removeClass(n, "selected");
++					return;
++				};
++			});
++			//this.setTool(this.currentType);
+ 		},
+ 		
+ 		onDeleteStencil: function(/* Object */stencil){

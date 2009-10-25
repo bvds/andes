@@ -13,6 +13,10 @@
 	</style>
 	<link href="dojox/drawing/resources/toolbar.css" rel="stylesheet" />
 	<link href="dojox/widget/UpgradeBar/UpgradeBar.css" rel="stylesheet" />
+        <!-- For principles tree -->
+        <link href="dijit/themes/tundra/tundra.css" rel="stylesheet" />
+        <style type="text/css">
+        </style>
 	<script>
 		djConfig = {
 			isDebug:false,
@@ -27,7 +31,7 @@
 		}else{
 			djConfig.modulePaths = {'andes':'../andes'};
 			document.write('<link href="release/dojo/css/andes.css" rel="stylesheet" />');
-			document.write('<scr'+'ipt src="release/dojo/dojo/dojo.js.uncompressed.js"></scr'+'ipt>');
+			document.write('<scr'+'ipt src="release/dojo/dojo/dojo.js"></scr'+'ipt>');
 		}
 	
 	
@@ -87,7 +91,7 @@
 				<div dojoType="dijit.PopupMenuBarItem">
 						<span>Physics</span>
 						<div dojoType="dijit.Menu" id="menuPhysics">
-								<div id="menuPhysics1" dojoType="dijit.MenuItem">Physics #1</div>
+								<div id="menuPhysics1" dojoType="dijit.MenuItem" onclick="andes.principles.externP">Principles</div>
 								<div id="menuPhysics2" dojoType="dijit.MenuItem">Physics #2</div>
 						</div>
 				</div>
@@ -98,11 +102,11 @@
 				<div dojoType="dojox.drawing.ui.dom.Toolbar" drawingId="drawing" class="drawingToolbar vertical">
 					
 					<div tool="dojox.drawing.tools.Line" 				selected="false">	Line</div>
-					<div tool="dojox.drawing.tools.Rect" 				selected="true">	Rect</div>
+					<div tool="dojox.drawing.tools.Rect" 				selected="false">	Rect</div>
 					<div tool="dojox.drawing.tools.Ellipse" 			selected="false">	Ellipse</div>
 					<div tool="dojox.drawing.tools.TextBlock" 			selected="false">	Statement</div>
 					<div tool="dojox.drawing.tools.custom.Equation" 	selected="false">	Equation</div>
-					<div tool="dojox.drawing.tools.custom.Vector" 		selected="false">	Vector</div>
+					<div tool="dojox.drawing.tools.custom.Vector" 		selected="true">	Vector</div>
 					<div tool="dojox.drawing.tools.custom.Axes" 		selected="false">	Axes</div>
 					
 					<div plugin="dojox.drawing.ui.dom.Pan" options="{}" style="display:none;">Pan</div>
@@ -135,5 +139,21 @@
 			<a href="http://www.microsoft.com/windows/internet-explorer/default.aspx?">Download IE 8.0</a>	
 		</div>
 	</div>
+
+  <!-- Principles menus constructed last -->
+  <div id="majorPrinciples" dojoType="dijit.Dialog" title="Major Principles">
+     <div id="majorModalTreeText"></div>
+    <div id="majorModalTree" class="tall">
+	  Loading list of major Principles
+     </div>
+  </div>
+
+   <div id="allPrinciples" dojoType="dijit.Dialog" title="Principles">
+     <div id="allModalTreeText"></div>
+     <div id="allModalTree" class="tall">
+	  Loading list of all Principles
+     </div>
+  </div>
+
 </body>
 </html>

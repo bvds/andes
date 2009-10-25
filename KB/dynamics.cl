@@ -255,7 +255,7 @@
     (implicit-eqn (= ?dir-var (dnum 270 |deg|)) (dir (force ?cm ?planet weight :time ?t))))
   :hint
   ((point (string "Notice that ~a is near ~a." ?b ?planet))
-   (teach (string "When a rigid body is near a planet, each portion of the body is acted on by the force of gravity. The net effect of all these forces is equivalent to that of a single weight force of magnitude m * g acting at a single point called the center of gravity, which normally is the same as the center of mass."))
+   (teach (string "When a rigid body is near a planet, each portion of the body is acted on by the force of gravity. The net effect of all these forces is equivalent to that of a single weight force of magnitude <var>m</var> <var>g</var> acting at a single point called the center of gravity, which normally is the same as the center of mass."))
    (bottom-out (string "Because ~a is near the planet ~a, ~a exerts a weight force on it which can be treated as acting at the center of mass, so use the vector tool to draw a weight force vector acting at ~a due to ~a ~a pointing straight down (270 deg)." ?b ?planet ?planet ?cm (?planet agent) (?t pp)))
    ))
 
@@ -881,7 +881,7 @@
   ;; G is predefined, see file constants.cl
   ( (eqn (= ?F (/ (* |G| ?m1 ?m2) (^ ?r 2))) (ug ?b1 ?b2 ?t rel-pos)) )
   :hint (
-     (teach (string "Newton's law of universal gravitation states that the magnitude of the gravitational force between two bodies is equal to the gravitational constant G times the masses of the bodies divided by the square of the distance between the bodies."))
+     (teach (string "Newton's law of universal gravitation states that the magnitude of the gravitational force between two bodies is equal to the gravitational constant <var>G</var> times the masses of the bodies divided by the square of the distance between the bodies."))
      (bottom-out (string "Write the equation ~A" 
                           ((= ?F (/ (* G ?m1 ?m2) (^ ?r 2))) algebra)))
   ))
@@ -927,7 +927,7 @@
       (eqn (= ?F (/ (* G ?m1 ?m2) (^ ?r 2))) (ug ?b1 ?b2 ?t radius))
   )
   :hint (
-     (teach (string "Newton's law of universal gravitation states that the magnitude of the gravitational force between two bodies is equal to the gravitational constant G times the masses of the bodies divided by the square of the distance between the bodies."))
+     (teach (string "Newton's law of universal gravitation states that the magnitude of the gravitational force between two bodies is equal to the gravitational constant <var>G</var> times the masses of the bodies divided by the square of the distance between the bodies."))
      (bottom-out (string "Write the equation ~A" 
                           ((= ?F (/ (* G ?m1 ?m2) (^ ?r 2))) algebra)))
   ))
@@ -1118,7 +1118,7 @@
     :nlg-english ("the definition of thrust force") 
     :ExpFormat ("applying the definition of thrust force on ~a ~a"
 		(nlg ?body) (nlg ?time 'pp))
-    :EqnFormat ("F = v*abs(dmdt)"))
+    :EqnFormat ("F = v abs(dmdt)"))
 
 (defoperator thrust-force-contains (?sought)
   :preconditions 
@@ -1159,7 +1159,7 @@
     :nlg-english ("the definition of thrust force") 
     :ExpFormat ("applying the definition of thrust-force on ~a ~a"
 		(nlg ?body) (nlg ?time 'pp))
-    :EqnFormat ("F_~A = -v_~a*dmdt" (axis-name ?axis) (axis-name ?axis)))
+    :EqnFormat ("F<sub>~A</sub> = -v<sub>~a</sub> dmdt" (axis-name ?axis) (axis-name ?axis)))
 
 
 (defoperator thrust-force-vector-diagram (?rot ?b ?agent ?t)
@@ -1894,7 +1894,7 @@
      and it is not massless,
      and you can find the appropriate variables,
    then write W=m*g where W is the magnitude of the weight force
-     on the body, m is the body's mass and g is the gravitational
+     on the body, m is the body's mass and <var>g</var> is the gravitational
      acceleration of the planet."
   :preconditions
    ((in-wm (near-planet ?planet :body ?b ?b))
@@ -1908,9 +1908,9 @@
   ((point (string "Try applying the weight law."))
    (teach 
        (kcd "write_w_is_mg")
-       (string "The weight law for a body is W = m*g, where W is the magnitude of the weight force acting on the body, m is the body's mass and g is the gravitational acceleration at the surface of the planet."))
-   (bottom-out (string "Write ~a = ~a*~a" (?w-var algebra) 
-		       (?m-var algebra) (?g-var algebra)))))
+       (string "The weight law for a body is <var>W</var> = <var>m</var> <var>g</var>, where <var>W</var> is the magnitude of the weight force acting on the body, <var>m</var> is the body's mass and <var>g</var> is the gravitational acceleration at the surface of the planet."))
+   (bottom-out (string "Write ~a = ~a" (?w-var algebra) 
+		       ((* ?m-var ?g-var) algebra)))))
 
 ;; variant applies weight to a rigid body. In this case the quantity is
 ;; specified as a force acting on the cm, not on the whole body.
@@ -1947,8 +1947,8 @@
   :hint
   ((point (string "Try applying the weight law."))
    (teach 
-       (string "The weight law for a body is W=m*g, where W is the magnitude of the weight force acting on the body, m is the body's mass and g is the gravitational acceleration of earth or whatever planet is nearby."))
-   (bottom-out (string "Write ~a=~a*~a" (?w-var algebra) (?m-var algebra) (?g-var algebra)))))
+       (string "The weight law for a body is <var>W</var = <var>m</var> <var>g</var>, where <var>W</var> is the magnitude of the weight force acting on the body, <var>m</var> is the body's mass and <var>g</var> is the gravitational acceleration of earth or whatever planet is nearby."))
+   (bottom-out (string "Write ~a=~a" (?w-var algebra) ((* ?m-var ?g-var) algebra)))))
 
 ;;; This operator models writing the Fs = k * compression/extension equation.  
 ;;; Selectively enabled by (uses-k-and-d) in the problem statement. ??? Unnecessary ? -AW
@@ -1958,7 +1958,7 @@
   :short-name "Hooke's law"
   :nlg-english ("Hooke's law")
   :expformat ("applying Hooke's law to ~a " (nlg ?body))
-  :EqnFormat ("F = k*d" ))
+  :EqnFormat ("F = k d" ))
 
 (defoperator spring-law-contains (?quantity)
   :specifications "
@@ -2243,7 +2243,7 @@
    ((point (string "You can apply Newton's second law to ~A.  Note that ~A is not accelerating ~A." 
 		   ?b ?b (?t pp)))
     (teach (string 
-    "Newton's second law F = m*a states that the net force on an object = the object's mass times its acceleration.  In this case the acceleration is zero so you know the sum of all forces on the object must be zero.  This vector principle can be applied component-wise to require that the force components in any direction sum to zero."
+    "Newton's second law <var>F</var> = <var>m</var> <var>a</var> states that the net force on an object = the object's mass times its acceleration.  In this case the acceleration is zero so you know the sum of all forces on the object must be zero.  This vector principle can be applied component-wise to require that the force components in any direction sum to zero."
     ))
     (bottom-out (string "Because ~a is not accelerating ~a, write Newton's second law as ~A" 
 			?b (?t pp) ((= (+ . ?f-compo-vars) 0) algebra)))))
@@ -2288,7 +2288,7 @@
   :hint
    ((point (string "You can apply Newton's second law to ~A.  Note that ~A is accelerating ~A." 
 		   ?b ?b (?t pp)))
-    (teach (string "Newton's second law F = m*a states that the net force on an object = the object's mass times its acceleration.  Because the net force is the vector sum of all forces on the object, this can be applied component-wise to relate the sum of the force components in any direction to the mass times the component of acceleration in that direction."))
+    (teach (string "Newton's second law <var>F</var> = <var>m</var> <var>a</var> states that the net force on an object = the object's mass times its acceleration.  Because the net force is the vector sum of all forces on the object, this can be applied component-wise to relate the sum of the force components in any direction to the mass times the component of acceleration in that direction."))
     (bottom-out (string "Write Newton's second law in terms of component variables along the ~A axis as ~A" 
 			((axis ?xyz ?rot) symbols-label) 
 			((= (+ . ?f-compo-vars) (* ?m ?a-compo)) algebra)))
@@ -2322,7 +2322,7 @@
   :hint (
     (point (string "You can apply Newton's second law to ~A.  Note that the acceleration of ~a is non-zero ~A." 
 		   ?b ?b (?t pp)))
-    (teach (string "Newton's second law F = m*a states that the net force on an object = the object's mass times its acceleration. This can be applied component-wise to relate the net force in any direction to the mass times the component of acceleration in that direction."))
+    (teach (string "Newton's second law <var>F</var> = <var>m</var> <var>a</var> states that the net force on an object = the object's mass times its acceleration. This can be applied component-wise to relate the net force in any direction to the mass times the component of acceleration in that direction."))
     (bottom-out (string "Write Newton's second law along the ~a axis in terms of component variables, namely, ~a" 
 			((axis ?xyz ?rot) symbols-label) 
 			((= ?fnet-compo-var  (* ?m ?a-compo)) algebra)))
@@ -2787,8 +2787,8 @@
   :nlg-english ("the definition of net ~A" (moment-name))
   :expformat ("applying the definition of net ~A on ~a about ~A"
 	      (moment-name) (nlg ?body) (nlg ?pivot 'at-time ?time))
-  :eqnformat ((torque-switch "Mnet_z = M1_z + M2_z + ..."
-			     "$tnet_z = $t1_z + $t2_z + ...")))
+  :eqnformat ((torque-switch "Mnet<sub>z</sub> = M1<sub>z</sub> + M2<sub>z</sub> + ..."
+			     "&tau;net<sub>z</sub> = &tau;1<sub>z</sub> + &tau;2<sub>z</sub> + ...")))
 
 (defoperator net-torque-contains (?sought)
   :preconditions (
@@ -2916,7 +2916,7 @@
    )
    :hint (
    (point (string "You need an expression for the magnitude of the ~A due to the ~A force acting at ~A" (nil moment-name) (?type adj) ?pt))
-   (teach (string "The magnitude of the ~A ~A resulting from a force of magnitude F acting at a point of perpendicular distance r from the axis is given by ~A = r * F * sin ($q), where $q is the smaller of two angles between the vectors r and F." (nil moment-name) (nil moment-symbol) (nil moment-symbol)))
+   (teach (string "The magnitude of the ~A ~A resulting from a force of magnitude <var>F</var> acting at a point of perpendicular distance <var>r</var> from the axis is given by ~A = <var>r</var> <var>F</var> sin(&theta;), where &theta; is the smaller of two angles between the vectors <var>r</var> and <var>F</var>." (nil moment-name) (nil moment-symbol) (nil moment-symbol)))
    (bottom-out (string "Write the equation ~A" 
                ((= ?tau-var (* ?r-var ?f-var (sin ?theta-var))) algebra)))
    ))
@@ -3095,12 +3095,12 @@
   
 (def-psmclass NFL-rot (?eqn-type NFL ?xyz ?rot (NL-rot ?body ?pivot ?time))
   :complexity major
-  :short-name "rotational form of Newton's 2nd law ($a =0)"
-  :nlg-english ("rotational version of Newton's second law ($a=0)")
+  :short-name "rotational form of Newton's 2nd law (&alpha; =0)"
+  :nlg-english ("rotational version of Newton's second law (&alpha;=0)")
   :expformat ("applying rotational version of Newton's second law to ~a about ~A"
 	      (nlg ?body) (nlg ?pivot 'at-time ?time))
-  :eqnFormat ((torque-switch "0 = M1_z + M2_z + ..." 
-			    "0 = $t1_z + $t2_z + ...")))
+  :eqnFormat ((torque-switch "0 = M1<sub>z</sub> + M2<sub>z</sub> + ..." 
+			    "0 = &tau;1_z + &tau;2_z + ...")))
   
 (defoperator NFL-rot-zero-accel (?quantity)
   :preconditions 
@@ -3117,7 +3117,7 @@
   :nlg-english ("rotational version of Newton's second law")
   :expformat ("applying rotational version of Newton's second law to ~a about ~A"
 	      (nlg ?body) (nlg ?pivot 'at-time ?time))
-  :eqnFormat ((torque-switch "Mnet_z = I*$a_z" "$tnet_z = I*$a_z" )))
+  :eqnFormat ((torque-switch "Mnet<sub>z</sub> = I &alpha;<sub>z</sub>" "&tau;net<sub>z</sub> = I &alpha;<sub>z</sub>" )))
 
 (defoperator NSL-rot (?quantity)
   :preconditions 
@@ -3152,7 +3152,7 @@
    ((point (string "You can apply the rotational version Newton's second law to ~A.  Note that ~A has no angular acceleration ~A." 
 		   ?b ?b (?t pp)))
     (teach (string 
-    "The rotational version of Newton's second law $t = I*$a states that the net torque on an object = the object's moment of inertia times its angular acceleration.  In this case the angular acceleration is zero so you know the sum of all torques on the object must be zero."
+    "The rotational version of Newton's second law &tau; = I &alpha; states that the net torque on an object = the object's moment of inertia times its angular acceleration.  In this case the angular acceleration is zero so you know the sum of all torques on the object must be zero."
     ))
     (bottom-out (string "Because ~a is not accelerating ~a, write Newton's second law as ~A" 
 			?b (?t pp) ((= (+ . ?f-compo-vars) 0) algebra)))))
@@ -3189,7 +3189,7 @@
   :hint
    ((point (string "You can apply the rotational version of Newton's second law to ~A.  Note that ~A has angular acceleration ~A." 
 		   ?b ?b (?t pp)))
-    (teach (string "The rotation version of Newton's second law is $t = m*$a.  The net torque $t is the vector sum of all torques acting on the object.  This can be applied component-wise."))
+    (teach (string "The rotation version of Newton's second law is &tau; = m &alpha;.&nbsp;  The net torque &tau; is the vector sum of all torques acting on the object.  This can be applied component-wise."))
     (bottom-out (string "Write the rotational version of Newton's second law in terms of component variables along the ~A axis as ~A" 
 			((axis ?xyz ?rot) symbols-label) ((= (+ . ?f-compo-vars)  (* ?m ?a-compo)) algebra)))
     ))
@@ -3218,7 +3218,7 @@
    :hint (
 	  (point (string "Can you relate the z components of the net ~A and angular acceleration?"
 			  (nil moment-name)))
-	  (teach (string "Just as Newton's second law says that Fnet = m*a, Newton's law for rotation states that the net ~A on an object equals the object's moment of inertia times its angular acceleration.  This relation can be applied along the z axis to relate the z-components of net ~A and angular acceleration." 
+	  (teach (string "Just as Newton's second law says that <var>Fnet</var> = <var>m</var> <var>a</var>, Newton's law for rotation states that the net ~A on an object equals the object's moment of inertia times its angular acceleration.  This relation can be applied along the z axis to relate the z-components of net ~A and angular acceleration." 
 			 (nil moment-name) (nil moment-name)))
     (bottom-out (string "Write Newton's law for rotation in terms of component variables along the z axis, namely ~A." 
                         ((= ?tau_z (* ?I ?alpha_z)) algebra)))

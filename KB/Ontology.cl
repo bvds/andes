@@ -88,7 +88,7 @@
   (if (and *cp* (member 'engineering-names (problem-features *cp*))) x y))   
 (defun moment-symbol (&optional junk) ;optional arg for use with nlg
   (declare (ignore junk))
-  (torque-switch "M" "$t"))
+  (torque-switch "M" "&tau;"))
 (defun moment-name (&optional junk) ;optional arg for use with nlg
   (declare (ignore junk))
  (torque-switch "moment" "torque"))
@@ -742,7 +742,7 @@
   :nlg-english ("projection equations")
   :ExpFormat ("writing the projection equation for ~a onto the ~a axis" 
 	      (nlg ?vector) (axis-name ?axis))
-  :EqnFormat ("~a_~a = ~a*~:[sin~;cos~]($q~a - $q~a)"
+  :EqnFormat ("~a<sub>~a</sub> = ~a ~:[sin~;cos~](&theta;~a - &theta;~a)"
 	      ;; vector-var-pref expecting a list which may 
 	      ;; only be partially bound
 	      (vector-var-pref '?vector) (axis-name ?axis) 
@@ -792,7 +792,7 @@
 (def-psmclass displacement-distance (displacement-distance ?body ?time)
   :complexity connect  ;since this is like (equals ...)
   :doc "Distance = Displacement."
-  :short-name "distance & displacement"
+  :short-name "distance &amp; displacement"
   :nlg-english ("distance = magnitude of displacment")
   :expFormat ("noting that distance is the magnitude of the displacment")
   :EqnFormat ("|d| = s"))
@@ -810,7 +810,7 @@
     :nlg-english ("the definition of average velocity") 
     :ExpFormat ("applying the definition of average velocity on ~a ~a"
 		(nlg ?body) (nlg ?time 'pp))
-    :EqnFormat ("v(avg)_~a = d_~a/t" (axis-name ?axis) (axis-name ?axis)))
+    :EqnFormat ("v(avg)<sub>~a</sub> = d<sub>~a</sub>/t" (axis-name ?axis) (axis-name ?axis)))
 
 (def-goalprop avg-vel-eqn 
  (eqn ?algebra (compo-eqn avg-vel ?axis ?rot (avg-velocity ?body ?time)))
@@ -823,7 +823,7 @@
   :complexity connect
   :short-name "Pythagorean Thm"
   :nlg-english ("the Pythagorean theorem" )
-  :eqnFormat ("c^2 = a^2 + b^2"))
+  :eqnFormat ("c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>"))
 
 (def-psmclass sum-distance (sum-distance ?b1 ?b2 ?b3 ?t)
    :complexity definition
@@ -839,7 +839,7 @@
   :short-name "net displacement"
   :nlg-english ("net displacement")
   :ExpFormat ("calculating the net displacement of ~a ~a" (nlg ?body) (nlg ?time))
-  :EqnFormat ("dnet_~a = d1_~a + d2_~a + ..." (axis-name ?axis) 
+  :EqnFormat ("dnet<sub>~a</sub> = d1<sub>~a</sub> + d2<sub>~a</sub> + ..." (axis-name ?axis) 
 	      (axis-name ?axis) (axis-name ?axis)))
 
 (def-goalprop net-disp-eqn 
@@ -873,18 +873,18 @@
   :short-name "g near Earth"
   :nlg-english ("value of g on Earth")
   :expformat ("defining the value of g on Earth")
-  :EqnFormat ("g = 9.8 m/s^2"))
+  :EqnFormat ("g = 9.8 m/s<sup>2</sup>"))
 
 
 ; UNIFORM CIRCULAR MOTION
 (def-psmclass centripetal-accel (centripetal-accel ?body ?time)
   :complexity major
   :short-name "centripetal acceleration (instantaneous)"
-  :nlg-english ("centripetal acceleration equation: a = v^2/r")
+  :nlg-english ("centripetal acceleration equation: <var>a</var> = <var>v</var><sup>2</sup>/<var>r</var>")
   :ExpFormat ((strcat "writing the centripetal acceleration "
-		      "equation: a = v^2/r for ~a")
+		      "equation: <var>a</var> = <var>v</var><sup>2</sup>/<var>r</var> for ~a")
 	      (nlg ?body 'at-time ?time))
-  :EqnFormat ("ac = v^2/r"))
+  :EqnFormat ("ac = v<sup>2</sup>/r"))
 (def-psmclass centripetal-accel-compo (?eqn-type definition ?axis ?rot 
 				 (centripetal-accel-vec ?body ?time))
   :complexity major    
@@ -893,7 +893,7 @@
   :nlg-english ("centripetal acceleration (component form)") 
   :ExpFormat ("finding the centripetal acceleration of ~a ~a (component form)"
 	      (nlg ?body) (nlg ?time 'pp))
-  :EqnFormat ("ac_~A = -v^2/r * r_~A/r" 
+  :EqnFormat ("ac<sub>~A</sub> = -v<sup>2</sup>/r r<sub>~A</sub>/r" 
 	      (axis-name ?axis) (axis-name ?axis)))
 
 
@@ -902,7 +902,7 @@
   :short-name "period of uniform circular motion"
    :nlg-english ("the formula for the period of uniform circular motion")
    :ExpFormat ("calculating the period of the motion of ~A" (nlg ?body))
-   :EqnFormat ("T = 2*$p*r/v"))
+   :EqnFormat ("T = 2 &pi; r/v"))
 
 ;; MISCELLANEOUS 
 
@@ -946,7 +946,7 @@
      :nlg-english ("Newton's second law")
      :ExpFormat ("applying Newton's second law to ~a"
 		 (nlg ?body 'at-time ?time))
-     :EqnFormat ("F1_~a + F2_~a + ... = m*a_~a" 
+     :EqnFormat ("F1<sub>~a</sub> + F2<sub>~a</sub> + ... = m a<sub>~a</sub>" 
                  (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
 
 (def-psmclass net-force (?eq-type definition ?axis ?rot (net-force ?body ?t))
@@ -954,7 +954,7 @@
   :short-name ("net force (~A component)" (axis-name ?axis))
   :nlg-english ("net force")
   :ExpFormat ("calculating the net force acting on ~a ~a" (nlg ?body) (nlg ?t))
-  :EqnFormat ("Fnet_~a = F1_~a + F2_~a + ..." 
+  :EqnFormat ("Fnet<sub>~a</sub> = F1<sub>~a</sub> + F2<sub>~a</sub> + ..." 
 	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
 
 
@@ -975,7 +975,7 @@
   :nlg-english ("Newton's Third law")
   :ExpFormat ("applying Newton's Third law to ~a and ~a"
 	      (nlg ?Object0) (nlg ?Object1 'at-time ?time))
-  :EqnFormat ("F12_~a = - F21_~a" (axis-name ?axis) (axis-name ?axis)))
+  :EqnFormat ("F12<sub>~a</sub> = - F21<sub>~a</sub>" (axis-name ?axis) (axis-name ?axis)))
 
 ; FORCE LAWS
 (def-psmclass wt-law (wt-law ?body ?time)
@@ -983,7 +983,7 @@
   :short-name "weight law"
   :nlg-english ("Weight law")
   :ExpFormat ("applying the Weight law on ~a" (nlg ?body))
-  :EqnFormat ("Fw = m*g"))
+  :EqnFormat ("Fw = m g"))
 
 (def-psmclass kinetic-friction (kinetic-friction ?body ?surface ?time)
   :complexity simple
@@ -991,7 +991,7 @@
   :nlg-english ("Kinetic Friction law")
   :ExpFormat ("applying the Kinetic friction law for ~a and ~a"
 	      (nlg ?body) (nlg ?surface 'at-time ?time))
-  :EqnFormat ("Ff = $mk*Fn"))
+  :EqnFormat ("Ff = &mu;k Fn"))
 
 (def-psmclass static-friction (static-friction ?body ?surface ?time) 
   :complexity simple
@@ -999,7 +999,7 @@
   :nlg-english ("Static Friction at maximum")
   :expformat ("applying the Definition of Static friction for ~a and ~a"
 	      (nlg ?body) (nlg ?surface 'at-time ?time))
-  :EqnFormat ("Ff = $ms*Fn"))
+  :EqnFormat ("Ff = &mu;s Fn"))
 
 (def-psmclass drag-force-turbulent (drag-force ?body ?medium turbulent ?time)
   :complexity simple
@@ -1007,7 +1007,7 @@
   :nlg-english ("drag force")
   :ExpFormat ("finding the drag force on ~a moving at high speed through ~A"
 	      (nlg ?body) (nlg ?medium 'at-time ?time))
-  :EqnFormat ("F = K*v^2"))
+  :EqnFormat ("F = K v<sup>2</sup>"))
 
 ;; silly, num-forces = <count of the forces>
 (def-psmclass num-forces (num-forces ?body ?time) 
@@ -1023,7 +1023,7 @@
   :short-name "universal gravitation"
   :nlg-english ("Newton's law of Universal Gravitation")
   :expformat ("applying Newton's law of Universal Gravitation for the force on ~a due to ~a" (nlg ?body) (nlg ?agent))
-  :EqnFormat ("Fg = G*m1*m2/r^2"))
+  :EqnFormat ("Fg = G m1 m2/r<sup>2</sup>"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; CONNECTED BODIES
@@ -1094,7 +1094,7 @@
   :nlg-english ("the definition of work")
   :expformat ("calculating the work done on ~a by ~a from ~a to ~a" 
 	      (nlg ?body) (nlg ?agent) (nlg ?time0 'time) (nlg ?time1 'time))
-  :EqnFormat ("W = F*d*cos($q) or W = F_x*d_x + F_y*d_y"))
+  :EqnFormat ("W = F d cos(&theta;) or W = F<sub>x</sub> d<sub>x</sub> + F<sub>y</sub> d<sub>y</sub>"))
 
 ;; No pattern to select only the component form of the work equation, 
 ;; since a variable will match NIL for the angle form as well as the 
@@ -1149,7 +1149,7 @@
   :expformat ((strcat "relating the change in height of ~a ~a to the y "
 		      "component of its displacement")
 	      (nlg ?body) (nlg ?time 'pp))
-  :EqnFormat ("h2 - h1 = d12_y"))
+  :EqnFormat ("h2 - h1 = d12<sub>y</sub>"))
 
 (def-psmclass power (power ?body ?agent ?time)
   :complexity major ; definition, but can be first "principle" for sought
@@ -1173,7 +1173,7 @@
    :nlg-english ("the instantaneous power principle")
    :expformat ("calculating the instantaneous power supplied to ~A by ~A ~A"
                (nlg ?body) (nlg ?agent) (nlg ?time 'pp))
-   :EqnFormat("P = F*v*cos($q) or P = F_x*v_x + F_y*v_y"))
+   :EqnFormat("P = F v cos(&theta;) or P = F<sub>x</sub> v<sub>x</sub> + F<sub>y</sub> v<sub>y</sub>"))
 
 ;; !! "total-energy" label used in kb is misleading, it is, in fact,
 ;; total *mechanical* energy.
@@ -1182,32 +1182,32 @@
   :short-name "mechanical energy defined"
   :nlg-english ("the definition of mechanical energy")
   :complexity definition
-  :EqnFormat ("ME = KE + $S Ui"))
+  :EqnFormat ("ME = KE + &Sigma Ui"))
 
 ; These are now top level psms, not subequations:
 (def-psmclass kinetic-energy (kinetic-energy ?body ?time)
   :short-name "kinetic energy defined"
   :nlg-english ("the definition of kinetic energy")
   :complexity definition
-  :EqnFormat ("KE = 0.5*m*v^2"))
+  :EqnFormat ("KE = 0.5 m v<sup>2</sup>"))
 
 (def-psmclass rotational-energy (rotational-energy ?body ?time)
   :short-name "rotational kinetic energy defined"
   :nlg-english ("the definition of rotational kinetic energy")
   :complexity definition
-  :EqnFormat ("KE = 0.5*I*$w^2"))
+  :EqnFormat ("KE = 0.5 I &omega;<sup>2</sup>"))
 
 (def-psmclass grav-energy (grav-energy ?body ?planet ?time)
   :short-name "gravitational potential energy"
    :nlg-english ("gravitational potential energy")
    :complexity definition
-   :EqnFormat ("Ug = m*g*h"))
+   :EqnFormat ("Ug = m g h"))
 
 (def-psmclass spring-energy (spring-energy ?body ?spring ?time)
   :short-name "spring potential energy"
   :nlg-english ("spring potential energy")
   :complexity definition
-  :EqnFormat ("Us = 0.5*k*d^2"))
+  :EqnFormat ("Us = 0.5 k d<sup>2</sup>"))
 
 
 ;; LINEAR MOMENTUM
@@ -1217,7 +1217,7 @@
   :nlg-english ("conservation of momentum")
   :expformat ("applying Conservation of Linear Momentum to ~a ~a"
 	      (nlg ?bodies 'conjoined-defnp) (nlg ?time 'time))
-  :EqnFormat ("p1i_~a + p2i_~a + ... = p1f_~a + p2f_~a + ..." 
+  :EqnFormat ("p1i<sub>~a</sub> + p2i<sub>~a</sub> + ... = p1f<sub>~a</sub> + p2f<sub>~a</sub> + ..." 
 	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) 
 	      (axis-name ?axis)))
 
@@ -1238,7 +1238,7 @@
   :nlg-english ("linear velocity of rotating point")
   :ExpFormat ("calculating the linear velocity of the rotating point ~a"
 	      (nlg ?pt 'at-time ?time))
-  :EqnFormat ("v = $w*r"))
+  :EqnFormat ("v = &omega; r"))
 
 (def-psmclass rolling-vel (rolling-vel ?body ?axis ?time)
   :complexity major
@@ -1246,7 +1246,7 @@
   :nlg-english ("linear velocity of rolling object")
   :ExpFormat ("finding the relation between linear motion and rotational motion of ~A"
 	      (nlg ?body 'at-time ?time))
-  :EqnFormat ("v = $w*r"))
+  :EqnFormat ("v = &omega; r"))
 
 ;;;; ROTATIONAL DYNAMICS (TORQUE)
 
@@ -1257,7 +1257,7 @@
   :expformat ((strcat "calculating the magnitude of the ~A "
 		      "on ~a ~a due to the force acting at ~a")
 	      (moment-name) (nlg ?body) (nlg ?time 'pp) (nlg ?pt))
-  :EqnFormat ((torque-switch "M = r*F*sin($q)" "$t = r*F*sin($q)")))
+  :EqnFormat ((torque-switch "M = r F sin(&theta;)" "&tau; = r F sin(&theta;)")))
 
 (def-psmclass torque 
   (torque ?xyz ?rot ?body ?pivot (force ?pt ?agent ?type) ?angle-flag ?time)
@@ -1271,14 +1271,14 @@
   :EqnFormat ((torque-equation ?xyz)))
 
 (defun torque-equation (xyz)
-  (cond ((eq xyz 'x) (torque-switch "M_x = r_y*F_z - r_z*F_y"
-				    "$t_x = r_y*F_z - r_z*F_y"))
-	((eq xyz 'y) (torque-switch "M_y = r_z*F_x - r_x*F_z"
-				    "$t_y = r_z*F_x - r_x*F_z"))
+  (cond ((eq xyz 'x) (torque-switch "M<sub>x</sub> = r<sub>y</sub> F<sub>z</sub> - r<sub>z</sub> F<sub>y</sub>"
+				    "&tau;<sub>x</sub> = r<sub>y</sub> F<sub>z</sub> - r<sub>z</sub> F<sub>y</sub>"))
+	((eq xyz 'y) (torque-switch "M<sub>y</sub> = r<sub>z</sub> F<sub>x</sub> - r<sub>x</sub> F<sub>z</sub>"
+				    "&tau;<sub>y</sub> = r<sub>z</sub> F<sub>x</sub> - r<sub>x</sub> F<sub>z</sub>"))
 	((eq xyz 'z) 
 	 (torque-switch 
-	  "M_z = r*F*sin($qF-$qr) or M_z = r_x*F_y - r_y*F_x"
-	  "$t_z = r*F*sin($qF-$qr)) or $t_z = r_x*F_y - r_y*F_x"))))
+	  "M<sub>z</sub> = r F sin(&theta;F-&theta;r) or M<sub>z</sub> = r<sub>x</sub> F<sub>y</sub> - r<sub>y</sub> F<sub>x</sub>"
+	  "&tau;<sub>z</sub> = r F sin(&theta;F-&theta;r)) or &tau;<sub>z</sub> = r<sub>x</sub> F<sub>y</sub> - r<sub>y</sub> F<sub>x</sub>"))))
 
 
 ;;

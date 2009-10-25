@@ -2470,7 +2470,7 @@
 			"is ~a, it is accelerating.  And whenever a body has "
 			"a non-zero acceleration, the net force acting on "
 			"it must be non-zero.  This follows directly from "
-			"Newton's law, F=m*a.") speed-up-or-slow-down)
+			"Newton's law, <var>F</var>=<var>m</var> <var>a</var>.") speed-up-or-slow-down)
     (format nil (strcat "Because ~a is ~a ~a, it has non-zero acceleration.  "
 			"You should change the net force to make it "
 			"a non-zero vector.") 
@@ -2572,7 +2572,7 @@
 ;;; =============== Sums of torque =================================
 ;;; In the case of some torque problems *cough* tor7a *cough* it
 ;;; is necessary or at least useful for the studets to define a sum 
-;;; of torque forces such as "$t_l_end + $t_r_end + $t_cm = 0" if 
+;;; of torque forces such as "\tau_l_end + \tau_r_end + \tau_cm = 0" if 
 ;;; they leave out one of the torque forces then the system should
 ;;; inform them of that in the same way that it does for other forces
 ;;; the error handler for forces is missing-forces in sums are the
@@ -3172,10 +3172,10 @@
            ;; !!! may not be projection they are trying to write, but dot or cross product.
 	   (strcat "If you are trying to calculate the component of a vector along an axis, "
 	           "here is a general formula that will always work: "
-		   "Let $qV be the angle as you move counterclockwise from the horizontal to "
-		   "the vector.  Let $qx be the rotation of the x-axis from the horizontal. "
-		   "($qV and $qx appear in the Variables window.) "
-		   "Then: V_x = V*cos($qV-$qx) and V_y = V*sin($qV-$qx).")
+		   "Let &theta;V be the angle as you move counterclockwise from the horizontal to "
+		   "the vector.  Let &theta;x be the rotation of the x-axis from the horizontal. "
+		   "(&theta;V and &theta;x appear in the Variables window.) "
+		   "Then: V<sub>x</sub> = V cos(&theta;V-&theta;x) and V<sub>y</sub> = V sin(&theta;V-&theta;x).")
 	   (format nil "Replace ~a with ~a." (nlg wrong 'algebra) (nlg right 'algebra)))))
 
 ;;; The student has used the wrong trig function where tangent is right
@@ -3263,12 +3263,12 @@
        (good-expr `(,trig-fn (- ,arg (dnum ,rot |deg|)))))
   (make-hint-seq
    (list
-    (format nil (strcat "Remember that the axes are rotated by $qx = ~A degrees "
+    (format nil (strcat "Remember that the axes are rotated by &theta;x = ~A degrees "
                         "from the horizontal-vertical system used for vector " 
 			"orientations. You need to take this into account when calculating the projection of a vector along the axis.")
 	    rot)
     ;; !!! general formula and link to minilesson here
-    (format nil (strcat "Because the positive x axis is rotated by $qx = ~A deg from the horizontal, change ~A to ~A in your equation.")
+    (format nil (strcat "Because the positive x axis is rotated by &theta;x = ~A deg from the horizontal, change ~A to ~A in your equation.")
             (algebra rot) (algebra bad-expr) (algebra good-expr))
    ))))
 
@@ -3460,16 +3460,16 @@
   (make-hint-seq
    (list
     ;; teach wt-law-sign
-    (strcat "You probably recall the vector equation 'Fg = m*g' "
-	    "where Fg and g are vectors, namely the weight "
+    (strcat "You probably recall the vector equation <var>Fg</var> = <var>m</var> <var>g</var>' "
+	    "where <var>Fg</var> and <var>g</var> are vectors, namely the weight "
 	    "and gravitational acceleration.  This vector equation implies "
 	    "that the two vectors have the same direction (both are downward).  "
 	    "It also implies that their magnitudes are proportional, that is, "
-	    "that W=m*g where W and g stand for the MAGNITUDES of the weight "
+	    "that <var>W</var>=<var>m</var> <var>g</var> where <var>W</var> and <var>g</var> stand for the MAGNITUDES of the weight "
 	    "and gravitational acceleration.  Your version of this scalar "
 	    "equation has an unnecessary minus sign in it.  Just remember "
-	    "that in the scalar equation Fg = m*g, everything is positive: mass "
-	    "is a positive number, and because Fg and g stand for magnitudes, "
+	    "that in the scalar equation <var>Fg</var> = <var>m</var> <var>g</var>, everything is positive: mass "
+	    "is a positive number, and because <var>Fg</var> and <var>g</var> stand for magnitudes, "
 	    "they are positive numbers, too.")
     (format nil "Change your equation to ~a." (nlg eqn 'algebra)))))
 
@@ -4013,7 +4013,7 @@
 	             studval studvar (nlg quant))
 	(format nil 
 	      (strcat "Although final answers may be rounded off, Andes requires "
-	              "values in equations to agree to within one part in 10^11. "
+	              "values in equations to agree to within one part in 10<sup>11</sup>. "
 		      "It will be easier to stick to the symbol ~A throughout your "
 		      "solution equations. Use the 'Solve For' command to let Andes "
 		      "compute the final answer when you have entered enough equations "

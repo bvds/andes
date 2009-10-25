@@ -6,7 +6,7 @@
 package andesdatashopcommunication;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -21,10 +21,10 @@ import javax.persistence.Table;
 
 /**
  *
- * @author Andes Version 3 Tutoring System
+ * @author master
  */
 @Entity
-@Table(name = "student_dataset")
+@Table(name = "STUDENT_DATASET")
 @NamedQueries({@NamedQuery(name = "StudentDataset.findAll", query = "SELECT s FROM StudentDataset s"), @NamedQuery(name = "StudentDataset.findByDatasetID", query = "SELECT s FROM StudentDataset s WHERE s.datasetID = :datasetID"), @NamedQuery(name = "StudentDataset.findByDatasetname", query = "SELECT s FROM StudentDataset s WHERE s.datasetname = :datasetname"), @NamedQuery(name = "StudentDataset.findByModulename", query = "SELECT s FROM StudentDataset s WHERE s.modulename = :modulename"), @NamedQuery(name = "StudentDataset.findByGroupname", query = "SELECT s FROM StudentDataset s WHERE s.groupname = :groupname"), @NamedQuery(name = "StudentDataset.findByProblemname", query = "SELECT s FROM StudentDataset s WHERE s.problemname = :problemname")})
 public class StudentDataset implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -46,7 +46,7 @@ public class StudentDataset implements Serializable {
     @Column(name = "problemname")
     private String problemname;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "datasetID")
-    private Collection<Classinformation> classinformationCollection;
+    private List<ClassInformation> classInformationList;
 
     public StudentDataset() {
     }
@@ -103,12 +103,12 @@ public class StudentDataset implements Serializable {
         this.problemname = problemname;
     }
 
-    public Collection<Classinformation> getClassinformationCollection() {
-        return classinformationCollection;
+    public List<ClassInformation> getClassInformationList() {
+        return classInformationList;
     }
 
-    public void setClassinformationCollection(Collection<Classinformation> classinformationCollection) {
-        this.classinformationCollection = classinformationCollection;
+    public void setClassInformationList(List<ClassInformation> classInformationList) {
+        this.classInformationList = classInformationList;
     }
 
     @Override

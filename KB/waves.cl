@@ -72,7 +72,7 @@
   :ExpFormat 
   ("applying the equation relating wavenumber and wavelength of ~A in ~A"
 	      (nlg ?wave) (nlg ?medium))
-  :EqnFormat ("k = 2*$p/$l")) 
+  :EqnFormat ("k = 2 &pi;/&lambda;")) 
 
 
  (defoperator wavenumber-lambda-wave-contains (?sought)
@@ -205,7 +205,7 @@
   :nlg-english ("the equation for the frequency of a wave")
   :ExpFormat ("applying the definition angular frequency to ~A"
 	      (nlg ?object))
-  :EqnFormat ("f = $w/(2*$p)")) 
+  :EqnFormat ("f = &omega;/(2 &pi;)")) 
 
 (defoperator frequency-of-wave-contains (?sought)
   :preconditions (
@@ -342,7 +342,7 @@
   :nlg-english ("harmonic of a standing wave")
   :ExpFormat ("using the fact that ~A is a harmonic of ~A"
 	      (nlg ?waven) (nlg ?wave1))
-  :eqnFormat ("fn = n*f1 or $ln = $l1/n"))
+  :eqnFormat ("fn = n f1 or &lambda;n = &lambda;1/n"))
 
 (defoperator harmonic-of-contains-wavelength (?sought)
   :preconditions 
@@ -426,7 +426,7 @@
   :nlg-english ("the equation of the speed of a wave")
   :ExpFormat ("relating wavelength and frequency to the speed of wave ~A"
 	      (nlg ?object))
-  :EqnFormat ("vw = $l*f or vw = $w/k")) 
+  :EqnFormat ("vw = &lambda; f or vw = &omega;/k")) 
 
 ;; usual form in terms of wavelength and frequency
 (defoperator speed-of-wave-contains (?sought)
@@ -671,7 +671,7 @@
   :short-name "speed of waves on a string"
   :nlg-english ("Transverse wave velocity of a string")
   :ExpFormat ("using formula for transverse wave speed on a string")
-  :EqnFormat ("vw = sqrt(Ft/$m)")) 
+  :EqnFormat ("vw = sqrt(Ft/&mu;)")) 
 
 
 (defoperator wave-speed-string-contains (?sought)
@@ -746,7 +746,7 @@
   :short-name "maximum speed of oscillation"
   :nlg-english ("Formula for maximum speed of an oscillation")
   :ExpFormat ("applying the formula for maximum speed of an oscillation")
-  :EqnFormat ("vmax = A*$w")) 
+  :EqnFormat ("vmax = A &omega;")) 
 
 
  (defoperator max-transverse-speed-wave-contains (?sought)
@@ -799,7 +799,7 @@
   :short-name "maximum acceleration of oscillation"
   :nlg-english ("Formula for |maximum acceleration| of an oscillation")
   :ExpFormat ("applying the formula for |maximum acceleration| of an oscillation")
-  :EqnFormat ("amax = A*$w^2")) 
+  :EqnFormat ("amax = A &omega;<sup>2</sup>")) 
 
  (defoperator max-transverse-abs-acceleration-wave-contains (?sought)
    :preconditions (
@@ -838,7 +838,7 @@
   :short-name "period of spring-mass system"
   :nlg-english ("Formula for period of mass and spring")
   :ExpFormat ("using formula for period of oscillations of a mass and spring")
-  :EqnFormat ("T = 2*$p*sqrt(m/k)")) 
+  :EqnFormat ("T = 2 &pi; sqrt(m/k)")) 
 
 (defoperator spring-mass-oscillation-contains (?sought)
   :preconditions (
@@ -878,7 +878,7 @@
   :short-name "period of simple pendulum"
   :nlg-english ("Formula for period of a simple pendulum")
   :ExpFormat ("using formula for period of a pendulum")
-  :EqnFormat ("T = 2*$p*sqrt(l/g)")) 
+  :EqnFormat ("T = 2 &pi; sqrt(l/g)")) 
 
 (defoperator pendulum-oscillation-contains (?sought)
   :preconditions (
@@ -926,7 +926,7 @@
   :ExpFormat ("using formula for doppler frequency")
   ;; use implicit format args to insert the plus-minus character code into 
   ;; the EqnFormat string using only standard characters in our source text
-  :EqnFormat ("fo=fs*(vw~Cvo)/(vw~Cvs)" (code-char 177) (code-char 177)))
+  :EqnFormat ("fo=fs (vw~Cvo)/(vw~Cvs)" (code-char 177) (code-char 177)))
 
 ;; velocities should be constant over the interval.  
 ;; We should demand (constant ?quant ?t-s) and (constant ?quant ?t-o) 
@@ -1220,10 +1220,10 @@
 ;; ?agent=nil marks net-intensity and net-db-intensity
 (def-psmclass intensity-to-decibels (intensity-to-decibels ?wave ?agent ?t)
   :complexity major			;must explicitly use
-  :short-name "intensity & decibels"
+  :short-name "intensity &amp; decibels"
   :nlg-english ("express intensity in decibels")
   :ExpFormat ("expressing the intensity in decibels")
-  :EqnFormat ("$b = 10*log10(I/Iref)")) 
+  :EqnFormat ("&beta; = 10 log10(I/Iref)")) 
 
 (defoperator intensity-to-decibels-contains (?sought)
   :preconditions 
@@ -1264,7 +1264,7 @@
 (def-psmclass intensity-to-poynting-vector-magnitude 
   (intensity-to-poynting-vector-magnitude ?wave ?source ?)
   :complexity definition  ;want this to be freely substituted into expressions
-  :short-name "intensity & magnitude of the Poynting vector"
+  :short-name "intensity &amp; magnitude of the Poynting vector"
   :nlg-english ("relate intensity to the magnitude of the Poynting vector")
   :ExpFormat ("relating the intensity to the magnitude of the Poynting vector")
   :EqnFormat ("I = S")) 
@@ -1303,7 +1303,7 @@
   :short-name "relation of power and intensity (spherical emitter)"
   :nlg-english ("relate intensity to power in a spherical geometry")
   :ExpFormat ("relating the intensity to power (spherical symmetry)")
-  :EqnFormat ("P = 4*$p*r^2*I")) 
+  :EqnFormat ("P = 4 &pi; r<sup>2</sup> I")) 
 
 
 (defoperator spherical-intensity-to-power-contains (?sought)
@@ -1348,7 +1348,7 @@
   :short-name "relation of power and intensity (uniform over surface)"
   :nlg-english ("relate uniform intensity to power")
   :ExpFormat ("relating the intensity to power (uniform intensity)")
-  :EqnFormat ("P = I*A")) 
+  :EqnFormat ("P = I A")) 
 
 
 (defoperator uniform-intensity-to-power-contains (?sought)
@@ -1388,7 +1388,7 @@
   :complexity major
   :short-name "energy decay"
   :nlg-english ("Energy in a damped system")
-  :eqnFormat ("E = Ei*exp(-2*t/$t)"))
+  :eqnFormat ("E = Ei exp(-2 t/&tau;)"))
 
 (defoperator energy-decay-contains (?sought)
   :preconditions
@@ -1452,7 +1452,7 @@
   :short-name "ratio of fields in electromagnetic wave"
   :nlg-english ("Formula for maximum speed of an oscillation")
   :ExpFormat ("applying the formula for maximum speed of an oscillation")
-  :EqnFormat ("E = B*c")) 
+  :EqnFormat ("E = B c")) 
 
 
 (defoperator electromagnetic-wave-field-amplitude-contains (?sought)
@@ -1486,7 +1486,7 @@
   :nlg-english ("the radiation pressure for a reflector")
   :ExpFormat ("finding the radiation pressure on ~A due to ~A" 
 	      (nlg ?body) (nlg ?wave))
-  :EqnFormat ("Fp = 2*I/c"))
+  :EqnFormat ("Fp = 2 I/c"))
 
 (defoperator radiation-pressure-contains (?sought)
   :preconditions

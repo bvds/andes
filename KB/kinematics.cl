@@ -490,7 +490,7 @@
   :nlg-english ("the relative position definition")
   :ExpFormat ("computing the ~a component of the position of ~a relative to ~a"
 		 (axis-name ?axis) (nlg ?p2) (nlg ?p1) )
-  :EqnFormat ("r21_~a = ~a2 - ~a1" (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
+  :EqnFormat ("r21<sub>~a</sub> = ~a2 - ~a1" (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator rdiff-contains (?sought)
   :preconditions (
@@ -1166,7 +1166,7 @@
   :expformat ((strcat "applying the relative velocity equation to ~a "
                       "in relation to ~a and ~a")
               (nlg ?body1) (nlg ?b2) (nlg ?b3))
-  :EqnFormat ("Vac_~a = Vab_~a + Vbc_~a" 
+  :EqnFormat ("Vac<sub>~a</sub> = Vab<sub>~a</sub> + Vbc<sub>~a</sub>" 
              (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator relative-vel-contains (?sought)
@@ -2057,7 +2057,7 @@
      (eqn (= ?T-var (/ (* 2 $P ?r) ?v)) (period ?b ?t circular))
    )
    :hint (
-      (teach (string "The period of an object in circular motion is the time to make one complete revolution. This time is equal to the distance traveled, which is 2*$p times the radius of the circle, divided by the speed."))
+      (teach (string "The period of an object in circular motion is the time to make one complete revolution. This time is equal to the distance traveled, which is 2 &pi; times the radius of the circle, divided by the speed."))
       (bottom-out (string "Write the equation ~A" 
                           ((= ?T-var (/ (* 2 $P ?r) ?v)) algebra)))
    )
@@ -2098,7 +2098,7 @@
   :ExpFormat ("applying the definition of average acceleration on ~a from ~a to ~a"
 		 (nlg ?body) (nlg ?time0 'moment) (nlg ?time1 'moment))
   ;; alternative form in principles.cl
-  :EqnFormat ("vf_~A = vi_~A + a(avg)_~A*t" (axis-name ?axis) (axis-name ?axis)
+  :EqnFormat ("vf<sub>~A</sub> = vi<sub>~A</sub> + a(avg)<sub>~A</sub> t" (axis-name ?axis) (axis-name ?axis)
 	      (axis-name ?axis)))
 
 (def-goalprop lk-no-s-eqn (eqn ?algebra (compo-eqn lk-no-s ?axis ?rot (lk ?body ?time)))
@@ -2161,7 +2161,7 @@
   :hint
    ((point (string "Can you think of an equation that relates the components of average acceleration to those of the initial velocity, final velocity, and duration?"))
     (teach (string "Acceleration is the rate of change of velocity.  The average acceleration vector over some time is defined as the difference between initial and final velocity vectors divided by the duration."))
-    (bottom-out (string "Write the equation ~a = ~a + ~a*~a" (?vf-compo algebra) (?vi-compo algebra) (?a-compo algebra) (?t algebra)))
+    (bottom-out (string "Write the equation ~a = ~a" (?vf-compo algebra) ((+ ?vi-compo (* ?a-compo ?t)) algebra)))
     ))
 
 ;;; zero component of non-zero acceleration
@@ -2179,7 +2179,7 @@
 	      (nlg ?body) (axis-name ?axis) (nlg ?time0 'moment) 
 	      (nlg ?time1 'moment) (axis-name ?axis))
   ;; alternative form in principles.cl
-  :EqnFormat ("vf_~A = vi_~A" (axis-name ?axis) (axis-name ?axis)))
+  :EqnFormat ("vf<sub>~A</sub> = vi<sub>~A</sub>" (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator const-v-contains (?quantity)
   :preconditions
@@ -2243,16 +2243,16 @@
 (def-psmclass lk-no-t (?eq-type lk-no-t ?axis ?rot (lk ?body (during ?time0 ?time1)))
   :group lk
   :complexity major
-  :short-name ("[a_~A is constant]" (axis-name ?axis))
+  :short-name ("[a<sub>~A</sub> is constant]" (axis-name ?axis))
   :doc "Linear kinematics eqn w/o time."
-  :nlg-english ("the constant acceleration equation v_~a^2 = v0_~a^2 + 2*a_~a*d_~a" 
+  :nlg-english ("the constant acceleration equation v<sub>~a</sub><sup>2</sup> = v0<sub>~a</sub><sup>2</sup> + 2 a<sub>~a</sub> d<sub>~a</sub>" 
                (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) (axis-name ?axis))
   :ExpFormat ((strcat "writing the constant acceleration equation "
-                      "v_~a^2 = v0_~a^2 + 2*a_~a*d_~a "
+                      "v<sub>~a</sub><sup>2</sup> = v0<sub>~a</sub><sup>2</sup> + 2 a<sub>~a</sub> d<sub>~a</sub> "
 		      "for ~a from ~a to ~a") 
                       (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)
 		      (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
-  :EqnFormat ("v_~a^2 = v0_~a^2 + 2*a_~a*d_~a" (axis-name ?axis) (axis-name ?axis)
+  :EqnFormat ("v<sub>~a</sub><sup>2</sup> = v0<sub>~a</sub><sup>2</sup> + 2 a<sub>~a</sub> d<sub>~a</sub>" (axis-name ?axis) (axis-name ?axis)
 					       (axis-name ?axis) (axis-name ?axis)))
 
 (def-goalprop lk-no-t-eqn 
@@ -2328,16 +2328,16 @@
 (def-psmclass lk-no-vf (?eq-type lk-no-vf ?axis ?rot (lk ?body (during ?time0 ?time1)))
   :group lk
   :complexity major
-  :short-name ("[a_~A is constant]" (axis-name ?axis))
+  :short-name ("[a<sub>~A</sub> is constant]" (axis-name ?axis))
   :Doc "Linear kinematics eqn sans final velocity."
-  :nlg-english ("the constant acceleration equation d_~a = v0_~a*t + 0.5*a_~a*t^2"
+  :nlg-english ("the constant acceleration equation d<sub>~a</sub> = v0<sub>~a</sub> t + 0.5 a<sub>~a</sub> t<sup>2</sup>"
                             (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) )
   :ExpFormat ((strcat "writing the constant acceleration equation "
-                      "d_~a = v0_~a*t + 0.5*a_~a*t^2 "
+                      "d<sub>~a</sub> = v0<sub>~a</sub> t + 0.5 a<sub>~a</sub> t<sup>2</sup> "
 		      "for ~a from ~a to ~a") 
                       (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) 
 		      (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
-  :EqnFormat ("d_~a = v0_~a*t + 0.5*a_~a*t^2" (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
+  :EqnFormat ("d<sub>~a</sub> = v0<sub>~a</sub> t + 0.5 a<sub>~a</sub> t<sup>2</sup>" (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
 
 (def-goalprop lk-no-vf-eqn 
    (eqn ?algebra (compo-eqn lk-no-vf ?axis ?rot (lk ?body ?time)))
@@ -2459,12 +2459,12 @@
 (def-psmclass sdd-constvel (compo-eqn sdd-constvel ?axis ?rot (lk ?body (during ?time0 ?time1)))
   :group lk
   :complexity major
-  :short-name ("[a_~A=0; v_~A is constant]" (axis-name ?axis) (axis-name ?axis))
+  :short-name ("[a<sub>~A</sub>=0; v<sub>~A</sub> is constant]" (axis-name ?axis) (axis-name ?axis))
   :nlg-english ("displacement component = constant velocity component * time")
   :ExpFormat ((strcat "calculating the ~a component of displacement as constant "
 		      "velocity component * time for ~a from ~a to ~a") 
 	      (axis-name ?axis) (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
-  :EqnFormat ("d_~a = v_~a * t" (axis-name ?axis) (axis-name ?axis)))
+  :EqnFormat ("d<sub>~a</sub> = v<sub>~a</sub>   t" (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator sdd-constvel-compo-contains (?quantity)
   :specifications 
@@ -2818,7 +2818,7 @@
   :short-name "relative position and displacement"
   :nlg-english ("relative positon and displacement for two bodies")
   :ExpFormat ("calculating change in relative position between ~a and ~a ~a" (nlg ?a) (nlg ?b) (nlg ?time))
-  :EqnFormat ("Rab2~a = da12_~a - db12_~a Rab1_~A" (axis-name ?axis)  
+  :EqnFormat ("Rab2~a = da12<sub>~a</sub> - db12<sub>~a</sub> Rab1<sub>~A</sub>" (axis-name ?axis)  
 	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
 
 
@@ -2957,7 +2957,7 @@
 		  (std-constant (gravitational-acceleration earth))) )
   :hint
   ((point (string "You should know the value of g for the Earth"))
-   (teach (string "You can use 9.8 m/s^2 for the value of g near the surface of the Earth"))
+   (teach (string "You can use 9.8 m/s<sup>2</sup> for the value of g near the surface of the Earth"))
    (bottom-out (string "Write the equation ~A" ((= ?g-var (dnum 9.8 |m/s^2|)) algebra))) ))
 
 (defoperator define-grav-accel (?planet)
@@ -3402,7 +3402,7 @@
   :nlg-english ("the definition of average angular velocity")
   :expformat ((strcat "applying the definition of Average Angular Velocity "
 		  "to ~a ~a") (nlg ?body) (nlg ?time 'time))
-  :EqnFormat ("$w(avg) = $q/t"))
+  :EqnFormat ("&omega;(avg) = &theta;/t"))
 
 (defoperator ang-sdd-contains (?quantity)
   :preconditions (
@@ -3446,8 +3446,8 @@
   :hint (
   (point (string "Can you write an equation in terms of components relating average angular velocity to angular displacement and duration?"))
    (teach (string "The average angular velocity of a rotating object over an interval is defined to be the angular displacement divided by the duration of the interval. This gives the rotational counterpart of distance = average speed * time. Writing vector relations like this in terms of the vector components is recommended to avoid sign errors."))
-   (bottom-out (string "Write the equation ~a=~a * ~a." 
-		       (?theta_z algebra) (?omega_z algebra) (?t-var algebra)))
+   (bottom-out (string "Write the equation ~a=~a." 
+		       (?theta_z algebra) ((* ?omega_z ?t-var) algebra)))
   ))
 
 ;;; ================ Rotational kinematics equations ========================
@@ -3467,7 +3467,7 @@
      :complexity major
   :short-name "average anglular acceleration"
      :nlg-english ("constant angular acceleration kinematics")
-     :EqnFormat ("$wf = $wi + $a(avg)*t")) ;alternative form in principles.cl
+     :EqnFormat ("&omega;f = &omega;i + &alpha;(avg) t")) ;alternative form in principles.cl
 
 (defoperator rk-no-s-contains (?sought)
  :preconditions (
@@ -3513,9 +3513,8 @@
     :hint
    ((point (string "Can you think of an equation that relates the z component of average angular acceleration to that of the initial angular velocity, final angular velocity, and duration?"))
     (teach (string "Acceleration is the rate of change of velocity. The average acceleration vector over some time is defined as the difference between initial and final velocity vectors divided by the duration. This definition can be be applied in component form to relate ~A, ~A, ~A and ~A" (?omega2_z algebra) (?omega1_z algebra) (?alpha_z algebra) (?t-var algebra)))
-    (bottom-out (string "Write the equation ~a = ~a + ~a*~a" 
-                        (?omega2_z algebra) (?omega1_z algebra) 
-			(?alpha_z algebra) (?t-var algebra)))))
+    (bottom-out (string "Write the equation ~a = ~a" 
+                        (?omega2_z algebra) ((+ ?omega1_z (* ?alpha_z ?t-var)) algebra)))))
 
 ;; angular version of lk-no-vf: 
 ;;        theta12 = omega1 * t + 0.5 * alpha12 * t12^2
@@ -3523,9 +3522,9 @@
 (def-psmclass rk-no-vf (?eq-type rk-no-vf ?xyz ?rot (rk ?body (during ?t0 ?t1)))
      :group rk
      :complexity major
-  :short-name "[$a_z is constant]"
+  :short-name "[&alpha;<sub>z</sub> is constant]"
      :nlg-english ("constant angular acceleration kinematics")
-     :EqnFormat ("$q_z = $w0_z*t + 0.5*$a_z*t^2"))
+     :EqnFormat ("&theta;<sub>z</sub> = &omega;0<sub>z</sub> t + 0.5 &alpha;<sub>z</sub> t<sup>2</sup>"))
 
 (defoperator rk-no-vf-contains (?sought)
  :preconditions (
@@ -3584,9 +3583,9 @@
 (def-psmclass rk-no-t (?eq-type rk-no-t ?xyz ?rot (rk ?body (during ?t0 ?t1)))
      :group rk
      :complexity major
-  :short-name "[$a_z is constant]"
+  :short-name "[&alpha;<sub>z</sub> is constant]"
      :nlg-english ("constant angular acceleration kinematics")
-     :EqnFormat ("$w_z^2 = $w0_z^2 + 2*$a_z*$q_z"))
+     :EqnFormat ("&omega;<sub>z</sub><sup>2</sup> = &omega;0<sub>z</sub><sup>2</sup> + 2 &alpha;<sub>z</sub> &theta;<sub>z</sub>"))
 
 (defoperator rk-no-t-contains (?sought)
  :preconditions (

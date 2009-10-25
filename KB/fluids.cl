@@ -57,7 +57,7 @@
   :short-name "mass density defined"
   :nlg-english ("the definition of mass density")
   :expformat ("applying the definition of mass density")
-  :EqnFormat ("$r = m/V"))
+  :EqnFormat ("&rho; = m/V"))
 
 (defoperator density-contains (?sought)
    :preconditions (
@@ -219,7 +219,7 @@
   :short-name "pressure in fluid"
   :nlg-english ("the formula for pressure at a height in a fluid")
   :ExpFormat ("finding the pressure at a level in a fluid")
-  :EqnFormat ("P2 - P1 = $r*g*(h1-h2)")) 
+  :EqnFormat ("P2 - P1 = &rho; g (h1-h2)")) 
 
 (defoperator pressure-height-fluid-contains (?sought)
    :preconditions (
@@ -256,7 +256,7 @@
    )
    :hint (
       (point (string "Remember the pressure at some depth in a fluid must be greater than the pressure at a higher point by an amount equal to the weight per unit area of the column of additional fluid above the lower point."))
-      (teach (string "The weight per unit area of a column of fluid of uniform density will be equal to the mass density $r times g times the positive height of the column, h_top - h_bottom. This will be the difference between the pressure at the bottom  and the pressure at the top.")) 
+      (teach (string "The weight per unit area of a column of fluid of uniform density will be equal to the mass density &rho; times g times the positive height of the column, h_top - h_bottom. This will be the difference between the pressure at the bottom  and the pressure at the top.")) 
       (bottom-out (string "Write the equation ~A" 
                      ((= (- ?Pr2 ?Pr1) (* ?rho ?g (- ?h1 ?h2))) algebra) ))
    ))
@@ -267,7 +267,7 @@
   :short-name "Bernoulli equation"
   :nlg-english ("Bernoulli's principle")
   :ExpFormat ("applying Bernoulli's principle")
-  :EqnFormat ("0.5*$r*v1^2 + $r*g*h1 + P1 = 0.5*$r*v2^2 + $r*g*h2 + P2")) 
+  :EqnFormat ("0.5 &rho; v1<sup>2</sup> + &rho; g h1 + P1 = 0.5 &rho; v2<sup>2</sup> + &rho; g h2 + P2")) 
 
 (defoperator bernoulli-contains (?sought)
    :preconditions (
@@ -310,7 +310,7 @@
    )
    :hint (
       (point (string "Bernoulli's principle is a conservation principle which has the consequence that where velocity is high, pressure is low, and where velocity is high, pressure is low."))
-      (teach (string "Bernoulli's principle says that the sum (P + 0.5$rv^2 + $rgh) is conserved along a streamline."))
+      (teach (string "Bernoulli's principle says that the sum (P + 0.5 &rho; v<sup>2</sup> + &rho; g h) is conserved along a streamline."))
       (bottom-out (string "Write the equation ~A" 
                      ((= (+ (* 0.5 ?rho (^ ?v1 2)) (* ?rho ?g ?h1) ?Pr1) 
                          (+ (* 0.5 ?rho (^ ?v2 2)) (* ?rho ?g ?h2) ?Pr2))  
@@ -324,7 +324,7 @@
   :short-name "equation of continuity"
   :nlg-english ("the equation of continuity for incompressible fluid")
   :ExpFormat ("applying the equation of continuity")
-  :EqnFormat ("A1*v1 = A2*v2")) 
+  :EqnFormat ("A1 v1 = A2 v2")) 
 
 (defoperator continuity-contains (?sought)
    :preconditions (
@@ -480,7 +480,7 @@
   :short-name "pressure defined"
   :nlg-english ("the definition of pressure")
   :ExpFormat ("finding the pressure")
-  :EqnFormat ("Fp = P*A"))
+  :EqnFormat ("Fp = P A"))
 
 (defoperator pressure-force-contains (?sought)
   :preconditions(
@@ -629,7 +629,7 @@
   :short-name "Archimedes principle (buoyant force)"
   :nlg-english ("Archimedes' principle")
   :ExpFormat ("applying Archimedes' principle")
-  :EqnFormat ("Fb = $rf*V*g"))
+  :EqnFormat ("Fb = &rho;f V g"))
 
 (defoperator archimedes-contains (?sought)
   :preconditions (

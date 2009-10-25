@@ -505,7 +505,7 @@
    )
   :hint
   ((point (string "Since ~A lies along the ~A axis, it has a non-zero component along that axis."  ?vector ((axis ?xyz ?rot) symbols-label)))
-   (teach (string "You can always use the {\\l projection equations}{\\v ProjectionEquations.html}.  However, when a vector V lies along an axis x, the component of the vector V_x along the axis is simply equal to plus or minus the magnitude of the vector: V_x = +/- V.  The sign is positive if the vector points in the positive axis direction, and negative otherwise. "))
+   (teach (string "You can always use the {\\l projection equations}{\\v ProjectionEquations.html}.  However, when a vector V lies along an axis x, the component of the vector V<sub>x</sub> along the axis is simply equal to plus or minus the magnitude of the vector: V<sub>x</sub> = &plusmn;V.  The sign is positive if the vector points in the positive axis direction, and negative otherwise. "))
    (bottom-out (string "Since ~A lies along the ~a axis and points in the ~a ~a direction, write the equation ~A." 
 		       ?vector  (?xyz adj) (?sign adj) (?xyz adj)
 		       ((= ?compo-var (?sign ?mag-var)) algebra)))
@@ -564,9 +564,9 @@
    )
   :hint
   ((point (string "Since ~A is not perpendicular to the ~A axis, it has a non-zero component along that axis."  ?vector ((axis ?xyz ?rot) symbols-label)))
-   (teach (string "In general, if a vector V is oriented at $qV and the positive x axis is oriented at $qx ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V_x = V * cos($qV - $qx)\\n   V_y = V * sin($qv - $qx)" )
+   (teach (string "In general, if a vector V is oriented at &theta;V and the positive x axis is oriented at &theta;x ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V<sub>x</sub> = V cos(&theta;V - &theta;x)\\n   V<sub>y</sub> = V sin(&theta;v - &theta;x)" )
 	  (kcd "write_x_trig_projection_equation"))
-   (bottom-out (string "Since the direction of ~A is $q~A (~A deg) and the orientation of the x axis is $q~A (~A deg), you can write the general formula ~A = ~A * ~A($q~A - $q~A)."
+   (bottom-out (string "Since the direction of ~A is &theta;~A (~A deg) and the orientation of the x axis is &theta;~A (~A deg), you can write the general formula ~A = ~A ~A(&theta;~A - &theta;~A)."
 	       ?vector (?mag-var algebra) (?degrees adj)
 	       ;; symbols-label gets x axis label -- could be x, x1, x2
 	       ((axis x ?rot) symbols-label) (?x-rot adjective)
@@ -612,9 +612,9 @@
    )
   :hint
   ((point (string "Since ~a is not known to be perpendicular to the ~A axis, you should use a general formula for its component along that axis."  ?vector ((axis ?xyz ?rot) symbols-label)))
-   (teach (string "In general, if a vector V is oriented at $qV and the positive x axis is oriented at $qx ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V_x = V * cos($qV - $qx)\\n   V_y = V * sin($qv - $qx)" )
+   (teach (string "In general, if a vector V is oriented at &theta;V and the positive x axis is oriented at &theta;x ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V<sub>x</sub> = V cos(&theta;V - &theta;x)\\n   V<sub>y</sub> = V sin(&theta;v - &theta;x)" )
 	  (kcd "write_x_trig_projection_equation"))
-   (bottom-out (string "Since the direction of ~a is ~a, and the rotation of the x axis is $q~A (~a deg), you can write the general formula ~a = ~a * ~a(~a - $q~A)." 
+   (bottom-out (string "Since the direction of ~a is ~a, and the rotation of the x axis is &theta;~A (~a deg), you can write the general formula ~a = ~a ~a(~a - &theta;~A)." 
 		       ?vector (?dir-var algebra) 
 		       ((axis ?x ?rot) symbols-label) (?x-rot adj)
 		       (?compo-var algebra)
@@ -878,7 +878,7 @@
   :short-name "vector magnitude"
   :nlg-english ("the magnitude of a vector")
   :ExpFormat ("calculating the magnitude of of ~a" (nlg ?vector))
-  :EqnFormat ("A = sqrt(A_x^2 + A_y^2)"))
+  :EqnFormat ("A = sqrt(A<sub>x</sub><sup>2</sup> + A<sub>y</sub><sup>2</sup>)"))
 
 ;; can't use this to get components, because of square.
 (defoperator vector-magnitude-contains ((mag ?vector))
@@ -1152,7 +1152,7 @@
   :short-name "vector direction"
   :nlg-english ("the direction of a vector")
   :ExpFormat ("entering the direction of of ~a" (nlg ?vector))
-  :EqnFormat ("$qv = N deg"))
+  :EqnFormat ("&theta;v = N deg"))
 
 (defoperator vector-direction-contains (?vector)
   :preconditions 
@@ -1556,7 +1556,7 @@
   :short-name "angle between"
   :nlg-english ("angle between")
   :ExpFormat ("finding the angle between ~A" (nlg ?things 'conjoined-defnp))
-  :eqnFormat ("$q12 = $q2 - $q1 or 180-($q2-$q1)"))
+  :eqnFormat ("&theta;12 = &theta;2 - &theta;1 or 180-(&theta;2-&theta;1)"))
 
 (defoperator angle-direction-contains-angle (?things)
   :effects 
@@ -1840,7 +1840,7 @@
   :short-name "mass per unit length"
   :nlg-english ("mass per length = mass/length")
   :expFormat ("using the mass per length of ~A" (nlg ?b))
-  :EqnFormat ("$l = m/L"))
+  :EqnFormat ("&lambda; = m/L"))
 
 (defoperator mass-per-length-eqn-contains (?quantity)
   :preconditions (
@@ -1899,7 +1899,7 @@
   :nlg-english ("moment of inertia of a point mass")
   :expformat ("calculating the moment of inertia of ~a about ~A" 
 	      (nlg ?body) (nlg ?axis))
-  :EqnFormat ("I = m*R^2"))
+  :EqnFormat ("I = m R<sup>2</sup>"))
 
 (defoperator I-particle-contains (?sought)
   :preconditions 
@@ -1937,7 +1937,7 @@
   :nlg-english ("parallel axis theorem")
   :expformat ("calculating the moment of inertia of ~a about ~A" 
 	      (nlg ?body) (nlg ?axis))
-  :EqnFormat ("I = M*R^2 + Icm"))
+  :EqnFormat ("I = M R<sup>2</sup> + Icm"))
 
 (defoperator parallel-axis-theorem-contains (?sought)
   :preconditions 
@@ -1978,7 +1978,7 @@
   :nlg-english ("moment of inertia of a rod about its center")
   :expformat ("calculating the moment of inertia of ~a about ~A" 
 	      (nlg ?body) (nlg ?cm))
-  :EqnFormat ("I = (1/12) m*L^2"))
+  :EqnFormat ("I = (1/12) m L<sup>2</sup>"))
 
 (defoperator I-rod-cm-contains (?sought)
   :preconditions 
@@ -2012,7 +2012,7 @@
   :short-name "rod about end"
   :nlg-english ("moment of inertia of a rod about its end")
   :expformat ("moment of inertia of the rod ~a about ~A" (nlg ?body) (nlg ?end))
-  :EqnFormat ("I = (1/3) m*L^2"))
+  :EqnFormat ("I = (1/3) m L<sup>2</sup>"))
 
 (defoperator I-rod-end-contains (?sought)
   :preconditions 
@@ -2053,7 +2053,7 @@
   :nlg-english ("moment of inertia for a hoop about its center")
   :expformat ("moment of inertia for the hoop ~a about ~A" 
 	      (nlg ?body) (nlg ?cm))
-  :EqnFormat ("I = m*r^2"))
+  :EqnFormat ("I = m r<sup>2</sup>"))
 
 (defoperator I-hoop-cm-contains (?sought)
   :preconditions 
@@ -2087,7 +2087,7 @@
   :nlg-english ("moment of inertia of a disk about its center")
   :expformat ("moment of inertia of the disk ~a about ~A" 
 	      (nlg ?body) (nlg ?cm))
-  :EqnFormat ("I = 0.5*m*r^2"))
+  :EqnFormat ("I = 0.5 m r<sup>2</sup>"))
 
 (defoperator I-disk-cm-contains (?sought)
   :preconditions 
@@ -2117,7 +2117,7 @@
   :nlg-english ("moment of inertia of a rectangle about its center")
   :expformat ("moment of inertia of the rectangle ~a about ~A"
 	      (nlg ?body) (nlg ?cm))
-  :EqnFormat ("I = (1/12) m*(L^2 + W^2)"))
+  :EqnFormat ("I = (1/12) m (L<sup>2</sup> + W<sup>2</sup>)"))
 
 (defoperator I-rect-cm-contains (?sought)
   :preconditions 
@@ -2290,7 +2290,7 @@
   :short-name "circumference of circle"
   :nlg-english ("the formula for circumference of a circle")
   :ExpFormat ("finding the circumference of a circle")
-  :EqnFormat ("c = 2*$p*r")) 
+  :EqnFormat ("c = 2 &pi; r")) 
 
  (defoperator circumference-of-circle-r-contains (?sought)
    :preconditions (
@@ -2315,7 +2315,7 @@
    )
    :hint (
       (point (string "You can use the formula for the circumference of a circle"))
-      (teach (string "The circumference of a circle is 2*$p times the radius."))
+      (teach (string "The circumference of a circle is 2 &pi; times the radius."))
       (bottom-out (string "Write the equation ~A" 
                      ((= ?Ac (* 2 $P ?rc)) algebra)) ))
    )
@@ -2326,7 +2326,7 @@
   :short-name "circumference of circle"
   :nlg-english ("the formula for the circumference of a circle")
   :ExpFormat ("finding the circumference of a circle")
-  :EqnFormat ("c = $p*d")) 
+  :EqnFormat ("c = &pi; d")) 
 
  (defoperator circumference-of-circle-d-contains (?sought)
    :preconditions (
@@ -2351,7 +2351,7 @@
    )
    :hint (
       (point (string "You can use the formula for the circumference of a circle"))
-      (teach (string "The circumference of a circle is $p times the diameter."))
+      (teach (string "The circumference of a circle is &pi; times the diameter."))
       (bottom-out (string "Write the equation ~A" 
                      ((= ?Ac (* $P ?dc)) algebra)) ))
    )
@@ -2362,7 +2362,7 @@
   :short-name "area of circle"
   :nlg-english ("the formula for the area of a circle")
   :ExpFormat ("finding the area of a circle")
-  :EqnFormat ("A = $p*r^2")) 
+  :EqnFormat ("A = &pi; r<sup>2</sup>")) 
 
  (defoperator area-of-circle-contains (?sought)
    :preconditions 
@@ -2384,7 +2384,7 @@
    )
    :hint (
       (point (string "You can use the formula for the area of a circle"))
-      (teach (string "The area of a circle is $p times the radius squared."))
+      (teach (string "The area of a circle is &pi; times the radius squared."))
       (bottom-out (string "Write the equation ~A" 
                      ((= ?Ac (* $P (^ ?rc 2))) algebra)) ))
    )
@@ -2395,7 +2395,7 @@
   :nlg-english ("the formula for area of a rectangle")
   :ExpFormat ("finding the area of a ~:[rectangle~;square~]" 
 	      ?flag)
-  :EqnFormat ("A = w*l")) 
+  :EqnFormat ("A = w l")) 
 
 (defoperator area-of-square-contains (?sought)
   :preconditions 
@@ -2453,7 +2453,7 @@
   :short-name "derivative of area of rectangle (constant width)"
   :nlg-english ("the derivative of the area of a rectangle")
   :ExpFormat ("taking the derivative of the formula for area")
-  :EqnFormat ("dA/dt = w*dl/dt")) 
+  :EqnFormat ("dA/dt = w dl/dt")) 
 
  (defoperator area-of-rectangle-change-contains (?sought)
    :preconditions (
@@ -2484,7 +2484,7 @@
   :short-name "volume of a cylinder"
   :nlg-english ("the formula for the volume of a cylinder")
   :ExpFormat ("finding the volume of a cylinder")
-  :EqnFormat ("V = A*l")) 
+  :EqnFormat ("V = A l")) 
 
  (defoperator volume-of-cylinder-contains (?sought)
    :preconditions 

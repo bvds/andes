@@ -12,27 +12,23 @@ import javax.persistence.Embeddable;
 
 /**
  *
- * @author Andes Version 3 Tutoring System
+ * @author master
  */
 @Embeddable
 public class ProblemAttemptTransactionPK implements Serializable {
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	@Basic(optional = false)
+    @Basic(optional = false)
     @Column(name = "tID")
     private int tID;
     @Basic(optional = false)
-    @Column(name = "attemptID")
-    private int attemptID;
+    @Column(name = "clientID")
+    private String clientID;
 
     public ProblemAttemptTransactionPK() {
     }
 
-    public ProblemAttemptTransactionPK(int tID, int attemptID) {
+    public ProblemAttemptTransactionPK(int tID, String clientID) {
         this.tID = tID;
-        this.attemptID = attemptID;
+        this.clientID = clientID;
     }
 
     public int getTID() {
@@ -43,19 +39,19 @@ public class ProblemAttemptTransactionPK implements Serializable {
         this.tID = tID;
     }
 
-    public int getAttemptID() {
-        return attemptID;
+    public String getClientID() {
+        return clientID;
     }
 
-    public void setAttemptID(int attemptID) {
-        this.attemptID = attemptID;
+    public void setClientID(String clientID) {
+        this.clientID = clientID;
     }
 
     @Override
     public int hashCode() {
         int hash = 0;
         hash += (int) tID;
-        hash += (int) attemptID;
+        hash += (clientID != null ? clientID.hashCode() : 0);
         return hash;
     }
 
@@ -69,7 +65,7 @@ public class ProblemAttemptTransactionPK implements Serializable {
         if (this.tID != other.tID) {
             return false;
         }
-        if (this.attemptID != other.attemptID) {
+        if ((this.clientID == null && other.clientID != null) || (this.clientID != null && !this.clientID.equals(other.clientID))) {
             return false;
         }
         return true;
@@ -77,7 +73,7 @@ public class ProblemAttemptTransactionPK implements Serializable {
 
     @Override
     public String toString() {
-        return "andesdatashopcommunication.ProblemAttemptTransactionPK[tID=" + tID + ", attemptID=" + attemptID + "]";
+        return "andesdatashopcommunication.ProblemAttemptTransactionPK[tID=" + tID + ", clientID=" + clientID + "]";
     }
 
 }

@@ -32,6 +32,14 @@ dojo.require("andes.api");
 				case "focus-hint-text-box":
 					dijit.focus(dojo.byId("helpInput"));
 					break;
+				case "focus-major-principles":
+                                	dojo.byId("majorModalTreeText").innerHTML = r.text ? "<p class=\"tall\">" + r.text + "</p>\n": "";
+			                dijit.byId("majorPrinciples").show();
+					break;
+				case "focus-all-principles":
+                			dojo.byId("allModalTreeText").innerHTML = "<p class=\"tall\">" + r.text + "</p>\n";
+			                dijit.byId("allPrinciples").show();
+					break;
 				case "log":
 				default:
 					// no-op
@@ -79,6 +87,10 @@ dojo.require("andes.api");
 
 	andes.help.explain = function(s){
 		andes.api.help({action:"get-help", value:s}).addCallback(handleHelp);
+	};
+
+   	andes.help.principles = function(s){
+		andes.api.help({action:"principles-menu", value:s}).addCallback(handleHelp);
 	};
 
 	andes.help.link = function(href){

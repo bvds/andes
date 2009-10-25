@@ -153,7 +153,7 @@
   (cond ((null Response) (error "Nil response supplied."))
 	((atom Response) (iea-check-name Response))
 	((null (car Response)) (error "Nil name supplied."))
-	(t (iea-check-name (car Response) (or (cadr Response) no-bindings)))))
+	(t (iea-check-name (car Response) (or (cdr Response) no-bindings)))))
 
 
 ;;; Once we have a name then we will look up the equation in the

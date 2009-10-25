@@ -394,7 +394,7 @@
   :short-name "combined magnification"
   :nlg-english ("combined lens magnification")
   :ExpFormat ("applying the formula for magnification to ~A and ~A" (nlg ?lens1) (nlg ?lens2))
-  :EqnFormat ("m12 = m1*m2")) 
+  :EqnFormat ("m12 = m1 m2")) 
 
 (defoperator combo-magnification-contains (?sought)
    :preconditions (
@@ -529,7 +529,7 @@
   :short-name "Snell's law"
   :nlg-english ("Snell's law")
   :ExpFormat ("using Snell's law for ~A" (nlg ?lines 'conjoined-defnp))
-  :eqnFormat ("n1*sin($q1) = n2*sin($q2)"))
+  :eqnFormat ("n1 sin(&theta;1) = n2 sin(&theta;2)"))
 
 
 (defoperator snells-law-contains (?sought)
@@ -634,7 +634,7 @@
   :nlg-english ("Formula for angle of total internal reflection")
   :ExpFormat ("using total internal reflection formula for ~A (minimum angle)" 
 	      (nlg ?line1))
-  :eqnFormat ("n1*sin($q1) = n2"))
+  :eqnFormat ("n1 sin(&theta;1) = n2"))
 
 (defoperator total-internal-reflection-contains (?sought)
   :preconditions 
@@ -695,7 +695,7 @@
   :nlg-english ("Complimentary angles")
   :ExpFormat ("using complimentary angles for ~A" 
 	      (nlg ?angles 'conjoined-defnp))
-  :eqnFormat ("$q1 + $q2 = 90 deg"))
+  :eqnFormat ("&theta;1 + &theta;2 = 90 deg"))
 
 (defoperator complimentary-angles-contains (?sought)
   :preconditions 
@@ -733,7 +733,7 @@
   :nlg-english ("Supplementary angles")
   :ExpFormat ("using supplementary angles for ~A" 
 	      (nlg ?angles 'conjoined-defnp))
-  :eqnFormat ("$q1 + $q2 = 180 deg"))
+  :eqnFormat ("&theta;1 + &theta;2 = 180 deg"))
 
 (defoperator supplementary-angles-contains (?sought)
   :preconditions 
@@ -768,7 +768,7 @@
   :short-name "tangent for right triangle"
   :nlg-english ("tangent formula for right triangles")
   :ExpFormat ("using the tangent formula for ~A"  (nlg ?angle))
-  :eqnFormat ("tan($q) = opposite/adjacent"))
+  :eqnFormat ("tan(&theta;) = opposite/adjacent"))
 
 (defoperator right-triangle-tangent-contains (?sought)
   :preconditions 
@@ -810,7 +810,7 @@
   :nlg-english ("Formula for angle of Brewster's law")
   :ExpFormat ("using Brewster's law formula for ~A" 
 	      (nlg (list 'line ?line1)))
-  :eqnFormat ("n1*tan($q1) = n2"))
+  :eqnFormat ("n1 tan(&theta;1) = n2"))
 
 
 ;; form with angle-between
@@ -889,7 +889,7 @@
   (if (unify fraction '0) "polarizer and unpolarized light" "Malus' law"))
 
 (defun polarization-intensity-eqn (fraction)
-  (if (unify fraction '0) "If = 0.5*Ii"	"If = Ii*cos($q)^2"))
+  (if (unify fraction '0) "If = 0.5 Ii"	"If = Ii cos(&theta;)<sup>2</sup>"))
 
 (defun polarization-fraction (fraction)
   (cond ((unify fraction '0) "unpolarized")
@@ -952,7 +952,7 @@
    (bind ?fraction-term (if (= ?fraction 1)
 			 `(^ (cos ,?angle) 2) '0.5))
    (bind ?help (if (= ?fraction 1) 
-		   "polarized at an angle of $q relative to the transmission axis of the polarizer, the intensity of the transmitted beam is cos($q)^2 times the incoming intensity." 
+		   "polarized at an angle of &theta; relative to the transmission axis of the polarizer, the intensity of the transmitted beam is cos(&theta;)<sup>2</sup> times the incoming intensity." 
 		 "unpolarized, half the intensity is absorbed by the polarizer."))
    )
   :effects 
@@ -978,7 +978,7 @@
   :nlg-english ("the interference pattern for waves going through parallel slits")
   :ExpFormat ("finding the angles for ~:[destructive~;constructive~] interference"
 	      ?max-flag)
-  :EqnFormat ("d*sin($q) = n*$l")) 
+  :EqnFormat ("d sin(&theta;) = n &lambda;")) 
 
 (defoperator slit-interference-contains-max (?sought)
   :preconditions 
@@ -1054,7 +1054,7 @@
   :short-name "single slit diffraction (minima)"
   :nlg-english ("the interference pattern for waves going through a single slit")
   :ExpFormat ("finding the angles for destructive interference")
-  :EqnFormat ("w*sin($q) = n*$l")) 
+  :EqnFormat ("w sin(&theta;) = n &lambda;")) 
 
 (defoperator frauenhofer-diffraction-contains (?sought)
    :preconditions 
@@ -1110,7 +1110,7 @@
   :short-name "resolution (circular)"
   :nlg-english ("the minimum angle of resolution for a circular aperture")
   :ExpFormat ("applying the minimum angle of resolution for a system with a circular aperture")
-  :EqnFormat "$q = 1.22*$l/d")
+  :EqnFormat "&theta; = 1.22 &lambda;/d")
 
 (defoperator resolution-circular-aperture-contains (?sought)
    :preconditions (

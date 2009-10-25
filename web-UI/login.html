@@ -27,11 +27,12 @@
 			if(! u){
 			  alert("Please enter a user name.");
 			  form.user.focus();
-			  reutrn;
+			  return;
 }
 			var p = document.getElementById("problem").value;
 			var s = document.getElementById("section").value;
-			document.location.href = "index.html?s="+s+"&u="+u+"&p="+p;
+			var e = document.getElementById("extra").value;
+			document.location.href = "index.html?s="+s+"&u="+u+"&p="+p+"&e="+e;
 		}
 	</script>
 </head>
@@ -49,7 +50,9 @@
        or <var>s2esolved</var>.&nbsp;  See the 
        <a href="http://www.andestutor.org/sets/">
        Problem Chooser</a> for more choices.</p>
-		<button onclick="doSubmit(); return false;">Submit</button>
+	   	<label>extra:</label>
+		<input type="text" id="extra" /><br />
+		<button onClick="doSubmit(); return false;">Submit</button>
 	</div>
 	
 </body>

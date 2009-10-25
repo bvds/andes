@@ -152,7 +152,7 @@ dojo.provide("andes.drawing");
 
 			item.connect("onChangeData", this, function(item){
 				console.log("---------------------------------> onChangeData", item.id, item.type);//dojo.toJson(item.data));
-				console.log("items:", items)
+				console.log("drawing.js items:", items)
 				var data = andes.convert.drawingToAndes(item, "modify-object")
 				console.info("Save to server", data);
 				this.save(data);
@@ -217,6 +217,27 @@ dojo.provide("andes.drawing");
 				}else if(obj.action=="delete-object"){
 				        // need error handling for non-existant objects.
 					if(items[obj.id]){
+						//destroy method isn't working, playing with alternatives while trying to see why
+						/*dojo.hitch(items[obj.id], function(){
+							// summary:
+							//		Destroys this Stencil
+							// Note:
+							//		Can connect to this, but it's better to
+							//		connect to onDelete
+							//
+							// prevent loops:
+							if(this.destroyed){ return; }
+							if(this.data || this.points && this.points.length){
+								this.onDelete(this);
+							}
+							
+							this.disconnectMouse();
+							this.disconnect(this._cons);
+							dojo.disconnect(this._postRenderCon);
+							this.remove(this.shape, this.hit);
+							this.destroyed = true;
+							console.warn("if statement has executed",items[obj.id]);
+						});*/
 						items[obj.id].destroy();
 						delete items[obj.id];
 					}
@@ -285,7 +306,7 @@ dojo.provide("andes.drawing");
 			// setting 'this'
 			this.loadProject = function(){
 				console.info("load server data", andes.userId, andes.projectId, andes.sectionId)
-				andes.api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId})
+				andes.api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId,extra:andes.extra})
 					.addCallback(this, function(data){
 						setTimeout(dojo.hitch(this, function(){
 							this.onLoad(data);
