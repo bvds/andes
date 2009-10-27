@@ -58,7 +58,7 @@ dojo.provide("andes.convert");
 				},
 				enabled:o.mode!="locked"
 			};
-
+			
 			if(o.type!="vector" && o.type!="line" && o.type!="axes" && o.type!="ellipse"){
 				obj.data.width = o.width;
 				obj.data.height = o.height;
@@ -97,7 +97,7 @@ dojo.provide("andes.convert");
 				obj.master = {
 					data:obj.data,
 					label:lbl
-				};
+				};				
 				var xs = o['x-statement'];
 				var ys = o['y-statement'];
 

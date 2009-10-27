@@ -76,26 +76,23 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 			//
 			if(this.created || !this.shape){ return; }
 			// if too small, need to reset
-			//This sets the zero length vector to zero within the minimum size
+			// 		This sets the zero length vector to zero within the minimum size 
 			if(this.getRadius()<this.minimumSize){
-				
+				var p = this.points; 
+				this.setPoints([ 
+					{x:p[0].x, y:p[0].y}, 
+					{x:p[0].x, y:p[0].y} 
+				]); 
+			} else { 			
+				//ace: needed as else to avoid zero length problem in snapAngle 
+				var pt = this.util.snapAngle(obj, this.angleSnap/180);
 				var p = this.points;
 				this.setPoints([
 					{x:p[0].x, y:p[0].y},
-					{x:p[0].x, y:p[0].y}
+					{x:pt.x, y:pt.y}
 				]);
 				
-			} else {
-			
-			//Needed as else to avoid zero length problem in snapAngle
-			var pt = this.util.snapAngle(obj, this.angleSnap/180);
-			var p = this.points;
-			this.setPoints([
-				{x:p[0].x, y:p[0].y},
-				{x:pt.x, y:pt.y}
-			]);
 			}
-			
 			this.renderedOnce = true;
 			this.onRender(this);
 		}

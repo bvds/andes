@@ -9,6 +9,10 @@ dojo.provide("andes.defaults");
 		//	overwrites that one to help protect intended styles from
 		// 	future changes made in Dojox.
 		
+		//  Determines whether in draw or edit mode (whether stencils
+		//  are clickable.
+		clickable:true,
+		
 		// current: Object
 		//  current will point to either null or selected
 		current:null,

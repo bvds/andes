@@ -198,9 +198,6 @@ body, .tundra .dijitSplitter, #navMenu{
 #upgradeBar{
 	height:26px;
 }
-g{
-	cursor:pointer;	
-}
 
 /* Percentage avoids the double scrollbar problem */
  div.tall {

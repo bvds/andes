@@ -147,7 +147,7 @@ dojo.provide("andes.toolbar.Toolbar");
 				var action = dojo.attr(node, "action");
 				var plugin = dojo.attr(node, "plugin");
 				if(tool){
-					if(i==0 || dojo.attr(node, "selected")=="true"){
+					if(/*Was for default required select tool i==0 ||*/dojo.attr(node, "selected")=="true"){
 						_sel = tool;
 					}
 					this.createTool(node);
