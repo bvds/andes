@@ -21,7 +21,8 @@ andes.principles={
 		    );
       // If this fails, open a Modal dialog.
       if(!this.extp) {
-	console.log("window.open failed");
+	// Delete any text leftover from old hints.
+   	dojo.byId("allModalTreeText").innerHTML = "";
 	dijit.byId("allPrinciples").show();
       }
     }
@@ -38,33 +39,35 @@ dojo.addOnLoad(function() {
   var majorPrinciplesModel = new dijit.tree.ForestStoreModel({
     store: principlesStore,
     query: {"complexity": "major"},
-            rootLabel: "Major Principles",
-            childrenAttrs: ["items"]
-        });
+    rootLabel: "Major Principles",
+    childrenAttrs: ["items"]
+  });
 
-        var allPrinciplesModel = new dijit.tree.ForestStoreModel({
-            store: principlesStore,
-            rootLabel: "All Principles",
-            childrenAttrs: ["items"]
-        });
+  var allPrinciplesModel = new dijit.tree.ForestStoreModel({
+    store: principlesStore,
+    rootLabel: "All Principles",
+    childrenAttrs: ["items"]
+  });
+		 
+  onClick0 = function(item,node) {
+    var psm=principlesStore.getValue(item,"psm");
+    // if student clicks on a group, there is no psm.
+    if(psm){
+      andes.help.echo(principlesStore.getValue(item,"label"));
+      andes.help.principles(psm);
+      dijit.byId("allPrinciples").hide();
+    }
+  };
 
-        new dijit.Tree({
-			 model: majorPrinciplesModel,
-			 showRoot: false,
-			 onClick: function(item,node) {
-			   andes.help.principles(principlesStore.getValue(item,"psm"));
-			   dijit.byId("majorPrinciples").hide();
-			 }
-        },"majorModalTree");
+  new dijit.Tree({
+    model: majorPrinciplesModel,
+    showRoot: false,
+    onClick: onClick0
+  },"majorModalTree");
 
-
-
-        new dijit.Tree({
-		 model: allPrinciplesModel,
-			 showRoot: false,
-			 onClick: function(item,node) {
-			   andes.help.principles(principlesStore.getValue(item,"psm"));
-			   dijit.byId("allPrinciples").hide();
-			 }
-        },"allModalTree");
+  new dijit.Tree({
+    model: allPrinciplesModel,
+    showRoot: false,
+    onClick: onClick0
+    },"allModalTree");
 });

@@ -142,21 +142,15 @@
 
   <!-- Principles menus constructed last -->
   <div id="majorPrinciples" dojoType="dijit.Dialog" title="Major Principles">
-     <div id="majorModalTree" class="tall">
-	  <script type="dojo/method" event="onClick" args="item">
-	      andes.help.explain(principlesStore.getValue(item,"psm"));
-              console.log("item:  "+principlesStore.getValue(item,"psm"));
-	  </script>
+     <div id="majorModalTreeText"></div>
+    <div id="majorModalTree" class="tall">
 	  Loading list of major Principles
      </div>
   </div>
 
    <div id="allPrinciples" dojoType="dijit.Dialog" title="Principles">
+     <div id="allModalTreeText"></div>
      <div id="allModalTree" class="tall">
-	  <script type="dojo/method" event="onClick" args="item">
-	      andes.help.explain(principlesStore.getValue(item,"psm"));
-              console.log("item:  "+principlesStore.getValue(item,"psm"));
-	  </script>
 	  Loading list of all Principles
      </div>
   </div>

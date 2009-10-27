@@ -374,10 +374,17 @@
 			      ;; In Andes3, this is text entry.
 			      (push '((:action . "focus-hint-text-box"))
 				    result))
+			     ;; Add text to modal dialog box.
 			     (psm-menu 
-			      (push '((:action . "focus-major-principles"))
+			      (push (cons '(:action . "focus-major-principles")
+					  (when (turn-text turn) 
+					    `((:text . ,(turn-text turn)))))
 				    result))
-			     (equation-menu  (warn "equation menu"))
+			     (equation-menu 			      
+			      (push (cons '(:action . "focus-all-principles")
+					  (when (turn-text turn) 
+					    `((:text . ,(turn-text turn)))))
+				    result))
 			     (T  (warn "WB menu code unimplemented: ~A" 
 				       (turn-menu turn))))))))
       (tcard-turn (warn "Training card turn with ~A." (turn-text turn)))

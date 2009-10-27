@@ -33,9 +33,11 @@ dojo.require("andes.api");
 					dijit.focus(dojo.byId("helpInput"));
 					break;
 				case "focus-major-principles":
+                                	dojo.byId("majorModalTreeText").innerHTML = r.text ? "<p class=\"tall\">" + r.text + "</p>\n": "";
 			                dijit.byId("majorPrinciples").show();
 					break;
 				case "focus-all-principles":
+                			dojo.byId("allModalTreeText").innerHTML = "<p class=\"tall\">" + r.text + "</p>\n";
 			                dijit.byId("allPrinciples").show();
 					break;
 				case "log":
