@@ -492,7 +492,7 @@
 
 (defun working-problem-p (problem)
   "Test if problem is tagged as working"
-   (member 'working (problem-features problem)))
+   (and problem (member 'working (problem-features problem))))
 
 (defun no-quant-problem-p (problem)
   "Return t iff the problem is a no-quant problem."
