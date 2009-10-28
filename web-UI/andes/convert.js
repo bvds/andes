@@ -56,7 +56,7 @@ dojo.provide("andes.convert");
 					x:o.x,
 					y:o.y
 				},
-				enabled:o.mode!="locked"
+				enabled:o.mode!="locked" && o.mode!="fade"
 			};
 			
 			if(o.type!="vector" && o.type!="line" && o.type!="axes" && o.type!="ellipse"){
