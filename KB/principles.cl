@@ -1161,7 +1161,8 @@
 	       (pc (lookup-psmclass-name (cdr (assoc :psm p)))))
 	   (push (cons :id (format nil "p~A" (incf jsonc))) result)
 	   (when sets
-	     (push (cons :items (collect-relevant-problems pc bindings))
+	     (push (cons :items (or (collect-relevant-problems pc bindings)
+				    (error "PSM ~A has not associated problems" pc)))
 		   result))
 	   (push (cons :complexity (psmclass-complexity pc)) result)
 	   (unless sets
