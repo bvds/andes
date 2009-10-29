@@ -455,17 +455,20 @@
   :new-english ((preferred "the") "spring constant" 
 		(preferred (property ?spring))))
 
-(def-qexp height (height ?body :time ?time)
+(def-qexp height (height ?body ?zero-height :time ?time)
   :symbol-base |h|     
   :short-name "height"	
   :units |m|
   :new-english ((preferred "the") "height" 
 		(and (property ?body)
-		     (preferred ("above"
-				 (or ((preferred "the") 
-				     (or "axis" "origin" "zero level"))
-				     "zero")))
+		     (preferred (or "above" "relative to") ?zero-height)
 		     (preferred (time ?time)))))
+
+;; default phrase, in absence of something sensible.
+(def-qexp zero-height zero-height
+  :new-english (or ((preferred "the") 
+		    (or "zero level" "axis" "horizontal axis" "origin"))
+		   "zero"))
 
 (def-qexp moment-of-inertia (moment-of-inertia ?body :axis ?axis :time ?time)
   :symbol-base |I|     
@@ -1142,7 +1145,7 @@
 	      (nlg ?body) (nlg ?t1 'time) (nlg ?t2 'time))
   :EqnFormat("Wnc = ME2 - ME1"))
 
-(def-psmclass height-dy (height-dy ?body ?time)
+(def-psmclass height-dy (height-dy ?body ?zero-height ?time)
   :complexity connect
   :short-name "change in height"
   :nlg-english ("the height change-displacement relationship")

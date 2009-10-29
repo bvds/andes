@@ -369,8 +369,9 @@
 (defoperator inherit-grav-energy (?b ?planet ?t)
   ;; inheritance for grav-energy tracks inheritance for height
   :preconditions ((use-point-for-body ?b ?cm ?axis) ;always use cm
-		  (inherit-quantity (height ?cm :time ?t)
-				    (height ?cm :time ?tt)))
+		  (provide-zero-height ?zero-height)
+		  (inherit-quantity (height ?cm ?zero-height :time ?t)
+				    (height ?cm ?zero-height :time ?tt)))
   :effects ((inherit-quantity (grav-energy ?b ?planet :time ?t)
 			      (grav-energy ?b ?planet :time ?tt))))
 
@@ -554,14 +555,15 @@
     (any-member ?sought ((grav-energy ?body ?planet :time ?t)
                          (mass ?body :time ?t)
 		         (gravitational-acceleration ?planet)
-                         (height ?cm :time ?t)))
+                         (height ?cm ?zero-height :time ?t)))
     (object ?body)	; must choose if sought is g 
     (time ?t)		; must choose if sought is g
     (near-planet ?planet :body ?body ?body)
     (use-point-for-body ?body ?cm ?axis) ;always use cm
+    (provide-zero-height ?zero-height)
     ;; only use parent for height, since grav-energy has
     ;; same inheritance
-    (inherit-or-quantity (height ?cm :time ?t) (height ?cm :time ?t))
+    (inherit-or-quantity (height ?cm ?zero-height :time ?t) (height ?cm ?zero-height :time ?t))
   )
   :effects (
     (eqn-contains (grav-energy ?body ?planet ?t) ?sought)
@@ -578,7 +580,8 @@
   (variable ?PE-var (grav-energy ?body ?planet :time ?t))
   (inherit-variable ?m-var  (mass ?body :time ?t))
   (use-point-for-body ?body ?cm ?axis) ;always use cm
-  (variable ?h-var (height ?cm :time ?t))
+  (provide-zero-height ?zero-height)
+  (variable ?h-var (height ?cm ?zero-height :time ?t))
   (variable ?g-var (gravitational-acceleration ?planet))
   )
   :effects ((eqn (= ?PE-var (* ?m-var ?g-var ?h-var)) 
@@ -674,7 +677,8 @@
 			     ((total-energy ?b :time ?t) def-np)))
 	 ))
 
-(defoperator inherit-height-from-motion (?b ?t)
+
+(defoperator inherit-height-from-motion (?b ?zero-height ?t)
   :preconditions 
   ;; assume motion proposition defines largest valid interval
   ((motion ?b ?type :time ?t-motion :dir ?dir . ?rest)
@@ -685,15 +689,29 @@
    (test (or (eq ?type 'at-rest) 
 	     (and (eq ?type 'straight) 
 		  (parallel-or-antiparallelp ?dir '(dnum 0 |deg|))))))
-  :effects ((inherit-quantity (height ?b :time ?t) 
-			      (height ?b :time ?t-motion))))
+  :effects ((inherit-quantity (height ?b ?zero-height :time ?t) 
+			      (height ?b ?zero-height :time ?t-motion))))
 
-(defoperator define-height (?body ?time)
+;; For problem weq5, I couldn't select between the 
+;; two operators by using :order
+
+(defoperator zero-height-from-givens (?zero-height)
+  ;; get any given value
+  :preconditions ((given (height ?obj ?zero-height . ?time) . ?rest))
+  :effects ((provide-zero-height ?zero-height)))
+
+(defoperator default-zero-height ()
+  ;; give default value if not otherwise given
+  :preconditions ((not (given (height ?obj ?zero-height . ?time) . ?rest)))
+  :effects ((provide-zero-height zero-height)))
+
+(defoperator define-height (?body ?zero-height ?time)
   :preconditions 
-  ( (bind ?h-var (format-sym "h_~A~@[_~A~]" (body-name ?body) 
+  (
+   (bind ?h-var (format-sym "h_~A_~A~@[_~A~]" (body-name ?body) (body-name ?zero-height)
 			     (time-abbrev ?time))) )
-  :effects ( (variable ?h-var (height ?body :time ?time))
-	     (define-var (height ?body :time ?time)) )
+  :effects ( (variable ?h-var (height ?body ?zero-height :time ?time))
+	     (define-var (height ?body ?zero-height :time ?time)) )
   :hint (
 	 (bottom-out (string "Define a height variable for ~A using the Variables menu on the top menu bar." ?body))
 	 ))
@@ -742,15 +760,16 @@
   :preconditions 
   (
    (any-member ?quantity ((compo y 0 (displacement ?b :time (during ?t1 ?t2)))
-	       (height ?b :time ?t1)
-	       (height ?b :time ?t2)
+	       (height ?b ?zero-height :time ?t1)
+	       (height ?b ?zero-height :time ?t2)
 	       ))
    (time (during ?t1 ?t2))
    (time ?t1) (time ?t2) ;sanity test
+   (provide-zero-height ?zero-height)
    )
   :effects 
   (
-   (eqn-contains (height-dy ?b (during ?t1 ?t2)) ?quantity)
+   (eqn-contains (height-dy ?b ?zero-height (during ?t1 ?t2)) ?quantity)
    ;; post this to make sure we will use standard axes
    (use-energy-axes)
    ))
@@ -761,15 +780,15 @@
 		  (vector ?b (displacement ?b :time ?t) ?dir)
 		  (axes-for ?b 0) ;Must use standard axes for this. 
 		  )
-  :effects ( (vector-diagram 0 (height-dy ?b ?t)) ))
+  :effects ( (vector-diagram 0 (height-dy ?b ?zero-height ?t)) ))
 
-(defoperator write-height-dy (?b ?t1 ?t2)
+(defoperator write-height-dy (?b ?zero-height ?t1 ?t2)
   :preconditions 
   (
    ;; Draw body and displacement vector
    (vector-diagram ?rot (height-dy ?b ?t))
-   (inherit-variable ?h2 (height ?b :time ?t2))
-   (inherit-variable ?h1 (height ?b :time ?t1))
+   (inherit-variable ?h2 (height ?b ?zero-height :time ?t2))
+   (inherit-variable ?h1 (height ?b ?zero-height :time ?t1))
    (test (not (equalp ?h2 ?h1)))  ;test that parent quantities are distinct
    (variable ?d12_y  (compo y ?rot (displacement ?b :time (during ?t1 ?t2))))
    )
