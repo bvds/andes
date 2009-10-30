@@ -563,29 +563,29 @@
     (provide-zero-height ?zero-height)
     ;; only use parent for height, since grav-energy has
     ;; same inheritance
-    (inherit-or-quantity (height ?cm ?zero-height :time ?t) (height ?cm ?zero-height :time ?t))
+    (inherit-or-quantity (height ?cm ?zero-height :time ?t) 
+			 (height ?cm ?zero-height :time ?t))
   )
   :effects (
-    (eqn-contains (grav-energy ?body ?planet ?t) ?sought)
+    (eqn-contains (grav-energy ?body ?planet ?zero-height ?t) ?sought)
     ;; set flag to choose standard axes because energy problem
     (use-energy-axes)
   ))
 
 ;; equation PE_grav = m * g * h
 ;; Note relies on problem statement stipulating zero level. 
-(defoperator write-grav-energy (?body ?planet ?t)
+(defoperator write-grav-energy (?body ?planet ?zero-height ?t)
   :preconditions 
   (
   (axes-for ?body 0) ;draw unrotated axes for gravitational energy
   (variable ?PE-var (grav-energy ?body ?planet :time ?t))
   (inherit-variable ?m-var  (mass ?body :time ?t))
   (use-point-for-body ?body ?cm ?axis) ;always use cm
-  (provide-zero-height ?zero-height)
   (variable ?h-var (height ?cm ?zero-height :time ?t))
   (variable ?g-var (gravitational-acceleration ?planet))
   )
   :effects ((eqn (= ?PE-var (* ?m-var ?g-var ?h-var)) 
-		 (grav-energy ?body ?planet ?t))
+		 (grav-energy ?body ?planet ?zero-height ?t))
 	    )
   :hint (
    (point (string "Try writing an equation for gravitational potential energy of ~a ~a" (?body def-np) (?t pp)))
@@ -702,14 +702,16 @@
 
 (defoperator default-zero-height ()
   ;; give default value if not otherwise given
-  :preconditions ((not (given (height ?obj ?zero-height . ?time) . ?rest)))
+  :preconditions ((not (provide-zero-height ?zero-height))
+		  (not (given (height ?obj ?zero-height . ?time) . ?rest)))
   :effects ((provide-zero-height zero-height)))
 
 (defoperator define-height (?body ?zero-height ?time)
   :preconditions 
   (
-   (bind ?h-var (format-sym "h_~A_~A~@[_~A~]" (body-name ?body) (body-name ?zero-height)
-			     (time-abbrev ?time))) )
+   (bind ?h-var (format-sym "h_~A_~A~@[_~A~]" (body-name ?body) 
+			    (body-name ?zero-height)
+			    (time-abbrev ?time))) )
   :effects ( (variable ?h-var (height ?body ?zero-height :time ?time))
 	     (define-var (height ?body ?zero-height :time ?time)) )
   :hint (
@@ -774,7 +776,7 @@
    (use-energy-axes)
    ))
 
-(defoperator draw-height-dy-diagram (?b ?t)
+(defoperator draw-height-dy-diagram (?b ?zero-height ?t)
   :preconditions (
 		  (body ?b)
 		  (vector ?b (displacement ?b :time ?t) ?dir)
@@ -786,13 +788,14 @@
   :preconditions 
   (
    ;; Draw body and displacement vector
-   (vector-diagram ?rot (height-dy ?b ?t))
+   (vector-diagram ?rot (height-dy ?b ?zero-height ?t))
    (inherit-variable ?h2 (height ?b ?zero-height :time ?t2))
    (inherit-variable ?h1 (height ?b ?zero-height :time ?t1))
    (test (not (equalp ?h2 ?h1)))  ;test that parent quantities are distinct
    (variable ?d12_y  (compo y ?rot (displacement ?b :time (during ?t1 ?t2))))
    )
-  :effects ( (eqn (= (- ?h2 ?h1) ?d12_y) (height-dy ?b (during ?t1 ?t2))) )
+  :effects ( (eqn (= (- ?h2 ?h1) ?d12_y) (height-dy ?b ?zero-height 
+						    (during ?t1 ?t2))) )
   :hint 
   (
    (point (string "You should relate the change in height of ~A ~A to the displacement during that period." 

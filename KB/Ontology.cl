@@ -461,7 +461,8 @@
   :units |m|
   :new-english ((preferred "the") "height" 
 		(and (property ?body)
-		     (preferred (or "above" "relative to") ?zero-height)
+		     ;; Assume there is no user defined variable for zero-height
+		     (allowed ((or "above" "relative to") ?zero-height))
 		     (preferred (time ?time)))))
 
 ;; default phrase, in absence of something sensible.
@@ -1200,7 +1201,7 @@
   :complexity definition
   :EqnFormat ("KE = 0.5 I &omega;<sup>2</sup>"))
 
-(def-psmclass grav-energy (grav-energy ?body ?planet ?time)
+(def-psmclass grav-energy (grav-energy ?body ?planet ?zero-height ?time)
   :short-name "gravitational potential energy"
    :nlg-english ("gravitational potential energy")
    :complexity definition

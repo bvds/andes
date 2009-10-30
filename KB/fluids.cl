@@ -214,7 +214,8 @@
 ;  Fluids Equations
 
 ;pressure at depth Pr2 - Pr1 = rho_m*g*(h1-h2)
-(def-psmclass pressure-height-fluid (pressure-height-fluid ?point ?time)
+(def-psmclass pressure-height-fluid 
+    (pressure-height-fluid ?point ?zero-height ?time)
   :complexity major  
   :short-name "pressure in fluid"
   :nlg-english ("the formula for pressure at a height in a fluid")
@@ -231,14 +232,15 @@
                            (height ?fluid-at-top ?zero-height :time ?time)
 			   (height ?fluid-at-bottom ?zero-height :time ?time)
 			   (mass-density ?fluid))  )
+     (provide-zero-height ?zero-height)
    )
    :effects (
-     (eqn-contains (pressure-height-fluid ?point-bottom ?time) ?sought)
+     (eqn-contains (pressure-height-fluid ?point-bottom ?zero-height ?time) ?sought)
    ))
 
 ; TODO: add eqn-contains for when sought is pressure at point-top as well
 
-(defoperator pressure-height-fluid (?point-bottom ?time)
+(defoperator pressure-height-fluid (?point-bottom ?zero-height ?time)
    :preconditions (
        (in-wm (in-fluid ?point-bottom ?material ?point-top ?time))
        (bind ?fluid-at-top  (format-sym "FLUID_AT_~a" ?point-top))
@@ -248,12 +250,12 @@
        (variable  ?rho (mass-density ?material))
        (in-wm (near-planet ?planet))
        (variable  ?g   (gravitational-acceleration ?planet))
-       (provide-zero-height ?zero-height)
        (inherit-variable ?h1 (height ?fluid-at-top ?zero-height :time ?time))
        (inherit-variable ?h2 (height ?fluid-at-bottom ?zero-height :time ?time))
    )
    :effects (
-    (eqn  (= (- ?Pr2 ?Pr1) (* ?rho ?g (- ?h1 ?h2))) (pressure-height-fluid ?point-bottom ?time))
+    (eqn  (= (- ?Pr2 ?Pr1) (* ?rho ?g (- ?h1 ?h2))) 
+	  (pressure-height-fluid ?point-bottom ?zero-height ?time))
    )
    :hint (
       (point (string "Remember the pressure at some depth in a fluid must be greater than the pressure at a higher point by an amount equal to the weight per unit area of the column of additional fluid above the lower point."))
