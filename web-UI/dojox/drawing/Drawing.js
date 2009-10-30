@@ -464,11 +464,11 @@ dojo.provide("dojox.drawing.Drawing");
 			dojo.forEach(tools, function(n){
 				if(dojo.hasClass(n, "selected")){
 					dojo.removeClass(n, "selected");
-					dojox.drawing.defaults.clickable = true;
+					if (dojox.drawing.defaults.clickMode){dojox.drawing.defaults.clickable = true;};
 					return;
 				};
 			});
-			//this.setTool(this.currentType);
+			if(!dojox.drawing.defaults.clickMode) {this.setTool(this.currentType);};
 		},
 		
 		onDeleteStencil: function(/* Object */stencil){
@@ -523,7 +523,7 @@ dojo.provide("dojox.drawing.Drawing");
 			try{
 				this.currentStencil = new this.tools[this.currentType]({container:this.canvas.surface.createGroup(), util:this.util, mouse:this.mouse, keys:this.keys});
 				console.log("new tool is:", this.currentStencil.id, this.currentStencil);
-				dojox.drawing.defaults.clickable = false;
+				if (dojox.drawing.defaults.clickMode) dojox.drawing.defaults.clickable = false;
 				this.currentStencil.connect(this.currentStencil, "onRender", this, "onRenderStencil");
 				this.currentStencil.connect(this.currentStencil, "destroy", this, "onDeleteStencil");
 			}catch(e){

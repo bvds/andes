@@ -502,21 +502,20 @@ dojo.provide("dojox.drawing.manager.Stencil");
 				this.deselect();
 			},
 						
-			/*
-			onStencilOver: function(evt, stencil){
-				// summary:
-				//		TODO: This is currently not supported.
-				console.log("OVER", surface)
-				dojo.style(surfaceNode, "cursor", "move");
-			},
 			
-			onStencilOut: function(evt, stencil){
+			onStencilOver: function(obj){
 				// summary:
 				//		TODO: This is currently not supported.
-				console.log("OUT")
-				dojo.style(surfaceNode, "cursor", "crosshair");
+				//console.log("OVER")
+				dojo.style(obj.id, "cursor", "move");
 			},
-			*/
+
+			onStencilOut: function(obj){
+				// summary:
+				//		TODO: This is currently not supported.
+				//console.log("OUT")
+				dojo.style(obj.id, "cursor", "crosshair");
+			},
 			
 			exporter: function(){
 				// summary:
@@ -527,6 +526,10 @@ dojo.provide("dojox.drawing.manager.Stencil");
 					this.stencils[m].enabled && items.push(this.stencils[m].exporter());
 				}
 				return items; // Array
+			},
+			
+			listStencils: function(){
+				return this.stencils;
 			},
 			
 			toSelected: function(/*String*/func){

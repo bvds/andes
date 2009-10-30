@@ -229,16 +229,28 @@ EventObject: function(){
 			this._broadcastEvent("onMove", obj);
 		},
 		
+		overName: function(obj,evt){
+			nm = obj.id.split(".");
+			evt = evt.charAt(0).toUpperCase() + evt.substring(1);
+			if(nm[0] == "dojox" && (dojox.drawing.defaults.clickable || !dojox.drawing.defaults.clickMode)) {
+				return "onStencil"+evt;	
+			} else {
+				return "on"+evt;	
+			}
+			
+		},
+		
 		onOver: function(obj){
 			// summary:
 			//
-			this._broadcastEvent("onOver", obj);
+			
+			this._broadcastEvent(this.overName(obj,"over"), obj);
 		},
 		
 		onOut: function(obj){
 			// summary:
 			//
-			this._broadcastEvent("onOut", obj);
+			this._broadcastEvent(this.overName(obj,"out"), obj);
 		},
 		
 		onUp: function(obj){
@@ -314,7 +326,7 @@ EventObject: function(){
 				return this.mode + name;
 			}else{
 				//ace Allow a mode where stencils aren't clickable
-				if(!dojox.drawing.defaults.clickable){return "on"+name;};
+				if(!dojox.drawing.defaults.clickable && dojox.drawing.defaults.clickMode){return "on"+name;};
 				var dt = !this.drawingType || this.drawingType=="surface" || this.drawingType=="canvas" ? "" : this.drawingType;
 				var t = !dt ? "" : dt.charAt(0).toUpperCase() + dt.substring(1);
 				return "on"+t+name;
@@ -388,10 +400,10 @@ EventObject: function(){
 			//
 			var obj = this.create(evt);
 			if(this.id=="MUI"){
-				//console.log("obj.id:", obj.id, "was:", this.currentNodeId)
+				console.log("obj.id:", obj.id, "was:", this.currentNodeId)
 			}
 			if(obj.id != this.currentNodeId){
-				// TODO: I wonder if an ID is god enough
+				// TODO: I wonder if an ID is good enough
 				//	that would avoid the mixin
 				var outObj = {};
 				for(var nm in obj){
