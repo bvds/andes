@@ -725,9 +725,9 @@
 
 ;;; default case of wrong body
 (def-error-class wrong-body-for-height (?sbody ?cbody) 
-  ((student (define-var (height ?sbody :time ?stime)))
-   (no-correct (define-var (height ?sbody :time ?time2)))
-   (correct (define-var (height ?cbody :time ?ctime))))
+  ((student (define-var (height ?sbody ?zero-height :time ?stime)))
+   (no-correct (define-var (height ?sbody ?zero-height :time ?time2)))
+   (correct (define-var (height ?cbody ?zero-height :time ?ctime))))
   :probability
   (+ 0.1
      (if (equal ?stime ?ctime) 0.2 0.0)))
@@ -749,10 +749,10 @@
 ;;; might not specify a zero point, in which case this entry-test
 ;;; will fail.
 (def-error-class height-over-a-time-interval (?body (during ?t1 ?t2) ?ctime)
-  ((student (define-var (height ?body :time (during ?t1 ?t2))))
-   (correct (define-var (height ?body :time ?ctime)))
+  ((student (define-var (height ?body ?zero-height :time (during ?t1 ?t2))))
+   (correct (define-var (height ?body ?zero-height :time ?ctime)))
    (test (time-pointp ?ctime))
-   (problem (given (height ?body :time ?t-zero) (dnum 0 ?unit))))
+   (problem (given (height ?body ?zero-height :time ?t-zero) (dnum 0 ?unit))))
   :utility 100
   :probability
   (+ 0.1
@@ -1845,7 +1845,7 @@
 (def-error-class use-height-instead-of-displacement (?body ?ctime)
   ((student (vector (displacement ?body :time (during ?st1 ?st2)) ?dir))
    (no-correct (vector (displacement ?body :time (during ?st1 ?st2)) ?dir2))
-   (correct (define-var (height ?body :time ?ctime))))
+   (correct (define-var (height ?body ?zero-height :time ?ctime))))
   :utility 40
   :probability
   (+ 0.1
@@ -1884,8 +1884,8 @@
 (def-error-class displacement-as-height-change-bug (?body ?stime ?etime)
   ((student (vector (displacement ?body :time (during ?stime ?etime)) ?dir))
    (no-correct (vector (displacement ?body :time (during ?stime ?etime)) ?dir2))
-   (old-student (define-var (height ?body :time ?stime)))
-   (old-student (define-var (height ?body :time ?etime))))
+   (old-student (define-var (height ?body ?zero-height :time ?stime)))
+   (old-student (define-var (height ?body ?zero-height :time ?etime))))
   :utility 80)
 
 (defun displacement-as-height-change-bug (body starttime endtime)
@@ -3951,14 +3951,14 @@
    (test (not (given-p ?var)))
    ; don't check if parameter: h1 may be a parameter but h2 not 
    ;(test (canonical-var-cancelling-var-p ?var))
-   (var-defn ?var (height ?body :time ?time))
+   (var-defn ?var (height ?body ?zero-height :time ?time))
    ;; make sure no zero-level stated in givens: RISKY! it's possible a body 
    ;; is never at the zero level (e5a).
    ;; Currently heights happen to be given when this is true, so its OK, 
    ;; but test could fail in future.
    ;; We need to add some other way of identifying the zero level in 
    ;; the problem givens.
-   (test (not (find '(given (height ?body :time ?time) (dnum 0 |m|)) 
+   (test (not (find '(given (height ?body ?zero-height :time ?time) (dnum 0 |m|)) 
                      (problem-givens *cp*) :test #'unify)))
    )
   :utility 100)

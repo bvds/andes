@@ -48,7 +48,7 @@ dojo.addOnLoad(function() {
     rootLabel: "All Principles",
     childrenAttrs: ["items"]
   });
-		 
+
   onClick0 = function(item,node) {
     var psm=principlesStore.getValue(item,"psm");
     // if student clicks on a group, there is no psm.

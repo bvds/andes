@@ -1,33 +1,53 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
+<!--   # This file is stored in reviw/sets.html in the Andes git repository
+       # To make a publically viewable version:
+          mkdir sets; cd sets
+       # Use lisp commands in KB/principles.cl to make files sets.json 
+       # and principles.json.  Then, install dojo and dijit.
+          mkdir problems
+       # Use lisp commands in KB/principles.cl to make list of
+       # problem html files in ./problems.  Copy images into ./problems -->
 <head>
 <title>Andes problem chooser</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link href="dojo/resources/dojo.css" rel="stylesheet" />
+<link href="dijit/themes/tundra/tundra.css" rel="stylesheet" />
 <style type="text/css">
-  @import "http://o.aolcdn.com/dojo/1.0.0/dijit/themes/tundra/tundra.css";
-  @import "http://o.aolcdn.com/dojo/1.0.0/dojo/resources/dojo.css";
-  div#graphic {
+ div#graphic {
        overflow: hidden;
    }
   div.tall {
       border-style: solid;
       border-color: #ddd;
-      overflow: auto; height: 400px;
+      overflow: auto; height: 60ex;
    }
    th {
        font-weight: bold;
    }
 </style>
-<script type="text/javascript" src="http://o.aolcdn.com/dojo/1.0.0/dojo/dojo.xd.js"
-  djConfig="parseOnLoad: true"></script>
-<script>
-  dojo.require("dojo.data.ItemFileWriteStore");
-  dojo.require("dijit.Tree");
-  dojo.require("dojo.parser");
-  dojo.require("dijit.layout.ContentPane");
+<script type="text/javascript" src="dojo/dojo.js"
+	djConfig="parseOnLoad: true, isDebug: true"></script>
+<script type="text/javascript">
+// Modify tree so that HTML is rendered in node labels
+    dojo.require("dojo.parser");
+    dojo.require("dojo.data.ItemFileReadStore");
+    dojo.require("dijit.Tree");
+    dojo.require("dijit.layout.ContentPane");
+
+  // Modify tree so that HTML is rendered in node labels
+  // See Bug #1603  (for older versions of Dojo)
+ // dijit._TreeNode.prototype.setLabelNode = function (label) {
+ //       this.labelNode.innerHTML = label;
+ // };
+
+// Modify tree so that HTML is rendered in node labels
+// See Bug #1603
+dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
+
 
   // add problem statement and any graphic to third column.
-  var addProblem = function (item,store){
+  addProblem = function (item,store){
     if(store.hasAttribute(item,"expand")) {
       // console.log("from json:  "+store.getValue(item,"expand"));
       dijit.byId('prob').setHref("problems/"+store.getValue(item,"expand"));
@@ -48,10 +68,11 @@
   }
 </script>
 </head>
+
 <body class="tundra">
 
-<div dojoType="dojo.data.ItemFileWriteStore" url="sets.json" jsId="setStore" />
-<div dojoType="dojo.data.ItemFileWriteStore" url="principles.json" jsId="principlesStore" />
+<div dojoType="dojo.data.ItemFileReadStore" url="sets.json" jsId="setStore" />
+<div dojoType="dojo.data.ItemFileReadStore" url="principles.json" jsId="principlesStore" />
   
   <h1>Andes problem chooser tool</h1>
  
@@ -63,7 +84,7 @@
   For each problem, median solution time and median score is given.&nbsp;
   Times and scores are from US Naval Academy students from Fall 2005
   to spring 2008.
-  <p>
+  </p>
   <table>
     <tr><th>Homework Sets</th><th>List of principles</th>
          <th><div dojoType="dijit.layout.ContentPane" id="label"></div></th></tr>

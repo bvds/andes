@@ -76,9 +76,18 @@
   English         ;; Ontology information specific to this problem
                   ;; format is an alist of pattern/model phrase pairs.
   Graphic         ;; name of file containing problem graphic 
-  Predefs         ;; list of predefined solution items in workbench log line notation
+  Predefs         ;; An alist of predefined solution items.  Each member
+                  ;; is a cons of a systementry (or nil) and a list 
+                  ;; of API call arguments.  If the sytementry is not nil,
+                  ;; it can be used to help fill out the API call.
+  Fade            ;; An alist of fade statements, to be sent to the client.
+                  ;; Each member is a cons of a list of entryprops
+                  ;; and a list of API call arguments.
+                  ;; The entryprops are used to determine when the help
+                  ;; system will delete the entry.  They may also be used
+                  ;; to help fill out the API call.
 ;; The following information is Andes2-specific
-  Times		  ;; time legend as list of (time point, description) pairs. Ex:
+  Times		  ;; time legend as list of (time point, description) pairs.
                   ;; Ex: ((1 "car starts moving") (2 "car hits driveway"))
                   ;; See problem-times-english for details.
   Choices	  ;; list of choice category members for menus. Ex:
@@ -189,9 +198,11 @@
   (format Stream "Choices       ~W~%" (problem-Choices Problem))
   (format Stream "Graphic       ~W~%" (problem-Graphic Problem))
   (format Stream "Predefs       ~W~%" (problem-Predefs Problem))
+  (format Stream "Fade          ~W~%" (problem-Fade Problem))
   (format Stream "Comments      ~W~%" (problem-Comments Problem))
   (format Stream "Features      ~W~%" (problem-features Problem))
-  ; To protect problem descriptions, don't include in prb file. Fill in from kb on read.
+  ;; To protect problem descriptions, don't include in prb file. 
+  ;; Fill in from kb on read.
   ;(format Stream "Soughts       ~W~%" (problem-Soughts Problem))
   ;(format Stream "Givens        ~W~%" (problem-Givens Problem))
   (format Stream "ForbiddenPSMS ~W~%" (problem-ForbiddenPSMS Problem))
@@ -337,6 +348,7 @@
     (Choices       (setf (Problem-Choices Problem) (mpf-readret Stream)))
     (Graphic       (setf (Problem-Graphic Problem) (mpf-readret Stream)))
     (Predefs       (setf (Problem-Predefs Problem) (mpf-readret Stream)))
+    (Fade          (setf (Problem-Fade Problem) (mpf-readret Stream)))
     (comments      (setf (Problem-comments Problem) (mpf-readret Stream)))
     (features      (setf (Problem-features Problem) (mpf-readret Stream)))
     (soughts       (setf (Problem-soughts Problem) (mpf-readret Stream)))
@@ -356,14 +368,9 @@
     (t (error "Undefined Problem-header tag. ~A" name))))
 
 
-
 (defun problem-file-exists (Name &optional (Path (Default-ProblemFile-Path)))
   (probe-file (namestring (problem-filename (format nil "~A" Name) Path))))
 
-
-
-
-			  
 (defun trace-readpfile ()
   (trace read-problem-file
 	 read-pfile-contents
@@ -404,12 +411,12 @@
 
 (defmacro defproblem (name &key (soughts ()) (Givens ())
 				(Statement "")
-		                (English nil)
-				(Comments NIL) (Features nil)
-				(ModDate nil) (Version *latest-file-version*) 
-				(ForbiddenPSMS nil) (IgnorePSMS nil)
-				(VariableMarks Nil) (Times nil)
-				(Choices nil) (Graphic nil) (Predefs nil))
+		                English
+				Comments Features
+				ModDate (Version *latest-file-version*) 
+				ForbiddenPSMS IgnorePSMS
+				VariableMarks Times
+				Choices Graphic Predefs Fade)
   "Define a problem struct and store it."
 
   (dolist (rule English)
@@ -433,7 +440,8 @@
 				   :Times   ',Times
 				   :Choices ',Choices
 				   :Graphic ',Graphic
-				   :Predefs ',Predefs))))
+				   :Predefs ',Predefs
+		                   :Fade ',Fade))))
     (add-problem Prob) ;Store the problem for access
     Prob))                        ;Return the problem.
 
@@ -492,7 +500,7 @@
 
 (defun working-problem-p (problem)
   "Test if problem is tagged as working"
-   (member 'working (problem-features problem)))
+   (and problem (member 'working (problem-features problem))))
 
 (defun no-quant-problem-p (problem)
   "Return t iff the problem is a no-quant problem."
