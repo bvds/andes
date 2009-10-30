@@ -33,7 +33,7 @@ andes.principles={
 // This should be loaded after everything else, in the background
 dojo.addOnLoad(function() {
   var principlesStore = new dojo.data.ItemFileReadStore({
-    url: "/review/principles.json",
+    url: "/review/principles.json"
   });
 
   var majorPrinciplesModel = new dijit.tree.ForestStoreModel({
