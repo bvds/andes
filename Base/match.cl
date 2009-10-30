@@ -140,6 +140,8 @@
        (+ best (- (word-count student) 1))))
      ;; model optional
     ((member (car model) '(preferred allowed))
+     (when (cddr model)
+       (warn "Model grammar:  ~A can only have one argument" model))
      (update-bound best (word-count student)) ;don't match model
      (update-bound best (match-model student (second model) :best best))
      best)
