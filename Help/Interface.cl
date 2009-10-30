@@ -156,7 +156,7 @@
 
 
     ;; Test whether any fade steps have been completed
-    (dolist fade (copy-list (problem-fade *cp*))
+    (dolist (fade (copy-list (problem-fade *cp*)))
 	    (when (every 
 		   #'(lambda (x) ;(nsh-principle-completed-p (??? x))
 				   (warn "need lookup for ~A" x))
