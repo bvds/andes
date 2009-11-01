@@ -380,7 +380,7 @@
 		(when nlg-warn (warn "New-English rule missing for ~A, using nlg" 
 				     (ExpType-type rule)))
 		;; See nlg-exp and nlg-find
-		(nlg-bind rule #'ExpType-nlg-english bindings)))))))
+		(word-parse (nlg-bind rule #'ExpType-nlg-english bindings))))))))
   
   ;; If it is a symbol, use improved version of def-np.
   (when (atom prop)
