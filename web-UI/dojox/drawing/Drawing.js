@@ -459,7 +459,9 @@ dojo.provide("dojox.drawing.Drawing");
 			//console.info("--------------------------------------dojox.drawing.onRenderStencil:", stencil.id);
 			this.stencils.register(stencil);
 			this.unSetTool();
-			
+			if(!dojox.drawing.defaults.clickMode) { 
+				this.setTool(this.currentType);
+			} else {
 			tools = dojo.byId('toolPane').getElementsByTagName("div")[0].childNodes;
 			dojo.forEach(tools, function(n){
 				if(dojo.hasClass(n, "selected")){
@@ -468,7 +470,7 @@ dojo.provide("dojox.drawing.Drawing");
 					return;
 				};
 			});
-			if(!dojox.drawing.defaults.clickMode) {this.setTool(this.currentType);};
+			};
 		},
 		
 		onDeleteStencil: function(/* Object */stencil){
@@ -509,7 +511,7 @@ dojo.provide("dojox.drawing.Drawing");
 			if(!this.canvas || !this.canvas.surface){
 				var c = dojo.connect(this, "onSurfaceReady", this, function(){
 					dojo.disconnect(c);
-					this.setTool(type);
+					if (!dojox.drawing.defaults.clickMode) this.setTool(type);
 				});
 				return;
 			}
