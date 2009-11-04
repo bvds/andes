@@ -128,29 +128,6 @@
     (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting standard atmosphere." 
 	    ((atmosphere) def-np)))))
 
-   
-
-(post-process add-standard-atmosphere (problem)
-  "In fluids problems, add Pr0 to list of pre-defined scalars"
-  ;; for fluids problems, predefine atmospheric pressure constant
-  ;; in principle, should test it is not already present
-  ;; and test for the next available Var-number
-  (when (and (member 'fluids (problem-features problem))
-	     ;; test whether it has been done already
-	     (notany #'(lambda (x) (search "atmosphere" x))
-		     (problem-predefs problem)))
-   (push '((EQN (= |Pr0| (DNUM 101300.0 |Pa|))) . 
-	    ((:action . "new-object") (:id . "peq") (:type . "equation")
-	     (:text . "Pr0=1.013E5 Pa") (:width . 300)
-	     (:mode . "unknown") (:x . 450) (:y . 70)))
-	  (problem-predefs problem))
-    (push '((define-var (atmosphere)) . 
-	    ((:action . "new-object") (:id . "pvar") (:type . "statement")
-	     (:text . "Pr0 is the pressure of one standard atmosphere")
-	     (:width . 300)
-	     (:symbol . "Pr0") (:mode . "unknown") (:x . 450) (:y . 55)))
-	  (problem-predefs problem))))
-
 (def-psmclass std-constant-Pr0 (std-constant (atmosphere))
   :complexity simple 
   :short-name "atmospheric pressure"
