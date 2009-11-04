@@ -83,8 +83,10 @@ dojo.provide("andes.drawing");
 			//	Called on drag-create. This method should call add()
 			//	then save info to the server.
 			//
-			if(items[item.id]){ return; }
-
+			if(items[item.id]){ 
+				console.warn("BLOCKED on render:", item.id) 
+				return;
+			}
 			if(hasStatement[item.type] || hasLabel[item.type]){
 				// vector, rect, ellipse, or axes
 				var box = item.getBounds();
@@ -132,9 +134,12 @@ dojo.provide("andes.drawing");
 			//	They should most often be combo items with andes.Combo,
 			// 	with the exception of Axes and (standalone) Statements.
 			//
-			if(items[item.id]){
-				console.warn("BLOCKED:", item.id)
-				return;
+			//  Test to see if there's already an object with this id,
+			//  if so increment the id and the count in dojox util.
+			var i = 0;
+			while(items[item.id]){
+				dojox.drawing.util.common.uid(item.type);
+				item.id = item.type + i++;
 			}
 
 			items[item.id] = item;
