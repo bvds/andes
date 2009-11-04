@@ -400,32 +400,42 @@
 	 (if (all-boundp model bindings)
 	     (expand-new-english (subst-bindings bindings model))
 	     (warn "Unbound variable ~A" model)))
-	((and (consp model) (member (car model) '(preferred allowed and or)))
+	((and (consp model) (member (car model) 
+				    '(preferred allowed and or conjoin)))
 	 (let ((args (expand-new-english (cdr model) bindings)))
 	   (when args (cons (car model) args))))
-	;; plain list
-	((and (consp model) (or (stringp (car model)) (listp (car model)))) 
-	 (remove nil (mapcar 
-		      #'(lambda (x) (expand-new-english x bindings)) model)))
 	;; expansion of var must be done at run-time.
 	((and (consp model) (eql (car model) 'var)) 
 	 (subst-bindings bindings model))
 	((and (consp model) (eql (car model) 'eval))
 	 (expand-new-english
 	  (eval (subst-bindings-quoted bindings (second model)))))
-	;; If nothing else works, match with ontology (recursion).
+	;; ordered sequence, remove empty elements
+	((and (consp model) (or (stringp (car model)) (listp (car model))))
+	 (remove nil (expand-new-english-list model bindings)))
 	(t 
 	 ;; Bindings are local to one operator in the ontology
 	 ;; so we need to substitute in here.
 	 ;; Assume any recursive calls are covered by New-English.
 	 (new-english-find (subst-bindings bindings model) :nlg-warn t))))
 
+;; Should be "private" to nlg
+(defun expand-new-english-list (x &optional (bindings no-bindings))
+  "If object is a list, expand"
+  ;; Handles cases where members of a list are atoms in Ontology
+  ;; and lists with bindings of the form (... . ?rest)
+  (cond ((null x) x) 
+	((variable-p x) (expand-new-english-list 
+			 (subst-bindings bindings x)))
+	((consp x) (cons (expand-new-english (car x) bindings)
+			 (expand-new-english-list (cdr x) bindings)))
+	(t (error "invalid list structure in ~A" x))))
 
 (defun expand-vars (model)
   "Expand (var ...) expressions and remove nils from model tree."
   (cond ((stringp model) model)
 	((null model) model)
-	((member (car model) '(preferred allowed and or))
+	((member (car model) '(preferred allowed and or conjoin))
 	 (let ((args (expand-vars (cdr model))))
 	   (when args (cons (car model) args))))
 	((or (stringp (car model)) (listp (car model))) ;plain list
