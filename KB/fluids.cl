@@ -638,7 +638,7 @@
 (defoperator archimedes-contains (?sought)
   :preconditions (
     (in-wm (buoyant-force ?body ?fluid ?t-buoyant ?dir))
-    (any-member ?sought ( (mag (force ?b ?fluid ?buoyant :time ?t))
+    (any-member ?sought ( (mag (force ?b ?fluid buoyant :time ?t))
                           (mass-density ?fluid) 
                           (volume ?b :time ?t) ))
     (test (tinsidep ?t ?t-buoyant))
@@ -650,7 +650,7 @@
 (defoperator write-archimedes (?b ?fluid ?t)
    :preconditions (
        (in-wm (near-planet ?planet))
-       (variable ?Fb  (mag (force ?b ?fluid ?buoyant :time ?t)))
+       (variable ?Fb  (mag (force ?b ?fluid buoyant :time ?t)))
        (variable ?rho (mass-density ?fluid))
        (variable ?g   (gravitational-acceleration ?planet))
        (variable ?V   (volume ?b :time ?t))
