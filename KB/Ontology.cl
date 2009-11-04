@@ -499,13 +499,17 @@
 	     (moment-name) (nlg ?body) (nlg ?axis 'at-time ?time)))
 
 (def-qexp compound (compound orderless . ?bodies)
-  :nlg-english ("the compound of ~A" (nlg ?bodies 'conjoined-defnp)))
+  :new-english ((allowed "a compound of") 
+		(conjoin (or "and" "&") . ?bodies)))
+
 
 (def-qexp system (system . ?bodies)
-  :nlg-english ("a system of ~A" (nlg ?bodies 'conjoined-defnp)))
+  :new-english ((preferred "a system of") 
+		(conjoin (or "and" "&") . ?bodies)))
 
-(def-qexp during (during ?t0 ?t1) 
-  :nlg-english ("from ~A to ~A" (nlg ?t0 'moment) (nlg ?t1 'moment)))
+(def-qexp during (during ?t0 ?t1)
+  :new-english (or ("from" (time ?t0) (or "to" "until") (time ?t1))
+		   ("between" (time ?t0) (or "and" "&") (time ?t1))))
 
 
 ;; Note when nlg'ing other time arguments in format strings: 
@@ -1066,7 +1070,7 @@
   :nlg-english ("mass of a compound body is sum of masses of parts")
   :expformat ((strcat "using the fact that the mass of ~a "
 		      "is the sum of the masses of its parts") 
-	      (nlg ?compound))
+	      (nlg `(compound orderless . ,?compound)))
   :EqnFormat ("M = m1 + m2 + ..."))
 
 (def-psmclass kine-compound (kine-compound ?vec-type ?bi ?compound ?time) ; part, whole same kinematics
@@ -1083,7 +1087,8 @@
   :nlg-english ("external force on a compound")
   :expformat ((strcat "applying the fact that there is an external force "
 		      "on ~a due to ~a ~a of type ~a")
-	      (nlg ?compound) (nlg ?agent 'agent) (nlg ?time 'pp) (nlg ?type))
+	      (nlg `(compound orderless . ,?compound)) 
+	      (nlg ?agent 'agent) (nlg ?time 'pp) (nlg ?type))
   :EqnFormat ("F_on_part = F_on_compound"))
 
 
