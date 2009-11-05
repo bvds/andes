@@ -113,7 +113,10 @@
 	    (nlg ?to-pt) (nlg ?from-pt 'at-time ?time)))
 (def-qexp displacement (displacement ?body :time ?time)
   :units |m|
-  :nlg-english ("the displacement of ~A" (nlg ?body 'at-time ?time)))
+  :new-english ((preferred "the") (or "displacment" "disp")
+		 (and (preferred (property ?body))
+		      (preferred (time ?time)))))
+
 (def-qexp velocity (velocity ?body :time ?time)
   :units |m/s|
   :nlg-english ("the velocity of ~A" (nlg ?body 'at-time ?time)))
@@ -147,7 +150,7 @@
 		     ((or "gravitational" "weight" "grav." "grav") "force")))
     (normal "normal force")
     (tension '((or "tension" "pulling") "force"))
-    (applied '(allowed "applied force")) ;catch-all force
+    (applied '((allowed "applied") "force")) ;catch-all force
     (kinetic-friction '(((preferred "kinetic") (or "friction" "frictional"))
 			"force"))
     (static-friction  '(((preferred "static") (or "friction" "frictional")) 
@@ -358,25 +361,44 @@
   :restrictions positive
   :nlg-english ("the radius of the circular motion of ~A" 
 	    (nlg ?body 'at-time ?time)))
+
+;; Halliday and Resnick talk about work done by a force
+;; "work done by the spring force"
+;; Giancoli
+;; "work done by a constant force ..."
+;; "the work done by gravity ..."
+;; "the work done by each force ..."
+
 (def-qexp work (work ?b ?agent :time ?time)
   :symbol-base |W|     
   :short-name "work"	
   :units |J|
-  :nlg-english ("the work done on ~A by ~A" 
-	    (nlg ?b) (nlg ?agent 'at-time ?time)))
+  :new-english ((preferred "the") "work" (preferred "done")
+		(and (preferred (object ?b))
+		     (preferred (agent ?agent))
+		     (preferred (time ?time)))))
+
+;; Halliday & Resnick
+;; "work done on ... by all forces"
+;; "total work done on ... by all forces that act on it"
+;; Giancoli
+;; "net work done on ..."
 
 (def-qexp net-work (net-work ?body :time ?time)
   :units |J|
-  :new-english (((preferred "the") (allowed (or "total" "net"))
-		 "work done" 
+  :new-english (((preferred "the") (preferred (or "total" "net"))
+		 "work" (preferred "done")
 		 (and (preferred (object ?body))
 		      (allowed (agent "all forces"))
 		      (preferred (time ?time))))))
 
+;; Giancoli
+;; "work done by non-conservative forces ..."
+
 (def-qexp work-nc (work-nc ?body :time ?time)
   :units |J|
   :new-english (((preferred "the") (allowed (or "total" "net"))
-		 "work done" 
+		 "work" (preferred "done") 
 		 (and (preferred (object ?body))
 		      (preferred (agent "non-conservative forces"))
 		      (preferred (time ?time))))))
