@@ -104,7 +104,7 @@
 
 ;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
 (#-sbcl defconstant #+sbcl sb-int:defconstant-eqx
-	*help-env-vars* 
+	help-env-vars 
 	;; These are all the variables that are be set by API commands
         ;; listed in Andes2 log files or their descendants.
 	'(*CP* **NSH-NEXT-CALL** *NSH-NODES* *NSH-FIRST-PRINCIPLES*
@@ -113,6 +113,8 @@
 	  *NSH-PROBLEM-TYPE* *VARIABLES* *STUDENTENTRIES* 
 	  *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*
           **Condition**  mt19937::*random-state* **grammar**
+	  ;; List of Fade items.
+	  *fades*
 	  ;; Solver process (could easily be replaced by function argument
 	  ;; in solver-load and solver-unload)
 	  *process*
@@ -141,13 +143,13 @@
 	)
 
 ;; New method with 
-(defstruct help-env "Quantities that must be saved between turns of a session.  Member vals contains list of values for *help-env-vars*." 
+(defstruct help-env "Quantities that must be saved between turns of a session.  Member vals contains list of values for help-env-vars." 
 	   section student problem vals)
 
 ;; Should be useful for debugging.
 (defun get-session-variable (session var)
   "Get a session local variable for a given session (string)."
-  (nth (position var *help-env-vars*)
+  (nth (position var help-env-vars)
        (help-env-vals (webserver:get-session-env session))))
 
 (eval-when (:load-toplevel :compile-toplevel)
@@ -168,12 +170,12 @@
   "Make session-local copy of global variables, retrieving values from webserver:*env* at the beginning of a turn and saving them again at the end of the turn"
   (let ((save-help-env-vals
 	 ;; Save local variables back to *env*.
-	 `(setf (help-env-vals webserver:*env*) (list ,@*help-env-vars*)))) 
+	 `(setf (help-env-vals webserver:*env*) (list ,@help-env-vars)))) 
     
     ;; If the variable is not already declared special (via defvar,
     ;; for instance), then its scope will not be dynamic and env-wrap
     ;; will fail.
-    (dolist (var *help-env-vars*) 
+    (dolist (var help-env-vars) 
       (assert (globally-special-p var) nil
 	      "Variable ~A not declared special" var))
 
@@ -183,7 +185,7 @@
       (if (and webserver:*env* (help-env-p webserver:*env*))
 	  (let ,(mapcar 
 		 #'(lambda (x) (list x '(pop (help-env-vals webserver:*env*))))
-		 *help-env-vars*)
+		 help-env-vars)
 	    ;; If there is an error, need to save current values
 	    ;; back to the environment variable before passing control
 	    ;; on to error handler.
@@ -203,6 +205,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defvar *simulate-loaded-server* t "Put in delay in solution steps")
+(defvar *fades*) ;list of problem fades.
 
 (webserver:defun-method "/help" open-problem (&key time problem user 
 						   section extra) 
@@ -243,19 +246,21 @@
       ;;  Most of the set-up is done here.
       ;; The return for this may be of some use.
       (execute-andes-command 'read-problem-info problem)
+      ;; Intialize fade list
+      (setf *fades* (problem-fade *cp*))
      
       ;; Write problem statement.	      
-      (let ((y 10) (i 0))
+      (let ((x 10) (y 10) (i 0))
 	(dolist  (line (problem-statement *cp*))
 	  (cond ((unify line '(answer . ?rest))
 		 (push `((:action . "new-object") (:type . "statement") 
 		  (:id . ,(format nil "statement~A" i))
-		  (:mode . "unknown") (:x . 10) (:y . ,y) 
+		  (:mode . "unknown") (:x . ,x) (:y . ,y) 
 		  (:width . 100) (:text . "Answer:       ")) replies))
 		(t 
 		 (push `((:action . "new-object") (:type . "statement") 
 		  (:id . ,(format nil "statement~A" i))
-		  (:mode . "locked") (:x . 10) (:y . ,y) 
+		  (:mode . "locked") (:x . ,x) (:y . ,y) 
 		  (:width . 400) (:text . ,line)) replies)))
 	  (incf i)
 	  (setf y (+ y 25)))
@@ -265,7 +270,7 @@
 	    (if dims		
 		(push `((:action . "new-object") (:id . "graphic") 
 			(:type . "graphics") (:mode . "locked") 
-			(:x . 10) (:y . ,y) 
+			(:x . ,x) (:y . ,y) 
 			(:width . ,(car dims)) (:height . ,(cadr dims))
 			;; This is the URL for the graphic, which may not
 			;; match its location on the server filesystem.
@@ -280,24 +285,46 @@
 	  (push `((:action . "new-object") 
 		  (:id .  ,(format nil "time~A" (incf i)))
 		  (:type . "statement") (:mode . "locked") 
-		      (:width . 250) (:x . 10) (:y . ,y) 
+		      (:width . 250) (:x . ,x) (:y . ,y) 
 		  (:text . ,time-sentence))
 		replies)
 	  (setf y (+ y 25))))
+
+      ;; Second column for fades and predefs.
+      (let ((x 450) (y 15) (i 0))
+	(dolist (fade *fades*)
+	  ;; Debug text
+	  ;; (format webserver:*stdout* "Working on ~A~%" (cdr fade))
+	  (pushnew '(:action . "new-object") (cdr fade) :key #'car)
+	  (pushnew `(:id . ,(format nil "fade~A" (incf i))) (cdr fade) :key #'car)
+	  (pushnew '(:mode . "fade") (cdr fade) :key #'car)
+	  (pushnew '(:type . "statement") (cdr fade) :key #'car)
+	  (when (and (not (assoc :width (cdr fade)))
+		     (member (cdr (assoc :type (cdr fade)))
+			     '("statement" "equation") :test #'equal))
+	    (push '(:width . 300) (cdr fade)))
+	  (pushnew `(:x . ,x) (cdr fade) :key #'car)
+	  (if (assoc :y (cdr fade))
+	      ;; If object overlaps this column, continue below it.
+	      (when (> (+ (cdr (assoc :x (cdr fade)))
+			  (cdr (or (assoc :width (cdr fade))
+				   (assoc :radius (cdr fade)))))
+		       x)
+		(setf y (max y (cdr (assoc :y (cdr fade))))))
+	      (push `(:y . ,y) (cdr fade)))
+	  (push (cdr fade) replies)
+	  ;; (format webserver:*stdout* "  Turned to ~A~%" (cdr fade))
+	  (setf y (+ y 25)))
             
-      ;; This must be done within env-wrap since it uses *cp*
-      (setf predefs (problem-predefs *cp*))
-      ;; position objects and add common stuff.
-      (let ((y 15) (i 0))
+	;; This must be done within env-wrap since it uses *cp*
+	(setf predefs (problem-predefs *cp*))
+	;; position objects and add common stuff.
 	(dolist (predef predefs)
 	  ;; Debug text
 	  ;; (format webserver:*stdout* "Working on ~A~%" (cdr predef))
-	  (unless (assoc :action (cdr predef)) 
-	    (push '(:action . "new-object") (cdr predef)))
-	  (unless (assoc :id (cdr predef)) 
-	    (push (cons :id (format nil "pre~A" (incf i))) (cdr predef)))
-	  (unless (assoc :mode (cdr predef)) 
-	    (push '(:mode . "unknown") (cdr predef)))
+	  (pushnew '(:action . "new-object") (cdr predef) :key #'car)
+	  (pushnew `(:id . ,(format nil "pre~A" (incf i))) (cdr predef) :key #'car)
+	  (pushnew '(:mode . "unknown") (cdr predef) :key #'car)
 	  (when (and (car predef) (not (assoc :type (cdr predef))))
 	    (push `(:type . ,(entryprop2type (car predef))) (cdr predef)))
 	  (when (and (car predef) (assoc :symbol (cdr predef))
@@ -311,19 +338,18 @@
 			     '("statement" "equation") :test #'equal))
 	      (push '(:width . 300) (cdr predef)))
 	  ;; put all predefs in a second column
-	  (unless (assoc :x (cdr predef)) 
-	      (push '(:x . 450) (cdr predef)))
+	  (pushnew `(:x . ,x) (cdr predef) :key #'car)
 	  (if (assoc :y (cdr predef))
 	      ;; If object overlaps this column, continue below it.
 	      (when (> (+ (cdr (assoc :x (cdr predef)))
 			  (cdr (or (assoc :width (cdr predef))
 				   (assoc :radius (cdr predef)))))
-		       450)
+		       x)
 		(setf y (max y (cdr (assoc :y (cdr predef))))))
 	      (push `(:y . ,y) (cdr predef)))
 	  ;; (format webserver:*stdout* "  Turned to ~A~%" (cdr predef))
 	  (setf y (+ y 25))))
-      
+
 
       (check-entries t))
     
@@ -432,9 +458,9 @@
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
 (webserver:defun-method "/help" solution-step 
-  (&key time id action type mode x y
-	text width height radius symbol x-statement y-statement
-	x-label y-label z-label angle) 
+    (&key time id action type mode x y
+	  text width height radius symbol x-statement y-statement
+	  x-label y-label z-label angle) 
   "problem-solving step"
   ;; fixed attributes:      type id
   ;; updatable attributes:  mode x y text width height radius symbol 
@@ -463,19 +489,19 @@
 
     (let ((old-entry (find-entry id)) new-entry 
 	  (ans "Answer:"))
-
+      
       (when *simulate-loaded-server* 
 	(format webserver:*stdout* 
 		"  *simulate-loaded-server* induced sleep.~%")
 	(sleep 2))
-
+      
       (when (and old-entry (equal action "new-object"))
 	(warn "Object ~A already exists, updating old object." id))
-
+      
       (when (and (not old-entry) (or (equal action "modify-object")
 				     (equal action "delete-object")))
 	(warn "Object ~A does not exist, creating new object." id))
-
+      
       (when (and type old-entry 
 		 (not (equal type (StudentEntry-type old-entry))))
 	(warn "Attempting to change type from ~A to ~A"
@@ -484,10 +510,10 @@
       ;; Predefs generally don't have a time slot.
       ;; Client always should send a time.
       (unless time (setf time 0.0))
-
-     ;; create new object
+      
+      ;; create new object
       (setf new-entry (make-StudentEntry :id id :type type :time time))
- 
+      
       ;; update attributes from old object (but not time!)
       (when old-entry
 	(update-entry-from-entry 
@@ -500,19 +526,19 @@
        new-entry  
        mode x y text width height radius symbol x-statement y-statement
        x-label y-label z-label angle)
-
+      
       (add-entry new-entry)   ;remove existing info and update
-
-
+      
+      
       (cond
 	((equal action "delete-object")
 	 ;; We should pass the object to be deleted rather than the id.
 	 (delete-object (StudentEntry-id new-entry)))
-
+	
 	;; For debugging only, should be turned off in production
 	((and webserver:*debug* (equal text "help-test-error")
 	      (error "help-test-error response.")))
-
+	
 	;; Look for text box marked by "Answer: "
 	;; This should come before "equation" and "statement"
 	((and (> (length text) (length ans))
@@ -546,24 +572,24 @@
 	
 	((equal (StudentEntry-type new-entry) "circle")
 	 (execute-andes-command 'assert-object new-entry))
-
+	
 	((equal (StudentEntry-type new-entry) "ellipse")
 	 (execute-andes-command 'assert-object new-entry))
-
+	
 	((equal (StudentEntry-type new-entry) "rectangle")
 	 (execute-andes-command 'assert-object new-entry))
-
+	
 	((equal (StudentEntry-type new-entry) "axes")
 	 (execute-andes-command 'assert-x-axis new-entry))
-
+	
 	((equal (StudentEntry-type new-entry) "vector")
 	 (execute-andes-command 'lookup-vector new-entry))
-
+	
 	((equal (StudentEntry-type new-entry) "line")
 	 (execute-andes-command 'lookup-line new-entry))
-
-      (t (warn "Undefined type ~A, doing nothing."  
-	       (StudentEntry-type new-entry)))))))
+	
+	(t (warn "Undefined type ~A, doing nothing."  
+		 (StudentEntry-type new-entry)))))))
 
 
 ;; need error handler for case where the session isn't active
