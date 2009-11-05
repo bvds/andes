@@ -77,11 +77,13 @@
     ((eql (car model) 'and)
      (when (cdr model) (word-string (cdr model))))
     ((eql (car model) 'or)
-     (when (second model) (word-string (second model))))
+     (pop model) ;remove 'or
+     ;; Find first non-null element
+     (loop while model thereis (word-string (pop model))))
     ((eql (car model) 'conjoin)
      (pop model)
-     (let ((conjunction (word-string (pop model)))
-	   (items (remove nil (mapcar #'word-string model))))
+     (let ((conjunction (word-string (car model)))
+	   (items (remove nil (mapcar #'word-string (cdr model)))))
        (cond 
 	 ((null conjunction)
 	  (warn "conjoin must have conjunction ~A" model)
