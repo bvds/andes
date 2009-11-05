@@ -1238,7 +1238,7 @@
 
 
 (defun match-exp->enode (exp Graph)
-  "Match the given exp to a coresponding qnode."
+  "Match the given exp to a coresponding enode."
   (find Exp (bubblegraph-enodes Graph)
 	:key #'enode-ID 
 	:test #'unify))			;could use "equal"

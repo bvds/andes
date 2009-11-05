@@ -205,7 +205,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defvar *simulate-loaded-server* t "Put in delay in solution steps")
-(defvar *fades*) ;list of problem fades.
 
 (webserver:defun-method "/help" open-problem (&key time problem user 
 						   section extra) 
@@ -246,9 +245,10 @@
       ;;  Most of the set-up is done here.
       ;; The return for this may be of some use.
       (execute-andes-command 'read-problem-info problem)
+
       ;; Intialize fade list
-      (setf *fades* (problem-fade *cp*))
-     
+      (initialize-fades *cp*)
+		  
       ;; Write problem statement.	      
       (let ((x 10) (y 10) (i 0))
 	(dolist  (line (problem-statement *cp*))
@@ -529,67 +529,67 @@
       
       (add-entry new-entry)   ;remove existing info and update
       
-      
-      (cond
-	((equal action "delete-object")
-	 ;; We should pass the object to be deleted rather than the id.
-	 (delete-object (StudentEntry-id new-entry)))
-	
-	;; For debugging only, should be turned off in production
-	((and webserver:*debug* (equal text "help-test-error")
-	      (error "help-test-error response.")))
-	
-	;; Look for text box marked by "Answer: "
-	;; This should come before "equation" and "statement"
-	((and (> (length text) (length ans))
-	      (string-equal (string-left-trim *whitespace* text)
-			    ans :end1 (length ans)))
-	 ;; In Andes2 this was set in do-check-answer
-	 (setf (StudentEntry-verbatim new-entry) 
+      (update-fades
+       (cond
+	 ((equal action "delete-object")
+	  ;; We should pass the object to be deleted rather than the id.
+	  (delete-object (StudentEntry-id new-entry)))
+	 
+	 ;; For debugging only, should be turned off in production
+	 ((and webserver:*debug* (equal text "help-test-error")
+	       (error "help-test-error response.")))
+	 
+	 ;; Look for text box marked by "Answer: "
+	 ;; This should come before "equation" and "statement"
+	 ((and (> (length text) (length ans))
+	       (string-equal (string-left-trim *whitespace* text)
+			     ans :end1 (length ans)))
+	  ;; In Andes2 this was set in do-check-answer
+	  (setf (StudentEntry-verbatim new-entry) 
 	       (string-trim *whitespace* (subseq text (length ans))))
-	 (execute-andes-command 'check-answer new-entry))
+	  (execute-andes-command 'check-answer new-entry))
+	 
+	 ((equal (StudentEntry-type new-entry) "equation")
+	  (let ((eq (search "=" text)))
+	    (cond 
+	      ;; solve for variable:
+	      ;; Right now, look for an "=" and subsequent "?"
+	      ;; Should be done using parsed expression, checking that
+	      ;; the LHS is a single variable.
+	      ((and eq (search "?" (subseq text eq)))
+	       (setf (StudentEntry-symbol new-entry) 
+		     (string-trim *whitespace* (subseq text 0 eq)))
+	       (execute-andes-command 'solve-for-var new-entry))
+	      ;; Default case: ordinary equation
+	      (t (execute-andes-command 'lookup-eqn-string new-entry)))))
+	 
+	 ((equal (StudentEntry-type new-entry) "statement")
+	  (execute-andes-command 'define-variable new-entry))
+	 
+	 ((equal (StudentEntry-type new-entry) "graphics")
+	  (warn "Can't modify a graphic object, id=~A" 
+		(studententry-id new-entry)))
 	
-	((equal (StudentEntry-type new-entry) "equation")
-	 (let ((eq (search "=" text)))
-	   (cond 
-	     ;; solve for variable:
-	     ;; Right now, look for an "=" and subsequent "?"
-	     ;; Should be done using parsed expression, checking that
-	     ;; the LHS is a single variable.
-	     ((and eq (search "?" (subseq text eq)))
-	      (setf (StudentEntry-symbol new-entry) 
-		    (string-trim *whitespace* (subseq text 0 eq)))
-	      (execute-andes-command 'solve-for-var new-entry))
-	     ;; Default case: ordinary equation
-	     (t (execute-andes-command 'lookup-eqn-string new-entry)))))
-	
-	((equal (StudentEntry-type new-entry) "statement")
-	 (execute-andes-command 'define-variable new-entry))
-	
-	((equal (StudentEntry-type new-entry) "graphics")
-	 (warn "Can't modify a graphic object, id=~A" 
-	       (studententry-id new-entry)))
-	
-	((equal (StudentEntry-type new-entry) "circle")
-	 (execute-andes-command 'assert-object new-entry))
-	
-	((equal (StudentEntry-type new-entry) "ellipse")
-	 (execute-andes-command 'assert-object new-entry))
-	
-	((equal (StudentEntry-type new-entry) "rectangle")
-	 (execute-andes-command 'assert-object new-entry))
-	
-	((equal (StudentEntry-type new-entry) "axes")
-	 (execute-andes-command 'assert-x-axis new-entry))
-	
-	((equal (StudentEntry-type new-entry) "vector")
-	 (execute-andes-command 'lookup-vector new-entry))
-	
-	((equal (StudentEntry-type new-entry) "line")
-	 (execute-andes-command 'lookup-line new-entry))
-	
-	(t (warn "Undefined type ~A, doing nothing."  
-		 (StudentEntry-type new-entry)))))))
+	 ((equal (StudentEntry-type new-entry) "circle")
+	  (execute-andes-command 'assert-object new-entry))
+	 
+	 ((equal (StudentEntry-type new-entry) "ellipse")
+	  (execute-andes-command 'assert-object new-entry))
+	 
+	 ((equal (StudentEntry-type new-entry) "rectangle")
+	  (execute-andes-command 'assert-object new-entry))
+	 
+	 ((equal (StudentEntry-type new-entry) "axes")
+	  (execute-andes-command 'assert-x-axis new-entry))
+	 
+	 ((equal (StudentEntry-type new-entry) "vector")
+	  (execute-andes-command 'lookup-vector new-entry))
+	 
+	 ((equal (StudentEntry-type new-entry) "line")
+	  (execute-andes-command 'lookup-line new-entry))
+	 
+	 (t (warn "Undefined type ~A, doing nothing."  
+		  (StudentEntry-type new-entry))))))))
 
 
 ;; need error handler for case where the session isn't active

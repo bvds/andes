@@ -3213,7 +3213,7 @@
 ;;; Has the student begun working on the node at 
 ;;; all or is it completely empty.  
 (defun nsh-node-started-p (Node)
-  "Has the student begiun working on the principle or not?"
+  "Has the student begun working on the principle or not?"
   (and (bgnode-entries Node)
        (member-if #'SystemEntry-entered (bgnode-entries Node))))
 
