@@ -223,7 +223,8 @@
 
   ;; Update logging with session information
   (andes-database:set-session 
-   webserver:*log-id* :student user :problem problem :section section)
+   webserver:*log-id* :student user :problem problem :section section
+   :extra extra)
   
   (let (replies solution-step-replies predefs
 		;; Override global variable on start-up

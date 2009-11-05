@@ -90,8 +90,13 @@
 	  s '((#\' . "''") (#\\ . "\\\\")))))
 
 
-(defun set-session (client-id &key student problem section)
+(defun set-session (client-id &key student problem section extra)
   "Updates transaction with session information."
+
+  (if (> (length extra) 0) ;can be empty string
+    (format webserver:*stdout* "Getting extra parameter ~A~%" extra)
+    (setf extra 0))
+
   ;;  session is labeled by client-id 
   ;; add this info to database
   ;; update the problem attempt in the db with the requested parameters
@@ -103,8 +108,11 @@
 ;;
 (defun get-matching-sessions (methods &key student problem section extra)
   "Get posts associated with the given methods from all matching previous sessions."
-  (when extra 
-    (format webserver:*stdout* "Getting extra parameter ~A~%" extra))
+
+  (if (> (length extra) 0) ;can be empty string
+    (format webserver:*stdout* "Getting extra parameter ~A~%" extra)
+    (setf extra 0))
+
   (let ((result (query 
 		 (format nil "SELECT command FROM PROBLEM_ATTEMPT,PROBLEM_ATTEMPT_TRANSACTION WHERE userName = '~A' AND userProblem='~A' AND userSection='~A' AND PROBLEM_ATTEMPT.clientID=PROBLEM_ATTEMPT_TRANSACTION.clientID AND PROBLEM_ATTEMPT_TRANSACTION.initiatingParty='client'" 
 			 student problem section) :flatp t))
