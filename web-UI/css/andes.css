@@ -8,8 +8,7 @@
   /* For principles tree menu, could be loaded later */
 @import url("../dijit/themes/tundra/Tree.css");
 @import url("../dojox/layout/resources/ExpandoPane.css");
-  /* alternative:  ../dojox/widget/UpgradeBar/UpgradeBar.css */
-@import url("../andes/widget/UpgradeBar/UpgradeBar.css");
+/*  dojox/widget/UpgradeBar/UpgradeBar.css must be loaded on main page */
 @import url("../dojox/drawing/resources/drawing.css");
 @import url("../dojox/drawing/resources/toolbar.css");
 
