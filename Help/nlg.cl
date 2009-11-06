@@ -355,34 +355,41 @@
   (or (SystemEntry-model entry)
       ;; this resolves bindings
       (setf (SystemEntry-model entry)
-	    (let ((prop (second (SystemEntry-prop entry))))
-	      (or (new-english-find prop)
-		  ;; if it is a single word, use improved version of def-np
-		  (when (atom prop) (def-np-model prop))
-		  ;; If new-english does not exist, use nlg
-		  (word-parse (nlg prop)))))))
+	    ;; Don't complain if we have to resort to using nlg.
+	    (new-english-find (second (SystemEntry-prop entry)) :nlg-warn nil))))
 
-
-(defun new-english-find (prop)
+(defun new-english-find (prop &key nlg-warn)
   "Match proposition to Ontology"
   ;; First, determine if there is any problem-specific
-  ;; Ontology match to prop.
+  ;; Ontology match.
   (dolist (rule (problem-english *cp*))
     (let ((bindings (unify (car rule) prop)))
       (when bindings 
 	(return-from new-english-find
-	  (values (expand-new-english (cdr rule) bindings)
-		  bindings)))))
+	  (expand-new-english (cdr rule) bindings)))))
+
   ;; Then run through general Ontology to find match.
   (dolist (rule *Ontology-ExpTypes*)
     (let ((bindings (unify (Exptype-form rule) prop)))
-      (when bindings
+      (when bindings 
 	(return-from new-english-find
-	  (values
-	   (expand-new-english (ExpType-new-english rule) bindings)
-	   bindings))))))
+	  (if (ExpType-new-english rule)
+	      (expand-new-english (ExpType-new-english rule) bindings)
+	      ;; If New-English rule has not been supplied, go back to using nlg.
+	      (progn 
+		(when nlg-warn (warn "New-English rule missing for ~A, using nlg" 
+				     (ExpType-type rule)))
+		;; See nlg-exp and nlg-find
+		(word-parse (nlg-bind rule #'ExpType-nlg-english bindings))))))))
+  
+  ;; If it is a symbol, use improved version of def-np.
+  (when (atom prop)
+    (return-from new-english-find (def-np-model prop)))
+  
+  ;; On failure, warn and return nil
+  (warn "No ontology match for ~A" prop))
 
-
+  
 (defun expand-new-english (model &optional (bindings no-bindings))
   "Expand model tree, expanding ontology expressions, parse strings into list of words, substituting bindings, evaluating lisp code, and removing nils."
   (cond ((stringp model) 
@@ -393,33 +400,42 @@
 	 (if (all-boundp model bindings)
 	     (expand-new-english (subst-bindings bindings model))
 	     (warn "Unbound variable ~A" model)))
-	((and (consp model) (member (car model) '(preferred allowed and or)))
+	((and (consp model) (member (car model) 
+				    '(preferred allowed and or conjoin)))
 	 (let ((args (expand-new-english (cdr model) bindings)))
 	   (when args (cons (car model) args))))
-	;; plain list
-	((and (consp model) (or (stringp (car model)) (listp (car model)))) 
-	 (remove nil (mapcar 
-		      #'(lambda (x) (expand-new-english x bindings)) model)))
 	;; expansion of var must be done at run-time.
 	((and (consp model) (eql (car model) 'var)) 
 	 (subst-bindings bindings model))
 	((and (consp model) (eql (car model) 'eval))
 	 (expand-new-english
 	  (eval (subst-bindings-quoted bindings (second model)))))
-	;; match with ontology, handles recursion
-	(t (multiple-value-bind (val match)
-	       ;; bindings are local to one operator in the ontology
-	       ;; so we need to substitute in here
-	       (new-english-find (subst-bindings bindings model))
-	     (if match val 
-		 (warn "No ontology match for ~A" model))))))
+	;; ordered sequence, remove empty elements
+	((and (consp model) (or (stringp (car model)) (listp (car model))))
+	 (remove nil (expand-new-english-list model bindings)))
+	(t 
+	 ;; Bindings are local to one operator in the ontology
+	 ;; so we need to substitute in here.
+	 ;; Assume any recursive calls are covered by New-English.
+	 (new-english-find (subst-bindings bindings model) :nlg-warn t))))
 
+;; Should be "private" to nlg
+(defun expand-new-english-list (x &optional (bindings no-bindings))
+  "If object is a list, expand"
+  ;; Handles cases where members of a list are atoms in Ontology
+  ;; and lists with bindings of the form (... . ?rest)
+  (cond ((null x) x) 
+	((variable-p x) (expand-new-english-list 
+			 (subst-bindings bindings x)))
+	((consp x) (cons (expand-new-english (car x) bindings)
+			 (expand-new-english-list (cdr x) bindings)))
+	(t (error "invalid list structure in ~A" x))))
 
 (defun expand-vars (model)
   "Expand (var ...) expressions and remove nils from model tree."
   (cond ((stringp model) model)
 	((null model) model)
-	((member (car model) '(preferred allowed and or))
+	((member (car model) '(preferred allowed and or conjoin))
 	 (let ((args (expand-vars (cdr model))))
 	   (when args (cons (car model) args))))
 	((or (stringp (car model)) (listp (car model))) ;plain list

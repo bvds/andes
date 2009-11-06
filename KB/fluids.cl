@@ -128,29 +128,6 @@
     (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting standard atmosphere." 
 	    ((atmosphere) def-np)))))
 
-   
-
-(post-process add-standard-atmosphere (problem)
-  "In fluids problems, add Pr0 to list of pre-defined scalars"
-  ;; for fluids problems, predefine atmospheric pressure constant
-  ;; in principle, should test it is not already present
-  ;; and test for the next available Var-number
-  (when (and (member 'fluids (problem-features problem))
-	     ;; test whether it has been done already
-	     (notany #'(lambda (x) (search "atmosphere" x))
-		     (problem-predefs problem)))
-   (push '((EQN (= |Pr0| (DNUM 101300.0 |Pa|))) . 
-	    ((:action . "new-object") (:id . "peq") (:type . "equation")
-	     (:text . "Pr0=1.013E5 Pa") (:width . 300)
-	     (:mode . "unknown") (:x . 450) (:y . 70)))
-	  (problem-predefs problem))
-    (push '((define-var (atmosphere)) . 
-	    ((:action . "new-object") (:id . "pvar") (:type . "statement")
-	     (:text . "Pr0 is the pressure of one standard atmosphere")
-	     (:width . 300)
-	     (:symbol . "Pr0") (:mode . "unknown") (:x . 450) (:y . 55)))
-	  (problem-predefs problem))))
-
 (def-psmclass std-constant-Pr0 (std-constant (atmosphere))
   :complexity simple 
   :short-name "atmospheric pressure"
@@ -214,7 +191,8 @@
 ;  Fluids Equations
 
 ;pressure at depth Pr2 - Pr1 = rho_m*g*(h1-h2)
-(def-psmclass pressure-height-fluid (pressure-height-fluid ?point ?time)
+(def-psmclass pressure-height-fluid 
+    (pressure-height-fluid ?point ?zero-height ?time)
   :complexity major  
   :short-name "pressure in fluid"
   :nlg-english ("the formula for pressure at a height in a fluid")
@@ -228,17 +206,18 @@
      (bind ?fluid-at-top  (format-sym "FLUID_AT_~a" ?point-top))
      (bind ?fluid-at-bottom  (format-sym "FLUID_AT_~a" ?point-bottom))
      (any-member ?sought ( (pressure ?point-bottom :time ?time)
-                           (height ?fluid-at-top :time ?time)
-			   (height ?fluid-at-bottom :time ?time)
+                           (height ?fluid-at-top ?zero-height :time ?time)
+			   (height ?fluid-at-bottom ?zero-height :time ?time)
 			   (mass-density ?fluid))  )
+     (provide-zero-height ?zero-height)
    )
    :effects (
-     (eqn-contains (pressure-height-fluid ?point-bottom ?time) ?sought)
+     (eqn-contains (pressure-height-fluid ?point-bottom ?zero-height ?time) ?sought)
    ))
 
 ; TODO: add eqn-contains for when sought is pressure at point-top as well
 
-(defoperator pressure-height-fluid (?point-bottom ?time)
+(defoperator pressure-height-fluid (?point-bottom ?zero-height ?time)
    :preconditions (
        (in-wm (in-fluid ?point-bottom ?material ?point-top ?time))
        (bind ?fluid-at-top  (format-sym "FLUID_AT_~a" ?point-top))
@@ -248,11 +227,12 @@
        (variable  ?rho (mass-density ?material))
        (in-wm (near-planet ?planet))
        (variable  ?g   (gravitational-acceleration ?planet))
-       (inherit-variable ?h1 (height ?fluid-at-top :time ?time))
-       (inherit-variable ?h2 (height ?fluid-at-bottom :time ?time))
+       (inherit-variable ?h1 (height ?fluid-at-top ?zero-height :time ?time))
+       (inherit-variable ?h2 (height ?fluid-at-bottom ?zero-height :time ?time))
    )
    :effects (
-    (eqn  (= (- ?Pr2 ?Pr1) (* ?rho ?g (- ?h1 ?h2))) (pressure-height-fluid ?point-bottom ?time))
+    (eqn  (= (- ?Pr2 ?Pr1) (* ?rho ?g (- ?h1 ?h2))) 
+	  (pressure-height-fluid ?point-bottom ?zero-height ?time))
    )
    :hint (
       (point (string "Remember the pressure at some depth in a fluid must be greater than the pressure at a higher point by an amount equal to the weight per unit area of the column of additional fluid above the lower point."))
@@ -277,8 +257,8 @@
      (bind ?fluid-at-p2  (format-sym "FLUID_AT_~a" ?point2))
      (any-member ?sought ( (pressure ?point1 :time ?time)
                            (pressure ?point2 :time ?time)
-                           (height ?fluid-at-p1 :time ?time)
-			   (height ?fluid-at-p2 :time ?time)
+                           (height ?fluid-at-p1 ?zero-height :time ?time)
+			   (height ?fluid-at-p2 ?zero-height :time ?time)
 			   (mass-density ?fluid)
                            (mag (velocity ?fluid-at-p1 :time ?time))
                            (mag (velocity ?fluid-at-p2 :time ?time))
@@ -298,8 +278,9 @@
        (variable  ?rho (mass-density ?fluid))
        (in-wm (near-planet ?planet))
        (variable  ?g   (gravitational-acceleration ?planet))
-       (inherit-variable ?h2 (height ?fluid-at-p2 :time ?time))
-       (inherit-variable ?h1 (height ?fluid-at-p1 :time ?time))
+       (provide-zero-height ?zero-height)
+       (inherit-variable ?h2 (height ?fluid-at-p2 ?zero-height :time ?time))
+       (inherit-variable ?h1 (height ?fluid-at-p1 ?zero-height :time ?time))
        (variable  ?v1  (mag (velocity ?fluid-at-p1 :time ?time)))
        (variable  ?v2  (mag (velocity ?fluid-at-p2 :time ?time)))
    )
@@ -634,7 +615,7 @@
 (defoperator archimedes-contains (?sought)
   :preconditions (
     (in-wm (buoyant-force ?body ?fluid ?t-buoyant ?dir))
-    (any-member ?sought ( (mag (force ?b ?fluid ?buoyant :time ?t))
+    (any-member ?sought ( (mag (force ?b ?fluid buoyant :time ?t))
                           (mass-density ?fluid) 
                           (volume ?b :time ?t) ))
     (test (tinsidep ?t ?t-buoyant))
@@ -646,7 +627,7 @@
 (defoperator write-archimedes (?b ?fluid ?t)
    :preconditions (
        (in-wm (near-planet ?planet))
-       (variable ?Fb  (mag (force ?b ?fluid ?buoyant :time ?t)))
+       (variable ?Fb  (mag (force ?b ?fluid buoyant :time ?t)))
        (variable ?rho (mass-density ?fluid))
        (variable ?g   (gravitational-acceleration ?planet))
        (variable ?V   (volume ?b :time ?t))

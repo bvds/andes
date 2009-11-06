@@ -91,3 +91,4 @@ dojo.require("andes.Combo");
 dojo.require("andes.positioning");
 // do this last
 dojo.require("andes.principles");
+//dojo.require("andes.test");

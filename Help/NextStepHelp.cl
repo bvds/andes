@@ -23,8 +23,6 @@
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;; ChangeLog:
-;;   6/12/2003 - (Cl) - fixing compiler warnings.
 
 ;;; This file provides next-step-help for the andes2 system.  It 
 ;;; was based initially on psudocode written by Kurt VanLehn and 
@@ -149,28 +147,29 @@
 ;;; 
 ;;; 
 ;;; 
-;;; Lastly, if the student is in state 3 then NSH will determine what principles 
-;;; the student has completed.  If they have completed all of the principles in a 
-;;; problem solution then they will be prompted to write the answer and quit.  If 
-;;; not then Andes will prompt them to complete the next major principle in the 
-;;; solution as follows:
+;;; Lastly, if the student is in state 3 then NSH will determine what 
+;;; principles the student has completed.  If they have completed all of 
+;;; the principles in a problem solution then they will be prompted to write 
+;;; the answer and quit.  If not, then Andes will prompt them to complete 
+;;; the next major principle in the solution as follows:
 ;;; 
 ;;; T: At this point you should be working on the Newton's 
 ;;;    Second Law major principle.
 ;;; S: OK...
 ;;; 
 ;;; 
-;;; If the student has completed all of the major principles then Andes will prompt 
-;;; them to work on the next minor principle in the solution as follows:
+;;; If the student has completed all of the major principles then Andes 
+;;; will prompt them to work on the next minor principle in the solution 
+;;; as follows:
 ;;; 
 ;;; T: At this point you should be working on the tensions 
 ;;;    equal on strings minor principle.
 ;;; S: OK...
 ;;; 
-;;; At no time (apart from the beginning or in KCDs) will the students see the preamble 
-;;; as we know it.  This version of the solution takes away their ability to decide 
-;;; exactly what plan they should be using in order to eliminate the confusing 
-;;; question/answer stack.  
+;;; At no time (apart from the beginning or in KCDs) will the students see 
+;;; the preamble as we know it.  This version of the solution takes away 
+;;; their ability to decide exactly what plan they should be using in 
+;;; order to eliminate the confusing question/answer stack.  
 ;;;
 ;;;
 ;;; This has since been updated to the following: 
@@ -275,10 +274,10 @@
 ;;; a one-argument function for handling the student's response.
 
 ;;(defstruct tutor-turn
-;;  (type 'dialog)				;an atom: defaults to DIALOG
-;;  text					; a string (or atom for some types)
-;;  menu					; the name of a workbench menu
-;;  responder				        ; a one argument function
+;;  (type 'dialog)		  ;an atom: defaults to DIALOG
+;;  text			  ;a string (or atom for some types)
+;;  menu			  ;the name of a workbench menu
+;;  responder			  ;a one argument function
 ;;  )
 
 ;;; When Linn's code gets a tutor-turn struct back from calling
@@ -482,7 +481,6 @@
 (defparameter *nsh-first-principles* () 
   "The relevant first-principles for this problem.")
 
-
 ;; Removable 
 (defparameter *nsh-nodes* () "The nodes that can be hinted.")
 
@@ -542,7 +540,8 @@
   (setq *nsh-nodes* 
     (remove-if-not 
      #'bgnode-entries
-     (append (remove-if #'qnode-parameterp (bubblegraph-qnodes (problem-Graph *cp*)))
+     (append (remove-if #'qnode-parameterp 
+			(bubblegraph-qnodes (problem-Graph *cp*)))
 	     (bubblegraph-enodes (problem-graph *cp*))))))
 
 
@@ -554,9 +553,11 @@
 (defun nsh-reset-no-quant ()
   "Setup NSH for no-quant use."
   (setq *nsh-problem-type* 'no-quant)
-  ; if problem has several qualitative goals, graph will list their nodes in reverse order, 
-  ; so must reverse order of nodes to parallel order of problem soughts.
-  (setq *nsh-solution-sets*  (list (reverse (remove-if #'nsh-given-principle-p *nsh-Nodes*))))
+  ;; if problem has several qualitative goals, graph will list their nodes 
+  ;; in reverse order, so must reverse order of nodes to parallel order of 
+  ;; problem soughts.
+  (setq *nsh-solution-sets*  
+	(list (reverse (remove-if #'nsh-given-principle-p *nsh-Nodes*))))
   (setq *nsh-givens* (remove-if-not #'nsh-given-principle-p *nsh-Nodes*)))
 
 
@@ -620,11 +621,12 @@
 				    :CInterp (list sysent)))))
 
 (defun answer-only-entry-p (sysent)
-"true if this is an answer entry for a final-answer-only problem" 
-  ;; In theory should check that this given equation is for a problem sought. But some of 
-  ;; the graph-reading problems currently have given mags and sought components, so
-  ;; include trivial projections to get from givens to soughts. Until that is corrected, 
-  ;; just assume any given equation is one that should be hinted for a problem answer
+  "true if this is an answer entry for a final-answer-only problem" 
+  ;; In theory, we should check that this given equation is for a problem 
+  ;; sought.  But some of the graph-reading problems currently have given 
+  ;; mags and sought components, so include trivial projections to get 
+  ;; from givens to soughts.  Until that is corrected, just assume any 
+  ;; given equation is one that should be hinted for a problem answer
   ;; TODO: should allow multiple-choice answer entries also
   (and (eq (first (systemEntry-prop sysent)) 'EQN)
        (given-eqn-entry-p sysent)))
@@ -639,7 +641,7 @@
 ;;; later in list.  More sophisticated sort to be added later.
 (defun earlier-given (quant1 quant2)
   "true if given quant1 should be entered before given quant2"
-  (let* ((t1 (time-of quant1))		; time-of, tearlierp in KB/PhysicsFuncs.cl
+  (let* ((t1 (time-of quant1))	    ; time-of, tearlierp in KB/PhysicsFuncs.cl
          (t2 (time-of quant2)))
      (and t1 t2 (tearlierp t1 t2))))
 
@@ -876,60 +878,36 @@
 	     Entries)))
 
 
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-;;;; ============================ Main Code ====================================
+;;;; ============================ Main Code ===================================
 ;;;; The basic algorithm that we wish to instill in the students for solving 
 ;;;; problems is the following:
-;;;; 1. Write down all the bodies necessary for a solution.  This is, in essence
-;;;;    A single body for each block, or a compound body.  I.E. 
-
+;;;; 0. Write down all the bodies necessary for a solution.  This is, 
+;;;;    in essence, a single body for each block, or a compound body.  I.E. 
 ;;;;    One single body for each individual 
-;;;; 1. Write down all of the relevant givens including defining whatever variables
-;;;;    and/or vectors are necessary, and assignment statements for their values.
+;;;; 1. Write down all of the relevant givens including defining whatever 
+;;;;    variables and/or vectors are necessary, and assignment statements 
+;;;;    for their values.
 ;;;; 2. Read the problem statement and identify the sought quantity as well as
 ;;;;    the first major principle that you will use to find it.  In many ways 
-;;;;    this is the classifciation step of the problem.  Note this major principle
-;;;;    need not contain the sought quantity directly, but you must be able to use
-;;;;    it to find said quantity.  Knowing which principle will be appropriate is
-;;;;    a big deal to the physicists and this is a primary skill that they want us
-;;;;    to teach, as is knowing the difference between major and minor principles.
-;;;; 3. Complete the rest of the major principles necessary to solve the problem.
-;;;; 4. Complete all of the minor "linking" principles such as the weight law that
-;;;;    are necessary to solve the problem.  
+;;;;    this is the classifciation step of the problem.  Note this major 
+;;;;    principle need not contain the sought quantity directly, but you must 
+;;;;    be able to use it to find said quantity.  Knowing which principle 
+;;;;    will be appropriate is a big deal to the physicists and this is a 
+;;;;    primary skill that they want us to teach.
+;;;; 3. Complete the rest of the major principles necessary to solve 
+;;;;    the problem.
+;;;; 4. Complete all of the minor "linking" principles such as the weight law 
+;;;;    that are necessary to solve the problem.  
 ;;;; 5. Enter the answer in the box.
 ;;;;
-;;;; Fundamentally we view step 2 as the deciding step.  Apart from this, the student
-;;;; is given no obvious choice as to what entry they should make, nor are they able
-;;;; to really change their road except by deleting entries.  Selecting the major
-;;;; principle that they will begin with consititues choosing (to us) the solution 
-;;;; that they will use.  Once they have selected this principle (and completed it)
-;;;; we will want them to stay on that road until they are on and continue to prompt
-;;;; from it until they delete that first entry.  
+;;;; Fundamentally we view step 2 as the deciding step.  Apart from this, 
+;;;; the student is given no obvious choice as to what entry they should make, 
+;;;; nor are they able to really change their road except by deleting entries.
+;;;; Selecting the major principle that they will begin with consititues 
+;;;; choosing (to us) the solution that they will use.  Once they have 
+;;;; selected this principle (and completed it) we will want them to stay 
+;;;; on that road until they are on and continue to prompt from it until 
+;;;; they delete that first entry.  
 ;;;;
 ;;;; When the student calls NSH they can be in one of the following states:
 ;;;; 1. They have done no work whatsoever
@@ -1175,7 +1153,7 @@
       (caar *nsh-bodysets*)))
 
 
-;;;; =================== Prompt Axis ===========================================
+;;;; =================== Prompt Axis ==========================================
 ;;;; On most problems we want the students to begin by drawing an axis to ground 
 ;;;; themselves.  The code in this section tests to see if they have defined an 
 ;;;; axis already.  If not then it prompts them to draw one and move on.  If 
@@ -2134,7 +2112,7 @@
 ;;; The definition proceeds for n until some major principle or definition
 ;;; is reached.  If none is found then the system will throw an error.
 ;;;
-;;; This function makes use of caching.  Gien a sought it attempts to 
+;;; This function makes use of caching.  Given a sought it attempts to 
 ;;; determine if the appropriate first-principles for that sought have
 ;;; been found and cached in the *nsh-first-principles* parameter.  If 
 ;;; it has then the value will be returned.  If not then the code will
@@ -2160,7 +2138,7 @@
       (push (cons Sought Principles) *nsh-first-principles*)
       Principles)
      
-     (t (error "No Compatibe first-principles found by NSH.")))))
+     (t (error "No compatible first-principles found by NSH.")))))
 
 ;;; Collecting first-principles recursively is a matter of selecting all of the 
 ;;; principles that are n steps away from the sought.  Once those are collected 
@@ -3235,7 +3213,7 @@
 ;;; Has the student begun working on the node at 
 ;;; all or is it completely empty.  
 (defun nsh-node-started-p (Node)
-  "Has the student begiun working on the principle or not?"
+  "Has the student begun working on the principle or not?"
   (and (bgnode-entries Node)
        (member-if #'SystemEntry-entered (bgnode-entries Node))))
 

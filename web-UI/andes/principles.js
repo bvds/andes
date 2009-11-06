@@ -33,7 +33,7 @@ andes.principles={
 // This should be loaded after everything else, in the background
 dojo.addOnLoad(function() {
   var principlesStore = new dojo.data.ItemFileReadStore({
-    url: "/review/principles.json",
+    url: "/review/principles.json"
   });
 
   var majorPrinciplesModel = new dijit.tree.ForestStoreModel({
@@ -48,7 +48,7 @@ dojo.addOnLoad(function() {
     rootLabel: "All Principles",
     childrenAttrs: ["items"]
   });
-		 
+
   onClick0 = function(item,node) {
     var psm=principlesStore.getValue(item,"psm");
     // if student clicks on a group, there is no psm.

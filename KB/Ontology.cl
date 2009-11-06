@@ -113,7 +113,10 @@
 	    (nlg ?to-pt) (nlg ?from-pt 'at-time ?time)))
 (def-qexp displacement (displacement ?body :time ?time)
   :units |m|
-  :nlg-english ("the displacement of ~A" (nlg ?body 'at-time ?time)))
+  :new-english ((preferred "the") (or "displacment" "disp")
+		 (and (preferred (property ?body))
+		      (preferred (time ?time)))))
+
 (def-qexp velocity (velocity ?body :time ?time)
   :units |m/s|
   :nlg-english ("the velocity of ~A" (nlg ?body 'at-time ?time)))
@@ -147,7 +150,7 @@
 		     ((or "gravitational" "weight" "grav." "grav") "force")))
     (normal "normal force")
     (tension '((or "tension" "pulling") "force"))
-    (applied '(allowed "applied force")) ;catch-all force
+    (applied '((allowed "applied") "force")) ;catch-all force
     (kinetic-friction '(((preferred "kinetic") (or "friction" "frictional"))
 			"force"))
     (static-friction  '(((preferred "static") (or "friction" "frictional")) 
@@ -358,25 +361,44 @@
   :restrictions positive
   :nlg-english ("the radius of the circular motion of ~A" 
 	    (nlg ?body 'at-time ?time)))
+
+;; Halliday and Resnick talk about work done by a force
+;; "work done by the spring force"
+;; Giancoli
+;; "work done by a constant force ..."
+;; "the work done by gravity ..."
+;; "the work done by each force ..."
+
 (def-qexp work (work ?b ?agent :time ?time)
   :symbol-base |W|     
   :short-name "work"	
   :units |J|
-  :nlg-english ("the work done on ~A by ~A" 
-	    (nlg ?b) (nlg ?agent 'at-time ?time)))
+  :new-english ((preferred "the") "work" (preferred "done")
+		(and (preferred (object ?b))
+		     (preferred (agent ?agent))
+		     (preferred (time ?time)))))
+
+;; Halliday & Resnick
+;; "work done on ... by all forces"
+;; "total work done on ... by all forces that act on it"
+;; Giancoli
+;; "net work done on ..."
 
 (def-qexp net-work (net-work ?body :time ?time)
   :units |J|
-  :new-english (((preferred "the") (allowed (or "total" "net"))
-		 "work done" 
+  :new-english (((preferred "the") (preferred (or "total" "net"))
+		 "work" (preferred "done")
 		 (and (preferred (object ?body))
 		      (allowed (agent "all forces"))
 		      (preferred (time ?time))))))
 
+;; Giancoli
+;; "work done by non-conservative forces ..."
+
 (def-qexp work-nc (work-nc ?body :time ?time)
   :units |J|
   :new-english (((preferred "the") (allowed (or "total" "net"))
-		 "work done" 
+		 "work" (preferred "done") 
 		 (and (preferred (object ?body))
 		      (preferred (agent "non-conservative forces"))
 		      (preferred (time ?time))))))
@@ -455,17 +477,21 @@
   :new-english ((preferred "the") "spring constant" 
 		(preferred (property ?spring))))
 
-(def-qexp height (height ?body :time ?time)
+(def-qexp height (height ?body ?zero-height :time ?time)
   :symbol-base |h|     
   :short-name "height"	
   :units |m|
   :new-english ((preferred "the") "height" 
 		(and (property ?body)
-		     (preferred ("above"
-				 (or ((preferred "the") 
-				     (or "axis" "origin" "zero level"))
-				     "zero")))
+		     ;; Assume there is no user defined variable for zero-height
+		     (allowed ((or "above" "relative to") ?zero-height))
 		     (preferred (time ?time)))))
+
+;; default phrase, in absence of something sensible.
+(def-qexp zero-height zero-height
+  :new-english (or ((preferred "the") 
+		    (or "zero level" "axis" "horizontal axis" "origin"))
+		   "zero"))
 
 (def-qexp moment-of-inertia (moment-of-inertia ?body :axis ?axis :time ?time)
   :symbol-base |I|     
@@ -495,13 +521,17 @@
 	     (moment-name) (nlg ?body) (nlg ?axis 'at-time ?time)))
 
 (def-qexp compound (compound orderless . ?bodies)
-  :nlg-english ("the compound of ~A" (nlg ?bodies 'conjoined-defnp)))
+  :new-english ((allowed "a compound of") 
+		(conjoin (or "and" "&") . ?bodies)))
+
 
 (def-qexp system (system . ?bodies)
-  :nlg-english ("a system of ~A" (nlg ?bodies 'conjoined-defnp)))
+  :new-english ((preferred "a system of") 
+		(conjoin (or "and" "&") . ?bodies)))
 
-(def-qexp during (during ?t0 ?t1) 
-  :nlg-english ("from ~A to ~A" (nlg ?t0 'moment) (nlg ?t1 'moment)))
+(def-qexp during (during ?t0 ?t1)
+  :new-english (or ("from" (time ?t0) (or "to" "until") (time ?t1))
+		   ("between" (time ?t0) (or "and" "&") (time ?t1))))
 
 
 ;; Note when nlg'ing other time arguments in format strings: 
@@ -1062,7 +1092,7 @@
   :nlg-english ("mass of a compound body is sum of masses of parts")
   :expformat ((strcat "using the fact that the mass of ~a "
 		      "is the sum of the masses of its parts") 
-	      (nlg ?compound))
+	      (nlg `(compound orderless . ,?compound)))
   :EqnFormat ("M = m1 + m2 + ..."))
 
 (def-psmclass kine-compound (kine-compound ?vec-type ?bi ?compound ?time) ; part, whole same kinematics
@@ -1079,7 +1109,8 @@
   :nlg-english ("external force on a compound")
   :expformat ((strcat "applying the fact that there is an external force "
 		      "on ~a due to ~a ~a of type ~a")
-	      (nlg ?compound) (nlg ?agent 'agent) (nlg ?time 'pp) (nlg ?type))
+	      (nlg `(compound orderless . ,?compound)) 
+	      (nlg ?agent 'agent) (nlg ?time 'pp) (nlg ?type))
   :EqnFormat ("F_on_part = F_on_compound"))
 
 
@@ -1142,7 +1173,7 @@
 	      (nlg ?body) (nlg ?t1 'time) (nlg ?t2 'time))
   :EqnFormat("Wnc = ME2 - ME1"))
 
-(def-psmclass height-dy (height-dy ?body ?time)
+(def-psmclass height-dy (height-dy ?body ?zero-height ?time)
   :complexity connect
   :short-name "change in height"
   :nlg-english ("the height change-displacement relationship")
@@ -1197,7 +1228,7 @@
   :complexity definition
   :EqnFormat ("KE = 0.5 I &omega;<sup>2</sup>"))
 
-(def-psmclass grav-energy (grav-energy ?body ?planet ?time)
+(def-psmclass grav-energy (grav-energy ?body ?planet ?zero-height ?time)
   :short-name "gravitational potential energy"
    :nlg-english ("gravitational potential energy")
    :complexity definition

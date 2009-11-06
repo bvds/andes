@@ -27,13 +27,12 @@
 ;;                 (eval <lisp>)  execute <lisp> as lisp code
 ;;                 (preferred <model>) optional, but hinted for
 ;;                 (allowed <model>)  optional, but not hinted for
+;;                 (conjoin <conjunction> <model> ...)  conjoin orderless
+;;                               sequence (<model> ...) using <conjunction>, 
+;;                               where <conjunction> is of type <model>.
 ;;                 (<atom> ...)  if <atom> matches none of above, 
 ;;                               match with ontology
 ;;                 <string>      leaf nodes, after resolution, are strings
-;; Not sure if we need the following
-;; and unsure of proper name, maybe merge with (and ...) above
-;;    (nl-and <model> ...) orderless list, expressed with "and"
-;;    (nl-or <model> ...) orderless list, expressed with "or"
 ;;
 ;; Parse of student sentence is (<string> ...)
 ;; Could also have more complicated structure:
@@ -78,7 +77,22 @@
     ((eql (car model) 'and)
      (when (cdr model) (word-string (cdr model))))
     ((eql (car model) 'or)
-     (when (second model) (word-string (second model))))
+     (pop model) ;remove 'or
+     ;; Find first non-null element
+     (loop while model thereis (word-string (pop model))))
+    ((eql (car model) 'conjoin)
+     (pop model)
+     (let ((conjunction (word-string (car model)))
+	   (items (remove nil (mapcar #'word-string (cdr model)))))
+       (cond 
+	 ((null conjunction)
+	  (warn "conjoin must have conjunction ~A" model)
+	  (join-words items))
+	 ((cdr items) 
+	  ;; doesn't add commas, as it should, when (cdr (butlast items))
+	  (join-words (append (butlast items) 
+			      (list conjunction) (last items))))
+	 (t (car items)))))
     ((eql (car model) 'allowed) nil)
     ((eql (car model) 'preferred) (word-string (cdr model)))
     (t (warn "word-string can't do ~A" model))))
@@ -102,6 +116,13 @@
 		  (mapcar #'(lambda (x) (word-count x :max max)) 
 			  (cdr model)))
 	 0))
+    ((eql (car model) 'conjoin)
+     (cond ((cdddr model)
+	    ;; remove the 'conjoin, keep the conjunction
+	    (word-count (cdr model) :max max))
+	   ((cddr model)
+	    (word-count (third model) :max max)) ;drop 'conjoin conjunction
+	   (t 0))) ;empty conjunction.
     ((member (car model) '(allowed preferred)) 
      (if max (word-count (cdr model) :max max) 0))
     (t (warn "word-count found unexpected form ~A" model) (if max 10000 0))))
@@ -140,6 +161,8 @@
        (+ best (- (word-count student) 1))))
      ;; model optional
     ((member (car model) '(preferred allowed))
+     (when (cddr model)
+       (warn "Model grammar:  ~A can only have one argument" model))
      (update-bound best (word-count student)) ;don't match model
      (update-bound best (match-model student (second model) :best best))
      best)
@@ -165,6 +188,15 @@
 	best)
        (model (match-model student (car model) :best best))
        (t (word-count student)))) ;empty "or"
+    ((eql (car model) 'conjoin)
+     (pop model)
+     (cond 
+       ((cddr model) ;two or more items to conjoin
+	(match-model-conjoin student model :best best))
+       ;; conjunction of one argument
+       ((cdr model) (match-model student (second model) :best best))
+       (model (word-count student)) ;empty conjunction
+       (t (error "conjoin must always have a conjunction"))))
     (t (error "Bad tree ~A" model))))
 
 (defun match-model-list (student model &key best)
@@ -358,6 +390,35 @@
       (apply #'+ (mapcar #'(lambda (x) (- (second x) (first x))) 
 			 student-intervals))))
 
+(defun match-model-conjoin (student model &key best)
+  (declare (notinline match-model)) ;for profiling
+  (let ((conjunction (pop model)))
+    ;; Right now, this does not handle commas at all.
+    (cond 
+      ((cddr model) ; more than two
+       ;; For now, just use dumb recursion because we don't have
+       ;; any long lists, but this is very expensive, computationally.
+       (when (> (length model) 3)
+	 (warn "using inefficient method for conjoin in match-model for ~A"
+	       model))
+       (dolist (item model)
+	 (update-bound 
+	  best 
+	  (match-model student `(,item (conjoin ,conjunction 
+					,@(remove item model)))
+		       :best best))))
+      ((cdr model) ;two arguments
+       ;; Try the two possible orders
+       (update-bound 
+	best 
+	(match-model student (list (first model) conjunction (second model))
+		     :best best))
+       (update-bound 
+	best 
+	(match-model student (list (second model) conjunction (first model))
+		     :best best)))
+      (t (error "match-model-conjoin should never reach here"))))
+  best)
 
 
 (defun matches-model-syntax (form)
@@ -368,7 +429,8 @@
       (stringp form)
       (and (consp form) 
 	   (or (listp (car form)) (stringp (car form)) ;list
-	       (member (car form) '(and or preferred allowed var eval))))))
+	       (member (car form) 
+		       '(and or preferred allowed var eval conjoin))))))
 
 
 (defun best-model-matches (student models &key (cutoff 0.5) (equiv 1.25) 
@@ -390,6 +452,7 @@
     (dolist (x models)
       (setf bound (max epsilon (* best equiv)))
       (setf this (match-model student (car x) :best bound))
+      ;; (format webserver:*stdout* "      Got ~A for match to ~A~%" this (car x))
       (when (< this bound) (push (cons this (cdr x)) quants))
       (when (< this best) (setf best this)))
     ;; remove any quantities that are not equivalent with best fit. 
