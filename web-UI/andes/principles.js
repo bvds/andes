@@ -55,7 +55,9 @@ dojo.addOnLoad(function() {
     if(psm){
       andes.help.echo(principlesStore.getValue(item,"label"));
       andes.help.principles(psm);
+      // This is a bit ugly, but close both possible windows:
       dijit.byId("allPrinciples").hide();
+      dijit.byId("majorPrinciples").hide();
     }
   };
 
