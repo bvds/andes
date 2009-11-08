@@ -109,21 +109,33 @@
 
 (def-qexp relative-position (relative-position ?to-pt ?from-pt :time ?time)
   :units |m|
-  :nlg-english ("the relative position of ~A with respect to ~A" 
-	    (nlg ?to-pt) (nlg ?from-pt 'at-time ?time)))
+  ;; see relative-vel
+  :new-english ((preferred "the") 
+		(or ("position" (property ?to-pt) "relative to" ?from-pt)
+		    ((allowed "relative") "position" (property ?to-pt)
+		     "with respect to" ?from-pt))
+		(preferred (time ?time))))
+
 (def-qexp displacement (displacement ?body :time ?time)
   :units |m|
-  :new-english ((preferred "the") (or "displacment" "disp")
+  :new-english ((preferred "the") (or "displacment" "disp." "disp")
 		 (and (preferred (property ?body))
 		      (preferred (time ?time)))))
 
 (def-qexp velocity (velocity ?body :time ?time)
   :units |m/s|
-  :nlg-english ("the velocity of ~A" (nlg ?body 'at-time ?time)))
+  :new-english ((preferred "the") (or "velocity" "vel." "vel")
+		 (and (preferred (property ?body))
+		      (preferred (time ?time)))))
+
 (def-qexp relative-vel (relative-vel ?to-pt ?from-pt :time ?time)
   :units |m/s|
-  :nlg-english ("the relative velocity of ~A with respect to ~A" 
-	    (nlg ?to-pt) (nlg ?from-pt 'at-time ?time)))
+  ;; see relative-position
+  :new-english ((preferred "the") 
+		(or ((or "velocity" "vel." "vel") (property ?to-pt) "relative to" ?from-pt)
+		    ((allowed "relative") (or "velocity" "vel." "vel") (property ?to-pt)
+		     "with respect to" ?from-pt))
+		(preferred (time ?time))))
 
 (def-qexp accel	(accel ?body :time ?time)
   :units |m/s^2|
@@ -133,7 +145,9 @@
 
 (def-qexp momentum (momentum ?body :time ?time)
   :units |kg.m/s|
-  :nlg-english ("the momentum of ~A" (nlg ?body 'at-time ?time)))
+  :new-english ((preferred "the") (or "momentum" "mom." "mom")
+		 (and (preferred (property ?body))
+		      (preferred (time ?time)))))
 
 (def-qexp force (force ?body ?agent ?type :time ?time)
   :units N
@@ -170,41 +184,68 @@
 		"force" (and (preferred (object ?body))
 			     (preferred (time ?time)))))
 
+(def-qexp rotation-adj rotation-adj
+  :new-english (or "angular" "rotational" "rot." "ang." "rot" "ang") )
+
 (def-qexp ang-displacement (ang-displacement ?body :time ?time)
   :units |rad|
-  :nlg-english ("the angular displacement of ~A" (nlg ?body 'at-time ?time)))
+  :new-english ((preferred "the") rotation-adj	(or "displacment" "disp." "disp")
+		 (and (preferred (property ?body))
+		      (preferred (time ?time)))))
+
 (def-qexp ang-velocity (ang-velocity ?body :time ?time)
   :units |rad/s|
-  :nlg-english ("the angular velocity of ~A" (nlg ?body 'at-time ?time)))
+  :new-english ((preferred "the") rotation-adj (or "velocity" "vel." "vel")
+		 (and (preferred (property ?body))
+		      (preferred (time ?time)))))
+
 (def-qexp ang-accel (ang-accel ?body :time ?time)
   :units |rad/s^2|
-  :nlg-english ("the angular acceleration of ~A" (nlg ?body 'at-time ?time)))
+  :new-english ((preferred "the") rotation-adj (or "acceleration" "accel." "accel")
+		(and (preferred (property ?body))
+		     (preferred (time ?time)))))
+
 (def-qexp ang-momentum (ang-momentum ?body :time ?time)
   :units |kg.m^2/s|
-  :nlg-english ("the angular momentum of ~A" (nlg ?body 'at-time ?time)))
+  :new-english ((preferred "the") rotation-adj (or "momentum" "mom." "mom")
+		 (and (preferred (property ?body))
+		      (preferred (time ?time)))))
+
 (def-qexp torque (torque ?body ?agent :axis ?axis :time ?time)
   :units |N.m|
-  :nlg-english ("the ~A on ~A~@[ about ~A~] due to ~A" 
-	       (moment-name) (nlg ?body) (nlg ?axis)
-	       (nlg ?agent 'at-time ?time)))
+  :new-english ((preferred "the") (eval (moment-name)) 
+		(and (preferred (object ?body))
+		     (preferred (agent ?agent))
+		     (preferred (eval (when ?axis `("about" ,?axis))))
+		     (preferred (time ?time)))))
+
 (def-qexp net-torque (net-torque ?body ?axis :time ?time)
   :units |N.m|
-  :nlg-english ("the net ~A on ~A about ~A" 
-	       (moment-name) (nlg ?body) (nlg ?axis 'at-time ?time)))
+  :new-english ((preferred "the") (or "net" "total") (eval (moment-name)) 
+		(and (preferred (object ?body))
+		     (preferred (eval (when ?axis `("about" ,?axis))))
+		     (preferred (time ?time)))))
+
 (def-qexp couple (couple orderless . ?bodies)
-  :nlg-english ("the couple between ~A"
-	       (nlg ?bodies 'conjoined-defnp)))
+  :new-english ((preferred "the") "couple between" 
+		(conjoin (or "and" "&") . ?bodies)))
+
 ;; attributes of vectors:
 (def-qexp compo	(compo ?xyz ?rot ?vector)
   :units ?vector
-  :nlg-english ("the ~A component of ~A" (nlg ?xyz 'adj) (nlg ?vector)))
+  :new-english ((preferred "the") (eval (nlg ?xyz 'adj)) (or "component" "compo." "compo")
+		(property ?vector)))
+
 (def-qexp mag (mag ?vector)
   :units ?vector
   :restrictions nonnegative
-  :nlg-english ("the magnitude of ~A" (nlg ?vector)))
-(def-qexp dir	(dir ?vector)
+  :new-english ((preferred "the") (or "magnitude" "length" "mag." "mag")
+		(property ?vector)))
+
+(def-qexp dir (dir ?vector)
   :units |deg|
-  :nlg-english ("the direction of ~A" (nlg ?vector)))
+  :new-english ((preferred "the") (or "direction" "dir." "dir")
+		(property ?vector)))
 
 ;; this is only used by implicit-eqns, so it should never be visible
 ;; to the user
@@ -215,23 +256,28 @@
 ;; Special axis terms entered into the symbol table. These are not
 ;; used as quantities, but may need to be Englished.
 (def-qexp axis (axis ?xyz ?angle)
-   :nlg-english ("the axis at ~A degrees" ?angle))
+  :new-english ((preferred "the") (eval (nlg ?xyz 'adj)) "axis"
+		(preferred (eval (unless (= ?angle 0) (format nil "at ~A degrees" ?angle))))))
 
 ;;;;         General phrases
 
 (def-qexp property (property ?body)
   :new-english ("of" (or (var (body ?body)) ?body)))
 
-(def-qexp time (time ?time)
-  :new-english (eval (pp ?time)))
-
 (def-qexp object (object ?body)
-  :new-english ((or "acting on" "on") 
+  :new-english ((or "on" "acting on") 
 		(or (var (body ?body)) ?body)))
 
 (def-qexp agent (agent ?body)
   :new-english ((or "due to" "by" "from" "caused by") 
 		(or (var (body ?body)) ?body)))
+
+(def-qexp time (time ?time)
+  :new-english (eval (pp ?time)))
+
+(def-qexp during (during ?t0 ?t1)
+  :new-english (or ("between" (eval (moment ?t0)) (or "and" "&") (eval (moment ?t1)))
+		   ("from" (eval (moment ?t0)) (or "to" "until") (eval (moment ?t1)))))
 
 ;;;; scalar quantities
 
@@ -252,6 +298,7 @@
   :restrictions nonnegative
   :nlg-english ("the magnitude of the change of mass of ~A per unit time due to ~A~@[ ~A~]" 
 	       (nlg ?body) (nlg ?agent 'agent) (nlg ?t 'pp)))
+
 (def-qexp mass-per-length (mass-per-length ?rope)
   :symbol-base |$l|     
   :short-name "mass per length"	
@@ -266,18 +313,24 @@
   :units |m|
   :nlg-english ("the distance traveled by ~A" (nlg ?body 'at-time ?time)))
 
-(def-qexp duration (duration (during ?t1 ?t2))
+(def-qexp duration (duration ?time)
   :symbol-base |t|     
   :short-name "duration of time"	
   :units |s|
   :restrictions positive
-  :nlg-english ("the duration of time between ~A and ~A" 
-            (nlg ?t1 'moment) (nlg ?t2 'moment)))
+  :new-english ((preferred "the") 
+		(preferred "duration of") "time" "between" 
+		(time ?time)))
+;; (or "and" "&") (time ?t2)))
+
 (def-qexp speed (speed ?body :time ?time)
   :symbol-base |v|     
   :short-name "speed"	
   :units |m/s|
-  :nlg-english ("the speed of ~A" (nlg ?body 'at-time ?time)))
+  :new-english ((preferred "the") 
+		(or ("speed" (property ?body) (time ?time))
+		    ;; allow velocity language
+		    (mag (veclocity ?body :time ?time)))))
 
 (def-qexp coef-friction (coef-friction ?body1 ?body2 ?static-or-kinetic :time ?time)
   :symbol-base |$m|     
@@ -354,6 +407,7 @@
 
 (def-qexp num-forces (num-forces ?body :time ?time)
   :nlg-english ("the number of forces on ~A" (nlg ?body 'at-time ?time)))
+
 (def-qexp revolution-radius (revolution-radius ?body :time ?time)
   :symbol-base |r|     
   :short-name "radius of circular motion"	
@@ -500,22 +554,26 @@
   :restrictions positive
   :nlg-english ("the moment of inertia of ~A about ~A" 
 	    (nlg ?body) (nlg ?axis 'at-time ?time)))
+
 ;; for dimensions of certain rigid bodies:
 (def-qexp length (length ?body)
   :symbol-base ||     
   :short-name "length"	
   :units |m|
   :nlg-english ("the length of ~A" (nlg ?body)))
+
 (def-qexp length-change (rate-of-change (length ?body))
   :symbol-base ||     
   :short-name "rate of change in length"	
   :units |m/s|
   :nlg-english ("the rate of change of the length of ~A" (nlg ?body)))
+
 (def-qexp width  (width ?body)
   :symbol-base ||     
   :short-name "width"	  
   :units |m|
   :nlg-english ("the width of ~A" (nlg ?body)))
+
 (def-qexp num-torques (num-torques ?body ?axis :time ?time)
   :nlg-english ("the number of ~As on ~A about ~A" 
 	     (moment-name) (nlg ?body) (nlg ?axis 'at-time ?time)))
@@ -528,10 +586,6 @@
 (def-qexp system (system . ?bodies)
   :new-english ((preferred "a system of") 
 		(conjoin (or "and" "&") . ?bodies)))
-
-(def-qexp during (during ?t0 ?t1)
-  :new-english (or ("from" (time ?t0) (or "to" "until") (time ?t1))
-		   ("between" (time ?t0) (or "and" "&") (time ?t1))))
 
 
 ;; Note when nlg'ing other time arguments in format strings: 
