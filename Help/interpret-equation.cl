@@ -407,11 +407,8 @@
  (let* ((interp (studententry-cinterp se))
         (missing (get-needed-eqn-names interp)))
   (cond 
-    ; For now, don't test premature substitution
-    ; ((is-premature-substitution-p interp)
-    ;    (chain-explain-more-green **Premature-Subst-help**))
-    ; if missing exactly one and its a compo equation, mention component form in case that is their problem.
-    ; !!! actually could give this message whenever *all* missing are compo-eqns
+    ;; if missing exactly one and its a compo equation, mention component form in case that is their problem.
+    ;; !!! actually could give this message whenever *all* missing are compo-eqns
     ((and (null (cdr missing)) 
           (is-premature-before-compo-eqn-p interp)) 
        (chain-explain-more-green (list 
@@ -468,7 +465,7 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun chain-explain-more (messages)
   (if messages

@@ -1232,11 +1232,10 @@
        (setf result (make-green-turn :id (StudentEntry-id entry))))
       
       ;; give special messages for some varieties of incorrectness:
-      (Forbidden (setf result (chain-explain-more **Forbidden-Help**)))
-      (Premature-Entry 
-       (setf result (chain-explain-more **Premature-Entry-Help**)))
-      (Dead-Path (setf result (chain-explain-more **Dead-Path-Help**)))
-      (Nogood' (setf result (chain-explain-more **Nogood-Help**)))
+      (Forbidden (setf result (make-hint-seq **Forbidden-Help** )))
+      (Premature-Entry (setf result (make-hint-seq **Premature-Entry-Help**)))
+      (Dead-Path (setf result (make-hint-seq **Dead-Path-Help**)))
+      (Nogood (setf result (make-hint-seq **Nogood-Help**)))
       (otherwise (warn "Unrecognized interp state! ~A~%" 
 		       (StudentEntry-state entry))
 		 (setf result (make-red-turn :id (StudentEntry-id entry)))))

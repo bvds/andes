@@ -229,21 +229,12 @@
 
 ;;;; ==================== Runtime Parameters =========================
 
+;; See Bug #1612 for a discussion of what to do for this hint.
 (defparameter *dyi*
     (strcat "If you click on 'explain more', I'll tell you a correct "
 	    "entry to make.  However, you'd learn more if you figure "
-	    "it out yourself, perhaps with the aid of the light bulb "
-	    "button's hints.")
+	    "it out yourself.")
   "This is a canned hint that essentially says, 'do it yourself'")
-
-#|(defparameter *EXM-NSH-End*
-  '(eval '(make-hint-seq
-  (list (strcat "If you are unsure of what entry to make you may click on "
-  "\'Explain-More\' or click on the light-bulb hint for guidance.")
-  '(function next-step-help))))
-  "This is a canned Hint Seq that returns a mention of lightbulb help then calls it.")
-  |#
-
 
 ;;;; ============== Defining variables =============================
 ;;;; This section covers non-equation entries under the variables menu
@@ -267,8 +258,6 @@
 			     "~a variable, none are needed for "
 			     "any solution I know of this problem.")
 		 (nlg type 'adj))
-	 (strcat "Click on the light bulb button or 'explain further' "
-		 "for suggestions on how to solve this problem.")
 	 '(function next-step-help))))
 
 (def-error-class should-be-net-variable (?type)
@@ -288,8 +277,6 @@
 			     "variable to represent the " 
 			     "net ~a resulting from all sources.")
 		 (nlg type 'adj) (nlg type 'adj))
-	 (strcat "Click on the light bulb button or 'explain further' "
-		 "for suggestions on how to solve this problem.")
 	 '(function next-step-help))))
 
 ;;; If the student defines a variable but not for a relevant time,
@@ -312,9 +299,7 @@
   (make-hint-seq
    (list (format nil "Are you sure you want the variable defined ~a?" stime)
 	 (format nil (strcat "Although you need a variable for ~a, no "
-			     "solution I know of needs it ~a.  Clicking "
-			     "on the light bulb button will may help you "
-			     "figure out an overall solution plan.")
+			     "solution I know of needs it ~a.")
 		 descr stime)
 	 *dyi*
 	 (format nil "Define a variable for ~a ~a instead of ~a."
@@ -356,9 +341,7 @@
 			     "with defining a variable for the mass of "
 			     "~a, that variable does not participate in "
 			     "any solution that I know of to this problem."
-			     "  Perhaps you should plan a solution to the "
-			     "problem by clicking on the light bulb button "
-			     "or 'explain further'.") wrong-body)
+			     ) wrong-body)
 	 '(function next-step-help))))
 
 
@@ -387,10 +370,7 @@
 			     "traveled by ~a?") 
 		 (nlg wrong-body 'def-np))
 	 (format nil (strcat "For solving this problem, you need to define "
-			     "the distance traveled by ~a ~a.  If it is not "
-			     "clear why this helps solve the problem, try "
-			     "clicking on the light bulb button or "
-			     "'explain further'.")
+			     "the distance traveled by ~a ~a.")
 		 (nlg correct-body 'def-np) (nlg correct-time 'pp))
 	 '(function next-step-help))))
 
@@ -415,10 +395,7 @@
 			     "different princple?") body)
 	 (strcat "How about using displacement instead of distance?  Do you "
 		 "know any principles that involve displacement?")
-	 (format nil (strcat "You should draw the displacement of ~a ~a.  "
-			     "You can click on the light bulb button or "
-			     "'explain further' for suggestions about how "
-			     "to solve the problem using it.") 
+	 (format nil (strcat "You should draw the displacement of ~a ~a.") 
 		 body correct-time)
 	 '(function next-step-help))))
 
@@ -446,8 +423,6 @@
   (make-hint-seq
    (list (format nil "You'll need a speed variable, but maybe not for ~a." 
 		 sbody)
-	 (strcat "If you are not sure what body to use for your "
-		 "speed variable, click on the light bulb button.")
 	 *dyi*
 	 (format nil "Define the speed variable for ~a instead of ~a."
 		 (nlg cbody 'def-np) sbody))))
@@ -507,8 +482,6 @@
    (list (format nil (strcat "Although you do need to define a duration "
 			     "variable, no solution I know needs a variable "
 			     "for the duration ~a.") (nlg st 'pp))
-	 (strcat "You can get help formulating a solution plan by clicking "
-		 "on the light bulb button.")
 	 *dyi*
 	 (format nil "Define a variable for the duration ~a"
 		 (nlg ct 'pp)))))
@@ -524,8 +497,6 @@
 (defun non-existent-duration ()
   (make-hint-seq
    (list "No solution I know of requires a duration variable."
-	 (strcat "If you are uncertain why, click on the light "
-		 "bulb button or 'explain further' for hints.")
 	 '(function next-step-help))))
 
 
@@ -590,10 +561,7 @@
   (make-hint-seq
    (list (format nil "Are you sure it's ~a that you want ~a of?"
 		 (nlg sbody 'def-np) energy-type)
-	 (strcat "No solution I know needs that energy.  "
-		 "Perhaps you should click on the light bulb "
-		 "button to get suggestions for an overall "
-		 "solution plan.")
+	 (strcat "No solution I know needs that energy.")
 	 *dyi*
 	 (format nil "Define ~a for ~a instead of ~a."
 		 energy-type (nlg cbody 'def-np) (nlg sbody 'def-np)))))
@@ -631,9 +599,8 @@
   (make-hint-seq
    (list (format nil "Are you sure ~a is the primary body for which to consider ~a in this problem?"
 		 (nlg sbody 'def-np) (nlg energy-type 'adj))
-	 (strcat (format nil "Andes uses the convention that the body argument in the potential energy definition should be the primary body whose motion you are considering. No solution I know chooses ~a as the primary body.  " (nlg sbody 'def-np))
-		 "Perhaps you should click on the light bulb button to get "
-		 "suggestions for an overall solution plan.")
+	 (format nil "Andes uses the convention that the body argument in the potential energy definition should be the primary body whose motion you are considering. No solution I know chooses ~a as the primary body.  " 
+			 (nlg sbody 'def-np))
 	 *dyi*
 	 (format nil "You could define ~a using ~a instead of ~a in the body slot."
 		 energy-type (nlg cbody 'def-np) (nlg sbody 'def-np)))))
@@ -706,7 +673,6 @@
 (defun non-existent-spring-constant ()
   (make-hint-seq
    '("No solution I know of requires using a spring constant."
-     "Click on the light bulb button or 'explain further' for hints."
      (function next-step-help))))
 
 
@@ -796,8 +762,6 @@
   (make-hint-seq
    (list (format nil "Are you sure you need the moment of inertia of ~a?"
 		 (nlg sbody 'def-np))
-	 (strcat "You can click on the light bulb button to "
-		 "get suggestions for how to solve this problem.")
 	 *dyi*
 	 (format nil "Define the moment-of-inertia for ~a instead of ~a."
 		 (nlg cbody 'def-np) (nlg sbody 'def-np)))))
@@ -948,8 +912,6 @@
 			     "variables are useful in solving the problem.  "
 			     "Are you sure you need ~a to have a work "
 			     "variable defined for it?") (nlg sbody 'def-np))
-	 (strcat "If you're not sure which object to define a work variable "
-		 "for, click on the light bulb button for hints.")
 	 *dyi*
 	 (format nil "Try defining the work on ~a done by ~a."
 		 (nlg cbody 'def-np) (nlg cagent 'def-np)))))
@@ -990,8 +952,6 @@
 		 "work done by all the forces) on any body.  However, "
 		 "when solving the problem, the net work of only some "
 		 "bodies is useful.")
-	 (strcat "If you are not sure which body to define net work for, "
-		 "click on the light bulb button.")
 	 *dyi*
 	 (format nil "Try defining the net work done on ~a instead of on ~a."
 		 (nlg cbody 'def-np) (nlg sbody 'def-np)))))
@@ -1014,9 +974,6 @@
                   "cannot use a value for object distance in your equations.  "
 		  "In this case you can write the equation in a simpler form "
 		  "by dropping the 1/do term, which is zero.")
-	  (strcat "Click on the light bulb button or 'explain further' "
-		 "for suggestions on how to solve this problem without"
-		 "using an object distance variable.")
 	 '(function next-step-help))))
 
 (def-error-class image-distance-infinite (?lens)
@@ -1032,9 +989,6 @@
                   "and you cannot use a value for image distance in your equations. "
 		  "In this case you can write the equation in a simpler form "
 		  "by dropping the 1/di term, which is zero.")
-	  (strcat "Click on the light bulb button or 'explain further' "
-		 "for suggestions on how to solve this problem without"
-		 "using an image distance variable.")
 	 '(function next-step-help))))
 
 ;;; ============= drawing a body ==================================
@@ -1069,8 +1023,7 @@
   (make-hint-seq
    (list (strcat "There are several useful choices of body, and it's not "
 		 "clear which one you intended, because that depends on your "
-		 "overall strategy for solving the problem.  Click on "
-		 "'explain further' or the light bulb for strategy advice.")
+		 "overall strategy for solving the problem.")
 	 '(function next-step-help))))
 
 
@@ -1095,8 +1048,7 @@
   (make-hint-seq
    (list "It is okay to choose a massless object as the body."
 	 (strcat "Choose a body that fits your strategy even if it doesn't "
-		 "have mass.  Use light bulb help if you need to clarify "
-		 "your strategy.")
+		 "have mass.")
 	 (format nil (strcat "Although ~a has mass, it is not a good choice "
 			     "for the body.  Analyze the motion of ~a "
 			     "instead.") wrong-body correct-body))))
@@ -1142,9 +1094,7 @@
 
 (defun non-existent-body ()
   (make-hint-seq
-   (list (strcat "This problem doesn't require a body to be drawn.  "
-		 "For suggestions about how to solve it, click on the "
-		 "light bulb button or 'explain further'.")
+   (list (strcat "This problem doesn't require a body to be drawn.")
 	 '(function next-step-help))))
 
 
@@ -1187,9 +1137,6 @@
 		 "such as acceleration, then rotate the axes so one axis is "
 		 "parallel to the sought vector. (2) Otherwise, rotate the axes "
 		 "so that as many vectors as possible are parallel to axes.")
-	 (strcat "If you are unsure what the problem is seeking, and thus don't "
-		 "know how to rotate the axes, click on the light bulb button "
-		 "or 'explain further' for suggestions.")
 	 '(function next-step-help))
 |#
 
@@ -1202,9 +1149,7 @@
 (defun non-existent-axes ()
   (make-hint-seq
    (list (strcat "Although it is always okay to draw a coordinate system, "
-		 "none are needed for this problem.  Click on the light bulb "
-		 "button or 'explain further' for suggestions on how to solve "
-		 "the problem without drawing axes.")
+		 "none are needed for this problem.")
 	 '(function next-step-help))))
 
 ;;; Special case: If the student draws unrotated axes when rotated ones are 
@@ -1225,9 +1170,7 @@
 		 "rotate the coordinate axes so that one of them is parallel "
 		 "to the sought vector.  If  you are seeking a scalar quantity, "
 		 "then you should rotate the axes to maximize the number of "
-		 "vectors that are parallel to axes.  If you are not sure what "
-		 "you are seeking, then you should click on the light bulb "
-		 "button.")
+		 "vectors that are parallel to axes.")
 	 (format nil (strcat "You should rotate the axes by ~a degrees.  To "
 			     "do so, double click on the axes and put ~a in "
 			     "the white box") rot rot))))
@@ -1543,9 +1486,7 @@
   (setq correct-time (nlg correct-time 'pp))
   (make-hint-seq
    (list (format nil (strcat "Although ~a certainly exists ~a, you want to "
-			     "analyze its motion ~a. (If it is not clear why "
-			     "you should analyze the body's motion ~a, then "
-			     "click on the light bulb button.)")
+			     "analyze its motion ~a.")
 		 descr wrong-time correct-time correct-time)
 	 (format nil "Define ~a ~a instead of ~a."
 		 descr correct-time wrong-time ))))
@@ -1641,10 +1582,8 @@
 
 (defun default-non-existent-vector (type)
   (make-hint-seq
-   (list (format nil (strcat "None of the solutions that I know include a ~a "
-			     "vector.  Try clicking on the light bulb button "
-			     "or 'explain further' for suggestions about "
-			     "another approach.") (nlg type 'adj))
+   (list (format nil "None of the solutions that I know include a ~a vector." 
+		 (nlg type 'adj))
 	 '(function next-step-help))))
 
 
@@ -1668,8 +1607,6 @@
    (list (format nil (strcat "None of the solutions that I know include an ~a "
 			     "vector.  They do, however, include a net force "
 			     "vector.  ") (nlg type 'adj))
-	 (format nil (strcat "If you wish for more guidance you can click on "
-			     "the Light Bulb Button or 'Explain-More'."))
 	 '(function next-step-help))))
 
 
@@ -1899,8 +1836,6 @@
 	 (strcat "The scalar height variables that you have defined at time ~a "
 		 "and at time ~a are sufficient to solve this problem.  "
 		 "All that you need is the difference between these scalars.")
-	 (strcat "You can click on explain-more now or use the lightbulb later "                 "to get help on how to solve the problem without a displacement vector.")
-
 	 '(function next-step-help))))
 
 ;;; =================== drawing a force ============================
@@ -2273,8 +2208,6 @@
    (list (format nil (strcat "A force arise from the interaction of two "
 			     "DIFFERENT objects, but you have used ~a "
 			     "for both.") object)
-	 (strcat "If you are unsure of what entry to make you may click on "
-		 "\'Explain-More\' or click on the light-bulb hint for guidance.")
 	 '(function next-step-help))))
    
 
@@ -2565,8 +2498,6 @@
   (make-hint-seq
    (list (format nil (strcat "No solution I know of includes an individual torque vector. "
 			     "They do, however, include a net torque vector. "))
-	 (format nil (strcat "If you wish for more guidance you can click on "
-			     "the Light Bulb Button or 'Explain-More'."))
 	 '(function next-step-help))))
 
 ;;; =============== Sums of torque =================================
@@ -2951,8 +2882,6 @@
    (list (format nil (strcat "In this problem you should define the net "
 			     "~A field due to all sources. ")
 		     (nlg type 'adj))
-	 (format nil (strcat "If you wish for more guidance you can click on "
-			     "the Light Bulb Button or 'Explain-More'."))
 	 '(function next-step-help))))
 
 ;;; --------------------- Confusing electric and magnetic ---------------------
@@ -3936,13 +3865,14 @@
    (test (not (given-p ?var)))
    (test (canonical-var-cancelling-var-p ?var))
    ))
+
 (defun value-for-cancelling-var (var) 
  (let* ((studvar (nlg var 'algebra))
         (quant   (sysvar-to-quant var)))
   (make-hint-seq
    (list 
-        (format nil "The numerical value of ~A, ~A, is not defined in this problem. This value is not needed for the solution. You should be able to enter enough equations so that terms containing ~A will cancel out, and the 'Solve For' command can compute the final answer anyway. Use the lightbulb for hints on such a solution." studvar (nlg quant) studvar) 
-   ))))
+        (format nil "The numerical value of ~A, ~A, is not defined in this problem. This value is not needed for the solution. You should be able to enter enough equations so that terms containing ~A will cancel out, and the 'Solve For' command can compute the final answer anyway." studvar (nlg quant) studvar) 
+  '(function next-step-help)))))
 
 ; special case for height if no zero-level defined
 (def-error-class value-for-height-no-zero-level (?var)
@@ -3967,8 +3897,9 @@
         (quant   (sysvar-to-quant var)))
   (make-hint-seq
    (list 
-        (format nil "Because this problem does not stipulate a zero-level, the numerical value of ~A, ~A, is not defined. Since only differences in height are relevant to changes in energy, this value is not needed for the solution. Include an equation determining the difference between heights (h2-h1 = ...) and the 'Solve For' command should be able compute the final answer anyway. Use the lightbulb for hints on such a solution." studvar (nlg quant)) 
-   ))))
+        (format nil "Because this problem does not stipulate a zero-level, the numerical value of ~A, ~A, is not defined. Since only differences in height are relevant to changes in energy, this value is not needed for the solution. Include an equation determining the difference between heights (h2-h1 = ...) and the 'Solve For' command should be able compute the final answer anyway." 
+		studvar (nlg quant)) 
+   '(function next-step-help)))))
 
 
 (def-error-class value-for-answer-var (?var)
