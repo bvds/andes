@@ -32,6 +32,7 @@ andes.principles={
 
 // This should be loaded after everything else, in the background
 dojo.addOnLoad(function() {
+
   var principlesStore = new dojo.data.ItemFileReadStore({
     url: "/review/principles.json"
   });
@@ -49,25 +50,33 @@ dojo.addOnLoad(function() {
     childrenAttrs: ["items"]
   });
 
-  onClick0 = function(item,node) {
-    var psm=principlesStore.getValue(item,"psm");
-    // if student clicks on a group, there is no psm.
-    if(psm){
-      andes.help.echo(principlesStore.getValue(item,"label"));
-      andes.help.principles(psm);
-      dijit.byId("allPrinciples").hide();
-    }
-  };
-
   new dijit.Tree({
     model: majorPrinciplesModel,
     showRoot: false,
-    onClick: onClick0
+    onClick: function(item,node) {
+      var psm=principlesStore.getValue(item,"psm");
+      // if student clicks on a group, there is no psm.
+      if(psm){
+	andes.help.echo(principlesStore.getValue(item,"label"));
+	andes.help.principles(psm);
+	dijit.byId("majorPrinciples").hide();
+      }
+    }
   },"majorModalTree");
 
   new dijit.Tree({
     model: allPrinciplesModel,
     showRoot: false,
-    onClick: onClick0
-    },"allModalTree");
+    onClick: function(item,node) {
+      var psm=principlesStore.getValue(item,"psm");
+      // if student clicks on a group, there is no psm.
+      if(psm){
+	andes.help.echo(principlesStore.getValue(item,"label"));
+	andes.help.principles(psm);
+	// This is a bit ugly, but close both possible windows:
+	dijit.byId("allPrinciples").hide();
+      }
+    }
+  },"allModalTree");
+
 });
