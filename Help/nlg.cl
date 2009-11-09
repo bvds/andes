@@ -406,8 +406,10 @@
 	   (when args (cons (car model) args))))
 	;; expansion of var must be done at run-time.
 	((and (consp model) (eql (car model) 'var)) 
+	 (when (cddr model) (warn "Bad model syntax for var: ~A" model))
 	 (subst-bindings bindings model))
 	((and (consp model) (eql (car model) 'eval))
+	 (when (cddr model) (warn "Bad model syntax for eval: ~A" model))
 	 (expand-new-english
 	  (eval (subst-bindings-quoted bindings (second model)))))
 	;; ordered sequence, remove empty elements

@@ -118,7 +118,7 @@
 
 (def-qexp displacement (displacement ?body :time ?time)
   :units |m|
-  :new-english ((preferred "the") (or "displacment" "disp." "disp")
+  :new-english ((preferred "the") (or "displacement" "disp." "disp")
 		 (and (preferred (property ?body))
 		      (preferred (time ?time)))))
 
@@ -273,11 +273,15 @@
 		(or (var (body ?body)) ?body)))
 
 (def-qexp time (time ?time)
-  :new-english (eval (pp ?time)))
+  :new-english (eval (if (time-pointp ?time) (pp ?time)
+			 ;; else go back to Ontology
+			 (new-english-find ?time))))
 
-(def-qexp during (during ?t0 ?t1)
-  :new-english (or ("between" (eval (moment ?t0)) (or "and" "&") (eval (moment ?t1)))
-		   ("from" (eval (moment ?t0)) (or "to" "until") (eval (moment ?t1)))))
+(def-qexp during (during ?ta ?tb)
+  :new-english (or ("between" (eval (moment ?ta)) (or "and" "&") 
+			      (eval (moment ?tb)))
+		   ((or "from" "during") (eval (moment ?ta)) 
+		    (or "to" "until") (eval (moment ?tb)))))
 
 ;;;; scalar quantities
 
