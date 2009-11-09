@@ -154,18 +154,6 @@
     (setq Tmp (iface-handle-Statistics NewCmd))
     (when Tmp (if str (push Tmp str) (push tmp result)))
 
-
-    ;; Test whether any fade steps have been completed
-    (dolist (fade (copy-list (problem-fade *cp*)))
-	    (when (every 
-		   #'(lambda (x) ;(nsh-principle-completed-p (??? x))
-				   (warn "need lookup for ~A" x))
-			 (car fade))
-	      (setf (problem-fade *cp*) (delete fade (problem-fade *cp*)))
-	      (let ((id (cdr (assoc :id (cdr fade)))))
-		(push `((:action . "delete-object") (:id . ,id))
-		      result))))
-
     (format *debug-help* "Result ~A~%" Result)
 
     (or Str Result)))

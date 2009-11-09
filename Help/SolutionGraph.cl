@@ -366,8 +366,6 @@
   "Given a help entry prop generate the system entry for it and return."
   ; include helpful message for this error: 
   (when (not (get-operator-by-tag (csdo-op Do)))
-    (format T "Solution operator ~A not found in current KB. Maybe need to regenerate .prb~%" 
-            (first (csdo-op Do)))
     (error 'wrong-version-prb 
              :format-control "Solution operator ~A not found in current KB. Maybe need to regenerate .prb"
 	     :format-arguments (list (first (csdo-op Do)))))

@@ -140,29 +140,23 @@
 
 
 ;;;; -------------------- Check Response ----------------------------
-;;;; The initial IEA response will be a list containing an equation
+;;;; The initial IEA response will be a cons containing an equation
 ;;;; name and an optional set of variable bindings.   The name will 
 ;;;; be used to look up the equation followed by the bindings which
 ;;;; will be used to determine the equation from the equation list.
-
-;;; Check the initial response.  If it is nil or the supplied 
-;;; Response is not a list then the atom will be taken to be
-;;; the equation name and it will be sent on.  Else the list
-;;; will be split and sent on.
-(defun iea-check-response (Response)
-  (cond ((null Response) (error "Nil response supplied."))
-	((atom Response) (iea-check-name Response))
-	((null (car Response)) (error "Nil name supplied."))
-	(t (iea-check-name (car Response) (or (cdr Response) no-bindings)))))
-
 
 ;;; Once we have a name then we will look up the equation in the
 ;;; list and return the appropriate struct if it is present or 
 ;;; give a warning if it is not.  Once that is done then we will
 ;;; move on to filtering.  
-(defun iea-check-name (name &optional (Bindings no-bindings))
+(defun iea-check-response (rstring)
   "Check the supplied iea-name."
-  (let (Tmp (equation (lookup-psmclass-name name)))
+  (let* ((response (read-from-string rstring))
+	 (name (car response))
+	 (bindings (or (cdr response) no-bindings))
+	 (equation (lookup-psmclass-name name))
+	 Tmp)
+
     (cond ((null equation) 
 	   ;; The student response is gotten by choosing from the
 	   ;; principles menu.  So either principle menu is incompatible

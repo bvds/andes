@@ -88,11 +88,12 @@
 					    :depends-on ("Entry-API" 
 							 "Interface"))
  				     (:file "API")
+                                     (:file "fade")
 				     (:file "sessions"
 					    ;; Mostly for *help-env-vars*
 					    :depends-on ("NextStepHelp"
 							 "parse" "State" 
-							 "database"
+							 "database" "fade"
 							 "grammar" 
 							 "Commands"))))
 	       (:module "Testcode"

@@ -81,9 +81,9 @@
                   ;; of API call arguments.  If the sytementry is not nil,
                   ;; it can be used to help fill out the API call.
   Fade            ;; An alist of fade statements, to be sent to the client.
-                  ;; Each member is a cons of a list of entryprops
+                  ;; Each member is a cons of an entryprop or bgnode Id
                   ;; and a list of API call arguments.
-                  ;; The entryprops are used to determine when the help
+                  ;; The entryprop/bgnode is used to determine when the help
                   ;; system will delete the entry.  They may also be used
                   ;; to help fill out the API call.
 ;; The following information is Andes2-specific

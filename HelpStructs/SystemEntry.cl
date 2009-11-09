@@ -177,7 +177,7 @@
 (defun prop->Sysent (Prop Entries)
   (find Prop Entries
 	:key #'SystemEntry-Prop
-	:test #'equalp))
+	:test #'unify))
 
 ;;----------------------------------------------
 ;; State testing code.
