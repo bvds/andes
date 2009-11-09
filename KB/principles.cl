@@ -1122,8 +1122,6 @@
      stream)    
     (when (streamp stream) (close stream))))
 
-(loop for psmclass in *Ontology-PSMClasses*
-      
 
 (defun has-major-complexity (p)
   "Determine if a group has any major psm's in it."
