@@ -46,6 +46,10 @@
  **NOGOOD-Help**
  '("No good entry.  Shouldn't happen.") #+sbcl #'equalp)
 
+(defun open-review-window-html (Name href &key title)
+  (format nil "<a href=\"#\" onClick=\"window.open('/review/~A','~A');\">~A</a>" href href (or title name) name))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; end of help-messages.cl
 ;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> -- All Rights Reserved.

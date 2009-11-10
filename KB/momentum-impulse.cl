@@ -185,7 +185,7 @@
    ((point (string "Notice that ~a is moving in a straight line ~a, although the exact direction is unknown." ?b (?t pp)))
     (teach (string "Whenever an object is moving in a straight line, it has a non-zero momentum in the same direction as its motion.")
 	   (kcd "draw_nonzero_momentum"))
-    (bottom-out (string "Because ~a is moving in a straight line ~a, draw a non-zero momentum vector for it in an approximately correct direction, then erase the number in the direction box to indicate that the exact direction is unknown." ?b (?t pp)))))
+    (bottom-out (string "Because ~a is moving in a straight line ~a, draw a non-zero momentum vector for it in an approximately correct direction, since the exact direction is unknown." ?b (?t pp)))))
 
 (defoperator draw-momentum-curved (?b ?t)
   :preconditions

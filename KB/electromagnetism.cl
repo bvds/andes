@@ -385,8 +385,9 @@
             )
   :hint (
          (point (string "Note the constant ~A field at ~A." (?type adj) ?loc))
-         (teach (string "In this problem, the exact direction of the ~A field vector is not given, so you can draw the vector at an approximately angle and leave the exact angle unspecified." (?type adj)))
-         (bottom-out (string "Draw the ~A field at ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." (?type adj) ?loc (?source agent)))
+         (teach (string "In this problem, the exact direction of the ~A field vector is not given, so you can draw the vector at an approximately correct angle." (?type adj)))
+         (bottom-out (string "Draw the ~A field at ~a due to ~a." 
+			     (?type adj) ?loc (?source agent)))
           ))
 
 
@@ -465,8 +466,8 @@
             )
   :hint (
         (point (string "Because ~A is charged, it creates an electric field at ~A." ?b ?loc))
-        (teach (string "The direction of the electric field due to a point charge is radial away from a positive charge and toward a negative charge.  In this problem, the exact direction of the electric field vector requires calculation to determine, so you can draw the vector at an approximately correct angle and leave the exact angle unspecified."))
-        (bottom-out (string "Draw the electric field at ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?loc (?b agent)))
+        (teach (string "The direction of the electric field due to a point charge is radial away from a positive charge and toward a negative charge.  In this problem, the exact direction of the electric field vector requires calculation to determine, so you can draw the vector at an approximately correct angle."))
+        (bottom-out (string "Draw the electric field at ~a due to ~a." ?loc (?b agent)))
           ))
 
 ;;
@@ -715,8 +716,9 @@
             )
   :hint (
          (point (string "Since ~a is charged and in an electric field, it is subject to an electric force." ?b))
-         (teach (string "In this problem, the exact direction of the electric force vector requires calculation to determine, so you can draw the force vector at an approximately correct angle and leave the exact angle unspecified."))
-         (bottom-out (string "Draw the electric force on ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?b (?source agent)))
+         (teach (string "In this problem, the exact direction of the electric force vector requires calculation to determine, so you can draw the force vector at an approximately correct angle."))
+         (bottom-out (string "Draw the electric force on ~a due to ~a." 
+			     ?b (?source agent)))
          ))
 
 ;;;;---------------------------------------------------------------------------
@@ -1418,10 +1420,11 @@
   :hint (
          (point (string "You know there is a net ~A field at ~A." 
 			(?type adj) ?loc))
-         (teach (string "In this problem, the exact direction of the net ~A field vector requires calculation to determine.  ~:[However, you do know that it lies along the z-axis.~;  Draw the vector at an approximately correct angle and leave the exact angle unspecified.~]"
+	 ;; See Bug #1591
+         (teach (string "In this problem, the exact direction of the net ~A field vector requires calculation to determine.  ~:[However, you do know that it lies along the z-axis.~;  Draw the vector at an approximately correct angle .~]"
 			(?type adj) (?xy-plane identity)))
-         (bottom-out (string "Draw the net ~A field at ~a, then ~:[select Unknown Z direction in the dialog box~;erase the number in the direction slot to indicate that the exact direction is not being specified~]." 
-			     (?type adj) ?loc (?xy-plane identity)))
+         (bottom-out (string "Draw the net ~A field at ~a." 
+			     (?type adj) ?loc))
   ))
 
 ;;--------------------------------------------------------------------------
@@ -2629,8 +2632,9 @@
             )
   :hint (
          (point (string "Since ~a is charged and moving in a direction that is not parallel or antiparallel to the magnetic field, it will be subject to a magnetic force." ?b))
-         (teach (string "In this problem, the exact direction of the magnetic force vector requires calculation to determine, so you can draw the force vector at an approximately correct angle and leave the exact angle unspecified."))
-         (bottom-out (string "Draw the magnetic force on ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?b (?source agent))) 
+         (teach (string "In this problem, the exact direction of the magnetic force vector requires calculation to determine, so you can draw the force vector at an approximately correct angle."))
+         (bottom-out (string "Draw the magnetic force on ~a due to ~a." 
+			     ?b (?source agent))) 
   ))
 |#
 
@@ -2663,8 +2667,9 @@
             )
   :hint (
 	 (point (string "Since ~a is charged and moving in a direction that is not parallel or antiparallel to the magnetic field, it will be subject to a magnetic force." ?b))
-         (teach (string "In this problem, the exact direction of the magnetic force vector requires calculation to determine, so you can draw the force vector at an approximately correct angle and leave the exact angle unspecified."))
-         (bottom-out (string "Draw the magnetic force on ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?b (?source agent))) 
+         (teach (string "In this problem, the exact direction of the magnetic force vector requires calculation to determine, so you can draw the force vector at an approximately correct angle."))
+         (bottom-out (string "Draw the magnetic force on ~a due to ~a." 
+			     ?b (?source agent))) 
 	 ))
 
 
