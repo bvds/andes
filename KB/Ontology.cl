@@ -318,18 +318,16 @@
   :new-english ((preferred "the") (or "distance" "dist." "dist") 
 		(or "traveled" "travelled")
 		(and
-		 (preferred ("by" (or (var (body ?body)) ?body))
-			    (preferred (time ?time))))))
+		 (preferred ("by" (or (var (body ?body)) ?body)))
+		 (preferred (time ?time)))))
 
 (def-qexp duration (duration ?time)
   :symbol-base |t|     
   :short-name "duration of time"	
   :units |s|
   :restrictions positive
-  :new-english ((preferred "the") 
-		(preferred "duration of") "time" "between" 
+  :new-english ((preferred "the") (preferred "duration of") "time"
 		(time ?time)))
-;; (or "and" "&") (time ?t2)))
 
 (def-qexp speed (speed ?body :time ?time)
   :symbol-base |v|     
