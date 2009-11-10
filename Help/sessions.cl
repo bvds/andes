@@ -254,18 +254,23 @@
       (let ((x 10) (y 10) (i 0))
 	(dolist  (line (problem-statement *cp*))
 	  (cond ((unify line '(answer . ?rest))
-		 (push `((:action . "new-object") (:type . "statement") 
-		  (:id . ,(format nil "statement~A" i))
-		  (:mode . "unknown") (:x . ,x) (:y . ,y) 
-		  (:width . 100) (:text . "Answer:       ")) replies))
+		 (let ((id (format nil "statement~A" i)))
+		   ;; Add to *StudentEntries* but don't evaluate in Help.
+		   (push (make-studententry :id id :mode "unknown"
+					    :type "statement") 
+			 *studententries*)
+		   (push `((:action . "new-object") (:type . "statement") 
+			   (:id . ,id) (:mode . "unknown") (:x . ,x) (:y . ,y) 
+			   (:width . 100) (:text . "Answer:       ")) 
+			 replies)))
 		(t 
 		 (push `((:action . "new-object") (:type . "statement") 
-		  (:id . ,(format nil "statement~A" i))
-		  (:mode . "locked") (:x . ,x) (:y . ,y) 
-		  (:width . 400) (:text . ,line)) replies)))
+			 (:id . ,(format nil "statement~A" i))
+			 (:mode . "locked") (:x . ,x) (:y . ,y) 
+			 (:width . 400) (:text . ,line)) replies)))
 	  (incf i)
 	  (setf y (+ y 25)))
-
+	
 	(when (problem-graphic *cp*)
 	  (let ((dims (problem-graphic-dimensions (problem-graphic *cp*))))
 	    (if dims		
