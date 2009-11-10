@@ -641,9 +641,10 @@
   ((point (string
 	 "Notice that ~a is moving in a straight line ~a." ?b (?t pp)))
    (teach (string
-	 "Whenever an object is moving in a straight line over a time interval, it has a displacement which is parallel to the direction of motion.  In this problem, the exact direction of the displacement vector requires calculation to determine, so you can draw the vector at an approximately correct angle and leave the exact angle unspecified."))
+	 "Whenever an object is moving in a straight line over a time interval, it has a displacement which is parallel to the direction of motion.  In this problem, the exact direction of the displacement vector requires calculation to determine, so you can draw the vector at an approximately correct angle."))
    (bottom-out (string
-		 "Draw the displacement of ~a ~a at an approximately correct angle, then erase the number in the direction slot to indicate that the exact direction is not specified." ?b (?t pp)))
+		 "Draw the displacement of ~a ~a at an approximately correct angle." 
+		 ?b (?t pp)))
     ))
 
 ;;; Might want rule to put out equation thetaD = thetaV for unknown 
@@ -669,7 +670,8 @@
   ((point (string "Notice that ~a is at rest ~a." ?b (?t pp)))
    (teach (string "Whenever an object is at rest during a time interval, it has a displacement of zero.")
 	  (kcd "draw_zero_displacement"))
-   (bottom-out (string "Because ~a is at rest ~a, use the displacement tool to draw zero length vector for it." ?b (?t pp)))
+   (bottom-out (string "Because ~a is at rest ~a, use the displacement tool to draw zero length vector for it." 
+		       ?b (?t pp)))
    ))
 
 ;; Following draws a zero-mag displacement vector for case where it is
@@ -745,8 +747,8 @@
     (variable ?dir-var (dir (displacement ?b :time ?t))))
    :hint
    ((point (string "You need to introduce a term for the displacement of ~a ~a." ?b (?t pp)))
-    (teach (string "The displacement of an object is a vector from its starting point to its ending point.  It doesn't matter what path the object took.  Only the two points matter. In this problem, the exact direction of the net displacement vector requires calculation to determine, so you can draw the vector at an approximately correct angle and leave the exact angle unspecified."))
-    (bottom-out (string "Draw the displacement of ~a ~a at an approximately correct angle, then erase the number in the direction slot to indicate that the exact direction is not specified."
+    (teach (string "The displacement of an object is a vector from its starting point to its ending point.  It doesn't matter what path the object took.  Only the two points matter. In this problem, the exact direction of the net displacement vector requires calculation to determine, so you can draw the vector at an approximately correct angle."))
+    (bottom-out (string "Draw the displacement of ~a ~a at an approximately correct angle."
 			?b (?t pp)))
     ))
 
@@ -785,8 +787,9 @@
    (variable ?dir-var (dir (displacement ?b :time ?t))))
   :hint
   ((point (string "You need to introduce a term for the displacement of ~a ~a." ?b (?t pp)))
-   (teach (string "The displacement of an object is a vector from its starting point to its ending point.  It doesn't matter what path the object took.  Only the two points matter.~A  Draw the vector at an approximately correct angle and leave the exact angle unspecified." (?is-net identity)))
-    (bottom-out (string "Draw the displacement of ~a ~a at an approximately correct angle, then erase the number in the direction slot to indicate that the exact direction is not specified."
+   (teach (string "The displacement of an object is a vector from its starting point to its ending point.  It doesn't matter what path the object took.  Only the two points matter.~A  Draw the vector at an approximately correct angle." 
+		  (?is-net identity)))
+    (bottom-out (string "Draw the displacement of ~a ~a at an approximately correct angle."
 			?b (?t pp)))
    ))
 
@@ -936,7 +939,7 @@
    (teach (string "Whenever an object is moving in a straight line, it has a non-zero velocity in the same direction as its motion.")
 	  (kcd "draw_nonzero_velocity"))
    (bottom-out (string
-		"Because ~a is moving in a straight line ~a in an unknown direction, draw a non-zero velocity vector for it in an approximately correct direction, then erase the number in the direction box to indicate that the exact direction is unknown." ?b (?t pp)))
+		"Because ~a is moving in a straight line ~a in an unknown direction, draw a non-zero velocity vector for it in an approximately correct direction." ?b (?t pp)))
    ))
 
 ;;; Using the motion statement:
@@ -999,8 +1002,8 @@
     (variable ?dir-var (dir (velocity ?b :time ?t))))
   :hint
    ((point (string "You need to draw a vector for the velocity of ~a ~a." ?b (?t pp)))
-    (teach (string "In this problem, the exact direction of the velocity vector is not given, so you should draw the vector at any angle and leave the exact angle unspecified."))
-    (bottom-out (string "Draw the velocity of ~a ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?b (?t pp)))
+    (teach (string "In this problem, the exact direction of the velocity vector is not given, so you should draw the vector at any angle."))
+    (bottom-out (string "Draw the velocity of ~a ~a." ?b (?t pp)))
     ))
 
 ; Following draws horizontal velocity for a 2D projectile at its maximum height.
@@ -1257,8 +1260,8 @@
 	    )
   :hint (
 	 (point (string "You need to introduce a term for the relative velocity of ~A with respect to ~A ~A" ?b1 ?b2 (?t pp)))
-	 (teach (string "If a vector angle requires calculation to determine, you should draw the vector at an unspecified angle. You do this by drawing the vector making an approximation to the correct angle, then erasing the number in the direction slot of the subsequent dialog box to indicate that the exact angle is unspecified."))
-	 (bottom-out (string "Use the velocity tool to draw the relative velocity of ~a with respect to ~a ~A at an approximately correct angle, then erase the number in the direction slot to indicate that the exact direction is not specified."
+	 (teach (string "If a vector angle requires calculation to determine, you should draw the vector in roughly the correct direction."))
+	 (bottom-out (string "Use the velocity tool to draw the relative velocity of ~a with respect to ~a ~A at an approximately correct angle."
 			     ?b1 ?b2 (?t pp)))
 	 ))
 
@@ -1309,7 +1312,7 @@
 	 (point (string 
 		 "Can you relate the following 3 vectors: the relative velocity of ~A wrt ~A, the relative velocity of ~a wrt ~a, and the relative velocity of ~a wrt ~A?"
 		 ?b1 ?b3  ?b1 ?b2  ?b2 ?b3))
-	 (teach (string "The relative velocity of a wrt c is equal to the vector sum of the relative velocity of a wrt b plus the relative velocity of b wrt c. In terms of components:\\n   Vac_x = Vab_x + Vbc_x\\n   Vac_y = Vab_y + Vbc_y."))
+	 (teach (string "The relative velocity of a wrt c is equal to the vector sum of the relative velocity of a wrt b plus the relative velocity of b wrt c. In terms of components:<br>   Vac_x = Vab_x + Vbc_x<br>   Vac_y = Vab_y + Vbc_y."))
 	 (bottom-out (string "Write the equation ~A"
 			     ((= ?v13 (+ ?v12 ?v23)) algebra)))
 	 ))
@@ -1580,8 +1583,8 @@
     (variable ?dir-var (dir (accel ?b :time ?t))))
    :hint
    ((point (string "Can you tell whether the acceleration of ~a will be zero or non-zero?" ?b))
-    (teach (string "When a body is subject to a net force it will have an acceleration parallel to the vector sum of all forces. In this problem you should be able to see that there will be a net force on ~A so it will have a non-zero acceleration. But not all of the forces are known, so you shou the acceleration at an approximate angle and leave the exact angle unspecified." ?b))
-    (bottom-out (string "Use the acceleration tool to draw the acceleration for ~a ~A an an approximately correct direction and erase the direction value in the dialog box to leave the exact direction unspecified." ?b (?t pp)))
+    (teach (string "When a body is subject to a net force it will have an acceleration parallel to the vector sum of all forces. In this problem you should be able to see that there will be a net force on ~A so it will have a non-zero acceleration. But not all of the forces are known, so you should draw the acceleration at an approximate angle." ?b))
+    (bottom-out (string "Use the acceleration tool to draw the acceleration for ~a ~A an an approximately correct direction." ?b (?t pp)))
     ))
 
 
@@ -2704,7 +2707,7 @@
     (variable ?dir-var (dir (relative-position ?b1 ?b2 :time ?t)))
    )
   :hint (
-    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the position of ~a with respect to ~a ~a, at an approximately correct angle, then erase the number in the direction box to indicate that its exact direction is unknown."
+    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the position of ~a with respect to ~a ~a, at an approximately correct angle, since its exact direction is unknown."
 	  ?b1 ?b2 (?t pp)))
   ))
 

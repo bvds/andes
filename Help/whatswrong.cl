@@ -101,9 +101,7 @@
 (defun no-error-interpretation ()
   "Returns a hint sequence indicating that Andes can't figure out the student's error."
   (make-hint-seq
-   (list (strcat "I cannot determine what's wrong with this entry.  Try "
-		 "getting suggestions for a correct next step by clicking "
-		 "on the light bulb button or 'Explain further.'")
+   (list (strcat "I cannot determine what's wrong with this entry.")
 	 '(function next-step-help))))
 
 ;;; -------------- what's wrong with a correct entry -------------
@@ -120,9 +118,7 @@
 (defun ww-premature-entry ()
   "Returns a hint sequence indicating that the student's entry is premature."
   (make-hint-seq
-   (list (strcat "You need to make some other entries before this one. If "
-		 "you aren't sure which ones to make, click on the light "
-		 "bulb button for next step help.")
+   (list (strcat "You need to make some other entries before this one.")
 	 '(function next-step-help))))
 
 (defun explain-premature-subst (student)
@@ -136,8 +132,7 @@
   (make-hint-seq
    (list (strcat "You have entered an equation that has given values in it.  "
 		 "Before doing that, you should finish applying all the necesary "
-		 "principles first.  If you're not sure what's missing, click on "
-		 "the light bulb button for next step help.")
+		 "principles first.")
 	 '(function next-step-help))))
 
 (defun explain-forbidden (student)
@@ -148,8 +143,7 @@
   (make-hint-seq
    (list (strcat "The entry you've made is a reasonable way to solve the "
 		 "problem, but the problem statement prohibits you from "
-		 "using it.  Try a different approach.  If you want help "
-		 "finding one, click on the light bulb button.")
+		 "using it.  Try a different approach.")
 	 '(function next-step-help))))
 
 (defun yellow-error (student)

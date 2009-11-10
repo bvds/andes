@@ -195,21 +195,20 @@
 (defparameter **IEA-Platonic-form**
     (strcat "Equations of that type appear within the problem solution.  "
 	    "You should write the equation in the form ~a using your own "
-	    "variables.  If you do not want to write this equation and are "
-	    "not sure what to do, why don't you call Light-Bulb-Help."))
+	    "variables."))
 
 (defun iea-platonic-prompt (Equation Bindings)
-  (make-dialog-turn
-   (format Nil **IEA-platonic-form** 
+  (make-hint-seq
+   (list (format Nil **IEA-platonic-form** 
 	   (eval-print-spec (Psmclass-EqnFormat Equation) bindings))
-    Nil ;; Menu is nil so that no response wil occur.
+	 '(function next-step-help))
    :Assoc `((IEA platonic-prompt ,(PSMClass-name Equation)))))
 
 
 
 
 ;;; ------------------------ Alternate Axes --------------------------------------
-;;; When the students are selecting axes, it is likewly that they will select the
+;;; When the students are selecting axes, it is likely that they will select the
 ;;; right principle but pick the wrong axis to project it upon.  In the event of
 ;;; that occuring we want to prompt them in the right direction rather than deal
 ;;; with their frustration and their angered responses.  This code test to see if
@@ -236,13 +235,11 @@
 
 (defparameter **IEA-alt-axes-yes**
     (strcat "You should write the equation in the form ~a using your own "
-	    "variables.  If you do not what to write this equation and are "
-	    "not sure what to do, why don't you call Light-Bulb-Help."))
+	    "variables."))
 
 
 (defparameter **IEA-alt-axes-no**
-    (strcat "OK then.  Why don't you try writing a different equation or "
-	    "call up Light-Bulb-Help if you are unsure of what to do."))
+    (strcat "OK then.  Why don't you try writing a different equation."))
 
 
 ;;; If the entry is correct on the alternate axes then we will go ahead and 
@@ -266,10 +263,10 @@
 ;;; to go ahead and prompt the new form for them using the new axis.
 (defun iea-prompt-alt-axes-yes (Equation Bindings NewAxis)
   (let ((NewBinds (change-bindings '?Axis NewAxis Bindings)))
-    (make-dialog-turn 
-     (format Nil **IEA-alt-axes-yes**
-	     (eval-print-spec (PSMClass-EqnFormat Equation) NewBinds))
-     Nil ;; Menu is nil so no excess entry is sent.
+    (make-hint-seq
+     (list (format Nil **IEA-alt-axes-yes**
+		   (eval-print-spec (PSMClass-EqnFormat Equation) NewBinds))
+	   '(function next-step-help))
      :Assoc `((IEA prompt-alt-axes-yes ,(PSMClass-name Equation) ,Bindings ,NewAxis)))))
 
 
@@ -277,9 +274,8 @@
 ;;; If the student prompts that they are uninterested in going with the new axis then
 ;;; we will close with a message suggesting that they pull up NSH if they are lost.
 (defun iea-prompt-alt-axes-no ()
-  (make-dialog-turn
-   **IEA-alt-axes-no**
-   Nil ;; Menu is nil so that no response is sent.
+  (make-hint-seq
+   (list **IEA-alt-axes-no** '(function next-step-help))
    :Assoc `((iea . iea-prompt-alt-axes-no))))
 
 
@@ -290,8 +286,7 @@
 
 (defparameter **IEA-Incorrect-Form**
     (strcat "I'm afraid that the equation type that you selected does not appear in "
-	    "~a.  Why don't you try something different or go to Light-Bulb-Help "
-	    "if you do not know what to do."))
+	    "~a."))
 
 (defparameter **IEA-Incorrect-single**
     "the problem solution")
@@ -300,12 +295,12 @@
     "any of the solutions to this problem")
 
 (defun iea-incorrect-prompt (Equation)
-  (make-dialog-turn
-   (format Nil **IEA-Incorrect-Form**
+  (make-hint-seq
+   (list (format Nil **IEA-Incorrect-Form**
 	   (if (< 1 (length (problem-Solutions *cp*)))
 	       **IEA-Incorrect-Multi**
 	     **IEA-Incorrect-Single**))
-   Nil ;; Menu is nil so that no response will occur.
+	 '(function next-step-help))
    :Assoc `((IEA Incorrect ,(PSMClass-name Equation)))))
 
 

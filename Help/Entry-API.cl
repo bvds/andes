@@ -770,8 +770,8 @@
 	 (line-mag-term `(mag ,line-term))
 	 (line-dir-term `(dir ,line-term))
 	 ;; xy plane lines get theta prefix, z axis ones get phi
-	 ;; The help window takes HTML format.
-	 (dir-label  (format NIL "~A~A" (if (z-dir-spec dir-term) "&phi;" "&theta;")
+	 ;; These are the input forms
+	 (dir-label  (format NIL "~A~A" (if (z-dir-spec dir-term) "\\phi" "\\theta")
 			     label)))
 
     (multiple-value-bind
@@ -1046,8 +1046,8 @@
    (when y-label (check-symbols-enter y-label y-term id))
    (when z-label (check-symbols-enter z-label z-term id))
 
-   ;; automatically define thetaX as label for direction of positive x-axis
-   (when x-label (check-symbols-enter (strcat "$q" x-label) 
+   ;; automatically define \thetax as label for direction of positive x-axis
+   (when x-label (check-symbols-enter (strcat "\\theta" x-label) 
 				      xdir-dnum id xdir-dnum))
 
   ;; if any vectors are defined add all component variables along 
@@ -1232,11 +1232,10 @@
        (setf result (make-green-turn :id (StudentEntry-id entry))))
       
       ;; give special messages for some varieties of incorrectness:
-      (Forbidden (setf result (chain-explain-more **Forbidden-Help**)))
-      (Premature-Entry 
-       (setf result (chain-explain-more **Premature-Entry-Help**)))
-      (Dead-Path (setf result (chain-explain-more **Dead-Path-Help**)))
-      (Nogood' (setf result (chain-explain-more **Nogood-Help**)))
+      (Forbidden (setf result (make-hint-seq **Forbidden-Help** )))
+      (Premature-Entry (setf result (make-hint-seq **Premature-Entry-Help**)))
+      (Dead-Path (setf result (make-hint-seq **Dead-Path-Help**)))
+      (Nogood (setf result (make-hint-seq **Nogood-Help**)))
       (otherwise (warn "Unrecognized interp state! ~A~%" 
 		       (StudentEntry-state entry))
 		 (setf result (make-red-turn :id (StudentEntry-id entry)))))

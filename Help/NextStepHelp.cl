@@ -4015,7 +4015,12 @@
   
   ;; advise of special tricks for these
   ((member 'elastic-collision-help (problem-features *cp*)) 
-     (format NIL "Although you seem to have entered enough equations, the Andes solver is unable to solve them for ~A in their current form.  See the {\\l discussion of elastic collisions in one dimension}{\\v 1D_elastic_collision.html} for further help." var))
+     (format NIL "Although you seem to have entered enough equations, the Andes solver is unable to solve them for ~A in their current form.  See the ~A for further help." 
+	     var 
+	     (open-review-window-html 
+	      "discussion of elastic collisions in one dimension"
+	      "1D_elastic_collision.html"
+	      :title "1D elastic collitions")))
   
   ;; done and not an answer-var problem and solving for a sought
   ;; Need handler for case where one trig function is missing, Bug #719

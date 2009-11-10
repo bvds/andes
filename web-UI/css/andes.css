@@ -169,6 +169,10 @@ body, .tundra .dijitSplitter, #navMenu{
 	border:0;
 }
 
+#problemName {
+	padding:0 1em 0 1.25em;
+	font-size: larger;
+}
 
 #submitButton .dijitButtonText{
 	font-size:.8em;
