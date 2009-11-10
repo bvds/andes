@@ -15,7 +15,7 @@ andes.principles={
       this.extp=window.open("/review/principles-tree.html",
       "Principles",
        // Default starting size in Firefox is too big, need to set explicitly.
-       // Need scrollbar=1 in Firefox for reopen with long (opened) tree.
+       // Need scrollbars=1 in Firefox for reopen with long (opened) tree.
        // status=0 ignored by Firefox.
       "width=350,height=450,scrollbars=yes,directories=no,menubar=no,toolbar=no,location=no,status=no"
 		    );

@@ -54,7 +54,10 @@ dojo.require("andes.api");
 			var q = dijit.byId("helpInput").attr("value"),
 			    h = q ? {action:"get-help", text:q} : {action:"help-button"};
 
-			andes.help.echo(q);
+			// Escape any html codes on input text echo.
+		        // Should use future function dojo.string.escape
+                        // See http://trac.dojotoolkit.org/ticket/8995
+			andes.help.echo(q.replace(/\&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
 			dijit.byId("helpInput").attr("value", "");
 			andes.api.help(h).addCallback(handleHelp);
 		});
@@ -73,10 +76,7 @@ dojo.require("andes.api");
 			// note:
 	                //	setting to the node and not with attr
 	                // 	because ContentPane is throwing errors that way
-			// Escape any html codes on text echo.
-		        // Should use future function dojo.string.escape
-                        // See http://trac.dojotoolkit.org/ticket/8995
-      			hlp.containerNode.innerHTML = c + "\n<p><em>" + value.replace(/\&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</em></p>";
+      			hlp.containerNode.innerHTML = c + "\n<p><em>" + value + "</em></p>";
 			hlp.domNode.scrollTop = 10000;
 		}
 	};
