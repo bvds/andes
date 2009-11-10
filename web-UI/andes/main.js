@@ -40,8 +40,7 @@ dojo.provide("andes.main");
 	andes.userId = query.u;
 	andes.projectId = query.p;
 	andes.sectionId = query.s || 1234;
-	andes.extra = query.e || "";
-	//extra field for Raj
+	andes.extra = query.e; //extra field for Raj
 	var ck = dojo.cookie("andes");
 	if(ck && ck.u){
 		// There was already a cookie here
