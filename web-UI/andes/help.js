@@ -73,7 +73,10 @@ dojo.require("andes.api");
 			// note:
 	                //	setting to the node and not with attr
 	                // 	because ContentPane is throwing errors that way
-      			hlp.containerNode.innerHTML = c + "\n<p><em>" + value + "</em></p>";
+			// Escape any html codes on text echo.
+		        // Should use future function dojo.string.escape
+                        // See http://trac.dojotoolkit.org/ticket/8995
+      			hlp.containerNode.innerHTML = c + "\n<p><em>" + value.replace(/\&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</em></p>";
 			hlp.domNode.scrollTop = 10000;
 		}
 	};

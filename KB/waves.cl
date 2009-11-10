@@ -1262,7 +1262,7 @@
     ))
 
 (def-psmclass intensity-to-poynting-vector-magnitude 
-  (intensity-to-poynting-vector-magnitude ?wave ?source ?)
+  (intensity-to-poynting-vector-magnitude ?wave ?source ?t)
   :complexity definition  ;want this to be freely substituted into expressions
   :short-name "intensity &amp; magnitude of the Poynting vector"
   :nlg-english ("relate intensity to the magnitude of the Poynting vector")
