@@ -574,7 +574,7 @@
 		   "ProjectionEquations.html" 
 		   :title "Projection equations"))
 	  (kcd "write_x_trig_projection_equation"))
-   (bottom-out (string "Since the direction of ~A is &theta;~A (~A deg) and the orientation of the x axis is &theta;~A (~A deg), you can write the general formula ~A = ~A ~A(&theta;~A - &theta;~A)."
+   (bottom-out (string "Since the direction of ~A is &theta;~A (~A deg) and the orientation of the x axis is &theta;~A (~A deg), you can write the general formula ~A = ~A*~A(&theta;~A - &theta;~A)."
 	       ?vector (?mag-var algebra) (?degrees adj)
 	       ;; symbols-label gets x axis label -- could be x, x1, x2
 	       ((axis x ?rot) symbols-label) (?x-rot adjective)
@@ -626,7 +626,7 @@
 		   "ProjectionEquations.html" 
 		   :title "Projection equations"))
 	  (kcd "write_x_trig_projection_equation"))
-   (bottom-out (string "Since the direction of ~a is ~a, and the rotation of the x axis is &theta;~A (~a deg), you can write the general formula ~a = ~a ~a(~a - &theta;~A)." 
+   (bottom-out (string "Since the direction of ~a is ~a, and the rotation of the x axis is &theta;~A (~a deg), you can write the general formula ~a = ~a*~a(~a - &theta;~A)." 
 		       ?vector (?dir-var algebra) 
 		       ((axis ?x ?rot) symbols-label) (?x-rot adj)
 		       (?compo-var algebra)
