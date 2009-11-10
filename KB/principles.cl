@@ -1113,6 +1113,12 @@
       #+sbcl (unless (eq (stream-external-format Stream) ':utf-8)
 	       (error "Wrong character code ~A, should be UTF-8"
 		      (stream-external-format Stream))))
+
+    ;; Test that tree contains all principles in Ontology
+    ;; Alternatively, one could test that all principles contained
+    ;; in the set of problems are contained in the principles tree.
+    (test-principle-tree *principle-tree*)
+
     (json:encode-json
      (list (cons :identifier "id")
 	   (cons :label "label")
@@ -1137,6 +1143,21 @@
 	     (psmclass-complexity 
 	      (lookup-psmclass-name (cdr (assoc :psm p))))))))
 
+(defun test-principle-tree (&optional (p *principle-tree*) (psms *Ontology-PSMClasses*))
+  ;; Verify that tree contains all PSMS in Ontology."
+  (dolist (name (mapcar #'psmclass-name psms))
+    (unless (has-this-psm name p) (warn "PSM ~A missing" name))))
+
+;; On load, test that all PSMs are represented in principles tree.
+(defun has-this-psm (name &optional (p *principle-tree*))
+  "Determine if a group has any major psm's in it."
+  (if (assoc :psm p)
+      (eql (cdr (assoc :psm p)) name)
+	;; if it is a group, do recursion
+      (some #'(lambda (group) (has-this-psm name group)) 
+	    ;; top level of tree is just a list
+	    (or (cdr (assoc :items p)) p))))
+
 (defun principle-groups (p &key sets)
   (let (result 
 	(items (assoc :items p)))
@@ -1158,11 +1179,15 @@
 	       (Eqnformat (cdr (assoc :eqnformat p)))
 	       (short-name (cdr (assoc :short-name p)))
 	       (pc (lookup-psmclass-name (cdr (assoc :psm p)))))
+	   (unless pc (warn "no PSM in Ontology for ~A" (cdr (assoc :psm p))))
 	   (push (cons :id (format nil "p~A" (incf jsonc))) result)
 	   (when sets
-	     (push (cons :items (or (collect-relevant-problems pc bindings)
-				    (error "PSM ~A has not associated problems" pc)))
-		   result))
+	     (let ((probs (collect-relevant-problems pc bindings)))
+	       (if probs
+		   (push (cons :items probs) result)
+		   (warn "PSM ~A ~A has no associated Andes problems"
+			 (psmclass-name pc)
+			 (subst-bindings bindings (psmclass-form pc))))))
 	   (push (cons :complexity (psmclass-complexity pc)) result)
 	   (unless sets
 	     (when (assoc :tutorial p)
