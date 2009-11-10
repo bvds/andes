@@ -564,7 +564,7 @@
    )
   :hint
   ((point (string "Since ~A is not perpendicular to the ~A axis, it has a non-zero component along that axis."  ?vector ((axis ?xyz ?rot) symbols-label)))
-   (teach (string "In general, if a vector V is oriented at &theta;V and the positive x axis is oriented at &theta;x ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V<sub>x</sub> = V cos(&theta;V - &theta;x)\\n   V<sub>y</sub> = V sin(&theta;v - &theta;x)" )
+   (teach (string "In general, if a vector V is oriented at &theta;V and the positive x axis is oriented at &theta;x ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}<br>   V<sub>x</sub> = V cos(&theta;V - &theta;x)<br>   V<sub>y</sub> = V sin(&theta;v - &theta;x)" )
 	  (kcd "write_x_trig_projection_equation"))
    (bottom-out (string "Since the direction of ~A is &theta;~A (~A deg) and the orientation of the x axis is &theta;~A (~A deg), you can write the general formula ~A = ~A ~A(&theta;~A - &theta;~A)."
 	       ?vector (?mag-var algebra) (?degrees adj)
@@ -612,7 +612,7 @@
    )
   :hint
   ((point (string "Since ~a is not known to be perpendicular to the ~A axis, you should use a general formula for its component along that axis."  ?vector ((axis ?xyz ?rot) symbols-label)))
-   (teach (string "In general, if a vector V is oriented at &theta;V and the positive x axis is oriented at &theta;x ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V<sub>x</sub> = V cos(&theta;V - &theta;x)\\n   V<sub>y</sub> = V sin(&theta;v - &theta;x)" )
+   (teach (string "In general, if a vector V is oriented at &theta;V and the positive x axis is oriented at &theta;x ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}<br>   V<sub>x</sub> = V cos(&theta;V - &theta;x)<br>   V<sub>y</sub> = V sin(&theta;v - &theta;x)" )
 	  (kcd "write_x_trig_projection_equation"))
    (bottom-out (string "Since the direction of ~a is ~a, and the rotation of the x axis is &theta;~A (~a deg), you can write the general formula ~a = ~a ~a(~a - &theta;~A)." 
 		       ?vector (?dir-var algebra) 

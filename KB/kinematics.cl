@@ -1309,7 +1309,7 @@
 	 (point (string 
 		 "Can you relate the following 3 vectors: the relative velocity of ~A wrt ~A, the relative velocity of ~a wrt ~a, and the relative velocity of ~a wrt ~A?"
 		 ?b1 ?b3  ?b1 ?b2  ?b2 ?b3))
-	 (teach (string "The relative velocity of a wrt c is equal to the vector sum of the relative velocity of a wrt b plus the relative velocity of b wrt c. In terms of components:\\n   Vac_x = Vab_x + Vbc_x\\n   Vac_y = Vab_y + Vbc_y."))
+	 (teach (string "The relative velocity of a wrt c is equal to the vector sum of the relative velocity of a wrt b plus the relative velocity of b wrt c. In terms of components:<br>   Vac_x = Vab_x + Vbc_x<br>   Vac_y = Vab_y + Vbc_y."))
 	 (bottom-out (string "Write the equation ~A"
 			     ((= ?v13 (+ ?v12 ?v23)) algebra)))
 	 ))
