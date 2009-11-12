@@ -36,7 +36,8 @@
 
 (defvar *debug* t "Special error conditions for debugging")
 
-(defun start-json-rpc-service (uri &key (port 8080) log-function)
+(defun start-json-rpc-service (uri &key (port 8080) log-function
+			       server-log-path)
   "Start a web server that runs a single service for handling json-rpc"
   ;; One could easily extend this to multiple web servers or multiple
   ;; services, but we don't need that now.
@@ -47,9 +48,11 @@
 	       #'default-dispatcher))
 
   ;; Error handlers
-  (setq *show-lisp-errors-p* t)
   (setf *http-error-handler* 'json-rpc-error-message)
   (setf *log-function* log-function)
+  ;; Log any errors in Hunchentoot or not otherwise handled.
+  ;; In particular, log any errors or warning in *log-function*
+  (when server-log-path (setf *MESSAGE-LOG-PATHNAME* server-log-path))
 
   ;; Test for multi-threading
   (unless hunchentoot::*supports-threads-p*
@@ -102,12 +105,9 @@
     
     ;; Log incoming raw json-rpc and user/problem session id
     (when *log-function* 
-      (handler-case (funcall *log-function* "client" *log-id*
-			     (raw-post-data :force-text t))
-	;; Need better handling for this:  need to inform user
-	;; and system administrator.
-	(error (c) (format *stdout* "Database post error ~A" c))))
-
+      (funcall *log-function* "client" *log-id* 
+	       (raw-post-data :force-text t)))
+    
     (when *debug* (format *stdout* "session ~A calling ~A with~%     ~S~%" 
 			  client-id method params))
     
@@ -171,9 +171,7 @@
     
     ;; Log reply message raw json string
     (when *log-function*
-      ;; Error handling needs work:  need to inform administrator.
-      (handler-case (funcall *log-function* "server" id return-json)
-	(error (c) (format *stdout* "Database reply error ~A" c))))
+	  (funcall *log-function* "server" id return-json))
     return-json))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
