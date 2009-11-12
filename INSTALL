@@ -99,6 +99,7 @@ make install-dojo
 (start-help)
 ;; At this point, you can type ctl-a ctl-d to detach from the 
 ;; lisp process; see the documentation for screen.
+;; By default, the help server will log in file "help-server.log"
 
 ;; To stop the lisp server:
 (stop-help)

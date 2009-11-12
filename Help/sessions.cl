@@ -51,7 +51,7 @@
 
 (defvar *cleanup-thread* "Function to clean up idle sessions")
 
-(defun start-help (&key (port 8080))
+(defun start-help (&key (port 8080) server-log-path)
   "start a server with help system, optionally specifying the port."
   ;; global setup
 
@@ -76,7 +76,12 @@
 
   ;; start webserver
   (webserver:start-json-rpc-service 
-   "/help" :port port :log-function #'andes-database:write-transaction)
+   "/help" :port port :log-function #'andes-database:write-transaction
+   ;; Path for Hunchentoot server (and database access) errors.
+   ;; Generally, these errors indicate something disasterous has
+   ;; occurred.  Might want to find some way to inform the administrator.
+   :server-log-path (or server-log-path
+			(merge-pathnames "help-server.log" *andes-path*)))
 
     (setf *cleanup-thread*
 	  #+sbcl (sb-thread:make-thread #'idle-cleanup-function)
