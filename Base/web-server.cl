@@ -371,7 +371,7 @@
 				  (return-from unwind (error-hint c))))
 		 ;; For warnings, we log the situation and continue
 		 (warning #'(lambda (c) (push (log-error c) log-warn) 
-				    (continue))))
+				   (muffle-warning))))
 	      ;; execute the method
 	      (apply func (if (alistp params) 
 			      (flatten-alist params) params)))))
