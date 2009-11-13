@@ -5,8 +5,8 @@
 # but the webserver functionality has only been tested for sbcl.
 # The following install procedure has been tested on Linux and OS X.
 
-# Set up an account for yourself at github, providing
-# your ssh key (see http://github.com/guides/home), and send
+# Set up an account for yourself at github, providing your ssh key 
+# (see "Generating SSH keys" at http://help.github.com/), and send
 # your user name to help@andestutor.org.
 
 # To install the Andes repository in directory "andes" use:
