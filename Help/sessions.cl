@@ -336,6 +336,7 @@
 	  (pushnew '(:action . "new-object") (cdr predef) :key #'car)
 	  (pushnew `(:id . ,(format nil "pre~A" (incf i))) (cdr predef) :key #'car)
 	  (pushnew '(:mode . "unknown") (cdr predef) :key #'car)
+	  (pushnew '(:time . 0.0) (cdr predef) :key #'car)
 	  (when (and (car predef) (not (assoc :type (cdr predef))))
 	    (push `(:type . ,(entryprop2type (car predef))) (cdr predef)))
 	  (when (and (car predef) (assoc :symbol (cdr predef))
@@ -517,11 +518,7 @@
 		 (not (equal type (StudentEntry-type old-entry))))
 	(warn "Attempting to change type from ~A to ~A"
 	      (StudentEntry-type old-entry) type))
-      ;; If time slot is missing, set time to zero.
-      ;; Predefs generally don't have a time slot.
-      ;; Client always should send a time.
-      (unless time (setf time 0.0))
-      
+
       ;; create new object
       (setf new-entry (make-StudentEntry :id id :type type :time time))
       
@@ -621,13 +618,17 @@
       ;; call next-step-help or do-whats-wrong
       ((equal action "help-button")
        ;; Find if there are any current errors.
-       (let ((mistakes (member **incorrect** *studententries* 
+       (let ((mistakes (remove **incorrect** *studententries* 
+			       :test-not #'eql
 			       :key #'StudentEntry-state)))
 	 (if mistakes
 	     (execute-andes-command 'do-whats-wrong 
 				    ;; find most recent mistake, time-wise
-				    (car (sort mistakes #'> 
-					       :key  #'StudentEntry-time)))
+				    (reduce #'(lambda (x y)
+						(if (> (studententry-time x)
+						       (studententry-time y))
+						    x y))
+					    mistakes))
 	     (execute-andes-command 'next-step-help))))
       ;; Student has typed text in help pane.
       ((and (equal action "get-help") text)
