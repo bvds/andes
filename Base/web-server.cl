@@ -165,9 +165,7 @@
 	 ;; By default, cl-json turns dashes into camel-case:  
 	 ;; Instead, we convert to lower case, preserving dashes.
 	 (let ((*lisp-identifier-name-to-json* #'string-downcase))
-	   ;; Error handling needs work:  need to inform administrator.
-	   (handler-case (encode-json-alist-to-string reply)
-	     (error (c) (format *stdout* "Encoding error ~A" c))))))
+	   (encode-json-alist-to-string reply))))
     
     ;; Log reply message raw json string
     (when *log-function*
@@ -338,12 +336,12 @@
 (defun log-error (condition)
   "Log after an error or warning has occurred."
   `((:action . "log")
-     (:error-type . ,(string (type-of condition)))
-     (:error . ,(format nil "~A" condition))
-     (:backtrace . ,(with-output-to-string 
-		     (stream)
-		     ;; sbcl-specific function 
-		     #+sbcl(sb-debug:backtrace 20 stream)))))
+    (:error-type . ,(string (type-of condition)))
+    (:error . ,(format nil "~A" condition))
+    (:backtrace . ,(with-output-to-string 
+		    (stream)
+		    ;; sbcl-specific function 
+		    #+sbcl (sb-debug:backtrace 20 stream)))))
 
 (defun execute-session (session-hash turn func params)
   "Execute a function in the context of a given session when its turn comes.  If the session doesn't exist, create it.  If there is nothing to save in *env*, delete session."
