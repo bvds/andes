@@ -27,7 +27,14 @@ install-clsql:
 	mv clsql-$(clsql-v) /usr/local/lib/sbcl/site
 	cd /usr/local/lib/sbcl/site-systems; ln -s ../site/clsql-$(clsql-v)/*.asd .
 
+#  Also, need to fix error handling in usocket and hunchentoot:
+#  apply as patches (See Bug #1614):
+#    r4323 from svn co svn://bknr.net/svn/trunk/thirdparty/hunchentoot
+#    r497 from  svn co svn://common-lisp.net/project/usocket/svn/usocket/trunk usocket-svn
+#
+
 create-site-libraries:
+	chmod -R go+r /usr/local/lib/sbcl/site/md5*
 	-cd /usr/local/lib/sbcl/site; rm */*.fasl; rm */*/*.fasl
 	tar zcf sbcl-site-libraries.tgz --directory=/usr/local/lib/sbcl/ site site-systems
 
