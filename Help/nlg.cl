@@ -352,11 +352,19 @@
 ;; quantity when the problem opens.
 (defun SystemEntry-new-english (entry)
   "Match SystemEntry to Ontology, pulling out model sentence."
-  (or (SystemEntry-model entry)
-      ;; this resolves bindings
+  (or (SystemEntry-model entry)    ;Use SystemEntry-model as a cache
       (setf (SystemEntry-model entry)
 	    ;; Don't complain if we have to resort to using nlg.
 	    (new-english-find (second (SystemEntry-prop entry)) :nlg-warn nil))))
+
+(defun qnode-new-english (qnode)
+  "Match qnode to Ontology, pulling out model sentence, including any var."
+  ;; use same strategy as for systementries.
+  (or (Qnode-model qnode)   ;Use Qnode-model as a cache
+      (setf (Qnode-model qnode)
+	    ;; Don't complain if we have to resort to using nlg.
+	    `(or (var ,(qnode-exp qnode))
+		 ,(new-english-find (qnode-exp qnode) :nlg-warn nil)))))
 
 (defun new-english-find (prop &key nlg-warn)
   "Match proposition to Ontology"

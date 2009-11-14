@@ -431,16 +431,17 @@
 ;;; use these functions if they can be because they will facilitate cleanliness.
 
 (defstruct (Qnode (:print-Function Print-Qnode))
-  (Symbol (gensym "Qnode"))		; Unique Gensym symbol for identification.
-  Gindex				; Integer index of the symbol in graph list (may supersede symbol.)
-  VIndex				; Index of the variable in the varlist corresponding to this qnode.
-  Exp					; Lisp Expression representing this quantity.
-  var					; The Expression symbol used in the solver equations.
-  Eqns					; Equation nodes containing this quantity.
-  Marks					; Markings added to the node for help system purposes.
-  path					; Optional path that may be used for data storage.
-  Assumptions				; Assumptions made in the path.
-  Entries                               ; List of entry props that are in this node's psm.
+  (Symbol (gensym "Qnode"))	  ;Unique Gensym symbol for identification.
+  Gindex      ;Integer index of the symbol in graph list (may supersede symbol)
+  VIndex      ;Index of the variable in varlist corresponding to this qnode.
+  Exp	      ;Lisp Expression representing this quantity.
+  var	      ;The Expression symbol used in the solver equations.
+  Eqns	      ;Equation nodes containing this quantity.
+  Marks	      ;Markings added to the node for help system purposes.
+  path	      ;Optional path that may be used for data storage.
+  Assumptions ;Assumptions made in the path.
+  Entries     ;of entry props that are in this node's psm.
+  model       ;model sentence
   )
 
 
