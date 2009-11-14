@@ -31,15 +31,19 @@ git clone ssh://git@andestutor.org/home/git/Andes-solutions.git/ solutions
 
 # ImageMagick http://www.imagemagick.org is used to dimension graphics
 # files.  This is included in standard linux distributions (but not OS X).
+identify --version
 
 ====================== SBCL ===============================
 
 # The sbcl website is http://sbcl.sourceforge.net/.
 # A list of all releases can be found at:
 # http://sourceforge.net/projects/sbcl/files/
-# You need a version that includes thread support.
-# (For example, sbcl-1.0.28-x86-linux contains thread support,
-# but sbcl-1.0.29-x86-linux does not.)
+# You will need a version that includes thread support.  However,
+# recent binary releases of sbcl do not include thread support.
+# In that case, do the following:
+#   1. Download a binary release and install it (for compiling source code).
+#   2. Download the latest source release.  Follow instructions in Section 2.2
+#      of the INSTALL file for enabling thread support.  Compile and install.
 # To test for thread support, start up sbcl and type the 
 # command "(find :sb-thread *features*)"
 
