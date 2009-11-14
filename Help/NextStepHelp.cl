@@ -1700,29 +1700,45 @@
 
 (defun nsh-check-sought-resp (response past)
   "Check the sought response."
-  (let ((Q (nsh-convert-response->quantity response)))                           ;; uses *current graph*
-    (cond ((member response past :test #'equal) (nsh-sought-resp-rep past))      ;; have they tried this before.
-	  ((null Q) (nsh-sought-resp-nil (cons response past)))                  ;; is the quantity valid?
-	  ((not (qnode-soughtp Q)) (nsh-sought-resp-ns (cons response past))) ;; Is the quantity sought?
-	  (t (nsh-ask-first-principle (random-positive-feedback) Q)))))          ;; Else use the value and move on.
-
+  ;; uses *current graph*
+  (let ((Q (nsh-convert-response->quantity response)))
+    ;; have they tried this before.
+    (cond ((member response past :test #'equal) (nsh-sought-resp-rep past))
+	  ;; is the quantity valid?
+	  ((null Q) (nsh-sought-resp-nil (cons response past)))
+       	  ;; Is the quantity sought?
+	  ((not (qnode-soughtp Q)) (nsh-sought-resp-ns (cons response past))) 
+	  ;; Else use the value and move on.
+	  (t (nsh-ask-first-principle (random-positive-feedback) Q)))))         
 
 (defun nsh-convert-response->quantity (Q)
   "Find qnode associated with entered variable name or definition"
-  ;; This is a really brain-dead version:  it only matches symbol
-  ;; names and not definitions.  Also, It does not test a threshold.
-  ;; needs error handling for >1 match or no matches.
+  ;; This is a somewhat brain-dead version:  It does not test a threshold;
+  ;; it needs error handling for >1 match or no matches;
   ;; It should have handling for case errors.
-  (let (best)
-    (setf best (best-matches
-		Q
-		(mapcar #'(lambda (x) 
-			    (cons (sym-label x)
-				  (match-exp->qnode (sym-referent x) 
-						    (problem-graph *cp*))))
-			*variables*)))
-    (car best)))
+  (let ((best (best-model-matches
+	       (word-parse Q)
+	       (mapcar #'(lambda (x)
+			   (format webserver:*stdout* "  here i lamda~%")
+			   (cons (expand-vars (qnode-new-english x)) x))
+		       (bubblegraph-qnodes (problem-graph *cp*)))
+	       :cutoff 10000 :equiv 1.1)))
 
+    ;; Debug printout:
+    (when nil
+      (format webserver:*stdout* "Best match to ~s is~%   ~S~% from ~S~%" 
+	      Q
+	      (mapcar 
+	       #'(lambda (x) (cons (car x) 
+				   (expand-vars (qnode-model (cdr x)))))
+	       best)
+	      (mapcar #'(lambda (x) 
+			  (cons (expand-vars (qnode-new-english x)) 
+				(qnode-exp x)))
+		      (bubblegraph-qnodes (problem-graph *cp*)))))
+
+    ;; for now, just choose best value if it is unique.
+    (when (= (length best) 1) (cdr (car best)))))
 
 
 ;;; If the student has tried this value before and been told 

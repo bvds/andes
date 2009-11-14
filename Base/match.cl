@@ -69,7 +69,8 @@
 
 (defun word-string (model)
   "Make string phrase out of model."
-  ;; Could randomize over order for (and ...) and choices for (or ...).
+  ;; Generally, we assume the given order of (and ...) and 
+  ;; the first member of (or ....) is the preferred choice.
   (cond 
     ((stringp model) model)
     ((or (stringp (car model)) (listp (car model)))
@@ -445,8 +446,8 @@
   ;; Thus, in the case where a perfect match has been found, 
   ;; we need to adjust the bound so any other perfect matches 
   ;; may also be found.
-  
-  (unless (> equiv 1.0) 
+
+  (unless (and (numberp equiv) (> equiv 1.0))
     (warn "best-model-matches:  equiv=~A  must be larger than 1" equiv))
   (let (this (best (/ (* cutoff (length student)) equiv)) quants bound)
     (dolist (x models)
@@ -458,18 +459,6 @@
     ;; remove any quantities that are not equivalent with best fit. 
     (remove-if #'(lambda (x) (> (car x) (* best equiv))) quants)))
 
-(defun best-matches (text good)
-  "Returns array of best matches to text.  Use minimum edit distance."
-  (let (this (best 1000000.0) quants)
-    (dolist (x good)
-      ;; Normalize by maximum possible distance.
-      (setf this (normalized-levenshtein-distance text (car x)))
-      (cond ((< this best)
-            (setf best this)
-            (setf quants (list (cdr x))))
-           ((= this best)
-            (push (cdr x) quants))))
-    quants))
 
 (defun normalized-levenshtein-distance (s1 s2)
   "Normalize levenshtein-distance so complete rewrite is 1.0."
