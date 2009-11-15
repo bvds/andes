@@ -266,7 +266,7 @@
 ;; dumping answers
 (defun expr-value (expr)
  (let ((qvar (find expr (Problem-VarIndex *cp*) :key #'qvar-exp
-                                               :test #'equal)))
+                                               :test #'unify)))
      (when qvar 
        (if (qvar-units qvar) 
           (list (qvar-value qvar) (qvar-units qvar))

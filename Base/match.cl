@@ -447,6 +447,8 @@
   ;; we need to adjust the bound so any other perfect matches 
   ;; may also be found.
 
+  (unless (<= cutoff 1.0)
+    (warn "best-model-matches:  cutoff=~A  must be <= 1" cutoff))
   (unless (and (numberp equiv) (> equiv 1.0))
     (warn "best-model-matches:  equiv=~A  must be larger than 1" equiv))
   (let (this (best (/ (* cutoff (length student)) equiv)) quants bound)

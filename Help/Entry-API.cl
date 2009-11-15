@@ -455,8 +455,9 @@
 	      (if matches
 		  (format nil "Did you mean?~%<ul>~%~{  <li>~A</li>~%~}</ul>"
 			  (mapcar #'(lambda (x) 
-				      (word-string (expand-vars 
-						    (SystemEntry-model x))))
+				      (word-string 
+				       (expand-vars 
+					(SystemEntry-new-english x))))
 				  matches))
 		  "Try to be more specific in your definition.")))))
     (setf (turn-id rem) (StudentEntry-id entry))

@@ -1650,7 +1650,7 @@
 (defun nsh-ask-sought-and-fp ()
   "Start the NSH sought and FP loop."
   (nsh-ask-sought 
-   (strcat (nsh-asfp-given-str) "  "
+   (strcat (nsh-asfp-given-str) "&nbsp;  "
 	   (nsh-asfp-sought-str))))
 
 
@@ -1668,8 +1668,8 @@
 (defun nsh-asfp-sought-str ()
   "Get the prompt string for nsh-ask-sought."
   (if (multi-sought-problem-p *cp*)
-      "What is one quantity that the problem is seeking?"
-    "What quantity is the problem seeking?"))
+      "Enter one quantity that the problem is seeking:"
+    "Enter the quantity that the problem is seeking:"))
 
 
 ;;; This is the loopback point that will be used for the dialogues at runtime 
@@ -1699,35 +1699,19 @@
 ;;; will get a generaic incorrect response and move on.
 
 (defun nsh-check-sought-resp (response past)
-  "Check the sought response."
-  ;; uses *current graph*
-  (let ((Q (nsh-convert-response->quantity response)))
-    ;; have they tried this before.
-    (cond ((member response past :test #'equal) (nsh-sought-resp-rep past))
-	  ;; is the quantity valid?
-	  ((null Q) (nsh-sought-resp-nil (cons response past)))
-       	  ;; Is the quantity sought?
-	  ((not (qnode-soughtp Q)) (nsh-sought-resp-ns (cons response past))) 
-	  ;; Else use the value and move on.
-	  (t (nsh-ask-first-principle (random-positive-feedback) Q)))))         
+  "Check the sought response, returning tutor turn."
 
-(defun nsh-convert-response->quantity (Q)
-  "Find qnode associated with entered variable name or definition"
-  ;; This is a somewhat brain-dead version:  It does not test a threshold;
-  ;; it needs error handling for >1 match or no matches;
-  ;; It should have handling for case errors.
   (let ((best (best-model-matches
-	       (word-parse Q)
+	       (word-parse response)
 	       (mapcar #'(lambda (x)
-			   (format webserver:*stdout* "  here i lamda~%")
 			   (cons (expand-vars (qnode-new-english x)) x))
 		       (bubblegraph-qnodes (problem-graph *cp*)))
-	       :cutoff 10000 :equiv 1.1)))
+	       :cutoff 0.6 :equiv 1.1)))
 
     ;; Debug printout:
     (when nil
       (format webserver:*stdout* "Best match to ~s is~%   ~S~% from ~S~%" 
-	      Q
+	      response
 	      (mapcar 
 	       #'(lambda (x) (cons (car x) 
 				   (expand-vars (qnode-model (cdr x)))))
@@ -1737,8 +1721,21 @@
 				(qnode-exp x)))
 		      (bubblegraph-qnodes (problem-graph *cp*)))))
 
-    ;; for now, just choose best value if it is unique.
-    (when (= (length best) 1) (cdr (car best)))))
+    (cond 
+      ((null best) ;no matches
+       (nsh-sought-resp-nil past))
+      ;; too many matches or poor unique match
+      ((or (cdr best) (> (car (car best)) 0.2))  
+       (nsh-sought-resp-ambiguous (mapcar #'cdr best) past))
+      (t          ;unique match
+       (let ((Q (cdr (car best))))
+	 (cond 
+	 ;; have they tried this before?
+	   ((member Q past) (nsh-sought-resp-rep past))
+	   ;; Is the quantity sought?
+	   ((not (qnode-soughtp Q)) (nsh-sought-resp-ns Q (cons Q past))) 
+	   ;; Else use the value and move on.
+	   (t (nsh-ask-first-principle (random-positive-feedback) Q))))))))
 
 
 ;;; If the student has tried this value before and been told 
@@ -1750,8 +1747,8 @@
 (defun nsh-sought-resp-rep (Past)
   "Return a message signifying that you tried this already."
   (nsh-wrong-sought-resp 
-   (strcat "In order to move ahead, you have to try selecting "
-	   "something that you haven't tried before.")
+   (strcat "In order to move ahead, you have to enter a quantity "
+	   "that you haven't tried before.")
    Past :Case 'Repeat))
 
 
@@ -1761,19 +1758,26 @@
 (defun nsh-sought-resp-nil (Past)
   "Return a message signifying wrong sought supplied."
   (nsh-wrong-sought-resp 
-   "That quantity is not mentioned in the Andes solution."
+   "Your entry does not match any quantities needed to solve this problem."
+   Past :Case 'Null))
+
+(defun nsh-sought-resp-ambiguous (quants Past)
+  "Return a message signifying ambiguous sought supplied."
+  (nsh-wrong-sought-resp 
+   (format nil "Which quantity are you referring to?&nbsp; Do you mean ~A?"
+	   (word-string (expand-vars (qnode-new-english 
+				      (random-elt quants)))))
    Past :Case 'Null))
 
 
 ;;; If they select a value that is in the graph but not sought 
 ;;; then, again, we giuve them that information and move them 
 ;;; on with appropriate information.  
-(defun nsh-sought-resp-ns (Past)
+(defun nsh-sought-resp-ns (quant Past)
   "Return a message signifying that quantity is not sought."
   (nsh-wrong-sought-resp 
-   "That quantity is not sought by the problem statement."
+   "Your entry is not sought by the problem statement."
    Past :Case 'not-sought))
-
 
 
 ;;; ------------------ wrong-sought ---------------------------------
@@ -1783,7 +1787,7 @@
 ;;; will simply tell them which quantity to use. 
 (defun nsh-wrong-sought-resp (msg past &key (Case 'default-wrong-sought))
   (if (< (length past) **Max-sought-Tries**)
-      (nsh-ask-sought msg past Case)
+      (nsh-ask-sought (strcat msg "&nbsp; " "Please try again:") past Case)
     (nsh-tell-sought msg Case)))
 
 
@@ -1794,11 +1798,11 @@
 ;;; tell all of the soughts.  Else they'll never see the others.
 (defun nsh-tell-sought (message Case)
   "Tell the student what the problem is seeking and move on."
-  ; for Bug 678 - ignore possible multiple choice questions before quantity soughts
+  ;; Filter out possible multiple choice questions.
   (let ((Sought (car (remove-if-not #'quantity-expression-p
 				    (problem-soughts *cp*)))))
     (make-dialog-turn
-     (strcat message "  Let's just assume that you are seeking "
+     (strcat message "&nbsp; " "Let's just assume that you are seeking "
 	     (nlg Sought 'def-np) ".")
      **OK-Menu**
      :responder #'(lambda (response)
@@ -1828,7 +1832,7 @@
 
 (defparameter **NSH-AFP-Multi-String**
     (strcat "Hint: usually this principle will usually mention one "
-	    "of the sought quantities explicitly.  That is, its equation may "
+	    "of the sought quantities explicitly.&nbsp; That is, its equation may "
 	    "contain one of the answer quantities."))
 
 (defparameter  **NSH-AFPC-DIRECT-String**
