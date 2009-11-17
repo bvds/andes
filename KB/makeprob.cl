@@ -133,9 +133,10 @@
     ;; also initializes *sg-entries*
     (read-problem-info (string (problem-name P))
 		       :path in-path)
-       (if *cp* (dump-html-problem-solutions *cp* out-path)
-	   (format t "Error:  Can't load ~A~%" (problem-name p))))
+    (if *cp* (dump-html-problem-solutions *cp* out-path)
+	(format t "Error:  Can't load ~A~%" (problem-name p))))
   (dump-style-file out-path))
+
 
 ;; need helpsystem loaded for this
 ;; (dump-entries-operators #P"/home/bvds/Andes2/solutions/" #P"/home/bvds/solutions/")
@@ -149,6 +150,24 @@
 		       :path in-path)
        (if *cp* (dump-entries-operators-problem-solutions *cp* out-path)
 	   (format t "Error:  Can't load ~A~%" (problem-name p)))))
+
+;; Quick analysis for Kasia Muldner (Katarzyna.Muldner@asu.edu)
+(defun dump-step-principles-length (&rest topics)  
+  "For each problem, write the number of PSMS and Entries (except implicit-eqn) for the first solution."
+  ;; Might want to turn off *debug-help*
+  (andes-init)
+  (dolist (P (choose-working-probs topics))
+    ;; also initializes *sg-entries*
+    (read-problem-info (string (problem-name P)))
+    (when *cp* 
+      (let ((sol (first (problem-solutions *cp*))))
+	(format t "~A ~A ~A~%" (problem-name *cp*)
+		(length (Eqnset-Eqns sol)) 
+		(length (remove-if #'(lambda (x) (eql (car x) 'implicit-eqn))
+				   (distinct-SystemEntries 
+				    (mappend #'bgnode-entries 
+					     (EqnSet-nodes sol)))
+				   :key #'systementry-prop)))))))
 
 ;;; for dealing with problem sets:
 ;;; For each ANDES problem set, there should be some distinguished feature set 
