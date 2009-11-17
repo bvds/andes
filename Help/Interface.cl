@@ -358,20 +358,23 @@
 			     (:text . ,(turn-text turn))) result)
 		     ;; add followup codes if any
 		     (when (turn-menu turn)
-		       (if (consp (turn-menu turn)) ; list => menu spec
-			   ;; for now, only one level permitted.
-			   ;; format list with vbar delimiters
-			   (warn "menu spec ~A unimplemented" (turn-menu turn))
+		       (if (consp (turn-menu turn)) 
+			   ;; alist of keyword, text pairs
+			   ;; to be presented as a list of choices
+			   (dolist (choice (turn-menu turn))
+			      (push `((:action . "show-hint-link")
+				      (:text . ,(cdr choice)) 
+				      (:value . ,(symbol-name (car choice))))
+				    result))
 			   ;; else predefined menu:
 			   (case (turn-menu turn)
-			     ;; predefined menus have single-letter codes:
 			     (explain-more 
-			      (push '((:action . "show-hint-link")
+			      (push `((:action . "show-hint-link")
 				      (:text . "Explain more") 
-				      (:value . "explain-more"))
+				      (:value . ,(symbol-name 
+						  **explain-more**)))
 				    result))
-			     (quant-menu  
-			      ;; In Andes3, this is text entry.
+			     (text-input  
 			      (push '((:action . "focus-hint-text-box"))
 				    result))
 			     ;; Add text to modal dialog box.
@@ -393,7 +396,6 @@
       (kcd-turn (push `((:action . "show-hint") 
 			(:text . ,(turn-text turn))) result)
 		(case (Turn-menu turn)
-		  (Free-Text (warn "kcd free text."))
 		  (Explain-More (warn "kcd explain more."))
 		  (otherwize (warn "kcd otherwize."))))
       ;; Format the stat turn as a list of values for the workbench.  

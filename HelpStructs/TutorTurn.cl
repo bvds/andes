@@ -137,15 +137,7 @@
 ;; These are the menus in use by the system.
 ;; nil menu is hide.
 (defconstant **Explain-More** 'Explain-More "The Explain more/hide menu.")
-(defconstant **Quant-Menu** 'Quant-Menu)
 (defconstant **Psm-Menu** 'Psm-Menu)
-;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
-(#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
- **Yes-No-Menu** '("Yes" "No") #+sbcl #'equalp)
-(#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
- **OK-Menu** '("OK") #+sbcl #'equalp)
-(defconstant **Hide-Menu** 'Hide-Menu)
-(defconstant **Free-Text** 'Free-text "Calls for a typed student response.") 
 (defconstant **Equation-Menu** 'Equation-menu)
     
 (defun print-turn (Turn &optional Stream (Level 0))
@@ -532,7 +524,7 @@
 			Hint))
    **Explain-More**
    :responder #'(lambda (r)
-		  (when (eq R **Explain-More**)
+		  (when (eql R **Explain-More**)
 		    (make-hint-seq Next :Assoc (alist-warn Assoc) :OpTail OpTail)))
    :Assoc (alist-warn (or Assoc `((OpHint ,OHType String . ,OpTail))))))
 
@@ -600,7 +592,7 @@
    (strcat Prefix (nth 1 Hint))
    **Explain-More**
    :responder #'(lambda (r)
-		  (when (eq R **Explain-More**)
+		  (when (eql R **Explain-More**)
 		    (make-hint-seq Next :Assoc (alist-warn Assoc) :OpTail OpTail)))
    :Assoc (alist-warn (or Assoc (list (nth 2 hint))))))
 
@@ -625,7 +617,7 @@
 			Hint))
    **Explain-More**
    :responder #'(lambda (r)
-		  (when (eq R **Explain-More**)
+		  (when (eql R **Explain-More**)
 		    (make-hint-seq Next :Assoc (alist-warn Assoc) :OpTail OpTail)))
    :Assoc (alist-warn Assoc)))
 

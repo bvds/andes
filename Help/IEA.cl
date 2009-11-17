@@ -250,11 +250,13 @@
   (make-dialog-turn
    (format Nil **IEA-Alternate-axis-Message**
 	   (if (equal NewAxis 'X) 'Y 'X) NewAxis)
-   **Yes-No-Menu**
+   '((yes . "yes") (no . "no"))
    :Responder #'(lambda (Response)
-		  (if (String-equal Response "Yes")
-		      (iea-prompt-alt-axes-yes Equation Bindings NewAxis)
-		    (iea-prompt-alt-axes-no)))
+		  (cond ((eql Response 'yes)
+			 (iea-prompt-alt-axes-yes Equation Bindings NewAxis))
+			((eql Response 'no) (iea-prompt-alt-axes-no))
+			(t (warn "iea-alternate-axes-prompt response ~A" 
+				 response))))
    :Assoc `((IEA prompt-alternate-axes ,(PSMClass-name equation) ,Bindings ,NewAxis))))
 
 
@@ -271,8 +273,9 @@
 
 
 
-;;; If the student prompts that they are uninterested in going with the new axis then
-;;; we will close with a message suggesting that they pull up NSH if they are lost.
+;;; If the student prompts that they are uninterested in going with the new 
+;;; axis then we will close with a message suggesting that they pull up NSH 
+;;; if they are lost.
 (defun iea-prompt-alt-axes-no ()
   (make-hint-seq
    (list **IEA-alt-axes-no** '(function next-step-help))

@@ -635,7 +635,7 @@
        (execute-andes-command 'handle-student-response text))
       ;; Student has clicked a link associated with the help.
       ((and (equal action "get-help") value)
-       (let ((response-code (find-symbol (string-upcase value))))
+       (let ((response-code (find-symbol value)))
 	 (unless response-code (warn "Unknown value ~A, using nil." value))
 	 (execute-andes-command 'handle-student-response response-code)))
       ((equal action "principles-menu")
