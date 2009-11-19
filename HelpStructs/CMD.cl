@@ -204,20 +204,9 @@
        (equalp (cmd-command CMD) 'next-step-help)))
 
 (defun why-wrong-cmdp (CMD)
-  "Is this a why-wrong-equation or why-wrong-object call?"
+  "Is this a do-whats-wrong call?"
   (and (help-cmdp CMD)
-       (or (equalp (cmd-command CMD) 'WHY-WRONG-OBJECT)
-	   (equalp (cmd-command CMD) 'WHY-WRONG-EQUATION))))
-
-(defun why-wrong-EQN-cmdp (CMD)
-  "Is this a why-wrong-equation or why-wrong-object call?"
-  (and (help-cmdp CMD) 
-       (equalp (cmd-command CMD) 'WHY-WRONG-EQUATION)))
-
-(defun why-wrong-OBJ-cmdp (CMD)
-  "Is this a why-wrong-equation or why-wrong-object call?"
-  (and (help-cmdp CMD) 
-       (equalp (cmd-command CMD) 'WHY-WRONG-OBJECT)))
+       (eql (cmd-command CMD) 'do-whats-wrong)))
   
 ;; Note: delete-cmdp does not work for equation deletions
 ;; sent as DDE-POST of (lookup-eqn-string "" id) [Bug 1254]
