@@ -53,8 +53,8 @@ dojo.provide("andes.defaults");
 			color: "#000000"
 		},
 		fade:{
-			fill:  "#262626",
-			color: "#000000"
+			fill:  "#0000FF",
+			color: "#0000FF"
 		},
 		correct:{
 			fill:  "#CCFFCC",
@@ -193,7 +193,7 @@ dojo.provide("andes.defaults");
 		
 		},
 		
-		copy: function(){
+		/*copy: function(){
 			// summary
 			//	Each shape gets its own copy
 			//	of these styles so that instances
@@ -217,6 +217,42 @@ dojo.provide("andes.defaults");
 			o.currentHit = o.hitNorm;
 			o.currentText = o.text;
 			return o;
+		}*/
+		copy: function(){
+		// summary
+		//		Each shape gets its own copy
+		//		of these styles so that instances
+		// 		do not change each other's styles
+		//
+		var cpy = function(obj){
+				if(typeof(obj)!="object" || obj===null || obj===undefined){
+					return obj;
+				}
+				var o;
+				if(obj.push){
+					o = [];
+					for(var i=0; i<obj.length;i++){
+						o.push(cpy(obj[i]))
+					}    
+					return o;
+				}
+			o = {};
+			for(var nm in obj){
+				if(nm!="copy"){
+					if(typeof(obj[nm])=="object"){
+						o[nm] = cpy(obj[nm]);
+					}else{
+						o[nm] = obj[nm]
+					}
+				}
+			}
+			return o;
+		}
+		var o = cpy(this);
+		o.current = o.norm;
+		o.currentHit = o.hitNorm;
+		o.currentText = o.text;
+		return o;
 		}
 		
 	};
