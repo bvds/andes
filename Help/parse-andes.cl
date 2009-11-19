@@ -588,9 +588,7 @@
 	           (format nil "Case matters in variable names: \"g\" means something different than \"G\".  You probably meant ~A instead of ~A." (nth i-first-miss near-misses) (nth i-first-miss undef-vars))
 		  ;; else not near-miss: give advice if used compo notation:
 		  (if is-comp-var
-		      (if (cdr is-comp-var)
-			  (format nil "The variables: ~a may be defined by drawing coordinate axes" is-comp-var)
-			(format nil "The variable: ~a may be defined by drawing coordinate axes." (car is-comp-var)))
+		      (format nil "Vector components ~a are automatically defined when you draw coordinate axes." is-comp-var)
 		    tmp-msg))))))
 
     (setf (turn-id rem) id)

@@ -143,7 +143,10 @@ dojo.provide("andes.drawing");
 			}
 
 			items[item.id] = item;
-
+			
+			//Might not be the best place for this
+			if(item.mode=="fade") item.attr(andes.defaults.fade);
+			
 			if(noConnect){
 				return;
 			}
@@ -156,7 +159,8 @@ dojo.provide("andes.drawing");
 			});
 
 			item.connect("onChangeData", this, function(item){
-				console.log("---------------------------------> onChangeData", item.id, item.type);//dojo.toJson(item.data));
+				if (item.mod == true) { return;};
+				console.log("---------------------------------> onChangeData andes.drawing", item.id, item.type);//dojo.toJson(item.data));
 				console.log("drawing.js items:", items)
 				var data = andes.convert.drawingToAndes(item, "modify-object")
 				console.info("Save to server", data);
@@ -195,12 +199,13 @@ dojo.provide("andes.drawing");
 				//if(obj.type!="axes"){ return; }
 				if(obj.action =="new-object"){
 					var o = andes.convert.andesToDrawing(obj);
+					
 					var t = o.stencilType;
 					if(t=="vector" || t=="line" || t=="ellipse" || t=="rect"){
 
 						// prevent adding items via onRenderStencil
 						// by adding the ids first:
-						var statementId = _drawing.util.uid("statement");
+						var statementId = _drawing.util.uid("dojox.drawing.tools.TextBlock");
 						var masterId = _drawing.util.uid(t);
 						items[statementId] = true;
 						items[masterId] = true;
@@ -212,7 +217,6 @@ dojo.provide("andes.drawing");
 					}else{ // image, statement, equation, axes
 						var item = _drawing.addStencil(o.stencilType, o);
 						item.andesType = obj.type; // to tell between equation and statement
-
 						this.add(item);
 					}
 
@@ -222,28 +226,11 @@ dojo.provide("andes.drawing");
 				}else if(obj.action=="delete-object"){
 				        // need error handling for non-existant objects.
 					if(items[obj.id]){
-						//destroy method isn't working, playing with alternatives while trying to see why
-						/*dojo.hitch(items[obj.id], function(){
-							// summary:
-							//		Destroys this Stencil
-							// Note:
-							//		Can connect to this, but it's better to
-							//		connect to onDelete
-							//
-							// prevent loops:
-							if(this.destroyed){ return; }
-							if(this.data || this.points && this.points.length){
-								this.onDelete(this);
-							}
-							
-							this.disconnectMouse();
-							this.disconnect(this._cons);
-							dojo.disconnect(this._postRenderCon);
-							this.remove(this.shape, this.hit);
-							this.destroyed = true;
-							console.warn("if statement has executed",items[obj.id]);
-						});*/
-						items[obj.id].destroy();
+						if (items[obj.id].type=="andes.Combo") { 
+							items[obj.id].master.destroy(); 
+							} else {
+							items[obj.id].destroy();
+						};
 						delete items[obj.id];
 					}
 
@@ -261,6 +248,7 @@ dojo.provide("andes.drawing");
 				// obj.mod=="deleted" should never occur if
 				// items[obj.id] exists.
 				if(items[obj.id]){
+					items[obj.id].mod = true;
 				        // style
 					items[obj.id].attr(andes.defaults[obj.mode]);
 					// x, y
@@ -270,12 +258,32 @@ dojo.provide("andes.drawing");
 							y:obj.y
 						});
 					}
-					// text
-					if(obj.text){
-						items[obj.id].attr({text:obj.text});
+					if(obj.type=='vector' || obj.type=='axes' || obj.type=='line'){
+						
+						items[obj.id].master.attr({
+							angle:obj.angle,
+							radius:obj.radius
+						});
 					}
+					if(obj.type=="ellipse" || obj.type=='rect'){
+						items[obj.id].master.attr({
+							height:obj.height,
+							width:obj.width
+						});
+					}
+					// text
+					if(items[obj.id].text) {console.warn("in the first"); items[obj.id].attr({text:obj.text});};
+					if(obj.text && items[obj.id].type == "andes.Combo") { 
+						/*items[obj.id].master.attr({
+													label:obj.text
+												});*/
+						var text = obj.text==" "? obj.symbol : obj.text;
+						items[obj.id].textEdit(text);
+					};
+					
+					items[obj.id].mod = false;
 
-				}
+				};
 			},this);
 
 			data = null;

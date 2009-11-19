@@ -413,7 +413,8 @@
 		  (list response-code)))
 
 	;; else no responder!
-	(T (make-end-dialog-turn "Your comment has been recorded.")))) 
+	(T (make-end-dialog-turn "Your comment has been recorded."
+				 :Assoc '((handle-text . comment))))) )
 
     
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

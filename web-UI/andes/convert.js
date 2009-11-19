@@ -56,8 +56,9 @@ dojo.provide("andes.convert");
 					x:o.x,
 					y:o.y
 				},
-				enabled:o.mode!="locked" && o.mode!="fade"
+				enabled:o.mode!="locked"/* && o.mode!="fade"*/
 			};
+			if(o.mode=="fade") obj.mode="fade";
 			
 			if(o.type!="vector" && o.type!="line" && o.type!="axes" && o.type!="ellipse"){
 				obj.data.width = o.width;
@@ -82,16 +83,16 @@ dojo.provide("andes.convert");
 			if(o.type=="statement" && (o.mode=="locked" || o.mode=="fade")){
 				obj.stencilType = "text";
 			}
-
+			
 			if(o.type=="line" || o.type=="vector" || o.type=="rect" || o.type=="ellipse"){
 				// separate objects
 			        // match logic in drawingToAndes
 				var lbl = o.symbol;
-				var txt = o.text || "";
+				var txt = o.text || " ";
 				// if there is no symbol, use text for label
 				if(!lbl){
 					lbl = txt;
-					txt = "";
+					txt = " ";
 				}
 				// master
 				obj.master = {
@@ -115,6 +116,7 @@ dojo.provide("andes.convert");
 						y:ys,
 						text:txt,
 						width:"auto"
+						//showEmpty:true
 					},
 					deleteEmptyCreate: false,
 					deleteEmptyModify: false
@@ -180,7 +182,7 @@ dojo.provide("andes.convert");
 					}
 				}
 			}else if(type != "axes"){
-				obj.text = statement.getText() || "";
+				obj.text = statement.getText() || " ";
 				obj.symbol = item.getLabel() || null;
 				obj["x-statement"] = sbox.x;
 				obj["y-statement"] = sbox.y;

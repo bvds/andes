@@ -30,11 +30,10 @@ andes.Combo = dojox.drawing.util.oo.declare(
 		]);
 
 		this.created = options.onCreate ? false : true
-
 		var s = this.statement;
 		var m = this.master;
 
-		console.log("combo statement:", this.statement)
+		console.warn("combo statement:", this.statement)
 
 		this.statement.connectMult([
 			[this.statement, "onChangeText", this, function(value){
@@ -88,11 +87,34 @@ andes.Combo = dojox.drawing.util.oo.declare(
 		_masterDestroyed: false,
 		_statementDestroyed: false,
 		onChangeData: function(/*Object*/ stencil){
+			if (stencil.mod == true) { console.log("------------mod, no save to server", stencil.mod);};
 			console.log("--------------on change combo", stencil.id);
 			// summary:
 			//	Stub - fires on change of dimensional
 			//	properties or a text change of the master
 			// or any item
+		},
+		
+		textEdit: function(value){
+			var label = andes.variablename.parse(value);
+				if(label){
+					console.log("LABEL", label)
+					this.master.setLabel(label);
+					this.statement.selectOnExec = true;
+				}else{
+					console.log("NO LABEL", label)
+					this.master.setLabel(value);
+					this.statement.setText("");
+					this.statement.selectOnExec = false;
+				}
+				if(!this.created){
+					this.created = true;
+					options.onCreate();
+				}else{
+					this.onChangeData(this);
+				}
+
+				this.onChangeText(this);
 		},
 
 		onChangeText: function(value){ // value or 'this' ?
@@ -116,7 +138,7 @@ andes.Combo = dojox.drawing.util.oo.declare(
 
 		attr: function(a1, a2){
 			// see Drawing.stencil._Base
-			this.master.attr.call(this.master, a1, a2);
+			if(!a1.text) { this.master.attr.call(this.master, a1, a2);};
 			this.statement.attr.call(this.statement, a1, a2);
 		},
 
