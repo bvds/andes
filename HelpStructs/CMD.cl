@@ -201,7 +201,7 @@
 (defun get-proc-help-cmdp (CMD)
   "Is this a next-step-help call?"
   (and (help-cmdp CMD) 
-       (equalp (cmd-command CMD) 'next-step-help)))
+       (eql (cmd-command CMD) 'next-step-help)))
 
 (defun why-wrong-cmdp (CMD)
   "Is this a do-whats-wrong call?"
@@ -212,9 +212,9 @@
 ;; sent as DDE-POST of (lookup-eqn-string "" id) [Bug 1254]
 (defun delete-equation-cmdp (CMD)
   "Test whether this is a delete-equation or lookup-eqn-string \"\""
-  (and (equal (cmd-type CMD) 'DDE-POST)
-       (equalp (cmd-command CMD) 'LOOKUP-EQN-STRING)
-       (equalp (cmd-text CMD) "")))
+  (and (eql (cmd-type CMD) 'DDE-POST)
+       (eql (cmd-command CMD) 'LOOKUP-EQN-STRING)
+       (eql (cmd-text CMD) "")))
 
 (defun read-problem-info-cmdp (CMD)
   "Return t if this is an open-problem command."
