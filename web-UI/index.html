@@ -1,6 +1,6 @@
 <html lang="en">
 <head>
-    <title>Andes 3</title>
+    <title>Andes Physics Tutor</title>
 	<style>
 		textarea{
 			position:absolute;
@@ -61,32 +61,13 @@
 	<div id="conEdit" contenteditable="true"></div>
 	<div id="main" dojoType="dijit.layout.BorderContainer" gutters="false">
 		<div dojoType="dijit.MenuBar" id="navMenu" region="top" splitter="false">
-				<div dojoType="dijit.PopupMenuBarItem">
-						<span>File</span>
-						<div dojoType="dijit.Menu" id="menuFile">
-								<div id="menuFile1" dojoType="dijit.MenuItem">File #1</div>
-								<div id="menuFile2" dojoType="dijit.MenuItem">File #2</div>
-						</div>
-				</div>
-				<div dojoType="dijit.PopupMenuBarItem">
-						<span>Edit</span>
-						<div dojoType="dijit.Menu" id="menuEdit">
-								<div id="menuEdit1" dojoType="dijit.MenuItem">Edit #1</div>
-								<div id="menuEdit2" dojoType="dijit.MenuItem">Edit #2</div>
-						</div>
-				</div>
-				<div dojoType="dijit.PopupMenuBarItem">
-						<span>Preferences</span>
-						<div dojoType="dijit.Menu" id="menuPreferences">
-								<div id="menuPreferences1" dojoType="dijit.MenuItem">Prefs #1</div>
-								<div id="menuPreferences2" dojoType="dijit.MenuItem">Prefs #2</div>
-						</div>
-				</div>
+		                <span id="problemName" class="dijitMenuItem dijitMenuItemLabel">Problem</span>
 				<div dojoType="dijit.PopupMenuBarItem">
 						<span>Physics</span>
 						<div dojoType="dijit.Menu" id="menuPhysics">
-								<div id="menuPhysics1" dojoType="dijit.MenuItem" onClick="andes.principles.externP">Principles</div>
-								<div id="menuPhysics2" dojoType="dijit.MenuItem">Physics #2</div>
+								<div id="menuPhysics1" dojoType="dijit.MenuItem">Principles</div>
+								<div id="menuPhysics2" dojoType="dijit.MenuItem">Units</div>
+                                                                <div id="menuPhysics3" dojoType="dijit.MenuItem">Constants</div>
 						</div>
 				</div>
 				<div dojoType="dijit.form.Button" id="submitButton" style="position:absolute; top:0; right:10px; margin:0;">Submit</div>

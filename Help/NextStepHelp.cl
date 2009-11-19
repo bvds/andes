@@ -1183,7 +1183,7 @@
 	     "in the process.")
      **Explain-More**
      :Responder #'(lambda (Response)
-		    (when (equal Response **Explain-More**)
+		    (when (eql response **explain-more**)
 		      (nsh-make-axis-prompt Rot)))
      :Assoc `((nsh prompt-axis ,Rot)))))
 
@@ -1201,7 +1201,7 @@
 	     "useful later on in the process.")
      **Explain-More**
      :Responder #'(lambda (Response)
-		    (when (equal Response **Explain-More**)
+		    (when (eql response **explain-more**)
 		      (nsh-make-axis-prompt Rot)))
      :Assoc `((nsh new-start-axis ,Rot)))))
 
@@ -1358,7 +1358,7 @@
 	     "problem description.  ")
      **Explain-More**
      :Responder #'(lambda (Response)
-		    (when (equal Response **Explain-more**)
+		    (when (eql response **explain-more**)
 		      (nsh-prompt-Node 
 		       "Why don't you start with "
 		       Principle
@@ -1464,7 +1464,7 @@
 	   "try again.")
    **Explain-More**
    :Responder #'(lambda (Response)
-		  (when (equalp Response **Explain-More**)
+		  (when (eql Response **Explain-More**)
 		    (nsh-mc-only-prompt-done-reconsider)))
    :Assoc '((nsh mc-only prompt-done-incorrect))))
 
@@ -1492,7 +1492,7 @@
 	   "You do not need to make any other entries.")
    **Explain-More**
    :Responder #'(lambda (Response)
-		  (when (equal Response **Explain-More**)
+		  (when (eql response **explain-more**)
 		    (nsh-mc-only-prompt-next)))
    :Assoc '((nsh mc-only start))))
 
@@ -1511,7 +1511,7 @@
 	   "  You do not need to make any other entries.")
    **Explain-More**
    :Responder #'(lambda (Response)
-		  (when (equal Response **Explain-More**)
+		  (when (eql response **explain-more**)
 		    (if (nsh-incorrect-mc-entries-made-p)
 			(nsh-mc-only-prompt-reconsider)
 		      (nsh-mc-only-prompt-next))))
@@ -1550,14 +1550,17 @@
   (let ((incorrect (nsh-collect-mc-only-incorrect-attempts)))
     (make-dialog-turn 
      (strcat (if (> 1 (length incorrect))
-		 "You have made more than one incorrect answer attempts.  "
+		 "You have made more than one incorrect answer attempt.  "
 	       "You have made an incorrect answer attempt.  ")
-	     "Do you want to reconsider it or work on the next question")
-     '("Reconsider" "Next")
+	     "Do you want to:")
+     '((reconsider . "Reconsider it, or") (next . "work on the next question?"))
      :Responder #'(lambda (Response)
-		    (if (string-equal Response "Reconsider")
-			(nsh-mc-only-prompt-do-reconsider Incorrect)
-		      (nsh-mc-only-prompt-next)))
+		    (cond ((eql Response 'reconsider)
+			   (nsh-mc-only-prompt-do-reconsider Incorrect))
+			  ((eql Response 'next)
+			   (nsh-mc-only-prompt-next))
+			  (t (warn "nsh-mc-only-prompt-reconsider response ~A" 
+				   Response))))
      :Assoc '((nsh mc-only prompt-reconsider)))))
 
 
@@ -1650,7 +1653,7 @@
 (defun nsh-ask-sought-and-fp ()
   "Start the NSH sought and FP loop."
   (nsh-ask-sought 
-   (strcat (nsh-asfp-given-str) "  "
+   (strcat (nsh-asfp-given-str) "&nbsp;  "
 	   (nsh-asfp-sought-str))))
 
 
@@ -1668,8 +1671,8 @@
 (defun nsh-asfp-sought-str ()
   "Get the prompt string for nsh-ask-sought."
   (if (multi-sought-problem-p *cp*)
-      "What is one quantity that the problem is seeking?"
-    "What quantity is the problem seeking?"))
+      "Enter one quantity that the problem is seeking:"
+    "Enter the quantity that the problem is seeking:"))
 
 
 ;;; This is the loopback point that will be used for the dialogues at runtime 
@@ -1681,7 +1684,7 @@
   "prompt the student to select the primary principle."
   (make-dialog-turn
    prefix
-   **Quant-Menu**
+   'text-input
    :responder #'(lambda (resp)
 		  (nsh-check-sought-resp resp past))
    :Assoc `((nsh ask-sought ,Case))))
@@ -1699,30 +1702,43 @@
 ;;; will get a generaic incorrect response and move on.
 
 (defun nsh-check-sought-resp (response past)
-  "Check the sought response."
-  (let ((Q (nsh-convert-response->quantity response)))                           ;; uses *current graph*
-    (cond ((member response past :test #'equal) (nsh-sought-resp-rep past))      ;; have they tried this before.
-	  ((null Q) (nsh-sought-resp-nil (cons response past)))                  ;; is the quantity valid?
-	  ((not (qnode-soughtp Q)) (nsh-sought-resp-ns (cons response past))) ;; Is the quantity sought?
-	  (t (nsh-ask-first-principle (random-positive-feedback) Q)))))          ;; Else use the value and move on.
+  "Check the sought response, returning tutor turn."
 
+  (let ((best (best-model-matches
+	       (word-parse response)
+	       (mapcar #'(lambda (x)
+			   (cons (expand-vars (qnode-new-english x)) x))
+		       (bubblegraph-qnodes (problem-graph *cp*)))
+	       :cutoff 0.6 :equiv 1.1)))
 
-(defun nsh-convert-response->quantity (Q)
-  "Find qnode associated with entered variable name or definition"
-  ;; This is a really brain-dead version:  it only matches symbol
-  ;; names and not definitions.  Also, It does not test a threshold.
-  ;; needs error handling for >1 match or no matches.
-  ;; It should have handling for case errors.
-  (let (best)
-    (setf best (best-matches
-		Q
-		(mapcar #'(lambda (x) 
-			    (cons (sym-label x)
-				  (match-exp->qnode (sym-referent x) 
-						    (problem-graph *cp*))))
-			*variables*)))
-    (car best)))
+    ;; Debug printout:
+    (when nil
+      (format webserver:*stdout* "Best match to ~s is~%   ~S~% from ~S~%" 
+	      response
+	      (mapcar 
+	       #'(lambda (x) (cons (car x) 
+				   (expand-vars (qnode-model (cdr x)))))
+	       best)
+	      (mapcar #'(lambda (x) 
+			  (cons (expand-vars (qnode-new-english x)) 
+				(qnode-exp x)))
+		      (bubblegraph-qnodes (problem-graph *cp*)))))
 
+    (cond 
+      ((null best) ;no matches
+       (nsh-sought-resp-nil past))
+      ;; too many matches or poor unique match
+      ((or (cdr best) (> (car (car best)) 0.2))  
+       (nsh-sought-resp-ambiguous (mapcar #'cdr best) past))
+      (t          ;unique match
+       (let ((Q (cdr (car best))))
+	 (cond 
+	 ;; have they tried this before?
+	   ((member Q past) (nsh-sought-resp-rep past))
+	   ;; Is the quantity sought?
+	   ((not (qnode-soughtp Q)) (nsh-sought-resp-ns Q (cons Q past))) 
+	   ;; Else use the value and move on.
+	   (t (nsh-ask-first-principle (random-positive-feedback) Q))))))))
 
 
 ;;; If the student has tried this value before and been told 
@@ -1734,8 +1750,8 @@
 (defun nsh-sought-resp-rep (Past)
   "Return a message signifying that you tried this already."
   (nsh-wrong-sought-resp 
-   (strcat "In order to move ahead, you have to try selecting "
-	   "something that you haven't tried before.")
+   (strcat "In order to move ahead, you have to enter a quantity "
+	   "that you haven't tried before.")
    Past :Case 'Repeat))
 
 
@@ -1745,19 +1761,26 @@
 (defun nsh-sought-resp-nil (Past)
   "Return a message signifying wrong sought supplied."
   (nsh-wrong-sought-resp 
-   "That quantity is not mentioned in the Andes solution."
+   "Your entry does not match any quantities needed to solve this problem."
+   Past :Case 'Null))
+
+(defun nsh-sought-resp-ambiguous (quants Past)
+  "Return a message signifying ambiguous sought supplied."
+  (nsh-wrong-sought-resp 
+   (format nil "Which quantity are you referring to?&nbsp; Do you mean ~A?"
+	   (word-string (expand-vars (qnode-new-english 
+				      (random-elt quants)))))
    Past :Case 'Null))
 
 
 ;;; If they select a value that is in the graph but not sought 
 ;;; then, again, we giuve them that information and move them 
 ;;; on with appropriate information.  
-(defun nsh-sought-resp-ns (Past)
+(defun nsh-sought-resp-ns (quant Past)
   "Return a message signifying that quantity is not sought."
   (nsh-wrong-sought-resp 
-   "That quantity is not sought by the problem statement."
+   "Your entry is not sought by the problem statement."
    Past :Case 'not-sought))
-
 
 
 ;;; ------------------ wrong-sought ---------------------------------
@@ -1767,7 +1790,7 @@
 ;;; will simply tell them which quantity to use. 
 (defun nsh-wrong-sought-resp (msg past &key (Case 'default-wrong-sought))
   (if (< (length past) **Max-sought-Tries**)
-      (nsh-ask-sought msg past Case)
+      (nsh-ask-sought (strcat msg "&nbsp; " "Please try again:") past Case)
     (nsh-tell-sought msg Case)))
 
 
@@ -1778,17 +1801,17 @@
 ;;; tell all of the soughts.  Else they'll never see the others.
 (defun nsh-tell-sought (message Case)
   "Tell the student what the problem is seeking and move on."
-  ; for Bug 678 - ignore possible multiple choice questions before quantity soughts
+  ;; Filter out possible multiple choice questions.
   (let ((Sought (car (remove-if-not #'quantity-expression-p
 				    (problem-soughts *cp*)))))
     (make-dialog-turn
-     (strcat message "  Let's just assume that you are seeking "
+     (strcat message "&nbsp; " "Let's just assume that you are seeking "
 	     (nlg Sought 'def-np) ".")
-     **OK-Menu**
+     **explain-more**
      :responder #'(lambda (response)
-		    (declare (ignore response))
-		    (nsh-ask-first-principle 
-		     "" (match-exp->qnode Sought (problem-graph *cp*))))
+		    (when (eql Response **Explain-More**)
+		      (nsh-ask-first-principle 
+		       "" (match-exp->qnode Sought (problem-graph *cp*)))))
      :Assoc `((nsh tell-sought ,Case ,Sought)))))
 
 	 
@@ -1812,7 +1835,7 @@
 
 (defparameter **NSH-AFP-Multi-String**
     (strcat "Hint: usually this principle will usually mention one "
-	    "of the sought quantities explicitly.  That is, its equation may "
+	    "of the sought quantities explicitly.&nbsp; That is, its equation may "
 	    "contain one of the answer quantities."))
 
 (defparameter  **NSH-AFPC-DIRECT-String**
@@ -2277,13 +2300,16 @@
   (declare (ignore Bindings) (ignore Class))
   (make-dialog-turn 
    (format Nil **nsh-cfp-change-axis-string** Axis)
-   **YES-No-Menu**
+   '((yes . "yes") (no . "no"))
    :Responder #'(lambda (Response)
-		  (if (String-Equal Response "NO")
-		      (nsh-wrong-fp-resp "" Sought Past :Case 'ChangeNo)
-		    (nsh-cfp-choose-best-fp
-		     (nsh-cfp-collect-valid-fps Choices Sought) 
-		     Sought Past)))
+		  (cond ((eql Response 'no)
+			 (nsh-wrong-fp-resp "" Sought Past :Case 'ChangeNo))
+			((eql Response 'yes) 
+			 (nsh-cfp-choose-best-fp
+			  (nsh-cfp-collect-valid-fps Choices Sought) 
+			  Sought Past))
+			(t (warn "nsh-cfp-prompt-change-axis response ~A" 
+				 response))))
    :Assoc `((nsh cfp-prompt-change-axis ,Axis))))
 
 
@@ -2367,14 +2393,17 @@
   (make-dialog-turn
    (strcat "While you may apply this principle, "
 	   "there are no solutions that apply it with "
-	   "the coordinate system that you have currently drawn.  Do you want to "
-	   "change your axes rotation or pick a different principle?")
-   '("Axes" "Principle")
+	   "the coordinate system that you have currently drawn.&nbsp; "
+	   "Do you want to:")
+   '((axes . "Change Axes") (principle . "Pick a different principle"))
    :Responder #'(lambda (Response)
-		  (if (string-equal Response "Axes")
-		      (nsh-cbf-invalid-Axis
-		       Best Solutions Principles Sought Past)
-		    (nsh-wrong-fp-resp "" Sought Past :case 'cbf-invalid-no)))
+		  (cond ((eql Response 'axes)
+			 (nsh-cbf-invalid-Axis
+			  Best Solutions Principles Sought Past))
+			((eql Response 'principle)
+			 (nsh-wrong-fp-resp "" Sought Past 
+					    :case 'cbf-invalid-no))
+			(t (warn "nsh-cbf-invalid response ~A" Response))))
    :Assoc '((nsh . cbf-invalid))))
 
 
@@ -2433,31 +2462,38 @@
 ;;; forward (as they said).  
 (defun nsh-cbf-invalid-different (New Prompt Best Solutions Principles Sought Past)
   "Prompt the student to their wrongs."
-  (let ((form (format Nil "~a" Prompt)))
     (make-dialog-turn
-     (strcat "While those axes are also correct, they are not the "
-	     form " degree axes that you were prompted to draw.  "
-	     "Do you want to stay with these new axes or switch to "
-	     "the " form " ones?")
-     '("Stay" "Switch")
+     (format nil (strcat "While those axes are also correct, they are not the "
+	     "~A degree axes that you were prompted to draw.  "
+	     "Do you want to:") prompt)
+     `((stay . "Stay with these new axes") 
+       (switch . ,(format nil "Switch to the ~A ones" prompt)))
      :Responder #'(lambda (Response)
-		    (cond ((string-equal Response "Stay")
-			   (nsh-clear-next-call)
-			   (nsh-cbf-filter-solutions Solutions Principles Sought Past))
-			  (t  ;; Note the recursion here is intended to reset the lambda 
-			   ;; closure that gets stored in invalid-axis.  This allows the 
-			   ;; system to be dealing with the appropriate axes.
-			   (nsh-cbf-invalid-axis Best Solutions Principles Sought Past))))
-     :Assoc `((nsh cbf-invalid-different ,New ,Prompt)))))
+		    (cond 
+		      ((eql Response 'stay)
+		       (nsh-clear-next-call)
+		       (nsh-cbf-filter-solutions Solutions Principles Sought Past))
+		      ((eql Response 'switch)
+		       ;; Note the recursion here is intended to reset the 
+		       ;; lambda closure that gets stored in invalid-axis.  
+		       ;; This allows the system to be dealing with 
+		       ;; the appropriate axes.
+		       (nsh-cbf-invalid-axis Best Solutions Principles 
+					     Sought Past))
+		      (t (warn "nsh-cbf-invalid-different Response ~A"
+				response))))
+     :Assoc `((nsh cbf-invalid-different ,New ,Prompt))))
 
 
-;;; If the student's choices are compatible but the student's chosen axes are not the same
-;;; as in the ideal solution then we will inform them that they can reduce the complexity
-;;; of their solution by changing their axes and offer them a chance to do so.  
+;;; If the student's choices are compatible but the student's chosen axes 
+;;; are not the same as in the ideal solution then we will inform them that 
+;;; they can reduce the complexity of their solution by changing their axes 
+;;; and offer them a chance to do so.  
 ;;;
-;;; If the student elects to change their axes then we will prompt them to do so.  Picking
-;;; an axis from the best solution.  If they elect not to then we will prompt them to 
-;;; work on the best solution of the set containing the axes that they have drawn.
+;;; If the student elects to change their axes then we will prompt them to 
+;;; do so.  Picking an axis from the best solution.  If they elect not to, 
+;;; then we will prompt them to work on the best solution of the set 
+;;; containing the axes that they have drawn.
 (defun nsh-cbf-prompt-change (Best Solutions Principles Sought Past)
   "Prompt the student to change their axes rotations for the best."
   (make-dialog-turn
@@ -2466,11 +2502,14 @@
 	   "However if you change the rotation, you can craft a "
 	   "less complex solution.  "
 	   "Do you want to change your axes?")
-   **Yes-No-Menu**
+   '((yes . "yes") (no . "no"))
    :Responder #'(lambda (Response)
-		  (if (string-equal Response "Yes")
-		      (nsh-cbf-change-yes Best Solutions Principles Sought Past)
-		    (nsh-cbf-change-no Solutions Principles Sought Past)))
+		  (cond 
+		    ((eql Response 'yes)
+		     (nsh-cbf-change-yes Best Solutions Principles Sought Past))
+		    ((eql Response 'no)
+		     (nsh-cbf-change-no Solutions Principles Sought Past))
+		    (t (warn "nsh-cbf-prompt-change response ~A" response))))
    :Assoc `((nsh . cbf-prompt-change))))
 
 
@@ -2531,24 +2570,28 @@
 ;;; to move forward (as they said).  
 (defun nsh-cbf-change-different (New Prompt Best Solutions Principles Sought Past)
   "Prompt the student to their wrongs."
-  (let ((form (format Nil "~a" Prompt)))
-    (make-dialog-turn
-     (strcat "While those axes are also correct, they are not the "
-	     form " degree axes that you were prompted to draw.  "
-	     "Do you want to stay with these new axes or switch to "
-	     "the " form " ones?")
-     '("Stay" "Switch")
-     :Responder #'(lambda (Response)
-		    (cond ((string-equal Response "Stay")
-			   (nsh-clear-next-call)
-			   (nsh-cbf-filter-solutions Solutions Principles Sought Past))
-			  (t ;; Note the recursion here is intended to reset the lambda 
-			   ;; closure that gets stored in change-yes.  This allows the 
-			   ;; system to be dealing with the appropriate axes.
-			   (nsh-cbf-change-yes Best Solutions Principles Sought Past))))
-     :Assoc `((nsh cbf-change-different ,New ,Prompt)))))
+  (make-dialog-turn
+   (format nil (strcat "While those axes are also correct, they are not the "
+		       "~A degree axes that you were prompted to draw.  "
+		       "Do you want to:") prompt)
+   `((stay . "Stay with these new axes") 
+     (switch . ,(format nil "Switch to the ~A ones" prompt)))
+   :Responder #'(lambda (Response)
+		  (cond 
+		    ((eql Response 'stay)
+		     (nsh-clear-next-call)
+		     (nsh-cbf-filter-solutions Solutions Principles Sought Past))
+		    ((eql Response 'switch)
+		     ;; Note the recursion here is intended to reset the 
+		     ;; lambda closure that gets stored in change-yes.  
+		     ;; This allows the system to be dealing with
+		     ;; the appropriate axes.
+		     (nsh-cbf-change-yes Best Solutions Principles 
+					 Sought Past))
+		    (t (warn "nsh-cbf-change-different Response ~A"
+			     response))))
+   :Assoc `((nsh cbf-change-different ,New ,Prompt))))
 
-  
 
 ;;; If the student has elected to stick with their current axes then we want 
 ;;; to filter the solutions that are compatible with their selection, and to 
@@ -2629,7 +2672,7 @@
 	   ".  You can move on to the next step in the solution.")
    **explain-more**
    :Responder #'(lambda (Resp)
-		  (when (eq Resp **Explain-More**)
+		  (when (eql Resp **Explain-More**)
 		    (nsh-prompt-solution "Why don't you work on " Solution)))
    :Assoc `((nsh cfp-success-completed ,(bgnode-exp Best)))))
 
@@ -2726,7 +2769,7 @@
 	   ".  Why don't you start working on the next principle?")
    **Explain-More**
    :Responder #'(lambda (Response)
-		  (when (equal Response **Explain-More**)
+		  (when (eql response **explain-more**)
 		    (nsh-prompt-solution "Why don't you work on " Solution)))
    :Assoc `((nsh prompt-done-fp ,Case ,(enode-id Principle)))))
 
@@ -2810,12 +2853,12 @@
 (defun nsh-start-principle-free ()
   (setq *nsh-current-solutions* (list (nsh-pick-best-solution *nsh-solution-sets*)))
   (make-dialog-turn
-   (strcat "Excellent, you should now continue the problem by making "
+   (strcat "Excellent, you should now continue your solution by making "
 	   "the entries that are necessary to complete the problem "
 	   (if (> 1 (length (problem-soughts *cp*))) "goals." "goal."))
    **Explain-More**
    :Responder #'(lambda (Response)
-		  (when (string-equal Response "Explain-More")
+		  (when (eql Response **Explain-More**)
 		    (nsh-prompt-solution 
 		     "Why don't you begin by " 
 		     (car *nsh-current-solutions*))))
@@ -2873,7 +2916,7 @@
   (make-dialog-turn
    Dialog **explain-more**
    :Responder #'(lambda (Resp)
-		  (when (eq Resp **Explain-More**)
+		  (when (eql Resp **Explain-More**)
 		    (nsh-prompt-node 
 		     Prefix Node
 		     :Assoc `((nsh dialog-prompting-node ,(bgnode-exp Node))))))
@@ -2931,7 +2974,7 @@
    (strcat prefix (nlg (bgnode-exp Parameter) 'psm-exp) ".  ")
    **Explain-More**
    :responder #'(lambda (Response)
-		  (when (equal Response **Explain-More**)
+		  (when (eql response **explain-more**)
 		    (nsh-walk-node-graph "" Parameter)))
    :Assoc (alist-warn Assoc)))
 
@@ -2964,7 +3007,7 @@
    (strcat prefix (nlg (enode-id principle) 'goal) ".  ")
    **Explain-More**
    :responder #'(lambda (response)
-		  (when (equal response **Explain-More**)
+		  (when (eql response **explain-more**)
 		    (nsh-walk-Node-graph "" principle)))
    :Assoc (alist-warn Assoc)))
 
@@ -3002,7 +3045,7 @@
    (strcat prefix (nlg (enode-id principle) 'psm-exp) ".  ")
    **Explain-More**
    :responder #'(lambda (response)
-		  (when (equal response **Explain-More**)
+		  (when (eql response **explain-more**)
 		    (nsh-walk-Node-graph "" principle)))
    :Assoc (alist-warn Assoc)))
 
@@ -3903,7 +3946,7 @@
   (make-dialog-turn
    Initial **Explain-More**
    :Responder #'(lambda (Response)
-		  (when (equal Response **Explain-More**)
+		  (when (eql response **explain-more**)
 		    (let ((source (car (SystemEntry-Sources step))))
 		    (make-hint-seq 
 		     (collect-step-hints Source :types '(bottom-out))
@@ -4015,7 +4058,12 @@
   
   ;; advise of special tricks for these
   ((member 'elastic-collision-help (problem-features *cp*)) 
-     (format NIL "Although you seem to have entered enough equations, the Andes solver is unable to solve them for ~A in their current form.  See the {\\l discussion of elastic collisions in one dimension}{\\v 1D_elastic_collision.html} for further help." var))
+     (format NIL "Although you seem to have entered enough equations, the Andes solver is unable to solve them for ~A in their current form.  See the ~A for further help." 
+	     var 
+	     (open-review-window-html 
+	      "discussion of elastic collisions in one dimension"
+	      "1D_elastic_collision.html"
+	      :title "1D elastic collitions")))
   
   ;; done and not an answer-var problem and solving for a sought
   ;; Need handler for case where one trig function is missing, Bug #719

@@ -486,7 +486,7 @@
    )
   :hint
    ((point (string "You were given that there is an applied force on ~a." ?b))
-    (bottom-out (string "Use the force drawing tool to draw the applied force on ~a due to ~a ~a at an approximately correct angle, then erase the number in the direction box to indicate that its exact direction is unknown." 
+    (bottom-out (string "Use the force drawing tool to draw the applied force on ~a due to ~a ~a at an approximately correct angle, since its exact direction is unknown." 
 			?b (?agent agent) (?t pp)))
     ))
 
@@ -749,7 +749,11 @@
   :hint 
   (
    (point (string "~A produces a drag force on ~A ~A" ?medium ?b (?t pp)))
-   (teach (string "When a body is moving at high speed through a fluid medium (like air), the {\\l drag force is proportional to the velocity squared}{\\v DragForce.html}."))
+   (teach (string "When a body is moving at high speed through a fluid medium (like air), the ~A." 
+		  ("drag force is proportional to the velocity squared"
+		   open-review-window-html 
+		   "DragForce.html" :title "Drag Force")
+))
    (bottom-out (string "Write the equation ~A" 
 		       ((= ?f-var (* ?k-var (^ ?v-var 2))) algebra)))
   ))
@@ -1619,7 +1623,7 @@
    (variable ?dir-var (dir (net-force ?b :time ?t))))
   :hint
   ((point (string "Notice that there are forces acting on ~a ~a, although the exact direction of the total force is unknown." ?b (?t pp)))
-   (bottom-out (string "Draw a non-zero net force vector for ~A ~A in an approximately correct direction, then erase the number in the direction box to indicate that the exact direction is unknown." ?b (?t pp)))))
+   (bottom-out (string "Draw a non-zero net force vector for ~A ~A in an approximately correct direction, since the exact direction is unknown." ?b (?t pp)))))
 
  
 ;;; ========================  draw all forces  ================================

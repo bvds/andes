@@ -36,7 +36,8 @@
 
 (defvar *debug* t "Special error conditions for debugging")
 
-(defun start-json-rpc-service (uri &key (port 8080) log-function)
+(defun start-json-rpc-service (uri &key (port 8080) log-function
+			       server-log-path)
   "Start a web server that runs a single service for handling json-rpc"
   ;; One could easily extend this to multiple web servers or multiple
   ;; services, but we don't need that now.
@@ -47,9 +48,11 @@
 	       #'default-dispatcher))
 
   ;; Error handlers
-  (setq *show-lisp-errors-p* t)
   (setf *http-error-handler* 'json-rpc-error-message)
   (setf *log-function* log-function)
+  ;; Log any errors in Hunchentoot or not otherwise handled.
+  ;; In particular, log any errors or warning in *log-function*
+  (when server-log-path (setf *MESSAGE-LOG-PATHNAME* server-log-path))
 
   ;; Test for multi-threading
   (unless hunchentoot::*supports-threads-p*
@@ -102,12 +105,9 @@
     
     ;; Log incoming raw json-rpc and user/problem session id
     (when *log-function* 
-      (handler-case (funcall *log-function* "client" *log-id*
-			     (raw-post-data :force-text t))
-	;; Need better handling for this:  need to inform user
-	;; and system administrator.
-	(error (c) (format *stdout* "Database post error ~A" c))))
-
+      (funcall *log-function* "client" *log-id* 
+	       (raw-post-data :force-text t)))
+    
     (when *debug* (format *stdout* "session ~A calling ~A with~%     ~S~%" 
 			  client-id method params))
     
@@ -165,15 +165,11 @@
 	 ;; By default, cl-json turns dashes into camel-case:  
 	 ;; Instead, we convert to lower case, preserving dashes.
 	 (let ((*lisp-identifier-name-to-json* #'string-downcase))
-	   ;; Error handling needs work:  need to inform administrator.
-	   (handler-case (encode-json-alist-to-string reply)
-	     (error (c) (format *stdout* "Encoding error ~A" c))))))
+	   (encode-json-alist-to-string reply))))
     
     ;; Log reply message raw json string
     (when *log-function*
-      ;; Error handling needs work:  need to inform administrator.
-      (handler-case (funcall *log-function* "server" id return-json)
-	(error (c) (format *stdout* "Database reply error ~A" c))))
+	  (funcall *log-function* "server" id return-json))
     return-json))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -340,12 +336,12 @@
 (defun log-error (condition)
   "Log after an error or warning has occurred."
   `((:action . "log")
-     (:error-type . ,(string (type-of condition)))
-     (:error . ,(format nil "~A" condition))
-     (:backtrace . ,(with-output-to-string 
-		     (stream)
-		     ;; sbcl-specific function 
-		     #+sbcl(sb-debug:backtrace 20 stream)))))
+    (:error-type . ,(string (type-of condition)))
+    (:error . ,(format nil "~A" condition))
+    (:backtrace . ,(with-output-to-string 
+		    (stream)
+		    ;; sbcl-specific function 
+		    #+sbcl (sb-debug:backtrace 20 stream)))))
 
 (defun execute-session (session-hash turn func params)
   "Execute a function in the context of a given session when its turn comes.  If the session doesn't exist, create it.  If there is nothing to save in *env*, delete session."
@@ -373,7 +369,7 @@
 				  (return-from unwind (error-hint c))))
 		 ;; For warnings, we log the situation and continue
 		 (warning #'(lambda (c) (push (log-error c) log-warn) 
-				    (continue))))
+				   (muffle-warning))))
 	      ;; execute the method
 	      (apply func (if (alistp params) 
 			      (flatten-alist params) params)))))

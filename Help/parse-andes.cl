@@ -148,11 +148,19 @@
       (setf rem (make-hint-seq (list
 				(format nil "Syntax error in ~a" equation)
 				"There is a space next to an underscore in this equation. If you are using a component variable, make sure you type it as a single word without any spaces between the underscore and the rest of the variable name."))))
-     (T (setf rem (make-hint-seq
-		   (list
-		    (format nil "Syntax error in ~a" equation)
-		    "The equation or the {\\l units}{\\v units.html} in it are not in a recognizable form."
-		    "Though I can't tell exactly what the mistake is, a few common sources of errors are: (a) {\\l Unit symbols}{\\v units.html} are case sensitive. (b) Multiplication always requires an explicit multiplication sign: W=m*g, NOT W=mg. (c) Units attach only to numbers, not to variables or expressions.")))))
+     (T (setf rem 
+	      (make-hint-seq
+	       (list
+		(format nil "Syntax error in ~a" equation)
+		(format nil
+			"The equation or ~A in it are not in a recognizable form."
+			(open-review-window-html 
+			 "the units" "units.html" :title "Units"))
+		(format nil 
+			"Though I can't tell exactly what the mistake is, a few common sources of errors are:  <ul><li>~A are case sensitive. <li>Multiplication requires an explicit multiplication sign: W=m*g, NOT W=mg. <li>Units attach only to numbers, not to variables or expressions.</ul>"
+			(open-review-window-html 
+			 "Unit symbols" "units.html" :title "Units"))
+		)))))
 
     (setf (turn-id rem) id)
     (setf (turn-coloring rem) **color-red**)
@@ -580,9 +588,7 @@
 	           (format nil "Case matters in variable names: \"g\" means something different than \"G\".  You probably meant ~A instead of ~A." (nth i-first-miss near-misses) (nth i-first-miss undef-vars))
 		  ;; else not near-miss: give advice if used compo notation:
 		  (if is-comp-var
-		      (if (cdr is-comp-var)
-			  (format nil "The variables: ~a may be defined by drawing coordinate axes" is-comp-var)
-			(format nil "The variable: ~a may be defined by drawing coordinate axes." (car is-comp-var)))
+		      (format nil "Vector components ~a are automatically defined when you draw coordinate axes." is-comp-var)
 		    tmp-msg))))))
 
     (setf (turn-id rem) id)

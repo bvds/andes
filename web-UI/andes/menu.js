@@ -2,6 +2,9 @@ dojo.provide("andes.menu");
 
 dojo.addOnLoad(function(){
 
+        // Add problem name to menu
+		 dojo.byId("problemName").innerHTML = andes.projectId;
+		 
 	// shortcut for adding an onClick handler to a dijit
 	function wireItem(item, fn){
 		var o = dijit.byId(item);
@@ -12,21 +15,18 @@ dojo.addOnLoad(function(){
 
 	// wire up our menu items
 	var spec = {
-		"menuFile1":function(){
-			console.log("Clicked File #1");
+		"menuPhysics1":function(){
+		  andes.principles.externP();
 		},
 
-		"menuFile2":function(){
-			console.log("Clicked File #2");
+		"menuPhysics2":function(){
+		  andes.principles.review('units.html','Units');
 		},
 
-		"menuEdit1":function(){
-			console.log("Clicked Edit #1");
-		},
-
-		"menuEdit2":function(){
-			console.log("Clicked Edit #2");
+		"menuPhysics3":function(){
+		  andes.principles.review('constants.html','Constants');
 		}
+
 	};
 	for(var i in spec){
 		wireItem(i, spec[i]);

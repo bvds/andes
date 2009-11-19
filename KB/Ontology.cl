@@ -124,7 +124,10 @@
 
 (def-qexp velocity (velocity ?body :time ?time)
   :units |m/s|
-  :new-english ((preferred "the") (or "velocity" "vel." "vel")
+  :new-english ((preferred "the") 
+		(eval (when (time-intervalp ?time)
+			'(preferred (or "average" "avg." "avg"))))
+		(or "velocity" "vel." "vel")
 		 (and (preferred (property ?body))
 		      (preferred (time ?time)))))
 
@@ -132,26 +135,37 @@
   :units |m/s|
   ;; see relative-position
   :new-english ((preferred "the") 
-		(or ((or "velocity" "vel." "vel") (property ?to-pt) "relative to" ?from-pt)
-		    ((allowed "relative") (or "velocity" "vel." "vel") (property ?to-pt)
-		     "with respect to" ?from-pt))
+		(eval (when (time-intervalp ?time)
+			'(preferred (or "average" "avg." "avg"))))
+		(or ((or "velocity" "vel." "vel") (property ?to-pt) 
+		     "relative to" ?from-pt)
+		    ((allowed "relative") (or "velocity" "vel." "vel") 
+		     (property ?to-pt) "with respect to" ?from-pt))
 		(preferred (time ?time))))
 
 (def-qexp accel	(accel ?body :time ?time)
   :units |m/s^2|
-  :new-english ((preferred "the") (or "acceleration" "accel." "accel")
+  :new-english ((preferred "the") 
+		(eval (when (time-intervalp ?time)
+			'(allowed (or "average" "avg." "avg"))))
+		(or "acceleration" "accel." "accel")
 		(and (preferred (property ?body))
 		     (preferred (time ?time)))))
 
 (def-qexp momentum (momentum ?body :time ?time)
   :units |kg.m/s|
   :new-english ((preferred "the") (or "momentum" "mom." "mom")
-		 (and (preferred (property ?body))
-		      (preferred (time ?time)))))
+		(eval (when (time-intervalp ?time)
+			'(preferred (or "average" "avg." "avg"))))
+		(and (preferred (property ?body))
+		     (preferred (time ?time)))))
 
 (def-qexp force (force ?body ?agent ?type :time ?time)
   :units N
-  :new-english ((preferred "the") (eval (force-types ?type))
+  :new-english ((preferred "the") 
+		(eval (when (time-intervalp ?time)
+			'(allowed (or "average" "avg." "avg"))))
+		(eval (force-types ?type))
 		(and (preferred (object ?body))
 		     (preferred (agent ?agent))
 		     (preferred (time ?time)))))
@@ -315,28 +329,35 @@
   :symbol-base |s|     
   :short-name "distance traveled"	
   :units |m|
-  :nlg-english ("the distance traveled by ~A" (nlg ?body 'at-time ?time)))
+  :new-english ((preferred "the") (or "distance" "dist." "dist") 
+		(or "traveled" "travelled")
+		(and
+		 (preferred ("by" (or (var (body ?body)) ?body)))
+		 (preferred (time ?time)))))
 
 (def-qexp duration (duration ?time)
   :symbol-base |t|     
   :short-name "duration of time"	
   :units |s|
   :restrictions positive
-  :new-english ((preferred "the") 
-		(preferred "duration of") "time" "between" 
+  :new-english ((preferred "the") (preferred "duration of") "time"
 		(time ?time)))
-;; (or "and" "&") (time ?t2)))
 
 (def-qexp speed (speed ?body :time ?time)
   :symbol-base |v|     
   :short-name "speed"	
   :units |m/s|
-  :new-english ((preferred "the") 
-		(or ("speed" (property ?body) (time ?time))
-		    ;; allow velocity language
-		    (mag (veclocity ?body :time ?time)))))
+  :new-english (or ((preferred "the") 
+		    (eval (when (time-intervalp ?time)
+			    '(preferred (or "average" "avg." "avg"))))
+		    "speed" 
+		    (and (preferred (property ?body)) 
+			 (preferred (time ?time))))
+		   ;; allow velocity language
+		   (mag (velocity ?body :time ?time))))
 
-(def-qexp coef-friction (coef-friction ?body1 ?body2 ?static-or-kinetic :time ?time)
+(def-qexp coef-friction 
+    (coef-friction ?body1 ?body2 ?static-or-kinetic :time ?time)
   :symbol-base |$m|     
   :short-name "coef. of friction"	
   :units NIL ;; dimensionless

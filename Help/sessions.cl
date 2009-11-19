@@ -51,7 +51,7 @@
 
 (defvar *cleanup-thread* "Function to clean up idle sessions")
 
-(defun start-help (&key (port 8080))
+(defun start-help (&key (port 8080) server-log-path)
   "start a server with help system, optionally specifying the port."
   ;; global setup
 
@@ -76,7 +76,12 @@
 
   ;; start webserver
   (webserver:start-json-rpc-service 
-   "/help" :port port :log-function #'andes-database:write-transaction)
+   "/help" :port port :log-function #'andes-database:write-transaction
+   ;; Path for Hunchentoot server (and database access) errors.
+   ;; Generally, these errors indicate something disasterous has
+   ;; occurred.  Might want to find some way to inform the administrator.
+   :server-log-path (or server-log-path
+			(merge-pathnames "help-server.log" *andes-path*)))
 
     (setf *cleanup-thread*
 	  #+sbcl (sb-thread:make-thread #'idle-cleanup-function)
@@ -254,18 +259,23 @@
       (let ((x 10) (y 10) (i 0))
 	(dolist  (line (problem-statement *cp*))
 	  (cond ((unify line '(answer . ?rest))
-		 (push `((:action . "new-object") (:type . "statement") 
-		  (:id . ,(format nil "statement~A" i))
-		  (:mode . "unknown") (:x . ,x) (:y . ,y) 
-		  (:width . 100) (:text . "Answer:       ")) replies))
+		 (let ((id (format nil "statement~A" i)))
+		   ;; Add to *StudentEntries* but don't evaluate in Help.
+		   (push (make-studententry :id id :mode "unknown"
+					    :type "statement") 
+			 *studententries*)
+		   (push `((:action . "new-object") (:type . "statement") 
+			   (:id . ,id) (:mode . "unknown") (:x . ,x) (:y . ,y) 
+			   (:width . 100) (:text . "Answer:       ")) 
+			 replies)))
 		(t 
 		 (push `((:action . "new-object") (:type . "statement") 
-		  (:id . ,(format nil "statement~A" i))
-		  (:mode . "locked") (:x . ,x) (:y . ,y) 
-		  (:width . 400) (:text . ,line)) replies)))
+			 (:id . ,(format nil "statement~A" i))
+			 (:mode . "locked") (:x . ,x) (:y . ,y) 
+			 (:width . 400) (:text . ,line)) replies)))
 	  (incf i)
 	  (setf y (+ y 25)))
-
+	
 	(when (problem-graphic *cp*)
 	  (let ((dims (problem-graphic-dimensions (problem-graphic *cp*))))
 	    (if dims		
@@ -326,6 +336,7 @@
 	  (pushnew '(:action . "new-object") (cdr predef) :key #'car)
 	  (pushnew `(:id . ,(format nil "pre~A" (incf i))) (cdr predef) :key #'car)
 	  (pushnew '(:mode . "unknown") (cdr predef) :key #'car)
+	  (pushnew '(:time . 0.0) (cdr predef) :key #'car)
 	  (when (and (car predef) (not (assoc :type (cdr predef))))
 	    (push `(:type . ,(entryprop2type (car predef))) (cdr predef)))
 	  (when (and (car predef) (assoc :symbol (cdr predef))
@@ -507,11 +518,7 @@
 		 (not (equal type (StudentEntry-type old-entry))))
 	(warn "Attempting to change type from ~A to ~A"
 	      (StudentEntry-type old-entry) type))
-      ;; If time slot is missing, set time to zero.
-      ;; Predefs generally don't have a time slot.
-      ;; Client always should send a time.
-      (unless time (setf time 0.0))
-      
+
       ;; create new object
       (setf new-entry (make-StudentEntry :id id :type type :time time))
       
@@ -611,20 +618,24 @@
       ;; call next-step-help or do-whats-wrong
       ((equal action "help-button")
        ;; Find if there are any current errors.
-       (let ((mistakes (member **incorrect** *studententries* 
+       (let ((mistakes (remove **incorrect** *studententries* 
+			       :test-not #'eql
 			       :key #'StudentEntry-state)))
 	 (if mistakes
 	     (execute-andes-command 'do-whats-wrong 
 				    ;; find most recent mistake, time-wise
-				    (car (sort mistakes #'> 
-					       :key  #'StudentEntry-time)))
+				    (reduce #'(lambda (x y)
+						(if (> (studententry-time x)
+						       (studententry-time y))
+						    x y))
+					    mistakes))
 	     (execute-andes-command 'next-step-help))))
       ;; Student has typed text in help pane.
       ((and (equal action "get-help") text)
        (execute-andes-command 'handle-student-response text))
       ;; Student has clicked a link associated with the help.
       ((and (equal action "get-help") value)
-       (let ((response-code (find-symbol (string-upcase value))))
+       (let ((response-code (find-symbol value)))
 	 (unless response-code (warn "Unknown value ~A, using nil." value))
 	 (execute-andes-command 'handle-student-response response-code)))
       ((equal action "principles-menu")

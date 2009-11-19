@@ -55,7 +55,7 @@
   ;; the main entry:
   ImplicitEqns         ;list of any associated implicit equation entries
   GivenEqns	       ;list of any associated given value equation entries
-  (Time (get-current-htime))  ;The entry's time.  
+  Time                 ;The entry's time.  
   ;; Typically the time it was create, but not necessarily.
   )
 
