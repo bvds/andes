@@ -155,9 +155,9 @@
 	    },
 	    "mode": {
 	      "type": "string",
-	      "enum": ["unknown","correct","incorrect","locked","fade","deleted"],
+	      "enum": ["unknown","correct","incorrect","locked","fade"],
 	      "optional": true,
-	      "description": "State of the item; unknown: black; correct: green; incorrect: red; locked: black(not user selectable); fade: gray (not user selectable); deleted: remove from canvas.  Required for modify-object."
+	      "description": "State of the item; unknown: black; correct: green; incorrect: red; locked: black(not user selectable); fade: gray (not user selectable).  Required for modify-object."
 	    },
 	    "text":	{
 	      "type": "string", 	

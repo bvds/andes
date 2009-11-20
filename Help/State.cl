@@ -249,9 +249,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; delete-object -- remove existing student entry, undoing its effects on state
 ;; Arguments: id  	the workbench-assigned entry id
-;; Returns:  modify-object mode to deleted
-;;           Should update score.
-;;           In Andes2, this was done as a "DDE-POST":  no reply.
+;; Returns:  garbage
 ;;
 ;; Calls back to undo-entry in EntryInterpreter module to do the work of
 ;; undoing an entry, because that is where the knowledge of what to do is.
@@ -264,12 +262,10 @@
       (format *debug-help* "Removing entry: ~A ~S~%" 
 	      (studententry-id old-entry) (studententry-prop old-entry))
       (undo-entry old-entry)
-      ;; and remove it from Entry listS
+      ;; and remove it from Entry lists
       (setf *StudentEntries*
-	    (delete Id *StudentEntries* :key #'StudentEntry-ID :test #'equal))
-      ;; Should also update score?
-      `(((:action . "modify-object") (:id . ,Id) 
-     (:mode . "deleted"))))))
+	    (delete Id *StudentEntries* 
+		    :key #'StudentEntry-ID :test #'equal)))))
 
 ;;=============================================================================
 ;; Helpers for implicit equation entries associated with diagram entries

@@ -318,7 +318,6 @@
 (defconstant **show-hint** 'Show-hint "The show-hint command.")
 (defconstant **show-lesson** 'Show-lesson "The show-lesson command.")
 (defconstant **training-card** 'training-card "The training-card command.")
-(defconstant **delete-entry** 'delete-entry "The delete-entry command.")
 
 ;;; -------------------------------------------------------------------
 ;;; dde-result command tests.
@@ -326,14 +325,6 @@
 (defun ddr-show-hintp (Result)
   "Is this a show-hint dde result."
   (equal (dde-result-command Result) **show-hint**))
-
-;; NOTE:: This code probably will not get exercised as the deletions
-;;  are currently called using a dde-post that does not return a result
-;;  however, the vode exists to produce those results in turn->wb-reply
-;;  so they may become effective at some point.
-(defun ddr-delete-objectp (Result)
-  "Is this a show-hint dde result."
-  (equal (dde-result-command Result) **delete-entry**))
 
 
 ;;; -------------------------------------------------------------------

@@ -1508,7 +1508,7 @@
         ;; if cleared done button, delete any prior entry for this button
 	;; and leave control black. 
 	((= 0 Value) (delete-object ID)
-	             (make-black-turn :id id))
+	             (make-no-color-turn :id id))
 	;; Treat any non-zero value as T, just in case other non-zero 
 	;; comes from C 
 	(T (check-mc-no-quant-done-answer-sought ID))))

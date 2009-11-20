@@ -337,8 +337,6 @@
 			    (:mode . "correct")) result))
       (color-red (push `((:action . "modify-object") (:id . ,id)
 			    (:mode . "incorrect")) result))
-      (delete (push `((:action . "modify-object") (:id . ,id)
-			    (:mode . "deleted")) result))
     )
     ;; switch on type to see what message commnd we have to append to result
     ;; also have to check for an equation result to return
@@ -518,9 +516,9 @@
      :Assoc (alist-warn (turn-assoc Result)))))
 
 
-;;; There are four possible turn-colorings: Red, Green, no-op
-;;; and delete-entry.  Of these, the Red and green are used 
-;;; most of the time.  No-op is intended to indicate no change.
+;;; There are three turn-colorings: Red, Green, and no-op.
+;;; Of these, the Red and green are used most of the time.  
+;;; No-op is intended to indicate no change.
 ;;; although it is not used except in cases where no command or
 ;;; value is sent.  However the turn->wb-reply code makes it 
 ;;; possible to send both so I will include it here.
@@ -529,8 +527,7 @@
     (case (turn-coloring Result)
       (Color-Green 'Green)
       (Color-Red 'Red)
-      (no-op Nil)
-      (delete Nil))))
+      (no-op Nil))))
 
 
 ;;; ----------------------------------------------------------
@@ -661,34 +658,19 @@
 ;;; code will generate those and is drawn heavily from turn->wb-reply
 ;;; that is defined above. 
 ;;;
-;;; This code is complicated by the fact that a coloring of **delete-entry** 
-;;; also sets the command and value.  
 ;;;
 ;;; NOTE:: The eqn-turn should not be called here as only the algebra commands
 ;;;  return eqn-turns and those will be handled by the Eqn-Result code.
 
 (defun iface-set-DDR-turn-command (Val Result)
   "Set the command and value fields."
-  (if (equalp (turn-coloring Result) **Delete-Entry**)
-      (iface-set-ddr-delete-turn-c Val Result)
-    (case (turn-type Result)
-      (Minil-Turn (iface-set-ddr-Minil-turn-c Val Result))
-      (TCard-turn (iface-set-ddr-tcard-turn-c Val Result))
-      (KCD-turn (iface-set-ddr-kcd-turn-c Val Result))
-      (End-Dialog (iface-set-ddr-end-turn-c Val Result))
-      (Dialog-Turn (iface-set-ddr-dialog-turn-c Val Result))
-      (Eqn-turn (error "Incorrect-turn-type-supplied.")))))
-
-;; Andes has placed a note in the turn->wb-reply code indicating that
-;; the delete turn is not complete.  I am not quite sure what to make
-;; of this but for now I will assume that it is being used and set 
-;; the values accordingly.  
-;;
-;; NOTE:: I do not believe that this code will be exercized but I am 
-;;  covering the bases.
-(defun iface-set-ddr-delete-turn-c (Val Result)
-  (setf (dde-result-command Val) **delete-entry**)
-  (setf (dde-result-value Val) (turn-text Result)))
+  (case (turn-type Result)
+    (Minil-Turn (iface-set-ddr-Minil-turn-c Val Result))
+    (TCard-turn (iface-set-ddr-tcard-turn-c Val Result))
+    (KCD-turn (iface-set-ddr-kcd-turn-c Val Result))
+    (End-Dialog (iface-set-ddr-end-turn-c Val Result))
+    (Dialog-Turn (iface-set-ddr-dialog-turn-c Val Result))
+    (Eqn-turn (error "Incorrect-turn-type-supplied."))))
     
 
 ;;; Minilesson turns are used to display help info in the workbench 
@@ -788,7 +770,7 @@
       ;; all following cmd classes can just be dispatched as usual
       ((State Answer Statistics Delete Control) (apply cmd args))
       ;; Entries should be left black
-      ((noneq-entry eq-entry) (make-black-turn 
+      ((noneq-entry eq-entry) (make-no-color-turn 
 			       :id (StudentEntry-id (car args))))
       ;; Help requests: assume explain more could only be followup to allowed 
       ;; help -- presumably unsolicited help for wrong answers -- so process it. 
