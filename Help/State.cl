@@ -249,7 +249,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; delete-object -- remove existing student entry, undoing its effects on state
 ;; Arguments: id  	the workbench-assigned entry id
-;; Returns:  garbage
+;; Returns:   empty tutor turn.
 ;;
 ;; Calls back to undo-entry in EntryInterpreter module to do the work of
 ;; undoing an entry, because that is where the knowledge of what to do is.
@@ -265,7 +265,8 @@
       ;; and remove it from Entry lists
       (setf *StudentEntries*
 	    (delete Id *StudentEntries* 
-		    :key #'StudentEntry-ID :test #'equal)))))
+		    :key #'StudentEntry-ID :test #'equal))
+      (make-noop-turn))))
 
 ;;=============================================================================
 ;; Helpers for implicit equation entries associated with diagram entries

@@ -541,8 +541,7 @@
        (cond
 	 ((equal action "delete-object")
 	  ;; We should pass the object to be deleted rather than the id.
-	  (delete-object (StudentEntry-id new-entry)) 
-	  (execute-andes-command 'list (make-noop-turn))) ;no return
+	  (execute-andes-command 'delete-object (StudentEntry-id new-entry)))
 	 
 	 ;; For debugging only, should be turned off in production
 	 ((and webserver:*debug* (equal text "help-test-error")

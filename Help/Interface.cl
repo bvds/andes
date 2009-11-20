@@ -98,8 +98,8 @@
 ;;; execute-andes-command function below.
 ;;;
 ;;; This function will generate a new cmd for the action and execute the 
-;;; command.  The result from that execution will be one of
-;;; t, NIL, :Error or a tutor turn.  
+;;; command.  The result from that execution will be  alist, possibly null, 
+;;; or a tutor turn.  
 ;;;
 ;;; If the result is a tutor-turn it will be translated into a string for return 
 ;;; to the workbench again.  This is done because there are 
@@ -109,7 +109,7 @@
 ;;; Once that is done the result or the Str with be parsed into a cmdresult and
 ;;; appended to the cmd before the autograding tests are run.  The result value
 ;;; will be used unless it is a tutor turn and an error was thrown by return-turn
-;;; when it was being processed.  In that case the :Error symbol will be used.
+;;; when it was being processed.
 ;;;
 ;;; Once the cmdresult has been appended to the cmd then the aurograding tests
 ;;; will be run and any commands to update the grades will be sent.  At that 
@@ -128,35 +128,31 @@
   ;; and the help calls are not
   (let* ((text (and entry (StudentEntry-p entry) (StudentEntry-text entry)))
 	 (Arguments (and entry (list entry)))
-	 (dde t)
 	 ;; Set the last api call to be this call.
-	 Tmp (NewCmd (iface-generate-log-cmd DDE Command text))
+	 (NewCmd (iface-generate-log-cmd Command text))
 	 (Result (if (and *cp* 
 			  (member 'answer-only-mode (problem-features *cp*)))
 		     (answer-only-dispatcher Command Arguments)
 		     (apply command Arguments)))
-	 (Str (when (turn-p Result) (return-turn Result))))
+	 (Str (cond ((turn-p Result) (return-turn Result)) 
+		    ((listp Result) result)
+		    (t (warn "Invalid result format ~A" result)))))
 
     ;; Once the command has been executed and any result parsed then we
-    ;; need to add the cmdresult to the current cmd iff the cmd was a 
-    ;; DDE (and will therefore get a reply.  This occurs here.  The pprint
-    ;; is for debugging only.  
-    (when DDE 
-      (setq Tmp (iface-add-cmdresult-to-cmd 
-		 NewCMD (if (equalp Str :Error) Str Result)))
-      (when (equalp Tmp :Error) (warn "Error in Cmdresult addition.")))
+    ;; need to add the cmdresult to the current cmd.
+    (iface-add-cmdresult-to-cmd NewCMD Result)
     
     ;; This is the primary call to autograding.  It will handle the 
     ;; execution of any tests and the updating of results.  It calls 
     ;; the code in AutoCalc.cl and will handle the send-fbd command 
     ;; as necessary.
     ;;
-    (setq Tmp (iface-handle-Statistics NewCmd))
-    (when Tmp (if str (push Tmp str) (push tmp result)))
+    (let ((Tmp (iface-handle-Statistics NewCmd)))
+      (when Tmp (push Tmp str)))
 
     (format *debug-help* "Result ~A~%" Result)
 
-    (or Str Result)))
+    str))
 
 
 ;;; =========================================================================
@@ -181,11 +177,11 @@
 ;;;   for our purposes.
 
 
-(defun iface-generate-log-cmd (DDE Command text)
+(defun iface-generate-log-cmd (Command text)
   "Generate an initial cmd and add it to the set for processing."
   ;; This is the only place where cmd is constructed
   (let ((C (make-cmd :Class (lookup-command->class Command)
-		     :Type (if DDE 'DDE 'DDE-POST)
+		     :Type 'DDE
 		     :Time (get-current-htime)
 		     :command command
 		     :text text  ;; used only for delete-equation-cmdp
@@ -456,21 +452,18 @@
 ;;; The result-type/command matching is located in API.  That code will
 ;;; be used here.  
 
-;;; If the result is :Error then we can form a cmdresult and append it 
-;;; directly to the cmd.  If it is one of T, Nil, or a turn then we need
+;;; If it is one of T, Nil, or a turn then we need
 ;;; to determine what type of result the code is expecting and form it 
 ;;; appropriately.  The sections below contain the code necessary to do
 ;;; that grouped by result type, as well as utility code.
 (defun iface-Add-cmdresult-to-cmd (CMD Result)
   "Generate a cmdresult appropriate for the cmd from Result and store it."
-  (if (equalp Result :Error) 
-      (iface-set-cmdresult Cmd :Class 'DDE-Failed)
-    (case (lookup-commandclass->resultclass (cmd-class Cmd))
-      (Status-Return-Val (iface-add-srv-cmdresult Cmd Result))
-      (Eqn-Result (iface-add-eqr-cmdresult Cmd Result))
-      (Hint-Return-Val (iface-add-hrv-cmdresult Cmd Result))
-      (stat-result (iface-add-stat-cmdresult Cmd Result))
-      (Ignore (iface-add-ignore-cmdresult Cmd Result)))))
+  (case (lookup-commandclass->resultclass (cmd-class Cmd))
+    (Status-Return-Val (iface-add-srv-cmdresult Cmd Result))
+    (Eqn-Result (iface-add-eqr-cmdresult Cmd Result))
+    (Hint-Return-Val (iface-add-hrv-cmdresult Cmd Result))
+    (stat-result (iface-add-stat-cmdresult Cmd Result))
+    (Ignore (iface-add-ignore-cmdresult Cmd Result))))
 
 
 ;;; --------------------------------------------------------------------------
