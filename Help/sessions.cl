@@ -417,10 +417,16 @@
 
     (env-wrap
 
+      ;; Determine if this is the first session for this user.
+      (when (andes-database:first-session-p :student user :section section 
+					    :extra extra)
+	;; Start up special dialog box.
+	(push '((:action . "new-user-dialog")) replies)
+
       ;;  Push initial hint to the client.  
       ;;  Should only do this when help and grading is available
       (push '((:action . "show-hint") (:text . "If you need help, click the help button <span dojoType=\"dijit.form.Button\" disabled=\"true\">?</span> below.&nbsp; Click the <span class=\"dojoxExpandoIcon dojoxExpandoIconRight\" style=\"float:none;display:inline-block;margin-right:6px;\" disabled=\"true\"></span> button above to hide this window.")) 
-	    replies)
+	    replies))
   
       ;; set-stats (if there was an old score) (to do)
       ;; Should this be wrapped in execute-andes-command?

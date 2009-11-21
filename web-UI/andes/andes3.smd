@@ -25,7 +25,7 @@
 	    "action": {
 	      "type": "string",
 	      "optional": false,
-	      "enum":["new-object","modify-object","set-score","log","show-hint"],
+	      "enum":["new-object","modify-object","set-score","log","show-hint","new-user-dialog"],
 	      "description": "show-hint needed in the case of an error"
 	    },
 	    "id": {
