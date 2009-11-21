@@ -171,7 +171,7 @@
 (defun Help-Stackc (Stack)
   (let ((CMD (car Stack)))
     (when (or (help-cmdp CMD) (help-stack-nohelp-capp CMD))
-	(help-stackc-test Cmd (cdr Stack) nil 0))))
+      (help-stackc-test Cmd (cdr Stack) nil 0))))
 
 
 ;;; Once we have a valid help command then test it by type and
@@ -214,7 +214,7 @@
 	    HANDLE-STUDENT-RESPONSE)))
 
 ;;; A help stack is capped (started) by a next-step-help, 
-;;; why-wrong-* help or any other entry that returns a 
+;;; do-whats-wrong help or any other entry that returns a 
 ;;; show hint command with a menu.
 (defun help-stack-capp (cmd)
   (or (help-stack-help-capp cmd)
@@ -223,11 +223,10 @@
 ;;; Return the matching item name to signify what type of help 
 ;;; cap this is.  
 (defun help-stack-help-capp (cmd)
-  "If this is a why-wrong-* call or a next-step-help call."
+  "If this is a do-whats-wrong call or a next-step-help call."
   (find (cmd-command cmd) 
 	'(next-step-help 
-	  why-wrong-object 
-	  why-wrong-equation)))
+	  do-whats-wrong)))
 
 
 ;;; Return t if this is not a help call but it does result in a 
@@ -262,16 +261,6 @@
   "Is this a helpstack capped with a WWH call?"
   (let ((S (help-stackc Stack)))
     (when S (why-wrong-cmdp (car S)))))
-
-(defun Why-wrong-obj-stackp (Stack)
-  "Is this a helpstack capped with a WWO call?"
-  (let ((S (help-stackc Stack)))
-    (when S (why-wrong-obj-cmdp (car S)))))
-
-(defun Why-wrong-eqn-stackp (Stack)
-  "Is this a helpstack capped with a WWE call?"
-  (let ((S (help-stackc Stack)))
-    (when S (why-wrong-eqn-cmdp (car S)))))
 
 (defun unsolicited-help-stackp (Stack)
   "Is this a helpstack capped with an unsolicited help cmd?"

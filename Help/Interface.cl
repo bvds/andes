@@ -98,8 +98,8 @@
 ;;; execute-andes-command function below.
 ;;;
 ;;; This function will generate a new cmd for the action and execute the 
-;;; command.  The result from that execution will be one of
-;;; t, NIL, :Error or a tutor turn.  
+;;; command.  The result from that execution will be  alist, possibly null, 
+;;; or a tutor turn.  
 ;;;
 ;;; If the result is a tutor-turn it will be translated into a string for return 
 ;;; to the workbench again.  This is done because there are 
@@ -109,7 +109,7 @@
 ;;; Once that is done the result or the Str with be parsed into a cmdresult and
 ;;; appended to the cmd before the autograding tests are run.  The result value
 ;;; will be used unless it is a tutor turn and an error was thrown by return-turn
-;;; when it was being processed.  In that case the :Error symbol will be used.
+;;; when it was being processed.
 ;;;
 ;;; Once the cmdresult has been appended to the cmd then the aurograding tests
 ;;; will be run and any commands to update the grades will be sent.  At that 
@@ -128,35 +128,31 @@
   ;; and the help calls are not
   (let* ((text (and entry (StudentEntry-p entry) (StudentEntry-text entry)))
 	 (Arguments (and entry (list entry)))
-	 (dde t)
 	 ;; Set the last api call to be this call.
-	 Tmp (NewCmd (iface-generate-log-cmd DDE Command text))
+	 (NewCmd (iface-generate-log-cmd Command text))
 	 (Result (if (and *cp* 
 			  (member 'answer-only-mode (problem-features *cp*)))
 		     (answer-only-dispatcher Command Arguments)
 		     (apply command Arguments)))
-	 (Str (when (turn-p Result) (return-turn Result))))
+	 (Str (cond ((turn-p Result) (return-turn Result)) 
+		    ((listp Result) result)
+		    (t (warn "Invalid result format ~A" result)))))
 
     ;; Once the command has been executed and any result parsed then we
-    ;; need to add the cmdresult to the current cmd iff the cmd was a 
-    ;; DDE (and will therefore get a reply.  This occurs here.  The pprint
-    ;; is for debugging only.  
-    (when DDE 
-      (setq Tmp (iface-add-cmdresult-to-cmd 
-		 NewCMD (if (equalp Str :Error) Str Result)))
-      (when (equalp Tmp :Error) (warn "Error in Cmdresult addition.")))
+    ;; need to add the cmdresult to the current cmd.
+    (iface-add-cmdresult-to-cmd NewCMD Result)
     
     ;; This is the primary call to autograding.  It will handle the 
     ;; execution of any tests and the updating of results.  It calls 
     ;; the code in AutoCalc.cl and will handle the send-fbd command 
     ;; as necessary.
     ;;
-    (setq Tmp (iface-handle-Statistics NewCmd))
-    (when Tmp (if str (push Tmp str) (push tmp result)))
+    (let ((Tmp (iface-handle-Statistics NewCmd)))
+      (when Tmp (push Tmp str)))
 
     (format *debug-help* "Result ~A~%" Result)
 
-    (or Str Result)))
+    str))
 
 
 ;;; =========================================================================
@@ -181,11 +177,11 @@
 ;;;   for our purposes.
 
 
-(defun iface-generate-log-cmd (DDE Command text)
+(defun iface-generate-log-cmd (Command text)
   "Generate an initial cmd and add it to the set for processing."
   ;; This is the only place where cmd is constructed
   (let ((C (make-cmd :Class (lookup-command->class Command)
-		     :Type (if DDE 'DDE 'DDE-POST)
+		     :Type 'DDE
 		     :Time (get-current-htime)
 		     :command command
 		     :text text  ;; used only for delete-equation-cmdp
@@ -337,8 +333,6 @@
 			    (:mode . "correct")) result))
       (color-red (push `((:action . "modify-object") (:id . ,id)
 			    (:mode . "incorrect")) result))
-      (delete (push `((:action . "modify-object") (:id . ,id)
-			    (:mode . "deleted")) result))
     )
     ;; switch on type to see what message commnd we have to append to result
     ;; also have to check for an equation result to return
@@ -358,20 +352,23 @@
 			     (:text . ,(turn-text turn))) result)
 		     ;; add followup codes if any
 		     (when (turn-menu turn)
-		       (if (consp (turn-menu turn)) ; list => menu spec
-			   ;; for now, only one level permitted.
-			   ;; format list with vbar delimiters
-			   (warn "menu spec ~A unimplemented" (turn-menu turn))
+		       (if (consp (turn-menu turn)) 
+			   ;; alist of keyword, text pairs
+			   ;; to be presented as a list of choices
+			   (dolist (choice (turn-menu turn))
+			      (push `((:action . "show-hint-link")
+				      (:text . ,(cdr choice)) 
+				      (:value . ,(symbol-name (car choice))))
+				    result))
 			   ;; else predefined menu:
 			   (case (turn-menu turn)
-			     ;; predefined menus have single-letter codes:
 			     (explain-more 
-			      (push '((:action . "show-hint-link")
+			      (push `((:action . "show-hint-link")
 				      (:text . "Explain more") 
-				      (:value . "explain-more"))
+				      (:value . ,(symbol-name 
+						  **explain-more**)))
 				    result))
-			     (quant-menu  
-			      ;; In Andes3, this is text entry.
+			     (text-input  
 			      (push '((:action . "focus-hint-text-box"))
 				    result))
 			     ;; Add text to modal dialog box.
@@ -393,7 +390,6 @@
       (kcd-turn (push `((:action . "show-hint") 
 			(:text . ,(turn-text turn))) result)
 		(case (Turn-menu turn)
-		  (Free-Text (warn "kcd free text."))
 		  (Explain-More (warn "kcd explain more."))
 		  (otherwize (warn "kcd otherwize."))))
       ;; Format the stat turn as a list of values for the workbench.  
@@ -456,21 +452,18 @@
 ;;; The result-type/command matching is located in API.  That code will
 ;;; be used here.  
 
-;;; If the result is :Error then we can form a cmdresult and append it 
-;;; directly to the cmd.  If it is one of T, Nil, or a turn then we need
+;;; If it is one of T, Nil, or a turn then we need
 ;;; to determine what type of result the code is expecting and form it 
 ;;; appropriately.  The sections below contain the code necessary to do
 ;;; that grouped by result type, as well as utility code.
 (defun iface-Add-cmdresult-to-cmd (CMD Result)
   "Generate a cmdresult appropriate for the cmd from Result and store it."
-  (if (equalp Result :Error) 
-      (iface-set-cmdresult Cmd :Class 'DDE-Failed)
-    (case (lookup-commandclass->resultclass (cmd-class Cmd))
-      (Status-Return-Val (iface-add-srv-cmdresult Cmd Result))
-      (Eqn-Result (iface-add-eqr-cmdresult Cmd Result))
-      (Hint-Return-Val (iface-add-hrv-cmdresult Cmd Result))
-      (stat-result (iface-add-stat-cmdresult Cmd Result))
-      (Ignore (iface-add-ignore-cmdresult Cmd Result)))))
+  (case (lookup-commandclass->resultclass (cmd-class Cmd))
+    (Status-Return-Val (iface-add-srv-cmdresult Cmd Result))
+    (Eqn-Result (iface-add-eqr-cmdresult Cmd Result))
+    (Hint-Return-Val (iface-add-hrv-cmdresult Cmd Result))
+    (stat-result (iface-add-stat-cmdresult Cmd Result))
+    (Ignore (iface-add-ignore-cmdresult Cmd Result))))
 
 
 ;;; --------------------------------------------------------------------------
@@ -516,9 +509,9 @@
      :Assoc (alist-warn (turn-assoc Result)))))
 
 
-;;; There are four possible turn-colorings: Red, Green, no-op
-;;; and delete-entry.  Of these, the Red and green are used 
-;;; most of the time.  No-op is intended to indicate no change.
+;;; There are three turn-colorings: Red, Green, and no-op.
+;;; Of these, the Red and green are used most of the time.  
+;;; No-op is intended to indicate no change.
 ;;; although it is not used except in cases where no command or
 ;;; value is sent.  However the turn->wb-reply code makes it 
 ;;; possible to send both so I will include it here.
@@ -527,8 +520,7 @@
     (case (turn-coloring Result)
       (Color-Green 'Green)
       (Color-Red 'Red)
-      (no-op Nil)
-      (delete Nil))))
+      (no-op Nil))))
 
 
 ;;; ----------------------------------------------------------
@@ -659,34 +651,19 @@
 ;;; code will generate those and is drawn heavily from turn->wb-reply
 ;;; that is defined above. 
 ;;;
-;;; This code is complicated by the fact that a coloring of **delete-entry** 
-;;; also sets the command and value.  
 ;;;
 ;;; NOTE:: The eqn-turn should not be called here as only the algebra commands
 ;;;  return eqn-turns and those will be handled by the Eqn-Result code.
 
 (defun iface-set-DDR-turn-command (Val Result)
   "Set the command and value fields."
-  (if (equalp (turn-coloring Result) **Delete-Entry**)
-      (iface-set-ddr-delete-turn-c Val Result)
-    (case (turn-type Result)
-      (Minil-Turn (iface-set-ddr-Minil-turn-c Val Result))
-      (TCard-turn (iface-set-ddr-tcard-turn-c Val Result))
-      (KCD-turn (iface-set-ddr-kcd-turn-c Val Result))
-      (End-Dialog (iface-set-ddr-end-turn-c Val Result))
-      (Dialog-Turn (iface-set-ddr-dialog-turn-c Val Result))
-      (Eqn-turn (error "Incorrect-turn-type-supplied.")))))
-
-;; Andes has placed a note in the turn->wb-reply code indicating that
-;; the delete turn is not complete.  I am not quite sure what to make
-;; of this but for now I will assume that it is being used and set 
-;; the values accordingly.  
-;;
-;; NOTE:: I do not believe that this code will be exercized but I am 
-;;  covering the bases.
-(defun iface-set-ddr-delete-turn-c (Val Result)
-  (setf (dde-result-command Val) **delete-entry**)
-  (setf (dde-result-value Val) (turn-text Result)))
+  (case (turn-type Result)
+    (Minil-Turn (iface-set-ddr-Minil-turn-c Val Result))
+    (TCard-turn (iface-set-ddr-tcard-turn-c Val Result))
+    (KCD-turn (iface-set-ddr-kcd-turn-c Val Result))
+    (End-Dialog (iface-set-ddr-end-turn-c Val Result))
+    (Dialog-Turn (iface-set-ddr-dialog-turn-c Val Result))
+    (Eqn-turn (error "Incorrect-turn-type-supplied."))))
     
 
 ;;; Minilesson turns are used to display help info in the workbench 
@@ -786,7 +763,7 @@
       ;; all following cmd classes can just be dispatched as usual
       ((State Answer Statistics Delete Control) (apply cmd args))
       ;; Entries should be left black
-      ((noneq-entry eq-entry) (make-black-turn 
+      ((noneq-entry eq-entry) (make-no-color-turn 
 			       :id (StudentEntry-id (car args))))
       ;; Help requests: assume explain more could only be followup to allowed 
       ;; help -- presumably unsolicited help for wrong answers -- so process it. 

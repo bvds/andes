@@ -101,7 +101,6 @@
 			:components (
 				     (:file "StackProcessing")
 				     (:file "StackTests")
-				     (:file "ProcDepth")
 				     (:file "UtilFuncs")
 				     ;; file must be loaded before compile
 				     (:no-compile-file "Tests"

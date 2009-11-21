@@ -95,7 +95,7 @@
 (defun handle-empty-equation (entry)
   (let ((id (StudentEntry-id entry)))
     (delete-object id)
-    (make-noop-turn))) ; no coloring on empty eqn -- noop leaves "black"
+    (make-noop-turn))) ; don't return anything.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -530,7 +530,7 @@
 (defun solver-exception-interp (se)
   ;; To tag buggy unprocessable parse so can prefer others. Hopefully won't ever show this to students.
   (let ((rem (make-hint-seq '("Internal error: could not process equation."))))
-    (setf (turn-coloring rem) NIL) ; leaves black. Not red, since not known wrong
+    (setf (turn-coloring rem) NIL) ; leaves color alone, since we don't know if it is right.
      (setf (StudentEntry-ErrInterp se)
       (make-ErrorInterp
        :diagnosis '(internal-error)
@@ -588,9 +588,7 @@
 	           (format nil "Case matters in variable names: \"g\" means something different than \"G\".  You probably meant ~A instead of ~A." (nth i-first-miss near-misses) (nth i-first-miss undef-vars))
 		  ;; else not near-miss: give advice if used compo notation:
 		  (if is-comp-var
-		      (if (cdr is-comp-var)
-			  (format nil "The variables: ~a may be defined by drawing coordinate axes" is-comp-var)
-			(format nil "The variable: ~a may be defined by drawing coordinate axes." (car is-comp-var)))
+		      (format nil "Vector components ~a are defined only after you have drawn coordinate axes." is-comp-var)
 		    tmp-msg))))))
 
     (setf (turn-id rem) id)

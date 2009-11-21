@@ -319,7 +319,7 @@
 	   (variable ?ge-var ?quant) 
   )
  :hint (
-	 (bottom-out (string "Define a variable for ~A by selecting Energy from the Variables menu on the top menu bar."
+	 (bottom-out (string "Use the Text Tool to define a variable for ~A."
 			     (?quant def-np)))
        ))
 
@@ -715,7 +715,7 @@
   :effects ( (variable ?h-var (height ?body ?zero-height :time ?time))
 	     (define-var (height ?body ?zero-height :time ?time)) )
   :hint (
-	 (bottom-out (string "Define a height variable for ~A using the Variables menu on the top menu bar." ?body))
+	 (bottom-out (string "Define a height variable for ~A using the Text Tool." ?body))
 	 ))
 
 (defoperator define-spring-constant (?spring)
@@ -724,7 +724,7 @@
   ( (define-var (spring-constant ?spring))
       (variable ?k-var  (spring-constant ?spring)) )
   :hint (
-	 (bottom-out (string "Define a spring constant variable using the Variables menu on the top menu bar."))
+	 (bottom-out (string "Define a spring constant variable using the Text Tool."))
 	 ))
 
 (defoperator define-compression (?spring ?t)
@@ -735,7 +735,7 @@
 	       (variable ?d-var  (compression ?spring :time ?t))
 	       )
   :hint (
-	 (bottom-out (string "Define a variable for ~A using the Variables menu on the top menu bar."
+	 (bottom-out (string "Define a variable for ~A using the Text Tool."
 			     ((compression ?spring :time ?t) def-np)))
 	 ))
 
@@ -747,7 +747,7 @@
   ( (define-var (extension ?spring :time ?t))
       (variable ?d-var (extension ?spring :time ?t)) )
  :hint (
-	(bottom-out (string "Define a variable for ~A using the Variables menu on the top menu bar."
+	(bottom-out (string "Define a variable for ~A using the Text Tool."
 			    ((extension ?spring :time ?t) def-np)))
 	))
 

@@ -86,28 +86,16 @@
 (defun proc-bottom-out-hintp (Stack)
   "Is this the tail of a het-proc-help call?"
   (let ((R (car (bottom-out-hint-stackc Stack))))
-    (if R (get-proc-help-cmdp R)))) 
+     (when R (get-proc-help-cmdp R)))) 
 
 
 
 (defun WWH-bottom-out-hintp (Stack)
   "Is this the tail of a het-proc-help call?"
   (let ((R (car (bottom-out-hint-stackc Stack))))
-    (if R (why-wrong-cmdp R))))
+    (when R (why-wrong-cmdp R))))
 
 
-;;; Return t if the topmost cmd in the stack is a bottom-out-hint and
-
-(defun WWO-bottom-out-hintp (Stack)
-  "Is this the tail of a het-proc-help call?"
-  (let ((R (car (bottom-out-hint-stackc Stack))))
-    (if R (why-wrong-obj-cmdp R))))
-
-
-(defun WWE-bottom-out-hintp (Stack)
-  "Is this the tail of a het-proc-help call?"
-  (let ((R (car (bottom-out-hint-stackc Stack))))
-    (if R (why-wrong-eqn-cmdp R))))
 
 
 

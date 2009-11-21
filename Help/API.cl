@@ -88,7 +88,7 @@
       ;; State calls are used to update or alter the system state and 
       ;; signify values being refrshed/set.  As dde's these calls will
       ;; get a status return-val type
-      (State 
+      (State . 
        (set-session-id
 	read-student-info
 	read-problem-info 
@@ -102,7 +102,7 @@
       ;; the score values and as such constiutes a separate class of 
       ;; return value.  This is used for displaying the students scores
       ;; to them at runtime.  
-      (Statistics
+      (Statistics . 
        (set-stats
 	get-stats))
       
@@ -110,7 +110,7 @@
       ;; Noneq-Entry
       ;; non-eq entries such as assert object are dde's that post a 
       ;; value to the system.  As such they get a status return val
-      (noneq-entry
+      (noneq-entry . 
        (assert-object
 	assert-compound-object 
 	lookup-vector 
@@ -134,14 +134,14 @@
       ;;
       ;; If async is set to 1 and a lookup-eqn-string appears as a dde then
       ;; the system will throw an error.
-      (eq-entry 
+      (eq-entry . 
        (lookup-eqn-string))
       
       ;; -------------------------------------------------------------------
       ;; Algebra
       ;; The algebra calls are expected to return equations so they will get
       ;; an eqn-result. 
-      (Algebra 
+      (Algebra . 
        (calculate-equation-string
 	solve-for-var
 	))
@@ -150,7 +150,7 @@
       ;; Answers 
       ;; Answers deal with final answer submissions either in the answer
       ;; field or a bring up a status-return-va
-      (Answer 
+      (Answer . 
        (check-answer
 	lookup-mc-answer
 	))
@@ -160,7 +160,7 @@
       ;; Deletions remove an entry either equations or nonequations from the 
       ;; screen.  Deletions are distributed as dde-posts and get no return
       ;; value.  If no is found as a dde then an error will be thrown.
-      (Delete 
+      (Delete . 
        (delete-object
 	))
       
@@ -168,10 +168,10 @@
       ;; Help 
       ;; help calls are expected to bring back hint responses to they get a
       ;; Hint-return-val.
-      (Help
+      (Help . 
        (handle-student-response
 	do-whats-wrong
-	get-proc-help
+	next-step-help
 	explain-more
 	))      
       ))
@@ -180,9 +180,10 @@
 ;;;  accessed by the user.  
 (defun lookup-command->class (Type &optional (Types **Andes-Command-classes**))
   "Given a command lookup its class."
-  (when types (if (member Type (cadar Types)) 
-		  (caar Types)
-		  (lookup-command->Class Type (cdr Types)))))
+  (dolist (type-class types)
+    (when (member type (cdr type-class))
+      (return-from lookup-command->class (car type-class))))
+  (warn "lookup-command->class type ~A not found" type))
 
 
 ;;; ----------------------------------------------------------------------------

@@ -417,10 +417,16 @@
 
     (env-wrap
 
+      ;; Determine if this is the first session for this user.
+      (when (andes-database:first-session-p :student user :section section 
+					    :extra extra)
+	;; Start up special dialog box.
+	(push '((:action . "new-user-dialog")) replies)
+
       ;;  Push initial hint to the client.  
       ;;  Should only do this when help and grading is available
       (push '((:action . "show-hint") (:text . "If you need help, click the help button <span dojoType=\"dijit.form.Button\" disabled=\"true\">?</span> below.&nbsp; Click the <span class=\"dojoxExpandoIcon dojoxExpandoIconRight\" style=\"float:none;display:inline-block;margin-right:6px;\" disabled=\"true\"></span> button above to hide this window.")) 
-	    replies)
+	    replies))
   
       ;; set-stats (if there was an old score) (to do)
       ;; Should this be wrapped in execute-andes-command?
@@ -541,7 +547,7 @@
        (cond
 	 ((equal action "delete-object")
 	  ;; We should pass the object to be deleted rather than the id.
-	  (delete-object (StudentEntry-id new-entry)))
+	  (execute-andes-command 'delete-object (StudentEntry-id new-entry)))
 	 
 	 ;; For debugging only, should be turned off in production
 	 ((and webserver:*debug* (equal text "help-test-error")
@@ -635,7 +641,7 @@
        (execute-andes-command 'handle-student-response text))
       ;; Student has clicked a link associated with the help.
       ((and (equal action "get-help") value)
-       (let ((response-code (find-symbol (string-upcase value))))
+       (let ((response-code (find-symbol value)))
 	 (unless response-code (warn "Unknown value ~A, using nil." value))
 	 (execute-andes-command 'handle-student-response response-code)))
       ((equal action "principles-menu")

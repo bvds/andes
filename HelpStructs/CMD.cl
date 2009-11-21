@@ -201,31 +201,20 @@
 (defun get-proc-help-cmdp (CMD)
   "Is this a next-step-help call?"
   (and (help-cmdp CMD) 
-       (equalp (cmd-command CMD) 'next-step-help)))
+       (eql (cmd-command CMD) 'next-step-help)))
 
 (defun why-wrong-cmdp (CMD)
-  "Is this a why-wrong-equation or why-wrong-object call?"
+  "Is this a do-whats-wrong call?"
   (and (help-cmdp CMD)
-       (or (equalp (cmd-command CMD) 'WHY-WRONG-OBJECT)
-	   (equalp (cmd-command CMD) 'WHY-WRONG-EQUATION))))
-
-(defun why-wrong-EQN-cmdp (CMD)
-  "Is this a why-wrong-equation or why-wrong-object call?"
-  (and (help-cmdp CMD) 
-       (equalp (cmd-command CMD) 'WHY-WRONG-EQUATION)))
-
-(defun why-wrong-OBJ-cmdp (CMD)
-  "Is this a why-wrong-equation or why-wrong-object call?"
-  (and (help-cmdp CMD) 
-       (equalp (cmd-command CMD) 'WHY-WRONG-OBJECT)))
+       (eql (cmd-command CMD) 'do-whats-wrong)))
   
 ;; Note: delete-cmdp does not work for equation deletions
 ;; sent as DDE-POST of (lookup-eqn-string "" id) [Bug 1254]
 (defun delete-equation-cmdp (CMD)
   "Test whether this is a delete-equation or lookup-eqn-string \"\""
-  (and (equal (cmd-type CMD) 'DDE-POST)
-       (equalp (cmd-command CMD) 'LOOKUP-EQN-STRING)
-       (equalp (cmd-text CMD) "")))
+  (and (eql (cmd-type CMD) 'DDE-POST)
+       (eql (cmd-command CMD) 'LOOKUP-EQN-STRING)
+       (eql (cmd-text CMD) "")))
 
 (defun read-problem-info-cmdp (CMD)
   "Return t if this is an open-problem command."
@@ -329,7 +318,6 @@
 (defconstant **show-hint** 'Show-hint "The show-hint command.")
 (defconstant **show-lesson** 'Show-lesson "The show-lesson command.")
 (defconstant **training-card** 'training-card "The training-card command.")
-(defconstant **delete-entry** 'delete-entry "The delete-entry command.")
 
 ;;; -------------------------------------------------------------------
 ;;; dde-result command tests.
@@ -337,14 +325,6 @@
 (defun ddr-show-hintp (Result)
   "Is this a show-hint dde result."
   (equal (dde-result-command Result) **show-hint**))
-
-;; NOTE:: This code probably will not get exercised as the deletions
-;;  are currently called using a dde-post that does not return a result
-;;  however, the vode exists to produce those results in turn->wb-reply
-;;  so they may become effective at some point.
-(defun ddr-delete-objectp (Result)
-  "Is this a show-hint dde result."
-  (equal (dde-result-command Result) **delete-entry**))
 
 
 ;;; -------------------------------------------------------------------

@@ -23,7 +23,7 @@
 (defpackage :andes-database
   (:use :cl :clsql :json)
   (:export :write-transaction :destroy :create :set-session 
-	   :get-matching-sessions))
+	   :get-matching-sessions :first-session-p))
 (in-package :andes-database)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -130,3 +130,10 @@
 		;; see write-transaction.
 		#'(lambda (x) (and x (decode-json-from-string x)))
 		result))))
+
+(defun first-session-p (&key student section extra)
+  "Determine student has solved a problem previously."
+  (unless (> (length extra) 0) ;can be empty string
+    (> 2 (car (query 
+     (format nil "SELECT count(*) FROM PROBLEM_ATTEMPT WHERE userName = '~A' AND userSection='~A'" 
+	     student section) :flatp t)))))

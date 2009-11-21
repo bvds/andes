@@ -230,7 +230,7 @@
   ((variable ?var (speed ?b :time ?t))
    (define-var (speed ?b :time ?t)))
   :hint
-  ((bottom-out (string "Use the speed menu item under the Variables menu to define a variable for the speed of ~a ~a." ?b (?t pp)))
+  ((bottom-out (string "Use the Text Tool to define a variable for the speed of ~a ~a." ?b (?t pp)))
    ))
 
 ;; This operator defines a distance-traveled variable.  Same comments
@@ -250,7 +250,7 @@
   ((variable ?var (distance ?b :time ?interval))
    (define-var (distance ?b :time ?interval)))
   :hint
-  ((bottom-out (string "Use the distance menu item under the Variables menu to define a variable for the distance traveled by ~a ~a." ?b ?interval))
+  ((bottom-out (string "Use the Text Tool to define a variable for the distance traveled by ~a ~a." ?b ?interval))
    ))
 
 ;;; This operator represents knowing what kinds of quantities occur in
