@@ -438,8 +438,12 @@
   :short-name "radius of circular motion"	
   :units |m|
   :restrictions positive
-  :nlg-english ("the radius of the circular motion of ~A" 
-	    (nlg ?body 'at-time ?time)))
+  :new-english ((preferred "the") "radius" 
+		(property ((preferred "the") 
+			   (or ((allowed "circular") "motion")
+			       "path")
+			   (property ?body)))
+		(preferred (time ?time))))
 
 ;; Halliday and Resnick talk about work done by a force
 ;; "work done by the spring force"
