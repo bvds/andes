@@ -1162,7 +1162,7 @@
 	    (define-var (charge ?p :surface ?surface-flag :time ?t))
             )
    :hint (
-       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Charge."  
+       (bottom-out (string "Define a variable for ~A by using the Text Tool."  
 			   ((charge ?p :surface ?surface-flag :time ?t) def-np) ))
        ))
 
@@ -1171,7 +1171,7 @@
   :effects ((variable ?q-var (number-of ?p))
 	    (define-var (number-of ?p)))
    :hint (
-       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Number."  
+       (bottom-out (string "Define a variable for ~A by using the Text Tool."  
 			   ((number-of ?p) def-np) ))
        ))
 
@@ -1185,7 +1185,8 @@
             (define-var (potential ?loc ?source :time ?t))
             )
    :hint (
-       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Potential."  ((potential ?loc ?source :time ?t) def-np)))
+       (bottom-out (string "Define a variable for ~A by using the Text Tool."  
+			   ((potential ?loc ?source :time ?t) def-np)))
        ))
 
 (defoperator define-net-potential-var (?loc ?t)
@@ -1197,7 +1198,7 @@
             (define-var (net-potential ?loc :time ?t))
             )
    :hint (
-       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Potential."  
+       (bottom-out (string "Define a variable for ~A by using the Text Tool."  
 			   ((net-potential ?loc :time ?t) def-np)))
        ))
 
@@ -3290,7 +3291,7 @@
                (define-var (turns ?body))
    )
      :hint 
-     ((bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting turns."  
+     ((bottom-out (string "Define a variable for ~A by using the Text Tool."  
 			      ((turns ?body) def-np))) ))
 
 
@@ -3308,7 +3309,7 @@
                (define-var (turns-per-length ?body))
    )
      :hint 
-     ((bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting turns per unit length."  
+     ((bottom-out (string "Define a variable for ~A by using the Text Tool."  
 			      ((turns-per-length ?body) def-np))) ))
 
 ;;; turns per length = turns/length
@@ -3387,7 +3388,7 @@
    (variable ?flux-var (flux ?surface ?type :time ?t))
  )
  :hint (
-   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting ~A flux" 
+   (bottom-out (string "Define a variable for ~A by using the Text Tool." 
 		       ((flux ?surface ?type :time ?t) def-np) (?type adj)))
  ))
 
@@ -3787,7 +3788,7 @@
    )
   :hint 
   (
-   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting the ~A line integral" 
+   (bottom-out (string "Define a variable for ~A by using the Text Tool." 
 		       ((line-integral 
 			 (net-field ?path ?type :time ?t)) def-np) 
 		       (?type adj)))

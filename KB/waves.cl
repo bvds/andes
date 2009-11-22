@@ -41,7 +41,7 @@
   :effects ((variable ?lambda-var (wavelength ?wave ?medium))
 	    (define-var (wavelength ?wave ?medium)))
   :hint 
-  ((bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting wavelength."  
+  ((bottom-out (string "Define a variable for ~A by using the Text Tool."
 		       ((wavelength ?wave ?medium) def-np)))))
 
 (def-qexp wavenumber (wavenumber ?wave ?medium)
@@ -60,7 +60,7 @@
   :effects ( (variable ?wn-var (wavenumber ?wave ?medium))
              (define-var (wavenumber ?wave ?medium)))
   :hint 
-  ((bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting wave-number." 
+  ((bottom-out (string "Define a variable for ~A by using the Text Tool." 
 		       ((wavenumber ?wave ?medium) def-np)))))
 
 ;;; Equation of the wavenumber of the wave, wavenumber*lambda = 2*pi
@@ -115,7 +115,7 @@
   :effects ((variable ?freq-var (frequency ?wave))
 	    (define-var (frequency ?wave)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting frequency."  
+	  (string "Define a variable for ~A by using the Text Tool."
 		  ((frequency ?wave) def-np)))))
 
 ;;;
@@ -144,7 +144,7 @@
   :effects ((variable ?freq-var (observed-frequency ?wave ?me :time ?t))
 	    (define-var (observed-frequency ?wave ?me :time ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting observed frequency."  
+	  (string "Define a variable for ~A by using the Text Tool."  
 		  ((observed-frequency ?wave ?me :time ?time) def-np)))))
 
 ;;
@@ -178,7 +178,7 @@
       (define-var (period ?b))
    )
  :hint
-  ((bottom-out (string "Use the Add Variable command located under 'variable' on the top menu bar and select Period to define a variable for ~A." 
+  ((bottom-out (string "Use the Text Tool to define a variable for ~A." 
 		       ((period ?b) def-np)))
    ))
 
@@ -195,7 +195,7 @@
   :effects ((variable ?omega-var (angular-frequency ?wave))
 	    (define-var (angular-frequency ?wave)))
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Angular frequency."  
+	 (bottom-out (string "Define a variable for ~A by using the Text Tool."  
 			     ((angular-frequency ?wave) def-np)))))
 
 ;;equation of the frequency of the wave, frequency = angular-frequency/2*pi
@@ -413,7 +413,7 @@
   :effects ((variable ?wv-var (wave-speed ?medium))
 	    (define-var (wave-speed ?medium)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting speed of wave."
+	  (string "Define a variable for ~A by using the Text Tool."
 		  ((wave-speed ?medium) def-np)))))
 
 ;;; equation of the speed of the wave, speed = freq* wavelength
@@ -531,7 +531,7 @@
   :effects ((variable ?n-var (index-of-refraction ?medium))
 	    (define-var (index-of-refraction ?medium)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting index of refraction." 
+	  (string "Define a variable for ~A by using the Text Tool." 
 		  ((index-of-refraction ?medium) def-np) ))))
 
 ;;;; Relate index of refraction to wave-speed
@@ -662,7 +662,7 @@
 	    (variable ?t-var (string-tension ?rope))
 	    (define-var (string-tension ?rope)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting tension."  
+	  (string "Define a variable for ~A by using the Text Tool."
 		  ((string-tension ?rope) def-np)))))
 
 ;;; speed of transverse waves on a string
@@ -720,7 +720,7 @@
   :effects ((variable ?lambda-var (amplitude ?wave :type ?type))
 	    (define-var (amplitude ?wave :type ?type)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting amplitude."  
+	  (string "Define a variable for ~A by using the Text Tool."
 		  ((amplitude ?wave :type ?type) def-np)))))
 
 ;;; define maximum speed of transverse motion
@@ -737,7 +737,7 @@
   :effects ((variable ?lambda-var (amplitude-max-speed ?wave))
 	    (define-var (amplitude-max-speed ?wave)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting maximum speed."  
+	  (string "Define a variable for ~A by using the Text Tool."  
 		  ((amplitude-max-speed ?wave) def-np)))))
 
 ;; Yuck!  In the real world, one would derive this...
@@ -790,7 +790,7 @@
   :effects ((variable ?lambda-var (amplitude-max-abs-acceleration ?wave))
 	    (define-var (amplitude-max-abs-acceleration ?wave)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting |maximum acceleration|."
+	  (string "Define a variable for ~A by using the Text Tool."
 		  ((amplitude-max-abs-acceleration ?wave) def-np)))))
 
 ;; Yuck!  In the real world, one would derive this...
@@ -1057,7 +1057,7 @@
   :effects ((variable ?intense-var (intensity ?wave ?agent :time ?t))
 	    (define-var (intensity ?wave ?agent :time ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting intensity."  
+	  (string "Define a variable for ~A by using the Text Tool."  
 		  ((intensity ?wave ?agent :time ?t) def-np)))))
 
 (def-qexp intensity-at (intensity ?body at ?position :time ?time)
@@ -1076,7 +1076,7 @@
   :effects ((variable ?intense-var (intensity ?body at ?position :time ?t))
 	    (define-var (intensity ?body at ?position :time ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting intensity."  
+	  (string "Define a variable for ~A by using the Text Tool."
 		  ((intensity ?body at ?position :time ?t) def-np)))))
 
 (def-qexp poynting-vector (poynting-vector ?loc ?agent :time ?time)
@@ -1126,7 +1126,7 @@
   :effects ((variable ?intense-var (net-intensity ?wave :time ?t))
 	    (define-var (net-intensity ?wave :time ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting intensity."  
+	  (string "Define a variable for ~A by using the Text Tool."
 		 ((net-intensity ?wave :time ?t) def-np) ))))
 
 (def-psmclass net-intensity (net-intensity ?body ?time) 
@@ -1189,7 +1189,7 @@
   :effects ((variable ?dbi-var (db-intensity ?wave ?agent :time ?t))
 	    (define-var (db-intensity ?wave ?agent :time ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting decibel-intensity." 
+	  (string "Define a variable for ~A by using the Text Tool."
 		  ((db-intensity ?wave ?agent :time ?t) def-np)))))
 
 
@@ -1212,7 +1212,7 @@
   :effects ((variable ?net-dbi-var (net-db-intensity ?wave :time ?t))
 	    (define-var (net-db-intensity ?wave :time ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A using the Add Variable command on the Variable menu and selecting decibel-intensity."  
+	  (string "Define a variable for ~A using the Text Tool."
 		  ((net-db-intensity ?wave :time ?t) def-np)))))
 
 ;; Relate intensity to intensity in decibels

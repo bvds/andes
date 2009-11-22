@@ -2012,7 +2012,8 @@
   ((variable ?radius-var (revolution-radius ?b :time ?t))
    (define-var (revolution-radius ?b :time ?t))) 
   :hint 
-  ((bottom-out (string "Use the Add Variable command to define a radius variable for ~A" ?b))))
+  ((bottom-out (string "Use the Text Tool to define ~A." 
+		       ((revolution-radius ?b :time ?t) def-np)))))
 
 ; Can optionally introduce variable for revolution radius by using a tool
 ; to put a radius graphic on the diagram. This is a special purpose tool, 
@@ -2976,7 +2977,7 @@
 	     (define-var (gravitational-acceleration ?planet)) )
   :hint 
   ((bottom-out 
-    (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting gravitational acceleration." 
+    (string "Define a variable for ~A by using the Text Tool." 
 	    ((gravitational-acceleration ?planet) def-np)))))
 
 

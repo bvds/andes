@@ -56,7 +56,8 @@
   ((variable ?var (mass ?b :time ?t))
    (define-var (mass ?b :time ?t)))
   :hint
-  ((bottom-out (string "You can use the text tool (T) to define a variable for mass."))
+  ((bottom-out (string "You can use the Text Tool to define a variable for ~A." 
+		       ((mass ?b :time ?t) def-np)))
    ))
 
 ;;; Magnitude of derivative of mass with respect to time
@@ -76,7 +77,8 @@
   ((variable ?var (mass-change-magnitude ?b ?agent :time ?t))
    (define-var (mass-change-magnitude ?b ?agent :time ?t)))
   :hint
-  ((bottom-out (string "You can use the text tool (T) to define a variable for the magnitude of the change in mass."))
+  ((bottom-out (string "You can use the Text Tool to define a variable for ~A."
+		       ((mass-change-magnitude ?b ?agent :time ?t) def-np)))
    ))
 
 (defoperator mass-compound-contains (?sought)
@@ -770,7 +772,7 @@
   )
   :hint 
   (
-   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Coef. drag."
+   (bottom-out (string "Define a variable for ~A by using the Text Tool."
 		       ((coef-drag ?b ?medium :type ?type :time ?t) def-np)))
    ))
 
@@ -2529,7 +2531,7 @@
   )
   :hint 
   (
-   (bottom-out (string "Use the Add Variable command to define a variable for ~A."
+   (bottom-out (string "Use the Text Tool to define a variable for ~A."
 		       ((moment-of-inertia ?b :axis ?a :time ?t) def-np)))
    ))
 
