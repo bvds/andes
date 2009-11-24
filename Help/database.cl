@@ -97,12 +97,12 @@
     (format webserver:*stdout* "Getting extra parameter ~A~%" extra)
     (setf extra 0))
 
-  ;;  session is labeled by client-id 
+  ;; session is labeled by client-id 
   ;; add this info to database
   ;; update the problem attempt in the db with the requested parameters
   (execute-command 
-   (format nil "UPDATE PROBLEM_ATTEMPT SET userName='~A', userproblem='~A', userSection='~A' WHERE clientID='~A'" 
-	   student problem section client-id)))
+   (format nil "UPDATE PROBLEM_ATTEMPT SET userName='~A', userproblem='~A', userSection='~A', extra=~A WHERE clientID='~A'" 
+	   student problem section extra client-id)))
 
 ;; (andes-database:get-old-sessions '("solution-step" "seek-help") :student "bvds" :problem "s2e" :section "1234")
 ;;
@@ -114,8 +114,8 @@
     (setf extra 0))
 
   (let ((result (query 
-		 (format nil "SELECT command FROM PROBLEM_ATTEMPT,PROBLEM_ATTEMPT_TRANSACTION WHERE userName = '~A' AND userProblem='~A' AND userSection='~A' AND PROBLEM_ATTEMPT.clientID=PROBLEM_ATTEMPT_TRANSACTION.clientID AND PROBLEM_ATTEMPT_TRANSACTION.initiatingParty='client'" 
-			 student problem section) :flatp t))
+		 (format nil "SELECT command FROM PROBLEM_ATTEMPT,PROBLEM_ATTEMPT_TRANSACTION WHERE userName = '~A' AND userProblem='~A' AND userSection='~A' AND extra=~A AND PROBLEM_ATTEMPT.clientID=PROBLEM_ATTEMPT_TRANSACTION.clientID AND PROBLEM_ATTEMPT_TRANSACTION.initiatingParty='client'" 
+			 student problem section extra) :flatp t))
 	;; By default, cl-json turns camelcase into dashes:  
 	;; Instead, we are case insensitive, preserving dashes.
 	(*json-identifier-name-to-lisp* #'string-upcase))
