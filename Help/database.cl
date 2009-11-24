@@ -93,9 +93,8 @@
 (defun set-session (client-id &key student problem section extra)
   "Updates transaction with session information."
 
-  (if (> (length extra) 0) ;can be empty string
-    (format webserver:*stdout* "Getting extra parameter ~A~%" extra)
-    (setf extra 0))
+  (unless (> (length extra) 0) ;treat empty string as null
+    (setf extra 0))  ;default value is zero.
 
   ;; session is labeled by client-id 
   ;; add this info to database
@@ -109,9 +108,8 @@
 (defun get-matching-sessions (methods &key student problem section extra)
   "Get posts associated with the given methods from all matching previous sessions."
 
-  (if (> (length extra) 0) ;can be empty string
-    (format webserver:*stdout* "Getting extra parameter ~A~%" extra)
-    (setf extra 0))
+  (unless (> (length extra) 0) ;treat empty string at null.
+    (setf extra 0)) ;default value is zero.
 
   (let ((result (query 
 		 (format nil "SELECT command FROM PROBLEM_ATTEMPT,PROBLEM_ATTEMPT_TRANSACTION WHERE userName = '~A' AND userProblem='~A' AND userSection='~A' AND extra=~A AND PROBLEM_ATTEMPT.clientID=PROBLEM_ATTEMPT_TRANSACTION.clientID AND PROBLEM_ATTEMPT_TRANSACTION.initiatingParty='client'" 
