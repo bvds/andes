@@ -237,6 +237,12 @@ dojo.provide("andes.drawing");
 				}else if(obj.action=="set-score"){
 					andes.help.score(obj.score);
 
+				}else if(obj.action=="new-user-dialog"){
+				  andes.error({
+						title: "Welcome to Andes!",
+		  				message: obj.text,
+						dialogType: andes.error.OK
+						   });
 				}else{
 					//console.warn("UNUSED ANDES OBJECT:", obj)
 				}

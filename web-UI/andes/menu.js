@@ -25,6 +25,18 @@ dojo.addOnLoad(function(){
 
 		"menuPhysics3":function(){
 		  andes.principles.review('constants.html','Constants');
+		},
+	  
+		"menuIntroduction":function(){
+		  andes.principles.review('introduction.html','Introduction');
+		},
+
+		"menuIntroVideo":function(){
+		  window.open('andes3video.test1.htm','Intro Video');
+		},
+
+	  	"menuFAQ":function(){
+		andes.principles.review('FAQ.html','How to ...');
 		}
 
 	};
