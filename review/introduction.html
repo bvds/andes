@@ -4,50 +4,89 @@
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <TITLE>Getting started using Andes</TITLE>
+
+
+   <style>
+       img.button {
+             width: 2.0em; 
+             vertical-align: middle;
+       }
+       img.box {
+             width: 7em; 
+             vertical-align: middle;
+       }
+       li {
+            padding: 3px;
+       }
+       code {
+            white-space: nowrap;
+            border-style: dashed;
+            border-width: 1px;
+            padding: 3px;
+	    padding-right: 1.5em;
+       }      
+   </style>
+
 </head>
 <body>
 <ul>
 
-<li>  Define scalar variables using the Text Tool.
+<li>  Define the coordinate system by using the Axis Tool
+      <img src="ui-images/axis-tool.png" class="button" alt="axes">
+      to draw axes.
+
+<li>  Define bodies with either the Ellipse
+      <img src="ui-images/ellipse-tool.png" class="button" alt="ellipse">
+      or Rectangle
+      <img src="ui-images/rectangle-tool.png" class="button" alt="rectangle">
+      Tool.
+
+<li>  Define scalar variables using the Text Tool 
+      <img src="ui-images/text-tool.png" class="button" alt="T">.
 
 <li>  When using text to define a variable, possible forms include:
       <ul>
-        <li>  "m is the mass of the ball"
-        <li>  "m: mass of the ball"
-        <li>  "m=mass of the ball"
+        <li>  <code>m is the mass of the ball</code>
+        <li>  <code>m: mass of the ball</code>
+        <li>  <code>m=mass of the ball</code>
       </ul>
 
-<li>  Define vector variables using the text box of the Vector Tool.  When you
+<li>  Define vector variables using the Vector Tool
+      <img src="ui-images/vector-tool.png" class="button" 
+                         alt="vector">.&nbsp; When you
      define a vector, variables for the magnitude, components, and angle
-     are defined automatically.  So, for vector <var><b>F</b></var>, 
+     are defined automatically.&nbsp;  So, for vector <var><b>F</b></var>, 
      the magnitude is <var>F</var>, 
      components <var>F_x</var> <var>F_y</var>, and angle <var>\thetaF</var> 
      are defined.
 
-<li>  Define coordinate system before vectors using the Axes Tool.
-
-<li>  Write equations using the Equation Tool; all variables used must
+<li>  Write equations using the Equation Tool
+      <img src="ui-images/equation-tool.png" class="button" 
+                  alt="=">; all variables used must
      be previously defined.
 
-<li>  Double click on a text or equation box to make a correction, then reenter.
+<li>  Double click on a text or equation box to make a correction, 
+      then re-enter.
 
 <li>  Hit enter after entering any information in a text box.
 
 <li>  To find the numerical value of a quantity:
       <ul>
-        <li>  Enter equations and value assignments required to solve 
+        <li>  Enter all equations required to solve 
             for variable <var>V</var>.
-        <li>  In an equation box enter <code>V=?</code>
+        <li>  In an equation box enter:&nbsp; <code>V=?</code>
       </ul>
 
 <li>  Enter the final answer in a text box in the form like 
      <code>answer:  1.23 m/s</code> or  <code>answer: v1=1.23 m/s</code>
 
-<li> If you are stuck or confused, hit the help button, "?" at the 
-    lower right corner of the help pane.
+<li> If you are stuck or confused, hit the help button
+     <img src="ui-images/help-button.png" class="button" alt="help button">
+    at the lower right corner of the help pane.
 
-<li> If you have a comment or complaint, simply type it into the text
-    box at the bottom of the help pane.  These are logged and will
+<li> If you have a comment or complaint, type it in the text box
+     <img src="ui-images/help-text.png" class="box" alt="text input">
+    at the bottom of the help pane.&nbsp;  These are logged and will
     be read by us later.
 
 </ul>
