@@ -94,25 +94,25 @@
   "Updates transaction with session information."
 
   (unless (> (length extra) 0) ;treat empty string as null
-    (setf extra 0))  ;default value is zero.
+    (setf extra nil))   ;drop from query if missing.
 
   ;; session is labeled by client-id 
   ;; add this info to database
   ;; update the problem attempt in the db with the requested parameters
   (execute-command 
-   (format nil "UPDATE PROBLEM_ATTEMPT SET userName='~A', userproblem='~A', userSection='~A', extra=~A WHERE clientID='~A'" 
+   (format nil "UPDATE PROBLEM_ATTEMPT SET userName='~A', userproblem='~A', userSection='~A'~@[, extra=~A~] WHERE clientID='~A'" 
 	   student problem section extra client-id)))
 
-;; (andes-database:get-old-sessions '("solution-step" "seek-help") :student "bvds" :problem "s2e" :section "1234")
+;; (andes-database:get-matching-sessions '("solution-step" "seek-help") :student "bvds" :problem "s2e" :section "1234")
 ;;
 (defun get-matching-sessions (methods &key student problem section extra)
   "Get posts associated with the given methods from all matching previous sessions."
 
   (unless (> (length extra) 0) ;treat empty string at null.
-    (setf extra 0)) ;default value is zero.
+    (setf extra nil)) ;drop from query if missing.
 
   (let ((result (query 
-		 (format nil "SELECT command FROM PROBLEM_ATTEMPT,PROBLEM_ATTEMPT_TRANSACTION WHERE userName = '~A' AND userProblem='~A' AND userSection='~A' AND extra=~A AND PROBLEM_ATTEMPT.clientID=PROBLEM_ATTEMPT_TRANSACTION.clientID AND PROBLEM_ATTEMPT_TRANSACTION.initiatingParty='client'" 
+		 (format nil "SELECT command FROM PROBLEM_ATTEMPT,PROBLEM_ATTEMPT_TRANSACTION WHERE userName='~A' AND userProblem='~A' AND userSection='~A'~@[ AND extra=~A~] AND PROBLEM_ATTEMPT.clientID=PROBLEM_ATTEMPT_TRANSACTION.clientID AND PROBLEM_ATTEMPT_TRANSACTION.initiatingParty='client'" 
 			 student problem section extra) :flatp t))
 	;; By default, cl-json turns camelcase into dashes:  
 	;; Instead, we are case insensitive, preserving dashes.
