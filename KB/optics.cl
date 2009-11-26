@@ -53,7 +53,7 @@
   :effects ( (variable ?do-var (object-distance ?lens))
              (define-var (object-distance ?lens)))
   :hint (
-       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Object Distance."  
+       (bottom-out (string "Define a variable for ~A by using the Text Tool."  
 			   ((object-distance ?lens) def-np)))
        ))
 
@@ -69,7 +69,7 @@
   :effects ( (variable ?di-var (image-distance ?lens))
              (define-var (image-distance ?lens)) )
   :hint (
-       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Image Distance."  
+       (bottom-out (string "Define a variable for ~A by using the Text Tool."  
 			   ((image-distance ?lens) def-np)))
        ))
 
@@ -85,7 +85,7 @@
   :effects ( (variable ?f-var (focal-length ?lens))
              (define-var (focal-length ?lens)) )
   :hint (
-       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Focal Length."  
+       (bottom-out (string "Define a variable for ~A by using the Text Tool."  
 			   ((focal-length ?lens) def-np)))
        ))
 
@@ -101,7 +101,7 @@
   :effects ( (variable ?m-var (magnification ?lens))
             (define-var (magnification ?lens)) )
   :hint (
-       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Magnification."  
+       (bottom-out (string "Define a variable for ~A by using the Text Tool."  
 			   ((magnification ?lens) def-np)))
        ))
 
@@ -117,7 +117,7 @@
  :effects ( (variable ?r-var (radius-of-curvature ?mirror))
             (define-var (radius-of-curvature ?mirror)) )
   :hint (
-       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Radius of Curvature."  
+       (bottom-out (string "Define a variable for ~A by using the Text Tool."  
 			   ((radius-of-curvature ?mirror) def-np)))
        ))
 
@@ -134,7 +134,7 @@
  :effects ( (variable ?d-var (distance-between orderless . ?objects))
             (define-var (distance-between orderless . ?objects)) )
  :hint (
-       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Distance."  
+       (bottom-out (string "Define a variable for ~A by using the Text Tool."
                            ((distance-between orderless . ?objects) def-np) ))
        ))
 
@@ -151,7 +151,7 @@
   :effects ( (variable ?do-var (slit-separation ?grating))
              (define-var (slit-separation ?grating)))
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting slit separation."  
+	 (bottom-out (string "Define a variable for ~A by using the Text Tool."  
 			     ((slit-separation ?grating) def-np)))
 	 ))
 
@@ -168,7 +168,7 @@
   :effects ( (variable ?do-var (resolution-angle ?grating))
              (define-var (resolution-angle ?grating)))
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Angle of resolution."  
+	 (bottom-out (string "Define a variable for ~A by using the Text Tool."  
 			     ((resolution-angle ?grating) def-np)))
 	 ))
 

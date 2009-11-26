@@ -1532,7 +1532,7 @@
 	   (variable ?theta-var (angle-between orderless . ?vecs))
 	   )
  :hint (
-	(bottom-out (string "Define a variable for the angle between ~A and ~A by using the Add Variable command on the Variable menu and selecting Angle." 
+	(bottom-out (string "Define a variable for the angle between ~A and ~A by using the Text Tool." 
 			    (?v1-var algebra) (?v2-var algebra)))
 	))
 
@@ -1559,7 +1559,7 @@
    (variable ?theta-var (angle-between orderless . ?lines))
  )
  :hint (
-  (bottom-out (string "Define a variable for the angle between ~A and ~A by using the Add Variable command on the Variable menu and selecting Angle." 
+  (bottom-out (string "Define a variable for the angle between ~A and ~A by using the Text Tool." 
    ?r1 ?r2))
  ))
 
@@ -1828,7 +1828,8 @@
 	       (variable ?l-var (length ?b))
 	       )
   :hint (
-	 (bottom-out (string "Use the Add Variable command to define a variable for the length of ~A"  ?b))
+	 (bottom-out (string "Use the Text Tool to define a variable for ~A."  
+			     ((length ?b) def-np)))
 	 ))
 
 
@@ -1841,7 +1842,7 @@
 	    (variable ?mu-var (mass-per-length ?rope))
 	    (define-var (mass-per-length ?rope)))
   :hint ((bottom-out 
-	  (string "Define a variable ~A by using the Add Variable command on the Variable menu and selecting mass per length."  
+	  (string "Define a variable ~A by using the Text Tool."
 		  ((mass-per-length ?rope) def-np)))))
 
 ;;; mass per length = mass /length of a rod
@@ -1892,7 +1893,8 @@
     (variable ?l-var (width ?b))
   )
   :hint (
-    (bottom-out (string "Use the Add Variable command to define a variable for the width of ~A" ?b))
+    (bottom-out (string "Use the Text Tool to define a variable for ~A." 
+			((width ?b) def-np)))
   ))
 
 
@@ -2236,7 +2238,7 @@
      :effects ((variable ?Ac-var (area ?shape))
                (define-var (area ?shape)))
      :hint (
-          (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Area."  
+          (bottom-out (string "Define a variable for ~A by using the Text Tool."  
 			      ((area ?shape) def-np)))))
 
 ;; quantity to represent radius of a circular shape
@@ -2255,7 +2257,7 @@
                (define-var (radius-of-circle ?body))
    )
      :hint (
-          (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting circle radius."  
+          (bottom-out (string "Define a variable for ~A by using the Text Tool."
 			      ((radius-of-circle ?body) def-np)))))
 
 ;; quantity to represent diameter of a circular shape
@@ -2273,7 +2275,7 @@
                (define-var (diameter-of-circle ?body))
    )
      :hint (
-          (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting circle diameter."  
+          (bottom-out (string "Define a variable for ~A by using the Text Tool."
 			      ((diameter-of-circle ?body) def-np)))
           ))
 
@@ -2292,7 +2294,7 @@
                (define-var (circumference-of-circle ?body))
    )
      :hint (
-          (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting circle circumference."  
+          (bottom-out (string "Define a variable for ~A by using the Text Tool."
 			      ((circumference-of-circle ?body) def-np)))
           ))
 

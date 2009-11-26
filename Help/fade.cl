@@ -40,14 +40,22 @@
 ;; This should be called after any entries may have been completed.
 (defun update-fades (result)
   "update list of fades, removing finished entries and returning a list of replies"
+  ;; Go through list and remove any that have been completed.
   (dolist (fade (copy-list *fades*)) ;copy so we can remove elements.
     (when (and (car fade)
 	       (or (and (SystemEntry-p (car fade))
 			(SystemEntry-entered (car fade)))
 		   (and (bgnode-p (car fade))
 			(nsh-principle-completed-p (car fade)))))
-      (let ((id (cdr (assoc :id (cdr fade)))))
-	(push `((:action . "delete-object") (:id . ,id))
-	      result))
-      (remove fade *fades*)))
+      (setf *fades* (remove fade *fades*))
+      ;; Remove any corresponding item from canvas.
+      (when (member 'on-canvas (problem-features *cp*))
+	(let ((id (cdr (assoc :id (cdr fade)))))
+	  (push `((:action . "delete-object") (:id . ,id))
+		result)))))
+  ;; When not on canvas, prompt next step in hint window.
+  (when (and *fades* (not (member 'on-canvas (problem-features *cp*))))
+    (let ((text (cdr (assoc :text (cdr (car *fades*))))))
+      (push `((:action . "show-hint") (:text . ,text))
+	    result)))
   result)

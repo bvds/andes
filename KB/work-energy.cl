@@ -673,7 +673,7 @@
 	       (variable ?TE-var (total-energy ?b :time ?t))
 	       )
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Energy."
+	 (bottom-out (string "Define a variable for ~A by using the Text Tool."
 			     ((total-energy ?b :time ?t) def-np)))
 	 ))
 
@@ -947,7 +947,8 @@
    (variable ?work-var (work ?b ?agent :time ?t))
  )
  :hint (
-   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting work" ((work ?b ?agent :time ?t) def-np)))
+   (bottom-out (string "Define a variable for ~A by using the Text Tool." 
+		       ((work ?b ?agent :time ?t) def-np)))
  ))
 
 ;; following defines a variable for net-work done on an object due to
@@ -964,7 +965,8 @@
    (variable ?work-var (net-work ?b :time ?t))
  )
  :hint (
-   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu, selecting work, then choosing work done by all forces." ((net-work ?b :time ?t) def-np)))
+   (bottom-out (string "Define a variable for ~A by using the Text Tool." 
+		       ((net-work ?b :time ?t) def-np)))
  ))
 
 
@@ -1270,7 +1272,8 @@
    (variable ?work-var (work-nc ?b :time ?t))
  )
  :hint (
-   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu, selecting work, then defining work done by all non-conservative forces." ((work-nc ?b :time ?t) def-np)))
+   (bottom-out (string "Define a variable for ~A by using the Text Tool." 
+		       ((work-nc ?b :time ?t) def-np)))
 ))
 
 ;;;
@@ -1326,7 +1329,8 @@
    (variable ?power-var (power ?b ?agent :time ?t))
  )
  :hint (
-   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting power" ((power ?b ?agent :time ?t) def-np) ))
+   (bottom-out (string "Define a variable for ~A by using the Text Tool" 
+		       ((power ?b ?agent :time ?t) def-np) ))
  ))
 
 ;;;
@@ -1371,7 +1375,8 @@
    (variable ?power-var (net-power ?b :time ?t))
  )
  :hint (
-   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu, selecting power, and defining power supplied by all forces" ((net-power ?b :time ?t) def-np) ))
+   (bottom-out (string "Define a variable for ~A by using the Text Tool." 
+		       ((net-power ?b :time ?t) def-np) ))
    ))
 
 ;;;
@@ -1386,7 +1391,7 @@
   :effects ((variable ?p-var (net-power-out ?source  :time ?t))
 	    (define-var (net-power-out ?source :time ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting power."  
+	  (string "Define a variable for ~A by using the Text Tool."  
 		  ((net-power-out ?source :time ?t) def-np)))))
 
 ;;;

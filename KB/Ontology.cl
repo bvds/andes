@@ -438,8 +438,12 @@
   :short-name "radius of circular motion"	
   :units |m|
   :restrictions positive
-  :nlg-english ("the radius of the circular motion of ~A" 
-	    (nlg ?body 'at-time ?time)))
+  :new-english ((preferred "the") "radius" 
+		(property ((preferred "the") 
+			   (or ((allowed "circular") "motion")
+			       "path")
+			   (property ?body)))
+		(preferred (time ?time))))
 
 ;; Halliday and Resnick talk about work done by a force
 ;; "work done by the spring force"
@@ -545,7 +549,9 @@
   :symbol-base |d|     
   :short-name "compression distance"	
   :units |m|
-  :new-english ((preferred "the") "compression" (allowed "distance")
+  :new-english ((preferred "the") 
+		(or ((or "compression" "extension") (allowed "distance"))
+		    "stretch")
 		 (and (property ?spring) (preferred (time ?time)))))
 
 (def-qexp spring-constant (spring-constant ?spring)
@@ -581,11 +587,13 @@
 	    (nlg ?body) (nlg ?axis 'at-time ?time)))
 
 ;; for dimensions of certain rigid bodies:
+;;    from Bob: "the length of the beam"
 (def-qexp length (length ?body)
   :symbol-base ||     
   :short-name "length"	
   :units |m|
-  :nlg-english ("the length of ~A" (nlg ?body)))
+  :new-english ((preferred "the") (or "length" "len")
+		(property ?body)))
 
 (def-qexp length-change (rate-of-change (length ?body))
   :symbol-base ||     

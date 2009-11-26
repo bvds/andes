@@ -303,29 +303,31 @@
 
       ;; Second column for fades and predefs.
       (let ((x 450) (y 15) (i 0))
-	(dolist (fade *fades*)
-	  ;; Debug text
-	  ;; (format webserver:*stdout* "Working on ~A~%" (cdr fade))
-	  (pushnew '(:action . "new-object") (cdr fade) :key #'car)
-	  (pushnew `(:id . ,(format nil "fade~A" (incf i))) (cdr fade) :key #'car)
-	  (pushnew '(:mode . "fade") (cdr fade) :key #'car)
-	  (pushnew '(:type . "statement") (cdr fade) :key #'car)
-	  (when (and (not (assoc :width (cdr fade)))
-		     (member (cdr (assoc :type (cdr fade)))
-			     '("statement" "equation") :test #'equal))
-	    (push '(:width . 300) (cdr fade)))
-	  (pushnew `(:x . ,x) (cdr fade) :key #'car)
-	  (if (assoc :y (cdr fade))
-	      ;; If object overlaps this column, continue below it.
-	      (when (> (+ (cdr (assoc :x (cdr fade)))
-			  (cdr (or (assoc :width (cdr fade))
-				   (assoc :radius (cdr fade)))))
-		       x)
-		(setf y (max y (cdr (assoc :y (cdr fade))))))
-	      (push `(:y . ,y) (cdr fade)))
-	  (push (cdr fade) replies)
-	  ;; (format webserver:*stdout* "  Turned to ~A~%" (cdr fade))
-	  (setf y (+ y 25)))
+	(when (member 'on-canvas (problem-features *cp*))
+	  (dolist (fade *fades*)
+	    ;; Debug text
+	    ;; (format webserver:*stdout* "Working on ~A~%" (cdr fade))
+	    (pushnew '(:action . "new-object") (cdr fade) :key #'car)
+	    (pushnew `(:id . ,(format nil "fade~A" (incf i))) (cdr fade) 
+		     :key #'car)
+	    (pushnew '(:mode . "fade") (cdr fade) :key #'car)
+	    (pushnew '(:type . "statement") (cdr fade) :key #'car)
+	    (when (and (not (assoc :width (cdr fade)))
+		       (member (cdr (assoc :type (cdr fade)))
+			       '("statement" "equation") :test #'equal))
+	      (push '(:width . 300) (cdr fade)))
+	    (pushnew `(:x . ,x) (cdr fade) :key #'car)
+	    (if (assoc :y (cdr fade))
+		;; If object overlaps this column, continue below it.
+		(when (> (+ (cdr (assoc :x (cdr fade)))
+			    (cdr (or (assoc :width (cdr fade))
+				     (assoc :radius (cdr fade)))))
+			 x)
+		  (setf y (max y (cdr (assoc :y (cdr fade))))))
+		(push `(:y . ,y) (cdr fade)))
+	    (push (cdr fade) replies)
+	    ;; (format webserver:*stdout* "  Turned to ~A~%" (cdr fade))
+	    (setf y (+ y 25))))
             
 	;; This must be done within env-wrap since it uses *cp*
 	(setf predefs (problem-predefs *cp*))
@@ -420,14 +422,24 @@
       ;; Determine if this is the first session for this user.
       (when (andes-database:first-session-p :student user :section section 
 					    :extra extra)
-	;; Start up special dialog box.
-	(push '((:action . "new-user-dialog")) replies)
+	(let ((dialog-text 
+	       (if (member 'introduction (problem-features *cp*))
+		   (strcat "If this is your first time using Andes, "
+			   "this problem will help you get started.&nbsp; "
+			   "Just follow the instructions on the right.")
+		   (strcat "If this is your first time using Andes, "
+			   "you should go back and try an "
+			   "introductory problem."))))
+	  ;; Start up special dialog box.
+	  (push `((:action . "new-user-dialog")
+		  (:text . ,dialog-text)) replies)))
 
-      ;;  Push initial hint to the client.  
-      ;;  Should only do this when help and grading is available
-      (push '((:action . "show-hint") (:text . "If you need help, click the help button <span dojoType=\"dijit.form.Button\" disabled=\"true\">?</span> below.&nbsp; Click the <span class=\"dojoxExpandoIcon dojoxExpandoIconRight\" style=\"float:none;display:inline-block;margin-right:6px;\" disabled=\"true\"></span> button above to hide this window.")) 
-	    replies))
-  
+      ;; If there was no previous session, perform initial update of 
+      ;; faded items.  In the case of Fades in the help pane, write 
+      ;; initial instruction.
+      (unless solution-step-replies (setf replies (update-fades replies)))
+
+      
       ;; set-stats (if there was an old score) (to do)
       ;; Should this be wrapped in execute-andes-command?
 
