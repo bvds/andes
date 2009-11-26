@@ -243,6 +243,15 @@ dojo.provide("andes.drawing");
 		  				message: obj.text,
 						dialogType: andes.error.OK
 						   });
+                                  // Add event to Error box default OK button.
+                                  // This opens the general introduction.
+                                  // It should be disconnected when the 
+				  // dialog box is closed!  See bug #1628
+				  dojo.connect(dojo.byId("andesButtonPageDefault"),
+					       "click",
+					       function(){
+			                          andes.principles.review('introduction.html','Introduction');						 
+					       });
 				}else{
 					//console.warn("UNUSED ANDES OBJECT:", obj)
 				}
