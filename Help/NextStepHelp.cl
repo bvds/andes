@@ -1700,8 +1700,8 @@
 (defun nsh-check-sought-resp (response past)
   "Check the sought response, returning tutor turn."
 
-  (let ((best (best-model-matches
-	       (word-parse response)
+  (let ((best (match:best-model-matches
+	       (match:word-parse response)
 	       (mapcar #'(lambda (x)
 			   (cons (expand-vars (qnode-new-english x)) x))
 		       (bubblegraph-qnodes (problem-graph *cp*)))
@@ -1764,8 +1764,8 @@
   "Return a message signifying ambiguous sought supplied."
   (nsh-wrong-sought-resp 
    (format nil "Which quantity are you referring to?&nbsp; Do you mean ~A?"
-	   (word-string (expand-vars (qnode-new-english 
-				      (random-elt quants)))))
+	   (match:word-string (expand-vars (qnode-new-english 
+					    (random-elt quants)))))
    Past :Case 'Null))
 
 

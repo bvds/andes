@@ -475,7 +475,7 @@
   "Write variable definition text for a given prop and symbol."
   (if (find-systementry prop)
       (strcat "Let " symbol " be " 
-	      (word-string 
+	      (match:word-string 
 	       ;; no variables have been defined: 
 	       ;; remove any (var ...)
 	       (expand-vars 
@@ -568,11 +568,11 @@
 	 ;; Look for text box marked by "Answer: "
 	 ;; This should come before "equation" and "statement"
 	 ((and (> (length text) (length ans))
-	       (string-equal (string-left-trim *whitespace* text)
+	       (string-equal (string-left-trim match:*whitespace* text)
 			     ans :end1 (length ans)))
 	  ;; In Andes2 this was set in do-check-answer
 	  (setf (StudentEntry-verbatim new-entry) 
-	       (string-trim *whitespace* (subseq text (length ans))))
+	       (string-trim match:*whitespace* (subseq text (length ans))))
 	  (execute-andes-command 'check-answer new-entry))
 	 
 	 ((equal (StudentEntry-type new-entry) "equation")
@@ -584,7 +584,7 @@
 	      ;; the LHS is a single variable.
 	      ((and eq (search "?" (subseq text eq)))
 	       (setf (StudentEntry-symbol new-entry) 
-		     (string-trim *whitespace* (subseq text 0 eq)))
+		     (string-trim match:*whitespace* (subseq text 0 eq)))
 	       (execute-andes-command 'solve-for-var new-entry))
 	      ;; Default case: ordinary equation
 	      (t (execute-andes-command 'lookup-eqn-string new-entry)))))

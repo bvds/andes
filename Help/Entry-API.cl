@@ -368,8 +368,8 @@
   (let* ((student (pull-out-quantity (StudentEntry-symbol entry) 
 				     (StudentEntry-text entry)))
 	 (best 
-	  (best-model-matches 
-	   (word-parse student)
+	  (match:best-model-matches 
+	   (match:word-parse student)
 	   (mapcar #'(lambda (x) 
 		       (cons (expand-vars (SystemEntry-new-english x)) x))
 		   sysentries)
@@ -405,13 +405,13 @@
 
 	 ;; If the best fit isn't too good, give an unsolicited hint.
 	 ;; Can't put in a tutor turn, since the turn might be good.
-	 (when (> (car (car best)) (* 0.2 (length (word-parse student))))
+	 (when (> (car (car best)) (* 0.2 (length (match:word-parse student))))
 	   (let ((phr (format nil 
 			      "I interpreted your definition ~:[~;of <var>~A</var> ~]as:&nbsp; ~A."
 			      (> (length (StudentEntry-symbol entry)) 0)
 			      (StudentEntry-symbol entry)
-			      (word-string (expand-vars 
-					    (SystemEntry-model sysent)))
+			      (match:word-string (expand-vars 
+						  (SystemEntry-model sysent)))
 			      )))
 	     (push `((:action . "show-hint")
 		     (:text . ,phr)) hints)))
@@ -436,8 +436,8 @@
 		   #'(lambda (x) (member (car x) '(eqn implicit-eqn)))
 		   *sg-entries* :key #'systementry-prop))
 	 (best 
-	 (best-model-matches 
-	  (word-parse student)
+	 (match:best-model-matches 
+	  (match:word-parse student)
 	  (mapcar #'(lambda (x) 
 		      (cons (expand-vars (SystemEntry-new-english x)) x))
 		  entries))))
@@ -479,7 +479,7 @@
 	      (if matches
 		  (format nil "Did you mean?~%<ul>~%~{  <li>~A</li>~%~}</ul>"
 			  (mapcar #'(lambda (x) 
-				      (word-string 
+				      (match:word-string 
 				       (expand-vars 
 					(SystemEntry-new-english x))))
 				  matches))
@@ -520,7 +520,7 @@
   (let ((rem (make-hint-seq
 	      (list (format nil 
 			    "You have already defined ~A~:[ as ~A~1*~;~1* to be <var>~A</var>~]."
-			    (word-string 
+			    (match:word-string 
 			     (expand-vars 
 			      (SystemEntry-new-english sysent)))
 			    (> (length (StudentEntry-symbol old)) 0)
@@ -545,14 +545,14 @@
 	      symbol text)
 	;; this should be done as a parser.
 	(let* ((si (+ (search symbol text) (length symbol)))
-	       (nosym (string-left-trim *whitespace* (subseq text si))))
+	       (nosym (string-left-trim match:*whitespace* (subseq text si))))
 	  ;; The empty string is a catch-all in case there is no match
 	  (dolist (equality '("is " ":" "=" "be " "as " "to be " ""))
 	    (when (and (>= (length nosym) (length equality))
 		       (string= equality (string-downcase nosym) 
 				:end2 (length equality)))
 	      (return-from pull-out-quantity
-		(string-trim *whitespace* 
+		(string-trim match:*whitespace* 
 			     (subseq nosym (length equality)))))))))
   text)
 
