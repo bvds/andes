@@ -83,8 +83,8 @@ dojo.provide("andes.drawing");
 			//	Called on drag-create. This method should call add()
 			//	then save info to the server.
 			//
-			if(items[item.id]){ 
-				console.warn("BLOCKED on render:", item.id) 
+			if(items[item.id]){
+				console.warn("BLOCKED on render: ", item.id);
 				return;
 			}
 			if(hasStatement[item.type] || hasLabel[item.type]){
@@ -98,7 +98,6 @@ dojo.provide("andes.drawing");
 				}
 				// create statement for vector, rect, ellipse, or axes
 				var statement = _drawing.addStencil("textBlock", props);
-
 				if(hasLabel[item.type]){
 					// axes
 					var s = statement;
@@ -141,7 +140,6 @@ dojo.provide("andes.drawing");
 				dojox.drawing.util.common.uid(item.type);
 				item.id = item.type + i++;
 			}
-
 			items[item.id] = item;
 			
 			//Might not be the best place for this
@@ -205,17 +203,18 @@ dojo.provide("andes.drawing");
 
 						// prevent adding items via onRenderStencil
 						// by adding the ids first:
-						var statementId = _drawing.util.uid("dojox.drawing.tools.TextBlock");
-						var masterId = _drawing.util.uid(t);
-						items[statementId] = true;
-						items[masterId] = true;
 						var statement = _drawing.addStencil("textBlock", o.statement);
 						var master = _drawing.addStencil(o.stencilType, o.master);
+						items[statement.id] = true; //statement;
+						items[master.id] = true; //master;
 						var combo = new andes.Combo({master:master, statement:statement, id:o.id});
 						this.add(combo);
 
 					}else{ // image, statement, equation, axes
 						var item = _drawing.addStencil(o.stencilType, o);
+						var ID = item.id;
+						ID = ID.indexOf("TextBlock");
+						if(item.stencilType=='textBlock' && ID!=-1) item.util.uid(item.type);
 						item.andesType = obj.type; // to tell between equation and statement
 						this.add(item);
 					}
@@ -258,21 +257,33 @@ dojo.provide("andes.drawing");
 							y:obj.y
 						});
 					}
-					if(obj.type=='vector' || obj.type=='axes' || obj.type=='line'){
+					if(obj["x-statement"]!==undefined){
+						items[obj.id].statement.attr({
+							 x:obj["x-statement"],
+							 y:obj["y-statement"]
+						});
+					}
+					if(obj.type=='vector' || obj.type=='line'){
 						
 						items[obj.id].master.attr({
 							angle:obj.angle,
 							radius:obj.radius
 						});
 					}
-					if(obj.type=="ellipse" || obj.type=='rect'){
+					if(obj.type=="axes"){
+						items[obj.id].attr({
+							angle:obj.angle,
+							radius:obj.radius
+						});
+					}
+					if(obj.type=="ellipse" || obj.type=='rectangle'){
 						items[obj.id].master.attr({
 							height:obj.height,
 							width:obj.width
 						});
 					}
 					// text
-					if(items[obj.id].text) {console.warn("in the first"); items[obj.id].attr({text:obj.text});};
+					if(items[obj.id].isText==true && obj.text) { items[obj.id].attr({text:obj.text});};
 					if(obj.text && items[obj.id].type == "andes.Combo") { 
 						/*items[obj.id].master.attr({
 													label:obj.text
