@@ -232,8 +232,9 @@
   (make-turn :coloring **Color-Green**
 	     :id id))
 
-(defun make-black-turn (&key id)
-  "Make a nil coloring (color black) turn."
+(defun make-no-color-turn (&key id)
+  "Make turn without changing the color."
+  (unless id (warn "no id in make-no-color-turn"))
   (make-turn :id id))
 
 (defun make-noop-turn ()

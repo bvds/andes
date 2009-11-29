@@ -1653,26 +1653,22 @@
 (defun nsh-ask-sought-and-fp ()
   "Start the NSH sought and FP loop."
   (nsh-ask-sought 
-   (strcat (nsh-asfp-given-str) "&nbsp;  "
-	   (nsh-asfp-sought-str))))
-
-
-
-;;; If the problem has givens in it then we want to mention it as a 
-;;; refrent, else we want the students to start off with no givens
-;;; being discussed.
-(defun nsh-asfp-given-str ()
-  (if *nsh-givens*
-      (strcat "Now that you have stated all of the given information, you "
-	      "should start on the major principles.")
-    "You should now start on the major principles."))
+   (strcat 
+    ;; If the problem has givens in it then we want to mention it as a 
+    ;; refrent, else we want the students to start off with no givens
+    ;; being discussed.
+    (if *nsh-givens*
+	"You have already defined all of the given quantities.&nbsp; Next, let's"
+	"Let's")
+    " think about a strategy for solving this problem.&nbsp; "
+    (nsh-asfp-sought-str))))
 
 
 (defun nsh-asfp-sought-str ()
   "Get the prompt string for nsh-ask-sought."
   (if (multi-sought-problem-p *cp*)
-      "Enter one quantity that the problem is seeking:"
-    "Enter the quantity that the problem is seeking:"))
+      "Please enter one quantity that the problem is seeking:"
+    "Please enter the quantity that the problem is seeking:"))
 
 
 ;;; This is the loopback point that will be used for the dialogues at runtime 

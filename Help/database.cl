@@ -23,7 +23,7 @@
 (defpackage :andes-database
   (:use :cl :clsql :json)
   (:export :write-transaction :destroy :create :set-session 
-	   :get-matching-sessions))
+	   :get-matching-sessions :first-session-p))
 (in-package :andes-database)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -93,29 +93,27 @@
 (defun set-session (client-id &key student problem section extra)
   "Updates transaction with session information."
 
-  (if (> (length extra) 0) ;can be empty string
-    (format webserver:*stdout* "Getting extra parameter ~A~%" extra)
-    (setf extra 0))
+  (unless (> (length extra) 0) ;treat empty string as null
+    (setf extra nil))   ;drop from query if missing.
 
-  ;;  session is labeled by client-id 
+  ;; session is labeled by client-id 
   ;; add this info to database
   ;; update the problem attempt in the db with the requested parameters
   (execute-command 
-   (format nil "UPDATE PROBLEM_ATTEMPT SET userName='~A', userproblem='~A', userSection='~A' WHERE clientID='~A'" 
-	   student problem section client-id)))
+   (format nil "UPDATE PROBLEM_ATTEMPT SET userName='~A', userproblem='~A', userSection='~A'~@[, extra=~A~] WHERE clientID='~A'" 
+	   student problem section extra client-id)))
 
-;; (andes-database:get-old-sessions '("solution-step" "seek-help") :student "bvds" :problem "s2e" :section "1234")
+;; (andes-database:get-matching-sessions '("solution-step" "seek-help") :student "bvds" :problem "s2e" :section "1234")
 ;;
 (defun get-matching-sessions (methods &key student problem section extra)
   "Get posts associated with the given methods from all matching previous sessions."
 
-  (if (> (length extra) 0) ;can be empty string
-    (format webserver:*stdout* "Getting extra parameter ~A~%" extra)
-    (setf extra 0))
+  (unless (> (length extra) 0) ;treat empty string at null.
+    (setf extra nil)) ;drop from query if missing.
 
   (let ((result (query 
-		 (format nil "SELECT command FROM PROBLEM_ATTEMPT,PROBLEM_ATTEMPT_TRANSACTION WHERE userName = '~A' AND userProblem='~A' AND userSection='~A' AND PROBLEM_ATTEMPT.clientID=PROBLEM_ATTEMPT_TRANSACTION.clientID AND PROBLEM_ATTEMPT_TRANSACTION.initiatingParty='client'" 
-			 student problem section) :flatp t))
+		 (format nil "SELECT command FROM PROBLEM_ATTEMPT,PROBLEM_ATTEMPT_TRANSACTION WHERE userName='~A' AND userProblem='~A' AND userSection='~A'~@[ AND extra=~A~] AND PROBLEM_ATTEMPT.clientID=PROBLEM_ATTEMPT_TRANSACTION.clientID AND PROBLEM_ATTEMPT_TRANSACTION.initiatingParty='client'" 
+			 student problem section extra) :flatp t))
 	;; By default, cl-json turns camelcase into dashes:  
 	;; Instead, we are case insensitive, preserving dashes.
 	(*json-identifier-name-to-lisp* #'string-upcase))
@@ -130,3 +128,10 @@
 		;; see write-transaction.
 		#'(lambda (x) (and x (decode-json-from-string x)))
 		result))))
+
+(defun first-session-p (&key student section extra)
+  "Determine student has solved a problem previously."
+  (unless (> (length extra) 0) ;can be empty string
+    (> 2 (car (query 
+     (format nil "SELECT count(*) FROM PROBLEM_ATTEMPT WHERE userName = '~A' AND userSection='~A'" 
+	     student section) :flatp t)))))

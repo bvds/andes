@@ -429,6 +429,30 @@
        (t (values nil (too-many-matches-ErrorInterp 
 		       entry (mapcar #'cdr best)))))))
 
+    ;; Debug printout:
+(defun test-student-phrase (student)
+  "Function for testing ontology"
+  (let* ((entries (remove-if 
+		   #'(lambda (x) (member (car x) '(eqn implicit-eqn)))
+		   *sg-entries* :key #'systementry-prop))
+	 (best 
+	 (best-model-matches 
+	  (word-parse student)
+	  (mapcar #'(lambda (x) 
+		      (cons (expand-vars (SystemEntry-new-english x)) x))
+		  entries))))
+    (format t "Best match to ~S is~%   ~S~% from:~%    ~S~%" 
+	    student
+	    (mapcar 
+	     #'(lambda (x) (cons (car x) 
+				 (expand-vars (SystemEntry-model (cdr x)))))
+	     best)
+	    (mapcar #'(lambda (x) 
+			(cons (systementry-prop x)
+			      (expand-vars (SystemEntry-new-english x)) 
+			      ))
+		    entries))))
+ 
 (defun nothing-to-match-ErrorInterp (entry)
   (let ((rem (make-hint-seq 
 	      (list (format nil "In this problem, you do not need to define anything like ~A." 
@@ -1508,7 +1532,7 @@
         ;; if cleared done button, delete any prior entry for this button
 	;; and leave control black. 
 	((= 0 Value) (delete-object ID)
-	             (make-black-turn :id id))
+	             (make-no-color-turn :id id))
 	;; Treat any non-zero value as T, just in case other non-zero 
 	;; comes from C 
 	(T (check-mc-no-quant-done-answer-sought ID))))

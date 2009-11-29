@@ -97,6 +97,7 @@
 	 (client-id (header-in* :client-id))
 	 ;; Make thread local variable, this is the id used by logging
 	 (*log-id* client-id)
+	 (*trace-output* *stdout*) ;So we can see traces.
 	 ;; If I can't parse the json, assume it is 2.0.
 	 (version (if in-json (assoc :jsonrpc in-json) '(:jsonrpc . "2.0")))
 	 (method-func (gethash (list service-uri method) 

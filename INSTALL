@@ -87,8 +87,8 @@ make configure-httpd
 
 ====================== Javascript ===================================
 
-# make and build the javascript.  First we need to get 
-# the Dojo library, then we need to make an andes-specific
+# Make and build the javascript.  First we need to get 
+# the Dojo library, then we need to make an Andes-specific
 # build.  Right now, this uses the development version of Dojo;
 # we should later switch to using releases of Dojo.
 make install-dojo
@@ -97,12 +97,12 @@ make install-dojo
 
 ====================== Run Help Server ===============================
 
-;; To run server in lisp, type "screen" on the command line,
+;; To run the Help Server in lisp, type "screen" on the command line,
 ;; then type "sbcl" to start up lisp, then:
 (rhelp)
 (start-help)
-;; At this point, you can type ctl-a ctl-d to detach from the 
-;; lisp process; see the documentation for screen.
+;; At this point, you can type the screen commands ctl-a ctl-d 
+;; to detach from the lisp process; see the documentation for screen.
 ;; By default, the help server will log in file "help-server.log"
 
 ;; To stop the lisp server:
@@ -114,7 +114,7 @@ make install-dojo
 ;; to exit lisp:
 (quit)
 
-====================== Updates ===============================
+=============================== Updates ===============================
 
 #  Update software:
 make update

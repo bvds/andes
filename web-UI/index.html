@@ -62,6 +62,7 @@
 	<div id="main" dojoType="dijit.layout.BorderContainer" gutters="false">
 		<div dojoType="dijit.MenuBar" id="navMenu" region="top" splitter="false">
 		                <span id="problemName" class="dijitMenuItem dijitMenuItemLabel">Problem</span>
+
 				<div dojoType="dijit.PopupMenuBarItem">
 						<span>Physics</span>
 						<div dojoType="dijit.Menu" id="menuPhysics">
@@ -70,6 +71,17 @@
                                                                 <div id="menuPhysics3" dojoType="dijit.MenuItem">Constants</div>
 						</div>
 				</div>
+
+
+				<div dojoType="dijit.PopupMenuBarItem">
+						<span>Help</span>
+						<div dojoType="dijit.Menu" id="menuHelp">
+								<div id="menuIntroduction" dojoType="dijit.MenuItem">Introduction</div>
+								<div id="menuIntroVideo" dojoType="dijit.MenuItem">Video</div>
+								<div id="menuFAQ" dojoType="dijit.MenuItem">How to ...</div>
+                                                </div>
+				</div>
+
 				<div dojoType="dijit.form.Button" id="submitButton" style="position:absolute; top:0; right:10px; margin:0;">Submit</div>
 		</div>
 

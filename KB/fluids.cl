@@ -40,7 +40,7 @@
   :effects ( (variable ?$rm-var (mass-density ?material))
              (define-var (mass-density ?material)))
   :hint 
-  ((bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Mass Density." 
+  ((bottom-out (string "Define a variable for ~A by using the Text Tool." 
 			   ((mass-density ?material) def-np)))))
 
 ;;; Definition of mass density: rho = m/V
@@ -100,7 +100,7 @@
   :effects ( (variable ?Pr-var (pressure ?point :time ?time))
              (define-var (pressure ?point :time ?time)) )
   :hint (
-       (bottom-out (string "Define a variable for ~a by using the Add Variable command on the Variable menu and selecting Pressure."  
+       (bottom-out (string "Define a variable for ~a by using the Text Tool."  
 			   ((pressure ?point :time ?time) def-np)))
        ))
 
@@ -125,7 +125,7 @@
 	     (define-var (atmosphere)) )
   :hint 
   ((bottom-out 
-    (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting standard atmosphere." 
+    (string "Define a variable for ~A by using the Text Tool." 
 	    ((atmosphere) def-np)))))
 
 (def-psmclass std-constant-Pr0 (std-constant (atmosphere))
@@ -360,7 +360,7 @@
      :effects ((variable ?A-var (area-at ?point :time ?time))
                (define-var (area-at ?point :time ?time)))
      :hint (
-          (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Area."  
+          (bottom-out (string "Define a variable for ~A by using the Text Tool."
 			      ((area-at ?point :time ?time) def-np)))))
 
 
@@ -551,7 +551,7 @@
      :effects ((variable ?Vol-var (volume ?body :time ?time))
                (define-var (volume ?body :time ?time)))
      :hint (
-          (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Volume."  
+          (bottom-out (string "Define a variable for ~A by using the Text Tool."  
 			      ((volume ?body :time ?time) def-np)))
 	   ))
 
