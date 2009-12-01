@@ -24,7 +24,8 @@
 
 (defun initialize-fades (problem)
   "Initialize *fades* based on problem"
-  ;; match to either a systementry or bubblegraph node.
+  ;; match to either a systementry, a bubblegraph node, solver-tool
+  ;; invocation or an answer variable.
   (setf *fades* 
 	(loop for fade in (problem-fade problem) collect
 	      (cons 
@@ -32,7 +33,19 @@
 		 ;; uses *sg-entries*
 		 (or (find-systementry (car fade))
 		     (match-exp->bgnode (car fade) (problem-graph problem))
-		     (warn "No systementry or bgnode match for ~A" 
+		     ;; Solve for quantity that is in problem bubblegraph.
+		     (and (listp (car fade))
+			  (eql (first (car fade)) 'solve-for-var)
+			  (match-exp->qnode (second (car fade)) 
+					    (problem-graph *cp*))
+			  (car fade))
+		     ;; 
+		     (and (listp (car fade))
+			  (eql (first (car fade)) 'answer)
+			  (member (second (car fade)) (problem-soughts *cp*)
+				  :test #'unify)
+			  (car fade))
+		     (warn "No systementry, bgnode, solver, or answer match for ~A"
 			   (car fade))))
 	       (copy-list (cdr fade))))))
 
@@ -42,11 +55,27 @@
   "update list of fades, removing finished entries and returning a list of replies"
   ;; Go through list and remove any that have been completed.
   (dolist (fade (copy-list *fades*)) ;copy so we can remove elements.
+    ;; (format webserver:*stdout* "fade ~A~%" fade)
     (when (and (car fade)
 	       (or (and (SystemEntry-p (car fade))
 			(SystemEntry-entered (car fade)))
 		   (and (bgnode-p (car fade))
-			(nsh-principle-completed-p (car fade)))))
+			(nsh-principle-completed-p (car fade)))
+		   ;; See if this variable was solved for.
+		   (and (listp (car fade))
+			(eql (first (car fade)) 'solve-for-var)
+			(member (car fade) *StudentEntries* 
+				:key #'StudentEntry-prop
+				:test #'unify))
+		   ;; If it is an answer, find any corresponding Student Entry
+		   ;; and see if it is correct.
+		   (and (listp (car fade))
+			(eql (first (car fade)) 'answer)
+			(let ((this-answer (find (car fade) *StudentEntries* 
+						 :key #'StudentEntry-prop
+						 :test #'unify)))
+			  (and this-answer (eql (studententry-state
+						 this-answer) **correct**))))))
       (setf *fades* (remove fade *fades*))
       ;; Remove any corresponding item from canvas.
       (when (member 'on-canvas (problem-features *cp*))

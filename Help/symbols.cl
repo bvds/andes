@@ -162,7 +162,7 @@
 (defun symbols-referent (label)
   "Return quantity denoted by student label or NIL if none"
   (let ((sym (symbols-lookup label)))
-    (if sym (sym-referent sym))))
+    (when sym (sym-referent sym))))
 
 (defun symbols-lookup-quant (quant)
   "fetch sym info struct for quantity, NIL if not found"
