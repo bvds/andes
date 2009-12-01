@@ -143,10 +143,7 @@ dojo.provide("andes.drawing");
 			}
 
 			items[item.id] = item;
-			
-			//Might not be the best place for this
-			if(item.mode=="fade") item.attr(andes.defaults.fade);
-			
+						
 			if(noConnect){
 				return;
 			}

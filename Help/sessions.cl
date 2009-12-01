@@ -303,31 +303,6 @@
 
       ;; Second column for fades and predefs.
       (let ((x 450) (y 15) (i 0))
-	(when (member 'on-canvas (problem-features *cp*))
-	  (dolist (fade *fades*)
-	    ;; Debug text
-	    ;; (format webserver:*stdout* "Working on ~A~%" (cdr fade))
-	    (pushnew '(:action . "new-object") (cdr fade) :key #'car)
-	    (pushnew `(:id . ,(format nil "fade~A" (incf i))) (cdr fade) 
-		     :key #'car)
-	    (pushnew '(:mode . "fade") (cdr fade) :key #'car)
-	    (pushnew '(:type . "statement") (cdr fade) :key #'car)
-	    (when (and (not (assoc :width (cdr fade)))
-		       (member (cdr (assoc :type (cdr fade)))
-			       '("statement" "equation") :test #'equal))
-	      (push '(:width . 300) (cdr fade)))
-	    (pushnew `(:x . ,x) (cdr fade) :key #'car)
-	    (if (assoc :y (cdr fade))
-		;; If object overlaps this column, continue below it.
-		(when (> (+ (cdr (assoc :x (cdr fade)))
-			    (cdr (or (assoc :width (cdr fade))
-				     (assoc :radius (cdr fade)))))
-			 x)
-		  (setf y (max y (cdr (assoc :y (cdr fade))))))
-		(push `(:y . ,y) (cdr fade)))
-	    (push (cdr fade) replies)
-	    ;; (format webserver:*stdout* "  Turned to ~A~%" (cdr fade))
-	    (setf y (+ y 25))))
             
 	;; This must be done within env-wrap since it uses *cp*
 	(setf predefs (problem-predefs *cp*))
