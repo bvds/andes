@@ -99,6 +99,43 @@ body, .tundra .dijitSplitter, #navMenu{
 #helpContentPane p em{
 	color:#999;
 }
+
+#helpContentPane img.button {
+	vertical-align: middle;
+	width: 1.5em;
+}
+
+/* This should match "textMode.edit" and "text" in defaults.js */
+/* But, we will inherit the font size */
+#helpContentPane .text-box {
+	border-style:dashed;
+	border-width:1px;
+	padding:3px 1.5em 3px 3px;
+	white-space:nowrap;
+}
+
+#helpContentPane var {
+	font-style: italic;
+}
+
+#helpContentPane bf {
+	font-weight: bold;
+}
+
+#helpContentPane img.block {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+
+
+#helpContentPane .text {
+	vertical-align: middle;
+	width: 1.5em;
+}
+
+
 .dojoxExpandoClosed .dojoxExpandoIcon,
 .dojoxExpandoClosed .dojoxExpandoTitle{
 	display:none;

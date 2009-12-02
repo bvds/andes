@@ -10,7 +10,8 @@ dojo.provide("andes.convert");
 		graphics:	"image",
 		vector:		"vector",
 		axes:		"axes",
-		ellipse:	"ellipse"
+		ellipse:	"ellipse",
+		rectangle:	"rect"
 	};
 
 	var andesTypes = {
@@ -56,9 +57,8 @@ dojo.provide("andes.convert");
 					x:o.x,
 					y:o.y
 				},
-				enabled:o.mode!="locked"/* && o.mode!="fade"*/
+				enabled:o.mode!="locked"
 			};
-			if(o.mode=="fade") obj.mode="fade";
 			
 			if(o.type!="vector" && o.type!="line" && o.type!="axes" && o.type!="ellipse"){
 				obj.data.width = o.width;
@@ -80,11 +80,11 @@ dojo.provide("andes.convert");
 				obj.data.radius = o.radius || 0;
 				obj.data.angle = o.angle;
 			}
-			if(o.type=="statement" && (o.mode=="locked" || o.mode=="fade")){
+			if(o.type=="statement" && o.mode=="locked"){
 				obj.stencilType = "text";
 			}
 			
-			if(o.type=="line" || o.type=="vector" || o.type=="rect" || o.type=="ellipse"){
+			if(o.type=="line" || o.type=="vector" || o.type=="rectangle" || o.type=="ellipse"){
 				// separate objects
 			        // match logic in drawingToAndes
 				var lbl = o.symbol;

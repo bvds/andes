@@ -257,7 +257,8 @@
     
     ;; Update the studententry
     (setf (StudentEntry-verbatim entry) studText)
-    (setf (StudentEntry-prop entry) `(eqn ,studText))
+    (setf (StudentEntry-prop entry) 
+	  `(solve-for-var ,(symbols-referent (StudentEntry-symbol entry))))
     (setf (StudentEntry-parsedEqn entry) result)
     (setf (StudentEntry-state entry) **correct**)
     

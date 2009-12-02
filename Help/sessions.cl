@@ -303,31 +303,6 @@
 
       ;; Second column for fades and predefs.
       (let ((x 450) (y 15) (i 0))
-	(when (member 'on-canvas (problem-features *cp*))
-	  (dolist (fade *fades*)
-	    ;; Debug text
-	    ;; (format webserver:*stdout* "Working on ~A~%" (cdr fade))
-	    (pushnew '(:action . "new-object") (cdr fade) :key #'car)
-	    (pushnew `(:id . ,(format nil "fade~A" (incf i))) (cdr fade) 
-		     :key #'car)
-	    (pushnew '(:mode . "fade") (cdr fade) :key #'car)
-	    (pushnew '(:type . "statement") (cdr fade) :key #'car)
-	    (when (and (not (assoc :width (cdr fade)))
-		       (member (cdr (assoc :type (cdr fade)))
-			       '("statement" "equation") :test #'equal))
-	      (push '(:width . 300) (cdr fade)))
-	    (pushnew `(:x . ,x) (cdr fade) :key #'car)
-	    (if (assoc :y (cdr fade))
-		;; If object overlaps this column, continue below it.
-		(when (> (+ (cdr (assoc :x (cdr fade)))
-			    (cdr (or (assoc :width (cdr fade))
-				     (assoc :radius (cdr fade)))))
-			 x)
-		  (setf y (max y (cdr (assoc :y (cdr fade))))))
-		(push `(:y . ,y) (cdr fade)))
-	    (push (cdr fade) replies)
-	    ;; (format webserver:*stdout* "  Turned to ~A~%" (cdr fade))
-	    (setf y (+ y 25))))
             
 	;; This must be done within env-wrap since it uses *cp*
 	(setf predefs (problem-predefs *cp*))
@@ -475,7 +450,7 @@
   "Write variable definition text for a given prop and symbol."
   (if (find-systementry prop)
       (strcat "Let " symbol " be " 
-	      (word-string 
+	      (match:word-string 
 	       ;; no variables have been defined: 
 	       ;; remove any (var ...)
 	       (expand-vars 
@@ -568,11 +543,11 @@
 	 ;; Look for text box marked by "Answer: "
 	 ;; This should come before "equation" and "statement"
 	 ((and (> (length text) (length ans))
-	       (string-equal (string-left-trim *whitespace* text)
+	       (string-equal (string-left-trim match:*whitespace* text)
 			     ans :end1 (length ans)))
 	  ;; In Andes2 this was set in do-check-answer
 	  (setf (StudentEntry-verbatim new-entry) 
-	       (string-trim *whitespace* (subseq text (length ans))))
+	       (string-trim match:*whitespace* (subseq text (length ans))))
 	  (execute-andes-command 'check-answer new-entry))
 	 
 	 ((equal (StudentEntry-type new-entry) "equation")
@@ -584,7 +559,7 @@
 	      ;; the LHS is a single variable.
 	      ((and eq (search "?" (subseq text eq)))
 	       (setf (StudentEntry-symbol new-entry) 
-		     (string-trim *whitespace* (subseq text 0 eq)))
+		     (string-trim match:*whitespace* (subseq text 0 eq)))
 	       (execute-andes-command 'solve-for-var new-entry))
 	      ;; Default case: ordinary equation
 	      (t (execute-andes-command 'lookup-eqn-string new-entry)))))
