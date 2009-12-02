@@ -10,7 +10,8 @@ dojo.provide("andes.convert");
 		graphics:	"image",
 		vector:		"vector",
 		axes:		"axes",
-		ellipse:	"ellipse"
+		ellipse:	"ellipse",
+		rectangle:	"rect"
 	};
 
 	var andesTypes = {
@@ -83,7 +84,7 @@ dojo.provide("andes.convert");
 				obj.stencilType = "text";
 			}
 			
-			if(o.type=="line" || o.type=="vector" || o.type=="rect" || o.type=="ellipse"){
+			if(o.type=="line" || o.type=="vector" || o.type=="rectangle" || o.type=="ellipse"){
 				// separate objects
 			        // match logic in drawingToAndes
 				var lbl = o.symbol;
