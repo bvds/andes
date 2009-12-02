@@ -47,7 +47,9 @@
 			  (car fade))
 		     (warn "No systementry, bgnode, solver, or answer match for ~A"
 			   (car fade))))
-	       (copy-list (cdr fade))))))
+	       ;; Evaluate the hints.
+	       ;; The result should be a list of strings.
+	       (eval (cdr fade))))))
 
 
 ;; This should be called after any entries may have been completed.
@@ -79,7 +81,8 @@
       (setf *fades* (remove fade *fades*))))
   ;; When not on canvas, prompt next step in hint window.
   (when *fades*
-    (let ((text (cdr (assoc :text (cdr (car *fades*))))))
+    ;; do backwards because of push being backwards
+    (dolist (text (reverse (cdr (car *fades*))))
       (push `((:action . "show-hint") (:text . ,text))
 	    result)))
   result)

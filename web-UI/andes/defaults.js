@@ -180,6 +180,8 @@ dojo.provide("andes.defaults");
 				color:"#666666",
 				fill:null
 			},
+ 			// This should match helpContentPane text-box in 
+		        // andes.css
 			edit:{
 				width:1,
 				style:"dashed",
