@@ -52,10 +52,6 @@ dojo.provide("andes.defaults");
 			fill:  "#262626",
 			color: "#000000"
 		},
-		fade:{
-			fill:  "#0000FF",
-			color: "#0000FF"
-		},
 		correct:{
 			fill:  "#CCFFCC",
 			color: "#009900"
@@ -99,7 +95,7 @@ dojo.provide("andes.defaults");
 		},
 		
 		disabled:{
-			// disabled or "locked" or "fade" style of all shapes
+			// disabled or "locked" style of all shapes
 			width:1,
 			color:"#666666",
 			style:"solid",
@@ -184,6 +180,8 @@ dojo.provide("andes.defaults");
 				color:"#666666",
 				fill:null
 			},
+ 			// This should match helpContentPane text-box in 
+		        // andes.css
 			edit:{
 				width:1,
 				style:"dashed",

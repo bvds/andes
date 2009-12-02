@@ -73,7 +73,8 @@
 ;;
 (defun nlg-list-default (x)
   (cond ((null x) nil)
-	((new-english-find x) (word-string (expand-vars (new-english-find x))))
+	((new-english-find x) 
+	 (match:word-string (expand-vars (new-english-find x))))
 	((nlg-find x *Ontology-ExpTypes* #'ExpType-Form #'ExpType-nlg-english))
 	(t (format nil "~A" x))))
 
@@ -332,7 +333,8 @@
 (defun nlg-exp (x &rest args)
   (declare (ignore args))
   (cond ((atom x) (format nil "~A" x))
-	((new-english-find x) (word-string (expand-vars (new-english-find x))))
+	((new-english-find x) 
+	 (match:word-string (expand-vars (new-english-find x))))
 	((nlg-find x *Ontology-ExpTypes* #'Exptype-form #'ExpType-nlg-english))
 	(t (format nil "exp:[~A]" x))))
 
@@ -388,7 +390,8 @@
 		(when nlg-warn (warn "New-English rule missing for ~A, using nlg" 
 				     (ExpType-type rule)))
 		;; See nlg-exp and nlg-find
-		(word-parse (nlg-bind rule #'ExpType-nlg-english bindings))))))))
+		(match:word-parse 
+		 (nlg-bind rule #'ExpType-nlg-english bindings))))))))
   
   ;; If it is a symbol, use improved version of def-np.
   (when (atom prop)
@@ -402,7 +405,7 @@
   "Expand model tree, expanding ontology expressions, parse strings into list of words, substituting bindings, evaluating lisp code, and removing nils."
   (cond ((stringp model) 
 	 ;; If there is more than one word, break up into list of words.
-	 (let ((this (word-parse model))) (if (cdr this) this model)))
+	 (let ((this (match:word-parse model))) (if (cdr this) this model)))
 	((null model) model)
 	((variable-p model) 
 	 (if (all-boundp model bindings)

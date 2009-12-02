@@ -420,7 +420,7 @@
   "Define a problem struct and store it."
 
   (dolist (rule English)
-    (when (matches-model-syntax (car rule))
+    (when (match:matches-model-syntax (car rule))
       (error "Ontology member ~A matches model syntax" rule)))
 
 

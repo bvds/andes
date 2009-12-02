@@ -1316,7 +1316,7 @@ F-8\">~%"
       (dolist (liner (problem-statement prob))
 	(cond 
 	  ((listp liner) nil)
-	  ((equal "" (string-trim *whitespace* liner))
+	  ((equal "" (string-trim match:*whitespace* liner))
 	   (format stream  "  </p>~%  <p>~%"))
 	  (t (format stream "    ~A~%" liner))))
       (format stream "  </p>~%")

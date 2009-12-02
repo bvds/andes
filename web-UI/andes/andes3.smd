@@ -8,7 +8,7 @@
     {"name": "time", "type": "number"}
   ],
   "services": {
-    
+     
     "open-problem": {
       "parameters": [
 		{"name": "section", "type": "string"},
@@ -41,9 +41,9 @@
 	    },
 	    "mode":{
 	      "type": "string",
-	      "enum": ["unknown","correct","incorrect","locked","fade"],
+	      "enum": ["unknown","correct","incorrect","locked"],
 	      "optional": true,
-	      "description": "State of the item; unknown: black; correct: green; incorrect: red; locked: black (not user selectable); fade: gray (not user selectable)"
+	      "description": "State of the item:  unknown: black; correct: green; incorrect: red; locked: black (not user selectable)."
 	    },
 	    "x":		{"type": "number",  "optional": true},
 	    "y":		{"type": "number",  "optional": true},
@@ -113,9 +113,9 @@
 	{
 	  "name": "mode",
 	  "type": "string",
-	  "enum": ["unknown","correct","incorrect","locked","fade"],
+	  "enum": ["unknown","correct","incorrect","locked"],
 	  "optional": true,
-	  "description": "State of the item; black; correct: green; incorrect: red; locked:  black (not user selectable) fade:  gray (not user selectable)"
+	  "description": "State of the item:  unknown: black; correct: green; incorrect: red; locked:  black (not user selectable)"
 	},
 	{"name": "x", 		"type": "number", 	"optional": true},
 	{"name": "y",	 	"type": "number", 	"optional": true},
@@ -155,9 +155,9 @@
 	    },
 	    "mode": {
 	      "type": "string",
-	      "enum": ["unknown","correct","incorrect","locked","fade"],
+	      "enum": ["unknown","correct","incorrect","locked"],
 	      "optional": true,
-	      "description": "State of the item; unknown: black; correct: green; incorrect: red; locked: black(not user selectable); fade: gray (not user selectable).  Required for modify-object."
+	      "description": "State of the item:  unknown: black; correct: green; incorrect: red; locked: black(not user selectable).  Required for modify-object."
 	    },
 	    "text":	{
 	      "type": "string", 	

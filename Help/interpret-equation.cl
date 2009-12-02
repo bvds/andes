@@ -255,10 +255,6 @@
               (and (given-eqn-entry-p syseqn)
 	           (allowed-compo-mag-combo interp))))))
 
-(defun studEqnEntry-p (studEntry)
-"true if given student entry is an equation entry"
-   (eq 'eqn (first (StudentEntry-Prop studEntry))))
-
 (defun entered-explicitly (syseqn &optional (EntryList *StudentEntries*)) 
 "true if syseqn is explicitly entered somewhere in given set of entries (default all entries)"
   (some #'(lambda (studEntry) 
