@@ -538,14 +538,16 @@
 
 
 (defun pull-out-quantity (symbol text)
-  "Pull the quantity phrase out of a definition:  should match variablname.js"
+  "Pull the quantity phrase out of a definition:  should match variablename.js"
   (when symbol
     (if (not (search symbol text))
 	(warn "Bad symbol definition, ~S should be found in ~S."
 	      symbol text)
+	;; Find first occurence of symbol in text and take rest of text.
 	;; this should be done as a parser.
 	(let* ((si (+ (search symbol text) (length symbol)))
 	       (nosym (string-left-trim match:*whitespace* (subseq text si))))
+	  ;; Find any subsequent equality in string.
 	  ;; The empty string is a catch-all in case there is no match
 	  (dolist (equality '("is " ":" "=" "be " "as " "to be " ""))
 	    (when (and (>= (length nosym) (length equality))
