@@ -407,9 +407,9 @@
 	 ;; Can't put in a tutor turn, since the turn might be good.
 	 (when (> (car (car best)) (* 0.2 (length (match:word-parse student))))
 	   (let ((phr (format nil 
-			      "I interpreted your definition ~:[~;of <var>~A</var> ~]as:&nbsp; ~A."
-			      (> (length (StudentEntry-symbol entry)) 0)
-			      (StudentEntry-symbol entry)
+			      "I interpreted your definition ~@[of <var>~A</var> ~]as:&nbsp; ~A."
+			      (when (> (length (StudentEntry-symbol entry)) 0)
+				(StudentEntry-symbol entry))
 			      (match:word-string (expand-vars 
 						  (SystemEntry-model sysent)))
 			      )))
