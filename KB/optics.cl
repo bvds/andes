@@ -474,6 +474,12 @@
   :units nil
   :nlg-english ("~A" (nlg ?r)))
 
+;; Helper routine to give expression for a line
+(def-qexp line-between (line-between-points ?a ?b)
+  :new-English ((preferred (preferred "the") "line")
+		(or ("from" (conjoin "to" ?a ?b))
+		    ("between" (conjoin (or "and" "&") ?a ?b)))))
+
 (defoperator draw-line-given-dir (?r)
   :preconditions
   ( (given (dir (line ?r)) ?dir-in)
