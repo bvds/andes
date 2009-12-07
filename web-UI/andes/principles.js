@@ -8,7 +8,7 @@ dojo.require("dojo.data.ItemFileReadStore");
 dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
 
 // The principles and other review pages can be opened either 
-// via the menus or via the help system (links in the help pane).
+// via the menus or via the help system (links in the Tutor pane).
 andes.principles={
 
   // Either constants or Equations.
