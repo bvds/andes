@@ -410,7 +410,7 @@
 		  (:text . ,dialog-text)) replies)))
 
       ;; If there was no previous session, perform initial update of 
-      ;; faded items.  In the case of Fades in the help pane, write 
+      ;; faded items.  In the case of Fades in the Tutor pane, write 
       ;; initial instruction.
       (unless solution-step-replies (setf replies (update-fades replies)))
 
@@ -623,7 +623,7 @@
 						    x y))
 					    mistakes))
 	     (execute-andes-command 'next-step-help))))
-      ;; Student has typed text in help pane.
+      ;; Student has typed text in Tutor pane input box.
       ((and (equal action "get-help") text)
        (execute-andes-command 'handle-student-response text))
       ;; Student has clicked a link associated with the help.
