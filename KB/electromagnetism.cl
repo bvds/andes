@@ -1592,13 +1592,13 @@
 
 (def-qexp electric-dipole-moment (dipole-moment ?dipole electric :time ?time)
   :units |C.m|
-  :nlg-english ("electric dipole moment of ~A~@[ ~A~]" 
-	    (nlg ?dipole) (nlg ?time 'pp)))
+  ;:nlg-english ("electric dipole moment of ~A~@[ ~A~]" (nlg ?dipole) (nlg ?time 'pp)))
+  :new-english (property-object-time "electric dipole moment" ?dipole :time ?time))
 
 (def-qexp magnetic-dipole-moment (dipole-moment ?dipole magnetic :time ?time)
   :units |C.m^2/s|
-  :nlg-english ("magnetic dipole moment of ~A~@[ ~A~]" 
-	    (nlg ?dipole) (nlg ?time 'pp)))
+  ;:nlg-english ("magnetic dipole moment of ~A~@[ ~A~]" (nlg ?dipole) (nlg ?time 'pp)))
+  :new-english (property-object-time "magnetic dipole moment" ?dipole :time ?time))
 
 ;; modification of draw-efield-vector
 (defoperator draw-Dipole-Moment-given-dir (?dipole ?t)
@@ -2251,8 +2251,8 @@
 (def-qexp dipole-energy (dipole-energy ?dipole ?field :time ?time)
   ;; custom dialog box "energy"
   :units |J|
-  :nlg-english ("the potential energy of ~A in ~A" 
-	    (nlg ?dipole) (nlg ?field 'at-time ?time)))
+  ;:nlg-english ("the potential energy of ~A in ~A" (nlg ?dipole) (nlg ?field 'at-time ?time)))
+  :new-english (property-field-source-time "the potential energy" ?field ?dipole :time ?time))
 
 ; called via define-energy-var, which generates variable name
 (defoperator define-dipole-energy-ee-var (?dipole ?source ?t)
@@ -3281,9 +3281,10 @@
   :symbol-base |N|     
   :short-name "turns" 
   :units NIL  ;dimensionless
-     :restrictions positive
-     :nlg-english ("the number of turns wrapping around ~A" (nlg ?body))
-   )
+  :restrictions positive
+  ; :nlg-english ("the number of turns wrapping around ~A" (nlg ?body))
+  :new-english ((the) "number of turns wrapping around" ?body)
+)
 
 (defoperator define-turns (?body)
      :preconditions((bind ?N-var (format-sym "Nt_~A" (body-name ?body))))
@@ -3298,10 +3299,11 @@
 (def-qexp turns-per-length (turns-per-length ?body)
   :symbol-base |n|     
   :short-name "turns per unit length" 
-     :units |m^-1|
-     :restrictions positive
-     :nlg-english ("the number of turns per length wrapping around ~A" (nlg ?body))
-   )
+  :units |m^-1|
+  :restrictions positive
+  ;:nlg-english ("the number of turns per length wrapping around ~A" (nlg ?body))
+  :new-english ((the) "number of turns per length wrapping around" ?body)
+)
 
 (defoperator define-turns-per-length (?body)
      :preconditions((bind ?N-var (format-sym "ntl_~A" (body-name ?body))))
@@ -3351,32 +3353,40 @@
 (def-qexp electric-flux (flux ?surface electric :time ?t)
   :symbol-base |$F|     
   :short-name "electric flux"	
-     :units |V.m|
-     :nlg-english ("electric flux through ~A~@[ ~A~]" 
-	       (nlg ?surface) (nlg ?t 'pp)))
+  :units |V.m|
+  ;:nlg-english ("electric flux through ~A~@[ ~A~]" (nlg ?surface) (nlg ?t 'pp)))
+  :new-english ((the) "electric flux"
+		(and (preferred ("through" ?surface))
+		     (time ?t))))
 
 (def-qexp electric-flux-change (rate-of-change 
 				(flux ?surface electric :time ?t))
   :symbol-base |d$Fdt|     
   :short-name "rate of change in electric flux"	
-     :units |V.m/s|
-     :nlg-english ("rate of change in electric flux through ~A~@[ ~A~]" 
-	       (nlg ?surface) (nlg ?t 'pp)))
+  :units |V.m/s|
+  ;:nlg-english ("rate of change in electric flux through ~A~@[ ~A~]" (nlg ?surface) (nlg ?t 'pp)))
+  :new-english ((rate (change ("electric flux"))) 
+		(and (preferred ("through" ?surface)
+		     (time ?t)))))
 
 (def-qexp magnetic-flux (flux ?surface magnetic :time ?t)
   :symbol-base |$F|     
   :short-name "magnetic flux"	
-     :units |T.m^2|
-     :nlg-english ("magnetic flux through ~A~@[ ~A~]" 
-	       (nlg ?surface) (nlg ?t 'pp)))
+  :units |T.m^2|
+  ; :nlg-english ("magnetic flux through ~A~@[ ~A~]" (nlg ?surface) (nlg ?t 'pp)))
+  :new-english ((the) "magnetic flux" 
+		(and (preferred ("through" ?surface)
+		     (time ?t)))))
 
 (def-qexp magnetic-flux-change (rate-of-change 
 				(flux ?surface magnetic :time ?t))
   :symbol-base |d$Fdt|     
   :short-name "rate of change in magnetic flux"	
-     :units |T.m^2/s|
-     :nlg-english ("rate of change in magnetic flux through ~A~@[ ~A~]" 
-	       (nlg ?surface) (nlg ?t 'pp)))
+  :units |T.m^2/s|
+  ;:nlg-english ("rate of change in magnetic flux through ~A~@[ ~A~]" (nlg ?surface) (nlg ?t 'pp)))
+  :new-english ((rate (change ("magnetic flux"))) 
+		(and (preferred ("through" ?surface)
+		     (time ?t)))))
 
 (defoperator define-flux (?surface ?type ?t)
  :preconditions 
@@ -3773,8 +3783,8 @@
   :symbol-base |intB|     
   :short-name "line integral of B"
   :units |T.m|
-  :nlg-english ("line integral of the net magnetic field along path ~A~@[ ~A~]" 
-	       (nlg ?path) (nlg ?t 'pp)))
+  ;:nlg-english ("line integral of the net magnetic field along path ~A~@[ ~A~]" (nlg ?path) (nlg ?t 'pp)))
+  :new-english ((the) "line integral of" (the) "net magnetic field along path" ?path (time ?t)))
 
 (defoperator define-line-integral (?path ?type ?t)
   :preconditions 
