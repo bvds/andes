@@ -16,24 +16,23 @@
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defparameter *whitespace* '(#\Space #\Tab #\Newline))
-
 ;; Not sure how to handle punctuation here.
 ;;
 ;; Syntax <model>: (<model> ...)  ordered sequence
 ;;                 (and <model> ...) orderless sequence 
 ;;                 (or <model> ...)  this is exclusive or
-;;                 (var <quant>)     match student variable for <quant>
-;;                 (eval <lisp>)  execute <lisp> as lisp code
 ;;                 (preferred <model>) optional, but hinted for
 ;;                 (allowed <model>)  optional, but not hinted for
 ;;                 (conjoin <conjunction> <model> ...)  conjoin orderless
 ;;                               sequence (<model> ...) using <conjunction>, 
 ;;                               where <conjunction> is of type <model>.
+;;                 (var <quant>)  match student variable for <quant>
+;;                 (eval <lisp>)  execute <lisp> as lisp code 
 ;;                 (<atom> ...)  if <atom> matches none of above, 
 ;;                               match with ontology
 ;;                 <string>      leaf nodes, after resolution, are strings
 ;;
+;; (var ...) and (eval ...) are not handled by functions in this file.
 ;; Parse of student sentence is (<string> ...)
 ;; Could also have more complicated structure:
 ;;     <student>: (<student> ...)
@@ -52,6 +51,47 @@
 ;;                  conversational maxims (minimum needed to distinguish
 ;;                  quantity).
 ;;
+
+;; ctl-c ctl-k compiles entire file 
+(in-package :cl-user)
+
+(defpackage :match
+	  (:use :cl)
+	  (:export :*whitespace* :best-model-matches :word-parse 
+		   :matches-model-syntax :word-string :*grammar-names*))
+
+(eval-when (:load-toplevel :compile-toplevel)
+  (defparameter match:*grammar-names* 
+    (mapcar #'string-upcase ;lisp symbol default is upper case.
+	    '("preferred" "allowed" "and" "or" "conjoin" "var" "eval")))
+
+  ;; For each symbol in the grammar, if the symbol is not defined somewhere 
+  ;; define symbol in :cl-user.  Then import each symbol into :match.  
+  ;; This allows user to use grammar independent of :match.
+  ;;
+  ;; If this strategy doesn't work, an alternative would be to use 
+  ;; keywords for the grammar symbols.
+  (dolist (symbol-string match:*grammar-names*)
+    (multiple-value-bind (symbol internal) (intern symbol-string)
+      (when (eql internal :internal) (export symbol))
+      (import symbol :match))))
+
+(in-package :match)
+
+;; Now, create an internal list of these symbols from *grammar-names*
+(defvar *grammar-symbols* (mapcar #'find-symbol *grammar-names*))
+
+(defparameter *whitespace* '(#\Space #\Tab #\Newline))
+
+(defun matches-model-syntax (form)
+  "Top level of form matches model syntax." 
+  ;; If this function is true, then form will not be
+  ;; interpreted as being in the ontology
+  (or (null form)
+      (stringp form)
+      (and (consp form) 
+	   (or (listp (car form)) (stringp (car form)) ;list
+	       (member (car form) *grammar-symbols*)))))
 
 (defun word-parse (str &key parse)
   "Break up a string into a list of words, removing whitespace, commas."
@@ -198,7 +238,7 @@
        ((cdr model) (match-model student (second model) :best best))
        (model (word-count student)) ;empty conjunction
        (t (error "conjoin must always have a conjunction"))))
-    (t (error "Bad tree ~A" model))))
+    (t (error "match-model:  Bad tree ~A" model))))
 
 (defun match-model-list (student model &key best)
   (declare (notinline match-model)) ;for profiling
@@ -420,18 +460,6 @@
 		     :best best)))
       (t (error "match-model-conjoin should never reach here"))))
   best)
-
-
-(defun matches-model-syntax (form)
-  "Top level of form matches model syntax." 
-  ;; If this function is true, then form will not be
-  ;; interpreted as being in the ontology
-  (or (null form)
-      (stringp form)
-      (and (consp form) 
-	   (or (listp (car form)) (stringp (car form)) ;list
-	       (member (car form) 
-		       '(and or preferred allowed var eval conjoin))))))
 
 
 (defun best-model-matches (student models &key (cutoff 0.5) (equiv 1.25) 

@@ -648,8 +648,8 @@
   (if (> (length eq) 0)
       (let ((p (position #\; eq)))
 	(if p
-	    (string-trim *whitespace* (subseq eq 0 p))
-	  (string-trim *whitespace* eq)))
+	    (string-trim match:*whitespace* (subseq eq 0 p))
+	  (string-trim match:*whitespace* eq)))
     eq))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -818,8 +818,9 @@
 	      (if (not stud-var)
 		  (symbols-enter "Answer" sought-quant id)) ;; !! NB: want to delete this temp in all paths
 	      (if valid
-		  (let* ((parses (parse-equation **grammar** 
-						 (string-trim *whitespace* rhs)))
+		  (let* ((parses (parse-equation 
+				  **grammar** 
+				  (string-trim match:*whitespace* rhs)))
 			 (complete (parse-get-complete parses))
 			 (valid (parse-get-valid 'expression complete)))
 		    ;;(format t "Parsed ~A~%" (concatenate 'string lhs "=" (string-trim " " rhs)))

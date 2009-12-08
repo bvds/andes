@@ -2,7 +2,7 @@ dependencies = {
 	stripConsole: "normal",
 
 	layers: [
-		
+
 		{
 			name: "dojo.js",
 			dependencies: [
@@ -15,7 +15,6 @@ dependencies = {
 		[ "dijit", 		"../dijit" ],
 		[ "dojox", 		"../dojox" ],
 		[ "andes", 		"../andes"],
-		[ "images", 	"../images" ],
 		[ "css", 		"../css" ]
 	]
 }

@@ -68,12 +68,14 @@
 				     (:file "pre2in")
 				     (:file "in2pre")
 				     (:file "parse-andes"
-					    :depends-on ("SolutionGraph" "grammar"))
+					    :depends-on ("SolutionGraph" 
+							 "grammar"))
 				     (:file "interpret-equation"
 					    :depends-on ("SolutionGraph"))
 				     
 				     ;;  Help
 				     (:file "nlg") ;Natural language.
+				     (:file "icons")
 				     (:file "HelpMessages")
 				     (:file "whatswrong")
 				     (:file "NextStepHelp")
@@ -88,7 +90,8 @@
 					    :depends-on ("Entry-API" 
 							 "Interface"))
  				     (:file "API")
-                                     (:file "fade")
+                                     (:file "fade"
+					    :depends-on ("icons"))
 				     (:file "sessions"
 					    ;; Mostly for *help-env-vars*
 					    :depends-on ("NextStepHelp"

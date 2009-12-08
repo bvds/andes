@@ -65,7 +65,7 @@ dojo.require("andes.api");
 
 	andes.help.echo = function(value){
 		// summary:
-		//	Echo any input text in the help pane.
+		//	Echo any input text in the Tutor pane.
 		//
 		if(value == '!'){
 			value = "Ha! A rotten easter egg!"
@@ -98,7 +98,7 @@ dojo.require("andes.api");
 
 	andes.help.link = function(href){
 		// summary:
-		//	Calls api after a link in help pane has been clicked.
+		//	Calls api after a link in Tutor pane has been clicked.
 		dojo.xhrGet({
 			url: href,
 			handleAs: "text",

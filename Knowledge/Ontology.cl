@@ -195,7 +195,7 @@
     (setf *Ontology-ExpTypes*
 	  (remove type *Ontology-ExpTypes* :key #'ExpType-Type :count 1)))
 
-  (when (matches-model-syntax form)
+  (when (match:matches-model-syntax form)
     (error "Ontology ~A form ~A matches model syntax" type form))
 
   (when (lookup-expression-struct Form)
