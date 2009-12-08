@@ -320,12 +320,12 @@
 )
 ;+syjung
 (def-qexp vector-object-time (vector-object-time ?property ?body :time ?time)
-  :new-english ((allowed ((the) "value of")) 
-		(preferred ((the) 
-		    (or "magnitude" "mag" "mag." 
+  :new-english (;(allowed ((the) "value of")) 
+		;(preferred ((the) 
+		    ;(or "magnitude" "mag" "mag." 
 			;"direction" "dir" "dir." 
 			;"x-component" "y-component" "z-component"
-		    ) "of")) 
+		;    ) "of")) 
 		(or ( (the) (time-type ?time) 
 		      ?property  ; "velocity"
 		      (and (preferred (property ?body)) (time ?time))) 
