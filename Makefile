@@ -72,6 +72,7 @@ configure-httpd:
 	ln -s `pwd`/web-UI $(httpd-document-root)
 	ln -s `pwd`/review $(httpd-document-root)
 	ln -s `pwd`/images $(httpd-document-root)
+	ln -s `pwd`/LogProcessing/Web-Interface $(httpd-document-root)/log
 
 update:
 	git pull
