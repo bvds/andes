@@ -40,12 +40,15 @@ identify --version
 # http://sourceforge.net/projects/sbcl/files/
 # You will need a version that includes thread support.  However,
 # recent binary releases of sbcl do not include thread support.
-# In that case, do the following:
-#   1. Download a binary release and install it (for compiling source code).
-#   2. Download the latest source release.  Follow instructions in Section 2.2
-#      of the INSTALL file for enabling thread support.  Compile and install.
+cd lisp-site-install
+make get-binary     # download a binary release
+make thread-test    # verify threading is missing (otherwise, just install)
+make get-source     # download and compile source, with thread support
+make source-install # install in /usr/local (must be done as root)
+cd ../
+
 # To test for thread support, start up sbcl and type the 
-# command "(find :sb-thread *features*)"
+# command "(find :sb-thread *features*)" then type "(quit)" to exit
 
 # A sample sbcl startup file has been included as sbclrc-sample.
 # You can modify the file (you may need to change the path) and 
