@@ -365,10 +365,9 @@ combined.
 ]
 
 Student asks for help by pressing the help button.  They can also ask for
-help by typing "help" or "?" in the help text entry box.  Pressing the help 
-button opens the help pane.
+help by typing "help" or "?" in the Tutor pane text entry box.  
 
-14:20 Unlike Andes2, there is only one help button.  Also, the help pane is 
+14:20 Unlike Andes2, there is only one help button.  Also, the Tutor pane is 
 non-blocking, thus there is no need for the "OK" button seen in Andes2.
 
 {"method": "seek-help", "params": {"time": 860.001,

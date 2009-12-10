@@ -153,7 +153,7 @@ dojo.provide("andes.defaults");
 			// style of text
 			//
 			// there's no code to keep this from going off the stage
-			// or over the Help pane. So it should be kept small.
+			// or over the Tutor pane. So it should be kept small.
 			minWidth:150,
 			deleteEmptyCreate:true,
 			deleteEmptyModify:true,

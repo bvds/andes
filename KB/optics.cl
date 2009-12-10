@@ -44,8 +44,11 @@
 (def-qexp object-distance (object-distance ?lens)
   :symbol-base |do|     
   :short-name "object distance"	
-   :units |m|
-   :nlg-english ("the distance of the object from ~A" (nlg ?lens))
+  :units |m|
+  ;:nlg-english ("the distance of the object from ~A" (nlg ?lens))
+  :new-english ((the) "distance"
+		(and (preferred ("of" (the) "object"))
+		     (preferred ("from" ?lens))))
 )
 
 (defoperator define-object-distance (?lens)
@@ -60,8 +63,11 @@
 (def-qexp image-distance (image-distance ?lens)
   :symbol-base |di|     
   :short-name "image distance"	
-   :units |m|
-   :nlg-english ("the distance of the image from ~A" (nlg ?lens))
+  :units |m|
+  ;:nlg-english ("the distance of the image from ~A" (nlg ?lens))
+  :new-english ((the) "distance"
+		(and (preferred ("of" (the) "image"))
+		     (preferred ("from" ?lens))))
 )
 
 (defoperator define-image-distance (?lens)
@@ -76,8 +82,9 @@
 (def-qexp focal-length (focal-length ?lens)
   :symbol-base |f|     
   :short-name "focal length"	
-   :units |m|
-   :nlg-english ("the focal length of ~A" (nlg ?lens))
+  :units |m|
+  ;:nlg-english ("the focal length of ~A" (nlg ?lens))
+  :new-english (property-object "focal length" ?lens)
 )
 
 (defoperator define-focal-length (?lens)
@@ -93,7 +100,8 @@
   :symbol-base |m|     
   :short-name "magnification"	
   :units NIL
-   :nlg-english ("the magnification of ~A" (nlg ?lens))
+  ; :nlg-english ("the magnification of ~A" (nlg ?lens))
+  :new-english (property-object "magnification" ?lens)
 ) 
 
 (defoperator define-magnification (?lens)
@@ -108,8 +116,9 @@
 (def-qexp radius-of-curvature (radius-of-curvature ?mirror)
   :symbol-base |r|     
   :short-name "radius of curvature"	
-   :units |m|
-   :nlg-english ("the radius of curvature of ~A" (nlg ?mirror))
+  :units |m|
+  ;:nlg-english ("the radius of curvature of ~A" (nlg ?mirror))
+  :new-english (property-object "radius of curvature" ?mirror)
 )
 
 (defoperator define-radius-of-curvature (?mirror)
@@ -125,8 +134,9 @@
   :symbol-base |d|     
   :short-name "distance"	
   :units |m|
-  :nlg-english ("the distance between ~a" (nlg ?objects 'conjoined-defnp))
-  ) 
+  ;:nlg-english ("the distance between ~a" (nlg ?objects 'conjoined-defnp))
+  :new-english ((the) "distance between" (conjoin (or "and" "&") . ?objects))
+) 
 
 (defoperator define-distance-between (?objects)
  :preconditions 
@@ -143,8 +153,9 @@
   :short-name "slit separation"	
   :units |m|
   :restrictions positive
-  :nlg-english ("the distance between slits in ~A" (nlg ?grating))
-  )
+  ;:nlg-english ("the distance between slits in ~A" (nlg ?grating))
+  :new-english ((the) "distance between slits in" ?grating)
+)
 
 (defoperator define-slit-separation (?grating)
   :preconditions ( (bind ?do-var (format-sym "ds_~A" (body-name ?grating))) )
@@ -160,8 +171,9 @@
   :short-name "angle of resolution"
   :units |deg|
   :restrictions positive
-  :nlg-english ("the minimum angle of resolution for ~A" (nlg ?grating))
-  )
+  ;:nlg-english ("the minimum angle of resolution for ~A" (nlg ?grating))
+  :new-english ((the) "minimum angle of resolution for" ?grating)
+)
 
 (defoperator define-resolution-angle (?grating)
   :preconditions ( (bind ?do-var (format-sym "thetares_~A" (body-name ?grating))) )
@@ -472,7 +484,14 @@
 
 (def-qexp line (line ?r)
   :units nil
-  :nlg-english ("~A" (nlg ?r)))
+  ;:nlg-english ("~A" (nlg ?r)))
+  :new-english (?r))
+
+;; Helper routine to give expression for a line
+(def-qexp line-between (line-between-points ?a ?b)
+  :new-English ((preferred (preferred "the") "line")
+		(or ("from" (conjoin "to" ?a ?b))
+		    ("between" (conjoin (or "and" "&") ?a ?b)))))
 
 (defoperator draw-line-given-dir (?r)
   :preconditions

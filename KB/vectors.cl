@@ -1730,9 +1730,12 @@
 
 (def-qexp unit-vector (unit-vector ?orientation ?body :at ?loc :time ?time)
   :units nil  ;dimensionless
-  :nlg-english ("a unit vector~@[ at ~A~] ~A ~A" ?loc 
-	    (unit-vector-orientation-name ?orientation)
-	    (nlg ?body 'at-time ?time)))
+  ;:nlg-english ("a unit vector~@[ at ~A~] ~A ~A" ?loc (unit-vector-orientation-name ?orientation) (nlg ?body 'at-time ?time)))
+  ;
+  ;syjung NEED CHECKING!!!
+  :new-english ("a unit vector" 
+		(when (unit-vector-orientation-name ?orientation) ?loc)
+		?body (time ?time)))
 
 (defun unit-vector-orientation-name (orientation)
   (cond ((eq orientation 'normal-to) "normal to")
@@ -2220,17 +2223,19 @@
 (def-qexp area (area ?shape)
   :symbol-base |A|     
   :short-name "area"	
-     :units |m^2|
-     :restrictions positive
-     :nlg-english ("the area of ~A" (nlg ?shape))
+  :units |m^2|
+  :restrictions positive
+  ;:nlg-english ("the area of ~A" (nlg ?shape))
+  :new-english (property-object "area" ?shape)
 )
 
 (def-qexp area-change (rate-of-change (area ?shape))
   :symbol-base |dAdt|     
   :short-name "rate of change in area"	
-     :units |m^2/s|
-     :restrictions positive
-     :nlg-english ("the rate of change of the area of ~A" (nlg ?shape))
+  :units |m^2/s|
+  :restrictions positive
+  ;:nlg-english ("the rate of change of the area of ~A" (nlg ?shape))
+  :new-english (rate (change (property-object "area" ?shape)))
 )
 
 (defoperator define-area (?shape)
@@ -2245,10 +2250,11 @@
 (def-qexp radius-of-circle (radius-of-circle ?body)
   :symbol-base |r|     
   :short-name "radius"	
-     :units |m|
-     :restrictions positive
-     :nlg-english ("the radius of ~A" (nlg ?body))
-   )
+  :units |m|
+  :restrictions positive
+  ;:nlg-english ("the radius of ~A" (nlg ?body))
+  :new-english (property-object "radius" ?body)
+)
 
 (defoperator define-radius-of-circle (?body)
   :preconditions
@@ -2266,8 +2272,9 @@
   :short-name "diameter"	
   :units |m|
   :restrictions positive
-  :nlg-english ("the diameter of ~A" (nlg ?body))
-  )
+  ;:nlg-english ("the diameter of ~A" (nlg ?body))
+  :new-english (property-object "diameter" ?body)
+)
 
 (defoperator define-diameter-of-circle (?body)
      :preconditions((bind ?dc-var (format-sym "dc_~A" (body-name ?body))))
@@ -2283,10 +2290,11 @@
 (def-qexp circumference-of-circle (circumference-of-circle ?body)
   :symbol-base |c|     
   :short-name "circumference"	
-     :units |m|
-     :restrictions positive
-     :nlg-english ("the circumference of ~A" (nlg ?body))
-   )
+  :units |m|
+  :restrictions positive
+  ;:nlg-english ("the circumference of ~A" (nlg ?body))
+  :new-english (property-object "circumference" ?body)
+)
 
 (defoperator define-circumference-of-circle (?body)
      :preconditions((bind ?cc-var (format-sym "cc_~A" (body-name ?body))))

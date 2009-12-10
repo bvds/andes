@@ -4,7 +4,7 @@ dojo.require("dojox.layout.ExpandoPane");
 
 dojo.declare("andes.widget.ExpandoPane", dojox.layout.ExpandoPane, {
 	// summary:
-	//	Allows the expandable Help Pane.
+	//	Allows the expandable Tutor pane.
 	// 	extends dojox.layout.ExpandoPane
 	
 	// minimum size the pane can be set
