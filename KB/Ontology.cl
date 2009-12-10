@@ -240,8 +240,12 @@
   :units ?vector
   :new-english ((or ((the) ?xyz (or "component" "compo." "compo"))
 		    ((the) (eval (format nil "~A-component" (?xyz))))
-		    ((possessive ?body) (eval (format nil "~A-component" (?xyz))))
-		    ((possessive ?body) (eval (format nil "~A component" (?xyz))))
+		    (;(possessive ?body) 
+			(possessive (or (var (body ?body)) ?body))
+			(eval (format nil "~A-component" (?xyz))))
+		    (;(possessive ?body) 
+			(possessive (or (var (body ?body)) ?body))
+			(eval (format nil "~A component" (?xyz))))
 		    ;((the) (eval (format nil "~A-component" (?xyz))) )
 		)
 		(property ?vector))
@@ -310,9 +314,9 @@
 ;+syjung
 (defun check-time-type (?property)
 	(or (and (not (atom ?property))
-		   (exist-intersection '("velocity" "acceleration" "momentum") ?property))
+		   (exist-intersection '("velocity" "speed" "acceleration" "momentum") ?property))
 	    (and (atom ?property)
-		   (exist-member ?property '("velocity" "acceleration" "momentum")))))
+		   (exist-member ?property '("velocity" "speed" "acceleration" "momentum")))))
 
 (defun exist-member (element string-list)
 	(loop for e in string-list
@@ -331,7 +335,8 @@
 		      (time-type-prop ?time ?property) 
 		      ?property  ; "speed"
 		      (and (preferred (property ?body)) (time ?time))) 
-		    ( (possessive ?body)
+		    ( ;(possessive ?body)
+		      (possessive (or (var (body ?body)) ?body))
 		      (time-type-prop ?time ?property)
 		      ?property ; "speed"
 		      (time ?time)))))
@@ -344,7 +349,8 @@
 		      (time-type-prop ?time ?property)
 		      ?property  ; "velocity"
 		      (and (preferred (property ?body)) (time ?time))) 
-		     ((possessive ?body)
+		     (;(possessive ?body)
+		      (possessive (or (var (body ?body)) ?body))
 		      (time-type-prop ?time ?property)
 		      ?property (allowed "vector"); "velocity"
 		      (time ?time))))
@@ -359,7 +365,8 @@
 		      (and (preferred (property ?body)) 
 			   (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
 				       ?agent ))) )
-		    ( (possessive ?body)
+		    ( ;(possessive ?body)
+		      (possessive (or (var (body ?body)) ?body))
 		      (time-type-prop ?time ?property)
 		      ?property 
 		      (and (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
@@ -376,7 +383,8 @@
 			   (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
 				       ?agent ))
 		 	   (time ?time))) 
-		    ( (possessive ?body)
+		    ( ;(possessive ?body)
+		      (possessive (or (var (body ?body)) ?body))
 		      (eval (when (check-time-type ?property)
 			      (time-type-prop ?time)))
 		      ?property 
@@ -392,7 +400,8 @@
 		(or 
 		    ( (the) ?property  		; "mass"
 		      (and (preferred (property ?body)) (time ?time)) )
-		    ( (possessive ?body)
+		    ( ;(possessive ?body)
+		      (possessive (or (var (body ?body)) ?body))
 		      ?property 		; "mass"
 		      (time ?time))))
 )
@@ -404,7 +413,9 @@
   :new-english ((allowed ((the) "value of")) 
 		(or ( (the) ?property
 		      (preferred (property ?body)) ) 
-		    ( (possessive ?body) ?property)
+		    ( ;(possessive ?body) 
+		      (possessive (or (var (body ?body)) ?body))
+		      ?property)
 		))
 )
 ;+syjung
@@ -487,6 +498,7 @@
   :new-english ((the) (preferred "duration of") "time"
 		(time ?time)))
 
+; ex) "the value of the average speed of the aircraft between T0 and T1"
 (def-qexp speed (speed ?body :time ?time)
   :symbol-base |v|     
   :short-name "speed"	
