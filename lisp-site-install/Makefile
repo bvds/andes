@@ -24,25 +24,25 @@ ifeq ($(shell uname -p),x86_64)
   binary-release = sbcl-1.0.29-x86_64-linux-binary-r2.tar.bz2
 endif 
 endif
-binary-dir = `tar jtf $(binary-release)|grep -o -m1 "[^/]*"`
+binary-dir = tar jtf $(binary-release)|grep -o -m1 "[^/]*"
 
 get-binary:
-	wget -nc http://downloads.sourceforge.net/sbcl/$(binary-release)
+	-wget -nc http://downloads.sourceforge.net/sbcl/$(binary-release)
 	tar jxf $(binary-release)
-	cd $(binary-dir); chmod u+x run-sbcl.sh
+	cd `$(binary-dir)`; chmod u+x run-sbcl.sh
 binary-install:
 	@echo "This must be run as root for install into /usr/local"
-	cd $(binary-dir); sh install.sh
+	cd `$(binary-dir)`; sh install.sh
 thread-test:
-	cd $(binary-dir); echo '(format t "threading is ~:[not~;~] supported~%" (find :sb-thread *features*)) (quit)' | run-sbcl.sh --noinform --noprint
+	cd `$(binary-dir)`; echo '(format t "threading is ~:[not~;~] supported~%" (find :sb-thread *features*)) (quit)' | ./run-sbcl.sh --noinform --noprint
 
 source-dir = sbcl-1.0.33
 source-release = $(source-dir)-source.tar.bz2
-get-source: $(source-release) $(shell $(binary-dir))
-	wget -nc http://prdownloads.sourceforge.net/sbcl/$(source-release)
+get-source: $(shell $(binary-dir))
+	-wget -nc http://prdownloads.sourceforge.net/sbcl/$(source-release)
 	tar jxf $(source-release)
 	cp customize-target-features.lisp $(source-dir) #thread support
-	cd $(source-dir); make.sh $(shell echo "../$(binary-dir)/run-sbcl.sh")
+	cd $(source-dir); ./make.sh $(shell echo "../`$(binary-dir)`/run-sbcl.sh")
 source-install:
 	@echo "This must be run as root for install into /usr/local"
 	cd $(source-dir); sh install.sh
