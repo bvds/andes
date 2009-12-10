@@ -30,9 +30,10 @@
 (def-qexp mass-density (mass-density ?material)
   :symbol-base |$r|     
   :short-name "mass density"	
-   :units |kg/m^3|
-   :restrictions nonnegative   
-   :nlg-english ("the mass density of ~A" (nlg ?material))
+  :units |kg/m^3|
+  :restrictions nonnegative   
+  ;:nlg-english ("the mass density of ~A" (nlg ?material))
+  :new-english (property-object (or "mass density" "density of mass") ?material)
 )
 
 (defoperator define-mass-density (?material)
@@ -90,9 +91,11 @@
 (def-qexp pressure (pressure ?position :time ?time)
   :symbol-base |P|     
   :short-name "pressure"	
-   :units |Pa|
-   :nlg-english ("the pressure at ~a" 
-	     (nlg ?position 'at-time ?time))
+  :units |Pa|
+  ;:nlg-english ("the pressure at ~a" (nlg ?position 'at-time ?time))
+  :new-english ((the) "pressure" 
+		(and (preferred ("at" ?position))
+		     (time ?time)))
 )
 
 (defoperator define-pressure (?point ?time)
@@ -116,7 +119,8 @@
   :units |Pa|
   :restrictions positive
   :short-name "standard atmosphere"
-  :nlg-english ("the pressure of one standard atmosphere")
+  ; :nlg-english ("the pressure of one standard atmosphere")
+  :new-english ((the) "pressure of one standard atmosphere")
 )
 
 ; should normally be predefined in fluids problems:
@@ -350,9 +354,12 @@
 (def-qexp area-at (area-at ?position :time ?time)
   :symbol-base |A|     
   :short-name "cross-sectional area"	
-     :units |m^2|
-     :restrictions positive
-     :nlg-english ("the cross-sectional area at ~A" (nlg ?position 'at-time ?time))
+  :units |m^2|
+  :restrictions positive
+  ;:nlg-english ("the cross-sectional area at ~A" (nlg ?position 'at-time ?time))
+  :new-english ((the) "cross-sectional area" 
+		(and (preferred ("at" ?position)) 		
+		     (time ?time)))
 )
 
 (defoperator define-area-at (?point ?time)
@@ -539,10 +546,11 @@
 (def-qexp volume (volume ?body :time ?time)
   :symbol-base |V|     
   :short-name "volume"	
-     :units |m^3|
-     :restrictions nonnegative ; we allow zero-volume for negligible parts of compound bodies
-     :nlg-english ("the volume of ~A" (nlg ?body 'at-time ?time))
-   )
+  :units |m^3|
+  :restrictions nonnegative ; we allow zero-volume for negligible parts of compound bodies
+  ;:nlg-english ("the volume of ~A" (nlg ?body 'at-time ?time))
+  :new-english (property-object-time "volume" ?body :time ?time)
+)
 
 (defoperator define-volume (?body ?time)
      :preconditions((bind ?Vol-var (format-sym "Vol_~A~@[_~A~]" 
