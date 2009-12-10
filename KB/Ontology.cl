@@ -240,11 +240,11 @@
   :units ?vector
   :new-english ((or ((the) ?xyz (or "component" "compo." "compo"))
 		    ((the) (eval (format nil "~A-component" (?xyz))))
-		    (;(possessive ?body) 
-			(possessive (or (var (body ?body)) ?body))
+		    ((possessive ?body) 
+			;(possessive (or (var (body ?body)) ?body))
 			(eval (format nil "~A-component" (?xyz))))
-		    (;(possessive ?body) 
-			(possessive (or (var (body ?body)) ?body))
+		    ((possessive ?body) 
+			;(possessive (or (var (body ?body)) ?body))
 			(eval (format nil "~A component" (?xyz))))
 		    ;((the) (eval (format nil "~A-component" (?xyz))) )
 		)
@@ -289,18 +289,24 @@
 ;+syjung
 ; possessive "object's"
 (def-qexp possessive (possessive ?body)
-  :new-english (eval (attach-to-last-element (new-english-find ?body) "'s")))
+  ;:new-english (eval (attach-to-last-element (new-english-find ?body) "'s")))
   ;:new-english (eval (attach-to-last-element (new-english-find (or (var (body ?body)) ?body)) "'s")))
+  ;:new-english (eval (attach-to-element ?body (new-english-find '(or (var (body ?body)) ?body)) "'s")))
+  :new-english (eval (attach-to-element ?body '(or (var (body ?body)) ?body) "'s")))
+  ;:new-english (eval (attach-to-element ?body (new-english-find ?body) "'s")))
 
 ;+syjung
-; (attach-to-last-element '(preferred (motorcycle)) "'s") 
-; = '(preferred ("motorcycle's"))
-(defun attach-to-last-element (nested-list to-attach)
+; (attach-to-element 'crate '(or (var (body crate)) crate) "'s")
+; = '(or (var (body "crate's")) "crate's")
+(defun attach-to-element (e nested-list to-attach)
 	(if (atom nested-list)
-	    (format nil "~A~A" nested-list to-attach)
+	    (if (string= nested-list e)
+	    	(format nil "~A~A" nested-list to-attach)
+		nested-list)
 	    (if (cdr nested-list)
-	        (list (car nested-list) (attach-to-last-element (cdr nested-list) to-attach)) 
-	        (list (attach-to-last-element (car nested-list) to-attach) )))) 
+	        (adjoin (attach-to-element e (car nested-list) to-attach) (attach-to-element e (cdr nested-list) to-attach)) 
+		(list (attach-to-element e (car nested-list) to-attach) ))))
+	
 ;+syjung
 (def-qexp time-type (time-type ?time)
   :new-english (eval (if (time-intervalp ?time)
@@ -335,8 +341,8 @@
 		      (time-type-prop ?time ?property) 
 		      ?property  ; "speed"
 		      (and (preferred (property ?body)) (time ?time))) 
-		    ( ;(possessive ?body)
-		      (possessive (or (var (body ?body)) ?body))
+		    ( (possessive ?body)
+		      ;(possessive (or (var (body ?body)) ?body))
 		      (time-type-prop ?time ?property)
 		      ?property ; "speed"
 		      (time ?time)))))
@@ -349,8 +355,8 @@
 		      (time-type-prop ?time ?property)
 		      ?property  ; "velocity"
 		      (and (preferred (property ?body)) (time ?time))) 
-		     (;(possessive ?body)
-		      (possessive (or (var (body ?body)) ?body))
+		     ((possessive ?body)
+		      ;(possessive (or (var (body ?body)) ?body))
 		      (time-type-prop ?time ?property)
 		      ?property (allowed "vector"); "velocity"
 		      (time ?time))))
@@ -365,8 +371,8 @@
 		      (and (preferred (property ?body)) 
 			   (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
 				       ?agent ))) )
-		    ( ;(possessive ?body)
-		      (possessive (or (var (body ?body)) ?body))
+		    ( (possessive ?body)
+		      ;(possessive (or (var (body ?body)) ?body))
 		      (time-type-prop ?time ?property)
 		      ?property 
 		      (and (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
@@ -383,8 +389,8 @@
 			   (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
 				       ?agent ))
 		 	   (time ?time))) 
-		    ( ;(possessive ?body)
-		      (possessive (or (var (body ?body)) ?body))
+		    ( (possessive ?body)
+		      ;(possessive (or (var (body ?body)) ?body))
 		      (eval (when (check-time-type ?property)
 			      (time-type-prop ?time)))
 		      ?property 
@@ -400,8 +406,8 @@
 		(or 
 		    ( (the) ?property  		; "mass"
 		      (and (preferred (property ?body)) (time ?time)) )
-		    ( ;(possessive ?body)
-		      (possessive (or (var (body ?body)) ?body))
+		    ( (possessive ?body)
+		      ;(possessive (or (var (body ?body)) ?body))
 		      ?property 		; "mass"
 		      (time ?time))))
 )
@@ -413,8 +419,8 @@
   :new-english ((allowed ((the) "value of")) 
 		(or ( (the) ?property
 		      (preferred (property ?body)) ) 
-		    ( ;(possessive ?body) 
-		      (possessive (or (var (body ?body)) ?body))
+		    ( (possessive ?body) 
+		      ;(possessive (or (var (body ?body)) ?body))
 		      ?property)
 		))
 )
