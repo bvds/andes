@@ -241,10 +241,8 @@
   :new-english ((or ((the) ?xyz (or "component" "compo." "compo"))
 		    ((the) (eval (format nil "~A-component" (?xyz))))
 		    ((possessive ?body) 
-			;(possessive (or (var (body ?body)) ?body))
 			(eval (format nil "~A-component" (?xyz))))
 		    ((possessive ?body) 
-			;(possessive (or (var (body ?body)) ?body))
 			(eval (format nil "~A component" (?xyz))))
 		    ;((the) (eval (format nil "~A-component" (?xyz))) )
 		)
@@ -289,11 +287,7 @@
 ;+syjung
 ; possessive "object's"
 (def-qexp possessive (possessive ?body)
-  ;:new-english (eval (attach-to-last-element (new-english-find ?body) "'s")))
-  ;:new-english (eval (attach-to-last-element (new-english-find (or (var (body ?body)) ?body)) "'s")))
-  ;:new-english (eval (attach-to-element ?body (new-english-find '(or (var (body ?body)) ?body)) "'s")))
   :new-english (eval (attach-to-element ?body '(or (var (body ?body)) ?body) "'s")))
-  ;:new-english (eval (attach-to-element ?body (new-english-find ?body) "'s")))
 
 ;+syjung
 ; (attach-to-element 'crate '(or (var (body crate)) crate) "'s")
@@ -342,7 +336,6 @@
 		      ?property  ; "speed"
 		      (and (preferred (property ?body)) (time ?time))) 
 		    ( (possessive ?body)
-		      ;(possessive (or (var (body ?body)) ?body))
 		      (time-type-prop ?time ?property)
 		      ?property ; "speed"
 		      (time ?time)))))
@@ -356,7 +349,6 @@
 		      ?property  ; "velocity"
 		      (and (preferred (property ?body)) (time ?time))) 
 		     ((possessive ?body)
-		      ;(possessive (or (var (body ?body)) ?body))
 		      (time-type-prop ?time ?property)
 		      ?property (allowed "vector"); "velocity"
 		      (time ?time))))
@@ -372,7 +364,6 @@
 			   (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
 				       ?agent ))) )
 		    ( (possessive ?body)
-		      ;(possessive (or (var (body ?body)) ?body))
 		      (time-type-prop ?time ?property)
 		      ?property 
 		      (and (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
@@ -390,7 +381,6 @@
 				       ?agent ))
 		 	   (time ?time))) 
 		    ( (possessive ?body)
-		      ;(possessive (or (var (body ?body)) ?body))
 		      (eval (when (check-time-type ?property)
 			      (time-type-prop ?time)))
 		      ?property 
@@ -407,7 +397,6 @@
 		    ( (the) ?property  		; "mass"
 		      (and (preferred (property ?body)) (time ?time)) )
 		    ( (possessive ?body)
-		      ;(possessive (or (var (body ?body)) ?body))
 		      ?property 		; "mass"
 		      (time ?time))))
 )
@@ -420,7 +409,6 @@
 		(or ( (the) ?property
 		      (preferred (property ?body)) ) 
 		    ( (possessive ?body) 
-		      ;(possessive (or (var (body ?body)) ?body))
 		      ?property)
 		))
 )
