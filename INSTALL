@@ -78,6 +78,10 @@ make install-site-libraries
 # Set up tables in database:
 make install-database
 
+# Finally, the lisp package clsql will need the mysql header files.  
+# In Linux systems, these are provided by mysql-devel; enter 
+# "rpm -q mysql-devel" to see if it has been installed.
+
 =============== Apache Web Server =================================
 
 # As root, configure Apache as a reverse proxy server, with json-rpc 

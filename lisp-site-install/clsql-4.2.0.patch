@@ -1,0 +1,45 @@
+diff -rupN clsql-4.2.0/clsql-mysql.asd clsql-4.2.0-modified/clsql-mysql.asd
+--- clsql-4.2.0/clsql-mysql.asd	2009-09-02 06:52:24.000000000 -0700
++++ clsql-4.2.0-modified/clsql-mysql.asd	2009-12-11 13:48:19.000000000 -0700
+@@ -21,7 +21,7 @@
+ 
+ (eval-when (:compile-toplevel :load-toplevel :execute)
+   (unless (find-package 'uffi)
+-    (asdf:operate 'asdf:load-op 'uffi)))
++    (asdf:operate 'asdf:load-op 'cffi-uffi-compat)))
+ 
+ (defvar *library-file-dir* 
+   (merge-pathnames "db-mysql/" 
+@@ -80,7 +80,7 @@
+   :description "Common Lisp SQL MySQL Driver"
+   :long-description "cl-sql-mysql package provides a database driver to the MySQL database system."
+ 
+-  :depends-on (uffi clsql clsql-uffi)
++  :depends-on (cffi-uffi-compat clsql clsql-uffi)
+   :components
+   ((:module :db-mysql
+ 	    :components
+diff -rupN clsql-4.2.0/clsql-uffi.asd clsql-4.2.0-modified/clsql-uffi.asd
+--- clsql-4.2.0/clsql-uffi.asd	2009-07-27 14:20:37.000000000 -0700
++++ clsql-4.2.0-modified/clsql-uffi.asd	2009-12-11 13:49:08.000000000 -0700
+@@ -79,7 +79,7 @@
+   :description "Common UFFI Helper functions for Common Lisp SQL Interface Library"
+   :long-description "cl-sql-uffi package provides common helper functions using the UFFI for the CLSQL package."
+ 
+-  :depends-on (uffi clsql)
++  :depends-on (cffi-uffi-compat clsql)
+ 
+   :components
+   ((:module :uffi
+diff -rupN clsql-4.2.0/clsql.asd clsql-4.2.0-modified/clsql.asd
+--- clsql-4.2.0/clsql.asd	2009-12-11 13:57:46.000000000 -0700
++++ clsql-4.2.0-modified/clsql.asd	2009-12-11 13:50:51.000000000 -0700
+@@ -27,7 +27,7 @@
+ ;; need to load uffi for below perform :after method
+ (eval-when (:compile-toplevel :load-toplevel :execute)
+   (unless (find-package 'uffi)
+-    (asdf:operate 'asdf:load-op 'uffi)))
++    (asdf:operate 'asdf:load-op 'cffi-uffi-compat)))
+ 
+ (defsystem clsql
+     :name "CLSQL"
