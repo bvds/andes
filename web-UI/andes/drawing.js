@@ -202,8 +202,8 @@ dojo.provide("andes.drawing");
 						// by adding the ids first:
 						var statement = _drawing.addStencil("textBlock", o.statement);
 						var master = _drawing.addStencil(o.stencilType, o.master);
-						items[statement.id] = true; //statement;
-						items[master.id] = true; //master;
+						items[statement.id] = statement; //statement;
+						items[master.id] = master; //master;
 						var combo = new andes.Combo({master:master, statement:statement, id:o.id});
 						this.add(combo);
 

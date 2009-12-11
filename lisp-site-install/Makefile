@@ -9,8 +9,11 @@ ifeq ($(shell uname),Darwin)
 ifeq ($(shell uname -p),powerpc)
   binary-release = sbcl-1.0.22-powerpc-darwin-binary.tar.bz2
 endif
-ifeq ($(shell uname -p),i686)
+ifeq ($(shell uname -p),i386)
   binary-release = sbcl-1.0.29-x86-darwin-binary-r2.tar.bz2
+  # work-around for bug in make-config.sh which guesses the wrong platform
+  # on OSX 10.4.11, MacBook Pro.
+  d-arch = SBCL_ARCH=x86; export SBCL_ARCH;
 endif 
 ifeq ($(shell uname -p),x86_64)
   binary-release = sbcl-1.0.29-x86_64-darwin-binary-r2.tar.bz2
@@ -26,6 +29,7 @@ endif
 endif
 binary-dir = tar jtf $(binary-release)|grep -o -m1 "[^/]*"
 
+# RedHat custom wget returns an error if file exists
 get-binary:
 	-wget -nc http://downloads.sourceforge.net/sbcl/$(binary-release)
 	tar jxf $(binary-release)
@@ -38,11 +42,11 @@ thread-test:
 
 source-dir = sbcl-1.0.33
 source-release = $(source-dir)-source.tar.bz2
-get-source: $(shell $(binary-dir))
+get-source:
 	-wget -nc http://prdownloads.sourceforge.net/sbcl/$(source-release)
 	tar jxf $(source-release)
 	cp customize-target-features.lisp $(source-dir) #thread support
-	cd $(source-dir); ./make.sh $(shell echo "../`$(binary-dir)`/run-sbcl.sh")
+	cd $(source-dir); $(d-arch) sh make.sh $(shell echo "../`$(binary-dir)`/run-sbcl.sh")
 source-install:
 	@echo "This must be run as root for install into /usr/local"
 	cd $(source-dir); sh install.sh

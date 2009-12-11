@@ -47,12 +47,12 @@ make get-source     # download and compile source, with thread support
 make source-install # install in /usr/local (must be done as root)
 cd ../
 
-# To test for thread support, start up sbcl and type the 
-# command "(find :sb-thread *features*)" then type "(quit)" to exit
+# To test for thread support, start up sbcl and enter the 
+# command "(find :sb-thread *features*)" then enter "(quit)" to exit
 
 # A sample sbcl startup file has been included as sbclrc-sample.
-# You can modify the file (you may need to change the path) and 
-# copy it to your home directory:
+# You will need to change the path to your Andes root directory
+# and copy it to your home directory:
 cp sbclrc-sample ~/.sbclrc
 # Change the path in the sample file to your path.
 
@@ -80,7 +80,7 @@ make install-database
 
 =============== Apache Web Server =================================
 
-# Configure Apache as reverse proxy server, with json-rpc 
+# As root, configure Apache as a reverse proxy server, with json-rpc 
 # error messages.  Add links to DocumentRoot.
 make configure-httpd
 
