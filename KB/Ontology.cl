@@ -109,11 +109,7 @@
 (def-qexp relative-position (relative-position ?to-pt ?from-pt :time ?time)
   :units |m|
   ;; see relative-vel
-  :new-english ;((the) 
-	;	(or 	("position" (property ?to-pt) "relative to" ?from-pt)
-	;	    	((allowed "relative") "position" (property ?to-pt) "with respect to" ?from-pt))
-	;	(time ?time)))
-		(or ((property-object "position" ?to-pt)
+  :new-english (or ((property-object "position" ?to-pt)
 		     (or "relative to" "with respect to") ?from-pt)
 		    ((property-object "relative position" ?to-pt)
 		     (or "from" "with respect to") ?from-pt)
@@ -122,7 +118,7 @@
 
 (def-qexp displacement (displacement ?body :time ?time)
   :units |m|
-  :new-english ((vector-object-time (or "displacement" "disp." "disp") ?body :time ?time))
+  :new-english (vector-object-time (or "displacement" "disp." "disp") ?body :time ?time)
 )
 
 (def-qexp velocity (velocity ?body :time ?time)
@@ -244,8 +240,12 @@
   :units ?vector
   :new-english ((or ((the) ?xyz (or "component" "compo." "compo"))
 		    ((the) (eval (format nil "~A-component" (?xyz))))
-		    ((possessive ?body) (eval (format nil "~A-component" (?xyz))))
-		    ((possessive ?body) (eval (format nil "~A component" (?xyz))))
+		    ((possessive ?body) 
+			;(possessive (or (var (body ?body)) ?body))
+			(eval (format nil "~A-component" (?xyz))))
+		    ((possessive ?body) 
+			;(possessive (or (var (body ?body)) ?body))
+			(eval (format nil "~A component" (?xyz))))
 		    ;((the) (eval (format nil "~A-component" (?xyz))) )
 		)
 		(property ?vector))
@@ -277,7 +277,7 @@
 ;;;;         General phrases
 
 (def-qexp property (property ?body)
-  :new-english ((or "of" "for") (or (var (body ?body)) ?body)))
+  :new-english ("of" (or (var (body ?body)) ?body))) ; "for" is exceptionally used
 
 ;+syjung
 (def-qexp change (change ?property)
@@ -289,101 +289,139 @@
 ;+syjung
 ; possessive "object's"
 (def-qexp possessive (possessive ?body)
-  :new-english (eval (attach-to-last-element (new-english-find ?body) "'s")))
+  ;:new-english (eval (attach-to-last-element (new-english-find ?body) "'s")))
+  ;:new-english (eval (attach-to-last-element (new-english-find (or (var (body ?body)) ?body)) "'s")))
+  ;:new-english (eval (attach-to-element ?body (new-english-find '(or (var (body ?body)) ?body)) "'s")))
+  :new-english (eval (attach-to-element ?body '(or (var (body ?body)) ?body) "'s")))
+  ;:new-english (eval (attach-to-element ?body (new-english-find ?body) "'s")))
 
 ;+syjung
-; (attach-to-last-element '(preferred (motorcycle)) "'s") 
-; = '(preferred ("motorcycle's"))
-(defun attach-to-last-element (nested-list to-attach)
+; (attach-to-element 'crate '(or (var (body crate)) crate) "'s")
+; = '(or (var (body "crate's")) "crate's")
+(defun attach-to-element (e nested-list to-attach)
 	(if (atom nested-list)
-	    (format nil "~A~A" nested-list to-attach)
+	    (if (string= nested-list e)
+	    	(format nil "~A~A" nested-list to-attach)
+		nested-list)
 	    (if (cdr nested-list)
-	        (list (car nested-list) (attach-to-last-element (cdr nested-list) to-attach)) 
-	        (list (attach-to-last-element (car nested-list) to-attach) )))) 
+	        (adjoin (attach-to-element e (car nested-list) to-attach) (attach-to-element e (cdr nested-list) to-attach)) 
+		(list (attach-to-element e (car nested-list) to-attach) ))))
+	
 ;+syjung
 (def-qexp time-type (time-type ?time)
   :new-english (eval (if (time-intervalp ?time)
-			 '(preferred (or "average" "avg." "avg" "constant" "const." "const"))
-			 '(allowed (or "instantaneous" "instant." "instant" "initial" "init." "init" "final" "terminal"))))
+			 '(preferred (or "average" "avg." "avg")) ; "constant" "const." "const" 
+			 '(allowed (or "instantaneous" "instant." "instant"))));  "initial" "init." "init" "final" "terminal"
+)
+(def-qexp time-type-prop (time-type-prop ?time ?property)
+  :new-english (eval (when (check-time-type ?property)
+			'(time-type ?time) ))
 )
 ;+syjung
+(defun check-time-type (?property)
+	(or (and (not (atom ?property))
+		   (exist-intersection '("velocity" "speed" "acceleration" "momentum") ?property))
+	    (and (atom ?property)
+		   (exist-member ?property '("velocity" "speed" "acceleration" "momentum")))))
+
+(defun exist-member (element string-list)
+	(loop for e in string-list
+		when (string= e element)
+		return e))
+(defun exist-intersection (string-list1 string-list2)
+	(loop for e in string-list1
+		when (exist-member e string-list2)
+		return e))
+;+syjung
+;ex) "the value of average speed of the car at time T1"
+;    "the car's average speed at time T1" 
 (def-qexp property-object-time (property-object-time ?property ?body :time ?time)
   :new-english ((allowed ((the) "value of")) 
-		(or ( (the) (time-type ?time) 
+		(or ( (the) 
+		      (time-type-prop ?time ?property) 
 		      ?property  ; "speed"
 		      (and (preferred (property ?body)) (time ?time))) 
 		    ( (possessive ?body)
-		      (time-type ?time)
+		      ;(possessive (or (var (body ?body)) ?body))
+		      (time-type-prop ?time ?property)
 		      ?property ; "speed"
-		      (time ?time)
-		 )))
-)
+		      (time ?time)))))
 ;+syjung
+;ex) "the average velocity of the car between T0 and T1"
+;    "the car's average velocity between T0 and T1"
+;    "the car's displacement between T0 and T1"
 (def-qexp vector-object-time (vector-object-time ?property ?body :time ?time)
-  :new-english (;(allowed ((the) "value of")) 
-		;(preferred ((the) 
-		    ;(or "magnitude" "mag" "mag." 
-			;"direction" "dir" "dir." 
-			;"x-component" "y-component" "z-component"
-		;    ) "of")) 
-		(or ( (the) (time-type ?time) 
+  :new-english ( (or ((the) 
+		      (time-type-prop ?time ?property)
 		      ?property  ; "velocity"
 		      (and (preferred (property ?body)) (time ?time))) 
-		    ( (possessive ?body)
-		      (time-type ?time)
+		     ((possessive ?body)
+		      ;(possessive (or (var (body ?body)) ?body))
+		      (time-type-prop ?time ?property)
 		      ?property (allowed "vector"); "velocity"
-		      (time ?time)
-		 )))
+		      (time ?time))))
 )
 ;+syjung
+;ex) "the net force exerted by the man"
 (def-qexp property-object-agent (property-object-agent ?property ?body ?agent)
   :new-english ((allowed ((the) "value of")) 
-		(or ( (the) (time-type ?time) 
+		(or ( (the) 
+		      (time-type-prop ?time ?property)
 		      ?property  
 		      (and (preferred (property ?body)) 
 			   (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
 				       ?agent ))) )
 		    ( (possessive ?body)
-		      (time-type ?time)
+		      ;(possessive (or (var (body ?body)) ?body))
+		      (time-type-prop ?time ?property)
 		      ?property 
 		      (and (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
 				       ?agent ))))
-		))
-)
+		)))
 ;+syjung
+;ex) "the net force exerted by the man at time T1"
 (def-qexp property-object-agent-time (property-object-agent-time ?property ?body ?agent :time ?time)
   :new-english ((allowed ((the) "value of")) 
-		(or ( (the) (time-type ?time) 
+		(or ( (the) 
+		      (time-type-prop ?time ?property)
 	              ?property  
-		      (and (preferred (property ?body)) 
+		      (and (preferred (property ?body))
 			   (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
 				       ?agent ))
 		 	   (time ?time))) 
 		    ( (possessive ?body)
-		      (time-type ?time)
+		      ;(possessive (or (var (body ?body)) ?body))
+		      (eval (when (check-time-type ?property)
+			      (time-type-prop ?time)))
 		      ?property 
 		      (and (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
 				       ?agent ))
-		           (time ?time)))
-		))
+		           (time ?time)))))
 )
 ;+syjung
+; optime : time is optional 
+;ex) "the net force exerted by the man at time T1"
 (def-qexp property-object-optime (property-object-optime ?property ?body :time ?time)
   :new-english ((allowed ((the) "value of")) 
 		(or 
 		    ( (the) ?property  		; "mass"
 		      (and (preferred (property ?body)) (time ?time)) )
 		    ( (possessive ?body)
+		      ;(possessive (or (var (body ?body)) ?body))
 		      ?property 		; "mass"
-		      (time ?time))
-		))
+		      (time ?time))))
 )
 ;+syjung
+;ex) "the mass of the crate"
+;    "the crate's mass"
+;    "the value of crate's mass"
 (def-qexp property-object (property-object ?property ?body)
   :new-english ((allowed ((the) "value of")) 
 		(or ( (the) ?property
 		      (preferred (property ?body)) ) 
-		    ( (possessive ?body) ?property)
+		    ( (possessive ?body) 
+		      ;(possessive (or (var (body ?body)) ?body))
+		      ?property)
 		))
 )
 ;+syjung
@@ -466,6 +504,7 @@
   :new-english ((the) (preferred "duration of") "time"
 		(time ?time)))
 
+; ex) "the value of the average speed of the aircraft between T0 and T1"
 (def-qexp speed (speed ?body :time ?time)
   :symbol-base |v|     
   :short-name "speed"	

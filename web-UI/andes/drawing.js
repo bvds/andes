@@ -242,8 +242,8 @@ dojo.provide("andes.drawing");
                                   // Add event to Error box default OK button.
                                   // This opens the general introduction.
                                   // It should be disconnected when the 
-				  // dialog box is closed!  See bug #1628
-				  dojo.connect(dojo.byId("andesButtonPageDefault"),
+								  // dialog box is closed!  See bug #1628
+						  dojo.connect(dojo.byId("andesButtonPageDefault"),
 					       "click",
 					       function(){
 			                          andes.principles.review('introduction.html','Introduction');						 
@@ -359,6 +359,21 @@ dojo.provide("andes.drawing");
 		},
 
 		onLoad: function(data){
+			// check for highest numerical ID 
+			// start from there
+			var getNum = function(m){
+				if(!m.id){ return 0; }
+				var ar = m.id.match(/\d/g);
+				if(!ar || !ar.length){ return 0; }
+				return parseInt(ar.join(""),10);
+			}
+			var idNum = 0;
+			dojo.forEach(data, function(m){
+				idNum = Math.max(getNum(m), idNum);	
+			});
+			idNum++;
+			dojox.drawing.util.common.idSetStart(idNum);
+			
 			// summary:
 			//	Project Data Loaded
 			this._initialData = data;
