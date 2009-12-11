@@ -28,10 +28,11 @@ else
   echo "Unknown operating system"
 endif
 endif
+conf-file = $(shell (/usr/sbin/httpd -v | grep Apache/1. >> /dev/null) && echo -1)
 
 configure-httpd:
 	@echo "This must be run as root"
-	cp andes-server.conf $(httpd-conf-dir)
+	cp andes-server$(conf-file).conf $(httpd-conf-dir)
 	ln -s `pwd`/web-UI $(httpd-document-root)
 	ln -s `pwd`/review $(httpd-document-root)
 	ln -s `pwd`/images $(httpd-document-root)
