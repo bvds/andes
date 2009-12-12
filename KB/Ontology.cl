@@ -484,12 +484,18 @@
 			   (time ?time)))
 		))
 )
+; ex) "the duration of time between T0 and T1"
+;     "the time duration between T0 and T1"
+;     "the duration between T0 and T1"
 (def-qexp duration (duration ?time)
   :symbol-base |t|     
   :short-name "duration of time"	
   :units |s|
   :restrictions positive
-  :new-english ((the) (preferred "duration of") "time"
+  :new-english ((the) 
+		(or ((preferred "duration of") "time")
+		    ((preferred "time") "duration")
+		    ("duration"))
 		(time ?time)))
 
 ; ex) "the value of the average speed of the aircraft between T0 and T1"
@@ -733,7 +739,8 @@
   :symbol-base |h|     
   :short-name "height"	
   :units |m|
-  :new-english ((the) (allowed "maximum") "height"
+  :new-english ((the) ;(allowed "maximum") 
+		"height"
 		(and (property ?body)
 		     ;; Assume there is no user defined variable for zero-height
 		     (allowed ((or "above" "relative to") 
