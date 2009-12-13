@@ -92,11 +92,12 @@ make configure-httpd
 
 # Make and build the javascript.  First we need to get 
 # the Dojo library, then we need to make an Andes-specific
-# build.  Right now, this uses the development version of Dojo;
-# we should later switch to using releases of Dojo.
+# build.  The master branch uses the development version
+# while the stable branch uses the latest release.
 make install-dojo
 
-#   verify that the file web-UI/index.html has isDebug = false;
+# If you are in the stable branch, verify that the file 
+# web-UI/index.html has isDebug = false;
 
 ====================== Run Help Server ===============================
 
