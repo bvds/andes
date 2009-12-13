@@ -78,6 +78,10 @@ make install-site-libraries
 # Set up tables in database:
 make install-database
 
+# Finally, the lisp package clsql will need the mysql header files.  
+# In Linux systems, these are provided by mysql-devel; enter 
+# "rpm -q mysql-devel" to see if it has been installed.
+
 =============== Apache Web Server =================================
 
 # As root, configure Apache as a reverse proxy server, with json-rpc 
@@ -105,6 +109,10 @@ make install-dojo
 ;; then type "sbcl" to start up lisp, then:
 (rhelp)
 (start-help)
+;; *******  If this fails, due to a link failure, try:
+;; *******  (clsql:push-library-path "/usr/lib64/mysql/")
+;; *******  and run (start-help) again.  See Bug #1635
+;; *******  http://www.andestutor.org/bugzilla/show_bug.cgi?id=1635
 ;; At this point, you can type the screen commands ctl-a ctl-d 
 ;; to detach from the lisp process; see the documentation for screen.
 ;; By default, the help server will log in file "help-server.log"
