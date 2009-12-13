@@ -86,6 +86,8 @@ install-clsql:
 create-site-libraries:
 	chmod -R go+r /usr/local/lib/sbcl/site/md5*
 	-cd /usr/local/lib/sbcl/site; rm */*.fasl; rm */*/*.fasl
+	-cd /usr/local/lib/sbcl/site; rm */*/*.so
+	-cd /usr/local/lib/sbcl/site; rm */*/*.dylib
 	tar zcf sbcl-site-libraries.tgz --directory=/usr/local/lib/sbcl/ site site-systems
 
 #
