@@ -600,8 +600,11 @@
 ;; which may be unknown
 (def-qexp impulse (impulse ?body ?agent :time ?time)
   :units |N.s|
-  :nlg-english ("Impulse on ~A due to ~A" 
-	    (nlg ?body 'at-time ?time) (nlg ?agent 'agent)))
+  ;:nlg-english ("Impulse on ~A due to ~A" (nlg ?body 'at-time ?time) (nlg ?agent 'agent)))
+  :new-english ((the) "impulse"
+		(and (preferred ("on" ?body))
+		     (preferred ("due to" ?agent))
+		     (time ?time) )))
 
 ;; Draw a "given" impulse at a certain direction. 
 (defoperator draw-impulse-given-dir (?b ?agent ?t)

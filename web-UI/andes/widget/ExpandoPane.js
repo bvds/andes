@@ -21,7 +21,7 @@ dojo.declare("andes.widget.ExpandoPane", dojox.layout.ExpandoPane, {
 		this.openButtonNode = dojo.create("div", {id:"helpPaneOpenButton", innerHTML:"&nbsp;"});
 		
 		dojo.style(this.openButtonNode, "display", "none");
-		dojo.place(this.openButtonNode, dojo.byId("drawingPane"), "last");
+		dojo.place(this.openButtonNode, dojo.byId("drawing"), "last");
 		dojo.connect(this.openButtonNode, "onclick", this, "openHelp");
 		
 		if(dojo.isIE){

@@ -95,7 +95,7 @@
 ;;; (diff-prbs (Default-ProblemFile-Path) #P"/home/bvds/Andes2-old/solutions/" '(lmom1a lmom1b))
 (defun diff-prbs (path1 path2 &rest topics)  
   "compare prb files in two directories."
-  (let (Errs)
+  (let (Errs englishes)
     (dolist (P (choose-working-probs topics))
       (format t "Comparing ~A:  " (problem-name P)) 
       (finish-output)			;flush output buffer
@@ -108,11 +108,16 @@
 	  (error (c) (setf E (format nil "File read error: ~A" c))))
 	(when (null E) (setf E (diff-problem-solutions P1 P2)))
 	(format t "~:[OK~;~A~]~%" E E)
-	(when E (push (list (Problem-Name P) (format nil "~A" E)) Errs))))
+	(when E (push (list (Problem-Name P) (format nil "~A" E)) Errs))
+	(when (and p1 p2
+		   (not (unify (problem-English p1) (problem-English p2))))
+	  (push (problem-name P) englishes))))
     ;; dump list of discrepencies 
     (format T "~&Discrepencies in: ~{~W ~}~%" (mapcar #'first Errs))
     (format T "Discrepencies:~%")
-    (pprint Errs)))
+    (pprint Errs)
+    (format T "~&Englishes:~%")
+    (pprint Englishes)))
 
 (defun andes-init ()
   "initialize parser and start up solver"

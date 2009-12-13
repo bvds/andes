@@ -407,9 +407,9 @@
 	 ;; Can't put in a tutor turn, since the turn might be good.
 	 (when (> (car (car best)) (* 0.2 (length (match:word-parse student))))
 	   (let ((phr (format nil 
-			      "I interpreted your definition ~:[~;of <var>~A</var> ~]as:&nbsp; ~A."
-			      (> (length (StudentEntry-symbol entry)) 0)
-			      (StudentEntry-symbol entry)
+			      "I interpreted your definition ~@[of <var>~A</var> ~]as:&nbsp; ~A."
+			      (when (> (length (StudentEntry-symbol entry)) 0)
+				(StudentEntry-symbol entry))
 			      (match:word-string (expand-vars 
 						  (SystemEntry-model sysent)))
 			      )))
@@ -538,14 +538,16 @@
 
 
 (defun pull-out-quantity (symbol text)
-  "Pull the quantity phrase out of a definition:  should match variablname.js"
+  "Pull the quantity phrase out of a definition:  should match variablename.js"
   (when symbol
     (if (not (search symbol text))
 	(warn "Bad symbol definition, ~S should be found in ~S."
 	      symbol text)
+	;; Find first occurence of symbol in text and take rest of text.
 	;; this should be done as a parser.
 	(let* ((si (+ (search symbol text) (length symbol)))
 	       (nosym (string-left-trim match:*whitespace* (subseq text si))))
+	  ;; Find any subsequent equality in string.
 	  ;; The empty string is a catch-all in case there is no match
 	  (dolist (equality '("is " ":" "=" "be " "as " "to be " ""))
 	    (when (and (>= (length nosym) (length equality))

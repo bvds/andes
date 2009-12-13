@@ -40,16 +40,19 @@ identify --version
 # http://sourceforge.net/projects/sbcl/files/
 # You will need a version that includes thread support.  However,
 # recent binary releases of sbcl do not include thread support.
-# In that case, do the following:
-#   1. Download a binary release and install it (for compiling source code).
-#   2. Download the latest source release.  Follow instructions in Section 2.2
-#      of the INSTALL file for enabling thread support.  Compile and install.
-# To test for thread support, start up sbcl and type the 
-# command "(find :sb-thread *features*)"
+cd lisp-site-install
+make get-binary     # download a binary release
+make thread-test    # verify threading is missing (otherwise, just install)
+make get-source     # download and compile source, with thread support
+make source-install # install in /usr/local (must be done as root)
+cd ../
+
+# To test for thread support, start up sbcl and enter the 
+# command "(find :sb-thread *features*)" then enter "(quit)" to exit
 
 # A sample sbcl startup file has been included as sbclrc-sample.
-# You can modify the file (you may need to change the path) and 
-# copy it to your home directory:
+# You will need to change the path to your Andes root directory
+# and copy it to your home directory:
 cp sbclrc-sample ~/.sbclrc
 # Change the path in the sample file to your path.
 
@@ -75,9 +78,13 @@ make install-site-libraries
 # Set up tables in database:
 make install-database
 
+# Finally, the lisp package clsql will need the mysql header files.  
+# In Linux systems, these are provided by mysql-devel; enter 
+# "rpm -q mysql-devel" to see if it has been installed.
+
 =============== Apache Web Server =================================
 
-# Configure Apache as reverse proxy server, with json-rpc 
+# As root, configure Apache as a reverse proxy server, with json-rpc 
 # error messages.  Add links to DocumentRoot.
 make configure-httpd
 
@@ -89,11 +96,12 @@ make configure-httpd
 
 # Make and build the javascript.  First we need to get 
 # the Dojo library, then we need to make an Andes-specific
-# build.  Right now, this uses the development version of Dojo;
-# we should later switch to using releases of Dojo.
+# build.  The master branch uses the development version
+# while the stable branch uses the latest release.
 make install-dojo
 
-#   verify that the file web-UI/index.html has isDebug = false;
+# If you are in the stable branch, verify that the file 
+# web-UI/index.html has isDebug = false;
 
 ====================== Run Help Server ===============================
 
@@ -101,6 +109,10 @@ make install-dojo
 ;; then type "sbcl" to start up lisp, then:
 (rhelp)
 (start-help)
+;; *******  If this fails, due to a link failure, try:
+;; *******  (clsql:push-library-path "/usr/lib64/mysql/")
+;; *******  and run (start-help) again.  See Bug #1635
+;; *******  http://www.andestutor.org/bugzilla/show_bug.cgi?id=1635
 ;; At this point, you can type the screen commands ctl-a ctl-d 
 ;; to detach from the lisp process; see the documentation for screen.
 ;; By default, the help server will log in file "help-server.log"
