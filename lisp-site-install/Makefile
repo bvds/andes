@@ -70,9 +70,9 @@ source-install:
 #  So we include a local copy which we patch and install in the system-wide
 #  sbcl libraries.
 #
-clsql-v = 4.0.5
+clsql-v = 4.2.0
 install-clsql:
-	tar zxf clsql-$(clsql-v).tar.gz
+	tar zxf clsql-$(clsql-v).tgz
 	patch -p0 < clsql-$(clsql-v).patch
 	mv clsql-$(clsql-v) /usr/local/lib/sbcl/site
 	cd /usr/local/lib/sbcl/site-systems; ln -s ../site/clsql-$(clsql-v)/*.asd .
@@ -86,6 +86,8 @@ install-clsql:
 create-site-libraries:
 	chmod -R go+r /usr/local/lib/sbcl/site/md5*
 	-cd /usr/local/lib/sbcl/site; rm */*.fasl; rm */*/*.fasl
+	-cd /usr/local/lib/sbcl/site; rm */*/*.so
+	-cd /usr/local/lib/sbcl/site; rm */*/*.dylib
 	tar zcf sbcl-site-libraries.tgz --directory=/usr/local/lib/sbcl/ site site-systems
 
 #
