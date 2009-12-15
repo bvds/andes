@@ -22,16 +22,16 @@ ifeq ($(shell uname),Darwin)
 else
 ifeq ($(shell uname),Linux)
   httpd-document-root = /var/www/html
-  httpd-conf-dir = $(if $(shell test -e /etc/apache2 && echo "1"),\
+  httpd-conf-dir = $(if $(shell test -e /etc/apache2 && echo 1),\
                    /etc/apache2,/etc/httpd)/conf.d
 else
-  echo "Unknown operating system"
+  $(error "Unknown operating system")
 endif
 endif
 conf-file = $(shell (/usr/sbin/httpd -v | grep Apache/1. >> /dev/null) && echo -1)
 
 configure-httpd:
-	@echo "This must be run as root"
+	@echo "Please run with superuser privileges."
 	cp andes-server$(conf-file).conf $(httpd-conf-dir)
 	ln -s `pwd`/web-UI $(httpd-document-root)
 	ln -s `pwd`/review $(httpd-document-root)
