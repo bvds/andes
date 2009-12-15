@@ -14,11 +14,11 @@ ifeq ($(shell uname -p),i386)
   # work-around for bug in make-config.sh which guesses the wrong platform
   # on OSX 10.4.11, MacBook Pro.
   d-arch = SBCL_ARCH=x86; export SBCL_ARCH;
-endif 
+endif
 ifeq ($(shell uname -p),x86_64)
   binary-release = sbcl-1.0.29-x86_64-darwin-binary-r2.tar.bz2
 endif
-endif 
+endif
 ifeq ($(shell uname),Linux)
 ifeq ($(shell uname -p),i686)
   binary-release = sbcl-1.0.33-x86-linux-binary.tar.bz2
@@ -27,6 +27,9 @@ ifeq ($(shell uname -p),x86_64)
   binary-release = sbcl-1.0.29-x86_64-linux-binary-r2.tar.bz2
 endif 
 endif
+ifndef binary-release
+  $(error "Unknown architecture")
+endif 
 binary-dir = tar jtf $(binary-release)|grep -o -m1 "[^/]*"
 
 # RedHat custom wget returns an error if file exists
@@ -35,7 +38,7 @@ get-binary:
 	tar jxf $(binary-release)
 	cd `$(binary-dir)`; chmod u+x run-sbcl.sh
 binary-install:
-	@echo "This must be run as root for install into /usr/local"
+	@echo "Needs superuser privileges for install into /usr/local"
 	cd `$(binary-dir)`; sh install.sh
 thread-test:
 	cd `$(binary-dir)`; echo '(format t "threading is ~:[not~;~] supported~%" (find :sb-thread *features*)) (quit)' | ./run-sbcl.sh --noinform --noprint
@@ -48,7 +51,7 @@ get-source:
 	cp customize-target-features.lisp $(source-dir) #thread support
 	cd $(source-dir); $(d-arch) sh make.sh $(shell echo "../`$(binary-dir)`/run-sbcl.sh")
 source-install:
-	@echo "This must be run as root for install into /usr/local"
+	@echo "Needs superuser privileges for install into /usr/local"
 	cd $(source-dir); sh install.sh
 
 #  The following are instructions for creating the various libraries
@@ -94,6 +97,8 @@ create-site-libraries:
 #  Install sbcl site libraries from copy in git.
 #
 install-site-libraries:
-	@echo "This must be run as \"su root\""
+	@echo "Needs superuser privileges for install into /usr/local/lib/sbcl"
 	tar zxf sbcl-site-libraries.tgz -C /usr/local/lib/sbcl
 	chown -R $(USER) /usr/local/lib/sbcl
+	@echo "The user" $(USER) "will be able to compile the libraries." 
+
