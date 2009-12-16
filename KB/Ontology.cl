@@ -454,8 +454,10 @@
 			 (new-english-find ?time))))
 
 (def-qexp during (during ?ta ?tb)
-  :new-english (or ("between" (eval (moment ?ta)) (or "and" "&") 
-			      (eval (moment ?tb)))
+  :new-english (or ((or "between" "during") 
+			(allowed ((the) (allowed "time") "interval") )
+			(eval (moment ?ta)) (or "and" "&") 
+			(eval (moment ?tb)))
 		   ((or "from" "during") (eval (moment ?ta)) 
 		    (or "to" "until") (eval (moment ?tb)))))
 
