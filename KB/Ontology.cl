@@ -105,14 +105,20 @@
   :nlg-english ("~A~:[~2*~;~A~A~] ~A" (identity ?value) ?err (code-char 177) ?err (translate-units ?unit)))
 
 ;;;; vector quantities:
-
+; ex) "the position of the ball relative to the observer"
+;     "the ball's relative position to the observer"
+;     "the ball's position with respect to the observer"
 (def-qexp relative-position (relative-position ?to-pt ?from-pt :time ?time)
   :units |m|
   ;; see relative-vel
   :new-english (or ((property-object "position" ?to-pt)
 		     (or "relative to" "with respect to") ?from-pt)
-		    ((property-object "relative position" ?to-pt)
+		   ((property-object "relative position" ?to-pt)
 		     (or "from" "with respect to") ?from-pt)
+		   ((possessive ?to-pt) "relative position"
+		     (or "from" "with respect to") ?from-pt)
+		   ((possessive ?to-pt) "position"
+		     (or "relative to" "with respect to") ?from-pt)
 		)
 )
 
@@ -148,7 +154,10 @@
 		(time-type ?time)
 		(and (preferred (property ?body))
 		     (time ?time))))
-
+; ex) "the constant normal force that the man acts on the crate"
+;     "the constant normal force of the man acting on the crate"
+;     "the tension in the wire" in s13 ("wire" is not a defined object in s13)
+;question in s13: why the wire is an agent? and the bar is an object?
 (def-qexp force (force ?body ?agent ?type :time ?time)
   :units N
   :new-english ((the) ;(time-type ?time)
@@ -158,8 +167,18 @@
 		     	  (preferred (agent ?agent))
 		     	  (time ?time))
 		    ((allowed (or "that" "with which"))
-		     (the) ?agent 
-		     (or "exerts on" "acts on") (the) ?body (time ?time))))
+		     ?agent 
+		     (or "exerts on" "acts on") ?body (time ?time))
+		    (   (eval (case ?type 
+				; "the tension in the wire" in s13 (but "wire" is not defined in s13)
+				(tension '(allowed "in"))
+				; "the frictional force on the aircraft"
+				; "the frictional force against the aircraft"
+				(friction '(allowed "on" "against"))
+			))
+		    	?body 
+			(time ?time))
+		))
 )
 (defun force-types (type)
   (case type 
@@ -168,7 +187,7 @@
     (gravitational '(or "force of gravity"
 		     ((or "gravitational" "weight" "grav." "grav") "force")))
     (normal '(or ("normal" "upward supporting") "force"))
-    (tension '((or "tension" "pulling") "force"))
+    (tension '(or "tension" "pulling force"))
     (applied '((allowed "applied") "force")) ;catch-all force
     (kinetic-friction '(((preferred "kinetic") (or "friction" "frictional"))
 			"force"))
@@ -252,12 +271,13 @@
 (def-qexp mag (mag ?vector)
   :units ?vector
   :restrictions nonnegative
-  :new-english ((allowed "the value of") (the) (or "magnitude" "mag." "mag" "strength") ; "length"
+  :new-english ((allowed "the value of") 
+		(the) (or "magnitude" "mag." "mag" (allowed "strength")) ; "length"
 		(property ?vector)))
 
 (def-qexp dir (dir ?vector)
   :units |deg|
-  :new-english ((the) (or "direction" "dir." "dir")
+  :new-english ((the) (or "direction" "dir." "dir" (allowed "angle"))
 		(property ?vector)))
 
 ;; this is only used by implicit-eqns, so it should never be visible
@@ -793,8 +813,10 @@
 		(time ?time)))
 
 (def-qexp compound (compound orderless . ?bodies)
-  :new-english ((allowed "a compound of") 
-		(conjoin (or "and" "&") . ?bodies)))
+  :new-english (
+		(allowed "a compound of") 
+		(conjoin (or "and" "&") . ?bodies)
+		))
 
 
 (def-qexp system (system . ?bodies)
