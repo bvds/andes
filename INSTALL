@@ -44,7 +44,7 @@ cd lisp-site-install
 make get-binary     # download a binary release
 make thread-test    # verify threading is missing (otherwise, just install)
 make get-source     # download and compile source, with thread support
-make source-install # install in /usr/local (must be done as root)
+make source-install # install in /usr/local (do as superuser)
 cd ../
 
 # To test for thread support, start up sbcl and enter the 
@@ -56,14 +56,15 @@ cd ../
 cp sbclrc-sample ~/.sbclrc
 # Change the path in the sample file to your path.
 
-#Install site-wide sbcl libraries:
-su root
+# Install site-wide sbcl libraries.  This should be executed
+# with superuser privileges by the user who will be running Andes.
 make install-site-libraries
 
 ============================ MySql =======================================
 
-# To save session data, we use MySql.  First, mysql server must be started.
-# As root:
+# To save session data, we use MySql.  
+#First, mysql server must be started.
+# As superuser:
   /sbin/chkconfig mysqld on
   /sbin/service mysqld start
 # Then set the root password and restart:
@@ -78,13 +79,22 @@ make install-site-libraries
 # Set up tables in database:
 make install-database
 
+# Finally, the lisp package clsql will need the mysql header files.  
+# In Linux systems, these are provided by mysql-devel; enter 
+# "rpm -q mysql-devel" to see if it has been installed.
+
+# If you need to install mysql or mysql-devel, a number of rpm
+# packages fail to update the dynamic linker cache.  In that case,
+# you will need to run "/bin/ldconfig" to get mysql into the cache.
+
 =============== Apache Web Server =================================
 
-# As root, configure Apache as a reverse proxy server, with json-rpc 
-# error messages.  Add links to DocumentRoot.
-make configure-httpd
+# Configure Apache as a reverse proxy server, with json-rpc 
+# error messages and add links to DocumentRoot.
+# Run with superuser privileges:
+make configure-httpd  
 
-# Start up Apache.  As root:
+# Start up Apache.  As superuser:
   /sbin/chkconfig httpd on
   /sbin/service httpd start
 
@@ -92,11 +102,12 @@ make configure-httpd
 
 # Make and build the javascript.  First we need to get 
 # the Dojo library, then we need to make an Andes-specific
-# build.  Right now, this uses the development version of Dojo;
-# we should later switch to using releases of Dojo.
+# build.  The master branch uses the development version
+# while the stable branch uses the latest release.
 make install-dojo
 
-#   verify that the file web-UI/index.html has isDebug = false;
+# If you are in the stable branch, verify that the file 
+# web-UI/index.html has isDebug = false;
 
 ====================== Run Help Server ===============================
 
@@ -104,6 +115,11 @@ make install-dojo
 ;; then type "sbcl" to start up lisp, then:
 (rhelp)
 (start-help)
+
+;; To test the Help Server, point a web browser to 
+;;   http://hostname/web-UI/login.html
+;; where hostname is the name of the server, and try to log in.
+
 ;; At this point, you can type the screen commands ctl-a ctl-d 
 ;; to detach from the lisp process; see the documentation for screen.
 ;; By default, the help server will log in file "help-server.log"
