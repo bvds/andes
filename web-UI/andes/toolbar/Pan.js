@@ -24,6 +24,7 @@ dojox.drawing.ui.dom.Pan = dojox.drawing.util.oo.declare(
 	dojox.drawing.plugins._Plugin,
 	function(options){
 		
+		
 		this.domNode = options.node;
 		var _scrollTimeout;
 		dojo.connect(this.domNode, "click", this, "onSetPan");
@@ -49,8 +50,13 @@ dojox.drawing.ui.dom.Pan = dojox.drawing.util.oo.declare(
 		type:"dojox.drawing.ui.dom.Pan",
 		
 		onKeyUp: function(evt){
-			if(evt.keyCode == 32){
-				this.onSetPan(false);
+			switch(evt.keyCode){
+				case 32:
+					this.onSetPan(false);
+					break;
+				case 39: case 37: case 38: case 40:
+					clearInterval(this._timer);
+					break;
 			}
 		},
 		
@@ -59,20 +65,48 @@ dojox.drawing.ui.dom.Pan = dojox.drawing.util.oo.declare(
 				case 32:
 					this.onSetPan(true);
 				case 39:
-					this.canvas.domNode.parentNode.scrollLeft += 10;
+					this.screenScroll("right");
 					break;
 				case 37:
-					this.canvas.domNode.parentNode.scrollLeft -= 10;
+					this.screenScroll("left");
 					break;
 				case 38:
-					this.canvas.domNode.parentNode.scrollTop -= 10;
+					this.screenScroll("up");
 					break;
 				case 40:
-					this.canvas.domNode.parentNode.scrollTop += 10;
+					this.screenScroll("down");
 					break;
 			}
 		},
 		
+		interval: 20,
+		
+		screenScroll: function(dir){
+			if(this._timer) { clearInterval(this._timer);};
+			this._timer = setInterval(dojo.hitch(this, dir),this.interval);	
+		},
+		
+		right: function(){
+			this.canvas.domNode.parentNode.scrollLeft += 10;
+		},
+		
+		left: function(){
+			this.canvas.domNode.parentNode.scrollLeft -= 10;
+		},
+		
+		up: function(){
+			this.canvas.domNode.parentNode.scrollTop -= 10;
+		},
+		
+		down: function(){
+			this.canvas.domNode.parentNode.scrollTop += 10;
+		},
+		
+		
+		message: function(){
+			console.warn("message going\n");
+		},
+				
 		onSetPan: function(/*Boolean | Event*/ bool){
 			if(bool === true || bool === false){
 				this.selected = !bool;
