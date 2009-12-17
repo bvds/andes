@@ -259,10 +259,12 @@
   :units ?vector
   :new-english ((or ((the) ?xyz (or "component" "compo." "compo"))
 		    ((the) (eval (format nil "~A-component" ?xyz)))
-		    ((possessive ?body) 
-			(eval (format nil "~A-component" ?xyz)))
-		    ((possessive ?body) 
-			(eval (format nil "~A component" ?xyz)))
+		    ; possessive is not allowed. ex) "the driver's x-component of force on the driver"
+		    ;
+		    ;((possessive ?body) 
+		    ;	(eval (format nil "~A-component" ?xyz)))
+		    ;((possessive ?body) 
+		    ;	(eval (format nil "~A component" ?xyz)))
 		    ;((the) (eval (format nil "~A-component" (?xyz))) )
 		)
 		(property ?vector))
