@@ -207,7 +207,7 @@
   )
   :hint
   ((bottom-out (string "~A and define a variable for ~A."
-		       (*text-tool-action* begin-sentence)
+		       ((begin-sentence *text-tool-action*) eval)
 		       ((duration ?interval) def-np)))
    ))
 
@@ -232,7 +232,7 @@
    (define-var (speed ?b :time ?t)))
   :hint
   ((bottom-out (string "~A and define a variable for the speed of ~a ~a." 
-		       (*text-tool-action* begin-sentence)
+		       ((begin-sentence *text-tool-action*) eval)
 		       ?b (?t pp)))
    ))
 
@@ -254,7 +254,7 @@
    (define-var (distance ?b :time ?interval)))
   :hint
   ((bottom-out (string "~A and define a variable for the distance traveled by ~a ~a." 
-		       (*text-tool-action* begin-sentence)
+		       ((begin-sentence *text-tool-action*) eval)
 		       ?b ?interval))
    ))
 
