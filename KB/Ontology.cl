@@ -357,14 +357,14 @@
 (def-qexp property-object-time (property-object-time ?property ?body :time ?time)
   :new-english ((allowed ((the) "value of")) 
 		(the) 
-		(or ( (time-type-prop ?time ?property) 
-		      ?property  ; "speed"
-		      (and (preferred (property ?body)) (time ?time))) 
-		    (eval (when (/= (car ?body) 'compound) 
-		      ( (possessive ?body)
+		(or ((time-type-prop ?time ?property) 
+		     ?property  ; "speed"
+		     (and (preferred (property ?body)) (time ?time))) 
+		    (eval (when (and (not (atom ?body)) (not (eq (car ?body) 'compound)))
+		      '( (possessive ?body)
 		        (time-type-prop ?time ?property)
 		        ?property ; "speed"
-		        (time ?time))))))
+		        (time ?time)))))))
 ;+syjung
 ;ex) "the average velocity of the car between T0 and T1"
 ;    "the car's average velocity between T0 and T1"
@@ -374,10 +374,11 @@
 		 (or ((time-type-prop ?time ?property)
 		      ?property  ; "velocity"
 		      (and (preferred (property ?body)) (time ?time))) 
-		     ((possessive ?body)
-		      (time-type-prop ?time ?property)
-		      ?property (allowed "vector"); "velocity"
-		      (time ?time))))
+		     (eval (when (and (not (atom ?body)) (not (eq (car ?body) 'compound)))
+		      '((possessive ?body)
+		        (time-type-prop ?time ?property)
+		        ?property (allowed "vector"); "velocity"
+		        (time ?time))))))
 )
 ;+syjung
 ;ex) "the net force exerted by the man"
@@ -389,12 +390,13 @@
 		      (and (preferred (property ?body)) 
 			   (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
 				       ?agent ))) )
-		    ( (possessive ?body)
-		      (time-type-prop ?time ?property)
-		      ?property 
-		      (and (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
+		    (eval (when (and (not (atom ?body)) (not (eq (car ?body) 'compound)))
+		     '( (possessive ?body)
+		        (time-type-prop ?time ?property)
+		        ?property 
+		        (and (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
 				       ?agent ))))
-		)))
+		)))))
 ;+syjung
 ;ex) "the net force exerted by the man at time T1"
 (def-qexp property-object-agent-time (property-object-agent-time ?property ?body ?agent :time ?time)
@@ -406,13 +408,14 @@
 			   (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
 				       ?agent ))
 		 	   (time ?time))) 
-		    ( (possessive ?body)
-		      (eval (when (check-time-type ?property)
+		    (eval (when (and (not (atom ?body)) (not (eq (car ?body) 'compound)))
+		     '( (possessive ?body)
+		        (eval (when (check-time-type ?property)
 			      (time-type-prop ?time)))
-		      ?property 
-		      (and (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
+		        ?property 
+		        (and (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
 				       ?agent ))
-		           (time ?time)))))
+		           (time ?time)))))))
 )
 ;+syjung
 ; optime : time is optional 
@@ -422,9 +425,10 @@
 		(the)
 		(or ( ?property  		; "mass"
 		      (and (preferred (property ?body)) (time ?time)) )
-		    ( (possessive ?body)
-		      ?property 		; "mass"
-		      (time ?time))))
+		    (eval (when (and (not (atom ?body)) (not (eq (car ?body) 'compound)))
+		      '( (possessive ?body)
+		         ?property 		; "mass"
+		         (time ?time))))))
 )
 ;+syjung
 ;ex) "the mass of the crate"
@@ -435,9 +439,10 @@
 		(the)
 		(or ( ?property
 		      (preferred (property ?body)) ) 
-		    ( (possessive ?body) 
-		      ?property)
-		))
+		    (eval (when (and (not (atom ?body)) (not (eq (car ?body) 'compound)))
+		    ' ( (possessive ?body) 
+		       ?property)
+		))))
 )
 ;+syjung
 (def-qexp the (the)
