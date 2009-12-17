@@ -1080,7 +1080,7 @@
 		      (and (preferred (property ?body)) 
 			   (preferred ("at" ?position))
 			   (time ?time))) 
-                    (eval (when (and (not (atom ?body)) (not (eq (car ?body) 'compound)))
+                    (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
 			'( (possessive ?body)
 		           (time-type ?time)
 		           ?property 
@@ -1095,7 +1095,7 @@
 		      (and (preferred ("by" "due to" "caused by" ?agent)) 
 			   (preferred ("at" ?position))
 			   (time ?time))) 
-                    (eval (when (and (not (atom ?body)) (not (eq (car ?body) 'compound)))
+                    (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
 		      '( (possessive ?body)
 		         (time-type ?time)
 		         ?property 

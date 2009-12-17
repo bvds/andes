@@ -32,7 +32,7 @@
 			   (preferred ((or "of" "due to" "by" "caused by" "made by")
 				       ?source ))
 		 	   (time ?time))) 
-                    (eval (when (and (not (atom ?body)) (not (eq (car ?body) 'compound)))
+                    (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
 		      ' ( (possessive ?source) ; "the charge2's electric energy at p2
 		        ?property ; "electric field"
 		        (and (preferred ("at" ?field ))
@@ -46,7 +46,7 @@
 	              ?property  		; "electric field" 
 		      (and (preferred ("at" ?field)) 
 		 	   (time ?time))) 
-                    (eval (when (and (not (atom ?body)) (not (eq (car ?body) 'compound)))
+                    (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
 		      '( (possessive ?field) ;(time-type ?time)
 		         ?property ; "electric field"
 		         (time ?time));)

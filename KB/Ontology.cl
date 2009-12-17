@@ -310,7 +310,8 @@
 ; possessive "object's"
 (def-qexp possessive (possessive ?body)
   ;:new-english (eval (attach-to-element ?body '(or (var (body ?body)) ?body) "'s")))
-  :new-english (eval (attach-to-element ?body (expand-vars '(or (var (body ?body)) ?body)) "'s")))
+  ;:new-english (eval (attach-to-element ?body (expand-vars '(or (var (body ?body)) ?body)) "'s")))
+  :new-english (eval (attach-to-element ?body (list 'or (expand-vars '(var (body ?body))) ?body) "'s")))
   ;:new-english (eval (attach-to-element ?body (expand-vars (expand-new-english '(or (var (body ?body)) ?body))) "'s")))
   ;:new-english (eval (attach-to-element ?body (expand-new-english '(or (var (body ?body)) ?body)) "'s")))
 
@@ -360,7 +361,7 @@
 		(or ((time-type-prop ?time ?property) 
 		     ?property  ; "speed"
 		     (and (preferred (property ?body)) (time ?time))) 
-		    (eval (when (and (not (atom ?body)) (not (eq (car ?body) 'compound)))
+		    (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
 		      '( (possessive ?body)
 		        (time-type-prop ?time ?property)
 		        ?property ; "speed"
@@ -374,7 +375,7 @@
 		 (or ((time-type-prop ?time ?property)
 		      ?property  ; "velocity"
 		      (and (preferred (property ?body)) (time ?time))) 
-		     (eval (when (and (not (atom ?body)) (not (eq (car ?body) 'compound)))
+		     (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
 		      '((possessive ?body)
 		        (time-type-prop ?time ?property)
 		        ?property (allowed "vector"); "velocity"
@@ -390,7 +391,7 @@
 		      (and (preferred (property ?body)) 
 			   (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
 				       ?agent ))) )
-		    (eval (when (and (not (atom ?body)) (not (eq (car ?body) 'compound)))
+		    (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
 		     '( (possessive ?body)
 		        (time-type-prop ?time ?property)
 		        ?property 
@@ -408,7 +409,7 @@
 			   (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
 				       ?agent ))
 		 	   (time ?time))) 
-		    (eval (when (and (not (atom ?body)) (not (eq (car ?body) 'compound)))
+		    (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
 		     '( (possessive ?body)
 		        (eval (when (check-time-type ?property)
 			      (time-type-prop ?time)))
@@ -425,7 +426,7 @@
 		(the)
 		(or ( ?property  		; "mass"
 		      (and (preferred (property ?body)) (time ?time)) )
-		    (eval (when (and (not (atom ?body)) (not (eq (car ?body) 'compound)))
+		    (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
 		      '( (possessive ?body)
 		         ?property 		; "mass"
 		         (time ?time))))))
@@ -435,14 +436,14 @@
 ;    "the crate's mass"
 ;    "the value of crate's mass"
 (def-qexp property-object (property-object ?property ?body)
-  :new-english ((allowed ((the) "value of")) 
+  :new-english ((allowed ((the) "value of")) ;---------------------------" "property:" ?property "body:" ?body)) 
 		(the)
-		(or ( ?property
-		      (preferred (property ?body)) ) 
-		    (eval (when (and (not (atom ?body)) (not (eq (car ?body) 'compound)))
-		    ' ( (possessive ?body) 
-		       ?property)
-		))))
+		(or 
+		    ( ?property
+		      (preferred (property ?body)))
+		    (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
+		      '( (possessive ?body) ?property)))
+		))
 )
 ;+syjung
 (def-qexp the (the)
