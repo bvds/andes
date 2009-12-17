@@ -351,8 +351,8 @@
 ;    "the car's average speed at time T1" 
 (def-qexp property-object-time (property-object-time ?property ?body :time ?time)
   :new-english ((allowed ((the) "value of")) 
-		(or ( (the) 
-		      (time-type-prop ?time ?property) 
+		(the) 
+		(or ( (time-type-prop ?time ?property) 
 		      ?property  ; "speed"
 		      (and (preferred (property ?body)) (time ?time))) 
 		    ( (possessive ?body)
@@ -364,8 +364,8 @@
 ;    "the car's average velocity between T0 and T1"
 ;    "the car's displacement between T0 and T1"
 (def-qexp vector-object-time (vector-object-time ?property ?body :time ?time)
-  :new-english ( (or ((the) 
-		      (time-type-prop ?time ?property)
+  :new-english ( (the) 
+		 (or ((time-type-prop ?time ?property)
 		      ?property  ; "velocity"
 		      (and (preferred (property ?body)) (time ?time))) 
 		     ((possessive ?body)
@@ -377,8 +377,8 @@
 ;ex) "the net force exerted by the man"
 (def-qexp property-object-agent (property-object-agent ?property ?body ?agent)
   :new-english ((allowed ((the) "value of")) 
-		(or ( (the) 
-		      (time-type-prop ?time ?property)
+		(the)
+		(or ( (time-type-prop ?time ?property)
 		      ?property  
 		      (and (preferred (property ?body)) 
 			   (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
@@ -393,8 +393,8 @@
 ;ex) "the net force exerted by the man at time T1"
 (def-qexp property-object-agent-time (property-object-agent-time ?property ?body ?agent :time ?time)
   :new-english ((allowed ((the) "value of")) 
-		(or ( (the) 
-		      (time-type-prop ?time ?property)
+		(the)
+		(or ( (time-type-prop ?time ?property)
 	              ?property  
 		      (and (preferred (property ?body))
 			   (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
@@ -413,8 +413,8 @@
 ;ex) "the net force exerted by the man at time T1"
 (def-qexp property-object-optime (property-object-optime ?property ?body :time ?time)
   :new-english ((allowed ((the) "value of")) 
-		(or 
-		    ( (the) ?property  		; "mass"
+		(the)
+		(or ( ?property  		; "mass"
 		      (and (preferred (property ?body)) (time ?time)) )
 		    ( (possessive ?body)
 		      ?property 		; "mass"
@@ -426,7 +426,8 @@
 ;    "the value of crate's mass"
 (def-qexp property-object (property-object ?property ?body)
   :new-english ((allowed ((the) "value of")) 
-		(or ( (the) ?property
+		(the)
+		(or ( ?property
 		      (preferred (property ?body)) ) 
 		    ( (possessive ?body) 
 		      ?property)
