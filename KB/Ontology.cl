@@ -258,11 +258,11 @@
 (def-qexp compo	(compo ?xyz ?rot ?vector)
   :units ?vector
   :new-english ((or ((the) ?xyz (or "component" "compo." "compo"))
-		    ((the) (eval (format nil "~A-component" (?xyz))))
+		    ((the) (eval (format nil "~A-component" ?xyz)))
 		    ((possessive ?body) 
-			(eval (format nil "~A-component" (?xyz))))
+			(eval (format nil "~A-component" ?xyz)))
 		    ((possessive ?body) 
-			(eval (format nil "~A component" (?xyz))))
+			(eval (format nil "~A component" ?xyz)))
 		    ;((the) (eval (format nil "~A-component" (?xyz))) )
 		)
 		(property ?vector))
@@ -307,7 +307,10 @@
 ;+syjung
 ; possessive "object's"
 (def-qexp possessive (possessive ?body)
-  :new-english (eval (attach-to-element ?body '(or (var (body ?body)) ?body) "'s")))
+  ;:new-english (eval (attach-to-element ?body '(or (var (body ?body)) ?body) "'s")))
+  :new-english (eval (attach-to-element ?body (expand-vars '(or (var (body ?body)) ?body)) "'s")))
+  ;:new-english (eval (attach-to-element ?body (expand-vars (expand-new-english '(or (var (body ?body)) ?body))) "'s")))
+  ;:new-english (eval (attach-to-element ?body (expand-new-english '(or (var (body ?body)) ?body)) "'s")))
 
 ;+syjung
 ; (attach-to-element 'crate '(or (var (body crate)) crate) "'s")
@@ -355,10 +358,11 @@
 		(or ( (time-type-prop ?time ?property) 
 		      ?property  ; "speed"
 		      (and (preferred (property ?body)) (time ?time))) 
-		    ( (possessive ?body)
-		      (time-type-prop ?time ?property)
-		      ?property ; "speed"
-		      (time ?time)))))
+		    (eval (when (/= (car ?body) 'compound) 
+		      ( (possessive ?body)
+		        (time-type-prop ?time ?property)
+		        ?property ; "speed"
+		        (time ?time))))))
 ;+syjung
 ;ex) "the average velocity of the car between T0 and T1"
 ;    "the car's average velocity between T0 and T1"
