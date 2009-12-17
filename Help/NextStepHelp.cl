@@ -1229,7 +1229,7 @@
 
 
 (defparameter **nsh-standard-axis-prompt**
-    "Why don't you draw a pair of standard axes setting the positive <var>x</var> axis at 0 degrees.")
+    (strcat "Use " *axis-tool* " to draw a pair of standard axes with the <var>x</var> axis at 0 degrees."))
 
 (defparameter **nsh-rotated-axis-prompt**
     (strcat "On this problem you should draw a pair of axes with the "
@@ -1239,7 +1239,7 @@
 	    "solution simpler."))
 
 (defparameter **nsh-rotated-axis-bottom-prompt**
-    "Draw a pair of axes setting the positive <var>x</var> axis at ~a degrees.")
+    (strcat "Use " *axis-tool* " to draw a pair of axes setting the positive <var>x</var> axis at ~a degrees."))
 
 
 
@@ -1300,8 +1300,8 @@
   "Prompt for the student to start working on the givens."
   (nsh-dialog-prompt-Node
    (strcat "At this point it would be a good idea to begin enumerating "
-	   "all of the useful given quantities in the problem"  )
-   "why don't you start with "
+	   "all of the useful given quantities in the problem."  )
+   "Why don't you start with "
    (car *nsh-givens*)
    :Assoc `((nsh prompt-start-givens ,(bgnode-exp (car *nsh-givens*))))))
 
@@ -2618,7 +2618,7 @@
   (make-hint-seq 
    (list 
     (strcat "You should draw axes at " (format Nil "~a" Prompt) " degrees.")
-    (strcat "You should use the axes tool (looks like a +) to draw a pair of"
+    (strcat "You should use " *axis-tool* " to draw a pair of"
 	    "axes at " (format Nil "~a" Prompt) " degrees."))
    :Assoc `((nsh cbf-axes-draw-prompt ,Prompt))))
 
@@ -2808,12 +2808,12 @@
 
 
 (defparameter **nsh-single-sought-done-str**
-    (strcat "Choose the equation tool (=) and write an equation "
+    (strcat (begin-sentence *equation-tool-action*) " and write an equation "
 	    "of the form var=? where var is the sought quantity.  "
 	    "Then enter the value in the answer box."))
 
 (defparameter **nsh-multi-sought-done-str**
-    (strcat "Choose the equation tool (=) and write an equation "
+    (strcat (begin-sentence *equation-tool-action*) " and write an equation "
 	    "of the form var=? where var is a sought quantity.  "
 	    "Then enter the value in the appropriate answer box."))
 

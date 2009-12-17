@@ -69,7 +69,7 @@
 				     (:file "in2pre")
 				     (:file "parse-andes"
 					    :depends-on ("SolutionGraph" 
-							 "grammar"))
+							 "grammar" "icons"))
 				     (:file "interpret-equation"
 					    :depends-on ("SolutionGraph"))
 				     

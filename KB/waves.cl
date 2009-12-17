@@ -42,8 +42,10 @@
   :effects ((variable ?lambda-var (wavelength ?wave ?medium))
 	    (define-var (wavelength ?wave ?medium)))
   :hint 
-  ((bottom-out (string "Define a variable for ~A by using the Text Tool."
-		       ((wavelength ?wave ?medium) def-np)))))
+  ((bottom-out (string "Define a variable for ~A by using ~A."
+		       ((wavelength ?wave ?medium) def-np)
+			    (*text-tool* eval)
+			    ))))
 
 (def-qexp wavenumber (wavenumber ?wave ?medium)
   :symbol-base |k|     
@@ -62,8 +64,10 @@
   :effects ( (variable ?wn-var (wavenumber ?wave ?medium))
              (define-var (wavenumber ?wave ?medium)))
   :hint 
-  ((bottom-out (string "Define a variable for ~A by using the Text Tool." 
-		       ((wavenumber ?wave ?medium) def-np)))))
+  ((bottom-out (string "Define a variable for ~A by using ~A." 
+		       ((wavenumber ?wave ?medium) def-np)
+			    (*text-tool* eval)
+			    ))))
 
 ;;; Equation of the wavenumber of the wave, wavenumber*lambda = 2*pi
 
@@ -118,8 +122,10 @@
   :effects ((variable ?freq-var (frequency ?wave))
 	    (define-var (frequency ?wave)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Text Tool."
-		  ((frequency ?wave) def-np)))))
+	  (string "Define a variable for ~A by using ~A."
+		  ((frequency ?wave) def-np)
+			    (*text-tool* eval)
+			    ))))
 
 ;;;
 ;;  For doppler problems, we have to introduce a frequency as
@@ -149,8 +155,10 @@
   :effects ((variable ?freq-var (observed-frequency ?wave ?me :time ?t))
 	    (define-var (observed-frequency ?wave ?me :time ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Text Tool."  
-		  ((observed-frequency ?wave ?me :time ?time) def-np)))))
+	  (string "Define a variable for ~A by using ~A."  
+		  ((observed-frequency ?wave ?me :time ?time) def-np)
+			    (*text-tool* eval)
+			    ))))
 
 ;;
 ;; period is used in some circular motion rules:
@@ -184,7 +192,8 @@
       (define-var (period ?b))
    )
  :hint
-  ((bottom-out (string "Use the Text Tool to define a variable for ~A." 
+  ((bottom-out (string "Use ~A to define a variable for ~A." 
+			    (*text-tool* eval)
 		       ((period ?b) def-np)))
    ))
 
@@ -202,8 +211,10 @@
   :effects ((variable ?omega-var (angular-frequency ?wave))
 	    (define-var (angular-frequency ?wave)))
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Text Tool."  
-			     ((angular-frequency ?wave) def-np)))))
+	 (bottom-out (string "Define a variable for ~A by using ~A."  
+			     ((angular-frequency ?wave) def-np)
+			    (*text-tool* eval)
+			    ))))
 
 ;;equation of the frequency of the wave, frequency = angular-frequency/2*pi
 (def-psmclass frequency-of-wave (frequency-of-wave ?object)
@@ -421,8 +432,10 @@
   :effects ((variable ?wv-var (wave-speed ?medium))
 	    (define-var (wave-speed ?medium)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Text Tool."
-		  ((wave-speed ?medium) def-np)))))
+	  (string "Define a variable for ~A by using ~A."
+		  ((wave-speed ?medium) def-np)
+			    (*text-tool* eval)
+			    ))))
 
 ;;; equation of the speed of the wave, speed = freq* wavelength
 
@@ -540,8 +553,10 @@
   :effects ((variable ?n-var (index-of-refraction ?medium))
 	    (define-var (index-of-refraction ?medium)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Text Tool." 
-		  ((index-of-refraction ?medium) def-np) ))))
+	  (string "Define a variable for ~A by using ~A." 
+		  ((index-of-refraction ?medium) def-np)
+			    (*text-tool* eval)
+			    ))))
 
 ;;;; Relate index of refraction to wave-speed
 
@@ -672,8 +687,10 @@
 	    (variable ?t-var (string-tension ?rope))
 	    (define-var (string-tension ?rope)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Text Tool."
-		  ((string-tension ?rope) def-np)))))
+	  (string "Define a variable for ~A by using ~A."
+		  ((string-tension ?rope) def-np)
+			    (*text-tool* eval)
+			    ))))
 
 ;;; speed of transverse waves on a string
 (def-psmclass wave-speed-string (wave-speed-string ?wave)
@@ -731,8 +748,10 @@
   :effects ((variable ?lambda-var (amplitude ?wave :type ?type))
 	    (define-var (amplitude ?wave :type ?type)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Text Tool."
-		  ((amplitude ?wave :type ?type) def-np)))))
+	  (string "Define a variable for ~A by using ~A."
+		  ((amplitude ?wave :type ?type) def-np)
+			    (*text-tool* eval)
+			    ))))
 
 ;;; define maximum speed of transverse motion
 (def-qexp amplitude-max-speed (amplitude-max-speed ?wave)
@@ -749,8 +768,10 @@
   :effects ((variable ?lambda-var (amplitude-max-speed ?wave))
 	    (define-var (amplitude-max-speed ?wave)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Text Tool."  
-		  ((amplitude-max-speed ?wave) def-np)))))
+	  (string "Define a variable for ~A by using ~A."  
+		  ((amplitude-max-speed ?wave) def-np)
+			    (*text-tool* eval)
+			    ))))
 
 ;; Yuck!  In the real world, one would derive this...
 (def-psmclass max-transverse-speed-wave (max-transverse-speed-wave ?wave)
@@ -804,8 +825,10 @@
   :effects ((variable ?lambda-var (amplitude-max-abs-acceleration ?wave))
 	    (define-var (amplitude-max-abs-acceleration ?wave)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Text Tool."
-		  ((amplitude-max-abs-acceleration ?wave) def-np)))))
+	  (string "Define a variable for ~A by using ~A."
+		  ((amplitude-max-abs-acceleration ?wave) def-np)
+			    (*text-tool* eval)
+			    ))))
 
 ;; Yuck!  In the real world, one would derive this...
 (def-psmclass max-transverse-abs-acceleration-wave (max-transverse-abs-acceleration-wave ?wave)
@@ -1057,13 +1080,13 @@
 		      (and (preferred (property ?body)) 
 			   (preferred ("at" ?position))
 			   (time ?time))) 
-		    ( (possessive ?body)
-		      (time-type ?time)
-		      ?property 
-		      (and ((preferred ("at" ?position))
-		            (time ?time))))
-		 )
-		))
+                    (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
+			'( (possessive ?body)
+		           (time-type ?time)
+		           ?property 
+		           (and ((preferred ("at" ?position))
+		                 (time ?time))))
+		 )))))
 ;+syjung
 (def-qexp property-agent-pos-time (property-agent-pos-time ?property ?agent ?position :time ?time)
   :new-english ((allowed ((the) "value of")) 
@@ -1072,14 +1095,14 @@
 		      (and (preferred ("by" "due to" "caused by" ?agent)) 
 			   (preferred ("at" ?position))
 			   (time ?time))) 
-		    ( (possessive ?body)
-		      (time-type ?time)
-		      ?property 
-		      (and  (preferred ("at" ?position))
-		            (preferred ("by" "due to" "caused by" ?agent)) 
-		            (time ?time)))
-		 )
-		))
+                    (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
+		      '( (possessive ?body)
+		         (time-type ?time)
+		         ?property 
+		         (and  (preferred ("at" ?position))
+		               (preferred ("by" "due to" "caused by" ?agent)) 
+		               (time ?time)))
+		 )))))
 
 ;;;;   Decibels and intensity and magnitude of Poynting vector
 
@@ -1103,8 +1126,10 @@
   :effects ((variable ?intense-var (intensity ?wave ?agent :time ?t))
 	    (define-var (intensity ?wave ?agent :time ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Text Tool."  
-		  ((intensity ?wave ?agent :time ?t) def-np)))))
+	  (string "Define a variable for ~A by using ~A."  
+		  ((intensity ?wave ?agent :time ?t) def-np)
+			    (*text-tool* eval)
+			    ))))
 
 
 (def-qexp intensity-at (intensity ?body at ?position :time ?time)
@@ -1123,8 +1148,10 @@
   :effects ((variable ?intense-var (intensity ?body at ?position :time ?t))
 	    (define-var (intensity ?body at ?position :time ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Text Tool."
-		  ((intensity ?body at ?position :time ?t) def-np)))))
+	  (string "Define a variable for ~A by using ~A."
+		  ((intensity ?body at ?position :time ?t) def-np)
+			    (*text-tool* eval)
+			    ))))
 
 (def-qexp poynting-vector (poynting-vector ?loc ?agent :time ?time)
   :units |W/m^2|
@@ -1176,8 +1203,10 @@
   :effects ((variable ?intense-var (net-intensity ?wave :time ?t))
 	    (define-var (net-intensity ?wave :time ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Text Tool."
-		 ((net-intensity ?wave :time ?t) def-np) ))))
+	  (string "Define a variable for ~A by using ~A."
+		 ((net-intensity ?wave :time ?t) def-np)
+			    (*text-tool* eval)
+			    ))))
 
 (def-psmclass net-intensity (net-intensity ?body ?time) 
   :complexity definition
@@ -1243,8 +1272,10 @@
   :effects ((variable ?dbi-var (db-intensity ?wave ?agent :time ?t))
 	    (define-var (db-intensity ?wave ?agent :time ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Text Tool."
-		  ((db-intensity ?wave ?agent :time ?t) def-np)))))
+	  (string "Define a variable for ~A by using ~A."
+		  ((db-intensity ?wave ?agent :time ?t) def-np)
+			    (*text-tool* eval)
+			    ))))
 
 
 ;;; net version of db-intensity
@@ -1269,8 +1300,10 @@
   :effects ((variable ?net-dbi-var (net-db-intensity ?wave :time ?t))
 	    (define-var (net-db-intensity ?wave :time ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A using the Text Tool."
-		  ((net-db-intensity ?wave :time ?t) def-np)))))
+	  (string "Define a variable for ~A using ~A."
+		  ((net-db-intensity ?wave :time ?t) def-np)
+			    (*text-tool* eval)
+			    ))))
 
 ;; Relate intensity to intensity in decibels
 

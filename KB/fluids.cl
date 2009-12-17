@@ -41,8 +41,10 @@
   :effects ( (variable ?$rm-var (mass-density ?material))
              (define-var (mass-density ?material)))
   :hint 
-  ((bottom-out (string "Define a variable for ~A by using the Text Tool." 
-			   ((mass-density ?material) def-np)))))
+  ((bottom-out (string "Define a variable for ~A by using ~A." 
+		       ((mass-density ?material) def-np)
+		       (*text-tool* eval)
+		       ))))
 
 ;;; Definition of mass density: rho = m/V
 ;;;
@@ -103,9 +105,10 @@
   :effects ( (variable ?Pr-var (pressure ?point :time ?time))
              (define-var (pressure ?point :time ?time)) )
   :hint (
-       (bottom-out (string "Define a variable for ~a by using the Text Tool."  
-			   ((pressure ?point :time ?time) def-np)))
-       ))
+	 (bottom-out (string "Define a variable for ~a by using ~A."  
+			     ((pressure ?point :time ?time) def-np)
+			     (*text-tool* eval)
+			     )) ))
 
 
 ;; Define the pressure of a standard atmosphere.  
@@ -129,8 +132,10 @@
 	     (define-var (atmosphere)) )
   :hint 
   ((bottom-out 
-    (string "Define a variable for ~A by using the Text Tool." 
-	    ((atmosphere) def-np)))))
+    (string "Define a variable for ~A by using ~A." 
+	    ((atmosphere) def-np)
+	    (*text-tool* eval)
+	    ))))
 
 (def-psmclass std-constant-Pr0 (std-constant (atmosphere))
   :complexity simple 
@@ -367,8 +372,10 @@
      :effects ((variable ?A-var (area-at ?point :time ?time))
                (define-var (area-at ?point :time ?time)))
      :hint (
-          (bottom-out (string "Define a variable for ~A by using the Text Tool."
-			      ((area-at ?point :time ?time) def-np)))))
+	    (bottom-out (string "Define a variable for ~A by using ~A."
+				((area-at ?point :time ?time) def-np)
+				(*text-tool* eval)
+				))))
 
 
 ;;;
@@ -559,9 +566,10 @@
      :effects ((variable ?Vol-var (volume ?body :time ?time))
                (define-var (volume ?body :time ?time)))
      :hint (
-          (bottom-out (string "Define a variable for ~A by using the Text Tool."  
-			      ((volume ?body :time ?time) def-np)))
-	   ))
+          (bottom-out (string "Define a variable for ~A by using ~A."  
+			      ((volume ?body :time ?time) def-np)
+		       (*text-tool* eval)
+		       )) ))
 
 ;; TODO: add equations for volumes of various shapes
 

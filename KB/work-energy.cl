@@ -319,7 +319,8 @@
 	   (variable ?ge-var ?quant) 
   )
  :hint (
-	 (bottom-out (string "Use the Text Tool to define a variable for ~A."
+	 (bottom-out (string "Use ~A to define a variable for ~A."
+			     (*text-tool* eval)
 			     (?quant def-np)))
        ))
 
@@ -673,8 +674,10 @@
 	       (variable ?TE-var (total-energy ?b :time ?t))
 	       )
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Text Tool."
-			     ((total-energy ?b :time ?t) def-np)))
+	 (bottom-out (string "Define a variable for ~A by using ~A."
+			     ((total-energy ?b :time ?t) def-np)
+			    (*text-tool* eval)
+			    ))
 	 ))
 
 
@@ -715,7 +718,10 @@
   :effects ( (variable ?h-var (height ?body ?zero-height :time ?time))
 	     (define-var (height ?body ?zero-height :time ?time)) )
   :hint (
-	 (bottom-out (string "Define a height variable for ~A using the Text Tool." ?body))
+	 (bottom-out (string "Define a height variable for ~A using ~A." 
+			     ?body
+			    (*text-tool* eval)
+			    ))
 	 ))
 
 (defoperator define-spring-constant (?spring)
@@ -724,7 +730,9 @@
   ( (define-var (spring-constant ?spring))
       (variable ?k-var  (spring-constant ?spring)) )
   :hint (
-	 (bottom-out (string "Define a spring constant variable using the Text Tool."))
+	 (bottom-out (string "Define a spring constant variable using ~A."
+			    (*text-tool* eval)
+			    ))
 	 ))
 
 (defoperator define-compression (?spring ?t)
@@ -735,8 +743,10 @@
 	       (variable ?d-var  (compression ?spring :time ?t))
 	       )
   :hint (
-	 (bottom-out (string "Define a variable for ~A using the Text Tool."
-			     ((compression ?spring :time ?t) def-np)))
+	 (bottom-out (string "Define a variable for ~A using ~A."
+			     ((compression ?spring :time ?t) def-np)
+			    (*text-tool* eval)
+			    ))
 	 ))
 
 
@@ -747,8 +757,10 @@
   ( (define-var (extension ?spring :time ?t))
       (variable ?d-var (extension ?spring :time ?t)) )
  :hint (
-	(bottom-out (string "Define a variable for ~A using the Text Tool."
-			    ((extension ?spring :time ?t) def-np)))
+	(bottom-out (string "Define a variable for ~A using ~A."
+			    ((extension ?spring :time ?t) def-np)
+			    (*text-tool* eval)
+			    ))
 	))
 
 ;;; Change in height is y component of displacement 
@@ -947,8 +959,10 @@
    (variable ?work-var (work ?b ?agent :time ?t))
  )
  :hint (
-   (bottom-out (string "Define a variable for ~A by using the Text Tool." 
-		       ((work ?b ?agent :time ?t) def-np)))
+   (bottom-out (string "Define a variable for ~A by using the ~a." 
+		       ((work ?b ?agent :time ?t) def-np)
+			    (*text-tool* eval)
+			    ))
  ))
 
 ;; following defines a variable for net-work done on an object due to
@@ -965,9 +979,11 @@
    (variable ?work-var (net-work ?b :time ?t))
  )
  :hint (
-   (bottom-out (string "Define a variable for ~A by using the Text Tool." 
-		       ((net-work ?b :time ?t) def-np)))
- ))
+   (bottom-out (string "Define a variable for ~A by using ~A." 
+		       ((net-work ?b :time ?t) def-np)
+			    (*text-tool* eval)
+			    ))
+   ))
 
 
 ;;
@@ -1272,9 +1288,11 @@
    (variable ?work-var (work-nc ?b :time ?t))
  )
  :hint (
-   (bottom-out (string "Define a variable for ~A by using the Text Tool." 
-		       ((work-nc ?b :time ?t) def-np)))
-))
+   (bottom-out (string "Define a variable for ~A by using ~A." 
+		       ((work-nc ?b :time ?t) def-np)
+			    (*text-tool* eval)
+			    ))
+   ))
 
 ;;;
 ;;; average power = work/time
@@ -1329,8 +1347,10 @@
    (variable ?power-var (power ?b ?agent :time ?t))
  )
  :hint (
-   (bottom-out (string "Define a variable for ~A by using the Text Tool" 
-		       ((power ?b ?agent :time ?t) def-np) ))
+   (bottom-out (string "Define a variable for ~A by using ~a." 
+		       ((power ?b ?agent :time ?t) def-np)
+			    (*text-tool* eval)
+			    ))
  ))
 
 ;;;
@@ -1375,8 +1395,10 @@
    (variable ?power-var (net-power ?b :time ?t))
  )
  :hint (
-   (bottom-out (string "Define a variable for ~A by using the Text Tool." 
-		       ((net-power ?b :time ?t) def-np) ))
+   (bottom-out (string "Define a variable for ~A by using ~a." 
+		       ((net-power ?b :time ?t) def-np)
+			    (*text-tool* eval)
+			    ))
    ))
 
 ;;;
@@ -1391,8 +1413,10 @@
   :effects ((variable ?p-var (net-power-out ?source  :time ?t))
 	    (define-var (net-power-out ?source :time ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Text Tool."  
-		  ((net-power-out ?source :time ?t) def-np)))))
+	  (string "Define a variable for ~A by using ~a."  
+		  ((net-power-out ?source :time ?t) def-np)
+			    (*text-tool* eval)
+			    ))))
 
 ;;;
 ;;; instantaneous power = F dot v = F*v*cos(theta)
