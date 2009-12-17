@@ -1,4 +1,4 @@
-dojo.provide("andes.common");
+dojo.provide("dojox.drawing.util.common");
 dojo.require("dojox.math.round");
 
 (function(){
@@ -186,9 +186,8 @@ dojo.require("dojox.math.round");
 		},
 		
 		// helpers
-		
 		idSetStart: function(num){
-			start=num + 1;
+			start=num;
 		},
 		
 		uid: function(/* ? String */str){

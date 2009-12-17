@@ -371,11 +371,9 @@ dojo.provide("andes.drawing");
 			dojo.forEach(data, function(m){
 				idNum = Math.max(getNum(m), idNum);	
 			});
-			idNum++;
-			dojo.hitch(dojox.drawing.util.common, function(idNum){
-				start=idNum + 1;
-			});
-			//dojox.drawing.util.common.idSetStart(idNum);
+			++idNum;
+			
+			dojox.drawing.util.common.idSetStart(idNum);
 			
 			// summary:
 			//	Project Data Loaded
