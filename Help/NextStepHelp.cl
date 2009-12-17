@@ -1229,7 +1229,7 @@
 
 
 (defparameter **nsh-standard-axis-prompt**
-    "Why don't you draw a pair of standard axes setting the positive <var>x</var> axis at 0 degrees.")
+    (strcat "Use " *axis-tool* " to draw a pair of standard axes with the <var>x</var> axis at 0 degrees."))
 
 (defparameter **nsh-rotated-axis-prompt**
     (strcat "On this problem you should draw a pair of axes with the "
@@ -1239,7 +1239,7 @@
 	    "solution simpler."))
 
 (defparameter **nsh-rotated-axis-bottom-prompt**
-    "Draw a pair of axes setting the positive <var>x</var> axis at ~a degrees.")
+    (strcat "Use " *axis-tool* " to draw a pair of axes setting the positive <var>x</var> axis at ~a degrees."))
 
 
 

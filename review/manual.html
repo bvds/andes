@@ -30,26 +30,33 @@
 </head>
 <body>
 
-<h1>Tool bar</h1>
+<h1>Drawing Tools</h1>
 <ul>
 
 <li id="axis-tool">  Define the coordinate system by using the Axis Tool
       <img src="ui-images/axis-tool.png" class="button" alt="axes">
-      to draw axes.
+      to draw axes.&nbsp;  Click on the tool and drag out the x-axis at
+      the desired angle.&nbsp;  The default axis
+      labels <code>x and y</code> will be displayed; hit "Enter".
 
-<li id="body-tool">  Define bodies with either the Ellipse
+<li id="body-tool">  Define bodies (objects) with either the Ellipse
       <img src="ui-images/ellipse-tool.png" class="button" alt="ellipse">
       or Rectangle
       <img src="ui-images/rectangle-tool.png" class="button" alt="rectangle">
-      Tool.
+      Tool. &nbsp;  Click on the tool, drag out the shape, and
+      <a href="#define-quantities">define a body</a>.
 
 <li id="text-tool">  Define scalar variables using the Text Tool 
-      <img src="ui-images/text-tool.png" class="button" alt="T">.
+      <img src="ui-images/text-tool.png" class="button" alt="T">. &nbsp;
+      Click on the tool, drag out a box, and
+      <a href="#define-quantities">define a scalar variable</a>.
 
 <li id="vector-tool">  Define vector variables using the Vector Tool
       <img src="ui-images/vector-tool.png" class="button" 
-                         alt="vector">.&nbsp; When you
-     define a vector, variables for the magnitude, components, and angle
+                         alt="vector">. &nbsp;  Click on the tool,
+     drag out a vector at the appropriate angle, if known, and
+      <a href="#define-quantities">define the vector</a>.&nbsp;
+     Variables for the magnitude, components, and angle
      are defined automatically.&nbsp;  So, for vector <var><b>F</b></var>, 
      the magnitude <var>F</var>, 
      components <var>F_x</var> <var>F_y</var>, and angle <var>\thetaF</var> 
@@ -57,39 +64,55 @@
 
 <li id="equation-tool">  Write equations using the Equation Tool
       <img src="ui-images/equation-tool.png" class="button" 
-                  alt="=">; all variables used must
-     be previously defined.
+                  alt="=">.&nbsp;  Click on the tool, drag out an
+       <code>equation box</code>, and <a href="#write-equation">
+       write an equation</a>.
 
   </ul>
-  
-  <li>When defining a variable, possible forms include:
+
+
+  <div id="define-quantities">
+ <h1> Defining Quantities</h2>
+  When you draw an object, you can use the <code>Text Box</code> to define an associated quantity.&nbsp;
+  If you wish to define a variable, possible forms include:
       <ul>
         <li>  <code>m is the mass of the ball</code>
         <li>  <code>m: mass of the ball</code>
         <li>  <code>Let m be the mass of the ball</code>
       </ul>
-
-<li> After defining a quantity, the text box will turn orange.&nbsp;
+   After defining a quantity, the text box will turn orange.&nbsp;
       You can now place the box anywhere on the drawing area.
       
-<li>  Double click on a text or equation box to make a correction, 
+  <p>To make a correction, Double click on a text box, edit the text, 
       then re-enter.
+</div>
 
-<li>  Hit enter after entering any information in a text box.
-
-<li>  To find the numerical value of a quantity:
+<div id="write-equation">
+<h1>Entering equations</h2>
+      Equations are entered with the <a href="#equation-tool">Equation
+      Tool</a>.
+  <ul>
+  <li>To find the numerical value of a quantity:
       <ul>
         <li>  Enter all equations required to solve 
             for variable <var>V</var>.
         <li>  In an equation box enter:&nbsp; <code>V=?</code>
       </ul>
 
-<li>  Enter the final answer in a text box in the form like 
+   <li> Enter the final answer in a text box in the form like 
      <code>answer:  1.23 m/s</code> or  <code>answer: v1=1.23 m/s</code>
 
+   <li> All variables used must  be previously defined.
+</ul>
+      
+</div>
+
+<div id="help">
+<h1>Getting Help</h1>
+<ul>
 <li> If you are stuck or confused, hit the help button
      <img src="ui-images/help-button.png" class="button" alt="help button">
-    at the lower right corner of the Tutor pane.
+    at the bottom of the Tutor pane.
 
 <li> If you have a comment or complaint, type it in the text box
      <img src="ui-images/help-text.png" class="box" alt="text input">
@@ -97,6 +120,6 @@
     be read by us later.
 
 </ul>
-
+</div>
 </body>
 </html>
