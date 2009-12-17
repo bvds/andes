@@ -47,7 +47,7 @@
  '("No good entry.  Shouldn't happen.") #+sbcl #'equalp)
 
 (defun open-review-window-html (Name href &key title)
-  (format nil "<a href=\"#\" onClick=\"window.open('/review/~A','~A');\">~A</a>" href href (or title name) name))
+  (format nil "<a href=\"#\" onClick=\"andes.principles.review('~A','~A');\">~A</a>" href (or title name) name))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

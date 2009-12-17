@@ -93,6 +93,8 @@
 (defun set-session (client-id &key student problem section extra)
   "Updates transaction with session information."
 
+  (unless client-id (error "set-session called with no client-id"))
+
   (unless (> (length extra) 0) ;treat empty string as null
     (setf extra nil))   ;drop from query if missing.
 

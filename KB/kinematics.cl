@@ -206,7 +206,8 @@
     (define-var (duration ?interval))
   )
   :hint
-  ((bottom-out (string "Use the variable definition tool (under 'variable' on the top menu bar) to define a variable for ~A." 
+  ((bottom-out (string "~A and define a variable for ~A."
+		       ((begin-sentence *text-tool-action*) eval)
 		       ((duration ?interval) def-np)))
    ))
 
@@ -230,7 +231,9 @@
   ((variable ?var (speed ?b :time ?t))
    (define-var (speed ?b :time ?t)))
   :hint
-  ((bottom-out (string "Use the Text Tool to define a variable for the speed of ~a ~a." ?b (?t pp)))
+  ((bottom-out (string "~A and define a variable for the speed of ~a ~a." 
+		       ((begin-sentence *text-tool-action*) eval)
+		       ?b (?t pp)))
    ))
 
 ;; This operator defines a distance-traveled variable.  Same comments
@@ -250,7 +253,9 @@
   ((variable ?var (distance ?b :time ?interval))
    (define-var (distance ?b :time ?interval)))
   :hint
-  ((bottom-out (string "Use the Text Tool to define a variable for the distance traveled by ~a ~a." ?b ?interval))
+  ((bottom-out (string "~A and define a variable for the distance traveled by ~a ~a." 
+		       ((begin-sentence *text-tool-action*) eval)
+		       ?b ?interval))
    ))
 
 ;;; This operator represents knowing what kinds of quantities occur in
@@ -616,8 +621,9 @@
 		  (?t pp) (?any-motion identity) ?b))
    (teach (string "Whenever an object moves in a straight line, the displacement vector is parallel to the direction of motion.")
 	  (kcd "draw_displacement"))
-   (bottom-out (string "Because ~@? in the direction ~A, use the displacement tool to draw a displacement vector in the direction ~a ~A" 
-		       (?any-motion identity) ?b ?dir ?dir (?t pp)))
+   (bottom-out (string "Because ~@? in the direction ~A, use ~A to draw a displacement vector in the direction ~a ~A" 
+		       (?any-motion identity) ?b ?dir
+		       (*vector-tool* eval) ?dir (?t pp)))
    ))
 
 
@@ -670,8 +676,8 @@
   ((point (string "Notice that ~a is at rest ~a." ?b (?t pp)))
    (teach (string "Whenever an object is at rest during a time interval, it has a displacement of zero.")
 	  (kcd "draw_zero_displacement"))
-   (bottom-out (string "Because ~a is at rest ~a, use the displacement tool to draw zero length vector for it." 
-		       ?b (?t pp)))
+   (bottom-out (string "Because ~a is at rest ~a, use ~A to draw a zero length displacement vector for it." 
+		       ?b (?t pp) *vector-tool*))
    ))
 
 ;; Following draws a zero-mag displacement vector for case where it is
@@ -824,8 +830,10 @@
   ((point (string "Notice that ~a is at rest ~a." ?b (?t pp)))
    (teach (kcd "draw_zero_velocity")
 	  (string "When an object is at rest, its velocity is zero.")) ; too simple for a kcd
-   (bottom-out (string "Because ~a is at rest ~a, use the velocity tool to draw a zero-length velocity vector for it." ?b (?t pp)))
-   ))
+   (bottom-out (string "Because ~a is at rest ~a, use ~A to draw a zero-length velocity vector for it." 
+		       ?b (?t pp)
+		       (*vector-tool* eval)
+		       ))))
 
 ;; might now be redundant with draw-velocity-at-rest
 (defoperator draw-velocity-rotating-fixed (?b ?t)
@@ -848,8 +856,10 @@
   ((point (string "Although ?b is rotating, the axis of rotation ~A is fixed." 
 		  ?b ?axis))
     (teach (string "For an object that is rotating around a fixed axis, its motion is defined to be rotational.  Thus, its translational velocity is zero.")) ; too simple for a kcd
-    (bottom-out (string "Use the velocity tool to draw a zero-length velocity vector for ~A ~A." ?b (?t pp)))
-    ))
+    (bottom-out (string "Use ~A to draw a zero-length velocity vector for ~A ~A." 
+			(*vector-tool* eval)
+			?b (?t pp)))
+   ))
 
 ;;
 ;; This draws zero velocity for object momentarily at rest at an instant
@@ -879,7 +889,9 @@
   ((point (string "Notice that ~a is momentarily at rest ~a." ?b (?t pp)))
    (teach (string "When an object is at rest even momentarily, its velocity at that moment is zero.")
 	   (kcd "draw_zero_velocity"))
-   (bottom-out (string "Because ~a is at rest ~a, use the velocity tool to draw a zero-length velocity vector for it." ?b (?t pp)))
+   (bottom-out (string "Because ~a is at rest ~a, use ~A to draw a zero-length velocity vector for it." 
+		       (*vector-tool* eval)
+		       ?b (?t pp)))
    ))
 
 
@@ -1028,8 +1040,10 @@
   :hint (
     (point (string "Notice that ~A is at its maximum height ~A" ?b (?t pp)))
     (teach (string "When the height of a projectile is at its maximum, the vertical component of its velocity will be zero. Therefore it's velocity must lie entirely in the horizontal direction"))
-    (bottom-out (string "Use the velocity tool to draw the velocity of ~a ~a at ~A" ?b (?t pp) ?dir))
-  ))
+    (bottom-out (string "Use ~a to draw the velocity of ~a ~a at ~A" 
+			(*vector-tool* eval)
+			?b (?t pp) ?dir))
+    ))
 
 ;;; Special to average velocity vector = displacement / t
 ;;;
@@ -1228,7 +1242,9 @@
 	    )
   :hint (
 	 (point (string "The problem gives you the direction of the relative velocity of ~a with respect to ~a ~a." ?b1 ?b2 (?t pp)))
-	 (bottom-out (string "The problem specifies that the relative velocity of ~a with respect to ~a ~a is at ~a, so use the velocity tool to draw that vector at ~a." ?b1 ?b2 (?t pp) ?dir ?dir))
+	 (bottom-out (string "The problem specifies that the relative velocity of ~a with respect to ~a ~a is at ~a, so use ~A to draw that vector at ~a." 
+			(*vector-tool* eval)
+			?b1 ?b2 (?t pp) ?dir ?dir))
 	 ))
 
 
@@ -1261,7 +1277,8 @@
   :hint (
 	 (point (string "You need to introduce a term for the relative velocity of ~A with respect to ~A ~A" ?b1 ?b2 (?t pp)))
 	 (teach (string "If a vector angle requires calculation to determine, you should draw the vector in roughly the correct direction."))
-	 (bottom-out (string "Use the velocity tool to draw the relative velocity of ~a with respect to ~a ~A at an approximately correct angle."
+	 (bottom-out (string "Use ~A to draw the relative velocity of ~a with respect to ~a ~A at an approximately correct angle."
+			     (*vector-tool* eval)
 			     ?b1 ?b2 (?t pp)))
 	 ))
 
@@ -1293,8 +1310,10 @@
   ((point (string "Notice that ~a is moving relative to ~a." ?b1 ?b2))
    (teach (string "If ~A induces a thrust force on ~A, it must have a non-zero velocity relative to ~A." 
 		 ?b1 ?b2 ?b2))
-    (bottom-out (string "Use the relative velocity drawing tool to draw the relative velocity of ~a with respect to ~a ~a at ~a." ?b1 ?b2 (?t pp) ?dir))
-    ))
+    (bottom-out (string "Use ~a to draw the relative velocity of ~a with respect to ~a ~a at ~a." 
+			(*vector-tool* eval)
+			?b1 ?b2 (?t pp) ?dir))
+   ))
 
 (defoperator write-relative-vel-compo (?b1 ?b2 ?b3 ?t ?xy ?rot)
   :preconditions 
@@ -1372,7 +1391,9 @@
   ((point (string "Notice that ~a is at rest ~a." ?b (?t pp)))
    (teach (kcd "draw_accel_when_at_rest")
           (string "If a body is at rest throughout some time interval, its average acceleration during that interval is zero."))
-   (bottom-out (string "Because ~a is at rest ~a, use the acceleration tool to draw a zero-length acceleration vector for it." ?b (?t pp)))
+   (bottom-out (string "Because ~a is at rest ~a, use ~A to draw a zero-length acceleration vector for it." 
+		       (*vector-tool* eval)
+		       ?b (?t pp)))
    ))
 
 (defoperator draw-accel-given-zero-net-force (?b ?t)
@@ -1428,7 +1449,8 @@
    (teach (minilesson "mini_zero_accel.htm")
           (kcd "draw_accel_straight_constant_speed")
 	  (string "When a body is moving in a straight line at constant speed, then it has constant velocity and it has zero acceleration."))
-   (bottom-out (string "Because ~a has constant velocity ~a, use the acceleration tool to draw a zero-length acceleration vector for it." 
+   (bottom-out (string "Because ~a has constant velocity ~a, use ~A to draw a zero-length acceleration vector for it." 
+		       (*vector-tool* eval)
 		       ?b (?t pp)))
    ))
 
@@ -1451,7 +1473,9 @@
   :hint
   ((point (string "Notice that the potential has zero slope at ~A." ?loc))
    (teach (string "If a potential has zero slope, then it exerts no force."))
-   (bottom-out (string "Use the acceleration tool to draw a zero-length acceleration vector for ~A ~A." ?b (?t pp)))
+   (bottom-out (string "Use ~A to draw a zero-length acceleration vector for ~A ~A."
+		       (*vector-tool* eval)
+			?b (?t pp)))
    ))
 
 (defoperator draw-accelerating (?b ?t)
@@ -1477,8 +1501,10 @@
    ((point (string "Notice that the velocity of ~A is changing ~A." 
 		   ?b (?t pp)))
     (teach (string "When a body is moving in a straight line and accelerating, its acceleration is either parallel or opposite to the line of motion."))
-    (bottom-out (string "Because ~a is accelerating in direction ~a, you should use the acceleration tool to draw an acceleration for it ~a at direction ~a." 
-			?b ?dir (?t pp) ?dir))
+    (bottom-out (string "Because ~a is accelerating in direction ~a, you should use ~A to draw an acceleration for it ~a at direction ~a." 
+			?b ?dir 
+			(*vector-tool* eval)
+			(?t pp) ?dir))
     ))
 
 
@@ -1514,7 +1540,9 @@
     (teach (minilesson "mini_speedup_accel.htm")
            (kcd "draw_accel_straight_speeding_up")
 	   (string "When a body is moving in a straight line and speeding up, its acceleration is parallel to the line of motion."))
-    (bottom-out (string "Because ~a is speeding up while moving in a straight line with direction ~a, you should use the acceleration tool to draw an acceleration for it ~a at direction ~a." ?b ?dir (?t pp) ?dir))
+    (bottom-out (string "Because ~a is speeding up while moving in a straight line with direction ~a, you should use ~A to draw an acceleration for it ~a at direction ~a." 
+			(*vector-tool* eval)
+			?b ?dir (?t pp) ?dir))
     ))
 
 (defoperator draw-accel-potential (?b ?t)
@@ -1542,7 +1570,9 @@
    ((point (string "Notice that the potential at ~A is ~A as x increases."
 		   ?loc (?slope adj)))
     (teach (string "The force is minus the derivative of the potential energy.  Thus, if the potential energy increases in a given direction, then the associated force vector points in the opposite direction.  "))
-    (bottom-out (string "You should use the acceleration tool to draw an acceleration for ~A ~a in the direction ~a." ?b (?t pp) ?dir))
+    (bottom-out (string "You should ~A to draw an acceleration for ~A ~a in the direction ~a." 
+			(*vector-tool* eval)
+			?b (?t pp) ?dir))
     ))
 
 ;;; This draws an acceleration vector at an unknown direction for an object 
@@ -1584,7 +1614,9 @@
    :hint
    ((point (string "Can you tell whether the acceleration of ~a will be zero or non-zero?" ?b))
     (teach (string "When a body is subject to a net force it will have an acceleration parallel to the vector sum of all forces. In this problem you should be able to see that there will be a net force on ~A so it will have a non-zero acceleration. But not all of the forces are known, so you should draw the acceleration at an approximate angle." ?b))
-    (bottom-out (string "Use the acceleration tool to draw the acceleration for ~a ~A an an approximately correct direction." ?b (?t pp)))
+    (bottom-out (string "Use ~A to draw the acceleration for ~a ~A an an approximately correct direction." 
+			(*vector-tool* eval)
+			?b (?t pp)))
     ))
 
 
@@ -1728,7 +1760,9 @@
    ((point (string "Notice that ~a is a freely falling body ~a" ?b (?t pp)))
     (teach (kcd "draw_accel_freefall")
 	   (string "When a body is in free fall, it undergoes acceleration due to gravity directed toward the center of the planet exerting the gravitational force on it. This will be straight down in the diagrams for Andes problems."))
-    (bottom-out (string "Because ~a is accelerating due to gravity, you should use the acceleration tool to draw an acceleration for it ~a in the direction 270 degrees." ?b (?t pp)))
+    (bottom-out (string "Because ~a is accelerating due to gravity, you should use ~A to draw an acceleration for it ~a in the direction 270 degrees." 
+			(*vector-tool* eval)
+			?b (?t pp)))
     ))
 
 ;;; right now (motion ?body curved :type projectile ...) means all 
@@ -1824,7 +1858,8 @@
    ((point (string "Notice that ~a is in uniform circular motion ~a" ?b (?t pp)))
     (teach (kcd "draw_accel_circular_constant_speed")
 	   (string "When a body is in uniform circular motion, its acceleration is directed towards the center of the circle."))
-    (bottom-out (string "Because ~a is in uniform circular motion you should use the acceleration tool to draw an acceleration for it ~a at direction ~A." 
+    (bottom-out (string "Because ~a is in uniform circular motion you should use ~A to draw an acceleration for it ~a at direction ~A." 
+			(*vector-tool* eval)
 			?b (?t pp) (?accel-dir adj)))
     ))
 
@@ -2012,7 +2047,8 @@
   ((variable ?radius-var (revolution-radius ?b :time ?t))
    (define-var (revolution-radius ?b :time ?t))) 
   :hint 
-  ((bottom-out (string "Use the Text Tool to define ~A." 
+  ((bottom-out (string "Use ~A to define ~A." 
+			(*text-tool* eval)
 		       ((revolution-radius ?b :time ?t) def-np)))))
 
 ; Can optionally introduce variable for revolution radius by using a tool
@@ -2573,8 +2609,9 @@
    )
   :hint (
     (point (string "You know the direction of the position of ~a relative to ~a." ?b1 ?b2))
-    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the position of ~a with respect to ~a ~a at ~a."
-	  ?b1 ?b2 (?t pp) ?dir-expr))
+    (bottom-out (string "Use ~A to draw the position of ~a with respect to ~a ~a at ~a."
+			(*vector-tool* eval)
+			?b1 ?b2 (?t pp) ?dir-expr))
   ))
 
 (defoperator draw-relative-position-approximate (?b1 ?b2 ?t)
@@ -2600,8 +2637,9 @@
   :hint (
     (point (string "Draw the position of ~a relative to ~a in an approximate direction ~A." 
 		   ?b1 ?b2 (?loc identity)))
-    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the position of ~a with respect to ~a ~A at an approximate angle of ~A."
-	  ?b1 ?b2 (?t pp) ?dir-expr))
+    (bottom-out (string "Use ~A to draw the position of ~a with respect to ~a ~A at an approximate angle of ~A."
+			(*vector-tool* eval)
+			?b1 ?b2 (?t pp) ?dir-expr))
   ))
 
 ;; draw rba at direction opposite given dir of rab
@@ -2633,9 +2671,10 @@
    )
   :hint (
     (point (string "You know the direction of the relative position of ~a with respect to ~a." ?b1 ?b2))
-    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the position of ~a relative to ~a ~a at ~a."
-	  ?b1 ?b2 (?t pp) ?dir-expr))
-  ))
+    (bottom-out (string "Use ~A to draw the position of ~a relative to ~a ~a at ~a."
+			(*vector-tool* eval)
+			?b1 ?b2 (?t pp) ?dir-expr))
+    ))
 
 (def-PSMclass opposite-relative-position (opposite-relative-position (?Object0 ?Object1) ?time)
   :complexity minor
@@ -2708,8 +2747,9 @@
     (variable ?dir-var (dir (relative-position ?b1 ?b2 :time ?t)))
    )
   :hint (
-    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the position of ~a with respect to ~a ~a, at an approximately correct angle, since its exact direction is unknown."
-	  ?b1 ?b2 (?t pp)))
+    (bottom-out (string "Use ~A to draw the position of ~a with respect to ~a ~a, at an approximately correct angle, since its exact direction is unknown."
+			(*vector-tool* eval)
+			?b1 ?b2 (?t pp)))
   ))
 
 ;;; draw zero-length relative position if body is at location
@@ -2731,7 +2771,8 @@
   ( (point (string "Note that ~A is at ~A." ?b ?loc))
     (teach (string "What is the relative position of ~A with respect to ~A?" 
 		   ?b ?loc))    
-    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw a zero length vector representing the position of ~a relative to ~a ~a."
+    (bottom-out (string "Use ~A to draw a zero length vector representing the position of ~a relative to ~a ~a."
+			(*vector-tool* eval)
 			?b ?loc (?t pp)))
     ))
 
@@ -2756,7 +2797,8 @@
   ( (point (string "Note that ~A and ~A are at the same place ~." ?a ?b (?t pp)))
     (teach (string "What is the relative position of ~A with respect to ~A ~A?" 
 		   ?a ?b (?t pp)))    
-    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw a zero length vector representing the position of ~a relative to ~a ~a."
+    (bottom-out (string "Use ~A to draw a zero length vector representing the position of ~a relative to ~a ~a."
+			(*vector-tool* eval)
 			?a ?b (?t pp)))
     ))
 
@@ -2977,7 +3019,8 @@
 	     (define-var (gravitational-acceleration ?planet)) )
   :hint 
   ((bottom-out 
-    (string "Define a variable for ~A by using the Text Tool." 
+    (string "Define a variable for ~A by using ~a." 
+	    (*text-tool* eval)
 	    ((gravitational-acceleration ?planet) def-np)))))
 
 
@@ -3186,9 +3229,11 @@
   ((point (string "Notice that ~a is rotating ~a about ~A ~A." ?b 
 		  (?dir rotation-name) ?axis (?t pp)))
    (teach (string "The angular velocity vector represents the rate of change of a rotating object's angular position. The angular velocity vector lies along the z-axis in Andes problems. By the right hand rule it points out of the x-y plane of the diagram for counter-clockwise rotation and into the x-y plane for clockwise rotation."))
-   (bottom-out (string "Because ~a is rotating ~a ~A, use the velocity tool to draw a non-zero angular velocity vector with direction ~a." 
-		       ?b (?dir rotation-name) (?t pp) (?dir adj)))
-  ))
+   (bottom-out (string "Because ~a is rotating ~a ~A, use ~A to draw a non-zero angular velocity vector with direction ~a." 
+		       ?b (?dir rotation-name) (?t pp) 
+		       (*vector-tool* eval)
+		       (?dir adj)))
+   ))
 
 ;; Draw zero angular velocity for an object that is not rotating.
 ;; This is specified using the ang-at-rest or 
@@ -3213,9 +3258,10 @@
     (point (string "Notice that ~a is in rotational equilibrium ~a." 
 		   ?b (?t pp)))
     (teach (string "The angular velocity vector represents the rate of change of a rotating object's angular position. If an object is at rest, its angular position is not changing and its angular velocity is zero.")) 
-    (bottom-out (string "Because ~a is not rotating ~a, use the velocity tool to draw a zero-length angular velocity vector for it." ?b (?t pp)))
-  )
-)
+    (bottom-out (string "Because ~a is not rotating ~a, use ~A to draw a zero-length angular velocity vector for it." 
+			?b (?t pp)
+			(*vector-tool* eval)
+			))))
 
 ;; draw angular displacement of an object rotating in a known direction
 ;; over an interval. 
@@ -3241,8 +3287,10 @@
   ((point (string "Notice that ~a is rotating ~a ~a." 
 		  ?b (?dir rotation-name) (?t pp)))
    (teach (string "The angular displacement of an object over an interval represents its net change in angular position as it rotates during that interval.  This vector is defined to lie along the z-axis in Andes problems. By the right hand rule, the angular displacment vector points out of the x-y plane of the diagram for net counter-clockwise rotation and into the x-y plane for net clockwise rotation."))
-   (bottom-out (string "Because it is rotating ~A ~a, use the displacement tool to draw a non-zero displacement vector for ~A in the direction ~a." 
-		        (?dir rotation-name) (?t pp) ?b (?dir adj)))
+   (bottom-out (string "Because it is rotating ~A ~a, use ~A to draw a non-zero displacement vector for ~A in the direction ~a." 
+		       (?dir rotation-name) (?t pp)
+		       (*vector-tool* eval)
+		       ?b (?dir adj)))
    ))
 
 (defoperator draw-ang-displacement-unknown (?b ?t)
@@ -3262,7 +3310,9 @@
   :hint 
   ((point (string "You need to introduce a term for the angular displacement of ~A." ?b))
    (teach (string "The net rotation of the object is not given in the problem statement.  Whether the angular displacement points into or out of the plane requires calculation to determine.  Since it must lie along the z axis, you should draw it but specify an unknown Z direction."))
-    (bottom-out (string "Use the displacement tool to draw a non-zero angular displacement for ~a ~A and select Unknown Z direction in the dialog box." ?b (?t pp)))
+    (bottom-out (string "Use ~A to draw a non-zero angular displacement for ~a ~A and select Unknown Z direction in the dialog box."
+			(*vector-tool* eval)
+			?b (?t pp)))
    ))
 
 (defoperator ang-accel-at-rest (?b ?t)
@@ -3285,7 +3335,10 @@
   ((point (string "Notice that ~a is not rotating ~a." ?b (?t pp)))
    (teach (kcd "draw_accel_when_at_rest")
           (string "If a body is not rotating during some time interval, its angular acceleration during that interval is zero."))
-   (bottom-out (string "Because ~a is not rotating ~a, use the acceleration tool to draw a zero-length angular acceleration vector for it." ?b (?t pp)))
+   (bottom-out (string "Because ~a is not rotating ~a, use ~A to draw a zero-length angular acceleration vector for it." 
+		       ?b (?t pp)
+			(*vector-tool* eval)
+			))
    ))
 
 ;;; draw angular acceleration of an object where the direction of rotation
@@ -3310,8 +3363,10 @@
   :hint
    ((point (string "Notice that the rate at which ~a is rotating is changing ~A." ?b (?t pp)))
     (teach (string "The angular acceleration vector represents the rate of change of a rotating object's angular velocity."))
-    (bottom-out (string "Because it is accelerating in a ~a direction ~a, you should use the acceleration tool to draw an angular acceleration for ~A pointing ~A." 
-    (?dir rotation-name) (?t pp) (?dir adj) ?b (?dir adj)))
+    (bottom-out (string "Because it is accelerating in a ~a direction ~a, you should use ~A to draw an angular acceleration for ~A pointing ~A." 
+    (?dir rotation-name) (?t pp) (?dir adj)
+    (*vector-tool* eval)
+    ?b (?dir adj)))
     ))
 
 (defoperator draw-ang-accel-speed-up (?b ?t)
@@ -3333,8 +3388,10 @@
   :hint
    ((point (string "Notice that the rate at which ~a is rotating is increasing ~a" ?b (?t pp)))
     (teach (string "The angular acceleration vector represents the rate of change of a rotating object's angular velocity.  If an object's rate of rotation is speeding up then its angular velocity vector is increasing in magnitude over time, so the angular acceleration will point in the same direction as the angular velocity.  By the right-hand rule that will be out of the x-y plane for ccw rotation and into the plane for cw rotation."))
-    (bottom-out (string "Because ~a is rotating ~a ~a so its angular velocity points ~A, and it's angular velocity is increasing, you should use the acceleration tool to draw an angular acceleration for it pointing ~a." 
-    ?b (?dir rotation-name) (?t pp) (?dir adj) (?dir adj)))
+    (bottom-out (string "Because ~a is rotating ~a ~a so its angular velocity points ~A, and it's angular velocity is increasing, you should use ~a to draw an angular acceleration for it pointing ~a." 
+    ?b (?dir rotation-name) (?t pp) (?dir adj)
+    (*vector-tool* eval)
+    (?dir adj)))
     ))
 
 ;; draw angular acceleration of an object rotating in a known direction
@@ -3360,8 +3417,10 @@
   :hint
    ((point (string "Notice that the rate at which ~a is rotating is decreasing ~a" ?b (?t pp)))
     (teach (string "The angular acceleration vector represents the rate of change of a rotating object's angular velocity. If an object's rate of rotation is slowing down then its angular velocity vector is decreasing in magnitude over time, so the angular acceleration will point in the opposite direction from the angular velocity, as determined by the right-hand rule."))
-    (bottom-out (string "Because the angular acceleration of ~a ~a opposes the angular velocity for ~A rotation, which points ~A, you should use the acceleration tool to draw an angular acceleration for it pointing ~a." 
-    ?b  (?t pp) (?vel-dir rotation-name) (?vel-dir adj) (?dir adj)))))
+    (bottom-out (string "Because the angular acceleration of ~a ~a opposes the angular velocity for ~A rotation, which points ~A, you should use ~A to draw an angular acceleration for it pointing ~a." 
+    ?b  (?t pp) (?vel-dir rotation-name) (?vel-dir adj)
+    (*vector-tool* eval)
+    (?dir adj)))))
 
 ;;; draw angular acceleration of an objection rotating in an unknown direction
 ;;; but known to be accelerating. This arises in torque problems which seek
@@ -3390,8 +3449,10 @@
    (teach (string "When a body is subject to a non-zero net ~A it will have an angular acceleration in the direction of the net ~A.  In this problem you can assume that the forces will result in a net ~A so the body will have a non-zero angular acceleration.  Whether the angular acceleration points into or out of the plane requires calculation to determine.  Since it must lie along the z axis, you should draw it but specify an unknown Z direction." 
 		  (nil moment-name) (nil moment-name) 
 		  (nil moment-name)))
-    (bottom-out (string "Use the acceleration tool to draw a non-zero angular acceleration for ~a ~A and select Unknown Z direction in the dialog box." ?b (?t pp)))
-  ))
+    (bottom-out (string "Use ~A to draw a non-zero angular acceleration for ~a ~A and select Unknown Z direction in the dialog box." 
+			(*vector-tool* eval)
+			?b (?t pp)))
+   ))
  
 ;;; angular sdd:
 ;;; angular displacement = avg angular velocity * duration
