@@ -22,46 +22,36 @@
 ;;;
 
 (defparameter *images-path* "/review/ui-images/")
+(defun tool-link (name html-id &key (pre "the"))
+  (strcat pre " " (open-review-window-html name 
+					  (strcat "manual.html#" html-id)
+					  :title "Manual")))
 
-(defparameter *axis-tool* 
-  (open-review-window-html "the Axis Tool" "introduction.html#axis-tool" 
-			   :title "Manual"))
-
+(defparameter *axis-tool* (tool-link "Axis Tool" "axis-tool"))
 (defparameter *axis-tool-action* (strcat "click on " *axis-tool*))
-
 (defparameter *draw-axes* 
   (strcat "<img src=\"" *images-path* "draw-axes.png\" class=\"block\" alt=\"draw axes\">"))
 
 (defparameter *ellipse-tool* 
   (strcat "<img src=\"" *images-path* "ellipse-tool.png\" class=\"button\" alt=\"ellipse tool\">"))
-
 (defparameter *rectangle-tool* 
   (strcat "<img src=\"" *images-path* "rectangle-tool.png\" class=\"button\"  alt=\"rectangle-tool\">"))
-
-(defparameter *body-tool* 
-  (open-review-window-html "the Body Tool" "introduction.html#body-tool" 
-			   :title "Manual"))
-
+(defparameter *body-tool*  (tool-link "Body Tool" "body-tool" :pre "a"))
 (defparameter *body-tool-action* 
-  (strcat "click on " *ellipse-tool* " or " *rectangle-tool*))
+  (strcat "click on " *body-tool* " (" *ellipse-tool* " or " 
+	  *rectangle-tool* ")"))
 
 (defparameter *vector-icon* 
   (strcat "<img src=\"" *images-path* "vector-tool.png\" class=\"button\"  alt=\"vector tool\">"))
-(defparameter *vector-tool* 
-  (open-review-window-html "the Vector Tool" "introduction.html#vector-tool" 
-			   :title "Manual"))
-(defparameter *vector-tool-action* (strcat "click on " *vector-icon*))
+(defparameter *vector-tool*  (tool-link "Vector Tool" "vector-tool"))
+(defparameter *vector-tool-action* (strcat "click on " *vector-tool*))
 
 (defparameter *equation-icon* 
   (strcat "<img src=\"" *images-path* "equation-tool.png\" class=\"button\"  alt=\"equation tool\">"))
-(defparameter *equation-tool* 
-  (open-review-window-html "the Equation Tool" "introduction.html#equation-tool"
-			   :title "Manual"))
-(defparameter *equation-tool-action* (strcat "click on " *equation-icon*))
+(defparameter *equation-tool*  (tool-link "Equation Tool" "equation-tool"))
+(defparameter *equation-tool-action* (strcat "click on " *equation-tool*))
 
-(defparameter *text-tool* 
-  (open-review-window-html "the Text Tool" "introduction.html#text-tool"
-			   :title "Manual"))
+(defparameter *text-tool*  (tool-link "Text Tool" "text-tool"))
 (defparameter *text-tool-action* (strcat "click on " *text-tool*))
 
 ;; Make an object that looks like the text input box.
@@ -71,4 +61,4 @@
 (defun begin-sentence (x)
   "Capitalize for beginning of sentence"
   ;; Abstract this because we might eventually have links.
-  (format nil "~@(~A~)~A" (elt x 0) (subseq x 1)))
+  (string-upcase x :end 1))

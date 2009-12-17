@@ -1300,8 +1300,8 @@
   "Prompt for the student to start working on the givens."
   (nsh-dialog-prompt-Node
    (strcat "At this point it would be a good idea to begin enumerating "
-	   "all of the useful given quantities in the problem"  )
-   "why don't you start with "
+	   "all of the useful given quantities in the problem."  )
+   "Why don't you start with "
    (car *nsh-givens*)
    :Assoc `((nsh prompt-start-givens ,(bgnode-exp (car *nsh-givens*))))))
 

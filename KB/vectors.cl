@@ -70,7 +70,7 @@
    (teach (string "First figure out which object you want to apply the principle to, and if necessary, what time or time interval to analyze.  Then use ~a to indicate your selections."
 		  (*body-tool* eval)
 		  ))
-   (bottom-out (string "You should use ~A to draw a body choosing ~a as the body." 
+   (bottom-out (string "You should use ~A to draw a body for ~a." 
 		       (*body-tool* eval)
 		       (?b at-time ?t)))
    ))
