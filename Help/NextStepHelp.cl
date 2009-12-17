@@ -2618,7 +2618,7 @@
   (make-hint-seq 
    (list 
     (strcat "You should draw axes at " (format Nil "~a" Prompt) " degrees.")
-    (strcat "You should use the axes tool (looks like a +) to draw a pair of"
+    (strcat "You should use " *axis-tool* " to draw a pair of"
 	    "axes at " (format Nil "~a" Prompt) " degrees."))
    :Assoc `((nsh cbf-axes-draw-prompt ,Prompt))))
 
@@ -2808,12 +2808,12 @@
 
 
 (defparameter **nsh-single-sought-done-str**
-    (strcat "Choose the equation tool (=) and write an equation "
+    (strcat (begin-sentence *equation-tool-action*) " and write an equation "
 	    "of the form var=? where var is the sought quantity.  "
 	    "Then enter the value in the answer box."))
 
 (defparameter **nsh-multi-sought-done-str**
-    (strcat "Choose the equation tool (=) and write an equation "
+    (strcat (begin-sentence *equation-tool-action*) " and write an equation "
 	    "of the form var=? where var is a sought quantity.  "
 	    "Then enter the value in the appropriate answer box."))
 

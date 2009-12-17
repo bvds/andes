@@ -1384,12 +1384,8 @@
 (defun default-should-be-zero ()
  (make-hint-seq
    (append
-      (list "Are you sure that vector has a non-zero magnitude?"
-	    ; don't give bottom-out hint prematurely
-	    ;(strcat "It should have a zero magnitude." 
-	    ;        "To draw a zero-length vector, select the appropriate vector tool, then click " 
-	    ;        "and release immediately instead of dragging out an extended arrow.")
-            )
+      (list "Are you sure that vector has a non-zero magnitude?")
+      ;; no bottom-out hint yet.
       (sg-map-systemEntry->hints *correct-entry*)
 	 )))
 
@@ -1709,12 +1705,8 @@
    (list (format nil "Are you sure the velocity of ~a is non-zero ~a?" body time)
 	 (format nil "Because ~a is at rest ~a, its velocity ~a is zero." 
 		 body time time)
-	 (strcat (format nil "Delete this vector and draw a zero-length velocity vector for ~a ~a instead.  " 
-	                 body time)
-                  "To draw a zero-length vector, select the appropriate vector tool, then click " 
-	          "and release immediately instead of dragging out an extended arrow."
-		 ))))
-
+	 (strcat "Click on this vector and change its length to be zero.&nbsp; "
+		 "The vector will be drawn as a circle to indicate it has zero length."))))
 
 ;;; ====================== drawing acceleration ====================
 ;;; the default cases are handled by the general vector error classes,

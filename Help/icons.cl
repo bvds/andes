@@ -24,7 +24,8 @@
 (defparameter *images-path* "/review/ui-images/")
 
 (defparameter *axis-tool* 
-  (strcat "<img src=\"" *images-path* "axis-tool.png\" class=\"button\" alt=\"axis tool\">"))
+  (open-review-window-html "the Axis Tool" "introduction.html#axis-tool" 
+			   :title "Manual"))
 
 (defparameter *axis-tool-action* (strcat "click on " *axis-tool*))
 
@@ -37,18 +38,37 @@
 (defparameter *rectangle-tool* 
   (strcat "<img src=\"" *images-path* "rectangle-tool.png\" class=\"button\"  alt=\"rectangle-tool\">"))
 
+(defparameter *body-tool* 
+  (open-review-window-html "the Body Tool" "introduction.html#body-tool" 
+			   :title "Manual"))
+
 (defparameter *body-tool-action* 
   (strcat "click on " *ellipse-tool* " or " *rectangle-tool*))
 
 (defparameter *vector-icon* 
   (strcat "<img src=\"" *images-path* "vector-tool.png\" class=\"button\"  alt=\"vector tool\">"))
+(defparameter *vector-tool* 
+  (open-review-window-html "the Vector Tool" "introduction.html#vector-tool" 
+			   :title "Manual"))
 (defparameter *vector-tool-action* (strcat "click on " *vector-icon*))
 
 (defparameter *equation-icon* 
   (strcat "<img src=\"" *images-path* "equation-tool.png\" class=\"button\"  alt=\"equation tool\">"))
-
+(defparameter *equation-tool* 
+  (open-review-window-html "the Equation Tool" "introduction.html#equation-tool"
+			   :title "Manual"))
 (defparameter *equation-tool-action* (strcat "click on " *equation-icon*))
+
+(defparameter *text-tool* 
+  (open-review-window-html "the Text Tool" "introduction.html#text-tool"
+			   :title "Manual"))
+(defparameter *text-tool-action* (strcat "click on " *text-tool*))
 
 ;; Make an object that looks like the text input box.
 (defun text-box (x) 
   (strcat "<span class=\"text-box\">" x "</span>"))
+
+(defun begin-sentence (x)
+  "Capitalize for beginning of sentence"
+  ;; Abstract this because we might eventually have links.
+  (format nil "~@(~A~)~A" (elt x 0) (subseq x 1)))

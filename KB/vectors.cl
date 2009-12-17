@@ -67,8 +67,12 @@
   :effects ((body ?b :time ?t)) 	
   :hint
   ((point (string "It is a good idea to begin by choosing the body or system of bodies you are going to focus on."))
-   (teach (string "First figure out which object you want to apply the principle to, and if necessary, what time or time interval to analyze.  Then use the body tool (looks like a dot) to indicate your selections."))
-   (bottom-out (string "You should use the body tool to draw a body choosing ~a as the body." (?b at-time ?t)))
+   (teach (string "First figure out which object you want to apply the principle to, and if necessary, what time or time interval to analyze.  Then use ~a to indicate your selections."
+		  (*body-tool* eval)
+		  ))
+   (bottom-out (string "You should use ~A to draw a body choosing ~a as the body." 
+		       (*body-tool* eval)
+		       (?b at-time ?t)))
    ))
 
 
@@ -136,7 +140,9 @@
    (teach 
       (kcd "draw_conpound_lk_body")
       (string "When two bodies move together you can often simplify your solution by treating the two of them as a single body. This is called a compound body."))
-   (bottom-out (string "Use the body drawing tool and select a list of bodies to introduce the compound body consisting of ~a ~A." (?bodies conjoined-defnp) (?t pp)))
+   (bottom-out (string "Use ~A to define a body consisting of ~a ~A." 
+		       (*body-tool* eval)
+		       (?bodies conjoined-defnp) (?t pp)))
    ))
 
 
@@ -1052,8 +1058,9 @@
    )
   :hint (
     (point (string "You can determine the components of ~a from the problem statement." ?vec))
-    (bottom-out (string "Use the appropriate vector drawing tool to draw ~a at an approximately correct angle, then enter the component values in the dialog box."
-	  ?vec ?dir-expr))
+    (bottom-out (string "Use ~A to draw ~a at an approximately correct angle, then enter the component values in the dialog box."
+			(*vector-tool* eval)
+			?vec ?dir-expr))
   ))
 
 (defoperator draw-z-axis-vector-given-compos (?vec)
@@ -1080,9 +1087,10 @@
    )
   :hint (
     (point (string "The problem statement tells you the components of ~a." ?vec))
-    (bottom-out (string "Use the appropriate vector drawing tool to draw ~a at an approximately correct angle, then enter the given component values in the dialog box."
-	  ?vec ?dir-expr))
-  ))
+    (bottom-out (string "Use ~A to draw ~a at an approximately correct angle, then enter the given component values in the dialog box."
+			(*vector-tool* eval)
+			?vec ?dir-expr))
+    ))
 
 
 #| ; This possible rule doesn't match current workbench practice in API calls.
@@ -1124,8 +1132,9 @@
    )
   :hint (
     (point (string "The problem statement tells you the components of ~a, which make its direction obvious." ?vec))
-    (bottom-out (string "Use the appropriate vector drawing tool to draw ~a at ~a."
-	  ?vec ?dir-expr))
+    (bottom-out (string "Use ~A to draw ~a at ~a."
+			(*vector-tool* eval)
+			?vec ?dir-expr))
   ))
 |#
 
@@ -1532,8 +1541,10 @@
 	   (variable ?theta-var (angle-between orderless . ?vecs))
 	   )
  :hint (
-	(bottom-out (string "Define a variable for the angle between ~A and ~A by using the Text Tool." 
-			    (?v1-var algebra) (?v2-var algebra)))
+	(bottom-out (string "Define a variable for the angle between ~A and ~A by using ~A." 
+			    (?v1-var algebra) (?v2-var algebra)
+			    (*text-tool* eval)
+			    ))
 	))
 
 
@@ -1559,9 +1570,11 @@
    (variable ?theta-var (angle-between orderless . ?lines))
  )
  :hint (
-  (bottom-out (string "Define a variable for the angle between ~A and ~A by using the Text Tool." 
-   ?r1 ?r2))
- ))
+	(bottom-out (string "Define a variable for the angle between ~A and ~A by using ~A." 
+			    ?r1 ?r2
+			    (*text-tool* eval)
+			    ))
+	))
 
 (def-psmclass angle-direction (angle-direction orderless . ?things)
   :complexity definition
@@ -1790,7 +1803,8 @@
   :hint 
   ( (point (string "You can draw ~A" 
 		   ((unit-vector ?orientation ?body :at ?loc :time ?t) def-np)))
-       (bottom-out (string "Use the unit vector drawing tool (labeled n) to draw a unit vector in the direction ~A." 
+       (bottom-out (string "Use ~A to draw a unit vector in the direction ~A." 
+			    (*vector-tool* eval)
 			   ?dir))))
 
 ;; It would be better for this to be an effect of the drawing rule itself
@@ -1831,7 +1845,8 @@
 	       (variable ?l-var (length ?b))
 	       )
   :hint (
-	 (bottom-out (string "Use the Text Tool to define a variable for ~A."  
+	 (bottom-out (string "Use ~A to define a variable for ~A."  
+			    (*text-tool* eval)
 			     ((length ?b) def-np)))
 	 ))
 
@@ -1845,8 +1860,10 @@
 	    (variable ?mu-var (mass-per-length ?rope))
 	    (define-var (mass-per-length ?rope)))
   :hint ((bottom-out 
-	  (string "Define a variable ~A by using the Text Tool."
-		  ((mass-per-length ?rope) def-np)))))
+	  (string "Define a variable ~A by using ~A."
+		  ((mass-per-length ?rope) def-np)
+		  (*text-tool* eval)
+			    ))))
 
 ;;; mass per length = mass /length of a rod
 
@@ -1896,7 +1913,8 @@
     (variable ?l-var (width ?b))
   )
   :hint (
-    (bottom-out (string "Use the Text Tool to define a variable for ~A." 
+    (bottom-out (string "Use ~A to define a variable for ~A." 
+			(*text-tool* eval)
 			((width ?b) def-np)))
   ))
 
@@ -2243,8 +2261,10 @@
      :effects ((variable ?Ac-var (area ?shape))
                (define-var (area ?shape)))
      :hint (
-          (bottom-out (string "Define a variable for ~A by using the Text Tool."  
-			      ((area ?shape) def-np)))))
+          (bottom-out (string "Define a variable for ~A by using ~A."  
+			      ((area ?shape) def-np)
+			      (*text-tool* eval)
+			    ))))
 
 ;; quantity to represent radius of a circular shape
 (def-qexp radius-of-circle (radius-of-circle ?body)
@@ -2263,8 +2283,10 @@
                (define-var (radius-of-circle ?body))
    )
      :hint (
-          (bottom-out (string "Define a variable for ~A by using the Text Tool."
-			      ((radius-of-circle ?body) def-np)))))
+          (bottom-out (string "Define a variable for ~A by using ~A."
+			      ((radius-of-circle ?body) def-np)
+			    (*text-tool* eval)
+			    ))))
 
 ;; quantity to represent diameter of a circular shape
 (def-qexp diameter-of-circle (diameter-of-circle ?body)
@@ -2282,8 +2304,10 @@
                (define-var (diameter-of-circle ?body))
    )
      :hint (
-          (bottom-out (string "Define a variable for ~A by using the Text Tool."
-			      ((diameter-of-circle ?body) def-np)))
+          (bottom-out (string "Define a variable for ~A by using ~A."
+			      ((diameter-of-circle ?body) def-np)
+			    (*text-tool* eval)
+			    ))
           ))
 
 ;; quantity to represent circumference of a circular shape
@@ -2302,8 +2326,10 @@
                (define-var (circumference-of-circle ?body))
    )
      :hint (
-          (bottom-out (string "Define a variable for ~A by using the Text Tool."
-			      ((circumference-of-circle ?body) def-np)))
+          (bottom-out (string "Define a variable for ~A by using ~A."
+			      ((circumference-of-circle ?body) def-np)
+			    (*text-tool* eval)
+			    ))
           ))
 
 ;; equation of the circumference of a circle c = 2*pi*r
