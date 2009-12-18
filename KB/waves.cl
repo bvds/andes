@@ -259,7 +259,7 @@
   :nlg-english ("the beat frequency of two waves")
   :ExpFormat ("finding the beat frequency of waves ~A and ~A"
 	      (nlg ?w1) (nlg ?w2))
-  :EqnFormat ("fbeat = abs(f1-f2)/2")) 
+  :EqnFormat ("fbeat = abs(f1-f2)")) 
 
 (defoperator beat-frequency-contains (?sought)
   :preconditions 
@@ -291,13 +291,13 @@
     (variable  ?f2 (observed-frequency ?w2 ?me :time ?t))
     (variable  ?fbeat (observed-frequency ?wbeat ?me :time ?t)) )
   :effects 
-  ( (eqn  (= ?fbeat (* 0.5 (abs (- ?f1 ?f2)))) 
+  ( (eqn  (= ?fbeat (abs (- ?f1 ?f2))) 
 	  (beat-frequency ?wbeat ?w1 ?w2 ?me ?t)) )
   :hint 
   ( (point (string "You can use equation for the beat frequency"))
     (teach (string "The beat frequency for two waves is one half the difference in frequency."))
     (bottom-out (string "Write the equation ~A" 
-			((= ?fbeat (* 0.5 (abs (- ?f1 ?f2))))  algebra) )) ))
+			((= ?fbeat (abs (- ?f1 ?f2)))  algebra) )) ))
 
 ;; it would be nice to somehow combine this with the above rule...
 (defoperator write-timeless-beat-frequency (?wbeat ?w1 ?w2 ?me ?t)
@@ -307,13 +307,13 @@
     (variable  ?f2 (frequency ?w2))
     (variable  ?fbeat (frequency ?wbeat)) )
   :effects 
-  ( (eqn  (= ?fbeat (* 0.5 (abs (- ?f1 ?f2)))) 
+  ( (eqn  (= ?fbeat (abs (- ?f1 ?f2))) 
 	  (beat-frequency ?wbeat ?w1 ?w2 ?me ?t)) )
   :hint 
   ( (point (string "You can use equation for the beat frequency"))
     (teach (string "The beat frequency for two waves is one half the difference in frequency."))
     (bottom-out (string "Write the equation ~A" 
-			((= ?fbeat (* 0.5 (abs (- ?f1 ?f2))))  algebra) )) ))
+			((= ?fbeat (abs (- ?f1 ?f2)))  algebra) )) ))
 
 ;;;
 ;;;  Relate frequency and period of a wave
