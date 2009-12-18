@@ -371,7 +371,8 @@ dojo.provide("andes.drawing");
 			dojo.forEach(data, function(m){
 				idNum = Math.max(getNum(m), idNum);	
 			});
-			idNum++;
+			++idNum;
+			
 			dojox.drawing.util.common.idSetStart(idNum);
 			
 			// summary:

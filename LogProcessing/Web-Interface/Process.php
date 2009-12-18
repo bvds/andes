@@ -1,6 +1,6 @@
 <?
-$dbuser= "rrangan";
-$dbserver= "gideon.eas.asu.edu";
+$dbuser= "root";
+$dbserver= "localhost";
 $dbpass= "sin(0)=0";
 $dbname= "andes";
 //******** BEGIN LISTING THE CONTENTS OF  testTable*********                                                                                                            
