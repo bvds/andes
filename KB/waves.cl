@@ -1080,13 +1080,13 @@
 		      (and (preferred (property ?body)) 
 			   (preferred ("at" ?position))
 			   (time ?time))) 
-                    (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
-			'( (possessive ?body)
-		           (time-type ?time)
-		           ?property 
-		           (and ((preferred ("at" ?position))
-		                 (time ?time))))
-		 )))))
+                ;    (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
+		;	'( (possessive ?body)
+		;           (time-type ?time)
+		;           ?property 
+		;           (and ((preferred ("at" ?position))
+		;                 (time ?time))))))
+		)))
 ;+syjung
 (def-qexp property-agent-pos-time (property-agent-pos-time ?property ?agent ?position :time ?time)
   :new-english ((allowed ((the) "value of")) 
@@ -1095,14 +1095,14 @@
 		      (and (preferred ("by" "due to" "caused by" ?agent)) 
 			   (preferred ("at" ?position))
 			   (time ?time))) 
-                    (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
-		      '( (possessive ?body)
-		         (time-type ?time)
-		         ?property 
-		         (and  (preferred ("at" ?position))
-		               (preferred ("by" "due to" "caused by" ?agent)) 
-		               (time ?time)))
-		 )))))
+                ;    (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
+		;      '( (possessive ?body)
+		;         (time-type ?time)
+		;         ?property 
+		;         (and  (preferred ("at" ?position))
+		;               (preferred ("by" "due to" "caused by" ?agent)) 
+		;               (time ?time)))))
+		)))
 
 ;;;;   Decibels and intensity and magnitude of Poynting vector
 
