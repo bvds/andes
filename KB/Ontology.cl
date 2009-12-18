@@ -437,13 +437,17 @@
 (def-qexp property-object-optime (property-object-optime ?property ?body :time ?time)
   :new-english ((allowed ((the) "value of")) 
 		(the)
-		(or ( ?property  		; "mass"
-		      (and (preferred (property ?body)) (time ?time)) )
+		;(or 
+		    ;( 
+		      ?property  		; "mass"
+		      (and (preferred (property ?body)) (time ?time)) 
+		    ;)
 		    ;(eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
 		    ;  '( (possessive ?body)
 		    ;     ?property 		; "mass"
 		    ;     (time ?time))))
-		))
+		;)
+		)
 )
 ;+syjung
 ;ex) "the mass of the crate"
