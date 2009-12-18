@@ -26,31 +26,36 @@
 ;phrase expressions
 (def-qexp property-field-source-time (property-field-source-time ?property ?field ?source :time ?time)
   :new-english (;(allowed "the value of") 
-		(or ( (the) ;(time-type ?time) 
+		;(or ( 
+		      (the) ;(time-type ?time) 
 	              ?property  		; "electric field" 
 		      (and (preferred ("at" ?field))
 			   (preferred ((or "of" "due to" "by" "caused by" "made by")
 				       ?source ))
-		 	   (time ?time))) 
+		 	   (time ?time))
+		;) 
                     ;(eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
 		    ;  ' ( (possessive ?source) ; "the charge2's electric energy at p2
 		    ;    ?property ; "electric field"
 		    ;    (and (preferred ("at" ?field ))
 		    ;       (time ?time)))))
-		))
+		)
 )
 ;+syjung
 (def-qexp property-field-time (property-field-time ?property ?field :time ?time)
-  :new-english (;(allowed "the value of") 
-		(or ( (the) ;(time-type ?time) 
+  :new-english	(;(allowed "the value of") 
+		;(or ( 
+		      (the) ;(time-type ?time) 
 	              ?property  		; "electric field" 
 		      (and (preferred ("at" ?field)) 
-		 	   (time ?time))) 
+		 	   (time ?time))
+		;) 
                     ;(eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
 		    ;  '( (possessive ?field) ;(time-type ?time)
 		    ;     ?property ; "electric field"
 		    ;     (time ?time))))
-		))
+		;)
+		)
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
