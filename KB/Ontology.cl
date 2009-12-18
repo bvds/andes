@@ -115,10 +115,10 @@
 		     (or "relative to" "with respect to") ?from-pt)
 		   ((property-object "relative position" ?to-pt)
 		     (or "from" "with respect to") ?from-pt)
-		   ((possessive ?to-pt) "relative position"
-		     (or "from" "with respect to") ?from-pt)
-		   ((possessive ?to-pt) "position"
-		     (or "relative to" "with respect to") ?from-pt)
+		   ;((possessive ?to-pt) "relative position"
+		   ;  (or "from" "with respect to") ?from-pt)
+		   ;((possessive ?to-pt) "position"
+		   ;  (or "relative to" "with respect to") ?from-pt)
 		)
 )
 
@@ -307,20 +307,30 @@
   :new-english ((the) "rate of" ?property))
 
 ;+syjung
+; (expand-new-english ..) is not working well. 
+; So, Brett and Sung-young decided to turn possessive expression off until other parts work fine.
+; The problem of possessive expression: 
+;   Possessive expression requires a word replaced by "~'s". It should be string replacement
+;   But, internal data passing here is a list of atoms. 
+;   So, the atom should be replaced using (expand-new-english ..) function. 
+;   This function is not working well, and possessive will be turned off until it is fixed.
+;
 ; possessive "object's"
 (def-qexp possessive (possessive ?body)
   ;:new-english (eval (attach-to-element ?body '(or (var (body ?body)) ?body) "'s")))
   ;:new-english (eval (attach-to-element ?body (expand-vars '(or (var (body ?body)) ?body)) "'s")))
-  :new-english (eval (attach-to-element ?body (list 'or (expand-vars '(var (body ?body))) ?body) "'s")))
+  ;:new-english (eval (attach-to-element ?body (list 'or (expand-vars '(var (body ?body))) ?body) "'s")))
+  :new-english (eval (attach-to-element ?body (list 'or (expand-new-english '(var (body ?body))) ?body) "'s")))
   ;:new-english (eval (attach-to-element ?body (expand-vars (expand-new-english '(or (var (body ?body)) ?body))) "'s")))
   ;:new-english (eval (attach-to-element ?body (expand-new-english '(or (var (body ?body)) ?body)) "'s")))
 
 ;+syjung
 ; (attach-to-element 'crate '(or (var (body crate)) crate) "'s")
-; = '(or (var (body "crate's")) "crate's")
+; = '(or (var (body crate)) "crate's")
 (defun attach-to-element (e nested-list to-attach)
 	(if (atom nested-list)
 	    (if (string= nested-list e)
+	    	;(format nil "~A~A" (expand-new-english nested-list) to-attach)
 	    	(format nil "~A~A" nested-list to-attach)
 		nested-list)
 	    (if (cdr nested-list)
@@ -361,11 +371,12 @@
 		(or ((time-type-prop ?time ?property) 
 		     ?property  ; "speed"
 		     (and (preferred (property ?body)) (time ?time))) 
-		    (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
-		      '( (possessive ?body)
-		        (time-type-prop ?time ?property)
-		        ?property ; "speed"
-		        (time ?time)))))))
+		    ;(eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
+		    ;  '( (possessive ?body)
+		    ;    (time-type-prop ?time ?property)
+		    ;    ?property ; "speed"
+		    ;    (time ?time))))
+)))
 ;+syjung
 ;ex) "the average velocity of the car between T0 and T1"
 ;    "the car's average velocity between T0 and T1"
@@ -375,11 +386,12 @@
 		 (or ((time-type-prop ?time ?property)
 		      ?property  ; "velocity"
 		      (and (preferred (property ?body)) (time ?time))) 
-		     (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
-		      '((possessive ?body)
-		        (time-type-prop ?time ?property)
-		        ?property (allowed "vector"); "velocity"
-		        (time ?time))))))
+		     ;(eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
+		     ; '((possessive ?body)
+		     ;   (time-type-prop ?time ?property)
+		     ;   ?property (allowed "vector"); "velocity"
+		     ;   (time ?time))))
+		))
 )
 ;+syjung
 ;ex) "the net force exerted by the man"
@@ -391,13 +403,13 @@
 		      (and (preferred (property ?body)) 
 			   (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
 				       ?agent ))) )
-		    (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
-		     '( (possessive ?body)
-		        (time-type-prop ?time ?property)
-		        ?property 
-		        (and (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
-				       ?agent ))))
-		)))))
+		    ;(eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
+		    ; '( (possessive ?body)
+		    ;    (time-type-prop ?time ?property)
+		    ;    ?property 
+		    ;    (and (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
+		;		       ?agent ))))))
+		)))
 ;+syjung
 ;ex) "the net force exerted by the man at time T1"
 (def-qexp property-object-agent-time (property-object-agent-time ?property ?body ?agent :time ?time)
@@ -409,14 +421,15 @@
 			   (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
 				       ?agent ))
 		 	   (time ?time))) 
-		    (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
-		     '( (possessive ?body)
-		        (eval (when (check-time-type ?property)
-			      (time-type-prop ?time)))
-		        ?property 
-		        (and (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
-				       ?agent ))
-		           (time ?time)))))))
+		    ;(eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
+		    ; '( (possessive ?body)
+		    ;    (eval (when (check-time-type ?property)
+		;	      (time-type-prop ?time)))
+		;        ?property 
+		;        (and (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
+		;		       ?agent ))
+		;           (time ?time)))))
+		))
 )
 ;+syjung
 ; optime : time is optional 
@@ -426,24 +439,33 @@
 		(the)
 		(or ( ?property  		; "mass"
 		      (and (preferred (property ?body)) (time ?time)) )
-		    (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
-		      '( (possessive ?body)
-		         ?property 		; "mass"
-		         (time ?time))))))
+		    ;(eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
+		    ;  '( (possessive ?body)
+		    ;     ?property 		; "mass"
+		    ;     (time ?time))))
+		))
 )
 ;+syjung
 ;ex) "the mass of the crate"
 ;    "the crate's mass"
 ;    "the value of crate's mass"
 (def-qexp property-object (property-object ?property ?body)
-  :new-english ((allowed ((the) "value of")) ;---------------------------" "property:" ?property "body:" ?body)) 
-		(the)
-		(or 
-		    ( ?property
-		      (preferred (property ?body)))
-		    (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
-		      '( (possessive ?body) ?property)))
-		))
+  :new-english ((allowed ((the) "value of")) ; ---------------------------" "property:" ?property "body:" ?body)) 
+
+	    (or
+		(the) ?property
+		      (preferred (property ?body))
+		;(the) (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
+		;      '( (possessive ?body) ?property)))
+	    ))
+;following is logically the same to above lines, but doesn't work:
+;	   (the) 
+;	   (or
+;		 ?property
+;		   (preferred (property ?body))
+;		(eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
+;		   '( (possessive ?body) ?property)))
+;	   ))
 )
 ;+syjung
 (def-qexp the (the)

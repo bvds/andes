@@ -33,7 +33,7 @@
   :units |kg/m^3|
   :restrictions nonnegative   
   ;:nlg-english ("the mass density of ~A" (nlg ?material))
-  :new-english (property-object (or "mass density" "density of mass") ?material)
+  :new-english (property-object ((preferred "mass") "density") ?material)
 )
 
 (defoperator define-mass-density (?material)
@@ -362,7 +362,7 @@
   :units |m^2|
   :restrictions positive
   ;:nlg-english ("the cross-sectional area at ~A" (nlg ?position 'at-time ?time))
-  :new-english ((the) "cross-sectional area" 
+  :new-english ((the) (preferred "cross-sectional") "area"
 		(and (preferred ("at" ?position)) 		
 		     (time ?time)))
 )
