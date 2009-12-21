@@ -156,12 +156,13 @@
 		     (time ?time))))
 ; ex) "the constant normal force that the man acts on the crate"
 ;     "the constant normal force of the man acting on the crate"
+;     "the average force exerted on the pier between T0 and T1" in dt3b 
 ;     "the tension in the wire" in s13 ("wire" is not a defined object in s13)
 ;question in s13: why the wire is an agent? and the bar is an object?
 (def-qexp force (force ?body ?agent ?type :time ?time)
   :units N
   :new-english ((the) ;(time-type ?time)
-		(allowed (or "constant" "steady"))
+		(allowed (or "constant" "const" "const." "steady" "average" "ave."))
 		(eval (force-types ?type))
 		(or (and  (preferred (object ?body))
 		     	  (preferred (agent ?agent))
