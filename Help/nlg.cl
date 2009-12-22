@@ -278,8 +278,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  This is a shortcut for including time when it exists
 (defun at-time (x &rest args)
+  (when (cdr args) (warn "unexpected extra args ~A in at-time" (cdr args)))
   (if (= (length args) 1)
-      (format nil "~A~@[ ~A~]" (nlg x) (nlg (car args) 'pp))
+      (format nil "~A~@[ ~A~]" (match:word-string (new-english-find x))
+	      (match:word-string (new-english-find (list 'time (car args)))))
     (nlg-list-default x)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
