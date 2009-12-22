@@ -263,7 +263,7 @@
   (mapcar #'(lambda (v) 
 	      (if (listp v)
 		  (cons 'nlg v)
-		(list 'nlg v)))
+		(list 'new-english-find v)))
 	  Vars))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
