@@ -816,8 +816,7 @@
   :units |m/s^2|
   :restrictions nonnegative 
   ;:nlg-english ("the |maximum acceleration of ~A|" (nlg ?wave))
-  :new-english ((property-object "|maximum acceleration" (nlg ?wave))
-		"|")
+  :new-english ((the) "|maximum acceleration" (property ?wave) "|")
 )
 
 (defoperator define-amplitude-max-abs-acceleration (?wave)
@@ -1096,7 +1095,7 @@
 		;(or ( 
 		      (the) (time-type ?time) 
 		      ?property  
-		      (and (preferred ("by" "due to" "caused by" ?agent)) 
+		      (and (preferred (agent ?agent)) 
 			   (preferred ("at" ?position))
 			   (time ?time))
 		;) 
@@ -1120,8 +1119,12 @@
   :short-name "intensity"	
   :units |W/m^2|
   :restrictions positive
-  :nlg-english ("the intensity supplied to ~A due to ~A" 
-	       (nlg ?wave 'at-time ?time) (nlg ?agent 'agent))
+  ;; :nlg-english ("the intensity supplied to ~A due to ~A" 
+  ;;	       (nlg ?wave 'at-time ?time) (nlg ?agent 'agent))
+:new-english ((the) "intensity" 
+	      (and (preferred "supplied to" ?wave)
+		   (preferred (agent ?agent))
+		   (time ?time)))
 )
 
 (defoperator define-intensity (?wave ?agent ?t)
@@ -1183,8 +1186,10 @@
     ) 
    :hint
    ((point (string "The Poynting vector at ~a points in the direction of the flow of energy from ~A." ?b ?agent))
-    (bottom-out (string "At ~A, the energy from ~A is flowing in the direction ~A.  Draw the Poynting vector oriented at ~A." 
-			?b (?agent at-time ?t) ?dir ?dir))
+    (bottom-out (string "At ~A, the energy from ~A~@[ ~A~] is flowing in the direction ~A.  Use ~A to draw the Poynting vector oriented at ~A." 
+			?b (?t pp) ?dir 
+			(*vector-tool* eval)
+			?dir))
     ))
 
 

@@ -70,9 +70,9 @@
    (teach (string "First figure out which object you want to apply the principle to, and if necessary, what time or time interval to analyze.  Then use ~a to indicate your selections."
 		  (*body-tool* eval)
 		  ))
-   (bottom-out (string "You should use ~A to draw a body for ~a." 
+   (bottom-out (string "You should use ~A to draw a body for ~a~@[ ~A~]." 
 		       (*body-tool* eval)
-		       (?b at-time ?t)))
+		       ?b (?t pp)))
    ))
 
 
@@ -205,7 +205,8 @@
   (;;(point (string "Although one usually rotates the x-y coordinate system to align axes with vectors, there are no vectors on the system of interest with known directions in the x-y plane."))
    ;;(teach (string "When you don't have any vectors in the x-y plane with which to align your coordinate system, you might as well draw a standard horizontal-vertical coordinate system."))
    (teach (string "In this problem, there is no strong reason not to use a standard horizontal-vertical coordinate system."))
-   (bottom-out (string "Draw a standard horizontal-vertical coordinate system setting the positive x axis at 0 degrees."))
+   (bottom-out (string "Use ~A to draw a standard horizontal-vertical coordinate system setting the positive x axis at 0 degrees." 
+		       (*axis-tool* eval)))
    ))
 
 ;; following draws standard axes when problem seeks horizontal or vertical 
@@ -238,7 +239,8 @@
   )
   :hint
   ((point (string "Although one usually rotates the x-y coordinate system to align axes with vectors, this problem gives or seeks horizontal or vertical vector components.  You should use a standard horizontal-vertical coordinate system."))
-   (bottom-out (string "Draw a standard horizontal-vertical coordinate system setting the positive x axis at 0 degrees."))
+   (bottom-out (string "Use ~A to draw a standard horizontal-vertical coordinate system setting the positive x axis at 0 degrees."
+		       (*axis-tool* eval)))
    ))
 
 ;; reuse-other-body-axes only applies once to draw axes within a given call to
@@ -402,7 +404,8 @@
   :hint (
 	 (point (string "To find an appropriate direction to set the coordinate axes, think about the sorts of quantities that will be needed for an energy solution."))
 	 (teach (string "Gravitational potential energy depends on the height above the stipulated zero level. Because change in height is the vertical component of the displacement, and because energy solutions otherwise involve only scalar quantities, there is no advantage to using rotated coordinate axes. So energy solutions in Andes use only standard horizontal-vertical axes."))
-	 (bottom-out (string "Draw standard horizontal-vertical coordinate axes by setting the x axis at 0 degrees." ))
+	 (bottom-out (string "Use ~A to draw standard horizontal-vertical coordinate axes by setting the x axis at 0 degrees." 
+			     (*axis-tool* eval)))
 	 ))
 
 
