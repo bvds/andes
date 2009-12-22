@@ -585,7 +585,7 @@
   :units NIL ;; dimensionless
   ;:nlg-english ("coefficient of ~(~A~) friction between ~A and ~A" (nlg ?static-or-kinetic NIL) (nlg ?body1) (nlg ?body2 'at-time ?time))) 
   :new-english ((the) "coefficient of" ?static-or-kinetic "friction"
-		(and (preferred "between" ?body1 "and" ?body2)
+		(and (preferred ("between" ?body1 "and" ?body2))
 		     (time ?time)))) 
 
 (def-qexp coef-drag-turbulent (coef-drag ?b ?medium :type turbulent :time ?time)
