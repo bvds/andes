@@ -88,7 +88,7 @@
 		 		     (:file "Interface") ;The interface api.
 	 			     (:file "Commands"
 					    :depends-on ("Entry-API" 
-							 "Interface"))
+							 "Interface" "icons"))
  				     (:file "API")
                                      (:file "fade"
 					    :depends-on ("icons"))
