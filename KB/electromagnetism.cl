@@ -248,7 +248,7 @@
 	(point (string "Notice that ~A contains a constant ~A field."
 	               ?loc (?type adj) ?loc)) 
 	(bottom-out (string "~A and draw the ~A field at ~a due to ~a in the given direction of ~A." 
-			    (*vector-tool-action* 'begin-sentence)
+			    (*vector-tool-action* begin-sentence)
 			    (?type adj) ?loc (?source agent) (?dir-f adj)))
         )) 
 
@@ -281,7 +281,7 @@
 	 (point (string "Not that ~A is inside a conductor." ?loc)) 
 	 (teach (string "Inside a good conductor, the electric field is almost zero." ?loc)) 
 	 (bottom-out (string "~A draw a zero-length vector for the electric field at ~a ." 
-			     (*vector-tool-action* 'begin-sentence)
+			     (*vector-tool-action* begin-sentence)
 			     ?loc))
 	 ))
 

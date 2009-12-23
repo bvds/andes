@@ -578,6 +578,7 @@
 		    ;(mag (velocity ?body :time ?time))
 )
 
+;ex) "the coeffienct of kinetic friction between the displacement and the friction force"
 (def-qexp coef-friction 
     (coef-friction ?body1 ?body2 ?static-or-kinetic :time ?time)
   :symbol-base |$m|     
@@ -585,8 +586,8 @@
   :units NIL ;; dimensionless
   ;:nlg-english ("coefficient of ~(~A~) friction between ~A and ~A" (nlg ?static-or-kinetic NIL) (nlg ?body1) (nlg ?body2 'at-time ?time))) 
   :new-english ((the) "coefficient of" ?static-or-kinetic "friction"
-		(and (preferred ("between" ?body1 "and" ?body2))
-		     (time ?time)))) 
+		(and (preferred ("between" (or (var ?body1) ?body1) "and" (or (var ?body2) ?body2)))
+		     (time ?time))))
 
 (def-qexp coef-drag-turbulent (coef-drag ?b ?medium :type turbulent :time ?time)
   :symbol-base |K|     

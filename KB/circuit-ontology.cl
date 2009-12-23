@@ -41,6 +41,30 @@
 		    ;       (time ?time)))))
 		)
 )
+;(def-qexp field-type (field-type ?type)
+;  :new-english (eval (case ?type
+;			(electric "electric")
+;			(magnetic "magnetic")
+;			((net electric) "net electric")
+;			((net magnetic) "net magnetic")
+;			)))
+;(def-qexp property-type-field-source-time (property-type-field-source-time ?type ?property ?field ?source :time ?time)
+;  :new-english	(;(allowed "the value of") 
+;		 ;(or ( 
+;		      (the) ;(time-type ?time) 
+;	              (field-type ?type) ?property  		; "electric field" 
+;		      (and (preferred ("at" ?field))
+;			   (preferred ((or "of" "due to" "by" "caused by" "made by")
+;				       ?source ))
+;		 	   (time ?time))
+;		 ;) 
+;                    ;(eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
+;		    ;  ' ( (possessive ?source) ; "the charge2's electric energy at p2
+;		    ;    ?type ?property ; "electric field"
+;		    ;    (and (preferred ("at" ?field ))
+;		    ;       (time ?time)))))
+;		)
+;)
 ;+syjung
 (def-qexp property-field-time (property-field-time ?property ?field :time ?time)
   :new-english	(;(allowed "the value of") 
@@ -58,6 +82,46 @@
 		)
 )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Circuits quantities
+;; note arguments are usually proper names -- R1, PtA, etc -- not common nouns
+;; so we don't use nlg types that add articles.
+(def-qexp voltage-across (voltage-across ?comp :time ?time)
+  :units |V|
+  ;:nlg-english ("the voltage across ~A~@[ ~A~]" ?comp (nlg ?time 'pp)))
+  ;syjung : need check the meaining of "pp"
+  :new-english ((the) "voltage across" ?comp (time ?time) ))
+;+syjung
+(def-qexp property-field-time (property-field-time ?property ?field :time ?time)
+  :new-english	(;(allowed "the value of") 
+		;(or ( 
+		      (the) ;(time-type ?time) 
+	              ?property  		; "electric field" 
+		      (and (preferred ("at" ?field)) 
+		 	   (time ?time))
+		;) 
+                    ;(eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
+		    ;  '( (possessive ?field) ;(time-type ?time)
+		    ;     ?property ; "electric field"
+		    ;     (time ?time))))
+		;)
+		)
+)
+(def-qexp property-type-field-time (property-type-field-time ?type ?property ?field :time ?time)
+  :new-english	(;(allowed "the value of") 
+		;(or ( 
+		      (the) ;(time-type ?time) 
+	              (field-type ?type) ?property  		; "electric field" 
+		      (and (preferred ("at" ?field)) 
+		 	   (time ?time))
+		;) 
+                    ;(eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
+		    ;  '( (possessive ?field) ;(time-type ?time)
+		    ;     ?property ; "electric field"
+		    ;     (time ?time))))
+		;)
+		)
+)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Circuits quantities
 ;; note arguments are usually proper names -- R1, PtA, etc -- not common nouns
@@ -165,45 +229,53 @@
   :new-english ((the) "time constant for" (conjoin (or "and" "&") ?quants)))
 
 
-;syjung: combine two
 (def-qexp E-field (field ?region electric ?source :time ?time)
   :units |N/C|
   ; :nlg-english ("the electric field at ~A due to ~A~@[ ~A~]" (nlg ?region 'at-time ?time) (nlg ?source 'agent) (nlg ?time 'pp)))
-  :new-english ((property-field-source-time "electric field" ?region ?source :time ?time )))
+  :new-english (property-field-source-time "electric field" ?region ?source :time ?time ))
 
 (def-qexp B-field (field ?region magnetic ?source :time ?time)
   :units |T|
   ; :nlg-english ("the magnetic field at ~A due to ~A~@[ ~A~]" (nlg ?region) (nlg ?source 'agent) (nlg ?time 'pp)))
-  :new-english ((property-field-source-time "magnetic field" ?region ?source :time ?time )))
+  :new-english (property-field-source-time "magnetic field" ?region ?source :time ?time ))
+;syjung: combine two is not easy. Not combining is better
+;(def-qexp field (field ?region ?type ?source :time ?time)
+;  :units |N/C|
+;  ; :nlg-english ("the electric field at ~A due to ~A~@[ ~A~]" (nlg ?region 'at-time ?time) (nlg ?source 'agent) (nlg ?time 'pp)))
+;  :new-english (property-type-field-source-time ?type "field" ?region ?source :time ?time ))
 
-;syjung: combine two
 (def-qexp net-E-field (net-field ?region electric :time ?time)
   :units |N/C|
   ; :nlg-english ("the net electric field at ~A~@[ ~A~]" (nlg ?region) (nlg ?time 'pp)))
-  :new-english ((property-field-time "net electric field" ?region :time ?time )))
+  :new-english (property-field-time "net electric field" ?region :time ?time ))
 
 (def-qexp net-B-field (net-field ?region magnetic :time ?time)
   :units |T|
   ; :nlg-english ("the net magnetic field at ~A~@[ ~A~]" (nlg ?region) (nlg ?time 'pp)))
-  :new-english ((property-field-time "net magnetic field" ?region :time ?time )))
-  
+  :new-english (property-field-time "net magnetic field" ?region :time ?time ))
+;syjung: combine two is not easy. Not combining is better
+;(def-qexp net-field (net-field ?region ?type :time ?time)
+;  :units |N/C|
+;  ; :nlg-english ("the net electric field at ~A~@[ ~A~]" (nlg ?region) (nlg ?time 'pp)))
+;  :new-english (property-type-field-time (net ?type) "field" ?region :time ?time ))
+
 (def-qexp potential (potential ?loc ?source :time ?time)
   :symbol-base |V|     
   :short-name "electric potential"	
   :units |V|
   ; :nlg-english ("the electric potential at ~a due to ~A~@[ ~A~]" (nlg ?loc) (nlg ?source 'agent) (nlg ?time 'pp)))
-  :new-english ((property-field-source-time "electric potential" ?loc ?source :time ?time)))
+  :new-english (property-field-source-time "electric potential" ?loc ?source :time ?time))
 
 (def-qexp net-potential (net-potential ?loc :time ?time)
   :units |V|
   ; :nlg-english ("the net electric potential at ~a from all sources~@[ ~A~]" (nlg ?loc) (nlg ?time 'pp)))
-  :new-english ((property-field-time "net electric potential" ?loc :time ?time)))
+  :new-english (property-field-time "net electric potential" ?loc :time ?time))
 
 (def-qexp electric-energy (electric-energy ?body ?source :time ?time)
   :units |J|
   :short-name "electric potential energy"
   ; :nlg-english ("the electric potential energy of ~A" (nlg ?body 'at-time ?time)))
-  :new-english ((property-object-source-time "electric potential energy" ?body ?source :time ?time)))
+  :new-english (property-object-source-time "electric potential energy" ?body ?source :time ?time))
 
 (def-qexp stored-energy (stored-energy ?component :time ?time)
   :symbol-base |U|     
