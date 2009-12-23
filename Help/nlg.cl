@@ -30,14 +30,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun nlg (x &optional (type 'def-np) &rest args)
   (if (null type)
-     (if (consp x)
-      (format nil "~(~A~)" x)
-    	(format nil "~(~A~)" x))
-    (if (variable-p x)
-	(format nil "~@[~*at ~]some ~(~A~)" (eq type 'pp) (var-rootname x))
-      (if args
-	  (apply (if (equal type 'time) 'moment type) x args)
-	(funcall (if (equal type 'time) 'moment type) x)))))
+      (if (consp x)
+	  (format nil "~(~A~)" x)
+	  (format nil "~(~A~)" x))
+      (if (variable-p x)
+	  (format nil "~@[~*at ~]some ~(~A~)" (eq type 'pp) (var-rootname x))
+	  (if args
+	      (apply (if (equal type 'time) 'moment type) x args)
+	      (funcall (if (equal type 'time) 'moment type) x)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

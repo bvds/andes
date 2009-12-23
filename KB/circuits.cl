@@ -701,7 +701,7 @@
   :hint 
   (
    (point (string "The components ~A and ~A are in parallel~@[ ~A~]." 
-		  ?c1 ?c2 (?t time))) 
+		  ?c1 ?c2 (?t moment))) 
    (teach (string "The voltage across any components in parallel is equal."))
    (bottom-out (string "Write the equation ~A." ((= ?v1 ?v2) algebra)))
    ))
@@ -1432,7 +1432,8 @@
 	(discharging-capacitor-at-time (?res ?cap) (during ?t1 ?t2))))
   :hint
   (
-   (point (string "Write the equation for the charge on the capacitor ~a at time ~a." ?cap (?t2 time)))
+   (point (string "Write the equation for the charge on the capacitor ~a at time ~a." 
+		  ?cap (?t2 moment)))
    (bottom-out (string "Write the equation ~a"
 		       ((= ?q2-var (* ?q1-var (exp (/ (- ?t-var) ?tau-var)))) algebra) ))
    ))
@@ -1496,7 +1497,8 @@
 	(charging-capacitor-at-time (?bat ?res ?cap) (during ?t1 ?t2))))
   :hint
   (
-   (point (string "Write the equation for the charge on the capacitor ~a at time ~a." ?cap (?t2 time)))
+   (point (string "Write the equation for the charge on the capacitor ~a at time ~a." 
+		  ?cap (?t2 moment)))
    (bottom-out (string "Write the equation ~a"
 		       ((= ?q-var (* ?c-var ?v-var (- 1 (exp (/ (- ?t-var) ?tau-var))))) algebra) ))
    ))
@@ -1514,7 +1516,8 @@
 	(charging-capacitor-at-time (?bat ?res ?cap) (during ?t1 ?t2))))
   :hint
   (
-   (point (string "Write the equation for the final charge on capacitor ~A, after a long time has passed, at time ~a." ?cap (?t2 time)))
+   (point (string "Write the equation for the final charge on capacitor ~A, after a long time has passed, at time ~a." 
+		  ?cap (?t2 moment)))
    (bottom-out (string "Write the equation ~a"
 		       ((= ?q-var (* ?c-var ?v-var)) algebra) ))
    ))
@@ -1566,7 +1569,8 @@
    )
   :hint
   (
-   (point (string "Write the equation for the current in the RC circuit at time ~a." (?t2 time)))
+   (point (string "Write the equation for the current in the RC circuit at time ~a." 
+		  (?t2 moment)))
    (bottom-out (string "Write the equation ~a"
 		       ((= ?i-var (* (/ ?v-var ?r-var) (exp (/ (- ?t-var) ?tau-var)))) algebra) ))
    ))

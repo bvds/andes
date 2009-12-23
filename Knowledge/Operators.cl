@@ -260,11 +260,16 @@
 		      (subst-nlgs-specvars (HintSpec-Vars S)))))
 
 (defun subst-nlgs-specvars (Vars)
+  "Evaluate hint format statement arguments"
   (mapcar #'(lambda (v) 
 	      (if (listp v)
-		  (cons 'nlg v)
-		(list 'new-english-find v)))
-	  Vars))
+		  (if (cddr v)
+		      `(apply (quote ,(second v)) (quote ,(car v)) 
+			(quote ,(cddr v)))
+		      `(funcall (quote ,(second v)) (quote ,(car v))))
+	      `(match:word-string 
+		(expand-vars (new-english-find (quote ,v))))))
+  Vars))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; get-operator-variables

@@ -156,12 +156,13 @@
 		     (time ?time))))
 ; ex) "the constant normal force that the man acts on the crate"
 ;     "the constant normal force of the man acting on the crate"
+;     "the average force exerted on the pier between T0 and T1" in dt3b 
 ;     "the tension in the wire" in s13 ("wire" is not a defined object in s13)
 ;question in s13: why the wire is an agent? and the bar is an object?
 (def-qexp force (force ?body ?agent ?type :time ?time)
   :units N
   :new-english ((the) ;(time-type ?time)
-		(allowed (or "constant" "steady"))
+		(allowed (or "constant" "const" "const." "steady" "average" "ave."))
 		(eval (force-types ?type))
 		(or (and  (preferred (object ?body))
 		     	  (preferred (agent ?agent))
@@ -186,7 +187,8 @@
 	      ((or "weight" "gravitational" "grav." "grav") "force")))
     (gravitational '(or "force of gravity"
 		     ((or "gravitational" "weight" "grav." "grav") "force")))
-    (normal '(or ("normal" "upward supporting") "force"))
+    ;"normal force exerted on a body by the surface" from Y&F 
+    (normal '("normal force"))
     (tension '(or "tension" "pulling force"))
     (applied '((allowed "applied") "force")) ;catch-all force
     (kinetic-friction '(((preferred "kinetic") (or "friction" "frictional"))
@@ -576,6 +578,7 @@
 		    ;(mag (velocity ?body :time ?time))
 )
 
+;ex) "the coeffienct of kinetic friction between the displacement and the friction force"
 (def-qexp coef-friction 
     (coef-friction ?body1 ?body2 ?static-or-kinetic :time ?time)
   :symbol-base |$m|     
@@ -583,8 +586,8 @@
   :units NIL ;; dimensionless
   ;:nlg-english ("coefficient of ~(~A~) friction between ~A and ~A" (nlg ?static-or-kinetic NIL) (nlg ?body1) (nlg ?body2 'at-time ?time))) 
   :new-english ((the) "coefficient of" ?static-or-kinetic "friction"
-		(and (preferred "between" ?body1 "and" ?body2)
-		     (time ?time)))) 
+		(and (preferred ("between" (or (var ?body1) ?body1) "and" (or (var ?body2) ?body2)))
+		     (time ?time))))
 
 (def-qexp coef-drag-turbulent (coef-drag ?b ?medium :type turbulent :time ?time)
   :symbol-base |K|     

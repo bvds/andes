@@ -335,13 +335,15 @@
 	  ;; Careful with wording: we can't be sure that the axis direction 
 	  ;; being prompted actually conforms to the recommended heuristic. 
 	  (string "Although you can choose any rotation for the axes and still get a correct answer, the solution is usually simpler if you rotate the axes so at least one vector is parallel to an axis.  Typically, the more vectors that come out parallel to the axes, the better, although which choice is most efficient will depend on the particular problem. "))
-   (bottom-out (string "~:[Draw~;Rotate~] the coordinate axes setting the x axis at ~a degrees." (rotate-existing-axes) ?x-rotation))
+   (bottom-out (string "~:[Draw~;Rotate~] the coordinate axes setting the x axis at ~a degrees." 
+		       (nil rotate-existing-axes) ?x-rotation))
   ))
 
-(defun rotate-existing-axes ()
-"TRUE at help time if should rotate axes rather than drawing new ones"
- (and (axes-drawnp)                   ; have already drawn at least one
-      (not (nsh-multi-axis-problemp)))) ; only one is required for solution 
+(defun rotate-existing-axes (x)
+  "TRUE at help time if should rotate axes rather than drawing new ones"
+  (declare (ignore x))
+  (and (axes-drawnp)                   ; have already drawn at least one
+       (not (nsh-multi-axis-problemp)))) ; only one is required for solution 
 
 (defoperator use-system-axes (?b ?rot)
    :specifications 
