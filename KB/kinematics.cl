@@ -677,7 +677,7 @@
    (teach (string "Whenever an object is at rest during a time interval, it has a displacement of zero.")
 	  (kcd "draw_zero_displacement"))
    (bottom-out (string "Because ~a is at rest ~a, use ~A to draw a zero length displacement vector for it." 
-		       ?b (?t pp) *vector-tool*))
+		       ?b (?t pp) (*vector-tool* eval)))
    ))
 
 ;; Following draws a zero-mag displacement vector for case where it is
@@ -926,7 +926,8 @@
   ((point (string "Notice that ~a is moving in a straight line ~a." ?b (?t pp)))
    (teach (string "Whenever an object is moving in a straight line, it has a velocity in the same direction as its motion.")
 	  (kcd "draw_nonzero_velocity"))
-   (bottom-out (string "Because ~a is moving in a straight line ~a, use the ~A draw a non-zero vector in direction ~a." ?b (?t pp) (*vector-tool* eval) (?dir adj)))
+   (bottom-out (string "Because ~a is moving in a straight line ~a, use the ~A draw a non-zero vector in direction ~a." 
+		       ?b (?t pp) (*vector-tool* eval) (?dir adj)))
    ))
 
 (defoperator draw-velocity-straight-unknown (?b ?t)
@@ -1392,8 +1393,8 @@
    (teach (kcd "draw_accel_when_at_rest")
           (string "If a body is at rest throughout some time interval, its average acceleration during that interval is zero."))
    (bottom-out (string "Because ~a is at rest ~a, use ~A to draw a zero-length acceleration vector for it." 
-		       (*vector-tool* eval)
-		       ?b (?t pp)))
+		       ?b (?t pp)
+		       (*vector-tool* eval)))
    ))
 
 (defoperator draw-accel-given-zero-net-force (?b ?t)
