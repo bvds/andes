@@ -380,14 +380,15 @@
 	;; solution-steps and help result are passed back to client
 	;; to set up state on client.
 	;;
-	;; Help requests are handled silently by the help system,
-	;; just to get the grading correct.  Alternatively, we
+	;; Help requests are sent to the help system,
+	;; to get the grading correct.  Alternatively, we
 	;; could just send the solution steps to the help system
 	;; and then set the grading state by brute force.
 	;;  
-	;; Also, if this is an admin or researcher, or instructor,
-	;; previous hints and their replies should also be sent back to
-	;; the client.
+	;; Previous hints and their replies could also be sent back to
+	;; the client.  However, we would have to filter out actions: 
+	;; "focus-hint-text-box", "focus-major-principles", and 
+	;; "focus-all-principles"
 	(when (equal method "solution-step")
 	  (setf solution-step-replies
 		(append solution-step-replies (cons (cdr params) reply))))))
