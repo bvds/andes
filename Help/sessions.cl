@@ -375,23 +375,30 @@
 		       ((equal method "seek-help") #'seek-help))
 		     ;; flatten the alist
 		     (mapcan #'(lambda (x) (list (car x) (cdr x))) 
-			     (cdr params))))) 
+			     (cdr params)))) 
+	     
+	     ;; solution-steps and help results are passed back to client
+	     ;; to set up state on client.
+	     ;;
+	     ;; Help requests are sent to the help system, to set the solution
+	     ;; status and grading state.  Alternatively, we could just send 
+	     ;; the solution steps to the help system state and then set 
+	     ;; the grading state by brute force.
+	     ;; 
+	     ;; Drop actions that make modal changes to the user interface.
+	     ;; Since there is no mechanism to connect log messages to specific
+	     ;; solution steps or help actions, also drop log messages.
+	     (send-reply (remove-if 
+			  #'(lambda (x) (member (cdr (assoc :action x)) 
+						'("focus-hint-text-box" "log"
+						  "focus-major-principles" 
+						  "focus-all-principles")
+						:test #'equal))
+			  reply)))
 
-	;; solution-steps and help result are passed back to client
-	;; to set up state on client.
-	;;
-	;; Help requests are sent to the help system,
-	;; to get the grading correct.  Alternatively, we
-	;; could just send the solution steps to the help system
-	;; and then set the grading state by brute force.
-	;;  
-	;; Previous hints and their replies could also be sent back to
-	;; the client.  However, we would have to filter out actions: 
-	;; "focus-hint-text-box", "focus-major-principles", and 
-	;; "focus-all-principles"
-	(when (equal method "solution-step")
-	  (setf solution-step-replies
-		(append solution-step-replies (cons (cdr params) reply))))))
+	(setf solution-step-replies
+	      (append solution-step-replies (cons (cdr params) 
+						  send-reply)))))
 
     (env-wrap
 
