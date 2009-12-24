@@ -926,7 +926,7 @@
   ((point (string "Notice that ~a is moving in a straight line ~a." ?b (?t pp)))
    (teach (string "Whenever an object is moving in a straight line, it has a velocity in the same direction as its motion.")
 	  (kcd "draw_nonzero_velocity"))
-   (bottom-out (string "Because ~a is moving in a straight line ~a, draw a non-zero vector in direction ~a." ?b (?t pp) (?dir adj)))
+   (bottom-out (string "Because ~a is moving in a straight line ~a, use the ~A draw a non-zero vector in direction ~a." ?b (?t pp) (*vector-tool* eval) (?dir adj)))
    ))
 
 (defoperator draw-velocity-straight-unknown (?b ?t)
