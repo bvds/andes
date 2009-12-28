@@ -319,9 +319,6 @@
 ;
 ; possessive "object's"
 (def-qexp possessive (possessive ?body)
-  ;:new-english (eval (attach-to-element ?body '(or (var (body ?body)) ?body) "'s")))
-  ;:new-english (eval (attach-to-element ?body (expand-vars '(or (var (body ?body)) ?body)) "'s")))
-  ;:new-english (eval (attach-to-element ?body (list 'or (expand-vars '(var (body ?body))) ?body) "'s")))
   :new-english (eval (attach-to-element ?body (list 'or (expand-new-english '(var (body ?body))) ?body) "'s")))
   ;:new-english (eval (attach-to-element ?body (expand-vars (expand-new-english '(or (var (body ?body)) ?body))) "'s")))
   ;:new-english (eval (attach-to-element ?body (expand-new-english '(or (var (body ?body)) ?body)) "'s")))
@@ -729,7 +726,6 @@
 		(the) ?agent (preferred "from") (time ?time)))
 (def-qexp net-power (net-power ?b :time ?time)
   :units |W|
-  ;:nlg-english ("the net power supplied to ~a" (nlg ?b 'at-time ?time)))
   :new-english ((the) "net power"
 		(and (preferred ("supplied to" ?b)) 
 		     (time ?time))))
@@ -737,14 +733,12 @@
   :symbol-base |P|     
   :short-name "power output" 
   :units |W|
-  ; :nlg-english ("the total power produced by ~A" (nlg ?source 'at-time ?time)))
   :new-english ((the) "total power produced" 
 		(and (preferred ("by" ?source))
 		     (time ?time))))
 (def-qexp angle-between (angle-between orderless . ?vecs)
   :units |deg|
   :restrictions nonnegative 
-  ;; :nlg-english ("the angle between ~A" (nlg ?vecs 'conjoined-defnp)))
   :new-english( (the) "angle between" (conjoin (or "and" "&") . ?vecs)))
 
 (def-qexp total-energy (total-energy ?system :time ?time) 
@@ -841,25 +835,21 @@
   :symbol-base ||     
   :short-name "length"	
   :units |m|
-  ;:new-english ((preferred "the") (or "length" "len" "len.") (property ?body)))
   :new-english (property-object (or "length" "len" "len.") ?body))
 
 (def-qexp length-change (rate-of-change (length ?body))
   :symbol-base ||     
   :short-name "rate of change in length"	
   :units |m/s|
-  ;:nlg-english ("the rate of change of the length of ~A" (nlg ?body)))
   :new-english (rate (change (property-object (or "length" "len" "len.") ?body) )))
 
 (def-qexp width  (width ?body)
   :symbol-base ||     
   :short-name "width"	  
   :units |m|
-  ;:nlg-english ("the width of ~A" (nlg ?body)))
   :new-english ((property-object "width" ?body)))
 
 (def-qexp num-torques (num-torques ?body ?axis :time ?time)
-  ;:nlg-english ("the number of ~As on ~A about ~A" (moment-name) (nlg ?body) (nlg ?axis 'at-time ?time)))
   :new-english ((the) "number of" (moment-name) "on" ?body 
 		(preferred (eval (when ?axis `("about" ,?axis))))
 		(time ?time)))
