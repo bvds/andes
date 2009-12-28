@@ -27,6 +27,12 @@
 					  (strcat "manual.html#" html-id)
 					  :title "Manual")))
 
+
+(defun open-review-window-html (Name href &key title)
+  "Hint window html to open a web page in the review directory"
+  (format nil "<a href=\"#\" onClick=\"andes.principles.review('~A','~A');\">~A</a>" href (or title name) name))
+
+
 (defparameter *axis-tool* (tool-link "Axis Tool" "axis-tool"))
 (defparameter *axis-tool-action* (strcat "click on " *axis-tool*))
 (defparameter *draw-axes* 

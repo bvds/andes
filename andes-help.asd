@@ -78,7 +78,8 @@
 				     (:file "icons")
 				     (:file "HelpMessages")
 				     (:file "whatswrong")
-				     (:file "NextStepHelp")
+				     (:file "NextStepHelp"
+					    :depends-on ("icons"))
 				     (:file "IEA")
 				     
 				     ;; Automatic statistics code.
