@@ -189,7 +189,7 @@
 		     ((or "gravitational" "weight" "grav." "grav") "force")))
     ;"normal force exerted on a body by the surface" from Y&F 
     (normal '("normal force"))
-    (tension '(or "tension" "pulling force"))
+    (tension '(or ("tension" (allowed "force")) "pulling force"))
     (applied '((allowed "applied") "force")) ;catch-all force
     (kinetic-friction '(((preferred "kinetic") (or "friction" "frictional"))
 			"force"))
