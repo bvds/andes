@@ -30,7 +30,7 @@
   :short-name "wavelength"	
   :units |m|
   :restrictions positive  ;needed for harmonics problems to work
-  ;:nlg-english ("the wavelength of ~A moving in ~A" (nlg ?wave) (nlg ?medium))
+  ;ex) "the wavelength of ~ moving in ~" 
   :new-english ((the) "wavelength of" ?wave "moving in" ?medium)
 )
 
@@ -52,7 +52,7 @@
   :short-name "wave-number"	
   :units |rad/m|
   :restrictions nonnegative  
-  ;:nlg-english ("the wavenumber of ~A moving in ~A" (nlg ?wave) (nlg ?medium))
+  ;ex) "the wavenumber of ~ moving in ~" 
   :new-english ((the) "wavenumber of" ?wave "moving in" ?medium)
 )
 
@@ -113,7 +113,7 @@
   :short-name "frequency"	
   :units |Hz|
   :restrictions nonnegative 
-  ;:nlg-english ("the frequency of ~A" (nlg ?wave))
+  ;ex) "the frequency of ~" 
   :new-english (property-object "frequency" ?wave)
 )
 
@@ -139,7 +139,7 @@
   :short-name "frequency (observed)" 
   :units |Hz|
   :restrictions nonnegative 
-  ;:nlg-english ("the frequency of ~A as observed by ~A" (nlg ?wave) (nlg ?me 'at-time ?time))
+  ;ex) "the frequency of ~ as observed by ~"
   :new-english ((the) "frequency of" ?wave
 		(and ("as observed by" ?me)
 		     (time ?time)))
@@ -180,7 +180,7 @@
   :short-name "period"	
   :units |s|
   :restrictions positive
-  ;:nlg-english ("the period of the motion of ~A" (nlg ?body)))
+  ;ex) "the period of the motion of ~"
   :new-english (property-object "period of the motion" ?body))
 
 (defoperator define-period-var (?b)
@@ -202,7 +202,7 @@
   :short-name "angular frequency"	
   :units |rad/s|
   :restrictions nonnegative 
-  ;:nlg-english ("the angular-frequency of ~A" (nlg ?wave))
+  ;ex) "the angular-frequency of ~"
   :new-english (property-object "angular-frequency" ?wave)
 )
 
@@ -421,7 +421,7 @@
   :short-name "speed of wave" 
   :units |m/s|
   :restrictions nonnegative
-  ;:nlg-english ("the speed of waves in ~A" (nlg ?medium)) ;see entry in errors.cl
+  ;ex) "the speed of waves in ~" 
   :new-english ((the) "speed of waves in" ?medium) ;see entry in errors.cl
 )
 
@@ -542,7 +542,7 @@
   :short-name "index of refraction"	
   :units NIL  ;dimensionless
   :restrictions nonnegative
-  ;:nlg-english ("the index of refraction of ~A" (nlg ?medium))
+  ;ex) "the index of refraction of ~"
   :new-english (property-object "index of refraction" ?medium)
 )
 
@@ -675,7 +675,7 @@
   :short-name "tension on a string" 
   :units |N|
   :restrictions nonnegative 
-  ;:nlg-english ("the string-tension of ~A" (nlg ?rope))
+  ;ex) "the string-tension of ~" 
   :new-english (property-object "string-tension" ?rope)
 )
 
@@ -736,7 +736,7 @@
   :short-name "amplitude"	
   :units |m|
   :restrictions nonnegative 
-  ;:nlg-english ("the amplitude of ~A" (nlg ?wave))
+  ;ex) "the amplitude of ~" 
   :new-english (property-object "amplitude" ?wave)
 )
 
@@ -759,7 +759,7 @@
   :short-name "maximum speed of oscillation"	
   :units |m/s|
   :restrictions nonnegative 
-  ;:nlg-english ("the maximum speed of ~A" (nlg ?wave))
+  ;ex) "the maximum speed of ~"
   :new-english (property-object "maximum speed" ?wave)
 )
 
@@ -815,7 +815,7 @@
   :short-name "maximum magnitude of acceleration"	
   :units |m/s^2|
   :restrictions nonnegative 
-  ;:nlg-english ("the |maximum acceleration of ~A|" (nlg ?wave))
+  ;ex) "the |maximum acceleration of ~|"
   :new-english ((the) "|maximum acceleration" (property ?wave) "|")
 )
 
@@ -1119,12 +1119,11 @@
   :short-name "intensity"	
   :units |W/m^2|
   :restrictions positive
-  ;; :nlg-english ("the intensity supplied to ~A due to ~A" 
-  ;;	       (nlg ?wave 'at-time ?time) (nlg ?agent 'agent))
-:new-english ((the) "intensity" 
-	      (and (preferred "supplied to" ?wave)
-		   (preferred (agent ?agent))
-		   (time ?time)))
+  ;; ex) "the intensity supplied to ~ due to ~" 
+  :new-english ((the) "intensity" 
+	        (and (preferred "supplied to" ?wave)
+		     (preferred (agent ?agent))
+		     (time ?time)))
 )
 
 (defoperator define-intensity (?wave ?agent ?t)
@@ -1146,7 +1145,7 @@
   :short-name "intensity"
   :units |W/m^2|
   :restrictions positive
-  ;:nlg-english ("the intensity of ~A at ~A" (nlg ?body) (nlg ?position 'at-time ?time)))
+  ;ex) "the intensity of ~ at ~" 
   :new-english (property-object-pos-time "intensity" ?body ?position :time ?time))
 
 (defoperator define-intensity-at (?body ?position ?t)
@@ -1164,7 +1163,7 @@
 
 (def-qexp poynting-vector (poynting-vector ?loc ?agent :time ?time)
   :units |W/m^2|
-  ;:nlg-english ("the Poynting vector at ~A due to ~A" (nlg ?loc) (nlg ?agent 'at-time ?time)))
+  ;ex) "the Poynting vector at ~ due to ~"
   :new-english (property-agent-pos-time "Poynting vector" ?agent ?loc :time ?time)
 )
 (defoperator draw-poynting-vector-given-dir (?b ?agent ?t)
@@ -1201,7 +1200,7 @@
 (def-qexp net-intensity (net-intensity ?wave :time ?time)
   :units |W/m^2|
   :restrictions positive  
-  ;:nlg-english ("the net intensity supplied to ~A" (nlg ?wave 'at-time ?time)))
+  ;ex) "the net intensity supplied to ~"
   :new-english ((the) "net intensity"
 		(and (preferred ("supplied to" ?wave)
 		     (time ?time)))))
@@ -1267,7 +1266,7 @@
   :symbol-base |$b|     
   :short-name "decibels" 
   :units |dB|
-  ;:nlg-english ("the intensity supplied to ~A due to ~A in decibels" (nlg ?wave 'at-time ?time) (nlg ?agent 'agent))
+  ;ex) "the intensity supplied to ~ due to ~ in decibels" 
   :new-english ((the) "intensity"
 		(and (preferred ("supplied to" ?wave))
 		     ("due to" ?agent)
@@ -1297,7 +1296,7 @@
 ;; see def-qexp for db-intensity
 (def-qexp net-db-intensity (net-db-intensity ?wave :time ?time)
   :units |dB|
-  ;:nlg-english ("the total intensity supplied to ~A, in decibels" (nlg ?wave 'at-time ?time)))
+  ;ex) "the total intensity supplied to ~, in decibels" 
   :new-english ((the) "total intensity" 
 		(and (preferred ("supplied to" ?wave))
 		     (time ?time) 
@@ -1537,7 +1536,7 @@
   :short-name "amplitude of electric field"	
   :units |V/m|
   :restrictions nonnegative 
-  ;:nlg-english ("the amplitude of the electric field in ~A" (nlg ?wave))
+  ;ex) "the amplitude of the electric field in ~" 
   :new-english ((the) "amplitude of" (the) "electric field" 
 		(preferred ("in" ?wave)))
 )

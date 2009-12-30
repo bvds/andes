@@ -32,7 +32,6 @@
   :short-name "mass density"	
   :units |kg/m^3|
   :restrictions nonnegative   
-  ;:nlg-english ("the mass density of ~A" (nlg ?material))
   :new-english (property-object ((preferred "mass") "density") ?material)
 )
 
@@ -94,7 +93,6 @@
   :symbol-base |P|     
   :short-name "pressure"	
   :units |Pa|
-  ;:nlg-english ("the pressure at ~a" (nlg ?position 'at-time ?time))
   :new-english ((the) "pressure" 
 		(and (preferred ("at" ?position))
 		     (time ?time)))
@@ -122,7 +120,6 @@
   :units |Pa|
   :restrictions positive
   :short-name "standard atmosphere"
-  ; :nlg-english ("the pressure of one standard atmosphere")
   :new-english ((the) "pressure of one standard atmosphere")
 )
 
@@ -361,7 +358,6 @@
   :short-name "cross-sectional area"	
   :units |m^2|
   :restrictions positive
-  ;:nlg-english ("the cross-sectional area at ~A" (nlg ?position 'at-time ?time))
   :new-english ((the) (preferred "cross-sectional") "area"
 		(and (preferred ("at" ?position)) 		
 		     (time ?time)))
@@ -555,7 +551,6 @@
   :short-name "volume"	
   :units |m^3|
   :restrictions nonnegative ; we allow zero-volume for negligible parts of compound bodies
-  ;:nlg-english ("the volume of ~A" (nlg ?body 'at-time ?time))
   :new-english (property-object-time "volume" ?body :time ?time)
 )
 

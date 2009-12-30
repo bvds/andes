@@ -1750,7 +1750,7 @@
   :units nil  ;dimensionless
   ;:nlg-english ("a unit vector~@[ at ~A~] ~A ~A" ?loc (unit-vector-orientation-name ?orientation) (nlg ?body 'at-time ?time)))
   ;
-  ;syjung NEED CHECKING!!!
+  ;syjung: NEED CHECKING
   :new-english ("a unit vector" 
 		(when (unit-vector-orientation-name ?orientation) ?loc)
 		?body (time ?time)))
@@ -2248,7 +2248,6 @@
   :short-name "area"	
   :units |m^2|
   :restrictions positive
-  ;:nlg-english ("the area of ~A" (nlg ?shape))
   :new-english (property-object "area" ?shape)
 )
 
@@ -2257,7 +2256,7 @@
   :short-name "rate of change in area"	
   :units |m^2/s|
   :restrictions positive
-  ;:nlg-english ("the rate of change of the area of ~A" (nlg ?shape))
+  ;ex) "the rate of change of the area of ~"
   :new-english (rate (change (property-object "area" ?shape)))
 )
 
@@ -2277,7 +2276,7 @@
   :short-name "radius"	
   :units |m|
   :restrictions positive
-  ;:nlg-english ("the radius of ~A" (nlg ?body))
+  ;ex) "the radius of ~"
   :new-english (property-object "radius" ?body)
 )
 
@@ -2299,7 +2298,6 @@
   :short-name "diameter"	
   :units |m|
   :restrictions positive
-  ;:nlg-english ("the diameter of ~A" (nlg ?body))
   :new-english (property-object "diameter" ?body)
 )
 
@@ -2321,7 +2319,6 @@
   :short-name "circumference"	
   :units |m|
   :restrictions positive
-  ;:nlg-english ("the circumference of ~A" (nlg ?body))
   :new-english (property-object "circumference" ?body)
 )
 

@@ -368,14 +368,14 @@
 		       :student user :problem problem :section section
 		       :extra extra))
       (let* ((method (cdr (assoc :method old-step))) 
-	     (params (assoc :params old-step))
+	     (params (cdr (assoc :params old-step)))
 	     (reply (apply 
 		     (cond 
 		       ((equal method "solution-step") #'solution-step)
 		       ((equal method "seek-help") #'seek-help))
 		     ;; flatten the alist
 		     (mapcan #'(lambda (x) (list (car x) (cdr x))) 
-			     (cdr params)))) 
+			     params))) 
 	     
 	     ;; solution-steps and help results are passed back to client
 	     ;; to set up state on client.
@@ -396,9 +396,20 @@
 						:test #'equal))
 			  reply)))
 
+	
+	;; Echo any solution step action
+	(when (equal method "solution-step")
+	  (push params send-reply))
+	
+	;; Echo any text entered in Tutor pane text box.
+	(when (and (equal method "seek-help") 
+		   (equal (cdr (assoc :action params)) "get-help")
+		   (assoc :text params))
+	  (push `((:action . "echo-get-help-text") 
+		  (:text . ,(cdr (assoc :text params)))) send-reply))
+	
 	(setf solution-step-replies
-	      (append solution-step-replies (cons (cdr params) 
-						  send-reply)))))
+	      (append solution-step-replies send-reply))))
 
     (env-wrap
 
