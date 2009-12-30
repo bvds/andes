@@ -33,3 +33,7 @@ DROP TABLE IF EXISTS `andes`.`REVIEWED_PROBLEMS`;
 USE andes;
 
 
+LOAD DATA LOCAL INFILE 'student_dataset.csv' INTO TABLE STUDENT_DATASET FIELDS TERMINATED BY ',' LINES TERMINATED BY 
+'\n' (datasetID, datasetname, modulename, groupname, problemname);
+ LOAD DATA LOCAL INFILE 'classinformation.csv' INTO TABLE CLASS_INFORMATION FIELDS TERMINATED BY ',' LINES TERMINATED BY 
+'\n' (classID, name, school, period, description, instructorName, schoolyearInfo, datasetID);

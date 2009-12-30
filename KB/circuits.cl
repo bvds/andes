@@ -32,7 +32,8 @@
 	    (define-var (resistance ?res))
 	    )
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Text tool." 
+	 (bottom-out (string "Define a variable for ~A by using ~A." 
+			     (*text-tool* eval)
 			     ((resistance ?res) def-np)))
 	 ))
 
@@ -272,7 +273,8 @@
 	    (define-var (current-thru ?what :time ?t))
 	    )
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Text tool." 
+	 (bottom-out (string "Define a variable for ~A by using ~A."
+			     (*text-tool* eval)
 			     ((current-thru ?what :time ?t) def-np)))
 	 ))
 
@@ -352,7 +354,8 @@
 	    (define-var (voltage-across ?comp :time ?t))
 	    )
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Text Tool." 
+	 (bottom-out (string "Define a variable for ~A by using ~A."
+			     (*text-tool* eval) 
 			     ((voltage-across ?comp :time ?t) def-np)))
 	 ))
 
@@ -698,7 +701,7 @@
   :hint 
   (
    (point (string "The components ~A and ~A are in parallel~@[ ~A~]." 
-		  ?c1 ?c2 (?t time))) 
+		  ?c1 ?c2 (?t moment))) 
    (teach (string "The voltage across any components in parallel is equal."))
    (bottom-out (string "Write the equation ~A." ((= ?v1 ?v2) algebra)))
    ))
@@ -781,7 +784,8 @@
 	    (define-var (capacitance ?cap))
 	    )
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Text Tool." 
+	 (bottom-out (string "Define a variable for ~A by using ~A." 
+			     (*text-tool* eval)
 			     ((capacitance ?cap) def-np)))
 	 ))
 
@@ -1198,7 +1202,8 @@
   :effects ( (variable ?U-var (stored-energy ?b :time ?t))
 	     (define-var (stored-energy ?b :time ?t)) ) 
   :hint 
-  ( (bottom-out (string "Define a variable for ~A by using the Text Tool." 
+  ( (bottom-out (string "Define a variable for ~A by using ~A."
+			(*text-tool* eval) 
 			((stored-energy ?b :time ?t) def-np)))
     ))
 
@@ -1211,7 +1216,8 @@
   :effects ( (variable ?tau-var (time-constant orderless . ?quants))
 	    (define-var (time-constant orderless . ?quants)) )
   :hint 
-  ( (bottom-out (string "Define a variable for ~A by using the Text Tool."  
+  ( (bottom-out (string "Define a variable for ~A by using ~A."  
+			(*text-tool* eval)
 			((time-constant orderless . ?quants) def-np) ))
     ))
 
@@ -1426,7 +1432,8 @@
 	(discharging-capacitor-at-time (?res ?cap) (during ?t1 ?t2))))
   :hint
   (
-   (point (string "Write the equation for the charge on the capacitor ~a at time ~a." ?cap (?t2 time)))
+   (point (string "Write the equation for the charge on the capacitor ~a at time ~a." 
+		  ?cap (?t2 moment)))
    (bottom-out (string "Write the equation ~a"
 		       ((= ?q2-var (* ?q1-var (exp (/ (- ?t-var) ?tau-var)))) algebra) ))
    ))
@@ -1490,7 +1497,8 @@
 	(charging-capacitor-at-time (?bat ?res ?cap) (during ?t1 ?t2))))
   :hint
   (
-   (point (string "Write the equation for the charge on the capacitor ~a at time ~a." ?cap (?t2 time)))
+   (point (string "Write the equation for the charge on the capacitor ~a at time ~a." 
+		  ?cap (?t2 moment)))
    (bottom-out (string "Write the equation ~a"
 		       ((= ?q-var (* ?c-var ?v-var (- 1 (exp (/ (- ?t-var) ?tau-var))))) algebra) ))
    ))
@@ -1508,7 +1516,8 @@
 	(charging-capacitor-at-time (?bat ?res ?cap) (during ?t1 ?t2))))
   :hint
   (
-   (point (string "Write the equation for the final charge on capacitor ~A, after a long time has passed, at time ~a." ?cap (?t2 time)))
+   (point (string "Write the equation for the final charge on capacitor ~A, after a long time has passed, at time ~a." 
+		  ?cap (?t2 moment)))
    (bottom-out (string "Write the equation ~a"
 		       ((= ?q-var (* ?c-var ?v-var)) algebra) ))
    ))
@@ -1560,7 +1569,8 @@
    )
   :hint
   (
-   (point (string "Write the equation for the current in the RC circuit at time ~a." (?t2 time)))
+   (point (string "Write the equation for the current in the RC circuit at time ~a." 
+		  (?t2 moment)))
    (bottom-out (string "Write the equation ~a"
 		       ((= ?i-var (* (/ ?v-var ?r-var) (exp (/ (- ?t-var) ?tau-var)))) algebra) ))
    ))
@@ -1625,7 +1635,8 @@
   :effects ((variable ?L-var (self-inductance ?ind))
 	    (define-var (self-inductance ?ind)))
   :hint 
-  ((bottom-out (string "Define a variable for ~A by using the Text Tool." 
+  ((bottom-out (string "Define a variable for ~A by using ~A." 
+		       (*text-tool* eval)
 		       ((self-inductance ?ind) def-np)))))
 
 ;; define mutual inductance var
@@ -1635,7 +1646,8 @@
   :effects ( (variable ?L-var (mutual-inductance orderless . ?inds))
 	    (define-var (mutual-inductance orderless . ?inds)) )
   :hint 
-  ( (bottom-out (string "Define a variable for ~A by using the Text Tool." 
+  ( (bottom-out (string "Define a variable for ~A by using ~A." 
+			(*text-tool* eval)
 			((mutual-inductance orderless . ?inds) def-np))) ))
 
 ;;;              Magnetic field inside a long solenoid
@@ -1705,7 +1717,8 @@
   :effects ((variable ?change-var (rate-of-change ?quant))
 	    (define-var (rate-of-change ?quant)))
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Text Tool." 
+	 (bottom-out (string "Define a variable for ~A by using ~A."
+			     (*text-tool* eval) 
 			     ((rate-of-change ?quant) var-or-quant) ))
 	 ))
 
@@ -2175,7 +2188,8 @@
 	    (variable ?power-var (electric-power ?b :time ?t))
 	    )
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Text Tool." 
+	 (bottom-out (string "Define a variable for ~A by using ~A." 
+			     (*text-tool* eval)
 			     ((electric-power ?b :time ?t) def-np) ))
 	 ))
 

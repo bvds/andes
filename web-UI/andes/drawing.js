@@ -187,6 +187,23 @@ dojo.provide("andes.drawing");
 			//	any help associated with the data.
 			//
 			console.log("handleServerActions", data.length);
+			
+			// check for highest numerical ID 
+			// start from there
+			var getNum = function(m){
+				if(!m.id){ return 0; }
+				var ar = m.id.match(/\d/g);
+				if(!ar || !ar.length){ return 0; }
+				return parseInt(ar.join(""),10);
+			}
+			var idNum = 0;
+			dojo.forEach(data, function(m){
+				idNum = Math.max(getNum(m), idNum);	
+			});
+			++idNum;
+			
+			dojox.drawing.util.common.idSetStart(idNum);
+			
 			//console.dir(data);
 			var mods = [];
 			var min = 2, max = 5;
@@ -308,7 +325,13 @@ dojo.provide("andes.drawing");
 
 				};
 			},this);
-
+			
+			/*
+			for(var itm in items){
+				if(itm.shortType=="textBlock") { itm.execText(); console.warn(itm); }
+			};
+			*/
+			
 			data = null;
 		},
 
@@ -359,28 +382,13 @@ dojo.provide("andes.drawing");
 		},
 
 		onLoad: function(data){
-			// check for highest numerical ID 
-			// start from there
-			var getNum = function(m){
-				if(!m.id){ return 0; }
-				var ar = m.id.match(/\d/g);
-				if(!ar || !ar.length){ return 0; }
-				return parseInt(ar.join(""),10);
-			}
-			var idNum = 0;
-			dojo.forEach(data, function(m){
-				idNum = Math.max(getNum(m), idNum);	
-			});
-			++idNum;
-			
-			dojox.drawing.util.common.idSetStart(idNum);
-			
 			// summary:
 			//	Project Data Loaded
 			this._initialData = data;
 			if(_surfaceLoaded){
 				this.handleServerActions(this._initialData);
-			}
+			};
+			
 		},
 		onError: function(err){
 			console.error("There was an error in the project data:", err);

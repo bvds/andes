@@ -102,28 +102,34 @@
     (if result (cdr result) (format NIL "~A" x))))
 
 (def-qexp dnum (dnum ?value ?unit :error ?err)
-  :nlg-english ("~A~:[~2*~;~A~A~] ~A" (identity ?value) ?err (code-char 177) ?err (translate-units ?unit)))
+  :nlg-english ("~A~:[~2*~;~A~A~] ~A" (identity ?value) ?err (code-char 177) 
+				      ?err (translate-units ?unit)))
 
 ;;;; vector quantities:
 
+;; ex) "the position of the ball relative to the observer"
+;;     "the ball's relative position to the observer"
+;;    "the ball's position with respect to the observer"
 (def-qexp relative-position (relative-position ?to-pt ?from-pt :time ?time)
   :units |m|
   ;; see relative-vel
   :new-english (or ((property-object "position" ?to-pt)
 		     (or "relative to" "with respect to") ?from-pt)
-		    ((property-object "relative position" ?to-pt)
+		   ((property-object "relative position" ?to-pt)
 		     (or "from" "with respect to") ?from-pt)
 		)
 )
 
 (def-qexp displacement (displacement ?body :time ?time)
   :units |m|
-  :new-english (vector-object-time (or "displacement" "disp." "disp") ?body :time ?time)
+  :new-english (vector-object-time (or "displacement" "disp." "disp") 
+				   ?body :time ?time)
 )
 
 (def-qexp velocity (velocity ?body :time ?time)
   :units |m/s|
-  :new-english (vector-object-time (or "velocity" "vel." "vel") ?body :time ?time)
+  :new-english (vector-object-time (or "velocity" "vel." "vel") ?body 
+				   :time ?time)
 )
 
 (def-qexp relative-vel (relative-vel ?to-pt ?from-pt :time ?time)
@@ -139,7 +145,8 @@
 
 (def-qexp accel	(accel ?body :time ?time)
   :units |m/s^2|
-  :new-english ((vector-object-time (or "acceleration" "accel." "accel") ?body :time ?time))
+  :new-english ((vector-object-time (or "acceleration" "accel." "accel") ?body 
+				    :time ?time))
 )
 
 (def-qexp momentum (momentum ?body :time ?time)
@@ -149,17 +156,34 @@
 		(and (preferred (property ?body))
 		     (time ?time))))
 
+;; ex) "the constant normal force that the man acts on the crate"
+;;     "the constant normal force of the man acting on the crate"
+;;     "the average force exerted on the pier between T0 and T1" in dt3b 
+;;     "the tension in the wire" in s13 ("wire" is not a defined object in s13)
+;; question in s13: why the wire is an agent? and the bar is an object?
 (def-qexp force (force ?body ?agent ?type :time ?time)
   :units N
   :new-english ((the) ;(time-type ?time)
-		(allowed (or "constant" "steady"))
+		(allowed (or "constant" "const." "const" "steady" 
+			     "average" "ave."))
 		(eval (force-types ?type))
 		(or (and  (preferred (object ?body))
 		     	  (preferred (agent ?agent))
 		     	  (time ?time))
 		    ((allowed (or "that" "with which"))
-		     (the) ?agent 
-		     (or "exerts on" "acts on") (the) ?body (time ?time))))
+		     ?agent 
+		     (or "exerts on" "acts on") ?body (time ?time))
+		    (   (eval (case ?type 
+				;; "the tension in the wire" in s13 
+				;; (but "wire" is not defined in s13)
+				(tension '(allowed "in"))
+				;; "the frictional force on the aircraft"
+				;; "the frictional force against the aircraft"
+				(friction '(allowed "on" "against"))
+			))
+		    	?body 
+			(time ?time))
+		))
 )
 (defun force-types (type)
   (case type 
@@ -167,8 +191,9 @@
 	      ((or "weight" "gravitational" "grav." "grav") "force")))
     (gravitational '(or "force of gravity"
 		     ((or "gravitational" "weight" "grav." "grav") "force")))
-    (normal '(or ("normal" "upward supporting") "force"))
-    (tension '((or "tension" "pulling") "force"))
+    ;"normal force exerted on a body by the surface" from Y&F 
+    (normal '("normal force"))
+    (tension '(or ("tension" (allowed "force")) "pulling force"))
     (applied '((allowed "applied") "force")) ;catch-all force
     (kinetic-friction '(((preferred "kinetic") (or "friction" "frictional"))
 			"force"))
@@ -194,7 +219,7 @@
 
 (def-qexp ang-displacement (ang-displacement ?body :time ?time)
   :units |rad|
-  :new-english ((the) rotation-adj	(or "displacment" "disp." "disp")
+  :new-english ((the) rotation-adj	(or "displacement" "disp." "disp")
 		 (and (preferred (property ?body))
 		      (time ?time))))
 
@@ -239,14 +264,9 @@
 (def-qexp compo	(compo ?xyz ?rot ?vector)
   :units ?vector
   :new-english ((or ((the) ?xyz (or "component" "compo." "compo"))
-		    ((the) (eval (format nil "~A-component" (?xyz))))
-		    ((possessive ?body) 
-			;(possessive (or (var (body ?body)) ?body))
-			(eval (format nil "~A-component" (?xyz))))
-		    ((possessive ?body) 
-			;(possessive (or (var (body ?body)) ?body))
-			(eval (format nil "~A component" (?xyz))))
-		    ;((the) (eval (format nil "~A-component" (?xyz))) )
+		    ((the) (eval (format nil "~A-component" ?xyz)))
+		    ;; possessive is not allowed. ex) "the driver's 
+		    ;; x-component of force on the driver"
 		)
 		(property ?vector))
 )
@@ -254,12 +274,14 @@
 (def-qexp mag (mag ?vector)
   :units ?vector
   :restrictions nonnegative
-  :new-english ((allowed "the value of") (the) (or "magnitude" "mag." "mag" "strength") ; "length"
+  :new-english ((allowed "the value of") 
+		;; "length"
+		(the) (or "magnitude" "mag." "mag" (allowed "strength")) 
 		(property ?vector)))
 
 (def-qexp dir (dir ?vector)
   :units |deg|
-  :new-english ((the) (or "direction" "dir." "dir")
+  :new-english ((the) (or "direction" "dir." "dir" (allowed "angle"))
 		(property ?vector)))
 
 ;; this is only used by implicit-eqns, so it should never be visible
@@ -272,159 +294,123 @@
 ;; used as quantities, but may need to be Englished.
 (def-qexp axis (axis ?xyz ?angle)
   :new-english ((the) (eval (nlg ?xyz 'adj)) "axis"
-		(preferred (eval (unless (= ?angle 0) (format nil "at ~A degrees" ?angle))))))
+		(eval (list (if (= ?angle 0) 'allowed 'preferred) 
+			    (format nil "at ~A degrees" ?angle)))))
 
 ;;;;         General phrases
 
 (def-qexp property (property ?body)
-  :new-english ("of" (or (var (body ?body)) ?body))) ; "for" is exceptionally used
+  ;; "for" is exceptionally used
+  :new-english ("of" (or (var (body ?body)) ?body))) 
 
-;+syjung
+
 (def-qexp change (change ?property)
-  :new-english ((the) (or "change" "difference" "diff.") (or "in" "of") ?property))
-;+syjung
+  :new-english ((the) (or "change" "difference" "diff.") (or "in" "of") 
+		?property))
+
 (def-qexp rate (rate ?property)
   :new-english ((the) "rate of" ?property))
-
-;+syjung
-; possessive "object's"
-(def-qexp possessive (possessive ?body)
-  ;:new-english (eval (attach-to-last-element (new-english-find ?body) "'s")))
-  ;:new-english (eval (attach-to-last-element (new-english-find (or (var (body ?body)) ?body)) "'s")))
-  ;:new-english (eval (attach-to-element ?body (new-english-find '(or (var (body ?body)) ?body)) "'s")))
-  :new-english (eval (attach-to-element ?body '(or (var (body ?body)) ?body) "'s")))
-  ;:new-english (eval (attach-to-element ?body (new-english-find ?body) "'s")))
-
-;+syjung
-; (attach-to-element 'crate '(or (var (body crate)) crate) "'s")
-; = '(or (var (body "crate's")) "crate's")
-(defun attach-to-element (e nested-list to-attach)
-	(if (atom nested-list)
-	    (if (string= nested-list e)
-	    	(format nil "~A~A" nested-list to-attach)
-		nested-list)
-	    (if (cdr nested-list)
-	        (adjoin (attach-to-element e (car nested-list) to-attach) (attach-to-element e (cdr nested-list) to-attach)) 
-		(list (attach-to-element e (car nested-list) to-attach) ))))
 	
-;+syjung
 (def-qexp time-type (time-type ?time)
   :new-english (eval (if (time-intervalp ?time)
-			 '(preferred (or "average" "avg." "avg")) ; "constant" "const." "const" 
-			 '(allowed (or "instantaneous" "instant." "instant"))));  "initial" "init." "init" "final" "terminal"
+			 ;; "constant" "const." "const" 
+			 '(preferred (or "average" "avg." "avg")) 
+			 ;;  "initial" "init." "init" "final" "terminal"
+			 '(allowed (or "instantaneous" "instant." "instant"))))
 )
+
 (def-qexp time-type-prop (time-type-prop ?time ?property)
   :new-english (eval (when (check-time-type ?property)
 			'(time-type ?time) ))
 )
-;+syjung
+
 (defun check-time-type (?property)
 	(or (and (not (atom ?property))
-		   (exist-intersection '("velocity" "speed" "acceleration" "momentum") ?property))
+		   (exist-intersection '("velocity" "speed" "acceleration" 
+					 "momentum") ?property))
 	    (and (atom ?property)
-		   (exist-member ?property '("velocity" "speed" "acceleration" "momentum")))))
+		   (exist-member ?property '("velocity" "speed" "acceleration" 
+					     "momentum")))))
 
 (defun exist-member (element string-list)
 	(loop for e in string-list
 		when (string= e element)
 		return e))
+
 (defun exist-intersection (string-list1 string-list2)
 	(loop for e in string-list1
 		when (exist-member e string-list2)
 		return e))
-;+syjung
-;ex) "the value of average speed of the car at time T1"
-;    "the car's average speed at time T1" 
-(def-qexp property-object-time (property-object-time ?property ?body :time ?time)
+
+;; ex) "the value of average speed of the car at time T1"
+;;    "the car's average speed at time T1" 
+(def-qexp property-object-time (property-object-time ?property ?body 
+						     :time ?time)
   :new-english ((allowed ((the) "value of")) 
-		(or ( (the) 
-		      (time-type-prop ?time ?property) 
-		      ?property  ; "speed"
-		      (and (preferred (property ?body)) (time ?time))) 
-		    ( (possessive ?body)
-		      ;(possessive (or (var (body ?body)) ?body))
-		      (time-type-prop ?time ?property)
-		      ?property ; "speed"
-		      (time ?time)))))
-;+syjung
-;ex) "the average velocity of the car between T0 and T1"
-;    "the car's average velocity between T0 and T1"
-;    "the car's displacement between T0 and T1"
+		(the) 
+		(time-type-prop ?time ?property) 
+		?property  ; "speed"
+		(and (preferred (property ?body)) (time ?time))
+		))
+
+;; ex) "the average velocity of the car between T0 and T1"
+;;     "the car's average velocity between T0 and T1"
+;;     "the car's displacement between T0 and T1"
 (def-qexp vector-object-time (vector-object-time ?property ?body :time ?time)
-  :new-english ( (or ((the) 
-		      (time-type-prop ?time ?property)
-		      ?property  ; "velocity"
-		      (and (preferred (property ?body)) (time ?time))) 
-		     ((possessive ?body)
-		      ;(possessive (or (var (body ?body)) ?body))
-		      (time-type-prop ?time ?property)
-		      ?property (allowed "vector"); "velocity"
-		      (time ?time))))
-)
-;+syjung
-;ex) "the net force exerted by the man"
+  :new-english ( (the) 
+		 (time-type-prop ?time ?property)
+		 ?property  ; "velocity"
+		 (and (preferred (property ?body)) (time ?time))
+		 ))
+
+;; ex) "the net force exerted by the man"
 (def-qexp property-object-agent (property-object-agent ?property ?body ?agent)
   :new-english ((allowed ((the) "value of")) 
-		(or ( (the) 
-		      (time-type-prop ?time ?property)
-		      ?property  
-		      (and (preferred (property ?body)) 
-			   (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
-				       ?agent ))) )
-		    ( (possessive ?body)
-		      ;(possessive (or (var (body ?body)) ?body))
-		      (time-type-prop ?time ?property)
-		      ?property 
-		      (and (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
-				       ?agent ))))
-		)))
-;+syjung
-;ex) "the net force exerted by the man at time T1"
-(def-qexp property-object-agent-time (property-object-agent-time ?property ?body ?agent :time ?time)
+		(the)
+		(time-type-prop ?time ?property)
+		?property  
+		(and (preferred (property ?body)) 
+		     (preferred ((or "due to" "by" "caused by" "made by" 
+				     "exerted by")
+				 ?agent ))) 
+		))
+
+;; ex) "the net force exerted by the man at time T1"
+(def-qexp property-object-agent-time 
+    (property-object-agent-time ?property ?body ?agent :time ?time)
   :new-english ((allowed ((the) "value of")) 
-		(or ( (the) 
-		      (time-type-prop ?time ?property)
-	              ?property  
-		      (and (preferred (property ?body))
-			   (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
-				       ?agent ))
-		 	   (time ?time))) 
-		    ( (possessive ?body)
-		      ;(possessive (or (var (body ?body)) ?body))
-		      (eval (when (check-time-type ?property)
-			      (time-type-prop ?time)))
-		      ?property 
-		      (and (preferred ((or "due to" "by" "caused by" "made by" "exerted by")
-				       ?agent ))
-		           (time ?time)))))
+		(the)
+		(time-type-prop ?time ?property)
+		?property  
+		(and (preferred (property ?body))
+		     (preferred ((or "due to" "by" "caused by" "made by" 
+				     "exerted by")
+				 ?agent ))
+		     (time ?time))
+		)
 )
-;+syjung
-; optime : time is optional 
-;ex) "the net force exerted by the man at time T1"
-(def-qexp property-object-optime (property-object-optime ?property ?body :time ?time)
+
+;; optime : time is optional 
+;; ex) "the net force exerted by the man at time T1"
+(def-qexp property-object-optime 
+    (property-object-optime ?property ?body :time ?time)
   :new-english ((allowed ((the) "value of")) 
-		(or 
-		    ( (the) ?property  		; "mass"
-		      (and (preferred (property ?body)) (time ?time)) )
-		    ( (possessive ?body)
-		      ;(possessive (or (var (body ?body)) ?body))
-		      ?property 		; "mass"
-		      (time ?time))))
-)
-;+syjung
-;ex) "the mass of the crate"
-;    "the crate's mass"
-;    "the value of crate's mass"
+		(the)
+		?property  		; "mass"
+		(and (preferred (property ?body)) (time ?time)) 
+		)
+  )
+
+;; ex) "the mass of the crate"
+;;    "the crate's mass"
+;;    "the value of crate's mass"
 (def-qexp property-object (property-object ?property ?body)
   :new-english ((allowed ((the) "value of")) 
-		(or ( (the) ?property
-		      (preferred (property ?body)) ) 
-		    ( (possessive ?body) 
-		      ;(possessive (or (var (body ?body)) ?body))
-		      ?property)
-		))
-)
-;+syjung
+		(the) ?property
+		(preferred (property ?body))
+		)
+  )
+
 (def-qexp the (the)
   :new-english (preferred "the"))
 
@@ -434,26 +420,31 @@
 		(or (var (body ?body)) ?body)))
 
 (def-qexp agent (agent ?body)
+  ;; The default "the normal force on the dumpster by the street at T0"
+  ;; sounds strange, problem s2b.  Bug #1642.
   :new-english ((or "by" "due to" "by" "from" "caused by" "exerted by" "of") 
 		(or (var (body ?body)) ?body)))
 
 (def-qexp time (time ?time)
   :new-english (preferred (time-not-omittable ?time)))
-;+syjung
+
 (def-qexp time-not-omittable (time-not-omittable ?time)
   :new-english (eval (if (time-pointp ?time) (pp ?time)
 			 ;; else go back to Ontology
 			 (new-english-find ?time))))
 
 (def-qexp during (during ?ta ?tb)
-  :new-english (or ("between" (eval (moment ?ta)) (or "and" "&") 
-			      (eval (moment ?tb)))
+  :new-english (or ((or "between" "during") 
+			(allowed ((the) (allowed "time") "interval") )
+			(eval (moment ?ta)) (or "and" "&") 
+			(eval (moment ?tb)))
 		   ((or "from" "during") (eval (moment ?ta)) 
 		    (or "to" "until") (eval (moment ?tb)))))
 
 ;;;; scalar quantities
 
-;;; in the workbench, the time slot is added if feature changing-mass is included.
+;;; in the workbench, the time slot is added if feature changing-mass 
+;;  is included.
 (def-qexp mass	(mass ?body :time ?time)
   :symbol-base |m|
   :short-name "mass"	
@@ -463,22 +454,24 @@
   :new-english (property-object-optime "mass" ?body :time ?time)
 )
 
+;; the magnitude of the change of mass of ~A per unit time due to ~A~@[ ~A~]" 
+;;	       (nlg ?body) (nlg ?agent 'agent) (nlg ?time 'pp)
 (def-qexp mass-change-magnitude	(mass-change-magnitude ?body ?agent :time ?time)
   :symbol-base |dmdt|     
   :short-name "magnitude of mass change per unit time"	
   :units |kg/s|
   :restrictions nonnegative
-  ;:nlg-english ("the magnitude of the change of mass of ~A per unit time due to ~A~@[ ~A~]" 
-  ;	       (nlg ?body) (nlg ?agent 'agent) (nlg ?time 'pp)))
-  :new-english (or ((change (property-object-agent "mass" ?body ?agent) :time ?time))
-  		   (property-object-agent-time "mass change" ?body ?agent :time ?time))
+  :new-english (or ((change (property-object-agent "mass" ?body ?agent) 
+			    :time ?time))
+  		   (property-object-agent-time "mass change" ?body ?agent 
+					       :time ?time))
 )
+
 (def-qexp mass-per-length (mass-per-length ?rope)
   :symbol-base |$l|     
   :short-name "mass per length"	
   :units |kg/m|
   :restrictions nonnegative 
-  ;:nlg-english ("the mass-per-length of ~A" (nlg ?rope))
   :new-english ((the) (or "mass per length" "mass-per-length") "of" ?rope) 
 )
 
@@ -491,26 +484,33 @@
 		      (and ("by" (or (var (body ?body)) ?body))
 		           (time ?time)))
 		     ((property-object "distance" ?body)
-		      (and (allowed (or "traveled" "travelled" "travels" "moves" "moved"))
+		      (and (allowed (or "traveled" "travelled" "travels" 
+					"moves" "moved"))
 		           (allowed "from the origin")
 			   (time ?time)))
 		))
 )
+
+;; ex) "the duration of time between T0 and T1"
+;;     "the time duration between T0 and T1"
+;;     "the duration between T0 and T1"
 (def-qexp duration (duration ?time)
   :symbol-base |t|     
   :short-name "duration of time"	
   :units |s|
   :restrictions positive
-  :new-english ((the) (preferred "duration of") "time"
+  :new-english ((the) 
+		(or ((preferred "duration of") "time")
+		    ((preferred "time") "duration")
+		    ("duration"))
 		(time ?time)))
 
-; ex) "the value of the average speed of the aircraft between T0 and T1"
+;; ex) "the value of the average speed of the aircraft between T0 and T1"
 (def-qexp speed (speed ?body :time ?time)
   :symbol-base |v|     
   :short-name "speed"	
   :units |m/s|
   :new-english (property-object-time "speed" ?body :time ?time)
-		    ;(mag (velocity ?body :time ?time))
 )
 
 (def-qexp coef-friction 
@@ -518,16 +518,17 @@
   :symbol-base |$m|     
   :short-name "coef. of friction"	
   :units NIL ;; dimensionless
-  ;:nlg-english ("coefficient of ~(~A~) friction between ~A and ~A" (nlg ?static-or-kinetic NIL) (nlg ?body1) (nlg ?body2 'at-time ?time))) 
   :new-english ((the) "coefficient of" ?static-or-kinetic "friction"
-		(and (preferred "between" ?body1 "and" ?body2)
-		     (time ?time)))) 
+		(and (preferred ("between" (or (var ?body1) ?body1) "and" (or (var ?body2) ?body2)))
+		     (time ?time))))
+
+;; "coefficient of drag for ~A moving through ~A" 
+;; (nlg ?b) (nlg ?medium 'at-time ?time)
 
 (def-qexp coef-drag-turbulent (coef-drag ?b ?medium :type turbulent :time ?time)
   :symbol-base |K|     
   :short-name "coef. of drag"	
   :units |kg/m|
-  ;:nlg-english ("coefficient of drag for ~A moving through ~A" (nlg ?b) (nlg ?medium 'at-time ?time))) 
   :new-english ("coefficient of drag for" ?b
 		(and (preferred ("through" ?medium))
 		     (time ?time)))) 
@@ -548,19 +549,22 @@
   ;;        "the acceleration of gravity [on [the surface of] the Earth]"
   ;;        "free-fall acceleration"
   ;;        
-  ;; "the constant gravitational acceleration near the surface of the planet" (kt10a)
+  ;; "the constant gravitational acceleration near the surface of the planet" 
+  ;; (kt10a)
   :new-english ((allowed "the magnitude of") (the)
 		(or ((or "gravitational" "grav." "grav")
 		     (or "acceleration" "accel." "accel") (allowed "constant"))
 		    ((or "acceleration" "accel." "accel")
-		     (or ((or "due to" "caused by" "of" "produced by") "gravity") "of a freely falling object"))
+		     (or ((or "due to" "caused by" "of" "produced by") 
+			  "gravity") "of a freely falling object"))
 		    ("constant" (or "gravitational" "grav." "grav")
 				(or "acceleration" "accel." "accel"))
 		    (property-object "local gravitational strength" ?planet)	
 		    "free-fall acceleration"
-		)
-		(preferred ((or "at" "on" "near") (property-object "surface" ?planet))))
-)
+		    )
+		(preferred ((or "at" "on" "near") 
+			    (property-object "surface" ?planet))))
+  )
 
 ;; Add Earth to Ontology as a universal name
 ;; Alternatively, it could be added to all problem ontologies
@@ -654,38 +658,40 @@
 		      (preferred (agent "non-conservative forces"))
 		      (time ?time)))))
 
+;; "the power supplied to ~a from ~a" (nlg ?b) (nlg ?agent 'at-time ?time)
+
 (def-qexp power (power ?b ?agent :time ?time)
   :symbol-base |P|     
   :short-name "power"	
   :units |W|
-  ;:nlg-english ("the power supplied to ~a from ~a" (nlg ?b) (nlg ?agent 'at-time ?time)))
   :new-english ((the) (allowed "instantaneous") "power" "supplied to" 
 		(the) ?agent (preferred "from") (time ?time)))
+
 (def-qexp net-power (net-power ?b :time ?time)
   :units |W|
-  ;:nlg-english ("the net power supplied to ~a" (nlg ?b 'at-time ?time)))
   :new-english ((the) "net power"
 		(and (preferred ("supplied to" ?b)) 
 		     (time ?time))))
+
 (def-qexp net-power-out (net-power-out ?source :time ?time)
   :symbol-base |P|     
   :short-name "power output" 
   :units |W|
-  ; :nlg-english ("the total power produced by ~A" (nlg ?source 'at-time ?time)))
   :new-english ((the) "total power produced" 
 		(and (preferred ("by" ?source))
 		     (time ?time))))
+
 (def-qexp angle-between (angle-between orderless . ?vecs)
   :units |deg|
   :restrictions nonnegative 
-  ;; :nlg-english ("the angle between ~A" (nlg ?vecs 'conjoined-defnp)))
   :new-english( (the) "angle between" (conjoin (or "and" "&") . ?vecs)))
 
 (def-qexp total-energy (total-energy ?system :time ?time) 
   :units |J|
-  :new-english ((the) (or ( (preferred (or "total" "net")) "mechanical energy") "TME")
-		 (and (preferred (property ?system)) 
-		      (time ?time))))
+  :new-english ((the) (or ((preferred (or "total" "net")) "mechanical energy") 
+			  "TME")
+		(and (preferred (property ?system)) 
+		     (time ?time))))
 
 (def-qexp kinetic-energy (kinetic-energy ?body :time ?time)
   :units |J|
@@ -712,8 +718,10 @@
 ;; see bug 1463
 (def-qexp spring-energy (spring-energy ?body ?spring :time ?time) 
   :units |J|
-  :new-english ((the) (allowed "elastic") (or ((or "potential" "pot" "spring") "energy") "PE")
-		(and (preferred (or (property ?body) ("transmittable to" ?body)))
+  :new-english ((the) (allowed "elastic") (or ((or "potential" "pot" "spring") 
+					       "energy") "PE")
+		(and (preferred (or (property ?body) 
+				    ("transmittable to" ?body)))
 		     ;; always include spring, since that defines force type.
 		     (agent ?spring)
 		     (time ?time))))
@@ -723,11 +731,13 @@
   :symbol-base |d|     
   :short-name "compression distance"	
   :units |m|
-  :new-english ((the) (or ((or "compression" "extension") (allowed "distance")) "stretch" "displacement")
-		 (and (property ?spring) 
-		      ("from" (or "its" "the" "her") 
-			(or "equilibrium" "unstretched") (preferred (or "position" "point" "length")))
-		      (time ?time))))
+  :new-english ((the) (or ((or "compression" "extension") (allowed "distance")) 
+			  "stretch" "displacement")
+		(and (property ?spring) 
+		     ("from" (or "its" "the" "her") 
+			     (or "equilibrium" "unstretched") 
+			     (preferred (or "position" "point" "length")))
+		     (time ?time))))
 
 (def-qexp spring-constant (spring-constant ?spring)
   :symbol-base |k|     
@@ -737,15 +747,12 @@
   :new-english ((the) "spring constant" 
 		(preferred (property ?spring))))
 
-;CAUTION!
-;the quantity height is not working for some reasons. Need check.
-;problem kt10a
-;"the height of the object above the level of origin"
 (def-qexp height (height ?body ?zero-height :time ?time)
   :symbol-base |h|     
   :short-name "height"	
   :units |m|
-  :new-english ((the) (allowed "maximum") "height"
+  :new-english ((the) ;(allowed "maximum") 
+		"height"
 		(and (property ?body)
 		     ;; Assume there is no user defined variable for zero-height
 		     (allowed ((or "above" "relative to") 
@@ -758,48 +765,48 @@
   :new-english (or ((the) (or "zero level" "axis" "horizontal axis" "origin"))
 		   "zero"))
 
+;; "the moment of inertia of ~A about ~A" (nlg ?body) (nlg ?axis 'at-time ?time)
 (def-qexp moment-of-inertia (moment-of-inertia ?body :axis ?axis :time ?time)
   :symbol-base |I|     
   :short-name "moment of inertia"	
   :units |kg.m^2|
   :restrictions positive
-  ;:nlg-english ("the moment of inertia of ~A about ~A" (nlg ?body) (nlg ?axis 'at-time ?time)))
   :new-english ((the) "moment of inertia of" ?body 
 		(preferred (eval (when ?axis `("about" ,?axis))))
 		(time ?time))
 )
+
 ;; for dimensions of certain rigid bodies:
 ;;    from Bob: "the length of the beam"
 (def-qexp length (length ?body)
   :symbol-base ||     
   :short-name "length"	
   :units |m|
-  ;:new-english ((preferred "the") (or "length" "len" "len.") (property ?body)))
   :new-english (property-object (or "length" "len" "len.") ?body))
 
 (def-qexp length-change (rate-of-change (length ?body))
   :symbol-base ||     
   :short-name "rate of change in length"	
   :units |m/s|
-  ;:nlg-english ("the rate of change of the length of ~A" (nlg ?body)))
-  :new-english (rate (change (property-object (or "length" "len" "len.") ?body) )))
+  :new-english (rate (change (property-object (or "length" "len" "len.") 
+					      ?body))))
 
 (def-qexp width  (width ?body)
   :symbol-base ||     
   :short-name "width"	  
   :units |m|
-  ;:nlg-english ("the width of ~A" (nlg ?body)))
   :new-english ((property-object "width" ?body)))
 
 (def-qexp num-torques (num-torques ?body ?axis :time ?time)
-  ;:nlg-english ("the number of ~As on ~A about ~A" (moment-name) (nlg ?body) (nlg ?axis 'at-time ?time)))
   :new-english ((the) "number of" (moment-name) "on" ?body 
 		(preferred (eval (when ?axis `("about" ,?axis))))
 		(time ?time)))
 
 (def-qexp compound (compound orderless . ?bodies)
-  :new-english ((allowed "a compound of") 
-		(conjoin (or "and" "&") . ?bodies)))
+  :new-english (
+		(allowed "a compound of") 
+		(conjoin (or "and" "&") . ?bodies)
+		))
 
 
 (def-qexp system (system . ?bodies)
@@ -833,14 +840,16 @@
 ;;;  into | out-of:
 ;;;   "a vector for FOO directed (Into the plane | Out of the plane)"
 ;;;  z-unknown:
-;;;   "a vector for foo the direction is unknown but either into or out of the plane."
+;;;   "a vector for foo the direction is unknown but either into or out of the 
+;;;    plane."
 ;;;  zero:
 ;;;   " A zero length vector for FOO.
 
 (def-entryprop vector (vector ?body ?quantity ?direction)
   :helpform (vector ?quantity ?direction)
   :Doc "The generic vector entry tool."
-  :nlg-english ("a ~a" (ont-vector-entryprop-format-func ?body ?quantity ?direction)))
+  :nlg-english ("a ~a" (ont-vector-entryprop-format-func ?body ?quantity 
+							 ?direction)))
 
 (defun ont-vector-entryprop-format-func (Body Quantity Direction)
   "Format the vector entry."
@@ -1095,8 +1104,8 @@
   :complexity connect  ;since this is like (equals ...)
   :doc "Distance = Displacement."
   :short-name "distance &amp; displacement"
-  :nlg-english ("distance = magnitude of displacment")
-  :ExpFormat ("noting that distance is the magnitude of the displacment")
+  :nlg-english ("distance = magnitude of displacement")
+  :ExpFormat ("noting that distance is the magnitude of the displacement")
   :EqnFormat ("|d| = s"))
  
 (def-goalprop sdd-eqn (eqn ?algebra (sdd ?body ?time))

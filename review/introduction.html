@@ -2,18 +2,18 @@
                       "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<TITLE>Getting started using Andes</TITLE>
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<TITLE>Welcome to Andes</TITLE>
 
 
-   <style>
+   <style type="text/css">
        img.button {
              width: 2.0em; 
              vertical-align: middle;
        }
        img.box {
-             width: 7em; 
-             vertical-align: middle;
+            height: 2ex;
+            vertical-align: middle;
        }
        li {
             padding: 3px;
@@ -25,71 +25,45 @@
             padding: 3px;
 	    padding-right: 1.5em;
        }      
-   </style>
+       .correct {
+            color: green;
+       }
+       .incorrect {
+            color: red;
+       }
+</style>
 
 </head>
 <body>
-<ul>
 
-<li>  Define the coordinate system by using the Axis Tool
-      <img src="ui-images/axis-tool.png" class="button" alt="axes">
-      to draw axes.
+<p>Andes is a tool for solving physics homework problems.&nbsp;
+When solving a problem, you write your entire solution in
+the drawing area, using tools in the Toolbar on the left.&nbsp;
+As you complete each step of the solution, your entry will turn
+<span class="incorrect">red</span> if it is incorrect or
+<span class="correct">green</span> if it is correct.&nbsp;
 
-<li>  Define bodies with either the Ellipse
-      <img src="ui-images/ellipse-tool.png" class="button" alt="ellipse">
-      or Rectangle
-      <img src="ui-images/rectangle-tool.png" class="button" alt="rectangle">
-      Tool.
+<p>If you are stuck or unsure why an entry is incorrect, you can
+ask the Andes Tutor for Help.&nbsp;  Just click on the help button
+<img src="ui-images/help-button.png" class="button" alt="help button">
+    at the bottom of the Tutor pane.
 
-<li>  Define scalar variables using the Text Tool 
-      <img src="ui-images/text-tool.png" class="button" alt="T">.
-
-<li>  When using text to define a variable, possible forms include:
-      <ul>
-        <li>  <code>m is the mass of the ball</code>
-        <li>  <code>m: mass of the ball</code>
-        <li>  <code>Let m be the mass of the ball</code>
-      </ul>
-
-<li>  Define vector variables using the Vector Tool
-      <img src="ui-images/vector-tool.png" class="button" 
-                         alt="vector">.&nbsp; When you
-     define a vector, variables for the magnitude, components, and angle
-     are defined automatically.&nbsp;  So, for vector <var><b>F</b></var>, 
-     the magnitude <var>F</var>, 
-     components <var>F_x</var> <var>F_y</var>, and angle <var>\thetaF</var> 
-     are defined.
-
-<li>  Write equations using the Equation Tool
-      <img src="ui-images/equation-tool.png" class="button" 
-                  alt="=">; all variables used must
-     be previously defined.
-
-<li>  Double click on a text or equation box to make a correction, 
-      then re-enter.
-
-<li>  Hit enter after entering any information in a text box.
-
-<li>  To find the numerical value of a quantity:
-      <ul>
-        <li>  Enter all equations required to solve 
-            for variable <var>V</var>.
-        <li>  In an equation box enter:&nbsp; <code>V=?</code>
-      </ul>
-
-<li>  Enter the final answer in a text box in the form like 
-     <code>answer:  1.23 m/s</code> or  <code>answer: v1=1.23 m/s</code>
-
-<li> If you are stuck or confused, hit the help button
-     <img src="ui-images/help-button.png" class="button" alt="help button">
-    at the lower right corner of the Tutor pane.
-
-<li> If you have a comment or complaint, type it in the text box
+<p> If you have a comment or complaint, type it in the text box
      <img src="ui-images/help-text.png" class="box" alt="text input">
-    at the bottom of the Tutor pane.&nbsp;  These are logged and will
+   at the bottom of the Tutor pane.&nbsp;  These are logged and will
     be read by us later.
 
-</ul>
+<p> Your score 
+     <img src="ui-images/score.png" class="box" alt="score">
+    is shown on the top of the Tutor pane.&nbsp; It is based
+     on the number of correct solution steps, with a penalty for
+     the number of incorrect steps attempted and the number
+     of "bottom-out" hints received.
+
+<p> When you have completed a problem, click on the
+     <img src="ui-images/submit-button.png" class="box" alt="submit">
+     button to exit.
+
 
                           <h1>Known Issues</h1>
 
@@ -99,5 +73,6 @@ There are plenty of known problems, including:
 <li>  Multiple-choice and check boxes don't work.
 <li>  Math notation (esp. Greek letters) is not handled.
 <li>  The notation for entering Greek letters, like pi, is opaque.
+</ul>
 </body>
 </html>
