@@ -45,7 +45,6 @@
   :symbol-base |do|     
   :short-name "object distance"	
   :units |m|
-  ;:nlg-english ("the distance of the object from ~A" (nlg ?lens))
   :new-english ((the) "distance"
 		(and (preferred ("of" (the) "object"))
 		     (preferred ("from" ?lens))))
@@ -56,15 +55,15 @@
   :effects ( (variable ?do-var (object-distance ?lens))
              (define-var (object-distance ?lens)))
   :hint (
-       (bottom-out (string "Define a variable for ~A by using the Text Tool."  
-			   ((object-distance ?lens) def-np)))
-       ))
+	 (bottom-out (string "Define a variable for ~A by using ~A."  
+			     ((object-distance ?lens) def-np)
+			     (*text-tool* eval)
+			     )) ))
 
 (def-qexp image-distance (image-distance ?lens)
   :symbol-base |di|     
   :short-name "image distance"	
   :units |m|
-  ;:nlg-english ("the distance of the image from ~A" (nlg ?lens))
   :new-english ((the) "distance"
 		(and (preferred ("of" (the) "image"))
 		     (preferred ("from" ?lens))))
@@ -75,15 +74,16 @@
   :effects ( (variable ?di-var (image-distance ?lens))
              (define-var (image-distance ?lens)) )
   :hint (
-       (bottom-out (string "Define a variable for ~A by using the Text Tool."  
-			   ((image-distance ?lens) def-np)))
+       (bottom-out (string "Define a variable for ~A by using ~A."  
+			   ((image-distance ?lens) def-np)
+			     (*text-tool* eval)
+			     ))
        ))
 
 (def-qexp focal-length (focal-length ?lens)
   :symbol-base |f|     
   :short-name "focal length"	
   :units |m|
-  ;:nlg-english ("the focal length of ~A" (nlg ?lens))
   :new-english (property-object "focal length" ?lens)
 )
 
@@ -92,15 +92,16 @@
   :effects ( (variable ?f-var (focal-length ?lens))
              (define-var (focal-length ?lens)) )
   :hint (
-       (bottom-out (string "Define a variable for ~A by using the Text Tool."  
-			   ((focal-length ?lens) def-np)))
+       (bottom-out (string "Define a variable for ~A by using ~A."  
+			   ((focal-length ?lens) def-np)
+			     (*text-tool* eval)
+			     ))
        ))
 
 (def-qexp magnification (magnification ?lens)
   :symbol-base |m|     
   :short-name "magnification"	
   :units NIL
-  ; :nlg-english ("the magnification of ~A" (nlg ?lens))
   :new-english (property-object "magnification" ?lens)
 ) 
 
@@ -109,15 +110,16 @@
   :effects ( (variable ?m-var (magnification ?lens))
             (define-var (magnification ?lens)) )
   :hint (
-       (bottom-out (string "Define a variable for ~A by using the Text Tool."  
-			   ((magnification ?lens) def-np)))
+       (bottom-out (string "Define a variable for ~A by using ~A."  
+			   ((magnification ?lens) def-np)
+			     (*text-tool* eval)
+			     ))
        ))
 
 (def-qexp radius-of-curvature (radius-of-curvature ?mirror)
   :symbol-base |r|     
   :short-name "radius of curvature"	
   :units |m|
-  ;:nlg-english ("the radius of curvature of ~A" (nlg ?mirror))
   :new-english (property-object "radius of curvature" ?mirror)
 )
 
@@ -126,15 +128,16 @@
  :effects ( (variable ?r-var (radius-of-curvature ?mirror))
             (define-var (radius-of-curvature ?mirror)) )
   :hint (
-       (bottom-out (string "Define a variable for ~A by using the Text Tool."  
-			   ((radius-of-curvature ?mirror) def-np)))
+       (bottom-out (string "Define a variable for ~A by using ~A."  
+			   ((radius-of-curvature ?mirror) def-np)
+			     (*text-tool* eval)
+			     ))
        ))
 
 (def-qexp distance-between (distance-between orderless . ?objects)
   :symbol-base |d|     
   :short-name "distance"	
   :units |m|
-  ;:nlg-english ("the distance between ~a" (nlg ?objects 'conjoined-defnp))
   :new-english ((the) "distance between" (conjoin (or "and" "&") . ?objects))
 ) 
 
@@ -144,8 +147,10 @@
  :effects ( (variable ?d-var (distance-between orderless . ?objects))
             (define-var (distance-between orderless . ?objects)) )
  :hint (
-       (bottom-out (string "Define a variable for ~A by using the Text Tool."
-                           ((distance-between orderless . ?objects) def-np) ))
+       (bottom-out (string "Define a variable for ~A by using ~A."
+                           ((distance-between orderless . ?objects) def-np)
+			     (*text-tool* eval)
+			     ))
        ))
 
 (def-qexp slit-separation (slit-separation ?grating)
@@ -153,7 +158,6 @@
   :short-name "slit separation"	
   :units |m|
   :restrictions positive
-  ;:nlg-english ("the distance between slits in ~A" (nlg ?grating))
   :new-english ((the) "distance between slits in" ?grating)
 )
 
@@ -162,8 +166,10 @@
   :effects ( (variable ?do-var (slit-separation ?grating))
              (define-var (slit-separation ?grating)))
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Text Tool."  
-			     ((slit-separation ?grating) def-np)))
+	 (bottom-out (string "Define a variable for ~A by using ~A."  
+			     ((slit-separation ?grating) def-np)
+			     (*text-tool* eval)
+			     ))
 	 ))
 
 (def-qexp resolution-angle (resolution-angle ?grating)
@@ -171,7 +177,6 @@
   :short-name "angle of resolution"
   :units |deg|
   :restrictions positive
-  ;:nlg-english ("the minimum angle of resolution for ~A" (nlg ?grating))
   :new-english ((the) "minimum angle of resolution for" ?grating)
 )
 
@@ -180,8 +185,10 @@
   :effects ( (variable ?do-var (resolution-angle ?grating))
              (define-var (resolution-angle ?grating)))
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Text Tool."  
-			     ((resolution-angle ?grating) def-np)))
+	 (bottom-out (string "Define a variable for ~A by using ~A."  
+			     ((resolution-angle ?grating) def-np)
+			     (*text-tool* eval)
+			     ))
 	 ))
 
 
@@ -484,7 +491,6 @@
 
 (def-qexp line (line ?r)
   :units nil
-  ;:nlg-english ("~A" (nlg ?r)))
   :new-english (?r))
 
 ;; Helper routine to give expression for a line
@@ -506,9 +512,10 @@
 	     (variable ?mag-var (mag (line ?r)))
 	     (variable ?dir-var (dir (line ?r))))
   :hint 
-  ( (bottom-out (string "Use the line tool to draw a line for ~A in a direction of ~A degrees with respect to the horizontal." 
-			     ?r ?dir))
-	 ))
+  ( (bottom-out (string "Use ~A to draw a line for ~A in a direction of ~A degrees with respect to the horizontal." 
+			(*line-tool* eval)
+			?r ?dir))
+    ))
 
 (defoperator draw-line-unknown-dir (?line)
   :preconditions
@@ -529,7 +536,8 @@
     (variable ?mag-var (mag ?line))
     (variable ?dir-var (dir ?line)) )
   :hint
-  ((bottom-out (string "Use the line tool to draw ~A in an unkown direction." 
+  ((bottom-out (string "Use ~A to draw ~A in an unkown direction." 
+		       (*line-tool* eval)
 		       ?line))
    ))
 

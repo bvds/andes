@@ -260,10 +260,15 @@
 		      (subst-nlgs-specvars (HintSpec-Vars S)))))
 
 (defun subst-nlgs-specvars (Vars)
+  "Evaluate hint format statement arguments"
   (mapcar #'(lambda (v) 
 	      (if (listp v)
-		  (cons 'nlg v)
-		(list 'nlg v)))
+                  ;; Argument list (a b c d) is turned into '(b 'a c d)
+                  ;; And (a b) is turned into '(b 'a)
+		  ;; note that any subsequent arguments are not quoted.
+		  `(,(second v) (quote ,(car v)) . ,(cddr v))
+		  `(match:word-string 
+		    (expand-vars (new-english-find (quote ,v))))))
 	  Vars))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

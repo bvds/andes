@@ -122,7 +122,9 @@
    ((point (string "Notice that ~a is at rest ~a." ?b (?t pp)))
     (teach (string "When an object is at rest, its velocity is zero. Since the momentum vector is defined as mass times the velocity vector, the momentum is also zero at that time."))
     ;; too simple for a kcd
-    (bottom-out (string "Because ~a is at rest ~a, use the momentum tool to draw a zero-length momentum vector for it." ?b (?t pp)))))
+    (bottom-out (string "Because ~a is at rest ~a, use ~A to draw a zero-length momentum vector for it." 
+			(*vector-tool* eval)
+			?b (?t pp)))))
 
 ;; we could get momentum direction from velocity direction, but these operators
 ;; get it from straight-line motion spec, so that it is not required that 
@@ -398,8 +400,11 @@
    (point (string "Notice that ~a is rotating ~A ~a.  Consequently, it has a non-zero angular momentum vector." 
 		  ?b (?dir-vel rotation-name)  (?t pp) (?dir-vel adj)))
    (teach (string "In the case of a symmetrical rigid body rotating about a fixed axis, the angular momentum vector will be equal to the moment of inertia -- a scalar-- times the angular velocity vector. The angular momentum will therefore point along the z axis in the same direction as the angular velocity vector."))
-   (bottom-out (string "Because ~a has an angular velocity pointing ~a ~A, use the momentum tool to draw a non-zero angular momentum vector with direction ~a ." ?b (?dir-vel adj) (?t pp) (?dir-vel adj)))
-  ))
+   (bottom-out (string "Because ~a has an angular velocity pointing ~a ~A, use ~A to draw a non-zero angular momentum vector with direction ~a ." 
+		       ?b (?dir-vel adj) (?t pp)
+		       (*vector-tool* eval)
+		       (?dir-vel adj)))
+   ))
 
 ; following writes the equation for angular momentum 
 ; compo equation: L_z = I * omega_z
@@ -600,7 +605,6 @@
 ;; which may be unknown
 (def-qexp impulse (impulse ?body ?agent :time ?time)
   :units |N.s|
-  ;:nlg-english ("Impulse on ~A due to ~A" (nlg ?body 'at-time ?time) (nlg ?agent 'agent)))
   :new-english ((the) "impulse"
 		(and (preferred ("on" ?body))
 		     (preferred ("due to" ?agent))
@@ -626,7 +630,9 @@
    )
   :hint
    ((point (string "You were given that there is an impulse on ~a." ?b))
-    (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b (?agent agent) (?t pp) ?dir))
+    (bottom-out (string "Use ~A to draw the impulse on ~a due to ~a ~a at ~a."
+			(*vector-tool* eval)
+			?b (?agent agent) (?t pp) ?dir))
     ))
 
 ;;;;===========================================================================
@@ -667,7 +673,9 @@
   :hint
    ((point (string "There is a force acting on ~a." ?b))
     (teach (string "One can define an impulse associated with the force exerted by ~A ~A." ?agent (?t pp)))
-    (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b (?agent agent) (?t pp) ?dir))
+    (bottom-out (string "Use ~A to draw the impulse on ~a due to ~a ~a at ~a."
+			(*vector-tool* eval)
+			?b (?agent agent) (?t pp) ?dir))
     ))
 
 
@@ -793,7 +801,9 @@
    )
   :hint
    ((point (string "The impulse on ~a causes its motion to change." ?b))
-    (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b (?agent agent) (?t pp) ?dir))
+    (bottom-out (string "Use ~A to draw the impulse on ~a due to ~a ~a at ~a."
+			(*vector-tool* eval)
+			?b (?agent agent) (?t pp) ?dir))
     ))
 
 ;; Draw an impulse if two momenta are not known to be equal or opposite
@@ -824,7 +834,9 @@
    )
   :hint
    ((point (string "The impulse on ~a causes its motion to change." ?b))
-    (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b (?agent agent) (?t pp) ?dir))
+    (bottom-out (string "Use ~A to draw the impulse on ~a due to ~a ~a at ~a." 
+			(*vector-tool* eval)
+			?b (?agent agent) (?t pp) ?dir))
     ))
 
 ;;; This operator indicates when the impulse form of NSL is

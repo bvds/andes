@@ -29,6 +29,12 @@ dojo.require("andes.api");
 				case "show-hint":
 					hlp.containerNode.innerHTML = c + "\n<p>" + r.text + "</p>";
 					break;
+				case "echo-get-help-text":
+		  		        // Escape any html codes on input text echo.
+               		                // Should use future function dojo.string.escape
+                                        // See http://trac.dojotoolkit.org/ticket/8995
+				        andes.help.echo(r.text.replace(/\&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
+					break;
 				case "focus-hint-text-box":
 					dijit.focus(dojo.byId("helpInput"));
 					break;

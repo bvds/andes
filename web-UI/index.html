@@ -1,11 +1,12 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <!-- work-around for IE 8 gfx text render bug -->
     <!-- see http://www.andestutor.org/bugzilla/show_bug.cgi?id=1637 -->
     <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7"/>
     <title>Andes Physics Tutor</title>
-	<style>
+	<style type="text/css" >
 		textarea{
 			position:absolute;
 			top:30px;
@@ -15,9 +16,9 @@
 			z-index:10001;
 		}
 	</style>
-	<script>
+	<script type="text/javascript">
 		djConfig = {
-			isDebug:false,
+			isDebug:true,
 			parseOnLoad:true,
 			popup:true
 		}
@@ -35,7 +36,7 @@
 	
 	</script>
 	
-	<script>
+	<script type="text/javascript">
 		// debug stuff.
 		var watched = {};
 		var ta;
@@ -81,11 +82,9 @@
 						<span>Help</span>
 						<div dojoType="dijit.Menu" id="menuHelp">
 								<div id="menuIntroduction" dojoType="dijit.MenuItem">Introduction</div>
-								<div id="menuIntroVideo" dojoType="dijit.MenuItem">Video</div>
-								<div id="menuFAQ" dojoType="dijit.MenuItem">How to ...</div>
-                                                </div>
+								<div id="menuManual" dojoType="dijit.MenuItem">Manual</div>
 				</div>
-
+                     </div>
 				<div dojoType="dijit.form.Button" id="submitButton" style="position:absolute; top:0; right:10px; margin:0;">Submit</div>
 		</div>
 
