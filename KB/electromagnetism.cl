@@ -1609,11 +1609,13 @@
 
 (def-qexp electric-dipole-moment (dipole-moment ?dipole electric :time ?time)
   :units |C.m|
-  :new-english (property-object-time "electric dipole moment" ?dipole :time ?time))
+  :new-english (property-object-time "electric dipole moment" ?dipole 
+				     :time ?time))
 
 (def-qexp magnetic-dipole-moment (dipole-moment ?dipole magnetic :time ?time)
   :units |C.m^2/s|
-  :new-english (property-object-time "magnetic dipole moment" ?dipole :time ?time))
+  :new-english (property-object-time "magnetic dipole moment" ?dipole 
+				     :time ?time))
 
 ;; modification of draw-efield-vector
 (defoperator draw-Dipole-Moment-given-dir (?dipole ?t)
@@ -2271,7 +2273,8 @@
 (def-qexp dipole-energy (dipole-energy ?dipole ?field :time ?time)
   ;; custom dialog box "energy"
   :units |J|
-  :new-english (property-field-source-time "the potential energy" ?field ?dipole :time ?time))
+  :new-english (property-field-source-time "the potential energy" ?field 
+					   ?dipole :time ?time))
 
 ; called via define-energy-var, which generates variable name
 (defoperator define-dipole-energy-ee-var (?dipole ?source ?t)
@@ -3814,7 +3817,8 @@
   :symbol-base |intB|     
   :short-name "line integral of B"
   :units |T.m|
-  :new-english ((the) "line integral of" (the) "net magnetic field along path" ?path (time ?t)))
+  :new-english ((the) "line integral of" (the) "net magnetic field along path" 
+		?path (time ?t)))
 
 (defoperator define-line-integral (?path ?type ?t)
   :preconditions 

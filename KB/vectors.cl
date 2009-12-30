@@ -1747,12 +1747,13 @@
 ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; "a unit vector~@[ at ~A~] ~A ~A" ?loc 
+;; (unit-vector-orientation-name ?orientation) (nlg ?body 'at-time ?time)))
+
 (def-qexp unit-vector (unit-vector ?orientation ?body :at ?loc :time ?time)
   :units nil  ;dimensionless
-  ;:nlg-english ("a unit vector~@[ at ~A~] ~A ~A" ?loc (unit-vector-orientation-name ?orientation) (nlg ?body 'at-time ?time)))
-  ;
-  ;syjung: NEED CHECKING
   :new-english ("a unit vector" 
+		;; Broken Bug #1650
 		(when (unit-vector-orientation-name ?orientation) ?loc)
 		?body (time ?time)))
 
@@ -2252,12 +2253,12 @@
   :new-english (property-object "area" ?shape)
 )
 
+;; ex) "the rate of change of the area of ~"
 (def-qexp area-change (rate-of-change (area ?shape))
   :symbol-base |dAdt|     
   :short-name "rate of change in area"	
   :units |m^2/s|
   :restrictions positive
-  ;ex) "the rate of change of the area of ~"
   :new-english (rate (change (property-object "area" ?shape)))
 )
 
@@ -2272,12 +2273,12 @@
 			    ))))
 
 ;; quantity to represent radius of a circular shape
+;; ex) "the radius of ~"
 (def-qexp radius-of-circle (radius-of-circle ?body)
   :symbol-base |r|     
   :short-name "radius"	
   :units |m|
   :restrictions positive
-  ;ex) "the radius of ~"
   :new-english (property-object "radius" ?body)
 )
 
