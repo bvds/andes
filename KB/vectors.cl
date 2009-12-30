@@ -300,44 +300,45 @@
 
 (defoperator draw-vector-aligned-axes (?rot)
   :specifications 
-   "If the goal is to draw coordinate axes for use on some body's vectors,
+  "If the goal is to draw coordinate axes for use on some body's vectors,
        and there are any vectors on that body drawn at known angles
    then draw coordinate axes so that one of them is alligned with ?vector,"
-
-   :preconditions 
-   (
-    ;; don't rotate axes if components are sought:
-    (not (component-form))
-    (not (use-energy-axes))	  
-    (not (projection-axes ?junk))
-    ;; don't draw axis for system part if system axis already chosen
-    ;; use-system-axes will choose axes in this case.
-    (not (axes-for ?sys . ?dontcare)
-	 (part-of-sys ?b ?sys))
-    ;; (test (atom ?b))	; only for atomic bodies
-    (setof (in-wm (vector ?b ?vector ?dir)) ?dir ?dirs)
-    ;; add 0 so standard axes always an option:
-    (bind ?min-dirs (adjoin 0 (minimal-x-rotations ?dirs)))
-    (any-member ?rot ?min-dirs)
-    (bind ?x-rotation (axis-dir 'x ?rot)) ;for help statement
-    (debug "Setting axes for ~a at ~A~%" ?b ?rot)
-    )
-   :effects 
-   (
-    (draw-axes ?b ?rot)	   ;action proposition for helpsys gives x dir
-    (axes-for ?b ?rot)
-    (assume axes-for ?b ?rot)
-    )
+  :preconditions 
+  (
+   ;; don't rotate axes if components are sought:
+   (not (component-form))
+   (not (use-energy-axes))	  
+   (not (projection-axes ?junk))
+   ;; don't draw axis for system part if system axis already chosen
+   ;; use-system-axes will choose axes in this case.
+   (not (axes-for ?sys . ?dontcare)
+	(part-of-sys ?b ?sys))
+   ;; (test (atom ?b))	; only for atomic bodies
+   (setof (in-wm (vector ?b ?vector ?dir)) ?dir ?dirs)
+   ;; add 0 so standard axes always an option:
+   (bind ?min-dirs (adjoin 0 (minimal-x-rotations ?dirs)))
+   (any-member ?rot ?min-dirs)
+   (bind ?x-rotation (axis-dir 'x ?rot)) ;for help statement
+   (debug "Setting axes for ~a at ~A~%" ?b ?rot)
+   )
+  :effects 
+  (
+   (draw-axes ?b ?rot)	   ;action proposition for helpsys gives x dir
+   (axes-for ?b ?rot)
+   (assume axes-for ?b ?rot)
+   )
   :hint
   ((point (string "What would be a useful choice for the coordinate axes?"))
    (teach (minilesson "mini_choose_axes.htm")
-          (kcd "draw-rotate-axes")
+	  (kcd "draw-rotate-axes")
 	  ;; Careful with wording: we can't be sure that the axis direction 
 	  ;; being prompted actually conforms to the recommended heuristic. 
 	  (string "Although you can choose any rotation for the axes and still get a correct answer, the solution is usually simpler if you rotate the axes so at least one vector is parallel to an axis.  Typically, the more vectors that come out parallel to the axes, the better, although which choice is most efficient will depend on the particular problem. "))
-   (bottom-out (string "~:[Draw~;Rotate~] the coordinate axes setting the x axis at ~a degrees." 
+   ;; The case "Draw" never actually occurs (from scanning log files)
+   ;; since the NSH is pre-empted by hints in Help/NextStepHelp.cl
+   (bottom-out (string "~:[Draw~;Rotate~] the coordinate axes setting the <var>x</var> axis to ~a degrees." 
 		       (nil rotate-existing-axes) ?x-rotation))
-  ))
+   ))
 
 (defun rotate-existing-axes (x)
   "TRUE at help time if should rotate axes rather than drawing new ones"

@@ -348,7 +348,7 @@
   ((eqn (= ?s-var ?d-var) (displacement-distance ?b ?t)))
   :hint
   ((point (string "How is distance traveled related to displacement?"))
-   (teach (string "If ~A is moving in a straight line, the distance traveled ~A is equal to the magnitude of the displacment." ?b (?t pp)))
+   (teach (string "If ~A is moving in a straight line, the distance traveled ~A is equal to the magnitude of the displacement." ?b (?t pp)))
    (bottom-out (string "Write the equation ~A = ~A" (?s-var algebra) (?d-var algebra)))))
 
 ;;;
@@ -726,10 +726,12 @@
     (implicit-eqn (= ?dir-var ?dir-var-value) (dir (displacement ?b :time ?t)))
     ) 
    :hint
-   ((point (string "The problem specifies the displacement of ~a ~a." ?b (?t pp)))
+   ((point (string "The problem specifies the displacement of ~a ~a." 
+		   ?b (?t pp)))
     (teach (kcd "draw_displacement")
 	   (string "The displacement of an object is a vector from its starting point to its ending point.  It doesn't matter what path the object took.  Only the two points matter.  The problem gives you that information."))
-    (bottom-out (string "The problem specifies that the displacement of ~a ~a is at ~a, so just draw a displacment vector oriented at ~a." ?b (?t pp) ?dir ?dir))
+    (bottom-out (string "The problem specifies that the displacement of ~a ~a is at ~a, so just draw a displacement vector oriented at ~a." 
+			?b (?t pp) ?dir ?dir))
     ))
 
 ;; This operator draws net displacement at an unknown angle for a 2D 
@@ -2202,7 +2204,9 @@
   :hint
    ((point (string "Can you think of an equation that relates the components of average acceleration to those of the initial velocity, final velocity, and duration?"))
     (teach (string "Acceleration is the rate of change of velocity.  The average acceleration vector over some time is defined as the difference between initial and final velocity vectors divided by the duration."))
-    (bottom-out (string "Write the equation ~a = ~a" (?vf-compo algebra) ((+ ?vi-compo (* ?a-compo ?t)) algebra)))
+    (bottom-out (string "Write the equation ~a = ~a" 
+			(?vf-compo algebra) 
+			((+ ?vi-compo (* ?a-compo ?t)) algebra)))
     ))
 
 ;;; zero component of non-zero acceleration
@@ -2274,7 +2278,8 @@
 		  ((axis ?xyz ?rot) symbols-label) 
 		  ((axis ?xyz ?rot) symbols-label)
 		  (?t-lk pp) (?v1-compo algebra) (?v2-compo algebra)))
-   (bottom-out (string "Write the equation ~A" ((= ?v1-compo ?v2-compo) algebra)))
+   (bottom-out (string "Write the equation ~A" 
+		       ((= ?v1-compo ?v2-compo) algebra)))
    ))
 
 
@@ -2828,7 +2833,7 @@
    (body ?b)
    ;; 2. draw each constituent displacement. Note we want to do this before
    ;; drawing the net displacement, so have some cue to drawing an accurate
-   ;; net displacment.
+   ;; net displacement.
    (bind ?intervals (successive-intervals ?tt))
    (foreach ?interval ?intervals
       (vector ?b (displacement ?b :time ?interval) ?dir-di))
@@ -2856,11 +2861,11 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Relate relative positions of two objects to their displacments
+;;; Relate relative positions of two objects to their displacements
 ;;; 
 
 (def-psmclass relative-position-displacement 
-    (?eq-type relative-position-displacement ?axis ?rot (relative-position-displacment ?a ?b ?time))
+    (?eq-type relative-position-displacement ?axis ?rot (relative-position-displacement ?a ?b ?time))
   :complexity minor
   :short-name "relative position and displacement"
   :nlg-english ("relative positon and displacement for two bodies")
@@ -2915,7 +2920,7 @@
     (assume using-relative-position-displacement ?a ?b (during ?t1 ?t2))
     )
    :hint
-   ((point (string "The change in relative position of ~A and ~B is related to their individual displacments ~A." ?a ?b (?tt pp)))
+   ((point (string "The change in relative position of ~A and ~B is related to their individual displacements ~A." ?a ?b (?tt pp)))
     (point (string "The relative position of two objects over a time interval is determined by each of ther displacements during that time. This will be the vector sum of the initial relative position plus the displacement of the first object minus the displacement of the second object.  This can be applied component-wise."))
     (bottom-out (string "Write the equation ~A" ((= ?rabf (+ ?abi (- ?da ?db))) algebra)))))
 
@@ -3287,7 +3292,7 @@
   :hint
   ((point (string "Notice that ~a is rotating ~a ~a." 
 		  ?b (?dir rotation-name) (?t pp)))
-   (teach (string "The angular displacement of an object over an interval represents its net change in angular position as it rotates during that interval.  This vector is defined to lie along the z-axis in Andes problems. By the right hand rule, the angular displacment vector points out of the x-y plane of the diagram for net counter-clockwise rotation and into the x-y plane for net clockwise rotation."))
+   (teach (string "The angular displacement of an object over an interval represents its net change in angular position as it rotates during that interval.  This vector is defined to lie along the z-axis in Andes problems. By the right hand rule, the angular displacement vector points out of the x-y plane of the diagram for net counter-clockwise rotation and into the x-y plane for net clockwise rotation."))
    (bottom-out (string "Because it is rotating ~A ~a, use ~A to draw a non-zero displacement vector for ~A in the direction ~a." 
 		       (?dir rotation-name) (?t pp)
 		       (*vector-tool* eval)

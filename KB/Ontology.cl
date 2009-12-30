@@ -215,7 +215,7 @@
 
 (def-qexp ang-displacement (ang-displacement ?body :time ?time)
   :units |rad|
-  :new-english ((the) rotation-adj	(or "displacment" "disp." "disp")
+  :new-english ((the) rotation-adj	(or "displacement" "disp." "disp")
 		 (and (preferred (property ?body))
 		      (time ?time))))
 
@@ -1156,8 +1156,8 @@
   :complexity connect  ;since this is like (equals ...)
   :doc "Distance = Displacement."
   :short-name "distance &amp; displacement"
-  :nlg-english ("distance = magnitude of displacment")
-  :ExpFormat ("noting that distance is the magnitude of the displacment")
+  :nlg-english ("distance = magnitude of displacement")
+  :ExpFormat ("noting that distance is the magnitude of the displacement")
   :EqnFormat ("|d| = s"))
  
 (def-goalprop sdd-eqn (eqn ?algebra (sdd ?body ?time))
