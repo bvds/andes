@@ -32,8 +32,7 @@
   :short-name "mass density"	
   :units |kg/m^3|
   :restrictions nonnegative   
-  ;:nlg-english ("the mass density of ~A" (nlg ?material))
-  :new-english (property-object (or "mass density" "density of mass") ?material)
+  :new-english (property-object ((preferred "mass") "density") ?material)
 )
 
 (defoperator define-mass-density (?material)
@@ -41,8 +40,10 @@
   :effects ( (variable ?$rm-var (mass-density ?material))
              (define-var (mass-density ?material)))
   :hint 
-  ((bottom-out (string "Define a variable for ~A by using the Text Tool." 
-			   ((mass-density ?material) def-np)))))
+  ((bottom-out (string "Define a variable for ~A by using ~A." 
+		       ((mass-density ?material) def-np)
+		       (*text-tool* eval)
+		       ))))
 
 ;;; Definition of mass density: rho = m/V
 ;;;
@@ -92,7 +93,6 @@
   :symbol-base |P|     
   :short-name "pressure"	
   :units |Pa|
-  ;:nlg-english ("the pressure at ~a" (nlg ?position 'at-time ?time))
   :new-english ((the) "pressure" 
 		(and (preferred ("at" ?position))
 		     (time ?time)))
@@ -103,9 +103,10 @@
   :effects ( (variable ?Pr-var (pressure ?point :time ?time))
              (define-var (pressure ?point :time ?time)) )
   :hint (
-       (bottom-out (string "Define a variable for ~a by using the Text Tool."  
-			   ((pressure ?point :time ?time) def-np)))
-       ))
+	 (bottom-out (string "Define a variable for ~a by using ~A."  
+			     ((pressure ?point :time ?time) def-np)
+			     (*text-tool* eval)
+			     )) ))
 
 
 ;; Define the pressure of a standard atmosphere.  
@@ -119,7 +120,6 @@
   :units |Pa|
   :restrictions positive
   :short-name "standard atmosphere"
-  ; :nlg-english ("the pressure of one standard atmosphere")
   :new-english ((the) "pressure of one standard atmosphere")
 )
 
@@ -129,8 +129,10 @@
 	     (define-var (atmosphere)) )
   :hint 
   ((bottom-out 
-    (string "Define a variable for ~A by using the Text Tool." 
-	    ((atmosphere) def-np)))))
+    (string "Define a variable for ~A by using ~A." 
+	    ((atmosphere) def-np)
+	    (*text-tool* eval)
+	    ))))
 
 (def-psmclass std-constant-Pr0 (std-constant (atmosphere))
   :complexity simple 
@@ -356,8 +358,7 @@
   :short-name "cross-sectional area"	
   :units |m^2|
   :restrictions positive
-  ;:nlg-english ("the cross-sectional area at ~A" (nlg ?position 'at-time ?time))
-  :new-english ((the) "cross-sectional area" 
+  :new-english ((the) (preferred "cross-sectional") "area"
 		(and (preferred ("at" ?position)) 		
 		     (time ?time)))
 )
@@ -367,8 +368,10 @@
      :effects ((variable ?A-var (area-at ?point :time ?time))
                (define-var (area-at ?point :time ?time)))
      :hint (
-          (bottom-out (string "Define a variable for ~A by using the Text Tool."
-			      ((area-at ?point :time ?time) def-np)))))
+	    (bottom-out (string "Define a variable for ~A by using ~A."
+				((area-at ?point :time ?time) def-np)
+				(*text-tool* eval)
+				))))
 
 
 ;;;
@@ -548,7 +551,6 @@
   :short-name "volume"	
   :units |m^3|
   :restrictions nonnegative ; we allow zero-volume for negligible parts of compound bodies
-  ;:nlg-english ("the volume of ~A" (nlg ?body 'at-time ?time))
   :new-english (property-object-time "volume" ?body :time ?time)
 )
 
@@ -559,9 +561,10 @@
      :effects ((variable ?Vol-var (volume ?body :time ?time))
                (define-var (volume ?body :time ?time)))
      :hint (
-          (bottom-out (string "Define a variable for ~A by using the Text Tool."  
-			      ((volume ?body :time ?time) def-np)))
-	   ))
+          (bottom-out (string "Define a variable for ~A by using ~A."  
+			      ((volume ?body :time ?time) def-np)
+		       (*text-tool* eval)
+		       )) ))
 
 ;; TODO: add equations for volumes of various shapes
 

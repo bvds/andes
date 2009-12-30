@@ -1,0 +1,9 @@
+To set this up on OS X 10.4 there are a couple of steps needed:
+
+Uncomment the following lines in /etc/httpd/httpd.conf:
+#LoadModule php4_module        libexec/httpd/libphp4.so
+#AddModule mod_php4.c
+
+Add the a link for php:
+sudo mkdir /var/mysql 
+sudo ln -s /private/tmp/mysql.sock /var/mysql/mysql.sock

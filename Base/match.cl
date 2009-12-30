@@ -140,30 +140,25 @@
 
 (defun word-count (model &key max)
   "find minimum (or maximum) word count in model"
+  ;; In general, arguments of the model can be nil.
   (cond 
     ((null model) 0)
     ((stringp model) 1) ;; or count words in string
     ((or (listp (car model)) (stringp (car model)))
      (loop for x in model sum (word-count x :max max)))
     ((eql (car model) 'and)
-     (if (cdr model)
-	 (word-count (cdr model) :max max) 	 ;remove the 'and 
-	 0))
+     (word-count (cdr model) :max max))      ;remove the 'and 
     ((eql (car model) 'or)
-     (if (cdr model)
-	 ;; don't use loop here because we have to switch between
-	 ;; maximize and minimize
-	 (apply (if max #'max #'min)
-		  (mapcar #'(lambda (x) (word-count x :max max)) 
-			  (cdr model)))
-	 0))
+     ;; don't use loop here because we have to switch between
+     ;; maximize and minimize
+     (apply (if max #'max #'min)
+	    (mapcar #'(lambda (x) (word-count x :max max)) 
+		    (cdr model))))
     ((eql (car model) 'conjoin)
-     (cond ((cdddr model)
-	    ;; remove the 'conjoin, keep the conjunction
-	    (word-count (cdr model) :max max))
-	   ((cddr model)
-	    (word-count (third model) :max max)) ;drop 'conjoin conjunction
-	   (t 0))) ;empty conjunction.
+     (let ((args (word-count (cddr model) :max max)))
+       (if (> args 1) 
+	   (+ args (word-count (second model) :max max)) ;add conjuction 
+	   args)))  ;; 0 or 1 args, drop conjunction
     ((member (car model) '(allowed preferred)) 
      (if max (word-count (cdr model) :max max) 0))
     (t (warn "word-count found unexpected form ~A" model) (if max 10000 0))))
