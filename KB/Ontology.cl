@@ -416,14 +416,16 @@
 
 
 (def-qexp object (object ?body)
-  :new-english ((or "on" "acting on" "exerted on" "that acts on" "applied on" "applied to") 
-		(or (var (body ?body)) ?body)))
+  :new-english (eval (when (expand-new-english ?body)
+                        '((or "on" "acting on" "exerted on" "that acts on" "applied on" "applied to") 
+			  (or (var (body ?body)) ?body)))))
 
 (def-qexp agent (agent ?body)
   ;; The default "the normal force on the dumpster by the street at T0"
   ;; sounds strange, problem s2b.  Bug #1642.
-  :new-english ((or "by" "due to" "by" "from" "caused by" "exerted by" "of") 
-		(or (var (body ?body)) ?body)))
+  :new-english (eval (when (expand-new-english ?body)
+			'((or "by" "due to" "by" "from" "caused by" "exerted by" "of") 
+			  (or (var (body ?body)) ?body))))) 
 
 (def-qexp time (time ?time)
   :new-english (preferred (time-not-omittable ?time)))
@@ -513,6 +515,7 @@
   :new-english (property-object-time "speed" ?body :time ?time)
 )
 
+;;ex) "the coeffienct of kinetic friction between the crate and the plain"
 (def-qexp coef-friction 
     (coef-friction ?body1 ?body2 ?static-or-kinetic :time ?time)
   :symbol-base |$m|     
@@ -524,7 +527,6 @@
 
 ;; "coefficient of drag for ~A moving through ~A" 
 ;; (nlg ?b) (nlg ?medium 'at-time ?time)
-
 (def-qexp coef-drag-turbulent (coef-drag ?b ?medium :type turbulent :time ?time)
   :symbol-base |K|     
   :short-name "coef. of drag"	
@@ -571,6 +573,9 @@
 ;; involving the earth.
 (def-qexp the-Earth earth 
   :new-english ((the) "Earth"))
+
+(def-qexp unspecified unspecified 
+  :new-english (nil))
 
 (post-process add-gravitational-acceleration (problem)
   "if only the earth's gravity is used, add gravitational acceleration"
