@@ -26,16 +26,14 @@ DROP TABLE IF EXISTS `andes`.`PROBLEM_ATTEMPT`;
 DROP TABLE IF EXISTS `andes`.`PROBLEM_ATTEMPT_TRANSACTION`;
 \. create_PROBLEM_ATTEMPT_TRANSACTION.sql
 
+DROP TABLE IF EXISTS `andes`.`REVIEWED_PROBLEMS`;
+\. create_REVIEWED_PROBLEMS.sql
+
 -- USE THE CREATED DATABASE
 USE andes;
 
--- Attempts to populate with data. For simplicity, hardcoded to my user directory. MOST LIKELY AREA TO CHANGE
- LOAD DATA LOCAL INFILE 'student_dataset.csv' INTO TABLE STUDENT_DATASET FIELDS TERMINATED BY ',' LINES TERMINATED BY 
+
+LOAD DATA LOCAL INFILE 'student_dataset.csv' INTO TABLE STUDENT_DATASET FIELDS TERMINATED BY ',' LINES TERMINATED BY 
 '\n' (datasetID, datasetname, modulename, groupname, problemname);
  LOAD DATA LOCAL INFILE 'classinformation.csv' INTO TABLE CLASS_INFORMATION FIELDS TERMINATED BY ',' LINES TERMINATED BY 
 '\n' (classID, name, school, period, description, instructorName, schoolyearInfo, datasetID);
-LOAD DATA LOCAL INFILE 'problem_attempt.csv' INTO TABLE PROBLEM_ATTEMPT FIELDS TERMINATED BY ',' LINES TERMINATED BY 
-'\n' (userName, sessionID, startTime, clientID, classinformationID);
--- LOAD DATA LOCAL INFILE '/home/nvaidyan/problem_attempt_transaction.csv' INTO TABLE PROBLEM_ATTEMPT_TRANSACTION FIELDS TERMINATED BY ',' LINES TERMINATED BY 
--- '\n' (tID, clientID, command, initiatingParty);
-

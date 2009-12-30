@@ -1,7 +1,7 @@
 <?
-$dbuser= "rrangan";
-$dbserver= "gideon.eas.asu.edu";
 $dbpass= $_POST['passwd'];;
+$dbuser= "root";
+$dbserver= "localhost";
 $dbname= "andes";
 //******** BEGIN LISTING THE CONTENTS OF  testTable*********                                                                                                            
 //CONNECTION STRING                                                                                                                                                     

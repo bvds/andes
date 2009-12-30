@@ -18,6 +18,7 @@ dojo.require("dijit.form.TextBox");
 dojo.require("andes.defaults");
 dojo.require("andes.main");
 dojo.require("dojox.drawing");
+//dojo.require("andes.common");
 
 //Necessary if bypassing dojox.drawing.
 //In that case remove andes.draw from above.

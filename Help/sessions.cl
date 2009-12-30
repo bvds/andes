@@ -368,29 +368,48 @@
 		       :student user :problem problem :section section
 		       :extra extra))
       (let* ((method (cdr (assoc :method old-step))) 
-	     (params (assoc :params old-step))
+	     (params (cdr (assoc :params old-step)))
 	     (reply (apply 
 		     (cond 
 		       ((equal method "solution-step") #'solution-step)
 		       ((equal method "seek-help") #'seek-help))
 		     ;; flatten the alist
 		     (mapcan #'(lambda (x) (list (car x) (cdr x))) 
-			     (cdr params))))) 
+			     params))) 
+	     
+	     ;; solution-steps and help results are passed back to client
+	     ;; to set up state on client.
+	     ;;
+	     ;; Help requests are sent to the help system, to set the solution
+	     ;; status and grading state.  Alternatively, we could just send 
+	     ;; the solution steps to the help system state and then set 
+	     ;; the grading state by brute force.
+	     ;; 
+	     ;; Drop actions that make modal changes to the user interface.
+	     ;; Since there is no mechanism to connect log messages to specific
+	     ;; solution steps or help actions, also drop log messages.
+	     (send-reply (remove-if 
+			  #'(lambda (x) (member (cdr (assoc :action x)) 
+						'("focus-hint-text-box" "log"
+						  "focus-major-principles" 
+						  "focus-all-principles")
+						:test #'equal))
+			  reply)))
 
-	;; solution-steps and help result are passed back to client
-	;; to set up state on client.
-	;;
-	;; Help requests are handled silently by the help system,
-	;; just to get the grading correct.  Alternatively, we
-	;; could just send the solution steps to the help system
-	;; and then set the grading state by brute force.
-	;;  
-	;; Also, if this is an admin or researcher, or instructor,
-	;; previous hints and their replies should also be sent back to
-	;; the client.
+	
+	;; Echo any solution step action
 	(when (equal method "solution-step")
-	  (setf solution-step-replies
-		(append solution-step-replies (cons (cdr params) reply))))))
+	  (push params send-reply))
+	
+	;; Echo any text entered in Tutor pane text box.
+	(when (and (equal method "seek-help") 
+		   (equal (cdr (assoc :action params)) "get-help")
+		   (assoc :text params))
+	  (push `((:action . "echo-get-help-text") 
+		  (:text . ,(cdr (assoc :text params)))) send-reply))
+	
+	(setf solution-step-replies
+	      (append solution-step-replies send-reply))))
 
     (env-wrap
 
