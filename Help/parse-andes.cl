@@ -571,25 +571,36 @@
   (let ((sym (find var *variables* :key #'sym-label :test #'string-equal)))
      (when sym (sym-label sym))))
 
+(defparameter *unknown-variable-error-hint*
+  (strcat 
+   "<ul>"
+   "<li>Variables must be defined before being used in an equation.&nbsp;  Vectors are defined with " *vector-tool* " and scalars are defined with " *text-tool* "." 
+   "<li>" (open-review-window-html "Unit symbols" "units.html" :title "Units")
+   " are case sensitive:&nbsp;  <var>N</var> and <var>n</var> are not the same."
+   "<li>Multiplication requires an explicit multiplication sign:  W=m*g, NOT W=mg."
+   "</ul>"))
 
 (defun undef-variables-ErrorInterp (undef-vars &key id)
   "Given a list of undefined vars (as strings), returns the error interpretation that will be both stored in the student entry and used to give the student an unsolicited warning."
   (let* ((is-comp-var (has-comp-vars-p undef-vars))
-	 (tmp-msg (strcat "Variables must be defined before being used in an equation.&nbsp;  Vectors are defined with " *vector-tool* " and scalars are defined with " *text-tool* ".&nbsp;  Otherwise, the problem may be due to incorrect unit symbols, including case errors.&nbsp;  For example, 'N', not 'n', is the symbol for Newtons."))
-	 (near-misses (mapcar #'near-miss-var undef-vars))	; parallels undef-vars, e.g. (NIL v1 NIL v2 NIL)
-	 (i-first-miss (position-if-not #'null near-misses))    ; index of first var with near-mis, else NIL
+	 (near-misses (mapcar #'near-miss-var undef-vars))  ; parallels undef-vars, e.g. (NIL v1 NIL v2 NIL)
+	 (i-first-miss (position-if-not #'null near-misses)) ; index of first var with near-mis, else NIL
 	 (rem (make-hint-seq
 	       (list
-		(if (null (cdr undef-vars))
-		    (format nil "Undefined variable: ~a" (car undef-vars))
-		  (format nil "Undefined variables: ~a" undef-vars))
-		; check for near misses: currently case errors. Could try to find spelling errors later.
-		(if i-first-miss 	; report the first one to fix only. Can get others next time if not fixed.
-	           (format nil "Case matters in variable names: \"g\" means something different than \"G\".  You probably meant ~A instead of ~A." (nth i-first-miss near-misses) (nth i-first-miss undef-vars))
+		(format nil "Undefined variable~:[~;s: ~]~{ <var>~a</var>~}" 
+			(cdr undef-vars) undef-vars)
+		;; check for near misses: currently case errors. 
+		;; Could try to find spelling errors later.
+		(cond 
+		  (i-first-miss     ; report the first one to fix only. Can get others next time if not fixed.
+		   (format nil "Variable names are case sensitive:&nbsp;  You probably meant <var>~A</var> instead of <var>~A</var>." 
+			   (nth i-first-miss near-misses) 
+			   (nth i-first-miss undef-vars)))
 		  ;; else not near-miss: give advice if used compo notation:
-		  (if is-comp-var
-		      (format nil "Vector components ~a are defined only after you have drawn coordinate axes." is-comp-var)
-		    tmp-msg))))))
+		  (is-comp-var
+		   (format nil "Vector components ~a are defined only after you have drawn coordinate axes." 
+			   is-comp-var))
+		  (t *unknown-variable-error-hint*))))))
 
     (setf (turn-id rem) id)
     (setf (turn-coloring rem) **color-red**)

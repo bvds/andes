@@ -453,6 +453,7 @@
   (cond ((stringp model) model)
 	((null model) model)
 	((member (car model) '(preferred allowed and or conjoin))
+	 ;; untrapped error when second arg of conjoin expands to nil
 	 (let ((args (expand-vars (cdr model))))
 	   (when args (cons (car model) args))))
 	((or (stringp (car model)) (listp (car model))) ;plain list
