@@ -62,7 +62,7 @@ do
 	 $rButton="CHECKED";         
        }
        
-       echo "<tr><td><INPUT TYPE=checkbox NAME=$tID $rButton onclick=\"UpdateRecord('RecordUpdate.php?t=$tID&a=$adminName')\"></td><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td>$command[0]</td><td><a href=\"javascript:;\" onclick=\"copyRecord('\Save.php?a=$adminName&u=$userName&p=$userProblem&s=$userSection&t=$tID');\">View-Solution</a></td></tr>";
+       echo "<tr><td><INPUT TYPE=checkbox NAME=$tID $rButton onclick=\"UpdateRecord('RecordUpdate.php?t=$tID&a=$adminName&u=$userName')\"></td><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td>$command[0]</td><td><a href=\"javascript:;\" onclick=\"copyRecord('\Save.php?a=$adminName&u=$userName&p=$userProblem&s=$userSection&t=$tID');\">View-Solution</a></td></tr>";
       }
   }
  while ($myrow = mysql_fetch_array($result));
@@ -115,8 +115,9 @@ function UpdateRecord($url){
   oXmlHttp.onreadystatechange = function(){
     if(oXmlHttp.readyState==4) {
       if(oXmlHttp.responseText.indexOf('Success')==-1){   
+	alert(oXmlHttp.responseText);
 	return false;      
-      } else {        	
+      } else {       	
       }
     }
   }
