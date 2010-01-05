@@ -329,7 +329,7 @@
   :hint
    ((point (string "Notice that ~a is tied to ~a." ?string ?b))
     (teach (string "Whenever something has a taut string, or something like a string, attached to it, then the string exerts a tension force on it."))
-    (bottom-out (string "Because ~a is tied to ~a, you should use ~A to draw a tention force on ~a due to ~a ~a." 
+    (bottom-out (string "Because ~a is tied to ~a, you should use ~A to draw a tension force on ~a due to ~a ~a." 
 			(?string agent)
 			?b 
 		       (*vector-tool* eval)
