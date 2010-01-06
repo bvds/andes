@@ -22,13 +22,17 @@
 ;; KB/ontology: defines the expressions used in the AndesF Knowledge Base
 ;;
 
+(def-qexp field (field ?field)
+  :new-english (eval (when (expand-new-english ?field)
+                        '("at"
+                          (or (var (field ?field)) ?field)))))
+
 (def-qexp property-field-source-time 
     (property-field-source-time ?property ?field ?source :time ?time)
   :new-english ((the)
 		?property 
-		(and (preferred ("at" ?field))
-		     (preferred ((or "of" "due to" "by" "caused by" "made by")
-				 ?source ))
+		(and (preferred (field ?field))
+		     (preferred (agent ?source))
 		     (time ?time))
 		)
 )
@@ -36,7 +40,7 @@
 (def-qexp property-field-time (property-field-time ?property ?field :time ?time)
   :new-english	((the) 
 		 ?property  		; "electric field" 
-		 (and (preferred ("at" ?field)) 
+		 (and (preferred (field ?field)) 
 		      (time ?time))
 		 )
   )
@@ -53,7 +57,7 @@
     (property-field-time ?property ?field :time ?time)
   :new-english	((the) 
 		 ?property  		; "electric field" 
-		 (and (preferred ("at" ?field)) 
+		 (and (preferred (field ?field)) 
 		      (time ?time))
 		 )
 )
@@ -61,7 +65,7 @@
 (def-qexp property-type-field-time 
     (property-type-field-time ?type ?property ?field :time ?time)
   :new-english	((the) (field-type ?type) ?property 
-		      (and (preferred ("at" ?field)) 
+		      (and (preferred (field ?field)) 
 		 	   (time ?time))
 		)
 )
