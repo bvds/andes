@@ -421,10 +421,10 @@
 			  (or (var (body ?body)) ?body)))))
 
 (def-qexp agent (agent ?body)
-  ;; The default "the normal force on the dumpster by the street at T0"
-  ;; sounds strange, problem s2b.  Bug #1642.
+  ;;+syjung
+  ;; checking the content of ?body by (expand-new-englih ..) is important for the case that it is missing
   :new-english (eval (when (expand-new-english ?body)
-			'((or "by" "due to" "from" "caused by" "exerted by" "of") 
+			'((or "due to" "by" "from" "caused by" "exerted by" "of") 
 			  (or (var (body ?body)) ?body))))) 
 
 (def-qexp time (time ?time)
