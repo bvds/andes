@@ -40,15 +40,17 @@
 ;; statement.  So that is what we do.
 ;; We also use systems of more than 1 lens for which a net magnification can be defined. 
  
-
+;; ex) "object distance for lens1" by Bob
 (def-qexp object-distance (object-distance ?lens)
   :symbol-base |do|     
   :short-name "object distance"	
   :units |m|
-  :new-english ((the) "distance"
-		(and (preferred ("of" (the) "object"))
-		     (preferred ("from" ?lens))))
-)
+  :new-english ((the) 
+		(or (  "distance"
+		       (and (preferred ("of" (the) "object"))
+		            (preferred ((or "from" "for") ?lens))))
+		    (  "object distance" 
+		       (preferred ((or "from" "for") ?lens))))))
 
 (defoperator define-object-distance (?lens)
   :preconditions ( (bind ?do-var (format-sym "do_~A" (body-name ?lens))) )
@@ -60,14 +62,17 @@
 			     (*text-tool* eval)
 			     )) ))
 
+;; ex) "image distance for lens1" by Bob
 (def-qexp image-distance (image-distance ?lens)
   :symbol-base |di|     
   :short-name "image distance"	
   :units |m|
-  :new-english ((the) "distance"
-		(and (preferred ("of" (the) "image"))
-		     (preferred ("from" ?lens))))
-)
+  :new-english ((the) 
+		(or (  "distance"
+		       (and (preferred ("of" (the) "image"))
+		            (preferred ((or "from" "for") ?lens))))
+		    (  "image distance" 
+		       (preferred ((or "from" "for") ?lens))))))
 
 (defoperator define-image-distance (?lens)
   :preconditions ( (bind ?di-var (format-sym "di_~A" (body-name ?lens))) )
