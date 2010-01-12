@@ -719,7 +719,7 @@
 ;;; bottom out hint, it tries to figure out which time point the
 ;;; student was trying to refer to by assuming that the other time
 ;;; point in the interval must be the zero point in from the problem
-;;; statement.  This is a bit risk, because the problem statement
+;;; statement.  This is a bit risky, because the problem statement
 ;;; might not specify a zero point, in which case this entry-test
 ;;; will fail.
 (def-entry-test height-over-a-time-interval (?body ?t1 ?t2 ?ctime)
@@ -3106,13 +3106,15 @@
 (defun wrong-trig-function (wrong right)
   (list "Check your trigonometry."
 	;; teach projection 
-	;; !!! may not be projection they are trying to write, but dot or cross product.
+	;; !!! may not be projection they are trying to write, 
+	;; but dot or cross product.
 	(strcat "If you are trying to calculate the component of a vector along an axis, "
 		"here is a general formula that will always work: "
 		"Let &theta;V be the angle as you move counterclockwise from the horizontal to "
 		"the vector.  Let &theta;x be the rotation of the x-axis from the horizontal. "
 		"Then: V<sub>x</sub> = V cos(&theta;V-&theta;x) and V<sub>y</sub> = V sin(&theta;V-&theta;x).")
-	(format nil "Replace ~a with ~a." (nlg wrong 'algebra) (nlg right 'algebra))))
+	(format nil "Replace ~a with ~a." 
+		(nlg wrong 'algebra) (nlg right 'algebra))))
 
 
 ;;; The student has used the wrong trig function where tangent is right
@@ -3133,7 +3135,8 @@
 
 (defun trig-function-should-be-tan (wrong right)
   (list "Check your trigonometry."
-	(format nil "Replace ~a with ~a." (nlg wrong 'algebra) (nlg right 'algebra))))
+	(format nil "Replace ~a with ~a." 
+		(nlg wrong 'algebra) (nlg right 'algebra))))
 
 ;;; Student has left off the "deg" unit but intended the number to be
 ;;; interpreted as degrees
@@ -4163,7 +4166,7 @@
   )
 
 ;; Finally, accept vector, since it passed the other tests.
-(def-entry-test match-unknown-vector-to-solver (?quant ?dir1) 
+(def-entry-test match-unknown-vector-default (?quant ?dir1) 
   :preconditions ((student (vector ?quant ?dir1))
 		  (correct (vector ?quant unknown))
 		  )
