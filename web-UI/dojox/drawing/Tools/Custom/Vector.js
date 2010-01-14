@@ -74,7 +74,20 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 		onUp: function(/*EventObject*/obj){
 			// summary: See stencil._Base.onUp
 			//
-			if(this.created || !this.shape){ return; }
+			if(this.created || !this._downOnCanvas){ return; }
+			this._downOnCanvas = false;
+			//Default vector for single click
+			if(!this.shape){
+				s = obj.start;
+				obj.y = obj.start.y + 100;
+				obj.x = obj.start.x
+				this.setPoints([
+					{x:s.x, y:s.y},
+					{x:s.x, y:s.y+100}
+				]);
+				this.render();
+			}
+			
 			// if too small, need to reset
 			// 		This sets the zero length vector to zero within the minimum size 
 			if(this.getRadius()<this.minimumSize){

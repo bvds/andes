@@ -203,7 +203,7 @@ EventObject: function(){
 			// summary:
 			// 		Create on[xx]Down event and send to broadcaster.
 			//		Could be connected to.
-			//
+			//console.info("onDown:", this.eventName("down"))
 			this._broadcastEvent(this.eventName("down"), obj);			
 		},
 		
@@ -243,7 +243,6 @@ EventObject: function(){
 		onOver: function(obj){
 			// summary:
 			//
-			
 			this._broadcastEvent(this.overName(obj,"over"), obj);
 		},
 		
@@ -325,7 +324,7 @@ EventObject: function(){
 				}
 				return this.mode + name;
 			}else{
-				//ace Allow a mode where stencils aren't clickable
+				//Allow a mode where stencils aren't clickable
 				if(!dojox.drawing.defaults.clickable && dojox.drawing.defaults.clickMode){return "on"+name;};
 				var dt = !this.drawingType || this.drawingType=="surface" || this.drawingType=="canvas" ? "" : this.drawingType;
 				var t = !dt ? "" : dt.charAt(0).toUpperCase() + dt.substring(1);
@@ -369,8 +368,8 @@ EventObject: function(){
 			
 			this.drawingType = this.util.attr(evt, "drawingType") || "";
 			var id = this._getId(evt);
-			console.log("DOWN:", this.id, id, withinCanvas);
-			console.log("this.drawingType:", this.drawingType);
+			//console.log("DOWN:", this.id, id, withinCanvas);
+			//console.log("this.drawingType:", this.drawingType);
 			this.onDown({
 				mid:this.id,
 				x:x,
@@ -400,7 +399,7 @@ EventObject: function(){
 			//
 			var obj = this.create(evt);
 			if(this.id=="MUI"){
-				console.log("obj.id:", obj.id, "was:", this.currentNodeId)
+				//console.log("obj.id:", obj.id, "was:", this.currentNodeId)
 			}
 			if(obj.id != this.currentNodeId){
 				// TODO: I wonder if an ID is good enough
@@ -442,7 +441,6 @@ EventObject: function(){
 			
 			var withinCanvas = x>=0 && y>=0 && x<=o.w && y<=o.h;
 			var id = withinCanvas ? this._getId(evt, squelchErrors) : "";
-			
 			var ret = {
 				mid:this.id,
 				x:x,

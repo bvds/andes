@@ -11,7 +11,8 @@ dojo.provide("andes.convert");
 		vector:		"vector",
 		axes:		"axes",
 		ellipse:	"ellipse",
-		rectangle:	"rect"
+		rectangle:	"rect",
+		line:		"line"
 	};
 
 	var andesTypes = {
@@ -88,11 +89,11 @@ dojo.provide("andes.convert");
 				// separate objects
 			        // match logic in drawingToAndes
 				var lbl = o.symbol;
-				var txt = o.text || " ";
+				var txt = o.text || "";
 				// if there is no symbol, use text for label
 				if(!lbl){
 					lbl = txt;
-					txt = " ";
+					txt = "";
 				}
 				// master
 				obj.master = {
@@ -114,8 +115,8 @@ dojo.provide("andes.convert");
 					data:{
 						x:xs,
 						y:ys,
-						text:txt,
-						width:"auto"
+						text:txt
+						//width:"auto"- for cases where the text is "" width:auto makes init fail
 						//showEmpty:true
 					},
 					deleteEmptyCreate: false,

@@ -47,6 +47,7 @@ dojox.drawing.ui.dom.Pan = dojox.drawing.util.oo.declare(
 		//this.checkBounds();
 	},{
 		selected:false,
+		keyScroll:false,
 		type:"dojox.drawing.ui.dom.Pan",
 		
 		onKeyUp: function(evt){
@@ -61,21 +62,27 @@ dojox.drawing.ui.dom.Pan = dojox.drawing.util.oo.declare(
 		},
 		
 		onKeyDown: function(evt){
-			switch(evt.keyCode){
-				case 32:
-					this.onSetPan(true);
-				case 39:
-					this.screenScroll("right");
-					break;
-				case 37:
-					this.screenScroll("left");
-					break;
-				case 38:
-					this.screenScroll("up");
-					break;
-				case 40:
-					this.screenScroll("down");
-					break;
+			if (evt.keyCode == 32) {
+				this.onSetPan(true);
+			} else if (this.keyScroll) {
+				console.log("KeyScroll: ",this.keyScroll);
+				switch(evt.keyCode){
+					case 32:
+						this.onSetPan(true);
+						break;
+					case 39:
+						this.screenScroll("right");
+						break;
+					case 37:
+						this.screenScroll("left");
+						break;
+					case 38:
+						this.screenScroll("up");
+						break;
+					case 40:
+						this.screenScroll("down");
+						break;
+				}
 			}
 		},
 		
@@ -127,6 +134,14 @@ dojox.drawing.ui.dom.Pan = dojox.drawing.util.oo.declare(
 			this.canvas.domNode.parentNode.scrollTop -= obj.move.y;
 			this.canvas.domNode.parentNode.scrollLeft -= obj.move.x;
 			this.canvas.onScroll();
+		},
+		
+		onUp: function(obj){
+			if (obj.withinCanvas) {
+				this.keyScroll = true;
+			} else {
+				this.keyScroll = false;
+			}
 		},
 		
 		onStencilUp: function(obj){
