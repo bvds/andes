@@ -546,9 +546,11 @@
         (rotational-energy ?body ?t))
    )
   :hint (
-  (point (string "Try writing the definition of rotational kinetic energy of ~a ~a" (?body def-np) (?t pp)))
+  (point (string "Try writing the definition of rotational kinetic energy of ~a ~a" 
+		 ?body (?t pp)))
   (teach (string "The rotational kinetic energy of an object is defined as one half its moment of inertia times its angular velocity squared.  That is, 0.5 I &omega;<sup>2</sup>."))
-  (bottom-out (string "Write the equation ~a" ((= ?ke-var (* 0.5 ?m-var (^ ?v-var 2))) algebra)))
+  (bottom-out (string "Write the equation ~a" 
+		      ((= ?kr-var (* 0.5 ?m-var (^ ?v-var 2))) algebra)))
   ))
 
 (defoperator grav-energy-contains (?sought)

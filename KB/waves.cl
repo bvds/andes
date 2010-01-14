@@ -25,12 +25,12 @@
 ;;;;  The wavelength and wavenumber of a wave
 ;;;;
 
+;; ex) "the wavelength of ~ moving in ~" 
 (def-qexp wavelength (wavelength ?wave ?medium)
   :symbol-base |$l|     
   :short-name "wavelength"	
   :units |m|
   :restrictions positive  ;needed for harmonics problems to work
-  ;:nlg-english ("the wavelength of ~A moving in ~A" (nlg ?wave) (nlg ?medium))
   :new-english ((the) "wavelength of" ?wave "moving in" ?medium)
 )
 
@@ -47,12 +47,12 @@
 			    (*text-tool* eval)
 			    ))))
 
+;; ex) "the wavenumber of ~ moving in ~" 
 (def-qexp wavenumber (wavenumber ?wave ?medium)
   :symbol-base |k|     
   :short-name "wave-number"	
   :units |rad/m|
   :restrictions nonnegative  
-  ;:nlg-english ("the wavenumber of ~A moving in ~A" (nlg ?wave) (nlg ?medium))
   :new-english ((the) "wavenumber of" ?wave "moving in" ?medium)
 )
 
@@ -108,12 +108,12 @@
 ;;; The frequency, period, and angular frequency of a wave
 ;;;
 
+;; ex) "the frequency of ~" 
 (def-qexp frequency (frequency ?wave)
   :symbol-base |f|     
   :short-name "frequency"	
   :units |Hz|
   :restrictions nonnegative 
-  ;:nlg-english ("the frequency of ~A" (nlg ?wave))
   :new-english (property-object "frequency" ?wave)
 )
 
@@ -134,12 +134,12 @@
 ;;  for the frequency to be well-defined.
 ;;;
 
+;; ex) "the frequency of ~ as observed by ~"
 (def-qexp observed-frequency (observed-frequency ?wave ?me :time ?time)
   :symbol-base |f|     
   :short-name "frequency (observed)" 
   :units |Hz|
   :restrictions nonnegative 
-  ;:nlg-english ("the frequency of ~A as observed by ~A" (nlg ?wave) (nlg ?me 'at-time ?time))
   :new-english ((the) "frequency of" ?wave
 		(and ("as observed by" ?me)
 		     (time ?time)))
@@ -156,7 +156,7 @@
 	    (define-var (observed-frequency ?wave ?me :time ?t)))
   :hint ((bottom-out 
 	  (string "Define a variable for ~A by using ~A."  
-		  ((observed-frequency ?wave ?me :time ?time) def-np)
+		  ((observed-frequency ?wave ?me :time ?t) def-np)
 			    (*text-tool* eval)
 			    ))))
 
@@ -175,12 +175,12 @@
 ;; and leave out time.
 ;;
 
+;; ex) "the period of the motion of ~"
 (def-qexp period (period ?body)
   :symbol-base |T|     
   :short-name "period"	
   :units |s|
   :restrictions positive
-  ;:nlg-english ("the period of the motion of ~A" (nlg ?body)))
   :new-english (property-object "period of the motion" ?body))
 
 (defoperator define-period-var (?b)
@@ -197,12 +197,12 @@
 		       ((period ?b) def-np)))
    ))
 
+;; ex) "the angular-frequency of ~"
 (def-qexp angular-frequency (angular-frequency ?wave)
   :symbol-base |$w|     
   :short-name "angular frequency"	
   :units |rad/s|
   :restrictions nonnegative 
-  ;:nlg-english ("the angular-frequency of ~A" (nlg ?wave))
   :new-english (property-object "angular-frequency" ?wave)
 )
 
@@ -416,12 +416,12 @@
 ;;;
 ;;;   Wave speed, this is |phase velocity|
 
+;; ex) "the speed of waves in ~" 
 (def-qexp wave-speed (wave-speed ?medium)
   :symbol-base |v|     
   :short-name "speed of wave" 
   :units |m/s|
   :restrictions nonnegative
-  ;:nlg-english ("the speed of waves in ~A" (nlg ?medium)) ;see entry in errors.cl
   :new-english ((the) "speed of waves in" ?medium) ;see entry in errors.cl
 )
 
@@ -537,12 +537,12 @@
 ;; in principle, this should be a function of frequency, 
 ;; but we don't have any problems with this yet
 
+;; ex) "the index of refraction of ~"
 (def-qexp index-of-refraction (index-of-refraction ?medium)
   :symbol-base |n|     
   :short-name "index of refraction"	
   :units NIL  ;dimensionless
   :restrictions nonnegative
-  ;:nlg-english ("the index of refraction of ~A" (nlg ?medium))
   :new-english (property-object "index of refraction" ?medium)
 )
 
@@ -670,12 +670,12 @@
 ;; In principle, this should be connected with the
 ;; tension force applied to an object...
 
+;; ex) "the string-tension of ~" 
 (def-qexp string-tension (string-tension ?rope)
   :symbol-base |Ft|     
   :short-name "tension on a string" 
   :units |N|
   :restrictions nonnegative 
-  ;:nlg-english ("the string-tension of ~A" (nlg ?rope))
   :new-english (property-object "string-tension" ?rope)
 )
 
@@ -731,12 +731,12 @@
 ;;   (usually, the amplitude is just given in a problem
 ;;    and the student must identify the quantity.
 
+;; ex) "the amplitude of ~" 
 (def-qexp amplitude (amplitude ?wave)
   :symbol-base |A|     
   :short-name "amplitude"	
   :units |m|
   :restrictions nonnegative 
-  ;:nlg-english ("the amplitude of ~A" (nlg ?wave))
   :new-english (property-object "amplitude" ?wave)
 )
 
@@ -754,12 +754,12 @@
 			    ))))
 
 ;;; define maximum speed of transverse motion
+;; ex) "the maximum speed of ~"
 (def-qexp amplitude-max-speed (amplitude-max-speed ?wave)
   :symbol-base |vmax|     
   :short-name "maximum speed of oscillation"	
   :units |m/s|
   :restrictions nonnegative 
-  ;:nlg-english ("the maximum speed of ~A" (nlg ?wave))
   :new-english (property-object "maximum speed" ?wave)
 )
 
@@ -810,14 +810,13 @@
 
 
 ;;; define |maximum transverse accleration|
+;; ex) "the |maximum acceleration of ~|"
 (def-qexp amplitude-max-abs-acceleration (amplitude-max-abs-acceleration ?wave)
   :symbol-base |amax|     
   :short-name "maximum magnitude of acceleration"	
   :units |m/s^2|
   :restrictions nonnegative 
-  ;:nlg-english ("the |maximum acceleration of ~A|" (nlg ?wave))
-  :new-english ((property-object "|maximum acceleration" (nlg ?wave))
-		"|")
+  :new-english ((the) "|maximum acceleration" (property ?wave) "|")
 )
 
 (defoperator define-amplitude-max-abs-acceleration (?wave)
@@ -1072,42 +1071,23 @@
     ))
 
 ;;; general phrases
-;+syjung
-(def-qexp property-object-pos-time (property-object-pos-time ?property ?body ?position :time ?time)
+(def-qexp property-object-pos-time 
+    (property-object-pos-time ?property ?body ?position :time ?time)
   :new-english ((allowed ((the) "value of")) 
-		;(or ( 
 		      (the) (time-type ?time) 
 		      ?property  
 		      (and (preferred (property ?body)) 
 			   (preferred ("at" ?position))
 			   (time ?time))
-		;) 
-                ;    (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
-		;	'( (possessive ?body)
-		;           (time-type ?time)
-		;           ?property 
-		;           (and ((preferred ("at" ?position))
-		;                 (time ?time))))))
-		;)
 		))
-;+syjung
+
 (def-qexp property-agent-pos-time (property-agent-pos-time ?property ?agent ?position :time ?time)
   :new-english ((allowed ((the) "value of")) 
-		;(or ( 
 		      (the) (time-type ?time) 
 		      ?property  
-		      (and (preferred ("by" "due to" "caused by" ?agent)) 
+		      (and (preferred (agent ?agent)) 
 			   (preferred ("at" ?position))
 			   (time ?time))
-		;) 
-                ;    (eval (when (or (atom ?body) (not (eq (car ?body) 'compound)))
-		;      '( (possessive ?body)
-		;         (time-type ?time)
-		;         ?property 
-		;         (and  (preferred ("at" ?position))
-		;               (preferred ("by" "due to" "caused by" ?agent)) 
-		;               (time ?time)))))
-		;)
 		))
 
 ;;;;   Decibels and intensity and magnitude of Poynting vector
@@ -1115,13 +1095,16 @@
 ;;   These quantities can be functions of time,
 ;;   but none of the problems so far require it.
 
+;; ex) "the intensity supplied to ~ due to ~" 
 (def-qexp intensity (intensity ?wave ?agent :time ?time)
   :symbol-base |I|     
   :short-name "intensity"	
   :units |W/m^2|
   :restrictions positive
-  :nlg-english ("the intensity supplied to ~A due to ~A" 
-	       (nlg ?wave 'at-time ?time) (nlg ?agent 'agent))
+  :new-english ((the) "intensity" 
+	        (and (preferred "supplied to" ?wave)
+		     (preferred (agent ?agent))
+		     (time ?time)))
 )
 
 (defoperator define-intensity (?wave ?agent ?t)
@@ -1138,13 +1121,14 @@
 			    ))))
 
 
+;; ex) "the intensity of ~ at ~" 
 (def-qexp intensity-at (intensity ?body at ?position :time ?time)
   :symbol-base |I|
   :short-name "intensity"
   :units |W/m^2|
   :restrictions positive
-  ;:nlg-english ("the intensity of ~A at ~A" (nlg ?body) (nlg ?position 'at-time ?time)))
-  :new-english (property-object-pos-time "intensity" ?body ?position :time ?time))
+  :new-english (property-object-pos-time "intensity" ?body ?position 
+					 :time ?time))
 
 (defoperator define-intensity-at (?body ?position ?t)
   :preconditions
@@ -1161,7 +1145,7 @@
 
 (def-qexp poynting-vector (poynting-vector ?loc ?agent :time ?time)
   :units |W/m^2|
-  ;:nlg-english ("the Poynting vector at ~A due to ~A" (nlg ?loc) (nlg ?agent 'at-time ?time)))
+  ;ex) "the Poynting vector at ~ due to ~"
   :new-english (property-agent-pos-time "Poynting vector" ?agent ?loc :time ?time)
 )
 (defoperator draw-poynting-vector-given-dir (?b ?agent ?t)
@@ -1183,8 +1167,10 @@
     ) 
    :hint
    ((point (string "The Poynting vector at ~a points in the direction of the flow of energy from ~A." ?b ?agent))
-    (bottom-out (string "At ~A, the energy from ~A is flowing in the direction ~A.  Draw the Poynting vector oriented at ~A." 
-			?b (?agent at-time ?t) ?dir ?dir))
+    (bottom-out (string "At ~A, the energy from ~A~@[ ~A~] is flowing in the direction ~A.  Use ~A to draw the Poynting vector oriented at ~A." 
+			?b (?t pp) ?dir 
+			(*vector-tool* eval)
+			?dir))
     ))
 
 
@@ -1192,11 +1178,10 @@
 
 ;; Net intensity is sum of all power acting on object.
 ;; BvdS:  Maybe combine with intensity, with ?agent set to nil
-
+;; ex) "the net intensity supplied to ~"
 (def-qexp net-intensity (net-intensity ?wave :time ?time)
   :units |W/m^2|
   :restrictions positive  
-  ;:nlg-english ("the net intensity supplied to ~A" (nlg ?wave 'at-time ?time)))
   :new-english ((the) "net intensity"
 		(and (preferred ("supplied to" ?wave)
 		     (time ?time)))))
@@ -1257,12 +1242,11 @@
 	 ))
 
 ;;;  Intensity in decibels.
-
+;; ex) "the intensity supplied to ~ due to ~ in decibels" 
 (def-qexp db-intensity (db-intensity ?wave ?agent :time ?time)
   :symbol-base |$b|     
   :short-name "decibels" 
   :units |dB|
-  ;:nlg-english ("the intensity supplied to ~A due to ~A in decibels" (nlg ?wave 'at-time ?time) (nlg ?agent 'agent))
   :new-english ((the) "intensity"
 		(and (preferred ("supplied to" ?wave))
 		     ("due to" ?agent)
@@ -1290,9 +1274,9 @@
 ;; nil specified as the ?agent
 
 ;; see def-qexp for db-intensity
+;; ex) "the total intensity supplied to ~, in decibels" 
 (def-qexp net-db-intensity (net-db-intensity ?wave :time ?time)
   :units |dB|
-  ;:nlg-english ("the total intensity supplied to ~A, in decibels" (nlg ?wave 'at-time ?time)))
   :new-english ((the) "total intensity" 
 		(and (preferred ("supplied to" ?wave))
 		     (time ?time) 
@@ -1527,12 +1511,12 @@
 
 ;;;    Amplitude of electric and magnetic fields in an electromagnetic wave
 
+;; ex) "the amplitude of the electric field in ~" 
 (def-qexp amplitude-electric (amplitude ?wave :type electric)
   :symbol-base |E|     
   :short-name "amplitude of electric field"	
   :units |V/m|
   :restrictions nonnegative 
-  ;:nlg-english ("the amplitude of the electric field in ~A" (nlg ?wave))
   :new-english ((the) "amplitude of" (the) "electric field" 
 		(preferred ("in" ?wave)))
 )
@@ -1545,7 +1529,8 @@
   :nlg-english ("the amplitude of the magnetic field in ~A" (nlg ?wave))
 )
 
-(def-psmclass electromagnetic-wave-field-amplitude (electromagnetic-wave-field-amplitude ?wave)
+(def-psmclass electromagnetic-wave-field-amplitude 
+    (electromagnetic-wave-field-amplitude ?wave)
   :complexity major  ; must explicitly use
   :short-name "ratio of fields in electromagnetic wave"
   :nlg-english ("Formula for maximum speed of an oscillation")

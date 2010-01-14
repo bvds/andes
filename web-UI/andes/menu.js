@@ -31,6 +31,11 @@ dojo.addOnLoad(function(){
 		  andes.principles.review('introduction.html','Introduction');
 		},
 
+	        "menuSlides":function(){
+		  andes.principles.review('andes3intro/andes3intro.mod2.html',
+		  'Slide show');
+		},
+
 		"menuManual":function(){
 		  andes.principles.review('manual.html','Manual');
 		}

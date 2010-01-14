@@ -65,7 +65,7 @@
 				     (:file "physics-algebra-rules")
 				     (:file "parse"
 					    :depends-on ("utilities"))
-				     (:file "pre2in")
+				     (:file "algebra")
 				     (:file "in2pre")
 				     (:file "parse-andes"
 					    :depends-on ("SolutionGraph" 
@@ -78,7 +78,8 @@
 				     (:file "icons")
 				     (:file "HelpMessages")
 				     (:file "whatswrong")
-				     (:file "NextStepHelp")
+				     (:file "NextStepHelp"
+					    :depends-on ("icons"))
 				     (:file "IEA")
 				     
 				     ;; Automatic statistics code.
@@ -88,7 +89,7 @@
 		 		     (:file "Interface") ;The interface api.
 	 			     (:file "Commands"
 					    :depends-on ("Entry-API" 
-							 "Interface"))
+							 "Interface" "icons"))
  				     (:file "API")
                                      (:file "fade"
 					    :depends-on ("icons"))

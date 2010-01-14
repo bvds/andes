@@ -405,7 +405,11 @@
 
 	 ;; If the best fit isn't too good, give an unsolicited hint.
 	 ;; Can't put in a tutor turn, since the turn might be good.
-	 (when (> (car (car best)) (* 0.2 (length (match:word-parse student))))
+	 (when (> (car (car best)) 
+		  ;; This test must be adjusted empirically.
+		  ;; Example: [the] length of the beam
+		  ;;          the mass of the beam
+		  (* 0.15 (length (match:word-parse student))))
 	   (let ((phr (format nil 
 			      "I interpreted your definition ~@[of <var>~A</var> ~]as:&nbsp; ~A."
 			      (when (> (length (StudentEntry-symbol entry)) 0)

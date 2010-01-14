@@ -285,14 +285,6 @@
    (or (symbols-label (sysvar-to-quant Canonical))
        (symbols-sysvar-to-studvar Canonical)))
  
-(defun subst-student-vars (Exp)
-  "Subsitute student vars into expression for their canonical counterparts."
-    ; atoms may be system vars, if no counterpart studvar, leave unchanged.
-    (cond ((atom Exp) (or (canonical-to-student Exp)
-                          Exp))
-	  (t (cons (subst-student-vars (car Exp))
-		   (subst-student-vars (cdr Exp))))))
-
 
 
 ;;;----------------------------------------------------------------------------

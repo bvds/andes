@@ -30,14 +30,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun nlg (x &optional (type 'def-np) &rest args)
   (if (null type)
-     (if (consp x)
-      (format nil "~(~A~)" x)
-    	(format nil "~(~A~)" x))
-    (if (variable-p x)
-	(format nil "~@[~*at ~]some ~(~A~)" (eq type 'pp) (var-rootname x))
-      (if args
-	  (apply (if (equal type 'time) 'moment type) x args)
-	(funcall (if (equal type 'time) 'moment type) x)))))
+      (if (consp x)
+	  (format nil "~(~A~)" x)
+	  (format nil "~(~A~)" x))
+      (if (variable-p x)
+	  (format nil "~@[~*at ~]some ~(~A~)" (eq type 'pp) (var-rootname x))
+	  (if args
+	      (apply (if (equal type 'time) 'moment type) x args)
+	      (funcall (if (equal type 'time) 'moment type) x)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -231,19 +231,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 
-(defun strip-outer-parens (s)
-"if arg is string w/outer parens, remove them, else return arg unchanged"
- (if (and (stringp s)
-          (equal (subseq s 0 1) "(") 
-	  (equal (subseq s (1- (length s)) (length s)) ")"))
-     (format nil "~A" (subseq s 1 (1- (length s))))
-   s))
-
-(defun algebra (x &rest args)
-   (declare (ignore args))
-   ;; x could be prefix expr (maybe DNUM), var or dimensionless number
-    (strip-outer-parens (format nil "~A" (subst-student-vars (pre2in x)))))
-
 ;; for concise reference to quantities in algebraic contexts:
 (defun var-or-quant (x &rest args)
 "return student's var for quant if one exists, else full quantity def."
@@ -278,8 +265,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  This is a shortcut for including time when it exists
 (defun at-time (x &rest args)
+  (when (cdr args) (warn "unexpected extra args ~A in at-time" (cdr args)))
   (if (= (length args) 1)
-      (format nil "~A~@[ ~A~]" (nlg x) (nlg (car args) 'pp))
+      (format nil "~A~@[ ~A~]" (match:word-string 
+				(expand-vars (new-english-find x)))
+	      (match:word-string 
+	       (expand-vars (new-english-find (list 'time (car args))))))
     (nlg-list-default x)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -449,6 +440,7 @@
   (cond ((stringp model) model)
 	((null model) model)
 	((member (car model) '(preferred allowed and or conjoin))
+	 ;; untrapped error when second arg of conjoin expands to nil
 	 (let ((args (expand-vars (cdr model))))
 	   (when args (cons (car model) args))))
 	((or (stringp (car model)) (listp (car model))) ;plain list

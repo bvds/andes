@@ -486,9 +486,9 @@
 ;;; Algebraic manipulation
 
 ;;;
-;;;  Yuck!  This should match the operators independently re-defined in:
+;;;  Yuck!  This should match the operator list independently re-defined in:
 ;;;  Help/parse-andes.cl
-;;;  Help/pre2in.cl
+;;;  Help/algebra.cl
 ;;;  ReportGenerators/SolcompRep.cl
 ;;;  ReportGenerators/SolutionComponents.cl
 ;;;

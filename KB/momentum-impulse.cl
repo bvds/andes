@@ -605,7 +605,6 @@
 ;; which may be unknown
 (def-qexp impulse (impulse ?body ?agent :time ?time)
   :units |N.s|
-  ;:nlg-english ("Impulse on ~A due to ~A" (nlg ?body 'at-time ?time) (nlg ?agent 'agent)))
   :new-english ((the) "impulse"
 		(and (preferred ("on" ?body))
 		     (preferred ("due to" ?agent))
@@ -631,9 +630,12 @@
    )
   :hint
    ((point (string "You were given that there is an impulse on ~a." ?b))
+    ;(bottom-out (string "Use ~A to draw the impulse on ~a due to ~a ~a at ~a."
+    ;			(*vector-tool* eval)
+    ;			?b (?agent agent) (?t pp) ?dir))
     (bottom-out (string "Use ~A to draw the impulse on ~a due to ~a ~a at ~a."
 			(*vector-tool* eval)
-			?b (?agent agent) (?t pp) ?dir))
+			((impulse ?b ?agent :time ?t) def-np) ?dir))
     ))
 
 ;;;;===========================================================================
@@ -674,9 +676,12 @@
   :hint
    ((point (string "There is a force acting on ~a." ?b))
     (teach (string "One can define an impulse associated with the force exerted by ~A ~A." ?agent (?t pp)))
-    (bottom-out (string "Use ~A to draw the impulse on ~a due to ~a ~a at ~a."
-			(*vector-tool* eval)
-			?b (?agent agent) (?t pp) ?dir))
+    ;(bottom-out (string "Use ~A to draw the impulse on ~a due to ~a ~a at ~a."
+    ;			(*vector-tool* eval)
+    ;			?b (?agent agent) (?t pp) ?dir))
+    (bottom-out (string "Use ~A to draw ~a at ~a."
+    			(*vector-tool* eval)
+    			((impulse ?b ?agent :time ?t) def-np) ?dir))
     ))
 
 
@@ -802,9 +807,12 @@
    )
   :hint
    ((point (string "The impulse on ~a causes its motion to change." ?b))
-    (bottom-out (string "Use ~A to draw the impulse on ~a due to ~a ~a at ~a."
-			(*vector-tool* eval)
-			?b (?agent agent) (?t pp) ?dir))
+    ;(bottom-out (string "Use ~A to draw the impulse on ~a due to ~a ~a at ~a."
+    ;			(*vector-tool* eval)
+    ;			?b (?agent agent) (?t pp) ?dir))
+    (bottom-out (string "Use ~A to draw ~a at ~a."
+    			(*vector-tool* eval)
+    			((impulse ?b ?agent :time ?t) def-np) ?dir2))
     ))
 
 ;; Draw an impulse if two momenta are not known to be equal or opposite
@@ -835,9 +843,12 @@
    )
   :hint
    ((point (string "The impulse on ~a causes its motion to change." ?b))
-    (bottom-out (string "Use ~A to draw the impulse on ~a due to ~a ~a at ~a." 
-			(*vector-tool* eval)
-			?b (?agent agent) (?t pp) ?dir))
+    ;(bottom-out (string "Use ~A to draw the impulse on ~a due to ~a ~a at ~a." 
+    ;			(*vector-tool* eval)
+    ;			?b (?agent agent) (?t pp) ?dir))
+    (bottom-out (string "Use ~A to draw ~a at ~a." 
+    			(*vector-tool* eval)
+    			((impulse ?b ?agent :time ?t) def-np) ?dir))
     ))
 
 ;;; This operator indicates when the impulse form of NSL is

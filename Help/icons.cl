@@ -27,6 +27,12 @@
 					  (strcat "manual.html#" html-id)
 					  :title "Manual")))
 
+(defun open-review-window-html (Name href &key title)
+  "Html for opening web page in the review directory"
+  (format nil "<a href=\"#\" onClick=\"andes.principles.review('~A','~A');\">~A</a>" href (or title name) name))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defparameter *axis-tool* (tool-link "Axis Tool" "axis-tool"))
 (defparameter *axis-tool-action* (strcat "click on " *axis-tool*))
 (defparameter *draw-axes* 
@@ -53,6 +59,16 @@
 
 (defparameter *text-tool*  (tool-link "Text Tool" "text-tool"))
 (defparameter *text-tool-action* (strcat "click on " *text-tool*))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defparameter *constants-menu-action* 
+  "select \"Constants\" in the \"Physics\" menu")
+
+(defparameter *unknown-z-direction-action* 
+  "draw it in in an unknown z-direction")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Make an object that looks like the text input box.
 (defun text-box (x) 

@@ -70,9 +70,9 @@
    (teach (string "First figure out which object you want to apply the principle to, and if necessary, what time or time interval to analyze.  Then use ~a to indicate your selections."
 		  (*body-tool* eval)
 		  ))
-   (bottom-out (string "You should use ~A to draw a body for ~a." 
+   (bottom-out (string "You should use ~A to draw a body for ~a~@[ ~A~]." 
 		       (*body-tool* eval)
-		       (?b at-time ?t)))
+		       ?b (?t pp)))
    ))
 
 
@@ -205,7 +205,8 @@
   (;;(point (string "Although one usually rotates the x-y coordinate system to align axes with vectors, there are no vectors on the system of interest with known directions in the x-y plane."))
    ;;(teach (string "When you don't have any vectors in the x-y plane with which to align your coordinate system, you might as well draw a standard horizontal-vertical coordinate system."))
    (teach (string "In this problem, there is no strong reason not to use a standard horizontal-vertical coordinate system."))
-   (bottom-out (string "Draw a standard horizontal-vertical coordinate system setting the positive x axis at 0 degrees."))
+   (bottom-out (string "Use ~A to draw a standard horizontal-vertical coordinate system setting the positive x axis at 0 degrees." 
+		       (*axis-tool* eval)))
    ))
 
 ;; following draws standard axes when problem seeks horizontal or vertical 
@@ -238,7 +239,8 @@
   )
   :hint
   ((point (string "Although one usually rotates the x-y coordinate system to align axes with vectors, this problem gives or seeks horizontal or vertical vector components.  You should use a standard horizontal-vertical coordinate system."))
-   (bottom-out (string "Draw a standard horizontal-vertical coordinate system setting the positive x axis at 0 degrees."))
+   (bottom-out (string "Use ~A to draw a standard horizontal-vertical coordinate system setting the positive x axis at 0 degrees."
+		       (*axis-tool* eval)))
    ))
 
 ;; reuse-other-body-axes only applies once to draw axes within a given call to
@@ -298,48 +300,51 @@
 
 (defoperator draw-vector-aligned-axes (?rot)
   :specifications 
-   "If the goal is to draw coordinate axes for use on some body's vectors,
+  "If the goal is to draw coordinate axes for use on some body's vectors,
        and there are any vectors on that body drawn at known angles
    then draw coordinate axes so that one of them is alligned with ?vector,"
-
-   :preconditions 
-   (
-    ;; don't rotate axes if components are sought:
-    (not (component-form))
-    (not (use-energy-axes))	  
-    (not (projection-axes ?junk))
-    ;; don't draw axis for system part if system axis already chosen
-    ;; use-system-axes will choose axes in this case.
-    (not (axes-for ?sys . ?dontcare)
-	 (part-of-sys ?b ?sys))
-    ;; (test (atom ?b))	; only for atomic bodies
-    (setof (in-wm (vector ?b ?vector ?dir)) ?dir ?dirs)
-    ;; add 0 so standard axes always an option:
-    (bind ?min-dirs (adjoin 0 (minimal-x-rotations ?dirs)))
-    (any-member ?rot ?min-dirs)
-    (bind ?x-rotation (axis-dir 'x ?rot)) ;for help statement
-    (debug "Setting axes for ~a at ~A~%" ?b ?rot)
-    )
-   :effects 
-   (
-    (draw-axes ?b ?rot)	   ;action proposition for helpsys gives x dir
-    (axes-for ?b ?rot)
-    (assume axes-for ?b ?rot)
-    )
+  :preconditions 
+  (
+   ;; don't rotate axes if components are sought:
+   (not (component-form))
+   (not (use-energy-axes))	  
+   (not (projection-axes ?junk))
+   ;; don't draw axis for system part if system axis already chosen
+   ;; use-system-axes will choose axes in this case.
+   (not (axes-for ?sys . ?dontcare)
+	(part-of-sys ?b ?sys))
+   ;; (test (atom ?b))	; only for atomic bodies
+   (setof (in-wm (vector ?b ?vector ?dir)) ?dir ?dirs)
+   ;; add 0 so standard axes always an option:
+   (bind ?min-dirs (adjoin 0 (minimal-x-rotations ?dirs)))
+   (any-member ?rot ?min-dirs)
+   (bind ?x-rotation (axis-dir 'x ?rot)) ;for help statement
+   (debug "Setting axes for ~a at ~A~%" ?b ?rot)
+   )
+  :effects 
+  (
+   (draw-axes ?b ?rot)	   ;action proposition for helpsys gives x dir
+   (axes-for ?b ?rot)
+   (assume axes-for ?b ?rot)
+   )
   :hint
   ((point (string "What would be a useful choice for the coordinate axes?"))
    (teach (minilesson "mini_choose_axes.htm")
-          (kcd "draw-rotate-axes")
+	  (kcd "draw-rotate-axes")
 	  ;; Careful with wording: we can't be sure that the axis direction 
 	  ;; being prompted actually conforms to the recommended heuristic. 
 	  (string "Although you can choose any rotation for the axes and still get a correct answer, the solution is usually simpler if you rotate the axes so at least one vector is parallel to an axis.  Typically, the more vectors that come out parallel to the axes, the better, although which choice is most efficient will depend on the particular problem. "))
-   (bottom-out (string "~:[Draw~;Rotate~] the coordinate axes setting the x axis at ~a degrees." (rotate-existing-axes) ?x-rotation))
-  ))
+   ;; The case "Draw" never actually occurs (from scanning log files)
+   ;; since the NSH is pre-empted by hints in Help/NextStepHelp.cl
+   (bottom-out (string "~:[Draw~;Rotate~] the coordinate axes setting the <var>x</var> axis to ~a degrees." 
+		       (nil rotate-existing-axes) ?x-rotation))
+   ))
 
-(defun rotate-existing-axes ()
-"TRUE at help time if should rotate axes rather than drawing new ones"
- (and (axes-drawnp)                   ; have already drawn at least one
-      (not (nsh-multi-axis-problemp)))) ; only one is required for solution 
+(defun rotate-existing-axes (x)
+  "TRUE at help time if should rotate axes rather than drawing new ones"
+  (declare (ignore x))
+  (and (axes-drawnp)                   ; have already drawn at least one
+       (not (nsh-multi-axis-problemp)))) ; only one is required for solution 
 
 (defoperator use-system-axes (?b ?rot)
    :specifications 
@@ -402,7 +407,8 @@
   :hint (
 	 (point (string "To find an appropriate direction to set the coordinate axes, think about the sorts of quantities that will be needed for an energy solution."))
 	 (teach (string "Gravitational potential energy depends on the height above the stipulated zero level. Because change in height is the vertical component of the displacement, and because energy solutions otherwise involve only scalar quantities, there is no advantage to using rotated coordinate axes. So energy solutions in Andes use only standard horizontal-vertical axes."))
-	 (bottom-out (string "Draw standard horizontal-vertical coordinate axes by setting the x axis at 0 degrees." ))
+	 (bottom-out (string "Use ~A to draw standard horizontal-vertical coordinate axes by setting the x axis at 0 degrees." 
+			     (*axis-tool* eval)))
 	 ))
 
 
@@ -634,7 +640,7 @@
 	  (kcd "write_x_trig_projection_equation"))
    (bottom-out (string "Since the direction of ~a is ~a, and the rotation of the x axis is &theta;~A (~a deg), you can write the general formula ~a = ~a*~a(~a - &theta;~A)." 
 		       ?vector (?dir-var algebra) 
-		       ((axis ?x ?rot) symbols-label) (?x-rot adj)
+		       ((axis x ?rot) symbols-label) (?x-rot adj)
 		       (?compo-var algebra)
 		       (?mag-var algebra)  (?cos-or-sin adj) 
 		       (?dir-var algebra) ((axis x ?rot) symbols-label)))
@@ -1058,10 +1064,10 @@
    )
   :hint (
     (point (string "You can determine the components of ~a from the problem statement." ?vec))
-    (bottom-out (string "Use ~A to draw ~a at an approximately correct angle, then enter the component values in the dialog box."
-			(*vector-tool* eval)
-			?vec ?dir-expr))
-  ))
+    (bottom-out (string "Use ~A to draw ~a at an approximately correct angle.  After defining the vector, use ~A to enter the component values."
+			(*vector-tool* eval) ?vec
+			(*equation-tool* eval)))
+    ))
 
 (defoperator draw-z-axis-vector-given-compos (?vec)
   :order ((default . HIGH)) ; pre-empt any other rule for drawing vector
@@ -1087,9 +1093,9 @@
    )
   :hint (
     (point (string "The problem statement tells you the components of ~a." ?vec))
-    (bottom-out (string "Use ~A to draw ~a at an approximately correct angle, then enter the given component values in the dialog box."
+    (bottom-out (string "Use ~A to draw ~a at an approximately correct angle.  After defining the vector, use ~A to enter values for the components."
 			(*vector-tool* eval)
-			?vec ?dir-expr))
+			?vec ?dir-expr) (*equation-tool* eval))
     ))
 
 
@@ -1741,12 +1747,13 @@
 ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; "a unit vector~@[ at ~A~] ~A ~A" ?loc 
+;; (unit-vector-orientation-name ?orientation) (nlg ?body 'at-time ?time)))
+
 (def-qexp unit-vector (unit-vector ?orientation ?body :at ?loc :time ?time)
   :units nil  ;dimensionless
-  ;:nlg-english ("a unit vector~@[ at ~A~] ~A ~A" ?loc (unit-vector-orientation-name ?orientation) (nlg ?body 'at-time ?time)))
-  ;
-  ;syjung NEED CHECKING!!!
   :new-english ("a unit vector" 
+		;; Broken Bug #1650
 		(when (unit-vector-orientation-name ?orientation) ?loc)
 		?body (time ?time)))
 
@@ -2004,7 +2011,9 @@
     ((point (string "Find the moment of inertia of ~A about ~A." ?b ?axis))
      (teach (string "The parallel axis theorem relates the moment of intertia about any axis to the moment of inertial about the center of mass."))
      (bottom-out (string "Write the equation ~A"
-            ((= ?I-var (+  ?I-cm-var (* ?m-var (^ ?r-var 2)))) algebra)))))
+			 ((= ?I-axis-var (+  ?I-cm-var 
+					     (* ?m-var (^ ?r-var 2)))) 
+			  algebra)))))
 
 ;; I for long thin rod rotating about cm = 1/12 m l^2, where l is length
 (def-psmclass I-rod-cm (I-rod-cm ?body ?cm)
@@ -2243,16 +2252,15 @@
   :short-name "area"	
   :units |m^2|
   :restrictions positive
-  ;:nlg-english ("the area of ~A" (nlg ?shape))
   :new-english (property-object "area" ?shape)
 )
 
+;; ex) "the rate of change of the area of ~"
 (def-qexp area-change (rate-of-change (area ?shape))
   :symbol-base |dAdt|     
   :short-name "rate of change in area"	
   :units |m^2/s|
   :restrictions positive
-  ;:nlg-english ("the rate of change of the area of ~A" (nlg ?shape))
   :new-english (rate (change (property-object "area" ?shape)))
 )
 
@@ -2267,12 +2275,12 @@
 			    ))))
 
 ;; quantity to represent radius of a circular shape
+;; ex) "the radius of ~"
 (def-qexp radius-of-circle (radius-of-circle ?body)
   :symbol-base |r|     
   :short-name "radius"	
   :units |m|
   :restrictions positive
-  ;:nlg-english ("the radius of ~A" (nlg ?body))
   :new-english (property-object "radius" ?body)
 )
 
@@ -2294,7 +2302,6 @@
   :short-name "diameter"	
   :units |m|
   :restrictions positive
-  ;:nlg-english ("the diameter of ~A" (nlg ?body))
   :new-english (property-object "diameter" ?body)
 )
 
@@ -2316,7 +2323,6 @@
   :short-name "circumference"	
   :units |m|
   :restrictions positive
-  ;:nlg-english ("the circumference of ~A" (nlg ?body))
   :new-english (property-object "circumference" ?body)
 )
 
