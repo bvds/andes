@@ -481,13 +481,14 @@
      (variable ?f12 (focal-length ?compound))
   )
   :effects (
-    (eqn (= (/ 1 ?f12) (+ (/ 1 ?f1) (/ 1 ?f2))) (compound-focal-length ?compound))
+    (eqn (= (/ 1 ?f12) (+ (/ 1 ?f1) (/ 1 ?f2))) 
+	 (compound-focal-length ?compound))
   )
   :hint (
     (point (string "When two lenses are touching, you can treat them as a single compound lens with a focal length that is a function of the focal lengths of the two individual lenses."))
     (teach (string "It can be shown that the reciprocoal of the focal length of a compound lens formed by two touching lenses is equal to the sum of the reciprocals of the focal lengths of the two individual lenses."))
     (bottom-out (string "Write the equation ~A" 
-         ((= (/ 1 ?f21) (+ (/ 1 ?f1) (/ 1 ?f2))) algebra) ))
+         ((= (/ 1 ?f12) (+ (/ 1 ?f1) (/ 1 ?f2))) algebra) ))
   ))
 
 ;;; line drawing

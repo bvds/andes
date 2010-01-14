@@ -812,7 +812,7 @@
     ;			?b (?agent agent) (?t pp) ?dir))
     (bottom-out (string "Use ~A to draw ~a at ~a."
     			(*vector-tool* eval)
-    			((impulse ?b ?agent :time ?t) def-np) ?dir))
+    			((impulse ?b ?agent :time ?t) def-np) ?dir2))
     ))
 
 ;; Draw an impulse if two momenta are not known to be equal or opposite

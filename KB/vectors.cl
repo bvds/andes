@@ -640,7 +640,7 @@
 	  (kcd "write_x_trig_projection_equation"))
    (bottom-out (string "Since the direction of ~a is ~a, and the rotation of the x axis is &theta;~A (~a deg), you can write the general formula ~a = ~a*~a(~a - &theta;~A)." 
 		       ?vector (?dir-var algebra) 
-		       ((axis ?x ?rot) symbols-label) (?x-rot adj)
+		       ((axis x ?rot) symbols-label) (?x-rot adj)
 		       (?compo-var algebra)
 		       (?mag-var algebra)  (?cos-or-sin adj) 
 		       (?dir-var algebra) ((axis x ?rot) symbols-label)))
@@ -1065,8 +1065,7 @@
   :hint (
     (point (string "You can determine the components of ~a from the problem statement." ?vec))
     (bottom-out (string "Use ~A to draw ~a at an approximately correct angle, then enter the component values in the dialog box."
-			(*vector-tool* eval)
-			?vec ?dir-expr))
+			(*vector-tool* eval) ?vec))
   ))
 
 (defoperator draw-z-axis-vector-given-compos (?vec)
@@ -2011,7 +2010,9 @@
     ((point (string "Find the moment of inertia of ~A about ~A." ?b ?axis))
      (teach (string "The parallel axis theorem relates the moment of intertia about any axis to the moment of inertial about the center of mass."))
      (bottom-out (string "Write the equation ~A"
-            ((= ?I-var (+  ?I-cm-var (* ?m-var (^ ?r-var 2)))) algebra)))))
+			 ((= ?I-axis-var (+  ?I-cm-var 
+					     (* ?m-var (^ ?r-var 2)))) 
+			  algebra)))))
 
 ;; I for long thin rod rotating about cm = 1/12 m l^2, where l is length
 (def-psmclass I-rod-cm (I-rod-cm ?body ?cm)

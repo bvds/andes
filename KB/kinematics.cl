@@ -384,7 +384,7 @@
    (teach (string "The distance ~A has traveled ~A is equal to the sum of distances traveled during each sub-interval." 
 		  ?b (?tt pp)))
    (bottom-out (string "Write the equation ~a."
-		        ((= ?t02-var (+ . ?t-vars)) algebra)))
+		        ((= ?tt-var (+ . ?t-vars)) algebra)))
    ))
 
 
@@ -2313,12 +2313,13 @@
    )
   :hint
   ((point (string "What happens to the ~A-component of the velocity of ~A ~A?"
-		  ((axis ?xyz ?rot) symbols-label) ?b (?t-lk pp)))
+		  ((axis ?xyz ?rot) symbols-label) ?b ((during ?t1 ?t2) pp)))
    (teach (string "Because the acceleration of ~A ~A is perpendicular to the ~A axis, is has no component in the ~A direction.  Therefore, the ~A component of velocity remains constant. You can use this to relate ~A to ~A. " 
-		  ?b (?t-lk pp)  ((axis ?xyz ?rot) symbols-label) 
+		  ?b ((during ?t1 ?t2) pp)  ((axis ?xyz ?rot) symbols-label) 
 		  ((axis ?xyz ?rot) symbols-label) 
 		  ((axis ?xyz ?rot) symbols-label)
-		  (?t-lk pp) (?v1-compo algebra) (?v2-compo algebra)))
+		  ((during ?t1 ?t2) pp) 
+		  (?v1-compo algebra) (?v2-compo algebra)))
    (bottom-out (string "Write the equation ~A" 
 		       ((= ?v1-compo ?v2-compo) algebra)))
    ))
@@ -2979,9 +2980,11 @@
     (assume using-relative-position-displacement ?a ?b (during ?t1 ?t2))
     )
    :hint
-   ((point (string "The change in relative position of ~A and ~B is related to their individual displacements ~A." ?a ?b (?tt pp)))
+   ((point (string "The change in relative position of ~A and ~B is related to their individual displacements ~A." 
+		   ?a ?b ((during ?t1 ?t2) pp)))
     (point (string "The relative position of two objects over a time interval is determined by each of ther displacements during that time. This will be the vector sum of the initial relative position plus the displacement of the first object minus the displacement of the second object.  This can be applied component-wise."))
-    (bottom-out (string "Write the equation ~A" ((= ?rabf (+ ?abi (- ?da ?db))) algebra)))))
+    (bottom-out (string "Write the equation ~A" 
+			((= ?rabf (+ ?rabi (- ?da ?db))) algebra)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

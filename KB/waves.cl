@@ -156,7 +156,7 @@
 	    (define-var (observed-frequency ?wave ?me :time ?t)))
   :hint ((bottom-out 
 	  (string "Define a variable for ~A by using ~A."  
-		  ((observed-frequency ?wave ?me :time ?time) def-np)
+		  ((observed-frequency ?wave ?me :time ?t) def-np)
 			    (*text-tool* eval)
 			    ))))
 
