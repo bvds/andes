@@ -142,8 +142,7 @@
       ;; The algebra calls are expected to return equations so they will get
       ;; an eqn-result. 
       (Algebra . 
-       (calculate-equation-string
-	solve-for-var
+       (solve-for-var
 	))
       
       ;; ------------------------------------------------------------------

@@ -384,7 +384,7 @@
    (teach (string "The distance ~A has traveled ~A is equal to the sum of distances traveled during each sub-interval." 
 		  ?b (?tt pp)))
    (bottom-out (string "Write the equation ~a."
-		        ((= ?t02-var (+ . ?t-vars)) algebra)))
+		        ((= ?tt-var (+ . ?t-vars)) algebra)))
    ))
 
 
@@ -2313,12 +2313,13 @@
    )
   :hint
   ((point (string "What happens to the ~A-component of the velocity of ~A ~A?"
-		  ((axis ?xyz ?rot) symbols-label) ?b (?t-lk pp)))
+		  ((axis ?xyz ?rot) symbols-label) ?b ((during ?t1 ?t2) pp)))
    (teach (string "Because the acceleration of ~A ~A is perpendicular to the ~A axis, is has no component in the ~A direction.  Therefore, the ~A component of velocity remains constant. You can use this to relate ~A to ~A. " 
-		  ?b (?t-lk pp)  ((axis ?xyz ?rot) symbols-label) 
+		  ?b ((during ?t1 ?t2) pp)  ((axis ?xyz ?rot) symbols-label) 
 		  ((axis ?xyz ?rot) symbols-label) 
 		  ((axis ?xyz ?rot) symbols-label)
-		  (?t-lk pp) (?v1-compo algebra) (?v2-compo algebra)))
+		  ((during ?t1 ?t2) pp) 
+		  (?v1-compo algebra) (?v2-compo algebra)))
    (bottom-out (string "Write the equation ~A" 
 		       ((= ?v1-compo ?v2-compo) algebra)))
    ))
@@ -2979,9 +2980,11 @@
     (assume using-relative-position-displacement ?a ?b (during ?t1 ?t2))
     )
    :hint
-   ((point (string "The change in relative position of ~A and ~B is related to their individual displacements ~A." ?a ?b (?tt pp)))
+   ((point (string "The change in relative position of ~A and ~B is related to their individual displacements ~A." 
+		   ?a ?b ((during ?t1 ?t2) pp)))
     (point (string "The relative position of two objects over a time interval is determined by each of ther displacements during that time. This will be the vector sum of the initial relative position plus the displacement of the first object minus the displacement of the second object.  This can be applied component-wise."))
-    (bottom-out (string "Write the equation ~A" ((= ?rabf (+ ?abi (- ?da ?db))) algebra)))))
+    (bottom-out (string "Write the equation ~A" 
+			((= ?rabf (+ ?rabi (- ?da ?db))) algebra)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -3375,9 +3378,9 @@
   :hint 
   ((point (string "You need to introduce a term for the angular displacement of ~A." ?b))
    (teach (string "The net rotation of the object is not given in the problem statement.  Whether the angular displacement points into or out of the plane requires calculation to determine.  Since it must lie along the z axis, you should draw it but specify an unknown Z direction."))
-    (bottom-out (string "Use ~A to draw a non-zero angular displacement for ~a ~A and select Unknown Z direction in the dialog box."
+    (bottom-out (string "Use ~A to draw a non-zero angular displacement for ~a ~A and ~A."
 			(*vector-tool* eval)
-			?b (?t pp)))
+			?b (?t pp) (*unknown-z-direction-action* eval)))
    ))
 
 (defoperator ang-accel-at-rest (?b ?t)
@@ -3523,9 +3526,9 @@
    (teach (string "When a body is subject to a non-zero net ~A it will have an angular acceleration in the direction of the net ~A.  In this problem you can assume that the forces will result in a net ~A so the body will have a non-zero angular acceleration.  Whether the angular acceleration points into or out of the plane requires calculation to determine.  Since it must lie along the z axis, you should draw it but specify an unknown Z direction." 
 		  (nil moment-name) (nil moment-name) 
 		  (nil moment-name)))
-    (bottom-out (string "Use ~A to draw a non-zero angular acceleration for ~a ~A and select Unknown Z direction in the dialog box." 
+    (bottom-out (string "Use ~A to draw a non-zero angular acceleration for ~a ~A and ~A." 
 			(*vector-tool* eval)
-			?b (?t pp)))
+			?b (?t pp) (*unknown-z-direction-action* eval)))
    ))
  
 ;;; angular sdd:

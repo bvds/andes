@@ -2175,28 +2175,6 @@
 ;;; shouldn't mention net force at all unless there is the possibility
 ;;; that we might want the students to use it.
 
-#| Original error-class
-   ;;; Special case: (ref Pitt non-eqn 1-15-05) If the student has the
-   ;;; same object for both body and agent, they may be trying to define
-   ;;; the net force.  This error interpretation will not have a correct
-   ;;; system entry.  For problems such as exdt6a where they should
-   ;;; define only net force and not individual force, must add the
-   ;;; correct clause to prevent this from applying.
-   (def-error-class same-body-and-agent-of-a-force (?object)
-   ((student (vector (force ?object ?object ?type :time ?time) ?dir))
-   (correct (vector (force ?cbody ?cagent ?ctype :time ?ctime) ?cdir)))
-   :utility 100)
-   (defun same-body-and-agent-of-a-force (object)
-   (setq object (nlg object 'def-np))
-   (make-hint-seq
-   (list (format nil (strcat "A force arise from the interaction of two "
-   "DIFFERENT objects, but you have used ~a "
-   "for both.") object)
-   (format nil (strcat "If you were trying to draw the net force on "
-   "~a, then double click on this force and look "
-   "carefully at the dialog box.  There is a button "
-   "for defining the net force.") object))))
-   |#
 
 (def-error-class same-body-and-agent-of-a-force-no-net (?object)
    ((student (vector (force ?object ?object ?type :time ?time) ?dir))
@@ -2225,9 +2203,8 @@
 			     "DIFFERENT objects, but you have used ~a "
 			     "for both.") object)
 	 (format nil (strcat "If you were trying to draw the net force on "
-			     "~a, then double click on this force and look "
-			     "carefully at the dialog box.  There is a button "
-			     "for defining the net force.") object))))
+			     "~a, then use the term \"net\" when defining "
+			     "the force.") object))))
 
 
 ;;; Special case: If there is a normal force on a body, and if the student draws a

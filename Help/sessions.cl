@@ -495,7 +495,7 @@
     ;; label-angle
     ;; lookup-mc-answer
     ;; calculate-equation-string (find variable on lhs of equation)
-    ;;                           (probably not in Andes3)
+    ;;                           (not in Andes3)
     ;; Andes2 but not in Andes3:  label-radius lookup-torque lookup-force
     
     ;; Andes2 does not distinguish between a new entry and a 

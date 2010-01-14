@@ -351,11 +351,19 @@
     ;; This routine is supposed to be called on parseable eqs only, but best to be safe:
     ;; There was a crash in Andes7.0.0 whenver got unused vars among multiple var parses 
     ;; since these weren't filtered out of "wrongs" above.
-    (and (listp parse1) (listp parse2)
-         ;; cheap test: compare length of infix forms (top level only). 
-	 ;; Works for "v = -N units" case we need.
-         (< (length (pre2in parse1))
-            (length (pre2in parse2))))))
+    (< (leaf-count parse1) (leaf-count parse2))))
+
+(defun leaf-count (x &key parent)
+  "leaf count of algebraic expressions, expanding associative functions"
+  (cond
+    ((null x) 0)
+    ((atom x) 1)
+    ((listp x)
+     (let ((op (car x)))
+       ;; Flatten associative functions:
+       (when (and (member op '(+ *)) (eql op parent)) (pop x))
+       (loop for y in x sum (leaf-count y :parent op))))
+    (t (warn "invalid expr ~A" x) 0)))
 
 ;;; return number of unknown vars in an unknown or unused var turn-entry pair
 (defun te-unknowns (te-pair)
@@ -781,7 +789,9 @@
 ;;
 
 (defun do-check-answer (entry)
-  (let* ((inputo (StudentEntry-verbatim entry))
+  (let*
+      ;; This is the only place where StudentEntry-verbatim is used.
+      ((inputo (StudentEntry-verbatim entry))
 	 sought-quant
 	 (id (StudentEntry-id entry))
 	 result-turn
@@ -1192,7 +1202,7 @@
 
 (defun should-be-given-ErrorInterp (se quant)
   (let ((rem (make-hint-seq
-	      (list (format nil "The value of ~a can be determined from the problem statement.  It should be entered in the dialog box when defining the relevant variable." 
+	      (list (format nil "The value of ~a can be determined from the problem statement.  It should be entered as an equation after defining the relevant variable." 
 	                             (nlg (quant-to-sysvar quant) 'algebra))
 	         ))))
     (setf (StudentEntry-ErrInterp se)
@@ -1211,11 +1221,14 @@
 		      :test #'exactly-equal)))
     (if eqn (list (eqn-algebra->sysent (eqn-algebra eqn))))))
 
+;; Generally such quantities should be pre-defined, but this 
+;; is a fall-back.
 (defun should-be-known-ErrorInterp (se quant)
   (let ((rem (make-hint-seq
 	      (list (format nil "You need to enter an appropriate value for ~a."  
 			    (nlg quant))
-		    (format nil "Select 'Constants used in Andes' on the Help menu to find the value used in Andes.  This value should be entered in the dialog box when defining the relevant variable.")
+		    (strcat (begin-sentence *constants-menu-action*)
+		    " and find the value used in Andes.  After defining the relevant variable, write an equation giving its value.")
 	         ))))
     (setf (StudentEntry-ErrInterp se)
       (make-ErrorInterp

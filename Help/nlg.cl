@@ -231,19 +231,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 
-(defun strip-outer-parens (s)
-"if arg is string w/outer parens, remove them, else return arg unchanged"
- (if (and (stringp s)
-          (equal (subseq s 0 1) "(") 
-	  (equal (subseq s (1- (length s)) (length s)) ")"))
-     (format nil "~A" (subseq s 1 (1- (length s))))
-   s))
-
-(defun algebra (x &rest args)
-   (declare (ignore args))
-   ;; x could be prefix expr (maybe DNUM), var or dimensionless number
-    (strip-outer-parens (format nil "~A" (subst-student-vars (pre2in x)))))
-
 ;; for concise reference to quantities in algebraic contexts:
 (defun var-or-quant (x &rest args)
 "return student's var for quant if one exists, else full quantity def."
