@@ -634,18 +634,19 @@
 
 
 (defun find-ErrorInterp-correct (entry)
-  "Returns best match if correct, nil if incorrect or no match"
+  "Returns best match if correct, otherwise nil"
   (let (tests)
     ;; select tests that always apply 
     (dolist (eh (remove 'nil **entry-tests** :key #'EntryTest-apply 
 			:test-not #'eql))
       (dolist (test (check-err-conds eh entry))
-	;; each successful test will be either correct or incorrect
-	(if (eq (ErrorInterp-state test) **correct**)
-		       (push test tests)
-		       (return-from find-ErrorInterp-correct nil))))
+	    (push test tests)))
     ;; select best result from all applicable tests
-    (when tests (select-error-interpretation tests))))
+    ;; then use that to determine correctness.
+    (when tests 
+      (let ((best (select-error-interpretation tests)))
+	(when (eql (ErrorInterp-state best) **correct**)
+	  best)))))
     
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -472,19 +472,23 @@
 
 ;;; Default case: If the student specifies wrong time points, then
 ;;; point and bottom out.
-(def-error-class default-duration ((during ?st1 ?st2) (during ?ct1 ?ct2))
+(def-entry-test default-duration (?st1 ?st2 ?ct1 ?ct2)
+  :preconditions
   ((student (define-var (duration (during ?st1 ?st2))))
    (correct (define-var (duration (during ?ct1 ?ct2))))
-   (test (not (> ?st1 ?st2)))))
+   (test (not (> ?st1 ?st2))))
+  :apply no-match
+  :state **incorrect**
+  :hint (default-duration `(during ,?st1 ,?st2) `(during ,?ct1 ,?ct2))
+  :order ((expected-utility . 0.1)))
 
 (defun default-duration (st ct)
-  (make-hint-seq
    (list (format nil (strcat "Although you do need to define a duration "
 			     "variable, no solution I know needs a variable "
 			     "for the duration ~a.") (nlg st 'pp))
 	 *dyi*
 	 (format nil "Define a variable for the duration ~a"
-		 (nlg ct 'pp)))))
+		 (nlg ct 'pp))))
 
 
 ;;; If duration is not needed on this problem, then say so.  Not
@@ -503,17 +507,21 @@
 ;;; Special case: I suppose some clown will try to define a duration
 ;;; with the time points reversed, but its rather unlikely.  Maybe a
 ;;; user interface confusion.
-(def-error-class reverse-duration ((during ?t1 ?t2) (during ?t2 ?t1))
+(def-entry-test reverse-duration (?t1 ?t2)
+  :preconditions
   ((student (define-var (duration (during ?t1 ?t2))))
-   (test (> ?t1 ?t2))))
+   (test (> ?t1 ?t2)))
+  :apply no-match
+  :state **incorrect**
+  :hint (reverse-duration `(during ,?t1 ,?t2) `(during ,?t2 ,?t1))
+  :order ((expected-utility . 0.1)))
 
 (defun reverse-duration (st ct)
-  (make-hint-seq
    (list (format nil (strcat "You've defined a variable ~a.  That "
 			     "is, you've got the time points reversed.")
 		 (nlg st 'pp))
 	 (format nil "Try defining a duration variable ~a." 
-		 (nlg ct 'pp)))))
+		 (nlg ct 'pp))))
 
 ;;; ======== ===== coefficient of friction ========================
 ;;; student can get the wrong type (kinetic vs static)
@@ -711,37 +719,39 @@
 ;;; bottom out hint, it tries to figure out which time point the
 ;;; student was trying to refer to by assuming that the other time
 ;;; point in the interval must be the zero point in from the problem
-;;; statement.  This is a bit risk, because the problem statement
+;;; statement.  This is a bit risky, because the problem statement
 ;;; might not specify a zero point, in which case this entry-test
 ;;; will fail.
-(def-error-class height-over-a-time-interval (?body (during ?t1 ?t2) ?ctime)
+(def-entry-test height-over-a-time-interval (?body ?t1 ?t2 ?ctime)
+  :preconditions
   ((student (define-var (height ?body ?zero-height :time (during ?t1 ?t2))))
    (correct (define-var (height ?body ?zero-height :time ?ctime)))
    (test (time-pointp ?ctime))
    (problem (given (height ?body ?zero-height :time ?t-zero) (dnum 0 ?unit))))
-  :utility 100
-  :probability
-  (+ 0.1
-     (if (and (equal ?t1 ?t-zero)
-	      (equal ?t2 ?ctime))
-	 0.2 0.0)
-     (if (and (equal ?t2 ?t-zero)
-	      (equal ?t1 ?ctime))
-	 0.2 0.0)))
+  :apply no-match
+  :state **incorrect**
+  :hint (height-over-a-time-interval ?body `(during ,?t1 ,?t2) ?ctime)
+  :order ((expected-utility . (* 100 (+ 0.1
+					(if (and (equal ?t1 ?t-zero)
+						 (equal ?t2 ?ctime))
+					    0.2 0.0)
+					(if (and (equal ?t2 ?t-zero)
+						 (equal ?t1 ?ctime))
+					    0.2 0.0))))))
+
 
 (defun height-over-a-time-interval (body stime ctime)
-  (make-hint-seq
-   (list   ;; height-at-points
-    (strcat "Height is defined relative to the zero of "
-	    "gravitational potential energy, which is usually "
-	    "specified in the problem statement (if not, you "
-	    "should specify it).  Thus, you always define height "
-	    "at a time point, and that refers to its vertical "
-	    "distance above or below the zero point.  Thus, you "
-	    "should modify your variable definition to use a time "
-	    "point rather than a time interval.")
-    (format nil "Define the height of ~a ~a instead of ~a."
-	    (nlg body 'def-np) (nlg ctime 'pp) (nlg stime 'pp)))))
+  (list   ;; height-at-points
+   (strcat "Height is defined relative to the zero of "
+	   "gravitational potential energy, which is usually "
+	   "specified in the problem statement (if not, you "
+	   "should specify it).  Thus, you always define height "
+	   "at a time point, and that refers to its vertical "
+	   "distance above or below the zero point.  Thus, you "
+	   "should modify your variable definition to use a time "
+	   "point rather than a time interval.")
+   (format nil "Define the height of ~a ~a instead of ~a."
+	   (nlg body 'def-np) (nlg ctime 'pp) (nlg stime 'pp))))
 
 
 ;;; ============= moment of inertia ==============================
@@ -3079,39 +3089,54 @@
 
 ;;; The student has used the wrong trig function and correct is one of those
 ;;; used in projection equations.
-(def-error-class wrong-trig-function ((?wrong-trig-fn ?argument) (?right-trig-fn ?argument))
+(def-entry-test wrong-trig-function (?wrong-trig-fn ?right-trig-fn ?argument)
+  :preconditions
     ((student-eqn ?dontcare0)
      (expr-loc ?wrong-loc (?wrong-trig-fn ?argument))
      (test (member ?wrong-trig-fn *trig-functions*))
      (any-member ?right-trig-fn *proj-trig-functions*)
      (test (not (equal ?wrong-trig-fn ?right-trig-fn)))
-     (fix-eqn-by-replacing ?wrong-loc (?right-trig-fn ?argument))))
+     (fix-eqn-by-replacing ?wrong-loc (?right-trig-fn ?argument)))
+  :apply no-match
+  :state **incorrect**
+  :hint (wrong-trig-function (list ?wrong-trig-fn ?argument) 
+			      (list ?right-trig-fn ?argument))
+  :order ((expected-utility . 0.1)))
+
 (defun wrong-trig-function (wrong right)
-    (make-hint-seq
-     (list "Check your trigonometry."
-	   ;; teach projection 
-           ;; !!! may not be projection they are trying to write, but dot or cross product.
-	   (strcat "If you are trying to calculate the component of a vector along an axis, "
-	           "here is a general formula that will always work: "
-		   "Let &theta;V be the angle as you move counterclockwise from the horizontal to "
-		   "the vector.  Let &theta;x be the rotation of the x-axis from the horizontal. "
-		   "(&theta;V and &theta;x appear in the Variables window.) "
-		   "Then: V<sub>x</sub> = V cos(&theta;V-&theta;x) and V<sub>y</sub> = V sin(&theta;V-&theta;x).")
-	   (format nil "Replace ~a with ~a." (nlg wrong 'algebra) (nlg right 'algebra)))))
+  (list "Check your trigonometry."
+	;; teach projection 
+	;; !!! may not be projection they are trying to write, 
+	;; but dot or cross product.
+	(strcat "If you are trying to calculate the component of a vector along an axis, "
+		"here is a general formula that will always work: "
+		"Let &theta;V be the angle as you move counterclockwise from the horizontal to "
+		"the vector.  Let &theta;x be the rotation of the x-axis from the horizontal. "
+		"Then: V<sub>x</sub> = V cos(&theta;V-&theta;x) and V<sub>y</sub> = V sin(&theta;V-&theta;x).")
+	(format nil "Replace ~a with ~a." 
+		(nlg wrong 'algebra) (nlg right 'algebra))))
+
 
 ;;; The student has used the wrong trig function where tangent is right
 ;;; don't even try to guess what to teach here
-(def-error-class trig-function-should-be-tan ((?wrong-trig-fn ?argument) (?right-trig-fn ?argument))
-    ((student-eqn ?dontcare0)
-     (expr-loc ?wrong-loc (?wrong-trig-fn ?argument))
-     (test (equal ?wrong-trig-fn 'tan))
-     (any-member ?right-trig-fn *trig-functions*)
-     (test (not (equal ?wrong-trig-fn ?right-trig-fn)))
-     (fix-eqn-by-replacing ?wrong-loc (?right-trig-fn ?argument))))
+(def-entry-test trig-function-should-be-tan (?wrong-trig-fn ?right-trig-fn ?argument)
+  :preconditions
+  ((student-eqn ?dontcare0)
+   (expr-loc ?wrong-loc (?wrong-trig-fn ?argument))
+   (test (equal ?wrong-trig-fn 'tan))
+   (any-member ?right-trig-fn *trig-functions*)
+   (test (not (equal ?wrong-trig-fn ?right-trig-fn)))
+   (fix-eqn-by-replacing ?wrong-loc (?right-trig-fn ?argument)))
+  :apply no-match
+  :state **incorrect**
+  :hint (trig-function-should-be-tan (list ?wrong-trig-fn ?argument) 
+				     (list ?right-trig-fn ?argument))
+  :order ((expected-utility . 0.1)))
+
 (defun trig-function-should-be-tan (wrong right)
-    (make-hint-seq
-     (list "Check your trigonometry."
-	   (format nil "Replace ~a with ~a." (nlg wrong 'algebra) (nlg right 'algebra)))))
+  (list "Check your trigonometry."
+	(format nil "Replace ~a with ~a." 
+		(nlg wrong 'algebra) (nlg right 'algebra))))
 
 ;;; Student has left off the "deg" unit but intended the number to be
 ;;; interpreted as degrees
@@ -3251,25 +3276,27 @@
 ;;; the equation and only certain errors.
 ;;; There should also be a similar rule for definition of average velocity.
 ;;;
-(def-error-class avg-accel-is-change-in-velocity 
-    (?xyz (= ?a (/ (- ?vf ?vi) ?dur)))
+(def-entry-test avg-accel-is-change-in-velocity (?xyz ?a ?vf ?vi ?dur)
+  :preconditions 
   ((student-eqn (= ?a (/ (?op ?v1 ?v2) ?dur)))
    (var-defn ?a (compo ?xyz ?rot (accel ?body :time (during ?ti ?tf))))
    (var-defn ?dur (duration (during ?ti ?tf)))
    (correct-var ?vi (compo ?xyz ?rot (velocity ?body :time ?ti)))
    (correct-var ?vf (compo ?xyz ?rot (velocity ?body :time ?tf)))
    (test (equal (sort (list ?v1 ?v2) #'expr<) (sort (list ?vi ?vf) #'expr<))))
-  :utility 50)
+  :apply no-match
+  :state **incorrect**
+  :hint (avg-accel-is-change-in-velocity ?xyz `(= ,?a (/ (- ,?vf ,?vi) ,?dur)))
+  :order ((expected-utility . 5)))
 
 (defun avg-accel-is-change-in-velocity (xyz eqn)
-  (make-hint-seq
-   (list
-    (format nil (strcat "The average acceleration in the ~a direction in a "
-			"time interval is equal to the change in the ~a "
-			"component of velocity divided by the time.  Change "
-			"is the final value minus the initial value.") xyz xyz)
-    "See the formulae for constant acceleration."  ;; teach avg-accel-defn
-    (format nil "Replace your equation with ~a." (nlg eqn 'algebra)))))
+  (list
+   (format nil (strcat "The average acceleration in the ~a direction in a "
+		       "time interval is equal to the change in the ~a "
+		       "component of velocity divided by the time.  Change "
+		       "is the final value minus the initial value.") xyz xyz)
+   "See the formulae for constant acceleration."  ;; teach avg-accel-defn
+   (format nil "Replace your equation with ~a." (nlg eqn 'algebra))))
 
 ;;; (ref eq-Pitt A4 3-03-23) If the student left out the negative sign on
 ;;; a vector component, and the vector is parallel to the axis, then
@@ -3358,41 +3385,44 @@
 ;;; in Fw=m*g.  This error classes teaches against that misconception.
 ;;; We match the exact equation here: Fg = m*(-g).  This avoids firing
 ;;; the rule when other sign rules would be more appropriate.
-(def-error-class no-negation-in-weight-law1 ((= ?smag (* ?smass ?g)))
+(def-entry-test no-negation-in-weight-law1 (?smag ?smass ?g)
+  :preconditions
   ((student-eqn (= ?smag (* ?smass (- ?g))))
    (var-defn ?g (gravitational-acceleration ?planet))
    (var-defn ?smag (mag (force ?body ?planet weight :time ?time)))
    (var-defn ?smass (mass ?body)))
-  :utility 100)
-(defun no-negation-in-weight-law1 (eqn)
-  (no-negation-in-weight-law eqn))
+  :apply no-match
+  :state **incorrect**
+  :hint (no-negation-in-weight-law `(= ,?smag (* ,?smass ,?g)))
+  :order ((expected-utility . 10)))
 
 ;;; this handles the case where the student entered Fw=-m*g.
-(def-error-class no-negation-in-weight-law2 ((= ?smag (* ?smass ?g)))
+(def-entry-test no-negation-in-weight-law2 (?smag ?smass ?g)
+  :preconditions
   ((student-eqn (= ?smag (* (- ?smass) ?g)))
    (var-defn ?g (gravitational-acceleration ?planet))
    (var-defn ?smag (mag (force ?body ?planet weight :time ?time)))
    (var-defn ?smass (mass ?body)))
-  :utility 100)
-(defun no-negation-in-weight-law2 (eqn)
-  (no-negation-in-weight-law eqn))
+  :apply no-match
+  :state **incorrect**
+  :hint (no-negation-in-weight-law `(= ,?smag (* ,?smass ,?g)))
+  :order ((expected-utility . 10)))
 
 (defun no-negation-in-weight-law (eqn)
-  (make-hint-seq
-   (list
-    ;; teach wt-law-sign
-    (strcat "You probably recall the vector equation <var>Fg</var> = <var>m</var> <var>g</var>' "
-	    "where <var>Fg</var> and <var>g</var> are vectors, namely the weight "
-	    "and gravitational acceleration.  This vector equation implies "
-	    "that the two vectors have the same direction (both are downward).  "
-	    "It also implies that their magnitudes are proportional, that is, "
-	    "that <var>W</var>=<var>m</var> <var>g</var> where <var>W</var> and <var>g</var> stand for the MAGNITUDES of the weight "
-	    "and gravitational acceleration.  Your version of this scalar "
-	    "equation has an unnecessary minus sign in it.  Just remember "
-	    "that in the scalar equation <var>Fg</var> = <var>m</var> <var>g</var>, everything is positive: mass "
-	    "is a positive number, and because <var>Fg</var> and <var>g</var> stand for magnitudes, "
-	    "they are positive numbers, too.")
-    (format nil "Change your equation to ~a." (nlg eqn 'algebra)))))
+  (list
+   ;; teach wt-law-sign
+   (strcat "You probably recall the vector equation <var>Fg</var> = <var>m</var> <var>g</var>' "
+	   "where <var>Fg</var> and <var>g</var> are vectors, namely the weight "
+	   "and gravitational acceleration.  This vector equation implies "
+	   "that the two vectors have the same direction (both are downward).  "
+	   "It also implies that their magnitudes are proportional, that is, "
+	   "that <var>W</var>=<var>m</var> <var>g</var> where <var>W</var> and <var>g</var> stand for the MAGNITUDES of the weight "
+	   "and gravitational acceleration.  Your version of this scalar "
+	   "equation has an unnecessary minus sign in it.  Just remember "
+	   "that in the scalar equation <var>Fg</var> = <var>m</var> <var>g</var>, everything is positive: mass "
+	   "is a positive number, and because <var>Fg</var> and <var>g</var> stand for magnitudes, "
+	   "they are positive numbers, too.")
+    (format nil "Change your equation to ~a." (nlg eqn 'algebra))))
 
 ;;; ==================== sum of forces ============================
 
@@ -4136,7 +4166,7 @@
   )
 
 ;; Finally, accept vector, since it passed the other tests.
-(def-entry-test match-unknown-vector-to-solver (?quant ?dir1) 
+(def-entry-test match-unknown-vector-default (?quant ?dir1) 
   :preconditions ((student (vector ?quant ?dir1))
 		  (correct (vector ?quant unknown))
 		  )
