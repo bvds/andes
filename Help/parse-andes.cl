@@ -351,11 +351,19 @@
     ;; This routine is supposed to be called on parseable eqs only, but best to be safe:
     ;; There was a crash in Andes7.0.0 whenver got unused vars among multiple var parses 
     ;; since these weren't filtered out of "wrongs" above.
-    (and (listp parse1) (listp parse2)
-         ;; cheap test: compare length of infix forms (top level only). 
-	 ;; Works for "v = -N units" case we need.
-         (< (length (pre2in parse1))
-            (length (pre2in parse2))))))
+    (< (leaf-count parse1) (leaf-count parse2))))
+
+(defun leaf-count (x &key parent)
+  "leaf count of algebraic expressions, expanding associative functions"
+  (cond
+    ((null x) 0)
+    ((atom x) 1)
+    ((listp x)
+     (let ((op (car x)))
+       ;; Flatten associative functions:
+       (when (and (member op '(+ *)) (eql op parent)) (pop x))
+       (loop for y in x sum (leaf-count y :parent op))))
+    (t (warn "invalid expr ~A" x) 0)))
 
 ;;; return number of unknown vars in an unknown or unused var turn-entry pair
 (defun te-unknowns (te-pair)
@@ -781,7 +789,9 @@
 ;;
 
 (defun do-check-answer (entry)
-  (let* ((inputo (StudentEntry-verbatim entry))
+  (let*
+      ;; This is the only place where StudentEntry-verbatim is used.
+      ((inputo (StudentEntry-verbatim entry))
 	 sought-quant
 	 (id (StudentEntry-id entry))
 	 result-turn

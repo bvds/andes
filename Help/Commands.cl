@@ -145,14 +145,7 @@
 	      :id new-id)))))
 
 (defun solve-for-var-success (entry result)
-  (let* ((studEqn  (subst-student-vars (pre2in result)))
-	 ;; Setting default format affects write-to-string.
-	 (*read-default-float-format* 'double-float)
-	 ;; suppress *print-pretty* since it could insert newlines 
-	 ;; into long result, and WB requires single-line eqn string
-	 (infixStr (write-to-string studEqn :pretty NIL :escape NIL))
-	 ;; strip outer parens from equation string
-	 (studText (subseq infixStr 1 (- (length infixStr) 1))))
+  (let* ((studText (algebra result)))
     
     ;; Update the studententry
     (setf (StudentEntry-verbatim entry) studText)

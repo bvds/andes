@@ -65,7 +65,7 @@
 				     (:file "physics-algebra-rules")
 				     (:file "parse"
 					    :depends-on ("utilities"))
-				     (:file "pre2in")
+				     (:file "algebra")
 				     (:file "in2pre")
 				     (:file "parse-andes"
 					    :depends-on ("SolutionGraph" 
