@@ -3378,9 +3378,9 @@
   :hint 
   ((point (string "You need to introduce a term for the angular displacement of ~A." ?b))
    (teach (string "The net rotation of the object is not given in the problem statement.  Whether the angular displacement points into or out of the plane requires calculation to determine.  Since it must lie along the z axis, you should draw it but specify an unknown Z direction."))
-    (bottom-out (string "Use ~A to draw a non-zero angular displacement for ~a ~A and select Unknown Z direction in the dialog box."
+    (bottom-out (string "Use ~A to draw a non-zero angular displacement for ~a ~A and ~A."
 			(*vector-tool* eval)
-			?b (?t pp)))
+			?b (?t pp) (*unknown-z-direction-action* eval)))
    ))
 
 (defoperator ang-accel-at-rest (?b ?t)
@@ -3526,9 +3526,9 @@
    (teach (string "When a body is subject to a non-zero net ~A it will have an angular acceleration in the direction of the net ~A.  In this problem you can assume that the forces will result in a net ~A so the body will have a non-zero angular acceleration.  Whether the angular acceleration points into or out of the plane requires calculation to determine.  Since it must lie along the z axis, you should draw it but specify an unknown Z direction." 
 		  (nil moment-name) (nil moment-name) 
 		  (nil moment-name)))
-    (bottom-out (string "Use ~A to draw a non-zero angular acceleration for ~a ~A and select Unknown Z direction in the dialog box." 
+    (bottom-out (string "Use ~A to draw a non-zero angular acceleration for ~a ~A and ~A." 
 			(*vector-tool* eval)
-			?b (?t pp)))
+			?b (?t pp) (*unknown-z-direction-action* eval)))
    ))
  
 ;;; angular sdd:

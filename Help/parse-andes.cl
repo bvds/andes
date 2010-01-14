@@ -1202,7 +1202,7 @@
 
 (defun should-be-given-ErrorInterp (se quant)
   (let ((rem (make-hint-seq
-	      (list (format nil "The value of ~a can be determined from the problem statement.  It should be entered in the dialog box when defining the relevant variable." 
+	      (list (format nil "The value of ~a can be determined from the problem statement.  It should be entered as an equation after defining the relevant variable." 
 	                             (nlg (quant-to-sysvar quant) 'algebra))
 	         ))))
     (setf (StudentEntry-ErrInterp se)
@@ -1221,11 +1221,14 @@
 		      :test #'exactly-equal)))
     (if eqn (list (eqn-algebra->sysent (eqn-algebra eqn))))))
 
+;; Generally such quantities should be pre-defined, but this 
+;; is a fall-back.
 (defun should-be-known-ErrorInterp (se quant)
   (let ((rem (make-hint-seq
 	      (list (format nil "You need to enter an appropriate value for ~a."  
 			    (nlg quant))
-		    (format nil "Select 'Constants used in Andes' on the Help menu to find the value used in Andes.  This value should be entered in the dialog box when defining the relevant variable.")
+		    (strcat (begin-sentence *constants-menu-action*)
+		    " and find the value used in Andes.  After defining the relevant variable, write an equation giving its value.")
 	         ))))
     (setf (StudentEntry-ErrInterp se)
       (make-ErrorInterp

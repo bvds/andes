@@ -60,6 +60,16 @@
 (defparameter *text-tool*  (tool-link "Text Tool" "text-tool"))
 (defparameter *text-tool-action* (strcat "click on " *text-tool*))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defparameter *constants-menu-action* 
+  "select \"Constants\" in the \"Physics\" menu")
+
+(defparameter *unknown-z-direction-action* 
+  "draw it in in an unknown z-direction")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;; Make an object that looks like the text input box.
 (defun text-box (x) 
   (strcat "<span class=\"text-box\">" x "</span>"))

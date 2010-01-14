@@ -1064,9 +1064,10 @@
    )
   :hint (
     (point (string "You can determine the components of ~a from the problem statement." ?vec))
-    (bottom-out (string "Use ~A to draw ~a at an approximately correct angle, then enter the component values in the dialog box."
-			(*vector-tool* eval) ?vec))
-  ))
+    (bottom-out (string "Use ~A to draw ~a at an approximately correct angle.  After defining the vector, use ~A to enter the component values."
+			(*vector-tool* eval) ?vec
+			(*equation-tool* eval)))
+    ))
 
 (defoperator draw-z-axis-vector-given-compos (?vec)
   :order ((default . HIGH)) ; pre-empt any other rule for drawing vector
@@ -1092,9 +1093,9 @@
    )
   :hint (
     (point (string "The problem statement tells you the components of ~a." ?vec))
-    (bottom-out (string "Use ~A to draw ~a at an approximately correct angle, then enter the given component values in the dialog box."
+    (bottom-out (string "Use ~A to draw ~a at an approximately correct angle.  After defining the vector, use ~A to enter values for the components."
 			(*vector-tool* eval)
-			?vec ?dir-expr))
+			?vec ?dir-expr) (*equation-tool* eval))
     ))
 
 

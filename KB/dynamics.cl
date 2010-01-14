@@ -2812,11 +2812,12 @@
    :hint (
 	  (point (string "You need to introduce a term for the net ~A on ~a ~a"  
 			 (nil moment-name) ?b (?t pp)))
-     (teach (string "The net ~A on a rigid body will represent the tendency of the body to rotate cw or ccw by a vector along the z axis in accordance with the right hand rule.  Although you know the net ~A vector lies along the z axis, it requires calculation to determine whether it points into or out of the plane. Therefore you should specify its direction as Unknown Z direction in the dialog box after drawing it." (nil moment-name) (nil moment-name)))
-     (bottom-out (string "Use ~A to draw a non-zero net ~A vector on ~A about ~a ~A, selecting \"Unknown Z direction\" from the direction menu in the dialog box." 
+     (teach (string "The net ~A on a rigid body will represent the tendency of the body to rotate cw or ccw by a vector along the z axis in accordance with the right hand rule.  Although you know the net ~A vector lies along the z axis, it requires calculation to determine whether it points into or out of the plane. Therefore you should draw it in an unknown z-direction." (nil moment-name) (nil moment-name)))
+     (bottom-out (string "Use ~A to draw a non-zero net ~A vector on ~A about ~a ~A, ~A." 
 			 (*vector-tool* eval)
 			 (nil moment-name) (nil moment-symbol) 
-			 (nil moment-name) ?b ?axis (?t pp)))
+			 (nil moment-name) ?b ?axis (?t pp)
+			 (*unknown-z-direction-action* eval)))
    ))
 
 
