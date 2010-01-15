@@ -248,7 +248,6 @@
 	(point (string "Notice that ~A contains a constant ~A field."
 	               ?loc (?type adj) ?loc)) 
 	(bottom-out (string "~A and draw ~a in the given direction of ~A." 
-			    ;(*vector-tool-action* begin-sentence)
 			    ((begin-sentence *vector-tool-action*) eval)
   			    ((field ?loc ?type ?source :time ?t) def-np)
 			    (?dir-f adj))))
@@ -283,7 +282,6 @@
 	 (point (string "Not that ~A is inside a conductor." ?loc)) 
 	 (teach (string "Inside a good conductor, the electric field is almost zero." ?loc)) 
 	 (bottom-out (string "~A draw a zero-length vector for ~a." 
-			     ;(*vector-tool-action* begin-sentence)
 			     ((begin-sentence *vector-tool-action*) eval)
 			     ((field ?loc electric ?source :time ?t) def-np)))
 	 ))
@@ -992,7 +990,8 @@
   :hint (
          (point (string "Try drawing a diagram."))
          (teach (string "The diagram should show the electric field vector at ~a." ?loc))
-         (bottom-out (string "Draw a diagram showing ~a." ((field ?loc electric ?b :time ?t) def-np)))
+         (bottom-out (string "Draw a diagram showing ~a." 
+			     ((field ?loc electric ?b :time ?t) def-np)))
           ))
 
 

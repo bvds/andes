@@ -342,11 +342,12 @@
     ;			?b 
     ;		       (*vector-tool* eval)
     ;		       ?b (?string agent) (?t pp)))
-    (bottom-out (string "Because ~a is tied to ~a, you should use ~A to draw ~a." 
+    (bottom-out (string "Because ~a is tied to ~a, you should use ~A to draw ~a at ~a." 
     			(?string agent)
     			?b 
     		       (*vector-tool* eval)
-    		       ((force ?b ?string tension :time ?t) def-np)))
+    		       ((force ?b ?string tension :time ?t) def-np)
+		       ?dir))
     ))
 
 ;;; Need a second version of the operator for drawing tension forces
@@ -484,9 +485,6 @@
    )
   :hint
   ((point (string "You were given that there is a force acting on ~a." ?b))
-   ;(bottom-out (string "Use ~A to draw the force on ~a due to ~a ~a at ~a."
-   ;		       (*vector-tool* eval)
-   ;		       ?b (?agent agent) (?t pp) ?dir-expr))
    (bottom-out (string "Use ~A to draw ~a at ~a."
    		       (*vector-tool* eval)
    		       ((force ?b ?agent applied :time ?t) def-np) ?dir-expr))

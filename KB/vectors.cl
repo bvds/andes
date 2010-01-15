@@ -1537,6 +1537,7 @@
   (vector ?b1 ?vec1 ?dir1)
   (vector ?b2 ?vec2 ?dir2)
   ;; fetch vector mag vars for forming angle variable name only
+  ;; See Bug #1663
   (in-wm (variable ?v1-var (mag ?vec1)))
   (in-wm (variable ?v2-var (mag ?vec2)))
   (bind ?theta-var (format-sym "theta_~A_~A" ?v1-var ?v2-var))
