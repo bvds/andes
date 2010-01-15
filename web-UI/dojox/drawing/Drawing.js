@@ -457,19 +457,19 @@ dojo.provide("dojox.drawing.Drawing");
 			//		'addStencil'.
 			//
 			//console.info("--------------------------------------dojox.drawing.onRenderStencil:", stencil.id);
+			
 			this.stencils.register(stencil);
 			this.unSetTool();
 			if(!dojox.drawing.defaults.clickMode) { 
 				this.setTool(this.currentType);
-			} else {
-			tools = dojo.byId('toolPane').getElementsByTagName("div")[0].childNodes;
-			dojo.forEach(tools, function(n){
-				if(dojo.hasClass(n, "selected")){
-					dojo.removeClass(n, "selected");
-					if (dojox.drawing.defaults.clickMode){dojox.drawing.defaults.clickable = true;};
-					return;
+			} else {			
+				tools = this.util.byId('gfxToolbarNode');
+				tools = tools.uiStencils.stencils;
+				//console.warn("tools", tools);
+				for(var tool in tools) {
+					tools[tool].deselect();						 
 				};
-			});
+				if (dojox.drawing.defaults.clickMode){dojox.drawing.defaults.clickable = true;};
 			};
 		},
 		
