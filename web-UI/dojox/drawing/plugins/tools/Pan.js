@@ -1,14 +1,7 @@
-dojo.provide("andes.toolbar.Pan");
+dojo.provide("dojox.drawing.plugins.tools.Pan");
 dojo.require("dojox.drawing.plugins._Plugin");
 
-dojox.drawing.ui = {}
-dojox.drawing.ui.dom = {}
-dojox.drawing.ui.dom.Pan = dojox.drawing.util.oo.declare(
-	// NOTE:
-	//			dojox.drawing.ui.dom.Pan is DEPRECATED.
-	//			This was a temporary DOM solution. Use the non-dom
-	//			tools for Toobar and Plugins.
-	//
+dojox.drawing.plugins.tools.Pan = dojox.drawing.util.oo.declare(
 	// summary:
 	//		A plugin that allows for a scrolling canvas. An action
 	//		tool is added to the toolbar that allows for panning. Holding
@@ -18,23 +11,26 @@ dojox.drawing.ui.dom.Pan = dojox.drawing.util.oo.declare(
 	// example:
 	//		|	<div dojoType="dojox.drawing.Toolbar" drawingId="drawingNode" class="drawingToolbar vertical">
 	//		|		<div tool="dojox.drawing.tools.Line" selected="true">Line</div>
-	//		|		<div plugin="dojox.drawing.ui.dom.Pan" options="{}">Pan</div>
+	//		|		<div plugin="dojox.drawing.plugins.tools.Pan" options="{}">Pan</div>
 	//		|	</div>
 	//
 	dojox.drawing.plugins._Plugin,
 	function(options){
 		
-		
 		this.domNode = options.node;
 		var _scrollTimeout;
-		dojo.connect(this.domNode, "click", this, "onSetPan");
-		dojo.connect(this.keys, "onKeyUp", this, "onKeyUp");
-		dojo.connect(this.keys, "onKeyDown", this, "onKeyDown");
-		dojo.connect(this.anchors, "onAnchorUp", this, "checkBounds");
-		dojo.connect(this.stencils, "register", this, "checkBounds");
-		dojo.connect(this.canvas, "resize", this, "checkBounds");
-		dojo.connect(this.canvas, "setZoom", this, "checkBounds");
-		dojo.connect(this.canvas, "onScroll", this, function(){
+		this.toolbar = options.scope;
+		this.connect(this.toolbar, "onToolClick", this, function(){
+			this.onSetPan(false)
+		});
+		this.connect(this.button, "onClick", this, "onSetPan");
+		this.connect(this.keys, "onKeyUp", this, "onKeyUp");
+		this.connect(this.keys, "onKeyDown", this, "onKeyDown");
+		this.connect(this.anchors, "onAnchorUp", this, "checkBounds");
+		this.connect(this.stencils, "register", this, "checkBounds");
+		this.connect(this.canvas, "resize", this, "checkBounds");
+		this.connect(this.canvas, "setZoom", this, "checkBounds");
+		this.connect(this.canvas, "onScroll", this, function(){
 			if(this._blockScroll){
 				this._blockScroll = false;
 				return;
@@ -45,10 +41,17 @@ dojox.drawing.ui.dom.Pan = dojox.drawing.util.oo.declare(
 		this._mouseHandle = this.mouse.register(this);
 		// This HAS to be called after setting initial objects or things get screwy.
 		//this.checkBounds();
+		
 	},{
 		selected:false,
 		keyScroll:false,
-		type:"dojox.drawing.ui.dom.Pan",
+		type:"dojox.drawing.plugins.tools.Pan",
+		
+		onPanUp: function(obj){
+			if(obj.id == this.button.id){
+				this.onSetPan(false);
+			}
+		},
 		
 		onKeyUp: function(evt){
 			switch(evt.keyCode){
@@ -65,7 +68,6 @@ dojox.drawing.ui.dom.Pan = dojox.drawing.util.oo.declare(
 			if (evt.keyCode == 32) {
 				this.onSetPan(true);
 			} else if (this.keyScroll) {
-				console.log("KeyScroll: ",this.keyScroll);
 				switch(evt.keyCode){
 					case 32:
 						this.onSetPan(true);
@@ -85,6 +87,7 @@ dojox.drawing.ui.dom.Pan = dojox.drawing.util.oo.declare(
 				}
 			}
 		},
+		
 		
 		interval: 20,
 		
@@ -109,21 +112,17 @@ dojox.drawing.ui.dom.Pan = dojox.drawing.util.oo.declare(
 			this.canvas.domNode.parentNode.scrollTop += 10;
 		},
 		
-		
-		message: function(){
-			console.warn("message going\n");
-		},
-				
 		onSetPan: function(/*Boolean | Event*/ bool){
 			if(bool === true || bool === false){
 				this.selected = !bool;
 			}
+			console.log('ON SET PAN:', this.selected)
 			if(this.selected){
 				this.selected = false;
-				dojo.removeClass(this.domNode, "selected");
+				this.button.deselect();
 			}else{
 				this.selected = true;
-				dojo.addClass(this.domNode, "selected");
+				this.button.select();
 			}
 			this.mouse.setEventMode(this.selected ? "pan" : "");
 		},
@@ -170,14 +169,16 @@ dojox.drawing.ui.dom.Pan = dojox.drawing.util.oo.declare(
 			// logging stuff here so it can be turned on and off. This method is
 			// very high maintenance.
 			var log = function(){
-				///console.log.apply(console, arguments);
+				//console.log.apply(console, arguments);
 			}
 			var warn = function(){
 				//console.warn.apply(console, arguments);
 			}
 			//console.clear();
 			//console.time("check bounds");
-			var t=Infinity, r=-Infinity, b=-Infinity, l=Infinity,
+			
+			// initialize a shot-tin of vars
+			var t=Infinity, r=-Infinity, b=-10000, l=10000,
 				sx=0, sy=0, dy=0, dx=0,
 				mx = this.stencils.group ? this.stencils.group.getTransform() : {dx:0, dy:0},
 				sc = this.mouse.scrollOffset(),
@@ -210,11 +211,12 @@ dojox.drawing.ui.dom.Pan = dojox.drawing.util.oo.declare(
 				r = Math.max(o.x2, r);
 				b = Math.max(o.y2, b);
 				l = Math.min(o.x1, l);
+				log("----------- B:", b, o.y2)
 			});
 			
 			b *= z;
 			var xscroll = 0, yscroll = 0;
-			log("Bottom test", "b:", b, "z:", z, "ch:", ch, "pch:", pch, "top:", sc.top, "sy:", sy);
+			log("Bottom test", "b:", b, "z:", z, "ch:", ch, "pch:", pch, "top:", sc.top, "sy:", sy, "mx.dy:", mx.dy);
 			if(b > pch || sc.top ){ 
 				log("*bottom scroll*");
 				// item off bottom
@@ -263,10 +265,10 @@ dojox.drawing.ui.dom.Pan = dojox.drawing.util.oo.declare(
 	}
 );
 
-dojox.drawing.ui.dom.Pan.setup = {
-	name:"dojox.drawing.ui.dom.Pan",
+dojox.drawing.plugins.tools.Pan.setup = {
+	name:"dojox.drawing.plugins.tools.Pan",
 	tooltip:"Pan Tool",
 	iconClass:"iconPan"
 };
 
-dojox.drawing.register(dojox.drawing.ui.dom.Pan.setup, "plugin");
+dojox.drawing.register(dojox.drawing.plugins.tools.Pan.setup, "plugin");

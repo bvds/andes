@@ -505,14 +505,15 @@ dojo.provide("dojox.drawing.manager.Stencil");
 			
 			onStencilOver: function(obj){
 				// summary:
-				//		TODO: This is currently not supported.
+				//		This changes the cursor when hovering over
+				//		a selectable stencil.
 				//console.log("OVER")
 				dojo.style(obj.id, "cursor", "move");
 			},
 
 			onStencilOut: function(obj){
 				// summary:
-				//		TODO: This is currently not supported.
+				//		This restores the cursor.
 				//console.log("OUT")
 				dojo.style(obj.id, "cursor", "crosshair");
 			},
