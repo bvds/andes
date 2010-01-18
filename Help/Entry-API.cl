@@ -17,6 +17,11 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(in-package :cl-user)
+(eval-when (:load-toplevel :compile-toplevel)
+  (use-package :symbols))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; ENTRY-API -- "adapter" functions to handle the Andes Workbench API calls
@@ -41,7 +46,6 @@
 ;; correspond to solution graph actions.
 ;; 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(in-package :cl-user)
 
 ;;-----------------------------------------------------------------------------
 ;; Helper functions for workbench API arguments 
@@ -705,9 +709,9 @@
 	 ;; if any axes are defined must add all component variables as well
 	 (dolist (axis-sym (symbols-fetch '(axis ?xyz ?dir)))
 	   (let* ((axis-label (sym-label axis-sym))
-             (axis-term  (sym-referent axis-sym))
+		  (axis-term (sym-referent axis-sym))
 		  (axis-entry-id (first (sym-entries axis-sym)))
-		  (compo-var  (format NIL "~A_~A" symbol axis-label))
+		  (compo-var (format NIL "~A_~A" symbol axis-label))
 		  (compo-term (vector-compo vector-term axis-term)) ; Physics-Funcs
 		  )
         (check-symbols-enter compo-var compo-term (list id axis-entry-id))))
@@ -927,7 +931,8 @@
   ; Note label is entered in symbol table with appropriate workbench entry id 
   ; so later deletions remove it, but no studententry is created for this -- OK?
   (when degrees
-    (symbols-delete-dependents id-angle)
+    (mapcar #'grammar-remove-variable 
+	    (symbols-delete-dependents id-angle))
     (symbols-enter label `(dnum ,degrees |deg|) id-angle `(dnum ,degrees |deg|))
     ; return T to indicate always correct
     (return-from on-angle-with-axis T))
@@ -1126,7 +1131,8 @@
 	    (undo-entry ge))))
 
   ;; remove all labels dependent on it from symbol table
-  (symbols-delete-dependents (StudentEntry-ID entry))
+  (mapcar #'grammar-remove-variable
+	  (symbols-delete-dependents (StudentEntry-ID entry)))
 
   ;; special to equation entries: remove from algebra system
   (when (member (first (StudentEntry-prop entry)) 

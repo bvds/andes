@@ -31,6 +31,8 @@
 ;; 
 ;; -----------------------------------------------------------------
 
+(export 'quant-to-valid-sysvar) ;for symbols package
+(export 'sysvar-to-quant) ;for symbols package
 
 ;;=========================================================================
 ;; Variable code.
@@ -291,7 +293,6 @@
   (and (qvar-parameterp Q)
        (not (qvar-answer-varp Q))))
 
-
 ;;; Are the specified vars answer vars or other 
 ;;; elements as necessary.
 (defun answer-varp (V Qvars)
@@ -302,7 +303,19 @@
   (let ((Q (match-var->Qvar V Qvars)))
     (if Q (qvar-cancelling-varp Q))))
 
-	   
+;;;----------------------------------------------------------------------------
+;;; Testing the state of canonical ars such as whether or not they are 
+;;; params etc is done here.  These functions look up the appropriate
+;;; vars in the var-index of the problem struct and return info based upon
+;;; that as necessary.  
+(defun canonical-var-answer-var-p (C)
+  "Is the canonical var an answer-var?"
+  (answer-varp C (Problem-VarIndex *cp*)))
+
+(defun  canonical-var-cancelling-var-p (C)
+  "Is the canonical var a cancelling-var?"
+  (cancelling-varp C (Problem-VarIndex *cp*)))
+
 	    
 
 ;;;===================================================
@@ -346,3 +359,32 @@
 	   unless (qvar-value V)
 	   return t)))
 
+;;-----------------------------------------------------------------------------
+;;                 Utility functions for mapping variables:
+;;-----------------------------------------------------------------------------
+(defun quant-to-sysvar (quant &optional (Problem *cp*)) ; could be helper in solution graph module
+  "lookup system variable name for quant in current problem, NIL if none"
+  (let ((qvar (find quant (Problem-VarIndex Problem) 
+		    :key #'qvar-exp 
+		    :test #'unify)))
+     (when qvar (qvar-var qvar))))
+
+(defun sysvar-to-quant (sysvar &optional (Problem *cp*)) ; could be helper in solution graph module
+  "lookup system variable name for quant in current problem, NIL if none"
+  ; NB: lookup is case-sensitive
+  (let ((qvar (find sysvar (Problem-VarIndex Problem) 
+		    :key #'qvar-var 
+		    :test #'equal)))
+     (when qvar (qvar-exp qvar))))
+
+(defun sysvar-p (sysvar &optional (Problem *cp*))
+  "True if the argument is a system variable"
+  (and (symbolp sysvar) (sysvar-to-quant sysvar Problem)))
+
+(defun quant-to-valid-sysvar (quant &optional (Problem *cp*)) 
+  "lookup algebraically usable system variable name for quant in current problem, NIL if none"
+  (let ((qvar (find quant (Problem-VarIndex Problem) 
+		    :key #'qvar-exp 
+		    :test #'unify)))
+     (when (and qvar (qvar-value qvar)) ; make sure it has a value
+         (qvar-var qvar))))

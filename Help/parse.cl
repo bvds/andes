@@ -193,7 +193,7 @@
 ;;
 (defun parse-pack-translate (parse)
   (list (first parse)
-	(map-student-atom 
+	(symbols:map-student-atom 
 	 (read-from-string
 	  (remove #\Space (map 'string #'(lambda (x)
 					   (if (characterp x)

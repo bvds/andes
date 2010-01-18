@@ -31,6 +31,11 @@
 ;;   commented out setting of Result and Tmp in Bad-Vars-In-Answer as they were unused.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(in-package :cl-user)
+(export 'grammar-remove-variable) ;for symbols package
+(eval-when (:load-toplevel :compile-toplevel)
+ (use-package :symbols))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-eqn-string -- check correctness of a student equation entry
 ;; argument(s):
@@ -573,12 +578,6 @@
 		(setf result (append result (list var)))))))
     result))
 
-(defun near-miss-var (var)
-"given a symbol return defined variables with similar names"
-  ;; for now, just look for case errors, and just return first one found
-  (let ((sym (find var *variables* :key #'sym-label :test #'string-equal)))
-     (when sym (sym-label sym))))
-
 (defparameter *unknown-variable-error-hint*
   (strcat 
    "<ul>"
@@ -591,7 +590,8 @@
 (defun undef-variables-ErrorInterp (undef-vars &key id)
   "Given a list of undefined vars (as strings), returns the error interpretation that will be both stored in the student entry and used to give the student an unsolicited warning."
   (let* ((is-comp-var (has-comp-vars-p undef-vars))
-	 (near-misses (mapcar #'near-miss-var undef-vars))  ; parallels undef-vars, e.g. (NIL v1 NIL v2 NIL)
+	 ;; parallels undef-vars, e.g. (NIL v1 NIL v2 NIL)
+	 (near-misses (mapcar #'near-miss-var undef-vars))  
 	 (i-first-miss (position-if-not #'null near-misses)) ; index of first var with near-mis, else NIL
 	 (rem (make-hint-seq
 	       (list
@@ -876,6 +876,8 @@
 				   (StudentEntry-ParsedEqn temp-entry))
 			     ;; remove temp from saved entry list
 			     (delete-object 'check-answer-equation)) ;clears algebra slot
+			   ;; remove from equation parser's grammar (safe if never added)
+			   (grammar-remove-variable "Answer")
 			   (symbols-delete "Answer"))
 			  (T ; answer has non-parameter vars
 			   (setf (StudentEntry-ErrInterp entry) 
@@ -1061,7 +1063,7 @@
 	 ;; use given-var-p to avoid this behavior. Note it looks for
 	 ;; given flag on quantities at the bubble-graph level, not implicit 
 	 ;; equations, so might not work for those.
-	 (sysvar   (student-to-canonical studvar))
+	 (sysvar (student-to-canonical studvar))
 	 ; NB: sysvar may be NIL, e.g for unused vector attribute
 	 (is-optionally-given (and sysvar (optionally-given-p sysvar)))
 	 (is-given (and sysvar (given-p sysvar)))

@@ -22,9 +22,10 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; modified:
 ;;   18 March 2001 - (lht) -- took over for addition to Andes2 code
-;;   5 June 2003 - (cl) -- removed depreciated calls to replace-greek.
 ;;   7 July 2003 - (cl) -- Added optional problem argument to quant-to-sysvar
 ;;                         sysvar-to-quant sysvar-p and quant-to-valid-sysvar
 ;;
@@ -66,13 +67,44 @@
 ;; character corresponding to "q" in the Symbol font, in this case theta. 
 ;; As a convenience Andes1 allowed the student to spell out the Greek letters 
 ;; by name at the beginning of variables, e.g. by typing "theta" or "thetaFw"
-;; instead of the sequence to produce "$q" or "$qFw". To allow this we 
-;; treat the dollar-sign version as the canonical label and translate labels 
-;; that may contain escapes into canonical form before entering or looking 
-;; them up, using the replace-greek function from the equation grammar module. 
-;; Note this can cause problems if pi is used for initial momentum.
-;; !!! Now dropped -- replace-greek is currently a no-op.
-;; !!! Replace greek has now been removed from this file.
+;; instead of the sequence to produce "$q" or "$qFw".
+;;
+;; Allow separate namespaces for scalar variables and geometric objects,
+;; such as vectors.  This allows for the common practice of using the
+;; same symbol for an objects and one of its properties.  Thus, "q" might
+;; refer to a particle and its charge.
+;;
+
+
+(in-package :cl-user)
+
+(defpackage :symbols
+  ;; import from common-lisp-user:   
+  ;;     unify quant-to-valid-sysvar sysvar-to-quant
+  (:use :cl :cl-user) 
+  (:export :empty-symbol-table ; State.cl
+	   :canonical-to-student ;algebra.cl
+	   :map-student-atom ;parse.cl
+	   :near-miss-var :subst-canonical-vars ;parse-andes.cl
+	   :sym-referent :sym-entries :symbols-fetch :sym-label ;Entry-API.cl 
+	   :symbols-entry-referent :symbols-delete-dependents ;Entry-API.cl 
+	   ;; More complicated
+	   :student-to-canonical :symbols-delete 
+	   :symbols-referent :symbols-lookup
+	   ))
+
+(eval-when (:load-toplevel :compile-toplevel)
+  ;; Several of these functions are introduced as symbols, but not used,
+  ;; in KB.  In that case, they already exist in :cl-user.
+  ;; This allows one to use KB without loading :symbols package.  
+  (dolist (symbol-string (mapcar #'string-upcase 
+				 '("symbols-label" "symbols-enter")))
+    (multiple-value-bind (symbol internal) (intern symbol-string)
+      (when (eql internal :internal) (export symbol))
+      (import symbol :symbols))))
+
+
+(in-package :symbols)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -80,22 +112,28 @@
 ;; *variables* -- List of syminfo records concerning student labels 
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defstruct (syminfo (:print-function print-sym)
                     (:conc-name sym-))
    label	; student's label as string to preserve case
-   referent	; kb expression for referent
+   referent    ; kb expression for referent
    sysvar	; expr for referent usable in solution eqns, NIL if none
    entries	; list of ids of entries this depends on, for deletions
 )
+
 (defun print-sym (sym &optional (Stream t) (Level 0))
   (declare (ignore Level))
   (format stream "<SYM ~A ~A>" (sym-label sym) (sym-referent sym)))
 
+
+(defvar *variables*)	;list of student variable names
 (defvar *watch-symbols* NIL)  ; set to trace symbol table changes
 
-;-----------------------------------------------------------------------------
-; Symbol table manipulation functions:
-;-----------------------------------------------------------------------------
+(defun empty-symbol-table () (setf *variables* nil))
+
+;;-----------------------------------------------------------------------------
+;;       Symbol table manipulation functions:
+;;-----------------------------------------------------------------------------
 
 (defun symbols-enter (label referent entries &optional sysvar)
   "enter info about a student label into the symbol table"
@@ -106,15 +144,15 @@
   (when (and entries (atom entries))
       (setf entries (list entries))) 
 
-  ; Client code should delete symbols from an existing entry before handling
-  ; modified entry.  Workbench should prevent a brand new entry from redefining 
-  ; any existing def of same label. 
+  ;; Client code should delete symbols from an existing entry before handling
+  ;; modified entry.  Workbench should prevent a brand new entry from redefining 
+  ;; any existing def of same label. 
   (when (symbols-lookup label)
      (warn "symbols-enter: new entry shadowing existing def for ~A~%" label))
 
   ;; if no special sysvar specified, look up matching quantity as default
   ;; OK if NIL, not all referents will have matching system vars
-  (when (null sysvar)
+  (unless sysvar
      (setf sysvar (quant-to-valid-sysvar referent)))
 
   ;; build entry and add it to list
@@ -128,32 +166,27 @@
 
 (defun symbols-delete (label)
   "remove entry for a student label from the symbol table"
-  ; remove from equation parser's grammar (safe if never added)
-  (grammar-remove-variable label) 
-  ; remove entry from our table
+  ;; remove entry from our table
   (setf *variables*
     (delete label *variables* 
             :key #'sym-label :test #'equal)))
 
 (defun symbols-delete-dependents (entry-id)
-   "remove all symbols dependent on entry with given id"
-   ; remove all affected labels from equation parsing grammar
-   (dolist (sym *variables*)
-      (when (member entry-id (sym-entries sym))
-         (grammar-remove-variable (sym-label sym))))
+   "Remove symbols dependent on entry with given id, returning labels of removed symbols."
+   (let (keep drop)
+     (dolist (sym *variables*)
+       (if (member entry-id (sym-entries sym))
+	   (push sym drop)
+	   (push sym keep)))
+     
+     (setf *variables* keep)
 
-   ; delete all affected symbols from symbol table
-   (setf *variables* 
-      (remove-if #'(lambda(sym) 
-                    (member entry-id (sym-entries sym)))
-	         *variables*))
-   ; for debugging: dump symbol table contents after change
-   (when *watch-symbols*
-          (symbols-dump)))
+     (mapcar #'sym-label drop)))
 
-;-----------------------------------------------------------------------------
-; Symbol table accessor functions:
-;-----------------------------------------------------------------------------
+
+;;-----------------------------------------------------------------------------
+;;       Symbol table accessor functions:
+;;-----------------------------------------------------------------------------
 
 (defun symbols-lookup (label)
   "fetch info struct for label, NIL if not found"
@@ -171,12 +204,18 @@
 (defun symbols-sysvar (label)
    "return expression in system terms corresponding to student label"
    (let ((sym (symbols-lookup label)))
-     (if sym (sym-sysvar sym))))
+     (when sym (sym-sysvar sym))))
 
 (defun symbols-label (quant)
   "Return student's label for given quantity, NIL if none"
   (let ((sym (symbols-lookup-quant quant)))
-    (if sym (sym-label sym))))
+    (when sym (sym-label sym))))
+
+(defun near-miss-var (var)
+"given a symbol return defined variables with similar names"
+  ;; for now, just look for case errors, and just return first one found
+  (let ((sym (find var *variables* :key #'sym-label :test #'string-equal)))
+     (when sym (sym-label sym))))
 
 (defun symbols-fetch (pat)
   "return list of all symbol records whose referent exprs unify with pat"
@@ -184,10 +223,10 @@
                      (unify pat (sym-referent sym)))
 		  *variables*))
 
-; following for inverting mapping from student var to sysvar:
+;; following for inverting mapping from student var to sysvar:
 (defun symbols-lookup-sysvar (sysvar)
  "fetch info struct for label mapped to sysvar, NIL if not found"
-   ; make sure sysvar non-NIL; many labels have NIL in sysvar slot
+   ;; make sure sysvar non-NIL; many labels have NIL in sysvar slot
    (if sysvar 
       (find sysvar *variables* :key #'sym-sysvar :test #'equal)))
 
@@ -196,12 +235,12 @@
   (let ((sym (symbols-lookup-sysvar sysvar)))
     (if sym (sym-label sym))))
 
-; Several symbols may be entered from a single student entry.
-; E.g. vector entry introduces mag, dir, and maybe x and y comps
-; Axis entry introduces x and y labels.
-; Following gets a symbol defined by a particular student entry id.
-; Set pat appropriately to specify entry quantity type, 
-; e.g. to retrieve vector or axis entry with given entry id
+;; Several symbols may be entered from a single student entry.
+;; E.g. vector entry introduces mag, dir, and maybe x and y comps
+;; Axis entry introduces x and y labels.
+;; Following gets a symbol defined by a particular student entry id.
+;; Set pat appropriately to specify entry quantity type, 
+;; e.g. to retrieve vector or axis entry with given entry id
 (defun symbols-lookup-entry (pat entry-id)
   "Return first info struct for quant matching pattern and entry id"
   (find entry-id (symbols-fetch pat) :key #'sym-entries :test #'entry-match))
@@ -222,46 +261,19 @@
      (format t "~A ~A ~A ~A~%" (sym-label sym) (sym-referent sym)
 	                       (sym-sysvar sym) (sym-entries sym))))
 
-;-----------------------------------------------------------------------------
-; Utility functions for mapping variables:
-;-----------------------------------------------------------------------------
-(defun quant-to-sysvar (quant &optional (Problem *cp*)) ; could be helper in solution graph module
-  "lookup system variable name for quant in current problem, NIL if none"
-  (let ((qvar (find quant (Problem-VarIndex Problem) 
-		    :key #'qvar-exp 
-		    :test #'unify)))
-     (when qvar (qvar-var qvar))))
-
-(defun sysvar-to-quant (sysvar &optional (Problem *cp*)) ; could be helper in solution graph module
-  "lookup system variable name for quant in current problem, NIL if none"
-  ; NB: lookup is case-sensitive
-  (let ((qvar (find sysvar (Problem-VarIndex Problem) 
-		    :key #'qvar-var 
-		    :test #'equal)))
-     (when qvar (qvar-exp qvar))))
-
-(defun sysvar-p (sysvar &optional (Problem *cp*))
-  "True if the argument is a system variable"
-  (and (symbolp sysvar) (sysvar-to-quant sysvar Problem)))
 
 ;; Solution graph may contain variables defined along dead-paths which have
 ;; no value determined for them. These cannot be used in equations since
 ;; the solver has no value for them. Following only returns translations
 ;; for variables that are valid in equations, else NIL. This is what
 ;; we store in the translation field of the symbol info.
-(defun quant-to-valid-sysvar (quant &optional (Problem *cp*)) 
-  "lookup algebraically usable system variable name for quant in current problem, NIL if none"
-  (let ((qvar (find quant (Problem-VarIndex Problem) 
-		    :key #'qvar-exp 
-		    :test #'unify)))
-     (when (and qvar (qvar-value qvar)) ; make sure it has a value
-         (qvar-var qvar))))
 
 (defun student-to-canonical (StudAtom)
   "Map given student equation atom to its canonical var or quantity, returning NIL if no counterpart found"
-   ; NB: student variables are *strings* not symbols or other atoms
+   ;; NB: student variables are *strings* not symbols or other atoms
   (if (stringp StudAtom)
     (symbols-sysvar StudAtom))) ; use expression stored in symbol table
+
 
 (defun map-student-atom (StudAtom)
  "translate atomic student expr to canonical if there is one, else return it unchanged"
@@ -276,33 +288,16 @@
 	  (t (cons (subst-canonical-vars (car Exp))
 		   (subst-canonical-vars (cdr Exp))))))
 
-; to map single var the other way:
+;; to map single var the other way:
 (defun canonical-to-student (Canonical)
   "Match the canonical var to its student var."
-   ; The first call maps via the sysvar's quantity as defined in varindex. 
-   ; But in case of pi, no quant or entry in var index -- so try to map
-   ; via any special entries in symbol table as well (could try for all).
+   ;; The first call maps via the sysvar's quantity as defined in varindex. 
+   ;; But in case of pi, no quant or entry in var index -- so try to map
+   ;; via any special entries in symbol table as well (could try for all).
    (or (symbols-label (sysvar-to-quant Canonical))
        (symbols-sysvar-to-studvar Canonical)))
- 
 
-
-;;;----------------------------------------------------------------------------
-;;; Testing the state of canonical ars such as whether or not they are 
-;;; params etc is done here.  These functions look up the appropriate
-;;; vars in the var-index of the problem struct and return info based upon
-;;; that as necessary.  
-(defun canonical-var-answer-var-p (C)
-  "Is the canonical var an answer-var?"
-  (answer-varp C (Problem-VarIndex *cp*)))
-
-(defun  canonical-var-cancelling-var-p (C)
-  "Is the canonical var a cancelling-var?"
-  (cancelling-varp C (Problem-VarIndex *cp*)))
 	   
-
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; end of symbols.lsp/cl
 ;; Copyright (C) 2001 by ??????????????????????????????? -- All Rights Reserved.

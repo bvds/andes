@@ -36,7 +36,7 @@
     ((symbolp eq) 
      ;; Substitute student vars for their canonical counterparts.
      ;; atoms may be system vars, if no counterpart studvar, leave unchanged.
-     (or (canonical-to-student eq)
+     (or (symbols:canonical-to-student eq)
 	 ;; But should have some lookup for this to get correct string.
 	 ;; Bug #1677.
 	 (string eq)))

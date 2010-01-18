@@ -23,6 +23,11 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(in-package :cl-user)
+(eval-when (:load-toplevel :compile-toplevel)
+  (use-package :symbols))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; commands.lsp/cl -- Lisp functions handling API commands sent by the Andes 
 ;;  Workbench to the Help System.
@@ -126,6 +131,7 @@
 ;;
 ;; It is also designed to log the result of the call for future use.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun solve-for-var (entry)
   (let* ((new-id (StudentEntry-id entry))
 	 (var (StudentEntry-symbol entry))
