@@ -152,102 +152,9 @@
 ;;
 ;; Bodies
 ;;
-;; Atomic body name argument is either a KB name (stored in WB file) or a 
-;; student-defined compound body label. However, a few names in the existing 
-;; problems have hyphens in them. These were changed to underscores in Andes2 
-;; problems since algebra module can't handle hyphens in variable names and 
-;; variable names are formed with body names as parts. Also, body arguments 
-;; are sometimes passed in vbars so preserve mixed case while read, even 
-;; though all KB names are upcased, so we upcase them as well.
-;;
-;; We also handle body arg consisting of a list of simple body names and
-;; form a compound body term for it. Note: Originally this arg form was only 
-;; sent to assert-compound-object. But it now occurs elsewhere, for example
-;; when defining a variable for resistance of a set of components. So the 
-;; translation of the set into compound body term may have to be undone when 
-;; forming the quantity below in make-quant. 
-;;
-;; NB: can also get NIL body-arg in some cases, such as agent of net-work.
-;; should remain NIL for none.
-;;
-;; Note we assume body names have no spaces, even if wrapped in vbars
-;; (read-from-string used to get symbol in fix-body-name.)
-(defun arg-to-body (body-arg)
-  "Convert WB API body argument to KB body term" 
-  (if (consp body-arg)  ; list of body names: make compound body term
-      `(compound orderless ,@(mapcar #'fix-body-name body-arg)) 
-  ; else atomic body name:
-   ; check if this is a student-defined compound-body label
-   (let ((stud-quant (symbols-referent (string body-arg))))
-     (if (and stud-quant (compound-bodyp stud-quant)) stud-quant
-       ; else treat as simple body name:
-       (fix-body-name body-arg)))))
 
-(defun fix-body-name (body-arg)
-  "Convert atomic body name symbol read from WB arg to KB body symbol"
-  ;; NB: can't use read-from-string to make symbol because now some body args 
-  ;; from variable dialog are not really body names & might contain spaces 
-  ;; (e.g. |all forces|).  Instead, intern in current package 
-  ;; (to prevent Lisp printing with #:)
-  (intern (string-upcase (substitute #\_ #\- (string body-arg)))))
 
-;; Extract constituents from list-valued circuit quantity argument
-(defun bodyterm-complist (bodyterm)
- "extract component list from a compound component term as built by arg-to-body"
- ; arg-to-body builds: (compound orderless C1 C2 ...)
- (cddr bodyterm))  
 
-; For circuits, we sometimes have to handle defined compound component labels as arguments.
-; E.g. say student variable "foo" has earlier been defined as (resistance (R5 R6)), meaning
-; the resistance of the compound of R5 and R6. The workbench now allows "foo" to be used as a 
-; name for the compound resistor in OTHER variable definitions.  For example, student may define 
-; a variable for voltage-across with body 'foo. This is a form of overloading: "foo" officially 
-; stands for the resistance of a compound component, but is overloaded to stand for the compound
-; component itself. The body arg "foo" in *this* context will need ultimately to be translated to
-; (R1 R2) get us to (voltage-across (R1 R2)) to match the form used in the knowledge base. 
-;
-; There are only certain contexts in which a compound equivalent label might occur as an
-; argument and need to be expanded into its constituents -- right now it is only voltage quantities. 
-; So arg-to-body itself does NOT automatically expand them.  (See bug 1478). Rather, the relevant 
-; make-quant clause will use component-elements to look up the definition of "foo", 
-; find (resistance (R5 R6)), and extract (R5 R6) when building the voltage term.  
-
-(defun compound-componentp (quant)
-"return true if quantity is a compound equivalent resistor or capacitor"
-   (and (consp quant)
-	(= (length quant) 2)
-        (or (eq (first quant) 'resistance)
-	    (eq (first quant) 'capacitance))
-	(consp (second quant))))
-
-(defun component-elements (comp-name)
-"return elements of named component: constituents for defined compounds, else itself"
-   (let ((stud-quant (symbols-referent (string comp-name))))
-     (if (and stud-quant (compound-componentp stud-quant)) stud-quant
-      ; else
-         comp-name)))
-
-;; 
-;; Type/subtype identifiers
-;; Some of these have to be translated using the appropriate mapping table.
-;;
-;; We don't want case to be significant in symbols used as IDs. 
-;; KB ID symbols get converted to upper case by read; we write them here
-;; in upper case just to emphasize that fact.  However, workbench wraps some
-;; id symbols in vbars when sending to be safe against contained spaces.
-;; This leads them to be read in as symbols with mixed-case printnames. 
-;; Any id arg passed through arg-to-id will be converted to upper case if
-;; not otherwise translated.
-;;
-(defun arg-to-id (alist id-arg)
-  "map a WB API id symbol to a KB symbol"
-  (or (cdr (assoc id-arg alist :test #'sym-match))
-      ; else no translation: convert to upper case symbol and return it
-      (sym-upcase id-arg)))
-
-(defun sym-upcase (sym)
-  "given possibly mixed-case symbol, return symbol upper case printname"
-    (read-from-string (string-upcase (string sym))))
 
 (defun sym-match (sym1 sym2)
    "case independent comparison of symbol names"
@@ -293,16 +200,6 @@
 		      (Ang-Acceleration . ANG-ACCEL)
 		      (Position . RELATIVE-POSITION)
 )  #+sbcl #'equalp)
-
-; KB potential energy type (grav-energy or spring-energy) is implicit in 
-; type of body arguments sent from workbench (one should be planet or spring)
-; Following helps determine KB PE type to use.  We could look up types in 
-; problem givens, but for now for now we just use SLEAZY HACK exploiting fact 
-; that in all Andes probs these are named 'spring or 'earth, respectively.
-(defun planetp (body-term)
-  (sym-match body-term 'earth))
-(defun springp (body-term)
-  (sym-match body-term 'spring))
 
 ;; Dispatch function takes an atom coding a vector attribute and a vector-term
 ;; Builds and returns a term for that attribute of the vector.
@@ -790,20 +687,17 @@
 (defun lookup-line (entry)
   (let* ((id (StudentEntry-id entry))
 	 ;; Needs to be determined from natural language 
-	 time body-arg
 	 ;;
 	 (mag (StudentEntry-radius entry))
 	 (dir (StudentEntry-angle entry))
 	 (label (StudentEntry-symbol entry))
-	 (body-term (arg-to-body body-arg))
-	 (time-term (arg-to-time time))
 	 ;; note dir may be dnum or 'unknown (and maybe into/out-of)
 	 (dir-term (arg-to-dir dir mag 180)) ;lines defined mod 180 deg
-	 (line-term `(line ,body-term :time ,time-term))
-	 (action `(draw-line ,line-term ,dir-term)) 
 	 ;; this defines magnitude and direction variables
-	 (line-mag-term `(mag ,line-term))
-	 (line-dir-term `(dir ,line-term))
+	 line-term
+	 line-mag-term 
+	 line-dir-term
+	 action
 	 ;; xy plane lines get theta prefix, z axis ones get phi
 	 ;; These are the input forms
 	 (dir-label  (format NIL "~A~A" (if (z-dir-spec dir-term) "\\phi" "\\theta")
@@ -813,12 +707,19 @@
 	  (sysent tturn hints)
 	(match-student-phrase 
 	 entry
-	 (remove '(line . ?rest) *sg-entries* 
+	 (remove '(draw-line . ?rest) *sg-entries* 
 		 :key #'SystemEntry-prop :test-not #'unify)
 	 :cutoff 0.6 :equiv 1.25)
 
       (cond 
 	(sysent
+	 ;; Use the quantity from the best match with angle we actually got.
+	 (setf action (list 'draw-line 
+			    (second (SystemEntry-prop sysent)) dir-term))
+	 (setf line-term (second action))
+	 (setf line-mag-term `(mag ,line-term))
+	 (setf line-dir-term `(dir ,line-term))
+
 	 (setf (StudentEntry-prop entry) action)
 	 (check-symbols-enter label line-mag-term id)
 	 (check-symbols-enter dir-label line-dir-term id)
@@ -846,7 +747,7 @@
 						    :test #'unify))
 	     (add-implicit-eqn entry 
 			       (make-implicit-eqn-entry (eqn-algebra eqn)))))
-	 
+
 	 ;; finally return entry
 	 (check-noneq-entry entry :unsolicited-hints hints))
 	(tturn)))))
@@ -934,7 +835,7 @@
 	 (y-term `(axis y ,dir))
 	 (z-term `(axis z ,dir))
 	 (xdir-dnum `(dnum ,dir |deg|)))
-
+    
     (setf (StudentEntry-prop entry) action)
    ;; install symbols for x, y, and z axes
    ;; these can't be used by themselves in equations but are needed by us
@@ -955,18 +856,18 @@
   (dolist (vector-sym (symbols-fetch '(mag ?vector)))
     (dolist (axis-label (remove nil (list x-label y-label z-label)))
       (let* ((vector-label (sym-label vector-sym))
-             (mag-term     (sym-referent vector-sym))
+	     (mag-term     (sym-referent vector-sym))
 	     (vector-entry-id (first (sym-entries vector-sym)))
 	     ;; need time-indexed vector quant term from (mag ?vector)
 	     (vector-term (second mag-term))
              (compo-var    (format NIL "~A_~A" vector-label axis-label))
-	     (axis-term    (symbols-referent axis-label))
+            (axis-term    (symbols-referent axis-label))
 	     (compo-term   (vector-compo vector-term axis-term)) ; in Physics-Funcs
-	    )
-        (check-symbols-enter compo-var compo-term (list id vector-entry-id)))))
-
-  ; finally return entry
-   (check-noneq-entry entry)))
+	     )
+	(check-symbols-enter compo-var compo-term (list id vector-entry-id)))))
+  
+   ; finally return entry
+  (check-noneq-entry entry)))
 
 ;-----------------------------------------------------------------------------
 ;; for processing deletions of entries
@@ -1030,7 +931,7 @@
        ;; build the error remediation turn
        (setf rem (make-hint-seq (list
 				 (format nil "The variable ~A is in use to define ~A. Please choose a different label." 
-					 label (nlg (symbols-referent label))))))
+                                        label (nlg (symbols-referent label))))))
        
        (setf (turn-id rem) (StudentEntry-id entry))
        (setf (turn-coloring rem) **color-red**)
@@ -1187,7 +1088,7 @@
 (defun compo-assignment-p (entry)
   "true if given student eqn entry states value of a component variable" 
     (and (eq (first (StudentEntry-prop entry)) 'eqn)
-         (componentp  (symbols-referent (second (StudentEntry-prop entry))))))
+         (componentp (symbols-referent (second (StudentEntry-prop entry))))))
 	
 ;; Give special message if student chooses wrong form (mag/dir vs.
 ;; components) for given values of vector attributes.

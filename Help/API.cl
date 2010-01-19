@@ -113,7 +113,8 @@
       (noneq-entry . 
        (assert-object
 	assert-compound-object 
-	lookup-vector 
+	lookup-vector
+	lookup-line
 	lookup-force 
 	lookup-torque
 	label-radius 

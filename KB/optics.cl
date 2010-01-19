@@ -491,13 +491,17 @@
          ((= (/ 1 ?f12) (+ (/ 1 ?f1) (/ 1 ?f2))) algebra) ))
   ))
 
-;;; line drawing
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;;                          line drawing
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; this draws a line, with the bodies as a choice.
-
+;; the wrapper (line ...) is probably superfluous, see Bug #1683
+;; Need to add trivial wrapper to Ontology, to compensate.
 (def-qexp line (line ?r)
   :units nil
-  :new-english (?r))
+  :new-english ?r)
 
 ;; Helper routine to give expression for a line
 (def-qexp line-between (line-between-points ?a ?b)
