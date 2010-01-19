@@ -491,8 +491,9 @@
   ;;                         x-label y-label z-label angle
   (env-wrap 
     ;; Andes2 also had calls to:
-    ;; define-angle-variable assert-compound-object
-    ;; label-angle
+    ;; define-angle-variable  (undocumented leftover from Andes1)
+    ;; assert-compound-object
+    ;; label-angle (removed from Andes3, may restore if angle tool added)
     ;; lookup-mc-answer
     ;; calculate-equation-string (find variable on lhs of equation)
     ;;                           (not in Andes3)

@@ -87,7 +87,7 @@
 	   :map-student-atom ;parse.cl
 	   :near-miss-var :subst-canonical-vars ;parse-andes.cl
 	   :sym-referent :sym-entries :symbols-fetch :sym-label ;Entry-API.cl 
-	   :symbols-entry-referent :symbols-delete-dependents ;Entry-API.cl 
+	   :symbols-delete-dependents ;Entry-API.cl 
 	   ;; More complicated
 	   :student-to-canonical :symbols-delete 
 	   :symbols-referent :symbols-lookup
@@ -234,25 +234,6 @@
 "return student's label corresponding to sysvar, NIL if none"
   (let ((sym (symbols-lookup-sysvar sysvar)))
     (if sym (sym-label sym))))
-
-;; Several symbols may be entered from a single student entry.
-;; E.g. vector entry introduces mag, dir, and maybe x and y comps
-;; Axis entry introduces x and y labels.
-;; Following gets a symbol defined by a particular student entry id.
-;; Set pat appropriately to specify entry quantity type, 
-;; e.g. to retrieve vector or axis entry with given entry id
-(defun symbols-lookup-entry (pat entry-id)
-  "Return first info struct for quant matching pattern and entry id"
-  (find entry-id (symbols-fetch pat) :key #'sym-entries :test #'entry-match))
-
-(defun entry-match (id entry-list)
- "true if entry list is singleton consiting of this id"
-  (equalp (list id) entry-list))
-
-(defun symbols-entry-referent (pat entry-id)
-  "return referent of entry for quant matching pat of given id"
-  (let ((sym (symbols-lookup-entry pat entry-id)))
-    (if sym (sym-referent sym))))
   
 (defun symbols-dump ()
   "Print contents of symbol table"

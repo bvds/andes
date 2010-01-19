@@ -116,8 +116,6 @@
 	lookup-vector 
 	lookup-force 
 	lookup-torque
-	label-angle 
-	define-angle-variable
 	label-radius 
 	define-variable
 	assert-x-axis 
