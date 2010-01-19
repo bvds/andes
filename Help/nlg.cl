@@ -408,7 +408,6 @@
 	   (when args (cons (car model) args))))
 	;; expansion of var must be done at run-time.
 	((and (consp model) (eql (car model) 'var)) 
-	 (when (cddr model) (warn "Bad model syntax for var: ~A" model))
 	 (subst-bindings bindings model))
 	((and (consp model) (eql (car model) 'eval))
 	 (when (cddr model) (warn "Bad model syntax for eval: ~A" model))
@@ -428,7 +427,7 @@
   "If object is a list, expand"
   ;; Handles cases where members of a list are atoms in Ontology
   ;; and lists with bindings of the form (... . ?rest)
-  (cond ((null x) x) 
+  (cond ((null x) x)
 	((variable-p x) (expand-new-english-list 
 			 (subst-bindings bindings x)))
 	((consp x) (cons (expand-new-english (car x) bindings)
@@ -447,5 +446,5 @@
 	 (remove nil (mapcar #'expand-vars model)))
 	;; expansion of var must be done at run-time.
 	((eql (car model) 'var)
-	 (symbols-label (second model)))
+	 (apply #'symbols-label (cdr model)))
 	(t (warn "Invalid expand ~A" model) model)))

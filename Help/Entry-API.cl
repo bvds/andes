@@ -523,7 +523,8 @@
 	 (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
 	 ;; OK if there is no symbol defined.
 	 (when (> (length symbol) 0) ;not null string
-	   (check-symbols-enter symbol (StudentEntry-prop entry) id))
+	   (check-symbols-enter symbol (second (StudentEntry-prop entry)) id 
+				:namespace :objects))
 	 
 	 (check-noneq-entry entry :unsolicited-hints hints))  ;finally return entry 
 	(tturn)))))
@@ -600,11 +601,12 @@
 	 (setf vector-dir-term `(dir ,vector-term))
 	 
 	 (setf (StudentEntry-prop entry) action)
+	 (check-symbols-enter symbol vector-term id :namespace :objects)
 	 (check-symbols-enter symbol vector-mag-term id)
 	 (check-symbols-enter dir-label vector-dir-term id)
 	 
 	 ;; if any axes are defined must add all component variables as well
-	 (dolist (axis-sym (symbols-fetch '(axis ?xyz ?dir)))
+	 (dolist (axis-sym (symbols-fetch '(axis ?xyz ?dir) :namespace :objects))
 	   (let* ((axis-label (sym-label axis-sym))
 		  (axis-term (sym-referent axis-sym))
 		  (axis-entry-id (first (sym-entries axis-sym)))
@@ -721,6 +723,7 @@
 	 (setf line-dir-term `(dir ,line-term))
 
 	 (setf (StudentEntry-prop entry) action)
+	 (check-symbols-enter label line-term id :namespace :objects)
 	 (check-symbols-enter label line-mag-term id)
 	 (check-symbols-enter dir-label line-dir-term id)
 	 
@@ -791,7 +794,7 @@
 	 	 
 	 ;; install new variable in symbol table
 	 (check-symbols-enter symbol 
-			      ;; strip off the 'define-var
+			      ;; strip off the 'define-var for the scalars namespace
 			      (second (StudentEntry-prop entry)) 
 			      id)
 	 
@@ -835,39 +838,46 @@
 	 (y-term `(axis y ,dir))
 	 (z-term `(axis z ,dir))
 	 (xdir-dnum `(dnum ,dir |deg|)))
-    
+
     (setf (StudentEntry-prop entry) action)
-   ;; install symbols for x, y, and z axes
-   ;; these can't be used by themselves in equations but are needed by us
-   ;; later when autodefining vector component variables for existing axes. 
-   ;; They would also be needed for referring to the axes by label in help 
-   ;; messages if there is more than one set of axes.
-   (add-entry entry)
-   (when x-label (check-symbols-enter x-label x-term id))
-   (when y-label (check-symbols-enter y-label y-term id))
-   (when z-label (check-symbols-enter z-label z-term id))
+    ;; install symbols for x, y, and z axes
+    ;; these can't be used by themselves in equations but are needed by us
+    ;; later when autodefining vector component variables for existing axes. 
+    ;; They would also be needed for referring to the axes by label in help 
+    ;; messages if there is more than one set of axes.
+    (add-entry entry)
+    (when x-label (check-symbols-enter x-label x-term id
+				       :namespace :objects))
+    (when y-label (check-symbols-enter y-label y-term id
+				       :namespace :objects))
+    (when z-label (check-symbols-enter z-label z-term id
+				       :namespace :objects))
 
-   ;; automatically define \thetax as label for direction of positive x-axis
-   (when x-label (check-symbols-enter (strcat "\\theta" x-label) 
-				      xdir-dnum id xdir-dnum))
+    ;; automatically define \thetax as label for direction of positive x-axis
+    (when x-label (check-symbols-enter (strcat "\\theta" x-label) 
+				       xdir-dnum 
+				       id :sysvar xdir-dnum))
 
-  ;; if any vectors are defined add all component variables along 
-  ;; these new axes as well
-  (dolist (vector-sym (symbols-fetch '(mag ?vector)))
-    (dolist (axis-label (remove nil (list x-label y-label z-label)))
-      (let* ((vector-label (sym-label vector-sym))
-	     (mag-term     (sym-referent vector-sym))
-	     (vector-entry-id (first (sym-entries vector-sym)))
-	     ;; need time-indexed vector quant term from (mag ?vector)
-	     (vector-term (second mag-term))
-             (compo-var    (format NIL "~A_~A" vector-label axis-label))
-            (axis-term    (symbols-referent axis-label))
-	     (compo-term   (vector-compo vector-term axis-term)) ; in Physics-Funcs
-	     )
-	(check-symbols-enter compo-var compo-term (list id vector-entry-id)))))
-  
-   ; finally return entry
-  (check-noneq-entry entry)))
+    ;; if any vectors have been drawn, add all component variables along 
+    ;; these new axes as well
+    (dolist (vent (remove '(vector . ?rest) *StudentEntries* :test-not #'unify
+			  :key #'StudentEntry-prop))
+      (let ((vector (second (StudentEntry-prop vent))))
+	(dolist (axis-label (remove nil (list x-label y-label z-label)))
+	  (let ((compo-var (format NIL "~A_~A"  
+				   (symbols-label vector :namespace :objects) 
+				   axis-label))
+		;; in Physics-Funcs
+		(compo-term (vector-compo vector
+					  (symbols-referent 
+					   axis-label
+					   :namespace :objects))))
+	    (check-symbols-enter compo-var compo-term 
+				 ;; id of axes and vector
+				 (list id (StudentEntry-id vent)))))))
+    
+    ;; finally return entry
+    (check-noneq-entry entry)))
 
 ;-----------------------------------------------------------------------------
 ;; for processing deletions of entries
@@ -919,19 +929,23 @@
 ;; the entry is tagged incorrect with the appropriate error interpretation.
 ;; NB: if entries is not a singleton, the error is hung on the first
 ;; one, which should be the principal entry being evaluated
-(defun check-symbols-enter (label referent entry-ids &optional sysvar)
+(defun check-symbols-enter (label referent entry-ids &key sysvar namespace)
+  ;; turn entry-ids into a list
+  (when (atom entry-ids) (setf entry-ids (list entry-ids)))
   (cond
     ((= (length label) 0) ;; null or empty
      ;; should change call to get entry itself so we can do this easier
      (warn "No symbol entered for ~A, need hints here, Bug #1575." referent)) 
-    ((symbols-lookup label) ;; variable already defined!
+    ((symbols-lookup label :namespace namespace) ;; variable already defined!
      ;; find entry. entry-ids arg may be atom or list, but should not be nil
-     (let ((entry (find-entry (if (atom entry-ids) entry-ids (first entry-ids))))
+     (let ((entry (find-entry (first entry-ids)))
 	   rem)
        ;; build the error remediation turn
        (setf rem (make-hint-seq (list
 				 (format nil "The variable ~A is in use to define ~A. Please choose a different label." 
-                                        label (nlg (symbols-referent label))))))
+					 label (nlg (symbols-referent 
+						     label
+						     :namespace namespace))))))
        
        (setf (turn-id rem) (StudentEntry-id entry))
        (setf (turn-coloring rem) **color-red**)
@@ -944,7 +958,12 @@
 				 :remediation rem)))))
     
     ;; else no conflict: just make the definition
-    (T (symbols-enter label referent entry-ids sysvar))))
+    (T 
+     ;; Sanity test to verify that referent is in Ontology.
+     ;; new-english-find itself emits a warning if there is no match.
+     (new-english-find referent)
+     (symbols-enter label referent :entries entry-ids :sysvar sysvar 
+		      :namespace namespace))))
 
 ;;
 ;; Check-NonEq-Entry -- Generic checker for non-equation student entry 

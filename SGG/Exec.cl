@@ -93,7 +93,7 @@
 
 ;;; This executable precondition should have the form (bind <variable>
 ;;; <form>).  It evaluates the Lisp form, after first substituting in 
-;;; bindings for any varibles in <form>.  The result of evaluating the
+;;; bindings for any variables in <form>.  The result of evaluating the
 ;;; form in Lisp is unified with the variable expression.
 ;;; The variable expression may be unbound, partially bound.
 ;;; Since the state was copied by the caller and this is the only

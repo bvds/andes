@@ -301,7 +301,7 @@
 
 (def-qexp property (property ?body)
   ;; "for" is exceptionally used
-  :new-english ("of" (or (var (body ?body)) ?body))) 
+  :new-english ("of" (or (var (body ?body) :namespace :objects) ?body))) 
 
 
 (def-qexp change (change ?property)
@@ -414,18 +414,17 @@
 (def-qexp preferred-the (the)
   :new-english (preferred "the"))
 
-
 (def-qexp object (object ?body)
   :new-english (eval (when (expand-new-english ?body)
                         '((or "on" "acting on" "exerted on" "that acts on" "applied on" "applied to") 
-			  (or (var (body ?body)) ?body)))))
+			  (or (var (body ?body) :namespace :objects) ?body)))))
 
 (def-qexp agent (agent ?body)
   ;;+syjung
   ;; checking the content of ?body by (expand-new-englih ..) is important for the case that it is missing
   :new-english (eval (when (expand-new-english ?body)
 			'((or "due to" "by" "from" "caused by" "exerted by" "of") 
-			  (or (var (body ?body)) ?body))))) 
+			  (or (var (body ?body) :namespace :objects) ?body))))) 
 
 (def-qexp time (time ?time)
   :new-english (eval (when ?time
@@ -484,7 +483,8 @@
   :units |m|
   :new-english ((the) (or "distance" "dist." "dist") 
 		(or  ((or "traveled" "travelled" "travels" "moves" "moved")
-		      (and ("by" (or (var (body ?body)) ?body))
+		      (and ("by" (or (var (body ?body) :namespace :objects) 
+				     ?body))
 		           (time ?time)))
 		     ((property-object "distance" ?body)
 		      (and (allowed (or "traveled" "travelled" "travels" 
@@ -523,7 +523,7 @@
   :short-name "coef. of friction"	
   :units NIL ;; dimensionless
   :new-english ((the) "coefficient of" ?static-or-kinetic "friction"
-		(and (preferred ("between" (or (var ?body1) ?body1) "and" (or (var ?body2) ?body2)))
+		(and (preferred ("between" (or (var ?body1 :namespace :objects) ?body1) "and" (or (var ?body2 :namespace :objects) ?body2)))
 		     (time ?time))))
 
 ;; "coefficient of drag for ~A moving through ~A" 
@@ -721,24 +721,26 @@
   ;;
   ;;ex) ?vecs=(a b c)
   ;;    (mapcar .. ?vecs) = ((or (var a) a) (or (var b) b) (or (var c) c))
+  ;;
+  ;; Generally, we expect the objects to be already defined before
+  ;; angle-between is defined.  Thus, the variable names will be available.
   :new-english ((the) "angle between" 
-		(eval (let ((ct (get-common-time ?vecs)))
-			`(conjoin (or "and" "&") . 
-				  ,(mapcar #'(lambda (x) 
-					       ;; keep time when trying to match 
-					       ;; variable name
-					       `(or (var ,x) 
-						    ;; if there is a common interval,
-						    ;; remove
-						    ,(if ct (remove-time x) x)))
-					   ?vecs))))
-		;; If there is no common time, this goes to nil
-		(preferred (eval (get-common-time ?vecs)))))
+               (eval (let ((ct (get-common-time ?vecs)))
+                       `(conjoin (or "and" "&") .
+                                 ,(mapcar #'(lambda (x)
+                                              ;; keep time when trying to match
+                                              ;; variable name
+                                              `(or (var ,x)
+                                                   ;; if there is a common interval,
+                                                   ;; remove
+                                                   ,(if ct (remove-time x) x)))
+                                          ?vecs))))
+               ;; If there is no common time, this goes to nil
+               (preferred (eval (get-common-time ?vecs)))))
 
 (defun get-common-time (vecs)
   "Get smallest time interval common to all of vecs, or nil if it doesn't exist."
   (tintersect (mapcar #'time-of vecs)))
-
 
 (def-qexp total-energy (total-energy ?system :time ?time) 
   :units |J|

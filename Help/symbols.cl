@@ -115,10 +115,10 @@
 
 (defstruct (syminfo (:print-function print-sym)
                     (:conc-name sym-))
-   label	; student's label as string to preserve case
-   referent    ; kb expression for referent
-   sysvar	; expr for referent usable in solution eqns, NIL if none
-   entries	; list of ids of entries this depends on, for deletions
+   label       ;student's label as string to preserve case
+   referent    ;KB expression for referent, must exist in Ontology.
+   sysvar      ;expr for referent usable in solution eqns, NIL if none
+   entries     ;list of ids of entries this depends on, for deletions
 )
 
 (defun print-sym (sym &optional (Stream t) (Level 0))
@@ -128,26 +128,34 @@
 
 (defvar *variables*)	;list of student variable names
 (defvar *watch-symbols* NIL)  ; set to trace symbol table changes
+(defparameter *variable-namespaces* '(:objects :scalars))
 
-(defun empty-symbol-table () (setf *variables* nil))
+(defun get-variables-table (x)
+  ;;  If no table is given, use :scalars
+  (or (assoc (or x :scalars) *variables*)
+      (warn "No such thing as variables of type ~A" x)))
+
+(defun get-variables (&optional x) (cdr (get-variables-table x)))
+
+(defun set-variables (new-variables &optional x)
+  (setf (cdr (get-variables-table x)) new-variables))
+
+(defun empty-symbol-table ()
+    (setf *variables* (mapcar #'list *variable-namespaces*)))
 
 ;;-----------------------------------------------------------------------------
 ;;       Symbol table manipulation functions:
 ;;-----------------------------------------------------------------------------
 
-(defun symbols-enter (label referent entries &optional sysvar)
+(defun symbols-enter (label referent &key entries sysvar namespace)
   "enter info about a student label into the symbol table"
-  ;; Allow a single entry id argument here for the usual case where 
-  ;; symbol info derives from single entry. For component vars it will list
-  ;; both vector and axes entry ids. Form singleton list for subsequent code.
-  ;; if entries is NIL, as for predefs, leave it as empty list
-  (when (and entries (atom entries))
-      (setf entries (list entries))) 
+  ;; The usual case for entries is a single entry.  For component vars,
+  ;; it will list both vector and axes entry ids.  For predefs, it is NIL.
+  (unless (listp entries) 
+    (warn "symbols-enter:  entries ~A should be a list" entries))
 
-  ;; Client code should delete symbols from an existing entry before handling
-  ;; modified entry.  Workbench should prevent a brand new entry from redefining 
-  ;; any existing def of same label. 
-  (when (symbols-lookup label)
+  ;; previous code should have already handled existing entries
+  (when (symbols-lookup label :namespace namespace)
      (warn "symbols-enter: new entry shadowing existing def for ~A~%" label))
 
   ;; if no special sysvar specified, look up matching quantity as default
@@ -158,89 +166,89 @@
   ;; build entry and add it to list
   (push (make-syminfo :label label :referent referent 
 		      :entries entries :sysvar sysvar)
-        *variables*)
+        (cdr (get-variables-table namespace)))
 
   ;; for debugging: dump symbol table contents after change
-  (when *watch-symbols* 
-        (symbols-dump)))
+  (when *watch-symbols* (symbols-dump)))
 
 (defun symbols-delete (label)
   "remove entry for a student label from the symbol table"
   ;; remove entry from our table
-  (setf *variables*
-    (delete label *variables* 
+  (set-variables 
+    (delete label (get-variables) 
             :key #'sym-label :test #'equal)))
 
 (defun symbols-delete-dependents (entry-id)
    "Remove symbols dependent on entry with given id, returning labels of removed symbols."
-   (let (keep drop)
-     (dolist (sym *variables*)
-       (if (member entry-id (sym-entries sym))
-	   (push sym drop)
-	   (push sym keep)))
-     
-     (setf *variables* keep)
-
-     (mapcar #'sym-label drop)))
+   (let (drop)
+     (dolist (table *variables*) ;iterate through all tables
+       (let (keep)
+	 (dolist (sym (cdr table))
+	   (if (member entry-id (sym-entries sym))
+	       (push sym drop)
+	       (push sym keep)))
+	 (setf (cdr table) keep))) ;removing entries for that table.
+     (mapcar #'sym-label drop))) ;return dropped from all tables.
 
 
 ;;-----------------------------------------------------------------------------
 ;;       Symbol table accessor functions:
 ;;-----------------------------------------------------------------------------
 
-(defun symbols-lookup (label)
+(defun symbols-lookup (label &key namespace)
   "fetch info struct for label, NIL if not found"
-   (find label *variables* :key #'sym-label :test #'equal))
+   (find label (get-variables namespace) :key #'sym-label :test #'equal))
 
-(defun symbols-referent (label)
+(defun symbols-referent (label &key namespace)
   "Return quantity denoted by student label or NIL if none"
-  (let ((sym (symbols-lookup label)))
+  (let ((sym (symbols-lookup label :namespace namespace)))
     (when sym (sym-referent sym))))
 
-(defun symbols-lookup-quant (quant)
+(defun symbols-lookup-quant (quant &key namespace)
   "fetch sym info struct for quantity, NIL if not found"
-   (find quant *variables* :key #'sym-referent :test #'unify))
+   (find quant (get-variables namespace) :key #'sym-referent :test #'unify))
 
 (defun symbols-sysvar (label)
    "return expression in system terms corresponding to student label"
    (let ((sym (symbols-lookup label)))
      (when sym (sym-sysvar sym))))
 
-(defun symbols-label (quant)
+(defun symbols-label (quant &key namespace)
   "Return student's label for given quantity, NIL if none"
-  (let ((sym (symbols-lookup-quant quant)))
+  (let ((sym (symbols-lookup-quant quant :namespace namespace)))
     (when sym (sym-label sym))))
 
 (defun near-miss-var (var)
 "given a symbol return defined variables with similar names"
   ;; for now, just look for case errors, and just return first one found
-  (let ((sym (find var *variables* :key #'sym-label :test #'string-equal)))
+  (let ((sym (find var (get-variables) :key #'sym-label :test #'string-equal)))
      (when sym (sym-label sym))))
 
-(defun symbols-fetch (pat)
+(defun symbols-fetch (pat &key namespace)
   "return list of all symbol records whose referent exprs unify with pat"
   (remove-if-not #'(lambda (sym)
                      (unify pat (sym-referent sym)))
-		  *variables*))
+		  (get-variables namespace)))
 
 ;; following for inverting mapping from student var to sysvar:
 (defun symbols-lookup-sysvar (sysvar)
  "fetch info struct for label mapped to sysvar, NIL if not found"
    ;; make sure sysvar non-NIL; many labels have NIL in sysvar slot
    (if sysvar 
-      (find sysvar *variables* :key #'sym-sysvar :test #'equal)))
+      (find sysvar (get-variables) :key #'sym-sysvar :test #'equal)))
 
 (defun symbols-sysvar-to-studvar (sysvar)
 "return student's label corresponding to sysvar, NIL if none"
   (let ((sym (symbols-lookup-sysvar sysvar)))
-    (if sym (sym-label sym))))
+    (when sym (sym-label sym))))
   
-(defun symbols-dump ()
+(defun symbols-dump (&optional (s t))
   "Print contents of symbol table"
-  (format t "~&Student Labels Now:~%")
-  (dolist (sym *variables*)
-     (format t "~A ~A ~A ~A~%" (sym-label sym) (sym-referent sym)
-	                       (sym-sysvar sym) (sym-entries sym))))
+  (dolist (vars *variables*)
+    (format s "Variable Table ~A~%" (car vars))
+    (dolist (sym (cdr vars))
+      (format s "    ~A ~A ~A ~A~%" (sym-label sym) (sym-referent sym)
+	      (sym-sysvar sym) (sym-entries sym)))))
 
 
 ;; Solution graph may contain variables defined along dead-paths which have

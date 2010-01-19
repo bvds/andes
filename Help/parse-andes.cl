@@ -836,8 +836,9 @@
 		      (setf valid nil))
 		  ;; else student only entered rhs: fill in lhs student variable.
 		  (setf lhs (if stud-var stud-var "Answer")))
-	      (if (not stud-var)
-		  (symbols-enter "Answer" sought-quant id)) ;; !! NB: want to delete this temp in all paths
+	      (unless stud-var
+		  ;; !! NB: want to delete this temp in all paths
+		  (symbols-enter "Answer" sought-quant :entries (list id)))
 	      (if valid
 		  (let* ((parses (parse-equation 
 				  **grammar** 
