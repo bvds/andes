@@ -404,7 +404,7 @@
 	     (warn "Unbound variable ~A" model)))
 	((and (consp model) (member (car model) 
 				    '(preferred allowed and or conjoin)))
-	 (let ((args (expand-new-english (cdr model) bindings)))
+	 (let ((args (expand-new-english-list (cdr model) bindings)))
 	   (when args (cons (car model) args))))
 	;; expansion of var must be done at run-time.
 	((and (consp model) (eql (car model) 'var)) 
@@ -427,7 +427,13 @@
   "If object is a list, expand"
   ;; Handles cases where members of a list are atoms in Ontology
   ;; and lists with bindings of the form (... . ?rest)
+  ;; along with (... . (eval ...))
   (cond ((null x) x)
+	((eql (car x) 'eval) 
+	 (let ((result (expand-new-english x bindings)))
+	   (unless (consp result)
+	     (warn "eval must return a list:  ~A returned ~A" x result))
+	   result))
 	((variable-p x) (expand-new-english-list 
 			 (subst-bindings bindings x)))
 	((consp x) (cons (expand-new-english (car x) bindings)
