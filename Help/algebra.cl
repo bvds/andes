@@ -53,14 +53,11 @@
     ;; unary minus
     ((and (eql (car eq) '-) (null (cddr eq)))
      (strcat "-" (algebra (second eq) :parent -)))
-    ;; Numbers
+    ;; Use Ontology for dimensioned numbers.
     ((eql (first eq) 'dnum)
-     (if (car (last eq)) ; has non-NIL units
-	 (wrap-parentheses parent
-			   (strcat (algebra (second eq)) " "
-				   (string (car (last eq)))))
-	 ;; else dimensionless number
-	 (algebra (second eq))))
+     ;; may add parentheses if there are units or errors
+     (wrap-parentheses (and parent (or (third eq) (member :error eq)))
+		       (match:word-string (new-english-find eq))))
     ;; binary operators
     ((member (car eq) '(/ ^))
      (when (cdddr eq) (warn "binop with ~A" eq))
