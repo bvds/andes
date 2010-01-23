@@ -231,6 +231,7 @@
 
 ;; Special axis terms entered into the symbol table. These are not
 ;; used as quantities, but may need to be Englished.
+;; See Bug #1685
 (def-qexp axis (axis ?xyz ?angle)
   :new-english ((the) (eval (nlg ?xyz 'adj)) "axis"
 		(eval (list (if (= ?angle 0) 'allowed 'preferred) 

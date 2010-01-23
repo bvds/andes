@@ -1858,7 +1858,9 @@
   ((point (string "What is the total force acting on ~A ~A." 
 		  (?b def-np) (?t pp)))
    (teach (string "The net force on an object is the vector sum of all forces acting on the object."))
-   (bottom-out (string "Write the equation for net force along the ~A axis as ~A" ((axis ?xyz ?rot) symbols-label) ((= (+ . ?f-compo-vars) ?fnet_xy) algebra)))
+   (bottom-out (string "Write the equation for net force along the ~A axis as ~A" 
+		       ((axis ?xyz ?rot) symbols-label :namespace :objects) 
+		       ((= (+ . ?f-compo-vars) ?fnet_xy) algebra)))
    ))
 
 ;;; ==================== The gravitational force ==============================
@@ -2354,7 +2356,7 @@
 		   ?b ?b (?t pp)))
     (teach (string "Newton's second law <var>F</var> = <var>m</var> <var>a</var> states that the net force on an object = the object's mass times its acceleration.  Because the net force is the vector sum of all forces on the object, this can be applied component-wise to relate the sum of the force components in any direction to the mass times the component of acceleration in that direction."))
     (bottom-out (string "Write Newton's second law in terms of component variables along the ~A axis as ~A" 
-			((axis ?xyz ?rot) symbols-label) 
+			((axis ?xyz ?rot) symbols-label :namespace :objects) 
 			((= (+ . ?f-compo-vars) (* ?m ?a-compo)) algebra)))
     ))
 
@@ -2388,7 +2390,7 @@
 		   ?b ?b (?t pp)))
     (teach (string "Newton's second law <var>F</var> = <var>m</var> <var>a</var> states that the net force on an object = the object's mass times its acceleration. This can be applied component-wise to relate the net force in any direction to the mass times the component of acceleration in that direction."))
     (bottom-out (string "Write Newton's second law along the ~a axis in terms of component variables, namely, ~a" 
-			((axis ?xyz ?rot) symbols-label) 
+			((axis ?xyz ?rot) symbols-label :namespace :objects) 
 			((= ?fnet-compo-var  (* ?m ?a-compo)) algebra)))
    )
 )
@@ -3263,7 +3265,8 @@
 		   ?b ?b (?t pp)))
     (teach (string "The rotation version of Newton's second law is &tau; = m &alpha;.&nbsp;  The net torque &tau; is the vector sum of all torques acting on the object.  This can be applied component-wise."))
     (bottom-out (string "Write the rotational version of Newton's second law in terms of component variables along the ~A axis as ~A" 
-			((axis ?xyz ?rot) symbols-label) ((= (+ . ?f-compo-vars)  (* ?m ?a-compo)) algebra)))
+			((axis ?xyz ?rot) symbols-label :namespace :objects) 
+			((= (+ . ?f-compo-vars)  (* ?m ?a-compo)) algebra)))
     ))
 
 (defoperator write-NSL-rot-net (?b ?axis ?t ?z ?rot)
