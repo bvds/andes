@@ -1700,6 +1700,12 @@
 (defun nsh-check-sought-resp (response past)
   "Check the sought response, returning tutor turn."
 
+  ;; In case student clicks on an old "Explain more" in response
+  ;; to this question; see Bug #1686.
+  (unless (stringp response)
+    (warn "Response should be a string (Bug #1686): ~S" response)
+    (setf response (format nil "~A" response)))
+
   (let ((best (match:best-model-matches
 	       (match:word-parse response)
 	       (mapcar #'(lambda (x)
