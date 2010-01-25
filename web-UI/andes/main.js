@@ -81,6 +81,7 @@ dojo.provide("andes.main");
 })();
 
 dojo.require("andes.defaults");
+dojo.require("andes.super");
 dojo.require("andes.drawing");
 dojo.require("andes.menu");
 dojo.require("andes.help");
