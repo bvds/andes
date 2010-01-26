@@ -4053,7 +4053,8 @@
   
   ;; Make sure they were solving for a problem sought before assuming solver 
   ;;  problems [Bug 1471].
-  ((not (member (symbols-referent var) (problem-soughts *cp*) :test #'unify))
+  ((not (member (symbols:symbols-referent var) (problem-soughts *cp*) 
+		:test #'unify))
    ;; Might be nice to have special message for possible 
    ;; magnitude/component confusion about sought
    (format NIL "Unable to solve for ~A. Notice that this problem does not ask for ~A, so you do not need to solve for it. You probably want to solve for a quantity sought by the problem." var var))
