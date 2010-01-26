@@ -64,7 +64,7 @@
 				     (:file "grammar")
 				     (:file "physics-algebra-rules")
 				     (:file "parse"
-					    :depends-on ("utilities"))
+					    :depends-on ("utilities" "symbols"))
 				     (:file "algebra"
 					    :depends-on ("symbols"))
 				     (:file "in2pre")
