@@ -10,7 +10,7 @@ install:
 	-rm -r -f dojo dijit dojox util
 	svn co $(dojo-svn)/dojo dojo
 	svn co $(dojo-svn)/dijit dijit
-	svn co $(dojo-svn)/dojox dojox
+	svn co http://svn.dojotoolkit.org/src/dojox/trunk dojox
 	svn co $(dojo-svn)/util util
 	-git checkout dojo 
 	-git checkout dojox 
@@ -18,6 +18,7 @@ install:
 	-git checkout util
 	./andes.build.sh
 	@echo "Intalled Dojo $(dojo-version); is this the latest?"	
+	@echo "Dojox from development version!"
 
 update:
 	svn update dojo dijit dojox util
