@@ -23,6 +23,11 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(in-package :cl-user)
+(eval-when (:load-toplevel :compile-toplevel)
+  (use-package :symbols))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; commands.lsp/cl -- Lisp functions handling API commands sent by the Andes 
 ;;  Workbench to the Help System.
@@ -106,107 +111,6 @@
 ;;; Eqn-entry
 ;;; Equation entry commands.
 
-;;; ===========================================================================
-;;; Algebra API calls.
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; calculate-equation-string -- takes an equation, substitutes all known values
-;;  that have been entered by the student into it and the simplifies the result.
-;;  returns the simplified string. lookup-eqn-string will be called on the ori-
-;;  ginal equation before calling this function to update the correct/incorrect
-;;  status. Substitutions will anly be done for *correct* values that the stu-
-;;  dent has entered. therfore the correct/incorrect status of the resulting
-;;  equation will be the same as the original equation (ie. if the equation be-
-;;  ing substituted into is correct, the result will be correct as well.
-;; argument(s):
-;;  string: the equation string to be simplified into
-;;  new-id: the id of the new equation to be entered
-;; returns:
-;;  the string representing the simplified equation if it could be simplified,
-;;  otherwise nil
-;; note(s):
-;;  creates a new equation entry representing the newly simplified equation
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun eqn-match (s1 s2) 
-    (equal (trim-eqn s1) (trim-eqn s2)))
-
-(defun find-eqn-entry (eqn-str) 
-  (find eqn-str *StudentEntries* :key #'StudentEntry-Verbatim
-		                 :test #'eqn-match))
-
-(defun calculate-equation-string (eqn-str new-id)
- ;; No longer needed. (return-turn 
-  ;; need to map equation string to slot number
-  (let ((eqn-entry (find-eqn-entry eqn-str)))
-    
-    (cond 
-     ;; If no mathching entry can be found then set the action and return an error.
-     ((null eqn-entry)
-      (make-eqn-failure-turn "Internal error: entry for equation not found!"
-			     :id new-id))
-     
-     ;; If the selected equation is not correct then send an error. 
-     ((not (equal (StudentEntry-state eqn-entry) **correct**))
-      (make-eqn-failure-turn "Only correct equations may be simplified."
-			     :id new-id))
-
-     (t (calculate-equation-string-internal eqn-str new-id eqn-entry)))))
-
-
-;;; If we have gotten to this point then the student's equation exists and
-;;; is correct.  Therefore, the equation computation proceeds as normal and
-;;; either an entry is produced and entered, or the system produces a runtime
-;;; error.
-(defun calculate-equation-string-internal (eqn-str new-id eqn-entry)
-  (let ((result (solver-eqn-simplify (StudentEntry-id eqn-entry) new-id)))
-    (cond  ;; result may be equation s-expr, NIL or error message string
-      
-      ;; If the result is valid, then we want to generate an entry 
-      ;; and store it.
-      ((and result (listp result)) 
-       (calculate-equation-string-success result new-id))
-      
-      ;; Else if the result is a string then we need to deal with it.
-      ;; Given a string error signal it to the student and return.
-      ((stringp result) 
-       (make-eqn-failure-turn 
-	(format NIL "Unable to simplify ~A: ~A" eqn-str result)
-	:id (StudentEntry-id eqn-entry)))
-      
-      ;; Else we have a generic error and need to deal with it.
-      ;; Given a generic error log it and signal it to the student.
-      (T (make-eqn-failure-turn (format NIL "Unable to simplify ~A" eqn-str)
-				:id (StudentEntry-id eqn-entry))))))
-    
-    
-;; In the event of this being a successful simplification we need to 
-;; generate and store the equation entry and then go through the process
-;; of storing the entry and then reporting the equation string back to 
-;; the workbench.
-(defun calculate-equation-string-success (result new-id)
-  ;; just return eqn text until appropriate turns are implemented
-  (warn "Can't make valid studententry since type, location etc missing")
-  (let* ((studEqn  (subst-student-vars (pre2in result)))
-	 ;; Setting default format affects write-to-string.
-	 (*read-default-float-format* 'double-float)
-	 ;; suppress *print-pretty* since it could insert newlines 
-	 ;; into long result, and WB requires single-line eqn string
-	 (infixStr (write-to-string studEqn :pretty NIL :escape NIL))
-	 ;; strip outer parens from equation string
-	 (studText (subseq infixStr 1 (- (length infixStr) 1)))
-	 ;; Generate the new studententry that we will add to the list.
-	 (entry (make-StudentEntry :id new-id
-				   :verbatim studText
-				   :prop `(eqn ,studText)
-				   :parsedEqn result
-				   :state **Correct**)))
-        
-    ;; save final result as if it were a new student entry. We need to 
-    ;; remember slot is occupied for add-entry to trigger automatic
-    ;; cleanup of equation in algebra on new entry.
-    (add-entry entry)
-    ;; finally return student equation turn
-    (make-eqn-turn studText :id (StudentEntry-id entry))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; solve-for-var -- solve for the given var using the equations the student has
@@ -227,6 +131,7 @@
 ;;
 ;; It is also designed to log the result of the call for future use.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun solve-for-var (entry)
   (let* ((new-id (StudentEntry-id entry))
 	 (var (StudentEntry-symbol entry))
@@ -246,14 +151,7 @@
 	      :id new-id)))))
 
 (defun solve-for-var-success (entry result)
-  (let* ((studEqn  (subst-student-vars (pre2in result)))
-	 ;; Setting default format affects write-to-string.
-	 (*read-default-float-format* 'double-float)
-	 ;; suppress *print-pretty* since it could insert newlines 
-	 ;; into long result, and WB requires single-line eqn string
-	 (infixStr (write-to-string studEqn :pretty NIL :escape NIL))
-	 ;; strip outer parens from equation string
-	 (studText (subseq infixStr 1 (- (length infixStr) 1))))
+  (let* ((studText (algebra result)))
     
     ;; Update the studententry
     (setf (StudentEntry-verbatim entry) studText)

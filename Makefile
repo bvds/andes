@@ -18,12 +18,11 @@ install-solver:
 
 ifeq ($(shell uname),Darwin)
   httpd-document-root = /Library/webServer/Documents
-  httpd-conf-dir = /etc/httpd/users
+  httpd-conf-dir = /etc/$(if $(shell test -d /etc/apache2 && echo 1),apache2,httpd)/users
 else
 ifeq ($(shell uname),Linux)
   httpd-document-root = /var/www/html
-  httpd-conf-dir = $(if $(shell test -e /etc/apache2 && echo 1),\
-                   /etc/apache2,/etc/httpd)/conf.d
+  httpd-conf-dir = /etc/$(if $(shell test -d /etc/apache2 && echo 1),apache2,httpd)/conf.d
 else
   $(error "Unknown operating system")
 endif

@@ -66,39 +66,30 @@ source-install:
 #     (push :hunchentoot-no-ssl *features*) ;we have apache to do this
 #     (asdf-install:install 'hunchentoot) ;here it will say package not trusted multiple times
 #     (asdf-install:install 'cl-json)
+#     (asdf-install:install 'uffi)  ;prereq for clsql, but doesn't load
+#     (asdf-install:install 'clsql)
 #     (quit)  ; exit the lisp server
 
-#  clsql can be obtained from http://clsql.b9.com
-#  However, it does not work well with asdf-install and cffi.
-#  So we include a local copy which we patch and install in the system-wide
-#  sbcl libraries.
-#
-clsql-v = 4.2.0
-install-clsql:
-	tar zxf clsql-$(clsql-v).tgz
-	patch -p0 < clsql-$(clsql-v).patch
-	mv clsql-$(clsql-v) /usr/local/lib/sbcl/site
-	cd /usr/local/lib/sbcl/site-systems; ln -s ../site/clsql-$(clsql-v)/*.asd .
 
-#  Also, need to fix error handling in usocket and hunchentoot:
-#  apply as patches (See Bug #1614):
-#    r4323 from svn co svn://bknr.net/svn/trunk/thirdparty/hunchentoot
-#    r497 from  svn co svn://common-lisp.net/project/usocket/svn/usocket/trunk usocket-svn
-#
+#  clsql doesn't link with 64 bit system libraries.  This is a
+#  patch to fix this.
+clsql-v = 4.3.0
+patch-clsql:
+	patch -p0 -d /usr/local/lib/sbcl/site < clsql-$(clsql-v).patch
 
 create-site-libraries:
 	chmod -R go+r /usr/local/lib/sbcl/site/md5*
 	-cd /usr/local/lib/sbcl/site; rm */*.fasl; rm */*/*.fasl
 	-cd /usr/local/lib/sbcl/site; rm */*/*.so
 	-cd /usr/local/lib/sbcl/site; rm */*/*.dylib
-	tar zcf sbcl-site-libraries.tgz --directory=/usr/local/lib/sbcl/ site site-systems
+	tar cf sbcl-site-libraries.tar --directory=/usr/local/lib/sbcl/ site site-systems
 
 #
 #  Install sbcl site libraries from copy in git.
 #
 install-site-libraries:
 	@echo "Needs superuser privileges for install into /usr/local/lib/sbcl"
-	tar zxf sbcl-site-libraries.tgz -C /usr/local/lib/sbcl
+	tar xf sbcl-site-libraries.tar -C /usr/local/lib/sbcl
 	chown -R $(USER) /usr/local/lib/sbcl
 	@echo "The user" $(USER) "will be able to compile the libraries." 
 

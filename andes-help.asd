@@ -57,18 +57,19 @@
 				     (:file "State"
 					    :depends-on ("symbols" "grammar"))
 				     (:file "Entry-API"
-					    :depends-on ("HelpMessages"
+					    :depends-on ("HelpMessages" "symbols"
 							 "SolutionGraph"))
 				     
 				     ;; Equation parser/interpreter
 				     (:file "grammar")
 				     (:file "physics-algebra-rules")
 				     (:file "parse"
-					    :depends-on ("utilities"))
-				     (:file "pre2in")
+					    :depends-on ("utilities" "symbols"))
+				     (:file "algebra"
+					    :depends-on ("symbols"))
 				     (:file "in2pre")
 				     (:file "parse-andes"
-					    :depends-on ("SolutionGraph" 
+					    :depends-on ("SolutionGraph" "symbols"
 							 "grammar" "icons"))
 				     (:file "interpret-equation"
 					    :depends-on ("SolutionGraph"))
@@ -88,7 +89,7 @@
 				     ;; Top-level manager
 		 		     (:file "Interface") ;The interface api.
 	 			     (:file "Commands"
-					    :depends-on ("Entry-API" 
+					    :depends-on ("Entry-API" "symbols"
 							 "Interface" "icons"))
  				     (:file "API")
                                      (:file "fade"
@@ -98,7 +99,7 @@
 					    :depends-on ("NextStepHelp"
 							 "parse" "State" 
 							 "database" "fade"
-							 "grammar" 
+							 "grammar" "symbols" 
 							 "Commands"))))
 	       (:module "Testcode"
 			:depends-on ("Help" "HelpStructs")

@@ -11,6 +11,7 @@
 ;;(load "c:/SolutionGraph/Utility.cl")
 
 ;;(package "Unification")
+(export 'unify)   ;for import into symbols package
 
 ;;================================================================
 ;; Constants and parameters

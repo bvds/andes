@@ -32,7 +32,7 @@ andes.Combo = dojox.drawing.util.oo.declare(
 		this.created = options.onCreate ? false : true
 		var s = this.statement;
 		var m = this.master;
-
+		
 		console.warn("combo statement:", this.statement)
 
 		this.statement.connectMult([

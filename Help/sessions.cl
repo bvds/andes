@@ -115,7 +115,7 @@
 	'(*CP* **NSH-NEXT-CALL** *NSH-NODES* *NSH-FIRST-PRINCIPLES*
 	  *NSH-CURRENT-SOLUTIONS* *NSH-LAST-NODE* *NSH-SOLUTION-SETS* 
 	  *NSH-GIVENS* *NSH-AXIS-ENTRIES* *NSH-BODYSETS* *NSH-VALID-ENTRIES* 
-	  *NSH-PROBLEM-TYPE* *VARIABLES* *STUDENTENTRIES* 
+	  *NSH-PROBLEM-TYPE* symbols::*VARIABLES* *STUDENTENTRIES* 
 	  *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*
           **Condition**  mt19937::*random-state* **grammar**
 	  ;; List of Fade items.
@@ -491,11 +491,12 @@
   ;;                         x-label y-label z-label angle
   (env-wrap 
     ;; Andes2 also had calls to:
-    ;; define-angle-variable assert-compound-object
-    ;; label-angle
+    ;; define-angle-variable  (undocumented leftover from Andes1)
+    ;; assert-compound-object
+    ;; label-angle (removed from Andes3, may restore if angle tool added)
     ;; lookup-mc-answer
     ;; calculate-equation-string (find variable on lhs of equation)
-    ;;                           (probably not in Andes3)
+    ;;                           (not in Andes3)
     ;; Andes2 but not in Andes3:  label-radius lookup-torque lookup-force
     
     ;; Andes2 does not distinguish between a new entry and a 

@@ -523,9 +523,8 @@
     ;; This may not be the one nsh would prompt.  Possibly we should clear 
     ;; "intended" field if it differs among tied interps?
     (random-elt 
-     (reverse ;for backwards compatibility, useful for log regression tests
-		     (remove-if #'(lambda (x) (alist< x best)) candidates
-				:key #'ErrorInterp-order)))))
+     (remove-if #'(lambda (x) (alist< x best)) candidates
+		:key #'ErrorInterp-order))))
 
 ;;; ---------- Phase 4: Generating the dialog turn --------------------
 

@@ -136,9 +136,6 @@
 
   effects          ;;The operator's effects.
   hint             ;;The hint field.
-  HintVars         ;; Argument elements used to compare two opapps at help time for use by 
-                   ;; the comparison system.  
-  
   specifications   ;;The operaor specifications.
 
   Variables        ;;A list consisting of all the variables in this operator.
@@ -229,8 +226,12 @@
     (setf (Operator-Variables Op)	;Set the variables list.
       (get-operator-variables Op))
 
-    (setf (Operator-hintVars Op)	;Set the hintvars list.
-      (get-operator-hintvars Op))
+
+    (let ((unmatched (set-difference (get-operator-hintvars Op) 
+				     (Operator-Variables Op))))
+      (when unmatched
+	(error "Unmatched variables in hint specification of ~A:~%   ~A"
+	       name unmatched)))
 
     (Register-operator Op)		;Store the operator struct.
     
@@ -401,15 +402,13 @@
 	 (oplist (list (Operator-arguments Op)         ;;Generate a single expression of the operator.
 		       (Operator-Preconditions Op)
 		       (Operator-Effects Op)
-		       (Operator-Variables Op)
-		       (Operator-hintvars Op))))
+		       (Operator-Variables Op))))
     
     (setq oplist (rename-variables oplist))            ;;replace all the variables with new vars.
     (setf (operator-arguments Op) (nth 0 Oplist))      ;;Set the new Operator-arguments.
     (setf (operator-preconditions Op) (nth 1 Oplist))  ;;Set the new preconditions.
     (setf (operator-effects Op) (nth 2 Oplist))        ;;set the new effects.
     (setf (Operator-Variables Op) (nth 3 Oplist))
-    (setf (Operator-hintvars Op) (nth 4 Oplist))
     Op))                                               ;;return the new form of Op
   
 

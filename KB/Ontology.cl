@@ -22,63 +22,6 @@
 ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; should match entries in Algebra/src/units.h
-(defparameter unit-english
-    '(
-      (|m| . "meters")
-      (|kg| . "kilograms")
-      (|s| . "seconds")
-      (|C| . "coulombs")
-      (|K| . "degrees kelvin")
-      (|g| . "grams")
-      (|N| . "newtons")
-      (|J| . "joules")
-      (|V| . "volts")
-      (|A| . "amperes")
-      (|T| . "teslas")
-      (|G| . "gauss")
-      (|Wb| . "webers")
-      (|ohm| . "ohms")
-      (|Hz| . "hertz")
-      (|Pa| . "pascals")
-      (|F| . "farads")
-      (|H| . "henries")
-      (|W| . "watts")
-      (|m/s| . "m/s")
-      (|m/s^2| . "m/s^2")
-      (|N.m| . "N.m")
-      (|J.s| . "J.s")
-      (|kg.m^2| . "kg.m^2")
-      (|kg.m/s| . "kg.m/s")
-      (|N/m| . "N/m")
-      (|N.s/m^2| . "N.s/m^2")
-      (|N/m^2| . "N/m^2")
-      (|deg| . "degrees")
-      (|rad| . "radians")
-      (|rev| . "revolutions")
-      (|lb| . "pounds")
-      (|day| . "days")
-      (|hr| . "hours")
-      (|h| . "hours")
-      (|min| . "minutes")
-      (|yr| . "years")
-      (|liter| . "liters")
-      (|ft| . "feet")
-      (|in| . "inches")
-      (|mi| . "miles")
-      (|slug| . "slugs")
-      (|gal| . "gallons")
-      (|u| . "")
-      (|eV| . "electon volts")
-      (|dyne| . "dynes")
-      (|erg| . "ergs")
-      (|cal| . "calories")
-      (|lbs| . "pounds")
-      (|ozW| . "ounces")
-      (|ozVUS| . "ounces")
-      (|knot| . "knots")
-      (|dB| . "decibels")
-      ))
 
 ;;;;
 ;;;;  Engineers like to use the term "moment" instead of "torque"
@@ -95,15 +38,11 @@
 
 
 ;;;             Quantity Terms:
-
-(defun translate-units (x)
-  (let ((result (assoc x unit-english)))
-    ;; leave untranslated if no name in table:
-    (if result (cdr result) (format NIL "~A" x))))
-
 (def-qexp dnum (dnum ?value ?unit :error ?err)
-  :nlg-english ("~A~:[~2*~;~A~A~] ~A" (identity ?value) ?err (code-char 177) 
-				      ?err (translate-units ?unit)))
+  :new-english ((eval (format nil
+			      "~A~:[~2*~;~A~A~]~@[ ~A~]" 
+			      (algebra ?value) ?err  #\PLUS-MINUS_SIGN 
+			      ?err ?unit))))
 
 ;;;; vector quantities:
 
@@ -292,6 +231,7 @@
 
 ;; Special axis terms entered into the symbol table. These are not
 ;; used as quantities, but may need to be Englished.
+;; See Bug #1685
 (def-qexp axis (axis ?xyz ?angle)
   :new-english ((the) (eval (nlg ?xyz 'adj)) "axis"
 		(eval (list (if (= ?angle 0) 'allowed 'preferred) 
@@ -301,7 +241,7 @@
 
 (def-qexp property (property ?body)
   ;; "for" is exceptionally used
-  :new-english ("of" (or (var (body ?body)) ?body))) 
+  :new-english ("of" (or (var (body ?body) :namespace :objects) ?body))) 
 
 
 (def-qexp change (change ?property)
@@ -411,22 +351,24 @@
 		)
   )
 
-(def-qexp the (the)
+(def-qexp preferred-the (the)
   :new-english (preferred "the"))
 
-
 (def-qexp object (object ?body)
-  :new-english ((or "on" "acting on" "exerted on" "that acts on" "applied on" "applied to") 
-		(or (var (body ?body)) ?body)))
+  :new-english (eval (when (expand-new-english ?body)
+                        '((or "on" "acting on" "exerted on" "that acts on" "applied on" "applied to") 
+			  (or (var (body ?body) :namespace :objects) ?body)))))
 
 (def-qexp agent (agent ?body)
-  ;; The default "the normal force on the dumpster by the street at T0"
-  ;; sounds strange, problem s2b.  Bug #1642.
-  :new-english ((or "by" "due to" "by" "from" "caused by" "exerted by" "of") 
-		(or (var (body ?body)) ?body)))
+  ;;+syjung
+  ;; checking the content of ?body by (expand-new-englih ..) is important for the case that it is missing
+  :new-english (eval (when (expand-new-english ?body)
+			'((or "due to" "by" "from" "caused by" "exerted by" "of") 
+			  (or (var (body ?body) :namespace :objects) ?body))))) 
 
 (def-qexp time (time ?time)
-  :new-english (preferred (time-not-omittable ?time)))
+  :new-english (eval (when ?time
+			'(preferred (time-not-omittable ?time)))))
 
 (def-qexp time-not-omittable (time-not-omittable ?time)
   :new-english (eval (if (time-pointp ?time) (pp ?time)
@@ -481,7 +423,8 @@
   :units |m|
   :new-english ((the) (or "distance" "dist." "dist") 
 		(or  ((or "traveled" "travelled" "travels" "moves" "moved")
-		      (and ("by" (or (var (body ?body)) ?body))
+		      (and ("by" (or (var (body ?body) :namespace :objects) 
+				     ?body))
 		           (time ?time)))
 		     ((property-object "distance" ?body)
 		      (and (allowed (or "traveled" "travelled" "travels" 
@@ -513,18 +456,18 @@
   :new-english (property-object-time "speed" ?body :time ?time)
 )
 
+;;ex) "the coeffienct of kinetic friction between the crate and the plain"
 (def-qexp coef-friction 
     (coef-friction ?body1 ?body2 ?static-or-kinetic :time ?time)
   :symbol-base |$m|     
   :short-name "coef. of friction"	
   :units NIL ;; dimensionless
   :new-english ((the) "coefficient of" ?static-or-kinetic "friction"
-		(and (preferred ("between" (or (var ?body1) ?body1) "and" (or (var ?body2) ?body2)))
+		(and (preferred ("between" (or (var ?body1 :namespace :objects) ?body1) "and" (or (var ?body2 :namespace :objects) ?body2)))
 		     (time ?time))))
 
 ;; "coefficient of drag for ~A moving through ~A" 
 ;; (nlg ?b) (nlg ?medium 'at-time ?time)
-
 (def-qexp coef-drag-turbulent (coef-drag ?b ?medium :type turbulent :time ?time)
   :symbol-base |K|     
   :short-name "coef. of drag"	
@@ -571,6 +514,9 @@
 ;; involving the earth.
 (def-qexp the-Earth earth 
   :new-english ((the) "Earth"))
+
+(def-qexp unspecified unspecified 
+  :new-english (nil))
 
 (post-process add-gravitational-acceleration (problem)
   "if only the earth's gravity is used, add gravitational acceleration"
@@ -681,10 +627,50 @@
 		(and (preferred ("by" ?source))
 		     (time ?time))))
 
+;;by syjung:
+;; In the tutor hint in elec6b:
+;;      "the angle between the displacement of e between T0 and T1 and 
+;;      the electric force on e by the unspecified between T0 and T1"
+;; The hint can be: 
+;;      (when two are in the same time interval):
+;;      "the angle between the displacement of e, and the electric force on e 
+;;       between T0 and T1" 
+;;      (when two are not in the same time interval):
+;;	"the angle between the displacement of e between T1 and T2, and the 
+;;       electric force on e between T0 and T1" 
+;; It means that the time information can be displayed depending on the contents of ?vecs
+;; This hint was generated by (conjoin (or "and" "&") . ?bodies)
+;;
+;; However, The hint should be shorter when each vector was defined with a variable name:
+;;      "the angle between d and f" 
+;;
 (def-qexp angle-between (angle-between orderless . ?vecs)
   :units |deg|
   :restrictions nonnegative 
-  :new-english( (the) "angle between" (conjoin (or "and" "&") . ?vecs)))
+  ;; To print the contents of ?vecs:
+  ;; :new-english ( (eval (dolist (vec ?vecs) (format t "~A~%" vec) ?vecs))))
+  ;;
+  ;; ?vecs = '((DISPLACEMENT ELECTRON :TIME (DURING 1 2)) 
+  ;;	      (FORCE ELECTRON EARTH WEIGHT :TIME (DURING 1 2)))
+  ;;     =>  '((DISPLACEMENT ELECTRON) 
+  ;;	      (FORCE ELECTRON EARTH WEIGHT :TIME (DURING 1 2)))
+  ;; ?vecs=  '((DISPLACEMENT ELECTRON TIME (DURING 1 2))
+  ;;	      (FORCE ELECTRON UNSPECIFIED ELECTRIC :TIME (DURING 1 2)))
+  ;;     =>  '((DISPLACEMENT ELECTRON)
+  ;;	      (FORCE ELECTRON UNSPECIFIED ELECTRIC :TIME (DURING 1 2)))
+  ;;
+  ;;ex) ?vecs=(a b c)
+  ;;    (mapcar .. ?vecs) = ((or (var a) a) (or (var b) b) (or (var c) c))
+  ;;
+  ;; Generally, we expect the objects to be already defined before
+  ;; angle-between is defined.  Thus, the variable names will be available.
+  :new-english ((the) "angle between" 
+		(conjoin 
+		 (or "and" "&") . 
+		 (eval (mapcar 
+			#'(lambda (x) `(or (var ,x :namespace :objects) 
+					   ,x))
+			?vecs)))))
 
 (def-qexp total-energy (total-energy ?system :time ?time) 
   :units |J|
@@ -757,7 +743,7 @@
 		     ;; Assume there is no user defined variable for zero-height
 		     (allowed ((or "above" "relative to") 
 			       (or ?zero-height 
-			    	   (the (allowed "level of") "origin"))))
+			    	   ((the) (allowed "level of") "origin"))))
 		     (time ?time))))
 
 ;; default phrase, in absence of something sensible.

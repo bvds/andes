@@ -33,6 +33,11 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defparameter *line-icon* 
+  (strcat "<img src=\"" *images-path* "line-tool.png\" class=\"button\"  alt=\"vector tool\">"))
+(defparameter *line-tool*  (tool-link "Line Tool" "line-tool"))
+(defparameter *line-tool-action* (strcat "click on " *line-tool*))
+
 (defparameter *axis-tool* (tool-link "Axis Tool" "axis-tool"))
 (defparameter *axis-tool-action* (strcat "click on " *axis-tool*))
 (defparameter *draw-axes* 
@@ -59,6 +64,16 @@
 
 (defparameter *text-tool*  (tool-link "Text Tool" "text-tool"))
 (defparameter *text-tool-action* (strcat "click on " *text-tool*))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defparameter *constants-menu-action* 
+  "select \"Constants\" in the \"Physics\" menu")
+
+(defparameter *unknown-z-direction-action* 
+  "draw it in in an unknown z-direction")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Make an object that looks like the text input box.
 (defun text-box (x) 

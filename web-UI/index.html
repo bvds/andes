@@ -82,31 +82,22 @@
 						<span>Help</span>
 						<div dojoType="dijit.Menu" id="menuHelp">
 								<div id="menuIntroduction" dojoType="dijit.MenuItem">Introduction</div>
+								<div id="menuSlides" dojoType="dijit.MenuItem">Slide show</div>
+
 								<div id="menuManual" dojoType="dijit.MenuItem">Manual</div>
 				</div>
                      </div>
 				<div dojoType="dijit.form.Button" id="submitButton" style="position:absolute; top:0; right:10px; margin:0;">Submit</div>
 		</div>
-
+		
 		<div id="toolPane" dojoType="dijit.layout.ContentPane" region="left" splitter="false">
-				<div dojoType="dojox.drawing.ui.dom.Toolbar" drawingId="drawing" class="drawingToolbar vertical">
-					
-					<div tool="dojox.drawing.tools.Line" 				selected="false">	Line</div>
-					<div tool="dojox.drawing.tools.Rect" 				selected="false">	Rect</div>
-					<div tool="dojox.drawing.tools.Ellipse" 			selected="false">	Ellipse</div>
-					<div tool="dojox.drawing.tools.TextBlock" 			selected="false">	Statement</div>
-					<div tool="dojox.drawing.tools.custom.Equation" 	selected="false">	Equation</div>
-					<div tool="dojox.drawing.tools.custom.Vector" 		selected="false">	Vector</div>
-					<div tool="dojox.drawing.tools.custom.Axes" 		selected="false">	Axes</div>
-					
-					<div plugin="dojox.drawing.ui.dom.Pan" options="{}" style="display:none;">Pan</div>
-					<div plugin="dojox.drawing.ui.dom.Zoom" options="{zoomInc:.1,minZoom:.5,maxZoom:2}">Zoom</div>
-				</div>
+		
+				<div dojoType="dojox.drawing.ui.Toolbar" id="gfxToolbarNode" drawingId="drawing" class="gfxToolbar" tools="line,rect,ellipse,textBlock,equation,vector,axes" plugs="all" selected=""></div>
 		</div>
 		<div id="drawingPane" dojoType="dijit.layout.ContentPane" region="center" >
-				<div dojoType="dojox.drawing.Drawing" id="drawing" drawingType="canvas" class="drawing"
-					 defaults="andes.defaults">   
-			   </div>
+				<div dojoType="dojox.drawing.Drawing" id="drawing" jsId="myDrawing" class="drawing" defaults="andes.defaults"
+					 plugins="[{'name':'dojox.drawing.plugins.tools.Pan', 'options':{gap:100}}]">
+				</div>
 		</div>
 			
 		<div id="helpPane" dojoType="andes.widget.ExpandoPane" region="right" splitter="true" title="Tutor" startExpanded="false">

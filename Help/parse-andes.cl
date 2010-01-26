@@ -31,6 +31,11 @@
 ;;   commented out setting of Result and Tmp in Bad-Vars-In-Answer as they were unused.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(in-package :cl-user)
+(export 'grammar-remove-variable) ;for symbols package
+(eval-when (:load-toplevel :compile-toplevel)
+ (use-package :symbols))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-eqn-string -- check correctness of a student equation entry
 ;; argument(s):
@@ -351,11 +356,19 @@
     ;; This routine is supposed to be called on parseable eqs only, but best to be safe:
     ;; There was a crash in Andes7.0.0 whenver got unused vars among multiple var parses 
     ;; since these weren't filtered out of "wrongs" above.
-    (and (listp parse1) (listp parse2)
-         ;; cheap test: compare length of infix forms (top level only). 
-	 ;; Works for "v = -N units" case we need.
-         (< (length (pre2in parse1))
-            (length (pre2in parse2))))))
+    (< (leaf-count parse1) (leaf-count parse2))))
+
+(defun leaf-count (x &key parent)
+  "leaf count of algebraic expressions, expanding associative functions"
+  (cond
+    ((null x) 0)
+    ((atom x) 1)
+    ((listp x)
+     (let ((op (car x)))
+       ;; Flatten associative functions:
+       (when (and (member op '(+ *)) (eql op parent)) (pop x))
+       (loop for y in x sum (leaf-count y :parent op))))
+    (t (warn "invalid expr ~A" x) 0)))
 
 ;;; return number of unknown vars in an unknown or unused var turn-entry pair
 (defun te-unknowns (te-pair)
@@ -565,31 +578,37 @@
 		(setf result (append result (list var)))))))
     result))
 
-(defun near-miss-var (var)
-"given a symbol return defined variables with similar names"
-  ;; for now, just look for case errors, and just return first one found
-  (let ((sym (find var *variables* :key #'sym-label :test #'string-equal)))
-     (when sym (sym-label sym))))
-
+(defparameter *unknown-variable-error-hint*
+  (strcat 
+   "<ul>"
+   "<li>Variables must be defined before being used in an equation.&nbsp;  Vectors are defined with " *vector-tool* " and scalars are defined with " *text-tool* "." 
+   "<li>" (open-review-window-html "Unit symbols" "units.html" :title "Units")
+   " are case sensitive:&nbsp;  <var>N</var> and <var>n</var> are not the same."
+   "<li>Multiplication requires an explicit multiplication sign:  W=m*g, NOT W=mg."
+   "</ul>"))
 
 (defun undef-variables-ErrorInterp (undef-vars &key id)
   "Given a list of undefined vars (as strings), returns the error interpretation that will be both stored in the student entry and used to give the student an unsolicited warning."
   (let* ((is-comp-var (has-comp-vars-p undef-vars))
-	 (tmp-msg (strcat "Variables must be defined before being used in an equation.&nbsp;  Vectors are defined with " *vector-tool* " and scalars are defined with " *text-tool* ".&nbsp;  Otherwise, the problem may be due to incorrect unit symbols, including case errors.&nbsp;  For example, 'N', not 'n', is the symbol for Newtons."))
-	 (near-misses (mapcar #'near-miss-var undef-vars))	; parallels undef-vars, e.g. (NIL v1 NIL v2 NIL)
-	 (i-first-miss (position-if-not #'null near-misses))    ; index of first var with near-mis, else NIL
+	 ;; parallels undef-vars, e.g. (NIL v1 NIL v2 NIL)
+	 (near-misses (mapcar #'near-miss-var undef-vars))  
+	 (i-first-miss (position-if-not #'null near-misses)) ; index of first var with near-mis, else NIL
 	 (rem (make-hint-seq
 	       (list
-		(if (null (cdr undef-vars))
-		    (format nil "Undefined variable: ~a" (car undef-vars))
-		  (format nil "Undefined variables: ~a" undef-vars))
-		; check for near misses: currently case errors. Could try to find spelling errors later.
-		(if i-first-miss 	; report the first one to fix only. Can get others next time if not fixed.
-	           (format nil "Case matters in variable names: \"g\" means something different than \"G\".  You probably meant ~A instead of ~A." (nth i-first-miss near-misses) (nth i-first-miss undef-vars))
+		(format nil "Undefined variable~:[~;s: ~]~{ <var>~a</var>~}" 
+			(cdr undef-vars) undef-vars)
+		;; check for near misses: currently case errors. 
+		;; Could try to find spelling errors later.
+		(cond 
+		  (i-first-miss     ; report the first one to fix only. Can get others next time if not fixed.
+		   (format nil "Variable names are case sensitive:&nbsp;  You probably meant <var>~A</var> instead of <var>~A</var>." 
+			   (nth i-first-miss near-misses) 
+			   (nth i-first-miss undef-vars)))
 		  ;; else not near-miss: give advice if used compo notation:
-		  (if is-comp-var
-		      (format nil "Vector components ~a are defined only after you have drawn coordinate axes." is-comp-var)
-		    tmp-msg))))))
+		  (is-comp-var
+		   (format nil "Vector components ~a are defined only after you have drawn coordinate axes." 
+			   is-comp-var))
+		  (t *unknown-variable-error-hint*))))))
 
     (setf (turn-id rem) id)
     (setf (turn-coloring rem) **color-red**)
@@ -770,7 +789,9 @@
 ;;
 
 (defun do-check-answer (entry)
-  (let* ((inputo (StudentEntry-verbatim entry))
+  (let*
+      ;; This is the only place where StudentEntry-verbatim is used.
+      ((inputo (StudentEntry-verbatim entry))
 	 sought-quant
 	 (id (StudentEntry-id entry))
 	 result-turn
@@ -815,8 +836,9 @@
 		      (setf valid nil))
 		  ;; else student only entered rhs: fill in lhs student variable.
 		  (setf lhs (if stud-var stud-var "Answer")))
-	      (if (not stud-var)
-		  (symbols-enter "Answer" sought-quant id)) ;; !! NB: want to delete this temp in all paths
+	      (unless stud-var
+		  ;; !! NB: want to delete this temp in all paths
+		  (symbols-enter "Answer" sought-quant :entries (list id)))
 	      (if valid
 		  (let* ((parses (parse-equation 
 				  **grammar** 
@@ -855,6 +877,8 @@
 				   (StudentEntry-ParsedEqn temp-entry))
 			     ;; remove temp from saved entry list
 			     (delete-object 'check-answer-equation)) ;clears algebra slot
+			   ;; remove from equation parser's grammar (safe if never added)
+			   (grammar-remove-variable "Answer")
 			   (symbols-delete "Answer"))
 			  (T ; answer has non-parameter vars
 			   (setf (StudentEntry-ErrInterp entry) 
@@ -1040,7 +1064,7 @@
 	 ;; use given-var-p to avoid this behavior. Note it looks for
 	 ;; given flag on quantities at the bubble-graph level, not implicit 
 	 ;; equations, so might not work for those.
-	 (sysvar   (student-to-canonical studvar))
+	 (sysvar (student-to-canonical studvar))
 	 ; NB: sysvar may be NIL, e.g for unused vector attribute
 	 (is-optionally-given (and sysvar (optionally-given-p sysvar)))
 	 (is-given (and sysvar (given-p sysvar)))
@@ -1181,7 +1205,7 @@
 
 (defun should-be-given-ErrorInterp (se quant)
   (let ((rem (make-hint-seq
-	      (list (format nil "The value of ~a can be determined from the problem statement.  It should be entered in the dialog box when defining the relevant variable." 
+	      (list (format nil "The value of ~a can be determined from the problem statement.  It should be entered as an equation after defining the relevant variable." 
 	                             (nlg (quant-to-sysvar quant) 'algebra))
 	         ))))
     (setf (StudentEntry-ErrInterp se)
@@ -1200,11 +1224,14 @@
 		      :test #'exactly-equal)))
     (if eqn (list (eqn-algebra->sysent (eqn-algebra eqn))))))
 
+;; Generally such quantities should be pre-defined, but this 
+;; is a fall-back.
 (defun should-be-known-ErrorInterp (se quant)
   (let ((rem (make-hint-seq
 	      (list (format nil "You need to enter an appropriate value for ~a."  
 			    (nlg quant))
-		    (format nil "Select 'Constants used in Andes' on the Help menu to find the value used in Andes.  This value should be entered in the dialog box when defining the relevant variable.")
+		    (strcat (begin-sentence *constants-menu-action*)
+		    " and find the value used in Andes.  After defining the relevant variable, write an equation giving its value.")
 	         ))))
     (setf (StudentEntry-ErrInterp se)
       (make-ErrorInterp

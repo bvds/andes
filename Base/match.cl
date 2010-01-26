@@ -26,7 +26,8 @@
 ;;                 (conjoin <conjunction> <model> ...)  conjoin orderless
 ;;                               sequence (<model> ...) using <conjunction>, 
 ;;                               where <conjunction> is of type <model>.
-;;                 (var <quant>)  match student variable for <quant>
+;;                 (var <quant> :namespace <space>)  match student variable 
+;;                               for <quant> in namespace <space>.
 ;;                 (eval <lisp>)  execute <lisp> as lisp code 
 ;;                 (<atom> ...)  if <atom> matches none of above, 
 ;;                               match with ontology

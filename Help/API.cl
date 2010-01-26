@@ -113,11 +113,10 @@
       (noneq-entry . 
        (assert-object
 	assert-compound-object 
-	lookup-vector 
+	lookup-vector
+	lookup-line
 	lookup-force 
 	lookup-torque
-	label-angle 
-	define-angle-variable
 	label-radius 
 	define-variable
 	assert-x-axis 
@@ -142,8 +141,7 @@
       ;; The algebra calls are expected to return equations so they will get
       ;; an eqn-result. 
       (Algebra . 
-       (calculate-equation-string
-	solve-for-var
+       (solve-for-var
 	))
       
       ;; ------------------------------------------------------------------

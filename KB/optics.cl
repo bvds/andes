@@ -40,15 +40,17 @@
 ;; statement.  So that is what we do.
 ;; We also use systems of more than 1 lens for which a net magnification can be defined. 
  
-
+;; ex) "object distance for lens1" by Bob
 (def-qexp object-distance (object-distance ?lens)
   :symbol-base |do|     
   :short-name "object distance"	
   :units |m|
-  :new-english ((the) "distance"
-		(and (preferred ("of" (the) "object"))
-		     (preferred ("from" ?lens))))
-)
+  :new-english ((the) 
+		(or (  "distance"
+		       (and (preferred ("of" (the) "object"))
+		            (preferred ((or "from" "for") ?lens))))
+		    (  "object distance" 
+		       (preferred ((or "from" "for") ?lens))))))
 
 (defoperator define-object-distance (?lens)
   :preconditions ( (bind ?do-var (format-sym "do_~A" (body-name ?lens))) )
@@ -60,14 +62,17 @@
 			     (*text-tool* eval)
 			     )) ))
 
+;; ex) "image distance for lens1" by Bob
 (def-qexp image-distance (image-distance ?lens)
   :symbol-base |di|     
   :short-name "image distance"	
   :units |m|
-  :new-english ((the) "distance"
-		(and (preferred ("of" (the) "image"))
-		     (preferred ("from" ?lens))))
-)
+  :new-english ((the) 
+		(or (  "distance"
+		       (and (preferred ("of" (the) "image"))
+		            (preferred ((or "from" "for") ?lens))))
+		    (  "image distance" 
+		       (preferred ((or "from" "for") ?lens))))))
 
 (defoperator define-image-distance (?lens)
   :preconditions ( (bind ?di-var (format-sym "di_~A" (body-name ?lens))) )
@@ -476,22 +481,27 @@
      (variable ?f12 (focal-length ?compound))
   )
   :effects (
-    (eqn (= (/ 1 ?f12) (+ (/ 1 ?f1) (/ 1 ?f2))) (compound-focal-length ?compound))
+    (eqn (= (/ 1 ?f12) (+ (/ 1 ?f1) (/ 1 ?f2))) 
+	 (compound-focal-length ?compound))
   )
   :hint (
     (point (string "When two lenses are touching, you can treat them as a single compound lens with a focal length that is a function of the focal lengths of the two individual lenses."))
     (teach (string "It can be shown that the reciprocoal of the focal length of a compound lens formed by two touching lenses is equal to the sum of the reciprocals of the focal lengths of the two individual lenses."))
     (bottom-out (string "Write the equation ~A" 
-         ((= (/ 1 ?f21) (+ (/ 1 ?f1) (/ 1 ?f2))) algebra) ))
+         ((= (/ 1 ?f12) (+ (/ 1 ?f1) (/ 1 ?f2))) algebra) ))
   ))
 
-;;; line drawing
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;;                          line drawing
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; this draws a line, with the bodies as a choice.
-
+;; the wrapper (line ...) is probably superfluous, see Bug #1683
+;; Need to add trivial wrapper to Ontology, to compensate.
 (def-qexp line (line ?r)
   :units nil
-  :new-english (?r))
+  :new-english ?r)
 
 ;; Helper routine to give expression for a line
 (def-qexp line-between (line-between-points ?a ?b)

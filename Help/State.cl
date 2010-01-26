@@ -33,6 +33,10 @@
 ;; 8/11/2003 - (CL) -- Added in Done flag to close-problem.
 ;;
 
+(in-package :cl-user)
+(eval-when (:load-toplevel :compile-toplevel)
+  (use-package :symbols))
+
 ;;========================================================
 ;; Storage elements.
 
@@ -124,7 +128,7 @@
   ;; reset run-time data structures for new problem:
   (setf **grammar** nil)
   (grammar-add-grammar '**grammar** **common-grammar**)
-  (setf *variables* nil)
+  (empty-symbol-table)
   (setf *StudentEntries* nil)
   ;; use problem name as seed for random elt
   (initialize-random-elt (string-downcase name)) 
@@ -171,7 +175,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun do-close-problem ()
    ;; empty symbol table and entry list
-   (setf *variables* nil)
+   (empty-symbol-table)
    (setf **grammar** nil)
    (setq *StudentEntries* nil)
 
