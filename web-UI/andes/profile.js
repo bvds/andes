@@ -13,6 +13,7 @@ dojo.require("dijit.MenuItem");
 dojo.require("dijit.PopupMenuItem");
 dojo.require("dijit.form.Button");
 dojo.require("dijit.form.TextBox");
+dojo.require("dojox.flash");
 
 // needs to be loaded before Drawing:
 dojo.require("andes.defaults");
@@ -39,6 +40,7 @@ dojo.require("dojox.drawing.plugins.tools.Zoom");
 
 dojo.require("dojox.drawing.ui.Toolbar");
 dojo.require("dojox.drawing.ui.Button");
+//dojo.require("dojox.drawing.ui.Tooltip");
 dojo.require("dojox.drawing.library.icons");
 
 // needs to be loaded after Drawing:
