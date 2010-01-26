@@ -127,9 +127,6 @@ make install-dojo
 
 ;; To stop the lisp server:
 (stop-help)
-;; There is a bug, which causes shut-down to hang, see
-;; http://common-lisp.net/pipermail/tbnl-devel/2009-February/004608.html
-;; http://common-lisp.net/pipermail/tbnl-devel/2009-February/004589.html
 
 ;; to exit lisp:
 (quit)
@@ -144,9 +141,6 @@ screen -r
 
   ;; In lisp, stop the server, reload and restart:
   (stop-help)
-  ;; There is a bug, which causes shut-down to hang, see
-  ;; http://common-lisp.net/pipermail/tbnl-devel/2009-February/004608.html
-  ;; http://common-lisp.net/pipermail/tbnl-devel/2009-February/004589.html
   (rhelp)
   (start-help)
   ;; At this point, you can type ctl-a ctl-d to detach from the 
