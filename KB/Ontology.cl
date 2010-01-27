@@ -215,7 +215,7 @@
 			     (time ?time))))
 
 (def-qexp rotation-adj rotation-adj
-  :new-english (or "angular" "rotational" "rot." "ang." "rot" "ang") )
+  :new-english (or "angular" "rotational" "rot." "ang." "orb." "rot" "ang") )
 
 (def-qexp ang-displacement (ang-displacement ?body :time ?time)
   :units |rad|
@@ -634,7 +634,7 @@
   :symbol-base |W|     
   :short-name "work"	
   :units |J|
-  :new-english ((the) (allowed (or "total" "average")) "work" (preferred "done")
+  :new-english ((the) (allowed "average") "work" (preferred "done")
 		(and (preferred (object ?b))
 		     (preferred (agent ?agent))
 		     (time ?time))))
@@ -647,7 +647,7 @@
 
 (def-qexp net-work (net-work ?body :time ?time)
   :units |J|
-  :new-english (((the) (preferred (or "total" "net")) "work" 
+  :new-english (((the) (or "net" "total net" "total") "work" 
 		 (preferred "done")
 		 (and (preferred (object ?body))
 		      (allowed (agent "all forces"))
