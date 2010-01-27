@@ -401,10 +401,13 @@
   (make-red-turn :id (StudentEntry-id Entry)))
 
 (defun no-matches-ErrorInterp (entry)
-  (let ((rem (make-hint-seq 
-	      (list (format nil "I cannot understand your definition~:[~; of <var>~A</var>~]." 
+  (let* ((equal-sign (when (find #\= (StudentEntry-text entry))
+		       (strcat "If you are trying to write an equation, use "
+			       *equation-tool* " instead.")))
+	 (rem (make-hint-seq 
+	      (list (format nil "I cannot understand your definition~:[~1*~; of <var>~A</var>~].~@[&nbsp ~A~]" 
 			    (> (length (StudentEntry-symbol entry)) 0)
-			    (StudentEntry-symbol entry))
+			    (StudentEntry-symbol entry) equal-sign)
 		    '(function next-step-help)))))
     (setf (turn-id rem) (StudentEntry-id entry))
     (setf (turn-coloring rem) **color-red**)
@@ -444,7 +447,7 @@
 
 (defun pull-out-quantity (symbol text)
   "Pull the quantity phrase out of a definition:  should match variablename.js"
-  (when symbol
+  (when (> (length symbol) 0)   ;variablename.js returns empty string on no match.
     (if (not (search symbol text))
 	(warn "Bad symbol definition, ~S should be found in ~S."
 	      symbol text)
