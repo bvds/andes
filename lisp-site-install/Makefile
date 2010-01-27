@@ -78,6 +78,7 @@ patch-clsql:
 	patch -p0 -d /usr/local/lib/sbcl/site < clsql-$(clsql-v).patch
 
 create-site-libraries:
+	chmod go+xr /usr/local/lib/sbcl/site/md5*
 	chmod -R go+r /usr/local/lib/sbcl/site/md5*
 	-cd /usr/local/lib/sbcl/site; rm */*.fasl; rm */*/*.fasl
 	-cd /usr/local/lib/sbcl/site; rm */*/*.so

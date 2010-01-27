@@ -149,7 +149,7 @@
   ;; turn.  
   (if *cp* 
       (do-read-problem-info-setup)
-      (error "*cp* not defined in problem setup")))
+      (error "Unable to load problem ~A.&nbsp;  Please try another problem." name)))
 
 ;; Once the problem has been loaded successfully into the *cp* parameter
 ;; then we need to setup the struct for runtime use.  This code will do 
