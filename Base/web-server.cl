@@ -332,7 +332,7 @@
 (defun error-hint (condition)
   "Message shown to the user after a lisp error has occurred."
   `(((:action . "show-hint")
-     (:text . ,(format nil "An error occurred:~%     ~A,~%Please try again." 		       condition)))))
+     (:text . ,(format nil "An error occurred:<br>~%~A~%" condition)))))
 
 (defun log-error (condition)
   "Log after an error or warning has occurred."
