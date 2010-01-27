@@ -176,12 +176,15 @@
 ;;
 
 ;; ex) "the period of the motion of ~"
+;;     "the period of oscillations of ~"
 (def-qexp period (period ?body)
   :symbol-base |T|     
   :short-name "period"	
   :units |s|
   :restrictions positive
-  :new-english (property-object "period of the motion" ?body))
+  :new-english (property-object 
+			((allowed "time") "period of" (the) (or "motion" "oscillations" "vibrations")) 
+			?body))
 
 (defoperator define-period-var (?b)
   :preconditions ( 
