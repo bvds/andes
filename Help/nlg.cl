@@ -389,7 +389,7 @@
     (return-from new-english-find (def-np-model prop)))
   
   ;; On failure, warn and return nil
-  (warn "No ontology match for ~A" prop))
+  (warn "new-english-find:  no ontology match for ~A" prop))
 
   
 (defun expand-new-english (model &optional (bindings no-bindings))
@@ -429,16 +429,19 @@
   ;; and lists with bindings of the form (... . ?rest)
   ;; along with (... . (eval ...))
   (cond ((null x) x)
-	((eql (car x) 'eval) 
+	;; Handle (... . ?rest)
+	((variable-p x) (expand-new-english-list 
+			 (subst-bindings bindings x)))
+	;; Handle (... . (eval ...))
+	((and (consp x) (eql (car x) 'eval))
 	 (let ((result (expand-new-english x bindings)))
 	   (unless (consp result)
 	     (warn "eval must return a list:  ~A returned ~A" x result))
 	   result))
-	((variable-p x) (expand-new-english-list 
-			 (subst-bindings bindings x)))
+	;; recursion
 	((consp x) (cons (expand-new-english (car x) bindings)
 			 (expand-new-english-list (cdr x) bindings)))
-	(t (error "invalid list structure in ~A" x))))
+	(t (warn "expand-new-english-list:  invalid list structure in ~A" x))))
 
 (defun expand-vars (model)
   "Expand (var ...) expressions and remove nils from model tree."
@@ -453,4 +456,4 @@
 	;; expansion of var must be done at run-time.
 	((eql (car model) 'var)
 	 (apply #'symbols-label (cdr model)))
-	(t (warn "Invalid expand ~A" model) model)))
+	(t (warn "expand-vars:  invalid expand ~A" model) model)))
