@@ -2,20 +2,21 @@ dojo.provide("andes.variablename");
 // pick out variable name from definition string
 // The forms that are matched:
 //    ?var is ...
-//    ?var: ...
+//    ?var: ...  [space optional]
+//    ?var = ...  [spaces optional]
 //    Let ?var be ...
 //    Define ?var (as|to be) ...
 //
-// Variables are any alphanumeric, _ \ and $, 
+// Variables are any alphanumeric, _ \ and $,
 // for LaTeX compatibility
-// 
+//
 // This routine needs to match function pull-out-quantity
 // in Help/Entry-API.cl
-// 
+//
 // To do:
 //    Test for variable names that begin with a number
 //
-//    Handle variable names containing parentheses or brackets:   
+//    Handle variable names containing parentheses or brackets:
 //    "H(green house) is the height of the house on Green St."
 //    "A_{t=0} is the initial area"
 
@@ -24,11 +25,10 @@ andes.variablename.parse = function(intext){
     // canonicalize whitespace
     var cantext = intext.replace(/\s+/g," ");
     cantext = cantext.replace(/\s*=\s*/," = ");
+    cantext = cantext.replace(/:\s*/,": ");
     cantext = cantext.replace(/^\s+/,"");
     // match for forms like ?var is ...
-    // Disallow "=" to better handle error where student
-    // uses the text tool for an equation.
-    var equality=/^([\w\\$]+)(:| is) /i;
+    var equality=/^([\w\\$]+)(:| is| =) /i;
     var match = equality.exec(cantext);
     // console.log("equality match ",match);
     if (match) return match[1];
