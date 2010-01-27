@@ -259,6 +259,7 @@
       (let ((x 10) (y 10) (i 0))
 	(dolist  (line (problem-statement *cp*))
 	  (cond ((unify line '(answer . ?rest))
+		 ;; Need to do inlining for answer boxes, Bug #1689
 		 (let ((id (format nil "statement~A" i)))
 		   ;; Add to *StudentEntries* but don't evaluate in Help.
 		   (push (make-studententry :id id :mode "unknown"
@@ -491,8 +492,9 @@
   ;;                         x-label y-label z-label angle
   (env-wrap 
     ;; Andes2 also had calls to:
-    ;; define-angle-variable assert-compound-object
-    ;; label-angle
+    ;; define-angle-variable  (undocumented leftover from Andes1)
+    ;; assert-compound-object
+    ;; label-angle (removed from Andes3, may restore if angle tool added)
     ;; lookup-mc-answer
     ;; calculate-equation-string (find variable on lhs of equation)
     ;;                           (not in Andes3)
@@ -648,8 +650,10 @@
       ;; Student has clicked a link associated with the help.
       ((and (equal action "get-help") value)
        (let ((response-code (find-symbol value)))
-	 (unless response-code (warn "Unknown value ~A, using nil." value))
-	 (execute-andes-command 'handle-student-response response-code)))
+	 (if response-code 
+	     (execute-andes-command 'handle-student-response response-code)
+	     (warn "Unknown get-help value ~S, doing nothing; see Bug #1686." 
+		   value))))
       ((equal action "principles-menu")
        (execute-andes-command 'handle-student-response value))
       (t (warn "undefined action ~A, doing nothing." action)))))

@@ -72,15 +72,15 @@ make install-site-libraries
   /sbin/service mysqld restart
 # (In OS X, go to http://dev.mysql.com, install mysql and MySQLStartupItem,
 # add /usr/local/mysql/bin to PATH in ~/.profile,
-# execute "(cd /usr/local/lib; ln -s ../mysql/lib/lib*.{a,dylib} .)"
+# execute "(cd /usr/local/lib;sudo ln -s ../mysql/lib/lib*.{a,dylib} .)"
 # execute "sudo /Library/StartupItems/MySQLCOM/MySQLCOM start", and
 # set the root mysql password using the above command.) 
 
 # Set up tables in database:
 make install-database
 
-# Finally, the lisp package clsql will need the mysql header files.  
-# In Linux systems, these are provided by mysql-devel; enter 
+# Finally, in Linux, the lisp package clsql will need the mysql header files.  
+# These are provided by mysql-devel; enter 
 # "rpm -q mysql-devel" to see if it has been installed.
 
 # If you need to install mysql or mysql-devel, a number of rpm
@@ -94,9 +94,10 @@ make install-database
 # Run with superuser privileges:
 make configure-httpd  
 
-# Start up Apache.  As superuser:
+# Start up Apache.  In linux, as superuser:
   /sbin/chkconfig httpd on
   /sbin/service httpd start
+(OS X, do this from "System Preferences")
 
 ====================== Javascript ===================================
 
@@ -126,9 +127,6 @@ make install-dojo
 
 ;; To stop the lisp server:
 (stop-help)
-;; There is a bug, which causes shut-down to hang, see
-;; http://common-lisp.net/pipermail/tbnl-devel/2009-February/004608.html
-;; http://common-lisp.net/pipermail/tbnl-devel/2009-February/004589.html
 
 ;; to exit lisp:
 (quit)
@@ -143,9 +141,6 @@ screen -r
 
   ;; In lisp, stop the server, reload and restart:
   (stop-help)
-  ;; There is a bug, which causes shut-down to hang, see
-  ;; http://common-lisp.net/pipermail/tbnl-devel/2009-February/004608.html
-  ;; http://common-lisp.net/pipermail/tbnl-devel/2009-February/004589.html
   (rhelp)
   (start-help)
   ;; At this point, you can type ctl-a ctl-d to detach from the 

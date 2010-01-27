@@ -97,7 +97,9 @@
   :symbol-base |C|     
   :short-name "capacitance"
   :units |F|
-  :new-english (property-object "capacitance" (or (var (body ?name)) ?name) ))
+  :new-english (property-object "capacitance" 
+				(or (var (body ?name) :namespace :objects) 
+				    ?name) ))
 
 ;;; in the workbench, the time slot is added if feature changing-voltage
 ;;; is included.
@@ -105,7 +107,8 @@
   :symbol-base |q|     
   :short-name "charge"	
   :units |C|
-  :new-english ((the) "charge on" (or (var (body ?name)) ?name) (time ?time)))
+  :new-english ((the) "charge on" (or (var (body ?name) :namespace :objects) 
+				      ?name) (time ?time)))
 
 ;;; in the workbench, the time slot is added if feature changing-voltage
 ;;; is included.
@@ -121,14 +124,17 @@
   :symbol-base |q|     
   :short-name "charge"	
   :units |C|
-  :new-english ((the) "charge in" (or (var (body ?name)) ?name)  (time ?time)))
+  :new-english ((the) "charge in" (or (var (body ?name)
+					   :namespace :objects) ?name)  
+		(time ?time)))
 
 (def-qexp max-charge (max-charge ?name :time ?time)
   :symbol-base |q|     
   :short-name "max-charge"	
   :units |C|
   :new-english ((the) or("maximum" "max") "charge in" 
-		(or (var (body ?name)) ?name)  (time ?time)))
+		(or (var (body ?name) :namespace :objects) 
+		    ?name)  (time ?time)))
 
 (def-qexp self-inductance (self-inductance ?inductor)
   :symbol-base |L|     

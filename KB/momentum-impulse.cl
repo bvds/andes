@@ -84,8 +84,8 @@
    )
   :hint (
     (point (string "In order to form an expression for the ~a component of total momentum ~a, you will need an expression for the ~a component of the momentum of ~A ~A."
-     ((axis ?xyz ?rot) symbols-label) (?t pp)
-     ((axis ?xyz ?rot) symbols-label)  ?b (?t pp)))
+     ((axis ?xyz ?rot) symbols-label :namespace :objects) (?t pp)
+     ((axis ?xyz ?rot) symbols-label :namespace :objects)  ?b (?t pp)))
     (teach (string "The linear momentum of a body is a vector defined as its mass times the velocity vector. Therefore, the component of a body's momentum along an axis can be expressed as its mass times the component of the body's velocity along that axis."))
     (bottom-out (string "Write the equation ~A"  
                         ((= ?p_compo (* ?m ?v_compo)) algebra)))
@@ -321,11 +321,12 @@
 			    (cons-linmom ?bodies (during ?t1 ?t2))))
   )
   :hint (
-  (point (string "Can you write an equation relating the ~a components of total momentum before and after the collision?" ((axis ?xyz ?rot) symbols-label)))
+  (point (string "Can you write an equation relating the ~a components of total momentum before and after the collision?" 
+		 ((axis ?xyz ?rot) symbols-label :namespace :objects)))
   (teach (string "The law of conservation of momentum states that if no external force acts on a system, then the total momentum remains constant. Because the total momentum is the vector sum of the momenta of each body in the system, this law entails that the sum of the momentum components in any direction is the same before and
  after a collision."))
   (bottom-out (string "Write conservation of momentum along the ~A axis as ~A"  
-			((axis ?xyz ?rot) symbols-label)
+			((axis ?xyz ?rot) symbols-label :namespace :objects)
 			((= (+ . ?p1_compos) (+ . ?p2_compos)) algebra)))
   ))
 
@@ -354,11 +355,12 @@
     )
   :hint 
   (
-   (point (string "Can you write an equation relating the ~a components of total momentum before and after the collision?" ((axis ?xyz ?rot) symbols-label)))
+   (point (string "Can you write an equation relating the ~a components of total momentum before and after the collision?" 
+		  ((axis ?xyz ?rot) symbols-label :namespace :objects)))
    (teach (string "The law of conservation of momentum states that if no external force acts on a system, then the total momentum remains constant. Because the total momentum is the vector sum of the momenta of each body in the system, this law entails that the sum of the momentum components in any direction is the same before and
  after a collision."))
    (bottom-out (string "Write conservation of momentum along the ~A axis as ~A"  
-		       ((axis ?xyz ?rot) symbols-label)
+		       ((axis ?xyz ?rot) symbols-label :namespace :objects)
 		       ((= ?pc_compo (+ . ?pf_compos)) algebra)))
    ))
 
@@ -902,7 +904,9 @@
   :hint
   ((point (string "You can relate the change in momentum of ~A to the
 impulse ~A." (?b def-np) (?t pp)))
-    (bottom-out (string "Write the equation using component variables along the ~A axis as ~A" ((axis ?xyz ?rot) symbols-label) ((= ?J-compo-var (- ?pf-compo ?pi-compo)) algebra)))
+    (bottom-out (string "Write the equation using component variables along the ~A axis as ~A" 
+			((axis ?xyz ?rot) symbols-label :namespace :objects) 
+			((= ?J-compo-var (- ?pf-compo ?pi-compo)) algebra)))
     ))
 
 
@@ -1104,7 +1108,7 @@ impulse ~A." (?b def-np) (?t pp)))
   ( (point (string "Find the center of mass of ~A ~A"  
 		   (?bodies conjoined-defnp) (?t pp)))
     (teach (string "Use the masses and the ~A component of the positions"
-		   ((axis ?xyz ?rot) symbols-label)))
+		   ((axis ?xyz ?rot) symbols-label :namespace :objects)))
     (bottom-out (string "Write the equation ~A"  
                         ((= ?r-com-compo (/ (+ . ?rhs) (+ . ?mass-vars))) algebra)))
     ))

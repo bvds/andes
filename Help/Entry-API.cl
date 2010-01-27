@@ -152,102 +152,9 @@
 ;;
 ;; Bodies
 ;;
-;; Atomic body name argument is either a KB name (stored in WB file) or a 
-;; student-defined compound body label. However, a few names in the existing 
-;; problems have hyphens in them. These were changed to underscores in Andes2 
-;; problems since algebra module can't handle hyphens in variable names and 
-;; variable names are formed with body names as parts. Also, body arguments 
-;; are sometimes passed in vbars so preserve mixed case while read, even 
-;; though all KB names are upcased, so we upcase them as well.
-;;
-;; We also handle body arg consisting of a list of simple body names and
-;; form a compound body term for it. Note: Originally this arg form was only 
-;; sent to assert-compound-object. But it now occurs elsewhere, for example
-;; when defining a variable for resistance of a set of components. So the 
-;; translation of the set into compound body term may have to be undone when 
-;; forming the quantity below in make-quant. 
-;;
-;; NB: can also get NIL body-arg in some cases, such as agent of net-work.
-;; should remain NIL for none.
-;;
-;; Note we assume body names have no spaces, even if wrapped in vbars
-;; (read-from-string used to get symbol in fix-body-name.)
-(defun arg-to-body (body-arg)
-  "Convert WB API body argument to KB body term" 
-  (if (consp body-arg)  ; list of body names: make compound body term
-      `(compound orderless ,@(mapcar #'fix-body-name body-arg)) 
-  ; else atomic body name:
-   ; check if this is a student-defined compound-body label
-   (let ((stud-quant (symbols-referent (string body-arg))))
-     (if (and stud-quant (compound-bodyp stud-quant)) stud-quant
-       ; else treat as simple body name:
-       (fix-body-name body-arg)))))
 
-(defun fix-body-name (body-arg)
-  "Convert atomic body name symbol read from WB arg to KB body symbol"
-  ;; NB: can't use read-from-string to make symbol because now some body args 
-  ;; from variable dialog are not really body names & might contain spaces 
-  ;; (e.g. |all forces|).  Instead, intern in current package 
-  ;; (to prevent Lisp printing with #:)
-  (intern (string-upcase (substitute #\_ #\- (string body-arg)))))
 
-;; Extract constituents from list-valued circuit quantity argument
-(defun bodyterm-complist (bodyterm)
- "extract component list from a compound component term as built by arg-to-body"
- ; arg-to-body builds: (compound orderless C1 C2 ...)
- (cddr bodyterm))  
 
-; For circuits, we sometimes have to handle defined compound component labels as arguments.
-; E.g. say student variable "foo" has earlier been defined as (resistance (R5 R6)), meaning
-; the resistance of the compound of R5 and R6. The workbench now allows "foo" to be used as a 
-; name for the compound resistor in OTHER variable definitions.  For example, student may define 
-; a variable for voltage-across with body 'foo. This is a form of overloading: "foo" officially 
-; stands for the resistance of a compound component, but is overloaded to stand for the compound
-; component itself. The body arg "foo" in *this* context will need ultimately to be translated to
-; (R1 R2) get us to (voltage-across (R1 R2)) to match the form used in the knowledge base. 
-;
-; There are only certain contexts in which a compound equivalent label might occur as an
-; argument and need to be expanded into its constituents -- right now it is only voltage quantities. 
-; So arg-to-body itself does NOT automatically expand them.  (See bug 1478). Rather, the relevant 
-; make-quant clause will use component-elements to look up the definition of "foo", 
-; find (resistance (R5 R6)), and extract (R5 R6) when building the voltage term.  
-
-(defun compound-componentp (quant)
-"return true if quantity is a compound equivalent resistor or capacitor"
-   (and (consp quant)
-	(= (length quant) 2)
-        (or (eq (first quant) 'resistance)
-	    (eq (first quant) 'capacitance))
-	(consp (second quant))))
-
-(defun component-elements (comp-name)
-"return elements of named component: constituents for defined compounds, else itself"
-   (let ((stud-quant (symbols-referent (string comp-name))))
-     (if (and stud-quant (compound-componentp stud-quant)) stud-quant
-      ; else
-         comp-name)))
-
-;; 
-;; Type/subtype identifiers
-;; Some of these have to be translated using the appropriate mapping table.
-;;
-;; We don't want case to be significant in symbols used as IDs. 
-;; KB ID symbols get converted to upper case by read; we write them here
-;; in upper case just to emphasize that fact.  However, workbench wraps some
-;; id symbols in vbars when sending to be safe against contained spaces.
-;; This leads them to be read in as symbols with mixed-case printnames. 
-;; Any id arg passed through arg-to-id will be converted to upper case if
-;; not otherwise translated.
-;;
-(defun arg-to-id (alist id-arg)
-  "map a WB API id symbol to a KB symbol"
-  (or (cdr (assoc id-arg alist :test #'sym-match))
-      ; else no translation: convert to upper case symbol and return it
-      (sym-upcase id-arg)))
-
-(defun sym-upcase (sym)
-  "given possibly mixed-case symbol, return symbol upper case printname"
-    (read-from-string (string-upcase (string sym))))
 
 (defun sym-match (sym1 sym2)
    "case independent comparison of symbol names"
@@ -293,16 +200,6 @@
 		      (Ang-Acceleration . ANG-ACCEL)
 		      (Position . RELATIVE-POSITION)
 )  #+sbcl #'equalp)
-
-; KB potential energy type (grav-energy or spring-energy) is implicit in 
-; type of body arguments sent from workbench (one should be planet or spring)
-; Following helps determine KB PE type to use.  We could look up types in 
-; problem givens, but for now for now we just use SLEAZY HACK exploiting fact 
-; that in all Andes probs these are named 'spring or 'earth, respectively.
-(defun planetp (body-term)
-  (sym-match body-term 'earth))
-(defun springp (body-term)
-  (sym-match body-term 'spring))
 
 ;; Dispatch function takes an atom coding a vector attribute and a vector-term
 ;; Builds and returns a term for that attribute of the vector.
@@ -626,7 +523,8 @@
 	 (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
 	 ;; OK if there is no symbol defined.
 	 (when (> (length symbol) 0) ;not null string
-	   (check-symbols-enter symbol (StudentEntry-prop entry) id))
+	   (check-symbols-enter symbol (second (StudentEntry-prop entry)) id 
+				:namespace :objects))
 	 
 	 (check-noneq-entry entry :unsolicited-hints hints))  ;finally return entry 
 	(tturn)))))
@@ -703,11 +601,12 @@
 	 (setf vector-dir-term `(dir ,vector-term))
 	 
 	 (setf (StudentEntry-prop entry) action)
+	 (check-symbols-enter symbol vector-term id :namespace :objects)
 	 (check-symbols-enter symbol vector-mag-term id)
 	 (check-symbols-enter dir-label vector-dir-term id)
 	 
 	 ;; if any axes are defined must add all component variables as well
-	 (dolist (axis-sym (symbols-fetch '(axis ?xyz ?dir)))
+	 (dolist (axis-sym (symbols-fetch '(axis ?xyz ?dir) :namespace :objects))
 	   (let* ((axis-label (sym-label axis-sym))
 		  (axis-term (sym-referent axis-sym))
 		  (axis-entry-id (first (sym-entries axis-sym)))
@@ -790,20 +689,17 @@
 (defun lookup-line (entry)
   (let* ((id (StudentEntry-id entry))
 	 ;; Needs to be determined from natural language 
-	 time body-arg
 	 ;;
 	 (mag (StudentEntry-radius entry))
 	 (dir (StudentEntry-angle entry))
 	 (label (StudentEntry-symbol entry))
-	 (body-term (arg-to-body body-arg))
-	 (time-term (arg-to-time time))
 	 ;; note dir may be dnum or 'unknown (and maybe into/out-of)
 	 (dir-term (arg-to-dir dir mag 180)) ;lines defined mod 180 deg
-	 (line-term `(line ,body-term :time ,time-term))
-	 (action `(draw-line ,line-term ,dir-term)) 
 	 ;; this defines magnitude and direction variables
-	 (line-mag-term `(mag ,line-term))
-	 (line-dir-term `(dir ,line-term))
+	 line-term
+	 line-mag-term 
+	 line-dir-term
+	 action
 	 ;; xy plane lines get theta prefix, z axis ones get phi
 	 ;; These are the input forms
 	 (dir-label  (format NIL "~A~A" (if (z-dir-spec dir-term) "\\phi" "\\theta")
@@ -813,13 +709,21 @@
 	  (sysent tturn hints)
 	(match-student-phrase 
 	 entry
-	 (remove '(line . ?rest) *sg-entries* 
+	 (remove '(draw-line . ?rest) *sg-entries* 
 		 :key #'SystemEntry-prop :test-not #'unify)
 	 :cutoff 0.6 :equiv 1.25)
 
       (cond 
 	(sysent
+	 ;; Use the quantity from the best match with angle we actually got.
+	 (setf action (list 'draw-line 
+			    (second (SystemEntry-prop sysent)) dir-term))
+	 (setf line-term (second action))
+	 (setf line-mag-term `(mag ,line-term))
+	 (setf line-dir-term `(dir ,line-term))
+
 	 (setf (StudentEntry-prop entry) action)
+	 (check-symbols-enter label line-term id :namespace :objects)
 	 (check-symbols-enter label line-mag-term id)
 	 (check-symbols-enter dir-label line-dir-term id)
 	 
@@ -846,147 +750,11 @@
 						    :test #'unify))
 	     (add-implicit-eqn entry 
 			       (make-implicit-eqn-entry (eqn-algebra eqn)))))
-	 
+
 	 ;; finally return entry
 	 (check-noneq-entry entry :unsolicited-hints hints))
 	(tturn)))))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; label-angle -- assigns the given label to the angle between two objects with
-;;  given degrees size
-;; argument(s):
-;;  label: the label given the angle by the student
-;;  degrees: the size of the angle
-;;  id-vector1: id of one vector forming the angle (may refer to an axis)
-;;  id vector2: id of other vector forming angle (may refer to axis if previos
-;;    does not
-;;  id-angle: the id of the new angle object
-;;  axis: the part of coordinate system that is used (posx, negx, posy, negy)
-;; returns: StudentEntry
-;; note(s):
-;;  adds angle label to the list of variables
-;; The id arguments are workbench-generated ids of the *entries* that drew
-;; the relevant objects -- vectors or coordinate systems. The complete 
-;; specification of an axis includes the coordinate system id plus the 
-;; code posx, posy etc.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun label-angle (label degrees id-vector1 id-vector2 id-angle &optional axis)
-  ; if angle between vectors then have to make entry and check for match.
-  ; if angle between vector and axis, then just install it in symbol table
-  ; as label for appropriate angle expression.  Dispatch based on angle type:
- (check-noneq-entry
-  (if axis 
-      (on-angle-with-axis label degrees id-vector1 id-vector2 
-                               id-angle axis)
-      (on-angle-between-vectors label degrees id-vector1 id-vector2 id-angle :drawn T))))
-
-;; Worker routine to handle entry of term for angle between vectors.  
-;; "Drawn" argument specifies if drawn as diagram entry or defined as variable
-;;  Either way this should match a solution graph entry.
-(defun on-angle-between-vectors (label degrees id-vector1 id-vector2 id-angle &key drawn) 
-   (declare (ignore drawn)) ; AW: no longer used
-   ;; need to map entry id to referent vectors. Note this may now be used for 
-   ;; drawn line entries as well.  Code should work without change, because 
-   ;; lookup-line enters line label as symbol for (mag (line ...)) 
-   ;; exactly as for vectors.
-   ;; Take second to extract time-indexed vector quant terms from (mag ?vector)
-   (let* ((v1-term (second (symbols-entry-referent '(mag ?vector) id-vector1)))
-          (v2-term (second (symbols-entry-referent '(mag ?vector) id-vector2)))
-	  (angle-term `(angle-between orderless ,v1-term ,v2-term))
-	  (action `(define-var ,angle-term))
-          (entry (make-StudentEntry :id id-angle :prop action))
-	 )
-
-   (check-symbols-enter label angle-term id-angle)
-   ; add implicit equation for variable if value known. This means they
-   ; don't have to enter equation giving the value. Interface does
-   ; show them the value on the dialog box.
-    (when (numberp degrees)          ; known xy plane direction
-       (add-implicit-eqn entry (make-implicit-assignment-entry label `(dnum ,degrees |deg|))))
- 
-    ;; The following is for angle between lines. 
-    ;; Safe for vectors because we won't find angle-constraint in solution.
-    ;; Include implicit equation cos angle = dummy, where dummy is 
-    ;; nonnegative.  This is associated with Snell's law, etc., but it
-    ;; is convenient to add this eqn when defining the associated quantity.
-    ;; Treat this equation as entered by the student so the solve tool can 
-    ;; solve student's system the same way as at sgg time.
-    (dolist (eqn (Problem-EqnIndex *cp*))
-      (when (unify `(angle-constraint nil orderless ,v1-term ,v2-term) 
-		   (eqn-exp eqn))
-	(add-implicit-eqn entry (make-implicit-eqn-entry (eqn-algebra eqn)))))
-
-   ;; finally return entry
-   entry))
-
-;; Worker routine to handle labelling angle made with an axis. 
-;; No matching entry ; in solution graph so doesn't 
-;; matter whether angle was drawn or defined as a variable
-(defun on-angle-with-axis (label degrees id-vector1 id-vector2 id-angle axis) 
-  (declare (ignore id-vector1 id-vector2 axis))
-  ; if degree value known, just treat label as term for degree value
-  ; could also add implicit equation for variable if value known. But should be
-  ; unnecessary if it is always mapped to dnum in equations sent to algebra.
-  ; Note label is entered in symbol table with appropriate workbench entry id 
-  ; so later deletions remove it, but no studententry is created for this -- OK?
-  (when degrees
-    (mapcar #'grammar-remove-variable 
-	    (symbols-delete-dependents id-angle))
-    (symbols-enter label `(dnum ,degrees |deg|) id-angle `(dnum ,degrees |deg|))
-    ; return T to indicate always correct
-    (return-from on-angle-with-axis T))
-
-  ; else degree value unknown -- what to do? Could enter as shorthand for 
-  ; complex term in terms of angle of vector and known orientation of axis.
-  ;  theta = Ov - (x-axis-dir + axis adjustment)
-  ; Need to handle order of arguments as well, angle always counterclockwise
-  ; from first arg to second.  This facility is mainly here to handle angle 
-  ; made with positive x axis, though; may restrict it to that in the future.
-  ; For now we just don't handle this case. 
-  ; ! Without saving an entry struct there's no good way to hang a whatswrong 
-  ; on this. Returning string sends a message to the workbench while leaving 
-  ; the entry colored red as if an error occurred.
-  (strcat "Variables for unknown angles are not supported. Use the "
-	  "automatically defined &theta; variables for orientation angles, "
-	  "instead.&nbsp; To ask Andes to solve for a variable, write an equation "
-	  "of the form \"variable=?\".")
-  )
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; define-angle-variable: undocumented special Andes1 API used for defining 
-;;                        angle variable without drawing it
-;;
-;; In this API, the label arguments are student *labels* for the vectors or 
-;; special symbols posx, posy, etc if one of the arguments is part of the
-;; one and only one coordinate axis.  No provision for multiple axes. 
-;; Don't ask why these arguments are different than those of label-angle
-;; Note: In Andes1, the label arguments were sent by workbench as naked 
-;; symbols so got upcased when command string passed through read. This 
-;; is bad for case-sensitive Andes2 symbols, so changed workbench in 
-;; Andes 6.0.3 workbench to wrap args in vbars. So now use case-insensitive
-;; sym-match test to check for axis id symbols with lower case!
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun axis-codep (arg) ; arg should be symbol
-  (member arg '(posx posy negx negy) :test #'sym-match))
-
-(defun define-angle-variable (label degrees label1 label2 id-angle)
-  ;; lookup syminfo (si) to convert label args to entry id args used by 
-  ;; label-angle worker routines
-  (let*  ((si1 (if (axis-codep label1) 
-		   (first (symbols-fetch '(axis x ?dir))) ; should be only one
-		   (symbols-lookup (string label1))))
-	  (id1 (if si1 (first (sym-entries si1))))
-	  (si2 (if (axis-codep label2) 
-		   (first (symbols-fetch '(axis x ?dir))) ; should be only one
-		   (symbols-lookup (string label2))))
-	  (id2 (if si2 (first (sym-entries si2))))
-	  (axis (first (or (axis-codep label1) (axis-codep label2)))))
-    ;; then delegate to appropriate hander
-    (check-noneq-entry
-     (if (not axis) ;angle between vectors: must specify not drawn for match
-	 (on-angle-between-vectors label degrees id1 id2 id-angle :drawn NIL) 
-	 (on-angle-with-axis label degrees id1 id2 id-angle axis)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; define-variable - define a variable to stand for a certain quantity. this is
@@ -1026,7 +794,7 @@
 	 	 
 	 ;; install new variable in symbol table
 	 (check-symbols-enter symbol 
-			      ;; strip off the 'define-var
+			      ;; strip off the 'define-var for the scalars namespace
 			      (second (StudentEntry-prop entry)) 
 			      id)
 	 
@@ -1072,37 +840,44 @@
 	 (xdir-dnum `(dnum ,dir |deg|)))
 
     (setf (StudentEntry-prop entry) action)
-   ;; install symbols for x, y, and z axes
-   ;; these can't be used by themselves in equations but are needed by us
-   ;; later when autodefining vector component variables for existing axes. 
-   ;; They would also be needed for referring to the axes by label in help 
-   ;; messages if there is more than one set of axes.
-   (add-entry entry)
-   (when x-label (check-symbols-enter x-label x-term id))
-   (when y-label (check-symbols-enter y-label y-term id))
-   (when z-label (check-symbols-enter z-label z-term id))
+    ;; install symbols for x, y, and z axes
+    ;; these can't be used by themselves in equations but are needed by us
+    ;; later when autodefining vector component variables for existing axes. 
+    ;; They would also be needed for referring to the axes by label in help 
+    ;; messages if there is more than one set of axes.
+    (add-entry entry)
+    (when x-label (check-symbols-enter x-label x-term id
+				       :namespace :objects))
+    (when y-label (check-symbols-enter y-label y-term id
+				       :namespace :objects))
+    (when z-label (check-symbols-enter z-label z-term id
+				       :namespace :objects))
 
-   ;; automatically define \thetax as label for direction of positive x-axis
-   (when x-label (check-symbols-enter (strcat "\\theta" x-label) 
-				      xdir-dnum id xdir-dnum))
+    ;; automatically define \thetax as label for direction of positive x-axis
+    (when x-label (check-symbols-enter (strcat "\\theta" x-label) 
+				       xdir-dnum 
+				       id :sysvar xdir-dnum))
 
-  ;; if any vectors are defined add all component variables along 
-  ;; these new axes as well
-  (dolist (vector-sym (symbols-fetch '(mag ?vector)))
-    (dolist (axis-label (remove nil (list x-label y-label z-label)))
-      (let* ((vector-label (sym-label vector-sym))
-             (mag-term     (sym-referent vector-sym))
-	     (vector-entry-id (first (sym-entries vector-sym)))
-	     ;; need time-indexed vector quant term from (mag ?vector)
-	     (vector-term (second mag-term))
-             (compo-var    (format NIL "~A_~A" vector-label axis-label))
-	     (axis-term    (symbols-referent axis-label))
-	     (compo-term   (vector-compo vector-term axis-term)) ; in Physics-Funcs
-	    )
-        (check-symbols-enter compo-var compo-term (list id vector-entry-id)))))
-
-  ; finally return entry
-   (check-noneq-entry entry)))
+    ;; if any vectors have been drawn, add all component variables along 
+    ;; these new axes as well
+    (dolist (vent (remove '(vector . ?rest) *StudentEntries* :test-not #'unify
+			  :key #'StudentEntry-prop))
+      (let ((vector (second (StudentEntry-prop vent))))
+	(dolist (axis-label (remove nil (list x-label y-label z-label)))
+	  (let ((compo-var (format NIL "~A_~A"  
+				   (symbols-label vector :namespace :objects) 
+				   axis-label))
+		;; in Physics-Funcs
+		(compo-term (vector-compo vector
+					  (symbols-referent 
+					   axis-label
+					   :namespace :objects))))
+	    (check-symbols-enter compo-var compo-term 
+				 ;; id of axes and vector
+				 (list id (StudentEntry-id vent)))))))
+    
+    ;; finally return entry
+    (check-noneq-entry entry)))
 
 ;-----------------------------------------------------------------------------
 ;; for processing deletions of entries
@@ -1154,19 +929,23 @@
 ;; the entry is tagged incorrect with the appropriate error interpretation.
 ;; NB: if entries is not a singleton, the error is hung on the first
 ;; one, which should be the principal entry being evaluated
-(defun check-symbols-enter (label referent entry-ids &optional sysvar)
+(defun check-symbols-enter (label referent entry-ids &key sysvar namespace)
+  ;; turn entry-ids into a list
+  (when (atom entry-ids) (setf entry-ids (list entry-ids)))
   (cond
     ((= (length label) 0) ;; null or empty
      ;; should change call to get entry itself so we can do this easier
      (warn "No symbol entered for ~A, need hints here, Bug #1575." referent)) 
-    ((symbols-lookup label) ;; variable already defined!
+    ((symbols-lookup label :namespace namespace) ;; variable already defined!
      ;; find entry. entry-ids arg may be atom or list, but should not be nil
-     (let ((entry (find-entry (if (atom entry-ids) entry-ids (first entry-ids))))
+     (let ((entry (find-entry (first entry-ids)))
 	   rem)
        ;; build the error remediation turn
        (setf rem (make-hint-seq (list
 				 (format nil "The variable ~A is in use to define ~A. Please choose a different label." 
-					 label (nlg (symbols-referent label))))))
+					 label (nlg (symbols-referent 
+						     label
+						     :namespace namespace))))))
        
        (setf (turn-id rem) (StudentEntry-id entry))
        (setf (turn-coloring rem) **color-red**)
@@ -1179,7 +958,12 @@
 				 :remediation rem)))))
     
     ;; else no conflict: just make the definition
-    (T (symbols-enter label referent entry-ids sysvar))))
+    (T 
+     ;; Sanity test to verify that referent is in Ontology.
+     ;; new-english-find itself emits a warning if there is no match.
+     (new-english-find referent)
+     (symbols-enter label referent :entries entry-ids :sysvar sysvar 
+		      :namespace namespace))))
 
 ;;
 ;; Check-NonEq-Entry -- Generic checker for non-equation student entry 
@@ -1323,7 +1107,7 @@
 (defun compo-assignment-p (entry)
   "true if given student eqn entry states value of a component variable" 
     (and (eq (first (StudentEntry-prop entry)) 'eqn)
-         (componentp  (symbols-referent (second (StudentEntry-prop entry))))))
+         (componentp (symbols-referent (second (StudentEntry-prop entry))))))
 	
 ;; Give special message if student chooses wrong form (mag/dir vs.
 ;; components) for given values of vector attributes.

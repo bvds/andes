@@ -1359,9 +1359,10 @@
   :hint (
 	 (point (string "You can determine the direction of the net ~A field at ~a from the problem statement."
 	                (?type adj) ?loc)) 
-	(bottom-out (string "Use ~A to draw ~A at ~a in the given direction of ~A." 
+	(bottom-out (string "Use ~A to draw ~A in the given direction of ~A." 
 			     (*vector-tool* eval)
-			     ((net-field ?loc ?type :time ?t) def-np) (?dir-f adj)))
+			     ((net-field ?loc ?type :time ?t) def-np) 
+			     (?dir-f adj)))
 	 )) 
 
 (defoperator draw-net-field-given-zero (?type ?t)

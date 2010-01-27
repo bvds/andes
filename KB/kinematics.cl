@@ -2313,11 +2313,13 @@
    )
   :hint
   ((point (string "What happens to the ~A-component of the velocity of ~A ~A?"
-		  ((axis ?xyz ?rot) symbols-label) ?b ((during ?t1 ?t2) pp)))
+		  ((axis ?xyz ?rot) symbols-label :namespace :objects) 
+		  ?b ((during ?t1 ?t2) pp)))
    (teach (string "Because the acceleration of ~A ~A is perpendicular to the ~A axis, is has no component in the ~A direction.  Therefore, the ~A component of velocity remains constant. You can use this to relate ~A to ~A. " 
-		  ?b ((during ?t1 ?t2) pp)  ((axis ?xyz ?rot) symbols-label) 
-		  ((axis ?xyz ?rot) symbols-label) 
-		  ((axis ?xyz ?rot) symbols-label)
+		  ?b ((during ?t1 ?t2) pp)  
+		  ((axis ?xyz ?rot) symbols-label :namespace :objects) 
+		  ((axis ?xyz ?rot) symbols-label :namespace :objects) 
+		  ((axis ?xyz ?rot) symbols-label :namespace :objects)
 		  ((during ?t1 ?t2) pp) 
 		  (?v1-compo algebra) (?v2-compo algebra)))
    (bottom-out (string "Write the equation ~A" 
@@ -2613,10 +2615,15 @@
     (implicit-eqn (= ?a_x 0) (projection ?a-compo)))
   :hint (
     (point (string "Can you think of an equation relating the components of displacement to those of initial velocity and time?"))
-    (point (string "What do you know about the ~A component of the velocity of ~A ~A?" ((axis ?xyz ?rot) symbols-label) ?b ((during ?t1 ?t2) pp)))
+    (point (string "What do you know about the ~A component of the velocity of ~A ~A?" 
+		   ((axis ?xyz ?rot) symbols-label :namespace :objects) 
+		   ?b ((during ?t1 ?t2) pp)))
     (teach (string "Because the acceleration of ~A ~A is perpendicular to the ~A axis, is has no component in the ~A direction. Therefore, the ~A component of velocity remains constant ~A. You can use this to relate ~A to ~A and ~A." 
-		   ?b ((during ?t1 ?t2) pp) ((axis ?xyz ?rot) symbols-label) ((axis ?xyz ?rot) symbols-label) 
-		   ((axis ?xyz ?rot) symbols-label) ((during ?t1 ?t2) pp) 
+		   ?b ((during ?t1 ?t2) pp) 
+		   ((axis ?xyz ?rot) symbols-label :namespace :objects) 
+		   ((axis ?xyz ?rot) symbols-label :namespace :objects) 
+		   ((axis ?xyz ?rot) symbols-label :namespace :objects) 
+		   ((during ?t1 ?t2) pp) 
 		   (?s-compo algebra) (?vi-compo algebra) (?t-var algebra)))
     (bottom-out (string  "Write the equation ~A"
 		   ((= ?s-compo (* ?vi-compo ?t-var)) algebra)))

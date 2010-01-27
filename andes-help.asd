@@ -64,7 +64,7 @@
 				     (:file "grammar")
 				     (:file "physics-algebra-rules")
 				     (:file "parse"
-					    :depends-on ("utilities"))
+					    :depends-on ("utilities" "symbols"))
 				     (:file "algebra"
 					    :depends-on ("symbols"))
 				     (:file "in2pre")
@@ -80,7 +80,7 @@
 				     (:file "HelpMessages")
 				     (:file "whatswrong")
 				     (:file "NextStepHelp"
-					    :depends-on ("icons"))
+					    :depends-on ("icons" "symbols"))
 				     (:file "IEA")
 				     
 				     ;; Automatic statistics code.

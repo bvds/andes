@@ -197,7 +197,7 @@
        define a magnitude variable and an direction variable for it."
   :preconditions
    ((force ?b ?planet weight ?t ?dir action)
-    (in-wm (non-cm-mass ?b ?planet ?t))  ; select correct force
+    (in-wm (non-cm-mass ?b ?planet ?t))  ;select correct force
     (not (vector ?b (force ?b ?planet weight :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fw_~A_~A~@[_~A~]" (body-name ?b) ?planet 
                                              (time-abbrev ?t)))
@@ -429,14 +429,13 @@
     (given (dir (force ?b ?surface normal :time ?t)) ?normal-dir)
     (implicit-eqn (= ?dir-var ?dir-var-value) (dir (force ?b ?surface normal :time ?t))))
   :hint
-   ((point (string "Notice that ~a is supported by a surface: ~a." ?b ?surface))
+   ((point (string "Notice that ~a is supported by a surface: ~a." 
+		   ?b ?surface))
     (teach (minilesson "mini_normal_force.htm")
            (kcd "normal_force_direction")
-	   (string "When an object is supported by a surface, the surface exerts a normal force on it.  The normal force is perpendicular to the surface."))
-    ;(bottom-out (string "Because ~a supports ~a, draw a normal force on ~a due to ~a at an angle of ~a degrees." 
-    ;			(?surface agent) ?b ?b (?surface agent) 
-    ;			(?normal-dir adj)))
-    (bottom-out (string "Because ~a supports ~a, draw ~a at an angle of ~a degrees." 
+	   (string "When an object is supported by a surface, the surface exerts a normal force on it.&nbsp;  The normal force is perpendicular to the surface."))
+    (bottom-out (string "Because ~a supports ~a, draw ~a at an angle of ~a." 
+			?surface ?b
 			((force ?b ?surface normal :time ?t) def-np)
     			(?normal-dir adj)))
     ))
@@ -950,9 +949,9 @@
 
 (defoperator ug-circular-contains (?sought)
    :preconditions (
-     ; first make sure gravitational interaction exists in problem
+     ;; first make sure gravitational interaction exists in problem
      (gravity (orderless . ?grav-bodies) :time ?t-grav)
-     ; make sure body1 is in circular motion for this form
+     ;; make sure body1 is in circular motion for this form
      (motion ?b1 curved :type circular :time ?t-circular . ?dontcare)
      (any-member ?sought (
                     (mass ?b1) (mass ?b2)
@@ -974,8 +973,8 @@
       (body ?b1)
       (variable ?m1 (mass ?b1)) ;only timeless mass
       (variable ?m2 (mass ?b2)) ;only timeless mass
-      ; force is on b1 due to b2, so want relative position of center of
-      ; b1 wrt center of b2. Implicit for now that positions are wrt centers.
+      ;; force is on b1 due to b2, so want relative position of center of
+      ;; b1 wrt center of b2. Implicit for now that positions are wrt centers.
       (variable ?r  (revolution-radius ?b1 :time ?t))
       (variable ?F  (mag (force ?b1 ?b2 gravitational :time ?t)))
   )
@@ -1425,7 +1424,7 @@
   ;; force in same direction exists on compound from a.
   :preconditions (
     (in-wm (object (compound orderless . ?bodies)))
-    (bind ?c `(compound orderless ,@?bodies)) ; just shorthand
+    (bind ?c `(compound orderless ,@?bodies)) ;just shorthand
     ;; pick any body in compound
     (any-member ?b ?bodies)
     ;; find an external force on the body = one with agent not in compound.
@@ -1473,8 +1472,8 @@
 
 (defoperator write-force-compound (?type ?agent ?bodies ?t)
    :preconditions (
-     (bind ?c `(compound orderless ,@?bodies)) ; for shorthand
-     ; draw net force of given type on compound, will use draw-force-compound
+     (bind ?c `(compound orderless ,@?bodies)) ;for shorthand
+     ;; draw net force of given type on compound, will use draw-force-compound
      (debug "write-force-compound: drawing ~A force on compound~%" ?type)
      (vector ?c (force ?c ?agent ?type :time ?t) ?dir) 
      ;; find set of atomic parts subject to this type force from agent.
@@ -1858,7 +1857,9 @@
   ((point (string "What is the total force acting on ~A ~A." 
 		  (?b def-np) (?t pp)))
    (teach (string "The net force on an object is the vector sum of all forces acting on the object."))
-   (bottom-out (string "Write the equation for net force along the ~A axis as ~A" ((axis ?xyz ?rot) symbols-label) ((= (+ . ?f-compo-vars) ?fnet_xy) algebra)))
+   (bottom-out (string "Write the equation for net force along the ~A axis as ~A" 
+		       ((axis ?xyz ?rot) symbols-label :namespace :objects) 
+		       ((= (+ . ?f-compo-vars) ?fnet_xy) algebra)))
    ))
 
 ;;; ==================== The gravitational force ==============================
@@ -2156,7 +2157,7 @@
 (def-goalprop nl-fbd (vector-diagram ?rot (nl ?body ?time))
   :doc "free-body-diagram for applying Newton's law"
   :nlg-english ("drawing a free-body diagram for ~A ~A"
-            (nlg ?body) (nlg ?time 'pp))) ; time may be interval or instant
+            (nlg ?body) (nlg ?time 'pp))) ;time may be interval or instant
 
 (defoperator draw-nl-fbd (?rot ?b ?t)
   :specifications 
@@ -2354,7 +2355,7 @@
 		   ?b ?b (?t pp)))
     (teach (string "Newton's second law <var>F</var> = <var>m</var> <var>a</var> states that the net force on an object = the object's mass times its acceleration.  Because the net force is the vector sum of all forces on the object, this can be applied component-wise to relate the sum of the force components in any direction to the mass times the component of acceleration in that direction."))
     (bottom-out (string "Write Newton's second law in terms of component variables along the ~A axis as ~A" 
-			((axis ?xyz ?rot) symbols-label) 
+			((axis ?xyz ?rot) symbols-label :namespace :objects) 
 			((= (+ . ?f-compo-vars) (* ?m ?a-compo)) algebra)))
     ))
 
@@ -2388,7 +2389,7 @@
 		   ?b ?b (?t pp)))
     (teach (string "Newton's second law <var>F</var> = <var>m</var> <var>a</var> states that the net force on an object = the object's mass times its acceleration. This can be applied component-wise to relate the net force in any direction to the mass times the component of acceleration in that direction."))
     (bottom-out (string "Write Newton's second law along the ~a axis in terms of component variables, namely, ~a" 
-			((axis ?xyz ?rot) symbols-label) 
+			((axis ?xyz ?rot) symbols-label :namespace :objects) 
 			((= ?fnet-compo-var  (* ?m ?a-compo)) algebra)))
    )
 )
@@ -2521,7 +2522,7 @@
    (tied-to ?string ?b2 :time ?t-other :dir ?dir2)
    (test (tinsidep ?t ?t-other))
    (test (not (equal ?b2 ?b1)))
-   ; sort bodies in id so we don't generate both Tb = Tb2 and Tb2 = Tb
+   ;; sort bodies in id so we don't generate both Tb = Tb2 and Tb2 = Tb
    (bind ?bodies (sort (list ?b1 ?b2) #'expr<))
    )
   :effects
@@ -2637,10 +2638,6 @@
     (teach (string "A ~A vector represents the tendency of a force acting on a rigid body to rotate the body about some axis.  In Andes problems a ~A vector will lie in the z axis, pointing in the positive direction (out of the plane of the diagram) for ~As that tend to cause ccw rotations, and in the negative direction (into the plane) for ~As that tend to cause cw rotations."
 		   (nil moment-name) (nil moment-name) 
 		   (nil moment-name)  (nil moment-name)))
-    ;(bottom-out (string "Use ~A to draw the ~A about ~a due to the force acting at ~A ~A and set the direction to point ~A"    
-    ;		       (*vector-tool* eval)
-    ; 			(nil moment-name)
-    ;			?axis ?pt (?t pp) (?torque-dir adj)))
     (bottom-out (string "Use ~A to draw the ~A about ~a due to ~A and set the direction to point ~A"    
     		       (*vector-tool* eval)
      			(nil moment-name)
@@ -2688,7 +2685,7 @@
 (defoperator draw-net-torque-known-dir (?b ?axis ?t)
  :preconditions (
      (in-wm (given (dir (net-torque ?b ?axis :time ?t)) ?dir))
-     ; var name identifies force by point of application and agent alone
+     ;; var name identifies force by point of application and agent alone
      (bind ?mag-var (format-sym "NTOR_~A_~A~@[_~A~]" (body-name ?b) ?axis 
                                                  (time-abbrev ?t)))
      (bind ?dir-var (format-sym "O~A" ?mag-var))
@@ -3267,7 +3264,8 @@
 		   ?b ?b (?t pp)))
     (teach (string "The rotation version of Newton's second law is &tau; = m &alpha;.&nbsp;  The net torque &tau; is the vector sum of all torques acting on the object.  This can be applied component-wise."))
     (bottom-out (string "Write the rotational version of Newton's second law in terms of component variables along the ~A axis as ~A" 
-			((axis ?xyz ?rot) symbols-label) ((= (+ . ?f-compo-vars)  (* ?m ?a-compo)) algebra)))
+			((axis ?xyz ?rot) symbols-label :namespace :objects) 
+			((= (+ . ?f-compo-vars)  (* ?m ?a-compo)) algebra)))
     ))
 
 (defoperator write-NSL-rot-net (?b ?axis ?t ?z ?rot)
