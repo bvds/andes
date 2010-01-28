@@ -52,12 +52,12 @@
 (def-qexp relative-position (relative-position ?to-pt ?from-pt :time ?time)
   :units |m|
   ;; see relative-vel
-  :new-english (or ((property-object "position" ?to-pt)
-		     (or "relative to" "with respect to") ?from-pt)
-		   ((property-object "relative position" ?to-pt)
-		     (or "from" "with respect to") ?from-pt)
-		)
-)
+  :new-english (or ((vector-object "position" ?to-pt)
+		     (and (or "relative to" "with respect to" "from") ?from-pt)
+			  (time ?time))
+		   ((vector-object "relative position" ?to-pt)
+		     (and ((or "from" "with respect to") ?from-pt)
+			  (time ?time)))))
 
 (def-qexp displacement (displacement ?body :time ?time)
   :units |m|
@@ -154,7 +154,7 @@
 			     (time ?time))))
 
 (def-qexp rotation-adj rotation-adj
-  :new-english (or "angular" "rotational" "rot." "ang." "rot" "ang") )
+  :new-english (or "angular" "rotational" "rot." "ang." "orb." "rot" "ang") )
 
 (def-qexp ang-displacement (ang-displacement ?body :time ?time)
   :units |rad|
@@ -305,8 +305,7 @@
 
 ;; ex) "the net force exerted by the man"
 (def-qexp property-object-agent (property-object-agent ?property ?body ?agent)
-  :new-english ((allowed ((the) "value of")) 
-		(the)
+  :new-english ((the)
 		(time-type-prop ?time ?property)
 		?property  
 		(and (preferred (property ?body)) 
@@ -318,8 +317,7 @@
 ;; ex) "the net force exerted by the man at time T1"
 (def-qexp property-object-agent-time 
     (property-object-agent-time ?property ?body ?agent :time ?time)
-  :new-english ((allowed ((the) "value of")) 
-		(the)
+  :new-english ((the)
 		(time-type-prop ?time ?property)
 		?property  
 		(and (preferred (property ?body))
@@ -334,8 +332,7 @@
 ;; ex) "the net force exerted by the man at time T1"
 (def-qexp property-object-optime 
     (property-object-optime ?property ?body :time ?time)
-  :new-english ((allowed ((the) "value of")) 
-		(the)
+  :new-english ((the)
 		?property  		; "mass"
 		(and (preferred (property ?body)) (time ?time)) 
 		)
@@ -348,8 +345,12 @@
   :new-english ((allowed ((the) "value of")) 
 		(the) ?property
 		(preferred (property ?body))
-		)
-  )
+		))
+
+;; ex) "the position of the probe"
+(def-qexp vector-object (vector-object ?property ?body)
+  :new-english ((the) ?property
+		(preferred (property ?body))))
 
 (def-qexp preferred-the (the)
   :new-english (preferred "the"))
@@ -574,7 +575,7 @@
   :symbol-base |W|     
   :short-name "work"	
   :units |J|
-  :new-english ((the) (allowed (or "total" "average")) "work" (preferred "done")
+  :new-english ((the) (allowed "average") "work" (preferred "done")
 		(and (preferred (object ?b))
 		     (preferred (agent ?agent))
 		     (time ?time))))
@@ -587,7 +588,7 @@
 
 (def-qexp net-work (net-work ?body :time ?time)
   :units |J|
-  :new-english (((the) (preferred (or "total" "net")) "work" 
+  :new-english (((the) (or "net" "total net" "total") "work" 
 		 (preferred "done")
 		 (and (preferred (object ?body))
 		      (allowed (agent "all forces"))
