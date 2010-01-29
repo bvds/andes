@@ -53,11 +53,11 @@
   :units |m|
   ;; see relative-vel
   :new-english (or ((vector-object "position" ?to-pt)
-		     (and (or "relative to" "with respect to" "from") ?from-pt)
-			  (time ?time))
+		    (preferred ((or "relative to" "with respect to" "from") ?from-pt))
+		    (time ?time))
 		   ((vector-object "relative position" ?to-pt)
-		     (and ((or "from" "with respect to") ?from-pt)
-			  (time ?time)))))
+		    (preferred ((or "from" "with respect to") ?from-pt))
+		    (time ?time))))
 
 (def-qexp displacement (displacement ?body :time ?time)
   :units |m|
@@ -71,15 +71,16 @@
 				   :time ?time)
 )
 
+;; ex) "the velocity of the ball relative to the observer"
 (def-qexp relative-vel (relative-vel ?to-pt ?from-pt :time ?time)
   :units |m/s|
   ;; see relative-position
   :new-english ((the) 
 		(time-type ?time)
 		(or ((or "velocity" "vel." "vel") (property ?to-pt) 
-		     "relative to" ?from-pt)
-		    ((allowed "relative") (or "velocity" "vel." "vel") 
-		     (property ?to-pt) "with respect to" ?from-pt))
+		     (preferred ("relative to" ?from-pt)))
+		    ((allowed "relative") (or "velocity" "vel." "vel") (property ?to-pt) 
+		     (preferred ("with respect to" ?from-pt))))
 		(time ?time)))
 
 (def-qexp accel	(accel ?body :time ?time)
