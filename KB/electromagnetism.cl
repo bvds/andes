@@ -334,7 +334,8 @@
    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (field ?loc electric ?source :time ?t)))
    )
   :hint (
-	 (point (string "Think about how the direction of the electric force at ~a due to ~a is related to the direction of the electric field vector at ~a" ?loc (?source agent) ?loc))
+	 (point (string "Think about how the direction of the electric force at ~a~@[ ~a~] is related to the direction of the electric field vector at ~a" 
+			?loc ((agent ?source) def-np) ?loc))
 	 (teach (string "The electric field vector points in the same direction as the electric force experienced by a positive charge, or in the opposite direction for a negative charge."))
 	 (bottom-out (string "Because the charge of ~a is ~a,  use ~A to draw ~a in the ~a direction as the electric force that ~A undergoes, namely ~A." 
 			     ?b (?pos-neg adj) 
@@ -592,7 +593,8 @@
 	  (implicit-eqn (= ?dir-var ?dir-var-value) (dir (force ?b ?source electric :time ?t)))
 	  )
 :hint (
-       (point (string "Think about how the direction of the electric force on ~A due to ~a is related to the relative position of the two bodies." ?b (?source agent)))
+       (point (string "Think about how the direction of the electric force on ~A~@[ ~a~] is related to the relative position of the two bodies." 
+			?b ((agent ?source) def-np)))
        (teach (string "Remember that opposite charges attract and like charges repel."))
        (bottom-out (string "Use ~A to draw ~a in the ~a direction." 
        		   (*vector-tool* eval)
@@ -616,7 +618,7 @@
             )
   :hint 
   (
-   (point (string "Note that ~A and ~A are both charged particles." ?b (?source agent)))
+   (point (string "Note that ~A and ~A are both charged particles." ?b ?source))
    (point (string "Charged particles experience a force due to other charged particles."))
    (bottom-out (string "Use ~A to draw ~a ~a, direction unknown." 
    		       (*vector-tool* eval)
@@ -679,7 +681,8 @@
 	  (implicit-eqn (= ?dir-var ?dir-var-value) (dir (force ?b ?source electric :time ?t)))
 	  )
 :hint (
-       (point (string "Think about how the direction of the electric force on ~A due to ~a is related to the direction of the electric field vector." ?b (?source agent)))
+       (point (string "Think about how the direction of the electric force on ~A~@[ ~a~] is related to the direction of the electric field vector."
+			 ?b ((agent ?source) def-np)))
        (teach (string "The electric field vector points in the same direction as the electric force experienced by a positive charge, or in the opposite direction for a negative charge."))
        (bottom-out (string "Because the charge of ~a is ~a, use ~A to draw ~a in the ~a direction as the electric field at that location, namely ~A." 
        			   ?b (?pos-neg adj) 
@@ -730,8 +733,8 @@
   :hint (
          (point (string "Since ~a is charged and in an electric field, it is subject to an electric force." ?b))
          (teach (string "In this problem, the exact direction of the electric force vector requires calculation to determine, so you can draw the force vector at an approximately correct angle."))
-         (bottom-out (string "Draw the electric force on ~a due to ~a." 
-			     ?b (?source agent)))
+         (bottom-out (string "Draw the electric force on ~a~@[ ~a~]." 
+			     ?b ((agent ?source) def-np)))
          ))
 
 ;;;;---------------------------------------------------------------------------
@@ -1555,11 +1558,11 @@
     (in-wm (at-place ?body ?loc :time ?t ?t))
     ;; if sought is not energy, must bind source for energy quantity
     ;; This will be single named source if known, else "electric_field" 
-    ;; if more than one source or unspecified.
+    ;; if more than one source or nil.
     (in-wm (field-sources ?loc electric ?sources :time ?t ?t))
-    ;; if a single source and not = unspecified, use it.
+    ;; if a single source and not = nil, use it.
     (bind ?source (if (and (null (cdr ?sources))
-			   (not (eq (car ?sources) 'unspecified)))
+			   (not (eq (car ?sources) nil)))
 		      (car ?sources)
 		      'electric_field))
     )
@@ -1600,7 +1603,7 @@
    (in-wm (field-sources ?loc electric ?sources :time ?t ?t))
    ;; need to bind source. See electric-energy-contains above
    (bind ?source (cond ((and (null (cdr ?sources))
-			     (not (eq (car ?sources) 'unspecified))) 
+			     (not (eq (car ?sources) nil))) 
 			(car ?sources))
 		       (T 'electric_field)))
    )
