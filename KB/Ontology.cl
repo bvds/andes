@@ -363,7 +363,7 @@
 
 (def-qexp agent (agent ?body)
   ;;+syjung
-  ;; checking the content of ?body by (expand-new-englih ..) is important for the case that it is missing
+  ;; checking the content of ?body by (expand-new-englih ..) is important for the case that it is missing (in elec4b, see Bug#:	1676)
   :new-english (eval (when (expand-new-english ?body)
 			'((or "due to" "by" "from" "caused by" "exerted by" "of") 
 			  (or (var (body ?body) :namespace :objects) ?body))))) 
@@ -517,8 +517,8 @@
 (def-qexp the-Earth earth 
   :new-english ((the) "Earth"))
 
-(def-qexp unspecified unspecified 
-  :new-english (nil))
+;(def-qexp unspecified unspecified 
+;  :new-english (nil))
 
 (post-process add-gravitational-acceleration (problem)
   "if only the earth's gravity is used, add gravitational acceleration"
