@@ -38,7 +38,7 @@
   type   
   ;; The following are properties of an object
   mode x y text width height radius symbol x-statement y-statement
-  x-label y-label z-label angle
+  x-label y-label z-label angle cosphi
   ;; State overlaps with mode (need to fix this).
   State           ;One of correct, inefficient, dead-path, forbidden, incorrect.
   Prop   ;Entry proposition (Equalp to SystemEntry-prop.)

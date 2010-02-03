@@ -434,6 +434,10 @@
       ;; initial instruction.
       (unless solution-step-replies (setf replies (update-fades replies)))
 
+      ;; Enable z-axis vectors, based on problem features
+      (when (intersection '(circular rotkin angmom torque mag gauss) 
+			  (problem-features *cp*))
+	    (push '((:action . "enable-z-axis")) replies))
       
       ;; set-stats (if there was an old score) (to do)
       ;; Should this be wrapped in execute-andes-command?
@@ -485,11 +489,11 @@
 (webserver:defun-method "/help" solution-step 
     (&key time id action type mode x y
 	  text width height radius symbol x-statement y-statement
-	  x-label y-label z-label angle) 
+	  x-label y-label z-label angle cosphi) 
   "problem-solving step"
   ;; fixed attributes:      type id
   ;; updatable attributes:  mode x y text width height radius symbol 
-  ;;                         x-label y-label z-label angle
+  ;;                         x-label y-label z-label angle cosphi
   (env-wrap 
     ;; Andes2 also had calls to:
     ;; define-angle-variable  (undocumented leftover from Andes1)
@@ -541,13 +545,13 @@
 	(update-entry-from-entry 
 	 new-entry old-entry 
 	 type mode x y text width height radius symbol x-statement y-statement
-	 x-label y-label z-label angle))
+	 x-label y-label z-label angle cosphi))
       
       ;; update new object from non-null variables
       (update-entry-from-variables 
        new-entry  
        mode x y text width height radius symbol x-statement y-statement
-       x-label y-label z-label angle)
+       x-label y-label z-label angle cosphi)
       
       (add-entry new-entry)   ;remove existing info and update
       
@@ -678,4 +682,3 @@
     (setf webserver:*env* nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
