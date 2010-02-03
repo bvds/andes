@@ -39,13 +39,13 @@ identify --version
 # A list of all releases can be found at:
 # http://sourceforge.net/projects/sbcl/files/
 # You will need a version that includes thread support.  However,
-# recent binary releases of sbcl do not include thread support.
+# recent binary releases of sbcl might not include thread support.
 cd lisp-site-install
 make get-binary     # download a binary release
 make thread-test    # verify threading is missing (otherwise, just install)
 make get-source     # download and compile source, with thread support
 make source-install # install in /usr/local (do as superuser)
-cd ../
+cd ../              # return to Andes root directory
 
 # To test for thread support, start up sbcl and enter the 
 # command "(find :sb-thread *features*)" then enter "(quit)" to exit

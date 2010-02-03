@@ -126,6 +126,9 @@ dojo.provide("andes.convert");
 				obj.data.text = o.text;
 			}else if(o.type=="axes"){
 				obj.label = o['x-label']+" and "+o['y-label'];
+                               if(andes.defaults.zAxisEnabled){
+                                 obj.label += " and "+o['z-label'];
+                               }
 			}
 
 			if(o.href){
@@ -189,6 +192,9 @@ dojo.provide("andes.convert");
 				var lbl = item.getLabel();
 				obj["x-label"] = lbl.x;
 				obj["y-label"] = lbl.y;
+				if(lbl.z) {
+                                  obj["z-label"] = lbl.z;
+				}
 				obj.radius = Math.ceil(item.getRadius());
 				obj.angle = item.getAngle();
 			}
