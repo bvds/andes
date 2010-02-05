@@ -69,10 +69,19 @@ source-install:
 #     (asdf-install:install 'uffi)  ;prereq for clsql, but doesn't load
 #     (asdf-install:install 'clsql)
 #     (quit)  ; exit the lisp server
+#
+#  Also, need to fix error handling in usocket (See Bug #1614).
+#  Broken in release 0.4.1 but fixed in development version. 
+#  Download svn (the actual fix is in r497) and install.
+install-usocket:
+	svn co svn://common-lisp.net/project/usocket/svn/usocket/trunk usocket-svn
+	rm -r -f /usr/local/lib/sbcl/site/usocket-*
+	rm -r -f /usr/local/lib/sbcl/site-systems/usocket*
+	mv usocket-svn /usr/local/lib/sbcl/site
+	(cd /usr/local/lib/sbcl/site-systems; ln -s ../site/usocket*/*.asd .)
 
-
-#  clsql doesn't link with 64 bit system libraries.  This is a
-#  patch to fix this.
+#  clsql version 4.3.0 doesn't link with 64 bit system libraries.  
+#  This is a patch to fix this.
 clsql-v = 4.3.0
 patch-clsql:
 	patch -p0 -d /usr/local/lib/sbcl/site < clsql-$(clsql-v).patch

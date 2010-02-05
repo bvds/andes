@@ -267,11 +267,10 @@ dojo.provide("andes.drawing");
 			                          andes.principles.review('introduction.html','Introduction');
 					       });
 
-                               }else if(obj.action=="enable-z-axis"){
-                                 andes.defaults.zAxisEnabled=true;
-
-                               }else if(obj.action=="disable-z-axis"){
-                                 andes.defaults.zAxisEnabled=false;
+                               }else if(obj.action=="set-styles"){
+				 if(obj["z-axis-enable"]){
+				   andes.defaults.zAxisEnabled=obj["z-axis-enable"];
+				 }
 
 				}else{
 					//console.warn("UNUSED ANDES OBJECT:", obj)
