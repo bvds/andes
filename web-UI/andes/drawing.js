@@ -267,15 +267,12 @@ dojo.provide("andes.drawing");
 			                          andes.principles.review('introduction.html','Introduction');
 					       });
 
-				}else if(obj.action=="enable-z-axis"){
+                               }else if(obj.action=="set-styles"){
+				 if(obj["z-axis-enable"]){
+				   andes.defaults.zAxisEnabled=obj["z-axis-enable"];
 				  // temporary for testing
-				  dojo.byId("drawZAxis").disabled=false;
-				  andes.defaults.zAxisEnabled=true;
-
-  				}else if(obj.action=="disable-z-axis"){
-				  // temporary for testing
-				  dojo.byId("drawZAxis").disabled=true;
-				  andes.defaults.zAxisEnabled=false;
+				  dojo.byId("drawZAxis").disabled=!obj["z-axis-enable"];
+				 }
 
 				}else{
 					//console.warn("UNUSED ANDES OBJECT:", obj)
