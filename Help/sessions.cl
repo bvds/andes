@@ -437,7 +437,8 @@
       ;; Enable z-axis vectors, based on problem features
       (when (intersection '(circular rotkin angmom torque mag gauss) 
 			  (problem-features *cp*))
-	    (push '((:action . "enable-z-axis")) replies))
+	    (push '((:action . "set-styles")
+		    (:z-axis-enable . t)) replies))
       
       ;; set-stats (if there was an old score) (to do)
       ;; Should this be wrapped in execute-andes-command?
