@@ -200,15 +200,19 @@ dojo.provide("andes.convert");
 			}
 
 		        // add any z-axis dir to vectors and lines
-			if(type == "vector" || type == "line"){
-			  if(andes.defaults.zAxis){
+			if(andes.defaults.zAxisEnabled &&
+			   (type == "vector" || type == "line")){
 			    // temporary code to get things working
 			    // The vector itself should be visibly different.
 			    // Might be better to put this code into dojox/drawing/tools
+			    // Should instead use some property of the object and actual calculation of cosphi should occur in dojox/drawing,
+// just like calculations of angle.
+			  if(andes.defaults.zAxis){
 			    var dir=item.getAngle();
-			    console.log("sending for dir "+dir);
 			    obj.cosphi=(dir>90+45 && dir<360-45)?1:-1;
 			    //
+			  }else {
+			    obj.cosphi=0;
 			  }
 			}
 

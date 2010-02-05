@@ -305,7 +305,8 @@ dojo.provide("andes.drawing");
 
 						items[obj.id].master.attr({
 							angle:obj.angle,
-							radius:obj.radius
+							radius:obj.radius,
+							cosphi:(andes.defaults.zAxisEnabled?obj.cosphi:null)
 						});
 					}
 					if(obj.type=="axes"){
@@ -326,6 +327,7 @@ dojo.provide("andes.drawing");
 						/*items[obj.id].master.attr({
 													label:obj.text
 												});*/
+					        // single space was set in convert.js
 						var text = obj.text==" "? obj.symbol : obj.text;
 						items[obj.id].textEdit(text);
 					};
