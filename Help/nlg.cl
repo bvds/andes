@@ -129,9 +129,9 @@
 
 ;; special translation for agents terms may be 'unspecified
 ;; as in "force on car due to ....."
-(defun agent (x)
-   (if (eq x 'UNSPECIFIED) "an unspecified agent"
-     (nlg x)))
+;;(defun agent (x)
+;;   (if (eq x 'UNSPECIFIED) "an unspecified agent"
+;;    (nlg x)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

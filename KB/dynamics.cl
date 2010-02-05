@@ -343,8 +343,7 @@
     ;		       (*vector-tool* eval)
     ;		       ?b (?string agent) (?t pp)))
     (bottom-out (string "Because ~a is tied to ~a, you should use ~A to draw ~a." 
-    			(?string agent)
-    			?b 
+    			?string ?b 
     		       (*vector-tool* eval)
     		       ((force ?b ?string tension :time ?t) def-np) ))
     ))
@@ -378,7 +377,7 @@
     ;		       (*vector-tool* eval)
     ;			?b (?string agent) (pp ?t)))
     (bottom-out (string "Because ~a is tied to ~a, you should use ~A to draw ~a." 
-    			(?string agent) ?b 
+    			?string ?b 
     		       (*vector-tool* eval)
     			((force ?b ?string tension :time ?t) def-np)))
     ))
@@ -589,7 +588,7 @@
     ;			?b (?surface agent) ?b (?surface agent) 
     ;			(?friction-dir adj)))
     (bottom-out (string "Because ~a is moving in contact with ~a, draw ~a at an angle of ~a." 
-    			?b (?surface agent) 
+    			?b ?surface
     			((force ?b ?surface kinetic-friction :time ?t) def-np) (?friction-dir adj)))
     ))
 
@@ -664,7 +663,7 @@
     ;(bottom-out (string "Because ~a is in contact with but not moving with respect to ~a, draw a static friction force on ~a due to ~a at an angle of ~a." 
     ;			?b (?surface agent) ?b (?surface agent) ?friction-dir))
     (bottom-out (string "Because ~a is in contact with but not moving with respect to ~a, draw ~a." 
-    			?b (?surface agent) ((force ?b ?surface static-friction :time ?t) def-np) ?friction-dir))
+    			?b ?surface ((force ?b ?surface static-friction :time ?t) def-np) ?friction-dir))
     ))
 
 ; requires we are given that static friction takes on its max value
@@ -763,7 +762,7 @@
     ;(bottom-out (string "Because ~a is moving in fluid medium ~a, draw a drag force on ~a due to ~a at an angle of ~a." 
     ;			?b (?medium agent) ?b (?medium agent) (?drag-dir adj)))
     (bottom-out (string "Because ~a is moving in fluid medium ~a, draw ~a." 
-    			?b (?medium agent) ((force ?b ?medium drag :time ?t) def-np) (?drag-dir adj) ))
+    			?b ?medium ((force ?b ?medium drag :time ?t) def-np) (?drag-dir adj) ))
     ))
 
 (defoperator drag-force-turbulent-contains (?quantity)
@@ -869,7 +868,7 @@
     ;			?b (?spring agent) ?b (?spring agent) 
     ;			(?force-dir adj)))
     (bottom-out (string "Because ~a is in contact with compressed ~a, draw ~a at angle of ~a." 
-    			?b (?spring agent) 
+    			?b ?spring 
 			((force ?b ?spring spring :time ?t) def-np) (?force-dir adj)))
     ))
 
@@ -1085,8 +1084,8 @@
     (implicit-eqn (= ?dir-var ?dir-var-value) (dir (force ?b1 ?b2 gravitational :time ?t)))
   )
   :hint (
-    (point (string "Notice that ~a is subject to a gravitational force due to ~A." 
-                   ?b1 (?b2 agent)))
+    (point (string "Notice that ~a is subject to a gravitational force~@[ ~a~]." 
+                   ?b1 ((agent ?b2) def-np)))
     (teach (string "Every massive particle in the universe attracts every other massive particle with a gravitational force acting along a line joining the two particles. In the case of uniform spheres, the gravitational force acts along a line joining the centers of the two spheres."))
     ;(bottom-out (string "Draw the gravitational force on ~a due to ~a at a direction of ~a" ?b1 (?b2 agent) ?dir))
     (bottom-out (string "Draw ~a at a direction of ~a" ((force ?b1 ?b2 gravitational :time ?t) def-np) ?dir))
@@ -1106,8 +1105,8 @@
     (variable ?dir-var (dir (force ?b1 ?b2 gravitational :time ?t)))
   )
   :hint (
-    (point (string "Notice that ~a is subject to a gravitational force due to ~A." 
-                   ?b1 (?b2 agent)))
+    (point (string "Notice that ~a is subject to a gravitational force~@[ ~a~]." 
+                   ?b1 ((agent ?b2) def-np)))
     (teach (string "Every massive particle in the universe attracts every other massive particle with a gravitational force acting along a line joining the two particles. In the case of uniform spheres, the gravitational force acts along a line joining the centers of the two spheres."))
     ;(bottom-out (string "Draw the gravitational force on ~a due to ~a setting the direction to unknown." ?b1 (?b2 agent) ))
     (bottom-out (string "Draw ~a setting the direction to unknown." ((force ?b1 ?b2 gravitational :time ?t) def-np) ))
@@ -1380,8 +1379,8 @@
     ;(bottom-out (string "Because there is a ~A force on ~A due to ~a, draw the reaction force, namely, a ~A force on ~A due to ~A at ~A" 
     ;			(?type adjective) (?b1 agent) ?b2 (?type adjective) 
     ;			?b2 (?b1 agent) (?dir adj)))
-    (bottom-out (string "Because there is a ~A force on ~A due to ~a, draw the reaction force, namely, ~a at ~A" 
-    			(?type adjective) (?b1 agent) ?b2  
+    (bottom-out (string "Because there is a ~A force on ~A~@[ ~a~], draw the reaction force, namely, ~a at ~A" 
+    			(?type adjective) ?b1 ((agent ?b2) def-np)  
     			((force ?b2 ?b1 ?type :time ?t) def-np) 
     			(?dir adj)))
     ))

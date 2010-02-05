@@ -94,7 +94,8 @@ dojo.provide("andes.drawing");
 				if(hasLabel[item.type]){
 					// axes
 					// default labels for an axes
-					props.data.text = "x and y";
+                                        props.data.text = andes.defaults.zAxisEnabled?
+                                                     "x and y and z":"x and y";
 				}
 				// create statement for vector, rect, ellipse, or axes
 				var statement = _drawing.addStencil("textBlock", props);
@@ -141,7 +142,7 @@ dojo.provide("andes.drawing");
 				item.id = item.type + i++;
 			}
 			items[item.id] = item;
-						
+
 			if(noConnect){
 				return;
 			}
@@ -187,8 +188,8 @@ dojo.provide("andes.drawing");
 			//	any help associated with the data.
 			//
 			console.log("handleServerActions", data.length);
-			
-			// check for highest numerical ID 
+
+			// check for highest numerical ID
 			// start from there
 			var getNum = function(m){
 				if(!m.id){ return 0; }
@@ -198,12 +199,12 @@ dojo.provide("andes.drawing");
 			}
 			var idNum = 0;
 			dojo.forEach(data, function(m){
-				idNum = Math.max(getNum(m), idNum);	
+				idNum = Math.max(getNum(m), idNum);
 			});
 			++idNum;
-			
+
 			dojox.drawing.util.common.idSetStart(idNum);
-			
+
 			//console.dir(data);
 			var mods = [];
 			var min = 2, max = 5;
@@ -211,7 +212,7 @@ dojo.provide("andes.drawing");
 				//if(obj.type!="axes"){ return; }
 				if(obj.action =="new-object"){
 					var o = andes.convert.andesToDrawing(obj);
-					
+
 					var t = o.stencilType;
 					if(t=="vector" || t=="line" || t=="ellipse" || t=="rect"){
 
@@ -239,8 +240,8 @@ dojo.provide("andes.drawing");
 				}else if(obj.action=="delete-object"){
 				        // need error handling for non-existant objects.
 					if(items[obj.id]){
-						if (items[obj.id].type=="andes.Combo") { 
-							items[obj.id].master.destroy(); 
+						if (items[obj.id].type=="andes.Combo") {
+							items[obj.id].master.destroy();
 							} else {
 							items[obj.id].destroy();
 						};
@@ -258,13 +259,19 @@ dojo.provide("andes.drawing");
 						   });
                                   // Add event to Error box default OK button.
                                   // This opens the general introduction.
-                                  // It should be disconnected when the 
+                                  // It should be disconnected when the
 								  // dialog box is closed!  See bug #1628
 						  dojo.connect(dojo.byId("andesButtonPageDefault"),
 					       "click",
 					       function(){
-			                          andes.principles.review('introduction.html','Introduction');						 
+			                          andes.principles.review('introduction.html','Introduction');
 					       });
+
+                               }else if(obj.action=="set-styles"){
+				 if(obj["z-axis-enable"]){
+				   andes.defaults.zAxisEnabled=obj["z-axis-enable"];
+				 }
+
 				}else{
 					//console.warn("UNUSED ANDES OBJECT:", obj)
 				}
@@ -293,7 +300,7 @@ dojo.provide("andes.drawing");
 						});
 					}
 					if(obj.type=='vector' || obj.type=='line'){
-						
+
 						items[obj.id].master.attr({
 							angle:obj.angle,
 							radius:obj.radius
@@ -313,25 +320,25 @@ dojo.provide("andes.drawing");
 					}
 					// text
 					if(items[obj.id].isText==true && obj.text) { items[obj.id].attr({text:obj.text});};
-					if(obj.text && items[obj.id].type == "andes.Combo") { 
+					if(obj.text && items[obj.id].type == "andes.Combo") {
 						/*items[obj.id].master.attr({
 													label:obj.text
 												});*/
 						var text = obj.text==" "? obj.symbol : obj.text;
 						items[obj.id].textEdit(text);
 					};
-					
+
 					items[obj.id].mod = false;
 
 				};
 			},this);
-			
+
 			/*
 			for(var itm in items){
 				if(itm.shortType=="textBlock") { itm.execText(); console.warn(itm); }
 			};
 			*/
-			
+
 			data = null;
 		},
 
@@ -388,7 +395,7 @@ dojo.provide("andes.drawing");
 			if(_surfaceLoaded){
 				this.handleServerActions(this._initialData);
 			};
-			
+
 		},
 		onError: function(err){
 			console.error("There was an error in the project data:", err);

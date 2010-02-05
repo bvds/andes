@@ -433,7 +433,7 @@
     ;(bottom-out (string "Because ~a exerts a force on ~a, draw a pressure force on ~a due to ~a at an angle of ~a." 
     ;			(?fluid agent) ?surface ?b (?fluid agent) ?dir))
     (bottom-out (string "Because ~a exerts a force on ~a, draw ~a at an angle of ~a." 
-    			(?fluid agent) ?surface ((force ?b ?fluid pressure :time ?t) def-np) ?dir))
+    			?fluid ?surface ((force ?b ?fluid pressure :time ?t) def-np) ?dir))
     ))
 
 (defoperator draw-pressure-unknown (?b ?fluid ?t)
@@ -463,7 +463,7 @@
     ;(bottom-out (string "Because ~a exerts a pressure against ~a, draw a pressure force on ~a due to ~a acting at an unknown angle." 
     ;			(?fluid agent) ?b ?b (?fluid agent)))
     (bottom-out (string "Because ~a exerts a pressure against ~a, draw ~a acting at an unknown angle." 
-    			(?fluid agent) ?b ((force ?b ?fluid pressure :time ?t) def-np)))
+    			?fluid ?b ((force ?b ?fluid pressure :time ?t) def-np)))
     ))
 
 ;;;
@@ -548,7 +548,7 @@
     ;(bottom-out (string "Because ~a is submerged in ~a, draw a buoyant force on ~a due to ~a at an angle of ~a." 
     ;			?b (?fluid agent) ?b (?fluid agent) ?dir))
     (bottom-out (string "Because ~a is submerged in ~a, draw ~a at an angle of ~a." 
-    			?b (?fluid agent) ((force ?b ?fluid buoyant :time ?t) def-np) ?dir))
+    			?b ?fluid ((force ?b ?fluid buoyant :time ?t) def-np) ?dir))
     ))
 
 ;;Quantity: The volume of a body

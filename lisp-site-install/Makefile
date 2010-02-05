@@ -21,7 +21,7 @@ endif
 endif
 ifeq ($(shell uname),Linux)
 ifeq ($(shell uname -p),i686)
-  binary-release = sbcl-1.0.33-x86-linux-binary.tar.bz2
+  binary-release = sbcl-1.0.35-x86-linux-binary.tar.bz2
 endif 
 ifeq ($(shell uname -p),x86_64)
   binary-release = sbcl-1.0.29-x86_64-linux-binary-r2.tar.bz2
@@ -43,12 +43,12 @@ binary-install:
 thread-test:
 	cd `$(binary-dir)`; echo '(format t "threading is ~:[not~;~] supported~%" (find :sb-thread *features*)) (quit)' | ./run-sbcl.sh --noinform --noprint
 
-source-dir = sbcl-1.0.33
+source-dir = sbcl-1.0.35
 source-release = $(source-dir)-source.tar.bz2
 get-source:
 	-wget -nc http://prdownloads.sourceforge.net/sbcl/$(source-release)
 	tar jxf $(source-release)
-	cp customize-target-features.lisp $(source-dir) #thread support
+	#cp customize-target-features.lisp $(source-dir) #thread support
 	cd $(source-dir); $(d-arch) sh make.sh $(shell echo "../`$(binary-dir)`/run-sbcl.sh")
 source-install:
 	@echo "Needs superuser privileges for install into /usr/local"
@@ -69,10 +69,19 @@ source-install:
 #     (asdf-install:install 'uffi)  ;prereq for clsql, but doesn't load
 #     (asdf-install:install 'clsql)
 #     (quit)  ; exit the lisp server
+#
+#  Also, need to fix error handling in usocket (See Bug #1614).
+#  Broken in release 0.4.1 but fixed in development version. 
+#  Download svn (the actual fix is in r497) and install.
+install-usocket:
+	svn co svn://common-lisp.net/project/usocket/svn/usocket/trunk usocket-svn
+	rm -r -f /usr/local/lib/sbcl/site/usocket-*
+	rm -r -f /usr/local/lib/sbcl/site-systems/usocket*
+	mv usocket-svn /usr/local/lib/sbcl/site
+	(cd /usr/local/lib/sbcl/site-systems; ln -s ../site/usocket*/*.asd .)
 
-
-#  clsql doesn't link with 64 bit system libraries.  This is a
-#  patch to fix this.
+#  clsql version 4.3.0 doesn't link with 64 bit system libraries.  
+#  This is a patch to fix this.
 clsql-v = 4.3.0
 patch-clsql:
 	patch -p0 -d /usr/local/lib/sbcl/site < clsql-$(clsql-v).patch
