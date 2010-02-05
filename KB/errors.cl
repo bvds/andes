@@ -1345,23 +1345,12 @@
 ;;; known/unknown error. Need several defaults under (1) to give special 
 ;;; messages for these.
 
-;;; Workbench dialogs have two slots available for flagging: 
-;;;    dir:  xy plane degree box, disabled if z axis dir is chosen
-;;;    zdir: into/outof/in/z-unknown choice shown on 3D problems.
-;;; We may have problem knowing what to flag in case direction is
-;;; of the wrong type (xy plane vs z-axis) e.g. they choose
-;;; 'into and correct is 30 degrees in the xy plane. When in doubt,
-;;; flag dir for a general direction error, and zdir only if we know
-;;; we want to highlight that box. (Could make workbench interpret 
-;;; 'dir more intelligently: could flag only the substantive one, 
-;;; or treat dir as a composite control and flag both.)
-
 
 ;;; need should-be-z-unknown for unknown but in the z direction.
 (def-error-class default-should-be-z-unknown ()
   ((student (vector ?descr ?dir))
    (correct (vector ?descr z-unknown))
-   (test (not (equal ?dir 'z-unknown)))))
+   (test (not (or (eql ?dir 'into) (eql ?dir 'out-of))))))
 
 (defun default-should-be-z-unknown ()
   (make-hint-seq
@@ -4108,6 +4097,20 @@
 	 (< (mod (- (qvar-value at) (convert-dnum-to-number dir)) 360) 
 	    ;; error bound
 	    epsilon))))
+
+;; Then test for vectors drawn out of the plane 
+;; "unknown" infers that it lies in the plane
+(def-entry-test z-axis-unknown (?quant ?dir1) 
+  :preconditions ((student (vector ?quant ?dir1))
+		  (correct (vector ?quant unknown))
+		  (test (or (eql ?dir1 'into) (eql ?dir1 'out-of))))
+  :state **incorrect**
+  :hint (list
+	 (format nil "Does ~a lie along the z-axis or in the plane?"
+		 (nlg ?quant))
+	 (strcat "Use " *vector-tool* " to modify the vector so that it lies in the plane."))
+  :order ((correct . 2) (unknown-vector . 3))
+  )
 
 ;; Then, make sure it doesn't align with any
 ;; known vector directions.
