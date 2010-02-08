@@ -8,6 +8,9 @@
 ifeq ($(shell uname),Darwin)
 ifeq ($(shell uname -p),powerpc)
   binary-release = sbcl-1.0.22-powerpc-darwin-binary.tar.bz2
+  # thread support enabled by default on x86 machines
+  # here, we enable it explicitly
+  d-arch=cp customize-target-features.lisp $(source-dir);
 endif
 ifeq ($(shell uname -p),i386)
   binary-release = sbcl-1.0.29-x86-darwin-binary-r2.tar.bz2
@@ -48,7 +51,6 @@ source-release = $(source-dir)-source.tar.bz2
 get-source:
 	-wget -nc http://prdownloads.sourceforge.net/sbcl/$(source-release)
 	tar jxf $(source-release)
-	cp customize-target-features.lisp $(source-dir) #thread support
 	cd $(source-dir); $(d-arch) sh make.sh $(shell echo "../`$(binary-dir)`/run-sbcl.sh")
 source-install:
 	@echo "Needs superuser privileges for install into /usr/local"
@@ -97,9 +99,13 @@ create-site-libraries:
 #
 #  Install sbcl site libraries from copy in git.
 #
+ifdef SUDO_USER
+username=$(SUDO_USER)
+else
+username=$(USER)
+endif
 install-site-libraries:
 	@echo "Needs superuser privileges for install into /usr/local/lib/sbcl"
 	tar xf sbcl-site-libraries.tar -C /usr/local/lib/sbcl
-	chown -R $(USER) /usr/local/lib/sbcl
-	@echo "The user" $(USER) "will be able to compile the libraries." 
-
+	chown -R $(username) /usr/local/lib/sbcl
+	@echo "The user $(username) will be able to compile the libraries." 
