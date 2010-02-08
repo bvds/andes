@@ -51,7 +51,6 @@ source-release = $(source-dir)-source.tar.bz2
 get-source:
 	-wget -nc http://prdownloads.sourceforge.net/sbcl/$(source-release)
 	tar jxf $(source-release)
-	#cp customize-target-features.lisp $(source-dir) #thread support
 	cd $(source-dir); $(d-arch) sh make.sh $(shell echo "../`$(binary-dir)`/run-sbcl.sh")
 source-install:
 	@echo "Needs superuser privileges for install into /usr/local"
