@@ -314,7 +314,6 @@
 	  (pushnew '(:action . "new-object") (cdr predef) :key #'car)
 	  (pushnew `(:id . ,(format nil "pre~A" (incf i))) (cdr predef) :key #'car)
 	  (pushnew '(:mode . "unknown") (cdr predef) :key #'car)
-	  (pushnew '(:time . 0.0) (cdr predef) :key #'car)
 	  (when (and (car predef) (not (assoc :type (cdr predef))))
 	    (push `(:type . ,(entryprop2type (car predef))) (cdr predef)))
 	  (when (and (car predef) (assoc :symbol (cdr predef))
@@ -369,7 +368,10 @@
 		       :student user :problem problem :section section
 		       :extra extra))
       (let* ((method (cdr (assoc :method old-step))) 
-	     (params (cdr (assoc :params old-step)))
+	     ;; Remove time, since it is no longer meaningful.
+	     (params (remove :time
+			     (cdr (assoc :params old-step))
+			     :key #'car))
 	     (reply (apply 
 		     (cond 
 		       ((equal method "solution-step") #'solution-step)
