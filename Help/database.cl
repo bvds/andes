@@ -34,56 +34,80 @@
 
 (defvar *connection-spec* nil "connection specification")
 
+(defconstant *debug* nil "pool debug")
+
+;; MySql drops connections that have been idle for over 8 hours.
+;; However, clsql:connect using :pool tests for this error (2006).
+;; This can be tested by logging into MySql, and using
+;; SHOW PROCESSLIST; and KILL <Id>; to drop a connection.
+
+;; CLSQL uses the connection-spec and :database-type arguments to determine
+;; which connections from the pool can be used.
+;; There is some code to use an explicit pool name, but there
+;; is no documentation for this behavior.
+
 (defmacro with-db (&body body)
   "Excecute body in context of opened, pooled, default database."
   `(if *connection-spec*
-       (let ((*default-database* 
-	      (connect *connection-spec* :database-type :mysql
-		       :pool t :if-exists nil)))
-	 (prog1 ,@body
-	   (disconnect)))
-       (error "No common database defined, can't continue.")))
+    ;; Set the default database only within the dynamic scope of the macro.
+    (let ((*default-database* 
+	   (connect *connection-spec* :database-type :mysql
+		    :pool t :if-exists nil 
+		    :make-default nil)))
+      (unwind-protect (progn ,@body)
+	(disconnect))) ;disconnect *default-database*
+    (error "No common database defined, can't continue.")))
 
 (defun destroy ()
   (setf *connection-spec* nil)
+  (when *debug*
+    (format webserver:*stdout* "destroy connected (~A):~%~{  ~A~%~}"
+	    (hash-table-count clsql-sys::*db-pool*)
+	    (let (z) (maphash #'(lambda (x y) (push y z)) 
+			      clsql-sys::*db-pool*) z)))
   (disconnect-pooled))
 
 (defun create ()
   ;; Should remove at least password from lisp and make
   ;; user enter when starting server.
-  (setf *connection-spec* '(nil "andes" "root" "sin(0)=0")))
-
-;; MySql drops connections that have been idle for over 8 hours.
-;; The following wrapper intercepts the resulting error, reconnects
-;; the database, and retries the function.
-;; This code can be tested by logging into MySql, and using
-;; SHOW PROCESSLIST; and KILL <Id>; to drop a connection.
-
-(defmacro reconnect-when-needed (&body body)
-  "Intercep disconnected database error, reconnect and start over."
-  `(handler-bind ((clsql-sys:sql-database-data-error 
-		   #'(lambda (err)
-		       (when (eql 2006 (clsql:SQL-ERROR-ERROR-ID err)) 
-			 (clsql:reconnect)  ;use default database
-			 (invoke-restart (find-restart 'start-over))))))
-    (loop (restart-case (return (progn ,@body))
-	    (start-over ())))))
+  (setf *connection-spec* '(nil "andes" "root" "sin(0)=0"))
+  (when *debug*
+    (format webserver:*stdout* "create connected (~A):~%~{  ~A~%~}"
+	    (hash-table-count clsql-sys::*db-pool*)
+	    (let (z) (maphash #'(lambda (x y) (push y z)) 
+			      clsql-sys::*db-pool*) z))))
 
 
 ;; If a write-transaction is called before set-session, a
 ;; database error is given.
 (defun write-transaction (client-id input reply)
   "Record raw transaction in database."
-
+  
   ;; Connect to db via pool
   (with-db
+      (when *debug*
+	(format webserver:*stdout* "write-transaction with db=~A (~A)~%"
+		*default-database* (hash-table-count clsql-sys::*db-pool*)))
+      
+      ;; Test that PROBLEM_ATTEMPT entry already exits or create an empty one
+      ;; Generally, this will only happen if open-problem has not been called
+      ;; or has failed.
+      (unless 
+	  (query
+	   (format nil
+		   "SELECT clientID FROM PROBLEM_ATTEMPT WHERE clientID = '~A'" 
+		   client-id)
+	   :field-names nil :flatp t :result-types :auto)
+	(execute-command
+	 (format nil
+		 "INSERT into PROBLEM_ATTEMPT (clientID,classinformationID) values ('~A',2)"
+		 client-id)))
     
     ;; If a post contains no json, j-string is lisp nil and 
     ;; sql null is inserted into database.
-    (reconnect-when-needed
       (execute-command 
        (format nil "INSERT into PROBLEM_ATTEMPT_TRANSACTION (clientID, Command, initiatingParty) values ('~A',~:[null~;~:*'~A'~],'client')" 
-	       client-id (make-safe-string input))))
+	       client-id (make-safe-string input)))
     (execute-command 
      (format nil "INSERT into PROBLEM_ATTEMPT_TRANSACTION (clientID, Command, initiatingParty) values ('~A',~:[null~;~:*'~A'~],'server')" 
 	   client-id (make-safe-string reply)))))
@@ -102,19 +126,20 @@
   "Updates transaction with session information."
 
   (unless client-id (error "set-session called with no client-id"))
-  
-  
+    
   (unless (> (length extra) 0) ;treat empty string as null
     (setf extra nil))   ;drop from query if missing.
   
   (with-db
+      (when *debug* 
+	(format webserver:*stdout* "set-session with db=~A (~A)~%"
+		*default-database* (hash-table-count clsql-sys::*db-pool*)))
     
     ;; session is labeled by client-id 
     ;; This sets up entry in PROBLEM attempt for a given session.
-    (reconnect-when-needed
       (execute-command 
        (format nil "INSERT into PROBLEM_ATTEMPT (clientID,classinformationID,userName,userproblem,userSection~@[,extra~]) values ('~a',~A,'~a','~A','~A'~@[,'~A'~])" 
-	       extra client-id 2 student problem section extra)))))
+	       extra client-id 2 student problem section extra))))
 
 ;; (andes-database:get-matching-sessions '("solution-step" "seek-help") :student "bvds" :problem "s2e" :section "1234")
 ;;
@@ -125,6 +150,9 @@
     (setf extra nil)) ;drop from query if missing.
   
   (with-db
+      (when *debug*
+	(format webserver:*stdout* "get-matching-sessions with db=~A (~A)~%" 
+		*default-database* (hash-table-count clsql-sys::*db-pool*)))
     
     (let ((result (query 
 		   (format nil "SELECT command FROM PROBLEM_ATTEMPT,PROBLEM_ATTEMPT_TRANSACTION WHERE userName='~A' AND userProblem='~A' AND userSection='~A'~@[ AND extra=~A~] AND PROBLEM_ATTEMPT.clientID=PROBLEM_ATTEMPT_TRANSACTION.clientID AND PROBLEM_ATTEMPT_TRANSACTION.initiatingParty='client'" 
@@ -149,7 +177,10 @@
   "Determine student has solved a problem previously."
   (unless (> (length extra) 0) ;can be empty string
     (with-db
-	(> 2 (car (query 
-		   (format nil "SELECT count(*) FROM PROBLEM_ATTEMPT WHERE userName = '~A' AND userSection='~A'" 
-			   student section) 
-		   :flatp t))))))
+	(when *debug*
+	  (format webserver:*stdout* "first-session-p with db=~A (~A)~%" 
+		  *default-database* (hash-table-count clsql-sys::*db-pool*)))
+      (> 2 (car (query 
+		 (format nil "SELECT count(*) FROM PROBLEM_ATTEMPT WHERE userName = '~A' AND userSection='~A'" 
+			 student section) 
+		 :flatp t))))))
