@@ -51,8 +51,8 @@
 
 (defvar *cleanup-thread* "Function to clean up idle sessions")
 
-(defun start-help (&key (port 8080) server-log-path)
-  "start a server with help system, optionally specifying the port."
+(defun start-help (&key host db user password (port 8080) server-log-path)
+  "start a server with help system, optionally specifying the port, log file path, and database access."
   ;; global setup
 
   ;; in runtime version only: set *andes-path* to process working directory
@@ -72,7 +72,7 @@
   (physics-algebra-rules-initialize) ;initialize grammar
 
   ;; Set up database
-  (andes-database:create)
+  (andes-database:create :host host :db db :user user :password password)
 
   ;; start webserver
   (webserver:start-json-rpc-service 
