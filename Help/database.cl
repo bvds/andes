@@ -58,6 +58,17 @@
 	(disconnect))) ;disconnect *default-database*
     (error "No common database defined, can't continue.")))
 
+(defun create (&key host db user password)
+  ;; Should remove at least password from lisp and make
+  ;; user enter when starting server.
+  (setf *connection-spec* (list host (or db "andes") (or user "root") 
+				(or password "sin(0)=0")))
+  (when *debug*
+    (format webserver:*stdout* "create connected (~A):~%~{  ~A~%~}"
+	    (hash-table-count clsql-sys::*db-pool*)
+	    (let (z) (maphash #'(lambda (x y) (push y z)) 
+			      clsql-sys::*db-pool*) z))))
+
 (defun destroy ()
   (setf *connection-spec* nil)
   (when *debug*
@@ -66,17 +77,6 @@
 	    (let (z) (maphash #'(lambda (x y) (push y z)) 
 			      clsql-sys::*db-pool*) z)))
   (disconnect-pooled))
-
-(defun create ()
-  ;; Should remove at least password from lisp and make
-  ;; user enter when starting server.
-  (setf *connection-spec* '(nil "andes" "root" "sin(0)=0"))
-  (when *debug*
-    (format webserver:*stdout* "create connected (~A):~%~{  ~A~%~}"
-	    (hash-table-count clsql-sys::*db-pool*)
-	    (let (z) (maphash #'(lambda (x y) (push y z)) 
-			      clsql-sys::*db-pool*) z))))
-
 
 ;; If a write-transaction is called before set-session, a
 ;; database error is given.
