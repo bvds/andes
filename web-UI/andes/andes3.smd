@@ -25,7 +25,7 @@
 	    "action": {
 	      "type": "string",
 	      "optional": false,
-	      "enum":["new-object","modify-object","set-score","log","show-hint","show-hint-link","echo-get-help-text","new-user-dialog"],
+	      "enum":["new-object","modify-object","set-score","log","show-hint","show-hint-link","echo-get-help-text","new-user-dialog","set-styles"],
 	      "description": "show-hint needed in the case of an error"
 	    },
 	    "id": {
@@ -45,11 +45,11 @@
 	      "optional": true,
 	      "description": "State of the item:  unknown: black; correct: green; incorrect: red; locked: black (not user selectable)."
 	    },
-	    "x":		{"type": "number",  "optional": true},
-	    "y":		{"type": "number",  "optional": true},
+	    "x":	{"type": "number",  "optional": true},
+	    "y":	{"type": "number",  "optional": true},
 	    "width":	{"type": "number",  "optional": true}, 
 	    "height":	{"type": "number",	"optional": true},
-	    "text":		{"type": "string", 	"optional": true},
+	    "text":	{"type": "string", 	"optional": true},
 	    "radius":	{"type": "number", 	"optional": true},
 	    "symbol":	{"type": "string", 	"optional": true},
 	    "x-statement":	{"type": "number", 	"optional": true},
@@ -57,8 +57,11 @@
 	    "x-label":	{"type": "string", 	"optional": true},
 	    "y-label":	{"type": "string", 	"optional": true},
 	    "z-label":	{"type": "string", 	"optional": true},
-	    "angle":	{"type": "number", 	"optional": true},
-	    "href" :    {"type": "string",	"optional": true},
+	    "angle":	{"type": "number", 	"optional": true, "description": "in degrees"},
+	    "cosphi":  {"type": "number", "optional": true, 
+ 	                 "description": "cos(phi), default is zero"},
+            "z-axis-enable" : {"type": "boolean", "optional": true},
+	    "href":    {"type": "string",	"optional": true},
 	    "score": {
 	      "type": "number", 
 	      "optional": true,
@@ -135,7 +138,9 @@
 	{"name": "x-label", "type": "string", 	"optional": true},
 	{"name": "y-label", "type": "string", 	"optional": true},
 	{"name": "z-label", "type": "string", 	"optional": true},
-	{"name": "angle", 	"type": "number", 	"optional": true}
+	{"name": "angle", "type": "number", "optional": true, "description": " in degrees"},
+	{"name": "cosphi", "type": "number", "optional": true, 
+ 	                 "description": "cos(phi), default is zero"},
       ],
       "returns": {
 	"type": "array",

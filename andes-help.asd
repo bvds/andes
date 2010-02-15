@@ -58,7 +58,7 @@
 					    :depends-on ("symbols" "grammar"))
 				     (:file "Entry-API"
 					    :depends-on ("HelpMessages" "symbols"
-							 "SolutionGraph"))
+							 "SolutionGraph" "icons"))
 				     
 				     ;; Equation parser/interpreter
 				     (:file "grammar")

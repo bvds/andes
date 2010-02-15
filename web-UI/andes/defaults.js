@@ -8,47 +8,52 @@ dojo.provide("andes.defaults");
 		//	DojoX Drawing comes with a defaults file. This file
 		//	overwrites that one to help protect intended styles from
 		// 	future changes made in Dojox.
-		
+
 		//  Determines whether in draw or edit mode (whether stencils
-		//  are clickable.  If clickMode is false, the original 
+		//  are clickable.  If clickMode is false, the original
 		//  functionality of silently switching between select modes
 		//  is enabled.  If clickMode is true, it allows powerpoint-
 		//  like functionality.  Clickable is used by powerpoint to
 		//  distinguish when things can be selected and when they can't
 		clickMode:true,
 		clickable:true,
-		
+
+		//  Turn on z-axis vector
+                //  Not sure if these should be here since they get modified during session.
+		zAxis: false,
+		zAxisEnabled: false,
+
 		// current: Object
 		//  current will point to either null or selected
 		current:null,
-		
+
 		// currentHit: Object
 		//	currentHit will point to either hitNorm or hitSelected
 		currentHit:null,
-		
+
 		// angleSnap: Number
 		// line, arrows, vector and axes will all snap to this angle on mouse up
 		// shown angle also reflects the snap
 		// currently cannot accept less than 1 degree
 		angleSnap:1,
-		
+
 		// renderHitLines: Boolean
 		//	If true, renders a second, larger layer for lines to make
-		// 	them more easily clickable. 
+		// 	them more easily clickable.
 		renderHitLines: true,
-		// 
+		//
 		// renderHitLayer:
 		// 	If true, renders a second layer for each Stencil, one
 		// 	acting as a 'hit' object for a wider mouse-click area.
 		// 	It also doubles as a hilight. If true, overrides
 		//	renderHitLines setting.
 		renderHitLayer:true,
-		
+
 		// labelSameColor:
 		//	If true, the label text color will be the same as the
 		//	Stencil's line color.
 		labelSameColor:true,
-		
+
 		// object states
 		locked:{
 			fill:  "#262626",
@@ -66,7 +71,7 @@ dojo.provide("andes.defaults");
 			fill:  "#cccccc",
 			color: "#000000"
 		},
-		
+
 		norm:{
 			// normal style of all shapes
 			// will get overridden by
@@ -77,7 +82,7 @@ dojo.provide("andes.defaults");
 			cap:"round", // square, butt, round
 			fill:"#CCCCCC"
 		},
-		
+
 		selected:{
 			// selected style of all shapes
 			width:6,
@@ -86,7 +91,7 @@ dojo.provide("andes.defaults");
 			cap:"round",
 			fill:"#E11EBB"
 		},
-		
+
 		highlighted:{
 			// highlighted style of all shapes
 			width:6,
@@ -95,7 +100,7 @@ dojo.provide("andes.defaults");
 			cap:"round",
 			fill:"#E11EBB"
 		},
-		
+
 		disabled:{
 			// disabled or "locked" style of all shapes
 			width:1,
@@ -104,7 +109,7 @@ dojo.provide("andes.defaults");
 			cap:"round",
 			fill:"#cccccc"
 		},
-		
+
 		// "hit" refers to the hidden object below the shape
 		// that is usually larger than the object to give a
 		// larger 'target' to click upon. These hit objects
@@ -131,9 +136,9 @@ dojo.provide("andes.defaults");
 			cap:"round",
 			fill:{r:255, g:255, b:255, a:0}
 		},
-	
+
 		anchors:{
-			// style for the anchor resize-points 
+			// style for the anchor resize-points
 			size:10,
 			width:2,
 			color:"#999",
@@ -172,7 +177,7 @@ dojo.provide("andes.defaults");
 			weight:"normal",
 			color:"#cccccc"
 		},
-		
+
 		textMode:{
 			// These styles apply to the containing
 			//	text box (edit mode), and not the text itself
@@ -182,7 +187,7 @@ dojo.provide("andes.defaults");
 				color:"#666666",
 				fill:null
 			},
- 			// This should match helpContentPane text-box in 
+ 			// This should match helpContentPane text-box in
 		        // andes.css
 			edit:{
 				width:1,
@@ -190,9 +195,9 @@ dojo.provide("andes.defaults");
 				color:"#666",
 				fill:null
 			}
-		
+
 		},
-		
+
 		/*copy: function(){
 			// summary
 			//	Each shape gets its own copy
@@ -233,7 +238,7 @@ dojo.provide("andes.defaults");
 					o = [];
 					for(var i=0; i<obj.length;i++){
 						o.push(cpy(obj[i]))
-					}    
+					}
 					return o;
 				}
 			o = {};
@@ -254,9 +259,9 @@ dojo.provide("andes.defaults");
 		o.currentText = o.text;
 		return o;
 		}
-		
+
 	};
-	
+
 	// change Drawing defaults to andes defaults
 	var a = andes.defaults;
 	a.norm.fill = a.unknown.fill;

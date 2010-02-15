@@ -80,7 +80,6 @@
 				     
 				     ;; must be before any ontology
 				     (:file "reset-KB")
-				     (:file "features")
 				     (:file "principles")
 				     (:file "constants")
 				     ;; lots of outside dependencies:

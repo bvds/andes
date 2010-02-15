@@ -51,8 +51,8 @@
 
 (defvar *cleanup-thread* "Function to clean up idle sessions")
 
-(defun start-help (&key (port 8080) server-log-path)
-  "start a server with help system, optionally specifying the port."
+(defun start-help (&key host db user password (port 8080) server-log-path)
+  "start a server with help system, optionally specifying the port, log file path, and database access."
   ;; global setup
 
   ;; in runtime version only: set *andes-path* to process working directory
@@ -72,7 +72,7 @@
   (physics-algebra-rules-initialize) ;initialize grammar
 
   ;; Set up database
-  (andes-database:create)
+  (andes-database:create :host host :db db :user user :password password)
 
   ;; start webserver
   (webserver:start-json-rpc-service 
@@ -314,7 +314,6 @@
 	  (pushnew '(:action . "new-object") (cdr predef) :key #'car)
 	  (pushnew `(:id . ,(format nil "pre~A" (incf i))) (cdr predef) :key #'car)
 	  (pushnew '(:mode . "unknown") (cdr predef) :key #'car)
-	  (pushnew '(:time . 0.0) (cdr predef) :key #'car)
 	  (when (and (car predef) (not (assoc :type (cdr predef))))
 	    (push `(:type . ,(entryprop2type (car predef))) (cdr predef)))
 	  (when (and (car predef) (assoc :symbol (cdr predef))
@@ -369,7 +368,10 @@
 		       :student user :problem problem :section section
 		       :extra extra))
       (let* ((method (cdr (assoc :method old-step))) 
-	     (params (cdr (assoc :params old-step)))
+	     ;; Remove time, since it is no longer meaningful.
+	     (params (remove :time
+			     (cdr (assoc :params old-step))
+			     :key #'car))
 	     (reply (apply 
 		     (cond 
 		       ((equal method "solution-step") #'solution-step)
@@ -434,6 +436,11 @@
       ;; initial instruction.
       (unless solution-step-replies (setf replies (update-fades replies)))
 
+      ;; Enable z-axis vectors, based on problem features
+      (when (intersection '(circular rotkin angmom torque mag gauss) 
+			  (problem-features *cp*))
+	    (push '((:action . "set-styles")
+		    (:z-axis-enable . t)) replies))
       
       ;; set-stats (if there was an old score) (to do)
       ;; Should this be wrapped in execute-andes-command?
@@ -485,11 +492,11 @@
 (webserver:defun-method "/help" solution-step 
     (&key time id action type mode x y
 	  text width height radius symbol x-statement y-statement
-	  x-label y-label z-label angle) 
+	  x-label y-label z-label angle cosphi) 
   "problem-solving step"
   ;; fixed attributes:      type id
   ;; updatable attributes:  mode x y text width height radius symbol 
-  ;;                         x-label y-label z-label angle
+  ;;                         x-label y-label z-label angle cosphi
   (env-wrap 
     ;; Andes2 also had calls to:
     ;; define-angle-variable  (undocumented leftover from Andes1)
@@ -541,13 +548,13 @@
 	(update-entry-from-entry 
 	 new-entry old-entry 
 	 type mode x y text width height radius symbol x-statement y-statement
-	 x-label y-label z-label angle))
+	 x-label y-label z-label angle cosphi))
       
       ;; update new object from non-null variables
       (update-entry-from-variables 
        new-entry  
        mode x y text width height radius symbol x-statement y-statement
-       x-label y-label z-label angle)
+       x-label y-label z-label angle cosphi)
       
       (add-entry new-entry)   ;remove existing info and update
       
@@ -678,4 +685,3 @@
     (setf webserver:*env* nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-

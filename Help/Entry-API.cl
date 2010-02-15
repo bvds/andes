@@ -131,23 +131,20 @@
 ;;
 ;; Vector directions
 ;;
-(defun arg-to-dir (dir-arg &optional mag-arg (modulus 360))
+(defun arg-to-dir (dir-arg &key mag-arg cosphi (modulus 360))
  "Convert WB API direction and magnitude argument pair to KB direction term"
   (cond ; zero-mag vectors have no direction: use special atom 'zero
-        ((and (numberp mag-arg)
-	      (= 0 mag-arg)) 'zero)
-        ; else may be NIL if unspecified -- use special atom 'unknown
-        ((NULL dir-arg) 'unknown)
-	; else should be a number
-	((not (numberp dir-arg)) 
-	 (warn "non-numeric direction arg:~A" dir-arg) 
-	 `(unrecognized ,dir-arg)) ;an error handler can look for this
-        ; negative numbers code z-axis directions, use special atoms
-        ((= dir-arg -1)  'out-of)
-	((= dir-arg -2)  'into)
-	((= dir-arg -3)  'z-unknown)
+        ((and (numberp mag-arg) (= 0 mag-arg)) 'zero)
+	;; z-axis vectors
+        ((and (numberp cosphi) (= cosphi 1)) 'out-of)
+        ((and (numberp cosphi) (= cosphi -1)) 'into)
 	; else should be xy plane angle in degrees. 
-	(T  `(dnum ,(mod dir-arg modulus) |deg|))))
+	((and (numberp dir-arg) 
+	      ;; cosphi=0 is in the xy-plane
+	      (or (not (numberp cosphi)) (= cosphi 0)))
+	 `(dnum ,(mod dir-arg modulus) |deg|))
+	(t (warn "arg-to-dir unrecognized form dir=~A cosphi=~A mag=~A"
+		 dir-arg cosphi mag-arg))))
 
 ;;
 ;; Bodies
@@ -576,10 +573,10 @@
 	 ;; "The direction of F1 is unknown.  Drawing it in the direction
 	 ;;  180 degrees suggests that it is parallel to the velocity of 
 	 ;;  the ball.  Please choose another direction."
-	 (dir (StudentEntry-angle entry))
-	 (dir-term (arg-to-dir dir drawn-mag))
+	 (dir-term (arg-to-dir (StudentEntry-angle entry) 
+			       :mag-arg drawn-mag
+			       :cosphi (StudentEntry-cosphi entry)))
 	 ;; 
-	 ;; No user-interface method in Andes3 for z-dir yet.
 	 ;; xy plane vectors get theta prefix, z axis ones get phi
 	 ;; Greek symbols expressed in LaTeX form, for now.
 	 (dir-label (format NIL "~A~A" 
@@ -649,8 +646,7 @@
 	 ;; if direction is known, associate implicit equation dirV = dir deg.
 	 (when (degree-specifierp dir-term)          ; known xy plane direction
 	   (add-implicit-eqn entry (make-implicit-assignment-entry dir-label dir-term)))
-	 (when (and (z-dir-spec dir-term) 
-		    (not (equal dir-term 'z-unknown))) ; known z axis direction
+	 (when (z-dir-spec dir-term) ; known z axis direction
 	   (add-implicit-eqn entry (make-implicit-assignment-entry dir-label (zdir-phi dir-term))))
 	 
 	 ;; Associated eqns will be entered later if entry is found correct.
@@ -694,10 +690,12 @@
 	 ;; Needs to be determined from natural language 
 	 ;;
 	 (mag (StudentEntry-radius entry))
-	 (dir (StudentEntry-angle entry))
 	 (label (StudentEntry-symbol entry))
 	 ;; note dir may be dnum or 'unknown (and maybe into/out-of)
-	 (dir-term (arg-to-dir dir mag 180)) ;lines defined mod 180 deg
+	 (dir-term (arg-to-dir (StudentEntry-angle entry)
+			       :mag-arg mag
+			       :cosphi (StudentEntry-cosphi entry)
+			       :modulus 180)) ;lines defined mod 180 deg
 	 ;; this defines magnitude and direction variables
 	 line-term
 	 line-mag-term 
