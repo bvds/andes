@@ -110,19 +110,20 @@
 		(or (and  (preferred (object ?body))
 		     	  (preferred (agent ?agent))
 		     	  (time ?time))
-		    ((allowed (or "that" "with which"))
+		    ((or "that" "with which")
 		     ?agent 
 		     (or "exerts on" "acts on") ?body (time ?time))
-		    (   (eval (case ?type 
+		    ((eval (case ?type
+				;; "tension in the string due to the body"
 				;; "the tension in the wire" in s13 
 				;; (but "wire" is not defined in s13)
-				(tension '(allowed "in"))
+				(tension '("in" ?agent (or "due to") ?body)))))
+		    ((eval (case ?type 
 				;; "the frictional force on the aircraft"
 				;; "the frictional force against the aircraft"
-				(friction '(allowed "on" "against"))
-			))
-		    	?body 
-			(time ?time))
+				(friction '(allowed "on" "against"))))
+		     ?body 
+		     (time ?time))
 		))
 )
 (defun force-types (type)
