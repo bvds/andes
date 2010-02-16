@@ -331,8 +331,11 @@
 		      replies)
 		(warn "Problem graphic file ~A missing" 
 		      (problem-graphic *cp*)))
-	    (setf y (+ y (second dims) 15))))
+	    (setf y (+ y (second dims) 15)))))
 	
+      ;; Second column for times and predefs.
+      (let ((x 450) (y 15) (i 0))
+
 	;;  Push times to client.
 	(dolist (time-sentence (problem-times-english *cp*))
 	  (push `((:action . "new-object") 
@@ -341,10 +344,7 @@
 		      (:width . 250) (:x . ,x) (:y . ,y) 
 		  (:text . ,time-sentence))
 		replies)
-	  (setf y (+ y 25))))
-
-      ;; Second column for fades and predefs.
-      (let ((x 450) (y 15) (i 0))
+	  (setf y (+ y 25)))
             
 	;; This must be done within env-wrap since it uses *cp*
 	(setf predefs (problem-predefs *cp*))
