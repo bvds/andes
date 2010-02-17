@@ -107,23 +107,22 @@
 		(allowed (or "constant" "const." "const" "steady" 
 			     "average" "ave."))
 		(eval (force-types ?type))
-		(or (and  (preferred (object ?body))
+		(or 
+		    ((eval (case ?type
+				;; "tension in the string due to the body"
+				;; "the tension in the wire" in s13 
+				;; (but "wire" is not defined in s13)
+				(tension '("in" ?agent (or "due to" "by") ?body))
+				;; "the frictional force on the aircraft"
+				;; "the frictional force against the aircraft"
+				(friction '((allowed "on" "against") ?body))))
+		     (time ?time))
+		    (and  (preferred (object ?body))
 		     	  (preferred (agent ?agent))
 		     	  (time ?time))
 		    ((or "that" "with which")
 		     ?agent 
 		     (or "exerts on" "acts on") ?body (time ?time))
-		    ((eval (case ?type
-				;; "tension in the string due to the body"
-				;; "the tension in the wire" in s13 
-				;; (but "wire" is not defined in s13)
-				(tension '("in" ?agent (or "due to") ?body)))))
-		    ((eval (case ?type 
-				;; "the frictional force on the aircraft"
-				;; "the frictional force against the aircraft"
-				(friction '(allowed "on" "against"))))
-		     ?body 
-		     (time ?time))
 		))
 )
 (defun force-types (type)
@@ -134,7 +133,7 @@
 		     ((or "gravitational" "weight" "grav." "grav") "force")))
     ;"normal force exerted on a body by the surface" from Y&F 
     (normal '("normal force"))
-    (tension '(or ("tension" (allowed "force")) "pulling force"))
+    (tension '(or ("tension" (allowed "force")) "pulling force" ("force" (preferred "of tension"))))
     (applied '((allowed "applied") "force")) ;catch-all force
     (kinetic-friction '(((preferred "kinetic") (or "friction" "frictional"))
 			"force"))
