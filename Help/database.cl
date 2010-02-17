@@ -78,8 +78,6 @@
 			      clsql-sys::*db-pool*) z)))
   (disconnect-pooled))
 
-;; If a write-transaction is called before set-session, a
-;; database error is given.
 (defun write-transaction (client-id input reply)
   "Record raw transaction in database."
   
@@ -138,7 +136,7 @@
     ;; session is labeled by client-id 
     ;; This sets up entry in PROBLEM attempt for a given session.
       (execute-command 
-       (format nil "INSERT into PROBLEM_ATTEMPT (clientID,classinformationID,userName,userproblem,userSection~@[,extra~]) values ('~a',~A,'~a','~A','~A'~@[,'~A'~])" 
+       (format nil "INSERT into PROBLEM_ATTEMPT (clientID,classinformationID,userName,userproblem,userSection~:[~;,extra~]) values ('~a',~A,'~a','~A','~A'~@[,'~A'~])" 
 	       extra client-id 2 student problem section extra))))
 
 ;; (andes-database:get-matching-sessions '("solution-step" "seek-help") :student "bvds" :problem "s2e" :section "1234")
