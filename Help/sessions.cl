@@ -269,6 +269,47 @@
 			   (:id . ,id) (:mode . "unknown") (:x . ,x) (:y . ,y) 
 			   (:width . 100) (:text . "Answer:       ")) 
 			 replies)))
+		((unify line '(choose . ?rest))
+		 ;; Multiple choice
+		 ;;
+		 ;; Multiple-select behavior determined by server:
+		 ;; would have separate button labeled "enter" in group.
+		 ;; Modes: correct incorrect selected deselected
+		 ;; Only selected items would turn red/green.
+		 ;; Button vs. checkbox determined by object style.
+		 ;; Grouping information kept on server.  Each button
+		 ;; in group gets its own id and studentEntry, but all 
+		 ;; share same studentEntry-prop.
+		 (loop for choice in (cddr line) and
+		    value from 1
+		    for id = (format nil "group~Abutton~A" i value)
+		    with label = (second line)
+		    ;; Match multiple choice group to a problem sought,
+		    ;; rather than a SystemEntry.  This will correspond
+		    ;; to a SystemEntry for multiple-choice problems.
+		    with prop = (cond 
+				  ((atom label)
+				   (find `(choose-answer ,label . ?rest) 
+					 (problem-soughts *cp*) 
+					 :test #'unify))
+				  ((consp label) label)
+				  ((null label)
+				   (if (cdr (problem-soughts *cp*))
+				       (warn "ambiguous choose label ~A" 
+					     choice)
+				       (car (problem-soughts *cp*)))))
+		    do 
+		    ;; Put each button on a new row.
+		      (unless (= value 1) (setf y (+ y 25)))
+		      (push (make-studententry 
+			     :id id :mode "deselected" :type "button"
+			     :prop prop :Verbatim value) *studententries*)
+		      (push `((:action . "new-object") (:type . "button")
+			      (:id . ,id) (:mode "deselected") 
+			      ;; Indend buttons relative to text
+			      (:x . ,(+ x 50)) (:y . ,y) (:width . 300)
+			      (:text . ,choice)) replies)))
+
 		(t 
 		 (push `((:action . "new-object") (:type . "statement") 
 			 (:id . ,(format nil "statement~A" i))
@@ -290,8 +331,11 @@
 		      replies)
 		(warn "Problem graphic file ~A missing" 
 		      (problem-graphic *cp*)))
-	    (setf y (+ y (second dims) 15))))
+	    (setf y (+ y (second dims) 15)))))
 	
+      ;; Second column for times and predefs.
+      (let ((x 450) (y 15) (i 0))
+
 	;;  Push times to client.
 	(dolist (time-sentence (problem-times-english *cp*))
 	  (push `((:action . "new-object") 
@@ -300,10 +344,7 @@
 		      (:width . 250) (:x . ,x) (:y . ,y) 
 		  (:text . ,time-sentence))
 		replies)
-	  (setf y (+ y 25))))
-
-      ;; Second column for fades and predefs.
-      (let ((x 450) (y 15) (i 0))
+	  (setf y (+ y 25)))
             
 	;; This must be done within env-wrap since it uses *cp*
 	(setf predefs (problem-predefs *cp*))

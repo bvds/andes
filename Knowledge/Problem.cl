@@ -645,7 +645,7 @@
 (defun problem-times-english (problem)
   "Return list of English sentences defining times."
   (let ((times (problem-times problem)))
-    (cond ((null times) '("Define time T0."))
+    (cond ((null times) '("Let T0 be the time."))
 	  ((eql times 'none) nil)
 	  ((listp (problem-times problem))
 	   (remove nil (mapcar #'problem-time-english times)))
@@ -659,7 +659,7 @@
        (format nil "~A: ~A." 
 	       (string-upcase (nlg (subseq time 0 3)) :end 1) (fourth time))))
     ((numberp (car time))
-     (format nil "Define time ~A~@[:  ~A~]." 
-	     (nlg (car time) 'moment) (second time)))
+	 (format nil "Time ~A~:[ has been defined~;:  ~:*~A~]." 
+		 (nlg (car time) 'moment) (second time)))
     (t (warn "Bad time specification ~A" time))))
 
