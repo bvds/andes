@@ -686,10 +686,7 @@
 	 (if mistakes
 	     (execute-andes-command 'do-whats-wrong 
 				    ;; find most recent mistake, time-wise
-				    (reduce #'(lambda (x y)
-						(if (> (studententry-time x)
-						       (studententry-time y))
-						    x y))
+				    (reduce #'most-recent-entry
 					    mistakes))
 	     (execute-andes-command 'next-step-help))))
       ;; Student has typed text in Tutor pane input box.
@@ -705,6 +702,13 @@
       ((equal action "principles-menu")
        (execute-andes-command 'handle-student-response value))
       (t (warn "undefined action ~A, doing nothing." action)))))
+
+(defun most-recent-entry (x y)
+  "most recent entry"
+  ;; previous sessions have time slot removed
+  (if (>= (or (studententry-time x) 0)
+	 (or (studententry-time y) 0))
+      x y))
 
 (webserver:defun-method "/help" close-problem 
   (&key time) 
