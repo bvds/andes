@@ -65,8 +65,8 @@ dojox.drawing.annotations.Angle = dojox.drawing.util.oo.declare(
 			var angle=this.stencil.getAngle();
 			if(andes.defaults.zAxis && this.stencil.shortType=="vector") {
 			  node.innerHTML = (angle>135&&angle<315)?"out of":"into";
-			} else if(andes.defaults.zAxis && this.stencil.shortType=="line") {
-			  node.innerHTML = "out of";
+			} else if(this.stencil.shortType=="line") {
+			  node.innerHTML = andes.defaults.zAxis?"out of":Math.ceil(angle%180);
 			} else {
 			  node.innerHTML = Math.ceil(angle);
 			}
