@@ -151,6 +151,9 @@
 ;;; move on to filtering.  
 (defun iea-check-response (rstring)
   "Check the supplied iea-name."
+  (unless (stringp rstring)
+    (warn "iea-check-response expecting string:  ~S" rstring)
+    (return-from  iea-check-response))
   (let* ((response (read-from-string rstring))
 	 (name (car response))
 	 (bindings (or (cdr response) no-bindings))
