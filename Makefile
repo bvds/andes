@@ -1,6 +1,9 @@
 #
 #  Install and update Andes Help server
 #
+sbclrc:
+	test -f ~/.sbclrc || cp lisp-site-install/sbclrc-sample ~/.sbclrc
+	echo "(pushnew #P\"`pwd`/\" asdf:*central-registry*)" >> ~/.sbclrc
 
 install-site-libraries:
 	cd lisp-site-install; $(MAKE) install-site-libraries

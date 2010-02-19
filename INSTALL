@@ -45,16 +45,11 @@ make get-binary     # download a binary release
 make thread-test    # verify threading is missing (otherwise, just install)
 make get-source     # download and compile source, with thread support
 make source-install # install in /usr/local (do as superuser)
-cd ../
+cd ../              # return to Andes root directory
+make sbclrc         # install sbcl initialization file
 
 # To test for thread support, start up sbcl and enter the 
 # command "(find :sb-thread *features*)" then enter "(quit)" to exit
-
-# A sample sbcl startup file has been included as sbclrc-sample.
-# You will need to change the path to your Andes root directory
-# and copy it to your home directory:
-cp sbclrc-sample ~/.sbclrc
-# Change the path in the sample file to your path.
 
 # Install site-wide sbcl libraries.  This should be executed
 # with superuser privileges by the user who will be running Andes.

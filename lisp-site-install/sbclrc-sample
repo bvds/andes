@@ -7,7 +7,6 @@
 (declaim (sb-ext:muffle-conditions sb-ext:compiler-note))
 
 (require :asdf)  ; asdf is built-in
-(pushnew #P"/home/bvds/Andes2/" asdf:*central-registry*)
 
 ;;;;
 ;;;;  load andes system
@@ -20,3 +19,7 @@
 (defun rhelp ()
   "Load or reload help system using asdf"
   (asdf:operate 'asdf:load-op 'andes-help))
+
+;;;;
+;;;;  Add andes path to the asdf search path
+;;;;
