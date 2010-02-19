@@ -21,10 +21,6 @@ install:
 	rm -r -f dojox/drawing
 	svn co http://svn.dojotoolkit.org/src/dojox/trunk/drawing dojox/drawing
 	svn co $(dojo-svn)/util util
-	-git checkout dojo 
-	-git checkout dojox 
-	-git checkout dijit 
-	-git checkout util
 	./andes.build.sh
 	@echo "Intalled Dojo $(dojo-version); is this the latest?"	
 	@echo "dojox/drawing from development version!"
