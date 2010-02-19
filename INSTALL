@@ -39,7 +39,7 @@ identify --version
 # A list of all releases can be found at:
 # http://sourceforge.net/projects/sbcl/files/
 # You will need a version that includes thread support.  However,
-# recent binary releases of sbcl do not include thread support.
+# recent binary releases of sbcl might not include thread support.
 cd lisp-site-install
 make get-binary     # download a binary release
 make thread-test    # verify threading is missing (otherwise, just install)

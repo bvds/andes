@@ -24,7 +24,7 @@ endif
 endif
 ifeq ($(shell uname),Linux)
 ifeq ($(shell uname -p),i686)
-  binary-release = sbcl-1.0.33-x86-linux-binary.tar.bz2
+  binary-release = sbcl-1.0.35-x86-linux-binary.tar.bz2
 endif 
 ifeq ($(shell uname -p),x86_64)
   binary-release = sbcl-1.0.29-x86_64-linux-binary-r2.tar.bz2
@@ -46,11 +46,12 @@ binary-install:
 thread-test:
 	cd `$(binary-dir)`; echo '(format t "threading is ~:[not~;~] supported~%" (find :sb-thread *features*)) (quit)' | ./run-sbcl.sh --noinform --noprint
 
-source-dir = sbcl-1.0.33
+source-dir = sbcl-1.0.35
 source-release = $(source-dir)-source.tar.bz2
 get-source:
 	-wget -nc http://prdownloads.sourceforge.net/sbcl/$(source-release)
 	tar jxf $(source-release)
+	#cp customize-target-features.lisp $(source-dir) #thread support
 	cd $(source-dir); $(d-arch) sh make.sh $(shell echo "../`$(binary-dir)`/run-sbcl.sh")
 source-install:
 	@echo "Needs superuser privileges for install into /usr/local"
