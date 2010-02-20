@@ -982,7 +982,8 @@
       (ErrorInterp-remediation (studentEntry-ErrInterp entry))))
   
   ;; else have a real student entry to check
-  (format *debug-help* "Checking entry: ~S~%" (StudentEntry-prop entry))
+  (when *debug-help* 
+    (format t "Checking entry: ~S~%" (StudentEntry-prop entry)))
   (let (cand		; candidate (state . interpretation) pair
         match 		; correct system entry matched
         result) 	; final result to return
@@ -1011,7 +1012,8 @@
     ;; Interp itself should contain exactly one sysent.
     (sg-match-StudentEntry Entry)
     (unless  (setf cand (first (StudentEntry-PossibleCInterps Entry))) 
-      (format *debug-help* "No matching system entry found~%")
+      (when *debug-help* 
+	(format t "No matching system entry found~%"))
       (setf (StudentEntry-state entry) **Incorrect**)
       ;; run whatswrong help to set error interp now, so diagnosis
       ;; can be included in log even if student never asks whatswrong
@@ -1026,7 +1028,8 @@
     (setf (StudentEntry-State entry) (car cand))
     (setf (StudentEntry-CInterp entry) (cdr cand))
     (setf match (first (StudentEntry-CInterp entry)))
-    (format *debug-help* "Matched ~A system entry: ~S~%" (car cand) match)
+    (when *debug-help* 
+      (format t "Matched ~A system entry: ~S~%" (car cand) match))
     
     ;; decide what to return based on major state of entry
     (case (StudentEntry-State entry)

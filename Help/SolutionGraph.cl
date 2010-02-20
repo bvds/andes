@@ -773,10 +773,10 @@
     (sg-filter-constraint-losses Entry))
   
   ;; Print out Entry and Interps
-  (when (sg-unmark-interp (StudentEntry-Cinterp Entry))
-    (format *debug-help* 
+  (when (and *debug-help* (sg-unmark-interp (StudentEntry-Cinterp Entry)))
+    (format t 
 	    "Entering Interp:=====================================~%")
-    (format *debug-help* "~A~%" (StudentEntry-Cinterp Entry)))
+    (format t "~A~%" (StudentEntry-Cinterp Entry)))
   
   (dolist (E (sg-unmark-interp (studentEntry-Cinterp Entry)))
     (push Entry (SystemEntry-Entered E))))

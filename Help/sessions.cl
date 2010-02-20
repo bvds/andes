@@ -295,8 +295,7 @@
 				  ((consp label) label)
 				  ((null label)
 				   (if (cdr (problem-soughts *cp*))
-				       (warn "ambiguous choose label ~A" 
-					     choice)
+				       (warn "Ambiguous null choose label")
 				       (car (problem-soughts *cp*)))))
 		    do 
 		    ;; Put each button on a new row.
