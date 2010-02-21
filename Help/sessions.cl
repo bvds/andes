@@ -93,7 +93,7 @@
   (let ((cutoff (* 2 3600)))
     (loop
      (sleep cutoff)
-     (webserver:close-idle-sessions :idle cutoff :method #'close-problem))))
+     (webserver:close-idle-sessions :idle cutoff :method 'close-problem))))
 
 
 (defun stop-help () 
