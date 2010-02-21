@@ -150,7 +150,7 @@
     (let ((Tmp (iface-handle-Statistics NewCmd)))
       (when Tmp (push Tmp str)))
 
-    (format *debug-help* "Result ~A~%" Result)
+    (when *debug-help* (format t "Result ~A~%" Result))
 
     str))
 

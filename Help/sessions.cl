@@ -209,7 +209,7 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defvar *simulate-loaded-server* t "Put in delay in solution steps")
+(defvar *simulate-loaded-server* nil "Put in delay in solution steps")
 
 (webserver:defun-method "/help" open-problem (&key time problem user 
 						   section extra) 

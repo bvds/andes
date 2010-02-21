@@ -234,8 +234,8 @@
 					; temporarily munge this entry's interpretations to get variable definition entries 
 					; associated with it to be marked as entered by this student entry, restore when done. 
 					; Note sg-delete-StudentEntry adjusted to undo this on equation entry deletions.
-	      (format *debug-help* "entering unneeded vardefs: ~s~%" 
-		      unneeded-vardefs)
+	      (when *debug-help* 
+		(format t "entering unneeded vardefs: ~s~%" unneeded-vardefs))
 	      (setf (StudentEntry-Cinterp se) unneeded-vardefs)
 	      (sg-Enter-StudentEntry se)
 	      (setf (StudentEntry-Cinterp se) eqn-interp)))

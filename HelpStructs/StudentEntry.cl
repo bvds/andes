@@ -80,8 +80,7 @@
 (defvar *StudentEntries*)  ;list of current student entries
 
 ;; There must be a better place for this declaration.
-;; It should probably be set to either nil or webserver:*stdout*
-(defvar *debug-help* t "The stream showing help system runtime activities.")
+(defvar *debug-help* nil "Print helpsystem activities.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Student entry list functions.

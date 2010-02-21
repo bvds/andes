@@ -34,7 +34,7 @@
 (defvar *stdout* *standard-output*)
 (defvar *service-methods* (make-hash-table :test #'equal))
 
-(defvar *debug* t "Special error conditions for debugging")
+(defvar *debug* nil "Special error conditions for debugging")
 
 (defun start-json-rpc-service (uri &key (port 8080) log-function
 			       server-log-path)
