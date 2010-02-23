@@ -1,34 +1,41 @@
 
-                Instructions for Installing Andes
+                   Instructions for Installing Andes
 
 This file contains instructions for installing the Andes help server.  
 The help server itself is a lisp program that stores log data in an 
 sql database, and uses a c++ math library called "the solver."  
 A front-end web server forwards student help messages
 to the Andes help server and serves other static content.
+See Documentation/server.html for more information.
 
 This installation uses sbcl for lisp, Apache for the web server, mysql for
 the database, and g++ for the solver.  It has been tested on Linux (RedHat 
 Enterprise 5.4, CentOS 5.4) and OS X (10.4 and 10.6).
 
-====================== System Configuration ===============================
+========================== System Configuration ===============================
 
 # The following packages need to be installed:  gnu make, git,
 # subversion, gnu c++, mysql-server, mysql-devel, screen, and ImageMagick
+# For RedHat systems, http://fedoraproject.org/wiki/EPEL may be helpful.  
 # In Linux, test packages using:
 rpm -q make git subversion gcc-c++ mysql-server mysql-devel screen ImageMagick
 
-# See if ImageMagick (http://www.imagemagick.org) is installed:
-identify --version
-# (In OS X, you will generally have to install it.)
+# If you need to install mysql or mysql-devel, some rpm packages may fail 
+# to update the dynamic linker cache.  
+# To add mysql to the cache, run (as root):
+/sbin/ldconfig
 
-# The Andes help server should be run in an ordinary user account.  If needed, 
+# In OS X, you may have to install ImageMagick (http://www.imagemagick.org).  
+# Verify that ImageMagick is installed:
+identify --version
+
+# The Andes help server should be run in an ordinary user account.  If needed,   
 # set up a user account for the Andes server.  The rest of the install 
 # will occur in that user account.
 
-# You should add the user to /etc/sudoers
+# For convenience, you can add the user to /etc/sudoers
 
-====================== Get the Andes code ===============================
+============================ Get the Andes code ===============================
 
 # If you wish to contribute code to the Andes project, do the following:
 # Set up an account for yourself at github, providing your public ssh key;
@@ -38,7 +45,7 @@ identify --version
 # To install the Andes repository in directory "andes" use:
 git clone git@github.com:bvds/andes.git andes
 
-# Alternatively, if you would just like to use the code:
+# Alternatively, if you would just like to use the Andes code:
 git clone git://github.com/bvds/andes.git andes
 
 # The rest of the install will take place in the Andes directory.
@@ -62,41 +69,42 @@ git clone ssh://git@andestutor.org/home/git/Andes-solutions.git/ solutions
 # Compile the solver library and executable:
 make install-solver
 
-====================== SBCL ===============================
+================================== SBCL =======================================
 
 # The sbcl website is http://sbcl.sourceforge.net/.
 # A list of all releases can be found at:
 #   http://sourceforge.net/projects/sbcl/files/
 # You will need a version that includes thread support.  However,
-# recent binary releases of sbcl might not include thread support.
+# some recent binary releases do not include thread support.
 cd lisp-site-install
-make get-binary     # download a binary release
-make thread-test    # verify threading is missing
-# if threading is present, install using:
-make binary-install
-# Otherwise, install the source version:
-make get-source     # download and compile source, with thread support
-make source-install # install in /usr/local (do as superuser)
-
-cd ../              # return to Andes root directory
-make sbclrc         # install the sbcl initialization file
+  make get-binary     # download a binary release
+  make thread-test    # verify threading is missing
+  # If threading is present, install using:
+  make binary-install
+  # Otherwise, install the source version:
+  make get-source     # download and compile source, with thread support
+  make source-install # install in /usr/local (do as superuser)
 
 # To test for thread support, start up sbcl and enter the 
-# command "(find :sb-thread *features*)" then enter "(quit)" to exit
-# If it returns ":sb-tread" then threading is turned on.
+# command "(find :sb-thread *features*)".  If it returns ":sb-thread" 
+# then threading is enabled. Enter "(quit)" to exit sbcl.
+
+cd ../              # return to Andes root directory
+
+make sbclrc  # Install the sbcl initialization file.
 
 # Install site-wide sbcl libraries.  This should be executed
 # with superuser privileges by the user who will be running Andes.
 make install-site-libraries
 
-============================ MySql =======================================
+================================== MySql ======================================
 
 # To save session data, we use MySql.  
-#First, mysql server must be started.
+# First, mysql server must be started.
 # As superuser:
   /sbin/chkconfig mysqld on
   /sbin/service mysqld start
-# Then set the root password and restart:
+# Then set the root password (you can choose your own) and restart:
   /usr/bin/mysqladmin -u root password 'sin(0)=0'
   /sbin/service mysqld restart
 # (In OS X, go to http://dev.mysql.com, install mysql and MySQLStartupItem,
@@ -108,15 +116,7 @@ make install-site-libraries
 # Set up tables in database:
 make install-database
 
-# Finally, in Linux, the lisp package clsql will need the mysql header files.  
-# These are provided by mysql-devel; enter 
-# "rpm -q mysql-devel" to see if it has been installed.
-
-# If you need to install mysql or mysql-devel, a number of rpm
-# packages may fail to update the dynamic linker cache.  In that case,
-# you will need to run "/bin/ldconfig" to get mysql into the cache.
-
-=============== Apache Web Server =================================
+=========================== Apache Web Server =================================
 
 # Configure Apache as a reverse proxy server, with json-rpc 
 # error messages and add links to DocumentRoot.
@@ -128,47 +128,36 @@ make configure-httpd
   /sbin/service httpd start
 (OS X, do this from "System Preferences")
 
-====================== Javascript ===================================
+# If SELinux is running, I suggest you turn it off.  Otherwise, in RedHat:
+sudo system-config-securitylevel # select Customize; select WWW (HTTP)
+sudo chcon -R -t httpd_sys_content_t .  # httpd read permission for Andes files
+sudo setsebool -P httpd_can_network_relay=1  # port forwarding to help server
+
+# To test the web server, point a web browser to 
+#   http://<hostname>/web-UI/login.html
+
+=============================== Javascript ===================================
 
 # Make and build the javascript.  First we need to get 
 # the Dojo library, then we need to make an Andes-specific
 # build.  The master branch uses the development version
-# while the stable branch uses the latest release.
+# while the stable branch uses (mostly) the latest release.
 make install-dojo
 
-====================== Run Help Server ===============================
+========================== Test the Help Server ===============================
 
-;; To run the Help Server in lisp, type "screen" on the command line,
-;; then type "sbcl" to start up lisp, then:
+;; To test the Help Server type "sbcl" to start up lisp, then:
 (rhelp)
-(start-help)
+(start-help :password "sin(0)=0") ;specify mysql password 
 
-;; To test the Help Server, point a web browser to 
-;;   http://hostname/web-UI/login.html
-;; where hostname is the name of the server, and try to log in.
+;; Point a web browser to 
+;;   http://<hostname>/web-UI/login.html
+;; Try to log in and solve a problem.
 
-;; At this point, you can type the screen commands ctl-a ctl-d 
-;; to detach from the lisp process; see the documentation for screen.
+(stop-help)    ;Stop the lisp server:
 
-;; To stop the lisp server:
-(stop-help)
+(quit) ;Exit lisp
 
-;; to exit lisp:
-(quit)
+;;  See Documentation/server.html for further information.
 
-=============================== Updates ===============================
-
-#  Update software:
-make update
-
-#  If the help server is running, reattach to the server using screen:
-screen -r
-
-  ;; In lisp, stop the server, reload and restart:
-  (stop-help)
-  (rhelp)
-  (start-help)
-  ;; At this point, you can type ctl-a ctl-d to detach from the 
-  ;; lisp process; see the documentation for screen.
-
-============================================================================
+===============================================================================
