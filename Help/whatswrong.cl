@@ -179,8 +179,9 @@
 	best)
     ;; (format t "Candidates are ~W" candidates)
     (contextualize candidates)
-    (when (cdr candidates) ; trace conflicts, so we can vet the results
-      (format *debug-help* "  Error candidates: ~W~%" 
+    ;; trace conflicts, so we can vet the results
+    (when (and *debug-help* (cdr candidates))
+      (format t "  Error candidates: ~W~%" 
 	      (mapcar #'(lambda (x) (cons (car (ErrorInterp-diagnosis x))
 					  (ErrorInterp-order x))) 
 		      (sort (copy-list candidates) #'alist< 
@@ -188,7 +189,8 @@
     (setf best (if candidates 
 		   (select-error-interpretation candidates)
 		   (make-failed-error-interpretation)))
-    (format *debug-help* "  Choose: ~A~%" (ErrorInterp-diagnosis best))
+    (when *debug-help* 
+      (format t "  Choose: ~A~%" (ErrorInterp-diagnosis best)))
     ;; (format t "Best candidate is ~W" best)
     (setf (ErrorInterp-Remediation best) (generate-ww-turn best))
     best))
