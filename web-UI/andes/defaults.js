@@ -71,6 +71,11 @@ dojo.provide("andes.defaults");
 			fill:  "#cccccc",
 			color: "#000000"
 		},
+		shadow:{
+			fill:  "#dddddd",
+			color: "#dddddd",
+			alpha:.5
+		},
 
 		norm:{
 			// normal style of all shapes
