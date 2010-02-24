@@ -24,7 +24,7 @@
   (:use :cl :hunchentoot :json)
   (:export :defun-method :start-json-rpc-service :stop-json-rpc-service 
 	   :*stdout* :print-sessions :*env* :close-idle-sessions :*debug*
-	   :get-session-env :*log-id*))
+	   :*debug-alloc* :get-session-env :*log-id*))
 
 (in-package :webserver)
 
@@ -34,7 +34,8 @@
 (defvar *stdout* *standard-output*)
 (defvar *service-methods* (make-hash-table :test #'equal))
 
-(defvar *debug* t "Special error conditions for debugging")
+(defparameter *debug* nil "Special error conditions for debugging")
+(defparameter *debug-alloc* nil "Turn on memory profiling.")
 
 (defun start-json-rpc-service (uri &key (port 8080) log-function
 			       server-log-path)
@@ -46,6 +47,8 @@
 	 (list #'dispatch-easy-handlers
 	       (create-prefix-dispatcher uri 'handle-json-rpc)
 	       #'default-dispatcher))
+
+  #+sbcl (when *debug-alloc* (require :sb-sprof))
 
   ;; Error handlers
   (setf *http-error-handler* 'json-rpc-error-message)
@@ -104,13 +107,11 @@
 			       *service-methods*))
 	 reply)
     
-    ;; Log incoming raw json-rpc and user/problem session id
-    (when *log-function* 
-      (funcall *log-function* "client" *log-id* 
-	       (raw-post-data :force-text t)))
-    
     (when *debug* (format *stdout* "session ~A calling ~A with~%     ~S~%" 
 			  client-id method params))
+    #+sbcl (when *debug-alloc* 
+	     (sb-sprof:start-profiling 
+	      :mode :alloc :threads (list sb-thread:*current-thread*)))
     
     (multiple-value-bind (result error1)
 	(cond
@@ -148,6 +149,7 @@
 	  ;; match the function...
 	  (t (execute-session client-id turn method-func params)))
       
+      #+sbcl (when *debug-alloc* (sb-sprof:stop-profiling))
       (when *debug* 
 	(format *stdout* "result ~S~%~@[error ~S~%~]" result error1))
 
@@ -158,20 +160,22 @@
 	(push (cons :id turn) reply)
 	(when version (push version reply))
 
-	(generate-json-and-log *log-id* reply)))))
+	(turn-log-wrapper *log-id* 
+			  (raw-post-data :force-text t)
+			  reply)))))
 
-(defun generate-json-and-log (id reply)
-  "Create raw json reply string and log to database"
-  (let ((return-json 
+(defun turn-log-wrapper (id input-json reply)
+  "log turn pair to database"
+  (let ((reply-json
 	 ;; By default, cl-json turns dashes into camel-case:  
 	 ;; Instead, we convert to lower case, preserving dashes.
 	 (let ((*lisp-identifier-name-to-json* #'string-downcase))
 	   (encode-json-alist-to-string reply))))
     
-    ;; Log reply message raw json string
-    (when *log-function*
-	  (funcall *log-function* "server" id return-json))
-    return-json))
+        (when *log-function*
+	  ;; Log incoming and outgoing raw json-rpc and user/problem session id
+	  (funcall *log-function* id input-json reply-json))
+	reply-json))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 
@@ -252,15 +256,22 @@
     (maphash 
      #'(lambda (id session)
 	 (when (< (ssn-time session) cutoff)
-	   (let* ((*log-id* id)  ;session-local id used in logging
-		  ;; execute-session only returns one value (no error).
-		  (result (execute-session id nil method params)))
+	   (let ;; execute-session only returns one value (no error).
+	       ((result (execute-session id nil method params)))
 	     (when *debug* 
-	       (format *stdout* "Shutting down session ~A:~%    ~A~%" 
-		       id result))
+	       (format *stdout* "Shutting down session ~A using ~A:~%    ~A~%" 
+		       id method result))
 	     ;; We can't push reply back to the client;
 	     ;; but we do want to log it.
-	     (generate-json-and-log id `((:result . ,result))))))
+	     (turn-log-wrapper 
+	      id
+	      ;; Make fake log entry for command sent.
+	      ;; By default, cl-json turns dashes into camel-case:  
+	      ;; Instead, we convert to lower case, preserving dashes.
+	      (let ((*lisp-identifier-name-to-json* #'string-downcase))
+		(encode-json-alist-to-string 
+		 `((:method . ,method) (:params . ,params))))
+	      `((:result . ,result))))))
      *sessions*)))
 
 (defconstant *time-per-turn* 1.0 "Estimate of maximum time in seconds needed to execute a single turn.")

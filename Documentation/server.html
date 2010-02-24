@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Andes Help Server</title>
+</head>
+
+<body>
+<h1>Andes Help Server</h1>
+
+<h2>Design</h2>
+
+The Andes Help Server has three main components:
+<ol>
+  <li>A conventional web server which serves static content and
+  forwards help messages to the help server.
+
+  <li>An SQL database stores messages to the help server.&nbsp;
+  It saves the raw messages passed between the client and the help
+  server.&nbsp;  The message protocol is defined using a
+  <a href="http://groups.google.com/group/json-rpc/web/json-rpc-1-2-proposal">json-rpc</a>
+  <a href="http://groups.google.com/group/json-schema/web/service-mapping-description-proposal ">service method
+  description</a>:&nbsp;
+  <a href="../web-UI/andes/andes3.smd">andes3.smd</a>.&nbsp;
+  You can view the messages for 
+  <a href="../web-UI/Documentation/AsuDocs/nokes-example-json.txt">
+     an example session for problem s2e</a>.&nbsp;
+
+  <li>The Lisp help system manages user sessions, logs messages to
+  the database, and generates replies to student actions.
+</ol>
+<img src="arch.jpg" alt="server diagram" width="500">
+<p>A session starts when the client downloads
+<a href="../web-UI/index.html"><code>index.html</code></a>
+from the server.&nbsp;  Next, the client downloads various javascript
+libraries and sends an <code>open-problem</code> message to the help
+server.&nbsp; In response, the help server sets up a new session and returns
+the problem statement and any previous work done on the problem.&nbsp;
+As the student solves the problem, various <code>solution-step</code>
+and <code>seek-help</code> messages are sent the server.&nbsp;
+A session ends when the student hits the submit button, or the back
+button on the browser.&nbsp;
+
+<h2>Running the Help Server</h2>
+
+You can use the <a href="http://en.wikipedia.org/wiki/GNU_Screen">
+<code>screen</code></a> utility to run instances of the help server.&nbsp;
+Enter <code>screen</code> on the command line, enter
+<code>sbcl</code> to start up lisp, then start the help server using:
+<pre>
+(rhelp)
+(start-help :password "sin(0)=0") ;specify mysql password 
+</pre>
+At this point, you can type the screen commands ctl-a ctl-d 
+to detach from the lisp process.&nbsp; Use <code>screen -r</code>
+to re-attach.
+
+<p>
+To stop the lisp server:&nbsp; <code>(stop-help)</code>;
+and to to exit lisp:&nbsp; <code>(quit)</code>.
+
+<p>The functions <code>start-help</code> and <code>stop-help</code>
+are documented in the source file <a href="../Help/sessions.cl">
+<code>Help/sessions.cl</code></a>.
+
+<h2>Software Updates</h2>
+
+Update software by entering:&nbsp; <code>make update</code>
+
+<p>If the help server is running, reattach to the server using screen:&nbsp;
+<code>screen -r</code>.&nbsp;  
+In lisp, stop the server, reload the libraries, and restart:
+<pre>
+(stop-help)
+(rhelp)
+(start-help :password "sin(0)=0")
+</pre>
+At this point, you can type ctl-a ctl-d to detach from the lisp process.&nbsp;
+
+<p>If the <code>(rhelp)</code> command fails, try rebuilding the lisp
+object files:&nbsp;  Exit lisp using <code>(quit)</code>; On the
+command line, enter <code>rm */*.fasl</code>; Restart lisp.
+</body> </html>

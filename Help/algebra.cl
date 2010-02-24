@@ -32,7 +32,10 @@
   "Convert prefix form to input-ready string."
   (cond
     ((stringp eq) eq)   
-    ((numberp eq) (princ-to-string eq))
+    ((numberp eq)
+     ;; don't want to use "d" for exponent
+     (let ((*read-default-float-format* 'double-float)) 
+       (princ-to-string eq)))
     ((symbolp eq) 
      ;; Substitute student vars for their canonical counterparts.
      ;; atoms may be system vars, if no counterpart studvar, leave unchanged.
