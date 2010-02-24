@@ -24,7 +24,7 @@
   (:use :cl :hunchentoot :json)
   (:export :defun-method :start-json-rpc-service :stop-json-rpc-service 
 	   :*stdout* :print-sessions :*env* :close-idle-sessions :*debug*
-	   :get-session-env :*log-id*))
+	   :*debug-alloc* :get-session-env :*log-id*))
 
 (in-package :webserver)
 
@@ -34,7 +34,8 @@
 (defvar *stdout* *standard-output*)
 (defvar *service-methods* (make-hash-table :test #'equal))
 
-(defvar *debug* t "Special error conditions for debugging")
+(defparameter *debug* nil "Special error conditions for debugging")
+(defparameter *debug-alloc* nil "Turn on memory profiling.")
 
 (defun start-json-rpc-service (uri &key (port 8080) log-function
 			       server-log-path)
@@ -46,6 +47,8 @@
 	 (list #'dispatch-easy-handlers
 	       (create-prefix-dispatcher uri 'handle-json-rpc)
 	       #'default-dispatcher))
+
+  #+sbcl (when *debug-alloc* (require :sb-sprof))
 
   ;; Error handlers
   (setf *http-error-handler* 'json-rpc-error-message)
@@ -106,6 +109,9 @@
     
     (when *debug* (format *stdout* "session ~A calling ~A with~%     ~S~%" 
 			  client-id method params))
+    #+sbcl (when *debug-alloc* 
+	     (sb-sprof:start-profiling 
+	      :mode :alloc :threads (list sb-thread:*current-thread*)))
     
     (multiple-value-bind (result error1)
 	(cond
@@ -143,6 +149,7 @@
 	  ;; match the function...
 	  (t (execute-session client-id turn method-func params)))
       
+      #+sbcl (when *debug-alloc* (sb-sprof:stop-profiling))
       (when *debug* 
 	(format *stdout* "result ~S~%~@[error ~S~%~]" result error1))
 
