@@ -249,7 +249,7 @@
 				 #+bordeaux-threads 
 				 (bordeaux-threads:make-lock))))))
 
-(defun close-idle-sessions (&key (idle 7200) (method #'identity) params)
+(defun close-idle-sessions (&key (idle 0) (method #'identity) params)
   "Apply method to all (idle) sessions.  idle is time in seconds."
   (let ((cutoff (- (get-internal-real-time) 
 		   (* idle internal-time-units-per-second))))

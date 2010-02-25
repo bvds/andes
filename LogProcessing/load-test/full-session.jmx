@@ -12,6 +12,11 @@
             <stringProp name="Argument.value">36000</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
+          <elementProp name="server" elementType="Argument">
+            <stringProp name="Argument.name">server</stringProp>
+            <stringProp name="Argument.value">gideon.eas.asu.edu</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
         </collectionProp>
       </elementProp>
       <stringProp name="TestPlan.user_define_classpath"></stringProp>
@@ -68,7 +73,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -107,7 +112,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/login.html</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/login.html</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -125,7 +130,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -164,7 +169,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -182,7 +187,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -221,7 +226,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/css/andes.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/css/andes.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -239,7 +244,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -278,7 +283,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/css/andes.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/css/andes.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -296,7 +301,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -335,7 +340,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/css/andes.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/css/andes.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -353,7 +358,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -392,7 +397,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/css/andes.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/css/andes.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -410,7 +415,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -449,7 +454,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/css/andes.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/css/andes.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -467,7 +472,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -506,7 +511,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/css/andes.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/css/andes.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -524,7 +529,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -563,7 +568,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/css/andes.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/css/andes.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -581,7 +586,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -620,7 +625,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/css/andes.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/css/andes.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -638,7 +643,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -677,7 +682,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/css/andes.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/css/andes.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -695,7 +700,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -734,7 +739,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/css/andes.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/css/andes.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -752,7 +757,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -791,7 +796,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/css/andes.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/css/andes.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -809,7 +814,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -848,7 +853,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/css/andes.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/css/andes.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -866,7 +871,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -905,7 +910,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -923,7 +928,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -962,7 +967,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -980,7 +985,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1019,7 +1024,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -1037,7 +1042,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1076,7 +1081,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -1101,7 +1106,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1168,7 +1173,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -1178,7 +1183,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1217,7 +1222,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -1235,7 +1240,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1274,7 +1279,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -1292,7 +1297,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1331,7 +1336,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -1349,7 +1354,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1388,7 +1393,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/dijit/themes/tundra/form/Button.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/dijit/themes/tundra/form/Button.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -1406,7 +1411,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1445,7 +1450,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/dijit/themes/tundra/Menu.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/dijit/themes/tundra/Menu.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -1463,7 +1468,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1502,7 +1507,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/dijit/themes/tundra/Dialog.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/dijit/themes/tundra/Dialog.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -1520,7 +1525,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1559,7 +1564,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/dojox/widget/UpgradeBar/UpgradeBar.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/dojox/widget/UpgradeBar/UpgradeBar.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -1577,7 +1582,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1616,7 +1621,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/dojox/layout/resources/ExpandoPane.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/dojox/layout/resources/ExpandoPane.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -1634,7 +1639,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1673,7 +1678,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/css/andes.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/css/andes.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -1691,7 +1696,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1750,7 +1755,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -1760,7 +1765,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1799,7 +1804,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/dijit/themes/tundra/form/Button.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/dijit/themes/tundra/form/Button.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -1817,7 +1822,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1856,7 +1861,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/dijit/themes/tundra/form/Button.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/dijit/themes/tundra/form/Button.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -1874,7 +1879,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1913,7 +1918,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -1931,7 +1936,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1970,7 +1975,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/review/introduction.html</stringProp>
+                  <stringProp name="Header.value">http://${server}/review/introduction.html</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -1988,7 +1993,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -2027,7 +2032,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/review/introduction.html</stringProp>
+                  <stringProp name="Header.value">http://${server}/review/introduction.html</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -2045,7 +2050,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -2084,7 +2089,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/review/introduction.html</stringProp>
+                  <stringProp name="Header.value">http://${server}/review/introduction.html</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -2102,7 +2107,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -2141,7 +2146,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/review/introduction.html</stringProp>
+                  <stringProp name="Header.value">http://${server}/review/introduction.html</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -2166,7 +2171,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -2233,7 +2238,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -2255,7 +2260,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -2322,7 +2327,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -2344,7 +2349,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -2411,7 +2416,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -2433,7 +2438,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -2500,7 +2505,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -2522,7 +2527,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -2589,7 +2594,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -2611,7 +2616,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -2678,7 +2683,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -2700,7 +2705,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -2767,7 +2772,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -2789,7 +2794,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -2856,7 +2861,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -2878,7 +2883,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -2945,7 +2950,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -2967,7 +2972,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -3034,7 +3039,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -3056,7 +3061,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -3123,7 +3128,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -3145,7 +3150,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -3212,7 +3217,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -3234,7 +3239,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -3301,7 +3306,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -3323,7 +3328,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -3390,7 +3395,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -3412,7 +3417,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -3479,7 +3484,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -3501,7 +3506,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -3568,7 +3573,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -3590,7 +3595,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -3657,7 +3662,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -3679,7 +3684,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -3746,7 +3751,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -3768,7 +3773,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -3835,7 +3840,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -3857,7 +3862,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -3924,7 +3929,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -3946,7 +3951,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -4013,7 +4018,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -4035,7 +4040,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -4102,7 +4107,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -4124,7 +4129,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -4191,7 +4196,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -4213,7 +4218,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -4280,7 +4285,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -4302,7 +4307,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -4369,7 +4374,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -4391,7 +4396,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -4458,7 +4463,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -4480,7 +4485,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -4547,7 +4552,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -4569,7 +4574,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -4636,7 +4641,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -4658,7 +4663,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -4725,7 +4730,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -4747,7 +4752,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -4814,7 +4819,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -4836,7 +4841,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -4903,7 +4908,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -4925,7 +4930,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -4992,7 +4997,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -5007,7 +5012,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -5046,7 +5051,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/dijit/themes/tundra/Tree.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/dijit/themes/tundra/Tree.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -5064,7 +5069,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -5103,7 +5108,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/dijit/themes/tundra/Tree.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/dijit/themes/tundra/Tree.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -5121,7 +5126,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -5160,7 +5165,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/dijit/themes/tundra/Tree.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/dijit/themes/tundra/Tree.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -5178,7 +5183,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -5217,7 +5222,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/dijit/themes/tundra/Tree.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/dijit/themes/tundra/Tree.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -5235,7 +5240,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -5274,7 +5279,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/dijit/themes/tundra/Tree.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/dijit/themes/tundra/Tree.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -5292,7 +5297,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -5331,7 +5336,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/dijit/themes/tundra/Tree.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/dijit/themes/tundra/Tree.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -5349,7 +5354,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -5388,7 +5393,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/dijit/themes/tundra/Tree.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/dijit/themes/tundra/Tree.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -5406,7 +5411,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -5445,7 +5450,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/dijit/themes/tundra/Tree.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/dijit/themes/tundra/Tree.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -5463,7 +5468,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -5502,7 +5507,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/release/dojo/dijit/themes/tundra/Tree.css</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/release/dojo/dijit/themes/tundra/Tree.css</stringProp>
                 </elementProp>
                 <elementProp name="Accept-Encoding" elementType="Header">
                   <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -5527,7 +5532,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -5594,7 +5599,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -5616,7 +5621,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -5683,7 +5688,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -5705,7 +5710,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -5772,7 +5777,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -5794,7 +5799,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -5861,7 +5866,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -5883,7 +5888,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -5950,7 +5955,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -5972,7 +5977,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -6039,7 +6044,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -6061,7 +6066,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -6128,7 +6133,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -6150,7 +6155,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -6217,7 +6222,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -6239,7 +6244,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -6306,7 +6311,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -6328,7 +6333,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -6395,7 +6400,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -6417,7 +6422,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -6484,7 +6489,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -6506,7 +6511,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -6573,7 +6578,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -6595,7 +6600,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -6662,7 +6667,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -6684,7 +6689,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.domain">${server}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -6751,7 +6756,7 @@
                 </elementProp>
                 <elementProp name="Referer" elementType="Header">
                   <stringProp name="Header.name">Referer</stringProp>
-                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                  <stringProp name="Header.value">http://${server}/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
