@@ -36,6 +36,8 @@
 
 (defparameter *debug* nil "Special error conditions for debugging")
 (defparameter *debug-alloc* nil "Turn on memory profiling.")
+#+sbcl (eval-when (:load-toplevel :compile-toplevel)
+	 (require :sb-sprof))
 
 (defun start-json-rpc-service (uri &key (port 8080) log-function
 			       server-log-path)
@@ -47,8 +49,6 @@
 	 (list #'dispatch-easy-handlers
 	       (create-prefix-dispatcher uri 'handle-json-rpc)
 	       #'default-dispatcher))
-
-  #+sbcl (when *debug-alloc* (require :sb-sprof))
 
   ;; Error handlers
   (setf *http-error-handler* 'json-rpc-error-message)
