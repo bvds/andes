@@ -141,6 +141,7 @@
   (setf (cdr (get-variables-table x)) new-variables))
 
 (defun empty-symbol-table ()
+    (fill *variables* nil) ;shallow dereference, for garbage collection
     (setf *variables* (mapcar #'list *variable-namespaces*)))
 
 ;;-----------------------------------------------------------------------------

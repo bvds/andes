@@ -177,10 +177,14 @@
 (defun do-close-problem ()
    ;; empty symbol table and entry list
    (empty-symbol-table)
+   (fill **grammar** nil) ;shallow dereference, for garbage collection
    (setf **grammar** nil)
-   (setq *StudentEntries* nil)
+   (fill *StudentEntries* nil) ;shallow dereference, for garbage collection
+   (setf *StudentEntries* nil)
 
    ;; unload current problem with its sgraph structures
+   ;; Garbage collection for problems may be complicated,
+   ;; since it may use stuff that is shared across problems
    (setf *cp* NIL)
 
    ;; Set the current problem instance time from the universal time.
