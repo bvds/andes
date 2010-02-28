@@ -133,7 +133,7 @@
 	  ;; Variables used for scoring in Help/RunTimeTest.cl
           *Runtime-Testset* *Runtime-Score-Testset*
 	  *Runtime-testset-current-Solindex*
-	  *Runtime-Testset-current-total-score*
+	  *Runtime-Testset-current-total-score* **Checking-entries**
 	  ;; Variables holding session-local memos.
 	  *parse-memo* *grammar-get-rhs-memo* *grammar-get-rhs-with-first*
 	  ;; Cache variables in Testcode/Tests.cl
@@ -242,6 +242,9 @@
       ;; Config modifies *runtime-testset*, so we
       ;; need to make the session-local copy first. 
       (session-local-runtime-testset)
+
+      ;; Used by some Runtime tests
+      (setf **checking-entries** nil)
 
       ;; Andes2 had the following calls that can be found in log files:
       ;;   read-student-info; the only remaining step is:
