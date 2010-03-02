@@ -720,9 +720,9 @@
   :new-english ((the) (or ((or "compression" "extension") (allowed "distance")) 
 			  "stretch" "displacement")
 		(and (property ?spring) 
-		     ("from" (or "its" "the" "her") 
+		     (preferred ("from" (or "its" "the" "her") 
 			     (or "equilibrium" "unstretched") 
-			     (preferred (or "position" "point" "length")))
+			     (preferred (or "position" "point" "length"))))
 		     (time ?time))))
 
 (def-qexp spring-constant (spring-constant ?spring)
