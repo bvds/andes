@@ -25,6 +25,7 @@
 				     ;; mt19937 had its own asd file, 
 				     ;; but we don't use it
 				     (:file "mt19937") 
+				     (:file "garbage-collect")
 				     (:file "random" 
 					    :depends-on ("mt19937"))))
 	       (:module "HelpStructs"

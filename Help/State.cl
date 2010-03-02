@@ -179,13 +179,21 @@
    (empty-symbol-table)
    (fill **grammar** nil) ;shallow dereference, for garbage collection
    (setf **grammar** nil)
-   (fill *StudentEntries* nil) ;shallow dereference, for garbage collection
-   (setf *StudentEntries* nil)
+   ;; shallow dereference, for garbage collection
+   (dereference-with dereference-StudentEntry *StudentEntries*)
 
    ;; unload current problem with its sgraph structures
    ;; Garbage collection for problems may be complicated,
    ;; since it may use stuff that is shared across problems
-   (setf *cp* NIL)
+   (dereference-problem *cp*)
+   (setf *cp* nil)
+
+   (dereference-with dereference-SystemEntry *sg-entries*)
+
+   ;; *sg-eqns* is a list of ((index algebra SystemEntry) ...)
+   (dolist (eqn *sg-eqns*) (dereference-SystemEntry (third eqn)))
+   (fill *sg-eqns* nil)
+   (setf *sg-eqns* nil)
 
    ;; Set the current problem instance time from the universal time.
    (setq *Current-Problem-Instance-Start-UTime* (get-universal-time)))

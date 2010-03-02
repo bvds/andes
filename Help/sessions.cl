@@ -730,32 +730,9 @@
 		result)
 	  result))
     (fill (help-env-vals webserver:*env*) nil)
-;    (fill webserver:*env* nil)
-;    (dereference webserver:*env*)
 
     ;; Tell the session manager that the session is over.
     ;; Must be done after env-wrap
     (setf webserver:*env* nil)))
-
-(defvar *dereferenced*) ;define symbol, but don't bind
-
-(defun dereference (x)
-  (cond 
-    ((or (stringp x) (symbolp x) (numberp x)))
-    ((consp x)
-     (dereference (car x)) (setf (car x) '*dereferenced*)
-     (dereference (cdr x)) (setf (cdr x) '*dereferenced*))
-    ((vectorp x)
-     (loop for y across x do (dereference y) (setf y '*dereferenced*)))
-    ;; Most structures are hard to think about, since
-    ;; data may be shared across problems and they are 
-    ;; hard to derefernce.
-    ((or (runtime-test-p x) (htime-p x) (turn-p x) (cmd-p x)
-	 (Enode-p x) (SystemEntry-p x) 
-	 (MT19937:random-state-p x) ;random number generator seed
-	 #+sbcl (sb-ext:process-p x))) ;solver process
-    (t
-     (format webserver:*stdout* "unknown type ~A for ~A~%" (type-of x) x))))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

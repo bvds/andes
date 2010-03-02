@@ -92,6 +92,9 @@
   varvals
   entries)
 
+(defun dereference-csdo (x)
+  (dereference-with dereference-SystemEntry (csdo-entries x)))
+
 (defun do->csdo (do)
   "Convert a four element do into the five element csdo."
   (make-csdo :op (nth 1 do)
