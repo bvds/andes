@@ -128,7 +128,7 @@
   ;; reset run-time data structures for new problem:
   (setf **grammar** nil)
   (grammar-add-grammar '**grammar** **common-grammar**)
-  (empty-symbol-table)
+  (initialize-symbol-table)
   (setf *StudentEntries* nil)
   ;; use problem name as seed for random elt
   (initialize-random-elt (string-downcase name)) 
@@ -176,7 +176,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun do-close-problem ()
    ;; empty symbol table and entry list
-   (empty-symbol-table)
+   (clear-symbol-table)
    (fill **grammar** nil) ;shallow dereference, for garbage collection
    (setf **grammar** nil)
    (fill *StudentEntries* nil) ;shallow dereference, for garbage collection
