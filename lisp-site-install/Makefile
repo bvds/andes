@@ -47,7 +47,7 @@ binary-install:
 thread-test:
 	cd `$(binary-dir)`; echo '(format t "threading is ~:[not~;~] supported~%" (find :sb-thread *features*)) (quit)' | ./run-sbcl.sh --noinform --noprint
 
-source-dir = sbcl-1.0.35
+source-dir = sbcl-1.0.36
 source-release = $(source-dir)-source.tar.bz2
 get-source:
 	-wget -nc http://prdownloads.sourceforge.net/sbcl/$(source-release)
