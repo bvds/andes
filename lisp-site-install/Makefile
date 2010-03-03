@@ -52,6 +52,7 @@ source-release = $(source-dir)-source.tar.bz2
 get-source:
 	-wget -nc http://prdownloads.sourceforge.net/sbcl/$(source-release)
 	tar jxf $(source-release)
+	patch -p 0 < backend-parms.lisp-x86-1.0.36-patch 
 	$(d-arch) cd $(source-dir); sh make.sh $(shell echo "../`$(binary-dir)`/run-sbcl.sh")
 source-install:
 	@echo "Needs superuser privileges for install into /usr/local"
