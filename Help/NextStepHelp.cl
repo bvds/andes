@@ -3932,8 +3932,8 @@
 		       (goal ,(cssg-op g) ,(cssg-goal g)))
 		
 		hints)
-	(format *debug-help* "NSH: Skipping unhintable goal ~S~%" 
-		(cssg-goal g))))
+	(when *debug-help* 
+	  (format t "NSH: Skipping unhintable goal ~S~%" (cssg-goal g)))))
     hints))
 
 

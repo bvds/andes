@@ -648,7 +648,8 @@
     (cond ((null times) '("Let T0 be the time."))
 	  ((eql times 'none) nil)
 	  ((listp (problem-times problem))
-	   (remove nil (mapcar #'problem-time-english times)))
+	   ;; mapcar copies list; subsequent operations can be destructive
+	   (delete nil (mapcar #'problem-time-english times)))
 	  (t (warn "Invalid time specifications ~A" times)))))
   
 (defun problem-time-english (time)
