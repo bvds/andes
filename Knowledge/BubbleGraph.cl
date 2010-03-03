@@ -722,6 +722,8 @@
 ;; remove references to other structures and lists,
 ;; to aid in garbage collection.
 (defun dereference-Enode (node)
+  ;; Enode path is a very large expression.
+  (Setf (enode-path node) nil)
   (dereference-with dereference-SystemEntry (enode-Entries node))
   (dereference-with dereference-Qnode (enode-Qnodes node))
   ;; can be nil or Eqn

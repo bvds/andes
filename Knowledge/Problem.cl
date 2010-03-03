@@ -137,6 +137,8 @@
 ;; to aid in garbage collection.  We don't expect
 ;; any circular references here.
 (defun dereference-problem (prob)
+  ;; WM is a very large lisp expression 
+  (setf (problem-wm prob) nil)
   (dolist (bg (problem-graph prob))
     (dereference-with dereference-bgnode bg))
   (dereference-with dereference-eqn (problem-eqnindex prob))

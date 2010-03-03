@@ -14,12 +14,12 @@
           </elementProp>
           <elementProp name="server" elementType="Argument">
             <stringProp name="Argument.name">server</stringProp>
-            <stringProp name="Argument.value">sod92.asu.edu</stringProp>
+            <stringProp name="Argument.value">gideon.eas.asu.edu</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="help" elementType="Argument">
             <stringProp name="Argument.name">help</stringProp>
-            <stringProp name="Argument.value">help</stringProp>
+            <stringProp name="Argument.value">help-database</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
@@ -32,7 +32,7 @@
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">1200</stringProp>
+        <stringProp name="ThreadGroup.num_threads">1000</stringProp>
         <stringProp name="ThreadGroup.ramp_time">3360</stringProp>
         <longProp name="ThreadGroup.start_time">1264202436000</longProp>
         <longProp name="ThreadGroup.end_time">1264202436000</longProp>
@@ -44,8 +44,8 @@
       </ThreadGroup>
       <hashTree>
         <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Counter" enabled="true">
-          <stringProp name="CounterConfig.start">3600</stringProp>
-          <stringProp name="CounterConfig.end">4800</stringProp>
+          <stringProp name="CounterConfig.start">11001</stringProp>
+          <stringProp name="CounterConfig.end">12000</stringProp>
           <stringProp name="CounterConfig.incr">1</stringProp>
           <stringProp name="CounterConfig.name">Users</stringProp>
           <stringProp name="CounterConfig.format">00000</stringProp>
