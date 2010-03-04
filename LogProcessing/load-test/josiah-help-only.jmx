@@ -2,14 +2,14 @@
 <jmeterTestPlan version="1.2" properties="2.1">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
-      <stringProp name="TestPlan.comments">dt is twice average delay, so dt/2*46 is avg. session length</stringProp>
+      <stringProp name="TestPlan.comments">dt is twice average delay, so dt/2*46 is avg. session length; sod92.asu.edu dt=36000</stringProp>
       <boolProp name="TestPlan.functional_mode">false</boolProp>
       <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
         <collectionProp name="Arguments.arguments">
           <elementProp name="dt" elementType="Argument">
             <stringProp name="Argument.name">dt</stringProp>
-            <stringProp name="Argument.value">36000</stringProp>
+            <stringProp name="Argument.value">250</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="server" elementType="Argument">
@@ -32,24 +32,25 @@
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">1000</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">3360</stringProp>
+        <stringProp name="ThreadGroup.num_threads">25</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">25</stringProp>
         <longProp name="ThreadGroup.start_time">1264202436000</longProp>
         <longProp name="ThreadGroup.end_time">1264202436000</longProp>
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <stringProp name="ThreadGroup.duration"></stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
-        <stringProp name="TestPlan.comments">2s delay per user gives max 400</stringProp>
+        <stringProp name="TestPlan.comments">2s delay per user gives max 400, 600 3360</stringProp>
       </ThreadGroup>
       <hashTree>
         <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Counter" enabled="true">
-          <stringProp name="CounterConfig.start">11001</stringProp>
-          <stringProp name="CounterConfig.end">12000</stringProp>
+          <stringProp name="CounterConfig.start">726</stringProp>
+          <stringProp name="CounterConfig.end">750</stringProp>
           <stringProp name="CounterConfig.incr">1</stringProp>
           <stringProp name="CounterConfig.name">Users</stringProp>
           <stringProp name="CounterConfig.format">00000</stringProp>
           <boolProp name="CounterConfig.per_user">false</boolProp>
+          <stringProp name="TestPlan.comments">8400 on sod92</stringProp>
         </CounterConfig>
         <hashTree/>
         <RecordingController guiclass="RecordController" testclass="RecordingController" testname="Recording Controller" enabled="true"/>

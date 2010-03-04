@@ -95,6 +95,9 @@
   Num
   Entries)
 
+(defun dereference-sgsol (sol)
+  (dereference-with dereference-SystemEntry (sgsol-Entries sol)))
+
 
 
 
@@ -162,8 +165,6 @@
   (setq *sg-eqns* (sg-match-eqn-entries *Sg-Eqns* *Sg-Entries*))
   (sg-setup-solutions (Problem-Solutions Problem) 
 		      (Problem-Graph Problem) *Sg-Eqns*))
-
-
 
 ;;; -------------------------------------------------------------
 ;;; Equation collection.

@@ -61,6 +61,13 @@
   ;; Typically the time it was create, but not necessarily.
   )
 
+;; remove references to other structures and lists,
+;; to aid in garbage collection.
+(defun dereference-StudentEntry (node)
+  (dereference-with dereference-SystemEntry (StudentEntry-Cinterp node))
+  (dereference-with dereference-StudentEntry (StudentEntry-ImplicitEqns node))
+  (dereference-with dereference-StudentEntry (StudentEntry-GivenEqns node)))
+
 (defun print-StudentEntry (Entry &optional (Stream t) (Level 0))
   "Print the system entry for human consumption."
   (pprint-indent :block Level Stream)
