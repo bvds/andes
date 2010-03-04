@@ -33,5 +33,13 @@
 	   (warn "dereference-with ~A got type ~A:   ~a" 
 		 ',func (type-of ,obj) ,obj))))
     
-  
+
+;; In principle, should store original values and restore when
+;; Session is finished.
+(defun tune-generational-gc ()
+  #-sbcl (warn "No working tune-generational-gc")
+  #+sbcl (let ((b (* 100 1024 1024)))
+	   (setf (generation-bytes-consed-between-gcs 2) b)
+	   (setf (generation-number-of-gcs-before-promotion 2) 24)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

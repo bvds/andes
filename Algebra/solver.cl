@@ -168,11 +168,12 @@
   (solver-logging *solver-logging*))
  
 (defun solver-unload ()
-  (write-line "exit" (sb-ext:process-input *process*))
-  ;; see comment in do-solver-turn about buffering
-  (force-output (sb-ext:process-input *process*))
-  (sb-ext:process-wait *process*)
-  (sb-ext:process-close *process*))
+  (when *process* ;; nil if solver-load fails
+    (write-line "exit" (sb-ext:process-input *process*))
+    ;; see comment in do-solver-turn about buffering
+    (force-output (sb-ext:process-input *process*))
+    (sb-ext:process-wait *process*)
+    (sb-ext:process-close *process*)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; eq slot range defined in DLL. NB: must stay in sync w/DLL!
@@ -335,7 +336,7 @@
   "If '(Error: <' is start return string else lisp-read."
   (cond ((and (>= (length x) 9)
 	      (equal "Error: <" (subseq x 1 9)))
-	 (warn "~&!!! Error in SOLVER: ~A~%" x) ;trace msg on error returns
+	 (warn "Error reported by SOLVER:  ~A" x) ;trace msg on error returns
 	 x)
 	((= 0 (length x)) nil)
 	;; do-solver-turn sets read format as double-precision

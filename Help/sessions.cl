@@ -55,6 +55,9 @@
   "start a server with help system, optionally specifying the port, log file path, and database access."
   ;; global setup
 
+  ;; adjust parameters in generational gc to handle many sessions
+  (tune-generational-gc)
+
   ;; in runtime version only: set *andes-path* to process working directory
   #+allegro-cl-runtime (setf *andes-path* 
 			     (make-pathname 
@@ -715,7 +718,7 @@
   (&key time) 
   "shut problem down" 
   (declare (ignore time))  ;used by logging.
-  (prog1
+  (unwind-protect
       (env-wrap
 	(let ((result (execute-andes-command 'get-stats 'persist)))
 		 
@@ -726,6 +729,7 @@
 		  (:URL . "http://www.webassign.net/something/or/other"))
 		result)
 	  result))
+    ;; de-reference list of variables.
     (fill (help-env-vals webserver:*env*) nil)
 
     ;; Tell the session manager that the session is over.
