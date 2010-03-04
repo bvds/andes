@@ -713,24 +713,26 @@
 		     (time ?time))))
 
 ;; "the extension (or compression) of the spring from its equilibrium position"
+;; "the elongation of the spring" in Young&Freeman's textbook in page 221
 (def-qexp compression (compression ?spring :time ?time)
   :symbol-base |d|     
   :short-name "compression distance"	
   :units |m|
-  :new-english ((the) (or ((or "compression" "extension") (allowed "distance")) 
-			  "stretch" "displacement")
+  :new-english ((the) ((or "compression" "extension" "elongation" "stretch") 
+		       (preferred (or "distance" "displacement")))
 		(and (property ?spring) 
 		     (preferred ("from" (or "its" "the" "her") 
 			     (or "equilibrium" "unstretched") 
 			     (preferred (or "position" "point" "length"))))
 		     (time ?time))))
 
+;; "sprint constant" or "force constant" in Young&Freeman's text book in page 221
 (def-qexp spring-constant (spring-constant ?spring)
   :symbol-base |k|     
   :short-name "spring constant"	
   :units |N/m|
   :restrictions positive
-  :new-english ((the) "spring constant" 
+  :new-english ((the) (or "spring" "force") "constant" 
 		(preferred (property ?spring))))
 
 (def-qexp height (height ?body ?zero-height :time ?time)
