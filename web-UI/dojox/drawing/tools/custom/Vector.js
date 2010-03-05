@@ -18,10 +18,8 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 		this.minimumSize = this.style.arrows.length;
 		
 		if(this.style.zAxis) {
-			this.sArrow = new dojox.drawing.tools.Arrow(options);
-			this.sArrow.style.current = this.sArrow.style.shadow;
-			this.sArrow.moveToBack();
-			dojo.connect(this.sArrow, "onBeforeRender", this, "zPoints" );
+			this.zDir = "into";
+			//this.sArrow = new dojox.drawing.annotations.ZShadow({stencil:this, style:this.style.shadow, keys:this.keys});
 		}
 	},
 	{
@@ -29,7 +27,7 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 		type:"dojox.drawing.tools.custom.Vector",
 		minimumSize:30,
 		showAngle:true,
-		zDir:"into",
+		zDir:"",
 		
 		labelPosition: function(){
 			// summary:
@@ -75,36 +73,63 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 			this._setNodeAtts(this[shp]);
 		},
 		
-		zPoints: function(type) {
-			var d = this.data;
-			d.radius = this.getRadius();
-			var a = this.getAngle();
-			a > 135 && a < 315 ? d.angle = 225 : d.angle = 45;
-			var pt = this.util.pointOnCircle(d.x1, d.y1, d.radius, d.angle);
+		onDrag: function(/*EventObject*/obj){
+			// summary: See stencil._Base.onDrag
+			//
+			if(this.created){ return; }
+			var x1 = obj.start.x,
+				y1 = obj.start.y,
+				x2 = obj.x,
+				y2 = obj.y;
 			
-			var zpt = Math.abs(d.y1-d.y2);
-			if (type=="vector") {
-				d.angle == 225 ? this.zDir = "out of" : this.zDir = "into";
-				var p = [
-					{x:d.x1, y:d.y1},
-					{x:pt.x, y:pt.y}
-				];
-			} else {
-				if(this.zDir == "out of") { 
-					p = [
-						{x:d.x1, y:d.y1},
-						{x:d.x1, y:d.y1+zpt}
-					];
-				} else { 
-					p = [
-						 {x:d.x1, y:d.y1},
-						 {x:d.x1, y:d.y1}
-					];
-				}
-				this.sArrow.setPoints(p);
-				return;
+			if(this.keys.shift){
+				var pt = this.util.snapAngle(obj, 45/180);
+				x2 = pt.x;
+				y2 = pt.y;
 			}
 			
+			if(this.keys.alt){
+				// FIXME:
+				//	should double the length of the line
+				// FIXME:
+				//	if alt dragging past ZERO it seems to work
+				//	but select/deselect shows bugs
+				var dx = x2>x1 ? ((x2-x1)/2) : ((x1-x2)/-2);
+				var dy = y2>y1 ? ((y2-y1)/2) : ((y1-y2)/-2);
+				x1 -= dx;
+				x2 -= dx;
+				y1 -= dy;
+				y2 -= dy;
+			}
+			
+			this.setPoints([
+				{x:x1, y:y1},
+				{x:x2, y:y2}
+			]);/*
+			if (this.style.zAxis) {
+				this.zPoints();
+			}*/
+			this.render();
+		},
+		
+		zPoints: function() {
+			var d = this.pointsToData();
+			var angle = this.getAngle();
+			d.radius = this.getRadius();
+			
+			if (angle > 135 && angle < 315) {
+				d.angle = this.zAngle;
+				this.zDir = "out of";
+			} else {
+				d.angle = this.util.oppAngle(this.zAngle);
+				this.zDir = "into";
+			}
+			
+			var pt = this.util.pointOnCircle(d.x1, d.y1, d.radius, d.angle);
+			var p = [
+				{x:d.x1, y:d.y1},
+				{x:pt.x, y:pt.y}
+			];			
 			this.setPoints(p);
 		},
 		
@@ -115,9 +140,9 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 			//		display object). Additionally checks if Vector should be
 			//		drawn as an arrow or a circle (zero-length)
 			//
-			if(this.style.zAxis) {
-				this.zPoints("vector");
-			}
+			/*if(this.style.zAxis) {
+				this.zPoints();
+			}*/
 			
 			this.onBeforeRender(this);
 			if(this.getRadius() >= this.minimumSize){
