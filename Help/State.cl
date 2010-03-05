@@ -128,7 +128,7 @@
   ;; reset run-time data structures for new problem:
   (setf **grammar** nil)
   (grammar-add-grammar '**grammar** **common-grammar**)
-  (empty-symbol-table)
+  (initialize-symbol-table)
   (setf *StudentEntries* nil)
   ;; use problem name as seed for random elt
   (initialize-random-elt (string-downcase name)) 
@@ -156,7 +156,8 @@
 ;; that and conclude by returning a color-green-turn.
 (defun do-read-problem-info-setup ()
   "Setup the loaded problem."
-  (format *debug-help* "Current Problem now ~A~%" (problem-name *cp*))
+  (when *debug-help* 
+    (format t "Current Problem now ~A~%" (problem-name *cp*)))
   
   ;; Initialize sg structures
   (sg-setup *cp*)
@@ -175,11 +176,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun do-close-problem ()
    ;; empty symbol table and entry list
-   (empty-symbol-table)
+   (clear-symbol-table)
+   (fill **grammar** nil) ;shallow dereference, for garbage collection
    (setf **grammar** nil)
-   (setq *StudentEntries* nil)
+   (fill *StudentEntries* nil) ;shallow dereference, for garbage collection
+   (setf *StudentEntries* nil)
 
    ;; unload current problem with its sgraph structures
+   ;; Garbage collection for problems may be complicated,
+   ;; since it may use stuff that is shared across problems
    (setf *cp* NIL)
 
    ;; Set the current problem instance time from the universal time.
@@ -246,8 +251,9 @@
   ;; remove any existing entry with same id 
   (delete-object (StudentEntry-id Entry))
   ;; add new entry
-  (format *debug-help* "Adding entry: ~A ~S~%" 
-	  (studententry-id entry) (studententry-prop entry))
+  (when *debug-help* 
+    (format t "Adding entry: ~A ~S~%" 
+	    (studententry-id entry) (studententry-prop entry)))
   (push Entry *StudentEntries*))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -263,8 +269,9 @@
   "Remove any existing student entry with specified ID, undoing its effects"
   (let ((old-entry (find-entry Id)))
     (when old-entry 
-      (format *debug-help* "Removing entry: ~A ~S~%" 
-	      (studententry-id old-entry) (studententry-prop old-entry))
+      (when *debug-help* 
+	(format t "Removing entry: ~A ~S~%" 
+		(studententry-id old-entry) (studententry-prop old-entry)))
       (undo-entry old-entry)
       ;; and remove it from Entry lists
       (setf *StudentEntries*
@@ -342,7 +349,7 @@
 ;;
 (defvar **Condition** NIL)
 (defun set-condition (value) 
-  (format *debug-help* "Setting **condition** to ~A~%" value)
+  (when *debug-help* (format t "Setting **condition** to ~A~%" value))
   (setq **Condition** value))
 (defun get-condition () **Condition**)
 
