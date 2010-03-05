@@ -34,6 +34,7 @@ dojo.require("dojox.drawing.tools.custom.Vector");
 dojo.require("dojox.drawing.tools.custom.Equation");
 dojo.require("dojox.drawing.tools.custom.Axes");
 dojo.require("dojox.drawing.tools.Arrow");
+dojo.require("dojox.drawing.annotations.ZShadow");
 
 dojo.require("dojox.drawing.plugins.tools.Pan");
 dojo.require("dojox.drawing.plugins.tools.Zoom");

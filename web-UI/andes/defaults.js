@@ -22,6 +22,7 @@ dojo.provide("andes.defaults");
                 //  Not sure if these should be here since they get modified during session.
 		zAxis: false,
 		zAxisEnabled: false,
+		zAngle: 225,
 
 		// current: Object
 		//  current will point to either null or selected
@@ -70,6 +71,11 @@ dojo.provide("andes.defaults");
 		unknown:{
 			fill:  "#cccccc",
 			color: "#000000"
+		},
+		shadow:{
+			fill:  "#dddddd",
+			color: "#dddddd",
+			alpha:.5
 		},
 
 		norm:{

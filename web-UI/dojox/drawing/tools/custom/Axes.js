@@ -17,7 +17,7 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 
 		this.xArrow = new dojox.drawing.annotations.Arrow({stencil:this, idx1:0, idx2:1});
 		this.yArrow = new dojox.drawing.annotations.Arrow({stencil:this, idx1:2, idx2:1});
-		if(dojox.drawing.defaults.zAxisEnabled){
+		if(this.style.zAxis){
 		  this.zArrow = new dojox.drawing.annotations.Arrow({stencil:this, idx1:1, idx2:1});
 		}
 
@@ -52,7 +52,7 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 			this.labelY = new dojox.drawing.annotations.Label(dojo.mixin(props,{
 				labelPosition:this.setLabelY
 			}));
-			if(dojox.drawing.defaults.zAxisEnabled){
+			if(this.style.zAxisEnabled){
 			  this.labelZ = new dojox.drawing.annotations.Label(dojo.mixin(props,{
 					  labelPosition:this.setLabelZ
 			  }));
