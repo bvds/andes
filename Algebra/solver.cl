@@ -220,8 +220,6 @@
     (unless (and (sb-ext:process-p *process*) 
 		 (sb-ext:process-alive-p *process*))
       (error "external program not running."))
-    ;; useful for debugging solver
-    ;; (format t "  sending ~A ~S~%" ,name ,input)
     (write-line 
      ,(if input `(concatenate 'string ,name " " ,input) `,name) 
      (sb-ext:process-input *process*))	
@@ -236,7 +234,8 @@
     (do ((line (read-line stream) (read-line stream)))
 	((and (> (length line) 1) (string= line "//" :end1 2))
 	  (my-read-answer (subseq line 2)))
-      (format t "   solver print:  ~A~%" line)))
+      ;;(format t "   solver print:  ~A~%" line)
+      ))
    
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -336,7 +335,7 @@
   "If '(Error: <' is start return string else lisp-read."
   (cond ((and (>= (length x) 9)
 	      (equal "Error: <" (subseq x 1 9)))
-	 (format T "~&!!! Error in SOLVER: ~A~%" x) ;trace msg on error returns
+	 (warn "~&!!! Error in SOLVER: ~A~%" x) ;trace msg on error returns
 	 x)
 	((= 0 (length x)) nil)
 	;; do-solver-turn sets read format as double-precision
@@ -401,7 +400,7 @@
 	   'solver-exception) ; could mean bad syntax
 	  ((> code 31)
 	   ;; solver returns 32 if equation isn't parseable.  Shouldn't happen.
-	   (format T "Unparseable equation in student-eqn-redp: ~a" equation)
+	   (warn "Unparseable equation in student-eqn-redp: ~a" equation)
 	   'wrong)
 	  ((= 1 (setq units (truncate (/ code 8))))
 	    ; check accuracy in this case for better diagnosis message:
@@ -413,7 +412,7 @@
 	  ((= units 2)
 	   'wrong-units)
 	  ((not (= units 0))
-	   (format T "Bad units code of ~a in student-eqn-redp" units)
+	   (warn "Bad units code of ~a in student-eqn-redp" units)
 	   'wrong-units)
 	  ((= 0 (setq acc (rem code 8)))
 	   ;; equation is okay for both answer and equation boxes
