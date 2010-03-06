@@ -638,9 +638,11 @@
 	 (id (sb-ext:run-program "identify" 
 				 (list "-ping" "-format" "(%w %h)" file)
 				 :output :stream :search t)))
-    ;; Only return something if the program was successful.
-    (when (= 0 (sb-ext:process-exit-code id))
-      (read (sb-ext:process-output id)))))
+    (unwind-protect
+	 ;; Only return something if the program was successful.
+	 (when (= 0 (sb-ext:process-exit-code id))
+	   (read (sb-ext:process-output id)))
+      (sb-ext:process-close id))))
 
 (defun problem-times-english (problem)
   "Return list of English sentences defining times."

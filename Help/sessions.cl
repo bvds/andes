@@ -321,19 +321,16 @@
 	  (setf y (+ y 25)))
 	
 	(when (problem-graphic *cp*)
-	  (let ((dims (problem-graphic-dimensions (problem-graphic *cp*))))
-	    (if dims		
-		(push `((:action . "new-object") (:id . "graphic") 
-			(:type . "graphics") (:mode . "locked") 
-			(:x . ,x) (:y . ,y) 
-			(:width . ,(car dims)) (:height . ,(cadr dims))
-			;; This is the URL for the graphic, which may not
-			;; match its location on the server filesystem.
-			(:href . ,(strcat "/images/" (problem-graphic *cp*))))
-		      replies)
-		(warn "Problem graphic file ~A missing" 
-		      (problem-graphic *cp*)))
-	    (setf y (+ y (second dims) 15)))))
+	  (let ((g (problem-graphic *cp*)))
+	    (push `((:action . "new-object") (:id . "graphic") 
+		    (:type . "graphics") (:mode . "locked") 
+		    (:x . ,x) (:y . ,y) 
+		    (:width . ,(second g)) (:height . ,(third g))
+		    ;; This is the URL for the graphic, which may not
+		    ;; match its location on the server filesystem.
+		    (:href . ,(strcat "/images/" (first g))))
+		  replies)
+	    (setf y (+ y (third g) 15)))))
 	
       ;; Second column for times and predefs.
       (let ((x 450) (y 15) (i 0))
