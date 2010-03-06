@@ -605,13 +605,15 @@
 		      (time ?time)))))
 
 ;; "the power supplied to ~a from ~a" (nlg ?b) (nlg ?agent 'at-time ?time)
-
 (def-qexp power (power ?b ?agent :time ?time)
   :symbol-base |P|     
   :short-name "power"	
   :units |W|
-  :new-english ((the) (allowed "instantaneous") "power" "supplied to" 
-		(the) ?agent (preferred "from") (time ?time)))
+  :new-english ((the) (allowed "instantaneous") "power" 
+		(preferred "supplied") 
+		(and (preferred (agent ?agent)) 
+		     (preferred (object ?b))
+		     (time ?time))))
 
 (def-qexp net-power (net-power ?b :time ?time)
   :units |W|
