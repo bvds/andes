@@ -145,7 +145,6 @@
     (setf *variables* (mapcar #'list *variable-namespaces*)))
 
 (defun clear-symbol-table ()
-  (fill *variables* nil)  ;dereference
   (setf *variables* nil))
 
 ;;-----------------------------------------------------------------------------

@@ -21,17 +21,6 @@
 ;;
 ;; Functions for supporting garbage collection
 ;;
-  (defmacro dereference-with (func obj)
-    `(if (consp ,obj)
-	 (let ((y ,obj))
-	   ;; in case of circular referencing, set object
-	   ;; itself before recursion
-	   (setf ,obj nil)
-	   (dolist (yy y) (,func yy))
-	   (fill y nil))
-	 (when ,obj 
-	   (warn "dereference-with ~A got type ~A:   ~a" 
-		 ',func (type-of ,obj) ,obj))))
-    
-  
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

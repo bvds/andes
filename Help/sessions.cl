@@ -147,9 +147,7 @@
 	#+sbcl #'equalp
 	)
 
-;; New method with 
-;; Use type vector to make dereferencing easy.
-(defstruct help-env ; (help-env (:type vector)) 
+(defstruct help-env  
   "Quantities that must be saved between turns of a session.  Member vals contains list of values for help-env-vars." 
 	   section student problem vals)
 
@@ -189,7 +187,7 @@
     `(progn
       ;; Null webserver:*env* indicates that the student is trying to work
       ;; on a session that has timed out or has not been initialized:  
-      (if (and webserver:*env* (help-env-p webserver:*env*)) ;(vectorp webserver:*env*))
+      (if (and webserver:*env* (help-env-p webserver:*env*))
 	  (let ,(mapcar 
 		 #'(lambda (x) (list x '(pop (help-env-vals webserver:*env*))))
 		 help-env-vars)
@@ -729,8 +727,6 @@
 		  (:URL . "http://www.webassign.net/something/or/other"))
 		result)
 	  result))
-    (fill (help-env-vals webserver:*env*) nil)
-
     ;; Tell the session manager that the session is over.
     ;; Must be done after env-wrap
     (setf webserver:*env* nil)))

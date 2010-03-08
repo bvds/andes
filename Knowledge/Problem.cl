@@ -133,17 +133,6 @@
   wm                 ;; Collection of the solver working memory.
   )
 
-;; remove references to other structures and lists,
-;; to aid in garbage collection.  We don't expect
-;; any circular references here.
-(defun dereference-problem (prob)
-  ;; WM is a very large lisp expression 
-  (setf (problem-wm prob) nil)
-  (dolist (bg (problem-graph prob))
-    (dereference-with dereference-bgnode bg))
-  (dereference-with dereference-eqn (problem-eqnindex prob))
-  (dereference-with dereference-eqnset (problem-solutions prob)))
-
 (defvar *cp*)                  ; the current problem
 
 ;;-----------------------------------------------------------------------------

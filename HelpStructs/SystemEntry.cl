@@ -64,18 +64,6 @@
   model    ;; Model sentence.
   )
 
-;; remove references to other structures and lists,
-;; to aid in garbage collection.
-(defun dereference-SystemEntry (node)
-  (dereference-with dereference-csdo (SystemEntry-Sources node))
-  (let ((y (SystemEntry-prereqs node)))
-    (setf (SystemEntry-prereqs node) nil)
-    (dolist (x y) 
-      (dolist (z x) (dereference-SystemEntry z))
-      (fill x nil))
-    (fill y nil))
-  (dereference-with dereference-StudentEntry (SystemEntry-entered node)))
-
 (defun print-SystemEntry (Entry &optional (Stream t) (level 0))
   "Print out the system entry."
   (pprint-indent :block Level Stream)

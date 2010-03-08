@@ -95,11 +95,6 @@
   Num
   Entries)
 
-(defun dereference-sgsol (sol)
-  (dereference-with dereference-SystemEntry (sgsol-Entries sol)))
-
-
-
 
 ;;=========================================================
 ;; Memory Storage.

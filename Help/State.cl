@@ -175,29 +175,19 @@
 ;; note(s): should be current problem
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun do-close-problem ()
-   ;; empty symbol table and entry list
-   (clear-symbol-table)
-   (fill **grammar** nil) ;shallow dereference, for garbage collection
-   (setf **grammar** nil)
-   ;; shallow dereference, for garbage collection
-   (dereference-with dereference-StudentEntry *StudentEntries*)
+  (when *cp* ;*cp* not defined if load failed.
+    (setf *sg-eqns* nil)
+    
+    (setf *cp* nil))
+  
+  ;; empty symbol table and entry list
+  (clear-symbol-table)
+  (setf **grammar** nil)
+  (setq *StudentEntries* nil)
+  
+  ;; Set the current problem instance time from the universal time.
+  (setq *Current-Problem-Instance-Start-UTime* (get-universal-time)))
 
-   ;; unload current problem with its sgraph structures
-   ;; Garbage collection for problems may be complicated,
-   ;; since it may use stuff that is shared across problems
-   (dereference-problem *cp*)
-   (setf *cp* nil)
-
-   (dereference-with dereference-SystemEntry *sg-entries*)
-
-   ;; *sg-eqns* is a list of ((index algebra SystemEntry) ...)
-   (dolist (eqn *sg-eqns*) (dereference-SystemEntry (third eqn)))
-   (fill *sg-eqns* nil)
-   (setf *sg-eqns* nil)
-
-   ;; Set the current problem instance time from the universal time.
-   (setq *Current-Problem-Instance-Start-UTime* (get-universal-time)))
-   
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
