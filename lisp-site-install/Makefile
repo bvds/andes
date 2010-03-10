@@ -6,8 +6,6 @@
 # get sbcl and install it.
 #
 ifeq ($(shell uname),Darwin)
-  # threading is turned off, by default on darwin
-  d-arch = $(platform) cp customize-target-features.lisp $(source-dir);
 ifeq ($(shell uname -p),powerpc)
   binary-release = sbcl-1.0.22-powerpc-darwin-binary.tar.bz2
 endif
@@ -23,7 +21,6 @@ endif
 endif
 
 ifeq ($(shell uname),Linux)
-  # thread support enabled by default on linux x86 and x86_64	
 ifeq ($(shell uname -p),i686)
   binary-release = sbcl-1.0.35-x86-linux-binary.tar.bz2
 endif 
@@ -52,7 +49,12 @@ source-release = $(source-dir)-source.tar.bz2
 get-source:
 	-wget -nc http://prdownloads.sourceforge.net/sbcl/$(source-release)
 	tar jxf $(source-release)
-	$(d-arch) cd $(source-dir); sh make.sh $(shell echo "../`$(binary-dir)`/run-sbcl.sh")
+	# enable thread support (for OS X) and :sb-hash-table-debug
+	cp customize-target-features.lisp $(source-dir)
+	patch -p 0 < backend-parms.lisp-x86-1.0.36-patch 
+	patch -p 0 < backend-parms.lisp-x86_64-1.0.36-patch
+	patch -p 0 < parms.lisp-1.0.36-patch 
+	$(platform) cd $(source-dir); sh make.sh $(shell echo "../`$(binary-dir)`/run-sbcl.sh")
 source-install:
 	@echo "Needs superuser privileges for install into /usr/local"
 	cd $(source-dir); sh install.sh

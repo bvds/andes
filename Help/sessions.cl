@@ -54,6 +54,10 @@
 (defun start-help (&key host db user password (port 8080) server-log-path)
   "start a server with help system, optionally specifying the port, log file path, and database access."
   ;; global setup
+
+  ;; tune garbage collection
+  (tune-generational-gc)
+
   ;; in runtime version only: set *andes-path* to process working directory
   #+allegro-cl-runtime (setf *andes-path* 
 			     (make-pathname 

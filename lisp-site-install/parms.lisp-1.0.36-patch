@@ -1,0 +1,13 @@
+--- sbcl-1.0.36/src/compiler/generic/parms.lisp-original	2010-03-08 17:04:00.000000000 -0700
++++ sbcl-1.0.36/src/compiler/generic/parms.lisp	2010-03-08 17:44:32.000000000 -0700
+@@ -83,8 +83,8 @@
+ 
+ #!+gencgc
+ (progn
+-  (def!constant +highest-normal-generation+ 5)
+-  (def!constant +pseudo-static-generation+ 6))
++  (def!constant +highest-normal-generation+ 2)
++  (def!constant +pseudo-static-generation+ 3))
+ 
+ (defenum ()
+   trace-table-normal
