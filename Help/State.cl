@@ -143,31 +143,23 @@
   (setf *cp* (read-problem-file (string-upcase name) 
 				:path (andes-path "solutions/")))
 
-  ;; If the problem failed to load then we will submit a color-red turn
-  ;; to the workbench in order to make the case known.  If not then the 
-  ;; code will set up the problem for use and then return a color-green
-  ;; turn.  
   (if *cp* 
-      (do-read-problem-info-setup)
-      (error "Unable to load problem ~A.&nbsp;  Please try another problem." name)))
-
-;; Once the problem has been loaded successfully into the *cp* parameter
-;; then we need to setup the struct for runtime use.  This code will do 
-;; that and conclude by returning a color-green-turn.
-(defun do-read-problem-info-setup ()
-  "Setup the loaded problem."
-  (when *debug-help* 
-    (format t "Current Problem now ~A~%" (problem-name *cp*)))
-  
-  ;; Initialize sg structures
-  (sg-setup *cp*)
-  ;;(format T "~&Solution Entries:~%~{~A~}" *sg-entries*)
-  
-  ;; enter appropriate predefined student labels into symbol table: 
-  (enter-predefs)
-  
-  ;; re-initialize the dialog state
-  (reset-next-step-help))
+      ;; Once the problem has been loaded successfully into the *cp* parameter
+      ;; then we need to setup the struct for runtime use.
+      (progn
+        ;; Initialize sg structures
+	(sg-setup *cp*)
+	
+	;; enter appropriate predefined student labels into symbol table: 
+	(enter-predefs)
+	
+	;; re-initialize the dialog state
+	(reset-next-step-help))
+      ;; Raising an error, rather than a warning, keeps subsequent
+      ;; code in open-problem from being executed, and sends a 
+      ;; message to the student.
+      (error "Unable to load problem ~A.&nbsp;  Please try another problem." 
+	    name)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; close-problem -- close the specified problem 
@@ -184,7 +176,9 @@
   (clear-symbol-table)
   (setf **grammar** nil)
   (setq *StudentEntries* nil)
-  
+
+  (parse-clear)  
+
   ;; Set the current problem instance time from the universal time.
   (setq *Current-Problem-Instance-Start-UTime* (get-universal-time)))
 

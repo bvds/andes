@@ -88,6 +88,11 @@
 	   :var *grammar-get-rhs-memo*)
   (memoize 'grammar-get-rhs-with-first :key #'second :test #'equal
 	   :var *grammar-get-rhs-with-first*))
+
+(defun parse-clear ()
+  (clear-memoize 'parse)
+  (clear-memoize 'grammar-get-rhs)
+  (clear-memoize 'grammar-get-rhs-with-first))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

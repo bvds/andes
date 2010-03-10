@@ -54,7 +54,6 @@
 (defun start-help (&key host db user password (port 8080) server-log-path)
   "start a server with help system, optionally specifying the port, log file path, and database access."
   ;; global setup
-
   ;; in runtime version only: set *andes-path* to process working directory
   #+allegro-cl-runtime (setf *andes-path* 
 			     (make-pathname 
@@ -713,7 +712,7 @@
   (&key time) 
   "shut problem down" 
   (declare (ignore time))  ;used by logging.
-  (prog1
+  (unwind-protect
       (env-wrap
 	(let ((result (execute-andes-command 'get-stats 'persist)))
 		 

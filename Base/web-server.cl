@@ -45,7 +45,9 @@
 (defmacro with-a-lock (args &body body)
   "Choose method for setting mutex"
   (or #+sbcl `(sb-thread:with-mutex ,args ,@body)
-      #+bordeaux-threads `(bordeaux-threads:with-lock-held ,@body)
+      #+bordeaux-threads `(bordeaux-threads:with-lock-held 
+			   ;; ignore any sbcl-specific flags
+			   ,(list (car args)) ,@body)
       '(error "no thread locking, possible race condition")))
 
 (defun start-json-rpc-service (uri &key (port 8080) log-function
@@ -220,7 +222,11 @@
 ;;       The server receives a repeat request (same id) as the last
 ;;       request.  The server returns the earlier reply.
 
-(defparameter *sessions* (make-hash-table :test #'equal) 
+(defparameter *sessions* 
+  (make-hash-table :test #'equal
+		   ;; make concurrent access safe in sbcl
+		   #-sbcl (warn "Access to *sessions* not thread-safe.")
+		   #+sbcl :synchronized t) 
   "A list of active sessions")
 
 (defstruct ssn turn lock mutex reply time environment)
@@ -254,12 +260,13 @@
   
 (defun get-session (session)
   "Return a session for a given hash or create a new one"
-  (or (gethash session *sessions*)
-      (setf (gethash session *sessions*) 
-	    (make-ssn :time (get-internal-real-time)
-		      :mutex (or #+sbcl (sb-thread:make-mutex)
-				 #+bordeaux-threads 
-				 (bordeaux-threads:make-lock))))))
+  (sb-ext:with-locked-hash-table (*sessions*)
+    (or (gethash session *sessions*)
+	(setf (gethash session *sessions*) 
+	      (make-ssn :time (get-internal-real-time)
+			:mutex (or #+sbcl (sb-thread:make-mutex)
+				   #+bordeaux-threads 
+				   (bordeaux-threads:make-lock)))))))
 
 (defun close-idle-sessions (&key (idle 0) (method #'identity) params)
   "Apply method to all (idle) sessions.  idle is time in seconds."
@@ -286,7 +293,6 @@
 	      `((:result . ,result))))))
      *sessions*)))
 
-(defconstant *time-per-turn* 1.0 "Estimate of maximum time in seconds needed to execute a single turn.")
 
 (defun hung-session-error ()
   (error "Help system running for too long, killing turn."))
@@ -296,8 +302,9 @@
   ;; If previous attempt at this turn is still locked, give it
   ;; a chance to finish up.  This handles the case where the
   ;; connection is lost and then restored.
-  (when (and (ssn-lock session) (equalp (ssn-turn session) turn))
-    (sleep (* (count-active-sessions) *time-per-turn*)))
+  (loop for i from 1 to 30 
+	while (and (ssn-lock session) (equalp (ssn-turn session) turn))
+	do (sleep 0.5))
   ;; Set mutex to avoid possible race condition
   ;; with several threads trying to set (ssn-lock session).
   (with-a-lock ((ssn-mutex session) :wait-p t)
