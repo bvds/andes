@@ -580,6 +580,10 @@
   (when (not (Problem-Graph Problem))
     (eval `(s ,(Problem-name Problem))))
 
+  ;; make pointers if they don't exist.
+  (unless (problem-pointers problem) 
+    (pointerize-problem problem))
+
   (if Path
       (write-problem-file Problem :Path Path)
     (write-problem-file Problem)))

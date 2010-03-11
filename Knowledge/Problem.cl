@@ -131,6 +131,7 @@
   Solutions          ;Set of solution bubbles.  The first will always be
                      ;the best.  (list of Eqnset)
   wm                 ;; Collection of the solver working memory.
+  pointers           ;List of pointer objects.
   )
 
 (defvar *cp*)                  ; the current problem
@@ -203,17 +204,13 @@
   (format Stream "Fade          ~W~%" (problem-Fade Problem))
   (format Stream "Comments      ~W~%" (problem-Comments Problem))
   (format Stream "Features      ~W~%" (problem-features Problem))
-  ;; To protect problem descriptions, don't include in prb file. 
-  ;; Fill in from kb on read.
-  ;(format Stream "Soughts       ~W~%" (problem-Soughts Problem))
-  ;(format Stream "Givens        ~W~%" (problem-Givens Problem))
+  (format Stream "Soughts       ~W~%" (problem-Soughts Problem))
+  (format Stream "Givens        ~W~%" (problem-Givens Problem))
   (format Stream "ForbiddenPSMS ~W~%" (problem-ForbiddenPSMS Problem))
   (format Stream "IgnorePSMS    ~W~%" (problem-IgnorePSMS Problem))
   (format Stream "VariableMarks ~W~%" (problem-VariableMarks Problem))
-  ; remove problem givens from wm list so problem description is not visible in it
-  (format Stream "WorkingMemory ~W~%" (remove-if #'(lambda (wme) 
-                                              (member wme (problem-givens Problem) :test #'unify))
-                                          (Problem-wm Problem)))
+  (format Stream "WorkingMemory ~W~%" (problem-wm Problem))
+  (format Stream "Pointers      ~W~%" (problem-pointers Problem))
   (format Stream "Bubblegraph   ") (print-mreadable-bubblegraph (Problem-Graph Problem) Stream)
   (format Stream "~%EqnIndex    ") (print-mreadable-eqns (Problem-EqnIndex Problem) Stream)
   (format Stream "~%VarIndex    ") (print-mreadable-qvars (Problem-VarIndex Problem) Stream)
@@ -304,17 +301,27 @@
 	(mpf-read File '<Andes2Problem>) ;Read the file ID tag.
 	;; Read the contents until the close tag is found.
 	(read-pfile-contents File Problem) 
-	;; if problem givens or soughts were omitted, restore them
-	;; from the problem description in the knowledge base
-	(when (null (problem-soughts Problem))
-	  (let ((kb-prob (get-problem (problem-name Problem))))
-	   (when (null kb-prob)
-	       (error "Problem not found in kb: ~A" (problem-name Problem)))
-	   (setf (problem-soughts Problem) (problem-soughts kb-prob))
-	   (setf (problem-givens Problem) (problem-givens kb-prob))
-	   ;; must also restore problem givens to working memory list
-	   (dolist (g (problem-givens kb-prob))
-	         (push g (problem-wm Problem)))))
+
+	;; Overwrite parts of problem that are in memory
+	;; This should slightly reduce memory needs of each session
+	(let ((kb-prob (get-problem (problem-name Problem))))
+          (if kb-prob
+	    (progn
+	      (setf (problem-soughts Problem) (problem-soughts kb-prob))
+	      (setf (problem-givens Problem) (problem-givens kb-prob))
+	      (setf (problem-statement Problem) (problem-statement kb-prob)))
+	    (warn "Problem ~A not found in KB, using file." 
+		  (problem-name Problem))))
+	
+	;; Remove pointers, creating compact memory structure.
+	(unpointerize-problem Problem)
+
+	;; Re-construct bubblegraph structures
+	(dolist (enode (second (problem-graph Problem))) 
+	  (psmg->help-psmg (enode-path enode)))
+	(regen-en-qn-links (problem-graph Problem))
+	(regen-qn-en-links (problem-graph Problem))
+
 	;; When the files are stored numerical indicies 
 	;; are used for qvars in the BGNODES.  This call
 	;; Regenerates those links for later use.
@@ -330,9 +337,8 @@
 	Problem))))
 
 ;;; Return the problem struct.
-;;; Regenerate the links between elements within
 (defun read-pfile-contents (S P)
-  "Read the headere contents of the Problem File."
+  "Read the header contents of the Problem File."
   (let ((name (mpf-readret S)))
     (when (not (equal name '</Andes2Problem>))
       (set-pfile-contents name S P)
@@ -359,6 +365,7 @@
     (IgnorePSMS    (setf (Problem-IgnorePSMS Problem) (mpf-readret Stream)))
     (VariableMarks (setf (Problem-VariableMarks Problem) (mpf-readret Stream)))
     (WorkingMemory (setf (Problem-wm Problem) (mpf-readret Stream)))
+    (pointers      (setf (Problem-pointers Problem) (mpf-readret Stream)))
     
     (Bubblegraph (setf (problem-Graph Problem) (read-mreadable-bubblegraph Stream)))
     (EqnIndex (setf (Problem-EqnIndex Problem) (read-mreadable-eqns Stream (Problem-Graph Problem))))
@@ -666,3 +673,77 @@
 		 (nlg (car time) 'moment) (second time)))
     (t (warn "Bad time specification ~A" time))))
 
+
+(defun proper-list-p (x) 
+  (or (null x) (and (consp x) (proper-list-p (cdr x)))))
+
+;; Currently, this makes a copy of the top levels of obj,
+;; except for enodes.  Could instead do an "in place" version.
+(defun remove-pointers (obj pointers)
+  "Replace any pointer in an expression with its expansion, returning expression"
+  (cond 
+    ((and (consp obj) (eq (car obj) 'pointer))
+     (nth (cdr obj) pointers)) ;pointers itself should be free of pointers
+    ;; Handle binding list elements
+    ((and (consp obj) (variable-p (car obj)))
+     (setf (cdr obj) (remove-pointers (cdr obj) pointers))
+     obj)
+    ((proper-list-p obj)
+     (map-into obj #'(lambda (x) (remove-pointers x pointers)) obj))
+    ((enode-p obj)
+     (setf (enode-path obj) (remove-pointers (enode-path obj) pointers))
+     obj)
+    (t obj)))
+
+(defun unpointerize-problem (problem)
+  (let (pointers last-end)
+    ;; Expand pointers themselves.  This assumes
+    ;; that pointers only refer to ones earlier on list
+    (dolist (pointer (problem-pointers problem))
+      ;; The list here is the cons used to construct new objects
+      ;; in memory.  The idea is that this cons will be shared as
+      ;; much as possible by the different expressions.
+      (let ((new-end (list (remove-pointers pointer pointers))))
+	(if last-end
+	    (setf (cdr last-end) new-end)
+	    (setf pointers new-end))
+	(setf last-end new-end)))
+    (setf (problem-wm problem) 
+	  (remove-pointers (problem-wm problem) pointers))
+    (setf (second (problem-graph problem))
+	  (remove-pointers (second (problem-graph problem)) pointers))
+    ;; For debugging, it may be useful to set this to "pointers"
+    (setf (problem-pointers problem) nil))
+  problem)
+
+(defvar *pointers*)
+
+(defun add-pointers (obj) 
+  "Replace subexpression with pointers, adding to the list of pointers."
+  (cond 
+    ;; Handle binding list element.
+    ((and (consp obj) (variable-p (car obj)))
+     (cons (car obj) (add-pointers (cdr obj))))
+    ;; Pointerize proper lists.
+    ((and obj (proper-list-p obj)) ;don't make pointer for nil.
+     (let ((x (position obj *pointers* :test #'equal :key #'car)))
+       (if x 
+	   ;; position counting from end of list
+	   (cons 'pointer (- (length *pointers*) 1 x))
+	   (progn 
+	     (push (cons obj (mapcar #'add-pointers obj)) *pointers*)
+	     ;; position of new pointer in list
+	     (cons 'pointer (- (length *pointers*) 1))))))
+    ((enode-p obj)
+     (setf (enode-path obj) (mapcar #'add-pointers (enode-path obj)))
+     obj)
+    (t obj)))
+
+(defun pointerize-problem (problem)
+  (let ((*pointers* nil))
+    (setf (problem-wm problem) (mapcar #'add-pointers (problem-wm problem)))
+    (setf (second (problem-graph problem))
+	  (mapcar #'add-pointers (second (problem-graph problem))))
+    (setf (problem-pointers problem) 
+	  (reverse (mapcar #'cdr *pointers*))))
+  problem)

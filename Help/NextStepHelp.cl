@@ -3252,7 +3252,6 @@
 ;;; Uses the psmg entered values.
 (defun nsh-node-completed-p (Node)
   "Return t iff the specified principle has been completed."
-  ;;;(psmg-path-enteredp (enode-path principle)))  ;; Doesn't work not sure why yet.
   (path-completedp (bgnode-path Node)))
 
 ;;; Has the student begun working on the node at 
@@ -3291,7 +3290,6 @@
 ;;; Uses the psmg entered values.
 (defun nsh-principle-completed-p (principle)
   "Return t iff the specified principle has been completed."
-  ;;;(psmg-path-enteredp (enode-path principle)))  ;; Doesn't work not sure why yet.
   (path-completedp (bgnode-path principle)))
 
 
@@ -3300,7 +3298,6 @@
 ;;; Uses the psmg entered values.
 (defun nsh-principle-uncompleted-p (principle)
   "Return t iff the specified principle has been completed."
-  ;;;(psmg-path-enteredp (enode-path principle)))  ;; Doesn't work not sure why yet.
   (not (path-completedp (enode-path principle))))
 
 

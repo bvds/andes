@@ -775,7 +775,7 @@
   (format Stream "  Marks: ~A~%" (Enode-Marks Equation)))
     
 (defun print-mreadable-enode (E S)
-  "Dump the specified Machine-readable Qnode Q to stream S."
+  "Dump the specified Machine-readable Enode E to stream S."
   (format S "<Enode>~%")
   (format S "~W~%" (Enode-Symbol E))
   (format S "~W~%" (Enode-ID E))
@@ -812,7 +812,7 @@
 			 :gindex (mg-sr S)
 			 :eindex (mg-sr S)
 			 :algebra (mg-sr S)
-			 :path (psmg->help-psmg (mg-sr S))
+			 :path  (mg-sr S)
 			 :assumptions (mg-sr S)
 			 :Qnodes (mg-sr S)
 			 :marks (mg-sr S)
@@ -1044,8 +1044,6 @@
   (let ((G (list (read-mreadable-qnode-lst S)
 		 (read-mreadable-enode-lst S))))
     (mg-srt S '</BubbleGraph>)
-    (regen-en-qn-links G)
-    (regen-qn-en-links G)
     G))
     
 (defun regen-en-qn-links (Graph)

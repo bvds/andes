@@ -36,6 +36,7 @@
 
 (defparameter *debug* t "Special error conditions for debugging")
 (defparameter *debug-alloc* nil "Turn on memory profiling.")
+(defparameter *debug-memory* nil "Turn on \"room\" for memory debugging.")
 #+sbcl (eval-when (:load-toplevel :compile-toplevel)
 	 (require :sb-sprof))
 (defvar *print-lock*  (or #+sbcl (sb-thread:make-mutex)
@@ -120,7 +121,8 @@
     
     (when *debug* (with-a-lock (*print-lock* :wait-p t) 
 		    (format *stdout* "session ~A calling ~A with~%     ~S~%" 
-			    client-id method params)))
+			    client-id method params)
+		    (when *debug-memory* (sb-kernel::gc :full t) (cl:room))))
     #+sbcl (when *debug-alloc* 
 	     (sb-sprof:start-profiling 
 	      :mode :alloc :threads (list sb-thread:*current-thread*)))
@@ -165,8 +167,9 @@
       (when *debug* (with-a-lock (*print-lock* :wait-p t) 
 		      (format *stdout* 
 			      "session ~a result~%     ~S~%~@[     error ~S~%~]" 
-			      client-id result error1)))
-
+			      client-id result error1)
+		      (when *debug-memory* (sb-kernel::gc :full t) (cl:room))))
+      
       ;; only give a response when there is an error or id is given
       (when (or error1 turn)
 	(when (or error1 (not version)) (push (cons :error error1) reply))
