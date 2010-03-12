@@ -34,8 +34,19 @@
 (defvar *stdout* *standard-output*)
 (defvar *service-methods* (make-hash-table :test #'equal))
 
-(defparameter *debug* nil "Special error conditions for debugging")
+(defparameter *debug* t "Special error conditions for debugging")
 (defparameter *debug-alloc* nil "Turn on memory profiling.")
+#+sbcl (eval-when (:load-toplevel :compile-toplevel)
+	 (require :sb-sprof))
+(defvar *print-lock*  (or #+sbcl (sb-thread:make-mutex)
+			  #+bordeaux-threads 
+			  (bordeaux-threads:make-lock)))
+
+(defmacro with-a-lock (args &body body)
+  "Choose method for setting mutex"
+  (or #+sbcl `(sb-thread:with-mutex ,args ,@body)
+      #+bordeaux-threads `(bordeaux-threads:with-lock-held ,@body)
+      '(error "no thread locking, possible race condition")))
 
 (defun start-json-rpc-service (uri &key (port 8080) log-function
 			       server-log-path)
@@ -47,8 +58,6 @@
 	 (list #'dispatch-easy-handlers
 	       (create-prefix-dispatcher uri 'handle-json-rpc)
 	       #'default-dispatcher))
-
-  #+sbcl (when *debug-alloc* (require :sb-sprof))
 
   ;; Error handlers
   (setf *http-error-handler* 'json-rpc-error-message)
@@ -107,8 +116,9 @@
 			       *service-methods*))
 	 reply)
     
-    (when *debug* (format *stdout* "session ~A calling ~A with~%     ~S~%" 
-			  client-id method params))
+    (when *debug* (with-a-lock (*print-lock* :wait-p t) 
+		    (format *stdout* "session ~A calling ~A with~%     ~S~%" 
+			    client-id method params)))
     #+sbcl (when *debug-alloc* 
 	     (sb-sprof:start-profiling 
 	      :mode :alloc :threads (list sb-thread:*current-thread*)))
@@ -150,8 +160,10 @@
 	  (t (execute-session client-id turn method-func params)))
       
       #+sbcl (when *debug-alloc* (sb-sprof:stop-profiling))
-      (when *debug* 
-	(format *stdout* "result ~S~%~@[error ~S~%~]" result error1))
+      (when *debug* (with-a-lock (*print-lock* :wait-p t) 
+		      (format *stdout* 
+			      "session ~a result~%     ~S~%~@[     error ~S~%~]" 
+			      client-id result error1)))
 
       ;; only give a response when there is an error or id is given
       (when (or error1 turn)
@@ -249,7 +261,7 @@
 				 #+bordeaux-threads 
 				 (bordeaux-threads:make-lock))))))
 
-(defun close-idle-sessions (&key (idle 7200) (method #'identity) params)
+(defun close-idle-sessions (&key (idle 0) (method #'identity) params)
   "Apply method to all (idle) sessions.  idle is time in seconds."
   (let ((cutoff (- (get-internal-real-time) 
 		   (* idle internal-time-units-per-second))))
@@ -278,12 +290,6 @@
 
 (defun hung-session-error ()
   (error "Help system running for too long, killing turn."))
-
-(defmacro with-a-lock (args &body body)
-  "Choose method for setting mutex"
-  (or #+sbcl `(sb-thread:with-mutex ,args ,@body)
-      #+bordeaux-threads `(bordeaux-threads:with-lock-held ,@body)
-      '(error "no thread locking, possible race condition")))
 
 (defun lock-session (session turn)
   "Attempt to lock a session; return a result or error if unsuccessful."

@@ -444,6 +444,11 @@
   model       ;model sentence
   )
 
+;; remove references to other structures and lists,
+;; to aid in garbage collection.
+(defun dereference-Qnode (node)
+  (dereference-with dereference-SystemEntry (qnode-Entries node))
+  (dereference-with dereference-Enode (qnode-Eqns node)))
 
 ;;---------------------------------------------------------------------------
 ;; Qnode Output code.
@@ -714,6 +719,16 @@
   Entries				; EntryProps that appear in this node's path.
   )
 
+;; remove references to other structures and lists,
+;; to aid in garbage collection.
+(defun dereference-Enode (node)
+  ;; Enode path is a very large expression.
+  (Setf (enode-path node) nil)
+  (dereference-with dereference-SystemEntry (enode-Entries node))
+  (dereference-with dereference-Qnode (enode-Qnodes node))
+  ;; can be nil or Eqn
+  (when (enode-Eindex node) (dereference-Eqn (enode-Eindex node)))
+  (dereference-with dereference-Eqn (enode-Subeqns node)))
 
 ;;---------------------------------------------------------------------------
 ;; Enode Output functions.
@@ -896,6 +911,11 @@
 (defun bgnode-p (Node)
   "Return t iff NODE is a Qnode or Enode."
   (or (qnode-p Node) (Enode-P Node)))
+
+(defun dereference-bgnode (node)
+  (cond ((enode-p node) (dereference-Enode node))
+	((qnode-p node) (dereference-Qnode node))
+	(t (warn "dereference-bgnode expecting bgnode, not ~A" node))))
 
 ;;; Given an arbitrary node print it out in one of the 
 ;;; specified forms Full (default), Graph and Mreadable.

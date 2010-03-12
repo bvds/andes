@@ -61,7 +61,7 @@
 <tr> <td>Symbol</td> </tr>
 <tr> <td id="Enode-ID">ID</td> </tr>
 <tr> <td>Gindex </td> <td class="choice">integer</td></tr>
-<tr> <td>Eindex</td><td> (<a href="#eqn">eqn</a> &#8230;)</td> </tr>
+<tr> <td>Eindex</td><td> <a href="#eqn">Eqn</a> or <code>nil</code></td> </tr>
 <tr> <td>Algebra</td> </tr>
 <tr> <td>Path</td> </tr>
 <tr> <td>Assumptions</td> </tr>
@@ -89,7 +89,7 @@
 <tr> <td>type</td> </tr>
 <tr> <td>Algebra</td> </tr>
 <tr> <td>Exp</td><td><span class="choice">prop</span></td> </tr>
-<tr> <td>nodes</td> <td> (<a href="#Eqn">Eqn</a> &#8230;)</td> </tr>
+<tr> <td>nodes</td> <td> (<a href="#Enode">Enode</a> &#8230;)</td> </tr>
 <tr> <td>Solved</td> </tr>
 </table>
 
@@ -107,10 +107,10 @@
 
 <h1>Help System related structures</h1>
 
-<p><span id="state1" class="choice">State1</span> can be (Correct Dead-Path
-   Invalid Forbidden) by <a href="../Help/SolutionGraph.cl">
+<p><span id="state1" class="choice">State1</span> can be <code>(Correct Dead-Path
+   Invalid Forbidden)</code> by <a href="../Help/SolutionGraph.cl">
     <code>sg-Marks->State</code></a>
-<p><span id="state" class="choice">State</span> can be (Correct Incorrect Forbidden Dead-Path nogood <em>premature-entry</em>)</p>
+<p><span id="state" class="choice">State</span> can be <code>(Correct Incorrect Forbidden Dead-Path nogood <em>premature-entry</em>)</code></p>
 <div class="wrap">
 <table id="SystemEntry" class="struct">
 <Caption><a href="../HelpStructs/SystemEntry.cl">SystemEntry</a></caption>
@@ -133,7 +133,7 @@
 <tr> <td>PossibleCInterps</td> <td> ((<a href="#state" class="choice">state</a> <a href="#SystemEntry">SystemEntry</a>) &#8230;)</td> </tr>
 <tr> <td>Verbatim</td> </tr>
 <tr> <td>ParsedEqn</td> </tr>
-<tr> <td>ErrInterp</td> <td><a href="#ErrorInterp">ErrorInterp</a> or NIL </td></tr>
+<tr> <td>ErrInterp</td> <td><a href="#ErrorInterp">ErrorInterp</a> or <code>nil</code> </td></tr>
 <tr> <td>ImplicitEqns</td> <td> (<a href="#StudentEntry">StudentEntry</a> &#8230;)</td>  </tr>
 <tr> <td>GivenEqns</td> <td> (<a href="#StudentEntry">StudentEntry</a> &#8230;)</td>  </tr>
 <tr> <td>Time</td> </tr>

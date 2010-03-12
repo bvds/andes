@@ -133,7 +133,7 @@
 	  ;; Variables used for scoring in Help/RunTimeTest.cl
           *Runtime-Testset* *Runtime-Score-Testset*
 	  *Runtime-testset-current-Solindex*
-	  *Runtime-Testset-current-total-score*
+	  *Runtime-Testset-current-total-score* **Checking-entries**
 	  ;; Variables holding session-local memos.
 	  *parse-memo* *grammar-get-rhs-memo* *grammar-get-rhs-with-first*
 	  ;; Cache variables in Testcode/Tests.cl
@@ -148,7 +148,9 @@
 	)
 
 ;; New method with 
-(defstruct help-env "Quantities that must be saved between turns of a session.  Member vals contains list of values for help-env-vars." 
+;; Use type vector to make dereferencing easy.
+(defstruct help-env ; (help-env (:type vector)) 
+  "Quantities that must be saved between turns of a session.  Member vals contains list of values for help-env-vars." 
 	   section student problem vals)
 
 ;; Should be useful for debugging.
@@ -187,7 +189,7 @@
     `(progn
       ;; Null webserver:*env* indicates that the student is trying to work
       ;; on a session that has timed out or has not been initialized:  
-      (if (and webserver:*env* (help-env-p webserver:*env*))
+      (if (and webserver:*env* (help-env-p webserver:*env*)) ;(vectorp webserver:*env*))
 	  (let ,(mapcar 
 		 #'(lambda (x) (list x '(pop (help-env-vals webserver:*env*))))
 		 help-env-vars)
@@ -242,6 +244,9 @@
       ;; Config modifies *runtime-testset*, so we
       ;; need to make the session-local copy first. 
       (session-local-runtime-testset)
+
+      ;; Used by some Runtime tests
+      (setf **checking-entries** nil)
 
       ;; Andes2 had the following calls that can be found in log files:
       ;;   read-student-info; the only remaining step is:
@@ -724,6 +729,8 @@
 		  (:URL . "http://www.webassign.net/something/or/other"))
 		result)
 	  result))
+    (fill (help-env-vals webserver:*env*) nil)
+
     ;; Tell the session manager that the session is over.
     ;; Must be done after env-wrap
     (setf webserver:*env* nil)))
