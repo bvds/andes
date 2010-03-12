@@ -51,7 +51,8 @@ dojox.drawing.annotations.BoxShadow = dojox.drawing.util.oo.declare(
 			place:"BR",
 			//	color: String
 			//		The color of the shadow or glow.
-			color:"#646464"
+			color:"#646464",
+			fill:"#646464"
 		}
 		
 		delete options.stencil;
@@ -79,13 +80,10 @@ dojox.drawing.annotations.BoxShadow = dojox.drawing.util.oo.declare(
 		if(this.method == "createForZArrow"){
 			this.stencil.connectMult([
 				[this.stencil, "onTransform", this, "onTransform"],
-				[this.stencil, "render", this, "onRender"],
 				[this.stencil, "onDelete", this, "destroy"],
 				[this.stencil, "onBeforeRender", this, "render"]
 			]);
-		}
-		
-		if(this.method && this.method != "createForZArrow"){
+		} else if(this.method){
 			this.render();
 			this.stencil.connectMult([
 				[this.stencil, "onTransform", this, "onTransform"],
@@ -223,7 +221,7 @@ dojox.drawing.annotations.BoxShadow = dojox.drawing.util.oo.declare(
 
 			var pt = this.util.pointOnCircle(d.x1, d.y1, d.radius, d.angle);
 			
-			if (this.stencil.zDir == "out of") {
+			if (this.stencil.cosPhi > 0) {
 			p = [
 				{x:d.x1, y:d.y1},
 				{x:pt.x, y:pt.y}
@@ -278,9 +276,10 @@ dojox.drawing.annotations.BoxShadow = dojox.drawing.util.oo.declare(
 				var lineWidth = i * mult;
 				//var rect = this.container.createLine({x1:d.x1+shx, y1:d.y1+shy, x2:d.x2+shx, y2:d.y2+shy})
 				//	.setStroke({width:lineWidth, color:c, cap:"round"})		
-			
+				var pts = this.arrowPoints();
+				var p = this.stencil.points;
 				if(dojox.gfx.renderer=="svg" && this.stencil.getRadius()>10){
-					var pts = this.arrowPoints();
+					
 					var strAr = [];
 					dojo.forEach(pts, function(o, i){
 						if(i==0){
@@ -293,16 +292,13 @@ dojox.drawing.annotations.BoxShadow = dojox.drawing.util.oo.declare(
 					if(closePath){
 						strAr.push("Z");
 					}
-					var p = this.stencil.points;
-					this.container.createPath(strAr.join(", ")).setStroke({width:lineWidth, color:c, cap:"round"});
-					this.container.createLine({x1:p[0].x, y1:p[0].y, x2:pts[0].x, y2:pts[0].y})
-					.setStroke({width:lineWidth, color:c, cap:"round"});
-					console.warn("Post create");
+					this.container.createPath(strAr.join(", ")).setStroke({width:lineWidth, color:c, cap:"round"}).setFill(c.fill);
+					
 				}else{
 					// Leaving this code for VML. It seems slightly faster but times vary.
 					var pth = this.container.createPath({}).setStroke({width:lineWidth, color:c, cap:"round"})	
 					
-					dojo.forEach(this.points, function(o, i){
+					dojo.forEach(pts, function(o, i){
 						if(i==0 || o.t=="M"){
 							pth.moveTo(o.x+shx, o.y+shy);
 						}else if(o.t=="Z"){
@@ -314,7 +310,9 @@ dojox.drawing.annotations.BoxShadow = dojox.drawing.util.oo.declare(
 					
 					closePath && pth.closePath();
 				}
-			
+				
+				this.container.createLine({x1:p[0].x, y1:p[0].y, x2:pts[0].x, y2:pts[0].y})
+					.setStroke({width:lineWidth, color:c, cap:"round"});
 			
 			}
 		},

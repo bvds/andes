@@ -16,13 +16,20 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 	dojox.drawing.tools.Arrow,
 	function(options){
 		this.minimumSize = this.style.arrows.length;
+		
+		if(this.style.zAxis || options.data.cosPhi!=0)
+		{
+			this.style.zAxis = "true";
+			this.cosPhi = options.data.cosPhi;
+			this.addShadow({size:3, mult:2});
+		}
 	},
 	{
 		draws:true,
 		type:"dojox.drawing.tools.custom.Vector",
 		minimumSize:30,
 		showAngle:true,
-		zDir:"",
+		cosPhi:0,
 		
 		labelPosition: function(){
 			// summary:
@@ -107,16 +114,35 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 			this.render();
 		},
 		
+		onTransform: function(/* ? manager.Anchor */anchor){
+			// summary:
+			// 		Called from anchor point mouse drag
+			// 		also called from plugins.Pan.checkBounds
+			if(!this._isBeingModified){
+				this.onTransformBegin();
+			}
+			// this is not needed for anchor moves, but it
+			// is for stencil move:
+			if(this.style.zAxis) {
+				this.zPoints();
+			} else {
+				this.setPoints(this.points);
+			}
+			this.render();			
+		},
+		
 		zPoints: function() {
 			var d = this.pointsToData();
 			var angle = this.getAngle();
 			d.radius = this.getRadius();
 			if (angle > 135 && angle < 315) {
+				//Out angle
 				d.angle = this.style.zAngle;
-				this.zDir = "out of";
+				this.cosPhi = "1";
 			} else {
+				//In Angle
 				d.angle = this.util.oppAngle(this.style.zAngle);
-				this.zDir = "into";
+				this.cosPhi = "-1";
 			}
 			
 			var pt = this.util.pointOnCircle(d.x1, d.y1, d.radius, d.angle);
