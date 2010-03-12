@@ -235,7 +235,7 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 
 			var o = this.points[0];
 			var c = this.points[1];
-			var pt = this.util.constrainAngle({start:{x:c.x, y:c.y}, x:o.x, y:o.y}, 91, 180);
+			var pt = this.util.constrainAngle({start:{x:c.x, y:c.y}, x:o.x, y:o.y}, 0, 89);
 
 			if(pt.x==o.x && pt.y == o.y){
 				// we're within the constraint, so now we snap
@@ -328,6 +328,7 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 			// 		Because Axes only has one anchor,
 			// 		we substitute a special setPoints method
 			//
+			console.log("---points: ",pts);
 			this.points[0] = pts[0];
 			if(this.pointsToData){
 				this.data = this.pointsToData();
@@ -378,7 +379,6 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 				// instead of using x1,x2,y1,y1,
 				// it's been set as x,y,angle,radius
 
-				o.angle = (180-o.angle)<0 ? 180-o.angle+360 : 180-o.angle;
 				var pt = this.util.pointOnCircle(o.x,o.y,o.radius,o.angle);
 				var ox = o.x - (o.y - pt.y);
 				var oy = o.y - (pt.x - o.x);
@@ -404,7 +404,7 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 		onDrag: function(/*EventObject*/obj){
 			// summary: See stencil._Base.onDrag
 			//
-			var pt = this.util.constrainAngle(obj, 91, 180);
+			var pt = this.util.constrainAngle(obj, 0, 89);
 			obj.x = pt.x;
 			obj.y = pt.y;
 			var ox = obj.start.x - (obj.start.y - obj.y);

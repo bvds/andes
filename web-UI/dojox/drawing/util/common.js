@@ -66,7 +66,7 @@ dojo.require("dojox.math.round");
 		},
 		
 		oppAngle: function(/*Angle*/ang){
-			ang += 180 > 360 ? ang - 360 : ang;
+			(ang+=180) > 360 ? ang = ang - 360 : ang;
 			return ang;
 		},
 		
@@ -76,7 +76,7 @@ dojo.require("dojox.math.round");
 			//		in the Mouse object.
 			//
 			//var o = this.argsToObj.apply(this, arguments);
-			return Math.atan2(o.start.y-o.y,o.start.x-o.x);
+			return Math.atan2(o.start.y-o.y,o.x-o.start.x);
 		},
 		
 		length: function(/*EventObject*/o){
@@ -145,11 +145,11 @@ dojo.require("dojox.math.round");
 			//		x,y point at the end of that line.
 			//
 			radians =  angle * Math.PI / 180.0;
-			var x = radius * Math.cos(radians) * -1;
-			var y = radius * Math.sin(radians) * -1;
+			var x = radius * Math.cos(radians);
+			var y = radius * Math.sin(radians);
 			return {
 				x:cx+x,
-				y:cy+y
+				y:cy-y
 			}; // Object
 		},
 		
