@@ -848,9 +848,9 @@
     ;(bottom-out (string "Use ~A to draw the impulse on ~a due to ~a ~a at ~a." 
     ;			(*vector-tool* eval)
     ;			?b (?agent agent) (?t pp) ?dir))
-    (bottom-out (string "Use ~A to draw ~a at ~a." 
+    (bottom-out (string "Use ~A to draw ~a in some unknown direction." 
     			(*vector-tool* eval)
-    			((impulse ?b ?agent :time ?t) def-np) ?dir))
+    			((impulse ?b ?agent :time ?t) def-np)))
     ))
 
 ;;; This operator indicates when the impulse form of NSL is

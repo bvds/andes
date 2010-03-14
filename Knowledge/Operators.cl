@@ -283,27 +283,27 @@
 
 (defun get-operator-variables (Op)
   "Obtain a list of all variables in this operator."
-  (remove-duplicates                                             ;;Cull the copies from the results and return.
+  (remove-duplicates     ;Cull the copies from the results and return.
    (append (Operator-arguments Op)
-	   (variables-in (Operator-preconditions op))
+	   (variables-in (mapcar #'remove-local-precondition-vars 
+				 (Operator-preconditions op)))
 	   (variables-in (Operator-Effects Op)))))
 
+(defun remove-local-precondition-vars (pre)
+  (if (consp pre)
+    (case (car pre)
+      (not nil)
+      (setof (last pre))
+      (map (last pre))
+      (t pre))
+    pre))
 
 (defun get-operator-hintvars (Op)
-  "Obtain a list of all variables in this operator."
+  "Obtain a list of hint and arg variables in this operator."
   (remove-duplicates                                             ;;Cull the copies from the results and return.
    (append (Operator-arguments Op)
 	   (variables-in (Operator-hint OP)))))
 
-
-(defun bind-operator-vars (op vals)
-  "Match the operator with the values."
-  (or (if (null vals) no-bindings) 
-      (unify (operator-variables op) vals)
-      (unless  (and (null vals) (null (operator-variables op)))
-	(format t "Operator variables don't match operator values: ~a~%    May need to regenerate problem file.~%    operator-variables:  ~A~%    values:  ~A~%" 
-		(operator-name op) (operator-variables op) vals)
-	nil)))
 
 
 
@@ -437,12 +437,13 @@
 ;; Given an operator struct and an optional list of operator values 
 ;; the hints themselves from the operator with the values substituted
 ;; in if supplied.
-(defun get-op-hints (Op &optional (Values ()))
+(defun get-op-hints (Op Values)
   "Get the operator hints with vals substituted."
   (when Op
-    (subst-bindings
-     (bind-operator-vars Op Values)
-     (Operator-Hint Op))))
+    (let ((result (subst-bindings values (Operator-Hint Op))))
+      (unless (all-boundp result no-bindings)
+	(warn "Hint with unbound variables:  ~A" result))
+      result)))
 
 
 ;;--------------------------------------------------------------------

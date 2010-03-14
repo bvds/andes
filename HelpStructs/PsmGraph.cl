@@ -31,6 +31,17 @@
 ;; This file contains code to index the graph and to 
 ;; obtain other informaton from it.
 
+;;; action types used as part of actions that appear in action lists
+;;; and solution graphs
+
+(defconstant *do-operator* 'DO 
+  "Action prefix meaning that an operator is executed")
+(defconstant *next-operator* 'SG
+  "Action prefix meaning that a subgoal is being started for an operator")
+(defconstant *goal-unified-with-fact* 'WM
+  "Action prefix meaning that a goal unified with a working memory element")
+(defconstant *goal-unified-with-effect* 'OP
+  "Action prefix meaning that an operator was started")
 
 
 ;;=============================================================
@@ -68,39 +79,34 @@
 
 (defun cswm-p (wm) 
   (and (listp wm)
-       (equalp (car wm) 'wm)))
+       (equalp (car wm) *goal-unified-with-fact*)))
 
 (defun csop-p (wm)
   (and (listp wm)
-       (equalp (car wm) 'op)))
+       (equalp (car wm) *goal-unified-with-effect*)))
 
 
 (defstruct (cssg (:type list))
-  (Label 'sg)
+  (Label *next-operator*)
   op
   goal)
 
 (defun cssg-p (wm)
   (and (listp wm)
-       (equalp (car wm) 'sg)))
+       (equalp (car wm) *next-operator*)))
 
 
 (defstruct (csdo (:type list))
-  (Label 'do)
+  (Label *do-operator*)
   op
   effects
   varvals
-  entries)
-
-(defun do->csdo (do)
-  "Convert a four element do into the five element csdo."
-  (make-csdo :op (nth 1 do)
-	     :effects (nth 2 do)
-	     :varvals (nth 3 do)))
+  entries  ;only used by help system
+  )
   
 (defun csdo-p (wm)
   (and (listp wm)
-       (equalp (car wm) 'do)))
+       (eql (car wm) *do-operator*)))
 
 ;; SystemEntry and csdo are interdependent structures
 
@@ -119,10 +125,9 @@
   "Given an mreadable psm graph list set it up as necessary."
   (dotimes (n (length Graph))
     (when (listp (nth N Graph))
-      (cond ((equalp (car (nth n Graph)) 'do)
-	     (setf (nth N Graph) (do->csdo (nth N Graph)))
+      (cond ((csdo-p (nth n Graph))
 	     (setf (csdo-effects (nth n Graph)) 
-	       (kb-effects->help-effects (csdo-effects (nth n graph)))))
+		   (kb-effects->help-effects (csdo-effects (nth n graph)))))
 	    ((equalp (car (nth n Graph)) 'choose)
 	     (setf (nth n Graph) 
 	       (psmg-choose->help-psmg (nth n Graph)))))))

@@ -331,15 +331,15 @@
   (pprint Errs)))
 
 (defun check-entry-opvars ()
-"check all entry operators for variable list mismatch"
-  ; for each solution entry in current problem 
+  "check all entry operators for variable list mismatch"
+  ;; for each solution entry in current problem 
   (dolist (sysent *sg-entries*)  ; NB: requires sg-setup done by read-problem-info
-   ; check that its opinst's variable value-list is congruent with kb operator list
-   (let* ((step (first (systemEntry-sources sysent))) ; csdo struct for the DO stmt
-          (vals (csdo-varvals step))		      ; value list in psm graph (i.e. prb file)
-	  (op   (get-operator-by-tag (csdo-op step))) ; operator obj in current kb
-	  (opvars (operator-variables op))	      ; variable list in current kb
-	  errlist)
+    ;; check that its opinst's variable value-list is congruent with kb operator list
+    (let* ((step (first (systemEntry-sources sysent))) ; csdo struct for the DO stmt
+	   (vals (csdo-varvals step))		      ; value list in psm graph (i.e. prb file)
+	   (op (get-operator-by-tag (csdo-op step))) ; operator obj in current kb
+	   (opvars (operator-variables op))	      ; variable list in current kb
+	   errlist)
 ;;     (format t "op ~A vals (~A) opvars (~A)~%   ~A~%" (operator-name op) 
 ;;            (length vals) (length opvars) (mapcar #'cons vals opvars))
       (unless (= (length vals) (length opvars))
