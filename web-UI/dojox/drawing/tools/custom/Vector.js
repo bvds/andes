@@ -17,9 +17,11 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 	function(options){
 		this.minimumSize = this.style.arrows.length;
 		
-		if(this.style.zAxis) {
-			this.zDir = "into";
-			//this.sArrow = new dojox.drawing.annotations.ZShadow({stencil:this, style:this.style.shadow, keys:this.keys});
+		if(this.style.zAxis || options.data.cosPhi!=0)
+		{
+			this.style.zAxis = "true";
+			this.cosPhi = options.data.cosPhi;
+			this.addShadow({size:3, mult:2});
 		}
 	},
 	{
@@ -27,7 +29,7 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 		type:"dojox.drawing.tools.custom.Vector",
 		minimumSize:30,
 		showAngle:true,
-		zDir:"",
+		cosPhi:0,
 		
 		labelPosition: function(){
 			// summary:
@@ -105,24 +107,42 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 			this.setPoints([
 				{x:x1, y:y1},
 				{x:x2, y:y2}
-			]);/*
+			]);
 			if (this.style.zAxis) {
 				this.zPoints();
-			}*/
+			}
 			this.render();
+		},
+		
+		onTransform: function(/* ? manager.Anchor */anchor){
+			// summary:
+			// 		Called from anchor point mouse drag
+			// 		also called from plugins.Pan.checkBounds
+			if(!this._isBeingModified){
+				this.onTransformBegin();
+			}
+			// this is not needed for anchor moves, but it
+			// is for stencil move:
+			if(this.style.zAxis) {
+				this.zPoints();
+			} else {
+				this.setPoints(this.points);
+			}
+			this.render();			
 		},
 		
 		zPoints: function() {
 			var d = this.pointsToData();
 			var angle = this.getAngle();
 			d.radius = this.getRadius();
-			
 			if (angle > 135 && angle < 315) {
-				d.angle = this.zAngle;
-				this.zDir = "out of";
+				//Out angle
+				d.angle = this.style.zAngle;
+				this.cosPhi = "1";
 			} else {
-				d.angle = this.util.oppAngle(this.zAngle);
-				this.zDir = "into";
+				//In Angle
+				d.angle = this.util.oppAngle(this.style.zAngle);
+				this.cosPhi = "-1";
 			}
 			
 			var pt = this.util.pointOnCircle(d.x1, d.y1, d.radius, d.angle);
@@ -140,10 +160,6 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 			//		display object). Additionally checks if Vector should be
 			//		drawn as an arrow or a circle (zero-length)
 			//
-			/*if(this.style.zAxis) {
-				this.zPoints();
-			}*/
-			
 			this.onBeforeRender(this);
 			if(this.getRadius() >= this.minimumSize){
 				this._create("hit", this.data, this.style.currentHit);
@@ -173,6 +189,7 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 			
 			// if too small, need to reset
 			// 		This sets the zero length vector to zero within the minimum size 
+			
 			if(this.getRadius()<this.minimumSize){
 				var p = this.points; 
 				this.setPoints([ 
@@ -180,14 +197,17 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 					{x:p[0].x, y:p[0].y} 
 				]); 
 			} else { 			
-				//ace: needed as else to avoid zero length problem in snapAngle 
+				//needed as else to avoid zero length problem in snapAngle 
 				var pt = this.util.snapAngle(obj, this.angleSnap/180);
 				var p = this.points;
-				this.setPoints([
-					{x:p[0].x, y:p[0].y},
-					{x:pt.x, y:pt.y}
-				]);
-				
+				if(this.style.zAxis){
+					this.zPoints();
+				} else {
+					this.setPoints([
+						{x:p[0].x, y:p[0].y},
+						{x:pt.x, y:pt.y}
+					]);
+				}
 			}
 			this.renderedOnce = true;
 			this.onRender(this);

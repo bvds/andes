@@ -305,9 +305,11 @@ dojo.provide("andes.drawing");
 
 						items[obj.id].master.attr({
 							angle:obj.angle,
-							radius:obj.radius,
-							cosphi:(andes.defaults.zAxisEnabled?obj.cosphi:null)
+							radius:obj.radius
 						});
+						
+						obj.type=='vector' ? items[obj.id].master.cosPhi = obj.cosphi : null;
+						console.log("--converting",obj.cosphi,items[obj.id].master);
 					}
 					if(obj.type=="axes"){
 						items[obj.id].attr({
