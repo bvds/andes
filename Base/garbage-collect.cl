@@ -35,6 +35,7 @@
 			  (generation-bytes-allocated i)
 			  (generation-number-of-gcs i)
 			  (generation-average-age i)))
+  #+sbcl (format str "sum ~10D~%" (sb-vm::dynamic-usage))
   (let ((new-gc-time *gc-run-time*)
 	(new-user-time (get-internal-run-time)))
     (format str "time:  ~Fs gc and ~Fs total run time~%" 
@@ -45,6 +46,9 @@
     (setf *last-gc-time* new-gc-time)
     (setf *last-user-time* new-user-time)))
 
+;; The total number of generations, and the size of generation 0
+;; was found experimentally.  Still have not tuned the size
+;; generation 1, or determined if something >100MB improves generation 0.
 
 ;; In principle, should store original values and restore when
 ;; Session is finished.
@@ -52,16 +56,12 @@
   #-sbcl (warn "No working tune-generational-gc")
   ;; Data sizes are roughly twice as big on x86-64
   #+sbcl (let ((b (* #+x86-64 2 1024 1024)))
-           ;; gc rate associated with turns (about .5 sec)
 	   ;; (generation-bytes-consed-between-gcs 0) is never used
-	   (setf (bytes-consed-between-gcs) (* 20 b))
+	   (setf (bytes-consed-between-gcs) (* 100 b))
 	   (setf (generation-number-of-gcs-before-promotion 0) 1)
-           ;; gc rate associated with time between overlapped turns
-	   (setf (generation-bytes-consed-between-gcs 1) (* 5 b))
-	   (setf (generation-number-of-gcs-before-promotion 1) 1)
-	   ;; gc rate associated with session length (15 min).
 	   ;; generation-number-of-gcs-before-promotion has no
 	   ;; effect on highest generation.
-	   (setf (generation-bytes-consed-between-gcs 2) (* 100 b))))
+	   (setf (generation-bytes-consed-between-gcs 1) (* 100 b))
+	   ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -6,8 +6,8 @@
  (progn
 -  (def!constant +highest-normal-generation+ 5)
 -  (def!constant +pseudo-static-generation+ 6))
-+  (def!constant +highest-normal-generation+ 2)
-+  (def!constant +pseudo-static-generation+ 3))
++  (def!constant +highest-normal-generation+ 1)
++  (def!constant +pseudo-static-generation+ 2))
  
  (defenum ()
    trace-table-normal
