@@ -206,7 +206,7 @@
     ;; each new problem so search is only done once for each systementry.
     ;; (each call to memoize clears memory of saved results.)
     (memoize 'sg-systementry-optional-p :test #'eq 
-	     :var *sg-systementry-optional-p-memo*)
+	     :var '*sg-systementry-optional-p-memo*)
     (test-cache-solution-entries)
     (test-cache-solution-objects)
     (test-cache-drawing-entries)
