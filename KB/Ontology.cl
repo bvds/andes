@@ -116,7 +116,7 @@
 			;; "the frictional force against the aircraft"
 			(friction '((allowed "on" "against") ?body (time ?time)))))
 		    (and (preferred (object ?body))
-		         (preferred (agent ?agent))
+		         (preferred (agent (or "by" "due to" "from" "caused by" "exerted by" "of") ?agent))
 		         (time ?time))
 		    ((or "that" "with which")
 		     ?agent 
@@ -365,6 +365,11 @@
   :new-english (eval (when (expand-new-english ?body)
 			'((or "due to" "by" "from" "caused by" "exerted by" "of") 
 			  (or (var (body ?body) :namespace :objects) ?body))))) 
+
+(def-qexp agent (agent ?preposition ?body)
+  :new-english (eval (when (expand-new-english ?body)
+			'(?preposition
+			  (or (var (body ?body) :namespace :objects) ?body)))))
 
 (def-qexp time (time ?time)
   :new-english (eval (when ?time
