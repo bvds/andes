@@ -21,7 +21,7 @@ dojo.provide("andes.defaults");
 		//  Turn on z-axis vector
                 //  Not sure if these should be here since they get modified during session.
 		zAxis: false,
-		zAxisEnabled: false,
+		zAxisEnabled: true,
 		zAngle: 225,
 
 		// current: Object

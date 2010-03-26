@@ -19,7 +19,7 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 		
 		if(this.style.zAxis || options.data.cosPhi!=0)
 		{
-			if (options.data) { this.cosPhi = options.data.cosPhi;}
+			this.cosPhi = options.data.cosPhi;
 			this.style.zAxis = "true";
 			this.addShadow({size:3, mult:2});
 		}

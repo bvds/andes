@@ -19,12 +19,12 @@ dojox.drawing.plugins.tools.Pan = dojox.drawing.util.oo.declare(
 		//this.domNode = options.node;
 		var _scrollTimeout;
 		this.toolbar = options.scope;
-		/*this.connect(this.toolbar, "onToolClick", this, function(){
+		this.connect(this.toolbar, "onToolClick", this, function(){
 			this.onSetPan(false)
-		});*/
-		//this.connect(this.button, "onClick", this, "onSetPan");
+		});
 		this.connect(this.keys, "onKeyUp", this, "onKeyUp");
 		this.connect(this.keys, "onKeyDown", this, "onKeyDown");
+		this.connect(this.keys, "onArrow", this, "onArrow");
 		this.connect(this.anchors, "onAnchorUp", this, "checkBounds");
 		this.connect(this.stencils, "register", this, "checkBounds");
 		this.connect(this.canvas, "resize", this, "checkBounds");
@@ -66,49 +66,17 @@ dojox.drawing.plugins.tools.Pan = dojox.drawing.util.oo.declare(
 		onKeyDown: function(evt){
 			if (evt.keyCode == 32) {
 				this.onSetPan(true);
-			} else if (this.keyScroll) {
-				switch(evt.keyCode){
-					case 32:
-						this.onSetPan(true);
-						break;
-					case 39:
-						this.screenScroll("right");
-						break;
-					case 37:
-						this.screenScroll("left");
-						break;
-					case 38:
-						this.screenScroll("up");
-						break;
-					case 40:
-						this.screenScroll("down");
-						break;
-				}
 			}
 		},
 		
-		
 		interval: 20,
 		
-		screenScroll: function(dir){
-			if(this._timer) { clearInterval(this._timer);};
-			this._timer = setInterval(dojo.hitch(this, dir),this.interval);	
-		},
-		
-		right: function(){
-			this.canvas.domNode.parentNode.scrollLeft += 10;
-		},
-		
-		left: function(){
-			this.canvas.domNode.parentNode.scrollLeft -= 10;
-		},
-		
-		up: function(){
-			this.canvas.domNode.parentNode.scrollTop -= 10;
-		},
-		
-		down: function(){
-			this.canvas.domNode.parentNode.scrollTop += 10;
+		onArrow: function(evt){
+			if(this._timer) { clearInterval(this._timer); }
+			this._timer = setInterval(dojo.hitch(this,function(evt){
+				this.canvas.domNode.parentNode.scrollLeft += evt.x*10;
+				this.canvas.domNode.parentNode.scrollTop += evt.y*10;
+			},evt), this.interval);
 		},
 		
 		onSetPan: function(/*Boolean | Event*/ bool){
