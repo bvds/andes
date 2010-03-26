@@ -36,6 +36,9 @@
 
 (defconstant *debug* nil "pool debug")
 
+;; Should be "defconstant"
+(defvar *skip-db* nil "don't actually use db")
+
 ;; MySql drops connections that have been idle for over 8 hours.
 ;; However, clsql:connect using :pool tests for this error (2006).
 ;; This can be tested by logging into MySql, and using
@@ -48,15 +51,16 @@
 
 (defmacro with-db (&body body)
   "Excecute body in context of opened, pooled, default database."
-  `(if *connection-spec*
-    ;; Set the default database only within the dynamic scope of the macro.
-    (let ((*default-database* 
-	   (connect *connection-spec* :database-type :mysql
-		    :pool t :if-exists nil 
-		    :make-default nil)))
-      (unwind-protect (progn ,@body)
-	(disconnect))) ;disconnect *default-database*
-    (error "No common database defined, can't continue.")))
+  `(unless *skip-db*
+     (if *connection-spec*
+	 ;; Set the default database only within the dynamic scope of the macro.
+	 (let ((*default-database* 
+		(connect *connection-spec* :database-type :mysql
+			 :pool t :if-exists nil 
+			 :make-default nil)))
+	   (unwind-protect (progn ,@body)
+	     (disconnect))) ;disconnect *default-database*
+	 (error "No common database defined, can't continue."))))
 
 (defun create (&key host db user password)
   ;; Should remove at least password from lisp and make
@@ -173,12 +177,15 @@
 
 (defun first-session-p (&key student section extra)
   "Determine student has solved a problem previously."
-  (unless (> (length extra) 0) ;can be empty string
-    (with-db
-	(when *debug*
-	  (format webserver:*stdout* "first-session-p with db=~A (~A)~%" 
-		  *default-database* (hash-table-count clsql-sys::*db-pool*)))
-      (> 2 (car (query 
-		 (format nil "SELECT count(*) FROM PROBLEM_ATTEMPT WHERE userName = '~A' AND userSection='~A'" 
-			 student section) 
-		 :flatp t))))))
+  (if *skip-db* 
+      t
+      (unless (> (length extra) 0) ;can be empty string
+	(with-db
+	  (when *debug*
+	    (format webserver:*stdout* "first-session-p with db=~A (~A)~%" 
+		    *default-database* (hash-table-count clsql-sys::*db-pool*)))
+	  (> 2 (car (query 
+		     (format nil "SELECT count(*) FROM PROBLEM_ATTEMPT WHERE userName = '~A' AND userSection='~A'" 
+			     student section) 
+		 :flatp t)))))))
+  

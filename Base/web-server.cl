@@ -62,6 +62,11 @@
 	       (create-prefix-dispatcher uri 'handle-json-rpc)
 	       #'default-dispatcher))
 
+  ;; Send *debug* to file
+  (unless *stdout*
+    (setf *stdout* (open (merge-pathnames "help-debug.log" server-log-path)
+		       :direction :output :if-exists :rename)))
+
   ;; Error handlers
   (setf *http-error-handler* 'json-rpc-error-message)
   (setf *log-function* log-function)
@@ -80,6 +85,7 @@
 	  err (reason-phrase err)))
 
 (defun stop-json-rpc-service ()
+  (when (streamp *debug*) (close *debug*))
   (stop *server*) (setf *server* nil))
 
 (defmacro defun-method (uri name lambda-list &body body)
@@ -357,8 +363,10 @@
 				   (return-from unwind (error-hint c)))))
 		     
 		     ;; execute the method
+		     ;; note that hunchentoot:*default-connection-timeout* 
+		     ;; is 20 seconds 
 		     ;; Timeout not working, due to mysql, Bug #1708
-		     (sb-ext:with-timeout 5
+		     (sb-ext:with-timeout 15
 		       (apply func (if (alistp params) 
 				       (flatten-alist params) params))))))
 	   
