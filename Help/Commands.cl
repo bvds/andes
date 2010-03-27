@@ -158,7 +158,7 @@
     (setf (StudentEntry-prop entry) 
 	  `(solve-for-var ,(symbols-referent (StudentEntry-symbol entry))))
     (setf (StudentEntry-parsedEqn entry) result)
-    (setf (StudentEntry-state entry) **correct**)
+    (setf (StudentEntry-state entry) +correct+)
     
     ;; save final result as if it were a new student entry. We need to 
     ;; remember slot is occupied for add-entry to trigger automatic
@@ -218,7 +218,7 @@
      ; on the returned color.  If we used an async command to do it, it would
      ; enter mode before color result is returned, I think.
      ; !!! Should verify we aren't clobbering an existing command
-     (setf (turn-type result-turn) **Minil-Turn**)
+     (setf (turn-type result-turn) +minil-turn+)
      (setf (turn-text result-turn)
        (format NIL "http://136.142.94.84/cgi-bin/navalkcds?user=~a;prob=~a"
                    (help-env-student webserver:*env*) (problem-name *cp*)))))

@@ -413,7 +413,7 @@
  (let ((ncorrect-answer-entries 
           (length (remove-if-not 
                      #'(lambda (E) (and (answer-entry-p E) 
-		                        (equalp (studententry-state E) **correct**)))
+		                        (equalp (studententry-state E) +correct+)))
                      *Studententries*))))
   (= ncorrect-answer-entries (length (problem-soughts *cp*)))))
           

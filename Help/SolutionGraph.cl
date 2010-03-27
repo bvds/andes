@@ -262,10 +262,10 @@
 
 
 (defun sg-Marks->State (Marks)
-  "Collect the specified marks from the list if they are present or return **Correct**."
+  "Collect the specified marks from the list if they are present or return +correct+."
   (or (loop for M in '(Dead-Path Invalid Forbidden)
 	      when (find M Marks :test #'equalp) return M) 
-      **Correct**))
+      +correct+))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; sg-psmg->sysents
@@ -306,7 +306,7 @@
 ;; Entry3 will have Entry0 and Entry2 but not Entry1 in its preconditions.
 ;;
 
-(defun sg-psmg->sysents (Graph &key (Stk NIL) (State **Correct**))
+(defun sg-psmg->sysents (Graph &key (Stk NIL) (State +correct+))
   "Collect the System entries from the specified PSM Graph."
   (let ((Stack Stk) (Entries) (tmp))
     (dolist (N Graph)
@@ -641,7 +641,7 @@
     ;; then use that to determine correctness.
     (when tests 
       (let ((best (select-error-interpretation tests)))
-	(when (eql (ErrorInterp-state best) **correct**)
+	(when (eql (ErrorInterp-state best) +correct+)
 	  best)))))
     
 
@@ -712,10 +712,10 @@
 (defun sg-mark-eqn-interp (Interp)
   "Mark the interps including premature subst and inactive."
   (let ((I (sg-mark-interp Interp)))
-    (when (eq **Correct** (car I))
+    (when (eq +correct+ (car I))
       (if (and **Test-For-Premature-Subst**
 	       (SystemEntries-Premature-substp I))
-	  (setf (car I) **Premature-Subst**)))
+	  (setf (car I) +premature-subst+)))
     I))
 
 
@@ -733,8 +733,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; check interp(s)
 ;; Given an interpretation it is necessary to determine its state
-;; which will be one of **Correct** **Incorrect** **Forbidden**
-;; **Dead-Path** or **Premature-Entries** The selected state will
+;; which will be one of +correct+ +incorrect+ +forbidden+
+;; +dead-path+ or +premature-entries+ The selected state will
 ;; be pushed onto the car of the interp and can then be used by 
 ;; the help system to determine what interp (if given a choice) 
 ;; to use.
@@ -746,11 +746,11 @@
 (defun sg-check-interp (Interp)
   "Mark the state of the interp not accounting for sets."
   (let ((State (Systementries->State (sg-unmark-interp Interp)))) 
-    ;; Check for **Forbidden** **Dead-path**
+    ;; Check for +forbidden+ +dead-path+
     (if (and **Test-For-Prematurity**
-	     (eq **Correct** State)
+	     (eq +correct+ State)
 	     (SystemEntries-Prematurep (sg-unmark-interp Interp) *cp*))
-	**Premature-Entry**
+	+premature-entry+
       State)))
 
 

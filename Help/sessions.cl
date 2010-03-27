@@ -682,7 +682,7 @@
       ;; call next-step-help or do-whats-wrong
       ((equal action "help-button")
        ;; Find if there are any current errors.
-       (let ((mistakes (remove **incorrect** *studententries* 
+       (let ((mistakes (remove +incorrect+ *studententries* 
 			       :test-not #'eql
 			       :key #'StudentEntry-state)))
 	 (if mistakes

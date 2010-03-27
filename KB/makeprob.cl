@@ -184,7 +184,7 @@
 ;;;
 ;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
 (#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
-	*problem-sets* 
+	+problem-sets+ 
 	'(
 	  ;; Mechanics
 	  ("Vectors"  vectors)
@@ -233,7 +233,7 @@
  "Write OLI-useable list file of problem statements in each problem set"
  (with-open-file (outf "C:\\Andes2\\kb\\Problems.lst"
                   :direction :output :if-exists :supersede)
- (dolist (pair *problem-sets*)
+ (dolist (pair +problem-sets+)
   (format outf "LIST\<~A\>~%" (first pair))
   (let ((Probs (remove-if-not #'(lambda(p)
                                  (and (working-problem-p p) 

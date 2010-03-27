@@ -518,7 +518,7 @@
 
 ;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
 (#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
-	**HintSpec-Types** '(String KCD MiniLesson Eval Function)
+	+hintspec-types+ '(String KCD MiniLesson Eval Function)
 	#+sbcl #'equalp)
 
 (defun HintSpec-Type (Spec)
@@ -539,7 +539,7 @@
 
 (defun Hintspec-P (Spec)
   "Is the supplied elt a HintSpec."
-  (and (listp Spec) (member (car Spec) **HintSpec-Types**)))
+  (and (listp Spec) (member (car Spec) +hintspec-types+)))
 
 (defun format-hintspec (Spec)
   "Get a string form of the hintspec."

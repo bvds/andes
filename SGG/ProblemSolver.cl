@@ -362,7 +362,7 @@
    #'(lambda (e) 
        (when (exp-of-psmtype-set?
 	      (enode-id E) (Problem-ForbiddenPSMS Problem))
-	 (push **Forbidden** (Enode-Marks E))))
+	 (push +forbidden+ (Enode-Marks E))))
    (Problem-Graph Problem))
   
   (when *S-Print-Steps*
@@ -460,9 +460,9 @@
   "Mark the nodes supplied with 'Optimal-Path'."
   (mapcar #'(lambda (n)
 	      (cond ((Qnode-P n)
-		     (pushnew **Optimal-Path** (Qnode-Marks n)))
+		     (pushnew +optimal-path+ (Qnode-Marks n)))
 		    ((Enode-P n)
-		     (pushnew **Optimal-Path** (Enode-Marks n)))))
+		     (pushnew +optimal-path+ (Enode-Marks n)))))
 	  
 	  (get-optimal-solution-path (Problem-Solutions Problem))))
   
@@ -483,7 +483,7 @@
   (let ((Eqns))
     (dolist (E (Problem-EqnIndex Problem))
       (setf (Eqn-Nodes E) 
-	    ;; remove based on **dead-path** mark
+	    ;; remove based on +dead-path+ mark
 	    (remove-if #'bgnode-dead-pathp (Eqn-Nodes E)))
       (when (Eqn-Nodes E)
 	(push E Eqns)))

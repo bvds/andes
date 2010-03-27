@@ -34,13 +34,13 @@
 ;;; action types used as part of actions that appear in action lists
 ;;; and solution graphs
 
-(defconstant *do-operator* 'DO 
+(defconstant +do-operator+ 'DO 
   "Action prefix meaning that an operator is executed")
-(defconstant *next-operator* 'SG
+(defconstant +next-operator+ 'SG
   "Action prefix meaning that a subgoal is being started for an operator")
-(defconstant *goal-unified-with-fact* 'WM
+(defconstant +goal-unified-with-fact+ 'WM
   "Action prefix meaning that a goal unified with a working memory element")
-(defconstant *goal-unified-with-effect* 'OP
+(defconstant +goal-unified-with-effect+ 'OP
   "Action prefix meaning that an operator was started")
 
 
@@ -79,25 +79,25 @@
 
 (defun cswm-p (wm) 
   (and (listp wm)
-       (equalp (car wm) *goal-unified-with-fact*)))
+       (equalp (car wm) +goal-unified-with-fact+)))
 
 (defun csop-p (wm)
   (and (listp wm)
-       (equalp (car wm) *goal-unified-with-effect*)))
+       (equalp (car wm) +goal-unified-with-effect+)))
 
 
 (defstruct (cssg (:type list))
-  (Label *next-operator*)
+  (Label +next-operator+)
   op
   goal)
 
 (defun cssg-p (wm)
   (and (listp wm)
-       (equalp (car wm) *next-operator*)))
+       (equalp (car wm) +next-operator+)))
 
 
 (defstruct (csdo (:type list))
-  (Label *do-operator*)
+  (Label +do-operator+)
   op
   effects
   varvals
@@ -106,7 +106,7 @@
   
 (defun csdo-p (wm)
   (and (listp wm)
-       (eql (car wm) *do-operator*)))
+       (eql (car wm) +do-operator+)))
 
 ;; SystemEntry and csdo are interdependent structures
 

@@ -77,7 +77,7 @@
 						 :key #'StudentEntry-prop
 						 :test #'unify)))
 			  (and this-answer (eql (studententry-state
-						 this-answer) **correct**))))))
+						 this-answer) +correct+))))))
       (setf *fades* (remove fade *fades*))))
   ;; When not on canvas, prompt next step in hint window.
   (when *fades*

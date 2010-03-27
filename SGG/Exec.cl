@@ -333,24 +333,24 @@
 ;;; action first.  However, if none of the substates have any actions,
 ;;; then the action list is empty.  This is detected by comparing the
 ;;; number of actions with the number of states.  If there are N+1
-;;; actions for N states, then N of the "actions" are *next*
-;;; and the last one is *join*, so there were no real actions.
+;;; actions for N states, then N of the "actions" are +next+
+;;; and the last one is +join+, so there were no real actions.
 
 #|  ;not working for the case without joins and splits
 
 (defun setof-actions (state initial-state)
   "Collects actions from the substates and puts them on the state"
-  (setf (st-actions state) (list *join*)) ; so JOIN will be last
+  (setf (st-actions state) (list +join+)) ; so JOIN will be last
   (setf (st-predecessor initial-state) NIL) ;halts actions-along-path
   (dolist (SubState (solution-sts initial-state))
     (setf (st-actions state)
-      (cons *next*
+      (cons +next+
 	    (append (actions-along-path SubState)
 		    (st-actions state)))))
   (if (= 1 (- (length (st-actions state))
 		  (length (solution-sts initial-state))))
       (setf (st-actions state) NIL)
-    (push *split* (st-actions state))))
+    (push +split+ (st-actions state))))
 |#
 
 ;;; This converts a list of states into a list of the actions that

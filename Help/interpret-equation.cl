@@ -34,11 +34,11 @@
 	 (correct-or-premature (find-all-correct-interpretations interps location))
 	 (correct1 (find-most-cognitive-interpretation (car correct-or-premature)))
 	 (premature1 (find-most-cognitive-interpretation (second correct-or-premature)))
-	 (deadpath (find-all-interpretations **Dead-Path** interps))
+	 (deadpath (find-all-interpretations +dead-path+ interps))
 	 (deadpath1 (find-most-cognitive-interpretation deadpath))
-	 (forbidden (find-all-interpretations **Forbidden** interps))
+	 (forbidden (find-all-interpretations +forbidden+ interps))
 	 (forbidden1 (find-most-cognitive-interpretation forbidden))
-	 (nogood (find-all-interpretations **Nogood** interps))
+	 (nogood (find-all-interpretations +nogood+ interps))
 	 (nogood1 (find-most-cognitive-interpretation nogood))
 	 (shortest (find-most-cognitive-interpretation (get-all-interpretations interps)))
 	 (result nil))
@@ -46,35 +46,35 @@
      ((null interps)
       (setf (StudentEntry-CInterp se) nil)
       (warn "interpret-equation: can't find interpretations for ~A" se)
-      (setf (StudentEntry-State se) **Incorrect**)
+      (setf (StudentEntry-State se) +incorrect+)
       (setf result (make-red-turn :id (StudentEntry-id se))))
      (correct1
       (setf (StudentEntry-CInterp se) correct1)
-      (setf (StudentEntry-State se) **Correct**)
+      (setf (StudentEntry-State se) +correct+)
       (setf result (make-green-turn :id (StudentEntry-id se))))
      (deadpath1
       (setf (StudentEntry-CInterp se) deadpath1)
-      (setf (StudentEntry-State se) **Dead-Path**)
-      (setf result (chain-explain-more **Dead-Path-Help**)))
+      (setf (StudentEntry-State se) +dead-path+)
+      (setf result (chain-explain-more +dead-path-help+)))
      (forbidden1
       (setf (StudentEntry-CInterp se) forbidden1)
-      (setf (StudentEntry-State se) **Forbidden**)
-      (setf result (chain-explain-more **Forbidden-Help**)))
+      (setf (StudentEntry-State se) +forbidden+)
+      (setf result (chain-explain-more +forbidden-help+)))
      (premature1
       (setf (StudentEntry-CInterp se) premature1)
       ;; changed to treat as correct, but with a warning message -- AW
-      ;; (setf (StudentEntry-State se) **Premature-Entry**)
-      (setf (StudentEntry-State se) **Correct**)
+      ;; (setf (StudentEntry-State se) +premature-entry+)
+      (setf (StudentEntry-State se) +correct+)
       (setf result (get-premature-msg se))) ; now returns green + message turn
      (nogood1
       (setf (StudentEntry-CInterp se) nogood1)
-      (setf (StudentEntry-State se) **NOGOOD**)
-      (setf result (chain-explain-more **NOGOOD-Help**)))
+      (setf (StudentEntry-State se) +nogood+)
+      (setf result (chain-explain-more +nogood-help+)))
      (t
       (warn "interpret-equation: no interpretation for ~A" 
 	    (StudentEntry-ParsedEqn se))
       (setf (StudentEntry-CInterp se) shortest)
-      (setf (StudentEntry-State se) **Correct**)
+      (setf (StudentEntry-State se) +correct+)
       (setf result (make-green-turn :id (StudentEntry-id se)))))
     result))
 ;;
@@ -381,7 +381,7 @@
  (let ((correct-result nil)
 	(premature-result nil))
     (dolist (cinterp cinterps)
-      (when (equal **correct** (car cinterp))
+      (when (equal +correct+ (car cinterp))
 	 (if (and (eq location 'equation) ; don't test on answer box entries
 	          (is-premature-p (cdr cinterp)))
 	     (setf premature-result (append premature-result (list (cdr cinterp))))
@@ -399,7 +399,7 @@
 (defun get-premature-msg (se)
   "return appropriate hint sequence for equation entry interpreted as premature"
   ; some message text in HelpMessages.cl
- ; (assert (eq (studententry-state se) **Premature-Entry**))
+ ; (assert (eq (studententry-state se) +premature-entry+))
  (let* ((interp (studententry-cinterp se))
         (missing (get-needed-eqn-names interp)))
   (cond 

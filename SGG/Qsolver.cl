@@ -474,11 +474,11 @@
 
 ;;; markers used in action lists of states and in solution graphs
 
-(defconstant *split* 'split
+(defconstant +split+ 'split
   "Marks a non-deterministic split in the solution path")
-(defconstant *next* 'next
+(defconstant +next+ 'next
   "Marks a end of one parallel branch and the beginning of another")
-(defconstant *join* 'join
+(defconstant +join+ 'join
   "Marks the end of a set of parallel branches")
 
 (defun choose-p (exp)
@@ -489,7 +489,7 @@
 ; which have orders are OP actions recording operator selections
 (defun action-order (action)
    "return operator order for operator selection actions, else NIL"
-   (when (eq (first action) *goal-unified-with-effect*)
+   (when (eq (first action) +goal-unified-with-effect+)
       (operator-order (get-operator-by-tag (second action)))))
 
 (defun action< (a1 a2)
@@ -883,7 +883,7 @@
   (let ((new-state (copy-st state)))
     (setf (st-bindings new-state) bindings)
     (when action-flag (note-action new-state 
-				 (list *goal-unified-with-fact* wme)))
+				 (list +goal-unified-with-fact+ wme)))
     new-state))
 
 ;;; This is called by goal-successors to generate states via matching
@@ -942,7 +942,7 @@
     (push inst (st-stack new-state))
     (setf (st-bindings new-state) bindings)
     (note-action new-state 
-		 (list *goal-unified-with-effect*
+		 (list +goal-unified-with-effect+
 		       (subst-bindings bindings (opinst-identifier inst))))
     new-state))
 
@@ -980,13 +980,13 @@
   (setf (st-actions state)
 	(cond ((and (csop-p action)
 		    (unordered-op-id (first (second action))))
-	       (list action *split*))
+	       (list action +split+))
 	      ((and (cssg-p action)
 		    (unordered-op-id (cssg-op action)))
-	       (list *next* action))
+	       (list +next+ action))
 	      ((and (csdo-p action)
 		    (unordered-op-id (first (csdo-op action))))
-	       (list *join* action))
+	       (list +join+ action))
 	      (T  (list action))))
   (qs-debug-print-action State))
 

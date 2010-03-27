@@ -178,7 +178,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; eq slot range defined in DLL. NB: must stay in sync w/DLL!
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defconstant *solver-max-eqn-slot*     70) ; provides 70 slots numbered 0 - 69
+(defconstant +solver-max-eqn-slot+ 70) ; provides 70 slots numbered 0 - 69
 
 ;; Andes2 had a fixed number of equations labeled by integers.
 ;; Andes3 stores objects in a hash tables, labeled by strings.
@@ -193,8 +193,8 @@
 (defun reset-solver-slots ()
   (setf *id-solver-slot-map* nil)
   (setf *solver-free-slots* nil)
-  (dotimes (i *solver-max-eqn-slot*) 
-    (push (- *solver-max-eqn-slot* i 1) *solver-free-slots*)))
+  (dotimes (i +solver-max-eqn-slot+) 
+    (push (- +solver-max-eqn-slot+ i 1) *solver-free-slots*)))
 
 (defun id2solver-slot (id)
   (or (cdr (find id *id-solver-slot-map* :key #'car :test #'equal))
@@ -350,7 +350,7 @@
 
 ;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
 (#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
-	**Solver-Variable-Marks** 
+	+Solver-Variable-Marks+ 
 	'(Parameter Nonnegative Positive Nonzero answer-var)
 	#-sbcl "The list of valid variable markings that can be sent to the solver."
 	#+sbcl #'equalp)
