@@ -38,7 +38,7 @@
 (defparameter *debug-alloc* nil "Turn on memory profiling.")
 #+sbcl (eval-when (:load-toplevel :compile-toplevel)
 	 (require :sb-sprof))
-(defvar *print-lock*  #+sbcl (sb-thread:make-mutex)
+(defparameter *print-lock*  #+sbcl (sb-thread:make-mutex)
 	#+(and (not sbcl) bordeaux-threads) (bordeaux-threads:make-lock))
 
 (defmacro with-a-lock (args &body body)
@@ -316,7 +316,7 @@
     (:backtrace . ,(with-output-to-string 
 		    (stream)
 		    ;; sbcl-specific function 
-		    #+sbcl (sb-debug:backtrace 20 stream)))))
+		    #+sbcl (sb-debug:backtrace 100 stream)))))
 
 (defun execute-session (session-hash turn func params)
   "Execute a function in the context of a given session when its turn comes.  If the session doesn't exist, create it.  If there is nothing to save in *env*, delete session."
@@ -365,7 +365,7 @@
 		     ;; execute the method
 		     ;; note that hunchentoot:*default-connection-timeout* 
 		     ;; is 20 seconds 
-		     ;; Timeout not working, due to mysql, Bug #1708
+		     ;; Timeout not working, due to mysql lib, Bug #1708
 		     (sb-ext:with-timeout 15
 		       (apply func (if (alistp params) 
 				       (flatten-alist params) params))))))

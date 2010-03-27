@@ -75,7 +75,9 @@
   (physics-algebra-rules-initialize) ;initialize grammar
 
   ;; Set up database
-  (andes-database:create :host host :db db :user user :password password)
+  (andes-database:create :host host :db (or db "andes") 
+			 :user (or user "root") 
+			 :password (or password "sin(0)=0"))
 
   ;; start webserver
   (webserver:start-json-rpc-service 
@@ -91,13 +93,15 @@
 	  #-sbcl (error "cleanup not implemented")))
 
 (defun idle-cleanup-function ()
-  "Function that periodically cleans up idle sessions"
+  "Function that periodically cleans up idle sessions and pings database."
   ;; Here, the cutoff is based entirely on idle time.
   (let ((cutoff (* 2 3600)))
     (loop
-     (sleep cutoff)
-     (webserver:close-idle-sessions :idle cutoff :method 'close-problem))))
-
+       ;; MySql drops connections that have been idle for over 8 hours.
+       ;; Send trivial query, to keep connection alive.
+       (andes-database:first-session-p :student "none" :section "none") 
+       (sleep cutoff)
+       (webserver:close-idle-sessions :idle cutoff :method 'close-problem))))
 
 (defun stop-help () 
   "stop the web server running this service"
@@ -260,7 +264,7 @@
 
       ;; Intialize fade list
       (initialize-fades *cp*)
-		  
+
       ;; Write problem statement.	      
       (let ((x 10) (y 10) (i 0))
 	(dolist  (line (problem-statement *cp*))

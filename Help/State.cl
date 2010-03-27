@@ -124,7 +124,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun read-problem-info (name)
 
-  (parse-initialize) 	;set up session-local memoized functions
+  (parse-initialize) 	;set up session-local memos.
   ;; reset run-time data structures for new problem:
   (setf **grammar** nil)
   (grammar-add-grammar '**grammar** **common-grammar**)
