@@ -798,8 +798,9 @@
   :hint 
   (
    (bottom-out (string "Define a variable for ~A by using ~A."
+		       ((coef-drag ?b ?medium :type ?type :time ?t) def-np)
 		       (*text-tool* eval)
-		       ((coef-drag ?b ?medium :type ?type :time ?t) def-np)))
+			))
    ))
 
 
