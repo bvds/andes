@@ -141,12 +141,6 @@
   Assumpts	; assumptions used in this solution
   Solutions)	; used in SGG/SolutionSet.cl, not persisted to file
 
-;; remove references to other structures and lists,
-;; to aid in garbage collection.
-(defun dereference-eqnset (node)
-  (dereference-with dereference-bgnode (eqnset-eqns node))
-  (dereference-with dereference-bgnode (eqnset-nodes node)))
-
 (defun EqnSet-AllEqns (Set)
 "return list of all eqns within a solution EqnSet"
  (remove-duplicates  

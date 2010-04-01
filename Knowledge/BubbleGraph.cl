@@ -38,14 +38,14 @@
 ;; The Bubblegraph api is as follows:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Public constants
-;; **Dead-Path**      -- Marking for dead path nodes.
+;; +dead-path+      -- Marking for dead path nodes.
 ;;                       Defined in HelpStructs/SystemEntry.cl
-;; **Optimal-Path**   -- Marking for the optimal path nodes.
-;; **Parameter**      -- Marking for the param nodes.
-;; **Answer-Var**     -- Marking for answer-var params.
-;; **Cancelling-Var** -- Cancelling-var param markings.
-;; **Sought**         -- Marking for the sought node(s).
-;; **Given**          -- Marking for Given Qnodes and Enodes.
+;; +optimal-path+   -- Marking for the optimal path nodes.
+;; +parameter+      -- Marking for the param nodes.
+;; +answer-var+     -- Marking for answer-var params.
+;; +cancelling-var+ -- Cancelling-var param markings.
+;; +sought+         -- Marking for the sought node(s).
+;; +given+          -- Marking for Given Qnodes and Enodes.
 ;; 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Qnode structure.
@@ -114,24 +114,24 @@
 ;;; field for modification and testing purposes and is indended for 
 ;;; public use.
 ;;;
-;;; (Qnode-Dead-pathp <Qnode>)          - Return t iff qnode is **Dead-Path**
+;;; (Qnode-Dead-pathp <Qnode>)          - Return t iff qnode is +dead-path+
 ;;;
-;;; (Add-qnode-sought-mark <Qnode>)     - Mark the qnode as **Sought**.
-;;; (Qnode-soughtp <Qnode>)             - Returns t iff qnode is **Sought**.
+;;; (Add-qnode-sought-mark <Qnode>)     - Mark the qnode as +sought+.
+;;; (Qnode-soughtp <Qnode>)             - Returns t iff qnode is +sought+.
 ;;;
 ;;; (mark-qnode-parameter <Qnode>)      - Mark the qnode as a parameter.
-;;; (Qnode-Parameterp <Qnode>)          - Is qnode marked **Parameter**?
+;;; (Qnode-Parameterp <Qnode>)          - Is qnode marked +parameter+?
 ;;;
-;;; (mark-qnode-answer-var <Qnode>)     - Mark the qnode as an **Answer-Var**
-;;; (Qnode-Answer-VarP <Qnode>)         - Returns t iff Qnode is **Answer-Var**
+;;; (mark-qnode-answer-var <Qnode>)     - Mark the qnode as an +answer-var+
+;;; (Qnode-Answer-VarP <Qnode>)         - Returns t iff Qnode is +answer-var+
 ;;;
-;;; (mark-qnode-optimal-path <Qnode>)   - Mark QNODE as **Optimal-Path**
-;;; (Qnode-optimal-pathP <Qnode>)       - Is Qnode marked **Optimal-Path**.
+;;; (mark-qnode-optimal-path <Qnode>)   - Mark QNODE as +optimal-path+
+;;; (Qnode-optimal-pathP <Qnode>)       - Is Qnode marked +optimal-path+.
 ;;;
-;;; (mark-qnode-cancelling-var <Qnode>) - Mark the qnode as **Cancelling-Var**
-;;; (Qnode-cancelling-varp <Qnode>)     - Is qnode **cancelling-var**?
+;;; (mark-qnode-cancelling-var <Qnode>) - Mark the qnode as +cancelling-var+
+;;; (Qnode-cancelling-varp <Qnode>)     - Is qnode +cancelling-var+?
 ;;;
-;;; (Qnode-Givenp <Qnode>)              - Is qnode **Given**?
+;;; (Qnode-Givenp <Qnode>)              - Is qnode +given+?
 ;;;
 ;;; (mark-qnode <Mark> <Qnode>)         - Add MARK to QNODE's markings
 ;;; (remove-qnode-mark <Mark> <Qnode>)  - Remove MARK from QNODE if present.
@@ -208,13 +208,13 @@
 ;;; (remove-enode-mark <Enode> <mark> &optional (test #'equal)) -- Remove MARK from ENODE.
 ;;; (Enode-has-mark? <Enode> <mark> &optional (test #'equal))   -- Test for MARK on ENODE.
 ;;;
-;;; (Enode-dead-pathp <Enode>)            -- Test if ENODE is **Dead-Path**
+;;; (Enode-dead-pathp <Enode>)            -- Test if ENODE is +dead-path+
 ;;;
-;;; (Enode-optimal-pathp <Enode>)         -- Test if Enode is **Optimal-Path**
+;;; (Enode-optimal-pathp <Enode>)         -- Test if Enode is +optimal-path+
 ;;;
-;;; (Enode-forbiddenp <Enode>)            -- Test if Enode is **Forbidden**
+;;; (Enode-forbiddenp <Enode>)            -- Test if Enode is +forbidden+
 ;;;
-;;; (Enode-givenp <Enode>)                -- Test if Enode is **Given**
+;;; (Enode-givenp <Enode>)                -- Test if Enode is +given+
 ;;;
 ;;;=============================================================================
 ;;; BubbleGraph Nodes
@@ -304,7 +304,7 @@
 ;;; (map-indicies->bgnodes <Indicies> <Graph>)  -- Map the specified indicies to bgnodes. 
 ;;; (collect-unsolved-bgnodes <Graph>)  -- Collect unsolved enodes and qnodes.
 ;;; (collect-sought-qnodes <Graph>)  -- Collect the soughts.
-;;; (collect-forbidden-bgnodes <Graph>) -- Collect all nodes marked **Forbidden**
+;;; (collect-forbidden-bgnodes <Graph>) -- Collect all nodes marked +forbidden+
 ;;; 
 ;;; (match-exp->qnode <exp> <Graph>)  -- lookup a qnode matching exp.
 ;;; (match-exp->enode <exp> <Graph>)  -- lookup an enode matching exp.
@@ -351,10 +351,10 @@
 ;;; list.
 ;;;
 ;;; (mark-bg-dead-path-nodes <Graph> <UsedNodes>) 
-;;;      -- mark all the nodes not in UsedNodes as **dead-path**
+;;;      -- mark all the nodes not in UsedNodes as +dead-path+
 ;;;
 ;;; (remove-bg-dead-path-nodes <Graph>)
-;;;      -- Delink and remove all **Dead-Path** nodes from the bubblegraph
+;;;      -- Delink and remove all +dead-path+ nodes from the bubblegraph
 ;;;-------------------------------------------------------------------------
 ;;; Graph Indexing code.
 ;;; The Gidicies of the bubblegraph are numbers indicating simply the order 
@@ -399,13 +399,13 @@
 ;;; These definitions might be replicated in other locations but the purpose
 ;;; of them here is to centralize code location.  The system is intended to 
 ;;; answer questions about the graph and these definitions facilitate that.
-(defconstant **Optimal-Path** 'Optimal-Path "Optimal markings.")
-(defconstant **Parameter** 'Parameter "The specified qnode is a parameter.")
-(defconstant **Sought** 'Sought "Sought quantity marking.")
-(defconstant **Answer-Var** 'Answer-Var "Sought qnode is an answer var.")
-(defconstant **Cancelling-Var** 'Cancelling-Var "Sought qnode is a cancelling-var.")
-(defconstant **Nogood** 'Nogood "Specified nodes are nogood (depreciated).")
-(defconstant **Given** 'Given "The specified node is Given in the problem.")
+(defconstant +optimal-path+ 'Optimal-Path "Optimal markings.")
+(defconstant +parameter+ 'Parameter "The specified qnode is a parameter.")
+(defconstant +sought+ 'Sought "Sought quantity marking.")
+(defconstant +answer-var+ 'Answer-Var "Sought qnode is an answer var.")
+(defconstant +cancelling-var+ 'Cancelling-Var "Sought qnode is a cancelling-var.")
+(defconstant +nogood+ 'Nogood "Specified nodes are nogood (depreciated).")
+(defconstant +given+ 'Given "The specified node is Given in the problem.")
 
 ;;;============================================================================
 ;;; Qnodes
@@ -443,12 +443,6 @@
   Entries     ;of entry props that are in this node's psm.
   model       ;model sentence
   )
-
-;; remove references to other structures and lists,
-;; to aid in garbage collection.
-(defun dereference-Qnode (node)
-  (dereference-with dereference-SystemEntry (qnode-Entries node))
-  (dereference-with dereference-Enode (qnode-Eqns node)))
 
 ;;---------------------------------------------------------------------------
 ;; Qnode Output code.
@@ -589,64 +583,64 @@
 ;; public use.
 
 
-;; Return t iff the qnode is marked as **Dead-Path**
+;; Return t iff the qnode is marked as +dead-path+
 (defun qnode-dead-pathp (Q)
   "Is the Qnode on a dead path?"
-  (qnode-has-mark? Q **dead-path**))
+  (qnode-has-mark? Q +dead-path+))
 
 
-;; (Add-qnode-sought-mark <Qnode>) Mark the qnode as **Sought**.
+;; (Add-qnode-sought-mark <Qnode>) Mark the qnode as +sought+.
 (defun mark-qnode-sought (Q)
   "Mark the Qnode as sought."
-  (mark-qnode Q **Sought**))
+  (mark-qnode Q +sought+))
 
   
-;;; (Qnode-soughtp <Qnode>) Returns t iff the qnode is marked as **Sought**.
+;;; (Qnode-soughtp <Qnode>) Returns t iff the qnode is marked as +sought+.
 (defun qnode-soughtp (Q)
   "Is the specified qnode sought?"
-  (qnode-has-mark? Q **Sought**))
+  (qnode-has-mark? Q +sought+))
 
 
 ;;; (mark-qnode-parameter <Qnode>) Mark the qnode as a parameter.
 (defun mark-qnode-parameter (Q)
   "Mark the qnode as a Parameter."
-  (mark-qnode Q **Parameter**))
+  (mark-qnode Q +parameter+))
    
-;;; (Qnode-Parameterp <Qnode>) Return t iff the qnode is marked **Parameter**.
+;;; (Qnode-Parameterp <Qnode>) Return t iff the qnode is marked +parameter+.
 (defun qnode-parameterp (Q)
   "Is the Qnode a parameter?"
-  (qnode-has-mark? Q **Parameter**))
+  (qnode-has-mark? Q +parameter+))
 
 
 ;;; (mark-qnode-answer-var <Qnode>) Mark the specified qnode as an answer-var.
 (defun mark-qnode-answer-var (Q)
   "Mark the qnode as an answer-var."
-  (mark-qnode Q **Parameter**)
-  (mark-qnode Q **Answer-Var**))
+  (mark-qnode Q +parameter+)
+  (mark-qnode Q +answer-var+))
 
 ;;; (Qnode-Answer-VarP <Qnode>) 
-;;; Returns t iff Qnode has the **Answer-Var** mark.
+;;; Returns t iff Qnode has the +answer-var+ mark.
 (defun qnode-answer-varp (Q)
   "Is the Qnode an answer-var?"
-  (qnode-has-mark? Q **Answer-Var**))
+  (qnode-has-mark? Q +answer-var+))
 
 
-;;; (mark-qnode-optimal-path <Qnode>) Mark QNODE as **Optimal-Path**
+;;; (mark-qnode-optimal-path <Qnode>) Mark QNODE as +optimal-path+
 (defun mark-qnode-optimal-path (Q)
   "Mark the qnode as an optimal path."
-  (mark-qnode Q **Optimal-Path**))
+  (mark-qnode Q +optimal-path+))
 
-;;; (Qnode-optimal-pathP <Qnode>) Returns t iff Qnode is marked **Optimal-Path**.
+;;; (Qnode-optimal-pathP <Qnode>) Returns t iff Qnode is marked +optimal-path+.
 (defun qnode-optimal-pathp (Q)
   "Is the qnode a member of the optimal path?"
-  (qnode-has-mark? Q **Optimal-path**))
+  (qnode-has-mark? Q +optimal-path+))
 
 
 
 ;;; (mark-qnode-cancelling-var <Qnode>) Mark the qnode as a cancelling-var.
 (defun mark-qnode-cancelling-Var (Q)
   "Mark the qnode as a cancelling var."
-  (mark-qnode Q **Parameter**))
+  (mark-qnode Q +parameter+))
 
 ;;; (Qnode-cancelling-varp <Qnode>) Return t iff the qnode is a cancelling var.
 (defun qnode-cancelling-varp (Q)
@@ -719,17 +713,6 @@
   Entries				; EntryProps that appear in this node's path.
   )
 
-;; remove references to other structures and lists,
-;; to aid in garbage collection.
-(defun dereference-Enode (node)
-  ;; Enode path is a very large expression.
-  (Setf (enode-path node) nil)
-  (dereference-with dereference-SystemEntry (enode-Entries node))
-  (dereference-with dereference-Qnode (enode-Qnodes node))
-  ;; can be nil or Eqn
-  (when (enode-Eindex node) (dereference-Eqn (enode-Eindex node)))
-  (dereference-with dereference-Eqn (enode-Subeqns node)))
-
 ;;---------------------------------------------------------------------------
 ;; Enode Output functions.
 (defun form-print-enode (Enode &optional (form nil) (Stream t) (level 0))
@@ -792,7 +775,7 @@
   (format Stream "  Marks: ~A~%" (Enode-Marks Equation)))
     
 (defun print-mreadable-enode (E S)
-  "Dump the specified Machine-readable Qnode Q to stream S."
+  "Dump the specified Machine-readable Enode E to stream S."
   (format S "<Enode>~%")
   (format S "~W~%" (Enode-Symbol E))
   (format S "~W~%" (Enode-ID E))
@@ -829,7 +812,7 @@
 			 :gindex (mg-sr S)
 			 :eindex (mg-sr S)
 			 :algebra (mg-sr S)
-			 :path (psmg->help-psmg (mg-sr S))
+			 :path  (mg-sr S)
 			 :assumptions (mg-sr S)
 			 :Qnodes (mg-sr S)
 			 :marks (mg-sr S)
@@ -886,17 +869,17 @@
 
 (defun enode-dead-pathp (E)
   "Is the Enode on a dead path?"
-  (Enode-has-mark? E **Dead-Path**))
+  (Enode-has-mark? E +dead-path+))
 
 (defun enode-optimal-pathp (E)
   "Is the enode on the optimal path?"
-  (Enode-has-mark? E **optimal-path**))
+  (Enode-has-mark? E +optimal-path+))
 
 (defun enode-forbiddenp (E)
-  (Enode-has-mark? E **Forbidden**))
+  (Enode-has-mark? E +forbidden+))
 
 (defun enode-givenp (E)
-  (Enode-has-mark? E **Given**))
+  (Enode-has-mark? E +given+))
 
 (defun enode-non-quantp (E)
   (Enode-has-mark? E 'non-quant))
@@ -911,11 +894,6 @@
 (defun bgnode-p (Node)
   "Return t iff NODE is a Qnode or Enode."
   (or (qnode-p Node) (Enode-P Node)))
-
-(defun dereference-bgnode (node)
-  (cond ((enode-p node) (dereference-Enode node))
-	((qnode-p node) (dereference-Qnode node))
-	(t (warn "dereference-bgnode expecting bgnode, not ~A" node))))
 
 ;;; Given an arbitrary node print it out in one of the 
 ;;; specified forms Full (default), Graph and Mreadable.
@@ -1066,8 +1044,6 @@
   (let ((G (list (read-mreadable-qnode-lst S)
 		 (read-mreadable-enode-lst S))))
     (mg-srt S '</BubbleGraph>)
-    (regen-en-qn-links G)
-    (regen-qn-en-links G)
     G))
     
 (defun regen-en-qn-links (Graph)
@@ -1521,14 +1497,14 @@
   (dolist (Q (bubblegraph-qnodes Graph))
     (when (not (member Q UsedNodes))
    ;;   (format t "mark-bg-dead-path-nodes:  removing Qnode ~A~%" Q)
-      (push **Dead-Path** (Qnode-Marks Q))))
+      (push +dead-path+ (Qnode-Marks Q))))
   
   ;; AW: for hybrid quant/non-quant problems: don't mark pseudo-enodes 
   ;; generated for qualitative problem parts as dead-paths.
   (dolist (E (remove-if #'enode-non-quantp (bubblegraph-enodes Graph)))
     (when (not (member E UsedNodes))
     ;;  (format t "mark-bg-dead-path-nodes:  removing Enode ~A~%" E)
-      (push **Dead-Path** (Enode-Marks E))))
+      (push +dead-path+ (Enode-Marks E))))
   
   Graph)
 

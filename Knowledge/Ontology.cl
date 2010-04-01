@@ -350,7 +350,7 @@
   "Return t iff the specified type is an entry type."
   (member type *Ontology-EntryProp-Types*
 	  :key #'EntryProp-Type
-	  :test #'unify ))		;could use "equal"
+	  :test #'unify))		;could use "equal"
 
 
 (defun kb-prop->help-Prop (Prop)
@@ -364,7 +364,7 @@
 (defun lookup-entryprop-type (Type)
   (find type *Ontology-EntryProp-Types*
 	:key #'EntryProp-Type
-	:test #'unify ))		;could use "equal"
+	:test #'unify))		;could use "equal"
 
 
 

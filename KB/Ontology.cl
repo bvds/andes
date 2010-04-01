@@ -1610,16 +1610,16 @@
 ;;
 ;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
 (#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
- *required-identities* 
- '( NTL					;Newton's Third law
-   cons-energy 			        ;conservation of energy ME1 = ME2
-   projection    			;projection psm: block using v for v_x when equal
-   charge-same-caps-in-branch		;want students to show they know this
-   ) #+sbcl #'equalp)
+	+required-identities+
+	'(NTL		      ;Newton's Third law
+	  cons-energy 	      ;conservation of energy ME1 = ME2
+	  projection          ;projection psm: block using v for v_x when equal
+	  charge-same-caps-in-branch	 ;want students to show they know this
+	  ) #+sbcl #'equalp)
 
 (defun required-identity-p (eqn)
 "true if eqn is on the list of required identities"
-    (member (first (eqn-exp eqn)) *required-identities*))
+    (member (first (eqn-exp eqn)) +required-identities+))
 
 
 ;; Detecting net quant variant forms

@@ -41,7 +41,7 @@
 					;no-match:  use after no match found
 					;match:  use after match found
 					;nil:  always apply
-  state       ;state of student entry **correct** or **incorrect**  
+  state       ;state of student entry +correct+ or +incorrect+  
 					;Match contained in last match
 					;with (correct ...)
   hint            ;Lisp evaluable form giving resulting hint sequence
@@ -65,7 +65,7 @@
 	                   :arguments (quote ,arguments)
 			   :preconditions (quote ,conditions)
 			   :apply 'no-match
-			   :state '**incorrect** ;these are all errors
+			   :state '+incorrect+ ;these are all errors
 			   :hint (quote ,(cons name arguments))
 			   :order (quote ((expected-utility .
 					   (* ,probability ,utility))))

@@ -74,13 +74,13 @@
     (setf (StudentEntry-ErrInterp student)
 	  (let ((state (StudentEntry-State student)))
 	    (cond
-	     ((eq state **premature-entry**)
+	     ((eq state +premature-entry+)
 	      (explain-premature-entry student))
-	     ((eq state **premature-subst**)
+	     ((eq state +premature-subst+)
 	      (explain-premature-subst student))
-	     ((eq state **forbidden**)
+	     ((eq state +forbidden+)
 	      (explain-forbidden student))
-	     ((not (eq state **Incorrect**))
+	     ((not (eq state +incorrect+))
 	      (make-failed-error-interpretation))
 	     ((and (eq 'eqn (car (StudentEntry-Prop student)))
 		   (not (solver-equation-redp 
@@ -173,7 +173,7 @@
 (defun new-error (student)
   "Given an incorrect student entry that has not been given before,
    return an error interpretation"
-  (let ((candidates (remove **correct** 
+  (let ((candidates (remove +correct+ 
 			    (applicable-error-analyses student) 
 			    :key #'ErrorInterp-state))
 	best)
@@ -293,7 +293,7 @@
 ;;; If not, then fail by returning NIL.
 (defun check-err-old-student (pattern eh student conditions system bindings)
   (loop for s in *StudentEntries* with b nconc
-	(when (and (equal (studentEntry-state s) **Correct**)
+	(when (and (equal (studentEntry-state s) +correct+)
 		 (setq b (unify (studentEntry-prop s) pattern bindings)))
 	    (check-err-conditions eh student conditions system b))))
 
@@ -489,7 +489,7 @@
     ;; Test for a corresponding systementry and that
     ;; all corresponding systementries have already been done.
     (let ((done (and (ErrorInterp-intended ei)
-		     (eq **correct** 
+		     (eq +correct+ 
 			 (SystemEntries->state (ErrorInterp-intended ei)))
 		     (every #'SystemEntry-Entered (ErrorInterp-intended ei)))))
       
@@ -537,23 +537,23 @@
    matching correct entry is weird, wraps a prefix around the tutor
    turn that would otherwise be generated."
  (let ((*correct-entry* (first (ErrorInterp-intended ei))))
-  (cond ((eq **forbidden** (ErrorInterp-state ei)) 
+  (cond ((eq +forbidden+ (ErrorInterp-state ei)) 
 	 (dont-bother-but 
 	  ei (strcat "The closest matching CORRECT entry is forbidden by "
 		     "the problem statement, so you shouldn't bother to "
 		     "generate it.  If you want to anyway, click on Explain more.")))
-	((eq **dead-path** (ErrorInterp-state ei))
+	((eq +dead-path+ (ErrorInterp-state ei))
 	 (dont-bother-but 
 	  ei (strcat "The closest matching CORRECT entry is does not lead "
 		     "toward a solution, so you shouldn't bother to generate "
 		     "it.  If you want to anyway, click on Explain more.")))
-	((eq **premature-entry** (ErrorInterp-state ei))
+	((eq +premature-entry+ (ErrorInterp-state ei))
 	 (dont-bother-but 
 	  ei (strcat "The closest matching CORRECT entry is premature, so you "
 		     "need to enter the skipped steps before you enter this one.  "
 		     "But you want help on generating this one anyway, click on "
 		     "Explain more.")))
-	((eq **premature-subst** (ErrorInterp-state ei))
+	((eq +premature-subst+ (ErrorInterp-state ei))
 	 (dont-bother-but 
 	  ei (strcat "The closest matching CORRECT entry would contain given "
 		     "values, but you have not yet finished applying all the "

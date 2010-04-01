@@ -42,11 +42,6 @@
   Nodes
   Solved)  ;if t then this equation has been solved.
 
-;; remove references to other structures and lists,
-;; to aid in garbage collection.
-(defun dereference-eqn (node)
-  (dereference-with dereference-Enode (eqn-nodes node)))
-
 (defun print-eqn (Eqn &optional (Stream t) (Level 0))
   "Print out an eqn as a list."
   (pprint-Indent :block Level)

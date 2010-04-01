@@ -37,7 +37,6 @@
 				     (:file "Unification")
 				     (:file "auxiliary")
 				     (:file "hash")
-				     (:file "garbage-collect")
 				     (:file "match")
 				     (:file "Utility")))
 	       (:module "Algebra"

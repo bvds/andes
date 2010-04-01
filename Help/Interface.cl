@@ -293,7 +293,7 @@
   ;; results in a null turn, so this will leave the next-step-help reply 
   ;; turn with its responder in place to handle the student's response 
   ;; which comes later.
-  (when (and turn (not (equalp (turn-type Turn) **No-Op-Turn**)))
+  (when (and turn (not (equalp (turn-type Turn) +no-op-turn+)))
     (setf *last-tutor-turn* turn))
 
   ;; if there is assoc info in the turn, add to reply
@@ -366,7 +366,7 @@
 			      (push `((:action . "show-hint-link")
 				      (:text . "Explain more") 
 				      (:value . ,(symbol-name 
-						  **explain-more**)))
+						  +explain-more+)))
 				    result))
 			     (text-input  
 			      (push '((:action . "focus-hint-text-box"))
@@ -550,7 +550,7 @@
       ;; if the turn is red then the text is a hint to be 
       ;; shown.  If not then it is a correct equation to 
       ;; be shown.
-      (if (eq (turn-coloring Result) **Color-Red**)
+      (if (eq (turn-coloring Result) +color-red+)
 	  (iface-add-eqr-r-cmdresult Cmd Result)
 	(iface-add-eqr-g-cmdresult Cmd Result)))))
 
@@ -672,7 +672,7 @@
   "Set the commands for a minilesson turn."
   (when (null (turn-text Result))
     (error "Minilesson turn with no filename text"))
-  (setf (dde-result-command Val) **Show-Lesson**) 
+  (setf (dde-result-command Val) +show-lesson+) 
   (setf (dde-result-value Val) (turn-text Result)))
 
 
@@ -681,14 +681,14 @@
 (defun iface-set-ddr-tcard-turn-c (Val Result)
   (when (null (turn-text Result)) 
     (error "Training card turn with no card-id text"))
-  (setf (dde-result-command Val) **Training-Card**)
+  (setf (dde-result-command Val) +training-card+)
   (setf (dde-result-value Val) (turn-text Result)))
 
 
 ;;; KCD turns are dialog turns with show-hint commands and one of
 ;;; a series of menus taken directly from the turn.
 (defun iface-set-ddr-kcd-turn-c (Val Result)
-  (setf (dde-result-command Val) **Show-hint**)
+  (setf (dde-result-command Val) +show-hint+)
   (setf (dde-result-value Val) (turn-text Result))
   (setf (dde-result-menu Val) (turn-menu Result)))
 
@@ -711,7 +711,7 @@
 (defun iface-set-ddr-dialog-turn-c (Val Result)
   (when (turn-text Result)
     ;; Set the command if a message exists.
-    (setf (dde-result-command Val) **Show-hint**)
+    (setf (dde-result-command Val) +show-hint+)
     ;; Set the message.
     (setf (dde-result-value Val) (turn-text Result))
     ;; Add the menu if one exists.
