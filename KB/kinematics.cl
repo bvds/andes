@@ -3095,8 +3095,8 @@
   :hint 
   ((bottom-out 
     (string "Define a variable for ~A by using ~a." 
-	    (*text-tool* eval)
-	    ((gravitational-acceleration ?planet) def-np)))))
+	    ((gravitational-acceleration ?planet) def-np)
+	    (*text-tool* eval)))))
 
 
 ;;; ======================== connected bodies =====================

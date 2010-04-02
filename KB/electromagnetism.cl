@@ -1180,8 +1180,8 @@
             )
    :hint (
        (bottom-out (string "Define a variable for ~A by using ~A."  
-			   (*text-tool* eval)
-			   ((charge ?p :surface ?surface-flag :time ?t) def-np) ))
+			   ((charge ?p :surface ?surface-flag :time ?t) def-np) 
+			   (*text-tool* eval)))
        ))
 
 (defoperator define-number-of (?p)
@@ -1190,8 +1190,8 @@
 	    (define-var (number-of ?p)))
    :hint (
        (bottom-out (string "Define a variable for ~A by using ~A."  
-			   (*text-tool* eval)
-			   ((number-of ?p) def-np) ))
+			   ((number-of ?p) def-np) 
+			   (*text-tool* eval)))
        ))
 
 (defoperator define-potential-var (?loc ?source ?t)
@@ -1205,8 +1205,8 @@
             )
    :hint (
        (bottom-out (string "Define a variable for ~A by using ~A."  
-			   (*text-tool* eval)
-			   ((potential ?loc ?source :time ?t) def-np)))
+			   ((potential ?loc ?source :time ?t) def-np)
+			   (*text-tool* eval)))
        ))
 
 (defoperator define-net-potential-var (?loc ?t)
@@ -1219,8 +1219,8 @@
             )
    :hint (
        (bottom-out (string "Define a variable for ~A by using ~A."  
-			   (*text-tool* eval)
-			   ((net-potential ?loc :time ?t) def-np)))
+			   ((net-potential ?loc :time ?t) def-np)
+			   (*text-tool* eval)))
        ))
 
 ;;-----------------------------------------------------------
