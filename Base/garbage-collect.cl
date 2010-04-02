@@ -54,8 +54,9 @@
 ;; Session is finished.
 (defun tune-generational-gc ()
   #-sbcl (warn "No working tune-generational-gc")
-  ;; Data sizes are roughly twice as big on x86-64
-  #+sbcl (let ((b (* #+x86-64 2 1024 1024)))
+  ;; Data sizes are roughly twice as big on x86-64,
+  ;; but memory bandwidth is the same, so we use same gc rates.
+  #+sbcl (let ((b (* 1024 1024)))
 	   ;; (generation-bytes-consed-between-gcs 0) is never used
 	   (setf (bytes-consed-between-gcs) (* 100 b))
 	   (setf (generation-number-of-gcs-before-promotion 0) 1)
