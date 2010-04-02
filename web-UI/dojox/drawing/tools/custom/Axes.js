@@ -17,8 +17,18 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 
 		this.xArrow = new dojox.drawing.annotations.Arrow({stencil:this, idx1:0, idx2:1});
 		this.yArrow = new dojox.drawing.annotations.Arrow({stencil:this, idx1:2, idx2:1});
-		if(this.style.zAxis){
-		  this.zArrow = new dojox.drawing.annotations.Arrow({stencil:this, idx1:1, idx2:1});
+		if(this.style.zAxisEnabled){
+			dojo.mixin(options, {
+				container:this.drawing.canvas.surface.createGroup()
+			});
+			options.style.zAxis = true;
+			this.zAxis = new dojox.drawing.tools.custom.Vector(options);
+			/*this.connectMult([
+				[this, "onTransform", this.zAxis, "onTransform"],
+				[this, "onDelete", this.zAxis, "destroy"],
+				[this, "onBeforeRender", this.zAxis, "render"]
+			]);*/
+			this.zArrow = new dojox.drawing.annotations.Arrow({stencil:this, idx1:1, idx2:1});
 		}
 
 		if(this.points && this.points.length){
@@ -328,7 +338,7 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 			// 		Because Axes only has one anchor,
 			// 		we substitute a special setPoints method
 			//
-			console.log("---points: ",pts);
+			//console.log("---points: ",pts);
 			this.points[0] = pts[0];
 			if(this.pointsToData){
 				this.data = this.pointsToData();
