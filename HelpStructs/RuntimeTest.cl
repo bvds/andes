@@ -116,7 +116,7 @@
 ;;; have entries in the solution graph but they are effectively optional. 
 (defparameter **Current-Prob-Requires-nonanswer-entries** t)
 
-(defvar *sg-systementry-optional-p-memo* "memo for holding session-local info")
+(defvar *sg-systementry-optional-p-memo*) ;memo for holding session-local info
 
 (defparameter **entry-entered** nil)
 

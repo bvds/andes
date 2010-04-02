@@ -315,16 +315,16 @@
 ;;; -------------------------------------------------------------------
 ;;; Command parameters.
 
-(defconstant **show-hint** 'Show-hint "The show-hint command.")
-(defconstant **show-lesson** 'Show-lesson "The show-lesson command.")
-(defconstant **training-card** 'training-card "The training-card command.")
+(defconstant +show-hint+ 'Show-hint "The show-hint command.")
+(defconstant +show-lesson+ 'Show-lesson "The show-lesson command.")
+(defconstant +training-card+ 'training-card "The training-card command.")
 
 ;;; -------------------------------------------------------------------
 ;;; dde-result command tests.
 
 (defun ddr-show-hintp (Result)
   "Is this a show-hint dde result."
-  (equal (dde-result-command Result) **show-hint**))
+  (equal (dde-result-command Result) +show-hint+))
 
 
 ;;; -------------------------------------------------------------------
@@ -349,7 +349,7 @@
     (when (and Result (cmdresult-p Result)
 	       (setq Result (cmdresult-value Result)) ;; returns the val.
 	       (dde-result-p Result)
-	       (equal (dde-result-command Result) **show-hint**))
+	       (equal (dde-result-command Result) +show-hint+))
       ;;(nth 0 (dde-result-value Result)))))
       (dde-result-value Result))))
 
@@ -431,7 +431,7 @@
     (and Result (cmdresult-p Result)
 	 (setq Result (cmdresult-value Result)) ;; returns the val.
 	 (dde-result-p Result)
-	 (equal (dde-result-command Result) **show-hint**))))
+	 (equal (dde-result-command Result) +show-hint+))))
 
 
 ;;; Return t if the topmost cmd has has a dde-result with a show-hint command

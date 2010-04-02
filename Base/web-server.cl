@@ -38,15 +38,18 @@
 (defparameter *debug-alloc* nil "Turn on memory profiling.")
 #+sbcl (eval-when (:load-toplevel :compile-toplevel)
 	 (require :sb-sprof))
-(defvar *print-lock*  (or #+sbcl (sb-thread:make-mutex)
-			  #+bordeaux-threads 
-			  (bordeaux-threads:make-lock)))
+(defparameter *print-lock*  #+sbcl (sb-thread:make-mutex)
+	#+(and (not sbcl) bordeaux-threads) (bordeaux-threads:make-lock))
 
 (defmacro with-a-lock (args &body body)
   "Choose method for setting mutex"
-  (or #+sbcl `(sb-thread:with-mutex ,args ,@body)
-      #+bordeaux-threads `(bordeaux-threads:with-lock-held ,@body)
-      '(error "no thread locking, possible race condition")))
+  #+sbcl `(sb-thread:with-mutex ,args ,@body)
+  #+(and (not sbcl) bordeaux-threads) 
+  `(bordeaux-threads:with-lock-held 
+       ;; ignore any sbcl-specific flags
+       ,(list (car args)) ,@body)
+  #-(or sbcl bordeaux-threads) 
+  '(error "no thread locking, possible race condition"))
 
 (defun start-json-rpc-service (uri &key (port 8080) log-function
 			       server-log-path)
@@ -58,6 +61,11 @@
 	 (list #'dispatch-easy-handlers
 	       (create-prefix-dispatcher uri 'handle-json-rpc)
 	       #'default-dispatcher))
+
+  ;; Send *debug* to file
+  (unless *stdout*
+    (setf *stdout* (open (merge-pathnames "help-debug.log" server-log-path)
+		       :direction :output :if-exists :rename)))
 
   ;; Error handlers
   (setf *http-error-handler* 'json-rpc-error-message)
@@ -77,6 +85,7 @@
 	  err (reason-phrase err)))
 
 (defun stop-json-rpc-service ()
+  (when (streamp *debug*) (close *debug*))
   (stop *server*) (setf *server* nil))
 
 (defmacro defun-method (uri name lambda-list &body body)
@@ -164,7 +173,7 @@
 		      (format *stdout* 
 			      "session ~a result~%     ~S~%~@[     error ~S~%~]" 
 			      client-id result error1)))
-
+      
       ;; only give a response when there is an error or id is given
       (when (or error1 turn)
 	(when (or error1 (not version)) (push (cons :error error1) reply))
@@ -220,10 +229,14 @@
 ;;       The server receives a repeat request (same id) as the last
 ;;       request.  The server returns the earlier reply.
 
-(defparameter *sessions* (make-hash-table :test #'equal) 
+(defvar *sessions* 
+  (make-hash-table :test #'equal
+		   ;; make concurrent access safe in sbcl
+		   #-sbcl (warn "Access to *sessions* not thread-safe.")
+		   #+sbcl :synchronized t) 
   "A list of active sessions")
 
-(defstruct ssn turn lock mutex reply time environment)
+(defstruct ssn turn mutex reply time environment)
 
 ;; Each thread has the variable *env* available to store
 ;; sesssion-specific information between turns.
@@ -248,18 +261,21 @@
   "Count number of currently active (locked) sessions."
   (let ((i 0))
     (maphash #'(lambda (k v) (declare (ignore k)) 
-		       (when (ssn-lock v) (incf i)))
+		       (when (sb-thread:mutex-owner (ssn-mutex v)) (incf i)))
 	     *sessions*)
     i))
   
 (defun get-session (session)
   "Return a session for a given hash or create a new one"
-  (or (gethash session *sessions*)
-      (setf (gethash session *sessions*) 
-	    (make-ssn :time (get-internal-real-time)
-		      :mutex (or #+sbcl (sb-thread:make-mutex)
-				 #+bordeaux-threads 
-				 (bordeaux-threads:make-lock))))))
+  (sb-ext:with-locked-hash-table (*sessions*)
+    (or (gethash session *sessions*)
+	(setf (gethash session *sessions*) 
+	      (make-ssn :time (get-internal-real-time)
+			:mutex #+sbcl (sb-thread:make-mutex)
+			#+(and (not sbcl) bordeaux-threads)
+			(bordeaux-threads:make-lock)
+			#-(or sbcl bordeaux-threads) (warn "can't lock")
+			)))))
 
 (defun close-idle-sessions (&key (idle 0) (method #'identity) params)
   "Apply method to all (idle) sessions.  idle is time in seconds."
@@ -286,65 +302,6 @@
 	      `((:result . ,result))))))
      *sessions*)))
 
-(defconstant *time-per-turn* 1.0 "Estimate of maximum time in seconds needed to execute a single turn.")
-
-(defun hung-session-error ()
-  (error "Help system running for too long, killing turn."))
-
-(defun lock-session (session turn)
-  "Attempt to lock a session; return a result or error if unsuccessful."
-  ;; If previous attempt at this turn is still locked, give it
-  ;; a chance to finish up.  This handles the case where the
-  ;; connection is lost and then restored.
-  (when (and (ssn-lock session) (equalp (ssn-turn session) turn))
-    (sleep (* (count-active-sessions) *time-per-turn*)))
-  ;; Set mutex to avoid possible race condition
-  ;; with several threads trying to set (ssn-lock session).
-  (with-a-lock ((ssn-mutex session) :wait-p t)
-    (if (ssn-lock session)
-	(progn 
-	  ;; If session is still locked, try to interrupt other thread,
-	  ;; so that it will return a lisp error.
-	  #+sbcl (sb-thread:interrupt-thread (ssn-lock session)
-					     #'hung-session-error)
-	  #+(and (not sbcl) bordeaux-threads)
-	  (bordeaux-threads:interrupt-thread (ssn-lock session)
-					    #'hung-session-error)
-	  #-(or sbcl bordeaux-threads) (error "can't kill hung thread")
-	  ;; return message, since client doesn't have to 
-	  ;; act on this, just log it.
-	  '(((:action . "log") (:error-type . "interrupt-turn")
-		 (:error . "Sent interrupt to thread running turn."))))
-	(cond ((equalp (ssn-turn session) turn) 
-	       ;; Return same reply we sent last time.
-	       ;; This handles the case where the rpc-json reply was lost
-	       (ssn-reply session))
-	      ;; Message from earlier turn arrives late.
-	      ;; Right now, this only works if turns are labeled
-	      ;; by increasing numbers.  
-	      ;; Otherwise, we would need to create a list of old ids.
-	      ((and (numberp turn) (numberp (ssn-turn session))
-		   (< turn (ssn-turn session)))
-	       ;; return message, since client doesn't have to 
-	       ;; act on this, just log it.
-	       '(((:action . "log") (:error-type . "old-turn")
-		 (:error . "Reply already sent for this turn."))))
-	      ;; Normal case where turn is new and session is unlocked.
-	      (t     
-	       (setf (ssn-lock session) 
-		     #+sbcl sb-thread:*current-thread*
-		     #+(and (not sbcl) bordeaux-threads) 
-		     (bordeaux-threads:current-thread)  
-		     #-(or sbcl bordeaux-threads) t)
-	       (setf (ssn-turn session) turn)
-	       nil)))))
-
-(defun unlock-session (session reply)
-  "unlocks session, saving reply"
-  ;; time used to determine idle sessions.
-  (setf (ssn-time session) (get-internal-real-time))
-  (setf (ssn-reply session) reply)
-  (setf (ssn-lock session) nil))
 
 (defun error-hint (condition)
   "Message shown to the user after a lisp error has occurred."
@@ -359,57 +316,80 @@
     (:backtrace . ,(with-output-to-string 
 		    (stream)
 		    ;; sbcl-specific function 
-		    #+sbcl (sb-debug:backtrace 20 stream)))))
+		    #+sbcl (sb-debug:backtrace 100 stream)))))
 
 (defun execute-session (session-hash turn func params)
   "Execute a function in the context of a given session when its turn comes.  If the session doesn't exist, create it.  If there is nothing to save in *env*, delete session."
-  (let ((session (get-session session-hash))
-	func-return log-warn
-	;; Make thread-local binding of special variable *env*
-	*env*)
-    ;; try to lock a session, if not return the reply or error
-    (let ((ret (lock-session session turn)))
-      ;; if lock was unsuccessful, return with message.
-      (when ret (return-from execute-session ret)))
-    ;; set up session environment for this session
-    ;; env is local to the thread.
-    (setf *env* (ssn-environment session))
-    (setf func-return 
-	  ;; Lisp errors are not treated as Json rpc errors, since there
-	  ;; is little the client can do to handle them.
-	  ;; We log both errors and warnings.  The strategy is to use
-	  ;; a warning whenever possible in the helpsystem code.
-	  (block unwind
-	    (handler-bind 
-		;; For errors, we log and break, sending a message to 
-		;; the user.
-		((error #'(lambda (c) (push (log-error c) log-warn) 
-				  (return-from unwind (error-hint c))))
-		 ;; For warnings, we log the situation and continue
-		 (warning #'(lambda (c) (push (log-error c) log-warn) 
-				   (muffle-warning))))
-	      ;; execute the method
-	      (apply func (if (alistp params) 
-			      (flatten-alist params) params)))))
-
-    ;; Make sure method returned a list of alists
-    (unless (and (listp func-return) (every #'alistp func-return))
-      (setf func-return `(((:action . "log")
-			   (:error-type . "return-format")
-			   (:error . ,(format nil "Return must be a list of alists, not ~S" 
-					      func-return))))))
-
-    ;; Add any log messages for warnings or errors to the return
-    (setf func-return (append func-return log-warn))
-
-    (if *env*
-	;; save session environment for next turn
-	(setf (ssn-environment session) *env*)
-	;; if environment has been removed, remove session from table.
-	(remhash session-hash *sessions*))
-    ;; unlock session, if locked
-    (unlock-session session func-return)
-    func-return))
+  (let ((session (get-session session-hash)))
+    (with-a-lock ((ssn-mutex session) :wait-p t)
+      (cond 
+	((equalp (ssn-turn session) turn) 
+	 ;; Return same reply we sent last time.
+	 ;; This handles the case where the rpc-json reply was lost
+	 (ssn-reply session))
+	;; Message from earlier turn arrives late.
+	;; Right now, this only works if turns are labeled
+	;; by increasing numbers.  
+	;; Otherwise, we would need to create a list of old ids.
+	((and (numberp turn) (numberp (ssn-turn session))
+	      (< turn (ssn-turn session)))
+	 ;; return message, since client doesn't have to 
+	 ;; act on this, just log it.
+	 '(((:action . "log") (:error-type . "old-turn")
+	    (:error . "Reply already sent for this turn."))))
+	;; Normal case where turn is new
+	(t     
+	 ;; Make thread-local binding of special variable *env*
+	 ;; set up session environment for this session
+	 (let ((*env* (ssn-environment session))
+	       s-reply log-warn)
+	   (setf (ssn-turn session) turn)
+	   (setf s-reply 
+		 ;; Lisp errors are not treated as Json rpc errors, since there
+		 ;; is little the client can do to handle them.
+		 ;; We log both errors and warnings.  The strategy is to use
+		 ;; a warning whenever possible in the helpsystem code.
+		 (block unwind
+		   (handler-bind 
+		       ;; For errors, we log and break, sending a message to 
+		       ;; the user.
+		       ((error #'(lambda (c) (push (log-error c) log-warn) 
+					 (return-from unwind (error-hint c))))
+			;; For warnings, we log the situation and continue
+			(warning #'(lambda (c) (push (log-error c) log-warn) 
+					   (muffle-warning)))
+			(sb-ext:timeout 
+			 #'(lambda (c) (push (log-error c) log-warn)
+				   (return-from unwind (error-hint c)))))
+		     
+		     ;; execute the method
+		     ;; note that hunchentoot:*default-connection-timeout* 
+		     ;; is 20 seconds 
+		     ;; Timeout not working, due to mysql lib, Bug #1708
+		     (sb-ext:with-timeout 15
+		       (apply func (if (alistp params) 
+				       (flatten-alist params) params))))))
+	   
+	   ;; Make sure method returned a list of alists
+	   (unless (and (listp s-reply) (every #'alistp s-reply))
+	     (setf s-reply 
+		   `(((:action . "log")
+		      (:error-type . "return-format")
+		      (:error . ,(format nil "Return must be a list of alists, not ~S" 
+					 s-reply))))))
+	   
+	   ;; Add any log messages for warnings or errors to the return
+	   (setf s-reply (append s-reply log-warn))
+	   (setf (ssn-reply session) s-reply)
+	   (setf (ssn-time session) (get-internal-real-time))	   
+	   (if *env*
+	       ;; save session environment for next turn
+	       (setf (ssn-environment session) *env*)
+	       ;; if environment has been removed, remove session from table.
+	       (sb-ext:with-locked-hash-table (*sessions*)
+		 (remhash session-hash *sessions*)))
+	   
+	   s-reply))))))
 
 (defun alistp (x) 
   "determine if x is an alist" 

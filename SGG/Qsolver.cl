@@ -225,12 +225,9 @@
 (defun removable-actionp (action)
   (and (listp action)
        (or (eq (car action) 'setof-result)
-	   (and (eq (car action) 'sg)
-		(or (eq (car (cssg-goal action)) 'not)
-		    (eq (car (cssg-goal action)) 'bind)
-		    (eq (car (cssg-goal action)) 'test)
-		    (eq (car (cssg-goal action)) 'debug)
-		    (eq (car (cssg-goal action)) 'in-wm))))))
+	   (and (cssg-p action)
+		(member (car (cssg-goal action))  
+			'(not bind test debug in-wm))))))
 
 
 (defun collect-subvars (State BubbleVars)
@@ -475,25 +472,13 @@
 (defparameter *actions* nil 
   "Controls whether note-action will trace.")
 
-;;; action types used as part of actions that appear in action lists
-;;; and solution graphs
-
-(defconstant *do-operator* 'DO 
-  "Action prefix meaning that an operator is executed")
-(defconstant *next-operator* 'SG
-  "Action prefix meaning that a subgoal is being started for an operator")
-(defconstant *goal-unified-with-fact* 'WM
-  "Action prefix meaning that a goal unified with a working memory element")
-(defconstant *goal-unified-with-effect* 'OP
-  "Action prefix meaning that an operator was started")
-
 ;;; markers used in action lists of states and in solution graphs
 
-(defconstant *split* 'split
+(defconstant +split+ 'split
   "Marks a non-deterministic split in the solution path")
-(defconstant *next* 'next
+(defconstant +next+ 'next
   "Marks a end of one parallel branch and the beginning of another")
-(defconstant *join* 'join
+(defconstant +join+ 'join
   "Marks the end of a set of parallel branches")
 
 (defun choose-p (exp)
@@ -504,7 +489,7 @@
 ; which have orders are OP actions recording operator selections
 (defun action-order (action)
    "return operator order for operator selection actions, else NIL"
-   (when (eq (first action) *goal-unified-with-effect*)
+   (when (eq (first action) +goal-unified-with-effect+)
       (operator-order (get-operator-by-tag (second action)))))
 
 (defun action< (a1 a2)
@@ -802,7 +787,7 @@
 (defun opinst-done (inst state)
   "Given operator instance has all its subgoals achieved.
    Returns a list of a successor state."
-  (let ((ground-id) (ground-effects) (ground-act) (ground-vars))
+  (let (ground-id ground-effects ground-act ground-vars var-bindings)
     (dolist (e (opinst-effects inst))
       (push (subst-bindings (st-bindings state) e) ground-effects)
       (push-wm (first ground-effects) state))
@@ -812,11 +797,21 @@
 				     (opinst-identifier inst)))
     (setf ground-vars (subst-bindings (st-bindings State)
 				      (opinst-variables inst)))
-    (if (not (groundp ground-id))
+    ;; Make a binding list of operator variables, to be used by help.
+    (setf var-bindings 
+	  (if ground-vars
+	      (mapcar #'cons 
+		      (operator-variables (get-operator-by-tag ground-act))
+		      ground-vars)
+	      no-bindings))
+    
+  (if (not (groundp ground-id))
 	(cerror "Ignore" "The op instance identifier ~S is not ground" 
 		ground-id))
     (note-action state 
-		 (list *do-operator* ground-act ground-effects ground-vars))
+		 (make-csdo :op ground-act
+			    :effects ground-effects
+			    :varvals var-bindings))
     (push-history ground-id state)
     (list state)))
 
@@ -845,13 +840,13 @@
 		(opinst-subgoals new-inst)))
       (setf subgoal (pop (opinst-subgoals new-inst))))
     (push new-inst (st-stack state))
-    ; NB: macro may expand to NIL => no new subgoal.
+    ;; NB: macro may expand to NIL => no new subgoal.
     (when subgoal                                                          
       (push subgoal (st-stack state))                                      
       (note-action state 
-		   (list *next-operator*
-			 (car (opinst-identifier inst))
-			 (subst-bindings (st-bindings state) subgoal))))
+		   (make-cssg 
+		    :op (car (opinst-identifier inst))
+		    :goal (subst-bindings (st-bindings state) subgoal))))
     (list state)))
 
 ;;; This is called to generate successor states when the top of the
@@ -887,8 +882,8 @@
    and the action noted."
   (let ((new-state (copy-st state)))
     (setf (st-bindings new-state) bindings)
-    (if action-flag (note-action new-state 
-				 (list *goal-unified-with-fact* wme)))
+    (when action-flag (note-action new-state 
+				 (list +goal-unified-with-fact+ wme)))
     new-state))
 
 ;;; This is called by goal-successors to generate states via matching
@@ -947,7 +942,7 @@
     (push inst (st-stack new-state))
     (setf (st-bindings new-state) bindings)
     (note-action new-state 
-		 (list *goal-unified-with-effect*
+		 (list +goal-unified-with-effect+
 		       (subst-bindings bindings (opinst-identifier inst))))
     new-state))
 
@@ -982,20 +977,18 @@
 (defun note-action (state action)
   "Sets the actions field of the state to the action plus split/next/join 
    markers.  Prints trace if *actions* is true.  Use for its side-effects."
-  (let ((act-type (car action)))
-    (setf (st-actions state)
-      (cond ((and (eql act-type *goal-unified-with-effect*)
-		  (unordered-op-id (first (second action))))
-	     (list action *split*))
-	    ((and (eql act-type *next-operator*)
-		  (unordered-op-id (second action)))
-	     (list *next* action))
-	    ((and (eql act-type *do-operator*)
-		  (unordered-op-id (first (second action))))
-	     (list *join* action))
-	    (T  (list action))))
-    (qs-debug-print-action State)
-    ))
+  (setf (st-actions state)
+	(cond ((and (csop-p action)
+		    (unordered-op-id (first (second action))))
+	       (list action +split+))
+	      ((and (cssg-p action)
+		    (unordered-op-id (cssg-op action)))
+	       (list +next+ action))
+	      ((and (csdo-p action)
+		    (unordered-op-id (first (csdo-op action))))
+	       (list +join+ action))
+	      (T  (list action))))
+  (qs-debug-print-action State))
 
 (defun unordered-op-id (op-name)
   "Non-null if the given operator instance identifier comes from an 
@@ -1019,9 +1012,9 @@
 state actions Is set to be traced."
  (or *actions* 
   (and (listp (car (st-actions State)))
-        (or (and (eq 'sg (caar (st-actions State)))
-		 (member (cadar (st-actions State)) **QS-Trace-Ops**))
-	    (and (eq 'op (caar (st-actions State)))
+        (or (and (cssg-p (car (st-actions State)))
+		 (member (cssg-op (car (st-actions State))) **QS-Trace-Ops**))
+	    (and (csop-p (car (st-actions State)))
 		 (member (caadar (st-actions State)) **Qs-Trace-Ops**))
 	    (and (st-predecessor State)
 		 (qs-debug-printp (St-Predecessor State)))

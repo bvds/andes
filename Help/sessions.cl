@@ -55,6 +55,9 @@
   "start a server with help system, optionally specifying the port, log file path, and database access."
   ;; global setup
 
+  ;; tune garbage collection
+  (tune-generational-gc)
+
   ;; in runtime version only: set *andes-path* to process working directory
   #+allegro-cl-runtime (setf *andes-path* 
 			     (make-pathname 
@@ -72,7 +75,9 @@
   (physics-algebra-rules-initialize) ;initialize grammar
 
   ;; Set up database
-  (andes-database:create :host host :db db :user user :password password)
+  (andes-database:create :host host :db (or db "andes") 
+			 :user (or user "root") 
+			 :password (or password "sin(0)=0"))
 
   ;; start webserver
   (webserver:start-json-rpc-service 
@@ -88,13 +93,15 @@
 	  #-sbcl (error "cleanup not implemented")))
 
 (defun idle-cleanup-function ()
-  "Function that periodically cleans up idle sessions"
+  "Function that periodically cleans up idle sessions and pings database."
   ;; Here, the cutoff is based entirely on idle time.
   (let ((cutoff (* 2 3600)))
     (loop
-     (sleep cutoff)
-     (webserver:close-idle-sessions :idle cutoff :method #'close-problem))))
-
+       ;; MySql drops connections that have been idle for over 8 hours.
+       ;; Send trivial query, to keep connection alive.
+       (andes-database:first-session-p :student "none" :section "none") 
+       (sleep cutoff)
+       (webserver:close-idle-sessions :idle cutoff :method 'close-problem))))
 
 (defun stop-help () 
   "stop the web server running this service"
@@ -147,9 +154,7 @@
 	#+sbcl #'equalp
 	)
 
-;; New method with 
-;; Use type vector to make dereferencing easy.
-(defstruct help-env ; (help-env (:type vector)) 
+(defstruct help-env  
   "Quantities that must be saved between turns of a session.  Member vals contains list of values for help-env-vars." 
 	   section student problem vals)
 
@@ -189,7 +194,7 @@
     `(progn
       ;; Null webserver:*env* indicates that the student is trying to work
       ;; on a session that has timed out or has not been initialized:  
-      (if (and webserver:*env* (help-env-p webserver:*env*)) ;(vectorp webserver:*env*))
+      (if (and webserver:*env* (help-env-p webserver:*env*))
 	  (let ,(mapcar 
 		 #'(lambda (x) (list x '(pop (help-env-vals webserver:*env*))))
 		 help-env-vars)
@@ -259,7 +264,7 @@
 
       ;; Intialize fade list
       (initialize-fades *cp*)
-		  
+
       ;; Write problem statement.	      
       (let ((x 10) (y 10) (i 0))
 	(dolist  (line (problem-statement *cp*))
@@ -323,19 +328,16 @@
 	  (setf y (+ y 25)))
 	
 	(when (problem-graphic *cp*)
-	  (let ((dims (problem-graphic-dimensions (problem-graphic *cp*))))
-	    (if dims		
-		(push `((:action . "new-object") (:id . "graphic") 
-			(:type . "graphics") (:mode . "locked") 
-			(:x . ,x) (:y . ,y) 
-			(:width . ,(car dims)) (:height . ,(cadr dims))
-			;; This is the URL for the graphic, which may not
-			;; match its location on the server filesystem.
-			(:href . ,(strcat "/images/" (problem-graphic *cp*))))
-		      replies)
-		(warn "Problem graphic file ~A missing" 
-		      (problem-graphic *cp*)))
-	    (setf y (+ y (second dims) 15)))))
+	  (let ((g (problem-graphic *cp*)))
+	    (push `((:action . "new-object") (:id . "graphic") 
+		    (:type . "graphics") (:mode . "locked") 
+		    (:x . ,x) (:y . ,y) 
+		    (:width . ,(second g)) (:height . ,(third g))
+		    ;; This is the URL for the graphic, which may not
+		    ;; match its location on the server filesystem.
+		    (:href . ,(strcat "/images/" (first g))))
+		  replies)
+	    (setf y (+ y (third g) 15)))))
 	
       ;; Second column for times and predefs.
       (let ((x 450) (y 15) (i 0))
@@ -684,7 +686,7 @@
       ;; call next-step-help or do-whats-wrong
       ((equal action "help-button")
        ;; Find if there are any current errors.
-       (let ((mistakes (remove **incorrect** *studententries* 
+       (let ((mistakes (remove +incorrect+ *studententries* 
 			       :test-not #'eql
 			       :key #'StudentEntry-state)))
 	 (if mistakes
@@ -718,7 +720,7 @@
   (&key time) 
   "shut problem down" 
   (declare (ignore time))  ;used by logging.
-  (prog1
+  (unwind-protect
       (env-wrap
 	(let ((result (execute-andes-command 'get-stats 'persist)))
 		 
@@ -729,33 +731,8 @@
 		  (:URL . "http://www.webassign.net/something/or/other"))
 		result)
 	  result))
-    (fill (help-env-vals webserver:*env*) nil)
-;    (fill webserver:*env* nil)
-;    (dereference webserver:*env*)
-
     ;; Tell the session manager that the session is over.
     ;; Must be done after env-wrap
     (setf webserver:*env* nil)))
-
-(defvar *dereferenced*) ;define symbol, but don't bind
-
-(defun dereference (x)
-  (cond 
-    ((or (stringp x) (symbolp x) (numberp x)))
-    ((consp x)
-     (dereference (car x)) (setf (car x) '*dereferenced*)
-     (dereference (cdr x)) (setf (cdr x) '*dereferenced*))
-    ((vectorp x)
-     (loop for y across x do (dereference y) (setf y '*dereferenced*)))
-    ;; Most structures are hard to think about, since
-    ;; data may be shared across problems and they are 
-    ;; hard to derefernce.
-    ((or (runtime-test-p x) (htime-p x) (turn-p x) (cmd-p x)
-	 (Enode-p x) (SystemEntry-p x) 
-	 (MT19937:random-state-p x) ;random number generator seed
-	 #+sbcl (sb-ext:process-p x))) ;solver process
-    (t
-     (format webserver:*stdout* "unknown type ~A for ~A~%" (type-of x) x))))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

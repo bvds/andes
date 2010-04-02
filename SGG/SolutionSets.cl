@@ -90,7 +90,7 @@
 (defparameter *Indy-Var-Index* () "Var index (# Var Value Units) for the indy system.")
 (defparameter *Indy-Eqn-Index* () "Eqn index (# Algebra) for the indy system.")
 
-(defconstant *sgg-indy-threshold* 0 "Theshold for the is-indy test")
+(defconstant +sgg-indy-threshold+ 0 "Theshold for the is-indy test")
 
 (defvar *indyset0-in-use* NIL "indyset 0 needs to be cleared before next use")   
 
@@ -212,7 +212,7 @@
 	   (return-Solution-Successor                    ;; It is known automatically so add it 
 	    S :id 10 :inc 1 :pop-Soughts 1  :Push-Knowns Q))  ;; to the knowns of S and return.
 	  
-	  ((Qnode-has-mark? Q **Given**)  ;If the qnode is given then expand by
+	  ((Qnode-has-mark? Q +given+)  ;If the qnode is given then expand by
 	   (Expand-for-given-Q S Q Eqns)) ;the given eqn only to prevent search.
 	  ((null Eqns) nil)            ;If the search cannot expand return nil.
 	  (t (expand-for-q-eqns S Q Eqns)))))     ;Else expand for each Eqn E.
@@ -275,7 +275,7 @@
 		      :test #'equal :key #'cadr))
       
       (cond ((not Eqn) (cs-result 3 "Unsolved"))
-	    ((< *sgg-Indy-Threshold* (car (Solver-isIndependent 0 (car Eqn))))
+	    ((< +sgg-indy-threshold+ (car (Solver-isIndependent 0 (car Eqn))))
 	     (cs-result 3 "Not independent."))
 	    (t (cs-result 3 "Accepted.")
 	       (push E R))))

@@ -151,52 +151,9 @@
 ;;
 
 
-
-
 (defun sym-match (sym1 sym2)
    "case independent comparison of symbol names"
    (string-equal (string sym1) (string sym2)))
-
-;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
-(#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
- **force-types** '(
-		   (grav . WEIGHT)
-		   (|Kinetic Friction| . KINETIC-FRICTION)
-		   (|Static Friction| . STATIC-FRICTION)
-		   ;; Contact force type not used in Andes2. 
-		   ;; Replaced by APPLIED in most places,
-		   ;; though changed to Normal force in a couple of problems.
-		   (Contact . APPLIED)
-		   ;; others just need case adjustment
-		   )  #+sbcl #'equalp)
-
-(#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
- **vector-types** '(
-		    (Acceleration . ACCEL)
-		    (Ang-Acceleration . ANG-ACCEL)
-		    (Position . RELATIVE-POSITION)
-		    ;; others just need case adjustment
-		    ) #+sbcl #'equalp)
-
-(#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
- **quantity-types** '(
-		      ;; Most of these mappings now obsolete since workbench 
-		      ;; changed to try to send the exact helpsys id. 
-		      ;; Just keeping them for backwards compatibility.
-		      (|distance traveled| . DISTANCE)
-		      (|distance between| . DISTANCE-BETWEEN) ; not used in Andes2 yet
-		      (|gravitational acceleration| . GRAVITATIONAL-ACCELERATION)
-		      (radius . REVOLUTION-RADIUS)
-		      (spring-const . SPRING-CONSTANT)
-		      (comp-dist . COMPRESSION)
-		      (charge . CHARGE-ON) ;for backwards compatibility
-		      (rate-of-current-change . CURRENT-CHANGE)
-		      ;; (energy . TOTAL-ENERGY)
-		      ;; include vector type ids as well:
-		      (Acceleration . ACCEL)
-		      (Ang-Acceleration . ANG-ACCEL)
-		      (Position . RELATIVE-POSITION)
-)  #+sbcl #'equalp)
 
 ;; Dispatch function takes an atom coding a vector attribute and a vector-term
 ;; Builds and returns a term for that attribute of the vector.
@@ -211,7 +168,6 @@
    (yc (vector-compo vector-term '(axis y 0)))
    (zc (vector-compo vector-term '(axis z 0)))
    (otherwise vector-term)))
-
 
 
 (defun ndiffs (set1 set2)
@@ -361,7 +317,7 @@
 			    (StudentEntry-text entry))
 		    '(function next-step-help)))))
     (setf (turn-id rem) (StudentEntry-id entry))
-    (setf (turn-coloring rem) **color-red**)
+    (setf (turn-coloring rem) +color-red+)
     ;; set state of entry and attach error. But only do if not done already, 
     ;; so only report on the first error found.
     (unless (studentEntry-ErrInterp entry)
@@ -387,7 +343,7 @@
 				  matches))
 		  "Try to be more specific in your definition.")))))
     (setf (turn-id rem) (StudentEntry-id entry))
-    (setf (turn-coloring rem) **color-red**)
+    (setf (turn-coloring rem) +color-red+)
     ;; set state of entry and attach error. But only do if not done already, 
     ;; so only report on the first error found.
     (unless (studentEntry-ErrInterp entry)
@@ -407,7 +363,7 @@
 			    (StudentEntry-symbol entry) equal-sign)
 		    '(function next-step-help)))))
     (setf (turn-id rem) (StudentEntry-id entry))
-    (setf (turn-coloring rem) **color-red**)
+    (setf (turn-coloring rem) +color-red+)
     ;; set state of entry and attach error. But only do if not done already, 
     ;; so only report on the first error found.
     (unless (studentEntry-ErrInterp entry)
@@ -437,7 +393,7 @@
 	   :remediation rem))
     
     (setf (turn-id rem) (StudentEntry-id se))
-    (setf (turn-coloring rem) **color-red**)
+    (setf (turn-coloring rem) +color-red+)
     
     rem))
 
@@ -895,7 +851,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun undo-entry (entry)
   ;; undo entry effects specific to correct entries:
-  (when (equal (StudentEntry-state entry) **correct**)
+  (when (equal (StudentEntry-state entry) +correct+)
 	;; unmark entry interpretations as done in solution graph
   	(sg-delete-StudentEntry entry)
         ;; undo any implicit eqn entry associated with this
@@ -949,7 +905,7 @@
 						     :namespace namespace))))))
        
        (setf (turn-id rem) (StudentEntry-id entry))
-       (setf (turn-coloring rem) **color-red**)
+       (setf (turn-coloring rem) +color-red+)
        ;; set state of entry and attach error. But only do if not done already, so 
        ;; only report on the first error found.
        (unless (studentEntry-ErrInterp entry)
@@ -997,7 +953,7 @@
     (when (and (eq (first (StudentEntry-prop Entry)) 'vector)
                (StudentEntry-GivenEqns Entry))
       (setf result (Check-Vector-Given-Form Entry))
-      (when (not (eq (turn-coloring result) **color-green**))
+      (when (not (eq (turn-coloring result) +color-green+))
 	    (return-from Check-NonEq-Entry result))) ; early exit
     
     ;; Get set of candidate interpretations into PossibleCInterps.  
@@ -1014,7 +970,7 @@
     (unless  (setf cand (first (StudentEntry-PossibleCInterps Entry))) 
       (when *debug-help* 
 	(format t "No matching system entry found~%"))
-      (setf (StudentEntry-state entry) **Incorrect**)
+      (setf (StudentEntry-state entry) +incorrect+)
       ;; run whatswrong help to set error interp now, so diagnosis
       ;; can be included in log even if student never asks whatswrong
       (diagnose Entry)
@@ -1039,7 +995,7 @@
        ;; updates main entry record with error interp of the bad equation.
        (dolist (e (StudentEntry-GivenEqns entry))
 	 (let ((result (Check-Given-Value-Entry entry e)))
-	   (when (not (eq (turn-coloring result) **color-green**))
+	   (when (not (eq (turn-coloring result) +color-green+))
 	     (return-from Check-NonEq-Entry result))))
        
        ;; enter step as done in solution graph
@@ -1055,10 +1011,10 @@
        (setf result (make-green-turn :id (StudentEntry-id entry))))
       
       ;; give special messages for some varieties of incorrectness:
-      (Forbidden (setf result (make-hint-seq **Forbidden-Help** )))
-      (Premature-Entry (setf result (make-hint-seq **Premature-Entry-Help**)))
-      (Dead-Path (setf result (make-hint-seq **Dead-Path-Help**)))
-      (Nogood (setf result (make-hint-seq **Nogood-Help**)))
+      (Forbidden (setf result (make-hint-seq +forbidden-help+ )))
+      (Premature-Entry (setf result (make-hint-seq +premature-entry-help+)))
+      (Dead-Path (setf result (make-hint-seq +dead-path-help+)))
+      (Nogood (setf result (make-hint-seq +nogood-help+)))
       (otherwise (warn "Unrecognized interp state! ~A~%" 
 		       (StudentEntry-state entry))
 		 (setf result (make-red-turn :id (StudentEntry-id entry)))))
@@ -1130,7 +1086,7 @@
           (format T "mismatch: student form: ~A system form: ~A~%" 
                      stud-form (other-form stud-form))
           ; flag main entry as wrong and fill in error interp
-          (setf (StudentEntry-state entry) **Incorrect**)
+          (setf (StudentEntry-state entry) +incorrect+)
 	  (return-from Check-Vector-Given-Form
 	   (if (eq stud-form 'compo) (should-be-magdir-form entry vector-quant)
 	     (should-be-compo-form entry vector-quant)))))
@@ -1150,7 +1106,7 @@
        :remediation rem))
 
     (setf (turn-id rem) (StudentEntry-id se))
-    (setf (turn-coloring rem) **color-red**)))
+    (setf (turn-coloring rem) +color-red+)))
 
 (defun should-be-magdir-form (se quant)
   (declare (ignore quant))
@@ -1164,7 +1120,7 @@
        :remediation rem))
 
     (setf (turn-id rem) (StudentEntry-id se))
-    (setf (turn-coloring rem) **color-red**)))
+    (setf (turn-coloring rem) +color-red+)))
 
 ; 
 ; log-entry-info -- insert extra info for entry into Andes log
@@ -1187,13 +1143,13 @@
   (let (result (target-entries)
 	       (parse (StudentEntry-ParsedEqn entry)))
     ;; fetch target entry list for correct or incorrect entries 
-    (cond ((eq (StudentEntry-state entry) **Incorrect**)
+    (cond ((eq (StudentEntry-state entry) +incorrect+)
 	   ;; if needed, run whatswrong help to set error interp now, so diagnosis
 	   ;; can be included in log even if student never asks whatswrong
 	   (unless (StudentEntry-ErrInterp entry) (diagnose Entry))
 	   (setf target-entries (ErrorInterp-Intended (StudentEntry-ErrInterp Entry))))
 	  
-	  ((eq (StudentEntry-state entry) **correct**)
+	  ((eq (StudentEntry-state entry) +correct+)
 	   (setf target-entries (studententry-Cinterp entry))))
     
     ;; OK, do the logging
@@ -1213,7 +1169,7 @@
       ;; identify common errors.   For correct non-eq entries, it will be 
       ;; the step, but for errors we add it.
       (when (and (not (eq (first (studentEntry-prop entry)) 'eqn))
-		 (eq (StudentEntry-state entry) **Incorrect**))
+		 (eq (StudentEntry-state entry) +incorrect+))
 	(push `((:action . "log") 
 		(:entry . ,(format nil "~S" (studentEntry-prop entry))))
 	      result))
@@ -1251,7 +1207,7 @@
 	    (when (sg-match-studententry entry)  ; correct
 	      (setf (studententry-cinterp entry) 
 	          (cdr (first (studententry-PossibleCinterps entry))))
-	      (setf (studentEntry-state entry) **correct**)
+	      (setf (studentEntry-state entry) +correct+)
 	      (sg-enter-StudentEntry entry)))))
 
 (defun enter-given-eqn (eqn-entry)
@@ -1279,7 +1235,7 @@
                   (or (= result 0) (= result 7)))
          (warn "Implicit eqn ~A judged bad by algebra!! (result=~A)~%" 
 	        eqn result)) 
-     (setf (StudentEntry-State eqn-entry) **correct**)
+     (setf (StudentEntry-State eqn-entry) +correct+)
  
      ; To choose interpretation for solution graph marking, delegate to 
      ; interpret equation. This routine knows how to process the tagged
@@ -1358,9 +1314,9 @@
       ;; Otherwize test to see if it present and behave appropriately.
       (t    (add-entry Entry)  ; save the entry
 	    (cond ((psmg-path-enteredp (enode-path PSM))
-		   (setf (StudentEntry-state entry) **CORRECT**)
+		   (setf (StudentEntry-state entry) +CORRECT+)
 		   (make-green-turn :id (StudentEntry-id entry)))
-		  (T (setf (StudentEntry-state entry) **INCORRECT**)
+		  (T (setf (StudentEntry-state entry) +INCORRECT+)
 		     (make-red-turn :id (StudentEntry-id entry))))))))
 
 

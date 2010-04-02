@@ -206,7 +206,7 @@
     ;; each new problem so search is only done once for each systementry.
     ;; (each call to memoize clears memory of saved results.)
     (memoize 'sg-systementry-optional-p :test #'eq 
-	     :var *sg-systementry-optional-p-memo*)
+	     :var '*sg-systementry-optional-p-memo*)
     (test-cache-solution-entries)
     (test-cache-solution-objects)
     (test-cache-drawing-entries)
@@ -650,7 +650,7 @@
   (declare (ignore v))
   (length 
    (remove-if-not 
-    #'(lambda (E) (and (equalp (studententry-state E) **correct**)
+    #'(lambda (E) (and (equalp (studententry-state E) +correct+)
 		       (or ; quantitative answer:
 			(eq (car (studententry-prop E)) 'Answer)
 			;; multiple choice answer on answer-only quant probs
@@ -708,7 +708,7 @@
   (declare (ignore Count))
   (length 
    (remove-if-not 
-    #'(lambda (E) (and (equalp (studententry-state E) **correct**)
+    #'(lambda (E) (and (equalp (studententry-state E) +correct+)
 		       (equalp (car (studententry-prop E)) 'lookup-mc-Answer)))
     *Studententries*)))
 	
@@ -782,7 +782,7 @@
   (declare (ignore Count))
   (length 
    (remove-if-not 
-    #'(lambda (E) (and (equalp (studententry-state E) **correct**)
+    #'(lambda (E) (and (equalp (studententry-state E) +correct+)
 		       (equalp (car (studententry-prop E)) 'Choose-Answer)))
     *Studententries*)))
 

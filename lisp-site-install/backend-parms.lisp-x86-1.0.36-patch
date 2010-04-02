@@ -5,4 +5,4 @@
  ;;; The size in bytes of the GENCGC pages. Should be a multiple of the
  ;;; architecture code size.
 -(def!constant gencgc-page-bytes *backend-page-bytes*)
-+(def!constant gencgc-page-bytes (* 8 *backend-page-bytes*))
++(def!constant gencgc-page-bytes (* 4 *backend-page-bytes*))

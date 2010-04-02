@@ -173,7 +173,7 @@
 
 (defun collect-svar-marks (qvar)
   (mapcar #'(lambda (m) (get-mark-statement M Qvar))
-	  (intersection **Solver-Variable-Marks** 
+	  (intersection +Solver-Variable-Marks+ 
 			(Qvar-Marks Qvar))))
 
 (defun get-mark-statement (mark Qvar)
