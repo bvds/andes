@@ -130,7 +130,7 @@
 	 #+lispworks (comm:open-tcp-stream host port
 					   :direction :io
 					   :element-type '(unsigned-byte 8))
-	 #+sbcl (connect-to-server host port)))
+	 #+(or sbcl openmcl) (connect-to-server host port)))
     (unless stream
       (error (format nil "Cannot connect to ~a:~a" host port)))
     stream))
@@ -411,7 +411,7 @@
   (setf (aref array position) (logand #xFF int))
   (setf (aref array (+ position 1)) (logand #xFF (ash int -8)))
   (setf (aref array (+ position 2)) (logand #xFF (ash int -16)))
-  (setf (aref array (+ position 2)) (logand #xFF (ash int -24))))
+  (setf (aref array (+ position 3)) (logand #xFF (ash int -24))))
 
 (defun decode-length-coded-binary (buffer pos)
   (let ((val (aref buffer pos)))
