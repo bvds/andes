@@ -60,7 +60,7 @@ dojo.provide("andes.convert");
 				},
 				enabled:o.mode!="locked"
 			};
-			
+
 			if(o.type!="vector" && o.type!="line" && o.type!="axes" && o.type!="ellipse"){
 				obj.data.width = o.width;
 				obj.data.height = o.height;
@@ -75,7 +75,7 @@ dojo.provide("andes.convert");
 			}else if(o.type=="vector"){
 				//in case of zero vector
 				if(o.radius == 0) {obj.data.radius = 0; obj.data.angle = 1; } else { obj.data.radius = o.radius; obj.data.angle = o.angle; }
-				
+
 			}else{
 				//line, axes
 				obj.data.radius = o.radius || 0;
@@ -84,7 +84,7 @@ dojo.provide("andes.convert");
 			if(o.type=="statement" && o.mode=="locked"){
 				obj.stencilType = "text";
 			}
-			
+
 			if(o.type=="line" || o.type=="vector" || o.type=="rectangle" || o.type=="ellipse"){
 				// separate objects
 			        // match logic in drawingToAndes
@@ -99,7 +99,7 @@ dojo.provide("andes.convert");
 				obj.master = {
 					data:obj.data,
 					label:lbl
-				};				
+				};
 				var xs = o['x-statement'];
 				var ys = o['y-statement'];
 
@@ -126,6 +126,9 @@ dojo.provide("andes.convert");
 				obj.data.text = o.text;
 			}else if(o.type=="axes"){
 				obj.label = o['x-label']+" and "+o['y-label'];
+                               if(andes.defaults.zAxisEnabled){
+                                 obj.label += " and "+o['z-label'];
+                               }
 			}
 
 			if(o.href){
@@ -176,11 +179,8 @@ dojo.provide("andes.convert");
 			if(type == "statement" || type == "equation"){
 				obj.text = item.getText() || "";
 				if(type == "statement"){
-					// need to add a potential 'symbol' derived from variablename.js
-					var symbol = andes.variablename.parse(obj.text);
-					if(symbol){
-						obj.symbol = symbol;
-					}
+					// need to add any 'symbol' derived from variablename.js
+					obj.symbol = andes.variablename.parse(obj.text);
 				}
 			}else if(type != "axes"){
 				obj.text = statement.getText() || " ";
@@ -192,6 +192,9 @@ dojo.provide("andes.convert");
 				var lbl = item.getLabel();
 				obj["x-label"] = lbl.x;
 				obj["y-label"] = lbl.y;
+				if(lbl.z) {
+                                  obj["z-label"] = lbl.z;
+				}
 				obj.radius = Math.ceil(item.getRadius());
 				obj.angle = item.getAngle();
 			}

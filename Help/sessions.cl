@@ -55,6 +55,9 @@
   "start a server with help system, optionally specifying the port, log file path, and database access."
   ;; global setup
 
+  ;; tune garbage collection
+  (tune-generational-gc)
+
   ;; in runtime version only: set *andes-path* to process working directory
   #+allegro-cl-runtime (setf *andes-path* 
 			     (make-pathname 
@@ -72,7 +75,9 @@
   (physics-algebra-rules-initialize) ;initialize grammar
 
   ;; Set up database
-  (andes-database:create :host host :db db :user user :password password)
+  (andes-database:create :host host :db (or db "andes") 
+			 :user (or user "root") 
+			 :password (or password "sin(0)=0"))
 
   ;; start webserver
   (webserver:start-json-rpc-service 
@@ -88,13 +93,15 @@
 	  #-sbcl (error "cleanup not implemented")))
 
 (defun idle-cleanup-function ()
-  "Function that periodically cleans up idle sessions"
+  "Function that periodically cleans up idle sessions and pings database."
   ;; Here, the cutoff is based entirely on idle time.
   (let ((cutoff (* 2 3600)))
     (loop
-     (sleep cutoff)
-     (webserver:close-idle-sessions :idle cutoff :method 'close-problem))))
-
+       ;; MySql drops connections that have been idle for over 8 hours.
+       ;; Send trivial query, to keep connection alive.
+       (andes-database:first-session-p :student "none" :section "none") 
+       (sleep cutoff)
+       (webserver:close-idle-sessions :idle cutoff :method 'close-problem))))
 
 (defun stop-help () 
   "stop the web server running this service"
@@ -147,8 +154,8 @@
 	#+sbcl #'equalp
 	)
 
-;; New method with 
-(defstruct help-env "Quantities that must be saved between turns of a session.  Member vals contains list of values for help-env-vars." 
+(defstruct help-env  
+  "Quantities that must be saved between turns of a session.  Member vals contains list of values for help-env-vars." 
 	   section student problem vals)
 
 ;; Should be useful for debugging.
@@ -257,7 +264,7 @@
 
       ;; Intialize fade list
       (initialize-fades *cp*)
-		  
+
       ;; Write problem statement.	      
       (let ((x 10) (y 10) (i 0))
 	(dolist  (line (problem-statement *cp*))
@@ -272,6 +279,46 @@
 			   (:id . ,id) (:mode . "unknown") (:x . ,x) (:y . ,y) 
 			   (:width . 100) (:text . "Answer:       ")) 
 			 replies)))
+		((unify line '(choose . ?rest))
+		 ;; Multiple choice
+		 ;;
+		 ;; Multiple-select behavior determined by server:
+		 ;; would have separate button labeled "enter" in group.
+		 ;; Modes: correct incorrect selected deselected
+		 ;; Only selected items would turn red/green.
+		 ;; Button vs. checkbox determined by object style.
+		 ;; Grouping information kept on server.  Each button
+		 ;; in group gets its own id and studentEntry, but all 
+		 ;; share same studentEntry-prop.
+		 (loop for choice in (cddr line) and
+		    value from 1
+		    for id = (format nil "group~Abutton~A" i value)
+		    with label = (second line)
+		    ;; Match multiple choice group to a problem sought,
+		    ;; rather than a SystemEntry.  This will correspond
+		    ;; to a SystemEntry for multiple-choice problems.
+		    with prop = (cond 
+				  ((atom label)
+				   (find `(choose-answer ,label . ?rest) 
+					 (problem-soughts *cp*) 
+					 :test #'unify))
+				  ((consp label) label)
+				  ((null label)
+				   (if (cdr (problem-soughts *cp*))
+				       (warn "Ambiguous null choose label")
+				       (car (problem-soughts *cp*)))))
+		    do 
+		    ;; Put each button on a new row.
+		      (unless (= value 1) (setf y (+ y 25)))
+		      (push (make-studententry 
+			     :id id :mode "deselected" :type "button"
+			     :prop prop :Verbatim value) *studententries*)
+		      (push `((:action . "new-object") (:type . "button")
+			      (:id . ,id) (:mode "deselected") 
+			      ;; Indend buttons relative to text
+			      (:x . ,(+ x 50)) (:y . ,y) (:width . 300)
+			      (:text . ,choice)) replies)))
+
 		(t 
 		 (push `((:action . "new-object") (:type . "statement") 
 			 (:id . ,(format nil "statement~A" i))
@@ -281,20 +328,20 @@
 	  (setf y (+ y 25)))
 	
 	(when (problem-graphic *cp*)
-	  (let ((dims (problem-graphic-dimensions (problem-graphic *cp*))))
-	    (if dims		
-		(push `((:action . "new-object") (:id . "graphic") 
-			(:type . "graphics") (:mode . "locked") 
-			(:x . ,x) (:y . ,y) 
-			(:width . ,(car dims)) (:height . ,(cadr dims))
-			;; This is the URL for the graphic, which may not
-			;; match its location on the server filesystem.
-			(:href . ,(strcat "/images/" (problem-graphic *cp*))))
-		      replies)
-		(warn "Problem graphic file ~A missing" 
-		      (problem-graphic *cp*)))
-	    (setf y (+ y (second dims) 15))))
+	  (let ((g (problem-graphic *cp*)))
+	    (push `((:action . "new-object") (:id . "graphic") 
+		    (:type . "graphics") (:mode . "locked") 
+		    (:x . ,x) (:y . ,y) 
+		    (:width . ,(second g)) (:height . ,(third g))
+		    ;; This is the URL for the graphic, which may not
+		    ;; match its location on the server filesystem.
+		    (:href . ,(strcat "/images/" (first g))))
+		  replies)
+	    (setf y (+ y (third g) 15)))))
 	
+      ;; Second column for times and predefs.
+      (let ((x 450) (y 15) (i 0))
+
 	;;  Push times to client.
 	(dolist (time-sentence (problem-times-english *cp*))
 	  (push `((:action . "new-object") 
@@ -303,10 +350,7 @@
 		      (:width . 250) (:x . ,x) (:y . ,y) 
 		  (:text . ,time-sentence))
 		replies)
-	  (setf y (+ y 25))))
-
-      ;; Second column for fades and predefs.
-      (let ((x 450) (y 15) (i 0))
+	  (setf y (+ y 25)))
             
 	;; This must be done within env-wrap since it uses *cp*
 	(setf predefs (problem-predefs *cp*))
@@ -317,7 +361,6 @@
 	  (pushnew '(:action . "new-object") (cdr predef) :key #'car)
 	  (pushnew `(:id . ,(format nil "pre~A" (incf i))) (cdr predef) :key #'car)
 	  (pushnew '(:mode . "unknown") (cdr predef) :key #'car)
-	  (pushnew '(:time . 0.0) (cdr predef) :key #'car)
 	  (when (and (car predef) (not (assoc :type (cdr predef))))
 	    (push `(:type . ,(entryprop2type (car predef))) (cdr predef)))
 	  (when (and (car predef) (assoc :symbol (cdr predef))
@@ -372,7 +415,10 @@
 		       :student user :problem problem :section section
 		       :extra extra))
       (let* ((method (cdr (assoc :method old-step))) 
-	     (params (cdr (assoc :params old-step)))
+	     ;; Remove time, since it is no longer meaningful.
+	     (params (remove :time
+			     (cdr (assoc :params old-step))
+			     :key #'car))
 	     (reply (apply 
 		     (cond 
 		       ((equal method "solution-step") #'solution-step)
@@ -440,7 +486,8 @@
       ;; Enable z-axis vectors, based on problem features
       (when (intersection '(circular rotkin angmom torque mag gauss) 
 			  (problem-features *cp*))
-	    (push '((:action . "enable-z-axis")) replies))
+	    (push '((:action . "set-styles")
+		    (:z-axis-enable . t)) replies))
       
       ;; set-stats (if there was an old score) (to do)
       ;; Should this be wrapped in execute-andes-command?
@@ -639,7 +686,7 @@
       ;; call next-step-help or do-whats-wrong
       ((equal action "help-button")
        ;; Find if there are any current errors.
-       (let ((mistakes (remove **incorrect** *studententries* 
+       (let ((mistakes (remove +incorrect+ *studententries* 
 			       :test-not #'eql
 			       :key #'StudentEntry-state)))
 	 (if mistakes
@@ -673,7 +720,7 @@
   (&key time) 
   "shut problem down" 
   (declare (ignore time))  ;used by logging.
-  (prog1
+  (unwind-protect
       (env-wrap
 	(let ((result (execute-andes-command 'get-stats 'persist)))
 		 

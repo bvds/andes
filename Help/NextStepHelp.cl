@@ -617,7 +617,7 @@
 	;; There is no path to deleting this dummy entry during the problem.
 	(sg-enter-StudentEntry (make-StudentEntry :id 'PREDEF ; special ID
 	                            :prop (systemEntry-prop sysent)
-				    :state **correct**
+				    :state +correct+
 				    :CInterp (list sysent)))))
 
 (defun answer-only-entry-p (sysent)
@@ -1181,9 +1181,9 @@
      (strcat "It is now a good idea for you to draw an axis.  This "
 	     "will help to ground your work and be useful later on "
 	     "in the process.")
-     **Explain-More**
+     +explain-more+
      :Responder #'(lambda (Response)
-		    (when (eql response **explain-more**)
+		    (when (eql response +explain-more+)
 		      (nsh-make-axis-prompt Rot)))
      :Assoc `((nsh prompt-axis ,Rot)))))
 
@@ -1199,9 +1199,9 @@
      (strcat "It is a good idea to begin most problems by drawing "
 	     "an axis.  This helps to ground your work and will be "
 	     "useful later on in the process.")
-     **Explain-More**
+     +explain-more+
      :Responder #'(lambda (Response)
-		    (when (eql response **explain-more**)
+		    (when (eql response +explain-more+)
 		      (nsh-make-axis-prompt Rot)))
      :Assoc `((nsh new-start-axis ,Rot)))))
 
@@ -1356,9 +1356,9 @@
      (strcat "On problems such as this you need to complete "
 	     "all of the individual goals listed in the "
 	     "problem description.  ")
-     **Explain-More**
+     +explain-more+
      :Responder #'(lambda (Response)
-		    (when (eql response **explain-more**)
+		    (when (eql response +explain-more+)
 		      (nsh-prompt-Node 
 		       "Why don't you start with "
 		       Principle
@@ -1431,7 +1431,7 @@
 (defun nsh-mc-only-done-correct-p-rec (Soughts)
   "Recursively deal with the correctness."
   (let ((Ent (nsh-mc-only-match-SE (car Soughts))))
-    (when (and Ent (equalp (studententry-state Ent) **correct**))
+    (when (and Ent (equalp (studententry-state Ent) +correct+))
       (if (= 1 (length Soughts)) t
 	(nsh-mc-only-done-correct-p-rec (cdr Soughts))))))
 
@@ -1462,9 +1462,9 @@
 	   "you can stop here and move on to another problem.  "
 	   "However you can also change your answers if you wish to "
 	   "try again.")
-   **Explain-More**
+   +explain-more+
    :Responder #'(lambda (Response)
-		  (when (eql Response **Explain-More**)
+		  (when (eql Response +explain-more+)
 		    (nsh-mc-only-prompt-done-reconsider)))
    :Assoc '((nsh mc-only prompt-done-incorrect))))
 
@@ -1490,9 +1490,9 @@
 	       "all of the multiple choice questions on your screen."
 	     "the multiple choice question on your screen.")
 	   "You do not need to make any other entries.")
-   **Explain-More**
+   +explain-more+
    :Responder #'(lambda (Response)
-		  (when (eql response **explain-more**)
+		  (when (eql response +explain-more+)
 		    (nsh-mc-only-prompt-next)))
    :Assoc '((nsh mc-only start))))
 
@@ -1509,9 +1509,9 @@
 	       "all of the multiple choice questions on your screen."
 	     "the multiple choice question on your screen.")
 	   "  You do not need to make any other entries.")
-   **Explain-More**
+   +explain-more+
    :Responder #'(lambda (Response)
-		  (when (eql response **explain-more**)
+		  (when (eql response +explain-more+)
 		    (if (nsh-incorrect-mc-entries-made-p)
 			(nsh-mc-only-prompt-reconsider)
 		      (nsh-mc-only-prompt-next))))
@@ -1527,7 +1527,7 @@
   (remove-if-not 
    #'(lambda (E) 
        (and (unify (studententry-prop E) '(CHOOSE-ANSWER ?A ?B))
-	    (not (equalp (studententry-state E) **correct**))))
+	    (not (equalp (studententry-state E) +correct+))))
    *Studententries*))
 
 
@@ -1809,9 +1809,9 @@
     (make-dialog-turn
      (strcat message "&nbsp; " "Let's just assume that you are seeking "
 	     (nlg Sought 'def-np) ".")
-     **explain-more**
+     +explain-more+
      :responder #'(lambda (response)
-		    (when (eql Response **Explain-More**)
+		    (when (eql Response +explain-more+)
 		      (nsh-ask-first-principle 
 		       "" (match-exp->qnode Sought (problem-graph *cp*)))))
      :Assoc `((nsh tell-sought ,Case ,Sought)))))
@@ -1860,7 +1860,7 @@
 	   "  " (if (multi-sought-problem-p *cp*)
 		    **NSH-AFP-Multi-String**
 		  **NSH-AFP-Single-String**))
-   **PSM-MENU**
+   +psm-menu+
    :responder #'(lambda (response)
 		  (nsh-check-first-principle-response
 		   Response sought past))
@@ -1889,7 +1889,7 @@
   "Prompt the student for the first principle in the list."
   (make-dialog-turn
    (nsh-afp-cont-format-msg Sought Prefix)
-   **PSM-MENU**
+   +psm-menu+
    :responder #'(lambda (response)
 		  (nsh-check-first-principle-response
 		   response sought past))
@@ -1980,7 +1980,7 @@
    (strcat "The use of that principle is forbidden by the problem "
 	   "statement.  Why don't you re-read the problem and try again.")
    Sought past
-   :Case **Forbidden**))
+   :Case +forbidden+))
 
 
 
@@ -2672,9 +2672,9 @@
    (strcat Prefix "  You have already finished "
 	   (nlg (enode-id Best) 'psm-exp) 
 	   ".  You can move on to the next step in the solution.")
-   **explain-more**
+   +explain-more+
    :Responder #'(lambda (Resp)
-		  (when (eql Resp **Explain-More**)
+		  (when (eql Resp +explain-more+)
 		    (nsh-prompt-solution "Why don't you work on " Solution)))
    :Assoc `((nsh cfp-success-completed ,(bgnode-exp Best)))))
 
@@ -2769,9 +2769,9 @@
    (strcat Message "  You have already finished "
 	   (nlg (enode-id Principle) 'psm-exp)
 	   ".  Why don't you start working on the next principle?")
-   **Explain-More**
+   +explain-more+
    :Responder #'(lambda (Response)
-		  (when (eql response **explain-more**)
+		  (when (eql response +explain-more+)
 		    (nsh-prompt-solution "Why don't you work on " Solution)))
    :Assoc `((nsh prompt-done-fp ,Case ,(enode-id Principle)))))
 
@@ -2858,9 +2858,9 @@
    (strcat "Excellent, you should now continue your solution by making "
 	   "the entries that are necessary to complete the problem "
 	   (if (> 1 (length (problem-soughts *cp*))) "goals." "goal."))
-   **Explain-More**
+   +explain-more+
    :Responder #'(lambda (Response)
-		  (when (eql Response **Explain-More**)
+		  (when (eql Response +explain-more+)
 		    (nsh-prompt-solution 
 		     "Why don't you begin by " 
 		     (car *nsh-current-solutions*))))
@@ -2916,9 +2916,9 @@
 (defun nsh-dialog-prompt-node (Dialog Prefix Node &key Assoc)
   "Prompt the specified node after the specified dialog stack."
   (make-dialog-turn
-   Dialog **explain-more**
+   Dialog +explain-more+
    :Responder #'(lambda (Resp)
-		  (when (eql Resp **Explain-More**)
+		  (when (eql Resp +explain-more+)
 		    (nsh-prompt-node 
 		     Prefix Node
 		     :Assoc `((nsh dialog-prompting-node ,(bgnode-exp Node))))))
@@ -2974,9 +2974,9 @@
   (setq *nsh-last-node* Parameter)
   (make-dialog-turn 
    (strcat prefix (nlg (bgnode-exp Parameter) 'psm-exp) ".  ")
-   **Explain-More**
+   +explain-more+
    :responder #'(lambda (Response)
-		  (when (eql response **explain-more**)
+		  (when (eql response +explain-more+)
 		    (nsh-walk-node-graph "" Parameter)))
    :Assoc (alist-warn Assoc)))
 
@@ -3007,9 +3007,9 @@
   (setq *nsh-last-node* Principle)
   (make-dialog-turn 
    (strcat prefix (nlg (enode-id principle) 'goal) ".  ")
-   **Explain-More**
+   +explain-more+
    :responder #'(lambda (response)
-		  (when (eql response **explain-more**)
+		  (when (eql response +explain-more+)
 		    (nsh-walk-Node-graph "" principle)))
    :Assoc (alist-warn Assoc)))
 
@@ -3045,9 +3045,9 @@
   (setq *nsh-last-node* Principle)
   (make-dialog-turn 
    (strcat prefix (nlg (enode-id principle) 'psm-exp) ".  ")
-   **Explain-More**
+   +explain-more+
    :responder #'(lambda (response)
-		  (when (eql response **explain-more**)
+		  (when (eql response +explain-more+)
 		    (nsh-walk-Node-graph "" principle)))
    :Assoc (alist-warn Assoc)))
 
@@ -3078,7 +3078,7 @@
   "Collect the correct axes that the student has drawn."
   (mapcar #'(lambda (E) (cadr (studententry-prop E)))
 	  (remove-if-not #'(lambda (E) (and (equalp (car (studententry-prop E)) 'draw-axes)
-					    (equalp (studententry-state E) **Correct**)))
+					    (equalp (studententry-state E) +correct+)))
 			 *studententries*)))
 
 		 
@@ -3252,7 +3252,6 @@
 ;;; Uses the psmg entered values.
 (defun nsh-node-completed-p (Node)
   "Return t iff the specified principle has been completed."
-  ;;;(psmg-path-enteredp (enode-path principle)))  ;; Doesn't work not sure why yet.
   (path-completedp (bgnode-path Node)))
 
 ;;; Has the student begun working on the node at 
@@ -3291,7 +3290,6 @@
 ;;; Uses the psmg entered values.
 (defun nsh-principle-completed-p (principle)
   "Return t iff the specified principle has been completed."
-  ;;;(psmg-path-enteredp (enode-path principle)))  ;; Doesn't work not sure why yet.
   (path-completedp (bgnode-path principle)))
 
 
@@ -3300,7 +3298,6 @@
 ;;; Uses the psmg entered values.
 (defun nsh-principle-uncompleted-p (principle)
   "Return t iff the specified principle has been completed."
-  ;;;(psmg-path-enteredp (enode-path principle)))  ;; Doesn't work not sure why yet.
   (not (path-completedp (enode-path principle))))
 
 
@@ -3946,9 +3943,9 @@
 ;;; context of it, or that we have already provided the context.
 (defun nsh-bottom-hint-target-entry (Initial step &key Assoc)
   (make-dialog-turn
-   Initial **Explain-More**
+   Initial +explain-more+
    :Responder #'(lambda (Response)
-		  (when (eql response **explain-more**)
+		  (when (eql response +explain-more+)
 		    (let ((source (car (SystemEntry-Sources step))))
 		    (make-hint-seq 
 		     (collect-step-hints Source :types '(bottom-out))

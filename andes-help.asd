@@ -17,7 +17,7 @@
 (defsystem :andes-help
   :name "Andes help"
   :description "Andes physics tutor system: helpsystem"
-  :depends-on (problems web-server clsql clsql-mysql)
+  :depends-on (problems web-server)
   :components (
 	       (:module "Base"
 			:components ((:file "memoize")
@@ -25,6 +25,8 @@
 				     ;; mt19937 had its own asd file, 
 				     ;; but we don't use it
 				     (:file "mt19937") 
+				     (:file "garbage-collect")
+				     (:file "mysql-connect")
 				     (:file "random" 
 					    :depends-on ("mt19937"))))
 	       (:module "HelpStructs"
@@ -48,8 +50,6 @@
 	 			     (:file "SolutionGraph")
 				     
                                      (:file "utilities")
-
-				     ;; depends on clsql and clsql-mysql
 				     (:file "database")
 				     				     
 				     ;; Entry Intepreter: generic + non-eq
@@ -58,7 +58,7 @@
 					    :depends-on ("symbols" "grammar"))
 				     (:file "Entry-API"
 					    :depends-on ("HelpMessages" "symbols"
-							 "SolutionGraph"))
+							 "SolutionGraph" "icons"))
 				     
 				     ;; Equation parser/interpreter
 				     (:file "grammar")

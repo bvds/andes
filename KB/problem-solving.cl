@@ -899,3 +899,14 @@
 		   (every #'(lambda (x) (keywordp (car x))) (cdr predef))
 		   (notany #'(lambda (x) (consp (cdr x))) (cdr predef)))
 	(error "Predef should be alist, not ~S" (cdr predef))))))
+
+;;
+;;  perl one-liner to do same thing from command line:
+;;  perl -i -ne 'if(m/^(Graphic *)"(.*)"/){$x=`identify -ping -format "(\\"$2\\" %w %h)" images/$2`;print "$1$x"}else{print "$_";}' solutions/*.prb
+;;
+(post-process add-graphic-dimensions (Problem)
+  "Add dimensions to graphic"
+  (when (stringp (problem-graphic problem))
+    (setf (problem-graphic problem)
+	  (cons (problem-graphic problem) 
+		(problem-graphic-dimensions (problem-graphic problem))))))

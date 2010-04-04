@@ -33,8 +33,8 @@
 	    )
   :hint (
 	 (bottom-out (string "Define a variable for ~A by using ~A." 
-			     (*text-tool* eval)
-			     ((resistance ?res) def-np)))
+			     ((resistance ?res) def-np)
+			     (*text-tool* eval)))
 	 ))
 
 (def-psmclass equiv-resistance-series (equiv-resistance-series ?res-list) 
@@ -274,8 +274,8 @@
 	    )
   :hint (
 	 (bottom-out (string "Define a variable for ~A by using ~A."
-			     (*text-tool* eval)
-			     ((current-thru ?what :time ?t) def-np)))
+			     ((current-thru ?what :time ?t) def-np)
+			     (*text-tool* eval)))
 	 ))
 
 ;;;
@@ -355,8 +355,8 @@
 	    )
   :hint (
 	 (bottom-out (string "Define a variable for ~A by using ~A."
-			     (*text-tool* eval) 
-			     ((voltage-across ?comp :time ?t) def-np)))
+			     ((voltage-across ?comp :time ?t) def-np)
+			     (*text-tool* eval) ))
 	 ))
 
 (def-psmclass loop-rule  (loop-rule ?branch-list ?t)  
@@ -785,8 +785,8 @@
 	    )
   :hint (
 	 (bottom-out (string "Define a variable for ~A by using ~A." 
-			     (*text-tool* eval)
-			     ((capacitance ?cap) def-np)))
+			     ((capacitance ?cap) def-np)
+			     (*text-tool* eval)))
 	 ))
 
 (def-psmclass equiv-capacitance-series (equiv-capacitance-series ?cap-list) 
@@ -1203,8 +1203,8 @@
 	     (define-var (stored-energy ?b :time ?t)) ) 
   :hint 
   ( (bottom-out (string "Define a variable for ~A by using ~A."
-			(*text-tool* eval) 
-			((stored-energy ?b :time ?t) def-np)))
+			((stored-energy ?b :time ?t) def-np)
+			(*text-tool* eval) ))
     ))
 
 ;;; RC CIRCUITS
@@ -1217,8 +1217,8 @@
 	    (define-var (time-constant orderless . ?quants)) )
   :hint 
   ( (bottom-out (string "Define a variable for ~A by using ~A."  
-			(*text-tool* eval)
-			((time-constant orderless . ?quants) def-np) ))
+			((time-constant orderless . ?quants) def-np) 
+			(*text-tool* eval)))
     ))
 
 (def-psmclass RC-time-constant (RC-time-constant ?res ?cap) 
@@ -1636,8 +1636,8 @@
 	    (define-var (self-inductance ?ind)))
   :hint 
   ((bottom-out (string "Define a variable for ~A by using ~A." 
-		       (*text-tool* eval)
-		       ((self-inductance ?ind) def-np)))))
+		       ((self-inductance ?ind) def-np)
+		       (*text-tool* eval)))))
 
 ;; define mutual inductance var
 (defoperator define-mutual-inductance-var (?inds)   
@@ -1647,8 +1647,8 @@
 	    (define-var (mutual-inductance orderless . ?inds)) )
   :hint 
   ( (bottom-out (string "Define a variable for ~A by using ~A." 
-			(*text-tool* eval)
-			((mutual-inductance orderless . ?inds) def-np))) ))
+			((mutual-inductance orderless . ?inds) def-np)
+			(*text-tool* eval))))) 
 
 ;;;              Magnetic field inside a long solenoid
 
@@ -1718,8 +1718,8 @@
 	    (define-var (rate-of-change ?quant)))
   :hint (
 	 (bottom-out (string "Define a variable for ~A by using ~A."
-			     (*text-tool* eval) 
-			     ((rate-of-change ?quant) var-or-quant) ))
+			     ((rate-of-change ?quant) var-or-quant) 
+			     (*text-tool* eval) ))
 	 ))
 
 ;;; Generic definition of average rate of change of some quantity
@@ -2189,8 +2189,8 @@
 	    )
   :hint (
 	 (bottom-out (string "Define a variable for ~A by using ~A." 
-			     (*text-tool* eval)
-			     ((electric-power ?b :time ?t) def-np) ))
+			     ((electric-power ?b :time ?t) def-np) 
+			     (*text-tool* eval)))
 	 ))
 
 ;;; transformer voltage relation

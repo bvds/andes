@@ -25,25 +25,25 @@
 
 ;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
 (#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
- **Premature-Entry-Help**
+ +premature-entry-help+
  '("Before you can do this, you need to do at least one other step first.  I'll leave your entry black so that you can easily re-enter it when you've finished."
    "You have skipped at least one prerequisite step."
    (function next-step-help)) #+sbcl #'equalp)
 
 (#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
- **Forbidden-Help**
+ +forbidden-help+
     '("The solution strategy you are using is forbidden for this particular problem."
       "There are multiple ways to solve this problem, but the instructors have marked some of them as 'forbidden.' You must use one of the others."
    (function next-step-help)) #+sbcl #'equalp)
 
 (#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
- **Dead-Path-Help**
+ +dead-path-help+
  '("Correct, but does not lead to a solution.  Try a different approach."
    "Sometimes guessing is required to solve problems.  For instance, you might know two different principles that mention the sought quantity, but you usually don't need to apply both, so you have to guess which one try first.  Whenever you have two or more correct choices, and you guess one that won't ultimately lead to a solution, Andes will tell you so, thus saving you some work."
    (function next-step-help)) #+sbcl #'equalp)
 
 (#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
- **NOGOOD-Help**
+ +nogood-help+
  '("No good entry.  Shouldn't happen.") #+sbcl #'equalp)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

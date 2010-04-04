@@ -1127,7 +1127,6 @@
      stream)    
     (when (streamp stream) (close stream))))
 
-
 (defun has-major-complexity (p)
   "Determine if a group has any major psm's in it."
   ;; Sanity tests

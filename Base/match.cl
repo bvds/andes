@@ -325,7 +325,7 @@
     ;; there are m! (m+n-1)!/(n! (m-1)!) different possible matches.
     (update-bound best (match-model-slow 
 			matches model-free 
-			(list (list 0 (length student)))))
+			(list (cons 0 (length student)))))
     
     )
   
@@ -403,7 +403,7 @@
   (if model-free
       (let ((best 20000))
 	(dolist (interval student-intervals)
-	  (let ((lower (first interval)) (upper (second interval)))
+	  (let ((lower (car interval)) (upper (cdr interval)))
 	    (do ((y lower (1+ y)))
 		((= y (1+ upper))) 
 	      (do ((z lower (1+ z)))
@@ -414,8 +414,8 @@
 		(when (aref matches (car model-free) y z) 
 		  ;; remove best fit interval and add new intervals
 		  (let ((new-student (remove interval student-intervals)))
-		    (push (list (first interval) z) new-student)
-		    (push (list y (second interval)) new-student)
+		    (push (cons lower z) new-student)
+		    (push (cons y upper) new-student)
 		    (update-bound 
 		     best 
 		     (+ (aref matches (car model-free) y z) 
@@ -426,7 +426,7 @@
 					  new-student)))))))))
 	  best)
 	;; count remaining student words
-      (apply #'+ (mapcar #'(lambda (x) (- (second x) (first x))) 
+      (reduce #'+ (mapcar #'(lambda (x) (- (cdr x) (car x))) 
 			 student-intervals))))
 
 (defun match-model-conjoin (student model &key best)

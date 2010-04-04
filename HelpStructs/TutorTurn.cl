@@ -112,17 +112,17 @@
   Assoc    
   )
 
-(defconstant **Color-Red** 'Color-Red)
-(defconstant **Color-Green** 'Color-Green)
-(defconstant **no-op-Turn** 'No-Op-Turn)
+(defconstant +color-red+ 'Color-Red)
+(defconstant +color-green+ 'Color-Green)
+(defconstant +no-op-turn+ 'No-Op-Turn)
 
-(defconstant **Dialog-Turn** 'Dialog-Turn)
-(defconstant **Minil-turn** 'Minil-Turn)
-(defconstant **TCard-turn** 'TCard-Turn)
-(defconstant **KCD-Turn** 'KCD-Turn)
-(defconstant **Eqn-Turn** 'Eqn-turn)
-(defconstant **End-Dialog** 'End-Dialog)
-(defconstant **Stat-turn** 'stat-turn)
+(defconstant +dialog-turn+ 'Dialog-Turn)
+(defconstant +minil-turn+ 'Minil-Turn)
+(defconstant +tcard-turn+ 'TCard-Turn)
+(defconstant +kcd-turn+ 'KCD-Turn)
+(defconstant +eqn-turn+ 'Eqn-turn)
+(defconstant +end-dialog+ 'End-Dialog)
+(defconstant +stat-turn+ 'stat-turn)
 
 (defmacro alist-warn (x)
   "Debug macro to check that x is an alist."
@@ -136,9 +136,9 @@
 ;; Menu constants
 ;; These are the menus in use by the system.
 ;; nil menu is hide.
-(defconstant **Explain-More** 'Explain-More "The Explain more/hide menu.")
-(defconstant **Psm-Menu** 'Psm-Menu)
-(defconstant **Equation-Menu** 'Equation-menu)
+(defconstant +explain-more+ 'Explain-More "The Explain more/hide menu.")
+(defconstant +psm-menu+ 'Psm-Menu)
+(defconstant +equation-menu+ 'Equation-menu)
     
 (defun print-turn (Turn &optional Stream (Level 0))
   "Print out the turn to the user."
@@ -170,8 +170,8 @@
 
 (defun make-green-dialog-turn (text menu &key Responder)
   "Produce a green coloring dialog type tutor turn."
-  (make-turn :coloring **Color-Green**
-	     :type **Dialog-Turn**
+  (make-turn :coloring +color-green+
+	     :type +dialog-turn+
 	     :text text 
 	     :menu menu 
 	     :Responder Responder))
@@ -179,7 +179,7 @@
 
 (defun make-dialog-turn (text menu &key Responder Assoc)
   "Produce a dialog type tutor turn."
-  (make-turn :type **Dialog-Turn**
+  (make-turn :type +dialog-turn+
 	     :text text
 	     :menu Menu
 	     :responder Responder
@@ -187,14 +187,14 @@
 
 (defun make-end-dialog-turn (text &key Assoc)
   "Make a turn that ends the dialog."
-  (make-turn :type **Dialog-Turn**
+  (make-turn :type +dialog-turn+
 	     :text text
 	     :Assoc (alist-warn Assoc)))
 	     
 			    
 (defun make-minil-turn (url &key Responder Assoc)
   "Produce a minilesson type tutor turn."
-  (make-turn :type **Minil-Turn**
+  (make-turn :type +minil-turn+
 	     :text url
 	     :responder Responder
 	     :Assoc (alist-warn Assoc)))
@@ -206,8 +206,8 @@
 (defun make-eqn-turn (Eqn &key id)
   "Generate an eqn entry turn."
   (unless id (warn "no id in make-eqn-turn"))
-  (make-turn :type **Eqn-Turn**
-             :coloring **Color-Green**
+  (make-turn :type +eqn-turn+
+             :coloring +color-green+
 	     :id id
 	     :text Eqn
 	     :Responder #'(lambda (x) (declare (ignore x)) nil)))
@@ -215,8 +215,8 @@
 (defun make-eqn-failure-turn (Msg &key id)
   "Generate an eqn entry turn."
   (unless id (warn "no id in make-eqn-failure-turn"))
-  (make-turn :type **Eqn-Turn**
-             :coloring **Color-Red**
+  (make-turn :type +eqn-turn+
+             :coloring +color-red+
 	     :id id
 	     :text Msg
 	     :Responder #'(lambda (x) (declare (ignore x)) nil)))
@@ -224,12 +224,12 @@
 ;; red/green convenience funcs take optional unsolicited message string:
 (defun make-red-turn (&key id)
   (unless id (warn "no id in make-red-turn"))
-  (make-turn :coloring **Color-Red**
+  (make-turn :coloring +color-red+
 	     :id id))
 
 (defun make-green-turn (&key id)
   (unless id (warn "no id in make-green-turn"))
-  (make-turn :coloring **Color-Green**
+  (make-turn :coloring +color-green+
 	     :id id))
 
 (defun make-no-color-turn (&key id)
@@ -238,7 +238,7 @@
   (make-turn :id id))
 
 (defun make-noop-turn ()
-  (make-turn :Type **No-Op-Turn**))
+  (make-turn :Type +no-op-turn+))
 
 
 ;;; ----------------------------------------------------------------------
@@ -254,7 +254,7 @@
 
 (defun make-stat-turn (Stats)
   "Make a statistics turn."
-  (make-turn :Type **stat-turn** :Value Stats))
+  (make-turn :Type +stat-turn+ :Value Stats))
 
 
 ;;; This is a specialized error turn that gives the student a 
@@ -265,8 +265,8 @@
   "Make a bad-problem error turn."
   (warn "make-bad-problem-turn: ~A" assoc)
   (make-turn 
-   :Coloring **Color-Red**
-   :type **Dialog-Turn**
+   :Coloring +color-red+
+   :type +dialog-turn+
    :text "This is an incorrectly formed problem.  Please try a different problem."
    :Assoc (alist-warn assoc)))
 
@@ -334,7 +334,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; continuations
 ;; As long as there are more hints in the stack for the 
-;; student to see they will be offered the **Explain-More**
+;; student to see they will be offered the +explain-more+
 ;; menu and given the option (even after kcd's and minilessons)
 ;; of moving on down the stack.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -369,7 +369,7 @@
 
 ;;; When there are remaining hints in the list to be dealt with
 ;;; generate the appropriate turn types ending with an 
-;;; **Explain-More** option for the students.
+;;; +explain-more+ option for the students.
 (defun make-next-hseq (Hint Rest &optional (Prefix "") (Assoc Nil) (OpTail Nil))
   (cond ((stringp Hint)              (make-string-hseq Hint Rest Prefix Assoc OpTail))
 	((not (listp Hint))          (error "Invalid hint form supplied."))
@@ -424,7 +424,7 @@
 ;;           generated assoc.
 ;;
 ;; The hintspec will be formatted and passed to the student with an
-;; **explain-More** responder.  If the student selects explain more
+;; +explain-more+ responder.  If the student selects explain more
 ;; then they will be taken to the next hint in the sequence.
 ;;
 ;; The hints itself will be formatted and provided to the student 
@@ -523,9 +523,9 @@
    (strcat Prefix (if (hintspec-p Hint)
 			  (format-hintspec Hint)
 			Hint))
-   **Explain-More**
+   +explain-more+
    :responder #'(lambda (r)
-		  (when (eql R **Explain-More**)
+		  (when (eql R +explain-more+)
 		    (make-hint-seq Next :Assoc (alist-warn Assoc) :OpTail OpTail)))
    :Assoc (alist-warn (or Assoc `((OpHint ,OHType String . ,OpTail))))))
 
@@ -591,9 +591,9 @@
   "Make a string Hseq from the car of the hints."
   (make-dialog-turn 
    (strcat Prefix (nth 1 Hint))
-   **Explain-More**
+   +explain-more+
    :responder #'(lambda (r)
-		  (when (eql R **Explain-More**)
+		  (when (eql R +explain-more+)
 		    (make-hint-seq Next :Assoc (alist-warn Assoc) :OpTail OpTail)))
    :Assoc (alist-warn (or Assoc (list (nth 2 hint))))))
 
@@ -616,9 +616,9 @@
    (strcat Prefix (if (hintspec-p Hint)
 			  (format-hintspec Hint)
 			Hint))
-   **Explain-More**
+   +explain-more+
    :responder #'(lambda (r)
-		  (when (eql R **Explain-More**)
+		  (when (eql R +explain-more+)
 		    (make-hint-seq Next :Assoc (alist-warn Assoc) :OpTail OpTail)))
    :Assoc (alist-warn Assoc)))
 

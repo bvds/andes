@@ -1,0 +1,65 @@
+<html lang="en">
+
+<form name="ErrorForm" action="ErrorProcessing.php" method="post">
+
+<head>
+    <title>Andes Admin Login</title>
+    <style>
+    label, input{
+    display:block;
+    width:250px;
+    }
+    label{
+    margin-top:15px;
+    }
+    .loginbox{
+    width:400px;
+    height:auto;
+    padding:0 10px 20px 10px;
+    border:1px solid #ccc;
+    margin:10px auto;
+    }
+    h1{
+    text-align:center;
+    }
+    </style>
+</head>
+
+<body>
+<script language=JavaScript>
+<!--
+function getCookie(c_name)
+{
+if (document.cookie.length>0)
+  {
+  c_start=document.cookie.indexOf(c_name + "=");
+  if (c_start!=-1)
+    {
+    c_start=c_start + c_name.length+1;
+    c_end=document.cookie.indexOf(";",c_start);
+    if (c_end==-1) c_end=document.cookie.length;
+    return unescape(document.cookie.substring(c_start,c_end));
+    }
+  }
+return "";
+}
+// --> 
+</script>
+
+<h1>Querying for the Errors and Warnings occurred in Andes</h1>
+<div class="loginbox">
+<label>UserName:</label>
+<input name="adminName" type="text" size="6"/>
+<label>Password:</label>
+<input name="passwd" type="password" size="6"/>
+<script language=JavaScript>
+document.ErrorForm.adminName.value=getCookie("userName");
+document.ErrorForm.passwd.value=getCookie("passWord");
+</script>
+<BR />
+<input type="submit"/>
+</div> 
+</body>
+
+</form>
+</html>

@@ -10,6 +10,9 @@ dojo.provide("andes.variablename");
 // Variables are any alphanumeric, _ \ and $,
 // for LaTeX compatibility
 //
+// Returns empty string in case of no match.  This correctly
+// handles the case where a modification to the text removes the symbol.
+//
 // This routine needs to match function pull-out-quantity
 // in Help/Entry-API.cl
 //
@@ -43,5 +46,5 @@ andes.variablename.parse = function(intext){
     // console.log("definere match ",match);
     if (match) return match[1];
   }
-  return null;
+  return "";
 }

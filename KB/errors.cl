@@ -478,7 +478,7 @@
    (correct (define-var (duration (during ?ct1 ?ct2))))
    (test (not (> ?st1 ?st2))))
   :apply no-match
-  :state **incorrect**
+  :state +incorrect+
   :hint (default-duration `(during ,?st1 ,?st2) `(during ,?ct1 ,?ct2))
   :order ((expected-utility . 0.1)))
 
@@ -512,7 +512,7 @@
   ((student (define-var (duration (during ?t1 ?t2))))
    (test (> ?t1 ?t2)))
   :apply no-match
-  :state **incorrect**
+  :state +incorrect+
   :hint (reverse-duration `(during ,?t1 ,?t2) `(during ,?t2 ,?t1))
   :order ((expected-utility . 0.1)))
 
@@ -729,7 +729,7 @@
    (test (time-pointp ?ctime))
    (problem (given (height ?body ?zero-height :time ?t-zero) (dnum 0 ?unit))))
   :apply no-match
-  :state **incorrect**
+  :state +incorrect+
   :hint (height-over-a-time-interval ?body `(during ,?t1 ,?t2) ?ctime)
   :order ((expected-utility . (* 100 (+ 0.1
 					(if (and (equal ?t1 ?t-zero)
@@ -1345,23 +1345,12 @@
 ;;; known/unknown error. Need several defaults under (1) to give special 
 ;;; messages for these.
 
-;;; Workbench dialogs have two slots available for flagging: 
-;;;    dir:  xy plane degree box, disabled if z axis dir is chosen
-;;;    zdir: into/outof/in/z-unknown choice shown on 3D problems.
-;;; We may have problem knowing what to flag in case direction is
-;;; of the wrong type (xy plane vs z-axis) e.g. they choose
-;;; 'into and correct is 30 degrees in the xy plane. When in doubt,
-;;; flag dir for a general direction error, and zdir only if we know
-;;; we want to highlight that box. (Could make workbench interpret 
-;;; 'dir more intelligently: could flag only the substantive one, 
-;;; or treat dir as a composite control and flag both.)
-
 
 ;;; need should-be-z-unknown for unknown but in the z direction.
 (def-error-class default-should-be-z-unknown ()
   ((student (vector ?descr ?dir))
    (correct (vector ?descr z-unknown))
-   (test (not (equal ?dir 'z-unknown)))))
+   (test (not (or (eql ?dir 'into) (eql ?dir 'out-of))))))
 
 (defun default-should-be-z-unknown ()
   (make-hint-seq
@@ -3075,7 +3064,7 @@
      (test (not (equal ?wrong-trig-fn ?right-trig-fn)))
      (fix-eqn-by-replacing ?wrong-loc (?right-trig-fn ?argument)))
   :apply no-match
-  :state **incorrect**
+  :state +incorrect+
   :hint (wrong-trig-function (list ?wrong-trig-fn ?argument) 
 			      (list ?right-trig-fn ?argument))
   :order ((expected-utility . 0.1)))
@@ -3105,7 +3094,7 @@
    (test (not (equal ?wrong-trig-fn ?right-trig-fn)))
    (fix-eqn-by-replacing ?wrong-loc (?right-trig-fn ?argument)))
   :apply no-match
-  :state **incorrect**
+  :state +incorrect+
   :hint (trig-function-should-be-tan (list ?wrong-trig-fn ?argument) 
 				     (list ?right-trig-fn ?argument))
   :order ((expected-utility . 0.1)))
@@ -3262,7 +3251,7 @@
    (correct-var ?vf (compo ?xyz ?rot (velocity ?body :time ?tf)))
    (test (equal (sort (list ?v1 ?v2) #'expr<) (sort (list ?vi ?vf) #'expr<))))
   :apply no-match
-  :state **incorrect**
+  :state +incorrect+
   :hint (avg-accel-is-change-in-velocity ?xyz `(= ,?a (/ (- ,?vf ,?vi) ,?dur)))
   :order ((expected-utility . 5)))
 
@@ -3369,7 +3358,7 @@
    (var-defn ?smag (mag (force ?body ?planet weight :time ?time)))
    (var-defn ?smass (mass ?body)))
   :apply no-match
-  :state **incorrect**
+  :state +incorrect+
   :hint (no-negation-in-weight-law `(= ,?smag (* ,?smass ,?g)))
   :order ((expected-utility . 10)))
 
@@ -3381,7 +3370,7 @@
    (var-defn ?smag (mag (force ?body ?planet weight :time ?time)))
    (var-defn ?smass (mass ?body)))
   :apply no-match
-  :state **incorrect**
+  :state +incorrect+
   :hint (no-negation-in-weight-law `(= ,?smag (* ,?smass ,?g)))
   :order ((expected-utility . 10)))
 
@@ -4055,7 +4044,7 @@
 (def-entry-test exact-match (?quant)
   :preconditions ((student ?quant)
 	       (correct ?quant))
-  :state **correct**
+  :state +correct+
   :order ((correct . 1))
   )
 
@@ -4065,7 +4054,7 @@
 		  (correct (given ?quant ?val2))
 		  ;; compare-dnums does not properly handle disparate units.
 		  (test (compare-dnums ?val1 ?val2)))
-  :state **correct**
+  :state +correct+
   :order ((correct . 2))
   )
 
@@ -4078,7 +4067,7 @@
 		  (test (and (dimensioned-numberp ?dir1) 
 		             (dimensioned-numberp ?dir2)
 			     (compare-dnums ?dir1 ?dir2))))
-  :state **correct**
+  :state +correct+
   :order ((correct . 2))
   )
 
@@ -4095,7 +4084,7 @@
 		  (correct (vector ?quant unknown))
 		  (test (match-direction-to-solver ?dir1 ?quant))
 		  )
-  :state **correct**
+  :state +correct+
   :order ((correct . 2) (unknown-vector . 4))
   )
 
@@ -4109,6 +4098,20 @@
 	    ;; error bound
 	    epsilon))))
 
+;; Then test for vectors drawn out of the plane 
+;; "unknown" infers that it lies in the plane
+(def-entry-test z-axis-unknown (?quant ?dir1) 
+  :preconditions ((student (vector ?quant ?dir1))
+		  (correct (vector ?quant unknown))
+		  (test (or (eql ?dir1 'into) (eql ?dir1 'out-of))))
+  :state +incorrect+
+  :hint (list
+	 (format nil "Does ~a lie along the z-axis or in the plane?"
+		 (nlg ?quant))
+	 (strcat "Use " *vector-tool* " to modify the vector so that it lies in the plane."))
+  :order ((correct . 2) (unknown-vector . 3))
+  )
+
 ;; Then, make sure it doesn't align with any
 ;; known vector directions.
 
@@ -4118,7 +4121,7 @@
 		  (correct (vector ?any-quant ?dir2))
 		  (test (parallel-or-antiparallelp ?dir1 ?dir2))
 		  )
-  :state **incorrect**
+  :state +incorrect+
   :hint (list
 	 (format nil "Drawing the vector in the direction ~A suggests that it is aligned with ~A." (nlg ?dir1 'adj) (nlg ?quant))
 	 "However, the direction of this vector is not given.&nbsp;  Please choose another direction.")
@@ -4135,7 +4138,7 @@
 			     (< (mod (- (convert-dnum-to-number ?dir1)
 					(convert-dnum-to-number ?dir2)) 90) 2)))
 		  )
-  :state **incorrect**
+  :state +incorrect+
   :hint (list
 	 (format nil "Drawing the vector in the direction ~A suggests that it is aligned with the axes you have drawn." (nlg ?dir1 'adj))
 	 "However, the direction of this vector is not given.&nbsp;  Please choose another direction.")
@@ -4147,6 +4150,6 @@
   :preconditions ((student (vector ?quant ?dir1))
 		  (correct (vector ?quant unknown))
 		  )
-  :state **correct**
+  :state +correct+
   :order ((correct . 2) (unknown-vector . 0))
   )

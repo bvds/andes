@@ -43,8 +43,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Params
 
-(defparameter *Ontology-features* () "List of feature sets")
-(defparameter *Ontology-features-ignore* () "List of feature sets")
 (defparameter *Ontology-ExpTypes* () "List of valid expression types")
 (defparameter *Ontology-EntryProp-Types* () "List of valid entry proposition prefixes.")
 (defparameter *Ontology-GoalProp-Types* () "List of valid Goal proposition prefixes.")
@@ -88,8 +86,6 @@
 
 (defun clear-ontology ()
   "Clear out the stores expressions."
-  (setq *Ontology-features* nil)
-  (setq *Ontology-features-ignore* nil)
   (setq *Ontology-ExpTypes* nil)
   (setq *Ontology-EntryProp-Types* nil)
   (setq *Ontology-Equation-Types* nil)
@@ -354,7 +350,7 @@
   "Return t iff the specified type is an entry type."
   (member type *Ontology-EntryProp-Types*
 	  :key #'EntryProp-Type
-	  :test #'unify ))		;could use "equal"
+	  :test #'unify))		;could use "equal"
 
 
 (defun kb-prop->help-Prop (Prop)
@@ -368,7 +364,7 @@
 (defun lookup-entryprop-type (Type)
   (find type *Ontology-EntryProp-Types*
 	:key #'EntryProp-Type
-	:test #'unify ))		;could use "equal"
+	:test #'unify))		;could use "equal"
 
 
 
@@ -880,34 +876,3 @@
 	(dolist (Binding B)
 	  (push (lookup Var Binding) R))))
     (remove-duplicates R :test #'unify))) ;could use "equal"
-
-;;;
-;;;                 Feature sets
-;;;
-
-
-(defun define-feature-set (name quants)
-  "Construct feature sets, with inheritance."
-  (when (member name *Ontology-features* :key #'first)
-    (error "feature set ~A already defined" name))
-  (dolist (set *Ontology-features*) 
-    ;; when a featureset is a member of itself, don't inherit
-    (when (and (member (first set) quants) 
-	       (not (member (first set) (second set)))) 
-      (setf quants (union (second set) quants)))
-    (when (and (member name (second set)) 
-	       (not (member name quants))) 
-      (setf (second set) (union (second set) quants))))
-  (postpend *Ontology-features* (list name quants)))
-
-(defmacro def-feature-set (feature quants)
-  "define feature sets"
-  (define-feature-set feature quants) 
-  nil)  ;macro return value
-
-(defun quant-allowed-by-features (quant x)
-  (when x (or (member quant *Ontology-features-ignore*) 
-	      (member quant (second (find (car x) *ontology-features* 
-					  :key #'first)))
-	      (quant-allowed-by-features quant (cdr x)))))
-
