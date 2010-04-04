@@ -115,7 +115,8 @@
   (cond 
     ((stringp model) model)
     ((or (stringp (car model)) (listp (car model)))
-     (join-words (remove nil (mapcar #'word-string model))))
+     ;; mapcar copies list; subsequent operations can be destructive
+     (join-words (delete nil (mapcar #'word-string model))))
     ((eql (car model) 'and)
      (when (cdr model) (word-string (cdr model))))
     ((eql (car model) 'or)
@@ -125,14 +126,15 @@
     ((eql (car model) 'conjoin)
      (pop model)
      (let ((conjunction (word-string (car model)))
-	   (items (remove nil (mapcar #'word-string (cdr model)))))
+	   ;; mapcar copies list; subsequent operations can be destructive
+	   (items (delete nil (mapcar #'word-string (cdr model)))))
        (cond 
 	 ((null conjunction)
 	  (warn "conjoin must have conjunction ~A" model)
 	  (join-words items))
 	 ((cdr items) 
 	  ;; doesn't add commas, as it should, when (cdr (butlast items))
-	  (join-words (append (butlast items) 
+	  (join-words (nconc (butlast items) 
 			      (list conjunction) (last items))))
 	 (t (car items)))))
     ((eql (car model) 'allowed) nil)
@@ -482,8 +484,9 @@
       ;; (format webserver:*stdout* "      Got ~A for match to ~A~%" this (car x))
       (when (< this bound) (push (cons this (cdr x)) quants))
       (when (< this best) (setf best this)))
-    ;; remove any quantities that are not equivalent with best fit. 
-    (remove-if #'(lambda (x) (> (car x) (* best equiv))) quants)))
+    ;; remove any quantities that are not equivalent with best fit
+    ;; and return result. 
+    (delete-if #'(lambda (x) (> (car x) (* best equiv))) quants)))
 
 
 (defun normalized-levenshtein-distance (s1 s2)
@@ -506,6 +509,7 @@
 	  ((= 0 m) (return-from levenshtein-distance n)))
     (let ((col (make-array (1+ m) :element-type 'integer))
 	  (prev-col (make-array (1+ m) :element-type 'integer)))
+      (declare (dynamic-extent col prev-col))
       ;; We need to store only two columns---the current one that
       ;; is being built and the previous one
       (dotimes (i (1+ m))

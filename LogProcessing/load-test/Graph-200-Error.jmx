@@ -2,17 +2,11 @@
 <jmeterTestPlan version="1.2" properties="2.1">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
-      <stringProp name="TestPlan.comments">dt is twice average delay, so dt/2*46 is avg. session length</stringProp>
+      <stringProp name="TestPlan.comments"></stringProp>
       <boolProp name="TestPlan.functional_mode">false</boolProp>
       <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-        <collectionProp name="Arguments.arguments">
-          <elementProp name="dt" elementType="Argument">
-            <stringProp name="Argument.name">dt</stringProp>
-            <stringProp name="Argument.value">36000</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-        </collectionProp>
+        <collectionProp name="Arguments.arguments"/>
       </elementProp>
       <stringProp name="TestPlan.user_define_classpath"></stringProp>
     </TestPlan>
@@ -22,15 +16,14 @@
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">400</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">60</stringProp>
+        <stringProp name="ThreadGroup.num_threads">200</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">0</stringProp>
         <longProp name="ThreadGroup.start_time">1264202436000</longProp>
         <longProp name="ThreadGroup.end_time">1264202436000</longProp>
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <stringProp name="ThreadGroup.duration"></stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
-        <stringProp name="TestPlan.comments">2s delay per user gives max 400</stringProp>
       </ThreadGroup>
       <hashTree>
         <RecordingController guiclass="RecordController" testclass="RecordingController" testname="Recording Controller" enabled="true"/>
@@ -2238,11 +2231,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -2326,11 +2314,6 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
@@ -2416,11 +2399,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -2504,11 +2482,6 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
@@ -2594,11 +2567,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -2682,11 +2650,6 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
@@ -2772,11 +2735,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -2860,11 +2818,6 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
@@ -2950,11 +2903,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -3038,11 +2986,6 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
@@ -3128,11 +3071,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -3216,11 +3154,6 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
@@ -3306,11 +3239,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -3394,11 +3322,6 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
@@ -3484,11 +3407,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -3572,11 +3490,6 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
@@ -3662,11 +3575,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -3750,11 +3658,6 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
@@ -3840,11 +3743,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -3928,11 +3826,6 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
@@ -4018,11 +3911,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -4106,11 +3994,6 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
@@ -4196,11 +4079,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -4284,11 +4162,6 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
@@ -4374,11 +4247,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -4462,11 +4330,6 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
@@ -4552,11 +4415,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -4640,11 +4498,6 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
@@ -4730,11 +4583,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -4818,11 +4666,6 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
@@ -4908,11 +4751,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -4996,11 +4834,6 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/web-UI-database/release/dojo/dijit/themes/tundra/images/treeExpand_plus.gif" enabled="true">
@@ -5599,11 +5432,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -5687,11 +5515,6 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
@@ -5777,11 +5600,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -5865,11 +5683,6 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
@@ -5955,11 +5768,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -6043,11 +5851,6 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
@@ -6133,11 +5936,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -6221,11 +6019,6 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
@@ -6311,11 +6104,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -6399,11 +6187,6 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
@@ -6489,11 +6272,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -6577,11 +6355,6 @@
                 </elementProp>
               </collectionProp>
             </HeaderManager>
-            <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
@@ -6667,10 +6440,62 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
+          </hashTree>
+          <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/web-UI-database/login.html" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain">gideon.eas.asu.edu</stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/web-UI-database/login.html</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <stringProp name="HTTPSampler.FILE_NAME"></stringProp>
+            <stringProp name="HTTPSampler.FILE_FIELD"></stringProp>
+            <stringProp name="HTTPSampler.mimetype"></stringProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSampler>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="Accept-Language" elementType="Header">
+                  <stringProp name="Header.name">Accept-Language</stringProp>
+                  <stringProp name="Header.value">en-us,en;q=0.5</stringProp>
+                </elementProp>
+                <elementProp name="Accept" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</stringProp>
+                </elementProp>
+                <elementProp name="Keep-Alive" elementType="Header">
+                  <stringProp name="Header.name">Keep-Alive</stringProp>
+                  <stringProp name="Header.value">300</stringProp>
+                </elementProp>
+                <elementProp name="User-Agent" elementType="Header">
+                  <stringProp name="Header.name">User-Agent</stringProp>
+                  <stringProp name="Header.value">Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.1.7) Gecko/20100106 Ubuntu/9.10 (karmic) Firefox/3.5.7</stringProp>
+                </elementProp>
+                <elementProp name="Referer" elementType="Header">
+                  <stringProp name="Header.name">Referer</stringProp>
+                  <stringProp name="Header.value">http://gideon.eas.asu.edu/web-UI-database/index.html?s=54321&amp;u=${Users}&amp;p=s2e&amp;e=</stringProp>
+                </elementProp>
+                <elementProp name="Accept-Encoding" elementType="Header">
+                  <stringProp name="Header.name">Accept-Encoding</stringProp>
+                  <stringProp name="Header.value">gzip,deflate</stringProp>
+                </elementProp>
+                <elementProp name="Accept-Charset" elementType="Header">
+                  <stringProp name="Header.name">Accept-Charset</stringProp>
+                  <stringProp name="Header.value">ISO-8859-1,utf-8;q=0.7,*;q=0.7</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
             <hashTree/>
           </hashTree>
           <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/help-database" enabled="true">
@@ -6756,11 +6581,6 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">0</stringProp>
-              <stringProp name="RandomTimer.range">${dt}</stringProp>
-            </UniformRandomTimer>
-            <hashTree/>
           </hashTree>
         </hashTree>
         <ResultCollector guiclass="GraphVisualizer" testclass="ResultCollector" testname="Graph Results" enabled="true">
@@ -6795,46 +6615,24 @@
           <stringProp name="filename"></stringProp>
         </ResultCollector>
         <hashTree/>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="Users1" elementType="Argument">
+              <stringProp name="Argument.name">Users1</stringProp>
+              <stringProp name="Argument.value">Server5</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
+        <hashTree/>
         <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Counter" enabled="true">
-          <stringProp name="CounterConfig.start">2400</stringProp>
-          <stringProp name="CounterConfig.end">2800</stringProp>
+          <stringProp name="CounterConfig.start">351</stringProp>
+          <stringProp name="CounterConfig.end">552</stringProp>
           <stringProp name="CounterConfig.incr">1</stringProp>
           <stringProp name="CounterConfig.name">Users</stringProp>
-          <stringProp name="CounterConfig.format">0000</stringProp>
+          <stringProp name="CounterConfig.format">000</stringProp>
           <boolProp name="CounterConfig.per_user">false</boolProp>
         </CounterConfig>
-        <hashTree/>
-        <ResultCollector guiclass="StatVisualizer" testclass="ResultCollector" testname="Aggregate Report" enabled="true">
-          <boolProp name="ResultCollector.error_logging">false</boolProp>
-          <objProp>
-            <name>saveConfig</name>
-            <value class="SampleSaveConfiguration">
-              <time>true</time>
-              <latency>true</latency>
-              <timestamp>true</timestamp>
-              <success>true</success>
-              <label>true</label>
-              <code>true</code>
-              <message>true</message>
-              <threadName>true</threadName>
-              <dataType>true</dataType>
-              <encoding>false</encoding>
-              <assertions>true</assertions>
-              <subresults>true</subresults>
-              <responseData>false</responseData>
-              <samplerData>false</samplerData>
-              <xml>true</xml>
-              <fieldNames>false</fieldNames>
-              <responseHeaders>false</responseHeaders>
-              <requestHeaders>false</requestHeaders>
-              <responseDataOnError>false</responseDataOnError>
-              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
-              <assertionsResultsToSave>0</assertionsResultsToSave>
-              <bytes>true</bytes>
-            </value>
-          </objProp>
-          <stringProp name="filename"></stringProp>
-        </ResultCollector>
         <hashTree/>
       </hashTree>
     </hashTree>
