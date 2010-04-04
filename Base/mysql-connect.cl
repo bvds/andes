@@ -1,9 +1,35 @@
 ;;;;
 ;;;;  Obtained from http://paste.lisp.org/display/92632
 ;;;;  on March 26, 2010.  Added modifications to get it
-;;;;  working with sbcl (instead of lispworks).
+;;;;  working with sbcl (instead of lispworks).  Added license
+;;;;  and copyright statement from Art Oberzan.
 ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Copyright (c) 2009-2010, Art Obrezan
+;;; All rights reserved.
+;;; 
+;;; Redistribution and use in source and binary forms, with or without
+;;; modification, are permitted provided that the following conditions are met:
+;;; 1. Redistributions of source code must retain the above copyright
+;;;    notice, this list of conditions and the following disclaimer.
+;;; 2. Redistributions in binary form must reproduce the above copyright
+;;;    notice, this list of conditions and the following disclaimer in the
+;;;    documentation and/or other materials provided with the distribution.
+;;; 3. Source code can not be used in projects under GNU General Public Licenses
+;;;    and its derivatives (LGPL, etc.), with the following exception:
+;;; 4. Source code may be distributed as part of the Andes Intelligent Tutor System.
+;;;
+;;; THIS SOFTWARE IS PROVIDED BY ART OBREZAN ''AS IS'' AND ANY
+;;; EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+;;; WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+;;; DISCLAIMED. IN NO EVENT SHALL ART OBREZAN BE LIABLE FOR ANY
+;;; DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+;;; (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+;;; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+;;; ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+;;; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+;;; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 ;;;
 ;;; Dec, 2009
 ;;;
@@ -545,7 +571,7 @@
                  (mapcar #'%to-bytes (sha1-digest message)))
                (coerce (nreverse list) 'vector)))
     (string (let ((digest (sha1-digest message)))
-              (string-downcase (format nil "~x~x~x~x~x"
+              (string-downcase (format nil "~2,'0x~2,'0x~2,'0x~2,'0x~2,'0x"
                                        (first  digest)
                                        (second digest)
                                        (third  digest)
@@ -555,6 +581,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; from http://scompall.nocandysw.com/sbcl-listen-socket-test.lisp
+;;; modified to handle local socket files.
 ;;; should return a byte stream.
 ;;;
 (defun connect-to-server (host port &key (buffering :full))
@@ -591,7 +618,6 @@
 ;;;   (pre mysql 4.1) password handling, by default.
 ;;;
 (defconstant +scramble-length-323+ 8)
-
 
 (defun scramble-323 (message password)
   "See scramble_323 in mysql-connector-c-6.0.2/libmysql/password.c"
