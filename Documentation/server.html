@@ -13,10 +13,9 @@ The Andes Help Server has three main components:
   <li>A conventional web server which serves static content and
   forwards help messages to the help server.
 
-  <li>An SQL database stores messages to the help server.&nbsp;
-  It saves the raw messages passed between the client and the help
-  server.&nbsp;  The message protocol is defined using a
-  <a href="http://groups.google.com/group/json-rpc/web/json-rpc-1-2-proposal">json-rpc</a>
+  <li>An SQL database which stores the raw messages passed between the 
+  client and the help server.&nbsp;  The message protocol is defined using a
+  <a href="http://groups.google.com/group/json-rpc/web/json-rpc-2-0">json-rpc</a>
   <a href="http://groups.google.com/group/json-schema/web/service-mapping-description-proposal ">service method
   description</a>:&nbsp;
   <a href="../web-UI/andes/andes3.smd">andes3.smd</a>.&nbsp;
@@ -24,7 +23,7 @@ The Andes Help Server has three main components:
   <a href="../web-UI/Documentation/AsuDocs/nokes-example-json.txt">
      an example session for problem s2e</a>.&nbsp;
 
-  <li>The Lisp help system manages user sessions, logs messages to
+  <li>The Lisp help server which manages user sessions, logs messages to
   the database, and generates replies to student actions.
 </ol>
 <img src="arch.jpg" alt="server diagram" width="500">
@@ -35,8 +34,8 @@ libraries and sends an <code>open-problem</code> message to the help
 server.&nbsp; In response, the help server sets up a new session and returns
 the problem statement and any previous work done on the problem.&nbsp;
 As the student solves the problem, various <code>solution-step</code>
-and <code>seek-help</code> messages are sent the server.&nbsp;
-A session ends when the student hits the submit button, or the back
+and <code>seek-help</code> messages are sent to the server.&nbsp;
+A session ends when the student hits the submit button or the back
 button on the browser.&nbsp;
 
 <h2>Running the Help Server</h2>
@@ -44,7 +43,8 @@ button on the browser.&nbsp;
 You can use the <a href="http://en.wikipedia.org/wiki/GNU_Screen">
 <code>screen</code></a> utility to run instances of the help server.&nbsp;
 Enter <code>screen</code> on the command line, enter
-<code>sbcl</code> to start up lisp, then start the help server using:
+<code>sbcl  --dynamic-space-size 1024</code> to start up lisp, then start 
+the help server using:
 <pre>
 (rhelp)
 (start-help :password "sin(0)=0") ;specify mysql password 
@@ -54,20 +54,22 @@ to detach from the lisp process.&nbsp; Use <code>screen -r</code>
 to re-attach.
 
 <p>
-To stop the lisp server:&nbsp; <code>(stop-help)</code>;
+To stop the lisp server:&nbsp; <code>(stop-help)</code>
 and to to exit lisp:&nbsp; <code>(quit)</code>.
 
 <p>The functions <code>start-help</code> and <code>stop-help</code>
 are documented in the source file <a href="../Help/sessions.cl">
 <code>Help/sessions.cl</code></a>.
 
+
+
 <h2>Software Updates</h2>
 
-Update software by entering:&nbsp; <code>make update</code>
+Update software by entering <code>make update</code> in the Andes root directory.
 
 <p>If the help server is running, reattach to the server using screen:&nbsp;
 <code>screen -r</code>.&nbsp;  
-In lisp, stop the server, reload the libraries, and restart:
+Then, in lisp, stop the server, reload the libraries, and restart using:
 <pre>
 (stop-help)
 (rhelp)
@@ -76,6 +78,79 @@ In lisp, stop the server, reload the libraries, and restart:
 At this point, you can type ctl-a ctl-d to detach from the lisp process.&nbsp;
 
 <p>If the <code>(rhelp)</code> command fails, try rebuilding the lisp
-object files:&nbsp;  Exit lisp using <code>(quit)</code>; On the
-command line, enter <code>rm */*.fasl</code>; Restart lisp.
+object files:
+<ul>
+  <li>Exit lisp using <code>(quit)</code>;
+  <li>On the command line, enter <code>rm */*.fasl</code>;
+  <li>Restart lisp.
+</ul>
+
+<h2>Monitoring the help server</h2>
+
+Most errors in the help server are logged in the database.&nbsp;  We have 
+developed some tools for analyzing these errors.&nbsp;  For instance,
+<a href="../LogProcessing/Web-Interface/ShowErrors.html"><code>
+ShowErrors.html</code></a> (which can be found on the Andes server
+at <code>log/ShowErrors.html</code>) generates a list of all help 
+system warnings and errors.&nbsp;
+More serious errors, such as losing contact with the database,
+are logged in the fie <a href="../help-server.log">
+<code>help-server.log</code></a>.
+
+<p>Likewise, student comments can be accessed at
+<a href="../LogProcessing/Web-Interface/adminLogin.html"><code>
+adminLogin.html</code></a> (which can be found on the Andes server
+at <code>log/adminLogin.html</code>).&nbsp;  This has shown to be
+very useful in user testing of Andes.
+
+<h2>Resource Limits</h2>
+
+Each open session takes up two system file handles (<code>fd</code>s).&nbsp;
+Typically, the help server uses about 30 other <code>fd</code>s for other stuff.&nbsp;
+Since the system libray <code>glibc</code> has a limit of 1024 <code>fd</code>s per
+unix process, there is a hard limit of about 450 open sessions per lisp process.&nbsp;
+
+<p>Currently, the number of simultaneous user sessions is limited by cpu speed.&nbsp;
+On a 32 bit 3.0 GHz Xeon procesor, a single lisp process can handle about
+300 simultaneous sessions (using problem s2e as a test case) before full cpu
+is used.&nbsp;  On a similar 64 bit machine, 200 simultaneous sessions cause
+full usage of 1 cpu.
+
+<p>Code for benchmarking Andes using <a href="http://jakarta.apache.org/jmeter/">jmeter</a>
+can be found in <a href="../LogProcessing/load-test"><code>LogProcessing/load-test</code></a>.&nbsp;
+
+
+<h2>Memory Usage and Garbage collection</h2>
+
+On a 32 bit linux machine, the lisp process takes up about 
+70MBytes while each open session uses roughly 1MByte (depending
+on the problem).&nbsp;  Lisp has automatic garbage collection, and 
+will need rougly as much space for garbage and garbage collection
+as it does for data.&nbsp;  Use sbcl flag <code>--dynamic-space-size</code>
+(in MBytes) to adjust the heap size.&nbsp;
+
+<p>sbcl uses a generational garbage collector.&nbsp;  The basic premise
+of the generational garbage collector is that more recently allocated 
+data has a better chance of being eligible for garbage collection than
+older data.&nbsp;  Unfortunately, the Andes help server breaks this assumption
+rather badly:&nbsp;  most of the data gets created at the beginning of a session
+and persists until that problem is closed by the student.&nbsp;  
+However, the garbage collection algorithm can still be tuned to work 
+efficiently:&nbsp;  we use only 2 generations, with rather infrequent
+garbage collection.&nbsp;  The function <code>tune-generational-gc</code> 
+in <a href="../Base/garbage-collect.cl"><code>garbage-collect.cl</code></a>
+is used to set the frequency of garbage collection.&nbsp;
+A larger <code>bytes-consed-between-gcs</code> is more efficient,
+but causes the system to pause longer during garbage collection.&nbsp;
+I have been targeting 1 second as the longest acceptable pause.&nbsp;
+The following lisp code has been useful for monitoring garbage collection and
+heap memory usage during load testing:
+<pre>
+(sb-thread:make-thread 
+ (lambda () (loop for i from 1 to 77 do 
+  (format webserver:*stdout* "~%~A sessions~%" 
+   (hash-table-count webserver::*sessions*)) 
+    (gen-stats webserver:*stdout*) (sleep 120))))
+</pre>
+
 </body> </html>
