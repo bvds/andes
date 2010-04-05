@@ -37,3 +37,15 @@ LOAD DATA LOCAL INFILE 'student_dataset.csv' INTO TABLE STUDENT_DATASET FIELDS T
 '\n' (datasetID, datasetname, modulename, groupname, problemname);
  LOAD DATA LOCAL INFILE 'classinformation.csv' INTO TABLE CLASS_INFORMATION FIELDS TERMINATED BY ',' LINES TERMINATED BY 
 '\n' (classID, name, school, period, description, instructorName, schoolyearInfo, datasetID);
+
+-- Create a database for load testing
+DROP DATABASE IF EXISTS `andes_test`;
+CREATE DATABASE `andes_test` /*!40100 DEFAULT CHARACTER SET latin1 */;
+USE `andes_test`;
+-- Create the tables.  The test tables have a simpler structure than 'andes'.
+
+DROP TABLE IF EXISTS `andes_test`.`PROBLEM_ATTEMPT`;
+\. create_test_PROBLEM_ATTEMPT.sql
+
+DROP TABLE IF EXISTS `andes_test`.`PROBLEM_ATTEMPT_TRANSACTION`;
+\. create_PROBLEM_ATTEMPT_TRANSACTION.sql
