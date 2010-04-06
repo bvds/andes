@@ -1,4 +1,5 @@
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                      "http://www.w3.org/TR/html4/loose.dtd">
 <html> <head>
 <title>Andes Help Server</title>
 </head>
@@ -117,17 +118,36 @@ is used.&nbsp;  On a similar 64 bit machine, 200 simultaneous sessions cause
 full usage of 1 cpu.
 
 <p>Code for benchmarking Andes using <a href="http://jakarta.apache.org/jmeter/">jmeter</a>
-can be found in <a href="../LogProcessing/load-test"><code>LogProcessing/load-test</code></a>.&nbsp;
-
+can be found in <a href="../LogProcessing/load-test"><code>LogProcessing/load-test</code></a>.&nbsp;  For longer tests of the help system only, use
+<a href="../LogProcessing/load-test/long-help-only.jmx"><code>long-help-only.jmx</code></a>.&nbsp;  When running the help server, you want to dump data into
+the <code>andes_test</code> database; you can use the following:
+<pre>
+(rhelp)
+(start-help :db "andes_test")
+(setf *simulate-loaded-server* nil) ;not necessary in stable branch
+(setf webserver:*debug* nil)        ;not necessary in stable branch
+;; Create thread to monitor memory usage.
+(sb-thread:make-thread 
+ (lambda () (loop for i from 1 to 77 do 
+  (format webserver:*stdout* "~%~A sessions~%" 
+   (hash-table-count webserver::*sessions*)) 
+    (gen-stats webserver:*stdout*) (sleep 120))))
+</pre>
+After a run, you can use the following mysql script to flush the
+<code>andes_test</code> database:
+<pre>
+mysql -u root -p < LogProcessing/databaseCreationScripts/delete_test_database.sql
+</pre>
 
 <h2>Memory Usage and Garbage collection</h2>
 
 On a 32 bit linux machine, the lisp process takes up about 
 70MBytes while each open session uses roughly 1MByte (depending
 on the problem).&nbsp;  Lisp has automatic garbage collection, and 
-will need rougly as much space for garbage and garbage collection
+will need at least as much space for garbage and garbage collection
 as it does for data.&nbsp;  Use sbcl flag <code>--dynamic-space-size</code>
-(in MBytes) to adjust the heap size.&nbsp;
+(in MBytes) to adjust the heap size.&nbsp;  Generally, I have been using
+1000&nbsp;MBytes.
 
 <p>sbcl uses a generational garbage collector.&nbsp;  The basic premise
 of the generational garbage collector is that more recently allocated 
@@ -142,15 +162,6 @@ in <a href="../Base/garbage-collect.cl"><code>garbage-collect.cl</code></a>
 is used to set the frequency of garbage collection.&nbsp;
 A larger <code>bytes-consed-between-gcs</code> is more efficient,
 but causes the system to pause longer during garbage collection.&nbsp;
-I have been targeting 1 second as the longest acceptable pause.&nbsp;
-The following lisp code has been useful for monitoring garbage collection and
-heap memory usage during load testing:
-<pre>
-(sb-thread:make-thread 
- (lambda () (loop for i from 1 to 77 do 
-  (format webserver:*stdout* "~%~A sessions~%" 
-   (hash-table-count webserver::*sessions*)) 
-    (gen-stats webserver:*stdout*) (sleep 120))))
-</pre>
+I have been targeting 1 second as the maximum acceptable pause.&nbsp;
 
 </body> </html>
