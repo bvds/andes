@@ -19,7 +19,7 @@ The Andes Help Server has three main components:
   <a href="http://groups.google.com/group/json-rpc/web/json-rpc-2-0">json-rpc</a>
   <a href="http://groups.google.com/group/json-schema/web/service-mapping-description-proposal ">service method
   description</a>:&nbsp;
-  <a href="../web-UI/andes/andes3.smd">andes3.smd</a>.&nbsp;
+  <a href="../web-UI/andes/andes3.smd">web-UI/andes/andes3.smd</a>.&nbsp;
   You can view the messages for 
   <a href="../web-UI/Documentation/AsuDocs/nokes-example-json.txt">
      an example session for problem s2e</a>.&nbsp;
@@ -91,7 +91,8 @@ object files:
 Most errors in the help server are logged in the database.&nbsp;  We have 
 developed some tools for analyzing these errors.&nbsp;  For instance,
 <a href="../LogProcessing/Web-Interface/ShowErrors.html"><code>
-ShowErrors.html</code></a> (which can be found on the Andes server
+LogProcessing/Web-Interface/ShowErrors.html</code></a> 
+(which can be found on the Andes server
 at <code>log/ShowErrors.html</code>) generates a list of all help 
 system warnings and errors.&nbsp;
 More serious errors, such as losing contact with the database,
@@ -100,7 +101,8 @@ are logged in the fie <a href="../help-server.log">
 
 <p>Likewise, student comments can be accessed at
 <a href="../LogProcessing/Web-Interface/adminLogin.html"><code>
-adminLogin.html</code></a> (which can be found on the Andes server
+LogProcessing/Web-Interface/adminLogin.html</code></a> 
+(which can be found on the Andes server
 at <code>log/adminLogin.html</code>).&nbsp;  This has shown to be
 very useful in user testing of Andes.
 
@@ -117,10 +119,17 @@ On a 32 bit 3.0 GHz Xeon procesor, a single lisp process can handle about
 is used.&nbsp;  On a similar 64 bit machine, 200 simultaneous sessions cause
 full usage of 1 cpu.
 
+<p>The timeout for a single turn is set by the variable 
+<code>webserver:*turn-timeout*</code> to be 20 seconds.&nbsp;  The variable is 
+set in <a href="../Base/web-server.cl"><code>Base/web-server.cl</code></a> 
+and can be adjusted dynamically in lisp, for example:&nbsp;
+<code>(setf webserver:*turn-timeout* 15)</code>
+
 <p>Code for benchmarking Andes using <a href="http://jakarta.apache.org/jmeter/">jmeter</a>
 can be found in <a href="../LogProcessing/load-test"><code>LogProcessing/load-test</code></a>.&nbsp;  For longer tests of the help system only, use
-<a href="../LogProcessing/load-test/long-help-only.jmx"><code>long-help-only.jmx</code></a>.&nbsp;  When running the help server, you want to dump data into
-the <code>andes_test</code> database; you can use the following:
+<a href="../LogProcessing/load-test/long-help-only.jmx"><code>long-help-only.jmx</code></a>.&nbsp;  When load testing, you want to dump data into
+the <code>andes_test</code> database, rather than pollute the regular database.&nbsp;
+You can use the following to run the help server:
 <pre>
 (rhelp)
 (start-help :db "andes_test")
@@ -158,7 +167,7 @@ and persists until that problem is closed by the student.&nbsp;
 However, the garbage collection algorithm can still be tuned to work 
 efficiently:&nbsp;  we use only 2 generations, with rather infrequent
 garbage collection.&nbsp;  The function <code>tune-generational-gc</code> 
-in <a href="../Base/garbage-collect.cl"><code>garbage-collect.cl</code></a>
+in <a href="../Base/garbage-collect.cl"><code>Base/garbage-collect.cl</code></a>
 is used to set the frequency of garbage collection.&nbsp;
 A larger <code>bytes-consed-between-gcs</code> is more efficient,
 but causes the system to pause longer during garbage collection.&nbsp;
