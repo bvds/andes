@@ -24,10 +24,14 @@
   (:use :cl :hunchentoot :json)
   (:export :defun-method :start-json-rpc-service :stop-json-rpc-service 
 	   :*stdout* :print-sessions :*env* :close-idle-sessions :*debug*
+	   :*turn-timeout*
 	   :*debug-alloc* :get-session-env :*log-id*))
 
 (in-package :webserver)
 
+;; note that hunchentoot:*default-connection-timeout* is 20 seconds 
+;; See Bug #1710
+(defvar *turn-timeout* 20 "Timeout for a turn, in seconds.")
 (defvar *server* nil)
 (defvar *log-function* nil "Logging function, function of 3 variables.")
 (defvar *log-id* nil "Id sent to the logging function.")
@@ -256,14 +260,6 @@
 
 (defun get-session-env (session)
   (ssn-environment (gethash session *sessions*)))
-
-(defun count-active-sessions ()
-  "Count number of currently active (locked) sessions."
-  (let ((i 0))
-    (maphash #'(lambda (k v) (declare (ignore k)) 
-		       (when (sb-thread:mutex-owner (ssn-mutex v)) (incf i)))
-	     *sessions*)
-    i))
   
 (defun get-session (session)
   "Return a session for a given hash or create a new one"
@@ -363,10 +359,8 @@
 				   (return-from unwind (error-hint c)))))
 		     
 		     ;; execute the method
-		     ;; note that hunchentoot:*default-connection-timeout* 
-		     ;; is 20 seconds 
-		     ;; Timeout not working, due to mysql lib, Bug #1708
-		     (sb-ext:with-timeout 15
+		     ;; See Bug #1710
+		     (sb-ext:with-timeout *turn-timeout*
 		       (apply func (if (alistp params) 
 				       (flatten-alist params) params))))))
 	   
