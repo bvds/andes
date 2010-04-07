@@ -92,10 +92,10 @@ dojo.provide("andes.drawing");
 				var box = item.getBounds();
 				var props = getStatementPosition(box);
 				if(hasLabel[item.type]){
-					// axes
-					// default labels for an axes
-                                        props.data.text = andes.defaults.zAxisEnabled?
-                                                     "x and y and z":"x and y";
+				  // axes
+				  // default labels for an axes
+				  props.data.text = andes.defaults.zAxisEnabled?
+						      "x and y and z":"x and y";
 				}
 				// create statement for vector, rect, ellipse, or axes
 				var statement = _drawing.addStencil("textBlock", props);
@@ -270,6 +270,8 @@ dojo.provide("andes.drawing");
                                }else if(obj.action=="set-styles"){
 				 if(obj["z-axis-enable"]){
 				   andes.defaults.zAxisEnabled=obj["z-axis-enable"];
+				  // temporary for testing
+				  dojo.byId("drawZAxis").disabled=!obj["z-axis-enable"];
 				 }
 
 				}else{
@@ -303,7 +305,8 @@ dojo.provide("andes.drawing");
 
 						items[obj.id].master.attr({
 							angle:obj.angle,
-							radius:obj.radius
+							radius:obj.radius,
+							cosphi:(andes.defaults.zAxisEnabled?obj.cosphi:null)
 						});
 					}
 					if(obj.type=="axes"){
@@ -324,6 +327,7 @@ dojo.provide("andes.drawing");
 						/*items[obj.id].master.attr({
 													label:obj.text
 												});*/
+					        // single space was set in convert.js
 						var text = obj.text==" "? obj.symbol : obj.text;
 						items[obj.id].textEdit(text);
 					};

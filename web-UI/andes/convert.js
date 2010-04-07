@@ -126,9 +126,9 @@ dojo.provide("andes.convert");
 				obj.data.text = o.text;
 			}else if(o.type=="axes"){
 				obj.label = o['x-label']+" and "+o['y-label'];
-                               if(andes.defaults.zAxisEnabled){
-                                 obj.label += " and "+o['z-label'];
-                               }
+				if(andes.defaults.zAxisEnabled){
+				  obj.label += " and "+o['z-label'];
+				}
 			}
 
 			if(o.href){
@@ -193,13 +193,30 @@ dojo.provide("andes.convert");
 				obj["x-label"] = lbl.x;
 				obj["y-label"] = lbl.y;
 				if(lbl.z) {
-                                  obj["z-label"] = lbl.z;
+				  obj["z-label"] = lbl.z;
 				}
 				obj.radius = Math.ceil(item.getRadius());
 				obj.angle = item.getAngle();
 			}
 
-			if(combo){
+		        // add any z-axis dir to vectors and lines
+			if(andes.defaults.zAxisEnabled &&
+			   (type == "vector" || type == "line")){
+			    // temporary code to get things working
+			    // The vector itself should be visibly different.
+			    // Might be better to put this code into dojox/drawing/tools
+			    // Should instead use some property of the object and actual calculation of cosphi should occur in dojox/drawing,
+// just like calculations of angle.
+			  if(andes.defaults.zAxis){
+			    var dir=item.getAngle();
+			    obj.cosphi=(dir>90+45 && dir<360-45)?1:-1;
+			    //
+			  }else {
+			    obj.cosphi=0;
+			  }
+			}
+
+			  if(combo){
 			        // match logic in andesToDrawing
 			        // Send empty string, rather than null
                                 // The server treats null as "not modified".
