@@ -87,7 +87,12 @@
 								<div id="menuManual" dojoType="dijit.MenuItem">Manual</div>
 				</div>
                      </div>
-				<div dojoType="dijit.form.Button" id="submitButton" style="position:absolute; top:0; right:10px; margin:0;">Submit</div>
+
+		     <!-- this is just temporary code to get z-axis stuff working -->
+		     		                   <span>
+						     <INPUT TYPE="checkbox" id="drawZAxis" unchecked disabled onclick="andes.defaults.zAxis=dojo.byId('drawZAxis').checked;">z-axis vector</span>
+
+		                                 <div dojoType="dijit.form.Button" id="submitButton" style="position:absolute; top:0; right:10px; margin:0;">Submit</div>
 		</div>
 		
 		<div id="toolPane" dojoType="dijit.layout.ContentPane" region="left" splitter="false">
@@ -95,7 +100,8 @@
 				<div dojoType="dojox.drawing.ui.Toolbar" id="gfxToolbarNode" drawingId="drawing" class="gfxToolbar" tools="line,rect,ellipse,textBlock,equation,vector,axes" plugs="all" selected=""></div>
 		</div>
 		<div id="drawingPane" dojoType="dijit.layout.ContentPane" region="center" >
-				<div dojoType="dojox.drawing.Drawing" id="drawing" jsId="myDrawing" class="drawing" defaults="andes.defaults">
+				<div dojoType="dojox.drawing.Drawing" id="drawing" jsId="myDrawing" class="drawing" defaults="andes.defaults"
+					 plugins="[{'name':'dojox.drawing.plugins.tools.Pan', 'options':{gap:100}}]">
 				</div>
 		</div>
 			
