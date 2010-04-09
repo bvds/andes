@@ -76,13 +76,13 @@
 ;; so we don't use nlg types that add articles.
 (def-qexp voltage-across (voltage-across ?comp :time ?time)
   :units |V|
-  :new-english ((the) "voltage across" ?comp (time ?time) )) 
+  :new-english ((the) "voltage across" (component ?comp) (time ?time)))
 
-(def-qexp resistance (resistance ?names)
+(def-qexp resistance (resistance ?name)
   :symbol-base |R| 
   :short-name "resistance"
   :units |$W|
-  :new-english ((the) "resistance of" (conjoin (or "and" "&") . ?names)))
+  :new-english ((the) "resistance of" (component ?name)))
 
 (def-qexp current (current-thru ?component :time ?time)
   :symbol-base |I| 
@@ -90,16 +90,14 @@
   :units |A|
   ;; No sign restriction on this quantity. A few prbs (LR1b,1c,2b) restrict 
   ;; currents to be positive on a per-problem basis with :VariableMarks
-  :new-english ((the) "current through" (conjoin (or "and" "&"). ?component) 
-		(time ?time)))
+  :new-english ((the) "current" (allowed "flowing") "through" 
+		(component ?component) (time ?time)))
 
 (def-qexp capacitance (capacitance ?name)
   :symbol-base |C|     
   :short-name "capacitance"
   :units |F|
-  :new-english (property-object "capacitance" 
-				(or (var (body ?name) :namespace :objects) 
-				    ?name) ))
+  :new-english ((the) "capacitance of" (component ?name)))
 
 ;;; in the workbench, the time slot is added if feature changing-voltage
 ;;; is included.
@@ -107,8 +105,14 @@
   :symbol-base |q|     
   :short-name "charge"	
   :units |C|
-  :new-english ((the) "charge on" (or (var (body ?name) :namespace :objects) 
-				      ?name) (time ?time)))
+  :new-english ((the) "charge on" (component ?name) (time ?time)))
+
+(def-qexp circuit-component (component ?a)
+  ;; Generally components are a single symbol or a list for
+  ;; a compound component.
+  ;; Sometimes the component can be defined with the body tool.
+  :new-english (or (var (body ?a) :namespace :objects)
+		   (eval (if (consp ?a) `(conjoin (or "and" "&") . ,?a) ?a))))
 
 ;;; in the workbench, the time slot is added if feature changing-voltage
 ;;; is included.
@@ -124,29 +128,27 @@
   :symbol-base |q|     
   :short-name "charge"	
   :units |C|
-  :new-english ((the) "charge in" (or (var (body ?name)
-					   :namespace :objects) ?name)  
-		(time ?time)))
+  :new-english ((the) "charge in" (component ?name) (time ?time)))
 
 (def-qexp max-charge (max-charge ?name :time ?time)
   :symbol-base |q|     
   :short-name "max-charge"	
   :units |C|
-  :new-english ((the) or("maximum" "max") "charge in" 
-		(or (var (body ?name) :namespace :objects) 
-		    ?name)  (time ?time)))
+  :new-english ((the) (or "maximum" "max") "charge in" 
+		(component ?name)  (time ?time)))
 
 (def-qexp self-inductance (self-inductance ?inductor)
   :symbol-base |L|     
   :short-name "self-inductance"	
   :units |H|
-  :new-english (property-object "inductance" ?inductor))
+  :new-english ((the) (allowed "self") "inductance of" (component ?inductor)))
 
 (def-qexp mutual-inductance (mutual-inductance orderless . ?inductors)
   :symbol-base |M|     
   :short-name "mutual inductance"	
   :units |H|
-  :new-english ((the) "mutual inductance of" (conjoin (or "and" "&") ?inductors)))
+  :new-english ((the) "mutual inductance" (or "between" "of") 
+		(conjoin (or "and" "&") ?inductors)))
 
 ;;; power as used in circuits problem has slightly different definition
 ;;; than power in mechanics: no agent, and may denote power output (from
