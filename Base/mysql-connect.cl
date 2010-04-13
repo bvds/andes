@@ -596,8 +596,7 @@
 	     (let ((socket (make-instance 'sb-bsd-sockets:local-socket 
 					  :type :stream)))
 	       (sb-bsd-sockets:socket-connect 
-		socket #+darwin "/tmp/mysql.sock" 
-		#+linux "/var/lib/mysql/mysql.sock")
+		socket (get-mysql-socket-file))
 	       (sb-bsd-sockets:socket-make-stream 
 		socket :output t :input t :element-type '(unsigned-byte 8)
 		#+sb-unicode :external-format #+sb-unicode :utf-8)))
@@ -608,6 +607,24 @@
 (defun resolve-hostname (name)
   (car (sb-bsd-sockets:host-ent-addresses
         (sb-bsd-sockets:get-host-by-name name))))
+
+(defun get-mysql-socket-file ()
+  "Return the mysql socket file."
+  ;; If possible, use "mysql_config --socket", else probe likely files.
+  (or 
+   #+sbcl (let ((id (sb-ext:run-program "mysql_config" (list "--socket")
+					:output :stream :search t)))
+	    (unwind-protect
+		 ;; Only return something if the program was successful.
+		 (if (= 0 (sb-ext:process-exit-code id))
+		   (read-line (sb-ext:process-output id))
+		   (warn "Command \"mysql_config --socket\" failed"))
+	      (sb-ext:process-close id)))
+   (when (probe-file "/var/lib/mysql/mysql.sock") 
+     "/var/lib/mysql/mysql.sock")
+   (when (probe-file "/tmp/mysql.sock") 
+     "/tmp/mysql.sock")
+   (error "Can't find mysql socket file")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
