@@ -335,7 +335,7 @@
 		    (:width . ,(second g)) (:height . ,(third g))
 		    ;; This is the URL for the graphic, which may not
 		    ;; match its location on the server filesystem.
-		    (:href . ,(strcat "/images/" (first g))))
+		    (:href . ,(strcat "../images/" (first g))))
 		  replies)
 	    (setf y (+ y (third g) 15)))))
 	
