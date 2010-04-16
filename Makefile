@@ -40,6 +40,20 @@ configure-httpd:
 	ln -s `pwd`/images $(httpd-document-root)
 	ln -s `pwd`/LogProcessing/Web-Interface $(httpd-document-root)/log
 
+
+ifdef SUDO_USER
+username=$(SUDO_USER)
+else
+username=$(USER)
+endif
+
+install-server:
+	@echo "Please run with superuser privileges."
+	cp help-server/andes-helpd /etc/init.d
+	cp help-server/andes-help.conf /etc
+	echo "LUSER=$(username)" >> /etc/andes-help.conf
+	echo "ANDES_ROOT_DIR=`pwd`" >> /etc/andes-help.conf
+
 update:
 	git pull
 	cd problems; git pull
