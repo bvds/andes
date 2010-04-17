@@ -22,8 +22,7 @@ fi
 RETVAL=0
 
 # need user name and init file from configuration!
-ANDES_INIT=" < ${ANDES_ROOT_DIR}/help-server/init.cl >& ${ANDES_ROOT_DIR}/help-server-init.log &"
-
+ANDES_INIT=" < ${ANDES_SERVER_DIR}/init.cl >& ${ANDES_SERVER_DIR}/init.log &"
 prog="sbcl"
 LOCK=/var/lock/subsys/andes-helpd
 pidfile=/var/run/andes-helpd.pid
