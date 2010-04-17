@@ -17,18 +17,29 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 
 		this.xArrow = new dojox.drawing.annotations.Arrow({stencil:this, idx1:0, idx2:1});
 		this.yArrow = new dojox.drawing.annotations.Arrow({stencil:this, idx1:2, idx2:1});
+		if(options.data) { this.style.zAxisEnabled = options.data.cosphi !=0 ? true : false; }
 		if(this.style.zAxisEnabled){
-			dojo.mixin(options, {
-				container:this.drawing.canvas.surface.createGroup()
-			});
-			options.style.zAxis = true;
-			this.zAxis = new dojox.drawing.tools.custom.Vector(options);
-			/*this.connectMult([
-				[this, "onTransform", this.zAxis, "onTransform"],
+			this.cosphi = 1;
+			var ops = {};
+			dojo.mixin(ops, dojo.mixin(options, {
+				container:this.container.createGroup(),
+				style: this.style,
+				showAngle: false
+			}));
+			ops.style.zAxis = true;
+			this.zAxis = new dojox.drawing.tools.custom.Vector(ops);
+			//console.log("-----constructing axes: ",this.zAxis);
+			this.connectMult([
+				[this, "onChangeStyle", this.zAxis, "onChangeStyle"],
+				[this, "select", this.zAxis, "select"],
+				[this, "deselect", this.zAxis, "deselect"],
 				[this, "onDelete", this.zAxis, "destroy"],
-				[this, "onBeforeRender", this.zAxis, "render"]
-			]);*/
-			this.zArrow = new dojox.drawing.annotations.Arrow({stencil:this, idx1:1, idx2:1});
+				[this, "onDrag", this, "zSet"],
+				[this, "onTransform", this, "zSet"],
+				[this.zAxis, "onBeforeRender", this, "zSet"],
+				[this, "_onPostRender", this.zAxis, "render"]
+			]);
+			
 		}
 
 		if(this.points && this.points.length){
@@ -41,6 +52,7 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 			//	on first render.
 			this.onRender();
 		}
+		//console.warn("---info on zAxis: ", this.zAxis, ", and on this: ",this);
 	},
 	{
 		draws:true,
@@ -49,7 +61,36 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 		showAngle:true,
 		closePath:false,
 		baseRender:false,
-
+		cosphi:0,
+		zScale:.5,
+		
+		zPoints: function() {
+			if (!this.zAxis || !this.zAxis.points[0]) { return; };
+			var d = this.points[1];
+			d.radius = this.getRadius();
+			d.angle = this.style.zAngle;
+			
+			var pt = this.util.pointOnCircle(d.x, d.y, d.radius*this.zScale, d.angle);
+			var p = [
+				{x:d.x, y:d.y},
+				{x:pt.x, y:pt.y}
+			];			
+			return p;
+		},
+		
+		onStencilDrag: function() {
+			console.warn("fired");
+			this.zSet();
+		},
+		
+		zSet: function() {
+			var p = this.zPoints();
+			if(p) { 
+				this.zAxis.setPoints(p); 
+				this.zAxis.cosphi = 1; 
+			}
+		},
+		
 		createLabels: function(){
 			// summary:
 			//		Creates the label for each axis.
@@ -62,11 +103,9 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 			this.labelY = new dojox.drawing.annotations.Label(dojo.mixin(props,{
 				labelPosition:this.setLabelY
 			}));
-			if(this.style.zAxisEnabled){
-			  this.labelZ = new dojox.drawing.annotations.Label(dojo.mixin(props,{
-					  labelPosition:this.setLabelZ
-			  }));
-			}
+			this.labelZ = new dojox.drawing.annotations.Label(dojo.mixin(props,{
+				labelPosition:this.setLabelZ
+			}));
 
 		},
 
@@ -119,23 +158,13 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 			// summary:
 			//		Custom placement for z-axis label
 			//
-			var ax = this.points[0];
-			var c =  this.points[1];
-			var ay = this.points[2];
-
-			var dist = 40;
-			var offdist = -20; // changed
-			var pt, px, py, pt2;
-			pt = this.util.lineSub(c.x, c.y, ay.x, ay.y, dist);
-			px = pt.x + ( ay.y-pt.y);
-			py = pt.y + (pt.x - ay.x );
-			pt2 = this.util.lineSub(pt.x, pt.y, px, py, (dist-offdist));
-			pt2 = this.util.lineSub(pt.x, pt.y, px, py, (dist-offdist));
+			var p = this.zPoints();
+			var pt = dojox.drawing.util.positioning.label({x:p[0].x,y:p[0].y},{x:p[1].x,y:p[1].y});
 			return {
-				x:  pt2.x,
-				y:  pt2.y,
+				x:pt.x,
+				y:pt.y,
 				width:20
-			};
+			}
 		},
 		setLabel: function(/* ? String*/value){
 			// summary:
@@ -179,10 +208,6 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 			  this.labelZ.setLabel(z);
 			}
 			this._labelsCreated = true;
-
-
-
-
 		},
 		getLabel: function(){
 			// summary:
@@ -351,7 +376,6 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 			//
 			// the xaxis point has changed - the center will not.
 			// need to find the yaxis point.
-
 			var o = this.points[0];
 			var c = this.points[1];
 			var ox = c.x - (c.y - o.y);

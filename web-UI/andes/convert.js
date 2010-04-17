@@ -75,11 +75,12 @@ dojo.provide("andes.convert");
 			}else if(o.type=="vector"){
 				//in case of zero vector
 				if(o.radius == 0) {obj.data.radius = 0; obj.data.angle = 1; } else { obj.data.radius = o.radius; obj.data.angle = o.angle; }
-				obj.data.cosPhi = o.cosphi;
+				obj.data.cosphi = o.cosphi;
 			}else{
 				//line, axes
 				obj.data.radius = o.radius || 0;
 				obj.data.angle = o.angle;
+				obj.data.cosphi = o.cosphi || 0;
 			}
 			if(o.type=="statement" && o.mode=="locked"){
 				obj.stencilType = "text";
@@ -199,8 +200,8 @@ dojo.provide("andes.convert");
 				obj.angle = item.getAngle();
 			}
 			
-			if(type=="vector"){
-				obj.cosphi = item.cosPhi;	
+			if(type=="vector" || type=="axes"){
+				obj.cosphi = item.cosphi;	
 			}
 
 			if(combo){

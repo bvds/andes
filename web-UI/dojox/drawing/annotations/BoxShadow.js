@@ -81,7 +81,7 @@ dojox.drawing.annotations.BoxShadow = dojox.drawing.util.oo.declare(
 			this.stencil.connectMult([
 				[this.stencil, "onTransform", this, "onTransform"],
 				[this.stencil, "onDelete", this, "destroy"],
-				[this.stencil, "onBeforeRender", this, "render"]
+				[this.stencil, "render", this, "render"]
 			]);
 		} else if(this.method){
 			this.render();
@@ -110,7 +110,7 @@ dojox.drawing.annotations.BoxShadow = dojox.drawing.util.oo.declare(
 				r = d.r || 1,
 				p = o.place,
 				c = o.color;
-			
+				
 			this[this.method](o, size, mult, d, r, p, c);	
 		},
 		
@@ -220,8 +220,7 @@ dojox.drawing.annotations.BoxShadow = dojox.drawing.util.oo.declare(
 			d.angle = this.style.zAngle + 30;
 
 			var pt = this.util.pointOnCircle(d.x1, d.y1, d.radius, d.angle);
-			
-			if (this.stencil.cosPhi > 0) {
+			if (this.stencil.cosphi > 0) {
 			p = [
 				{x:d.x1, y:d.y1},
 				{x:pt.x, y:pt.y}
@@ -292,6 +291,7 @@ dojox.drawing.annotations.BoxShadow = dojox.drawing.util.oo.declare(
 					if(closePath){
 						strAr.push("Z");
 					}
+
 					this.container.createPath(strAr.join(", ")).setStroke({width:lineWidth, color:c, cap:"round"}).setFill(c.fill);
 					
 				}else{

@@ -16,10 +16,9 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 	dojox.drawing.tools.Arrow,
 	function(options){
 		this.minimumSize = this.style.arrows.length;
-		
-		if(this.style.zAxis || options.data.cosPhi!=0)
+		if(this.style.zAxis || options.data.cosphi!=0)
 		{
-			this.cosPhi = options.data.cosPhi;
+			this.cosphi = options.data.cosphi;
 			this.style.zAxis = "true";
 			this.addShadow({size:3, mult:2});
 		}
@@ -29,7 +28,7 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 		type:"dojox.drawing.tools.custom.Vector",
 		minimumSize:30,
 		showAngle:true,
-		cosPhi:0,
+		cosphi:0,
 		
 		labelPosition: function(){
 			// summary:
@@ -132,17 +131,18 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 		},
 		
 		zPoints: function() {
+			if (!this.points[0]) { return; };
 			var d = this.pointsToData();
 			var angle = this.getAngle();
 			d.radius = this.getRadius();
 			if (angle > 135 && angle < 315) {
 				//Out angle
 				d.angle = this.style.zAngle;
-				this.cosPhi = "1";
+				this.cosphi = 1;
 			} else {
 				//In Angle
 				d.angle = this.util.oppAngle(this.style.zAngle);
-				this.cosPhi = "-1";
+				this.cosphi = -1;
 			}
 			
 			var pt = this.util.pointOnCircle(d.x1, d.y1, d.radius, d.angle);

@@ -54,7 +54,6 @@ dojo.require("dojox.math.round");
 			if(snap){
 				snap = snap/180;
 				var radians = this.radians(obj),
-					radius = this.length(obj),
 					seg = Math.PI * snap,
 					rnd = dojox.math.round(radians/seg),
 					new_radian = rnd*seg;
@@ -144,7 +143,7 @@ dojo.require("dojox.math.round");
 			//		(or starting) point, length and angle, find the
 			//		x,y point at the end of that line.
 			//
-			radians =  angle * Math.PI / 180.0;
+			var radians =  angle * Math.PI / 180.0;
 			var x = radius * Math.cos(radians);
 			var y = radius * Math.sin(radians);
 			return {
@@ -164,7 +163,6 @@ dojo.require("dojox.math.round");
 				return obj;	 // Object
 			}
 			var radius = this.length(obj);
-			var diff = min-((360-(max-min))/2);
 			var new_angle = angle > max ? max : min - angle < 100 ? min : max;
 			return this.pointOnCircle(obj.start.x,obj.start.y,radius, new_angle); // Object
 		},
@@ -180,7 +178,6 @@ dojo.require("dojox.math.round");
 			//				.125 would snap to 22.5 degrees, etc.
 			//
 			var radians = this.radians(obj),
-				angle = this.angle(obj),
 				radius = this.length(obj),
 				seg = Math.PI * ca,
 				rnd = Math.round(radians/seg),

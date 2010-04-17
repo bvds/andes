@@ -34,14 +34,14 @@ dojox.drawing.defaults = {
 	// 		currently cannot accept less than 1 degree
 	angleSnap:1,
 
-	// zAxisEnabled: Boolean
-        // If true, render axes with Z-axis included, allow objects drawn in z-direction.
-	zAxisEnabled: false,
-
 	//  zAxis:  Boolean
-        // If true, draw current object in z-direction.
+    // 		If true, draw current object in z-direction.
+	// zAxisEnabled: Boolean
+    // 		If true, render axes with Z-axis included, allow objects drawn in z-direction.
 	zAxis: false,
-
+	zAxisEnabled: true,
+	zAngle: 225,
+	
 	// renderHitLines: Boolean
 	//		If true, renders a second, larger layer for lines to make
 	// 		them more easily clickable.

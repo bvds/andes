@@ -305,16 +305,15 @@ dojo.provide("andes.drawing");
 
 						items[obj.id].master.attr({
 							angle:obj.angle,
-							radius:obj.radius
+							radius:obj.radius,
+							cosphi:obj.cosphi
 						});
-						
-						obj.type=='vector' ? items[obj.id].master.cosPhi = obj.cosphi : null;
-						console.log("--converting",obj.cosphi,items[obj.id].master);
 					}
 					if(obj.type=="axes"){
 						items[obj.id].attr({
 							angle:obj.angle,
-							radius:obj.radius
+							radius:obj.radius,
+							cosphi:obj.cosphi
 						});
 					}
 					if(obj.type=="ellipse" || obj.type=='rectangle'){

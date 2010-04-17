@@ -1,0 +1,114 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" >
+<head>
+    <title>Drawing Test</title>
+	<link href="../css/andes.css" rel="stylesheet" />
+	<style type="text/css" >
+		textarea{
+			position:absolute;
+			top:30px;
+			right:10px;
+			width:200px;
+			overflow:hidden;
+			z-index:10001;
+		}
+	</style>
+	
+	<script>
+		djConfig = {
+			isDebug:true,
+			parseOnLoad:true
+		};
+	</script>
+	<script src="../dojo/dojo.js"></script>
+	<script>
+		dojo.require("dojo.parser");
+		dojo.require("dijit.layout.BorderContainer");
+		dojo.require("dijit.layout.ContentPane");
+		
+		dojo.require("dijit.Dialog");
+		dojo.require("dijit.MenuBar");
+		dojo.require("dijit.PopupMenuBarItem");
+		dojo.require("dijit.Menu");
+		dojo.require("dijit.MenuItem");
+		dojo.require("dijit.PopupMenuItem");
+		dojo.require("dijit.form.Button");
+		dojo.require("dijit.form.TextBox");
+		
+		dojo.require("dojox.drawing.defaults");
+		dojo.require("dojox.drawing");
+		
+		// Previous includes in Drawing no longer in Dojox
+		dojo.require("dojox.drawing.plugins.drawing.Silverlight");
+		
+		dojo.require("dojox.drawing.tools.TextBlock");
+		dojo.require("dojox.drawing.tools.Rect");
+		dojo.require("dojox.drawing.tools.Ellipse");
+		dojo.require("dojox.drawing.tools.Line");
+		dojo.require("dojox.drawing.tools.Path");
+		dojo.require("dojox.drawing.tools.Pencil");
+		
+		dojo.require("dojox.drawing.tools.custom.Vector");
+		dojo.require("dojox.drawing.tools.custom.Equation");
+		dojo.require("dojox.drawing.tools.custom.Axes");
+		dojo.require("dojox.drawing.tools.Arrow");
+		
+		dojo.require("dojox.drawing.plugins.tools.Pan");
+		dojo.require("dojox.drawing.plugins.tools.Zoom");
+		
+		dojo.require("dojox.drawing.ui.Toolbar");
+		dojo.require("dojox.drawing.ui.Button");
+		//dojo.require("dojox.drawing.ui.Tooltip");
+		dojo.require("dojox.drawing.library.icons");
+		
+	</script>
+
+</head>
+<body class="tundra">
+	<div id="conEdit" contenteditable="true"></div>
+	<div id="main" dojoType="dijit.layout.BorderContainer" gutters="false">
+		<div dojoType="dijit.MenuBar" id="navMenu" region="top" splitter="false">
+		                <span id="problemName" class="dijitMenuItem dijitMenuItemLabel">Problem</span>
+
+				<div dojoType="dijit.PopupMenuBarItem">
+						<span>Physics</span>
+						<div dojoType="dijit.Menu" id="menuPhysics">
+								<div id="menuPhysics1" dojoType="dijit.MenuItem">Principles</div>
+								<div id="menuPhysics2" dojoType="dijit.MenuItem">Units</div>
+                                                                <div id="menuPhysics3" dojoType="dijit.MenuItem">Constants</div>
+						</div>
+				</div>
+
+
+				<div dojoType="dijit.PopupMenuBarItem">
+						<span>Help</span>
+						<div dojoType="dijit.Menu" id="menuHelp">
+								<div id="menuIntroduction" dojoType="dijit.MenuItem">Introduction</div>
+								<div id="menuSlides" dojoType="dijit.MenuItem">Slide show</div>
+
+								<div id="menuManual" dojoType="dijit.MenuItem">Manual</div>
+				</div>
+                     </div>
+
+		     <!-- this is just temporary code to get z-axis stuff working -->
+		     <span>
+				<input type="checkbox" id="drawZAxis" unchecked onClick="dojox.drawing.defaults.zAxis=dojo.byId('drawZAxis').checked;">
+				z-axis vector</span>
+
+		        
+		</div>
+		
+		<div id="toolPane" dojoType="dijit.layout.ContentPane" region="left" splitter="false">
+		
+				<div dojoType="dojox.drawing.ui.Toolbar" id="gfxToolbarNode" drawingId="drawing" class="gfxToolbar" tools="line,rect,ellipse,textBlock,equation,vector,axes" plugs="all" selected=""></div>
+		</div>
+		<div id="drawingPane" dojoType="dijit.layout.ContentPane" region="center" >
+				<div dojoType="dojox.drawing.Drawing" id="drawing" jsId="myDrawing" class="drawing">
+				</div>
+		</div>
+
+		<div id="footerPane" dojoType="dijit.layout.ContentPane" region="bottom"></div>
+	</div>
+
+
+</body>
+</html>
