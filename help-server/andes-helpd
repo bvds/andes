@@ -1,0 +1,85 @@
+#!/bin/bash
+#
+# andes-helpd         Startup script for Andes Help Server
+#          should be executable.
+#          sudo chown root.root /etc/init.d/andes-helpd
+#          sudo /sbin/chkconfig --add andes-helpd
+#          sudo /sbin/chkconfig andes-helpd on
+#          
+#
+# chkconfig: - 75 10
+# description: Andes help server
+# processname: andes-helpd
+# pidfile: /var/run/andes-helpd.pid
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+if [ -f /etc/andes-help.conf ]; then
+        . /etc/andes-help.conf
+fi
+
+RETVAL=0
+
+# need user name and init file from configuration!
+ANDES_INIT=" < ${ANDES_SERVER_DIR}/init.cl >& ${ANDES_SERVER_DIR}/init.log &"
+prog="sbcl"
+LOCK=/var/lock/subsys/andes-helpd
+pidfile=/var/run/andes-helpd.pid
+
+# Test the user has an sbcl init file.
+#[ `su - ${LUSER} -c ls ~/.sbclrc` ] || exit 1
+
+#
+#  In principle, we could save the sbcl core file on shutdown and
+#  restart using that.  This would allow user sessions to survive
+#  a restart and allow for faster restarts.  
+#  However, we would still have to restart the help server inside lisp
+#  (restart hunchentoot and reconnect to the database).
+#
+start() {	
+        echo -n $"Starting $prog: "
+	daemon --user ${LUSER} --pidfile=${pidfile} \
+                 $prog $SBCL_OPTIONS $ANDES_INIT
+        RETVAL=$?
+        echo
+        [ $RETVAL = 0 ] && touch $LOCK
+        return $RETVAL
+}
+
+# When stopping, need a delay to allow help server to shut down
+# all sessions.
+stop() {
+	echo -n $"Stopping $prog: "
+	(telnet localhost 6440 &) > /dev/null 2>&1
+	sleep 6
+#	killproc -d 5 $prog
+	echo "Can't kill any hung server, Bug #1721"
+	RETVAL=0
+	echo
+	rm -f $LOCK
+}
+
+# See how we were called.
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  status)
+ #       status -p ${pidfile} $prog
+	echo "Can't determine status, Bug #1721"
+	RETVAL=$?
+	;;
+  restart)
+	stop
+	start
+	;;
+  *)
+	echo $"Usage: $prog {start|stop|restart}"
+	exit 1
+esac
+
+exit $RETVAL
