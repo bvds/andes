@@ -26,7 +26,6 @@ ANDES_INIT=" < ${ANDES_SERVER_DIR}/init.cl >& ${ANDES_SERVER_DIR}/init.log &"
 prog="sbcl"
 LOCK=/var/lock/subsys/andes-helpd
 pidfile=/var/run/andes-helpd.pid
-SBCL_OPTIONS="--dynamic-space-size 1000"
 
 # Test the user has an sbcl init file.
 #[ `su - ${LUSER} -c ls ~/.sbclrc` ] || exit 1
@@ -41,7 +40,7 @@ SBCL_OPTIONS="--dynamic-space-size 1000"
 start() {	
         echo -n $"Starting $prog: "
 	daemon --user ${LUSER} --pidfile=${pidfile} \
-	     $prog $SBCL_OPTIONS $ANDES_INIT
+                 $prog $SBCL_OPTIONS $ANDES_INIT
         RETVAL=$?
         echo
         [ $RETVAL = 0 ] && touch $LOCK
@@ -53,8 +52,9 @@ start() {
 stop() {
 	echo -n $"Stopping $prog: "
 	(telnet localhost 6440 &) > /dev/null 2>&1
-	sleep 10
-	killproc -d 5 $prog
+	sleep 6
+#	killproc -d 5 $prog
+	echo "Can't kill any hung server, Bug #1721"
 	RETVAL=0
 	echo
 	rm -f $LOCK
@@ -69,7 +69,8 @@ case "$1" in
 	stop
 	;;
   status)
-        status -p ${pidfile} $prog
+ #       status -p ${pidfile} $prog
+	echo "Can't determine status, Bug #1721"
 	RETVAL=$?
 	;;
   restart)

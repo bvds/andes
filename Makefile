@@ -41,7 +41,7 @@ configure-httpd:
 	ln -s `pwd`/LogProcessing/Web-Interface $(httpd-document-root)/log
 
 install-server:
-	cd Algebra/src; $(MAKE) install-server
+	cd help-server; $(MAKE) install-server
 
 update:
 	git pull

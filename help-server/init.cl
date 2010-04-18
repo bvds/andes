@@ -1,12 +1,14 @@
 (rhelp)
 
+
+;; Swank install not set up, Bug #1722
 (defvar *swank-loaded* nil)
 (if (and (probe-file #p"/usr/local/share/emacs/site-lisp/slime/swank-loader.lisp")
 	 (load #p"/usr/local/share/emacs/site-lisp/slime/swank-loader"))
     (setf *swank-loaded* t))
 
 ;; Start help server.
-(start-help :port 8082 :password "sin(0)=0")
+(start-help :password "sin(0)=0")
 
 ;; Start a Swank server
 #+swank (when *swank-loaded*
@@ -43,3 +45,6 @@
 
 ;; Shut down help server
 (stop-help)
+
+;; Exit lisp
+(quit)
