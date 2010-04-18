@@ -65,7 +65,6 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 		zScale:.5,
 		
 		zPoints: function() {
-			if (!this.zAxis || !this.zAxis.points[0]) { return; };
 			var d = this.points[1];
 			d.radius = this.getRadius();
 			d.angle = this.style.zAngle;
@@ -78,17 +77,12 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 			return p;
 		},
 		
-		onStencilDrag: function() {
-			console.warn("fired");
-			this.zSet();
-		},
-		
 		zSet: function() {
+			if (!this.zAxis || !this.zAxis.points[0]) { return; };
 			var p = this.zPoints();
-			if(p) { 
-				this.zAxis.setPoints(p); 
-				this.zAxis.cosphi = 1; 
-			}
+			
+			this.zAxis.setPoints(p); 
+			this.zAxis.cosphi = 1; 
 		},
 		
 		createLabels: function(){
