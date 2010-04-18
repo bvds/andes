@@ -252,27 +252,24 @@ dojo.provide("andes.drawing");
 					andes.help.score(obj.score);
 
 				}else if(obj.action=="new-user-dialog"){
-				  andes.error({
+					andes.error({
 						title: "Welcome to Andes!",
-		  				message: obj.text,
+						message: obj.text,
 						dialogType: andes.error.OK
-						   });
-                                  // Add event to Error box default OK button.
-                                  // This opens the general introduction.
-                                  // It should be disconnected when the
-								  // dialog box is closed!  See bug #1628
-						  dojo.connect(dojo.byId("andesButtonPageDefault"),
-					       "click",
-					       function(){
-			                          andes.principles.review('introduction.html','Introduction');
-					       });
-
-                               }else if(obj.action=="set-styles"){
-				 if(obj["z-axis-enable"]){
-				   andes.defaults.zAxisEnabled=obj["z-axis-enable"];
-				  // temporary for testing
-				  dojo.byId("drawZAxis").disabled=!obj["z-axis-enable"];
-				 }
+					});
+					// Add event to Error box default OK button.
+					// This opens the general introduction.
+					// It should be disconnected when the
+					// dialog box is closed!  See bug #1628
+					dojo.connect(dojo.byId("andesButtonPageDefault"), "click", function(){
+						andes.principles.review('introduction.html','Introduction');
+					});
+				}else if(obj.action=="set-styles"){
+					if(obj["z-axis-enable"]){
+						andes.defaults.zAxisEnabled=obj["z-axis-enable"];
+						// temporary for testing
+						dojo.byId("drawZAxis").disabled=!obj["z-axis-enable"];
+					}
 
 				}else{
 					//console.warn("UNUSED ANDES OBJECT:", obj)

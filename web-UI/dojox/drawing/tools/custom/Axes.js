@@ -24,7 +24,8 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 			dojo.mixin(ops, dojo.mixin(options, {
 				container:this.container.createGroup(),
 				style: this.style,
-				showAngle: false
+				showAngle: false,
+				label: null
 			}));
 			ops.style.zAxis = true;
 			this.zAxis = new dojox.drawing.tools.custom.Vector(ops);
@@ -97,9 +98,11 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 			this.labelY = new dojox.drawing.annotations.Label(dojo.mixin(props,{
 				labelPosition:this.setLabelY
 			}));
-			this.labelZ = new dojox.drawing.annotations.Label(dojo.mixin(props,{
-				labelPosition:this.setLabelZ
-			}));
+			if(this.style.zAxisEnabled){
+				this.labelZ = new dojox.drawing.annotations.Label(dojo.mixin(props,{
+					labelPosition:this.setLabelZ
+				}));
+			}
 
 		},
 
