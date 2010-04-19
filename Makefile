@@ -40,6 +40,9 @@ configure-httpd:
 	ln -s `pwd`/images $(httpd-document-root)
 	ln -s `pwd`/LogProcessing/Web-Interface $(httpd-document-root)/log
 
+install-server:
+	cd help-server; $(MAKE) install-server
+
 update:
 	git pull
 	cd problems; git pull

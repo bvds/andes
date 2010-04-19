@@ -15,10 +15,10 @@ Enterprise 5.4, CentOS 5.4) and OS X (10.4 and 10.6).
 ========================== System Configuration ===============================
 
 # The following packages need to be installed:  
-#      gnu make, git, subversion, gnu c++, mysql-server, and screen.
+#      gnu make, git, subversion, gnu c++, mysql-server, and wget.
 # For RedHat systems, http://fedoraproject.org/wiki/EPEL may be helpful.  
 # In Linux, test packages using:
-rpm -q make git subversion gcc-c++ mysql-server screen
+rpm -q make git subversion gcc-c++ mysql-server wget
 
 # The Andes help server should be run in an ordinary user account.  
 # If needed,  set up a user account for the Andes server.  The rest of 

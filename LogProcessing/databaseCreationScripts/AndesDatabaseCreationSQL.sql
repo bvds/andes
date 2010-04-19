@@ -33,10 +33,17 @@ DROP TABLE IF EXISTS `andes`.`REVIEWED_PROBLEMS`;
 USE andes;
 
 
-LOAD DATA LOCAL INFILE 'student_dataset.csv' INTO TABLE STUDENT_DATASET FIELDS TERMINATED BY ',' LINES TERMINATED BY 
-'\n' (datasetID, datasetname, modulename, groupname, problemname);
- LOAD DATA LOCAL INFILE 'classinformation.csv' INTO TABLE CLASS_INFORMATION FIELDS TERMINATED BY ',' LINES TERMINATED BY 
-'\n' (classID, name, school, period, description, instructorName, schoolyearInfo, datasetID);
+insert into STUDENT_DATASET values (1,"Watchung Hills Regional High School Honors Physics 2008-2009","Statics","S*","S2E");
+insert into STUDENT_DATASET values (2,"dummy dataset","dummy module","dummy group","dummy problem");
+
+insert into CLASS_INFORMATION values (1,"Physics H (430)","Watchung Hills Regional High School",3,"Introductory physics course for 11th and 12th grades preparing students for the physics SAT II exam.","Brian Brown","2008-2009",1);
+insert into CLASS_INFORMATION values (2,"dummy class","dummy school",0,"a dummy class used for lack of knowledge","dumb instructor","dumb year",2);
+
+-- Some mysql installations have file loading disabled.
+-- This is the case for CMU/OLI
+
+-- LOAD DATA LOCAL INFILE 'student_dataset.csv' INTO TABLE STUDENT_DATASET FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' (datasetID, datasetname, modulename, groupname, problemname);
+-- LOAD DATA LOCAL INFILE 'classinformation.csv' INTO TABLE CLASS_INFORMATION FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' (classID, name, school, period, description, instructorName, schoolyearInfo, datasetID);
 
 -- Create a database for load testing
 DROP DATABASE IF EXISTS `andes_test`;
