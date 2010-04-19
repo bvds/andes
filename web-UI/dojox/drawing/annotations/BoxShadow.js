@@ -251,7 +251,7 @@ dojox.drawing.annotations.BoxShadow = dojox.drawing.util.oo.declare(
 			
 			var lineLength = this.util.length(obj); 
 			var al = this.style.arrows.length;
-			var aw = this.style.arrows.width/2;
+			var aw = this.style.arrows.width/3;
 			if(lineLength<al){
 				al = lineLength/2;
 			}
@@ -292,7 +292,7 @@ dojox.drawing.annotations.BoxShadow = dojox.drawing.util.oo.declare(
 						strAr.push("Z");
 					}
 
-					this.container.createPath(strAr.join(", ")).setStroke({width:lineWidth, color:c, cap:"round"}).setFill(c.fill);
+					this.container.createPath(strAr.join(", ")).setStroke({width:lineWidth, color:c, cap:"round"}).setFill(c);
 					
 				}else{
 					// Leaving this code for VML. It seems slightly faster but times vary.
