@@ -1775,7 +1775,7 @@
   :new-english ((preferred "a") "unit vector" 
 		;; Broken Bug #1650
 		(and 
-		 (eval (when (new-english-expand ?loc) 
+		 (eval (when (expand-new-english ?loc) 
 			 `(preferred ("at" ,?loc)))) 
 		 ((eval (unit-vector-orientation-name ?orientation)) ?body) 
 		 (time ?time))))
