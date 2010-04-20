@@ -2790,9 +2790,9 @@
 ;;; so must override default-vector-body, which doesn't fit
 ;;; Same rules work for both electric and magnetic fields
 (def-error-class field-wrong-loc (?cloc ?sloc ?type)
-  ((student    (vector (field ?sloc ?type ?sagent :time ?stime) ?sdir))
-   (no-correct (vector (field ?sloc ?type ?agent2 :time ?time2) ?dir2))
-   (correct    (vector (field ?cloc ?type ?cagent :time ?ctime) ?cdir)))
+  ((student    (vector (field ?type :location ?sloc :source ?sagent :time ?stime) ?sdir))
+   (no-correct (vector (field ?type :location ?sloc :source ?agent2 :time ?time2) ?dir2))
+   (correct    (vector (field ?type :location ?cloc :source ?cagent :time ?ctime) ?cdir)))
   :utility 50
   :probability 0.15) ;; This tends to be a weak/misleading hint.
 
@@ -2806,9 +2806,9 @@
 			     "only one) would be ~a.") correct-loc))))
 
 (def-error-class field-loc-too-specific (?cloc ?sloc ?type)
-  ((student (vector (field ?sloc ?type ?sagent :time ?stime) ?sdir))
-   (no-correct (vector (field ?sloc ?type ?agent2 :time ?time2) ?dir2))
-   (correct (vector (field ?cloc ?type ?cagent :time ?ctime) ?cdir))
+  ((student (vector (field ?type :location ?sloc :source ?sagent :time ?stime) ?sdir))
+   (no-correct (vector (field ?type :location ?sloc :source ?agent2 :time ?time2) ?dir2))
+   (correct (vector (field ?type :location ?cloc :source ?cagent :time ?ctime) ?cdir))
    (problem (at-place ?sloc ?cloc))
    )
   :utility 75
@@ -2824,9 +2824,9 @@
 			     "would be ~a.") correct-loc))))
 
 (def-error-class field-wrong-agent (?sagent ?cagent ?loc ?type)
-  ((student    (vector (field ?loc ?type ?sagent :time ?stime) ?sdir))
-   (no-correct (vector (field ?loc ?type ?sagent :time ?time2) ?dir2))
-   (correct    (vector (field ?loc ?type ?cagent :time ?ctime) ?cdir)))
+  ((student    (vector (field ?type :location ?loc :source ?sagent :time ?stime) ?sdir))
+   (no-correct (vector (field ?type :location ?loc :source ?sagent :time ?time2) ?dir2))
+   (correct    (vector (field ?type :location ?loc :source ?cagent :time ?ctime) ?cdir)))
   :utility 50)
 
 (defun field-wrong-agent (sagent cagent loc fieldtype)
@@ -2841,8 +2841,8 @@
 
 ;; instead of non-existent-vector when net-field is used:
 (def-error-class should-be-net-field (?type) 
-  ((student    (vector (field ?loc ?type . ?sargs) ?sdir))
-   (no-correct (vector (field ?loc ?type . ?args) ?dir))
+  ((student    (vector (field ?type :location ?loc . ?sargs) ?sdir))
+   (no-correct (vector (field ?type :location ?loc . ?args) ?dir))
    (correct    (vector (net-field ?cloc ?type . ?cargs) ?cdir))))
 
 (defun should-be-net-field (type)
@@ -2855,9 +2855,9 @@
 ;;; --------------------- Confusing electric and magnetic ---------------------
 
 (def-error-class field-wrong-type (?stype ?ctype ?loc)
-  ((student    (vector (field ?loc ?stype ?sagent :time ?stime) ?sdir))
-   (no-correct (vector (field ?loc ?stype ?agent2 :time ?time2) ?dir2))
-   (correct    (vector (field ?loc ?ctype ?cagent :time ?ctime) ?cdir)))
+  ((student    (vector (field ?stype :location ?loc :source ?sagent :time ?stime) ?sdir))
+   (no-correct (vector (field ?stype :location ?loc :source ?agent2 :time ?time2) ?dir2))
+   (correct    (vector (field ?ctype :location ?loc :source ?cagent :time ?ctime) ?cdir)))
   :utility 22) ;low utility since time, direction, and agent are not matched
 
 (defun field-wrong-type (stype ctype loc)
