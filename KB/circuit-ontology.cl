@@ -133,7 +133,7 @@
 (def-qexp E-field (field electric :location ?region :source ?source :time ?time)
   :units |N/C|
   :new-english (any-field (or "electric" "E") 
-			  :locaton ?region :source ?source :time ?time))
+			  :location ?region :source ?source :time ?time))
 
 (def-qexp B-field (field magnetic :location ?region :source ?source :time ?time)
   :units |T|
