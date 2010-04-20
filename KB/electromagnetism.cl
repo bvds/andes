@@ -250,8 +250,8 @@
 	    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (field ?type :location ?loc :source ?source :time ?t)))
             )
   :hint (
-	(point (string "Notice that ~A contains a constant ~A field."
-	               ?loc (?type adj) ?loc)) 
+	(point (string "Notice the constant ~A field~@[ in ~A~]."
+	               (?type adj) ?loc)) 
 	(bottom-out (string "~A and draw ~a in the given direction of ~A." 
 			    ((begin-sentence *vector-tool-action*) eval)
   			    ((field ?type :location ?loc :source ?source :time ?t) def-np)
@@ -2286,8 +2286,9 @@
 (def-qexp dipole-energy (dipole-energy ?dipole ?field :time ?time)
   ;; custom dialog box "energy"
   :units |J|
-  :new-english (property-field-source-time "the potential energy" ?field 
-					   ?dipole :time ?time))
+  :new-english ((the) (preferred "potential") "energy"
+		(and (property ?dipole) (preferred (agent ?field))
+		     (time ?time))))
 
 ; called via define-energy-var, which generates variable name
 (defoperator define-dipole-energy-ee-var (?dipole ?source ?t)
