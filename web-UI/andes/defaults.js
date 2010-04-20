@@ -18,10 +18,13 @@ dojo.provide("andes.defaults");
 		clickMode:true,
 		clickable:true,
 
-		//  Turn on z-axis vector
-                //  Not sure if these should be here since they get modified during session.
+		//  zAxis:  Boolean
+		// 		If true, draw current object in z-direction.
+		// zAxisEnabled: Boolean
+		// 		If true, render axes with Z-axis included, allow objects drawn in z-direction.
 		zAxis: false,
-		zAxisEnabled: false,
+		zAxisEnabled: true,
+		zAngle: 225,
 
 		// current: Object
 		//  current will point to either null or selected

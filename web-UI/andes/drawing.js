@@ -92,10 +92,10 @@ dojo.provide("andes.drawing");
 				var box = item.getBounds();
 				var props = getStatementPosition(box);
 				if(hasLabel[item.type]){
-					// axes
-					// default labels for an axes
-                                        props.data.text = andes.defaults.zAxisEnabled?
-                                                     "x and y and z":"x and y";
+				  // axes
+				  // default labels for an axes
+				  props.data.text = andes.defaults.zAxisEnabled?
+						      "x and y and z":"x and y";
 				}
 				// create statement for vector, rect, ellipse, or axes
 				var statement = _drawing.addStencil("textBlock", props);
@@ -252,25 +252,24 @@ dojo.provide("andes.drawing");
 					andes.help.score(obj.score);
 
 				}else if(obj.action=="new-user-dialog"){
-				  andes.error({
+					andes.error({
 						title: "Welcome to Andes!",
-		  				message: obj.text,
+						message: obj.text,
 						dialogType: andes.error.OK
-						   });
-                                  // Add event to Error box default OK button.
-                                  // This opens the general introduction.
-                                  // It should be disconnected when the
-								  // dialog box is closed!  See bug #1628
-						  dojo.connect(dojo.byId("andesButtonPageDefault"),
-					       "click",
-					       function(){
-			                          andes.principles.review('introduction.html','Introduction');
-					       });
-
-                               }else if(obj.action=="set-styles"){
-				 if(obj["z-axis-enable"]){
-				   andes.defaults.zAxisEnabled=obj["z-axis-enable"];
-				 }
+					});
+					// Add event to Error box default OK button.
+					// This opens the general introduction.
+					// It should be disconnected when the
+					// dialog box is closed!  See bug #1628
+					dojo.connect(dojo.byId("andesButtonPageDefault"), "click", function(){
+						andes.principles.review('introduction.html','Introduction');
+					});
+				}else if(obj.action=="set-styles"){
+					if(obj["z-axis-enable"]){
+						andes.defaults.zAxisEnabled=obj["z-axis-enable"];
+						// temporary for testing
+						dojo.byId("drawZAxis").disabled=!obj["z-axis-enable"];
+					}
 
 				}else{
 					//console.warn("UNUSED ANDES OBJECT:", obj)
@@ -303,13 +302,15 @@ dojo.provide("andes.drawing");
 
 						items[obj.id].master.attr({
 							angle:obj.angle,
-							radius:obj.radius
+							radius:obj.radius,
+							cosphi:obj.cosphi
 						});
 					}
 					if(obj.type=="axes"){
 						items[obj.id].attr({
 							angle:obj.angle,
-							radius:obj.radius
+							radius:obj.radius,
+							cosphi:obj.cosphi
 						});
 					}
 					if(obj.type=="ellipse" || obj.type=='rectangle'){
@@ -324,6 +325,7 @@ dojo.provide("andes.drawing");
 						/*items[obj.id].master.attr({
 													label:obj.text
 												});*/
+					        // single space was set in convert.js
 						var text = obj.text==" "? obj.symbol : obj.text;
 						items[obj.id].textEdit(text);
 					};

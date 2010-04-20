@@ -75,11 +75,12 @@ dojo.provide("andes.convert");
 			}else if(o.type=="vector"){
 				//in case of zero vector
 				if(o.radius == 0) {obj.data.radius = 0; obj.data.angle = 1; } else { obj.data.radius = o.radius; obj.data.angle = o.angle; }
-
+				obj.data.cosphi = o.cosphi;
 			}else{
 				//line, axes
 				obj.data.radius = o.radius || 0;
 				obj.data.angle = o.angle;
+				obj.data.cosphi = o.cosphi || 0;
 			}
 			if(o.type=="statement" && o.mode=="locked"){
 				obj.stencilType = "text";
@@ -126,9 +127,9 @@ dojo.provide("andes.convert");
 				obj.data.text = o.text;
 			}else if(o.type=="axes"){
 				obj.label = o['x-label']+" and "+o['y-label'];
-                               if(andes.defaults.zAxisEnabled){
-                                 obj.label += " and "+o['z-label'];
-                               }
+				if(andes.defaults.zAxisEnabled){
+				  obj.label += " and "+o['z-label'];
+				}
 			}
 
 			if(o.href){
@@ -193,24 +194,28 @@ dojo.provide("andes.convert");
 				obj["x-label"] = lbl.x;
 				obj["y-label"] = lbl.y;
 				if(lbl.z) {
-                                  obj["z-label"] = lbl.z;
+				  obj["z-label"] = lbl.z;
 				}
 				obj.radius = Math.ceil(item.getRadius());
 				obj.angle = item.getAngle();
 			}
+			
+			if(type=="vector" || type=="axes"){
+				obj.cosphi = item.cosphi;	
+			}
 
 			if(combo){
-			        // match logic in andesToDrawing
-			        // Send empty string, rather than null
-                                // The server treats null as "not modified".
-				var txt = statement.getText();
-				var lbl = item.getLabel() || "";
-				if(txt){
+				// match logic in andesToDrawing
+				// Send empty string, rather than null
+				// The server treats null as "not modified".
+			var txt = statement.getText();
+			var lbl = item.getLabel() || "";
+			if(txt){
 					obj.text = txt;
 					obj.symbol = lbl;
 				}else{
 					obj.text = lbl;
-				        obj.symbol = "";
+					obj.symbol = "";
 				}
 			}
 
