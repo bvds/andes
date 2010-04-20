@@ -3331,7 +3331,8 @@
   :short-name "turns" 
   :units NIL  ;dimensionless
   :restrictions positive
-  :new-english ((the) "number of turns wrapping around" ?body)
+  :new-english ((the) "number of turns"
+		(preferred ("wrapping around" ?body)))
 )
 
 (defoperator define-turns (?body)

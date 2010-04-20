@@ -1772,10 +1772,13 @@
 
 (def-qexp unit-vector (unit-vector ?orientation ?body :at ?loc :time ?time)
   :units nil  ;dimensionless
-  :new-english ("a unit vector" 
+  :new-english ((preferred "a") "unit vector" 
 		;; Broken Bug #1650
-		(when (unit-vector-orientation-name ?orientation) ?loc)
-		?body (time ?time)))
+		(and 
+		 (eval (when (new-english-expand ?loc) 
+			 `(preferred ("at" ,?loc)))) 
+		 ((eval (unit-vector-orientation-name ?orientation)) ?body) 
+		 (time ?time))))
 
 (defun unit-vector-orientation-name (orientation)
   (cond ((eq orientation 'normal-to) "normal to")

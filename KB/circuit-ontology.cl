@@ -84,11 +84,14 @@
   :new-english ((the) (or "maximum" "max") "charge in" 
 		(component ?name)  (time ?time)))
 
+;; ind3a "self-inductance"
 (def-qexp self-inductance (self-inductance ?inductor)
   :symbol-base |L|     
   :short-name "self-inductance"	
   :units |H|
-  :new-english ((the) (allowed "self") "inductance of" (component ?inductor)))
+  :new-english ((the) (or ((preferred "self") "inductance")
+			  "self-inductance")
+		(preferred "of" (component ?inductor))))
 
 (def-qexp mutual-inductance (mutual-inductance orderless . ?inductors)
   :symbol-base |M|     
@@ -146,6 +149,9 @@
 (def-qexp region (region ?region)
   ;; "in a region"
   ;; BvdS:  generally, a region would not be defined by the body tool?
+  ;; Need some way to distinguish between regions and points.
+  ;;   One way would be a problem-specific ontology.
+  ;;   Bug #1724
   :new-english (eval (if (expand-new-english ?region)
 			'(preferred ((or "in" "inside") ?region))
 			'(allowed ("in" (the) "region")))))
@@ -174,6 +180,9 @@
 		     (preferred (agent ?source))
 		     (time ?time))))
 
+;; Need to distinguish points and regions
+;; "net potential at P1"
+;; "net potential in the region"
 (def-qexp net-potential (net-potential ?loc :time ?time)
   :units |V|
   :new-english ((the) (or "net" "total")  

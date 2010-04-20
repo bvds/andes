@@ -100,29 +100,29 @@
 ;;     "the constant normal force of the man acting on the crate"
 ;;     "the average force exerted on the pier between T0 and T1" in dt3b 
 ;;     "the tension in the wire" in s13 ("wire" is not a defined object in s13)
-;; question in s13: why the wire is an agent? and the bar is an object?
+;; "the frictional force on the aircraft"
+;; "the frictional force against the aircraft"
+
+;; For tension, need to distinguish scalar and vector
+;; forms (see Bug #1719):
+;; "tension in the string" (scalar case)
+;; "tension force on the brick due to the string" (vector case)
+;; 
 (def-qexp force (force ?body ?agent ?type :time ?time)
   :units N
-  :new-english ((the) ;(time-type ?time)
-		(allowed (or "constant" "const." "const" "steady" 
-			     "average" "ave."))
-		(eval (force-types ?type))
-		(or (eval (case ?type
-			;; "tension in the string due to the body"
-			;; "the tension in the wire" in s13 
-			;; (but "wire" is not defined in s13)
-			(tension '(or ("in" ?agent (or "due to" "by") ?body (time ?time))))
-			;; "the frictional force on the aircraft"
-			;; "the frictional force against the aircraft"
-			(friction '((allowed "on" "against") ?body (time ?time)))))
-		    (and (preferred (object ?body))
-		         (preferred (agent (or "by" "due to" "from" "caused by" "exerted by" "of") ?agent))
-		         (time ?time))
-		    ((or "that" "with which")
-		     ?agent 
-		     (or "exerts on" "acts on") ?body (time ?time))
-		))
-)
+  :new-english 
+  ((the)
+   (eval (when (time-intervalp ?time)
+	   '(allowed (or "constant" "const." "const" "steady" 
+		"average" "ave."))))
+   (eval (force-types ?type))
+   (or 
+    ;; This should handle "force of the man acting on the crate"
+    (and (object ?body) (agent ?agent) (time ?time))
+    ;; case "the force that the man exerts on the crate"
+    (and ((or "that" "with which") ?agent (or "exerts on" "acts on") ?body) 
+	 (time ?time)))))
+
 (defun force-types (type)
   (case type 
     (weight '(or "force of gravity"
@@ -131,7 +131,8 @@
 		     ((or "gravitational" "weight" "grav." "grav") "force")))
     ;"normal force exerted on a body by the surface" from Y&F 
     (normal '("normal force"))
-    (tension '(or ("tension" (allowed "force")) "pulling force" ("force" (preferred "of tension"))))
+    (tension '(or ("tension" (preferred "force")) "pulling force" 
+	       ("force" (preferred "of tension"))))
     (applied '((allowed "applied") "force")) ;catch-all force
     (kinetic-friction '(((preferred "kinetic") (or "friction" "frictional"))
 			"force"))
@@ -356,17 +357,19 @@
 
 (def-qexp object (object ?body)
   :new-english (eval (when (expand-new-english ?body)
-                        '((or "on" "acting on" "exerted on" "that acts on" "applied on" "applied to") 
+                        '((or "on" "acting on" "exerted on" "that acts on" "applied on" 
+			   "applied to" "against") 
 			  (or (var (body ?body) :namespace :objects) ?body)))))
 
 (def-qexp agent (agent ?body)
   ;;+syjung
-  ;; checking the content of ?body by (expand-new-englih ..) is important for the case that it is missing (in elec4b, see Bug#:	1676)
+  ;; checking the content of ?body by (expand-new-english ..) is 
+  ;; important for the case that it is missing (in elec4b, see Bug #1676)
   :new-english (eval (when (expand-new-english ?body)
 			'((or "due to" "by" "from" "caused by" "exerted by" "of") 
-			  (or (var (body ?body) :namespace :objects) ?body))))) 
+			  (or (var (body ?body) :namespace :objects) ?body)))))  
 
-(def-qexp agent (agent ?preposition ?body)
+(def-qexp agent-with-preposition (agent ?preposition ?body)
   :new-english (eval (when (expand-new-english ?body)
 			'(?preposition
 			  (or (var (body ?body) :namespace :objects) ?body)))))
