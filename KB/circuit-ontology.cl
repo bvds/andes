@@ -18,59 +18,6 @@
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; KB/ontology: defines the expressions used in the AndesF Knowledge Base
-;;
-
-(def-qexp field (field ?field)
-  :new-english (eval (when (expand-new-english ?field)
-                        '("at"
-                          (or (var (field ?field)) ?field)))))
-
-(def-qexp property-field-source-time 
-    (property-field-source-time ?property ?field ?source :time ?time)
-  :new-english ((the)
-		?property 
-		(and (preferred (field ?field))
-		     (preferred (agent ?source))
-		     (time ?time))
-		)
-)
-
-(def-qexp property-field-time (property-field-time ?property ?field :time ?time)
-  :new-english	((the) 
-		 ?property  		; "electric field" 
-		 (and (preferred (field ?field)) 
-		      (time ?time))
-		 )
-  )
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Circuits quantities
-;; note arguments are usually proper names -- R1, PtA, etc -- not common nouns
-;; so we don't use nlg types that add articles.
-(def-qexp voltage-across (voltage-across ?comp :time ?time)
-  :units |V|
-  :new-english ((the) "voltage across" ?comp (time ?time) ))
-
-(def-qexp property-field-time 
-    (property-field-time ?property ?field :time ?time)
-  :new-english	((the) 
-		 ?property  		; "electric field" 
-		 (and (preferred (field ?field)) 
-		      (time ?time))
-		 )
-)
-
-(def-qexp property-type-field-time 
-    (property-type-field-time ?type ?property ?field :time ?time)
-  :new-english	((the) (field-type ?type) ?property 
-		      (and (preferred (field ?field)) 
-		 	   (time ?time))
-		)
-)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Circuits quantities
 ;; note arguments are usually proper names -- R1, PtA, etc -- not common nouns
 ;; so we don't use nlg types that add articles.
@@ -137,11 +84,14 @@
   :new-english ((the) (or "maximum" "max") "charge in" 
 		(component ?name)  (time ?time)))
 
+;; ind3a "self-inductance"
 (def-qexp self-inductance (self-inductance ?inductor)
   :symbol-base |L|     
   :short-name "self-inductance"	
   :units |H|
-  :new-english ((the) (allowed "self") "inductance of" (component ?inductor)))
+  :new-english ((the) (or ((preferred "self") "inductance")
+			  "self-inductance")
+		(preferred "of" (component ?inductor))))
 
 (def-qexp mutual-inductance (mutual-inductance orderless . ?inductors)
   :symbol-base |M|     
@@ -174,37 +124,70 @@
   :short-name "time constant"	
   :units |s|
   ;; translated wb body arg is (compound orderless comp1 comp2 ...)
-  :new-english ((the) "time constant for" (conjoin (or "and" "&") ?quants)))
+  :new-english ((the) "time constant for" (conjoin (or "and" "&") . ?quants)))
 
-
-(def-qexp E-field (field ?region electric ?source :time ?time)
+;; Have field in "region" which should be nil.
+;;    all cases have associated  (homogeneous-field region ...)
+;;    but some other problem quantities sometimes refer to region.
+;; Some cases of a specific region, surface, many instances of points.
+(def-qexp E-field (field electric :location ?region :source ?source :time ?time)
   :units |N/C|
-  :new-english (property-field-source-time "electric field" ?region ?source 
-					   :time ?time ))
+  :new-english (any-field (or "electric" "E") 
+			  :locaton ?region :source ?source :time ?time))
 
-(def-qexp B-field (field ?region magnetic ?source :time ?time)
+(def-qexp B-field (field magnetic :location ?region :source ?source :time ?time)
   :units |T|
-  :new-english (property-field-source-time "magnetic field" ?region ?source 
-					   :time ?time ))
+  :new-english (any-field (or "magnetic" "B") 
+			  :location ?region :source ?source :time ?time))
 
+(def-qexp any-field (any-field ?type :location ?region :source ?source :time ?time)
+  :new-english ((the) ?type "field" 
+		(and (region ?region)
+		     (preferred (agent ?source))
+		     (time ?time))))
+
+(def-qexp region (region ?region)
+  ;; "in a region"
+  ;; BvdS:  generally, a region would not be defined by the body tool?
+  ;; Need some way to distinguish between regions and points.
+  ;;   One way would be a problem-specific ontology.
+  ;;   Bug #1724
+  :new-english (eval (if (expand-new-english ?region)
+			'(preferred ((or "in" "inside") ?region))
+			'(allowed ("in" (the) "region")))))
+
+;; All instances of (net-field ...) are for fields at a point
 (def-qexp net-E-field (net-field ?region electric :time ?time)
   :units |N/C|
-  :new-english (property-field-time "net electric field" ?region :time ?time ))
+  :new-english (any-net-field ?region (or "electric" "E") :time ?time))
 
 (def-qexp net-B-field (net-field ?region magnetic :time ?time)
   :units |T|
-  :new-english (property-field-time "net magnetic field" ?region :time ?time ))
+  :new-english (any-net-field ?region (or "magnetic" "B") :time ?time))
+
+(def-qexp any-net-field (any-net-field ?region ?type :time ?time)
+  :new-english ((the) (or "net" "total") ?type "field" 
+		(and (region ?region)
+		     (time ?))))
 
 (def-qexp potential (potential ?loc ?source :time ?time)
   :symbol-base |V|     
   :short-name "electric potential"	
   :units |V|
-  :new-english (property-field-source-time "electric potential" ?loc ?source 
-					   :time ?time))
+  :new-english ((the)
+		(or "electric" "electrostatic") "potential" 
+		(and (region ?loc) 
+		     (preferred (agent ?source))
+		     (time ?time))))
 
+;; Need to distinguish points and regions
+;; "net potential at P1"
+;; "net potential in the region"
 (def-qexp net-potential (net-potential ?loc :time ?time)
   :units |V|
-  :new-english (property-field-time "net electric potential" ?loc :time ?time))
+  :new-english ((the) (or "net" "total")  
+		(or "electric" "electrostatic") "potential" 
+		(and (region ?loc) (time ?time))))
 
 (def-qexp electric-energy (electric-energy ?body ?source :time ?time)
   :units |J|
