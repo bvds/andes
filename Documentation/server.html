@@ -29,7 +29,7 @@ The Andes Help Server has three main components:
 </ol>
 <img src="arch.jpg" alt="server diagram" width="500">
 <p>A session starts when the client downloads
-<a href="../web-UI/index.html"><code>index.html</code></a>
+<a href="../web-UI/index.html"><code>web-UI/index.html</code></a>
 from the server.&nbsp;  Next, the client downloads various javascript
 libraries and sends an <code>open-problem</code> message to the help
 server.&nbsp; In response, the help server sets up a new session and returns
@@ -41,42 +41,48 @@ button on the browser.&nbsp;
 
 <h2>Running the Help Server</h2>
 
-You can use the <a href="http://en.wikipedia.org/wiki/GNU_Screen">
-<code>screen</code></a> utility to run instances of the help server.&nbsp;
-Enter <code>screen</code> on the command line, enter
-<code>sbcl  --dynamic-space-size 1024</code> to start up lisp, then start 
-the help server using:
+For normal production use, the Help server will be run as a daemon.&nbsp;
+The daemon starts up a lisp process that runs the contents
+of the file <a href="../help-server/init.cl">
+<code>help-server/init.cl</code></a>.&nbsp;
+You may need to edit the <code>start-help</code> command in
+this file to include your mysql password
+or any other customization that you need to run the server.&nbsp;
+The function <code>start-help</code> is documented in the source 
+file <a href="../Help/sessions.cl"><code>Help/sessions.cl</code></a>.
+
+<p>To install the help server, or reinstall it, enter the following
+command in the Andes root directory (as superuser):
 <pre>
-(rhelp)
-(start-help :password "sin(0)=0") ;specify mysql password 
+make install-server
 </pre>
-At this point, you can type the screen commands ctl-a ctl-d 
-to detach from the lisp process.&nbsp; Use <code>screen -r</code>
-to re-attach.
 
-<p>
-To stop the lisp server:&nbsp; <code>(stop-help)</code>
-and to to exit lisp:&nbsp; <code>(quit)</code>.
-
-<p>The functions <code>start-help</code> and <code>stop-help</code>
-are documented in the source file <a href="../Help/sessions.cl">
-<code>Help/sessions.cl</code></a>.
-
+<p>On linux, start the server using (as superuser):
+<pre>
+/sbin/service andes-helpd start
+</pre>
+To stop the server:
+<pre>
+/sbin/service andes-helpd stop
+</pre>
+A log file associated with the daemon can be found in 
+<a href="../help-server/init.log"><code>help-server/init.log</code></a>.&nbsp;
+This file may be useful for debugging the start-up and shut-down 
+of the server daemon.&nbsp;
+There are a number of things missing from the server; see
+<a href="http://www.andestutor.org/bugzilla/buglist.cgi?query_format=advanced&amp;short_desc_type=allwordssubstr&amp;short_desc=&amp;product=Andes&amp;component=server&amp;long_desc_type=substring&amp;long_desc=&amp;bug_file_loc_type=allwordssubstr&amp;bug_file_loc=&amp;keywords_type=allwords&amp;keywords=&amp;bug_status=NEW&amp;bug_status=ASSIGNED&amp;bug_status=REOPENED&amp;emailassigned_to1=1&amp;emailtype1=substring&amp;email1=&amp;emailassigned_to2=1&amp;emailreporter2=1&amp;emailcc2=1&amp;emailtype2=substring&amp;email2=&amp;bugidtype=include&amp;bug_id=&amp;chfieldfrom=&amp;chfieldto=Now&amp;chfieldvalue=&amp;cmdtype=doit&amp;order=Reuse+same+sort+as+last+time&amp;field0-0-0=noop&amp;type0-0-0=noop&amp;value0-0-0=">Andes Bugzilla, server component</a>.
 
 
 <h2>Software Updates</h2>
 
 Update software by entering <code>make update</code> in the Andes root directory.
 
-<p>If the help server is running, reattach to the server using screen:&nbsp;
-<code>screen -r</code>.&nbsp;  
-Then, in lisp, stop the server, reload the libraries, and restart using:
+<p>If the help server is running, restart the server using
 <pre>
-(stop-help)
-(rhelp)
-(start-help :password "sin(0)=0")
+/sbin/service andes-helpd resstart
 </pre>
-At this point, you can type ctl-a ctl-d to detach from the lisp process.&nbsp;
+Once we have <a href="http://www.andestutor.org/bugzilla/show_bug.cgi?id=1722">Bug #1722</a> fixed, we can update the lisp server without any server
+restart.&nbsp;
 
 <p>If the <code>(rhelp)</code> command fails, try rebuilding the lisp
 object files:

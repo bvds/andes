@@ -22,6 +22,9 @@ endif
 
 ifeq ($(shell uname),Linux)
 ifeq ($(shell uname -p),i686)
+  binary-release = sbcl-1.0.35-x86-linux-binary.tar.bz2 
+endif
+ifeq ($(shell uname -p),pentium4) # Andrew linux at CMU
   binary-release = sbcl-1.0.35-x86-linux-binary.tar.bz2
 endif 
 ifeq ($(shell uname -p),x86_64)
@@ -42,7 +45,7 @@ binary-install:
 	@echo "Needs superuser privileges for install into /usr/local"
 	cd `$(binary-dir)`; sh install.sh
 thread-test:
-	cd `$(binary-dir)`; echo '(format t "threading is ~:[not~;~] supported~%" (find :sb-thread *features*)) (quit)' | ./run-sbcl.sh --noinform --noprint
+	cd `$(binary-dir)`; echo '(format t "Threading is~:[ not~;~] supported on binary release.~%" (find :sb-thread *features*)) (quit)' | ./run-sbcl.sh --noinform --noprint
 
 source-dir = sbcl-1.0.37
 source-release = $(source-dir)-source.tar.bz2
