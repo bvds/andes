@@ -118,7 +118,7 @@
    (eval (force-types ?type))
    (or 
     ;; This should handle "force of the man acting on the crate"
-    (and (object ?body) (agent ?agent) (time ?time))
+    (and (preferred (object ?body)) (preferred (agent ?agent)) (time ?time))
     ;; case "the force that the man exerts on the crate"
     (and ((or "that" "with which") ?agent (or "exerts on" "acts on") ?body) 
 	 (time ?time)))))
