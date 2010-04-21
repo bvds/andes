@@ -1057,8 +1057,7 @@
 	;; so nested data structures can exceed the signal 
 	;; recursion limit in lisp.
 	#+sbcl (SB-KERNEL:*MAXIMUM-ERROR-DEPTH* 20)
-	(Stream  (open
-		  (merge-pathnames file *Andes-Path*)
+	(Stream  (open file
 		  :direction :output :if-exists :supersede
 		  :external-format #+sbcl :utf-8 #-sbcl :default)))
     ;;  Assume stream has UTF-8 encoding (default for sbcl)
@@ -1101,8 +1100,7 @@
 	;; recursion limit in lisp.
 	#+sbcl (SB-KERNEL:*MAXIMUM-ERROR-DEPTH* 20)
 	(json:*lisp-identifier-name-to-json* #'string-downcase)
-	(stream (open 
-                 (merge-pathnames file *Andes-Path*)
+	(stream (open file
                  :direction :output :if-exists :supersede
 		 :external-format #+sbcl :utf-8 #-sbcl :default)))
     ;;  Assume stream has UTF-8 encoding (set for sbcl)
@@ -1248,7 +1246,7 @@
        ))
 
 
-(defun problem-html-files (&optional (path *andes-path*))
+(defun problem-html-files (&optional path)
   "construct html files for all problems"
   (dolist (prob (listprobs))
     (when (problem-graphic prob) (format t "~A~%" (problem-graphic prob)))
@@ -1283,7 +1281,7 @@ F-8\">~%"
   (when (streamp stream) (close stream)))))
 
 
-(defun problem-xml-files (&optional (path *andes-path*))
+(defun problem-xml-files (&optional path)
   "construct xml files for all problems"
   (dolist (prob (listprobs))
     (let ((*print-pretty* NIL) ;disble line breaks
