@@ -241,7 +241,7 @@
 
 (def-qexp property (property ?body)
   ;; "for" is exceptionally used
-  :new-english ("of" (or (var (body ?body) :namespace :objects) ?body))) 
+  :new-english ("of" (or (var ?body :namespace :objects) ?body))) 
 
 
 (def-qexp change (change ?property)
@@ -328,16 +328,6 @@
 		)
 )
 
-;; optime : time is optional 
-;; ex) "the net force exerted by the man at time T1"
-(def-qexp property-object-optime 
-    (property-object-optime ?property ?body :time ?time)
-  :new-english ((the)
-		?property  		; "mass"
-		(and (preferred (property ?body)) (time ?time)) 
-		)
-  )
-
 ;; ex) "the mass of the crate"
 ;;    "the crate's mass"
 ;;    "the value of crate's mass"
@@ -359,7 +349,7 @@
   :new-english (eval (when (expand-new-english ?body)
                         '((or "on" "acting on" "exerted on" "that acts on" "applied on" 
 			   "applied to" "against") 
-			  (or (var (body ?body) :namespace :objects) ?body)))))
+			  (or (var ?body :namespace :objects) ?body)))))
 
 (def-qexp agent (agent ?body)
   ;;+syjung
@@ -367,12 +357,12 @@
   ;; important for the case that it is missing (in elec4b, see Bug #1676)
   :new-english (eval (when (expand-new-english ?body)
 			'((or "due to" "by" "from" "caused by" "exerted by" "of") 
-			  (or (var (body ?body) :namespace :objects) ?body)))))  
+			  (or (var ?body :namespace :objects) ?body)))))  
 
 (def-qexp agent-with-preposition (agent ?preposition ?body)
   :new-english (eval (when (expand-new-english ?body)
 			'(?preposition
-			  (or (var (body ?body) :namespace :objects) ?body)))))
+			  (or (var ?body :namespace :objects) ?body)))))
 
 (def-qexp time (time ?time)
   :new-english (eval (when ?time
@@ -401,8 +391,8 @@
   :units |kg|
   :restrictions positive
   ;; "ball's mass" problem s2e
-  :new-english (property-object-optime "mass" ?body :time ?time)
-)
+  :new-english ((the) "mass"
+		(and (preferred (property ?body)) (time ?time))))
 
 ;; the magnitude of the change of mass of ~A per unit time due to ~A~@[ ~A~]" 
 ;;	       (nlg ?body) (nlg ?agent 'agent) (nlg ?time 'pp)
@@ -431,8 +421,7 @@
   :units |m|
   :new-english ((the) (or "distance" "dist." "dist") 
 		(or  ((or "traveled" "travelled" "travels" "moves" "moved")
-		      (and ("by" (or (var (body ?body) :namespace :objects) 
-				     ?body))
+		      (and ("by" (or (var ?body :namespace :objects) ?body))
 		           (time ?time)))
 		     ((property-object "distance" ?body)
 		      (and (allowed (or "traveled" "travelled" "travels" 
@@ -471,7 +460,11 @@
   :short-name "coef. of friction"	
   :units NIL ;; dimensionless
   :new-english ((the) "coefficient of" ?static-or-kinetic "friction"
-		(and (preferred ("between" (or (var ?body1 :namespace :objects) ?body1) "and" (or (var ?body2 :namespace :objects) ?body2)))
+		(and (preferred 
+		      ("between" 
+		       (or (var ?body1 :namespace :objects) ?body1)
+		       "and" 
+		       (or (var ?body2 :namespace :objects) ?body2)))
 		     (time ?time))))
 
 ;; "coefficient of drag for ~A moving through ~A" 
