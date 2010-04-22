@@ -58,7 +58,7 @@
   ;; Generally components are a single symbol or a list for
   ;; a compound component.
   ;; Sometimes the component can be defined with the body tool.
-  :new-english (or (var (body ?a) :namespace :objects)
+  :new-english (or (var ?a :namespace :objects)
 		   (eval (if (consp ?a) `(conjoin (or "and" "&") . ,?a) ?a))))
 
 ;;; in the workbench, the time slot is added if feature changing-voltage
