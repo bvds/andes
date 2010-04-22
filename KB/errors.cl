@@ -478,7 +478,7 @@
    (correct (define-var (duration (during ?ct1 ?ct2))))
    (test (not (> ?st1 ?st2))))
   :apply no-match
-  :state **incorrect**
+  :state +incorrect+
   :hint (default-duration `(during ,?st1 ,?st2) `(during ,?ct1 ,?ct2))
   :order ((expected-utility . 0.1)))
 
@@ -512,7 +512,7 @@
   ((student (define-var (duration (during ?t1 ?t2))))
    (test (> ?t1 ?t2)))
   :apply no-match
-  :state **incorrect**
+  :state +incorrect+
   :hint (reverse-duration `(during ,?t1 ,?t2) `(during ,?t2 ,?t1))
   :order ((expected-utility . 0.1)))
 
@@ -729,7 +729,7 @@
    (test (time-pointp ?ctime))
    (problem (given (height ?body ?zero-height :time ?t-zero) (dnum 0 ?unit))))
   :apply no-match
-  :state **incorrect**
+  :state +incorrect+
   :hint (height-over-a-time-interval ?body `(during ,?t1 ,?t2) ?ctime)
   :order ((expected-utility . (* 100 (+ 0.1
 					(if (and (equal ?t1 ?t-zero)
@@ -2790,9 +2790,9 @@
 ;;; so must override default-vector-body, which doesn't fit
 ;;; Same rules work for both electric and magnetic fields
 (def-error-class field-wrong-loc (?cloc ?sloc ?type)
-  ((student    (vector (field ?sloc ?type ?sagent :time ?stime) ?sdir))
-   (no-correct (vector (field ?sloc ?type ?agent2 :time ?time2) ?dir2))
-   (correct    (vector (field ?cloc ?type ?cagent :time ?ctime) ?cdir)))
+  ((student    (vector (field ?type :location ?sloc :source ?sagent :time ?stime) ?sdir))
+   (no-correct (vector (field ?type :location ?sloc :source ?agent2 :time ?time2) ?dir2))
+   (correct    (vector (field ?type :location ?cloc :source ?cagent :time ?ctime) ?cdir)))
   :utility 50
   :probability 0.15) ;; This tends to be a weak/misleading hint.
 
@@ -2806,9 +2806,9 @@
 			     "only one) would be ~a.") correct-loc))))
 
 (def-error-class field-loc-too-specific (?cloc ?sloc ?type)
-  ((student (vector (field ?sloc ?type ?sagent :time ?stime) ?sdir))
-   (no-correct (vector (field ?sloc ?type ?agent2 :time ?time2) ?dir2))
-   (correct (vector (field ?cloc ?type ?cagent :time ?ctime) ?cdir))
+  ((student (vector (field ?type :location ?sloc :source ?sagent :time ?stime) ?sdir))
+   (no-correct (vector (field ?type :location ?sloc :source ?agent2 :time ?time2) ?dir2))
+   (correct (vector (field ?type :location ?cloc :source ?cagent :time ?ctime) ?cdir))
    (problem (at-place ?sloc ?cloc))
    )
   :utility 75
@@ -2824,9 +2824,9 @@
 			     "would be ~a.") correct-loc))))
 
 (def-error-class field-wrong-agent (?sagent ?cagent ?loc ?type)
-  ((student    (vector (field ?loc ?type ?sagent :time ?stime) ?sdir))
-   (no-correct (vector (field ?loc ?type ?sagent :time ?time2) ?dir2))
-   (correct    (vector (field ?loc ?type ?cagent :time ?ctime) ?cdir)))
+  ((student    (vector (field ?type :location ?loc :source ?sagent :time ?stime) ?sdir))
+   (no-correct (vector (field ?type :location ?loc :source ?sagent :time ?time2) ?dir2))
+   (correct    (vector (field ?type :location ?loc :source ?cagent :time ?ctime) ?cdir)))
   :utility 50)
 
 (defun field-wrong-agent (sagent cagent loc fieldtype)
@@ -2841,8 +2841,8 @@
 
 ;; instead of non-existent-vector when net-field is used:
 (def-error-class should-be-net-field (?type) 
-  ((student    (vector (field ?loc ?type . ?sargs) ?sdir))
-   (no-correct (vector (field ?loc ?type . ?args) ?dir))
+  ((student    (vector (field ?type :location ?loc . ?sargs) ?sdir))
+   (no-correct (vector (field ?type :location ?loc . ?args) ?dir))
    (correct    (vector (net-field ?cloc ?type . ?cargs) ?cdir))))
 
 (defun should-be-net-field (type)
@@ -2855,9 +2855,9 @@
 ;;; --------------------- Confusing electric and magnetic ---------------------
 
 (def-error-class field-wrong-type (?stype ?ctype ?loc)
-  ((student    (vector (field ?loc ?stype ?sagent :time ?stime) ?sdir))
-   (no-correct (vector (field ?loc ?stype ?agent2 :time ?time2) ?dir2))
-   (correct    (vector (field ?loc ?ctype ?cagent :time ?ctime) ?cdir)))
+  ((student    (vector (field ?stype :location ?loc :source ?sagent :time ?stime) ?sdir))
+   (no-correct (vector (field ?stype :location ?loc :source ?agent2 :time ?time2) ?dir2))
+   (correct    (vector (field ?ctype :location ?loc :source ?cagent :time ?ctime) ?cdir)))
   :utility 22) ;low utility since time, direction, and agent are not matched
 
 (defun field-wrong-type (stype ctype loc)
@@ -3064,7 +3064,7 @@
      (test (not (equal ?wrong-trig-fn ?right-trig-fn)))
      (fix-eqn-by-replacing ?wrong-loc (?right-trig-fn ?argument)))
   :apply no-match
-  :state **incorrect**
+  :state +incorrect+
   :hint (wrong-trig-function (list ?wrong-trig-fn ?argument) 
 			      (list ?right-trig-fn ?argument))
   :order ((expected-utility . 0.1)))
@@ -3094,7 +3094,7 @@
    (test (not (equal ?wrong-trig-fn ?right-trig-fn)))
    (fix-eqn-by-replacing ?wrong-loc (?right-trig-fn ?argument)))
   :apply no-match
-  :state **incorrect**
+  :state +incorrect+
   :hint (trig-function-should-be-tan (list ?wrong-trig-fn ?argument) 
 				     (list ?right-trig-fn ?argument))
   :order ((expected-utility . 0.1)))
@@ -3251,7 +3251,7 @@
    (correct-var ?vf (compo ?xyz ?rot (velocity ?body :time ?tf)))
    (test (equal (sort (list ?v1 ?v2) #'expr<) (sort (list ?vi ?vf) #'expr<))))
   :apply no-match
-  :state **incorrect**
+  :state +incorrect+
   :hint (avg-accel-is-change-in-velocity ?xyz `(= ,?a (/ (- ,?vf ,?vi) ,?dur)))
   :order ((expected-utility . 5)))
 
@@ -3358,7 +3358,7 @@
    (var-defn ?smag (mag (force ?body ?planet weight :time ?time)))
    (var-defn ?smass (mass ?body)))
   :apply no-match
-  :state **incorrect**
+  :state +incorrect+
   :hint (no-negation-in-weight-law `(= ,?smag (* ,?smass ,?g)))
   :order ((expected-utility . 10)))
 
@@ -3370,7 +3370,7 @@
    (var-defn ?smag (mag (force ?body ?planet weight :time ?time)))
    (var-defn ?smass (mass ?body)))
   :apply no-match
-  :state **incorrect**
+  :state +incorrect+
   :hint (no-negation-in-weight-law `(= ,?smag (* ,?smass ,?g)))
   :order ((expected-utility . 10)))
 
@@ -4044,7 +4044,7 @@
 (def-entry-test exact-match (?quant)
   :preconditions ((student ?quant)
 	       (correct ?quant))
-  :state **correct**
+  :state +correct+
   :order ((correct . 1))
   )
 
@@ -4054,7 +4054,7 @@
 		  (correct (given ?quant ?val2))
 		  ;; compare-dnums does not properly handle disparate units.
 		  (test (compare-dnums ?val1 ?val2)))
-  :state **correct**
+  :state +correct+
   :order ((correct . 2))
   )
 
@@ -4067,7 +4067,7 @@
 		  (test (and (dimensioned-numberp ?dir1) 
 		             (dimensioned-numberp ?dir2)
 			     (compare-dnums ?dir1 ?dir2))))
-  :state **correct**
+  :state +correct+
   :order ((correct . 2))
   )
 
@@ -4084,7 +4084,7 @@
 		  (correct (vector ?quant unknown))
 		  (test (match-direction-to-solver ?dir1 ?quant))
 		  )
-  :state **correct**
+  :state +correct+
   :order ((correct . 2) (unknown-vector . 4))
   )
 
@@ -4104,7 +4104,7 @@
   :preconditions ((student (vector ?quant ?dir1))
 		  (correct (vector ?quant unknown))
 		  (test (or (eql ?dir1 'into) (eql ?dir1 'out-of))))
-  :state **incorrect**
+  :state +incorrect+
   :hint (list
 	 (format nil "Does ~a lie along the z-axis or in the plane?"
 		 (nlg ?quant))
@@ -4121,7 +4121,7 @@
 		  (correct (vector ?any-quant ?dir2))
 		  (test (parallel-or-antiparallelp ?dir1 ?dir2))
 		  )
-  :state **incorrect**
+  :state +incorrect+
   :hint (list
 	 (format nil "Drawing the vector in the direction ~A suggests that it is aligned with ~A." (nlg ?dir1 'adj) (nlg ?quant))
 	 "However, the direction of this vector is not given.&nbsp;  Please choose another direction.")
@@ -4138,7 +4138,7 @@
 			     (< (mod (- (convert-dnum-to-number ?dir1)
 					(convert-dnum-to-number ?dir2)) 90) 2)))
 		  )
-  :state **incorrect**
+  :state +incorrect+
   :hint (list
 	 (format nil "Drawing the vector in the direction ~A suggests that it is aligned with the axes you have drawn." (nlg ?dir1 'adj))
 	 "However, the direction of this vector is not given.&nbsp;  Please choose another direction.")
@@ -4150,6 +4150,6 @@
   :preconditions ((student (vector ?quant ?dir1))
 		  (correct (vector ?quant unknown))
 		  )
-  :state **correct**
+  :state +correct+
   :order ((correct . 2) (unknown-vector . 0))
   )

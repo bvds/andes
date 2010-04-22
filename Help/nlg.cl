@@ -389,7 +389,7 @@
     (return-from new-english-find (def-np-model prop)))
   
   ;; On failure, warn and return nil
-  (warn "new-english-find:  no ontology match for ~A" prop))
+  (warn "new-english-find:  no ontology match for ~S" prop))
 
   
 (defun expand-new-english (model &optional (bindings no-bindings))
@@ -452,7 +452,8 @@
 	 (let ((args (expand-vars (cdr model))))
 	   (when args (cons (car model) args))))
 	((or (stringp (car model)) (listp (car model))) ;plain list
-	 (remove nil (mapcar #'expand-vars model)))
+	 ;; mapcar copies list; subsequent operations can be destructive
+	 (delete nil (mapcar #'expand-vars model)))
 	;; expansion of var must be done at run-time.
 	((eql (car model) 'var)
 	 (apply #'symbols-label (cdr model)))

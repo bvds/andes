@@ -116,7 +116,7 @@
 ;;; have entries in the solution graph but they are effectively optional. 
 (defparameter **Current-Prob-Requires-nonanswer-entries** t)
 
-(defvar *sg-systementry-optional-p-memo* "memo for holding session-local info")
+(defvar *sg-systementry-optional-p-memo*) ;memo for holding session-local info
 
 (defparameter **entry-entered** nil)
 
@@ -404,7 +404,7 @@
 ;;; to the help system.  If it is t then any entry that comes in is
 ;;; assumed to be a saved entry that is being sent automatically.  If
 ;;; it is nil then it is assumed to be a user entry.
-(defparameter **Checking-Entries** Nil)
+(defvar **Checking-Entries** Nil)
 
 ;;; Iterate over the tests funcalling their funcs to set the new scores.
 ;;; Each func is assumed to take a single argument which is the current 

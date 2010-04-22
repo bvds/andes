@@ -133,7 +133,7 @@
 (defun IEA-Main (Prefix)
   (make-dialog-turn
    (strcat Prefix "What equation do you wish to write?")
-   **Equation-Menu** 
+   +equation-menu+ 
    :Responder #'(lambda (Response)
 		  (iea-check-response Response))
    :Assoc '((iea . Main))))

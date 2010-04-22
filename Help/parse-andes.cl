@@ -115,7 +115,7 @@
     (setf (StudentEntry-verbatim se) equation)
     (setf (StudentEntry-parsedeqn se) parses)
     (setf (StudentEntry-prop se) (list 'eqn equation))
-    (setf (StudentEntry-state se) **incorrect**)
+    (setf (StudentEntry-state se) +incorrect+)
     (add-entry se)
     (setf (StudentEntry-ErrInterp se) (bad-syntax-ErrorInterp equation :id (StudentEntry-id se)))
     (ErrorInterp-remediation (StudentEntry-ErrInterp se)))
@@ -128,11 +128,12 @@
     (cond				
      ((not (position #\= equation))
       (setf rem (make-hint-seq (list
-				(format nil "Entry ~a is not an equation." equation)
+				(format nil "Entry \"~a\" is not an equation.&nbsp; If you are trying to define a scalar quantity, use ~A instead." 
+					equation *text-tool*)
 				"The entry needs an = sign to be an equation."))))
      ((> (count #\= equation) 1)
       (setf rem (make-hint-seq (list
-				(format nil "~a is not a single equation." equation)
+				(format nil "\"~a\" is not a single equation." equation)
 				"You may enter only one equation on a line."))))
      ((search "sec" equation)
       (setf rem (make-hint-seq (list
@@ -168,7 +169,7 @@
 		)))))
 
     (setf (turn-id rem) id)
-    (setf (turn-coloring rem) **color-red**)
+    (setf (turn-coloring rem) +color-red+)
 
     (make-ErrorInterp
      :diagnosis '(Syntax-error-in-eqn)
@@ -191,16 +192,16 @@
 	(setf (StudentEntry-verbatim se) equation)
 	(setf (StudentEntry-parsedeqn se) parse)
 	(setf (StudentEntry-prop se) (list 'eqn equation))
-	(setf (StudentEntry-State se) **InCorrect**)
+	(setf (StudentEntry-State se) +incorrect+)
 	(setf tmp (parse-handler se location))
 	(cond
-	  ((equal **Color-Green** (turn-coloring tmp))
-	   (setf (StudentEntry-State se) **Correct**)
+	  ((equal +color-green+ (turn-coloring tmp))
+	   (setf (StudentEntry-State se) +correct+)
 	   ;; know this entry has winning parse so save entry now 
 	   (add-entry se) 	
 	   (setf result se)
 	   (setf cont nil))
-        (t ;;(equal **Color-Red** (turn-coloring tmp))
+        (t ;;(equal +color-red+ (turn-coloring tmp))
           (setf bad (append bad (list (list tmp se))))))))    
     (cond
       (cont
@@ -216,7 +217,7 @@
 	   (setf tmp (make-red-turn :id (StudentEntry-Id se))) ;; to trap exceptions
 	   (setf tmp (interpret-equation result location)))
        (cond
-	 ((equal **Color-Green** (turn-coloring tmp))
+	 ((equal +color-green+ (turn-coloring tmp))
 	  (sg-Enter-StudentEntry se)
 	  
 	  ;; also enter scalar variables whose only uses are in this entry's interp
@@ -234,8 +235,8 @@
 					; temporarily munge this entry's interpretations to get variable definition entries 
 					; associated with it to be marked as entered by this student entry, restore when done. 
 					; Note sg-delete-StudentEntry adjusted to undo this on equation entry deletions.
-	      (format *debug-help* "entering unneeded vardefs: ~s~%" 
-		      unneeded-vardefs)
+	      (when *debug-help* 
+		(format t "entering unneeded vardefs: ~s~%" unneeded-vardefs))
 	      (setf (StudentEntry-Cinterp se) unneeded-vardefs)
 	      (sg-Enter-StudentEntry se)
 	      (setf (StudentEntry-Cinterp se) eqn-interp)))
@@ -329,7 +330,7 @@
 	  (first badlist)))
 
     ;; Set state to chosen entry:
-    (setf (StudentEntry-State entry) **Incorrect**)
+    (setf (StudentEntry-State entry) +incorrect+)
     (setf (StudentEntry-verbatim entry) 
 	  (StudentEntry-verbatim (second choice)))
     (setf (StudentEntry-parsedeqn entry) 
@@ -480,7 +481,7 @@
        :remediation rem))
 
     (setf (turn-id rem) (StudentEntry-id se))
-    (setf (turn-coloring rem) **color-red**)
+    (setf (turn-coloring rem) +color-red+)
 
     rem))
 
@@ -517,7 +518,7 @@
        :remediation rem))
 
     (setf (turn-id rem) (StudentEntry-id se))
-    (setf (turn-coloring rem) **color-red**)
+    (setf (turn-coloring rem) +color-red+)
 
     rem))
 
@@ -536,7 +537,7 @@
        :remediation rem))
 
     (setf (turn-id rem) (StudentEntry-id se))
-    (setf (turn-coloring rem) **color-red**)
+    (setf (turn-coloring rem) +color-red+)
 
     rem))
 
@@ -611,7 +612,7 @@
 		  (t *unknown-variable-error-hint*))))))
 
     (setf (turn-id rem) id)
-    (setf (turn-coloring rem) **color-red**)
+    (setf (turn-coloring rem) +color-red+)
 
     (make-ErrorInterp
      :diagnosis (cons 'Undefined-variables undef-vars)
@@ -627,7 +628,7 @@
 		  "I can only recognize equations and variables from solutions I know about. This variable is not used in any of the solutions I have recorded for this problem. It's possible you are pursuing a solution that I don't know about, but if so, I can't help you with it and simpler solutions are probably available."))))
 
     (setf (turn-id rem) id)
-    (setf (turn-coloring rem) **color-red**)  
+    (setf (turn-coloring rem) +color-red+)  
 
     (make-ErrorInterp
      :diagnosis (cons 'Unused-variables undef-vars)
@@ -914,7 +915,7 @@
     (cond (result-turn) ;; if we got result from check above return it
           (T ;; else failed somewhere. !!! Should process syntax errors same as eqn.
 	     ;;(format T "~&failed to get result for answer~%")
-	     (setf (StudentEntry-state entry) **incorrect**)
+	     (setf (StudentEntry-state entry) +incorrect+)
 	     (make-red-turn :id (StudentEntry-id entry))))))
 
 (defun bad-answer-bad-lhs-ErrorInterp (equation why &key id)
@@ -925,7 +926,7 @@
 	       (format nil "'~A' is not a defined variable." (second why))))))
 
     (setf (turn-id rem) id)
-    (setf (turn-coloring rem) **color-red**)
+    (setf (turn-coloring rem) +color-red+)
 
     (make-ErrorInterp
      :diagnosis '(answer-sought-is-undefined)
@@ -940,7 +941,7 @@
 	       (format nil "'~A' is not the value we are looking for." (second why))))))
 
     (setf (turn-id rem) id)
-    (setf (turn-coloring rem) **color-red**)
+    (setf (turn-coloring rem) +color-red+)
 
     (make-ErrorInterp
      :diagnosis '(answer-is-not-sought)
@@ -954,7 +955,7 @@
 	       "Try removing the left-hand side of the equation."))))
 
     (setf (turn-id rem) id)
-    (setf (turn-coloring rem) **color-red**)
+    (setf (turn-coloring rem) +color-red+)
 
     (make-ErrorInterp
      :diagnosis '(answer-is-malformed)
@@ -973,7 +974,7 @@
 	       "In most Andes problems a final answer should give an explicit numerical value (with units) for the sought. A few problems may ask you to express the value symbolically in terms of specified other quantities. Read the problem statement to see which variables, if any, are allowed in the answer."))))
 
     (setf (turn-id rem) id)
-    (setf (turn-coloring rem) **color-red**)
+    (setf (turn-coloring rem) +color-red+)
 
     (make-ErrorInterp
      :diagnosis '(using-variables-in-answer)
@@ -1075,21 +1076,21 @@
     (cond 
      ((blank-given-value-entry eqn-entry)
       (cond (is-optionally-given 
-	     (setf (StudentEntry-state eqn-entry) **correct**)
+	     (setf (StudentEntry-state eqn-entry) +correct+)
 	     (make-green-turn :id (StudentEntry-id eqn-entry)))
 	    (is-given 
-	     (setf (StudentEntry-state eqn-entry) **Incorrect**)
+	     (setf (StudentEntry-state eqn-entry) +incorrect+)
 	     (should-be-given-ErrorInterp eqn-entry quant))
 	    (is-known-constant
-	     (setf (StudentEntry-state eqn-entry) **Incorrect**)
+	     (setf (StudentEntry-state eqn-entry) +incorrect+)
 	     (should-be-known-ErrorInterp eqn-entry quant))
 	    (T ; quant is not given => OK
-	     (setf (StudentEntry-state eqn-entry) **correct**)
+	     (setf (StudentEntry-state eqn-entry) +correct+)
 	     (make-green-turn :id (StudentEntry-id eqn-entry)))))
      
      ;; get here => student specified a given value
      ((not (or is-given is-optionally-given is-known-constant))
-      (setf (StudentEntry-state eqn-entry) **Incorrect**)
+      (setf (StudentEntry-state eqn-entry) +incorrect+)
       (not-given-ErrorInterp eqn-entry quant))
      
      ;; else the quantity does have a given value:
@@ -1110,7 +1111,7 @@
 			  :id 'check-given-value-equation))
 	     ;; test equation we just created.
 	     (result-turn (lookup-eqn-string temp-entry))
-	     (correct-eqn  (eq (StudentEntry-State temp-entry) **Correct**)))
+	     (correct-eqn  (eq (StudentEntry-State temp-entry) +correct+)))
 	  ;; copy (provisional!) filled-in eqn check info from temp entry into 
 	  ;; the main entry's dangling dependent equation subentry.  
 	  ;; The subentry state will be used later for logging or entering 
@@ -1130,7 +1131,7 @@
 	  ;; to only add once, must handle this.
 	  (when (and correct-eqn (not (uses-only-given-eqn temp-entry)) 
 		     (not is-known-constant))
-	    (setf (StudentEntry-State eqn-entry) **Incorrect**) ; modify state copied above
+	    (setf (StudentEntry-State eqn-entry) +incorrect+) ; modify state copied above
 	    (setf result-turn (more-than-given-ErrorInterp eqn-entry quant)))
 	  ;; if equation is wrong but no error interpretation (syntax error, 
 	  ;; missing units, etc) has been set, assume value is just plain wrong, 
@@ -1176,7 +1177,7 @@
        :remediation rem))
 
     (setf (turn-id rem) (StudentEntry-id se))
-    (setf (turn-coloring rem) **color-red**)
+    (setf (turn-coloring rem) +color-red+)
 
     rem))
 
@@ -1215,7 +1216,7 @@
        :remediation rem))
 
     (setf (turn-id rem) (StudentEntry-id se))
-    (setf (turn-coloring rem) **color-red**)
+    (setf (turn-coloring rem) +color-red+)
 
     rem))
 
@@ -1240,7 +1241,7 @@
        :remediation rem))
 
     (setf (turn-id rem) (StudentEntry-id se))
-    (setf (turn-coloring rem) **color-red**)
+    (setf (turn-coloring rem) +color-red+)
 
     rem))
 
@@ -1268,7 +1269,7 @@
        :remediation rem))
 
     (setf (turn-id rem) (StudentEntry-id se))
-    (setf (turn-coloring rem) **color-red**)
+    (setf (turn-coloring rem) +color-red+)
 
     rem))
 

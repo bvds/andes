@@ -29,10 +29,10 @@
 
 (defvar **Debug-prematurity-tests** NIL "Debugging flag.")
 
-(defconstant **correct** 'Correct "Correct interpretation.")
-(defconstant **Forbidden** 'Forbidden "Forbidden path.")
-(defconstant **Dead-Path** 'Dead-Path "Dead path interpretation.")
-(defconstant **Incorrect** 'Incorrect "The Entry has no interpretation.")
+(defconstant +correct+ 'Correct "Correct interpretation.")
+(defconstant +forbidden+ 'Forbidden "Forbidden path.")
+(defconstant +dead-path+ 'Dead-Path "Dead path interpretation.")
+(defconstant +incorrect+ 'Incorrect "The Entry has no interpretation.")
 
 (defvar *SG-Solutions* () "The set of solutions to be done.")
 (defvar *SG-Entries* () "The System entries from the bubblegraph.")
@@ -45,9 +45,9 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; The constants below are used only by the Help Solutiongraph 
-(defconstant **Premature-Entry** 'Premature-Entry 
+(defconstant +premature-entry+ 'Premature-Entry 
   "Reflects that the entry is premature.")
-(defconstant **Premature-Subst** 'Premature-Subst 
+(defconstant +premature-subst+ 'Premature-Subst 
   "Reflects (for eqn entries only) a premature substitution of values.")
 
 
@@ -137,14 +137,14 @@
 
 (defun merge-SystemEntry-States (X Y)
   "Merge the System Entry States."
-  (cond ((equalp (SystemEntry-State Y) **Forbidden**)
-	 (if (equalp (SystemEntry-State X) **Correct**)
-	     (setf (SystemEntry-State Y) **Correct**)))
-	((equalp (SystemEntry-State Y) **Dead-Path**)
-	 (if (equalp (SystemEntry-State X) **Forbidden**)
-	     (setf (SystemEntry-State Y) **Forbidden**))
-	 (if (equalp (SystemEntry-State X) **Correct**)
-	     (setf (SystemEntry-State Y) **Correct**)))))
+  (cond ((equalp (SystemEntry-State Y) +forbidden+)
+	 (if (equalp (SystemEntry-State X) +correct+)
+	     (setf (SystemEntry-State Y) +correct+)))
+	((equalp (SystemEntry-State Y) +dead-path+)
+	 (if (equalp (SystemEntry-State X) +forbidden+)
+	     (setf (SystemEntry-State Y) +forbidden+))
+	 (if (equalp (SystemEntry-State X) +correct+)
+	     (setf (SystemEntry-State Y) +correct+)))))
 
 
 (defun merge-systementry-prereqs (X Y)
@@ -183,16 +183,16 @@
 ;; State testing code.
 
 (defun Systementry-correctp (Entry)
-  (equalp (SystemEntry-State Entry) **Correct**))
+  (equalp (SystemEntry-State Entry) +correct+))
 
 (defun Systementry-forbiddenp (Entry)
-  (equalp (SystemEntry-State Entry) **Forbidden**))
+  (equalp (SystemEntry-State Entry) +forbidden+))
 
 (defun Systementry-incorrectp (Entry)
-  (equalp (SystemEntry-State Entry) **incorrect**))
+  (equalp (SystemEntry-State Entry) +incorrect+))
 
 (defun Systementry-deadpathp (Entry)
-  (equalp (SystemEntry-State Entry) **dead-path**))
+  (equalp (SystemEntry-State Entry) +dead-path+))
 
 (defun SystemEntries-EnteredP (Entries)
   (loop for E in (if (SystemEntry-P (car Entries))
@@ -285,13 +285,13 @@
 
 (defun SystemEntries->State (Interp)
   "Get the correctness of the interpretation."
-  (let ((s **Correct**))
+  (let ((s +correct+))
     (dolist (E Interp)
-      (cond ((eq (SystemEntry-State E) **Forbidden**)
-	     (setq s **Forbidden**))
-	    ((and (eq (SystemEntry-State E) **Dead-Path**)
-		  (not (eq s **Forbidden**)))
-	     (setq s **Dead-Path**))))
+      (cond ((eq (SystemEntry-State E) +forbidden+)
+	     (setq s +forbidden+))
+	    ((and (eq (SystemEntry-State E) +dead-path+)
+		  (not (eq s +forbidden+)))
+	     (setq s +dead-path+))))
     s))
 
 

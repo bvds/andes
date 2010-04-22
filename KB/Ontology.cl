@@ -100,31 +100,29 @@
 ;;     "the constant normal force of the man acting on the crate"
 ;;     "the average force exerted on the pier between T0 and T1" in dt3b 
 ;;     "the tension in the wire" in s13 ("wire" is not a defined object in s13)
-;; question in s13: why the wire is an agent? and the bar is an object?
+;; "the frictional force on the aircraft"
+;; "the frictional force against the aircraft"
+
+;; For tension, need to distinguish scalar and vector
+;; forms (see Bug #1719):
+;; "tension in the string" (scalar case)
+;; "tension force on the brick due to the string" (vector case)
+;; 
 (def-qexp force (force ?body ?agent ?type :time ?time)
   :units N
-  :new-english ((the) ;(time-type ?time)
-		(allowed (or "constant" "const." "const" "steady" 
-			     "average" "ave."))
-		(eval (force-types ?type))
-		(or 
-		    ((eval (case ?type
-				;; "tension in the string due to the body"
-				;; "the tension in the wire" in s13 
-				;; (but "wire" is not defined in s13)
-				(tension '("in" ?agent (or "due to" "by") ?body))
-				;; "the frictional force on the aircraft"
-				;; "the frictional force against the aircraft"
-				(friction '((allowed "on" "against") ?body))))
-		     (time ?time))
-		    (and  (preferred (object ?body))
-		     	  (preferred (agent ?agent))
-		     	  (time ?time))
-		    ((or "that" "with which")
-		     ?agent 
-		     (or "exerts on" "acts on") ?body (time ?time))
-		))
-)
+  :new-english 
+  ((the)
+   (eval (when (time-intervalp ?time)
+	   '(allowed (or "constant" "const." "const" "steady" 
+		"average" "ave."))))
+   (eval (force-types ?type))
+   (or 
+    ;; This should handle "force of the man acting on the crate"
+    (and (preferred (object ?body)) (preferred (agent ?agent)) (time ?time))
+    ;; case "the force that the man exerts on the crate"
+    (and ((or "that" "with which") ?agent (or "exerts on" "acts on") ?body) 
+	 (time ?time)))))
+
 (defun force-types (type)
   (case type 
     (weight '(or "force of gravity"
@@ -133,7 +131,8 @@
 		     ((or "gravitational" "weight" "grav." "grav") "force")))
     ;"normal force exerted on a body by the surface" from Y&F 
     (normal '("normal force"))
-    (tension '(or ("tension" (allowed "force")) "pulling force" ("force" (preferred "of tension"))))
+    (tension '(or ("tension" (preferred "force")) "pulling force" 
+	       ("force" (preferred "of tension"))))
     (applied '((allowed "applied") "force")) ;catch-all force
     (kinetic-friction '(((preferred "kinetic") (or "friction" "frictional"))
 			"force"))
@@ -242,7 +241,7 @@
 
 (def-qexp property (property ?body)
   ;; "for" is exceptionally used
-  :new-english ("of" (or (var (body ?body) :namespace :objects) ?body))) 
+  :new-english ("of" (or (var ?body :namespace :objects) ?body))) 
 
 
 (def-qexp change (change ?property)
@@ -329,16 +328,6 @@
 		)
 )
 
-;; optime : time is optional 
-;; ex) "the net force exerted by the man at time T1"
-(def-qexp property-object-optime 
-    (property-object-optime ?property ?body :time ?time)
-  :new-english ((the)
-		?property  		; "mass"
-		(and (preferred (property ?body)) (time ?time)) 
-		)
-  )
-
 ;; ex) "the mass of the crate"
 ;;    "the crate's mass"
 ;;    "the value of crate's mass"
@@ -358,15 +347,22 @@
 
 (def-qexp object (object ?body)
   :new-english (eval (when (expand-new-english ?body)
-                        '((or "on" "acting on" "exerted on" "that acts on" "applied on" "applied to") 
-			  (or (var (body ?body) :namespace :objects) ?body)))))
+                        '((or "on" "acting on" "exerted on" "that acts on" "applied on" 
+			   "applied to" "against") 
+			  (or (var ?body :namespace :objects) ?body)))))
 
 (def-qexp agent (agent ?body)
   ;;+syjung
-  ;; checking the content of ?body by (expand-new-englih ..) is important for the case that it is missing (in elec4b, see Bug#:	1676)
+  ;; checking the content of ?body by (expand-new-english ..) is 
+  ;; important for the case that it is missing (in elec4b, see Bug #1676)
   :new-english (eval (when (expand-new-english ?body)
 			'((or "due to" "by" "from" "caused by" "exerted by" "of") 
-			  (or (var (body ?body) :namespace :objects) ?body))))) 
+			  (or (var ?body :namespace :objects) ?body)))))  
+
+(def-qexp agent-with-preposition (agent ?preposition ?body)
+  :new-english (eval (when (expand-new-english ?body)
+			'(?preposition
+			  (or (var ?body :namespace :objects) ?body)))))
 
 (def-qexp time (time ?time)
   :new-english (eval (when ?time
@@ -395,8 +391,8 @@
   :units |kg|
   :restrictions positive
   ;; "ball's mass" problem s2e
-  :new-english (property-object-optime "mass" ?body :time ?time)
-)
+  :new-english ((the) "mass"
+		(and (preferred (property ?body)) (time ?time))))
 
 ;; the magnitude of the change of mass of ~A per unit time due to ~A~@[ ~A~]" 
 ;;	       (nlg ?body) (nlg ?agent 'agent) (nlg ?time 'pp)
@@ -425,8 +421,7 @@
   :units |m|
   :new-english ((the) (or "distance" "dist." "dist") 
 		(or  ((or "traveled" "travelled" "travels" "moves" "moved")
-		      (and ("by" (or (var (body ?body) :namespace :objects) 
-				     ?body))
+		      (and ("by" (or (var ?body :namespace :objects) ?body))
 		           (time ?time)))
 		     ((property-object "distance" ?body)
 		      (and (allowed (or "traveled" "travelled" "travels" 
@@ -465,7 +460,11 @@
   :short-name "coef. of friction"	
   :units NIL ;; dimensionless
   :new-english ((the) "coefficient of" ?static-or-kinetic "friction"
-		(and (preferred ("between" (or (var ?body1 :namespace :objects) ?body1) "and" (or (var ?body2 :namespace :objects) ?body2)))
+		(and (preferred 
+		      ("between" 
+		       (or (var ?body1 :namespace :objects) ?body1)
+		       "and" 
+		       (or (var ?body2 :namespace :objects) ?body2)))
 		     (time ?time))))
 
 ;; "coefficient of drag for ~A moving through ~A" 
@@ -606,14 +605,22 @@
 		      (preferred (agent "non-conservative forces"))
 		      (time ?time)))))
 
-;; "the power supplied to ~a from ~a" (nlg ?b) (nlg ?agent 'at-time ?time)
-
+;; (Young&Freeman's textbook): 
+;;	"the power developed by the engine" 
+;;      "the power generated by the engine"
+;;      "the power output of the engine is applied to pushing the ship"
+;;	"the power supplied by the net force acting on a particle"			
+;; (by googling "power supplied by")
+;;      "the power supplied by the engine"
 (def-qexp power (power ?b ?agent :time ?time)
   :symbol-base |P|     
   :short-name "power"	
   :units |W|
-  :new-english ((the) (allowed "instantaneous") "power" "supplied to" 
-		(the) ?agent (preferred "from") (time ?time)))
+  :new-english ((the) (allowed "instantaneous") "power" 
+		(preferred (or "developed" "generated" "supplied"))
+		(and (preferred (agent ?agent)) 
+		     (preferred (object ?b))
+		     (time ?time))))
 
 (def-qexp net-power (net-power ?b :time ?time)
   :units |W|
@@ -715,24 +722,26 @@
 		     (time ?time))))
 
 ;; "the extension (or compression) of the spring from its equilibrium position"
+;; "the elongation of the spring" in Young&Freeman's textbook in page 221
 (def-qexp compression (compression ?spring :time ?time)
   :symbol-base |d|     
   :short-name "compression distance"	
   :units |m|
-  :new-english ((the) (or ((or "compression" "extension") (allowed "distance")) 
-			  "stretch" "displacement")
+  :new-english ((the) ((or "compression" "extension" "elongation" "stretch") 
+		       (preferred (or "distance" "displacement")))
 		(and (property ?spring) 
-		     ("from" (or "its" "the" "her") 
+		     (preferred ("from" (or "its" "the" "her") 
 			     (or "equilibrium" "unstretched") 
-			     (preferred (or "position" "point" "length")))
+			     (preferred (or "position" "point" "length"))))
 		     (time ?time))))
 
+;; "sprint constant" or "force constant" in Young&Freeman's text book in page 221
 (def-qexp spring-constant (spring-constant ?spring)
   :symbol-base |k|     
   :short-name "spring constant"	
   :units |N/m|
   :restrictions positive
-  :new-english ((the) "spring constant" 
+  :new-english ((the) (or "spring" "force") "constant" 
 		(preferred (property ?spring))))
 
 (def-qexp height (height ?body ?zero-height :time ?time)
@@ -1597,16 +1606,16 @@
 ;;
 ;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
 (#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
- *required-identities* 
- '( NTL					;Newton's Third law
-   cons-energy 			        ;conservation of energy ME1 = ME2
-   projection    			;projection psm: block using v for v_x when equal
-   charge-same-caps-in-branch		;want students to show they know this
-   ) #+sbcl #'equalp)
+	+required-identities+
+	'(NTL		      ;Newton's Third law
+	  cons-energy 	      ;conservation of energy ME1 = ME2
+	  projection          ;projection psm: block using v for v_x when equal
+	  charge-same-caps-in-branch	 ;want students to show they know this
+	  ) #+sbcl #'equalp)
 
 (defun required-identity-p (eqn)
 "true if eqn is on the list of required identities"
-    (member (first (eqn-exp eqn)) *required-identities*))
+    (member (first (eqn-exp eqn)) +required-identities+))
 
 
 ;; Detecting net quant variant forms

@@ -21,7 +21,7 @@
 ;;;             References to User Interface elements.
 ;;;
 
-(defparameter *images-path* "/review/ui-images/")
+(defparameter *images-path* "../review/ui-images/")
 (defun tool-link (name html-id &key (pre "the"))
   (strcat pre " " (open-review-window-html name 
 					  (strcat "manual.html#" html-id)

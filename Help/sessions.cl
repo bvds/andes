@@ -55,6 +55,9 @@
   "start a server with help system, optionally specifying the port, log file path, and database access."
   ;; global setup
 
+  ;; tune garbage collection
+  (tune-generational-gc)
+
   ;; in runtime version only: set *andes-path* to process working directory
   #+allegro-cl-runtime (setf *andes-path* 
 			     (make-pathname 
@@ -72,7 +75,9 @@
   (physics-algebra-rules-initialize) ;initialize grammar
 
   ;; Set up database
-  (andes-database:create :host host :db db :user user :password password)
+  (andes-database:create :host host :db (or db "andes") 
+			 :user (or user "root") 
+			 :password (or password "sin(0)=0"))
 
   ;; start webserver
   (webserver:start-json-rpc-service 
@@ -88,13 +93,15 @@
 	  #-sbcl (error "cleanup not implemented")))
 
 (defun idle-cleanup-function ()
-  "Function that periodically cleans up idle sessions"
+  "Function that periodically cleans up idle sessions and pings database."
   ;; Here, the cutoff is based entirely on idle time.
   (let ((cutoff (* 2 3600)))
     (loop
-     (sleep cutoff)
-     (webserver:close-idle-sessions :idle cutoff :method #'close-problem))))
-
+       ;; MySql drops connections that have been idle for over 8 hours.
+       ;; Send trivial query, to keep connection alive.
+       (andes-database:first-session-p :student "none" :section "none") 
+       (sleep cutoff)
+       (webserver:close-idle-sessions :idle cutoff :method 'close-problem))))
 
 (defun stop-help () 
   "stop the web server running this service"
@@ -133,7 +140,7 @@
 	  ;; Variables used for scoring in Help/RunTimeTest.cl
           *Runtime-Testset* *Runtime-Score-Testset*
 	  *Runtime-testset-current-Solindex*
-	  *Runtime-Testset-current-total-score*
+	  *Runtime-Testset-current-total-score* **Checking-entries**
 	  ;; Variables holding session-local memos.
 	  *parse-memo* *grammar-get-rhs-memo* *grammar-get-rhs-with-first*
 	  ;; Cache variables in Testcode/Tests.cl
@@ -147,8 +154,8 @@
 	#+sbcl #'equalp
 	)
 
-;; New method with 
-(defstruct help-env "Quantities that must be saved between turns of a session.  Member vals contains list of values for help-env-vars." 
+(defstruct help-env  
+  "Quantities that must be saved between turns of a session.  Member vals contains list of values for help-env-vars." 
 	   section student problem vals)
 
 ;; Should be useful for debugging.
@@ -243,6 +250,9 @@
       ;; need to make the session-local copy first. 
       (session-local-runtime-testset)
 
+      ;; Used by some Runtime tests
+      (setf **checking-entries** nil)
+
       ;; Andes2 had the following calls that can be found in log files:
       ;;   read-student-info; the only remaining step is:
       (Load-Config-File)			
@@ -254,7 +264,7 @@
 
       ;; Intialize fade list
       (initialize-fades *cp*)
-		  
+
       ;; Write problem statement.	      
       (let ((x 10) (y 10) (i 0))
 	(dolist  (line (problem-statement *cp*))
@@ -295,8 +305,7 @@
 				  ((consp label) label)
 				  ((null label)
 				   (if (cdr (problem-soughts *cp*))
-				       (warn "ambiguous choose label ~A" 
-					     choice)
+				       (warn "Ambiguous null choose label")
 				       (car (problem-soughts *cp*)))))
 		    do 
 		    ;; Put each button on a new row.
@@ -319,19 +328,16 @@
 	  (setf y (+ y 25)))
 	
 	(when (problem-graphic *cp*)
-	  (let ((dims (problem-graphic-dimensions (problem-graphic *cp*))))
-	    (if dims		
-		(push `((:action . "new-object") (:id . "graphic") 
-			(:type . "graphics") (:mode . "locked") 
-			(:x . ,x) (:y . ,y) 
-			(:width . ,(car dims)) (:height . ,(cadr dims))
-			;; This is the URL for the graphic, which may not
-			;; match its location on the server filesystem.
-			(:href . ,(strcat "/images/" (problem-graphic *cp*))))
-		      replies)
-		(warn "Problem graphic file ~A missing" 
-		      (problem-graphic *cp*)))
-	    (setf y (+ y (second dims) 15)))))
+	  (let ((g (problem-graphic *cp*)))
+	    (push `((:action . "new-object") (:id . "graphic") 
+		    (:type . "graphics") (:mode . "locked") 
+		    (:x . ,x) (:y . ,y) 
+		    (:width . ,(second g)) (:height . ,(third g))
+		    ;; This is the URL for the graphic, which may not
+		    ;; match its location on the server filesystem.
+		    (:href . ,(strcat "../images/" (first g))))
+		  replies)
+	    (setf y (+ y (third g) 15)))))
 	
       ;; Second column for times and predefs.
       (let ((x 450) (y 15) (i 0))
@@ -680,7 +686,7 @@
       ;; call next-step-help or do-whats-wrong
       ((equal action "help-button")
        ;; Find if there are any current errors.
-       (let ((mistakes (remove **incorrect** *studententries* 
+       (let ((mistakes (remove +incorrect+ *studententries* 
 			       :test-not #'eql
 			       :key #'StudentEntry-state)))
 	 (if mistakes
@@ -714,7 +720,7 @@
   (&key time) 
   "shut problem down" 
   (declare (ignore time))  ;used by logging.
-  (prog1
+  (unwind-protect
       (env-wrap
 	(let ((result (execute-andes-command 'get-stats 'persist)))
 		 

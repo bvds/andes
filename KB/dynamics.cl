@@ -740,9 +740,10 @@
     (given (dir (force ?b ?medium drag :time ?t)) ?drag-dir)
     (implicit-eqn (= ?dir-var ?dir-var-value) (dir (force ?b ?medium drag :time ?t))))
   :hint
-   ((point (string "Notice that ~a is moving in a fluid medium ~a." ?b ?medium))
+   ((point (string "Notice that ~a is moving in a fluid medium (~a)." 
+		   ?b ?medium))
     (teach (string "When an object is moving in a fluid medium, the fluid offers resistance to the motion of the object.  This is represented by a drag force directed opposite to the direction of motion."))
-    (bottom-out (string "Because ~a is moving in fluid medium ~a, draw ~a." 
+    (bottom-out (string "Because ~a is moving in ~a, draw ~a at ~a." 
     			?b ?medium ((force ?b ?medium drag :time ?t) def-np) (?drag-dir adj) ))
     ))
 
@@ -798,8 +799,9 @@
   :hint 
   (
    (bottom-out (string "Define a variable for ~A by using ~A."
+		       ((coef-drag ?b ?medium :type ?type :time ?t) def-np)
 		       (*text-tool* eval)
-		       ((coef-drag ?b ?medium :type ?type :time ?t) def-np)))
+			))
    ))
 
 

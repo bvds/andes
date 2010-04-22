@@ -732,7 +732,7 @@
   ( (define-var (spring-constant ?spring))
       (variable ?k-var  (spring-constant ?spring)) )
   :hint (
-	 (bottom-out (string "Define a spring constant variable using ~A."
+	 (bottom-out (string "Define a spring constant using ~A."
 			    (*text-tool* eval)
 			    ))
 	 ))

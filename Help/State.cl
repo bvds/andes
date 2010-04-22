@@ -124,11 +124,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun read-problem-info (name)
 
-  (parse-initialize) 	;set up session-local memoized functions
+  (parse-initialize) 	;set up session-local memos.
   ;; reset run-time data structures for new problem:
   (setf **grammar** nil)
   (grammar-add-grammar '**grammar** **common-grammar**)
-  (empty-symbol-table)
+  (initialize-symbol-table)
   (setf *StudentEntries* nil)
   ;; use problem name as seed for random elt
   (initialize-random-elt (string-downcase name)) 
@@ -143,30 +143,23 @@
   (setf *cp* (read-problem-file (string-upcase name) 
 				:path (andes-path "solutions/")))
 
-  ;; If the problem failed to load then we will submit a color-red turn
-  ;; to the workbench in order to make the case known.  If not then the 
-  ;; code will set up the problem for use and then return a color-green
-  ;; turn.  
   (if *cp* 
-      (do-read-problem-info-setup)
-      (error "Unable to load problem ~A.&nbsp;  Please try another problem." name)))
-
-;; Once the problem has been loaded successfully into the *cp* parameter
-;; then we need to setup the struct for runtime use.  This code will do 
-;; that and conclude by returning a color-green-turn.
-(defun do-read-problem-info-setup ()
-  "Setup the loaded problem."
-  (format *debug-help* "Current Problem now ~A~%" (problem-name *cp*))
-  
-  ;; Initialize sg structures
-  (sg-setup *cp*)
-  ;;(format T "~&Solution Entries:~%~{~A~}" *sg-entries*)
-  
-  ;; enter appropriate predefined student labels into symbol table: 
-  (enter-predefs)
-  
-  ;; re-initialize the dialog state
-  (reset-next-step-help))
+      ;; Once the problem has been loaded successfully into the *cp* parameter
+      ;; then we need to setup the struct for runtime use.
+      (progn
+        ;; Initialize sg structures
+	(sg-setup *cp*)
+	
+	;; enter appropriate predefined student labels into symbol table: 
+	(enter-predefs)
+	
+	;; re-initialize the dialog state
+	(reset-next-step-help))
+      ;; Raising an error, rather than a warning, keeps subsequent
+      ;; code in open-problem from being executed, and sends a 
+      ;; message to the student.
+      (error "Unable to load problem ~A.&nbsp;  Please try another problem." 
+	    name)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; close-problem -- close the specified problem 
@@ -174,17 +167,21 @@
 ;; note(s): should be current problem
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun do-close-problem ()
-   ;; empty symbol table and entry list
-   (empty-symbol-table)
-   (setf **grammar** nil)
-   (setq *StudentEntries* nil)
+  (when *cp* ;*cp* not defined if load failed.
+    (setf *sg-eqns* nil)
+    
+    (setf *cp* nil))
+  
+  ;; empty symbol table and entry list
+  (clear-symbol-table)
+  (setf **grammar** nil)
+  (setq *StudentEntries* nil)
 
-   ;; unload current problem with its sgraph structures
-   (setf *cp* NIL)
+  (parse-clear)  
 
-   ;; Set the current problem instance time from the universal time.
-   (setq *Current-Problem-Instance-Start-UTime* (get-universal-time)))
-   
+  ;; Set the current problem instance time from the universal time.
+  (setq *Current-Problem-Instance-Start-UTime* (get-universal-time)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -246,8 +243,9 @@
   ;; remove any existing entry with same id 
   (delete-object (StudentEntry-id Entry))
   ;; add new entry
-  (format *debug-help* "Adding entry: ~A ~S~%" 
-	  (studententry-id entry) (studententry-prop entry))
+  (when *debug-help* 
+    (format t "Adding entry: ~A ~S~%" 
+	    (studententry-id entry) (studententry-prop entry)))
   (push Entry *StudentEntries*))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -263,8 +261,9 @@
   "Remove any existing student entry with specified ID, undoing its effects"
   (let ((old-entry (find-entry Id)))
     (when old-entry 
-      (format *debug-help* "Removing entry: ~A ~S~%" 
-	      (studententry-id old-entry) (studententry-prop old-entry))
+      (when *debug-help* 
+	(format t "Removing entry: ~A ~S~%" 
+		(studententry-id old-entry) (studententry-prop old-entry)))
       (undo-entry old-entry)
       ;; and remove it from Entry lists
       (setf *StudentEntries*
@@ -342,7 +341,7 @@
 ;;
 (defvar **Condition** NIL)
 (defun set-condition (value) 
-  (format *debug-help* "Setting **condition** to ~A~%" value)
+  (when *debug-help* (format t "Setting **condition** to ~A~%" value))
   (setq **Condition** value))
 (defun get-condition () **Condition**)
 
@@ -414,7 +413,7 @@
  (let ((ncorrect-answer-entries 
           (length (remove-if-not 
                      #'(lambda (E) (and (answer-entry-p E) 
-		                        (equalp (studententry-state E) **correct**)))
+		                        (equalp (studententry-state E) +correct+)))
                      *Studententries*))))
   (= ncorrect-answer-entries (length (problem-soughts *cp*)))))
           

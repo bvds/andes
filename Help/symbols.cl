@@ -82,7 +82,8 @@
   ;; import from common-lisp-user:   
   ;;     unify quant-to-valid-sysvar sysvar-to-quant
   (:use :cl :cl-user) 
-  (:export :empty-symbol-table ; State.cl
+  (:export :initialize-symbol-table ; State.cl
+	   :clear-symbol-table ; State.cl
 	   :canonical-to-student ;algebra.cl
 	   :map-student-atom ;parse.cl
 	   :near-miss-var :subst-canonical-vars ;parse-andes.cl
@@ -126,7 +127,7 @@
   (format stream "<SYM ~A ~A>" (sym-label sym) (sym-referent sym)))
 
 
-(defvar *variables*)	;list of student variable names
+(defvar *variables*)	;lists of student variable names
 (defvar *watch-symbols* NIL)  ; set to trace symbol table changes
 (defparameter *variable-namespaces* '(:objects :scalars))
 
@@ -140,8 +141,11 @@
 (defun set-variables (new-variables &optional x)
   (setf (cdr (get-variables-table x)) new-variables))
 
-(defun empty-symbol-table ()
+(defun initialize-symbol-table ()
     (setf *variables* (mapcar #'list *variable-namespaces*)))
+
+(defun clear-symbol-table ()
+  (setf *variables* nil))
 
 ;;-----------------------------------------------------------------------------
 ;;       Symbol table manipulation functions:
