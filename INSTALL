@@ -70,14 +70,8 @@ make install-solver
 # a binary release and then use that to compile the sbcl source code.
 cd lisp-site-install
   make get-binary     # download a binary release
-  # Compile and install the source version:
   make get-source     # download and compile source
   make source-install # install in /usr/local (do as superuser)
-
-# To test for thread support, start up sbcl and enter the 
-# command "(find :sb-thread *features*)".  If it returns ":sb-thread" 
-# then threading is enabled. Enter "(quit)" to exit sbcl.
-
 cd ../              # return to Andes root directory
 
 make sbclrc  # Install the sbcl initialization file.

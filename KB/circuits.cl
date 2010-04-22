@@ -662,6 +662,7 @@
    )
   :hint(
 	;;(point (string "Apply Kirchhoff's Loop Rule to the circuit."))
+	;; See bug #1729
 	(point (string "You can apply Kirchoff's Loop Rule to the loop containing ~A." (?p1 conjoined-names)))
 	;;(point (string "Write an equation that sets the sum of the voltage across each component around the closed circuit loop to zero."))
 	(teach (string "Kirchoff's Loop Rule states that the sum of the voltages around any closed circuit loop must be equal to zero."))

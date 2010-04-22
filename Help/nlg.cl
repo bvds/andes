@@ -389,7 +389,7 @@
     (return-from new-english-find (def-np-model prop)))
   
   ;; On failure, warn and return nil
-  (warn "new-english-find:  no ontology match for ~A" prop))
+  (warn "new-english-find:  no ontology match for ~S" prop))
 
   
 (defun expand-new-english (model &optional (bindings no-bindings))

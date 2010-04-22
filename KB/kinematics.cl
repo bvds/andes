@@ -1574,8 +1574,9 @@
            (kcd "draw_accel_straight_speeding_up")
 	   (string "When a body is moving in a straight line and speeding up, its acceleration is parallel to the line of motion."))
     (bottom-out (string "Because ~a is speeding up while moving in a straight line with direction ~a, you should use ~A to draw an acceleration for it ~a at direction ~a." 
+			?b ?dir
 			(*vector-tool* eval)
-			?b ?dir (?t pp) ?dir))
+			(?t pp) ?dir))
     ))
 
 (defoperator draw-accel-potential (?b ?t)
