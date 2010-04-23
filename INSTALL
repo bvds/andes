@@ -68,17 +68,22 @@ make install-solver
 # In order to enable thread support and tune the garbage collection 
 # algorithm, we compile a custom version of sbcl.  First, we download
 # a binary release and then use that to compile the sbcl source code.
+
+# The sbcl install directory is hard-coded in the source files;
+# see https://bugs.launchpad.net/sbcl/+bug/550889.
+# If you wish to install in a location other than /usr/local
+# set the environment variable INSTALL_ROOT to this location,
+# for example, "export INSTALL_ROOT=$HOME", 
+# before compiling the source code.
+
 cd lisp-site-install
   make get-binary     # download a binary release
-  make get-source     # download and compile source
-  make source-install # install in /usr/local (do as superuser)
-cd ../              # return to Andes root directory
+  make get-source     # download and compile source code
+  make source-install # install in /usr/local (do as superuser) 
+                      #      or in $INSTALL_ROOT 
+cd ../                # return to Andes root directory
 
-make sbclrc  # Install the sbcl initialization file.
-
-# Install site-wide sbcl libraries.  This should be executed
-# with superuser privileges by the user who will be running Andes.
-make install-site-libraries
+make sbclrc  # Install the sbcl initialization file ~/.sbclrc
 
 ================================== MySql ======================================
 
