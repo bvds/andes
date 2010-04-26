@@ -3331,8 +3331,12 @@
   :short-name "turns" 
   :units NIL  ;dimensionless
   :restrictions positive
+  ;; "... the number turns of wire around ..." (Hudson & Nelson)
+  ;; "... number of turns on ..." Bob Shelby
   :new-english ((the) "number of turns"
-		(preferred ("wrapping around" ?body)))
+		(preferred ((or "around" "wrapping around" "on"
+				"of wire around")
+			    ?body)))
 )
 
 (defoperator define-turns (?body)
