@@ -929,7 +929,7 @@
 ;; Note, could be done differently with a cond or two.
 (defun Check-NonEq-Entry (entry &key unsolicited-hints)
   
-    ;; special case: Entry-API handler can attach an error interp for certain
+  ;; special case: Entry-API handler can attach an error interp for certain
   ;; errors such as symbol redefinitions that prevent the entry from
   ;; being processed further. Return appropriate turn with unsolicited 
   ;; error message in this case.
@@ -1251,93 +1251,44 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; MC Answers
-;; Lookup-mc-answer is sent for multiple choice answers.  This is used for both 
-;; the n-way multiple choice questions of the type in faa1 where the student is
-;; selecting from among a set of choices.  It is also used in the fbd-only 
-;; problems and other problems as an "I am done" button.  
+
+
+;; When the students are working on non-quant problems and the student has 
+;; completed a goal then they will will check an "I am done" box.  
+;; That command will be sent to the help system as a button click.
+;; The interpretation of the button click is stored in 
+;; (studententry-prop entry).
 ;;
-;; The two check functions below are designed to handle the separate cases.  
-;; The lookup-mc-answer function in Commands.cl will determine which one of these
-;; should be called and will do so handling the result as necessary.  In the 
-;; comments below I will specify what occurs on each action.  
-
-
-
-;; When the students are working on non-quant problems and the student has completed
-;; a goal then they will will check an "I am done" box.  That commend will be sent 
-;; to the help system as a call to (lookup-mc-answer (Answer-N 1)).  The value is 0
-;; if the student is unchecking the box or 1 if they are checking it.  Unchecking 
-;; the box is treated as a retraction of the assertion that the student is done 
-;; *not* an assertion that they are not done.
-;; 
-;; If they check the box in a no-quant problem and this is sent then we will handle 
-;; it using the code below.  If they have checked the box then we will look up the 
-;; sought that is associated with the answer (in this case the n'th one) and will
-;; then determine if the psm associated with it has been completed.  If so then it
-;; will return a green turn else it will return a red turn.  No entry will be 
-;; produced.
-;;
-;; If possible this will associate an automatic error interp that says "you have
-;; not completed all of the steps necessary." Please call NSH.
-
-(defun do-check-mc-no-quant-done-answer (ID Value)
-  (cond ((not (numberp Value))
-	    (error "Value not numberp in do-check-mc-answer: ~A" Value))
-        ;; if cleared done button, delete any prior entry for this button
-	;; and leave control black. 
-	((= 0 Value) (delete-object ID)
-	             (make-no-color-turn :id id))
-	;; Treat any non-zero value as T, just in case other non-zero 
-	;; comes from C 
-	(T (check-mc-no-quant-done-answer-sought ID))))
+;; If they have pressed the done button then we will deterimine if
+;; the associated psm has been completed.  If so, then it will return 
+;; a green turn else it will return a red turn.
+;; If possible this will associate an automatic error interp that says 
+;; "you have not completed all of the steps necessary." 
 
 ;; Given an mc-no-quant done answer lookup the corresponding sought.  
 ;; Having done that look up the corresponding PSM and determine if the PSM 
 ;; has been completed if so then the value is green if not then don't. 
-(defun check-mc-no-quant-done-answer-sought (ID)
-  (error "check-mc-no-quant-done-answer-sought not ready")
-  ;; Used to have (get-answer-quant ID)
-  (let ((PSM (match-exp->enode ID (problem-graph *cp*)))
-        (Entry (make-StudentEntry :ID ID :prop `(lookup-mc-answer ,ID))))
+(defun check-mc-no-quant-done-answer-sought (entry)
+  (let* ((id (second (StudentEntry-prop entry)))
+	 (PSM (match-exp->enode ID (problem-graph *cp*))))
     (cond 
       ;; If the PSM is not found then we need to throw an error saying that.
       ((null PSM) 
        (make-bad-problem-turn 
 	(format nil "No problem step found for button labelled ~a" ID)))
-     
+      
       ;; If this is not a non-quant psm then we also need to thro an error 
       ;; asserting that fact. 
       ((not (enode-has-mark? PSM 'non-quant))
        (make-bad-problem-turn 
 	(format nil "Unmarked enode matching non-quant IDNum ~a ~a" PSM ID)))
-     
-      ;; Otherwize test to see if it present and behave appropriately.
-      (t    (add-entry Entry)  ; save the entry
-	    (cond ((psmg-path-enteredp (enode-path PSM))
-		   (setf (StudentEntry-state entry) +CORRECT+)
-		   (make-green-turn :id (StudentEntry-id entry)))
-		  (T (setf (StudentEntry-state entry) +INCORRECT+)
-		     (make-red-turn :id (StudentEntry-id entry))))))))
+      
+      ;; Otherwise test to see if it present and behave appropriately.
+      ((psmg-path-enteredp (enode-path PSM))
+       (setf (StudentEntry-state entry) +CORRECT+)
+       (make-green-turn :id (StudentEntry-id entry)))
+      (T (setf (StudentEntry-state entry) +INCORRECT+)
+	 (make-red-turn :id (StudentEntry-id entry))))))
 
 
-
-;; If this is a true multiple-choice answer problem then we will be passed an
-;; answer-id of the form "MC-#".  The code below will handle this appropriately.
-;; Given an id of the form "MC-#" and a numerical value this code will produce
-;; a non-eqn entry of the appropriate form, and then enter it before passing it
-;; back to the check-noneq-entry code for testing.  
-;;
-;; The Entry-proposition that will be produced is of the form: 
-;;  (CHOOSE-ANSWER MC-# #)
-;;
-;; The ID in question will be the MC-# value supplied by the workbench.  Because
-;; the entries are zero-counted in the help system but one-counted on the 
-;; workbench we will subtract one from the value.  
-
-(defun do-check-mc-multiple-choice-answer (ID Value)
-  "Generate a new studententry for the selection and add it."
-  (let* ((Prop `(CHOOSE-ANSWER ,ID ,Value))
-	 (Entry (make-StudentEntry :ID ID :prop Prop)))
-    (add-entry Entry)
-    Entry))
 
