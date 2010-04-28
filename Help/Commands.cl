@@ -225,61 +225,42 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-mc-answer
-;; Argument(s):
-;;   ID:  The MC answer ID e.g. "Done-1" being selected.
-;;   Value: The value 1 if checked 0 if not.
 ;;
-;; returns:  Entry status return value.
+;; Handle entries associated with buttons.
 ;;
-;; Lookup-mc-answer is sent for multiple choice answers.  This is used for both 
-;; the n-way multiple choice questions of the type in faa1 where the student is
-;; selecting from among a set of choices.  It is also used in the fbd-only 
+;; Currently, we have multiple choice and a single "done" button.  This is 
+;; used for both the n-way multiple choice questions of the type in vec9 
+;; where the student is selecting from among a set of choices.  
+;; It is also used in the fbd-only 
 ;; problems and other problems as an "I am done" button.  
-;;
-;; At present the code below will handle the two cases by passing them to two 
-;; distinct functions.  This will be done by splitting on the form of the id.
-;; if the ID is "Answer-##" then we will assume that this is a no-quant problem
-;; with an "I am done" button and will handle it accordingly.  If the answer is
-;; "MC-##" then we will assume that this is a multiple-choice answer box and 
-;; will handle it accordingly.  
-;;
-;; The lookup-mc-answer code is used in two cases.  In the former case we are 
-;; dealing with non-quantity seeking problems.  In that case we are using the
-;; mc-answer to an "I am done" button on the workbench.  In this case no entry
-;; will be generated and a tutor turn will be returned directly.
-;;
-;; In the latter case we are dealing with a true multiple choice problem where 
-;; the student is selecting one of the choices in a set.  In this case we will
-;; produce a special non-equation multiple-choice entry.  
-;;
+;;;
 ;; The code below identifies the case that we are in and then calls the 
 ;; appropriate handler code in entry-api.  
-(defun lookup-mc-answer (ID Value)
-  (error "lookup-mc-answer not ready for Andes3")
-  (let* ((Result)
-	 (IDStr (format Nil "~a" ID))
-	 (pos (position #\- IDStr))
-	 (IDPref (subseq IDStr 0 Pos)))
-	 
-    (cond
-     ;; Handle the Answer case by simply dealing with it directly.
-     ;; wrap in done-change check as for quantitative answers
-     ((string-equal IDPref "Answer") 
-      (let ((was-done (all-answers-done-p)))
-      	(setq Result (do-check-mc-no-quant-done-answer ID Value))
-        (when (and (not was-done)
-               (all-answers-done-p)    ; is now done
-	       (not-curr-checking-problemp)) ; ignore if in initial entry check
-          (add-followup-if-needed result)))
-      Result)
-     
-     ;; Handle the multiple choice case by generating an entry and then
-     ;; handling it like any other.
-     ((string-equal IDPref "MC") 
-      (check-noneq-entry (do-check-mc-multiple-choice-answer ID Value)))
-
-     ;; In the event that an unrecognized type is supplied handle it like so.
-     (t (error "Unrecognized mc-answer entry supplied: ~a ~a" ID Value)))))
+(defun lookup-mc-answer (entry)
+  ;; Use the purpose field to determine type.
+  (cond
+    ;; Case of an "I am done button"
+    ((equal (car (StudentEntry-prop entry)) 'done)
+     (let ((was-done (all-answers-done-p))
+	   (result (check-mc-no-quant-done-answer-sought entry)))
+       (when (and (not was-done)
+		  (all-answers-done-p)    ; is now done
+		  ;; ignore if in initial entry check
+		  (not-curr-checking-problemp)) 
+	 (add-followup-if-needed result))
+       result))
+    
+    ;; Handle the multiple choice case by generating the entry prop
+    ;; and then handling it like any other.
+    ((eql (car (StudentEntry-prop entry)) 'choose-answer)
+     ;; update with the box that has been clicked
+     (setf (third (StudentEntry-prop entry))
+		   (read-from-string (car (StudentEntry-checked entry))))
+     (check-noneq-entry entry))
+    
+    ;; In the event that an unrecognized type is supplied handle it like so.
+    (t (error "Unrecognized button entry supplied: ~a" 
+	      (StudentEntry-prop entry)))))
 
   
 ;;; ===========================================================================
