@@ -4,7 +4,7 @@ dojo.provide("andes.drawing");
 (function(){
 
 	dojo.cookie("mikeDev", null, { expires: -1 });
-
+	
 	// the html ID in index for the drawing app
 	var drawingId = "drawing";
 	var _drawing;
@@ -92,10 +92,10 @@ dojo.provide("andes.drawing");
 				var box = item.getBounds();
 				var props = getStatementPosition(box);
 				if(hasLabel[item.type]){
-				  // axes
-				  // default labels for an axes
-				  props.data.text = andes.defaults.zAxisEnabled?
-						      "x and y and z":"x and y";
+					// axes
+					// default labels for an axes
+					props.data.text = andes.defaults.zAxisEnabled?
+						"x and y and z":"x and y";
 				}
 				// create statement for vector, rect, ellipse, or axes
 				var statement = _drawing.addStencil("textBlock", props);
@@ -270,7 +270,6 @@ dojo.provide("andes.drawing");
 						// temporary for testing
 						dojo.byId("drawZAxis").disabled=!obj["z-axis-enable"];
 					}
-
 				}else{
 					//console.warn("UNUSED ANDES OBJECT:", obj)
 				}

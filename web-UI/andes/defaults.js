@@ -8,7 +8,7 @@ dojo.provide("andes.defaults");
 		//	DojoX Drawing comes with a defaults file. This file
 		//	overwrites that one to help protect intended styles from
 		// 	future changes made in Dojox.
-
+		
 		//  Determines whether in draw or edit mode (whether stencils
 		//  are clickable.  If clickMode is false, the original
 		//  functionality of silently switching between select modes

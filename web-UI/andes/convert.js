@@ -1,9 +1,9 @@
 dojo.provide("andes.convert");
 
 (function(){
-
-
-
+	
+	
+	
 	var stencilMods = {
 		statement:	"textBlock",
 		equation:	"textBlock",
@@ -128,10 +128,10 @@ dojo.provide("andes.convert");
 			}else if(o.type=="axes"){
 				obj.label = o['x-label']+" and "+o['y-label'];
 				if(andes.defaults.zAxisEnabled){
-				  obj.label += " and "+o['z-label'];
+					obj.label += " and "+o['z-label'];
 				}
 			}
-
+			
 			if(o.href){
 				obj.data.src = o.href;
 			}
