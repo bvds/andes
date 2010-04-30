@@ -25,11 +25,13 @@
   :units |V|
   :new-english ((the) "voltage across" (component ?comp) (time ?time)))
 
+;; BobShelby (epow2):  "resistance of R1"
+;;                     "resistance of resistor R2"
 (def-qexp resistance (resistance ?name)
   :symbol-base |R| 
   :short-name "resistance"
   :units |$W|
-  :new-english ((the) "resistance of" (component ?name)))
+  :new-english ((the) "resistance of" (allowed "resistor") (component ?name)))
 
 (def-qexp current (current-thru ?component :time ?time)
   :symbol-base |I| 
@@ -44,7 +46,8 @@
   :symbol-base |C|     
   :short-name "capacitance"
   :units |F|
-  :new-english ((the) "capacitance of" (component ?name)))
+  :new-english ((the) "capacitance of" (allowed "capacitor") 
+		(component ?name)))
 
 ;;; in the workbench, the time slot is added if feature changing-voltage
 ;;; is included.
@@ -58,7 +61,7 @@
   ;; Generally components are a single symbol or a list for
   ;; a compound component.
   ;; Sometimes the component can be defined with the body tool.
-  :new-english (or (var (body ?a) :namespace :objects)
+  :new-english (or (var ?a :namespace :objects)
 		   (eval (if (consp ?a) `(conjoin (or "and" "&") . ,?a) ?a))))
 
 ;;; in the workbench, the time slot is added if feature changing-voltage
@@ -85,13 +88,14 @@
 		(component ?name)  (time ?time)))
 
 ;; ind3a "self-inductance"
+;; from resitance:  "the inductance of inductor L1"
 (def-qexp self-inductance (self-inductance ?inductor)
   :symbol-base |L|     
   :short-name "self-inductance"	
   :units |H|
   :new-english ((the) (or ((preferred "self") "inductance")
 			  "self-inductance")
-		(preferred "of" (component ?inductor))))
+	        "of" (allowed "inductor") (component ?inductor)))
 
 (def-qexp mutual-inductance (mutual-inductance orderless . ?inductors)
   :symbol-base |M|     
