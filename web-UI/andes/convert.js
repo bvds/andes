@@ -1,9 +1,7 @@
 dojo.provide("andes.convert");
 
 (function(){
-	
-	
-	
+
 	var stencilMods = {
 		statement:	"textBlock",
 		equation:	"textBlock",
@@ -12,7 +10,10 @@ dojo.provide("andes.convert");
 		axes:		"axes",
 		ellipse:	"ellipse",
 		rectangle:	"rect",
-		line:		"line"
+		line:		"line",
+		done:		"button",
+		checkbox:	"button",
+		radio:		"button"
 	};
 
 	var andesTypes = {
@@ -23,7 +24,8 @@ dojo.provide("andes.convert");
 		"dojox.drawing.tools.custom.Axes":"axes",
 		"dojox.drawing.tools.custom.Equation":"equation",
 		"dojox.drawing.stencil.Image":"graphics",
-		"dojox.drawing.tools.TextBlock":"statement" // or statement.... hmmmm
+		"dojox.drawing.tools.TextBlock":"statement", // or statement.... hmmmm
+		"dojox.drawing.ui.Button":"button"
 	};
 
 	// dupe code:
@@ -35,7 +37,7 @@ dojo.provide("andes.convert");
 			showEmpty:true
 		}};
 	};
-
+	
 	andes.convert = {
 		// summary:
 		//	The conversion object used to transform objects
@@ -45,8 +47,23 @@ dojo.provide("andes.convert");
 		andesToDrawing: function(o){
 			// summary:
 			//	Converts from andes to drawing
-
-			//console.warn(" ---------------> andesToDrawing:", o.type)
+			
+			console.warn(" ---------------> andesToDrawing:", o.type,o.id)
+			// Group of objects:  call conversion recursively
+			if(o.items) {
+				var obj = {
+					id:o.id,
+					type:o.type,
+					items:dojo.map(o.items, function(x){
+						// BvdS:  Might be auto-generated later, so generating 
+						//        id here might not be necessary.
+						//        Maybe better to generate this on server?
+						x.id=x.id||(o.id+"Part"+(x.value||"0"));   
+						return andes.convert.andesToDrawing(x); 
+					})
+				}
+				return obj;
+			}
 			if(o.x==undefined || o.y===undefined){
 				console.error("Imported Object '" + o.id + "' contains no X or Y coordinates.");
 				console.warn("Bad Imported object:", o);
@@ -60,11 +77,12 @@ dojo.provide("andes.convert");
 				},
 				enabled:o.mode!="locked"
 			};
-
-			if(o.type!="vector" && o.type!="line" && o.type!="axes" && o.type!="ellipse"){
+			
+			// BvdS:  fix up if logic here
+			if(o.type!="vector" && o.type!="line" && o.type!="axes" && o.type!="ellipse" && o.type!="checkbox" && o.type!="radio" && o.type!="done"){
 				obj.data.width = o.width;
 				obj.data.height = o.height;
-
+				
 			}else if(o.type=="ellipse"){
 				obj.data = {
 					cx:o.x + o.width/2,
@@ -72,9 +90,40 @@ dojo.provide("andes.convert");
 					rx:o.width/2,
 					ry:o.height/2
 				}
+			}else if(o.type=="radio"){
+				obj.data.width = 20;
+				obj.data.height = 20;
+				obj.value = o.value;
+				obj.icon={
+					type:"ellipse",
+					borderWidth:1,
+					cx:50,
+					cy:50,
+					rx:20,
+					ry:20
+				}
+			}else if(o.type=="checkbox"){
+				obj.data.width = 20;
+				obj.data.height = 20;
+				obj.value = o.value;
+				obj.icon={
+					type:"rect",
+					borderWidth:1,
+					x:10,
+					y:10,
+					width:40,
+					height:40
+				};
+			}else if(o.type=="done"){
+				obj.data.width = 40;
+				obj.data.height = 20;
+				obj.icon={
+					type: "text",
+					text: o.label
+				};
 			}else if(o.type=="vector"){
 				//in case of zero vector
-				if(o.radius == 0) {obj.data.radius = 0; obj.data.angle = 1; } else { obj.data.radius = o.radius; obj.data.angle = o.angle; }
+                               if(o.radius == 0) {obj.data.radius = 0; obj.data.angle = 1; } else { obj.data.radius = o.radius; obj.data.angle = o.angle; }
 
 			}else{
 				//line, axes
@@ -85,7 +134,18 @@ dojo.provide("andes.convert");
 				obj.stencilType = "text";
 			}
 
-			if(o.type=="line" || o.type=="vector" || o.type=="rectangle" || o.type=="ellipse"){
+			if(o.type=="done" || o.type=="checkbox" || o.type=="radio"){
+				obj.statement = {
+					data:{
+						x:o.x+40, // BvdS:  to the right of the button, need actual button width
+						y:o.y,
+						text:o.text
+						//width:"auto"- for cases where the text is "" width:auto makes init fail
+						//showEmpty:true
+					},
+					enabled: false  // treat as mode=locked
+				}
+			}else if(o.type=="line" || o.type=="vector" || o.type=="rectangle" || o.type=="ellipse"){
 				// separate objects
 			        // match logic in drawingToAndes
 				var lbl = o.symbol;
@@ -136,7 +196,7 @@ dojo.provide("andes.convert");
 			}
 			return obj;
 		},
-
+		
 		drawingToAndes: function(item, action){
 			// summary:
 			//	Converts from Drawing to andes
@@ -156,7 +216,7 @@ dojo.provide("andes.convert");
 				sbox = round(statement.getBounds());
 			}
 			var type = item.andesType || item.customType || andesTypes[item.type];
-
+			
 			var box = round(item.getBounds(true));
 			var obj = {
 				x:box.x,
@@ -166,7 +226,7 @@ dojo.provide("andes.convert");
 				id:id,
 				mode: "unknown"
 			}
-
+			
 			if(type!="vector" && type!="line" && type!="axes"){
 				obj.width = box.w;
 				obj.height = box.h;
@@ -175,7 +235,7 @@ dojo.provide("andes.convert");
 				obj.radius = Math.ceil(item.getRadius());
 				obj.angle = item.getAngle();
 			}
-
+			
 			if(type == "statement" || type == "equation"){
 				obj.text = item.getText() || "";
 				if(type == "statement"){
@@ -187,22 +247,22 @@ dojo.provide("andes.convert");
 				obj.symbol = item.getLabel() || null;
 				obj["x-statement"] = sbox.x;
 				obj["y-statement"] = sbox.y;
-
+				
 			}else if(type == "axes"){
 				var lbl = item.getLabel();
 				obj["x-label"] = lbl.x;
 				obj["y-label"] = lbl.y;
 				if(lbl.z) {
-                                  obj["z-label"] = lbl.z;
+					obj["z-label"] = lbl.z;
 				}
 				obj.radius = Math.ceil(item.getRadius());
 				obj.angle = item.getAngle();
 			}
-
+			
 			if(combo){
-			        // match logic in andesToDrawing
-			        // Send empty string, rather than null
-                                // The server treats null as "not modified".
+				// match logic in andesToDrawing
+				// Send empty string, rather than null
+				// The server treats null as "not modified".
 				var txt = statement.getText();
 				var lbl = item.getLabel() || "";
 				if(txt){
@@ -210,12 +270,12 @@ dojo.provide("andes.convert");
 					obj.symbol = lbl;
 				}else{
 					obj.text = lbl;
-				        obj.symbol = "";
+					obj.symbol = "";
 				}
 			}
-
+			
 			return obj;
 		}
 	}
-
+	
 })();

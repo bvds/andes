@@ -293,7 +293,7 @@
 			       ;; Put each button on a new row.
 			       (unless (= value 1) (incf y 25))
 			       collect
-			       `((:id . ,(format nil "~A" value))
+			       `((:value . ,(format nil "~A" value))
 				 (:type . "radio") 
 				 ;; Indent buttons relative to text
 				 (:x . ,(+ x 50)) (:y . ,y) (:width . 300)
@@ -321,14 +321,14 @@
 		     (warn "Ambiguous null label for choose"))
 		   ;; Create a single push button
 		   (push `((:action . "new-object") 
-			   (:type . "button") (:style . "submit")
-			   (:id . ,id) (:mode . "unknown") 
-			   ;; Indent buttons relative to text
-			   (:x . ,(+ x 50)) (:y . ,y) (:width . 300)
-			   (:text . ,(car line))) replies)
+			   (:type . "button") (:id . ,id) 
+			   (:items . (((:type . "done") (:label . "Done")
+				       ;; Indent buttons relative to text
+				       (:x . ,(+ x 50)) (:y . ,y) (:width . 300)
+				       (:text . ,(car line)))))) replies)
 		   (push (make-studententry 
 			  :id id :mode "unknown" :type "button" 
-			  :style "submit" :prop prop)
+			  :style "done" :prop prop)
 			 *studententries*)
 		   ))
 		
