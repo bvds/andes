@@ -68,6 +68,7 @@
 
       function sendSession() {
         dojox.rpc.Client.clientId = dojo.byId('upss').value;
+        posts[0].params.user = dojo.byId('user').value;
 	var st=dojo.byId('sessions');
         // remove existing content
 	while(st.rows.length>0){
@@ -145,12 +146,26 @@
   <body class="tundra">
     <h1>Text client for testing Andes3 server</h1>
 
+     <p> Specify path for the help server:&nbsp;
+      <select>
+        <option selected onclick="typejson._smd.target='/help';">
+           /help</option>
+        <option onclick="typejson._smd.target='/help-test';">
+          /help-test</option>
+        <option onclick="typejson._smd.target='/help-database';">
+          /help-database</option>
+     </select>.&nbsp;
+    The path <code>/help</code> is the default.&nbsp; The others are
+    used for testing on <a href="http://gideon.eas.asu.edu">gideon.eas.asu.edu</a>.
+
+     <h2>Evaluate a single session turn</h2>
+     
     <p>  One may use messages from 
          <a href="../Documentation/AsuDocs/nokes-example-json.txt">the Nokes demo solution</a>.&nbsp;
          The "params" can be simply copied and pasted into the "params"
          field here.
 
-    <p>  user/problem session: 
+    <p>session id: 
           <input type="text" id="ups" value="32345" size="6"/>&nbsp;
       method: <select id="help-method">
             <!-- This list must match methods in andes3.smd -->
@@ -167,9 +182,15 @@
        <div id="inputString">Input</div>
        <div id="result">Result</div>
 
-    <p> user/problem session: 
+   <h2>Evaluate entire session</h2>
+
+   Since sessions are saved in the databse, a new session id and user
+   name will be needed for each session.&nbsp;
+    <p>session id: 
           <input type="text" id="upss" value="32345" size="6"/>&nbsp;
-      Problem:&nbsp;
+       user: 
+          <input type="text" id="user" value="joel" size="6"/>&nbsp;
+       Problem:&nbsp;
       <select>
         <option selected onclick="getsession(
 	          &quot;nokes-inputs.json&quot;);">
@@ -180,20 +201,18 @@
         <option onclick="getsession(
 	           &quot;kt1a-solution.json&quot;);">
            kt1a</option>
+        <option onclick="getsession(
+	           &quot;vec9-solution.json&quot;);">
+           vec9</option>
+        <option onclick="getsession(
+	           &quot;fbd8.json&quot;);">
+           fbd8</option>
     </select>
 
        <button dojoType="dijit.form.Button" onclick="sendSession">
            Send entire session</button>
        <table><tbody id="sessions"></tbody></table>
     <p>
-      Target:&nbsp;
-      <select>
-        <option selected onclick="typejson._smd.target='/help';">
-           /help</option>
-        <option onclick="typejson._smd.target='/help-test';">
-          /help-test</option>
-     </select>
-    (The target /help should always be available.)
 
      <p>Original <a href="../Documentation/AsuDocs/sitepen-spec.html">
                       description of new user interface.</a>

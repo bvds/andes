@@ -1,0 +1,7 @@
+[
+{"method":"open-problem","params":{"time":0,"user":"joe","problem":"vec9","section":"1234"},"id":1},
+  {"method": "solution-step", "params": {"time": 74.000,"id": "MC-1", "action": "modify-object","checked":["2"]}, "id": 2},
+  {"method": "solution-step", "params": {"time": 84.000,"id": "MC-1", "action": "modify-object","checked":["4"]}, "id": 3},
+{"method":"close-problem","params":{"time":454.749},"id":4}
+]
+
