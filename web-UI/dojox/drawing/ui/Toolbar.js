@@ -168,12 +168,14 @@ dojo.declare("dojox.drawing.ui.Toolbar", [], {
 				if (plugs[p].button != false) {  
 					var btn = this.toolDrawing.addUI("button", {data:{x:x, y:y, width:w, height:h, r:r}, toolType:t, icon:sym[t], shadow:s, scope:this, callback:"onPlugClick"});
 					this.plugins.push(btn);
+					
+					if(this.horizontal){
+						y += h + g;
+					}else{
+						y += h + g;
+					}
 				}
-				if(this.horizontal){
-					y += h + g;
-				}else{
-					y += h + g;
-				}
+				
 				var addPlug = {}
 				plugs[p].button == false ? addPlug = {name:this.drawing.stencilTypeMap[p]} : addPlug = {name:this.drawing.stencilTypeMap[p], options:{button:btn}};
 				this.drawing.addPlugin(addPlug); 

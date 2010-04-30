@@ -51,8 +51,7 @@ dojox.drawing.annotations.BoxShadow = dojox.drawing.util.oo.declare(
 			place:"BR",
 			//	color: String
 			//		The color of the shadow or glow.
-			color:"#646464",
-			fill:"#646464"
+			color:"#646464"
 		}
 		
 		delete options.stencil;
