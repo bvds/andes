@@ -63,6 +63,3 @@ dojo.provide("andes.positioning");
 	}
 	
 })();
-
-
-

@@ -2,7 +2,7 @@ dojo.provide("andes.help");
 dojo.require("andes.api");
 
 (function(){
-
+	
 	function handleHelp(result){
 		// summary:
 		//	Handles text returned from server
@@ -21,45 +21,45 @@ dojo.require("andes.api");
 			//	setting to the node and not with attr
 			// 	because ContentPane is throwing errors that way
 			switch(r.action){
-				case "show-hint-link":
-					var fn = r.href ? "link" : "explain",
-					    val = r.href || r.value;
-						hlp.containerNode.innerHTML = c + "\n<p><a href=\"#\" onclick=\"andes.help." + fn + "('" + val + "'); return false\">" + r.text + "</a></p>";
-					break;
-				case "show-hint":
-					hlp.containerNode.innerHTML = c + "\n<p>" + r.text + "</p>";
-					break;
-				case "echo-get-help-text":
-		  		        // Escape any html codes on input text echo.
-               		                // Should use future function dojo.string.escape
-                                        // See http://trac.dojotoolkit.org/ticket/8995
-				        andes.help.echo(r.text.replace(/\&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
-					break;
-				case "focus-hint-text-box":
-					dijit.focus(dojo.byId("helpInput"));
-					break;
-				case "focus-major-principles":
-                                	dojo.byId("majorModalTreeText").innerHTML = r.text ? "<p class=\"tall\">" + r.text + "</p>\n": "";
-			                dijit.byId("majorPrinciples").show();
-					break;
-				case "focus-all-principles":
-                			dojo.byId("allModalTreeText").innerHTML = "<p class=\"tall\">" + r.text + "</p>\n";
-			                dijit.byId("allPrinciples").show();
-					break;
-				case "log":
-				default:
-					// no-op
+			    case "show-hint-link":
+				var fn = r.href ? "link" : "explain",
+				val = r.href || r.value;
+				hlp.containerNode.innerHTML = c + "\n<p><a href=\"#\" onclick=\"andes.help." + fn + "('" + val + "'); return false\">" + r.text + "</a></p>";
+				break;
+			    case "show-hint":
+				hlp.containerNode.innerHTML = c + "\n<p>" + r.text + "</p>";
+				break;
+			    case "echo-get-help-text":
+		  		// Escape any html codes on input text echo.
+               		        // Should use future function dojo.string.escape
+                                // See http://trac.dojotoolkit.org/ticket/8995
+				andes.help.echo(r.text.replace(/\&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
+				break;
+			    case "focus-hint-text-box":
+				dijit.focus(dojo.byId("helpInput"));
+				break;
+			    case "focus-major-principles":
+                                dojo.byId("majorModalTreeText").innerHTML = r.text ? "<p class=\"tall\">" + r.text + "</p>\n": "";
+			        dijit.byId("majorPrinciples").show();
+				break;
+			    case "focus-all-principles":
+                		dojo.byId("allModalTreeText").innerHTML = "<p class=\"tall\">" + r.text + "</p>\n";
+			        dijit.byId("allPrinciples").show();
+				break;
+			    case "log":
+			    default:
+				// no-op
 			}
 		});
-
+		
 		hlp.domNode.scrollTop = 10000;
 	}
-
+	
 	dojo.addOnLoad(function(){
 		dojo.connect(dijit.byId("helpSubmit"), "onClick", function(){
 			var q = dijit.byId("helpInput").attr("value"),
-			    h = q ? {action:"get-help", text:q} : {action:"help-button"};
-
+			h = q ? {action:"get-help", text:q} : {action:"help-button"};
+			
 			// Escape any html codes on input text echo.
 		        // Should use future function dojo.string.escape
                         // See http://trac.dojotoolkit.org/ticket/8995
@@ -68,7 +68,7 @@ dojo.require("andes.api");
 			andes.api.help(h).addCallback(handleHelp);
 		});
 	});
-
+	
 	andes.help.echo = function(value){
 		// summary:
 		//	Echo any input text in the Tutor pane.
@@ -86,22 +86,22 @@ dojo.require("andes.api");
 			hlp.domNode.scrollTop = 10000;
 		}
 	};
-
+	
 	andes.help.processStep = function(result){
 		// summary:
 		// look for any help coming back from the server (such as in
 		// the results from andes.api.step()
 		handleHelp(result);
 	};
-
+	
 	andes.help.explain = function(s){
 		andes.api.help({action:"get-help", value:s}).addCallback(handleHelp);
 	};
-
+	
    	andes.help.principles = function(s){
 		andes.api.help({action:"principles-menu", value:s}).addCallback(handleHelp);
 	};
-
+	
 	andes.help.link = function(href){
 		// summary:
 		//	Calls api after a link in Tutor pane has been clicked.
@@ -114,7 +114,7 @@ dojo.require("andes.api");
 			}
 		});
 	};
-
+	
 	andes.help.score = function(value){
 		// summary:
 		// updates score
