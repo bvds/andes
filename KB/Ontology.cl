@@ -552,16 +552,17 @@
 		(and (preferred ("on" ?body))
 		     (time ?time))))
 
+;; ex) "radius of the circular path"
+;;     "radius of the circular motion of the particle"
 (def-qexp revolution-radius (revolution-radius ?body :time ?time)
   :symbol-base |r|     
   :short-name "radius of circular motion"	
   :units |m|
   :restrictions positive
   :new-english ((the) "radius"
-		(property ((the) 
-			   (or ((allowed "circular") "motion")
-			       "path")
-			   (property ?body)))
+		(property ((the) (preferred "circular") 
+			   (or "motion" "path")
+			   (preferred (property ?body))))
 		(time ?time)))
 
 ;; Halliday and Resnick talk about work done by a force
