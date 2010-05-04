@@ -51,8 +51,14 @@
 
 (defvar *cleanup-thread* "Function to clean up idle sessions")
 
-(defun start-help (&key host db user password (port 8080) server-log-path)
-  "start a server with help system, optionally specifying the port, log file path, and database access."
+(defun start-help (&key (port 8080) server-log-path host db user password)
+  ;; port            the port for the help server, default 8080
+  ;; server-log-path path for log file
+  ;; host            the ip address of the database, defaults to localhost
+  ;; db              the name of the database, default "andes"
+  ;; user            database user name, default "root"
+  ;; password        the database password
+  "start a server with help system, optionally specifying the server port, the log file path, and database access."
   ;; global setup
 
   ;; tune garbage collection
