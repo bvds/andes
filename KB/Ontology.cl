@@ -359,7 +359,7 @@
 			'((or "due to" "by" "from" "caused by" "exerted by" "of") 
 			  (or (var ?body :namespace :objects) ?body)))))  
 
-(def-qexp agent-with-preposition (agent ?preposition ?body)
+(def-qexp agent-prep (agent-prep ?preposition ?body)
   :new-english (eval (when (expand-new-english ?body)
 			'(?preposition
 			  (or (var ?body :namespace :objects) ?body)))))
@@ -618,10 +618,12 @@
   :units |W|
   :new-english ((the) (allowed "instantaneous") "power" 
 		(or ((preferred (or "developed" "generated" "supplied"))
-		     (and (preferred (agent-with-preposition (or "by" "due to" "from" "caused by" "exerted by" "of") ?agent)) 
+		     (and (preferred (agent-prep (or "by" "due to" "from" "caused by" "exerted by" "of") ?agent)) 
+		                     ; (agent (or "by" "due to" "from" "caused by" "exerted by" "of") ?agent)) 
 		          (preferred (object ?b))
 		          (time ?time)))
-		    ("output" (preferred (agent-with-preposition (or "of" "by" "due to" "from" "caused by" "exerted by") ?agent))
+		    ("output" (preferred (agent-prep (or "of" "by" "due to" "from" "caused by" "exerted by") ?agent))
+		                         ;(agent (or "of" "by" "due to" "from" "caused by" "exerted by") ?agent))
 		     (or "applied" "supplied") 
 			 (preferred (object ?b))
 		     (time ?time)))))
