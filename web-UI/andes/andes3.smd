@@ -11,10 +11,10 @@
      
     "open-problem": {
       "parameters": [
-		{"name": "section", "type": "string"},
-		{"name": "user", "type": "string"},
-		{"name": "problem", "type": "string"},
-		{"name": "extra", "type": "string"}
+	        {"name": "section", "optional": false, "type": "string"},
+		{"name": "user", "optional": false, "type": "string"},
+		{"name": "problem", "optional": false, "type": "string"},
+	        {"name": "extra", "optional": true, "type": "string"}
       ],
       "returns": {
 	"type": "array",
@@ -25,7 +25,9 @@
 	    "action": {
 	      "type": "string",
 	      "optional": false,
-	      "enum":["new-object","modify-object","set-score","log","show-hint","show-hint-link","echo-get-help-text","new-user-dialog","enable-z-axis","disable-z-axis"],
+	      "enum":["new-object","modify-object","set-score","log",
+		      "show-hint","show-hint-link","echo-get-help-text",
+		      "new-user-dialog","set-styles"],
 	      "description": "show-hint needed in the case of an error"
 	    },
 	    "id": {
@@ -35,7 +37,8 @@
 	    },
 	    "type": {
 	      "type": "string",
-	      "enum": ["statement", "graphics", "equation", "ellipse", "circle", "rectangle", "axes", "vector", "line"],
+	      "enum": ["statement", "graphics", "equation", "ellipse", "circle",
+		       "rectangle", "axes", "vector", "line", "button"],
 	      "optional": true,
 	      "description": "kind of drawn object.  Required for new-object"
 	    },
@@ -45,8 +48,13 @@
 	      "optional": true,
 	      "description": "State of the item:  unknown: black; correct: green; incorrect: red; locked: black (not user selectable)."
 	    },
-	    "x":		{"type": "number",  "optional": true},
-	    "y":		{"type": "number",  "optional": true},
+	    "style":{
+	      "type": "string",
+	      "optional": true,
+	      "description": "subset of type, specify visual presentation (not used yet)"
+	    },	    
+	    "x":	{"type": "number",  "optional": true},
+	    "y":	{"type": "number",  "optional": true},
 	    "width":	{"type": "number",  "optional": true}, 
 	    "height":	{"type": "number",	"optional": true},
 	    "text":		{"type": "string", 	"optional": true},
@@ -57,10 +65,17 @@
 	    "x-label":	{"type": "string", 	"optional": true},
 	    "y-label":	{"type": "string", 	"optional": true},
 	    "z-label":	{"type": "string", 	"optional": true},
-	    "angle":	{"type": "number", 	"optional": true, "description": "in degrees"},
+	    "angle":	{"type": "number", 	"optional": true, 
+			 "description": "in degrees"},
 	    "cosphi":  {"type": "number", "optional": true, 
  	                 "description": "cos(phi), default is zero"},
 	    "href":    {"type": "string",	"optional": true},
+	    "checked": {"type": "array", "items": "string", "optional": true, 
+			"description": "for buttons"},
+	    "items": {
+	      "type": "array", "items": {"type":"object"}, "optional": true,
+	      "description": "list of sub-objects"
+	    },
 	    "score": {
 	      "type": "number", 
 	      "optional": true,
@@ -108,9 +123,16 @@
 	{
 	  "name": "type",
 	  "type": "string",
-	  "enum": ["statement", "graphics", "equation", "circle", "ellipse", "rectangle", "axes", "vector", "line"],
+	  "enum": ["statement", "graphics", "equation", "circle", "ellipse", 
+		   "rectangle", "axes", "vector", "line", "button"],
 	  "optional": true,
 	  "description": "kind of drawn object; manditory for new-object and optional for modify-object or delete-object"
+	},
+	{
+	  "name": "style",
+	  "type": "string",
+	  "optional": true,
+	  "description": "subset of type, specify visual presentation (not used yet)"
 	},
 	{
 	  "name": "mode",
@@ -137,9 +159,15 @@
 	{"name": "x-label", "type": "string", 	"optional": true},
 	{"name": "y-label", "type": "string", 	"optional": true},
 	{"name": "z-label", "type": "string", 	"optional": true},
-	{"name": "angle", "type": "number", "optional": true, "description": " in degrees"},
+	{
+	  "name": "angle", "type": "number", "optional": true, 
+	  "description": " in degrees"
+	},
 	{"name": "cosphi", "type": "number", "optional": true, 
  	                 "description": "cos(phi), default is zero"},
+	{"name": "checked", "type": "array", "items": "string", 
+	               "optional": true, 
+			"description": "for buttons"}
       ],
       "returns": {
 	"type": "array",
@@ -150,7 +178,9 @@
 	    "action": {
 	      "type": "string",
 	      "optional": false,
-	      "enum":["modify-object","set-score","log","show-hint","show-hint-link","focus-hint-text-box","focus-major-principles","focus-all-principles"]
+	      "enum":["modify-object","set-score","log","show-hint",
+		      "show-hint-link","focus-hint-text-box",
+		      "focus-major-principles","focus-all-principles"]
 	    },
 	    "id": {
 	      "type": "string",
@@ -239,7 +269,9 @@
 	    "action": {
 	      "type": "string",
 	      "optional": false,
-	      "enum":["set-score","log","show-hint","echo-get-help-text","show-hint-link","focus-hint-text-box","focus-major-principles","focus-all-principles"]
+	      "enum":["set-score","log","show-hint","echo-get-help-text",
+		      "show-hint-link","focus-hint-text-box",
+		      "focus-major-principles","focus-all-principles"]
 	    },
 	    "text": {"type": "string", "optional": true},
 	    "score": {
