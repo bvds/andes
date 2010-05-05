@@ -10,28 +10,16 @@
   In the future, this is a good candidate to be converted into a shell script, with command line arguments for the user directory
 */  
 -- Creates the database
-DROP DATABASE IF EXISTS `andes`;
 CREATE DATABASE `andes` /*!40100 DEFAULT CHARACTER SET latin1 */;
 USE `andes`;
 -- Creates the tables NOTE: ORDER OF CREATION MATTERS DUE TO FOREIGN KEY DEPENDENCIES! (ALWAYS MAKE SURE YOU CREATE A TABLE BEFORE YOU CREATE ANOTHER THAT REFERENCES IT)
-DROP TABLE IF EXISTS `andes`.`STUDENT_DATASET`;
 \. create_STUDENT_DATASET.sql
-
-DROP TABLE IF EXISTS `andes`.`CLASS_INFORMATION`;
 \. create_CLASS_INFORMATION.sql
-
-DROP TABLE IF EXISTS `andes`.`PROBLEM_ATTEMPT`;
 \. create_PROBLEM_ATTEMPT.sql
-
-DROP TABLE IF EXISTS `andes`.`PROBLEM_ATTEMPT_TRANSACTION`;
 \. create_PROBLEM_ATTEMPT_TRANSACTION.sql
-
-DROP TABLE IF EXISTS `andes`.`REVIEWED_PROBLEMS`;
 \. create_REVIEWED_PROBLEMS.sql
 
--- USE THE CREATED DATABASE
-USE andes;
-
+-- Insert initial classes into database
 
 insert into STUDENT_DATASET values (1,"Watchung Hills Regional High School Honors Physics 2008-2009","Statics","S*","S2E");
 insert into STUDENT_DATASET values (2,"dummy dataset","dummy module","dummy group","dummy problem");
@@ -46,13 +34,9 @@ insert into CLASS_INFORMATION values (2,"dummy class","dummy school",0,"a dummy 
 -- LOAD DATA LOCAL INFILE 'classinformation.csv' INTO TABLE CLASS_INFORMATION FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' (classID, name, school, period, description, instructorName, schoolyearInfo, datasetID);
 
 -- Create a database for load testing
-DROP DATABASE IF EXISTS `andes_test`;
 CREATE DATABASE `andes_test` /*!40100 DEFAULT CHARACTER SET latin1 */;
 USE `andes_test`;
 -- Create the tables.  The test tables have a simpler structure than 'andes'.
 
-DROP TABLE IF EXISTS `andes_test`.`PROBLEM_ATTEMPT`;
 \. create_test_PROBLEM_ATTEMPT.sql
-
-DROP TABLE IF EXISTS `andes_test`.`PROBLEM_ATTEMPT_TRANSACTION`;
 \. create_PROBLEM_ATTEMPT_TRANSACTION.sql
