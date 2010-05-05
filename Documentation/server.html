@@ -77,9 +77,9 @@ There are a number of things missing from the server; see
 
 <h2>Software Updates</h2>
 
-Update software by entering <code>make update</code> in the Andes root directory.
+To update the software, in the Andes root directory, enter:&nbsp; <code>make update</code>
 
-<p>If the help server is running, restart the server using
+<p>If the help server is running, restart the server using:
 <pre>
 /sbin/service andes-helpd restart
 </pre>
@@ -91,7 +91,7 @@ restart.&nbsp;
 you may need to rebuild the lisp object files:
 <ul>
   <li>Stop the server:  <code>/sbin/service andes-helpd stop</code>
-  <li>In the Andes root directory, enter <code>rm */*.fasl</code>;
+  <li>In the Andes root directory, enter:&nbsp <code>rm */*.fasl</code>
   <li>You might want to verify directly that the lisp is working:&nbsp;
        <ul>
          <li>Start lisp:&nbsp; <code>sbcl</code> 
