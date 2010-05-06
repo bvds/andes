@@ -54,13 +54,16 @@ dojo.provide("andes.convert");
 				var obj = {
 					id:o.id,
 					type:o.type,
+					itemType:o.items[0].type,
 					items:dojo.map(o.items, function(x){
 						// BvdS:  Might be auto-generated later, so generating 
 						//        id here might not be necessary.
 						//        Maybe better to generate this on server?
 						x.id=x.id||(o.id+"Part"+(x.value||"0"));   
-						return andes.convert.andesToDrawing(x); 
-					})
+						var y=andes.convert.andesToDrawing(x);
+						return y;
+					}),
+					checked: o.checked || [] 
 				}
 				return obj;
 			}
@@ -91,6 +94,7 @@ dojo.provide("andes.convert");
 					ry:o.height/2
 				}
 			}else if(o.type=="radio"){
+				obj.buttonType=o.type;
 				obj.data.width = 20;
 				obj.data.height = 20;
 				obj.value = o.value;
@@ -103,6 +107,7 @@ dojo.provide("andes.convert");
 					ry:20
 				}
 			}else if(o.type=="checkbox"){
+				obj.buttonType=o.type;
 				obj.data.width = 20;
 				obj.data.height = 20;
 				obj.value = o.value;
@@ -115,6 +120,7 @@ dojo.provide("andes.convert");
 					height:40
 				};
 			}else if(o.type=="done"){
+				obj.buttonType=o.type;
 				obj.data.width = 40;
 				obj.data.height = 20;
 				obj.icon={
@@ -123,7 +129,7 @@ dojo.provide("andes.convert");
 				};
 			}else if(o.type=="vector"){
 				//in case of zero vector
-                               if(o.radius == 0) {obj.data.radius = 0; obj.data.angle = 1; } else { obj.data.radius = o.radius; obj.data.angle = o.angle; }
+                if(o.radius == 0) {obj.data.radius = 0; obj.data.angle = 1; } else { obj.data.radius = o.radius; obj.data.angle = o.angle; }
 
 			}else{
 				//line, axes
@@ -216,6 +222,16 @@ dojo.provide("andes.convert");
 				sbox = round(statement.getBounds());
 			}
 			var type = item.andesType || item.customType || andesTypes[item.type];
+			
+			if(type=="button"){
+				var obj = {
+					id:id,
+					type:type,
+					action:action,
+					checked:item.checked
+				}
+				return obj;
+			};
 			
 			var box = round(item.getBounds(true));
 			var obj = {

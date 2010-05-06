@@ -63,7 +63,8 @@ dojox.drawing.ui.Button =  dojox.drawing.util.oo.declare(
 		
 		this.onOut();
 		//New additions for new button support
-		this.type = options.type;
+		// BvdS: options.type is undefined;  breaks all buttons
+		// this.type = options.type;
 		// Register as a group of 
 		this.util.groupId(this.id,this);
 		
@@ -79,6 +80,7 @@ dojox.drawing.ui.Button =  dojox.drawing.util.oo.declare(
 			//		Stub to connect. Event is 'this'
 			//		Alternatively can pass in a scope and a callback
 			//		on creation.
+			console.log("button clicked type=",this.buttonType,this);
 			if(this.type == "checkbox"){
 				if(this.selected) {
 					this.deselect();

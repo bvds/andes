@@ -128,6 +128,16 @@ dojo.provide("andes.drawing");
 			}
 		},
 		
+		addUI: function(/* Button group*/item){
+			console.log("--drawing addUI: ", item);
+			var c = dojo.connect(item.items[0], "onClick",function(){
+				console.log("Button clicked");
+				//var data = andes.convert.drawingToAndes(item, 'modify-object');
+				//this.save(data);
+			});
+			console.log("got past it",c);
+		},
+		
 		add: function(/* Stencil */ item, /*Boolean*/ saveToServer, /*Boolean*/noConnect){
 			// summary:
 			//	items added here may be from the server OR drag-created.
@@ -240,7 +250,7 @@ dojo.provide("andes.drawing");
 						});
 						// BvdS:  Need to add button group so that changes can get sent to 
 						//        and from the server. 
-						// this.add(/* button group here */);
+						this.addUI(o);
 						// BvdS:  logic needs fixing, need to find out real categories.
 					}else if(t=="image" ||t=="statement" || t=="equation" || t=="axes" || t=="text") { // image, statement, equation, axes
 						var item = _drawing.addStencil(o.stencilType, o);
