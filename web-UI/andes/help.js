@@ -16,7 +16,7 @@ dojo.require("andes.api");
 		var hlp = dijit.byId("helpContentPane");
 		dijit.byId("helpPane").open();
 		dojo.forEach(result, function(r){
-			var c = hlp.get("content");
+			var c = hlp.attr("content");
 			// note:
 			//	setting to the node and not with attr
 			// 	because ContentPane is throwing errors that way
@@ -52,19 +52,19 @@ dojo.require("andes.api");
 			}
 		});
 		
-		hlp.domNode.scrollTop =  hlp.domNode.scrollHeight;
+		hlp.domNode.scrollTop = 10000;
 	}
 	
 	dojo.addOnLoad(function(){
 		dojo.connect(dijit.byId("helpSubmit"), "onClick", function(){
-			var q = dijit.byId("helpInput").get("value"),
+			var q = dijit.byId("helpInput").attr("value"),
 			h = q ? {action:"get-help", text:q} : {action:"help-button"};
 			
 			// Escape any html codes on input text echo.
 		        // Should use future function dojo.string.escape
                         // See http://trac.dojotoolkit.org/ticket/8995
 			andes.help.echo(q.replace(/\&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
-			dijit.byId("helpInput").set("value", "");
+			dijit.byId("helpInput").attr("value", "");
 			andes.api.help(h).addCallback(handleHelp);
 		});
 	});
@@ -78,12 +78,12 @@ dojo.require("andes.api");
 		}
 		if(value.length>0){
 		        var hlp = dijit.byId("helpContentPane");
-			var c = hlp.get("content");
+			var c = hlp.attr("content");
 			// note:
 	                //	setting to the node and not with attr
 	                // 	because ContentPane is throwing errors that way
       			hlp.containerNode.innerHTML = c + "\n<p><em>" + value + "</em></p>";
-			hlp.domNode.scrollTop = hlp.domNode.scrollHeight;
+			hlp.domNode.scrollTop = 10000;
 		}
 	};
 	
