@@ -52,7 +52,7 @@ dojo.require("andes.api");
 			}
 		});
 		
-		hlp.domNode.scrollTop = 10000;
+		hlp.domNode.scrollTop = hlp.domNode.scrollHeight;
 	}
 	
 	dojo.addOnLoad(function(){
@@ -83,7 +83,7 @@ dojo.require("andes.api");
 	                //	setting to the node and not with attr
 	                // 	because ContentPane is throwing errors that way
       			hlp.containerNode.innerHTML = c + "\n<p><em>" + value + "</em></p>";
-			hlp.domNode.scrollTop = 10000;
+			hlp.domNode.scrollTop = hlp.domNode.scrollHeight;
 		}
 	};
 	
