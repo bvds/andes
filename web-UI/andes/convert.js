@@ -25,7 +25,7 @@ dojo.provide("andes.convert");
 		"dojox.drawing.tools.custom.Equation":"equation",
 		"dojox.drawing.stencil.Image":"graphics",
 		"dojox.drawing.tools.TextBlock":"statement", // or statement.... hmmmm
-		"dojox.drawing.ui.Button":"button"
+		"drawing.library.UI.Button":"button"
 	};
 
 	// dupe code:

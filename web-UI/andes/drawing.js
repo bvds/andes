@@ -129,13 +129,11 @@ dojo.provide("andes.drawing");
 		},
 		
 		addUI: function(/* Button group*/item){
-			console.log("--drawing addUI: ", item);
-			var c = dojo.connect(item.items[0], "onClick",function(){
-				console.log("Button clicked");
-				//var data = andes.convert.drawingToAndes(item, 'modify-object');
-				//this.save(data);
+			dojo.connect(item,"onClick",this,function(item){
+				var data = andes.convert.drawingToAndes(item, 'modify-object');
+				// BvdS:  Why doesn't this.save() work?
+				andes.drawing.save(data);
 			});
-			console.log("got past it",c);
 		},
 		
 		add: function(/* Stencil */ item, /*Boolean*/ saveToServer, /*Boolean*/noConnect){
@@ -236,21 +234,22 @@ dojo.provide("andes.drawing");
 						this.add(combo);
 						
 					}else if(o.type=="button" && o.items){ // button groups don't have stencilType
+						// BvdS:  how are you supposed to access addUI in the loop?
+						var myadd=this.addUI;
 						dojo.forEach(o.items,function(item){
 							var statement = _drawing.addStencil("text", item.statement);
 							var master = _drawing.addUI(item.stencilType, item);
 							items[statement.id] = statement; //statement;
 							items[master.id] = master; //master;
-							// BvdS:  Need something much simpler than andes.Combo
-							//        The only thing we may want is that clicking on 
-							//        the statement fires the master.
-							//        May also want both objects to change color, but 
-							//        that is a job for the parent object.
-							//var combo = new andes.Combo({master:master, statement:statement, id:o.id});
+							if(item.buttonType=="done"){
+								// BvdS:  are these overwriting data that shouldn't be overwritten?
+								master.andesType=obj.type;
+								master.id=obj.id;
+								master.checked=o.checked;
+								myadd(master);
+							}
 						});
-						// BvdS:  Need to add button group so that changes can get sent to 
-						//        and from the server. 
-						this.addUI(o);
+
 						// BvdS:  logic needs fixing, need to find out real categories.
 					}else if(t=="image" ||t=="statement" || t=="equation" || t=="axes" || t=="text") { // image, statement, equation, axes
 						var item = _drawing.addStencil(o.stencilType, o);
