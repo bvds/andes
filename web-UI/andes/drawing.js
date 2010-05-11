@@ -128,17 +128,13 @@ dojo.provide("andes.drawing");
 			}
 		},
 		
-		addUI: function(/* Button group*/item){
+		addUI: function(/* Button group*/item,id){
 			// Taken from add(...) below.
-			var i = 0;
-			while(items[item.id]){
-				dojox.drawing.util.common.uid(item.type);
-				item.id = item.type + i++;				
-			}
-			items[item.id] = item;
+			// BvdS:  choose id by hand, won't work for multiple buttons.
+			items[id] = item;
 
-			dojo.connect(item,"onClick",this,function(item){
-				var data = andes.convert.drawingToAndes(item, 'modify-object');
+			dojo.connect(item.master,"onClick",this,function(item){
+				var data = andes.convert.drawingToAndes(item, "modify-object");
 				// BvdS:  Why doesn't this.save() work?
 				andes.drawing.save(data);
 			});
@@ -203,7 +199,7 @@ dojo.provide("andes.drawing");
 			//	NOTE: andes.help intercepts calls and handles
 			//	any help associated with the data.
 			//
-			console.log("handleServerActions", data.length);
+			console.log("handleServerActions starting", data.length);
 			
 			// check for highest numerical ID
 			// start from there
@@ -242,8 +238,6 @@ dojo.provide("andes.drawing");
 						this.add(combo);
 						
 					}else if(o.type=="button" && o.items){ // button groups don't have stencilType
-						// BvdS:  how are you supposed to access addUI in the loop?
-						var myadd=this.addUI;
 						dojo.forEach(o.items,function(item){
 							var statement = _drawing.addStencil("text", item.statement);
 							var master = _drawing.addUI(item.stencilType, item);
@@ -252,14 +246,15 @@ dojo.provide("andes.drawing");
 							if(item.buttonType=="done"){
 								// BvdS:  are these overwriting data that shouldn't be overwritten?
 								// This code is somewhat parallel to the code in Combo.js
-								master.andesType=obj.type;
-								master.id=obj.id;
-								master.checked=o.checked;
-								master.attr=function(a1,a2){
-									console.log("in button.attr, args=",a1,a2,statement);
-									statement.attr.call(statement,a1,a2);
-								}
-								myadd(master);
+								var buttonCombo=new andes.buttonCombo({
+									master: master, 
+									statement:statement
+								});
+								// BvdS:  this is wrong!!!  
+								buttonCombo.master.group=o;
+								// BvdS:  how are you supposed to access addUI in the loop?
+								// This won't work for radio buttons, since there will be more than one object with the id.
+								andes.drawing.addUI(buttonCombo,o.id);
 							}
 						});
 
@@ -327,7 +322,6 @@ dojo.provide("andes.drawing");
 					items[obj.id].mod = true;
 				        // style
 					items[obj.id].attr(andes.defaults[obj.mode]);
-					console.log("color items[obj.id]=",items[obj.id]," (see attr)",andes.defaults[obj.mode]);
 					// x, y
 					if(obj.x!==undefined){
 						items[obj.id].attr({

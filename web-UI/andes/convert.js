@@ -48,7 +48,7 @@ dojo.provide("andes.convert");
 			// summary:
 			//	Converts from andes to drawing
 			
-			console.warn(" ---------------> andesToDrawing:", o.type,o.id)
+			//console.warn(" ---------------> andesToDrawing:", o.type,o.id)
 			// Group of objects:  call conversion recursively
 			if(o.items) {
 				var obj = {
@@ -60,8 +60,7 @@ dojo.provide("andes.convert");
 						//        id here might not be necessary.
 						//        Maybe better to generate this on server?
 						x.id=x.id||(o.id+"Part"+(x.value||"0"));   
-						var y=andes.convert.andesToDrawing(x);
-						return y;
+						return andes.convert.andesToDrawing(x);
 					}),
 					checked: o.checked || [] 
 				}
@@ -224,11 +223,14 @@ dojo.provide("andes.convert");
 			var type = item.andesType || item.customType || andesTypes[item.type];
 			
 			if(type=="button"){
+				if(!item.group){
+					console.warn("drawingToAndes: invalid button object ",item);
+				}
 				var obj = {
-					id:id,
-					type:type,
+					id:item.group.id,
+					type:item.group.type,
 					action:action,
-					checked:item.checked
+					checked:item.group.checked
 				}
 				return obj;
 			};
