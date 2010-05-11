@@ -25,7 +25,7 @@ dojo.provide("andes.convert");
 		"dojox.drawing.tools.custom.Equation":"equation",
 		"dojox.drawing.stencil.Image":"graphics",
 		"dojox.drawing.tools.TextBlock":"statement", // or statement.... hmmmm
-		"drawing.library.UI.Button":"button"
+		"andes.buttonCombo":"button"
 	};
 
 	// dupe code:
@@ -221,7 +221,7 @@ dojo.provide("andes.convert");
 				sbox = round(statement.getBounds());
 			}
 			var type = item.andesType || item.customType || andesTypes[item.type];
-			
+
 			if(type=="button"){
 				if(!item.group){
 					console.warn("drawingToAndes: invalid button object ",item);

@@ -199,14 +199,9 @@ andes.buttonCombo = dojox.drawing.util.oo.declare(
 	//	This object is what relays events to andes.drawing, not the
 	//	individual items.
 	//
-	function(options){
-		this.master = options.master;
-		this.statement = options.statement;
-		// BvdS:  Don't know if any of these are used:
-
-		this._props = {style:this.master.style, util:this.master.util, parent:this.master.parent, mouse:this.master.mouse};
-		dojo.mixin(this, this._props);
-		this.id = options.id || this.util.uid(this.type);
+	function(butt,id){
+		this.items=butt;
+		this.id=id;
 	},
 	{
 		type:"andes.buttonCombo",
@@ -223,8 +218,10 @@ andes.buttonCombo = dojox.drawing.util.oo.declare(
 
 		attr: function(a1, a2){
 			// see Drawing.stencil._Base
-			this.master.attr.call(this.master, a1, a2);
-			this.statement.attr.call(this.statement, a1, a2);
+			dojo.forEach(this.items,function(item){
+				item.master.attr.call(item.master, a1, a2);
+				item.statement.attr.call(item.statement, a1, a2);
+			});
 		}
 
 	}
