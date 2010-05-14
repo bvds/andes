@@ -35,10 +35,13 @@
   Id	 ;Client assigned Identifier.
   ;; Can be: statement, equation, circle, ellipse, rectangle, axes, 
   ;;         vector, line, button
-  type   
-  ;; The following are properties of an object
+  type
+  style ;visual presentation of type (not used yet)
+  ;; The following are properties of an object:
   mode x y text width height radius symbol x-statement y-statement
-  x-label y-label z-label angle cosphi
+  x-label y-label z-label angle cosphi 
+  checked  ;for buttons
+
   ;; State overlaps with mode (need to fix this).
   State  ;One of:  correct, inefficient, dead-path, forbidden, incorrect.
   Prop   ;Entry proposition (Equalp to SystemEntry-prop, except for
@@ -47,7 +50,6 @@
   ;; the final Interpretation of the student entry.
   PossibleCInterps ;A list of all the sets of possible correct interpretations.
   Verbatim             ;The student's entry as they typed it.
-  ;; For buttons, number of member in multiple-choice group (starts with 1)
   ParsedEqn            ;will contain the lisp (prefixed) form of the parsed equation
   ErrInterp            ;nil or an error interpretation
   ;; Some non-eqn student entries carry associated equation entries with them. 

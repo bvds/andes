@@ -96,6 +96,7 @@
   (if (no-quant-problem-p Problem) 
 	(solve-no-quant-problem Problem)
     (solve-quant-problem Problem))
+  (run-post-processing Problem)
   Problem)
 
 
@@ -113,7 +114,6 @@
   (mark-forbidden-nodes Problem)
   (generate-problem-eqn-sets Problem)
   (mark-problem-graph Problem)
-  (run-post-processing Problem)
   )
 
 

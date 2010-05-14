@@ -51,8 +51,14 @@
 
 (defvar *cleanup-thread* "Function to clean up idle sessions")
 
-(defun start-help (&key host db user password (port 8080) server-log-path)
-  "start a server with help system, optionally specifying the port, log file path, and database access."
+(defun start-help (&key (port 8080) server-log-path host db user password)
+  ;; port            the port for the help server, default 8080
+  ;; server-log-path path for log file
+  ;; host            the ip address of the database, defaults to localhost
+  ;; db              the name of the database, default "andes"
+  ;; user            database user name, default "root"
+  ;; password        the database password
+  "start a server with help system, optionally specifying the server port, the log file path, and database access."
   ;; global setup
 
   ;; tune garbage collection
@@ -279,46 +285,59 @@
 			   (:id . ,id) (:mode . "unknown") (:x . ,x) (:y . ,y) 
 			   (:width . 100) (:text . "Answer:       ")) 
 			 replies)))
-		((unify line '(choose . ?rest))
-		 ;; Multiple choice
-		 ;;
-		 ;; Multiple-select behavior determined by server:
-		 ;; would have separate button labeled "enter" in group.
-		 ;; Modes: correct incorrect selected deselected
-		 ;; Only selected items would turn red/green.
-		 ;; Button vs. checkbox determined by object style.
-		 ;; Grouping information kept on server.  Each button
-		 ;; in group gets its own id and studentEntry, but all 
-		 ;; share same studentEntry-prop.
-		 (loop for choice in (cddr line) and
-		    value from 1
-		    for id = (format nil "group~Abutton~A" i value)
-		    with label = (second line)
-		    ;; Match multiple choice group to a problem sought,
-		    ;; rather than a SystemEntry.  This will correspond
-		    ;; to a SystemEntry for multiple-choice problems.
-		    with prop = (cond 
-				  ((atom label)
-				   (find `(choose-answer ,label . ?rest) 
-					 (problem-soughts *cp*) 
-					 :test #'unify))
-				  ((consp label) label)
-				  ((null label)
-				   (if (cdr (problem-soughts *cp*))
-				       (warn "Ambiguous null choose label")
-				       (car (problem-soughts *cp*)))))
-		    do 
-		    ;; Put each button on a new row.
-		      (unless (= value 1) (setf y (+ y 25)))
-		      (push (make-studententry 
-			     :id id :mode "deselected" :type "button"
-			     :prop prop :Verbatim value) *studententries*)
-		      (push `((:action . "new-object") (:type . "button")
-			      (:id . ,id) (:mode "deselected") 
-			      ;; Indend buttons relative to text
-			      (:x . ,(+ x 50)) (:y . ,y) (:width . 300)
-			      (:text . ,choice)) replies)))
 
+		;; Multiple choice.  See Bug #1551
+		((unify line '(choose ?label ?a ?b . ?rest))
+		 (pop line)
+		 (let* ((label (pop line))
+			(id (format nil "~A" label))
+			(prop `(choose-answer ,label nil))
+			(radios
+			 (loop for choice in line and
+			       value from 1
+			       do
+			       ;; Put each button on a new row.
+			       (unless (= value 1) (incf y 25))
+			       collect
+			       `((:id . ,(format nil "~A" value))
+				 (:type . "radio") 
+				 ;; Indent buttons relative to text
+				 (:x . ,(+ x 50)) (:y . ,y) (:width . 300)
+				 (:text . ,choice))
+			       )))
+		   (push `((:action . "new-object") (:id . ,id)
+			   (:type . "button") (:items . ,radios))
+			 replies)
+		   (push (make-studententry 
+			  :id id :type "button" :mode "unknown"
+			  :prop prop) 
+			 *studententries*)))
+
+		;; "I am done" button.  See Bug #1551
+		;; Should have a more distinctive method
+		;; of indicating this button type.
+		((unify line '(choose ?label ?a))
+		 (pop line)
+		 (let* ((label (pop line))
+			(id (format nil "doneButton~S" i))
+			(prop `(done ,(or label 
+					     (car (problem-soughts *cp*))))))
+		   ;; Sanity check
+		   (when (and (null label) (cdr (problem-soughts *cp*)))
+		     (warn "Ambiguous null label for choose"))
+		   ;; Create a single push button
+		   (push `((:action . "new-object") 
+			   (:type . "button") (:style . "submit")
+			   (:id . ,id) (:mode . "unknown") 
+			   ;; Indent buttons relative to text
+			   (:x . ,(+ x 50)) (:y . ,y) (:width . 300)
+			   (:text . ,(car line))) replies)
+		   (push (make-studententry 
+			  :id id :mode "unknown" :type "button" 
+			  :style "submit" :prop prop)
+			 *studententries*)
+		   ))
+		
 		(t 
 		 (push `((:action . "new-object") (:type . "statement") 
 			 (:id . ,(format nil "statement~A" i))
@@ -335,7 +354,7 @@
 		    (:width . ,(second g)) (:height . ,(third g))
 		    ;; This is the URL for the graphic, which may not
 		    ;; match its location on the server filesystem.
-		    (:href . ,(strcat "/images/" (first g))))
+		    (:href . ,(strcat "../images/" (first g))))
 		  replies)
 	    (setf y (+ y (third g) 15)))))
 	
@@ -537,19 +556,18 @@
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
 (webserver:defun-method "/help" solution-step 
-    (&key time id action type mode x y
+    (&key time id action type mode x y checked
 	  text width height radius symbol x-statement y-statement
 	  x-label y-label z-label angle cosphi) 
   "problem-solving step"
-  ;; fixed attributes:      type id
+  ;; fixed attributes:      type style id
   ;; updatable attributes:  mode x y text width height radius symbol 
-  ;;                         x-label y-label z-label angle cosphi
+  ;;                         x-label y-label z-label angle cosphi checked
   (env-wrap 
     ;; Andes2 also had calls to:
     ;; define-angle-variable  (undocumented leftover from Andes1)
     ;; assert-compound-object
     ;; label-angle (removed from Andes3, may restore if angle tool added)
-    ;; lookup-mc-answer
     ;; calculate-equation-string (find variable on lhs of equation)
     ;;                           (not in Andes3)
     ;; Andes2 but not in Andes3:  label-radius lookup-torque lookup-force
@@ -594,14 +612,14 @@
       (when old-entry
 	(update-entry-from-entry 
 	 new-entry old-entry 
-	 type mode x y text width height radius symbol x-statement y-statement
-	 x-label y-label z-label angle cosphi))
+	 type mode style x y text width height radius symbol x-statement 
+         y-statement x-label y-label z-label angle cosphi checked prop))
       
       ;; update new object from non-null variables
       (update-entry-from-variables 
        new-entry  
        mode x y text width height radius symbol x-statement y-statement
-       x-label y-label z-label angle cosphi)
+       x-label y-label z-label angle cosphi checked)
       
       (add-entry new-entry)   ;remove existing info and update
       
@@ -663,6 +681,9 @@
 	 
 	 ((equal (StudentEntry-type new-entry) "line")
 	  (execute-andes-command 'lookup-line new-entry))
+
+	 ((equal (StudentEntry-type new-entry) "button")
+	  (execute-andes-command 'lookup-mc-answer new-entry))
 	 
 	 (t (warn "Undefined type ~A, doing nothing."  
 		  (StudentEntry-type new-entry))))))))

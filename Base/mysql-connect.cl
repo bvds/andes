@@ -369,20 +369,20 @@
 
 (defun parse-raw-packet (buffer)
   (let ((buffer-length (length buffer))
-        (pos 0)
-        (list nil))
+        (pos 0) list)
     (loop
-     (multiple-value-bind (len start) (decode-length-coded-binary buffer pos)
-       (if (= len 251) ;column value = NULL (only appropriate in a Row Data Packet)
-           (progn
-             (setq list (cons "NULL" list))
-             (setq pos (+ start pos)))
-         (progn
-           (setq list (cons (utf8-to-string buffer :start (+ start pos)
-                                                   :end (+ start pos len)) list))
-           (setq pos (+ start pos len))))
-       (when (>= pos buffer-length) (return))))
-     (reverse list)))
+       (multiple-value-bind (len start) (decode-length-coded-binary buffer pos)
+	 (if (null len) 
+	     (progn
+	       ;; column value = NULL (only appropriate in a Row Data Packet)
+	       (push nil list)
+	       (incf pos start))
+	     (progn
+	       (push (utf8-to-string buffer :start (+ start pos)
+				     :end (+ start pos len)) list)
+	       (incf pos (+ start len))))
+	 (when (>= pos buffer-length) (return))))
+    (reverse list)))
 
 ;;-
 
@@ -441,10 +441,13 @@
 
 (defun decode-length-coded-binary (buffer pos)
   (let ((val (aref buffer pos)))
-    (cond ((<= val 251) (values val 1))
+    (cond ((< val 251) (values val 1))
+	  ;; column value = NULL (only appropriate in a Row Data Packet)
+	  ((= val 251) (values nil 1))
           ((= val 252) (values (%lcb-get-int16 buffer pos) 3))
           ((= val 253) (values (%lcb-get-int24 buffer pos) 4))
-          ((= val 254) (values (%lcb-get-int64 buffer pos) 9)))))
+          ((= val 254) (values (%lcb-get-int64 buffer pos) 9))
+	  (t (error "decode-length-coded-binary:  unexpected val=~A" val)))))
 
 (defun %lcb-get-int16 (buffer pos)
   (+ (aref buffer (+ 1 pos))
@@ -570,13 +573,8 @@
                         (push (logand #xFF x) list)))
                  (mapcar #'%to-bytes (sha1-digest message)))
                (coerce (nreverse list) 'vector)))
-    (string (let ((digest (sha1-digest message)))
-              (string-downcase (format nil "~2,'0x~2,'0x~2,'0x~2,'0x~2,'0x"
-                                       (first  digest)
-                                       (second digest)
-                                       (third  digest)
-                                       (fourth digest)
-                                       (fifth  digest)))))))
+    (string (string-downcase (format nil "~{~8,'0x~}" 
+				     (sha1-digest message))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -598,8 +596,7 @@
 	     (let ((socket (make-instance 'sb-bsd-sockets:local-socket 
 					  :type :stream)))
 	       (sb-bsd-sockets:socket-connect 
-		socket #+darwin "/tmp/mysql.sock" 
-		#+linux "/var/lib/mysql/mysql.sock")
+		socket (get-mysql-socket-file))
 	       (sb-bsd-sockets:socket-make-stream 
 		socket :output t :input t :element-type '(unsigned-byte 8)
 		#+sb-unicode :external-format #+sb-unicode :utf-8)))
@@ -610,6 +607,24 @@
 (defun resolve-hostname (name)
   (car (sb-bsd-sockets:host-ent-addresses
         (sb-bsd-sockets:get-host-by-name name))))
+
+(defun get-mysql-socket-file ()
+  "Return the mysql socket file."
+  ;; If possible, use "mysql_config --socket", else probe likely files.
+  (or 
+   #+sbcl (let ((id (sb-ext:run-program "mysql_config" (list "--socket")
+					:output :stream :search t)))
+	    (unwind-protect
+		 ;; Only return something if the program was successful.
+		 (if (= 0 (sb-ext:process-exit-code id))
+		   (read-line (sb-ext:process-output id))
+		   (warn "Command \"mysql_config --socket\" failed"))
+	      (sb-ext:process-close id)))
+   (when (probe-file "/var/lib/mysql/mysql.sock") 
+     "/var/lib/mysql/mysql.sock")
+   (when (probe-file "/tmp/mysql.sock") 
+     "/tmp/mysql.sock")
+   (error "Can't find mysql socket file")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;

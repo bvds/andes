@@ -1028,15 +1028,17 @@
     (velocity (format-sym "v_~A~@[_~A~]" (body-name arg1) (time-abbrev time)))
     (accel (format-sym "a_~A~@[_~A~]" (body-name arg1) (time-abbrev time)))
     (force  ; (force ?body ?agent ?type)  
-            ; !!! first char of type name not right for all force types
+            ;; !!! first char of type name not right for all force types
             (format-sym "F~(~A~)_~A_~A~@[_~A~]" (aref (string arg3) 0) 
 	                (body-name arg1) (body-name arg2) (time-abbrev time)))
     (impulse (format-sym "J_~A_~A_~A" (body-name arg1) (body-name arg2)
-			              (time-abbrev time)))
-    (field  ; (field ?loc ?type  ?source ...)
-        (format-sym "~A_~A_~A~@[_~A~]" (if (eq arg2 'Magnetic) "B"
-	                                (aref (string arg2) 0))
-	            (body-name arg1) (body-name arg3) (time-abbrev time)))
+			 (time-abbrev time)))
+    (field ;(field ?type :location ?loc :source ?source ...)
+     (format-sym "~A_~A_~A~@[_~A~]" (if (eq arg1 'Magnetic) "B"
+	                                (aref (string arg1) 0))
+		 (body-name (cadr (member :location vquant)))
+		 (body-name (cadr (member :source vquant)))
+		 (time-abbrev time)))
     (default
          (warn "get-vector-mag-var: no clause for vector type ~A" quant)
 	 ; probably not right, but take a stab:
@@ -1770,10 +1772,13 @@
 
 (def-qexp unit-vector (unit-vector ?orientation ?body :at ?loc :time ?time)
   :units nil  ;dimensionless
-  :new-english ("a unit vector" 
+  :new-english ((preferred "a") "unit vector" 
 		;; Broken Bug #1650
-		(when (unit-vector-orientation-name ?orientation) ?loc)
-		?body (time ?time)))
+		(and 
+		 (eval (when (expand-new-english ?loc) 
+			 `(preferred ("at" ,?loc)))) 
+		 ((eval (unit-vector-orientation-name ?orientation)) ?body) 
+		 (time ?time))))
 
 (defun unit-vector-orientation-name (orientation)
   (cond ((eq orientation 'normal-to) "normal to")
