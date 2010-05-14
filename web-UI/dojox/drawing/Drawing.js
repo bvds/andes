@@ -320,7 +320,6 @@ dojo.provide("dojox.drawing.Drawing");
 			
 			if(!this.ready){
 				var c = dojo.connect(this, "onSurfaceReady", this, function(){
-																			console.warn("---------example handle-------",c);
 					dojo.disconnect(c);
 					this.addUI(type, options);
 				});

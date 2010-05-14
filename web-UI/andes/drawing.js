@@ -132,6 +132,7 @@ dojo.provide("andes.drawing");
 			dojo.connect(item,"onClick",this,function(item){
 				var data = andes.convert.drawingToAndes(item, 'modify-object');
 				// BvdS:  Why doesn't this.save() work?
+				console.warn("What is this?!?-------------------",this);
 				andes.drawing.save(data);
 			});
 		},
