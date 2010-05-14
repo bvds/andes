@@ -4,7 +4,7 @@ dojo.provide("andes.drawing");
 (function(){
 
 	dojo.cookie("mikeDev", null, { expires: -1 });
-
+	
 	// the html ID in index for the drawing app
 	var drawingId = "drawing";
 	var _drawing;
@@ -92,10 +92,10 @@ dojo.provide("andes.drawing");
 				var box = item.getBounds();
 				var props = getStatementPosition(box);
 				if(hasLabel[item.type]){
-				  // axes
-				  // default labels for an axes
-				  props.data.text = andes.defaults.zAxisEnabled?
-						      "x and y and z":"x and y";
+					// axes
+					// default labels for an axes
+					props.data.text = andes.defaults.zAxisEnabled?
+						"x and y and z":"x and y";
 				}
 				// create statement for vector, rect, ellipse, or axes
 				var statement = _drawing.addStencil("textBlock", props);
@@ -225,13 +225,22 @@ dojo.provide("andes.drawing");
 						var combo = new andes.Combo({master:master, statement:statement, id:o.id});
 						this.add(combo);
 
-					}else{ // image, statement, equation, axes
+					}else if(t=="image" ||t=="statement" || t=="equation" || t=="axes") { // image, statement, equation, axes
 						var item = _drawing.addStencil(o.stencilType, o);
 						var ID = item.id;
 						ID = ID.indexOf("TextBlock");
 						if(item.stencilType=='textBlock' && ID!=-1) item.util.uid(item.type);
 						item.andesType = obj.type; // to tell between equation and statement
 						this.add(item);
+					}else { //button objects
+						for(var item in o.items){
+							var statement = _drawing.addStencil("textBlock", item.statement);
+							var master = _drawing.addStencil(item.type, item);
+							items[statement.id] = statement; //statement;
+							items[master.id] = master; //master;
+							var combo = new andes.Combo({master:master, statement:statement, id:o.id});
+							this.add(combo);
+						}
 					}
 
 				}else if(obj.action=="modify-object"){
@@ -270,7 +279,6 @@ dojo.provide("andes.drawing");
 						// temporary for testing
 						dojo.byId("drawZAxis").disabled=!obj["z-axis-enable"];
 					}
-
 				}else{
 					//console.warn("UNUSED ANDES OBJECT:", obj)
 				}

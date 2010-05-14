@@ -5,15 +5,15 @@ dojo.require("andes.messages");
 
 
 (function(){
-
+	
 	var startTime = null,
 	    requestInFlight = false,
 	    queue = [],
 	    tries = 0;
-
+	
 	var MAX_RETRIES = 5,
-	    RETRY_TIMEOUT = 2000; // milliseconds
-
+	RETRY_TIMEOUT = 2000; // milliseconds
+	
 	// AOP-style function replacement that performs before-advice
 	// to add to the headers on all XHR requests. See dojox/rpc/Client.js
 	(function(){

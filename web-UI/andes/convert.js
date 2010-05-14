@@ -1,9 +1,9 @@
 dojo.provide("andes.convert");
 
 (function(){
-
-
-
+	
+	
+	
 	var stencilMods = {
 		statement:	"textBlock",
 		equation:	"textBlock",
@@ -12,7 +12,10 @@ dojo.provide("andes.convert");
 		axes:		"axes",
 		ellipse:	"ellipse",
 		rectangle:	"rect",
-		line:		"line"
+		line:		"line",
+		done:		"button",
+		checkbox:	"button",
+		radio:		"button"
 	};
 
 	var andesTypes = {
@@ -23,7 +26,8 @@ dojo.provide("andes.convert");
 		"dojox.drawing.tools.custom.Axes":"axes",
 		"dojox.drawing.tools.custom.Equation":"equation",
 		"dojox.drawing.stencil.Image":"graphics",
-		"dojox.drawing.tools.TextBlock":"statement" // or statement.... hmmmm
+		"dojox.drawing.tools.TextBlock":"statement", // or statement.... hmmmm
+		"dojox.drawing.ui.Button":"button"
 	};
 
 	// dupe code:
@@ -47,6 +51,14 @@ dojo.provide("andes.convert");
 			//	Converts from andes to drawing
 
 			//console.warn(" ---------------> andesToDrawing:", o.type)
+			if(o.items) {
+				var obj = {
+					id:o.id,
+					type:o.type,
+					items:dojo.map(items, function(x){ this.andesToDrawing(x); })
+				}
+				return obj;
+			}
 			if(o.x==undefined || o.y===undefined){
 				console.error("Imported Object '" + o.id + "' contains no X or Y coordinates.");
 				console.warn("Bad Imported object:", o);
@@ -72,6 +84,27 @@ dojo.provide("andes.convert");
 					rx:o.width/2,
 					ry:o.height/2
 				}
+			}else if(o.type=="radio"){
+				obj.data = {
+					cx:o.x + 10,
+					cy:o.y + 10,
+					rx:10,
+					ry:10
+				}
+				obj.statement = o.text;
+				obj.value = o.value;
+			
+			}else if(o.type=="checkbox"){
+				obj.data.width = 20;
+				obj.data.height = 20;
+				obj.statement = o.text;
+				obj.value = o.value;
+
+			}else if(o.type=="done"){
+				obj.data.width = 40;
+				obj.data.height = 20;
+				obj.text = o.label;
+				obj.statement = o.text;
 			}else if(o.type=="vector"){
 				//in case of zero vector
 				if(o.radius == 0) {obj.data.radius = 0; obj.data.angle = 1; } else { obj.data.radius = o.radius; obj.data.angle = o.angle; }
@@ -128,10 +161,10 @@ dojo.provide("andes.convert");
 			}else if(o.type=="axes"){
 				obj.label = o['x-label']+" and "+o['y-label'];
 				if(andes.defaults.zAxisEnabled){
-				  obj.label += " and "+o['z-label'];
+					obj.label += " and "+o['z-label'];
 				}
 			}
-
+			
 			if(o.href){
 				obj.data.src = o.href;
 			}

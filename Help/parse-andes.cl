@@ -128,11 +128,12 @@
     (cond				
      ((not (position #\= equation))
       (setf rem (make-hint-seq (list
-				(format nil "Entry ~a is not an equation." equation)
+				(format nil "Entry \"~a\" is not an equation.&nbsp; If you are trying to define a scalar quantity, use ~A instead." 
+					equation *text-tool*)
 				"The entry needs an = sign to be an equation."))))
      ((> (count #\= equation) 1)
       (setf rem (make-hint-seq (list
-				(format nil "~a is not a single equation." equation)
+				(format nil "\"~a\" is not a single equation." equation)
 				"You may enter only one equation on a line."))))
      ((search "sec" equation)
       (setf rem (make-hint-seq (list

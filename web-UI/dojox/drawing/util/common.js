@@ -204,6 +204,14 @@ dojo.require("dojox.math.round");
 			uidMap[str] = uidMap[str]===undefined ? start : uidMap[str] + 1;
 			return str + uidMap[str]; // String
 		},
+		groups: {},
+		groupId: function(name, id){
+			if(groups.name){
+				
+			} else {
+					
+			}
+		},
 		
 		abbr: function(type){
 			// summary:
