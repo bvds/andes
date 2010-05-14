@@ -137,6 +137,7 @@ dojo.provide("dojox.drawing.Drawing");
 			}else{
 				this.plugins = [];
 			}
+			
 			this.widgetId = this.id;
 			dojo.attr(this.domNode, "widgetId", this.widgetId);
 			// If Dijit is available in the page, register with it
@@ -247,6 +248,7 @@ dojo.provide("dojox.drawing.Drawing");
 				});
 				return;
 			}
+			
 			dojo.forEach(this.plugins, function(p, i){
 				var props = dojo.mixin({
 					util:this.util,
@@ -257,7 +259,7 @@ dojo.provide("dojox.drawing.Drawing");
 					anchors:this.anchors,
 					canvas:this.canvas
 				}, p.options || {});
-				console.log('drawing.plugin:::', p.name, props)
+				//console.log('drawing.plugin:::', p.name, props)
 				this.registerTool(p.name, dojo.getObject(p.name));
 				try{
 					this.plugins[i] = new this.tools[p.name](props);
@@ -301,7 +303,7 @@ dojo.provide("dojox.drawing.Drawing");
 		
 		},
 		
-		addUI: function(/* String */type, /* Object */options, mode){
+		addUI: function(/* String */type, /* Object */options){
 			// summary:
 			//		Use this method to programmatically add Stencils that display on
 			//		the canvas.
@@ -317,7 +319,6 @@ dojo.provide("dojox.drawing.Drawing");
 			//				The parameters used to draw the object. See stencil._Base and each
 			//				tool for specific parameters of teh data or points objects.
 			//
-			
 			if(!this.ready){
 				var c = dojo.connect(this, "onSurfaceReady", this, function(){
 					dojo.disconnect(c);

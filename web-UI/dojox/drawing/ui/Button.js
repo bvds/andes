@@ -62,11 +62,6 @@ dojox.drawing.ui.Button =  dojox.drawing.util.oo.declare(
 		}
 		
 		this.onOut();
-		//New additions for new button support
-		// BvdS: options.type is undefined;  breaks all buttons
-		// this.type = options.type;
-		// Register as a group of 
-		this.util.groupId(this.id,this);
 		
 	},{
 		
@@ -204,6 +199,9 @@ dojox.drawing.ui.Button =  dojox.drawing.util.oo.declare(
 				this.hitched();
 			}
 			this.onClick(this);
+		},
+		attr: function(options){
+			this.icon.attr(options);
 		}
 	}	
 	

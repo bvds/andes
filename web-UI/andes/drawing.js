@@ -128,12 +128,16 @@ dojo.provide("andes.drawing");
 			}
 		},
 		
-		addUI: function(/* Button group*/item){
-			dojo.connect(item,"onClick",this,function(item){
-				var data = andes.convert.drawingToAndes(item, 'modify-object');
-				// BvdS:  Why doesn't this.save() work?
-				console.warn("What is this?!?-------------------",this);
-				andes.drawing.save(data);
+		addUI: function(/* group of objects */group){
+			// Taken from add(...) below.
+			items[group.id] = group;
+
+			dojo.forEach(group.items,function(item){
+				dojo.connect(item.master,"onClick",this,function(item){
+					var data = andes.convert.drawingToAndes(group, "modify-object");
+					// BvdS:  Why doesn't this.save() work?
+					andes.drawing.save(data);
+				});
 			});
 		},
 		
@@ -196,7 +200,7 @@ dojo.provide("andes.drawing");
 			//	NOTE: andes.help intercepts calls and handles
 			//	any help associated with the data.
 			//
-			console.log("handleServerActions", data.length);
+			console.log("handleServerActions starting", data.length);
 			
 			// check for highest numerical ID
 			// start from there
@@ -235,21 +239,18 @@ dojo.provide("andes.drawing");
 						this.add(combo);
 						
 					}else if(o.type=="button" && o.items){ // button groups don't have stencilType
-						// BvdS:  how are you supposed to access addUI in the loop?
-						var myadd=this.addUI;
-						dojo.forEach(o.items,function(item){
+						var butt = dojo.map(o.items,function(item){
 							var statement = _drawing.addStencil("text", item.statement);
 							var master = _drawing.addUI(item.stencilType, item);
+							master.group=o;
 							items[statement.id] = statement; //statement;
 							items[master.id] = master; //master;
-							if(item.buttonType=="done"){
-								// BvdS:  are these overwriting data that shouldn't be overwritten?
-								master.andesType=obj.type;
-								master.id=obj.id;
-								master.checked=o.checked;
-								myadd(master);
-							}
+							return {master: master, statement:statement};
 						});
+						console.log("constructing button group, butt=",butt);
+						var buttonCombo=new andes.buttonCombo(butt,o.id);
+						buttonCombo.group=o;
+						this.addUI(buttonCombo);
 
 						// BvdS:  logic needs fixing, need to find out real categories.
 					}else if(t=="image" ||t=="statement" || t=="equation" || t=="axes" || t=="text") { // image, statement, equation, axes
