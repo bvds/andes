@@ -51,14 +51,6 @@ dojo.provide("andes.convert");
 			//	Converts from andes to drawing
 
 			//console.warn(" ---------------> andesToDrawing:", o.type)
-			if(o.items) {
-				var obj = {
-					id:o.id,
-					type:o.type,
-					items:dojo.map(items, function(x){ this.andesToDrawing(x); })
-				}
-				return obj;
-			}
 			if(o.x==undefined || o.y===undefined){
 				console.error("Imported Object '" + o.id + "' contains no X or Y coordinates.");
 				console.warn("Bad Imported object:", o);
@@ -84,27 +76,6 @@ dojo.provide("andes.convert");
 					rx:o.width/2,
 					ry:o.height/2
 				}
-			}else if(o.type=="radio"){
-				obj.data = {
-					cx:o.x + 10,
-					cy:o.y + 10,
-					rx:10,
-					ry:10
-				}
-				obj.statement = o.text;
-				obj.value = o.value;
-			
-			}else if(o.type=="checkbox"){
-				obj.data.width = 20;
-				obj.data.height = 20;
-				obj.statement = o.text;
-				obj.value = o.value;
-
-			}else if(o.type=="done"){
-				obj.data.width = 40;
-				obj.data.height = 20;
-				obj.text = o.label;
-				obj.statement = o.text;
 			}else if(o.type=="vector"){
 				//in case of zero vector
 				if(o.radius == 0) {obj.data.radius = 0; obj.data.angle = 1; } else { obj.data.radius = o.radius; obj.data.angle = o.angle; }

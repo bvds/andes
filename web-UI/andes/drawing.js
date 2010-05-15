@@ -225,22 +225,13 @@ dojo.provide("andes.drawing");
 						var combo = new andes.Combo({master:master, statement:statement, id:o.id});
 						this.add(combo);
 
-					}else if(t=="image" ||t=="statement" || t=="equation" || t=="axes") { // image, statement, equation, axes
+					}else { // image, statement, equation, axes
 						var item = _drawing.addStencil(o.stencilType, o);
 						var ID = item.id;
 						ID = ID.indexOf("TextBlock");
 						if(item.stencilType=='textBlock' && ID!=-1) item.util.uid(item.type);
 						item.andesType = obj.type; // to tell between equation and statement
 						this.add(item);
-					}else { //button objects
-						for(var item in o.items){
-							var statement = _drawing.addStencil("textBlock", item.statement);
-							var master = _drawing.addStencil(item.type, item);
-							items[statement.id] = statement; //statement;
-							items[master.id] = master; //master;
-							var combo = new andes.Combo({master:master, statement:statement, id:o.id});
-							this.add(combo);
-						}
 					}
 
 				}else if(obj.action=="modify-object"){
