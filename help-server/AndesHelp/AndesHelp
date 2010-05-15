@@ -1,0 +1,43 @@
+#!/bin/sh
+
+##
+# Andes Help Server
+##
+
+# Suppress the annoying "$1: unbound variable" error when no option
+# was given
+if [ -z $1 ] ; then
+        echo "Usage: $0 [start|stop|restart] "
+        exit 1
+fi
+
+# Source the common setup functions for startup scripts
+test -r /etc/rc.common || exit 1
+. /etc/rc.common
+
+StartService ()
+{
+    if [ "${ANDESHELP:=-NO-}" = "-YES-" ]; then
+        echo "Starting Andes Help server"
+	. /etc/andes-help.conf
+        apachectl start
+    fi
+}
+
+StopService ()
+{
+    echo "Stopping Andes Help server"
+    apachectl stop 
+}
+
+RestartService ()
+{
+    if [ "${ANDESHELP:=-NO-}" = "-YES-" ]; then
+        echo "Restarting Andes Help server"
+        apachectl restart
+    else
+        StopService
+    fi
+}
+
+RunService "$1"

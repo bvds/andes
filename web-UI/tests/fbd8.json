@@ -1,0 +1,10 @@
+[
+  {"id":0,"method":"open-problem","params":{"time":0,"user":"joel","problem":"fbd8","section":"54321","extra":""},"jsonrpc":"2.0"},
+  {"id":1,"method":"solution-step","params":{"time":42.14,"x":254,"y":273,"action":"new-object","type":"ellipse","id":"andes.Combo6","mode":"unknown","width":46,"height":37,"text":"c: the climber","symbol":"c","x-statement":310,"y-statement":273},"jsonrpc":"2.0"},
+  {"id":2,"method":"solution-step","params":{"time":70.048,"x":280,"y":331,"action":"new-object","type":"vector","id":"andes.Combo7","mode":"unknown","radius":124,"angle":270,"text":"Fg: the force of gravity\non c","symbol":"Fg","x-statement":290,"y-statement":331},"jsonrpc":"2.0"},
+  {"method": "solution-step", "params": {"time": 74.000,"id": "doneButton5", "action": "modify-object"}, "id": 3},
+  {"id":4,"method":"solution-step","params":{"time":102.901,"x":285,"y":257,"action":"new-object","type":"vector","id":"andes.Combo8","mode":"unknown","radius":114,"angle":90,"text":"Ft: the tension force on\nc due to the rope","symbol":"Ft","x-statement":295,"y-statement":143},"jsonrpc":"2.0"},
+  {"method": "solution-step", "params": {"time": 74.000,"id": "doneButton5", "action": "modify-object"}, "id": 5},
+{"method":"close-problem","params":{"time":454.749},"id":6}
+]
+
