@@ -558,8 +558,12 @@ dojox.drawing.stencil._Base = dojox.drawing.util.oo.declare(
 			if(o.borderWidth!==undefined){
 				n.width = o.borderWidth;
 			}
-			if(o.cosphi) {
-				this.cosphi = o.cosphi;	
+			if(o.cosphi!=undefined) {
+				try{
+					this.changeAxis(o.cosphi);
+				} catch(e){
+					console.warn("Cosphi changes only supported for Vectors",e);
+				};	
 			}
 			if(this.useSelectedStyle){
 				// using the orginal selected style copy as

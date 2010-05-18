@@ -151,7 +151,8 @@ dojo.declare("dojox.drawing.ui.Toolbar", [], {
 				if(t.indexOf("Secondary")>-1){
 					var prim = t.substring(0,t.indexOf("Secondary"));
 					var label = dojox.drawing.getRegistered("tool",toolMap[prim].name).secondary.label;
-					var btn = this.toolDrawing.addUI("button", {data:{x:x, y:y, width:w, height:h/2, r:r}, toolType:t, text:label, shadow:s, scope:this, callback:"onToolClick"});
+					this.funct = dojox.drawing.getRegistered("tool",toolMap[prim].name).secondary.funct;
+					var btn = this.toolDrawing.addUI("button", {data:{x:x, y:y, width:w, height:h/2, r:r}, toolType:t, secondary:true, text:label, shadow:s, scope:this, callback:"funct"});
 					sec = true;
 				} else {
 					var btn = this.toolDrawing.addUI("button", {data:{x:x, y:y, width:w, height:h, r:r}, toolType:t, icon:sym[t], shadow:s, scope:this, callback:"onToolClick"});
@@ -251,7 +252,7 @@ dojo.declare("dojox.drawing.ui.Toolbar", [], {
 				this.selected = b;
 				this.drawing.setTool(button.toolType)
 			}else{
-				b.deselect();
+				if(!b.secondary) { b.deselect(); }
 			}
 		},this)
 	},

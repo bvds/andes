@@ -61,7 +61,7 @@ dojox.drawing.annotations.BoxShadow = dojox.drawing.util.oo.declare(
 		switch(this.stencil.shortType){
 			case "image":
 			case "vector":
-				if (this.stencil.style.zAxis) { this.method = "createForZArrow"; break; }
+				this.method = "createForZArrow"; break;
 			case "rect":
 				this.method = "createForRect"; break;
 			case "ellipse":
