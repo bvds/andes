@@ -223,4 +223,11 @@ dojox.drawing.tools.custom.Vector.setup = {
 	tooltip:"Vector Tool",
 	iconClass:"iconVector"
 };
+
+if(dojox.drawing.defaults.zAxisEnabled==true){
+	dojox.drawing.tools.custom.Vector.setup.secondary = {
+		name: "vectorSecondary",
+		label: "z-axis"
+	}
+};
 dojox.drawing.register(dojox.drawing.tools.custom.Vector.setup, "tool");
