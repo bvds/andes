@@ -252,15 +252,17 @@
     
     ;; Handle the multiple choice case by generating the entry prop
     ;; and then handling it like any other.
-    ((eql (car (StudentEntry-prop entry)) 'choose-answer)
+    ((and (eql (car (StudentEntry-prop entry)) 'choose-answer)
+	  (StudentEntry-checked entry))
      ;; update with the box that has been clicked
      (setf (third (StudentEntry-prop entry))
 		   (read-from-string (car (StudentEntry-checked entry))))
      (check-noneq-entry entry))
     
     ;; In the event that an unrecognized type is supplied handle it like so.
-    (t (error "Unrecognized button entry supplied: ~a" 
-	      (StudentEntry-prop entry)))))
+    (t (warn "Unrecognized button entry: ~a, checked:  ~A" 
+	      (StudentEntry-prop entry)
+	      (StudentEntry-checked entry)))))
 
   
 ;;; ===========================================================================
