@@ -1,4 +1,3 @@
-
 /* AndesDatabaseCreationSQL.sql
    This is a set of batch SQL commands created by Nicholas Vaidyanathan to simplify 
    the process of installing the Andes 3 logging DB Schema. To use this script, 
