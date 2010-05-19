@@ -225,7 +225,7 @@ dojo.provide("andes.drawing");
 						var combo = new andes.Combo({master:master, statement:statement, id:o.id});
 						this.add(combo);
 
-					}else{ // image, statement, equation, axes
+					}else { // image, statement, equation, axes
 						var item = _drawing.addStencil(o.stencilType, o);
 						var ID = item.id;
 						ID = ID.indexOf("TextBlock");
@@ -298,7 +298,6 @@ dojo.provide("andes.drawing");
 						});
 					}
 					if(obj.type=='vector' || obj.type=='line'){
-
 						items[obj.id].master.attr({
 							angle:obj.angle,
 							radius:obj.radius,

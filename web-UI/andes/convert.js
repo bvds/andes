@@ -12,7 +12,10 @@ dojo.provide("andes.convert");
 		axes:		"axes",
 		ellipse:	"ellipse",
 		rectangle:	"rect",
-		line:		"line"
+		line:		"line",
+		done:		"button",
+		checkbox:	"button",
+		radio:		"button"
 	};
 
 	var andesTypes = {
@@ -23,7 +26,8 @@ dojo.provide("andes.convert");
 		"dojox.drawing.tools.custom.Axes":"axes",
 		"dojox.drawing.tools.custom.Equation":"equation",
 		"dojox.drawing.stencil.Image":"graphics",
-		"dojox.drawing.tools.TextBlock":"statement" // or statement.... hmmmm
+		"dojox.drawing.tools.TextBlock":"statement", // or statement.... hmmmm
+		"dojox.drawing.ui.Button":"button"
 	};
 
 	// dupe code:

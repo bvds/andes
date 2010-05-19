@@ -20,8 +20,8 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 		{
 			this.cosphi = options.data.cosphi;
 			this.style.zAxis = "true";
-			this.addShadow({size:3, mult:2});
 		}
+		this.addShadow({size:3, mult:2});
 	},
 	{
 		draws:true,
@@ -40,6 +40,18 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 				x:pt.x,
 				y:pt.y
 			}
+		},
+		
+		changeAxis: function(cosphi){
+			cosphi = cosphi!=undefined?cosphi:this.style.zAxis? 0 : 1;
+			if (cosphi == 0){
+				this.style.zAxis = false;
+				this.cosphi = 0;
+			} else {
+				this.style.zAxis = true;
+				this.zPoints();
+			}
+			this.render();
 		},
 		
 		_createZeroVector: function(shp, d, sty){
@@ -222,5 +234,28 @@ dojox.drawing.tools.custom.Vector.setup = {
 	name:"dojox.drawing.tools.custom.Vector",
 	tooltip:"Vector Tool",
 	iconClass:"iconVector"
+};
+
+if(dojox.drawing.defaults.zAxisEnabled==true){
+	dojox.drawing.tools.custom.Vector.setup.secondary = {
+		name: "vectorSecondary",
+		label: "z-axis",
+		funct: function(button){
+			if(button.selected) {
+				dojox.drawing.defaults.zAxis = false;
+				button.deselect();
+			} else {
+				dojox.drawing.defaults.zAxis = true;
+				button.select();
+			}
+			var stencils = this.drawing.stencils.selectedStencils;
+			for(var nm in stencils){
+				if(stencils[nm].shortType == "vector" && (stencils[nm].style.zAxis != dojox.drawing.defaults.zAxis)) {
+					stencils[nm].changeAxis();
+				}
+			}
+			
+		}
+	}
 };
 dojox.drawing.register(dojox.drawing.tools.custom.Vector.setup, "tool");

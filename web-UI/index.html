@@ -85,15 +85,9 @@
 								<div id="menuSlides" dojoType="dijit.MenuItem">Slide show</div>
 
 								<div id="menuManual" dojoType="dijit.MenuItem">Manual</div>
+						</div>
 				</div>
-                     </div>
-
-		     <!-- this is just temporary code to get z-axis stuff working -->
-		     <span>
-				<input type="checkbox" id="drawZAxis" unchecked onclick="andes.defaults.zAxis=dojo.byId('drawZAxis').checked;">
-				z-axis vector</span>
-
-		                                 <div dojoType="dijit.form.Button" id="submitButton" style="position:absolute; top:0; right:10px; margin:0;">Submit</div>
+				<div dojoType="dijit.form.Button" id="submitButton" style="position:absolute; top:0; right:10px; margin:0;">Submit</div>
 		</div>
 		
 		<div id="toolPane" dojoType="dijit.layout.ContentPane" region="left" splitter="false">
@@ -110,6 +104,7 @@
 				<div id="helpContentPane" dojoType="dijit.layout.ContentPane" region="center"></div>
 
 				<div id="helpInputPane" dojoType="dijit.layout.ContentPane" region="bottom">
+
 					<div dojoType="dijit.form.TextBox" id="helpInput"></div>
 					<div dojoType="dijit.form.Button" id="helpSubmit">?</div>
 				</div>
