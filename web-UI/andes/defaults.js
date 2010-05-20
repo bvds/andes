@@ -23,7 +23,7 @@ dojo.provide("andes.defaults");
 		// zAxisEnabled: Boolean
 		// 		If true, render axes with Z-axis included, allow objects drawn in z-direction.
 		zAxis: false,
-		zAxisEnabled: true,
+		zAxisEnabled: false,
 		zAngle: 225,
 
 		// current: Object

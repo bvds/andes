@@ -241,13 +241,8 @@ if(dojox.drawing.defaults.zAxisEnabled==true){
 		name: "vectorSecondary",
 		label: "z-axis",
 		funct: function(button){
-			if(button.selected) {
-				dojox.drawing.defaults.zAxis = false;
-				button.deselect();
-			} else {
-				dojox.drawing.defaults.zAxis = true;
-				button.select();
-			}
+			button.selected ? this.zDeselect(button) : this.zSelect(button);
+			
 			var stencils = this.drawing.stencils.selectedStencils;
 			for(var nm in stencils){
 				if(stencils[nm].shortType == "vector" && (stencils[nm].style.zAxis != dojox.drawing.defaults.zAxis)) {
@@ -255,6 +250,54 @@ if(dojox.drawing.defaults.zAxisEnabled==true){
 				}
 			}
 			
+		},
+		setup: function(){
+			var zAxis = dojox.drawing.defaults.zAxis;
+			this.zSelect = function(button){
+				zAxis = true;
+				dojox.drawing.defaults.zAxis = true;
+				button.select();
+				this.vectorTest();
+				this.zSelected = button;
+			};
+			this.zDeselect = function(button){
+				zAxis = false;
+				dojox.drawing.defaults.zAxis = false;
+				button.deselect();
+				this.vectorTest();
+				this.zSelected = null;
+			};
+			this.vectorTest = function(){
+				dojo.forEach(this.buttons, function(b){
+					if(b.toolType=="vector" && b.selected){
+						this.drawing.currentStencil.style.zAxis = zAxis;
+					} 
+				},this);
+			};
+			dojo.connect(this, "onRenderStencil", this, function(){ if(this.zSelected){ this.zDeselect(this.zSelected)}});
+			var c = dojo.connect(this.drawing, "onSurfaceReady", this, function(){
+				dojo.disconnect(c);
+				dojo.connect(this.drawing.stencils, "onSelect", this, function(stencil){
+					if(stencil.shortType == "vector"){
+						if(stencil.style.zAxis){
+							//If stencil is on the z-axis, update button to reflect that
+							dojo.forEach(this.buttons, function(b){
+								if(b.toolType=="vectorSecondary"){
+									this.zSelect(b);
+								}
+							},this);
+							
+						} else {
+							//Update button to not be z-axis
+							dojo.forEach(this.buttons, function(b){
+								if(b.toolType=="vectorSecondary"){
+									this.zDeselect(b);
+								}
+							},this);
+						}
+					};
+				});
+			});
 		}
 	}
 };

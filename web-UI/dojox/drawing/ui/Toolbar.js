@@ -136,24 +136,25 @@ dojo.declare("dojox.drawing.ui.Toolbar", [], {
 					tool = dojo.trim(tool);
 					toolAr.push(tool);
 					var details = dojox.drawing.getRegistered("tool",toolMap[tool].name);
-					console.warn("Secodnary: ",details);
 					if(details.secondary) {
 						toolAr.push(details.secondary.name);
 					}
 				}, this);
-				console.warn("toolAR:", toolAr);
 				//dojo.map(toolAr, function(t){ return dojo.trim(t); });
 			}
 			
 			dojo.forEach(toolAr, function(t){
 				t = dojo.trim(t);
-				var sec = false;
+				var secondary = false;
 				if(t.indexOf("Secondary")>-1){
 					var prim = t.substring(0,t.indexOf("Secondary"));
-					var label = dojox.drawing.getRegistered("tool",toolMap[prim].name).secondary.label;
-					this.funct = dojox.drawing.getRegistered("tool",toolMap[prim].name).secondary.funct;
-					var btn = this.toolDrawing.addUI("button", {data:{x:x, y:y, width:w, height:h/2, r:r}, toolType:t, secondary:true, text:label, shadow:s, scope:this, callback:"funct"});
-					sec = true;
+					var sec = dojox.drawing.getRegistered("tool",toolMap[prim].name).secondary;
+					var label = sec.label;
+					this[t] = sec.funct;
+					//console.warn("This.drawing.stencils: ",this.drawing);
+					dojo.hitch(this, sec.setup)();
+					var btn = this.toolDrawing.addUI("button", {data:{x:x, y:y, width:w, height:h/2, r:r}, toolType:t, secondary:true, text:label, shadow:s, scope:this, callback:this[t]});
+					secondary = true;
 				} else {
 					var btn = this.toolDrawing.addUI("button", {data:{x:x, y:y, width:w, height:h, r:r}, toolType:t, icon:sym[t], shadow:s, scope:this, callback:"onToolClick"});
 				}
@@ -164,10 +165,10 @@ dojo.declare("dojox.drawing.ui.Toolbar", [], {
 					this.drawing.setTool(btn.toolType);
 				}
 				if(this.horizontal){
-					var space = sec ? h/2 + g : h + g;
+					var space = secondary ? h/2 + g : h + g;
 					y += space;
 				}else{
-					var space = sec ? h/2 + g : h + g;
+					var space = secondary ? h/2 + g : h + g;
 					y += space;
 				}
 			}, this);

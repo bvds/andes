@@ -267,8 +267,6 @@ dojo.provide("andes.drawing");
 				}else if(obj.action=="set-styles"){
 					if(obj["z-axis-enable"]){
 						andes.defaults.zAxisEnabled=obj["z-axis-enable"];
-						// temporary for testing
-						dojo.byId("drawZAxis").disabled=!obj["z-axis-enable"];
 					}
 				}else{
 					//console.warn("UNUSED ANDES OBJECT:", obj)
