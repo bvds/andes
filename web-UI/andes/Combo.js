@@ -205,10 +205,9 @@ andes.buttonCombo = dojox.drawing.util.oo.declare(
 	},
 	{
 		type:"andes.buttonCombo",
-		// BvdS:  is this ever used?
 		onChangeData: function(/*Object*/ stencil){
-			if (stencil.mod == true) { console.log("------------mod, no save to server", stencil.mod);};
-			console.log("--------------on change combo", stencil.id);
+			if (stencil.mod == true) { console.log("------------button mod, no save to server", stencil.mod);};
+			console.log("--------------on change button combo", stencil.id);
 			// summary:
 			//	Stub - fires on change of dimensional
 			//	properties or a text change of the master

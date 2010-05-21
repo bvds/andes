@@ -201,6 +201,8 @@ dojo.provide("andes.defaults");
 		// BvdS:  I thought andes.defaults is supposed to override of dojox.drawing.defaults
 		//        Why does dojox.drawing.defaults.button not show up if following is not included?
 		button:{
+			radioButtonRadius:15,
+			checkboxWidth:20,
 			norm:{
 				"color": "#cccccc", 
 				"fill": {

@@ -128,12 +128,37 @@ dojo.provide("andes.drawing");
 			}
 		},
 		
-		addUI: function(/* group of objects */group){
+		addGroup: function(/* group of objects */group){
 			// Taken from add(...) below.
 			items[group.id] = group;
 
 			dojo.forEach(group.items,function(item){
 				dojo.connect(item.master,"onClick",this,function(item){
+
+					// Handle button clicks; don't do anything for done button.
+					if(item.buttonType == "checkbox"){
+						if(item.selected) {
+							var pos=item.group.checked.indexOf(item.value);
+							item.group.checked.splice(pos,1);
+							item.deselect();
+						}else{
+							item.group.checked.push(item.value);
+							item.select();
+						}
+					}else if(item.buttonType == "radio"){
+						item.group.checked=[item.value];
+						var myId=item.id
+						dojo.forEach(item.buttons,function(button){
+							if(button.id == myId){
+								if(!button.selected){button.select();}
+							}else{
+								// deselect all other buttons in group
+								if(button.selected){button.deselect();}
+							}
+						});
+					}
+
+					// Send result to server
 					var data = andes.convert.drawingToAndes(group, "modify-object");
 					// BvdS:  Why doesn't this.save() work?
 					andes.drawing.save(data);
@@ -227,6 +252,8 @@ dojo.provide("andes.drawing");
 					var o = andes.convert.andesToDrawing(obj);
 					
 					var t = o.stencilType;
+					// o.stencilType includes:  text, image, line, rect, ellipse, vector
+					//                          textBlock (equation & statement), axes
 					if(t=="vector" || t=="line" || t=="ellipse" || t=="rect"){
 						
 						// prevent adding items via onRenderStencil
@@ -247,21 +274,22 @@ dojo.provide("andes.drawing");
 							items[master.id] = master; //master;
 							return {master: master, statement:statement};
 						});
-						console.log("constructing button group, butt=",butt);
+						// Back pointer to other buttons in group, for deselection
+						// of radio buttons.
+						var buttOnly = dojo.map(butt,function(x){return x.master;});
+						dojo.forEach(butt,function(x){x.master.buttons=buttOnly;});
+						
 						var buttonCombo=new andes.buttonCombo(butt,o.id);
 						buttonCombo.group=o;
-						this.addUI(buttonCombo);
-
-						// BvdS:  logic needs fixing, need to find out real categories.
-					}else if(t=="image" ||t=="statement" || t=="equation" || t=="axes" || t=="text") { // image, statement, equation, axes
+						this.addGroup(buttonCombo);
+					}else{
+						// including:  textBlock, axes ...
 						var item = _drawing.addStencil(o.stencilType, o);
 						var ID = item.id;
 						ID = ID.indexOf("TextBlock");
 						if(item.stencilType=='textBlock' && ID!=-1) item.util.uid(item.type);
 						item.andesType = obj.type; // to tell between equation and statement
 						this.add(item);
-					}else{
-						console.warn("No valid type or stencilType for ",o);
 					}
 					
 				}else if(obj.action=="modify-object"){
@@ -329,31 +357,39 @@ dojo.provide("andes.drawing");
 							y:obj["y-statement"]
 						});
 					}
+
 					if(obj.type=='vector' || obj.type=='line'){
-						
 						items[obj.id].master.attr({
 							angle:obj.angle,
 							radius:obj.radius
 						});
-					}
-					if(obj.type=="axes"){
+					}else if(obj.type=="axes"){
 						items[obj.id].attr({
 							angle:obj.angle,
 							radius:obj.radius
 						});
-					}
-					if(obj.type=="ellipse" || obj.type=='rectangle'){
+					}else if(obj.type=="ellipse" || obj.type=='rectangle'){
 						items[obj.id].master.attr({
 							height:obj.height,
 							width:obj.width
 						});
+					}else if(obj.type=="button" && obj.checked){ // checked is optional
+						items[obj.id].checked=obj.checked;
+						dojo.forEach(items[obj.id].items,function(pair){
+							if(obj.checked.indexOf(pair.master.value)!=-1){
+								pair.master.select();
+							}else{
+								pair.master.deselect();
+							}
+						});
 					}
+
 					// text
 					if(items[obj.id].isText==true && obj.text) { items[obj.id].attr({text:obj.text});};
 					if(obj.text && items[obj.id].type == "andes.Combo") {
 						/*items[obj.id].master.attr({
-													label:obj.text
-												});*/
+						  label:obj.text
+						  });*/
 						var text = obj.text==" "? obj.symbol : obj.text;
 						items[obj.id].textEdit(text);
 					};

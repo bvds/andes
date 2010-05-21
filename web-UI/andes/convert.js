@@ -55,13 +55,7 @@ dojo.provide("andes.convert");
 					id:o.id,
 					type:o.type,
 					itemType:o.items[0].type,
-					items:dojo.map(o.items, function(x){
-						// BvdS:  Might be auto-generated later, so generating 
-						//        id here might not be necessary.
-						//        Maybe better to generate this on server?
-						x.id=x.id||(o.id+"Part"+(x.value||"0"));   
-						return andes.convert.andesToDrawing(x);
-					}),
+					items:dojo.map(o.items,andes.convert.andesToDrawing),
 					checked: o.checked || [] 
 				}
 				return obj;
@@ -80,8 +74,10 @@ dojo.provide("andes.convert");
 				enabled:o.mode!="locked"
 			};
 			
-			// BvdS:  fix up if logic here
-			if(o.type!="vector" && o.type!="line" && o.type!="axes" && o.type!="ellipse" && o.type!="checkbox" && o.type!="radio" && o.type!="done"){
+			var buttonWidth;
+			// o.type can be:  statement, graphics, radio, done, checkbox, axes, ellipse, 
+			//                 vector, equation, line, rectangle
+			if(o.type=="statement" || o.type=="equation" || o.type=="graphics" || o.type=="rectangle"){
 				obj.data.width = o.width;
 				obj.data.height = o.height;
 				
@@ -93,32 +89,24 @@ dojo.provide("andes.convert");
 					ry:o.height/2
 				}
 			}else if(o.type=="radio"){
+				buttonWidth=andes.defaults.button.radioButtonRadius;
 				obj.buttonType=o.type;
-				obj.data.width = 20;
-				obj.data.height = 20;
-				obj.value = o.value;
-				obj.icon={
-					type:"ellipse",
-					borderWidth:1,
-					cx:50,
-					cy:50,
-					rx:20,
-					ry:20
-				}
-			}else if(o.type=="checkbox"){
-				obj.buttonType=o.type;
-				obj.data.width = 20;
-				obj.data.height = 20;
-				obj.value = o.value;
-				obj.icon={
-					type:"rect",
-					borderWidth:1,
-					x:10,
-					y:10,
-					width:40,
-					height:40
+				obj.data={
+					cx:o.x + 0.5*buttonWidth,
+					cy:o.y + 0.5*buttonWidth,
+					rx:0.5*buttonWidth,
+					ry:0.5*buttonWidth
+					// x:o.x, y:o.y, height:20, width:40
 				};
+				obj.value = o.value;
+			}else if(o.type=="checkbox"){
+				buttonWidth=andes.defaults.button.checkboxWidth;
+				obj.buttonType=o.type;
+				obj.data.width = checkboxWidth;
+				obj.data.height = checkboxWidth;
+				obj.value = o.value;
 			}else if(o.type=="done"){
+				buttonWidth=o.label.length*10;  // should be determined by actual drawn width
 				obj.buttonType=o.type;
 				obj.data.width = 40;
 				obj.data.height = 20;
@@ -128,13 +116,15 @@ dojo.provide("andes.convert");
 				};
 			}else if(o.type=="vector"){
 				//in case of zero vector
-                if(o.radius == 0) {obj.data.radius = 0; obj.data.angle = 1; } else { obj.data.radius = o.radius; obj.data.angle = o.angle; }
+				if(o.radius == 0) {obj.data.radius = 0; obj.data.angle = 1; } else { obj.data.radius = o.radius; obj.data.angle = o.angle; }
 
-			}else{
-				//line, axes
+			}else if(o.type=="line" || o.type=="axes"){
 				obj.data.radius = o.radius || 0;
 				obj.data.angle = o.angle;
+			}else{
+				console.warn("Unrecognized type ",o.type);
 			}
+
 			if(o.type=="statement" && o.mode=="locked"){
 				obj.stencilType = "text";
 			}
@@ -142,7 +132,7 @@ dojo.provide("andes.convert");
 			if(o.type=="done" || o.type=="checkbox" || o.type=="radio"){
 				obj.statement = {
 					data:{
-						x:o.x+40, // BvdS:  to the right of the button, need actual button width
+						x:o.x+buttonWidth,
 						y:o.y,
 						text:o.text
 						//width:"auto"- for cases where the text is "" width:auto makes init fail
