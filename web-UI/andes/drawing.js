@@ -158,10 +158,13 @@ dojo.provide("andes.drawing");
 						});
 					}
 
-					// Send result to server
-					var data = andes.convert.drawingToAndes(group, "modify-object");
-					// BvdS:  Why doesn't this.save() work?
-					andes.drawing.save(data);
+					// Checboxes only moke local modifications
+					if(item.buttonType != "checkbox"){
+						// Send result to server
+						var data = andes.convert.drawingToAndes(group, "modify-object");
+						// BvdS:  Why doesn't this.save() work?
+						andes.drawing.save(data);
+					}
 				});
 			});
 		},
@@ -374,7 +377,7 @@ dojo.provide("andes.drawing");
 							width:obj.width
 						});
 					}else if(obj.type=="button" && obj.checked){ // checked is optional
-						items[obj.id].checked=obj.checked;
+						items[obj.id].group.checked=obj.checked;
 						dojo.forEach(items[obj.id].items,function(pair){
 							if(obj.checked.indexOf(pair.master.value)!=-1){
 								pair.master.select();

@@ -272,7 +272,10 @@
       (initialize-fades *cp*)
 
       ;; Write problem statement.	      
-      (let ((x 10) (y 10) (i 0))
+      (let ((x 10) (y 10) (i 0)
+	    (indent 30) ;indentation of buttons
+	    (line-sep 25) ;line separation
+	    )
 	(dolist  (line (problem-statement *cp*))
 	  (cond ((unify line '(answer . ?rest))
 		 ;; Need to do inlining for answer boxes, Bug #1689
@@ -297,12 +300,12 @@
 			       value from 1
 			       do
 			       ;; Put each button on a new row.
-			       (unless (= value 1) (incf y 25))
+			       (unless (= value 1) (incf y line-sep))
 			       collect
 			       `((:value . ,(format nil "~A" value))
 				 (:type . "radio") 
 				 ;; Indent buttons relative to text
-				 (:x . ,(+ x 50)) (:y . ,y) (:width . 300)
+				 (:x . ,(+ x indent)) (:y . ,y) (:width . 300)
 				 (:text . ,choice))
 			       )))
 		   (push `((:action . "new-object") (:id . ,id)
@@ -330,13 +333,51 @@
 			   (:type . "button") (:id . ,id) 
 			   (:items . (((:type . "done") (:label . "Done")
 				       ;; Indent buttons relative to text
-				       (:x . ,(+ x 50)) (:y . ,y) (:width . 300)
+				       (:x . ,(+ x indent)) (:y . ,y) (:width . 300)
 				       (:text . ,(car line)))))) replies)
 		   (push (make-studententry 
 			  :id id :mode "unknown" :type "button" 
 			  :style "done" :prop prop)
 			 *studententries*)
 		   ))
+
+		;; Checkboxes
+		((unify line '(checkbox ?label . ?rest))
+		 (pop line)
+		 (let* ((label (pop line))
+			dx dy)
+		   ;; if labels 
+		   (if (> (* (+ (reduce #'max (mapcar #'length line)) 5) (length line)) 80)
+		       (setf dx 0 dy line-sep)
+		       (setf dx (/ 250 (length line)) dy 0))
+		   (let* ((id (format nil "~A" label))
+			  (prop `(choose-answer ,label nil))
+			  (checkboxes
+			   (loop for choice in line and
+			      value from 1 and
+			      xx from (+ x indent) by dx
+			      do
+			      ;; Put each button on a new row.
+				(unless (= value 1) (incf y dy))
+			      collect
+				`((:value . ,(format nil "~A" value))
+				  (:type . "checkbox") 
+				  ;; Indent buttons relative to text
+				  (:x . ,xx) (:y . ,y) (:width . 300)
+				  (:text . ,choice))
+				)))
+		     (push `((:type . "done") (:label . "Enter")
+			   ;; Indent buttons relative to text
+			     (:x . ,(+ x indent)) (:y . ,(incf y line-sep)) (:width . 300)) 
+			   checkboxes)
+		     (push `((:action . "new-object") (:id . ,id)
+			     (:type . "button") (:items . ,checkboxes))
+			 replies)
+		     (push (make-studententry 
+			    :id id :mode "unknown" :type "button" 
+			    :style "checkbox" :prop prop)
+			   *studententries*)
+		     )))
 		
 		(t 
 		 (push `((:action . "new-object") (:type . "statement") 
@@ -344,7 +385,7 @@
 			 (:mode . "locked") (:x . ,x) (:y . ,y) 
 			 (:width . 400) (:text . ,line)) replies)))
 	  (incf i)
-	  (setf y (+ y 25)))
+	  (setf y (+ y line-sep)))
 	
 	(when (problem-graphic *cp*)
 	  (let ((g (problem-graphic *cp*)))

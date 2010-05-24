@@ -102,8 +102,8 @@ dojo.provide("andes.convert");
 			}else if(o.type=="checkbox"){
 				buttonWidth=andes.defaults.button.checkboxWidth;
 				obj.buttonType=o.type;
-				obj.data.width = checkboxWidth;
-				obj.data.height = checkboxWidth;
+				obj.data.width = buttonWidth;
+				obj.data.height = buttonWidth;
 				obj.value = o.value;
 			}else if(o.type=="done"){
 				buttonWidth=o.label.length*10;  // should be determined by actual drawn width
@@ -130,13 +130,13 @@ dojo.provide("andes.convert");
 			}
 
 			if(o.type=="done" || o.type=="checkbox" || o.type=="radio"){
+				// In principle, we could omit the statement object if there is no text,
+				// but the code gets a lot hairier.
 				obj.statement = {
 					data:{
 						x:o.x+buttonWidth,
 						y:o.y,
-						text:o.text
-						//width:"auto"- for cases where the text is "" width:auto makes init fail
-						//showEmpty:true
+						text:o.text || ""
 					},
 					enabled: false  // treat as mode=locked
 				}

@@ -255,8 +255,11 @@
     ((and (eql (car (StudentEntry-prop entry)) 'choose-answer)
 	  (StudentEntry-checked entry))
      ;; update with the box that has been clicked
-     (setf (third (StudentEntry-prop entry))
-		   (read-from-string (car (StudentEntry-checked entry))))
+     (let ((ch (mapcar #'read-from-string (StudentEntry-checked entry))))
+       (setf (third (StudentEntry-prop entry))
+	   (if (cdr (StudentEntry-checked entry))
+	       (cons 'orderless ch)   ;checkboxes
+	       (car ch))))            ;radio buttons
      (check-noneq-entry entry))
     
     ;; In the event that an unrecognized type is supplied handle it like so.

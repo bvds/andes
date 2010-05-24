@@ -219,7 +219,9 @@ andes.buttonCombo = dojox.drawing.util.oo.declare(
 			// see Drawing.stencil._Base
 			dojo.forEach(this.items,function(item){
 				item.master.attr.call(item.master, a1, a2);
-				item.statement.attr.call(item.statement, a1, a2);
+				if(item.statement){  // associated text is optional
+					item.statement.attr.call(item.statement, a1, a2);
+				}
 			});
 		}
 

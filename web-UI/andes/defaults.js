@@ -202,7 +202,7 @@ dojo.provide("andes.defaults");
 		//        Why does dojox.drawing.defaults.button not show up if following is not included?
 		button:{
 			radioButtonRadius:15,
-			checkboxWidth:20,
+			checkboxWidth:15,
 			norm:{
 				"color": "#cccccc", 
 				"fill": {
