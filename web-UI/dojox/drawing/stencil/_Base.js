@@ -562,7 +562,7 @@ dojox.drawing.stencil._Base = dojox.drawing.util.oo.declare(
 				try{
 					this.changeAxis(o.cosphi);
 				} catch(e){
-					console.warn("Cosphi changes only supported for Vectors",e);
+					console.log("------Cosphi changes only supported for Vectors",e);
 				};	
 			}
 			if(this.useSelectedStyle){
