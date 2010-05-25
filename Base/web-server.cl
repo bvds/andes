@@ -194,7 +194,13 @@
   (let ((reply-json
 	 ;; By default, cl-json turns dashes into camel-case:  
 	 ;; Instead, we convert to lower case, preserving dashes.
-	 (let ((*lisp-identifier-name-to-json* #'string-downcase))
+	 (let ((*lisp-identifier-name-to-json* #'string-downcase)
+	       ;; The cl-json package has no built-in method for generating
+	       ;; a json boolean false.  The following allows us to
+	       ;; use lisp keyword :false for this purpose.
+	       (json::+json-lisp-symbol-tokens+ '(("true" . t)
+						  ("null" . nil)
+						  ("false" . :false))))
 	   (encode-json-alist-to-string reply))))
     
         (when *log-function*
