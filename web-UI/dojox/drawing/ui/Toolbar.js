@@ -154,10 +154,12 @@ dojo.declare("dojox.drawing.ui.Toolbar", [], {
 					//console.warn("This.drawing.stencils: ",this.drawing);
 					dojo.hitch(this, sec.setup)();
 					var btn = this.toolDrawing.addUI("button", {data:{x:x, y:y, width:w, height:h/2, r:r}, toolType:t, secondary:true, text:label, shadow:s, scope:this, callback:this[t]});
+					btn.disable();
 					secondary = true;
 				} else {
 					var btn = this.toolDrawing.addUI("button", {data:{x:x, y:y, width:w, height:h, r:r}, toolType:t, icon:sym[t], shadow:s, scope:this, callback:"onToolClick"});
 				}
+				dojox.drawing.register(btn, "button");
 				this.buttons.push(btn);
 				if(this.strSelected==t){
 					btn.select();
@@ -199,6 +201,7 @@ dojo.declare("dojox.drawing.ui.Toolbar", [], {
 				//console.log("   plugin:", p);
 				if (plugMap[p].button != false) {  
 					var btn = this.toolDrawing.addUI("button", {data:{x:x, y:y, width:w, height:h, r:r}, toolType:t, icon:sym[t], shadow:s, scope:this, callback:"onPlugClick"});
+					dojox.drawing.register(btn, "button");
 					this.plugins.push(btn);
 					
 					if(this.horizontal){

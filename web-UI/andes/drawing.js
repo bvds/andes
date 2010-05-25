@@ -188,7 +188,7 @@ dojo.provide("andes.drawing");
 			//	any help associated with the data.
 			//
 			console.log("handleServerActions", data.length);
-
+			
 			// check for highest numerical ID
 			// start from there
 			var getNum = function(m){
@@ -267,6 +267,7 @@ dojo.provide("andes.drawing");
 				}else if(obj.action=="set-styles"){
 					if(obj["z-axis-enable"]){
 						andes.defaults.zAxisEnabled=obj["z-axis-enable"];
+						dojox.drawing.getRegistered("button","vectorSecondary").enable();
 					}
 				}else{
 					//console.warn("UNUSED ANDES OBJECT:", obj)
