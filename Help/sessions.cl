@@ -503,10 +503,11 @@
       (unless solution-step-replies (setf replies (update-fades replies)))
 
       ;; Enable z-axis vectors, based on problem features
-      (when (intersection '(circular rotkin angmom torque mag gauss) 
+      (unless (intersection '(circular rotkin angmom torque mag gauss) 
 			  (problem-features *cp*))
 	    (push '((:action . "set-styles")
-		    (:z-axis-enable . t)) replies))
+		    (:tool . "vectorSecondary")
+		    (:style . "disabled")) replies))
       
       ;; set-stats (if there was an old score) (to do)
       ;; Should this be wrapped in execute-andes-command?
