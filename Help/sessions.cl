@@ -506,9 +506,8 @@
       (unless (intersection '(circular rotkin angmom torque mag gauss) 
 			  (problem-features *cp*))
 	    (push '((:action . "set-styles")
-		    ;; :false generates a json boolean false.
-		    ;; See comments in Base/web-server.cl
-		    (:z-axis-enable . :false)) replies))
+		    (:tool . "vectorSecondary")
+		    (:style . "disabled")) replies))
       
       ;; set-stats (if there was an old score) (to do)
       ;; Should this be wrapped in execute-andes-command?
