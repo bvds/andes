@@ -265,9 +265,10 @@ dojo.provide("andes.drawing");
 						andes.principles.review('introduction.html','Introduction');
 					});
 				}else if(obj.action=="set-styles"){
-					if(obj["z-axis-enable"]){
-						andes.defaults.zAxisEnabled=obj["z-axis-enable"];
-						dojox.drawing.getRegistered("button","vectorSecondary").enable();
+					if(obj["tool"] && obj["style"]){
+						var disable = obj["style"]=="disabled" ? true : false;
+						var tool = dojox.drawing.getRegistered("button",obj["tool"]);
+						disable ? tool.disable() : tool.enable();
 					}
 				}else{
 					//console.warn("UNUSED ANDES OBJECT:", obj)

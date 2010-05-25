@@ -303,6 +303,15 @@ dojox.drawing.tools.custom.Vector.setup.secondary = {
 				};
 			});
 		});
+	},
+	post: function(btn){
+		// summary:
+		//		Depending on the secondary tool, it may need
+		//		extra functionality for some of the basic functions.
+		//		Post is passed the button so those connections can
+		//		be made.
+		dojo.connect(btn, "enable", function(){ dojox.drawing.defaults.zAxisEnabled = true; });
+		dojo.connect(btn, "disable", function(){ dojox.drawing.defaults.zAxisEnabled = false; });
 	}
 };
 dojox.drawing.register(dojox.drawing.tools.custom.Vector.setup, "tool");

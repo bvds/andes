@@ -39,7 +39,7 @@ dojox.drawing.defaults = {
 	// zAxisEnabled: Boolean
     // 		If true, render axes with Z-axis included, allow objects drawn in z-direction.
 	zAxis: false,
-	zAxisEnabled: false,
+	zAxisEnabled: true,
 	zAngle: 225,
 	
 	// renderHitLines: Boolean
