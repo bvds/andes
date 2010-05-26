@@ -273,7 +273,7 @@
 
       ;; Write problem statement.	      
       (let ((x 10) (y 10) (i 0)
-	    (indent 30) ;indentation of buttons
+	    (indent 30) ;indentation of buttons & answer boxes.
 	    (line-sep 25) ;line separation
 	    )
 	(dolist  (line (problem-statement *cp*))
@@ -285,37 +285,60 @@
 					    :type "statement") 
 			 *studententries*)
 		   (push `((:action . "new-object") (:type . "statement") 
-			   (:id . ,id) (:mode . "unknown") (:x . ,x) (:y . ,y) 
+			   (:id . ,id) (:mode . "unknown") 
+			   (:x . ,(+ x indent)) (:y . ,y) 
 			   (:width . 100) (:text . "Answer:       ")) 
 			 replies)))
 
 		;; Multiple choice.  See Bug #1551
-		((unify line '(choose ?label ?a ?b . ?rest))
-		 (pop line)
-		 (let* ((label (pop line))
-			(id (format nil "~A" label))
-			(prop `(choose-answer ,label nil))
-			(radios
-			 (loop for choice in line and
-			       value from 1
-			       do
-			       ;; Put each button on a new row.
-			       (unless (= value 1) (incf y line-sep))
-			       collect
-			       `((:value . ,(format nil "~A" value))
-				 (:type . "radio") 
-				 ;; Indent buttons relative to text
-				 (:x . ,(+ x indent)) (:y . ,y) (:width . 300)
-				 (:text . ,choice))
-			       )))
-		   (push `((:action . "new-object") (:id . ,id)
-			   (:type . "button") (:items . ,radios))
-			 replies)
-		   (push (make-studententry 
-			  :id id :type "button" :mode "unknown"
-			  :prop prop) 
-			 *studententries*)))
-
+		;; Checkboxes (with a done button) or radio buttons
+		((or (unify line '(choose ?label ?a ?b . ?rest))
+		     (unify line '(checkbox ?label ?a ?b . ?rest)))
+		 (let* ((checkbox-p (eq (pop line) 'checkbox))
+			(button-type (if checkbox-p "checkbox" "radio"))
+			(label (pop line))
+			dx dy)
+		   ;; if labels are short enough, go horizontal
+		   ;; Find longest label, add padding for button,
+		   ;; and multiply by number of buttons
+		   (if (> (* (+ (reduce #'max (mapcar #'length line)) 5) 
+			     (length line)) 50)
+		       (setf dx 0 dy line-sep)
+		       (setf dx (/ 300 (length line)) dy 0))
+		   
+		   (let* ((id (format nil "~A" label))
+			  (prop `(choose-answer ,label nil))
+			  (buttons
+			   (loop for choice in line and
+			      value from 1 with
+			      xx = (+ x indent)
+			      do
+			      ;; Put each button on a new row/column
+				(unless (= value 1) 
+				  (incf y dy) (incf xx dx))
+			      collect
+				`((:value . ,(format nil "~A" value))
+				  (:type . ,button-type) 
+				  ;; Indent buttons relative to text
+				  (:x . ,xx) (:y . ,y) (:width . 300)
+				  (:text . ,choice))
+				)))
+		     ;; checkboxes get an associated "done" button.
+		     (when checkbox-p
+		       (push `((:type . "done") (:label . "Enter")
+			       ;; Indent buttons relative to text
+			       (:x . ,(+ x indent)) (:y . ,(incf y line-sep)) 
+			       (:width . 300)) 
+			     buttons))
+		     (push `((:action . "new-object") (:id . ,id)
+			     (:type . "button") (:items . ,buttons))
+			   replies)
+		   
+		     (push (make-studententry 
+			    :id id :type "button" :mode "unknown"
+			    :style button-type :prop prop) 
+			   *studententries*))))
+		 
 		;; "I am done" button.  See Bug #1551
 		;; Should have a more distinctive method
 		;; of indicating this button type.
@@ -340,44 +363,6 @@
 			  :style "done" :prop prop)
 			 *studententries*)
 		   ))
-
-		;; Checkboxes
-		((unify line '(checkbox ?label . ?rest))
-		 (pop line)
-		 (let* ((label (pop line))
-			dx dy)
-		   ;; if labels 
-		   (if (> (* (+ (reduce #'max (mapcar #'length line)) 5) (length line)) 80)
-		       (setf dx 0 dy line-sep)
-		       (setf dx (/ 250 (length line)) dy 0))
-		   (let* ((id (format nil "~A" label))
-			  (prop `(choose-answer ,label nil))
-			  (checkboxes
-			   (loop for choice in line and
-			      value from 1 and
-			      xx from (+ x indent) by dx
-			      do
-			      ;; Put each button on a new row.
-				(unless (= value 1) (incf y dy))
-			      collect
-				`((:value . ,(format nil "~A" value))
-				  (:type . "checkbox") 
-				  ;; Indent buttons relative to text
-				  (:x . ,xx) (:y . ,y) (:width . 300)
-				  (:text . ,choice))
-				)))
-		     (push `((:type . "done") (:label . "Enter")
-			   ;; Indent buttons relative to text
-			     (:x . ,(+ x indent)) (:y . ,(incf y line-sep)) (:width . 300)) 
-			   checkboxes)
-		     (push `((:action . "new-object") (:id . ,id)
-			     (:type . "button") (:items . ,checkboxes))
-			 replies)
-		     (push (make-studententry 
-			    :id id :mode "unknown" :type "button" 
-			    :style "checkbox" :prop prop)
-			   *studententries*)
-		     )))
 		
 		(t 
 		 (push `((:action . "new-object") (:type . "statement") 
