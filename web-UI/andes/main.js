@@ -27,7 +27,7 @@ dojo.provide("andes.main");
 	}
 	var setCookie = function(){
 		andes.sessionId = andes.userId + andes.projectId + new Date().getTime();
-		 var andesCookie = {
+		var andesCookie = {
 			u:andes.userId,
 			p:andes.projectId,
 			sid:andes.sessionId,
@@ -67,7 +67,7 @@ dojo.provide("andes.main");
 			dojo.cookie("andes", null, { expires: -1 });
 			document.location.href = "login.html";
 		});
-	
+		
 		var splashNode = dojo.byId("splashOverlay"),
 		anim = dojo.fadeOut({node:dojo.byId("splashOverlay")}),
 		_h = dojo.connect(anim, "onEnd", function(){
@@ -77,7 +77,7 @@ dojo.provide("andes.main");
 		});
 		anim.play();
 	});
-
+	
 })();
 
 dojo.require("andes.defaults");
