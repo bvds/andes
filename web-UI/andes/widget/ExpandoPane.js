@@ -59,7 +59,8 @@ dojo.declare("andes.widget.ExpandoPane", dojox.layout.ExpandoPane, {
 		});
 		
 		dojo.connect(this, "resize", this, function(){
-			if(this._contentBox.w){
+			// In IE 7, _contentBox can have a width of 2, on startup.
+			if(this._contentBox.w && this._contentBox.w>52){
 				dojo.style(dijit.byId("helpInput").domNode, "width", this._contentBox.w - 52 + "px");
 			}
 		});

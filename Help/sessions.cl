@@ -272,7 +272,10 @@
       (initialize-fades *cp*)
 
       ;; Write problem statement.	      
-      (let ((x 10) (y 10) (i 0))
+      (let ((x 10) (y 10) (i 0)
+	    (indent 30) ;indentation of buttons & answer boxes.
+	    (line-sep 25) ;line separation
+	    )
 	(dolist  (line (problem-statement *cp*))
 	  (cond ((unify line '(answer . ?rest))
 		 ;; Need to do inlining for answer boxes, Bug #1689
@@ -282,37 +285,60 @@
 					    :type "statement") 
 			 *studententries*)
 		   (push `((:action . "new-object") (:type . "statement") 
-			   (:id . ,id) (:mode . "unknown") (:x . ,x) (:y . ,y) 
+			   (:id . ,id) (:mode . "unknown") 
+			   (:x . ,(+ x indent)) (:y . ,y) 
 			   (:width . 100) (:text . "Answer:       ")) 
 			 replies)))
 
 		;; Multiple choice.  See Bug #1551
-		((unify line '(choose ?label ?a ?b . ?rest))
-		 (pop line)
-		 (let* ((label (pop line))
-			(id (format nil "~A" label))
-			(prop `(choose-answer ,label nil))
-			(radios
-			 (loop for choice in line and
-			       value from 1
-			       do
-			       ;; Put each button on a new row.
-			       (unless (= value 1) (incf y 25))
-			       collect
-			       `((:id . ,(format nil "~A" value))
-				 (:type . "radio") 
-				 ;; Indent buttons relative to text
-				 (:x . ,(+ x 50)) (:y . ,y) (:width . 300)
-				 (:text . ,choice))
-			       )))
-		   (push `((:action . "new-object") (:id . ,id)
-			   (:type . "button") (:items . ,radios))
-			 replies)
-		   (push (make-studententry 
-			  :id id :type "button" :mode "unknown"
-			  :prop prop) 
-			 *studententries*)))
-
+		;; Checkboxes (with a done button) or radio buttons
+		((or (unify line '(choose ?label ?a ?b . ?rest))
+		     (unify line '(checkbox ?label ?a ?b . ?rest)))
+		 (let* ((checkbox-p (eq (pop line) 'checkbox))
+			(button-type (if checkbox-p "checkbox" "radio"))
+			(label (pop line))
+			dx dy)
+		   ;; if labels are short enough, go horizontal
+		   ;; Find longest label, add padding for button,
+		   ;; and multiply by number of buttons
+		   (if (> (* (+ (reduce #'max (mapcar #'length line)) 5) 
+			     (length line)) 50)
+		       (setf dx 0 dy line-sep)
+		       (setf dx (/ 300 (length line)) dy 0))
+		   
+		   (let* ((id (format nil "~A" label))
+			  (prop `(choose-answer ,label nil))
+			  (buttons
+			   (loop for choice in line and
+			      value from 1 with
+			      xx = (+ x indent)
+			      do
+			      ;; Put each button on a new row/column
+				(unless (= value 1) 
+				  (incf y dy) (incf xx dx))
+			      collect
+				`((:value . ,(format nil "~A" value))
+				  (:type . ,button-type) 
+				  ;; Indent buttons relative to text
+				  (:x . ,xx) (:y . ,y) (:width . 300)
+				  (:text . ,choice))
+				)))
+		     ;; checkboxes get an associated "done" button.
+		     (when checkbox-p
+		       (push `((:type . "done") (:label . "Enter")
+			       ;; Indent buttons relative to text
+			       (:x . ,(+ x indent)) (:y . ,(incf y line-sep)) 
+			       (:width . 300)) 
+			     buttons))
+		     (push `((:action . "new-object") (:id . ,id)
+			     (:type . "button") (:items . ,buttons))
+			   replies)
+		   
+		     (push (make-studententry 
+			    :id id :type "button" :mode "unknown"
+			    :style button-type :prop prop) 
+			   *studententries*))))
+		 
 		;; "I am done" button.  See Bug #1551
 		;; Should have a more distinctive method
 		;; of indicating this button type.
@@ -327,14 +353,14 @@
 		     (warn "Ambiguous null label for choose"))
 		   ;; Create a single push button
 		   (push `((:action . "new-object") 
-			   (:type . "button") (:style . "submit")
-			   (:id . ,id) (:mode . "unknown") 
-			   ;; Indent buttons relative to text
-			   (:x . ,(+ x 50)) (:y . ,y) (:width . 300)
-			   (:text . ,(car line))) replies)
+			   (:type . "button") (:id . ,id) 
+			   (:items . (((:type . "done") (:label . "Done")
+				       ;; Indent buttons relative to text
+				       (:x . ,(+ x indent)) (:y . ,y) (:width . 300)
+				       (:text . ,(car line)))))) replies)
 		   (push (make-studententry 
 			  :id id :mode "unknown" :type "button" 
-			  :style "submit" :prop prop)
+			  :style "done" :prop prop)
 			 *studententries*)
 		   ))
 		
@@ -344,7 +370,7 @@
 			 (:mode . "locked") (:x . ,x) (:y . ,y) 
 			 (:width . 400) (:text . ,line)) replies)))
 	  (incf i)
-	  (setf y (+ y 25)))
+	  (setf y (+ y line-sep)))
 	
 	(when (problem-graphic *cp*)
 	  (let ((g (problem-graphic *cp*)))
