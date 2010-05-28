@@ -2,15 +2,15 @@ dojo.provide("andes.drawing");
 
 
 (function(){
-
+	
 	dojo.cookie("mikeDev", null, { expires: -1 });
 	
 	// the html ID in index for the drawing app
 	var drawingId = "drawing";
 	var _drawing;
 	var _surfaceLoaded = false;
-
-
+	
+	
 	var stencils = {
 		// used for mapping objects between andes
 		// and Drawing
@@ -22,7 +22,7 @@ dojo.provide("andes.drawing");
 		axes: 		"dojox.drawing.tools.custom.Axes",
 		textBlock:	"dojox.drawing.tools.TextBlock"
 	};
-
+	
 
 	var hasStatement = {
 		// These objects get statements associated with them
@@ -33,15 +33,15 @@ dojo.provide("andes.drawing");
 		"dojox.drawing.tools.custom.Vector":true,
 		"dojox.drawing.tools.custom.Axes":true
 	};
-
+	
 	var hasLabel = {
 		// Special case for Axes and its double-label
 		//
 		"dojox.drawing.tools.custom.Axes":true
 	};
-
-
-
+	
+	
+	
 	var getStatementPosition = function(box){
 		// summary:
 		//	Simple method for determining position of
@@ -61,7 +61,7 @@ dojo.provide("andes.drawing");
 	};
 
 	var items = {};
-
+	
 	dojo.addOnLoad(function(){
 		_drawing = dijit.byId(drawingId);
 		var cn = dojo.connect(_drawing, "onSurfaceReady", function(){
@@ -69,10 +69,10 @@ dojo.provide("andes.drawing");
 			andes.drawing.onSurfaceReady();
 		});
 		dojo.connect(_drawing, "onRenderStencil", andes.drawing, "onRenderStencil");
-
+		
 	});
 
-
+	
 	andes.drawing = {
 		// summary:
 		//	The master object that controls behavior of Drawing items
@@ -108,14 +108,14 @@ dojo.provide("andes.drawing");
 						this.add(item, true);
 						_drawing.removeStencil(s);
 					});
-
+					
 
 				}else if(hasStatement[item.type]){
 					// vector, rect, ellipse
 					var c = new andes.Combo({master:item, statement:statement, onCreate: dojo.hitch(this, function(){
 						this.add(c, true);
 					})});
-
+					
 				}
 			}else{
 				// statement or equation
@@ -123,11 +123,52 @@ dojo.provide("andes.drawing");
 					// no text. will be deleted.
 					return;
 				}
-					console.log("ADD EQU OR STT>>>", item.customType)
-					this.add(item, true);
-				}
+				console.log("ADD EQU OR STT>>>", item.customType)
+				this.add(item, true);
+			}
 		},
+		
+		addGroup: function(/* group of objects */group){
+			// Taken from add(...) below.
+			items[group.id] = group;
 
+			dojo.forEach(group.items,function(item){
+				dojo.connect(item.master,"onClick",this,function(item){
+
+					// Handle button clicks; don't do anything for done button.
+					if(item.buttonType == "checkbox"){
+						if(item.selected) {
+							var pos=item.group.checked.indexOf(item.value);
+							item.group.checked.splice(pos,1);
+							item.deselect();
+						}else{
+							item.group.checked.push(item.value);
+							item.select();
+						}
+					}else if(item.buttonType == "radio"){
+						item.group.checked=[item.value];
+						var myId=item.id
+						dojo.forEach(item.buttons,function(button){
+							if(button.id == myId){
+								if(!button.selected){button.select();}
+							}else{
+								// deselect all other buttons in group
+								if(button.selected){button.deselect();}
+							}
+						});
+					}
+
+					// Checboxes only moke local modifications
+					if(item.buttonType != "checkbox"){
+						// Send result to server
+						var data = andes.convert.drawingToAndes(group, "modify-object");
+						// BvdS:  Why doesn't this.save() work?
+						andes.drawing.save(data);
+					}
+				});
+			});
+		},
+		
 		add: function(/* Stencil */ item, /*Boolean*/ saveToServer, /*Boolean*/noConnect){
 			// summary:
 			//	items added here may be from the server OR drag-created.
@@ -142,7 +183,7 @@ dojo.provide("andes.drawing");
 				item.id = item.type + i++;
 			}
 			items[item.id] = item;
-
+			
 			if(noConnect){
 				return;
 			}
@@ -153,7 +194,7 @@ dojo.provide("andes.drawing");
 				this.remove(item);
 				this.save({action:"delete-object", id:item.id});
 			});
-
+			
 			item.connect("onChangeData", this, function(item){
 				if (item.mod == true) { return;};
 				console.log("---------------------------------> onChangeData andes.drawing", item.id, item.type);//dojo.toJson(item.data));
@@ -162,7 +203,7 @@ dojo.provide("andes.drawing");
 				console.info("Save to server", data);
 				this.save(data);
 			});
-
+			
 			if(saveToServer){
 				// we need to save it to the server
 				var data = andes.convert.drawingToAndes(item, "new-object")
@@ -170,14 +211,14 @@ dojo.provide("andes.drawing");
 				this.save(data);
 			}
 		},
-
+		
 		remove: function(/* Stencil */ item){
 			// summary:
 			//	Just removes reference. See item.connect.onDelete above
 			delete items[item.id];
 		},
-
-
+		
+		
 		handleServerActions: function(data){
 			// summary:
 			//	Handle objects returned from server.
@@ -187,7 +228,7 @@ dojo.provide("andes.drawing");
 			//	NOTE: andes.help intercepts calls and handles
 			//	any help associated with the data.
 			//
-			console.log("handleServerActions", data.length);
+			console.log("handleServerActions starting", data.length);
 			
 			// check for highest numerical ID
 			// start from there
@@ -202,9 +243,9 @@ dojo.provide("andes.drawing");
 				idNum = Math.max(getNum(m), idNum);
 			});
 			++idNum;
-
+			
 			dojox.drawing.util.common.idSetStart(idNum);
-
+			
 			//console.dir(data);
 			var mods = [];
 			var min = 2, max = 5;
@@ -212,10 +253,12 @@ dojo.provide("andes.drawing");
 				//if(obj.type!="axes"){ return; }
 				if(obj.action =="new-object"){
 					var o = andes.convert.andesToDrawing(obj);
-
+					
 					var t = o.stencilType;
+					// o.stencilType includes:  text, image, line, rect, ellipse, vector
+					//                          textBlock (equation & statement), axes
 					if(t=="vector" || t=="line" || t=="ellipse" || t=="rect"){
-
+						
 						// prevent adding items via onRenderStencil
 						// by adding the ids first:
 						var statement = _drawing.addStencil("textBlock", o.statement);
@@ -224,8 +267,26 @@ dojo.provide("andes.drawing");
 						items[master.id] = master; //master;
 						var combo = new andes.Combo({master:master, statement:statement, id:o.id});
 						this.add(combo);
-
-					}else { // image, statement, equation, axes
+						
+					}else if(o.type=="button" && o.items){ // button groups don't have stencilType
+						var butt = dojo.map(o.items,function(item){
+							var statement = _drawing.addStencil("text", item.statement);
+							var master = _drawing.addUI(item.stencilType, item);
+							master.group=o;
+							items[statement.id] = statement; //statement;
+							items[master.id] = master; //master;
+							return {master: master, statement:statement};
+						});
+						// Back pointer to other buttons in group, for deselection
+						// of radio buttons.
+						var buttOnly = dojo.map(butt,function(x){return x.master;});
+						dojo.forEach(butt,function(x){x.master.buttons=buttOnly;});
+						
+						var buttonCombo=new andes.buttonCombo(butt,o.id);
+						buttonCombo.group=o;
+						this.addGroup(buttonCombo);
+					}else{
+						// including:  textBlock, axes ...
 						var item = _drawing.addStencil(o.stencilType, o);
 						var ID = item.id;
 						ID = ID.indexOf("TextBlock");
@@ -233,24 +294,24 @@ dojo.provide("andes.drawing");
 						item.andesType = obj.type; // to tell between equation and statement
 						this.add(item);
 					}
-
+					
 				}else if(obj.action=="modify-object"){
 					mods.push(obj);
-
+					
 				}else if(obj.action=="delete-object"){
 				        // need error handling for non-existant objects.
 					if(items[obj.id]){
 						if (items[obj.id].type=="andes.Combo") {
 							items[obj.id].master.destroy();
-							} else {
+						} else {
 							items[obj.id].destroy();
 						};
 						delete items[obj.id];
 					}
-
+					
 				}else if(obj.action=="set-score"){
 					andes.help.score(obj.score);
-
+					
 				}else if(obj.action=="new-user-dialog"){
 					andes.error({
 						title: "Welcome to Andes!",
@@ -261,15 +322,19 @@ dojo.provide("andes.drawing");
 					// This opens the general introduction.
 					// It should be disconnected when the
 					// dialog box is closed!  See bug #1628
-					dojo.connect(dojo.byId("andesButtonPageDefault"), "click", function(){
-						andes.principles.review('introduction.html','Introduction');
-					});
+					dojo.connect(dojo.byId("andesButtonPageDefault"), 
+						     "click", 
+						     function(){
+							     andes.principles.review('introduction.html','Introduction');
+						     });
+
 				}else if(obj.action=="set-styles"){
 					if(obj["tool"] && obj["style"]){
 						var disable = obj["style"]=="disabled" ? true : false;
 						var tool = dojox.drawing.getRegistered("button",obj["tool"]);
 						disable ? tool.disable() : tool.enable();
 					}
+
 				}else{
 					//console.warn("UNUSED ANDES OBJECT:", obj)
 				}
@@ -293,43 +358,51 @@ dojo.provide("andes.drawing");
 					}
 					if(obj["x-statement"]!==undefined){
 						items[obj.id].statement.attr({
-							 x:obj["x-statement"],
-							 y:obj["y-statement"]
+							x:obj["x-statement"],
+							y:obj["y-statement"]
 						});
 					}
+
 					if(obj.type=='vector' || obj.type=='line'){
 						items[obj.id].master.attr({
 							angle:obj.angle,
 							radius:obj.radius,
 							cosphi:obj.cosphi
 						});
-					}
-					if(obj.type=="axes"){
+					}else if(obj.type=="axes"){
 						items[obj.id].attr({
 							angle:obj.angle,
 							radius:obj.radius,
 							cosphi:obj.cosphi
 						});
-					}
-					if(obj.type=="ellipse" || obj.type=='rectangle'){
+					}else if(obj.type=="ellipse" || obj.type=='rectangle'){
 						items[obj.id].master.attr({
 							height:obj.height,
 							width:obj.width
 						});
+					}else if(obj.type=="button" && obj.checked){ // checked is optional
+						items[obj.id].group.checked=obj.checked;
+						dojo.forEach(items[obj.id].items,function(pair){
+							if(obj.checked.indexOf(pair.master.value)!=-1){
+								pair.master.select();
+							}else{
+								pair.master.deselect();
+							}
+						});
 					}
+
 					// text
 					if(items[obj.id].isText==true && obj.text) { items[obj.id].attr({text:obj.text});};
 					if(obj.text && items[obj.id].type == "andes.Combo") {
 						/*items[obj.id].master.attr({
-													label:obj.text
-												});*/
-					        // single space was set in convert.js
+						  label:obj.text
+						  });*/
 						var text = obj.text==" "? obj.symbol : obj.text;
 						items[obj.id].textEdit(text);
 					};
 
 					items[obj.id].mod = false;
-
+					
 				};
 			},this);
 
@@ -341,7 +414,7 @@ dojo.provide("andes.drawing");
 
 			data = null;
 		},
-
+		
 		onSurfaceReady: function(){
 			// Drawing is ready.
 			_surfaceLoaded = true;
@@ -349,7 +422,7 @@ dojo.provide("andes.drawing");
 				this.handleServerActions(this._initialData);
 			}
 		},
-
+		
 		save: function(data){
 			// summary:
 			//	Save an object to the server.
@@ -362,7 +435,7 @@ dojo.provide("andes.drawing");
 			});
 			dfd.addErrback(this, "onError");
 		},
-
+		
 		load: function(){
 			// summary:
 			//	loads project data
@@ -387,7 +460,7 @@ dojo.provide("andes.drawing");
 				this.loadProject();
 			}
 		},
-
+		
 		onLoad: function(data){
 			// summary:
 			//	Project Data Loaded
@@ -395,7 +468,7 @@ dojo.provide("andes.drawing");
 			if(_surfaceLoaded){
 				this.handleServerActions(this._initialData);
 			};
-
+			
 		},
 		onError: function(err){
 			console.error("There was an error in the project data:", err);

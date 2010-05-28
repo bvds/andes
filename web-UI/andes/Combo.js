@@ -190,3 +190,40 @@ andes.Combo = dojox.drawing.util.oo.declare(
 		}
 	}
 )
+
+
+andes.buttonCombo = dojox.drawing.util.oo.declare(
+	// summary:
+	//	A special object used to combine a Button and a Statement. 
+	//
+	//	This object is what relays events to andes.drawing, not the
+	//	individual items.
+	//
+	function(butt,id){
+		this.items=butt;
+		this.id=id;
+	},
+	{
+		type:"andes.buttonCombo",
+		onChangeData: function(/*Object*/ stencil){
+			if (stencil.mod == true) { console.log("------------button mod, no save to server", stencil.mod);};
+			console.log("--------------on change button combo", stencil.id);
+			// summary:
+			//	Stub - fires on change of dimensional
+			//	properties or a text change of the master
+			// or any item
+		},
+		
+
+		attr: function(a1, a2){
+			// see Drawing.stencil._Base
+			dojo.forEach(this.items,function(item){
+				item.master.attr.call(item.master, a1, a2);
+				if(item.statement){  // associated text is optional
+					item.statement.attr.call(item.statement, a1, a2);
+				}
+			});
+		}
+
+	}
+)
