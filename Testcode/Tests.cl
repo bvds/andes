@@ -610,18 +610,13 @@
 ;;; answers.  For non-quantitative problem parts, the workbench uses two 
 ;;; sorts of controls instead of quantitative answer boxes:
 ;;;   1. "I'm Done" check boxes for qualitative parts like fbd drawing
-;;;   2.  Multiple choice question buttons.
-;;; The existing lookup-mc-answer API was overloaded to handle both cases, 
-;;; treating the check box as a degenerate case of a multiple choice 
-;;; question. (Probably would be better to handle differently.)
-;;; That explains why code below refers to I'm Done check boxes by the 
-;;; misleading label of "MC-answers". (Should change at some point.) True
-;;; multiple choice answers are referred to as "multiple-choice-answers".
+;;;   2.  Multiple choice question buttons, either radio buttons
+;;;       or checkboxes with done button.
 ;;;
 ;;; Student entries for answer submissions carry propositions of the 
 ;;; following forms:
 ;;;     quantitative answer boxes:  (Answer ...)
-;;;     done check boxes:           (lookup-mc-answer ...)
+;;;     done check boxes:           (done ...)
 ;;;     multiple choice q's:        (choose-answer ...) 
 
 ;;; following predicates classify problem sought expressions:
@@ -709,7 +704,7 @@
   (length 
    (remove-if-not 
     #'(lambda (E) (and (equalp (studententry-state E) +correct+)
-		       (equalp (car (studententry-prop E)) 'lookup-mc-Answer)))
+		       (equalp (car (studententry-prop E)) 'done)))
     *Studententries*)))
 	
 (add-runtime-test
