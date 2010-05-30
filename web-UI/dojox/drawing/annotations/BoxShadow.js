@@ -212,32 +212,20 @@ dojox.drawing.annotations.BoxShadow = dojox.drawing.util.oo.declare(
 			}
 		},
 		
-		
-		zPoints: function() {
-			var d = this.stencil.data;
-			d.radius = this.stencil.getRadius() * .75;
-			d.angle = this.style.zAngle + 30;
-
-			var pt = this.util.pointOnCircle(d.x1, d.y1, d.radius, d.angle);
-			if (this.stencil.cosphi > 0) {
-			p = [
-				{x:d.x1, y:d.y1},
-				{x:pt.x, y:pt.y}
-			]; 
-			} else {
-			p = [
-				{x:d.x1, y:d.y1},
-				{x:d.x1, y:d.y1}
-			];
-			}
-			return p;
-		},
-		
 		arrowPoints: function(){
 			// summary:
 			//	Creates data used to draw arrow head.
 			//
-			var p = this.zPoints();
+			var d = this.stencil.data;
+			d.radius = this.stencil.getRadius()*75;
+			d.angle = this.style.zAngle + 30;
+
+			var pt = this.util.pointOnCircle(d.x1, d.y1, d.radius, d.angle);
+			var p = [
+				{x:d.x1, y:d.y1},
+				{x:pt.x, y:pt.y}
+			]; 
+			
 			var obj = {
 				start:{
 					x:p[0].x,
@@ -247,7 +235,6 @@ dojox.drawing.annotations.BoxShadow = dojox.drawing.util.oo.declare(
 				y:p[1].y
 			}
 			var angle = this.util.angle(obj);
-			
 			var lineLength = this.util.length(obj); 
 			var al = this.style.arrows.length;
 			var aw = this.style.arrows.width/3;
@@ -265,6 +252,7 @@ dojox.drawing.annotations.BoxShadow = dojox.drawing.util.oo.declare(
 		},
 		
 		createForZArrow: function(o, size, mult, pts, r, p, c){
+			if (this.stencil.cosphi<1 || (this.stencil.getRadius()<this.stencil.minimumSize)) { return; }
 			var sh = size * mult / 4,
 				shy = /B/.test(p) ? sh : /T/.test(p) ? sh*-1 : 0,
 				shx = /R/.test(p) ? sh : /L/.test(p) ? sh*-1 : 0;
@@ -272,11 +260,10 @@ dojox.drawing.annotations.BoxShadow = dojox.drawing.util.oo.declare(
 			
 			for(var i=1;i<=size;i++){
 				var lineWidth = i * mult;
-				//var rect = this.container.createLine({x1:d.x1+shx, y1:d.y1+shy, x2:d.x2+shx, y2:d.y2+shy})
-				//	.setStroke({width:lineWidth, color:c, cap:"round"})		
 				var pts = this.arrowPoints();
+				if (!pts) { return; }
 				var p = this.stencil.points;
-				if(dojox.gfx.renderer=="svg" && this.stencil.getRadius()>10){
+				if(dojox.gfx.renderer=="svg"){
 					
 					var strAr = [];
 					dojo.forEach(pts, function(o, i){

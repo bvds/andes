@@ -298,6 +298,7 @@ dojo.provide("andes.drawing");
 						});
 					}
 					if(obj.type=='vector' || obj.type=='line'){
+						if(obj.radius == 0 && obj.angle == 0) { obj.angle = 1; }
 						items[obj.id].master.attr({
 							angle:obj.angle,
 							radius:obj.radius,

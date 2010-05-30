@@ -49,7 +49,12 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 				this.cosphi = 0;
 			} else {
 				this.style.zAxis = true;
-				this.zPoints();
+				var p = this.points;
+				var pt = this.zPoints();
+				this.setPoints([
+					{x:p[0].x, y:p[0].y},
+					{x:pt.x, y:pt.y}
+				]);
 			}
 			this.render();
 		},
@@ -90,12 +95,13 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 			// summary: See stencil._Base.onDrag
 			//
 			if(this.created){ return; }
+			
 			var x1 = obj.start.x,
 				y1 = obj.start.y,
 				x2 = obj.x,
 				y2 = obj.y;
 			
-			if(this.keys.shift){
+			if(this.keys.shift && !this.style.zAxis){
 				var pt = this.util.snapAngle(obj, 45/180);
 				x2 = pt.x;
 				y2 = pt.y;
@@ -115,13 +121,16 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 				y2 -= dy;
 			}
 			
+			if(this.style.zAxis) {
+				var pts = this.zPoints(obj);
+				x2 = pts.x;
+				y2 = pts.y;
+			}
+			
 			this.setPoints([
 				{x:x1, y:y1},
 				{x:x2, y:y2}
 			]);
-			if (this.style.zAxis) {
-				this.zPoints();
-			}
 			this.render();
 		},
 		
@@ -134,35 +143,56 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 			}
 			// this is not needed for anchor moves, but it
 			// is for stencil move:
+			
+			this.setPoints(this.points);
 			if(this.style.zAxis) {
-				this.zPoints();
-			} else {
-				this.setPoints(this.points);
+				var angle = this.getAngle();
+				this.cosphi = angle>135 && angle<315 ? 1 : -1;
 			}
 			this.render();			
 		},
 		
-		zPoints: function() {
-			if (!this.points[0]) { return; };
-			var d = this.pointsToData();
-			var angle = this.getAngle();
-			d.radius = this.getRadius();
+		anchorConstrain: function(obj){
+			if(!this.style.zAxis) { return; }
+			var radians = this.style.zAngle*Math.PI/180;
+			Math.min(Math.abs(obj.y),Math.abs(obj.org.y));
+			//Constrain to angle
+			var dx = obj.x>-obj.y? obj.x : -obj.y/Math.tan(radians); 
+			var dy = obj.x<-obj.y? obj.y : -Math.tan(radians)*obj.x;
+			//Constrain to canvas
+			if(dy<obj.org.y) { dy = obj.org.y; dx = -dy/Math.tan(radians); }
+			if(dx<obj.org.x) { dx = obj.org.x; dy = -Math.tan(radians)*dx;}
+			return {x:dx, y:dy}
+		},
+		
+		zPoints: function(obj) {
+			if(obj==undefined){
+				if (!this.points[0] || (this.getRadius()<this.minimumSize)) { return; };
+				var d = this.pointsToData();
+				var obj = {
+					start:{
+						x:d.x1,
+						y:d.y1
+					},
+					x:d.x2,
+					y:d.y2
+				};
+			}
+			var radius = this.util.length(obj);
+			var angle = this.util.angle(obj);
+			angle<0 ? angle = 360 + angle : angle;
+			
 			if (angle > 135 && angle < 315) {
 				//Out angle
-				d.angle = this.style.zAngle;
+				angle = this.style.zAngle;
 				this.cosphi = 1;
 			} else {
 				//In Angle
-				d.angle = this.util.oppAngle(this.style.zAngle);
+				angle = this.util.oppAngle(this.style.zAngle);
 				this.cosphi = -1;
 			}
 			
-			var pt = this.util.pointOnCircle(d.x1, d.y1, d.radius, d.angle);
-			var p = [
-				{x:d.x1, y:d.y1},
-				{x:pt.x, y:pt.y}
-			];			
-			this.setPoints(p);
+			return this.util.pointOnCircle(obj.start.x, obj.start.y, radius, angle);
 		},
 		
 		render: function(){
@@ -178,6 +208,7 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 				this._create("shape", this.data, this.style.current);
 			
 			}else{
+				this.cosphi = 0;
 				this._createZeroVector("hit", this.data, this.style.currentHit);
 				this._createZeroVector("shape", this.data, this.style.current);
 			}
@@ -210,16 +241,12 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 				]); 
 			} else { 			
 				//needed as else to avoid zero length problem in snapAngle 
-				var pt = this.util.snapAngle(obj, this.angleSnap/180);
 				var p = this.points;
-				if(this.style.zAxis){
-					this.zPoints();
-				} else {
-					this.setPoints([
-						{x:p[0].x, y:p[0].y},
-						{x:pt.x, y:pt.y}
-					]);
-				}
+				var pt = this.style.zAxis ? this.zPoints(obj) : this.util.snapAngle(obj, this.angleSnap/180);
+				this.setPoints([
+					{x:p[0].x, y:p[0].y},
+					{x:pt.x, y:pt.y}
+				]);
 			}
 			this.renderedOnce = true;
 			this.onRender(this);
@@ -235,7 +262,6 @@ dojox.drawing.tools.custom.Vector.setup = {
 	tooltip:"Vector Tool",
 	iconClass:"iconVector"
 };
-
 
 dojox.drawing.tools.custom.Vector.setup.secondary = {
 	name: "vectorSecondary",

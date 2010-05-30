@@ -497,7 +497,6 @@ dojox.drawing.stencil._Base = dojox.drawing.util.oo.declare(
 			
 			// FIXME
 			// 'width' attr is used for line width. How to change the width of a stencil?
-			
 			var n = this.style.norm,
 				t = this.style.text,
 				ts = this.textSelected || {},
@@ -559,11 +558,8 @@ dojox.drawing.stencil._Base = dojox.drawing.util.oo.declare(
 				n.width = o.borderWidth;
 			}
 			if(o.cosphi!=undefined) {
-				try{
-					this.changeAxis(o.cosphi);
-				} catch(e){
-					console.log("------Cosphi changes only supported for Vectors",e);
-				};	
+				this.cosphi = o.cosphi;
+				this.style.zAxis = o.cosphi!=0 ? true : false;	
 			}
 			if(this.useSelectedStyle){
 				// using the orginal selected style copy as
