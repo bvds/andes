@@ -178,7 +178,7 @@ dojo.provide("andes.convert");
 					deleteEmptyModify: false
 				}
 			}else if(o.type=="statement" || o.type=="equation"){
-				obj.data.text = o.text;
+				obj.data.text = andes.typeset.convertLaTeX(o.text);
 			}else if(o.type=="axes"){
 				obj.label = o['x-label']+" and "+o['y-label'];
 				if(andes.defaults.zAxisEnabled){
