@@ -200,15 +200,78 @@ dojo.provide("andes.defaults");
 			}
 
 		},
-
-		/*copy: function(){
+		
+		// BvdS:  I thought andes.defaults is supposed to override of dojox.drawing.defaults
+		//        Why does dojox.drawing.defaults.button not show up if following is not included?
+		button:{
+			radioButtonRadius:15,
+			checkboxWidth:15,
+			norm:{
+				"color": "#cccccc", 
+				"fill": {
+					type:"linear",
+					x1:0, x2:0, y1:0, y2:100,
+					colors:[
+						{offset:.5, color:"#ffffff"},
+						{offset:1, color:"#e5e5e5"}
+					]
+				}
+			},
+			over:{
+				"fill": {
+					type:"linear",
+					x1:0, x2:0, y1:0, y2:100,
+					colors:[{offset:.5, color:"#ffffff"}, {offset:1, color:"#e1eaf5"}]
+				}, 
+				"color": "#92a0b3" 
+			},
+			down:{
+				"fill": {
+					type:"linear",
+					x1:0, x2:0, y1:0, y2:100, 
+					colors:[{offset:0, color:"#e1eaf5"}, {offset:1, color:"#ffffff"}]
+				}, 
+				"color": "#92a0b3"
+			},
+			selected:{
+				"fill": {
+				type:"linear",
+					x1:0, x2:0, y1:0, y2:100, 
+					colors:[{offset:0, color:"#97b4bf"}, {offset:1, color:"#c8dae1"}]
+				}, 
+				"color": "#92a0b3"
+			},
+			icon:{
+				norm:{
+					fill:null,
+					color:"#92a0b3"
+				},
+				selected:{
+					fill:"#ffffff",
+					color:"#92a0b3"
+				}
+			}
+		},
+		
+		copy: function(){
 			// summary
-			//	Each shape gets its own copy
-			//	of these styles so that instances
-			// do not change each other's styles
+			//		Each shape gets its own copy
+			//		of these styles so that instances
+			// 		do not change each other's styles
 			//
 			var cpy = function(obj){
-				var o = {};
+				if(typeof(obj)!="object" || obj===null || obj===undefined){
+					return obj;
+				}
+				var o;
+				if(obj.push){
+					o = [];
+					for(var i=0; i<obj.length;i++){
+						o.push(cpy(obj[i]))
+					}
+					return o;
+				}
+				o = {};
 				for(var nm in obj){
 					if(nm!="copy"){
 						if(typeof(obj[nm])=="object"){
@@ -225,46 +288,10 @@ dojo.provide("andes.defaults");
 			o.currentHit = o.hitNorm;
 			o.currentText = o.text;
 			return o;
-		}*/
-		copy: function(){
-		// summary
-		//		Each shape gets its own copy
-		//		of these styles so that instances
-		// 		do not change each other's styles
-		//
-		var cpy = function(obj){
-				if(typeof(obj)!="object" || obj===null || obj===undefined){
-					return obj;
-				}
-				var o;
-				if(obj.push){
-					o = [];
-					for(var i=0; i<obj.length;i++){
-						o.push(cpy(obj[i]))
-					}
-					return o;
-				}
-			o = {};
-			for(var nm in obj){
-				if(nm!="copy"){
-					if(typeof(obj[nm])=="object"){
-						o[nm] = cpy(obj[nm]);
-					}else{
-						o[nm] = obj[nm]
-					}
-				}
-			}
-			return o;
 		}
-		var o = cpy(this);
-		o.current = o.norm;
-		o.currentHit = o.hitNorm;
-		o.currentText = o.text;
-		return o;
-		}
-
+		
 	};
-
+	
 	// change Drawing defaults to andes defaults
 	var a = andes.defaults;
 	a.norm.fill = a.unknown.fill;
