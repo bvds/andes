@@ -217,10 +217,10 @@ dojox.drawing.annotations.BoxShadow = dojox.drawing.util.oo.declare(
 			//	Creates data used to draw arrow head.
 			//
 			var d = this.stencil.data;
-			d.radius = this.stencil.getRadius()*75;
+			d.radius = this.stencil.getRadius();
 			d.angle = this.style.zAngle + 30;
 
-			var pt = this.util.pointOnCircle(d.x1, d.y1, d.radius, d.angle);
+			var pt = this.util.pointOnCircle(d.x1, d.y1, d.radius*.75, d.angle);
 			var p = [
 				{x:d.x1, y:d.y1},
 				{x:pt.x, y:pt.y}

@@ -112,7 +112,6 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 			//
 			var ax = this.points[0];
 			var c =  this.points[1];
-			var ay = this.points[2];
 
 			var dist = 40;
 			var offdist = 20;
@@ -133,7 +132,6 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 			// summary:
 			//		Custom placement for y-axis label
 			//
-			var ax = this.points[0];
 			var c =  this.points[1];
 			var ay = this.points[2];
 
@@ -141,9 +139,8 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 			var offdist = 20;
 			var pt, px, py, pt2;
 			pt = this.util.lineSub(c.x, c.y, ay.x, ay.y, dist);
-			px = pt.x + ( ay.y-pt.y);
-			py = pt.y + (pt.x - ay.x );
-			pt2 = this.util.lineSub(pt.x, pt.y, px, py, (dist-offdist));
+			px = pt.x + (ay.y - pt.y);
+			py = pt.y + (pt.x - ay.x);
 			pt2 = this.util.lineSub(pt.x, pt.y, px, py, (dist-offdist));
 			return {
 				x:  pt2.x,
@@ -156,10 +153,18 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 			//		Custom placement for z-axis label
 			//
 			var p = this.zPoints();
-			var pt = dojox.drawing.util.positioning.label({x:p[0].x,y:p[0].y},{x:p[1].x,y:p[1].y});
+			
+			var dist = 40;
+			var offdist = 20;
+			var pt, px, py, pt2;
+			pt = this.util.lineSub(p[0].x, p[0].y, p[1].x, p[1].y, dist);
+			px = pt.x + (pt.y - p[1].y);
+			py = pt.y + (p[1].x - pt.x);
+			pt2 = this.util.lineSub(pt.x, pt.y, px, py, (dist-offdist));
+			
 			return {
-				x:pt.x,
-				y:pt.y,
+				x:pt2.x,
+				y:pt2.y,
 				width:20
 			}
 		},

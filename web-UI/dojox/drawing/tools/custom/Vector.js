@@ -272,7 +272,11 @@ dojox.drawing.tools.custom.Vector.setup.secondary = {
 		var stencils = this.drawing.stencils.selectedStencils;
 		for(var nm in stencils){
 			if(stencils[nm].shortType == "vector" && (stencils[nm].style.zAxis != dojox.drawing.defaults.zAxis)) {
-				stencils[nm].changeAxis();
+				var s = stencils[nm];
+				s.changeAxis();
+				//Changing to zAxis deselects for usability and
+				//to update the anchor
+				if (s.style.zAxis) { s.deselect(); }
 			}
 		}
 		
