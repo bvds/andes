@@ -276,7 +276,7 @@ dojox.drawing.tools.custom.Vector.setup.secondary = {
 				s.changeAxis();
 				//Changing to zAxis deselects for usability and
 				//to update the anchor
-				if (s.style.zAxis) { s.deselect(); }
+				if (s.style.zAxis) { s.deselect(); s.select(); }
 			}
 		}
 		
