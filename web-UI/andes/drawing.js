@@ -138,7 +138,7 @@ dojo.provide("andes.drawing");
 					// Handle button clicks; don't do anything for done button.
 					if(item.buttonType == "checkbox"){
 						if(item.selected) {
-							var pos=item.group.checked.indexOf(item.value);
+							var pos=dojo.indexOf(item.group.checked,item.value);
 							item.group.checked.splice(pos,1);
 							item.deselect();
 						}else{
@@ -384,7 +384,7 @@ dojo.provide("andes.drawing");
 					}else if(obj.type=="button" && obj.checked){ // checked is optional
 						items[obj.id].group.checked=obj.checked;
 						dojo.forEach(items[obj.id].items,function(pair){
-							if(obj.checked.indexOf(pair.master.value)!=-1){
+							if(dojo.indexOf(obj.checked,pair.master.value)!=-1){
 								pair.master.select();
 							}else{
 								pair.master.deselect();
@@ -394,7 +394,7 @@ dojo.provide("andes.drawing");
 
 					// text
 					if(items[obj.id].isText==true && obj.text) { items[obj.id].attr({text:obj.text});};
-					if(obj.text && items[obj.id].type == "andes.Combo") {
+					if(obj.text && items[obj.id].type == "andes.Combo"){
 						/*items[obj.id].master.attr({
 						  label:obj.text
 						  });*/

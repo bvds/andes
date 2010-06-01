@@ -87,6 +87,7 @@ dojo.require("andes.help");
 dojo.require("andes.api");
 dojo.require("andes.error");
 dojo.require("andes.variablename");
+dojo.require("andes.typeset");
 dojo.require("andes.convert");
 
 andes.drawing.load();
