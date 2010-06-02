@@ -41,7 +41,7 @@ endif
 ifndef binary-release
   $(error "Unknown architecture")
 endif 
-binary-dir = tar jtf $(binary-release)|grep -o -m1 "[^/]*"
+binary-dir = tar jtf $(binary-release)|grep -o -m 1 "^[^/]*"
 
 # RedHat custom wget returns an error if file exists
 get-binary:
