@@ -117,10 +117,12 @@ dojo.provide("andes.convert");
 			}else if(o.type=="vector"){
 				//in case of zero vector
 				if(o.radius == 0) {obj.data.radius = 0; obj.data.angle = 1; } else { obj.data.radius = o.radius; obj.data.angle = o.angle; }
+				obj.data.cosphi = o.cosphi;
 
 			}else if(o.type=="line" || o.type=="axes"){
 				obj.data.radius = o.radius || 0;
 				obj.data.angle = o.angle;
+				obj.data.cosphi = o.cosphi || 0;
 			}else{
 				console.warn("Unrecognized type ",o.type);
 			}
@@ -178,7 +180,7 @@ dojo.provide("andes.convert");
 					deleteEmptyModify: false
 				}
 			}else if(o.type=="statement" || o.type=="equation"){
-				obj.data.text = o.text;
+				obj.data.text = andes.typeset.convertLaTeX(o.text);
 			}else if(o.type=="axes"){
 				obj.label = o['x-label']+" and "+o['y-label'];
 				if(andes.defaults.zAxisEnabled){
@@ -267,6 +269,10 @@ dojo.provide("andes.convert");
 				obj.angle = item.getAngle();
 			}
 			
+			if(type=="vector" || type=="axes"){
+				obj.cosphi = item.cosphi;	
+			}
+
 			if(combo){
 				// match logic in andesToDrawing
 				// Send empty string, rather than null

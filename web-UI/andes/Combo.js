@@ -97,24 +97,24 @@ andes.Combo = dojox.drawing.util.oo.declare(
 		
 		textEdit: function(value){
 			var label = andes.variablename.parse(value);
-				if(label){
-					console.log("LABEL", label)
-					this.master.setLabel(label);
-					this.statement.selectOnExec = true;
-				}else{
-					console.log("NO LABEL", label)
-					this.master.setLabel(value);
-					this.statement.setText("");
-					this.statement.selectOnExec = false;
-				}
-				if(!this.created){
-					this.created = true;
-					options.onCreate();
-				}else{
-					this.onChangeData(this);
-				}
+			if(label){
+				console.log("LABEL", label)
+				this.master.setLabel(label);
+				this.statement.selectOnExec = true;
+			}else{
+				console.log("NO LABEL", label)
+				this.master.setLabel(value);
+				this.statement.setText("");
+				this.statement.selectOnExec = false;
+			}
+			if(!this.created){
+				this.created = true;
+				options.onCreate();
+			}else{
+				this.onChangeData(this);
+			}
 
-				this.onChangeText(this);
+			this.onChangeText(this);
 		},
 
 		onChangeText: function(value){ // value or 'this' ?
