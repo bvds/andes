@@ -35,6 +35,11 @@
 	      "optional": true,
 	      "description": "Identifier for each drawn item, set by the creator of the object. Required for new-object"
 	    },
+     	    "tool": {
+	      "type": "string",
+	      "optional": true,
+	      "description": "Identifier for drawing tools.  Should match the short names of tools in toolType."
+	    },
 	    "type": {
 	      "type": "string",
 	      "enum": ["statement", "graphics", "equation", "ellipse", "circle",
@@ -51,7 +56,7 @@
 	    "style":{
 	      "type": "string",
 	      "optional": true,
-	      "description": "subset of type, specify visual presentation (not used yet)"
+		    "description": "Specify visual presentation or user interface action."
 	    },	    
 	    "x":	{"type": "number",  "optional": true},
 	    "y":	{"type": "number",  "optional": true},
@@ -69,7 +74,6 @@
 			 "description": "in degrees"},
 	    "cosphi":  {"type": "number", "optional": true, 
  	                 "description": "cos(phi), default is zero"},
-            "z-axis-enable" : {"type": "boolean", "optional": true},
 	    "href":    {"type": "string",	"optional": true},
 	    "checked": {"type": "array", "items": "string", "optional": true, 
 			"description": "for buttons"},

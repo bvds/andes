@@ -329,8 +329,10 @@ dojo.provide("andes.drawing");
 						     });
 
 				}else if(obj.action=="set-styles"){
-					if(obj["z-axis-enable"]){
-						andes.defaults.zAxisEnabled=obj["z-axis-enable"];
+					if(obj["tool"] && obj["style"]){
+						var disable = obj["style"]=="disabled" ? true : false;
+						var tool = dojox.drawing.getRegistered("button",obj["tool"]);
+						disable ? tool.disable() : tool.enable();
 					}
 
 				}else{
@@ -362,14 +364,17 @@ dojo.provide("andes.drawing");
 					}
 
 					if(obj.type=='vector' || obj.type=='line'){
+						if(obj.radius == 0 && obj.angle == 0) { obj.angle = 1; }
 						items[obj.id].master.attr({
 							angle:obj.angle,
-							radius:obj.radius
+							radius:obj.radius,
+							cosphi:obj.cosphi
 						});
 					}else if(obj.type=="axes"){
 						items[obj.id].attr({
 							angle:obj.angle,
-							radius:obj.radius
+							radius:obj.radius,
+							cosphi:obj.cosphi
 						});
 					}else if(obj.type=="ellipse" || obj.type=='rectangle'){
 						items[obj.id].master.attr({
