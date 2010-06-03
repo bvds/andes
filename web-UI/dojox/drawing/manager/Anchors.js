@@ -283,7 +283,6 @@ dojox.drawing.manager.Anchor = dojox.drawing.util.oo.declare(
 			if(this.selected){
 				// mx is the original transform from when the anchor
 				// was created. It does not change
-				
 				var mx = this.shape.getTransform();
 				
 				var pmx = this.shape.getParent().getParent().getTransform();
@@ -295,21 +294,6 @@ dojox.drawing.manager.Anchor = dojox.drawing.util.oo.declare(
 					x = obj.x - orgx,
 					y = obj.y - orgy,
 					s = this.defaults.anchors.minSize;
-				
-				//Constrains anchor point, returns null if not overwritten by stencil
-				
-				var constrained = this.anchorConstrain({
-					org: {
-						x:-orgx+marginZero,
-						y:-orgy+marginZero
-					},
-					x:x,
-					y:y
-				});
-				if(constrained != null) { 
-					x=constrained.x;
-					y=constrained.y; 
-				}
 				
 				var conL, conR, conT, conB;
 				
@@ -400,6 +384,12 @@ dojox.drawing.manager.Anchor = dojox.drawing.util.oo.declare(
 					if(x < conL){
 						x = conL;
 					}
+				}
+				//Constrains anchor point, returns null if not overwritten by stencil
+				var constrained = this.anchorConstrain(x, y);
+				if(constrained != null){ 
+					x=constrained.x;
+					y=constrained.y; 
 				}
 				
 				this.shape.setTransform({

@@ -58,14 +58,14 @@ dojo.declare("dojox.drawing.ui.Toolbar", [], {
 		
 		if(this.toolDrawing.ready){
 			this.makeButtons();
-			if(!this.strSelected && this.drawing.defaults.clickMode) { this.drawing.mouse.setCursor('default'); };
+			if(!this.strSelected && this.drawing.defaults.clickMode){ this.drawing.mouse.setCursor('default'); };
 		}else{
 			var c = dojo.connect(this.toolDrawing, "onSurfaceReady", this, function(){
 				//console.log("TB built")
 				dojo.disconnect(c);
 				this.drawing = dojox.drawing.getRegistered("drawing", dojo.attr(node, "drawingId")); // 
 				this.makeButtons();
-				if(!this.strSelected && this.drawing.defaults.clickMode) { 
+				if(!this.strSelected && this.drawing.defaults.clickMode){ 
 					var c = dojo.connect(this.drawing, "onSurfaceReady", this, function(){
 					dojo.disconnect(c);
 					this.drawing.mouse.setCursor('default'); 
@@ -122,10 +122,10 @@ dojo.declare("dojox.drawing.ui.Toolbar", [], {
 			for(var nm in tools){
 				var tool = this.util.abbr(nm);
 				toolMap[tool] = tools[nm];
-				if (this.strTools=="all"){
+				if(this.strTools=="all"){
 					toolAr.push(tool);
 					var details = dojox.drawing.getRegistered("tool",nm);
-					if (details.secondary){
+					if(details.secondary){
 						toolAr.push(details.secondary.name);
 					}
 				}
@@ -136,7 +136,7 @@ dojo.declare("dojox.drawing.ui.Toolbar", [], {
 					tool = dojo.trim(tool);
 					toolAr.push(tool);
 					var details = dojox.drawing.getRegistered("tool",toolMap[tool].name);
-					if(details.secondary) {
+					if(details.secondary){
 						toolAr.push(details.secondary.name);
 					}
 				}, this);
@@ -151,10 +151,9 @@ dojo.declare("dojox.drawing.ui.Toolbar", [], {
 					var sec = dojox.drawing.getRegistered("tool",toolMap[prim].name).secondary;
 					var label = sec.label;
 					this[t] = sec.funct;
-					//console.warn("This.drawing.stencils: ",this.drawing);
-					if(sec.setup) { dojo.hitch(this, sec.setup)() };
+					if(sec.setup){ dojo.hitch(this, sec.setup)(); };
 					var btn = this.toolDrawing.addUI("button", {data:{x:x, y:y, width:w, height:h/2, r:r}, toolType:t, secondary:true, text:label, shadow:s, scope:this, callback:this[t]});
-					if(sec.post) { dojo.hitch(this, sec.post, btn)() };
+					if(sec.postSetup){ dojo.hitch(this, sec.postSetup, btn)(); };
 					secondary = true;
 				} else {
 					var btn = this.toolDrawing.addUI("button", {data:{x:x, y:y, width:w, height:h, r:r}, toolType:t, icon:sym[t], shadow:s, scope:this, callback:"onToolClick"});
@@ -189,7 +188,7 @@ dojo.declare("dojox.drawing.ui.Toolbar", [], {
 			for(var nm in plugs){
 				var abbr = this.util.abbr(nm);
 				plugMap[abbr] = plugs[nm];
-				if (this.strPlugs=="all") { plugAr.push(abbr); }
+				if(this.strPlugs=="all"){ plugAr.push(abbr); }
 			}
 			if(this.strPlugs!="all"){
 				plugAr = this.strPlugs.split(",");
@@ -199,7 +198,7 @@ dojo.declare("dojox.drawing.ui.Toolbar", [], {
 			dojo.forEach(plugAr, function(p){
 				var t = dojo.trim(p);
 				//console.log("   plugin:", p);
-				if (plugMap[p].button != false) {  
+				if(plugMap[p].button != false){  
 					var btn = this.toolDrawing.addUI("button", {data:{x:x, y:y, width:w, height:h, r:r}, toolType:t, icon:sym[t], shadow:s, scope:this, callback:"onPlugClick"});
 					dojox.drawing.register(btn, "button");
 					this.plugins.push(btn);
@@ -249,14 +248,14 @@ dojo.declare("dojox.drawing.ui.Toolbar", [], {
 		// summary:
 		//		Tool click event. May be connected to.
 		//
-		if(this.drawing.defaults.clickMode) { this.drawing.mouse.setCursor("crosshair"); }
+		if(this.drawing.defaults.clickMode){ this.drawing.mouse.setCursor("crosshair"); }
 		dojo.forEach(this.buttons, function(b){
 			if(b.id==button.id){
 				b.select();
 				this.selected = b;
 				this.drawing.setTool(button.toolType)
 			}else{
-				if(!b.secondary) { b.deselect(); }
+				if(!b.secondary){ b.deselect(); }
 			}
 		},this)
 	},

@@ -175,13 +175,13 @@ dojox.drawing.ui.Button =  dojox.drawing.util.oo.declare(
 			
 		},
 		disable: function(){
-			if(!this.enabled) { return; }
+			if(!this.enabled){ return; }
 			this.enabled = false;
 			this._change(this.style.button.disabled);
 			this.icon.attr({color:this.style.button.norm.color});
 		},
 		enable: function(){
-			if (this.enabled) { return; }
+			if(this.enabled){ return; }
 			this.enabled = true;
 			this._change(this.style.button.norm);
 			this.icon.attr({color:this.style.button.icon.norm.color});
@@ -207,7 +207,7 @@ dojox.drawing.ui.Button =  dojox.drawing.util.oo.declare(
 		},
 		onUp: function(){
 			//console.log("BUTTON UP")
-			if(!this.enabled) { return; }
+			if(!this.enabled){ return; }
 			this._change(this.style.button.over);
 			if(this.hitched){
 				this.hitched();

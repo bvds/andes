@@ -63,11 +63,11 @@ dojox.drawing.annotations.Angle = dojox.drawing.util.oo.declare(
 			});
 
 			var angle=this.stencil.getAngle();
-			if(this.stencil.style.zAxis && this.stencil.shortType=="vector") {
+			if(this.stencil.style.zAxis && this.stencil.shortType=="vector"){
 			  node.innerHTML = this.stencil.cosphi > 0 ? "out of" : "into";
-			} else if(this.stencil.shortType=="line") {
+			}else if(this.stencil.shortType=="line"){
 			  node.innerHTML = this.stencil.style.zAxis?"out of":Math.ceil(angle%180);
-			} else {
+			}else{
 			  node.innerHTML = Math.ceil(angle);
 			}
 		},

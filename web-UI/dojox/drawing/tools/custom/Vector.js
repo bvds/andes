@@ -43,11 +43,15 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 		},
 		
 		changeAxis: function(cosphi){
-			cosphi = cosphi!=undefined?cosphi:this.style.zAxis? 0 : 1;
-			if (cosphi == 0){
+			//	summary:
+			//		Converts a vector to and from the z axis.
+			//		If passed a cosphi value that is used to set
+			//		the axis, otherwise it is the opp of what it is.
+			cosphi = cosphi!==undefined?cosphi:this.style.zAxis? 0 : 1;
+			if(cosphi == 0){
 				this.style.zAxis = false;
 				this.cosphi = 0;
-			} else {
+			}else{
 				this.style.zAxis = true;
 				var p = this.points;
 				var pt = this.zPoints();
@@ -121,7 +125,7 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 				y2 -= dy;
 			}
 			
-			if(this.style.zAxis) {
+			if(this.style.zAxis){
 				var pts = this.zPoints(obj);
 				x2 = pts.x;
 				y2 = pts.y;
@@ -145,29 +149,31 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 			// is for stencil move:
 			
 			this.setPoints(this.points);
-			if(this.style.zAxis) {
+			if(this.style.zAxis){
 				var angle = this.getAngle();
 				this.cosphi = angle>135 && angle<315 ? 1 : -1;
 			}
 			this.render();			
 		},
 		
-		anchorConstrain: function(obj){
-			if(!this.style.zAxis) { return; }
+		anchorConstrain: function(x, y){
+			//	summary:
+			//		Called from anchor point mouse drag
+			if(!this.style.zAxis){ return; }
 			var radians = this.style.zAngle*Math.PI/180;
-			Math.min(Math.abs(obj.y),Math.abs(obj.org.y));
 			//Constrain to angle
-			var dx = obj.x>-obj.y? obj.x : -obj.y/Math.tan(radians); 
-			var dy = obj.x<-obj.y? obj.y : -Math.tan(radians)*obj.x;
-			//Constrain to canvas
-			if(dy<obj.org.y) { dy = obj.org.y; dx = -dy/Math.tan(radians); }
-			if(dx<obj.org.x) { dx = obj.org.x; dy = -Math.tan(radians)*dx;}
+			var test = x<0 ? x>-y : x<-y;
+			var dx = test ? x : -y/Math.tan(radians); 
+			var dy = !test ? y : -Math.tan(radians)*x;
 			return {x:dx, y:dy}
 		},
 		
-		zPoints: function(obj) {
-			if(obj==undefined){
-				if (!this.points[0] || (this.getRadius()<this.minimumSize)) { return; };
+		zPoints: function(obj){
+			//	summary:
+			//		Takes any point and converts it to
+			//		be on the z-axis.
+			if(obj===undefined){
+				if(!this.points[0] || (this.getRadius()<this.minimumSize)){ return; };
 				var d = this.pointsToData();
 				var obj = {
 					start:{
@@ -182,11 +188,11 @@ dojox.drawing.tools.custom.Vector = dojox.drawing.util.oo.declare(
 			var angle = this.util.angle(obj);
 			angle<0 ? angle = 360 + angle : angle;
 			
-			if (angle > 135 && angle < 315) {
+			if(angle > 135 && angle < 315){
 				//Out angle
 				angle = this.style.zAngle;
 				this.cosphi = 1;
-			} else {
+			}else{
 				//In Angle
 				angle = this.util.oppAngle(this.style.zAngle);
 				this.cosphi = -1;
@@ -263,85 +269,98 @@ dojox.drawing.tools.custom.Vector.setup = {
 	iconClass:"iconVector"
 };
 
-dojox.drawing.tools.custom.Vector.setup.secondary = {
-	name: "vectorSecondary",
-	label: "z-axis",
-	funct: function(button){
-		button.selected ? this.zDeselect(button) : this.zSelect(button);
-		
-		var stencils = this.drawing.stencils.selectedStencils;
-		for(var nm in stencils){
-			if(stencils[nm].shortType == "vector" && (stencils[nm].style.zAxis != dojox.drawing.defaults.zAxis)) {
-				var s = stencils[nm];
-				s.changeAxis();
-				//Changing to zAxis deselects for usability and
-				//to update the anchor
-				if (s.style.zAxis) { s.deselect(); s.select(); }
+if(dojox.drawing.defaults.zAxisEnabled) {
+	dojox.drawing.tools.custom.Vector.setup.secondary = {
+		// summary:
+		//		Creates a secondary tool for the Vector Stencil.
+		// description:
+		//		See Toolbar.js makeButtons function.  The toolbar 
+		//		checks Vector.setup for a secondary tool and requires
+		//		name, label, and funct.  Currently it doesn't accept icon
+		//		and only uses text from label for the button.  Funct is the
+		//		function that fires when the button is clicked.
+		//
+		//		Setup and postSetup are optional
+		//		and allow tool specific functions to be added to the
+		//		Toolbar object as if they were written there.
+		name: "vectorSecondary",
+		label: "z-axis",
+		funct: function(button){
+			button.selected ? this.zDeselect(button) : this.zSelect(button);
+			
+			var stencils = this.drawing.stencils.selectedStencils;
+			for(var nm in stencils){
+				if(stencils[nm].shortType == "vector" && (stencils[nm].style.zAxis != dojox.drawing.defaults.zAxis)){
+					var s = stencils[nm];
+					s.changeAxis();
+					//Reset anchors
+					if(s.style.zAxis){ s.deselect(); s.select(); }
+				}
 			}
-		}
-		
-	},
-	setup: function(){
-		// summary:
-		//		All functions, variables and connections defined here
-		//		are treated as if they were added directly to toolbar.
-		//		They are included with the tool because secondary buttons
-		//		are tool specific.
-		var zAxis = dojox.drawing.defaults.zAxis;
-		this.zSelect = function(button){
-			zAxis = true;
-			dojox.drawing.defaults.zAxis = true;
-			button.select();
-			this.vectorTest();
-			this.zSelected = button;
-		};
-		this.zDeselect = function(button){
-			zAxis = false;
-			dojox.drawing.defaults.zAxis = false;
-			button.deselect();
-			this.vectorTest();
-			this.zSelected = null;
-		};
-		this.vectorTest = function(){
-			dojo.forEach(this.buttons, function(b){
-				if(b.toolType=="vector" && b.selected){
-					this.drawing.currentStencil.style.zAxis = zAxis;
-				} 
-			},this);
-		};
-		dojo.connect(this, "onRenderStencil", this, function(){ if(this.zSelected){ this.zDeselect(this.zSelected)}});
-		var c = dojo.connect(this.drawing, "onSurfaceReady", this, function(){
-			dojo.disconnect(c);
-			dojo.connect(this.drawing.stencils, "onSelect", this, function(stencil){
-				if(stencil.shortType == "vector"){
-					if(stencil.style.zAxis){
-						//If stencil is on the z-axis, update button to reflect that
-						dojo.forEach(this.buttons, function(b){
-							if(b.toolType=="vectorSecondary"){
-								this.zSelect(b);
-							}
-						},this);
-						
-					} else {
-						//Update button to not be z-axis
-						dojo.forEach(this.buttons, function(b){
-							if(b.toolType=="vectorSecondary"){
-								this.zDeselect(b);
-							}
-						},this);
-					}
-				};
+			
+		},
+		setup: function(){
+			// summary:
+			//		All functions, variables and connections defined here
+			//		are treated as if they were added directly to toolbar.
+			//		They are included with the tool because secondary buttons
+			//		are tool specific.
+			var zAxis = dojox.drawing.defaults.zAxis;
+			this.zSelect = function(button){
+				zAxis = true;
+				dojox.drawing.defaults.zAxis = true;
+				button.select();
+				this.vectorTest();
+				this.zSelected = button;
+			};
+			this.zDeselect = function(button){
+				zAxis = false;
+				dojox.drawing.defaults.zAxis = false;
+				button.deselect();
+				this.vectorTest();
+				this.zSelected = null;
+			};
+			this.vectorTest = function(){
+				dojo.forEach(this.buttons, function(b){
+					if(b.toolType=="vector" && b.selected){
+						this.drawing.currentStencil.style.zAxis = zAxis;
+					} 
+				},this);
+			};
+			dojo.connect(this, "onRenderStencil", this, function(){ if(this.zSelected){ this.zDeselect(this.zSelected)}});
+			var c = dojo.connect(this.drawing, "onSurfaceReady", this, function(){
+				dojo.disconnect(c);
+				dojo.connect(this.drawing.stencils, "onSelect", this, function(stencil){
+					if(stencil.shortType == "vector"){
+						if(stencil.style.zAxis){
+							//If stencil is on the z-axis, update button to reflect that
+							dojo.forEach(this.buttons, function(b){
+								if(b.toolType=="vectorSecondary"){
+									this.zSelect(b);
+								}
+							},this);
+							
+						} else {
+							//Update button to not be z-axis
+							dojo.forEach(this.buttons, function(b){
+								if(b.toolType=="vectorSecondary"){
+									this.zDeselect(b);
+								}
+							},this);
+						}
+					};
+				});
 			});
-		});
-	},
-	post: function(btn){
-		// summary:
-		//		Depending on the secondary tool, it may need
-		//		extra functionality for some of the basic functions.
-		//		Post is passed the button so those connections can
-		//		be made.
-		dojo.connect(btn, "enable", function(){ dojox.drawing.defaults.zAxisEnabled = true; });
-		dojo.connect(btn, "disable", function(){ dojox.drawing.defaults.zAxisEnabled = false; });
-	}
-};
+		},
+		postSetup: function(btn){
+			// summary:
+			//		Depending on the secondary tool, it may need
+			//		extra functionality for some of the basic functions.
+			//		Post is passed the button so those connections can
+			//		be made.
+			dojo.connect(btn, "enable", function(){ dojox.drawing.defaults.zAxisEnabled = true; });
+			dojo.connect(btn, "disable", function(){ dojox.drawing.defaults.zAxisEnabled = false; });
+		}
+	};
+}
 dojox.drawing.register(dojox.drawing.tools.custom.Vector.setup, "tool");

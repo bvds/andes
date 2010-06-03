@@ -17,11 +17,13 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 
 		this.xArrow = new dojox.drawing.annotations.Arrow({stencil:this, idx1:0, idx2:1});
 		this.yArrow = new dojox.drawing.annotations.Arrow({stencil:this, idx1:2, idx2:1});
-		if(options.data) { this.style.zAxisEnabled = options.data.cosphi !=0 ? true : false; }
+		if(options.data){ this.style.zAxisEnabled = options.data.cosphi !=0 ? true : false; }
 		if(this.style.zAxisEnabled){
+			// If the z-axis is enabled, all axes will be created with a z-axis on the canvas.
+			// there is no switching back and forth for the axis, only for vectors.
 			this.cosphi = 1;
 			var ops = {};
-			dojo.mixin(ops, dojo.mixin(options, {
+			dojo.mixin(ops, dojo.mixin(options,{
 				container:this.container.createGroup(),
 				style: this.style,
 				showAngle: false,
@@ -53,7 +55,6 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 			//	on first render.
 			this.onRender();
 		}
-		//console.warn("---info on zAxis: ", this.zAxis, ", and on this: ",this);
 	},
 	{
 		draws:true,
@@ -65,7 +66,9 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 		cosphi:0,
 		zScale:.5,
 		
-		zPoints: function() {
+		zPoints: function(){
+			// summary:
+			//		Finds the point for the z axis.
 			var d = this.points[1];
 			d.radius = this.getRadius();
 			d.angle = this.style.zAngle;
@@ -78,10 +81,9 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 			return p;
 		},
 		
-		zSet: function() {
-			if (!this.zAxis || !this.zAxis.points[0]) { return; };
+		zSet: function(){
+			if(!this.zAxis || !this.zAxis.points[0]){ return; };
 			var p = this.zPoints();
-			
 			this.zAxis.setPoints(p); 
 			this.zAxis.cosphi = 1; 
 		},
@@ -365,7 +367,6 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 			// 		Because Axes only has one anchor,
 			// 		we substitute a special setPoints method
 			//
-			//console.log("---points: ",pts);
 			this.points[0] = pts[0];
 			if(this.pointsToData){
 				this.data = this.pointsToData();
@@ -458,7 +459,7 @@ dojox.drawing.tools.custom.Axes = dojox.drawing.util.oo.declare(
 		onUp: function(/*EventObject*/obj){
 			// summary: See stencil._Base.onUp
 			//
-			if(!this._downOnCanvas) { return; }
+			if(!this._downOnCanvas){ return; }
 			this._downOnCanvas = false;
 			var p = this.points;
 			if(!p.length){

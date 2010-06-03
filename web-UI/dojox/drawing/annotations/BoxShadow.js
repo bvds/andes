@@ -252,7 +252,7 @@ dojox.drawing.annotations.BoxShadow = dojox.drawing.util.oo.declare(
 		},
 		
 		createForZArrow: function(o, size, mult, pts, r, p, c){
-			if (this.stencil.cosphi<1 || (this.stencil.getRadius()<this.stencil.minimumSize)) { return; }
+			if(this.stencil.cosphi<1 || (this.stencil.getRadius()<this.stencil.minimumSize)){ return; }
 			var sh = size * mult / 4,
 				shy = /B/.test(p) ? sh : /T/.test(p) ? sh*-1 : 0,
 				shx = /R/.test(p) ? sh : /L/.test(p) ? sh*-1 : 0;
@@ -261,7 +261,7 @@ dojox.drawing.annotations.BoxShadow = dojox.drawing.util.oo.declare(
 			for(var i=1;i<=size;i++){
 				var lineWidth = i * mult;
 				var pts = this.arrowPoints();
-				if (!pts) { return; }
+				if(!pts){ return; }
 				var p = this.stencil.points;
 				if(dojox.gfx.renderer=="svg"){
 					

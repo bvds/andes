@@ -16,7 +16,7 @@ dojox.drawing.plugins.tools.Pan = dojox.drawing.util.oo.declare(
 	//
 	dojox.drawing.plugins._Plugin,
 	function(options){
-		//this.domNode = options.node;
+		this.domNode = options.node;
 		var _scrollTimeout;
 		this.toolbar = options.scope;
 		this.connect(this.toolbar, "onToolClick", this, function(){
@@ -64,7 +64,7 @@ dojox.drawing.plugins.tools.Pan = dojox.drawing.util.oo.declare(
 		},
 		
 		onKeyDown: function(evt){
-			if (evt.keyCode == 32) {
+			if(evt.keyCode == 32){
 				this.onSetPan(true);
 			}
 		},
@@ -72,7 +72,7 @@ dojox.drawing.plugins.tools.Pan = dojox.drawing.util.oo.declare(
 		interval: 20,
 		
 		onArrow: function(evt){
-			if(this._timer) { clearInterval(this._timer); }
+			if(this._timer){ clearInterval(this._timer); }
 			this._timer = setInterval(dojo.hitch(this,function(evt){
 				this.canvas.domNode.parentNode.scrollLeft += evt.x*10;
 				this.canvas.domNode.parentNode.scrollTop += evt.y*10;
@@ -103,9 +103,9 @@ dojox.drawing.plugins.tools.Pan = dojox.drawing.util.oo.declare(
 		},
 		
 		onUp: function(obj){
-			if (obj.withinCanvas) {
+			if(obj.withinCanvas){
 				this.keyScroll = true;
-			} else {
+			}else{
 				this.keyScroll = false;
 			}
 		},

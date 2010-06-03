@@ -29,13 +29,13 @@ dojo.require("dojox.math.round");
 		//			}
 		//
 		//
-		radToDeg: function(/*Numer*/n) {
+		radToDeg: function(/*Numer*/n){
 			// summary:
 			//		Convert the passed number to degrees.
 			return (n*180)/Math.PI;	//	Number
 		},
 		
-		degToRad: function(/*Numer*/n) {
+		degToRad: function(/*Numer*/n){
 			// summary:
 			//		Convert the passed number to radians.
 			return (n*Math.PI)/180;	// Number
@@ -90,7 +90,7 @@ dojo.require("dojox.math.round");
 			// summary:
 			//		Subtract an amount from a line
 			// description:
-			//		x1,y1,x2,y2 represents the Line. 'amt' represnets the amount
+			//		x1,y1,x2,y2 represents the Line. 'amt' represents the amount
 			//		to subtract from it.
 			//
 			var len = this.distance(this.argsToObj.apply(this, arguments));
@@ -204,14 +204,6 @@ dojo.require("dojox.math.round");
 			uidMap[str] = uidMap[str]===undefined ? start : uidMap[str] + 1;
 			return str + uidMap[str]; // String
 		},
-		groups: {},
-		groupId: function(name, id){
-			if(groups.name){
-				
-			} else {
-					
-			}
-		},
 		
 		abbr: function(type){
 			// summary:
@@ -246,7 +238,7 @@ dojo.require("dojox.math.round");
 			//		Helper function to attach attributes to SVG and VML raw nodes.
 			//
 			
-			if(!elem) { return false; }
+			if(!elem){ return false; }
 			try{
 				
 				// util is a crappy check, but we need to tell the diff

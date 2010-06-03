@@ -274,7 +274,7 @@ dojox.drawing.stencil._Base = dojox.drawing.util.oo.declare(
 			this.render(options.data.text);
 		}
 		
-		if(this.shortType == "vector" && !options.data) {
+		if(this.shortType == "vector" && !options.data){
 			options.data = { cosphi:0 };
 		}
 			
@@ -375,7 +375,7 @@ dojox.drawing.stencil._Base = dojox.drawing.util.oo.declare(
 			this.disconnectMouse();
 			
 			// for Silverlight 
-			if(this.shape) {
+			if(this.shape){
 				this.shape.superClass = this;
 			}else{
 				this.container.superClass = this;
@@ -434,7 +434,7 @@ dojox.drawing.stencil._Base = dojox.drawing.util.oo.declare(
 				sp =	options.start;
 				ep = 	options.end;
 			
-			}else if (dojo.isObject(options.start)){
+			}else if(dojo.isObject(options.start)){
 				sp =	options.start;
 				ep = 	options.end;
 				isArray = 	false;
@@ -486,8 +486,9 @@ dojox.drawing.stencil._Base = dojox.drawing.util.oo.declare(
 		
 		attr: function(/*String | Object*/key, /* ? String | Number */value){
 			// summary
-			//		Changes properties in the normal-style. Also can be used to
-			//		change most position and size props.
+			//		Changes properties in the style or disabled styles, 
+			//		depending on whether the object is enabled.
+			//		Also can be used to change most position and size props.
 			
 			// NOTE: JUST A SETTTER!! TODO!
 			
@@ -497,9 +498,9 @@ dojox.drawing.stencil._Base = dojox.drawing.util.oo.declare(
 			
 			// FIXME
 			// 'width' attr is used for line width. How to change the width of a stencil?
-			var n = this.style.norm,
-				t = this.style.text,
-				ts = this.textSelected || {},
+			var n = this.enabled?this.style.norm:this.style.disabled;
+			var t = this.enabled?this.style.text:this.style.textDisabled;
+			var ts = this.textSelected || {},
 				o,
 				nm,
 				width,
@@ -557,7 +558,7 @@ dojox.drawing.stencil._Base = dojox.drawing.util.oo.declare(
 			if(o.borderWidth!==undefined){
 				n.width = o.borderWidth;
 			}
-			if(o.cosphi!=undefined) {
+			if(o.cosphi!=undefined){
 				this.cosphi = o.cosphi;
 				this.style.zAxis = o.cosphi!=0 ? true : false;	
 			}
@@ -1074,7 +1075,7 @@ dojox.drawing.stencil._Base = dojox.drawing.util.oo.declare(
 				a = [this.shape];
 			}
 			for(var i=0;i<a.length;i++){
-				if(a[i]) {
+				if(a[i]){
 					a[i].removeShape();
 				}
 			}
@@ -1124,7 +1125,7 @@ dojox.drawing.stencil._Base = dojox.drawing.util.oo.declare(
 			}else if(!m){
 				// ** object function function **
 				m = s; s = this;
-			}else if (once){
+			}else if(once){
 				// ** object function object function Boolean **
 				c = dojo.connect(o, e, function(evt){
 					dojo.hitch(s, m)(evt);
@@ -1144,7 +1145,7 @@ dojox.drawing.stencil._Base = dojox.drawing.util.oo.declare(
 			// summary:
 			//		Removes connections based on passed
 			//		handles arguments
-			if(!handles) { return }
+			if(!handles){ return }
 			if(!dojo.isArray(handles)){ handles=[handles]; }
 			dojo.forEach(handles, dojo.disconnect, dojo);
 		},
