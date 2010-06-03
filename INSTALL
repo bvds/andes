@@ -21,8 +21,8 @@ Enterprise 5.4, CentOS 5.4) and OS X (10.4 and 10.6).
 rpm -q make git subversion gcc-c++ mysql-server wget
 
 # The Andes help server should be run in an ordinary user account.  
-# If needed,  set up a user account for the Andes server.  The rest of 
-# the install will occur in that user account.
+# If needed,  set up a user account for the Andes server.  The install,
+# unless otherwise directed, should be executed by that user. 
 
 # For convenience, you can add the user to /etc/sudoers
 
