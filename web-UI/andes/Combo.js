@@ -29,35 +29,15 @@ andes.Combo = dojox.drawing.util.oo.declare(
 			}]
 		]);
 
-		this.created = options.onCreate ? false : true
+		this.created = options.onCreate ? false : true;
+		this._onCreate = options.onCreate;
 		var s = this.statement;
 		var m = this.master;
 		
 		console.warn("combo statement:", this.statement)
 
 		this.statement.connectMult([
-			[this.statement, "onChangeText", this, function(value){
-				var label = andes.variablename.parse(value);
-				if(label){
-					console.log("LABEL", label)
-					this.master.setLabel(label);
-					this.statement.selectOnExec = true;
-				}else{
-					console.log("NO LABEL", label)
-					this.master.setLabel(value);
-					this.statement.setText("");
-					this.statement.selectOnExec = false;
-				}
-				if(!this.created){
-					this.created = true;
-					options.onCreate();
-				}else{
-					this.onChangeData(this);
-				}
-
-				this.onChangeText(this);
-
-			}],
+			[this.statement, "onChangeText", this, "textEdit"],
 			[this.statement, "onChangeData", this, function(){
 				this.onChangeData(this);
 			}],
@@ -96,20 +76,25 @@ andes.Combo = dojox.drawing.util.oo.declare(
 		},
 		
 		textEdit: function(value){
+			// match logic for symbol and label in convert.js
 			var label = andes.variablename.parse(value);
 			if(label){
-				console.log("LABEL", label)
+				console.log("LABEL=", label," text=",value);
 				this.master.setLabel(label);
+				// if call came from onChangeText, then statement is already updated
+				if(value != this.statement.getText()){
+					this.statement.setText(value);
+				}  
 				this.statement.selectOnExec = true;
 			}else{
-				console.log("NO LABEL", label)
+				console.log("NO LABEL, text=",value);
 				this.master.setLabel(value);
 				this.statement.setText("");
 				this.statement.selectOnExec = false;
 			}
 			if(!this.created){
 				this.created = true;
-				options.onCreate();
+				this._onCreate();
 			}else{
 				this.onChangeData(this);
 			}
