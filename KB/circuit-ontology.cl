@@ -30,7 +30,7 @@
 (def-qexp resistance (resistance ?name)
   :symbol-base |R| 
   :short-name "resistance"
-  :units |$W|
+  :units (|\omega| |ohm|)
   :new-english ((the) "resistance of" (allowed "resistor") (component ?name)))
 
 (def-qexp current (current-thru ?component :time ?time)
@@ -124,7 +124,7 @@
   :new-english ((rate (change "current")) "through" ?comp (time ?time)))
 
 (def-qexp time-constant (time-constant orderless . ?quants)
-  :symbol-base |$t|     
+  :symbol-base |\tau|     
   :short-name "time constant"	
   :units |s|
   ;; translated wb body arg is (compound orderless comp1 comp2 ...)

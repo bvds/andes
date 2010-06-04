@@ -34,7 +34,7 @@
 ;;; to be removed from the list of variables in an equation in some contexts
 ;;; we don't change vars-in-eqn since might need all symbols in other contexts.
 (defparameter *phys-constants* 
-    '(|$p| |$P| |eps0| |kelec| |mu0| |kmag| |c| |hbar| |G| |Iref|))
+    '(|\pi| |\epsilon0| |eps0| |kelec| |\mu0| |mu0| |kmag| |c| |hbar| |G| |Iref|))
 (defun physconstp (exp) (member exp *phys-constants*))
 
 ;;; enter-predefs -- enter predefined symbols for *cp* into symbol table
@@ -59,22 +59,15 @@
   (when (or (member 'work-quants (problem-features *cp*))
 	    (member 'work-quants-out (problem-features *cp*)))
   (symbols-enter "Iref" 'Iref :sysvar '|Iref|))
-  
-  ;; algebra system understands $P (upper-case only) as symbol for pi in
-  ;; systemese equations.  We still need to predefine a student label for
-  ;; pi in symbol table so student equations using it can get through
-  ;; the student-to-system translation without appearing to have an undefined
-  ;; variable. We install lower-case pi to be mapped to system's upper-case.
-  (symbols-enter "$p" 'pi :sysvar '$P) 
-  
-  ;; If prob involves E&M, predefine kelec and epsilon_0 and mu_0.
+    
+  ;; If prob involves E&M, predefine kelec and \epsilon_0 and \mu_0.
   (when (member 'E&M (problem-features *cp*))
      ;; args are:  name, quantity, owning-entry, sysvar-translation
      ;; NB: need some dummy quantity to prevent inverse match to NIL quantity
      (symbols-enter "kelec" 'kelec :sysvar '|kelec|)
-     (symbols-enter "$m0" '(physconst |mu0|) :sysvar '|mu0|)
+     (symbols-enter "\mu0" '(physconst |mu0|) :sysvar '|mu0|)
      (symbols-enter "kmag" 'kmag :sysvar '|kmag|)
-     (symbols-enter "$e0" '(physconst |eps0|) :sysvar '|eps0|))
+     (symbols-enter "\epsilon0" '(physconst |eps0|) :sysvar '|eps0|))
 
   ;; add conditions for further predefs here:
 )
