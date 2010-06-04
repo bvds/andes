@@ -66,6 +66,8 @@ dojo.provide("andes.drawing");
 		_drawing = dijit.byId(drawingId);
 		var cn = dojo.connect(_drawing, "onSurfaceReady", function(){
 			dojo.disconnect(cn);
+			// Maybe better to put in _drawing?
+			dojox.drawing.stencil.Text.typeset = andes.typeset.convertLaTeX;
 			andes.drawing.onSurfaceReady();
 		});
 		dojo.connect(_drawing, "onRenderStencil", andes.drawing, "onRenderStencil");

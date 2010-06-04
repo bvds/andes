@@ -68,24 +68,25 @@ dojo.provide("andes.typeset");
 			if(inText){
 				return inText.replace(/&([^;]+);/g,function(match,code){
 					if(code.charAt(0)=='#'){
-						var number=+code.substr(1);
+						//coerce remainder of string to int
+						var number=+code.substr(1); 
 						if(!isNaN(number)){
-							console.log("convert ",inText,number, String.fromCharCode(number));
 							return String.fromCharCode(number);
-						}
+						} 
 					}else if(greeks[code]){
-						return String.fromCharCode(greeks[number]);				
+						return String.fromCharCode(greeks[code]);
 					}
 					// This is generally for server code, so there
 					// is no point bothering the user in the case of an error.
-					console.warn("no HTML conversion for ",word);
+					console.warn("no HTML conversion for ",match);
 					return match;
 				});
 			}
-			return "";  // Maybe should raise a warning here?
+			return inText;
 		},
 
 		convertLaTeX: function(inText){
+			// console.log("***** convertLaTeX for ",inText);
 			if(inText){
 				return inText.replace(/\\([a-zA-Z]+)/g,function(match,word){
 					if(greeks[word]){
@@ -95,8 +96,9 @@ dojo.provide("andes.typeset");
 					console.log("Need user-friendly error handling here!");				
 				}).replace(/\\\\/g,'\\');
 			} 
-			return "";
+			return inText;
 		}
+
 	};
-	
+
 })();
