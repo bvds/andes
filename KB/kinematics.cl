@@ -2139,12 +2139,12 @@
       (variable	?v    (mag (velocity ?b :time ?t)))
    )
    :effects (
-     (eqn (= ?T-var (/ (* 2 $P ?r) ?v)) (period ?b ?t circular))
+     (eqn (= ?T-var (/ (* 2 |\pi| ?r) ?v)) (period ?b ?t circular))
    )
    :hint (
       (teach (string "The period of an object in circular motion is the time to make one complete revolution. This time is equal to the distance traveled, which is 2 &pi; times the radius of the circle, divided by the speed."))
       (bottom-out (string "Write the equation ~A" 
-                          ((= ?T-var (/ (* 2 $P ?r) ?v)) algebra)))
+                          ((= ?T-var (/ (* 2 |\pi| ?r) ?v)) algebra)))
    )
 )
 

@@ -91,6 +91,10 @@ dojo.provide("andes.typeset");
 				return inText.replace(/\\([a-zA-Z]+)/g,function(match,word){
 					if(greeks[word]){
 						return String.fromCharCode(greeks[word]);
+					}else if(word.substr(0,2)=="mu"){
+						// special handling for \mu since it is 
+						// a common unit prefix.
+						return String.fromCharCode(greeks["mu"])+word.substr(2);
 					}
 					console.log("no match for ",match," in ",inText);
 					console.log("Need user-friendly error handling here!");				

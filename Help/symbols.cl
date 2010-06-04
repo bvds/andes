@@ -62,12 +62,7 @@
 ;; We need case-sensitive variables to distinguish G from g, for example, so
 ;; all our lookups are case-sensitive.
 
-;; Labels containing Greek letters come to us coded by dollar-sign escape 
-;; sequences of the form "$q". These two-character sequences stand for the 
-;; character corresponding to "q" in the Symbol font, in this case theta. 
-;; As a convenience Andes1 allowed the student to spell out the Greek letters 
-;; by name at the beginning of variables, e.g. by typing "theta" or "thetaFw"
-;; instead of the sequence to produce "$q" or "$qFw".
+;; Labels containing Greek letters come to us coded in LaTeX form.
 ;;
 ;; Allow separate namespaces for scalar variables and geometric objects,
 ;; such as vectors.  This allows for the common practice of using the

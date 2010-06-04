@@ -2387,14 +2387,14 @@
        (variable  ?Ac  (circumference-of-circle ?circle))
    )
    :effects (
-    (eqn  (= ?Ac (* 2 $P ?rc)) 
+    (eqn  (= ?Ac (* 2 |\pi| ?rc)) 
                 (circumference-of-circle-r ?circle))
    )
    :hint (
       (point (string "You can use the formula for the circumference of a circle"))
       (teach (string "The circumference of a circle is 2 &pi; times the radius."))
       (bottom-out (string "Write the equation ~A" 
-                     ((= ?Ac (* 2 $P ?rc)) algebra)) ))
+                     ((= ?Ac (* 2 |\pi| ?rc)) algebra)) ))
    )
 
 ;; equation of the circumference of a circle c = pi*d
@@ -2423,14 +2423,14 @@
        (variable  ?Ac  (circumference-of-circle ?circle))
    )
    :effects (
-    (eqn  (= ?Ac (* $P ?dc)) 
+    (eqn  (= ?Ac (* |\pi| ?dc)) 
                 (circumference-of-circle-d ?circle))
    )
    :hint (
       (point (string "You can use the formula for the circumference of a circle"))
       (teach (string "The circumference of a circle is &pi; times the diameter."))
       (bottom-out (string "Write the equation ~A" 
-                     ((= ?Ac (* $P ?dc)) algebra)) ))
+                     ((= ?Ac (* |\pi| ?dc)) algebra)) ))
    )
 
 ;;; equation of the area of a circle Ac = pi*rc^2
@@ -2456,14 +2456,14 @@
        (variable  ?Ac  (area ?circle))
    )
    :effects (
-    (eqn  (= ?Ac (* $P (^ ?rc 2))) 
+    (eqn  (= ?Ac (* |\pi| (^ ?rc 2))) 
                 (area-of-circle ?circle))
    )
    :hint (
       (point (string "You can use the formula for the area of a circle"))
       (teach (string "The area of a circle is &pi; times the radius squared."))
       (bottom-out (string "Write the equation ~A" 
-                     ((= ?Ac (* $P (^ ?rc 2))) algebra)) ))
+                     ((= ?Ac (* |\pi| (^ ?rc 2))) algebra)) ))
    )
 
 (def-psmclass area-of-rectangle (area-of-rectangle ?body :square ?flag)
