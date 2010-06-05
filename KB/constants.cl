@@ -65,9 +65,9 @@
      ;; args are:  name, quantity, owning-entry, sysvar-translation
      ;; NB: need some dummy quantity to prevent inverse match to NIL quantity
      (symbols-enter "kelec" 'kelec :sysvar '|kelec|)
-     (symbols-enter "\mu0" '(physconst |mu0|) :sysvar '|mu0|)
+     (symbols-enter "\\mu0" '(physconst |mu0|) :sysvar '|mu0|)
      (symbols-enter "kmag" 'kmag :sysvar '|kmag|)
-     (symbols-enter "\epsilon0" '(physconst |eps0|) :sysvar '|eps0|))
+     (symbols-enter "\\epsilon0" '(physconst |eps0|) :sysvar '|eps0|))
 
   ;; add conditions for further predefs here:
 )
