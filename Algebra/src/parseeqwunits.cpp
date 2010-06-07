@@ -32,10 +32,10 @@ using namespace std;
  *  parseEqWUnits(const string & lispeq)				*
  *  returns a stack of string tokens, each of which is one of		*
  *		( = + - * / ^ )					  	*
- *	or	a string starting with [A-Z] | [a-z] and continuing	*
- *		  with [A-Z] | [a-z] | [0-9] | _ | $ | :		*
- *	or	a number						*
- *      or      string "U)", which is used for ending units		*
+ *	or     a string starting with [A-Z] | [a-z] | \\ and continuing	*
+ *		  with [A-Z] | [a-z] | [0-9] | _ | $ | \\		*
+ *	or     a number							*
+ *      or     string "U)", which is used for ending units		*
  *  if top element returned is not ), something is wrong		*
  ************************************************************************/
 
@@ -121,7 +121,8 @@ stack<string> *parseEqWUnits(const string & lispeq)
 	  index = j;
 	  continue;
 	}
-      if (isalpha(thiscar) || (thiscar == '$') || (thiscar == ':'))
+      // should match test at beginning of getclipsvar(...).
+      if (isalpha(thiscar) || (thiscar == '\\'))
 	{
 	  j = getclipsvar(lispeq,index);
 	  string *p = new string(lispeq.substr(index,j-index));

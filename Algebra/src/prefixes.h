@@ -24,7 +24,7 @@ pfx( "f",   1.0E-15 ),  //   femto
 pfx( "p",   1.0E-12 ),  //   pico
 pfx( "n",   1.0E-9  ),  //   nano
 pfx( "mu",  1.0E-6  ),  //   micro
-pfx( "$m",  1.0E-6  ),  //   micro
+pfx( "\\mu",  1.0E-6  ),  //   micro
 pfx( "m",   1.0E-3  ),  //   milli
 pfx( "c",   1.0E-2  ),  //   centi
 pfx( "d",   1.0E-1  ),  //   deci

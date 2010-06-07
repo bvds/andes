@@ -34,7 +34,7 @@
 ;;; to be removed from the list of variables in an equation in some contexts
 ;;; we don't change vars-in-eqn since might need all symbols in other contexts.
 (defparameter *phys-constants* 
-    '(|\pi| |\epsilon0| |eps0| |kelec| |\mu0| |mu0| |kmag| |c| |hbar| |G| |Iref|))
+    '(|\pi| |\epsilon0| |\epsilon_0| |eps0| |kelec| |\mu0| |\mu_0| |mu0| |kmag| |c| |hbar| |G| |Iref|))
 (defun physconstp (exp) (member exp *phys-constants*))
 
 ;;; enter-predefs -- enter predefined symbols for *cp* into symbol table
@@ -66,8 +66,10 @@
      ;; NB: need some dummy quantity to prevent inverse match to NIL quantity
      (symbols-enter "kelec" 'kelec :sysvar '|kelec|)
      (symbols-enter "\\mu0" '(physconst |mu0|) :sysvar '|mu0|)
+     (symbols-enter "\\mu_0" '(physconst |mu0|) :sysvar '|mu0|)
      (symbols-enter "kmag" 'kmag :sysvar '|kmag|)
-     (symbols-enter "\\epsilon0" '(physconst |eps0|) :sysvar '|eps0|))
+     (symbols-enter "\\epsilon0" '(physconst |eps0|) :sysvar '|eps0|)
+     (symbols-enter "\\epsilon_0" '(physconst |eps0|) :sysvar '|eps0|))
 
   ;; add conditions for further predefs here:
 )

@@ -126,20 +126,21 @@ bool isanum(string token)	// returns true if token is an number
 }
 
 /************************************************************************
- *  finds the longest string which starts with a letter : or $	        *
- *  and continues with '-', '_', '$', '&', or alphanumeric chars.	*
+ *  finds the longest string which starts with a letter or \	        *
+ *  and continues with '_', '$', '&', '\' or alphanumeric chars.	*
  *  returns the index of first character not in string			*
  ************************************************************************/
 int getclipsvar(string token, int start)
 {
   int j;
-  if (!isalpha(token[start]) && (token[start] != '$')
-      && (token[start] != ':')) return (start);
+  // BvdS:  Don't know of any instances of starting with ':'
+  // or containing '-'.  I would think the '-' would parse as subtraction.
+  if (!isalpha(token[start]) && (token[start] != '\\')) return (start);
   for (j = start+1; j<token.size();j++)
     if ((!isalnum(token[j]))
-	&&(token[j] != '-') 
 	&&(token[j] != '_')
 	&&(token[j] != '&')
+	&&(token[j] != '\\')
 	&&(token[j] != '$'))
       return(j);
 	throw(string("getclipsvar ran off end of token string"));

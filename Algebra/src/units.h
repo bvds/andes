@@ -36,7 +36,7 @@ punit( "A",          1.,     0,  0,  -1,  1,  0,  1), // amps, Amperes
 punit( "T",          1.,     0,  1,  -1,  -1, 0,  1), // tesla
 punit( "G",      1.0e-4,     0,  1,  -1,  -1, 0,  1), // gauss
 punit( "Wb",         1.,     2,  1,  -1,  -1, 0,  1), // webers
-punit( "$W",         1.,     2,  1,  -1,  -2, 0,  1), // ohm (as capital omega)
+punit( "\\Omega",    1.,     2,  1,  -1,  -2, 0,  1), // ohm (as capital omega)
 punit( "ohm",        1.,     2,  1,  -1,  -2, 0,  1), // ohm
 punit( "Hz",         1.,     0,  0,  -1,  0,  0,  1), // Hertz
 punit( "Pa",         1.,     -1, 1,  -2,  0,  0,  1), // Pascal

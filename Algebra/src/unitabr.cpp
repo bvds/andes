@@ -105,7 +105,7 @@ numvalexp * unitabrs::unitget(const string & unitname)
   for (q = 0; q < abbrev.size(); q++)
     if (pureunit == abbrev[q]) break;
   if (q == abbrev.size()) {
-    if ((unitname.substr(0,2) == "$m") ||(unitname.substr(0,2) == "mu")) {    
+    if ((unitname.substr(0,3) == "\\mu") ||(unitname.substr(0,2) == "mu")) {    
       pureunit = unitname.substr(2,unitname.size()-2);
       pfxvalue = 1.0E-6;
     }
