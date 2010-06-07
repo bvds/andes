@@ -87,6 +87,10 @@ int getavarwu(const string bufst, const bool varNew, const bool valToo,
   if ((kend == kstrt) || kend == bufst.size()) 
     throw(string("svar in bad format ") + bufst);
   string newvar = bufst.substr(kstrt,kend-kstrt);
+  // Unescape any backslashes
+  for (k = 0; (k = newvar.find("\\\\", k)) != std::string::npos;){
+    newvar.replace(k,2,"\\");
+  }
   DBG(cout << "variable |" << newvar <<"|" << endl);
   if (valToo) {
     kend = parseanum(bufst,kstrt);

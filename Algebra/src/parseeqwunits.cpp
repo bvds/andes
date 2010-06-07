@@ -32,8 +32,7 @@ using namespace std;
  *  parseEqWUnits(const string & lispeq)				*
  *  returns a stack of string tokens, each of which is one of		*
  *		( = + - * / ^ )					  	*
- *	or     a string starting with [A-Z] | [a-z] | \\ and continuing	*
- *		  with [A-Z] | [a-z] | [0-9] | _ | $ | \\		*
+ *	or     a variable string, as determined by getclipsvar(...)	*
  *	or     a number							*
  *      or     string "U)", which is used for ending units		*
  *  if top element returned is not ), something is wrong		*
@@ -122,10 +121,14 @@ stack<string> *parseEqWUnits(const string & lispeq)
 	  continue;
 	}
       // should match test at beginning of getclipsvar(...).
-      if (isalpha(thiscar) || (thiscar == '\\'))
+      if (isalpha(thiscar) || (thiscar == '\\')|| (thiscar == ':'))
 	{
 	  j = getclipsvar(lispeq,index);
 	  string *p = new string(lispeq.substr(index,j-index));
+	  // Unescape any backslashes
+	  for (int k = 0; (k = p->find("\\\\", k)) != std::string::npos;){
+	     p->replace(k,2,"\\");
+	  }	  
 	  index = j;
 	  if ((p->compare("dnum")==0) || (p->compare("DNUM")==0) )
 	  {

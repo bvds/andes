@@ -26,9 +26,9 @@
 //      name             value       m kg  s  C  K 
 //
 physc("\\pi",     3.14159265358979323, 0, 0, 0, 0, 0), // pi
-physc("\\epsilon0",       8.854187817E-12,-3,-1, 2, 2, 0), // pemittivity of vacuum
-physc("\\epsilon_0",       8.854187817E-12,-3,-1, 2, 2, 0), // pemittivity of vacuum
-physc("eps0",       8.854187817E-12,-3,-1, 2, 2, 0), // pemittivity of vacuum
+physc("\\epsilon0",       8.854187817E-12,-3,-1, 2, 2, 0), // permittivity of vacuum
+physc("\\epsilon_0",       8.854187817E-12,-3,-1, 2, 2, 0), // permittivity of vacuum
+physc("eps0",       8.854187817E-12,-3,-1, 2, 2, 0), // permittivity of vacuum
 physc("kelec",  8.98755178799791E+9, 3, 1,-2,-2, 0), // 1/4*pi*eps0
 physc("\\mu0",  1.2566370614359173E-6, 1, 1, 0,-2, 0), // permeability of vacuum
 physc("\\mu_0",  1.2566370614359173E-6, 1, 1, 0,-2, 0), // permeability of vacuum

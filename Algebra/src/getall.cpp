@@ -122,6 +122,10 @@ bool getavar(const string bufst)
   for (kend = bufst.size() - 2; kend >= kstrt 
 	 && (bufst[kend] == ' ' || bufst[kend] == '|'); kend--);
   string newvar = bufst.substr(kstrt, kend-kstrt+1);
+  // Unescape any backslashes
+  for (k = 0; (k = newvar.find("\\\\", k)) != std::string::npos;){
+    newvar.replace(k,2,"\\");
+  }
   DBG (
     cout << "variable |" << newvar << "|" << endl; );
   for (k = 0; k < canonvars->size(); k++)
@@ -147,6 +151,10 @@ bool makenn(const string bufst)
   for (kend = bufst.size() - 2; kend >= kstrt 
 	 && (bufst[kend] == ' ' || bufst[kend] == '|'); kend--);
   string newvar = bufst.substr(kstrt, kend-kstrt+1);
+  // Unescape any backslashes
+  for (k = 0; (k = newvar.find("\\\\", k)) != std::string::npos;){
+    newvar.replace(k,2,"\\");
+  }
   DBG ( cout << "variable |" << newvar << "| set nn" << endl; );
   for (k = 0; k < canonvars->size(); k++)
     if (newvar == (*canonvars)[k]->clipsname)
@@ -172,6 +180,10 @@ bool makepos(const string bufst)
   for (kend = bufst.size() - 2; kend >= kstrt 
 	 && (bufst[kend] == ' ' || bufst[kend] == '|'); kend--);
   string newvar = bufst.substr(kstrt,kend-kstrt+1);
+  // Unescape any backslashes
+  for (k = 0; (k = newvar.find("\\\\", k)) != std::string::npos;){
+    newvar.replace(k,2,"\\");
+  }
   DBG (cout << "variable |" << newvar << "| set pos?" << endl);
   for (k = 0; k < canonvars->size(); k++)
     if (newvar == (*canonvars)[k]->clipsname)
@@ -201,6 +213,10 @@ bool makenz(const string bufst)
   for (kend = bufst.size() - 2; kend >= kstrt 
 	 && (bufst[kend] == ' ' || bufst[kend] == '|'); kend--);
   string newvar = bufst.substr(kstrt,kend-kstrt+1);
+  // Unescape any backslashes
+  for (k = 0; (k = newvar.find("\\\\", k)) != std::string::npos;){
+    newvar.replace(k,2,"\\");
+  }
   DBG ( cout << "variable |" << newvar << "| set nonzero?" << endl; );
   for (k = 0; k < canonvars->size(); k++)
     if (newvar == (*canonvars)[k]->clipsname)
@@ -281,6 +297,10 @@ bool makepar(const string bufst, bool keep_algebraic)
   if ((kend == kstrt) || kend == bufst.size()) 
     throw(string("parameter in bad format ") + bufst);
   string newvar = bufst.substr(kstrt,kend-kstrt);
+  // Unescape any backslashes
+  for (k = 0; (k = newvar.find("\\\\", k)) != std::string::npos;){
+    newvar.replace(k,2,"\\");
+  }
   DBG ( cout << "variable |" << newvar << "| set param?" << endl);
   // skip white space and check for optional numerical value argument
   for (kstrt = kend+1; kstrt < bufst.size() && bufst[kstrt] == ' '; kstrt++);
