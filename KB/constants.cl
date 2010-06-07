@@ -34,7 +34,7 @@
 ;;; to be removed from the list of variables in an equation in some contexts
 ;;; we don't change vars-in-eqn since might need all symbols in other contexts.
 (defparameter *phys-constants* 
-    '(|\pi| |\epsilon0| |\epsilon_0| |eps0| |kelec| |\mu0| |\mu_0| |mu0| |kmag| |c| |hbar| |G| |Iref|))
+    '(|\\pi| |\\epsilon0| |\\epsilon_0| |eps0| |kelec| |\\mu0| |\\mu_0| |mu0| |kmag| |c| |hbar| |G| |Iref|))
 (defun physconstp (exp) (member exp *phys-constants*))
 
 ;;; enter-predefs -- enter predefined symbols for *cp* into symbol table

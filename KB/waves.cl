@@ -27,7 +27,7 @@
 
 ;; ex) "the wavelength of ~ moving in ~" 
 (def-qexp wavelength (wavelength ?wave ?medium)
-  :symbol-base |\lambda|     
+  :symbol-base |\\lambda|     
   :short-name "wavelength"	
   :units |m|
   :restrictions positive  ;needed for harmonics problems to work
@@ -95,13 +95,13 @@
        (variable  ?kwave  (wavenumber ?wave ?medium))
    )
    :effects (
-    (eqn  (= (* ?lamb ?kwave) (* 2 |\pi|))  ;For pi, must use |\pi|
+    (eqn  (= (* ?lamb ?kwave) (* 2 |\\pi|))  ;For pi, must use |\\pi|
                 (wavenumber-lambda-wave ?wave ?medium))
    )
    :hint (
       (point (string "You can use the definition of wavenumber."))
       (bottom-out (string "Write the equation ~A" 
-			  ((= (* ?kwave   ?lamb) (* 2 |\pi|)) algebra) ))
+			  ((= (* ?kwave   ?lamb) (* 2 |\\pi|)) algebra) ))
       ))
 
 ;;;
@@ -202,7 +202,7 @@
 
 ;; ex) "the angular-frequency of ~"
 (def-qexp angular-frequency (angular-frequency ?wave)
-  :symbol-base |\omega|     
+  :symbol-base |\\omega|     
   :short-name "angular frequency"	
   :units |rad/s|
   :restrictions nonnegative 
@@ -241,13 +241,13 @@
 		  (variable  ?freq  (frequency ?object))
 		  )
   :effects (
-	    (eqn  (= ?omega (* 2 |\pi| ?freq)) ;pi must be |\pi|
+	    (eqn  (= ?omega (* 2 |\\pi| ?freq)) ;pi must be |\\pi|
 	    (frequency-of-wave ?object)))
   :hint (
 	 (point (string "You can use equation for the frequency of a wave"))
 	 ;;(teach (string "The equation-of-frequency-of-wave states that the frequency of a wave is angular-frequency/(2*pi)"))
 	 (bottom-out (string "Write the equation ~A" 
-			     ((= ?omega (*2 |\pi| ?freq))  algebra) ))
+			     ((= ?omega (*2 |\\pi| ?freq))  algebra) ))
 	 ))
 
 ;; There are two versions for beat frequency: one for
@@ -898,13 +898,13 @@
 		  )
   :effects (
 	    ;; BvdS:  No solution found if this is in sqrt form.
-	    (eqn (= (* ?t ?t ?k) (* 4 |\pi| |\pi| ?m)) ;must use |\pi| for pi
+	    (eqn (= (* ?t ?t ?k) (* 4 |\\pi| |\\pi| ?m)) ;must use |\\pi| for pi
 		 (spring-mass-oscillation ?block ?spring))
 	    )
   :hint (
 	 (point (string "Find a formula for the period of oscillation of a mass and spring"))
 	 (bottom-out (string "Write the equation ~A" 
-			     ((= ?t (* 2 |\pi| (sqrt (/ ?m ?k)))) algebra) ))
+			     ((= ?t (* 2 |\\pi| (sqrt (/ ?m ?k)))) algebra) ))
 	 ))
 
 ;;;  Frequency for simple pendulum
@@ -942,13 +942,13 @@
 		  )
   :effects (
 	    ;; BvdS:  I couldn't get this to work in sqrt form.
-	    (eqn  (= (* ?t ?t ?g-var) (* 4 |\pi| |\pi| ?l)) ;must use |\pi| for pi
+	    (eqn  (= (* ?t ?t ?g-var) (* 4 |\\pi| |\\pi| ?l)) ;must use |\\pi| for pi
 		  (pendulum-oscillation ?block ?rod ?planet))
 	    )
   :hint (
 	 (point (string "Find a formula for the period of oscillation of a pendulum"))
 	 (bottom-out (string "Write the equation ~A" 
-			     ((= ?t (* 2 |\pi| (sqrt (/ ?l ?g-var)))) algebra) ))
+			     ((= ?t (* 2 |\\pi| (sqrt (/ ?l ?g-var)))) algebra) ))
 	 ))
 
 
@@ -1247,7 +1247,7 @@
 ;;;  Intensity in decibels.
 ;; ex) "the intensity supplied to ~ due to ~ in decibels" 
 (def-qexp db-intensity (db-intensity ?wave ?agent :time ?time)
-  :symbol-base |\beta|     
+  :symbol-base |\\beta|     
   :short-name "decibels" 
   :units |dB|
   :new-english ((the) "intensity"
@@ -1413,7 +1413,7 @@
     (optional (axes-for ?source 0)) ;allow draw axes
     )
   :effects 
-  ( (eqn  (= ?power (* 4 |\pi| (^ ?r 2) ?int))
+  ( (eqn  (= ?power (* 4 |\\pi| (^ ?r 2) ?int))
 		  (spherical-intensity-to-power ?wave ?source ?t (?b1 ?b2))) )
   :hint 
   ( (point (string "If the power goes out in all directions, the intensity ~A is the power divided by the surface area of the sphere." 
@@ -1421,7 +1421,7 @@
     (teach (string "Imagine a sphere centered at ~A and extending to ~A; all of the power goes out through this sphere." 
 		   (?source def-np) (?wave def-np)))
     (bottom-out (string "Write the equation ~A" 
-			     ((= ?power (* 4 |\pi| (^ ?r 2) ?int)) algebra) ))
+			     ((= ?power (* 4 |\\pi| (^ ?r 2) ?int)) algebra) ))
 	 ))
 
 

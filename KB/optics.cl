@@ -178,7 +178,7 @@
 	 ))
 
 (def-qexp resolution-angle (resolution-angle ?grating)
-  :symbol-base |\theta|     
+  :symbol-base |\\theta|     
   :short-name "angle of resolution"
   :units |deg|
   :restrictions positive

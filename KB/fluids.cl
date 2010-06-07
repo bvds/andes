@@ -28,7 +28,7 @@
 
 ;; Define the quantity mass density.
 (def-qexp mass-density (mass-density ?material)
-  :symbol-base |\rho|     
+  :symbol-base |\\rho|     
   :short-name "mass density"	
   :units |kg/m^3|
   :restrictions nonnegative   
