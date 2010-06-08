@@ -1,3 +1,4 @@
+
 dojo.provide("andes.convert");
 
 (function(){
@@ -139,7 +140,8 @@ dojo.provide("andes.convert");
 					data:{
 						x:o.x+buttonWidth,
 						y:o.y,
-						text:o.text || ""
+						// Convert HTML, just like for problem statements above.
+						text:andes.typeset.convertHTML(o.text) || ""
 					},
 					enabled: false  // treat as mode=locked
 				}
