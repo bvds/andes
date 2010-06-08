@@ -271,7 +271,7 @@ dojo.provide("andes.convert");
 			}
 			
 			if(type=="vector" || type=="axes"){
-				obj.cosphi = item.cosphi;	
+				obj.cosphi = item.data.cosphi===undefined ? 0 : item.data.cosphi;	
 			}
 
 			if(combo){
