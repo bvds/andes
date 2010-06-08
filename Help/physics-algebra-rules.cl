@@ -401,7 +401,7 @@
   (grammar-add-nonterminal '**common-grammar** 'number '((integer)
 						  (fpnum)
 						  (scinum)
-						  (dollars lp)
+						  (backslash lp li)
 						  ))
   
   ;; arithmetic deals with numbers and operations on numbers
