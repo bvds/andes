@@ -392,6 +392,12 @@
 			   (expand-wild-symbols '(letter ?rest-of-unknown)))
   (grammar-add-nonterminal '**common-grammar** 'unknown
 			   (expand-wild-symbols '(backslash ?rest-of-unknown)))
+  
+  ;; Special numbers, like pi, e, Euler's constant
+  ;; These are allowed inside a dnum, so they have to exist
+  ;; as a subclass of p-arithmetic.
+  (grammar-add-nonterminal '**common-grammar** 'symbol-number
+			   '((backslash lp li)))
 
   ;;
   ;; rules are juggled to avoid forward references
@@ -401,12 +407,11 @@
   (grammar-add-nonterminal '**common-grammar** 'number '((integer)
 						  (fpnum)
 						  (scinum)
-						  (backslash lp li)
 						  ))
   
   ;; arithmetic deals with numbers and operations on numbers
   (grammar-add-nonterminal '**common-grammar** 'p-arithmetic
-			   '((number)))
+			   '((number) (symbol-number)))
 
   (grammar-add-nonterminal '**common-grammar** 'arithmetic
 			   '((p-arithmetic)))
