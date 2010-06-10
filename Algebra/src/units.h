@@ -1,6 +1,6 @@
 // list of units in terms of fundamental dimensions.
 // Copyright (C) 2001 by Joel A. Shapiro -- All Rights Reserved
-// Modifications by Brett van de Sande, 2005-2008
+// Modifications by Brett van de Sande, 2005-2010
 //
 //  This file is part of the Andes Solver.
 //

@@ -159,24 +159,17 @@
 ;;
 (defun parse-pack (parse)
   (list (first parse)
-	(remove #\Space (map 'string #'(lambda (x)
-					 (if (characterp x)
-					     x
-					   #\Space))
-			     (flatten (rest parse))))))
+	(coerce (remove-if-not #'characterp (flatten (cdr parse))) 
+		'string)))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun parse-pack-cs (parse)
-  (list (first parse)
-	(concatenate 'string "|"
-		     (remove #\Space (map 'string #'(lambda (x)
-						      (if (characterp x)
-							  x
-							#\Space))
-					  (flatten (rest parse)))) "|")))
+  (list (car parse)
+	(format nil "|~{~A~}|"
+		(substitute "\\\\" #\\ (remove-if-not #'characterp (flatten (cdr parse)))))))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

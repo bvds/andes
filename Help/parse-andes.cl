@@ -403,31 +403,35 @@
    calls color-by-numbers on it, and return a tutor turn.
    If the equation is incorrect, set the ErrInterp slot of the student entry."
   (let* ((parse (StudentEntry-ParsedEqn se))
-	 (answer (subst-canonical-vars ;lookup student variables
-		  (parse-pack-lhs 'symbol-number ;stringify pi  
-				  ;; stringify student variables
-				  (parse-pack-lhs 'unknown 
-						  (parse-tree parse)))))
+	 (answer (subst-canonical-vars 
+		  ;; stringify student variables
+		  (parse-pack-lhs 'unknown (parse-tree parse))))
 	 (strings-in-answer (contains-strings answer)))
     (cond
      (strings-in-answer (handle-undefined-variables-equation se strings-in-answer))
      (t
+      (format webserver:*stdout* "parse-handler Answer0 ~S~%" answer)
       (setf answer (parse-pack-to-string-lhs 'unknown answer))
-      (setf answer (parse-pack-to-string-lhs 'symbol-number answer))
+      (setf answer (parse-pack-cs-lhs 'symbol-number answer))
       (setf answer (parse-remove-lhs 'wspace answer))
       (setf answer (parse-pack-lhs 'r-paren answer))
+      (format webserver:*stdout* "parse-handler Answer1 ~S~%" answer)
       (setf answer (parse-pack-lhs 'l-paren answer))
       (setf answer (parse-pack-lhs 'equals answer))
       (setf answer (parse-pack-lhs 'bops answer))
       (setf answer (parse-pack-lhs 'number answer))
       (setf answer (parse-pack-lhs 'func answer))
+      (format webserver:*stdout* "parse-handler Answer21 ~S~%" answer)
       (setf answer (parse-pack-cs-lhs 'unit answer))
+      (format webserver:*stdout* "parse-handler Answer22 ~S~%" answer)
       (setf answer (parse-surround-lhs "(" ")" 'funcall answer))
       (setf answer (parse-surround-lhs "(" ")" 'funcall-a answer))
+      (format webserver:*stdout* "parse-handler Answer3 ~S~%" answer)
       (setf answer (parse-surround-lhs "(DNUM" ")" 'dnum answer))
       (setf answer (parse-collapse answer))
       (if (stringp answer)		;collapse makes it a string
 	  (setf answer (andes-in2pre answer)))
+      (format webserver:*stdout* "parse-handler Answer4 ~S~%" answer)
       (cond ((stringp answer)		;in2pre makes a list
 	     (make-red-turn "Should not see this error: (2) Notify Instructor"))
 	    (t	 ;use equation-redp so candidate is tested but not added to slot
@@ -1280,18 +1284,12 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; This list should match instances of symbol-number in 
-;; Help/physics-algebra-rules.cl
-(defparameter *symbol-numbers* '(("\\pi" . |\\pi|)))
-
 (defun subst-canonical-vars (Exp)
   "Translate expression subsituting canonical vars for student vars, or standard vars throughout."
   ;; NB: student variables must be *strings* in Exp, not symbols
   ;; Strings with no matching expression pass through translation unchanged.
   (cond ((stringp exp)
 	 (or (symbols-sysvar exp) ;find canonical variable
-	     ;; match any symbol-numbers
-	     (cdr (assoc exp *symbol-numbers* :test #'equal))
 	     exp))
 	((atom Exp) Exp) 
 	(t (cons (subst-canonical-vars (car Exp))
