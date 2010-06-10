@@ -404,12 +404,14 @@
    If the equation is incorrect, set the ErrInterp slot of the student entry."
   (let* ((parse (StudentEntry-ParsedEqn se))
 	 (answer (subst-canonical-vars 
+		  ;; stringify student variables
 		  (parse-pack-lhs 'unknown (parse-tree parse))))
 	 (strings-in-answer (contains-strings answer)))
     (cond
      (strings-in-answer (handle-undefined-variables-equation se strings-in-answer))
      (t
       (setf answer (parse-pack-to-string-lhs 'unknown answer))
+      (setf answer (parse-pack-cs-lhs 'symbol-number answer))
       (setf answer (parse-remove-lhs 'wspace answer))
       (setf answer (parse-pack-lhs 'r-paren answer))
       (setf answer (parse-pack-lhs 'l-paren answer))
@@ -1273,6 +1275,19 @@
 
     rem))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun subst-canonical-vars (Exp)
+  "Translate expression subsituting canonical vars for student vars, or standard vars throughout."
+  ;; NB: student variables must be *strings* in Exp, not symbols
+  ;; Strings with no matching expression pass through translation unchanged.
+  (cond ((stringp exp)
+	 (or (symbols-sysvar exp) ;find canonical variable
+	     exp))
+	((atom Exp) Exp) 
+	(t (cons (subst-canonical-vars (car Exp))
+		 (subst-canonical-vars (cdr Exp))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; end of parse-andes.cl

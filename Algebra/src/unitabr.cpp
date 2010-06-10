@@ -1,6 +1,6 @@
 // unitabr.cpp	get unit abbreviations and handle lookup
 // Copyright (C) 2001 by Joel A. Shapiro -- All Rights Reserved
-// Modifications by Brett van de Sande, 2005-2008
+// Modifications by Brett van de Sande, 2005-2010
 //
 //  This file is part of the Andes Solver.
 //
@@ -102,21 +102,18 @@ numvalexp * unitabrs::unitget(const string & unitname)
   numvalexp * retval;
   string pureunit = unitname;
   double pfxvalue = 1.;
+  // Test for a unit without prefix.
   for (q = 0; q < abbrev.size(); q++)
     if (pureunit == abbrev[q]) break;
   if (q == abbrev.size()) {
-    if ((unitname.substr(0,2) == "$m") ||(unitname.substr(0,2) == "mu")) {    
-      pureunit = unitname.substr(2,unitname.size()-2);
-      pfxvalue = 1.0E-6;
-    }
-    else {
-      pureunit = unitname.substr(1,unitname.size()-1);
-      for (k = 0; k < pfxs.size(); k++)
-	if (unitname.substr(0,1) == pfxs[k]) {
-	  pfxvalue = pfxvals[k];
-	  break; }
-      if (k == pfxs.size()) return((numvalexp *) NULL);
-    }
+    // Try to match up the unit prefix
+    for (k = 0; k < pfxs.size(); k++)
+      if (unitname.compare(0,pfxs[k].length(),pfxs[k])==0) break; 
+    // If there is no match, return error.
+    if (k == pfxs.size()) return((numvalexp *) NULL);
+    pureunit.erase(0,pfxs[k].length());  // remove prefix
+    pfxvalue = pfxvals[k];
+    // now try to match up the unit, again.
     for (q = 0; q < abbrev.size(); q++)
       if ((pureunit == abbrev[q]) && pfxable[q]) break;
     if (q == abbrev.size()) return((numvalexp *) NULL);

@@ -91,6 +91,18 @@ dojo.provide("andes.typeset");
 				return inText.replace(/\\([a-zA-Z]+)/g,function(match,word){
 					if(greeks[word]){
 						return String.fromCharCode(greeks[word]);
+					}else if(word.substr(0,2)=="mu"){
+						// special handling for \mu since it is 
+						// a unit prefix for micro.
+						return String.fromCharCode(greeks["mu"])+word.substr(2);
+					}else if(word.substr(0,5)=="theta"){
+						// special handling for \theta since it is 
+						// a standard prefix for angle associated with a vector.
+						return String.fromCharCode(greeks["theta"])+word.substr(5);
+					}else if(word.substr(0,3)=="phi"){
+						// special handling for \phi since it is 
+						// a standard prefix for angle associated with a z-axis vector.
+						return String.fromCharCode(greeks["theta"])+word.substr(3);
 					}
 					console.log("no match for ",match," in ",inText);
 					console.log("Need user-friendly error handling here!");				
