@@ -128,7 +128,9 @@
 		(let ((rule (make-rule :lhs lhs :rhs obj :rtn-fn rtn-fn)))
 		  (if (not (member rule (symbol-value grammar) :test #'equal))
 		      (grammar-set grammar (append (symbol-value grammar) (list rule)))
-		    ))
+		      (warn "rule ~A not in grammar" rule)
+		      ))
+		(warn "invalid object ~A for grammar" obj)
 	      )
 	  )))))
 ;;
@@ -234,8 +236,11 @@
 ;;  rhs - an rhs to be matched against
 ;; returns:
 ;;  a possible nil list of rules that have rhs as their rhs
+(defvar *pl* 0)
 (defun grammar-get-rhs (grammar rhs)
-  (find-all rhs grammar :key #'rule-rhs :test #'equal))
+  (let ((result (find-all rhs grammar :key #'rule-rhs :test #'equal)))
+  ;  (format t "~A grammar-get-rhs ~A -> ~A~%" *pl* rhs result)
+    result))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -248,7 +253,9 @@
 ;; returns:
 ;;  a possible nil list of rules that have rhs as the first element of their rhs
 (defun grammar-get-rhs-with-first (grammar rhs)
-  (find-all rhs grammar :key #'(lambda (rule) (if-list-first-nil (rule-rhs rule)))))
+ (let ((result (find-all rhs grammar :key #'(lambda (rule) (if-list-first-nil (rule-rhs rule))))))
+ ;  (format t "~A grammar-get-rhs-with-first ~A -> ~A~%" *pl* rhs result)
+   result))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -274,6 +281,10 @@
 (defun grammar-rhs-valid (grammar x)
   (cond
    ((null x) t)
+   ;; optional expressed as sublist
+   ((consp (first x))
+    (and (grammar-rhs-valid grammar (first x))
+	 (grammar-rhs-valid grammar (rest x))))
    ((grammar-match-lhs grammar (first x)) (grammar-rhs-valid grammar (rest x)))
    (t nil)))
 ;;

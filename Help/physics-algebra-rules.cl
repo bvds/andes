@@ -188,24 +188,24 @@
 						  (ej) (ek) (el) (em) (en) (eo) (ep) (eq) (er)
 						  (es) (et) (eu) (ev) (ew) (ex) (ey) (ez)))
   ;; white space
-  (grammar-add-nonterminal '**common-grammar** 'wspace (expand-wild-symbols '(space ?wspace)))
-  (grammar-add-nonterminal '**common-grammar** 'ws '((nil) (wspace))) ;optional
+  (grammar-add-nonterminal '**common-grammar** 'wspace '((space (wspace))))
 
   ;; integers
-  (grammar-add-nonterminal '**common-grammar** 'integer (expand-wild-symbols '(digit ?integer)))
+  (grammar-add-nonterminal '**common-grammar** 'integer '((digit (integer))))
 
   ;; fixed point numbers
-  (grammar-add-nonterminal '**common-grammar** 'fpnum '((period integer)))
-  (grammar-add-nonterminal '**common-grammar** 'fpnum (expand-wild-symbols '(integer period ?integer)))
+  (grammar-add-nonterminal '**common-grammar** 'fpnum '((period integer)
+							(integer period)
+							(integer period integer)))
 
   ;; floating point numbers (scientific notation
-  (grammar-add-nonterminal '**common-grammar** 'exponent (expand-wild-symbols '(eE ?plus-minus integer)))
-  (grammar-add-nonterminal '**common-grammar** 'exponent (expand-wild-symbols '(eE ?plus-minus fpnum)))
+  (grammar-add-nonterminal '**common-grammar** 'exponent 
+			   '((eE (plus-minus) integer)
+			     (eE (plus-minus) fpnum)))
 
   (grammar-add-nonterminal '**common-grammar** 'scinum
-			   (expand-wild-symbols '(fpnum ?wspace exponent)))
-  (grammar-add-nonterminal '**common-grammar** 'scinum
-			   (expand-wild-symbols '(integer ?wspace exponent)))
+			   '((fpnum (wspace) exponent)
+			     (integer (wspace) exponent)))
 
   ;; unit prefixes
   (grammar-add-special '**common-grammar** 'unit-prefix "a" nil **identifier-grammar**)
@@ -349,18 +349,17 @@
 
   ;; units ... NOTE: no white-space
   (grammar-add-nonterminal '**common-grammar** 'a-unit
-			   (expand-wild-symbols '(?unit-prefix unit-name)))
-  (grammar-add-nonterminal '**common-grammar** 'a-unit '((unit-rname)))
-
-  (grammar-add-nonterminal '**common-grammar** 'a-unit '((a-unit raised integer)))
-  (grammar-add-nonterminal '**common-grammar** 'a-unit '((a-unit raised plus-minus integer)))
-  (grammar-add-nonterminal '**common-grammar** 'a-unit '((l-paren a-unit r-paren)))
+			   '(((unit-prefix) unit-name)
+			     (unit-rname)
+			     (a-unit raised (plus-minus) integer)
+			     (l-paren a-unit r-paren)))
   
-  (grammar-add-nonterminal '**common-grammar** 'unit '((a-unit)
-						(a-unit times-div unit)
-						(a-unit period unit)
-						(l-paren unit r-paren)
-						))
+  (grammar-add-nonterminal '**common-grammar** 'unit 
+			   '((a-unit)
+			     (a-unit times-div unit)
+			     (a-unit period unit)
+			     (l-paren unit r-paren)
+			     ))
   
   
   ;; function names ... NOTE: case-insensitive
@@ -376,19 +375,15 @@
   
   ;; variable/identifiers
   (grammar-add-nonterminal '**common-grammar** 'rest-of-unknown 
-			   (expand-wild-symbols '(letter ?rest-of-unknown)))
-  (grammar-add-nonterminal '**common-grammar** 'rest-of-unknown 
-			   (expand-wild-symbols '(backslash ?rest-of-unknown)))
-  (grammar-add-nonterminal '**common-grammar** 'rest-of-unknown 
-			   (expand-wild-symbols '(digit ?rest-of-unknown)))
-  (grammar-add-nonterminal '**common-grammar** 'rest-of-unknown 
-			   (expand-wild-symbols '(underscore ?rest-of-unknown)))
+			   '((letter (rest-of-unknown))
+			     (backslash rest-of-unknown)
+			     (digit (rest-of-unknown))
+			     (underscore ?rest-of-unknown)))
   
   ;; Variable name can't start with digit or underscore.
   (grammar-add-nonterminal '**common-grammar** 'unknown
-			   (expand-wild-symbols '(letter ?rest-of-unknown)))
-  (grammar-add-nonterminal '**common-grammar** 'unknown
-			   (expand-wild-symbols '(backslash ?rest-of-unknown)))
+			   '((letter (rest-of-unknown))
+			     (backslash rest-of-unknown)))
   
   ;; Special numbers, like pi, e, Euler's constant
   ;; These are allowed inside a dnum, so they have to exist
@@ -408,26 +403,28 @@
 ;;;  Dnum expressions (numerical expressions with units).
 ;;;
   ;; Terms
-  (grammar-add-nonterminal '**common-grammar** 'n-term 
-			   '((l-paren ws n-expr ws r-paren)
-			     (symbol-number)
+  (grammar-add-nonterminal '**common-grammar** 'n-term
+			   ;; parentheses done below
+			   '((symbol-number)
 			     (number)
-			     (func ws n-term)))  ;numerical function call
+			     (func (wspace) n-term)))  ;numerical function call
   ;; Powers
   (grammar-add-nonterminal '**common-grammar** 'n-pterm ;numerical value
 			   '((n-term) 
-			     (n-term ws raised ws n-pterm)))
+			     (n-term (wspace) raised (wspace) n-pterm)))
   ;; Multiplication & division
   (grammar-add-nonterminal '**common-grammar** 'n-factor ;numerical value
 			   '((n-pterm) 
-			     (n-factor ws times-div ws n-pterm))) ;binary *,/
+			     (n-factor (wspace) times-div (wspace) n-pterm))) ;binary *,/
   ;; White space mandatory in this case
   (grammar-add-nonterminal '**common-grammar** 'dnum '((n-factor wspace unit)))
   ;; Addition and subtraction (only from parentheses above)
   (grammar-add-nonterminal '**common-grammar** 'n-expr ;numerical value
 			   '((n-factor) 
-			     (n-expr ws plus-minus ws n-factor) ;binary +/-
-			     (plus-minus ws n-factor))) ;unary +/-
+			     (n-expr (wspace) plus-minus (wspace) n-factor) ;binary +/-
+			     (plus-minus (wspace) n-factor))) ;unary +/-
+  (grammar-add-nonterminal '**common-grammar** 'n-term 
+			   '((l-paren (wspace) n-expr (wspace) r-paren)))
 
 ;;;
 ;;;  General algebraic exprssions
@@ -435,28 +432,30 @@
 
   ;; Terms
   (grammar-add-nonterminal '**common-grammar** 'term 
-			   '((l-paren ws expr ws r-paren)
-			     (func ws term)  ;function calls
-			     (dnum)
+			   ;; parentheses  and function call done below
+			   '((dnum)
 			     (number)
 			     (unknown)))  ;handles symbol-number objects.
   ;; Powers
   (grammar-add-nonterminal '**common-grammar** 'pterm 
 			   '((term) 
-			     (term ws raised ws pterm)))
+			     (term (wspace) raised (wspace) pterm)))
   ;; Multiplication & division
   (grammar-add-nonterminal '**common-grammar** 'factor 
 			   '((pterm) 
-			     (factor ws times-div ws pterm))) ;binary *,/
+			     (factor (wspace) times-div (wspace) pterm))) ;binary *,/
   ;; Addition and subtraction
   (grammar-add-nonterminal '**common-grammar** 'expr 
 			   '((factor) 
 			     (dnum)
-			     (expr ws plus-minus ws factor) ;binary +/-
-			     (plus-minus ws factor))) ;unary +/-
+			     (expr (wspace) plus-minus (wspace) factor) ;binary +/-
+			     (plus-minus (wspace) factor))) ;unary +/-
+  (grammar-add-nonterminal '**common-grammar** 'term 
+			   '((l-paren (wspace) expr (wspace) r-paren)
+			     (func (wspace) term)))  ;function calls
   
   ;; final in this case is an equation something equals something
   (grammar-add-nonterminal '**common-grammar** 'final
-			   '((expr ws equals ws expr)))
+			   '((expr (wspace) equals (wspace) expr)))
 
 )
