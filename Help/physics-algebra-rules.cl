@@ -438,9 +438,8 @@
 			   '((l-paren ws expr ws r-paren)
 			     (func ws term)  ;function calls
 			     (dnum)
-			     (symbol-number)
 			     (number)
-			     (unknown)))
+			     (unknown)))  ;handles symbol-number objects.
   ;; Powers
   (grammar-add-nonterminal '**common-grammar** 'pterm 
 			   '((term) 
