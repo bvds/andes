@@ -6,7 +6,7 @@
 ;; Modified:
 ;;  4 June 2001 - (lht) created
 ;;; Modifications by Anders Weinstein 2002-2008
-;;; Modifications by Brett van de Sande, 2005-2008
+;;; Modifications by Brett van de Sande, 2005-2010
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
 ;;;
@@ -407,6 +407,7 @@
 		  ;; stringify student variables
 		  (parse-pack-lhs 'unknown (parse-tree parse))))
 	 (strings-in-answer (contains-strings answer)))
+      (format webserver:*stdout* "answer1 ~S~%" answer)
     (cond
      (strings-in-answer (handle-undefined-variables-equation se strings-in-answer))
      (t
@@ -420,12 +421,16 @@
       (setf answer (parse-pack-lhs 'number answer))
       (setf answer (parse-pack-lhs 'func answer))
       (setf answer (parse-pack-cs-lhs 'unit answer))
+      (format webserver:*stdout* "answer2 ~S~%" answer)
       (setf answer (parse-surround-lhs "(" ")" 'funcall answer))
       (setf answer (parse-surround-lhs "(" ")" 'funcall-a answer))
       (setf answer (parse-surround-lhs "(DNUM" ")" 'dnum answer))
+      (format webserver:*stdout* "answer3 ~S~%" answer)
       (setf answer (parse-collapse answer))
+      (format webserver:*stdout* "answer4 ~S~%" answer)
       (if (stringp answer)		;collapse makes it a string
 	  (setf answer (andes-in2pre answer)))
+      (format webserver:*stdout* "answer5 ~S~%" answer)
       (cond ((stringp answer)		;in2pre makes a list
 	     (make-red-turn "Should not see this error: (2) Notify Instructor"))
 	    (t	 ;use equation-redp so candidate is tested but not added to slot
