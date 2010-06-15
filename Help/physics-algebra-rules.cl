@@ -421,7 +421,8 @@
   (grammar-add-nonterminal '**common-grammar** 'n-factor ;numerical value
 			   '((n-pterm) 
 			     (n-factor ws times-div ws n-pterm))) ;binary *,/
-  (grammar-add-nonterminal '**common-grammar** 'dnum '((n-factor ws unit)))
+  ;; White space mandatory in this case
+  (grammar-add-nonterminal '**common-grammar** 'dnum '((n-factor wspace unit)))
   ;; Addition and subtraction (only from parentheses above)
   (grammar-add-nonterminal '**common-grammar** 'n-expr ;numerical value
 			   '((n-factor) 
@@ -437,6 +438,8 @@
 			   '((l-paren ws expr ws r-paren)
 			     (func ws term)  ;function calls
 			     (dnum)
+			     (symbol-number)
+			     (number)
 			     (unknown)))
   ;; Powers
   (grammar-add-nonterminal '**common-grammar** 'pterm 
