@@ -408,7 +408,7 @@
 )
 
 (def-qexp mass-per-length (mass-per-length ?rope)
-  :symbol-base |$l|     
+  :symbol-base |\\lambda|     
   :short-name "mass per length"	
   :units |kg/m|
   :restrictions nonnegative 
@@ -456,7 +456,7 @@
 ;;ex) "the coeffienct of kinetic friction between the crate and the plain"
 (def-qexp coef-friction 
     (coef-friction ?body1 ?body2 ?static-or-kinetic :time ?time)
-  :symbol-base |$m|     
+  :symbol-base |\\mu|     
   :short-name "coef. of friction"	
   :units NIL ;; dimensionless
   :new-english ((the) "coefficient of" ?static-or-kinetic "friction"

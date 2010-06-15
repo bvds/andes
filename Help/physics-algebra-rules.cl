@@ -215,7 +215,7 @@
   (grammar-add-special '**common-grammar** 'unit-prefix "p" nil **identifier-grammar**)
   (grammar-add-special '**common-grammar** 'unit-prefix "n" nil **identifier-grammar**)
   (grammar-add-special '**common-grammar** 'unit-prefix "mu" nil **identifier-grammar**)
-  (grammar-add-special '**common-grammar** 'unit-prefix "$m" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-prefix "\\mu" nil **identifier-grammar**)
   (grammar-add-special '**common-grammar** 'unit-prefix "m" nil **identifier-grammar**)
   (grammar-add-special '**common-grammar** 'unit-prefix "c" nil **identifier-grammar**)
   (grammar-add-special '**common-grammar** 'unit-prefix "d" nil **identifier-grammar**)
@@ -259,7 +259,7 @@
   (grammar-add-special '**common-grammar** 'unit-name "T" nil **identifier-grammar**)
   (grammar-add-special '**common-grammar** 'unit-name "Wb" nil **identifier-grammar**)
   (grammar-add-special '**common-grammar** 'unit-name "ohm" nil **identifier-grammar**)
-  (grammar-add-special '**common-grammar** 'unit-name "$W" nil **identifier-grammar**)
+  (grammar-add-special '**common-grammar** 'unit-name "\\Omega" nil **identifier-grammar**)
   (grammar-add-special '**common-grammar** 'unit-name "Hz" nil **identifier-grammar**)
   (grammar-add-special '**common-grammar** 'unit-name "Pa" nil **identifier-grammar**)
   (grammar-add-special '**common-grammar** 'unit-name "F" nil **identifier-grammar**)
@@ -392,6 +392,13 @@
 			   (expand-wild-symbols '(letter ?rest-of-unknown)))
   (grammar-add-nonterminal '**common-grammar** 'unknown
 			   (expand-wild-symbols '(backslash ?rest-of-unknown)))
+  
+  ;; Special numbers, like pi, e, Euler's constant
+  ;; These are allowed inside a dnum, so they have to exist
+  ;; as a subclass of p-arithmetic.  Unlike 'number, these
+  ;; are converted into a lisp symbol
+  (grammar-add-nonterminal '**common-grammar** 'symbol-number
+			   '((backslash lp li)))
 
   ;;
   ;; rules are juggled to avoid forward references
@@ -401,12 +408,11 @@
   (grammar-add-nonterminal '**common-grammar** 'number '((integer)
 						  (fpnum)
 						  (scinum)
-						  (dollars lp)
 						  ))
   
   ;; arithmetic deals with numbers and operations on numbers
   (grammar-add-nonterminal '**common-grammar** 'p-arithmetic
-			   '((number)))
+			   '((number) (symbol-number)))
 
   (grammar-add-nonterminal '**common-grammar** 'arithmetic
 			   '((p-arithmetic)))

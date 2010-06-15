@@ -28,7 +28,7 @@
 
 ;; Define the quantity mass density.
 (def-qexp mass-density (mass-density ?material)
-  :symbol-base |$r|     
+  :symbol-base |\\rho|     
   :short-name "mass density"	
   :units |kg/m^3|
   :restrictions nonnegative   
@@ -36,8 +36,9 @@
 )
 
 (defoperator define-mass-density (?material)
-  :preconditions ( (bind ?$rm-var (format-sym "$rm_~A" (body-name ?material))) )
-  :effects ( (variable ?$rm-var (mass-density ?material))
+  :preconditions ( (bind ?rm-var (format-sym "rhom_~A" 
+					     (body-name ?material))) )
+  :effects ( (variable ?rm-var (mass-density ?material))
              (define-var (mass-density ?material)))
   :hint 
   ((bottom-out (string "Define a variable for ~A by using ~A." 
