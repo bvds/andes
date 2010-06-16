@@ -6,7 +6,7 @@
 ;; Modified:
 ;;  4 June 2001 - (lht) created
 ;;; Modifications by Anders Weinstein 2002-2008
-;;; Modifications by Brett van de Sande, 2005-2008
+;;; Modifications by Brett van de Sande, 2005-2010
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
 ;;;
@@ -205,16 +205,18 @@
           (setf bad (append bad (list (list tmp se))))))))    
     (cond
       (cont
-       (setf tmp (choose-ambiguous-bad-turn bad se)) ; does add-entry on winning candidate
+       (setf tmp (choose-ambiguous-bad-turn bad se)) ;does add-entry on winning candidate
        (if (null tmp)
-	   (setf tmp (warn "Should not see this error: (1) Notify Instructor"))))
+	   (setf tmp (progn (warn "Should not see this error")
+			    (make-red-turn :id (StudentEntry-Id se))))))
       (t
        ;; Record correct eqn in algebra. (Must happen before interpretation 
        ;; testing)
        ;; NB: If we later reject it for some reason (because forbidden, 
        ;; premature, etc), algebra slot should be cleared.
-       (if (stringp (solver-studentAddOkay (StudentEntry-Id se) (StudentEntry-ParsedEqn se)))
-	   (setf tmp (make-red-turn :id (StudentEntry-Id se))) ;; to trap exceptions
+       (if (stringp (solver-studentAddOkay (StudentEntry-Id se) 
+					   (StudentEntry-ParsedEqn se)))
+	   (setf tmp (make-red-turn :id (StudentEntry-Id se))) ;to trap exceptions
 	   (setf tmp (interpret-equation result location)))
        (cond
 	 ((equal +color-green+ (turn-coloring tmp))
@@ -313,7 +315,7 @@
           (first (sort wrong #'simpler-parse))
 	  ;; look for units error:
           ;; URGH Some ambiguous equations get both inconsistent and missing units parses:
-	  ;; one parse dnum-mangles rhs of "s=-5m/s" to (* (- 5) (DNUM 1 |m/s|)) which
+	  ;; one parse dnum-mangle rhs of "s=-5m/s" to (* (- 5) (DNUM 1 |m/s|)) which
 	  ;; then appears to have missing units on 5 if original units are wrong.  This parse
 	  ;; can even get forgot-units-but-ok if the value is correct. Unless this is fixed or
 	  ;; detected, we have to distrust forgot-units interp if any "inconsistent" parses exist 
@@ -410,48 +412,46 @@
     (cond
      (strings-in-answer (handle-undefined-variables-equation se strings-in-answer))
      (t
-      (setf answer (parse-pack-to-string-lhs 'unknown answer))
-      (setf answer (parse-pack-cs-lhs 'symbol-number answer))
+      (setf answer (parse-pack-lhs 'symbol-number answer))
       (setf answer (parse-remove-lhs 'wspace answer))
-      (setf answer (parse-pack-lhs 'r-paren answer))
-      (setf answer (parse-pack-lhs 'l-paren answer))
-      (setf answer (parse-pack-lhs 'equals answer))
-      (setf answer (parse-pack-lhs 'bops answer))
+      (setf answer (parse-remove-lhs 'r-paren answer))
+      (setf answer (parse-remove-lhs 'l-paren answer))
+      (setf answer (parse-pack-lhs 'unit answer))
       (setf answer (parse-pack-lhs 'number answer))
+      (setf answer (parse-pack-lhs 'plus-minus answer))
+      (setf answer (parse-pack-lhs 'times-div answer))
+      (setf answer (parse-pack-lhs 'raised answer))
+      ;; (format webserver:*stdout* "answer0 ~S~%" answer)
       (setf answer (parse-pack-lhs 'func answer))
-      (setf answer (parse-pack-cs-lhs 'unit answer))
-      (setf answer (parse-surround-lhs "(" ")" 'funcall answer))
-      (setf answer (parse-surround-lhs "(" ")" 'funcall-a answer))
-      (setf answer (parse-surround-lhs "(DNUM" ")" 'dnum answer))
-      (setf answer (parse-collapse answer))
-      (if (stringp answer)		;collapse makes it a string
-	  (setf answer (andes-in2pre answer)))
-      (cond ((stringp answer)		;in2pre makes a list
-	     (make-red-turn "Should not see this error: (2) Notify Instructor"))
-	    (t	 ;use equation-redp so candidate is tested but not added to slot
-	     (setf (StudentEntry-ParsedEqn se) answer)
-	     (case (solver-equation-redp answer location)
-	       (forgot-units-but-ok
-		(forgot-units-ErrorInterp se))
-	       (maybe-forgot-units
-		(maybe-forgot-units-ErrorInterp se))
-	       (wrong-units
-		(wrong-units-ErrorInterp se))
-	       (inaccurate
-		;; not currently used because What's wrong checks for 
-		;; inaccuracy but only after checking for other error classes
-		(warn "inaccurate in parse-handler")
-		(make-red-turn :id (StudentEntry-id se)))
-	       (wrong
-		(make-red-turn :id (StudentEntry-id se)))
-	       ;; Following mainly occurs for parses giving rise to bad syntax
-	       ;; equations. Usually when this happens another parse will
-	       ;; produce legal equation so its not a problem. But we need 
-	       ;; to record this status to prefer other parses if eqn wrong.
-	       (solver-exception 
-		(solver-exception-interp se))
-	       (otherwise
-		(make-green-turn :id (StudentEntry-id se))))))))))
+      ;; (format webserver:*stdout* "answer1 ~S~%" answer)
+      (setf answer (parse-to-prefix answer))
+      ;; (format webserver:*stdout* "answer2 ~S~%" answer)
+      (setf answer (flatten-associative answer))
+      ;; (format webserver:*stdout* "answer3 ~S~%" answer)
+      (setf answer (denum-mangle answer))
+      (setf (StudentEntry-ParsedEqn se) answer)
+      (case (solver-equation-redp answer location)
+	(forgot-units-but-ok
+	 (forgot-units-ErrorInterp se))
+	(maybe-forgot-units
+	 (maybe-forgot-units-ErrorInterp se))
+	(wrong-units
+	 (wrong-units-ErrorInterp se))
+	(inaccurate
+	 ;; not currently used because What's wrong checks for 
+	 ;; inaccuracy but only after checking for other error classes
+	 (warn "inaccurate in parse-handler")
+	 (make-red-turn :id (StudentEntry-id se)))
+	(wrong
+	 (make-red-turn :id (StudentEntry-id se)))
+	;; Following mainly occurs for parses giving rise to bad syntax
+	;; equations. Usually when this happens another parse will
+	;; produce legal equation so its not a problem. But we need 
+	;; to record this status to prefer other parses if eqn wrong.
+	(solver-exception 
+	 (solver-exception-interp se))
+	(otherwise
+	 (make-green-turn :id (StudentEntry-id se))))))))
 
 ;
 ; Note: several canned routines here for particular error interpretations are
@@ -686,36 +686,6 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-(defun andes-in2pre (equation)
-  ;; use double precision format for read-from-string
-  (let* ((*read-default-float-format* 'double-float) 
-	 (eq (read-from-string (concatenate 'string "(" equation ")")))
-	 (leaveAlone nil)
-	 (unary '(+ - ln abs sin cos tan log10 sqrt exp))
-	 (binary '(((= r)) ((- l) (+ l)) ((* l) (/ l)) ((^ l))))
-	 (special '(dnum))
-	 (infixed (in2pre eq leaveAlone unary binary special))
-	 (result (denum-mangle (car infixed))))
-    (clean result)))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-(defun dnum (args)
-  (let ((x (first args)))
-    (let ((tmp (list (append (list (first x))
-			     (in2pre (subseq x 1 (- (length x) 1))
-				     (second args)
-				     (third args)
-				     (fourth args)
-				     (fifth args))
-			     (last x)))))
-      tmp)))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -730,32 +700,14 @@
 ;; However, the solver's prefix-form parser does not allow this. So we convert
 ;; our form by "dnum-mangling" it into solver-acceptable form as follows:
 ;;  	(dnum (+ 2 3) |m/s|) ==> (* (+ 2 3) (dnum 1 |m/s|))
-(defun denum-mangle (parse)
-  (let ((tmp nil))
-    (cond
-     ((null parse)
-      (setf tmp nil))
-     ((null (consp parse))
-      (setf tmp parse))
-     ((consp (first parse))
-      (setf tmp (list (denum-mangle (first parse))
-		      (denum-mangle (rest parse)))))
-     ((member (first parse) '(sin cos tan abs ln log10 sqrt exp))
-      (setf tmp (list (first parse)
-		      (denum-mangle (second parse)))))
-     ((member (first parse) '(dnum))
-      (if (consp (second parse))
-	  (if (= 1 (length (second parse)))
-	      (setf tmp (list (first parse) (first (second parse)) (third parse)))
-	    (setf tmp (list '*
-			    (second parse)
-			    (list (first parse) 1 (third parse)))))
-	(setf tmp (list (first parse) (second parse) (third parse)))))
-     (t
-      (setf tmp (list (first parse)
-		      (denum-mangle (second parse))
-		      (denum-mangle (third parse))))))
-    tmp))
+(defun denum-mangle (expr)
+  (cond
+    ((atom expr) expr)
+    ((eq (car expr) 'dnum)
+     (if (consp (second expr))
+	 (list '* (second expr) (list 'dnum 1 (third expr)))
+	 expr))
+    (t (cons (car expr) (mapcar #'denum-mangle (cdr expr))))))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1288,6 +1240,66 @@
 	((atom Exp) Exp) 
 	(t (cons (subst-canonical-vars (car Exp))
 		 (subst-canonical-vars (cdr Exp))))))
+
+(defun parse-to-prefix (expr)
+  "Turn parsed expression into lisp prefix form, assuming parentheses and spaces have been removed"
+  (cond
+    ((atom expr) expr)
+
+    ;; binary operators
+    ((and (member (car expr) '(final expr factor term pterm 
+			       n-expr n-factor n-term n-pterm))
+	  (member (car (third expr)) '(plus-minus times-div raised equals)))
+     (list (find-symbol (string (second (third expr))))
+	   (parse-to-prefix (second expr))
+	   (parse-to-prefix (fourth expr))))
+
+    ;; unary +/-
+    ((and (member (car expr) '(expr n-expr))
+	  (eq (car (second expr)) 'plus-minus))
+     (list (find-symbol (string (second (second expr))))
+	   (parse-to-prefix (third expr))))
+
+    ;; functions
+    ((and (member (car expr) '(term n-term))
+	  (eq (car (second expr)) 'func))
+     (list
+      (find-symbol (string-upcase (second (second expr))))
+	   (parse-to-prefix (third expr))))
+
+    ;; read numbers, if possible
+    ((eq (car expr) 'number)
+	 (or (read-from-string (second expr)) (second expr)))
+
+    ;; intern symbol-units
+    ((eq (car expr) 'symbol-number)
+	 (intern (second expr)))
+
+    ;; intern units (maybe leave as strings?)
+    ((eq (car expr) 'unit)
+     (intern (second expr)))
+
+    ;; fall-through
+    ((and (member (car expr) '(expr factor term pterm 
+			       n-expr n-factor n-term n-pterm
+			       unknown unit))
+	  (= (length expr) 2))
+     (parse-to-prefix (second expr)))
+
+    (t (cons (car expr) (mapcar #'parse-to-prefix (cdr expr))))))
+
+(defun flatten-associative (expr)
+  "flatten associative operators in prefix-form algebraic expression."
+  (if (atom expr) 
+      expr
+      (let ((x (car expr))
+	    (rest (mapcar #'flatten-associative (rest expr))))
+	(if (member x '(+ *))
+	    (cons x (mapcan 
+		     #'(lambda (y) (if (and (consp y) (eq (car y) x)) 
+				       (cdr y) (list y))) 
+		     rest))
+	    (cons x rest)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; end of parse-andes.cl

@@ -400,7 +400,7 @@
 ;;;
   ;; Terms
   (grammar-add-nonterminal '**common-grammar** 'n-term
-			   ;; parentheses done below
+			   ;; parentheses added below
 			   '((symbol-number)
 			     (number)
 			     (func (wspace) n-term)))  ;numerical function call
@@ -428,9 +428,8 @@
 
   ;; Terms
   (grammar-add-nonterminal '**common-grammar** 'term 
-			   ;; parentheses  and function call done below
-			   '((dnum)
-			     (number)
+			   ;; parentheses and function calls added below
+			   '((number)
 			     (unknown)))  ;handles symbol-number objects.
   ;; Powers
   (grammar-add-nonterminal '**common-grammar** 'pterm 
@@ -438,12 +437,12 @@
 			     (term (wspace) raised (wspace) pterm)))
   ;; Multiplication & division
   (grammar-add-nonterminal '**common-grammar** 'factor 
-			   '((pterm) 
+			   '((pterm)
+			     (dnum)
 			     (factor (wspace) times-div (wspace) pterm))) ;binary *,/
   ;; Addition and subtraction
   (grammar-add-nonterminal '**common-grammar** 'expr 
 			   '((factor) 
-			     (dnum)
 			     (expr (wspace) plus-minus (wspace) factor) ;binary +/-
 			     (plus-minus (wspace) factor))) ;unary +/-
   (grammar-add-nonterminal '**common-grammar** 'term 

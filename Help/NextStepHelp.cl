@@ -1780,6 +1780,7 @@
 ;;; on with appropriate information.  
 (defun nsh-sought-resp-ns (quant Past)
   "Return a message signifying that quantity is not sought."
+  (declare (ignore quant))
   (nsh-wrong-sought-resp 
    "Your entry is not sought by the problem statement."
    Past :Case 'not-sought))
