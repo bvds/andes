@@ -3,7 +3,7 @@
 ;;  Linwood H. Taylor (lht) <lht@lzri.com>
 ;;  12 March 2001 - (lht) -- this file created for Andes 2
 ;;; Modifications by Anders Weinstein 2002-2008
-;;; Modifications by Brett van de Sande, 2005-2008
+;;; Modifications by Brett van de Sande, 2005-2010
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
 ;;;
@@ -82,20 +82,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; returns the first item of a list or nil
-(defun if-list-first-nil (x)
-  (if (consp x) (first x) nil))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-(defun append-atom (items item)
-  (append items (list item)))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun showchar ()
   (do ((i 0 (+ i 1)))
@@ -103,47 +89,6 @@
     (format t "~A = ~A[~A]~%" i (code-char i) (char-name (code-char i)))))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-(defun zero-or-one-symbol-p (x)
-  "Is x a variable (a symbol begining with '?')?"
-  (and (symbolp x) (equal (char (symbol-name x) 0) #\?)))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-(defun symbol-from-zero-or-one-symbol (x)
-  (if (zero-or-one-symbol-p x)
-      (read-from-string (subseq (symbol-name x) 1))
-    x))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-(defun expand-wild-symbols (xlist)
-  (let ((rl0 nil) (rl1 nil))
-    (dolist (obj xlist)
-      (cond
-       ((zero-or-one-symbol-p obj)
-	(if (null rl0)
-	    (setf rl1 (append rl1 (list nil) (list (list (symbol-from-zero-or-one-symbol obj)))))
-	  (dolist (next rl0)
-	    (setf rl1 (append rl1 (list next)))
-	    (setf rl1
-	      (append rl1 (list (append next (list (symbol-from-zero-or-one-symbol obj)))))))))
-       (t (if (null rl0)
-	      (setf rl1 (append rl1 (list (list (symbol-from-zero-or-one-symbol obj)))))
-	    (dolist (next rl0)
-	      (setf rl1 (append rl1 (list (append next (list obj)))))))))
-      (setf rl0 rl1)
-      (setf rl1 nil))
-    (remove nil rl0)))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; list-begins-with-p - predicate to test if a list starts with a certain item (uses equal)

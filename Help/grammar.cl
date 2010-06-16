@@ -5,7 +5,7 @@
 ;; Modified:
 ;;   3 April 2001 - (lht) -- created from previous work on ANDES2 parsing
 ;;; Modifications by Anders Weinstein 2001-2008
-;;; Modifications by Brett van de Sande, 2005-2008
+;;; Modifications by Brett van de Sande, 2005-2010
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
 ;;;
@@ -121,16 +121,28 @@
 ;;    (name (sam) nil) and (name (sam thomas) nil)
 (defun grammar-add-nonterminal (grammar lhs rhs &optional (rtn-fn nil))
   (cond
-   ((not (consp rhs)))
-   (t (dolist (obj rhs)
-	(if (consp obj)
-	    (if (grammar-rhs-valid (symbol-value grammar) obj)
-		(let ((rule (make-rule :lhs lhs :rhs obj :rtn-fn rtn-fn)))
-		  (if (not (member rule (symbol-value grammar) :test #'equal))
-		      (grammar-set grammar (append (symbol-value grammar) (list rule)))
-		    ))
-	      )
-	  )))))
+    ((not (consp rhs)))
+    (t (dolist (obj (mapcan #'expand-optionals rhs))
+	 (if (consp obj) ;non-terminal
+	     (if (grammar-rhs-valid (symbol-value grammar) lhs obj)
+		 (let ((rule (make-rule :lhs lhs :rhs obj :rtn-fn rtn-fn)))
+		   (if (not (member rule (symbol-value grammar) :test #'equal))
+		       (grammar-set grammar (append (symbol-value grammar) (list rule)))
+		       (warn "rule ~A already in grammar" rule)))
+		 (warn "invalid rule ~A for grammar" obj))
+	     (warn "rule must be a list, not adding ~A to grammar" obj))))))
+
+(defun expand-optionals (rule)
+  "Optionals in a rule are expressed as sublists.  This takes a single rule 
+   and expands any optional elements, returning a list of one or more rules."
+  (if (null rule) 
+      (list nil)
+      (let ((y (expand-optionals (cdr rule))))
+	(if (consp (first rule))
+	    (append y
+		    (mapcar #'(lambda (x) (append (car rule) x)) y))
+	    (mapcar #'(lambda (x) (cons (car rule) x)) y)))))
+
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -148,8 +160,8 @@
 ;; note(s):
 ;;  if element is not a string then no rule is added
 (defun grammar-add-special (grammar lhs rhs rtn-fn identifier-grammar)
-  (clear-memoize 'grammar-get-rhs)
-  (clear-memoize 'grammar-get-rhs-with-first)
+  (clear-memoize 'lexical-rules)
+  (clear-memoize 'rules-starting-with)
   (if (consp rhs)
       (dolist (obj rhs)
 	(if (stringp obj)
@@ -160,8 +172,8 @@
 	(grammar-add-nonterminal grammar lhs
 				 (list (grammar-string-to-rhs identifier-grammar rhs))
 				 rtn-fn)))
-  (clear-memoize 'grammar-get-rhs)
-  (clear-memoize 'grammar-get-rhs-with-first))
+  (clear-memoize 'lexical-rules)
+  (clear-memoize 'rules-starting-with))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -174,16 +186,16 @@
 ;;  grammar with special rule removed
 (defun grammar-remove-special (grammar lhs rhs rtn-fn support-grammar)
   (declare (ignore rtn-fn))
-  (clear-memoize 'grammar-get-rhs)
-  (clear-memoize 'grammar-get-rhs-with-first)
+  (clear-memoize 'lexical-rules)
+  (clear-memoize 'rules-starting-with)
   (let ((temp-grammar '())
 	(rmv (grammar-string-to-rhs support-grammar rhs)))
     (dolist (obj (symbol-value grammar))
       (if (not (and (equal lhs (rule-lhs obj)) (equal rmv (rule-rhs obj))))
 	  (setf temp-grammar (append temp-grammar (list obj)))))
     (grammar-set grammar temp-grammar))
-  (clear-memoize 'grammar-get-rhs)
-  (clear-memoize 'grammar-get-rhs-with-first))
+  (clear-memoize 'lexical-rules)
+  (clear-memoize 'rules-starting-with))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -222,59 +234,29 @@
 (defun grammar-string-to-rhs (grammar var)
   (map 'list
     #'(lambda (x) 
-	(rule-lhs (first (grammar-get-rhs grammar x))))
+	(rule-lhs (first (lexical-rules grammar x))))
     var))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; grammar-get-rhs - return a list of all rules that match this rhs
-;; argument(s):
-;;  grammar - the grammar that will be searched
-;;  rhs - an rhs to be matched against
-;; returns:
-;;  a possible nil list of rules that have rhs as their rhs
-(defun grammar-get-rhs (grammar rhs)
-  (find-all rhs grammar :key #'rule-rhs :test #'equal))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; grammar-get-rhs-with-first - return a list of all rules that have (as the first item of their
-;;  rhs a match to the specified rhs
-;; argument(s):
-;;  grammar - the grammar to search for matches in
-;;  rhs - an rhs to be matched against
-;; returns:
-;;  a possible nil list of rules that have rhs as the first element of their rhs
-(defun grammar-get-rhs-with-first (grammar rhs)
-  (find-all rhs grammar :key #'(lambda (rule) (if-list-first-nil (rule-rhs rule)))))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; grammar-match-lhs - returns a list off all rules whose lhs matches argument
-;; argument(s):
-;;  grammar - the grammar to search for matches in
-;;  lhs - the lhs to search for
-;; returns:
-;;   a possibly nil list of rules whose lhs is the same as lhs
-(defun grammar-match-lhs (grammar lhs)
-  (find-all lhs grammar :key #'rule-lhs :test #'equal))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; grammar-rhs-valid - are the contents of a rhs valid in grammar
 ;; argument(s):
-;;  grammar - the grammar that will be used for vlidation
+;;  grammar - the grammar that will be used for validation
 ;;  rhs - the rhs to validate
 ;; returns:
 ;;  t if rhs is valid; nil otherwise
-(defun grammar-rhs-valid (grammar x)
+(defun grammar-rhs-valid (grammar this x)
+  "Is proposed rule grounded in given grammar?"
   (cond
    ((null x) t)
-   ((grammar-match-lhs grammar (first x)) (grammar-rhs-valid grammar (rest x)))
+   ;; optional terms expressed as sublist
+   ((consp (first x))
+    (and (grammar-rhs-valid grammar this (first x))
+	 (grammar-rhs-valid grammar this (rest x))))
+   ((or (equal this (first x)) ;token matches name of proposed rule
+	(member (first x) grammar :key #'rule-lhs :test #'equal))
+    (grammar-rhs-valid grammar this (rest x)))
    (t nil)))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
