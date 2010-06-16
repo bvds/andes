@@ -4,7 +4,7 @@
 ;;  Collin Lynch (cl) <CollinL@pitt.edu>
 ;;   3 April 2001 - (lht) -- created from previous work on ANDES2 parsing
 ;;; Modifications by Anders Weinstein 2002-2008
-;;; Modifications by Brett van de Sande, 2005-2008
+;;; Modifications by Brett van de Sande, 2005-2010
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
 ;;;
@@ -350,7 +350,6 @@
   ;; units ... NOTE: no white-space
   (grammar-add-nonterminal '**common-grammar** 'a-unit
 			   '(((unit-prefix) unit-name)
-			     (unit-rname)
 			     (a-unit raised (plus-minus) integer)
 			     (l-paren a-unit r-paren)))
   
@@ -358,9 +357,7 @@
 			   '((a-unit)
 			     (a-unit times-div unit)
 			     (a-unit period unit)
-			     (l-paren unit r-paren)
-			     ))
-  
+			     (l-paren unit r-paren)))
   
   ;; function names ... NOTE: case-insensitive
   (grammar-add-nonterminal '**common-grammar** 'func '((es ei en)
@@ -376,9 +373,9 @@
   ;; variable/identifiers
   (grammar-add-nonterminal '**common-grammar** 'rest-of-unknown 
 			   '((letter (rest-of-unknown))
-			     (backslash rest-of-unknown)
+			     (backslash rest-of-unknown) ;backslash can't be last
 			     (digit (rest-of-unknown))
-			     (underscore ?rest-of-unknown)))
+			     (underscore rest-of-unknown))) ;underscore can't be last
   
   ;; Variable name can't start with digit or underscore.
   (grammar-add-nonterminal '**common-grammar** 'unknown
@@ -391,7 +388,6 @@
   ;; are converted into a lisp symbol
   (grammar-add-nonterminal '**common-grammar** 'symbol-number
 			   '((backslash lp li)))
-
   
   ;; define number
   (grammar-add-nonterminal '**common-grammar** 'number 
@@ -417,7 +413,7 @@
 			   '((n-pterm) 
 			     (n-factor (wspace) times-div (wspace) n-pterm))) ;binary *,/
   ;; White space mandatory in this case
-  (grammar-add-nonterminal '**common-grammar** 'dnum '((n-factor wspace unit)))
+  (grammar-add-nonterminal '**common-grammar** 'dnum '((n-factor wspace unit))) ;space only
   ;; Addition and subtraction (only from parentheses above)
   (grammar-add-nonterminal '**common-grammar** 'n-expr ;numerical value
 			   '((n-factor) 

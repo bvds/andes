@@ -114,13 +114,12 @@
 ;; this character
 
 (defun parse (grammar input)
-  (let ((*pl* 0))
   (when (> (length input) 0)
     (mapcan
      #'(lambda (rule)
 	 (parse-support grammar (rule-lhs rule) (list (char input 0))
 			(subseq input 1) nil))
-     (grammar-get-rhs grammar (char input 0))))))
+     (grammar-get-rhs grammar (char input 0)))))
 
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -128,29 +127,23 @@
 ;; pass the left hand side of a rule, the current character (rhs), the rest of 
 ;; the string to be parsed and what is needed to complete the current rule
 (defun parse-support (grammar lhs rhs rem needed)
-;  (format t "~A parse-support for ~A ~A ~A ~A~%" *pl* lhs rhs rem needed)
-  (let ((result
-  (let ((*pl* (+ *pl* 1)))
-	 (if (null needed)
-	     (let ((parse (make-parse :tree (new-tree lhs rhs) :rem rem)))
-	       (cons parse
-		     (mapcan
+  (if (null needed)
+      (let ((parse (make-parse :tree (new-tree lhs rhs) :rem rem)))
+	(cons parse
+	      (mapcan
 	       #'(lambda (rule)
 		   (parse-support grammar (rule-lhs rule)
 				  (list (parse-tree parse))
 				  rem (rest (rule-rhs rule))))
 	       (grammar-get-rhs-with-first grammar lhs))))
-	     (mapcan
-	      #'(lambda (p)
-		  (multiple-value-bind (got-match rneed) 
-		      (match-with-optional-sublists (parse-lhs p) needed)
-		    (when got-match
-		      (parse-support grammar lhs (append-atom rhs (parse-tree p)) 
-				     (parse-rem p) rneed))))
-	      (parse grammar rem)))))
-	)
- ;   (format t "~A parse-support returning ~A ~%" *pl* result)
-    result))
+      (mapcan
+       #'(lambda (p)
+	   (multiple-value-bind (got-match rneed) 
+	       (match-with-optional-sublists (parse-lhs p) needed)
+	     (when got-match
+	       (parse-support grammar lhs (append-atom rhs (parse-tree p)) 
+			      (parse-rem p) rneed))))
+       (parse grammar rem))))
 
 (defun match-with-optional-sublists (x needed)
   "Needed is list of possible matches, where any sublist is optional.  If x matches the beginning of needed, returns T and the rest of needed."
@@ -158,7 +151,7 @@
 	 ((consp (first needed)) ;first element is optional
 	  (if (eql x (first (first needed)))
 	      (values t (append (rest (first needed)) (rest needed))) ;match first optional
-	      (optional-match x (rest needed)))) ;drop first optional
+	      (match-with-optional-sublists x (rest needed)))) ;drop first optional, try rest
 	 (t nil)))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

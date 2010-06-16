@@ -5,7 +5,7 @@
 ;; Modified:
 ;;   3 April 2001 - (lht) -- created from previous work on ANDES2 parsing
 ;;; Modifications by Anders Weinstein 2001-2008
-;;; Modifications by Brett van de Sande, 2005-2008
+;;; Modifications by Brett van de Sande, 2005-2010
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
 ;;;  This file is part of the Andes Intelligent Tutor Stystem.
 ;;;
@@ -123,16 +123,14 @@
   (cond
    ((not (consp rhs)))
    (t (dolist (obj rhs)
-	(if (consp obj)
-	    (if (grammar-rhs-valid (symbol-value grammar) obj)
+	(if (consp obj) ;non-terminal
+	    (if (grammar-rhs-valid (symbol-value grammar) lhs obj)
 		(let ((rule (make-rule :lhs lhs :rhs obj :rtn-fn rtn-fn)))
 		  (if (not (member rule (symbol-value grammar) :test #'equal))
 		      (grammar-set grammar (append (symbol-value grammar) (list rule)))
-		      (warn "rule ~A not in grammar" rule)
-		      ))
-		(warn "invalid object ~A for grammar" obj)
-	      )
-	  )))))
+		      (warn "rule ~A already in grammar" rule)))
+		(warn "invalid rule ~A for grammar" obj))
+	    (warn "rule must be a list, not adding ~A to grammar" obj))))))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -236,11 +234,8 @@
 ;;  rhs - an rhs to be matched against
 ;; returns:
 ;;  a possible nil list of rules that have rhs as their rhs
-(defvar *pl* 0)
 (defun grammar-get-rhs (grammar rhs)
-  (let ((result (find-all rhs grammar :key #'rule-rhs :test #'equal)))
-  ;  (format t "~A grammar-get-rhs ~A -> ~A~%" *pl* rhs result)
-    result))
+  (find-all rhs grammar :key #'rule-rhs :test #'equal))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -253,39 +248,28 @@
 ;; returns:
 ;;  a possible nil list of rules that have rhs as the first element of their rhs
 (defun grammar-get-rhs-with-first (grammar rhs)
- (let ((result (find-all rhs grammar :key #'(lambda (rule) (if-list-first-nil (rule-rhs rule))))))
- ;  (format t "~A grammar-get-rhs-with-first ~A -> ~A~%" *pl* rhs result)
-   result))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; grammar-match-lhs - returns a list off all rules whose lhs matches argument
-;; argument(s):
-;;  grammar - the grammar to search for matches in
-;;  lhs - the lhs to search for
-;; returns:
-;;   a possibly nil list of rules whose lhs is the same as lhs
-(defun grammar-match-lhs (grammar lhs)
-  (find-all lhs grammar :key #'rule-lhs :test #'equal))
+  (find-all rhs grammar :key #'(lambda (rule) (if-list-first-nil (rule-rhs rule)))))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; grammar-rhs-valid - are the contents of a rhs valid in grammar
 ;; argument(s):
-;;  grammar - the grammar that will be used for vlidation
+;;  grammar - the grammar that will be used for validation
 ;;  rhs - the rhs to validate
 ;; returns:
 ;;  t if rhs is valid; nil otherwise
-(defun grammar-rhs-valid (grammar x)
+(defun grammar-rhs-valid (grammar this x)
+  "Is proposed rule grounded in given grammar?"
   (cond
    ((null x) t)
-   ;; optional expressed as sublist
+   ;; optional terms expressed as sublist
    ((consp (first x))
-    (and (grammar-rhs-valid grammar (first x))
-	 (grammar-rhs-valid grammar (rest x))))
-   ((grammar-match-lhs grammar (first x)) (grammar-rhs-valid grammar (rest x)))
+    (and (grammar-rhs-valid grammar this (first x))
+	 (grammar-rhs-valid grammar this (rest x))))
+   ((or (equal this (first x)) ;token matches name of proposed rule
+	(member (first x) grammar :key #'rule-lhs :test #'equal)) 
+    (grammar-rhs-valid grammar this (rest x)))
    (t nil)))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
