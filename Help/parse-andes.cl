@@ -799,7 +799,7 @@
 				  **grammar** 
 				  (string-trim match:*whitespace* rhs)))
 			 (complete (parse-get-complete parses))
-			 (valid (parse-get-valid 'expression complete)))
+			 (valid (parse-get-valid 'expr complete)))
 		    ;;(format t "Parsed ~A~%" (concatenate 'string lhs "=" (string-trim " " rhs)))
 		    ;;(format t "Okay parse!!!~%~A~%" valid)
 		    (if valid
@@ -1269,7 +1269,9 @@
 
     ;; read numbers, if possible
     ((eq (car expr) 'number)
-	 (or (read-from-string (second expr)) (second expr)))
+	 (or (let ((*read-default-float-format* 'double-float))
+	       (read-from-string (second expr))) 
+	     (second expr)))
 
     ;; intern symbol-units
     ((eq (car expr) 'symbol-number)
