@@ -191,21 +191,18 @@
   (grammar-add-nonterminal '**common-grammar** 'wspace '((space (wspace))))
 
   ;; integers
-  (grammar-add-nonterminal '**common-grammar** 'integer '((digit (integer))))
+  (grammar-add-nonterminal '**common-grammar** 'digits '((digit (digits))))
+  (grammar-add-nonterminal '**common-grammar** 'integer '(((plus-minus) digits)))
 
   ;; fixed point numbers
-  (grammar-add-nonterminal '**common-grammar** 'fpnum '((period integer)
-							(integer period)
-							(integer period integer)))
+  (grammar-add-nonterminal '**common-grammar** 'unsigned-fpnum 
+			   '((digits period (digits))
+			     (period digits)))
 
   ;; floating point numbers (scientific notation
-  (grammar-add-nonterminal '**common-grammar** 'exponent 
-			   '((eE (plus-minus) integer)
-			     (eE (plus-minus) fpnum)))
-
-  (grammar-add-nonterminal '**common-grammar** 'scinum
-			   '((fpnum (wspace) exponent)
-			     (integer (wspace) exponent)))
+  (grammar-add-nonterminal '**common-grammar** 'unsigned-scinum
+			   '((unsigned-fpnum eE integer)
+			     (digits eE integer)))
 
   ;; unit prefixes
   (grammar-add-special '**common-grammar** 'unit-prefix "a" nil **identifier-grammar**)
@@ -348,16 +345,21 @@
   ;;(grammar-add-special '**common-grammar** 'unit-rname "degrees Fahrenheit" nil **common-grammar**) ;; ???
 
   ;; units ... NOTE: no white-space
-  (grammar-add-nonterminal '**common-grammar** 'a-unit
-			   '(((unit-prefix) unit-name)
-			     (a-unit raised (plus-minus) integer)
-			     (l-paren a-unit r-paren)))
+  (grammar-add-nonterminal '**common-grammar** 'unit-symbol
+			   '(((unit-prefix) unit-name)))
+  (grammar-add-nonterminal '**common-grammar** 'unit-term
+			   ;; parentheses are added below
+			   '((unit-symbol)
+			     ;; This does not allow fractional power units.
+			     (unit-term raised integer)))
   
   (grammar-add-nonterminal '**common-grammar** 'unit 
-			   '((a-unit)
-			     (a-unit times-div unit)
-			     (a-unit period unit)
-			     (l-paren unit r-paren)))
+			   '((unit-term)
+			     (unit times-div unit-term)
+			     (unit period unit-term)))
+
+  (grammar-add-nonterminal '**common-grammar** 'unit-term
+			   '((l-paren unit r-paren)))
   
   ;; function names ... NOTE: case-insensitive
   (grammar-add-nonterminal '**common-grammar** 'func '((es ei en)
@@ -391,9 +393,11 @@
   
   ;; define number
   (grammar-add-nonterminal '**common-grammar** 'number 
-			   '((integer)
-			     (fpnum)
-			     (scinum)))
+			   ;; use unsigned to avoid parse ambiguity 
+			   ;; with unary +/-
+			   '((digits)
+			     (unsigned-fpnum)
+			     (unsigned-scinum)))
     
 ;;;
 ;;;  Dnum expressions (numerical expressions with units).

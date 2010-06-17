@@ -416,8 +416,9 @@
       (setf answer (parse-remove-lhs 'wspace answer))
       (setf answer (parse-remove-lhs 'r-paren answer))
       (setf answer (parse-remove-lhs 'l-paren answer))
-      (setf answer (parse-pack-lhs 'unit answer))
+      (setf answer (parse-pack-lhs 'unit-symbol answer))
       (setf answer (parse-pack-lhs 'number answer))
+      (setf answer (parse-pack-lhs 'integer answer))
       (setf answer (parse-pack-lhs 'plus-minus answer))
       (setf answer (parse-pack-lhs 'times-div answer))
       (setf answer (parse-pack-lhs 'raised answer))
@@ -1242,7 +1243,7 @@
 		 (subst-canonical-vars (cdr Exp))))))
 
 (defun parse-to-prefix (expr)
-  "Turn parsed expression into lisp prefix form, assuming parentheses and spaces have been removed"
+  "Turn parsed expression into lisp prefix form, assuming parentheses and spaces have been removed."
   (cond
     ((atom expr) expr)
 
@@ -1273,18 +1274,27 @@
 	       (read-from-string (second expr))) 
 	     (second expr)))
 
-    ;; intern symbol-units
+    ;; intern pi
     ((eq (car expr) 'symbol-number)
 	 (intern (second expr)))
 
     ;; intern units (maybe leave as strings?)
+    ;; The solver does not handle parentheses and incorrectly handles
+    ;; division (uses right-to-left associativity).  Thus, we 
+    ;; transform the unit expression into a product of powers.
     ((eq (car expr) 'unit)
-     (intern (second expr)))
+     ;; (format webserver:*stdout* "unit conversion for ~S~%    giving ~S~%" 
+     ;;         expr (parse-unit-to-prefix expr))
+     (format nil "|~A|" (substitute
+			 "\\\\" "\\"  ;; escape backslashes
+			 (prefix-unit-to-infix 
+			  (canonicalize-unit 
+			   (parse-unit-to-prefix expr))))))
 
     ;; fall-through
     ((and (member (car expr) '(expr factor term pterm 
 			       n-expr n-factor n-term n-pterm
-			       unknown unit))
+			       unknown))
 	  (= (length expr) 2))
      (parse-to-prefix (second expr)))
 
@@ -1302,6 +1312,87 @@
 				       (cdr y) (list y))) 
 		     rest))
 	    (cons x rest)))))
+
+(defun parse-unit-to-prefix (expr)
+  "Turn parsed unit expression into lisp prefix form, assuming parentheses have been removed."
+  (cond
+    ((atom expr) expr)
+    
+    ;; binary operators
+    ((and (member (car expr) '(unit unit-term))
+	  (member (car (third expr)) '(times-div raised period)))
+     (list (find-symbol (string (cadr (third expr))))
+	   (parse-unit-to-prefix (cadr expr))
+	   (parse-unit-to-prefix (fourth expr))))
+
+    ;; read exponent integer
+    ((eq (car expr) 'integer)
+	 (or (let ((*read-default-float-format* 'double-float))
+	       (read-from-string (cadr expr))) 
+	     (cadr expr)))
+
+    ;; intern unit symbols
+    ((eq (car expr) 'unit-symbol)
+     (intern (cadr expr)))
+
+   ;; fall-through
+    ((and (member (car expr) '(unit unit-term))
+	  (= (length expr) 2))
+     (parse-unit-to-prefix (cadr expr)))
+
+    ;; Allow recursion through the parse tree.
+    ;; Thus, this function can be applied to the top level of a parse tree.
+    (t (cons (car expr) (mapcar #'parse-to-prefix (cdr expr))))))
+
+(defun canonicalize-unit (expr)
+  "Rewrite unit expression (written in lisp prefix form) in terms 
+   of a product of powers."
+  (cond 
+    ((atom expr) expr)
+
+    ;; simple power
+    ((and (eq (car expr) '^) (atom (cadr expr)))
+	  expr)
+
+    ;; product (that is easy)
+    ((member (car expr) '(* |.|))
+     (cons (car expr) (mapcar #'canonicalize-unit (cdr expr))))
+    
+    ;; turn division into power
+    ((eq (car expr) '/)
+     (list '* (canonicalize-unit (cadr expr)) 
+	   (canonicalize-unit (list '^ (third expr) -1))))
+    
+    ;; power of a power
+    ((and (eq (car expr) '^) (eq (car (cadr expr)) '^))
+     (canonicalize-unit (list '^ (cadr (cadr expr)) 
+			      (* (third expr) (third (cadr expr))))))
+    
+    ;; power of a product or division
+    ((and (eq (car expr) '^) (member (car (cadr expr)) '(* |.| /)))
+     (canonicalize-unit (list (car (cadr expr)) 
+			      (list '^ (cadr (cadr expr)) (third expr))
+			      (list '^ (third (cadr expr)) (third expr)))))
+    
+    (t (warn "Can't canonicalize ~A" expr) expr)))
+    
+
+(defun prefix-unit-to-infix (expr)
+  "Transform canonicalized unit expression into an infix string."
+  ;; At this point, only have unit symbols, products, and integer powers.
+  (cond 
+    ((atom expr) (string expr))
+    ((member (car expr) '(* |.|))
+     (concatenate 'string (prefix-unit-to-infix (cadr expr))
+		  (string (car expr))
+		  (prefix-unit-to-infix (third expr))))
+    ((eq (car expr) '^)
+     (concatenate 'string (string (cadr expr))
+		  "^" 
+		  (princ-to-string (third expr))))
+    
+    (t (warn "prefix-unit-to-infix invalid ~A" expr)
+       expr)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; end of parse-andes.cl
