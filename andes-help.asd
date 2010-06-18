@@ -61,13 +61,12 @@
 							 "SolutionGraph" "icons"))
 				     
 				     ;; Equation parser/interpreter
-				     (:file "grammar")
 				     (:file "physics-algebra-rules")
 				     (:file "parse"
 					    :depends-on ("utilities" "symbols"))
+				     (:file "grammar" :depends-on ("parse"))
 				     (:file "algebra"
 					    :depends-on ("symbols"))
-				     (:file "in2pre")
 				     (:file "parse-andes"
 					    :depends-on ("SolutionGraph" "symbols"
 							 "grammar" "icons"))

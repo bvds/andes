@@ -1,3 +1,4 @@
+
 dojo.provide("andes.convert");
 
 (function(){
@@ -129,16 +130,18 @@ dojo.provide("andes.convert");
 
 			if(o.type=="statement" && o.mode=="locked"){
 				obj.stencilType = "text";
-			}
-
-			if(o.type=="done" || o.type=="checkbox" || o.type=="radio"){
+				// Problem statements may contain HTML character codes.
+				// Since these don't render on the canvas, convert to UTF-16 characters.
+				obj.data.text = andes.typeset.convertHTML(o.text);
+			}else if(o.type=="done" || o.type=="checkbox" || o.type=="radio"){
 				// In principle, we could omit the statement object if there is no text,
 				// but the code gets a lot hairier.
 				obj.statement = {
 					data:{
 						x:o.x+buttonWidth,
 						y:o.y,
-						text:o.text || ""
+						// Convert HTML, just like for problem statements above.
+						text:andes.typeset.convertHTML(o.text) || ""
 					},
 					enabled: false  // treat as mode=locked
 				}
@@ -180,7 +183,7 @@ dojo.provide("andes.convert");
 					deleteEmptyModify: false
 				}
 			}else if(o.type=="statement" || o.type=="equation"){
-				obj.data.text = andes.typeset.convertLaTeX(o.text);
+				obj.data.text = o.text;
 			}else if(o.type=="axes"){
 				obj.label = o['x-label']+" and "+o['y-label'];
 				if(andes.defaults.zAxisEnabled){
@@ -253,8 +256,6 @@ dojo.provide("andes.convert");
 					obj.symbol = andes.variablename.parse(obj.text);
 				}
 			}else if(type != "axes"){
-				obj.text = statement.getText() || " ";
-				obj.symbol = item.getLabel() || null;
 				obj["x-statement"] = sbox.x;
 				obj["y-statement"] = sbox.y;
 				

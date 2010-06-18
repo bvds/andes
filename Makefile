@@ -44,6 +44,7 @@ install-server:
 	cd help-server; $(MAKE) install-server
 
 update:
+	-rm */*.fasl
 	git pull
 	cd problems; git pull
 	cd solutions; git pull

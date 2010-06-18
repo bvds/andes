@@ -62,12 +62,7 @@
 ;; We need case-sensitive variables to distinguish G from g, for example, so
 ;; all our lookups are case-sensitive.
 
-;; Labels containing Greek letters come to us coded by dollar-sign escape 
-;; sequences of the form "$q". These two-character sequences stand for the 
-;; character corresponding to "q" in the Symbol font, in this case theta. 
-;; As a convenience Andes1 allowed the student to spell out the Greek letters 
-;; by name at the beginning of variables, e.g. by typing "theta" or "thetaFw"
-;; instead of the sequence to produce "$q" or "$qFw".
+;; Labels containing Greek letters come to us coded in LaTeX form.
 ;;
 ;; Allow separate namespaces for scalar variables and geometric objects,
 ;; such as vectors.  This allows for the common practice of using the
@@ -86,7 +81,7 @@
 	   :clear-symbol-table ; State.cl
 	   :canonical-to-student ;algebra.cl
 	   :map-student-atom ;parse.cl
-	   :near-miss-var :subst-canonical-vars ;parse-andes.cl
+	   :near-miss-var :symbols-sysvar ;parse-andes.cl
 	   :sym-referent :sym-entries :symbols-fetch :sym-label ;Entry-API.cl 
 	   :symbols-delete-dependents ;Entry-API.cl 
 	   ;; More complicated
@@ -272,14 +267,6 @@
  "translate atomic student expr to canonical if there is one, else return it unchanged"
    (or (student-to-canonical StudAtom)
        StudAtom))
-
-(defun subst-canonical-vars (Exp)
-  "Translate expression subsituting canonical vars for student vars throughout."
-  ;; NB: student variables must be *strings* in Exp, not symbols
-  ;; Strings with no matching sys expression pass through translation unchanged.
-    (cond ((atom Exp) (map-student-atom Exp)) 
-	  (t (cons (subst-canonical-vars (car Exp))
-		   (subst-canonical-vars (cdr Exp))))))
 
 ;; to map single var the other way:
 (defun canonical-to-student (Canonical)

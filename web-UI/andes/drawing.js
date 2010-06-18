@@ -66,6 +66,8 @@ dojo.provide("andes.drawing");
 		_drawing = dijit.byId(drawingId);
 		var cn = dojo.connect(_drawing, "onSurfaceReady", function(){
 			dojo.disconnect(cn);
+			// Maybe better to put in _drawing?
+			dojox.drawing.stencil.Text.typeset = andes.typeset.convertLaTeX;
 			andes.drawing.onSurfaceReady();
 		});
 		dojo.connect(_drawing, "onRenderStencil", andes.drawing, "onRenderStencil");
@@ -341,6 +343,8 @@ dojo.provide("andes.drawing");
 			}, this);
 
 			dojo.forEach(mods, function(obj){
+				// convertAndesToDrawing has not been applied to obj
+				//
 				// handles any object modifications
 				//
 				// obj.mod=="deleted" should never occur if
@@ -395,11 +399,8 @@ dojo.provide("andes.drawing");
 					// text
 					if(items[obj.id].isText==true && obj.text) { items[obj.id].attr({text:obj.text});};
 					if(obj.text && items[obj.id].type == "andes.Combo"){
-						/*items[obj.id].master.attr({
-						  label:obj.text
-						  });*/
-						var text = obj.text==" "? obj.symbol : obj.text;
-						items[obj.id].textEdit(text);
+						// obj.symbol can never change without obj.text changing.
+						items[obj.id].textEdit(obj.text);
 					};
 
 					items[obj.id].mod = false;

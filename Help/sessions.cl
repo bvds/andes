@@ -148,7 +148,7 @@
 	  *Runtime-testset-current-Solindex*
 	  *Runtime-Testset-current-total-score* **Checking-entries**
 	  ;; Variables holding session-local memos.
-	  *parse-memo* *grammar-get-rhs-memo* *grammar-get-rhs-with-first*
+	  *parse-memo* *lexical-rules-memo* *rules-starting-with-memo*
 	  ;; Cache variables in Testcode/Tests.cl
 	  *test-cache-eqn-entries* *test-cache-given-eqn-entries*
 	  *test-cache-axis-entries* *test-cache-objects* 

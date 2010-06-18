@@ -1,8 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-<!--   # This file is stored in reviw/sets.html in the Andes git repository
+<!--   # This file is stored in review/sets.html in the Andes git repository
        # To make a publically viewable version:
           mkdir sets; cd sets
+       # copy review/sets.html into this directory, renaming it to index.html.
+       # Modify the path in doSubmit() to point to the desired Andes server.
        # Use lisp commands in KB/principles.cl to make files sets.json 
        # and principles.json.  Then, install dojo and dijit.
           mkdir problems
@@ -45,12 +47,15 @@
 // See Bug #1603
 dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
 
+  var thisProblem;
 
   // add problem statement and any graphic to third column.
   addProblem = function (item,store){
     if(store.hasAttribute(item,"expand")) {
+      thisProblem=store.getValue(item,"expand");
+      dojo.byId("try").disabled=false;
       // console.log("from json:  "+store.getValue(item,"expand"));
-      dijit.byId('prob').setHref("problems/"+store.getValue(item,"expand"));
+      dijit.byId('prob').setHref("problems/"+store.getValue(item,"expand")+".html");
       var label=store.getValue(item,"label");
       if(store.hasAttribute(item,"set")) {
           label = store.getValue(item,"set") + "&nbsp; " + label;
@@ -67,6 +72,26 @@ dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
     }
   }
 </script>
+
+<script>
+  dojo.addOnLoad(function(){
+    dojo.byId("try").disabled=true;
+  });   
+      
+  doSubmit = function(){
+    var u = document.getElementById("user").value;
+    if(! u){
+      alert("Please enter a user name.");
+      return;
+    }  
+    if(! thisProblem){
+      alert("Please select a problem to try");
+      return;
+    }
+    document.location.href = "http://gideon.eas.asu.edu/web-UI/index.html?s=andestutor.org&u="+u+"&p="+thisProblem+"&e=";
+  }
+</script>
+
 </head>
 
 <body class="tundra">
@@ -101,8 +126,14 @@ dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
 	  </script>
 	</div>
 	</td><td valign="top"> <div dojoType="dijit.layout.ContentPane"
-	     id="prob" extractContent="true">Click on a problem name to see the problem statement.</div>
-	<div dojoType="dijit.layout.ContentPane" id="graphic"></div></td></tr>
+	     id="prob" extractContent="true">Select a problem from the list.</div>
+	<div dojoType="dijit.layout.ContentPane" id="graphic"></div>
+	<div><label>user name:</label>&nbsp;
+             <input type="text" id="user" size="6"/>&nbsp;
+	     <button id="try" onClick="doSubmit(); return false;" disabled>
+                     Try it</button>
+        </div>
+       </td></tr>
       </table>
 </body>
 </html>

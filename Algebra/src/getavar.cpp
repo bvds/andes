@@ -1,6 +1,6 @@
 // getavar.cpp
 // Copyright (C) 2001 by Joel A. Shapiro -- All Rights Reserved
-// Modifications by Brett van de Sande, 2005-2008
+// Modifications by Brett van de Sande, 2005-2010
 //
 //  This file is part of the Andes Solver.
 //
@@ -87,6 +87,10 @@ int getavarwu(const string bufst, const bool varNew, const bool valToo,
   if ((kend == kstrt) || kend == bufst.size()) 
     throw(string("svar in bad format ") + bufst);
   string newvar = bufst.substr(kstrt,kend-kstrt);
+  // Unescape any backslashes
+  for (k = 0; (k = newvar.find("\\\\", k)) != std::string::npos;){
+    newvar.replace(k,2,"\\");
+  }
   DBG(cout << "variable |" << newvar <<"|" << endl);
   if (valToo) {
     kend = parseanum(bufst,kstrt);

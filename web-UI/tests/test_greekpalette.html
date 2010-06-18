@@ -1,0 +1,50 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" >
+<head>
+    <title>Drawing Test</title>
+	
+	<style type="text/css">
+		@import "../dojo/resources/dojo.css";
+		@import "../dijit/tests/css/dijitTests.css";
+		@import "../dijit/themes/tundra/tundra.css";
+		@import "../dojox/editor/plugins/resources/css/InsertEntity.css";
+	</style>
+	
+	<script>
+
+		djConfig = {
+			isDebug:true,
+			popup:true,
+			modulePaths: {'andes': '../andes'},
+			//modulePaths: {'drawing': '../../../drawing'},
+			//gfxRenderer:'silverlight',
+			//gfxRenderer:'vml',
+			parseOnLoad:true
+		}
+	</script>
+	<script src="../dojo/dojo.js"></script>
+	<!--<script src="../js/dojoxGFX/dojo/dojo/dojo.js"></script>-->
+	<script>
+		dojo.require("dijit.dijit");
+		dojo.require("andes.GreekPalette");
+		dojo.require("dojo.parser");
+		var palette;
+		dojo.addOnLoad(function(){
+
+		    var date0 = new Date();
+		    palette = new andes.GreekPalette({},dojo.byId("programPalette"));
+		    console.log("creation time for 7x10 palette: " + (new Date() - date0));
+		    dojo.connect(palette, "onChange", function(entity){
+			console.log("output: ",andes.typeset.convertHTML(entity));
+		    });
+		});
+		
+	</script>
+	<style>
+		
+	</style>
+</head>
+<body>
+    <h2>Palette Test</h2>
+    <div id="programPalette"></div>
+</body>
+</html>
