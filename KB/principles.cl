@@ -1230,7 +1230,7 @@
        (remove nil
 	       (list
 		(cons :id (format nil "~(~A~)~@[~A~]" (problem-name prob) id))
-		(cons :expand (format nil "~(~A~).html" (problem-name prob)))
+		(cons :expand (format nil "~(~A~)" (problem-name prob)))
 		(when (problem-graphic prob) 
 		  (cons :graphic (format nil "~A" (problem-graphic prob))))
 		(when set

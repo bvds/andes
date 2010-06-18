@@ -65,7 +65,9 @@ dojo.provide("andes.main");
 		dojo.connect(dojo.byId("submitButton"), "click", function(){
 			andes.api.close({});
 			dojo.cookie("andes", null, { expires: -1 });
-			document.location.href = "login.html";
+			// should look for url from server that
+			// can overrride default.
+			history.go(-1);
 		});
 		
 		var splashNode = dojo.byId("splashOverlay"),
