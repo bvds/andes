@@ -396,7 +396,7 @@
 	    (variable ?dir-var (dir (field ?type :location ?loc :source ?source :time ?t)))
             )
   :hint (
-         (point (string "Note the constant ~A field at ~A." (?type adj) ?loc))
+         (point (string "Note the constant ~A field~@[ at ~A~]." (?type adj) ?loc))
          (teach (string "In this problem, the exact direction of the ~A field vector is not given, so you can draw the vector at an approximately correct angle." (?type adj)))
          (bottom-out (string "Draw ~a." 
 			     ((field ?type :location ?loc :source ?source :time ?t) def-np)))

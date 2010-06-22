@@ -858,7 +858,7 @@
 (defun ont-vector-entryprop-format-func (Body Quantity Direction)
   "Format the vector entry."
   (declare (ignore body))
-  (let ((Quant (nlg Quantity 'nlg-exp))
+  (let ((Quant (nlg-list-default Quantity))
 	(Dir (if (listp Direction) (nlg Direction)
 	       (nlg Direction 'adjective))))
     (if (listp Direction) 
