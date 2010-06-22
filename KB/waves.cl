@@ -1520,7 +1520,7 @@
   :short-name "amplitude of electric field"	
   :units |V/m|
   :restrictions nonnegative 
-  :new-english ((the) "amplitude of" (the) "electric field" 
+  :new-english ((the) "amplitude of" (the) (or "electric" "E") "field" 
 		(preferred ("in" ?wave)))
 )
 
@@ -1529,7 +1529,8 @@
   :short-name "amplitude of magnetic field"	
   :units |T|
   :restrictions nonnegative 
-  :nlg-english ("the amplitude of the magnetic field in ~A" (nlg ?wave))
+  :new-english ((the) "amplitude of" (the) (or "magnetic" "B") "field" 
+		(preferred ("in" ?wave)))
 )
 
 (def-psmclass electromagnetic-wave-field-amplitude 

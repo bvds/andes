@@ -139,8 +139,6 @@
   VarFunc       ;; Function that translates the Expression to a var.  
   new-english   ;; Model structure for matching, with multi-word
                 ;; strings allowed.  Any s-expressions are matched to ontology.
-  nlg-english   ;; a format style string determining the english expression 
-                ;;  of this expression. Deprecated.
   )
 
 
@@ -152,8 +150,7 @@
 			restrictions
 			documentation
 			VarFunc
-	        	new-english
-			nlg-english)
+	        	new-english)
   "Define a quantity expression."
   (define-exptype :type type 
     :form Form
@@ -164,8 +161,7 @@
     :restrictions Restrictions
     :documentation documentation
     :varfunc Varfunc
-    :new-english new-english
-    :nlg-English nlg-English))
+    :new-english new-english))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; define-exptype (Hidden)
@@ -183,7 +179,7 @@
 			    units 
 			    restrictions 
 			    documentation
-			    varfunc new-english nlg-english)
+			    varfunc new-english)
   "Define and store the specified expression if possible."
 
   ;; Remove any existing entry of this name (thus, allowing updates)
@@ -209,8 +205,7 @@
 	    :restrictions restrictions
 	    :Varfunc varfunc
 	    ;; if supplied, arg should be body of fn to be called with these args
-	    :new-english new-english
-	    :nlg-english nlg-english)))
+	    :new-english new-english)))
     (push E *Ontology-ExpTypes*)
     E))
 

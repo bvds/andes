@@ -9,30 +9,41 @@ $adminName=$_POST['adminName'];
 mysql_select_db($dbname)
      or die ("UNABLE TO SELECT DATABASE");         
 
-$sql="select count(*) from PROBLEM_ATTEMPT_TRANSACTION where command like '%errorType%' AND command like '%BACKTRACE%'";
+$sql="select count(*) from PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 where P2.command like '%error-type%' AND P2.command like '%BACKTRACE%' AND P2.clientID=P1.clientID AND P1.extra=0";
 $result=mysql_query($sql);
 $myrow = mysql_fetch_array($result);
 $count=$myrow["count(*)"];
 echo "<h2>The Errors and Warnings are as given below:(Count = $count)</h2>";
 
-$sql="select userName,userProblem,userSection,tID,command from PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 where P2.command like '%errorType%' AND P2.command like '%BACKTRACE%' AND P2.clientID=P1.clientID order by P2.tID DESC";
+$sql="select userName,userProblem,userSection,tID,command from PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 where P2.command like '%error-type%' AND P2.command like '%BACKTRACE%' AND P2.clientID=P1.clientID AND P1.extra=0 order by P2.tID DESC";
 $result=mysql_query($sql);
 
   echo "<table border=1>";
   echo "<tr><th>TID</th><th>Error Type</th><th>Error Message</th><th>Additional</th></tr>";
 
 while ($myrow = mysql_fetch_array($result)) {
-  $tID=$myrow["tID"]-1;
+  $tID=$myrow["tID"]-1;  
+  $usertID=$tID-3;
   $userName=$myrow["userName"];
   $userProblem=$myrow["userProblem"];
   $userSection=$myrow["userSection"];
   $command1=$myrow["command"];
-  $command2=explode("\"errorType\":\"",$command1);
+  $command2=explode("\"error-type\":\"",$command1);
   $command3=explode(",\"backtrace\"",$command2[1]);
   $command4=explode("\",\"error\":",$command3[0]);
   $errorType=$command4[0];
   $errorMsg=$command4[1];
-  echo "<tr><td>$tID</td><td>$errorType</td><td>$errorMsg</td><td><a href=\"javascript:;\" onclick=\"copyRecord('\Save.php?a=$adminName&u=$userName&p=$userProblem&s=$userSection&t=$tID');\">View-Solution</a></td></tr>";
+
+  $firstChar=substr($errorType,1,1);
+  if(firstChar!="("){
+  $userSql="select command from PROBLEM_ATTEMPT_TRANSACTION where tID=$tID";
+  $userResult=mysql_query($userSql);
+  $myResult=mysql_fetch_array($userResult);
+  $userCommand=$myResult["command"];
+
+  echo "<tr><td>$tID</td><td>$errorType</td><td>$errorMsg</td><td><a href=\"javascript:;\" onclick=\"copyRecord('\Save.php?a=$adminName&u=$userName&p=$userProblem&s=$userSection&t=$usertID');\">View-Solution</a></td></tr>";
+  $tID=$tID+1;
+  echo "<tr><td>-</td><td>-</td><td><a href=\"javascript:;\" onclick=\"openTrace('\OpenTrace.php?u=$userName&p=$userProblem&s=$userSection&t=$tID');\">$userCommand</a></td><td>-</td><tr>";}
  }
 
 echo "</table>";
@@ -75,6 +86,10 @@ function copyRecord($url){
     }
   }
   oXmlHttp.send(null);
+}
+
+function openTrace($url){  
+  window.open($url);
 }
 
 </script>
