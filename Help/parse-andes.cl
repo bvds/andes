@@ -163,7 +163,7 @@
 			(open-review-window-html 
 			 "the units" "units.html" :title "Units"))
 		(format nil 
-			"Though I can't tell exactly what the mistake is, a few common sources of errors are:  <ul><li>~A are case sensitive. <li>Multiplication requires an explicit multiplication sign: W=m*g, NOT W=mg. <li>Units attach only to numbers, not to variables or expressions.</ul>"
+			"Though I can't tell exactly what the mistake is, a few common sources of errors are:  <ul><li>~A are case sensitive. <li>Multiplication requires an explicit multiplication sign:&nbsp; W=m*g, NOT W=mg. <li>Units attach only to numbers, not to variables or expressions.  <li>There must be a space between a number and a unit:&nbsp;  2.5 C</ul>"
 			(open-review-window-html 
 			 "Unit symbols" "units.html" :title "Units"))
 		)))))
