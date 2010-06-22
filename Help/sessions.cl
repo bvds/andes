@@ -662,7 +662,7 @@
 	 
 	 ;; Look for text box marked by "Answer: "
 	 ;; This should come before "equation" and "statement"
-	 ((and (> (length text) (length ans))
+	 ((and (>= (length text) (length ans))
 	       (string-equal (string-left-trim match:*whitespace* text)
 			     ans :end1 (length ans)))
 	  ;; In Andes2 this was set in do-check-answer
