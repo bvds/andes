@@ -793,8 +793,8 @@
 		  ;; else student only entered rhs: fill in lhs student variable.
 		  (setf lhs (if stud-var stud-var "Answer")))
 	      (unless stud-var
-		  ;; !! NB: want to delete this temp in all paths
-		  (symbols-enter "Answer" sought-quant :entries (list id)))
+		;; !! NB: want to delete this temp in all paths
+		(symbols-enter "Answer" sought-quant :entries (list id)))
 	      (if valid
 		  (let* ((parses (parse-equation 
 				  **grammar** 
@@ -864,14 +864,17 @@
 		  (setf (StudentEntry-ErrInterp entry)
 		    (bad-answer-syntax-ErrorInterp input :id id))
 		  (setf result-turn (ErrorInterp-remediation (StudentEntry-ErrInterp entry)))))
-		)))
-	  ;;(format t "Zero length"))
-      (warn "No system variable for ~A. Possible mismatch with answer box." sought-quant))
+		))
+	    
+	    ;; Empty answer box (this is usually just a mistake).
+	    (setf result-turn (empty-answer-ErrorInterp entry)))
+
+	(warn "No system variable for ~A. Possible mismatch with answer box." sought-quant))
     (cond (result-turn) ;; if we got result from check above return it
           (T ;; else failed somewhere. !!! Should process syntax errors same as eqn.
-	     ;;(format T "~&failed to get result for answer~%")
-	     (setf (StudentEntry-state entry) +incorrect+)
-	     (make-red-turn :id (StudentEntry-id entry))))))
+	   ;;(format T "~&failed to get result for answer~%")
+	   (setf (StudentEntry-state entry) +incorrect+)
+	   (make-red-turn :id (StudentEntry-id entry))))))
 
 (defun bad-answer-bad-lhs-ErrorInterp (equation why &key id)
   "LHS of equation is not a variable."
@@ -901,6 +904,20 @@
     (make-ErrorInterp
      :diagnosis '(answer-is-not-sought)
      :remediation rem)))
+
+(defun empty-answer-ErrorInterp (se)
+  "Unsolicted hint for answer box with no content."
+  (let ((rem (make-hint-seq
+	      '("This is an answer box.&nbsp;  When you have an answer, add it to this box."))))
+    (setf (StudentEntry-ErrInterp se)
+      (make-ErrorInterp
+       :diagnosis '(empty-answer)
+       :remediation rem))
+
+    (setf (turn-id rem) (StudentEntry-id se))
+
+    rem))
+
 
 (defun bad-answer-syntax-ErrorInterp (equation &key id)
   "Answer is malformed"
