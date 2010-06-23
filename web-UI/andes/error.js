@@ -11,7 +11,7 @@ dojo.require("dijit.form.Button");
 		var message = spec.message || "An unknown error occurred.",
 		    title = spec.title || "Error",
 		    dialogType = spec.dialogType || 0;
-		dialog.set({
+		dialog.attr({
 			content: message,
 			title: title,
 			dialogType: dialogType
