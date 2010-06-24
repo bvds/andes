@@ -102,7 +102,7 @@ dojo.provide("andes.typeset");
 					}else if(word.substr(0,3)=="phi"){
 						// special handling for \phi since it is 
 						// a standard prefix for angle associated with a z-axis vector.
-						return String.fromCharCode(greeks["theta"])+word.substr(3);
+						return String.fromCharCode(greeks["phi"])+word.substr(3);
 					}
 					console.log("no match for ",match," in ",inText);
 					console.log("Need user-friendly error handling here!");				
