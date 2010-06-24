@@ -1,4 +1,4 @@
-dojo.provide("andes.GreekPalette");
+dojo.provide("andes.widget.GreekPalette");
 
 dojo.require("dijit._Widget");
 dojo.require("dijit._Templated");
@@ -8,7 +8,7 @@ dojo.require("andes.typeset");
 
 dojo.requireLocalization("dojox.editor.plugins", "latinEntities");
 
-dojo.declare("andes.GreekPalette",
+dojo.declare("andes.widget.GreekPalette",
 	[dijit._Widget, dijit._Templated, dijit._PaletteMixin],
 	{
 	// summary:
@@ -178,12 +178,12 @@ dojo.declare("andes.Greeks",
 			// summary:
 			//   Returns HTML representing the character, like &amp;
 			//
-			return "&" + this._alias + ";";
+			return this._alias;
 		},
 
 		fillCell: function(/*DOMNode*/ cell){
 			// Deal with entities that have keys which are reserved words.
-			cell.innerHTML = this.getValue();
+			cell.innerHTML = "&"+this._alias+";";
                 }
 });
 
@@ -192,30 +192,6 @@ andes.Greeks.code = {
             //greeks variable needs to be pulled into the typeset object.
             //I got it working but wanted to test it first and the server was down
             //so this will go up for now.
-            "Alpha": 913,    // alpha, U+0391 -->
-            "Beta": 914,      // beta, U+0392 -->
-            "Gamma": 915,    //gamma, U+0393 ISOgrk3 -->
-            "Delta": 916,    //delta,           U+0394 ISOgrk3 -->
-            "Epsilon": 917,    //epsilon, U+0395 -->
-            "Zeta": 918,    //zeta, U+0396 -->
-            "Eta": 919,    //eta, U+0397 -->
-            "Theta": 920,    //theta,           U+0398 ISOgrk3 -->
-            "Iota": 921,    //iota, U+0399 -->
-            "Kappa": 922,    //kappa, U+039A -->
-            "Lambda": 923,    //lambda,      U+039B ISOgrk3 -->
-            "Mu": 924,    //mu, U+039C -->
-            "Nu": 925,    //nu, U+039D -->
-            "Xi": 926,    //xi, U+039E ISOgrk3 -->
-            "Omicron": 927,    //omicron, U+039F -->
-            "Pi": 928,    //pi, U+03A0 ISOgrk3 -->
-            "Rho": 929,    //rho, U+03A1 -->
-            "Sigma": 931,    //sigma,     U+03A3 ISOgrk3 -->
-            "Tau": 932,    //tau, U+03A4 -->
-            "Upsilon": 933,    //upsilon,   U+03A5 ISOgrk3 -->
-            "Phi": 934,    //phi, U+03A6 ISOgrk3 -->
-            "Chi": 935,    //chi, U+03A7 -->
-            "Psi": 936,    //psi,   U+03A8 ISOgrk3 -->
-            "Omega": 937,    //omega,     U+03A9 ISOgrk3 -->
             "alpha": 945,   //alpha,     U+03B1 ISOgrk3 -->
             "beta": 946,   //beta, U+03B2 ISOgrk3 -->
             "gamma": 947,   //gamma,  U+03B3 ISOgrk3 -->
@@ -243,5 +219,29 @@ andes.Greeks.code = {
             "omega": 969,   //omega,      U+03C9 ISOgrk3 -->
             "thetasym": 977,   //theta symbol,  U+03D1 NEW -->
             "upsih": 978,     // upsilon with hook symbol,  U+03D2 NEW -->
-            "piv": 982     // greek pi symbol, U+03D6 ISOgrk3 -->
+            "piv": 982,     // greek pi symbol, U+03D6 ISOgrk3 -->
+	    "Alpha": 913,    // alpha, U+0391 -->
+            "Beta": 914,      // beta, U+0392 -->
+            "Gamma": 915,    //gamma, U+0393 ISOgrk3 -->
+            "Delta": 916,    //delta,           U+0394 ISOgrk3 -->
+            "Epsilon": 917,    //epsilon, U+0395 -->
+            "Zeta": 918,    //zeta, U+0396 -->
+            "Eta": 919,    //eta, U+0397 -->
+            "Theta": 920,    //theta,           U+0398 ISOgrk3 -->
+            "Iota": 921,    //iota, U+0399 -->
+            "Kappa": 922,    //kappa, U+039A -->
+            "Lambda": 923,    //lambda,      U+039B ISOgrk3 -->
+            "Mu": 924,    //mu, U+039C -->
+            "Nu": 925,    //nu, U+039D -->
+            "Xi": 926,    //xi, U+039E ISOgrk3 -->
+            "Omicron": 927,    //omicron, U+039F -->
+            "Pi": 928,    //pi, U+03A0 ISOgrk3 -->
+            "Rho": 929,    //rho, U+03A1 -->
+            "Sigma": 931,    //sigma,     U+03A3 ISOgrk3 -->
+            "Tau": 932,    //tau, U+03A4 -->
+            "Upsilon": 933,    //upsilon,   U+03A5 ISOgrk3 -->
+            "Phi": 934,    //phi, U+03A6 ISOgrk3 -->
+            "Chi": 935,    //chi, U+03A7 -->
+            "Psi": 936,    //psi,   U+03A8 ISOgrk3 -->
+            "Omega": 937    //omega,     U+03A9 ISOgrk3 -->
 };

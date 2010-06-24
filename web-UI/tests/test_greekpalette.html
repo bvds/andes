@@ -25,16 +25,19 @@
 	<!--<script src="../js/dojoxGFX/dojo/dojo/dojo.js"></script>-->
 	<script>
 		dojo.require("dijit.dijit");
-		dojo.require("andes.GreekPalette");
+		dojo.require("andes.widget.GreekPalette");
 		dojo.require("dojo.parser");
 		var palette;
 		dojo.addOnLoad(function(){
 
 		    var date0 = new Date();
-		    palette = new andes.GreekPalette({},dojo.byId("programPalette"));
+		    palette = new andes.widget.GreekPalette({},dojo.byId("programPalette"));
 		    console.log("creation time for 7x10 palette: " + (new Date() - date0));
 		    dojo.connect(palette, "onChange", function(entity){
 			console.log("output: ",andes.typeset.convertHTML(entity));
+		    });
+		    dojo.connect(palette, "onFocus", function(entity){
+			console.log("hover: ",entity);
 		    });
 		});
 		
