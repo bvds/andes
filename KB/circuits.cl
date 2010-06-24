@@ -1683,7 +1683,7 @@
    (variable ?L (self-inductance ?solenoid))
    )
   :effects ( 
-	    (eqn (= (* ?L ?length) (* |mu0| ?N ?N ?A))
+	    (eqn (= (* ?L ?length) (* |\\mu0| ?N ?N ?A))
 		 (solenoid-self-inductance ?solenoid))
 	    )
   :hint 
@@ -1691,7 +1691,7 @@
    (point (string "What is the self-inductance of ~A?" ?solenoid))
    (teach (string "Find the formula for the self-inductance of a long, uniformly wound, solenoid."))
    (bottom-out (string "Write the equation ~A"  
-		       ((= (* ?L ?length) (* |mu0| (^ ?N 2) ?A)) algebra) ))
+		       ((= (* ?L ?length) (* |\\mu0| (^ ?N 2) ?A)) algebra) ))
    ))
 
 ;; Generic wrapper to define the derivative of a generic quantity
