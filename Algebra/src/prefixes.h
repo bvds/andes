@@ -1,6 +1,6 @@
 // Prefixes
 // Copyright (C) 2001 by Joel A. Shapiro -- All Rights Reserved
-// Modifications by Brett van de Sande, 2005-2008
+// Modifications by Brett van de Sande, 2005-2010
 //
 //  This file is part of the Andes Solver.
 //
@@ -23,8 +23,9 @@ pfx( "a",   1.0E-18 ),  //   atto
 pfx( "f",   1.0E-15 ),  //   femto
 pfx( "p",   1.0E-12 ),  //   pico
 pfx( "n",   1.0E-9  ),  //   nano
+// "mu" must be tested before "m"
 pfx( "mu",  1.0E-6  ),  //   micro
-pfx( "$m",  1.0E-6  ),  //   micro
+pfx( "\\mu",  1.0E-6  ),  //   micro
 pfx( "m",   1.0E-3  ),  //   milli
 pfx( "c",   1.0E-2  ),  //   centi
 pfx( "d",   1.0E-1  ),  //   deci

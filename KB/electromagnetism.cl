@@ -396,7 +396,7 @@
 	    (variable ?dir-var (dir (field ?type :location ?loc :source ?source :time ?t)))
             )
   :hint (
-         (point (string "Note the constant ~A field at ~A." (?type adj) ?loc))
+         (point (string "Note the constant ~A field~@[ at ~A~]." (?type adj) ?loc))
          (teach (string "In this problem, the exact direction of the ~A field vector is not given, so you can draw the vector at an approximately correct angle." (?type adj)))
          (bottom-out (string "Draw ~a." 
 			     ((field ?type :location ?loc :source ?source :time ?t) def-np)))
@@ -3073,8 +3073,8 @@
 				       (velocity ?b :time ?t) ?dir-vec))
    )
   :effects (
-	    (eqn (= ?B-var (/ (* |mu0| (abs ?q-var) ?v-var (sin ?theta-var)) 
-			      (* 4 $p (^ ?r-var 2)))) 
+	    (eqn (= ?B-var (/ (* |\\mu0| (abs ?q-var) ?v-var (sin ?theta-var)) 
+			      (* 4 |\\pi| (^ ?r-var 2)))) 
 		 (biot-savert-point-particle-mag ?loc ?b ?dir-vec ?t))
 	    (assume using-magnitude 
 		    (biot-savert-point-particle ?loc ?b ?t))
@@ -3084,8 +3084,8 @@
      ;; We really need a tutorial for this
      (teach (string "The magnetic field produced by a moving point charge is given by the Biot-Savart law.  Read about the Biot-Savart law in your textbook."))
      (bottom-out (string "Write the equation ~A" 
-			 ((= ?B-var (/ (* |mu0| (abs ?q-var) ?v-var (sin ?theta-var)) 
-				       (* 4 $p (^ ?r-var 2)))) algebra)))
+			 ((= ?B-var (/ (* |\\mu0| (abs ?q-var) ?v-var (sin ?theta-var)) 
+				       (* 4 |\\pi| (^ ?r-var 2)))) algebra)))
      ))
 
 ;; The vector psm is not really set up to handle cross products...
@@ -3169,7 +3169,7 @@
    (variable ?r-var (mag (relative-position ?loc ?b :time ?t)))
    )
   :effects 
-  ( (eqn (= ?B-var (/ (* |mu0| ?q-var ?cross) (* 4 $p (^ ?r-var 2))))
+  ( (eqn (= ?B-var (/ (* |\\mu0| ?q-var ?cross) (* 4 |\\pi| (^ ?r-var 2))))
 	 (biot-savert-point-particle ?loc ?b ?axis ?rot ?flag ?t))
     ;; disallow both component-form and magnitude form in a solution
     (assume using-compo 
@@ -3180,7 +3180,7 @@
      ;; We really need a tutorial for this
      (teach (string "The magnetic field produced by a moving point charge is given by the Biot-Savart law.  Read about the Biot-Savart law in your textbook."))
     (bottom-out (string "Write the equation ~A" 
-			((= ?B-var (/ (* |mu0| ?q-var ?cross) (* 4 $p (^ ?r-var 2))))
+			((= ?B-var (/ (* |\\mu0| ?q-var ?cross) (* 4 |\\pi| (^ ?r-var 2))))
 			  algebra)))
     ))
 
@@ -3218,14 +3218,14 @@
    (inherit-variable ?B (mag (field magnetic :location ?point :source ?wire :time ?t)))
    )
   :effects ( 
-	    (eqn (= (* 2 $p ?r ?B) (* |mu0| ?I))
+	    (eqn (= (* 2 |\\pi| ?r ?B) (* |\\mu0| ?I))
 		 (straight-wire-Bfield ?point ?wire ?t))
 	    )
   :hint (
 	 (point (string "What is the magnetic field at ~A due to the current flowing in ~A?" ?point ?wire))
 	 (teach (string "Find the formula for the magnetic field due to the current flowing through a straight wire."))
 	 (bottom-out (string "Write the equation ~A"  
-			     ((= ?B (/ (* |mu0| ?I) (* 2 $p ?r))) algebra) ))
+			     ((= ?B (/ (* |\\mu0| ?I) (* 2 |\\pi| ?r))) algebra) ))
 	 ))
 
 ;;;              Magnetic field at the center of a coil
@@ -3270,7 +3270,7 @@
    (use-for-turns ?N ?coil :loop ?flag)
    (variable ?r	(radius-of-circle ?coil))
    (inherit-variable ?B (mag (field magnetic :location ?point :source ?coil :time ?t)))
-   (bind ?rhs (if ?N '(* |mu0| ?N ?I) '(* |mu0| ?I)))
+   (bind ?rhs (if ?N '(* |\\mu0| ?N ?I) '(* |\\mu0| ?I)))
    )
   :effects ( 
 	    (eqn (= (* 2 ?r ?B) ?rhs)
@@ -3313,14 +3313,14 @@
    (inherit-variable ?B (mag (field magnetic :location ?point :source ?solenoid :time ?t)))
    )
   :effects ( 
-	    (eqn (= ?B (* |mu0| ?n ?I))
+	    (eqn (= ?B (* |\\mu0| ?n ?I))
 		 (inside-solenoid-Bfield ?point ?solenoid ?t))
 	    )
   :hint (
 	 (point (string "What is the magnetic field at ~A due to ~A?" ?point ?solenoid))
 	 (teach (string "Find the formula for the magnetic field inside a long solenoid."))
 	 (bottom-out (string "Write the equation ~A"  
-			     ((= ?B (* |mu0| ?n ?I)) algebra) ))
+			     ((= ?B (* |\\mu0| ?n ?I)) algebra) ))
 	 ))
 
 
@@ -3407,7 +3407,7 @@
 ;;;      the surface in the direction orthogonal to the surface.
 
 (def-qexp electric-flux (flux ?surface electric :time ?t)
-  :symbol-base |$F|     
+  :symbol-base |\\Phi|     
   :short-name "electric flux"	
   :units |V.m|
   :new-english ((the) "electric flux"
@@ -3416,7 +3416,7 @@
 
 (def-qexp electric-flux-change (rate-of-change 
 				(flux ?surface electric :time ?t))
-  :symbol-base |d$Fdt|     
+  :symbol-base |d\\Phidt|  ;needs fixing
   :short-name "rate of change in electric flux"	
   :units |V.m/s|
   :new-english ((rate (change ("electric flux"))) 
@@ -3424,7 +3424,7 @@
 		     (time ?t)))))
 
 (def-qexp magnetic-flux (flux ?surface magnetic :time ?t)
-  :symbol-base |$F|     
+  :symbol-base |\\Phi|     
   :short-name "magnetic flux"	
   :units |T.m^2|
   :new-english ((the) "magnetic flux" 
@@ -3433,7 +3433,7 @@
 
 (def-qexp magnetic-flux-change (rate-of-change 
 				(flux ?surface magnetic :time ?t))
-  :symbol-base |d$Fdt|     
+  :symbol-base |d\\Phidt|  ;needs fixing     
   :short-name "rate of change in magnetic flux"	
   :units |T.m^2/s|
   :new-english ((rate (change ("magnetic flux"))) 
@@ -3897,12 +3897,12 @@
    (bind ?current-sum (format-plus ?current-terms))
    )
   :effects
-  ( (eqn  (= ?lint-var (* |mu0| ?current-sum))
+  ( (eqn  (= ?lint-var (* |\\mu0| ?current-sum))
 	  (amperes-law :surface ?S)) )
   :hint
   ( (point (string "You can apply Amp&egrave;re's law to surface ~A." ?s))
     (teach (string "Amp&egrave;re's law states that the line integral of the magnetic field around the boundary of a surface S is equal to the
 total current flowing through S times &mu;0.  The direction of positive current flow is given by the following right hand rule:  wrap you fingers around the boundary of the surface in the direction of the line integral; your thumb will be pointing in the direction of positive current flow."))
     (bottom-out (string "Write the equation ~A ."
-			((= ?lint-var (* |mu0| ?current-sum)) 
+			((= ?lint-var (* |\\mu0| ?current-sum)) 
 			 algebra)))))

@@ -21,8 +21,8 @@ Enterprise 5.4, CentOS 5.4) and OS X (10.4 and 10.6).
 rpm -q make git subversion gcc-c++ mysql-server wget
 
 # The Andes help server should be run in an ordinary user account.  
-# If needed,  set up a user account for the Andes server.  The rest of 
-# the install will occur in that user account.
+# If needed,  set up a user account for the Andes server.  The install,
+# unless otherwise directed, should be executed by that user. 
 
 # For convenience, you can add the user to /etc/sudoers
 
@@ -138,9 +138,18 @@ make install-dojo
 (rhelp)
 (start-help :password "sin(0)=0") ;specify mysql password 
 
-;; Point a web browser to 
-;;   http://<hostname>/web-UI/login.html
-;; Try to log in and solve a problem.
+;; The help server is now running on port 8080.
+;; You can test access to the help server by using telnet:
+;;     telnet localhost 8080
+;;     GET index.html
+;; or try http://localhost:8080 in your web browser.  In either case,
+;; help server should reply with the "Hunchentoot Default Page."
+;;
+;; Finally, you can test the entire system.  Point a web browser to 
+;;     http://<hostname>/web-UI/login.html
+;; Try to log in and solve a problem.  There will be an initial 
+;; welcome message and intro window;  the screen will look like 
+;; the one shown in the file Documentation/vec1ay-screenshot.png
 
 (stop-help)    ;Stop the lisp server:
 

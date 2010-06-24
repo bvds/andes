@@ -78,21 +78,21 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defvar *parse-memo*) ;memo for holding session-local parse
-(defvar *grammar-get-rhs-memo*) ;memo for holding session-local grammar
-(defvar *grammar-get-rhs-with-first*) ;memo for holding session-local grammar
+(defvar *lexical-rules-memo*) ;memo for holding session-local grammar
+(defvar *rules-starting-with-memo*) ;memo for holding session-local grammar
 
 (defun parse-initialize ()
   ;; makes parser act like chart parser (memoize does this)
-  (memoize 'parse :key #'second :test #'equal :var '*parse-memo*)
-  (memoize 'grammar-get-rhs :key #'second :test #'equal 
-	   :var '*grammar-get-rhs-memo*)
-  (memoize 'grammar-get-rhs-with-first :key #'second :test #'equal
-	   :var '*grammar-get-rhs-with-first*))
+  (memoize 'parse :key #'second :test #'eq :var '*parse-memo*)
+  (memoize 'lexical-rules :key #'second :test #'equal 
+	   :var '*lexical-rules-memo*)
+  (memoize 'rules-starting-with :key #'second :test #'equal
+	   :var '*rules-starting-with-memo*))
 
 (defun parse-clear ()
   (clear-memoize 'parse)
-  (clear-memoize 'grammar-get-rhs)
-  (clear-memoize 'grammar-get-rhs-with-first))
+  (clear-memoize 'lexical-rules)
+  (clear-memoize 'rules-starting-with))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -104,47 +104,75 @@
 
 ;; memoize does not work well with self-recursive functions if 
 ;; inlining is allowed.  See http://www.tfeb.org/programs/memoize.lisp
-(declaim (notinline parse grammar-get-rhs grammar-get-rhs-with-first))
+(declaim (notinline parse lexical-rules rules-starting-with))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;
+;;;; The following code is adapted from Paradigms of AI Programming
+;;;; Copyright (c) 1991 Peter Norvig
+;;;; File syntax1.lisp: The PSG-based natural language parser.
+;;;; This is the more efficient version of the non-semantic parser,
+;;;; which uses the memoized functions in Section 19.3 and handles
+;;;; unknown words as described in Section 19.4.
+;;;; http://norvig.com/paip/syntax1.lisp
+;;;;
+;;;; Norvig has a license that allows distribution of his code,
+;;;; and modifications thereof, under other open source licenses.
+;;;; See  http://norvig.com/license.html
+
+(defun lexical-rules (grammar word)
+  "Return a list of rules with word on the right hand side."
+  (find-all word grammar :key #'rule-rhs :test #'equal))
+
+(defun rules-starting-with (grammar cat)
+  "Return a list of rules where cat starts the rhs."
+  (find-all cat grammar
+            :key #'(lambda (rule) 
+		     ;; Norvig used first-or-nil here
+		     (when (consp (rule-rhs rule)) (car (rule-rhs rule))))))
+
 ;; the essential parse routine is to (beginning with first letter of string) 
 ;; find all terminal rules that match the character and then get the next 
 ;; character and find all of the previously found rules that have a match with 
 ;; this character
-(defun parse (grammar input)
-  (when (> (length input) 0)
+(defun parse (grammar characters)
+ "Bottom-up parse, returning all parses of any prefix of words."
+  (when (> (length characters) 0)
     (mapcan
      #'(lambda (rule)
-	 (parse-support grammar (rule-lhs rule) (list (char input 0))
-			(subseq input 1) nil))
-     (grammar-get-rhs grammar (char input 0)))))
+	 (extend-parse grammar (rule-lhs rule) (list (char characters 0))
+			(subseq characters 1) nil))
+     (lexical-rules grammar (char characters 0)))))
 
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; pass the left hand side of a rule, the current character (rhs), the rest of 
 ;; the string to be parsed and what is needed to complete the current rule
-(defun parse-support (grammar lhs rhs rem needed)
+(defun extend-parse (grammar lhs rhs rem needed)
+  "Look for the categories needed to complete the parse."
   (if (null needed)
+      ;; If nothing needed, return parse and upward extensions
       (let ((parse (make-parse :tree (new-tree lhs rhs) :rem rem)))
 	(cons parse
 	      (mapcan
 	       #'(lambda (rule)
-		   (parse-support grammar (rule-lhs rule)
-				  (list (parse-tree parse))
-				  rem (rest (rule-rhs rule))))
-	       (grammar-get-rhs-with-first grammar lhs))))
-      (mapcan
-       #'(lambda (p)
-	 (when (eq (parse-lhs p) (first needed))
-	   (parse-support grammar lhs (append-atom rhs (parse-tree p)) 
-			  (parse-rem p) (rest needed))))
-       (parse grammar rem))))
+		   (extend-parse grammar (rule-lhs rule)
+				 (list (parse-tree parse))
+				 rem (rest (rule-rhs rule))))
+	       (rules-starting-with grammar lhs))))
+	;; otherwise try to extend rightward
+	(mapcan
+	 #'(lambda (p)
+	     (when  (eq (parse-lhs p) (first needed))
+	       (extend-parse grammar lhs (append1 rhs (parse-tree p)) 
+			     (parse-rem p) (rest needed))))
+	 (parse grammar rem))))
 
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun append1 (items item)
+  "Add item to end of list of items."
+  (append items (list item)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun parse-remove-lhs (lhs parse)
   (cond
@@ -159,24 +187,8 @@
 ;;
 (defun parse-pack (parse)
   (list (first parse)
-	(remove #\Space (map 'string #'(lambda (x)
-					 (if (characterp x)
-					     x
-					   #\Space))
-			     (flatten (rest parse))))))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-(defun parse-pack-cs (parse)
-  (list (first parse)
-	(concatenate 'string "|"
-		     (remove #\Space (map 'string #'(lambda (x)
-						      (if (characterp x)
-							  x
-							#\Space))
-					  (flatten (rest parse)))) "|")))
+	(coerce (remove-if-not #'characterp (flatten (cdr parse))) 
+		'string)))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -194,59 +206,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-(defun parse-pack-translate (parse)
-  (list (first parse)
-	(symbols:map-student-atom 
-	 (read-from-string
-	  (remove #\Space (map 'string #'(lambda (x)
-					   (if (characterp x)
-					       x
-					     #\Space))
-			       (flatten (rest parse))))))))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-(defun parse-pack-translate-variables-lhs (lhs parse)
-  (cond
-   ((null parse) parse)
-   ((null (consp parse)) parse)
-   ((list-begins-with-p lhs (first parse))
-    (cons (parse-pack-translate (first parse)) (parse-pack-lhs lhs (rest parse))))
-   (t (cons (parse-pack-lhs lhs (first parse)) (parse-pack-lhs lhs (rest parse))))))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-(defun parse-pack-to-string-lhs (lhs parse)
-  (cond
-   ((null parse) parse)
-   ((null (consp parse)) parse)
-   ((list-begins-with-p lhs (first parse))
-    (cons (list (first (first parse)) (format nil "~W" (second (first parse))))
-	  ;;(symbol-name (second (first parse))))
-	  (parse-pack-to-string-lhs lhs (rest parse))))
-   (t (cons (parse-pack-to-string-lhs lhs (first parse))
-	    (parse-pack-to-string-lhs lhs (rest parse))))))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-(defun parse-pack-cs-lhs (lhs parse)
-  (cond
-   ((null parse) parse)
-   ((null (consp parse)) parse)
-   ((list-begins-with-p lhs (first parse))
-    (cons (parse-pack-cs (first parse)) (parse-pack-cs-lhs lhs (rest parse))))
-   (t (cons (parse-pack-cs-lhs lhs (first parse)) (parse-pack-cs-lhs lhs (rest parse))))))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
 (defun parse-gather-rhs-of-lhs (lhs parse)
   (cond
    ((null parse) nil)
@@ -258,45 +217,6 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-(defun parse-gather-not-rhs-of-lhs (lhs parse)
-  (cond
-   ((null parse) nil)
-   ((null (consp parse)) nil)
-   ((list-begins-with-p lhs (first parse))
-    (append (parse-gather-rhs-of-lhs lhs (first parse))
-	      (parse-gather-rhs-of-lhs lhs (rest parse))))
-   (t
-    (append (rest (first parse)) (parse-gather-rhs-of-lhs lhs (rest parse))))))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-(defun parse-surround-lhs (ls rs lhs parse)
-  (cond
-   ((null parse) nil)
-   ((null (consp parse)) parse)
-   ((list-begins-with-p lhs parse)
-    (append (list (first parse) ls)
-	    (list (parse-surround-lhs ls rs lhs (rest parse))) (list rs)))
-   (t
-    (append (list (parse-surround-lhs ls rs lhs (first parse)))
-	      (parse-surround-lhs ls rs lhs (rest parse))))))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-(defun parse-collapse (parse)
-  (let ((tmp ""))
-    (dolist (x (flatten parse))
-      (if (stringp x)
-	  (setf tmp (concatenate 'string tmp " " x))))
-    (string-trim match:*whitespace* tmp)))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; end of file parse.cl

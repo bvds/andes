@@ -29,35 +29,15 @@ andes.Combo = dojox.drawing.util.oo.declare(
 			}]
 		]);
 
-		this.created = options.onCreate ? false : true
+		this.created = options.onCreate ? false : true;
+		this._onCreate = options.onCreate;
 		var s = this.statement;
 		var m = this.master;
 		
 		console.warn("combo statement:", this.statement)
 
 		this.statement.connectMult([
-			[this.statement, "onChangeText", this, function(value){
-				var label = andes.variablename.parse(value);
-				if(label){
-					console.log("LABEL", label)
-					this.master.setLabel(label);
-					this.statement.selectOnExec = true;
-				}else{
-					console.log("NO LABEL", label)
-					this.master.setLabel(value);
-					this.statement.setText("");
-					this.statement.selectOnExec = false;
-				}
-				if(!this.created){
-					this.created = true;
-					options.onCreate();
-				}else{
-					this.onChangeData(this);
-				}
-
-				this.onChangeText(this);
-
-			}],
+			[this.statement, "onChangeText", this, "textEdit"],
 			[this.statement, "onChangeData", this, function(){
 				this.onChangeData(this);
 			}],
@@ -96,25 +76,30 @@ andes.Combo = dojox.drawing.util.oo.declare(
 		},
 		
 		textEdit: function(value){
+			// match logic for symbol and label in convert.js
 			var label = andes.variablename.parse(value);
-				if(label){
-					console.log("LABEL", label)
-					this.master.setLabel(label);
-					this.statement.selectOnExec = true;
-				}else{
-					console.log("NO LABEL", label)
-					this.master.setLabel(value);
-					this.statement.setText("");
-					this.statement.selectOnExec = false;
-				}
-				if(!this.created){
-					this.created = true;
-					options.onCreate();
-				}else{
-					this.onChangeData(this);
-				}
+			if(label){
+				console.log("LABEL=", label," text=",value);
+				this.master.setLabel(label);
+				// if call came from onChangeText, then statement is already updated
+				if(value != this.statement.getText()){
+					this.statement.setText(value);
+				}  
+				this.statement.selectOnExec = true;
+			}else{
+				console.log("NO LABEL, text=",value);
+				this.master.setLabel(value);
+				this.statement.setText("");
+				this.statement.selectOnExec = false;
+			}
+			if(!this.created){
+				this.created = true;
+				this._onCreate();
+			}else{
+				this.onChangeData(this);
+			}
 
-				this.onChangeText(this);
+			this.onChangeText(this);
 		},
 
 		onChangeText: function(value){ // value or 'this' ?
@@ -188,5 +173,42 @@ andes.Combo = dojox.drawing.util.oo.declare(
 			if(!dojo.isArray(handles)){ handles=[handles]; }
 			dojo.forEach(handles, dojo.disconnect, dojo);
 		}
+	}
+)
+
+
+andes.buttonCombo = dojox.drawing.util.oo.declare(
+	// summary:
+	//	A special object used to combine a Button and a Statement. 
+	//
+	//	This object is what relays events to andes.drawing, not the
+	//	individual items.
+	//
+	function(butt,id){
+		this.items=butt;
+		this.id=id;
+	},
+	{
+		type:"andes.buttonCombo",
+		onChangeData: function(/*Object*/ stencil){
+			if (stencil.mod == true) { console.log("------------button mod, no save to server", stencil.mod);};
+			console.log("--------------on change button combo", stencil.id);
+			// summary:
+			//	Stub - fires on change of dimensional
+			//	properties or a text change of the master
+			// or any item
+		},
+		
+
+		attr: function(a1, a2){
+			// see Drawing.stencil._Base
+			dojo.forEach(this.items,function(item){
+				item.master.attr.call(item.master, a1, a2);
+				if(item.statement){  // associated text is optional
+					item.statement.attr.call(item.statement, a1, a2);
+				}
+			});
+		}
+
 	}
 )

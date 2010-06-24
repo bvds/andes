@@ -16,6 +16,11 @@
 			z-index:10001;
 		}
 	</style>
+	<style>
+	    @import "dojo/resources/dojo.css";
+	    @import "dijit/tests/css/dijitTests.css";
+	    @import "dojox/editor/plugins/resources/css/InsertEntity.css";
+	</style>
 	<script type="text/javascript">
 		djConfig = {
 			isDebug:true,
@@ -104,7 +109,7 @@
 				<div id="helpContentPane" dojoType="dijit.layout.ContentPane" region="center"></div>
 
 				<div id="helpInputPane" dojoType="dijit.layout.ContentPane" region="bottom">
-					<div dojoType="dijit.form.TextBox" id="helpInput"></div>
+					<div dojoType="dijit.form.TextBox" id="helpInput""></div>
 					<div dojoType="dijit.form.Button" id="helpSubmit">?</div>
 				</div>
 			</div>

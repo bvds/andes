@@ -175,7 +175,7 @@ body, .tundra .dijitSplitter, #navMenu{
 	width:24px;
 	height:24px;
 }
-#helpInput{
+#widget_helpInput{
 	position:absolute;
 	left:5px;
 	bottom:5px;

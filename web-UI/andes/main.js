@@ -27,7 +27,7 @@ dojo.provide("andes.main");
 	}
 	var setCookie = function(){
 		andes.sessionId = andes.userId + andes.projectId + new Date().getTime();
-		 var andesCookie = {
+		var andesCookie = {
 			u:andes.userId,
 			p:andes.projectId,
 			sid:andes.sessionId,
@@ -65,9 +65,11 @@ dojo.provide("andes.main");
 		dojo.connect(dojo.byId("submitButton"), "click", function(){
 			andes.api.close({});
 			dojo.cookie("andes", null, { expires: -1 });
-			document.location.href = "login.html";
+			// should look for url from server that
+			// can overrride default.
+			history.go(-1);
 		});
-	
+		
 		var splashNode = dojo.byId("splashOverlay"),
 		anim = dojo.fadeOut({node:dojo.byId("splashOverlay")}),
 		_h = dojo.connect(anim, "onEnd", function(){
@@ -77,7 +79,7 @@ dojo.provide("andes.main");
 		});
 		anim.play();
 	});
-
+	
 })();
 
 dojo.require("andes.defaults");
@@ -87,6 +89,7 @@ dojo.require("andes.help");
 dojo.require("andes.api");
 dojo.require("andes.error");
 dojo.require("andes.variablename");
+dojo.require("andes.typeset");
 dojo.require("andes.convert");
 
 andes.drawing.load();

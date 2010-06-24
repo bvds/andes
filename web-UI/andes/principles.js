@@ -14,7 +14,7 @@ andes.principles={
 	// Either constants or Equations.
 	reviewp: null,
 	review: function(file,title){
-		this.reviewp=window.open("/review/"+file,
+		this.reviewp=window.open("../review/"+file,
 					 title,
 					 "width=350,height=450,scrollbars=yes,directories=no,menubar=no,toolbar=no,location=no,status=no"
 					);
@@ -25,7 +25,7 @@ andes.principles={
 	externP: function (){
 		if(!this.extp || this.extp.closed){
 			// See https://developer.mozilla.org/en/DOM/window.open
-			this.extp=window.open("/review/principles-tree.html","Principles",
+			this.extp=window.open("../review/principles-tree.html","Principles",
 					      // Default starting size in Firefox is too big, need to set explicitly.
 					      // Need scrollbars=1 in Firefox for reopen with long (opened) tree.
 					      // status=0 ignored by Firefox.
@@ -46,7 +46,7 @@ andes.principles={
 dojo.addOnLoad(function() {
 	
 	var principlesStore = new dojo.data.ItemFileReadStore({
-		url: "/review/principles.json"
+		url: "../review/principles.json"
 	});
 	
 	var majorPrinciplesModel = new dijit.tree.ForestStoreModel({

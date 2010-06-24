@@ -51,8 +51,14 @@
 
 (defvar *cleanup-thread* "Function to clean up idle sessions")
 
-(defun start-help (&key host db user password (port 8080) server-log-path)
-  "start a server with help system, optionally specifying the port, log file path, and database access."
+(defun start-help (&key (port 8080) server-log-path host db user password)
+  ;; port            the port for the help server, default 8080
+  ;; server-log-path path for log file
+  ;; host            the ip address of the database, defaults to localhost
+  ;; db              the name of the database, default "andes"
+  ;; user            database user name, default "root"
+  ;; password        the database password
+  "start a server with help system, optionally specifying the server port, the log file path, and database access."
   ;; global setup
 
   ;; tune garbage collection
@@ -142,7 +148,7 @@
 	  *Runtime-testset-current-Solindex*
 	  *Runtime-Testset-current-total-score* **Checking-entries**
 	  ;; Variables holding session-local memos.
-	  *parse-memo* *grammar-get-rhs-memo* *grammar-get-rhs-with-first*
+	  *parse-memo* *lexical-rules-memo* *rules-starting-with-memo*
 	  ;; Cache variables in Testcode/Tests.cl
 	  *test-cache-eqn-entries* *test-cache-given-eqn-entries*
 	  *test-cache-axis-entries* *test-cache-objects* 
@@ -266,7 +272,10 @@
       (initialize-fades *cp*)
 
       ;; Write problem statement.	      
-      (let ((x 10) (y 10) (i 0))
+      (let ((x 10) (y 10) (i 0)
+	    (indent 30) ;indentation of buttons & answer boxes.
+	    (line-sep 25) ;line separation
+	    )
 	(dolist  (line (problem-statement *cp*))
 	  (cond ((unify line '(answer . ?rest))
 		 ;; Need to do inlining for answer boxes, Bug #1689
@@ -276,37 +285,60 @@
 					    :type "statement") 
 			 *studententries*)
 		   (push `((:action . "new-object") (:type . "statement") 
-			   (:id . ,id) (:mode . "unknown") (:x . ,x) (:y . ,y) 
+			   (:id . ,id) (:mode . "unknown") 
+			   (:x . ,(+ x indent)) (:y . ,y) 
 			   (:width . 100) (:text . "Answer:       ")) 
 			 replies)))
 
 		;; Multiple choice.  See Bug #1551
-		((unify line '(choose ?label ?a ?b . ?rest))
-		 (pop line)
-		 (let* ((label (pop line))
-			(id (format nil "~A" label))
-			(prop `(choose-answer ,label nil))
-			(radios
-			 (loop for choice in line and
-			       value from 1
-			       do
-			       ;; Put each button on a new row.
-			       (unless (= value 1) (incf y 25))
-			       collect
-			       `((:id . ,(format nil "~A" value))
-				 (:type . "radio") 
-				 ;; Indent buttons relative to text
-				 (:x . ,(+ x 50)) (:y . ,y) (:width . 300)
-				 (:text . ,choice))
-			       )))
-		   (push `((:action . "new-object") (:id . ,id)
-			   (:type . "button") (:items . ,radios))
-			 replies)
-		   (push (make-studententry 
-			  :id id :type "button" :mode "unknown"
-			  :prop prop) 
-			 *studententries*)))
-
+		;; Checkboxes (with a done button) or radio buttons
+		((or (unify line '(choose ?label ?a ?b . ?rest))
+		     (unify line '(checkbox ?label ?a ?b . ?rest)))
+		 (let* ((checkbox-p (eq (pop line) 'checkbox))
+			(button-type (if checkbox-p "checkbox" "radio"))
+			(label (pop line))
+			dx dy)
+		   ;; if labels are short enough, go horizontal
+		   ;; Find longest label, add padding for button,
+		   ;; and multiply by number of buttons
+		   (if (> (* (+ (reduce #'max (mapcar #'length line)) 5) 
+			     (length line)) 50)
+		       (setf dx 0 dy line-sep)
+		       (setf dx (/ 300 (length line)) dy 0))
+		   
+		   (let* ((id (format nil "~A" label))
+			  (prop `(choose-answer ,label nil))
+			  (buttons
+			   (loop for choice in line and
+			      value from 1 with
+			      xx = (+ x indent)
+			      do
+			      ;; Put each button on a new row/column
+				(unless (= value 1) 
+				  (incf y dy) (incf xx dx))
+			      collect
+				`((:value . ,(format nil "~A" value))
+				  (:type . ,button-type) 
+				  ;; Indent buttons relative to text
+				  (:x . ,xx) (:y . ,y) (:width . 300)
+				  (:text . ,choice))
+				)))
+		     ;; checkboxes get an associated "done" button.
+		     (when checkbox-p
+		       (push `((:type . "done") (:label . "Enter")
+			       ;; Indent buttons relative to text
+			       (:x . ,(+ x indent)) (:y . ,(incf y line-sep)) 
+			       (:width . 300)) 
+			     buttons))
+		     (push `((:action . "new-object") (:id . ,id)
+			     (:type . "button") (:items . ,buttons))
+			   replies)
+		   
+		     (push (make-studententry 
+			    :id id :type "button" :mode "unknown"
+			    :style button-type :prop prop) 
+			   *studententries*))))
+		 
 		;; "I am done" button.  See Bug #1551
 		;; Should have a more distinctive method
 		;; of indicating this button type.
@@ -321,14 +353,14 @@
 		     (warn "Ambiguous null label for choose"))
 		   ;; Create a single push button
 		   (push `((:action . "new-object") 
-			   (:type . "button") (:style . "submit")
-			   (:id . ,id) (:mode . "unknown") 
-			   ;; Indent buttons relative to text
-			   (:x . ,(+ x 50)) (:y . ,y) (:width . 300)
-			   (:text . ,(car line))) replies)
+			   (:type . "button") (:id . ,id) 
+			   (:items . (((:type . "done") (:label . "Done")
+				       ;; Indent buttons relative to text
+				       (:x . ,(+ x indent)) (:y . ,y) (:width . 300)
+				       (:text . ,(car line)))))) replies)
 		   (push (make-studententry 
 			  :id id :mode "unknown" :type "button" 
-			  :style "submit" :prop prop)
+			  :style "done" :prop prop)
 			 *studententries*)
 		   ))
 		
@@ -338,7 +370,7 @@
 			 (:mode . "locked") (:x . ,x) (:y . ,y) 
 			 (:width . 400) (:text . ,line)) replies)))
 	  (incf i)
-	  (setf y (+ y 25)))
+	  (setf y (+ y line-sep)))
 	
 	(when (problem-graphic *cp*)
 	  (let ((g (problem-graphic *cp*)))
@@ -497,10 +529,11 @@
       (unless solution-step-replies (setf replies (update-fades replies)))
 
       ;; Enable z-axis vectors, based on problem features
-      (when (intersection '(circular rotkin angmom torque mag gauss) 
+      (unless (intersection '(circular rotkin angmom torque mag gauss) 
 			  (problem-features *cp*))
 	    (push '((:action . "set-styles")
-		    (:z-axis-enable . t)) replies))
+		    (:tool . "vectorSecondary")
+		    (:style . "disabled")) replies))
       
       ;; set-stats (if there was an old score) (to do)
       ;; Should this be wrapped in execute-andes-command?
@@ -629,7 +662,7 @@
 	 
 	 ;; Look for text box marked by "Answer: "
 	 ;; This should come before "equation" and "statement"
-	 ((and (> (length text) (length ans))
+	 ((and (>= (length text) (length ans))
 	       (string-equal (string-left-trim match:*whitespace* text)
 			     ans :end1 (length ans)))
 	  ;; In Andes2 this was set in do-check-answer

@@ -252,15 +252,20 @@
     
     ;; Handle the multiple choice case by generating the entry prop
     ;; and then handling it like any other.
-    ((eql (car (StudentEntry-prop entry)) 'choose-answer)
+    ((and (eql (car (StudentEntry-prop entry)) 'choose-answer)
+	  (StudentEntry-checked entry))
      ;; update with the box that has been clicked
-     (setf (third (StudentEntry-prop entry))
-		   (read-from-string (car (StudentEntry-checked entry))))
+     (let ((ch (mapcar #'read-from-string (StudentEntry-checked entry))))
+       (setf (third (StudentEntry-prop entry))
+	   (if (cdr (StudentEntry-checked entry))
+	       (cons 'orderless ch)   ;checkboxes
+	       (car ch))))            ;radio buttons
      (check-noneq-entry entry))
     
     ;; In the event that an unrecognized type is supplied handle it like so.
-    (t (error "Unrecognized button entry supplied: ~a" 
-	      (StudentEntry-prop entry)))))
+    (t (warn "Unrecognized button entry: ~a, checked:  ~A" 
+	      (StudentEntry-prop entry)
+	      (StudentEntry-checked entry)))))
 
   
 ;;; ===========================================================================
@@ -297,50 +302,3 @@
 				 :Assoc '((handle-text . comment))))) )
 
     
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Entry Status Return Values are 3+ field strings of the form:
-;;   StatusCode;ErrorList!Command  where
-;;  StatusCode -> T | NIL | <nada>
-;;  ErrorList -> SlotName | SlotName;MoreErrors | <nada>
-;;  MoreErrors -> SlotName | SlotName;MoreErrors
-;;  Command -> WBCommand | <nada>
-;;  SlotName -> name -- student's label
-;;              body -- principal body
-;;              time -- time on which defined
-;;              type -- qualified when required:
-;;                  force - force type
-;;                  vector - average or instantaneous
-;;                  energy - total, kinetic, or grav-potential
-;;              spring
-;;              agent -- second body where required
-;;                  force -- force agent
-;;                  variable - second body in some defs, e.g. distance between
-;;              dir -- vector - direction
-;;              zdir -- vector - z-axis direction (only in rotational problems)
-;;              ang -- vector - angular or linear (only in rotational problems)
-;;              side1 - first argument of angle dialog (Angle Dialog)
-;;              side2 - second side argument (Angle Dialog)
-;;              bodies - list of bodies include in system (System Dialog)
-;;  WBCommand -> show-hint <HintSpec> -- show a hint in the tutor mesg pane
-;;               show-lesson lesson-file-name -- show an ANDES min-lesson
-;;               open-browser URL -- open a lesson viewer on any URL
-;;               close-browser -- close lesson viewer if open
-;;               msg <message text> -- show text in a dialog box
-;;               training-card card-id -- pop up a training card
-;;               show-demo demo-file-name -- play a log file as a demo script
-;;  HintSpec -> MessageBody[Flags]
-;;  Flags -> Flag | Flag Flags
-;;  Flag -> w -- why -- continuation (why)
-;;          e -- explain further -- continuation (explain)
-;;          h -- how do I do that -- continuation (hint-next-substep)
-;;  MessageBody ->
-;;          free form text with crude hypertext facilities
-;;          (\d text) -- RTF-like tags text as definition
-;;          (\v text) -- hidden text
-;;          (\h text) -- callback to help-system
-;;                     (\h "What's wrong?") (\v what-is-wrong) calls help
-;;                     function what-is-wrong if the link "What's wrong?" is
-;;                     selected.
-;;          Support for Greek alphabet names (ie $a short for greek alpha char)
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
