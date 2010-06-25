@@ -143,7 +143,7 @@
     (buoyant '((or "buoyant" "buoyancy") "force"))
     (thrust "thrust force")
     (spring "spring force")
-    (pressure "pressure force")
+    (pressure '("pressure" (preferred "force")))
     (drag '((or "drag" "friction" "frictional") "force"))
     (t (warn "unknown force type ~A" type) (format nil "~(~A~) force" type))))
 
