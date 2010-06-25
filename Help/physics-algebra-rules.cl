@@ -412,6 +412,8 @@
   ;; Powers
   (grammar-add-nonterminal '**common-grammar** 'n-pterm ;numerical value
 			   '((n-term) 
+			     ;; leading unary +/- in exponent.
+			     (plus-minus (wspace) n-term)
 			     (n-term (wspace) raised (wspace) n-pterm)))
   ;; Multiplication & division
   (grammar-add-nonterminal '**common-grammar** 'n-factor ;numerical value
@@ -439,6 +441,8 @@
   ;; Powers
   (grammar-add-nonterminal '**common-grammar** 'pterm 
 			   '((term) 
+			     ;; leading unary +/- in exponent
+			     (plus-minus (wspace) term)
 			     (term (wspace) raised (wspace) pterm)))
   ;; Multiplication & division
   (grammar-add-nonterminal '**common-grammar** 'factor 

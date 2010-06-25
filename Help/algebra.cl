@@ -65,20 +65,28 @@
     ((member (car eq) '(/ ^))
      (when (cdddr eq) (warn "binop with ~A" eq))
      (let ((op (pop eq)))
-       (strcat (algebra (first eq) :parent op) (string op)
-	       (algebra (second eq) :parent op))))
+       (wrap-parentheses (or (member parent '(t))
+			     (and (member op '(/)) (eql parent '^)))
+			 (strcat (algebra (first eq) :parent op) (string op)
+				 (algebra (second eq) :parent op)))))
+
     ;; Equals
     ((eql (car eq) '=)
      (when parent (warn "Equality ~A with parent ~A" eq parent))
      (when (cdddr eq) (warn "Equality with ~A" eq))
      (strcat (algebra (second eq)) " = " (algebra (third eq))))
-    ((member (car eq) '(- + *))
+
+    ;; n-ary operators.
+    ;; Right now, this does not assume left-to-right 
+    ;; associativity.
+    ((member (car eq) '(- + * |.|)) ;|.| is for units
      (let* ((op (pop eq))
 	    (result (algebra (pop eq) :parent op)))
        (dolist (term eq)
 	 (setf result (strcat result (string op) 
 			      (algebra term :parent op))))
        (wrap-parentheses (or (member parent '(t - / ^))
+			     ;; units don't have +/-
 			     (and (member op '(+ -)) (eql parent '*)))
 			 result)))
     (t (warn "Unknown object ~A" eq) 

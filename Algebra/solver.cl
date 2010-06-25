@@ -307,7 +307,8 @@
 (defun solver-studentAddOkay (equationID equation)
   (do-solver-turn "c_indyStudentAddEquationOkay" 
     ;; no vertical bars on units
-     (write-to-string (list (id2solver-slot equationID) equation) 
+     (write-to-string (list (id2solver-slot equationID) 
+			    (units-to-solver-form equation)) 
 		      :pretty NIL :escape nil)))
 
 (defun solver-studentEmptySlot (equationID)
@@ -317,7 +318,8 @@
 (defun solver-studentIsOkay (equation)
   (do-solver-turn "c_indyIsStudentEquationOkay" 
      ;; no vertical bars on units 
-    (write-to-string (list equation) :pretty nil :escape nil)))
+    (write-to-string (list (units-to-solver-form equation)) 
+		     :pretty nil :escape nil)))
 
 (defun solver-power-solve (strength varName equationID)
   (do-solver-turn "c_powersolve"
@@ -428,4 +430,77 @@
 	   'inaccurate)
 	  (T 'wrong))))
 	    
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Units for the solver
+;;;
+;;; The solver does not handle parentheses and incorrectly handles
+;;; division (uses right-to-left associativity).  Thus, we 
+;;; transform the unit expression into a product of powers.
+;;;
+
+(defun units-to-solver-form (expr)
+  "Find any units in expr and express them in solver-compatible form."
+  (cond ((atom expr) expr)
+	((and (consp expr) (eq (car expr) 'dnum))
+	 (let ((x (copy-list expr)))
+	   (setf (third x) (format nil "|~A|" 
+				   (substitute
+				    "\\\\" "\\"  ;; escape backslashes
+				    (prefix-unit-to-infix 
+				     (canonicalize-unit (third x))))))
+	   x))
+	(t (cons (car expr) (mapcar #'units-to-solver-form (cdr expr))))))
+
+(defun canonicalize-unit (expr)
+  "Rewrite unit expression (written in lisp prefix form) in terms 
+   of a product of powers."
+  (cond 
+    ((atom expr) expr)
+
+    ;; simple power
+    ((and (eq (car expr) '^) (atom (cadr expr)))
+	  expr)
+
+    ;; product (that is easy)
+    ((member (car expr) '(* |.|))
+     (cons (car expr) (mapcar #'canonicalize-unit (cdr expr))))
+    
+    ;; turn division into power
+    ((eq (car expr) '/)
+     (list '* (canonicalize-unit (cadr expr)) 
+	   (canonicalize-unit (list '^ (third expr) -1))))
+    
+    ;; power of a power
+    ((and (eq (car expr) '^) (eq (car (cadr expr)) '^))
+     (canonicalize-unit (list '^ (cadr (cadr expr)) 
+			      (* (third expr) (third (cadr expr))))))
+    
+    ;; power of a product or division
+    ((and (eq (car expr) '^) (member (car (cadr expr)) '(* |.| /)))
+     (canonicalize-unit (list (car (cadr expr)) 
+			      (list '^ (cadr (cadr expr)) (third expr))
+			      (list '^ (third (cadr expr)) (third expr)))))
+    
+    (t (warn "Can't canonicalize ~A" expr) expr)))
+    
+
+(defun prefix-unit-to-infix (expr)
+  "Transform canonicalized unit expression into an infix string."
+  ;; At this point, only have unit symbols, products, and integer powers.
+  (cond 
+    ((atom expr) (string expr))
+    ((member (car expr) '(* |.|))
+     (concatenate 'string (prefix-unit-to-infix (cadr expr))
+		  (string (car expr))
+		  (prefix-unit-to-infix (third expr))))
+    ((eq (car expr) '^)
+     (concatenate 'string (string (cadr expr))
+		  "^" 
+		  (princ-to-string (third expr))))
+    
+    (t (warn "prefix-unit-to-infix invalid ~A" expr)
+       expr)))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
