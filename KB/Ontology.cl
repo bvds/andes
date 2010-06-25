@@ -42,7 +42,7 @@
   :new-english ((eval (format nil
 			      "~A~:[~2*~;~A~A~]~@[ ~A~]" 
 			      (algebra ?value) ?err  #\PLUS-MINUS_SIGN 
-			      ?err ?unit))))
+			      ?err (when ?unit (algebra ?unit))))))
 
 ;;;; vector quantities:
 
