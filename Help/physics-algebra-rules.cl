@@ -346,7 +346,8 @@
 
   ;; units ... NOTE: no white-space
   (grammar-add-nonterminal '**common-grammar** 'unit-symbol
-			   '(((unit-prefix) unit-name)))
+			   '(((unit-prefix) unit-name)
+			     (unit-rname)))
   (grammar-add-nonterminal '**common-grammar** 'unit-term
 			   ;; parentheses are added below
 			   '((unit-symbol)
