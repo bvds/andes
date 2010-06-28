@@ -63,7 +63,7 @@
 				     ;; Equation parser/interpreter
 				     (:file "physics-algebra-rules")
 				     (:file "parse"
-					    :depends-on ("utilities" "symbols"))
+					    :depends-on ("utilities"))
 				     (:file "grammar" :depends-on ("parse"))
 				     (:file "algebra"
 					    :depends-on ("symbols"))
