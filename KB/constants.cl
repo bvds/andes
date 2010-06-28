@@ -36,6 +36,10 @@
 (defparameter *phys-constants* 
     '(|\\pi| |\\epsilon0| |\\epsilon_0| |eps0| |kelec| |\\mu0| |\\mu_0| |mu0| |kmag| |c| |hbar| |G| |Iref|))
 (defun physconstp (exp) (member exp *phys-constants*))
+(defparameter *phys-constants-strings* (mapcar #'(lambda (x) (cons (string x) x)) *phys-constants*))
+(defun get-phys-const (symbol)
+  "If string is equal to one of the special symbols recognized by the solver, return the symbol."
+  (cdr (assoc symbol *phys-constants-strings* :test #'string=)))
 
 ;;; enter-predefs -- enter predefined symbols for *cp* into symbol table
 ;;; 

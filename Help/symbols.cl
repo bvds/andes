@@ -80,7 +80,6 @@
   (:export :initialize-symbol-table ; State.cl
 	   :clear-symbol-table ; State.cl
 	   :canonical-to-student ;algebra.cl
-	   :map-student-atom ;parse.cl
 	   :near-miss-var :symbols-sysvar ;parse-andes.cl
 	   :sym-referent :sym-entries :symbols-fetch :sym-label ;Entry-API.cl 
 	   :symbols-delete-dependents ;Entry-API.cl 
@@ -259,14 +258,8 @@
 (defun student-to-canonical (StudAtom)
   "Map given student equation atom to its canonical var or quantity, returning NIL if no counterpart found"
    ;; NB: student variables are *strings* not symbols or other atoms
-  (if (stringp StudAtom)
+  (when (stringp StudAtom)
     (symbols-sysvar StudAtom))) ; use expression stored in symbol table
-
-
-(defun map-student-atom (StudAtom)
- "translate atomic student expr to canonical if there is one, else return it unchanged"
-   (or (student-to-canonical StudAtom)
-       StudAtom))
 
 ;; to map single var the other way:
 (defun canonical-to-student (Canonical)
