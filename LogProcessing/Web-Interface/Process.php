@@ -8,6 +8,7 @@ $adminName = $_POST['adminName'];
 $orderBy = $_POST['item'];
 $order = $_POST['order'];
 $filter=$_POST['filter'];
+$solved=$_POST['solved'];
 
 //******** BEGIN LISTING THE CONTENTS OF  testTable*********                                                                                                            
 //CONNECTION STRING                                                                                                                                                     
@@ -66,7 +67,13 @@ do
 	   $myCom="NA";
        }
        
-       echo "<tr><td><INPUT TYPE=checkbox NAME=$tID $rButton onclick=\"UpdateRecord('RecordUpdate.php?t=$tID&a=$adminName&u=$userName')\"></td><td>$myCom</td><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td>$command[0]</td><td><a href=\"javascript:;\" onclick=\"copyRecord('\Save.php?a=$adminName&u=$userName&p=$userProblem&s=$userSection&t=$tID');\">View-Solution</a></td></tr>";
+       // Only print out out rows that have right solved status.
+       // It may be more efficient to do this filtering at the database
+       // query level.
+       if(($rButton=='CHECKED' && $solved != "Unsolved") ||
+	  ($rButton=='UNCHECKED' && $solved != "Solved")) {
+	 echo "<tr><td><INPUT TYPE=checkbox NAME=$tID $rButton onclick=\"UpdateRecord('RecordUpdate.php?t=$tID&a=$adminName&u=$userName&d=$dbname&p=$dbpass&s=$dbseerver&x=$dbuser')\"></td><td>$myCom</td><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td>$command[0]</td><td><a href=\"javascript:;\" onclick=\"copyRecord('\Save.php?a=$adminName&u=$userName&p=$userProblem&s=$userSection&t=$tID');\">View-Solution</a></td></tr>";
+       }
       }
   }
  while ($myrow = mysql_fetch_array($result));

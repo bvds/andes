@@ -1,19 +1,18 @@
 <?
-$dbuser= "rrangan";
-$dbserver= "gideon.eas.asu.edu";
-$dbpass= "sin(0)=0";
-$dbname= "andes";
+$adminName = $_GET["a"];
+$tID = $_GET["t"];
+$userName=$_GET["u"];
+$dbname=$_GET["d"];
+$dbpass=$_GET["p"];
+$dbserver=$_GET["s"];
+$dbuder=$_GET["x"];
+$url=$_GET["c"];
+$comm=explode("&c=",$url);
 
 mysql_connect($dbserver, $dbuser, $dbpass)
      or die ("UNABLE TO CONNECT TO DATABASE");
 mysql_select_db($dbname)
      or die ("UNABLE TO SELECT DATABASE");
-
-$adminName = $_GET["a"];
-$tID = $_GET["t"];
-$userName=$_GET["u"];
-$url=$_GET["c"];
-$comm=explode("&c=",$url);
 
 $maxQuery = "SELECT MAX(radioID) FROM REVIEWED_PROBLEMS WHERE adminName='$adminName' AND tID=$tID";
 $maxResult = mysql_query($maxQuery);
