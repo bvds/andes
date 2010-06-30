@@ -263,6 +263,7 @@ StencilData: {
 					//	This gives popup help.
 					var dropdown = dijit.byId("dropdown");
 					if(evt.keyCode==220){
+						console.warn("Popup check",dropdown);
 						this._dropMode = true;
 						dropdown._pushChangeTo = conEdit;
 						dropdown._textBlock = this;
@@ -270,18 +271,14 @@ StencilData: {
 							parent:this.parentNode,
 							popup:dropdown,
 							around:this.parentNode,
-							orient:{'BR':'TR', 'BL':'TL', 'TR':'BR', 'TL':'BL'}
+							orient:{'BL':'TL'}
 						})
 						dijit.focus(dropdown._currentFocus);
-					}
-					if(evt.keyCode==32){
-						dijit.popup.close(dropdown);
 					}
 				});
 				
 				kc3 = dojo.connect(document, "mouseup", this, function(evt){
 					// note: _onAnchor means an anchor has been clicked upon
-					console.log("clicked: ", evt);
 					if(!this._onAnchor && (evt.target.id != "conEdit" || evt.target.id != "dropdown")){
 						dojo.stopEvent(evt);
 						exec();
@@ -686,6 +683,13 @@ dojo.addOnLoad(function(){
 			this._textBlock._dropMode = false;
 			this._textBlock.setSelection(this._pushChangeTo,"end");
 		},
+		
+		onCancel: function(evt){
+			this.onChange("&nbsp;");
+		},
+		
 		id: "dropdown"
-	}, dojo.byId("conEdit"));
+	});
+	//TODO
+	//	Let escape key close popup
 });

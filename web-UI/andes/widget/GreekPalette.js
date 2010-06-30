@@ -51,8 +51,31 @@ dojo.declare("andes.widget.GreekPalette",
 
 	// templateString: String
 	//		The template of this widget.
-	templateString: '<table class="dijitInline dojoxEntityPalette dijitPaletteTable"' +
-		' cellSpacing=0 cellPadding=0><tbody dojoAttachPoint="gridNode"></tbody></table>',
+	templateString: '<div class="dojoxEntityPalette">\n' +
+			'	<table>\n' +
+			'		<tbody>\n' +
+			'			<tr>\n' +
+			'				<td>\n' +
+			'					<table class="dijitPaletteTable">\n' +
+			'						<tbody dojoAttachPoint="gridNode"></tbody>\n' +
+			'				   </table>\n' +
+			'				</td>\n' +
+			'			</tr>\n' +
+			'			<tr>\n' +
+			'				<td>\n'+
+			'					<table dojoAttachPoint="previewPane" class="dojoxEntityPalettePreviewTable">\n' +
+			'						<tbody>\n' +
+			'							<tr>\n' +
+			'								<td class="dojoxEntityPalettePreviewDetailEntity">English version:</td>\n' +
+			'								<td class="dojoxEntityPalettePreviewDetail" dojoAttachPoint="previewNode"></td>\n' +
+			'							</tr>\n' +
+			'						</tbody>\n' +
+			'					</table>\n' +
+			'				</td>\n' +
+			'			</tr>\n' +
+			'		</tbody>\n' +
+			'	</table>\n' +
+			'</div>',
 
 
 	baseClass: "dojoxEntityPalette",
@@ -60,14 +83,6 @@ dojo.declare("andes.widget.GreekPalette",
         // showPreview: [public] Boolean
 	//	  Whether the preview pane will be displayed, to show details about the selected entity.
 	showPreview: true,
-
-	// showCode: [public] boolean
-	//		Show the character code for the entity.
-	showCode: false,
-
-	// showentityName: [public] boolean
-	//		Show the entity name for the entity.
-	showEntityName: false,
 
 	// palette: [public] String
 	//		The symbol pallete to display.  The only current one is 'latin'.
@@ -93,6 +108,11 @@ dojo.declare("andes.widget.GreekPalette",
 			i18n
 		);
                 console.warn("palette: ",this._palette);
+		
+		var cells = dojo.query(".dojoxEntityPaletteCell", this.gridNode);
+		dojo.forEach(cells, function(cellNode){
+			this.connect(cellNode, "onmouseenter", "_onCellMouseEnter");
+		}, this);
 	},
         
         _onCellMouseEnter: function(e){
@@ -103,21 +123,39 @@ dojo.declare("andes.widget.GreekPalette",
 		//		The event.
 		// tags:
 		//		private
-		this._displayDetails(e.target);
+		if(this.showPreview){
+			this._displayDetails(e.target);
+		}
 	},
+	
+	_onCellClick: function(/*Event*/ evt){
+		// summary:
+		//		Handler for click, enter key & space key. Selects the cell.
+		// evt:
+		//		The event.
+		// tags:
+		//		private
+		if(evt.keyCode == dojo.keys.SPACE){
+			var target = evt.currentTarget;
+			dojo.removeClass(target, "dijitPaletteCellHover");
+			dojo.stopEvent(evt);
+			this.onCancel(true);
+			return;
+		}
+		this.inherited(arguments);
+	},
+	
+	onCancel: function(/*Boolean*/ closeAll){
+		// summary: attach point for notification about when the user cancels the current menu
+	},
+
 
 	postCreate: function(){
 		this.inherited(arguments);
 
-		// Show the code and entity name (if enabled to do so.)
-		/*dojo.style(this.codeHeader, "display", this.showCode?"":"none");
-		dojo.style(this.codeNode, "display", this.showCode?"":"none");
-		dojo.style(this.entityHeader, "display", this.showEntityName?"":"none");
-		dojo.style(this.entityNode, "display", this.showEntityName?"":"none");
-
 		if(!this.showPreview){
 			dojo.style(this.previewNode,"display","none");
-		}*/
+		}
 	},
 
 	_setCurrent: function(/*DOMNode*/ node){
@@ -142,17 +180,10 @@ dojo.declare("andes.widget.GreekPalette",
 			var ehtml = dye.getValue();
 			var ename = dye._alias;
                         console.warn("Greek help: ",dye._alias);
-			//this.previewNode.innerHTML=ehtml;
-			//this.codeNode.innerHTML="&amp;#"+parseInt(ehtml.charCodeAt(0), 10)+";";
-			//this.entityNode.innerHTML="&amp;"+ename+";";
-			//var i18n = dojo.i18n.getLocalization("dojox.editor.plugins", "latinEntities");
-			//this.descNode.innerHTML=i18n[ename].replace("\n", "<br>");
-
+			this.previewNode.innerHTML=ehtml;
 		}else{
-			//this.previewNode.innerHTML="";
-			//this.codeNode.innerHTML="";
-			//this.entityNode.innerHTML="";
-			//this.descNode.innerHTML="";
+			this.previewNode.innerHTML="";
+			this.descNode.innerHTML="";
 		}
 	}
 });

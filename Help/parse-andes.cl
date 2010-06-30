@@ -163,7 +163,7 @@
 			(open-review-window-html 
 			 "the units" "units.html" :title "Units"))
 		(format nil 
-			"Though I can't tell exactly what the mistake is, a few common sources of errors are:  <ul><li>~A are case sensitive. <li>Multiplication requires an explicit multiplication sign:&nbsp; W=m*g, NOT W=mg. <li>Units attach only to numbers, not to variables or expressions.  <li>There must be a space between a number and a unit:&nbsp;  2.5 C</ul>"
+			"Though I can't tell exactly what the mistake is, a few common sources of errors are:  <ul><li>~A are case sensitive. <li>Multiplication requires an explicit multiplication sign:&nbsp; W=m*g, NOT W=mg. <li>Units attach only to numbers, not to variables or expressions.  <li>There must be a space between a number and a unit.&nbsp; For example:&nbsp;  2.5 m</ul>"
 			(open-review-window-html 
 			 "Unit symbols" "units.html" :title "Units"))
 		)))))
@@ -943,7 +943,7 @@
   (let ((rem (make-hint-seq
 	      (list
 	       (format NIL "This expression contains variables not allowed in the answer: ~a" badvars)
-	       "In most Andes problems a final answer should give an explicit numerical value (with units) for the sought. A few problems may ask you to express the value symbolically in terms of specified other quantities. Read the problem statement to see which variables, if any, are allowed in the answer."))))
+	       "In many Andes problems, a final answer should be expressed as an explicit numerical value (with units).&nbsp; Some problems may ask you to express the answer symbolically in terms of other variables.&nbsp;  Read the problem statement to see which variables, if any, are allowed in the answer."))))
 
     (setf (turn-id rem) id)
     (setf (turn-coloring rem) +color-red+)
@@ -956,40 +956,39 @@
 ;;; returns list of disallowed student vars, NIL if none
 (defun bad-vars-in (parse &optional (lhs 'unknown))
   (cond
-   ((null parse) NIL)
-   ((null (consp parse)) NIL)
-   ((list-begins-with-p lhs (first parse))
-    (let* ((s-var (second (parse-pack (first parse))))
-           (c-var (student-to-canonical s-var)))
-      ;;(format t "variable ~A~%" c-var)
-      (if (or (stringp c-var) ; not translated 
-	      (not (or (canonical-var-answer-var-p c-var)
-		       ; Allow variables equivalent to declared answer-vars to be used as well.
-		       ; For probs like rots8b which use relpos and radius of circular motion
-	      	       ; (answer-var-equivalent-p c-var)
-	               ; always allow physical constants like G in answer expression
-	               ; since they are like numbers. (?Would we have a way to specify
-	               ; exactly which constants are allowed in answer if we wanted?)
-	               (physconstp c-var))))
-	  (list s-var))))
-   (t (append (bad-vars-in (first parse) lhs)
-	      (bad-vars-in (rest parse) lhs)))))
+    ((atom parse) NIL)
+    ((list-begins-with-p lhs (first parse))
+     (let* ((s-var (second (parse-pack (first parse))))
+	    (c-var (student-to-canonical s-var)))
+       ;; (format webserver:*stdout* "variables ~S ~S~%" s-var c-var)
+       (unless (or
+		;; always allow physical constants like G in answer expression
+		;; since they are like numbers. (?Would we have a way to specify
+		;; exactly which constants are allowed in answer if we wanted?)
+		(get-phys-const s-var)
+		;; Undefined symbols are handled separately.
+		;; We don't want use the bad variables handler for them.
+		(not c-var)
+		;; allowed parameters.
+		(canonical-var-answer-var-p c-var))
+	 (list s-var))))
+    ;; recursion
+    (t (append (bad-vars-in (first parse) lhs)
+	       (bad-vars-in (rest parse) lhs)))))
 
 ;; check for use of disallowed variables (non-answer-vars) in answer expr
 ;; arguments: "valid" = list of valid parses of answer value expression
 ;; returns: NIL if found an OK parse, 
 ;;          a list of bad-vars if didn't 
 (defun bad-vars-in-answer (valid)
-  (let ((FoundOK NIL) (badvars NIL)) ;;(tmp nil) (result nil)
-    (if (/= (length valid) 0)
-	(dolist (x valid)
-	  (when (not FoundOK)
-	    ;;(format t "Checking <~A>~%" (parse-tree x))
-	    (when (not (setf badvars (bad-vars-in (parse-tree x)))) 
-	        (setf FoundOK T))
-	    )))
-    (if (not foundOK) 
-       (remove-duplicates badvars :test #'equal))))
+  (let (FoundOK badvars)
+    (dolist (x valid)
+      (when (not FoundOK)
+	;;(format t "Checking <~A>~%" (parse-tree x))
+	(when (not (setf badvars (bad-vars-in (parse-tree x)))) 
+	  (setf FoundOK T))))
+    (when (not foundOK) 
+      (remove-duplicates badvars :test #'equal))))
 
 
 ; check that value-str is a correct expression for given value of quant
@@ -1014,7 +1013,7 @@
       ;; log the subentry details
       (setf (turn-result result-turn)
 	    (append (log-entry-info eqn-entry) (turn-result result-turn)))
-      ;  copy relevant info from subentry into main student entry
+      ;; copy relevant info from subentry into main student entry
       (setf (StudentEntry-State main-entry) (StudentEntry-State eqn-entry))
       (setf (StudentEntry-ErrInterp main-entry) (StudentEntry-ErrInterp eqn-entry))
       ;; finally return result
@@ -1026,8 +1025,8 @@
 
 (defun check-given-value-eqn (eqn-entry)
   (let* ((studvar (second (StudentEntry-Prop eqn-entry)))
-         (value-str(third (StudentEntry-Prop eqn-entry)))
-	 (quant    (symbols-referent studvar))
+         (value-str (third (StudentEntry-Prop eqn-entry)))
+	 (quant (symbols-referent studvar))
 	 ;; want to distinguish cases where quantity is not given, so it 
 	 ;; should be left unknown, from cases where it is given, but
 	 ;; the value expression is wrong or bad in some other way.
@@ -1133,9 +1132,9 @@
          (and (= (length interp) 1)
               (given-eqn-entry-p (first interp))) ; singleton given eqn
 	 (allowed-compo-mag-combo interp)
-	 ; If passed the test for givenness but gets an empty interp, assume it's
-	 ; the value of an unused given. However, we are not verifying that the
-	 ; rhs is a purely arithmetic expression in this case. 
+	 ;; If passed the test for givenness but gets an empty interp, assume it's
+	 ;; the value of an unused given. However, we are not verifying that the
+	 ;; rhs is a purely arithmetic expression in this case. 
 	 (null interp))))
 
 (defun not-given-ErrorInterp (se quant)
@@ -1153,9 +1152,9 @@
 
     rem))
 
-; fetch the systementry giving a value for this quantity.
-; A bit circuitous: systementry has entry prop which embeds
-; the algebra: '(EQN (= sysvar (DNUM ...))) 
+;; fetch the systementry giving a value for this quantity.
+;; A bit circuitous: systementry has entry prop which embeds
+;; the algebra: '(EQN (= sysvar (DNUM ...))) 
 (defun find-given-eqn-entry (quant)
    ; first lookup the given eqn by eqn id pattern in our index
    (let ((eqn (find-given-eqn-for quant)))
@@ -1254,6 +1253,7 @@
   ;; Strings with no matching expression pass through translation unchanged.
   (cond ((stringp exp)
 	 (or (symbols-sysvar exp) ;find canonical variable
+	     (get-phys-const exp) ;special symbols recognized by solver
 	     exp))
 	((atom Exp) Exp) 
 	(t (cons (subst-canonical-vars (car Exp))
@@ -1273,7 +1273,7 @@
 	   (parse-to-prefix (fourth expr))))
 
     ;; unary +/-
-    ((and (member (car expr) '(expr n-expr))
+    ((and (member (car expr) '(expr n-expr pterm n-pterm))
 	  (eq (car (second expr)) 'plus-minus))
      (list (find-symbol (string (second (second expr))))
 	   (parse-to-prefix (third expr))))
@@ -1295,18 +1295,8 @@
     ((eq (car expr) 'symbol-number)
 	 (intern (second expr)))
 
-    ;; intern units (maybe leave as strings?)
-    ;; The solver does not handle parentheses and incorrectly handles
-    ;; division (uses right-to-left associativity).  Thus, we 
-    ;; transform the unit expression into a product of powers.
     ((eq (car expr) 'unit)
-     ;; (format webserver:*stdout* "unit conversion for ~S~%    giving ~S~%" 
-     ;;         expr (parse-unit-to-prefix expr))
-     (format nil "|~A|" (substitute
-			 "\\\\" "\\"  ;; escape backslashes
-			 (prefix-unit-to-infix 
-			  (canonicalize-unit 
-			   (parse-unit-to-prefix expr))))))
+     (parse-unit-to-prefix expr))
 
     ;; fall-through
     ((and (member (car expr) '(expr factor term pterm 
@@ -1360,56 +1350,6 @@
     ;; Allow recursion through the parse tree.
     ;; Thus, this function can be applied to the top level of a parse tree.
     (t (cons (car expr) (mapcar #'parse-to-prefix (cdr expr))))))
-
-(defun canonicalize-unit (expr)
-  "Rewrite unit expression (written in lisp prefix form) in terms 
-   of a product of powers."
-  (cond 
-    ((atom expr) expr)
-
-    ;; simple power
-    ((and (eq (car expr) '^) (atom (cadr expr)))
-	  expr)
-
-    ;; product (that is easy)
-    ((member (car expr) '(* |.|))
-     (cons (car expr) (mapcar #'canonicalize-unit (cdr expr))))
-    
-    ;; turn division into power
-    ((eq (car expr) '/)
-     (list '* (canonicalize-unit (cadr expr)) 
-	   (canonicalize-unit (list '^ (third expr) -1))))
-    
-    ;; power of a power
-    ((and (eq (car expr) '^) (eq (car (cadr expr)) '^))
-     (canonicalize-unit (list '^ (cadr (cadr expr)) 
-			      (* (third expr) (third (cadr expr))))))
-    
-    ;; power of a product or division
-    ((and (eq (car expr) '^) (member (car (cadr expr)) '(* |.| /)))
-     (canonicalize-unit (list (car (cadr expr)) 
-			      (list '^ (cadr (cadr expr)) (third expr))
-			      (list '^ (third (cadr expr)) (third expr)))))
-    
-    (t (warn "Can't canonicalize ~A" expr) expr)))
-    
-
-(defun prefix-unit-to-infix (expr)
-  "Transform canonicalized unit expression into an infix string."
-  ;; At this point, only have unit symbols, products, and integer powers.
-  (cond 
-    ((atom expr) (string expr))
-    ((member (car expr) '(* |.|))
-     (concatenate 'string (prefix-unit-to-infix (cadr expr))
-		  (string (car expr))
-		  (prefix-unit-to-infix (third expr))))
-    ((eq (car expr) '^)
-     (concatenate 'string (string (cadr expr))
-		  "^" 
-		  (princ-to-string (third expr))))
-    
-    (t (warn "prefix-unit-to-infix invalid ~A" expr)
-       expr)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; end of parse-andes.cl
