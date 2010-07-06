@@ -5,14 +5,14 @@ $userName=$_GET["u"];
 $dbname=$_GET["d"];
 $dbpass=$_GET["p"];
 $dbserver=$_GET["s"];
-$dbuder=$_GET["x"];
+$dbuser=$_GET["x"];
 $url=$_GET["c"];
 $comm=explode("&c=",$url);
 
 mysql_connect($dbserver, $dbuser, $dbpass)
-     or die ("UNABLE TO CONNECT TO DATABASE");
+     or die ("UNABLE TO CONNECT TO DATABASE $dbserver");
 mysql_select_db($dbname)
-     or die ("UNABLE TO SELECT DATABASE");
+     or die ("UNABLE TO SELECT DATABASE $dbname");
 
 $maxQuery = "SELECT MAX(radioID) FROM REVIEWED_PROBLEMS WHERE adminName='$adminName' AND tID=$tID";
 $maxResult = mysql_query($maxQuery);
