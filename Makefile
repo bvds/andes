@@ -56,10 +56,11 @@ install-server:
 	cd help-server; $(MAKE) install-server
 
 update:
-	-rm */*.fasl
 	git pull
+	cd help-server; $(MAKE) update
 	cd problems; git pull
 	cd solutions; git pull
+	-rm */*.fasl
 	cd Algebra/src; $(MAKE) executable
 	cd web-UI; $(MAKE) update
 

@@ -5,7 +5,6 @@
 # chkconfig: - 75 10
 # description: Andes help server
 # processname: andes-helpd
-# pidfile: /var/run/andes-helpd.pid
 
 # Source function library.
 . /etc/rc.d/init.d/functions
@@ -18,9 +17,10 @@ RETVAL=0
 
 # need user name and init file from configuration!
 ANDES_INIT=" < ${ANDES_SERVER_DIR}/init.cl >& ${ANDES_SERVER_DIR}/init.log &"
-prog="sbcl"
+prog=${SBCL-sbcl}
 LOCK=/var/lock/subsys/andes-helpd
-pidfile=/var/run/andes-helpd.pid
+#  This might be used for Bug #1721
+#pidfile=/var/run/andes-helpd.pid
 
 # Test the user has an sbcl init file.
 #[ `su - ${LUSER} -c ls ~/.sbclrc` ] || exit 1
@@ -34,8 +34,9 @@ pidfile=/var/run/andes-helpd.pid
 #
 start() {	
         echo -n $"Starting $prog: "
-	daemon --user ${LUSER} --pidfile=${pidfile} \
-                 $prog $SBCL_OPTIONS $ANDES_INIT
+        # --pidfile=${pidfile} might be used for Bug #1721
+        # The OLI version of daemon does not have the --pidfile flag.
+	daemon --user ${LUSER} $prog $SBCL_OPTIONS $ANDES_INIT
         RETVAL=$?
         echo
         [ $RETVAL = 0 ] && touch $LOCK
