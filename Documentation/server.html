@@ -170,8 +170,9 @@ On a 32 bit linux machine, the lisp process takes up about
 on the problem).&nbsp;  Lisp has automatic garbage collection, and 
 will need at least as much space for garbage and garbage collection
 as it does for data.&nbsp;  Use sbcl flag <code>--dynamic-space-size</code>
-(in MBytes) to adjust the heap size.&nbsp;  Generally, I have been using
-1000&nbsp;MBytes.
+(in MBytes) to adjust the heap size 
+(see <code>/etc/andes-help.conf</code>).&nbsp;  
+Generally, I have been using 1000&nbsp;MBytes.
 
 <p>sbcl uses a generational garbage collector.&nbsp;  The basic premise
 of the generational garbage collector is that more recently allocated 

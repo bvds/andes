@@ -7,7 +7,8 @@ endif
 
 install-server:
 	@echo "Please run with superuser privileges."
-	cp andes-help.conf /etc
+	# Don't overwrite any existing file!
+	test -f /etc/andes-help.conf || cp andes-help.conf /etc
 	echo "LUSER=$(username)" >> /etc/andes-help.conf
 	echo "ANDES_SERVER_DIR=`pwd`" >> /etc/andes-help.conf
 	@echo "The server will be run under user $(username)." 
@@ -24,4 +25,11 @@ ifeq ($(shell uname),Linux)
 else
 	$(error "Unknown operating system")
 endif
+endif
+
+update:
+ifneq ($(shell grep -c "\-dynamic-memory" /etc/andes-help.conf),0)
+	@echo "**** Error in configuration file /etc/andes-help.conf"
+	@echo "**** Replace '--dynamic-memory' with '--dynamic-space-size'"
+	@test #abort make
 endif
