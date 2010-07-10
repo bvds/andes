@@ -1,13 +1,8 @@
 <?
-$dbuser= "root";
-$dbserver= "localhost";
-$dbpass= "sin(0)=0";
-$dbname= "andes";
-
-mysql_connect($dbserver, $dbuser, $dbpass)
-     or die ("UNABLE TO CONNECT TO DATABASE");
-mysql_select_db($dbname)
-     or die ("UNABLE TO SELECT DATABASE");          
+$dbuser=$_GET["x"];
+$dbserver=$_GET["sv"];
+$dbpass=$_GET["pwd"];
+$dbname=$_GET["d"];
 
 $adminName = $_GET["a"];
 $userName = $_GET["u"];
@@ -15,6 +10,11 @@ $userProblem = $_GET["p"];
 $userSection = $_GET["s"];
 $tID = $_GET["t"];
 $clientID = $adminName.date("mdy").time();
+
+mysql_connect($dbserver, $dbuser, $dbpass)
+     or die ("UNABLE TO CONNECT TO DATABASE");
+mysql_select_db($dbname)
+     or die ("UNABLE TO SELECT DATABASE");          
 
 $sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.clientID = P2.clientID AND P1.userName = '$userName' AND P1.userProblem = '$userProblem' AND P1.userSection = '$userSection' AND P2.tID < ($tID+2)";  
 

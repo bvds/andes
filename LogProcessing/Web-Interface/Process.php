@@ -1,7 +1,7 @@
 <?
 $dbuser= "root";
 $dbserver= "localhost";
-$dbname= "andes";
+$dbname= "andes3";
 
 $dbpass= $_POST['passwd'];;
 $adminName = $_POST['adminName'];
@@ -72,7 +72,7 @@ do
        // query level.
        if(($rButton=='CHECKED' && $solved != "Unsolved") ||
 	  ($rButton=='UNCHECKED' && $solved != "Solved")) {
-	 echo "<tr><td><INPUT TYPE=checkbox NAME=$tID $rButton onclick=\"UpdateRecord('RecordUpdate.php?t=$tID&a=$adminName&u=$userName&d=$dbname&p=$dbpass&s=$dbseerver&x=$dbuser')\"></td><td>$myCom</td><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td>$command[0]</td><td><a href=\"javascript:;\" onclick=\"copyRecord('\Save.php?a=$adminName&u=$userName&p=$userProblem&s=$userSection&t=$tID');\">View-Solution</a></td></tr>";
+	 echo "<tr><td><INPUT TYPE=checkbox NAME=$tID $rButton onclick=\"UpdateRecord('RecordUpdate.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&a=$adminName&t=$tID&u=$userName')\"></td><td>$myCom</td><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td>$command[0]</td><td><a href=\"javascript:;\" onclick=\"copyRecord('\Save.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&a=$adminName&u=$userName&p=$userProblem&s=$userSection&t=$tID');\">View-Solution</a></td></tr>\n";
        }
       }
   }

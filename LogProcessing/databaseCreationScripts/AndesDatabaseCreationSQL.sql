@@ -5,13 +5,13 @@
    mysql is started issue the command:
 	 \. AndesDatabaseCreationSQL.sql
    
-  This is a lazy, barebones script that will just create the andes database and all associated tables. It will then 
+  This is a lazy, barebones script that will just create the Andes database and all associated tables. It will then 
   attempt to populate them with data based upon CSV files stored in a local directory, in the present case, mine.
   In the future, this is a good candidate to be converted into a shell script, with command line arguments for the user directory
 */  
 -- Creates the database
-CREATE DATABASE `andes` /*!40100 DEFAULT CHARACTER SET latin1 */;
-USE `andes`;
+CREATE DATABASE `andes3` /*!40100 DEFAULT CHARACTER SET latin1 */;
+USE `andes3`;
 -- Creates the tables NOTE: ORDER OF CREATION MATTERS DUE TO FOREIGN KEY DEPENDENCIES! (ALWAYS MAKE SURE YOU CREATE A TABLE BEFORE YOU CREATE ANOTHER THAT REFERENCES IT)
 \. create_STUDENT_DATASET.sql
 \. create_CLASS_INFORMATION.sql

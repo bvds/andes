@@ -13,6 +13,18 @@ install-database:
 	@echo "Enter mysql password"
 	cd LogProcessing/databaseCreationScripts; mysql -u root -p < AndesDatabaseCreationSQL.sql
 
+rename-database:
+	@echo "This will rename database from andes to andes3."
+	test -f andes.sql && mv andes.sql andes.sql.bak
+	@echo "Dump 'andes' database.  Enter mysql root password:"
+	mysqldump -u root -p -v andes > andes.sql
+	@echo "Create 'andes3' database.  Enter mysql root password:"
+	mysqladmin -u root -p create andes3
+	@echo "Load new database.  Enter mysql root password:"
+	mysql -u root -p andes3 < andes.sql
+	@echo "Drop old database.  Enter mysql root password:"
+	mysqladmin -u root -p drop andes
+
 install-dojo:
 	cd web-UI; $(MAKE) install
 

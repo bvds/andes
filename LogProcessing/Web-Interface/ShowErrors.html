@@ -1,6 +1,5 @@
 <html lang="en">
 
-<form name="ErrorForm" action="ErrorProcessing.php" method="post">
 
 <head>
     <title>Andes Admin Login</title>
@@ -23,9 +22,7 @@
     text-align:center;
     }
     </style>
-</head>
 
-<body>
 <script language=JavaScript>
 <!--
 function getCookie(c_name)
@@ -45,12 +42,16 @@ return "";
 }
 // --> 
 </script>
+</head>
+<body>
 
 <h1>Querying for the Errors and Warnings occurred in Andes</h1>
+
+<form name="ErrorForm" action="ErrorProcessing.php" method="post">
 <div class="loginbox">
 <label>UserName:</label>
 <input name="adminName" type="text" size="6"/>
-<label>Password:</label>
+<label>DB Password:</label>
 <input name="passwd" type="password" size="6"/>
 <script language=JavaScript>
 document.ErrorForm.adminName.value=getCookie("userName");
