@@ -81,7 +81,7 @@
   (physics-algebra-rules-initialize) ;initialize grammar
 
   ;; Set up database
-  (andes-database:create :host host :db (or db "andes") 
+  (andes-database:create :host host :db (or db "andes3") 
 			 :user (or user "root") 
 			 :password (or password "sin(0)=0"))
 

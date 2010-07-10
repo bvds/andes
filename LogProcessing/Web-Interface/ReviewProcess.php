@@ -1,8 +1,8 @@
 <?
 $dbuser= "root";
 $dbserver= "localhost";
-$dbpass= "sin(0)=0";
-$dbname= "andes";
+$dbpass= $_POST['passwd'];
+$dbname= "andes3";
 
 //CONNECTION STRING                                                                                                                                                                                                                                                       
 mysql_connect($dbserver, $dbuser, $dbpass)

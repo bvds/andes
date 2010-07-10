@@ -1,11 +1,12 @@
 <?
+$dbuser=$_GET["x"];
+$dbserver=$_GET["sv"];
+$dbpass=$_GET["pwd"];
+$dbname=$_GET["d"];
+
 $adminName = $_GET["a"];
 $tID = $_GET["t"];
 $userName=$_GET["u"];
-$dbname=$_GET["d"];
-$dbpass=$_GET["p"];
-$dbserver=$_GET["s"];
-$dbuser=$_GET["x"];
 $url=$_GET["c"];
 $comm=explode("&c=",$url);
 

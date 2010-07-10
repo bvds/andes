@@ -1,13 +1,13 @@
 <?
 $dbuser= "root";
 $dbserver= "localhost";
-$dbname= "andes";
+$dbname= "andes3";
 $dbpass= $_POST['passwd'];
 $adminName=$_POST['adminName'];
                                                                                                                                                                        mysql_connect($dbserver, $dbuser, $dbpass)
-     or die ("UNABLE TO CONNECT TO THE DATABASE");
+     or die ("UNABLE TO CONNECT TO DATABASE at $dbserver");
 mysql_select_db($dbname)
-     or die ("UNABLE TO SELECT DATABASE");         
+     or die ("UNABLE TO SELECT DATABASE $dbname");         
 
 $sql="select count(*) from PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 where P2.command like '%error-type%' AND P2.command like '%BACKTRACE%' AND P2.clientID=P1.clientID AND P1.extra=0";
 $result=mysql_query($sql);
@@ -41,7 +41,7 @@ while ($myrow = mysql_fetch_array($result)) {
   $myResult=mysql_fetch_array($userResult);
   $userCommand=$myResult["command"];
 
-  echo "<tr><td>$tID</td><td>$errorType</td><td>$errorMsg</td><td><a href=\"javascript:;\" onclick=\"copyRecord('\Save.php?a=$adminName&u=$userName&p=$userProblem&s=$userSection&t=$usertID');\">View-Solution</a></td></tr>";
+  echo "<tr><td>$tID</td><td>$errorType</td><td>$errorMsg</td><td><a href=\"javascript:;\" onclick=\"copyRecord('\Save.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&a=$adminName&a=$adminName&u=$userName&p=$userProblem&s=$userSection&t=$usertID');\">View-Solution</a></td></tr>\n";
   $tID=$tID+1;
   echo "<tr><td>-</td><td>-</td><td><a href=\"javascript:;\" onclick=\"openTrace('\OpenTrace.php?u=$userName&p=$userProblem&s=$userSection&t=$tID');\">$userCommand</a></td><td>-</td><tr>";}
  }
