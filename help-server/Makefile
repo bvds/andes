@@ -27,6 +27,7 @@ else
 endif
 endif
 
+# Once everyone's database is updated, this can be removed, Bug #1773.
 update:
 ifneq ($(shell grep -c "\-dynamic-memory" /etc/andes-help.conf),0)
 	@echo "**** Error in configuration file /etc/andes-help.conf"
