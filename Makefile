@@ -13,18 +13,6 @@ install-database:
 	@echo "Enter mysql password"
 	cd LogProcessing/databaseCreationScripts; mysql -u root -p < AndesDatabaseCreationSQL.sql
 
-rename-database:
-	@echo "This will rename database from andes to andes3."
-	test -f andes.sql && mv andes.sql andes.sql.bak
-	@echo "Dump 'andes' database.  Enter mysql root password:"
-	mysqldump -u root -p -v andes > andes.sql
-	@echo "Create 'andes3' database.  Enter mysql root password:"
-	mysqladmin -u root -p create andes3
-	@echo "Load new database.  Enter mysql root password:"
-	mysql -u root -p andes3 < andes.sql
-	@echo "Drop old database.  Enter mysql root password:"
-	mysqladmin -u root -p drop andes
-
 install-dojo:
 	cd web-UI; $(MAKE) install
 
@@ -55,8 +43,17 @@ configure-httpd:
 install-server:
 	cd help-server; $(MAKE) install-server
 
+# Test for mysql database name based on default mysql
+# file locations in Linux.
+# Once everyone's database is updated, this can be removed, Bug #1773.
+OLD_DBNAME=$(shell test -d /var/lib/mysql && cd /var/lib/mysql && test -d andes -a ! -d andes3 && echo "1")
+
 update:
 	git pull
+ifeq (${OLD_DBNAME},1)
+	@echo "Your Andes database name needs to be updated."
+	$(MAKE) rename-database
+endif
 	cd help-server; $(MAKE) update
 	cd problems; git pull
 	cd solutions; git pull
@@ -64,3 +61,15 @@ update:
 	cd Algebra/src; $(MAKE) executable
 	cd web-UI; $(MAKE) update
 
+# Once everyone's database is updated, this can be removed, Bug #1773.
+rename-database:
+	@echo "The following will rename the database from andes to andes3."
+	test -f andes.sql && mv andes.sql andes.sql.bak
+	@echo "Dump 'andes' database.  Enter mysql root password:"
+	mysqldump -u root -p -v andes > andes.sql
+	@echo "Create 'andes3' database.  Enter mysql root password:"
+	mysqladmin -u root -p create andes3
+	@echo "Load new database.  Enter mysql root password:"
+	mysql -u root -p andes3 < andes.sql
+	@echo "Drop old database.  Enter mysql root password:"
+	mysqladmin -u root -p drop andes
