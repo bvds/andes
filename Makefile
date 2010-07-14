@@ -64,7 +64,7 @@ endif
 # Once everyone's database is updated, this can be removed, Bug #1773.
 rename-database:
 	@echo "The following will rename the database from andes to andes3."
-	test -f andes.sql && mv andes.sql andes.sql.bak
+	test -f andes.sql && mv andes.sql andes.sql.bak || test 1
 	@echo "Dump 'andes' database.  Enter mysql root password:"
 	mysqldump -u root -p -v andes > andes.sql
 	@echo "Create 'andes3' database.  Enter mysql root password:"

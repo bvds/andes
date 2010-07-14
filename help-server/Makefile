@@ -29,7 +29,7 @@ endif
 
 # Once everyone's database is updated, this can be removed, Bug #1773.
 update:
-ifneq ($(shell grep -c "\-dynamic-memory" /etc/andes-help.conf),0)
+ifeq ($(shell test -f /etc/andes-help.conf && grep -c "\-dynamic-memory" /etc/andes-help.conf),1)
 	@echo "**** Error in configuration file /etc/andes-help.conf"
 	@echo "**** Replace '--dynamic-memory' with '--dynamic-space-size'"
 	@test #abort make
