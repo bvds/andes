@@ -221,11 +221,13 @@
   "Match student phrase to Ontology, returning best match, tutor turn (if there is an error) and any unsolicited hints."
   (let* ((student (pull-out-quantity (StudentEntry-symbol entry) 
 				     (StudentEntry-text entry)))
+	 ;; For any debugging prints in matching package.
+	 (*standard-output* webserver:*stdout*)
 	 (best 
 	  (match:best-model-matches 
 	   (match:word-parse student)
 	   (mapcar #'(lambda (x) 
-		       (cons (expand-vars (SystemEntry-new-english x)) x))
+		       (cons (expand-vars (SystemEntry-model x)) x))
 		   sysentries)
 	   :cutoff cutoff :equiv equiv))
 	 hints)
@@ -239,7 +241,7 @@
 				   (expand-vars (SystemEntry-model (cdr x)))))
 	       best)
 	    (mapcar #'(lambda (x) 
-			(cons (expand-vars (SystemEntry-new-english x)) 
+			(cons (expand-vars (SystemEntry-model x)) 
 			      (systementry-prop x)))
 		    sysentries)))
       
@@ -287,7 +289,7 @@
        (t (values nil (too-many-matches-ErrorInterp 
 		       entry (mapcar #'cdr best)))))))
 
-    ;; Debug printout:
+;; Debug printout:
 (defun test-student-phrase (student)
   "Function for testing ontology"
   (let* ((entries (remove-if 
@@ -297,7 +299,7 @@
 	 (match:best-model-matches 
 	  (match:word-parse student)
 	  (mapcar #'(lambda (x) 
-		      (cons (expand-vars (SystemEntry-new-english x)) x))
+		      (cons (expand-vars (SystemEntry-model x)) x))
 		  entries))))
     (format t "Best match to ~S is~%   ~S~% from:~%    ~S~%" 
 	    student
@@ -307,7 +309,7 @@
 	     best)
 	    (mapcar #'(lambda (x) 
 			(cons (systementry-prop x)
-			      (expand-vars (SystemEntry-new-english x)) 
+			      (expand-vars (SystemEntry-model x)) 
 			      ))
 		    entries))))
  
@@ -339,7 +341,7 @@
 			  (mapcar #'(lambda (x) 
 				      (match:word-string 
 				       (expand-vars 
-					(SystemEntry-new-english x))))
+					(SystemEntry-model x))))
 				  matches))
 		  "Try to be more specific in your definition.")))))
     (setf (turn-id rem) (StudentEntry-id entry))
@@ -383,7 +385,7 @@
 			    "You have already defined ~A~:[ as ~A~1*~;~1* to be <var>~A</var>~]."
 			    (match:word-string 
 			     (expand-vars 
-			      (SystemEntry-new-english sysent)))
+			      (SystemEntry-model sysent)))
 			    (> (length (StudentEntry-symbol old)) 0)
 			    (studentEntry-text old)
 			    (StudentEntry-symbol old))))))

@@ -371,8 +371,9 @@
    :State State
    :CogLoad (operator-CogLoad (get-operator-by-tag (csdo-op Do)))
    :Sources (list Do)
-   :Prereqs (wrap-if (sg-collect-sysent-prereqs Entry Stack))))
-	      
+   :Prereqs (wrap-if (sg-collect-sysent-prereqs Entry Stack))
+   :model (unless (member (car entry) '(eqn implicit-eqn)) 
+	    (new-english-find (second entry)))))     
 
 ;;; Determination of what is and is not a prerequisite depends upon the problem
 ;;; specification at hand.  At one time variable definitions were removed from 

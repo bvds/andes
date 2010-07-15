@@ -188,7 +188,7 @@
   "Make session-local copy of global variables, retrieving values from webserver:*env* at the beginning of a turn and saving them again at the end of the turn"
   (let ((save-help-env-vals
 	 ;; Save local variables back to *env*.
-	 `(setf (help-env-vals webserver:*env*) (list ,@help-env-vars)))) 
+	 `(setf (help-env-vals webserver:*env*) (list ,@help-env-vars))))
     
     ;; If the variable is not already declared special (via defvar,
     ;; for instance), then its scope will not be dynamic and env-wrap
@@ -574,7 +574,7 @@
 	       ;; no variables have been defined: 
 	       ;; remove any (var ...)
 	       (expand-vars 
-		(systementry-new-english (find-systementry prop)))))
+		(systementry-model (find-systementry prop)))))
       (progn (warn "write-definition-text:  Can't find systementry for ~S" 
 		   prop)
 	     (strcat symbol ":  Can't find definition"))))
