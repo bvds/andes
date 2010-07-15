@@ -102,6 +102,8 @@ dojo.require("dijit._editor.range");
 			draws:true,
 			baseRender:false,
 			type:"dojox.drawing.tools.TextBlock",
+			_caretStart: 0,
+			_caretEnd: 0,
 			
 /*=====
 StencilData: {
@@ -267,14 +269,13 @@ StencilData: {
 					//	This gives popup help.
 					
 					if(evt.keyCode==220){
-						//dojo.stopEvent(evt);
+						dojo.stopEvent(evt);
 						if(dropdown==undefined){
 							console.warn("Dropdown not found");
 							return;
 						}
 						this.getSelection(conEdit);
-						
-						//console.warn("Popup check",dropdown);
+						this.insertText(conEdit,"\\");
 						this._dropMode = true;
 						dropdown._pushChangeTo = conEdit;
 						dropdown._textBlock = this;
@@ -290,11 +291,10 @@ StencilData: {
 				
 				kc3 = dojo.connect(document, "mouseup", this, function(evt){
 					// note: _onAnchor means an anchor has been clicked upon
-					console.warn("event id:",evt);
 					if(!this._onAnchor && evt.target.id != "conEdit"){
 						dojo.stopEvent(evt);
 						exec();
-					}else{
+					}else if(evt.target.id == "conEdit" && conEdit.innerHTML == ""){
 						// wonky stuff happens when you click on the 
 						// field when its empty.
 						conEdit.blur();
@@ -617,6 +617,31 @@ StencilData: {
 				}
 			},
 			
+			setSavedCaret: function(val){
+				this._caretStart = this._caretEnd = val;
+			},
+			
+			getSavedCaret: function(){
+				return {start: this._caretStart, end: this._caretEnd}	
+			},
+			
+			insertText: function(node,val){
+				// summary:
+				//		Uses saved caret position to insert text
+				//		into position and place caret and the end of
+				//		insertion
+				
+				var t, text = node.innerHTML;
+				var caret = this.getSavedCaret();
+				
+				t = text.substr(0,caret.start) + val + text.substr(caret.end);
+				t = this.cleanText(t,true);
+				
+				this.setSavedCaret(caret.end + val.length);
+				node.innerHTML = t;
+				this.setSelection(node,"stored");
+			},
+			
 			getSelection: function(node){
 				// summary:
 				//		This gets and stores the caret position
@@ -636,11 +661,11 @@ StencilData: {
 					re.setEndPoint('EndToStart', rs);
 					start = this._caretStart = re.text.length;
 					end = this._caretEnd = re.text.length+r.text.length;
-					//console.warn("Caret start: ",re.text.length," end: ",re.text.length+r.text.length," length: ",re.text.length," text: ",re.text);
+					console.warn("Caret start: ",start," end: ",end," length: ",re.text.length," text: ",re.text);
 				} else {
 					this._caretStart = dojo.global.getSelection().getRangeAt(node).startOffset;
 					this._caretEnd = dojo.global.getSelection().getRangeAt(node).endOffset;
-					console.log("Cursor start: ", this._caretStart," end: ", this._caretEnd);
+					console.log("Caret start: ", this._caretStart," end: ", this._caretEnd);
 				}
 			},
 			
@@ -673,7 +698,7 @@ StencilData: {
 							rs.collapse();
 							var dif = this._caretStart-this._caretEnd;
 							//console.log("start: ",this._caretStart, " end: ",this._caretEnd," dif: ",dif);
-							rs.moveStart("character",this._caretStart+1);
+							rs.moveStart("character",this._caretStart);
 							rs.moveEnd("character",dif);
 							break;
 					}
@@ -700,12 +725,8 @@ StencilData: {
 					node.focus();
 					var selection = dojo.global.getSelection();
 					selection.removeAllRanges();
-					//console.log(1);
-					r = dojo.doc.createRange();
-					r.selectNodeContents(node);
-					//console.log(2);
+					var r = dojo.doc.createRange();
 					var nodes = getAllChildren(node);
-					//console.log(3, nodes);
 					switch(what){
 						case "end":
 							console.log("len:", nodes[nodes.length - 1].textContent.length);
@@ -721,13 +742,11 @@ StencilData: {
 							r.setEnd(nodes[nodes.length - 1], nodes[nodes.length - 1].textContent.length);
 							break;
 						case "stored":
-							console.log("Caret start: ",this._caretStart,"this._caretEnd",this._caretEnd);
+							console.log("Caret start: ",this._caretStart," caret end: ",this._caretEnd);
 							r.setStart(nodes[0], this._caretStart);
 							r.setEnd(nodes[0], this._caretEnd);
 					}
-					
 					selection.addRange(r);
-					
 					console.log("sel ", what, " on ", node)
 				}
 			}
@@ -757,33 +776,15 @@ dojo.addOnLoad(function(){
 		},
 		
 		onChange: function(val){
-			var conEdit = this._pushChangeTo, textBlock = this._textBlock;
-			var start = textBlock._caretStart, end = textBlock._caretEnd+(dojo.isIE ? 0:1);
-			var newText, text = conEdit.innerHTML;
-			
-			//console.log("---caret start: ",start," end: ",end);
+			var textBlock = this._textBlock;
 			dijit.popup.close(dropdown);
-			newText = text.substr(0,start) + "\\" + val + text.substr(end);
-			textBlock._caretEnd = textBlock._caretStart = end + val.length;
-			//console.log("--modified caret: ",textBlock._caretStart," ",textBlock._caretEnd);
-			newText = textBlock.cleanText(newText,true);
-			conEdit.innerHTML = newText;
+			textBlock.insertText(this._pushChangeTo,val);
 			textBlock._dropMode = false;
-			textBlock.setSelection(this._pushChangeTo,"stored");
-			conEdit.blur();
-			setTimeout(function(){
-				conEdit.focus();
-			},200)
 		},
 		
 		onCancel: function(evt){
-			var conEdit = this._pushChangeTo;
-			
 			dijit.popup.close(dropdown);
-			conEdit.blur();
-			setTimeout(function(){
-				conEdit.focus();
-			},200)
+			this._textBlock.setSelection(this._pushChangeTo,"end");
 		},
 		
 		id: "dropdown"
