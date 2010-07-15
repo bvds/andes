@@ -1,6 +1,8 @@
 dojo.provide("dojox.drawing.tools.TextBlock");
 dojo.require("dojox.drawing.stencil.Text");
 
+dojo.require("dijit._editor.range");
+
 (function(){
 	
 	var conEdit;
@@ -259,11 +261,20 @@ StencilData: {
 					if(evt.keyCode==13 || evt.keyCode==27){ // TODO: make escape an option
 						dojo.stopEvent(evt);
 					}
+					
+					var dropdown = dijit.byId("dropdown");
 					//	if backslash, user is inputting a special character
 					//	This gives popup help.
-					var dropdown = dijit.byId("dropdown");
+					
 					if(evt.keyCode==220){
-						console.warn("Popup check",dropdown);
+						//dojo.stopEvent(evt);
+						if(dropdown==undefined){
+							console.warn("Dropdown not found");
+							return;
+						}
+						this.getSelection(conEdit);
+						
+						//console.warn("Popup check",dropdown);
 						this._dropMode = true;
 						dropdown._pushChangeTo = conEdit;
 						dropdown._textBlock = this;
@@ -279,7 +290,8 @@ StencilData: {
 				
 				kc3 = dojo.connect(document, "mouseup", this, function(evt){
 					// note: _onAnchor means an anchor has been clicked upon
-					if(!this._onAnchor && (evt.target.id != "conEdit" || evt.target.id != "dropdown")){
+					console.warn("event id:",evt);
+					if(!this._onAnchor && evt.target.id != "conEdit"){
 						dojo.stopEvent(evt);
 						exec();
 					}else{
@@ -604,17 +616,68 @@ StencilData: {
 					dojo.destroy(this._anchors[n].a);
 				}
 			},
+			
+			getSelection: function(node){
+				// summary:
+				//		This gets and stores the caret position
+				//		in the contentEditable div to know where
+				//		to insert the tip.
+				//		NOTE: Doesn't work with html nodes inside
+				//		the div.
+				
+				var start, end;
+				if(dojo.doc.selection){
+					//debugger;
+					var r = dojo.doc.selection.createRange();
+					var rs = dojo.body().createTextRange();
+					rs.moveToElementText(node);
+					var re = rs.duplicate();
+					rs.moveToBookmark(r.getBookmark());
+					re.setEndPoint('EndToStart', rs);
+					start = this._caretStart = re.text.length;
+					end = this._caretEnd = re.text.length+r.text.length;
+					//console.warn("Caret start: ",re.text.length," end: ",re.text.length+r.text.length," length: ",re.text.length," text: ",re.text);
+				} else {
+					this._caretStart = dojo.global.getSelection().getRangeAt(node).startOffset;
+					this._caretEnd = dojo.global.getSelection().getRangeAt(node).endOffset;
+					console.log("Cursor start: ", this._caretStart," end: ", this._caretEnd);
+				}
+			},
+			
 			setSelection: function(node, what){
 				// summary:
 				//		Used for placing the cursor at the end of the
-				//		text on edit.
+				//		text on edit.  What can take the values: end, beg, start, all
+				//		or any numerical value (in which case the number will constitute
+				//		the caret position)
 				//
 				console.warn("setSelection:");
 				if(dojo.doc.selection){ // IE
-					var r = dojo.body().createTextRange();
-					r.moveToElementText(node);
-					r.collapse(false);
-					r.select();
+					//debugger;
+					var rs = dojo.body().createTextRange();
+					rs.moveToElementText(node);
+					
+					switch(what){
+						case "end":
+							rs.collapse(false);
+							break;
+						case "beg" || "start":
+							rs.collapse();
+							break;
+						case "all":
+							rs.collapse();
+							rs.moveStart("character", 0);
+							rs.moveEnd("character",node.text.length);
+							break;
+						case "stored":
+							rs.collapse();
+							var dif = this._caretStart-this._caretEnd;
+							//console.log("start: ",this._caretStart, " end: ",this._caretEnd," dif: ",dif);
+							rs.moveStart("character",this._caretStart+1);
+							rs.moveEnd("character",dif);
+							break;
+					}
+					rs.select();
 					
 				}else{
 					var getAllChildren = function(node, children){
@@ -637,22 +700,30 @@ StencilData: {
 					node.focus();
 					var selection = dojo.global.getSelection();
 					selection.removeAllRanges();
-					console.log(1);
+					//console.log(1);
 					r = dojo.doc.createRange();
 					r.selectNodeContents(node);
-					console.log(2);
+					//console.log(2);
 					var nodes = getAllChildren(node);
-					console.log(3);
-					if(what == "end"){
-						console.log("len:", nodes[nodes.length - 1].textContent.length);
-						r.setStart(nodes[nodes.length - 1], nodes[nodes.length - 1].textContent.length);
-						r.setEnd(nodes[nodes.length - 1], nodes[nodes.length - 1].textContent.length);
-					}else if(what=="beg" || what == "start"){
-						r.setStart(nodes[0], 0);
-						r.setEnd(nodes[0], 0);
-					}else if(what=="all"){
-						r.setStart(nodes[0], 0);
-						r.setEnd(nodes[nodes.length - 1], nodes[nodes.length - 1].textContent.length);
+					//console.log(3, nodes);
+					switch(what){
+						case "end":
+							console.log("len:", nodes[nodes.length - 1].textContent.length);
+							r.setStart(nodes[nodes.length - 1], nodes[nodes.length - 1].textContent.length);
+							r.setEnd(nodes[nodes.length - 1], nodes[nodes.length - 1].textContent.length);
+							break;
+						case "beg" || "start":
+							r.setStart(nodes[0], 0);
+							r.setEnd(nodes[0], 0);
+							break;
+						case "all":
+							r.setStart(nodes[0], 0);
+							r.setEnd(nodes[nodes.length - 1], nodes[nodes.length - 1].textContent.length);
+							break;
+						case "stored":
+							console.log("Caret start: ",this._caretStart,"this._caretEnd",this._caretEnd);
+							r.setStart(nodes[0], this._caretStart);
+							r.setEnd(nodes[0], this._caretEnd);
 					}
 					
 					selection.addRange(r);
@@ -675,17 +746,44 @@ StencilData: {
 })();
 dojo.addOnLoad(function(){
 	var dropdown = new andes.widget.GreekPalette({
+		
+		onKeyDown: function(evt){
+			if(evt.keyCode==dojo.keys.BACKSPACE || evt.keyCode==dojo.keys.DELETE)
+			{
+				//prevent leaving page, cancel popup instead
+				dojo.stopEvent(evt);
+				this.onCancel();
+			}
+		},
+		
 		onChange: function(val){
+			var conEdit = this._pushChangeTo, textBlock = this._textBlock;
+			var start = textBlock._caretStart, end = textBlock._caretEnd+(dojo.isIE ? 0:1);
+			var newText, text = conEdit.innerHTML;
+			
+			//console.log("---caret start: ",start," end: ",end);
 			dijit.popup.close(dropdown);
-			var text = this._pushChangeTo.innerHTML;
-			var newText = this._textBlock.cleanText(text,true) + val;
-			this._pushChangeTo.innerHTML = newText;
-			this._textBlock._dropMode = false;
-			this._textBlock.setSelection(this._pushChangeTo,"end");
+			newText = text.substr(0,start) + "\\" + val + text.substr(end);
+			textBlock._caretEnd = textBlock._caretStart = end + val.length;
+			//console.log("--modified caret: ",textBlock._caretStart," ",textBlock._caretEnd);
+			newText = textBlock.cleanText(newText,true);
+			conEdit.innerHTML = newText;
+			textBlock._dropMode = false;
+			textBlock.setSelection(this._pushChangeTo,"stored");
+			conEdit.blur();
+			setTimeout(function(){
+				conEdit.focus();
+			},200)
 		},
 		
 		onCancel: function(evt){
-			this.onChange("&nbsp;");
+			var conEdit = this._pushChangeTo;
+			
+			dijit.popup.close(dropdown);
+			conEdit.blur();
+			setTimeout(function(){
+				conEdit.focus();
+			},200)
 		},
 		
 		id: "dropdown"

@@ -66,8 +66,7 @@ dojo.declare("andes.widget.GreekPalette",
 			'					<table dojoAttachPoint="previewPane" class="dojoxEntityPalettePreviewTable">\n' +
 			'						<tbody>\n' +
 			'							<tr>\n' +
-			'								<td class="dojoxEntityPalettePreviewDetailEntity">English version:</td>\n' +
-			'								<td class="dojoxEntityPalettePreviewDetail" dojoAttachPoint="previewNode"></td>\n' +
+			'								<td class="dojoxEntityPalettePreviewDetailEntity">Type: <span class="dojoxEntityPalettePreviewDetail" dojoAttachPoint="previewNode"></span></td>\n' +
 			'							</tr>\n' +
 			'						</tbody>\n' +
 			'					</table>\n' +
@@ -107,7 +106,6 @@ dojo.declare("andes.widget.GreekPalette",
 			this._palette,
 			i18n
 		);
-                console.warn("palette: ",this._palette);
 		
 		var cells = dojo.query(".dojoxEntityPaletteCell", this.gridNode);
 		dojo.forEach(cells, function(cellNode){
@@ -179,7 +177,7 @@ dojo.declare("andes.widget.GreekPalette",
 		if(dye){
 			var ehtml = dye.getValue();
 			var ename = dye._alias;
-                        console.warn("Greek help: ",dye._alias);
+                        //console.warn("Greek help: ",dye._alias);
 			this.previewNode.innerHTML=ehtml;
 		}else{
 			this.previewNode.innerHTML="";
