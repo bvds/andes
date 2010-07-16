@@ -248,7 +248,7 @@
     (cond
       ((null sysentries)
        (values nil (nothing-to-match-ErrorInterp entry)))
-      ((> (length best) 3)
+      ((> (length best) 4)
        ;; error handler for too many matches
        ;; "your definition is ambiguous" and hint sequence
        (values nil (too-many-matches-ErrorInterp entry)))
@@ -265,7 +265,9 @@
 		  ;; This test must be adjusted empirically.
 		  ;; Example: [the] length of the beam
 		  ;;          the mass of the beam
-		  (* 0.15 (length (match:word-parse student))))
+		  ;; A mismatch can be off by a variable name like
+		  ;; T0 vs. T1, so we need to display such mismatches.
+		  0.25)
 	   (let ((phr (format nil 
 			      "I interpreted your definition ~@[of <var>~A</var> ~]as:&nbsp; ~A."
 			      (when (> (length (StudentEntry-symbol entry)) 0)
