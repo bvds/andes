@@ -43,7 +43,7 @@ while ($myrow = mysql_fetch_array($result)) {
 
   echo "<tr><td>$tID</td><td>$errorType</td><td>$errorMsg</td><td><a href=\"javascript:;\" onclick=\"copyRecord('\Save.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&a=$adminName&a=$adminName&u=$userName&p=$userProblem&s=$userSection&t=$usertID');\">View-Solution</a></td></tr>\n";
   $tID=$tID+1;
-  echo "<tr><td>-</td><td>-</td><td><a href=\"javascript:;\" onclick=\"openTrace('\OpenTrace.php?u=$userName&p=$userProblem&s=$userSection&t=$tID');\">$userCommand</a></td><td>-</td><tr>";}
+  echo "<tr><td>-</td><td>-</td><td><a href=\"javascript:;\" onclick=\"openTrace('\OpenTrace.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&u=$userName&p=$userProblem&s=$userSection&t=$tID');\">$userCommand</a></td><td>-</td><tr>";}
  }
 
 echo "</table>";

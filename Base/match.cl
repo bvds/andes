@@ -166,6 +166,41 @@
      (if max (word-count (cdr model) :max max) 0))
     (t (warn "word-count found unexpected form ~A" model) (if max 10000 0))))
 
+(defun sort-by-complexity (models)
+  "Sort an alist of models by increasing complexity"
+  (let ((mm (mapcar #'(lambda (x) (cons (model-complexity (car x)) x))
+		   models)))
+    (mapcar #'cdr (sort mm #'< :key #'car))))
+
+(defun model-complexity (model)
+  "Estimate number of alternatives, when expanded."
+  ;; Here, we just count number of expansions.
+  (cond 
+    ((null model) nil)
+    ((stringp model) 1) ;; or count words in string
+    ((or (listp (car model)) (stringp (car model)))
+     ;; mapcar copies list; subsequent operations can be destructive
+     (apply #'* (delete nil (mapcar #'model-complexity model))))
+    ((eql (car model) 'and)
+     (let ((rest (delete nil (mapcar #'model-complexity (cdr model)))))
+       (* (factorial (length rest))
+	  (apply #'* rest))))
+    ((eql (car model) 'conjoin)
+     (let ((rest (delete nil (mapcar #'model-complexity (cddr model)))))
+       (* (factorial (length rest))
+	  (apply #'* rest)
+	  (if (> (length rest) 1) 
+	      (model-complexity (second model)) ;add conjunction 
+	      1))))  ;; 0 or 1 args, drop conjunction
+    ((eql (car model) 'or) 
+     (apply #'+ (delete nil (mapcar #'model-complexity (cdr model)))))
+    ((member (car model) '(allowed preferred)) 
+     (+ 1 (model-complexity (cdr model))))
+    (t (warn "model-complexity found unexpected form ~A" model) 0)))
+  
+(defun factorial (x)
+  (if (> x 1) (* x (factorial (- x 1))) 1))
+
 (defmacro update-bound (best x)
   `(let ((this ,x))
      (when (< this ,best) (setf ,best this))))
@@ -459,6 +494,7 @@
       (t (error "match-model-conjoin should never reach here"))))
   best)
 
+(defparameter *debug-print* nil)  ;; debug print in best-model-matches
 
 (defun best-model-matches (student models &key (cutoff 0.5) (equiv 1.25) 
 			   (epsilon 0.25))
@@ -478,13 +514,21 @@
   (unless (and (numberp equiv) (> equiv 1.0))
     (warn "best-model-matches:  equiv=~A  must be larger than 1" equiv))
   (let (this (best (/ (* cutoff (length student)) equiv)) quants bound)
-    (dolist (x models)
+    ;; Do easier ones first, to establish better bound.
+    ;; We have  have to do each time, since results of any eval or var 
+    ;; is needed for sort.
+    (dolist (x (sort-by-complexity models))
       (setf bound (max epsilon (* best equiv)))
-      (setf this (match-model student (car x) :best bound))
-      ;; (format webserver:*stdout* "      Got ~A for match to ~A~%" this (car x))
+      (let ((t0 (if *debug-print* (get-internal-run-time) 0)))
+	(setf this (match-model student (car x) :best bound))
+	(when *debug-print*
+	  (format t "     Got ~A for match in ~Fs to~%       ~A~%" 
+		  this  (/ (- (get-internal-run-time) t0) 
+			   internal-time-units-per-second)
+		  (car x))))
       (when (< this bound) (push (cons this (cdr x)) quants))
       (when (< this best) (setf best this)))
-    ;; remove any quantities that are not equivalent with best fit
+    ;; Remove any quantities that are not equivalent with best fit
     ;; and return result. 
     (delete-if #'(lambda (x) (> (car x) (* best equiv))) quants)))
 
