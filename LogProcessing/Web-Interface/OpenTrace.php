@@ -67,12 +67,18 @@ if($myrow1["initiatingParty"]=='client'){
  $ttime=$a->params->time;
  unset($a->params->time);  // so time doesn't show up twice.
  $method=$a->method;
+   // add space after commas, for better line wrapping
  $aa=str_replace("\",\"","\", \"",$json->encode($a->params));
+ // forward slashes are escaped in json, which looks funny
+ $aa=str_replace("\\/","/",$aa);
 
  echo "  <tr class='$method'><td>$ttime</td><td>$aa</td><td>";
  echo "<ul>";
  foreach ($b->result as $bb){
+   // add space after commas, for better line wrapping
    $bbb=str_replace("\",\"","\", \"",$json->encode($bb));
+   // forward slashes are escaped in json, which looks funny
+   $bbb=str_replace("\\/","/",$bbb);
    echo "<li>$bbb</li>";
  }
  echo "</ul>";
