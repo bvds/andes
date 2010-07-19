@@ -65,6 +65,9 @@
 (defparameter *text-tool*  (tool-link "Text Tool" "text-tool"))
 (defparameter *text-tool-action* (strcat "click on " *text-tool*))
 
+(defparameter *define-variable* (tool-link "define a variable" 
+					     "define-quantities" :pre ""))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defparameter *constants-menu-action* 

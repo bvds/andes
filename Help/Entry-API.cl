@@ -244,6 +244,17 @@
 			(cons (expand-vars (SystemEntry-model x)) 
 			      (systementry-prop x)))
 		    sysentries)))
+    
+    ;; If there is no symbol defined and the fit is >= 1 (for the symbol), 
+    ;; then there is a good chance that the student unsuccessfully
+    ;; attempted to define a symbol.  Add unsolicited hint.
+    (when (and (= (length (StudentEntry-symbol entry)) 0)
+	       best (>= (car (car best)) 1))
+      (let ((phr (strcat 
+		  "No variable has been defined.&nbsp; "
+		  "Did you want to " *define-variable* "?")))
+	(push `((:action . "show-hint")
+		(:text . ,phr)) hints)))
       
     (cond
       ((null sysentries)
@@ -889,14 +900,16 @@
 ;; wraps error checking around it. In case of symbol definition error, 
 ;; the entry is tagged incorrect with the appropriate error interpretation.
 ;; NB: if entries is not a singleton, the error is hung on the first
-;; one, which should be the principal entry being evaluated
+;; one, which should be the principle entry being evaluated
 (defun check-symbols-enter (label referent entry-ids &key sysvar namespace)
   ;; turn entry-ids into a list
   (when (atom entry-ids) (setf entry-ids (list entry-ids)))
   (cond
-    ((= (length label) 0) ;; null or empty
-     ;; should change call to get entry itself so we can do this easier
-     (warn "No symbol entered for ~A, need hints here, Bug #1575." referent)) 
+    ((= (length label) 0)
+     ;; There is a number of situations where it is legitimate to 
+     ;; not define a symbol:  any body definitions, or drawing vectors
+     ;; in a free body diagram problem (no equations).
+     )
     ((symbols-lookup label :namespace namespace) ;; variable already defined!
      ;; find entry. entry-ids arg may be atom or list, but should not be nil
      (let ((entry (find-entry (first entry-ids)))
