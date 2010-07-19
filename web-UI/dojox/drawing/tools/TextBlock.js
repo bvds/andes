@@ -104,6 +104,7 @@ dojo.require("dijit._editor.range");
 			type:"dojox.drawing.tools.TextBlock",
 			_caretStart: 0,
 			_caretEnd: 0,
+			_blockExec: false,
 			
 /*=====
 StencilData: {
@@ -228,8 +229,10 @@ StencilData: {
 				//		contenteditable HTML node.
 				//
 				if(this._textConnected){ return; } // good ol' IE and its double events
+				var dropdown = dijit.byId("dropdown");
 				this._textConnected = true;
 				this._dropMode = false;
+				this._popupConnections = [];
 				this.mouse.setEventMode("TEXT");
 				this.keys.editMode(true);
 				var kc1, kc2, kc3, kc4, self = this, _autoSet = false,
@@ -253,10 +256,16 @@ StencilData: {
 						dojo.style(conEdit, "height", this._lineHeight+"px"); _autoSet = false;
 					}
 					
-					
-					if(evt.keyCode==13 || evt.keyCode==27){
-						dojo.stopEvent(evt);
-						exec();
+					if(!this._blockExec){
+						if(evt.keyCode==13 || evt.keyCode==27){
+							dojo.stopEvent(evt);
+							exec();
+						}
+					} else {
+						if(evt.keyCode==dojo.keys.SPACE){
+							dojo.stopEvent(evt);
+							dropdown.onCancel();
+						}
 					}
 				});
 				kc2 = dojo.connect(conEdit, "keydown", this, function(evt){
@@ -264,7 +273,7 @@ StencilData: {
 						dojo.stopEvent(evt);
 					}
 					
-					var dropdown = dijit.byId("dropdown");
+					
 					//	if backslash, user is inputting a special character
 					//	This gives popup help.
 					
@@ -277,6 +286,7 @@ StencilData: {
 						this.getSelection(conEdit);
 						this.insertText(conEdit,"\\");
 						this._dropMode = true;
+						this._blockExec = true;
 						dropdown._pushChangeTo = conEdit;
 						dropdown._textBlock = this;
 						dijit.popup.open({
@@ -285,8 +295,31 @@ StencilData: {
 							around:this.parentNode,
 							orient:{'BL':'TL'}
 						})
-						dijit.focus(dropdown._currentFocus);
+						//dijit.focus(dropdown._currentFocus);
 					}
+					if(!this._dropMode){
+						this._blockExec = false;
+					} else {
+						switch(evt.keyCode){
+							case dojo.keys.UP_ARROW:
+							case dojo.keys.DOWN_ARROW:
+							case dojo.keys.LEFT_ARROW:
+							case dojo.keys.RIGHT_ARROW:
+								dojo.stopEvent(evt);
+								dropdown._navigateByArrow(evt);
+								break;
+							case dojo.keys.ENTER:
+								dojo.stopEvent(evt);
+								dropdown._onCellClick(evt);
+								break;
+							case dojo.keys.BACKSPACE:
+							case dojo.keys.DELETE:
+								dojo.stopEvent(evt);
+								dropdown.onCancel();
+								break;
+						}
+					}
+					
 				});
 				
 				kc3 = dojo.connect(document, "mouseup", this, function(evt){
@@ -634,10 +667,10 @@ StencilData: {
 				var t, text = node.innerHTML;
 				var caret = this.getSavedCaret();
 				
+				text = text.replace(/&nbsp;/g, " ");
 				t = text.substr(0,caret.start) + val + text.substr(caret.end);
 				t = this.cleanText(t,true);
-				
-				this.setSavedCaret(caret.end + val.length);
+				this.setSavedCaret(Math.min(t.length,(caret.end + val.length)));
 				node.innerHTML = t;
 				this.setSelection(node,"stored");
 			},
@@ -766,15 +799,6 @@ StencilData: {
 dojo.addOnLoad(function(){
 	var dropdown = new andes.widget.GreekPalette({
 		
-		onKeyDown: function(evt){
-			if(evt.keyCode==dojo.keys.BACKSPACE || evt.keyCode==dojo.keys.DELETE)
-			{
-				//prevent leaving page, cancel popup instead
-				dojo.stopEvent(evt);
-				this.onCancel();
-			}
-		},
-		
 		onChange: function(val){
 			var textBlock = this._textBlock;
 			dijit.popup.close(dropdown);
@@ -784,11 +808,9 @@ dojo.addOnLoad(function(){
 		
 		onCancel: function(evt){
 			dijit.popup.close(dropdown);
-			this._textBlock.setSelection(this._pushChangeTo,"end");
+			this._textBlock._dropMode = false;
 		},
 		
 		id: "dropdown"
 	});
-	//TODO
-	//	Let escape key close popup
 });

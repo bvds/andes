@@ -133,14 +133,25 @@ dojo.declare("andes.widget.GreekPalette",
 		//		The event.
 		// tags:
 		//		private
-		if(evt.keyCode == dojo.keys.SPACE){
-			var target = evt.currentTarget;
-			dojo.removeClass(target, "dijitPaletteCellHover");
-			dojo.stopEvent(evt);
-			this.onCancel(true);
-			return;
-		}
-		this.inherited(arguments);
+		var target = evt.type == "click" ? evt.currentTarget : this._currentFocus,	
+			value = this._getDye(target).getValue();
+
+		// First focus the clicked cell, and then send onChange() notification.
+		// onChange() (via _setValueAttr) must be after the focus call, because
+		// it may trigger a refocus to somewhere else (like the Editor content area), and that
+		// second focus should win.
+		// Use setTimeout because IE doesn't like changing focus inside of an event handler.
+		this._setCurrent(target);
+		setTimeout(dojo.hitch(this, function(){
+			dijit.focus(target);		
+			this._setValueAttr(value, true);		
+		}));
+
+		// workaround bug where hover class is not removed on popup because the popup is
+		// closed and then there's no onblur event on the cell
+		dojo.removeClass(target, "dijitPaletteCellHover");
+
+		dojo.stopEvent(evt);
 	},
 	
 	onCancel: function(/*Boolean*/ closeAll){
@@ -164,7 +175,29 @@ dojo.declare("andes.widget.GreekPalette",
 		//		the new entity.
 		// tags:
 		//		protected
-		this.inherited(arguments);
+			// summary:
+		//		Sets which node is the focused cell.
+		// description:
+   		//		At any point in time there's exactly one
+		//		cell with tabIndex != -1.   If focus is inside the palette then
+		// 		focus is on that cell.
+		//
+		//		After calling this method, arrow key handlers and mouse click handlers
+		//		should focus the cell in a setTimeout().
+		// tags:
+		//		protected
+		if("_currentFocus" in this){
+			// Remove tabIndex on old cell
+			dojo.attr(this._currentFocus, "tabIndex", "-1");
+			dojo.removeClass(this._currentFocus,"dojoxEntityPaletteCellHover");
+		}
+
+		// Set tabIndex of new cell
+		this._currentFocus = node;
+		if(node){
+			dojo.attr(node, "tabIndex", this.tabIndex);
+			dojo.addClass(this._currentFocus,"dojoxEntityPaletteCellHover");
+		}
 		if(this.showPreview){
 			this._displayDetails(node);
 		}
@@ -182,6 +215,82 @@ dojo.declare("andes.widget.GreekPalette",
 		}else{
 			this.previewNode.innerHTML="";
 			this.descNode.innerHTML="";
+		}
+	},
+	
+	_preparePalette: function(choices, titles) {
+		// summary:
+		//		Subclass must call _preparePalette() from postCreate(), passing in the tooltip
+		//		for each cell
+		// choices: String[][]
+		//		id's for each cell of the palette, used to create Dye JS object for each cell
+		// titles: String[]
+		//		Localized tooltip for each cell
+
+		this._cells = [];
+		var url = this._blankGif;
+		
+		var dyeClassObj = dojo.getObject(this.dyeClass);
+
+		for(var row=0; row < choices.length; row++){
+			var rowNode = dojo.create("tr", {tabIndex: "-1"}, this.gridNode);
+			for(var col=0; col < choices[row].length; col++){
+				var value = choices[row][col];
+				if(value){
+					var cellObject = new dyeClassObj(value);
+					
+					var cellNode = dojo.create("td", {
+						"class": this.cellClass,
+						tabIndex: "-1",
+						title: titles[value]
+					});
+
+					// prepare cell inner structure
+					cellObject.fillCell(cellNode, url);
+
+					this.connect(cellNode, "ondijitclick", "_onCellClick");
+					this._trackMouseState(cellNode, this.cellClass);
+
+					dojo.place(cellNode, rowNode);
+
+					cellNode.index = this._cells.length;
+
+					// save cell info into _cells
+					this._cells.push({node:cellNode, dye:cellObject});
+				}
+			}
+		}
+		this._xDim = choices[0].length;
+		this._yDim = choices.length;
+		
+	},
+	
+	_navigateByArrow: function(evt){
+		// summary:
+		// 	  	This is the callback for typematic.
+		// 		It changes the focus and the highlighed cell.
+		// increment:
+		// 		How much the key is navigated.
+		// tags:
+		//		private
+		var keyIncrementMap = {
+			38: -this._xDim,
+			// The down key the index is increase by the x dimension.
+			40: this._xDim,
+			// Right and left move the index by 1.
+			39: this.isLeftToRight() ? 1 : -1,
+			37: this.isLeftToRight() ? -1 : 1
+		};
+		
+		var increment = keyIncrementMap[evt.keyCode];
+		console.warn("navigation commenced: ",increment);
+		var newFocusIndex = this._currentFocus.index + increment;
+		if(newFocusIndex < this._cells.length && newFocusIndex > -1){
+			var focusNode = this._cells[newFocusIndex].node;
+			this._setCurrent(focusNode);
+			// Actually focus the node, for the benefit of screen readers.
+			// Use setTimeout because IE doesn't like changing focus inside of an event handler
+			//setTimeout(dojo.hitch(dijit, "focus", focusNode), 0);
 		}
 	}
 });
