@@ -28,11 +28,11 @@ dojo.addOnLoad(function(){
 		},
 		
 		"menuIntroduction":function(){
-			andes.principles.review('introduction.html','Introduction');
+			andes.principles.review('vec1a-video.html','Intro Video');
 		},
 		
 	        "menuSlides":function(){
-			andes.principles.review('andes3intro/andes3intro.mod2.html',
+			andes.principles.review('try11/andes.intro.try11_controller.swf',
 						'Slide show');
 		},
 		
