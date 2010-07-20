@@ -184,7 +184,7 @@ body, .tundra .dijitSplitter, #navMenu{
 	height:20px;
 	line-height:20px;
 }
-#helpInputPane .dijitButton{
+#helpInputPane .dijitButtonNode{
 	margin:0;
 	position:absolute;
 	right:5px;
