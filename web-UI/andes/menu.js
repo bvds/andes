@@ -27,9 +27,13 @@ dojo.addOnLoad(function(){
 			andes.principles.review('constants.html','Constants');
 		},
 		
+		"menuIntroductionText":function(){
+			andes.principles.review('introduction.html','Intro Text');
+		},
+
 		"menuIntroduction":function(){
 			andes.principles.review('vec1a-video.html','Intro Video');
-		},
+		},		
 		
 	        "menuSlides":function(){
 			andes.principles.review('try11/andes.intro.try11_controller.swf',

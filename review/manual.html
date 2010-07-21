@@ -18,7 +18,7 @@
        li {
             padding: 3px;
        }
-       code {
+       code.box {
             white-space: nowrap;
             border-style: dashed;
             border-width: 1px;
@@ -37,7 +37,7 @@
       <img src="ui-images/axis-tool.png" class="button" alt="axes">
       to draw axes.&nbsp;  Click on the tool and drag out the x-axis at
       the desired angle.&nbsp;  The default axis
-      labels <code>x and y</code> will be displayed; hit "Enter".
+      labels <code class="box">x and y</code> will be displayed; hit "Enter".
 
 <li id="body-tool">  Define bodies (objects) with either the Ellipse
       <img src="ui-images/ellipse-tool.png" class="button" alt="ellipse">
@@ -59,13 +59,13 @@
      Variables for the magnitude, components, and angle
      are defined automatically.&nbsp;  So, for vector <var><b>F</b></var>, 
      the magnitude <var>F</var>, 
-     components <var>F_x</var> <var>F_y</var>, and angle <var>\thetaF</var> 
-     are defined.
+     components <var>F_x</var> <var>F_y</var>, and angle
+      <var>&theta;F</var> (type <code>\thetaF</code>) are defined.
 
 <li id="equation-tool">  Write equations using the Equation Tool
       <img src="ui-images/equation-tool.png" class="button" 
                   alt="=">.&nbsp;  Click on the tool, drag out an
-       <code>equation box</code>, and <a href="#write-equation">
+       <code class="box">equation box</code>, and <a href="#write-equation">
        write an equation</a>.
 
   <li id="line-tool">  Define lines and rays using the Line Tool
@@ -75,27 +75,35 @@
       <a href="#define-quantities">define the line</a>.&nbsp;
      Variables for the length and angle
      are defined automatically.&nbsp;  So, for line <var>R</var>, 
-     the length <var>R</var> and angle <var>\thetaR</var> 
-     are defined.
+     the length <var>R</var> and angle <var>&theta;R</var>
+     (type <code>\thetaR</code>) are defined.
 
   </ul>
 
 <div id="math-notation">
 <h1>Math notation</h1>
-  If you want to use a Greek letter, type a backslash, <strong>\</strong>, and
+  If you want to use a Greek letter, type a backslash, <code>\</code>, and
   the name of the letter.  For instance, if you type <code>\alpha</code>,
   the Greek letter &alpha; will appear when you enter the equation
   or definition.
+
+  <p>Subscripts are written using the underscore, like
+  <code>F_x</code>, and exponents are expressed with the carat,
+  <code>x^2</code>.&nbsp;  Scientific notation for numbers
+  can be written as <code>3.06E-6</code> or as <code>3.06*10^-6</code>.
 </div>
 
   <div id="define-quantities">
  <h1>Defining Quantities</h1>
-  When you draw an object, you can use the <code>Text Box</code> to define an associated quantity.&nbsp;
-  If you wish to define a variable for that quantity, possible forms include:
+  When you draw an object, you can use the text entry box to define
+  that object.&nbsp; (Or use the <a href="#text-tool">Text
+ Tool</a> to define a scalar quantity.)&nbsp;
+  If you wish to define a variable for that object or quantity,
+  possible forms include:
       <ul>
-        <li>  <code>m is the mass of the ball</code>
-        <li>  <code>m: mass of the ball</code>
-        <li>  <code>Let m be the mass of the ball</code>
+        <li>  <code class="box">m is the mass of the ball</code>
+        <li>  <code class="box">m: mass of the ball</code>
+        <li>  <code class="box">Let m be the mass of the ball</code>
       </ul>
    After defining a quantity, the text box will turn orange.&nbsp;
       You can now place the box anywhere on the drawing area.
@@ -113,11 +121,11 @@
       <ul>
         <li>  Enter all equations required to solve 
             for variable <var>V</var>.
-        <li>  In an equation box enter:&nbsp; <code>V=?</code>
+        <li>  In an equation box enter:&nbsp; <code class="box">V=?</code>
       </ul>
 
    <li> Enter the final answer in a text box in the form like 
-     <code>answer:  1.23 m/s</code> or  <code>answer: v1=1.23 m/s</code>
+     <code class="box">answer:  1.23 m/s</code> or  <code class="box">answer: v1=1.23 m/s</code>
 
    <li> All variables used must  be previously defined.
 </ul>
