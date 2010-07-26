@@ -327,7 +327,8 @@ dojo.provide("andes.drawing");
 					dojo.connect(dojo.byId("andesButtonPageDefault"), 
 						     "click", 
 						     function(){
-							     andes.principles.review('vec1a-video.html','Intro Video');
+							     // add 10 px padding
+							     andes.principles.review('vec1a-video.html','Intro Video',"width=650,height=395");
 						     });
 
 				}else if(obj.action=="set-styles"){

@@ -13,10 +13,11 @@ andes.principles={
 	
 	// Either constants or Equations.
 	reviewp: null,
-	review: function(file,title){
+	review: function(file,title,dimensionString){
+		var dims = dimensionString?dimensionString+",scrollbars=no":"width=350,height=450,scrollbars=yes";
 		this.reviewp=window.open("../review/"+file,
 					 title,
-					 "width=350,height=450,scrollbars=yes,directories=no,menubar=no,toolbar=no,location=no,status=no"
+					 dims+",directories=no,menubar=no,toolbar=no,location=no,status=no"
 					);
 		this.reviewp && this.reviewp.focus();
 	},

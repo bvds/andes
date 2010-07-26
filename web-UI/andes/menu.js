@@ -32,12 +32,13 @@ dojo.addOnLoad(function(){
 		},
 
 		"menuIntroduction":function(){
-			andes.principles.review('vec1a-video.html','Intro Video');
+			// add 10px padding.
+			andes.principles.review('vec1a-video.html','Intro Video',"width=650,height=395");
 		},		
 		
 	        "menuSlides":function(){
 			andes.principles.review('try11/andes.intro.try11_controller.swf',
-						'Slide show');
+						'Slide show',"width=640,height=385");
 		},
 		
 		"menuManual":function(){
