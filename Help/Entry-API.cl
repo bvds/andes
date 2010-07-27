@@ -172,40 +172,6 @@
 
 (defun ndiffs (set1 set2)
   (length (set-difference set1 set2)))
- 
-;; For (current-thru ?arg ...) and (rate-of-change (current-thru ?arg ...)), 
-;; the student arg is a set of branch components which may be a subset of 
-;; the full set used in the kb quantity form. Normally the kb list is maximal 
-;; (all components in a branch), but it may be smaller in an introductory 
-;; problem where we use explicit equality of current through point A and 
-;; point B in the same branch.  Following expands the student's arg set to 
-;; the closest matching arg set among the defined variables.  Quant may be 
-;; 'current-thru or 'current-change
-
-(defun find-closest-current-list (studset &optional (quant 'current-thru))
-"return current variable argument list that best matches comps listed in student definition"
-  (let ((quantform (if (eq quant 'current-thru) '(current-thru ?comp :time ?t)
-                     '(rate-of-change (current-thru ?comp :time ?t))))
-        bestset 	; initially NIL for empty set
-        bestarg)	
-   ;; do for each current variable definition
-   (dolist (cdefprop (sg-fetch-entry-props `(define-var ,quantform)))
-      (let* ((sysarg (if (eq quant 'current-thru) (second (second cdefprop))
-                       (second (second (second cdefprop)))))
-	     ;; urgh, kb uses atomic args in some cases
-             (sysset (if (atom sysarg) (list sysarg) sysarg)))
-	;; update best if this has fewer diffs than best match so far
-        (when (and (subsetp studset sysset) ; a match!
-	           (or (null bestset) ; first match found
-	               ;; or closer match than best so far 
-	               (< (ndiffs sysset studset)
-		          (ndiffs bestset studset)))
-	    (setf bestset sysset) 
-	    (setf bestarg sysarg)))))
-
-   ;; finally: return best arg or student's list if no match found
-   (or bestarg studset)))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;
