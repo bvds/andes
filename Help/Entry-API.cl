@@ -173,35 +173,37 @@
 (defun ndiffs (set1 set2)
   (length (set-difference set1 set2)))
  
-;; For (current-thru ?arg ...) and (rate-of-change (current-thru ?arg ...)), the student
-;; arg is a set of branch components which may be a subset of the full set used in the kb
-;; quantity form. Normally the kb list is maximal (all components in a branch), but it
-;; may be smaller in an introductory problem where we use explicit equality of current 
-;; through point A and point B in the same branch. 
-;; Following expands the student's arg set to the closest matching arg set among the defined
-;; variables. Quant may be 'current-thru or 'current-change
+;; For (current-thru ?arg ...) and (rate-of-change (current-thru ?arg ...)), 
+;; the student arg is a set of branch components which may be a subset of 
+;; the full set used in the kb quantity form. Normally the kb list is maximal 
+;; (all components in a branch), but it may be smaller in an introductory 
+;; problem where we use explicit equality of current through point A and 
+;; point B in the same branch.  Following expands the student's arg set to 
+;; the closest matching arg set among the defined variables.  Quant may be 
+;; 'current-thru or 'current-change
+
 (defun find-closest-current-list (studset &optional (quant 'current-thru))
 "return current variable argument list that best matches comps listed in student definition"
   (let ((quantform (if (eq quant 'current-thru) '(current-thru ?comp :time ?t)
                      '(rate-of-change (current-thru ?comp :time ?t))))
         bestset 	; initially NIL for empty set
         bestarg)	
-   ; do for each current variable definition
+   ;; do for each current variable definition
    (dolist (cdefprop (sg-fetch-entry-props `(define-var ,quantform)))
       (let* ((sysarg (if (eq quant 'current-thru) (second (second cdefprop))
                        (second (second (second cdefprop)))))
-	     ; urgh, kb uses atomic args in some cases
+	     ;; urgh, kb uses atomic args in some cases
              (sysset (if (atom sysarg) (list sysarg) sysarg)))
-	; update best if this has fewer diffs than best match so far
+	;; update best if this has fewer diffs than best match so far
         (when (and (subsetp studset sysset) ; a match!
 	           (or (null bestset) ; first match found
-	               ; or closer match than best so far 
+	               ;; or closer match than best so far 
 	               (< (ndiffs sysset studset)
 		          (ndiffs bestset studset)))
 	    (setf bestset sysset) 
 	    (setf bestarg sysarg)))))
 
-   ; finally: return best arg or student's list if no match found
+   ;; finally: return best arg or student's list if no match found
    (or bestarg studset)))
 
 
@@ -211,8 +213,7 @@
 ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Here is what is missing:
-;;  Handle case where symbol is nil
+;;  Here is what is missing:
 ;;  Should include "bad" quantity definitions in matching.
 ;;  Should have something to handle extra stuff like setting
 ;;     given values in definition.  (either handle it or warning/error).
@@ -309,11 +310,11 @@
 		   #'(lambda (x) (member (car x) '(eqn implicit-eqn)))
 		   *sg-entries* :key #'systementry-prop))
 	 (best 
-	 (match:best-model-matches 
-	  (match:word-parse student)
-	  (mapcar #'(lambda (x) 
-		      (cons (expand-vars (SystemEntry-model x)) x))
-		  entries))))
+	  (match:best-model-matches 
+	   (match:word-parse student)
+	   (mapcar #'(lambda (x) 
+		       (cons (expand-vars (SystemEntry-model x)) x))
+		   entries))))
     (format t "Best match to ~S is~%   ~S~% from:~%    ~S~%" 
 	    student
 	    (mapcar 
@@ -322,8 +323,7 @@
 	     best)
 	    (mapcar #'(lambda (x) 
 			(cons (systementry-prop x)
-			      (expand-vars (SystemEntry-model x)) 
-			      ))
+			      (expand-vars (SystemEntry-model x))))
 		    entries))))
  
 (defun nothing-to-match-ErrorInterp (entry)
@@ -396,8 +396,8 @@
   (let ((rem (make-hint-seq
 	      (list (format nil 
 			    "You have already defined ~A~:[ as ~A~1*~;~1* to be <var>~A</var>~]."
-			    (match:word-string 
-			     (expand-vars 
+			    (match:word-string
+			     (expand-vars
 			      (SystemEntry-model sysent)))
 			    (> (length (StudentEntry-symbol old)) 0)
 			    (studentEntry-text old)
@@ -415,7 +415,7 @@
 
 (defun pull-out-quantity (symbol text)
   "Pull the quantity phrase out of a definition:  should match variablename.js"
-  (when (> (length symbol) 0)   ;variablename.js returns empty string on no match.
+  (when (> (length symbol) 0) ;variablename.js returns empty string on no match
     (if (not (search symbol text))
 	(warn "Bad symbol definition, ~S should be found in ~S."
 	      symbol text)
@@ -488,7 +488,7 @@
 	 (remove '(body . ?rest) *sg-entries* 
 		 :key #'SystemEntry-prop :test-not #'unify)
 	 :cutoff 0.6 :equiv 1.25)
-  
+
       (cond 
 	(sysent
 	 (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
@@ -496,8 +496,8 @@
 	 (when (> (length symbol) 0) ;not null string
 	   (check-symbols-enter symbol (second (StudentEntry-prop entry)) id 
 				:namespace :objects))
-	 
-	 (check-noneq-entry entry :unsolicited-hints hints))  ;finally return entry 
+	 ;; finally return entry 
+	 (check-noneq-entry entry :unsolicited-hints hints))
 	(tturn)))))
 
 
@@ -909,17 +909,40 @@
      ;; There is a number of situations where it is legitimate to 
      ;; not define a symbol:  any body definitions, or drawing vectors
      ;; in a free body diagram problem (no equations).
-     )
-    ((symbols-lookup label :namespace namespace) ;; variable already defined!
+     ;;
+     ;; Look for associated sysvar as indication that symbol is expected.
+     ;; Default namespace is :scalars.  This is the namespace associated
+     ;; with sysvars.
+     (when (and (or (null namespace) (eql namespace :scalars))
+		(quant-to-valid-sysvar referent))
+       (let ((entry (find-entry (first entry-ids)))
+	     ;; build the error remediation turn
+	     (rem (make-hint-seq (list
+				  (format nil "You need to ~A for ~A."
+					  *define-variable*
+					  ;; for compo angle and mag,
+					  ;; define parent object.
+					  (nlg (get-vector-parent-prop
+						referent)))))))
+	     
+	 (setf (turn-id rem) (StudentEntry-id entry))
+	 (setf (turn-coloring rem) +color-red+)
+	 ;; set state of entry and attach error. But only do if not done 
+	 ;; already, so only report on the first error found.
+	 (unless (studentEntry-ErrInterp entry)
+	   (setf (studentEntry-state entry) 'incorrect)
+	   (setf (studentEntry-ErrInterp entry)
+		 (make-ErrorInterp :diagnosis '(variable-not-defined)
+				   :remediation rem))))))
+    ((symbols-lookup label :namespace namespace) ;variable already defined!
      ;; find entry. entry-ids arg may be atom or list, but should not be nil
      (let ((entry (find-entry (first entry-ids)))
-	   rem)
-       ;; build the error remediation turn
-       (setf rem (make-hint-seq (list
-				 (format nil "The variable ~A is in use to define ~A. Please choose a different label." 
-					 label (nlg (symbols-referent 
-						     label
-						     :namespace namespace))))))
+	   ;; build the error remediation turn
+	   (rem (make-hint-seq (list
+				(format nil "The variable ~A is in use to define ~A. Please choose a different label." 
+					label (nlg (symbols-referent 
+						    label
+						    :namespace namespace)))))))
        
        (setf (turn-id rem) (StudentEntry-id entry))
        (setf (turn-coloring rem) +color-red+)
@@ -939,6 +962,12 @@
      (symbols-enter label referent :entries entry-ids :sysvar sysvar 
 		      :namespace namespace))))
 
+(defun get-vector-parent-prop (x)
+  "For vector (or line) compo, dir, or mag, return parent prop."
+  (cond ((eql (car x) 'mag) (second x))
+	((eql (car x) 'dir) (second x))
+	((eql (car x) 'compo) (fourth x))
+	(t x)))
 ;;
 ;; Check-NonEq-Entry -- Generic checker for non-equation student entry 
 ;; Returns: tutor turn
