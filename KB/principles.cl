@@ -1246,7 +1246,7 @@
        ))
 
 
-(defun problem-html-files (&optional path)
+(defun problem-html-files (&optional (path #P"./"))
   "construct html files for all problems"
   (dolist (prob (listprobs))
     (when (problem-graphic prob) (format t "~A~%" (problem-graphic prob)))
