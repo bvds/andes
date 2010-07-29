@@ -1,15 +1,29 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-<!--   # This file is stored in review/sets.html in the Andes git repository
-       # To make a publically viewable version:
-          mkdir sets; cd sets
-       # copy review/sets.html into this directory, renaming it to index.html.
-       # Modify the path in doSubmit() to point to the desired Andes server.
-       # Use lisp commands in KB/principles.cl to make files sets.json 
-       # and principles.json.  Then, install dojo and dijit.
-          mkdir problems
-       # Use lisp commands in KB/principles.cl to make list of
-       # problem html files in ./problems.  Copy images into ./problems -->
+<!--   
+# This file is stored in review/sets.html in the Andes git repository.
+# Although the Andes problem chooser tool will work without any Andes 
+# installation, you will need an Andes installation to generate associated 
+# files and a working Andes help server to point to.
+#
+# Create a directory "sets" for the Andes problem chooser tool:
+           mkdir sets; cd sets
+           mkdir problems
+# Install dojo and dijit in "sets."
+# Copy images/*.* from the Andes installation into sets/problems.
+# Copy review/sets.html from the Andes installation to sets/index.html.
+# Then, modfy the URL in the function doSubmit() to point to 
+# the desired Andes help server.
+# 
+# In the Andes installation, start up lisp and enter (rhelp) to 
+# load the help system.  Then use the appropriate commands in 
+# KB/principles.cl to generate the files sets.json, & principles.json
+# and place them in "sets."  Likewise, generate a list of problem html
+# files and place them in the directory sets/problems.
+#
+# Depending on the location of "sets," you may want to create
+# a link to "sets" in /var/www/html.
+ -->
 <head>
 <title>Andes problem chooser</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
