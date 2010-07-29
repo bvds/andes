@@ -1,3 +1,9 @@
+/*
+ This is directly from @import "../plugins/resources/css/InsertEntity.css";
+ It's here because certain details may change over time.  The classes
+ remain the same so applying the original will be easy in case of change.
+*/
+
 .dojoxEntityPalette {
 	/* outer node of the dropdown */
 	border: 1px solid #999;

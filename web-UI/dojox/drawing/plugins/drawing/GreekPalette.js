@@ -1,32 +1,37 @@
-dojo.provide("andes.widget.GreekPalette");
+dojo.provide("dojox.drawing.plugins.drawing.GreekPalette");
 
+dojo.require("dojox.drawing.library.greek");
 dojo.require("dijit._Widget");
 dojo.require("dijit._Templated");
 dojo.require("dijit._PaletteMixin");
 dojo.require("dojo.i18n");
-dojo.require("andes.typeset");
 
 dojo.requireLocalization("dojox.editor.plugins", "latinEntities");
 
-dojo.declare("andes.widget.GreekPalette",
+dojo.declare("dojox.drawing.plugins.drawing.GreekPalette",
 	[dijit._Widget, dijit._Templated, dijit._PaletteMixin],
 	{
 	// summary:
-	//		A keyboard accessible color-picking widget
+	//		This plugin uses the palette dijit in order to give
+	//		tips for non-english (mostly greek for now) letters.
 	// description:
-	//		Grid showing various colors, so the user can pick a certain color.
-	//		Can be used standalone, or as a popup.
+	//		Grid showing all available entity options which the
+	//		user can pick from.  The library loaded for use by the picker
+	//		is found in dojox.drawing.library.greek.  Adding characters
+	//		there will automatically add them to the palette.
+	//
+	//		This works as a popup and as such its onChange and onCancel
+	//		close it.  TextBlock manages it, since it's what uses the assist
+	//		so opening it happens there.  In order to activate the plugin
+	//		add it to the dojox.drawing.Drawing node as shown below:
 	//
 	// example:
-	// |	<div dojoType="dijit.ColorPalette"></div>
-	//
-	// example:
-	// |	var picker = new dijit.ColorPalette({ },srcNode);
-	// |	picker.startup();
+	// |	<div dojoType="dojox.drawing.Drawing" id="drawing" jsId="myDrawing" class="drawing"
+	//			     plugins="[{'name':'dojox.drawing.plugins.drawing.GreekPalette'}]" >
 
 	postMixInProperties: function(){
 		// Convert hash of entities into two-dimensional rows/columns table (array of arrays)
-		var choices = andes.Greeks.code;
+		var choices = dojox.drawing.library.greek;
 		var numChoices = 0;
 		var entityKey;
 		for(entityKey in choices){numChoices++;}
@@ -48,9 +53,27 @@ dojo.declare("andes.widget.GreekPalette",
 		}
 		this._palette = rows;
 	},
+	
+	onChange: function(val){
+		var textBlock = this._textBlock;
+		dijit.popup.close(this);
+		textBlock.insertText(this._pushChangeTo,val);
+		textBlock._dropMode = false;
+	},
+	
+	onCancel: function(/*Boolean*/ closeAll){
+		// summary:
+		//		attach point for notification about when the user cancels the current menu
+		//		parameter not used
+		dijit.popup.close(this);
+		this._textBlock._dropMode = false;
+	},
+	
+	id: "dropdown",
 
 	// templateString: String
-	//		The template of this widget.
+	//		The template of this widget.  Using dojoxEntityPalette classes
+	//		in order to allow easy transfer of css
 	templateString: '<div class="dojoxEntityPalette">\n' +
 			'	<table>\n' +
 			'		<tbody>\n' +
@@ -83,11 +106,7 @@ dojo.declare("andes.widget.GreekPalette",
 	//	  Whether the preview pane will be displayed, to show details about the selected entity.
 	showPreview: true,
 
-	// palette: [public] String
-	//		The symbol pallete to display.  The only current one is 'latin'.
-	//palette: "latin",
-
-	dyeClass: 'andes.Greeks',
+	dyeClass: 'dojox.drawing.plugins.Greeks',
 
 	// domNodeClass [protected] String
 	paletteClass: 'editorLatinEntityPalette',
@@ -95,9 +114,6 @@ dojo.declare("andes.widget.GreekPalette",
 	cellClass: "dojoxEntityPaletteCell",
 
 	buildRendering: function(){
-		// Instantiate the template, which makes a skeleton into which we'll insert a bunch of
-		// <img> nodes
-
 		this.inherited(arguments);
 
 		var i18n = dojo.i18n.getLocalization("dojox.editor.plugins", "latinEntities");
@@ -153,11 +169,6 @@ dojo.declare("andes.widget.GreekPalette",
 
 		dojo.stopEvent(evt);
 	},
-	
-	onCancel: function(/*Boolean*/ closeAll){
-		// summary: attach point for notification about when the user cancels the current menu
-	},
-
 
 	postCreate: function(){
 		this.inherited(arguments);
@@ -169,13 +180,6 @@ dojo.declare("andes.widget.GreekPalette",
 
 	_setCurrent: function(/*DOMNode*/ node){
 		// summary:
-		//		Called when a entity is hovered or focused.
-		// description:
-		//		Removes highlight of the old entity, and highlights
-		//		the new entity.
-		// tags:
-		//		protected
-			// summary:
 		//		Sets which node is the focused cell.
 		// description:
    		//		At any point in time there's exactly one
@@ -267,8 +271,8 @@ dojo.declare("andes.widget.GreekPalette",
 	
 	_navigateByArrow: function(evt){
 		// summary:
-		// 	  	This is the callback for typematic.
-		// 		It changes the focus and the highlighed cell.
+		// 	  	This is a departure from the dijit, the textBlock needs
+		// 		navigation without losing focus, this allows that
 		// increment:
 		// 		How much the key is navigated.
 		// tags:
@@ -283,19 +287,15 @@ dojo.declare("andes.widget.GreekPalette",
 		};
 		
 		var increment = keyIncrementMap[evt.keyCode];
-		console.warn("navigation commenced: ",increment);
 		var newFocusIndex = this._currentFocus.index + increment;
 		if(newFocusIndex < this._cells.length && newFocusIndex > -1){
 			var focusNode = this._cells[newFocusIndex].node;
 			this._setCurrent(focusNode);
-			// Actually focus the node, for the benefit of screen readers.
-			// Use setTimeout because IE doesn't like changing focus inside of an event handler
-			//setTimeout(dojo.hitch(dijit, "focus", focusNode), 0);
 		}
 	}
 });
 
-dojo.declare("andes.Greeks",
+dojo.declare("dojox.drawing.plugins.Greeks",
         null,
 	{
 		// summary:
@@ -324,62 +324,3 @@ dojo.declare("andes.Greeks",
 			cell.innerHTML = "&"+this._alias+";";
                 }
 });
-
-andes.Greeks.code = {
-            //These should be accessed from the typeset object, which means the
-            //greeks variable needs to be pulled into the typeset object.
-            //I got it working but wanted to test it first and the server was down
-            //so this will go up for now.
-            "alpha": 945,   //alpha,     U+03B1 ISOgrk3 -->
-            "beta": 946,   //beta, U+03B2 ISOgrk3 -->
-            "gamma": 947,   //gamma,  U+03B3 ISOgrk3 -->
-            "delta": 948,   //delta,        U+03B4 ISOgrk3 -->
-            "epsilon": 949,   //epsilon,    U+03B5 ISOgrk3 -->
-            "zeta": 950,   //zeta, U+03B6 ISOgrk3 -->
-            "eta": 951,   //eta, U+03B7 ISOgrk3 -->
-            "theta": 952,   //theta,   U+03B8 ISOgrk3 -->
-            "iota": 953,   //iota, U+03B9 ISOgrk3 -->
-            "kappa": 954,   //kappa,   U+03BA ISOgrk3 -->
-            "lambda": 955,   //lambda,    U+03BB ISOgrk3 -->
-            "mu": 956,   //mu, U+03BC ISOgrk3 -->
-            "nu": 957,   //nu, U+03BD ISOgrk3 -->
-            "xi": 958,   //xi, U+03BE ISOgrk3 -->
-            "omicron": 959,   //omicron, U+03BF NEW -->
-            "pi": 960,   //pi, U+03C0 ISOgrk3 -->
-            "rho": 961,   //rho, U+03C1 ISOgrk3 -->
-            "sigmaf": 962,   //final sigma,  U+03C2 ISOgrk3 -->
-            "sigma": 963,   //sigma,  U+03C3 ISOgrk3 -->
-            "tau": 964,   //tau, U+03C4 ISOgrk3 -->
-            "upsilon": 965,   //upsilon,   U+03C5 ISOgrk3 -->
-            "phi": 966,   //phi, U+03C6 ISOgrk3 -->
-            "chi": 967,   //chi, U+03C7 ISOgrk3 -->
-            "psi": 968,   //psi, U+03C8 ISOgrk3 -->
-            "omega": 969,   //omega,      U+03C9 ISOgrk3 -->
-            "thetasym": 977,   //theta symbol,  U+03D1 NEW -->
-            "upsih": 978,     // upsilon with hook symbol,  U+03D2 NEW -->
-            "piv": 982,     // greek pi symbol, U+03D6 ISOgrk3 -->
-	    "Alpha": 913,    // alpha, U+0391 -->
-            "Beta": 914,      // beta, U+0392 -->
-            "Gamma": 915,    //gamma, U+0393 ISOgrk3 -->
-            "Delta": 916,    //delta,           U+0394 ISOgrk3 -->
-            "Epsilon": 917,    //epsilon, U+0395 -->
-            "Zeta": 918,    //zeta, U+0396 -->
-            "Eta": 919,    //eta, U+0397 -->
-            "Theta": 920,    //theta,           U+0398 ISOgrk3 -->
-            "Iota": 921,    //iota, U+0399 -->
-            "Kappa": 922,    //kappa, U+039A -->
-            "Lambda": 923,    //lambda,      U+039B ISOgrk3 -->
-            "Mu": 924,    //mu, U+039C -->
-            "Nu": 925,    //nu, U+039D -->
-            "Xi": 926,    //xi, U+039E ISOgrk3 -->
-            "Omicron": 927,    //omicron, U+039F -->
-            "Pi": 928,    //pi, U+03A0 ISOgrk3 -->
-            "Rho": 929,    //rho, U+03A1 -->
-            "Sigma": 931,    //sigma,     U+03A3 ISOgrk3 -->
-            "Tau": 932,    //tau, U+03A4 -->
-            "Upsilon": 933,    //upsilon,   U+03A5 ISOgrk3 -->
-            "Phi": 934,    //phi, U+03A6 ISOgrk3 -->
-            "Chi": 935,    //chi, U+03A7 -->
-            "Psi": 936,    //psi,   U+03A8 ISOgrk3 -->
-            "Omega": 937    //omega,     U+03A9 ISOgrk3 -->
-};

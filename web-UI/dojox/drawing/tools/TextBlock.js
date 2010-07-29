@@ -278,11 +278,11 @@ StencilData: {
 					//	This gives popup help.
 					
 					if(evt.keyCode==220){
-						dojo.stopEvent(evt);
 						if(dropdown==undefined){
 							console.warn("Dropdown not found");
 							return;
 						}
+						dojo.stopEvent(evt);
 						this.getSelection(conEdit);
 						this.insertText(conEdit,"\\");
 						this._dropMode = true;
@@ -295,7 +295,6 @@ StencilData: {
 							around:this.parentNode,
 							orient:{'BL':'TL'}
 						})
-						//dijit.focus(dropdown._currentFocus);
 					}
 					if(!this._dropMode){
 						this._blockExec = false;
@@ -796,21 +795,3 @@ StencilData: {
 	dojox.drawing.register(dojox.drawing.tools.TextBlock.setup, "tool");
 	
 })();
-dojo.addOnLoad(function(){
-	var dropdown = new andes.widget.GreekPalette({
-		
-		onChange: function(val){
-			var textBlock = this._textBlock;
-			dijit.popup.close(dropdown);
-			textBlock.insertText(this._pushChangeTo,val);
-			textBlock._dropMode = false;
-		},
-		
-		onCancel: function(evt){
-			dijit.popup.close(dropdown);
-			this._textBlock._dropMode = false;
-		},
-		
-		id: "dropdown"
-	});
-});

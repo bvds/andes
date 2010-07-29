@@ -11,7 +11,7 @@
 @import url("../dojox/widget/UpgradeBar/UpgradeBar.css");
 @import url("../dojox/drawing/resources/drawing.css");
 @import url("../dojox/drawing/resources/toolbar.css");
-
+@import url("../dojox/drawing/resources/GreekPalette.css");
 
 html, body, #main{
 	width: 100%;	/* make the body expand to fill the visible window */

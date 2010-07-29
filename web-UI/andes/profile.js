@@ -4,7 +4,8 @@ dojo.require("dojo.parser");
 dojo.require("dijit.layout.BorderContainer");
 dojo.require("dijit.layout.ContentPane");
 dojo.require("andes.widget.ExpandoPane");
-dojo.require("andes.widget.GreekPalette");
+dojo.require("dojox.drawing.plugins.drawing.GreekPalette");
+dojo.require("dojox.drawing.util.typeset");
 dojo.require("dojox.widget.UpgradeBar");
 
 dojo.require("dijit.MenuBar");
