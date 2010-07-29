@@ -1,13 +1,13 @@
 dojo.provide("dojox.drawing.util.typeset");
 dojo.require("dojox.drawing.library.greek");
 // Summary:
-//
+//		Singleton used for converting characters and typsetting
+//		
 // Description:
-//
-//  Eventually, this is supposed to turn input strings of mathematical
-//  expressions into typeset expressions that can be displayed on the 
-//  canvas.  For now, we just generate Greek letters based on LaTeX style
-//  entity codes.
+//		Eventually, this is supposed to turn input strings of mathematical
+//		expressions into typeset expressions that can be displayed on the 
+//		canvas.  For now, we just generate Greek letters based on LaTeX style
+//		entity codes.
 
 (function(){
 	
