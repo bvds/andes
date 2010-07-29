@@ -1089,7 +1089,7 @@
  ;; special variable: dynamic scoping
 (defvar jsonc "counter for unique id in tree")
 
-(defun principles-json-file (&key (file "review/principles.json") sets)
+(defun principles-json-file (&key (file "review/principles.json") (sets t))
   "Construct JSON file containing principle tree."
   ;; To list problems involving a principle, the Help system
   ;; must be running.
