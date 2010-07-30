@@ -173,6 +173,13 @@
 (defun ndiffs (set1 set2)
   (length (set-difference set1 set2)))
 
+
+(defun strcat-nonzero (&rest x)
+  "If every argument is nonzero length, apply strcat, else return \"\"."
+  (if (every #'(lambda (y) (> (length y) 0)) x)
+      (apply #'strcat x)
+      ""))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;
 ;;;;                  Match student phrase to Ontology
@@ -459,9 +466,8 @@
 	(sysent
 	 (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
 	 ;; OK if there is no symbol defined.
-	 (when (> (length symbol) 0) ;not null string
-	   (check-symbols-enter symbol (second (StudentEntry-prop entry)) id 
-				:namespace :objects))
+	 (check-symbols-enter symbol (second (StudentEntry-prop entry)) id 
+			      :namespace :objects)
 	 ;; finally return entry 
 	 (check-noneq-entry entry :unsolicited-hints hints))
 	(tturn)))))
@@ -516,9 +522,10 @@
 	 ;; 
 	 ;; xy plane vectors get theta prefix, z axis ones get phi
 	 ;; Greek symbols expressed in LaTeX form, for now.
-	 (dir-label (format NIL "~A~A" 
-			    (if (z-dir-spec dir-term) "\\phi" "\\theta")
-			    symbol)))
+	 ;; Don't append to empty symbol.
+	 (dir-label (strcat-nonzero 
+		     (if (z-dir-spec dir-term) "\\phi" "\\theta")
+		     symbol)))
 
     (multiple-value-bind
 	  (sysent tturn hints)
@@ -547,7 +554,8 @@
 	   (let* ((axis-label (sym-label axis-sym))
 		  (axis-term (sym-referent axis-sym))
 		  (axis-entry-id (first (sym-entries axis-sym)))
-		  (compo-var (format NIL "~A_~A" symbol axis-label))
+		  ;; Don't append to empty symbol.
+		  (compo-var (strcat-nonzero symbol "_" axis-label))
 		  (compo-term (vector-compo vector-term axis-term)) ; Physics-Funcs
 		  )
         (check-symbols-enter compo-var compo-term (list id axis-entry-id))))
@@ -640,8 +648,10 @@
 	 action
 	 ;; xy plane lines get theta prefix, z axis ones get phi
 	 ;; These are the input forms
-	 (dir-label  (format NIL "~A~A" (if (z-dir-spec dir-term) "\\phi" "\\theta")
-			     label)))
+	 ;; Don't append to empty symbol
+	 (dir-label (strcat-nonzero 
+		     (if (z-dir-spec dir-term) "\\phi" "\\theta")
+		     label)))
 
     (multiple-value-bind
 	  (sysent tturn hints)
@@ -792,19 +802,20 @@
 				       :namespace :objects))
 
     ;; automatically define \thetax as label for direction of positive x-axis
-    (when x-label (check-symbols-enter (strcat "\\theta" x-label) 
-				       xdir-dnum 
-				       id :sysvar xdir-dnum))
-
+    (when x-label (check-symbols-enter 
+		   (strcat-nonzero "\\theta" x-label)
+		   xdir-dnum 
+		   id :sysvar xdir-dnum))
+    
     ;; if any vectors have been drawn, add all component variables along 
     ;; these new axes as well
     (dolist (vent (remove '(vector . ?rest) *StudentEntries* :test-not #'unify
 			  :key #'StudentEntry-prop))
       (let ((vector (second (StudentEntry-prop vent))))
 	(dolist (axis-label (remove nil (list x-label y-label z-label)))
-	  (let ((compo-var (format NIL "~A_~A"  
-				   (symbols-label vector :namespace :objects) 
-				   axis-label))
+	  (let ((compo-var (strcat-nonzero  
+			    (symbols-label vector :namespace :objects) 
+			    "_" axis-label))
 		;; in Physics-Funcs
 		(compo-term (vector-compo vector
 					  (symbols-referent 
