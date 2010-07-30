@@ -176,6 +176,7 @@ dojo.declare("dojox.drawing.plugins.drawing.GreekPalette",
 		if(!this.showPreview){
 			dojo.style(this.previewNode,"display","none");
 		}
+		popup.dijit.moveOffScreen(this);
 	},
 
 	_setCurrent: function(/*DOMNode*/ node){
