@@ -343,7 +343,8 @@
 
 (defun no-matches-ErrorInterp (entry)
   (let* ((equal-sign (when (find #\= (StudentEntry-text entry))
-		       (strcat "If you are trying to write an equation, use "
+		       (strcat "If you are trying to write an equation, "
+			       *delete-object* " and use "
 			       *equation-tool* " instead.")))
 	 (rem (make-hint-seq 
 	      (list (format nil "I cannot understand your definition~:[~1*~; of <var>~A</var>~].~@[&nbsp ~A~]" 

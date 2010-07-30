@@ -22,7 +22,7 @@
 ;;;
 
 (defparameter *images-path* "../review/ui-images/")
-(defun tool-link (name html-id &key (pre "the"))
+(defun manual-link (name html-id &key (pre "the"))
   (strcat pre " " (open-review-window-html name 
 					  (strcat "manual.html#" html-id)
 					  :title "Manual")))
@@ -35,10 +35,10 @@
 
 (defparameter *line-icon* 
   (strcat "<img src=\"" *images-path* "line-tool.png\" class=\"button\"  alt=\"vector tool\">"))
-(defparameter *line-tool*  (tool-link "Line Tool" "line-tool"))
+(defparameter *line-tool*  (manual-link "Line Tool" "line-tool"))
 (defparameter *line-tool-action* (strcat "click on " *line-tool*))
 
-(defparameter *axis-tool* (tool-link "Axis Tool" "axis-tool"))
+(defparameter *axis-tool* (manual-link "Axis Tool" "axis-tool"))
 (defparameter *axis-tool-action* (strcat "click on " *axis-tool*))
 (defparameter *draw-axes* 
   (strcat "<img src=\"" *images-path* "draw-axes.png\" class=\"block\" alt=\"draw axes\">"))
@@ -47,26 +47,29 @@
   (strcat "<img src=\"" *images-path* "ellipse-tool.png\" class=\"button\" alt=\"ellipse tool\">"))
 (defparameter *rectangle-tool* 
   (strcat "<img src=\"" *images-path* "rectangle-tool.png\" class=\"button\"  alt=\"rectangle-tool\">"))
-(defparameter *body-tool*  (tool-link "Body Tool" "body-tool" :pre "a"))
+(defparameter *body-tool*  (manual-link "Body Tool" "body-tool" :pre "a"))
 (defparameter *body-tool-action* 
   (strcat "click on " *body-tool* " (" *ellipse-tool* " or " 
 	  *rectangle-tool* ")"))
 
 (defparameter *vector-icon* 
   (strcat "<img src=\"" *images-path* "vector-tool.png\" class=\"button\"  alt=\"vector tool\">"))
-(defparameter *vector-tool*  (tool-link "Vector Tool" "vector-tool"))
+(defparameter *vector-tool*  (manual-link "Vector Tool" "vector-tool"))
 (defparameter *vector-tool-action* (strcat "click on " *vector-tool*))
 
 (defparameter *equation-icon* 
   (strcat "<img src=\"" *images-path* "equation-tool.png\" class=\"button\"  alt=\"equation tool\">"))
-(defparameter *equation-tool*  (tool-link "Equation Tool" "equation-tool"))
+(defparameter *equation-tool*  (manual-link "Equation Tool" "equation-tool"))
 (defparameter *equation-tool-action* (strcat "click on " *equation-tool*))
 
-(defparameter *text-tool*  (tool-link "Text Tool" "text-tool"))
+(defparameter *text-tool*  (manual-link "Text Tool" "text-tool"))
 (defparameter *text-tool-action* (strcat "click on " *text-tool*))
 
-(defparameter *define-variable* (tool-link "define a variable" 
+(defparameter *define-variable* (manual-link "define a variable" 
 					     "define-quantities" :pre ""))
+
+(defparameter *delete-object* (manual-link "delete your entry" 
+					     "delete" :pre ""))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
