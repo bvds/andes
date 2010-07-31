@@ -8,7 +8,7 @@
 #  are not in the latest release.  Eventually, we will just use
 #  the release version.
 
-dojo-version=1.4
+dojo-version=1.5
 dojo-svn=http://svn.dojotoolkit.org/src/branches/$(dojo-version)
 
 install:
@@ -22,11 +22,20 @@ install:
 	svn co http://svn.dojotoolkit.org/src/dojox/trunk/drawing dojox/drawing
 	svn co $(dojo-svn)/util util
 	./andes.build.sh
-	@echo "Intalled Dojo $(dojo-version); is this the latest?"	
-	@echo "dojox/drawing from development version!"
+	echo "${dojo-version}" > dojo-install-version	
+	@echo "Installed Dojo $(dojo-version); is this the latest?"
+	@echo "dojox/drawing is from development version."
 
+
+#  If the latest version is installed, update, else upgrade to new version
 update:
+ifeq ($(shell test -f dojo-install-version && cat dojo-install-version),${dojo-version})
 	svn update dojo dijit util
 	svn update -N dojox
 	svn update dojox/*
 	./andes.build.sh
+	@echo "Updated Dojo $(dojo-version); is this the latest?"
+	@echo "dojox/drawing is from development version."
+else
+	$(MAKE) install
+endif
