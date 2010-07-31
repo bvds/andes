@@ -327,15 +327,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-;; For efficiency, this could be calculated for each 
-;; quantity when the problem opens.
-(defun SystemEntry-new-english (entry)
-  "Match SystemEntry to Ontology, pulling out model sentence."
-  (or (SystemEntry-model entry)    ;Use SystemEntry-model as a cache
-      (setf (SystemEntry-model entry)
-	    (new-english-find (second (SystemEntry-prop entry))))))
-
 (defun qnode-new-english (qnode)
   "Match qnode to Ontology, pulling out model sentence, including any var."
   ;; use same strategy as for systementries.

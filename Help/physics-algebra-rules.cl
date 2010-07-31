@@ -115,6 +115,8 @@
 
   ;; operators placed here because units can have these
   (grammar-add-terminal '**identifier-grammar** 'plus #\+)
+  ;; If we extend grammer to allow whitespace to represent multiplication,
+  ;; then we can no longer allow whitespace in unsigned-scinum.
   (grammar-add-terminal '**identifier-grammar** 'times #\*)
   (grammar-add-terminal '**identifier-grammar** 'divide #\/)
   (grammar-add-terminal '**identifier-grammar** 'raised #\^)
@@ -199,10 +201,13 @@
 			   '((digits period (digits))
 			     (period digits)))
 
-  ;; floating point numbers (scientific notation
+  ;; floating point numbers (scientific notation)
+  ;; Allow spaces around the 'E'.  This will be problematic 
+  ;; if we allow spaces to represent multiplication.
+  ;; See Bug #1765, Comment 2.
   (grammar-add-nonterminal '**common-grammar** 'unsigned-scinum
-			   '((unsigned-fpnum eE integer)
-			     (digits eE integer)))
+			   '((unsigned-fpnum (wspace) eE (wspace) integer)
+			     (digits (wspace) eE (wspace) integer)))
 
   ;; unit prefixes
   (grammar-add-special '**common-grammar** 'unit-prefix "a" nil **identifier-grammar**)

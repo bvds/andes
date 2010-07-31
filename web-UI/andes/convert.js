@@ -132,7 +132,7 @@ dojo.provide("andes.convert");
 				obj.stencilType = "text";
 				// Problem statements may contain HTML character codes.
 				// Since these don't render on the canvas, convert to UTF-16 characters.
-				obj.data.text = andes.typeset.convertHTML(o.text);
+				obj.data.text = dojox.drawing.util.typeset.convertHTML(o.text);
 			}else if(o.type=="done" || o.type=="checkbox" || o.type=="radio"){
 				// In principle, we could omit the statement object if there is no text,
 				// but the code gets a lot hairier.
@@ -141,7 +141,7 @@ dojo.provide("andes.convert");
 						x:o.x+buttonWidth,
 						y:o.y,
 						// Convert HTML, just like for problem statements above.
-						text:andes.typeset.convertHTML(o.text) || ""
+						text:dojox.drawing.util.typeset.convertHTML(o.text) || ""
 					},
 					enabled: false  // treat as mode=locked
 				}

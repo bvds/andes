@@ -28,7 +28,7 @@ dojo.require("andes.api");
 				break;
 			    case "show-hint":
 				// Student math symbols may be echoed in help statements.
-				hlp.containerNode.innerHTML = c + "\n<p>" + andes.typeset.convertLaTeX(r.text) + "</p>";
+				hlp.containerNode.innerHTML = c + "\n<p>" + dojox.drawing.util.typeset.convertLaTeX(r.text) + "</p>";
 				break;
 			    case "echo-get-help-text":
 		  		// Escape any html codes on input text echo.

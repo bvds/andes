@@ -143,7 +143,9 @@
     (buoyant '((or "buoyant" "buoyancy") "force"))
     (thrust "thrust force")
     (spring "spring force")
-    (pressure "pressure force")
+    (pressure '(or ("pressure" (allowed "force"))
+				   ("force" (preferred "of pressure")) 
+				))
     (drag '((or "drag" "friction" "frictional") "force"))
     (t (warn "unknown force type ~A" type) (format nil "~(~A~) force" type))))
 
@@ -459,12 +461,15 @@
   :symbol-base |\\mu|     
   :short-name "coef. of friction"	
   :units NIL ;; dimensionless
-  :new-english ((the) "coefficient of" ?static-or-kinetic "friction"
+  :new-english ((the) "coefficient of" 
+		(preferred (eval (if (eql ?static-or-kinetic 'static) "static"
+				     "kinetic")))
+		"friction"
 		(and (preferred 
 		      ("between" 
-		       (or (var ?body1 :namespace :objects) ?body1)
-		       "and" 
-		       (or (var ?body2 :namespace :objects) ?body2)))
+		       (conjoin (or "and" "&") 
+				(or (var ?body1 :namespace :objects) ?body1)
+				(or (var ?body2 :namespace :objects) ?body2))))
 		     (time ?time))))
 
 ;; "coefficient of drag for ~A moving through ~A" 

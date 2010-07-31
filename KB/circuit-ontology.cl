@@ -40,7 +40,15 @@
   ;; No sign restriction on this quantity. A few prbs (LR1b,1c,2b) restrict 
   ;; currents to be positive on a per-problem basis with :VariableMarks
   :new-english ((the) "current" (allowed "flowing") "through" 
-		(component ?component) (time ?time)))
+		(or (component ?component) 
+		    ;; If this is a string of components, the user
+		    ;; can just as well use any of the components.
+		    ;; There should be a knowledge component associated with
+		    ;; the fact that components in series all have the same 
+		    ;; current, but we will treat this as just an different 
+		    ;; way of saying things.
+		    (eval (when (consp ?component) (cons 'or ?component))))
+		    (time ?time)))
 
 (def-qexp capacitance (capacitance ?name)
   :symbol-base |C|     

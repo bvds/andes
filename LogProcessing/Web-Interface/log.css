@@ -1,0 +1,15 @@
+tr.open-problem {
+  background-color: #EFEFEF;
+}
+
+tr.solution-step {
+
+}
+
+tr.seek-help {
+  background-color: #ffe0ff;
+}
+
+tr.close-problem {
+  background-color: #EFEFEF;
+}

@@ -66,8 +66,6 @@ dojo.provide("andes.drawing");
 		_drawing = dijit.byId(drawingId);
 		var cn = dojo.connect(_drawing, "onSurfaceReady", function(){
 			dojo.disconnect(cn);
-			// Maybe better to put in _drawing?
-			dojox.drawing.stencil.Text.typeset = andes.typeset.convertLaTeX;
 			andes.drawing.onSurfaceReady();
 		});
 		dojo.connect(_drawing, "onRenderStencil", andes.drawing, "onRenderStencil");
@@ -327,7 +325,8 @@ dojo.provide("andes.drawing");
 					dojo.connect(dojo.byId("andesButtonPageDefault"), 
 						     "click", 
 						     function(){
-							     andes.principles.review('introduction.html','Introduction');
+							     // add 10 px padding
+							     andes.principles.review('vec1a-video.html','Intro Video',"width=650,height=395");
 						     });
 
 				}else if(obj.action=="set-styles"){

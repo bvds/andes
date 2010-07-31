@@ -27,13 +27,18 @@ dojo.addOnLoad(function(){
 			andes.principles.review('constants.html','Constants');
 		},
 		
-		"menuIntroduction":function(){
-			andes.principles.review('introduction.html','Introduction');
+		"menuIntroductionText":function(){
+			andes.principles.review('introduction.html','Intro Text');
 		},
+
+		"menuIntroduction":function(){
+			// add 10px padding.
+			andes.principles.review('vec1a-video.html','Intro Video',"width=650,height=395");
+		},		
 		
 	        "menuSlides":function(){
-			andes.principles.review('andes3intro/andes3intro.mod2.html',
-						'Slide show');
+			andes.principles.review('try11/andes.intro.try11_controller.swf',
+						'Slide show',"width=640,height=385");
 		},
 		
 		"menuManual":function(){

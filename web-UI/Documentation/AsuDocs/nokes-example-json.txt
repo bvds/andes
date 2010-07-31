@@ -8,36 +8,6 @@ as well as some details of the user interface behavior.  In particular,
 all of the dialog boxes associated with defining quantities (variables, 
 bodies, axes and vectors) are replaced with plain text entry dialog boxes.
 
-The the following design decisions have not been made and the 
-API should be agnostic with respect to them:
-
-1.  Does a single lisp process handles one or many user/problem sessions?
-
-2.  Does one allow for multiple user/problem sessions on one client machine?
-
-3.  Is logging done by the lisp process or by the controller script on
-     the web server?  There is a lisp interface to SQL type databases, so we
-     could have the lisp process itself handle the logging.
-
-Definitions:
-
-user/problem session:  each instance of a student trying to solve a problem.  
-It is marked by a unique integer.  A student may solve a problem over the 
-course of several user/problem sessions.  Also, there may be more than one
-user/problem sessions active at the same time for a given course login.  
-Use the Client-id header to send the user/problem session id 
-to the server.
-
-controller script:  This is a script running on the web server that receives 
-http requests, sends them on to the appropriate lisp process, and then 
-forwards the reply from the lisp process back to the client.  It may also 
-log messages.
-
-lisp process:  This is a process running the help system for one or more
-user/problem sessions.  It is assumed to be already running and ready for 
-input.  That is, the process is neither started or stopped by the controller 
-script.
-
 *******************************************************************************
 
 0:02 Initial login
