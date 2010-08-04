@@ -54,6 +54,7 @@
 (defstruct (SystemEntry (:print-function print-SystemEntry))
   Index	   ;; Index in the entry list.
   Prop     ;; The Entry proposition for this node.
+  children ;; Children props, through inheritance.
   Sources  ;; Cognitive steps that produced this.
   State    ;; State of the system 
   Prereqs  ;; The set of sets of system prerequisites 
