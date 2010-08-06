@@ -99,7 +99,7 @@
 	((:PSM . ANG-SDD) (:TUTORIAL . "Angular velocity"))
 	((:PSM . RK-NO-S) (:TUTORIAL . "Angular acceleration"))
 	((:PSM . RK-NO-S)
-	 (:EQNFORMAT . "&alpha;(avg) = (&omega;f - &omega;i)/t")
+	 (:EQNFORMAT . "&alpha;(avg)<sub>z</sub> = (&omega;f<sub>z</sub> - &omega;i<sub>z</sub>)/t")
 	 (:TUTORIAL . "Angular acceleration"))
 	((:PSM . RK-NO-VF) (:TUTORIAL . "Constant angular acceleration"))
 	((:PSM . RK-NO-S) (:TUTORIAL . "Constant angular acceleration"))
