@@ -1,9 +1,9 @@
 <?
-$dbuser= "root";
+$dbuser= $_POST['dbuser'];
 $dbserver= "localhost";
+$dbpass= $_POST['passwd'];
 $dbname= "andes3";
 
-$dbpass= $_POST['passwd'];;
 $adminName = $_POST['adminName'];
 $orderBy = $_POST['item'];
 $order = $_POST['order'];

@@ -49,10 +49,12 @@ return "";
 <h1>Querying for the Comments given by Students..</h1>
 <form name="queryForm" action="Process.php" method="post">
 <div class="loginbox">
-<label>UserName:</label>
+<label>Your user name:</label>
 <input name="adminName" type="text" size="6"/>
-<label>Password:</label>
-<input name="passwd" type="password" size="6"/>
+<label>DB User:</label>
+<input name="dbuser" type="text" value="root" size="6"/>
+<label>DB Password:</label>
+<input name="passwd" type="password" size="6"/><br>
 <script language=JavaScript>
 document.queryForm.adminName.value=getCookie("userName");
 document.queryForm.passwd.value=getCookie("passWord");
