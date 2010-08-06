@@ -223,16 +223,28 @@
 ;; Similarly the precond hack could be improved by offloading work to sgg time.
 
 (defun sg-setup-systementries (Graph)
-  (sg-set-graph-sysents Graph)                        ;; Set the entries list for each graph node.
-  (setq *SG-Entries* (sg-collect-sysent-index Graph)) ;; Collect the entry index.
-  (subst-prereqs-sysents *Sg-Entries* *Sg-Entries*)   ;; Subst the preconds for the entries in *Sg-Entries*
-  (sg-subst-graph-sysents *Sg-Entries* Graph))        ;; Substitute the merged entries into the graph.
-
-
+  ;; Set the entries list for each graph node.
+  (sg-set-graph-sysents Graph)
+  ;; Collect the entry index.
+  (setq *SG-Entries* (sg-collect-sysent-index Graph)) 
+  ;; Subst the preconds for the entries in *Sg-Entries*
+  (subst-prereqs-sysents *Sg-Entries* *Sg-Entries*)   
+  ;; Substitute the merged entries into the graph.
+  (sg-subst-graph-sysents *Sg-Entries* Graph)
+  ;; Collect any children from inheritance
+  ;; Do this after merge.
+  (find-inheritance (bubbleGraph-Enodes Graph))
+  ;; This doesn't do anything since the enodes 
+  ;; don't have any path.
+  ;;(find-inheritance (bubbleGraph-Qnodes Graph))
+  ;;
+  ;; Add alternatives to English from inheritance.
+  (add-inheritance-to-model *Sg-entries*))
+		    
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; sg-set-graph-sysents
 ;; For each node in the Bubblegraph, search its path to collect
-;; the set of System Entries within it., Storing those entries
+;; the set of System Entries within it, storing those entries
 ;; within its entries field.
 
 (defun sg-set-graph-Sysents (Graph)
@@ -273,7 +285,7 @@
 ;; through the graph and generating a SystemEntry (with the specified
 ;; state and for each cognitive do step encountered.  The search proceeds 
 ;; in depth-first fashon and a stack of SystemEntries is accumulated on 
-;; the way.  This stack is uysed to set the preconditions for each 
+;; the way.  This stack is used to set the preconditions for each 
 ;; SystemEntry s.t. each entry's proconditions consist of the set of 
 ;; entries that preceed it in the graph.  
 ;;
@@ -308,26 +320,27 @@
 
 (defun sg-psmg->sysents (Graph &key (Stk NIL) (State +correct+))
   "Collect the System entries from the specified PSM Graph."
-  (let ((Stack Stk) (Entries) (tmp))
+  (let ((Stack Stk) Entries tmp)
     (dolist (N Graph)
       (cond ((or (cssplit-p N) (csnext-p N))            ;Push ops and splits
 	     (push N Stack))                            ;onto the stack.
 	    
-	    ((csjoin-p N)                        ;When a join is encountered clear
+	    ((csjoin-p N)                 ;When a join is encountered clear
 	     (setq Stack (sg-drop-snj Stack)))   ;the splits and nexts preceeding it.
 	    
-	    ((and (csdo-p N)                            ;When a do is encountered
+	    ((and (csdo-p N)                    ;When a do is encountered
 		  (find-if #'help-EntryProp-p (csdo-effects N))) ;and it contains an entry prop.
-	     (setq tmp (sg-generate-sysents N Stack State))  ;; Generate the systementries.
-	     (setq stack (append tmp stack))                          ;; Add them to the stack.
-	     (setq entries (append tmp Entries))                      ;; Add them to the list of entries.
-	     (setf (csdo-Entries N) tmp))                             ;; Set the back pointer to the csdo.
+	     ;; Generate the systementries.
+	     (setq tmp (sg-generate-sysents N Stack State))  
+	     (setq stack (append tmp stack))     ;Add them to the stack.
+	     (setq entries (append tmp Entries)) ;Add to the list of entries.
+	     (setf (csdo-Entries N) tmp))    ;Set the back pointer to the csdo.
 	     	    
-	    ((cschoose-p N)                             ;; When a choose is encountered 
-	     (setq Entries                              ;; Split the search for each element.  
+	    ((cschoose-p N)                 ;When a choose is encountered 
+	     (setq Entries                  ;split the search for each element.
 	       (append Entries (sg-split-psmg->sysents (cdr N) Stack State))))))
 		       
-    Entries))                                           ;; Return the entries.
+    Entries))                                ;Return the entries.
 
 
 (defun sg-split-psmg->sysents (Lst Stack State)
@@ -360,12 +373,12 @@
 
 (defun sg-generate-sysent (Do Entry Stack State)
   "Given a help entry prop generate the system entry for it and return."
-  ; include helpful message for this error: 
+  ;; include helpful message for this error: 
   (when (not (get-operator-by-tag (csdo-op Do)))
     (error 'wrong-version-prb 
              :format-control "Solution operator ~A not found in current KB. Maybe need to regenerate .prb"
 	     :format-arguments (list (first (csdo-op Do)))))
-  ; else didn't signal error above:
+  ;; else didn't signal error above:
   (make-SystemEntry 
    :Prop Entry
    :State State
@@ -985,55 +998,64 @@
      (remove-if #'SystemEntry-implicit-eqnp
               (enode-entries enode))))
 
-;;-------------------------------------------------------------
-;; debugging code.
 
-(defun ploop ()
-  (loop for S in *SG-Entries* do (print-full-SystemEntry S)))
+;;;;
+;;;;   Pick up inheritance associated with a quantity
+;;;;   from bubblegraph
+;;;;
+;;(Remove nil (mapcar #'(lambda (x) (when (SystemEntry-children x) (cons (systementry-prop x) (systementry-children x)))) *sg-entries*))
 
-(defun sg-trace ()
-  (sg-trace-setup)
-  (sg-trace-use))
+(defun find-inheritance (graph-nodes)
+"Cycle through bubblgraph nodes, collect any inheritance and save in SystemEntry-children."
+  ;; Only enodes have a path constructed.
+  (dolist (node graph-nodes)
+    (let ((result (find-inheritance-in-graph (bgnode-path node))))
+      ;; (format t "result for ~A is ~S~%" (bgnode-exp node) result)
+      (dolist (entry (bgnode-entries node))
+	(dolist (x result)
+	  (when (and (not (member (car (SystemEntry-prop entry))
+				  '(eqn implicit-eqn)))
+		     ;; strip the action from the SystemEntry
+		     (unify (second x) (second (SystemEntry-prop entry))))
+	    (pushnew (car x) (systemEntry-children entry) :test #'unify)))
+	;; (when (systementry-children entry)
+	;;  (format t "   systementry ~S~%     children: ~S~%" 
+	;;	  (systemEntry-prop entry) (systementry-children entry)))
+	))))
 
-(defun sg-trace-use ()
-  (trace sg-match-eqn
-	 sg-match-eqn-num
-	 sg-set-decomp-eqn
-	 sg-mark-eqn-interp
-	 Systementries->State
-	 sg-mark-interp
-	 sg-check-interp
-	 
-	 sg-delete-StudentEntry
-	 sg-enter-StudentEntry
+(defun find-inheritance-in-graph (path)
+  "Go through path and collect any instances of inheritance.  Note that quantities and objects are inherited."
+  (let (result)
+    (dolist (step path)
+      (cond 
+	;; ignore wm, op, sg
+	((or (cswm-p step) (csop-p step) (cssg-p step)))
+	((csdo-p step)
+	 (dolist (effect (csdo-effects step))
+	   (when (unify effect `(inherit-quantity . ?rest))
+	     ;; Could also get operator and associated hints here
+	     (pushnew (cdr effect) result :test #'unify))))
+	;; 'SPLIT' (beginning of unordered)  (not implemented)
+	;; Choose alternate paths.	 
+	((cschoose-p step)
+	 (dolist (x (cdr step))
+	   (setf result (union result (find-inheritance-in-graph x)
+			       :test #'unify))))
+	;; Or signal a syntax error.
+	(T (Error "Car of path has illegal syntax"))))
+    result))
 
-	 ))
+;; (Remove nil (mapcar #'(lambda (x) (when (SystemEntry-children x) (list (systementry-prop x) (systementry-model x)))) *sg-entries*))
 
-(defun sg-trace-setup ()
-  (trace sg-psmg->sysents
-	 sg-drop-snj
-	 sg-generate-sysents
-	 sg-generate-sysent
-	 sg-collect-sysent-prereqs
-	 
-	 sg-collect-sysent-index
-	 sg-sort-sysents-for-eqns
-	 merge-duplicate-systementries
-	 
-	 sg-subst-graph-sysents
-	 sg-sysents->sysents
-  
-	 sg-prime-algebra
-	 solver-indyempty 
-	 solver-indyaddvar 
-	 solver-indydoneaddvar 
-	 solver-indyaddequation
-
-	 sg-match-eqn-entries
-	 sg-pair-eqn-entries
-	 
-	 sg-setup-solutions
-	 sg-add-solution
-	 sg-encode-solution))
-	
-
+(defun add-inheritance-to-model (entries)
+  "Add any children into model sentence."
+  ;; This is models are combined in a rather unintelligent manner
+  ;; since child quantities typically have a large overlap with
+  ;; each other and with parent quantities.
+  (dolist (entry entries)
+    (when (SystemEntry-children entry)
+      (setf (SystemEntry-model entry)
+	    (cons 'or 
+		  (cons (SystemEntry-model entry)
+			(mapcar #'new-english-find
+				(SystemEntry-children entry))))))))

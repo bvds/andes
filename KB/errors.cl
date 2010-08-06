@@ -2992,7 +2992,7 @@
   (setf right-time (nlg right-time 'pp))
   (make-hint-seq
    (list (format nil "Perhaps the variable ~a has the wrong time specification for this equation." wrong-var)
-	 (format nil "~a is defined for a quantity ~a. I noticed that if you replaced it with a variable for the same quantity ~a you would get a correct equation. But that is just one possibility and may not be the true cause of the error. Consult Review Physics Equations on the Help Menu to view correct general forms of equations." 
+	 (format nil "~a is defined for a quantity ~a. I noticed that if you replaced it with a variable for the same quantity ~a you would get a correct equation. But that is just one possibility and may not be the true cause of the error. Select \"Principles\" in the \"Physics\" menu to view correct general forms of equations." 
 		 wrong-var wrong-time right-time))))
 
 
