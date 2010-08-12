@@ -3427,13 +3427,11 @@
 (defun walk-psm-path (prefix path stack)
   (cond ((null path) 
 	 (error "Reached end of psm path before finding target entry"))
-	;; If the step is one of the
+	;; If the step is one of the cognitive steps (op, do,  
+	;; wm, sg) then take the appropriate step action.
 	((cswm-p (car Path)) (walk-wm-step prefix path stack)) 
-	;; cognitive steps (op, do,  
 	((csop-p (car Path)) (walk-op-step prefix path stack))
-	;; wm, sg) then take the 
 	((cssg-p (car Path)) (walk-sg-step prefix path stack))
-	;; appropriate step action.
 	((csdo-p (car Path)) (walk-do-step prefix path stack))
 	;; 'SPLIT' (beginning of unordered)   
 	((cssplit-p (car Path)) (walk-split-step prefix (cdr path) stack))   
@@ -3541,7 +3539,7 @@
 ;;; of the unordered portion.
 ;;;
 ;;; When a set of paralell branches is encountered the system will
-;;; collect each of the individual paralell branches.  If one or
+;;; collect each of the individual parallel branches.  If one or
 ;;; more of the branches contains unfinished dos then the hint
 ;;; process will continue with one of them.  As with choose nodes
 ;;; the prefrence is for partially completed branches first.  If

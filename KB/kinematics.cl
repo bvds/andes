@@ -3552,7 +3552,7 @@
   :nlg-english ("the definition of average angular velocity")
   :expformat ((strcat "applying the definition of Average Angular Velocity "
 		  "to ~a ~a") (nlg ?body) (nlg ?time 'time))
-  :EqnFormat ("&omega;(avg) = &theta;/t"))
+  :EqnFormat ("&omega;<sub>z</sub> = &theta;<sub>z</sub>/t"))
 
 (defoperator ang-sdd-contains (?quantity)
   :preconditions (
@@ -3617,7 +3617,7 @@
      :complexity major
   :short-name "average anglular acceleration"
      :nlg-english ("constant angular acceleration kinematics")
-     :EqnFormat ("&omega;f = &omega;i + &alpha;(avg) t")) ;alternative form in principles.cl
+     :EqnFormat ("&omega;f<sub>z</sub> = &omega;i<sub>z</sub> + &alpha;(avg)<sub>z</sub> t")) ;alternative form in principles.cl
 
 (defoperator rk-no-s-contains (?sought)
  :preconditions (
