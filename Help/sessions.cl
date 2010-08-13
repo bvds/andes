@@ -209,7 +209,9 @@
 	    ;; on to error handler.
 	    (prog1 (handler-bind
 		       ((error #'(lambda (c) (declare (ignore c)) 
-				     ,save-help-env-vals)))
+				     ,save-help-env-vals))
+			(sb-ext:timeout #'(lambda (c) (declare (ignore c)) 
+					 ,save-help-env-vals)))
 		     ,@body)
 	      ,save-help-env-vals))
 	  '(((:action . "show-hint")
