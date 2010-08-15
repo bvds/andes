@@ -3,25 +3,6 @@
 
 <head>
     <title>Andes Admin Login</title>
-    <style>
-    label, input{
-    display:block;
-    width:250px;
-    }
-    label{
-    margin-top:15px;
-    }
-    .loginbox{
-    width:400px;
-    height:auto;
-    padding:0 10px 20px 10px;
-    border:1px solid #ccc;
-    margin:10px auto;
-    }
-    h1{
-    text-align:center;
-    }
-    </style>
 
 <script language=JavaScript>
 <!--
@@ -48,18 +29,24 @@ return "";
 <h1>Querying for the Errors and Warnings occurred in Andes</h1>
 
 <form name="ErrorForm" action="ErrorProcessing.php" method="post">
-<div class="loginbox">
-<label>UserName:</label>
-<input name="adminName" type="text" size="6"/>
+
+<label>User Name</label>:&nbsp;  
+            <input name="adminName" type="text" /><br>
+<label>Filter by error type</label>:&nbsp;
+                <input name="errorType" type="text" size="8"/><br>
+<label>Optional dates (format 2010-06-11)</label>:&nbsp; 
+           from <input name="startDate" type="text" size="8"/> to
+                <input name="endDate" type="text" size="8"/><br>
+<label>DB User:</label>
+<input name="dbuser" type="text" value="root" size="6"/>
 <label>DB Password:</label>
-<input name="passwd" type="password" size="6"/>
+<input name="passwd" type="password" size="6"/><br>
 <script language=JavaScript>
 document.ErrorForm.adminName.value=getCookie("userName");
 document.ErrorForm.passwd.value=getCookie("passWord");
 </script>
 <BR />
 <input type="submit"/>
-</div> 
 </body>
 
 </form>
