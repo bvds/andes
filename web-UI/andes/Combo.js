@@ -58,6 +58,12 @@ andes.Combo = dojox.drawing.util.oo.declare(
 					!this._masterDestroyed && this.onDelete(this);
 					this.statement.destroy();
 				}
+			}],
+			[this.statement, "select", this, function(){
+				if(this.statement.getText() == ""){
+					var text = this.master.getLabel();
+					this.statement.setText(text);
+				}
 			}]
 		]);
 
