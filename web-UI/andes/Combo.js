@@ -43,7 +43,6 @@ andes.Combo = dojox.drawing.util.oo.declare(
 			}],
 			[this.master, "select", this.statement, "highlight"],
 			[this.master, "deselect", this.statement, "unhighlight"],
-			[this.statement, "select", this.master, "highlight"],
 			[this.statement, "deselect", this.master, "unhighlight"],
 			[this.statement, "onDelete", this, function(){
 				if(!this._masterDestroyed){
@@ -52,17 +51,18 @@ andes.Combo = dojox.drawing.util.oo.declare(
 					this.master.destroy();
 				}
 			}],
+			[this.statement, "select", this, function(){
+				this.master.highlight();
+				if(this.statement.getText() == ""){
+					var text = this.master.getLabel();
+					this.statement.setText(text);
+				}
+			}],
 			[this.master, "onDelete", this, function(){
 				if(!this._statementDestroyed){
 					this._statementDestroyed = true;
 					!this._masterDestroyed && this.onDelete(this);
 					this.statement.destroy();
-				}
-			}],
-			[this.statement, "select", this, function(){
-				if(this.statement.getText() == ""){
-					var text = this.master.getLabel();
-					this.statement.setText(text);
 				}
 			}]
 		]);
