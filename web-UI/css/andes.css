@@ -21,6 +21,17 @@ html, body, #main{
 	margin: 0 0 0 0;
 	font: 10pt Arial,Myriad,Tahoma,Verdana,sans-serif;
 }
+
+/*Probably left over junk but putting it here in case*/
+textarea{
+	position:absolute;
+	top:30px;
+	right:10px;
+	width:200px;
+	overflow:hidden;
+	z-index:10001;
+}
+
 #main{
 	padding-right:5px;
 }
