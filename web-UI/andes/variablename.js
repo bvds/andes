@@ -44,7 +44,7 @@ andes.variablename.parse = function(intext){
 		var definere=/^define ([\w\\$]+) (to be|=|as) /i;
 		match = definere.exec(cantext);
 		// console.log("definere match ",match);
-		if (match) return match[1];
+		if (match) return match[1];	
 	}
 	return "";
 }
