@@ -1,6 +1,8 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-  <LINK REL=StyleSheet HREF="log.css" TYPE="text/css">
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+ <LINK REL=StyleSheet HREF="log.css" TYPE="text/css">
 </head>
 <body>
 <?
@@ -78,15 +80,20 @@ if($myrow1["initiatingParty"]=='client'){
  $aa=str_replace("\\/","/",$aa);
 
  echo "  <tr class='$method'><td>$ttime</td><td>$aa</td><td>";
- echo "<ul>";
- foreach ($b->result as $bb){
-   // add space after commas, for better line wrapping
-   $bbb=str_replace("\",\"","\", \"",$json->encode($bb));
-   // forward slashes are escaped in json, which looks funny
-   $bbb=str_replace("\\/","/",$bbb);
-   echo "<li>$bbb</li>";
+ if($b->result){
+   echo "<ul>";
+   foreach($b->result as $bb){
+     // add space after commas, for better line wrapping
+     $bbb=str_replace("\",\"","\", \"",$json->encode($bb));
+     // forward slashes are escaped in json, which looks funny
+     $bbb=str_replace("\\/","/",$bbb);
+     echo "<li>$bbb</li>";
+   }
+   echo "</ul>";
+ } else {
+   // json parse of result failed.
+   echo "$response";
  }
- echo "</ul>";
  echo "</td></tr>\n";
  }
 

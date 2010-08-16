@@ -1,3 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+  <LINK REL=StyleSheet HREF="log.css" TYPE="text/css">
+
+  <script type="text/javascript">
+
+function createXMLHttp(){
+  if(typeof XMLHttpRequest != "undefined"){
+    return new XMLHttpRequest();
+  } else {
+    var aVersions = ["MSXML2.XMLHttp.5.0","MSXML2.XMLHttp.4.0","MSXML2.XMLHttp.3.0","MSXML2.XMLHttp","Microsoft.XMLHttp"];
+    for(var i=0;i<aVersions.length;i++){
+      try {
+        var oXmlHttp = new ActiveXObject(aVersions[i]);
+        return oXmlHttp;
+      } catch(oError){
+
+      }
+    }
+  }
+  throw new Error("XMLHttp could not be created");
+}
+
+
+function UpdateRecord($url){
+  var oXmlHttp = createXMLHttp();
+  oXmlHttp.open("GET",$url,true);
+  oXmlHttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+  oXmlHttp.onreadystatechange = function(){
+    if(oXmlHttp.readyState==4) {
+      if(oXmlHttp.responseText.indexOf('Success')==-1){
+        alert(oXmlHttp.responseText);
+        return false;
+      } else {
+      }
+    }
+  }
+  oXmlHttp.send(null);
+}
+
+function openTrace($url){  
+  window.open($url);
+}
+
+</script>
+
+</head>
+<body>
 <?
 $dbuser= $_POST['dbuser'];
 $dbserver= "localhost";
@@ -62,7 +112,7 @@ if($slice == 'Comments'){
   $result = mysql_query($sql);
   if ($myrow = mysql_fetch_array($result)) {
     echo "<table border=1>";
-    echo "<tr><th>User Name</th><th>Problem</th><th>Section</th><th>Starting Time</th><th>Comment</th><th>Additional</th><th>My Comments</th></tr>";
+    echo "<tr><th>User Name</th><th>Problem</th><th>Section</th><th>Starting Time</th><th>Comment</th><th>Additional</th><th>My Comments</th></tr>\n";
     do
       {
 	$tID=$myrow["tID"];
@@ -80,7 +130,7 @@ if($slice == 'Comments'){
 	    $tempCommand2 =explode("get-help\",\"text\":\"",$tempCommand1);
 	    $command=explode("\"}",$tempCommand2[1]);
 	    
-	    echo "<tr><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td>$command[0]</td><td><a href=\"/web-UI/index.html?s=$userSection&u=$userName&p=$userProblem&e=$extra\" target=\"_blank\">My Analysis</a></td></tr>";
+	    echo "<tr><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td>$command[0]</td><td><a href=\"/web-UI/index.html?s=$userSection&u=$userName&p=$userProblem&e=$extra\" target=\"_blank\">My Analysis</a></td></tr>\n";
 	  }
       }
     while ($myrow = mysql_fetch_array($result));
@@ -140,53 +190,12 @@ if($slice == 'Comments'){
        
       }
     while ($myrow = mysql_fetch_array($result));
-    echo "</table>";
+    echo "</table>\n";
   }
 
  }
 
 mysql_close();
 ?>
-
-
-<script type="text/javascript">
-
-function createXMLHttp(){
-  if(typeof XMLHttpRequest != "undefined"){
-    return new XMLHttpRequest();
-  } else {
-    var aVersions = ["MSXML2.XMLHttp.5.0","MSXML2.XMLHttp.4.0","MSXML2.XMLHttp.3.0","MSXML2.XMLHttp","Microsoft.XMLHttp"];
-    for(var i=0;i<aVersions.length;i++){
-      try {
-        var oXmlHttp = new ActiveXObject(aVersions[i]);
-        return oXmlHttp;
-      } catch(oError){
-
-      }
-    }
-  }
-  throw new Error("XMLHttp could not be created");
-}
-
-
-function UpdateRecord($url){
-  var oXmlHttp = createXMLHttp();
-  oXmlHttp.open("GET",$url,true);
-  oXmlHttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
-  oXmlHttp.onreadystatechange = function(){
-    if(oXmlHttp.readyState==4) {
-      if(oXmlHttp.responseText.indexOf('Success')==-1){
-        alert(oXmlHttp.responseText);
-        return false;
-      } else {
-      }
-    }
-  }
-  oXmlHttp.send(null);
-}
-
-function openTrace($url){  
-  window.open($url);
-}
-
-</script>
+</body>
+</html>

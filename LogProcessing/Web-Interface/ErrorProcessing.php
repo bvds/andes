@@ -4,7 +4,7 @@
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
   <LINK REL=StyleSheet HREF="log.css" TYPE="text/css">
 
-  <script type="text/javascript">
+<script type="text/javascript">
 
 function createXMLHttp(){
   if(typeof XMLHttpRequest != "undefined"){
@@ -49,6 +49,7 @@ function openTrace(url){
 
 </head>
 <body>
+
 <?
 $dbuser= $_POST['dbuser'];
 $dbserver= "localhost";
@@ -103,21 +104,32 @@ while ($myrow = mysql_fetch_array($result)) {
   $userSection=$myrow["userSection"];
   $startTime=$myrow["startTime"];
   $command=$json->decode($myrow["command"]);
-  // Don't know why I can't just use $command->result in the foreach
-  $zz=$command->result;
   $yy=array();
-  foreach($zz as $bb) {
-    $key1="error-type";  // work-around for the dash
-    $errorType=$bb->$key1;
-    $errorMsg=$bb->error;
-    if($bb->action == "log"){
-      array_unshift($yy,"<td>$errorType</td><td>$errorMsg</td>");
+  if($command){
+    // Don't know why I can't just use $command->result in the foreach
+    $zz=$command->result; 
+    foreach($zz as $bb) {
+      $key1="error-type";  // work-around for the dash
+      $errorType=$bb->$key1;
+      $errorMsg=$bb->error;
+      if($bb->action == "log"){
+        array_push($yy,"<td>$errorType</td><td>$errorMsg</td>");
+      }
     }
   }
-
-
+  // If there is no match, then something has gone wrong 
+  // with the json decoding.  These are usually associated with very
+  // long backtraces that have somehow gotten truncated.
+  if(count($yy)==0) {
+    $bb=$myrow["command"];
+    // add space after commas, for better line wrapping
+    $bb=str_replace("\",\"","\", \"",$bb);
+    // forward slashes are escaped in json, which looks funny
+    $bb=str_replace("\\/","/",$bb);
+    $bb=substr($bb,0,200);
+    array_push($yy,"<td colspan=\"2\">$bb ...</td>");
+  }
   $nr=count($yy);
-  if($nr==0)$nr=1;
 
   //  $lastID=$tID-1;
   //  $userSql="select command from PROBLEM_ATTEMPT_TRANSACTION where tID=$lastID";

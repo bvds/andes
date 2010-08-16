@@ -18,73 +18,16 @@ mysql_select_db($dbname)
      or die ("UNABLE TO SELECT DATABASE");                                                                                                                                  
 setcookie("userName",$adminName,time()+(8*60*60));
 setcookie("passWord",$dbpass,time()+(8*60*60));
-
-echo "<h2>Comments given by the Andes Users, sorted in $order order of $orderBy, are as follows:</h2><BR>";
-if($order=='Descending')
-  $order = "DESC";
- else
-   $order = "";
-if($filter=='All'){
-$sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.clientID = P2.clientID AND P2.initiatingParty = 'client' AND P2.command LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
- }
- else if($filter=='Student'){
-$sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.extra<=0 AND P1.clientID = P2.clientID AND P2.initiatingParty = 'client' AND P2.command LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
-}
- else{
-$sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.extra>0 AND P1.clientID = P2.clientID AND P2.initiatingParty = 'client' AND P2.command LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
- }
-
-$result = mysql_query($sql);
-if ($myrow = mysql_fetch_array($result)) {
-  echo "<table border=1>";
-  echo "<tr><th>Solved</th><th>My Comment</th><th>User Name</th><th>Problem</th><th>Section</th><th>Starting Time</th><th>Comment</th><th>Additional</th></tr>";
-do
-  {
-    $tID=$myrow["tID"];
-    $tempSql = "SELECT * FROM PROBLEM_ATTEMPT_TRANSACTION WHERE tID = ($tID+1) and command LIKE '%your comment has been recorded%'";
-    $tempResult = mysql_query($tempSql);    
-    if(mysql_fetch_array($tempResult))
-      {
-       $tempResult = NULL;
-       $tempSql = NULL;
-       $userName=$myrow["userName"];
-       $userProblem=$myrow["userProblem"];
-       $userSection=$myrow["userSection"];
-       $startTime=$myrow["startTime"];
-       $tempCommand1=$myrow["command"];
-       $tempCommand2 =explode("get-help\",\"text\":\"",$tempCommand1);
-       $command=explode("\"}",$tempCommand2[1]);
-
-       $rButton="UNCHECKED";
-       $extraQuery="SELECT MAX(radioID),myComment FROM REVIEWED_PROBLEMS WHERE adminName = '$adminName' AND tID = $tID";
-       $extraRes=mysql_query($extraQuery);
-       if ($myExtrarow = mysql_fetch_array($extraRes)) {
-	 $extraField = $myExtrarow["MAX(radioID)"];
-         if($extraField == 1)
-	 $rButton="CHECKED";         
-	 $myCom=$myExtrarow["myComment"];
-	 if($myCom == null)
-	   $myCom="NA";
-       }
-       
-       // Only print out out rows that have right solved status.
-       // It may be more efficient to do this filtering at the database
-       // query level.
-       if(($rButton=='CHECKED' && $solved != "Unsolved") ||
-	  ($rButton=='UNCHECKED' && $solved != "Solved")) {
-	 echo "<tr><td><INPUT TYPE=checkbox NAME=$tID $rButton onclick=\"UpdateRecord('RecordUpdate.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&a=$adminName&t=$tID&u=$userName')\"></td><td>$myCom</td><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td>$command[0]</td><td><a href=\"javascript:;\" onclick=\"copyRecord('\Save.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&a=$adminName&u=$userName&p=$userProblem&s=$userSection&t=$tID');\">View-Solution</a></td></tr>\n";
-       }
-      }
-  }
- while ($myrow = mysql_fetch_array($result));
- echo "</table>";
- }
-mysql_close();
 ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+  <LINK REL=StyleSheet HREF="log.css" TYPE="text/css">
 
-<script type="text/javascript">
+  <script type="text/javascript">
 
-function createXMLHttp(){
+  function createXMLHttp(){
   if(typeof XMLHttpRequest != "undefined"){
     return new XMLHttpRequest();
   } else {
@@ -136,4 +79,72 @@ function UpdateRecord($url){
   }
   oXmlHttp.send(null);
 }
-</script>
+  </script>
+</head>
+<body>
+
+<?
+echo "<h2>Comments given by the Andes Users, sorted in $order order of $orderBy, are as follows:</h2><BR>";
+if($order=='Descending')
+  $order = "DESC";
+ else
+   $order = "";
+if($filter=='All'){
+$sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.clientID = P2.clientID AND P2.initiatingParty = 'client' AND P2.command LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
+ }
+ else if($filter=='Student'){
+$sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.extra<=0 AND P1.clientID = P2.clientID AND P2.initiatingParty = 'client' AND P2.command LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
+}
+ else{
+$sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.extra>0 AND P1.clientID = P2.clientID AND P2.initiatingParty = 'client' AND P2.command LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
+ }
+
+$result = mysql_query($sql);
+if ($myrow = mysql_fetch_array($result)) {
+  echo "<table border=1>";
+  echo "<tr><th>Solved</th><th>My Comment</th><th>User Name</th><th>Problem</th><th>Section</th><th>Starting Time</th><th>Comment</th><th>Additional</th></tr>\n";
+do
+  {
+    $tID=$myrow["tID"];
+    $tempSql = "SELECT * FROM PROBLEM_ATTEMPT_TRANSACTION WHERE tID = ($tID+1) and command LIKE '%your comment has been recorded%'";
+    $tempResult = mysql_query($tempSql);    
+    if(mysql_fetch_array($tempResult))
+      {
+       $tempResult = NULL;
+       $tempSql = NULL;
+       $userName=$myrow["userName"];
+       $userProblem=$myrow["userProblem"];
+       $userSection=$myrow["userSection"];
+       $startTime=$myrow["startTime"];
+       $tempCommand1=$myrow["command"];
+       $tempCommand2 =explode("get-help\",\"text\":\"",$tempCommand1);
+       $command=explode("\"}",$tempCommand2[1]);
+
+       $rButton="UNCHECKED";
+       $extraQuery="SELECT MAX(radioID),myComment FROM REVIEWED_PROBLEMS WHERE adminName = '$adminName' AND tID = $tID";
+       $extraRes=mysql_query($extraQuery);
+       if ($myExtrarow = mysql_fetch_array($extraRes)) {
+	 $extraField = $myExtrarow["MAX(radioID)"];
+         if($extraField == 1)
+	 $rButton="CHECKED";         
+	 $myCom=$myExtrarow["myComment"];
+	 if($myCom == null)
+	   $myCom="NA";
+       }
+       
+       // Only print out out rows that have right solved status.
+       // It may be more efficient to do this filtering at the database
+       // query level.
+       if(($rButton=='CHECKED' && $solved != "Unsolved") ||
+	  ($rButton=='UNCHECKED' && $solved != "Solved")) {
+	 echo "<tr><td><INPUT TYPE=checkbox NAME=$tID $rButton onclick=\"UpdateRecord('RecordUpdate.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&a=$adminName&t=$tID&u=$userName')\"></td><td>$myCom</td><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td>$command[0]</td><td><a href=\"javascript:;\" onclick=\"copyRecord('\Save.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&a=$adminName&u=$userName&p=$userProblem&s=$userSection&t=$tID');\">View-Solution</a></td></tr>\n";
+       }
+      }
+  }
+ while ($myrow = mysql_fetch_array($result));
+ echo "</table>";
+ }
+mysql_close();
+?>
+</body>
+</html>
