@@ -127,7 +127,7 @@ while ($myrow = mysql_fetch_array($result)) {
     // forward slashes are escaped in json, which looks funny
     $bb=str_replace("\\/","/",$bb);
     $bb=substr($bb,0,200);
-    array_push($yy,"<td colspan=\"2\">$bb ...</td>");
+    array_push($yy,"<td colspan=\"2\">$bb &#8230;</td>");
   }
   $nr=count($yy);
 
