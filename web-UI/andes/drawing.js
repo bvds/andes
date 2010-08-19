@@ -90,6 +90,11 @@ dojo.provide("andes.drawing");
 			//		is clicked, and allow editing
 			//console.log("-------->Andes Double click connected", masterMap[obj.id].statement, masterMap[obj.id].statement.edit);
 			var s = masterMap[obj.id].statement;
+			if(s.getText()==""){
+				// First populate the textBox
+				s.select();
+				s.deselect();
+			};
 			s.editMode = true;
 			s.edit();
 			
