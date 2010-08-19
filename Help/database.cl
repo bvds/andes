@@ -170,18 +170,37 @@ list of characters and replacement strings."
 (defun get-matching-sessions (methods &key student problem section extra)
   "Get posts associated with the given methods from all matching previous sessions."
   
-  (unless (> (length extra) 0) ;treat empty string at null.
+  (unless (> (length extra) 0) ;treat empty string as null.
     (setf extra nil)) ;drop from query if missing.
   
   (with-db
     (let ((result (query *connection*
-		   (format nil "SELECT command FROM PROBLEM_ATTEMPT,PROBLEM_ATTEMPT_TRANSACTION WHERE userName='~A' AND userProblem='~A' AND userSection='~A'~@[ AND extra=~A~] AND PROBLEM_ATTEMPT.clientID=PROBLEM_ATTEMPT_TRANSACTION.clientID AND PROBLEM_ATTEMPT_TRANSACTION.initiatingParty='client'" 
+		   (format nil "SELECT initiatingParty,command FROM PROBLEM_ATTEMPT,PROBLEM_ATTEMPT_TRANSACTION WHERE userName='~A' AND userProblem='~A' AND userSection='~A'~@[ AND extra=~A~] AND PROBLEM_ATTEMPT.clientID=PROBLEM_ATTEMPT_TRANSACTION.clientID" 
 			   student problem section extra) 
 		   ;:flatp t
 		   ))
+	  filtered
 	  ;; By default, cl-json turns camelcase into dashes:  
 	  ;; Instead, we are case insensitive, preserving dashes.
 	  (*json-identifier-name-to-lisp* #'string-upcase))
+
+      ;; Filter out turns where the reply contains a timeout error.
+      ;; Unless the bug causing the timeout has been fixed, these errors
+      ;; prevent a student from reopening a problem.
+      (let ((last (car result)))
+	(dolist (x (cdr result))
+	  ;; find client turn such that any following server
+	  ;; turn does not have a timeout error.
+	  (when (equal (car last) "client")
+	    (unless (and (equal (car x) "server")
+			 (second x)
+			 (server-reply-has-timeout
+			  ;; Actually, we only need to decode the 
+			  ;; top-level list
+			  (decode-json-from-string (second x))))
+	      (push (second last) filtered)))
+	  (setf last x)))
+      (setf filtered (reverse filtered))
 
       ;; pick out the solution-set and get-help methods
       (remove-if #'(lambda (x) (not (member (cdr (assoc :method x))
@@ -191,11 +210,18 @@ list of characters and replacement strings."
 		 (mapcar 
 		  ;; A post with no json sent gets translated into nil;
 		  ;; see write-transaction.
-		  #'(lambda (x) (and (car x) (decode-json-from-string (car x))))
-		  result)))))
+		  #'(lambda (x) (and x (decode-json-from-string x)))
+		  filtered)))))
+
+(defun server-reply-has-timeout (reply)
+  "Test whether a server reply includes a timeout error."
+  (some #'(lambda (x) (and (string-equal (cdr (assoc :action x)) "log")
+			   (string-equal (cdr (assoc :error-type x))
+					 "timeout")))
+	(cdr (assoc :result reply))))
 
 (defun first-session-p (&key student section extra)
-  "Determine student has solved a problem previously."
+  "Determine student has solved any problem previously."
   (unless (or *skip-db* (> (length extra) 0)) ;can be empty string
     (with-db
       (> 2 (parse-integer 

@@ -155,20 +155,6 @@
    "case independent comparison of symbol names"
    (string-equal (string sym1) (string sym2)))
 
-;; Dispatch function takes an atom coding a vector attribute and a vector-term
-;; Builds and returns a term for that attribute of the vector.
-;; Uses function vector-compo defined in kb/Physics-Funcs.cl
-;; prop-id = 'mag 'dir 'xc 'yc 'zc 
-;;            NIL or anything else gets vector term unchanged
-(defun vec-prop (prop-id vector-term)
- (case prop-id
-   (mag  `(mag ,vector-term))
-   (dir  `(dir ,vector-term))
-   (xc (vector-compo vector-term '(axis x 0)))
-   (yc (vector-compo vector-term '(axis y 0)))
-   (zc (vector-compo vector-term '(axis z 0)))
-   (otherwise vector-term)))
-
 
 (defun ndiffs (set1 set2)
   (length (set-difference set1 set2)))
