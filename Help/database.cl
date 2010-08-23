@@ -196,8 +196,12 @@ list of characters and replacement strings."
 			 (second x)
 			 (server-reply-has-timeout
 			  ;; Actually, we only need to decode the 
-			  ;; top-level list
-			  (decode-json-from-string (second x))))
+			  ;; top-level list.
+			  ;; Sometimes result gets truncated on very long
+			  ;; backtraces.  It might be better to just search 
+			  ;; the string for the timeout message?
+			  (ignore-errors 
+			    (decode-json-from-string (second x)))))
 	      (push (second last) filtered)))
 	  (setf last x)))
       (setf filtered (reverse filtered))
