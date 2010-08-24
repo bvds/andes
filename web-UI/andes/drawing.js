@@ -61,15 +61,21 @@ dojo.provide("andes.drawing");
 	};
 
 	var items = {};
+	var masterMap = {};
 	
 	dojo.addOnLoad(function(){
 		_drawing = dijit.byId(drawingId);
 		var cn = dojo.connect(_drawing, "onSurfaceReady", function(){
 			dojo.disconnect(cn);
 			andes.drawing.onSurfaceReady();
+			if(_drawing.stencils){
+				console.warn("Label double click connected");
+				dojo.connect(_drawing.stencils, "onLabelDoubleClick", andes.drawing, "onLabelDoubleClick");
+			}
 		});
 		dojo.connect(_drawing, "onRenderStencil", andes.drawing, "onRenderStencil");
 		
+		//(andes.drawing, "onLabelDoubleClick");
 	});
 
 	
@@ -78,6 +84,22 @@ dojo.provide("andes.drawing");
 		//	The master object that controls behavior of Drawing items
 		//	and handles transfer of data between server and client
 		//
+		onLabelDoubleClick: function(obj){
+			// summary:
+			//		Use the map to find the statement when the label
+			//		is clicked, and allow editing
+			//console.log("-------->Andes Double click connected", masterMap[obj.id].statement, masterMap[obj.id].statement.edit);
+			var s = masterMap[obj.id].statement;
+			if(s.getText()==""){
+				// First populate the textBox
+				s.select();
+				s.deselect();
+			};
+			s.editMode = true;
+			s.edit();
+			
+		},
+		
 		onRenderStencil: function(item){
 			// summary:
 			//	Called on drag-create. This method should call add()
@@ -183,6 +205,10 @@ dojo.provide("andes.drawing");
 				item.id = item.type + i++;
 			}
 			items[item.id] = item;
+			
+			if(item.master){
+				masterMap[item.master.id]=item;
+			};
 			
 			if(noConnect){
 				return;
