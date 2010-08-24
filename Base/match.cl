@@ -496,10 +496,10 @@
 
 (defparameter *debug-print* nil)  ;; debug print in best-model-matches
 
-(defun best-model-matches (student models &key (cutoff 0.5) (equiv 1.25) 
+(defun best-model-matches (student models &key (cutoff 5) (equiv 1.25) 
 			   (epsilon 0.25))
   "Returns alist of best matches to text using match-model."
-  ;; cutoff is ratio of maximum allowed score to number of student words.
+  ;; cutoff is the maximum allowed score.
   ;; equiv maximum fraction of the best score such that a fit
   ;;    is considered equivalent to the best fit.
 
@@ -509,11 +509,11 @@
   ;; we need to adjust the bound so any other perfect matches 
   ;; may also be found.
 
-  (unless (<= cutoff 1.0)
-    (warn "best-model-matches:  cutoff=~A  must be <= 1" cutoff))
+  (unless (> cutoff 0)
+    (warn "best-model-matches:  cutoff=~A  must be >0" cutoff))
   (unless (and (numberp equiv) (> equiv 1.0))
     (warn "best-model-matches:  equiv=~A  must be larger than 1" equiv))
-  (let (this (best (/ (* cutoff (length student)) equiv)) quants bound)
+  (let (this (best (/ cutoff equiv)) quants bound)
     ;; Do easier ones first, to establish better bound.
     ;; We have  have to do each time, since results of any eval or var 
     ;; is needed for sort.
