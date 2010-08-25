@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Matching model sentences</title>
+  <style type="text/css">
+    
+  </style>
+
+<!-- The formulas here are a bit too long to do
+     with brute-force html.  Probably should use jsmath.
+-->
+
+</head>
+<body>
+This describes limits on matching a student phrase due
+to counting words.
+
+<h2>For <code>match-model-list</code></h2>
+
+The function <code>match-model-list</code> uses basically the
+Levenstein minimum edit distance algorithm to calculate the best match.&nbsp;
+
+<b>d</b> is the matrix of partial sums, where d_x,y is the
+smallest score after using x terms in the model list
+and using the first y student words  s_0&#8230; s_y-1.
+<table  border="1" cellspacing="0" cellpadding="4">
+  <tr><th></th><th colspan="5"> x</th></tr>
+ <tr><th rowspan="5">y, z</th><td>.</td><td>&#8230;</td><td>.</td><td>.</td><td>&#8230;</td></tr>
+  <tr><td>d_0,z=z</td><td>&#8230;</td><td>d_x,z</td><td>.</td><td>&#8230;</td></tr>
+  <tr><td>.</td><td>&#8230;</td><td>.</td><td>.</td><td>&#8230;</td></tr>
+  <tr><td>.</td><td>&#8230;</td><td>.</td><td>d_x+1,y</td><td>&#8230;</td></tr>
+  <tr><td>.</td><td>&#8230;</td><td>.</td><td>.</td><td>&#8230;</td></tr>
+</table>
+The next term <td>d_x+1,y is calculated by matching the x<sup>th</sup>
+member of the model list to student words s_z&#8230;
+  s_y-1, adding the previous best score
+  d_x,z, and minimizing over z.
+
+<p>A model can have a range of lengths (number of words).&nbsp; Let l_p and u_p be the
+  lower and upper word counts for the first x members of the
+  model list.&nbsp;  Let l_x and u_x be the lower and upper word counts
+  for the x+1<sup>th</sup> member of the list.&nbsp;
+  Let l_r and u_r be the lower and upper word counts
+  for the remaining members of the list.&nbsp;  We know that the score
+  for each of these obeys the nine inequalities:
+  <table  border="0" cellspacing="0" cellpadding="4">
+    <tr><td>S_p &ge; z-u_p</td> <td>S_x &ge; (y-z)-u_x</td> <td>S_r &ge; (N-y)-u_r</td>  </tr>
+   <tr><td>S_p &ge; 0</td> <td>S_x &ge; 0</td> <td>S_r &ge; 0</td> </tr>
+  <tr><td>S_p &ge; l_p-z</td> <td>S_x &ge; l_x-(y-z)</td> <td>S_r &ge; l_r-(N-y)</td> </tr>
+</table>
+where N is the total number of student words.&nbsp;
+These scores must be less than the given bound B:
+  <table border="0" cellspacing="0" cellpadding="4">
+    <tr><td>B &gt; S_p + S_x + S_r</td></tr>
+  </table>
+Combining this with the nine inequalities gives us 27 different
+  bounds on x and y.&nbsp;  Three are
+  tested by <code>match-model</code>
+<ul>
+  <li>B &gt; -u_p-u_x-u_r+N</li>
+  <li>B &gt; 0</li>
+  <li>B &gt; l_p+l_x+l_r-N</li>
+</ul>
+  The most interesting set of bounds are the ones associated with assuming that
+  the lower word counts (l_p, l_x, l_r) are very small, which is
+  generally true for Andes quantities.&nbsp;  In that
+  case, we have six bounds:
+<ul>
+  <li> B &gt; -u_p+z
+  <li> B &gt; -u_x+y-z
+  <li> B &gt; -u_r+N-y
+  <li> B &gt; -u_p-u_x+y
+  <li> B &gt; -u_p-u_r+N-(y-z)
+  <li> B &gt; -u_x-u_r+N-z
+</ul>
+  
+
+ <p> If we assume that the lower word counts are very close to the upper
+  word counts, then we get the six bounds:
+<ul>
+  <li>B &gt; l_p+l_x-u_r+N-2y</li>
+  <li>B &gt; l_p-u_x+l_r-N+2(y-z)</li>
+  <li>B &gt; l_p-u_x-u_r+N-2z</li>
+  <li>B &gt; -u_p+l_x+l_r-N+2z</li>
+  <li>B &gt; -u_p+l_x-u_r+N-2(y-z)</li>
+  <li>B &gt; -u_p-u_x+l_r-N+2y</li>
+</ul>
+
+<h2>For <code>match-model-and</code></h2>
+
+For <code>match-model-and</code>, the bounds are similar,
+except that there is no distinction between previous and
+remaining model words, because the order is not known.
+Thus we have six inequalities:
+  <table  border="0" cellspacing="0" cellpadding="4">
+    <tr><td>S_x &ge; (y-z)-u_x</td> <td>S_r &ge; -u_r+N-(y-z)</td>  </tr>
+    <tr><td>S_x &ge; 0</td> <td>S_r &ge; 0</td> </tr>
+    <tr><td>S_x &ge; l_x-(y-z)</td> <td>S_r &ge; l_r-N+y-z</td>  </tr>
+</table>
+Using B &gt; S_x + S_r, we get 9 inequalities.
+Three are tested by <code>match-model</code> and the other six are:
+<ul>
+  <li>B &gt; -u_r+N-(y-z)</li>
+  <li>B &gt; -u_x+(y-z)</li>
+  <li>B &gt;  l_x-(y-z)</li>
+  <li>B &gt;  l_r-N+(y-z)</li>
+  <li>B &gt;  l_x-u_r+N-2(y-z)</li>
+  <li>B &gt; -u_x+l_r-N+2(y-z)</li>
+</ul>
+
+</body> </html>
