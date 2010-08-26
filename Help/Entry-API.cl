@@ -177,25 +177,32 @@
 ;;  Should have something to handle extra stuff like setting
 ;;     given values in definition.  (either handle it or warning/error).
 
-(defun match-student-phrase (entry sysentries &key cutoff equiv)
+(defun match-student-phrase (entry sysentries &key 
+			     (cutoff-fraction 0.4)
+			     (cutoff-count 4)
+			     (equiv 1.25))
   "Match student phrase to Ontology, returning best match, tutor turn (if there is an error) and any unsolicited hints."
-  (let* ((student (pull-out-quantity (StudentEntry-symbol entry) 
-				     (StudentEntry-text entry)))
+  ;; :cutoff-fraction is fractional length of student phrase to use as bound.
+  ;; :cutoff-count is maximum allowed score to use as bound.
+  (let* ((student-string (pull-out-quantity (StudentEntry-symbol entry) 
+					    (StudentEntry-text entry)))
+	 (student (match:word-parse student-string))
 	 ;; For any debugging prints in matching package.
 	 (*standard-output* webserver:*stdout*)
 	 (best 
 	  (match:best-model-matches 
-	   (match:word-parse student)
+	   student
 	   (mapcar #'(lambda (x) 
 		       (cons (expand-vars (SystemEntry-model x)) x))
 		   sysentries)
-	   :cutoff cutoff :equiv equiv))
+	   :cutoff (min (* cutoff-fraction (length student)) cutoff-count)
+	   :equiv equiv))
 	 hints)
     
     ;; Debug printout:
     (when nil
       (format webserver:*stdout* "Best match to ~s is~%   ~S~% from ~S~%" 
-	      student
+	      student-string
 	      (mapcar 
 	       #'(lambda (x) (cons (car x) 
 				   (expand-vars (SystemEntry-model (cdr x)))))
@@ -446,8 +453,7 @@
 	(match-student-phrase 
 	 entry
 	 (remove '(body . ?rest) *sg-entries* 
-		 :key #'SystemEntry-prop :test-not #'unify)
-	 :cutoff 0.6 :equiv 1.25)
+		 :key #'SystemEntry-prop :test-not #'unify))
 
       (cond 
 	(sysent
@@ -519,8 +525,7 @@
 	(match-student-phrase 
 	 entry
 	 (remove '(vector . ?rest) *sg-entries* 
-		 :key #'SystemEntry-prop :test-not #'unify)
-	 :cutoff 0.6 :equiv 1.25)
+		 :key #'SystemEntry-prop :test-not #'unify))
       
       (cond
 	(sysent    
@@ -645,8 +650,7 @@
 	(match-student-phrase 
 	 entry
 	 (remove '(draw-line . ?rest) *sg-entries* 
-		 :key #'SystemEntry-prop :test-not #'unify)
-	 :cutoff 0.6 :equiv 1.25)
+		 :key #'SystemEntry-prop :test-not #'unify))
 
       (cond 
 	(sysent
@@ -718,10 +722,7 @@
 	(match-student-phrase 
 	 entry
 	 (remove '(define-var . ?rest) *sg-entries* 
-		 :key #'SystemEntry-prop :test-not #'unify)
-	 ;;  Set cutoff on minimum acceptable
-	 :cutoff 0.5 :equiv 1.25)
-      
+		 :key #'SystemEntry-prop :test-not #'unify))      
       
       (cond 
 	(sysent
