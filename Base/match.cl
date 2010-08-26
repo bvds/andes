@@ -562,8 +562,8 @@
   ;; we need to adjust the bound so any other perfect matches 
   ;; may also be found.
 
-  (unless (> cutoff 0)
-    (warn "best-model-matches:  cutoff=~A  must be >0" cutoff))
+  (unless (>= cutoff 0)
+    (warn "best-model-matches:  cutoff=~A  must be nonnegative." cutoff))
   (unless (and (numberp equiv) (> equiv 1.0))
     (warn "best-model-matches:  equiv=~A  must be larger than 1" equiv))
   (let (this (best (/ cutoff equiv)) quants bound)

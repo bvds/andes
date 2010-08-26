@@ -25,7 +25,7 @@
   (:export :defun-method :start-json-rpc-service :stop-json-rpc-service 
 	   :*stdout* :print-sessions :*env* :close-idle-sessions :*debug*
 	   :*turn-timeout*
-	   :*debug-alloc* :get-session-env :*log-id*))
+	   :*profile* :get-session-env :*log-id*))
 
 (in-package :webserver)
 
@@ -39,7 +39,7 @@
 (defvar *service-methods* (make-hash-table :test #'equal))
 
 (defparameter *debug* t "Special error conditions for debugging")
-(defparameter *debug-alloc* nil "Turn on memory profiling.")
+(defparameter *profile* nil "Turn profiling, with report sent to *stdout*.")
 #+sbcl (eval-when (:load-toplevel :compile-toplevel)
 	 (require :sb-sprof))
 (defparameter *print-lock*  #+sbcl (sb-thread:make-mutex)
@@ -132,9 +132,9 @@
     (when *debug* (with-a-lock (*print-lock* :wait-p t) 
 		    (format *stdout* "session ~A calling ~A with~%     ~S~%" 
 			    client-id method params)))
-    #+sbcl (when *debug-alloc* 
-	     (sb-sprof:start-profiling 
-	      :mode :alloc :threads (list sb-thread:*current-thread*)))
+    #+sbcl (when *profile* (sb-sprof:start-profiling
+			    :mode :time ;; needed in OS X
+			    :threads (list sb-thread:*current-thread*)))
     
     (multiple-value-bind (result error1)
 	(cond
@@ -171,8 +171,10 @@
 	  ;; need error handler for the case where the arguments don't 
 	  ;; match the function...
 	  (t (execute-session client-id turn method-func params)))
-      
-      #+sbcl (when *debug-alloc* (sb-sprof:stop-profiling))
+
+      ;; This gives a report based only on the most recent turn.
+      #+sbcl (when *profile* (sb-sprof:report :stream *stdout*))
+
       (when *debug* (with-a-lock (*print-lock* :wait-p t) 
 		      (format *stdout* 
 			      "session ~a result~%     ~S~%~@[     error ~S~%~]" 
