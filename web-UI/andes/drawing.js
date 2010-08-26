@@ -228,6 +228,8 @@ dojo.provide("andes.drawing");
 				var data = andes.convert.drawingToAndes(item, "modify-object")
 				console.info("Save to server", data);
 				this.save(data);
+				//console.log("------------------setting style: ",item);
+				item.attr(andes.defaults["unknown"]);
 			});
 			
 			if(saveToServer){

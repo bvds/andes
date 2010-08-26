@@ -1,7 +1,6 @@
 dojo.provide("andes.principles");
 dojo.require("dijit.Tree");
 dojo.require("dojo.data.ItemFileReadStore");
-dojo.require("dojo.data.ItemFileReadStore");
 
 // Modify tree so that HTML is rendered in node labels
 // See Bug #1603
