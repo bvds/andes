@@ -139,7 +139,8 @@
 	  ;; slot mapping for Algebra/solver.cl
 	  *id-solver-slot-map* *solver-free-slots*
 	  ;; Session-specific variables in Help/Interface.cl
-	  **current-cmd-stack** **current-cmd** *last-tutor-turn* *last-score*
+	  **current-cmd-stack** **current-cmd** *last-turn-response* 
+	  *last-score*
           ;; Variables set in Config.cl, which is loaded for each session.
 	  **Testing-Pause-Time-Threshold** **Filter-Constraint-losses**
           *followup-problems*

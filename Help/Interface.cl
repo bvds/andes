@@ -62,10 +62,9 @@
 ;;; facilitate direct access.
 (defparameter **current-cmd** Nil "The current Cmd.")
 
-;;; *last-tutor-turn* -- record of the last tutor turn made
-;;; This is used in handle-student-response to deal with the student's 
-;;; continuation of ongoing diologues.  It is set by return-turn below.
-(defvar *last-tutor-turn*)
+;;; Most recent turn responder, allowing students to continue 
+;;; ongoing dialogs by clicking on links or entering text.
+(defvar *last-turn-response* nil "Most recent turn responder function.")
 
 ;;; *last-score* -- last integer score we sent to workbench
 ;;; used to detect when score has not changed so no need to send
@@ -281,7 +280,7 @@
 
 
 ;; ---------------------------------------------------------------------
-;; This code handles the task of maintaining the *last-tutor-turn*
+;; This code handles the task of maintaining the *last-turn-response*
 ;; struct as well as other efforts.  
 ;;
 ;; return-turn -- wrapper for returning turn to workbench
@@ -293,8 +292,9 @@
   ;; results in a null turn, so this will leave the next-step-help reply 
   ;; turn with its responder in place to handle the student's response 
   ;; which comes later.
-  (when (and turn (not (equalp (turn-type Turn) +no-op-turn+)))
-    (setf *last-tutor-turn* turn))
+  (when (and turn (turn-responder turn)
+	     (not (equalp (turn-type Turn) +no-op-turn+)))
+    (setf *last-turn-response* (turn-responder turn)))
 
   ;; if there is assoc info in the turn, add to reply
   ;; :assoc has the format of an alist.

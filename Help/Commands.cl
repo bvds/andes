@@ -283,22 +283,31 @@
 ;; protocol with the workbench so that it identifies the response chosen by 
 ;; the student for the purposes of the responder functions.
 (defun handle-student-response (response-code)
-  (cond ((and (atom response-code) (sym-match response-code 'cancel))
-	 ;; student cancelled out of dialog sequence (must be next-step-help).
-	 ;; give null response, but *don't* don't clobber saved turn with
-	 ;; return-turn. subsequent next-step help resumes dialog (not done yet).
-	 (make-noop-turn))
-
-	;; else If we have a previous tutor turn, and a responder function
-	((and *last-tutor-turn* (turn-responder *last-tutor-turn*))
-	 ;; dispatch the response to the responder function, logging it 
-	 ;; if necessary in the acts, and then return the turn setting the
-	 ;; *last-tutor-turn value in the process.
-	 (apply (turn-responder *last-tutor-turn*) 
-		  (list response-code)))
-
-	;; else no responder!
-	(T (make-end-dialog-turn "Your comment has been recorded."
-				 :Assoc '((handle-text . comment))))) )
-
+  ;; Response code is either a symbol or a string.
+  ;; A symbol indicates a link has been clicked while a 
+  ;; string indicates text that has been entered.
+  (cond 
+    ;; We have a responder function from a previous tutor turn.
+    (*last-turn-response*
+     ;; dispatch the response to the responder function.  
+     ;; Since handle-student-response is wrapped by return-turn, the 
+     ;; result will be logged, and *last-turn-response* will be updated.
+     (prog1 (apply *last-turn-response*
+		   (list response-code))
+       ;; Retire this response.
+       ;; This prevents the student from getting the same hint repeatedly
+       ;; by clicking on "explain-more."
+       ;; If there are multiple-choice responses, it may no longer
+       ;; make sense to retire old ones.
+       (setf *last-turn-response* nil)))
     
+    ;; Student types text, but there is no responder
+    ;; from last term.
+    ((stringp response-code)
+     (make-end-dialog-turn "Your comment has been recorded."
+			   :Assoc '((handle-text . comment))))
+    
+    ;; link clicked, but responder gone!
+    (T (make-end-dialog-turn 
+	"Sorry, but you have already seen this hint.&nbsp; You can hit the help button for more help."
+	:Assoc '((handle-link . stale))))))
