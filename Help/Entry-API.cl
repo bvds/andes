@@ -226,13 +226,8 @@
     (cond
       ((null sysentries)
        (values nil (nothing-to-match-ErrorInterp entry)))
-      ((> (length best) 4)
-       ;; error handler for too many matches
-       ;; "your definition is ambiguous" and hint sequence
-       (values nil (too-many-matches-ErrorInterp entry)))
       ((null best)
-       ;; No match  
-       ;; "I cannot understand your definition" and hint sequence. 
+       ;; "Can't understand your definition," and switch to NSH
        (values nil (no-matches-ErrorInterp entry)))
       ((= (length best) 1)
        (let ((sysent (cdr (car best))))
@@ -308,21 +303,26 @@
 			      :remediation rem))))
   (make-red-turn :id (StudentEntry-id Entry)))
 
-(defun too-many-matches-ErrorInterp (entry &optional matches)
-  (let 
-      ((rem (make-hint-seq 
-	     (list 
-	      (format nil "Your definition ~:[~;of <var>~A</var> ~]is ambiguous." 
-		      (> (length (StudentEntry-symbol entry)) 0)
-		      (StudentEntry-symbol entry))
-	      (if matches
-		  (format nil "Did you mean?~%<ul>~%~{  <li>~A</li>~%~}</ul>"
-			  (mapcar #'(lambda (x) 
-				      (match:word-string 
-				       (expand-vars 
-					(SystemEntry-model x))))
-				  matches))
-		  "Try to be more specific in your definition.")))))
+(defun too-many-matches-ErrorInterp (entry matches)
+  (let* ((ambiguous (format nil "Your definition ~:[~1*~;of <var>~A</var> ~]is ambiguous." 
+			   (> (length (StudentEntry-symbol entry)) 0)
+			   (StudentEntry-symbol entry)))
+	 (rem (make-hint-seq
+	       (if (< (length matches) 5)
+		   (list 
+		    ambiguous
+		    (format nil "Did you mean?~%<ul>~%~{  <li>~A</li>~%~}</ul>"
+			    (mapcar #'(lambda (x) 
+					(match:word-string 
+					 (expand-vars 
+					  (SystemEntry-model x))))
+				    matches)))
+		   (list
+		    (strcat ambiguous "&nbsp; Would you like help choosing what to do next?"
+			    ) 
+			   ;; Should use matches to inform starting point
+			   ;; for NSH.
+		    '(function next-step-help))))))
     (setf (turn-id rem) (StudentEntry-id entry))
     (setf (turn-coloring rem) +color-red+)
     ;; set state of entry and attach error. But only do if not done already, 
@@ -340,7 +340,7 @@
 			       *delete-object* " and use "
 			       *equation-tool* " instead.")))
 	 (rem (make-hint-seq 
-	      (list (format nil "I cannot understand your definition~:[~1*~; of <var>~A</var>~].~@[&nbsp ~A~]" 
+	      (list (format nil "Sorry, I don't understand your ~:[~1*entry~;definition of <var>~A</var>~].~@[&nbsp; ~A~]&nbsp; Would you like help choosing what to do next?" 
 			    (> (length (StudentEntry-symbol entry)) 0)
 			    (StudentEntry-symbol entry) equal-sign)
 		    '(function next-step-help)))))
