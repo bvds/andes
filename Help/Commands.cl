@@ -309,5 +309,6 @@
     
     ;; link clicked, but responder gone!
     (T (make-end-dialog-turn 
-	"Sorry, but you have already seen this hint.&nbsp; You can hit the help button for more help."
+	(strcat "Sorry, but you have already seen this hint.&nbsp; You can " 
+		*help-button-action* " for more help.")
 	:Assoc '((handle-link . stale))))))
