@@ -4112,18 +4112,31 @@
   :order ((correct . 2) (unknown-vector . 3))
   )
 
+
+
+(defun solver-has-vector-direction (quant)
+  "Determine if quantity direction has been determined by the solver."
+  (let ((at (match-exp->qvar `(dir ,quant) (problem-varindex *cp*))))
+    (and at (qvar-value at))))
+
+
 ;; Then, make sure it doesn't align with any
 ;; known vector directions.
 
-(def-entry-test align-unknown-vector-with-vector (?quant ?dir1) 
+(def-entry-test align-unknown-vector-with-vector (?other-quant ?dir1) 
   :preconditions ((student (vector ?quant ?dir1))
 		  (correct (vector ?quant unknown))
-		  (correct (vector ?any-quant ?dir2))
+		  ;; See if the direction can eventually be calculated.
+		  ;; If not, there is no reason to complain if the
+		  ;; student aligns it with another vector.
+		  (test (solver-has-vector-direction ?quant))
+		  (correct (vector ?other-quant ?dir2))
 		  (test (parallel-or-antiparallelp ?dir1 ?dir2))
 		  )
   :state +incorrect+
   :hint (list
-	 (format nil "Drawing the vector in the direction ~A suggests that it is aligned with ~A." (nlg ?dir1 'adj) (nlg ?quant))
+	 (format nil "Drawing the vector in the direction ~A suggests that it is aligned with ~A." 
+		 (nlg ?dir1 'adj) (nlg ?other-quant))
 	 "However, the direction of this vector is not given.&nbsp;  Please choose another direction.")
   :order ((correct . 2) (unknown-vector . 2))
   )
@@ -4132,6 +4145,10 @@
 (def-entry-test align-unknown-vector-with-axes (?quant ?dir1) 
   :preconditions ((student (vector ?quant ?dir1))
 		  (correct (vector ?quant unknown))
+		  ;; See if the direction can eventually be calculated.
+		  ;; If not, there is no reason to complain if the
+		  ;; student aligns it with the axes.
+		  (test (solver-has-vector-direction ?quant))
 		  (old-student (draw-axes ?dir2))
 		  (test (and (degrees-or-num ?dir1)
 			     (degrees-or-num ?dir2)
