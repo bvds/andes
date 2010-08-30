@@ -288,12 +288,9 @@
 	 (u-model (mapcar 
 			     #'(lambda (x) (word-count x :max t)) model))
 	 (l-model (mapcar #'word-count model))
-	 (u-net (apply #'+ u-model))
-	 (l-net (apply #'+ l-model))
 	 (up 0)
-	 (lp 0)
-	 (ur u-net)
-	 (lr l-net))
+	 (ur (apply #'+ u-model))
+	 (lr (apply #'+ l-model)))
 
     (dotimes (y width)
       (setf (aref d 0 y) y)) ;student is one word per slot
@@ -312,12 +309,12 @@
 	(decf ur ux)
 	(decf lr lx)
 
-	(let ((uy (* 0.5 (+ best up ux (- lr) (length student))))
-	      (ly (* 0.5 (+ (- best) lp lx (- ur) (length student))))
-	      (uz (* 0.5 (+ best up (- lx) (- lr) (length student))))
-	      (lz (* 0.5 (+ (- best) lp (- ux) (- ur) (length student))))
-	      (uyz (* 0.5 (+ best (- lp) ux (- lr) (length student))))
-	      (lyz (* 0.5 (+ (- best) (- up) lx (- ur) (length student)))))
+	(let ((uy (+ best up ux))
+	      (ly (+ (- best) (- ur) (length student)))
+	      (uz (+ best up))
+	      (lz (+ (- best) (- ux) (- ur) (length student)))
+	      (uyz (+ best ux))
+	      (lyz (+ (- best) (- up) (- ur) (length student))))
 	  
 	  (do ((y (max 0 (+ (floor ly) 1)) (+ y 1)))
 	      ((= y width) (>= y uy))
@@ -344,8 +341,7 @@
 					    (aref d x z))
 				   :u-model ux :l-model lx))))))))
 	  
-	(incf up ux)
-	(incf lp lx)))
+	(incf up ux)))
     
     ;; in case none comes out, go with best.
     (or (aref d (length model) (length student)) best)))
@@ -381,8 +377,8 @@
 
       (let* ((um (nth m u-model))
 	     (lm (nth m l-model))
-	     (uq (* 0.5 (+ best um (- l-net) lm (length student))))
-	     (lq (* 0.5 (+ (- best) lm (- u-net) um (length student)))))
+	     (uq (+ best um))
+	     (lq (+ (- best) (- u-net) um (length student))))
 	
 	;; do triangle of matrix, including diagonals, where q=y-z
 	;; q is the number of student words.
@@ -566,8 +562,8 @@
   ;; we need to adjust the bound so any other perfect matches 
   ;; may also be found.
 
-  (unless (> cutoff 0)
-    (warn "best-model-matches:  cutoff=~A  must be >0" cutoff))
+  (unless (>= cutoff 0)
+    (warn "best-model-matches:  cutoff=~A  must be nonnegative." cutoff))
   (unless (and (numberp equiv) (> equiv 1.0))
     (warn "best-model-matches:  equiv=~A  must be larger than 1" equiv))
   (let (this (best (/ cutoff equiv)) quants bound)

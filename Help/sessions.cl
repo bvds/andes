@@ -139,7 +139,8 @@
 	  ;; slot mapping for Algebra/solver.cl
 	  *id-solver-slot-map* *solver-free-slots*
 	  ;; Session-specific variables in Help/Interface.cl
-	  **current-cmd-stack** **current-cmd** *last-tutor-turn* *last-score*
+	  **current-cmd-stack** **current-cmd** *last-turn-response* 
+	  *last-score*
           ;; Variables set in Config.cl, which is loaded for each session.
 	  **Testing-Pause-Time-Threshold** **Filter-Constraint-losses**
           *followup-problems*
@@ -199,12 +200,12 @@
 
     `(progn
       ;; Null webserver:*env* indicates that the student is trying to work
-      ;; on a session that has timed out or has not been initialized:  
+      ;; on a session that has been idle or has not been initialized:  
       (if (and webserver:*env* (help-env-p webserver:*env*))
 	  (let ,(mapcar 
 		 #'(lambda (x) (list x '(pop (help-env-vals webserver:*env*))))
 		 help-env-vars)
-	    ;; If there is an error, need to save current values
+	    ;; If there is an error or timeout, need to save current values
 	    ;; back to the environment variable before passing control
 	    ;; on to error handler.
 	    (prog1 (handler-bind

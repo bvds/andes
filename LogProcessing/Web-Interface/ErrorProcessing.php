@@ -109,10 +109,10 @@ while ($myrow = mysql_fetch_array($result)) {
     // Don't know why I can't just use $command->result in the foreach
     $zz=$command->result; 
     foreach($zz as $bb) {
-      $key1="error-type";  // work-around for the dash
-      $errorType=$bb->$key1;
-      $errorMsg=$bb->error;
-      if($bb->action == "log"){
+     if($bb->action == "log" && $bb->error){
+        $key1="error-type";  // work-around for the dash
+        $errorType=$bb->$key1;
+        $errorMsg=$bb->error;
         array_push($yy,"<td>$errorType</td><td>$errorMsg</td>");
       }
     }
@@ -129,7 +129,7 @@ while ($myrow = mysql_fetch_array($result)) {
     $bb=substr($bb,0,200);
     array_push($yy,"<td colspan=\"2\">$bb &#8230;</td>");
   }
-  $nr=count($yy);
+  $nr=count($yy); // should always be nonzero
 
   //  $lastID=$tID-1;
   //  $userSql="select command from PROBLEM_ATTEMPT_TRANSACTION where tID=$lastID";
@@ -153,11 +153,7 @@ while ($myrow = mysql_fetch_array($result)) {
 
   echo "<tr class=\"$method\"><td rowspan=\"$nr\">$startTime</td>";
   echo "<td rowspan=\"$nr\">$aa</td>";
-  if(count($yy)==0){
-    echo  "<td></td><td></td>";
-  } else {
-    echo array_shift($yy);
-  }
+  echo array_shift($yy);
 
   echo "<td rowspan=\"$nr\"><a href=\"javascript:;\" onclick=\"openTrace('OpenTrace.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;u=$userName&amp;p=$userProblem&amp;s=$userSection&amp;t=$tID');\">Session&nbsp;log</a><br><a href=\"javascript:;\" onclick=\"copyRecord('\Save.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;a=$adminName&amp;a=$adminName&amp;u=$userName&amp;p=$userProblem&amp;s=$userSection&amp;t=$usertID');\">Solution</a></td></tr>\n";
 
