@@ -166,6 +166,29 @@
       (apply #'strcat x)
       ""))
 
+(defun best-value (best)
+  (apply #'min (mapcar #'car best)))
+
+(defparameter *proposition-icons*
+  `((define-var . ,*text-tool*)
+    (vector . ,*vector-tool*)
+    (body . ,*body-tool*)
+    (draw-line . ,*line-tool*)))
+
+(defun get-prop-icon (expr)
+  (or (cdr (assoc expr *proposition-icons*))
+      (warn "get-prop-icon bad proposition ~S" expr)))
+
+(defparameter *proposition-types*
+  '((define-var . "a scalar quantity")
+    (vector . "a vector quantity")
+    (body . "an object")
+    (draw-line . "a line")))
+
+(defun get-prop-type (expr)
+  (or (cdr (assoc expr *proposition-types*))
+      (warn "get-prop-type bad proposition ~S" expr)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;
 ;;;;                  Match student phrase to Ontology
@@ -177,27 +200,34 @@
 ;;  Should have something to handle extra stuff like setting
 ;;     given values in definition.  (either handle it or warning/error).
 
-(defun match-student-phrase (entry sysentries &key 
+(defun match-student-phrase (entry tool-prop &key 
 			     (cutoff-fraction 0.4)
 			     (cutoff-count 4)
 			     (equiv 1.25))
   "Match student phrase to Ontology, returning best match, tutor turn (if there is an error) and any unsolicited hints."
   ;; :cutoff-fraction is fractional length of student phrase to use as bound.
   ;; :cutoff-count is maximum allowed score to use as bound.
-  (let* ((student-string (pull-out-quantity (StudentEntry-symbol entry) 
+  (let* ((sysentries (remove (cons tool-prop '?rest) *sg-entries* 
+			     :key #'SystemEntry-prop :test-not #'unify))
+	 
+	 (student-string (pull-out-quantity (StudentEntry-symbol entry) 
 					    (StudentEntry-text entry)))
 	 (student (match:word-parse student-string))
-	 ;; For any debugging prints in matching package.
-	 (*standard-output* webserver:*stdout*)
+	 ;; used for best and maybe for wrong-tool-best
+	 (initial-cutoff (min (* cutoff-fraction (length student)) 
+			      cutoff-count))
 	 (best 
-	  (match:best-model-matches 
-	   student
-	   (mapcar #'(lambda (x) 
-		       (cons (expand-vars (SystemEntry-model x)) x))
-		   sysentries)
-	   :cutoff (min (* cutoff-fraction (length student)) cutoff-count)
-	   :equiv equiv))
-	 hints)
+	 ;; For any debugging prints in matching package.
+	  (let ((*standard-output* webserver:*stdout*))
+	    (match:best-model-matches 
+	     student
+	     (mapcar #'(lambda (x) 
+			 (cons (expand-vars (SystemEntry-model x)) x))
+		     sysentries)
+	     :cutoff initial-cutoff
+	     :equiv equiv)))
+	 hints
+	 wrong-tool-best)
     
     ;; Debug printout:
     (when nil
@@ -211,24 +241,84 @@
 			(cons (expand-vars (SystemEntry-model x)) 
 			      (systementry-prop x)))
 		    sysentries)))
+
+    ;; Attempt to detect a wrong tool error.  
+    ;; The strategy is to treat the choice of tool as being
+    ;; worth 1 word, when matching.
+    ;;
+    ;; Cases:
+    ;; wrong-tool-best same as best-1 (using equiv)
+    ;;     toss-up:  give unsolicited hint and pass through.
+    ;; wrong-tool-best less than best score minus 1 or no best.
+    ;;     this is certainly should be given wrong tool help.
+    (when (or (null best) (>= (best-value best) 1))
+      (let* ((untools `(,tool-prop eqn implicit-eqn))
+	     (sysentries (remove-if 
+			  (lambda (x) (member (car x) untools))
+			  *sg-entries* 
+			  :key #'SystemEntry-prop))
+	     ;; For any debugging prints in matching package.
+	     (*standard-output* webserver:*stdout*))
+	(setf wrong-tool-best 
+	      (match:best-model-matches 
+	       student
+	       (mapcar #'(lambda (x) 
+			   (cons (expand-vars (SystemEntry-model x)) x))
+		       sysentries)
+	       ;; If there is no match in best, then the help is
+	       ;; pretty weak.  In that case, just find anything
+	       ;; below the cutoff.
+	       :cutoff (if best (- (best-value best) 1) initial-cutoff)
+	       :equiv equiv))))
+    
+    (format webserver:*stdout* "**best=~A (~A) wrong-tool-best=~A (~A)~%" 
+	(when best (best-value best)) (length best) 
+	(when wrong-tool-best (best-value wrong-tool-best)) 
+	(length wrong-tool-best))
     
     ;; If there is no symbol defined and the fit is >= 1 (for the symbol), 
     ;; then there is a good chance that the student unsuccessfully
     ;; attempted to define a symbol.  Add unsolicited hint.
     (when (and (= (length (StudentEntry-symbol entry)) 0)
-	       best (>= (car (car best)) 1))
+	       best (>= (best-value best) 1))
       (let ((phr (strcat 
 		  "No variable has been defined.&nbsp; "
 		  "Did you want to " *define-variable* "?")))
 	(push `((:action . "show-hint")
 		(:text . ,phr)) hints)))
+
+    ;; If there is a tie between wrong-tool-best and best,
+    ;; then give a hint suggesting the tool may be wrong,
+    ;; but proceed as if the tool is correct.
+    (when (and best wrong-tool-best
+	       (>= (best-value wrong-tool-best)
+		  (max (- (best-value best) 1) 0.1)))
+      (let ((phr (strcat 
+		  "Perhaps, you meant to use " 
+		  (get-prop-icon (car (systementry-prop 
+					(car wrong-tool-best))))
+		  ", instead?")))
+	(push `((:action . "show-hint")
+		(:text . ,phr)) hints)))
       
     (cond
+      ;; If wrong-tool-best exists, then it contains scores
+      ;; that are one smaller than any scores in best.
+      ((and wrong-tool-best 
+	    ;; make sure there isn't a tie.
+	    (or (null best)
+		(< (best-value wrong-tool-best)
+		    (max (- (best-value best) 1) 0.1))))
+       (values nil (wrong-tool-ErrorInterp 
+		    entry 
+		    tool-prop
+		    (mapcar #'cdr wrong-tool-best)) hints))
+
       ((null sysentries)
-       (values nil (nothing-to-match-ErrorInterp entry)))
+       (values nil (nothing-to-match-ErrorInterp entry) hints))
       ((null best)
        ;; "Can't understand your definition," and switch to NSH
-       (values nil (no-matches-ErrorInterp entry)))
+       (values nil (no-matches-ErrorInterp entry) hints))
       ((= (length best) 1)
        (let ((sysent (cdr (car best))))
 
@@ -257,12 +347,12 @@
 	 (dolist (se (remove entry *StudentEntries*))
 	   (when (unify (SystemEntry-prop sysent) (studententry-prop se))
 	     (return-from match-student-phrase 
-	       (values nil (redundant-entry-ErrorInterp entry se sysent)))))
+	       (values nil (redundant-entry-ErrorInterp entry se sysent) hints))))
 	   
 	 ;; Return the best fit entry.
 	 (values sysent nil hints)))
        (t (values nil (too-many-matches-ErrorInterp 
-		       entry (mapcar #'cdr best)))))))
+		       entry (mapcar #'cdr best)) hints)))))
 
 ;; Debug printout:
 (defun test-student-phrase (student)
@@ -308,7 +398,7 @@
 			   (> (length (StudentEntry-symbol entry)) 0)
 			   (StudentEntry-symbol entry)))
 	 (rem (make-hint-seq
-	       (if (< (length matches) 5)
+	       (if (< (length matches) 4)
 		   (list 
 		    ambiguous
 		    (format nil "Did you mean?~%<ul>~%~{  <li>~A</li>~%~}</ul>"
@@ -333,6 +423,73 @@
 	    (make-ErrorInterp :diagnosis '(definition-has-too-many-matches)
 			      :remediation rem))))
   (make-red-turn :id (StudentEntry-id Entry)))
+
+
+(defun wrong-tool-ErrorInterp (entry tool-prop matches)
+  "Make a hint sequence for using other tool."
+  ;; Cases:
+  ;;   unique short-name match
+  ;;      "Note that [short-name match] is a [vector, scalar, body, line]."
+  ;;      "Delete your entry and use *tool* instead."
+  ;;   more than one match, one tool
+  ;;      "Are you trying to define a [vector, scalar, body, line]?"
+  ;;      "If so, delete your entry and use *tool* instead."
+  ;;   more than one match, multiple tools.
+  ;;      "I don't think you want to use *this-tool*.
+  ;;       Perhaps you should delete this entry & use another tool."
+  (let* ((tool-propositions (remove-duplicates 
+			     (mapcar #'(lambda (x) (car (systementry-prop x)))
+				     matches)))
+	 ;; there may be several matches that have the 
+	 ;; same short-name.
+	 (short-names (remove-duplicates
+		       (mapcar #'(lambda (x) (short-english-find
+					      (second (systementry-prop x))))
+			       matches)
+		       :test #'string-equal))
+	 (rem 
+	  (make-hint-seq
+	   (cond ((and (= (length short-names) 1)
+		       (= (length tool-propositions) 1))
+		  (list
+		   (strcat "Note that " (car short-names) " is "
+			   (get-prop-type (car tool-propositions))
+			   ".")
+		   (strcat "Please " *delete-object* " and use "
+			   (get-prop-icon (car tool-propositions))
+			   " for this definition.")))
+		 ((= (length tool-propositions) 1)
+		  (list 
+		   (strcat "Are you trying to define "
+			   (get-prop-type (car tool-propositions))
+			   "?")
+		   (strcat "If so, " *delete-object* " and use "
+			   (get-prop-icon (car tool-propositions))
+			   " instead.")))
+		 (t
+		  (list      
+		   (strcat "I don't think you want to use "
+			   (get-prop-icon tool-prop)
+			   " for this definition.&nbsp; "
+			   "Perhaps you should delete this entry &amp; "
+			   "use another tool."
+			   "<p>Would you like help choosing what to do next?"
+		    )	
+		   ;; Should use matches to inform starting point
+		   ;; for NSH.
+		   '(function next-step-help)))))))
+
+    (setf (turn-id rem) (StudentEntry-id entry))
+    (setf (turn-coloring rem) +color-red+)
+    ;; set state of entry and attach error. But only do if not done already, 
+    ;; so only report on the first error found.
+    (unless (studentEntry-ErrInterp entry)
+      (setf (studentEntry-state entry) 'incorrect)
+      (setf (studentEntry-ErrInterp entry)
+	    (make-ErrorInterp :diagnosis '(wrong-tool-error)
+			      :remediation rem))))
+  (make-red-turn :id (StudentEntry-id Entry)))
+
 
 (defun no-matches-ErrorInterp (entry)
   (let* ((equal-sign (when (find #\= (StudentEntry-text entry))
@@ -448,12 +605,8 @@
 (defun assert-object (entry)
   (let ((id (StudentEntry-id entry))
 	(symbol (StudentEntry-symbol entry)))
-    (multiple-value-bind
-	  (sysent tturn hints)
-	(match-student-phrase 
-	 entry
-	 (remove '(body . ?rest) *sg-entries* 
-		 :key #'SystemEntry-prop :test-not #'unify))
+    (multiple-value-bind (sysent tturn hints)
+	(match-student-phrase entry 'body)
 
       (cond 
 	(sysent
@@ -520,12 +673,8 @@
 		     (if (z-dir-spec dir-term) "\\phi" "\\theta")
 		     symbol)))
 
-    (multiple-value-bind
-	  (sysent tturn hints)
-	(match-student-phrase 
-	 entry
-	 (remove '(vector . ?rest) *sg-entries* 
-		 :key #'SystemEntry-prop :test-not #'unify))
+    (multiple-value-bind (sysent tturn hints)
+	(match-student-phrase entry 'vector)
       
       (cond
 	(sysent    
@@ -645,12 +794,8 @@
 		     (if (z-dir-spec dir-term) "\\phi" "\\theta")
 		     label)))
 
-    (multiple-value-bind
-	  (sysent tturn hints)
-	(match-student-phrase 
-	 entry
-	 (remove '(draw-line . ?rest) *sg-entries* 
-		 :key #'SystemEntry-prop :test-not #'unify))
+    (multiple-value-bind (sysent tturn hints)
+	(match-student-phrase entry 'draw-line)
 
       (cond 
 	(sysent
@@ -717,12 +862,8 @@
     
     ;; match up text with SystemEntry
     ;;
-    (multiple-value-bind
-	  (sysent tturn hints)
-	(match-student-phrase 
-	 entry
-	 (remove '(define-var . ?rest) *sg-entries* 
-		 :key #'SystemEntry-prop :test-not #'unify))      
+    (multiple-value-bind (sysent tturn hints)
+	(match-student-phrase entry 'define-var)
       
       (cond 
 	(sysent

@@ -106,7 +106,10 @@ if ($myrow = mysql_fetch_array($result)) {
 do
   {
     $tID=$myrow["tID"];
-    $tempSql = "SELECT * FROM PROBLEM_ATTEMPT_TRANSACTION WHERE tID = ($tID+1) and command LIKE '%your comment has been recorded%'";
+    // Include cases where reply is null.
+    // It is not quite Kosher to assume the next tID 
+    // is the next one in this session.  Bug #1803
+    $tempSql = "SELECT * FROM PROBLEM_ATTEMPT_TRANSACTION WHERE tID = ($tID+1) and (command LIKE '%\"HANDLE-TEXT\":\"COMMENT\"%' or command not like '%\"result\":%')";
     $tempResult = mysql_query($tempSql);    
     if(mysql_fetch_array($tempResult))
       {
