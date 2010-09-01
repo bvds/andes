@@ -271,10 +271,10 @@
 	       :cutoff (if best (- (best-value best) 1) initial-cutoff)
 	       :equiv equiv))))
     
-    (format webserver:*stdout* "**best=~A (~A) wrong-tool-best=~A (~A)~%" 
-	(when best (best-value best)) (length best) 
-	(when wrong-tool-best (best-value wrong-tool-best)) 
-	(length wrong-tool-best))
+    ;; (format webserver:*stdout* "**best=~A (~A) wrong-tool-best=~A (~A)~%" 
+    ;;	(when best (best-value best)) (length best) 
+    ;;	(when wrong-tool-best (best-value wrong-tool-best)) 
+    ;;	(length wrong-tool-best))
     
     ;; If there is no symbol defined and the fit is >= 1 (for the symbol), 
     ;; then there is a good chance that the student unsuccessfully

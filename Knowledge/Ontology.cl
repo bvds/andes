@@ -242,10 +242,11 @@
   "Find the short-name in the Ontology for a quantity expression."
   ;; We assume the short-name has no variable bindings.
   (let ((qexp (lookup-expression-struct exp)))
-    (or (exptype-short-name qexp)
-	(progn
-	  (warn "exptype ~A missing short-name" (exptype-type qexp))
-	  (string-downcase (string (exptype-type qexp)))))))
+    (when qexp
+      (or (exptype-short-name qexp)
+	  (progn
+	    (warn "exptype ~A missing short-name" (exptype-type qexp))
+	    (string-downcase (string (exptype-type qexp))))))))
 
 (defun lookup-expression-fieldtype (Field Struct)
   "Lookup the struct corresponding to the field."
