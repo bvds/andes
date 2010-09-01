@@ -63,7 +63,8 @@
 (def-qexp displacement (displacement ?body :time ?time)
   :units |m|
   :short-name "displacement"
-  :new-english (vector-object-time (or "displacement" "disp." "disp") 
+  ;; BvdS:  is there a common abbreviation?
+  :new-english (vector-object-time "displacement"
 				   ?body :time ?time)
 )
 
@@ -121,7 +122,7 @@
   ((the)
    (eval (when (time-intervalp ?time)
 	   '(allowed (or "constant" "const." "const" "steady" 
-		"average" "ave."))))
+		"average" "avg."))))
    (eval (force-types ?type))
    (or 
     ;; This should handle "force of the man acting on the crate"

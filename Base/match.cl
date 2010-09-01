@@ -588,8 +588,13 @@
 
 (defun normalized-levenshtein-distance (s1 s2)
   "Normalize levenshtein-distance so complete rewrite is 1.0."
-  (/ (float (levenshtein-distance s1 s2))
-		    (float(max (length s1) (length s2)))))
+  ;; This word matching is supposed to handle misspellings and typos.
+  ;; Round up cases where match is poor.
+  ;; Otherwise we match too many dissimilar, but correctly
+  ;; spelled words.
+  (let ((x (/ (float (levenshtein-distance s1 s2))
+	      (float (max (length s1) (length s2))))))
+    (if (>= x 0.5) 1 x)))
 
 
 ;; Levenshtein Distance function.  

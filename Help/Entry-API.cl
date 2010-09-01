@@ -351,6 +351,7 @@
 	   
 	 ;; Return the best fit entry.
 	 (values sysent nil hints)))
+
        (t (values nil (too-many-matches-ErrorInterp 
 		       entry (mapcar #'cdr best)) hints)))))
 
