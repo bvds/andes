@@ -1301,8 +1301,8 @@
 (def-psmclass wt-law (wt-law ?body ?time)
   :complexity minor
   :short-name "weight law"
-  :nlg-english ("Weight law")
-  :ExpFormat ("applying the Weight law on ~a" (nlg ?body))
+  :nlg-english ("weight law")
+  :ExpFormat ("applying the weight law to ~a" (nlg ?body))
   :EqnFormat ("Fw = m g"))
 
 (def-psmclass kinetic-friction (kinetic-friction ?body ?surface ?time)

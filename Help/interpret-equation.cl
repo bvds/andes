@@ -179,18 +179,18 @@
 
 ; map sysentries to eqn:
 (defun syseqn->eqn (syseqn)
-"return eqn info for given system equation entry in current problem"
+  "return eqn info for given system equation entry in current problem"
  (match-systementry->eqn SysEqn (problem-eqnindex *cp*)))
 
 (defun given-eqn-entry-p (syseqn)
-"true if system equation entry is step of writing a given equation"
+  "true if system equation entry is step of writing a given equation"
   (given-eqn-p (syseqn->eqn syseqn)))
 
 (defun syseqn-English (syseqn)
-"map system equation to its English string name"
-   (eqn-English (syseqn->eqn syseqn)))
+  "map system equation to its English string name"
+  (eqn-English (syseqn->eqn syseqn)))
 
-; for dealing with interpretations = sets of syseqns:
+;; for dealing with interpretations = sets of syseqns:
 (defun get-nonzero-eqns (interp)
 "return list of non-zero equations in interp"
    (remove-if #'(lambda (syseqn) 
@@ -227,9 +227,10 @@
 ; Not clear if this matters -- depends on how "trivial-syseqn-p" is used by grading system.
 ; Should be OK because definitions are not considered "major" so never required explicit.
 ;
-; We also allow implicit equations giving known angle values to be combined. This should
-; allow students to skip defining angle variable in W = F*d(thetaFd) if angle between is known,
-; or to write it as W = F*d(thetaF - thetaD) if both are known.
+;; We also allow implicit equations giving known angle values to be combined. 
+;; This should allow students to skip defining angle variable in 
+;; W = F*d(thetaFd) if angle between is known,
+;; or to write it as W = F*d(thetaF - thetaD) if both are known.
 (defun combinable-eqn-p (eqn)
    (or (trivial-eqn-p eqn)
        (definition-eqn-p eqn)
@@ -241,10 +242,10 @@
 (defun get-noncombinable-eqns (interp)
     (remove-if #'combinable-syseqn-p interp))
 
-; Test whether a given system equation entry has been entered explicitly
-; Look for a studententry with a singleton interpretation equal to this
-; system entry or combined acceptably with others, e.g. combined with zero 
-; givens so as to drop zero-valued terms from eqns.
+;; Test whether a given system equation entry has been entered explicitly
+;; Look for a studententry with a singleton interpretation equal to this
+;; system entry or combined acceptably with others, e.g. combined with zero 
+;; givens so as to drop zero-valued terms from eqns.
 (defun explicit-entry-of (studEntry syseqn)
 "true if given studEntry is explicit (enough) entry of syseqn"
    (let ((interp (StudentEntry-Cinterp studEntry)))
@@ -346,15 +347,21 @@
 	       nz-eqns)))) 
 
 (defun get-needed-eqns (interp)
-"return list of systentries for major eqns in interp not entered explicitly"
- (remove-if-not #'(lambda (syseqn)
-                     (and (major-eqn-p (syseqn->eqn syseqn))
-                          (not (entered-explicitly syseqn))))
-                (get-noncombinable-eqns interp))) 
+  "return list of systentries for non-combinable eqns in interp not entered explicitly.  Returns major and non-major equations."
+  (let (major rest)
+    (dolist (syseqn (remove-if #'entered-explicitly 
+			       (get-noncombinable-eqns interp)))
+      (if (major-eqn-p (syseqn->eqn syseqn))
+	  (push syseqn major)
+	  (push syseqn rest)))
+    (values major rest)))
 
 (defun get-needed-eqn-names (interp)
-"return list of English forms for missing explicit eqns in interp"
-  (mapcar #'syseqn-English (get-needed-eqns interp)))
+  "return list of English forms for missing explicit eqns in interp.  Returns major and non-major equations."
+  (multiple-value-bind (major rest) 
+      (get-needed-eqns interp)
+    (values (mapcar #'syseqn-English major)
+	    (mapcar #'syseqn-English rest))))
 
 ;; switch -- whether to enforce prematurity constraints on equations
 (defvar **Check-Eqn-Constraints**  T) ; off until we work them out
@@ -391,37 +398,29 @@
     (list correct-result premature-result)))
 
 
-; ! Urg, we must run tests *again* after interpretation choice to fetch message. Should 
-; recode to be able to associate msg with entry at time we detect constraint violoation.
-; Last hint lists principle(s) that should be explicit, so students get
-; some idea of what we're looking for.
+;; ! Urg, we must run tests *again* after interpretation choice to fetch 
+;;  message.  Should recode to be able to associate msg with entry at time 
+;;  we detect constraint violoation.
+;; Last hint lists principle(s) that should be explicit, so students get
+;; some idea of what we're looking for.
 
 (defun get-premature-msg (se)
   "return appropriate hint sequence for equation entry interpreted as premature"
-  ; some message text in HelpMessages.cl
- ; (assert (eq (studententry-state se) +premature-entry+))
- (let* ((interp (studententry-cinterp se))
-        (missing (get-needed-eqn-names interp)))
-  (cond 
-    ;; if missing exactly one and its a compo equation, mention component form in case that is their problem.
-    ;; !!! actually could give this message whenever *all* missing are compo-eqns
-    ((and (null (cdr missing)) 
-          (is-premature-before-compo-eqn-p interp)) 
-       (chain-explain-more-green (list 
-	   (format NIL "Although this equation is correct, you have not displayed a fundamental vector principle written in component form on a line by itself.")
-           "It is good practice to identify the fundamental vector principles you are using by writing them purely symbolically in component form before combining them with other equations or given values.  Select \"Principles\" in the \"Physics\" menu to view a list of principles and their standard forms."
-	   (format NIL "A good solution would include ~A, written as ~:[a separate equation~;separate equations~]." (conjoined-names missing) (cdr missing)))))
-       
-    (missing ; better have at least one missing to mention
-       (chain-explain-more-green 
-         (list 
-          (format NIL "Although this equation is correct, you have not displayed a fundamental principle being used in symbolic form all by itself.")
-           "It is good practice to identify the fundamental principles you are using by writing them purely symbolically in standard form before combining them with other equations or given values.  Select \"Principles\" in the \"Physics\" menu to view  a list of principles and their standard forms."
-	   (format NIL "A good solution would include ~A, written as ~:[a separate equation~;separate equations~]." (conjoined-names missing) (cdr missing)))))
-       
-    (T ; didn't find missing! shouldn't happen
-       (format T "get-premature-msg called but couldn't find missing equations!~%")
-       (make-green-turn  :id (StudentEntry-id se))))))
+  (let ((interp (studententry-cinterp se)))
+    (multiple-value-bind (missing-major missing-rest)
+	(get-needed-eqn-names interp)
+      (if missing-major ;better have at least one missing to mention
+	  (chain-explain-more-green 
+	   (list 
+	    (format NIL "Although this equation is correct, you have not displayed a fundamental principle being used in symbolic form all by itself.")
+	    "It is good practice to identify the fundamental principles you are using by writing them in standard form before combining them with other equations or given values.&nbsp; Select \"Principles\" in the \"Physics\" menu to view  a list of principles and their standard forms."
+	    (format NIL "Try to write ~:[an equation~;separate equations~] for ~A~@[, written separately from ~A~]." 
+		    (cdr missing-major) (conjoined-names missing-major) 
+		    (conjoined-names missing-rest))))
+	  
+	  (progn
+	    (warn "get-premature-msg called but couldn't find missing equations!~%")
+	    (make-green-turn  :id (StudentEntry-id se)))))))
 
 
 ;;
