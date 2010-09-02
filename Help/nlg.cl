@@ -335,6 +335,15 @@
 	    `(or (var ,(qnode-exp qnode))
 		 ,(new-english-find (qnode-exp qnode))))))
 
+
+(defun short-english-find (prop)
+  "Find short phrase associated with prop.  Returns a string."
+  ;; first look for genuine short name
+  (or (lookup-expression-short-name prop)
+      ;; then fall back to regular ontology
+      (match:word-string (expand-vars (new-english-find prop)))))
+
+
 (defun new-english-find (prop)
   "Match proposition to Ontology."
   ;; First, determine if there is any problem-specific
@@ -359,7 +368,8 @@
   ;; On failure, warn and return nil
   (warn "new-english-find:  no ontology match for ~S" prop))
 
-  
+ 
+
 (defun expand-new-english (model &optional (bindings no-bindings))
   "Expand model tree, expanding ontology expressions, parse strings into list of words, substituting bindings, evaluating lisp code, and removing nils."
   (cond ((stringp model) 
@@ -390,6 +400,7 @@
 	 ;; Assume any recursive calls are covered by New-English.
 	 (new-english-find (subst-bindings bindings model)))))
 
+
 ;; Should be "private" to nlg
 (defun expand-new-english-list (x &optional (bindings no-bindings))
   "If object is a list, expand"
@@ -410,6 +421,7 @@
 	((consp x) (cons (expand-new-english (car x) bindings)
 			 (expand-new-english-list (cdr x) bindings)))
 	(t (warn "expand-new-english-list:  invalid list structure in ~A" x))))
+
 
 (defun expand-vars (model)
   "Expand (var ...) expressions and remove nils from model tree."

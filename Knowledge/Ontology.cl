@@ -225,28 +225,28 @@
 	:key #'ExpType-Type))
 
 
-(defun lookup-expression-struct (exp &optional (bindings no-bindings))
+(defun lookup-expression-struct (exp)
   "Lookup the first exp with the specified-form."
-;; This could work as a replacement, not tested yet
-;;  (let ((type (find exp *Ontology-ExpTypes* :key #'exptype-form 
-;;		   :test #'(lambda (x y) (unify x y bindings)))))
-;; (values type (unify exp (exptype-form exp) bindings))) 
-  (lookup-expression-struct-chain exp bindings *Ontology-ExpTypes*))
-
-(defun lookup-expression-struct-chain (exp binds types)
-  "An internal function for looking up expression structs."
-  (when types
-    (let ((b (unify exp (exptype-form (car types)) binds)))
-      ;; (format t "***unify ~s and ~S to get ~S~%" ;debug print
-      ;;     exp (exptype-form (car types)) b)
-      (if b (values (car types) b)
-	(lookup-expression-struct-chain 
-	 exp binds (cdr Types))))))
+  (dolist (qexp *Ontology-ExpTypes*)
+    (let ((bindings (unify exp (ExpType-form qexp))))
+      (when bindings
+	(return-from lookup-expression-struct
+	  (values qexp bindings))))))
 		      
 ; For readability when used as a predicate:
 (defun quantity-expression-p (exp)
  "Non-null if given form is a declared quantity expression"
   (lookup-expression-struct exp))
+
+(defun lookup-expression-short-name (exp)
+  "Find the short-name in the Ontology for a quantity expression."
+  ;; We assume the short-name has no variable bindings.
+  (let ((qexp (lookup-expression-struct exp)))
+    (when qexp
+      (or (exptype-short-name qexp)
+	  (progn
+	    (warn "exptype ~A missing short-name" (exptype-type qexp))
+	    (string-downcase (string (exptype-type qexp))))))))
 
 (defun lookup-expression-fieldtype (Field Struct)
   "Lookup the struct corresponding to the field."

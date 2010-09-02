@@ -51,6 +51,7 @@
 ;;    "the ball's position with respect to the observer"
 (def-qexp relative-position (relative-position ?to-pt ?from-pt :time ?time)
   :units |m|
+  :short-name "relative position"
   ;; see relative-vel
   :new-english (or ((vector-object "position" ?to-pt)
 		    (preferred ((or "relative to" "with respect to" "from") ?from-pt))
@@ -61,12 +62,15 @@
 
 (def-qexp displacement (displacement ?body :time ?time)
   :units |m|
-  :new-english (vector-object-time (or "displacement" "disp." "disp") 
+  :short-name "displacement"
+  ;; BvdS:  is there a common abbreviation?
+  :new-english (vector-object-time "displacement"
 				   ?body :time ?time)
 )
 
 (def-qexp velocity (velocity ?body :time ?time)
   :units |m/s|
+  :short-name "velocity"
   :new-english (vector-object-time (or "velocity" "vel." "vel") ?body 
 				   :time ?time)
 )
@@ -74,6 +78,7 @@
 ;; ex) "the velocity of the ball relative to the observer"
 (def-qexp relative-vel (relative-vel ?to-pt ?from-pt :time ?time)
   :units |m/s|
+  :short-name "relative velocity"
   ;; see relative-position
   :new-english ((the) 
 		(time-type ?time)
@@ -85,12 +90,14 @@
 
 (def-qexp accel	(accel ?body :time ?time)
   :units |m/s^2|
+  :short-name "acceleration"
   :new-english ((vector-object-time (or "acceleration" "accel." "accel") ?body 
 				    :time ?time))
 )
 
 (def-qexp momentum (momentum ?body :time ?time)
   :units |kg.m/s|
+  :short-name "momentum"
   :new-english ((the) (or "momentum" "mom." "mom")
 		(time-type ?time)
 		(and (preferred (property ?body))
@@ -110,11 +117,12 @@
 ;; 
 (def-qexp force (force ?body ?agent ?type :time ?time)
   :units N
+  :short-name "force"
   :new-english 
   ((the)
    (eval (when (time-intervalp ?time)
 	   '(allowed (or "constant" "const." "const" "steady" 
-		"average" "ave."))))
+		"average" "avg."))))
    (eval (force-types ?type))
    (or 
     ;; This should handle "force of the man acting on the crate"
@@ -151,6 +159,7 @@
 
 (def-qexp net-force (net-force ?body :time ?time)
   :units N
+  :short-name "net force"
   :new-english ((the) (or "net" "total") 
 		"force" (and (preferred (object ?body))
 			     (time ?time))))
@@ -160,30 +169,35 @@
 
 (def-qexp ang-displacement (ang-displacement ?body :time ?time)
   :units |rad|
+  :short-name "angular displacement"
   :new-english ((the) rotation-adj	(or "displacement" "disp." "disp")
 		 (and (preferred (property ?body))
 		      (time ?time))))
 
 (def-qexp ang-velocity (ang-velocity ?body :time ?time)
   :units |rad/s|
+  :short-name "angular velocity"
   :new-english ((the) rotation-adj (or "velocity" "vel." "vel")
 		 (and (preferred (property ?body))
 		      (time ?time))))
 
 (def-qexp ang-accel (ang-accel ?body :time ?time)
   :units |rad/s^2|
+  :short-name "rotational acceleration"
   :new-english ((the) rotation-adj (or "acceleration" "accel." "accel")
 		(and (preferred (property ?body))
 		     (time ?time))))
 
 (def-qexp ang-momentum (ang-momentum ?body :time ?time)
   :units |kg.m^2/s|
+  :short-name "angular momentum"
   :new-english ((the) rotation-adj (or "momentum" "mom." "mom")
 		 (and (preferred (property ?body))
 		      (time ?time))))
 
 (def-qexp torque (torque ?body ?agent :axis ?axis :time ?time)
   :units |N.m|
+  :short-name "torque"
   :new-english ((the) (eval (moment-name)) 
 		(and (preferred (object ?body))
 		     (preferred (agent ?agent))
@@ -192,6 +206,7 @@
 
 (def-qexp net-torque (net-torque ?body ?axis :time ?time)
   :units |N.m|
+  :short-name "net torque"
   :new-english ((the) (or "net" "total") (eval (moment-name)) 
 		(and (preferred (object ?body))
 		     (preferred (eval (when ?axis `("about" ,?axis))))
@@ -553,6 +568,7 @@
 
 (def-qexp num-forces (num-forces ?body :time ?time)
   ;:nlg-english ("the number of forces on ~A" (nlg ?body 'at-time ?time)))
+  :short-name "number of forces"
   :new-english ((the) "number of forces"
 		(and (preferred ("on" ?body))
 		     (time ?time))))
@@ -594,6 +610,7 @@
 
 (def-qexp net-work (net-work ?body :time ?time)
   :units |J|
+  :short-name "net work"
   :new-english (((the) (or "net" "total net" "total") "work" 
 		 (preferred "done")
 		 (and (preferred (object ?body))
@@ -605,6 +622,7 @@
 
 (def-qexp work-nc (work-nc ?body :time ?time)
   :units |J|
+  :short-name "work"
   :new-english (((the) (allowed (or "total" "net")) "work"
 		 (preferred "done") 
 		 (and (preferred (object ?body))
@@ -636,6 +654,7 @@
 
 (def-qexp net-power (net-power ?b :time ?time)
   :units |W|
+  :short-name "net power"
   :new-english ((the) "net power"
 		(and (preferred ("supplied to" ?b)) 
 		     (time ?time))))
@@ -667,6 +686,7 @@
 ;;
 (def-qexp angle-between (angle-between orderless . ?vecs)
   :units |deg|
+  :short-name "angle"
   :restrictions nonnegative 
   ;; To print the contents of ?vecs:
   ;; :new-english ( (eval (dolist (vec ?vecs) (format t "~A~%" vec) ?vecs))))
@@ -695,6 +715,7 @@
 
 (def-qexp total-energy (total-energy ?system :time ?time) 
   :units |J|
+  :short-name "net mechanical energy"
   :new-english ((the) (or ((preferred (or "total" "net")) "mechanical energy") 
 			  "TME")
 		(and (preferred (property ?system)) 
@@ -702,6 +723,7 @@
 
 (def-qexp kinetic-energy (kinetic-energy ?body :time ?time)
   :units |J|
+  :short-name "kinetic energy"
   :new-english ((the) (allowed (or "total" "net")) (allowed "translational")
 		(or "kinetic energy" "KE")
 		(and (preferred (property ?body)) 
@@ -709,6 +731,7 @@
 
 (def-qexp rotational-energy (rotational-energy ?body :time ?time)
   :units |J|
+  :short-name "kinetic energy"
   :new-english ((the) (allowed (or "total" "net")) (or "rotational" "rot") 
 		(or "kinetic energy" "KE")
 		(and (preferred (property ?body)) 
@@ -716,6 +739,7 @@
 
 (def-qexp grav-energy (grav-energy ?body ?agent :time ?time)
   :units |J|
+  :short-name "potential energy"
   :new-english ((the) (allowed "total") (or "gravitational" "grav")
 		(or ((preferred (or "potential" "pot" "pot.")) "energy") "PE")
 		(and (preferred (property ?body))
@@ -725,6 +749,7 @@
 ;; see bug 1463
 (def-qexp spring-energy (spring-energy ?body ?spring :time ?time) 
   :units |J|
+  :short-name "potential energy"
   :new-english ((the) (allowed "elastic") (or ((or "potential" "pot" "spring") 
 					       "energy") "PE")
 		(and (preferred (or (property ?body) 
@@ -807,6 +832,7 @@
   :new-english ((property-object "width" ?body)))
 
 (def-qexp num-torques (num-torques ?body ?axis :time ?time)
+  :short-name "number of torques"
   :new-english ((the) "number of" (moment-name) "on" ?body 
 		(preferred (eval (when ?axis `("about" ,?axis))))
 		(time ?time)))
