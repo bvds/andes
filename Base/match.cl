@@ -585,17 +585,42 @@
     ;; and return result. 
     (delete-if #'(lambda (x) (> (car x) (* best equiv))) quants)))
 
+;; Imposing a cutoff on word matching improves speed by 50%
+;; and removes some accidental matches (words
+;; that are clearly different, but have some letter overlap).
+(defconstant +word-cutoff+ 0.4 "Assume words don't match for normalized distances larger than this cutoff.")
 
 (defun normalized-levenshtein-distance (s1 s2)
-  "Normalize levenshtein-distance so complete rewrite is 1.0."
-  ;; This word matching is supposed to handle misspellings and typos.
-  ;; Round up cases where match is poor.
-  ;; Otherwise we match too many dissimilar, but correctly
-  ;; spelled words.
-  (let ((x (/ (float (levenshtein-distance s1 s2))
-	      (float (max (length s1) (length s2))))))
-    (if (>= x 0.5) 1 x)))
+  "Normalize levenshtein-distance so complete rewrite is 1.0 and imposing match cutoff."
+  (let ((maxl (max (length s1) (length s2)))
+	(minl (min (length s1) (length s2))))
+    ;; Test if there is any hope of getting below cutoff
+    ;; This gives a 20% improvement in speed.
+    (if (> (* maxl (- 1 +word-cutoff+)) minl)
+	1
+	(let ((x (levenshtein-distance s1 s2)))
+	  (if (> x (* maxl +word-cutoff+))
+	      1
+	      (/ (float x) (float maxl)))))))
 
+;; Not used:  in Benchmarking, this is
+;; significantly slower than no test at all.
+(defun distance-lower-bound (str1 str2)
+  "Get lower bound for Levenshtein distance."
+  ;; This is order n*log(n) in string length n, while 
+  ;; the Levenshtein algorithm is order n^2.
+  (let ((s1 (sort (copy-seq str1) #'char<))
+	(s2 (sort (copy-seq str2) #'char<))
+	(matches 0))
+    (do ((i 0) (j 0))
+	((or (= i (length s1)) (= j (length s2))))
+      (cond ((char> (schar s1 i) (schar s2 j))
+	     (incf j))
+	    ((char< (schar s1 i) (schar s2 j))
+	     (incf i))
+	    ;; match
+	    (t (incf i) (incf j) (incf matches))))
+    (- (max (length s1) (length s2)) matches)))
 
 ;; Levenshtein Distance function.  
 ;; From http://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance#Common_Lisp
