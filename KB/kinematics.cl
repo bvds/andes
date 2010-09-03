@@ -1204,6 +1204,7 @@
   :complexity major
   :short-name "relative velocity"
   :nlg-english ("relative velocity equation")
+  :tutorial "RelativeVelocity.html"
   :expformat ((strcat "applying the relative velocity equation to ~a "
                       "in relation to ~a and ~a")
               (nlg ?body1) (nlg ?b2) (nlg ?b3))
@@ -2180,6 +2181,7 @@
   :group lk
   :complexity major
   :nlg-english ("the definition of average acceleration")
+  :tutorial "AverageAcceleration.html"
   :ExpFormat ("applying the definition of average acceleration on ~a from ~a to ~a"
 		 (nlg ?body) (nlg ?time0 'moment) (nlg ?time1 'moment))
   ;; alternative form in principles.cl
@@ -2262,6 +2264,7 @@
   :group lk
   :complexity minor
   :nlg-english ("constant velocity")
+  :tutorial "ConstantVelocityComponent.html"
   :ExpFormat ("noting that the accelaration ~A has no ~A component between ~a to ~a, so the ~A component of velocity remains constant"
 	      (nlg ?body) (axis-name ?axis) (nlg ?time0 'moment) 
 	      (nlg ?time1 'moment) (axis-name ?axis))
@@ -2335,6 +2338,7 @@
   :group lk
   :complexity major
   :short-name ("[a<sub>~A</sub> is constant]" (axis-name ?axis))
+  :tutorial "ConstantAcceleration.html"
   :doc "Linear kinematics eqn w/o time."
   :nlg-english ("the constant acceleration equation v<sub>~a</sub><sup>2</sup> = v0<sub>~a</sub><sup>2</sup> + 2 a<sub>~a</sub> d<sub>~a</sub>" 
                (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) (axis-name ?axis))
@@ -2420,6 +2424,7 @@
   :group lk
   :complexity major
   :short-name ("[a<sub>~A</sub> is constant]" (axis-name ?axis))
+  :tutorial "ConstantAcceleration.html"
   :Doc "Linear kinematics eqn sans final velocity."
   :nlg-english ("the constant acceleration equation d<sub>~a</sub> = v0<sub>~a</sub> t + 0.5 a<sub>~a</sub> t<sup>2</sup>"
                             (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) )
@@ -2551,6 +2556,7 @@
   :group lk
   :complexity major
   :short-name ("[a<sub>~A</sub>=0; v<sub>~A</sub> is constant]" (axis-name ?axis) (axis-name ?axis))
+  :tutorial "ConstantVelocityComponent.html"
   :nlg-english ("displacement component = constant velocity component * time")
   :ExpFormat ((strcat "calculating the ~a component of displacement as constant "
 		      "velocity component * time for ~a from ~a to ~a") 
@@ -3550,6 +3556,7 @@
   :complexity major
   :short-name "average angular velocity"
   :nlg-english ("the definition of average angular velocity")
+  :tutorial "AngularVelocity.html"
   :expformat ((strcat "applying the definition of Average Angular Velocity "
 		  "to ~a ~a") (nlg ?body) (nlg ?time 'time))
   :EqnFormat ("&omega;<sub>z</sub> = &theta;<sub>z</sub>/t"))
@@ -3613,11 +3620,12 @@
 ;; acceleration to be constant
 
 (def-psmclass rk-no-s (?eq-type rk-no-s ?xy ?rot (rk ?body (during ?t0 ?t1)))
-     :group rk
-     :complexity major
+  :group rk
+  :complexity major
   :short-name "average anglular acceleration"
-     :nlg-english ("constant angular acceleration kinematics")
-     :EqnFormat ("&omega;f<sub>z</sub> = &omega;i<sub>z</sub> + &alpha;(avg)<sub>z</sub> t")) ;alternative form in principles.cl
+  :tutorial nil ;seems to be missing
+  :nlg-english ("constant angular acceleration kinematics")
+  :EqnFormat ("&omega;f<sub>z</sub> = &omega;i<sub>z</sub> + &alpha;(avg)<sub>z</sub> t")) ;alternative form in principles.cl
 
 (defoperator rk-no-s-contains (?sought)
  :preconditions (
@@ -3674,6 +3682,7 @@
      :complexity major
   :short-name "[&alpha;<sub>z</sub> is constant]"
      :nlg-english ("constant angular acceleration kinematics")
+     :tutorial "ConstantAngularAcceleration.html"
      :EqnFormat ("&theta;<sub>z</sub> = &omega;0<sub>z</sub> t + 0.5 &alpha;<sub>z</sub> t<sup>2</sup>"))
 
 (defoperator rk-no-vf-contains (?sought)
@@ -3735,6 +3744,7 @@
      :complexity major
   :short-name "[&alpha;<sub>z</sub> is constant]"
      :nlg-english ("constant angular acceleration kinematics")
+     :tutorial "ConstantAngularAcceleration.html"
      :EqnFormat ("&omega;<sub>z</sub><sup>2</sup> = &omega;0<sub>z</sub><sup>2</sup> + 2 &alpha;<sub>z</sub> &theta;<sub>z</sub>"))
 
 (defoperator rk-no-t-contains (?sought)

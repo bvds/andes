@@ -137,15 +137,17 @@
 	      ((or "weight" "gravitational" "grav." "grav") "force")))
     (gravitational '(or "force of gravity"
 		     ((or "gravitational" "weight" "grav." "grav") "force")))
-    ;"normal force exerted on a body by the surface" from Y&F 
+    ;; "normal force exerted on a body by the surface" from Y&F 
     (normal '("normal force"))
     (tension '(or ("tension" (preferred "force")) "pulling force" 
 	       ("force" (preferred "of tension"))))
     (applied '((allowed "applied") "force")) ;catch-all force
-    (kinetic-friction '(((preferred "kinetic") (or "friction" "frictional"))
-			"force"))
-    (static-friction  '(((preferred "static") (or "friction" "frictional")) 
-			"force"))
+    (kinetic-friction '(or (((preferred "kinetic") 
+			     (or "friction" "frictional")) "force")
+			("force" "of" (preferred "kinetic") "friction")))
+    (static-friction  '(or (((preferred "static") 
+			     (or "friction" "frictional")) "force")
+			("force" "of" (preferred "static") "friction")))
     (electric '((or "electric" "E" "coulomb") "force"))
     (magnetic '((or "magnetic" "B") "force"))
     (buoyant '((or "buoyant" "buoyancy") "force"))
@@ -1085,38 +1087,15 @@
 (def-psmclass projection (projection (compo ?axis ?rot ?vector))
   :complexity connect
   :doc "projection equations"
-  :short-name ("on ~A-axis" (axis-name ?axis))
+  :short-name ("projecton on ~A-axis" (axis-name ?axis))
   :nlg-english ("projection equations")
+  :tutorial "ProjectionEquations.html"
   :ExpFormat ("writing the projection equation for ~a onto the ~a axis" 
 	      (nlg ?vector) (axis-name ?axis))
-  :EqnFormat ("~a<sub>~a</sub> = ~a ~:[sin~;cos~](&theta;~a - &theta;~a)"
-	      ;; vector-var-pref expecting a list which may 
-	      ;; only be partially bound
-	      (vector-var-pref '?vector) (axis-name ?axis) 
-	      (vector-var-pref '?vector) (eq ?axis 'x)
-	      (vector-var-pref '?vector) (axis-name ?axis)))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Given a partially bound vector definition convert it to a type for the
-;; nlg of the equation form.  This type will be one of 
-;; Displacement d
-;; Velocity v
-;; accelleration a
-;; force F
-;; relative position r
-;; momentum p
-(defun vector-var-pref (x)
-  (if (and (consp x) (groundp (car x)))
-      (case (car x)
-	(displacement "d")
-	(velocity "v")
-	(acceleration "a")
-	(force "F")
-	(relative-position "r")
-	(momentum "p")
-	(t (format nil "~a" (car x))))
-      (error "vector-var-pref with ~A" x)))
+  :EqnFormat ("V<sub>~a</sub> = V ~:[sin~;cos~](&theta;V - &theta;~a)"
+	      (axis-name ?axis) 
+	      (eq ?axis 'x)
+	      (axis-name ?axis)))
 
    
 ;;-------------------------------------------------------
@@ -1129,6 +1108,7 @@
   :complexity major
   :short-name "average speed"
   :doc "Distance = rate * time."
+  :tutorial "AverageSpeed.html"
   :nlg-english ("distance = average speed * time")
   :expFormat ((strcat "applying the \"distance = average speed "
 		      "* time\" principle with ~a as the body ~a")
@@ -1153,6 +1133,7 @@
     :complexity major    
     :Doc "Definition of average velocity."
     :short-name "average velocity"
+    :tutorial "AverageVelocity.html"
     :nlg-english ("the definition of average velocity") 
     :ExpFormat ("applying the definition of average velocity on ~a ~a"
 		(nlg ?body) (nlg ?time 'pp))
@@ -1169,6 +1150,7 @@
   :complexity connect
   :short-name "Pythagorean Thm"
   :nlg-english ("the Pythagorean theorem" )
+  :tutorial "PythagoreanTheorem.html"
   :eqnFormat ("c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>"))
 
 (def-psmclass sum-distance (sum-distance ?b1 ?b2 ?b3 ?t)
@@ -1184,6 +1166,7 @@
   :complexity minor   ;See Bug #1144
   :short-name "net displacement"
   :nlg-english ("net displacement")
+  :tutorial "NetDisplacement.html"
   :ExpFormat ("calculating the net displacement of ~a ~a" (nlg ?body) (nlg ?time))
   :EqnFormat ("dnet<sub>~a</sub> = d1<sub>~a</sub> + d2<sub>~a</sub> + ..." (axis-name ?axis) 
 	      (axis-name ?axis) (axis-name ?axis)))
@@ -1210,6 +1193,7 @@
   :complexity simple
   :short-name "accel in free-fall"
   :nlg-english ("free fall acceleration")
+  :tutorial "FreeFallAcceleration.html"
   :ExpFormat ("determining the free fall acceleration for ~a"
 	      (nlg ?body 'at-time ?time))
   :EqnFormat ("a = g"))
@@ -1219,6 +1203,7 @@
   :short-name "g near Earth"
   :nlg-english ("value of g on Earth")
   :expformat ("defining the value of g on Earth")
+  :tutorial "ValueOfGNearEarth.html"
   :EqnFormat ("g = 9.8 m/s<sup>2</sup>"))
 
 
@@ -1226,6 +1211,7 @@
 (def-psmclass centripetal-accel (centripetal-accel ?body ?time)
   :complexity major
   :short-name "centripetal acceleration (instantaneous)"
+  :tutorial "CentripetalAcceleration.html"
   :nlg-english ("centripetal acceleration equation: <var>a</var> = <var>v</var><sup>2</sup>/<var>r</var>")
   :ExpFormat ((strcat "writing the centripetal acceleration "
 		      "equation: <var>a</var> = <var>v</var><sup>2</sup>/<var>r</var> for ~a")
@@ -1247,6 +1233,7 @@
    :complexity minor
   :short-name "period of uniform circular motion"
    :nlg-english ("the formula for the period of uniform circular motion")
+   :tutorial "PeriodCircular.html"
    :ExpFormat ("calculating the period of the motion of ~A" (nlg ?body))
    :EqnFormat ("T = 2 &pi; r/v"))
 
@@ -1265,6 +1252,7 @@
   :complexity connect
   :short-name "sum of times"
   :nlg-english ("tac = tab + tbc")
+  :tutorial "SumOfTimes.html"
   :ExpFormat ("calculating the sum of times ~A" (nlg ?tt 'pp)) 
   :EqnFormat ("tac = tab + tbc"))
 
@@ -1289,6 +1277,7 @@
      :complexity major
      :doc "Newton's second law when accel is non-zero"
   :short-name "Newton's second law"
+  :tutorial "NewtonsSecondLaw.html"
      :nlg-english ("Newton's second law")
      :ExpFormat ("applying Newton's second law to ~a"
 		 (nlg ?body 'at-time ?time))
@@ -1299,6 +1288,7 @@
   :complexity minor ;See Bug #1144
   :short-name ("net force (~A component)" (axis-name ?axis))
   :nlg-english ("net force")
+  :tutorial "NewtonsSecondLaw.html"
   :ExpFormat ("calculating the net force acting on ~a ~a" (nlg ?body) (nlg ?t))
   :EqnFormat ("Fnet<sub>~a</sub> = F1<sub>~a</sub> + F2<sub>~a</sub> + ..." 
 	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
@@ -1311,6 +1301,7 @@
   :complexity major
   :short-name "Newton's Third law (magnitudes)"
   :nlg-english ("Newton's Third law")
+  :tutorial "NewtonsThirdLaw.html"
   :ExpFormat ("applying Newton's Third law to ~a and ~a"
 	      (nlg ?Object0) (nlg ?Object1 'at-time ?time))
   :EqnFormat ("Fof1on2 = Fof2on1"))
@@ -1328,6 +1319,7 @@
   :complexity minor
   :short-name "weight law"
   :nlg-english ("weight law")
+  :tutorial "WeightLaw.html"
   :ExpFormat ("applying the weight law to ~a" (nlg ?body))
   :EqnFormat ("Fw = m g"))
 
@@ -1335,6 +1327,7 @@
   :complexity simple
   :short-name "kinetic friction"
   :nlg-english ("Kinetic Friction law")
+  :tutorial "KineticFriction.html"
   :ExpFormat ("applying the Kinetic friction law for ~a and ~a"
 	      (nlg ?body) (nlg ?surface 'at-time ?time))
   :EqnFormat ("Ff = &mu;k Fn"))
@@ -1343,6 +1336,7 @@
   :complexity simple
   :short-name "static friction (at max)"
   :nlg-english ("Static Friction at maximum")
+  :tutorial "StaticFrictionMax.html"
   :expformat ("applying the Definition of Static friction for ~a and ~a"
 	      (nlg ?body) (nlg ?surface 'at-time ?time))
   :EqnFormat ("Ff = &mu;s Fn"))
@@ -1351,6 +1345,7 @@
   :complexity simple
   :short-name "drag force"
   :nlg-english ("drag force")
+  :tutorial "DragForce.html"
   :ExpFormat ("finding the drag force on ~a moving at high speed through ~A"
 	      (nlg ?body) (nlg ?medium 'at-time ?time))
   :EqnFormat ("F = K v<sup>2</sup>"))
@@ -1367,6 +1362,7 @@
 (def-psmclass ug (ug ?body ?agent ?time ?distance-quant)
   :complexity major 
   :short-name "universal gravitation"
+  :tutorial "UniversalGravitation.html"
   :nlg-english ("Newton's law of Universal Gravitation")
   :expformat ("applying Newton's law of Universal Gravitation for the force on ~a due to ~a" (nlg ?body) (nlg ?agent))
   :EqnFormat ("Fg = G m1 m2/r<sup>2</sup>"))
@@ -1377,6 +1373,7 @@
   :complexity connect
   :short-name "connected accelerations"
   :nlg-english ("connected bodies have same acceleration")
+  :tutorial "EqualAccelerations.html"
   :expformat ((strcat "using the fact that ~a and ~a are connected and "
 		      "therefore have the same acceleration")
 	      (nlg ?body0) (nlg ?body1))
@@ -1386,6 +1383,7 @@
   :complexity connect
   :short-name "connected velocities"
   :nlg-english ("connected bodies have same velocity")
+  :tutorial "EqualVelocities.html"
   :expformat ((strcat "using the fact that ~a and ~a are connected and "
 		      "therefore have the same velocity")
 	      (nlg ?body0) (nlg ?body1))
@@ -1395,6 +1393,7 @@
   :complexity connect
   :short-name "equal tensions at both ends"
   :nlg-english ("tension equal throughout string")
+  :tutorial "EqualTensionsAtBothEnds.html"
   :expformat ((strcat "using the fact that the tension forces are always "
 		      "equal at both ends of a string with ~a") (nlg ?string))
   :EqnFormat ("Ft1 = Ft2"))
@@ -1406,6 +1405,7 @@
   :complexity connect
   :short-name "mass of compound"
   :nlg-english ("mass of a compound body is sum of masses of parts")
+  :tutorial "MassOfACompoundBody.html"
   :expformat ((strcat "using the fact that the mass of ~a "
 		      "is the sum of the masses of its parts") 
 	      (nlg `(compound orderless . ,?compound)))
@@ -1415,6 +1415,7 @@
   :complexity connect
   :short-name "velocity of compound"
   :nlg-english ("~A of compound same as part" (nlg ?vec-type))
+  :tutorial "KinematicsOfCompoundSameAsPart.html"
   :expformat ("applying the fact that the ~A of a compound is same as that of its parts" (nlg ?vec-type))
   :EqnFormat ("v_compound = v_part"))
 
@@ -1423,6 +1424,7 @@
   :complexity connect
   :short-name "force on compound"
   :nlg-english ("external force on a compound")
+  :tutorial "ForceOnACompoundBody.html"
   :expformat ((strcat "applying the fact that there is an external force "
 		      "on ~a due to ~a ~a of type ~a")
 	      (nlg `(compound orderless . ,?compound)) 
@@ -1439,6 +1441,7 @@
   :complexity major ; definition, but can be first "principle" for sought
   :short-name "work defined"
   :nlg-english ("the definition of work")
+  :tutorial "WorkDoneByAForce.html"
   :expformat ("calculating the work done on ~a by ~a from ~a to ~a" 
 	      (nlg ?body) (nlg ?agent) (nlg ?time0 'time) (nlg ?time1 'time))
   :EqnFormat ("W = F d cos(&theta;) or W = F<sub>x</sub> d<sub>x</sub> + F<sub>y</sub> d<sub>y</sub>"))
@@ -1451,6 +1454,7 @@
   :complexity major   ;See Bug #1144
   :short-name "net work defined"
   :nlg-english ("the definition of net work")
+  :tutorial "NetWork.html"
   :expformat ("calculating the net work done by all forces on ~a from ~a to ~a"
 	      (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
   :EqnFormat ("Wnet = WF1 + WF2 + ..."))
@@ -1459,6 +1463,7 @@
   :complexity minor  ; definition, but *can't* be first "principle" for sought
   :short-name "work by non-conservative"
   :nlg-english ("the definition of Wnc")
+  :tutorial "ConservationOfEnergy.html"
   :expformat ("representing the work done on ~A by non-conservative forces"
               (nlg ?body))
   :EqnFormat ("Wnc = Wncf1 + Wncf2 + ..."))
@@ -1467,6 +1472,7 @@
   :complexity major
   :short-name "work-energy theorem"
   :nlg-english ("the work-kinetic energy theorem")
+  :tutorial "Work-Energy.html"
   :expformat ("applying the work-kinetic energy theorem to ~a from ~a to ~a"
 	      (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
   :EqnFormat ("Wnet = Kf - Ki"))
@@ -1475,6 +1481,7 @@
   :complexity major
   :short-name "[Wnc=0] conservation of mechanical energy"
   :nlg-english ("conservation of mechanical energy")
+  :tutorial "ConservationOfEnergy.html"
   :ExpFormat ((strcat "applying conservation of mechanical energy to ~a "
 		      "from ~a to ~a") 
 	      (nlg ?body) (nlg ?t1 'time) (nlg ?t2 'time))
@@ -1484,6 +1491,7 @@
   :complexity major
   :short-name "change in mechanical energy"
   :nlg-english ("change in mechanical energy")
+  :tutorial "ConservationOfEnergy.html"
   :ExpFormat ((strcat "applying change in mechanical energy to ~a "
 		      "from ~a to ~a") 
 	      (nlg ?body) (nlg ?t1 'time) (nlg ?t2 'time))
@@ -1493,6 +1501,7 @@
   :complexity connect
   :short-name "change in height"
   :nlg-english ("the height change-displacement relationship")
+  :tutorial "HeightAndDisplacement.html"
   :expformat ((strcat "relating the change in height of ~a ~a to the y "
 		      "component of its displacement")
 	      (nlg ?body) (nlg ?time 'pp))
@@ -1502,6 +1511,7 @@
   :complexity major ; definition, but can be first "principle" for sought
   :short-name "average power defined"
   :nlg-english ("the definition of average power")
+  :tutorial "Power.html"
   :expformat ("applying the definition of average power supplied to ~A by ~A ~A"
 	      (nlg ?body) (nlg ?agent) (nlg ?time 'pp))
   :EqnFormat("P(avg) = W/t"))
@@ -1510,6 +1520,7 @@
    :complexity major  ;See Bug #1144
   :short-name "average net power defined"
    :nlg-english ("the definition of net power")
+  :tutorial "Power.html"
    :expformat ("applying the definition of net power supplied to ~A ~A"
                (nlg ?body) (nlg ?time 'pp))
    :EqnFormat("Pnet = Wnet/t"))
@@ -1518,6 +1529,7 @@
    :complexity major ; definition, but can be first "principle" for sought
   :short-name "instantaneous power"
    :nlg-english ("the instantaneous power principle")
+  :tutorial "Power.html"
    :expformat ("calculating the instantaneous power supplied to ~A by ~A ~A"
                (nlg ?body) (nlg ?agent) (nlg ?time 'pp))
    :EqnFormat("P = F v cos(&theta;) or P = F<sub>x</sub> v<sub>x</sub> + F<sub>y</sub> v<sub>y</sub>"))
@@ -1529,30 +1541,35 @@
   :short-name "mechanical energy defined"
   :nlg-english ("the definition of mechanical energy")
   :complexity definition
+  :tutorial "ConservationOfEnergy.html"
   :EqnFormat ("ME = KE + &Sigma Ui"))
 
 ; These are now top level psms, not subequations:
 (def-psmclass kinetic-energy (kinetic-energy ?body ?time)
   :short-name "kinetic energy defined"
   :nlg-english ("the definition of kinetic energy")
+  :tutorial "ConservationOfEnergy.html"
   :complexity definition
   :EqnFormat ("KE = 0.5 m v<sup>2</sup>"))
 
 (def-psmclass rotational-energy (rotational-energy ?body ?time)
   :short-name "rotational kinetic energy defined"
   :nlg-english ("the definition of rotational kinetic energy")
+  :tutorial "ConservationOfEnergy.html"
   :complexity definition
   :EqnFormat ("KE = 0.5 I &omega;<sup>2</sup>"))
 
 (def-psmclass grav-energy (grav-energy ?body ?planet ?zero-height ?time)
   :short-name "gravitational potential energy"
    :nlg-english ("gravitational potential energy")
+  :tutorial "ConservationOfEnergy.html"
    :complexity definition
    :EqnFormat ("Ug = m g h"))
 
 (def-psmclass spring-energy (spring-energy ?body ?spring ?time)
   :short-name "spring potential energy"
   :nlg-english ("spring potential energy")
+  :tutorial "ConservationOfEnergy.html"
   :complexity definition
   :EqnFormat ("Us = 0.5 k d<sup>2</sup>"))
 
@@ -1562,6 +1579,7 @@
   :complexity major
   :short-name "conservation of momentum"
   :nlg-english ("conservation of momentum")
+  :tutorial "ConservationOfMomentum.html"
   :expformat ("applying Conservation of Linear Momentum to ~a ~a"
 	      (nlg ?bodies 'conjoined-defnp) (nlg ?time 'time))
   :EqnFormat ("p1i<sub>~a</sub> + p2i<sub>~a</sub> + ... = p1f<sub>~a</sub> + p2f<sub>~a</sub> + ..." 
@@ -1572,6 +1590,7 @@
   :complexity major
   :short-name "elastic collision defined"
   :nlg-english ("conservation of kinetic energy in elastic collisions")
+  :tutorial "ElasticCollisions.html"
   :expformat ((strcat "applying Conservation of Kinetic Energy to "
 		      "elastic collisions of ~a from ~a to ~a")
 	      (nlg ?bodies 'conjoined-defnp) (nlg ?time0 'time) (nlg ?time1 'time))
@@ -1583,6 +1602,7 @@
   :complexity major
   :short-name "linear velocity at a certain radius"
   :nlg-english ("linear velocity of rotating point")
+  :tutorial "LinearVelocity.html"
   :ExpFormat ("calculating the linear velocity of the rotating point ~a"
 	      (nlg ?pt 'at-time ?time))
   :EqnFormat ("v = &omega; r"))
@@ -1591,6 +1611,7 @@
   :complexity major
   :short-name "linear velocity of rolling object"
   :nlg-english ("linear velocity of rolling object")
+  :tutorial "LinearVelocity.html"
   :ExpFormat ("finding the relation between linear motion and rotational motion of ~A"
 	      (nlg ?body 'at-time ?time))
   :EqnFormat ("v = &omega; r"))
@@ -1601,6 +1622,7 @@
   :complexity major ; definition, but can be first "principle" for sought
   :short-name ("~A defined (magnitude)" (moment-name))
   :nlg-english ("the definition of ~A magnitude" (moment-name))
+  :tutorial "IndividualTorqueMagnitude.html"
   :expformat ((strcat "calculating the magnitude of the ~A "
 		      "on ~a ~a due to the force acting at ~a")
 	      (moment-name) (nlg ?body) (nlg ?time 'pp) (nlg ?pt))
@@ -1611,6 +1633,7 @@
   :complexity major ; definition, but can be first "principle" for sought
   :short-name ("~A defined (~A component)" (moment-name) (axis-name ?xyz))
   :nlg-english ("the definition of ~A" (moment-name))
+  :tutorial "IndividualTorqueMagnitude.html"
   :expformat ((strcat "calculating the ~A component of the ~A "
 		      "on ~a ~a due to the force acting at ~a")
 	      (axis-name ?xyz)

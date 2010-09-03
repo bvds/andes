@@ -1206,6 +1206,7 @@
   :complexity definition
   :short-name "net intensity defined"
   :nlg-english ("the definition of net intensity")
+  :tutorial nil ;seems to be missing.
   :expformat ("calculating the net intensity on ~a"
 	      (nlg ?body 'at-time ?time))
   :EqnFormat ("Inet = I1 + I2 + ..."))
@@ -1305,6 +1306,7 @@
   :complexity major			;must explicitly use
   :short-name "intensity &amp; decibels"
   :nlg-english ("express intensity in decibels")
+  :tutorial nil ;seems to be missing.
   :ExpFormat ("expressing the intensity in decibels")
   :EqnFormat ("&beta; = 10 log10(I/Iref)")) 
 
@@ -1349,6 +1351,7 @@
   :complexity definition  ;want this to be freely substituted into expressions
   :short-name "intensity &amp; magnitude of the Poynting vector"
   :nlg-english ("relate intensity to the magnitude of the Poynting vector")
+  :tutorial nil ;seems to be missing.
   :ExpFormat ("relating the intensity to the magnitude of the Poynting vector")
   :EqnFormat ("I = S")) 
 
@@ -1385,6 +1388,7 @@
   :complexity major  ;must explicitly use
   :short-name "relation of power and intensity (spherical emitter)"
   :nlg-english ("relate intensity to power in a spherical geometry")
+  :tutorial nil ;seems to be missing.
   :ExpFormat ("relating the intensity to power (spherical symmetry)")
   :EqnFormat ("P = 4 &pi; r<sup>2</sup> I")) 
 
@@ -1430,6 +1434,7 @@
   :complexity major  ;must explicitly use
   :short-name "relation of power and intensity (uniform over surface)"
   :nlg-english ("relate uniform intensity to power")
+  :tutorial nil ;seems to be missing.
   :ExpFormat ("relating the intensity to power (uniform intensity)")
   :EqnFormat ("P = I A")) 
 

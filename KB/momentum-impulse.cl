@@ -30,6 +30,7 @@
   :complexity definition ;so it can be substituted into momentum conservation
   :short-name ("momentum defined (~A component)" (axis-name ?axis))
   :nlg-english ("the definition of momentum (component form)")
+  :tutorial "ConservationOfMomentum.html"
   :expformat ("applying the definition of momentum to ~A" (nlg ?body))
   :EqnFormat ("p<sub>~a</sub> = m v<sub>~a</sub>" (axis-name ?axis) (axis-name ?axis)))
 
@@ -415,6 +416,7 @@
   :complexity definition ;definition, but can be first "principle" for sought
   :short-name "angular momentum defined"
   :nlg-english ("definition of angular momentum")
+  :tutorial "AngularMomentumDefinition.html"
   :expformat ("applying the definition of angular momentum on ~a"
 	      (nlg ?body 'at-time ?time))
   :EqnFormat ("L<sub>z</sub> = I &omega;<sub>z</sub>"))
@@ -478,6 +480,7 @@
   :complexity major
   :short-name "conservation of angular momentum"
   :nlg-english ("conservation of angular momentum")
+  :tutorial "ConservationOfAngularMomentum.html"
   :expformat ("applying Conservation of Angular Momentum to ~a ~a"
 	      (nlg ?bodies 'conjoined-defnp) (nlg ?time 'time))
   :eqnformat ("L1i<sub>z</sub> + L2i<sub>z</sub> + ... = L1f<sub>z</sub> + L2f<sub>z</sub> + ..."))
@@ -653,6 +656,7 @@
     :Doc "Definition of impulse."
     :short-name "impulse and force"
     :nlg-english ("the definition of impulse") 
+    :tutorial nil ;seems to be missing.
     :ExpFormat ("applying the definition of impulse on ~a ~a"
 		(nlg ?body) (nlg ?time 'pp))
     :EqnFormat ("J<sub>~A</sub> = F(avg)<sub>~a</sub> t" (axis-name ?axis) (axis-name ?axis)))
@@ -760,6 +764,7 @@
      :doc "equation relating impulse to change in momentum"
      :short-name "Newton's second law"
      :nlg-english ("Relation between impulse and change in momentum")
+    :tutorial nil ;seems to be missing.
      :ExpFormat ("relating the impulse to the change in momentum of ~a"
 		 (nlg ?body))
      :EqnFormat ("J1<sub>~a</sub> + J2<sub>~a</sub> + ... = pf<sub>~a</sub> - pi<sub>~a</sub>" 
@@ -921,6 +926,7 @@ impulse ~A." (?b def-np) (?t pp)))
   :complexity major
   :short-name "Newton's third law (magnitude)"
   :nlg-english ("Newton's third law applied to impulse")
+  :tutorial nil ;seems to be missing
   :ExpFormat ("applying Newton's third law to impulse between ~a and ~a"
 	      (nlg ?Object0) (nlg ?Object1 'at-time ?time))
   :EqnFormat ("J12 = J21"))
@@ -931,6 +937,7 @@ impulse ~A." (?b def-np) (?t pp)))
   :complexity major
   :short-name ("Newton's third law (~A component)" (axis-name ?axis))
   :nlg-english ("Newton's third law applied to impulse")
+  :tutorial nil ;seems to be missing
   :ExpFormat ("applying Newton's third law to impulse between ~a and ~a"
 	      (nlg ?Object0) (nlg ?Object1 'at-time ?time))
   :EqnFormat ("J12<sub>~a</sub> = -J21<sub>~a</sub>" (axis-name ?axis) (axis-name ?axis)))
@@ -1031,6 +1038,7 @@ impulse ~A." (?b def-np) (?t pp)))
   :short-name "center of mass"
   :nlg-english ("definition of center of mass")
   :complexity major ;we want the equation to be used explicitly
+  :tutorial nil ;seems to be missing
   :EqnFormat ("Rcm<sub>~A</sub> = (m1 r1<sub>~A</sub> + m2 r2<sub>~A</sub> + ...)/(m1 + m2 + ...)" 
 	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
 

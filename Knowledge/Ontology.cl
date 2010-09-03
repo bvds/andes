@@ -626,6 +626,7 @@
   help       ;; Help information.
   short-name ;; String with short name (for use in menu), see eval-print-spec
   nlg-english    ;; Storage for english phrasing.
+  tutorial   ;; File containing tutorial (string)
   ExpFormat  ;; Format string for expressions of this type (with vars).
   EqnFormat  ;; Format for the equation form of this psm, see eval-print-spec  
   doc        ;; description of the psm.
@@ -658,7 +659,7 @@
 
 (defmacro def-psmclass (name form
 			&key fields group complexity
-			     help short-name nlg-english
+			     help short-name nlg-english tutorial
 			     doc  ExpFormat EqnFormat)
   "Define and store a psm type."
   (test-defpsmclass-errors name group)
@@ -673,6 +674,7 @@
 	       :help help
 	       :short-name short-name
 	       :nlg-english nlg-english
+	       :tutorial tutorial ;should verify file exists.
 	       :ExpFormat ExpFormat
 	       :EqnFormat EqnFormat
 	       :doc doc)))

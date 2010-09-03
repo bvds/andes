@@ -753,6 +753,7 @@
   :complexity major
   :short-name "electric field"
   :nlg-english ("the definition of electric field")
+  :tutorial "ElectricField.html"
   :ExpFormat ("applying the definition of electric field on ~a ~a"
 		 (nlg ?body) (nlg ?time 'pp) )
   :EqnFormat ("F<sub>~a</sub> = q E<sub>~a</sub>" (axis-name ?axis) (axis-name ?axis)))
@@ -843,6 +844,7 @@
   :complexity major
   :short-name "electric field (magnitude)"
   :nlg-english ("the definition of electric field magnitude")
+  :tutorial "ElectricField.html"
   :ExpFormat ("applying the definition of electric field magnitude at ~a ~a"
 		 (nlg ?body) (nlg ?time 'pp) )
   :EqnFormat ("F = abs(q) E" ))
@@ -953,6 +955,7 @@
   :complexity major
   :short-name ("point charge field (~A component)" (axis-name ?axis))
   :nlg-english ("the formula for electric field due to a point charge")
+  :tutorial "PointChargeField.html"
   :ExpFormat ("calculating the electric field at ~A due to ~a"
 	      (nlg ?loc) (nlg ?body) )
   :EqnFormat ("E<sub>~a</sub> = (kelec q/r<sup>2</sup>)   r<sub>~a</sub>/r" 
@@ -1047,6 +1050,7 @@
   :complexity major
   :short-name "point charge field (magnitude)"
   :nlg-english ("the formula for the magnitude of the electric field due to a point charge")
+  :tutorial "PointChargeField.html"
   :ExpFormat ("applying the formula for the magnitude of the electric field due to a point charge to ~a ~a"
 		 (nlg ?loc) (nlg ?time 'pp) )
   :EqnFormat ("E = kelec abs(q)/r<sup>2</sup>" ))
@@ -1238,6 +1242,7 @@
   :complexity major
   :short-name ("net electric field (~A component)" (axis-name ?axis))
   :nlg-english ("the definition of net electric field")
+  :tutorial "ElectricField.html"
   :ExpFormat ("calculating the net electric field at ~a ~a" 
 	      (nlg ?loc) (nlg ?time 'pp))
   :EqnFormat ("Enet<sub>~a</sub> = E1<sub>~a</sub> + E2<sub>~a</sub> + ..." (axis-name ?axis) 
@@ -1466,6 +1471,7 @@
   :complexity major
   :short-name "point charge potential"
   :nlg-english ("the formula for the electric potential due to a point charge")
+  :tutorial "ElectricPotential.html"
   :ExpFormat ("calculating the electric potential at ~a due to ~a"
 		 (nlg ?loc) (nlg ?body))
   :EqnFormat ("V = kelec q/r" ))
@@ -1515,6 +1521,7 @@
   :complexity major  ; want this in case it is the top psm on a problem
   :short-name "net potential"
   :nlg-english ("the definition of net electric potential")
+  :tutorial "ElectricPotential.html"
   :ExpFormat ("calculating the net electric potential from all sources at ~a~a"
 		 (nlg ?loc) (nlg ?time 'pp) )
   :EqnFormat ("Vnet = V1 + V2 + ..." ))
@@ -1549,6 +1556,7 @@
   :complexity major
   :short-name "electric potential energy"
   :nlg-english ("the formula for the electric potential energy")
+  :tutorial "ElectricPotential.html"
   :ExpFormat ("calculating the electric potential energy of ~a"
 		 (nlg ?body))
   :EqnFormat ("U = q Vnet" ))
@@ -1737,6 +1745,7 @@
   :complexity major
   :short-name ("electric dipole moment (~A component)" (axis-name ?axis))
   :nlg-english ("the electric dipole moment of two charges")
+  :tutorial nil ;seems to be missing
   :ExpFormat ("finding electric dipole moment for ~a ~a"
 		 (nlg ?dipole) (nlg ?time 'pp) )
   :EqnFormat ("p<sub>~a</sub> = q r<sub>~a</sub>" (axis-name ?axis) (axis-name ?axis)))
@@ -1814,6 +1823,7 @@
   :complexity major
   :short-name "electric dipole moment (magnitude)"
   :nlg-english ("the magnitude of the electric dipole moment of two charges")
+  :tutorial nil ;seems to be missing
   :ExpFormat ("finding the magnitude of the electric dipole moment of ~a ~a"
 		 (nlg ?dipole) (nlg ?time 'pp) )
   :EqnFormat ("p = abs(q) r" ))
@@ -1873,6 +1883,7 @@
   :complexity major
   :short-name ("magnetic dipole moment (~A component)" (axis-name ?axis))
   :nlg-english ("the magnetic dipole moment of a flat current loop")
+  :tutorial nil ;seems to be missing
   :ExpFormat ("finding the magnetic dipole moment of ~a ~a"
 		 (nlg ?dipole) (nlg ?time 'pp) )
   :EqnFormat ("&mu;<sub>~a</sub> = N I A n<sub>~a</sub>" (axis-name ?axis) (axis-name ?axis)))
@@ -1943,6 +1954,7 @@
   :complexity major
   :short-name "magnetic dipole moment (magnitude)"
   :nlg-english ("the magnitude of the magnetic dipole moment of current loop")
+  :tutorial nil ;seems to be missing
   :ExpFormat ("finding the magnitude of the magnetic dipole moment of ~a ~a"
 		 (nlg ?body) (nlg ?time 'pp) )
   :EqnFormat ("&mu; = N I A" ))
@@ -2001,6 +2013,7 @@
   :short-name "torque for electric dipole (magnitude)"
   :nlg-english ("the magnitude of the ~A on a dipole in an electric field" 
 	    (moment-name))
+  :tutorial nil ;seems to be missing
   :expformat ((strcat "calculating the magnitude of the ~A "
 		      "on ~a ~a due to the electric field in ~a")
 	      (moment-name) (nlg ?dipole) (nlg ?time 'pp) (nlg ?region))
@@ -2012,6 +2025,7 @@
   :short-name ("~A for magnetic dipole (magnitude)" (moment-name))
   :nlg-english ("the magnitude of the ~A on a dipole in a magnetic field" 
 	    (moment-name))
+  :tutorial nil ;seems to be missing
   :expformat ((strcat "calculating the magnitude of the ~A "
 		      "on ~a ~a due to the magnetic field in ~a")
 	      (moment-name) (nlg ?dipole) (nlg ?time 'pp) (nlg ?region))
@@ -2074,6 +2088,7 @@
   :complexity major ; definition, but can be first "principle" for sought
   :short-name "torque for electric dipole (z component)"
   :nlg-english ("the ~A on a dipole in an electric field" (moment-name))
+  :tutorial nil ;seems to be missing
   :expformat ((strcat "calculating the ~A component of the ~A "
 		      "on ~a ~a due to the electric field in ~A")
 	      (axis-name ?axis) (moment-name) (nlg ?dipole) (nlg ?t 'pp) 
@@ -2096,6 +2111,7 @@
   :complexity major ; definition, but can be first "principle" for sought
   :short-name ("torque for magnetic dipole (~A component)" (axis-name ?axis))
   :nlg-english ("the ~A on a dipole in an magnetic field" (moment-name))
+  :tutorial nil ;seems to be missing
   :expformat ((strcat "calculating the ~A component of the ~A "
 		      "on ~a ~a due to the magnetic field in ~A")
 	      (axis-name ?axis) (moment-name) (nlg ?dipole) (nlg ?t 'pp) 
@@ -2308,6 +2324,7 @@
   :complexity major ; definition, but can be first "principle" for sought
   :short-name "potential energy of electric dipole"
   :nlg-english ("the definition of the energy of a dipole in an electric field")
+  :tutorial nil ;seems to be missing
   :expformat ("calculating the energy of ~a in ~A" 
 	      (nlg ?dipole) 
 	      (nlg (set-time (append (list 'field ?region 'electric) ?rest) ?time)))
@@ -2318,6 +2335,7 @@
   :complexity major ; definition, but can be first "principle" for sought
   :short-name "potential energy of magnetic dipole"
   :nlg-english ("the definition of the energy of a dipole in a magnetic field")
+  :tutorial nil ;seems to be missing
   :expformat ("calculating the energy of ~a in ~A" 
 	      (nlg ?dipole) 
 	      (nlg (set-time (append (list 'field ?region 'magnetic) ?rest) ?time)))
@@ -2808,6 +2826,7 @@
   :complexity major
   :short-name "magnetic force (magnitude)"
   :nlg-english ("force on charge moving in a magnetic field")
+  :tutorial "MagneticField.html"
   :ExpFormat ("applying the formula for force on charge in a magnetic field")
   :EqnFormat ("F = abs(q) v B sin(&theta;)" ))
 
@@ -2877,6 +2896,7 @@
   :complexity major
   :short-name ("magnetic force (~A component)" (axis-name ?axis))
   :nlg-english ("the force on a moving charge due to a magnetic field")
+  :tutorial "MagneticField.html"
   :ExpFormat ("finding the force (~A component) on ~A due to the magnetic field"
 	      (axis-name ?axis) (nlg ?body))
   :EqnFormat ((charge-force-Bfield-equation ?axis) ))
@@ -3861,6 +3881,7 @@
   :complexity major			;must explicitly use
   :short-name "Amp&egrave;re's law"
   :nlg-english ("Amp&egrave;re's law")
+  :tutorial "AmperesLaw.html"
   :ExpFormat ("applying Amp&egrave;re's law to ~A" (nlg ?S))
   ;; use implicit format args to insert the plus-minus character code into 
   ;; the EqnFormat string using only standard characters in our source text

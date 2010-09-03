@@ -206,6 +206,7 @@
   :complexity major  ; ??
   :short-name "focal length of mirror"
   :nlg-english ("the focal length of spherical mirror")
+  :tutorial "SphericalMirror.html"
   :ExpFormat ("applying the formula for the focal length of a spherical mirror to ~A" (nlg ?mirror))
   :EqnFormat ("f = r/2")) 
 
@@ -243,6 +244,7 @@
   :complexity major
   :short-name "thin lens/mirror equation"
   :nlg-english ("the thin lens/mirror equation")
+  :tutorial "LensEquation.html"
   :ExpFormat ("applying the thin lens/mirror equation to ~A" (nlg ?lens))
   :EqnFormat ("1/do + 1/di = 1/f")) 
 
@@ -330,6 +332,7 @@
   :complexity major
   :short-name "(lateral) magnification"
   :nlg-english ("the formula for (lateral) magnification")
+  :tutorial "Magnification.html"
   :ExpFormat ("applying the formula for magnification to ~A" (nlg ?lens))
   :EqnFormat ("m = -di/do")) 
 
@@ -380,6 +383,7 @@
   :complexity major
   :short-name "combination of lenses"
   :nlg-english ("the lens combination relation")
+  :tutorial "CombinedLenses.html"
   :ExpFormat ("applying the lens combination relation to ~A and ~A" 
 	      (nlg ?lens1) (nlg ?lens2))
   :EqnFormat ("do2 = d12 - di1")) 
@@ -417,6 +421,7 @@
   :complexity major
   :short-name "combined magnification"
   :nlg-english ("combined lens magnification")
+  :tutorial "Magnification.html"
   :ExpFormat ("applying the formula for magnification to ~A and ~A" (nlg ?lens1) (nlg ?lens2))
   :EqnFormat ("m12 = m1 m2")) 
 
@@ -458,6 +463,7 @@
   :complexity major
   :short-name "compound lens (touching lenses)"
   :nlg-english ("the focal length of a compound lens")
+  :tutorial "TouchingLenses.html"
   :ExpFormat ("applying the formula for the focal length of a compound lens")
   :EqnFormat ("1/f12 = 1/f1 + 1/f2")) 
 

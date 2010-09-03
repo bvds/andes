@@ -918,6 +918,7 @@
   :complexity minor 
   :short-name "vector magnitude"
   :nlg-english ("the magnitude of a vector")
+  :tutorial "PythagoreanTheorem.html"
   :ExpFormat ("calculating the magnitude of of ~a" (nlg ?vector))
   :EqnFormat ("A = sqrt(A<sub>x</sub><sup>2</sup> + A<sub>y</sub><sup>2</sup>)"))
 
@@ -1187,11 +1188,12 @@
     (given (compo y 0 (relative-position ?p2 ?p1 :time ?t)) (dnum ?r21_y ?units))
  ))
 
-;; If a vector is given by components, it is drawn unknown, even if it has an obvious direction
-;; because it lies along an axis. Equations like the radial E&M laws may reference the vector
-;; direction. Since we now write simple projection equations for these vectors, we need some
-;; trivial psm to put out the value of the orientation angle in the solution. Note this only
-;; applies to component form vectors with obvious directions.
+;; If a vector is given by components, it is drawn unknown, even if it has 
+;; an obvious direction because it lies along an axis. Equations like the 
+;; radial E&M laws may reference the vector direction. Since we now write 
+;; simple projection equations for these vectors, we need some trivial psm 
+;; to put out the value of the orientation angle in the solution.  Note this 
+;; only applies to component form vectors with obvious directions.
 
 (def-psmclass vector-direction (vector-direction ?vector)
   :complexity minor 
@@ -2043,6 +2045,7 @@
   :complexity minor
   :short-name "rod about center"
   :nlg-english ("moment of inertia of a rod about its center")
+  :tutorial "LongThinRodAboutCenterOfMass.html"
   :expformat ("calculating the moment of inertia of ~a about ~A" 
 	      (nlg ?body) (nlg ?cm))
   :EqnFormat ("I = (1/12) m L<sup>2</sup>"))
@@ -2078,6 +2081,7 @@
   :complexity minor
   :short-name "rod about end"
   :nlg-english ("moment of inertia of a rod about its end")
+  :tutorial "LongThinRodAboutEnd.html"
   :expformat ("moment of inertia of the rod ~a about ~A" (nlg ?body) (nlg ?end))
   :EqnFormat ("I = (1/3) m L<sup>2</sup>"))
 
@@ -2118,6 +2122,7 @@
   :complexity minor
   :short-name "hoop"
   :nlg-english ("moment of inertia for a hoop about its center")
+  :tutorial "HoopAboutCenterOfMass.html"
   :expformat ("moment of inertia for the hoop ~a about ~A" 
 	      (nlg ?body) (nlg ?cm))
   :EqnFormat ("I = m r<sup>2</sup>"))
@@ -2152,6 +2157,7 @@
   :complexity minor
   :short-name "disk about center"
   :nlg-english ("moment of inertia of a disk about its center")
+  :tutorial nil ;seems to be missing
   :expformat ("moment of inertia of the disk ~a about ~A" 
 	      (nlg ?body) (nlg ?cm))
   :EqnFormat ("I = 0.5 m r<sup>2</sup>"))
@@ -2182,6 +2188,7 @@
   :complexity minor
   :short-name "rectangular plate"
   :nlg-english ("moment of inertia of a rectangle about its center")
+  :tutorial "RectangleAboutCenterOfMass.html"
   :expformat ("moment of inertia of the rectangle ~a about ~A"
 	      (nlg ?body) (nlg ?cm))
   :EqnFormat ("I = (1/12) m (L<sup>2</sup> + W<sup>2</sup>)"))
@@ -2220,6 +2227,7 @@
   :complexity minor
   :short-name "compound body"
   :nlg-english ("moment of inertia of a compound body")
+  :tutorial "CompoundBody.html"
   :expformat ("calculating the total moment of inertia of ~a about ~A"
 	      (nlg ?compound) (nlg ?axis))
   :EqnFormat ("I12 = I1 + I2"))
