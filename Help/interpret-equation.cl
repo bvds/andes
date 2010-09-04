@@ -129,10 +129,6 @@
         (or (eq (first (eqn-exp eqn)) 'angle-between)
 	    (unify (eqn-exp eqn) '(dir ?vector)))))
 
-(defun eqn-English (eqn)
-"return English name for eqn index entry, NULL if not found."
-   (nlg-equation (eqn-exp eqn)))
-
 ;; We want to allow implicit removal of zero values at any time, so we 
 ;; remove var=0 equations from interpretations before further testing 
 ;; for illicit combinations. 
@@ -185,10 +181,6 @@
 (defun given-eqn-entry-p (syseqn)
   "true if system equation entry is step of writing a given equation"
   (given-eqn-p (syseqn->eqn syseqn)))
-
-(defun syseqn-English (syseqn)
-  "map system equation to its English string name"
-  (eqn-English (syseqn->eqn syseqn)))
 
 ;; for dealing with interpretations = sets of syseqns:
 (defun get-nonzero-eqns (interp)
@@ -360,8 +352,15 @@
   "return list of English forms for missing explicit eqns in interp.  Returns major and non-major equations."
   (multiple-value-bind (major rest) 
       (get-needed-eqns interp)
-    (values (mapcar #'syseqn-English major)
-	    (mapcar #'syseqn-English rest))))
+    (values (mapcar #'syseqn-English-with-link major)
+	    (mapcar #'syseqn-English-with-link rest))))
+
+(defun syseqn-english-with-link (eqn)
+  (let ((psm (lookup-expression->psmclass 
+	      (eqn-exp (syseqn->eqn eqn)))))
+    (open-review-window-html 
+     (nlg-equation (eqn-exp (syseqn->eqn eqn)))
+     (or (psmclass-tutorial psm) "principles.html"))))
 
 ;; switch -- whether to enforce prematurity constraints on equations
 (defvar **Check-Eqn-Constraints**  T) ; off until we work them out
@@ -413,10 +412,12 @@
 	  (chain-explain-more-green 
 	   (list 
 	    (format NIL "Although this equation is correct, you have not displayed a fundamental principle being used in symbolic form all by itself.")
-	    "It is good practice to identify the fundamental principles you are using by writing them in standard form before combining them with other equations or given values.&nbsp; Select \"Principles\" in the \"Physics\" menu to view  a list of principles and their standard forms."
-	    (format NIL "Try to write ~:[an equation~;separate equations~] for ~A~@[, written separately from ~A~]." 
+	    (format NIL
+		    "It is good practice to identify the fundamental principles you are using by writing them in standard form before combining them with other equations or given values. <p>Try to write ~:[an equation~;separate equations~] for ~A~@[, written separately from ~A~]." 
 		    (cdr missing-major) (conjoined-names missing-major) 
-		    (conjoined-names missing-rest))))
+		    (conjoined-names missing-rest))
+	    ;; there should be a bottom-out hint for writing one of the equations
+	    ))
 	  
 	  (progn
 	    (warn "get-premature-msg called but couldn't find missing equations!~%")
