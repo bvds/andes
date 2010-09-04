@@ -27,6 +27,7 @@
 
 ;; ex) "the wavelength of ~ moving in ~" 
 (def-qexp wavelength (wavelength ?wave ?medium)
+  :rank scalar
   :symbol-base |\\lambda|     
   :short-name "wavelength"	
   :units |m|
@@ -49,6 +50,7 @@
 
 ;; ex) "the wavenumber of ~ moving in ~" 
 (def-qexp wavenumber (wavenumber ?wave ?medium)
+  :rank scalar
   :symbol-base |k|     
   :short-name "wave-number"	
   :units |rad/m|
@@ -110,6 +112,7 @@
 
 ;; ex) "the frequency of ~" 
 (def-qexp frequency (frequency ?wave)
+  :rank scalar
   :symbol-base |f|     
   :short-name "frequency"	
   :units |Hz|
@@ -136,6 +139,7 @@
 
 ;; ex) "the frequency of ~ as observed by ~"
 (def-qexp observed-frequency (observed-frequency ?wave ?me :time ?time)
+  :rank scalar
   :symbol-base |f|     
   :short-name "frequency (observed)" 
   :units |Hz|
@@ -178,6 +182,7 @@
 ;; ex) "the period of the motion of ~"
 ;;     "the period of oscillations of ~"
 (def-qexp period (period ?body)
+  :rank scalar
   :symbol-base |T|     
   :short-name "period"	
   :units |s|
@@ -202,6 +207,7 @@
 
 ;; ex) "the angular-frequency of ~"
 (def-qexp angular-frequency (angular-frequency ?wave)
+  :rank scalar
   :symbol-base |\\omega|     
   :short-name "angular frequency"	
   :units |rad/s|
@@ -421,6 +427,7 @@
 
 ;; ex) "the speed of waves in ~" 
 (def-qexp wave-speed (wave-speed ?medium)
+  :rank scalar
   :symbol-base |v|     
   :short-name "speed of wave" 
   :units |m/s|
@@ -542,6 +549,7 @@
 
 ;; ex) "the index of refraction of ~"
 (def-qexp index-of-refraction (index-of-refraction ?medium)
+  :rank scalar
   :symbol-base |n|     
   :short-name "index of refraction"	
   :units NIL  ;dimensionless
@@ -675,6 +683,7 @@
 
 ;; ex) "the string-tension of ~" 
 (def-qexp string-tension (string-tension ?rope)
+  :rank scalar
   :symbol-base |Ft|     
   :short-name "tension on a string" 
   :units |N|
@@ -736,6 +745,7 @@
 
 ;; ex) "the amplitude of ~" 
 (def-qexp amplitude (amplitude ?wave)
+  :rank scalar
   :symbol-base |A|     
   :short-name "amplitude"	
   :units |m|
@@ -759,6 +769,7 @@
 ;;; define maximum speed of transverse motion
 ;; ex) "the maximum speed of ~"
 (def-qexp amplitude-max-speed (amplitude-max-speed ?wave)
+  :rank scalar
   :symbol-base |vmax|     
   :short-name "maximum speed of oscillation"	
   :units |m/s|
@@ -815,6 +826,7 @@
 ;;; define |maximum transverse accleration|
 ;; ex) "the |maximum acceleration of ~|"
 (def-qexp amplitude-max-abs-acceleration (amplitude-max-abs-acceleration ?wave)
+  :rank scalar
   :symbol-base |amax|     
   :short-name "maximum magnitude of acceleration"	
   :units |m/s^2|
@@ -1100,6 +1112,7 @@
 
 ;; ex) "the intensity supplied to ~ due to ~" 
 (def-qexp intensity (intensity ?wave ?agent :time ?time)
+  :rank scalar
   :symbol-base |I|     
   :short-name "intensity"	
   :units |W/m^2|
@@ -1126,6 +1139,7 @@
 
 ;; ex) "the intensity of ~ at ~" 
 (def-qexp intensity-at (intensity ?body at ?position :time ?time)
+  :rank scalar
   :symbol-base |I|
   :short-name "intensity"
   :units |W/m^2|
@@ -1147,7 +1161,9 @@
 			    ))))
 
 (def-qexp poynting-vector (poynting-vector ?loc ?agent :time ?time)
+  :rank vector
   :units |W/m^2|
+  :short-name "Poynting vector"
   ;ex) "the Poynting vector at ~ due to ~"
   :new-english (property-agent-pos-time "Poynting vector" ?agent ?loc :time ?time)
 )
@@ -1183,9 +1199,11 @@
 ;; BvdS:  Maybe combine with intensity, with ?agent set to nil
 ;; ex) "the net intensity supplied to ~"
 (def-qexp net-intensity (net-intensity ?wave :time ?time)
+  :rank scalar
   :units |W/m^2|
   :restrictions positive  
-  :new-english ((the) "net intensity"
+  :short-name "net intensity"
+  :new-english ((the) (or "net" "total") "intensity"
 		(and (preferred ("supplied to" ?wave)
 		     (time ?time)))))
 
@@ -1248,6 +1266,7 @@
 ;;;  Intensity in decibels.
 ;; ex) "the intensity supplied to ~ due to ~ in decibels" 
 (def-qexp db-intensity (db-intensity ?wave ?agent :time ?time)
+  :rank scalar
   :symbol-base |\\beta|     
   :short-name "decibels" 
   :units |dB|
@@ -1280,7 +1299,9 @@
 ;; see def-qexp for db-intensity
 ;; ex) "the total intensity supplied to ~, in decibels" 
 (def-qexp net-db-intensity (net-db-intensity ?wave :time ?time)
+  :rank scalar
   :units |dB|
+  :short-name "net intensity (db)"
   :new-english ((the) "total intensity" 
 		(and (preferred ("supplied to" ?wave))
 		     (time ?time) 
@@ -1521,6 +1542,7 @@
 
 ;; ex) "the amplitude of the electric field in ~" 
 (def-qexp amplitude-electric (amplitude ?wave :type electric)
+  :rank scalar
   :symbol-base |E|     
   :short-name "amplitude of electric field"	
   :units |V/m|
@@ -1530,6 +1552,7 @@
 )
 
 (def-qexp amplitude-magnetic (amplitude ?wave :type magnetic)
+  :rank scalar
   :symbol-base |B|     
   :short-name "amplitude of magnetic field"	
   :units |T|

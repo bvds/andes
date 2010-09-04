@@ -1629,12 +1629,16 @@
 ;;;;---------------------------------------------------------------------------
 
 (def-qexp electric-dipole-moment (dipole-moment ?dipole electric :time ?time)
+  :rank vector
   :units |C.m|
+  :short-name "electric dipole moment"
   :new-english (property-object-time "electric dipole moment" ?dipole 
 				     :time ?time))
 
 (def-qexp magnetic-dipole-moment (dipole-moment ?dipole magnetic :time ?time)
+  :rank vector
   :units |C.m^2/s|
+  :short-name "magnetic dipole moment"
   :new-english (property-object-time "magnetic dipole moment" ?dipole 
 				     :time ?time))
 
@@ -2300,7 +2304,8 @@
 ;; can be either electric or magnetic
 ;; this was borrowed from work
 (def-qexp dipole-energy (dipole-energy ?dipole ?field :time ?time)
-  ;; custom dialog box "energy"
+  :rank scalar
+  :short-name "dipole energy"
   :units |J|
   :new-english ((the) (preferred "potential") "energy"
 		(and (property ?dipole) (preferred (agent ?field))
@@ -3347,6 +3352,7 @@
 ;;;  definition of turns and turns per unit length
 
 (def-qexp turns (turns ?body)
+  :rank scalar
   :symbol-base |N|     
   :short-name "turns" 
   :units NIL  ;dimensionless
@@ -3372,6 +3378,7 @@
 
 
 (def-qexp turns-per-length (turns-per-length ?body)
+  :rank scalar
   :symbol-base |n|     
   :short-name "turns per unit length" 
   :units |m^-1|
@@ -3427,6 +3434,7 @@
 ;;;      the surface in the direction orthogonal to the surface.
 
 (def-qexp electric-flux (flux ?surface electric :time ?t)
+  :rank scalar
   :symbol-base |\\Phi|     
   :short-name "electric flux"	
   :units |V.m|
@@ -3436,6 +3444,7 @@
 
 (def-qexp electric-flux-change (rate-of-change 
 				(flux ?surface electric :time ?t))
+  :rank scalar
   :symbol-base |d\\Phidt|  ;needs fixing
   :short-name "rate of change in electric flux"	
   :units |V.m/s|
@@ -3444,6 +3453,7 @@
 		     (time ?t)))))
 
 (def-qexp magnetic-flux (flux ?surface magnetic :time ?t)
+  :rank scalar
   :symbol-base |\\Phi|     
   :short-name "magnetic flux"	
   :units |T.m^2|
@@ -3453,6 +3463,7 @@
 
 (def-qexp magnetic-flux-change (rate-of-change 
 				(flux ?surface magnetic :time ?t))
+  :rank scalar
   :symbol-base |d\\Phidt|  ;needs fixing     
   :short-name "rate of change in magnetic flux"	
   :units |T.m^2/s|
@@ -3853,6 +3864,7 @@
 ;; ideally, we should have the path and field as separate arguments
 (def-qexp magnetic-line-integral (line-integral 
 				  (net-field ?path magnetic :time ?t))
+  :rank scalar
   :symbol-base |intB|     
   :short-name "line integral of B"
   :units |T.m|

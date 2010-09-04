@@ -74,10 +74,6 @@
 ;;;;; Form fields consist of pattern matching forms including variable
 ;;;;; definitions such as "(define-var ?var ?exp)"
 ;;;;;
-;;;;; fields define the specific field types amnd are of the form
-;;;;; (<var> . type(s)) where var is a '?var' that appears in at
-;;;;; least one of the field listings and types are atomic expression
-;;;;; types 
 ;;;;;
 
 
@@ -125,10 +121,8 @@
 
   type          ;; The expression type e.g. at
   form          ;; The expression definition form.  
-  
-  fields        ;; The fields types in the same order as vars in the form
-                ;; these will be used for type checking later on.
-  
+    
+  rank          ;; vector, scalar, or ...
   symbol-base   ;; Base to present for symbol name in dialog box
   short-name    ;; String with short name for quantity (for use in menu)
   Units         ;; A function or atom returning the units.
@@ -143,7 +137,7 @@
 
 
 (defmacro def-qexp (type Form 
-		   &key Fields
+		   &key rank
                         symbol-base
                         short-name
  			Units
@@ -154,7 +148,7 @@
   "Define a quantity expression."
   (define-exptype :type type 
     :form Form
-    :fields Fields
+    :rank rank
     :symbol-base symbol-base
     :short-name short-name
     :Units Units
@@ -175,7 +169,7 @@
 ;;
 ;; This function is not intended to be called directly
 ;; by the users.
-(defun define-exptype (&key type form fields symbol-base short-name 
+(defun define-exptype (&key type form rank symbol-base short-name 
 			    units 
 			    restrictions 
 			    documentation
@@ -193,11 +187,14 @@
   (when (lookup-expression-struct Form)
     (error "exptype ~A matching form already exists." 
 	   (exptype-type (lookup-expression-struct Form))))
+
+  (when (and rank (not short-name))
+    (error "short-name must be supplied for ~A" type))
   
   (let ((E (make-exptype 
 	    :type type
 	    :form form
-	    :fields (fill-field-defs fields form)	
+	    :rank rank
 	    :documentation documentation
 	    :symbol-base symbol-base
 	    :short-name short-name
@@ -247,10 +244,6 @@
 	  (progn
 	    (warn "exptype ~A missing short-name" (exptype-type qexp))
 	    (string-downcase (string (exptype-type qexp))))))))
-
-(defun lookup-expression-fieldtype (Field Struct)
-  "Lookup the struct corresponding to the field."
-  (cdr (find Field (ExpType-fields Struct) :key #'car)))
     
 (defun lookup-expression-units (exp)
   "Lookup the expression units."
@@ -287,8 +280,6 @@
   Type     ;; Proposition type label.
   KBForm   ;; Proposition KB form. 
   HelpForm ;; Propositin help form for mapping.
-  fields   ;; field types specific to the kb fields as help
-           ;; fields are assumed to be a subset of them.  
   Doc      ;; Documentation.
   nlg-english  ;; Englishification code.
   )
@@ -302,16 +293,13 @@
 ;;  (format Stream "  Help: ~A~%" (EntryProp-Help Prop)))
   
 (defmacro def-entryprop (Type form
-			 &key fields
-			      (helpform form)
+			 &key (helpform form)
 			      doc nlg-English)
   "Define an Entry proposition type and store the value."
   (let ((E (make-entryProp 
 	    :type Type
 	    :kbform form
 	    :helpform helpform
-	    :fields (fill-field-defs 
-		     fields form helpform)
 	    :Doc Doc
 	    :nlg-English nlg-English)))
     (postpend *Ontology-EntryProp-Types* E)
@@ -619,7 +607,6 @@
 (defstruct (psmclass (:print-function print-psmclass))
   name       ;; type name e-g compo-free-nsl
   form       ;; Form to unify with.
-  fields     ;; field types in order of vars.
   
   group      ;; The class that this psm is a part of e.g Kinematics.
   Complexity ;; Planning Commplexity clas (simple, link, major)
@@ -637,7 +624,6 @@
   (declare (ignore level))
   (format Stream "[PSMClass:   ~A~%" (psmclass-name class))
   (format Stream "  Form:      ~A~%" (psmclass-form class))
-  (format Stream "  Fields:    ~A~%" (psmclass-fields class))
   (format Stream "  Group:     ~A~%" (psmclass-group class))
   (format Stream "  Complexity ~A~%" (psmclass-complexity class))
   (format Stream "  Help:      ~A~%" (psmclass-help class))
@@ -658,17 +644,15 @@
 
 
 (defmacro def-psmclass (name form
-			&key fields group complexity
+			&key group complexity
 			     help short-name nlg-english tutorial
 			     doc  ExpFormat EqnFormat)
   "Define and store a psm type."
   (test-defpsmclass-errors name group)
   (let* ((g (lookup-psmgroup-name group))
-	 (FieldDefs (fill-field-defs Fields Form))
 	 (New (make-psmclass
 	       :name name
 	       :form form
-	       :fields FieldDefs
 	       :group g
 	       :complexity complexity
 	       :help help
@@ -716,62 +700,6 @@
 (defun psmclass-major-p (Class)
   "Is this a major PSM?"
   (equal 'major (psmclass-complexity Class)))
-
-
-
-#|
-  ;;;;=========================================================================
-  ;;;; Field defininitions.
-  ;;;; For the purposes of storing field information in the various sturctures
-  ;;;; I have here defined the internal field struct.  Each field has a name
-  ;;;; a variable, and various specifications that can be added over time.
-  ;;;; These will be used to gather data about the proposition and enter it
-  ;;;; as necessary.  
-  
-  (defstruct (pfield (:print-fuinction print-pfield))
-  
-  Name ;; The field name.
-  Var  ;; The unification var for the field.
-  type ;; The field's type.
-  )
-  
-  
-  (defun print-pfield (field &optional (Stream t) (Level 0))
-  (declare (ignore Level))
-  (format Stream "~a" (list (pfield-name field) (pfield-var field)
-  ':type (pfield-type field)))) 
-  |#
-
-
-
-;;; Field definitions are added automatically by the system although 
-;;; they can be updated by the user as necessary.  This code loads the 
-;;; values and produces the definitions.  In the future this will be 
-
-(defun fill-field-defs (fields &rest forms)
-  "Fill in the field definitions."
-  (let ((F fields) 
-	(v (remove-duplicates 
-	    (variables-in forms))))
-    (cond ((< (length v) (length f))
-	   (error "Too many field defs supplied."))
-	  ((> (length v) (length f))
-	   (dolist (var v)
-	     (when (not (member var f :key #'car))
-	       (push (cons var 'Entity) F)))))
-    F))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Currently unnecessary
-;; field definitions are assumed to be of a 
-;; general type that is a list of the form
-;; (var . type) from this list and a matching 
-;; list of values we can construct a binding list.
-;;(defun get-field-bindings (fields vals &optional (result no-bindings))
-;;  "Generate a set of bindings from the fields and vals."
-;;  (let (R)
-;;    (dotimes (n (min (length fields) (length vals)))
-;;      (push (cons (Car (nth n fields)) (nth n vals)) R))))
 
 
 ;;; --------------------------------------------------------------

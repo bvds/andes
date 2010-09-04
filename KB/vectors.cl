@@ -1773,7 +1773,9 @@
 ;; (unit-vector-orientation-name ?orientation) (nlg ?body 'at-time ?time)))
 
 (def-qexp unit-vector (unit-vector ?orientation ?body :at ?loc :time ?time)
+  :rank vector
   :units nil  ;dimensionless
+  :short-name "unit vector"
   :new-english ((preferred "a") "unit vector" 
 		;; Broken Bug #1650
 		(and 
@@ -2279,6 +2281,7 @@
 
 ;; area of a shape
 (def-qexp area (area ?shape)
+  :rank scalar
   :symbol-base |A|     
   :short-name "area"	
   :units |m^2|
@@ -2288,6 +2291,7 @@
 
 ;; ex) "the rate of change of the area of ~"
 (def-qexp area-change (rate-of-change (area ?shape))
+  :rank scalar
   :symbol-base |dAdt|     
   :short-name "rate of change in area"	
   :units |m^2/s|
@@ -2308,6 +2312,7 @@
 ;; quantity to represent radius of a circular shape
 ;; ex) "the radius of ~"
 (def-qexp radius-of-circle (radius-of-circle ?body)
+  :rank scalar
   :symbol-base |r|     
   :short-name "radius"	
   :units |m|
@@ -2329,6 +2334,7 @@
 
 ;; quantity to represent diameter of a circular shape
 (def-qexp diameter-of-circle (diameter-of-circle ?body)
+  :rank scalar
   :symbol-base |d|     
   :short-name "diameter"	
   :units |m|
@@ -2350,6 +2356,7 @@
 
 ;; quantity to represent circumference of a circular shape
 (def-qexp circumference-of-circle (circumference-of-circle ?body)
+  :rank scalar
   :symbol-base |c|     
   :short-name "circumference"	
   :units |m|

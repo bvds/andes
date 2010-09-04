@@ -71,7 +71,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-(defun nlg-list-default (x)
+(defun get-default-phrase (x)
   (when x
     (match:word-string (expand-vars (new-english-find x)))))
 
@@ -135,7 +135,7 @@
 (defun def-np (x &rest args)
   (declare (ignore args))
   (if (listp x)
-      (nlg-list-default x)  
+      (get-default-phrase x)  
     ;; Assume x is an atom
     (cond ((numberp x)      (format nil "~A" x))
 	  ((pronounp x) (format nil "~(~A~)" x))
@@ -171,14 +171,14 @@
 	(if (member (char (symbol-name x) 0) '(#\a #\e #\i #\o #\u #\A #\E #\I #\O #\U ))
 	    (format nil "an ~(~A~)" x)
 	  (format nil "a ~(~A~)" x)))
-    (nlg-list-default x)))
+    (get-default-phrase x)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun pp (x &rest args) 
   "return a temporal prepositional phrase for the given time"
   (declare (ignore args))
   (cond ((null x) NIL) ; NB: must be prepared for NIL for timeless things.
-	((listp x) (nlg-list-default x)) ;handles (during ...)
+	((listp x) (get-default-phrase x)) ;handles (during ...)
 	((numberp x) (format nil "at T~D" (- x 1)))
 	(t (format nil "at ~(~A~)" x))))
 
@@ -220,7 +220,7 @@
 	(if answer
 	    (format nil "~A" (cdr answer))
 	  (format nil "~(~A~)" x)))
-    (nlg-list-default x)))
+    (get-default-phrase x)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun adj (x &rest args)
   (adjective x args))
@@ -257,18 +257,16 @@
   (declare (ignore args))
   (if (atom x)
       (format nil "T~(~A~)" (if (numberp x) (1- x) x))
-    (nlg-list-default x)))
+    (get-default-phrase x)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  This is a shortcut for including time when it exists
 (defun at-time (x &rest args)
   (when (cdr args) (warn "unexpected extra args ~A in at-time" (cdr args)))
   (if (= (length args) 1)
-      (format nil "~A~@[ ~A~]" (match:word-string 
-				(expand-vars (new-english-find x)))
-	      (match:word-string 
-	       (expand-vars (new-english-find (list 'time (car args))))))
-    (nlg-list-default x)))
+      (format nil "~A~@[ ~A~]" (get-default-phrase x)
+	      (get-default-phrase (list 'time (car args))))
+      (get-default-phrase x)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -276,7 +274,7 @@
   (declare (ignore args))
   (if (atom x)
       (format nil "~(~A~)" x)
-    (nlg-list-default x)))
+    (get-default-phrase x)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -341,7 +339,7 @@
   ;; first look for genuine short name
   (or (lookup-expression-short-name prop)
       ;; then fall back to regular ontology
-      (match:word-string (expand-vars (new-english-find prop)))))
+      (get-default-phrase prop)))
 
 
 (defun new-english-find (prop)

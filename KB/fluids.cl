@@ -28,6 +28,7 @@
 
 ;; Define the quantity mass density.
 (def-qexp mass-density (mass-density ?material)
+  :rank scalar
   :symbol-base |\\rho|     
   :short-name "mass density"	
   :units |kg/m^3|
@@ -92,6 +93,7 @@
 
 ;;Define the quantity pressure.  The variable of choice is "P".
 (def-qexp pressure (pressure ?position :time ?time)
+  :rank scalar
   :symbol-base |P|     
   :short-name "pressure"	
   :units |Pa|
@@ -119,6 +121,7 @@
 ;; See constants.cl, function enter-predefs
 
 (def-qexp atmosphere (atmosphere)
+  :rank scalar
   :units |Pa|
   :restrictions positive
   :short-name "standard atmosphere"
@@ -361,6 +364,7 @@
 
 ;;Define the quantity cross-sectional area at a point.  The variable choice is "A".
 (def-qexp area-at (area-at ?position :time ?time)
+  :rank scalar
   :symbol-base |A|     
   :short-name "cross-sectional area"	
   :units |m^2|
@@ -561,6 +565,7 @@
 
 ;;Quantity: The volume of a body
 (def-qexp volume (volume ?body :time ?time)
+  :rank scalar
   :symbol-base |V|     
   :short-name "volume"	
   :units |m^3|

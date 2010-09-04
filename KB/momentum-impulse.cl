@@ -609,7 +609,9 @@
 ;; Impulse is specified in problem statement by given impulse direction 
 ;; which may be unknown
 (def-qexp impulse (impulse ?body ?agent :time ?time)
+  :rank vector
   :units |N.s|
+  :short-name "impulse"
   :new-english ((the) "impulse"
 		(and (preferred ("on" ?body))
 		     (preferred ("due to" ?agent))

@@ -22,18 +22,22 @@
 ;; note arguments are usually proper names -- R1, PtA, etc -- not common nouns
 ;; so we don't use nlg types that add articles.
 (def-qexp voltage-across (voltage-across ?comp :time ?time)
+  :rank scalar
   :units |V|
+  :short-name "voltage"
   :new-english ((the) "voltage across" (component ?comp) (time ?time)))
 
 ;; BobShelby (epow2):  "resistance of R1"
 ;;                     "resistance of resistor R2"
 (def-qexp resistance (resistance ?name)
+  :rank scalar
   :symbol-base |R| 
   :short-name "resistance"
   :units |ohm| ;also \Omega
   :new-english ((the) "resistance of" (allowed "resistor") (component ?name)))
 
 (def-qexp current (current-thru ?component :time ?time)
+  :rank scalar
   :symbol-base |I| 
   :short-name "current"
   :units |A|
@@ -51,6 +55,7 @@
 		    (time ?time)))
 
 (def-qexp capacitance (capacitance ?name)
+  :rank scalar
   :symbol-base |C|     
   :short-name "capacitance"
   :units |F|
@@ -60,6 +65,7 @@
 ;;; in the workbench, the time slot is added if feature changing-voltage
 ;;; is included.
 (def-qexp charge-on (charge ?name :time ?time)
+  :rank scalar
   :symbol-base |q|     
   :short-name "charge"	
   :units |C|
@@ -75,6 +81,7 @@
 ;;; in the workbench, the time slot is added if feature changing-voltage
 ;;; is included.
 (def-qexp number-of (number-of ?name)
+  :rank scalar
   :symbol-base |N|     
   :short-name "number"	
   :units nil ;dimensionless
@@ -83,12 +90,14 @@
 ;; variation for surface, where "in" is appropriate
 ;; see feature gauss
 (def-qexp charge-in (charge ?name :surface t :time ?time)
+  :rank scalar
   :symbol-base |q|     
   :short-name "charge"	
   :units |C|
   :new-english ((the) "charge in" (component ?name) (time ?time)))
 
 (def-qexp max-charge (max-charge ?name :time ?time)
+  :rank scalar
   :symbol-base |q|     
   :short-name "max-charge"	
   :units |C|
@@ -98,6 +107,7 @@
 ;; ind3a "self-inductance"
 ;; from resitance:  "the inductance of inductor L1"
 (def-qexp self-inductance (self-inductance ?inductor)
+  :rank scalar
   :symbol-base |L|     
   :short-name "self-inductance"	
   :units |H|
@@ -106,6 +116,7 @@
 	        "of" (allowed "inductor") (component ?inductor)))
 
 (def-qexp mutual-inductance (mutual-inductance orderless . ?inductors)
+  :rank scalar
   :symbol-base |M|     
   :short-name "mutual inductance"	
   :units |H|
@@ -116,6 +127,7 @@
 ;;; than power in mechanics: no agent, and may denote power output (from
 ;;; battery into charges) or power dissipated (through resistor).
 (def-qexp electric-power (electric-power ?b :time ?time)
+  :rank scalar
   :symbol-base |P|     
   :short-name "electric power"	
   :units W
@@ -126,12 +138,14 @@
 ;; thru component
 
 (def-qexp current-change (rate-of-change (current-thru ?comp :time ?time))
+  :rank scalar
   :symbol-base |dIdt|     
   :short-name "rate of change of current"	
   :units |A/s|
   :new-english ((rate (change "current")) "through" ?comp (time ?time)))
 
 (def-qexp time-constant (time-constant orderless . ?quants)
+  :rank scalar
   :symbol-base |\\tau|     
   :short-name "time constant"	
   :units |s|
@@ -143,12 +157,16 @@
 ;;    but some other problem quantities sometimes refer to region.
 ;; Some cases of a specific region, surface, many instances of points.
 (def-qexp E-field (field electric :location ?region :source ?source :time ?time)
+  :rank vector
   :units |N/C|
+  :short-name "electric field"
   :new-english (any-field (or "electric" "E") 
 			  :location ?region :source ?source :time ?time))
 
 (def-qexp B-field (field magnetic :location ?region :source ?source :time ?time)
+  :rank vector
   :units |T|
+  :short-name "magnetic field"
   :new-english (any-field (or "magnetic" "B") 
 			  :location ?region :source ?source :time ?time))
 
@@ -170,19 +188,24 @@
 
 ;; All instances of (net-field ...) are for fields at a point
 (def-qexp net-E-field (net-field ?region electric :time ?time)
+  :rank vector
   :units |N/C|
+  :short-name "net electric field"
   :new-english (any-net-field ?region (or "electric" "E") :time ?time))
 
 (def-qexp net-B-field (net-field ?region magnetic :time ?time)
+  :rank vector
   :units |T|
+  :short-name "net magnetic field"
   :new-english (any-net-field ?region (or "magnetic" "B") :time ?time))
 
 (def-qexp any-net-field (any-net-field ?region ?type :time ?time)
   :new-english ((the) (or "net" "total") ?type "field" 
 		(and (region ?region)
-		     (time ?))))
+		     (time ?time))))
 
 (def-qexp potential (potential ?loc ?source :time ?time)
+  :rank scalar
   :symbol-base |V|     
   :short-name "electric potential"	
   :units |V|
@@ -196,18 +219,22 @@
 ;; "net potential at P1"
 ;; "net potential in the region"
 (def-qexp net-potential (net-potential ?loc :time ?time)
+  :rank scalar
   :units |V|
+  :short-name "net electric potential"
   :new-english ((the) (or "net" "total")  
 		(or "electric" "electrostatic") "potential" 
 		(and (region ?loc) (time ?time))))
 
 (def-qexp electric-energy (electric-energy ?body ?source :time ?time)
+  :rank scalar
   :units |J|
   :short-name "electric potential energy"
   :new-english (property-object-source-time "electric potential energy" ?body 
 					    ?source :time ?time))
 
 (def-qexp stored-energy (stored-energy ?component :time ?time)
+  :rank scalar
   :symbol-base |U|     
   :short-name "energy stored"	
   :units |J|

@@ -42,6 +42,7 @@
  
 ;; ex) "object distance for lens1" by Bob
 (def-qexp object-distance (object-distance ?lens)
+  :rank scalar
   :symbol-base |do|     
   :short-name "object distance"	
   :units |m|
@@ -64,6 +65,7 @@
 
 ;; ex) "image distance for lens1" by Bob
 (def-qexp image-distance (image-distance ?lens)
+  :rank scalar
   :symbol-base |di|     
   :short-name "image distance"	
   :units |m|
@@ -86,6 +88,7 @@
        ))
 
 (def-qexp focal-length (focal-length ?lens)
+  :rank scalar
   :symbol-base |f|     
   :short-name "focal length"	
   :units |m|
@@ -104,6 +107,7 @@
        ))
 
 (def-qexp magnification (magnification ?lens)
+  :rank scalar
   :symbol-base |m|     
   :short-name "magnification"	
   :units NIL
@@ -122,6 +126,7 @@
        ))
 
 (def-qexp radius-of-curvature (radius-of-curvature ?mirror)
+  :rank scalar
   :symbol-base |r|     
   :short-name "radius of curvature"	
   :units |m|
@@ -140,6 +145,7 @@
        ))
 
 (def-qexp distance-between (distance-between orderless . ?objects)
+  :rank scalar
   :symbol-base |d|     
   :short-name "distance"	
   :units |m|
@@ -159,6 +165,7 @@
        ))
 
 (def-qexp slit-separation (slit-separation ?grating)
+  :rank scalar
   :symbol-base |d|     
   :short-name "slit separation"	
   :units |m|
@@ -178,6 +185,7 @@
 	 ))
 
 (def-qexp resolution-angle (resolution-angle ?grating)
+  :rank scalar
   :symbol-base |\\theta|     
   :short-name "angle of resolution"
   :units |deg|

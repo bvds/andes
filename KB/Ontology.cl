@@ -50,6 +50,7 @@
 ;;     "the ball's relative position to the observer"
 ;;    "the ball's position with respect to the observer"
 (def-qexp relative-position (relative-position ?to-pt ?from-pt :time ?time)
+  :rank vector
   :units |m|
   :short-name "relative position"
   ;; see relative-vel
@@ -61,6 +62,7 @@
 		    (time ?time))))
 
 (def-qexp displacement (displacement ?body :time ?time)
+  :rank vector
   :units |m|
   :short-name "displacement"
   ;; BvdS:  is there a common abbreviation?
@@ -69,6 +71,7 @@
 )
 
 (def-qexp velocity (velocity ?body :time ?time)
+  :rank vector
   :units |m/s|
   :short-name "velocity"
   :new-english (vector-object-time (or "velocity" "vel." "vel") ?body 
@@ -77,6 +80,7 @@
 
 ;; ex) "the velocity of the ball relative to the observer"
 (def-qexp relative-vel (relative-vel ?to-pt ?from-pt :time ?time)
+  :rank vector
   :units |m/s|
   :short-name "relative velocity"
   ;; see relative-position
@@ -89,6 +93,7 @@
 		(time ?time)))
 
 (def-qexp accel	(accel ?body :time ?time)
+  :rank vector
   :units |m/s^2|
   :short-name "acceleration"
   :new-english ((vector-object-time (or "acceleration" "accel." "accel") ?body 
@@ -96,6 +101,7 @@
 )
 
 (def-qexp momentum (momentum ?body :time ?time)
+  :rank vector
   :units |kg.m/s|
   :short-name "momentum"
   :new-english ((the) (or "momentum" "mom." "mom")
@@ -116,6 +122,7 @@
 ;; "tension force on the brick due to the string" (vector case)
 ;; 
 (def-qexp force (force ?body ?agent ?type :time ?time)
+  :rank vector
   :units N
   :short-name "force"
   :new-english 
@@ -160,6 +167,7 @@
     (t (warn "unknown force type ~A" type) (format nil "~(~A~) force" type))))
 
 (def-qexp net-force (net-force ?body :time ?time)
+  :rank vector
   :units N
   :short-name "net force"
   :new-english ((the) (or "net" "total") 
@@ -170,6 +178,7 @@
   :new-english (or "angular" "rotational" "rot." "ang." "orb." "rot" "ang") )
 
 (def-qexp ang-displacement (ang-displacement ?body :time ?time)
+  :rank vector
   :units |rad|
   :short-name "angular displacement"
   :new-english ((the) rotation-adj	(or "displacement" "disp." "disp")
@@ -177,6 +186,7 @@
 		      (time ?time))))
 
 (def-qexp ang-velocity (ang-velocity ?body :time ?time)
+  :rank vector
   :units |rad/s|
   :short-name "angular velocity"
   :new-english ((the) rotation-adj (or "velocity" "vel." "vel")
@@ -184,6 +194,7 @@
 		      (time ?time))))
 
 (def-qexp ang-accel (ang-accel ?body :time ?time)
+  :rank vector
   :units |rad/s^2|
   :short-name "rotational acceleration"
   :new-english ((the) rotation-adj (or "acceleration" "accel." "accel")
@@ -191,6 +202,7 @@
 		     (time ?time))))
 
 (def-qexp ang-momentum (ang-momentum ?body :time ?time)
+  :rank vector
   :units |kg.m^2/s|
   :short-name "angular momentum"
   :new-english ((the) rotation-adj (or "momentum" "mom." "mom")
@@ -198,6 +210,7 @@
 		      (time ?time))))
 
 (def-qexp torque (torque ?body ?agent :axis ?axis :time ?time)
+  :rank vector
   :units |N.m|
   :short-name "torque"
   :new-english ((the) (eval (moment-name)) 
@@ -207,6 +220,7 @@
 		     (time ?time))))
 
 (def-qexp net-torque (net-torque ?body ?axis :time ?time)
+  :rank vector
   :units |N.m|
   :short-name "net torque"
   :new-english ((the) (or "net" "total") (eval (moment-name)) 
@@ -220,7 +234,9 @@
 
 ;; attributes of vectors:
 (def-qexp compo	(compo ?xyz ?rot ?vector)
+  :rank scalar
   :units ?vector
+  :short-name "vector component"
   :new-english ((or ((the) ?xyz (or "component" "compo." "compo"))
 		    ((the) (eval (format nil "~A-component" ?xyz)))
 		    ;; possessive is not allowed. ex) "the driver's 
@@ -230,15 +246,19 @@
 )
 
 (def-qexp mag (mag ?vector)
+  :rank scalar
   :units ?vector
   :restrictions nonnegative
+  :short-name "vector magnitude"
   :new-english ((allowed "the value of") 
 		;; "length"
 		(the) (or "magnitude" "mag." "mag" (allowed "strength")) 
 		(property ?vector)))
 
 (def-qexp dir (dir ?vector)
+  :rank scalar
   :units |deg|
+  :short-name "vector direction"
   :new-english ((the) (or "direction" "dir." "dir" (allowed "angle"))
 		(property ?vector)))
 
@@ -405,6 +425,7 @@
 ;;; in the workbench, the time slot is added if feature changing-mass 
 ;;  is included.
 (def-qexp mass	(mass ?body :time ?time)
+  :rank scalar
   :symbol-base |m|
   :short-name "mass"	
   :units |kg|
@@ -416,6 +437,7 @@
 ;; the magnitude of the change of mass of ~A per unit time due to ~A~@[ ~A~]" 
 ;;	       (nlg ?body) (nlg ?agent 'agent) (nlg ?time 'pp)
 (def-qexp mass-change-magnitude	(mass-change-magnitude ?body ?agent :time ?time)
+  :rank scalar
   :symbol-base |dmdt|     
   :short-name "magnitude of mass change per unit time"	
   :units |kg/s|
@@ -427,6 +449,7 @@
 )
 
 (def-qexp mass-per-length (mass-per-length ?rope)
+  :rank scalar
   :symbol-base |\\lambda|     
   :short-name "mass per length"	
   :units |kg/m|
@@ -435,6 +458,7 @@
 )
 
 (def-qexp distance (distance ?body :time ?time)
+  :rank scalar
   :symbol-base |s|     
   :short-name "distance traveled"	
   :units |m|
@@ -454,6 +478,7 @@
 ;;     "the time duration between T0 and T1"
 ;;     "the duration between T0 and T1"
 (def-qexp duration (duration ?time)
+  :rank scalar
   :symbol-base |t|     
   :short-name "duration of time"	
   :units |s|
@@ -466,6 +491,7 @@
 
 ;; ex) "the value of the average speed of the aircraft between T0 and T1"
 (def-qexp speed (speed ?body :time ?time)
+  :rank scalar
   :symbol-base |v|     
   :short-name "speed"	
   :units |m/s|
@@ -475,6 +501,7 @@
 ;;ex) "the coeffienct of kinetic friction between the crate and the plain"
 (def-qexp coef-friction 
     (coef-friction ?body1 ?body2 ?static-or-kinetic :time ?time)
+  :rank scalar
   :symbol-base |\\mu|     
   :short-name "coef. of friction"	
   :units NIL ;; dimensionless
@@ -492,6 +519,7 @@
 ;; "coefficient of drag for ~A moving through ~A" 
 ;; (nlg ?b) (nlg ?medium 'at-time ?time)
 (def-qexp coef-drag-turbulent (coef-drag ?b ?medium :type turbulent :time ?time)
+  :rank scalar
   :symbol-base |K|     
   :short-name "coef. of drag"	
   :units |kg/m|
@@ -501,6 +529,7 @@
 
 ;; see constants.cl, function enter-predefs
 (def-qexp gravitational-acceleration (gravitational-acceleration ?planet)
+  :rank scalar
   :symbol-base |g|     
   :short-name "gravitational acceleration"	
   :units |m/s^2|
@@ -569,6 +598,7 @@
 	  (problem-predefs problem))))
 
 (def-qexp num-forces (num-forces ?body :time ?time)
+  :rank scalar
   ;:nlg-english ("the number of forces on ~A" (nlg ?body 'at-time ?time)))
   :short-name "number of forces"
   :new-english ((the) "number of forces"
@@ -578,6 +608,7 @@
 ;; ex) "radius of the circular path"
 ;;     "radius of the circular motion of the particle"
 (def-qexp revolution-radius (revolution-radius ?body :time ?time)
+  :rank scalar
   :symbol-base |r|     
   :short-name "radius of circular motion"	
   :units |m|
@@ -596,6 +627,7 @@
 ;; "the work done by each force ..."
 
 (def-qexp work (work ?b ?agent :time ?time)
+  :rank scalar
   :symbol-base |W|     
   :short-name "work"	
   :units |J|
@@ -611,6 +643,7 @@
 ;; "net work done on ..."
 
 (def-qexp net-work (net-work ?body :time ?time)
+  :rank scalar
   :units |J|
   :short-name "net work"
   :new-english (((the) (or "net" "total net" "total") "work" 
@@ -623,8 +656,9 @@
 ;; "work done by non-conservative forces ..."
 
 (def-qexp work-nc (work-nc ?body :time ?time)
+  :rank scalar
   :units |J|
-  :short-name "work"
+  :short-name "work by non-conservative forces"
   :new-english (((the) (allowed (or "total" "net")) "work"
 		 (preferred "done") 
 		 (and (preferred (object ?body))
@@ -639,6 +673,7 @@
 ;; (by googling "power supplied by")
 ;;      "the power supplied by the engine"
 (def-qexp power (power ?b ?agent :time ?time)
+  :rank scalar
   :symbol-base |P|     
   :short-name "power"	
   :units |W|
@@ -655,6 +690,7 @@
 		     (time ?time)))))
 
 (def-qexp net-power (net-power ?b :time ?time)
+  :rank scalar
   :units |W|
   :short-name "net power"
   :new-english ((the) "net power"
@@ -662,6 +698,7 @@
 		     (time ?time))))
 
 (def-qexp net-power-out (net-power-out ?source :time ?time)
+  :rank scalar
   :symbol-base |P|     
   :short-name "power output" 
   :units |W|
@@ -687,6 +724,7 @@
 ;;      "the angle between d and f" 
 ;;
 (def-qexp angle-between (angle-between orderless . ?vecs)
+  :rank scalar
   :units |deg|
   :short-name "angle"
   :restrictions nonnegative 
@@ -716,6 +754,7 @@
 			?vecs)))))
 
 (def-qexp total-energy (total-energy ?system :time ?time) 
+  :rank scalar
   :units |J|
   :short-name "net mechanical energy"
   :new-english ((the) (or ((preferred (or "total" "net")) "mechanical energy") 
@@ -724,6 +763,7 @@
 		     (time ?time))))
 
 (def-qexp kinetic-energy (kinetic-energy ?body :time ?time)
+  :rank scalar
   :units |J|
   :short-name "kinetic energy"
   :new-english ((the) (allowed (or "total" "net")) (allowed "translational")
@@ -732,6 +772,7 @@
 		     (time ?time))))
 
 (def-qexp rotational-energy (rotational-energy ?body :time ?time)
+  :rank scalar
   :units |J|
   :short-name "kinetic energy"
   :new-english ((the) (allowed (or "total" "net")) (or "rotational" "rot") 
@@ -740,6 +781,7 @@
 		     (time ?time))))
 
 (def-qexp grav-energy (grav-energy ?body ?agent :time ?time)
+  :rank scalar
   :units |J|
   :short-name "potential energy"
   :new-english ((the) (allowed "total") (or "gravitational" "grav")
@@ -750,6 +792,7 @@
 
 ;; see bug 1463
 (def-qexp spring-energy (spring-energy ?body ?spring :time ?time) 
+  :rank scalar
   :units |J|
   :short-name "potential energy"
   :new-english ((the) (allowed "elastic") (or ((or "potential" "pot" "spring") 
@@ -763,6 +806,7 @@
 ;; "the extension (or compression) of the spring from its equilibrium position"
 ;; "the elongation of the spring" in Young&Freeman's textbook in page 221
 (def-qexp compression (compression ?spring :time ?time)
+  :rank scalar
   :symbol-base |d|     
   :short-name "compression distance"	
   :units |m|
@@ -776,6 +820,7 @@
 
 ;; "sprint constant" or "force constant" in Young&Freeman's text book in page 221
 (def-qexp spring-constant (spring-constant ?spring)
+  :rank scalar
   :symbol-base |k|     
   :short-name "spring constant"	
   :units |N/m|
@@ -784,6 +829,7 @@
 		(preferred (property ?spring))))
 
 (def-qexp height (height ?body ?zero-height :time ?time)
+  :rank scalar
   :symbol-base |h|     
   :short-name "height"	
   :units |m|
@@ -803,6 +849,7 @@
 
 ;; "the moment of inertia of ~A about ~A" (nlg ?body) (nlg ?axis 'at-time ?time)
 (def-qexp moment-of-inertia (moment-of-inertia ?body :axis ?axis :time ?time)
+  :rank scalar   ;; This is a particular component of the tensor
   :symbol-base |I|     
   :short-name "moment of inertia"	
   :units |kg.m^2|
@@ -815,12 +862,14 @@
 ;; for dimensions of certain rigid bodies:
 ;;    from Bob: "the length of the beam"
 (def-qexp length (length ?body)
+  :rank scalar
   :symbol-base ||     
   :short-name "length"	
   :units |m|
   :new-english (property-object (or "length" "len" "len.") ?body))
 
 (def-qexp length-change (rate-of-change (length ?body))
+  :rank scalar
   :symbol-base ||     
   :short-name "rate of change in length"	
   :units |m/s|
@@ -828,12 +877,14 @@
 					      ?body))))
 
 (def-qexp width  (width ?body)
+  :rank scalar
   :symbol-base ||     
   :short-name "width"	  
   :units |m|
   :new-english ((property-object "width" ?body)))
 
 (def-qexp num-torques (num-torques ?body ?axis :time ?time)
+  :rank scalar
   :short-name "number of torques"
   :new-english ((the) "number of" (moment-name) "on" ?body 
 		(preferred (eval (when ?axis `("about" ,?axis))))
@@ -891,7 +942,7 @@
 (defun ont-vector-entryprop-format-func (Body Quantity Direction)
   "Format the vector entry."
   (declare (ignore body))
-  (let ((Quant (nlg-list-default Quantity))
+  (let ((Quant (get-default-phrase Quantity))
 	(Dir (if (listp Direction) (nlg Direction)
 	       (nlg Direction 'adjective))))
     (if (listp Direction) 
@@ -1495,7 +1546,7 @@
   :ExpFormat ((strcat "applying change in mechanical energy to ~a "
 		      "from ~a to ~a") 
 	      (nlg ?body) (nlg ?t1 'time) (nlg ?t2 'time))
-  :EqnFormat("Wnc = ME2 - ME1"))
+  :EqnFormat ("Wnc = ME2 - ME1"))
 
 (def-psmclass height-dy (height-dy ?body ?zero-height ?time)
   :complexity connect
@@ -1514,25 +1565,25 @@
   :tutorial "Power.html"
   :expformat ("applying the definition of average power supplied to ~A by ~A ~A"
 	      (nlg ?body) (nlg ?agent) (nlg ?time 'pp))
-  :EqnFormat("P(avg) = W/t"))
+  :EqnFormat ("P(avg) = W/t"))
 
 (def-psmclass net-power (net-power ?body ?time)
-   :complexity major  ;See Bug #1144
+  :complexity major  ;See Bug #1144
   :short-name "average net power defined"
-   :nlg-english ("the definition of net power")
+  :nlg-english ("the definition of net power")
   :tutorial "Power.html"
-   :expformat ("applying the definition of net power supplied to ~A ~A"
-               (nlg ?body) (nlg ?time 'pp))
-   :EqnFormat("Pnet = Wnet/t"))
+  :expformat ("applying the definition of net power supplied to ~A ~A"
+	      (nlg ?body) (nlg ?time 'pp))
+  :EqnFormat ("Pnet = Wnet/t"))
 
 (def-psmclass inst-power (inst-power ?body ?agent ?time ?rot)
-   :complexity major ; definition, but can be first "principle" for sought
+  :complexity major ; definition, but can be first "principle" for sought
   :short-name "instantaneous power"
-   :nlg-english ("the instantaneous power principle")
+  :nlg-english ("the instantaneous power principle")
   :tutorial "Power.html"
-   :expformat ("calculating the instantaneous power supplied to ~A by ~A ~A"
-               (nlg ?body) (nlg ?agent) (nlg ?time 'pp))
-   :EqnFormat("P = F v cos(&theta;) or P = F<sub>x</sub> v<sub>x</sub> + F<sub>y</sub> v<sub>y</sub>"))
+  :expformat ("calculating the instantaneous power supplied to ~A by ~A ~A"
+	      (nlg ?body) (nlg ?agent) (nlg ?time 'pp))
+  :EqnFormat ("P = F v cos(&theta;) or P = F<sub>x</sub> v<sub>x</sub> + F<sub>y</sub> v<sub>y</sub>"))
 
 ;; !! "total-energy" label used in kb is misleading, it is, in fact,
 ;; total *mechanical* energy.
@@ -1544,7 +1595,7 @@
   :tutorial "ConservationOfEnergy.html"
   :EqnFormat ("ME = KE + &Sigma Ui"))
 
-; These are now top level psms, not subequations:
+;; These are now top level psms, not subequations:
 (def-psmclass kinetic-energy (kinetic-energy ?body ?time)
   :short-name "kinetic energy defined"
   :nlg-english ("the definition of kinetic energy")
@@ -1561,10 +1612,10 @@
 
 (def-psmclass grav-energy (grav-energy ?body ?planet ?zero-height ?time)
   :short-name "gravitational potential energy"
-   :nlg-english ("gravitational potential energy")
+  :nlg-english ("gravitational potential energy")
   :tutorial "ConservationOfEnergy.html"
-   :complexity definition
-   :EqnFormat ("Ug = m g h"))
+  :complexity definition
+  :EqnFormat ("Ug = m g h"))
 
 (def-psmclass spring-energy (spring-energy ?body ?spring ?time)
   :short-name "spring potential energy"
