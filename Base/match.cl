@@ -59,6 +59,8 @@
 (defpackage :match
 	  (:use :cl)
 	  (:export :*whitespace* :best-model-matches :word-parse 
+		   :unknown-object-handler :match-model
+		   :word-count :word-count-handler
 		   :matches-model-syntax :word-string :*grammar-names*))
 
 (eval-when (:load-toplevel :compile-toplevel)
@@ -150,6 +152,8 @@
   (cond 
     ((null model) 0)
     ((stringp model) 1) ;; or count words in string
+    ((atom model) (funcall word-count-handler model :max max))
+    ;; from here on, assume model is a proper list
     ((test-for-list model)
      (loop for x in model sum (word-count x :max max)))
     ((eql (car model) 'and)
@@ -167,7 +171,14 @@
 	   args)))  ;; 0 or 1 args, drop conjunction
     ((member (car model) '(allowed preferred)) 
      (if max (word-count (cdr model) :max max) 0))
-    (t (warn "word-count found unexpected form ~A" model) (if max 10000 0))))
+    (t (funcall word-count-handler model :max max))))
+
+(defun default-word-count-handler (model &key max)
+  (warn "word-count:  unknown object ~A" model)
+  (if max 10000 0))
+
+(defvar word-count-handler 'default-word-count-handler 
+  "By setting this function, one can extent the model grammar.")
 
 (defun sort-by-complexity (models)
   "Sort an alist of models by increasing complexity"
@@ -237,7 +248,10 @@
          (update-bound best (normalized-levenshtein-distance item model)))
        ;; best fit plus any extra student words.
        (+ best (- (length student) 1))))
-     ;; model optional
+    ((atom model)
+     (funcall unknown-object-handler student model :best best))
+    ;; from here on out, model must be a cons
+    ;; model optional
     ((member (car model) '(preferred allowed))
      (when (cddr model)
        (warn "Model grammar:  ~A can only have one argument" model))
@@ -275,7 +289,15 @@
        ((cdr model) (match-model student (second model) :best best))
        (model (length student)) ;empty conjunction
        (t (error "conjoin must always have a conjunction"))))
-    (t (error "match-model:  Bad tree ~A" model))))
+    (t
+     (funcall unknown-object-handler student model :best best))))
+
+(defun default-object-handler (student model &key best)
+  (declare (ignore student best))
+    (error "match-model:  Bad tree ~A" model))
+
+(defvar unknown-object-handler 'default-object-handler 
+  "By setting this function, one can extent the model grammar.")
 
 (defun match-model-list (student model &key best)
   (declare (notinline match-model)) ;for profiling
