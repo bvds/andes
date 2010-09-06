@@ -1718,7 +1718,7 @@
       (format webserver:*stdout* "Best match to ~s is~%   ~S~% from ~S~%" 
 	      response
 	      (mapcar 
-	       #'(lambda (x) (cons (car x) 
+	       #'(lambda (x) (cons (car (car x))
 				   (expand-vars (qnode-model (cdr x)))))
 	       best)
 	      (mapcar #'(lambda (x) 
@@ -1730,7 +1730,7 @@
       ((null best) ;no matches
        (nsh-sought-resp-nil past))
       ;; too many matches or poor unique match
-      ((or (cdr best) (> (car (car best)) 0.2))  
+      ((or (cdr best) (> (match:best-value best) 0.2))  
        (nsh-sought-resp-ambiguous (mapcar #'cdr best) past))
       (t          ;unique match
        (let ((Q (cdr (car best))))

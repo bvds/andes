@@ -166,9 +166,6 @@
       (apply #'strcat x)
       ""))
 
-(defun best-value (best)
-  (apply #'min (mapcar #'car best)))
-
 (defparameter *proposition-icons*
   `((define-var . ,*text-tool*)
     (vector . ,*vector-tool*)
@@ -234,7 +231,7 @@
       (format webserver:*stdout* "Best match to ~s is~%   ~S~% from ~S~%" 
 	      student-string
 	      (mapcar 
-	       #'(lambda (x) (cons (car x) 
+	       #'(lambda (x) (cons (car (car x))
 				   (expand-vars (SystemEntry-model (cdr x)))))
 	       best)
 	    (mapcar #'(lambda (x) 
@@ -251,7 +248,7 @@
     ;;     toss-up:  give unsolicited hint and pass through.
     ;; wrong-tool-best less than best score minus 1 or no best.
     ;;     this is certainly should be given wrong tool help.
-    (when (or (null best) (>= (best-value best) 1))
+    (when (or (null best) (>= (match:best-value best) 1))
       (let* ((untools `(,tool-prop eqn implicit-eqn))
 	     (sysentries (remove-if 
 			  (lambda (x) (member (car x) untools))
@@ -268,19 +265,19 @@
 	       ;; If there is no match in best, then the help is
 	       ;; pretty weak.  In that case, just find anything
 	       ;; below the cutoff.
-	       :cutoff (if best (- (best-value best) 1) initial-cutoff)
+	       :cutoff (if best (- (match:best-value best) 1) initial-cutoff)
 	       :equiv equiv))))
     
     ;; (format webserver:*stdout* "**best=~A (~A) wrong-tool-best=~A (~A)~%" 
-    ;;	(when best (best-value best)) (length best) 
-    ;;	(when wrong-tool-best (best-value wrong-tool-best)) 
+    ;;	(when best (match:best-value best)) (length best) 
+    ;;	(when wrong-tool-best (match:best-value wrong-tool-best)) 
     ;;	(length wrong-tool-best))
     
     ;; If there is no symbol defined and the fit is >= 1 (for the symbol), 
     ;; then there is a good chance that the student unsuccessfully
     ;; attempted to define a symbol.  Add unsolicited hint.
     (when (and (= (length (StudentEntry-symbol entry)) 0)
-	       best (>= (best-value best) 1))
+	       best (>= (match:best-value best) 1))
       (let ((phr (strcat 
 		  "No variable has been defined.&nbsp; "
 		  "Did you want to " *define-variable* "?")))
@@ -291,12 +288,12 @@
     ;; then give a hint suggesting the tool may be wrong,
     ;; but proceed as if the tool is correct.
     (when (and best wrong-tool-best
-	       (>= (best-value wrong-tool-best)
-		  (max (- (best-value best) 1) 0.1)))
+	       (>= (match:best-value wrong-tool-best)
+		  (max (- (match:best-value best) 1) 0.1)))
       (let ((phr (strcat 
 		  "Perhaps, you meant to use " 
 		  (get-prop-icon (car (systementry-prop 
-					(car wrong-tool-best))))
+					(cdr (car wrong-tool-best)))))
 		  ", instead?")))
 	(push `((:action . "show-hint")
 		(:text . ,phr)) hints)))
@@ -307,8 +304,8 @@
       ((and wrong-tool-best 
 	    ;; make sure there isn't a tie.
 	    (or (null best)
-		(< (best-value wrong-tool-best)
-		    (max (- (best-value best) 1) 0.1))))
+		(< (match:best-value wrong-tool-best)
+		    (max (- (match:best-value best) 1) 0.1))))
        (values nil (wrong-tool-ErrorInterp 
 		    entry 
 		    tool-prop
@@ -324,7 +321,7 @@
 
 	 ;; If the best fit isn't too good, give an unsolicited hint.
 	 ;; Can't put in a tutor turn, since the turn might be good.
-	 (when (> (car (car best)) 
+	 (when (> (match:best-value best) 
 		  ;; This test must be adjusted empirically.
 		  ;; Example: [the] length of the beam
 		  ;;          the mass of the beam
@@ -370,7 +367,7 @@
     (format t "Best match to ~S is~%   ~S~% from:~%    ~S~%" 
 	    student
 	    (mapcar 
-	     #'(lambda (x) (cons (car x) 
+	     #'(lambda (x) (cons (car (car x))
 				 (expand-vars (SystemEntry-model (cdr x)))))
 	     best)
 	    (mapcar #'(lambda (x) 

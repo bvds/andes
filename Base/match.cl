@@ -61,6 +61,7 @@
 	  (:export :*whitespace* :best-model-matches :word-parse 
 		   :unknown-object-handler :match-model
 		   :word-count :word-count-handler
+		   :best-value
 		   :matches-model-syntax :word-string :*grammar-names*))
 
 (eval-when (:load-toplevel :compile-toplevel)
@@ -217,9 +218,11 @@
   (if (> x 1) (* x (factorial (- x 1))) 1))
 
 (defmacro update-bound (best x)
-  `(let ((this ,x))
-     (when (< this ,best) (setf ,best this))))
-  
+  (let ((this-best (gensym)))
+    `(let ((,this-best ,x))
+       (when (< (car ,this-best) (car ,best)) 
+	 (setf ,best ,this-best))))) 
+
 (defun match-bound (lstudent l-model u-model)
   "Gives lower bound for a match based on word count"
   (max 0 (- lstudent u-model) (- l-model lstudent)))
@@ -234,7 +237,7 @@
 
 
 (defun match-model (student model &key (best 20000) l-model u-model)
-  "Recursive match to tree, returns minimum word insertion/addition for match."
+  "Recursive match to tree, returns a cons of the minimum word insertion/addition for match and a tree containing information about the best match."
   ;; for profiling
   (declare (notinline match-model-and match-model-list match-model-conjoin))
 
@@ -245,29 +248,34 @@
 		   (length student) 
 		   (or l-model (word-count model)) 
 		   (or u-model (word-count model :max t)))))
-	(unless (< this best) (return-from match-model this))))
+	(unless (< this best) (return-from match-model (list this)))))
 
   (cond 
-    ((null student) (word-count model))
-    ((null model) (length student))
+    ((null model) (list (length student)))
     ((stringp model)
-     (let ((best 10000.0)) ;ignore any global value of best
+     (let ((best 1)) ;this is value for word match only
        ;; profiling shows that just calculating is slightly
        ;; faster than also testing against the global best
+       ;;
+       ;; In the case of no student words, loop is not executed
+       ;; and result is 1
        (dolist (item student)
-         (update-bound best (normalized-levenshtein-distance item model)))
+         (setf best (min best 
+			 (normalized-levenshtein-distance item model))))
        ;; best fit plus any extra student words.
-       (+ best (- (length student) 1))))
+       (list (+ best (max 0 (- (length student) 1))) model)))
     ((atom model)
      (funcall unknown-object-handler student model :best best))
-    ;; from here on out, model must be a cons
+    ;; from here on, model must be a proper list.
     ;; model optional
     ((member (car model) '(preferred allowed))
      (when (cddr model)
        (warn "Model grammar:  ~A can only have one argument" model))
-     (update-bound best (length student)) ;don't match model
-     (update-bound best (match-model student (second model) :best best))
-     best)
+     (let ((result (list (min best (length student))))) ;model is dropped
+       ;; case where model is included
+       (update-bound result
+		     (match-model student (second model) :best (car result)))
+       result))
     ;; Case (<model> ...)
     ((test-for-list model)
      (if (cdr model)
@@ -280,16 +288,17 @@
 	(match-model-and student model :best best))
        ;; and of one argument
        (model (match-model student (car model) :best best))
-       (t (length student)))) ;empty "and"
+       (t (list (length student))))) ;empty "and"
     ((eql (car model) 'or)
      (pop model)
      (cond 
        ((cdr model) ;two or more arguments of "or"
-	(dolist (item model)
-	  (update-bound best (match-model student item :best best)))
-	best)
+	(let ((result (list best)))
+	  (dolist (item model)
+	    (update-bound result (match-model student item :best (car result))))
+	  result))
        (model (match-model student (car model) :best best))
-       (t (length student)))) ;empty "or"
+       (t (list (length student))))) ;empty "or"
     ((eql (car model) 'conjoin)
      (pop model)
      (cond 
@@ -297,7 +306,7 @@
 	(match-model-conjoin student model :best best))
        ;; conjunction of one argument
        ((cdr model) (match-model student (second model) :best best))
-       (model (length student)) ;empty conjunction
+       (model (list (length student))) ;empty conjunction
        (t (error "conjoin must always have a conjunction"))))
     (t
      (funcall unknown-object-handler student model :best best))))
@@ -318,7 +327,7 @@
 	 (lr (apply #'+ l-model)))
 
     (dotimes (y width)
-      (setf (aref d 0 y) y)) ;student is one word per slot
+      (setf (aref d 0 y) (list y))) ;student is one word per slot
 
     ;; When the we can't to better than best-minus-rest for an
     ;; iteration of the z loop, then (aref d (1+ x) y) becomes 
@@ -345,7 +354,7 @@
 	      ((= y width) (>= y uy))
 	    	    
 	    ;; initial value so update-bound will work below
-	    (setf (aref d (1+ x) y) 10000)
+	    (setf (aref d (1+ x) y) '(10000))
 
 	    (let ((best-minus-rest 
 		   (- best (match-bound (- (length student) y) lr ur))))
@@ -355,21 +364,24 @@
 		  ((> z y) (>= z uz) (<= (- y z) lyz))
 		
 		(when (aref d x z)
-		  (update-bound
-		   (aref d (1+ x) y)
-		   (+ (aref d x z)
-		      (match-model (subseq student z y) (nth x model)
-				   :best (- (min best-minus-rest 
-						 ;; Also, exceed
-						 ;; our best, so far
-						 (aref d (1+ x) y)) 
-					    (aref d x z))
-				   :u-model ux :l-model lx))))))))
-	  
+		  (let ((this 
+			 (match-model (subseq student z y) (nth x model)
+				      :best (- (min best-minus-rest 
+						    ;; Also, exceed
+						    ;; our best, so far
+						    (car (aref d (1+ x) y)))
+					       (car (aref d x z)))
+				      :u-model ux :l-model lx)))
+		    (update-bound
+		     (aref d (1+ x) y)
+		     (cons (+ (car (aref d x z)) (car this))
+			   ;; create a list associated with best match info
+			   (append (cdr (aref d x z)) (list (cdr this)))))))))))
+	
 	(incf up ux)))
     
     ;; in case none comes out, go with best.
-    (or (aref d (length model) (length student)) best)))
+    (or (aref d (length model) (length student)) (list best))))
 
 
 ;; The problem here is a generalization of the "Assignment 
@@ -383,15 +395,15 @@
 ;; systementries.  It may make better sense to find a strategy
 ;; that is optimized for the search over systementries.
 
-(defun match-model-and (student model &key best)
+(defun match-model-and (student model &key (best 10000))
   (declare (notinline match-model)) ;for profiling
   (let* ((width (1+ (length student)))
+	 (best-result (list best))
 	 ;; nil means skip
 	 (matches (make-array (list (length model) width width)
 			      :initial-element nil))
 	 (model-free (loop for i below (length model) collect i))
-	 (u-model (mapcar 
-			     #'(lambda (x) (word-count x :max t)) model))
+	 (u-model (mapcar #'(lambda (x) (word-count x :max t)) model))
 	 (l-model (mapcar #'word-count model))
 	 (u-net (apply #'+ u-model))
 	 (l-net (apply #'+ l-model)))
@@ -413,8 +425,8 @@
 	  
 	  (let ((best-minus-rest 
 		 (- best (match-bound (- (length student) q) 
-					      (- l-net lm) 
-					      (- u-net um)))))
+				      (- l-net lm) 
+				      (- u-net um)))))
 	    
 	    (do ((y q (+ y 1)))
 		((= y width))
@@ -423,33 +435,31 @@
 					:best best-minus-rest
 					:l-model lm :u-model um)))
 		;; This gives a 50% improvement.
-		(when (< this best-minus-rest) 
+		(when (< (car this) best-minus-rest)
 		  (setf (aref matches m y z) this))))))))
-
+    
     ;; Quick, but does not get global minimum.
-    (update-bound best (match-model-greedy 
-			matches model-free 
-			(list (list 0 (length student)))))
+    (update-bound best-result (match-model-greedy 
+			       matches model-free 
+			       (list (cons 0 (length student)))))
     
     ;; Simply iterate through all possibilities.
     ;; For n student words and m elements of the model list,
     ;; there are m! (m+n-1)!/(n! (m-1)!) different possible matches.
-    (update-bound best (match-model-slow 
-			matches model-free 
-			(list (cons 0 (length student)))))
+    (update-bound best-result (match-model-slow 
+			       matches model-free 
+			       (list (cons 0 (length student)))))
     
-    )
-  
-  ;; Simply iterate through all possibilities using by creating
-  ;; a set of sequential lists.  This is even slower!
-  #+never (dolist (item model)
-	      (update-bound best
+    ;; Simply iterate through all possibilities using by creating
+    ;; a set of sequential lists.  This is even slower!
+    #+never (dolist (item model)
+	      (update-bound best-result
 			    (match-model
 			     student
 			     ;; remove is non-destrutive
 			     (list item (cons 'and (remove item model)))
 			     :best best)))
-  best)
+    best-result))
 
 
 ;; This is designed to be fast, but is not a global best fit.
@@ -461,7 +471,7 @@
     ;; Find best match that includes the most words.
     (dolist (m model-free)
       (dolist (interval student-intervals)
-	(let ((lower (first interval)) (upper (second interval)))
+	(let ((lower (car interval)) (upper (cdr interval)))
 	  (do ((y lower (1+ y)))
 	      ((= y (1+ upper))) 
 	    (do ((z lower (1+ z)))
@@ -469,13 +479,13 @@
 		((> z y)) 
 	      ;; Ignore any elements that are nil.  Thus we don't have
 	      ;; to calculate elements that will never be a best fit.
-	      (when (aref matches m y z) 
+	      (when (aref matches m y z)
 		(let ((score (- (- y z) ;number of student words
 				;; Weight must be larger than 1 to favor
 				;; fewer words when more doesn't improve match.
 				;; Weight must be less than infinity to favor
 				;; longer matches over shorter matches.
-				(* 2 (aref matches m y z)))))
+				(* 2 (car (aref matches m y z))))))
 		  ;; (format t "  looping m y z=~A score=~A~%" (list m y z) score)
 		  (when (> score best-score)
 		    (setf best-score score)
@@ -488,17 +498,24 @@
     (if best-m ;check that matches array is non-empty
 	;; remove best fit interval and add new intervals
 	(let ((new-student (remove best-interval student-intervals)))
-	  (push (list (first best-interval) best-z) new-student)
-	  (push (list best-y (second best-interval)) new-student)
-	  
-	  (+ (if (remove best-m model-free)
-		 ;; Find best fit with this match removed.
-		 (match-model-greedy matches (remove best-m model-free) new-student)
-		 ;; count remaining student words
-		 (apply #'+ (mapcar #'(lambda (x) (- (second x) (first x))) 
-				    new-student)))
-	     (aref matches best-m best-y best-z)))
-	10000)))
+	  (push (cons (car best-interval) best-z) new-student)
+	  (push (cons best-y (cdr best-interval)) new-student)
+
+	  (let ((this (aref matches best-m best-y best-z)))
+	    (if (remove best-m model-free)
+		;; Find best fit with this match removed.
+		(let ((x (match-model-greedy matches 
+					     (remove best-m model-free) 
+					     new-student)))
+		  (cons (+ (car x) (car this)) 
+			(cons (cdr this) (cdr x))))
+		;; count remaining student words
+		(cons (+ (car this)
+			 (apply #'+ (mapcar #'interval-length new-student)))
+		      (cdr this)))))
+	'(10000))))
+
+(defun interval-length (x) (- (cdr x) (car x)))
 
 ;; Simply iterate through all possibilities.
 ;; For n student words and m elements of the model list,
@@ -514,7 +531,7 @@
 (defun match-model-slow (matches model-free student-intervals)
   "Exhaustive (slow) search through all possibilities for matching student to orderless set of model phrases."
   (if model-free
-      (let ((best 20000))
+      (let ((best '(20000)))
 	(dolist (interval student-intervals)
 	  (let ((lower (car interval)) (upper (cdr interval)))
 	    (do ((y lower (1+ y)))
@@ -529,22 +546,26 @@
 		  (let ((new-student (remove interval student-intervals)))
 		    (push (cons lower z) new-student)
 		    (push (cons y upper) new-student)
-		    (update-bound 
-		     best 
-		     (+ (aref matches (car model-free) y z) 
-			;; remove best fit interval and 
-			;; add new intervals
-			(match-model-slow matches 
-					  (cdr model-free) 
-					  new-student)))))))))
+		    (let ((this 
+			   ;; remove best fit interval and 
+			   ;; add new intervals
+			   (match-model-slow matches 
+					     (cdr model-free) 
+					     new-student)))
+		      (update-bound 
+		       best 
+		       (cons (+ (car (aref matches (car model-free) y z))
+				(car this))
+			       (cons (cdr (aref matches (car model-free) y z))
+				     (cdr this)))))))))))
 	  best)
 	;; count remaining student words
-      (reduce #'+ (mapcar #'(lambda (x) (- (cdr x) (car x))) 
-			 student-intervals))))
+	(list (reduce #'+ (mapcar #'interval-length student-intervals)))))
 
 (defun match-model-conjoin (student model &key best)
   (declare (notinline match-model)) ;for profiling
-  (let ((conjunction (pop model)))
+  (let ((conjunction (pop model))
+	(best-result (list best)))
     ;; Right now, this does not handle commas at all.
     (cond 
       ((cddr model) ; more than two
@@ -555,22 +576,22 @@
 	       model))
        (dolist (item model)
 	 (update-bound 
-	  best 
+	  best-result 
 	  (match-model student `(,item (conjoin ,conjunction 
 					,@(remove item model)))
-		       :best best))))
+		       :best (car best-result)))))
       ((cdr model) ;two arguments
        ;; Try the two possible orders
        (update-bound 
-	best 
+	best-result
 	(match-model student (list (first model) conjunction (second model))
 		     :best best))
        (update-bound 
-	best 
+	best-result 
 	(match-model student (list (second model) conjunction (first model))
 		     :best best)))
-      (t (error "match-model-conjoin should never reach here"))))
-  best)
+      (t (error "match-model-conjoin should never reach here")))
+    best-result))
 
 (defparameter *debug-print* nil)  ;; debug print in best-model-matches
 
@@ -604,11 +625,15 @@
 		  this  (/ (- (get-internal-run-time) t0) 
 			   internal-time-units-per-second)
 		  (car x))))
-      (when (< this bound) (push (cons this (cdr x)) quants))
-      (when (< this best) (setf best this)))
+      (when (< (car this) bound) (push (cons this (cdr x)) quants))
+      (when (< (car this) best) (setf best (car this))))
     ;; Remove any quantities that are not equivalent with best fit
     ;; and return result. 
-    (delete-if #'(lambda (x) (> (car x) (* best equiv))) quants)))
+    (delete-if #'(lambda (x) (> (car (car x)) (* best equiv))) quants)))
+
+(defun best-value (best)
+  "extract best fit score from result of best-model-matches"
+  (apply #'min (mapcar #'car (mapcar #'car best))))
 
 ;; Imposing a cutoff on word matching improves speed by 50%
 ;; and removes some accidental matches (words
