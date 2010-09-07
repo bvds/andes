@@ -3448,7 +3448,7 @@
   :symbol-base |d\\Phidt|  ;needs fixing
   :short-name "rate of change in electric flux"	
   :units |V.m/s|
-  :new-english ((rate (change ("electric flux"))) 
+  :new-english ((rate (change "electric flux")) 
 		(and (preferred ("through" ?surface)
 		     (time ?t)))))
 
@@ -3467,7 +3467,7 @@
   :symbol-base |d\\Phidt|  ;needs fixing     
   :short-name "rate of change in magnetic flux"	
   :units |T.m^2/s|
-  :new-english ((rate (change ("magnetic flux"))) 
+  :new-english ((rate (change "magnetic flux")) 
 		(and (preferred ("through" ?surface)
 		     (time ?t)))))
 

@@ -405,12 +405,17 @@
 
 (def-qexp time (time ?time)
   :new-english (eval (when ?time
-			'(preferred (time-not-omittable ?time)))))
+			'(preferred (time-not-omittable ?time)))
+		     (?time . (get-problem-times))))
+
+(defun get-problem-times ()
+  (mapcar #'second 
+	  (remove '(time . ?rest) (problem-wm *cp*) :test-not #'unify)))
 
 (def-qexp time-not-omittable (time-not-omittable ?time)
   :new-english (eval (if (time-pointp ?time) (pp ?time)
 			 ;; else go back to Ontology
-			 (new-english-find ?time))))
+			 ?time)))
 
 (def-qexp during (during ?ta ?tb)
   :new-english (or ((or "between" "during") 

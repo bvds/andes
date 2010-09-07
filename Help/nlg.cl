@@ -436,3 +436,251 @@
 	((eql (car model) 'var)
 	 (apply #'symbols-label (cdr model)))
 	(t (warn "expand-vars:  invalid expand ~A" model) model)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;;          Use quantity ontology as a parser
+;;;
+;;;
+;; Working on using match ontology as a parser.  Outstanding problems:
+;;
+;; Recursion of bindings as we recurse through members of ontology
+;; is broken.  We currently use a single binding list so any time
+;; there are multiple operators using the same variable name, we
+;; have problems.  Two solutions:  munge the variable names (like is done
+;; in problem generation), or make the bindings a list of lists.
+;;
+;; The other problem is that strings in the ontology need to be
+;; expanded into a list of words.
+
+
+
+(defmacro update-bound (best x bind)
+  (let ((this (gensym)))
+    `(let ((,this ,x))
+       (when (< (car ,this) (car ,best))
+	 (push ,bind (cdr ,this)) ;add bind to result tree
+	 (setf ,best ,this))))) 
+
+(defvar *local-bindings*)
+(defvar *atom-bindings*)
+(defvar *parent-ontology*) ;for debugging
+
+(defun model-subst-bindings (bindings model)
+  "Apply subst-bindings to model, using subst-bindings-quoted for eval."
+  ;; Right now, we apply bindings ASAP.  This is less efficient than waiting.
+  (cond 
+    ((atom model) (subst-bindings bindings model))
+    ((eq (car model) 'eval)
+     (subst-bindings-quoted bindings model))
+    (t (cons (model-subst-bindings bindings (car model))
+	     (model-subst-bindings bindings (cdr model))))))
+
+(defun word-count-handler (model &key max)
+  (cond
+    ((variable-p model) 
+     (if (member model *local-bindings* :key #'car)
+	 ;; If a binding exists, apply it.
+	 (match:word-count (subst-bindings *local-bindings* model) :max max)
+	 ;; else, make a guess from *atom-bindings*
+	 (apply (if max #'max #'min)
+		(mapcar #'(lambda (a) (match:word-count a :max max))
+			*atom-bindings*))))
+    ((and (consp model) (eql (car model) 'var))
+     (match:word-count (apply #'symbols-label (cdr model)) :max max))
+    ;; subsequent arguments of (eval ...) are to to be cons'es
+    ;; of a variable and an expression that can be eval'ed to a list
+    ;; of possible values for that variable.
+    ;;     (eval .... (?a . *problem-atoms*) (?t . '((time 0) (time 1))))
+    ((and (consp model) (eql (car model) 'eval))
+     (if (cddr model)
+	 (let* ((tm (third model))
+		(rm (remove tm model))
+		(var (car tm))
+		(best (if max 0 10000)))
+	   ;; iterate through possible values for variable
+	   (dolist (val (eval (cdr tm)))
+	     ;; Add var-val pair to binding list, if consistent 
+	     ;; with any existing bindings, making local version of bindings.
+	     (let ((*local-bindings* (or (unify val var *local-bindings*)
+					 (warn "word-count-handler model ~A inconsistent with bindings ~A" model *local-bindings*)
+					 ;; if inconsistent, go with parent 
+					 ;; bindings
+					 *local-bindings*)))
+		    (let ((x (match:word-count rm :max max)))
+		      (when (if max (> x best) (< x best)) (setf best x)))))
+	   best)
+	 ;; no bindings left, just evaluate.
+	 (let ((mm (subst-bindings-quoted *local-bindings* (second model))))
+	   (if (groundp mm)
+	       (match:word-count (eval mm) :max max)
+	       (progn (warn "unbound variables in ~A" model)
+		      (if max 10000 0))))))
+
+    ;; Now assume we have a member of the Ontology.
+    ;; Follow method in new-english find
+    ;; First, determine if there is any problem-specific
+    ;; Ontology match.
+    ((dolist (rule (problem-english *cp*))
+       (let ((*local-bindings* (unify (car rule) model *local-bindings*)))
+	 (when *local-bindings*
+	   (return
+	     (match:word-count (cdr rule) :max max))))))
+    
+    ;; Then run through general Ontology to find match.
+    ((dolist (rule *Ontology-ExpTypes*)
+       (let ((parent-bindings (copy-list *local-bindings*))
+	     (*parent-ontology* 
+	      (cons (list (exptype-form rule) *local-bindings*) 
+		    *parent-ontology*))
+	     (*local-bindings* (unify (Exptype-form rule) model *local-bindings*)))
+	 (when (and (not *local-bindings*) (unify (exptype-form rule) model))
+	   (warn " word-count-handler:  bad binding list for ~A and ~A~%    bindings ~A~%    parents:  ~A" 
+		 model (exptype-form rule) parent-bindings
+		 *parent-ontology*))
+	 (when *local-bindings*
+	   (return (match:word-count (Exptype-new-english rule) :max max))))))
+    
+    ;; If it is a symbol, use improved version of def-np.
+    ((atom model)
+     (match:word-count (def-np-model model) :max max))
+    
+    ;; On failure, warn and worst possible case
+    (t 
+     (warn "word-count-handler:  no ontology match for ~S" model)
+     (if max 1000 0))))
+
+(defun other-object-handler (student model &key best)
+  (cond
+    ((variable-p model) 
+     (if (member model *local-bindings* :key #'car)
+	 ;; If a binding matches, apply it.
+	 (match:match-model student 
+			    (subst-bindings *local-bindings* model) 
+			    :best best)
+	 ;; else, make guesses from *atom-bindings*
+	 (let ((best-result (list best)))
+	   (dolist (a *atom-bindings*)
+	     (update-bound best-result
+			   (match:match-model student a :best best)
+			   (cons model a))) ;binding into result
+	   best-result)))
+    ((and (consp model) (eql (car model) 'var))
+     (match:match-model student 
+			(apply #'symbols-label (cdr model)) :best best))
+    ;; subsequent arguments of (eval ...) are to to be cons'es
+    ;; of a variable and an expression that can be eval'ed to a list
+    ;; of possible values for that variable.
+    ;;     (eval .... (?a . *problem-atoms*) (?t . '((time 0) (time 1))))
+    ((and (consp model) (eql (car model) 'eval))
+     (if (cddr model)
+	 (let* ((tm (third model))
+		(rm (remove tm model))
+		(var (car tm))
+		(best-result (list best)))
+	   ;; iterate through possible values for variable
+	   (dolist (val (eval (cdr tm)))
+	     ;; Add var-val pair to binding list, if consistent 
+	     ;; with any existing bindings, making local version of bindings.
+	     (let ((*local-bindings* (or (unify val var *local-bindings*)
+					 (warn "word-count-handler model ~A inconsistent with bindings ~A" model *local-bindings*)
+					 ;; if inconsistent, go with parent 
+					 ;; bindings
+					 *local-bindings*)))
+	       (update-bound best-result
+			     (match:match-model student rm 
+						:best (car best-result))
+			     (cons var val))))
+	   best-result)
+	 ;; no bindings left, just evaluate.
+	 (let ((mm (subst-bindings-quoted *local-bindings* (second model))))
+	   (if (groundp mm)
+	       (match:match-model student (eval mm) :best best)
+	       (progn (warn "unbound variables in ~A, bindings ~A" 
+			    model *local-bindings*)
+		      '(10000))))))
+
+    ;; Now assume we have a member of the Ontology.
+    ;; Follow method in new-english find
+    ;; First, determine if there is any problem-specific
+    ;; Ontology match.
+    ((dolist (rule (problem-english *cp*))
+       (let ((*local-bindings* (unify (car rule) model *local-bindings*)))
+	 (when *local-bindings* 
+	   (return (match:match-model student (cdr rule) :best best))))))
+    
+    ;; Then run through general Ontology to find match.
+    ((dolist (rule *Ontology-ExpTypes*)
+       (let ((parent-bindings *local-bindings*)
+	     (*parent-ontology* 
+	      (cons (list (exptype-form rule) *local-bindings*) 
+		    *parent-ontology*))
+	     (*local-bindings* (unify (Exptype-form rule) model *local-bindings*)))
+	 (when (and (not *local-bindings*) (unify (exptype-form rule) model))
+	   (warn "bad binding list for ~A and ~A bindings ~A" 
+		 model (exptype-form rule) parent-bindings))
+	 (when *local-bindings*
+	   (return (match:match-model student (Exptype-new-english rule) :best best))))))
+    
+    ;; If it is a symbol, use improved version of def-np.
+    ((atom model)
+     (match:match-model student (def-np-model model) :best best))
+    
+    ;; On failure, warn and return nil
+    (t 
+     (warn "other-object-handler:  no ontology match for ~S" model)
+     '(10000))))
+
+
+;; (rhelp)
+;; (andes-init)
+;; (read-problem-info 'kt1a)
+;; (best-model-parses (match:word-parse "the mass of the motocycle") *ontology-exptypes*)
+
+(defun get-atom-bindings ()
+  (second (find 'bodies (problem-choices *cp*) :key #'car)))
+
+(defun best-model-parses (student ontology &key (cutoff 5) (equiv 1.25) 
+			  (epsilon 0.25))
+  "Use given ontology and the problem ontology to find find the best parse of the student phrase, returning alist of best match propsitions."
+  ;; analog to best-model-matches
+  ;; assume given ontology is a qexp
+  (let ((best (/ cutoff equiv)) quants bound
+	(*atom-bindings* (get-atom-bindings)) ;should be in knowledge?
+	(match:unknown-object-handler 'other-object-handler)
+	(match:word-count-handler 'word-count-handler)) 
+    (dolist (qexp ontology)
+      (setf bound (max epsilon (* best equiv)))
+      (let* ((*local-bindings* no-bindings) ;used in other-object-handler
+	     (*parent-ontology* (list (list (exptype-form qexp) *local-bindings*)))  ;for debugging
+	     (this (match:match-model student (exptype-new-english qexp) :best bound)))
+	(when (< (car this) bound) 
+	  (push (cons this 
+		      (subst-bindings (pull-out-bindings (cdr this)) 
+				      (exptype-form qexp))) quants))
+	(when (< (car this) best) (setf best (car this)))))
+    ;; Remove any quantities that are not equivalent with best fit
+    ;; and return result. 
+    (delete-if #'(lambda (x) (> (car (car x)) (* best equiv))) quants)))
+
+(defun pull-out-bindings (x)
+  "pull out binding pairs from tree returned with model"
+  ;; The tree structure consists of proper lists, bindings pairs (?var . val),
+  ;; nil and strings.
+  (cond ((and (consp x) (variable-p (car x))) (list x))
+	((consp x) (mapcan #'pull-out-bindings x))
+	((null x) nil)
+	((stringp x) nil)
+	(t (warn "pull-out-bindings:  unknown object ~A" x))))
+
+
+(defun subst-ordered-bindings (m-bindings x)
+  "m-bindings is a list of binding lists, each to be applied successively."
+  ;; It would be more efficient to first recurse through x,
+  ;; before applying bindings.
+  (if (= (length m-bindings) 1)
+      (subst-bindings (car m-bindings) x)
+      (subst-ordered-bindings (cdr m-bindings) 
+			      (subst-bindings (car m-bindings) x))))
+
+;; (let ((match:unknown-object-handler 'other-object-handler)) (match:match-model '("fred") '(or "fred" "barney")))
