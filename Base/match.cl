@@ -146,6 +146,13 @@
     ((eql (car model) 'preferred) (word-string (cdr model)))
     (t (warn "word-string can't do ~A" model))))
 
+(defun default-word-count-handler (model &key max)
+  (warn "word-count:  unknown object ~A" model)
+  (if max 10000 0))
+
+(defvar word-count-handler 'default-word-count-handler 
+  "By setting this function, one can extent the model grammar.")
+
 (defun word-count (model &key max)
   "find minimum (or maximum) word count in model"
   ;; In general, arguments of the model can be nil.
@@ -173,12 +180,6 @@
      (if max (word-count (cdr model) :max max) 0))
     (t (funcall word-count-handler model :max max))))
 
-(defun default-word-count-handler (model &key max)
-  (warn "word-count:  unknown object ~A" model)
-  (if max 10000 0))
-
-(defvar word-count-handler 'default-word-count-handler 
-  "By setting this function, one can extent the model grammar.")
 
 (defun sort-by-complexity (models)
   "Sort an alist of models by increasing complexity"
@@ -222,6 +223,15 @@
 (defun match-bound (lstudent l-model u-model)
   "Gives lower bound for a match based on word count"
   (max 0 (- lstudent u-model) (- l-model lstudent)))
+
+
+(defun default-object-handler (student model &key best)
+  (declare (ignore student best))
+    (error "match-model:  Bad tree ~A" model))
+
+(defvar unknown-object-handler 'default-object-handler 
+  "By setting this function, one can extent the model grammar.")
+
 
 (defun match-model (student model &key (best 20000) l-model u-model)
   "Recursive match to tree, returns minimum word insertion/addition for match."
@@ -291,13 +301,6 @@
        (t (error "conjoin must always have a conjunction"))))
     (t
      (funcall unknown-object-handler student model :best best))))
-
-(defun default-object-handler (student model &key best)
-  (declare (ignore student best))
-    (error "match-model:  Bad tree ~A" model))
-
-(defvar unknown-object-handler 'default-object-handler 
-  "By setting this function, one can extent the model grammar.")
 
 (defun match-model-list (student model &key best)
   (declare (notinline match-model)) ;for profiling
