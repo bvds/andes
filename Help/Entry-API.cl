@@ -351,6 +351,7 @@
 	   
 	 ;; Return the best fit entry.
 	 (values sysent nil hints)))
+
        (t (values nil (too-many-matches-ErrorInterp 
 		       entry (mapcar #'cdr best)) hints)))))
 
@@ -394,13 +395,27 @@
   (make-red-turn :id (StudentEntry-id Entry)))
 
 (defun too-many-matches-ErrorInterp (entry matches)
-  (let* ((ambiguous (format nil "Your definition ~:[~1*~;of <var>~A</var> ~]is ambiguous." 
-			   (> (length (StudentEntry-symbol entry)) 0)
-			   (StudentEntry-symbol entry)))
+  (let* ((distinct-quantities
+	  (remove-duplicates
+	   (mapcar #'lookup-expression-struct
+		   (mapcar #'second
+			   (mapcar #'SystemEntry-prop matches)))))
+	 (quantities-help 
+	  (nlg-print-list 
+	   (loop for qexp in distinct-quantities
+	      collect (open-review-window-html
+		       (exptype-short-name qexp)
+		       (strcat "quantities.html#" 
+			       (string (exptype-type qexp)))))
+	   "or" 'identity))
+	 (ambiguous (format nil "Your definition ~:[~1*~;of <var>~A</var> ~]is ambiguous.&nbsp;  It looks like you were trying to define ~A." 
+			    (> (length (StudentEntry-symbol entry)) 0)
+			    (StudentEntry-symbol entry)
+			    quantities-help))
 	 (rem (make-hint-seq
 	       (if (< (length matches) 4)
 		   (list 
-		    ambiguous
+		    ambiguous		    
 		    (format nil "Did you mean?~%<ul>~%~{  <li>~A</li>~%~}</ul>"
 			    (mapcar #'(lambda (x) 
 					(match:word-string 

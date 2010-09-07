@@ -338,8 +338,7 @@
     (let* ((step (first (systemEntry-sources sysent))) ; csdo struct for the DO stmt
 	   (vals (csdo-varvals step))		      ; value list in psm graph (i.e. prb file)
 	   (op (get-operator-by-tag (csdo-op step))) ; operator obj in current kb
-	   (opvars (operator-variables op))	      ; variable list in current kb
-	   errlist)
+	   (opvars (operator-variables op)))	      ; variable list in current kb
 ;;     (format t "op ~A vals (~A) opvars (~A)~%   ~A~%" (operator-name op) 
 ;;            (length vals) (length opvars) (mapcar #'cons vals opvars))
       (unless (= (length vals) (length opvars))

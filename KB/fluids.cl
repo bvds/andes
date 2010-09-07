@@ -28,6 +28,7 @@
 
 ;; Define the quantity mass density.
 (def-qexp mass-density (mass-density ?material)
+  :rank scalar
   :symbol-base |\\rho|     
   :short-name "mass density"	
   :units |kg/m^3|
@@ -59,6 +60,7 @@
   :complexity major
   :short-name "mass density defined"
   :nlg-english ("the definition of mass density")
+  :tutorial nil ;seems to be missing
   :expformat ("applying the definition of mass density")
   :EqnFormat ("&rho; = m/V"))
 
@@ -91,6 +93,7 @@
 
 ;;Define the quantity pressure.  The variable of choice is "P".
 (def-qexp pressure (pressure ?position :time ?time)
+  :rank scalar
   :symbol-base |P|     
   :short-name "pressure"	
   :units |Pa|
@@ -118,6 +121,7 @@
 ;; See constants.cl, function enter-predefs
 
 (def-qexp atmosphere (atmosphere)
+  :rank scalar
   :units |Pa|
   :restrictions positive
   :short-name "standard atmosphere"
@@ -139,6 +143,7 @@
   :complexity simple 
   :short-name "atmospheric pressure"
   :nlg-english ("value of the atmospheric pressure Pr0 ")
+  :tutorial nil ;seems to be missing
   :expformat ("defining the value of the atmospheric pressure Pr0")
   :EqnFormat ("Pr0 = 1.013E5 Pa"))
 
@@ -165,6 +170,7 @@
   :complexity definition
   :short-name "point 1 open to atmosphere"
   :nlg-english ("the formula for pressure at a point open to the atmosphere")
+  :tutorial nil ;seems to be missing
   :ExpFormat ("setting the pressure at a point open to the atmosphere")
   :EqnFormat ("P = Pr0")) 
 
@@ -203,6 +209,7 @@
   :complexity major  
   :short-name "pressure in fluid"
   :nlg-english ("the formula for pressure at a height in a fluid")
+  :tutorial nil ;seems to be missing
   :ExpFormat ("finding the pressure at a level in a fluid")
   :EqnFormat ("P2 - P1 = &rho; g (h1-h2)")) 
 
@@ -253,6 +260,7 @@
   :complexity major  
   :short-name "Bernoulli equation"
   :nlg-english ("Bernoulli's principle")
+  :tutorial nil ;seems to be missing
   :ExpFormat ("applying Bernoulli's principle")
   :EqnFormat ("0.5 &rho; v1<sup>2</sup> + &rho; g h1 + P1 = 0.5 &rho; v2<sup>2</sup> + &rho; g h2 + P2")) 
 
@@ -311,6 +319,7 @@
   :complexity major  
   :short-name "equation of continuity"
   :nlg-english ("the equation of continuity for incompressible fluid")
+  :tutorial nil ;seems to be missing
   :ExpFormat ("applying the equation of continuity")
   :EqnFormat ("A1 v1 = A2 v2")) 
 
@@ -355,6 +364,7 @@
 
 ;;Define the quantity cross-sectional area at a point.  The variable choice is "A".
 (def-qexp area-at (area-at ?position :time ?time)
+  :rank scalar
   :symbol-base |A|     
   :short-name "cross-sectional area"	
   :units |m^2|
@@ -475,6 +485,7 @@
   :complexity major  
   :short-name "pressure defined"
   :nlg-english ("the definition of pressure")
+  :tutorial nil ;seems to be missing
   :ExpFormat ("finding the pressure")
   :EqnFormat ("Fp = P A"))
 
@@ -554,6 +565,7 @@
 
 ;;Quantity: The volume of a body
 (def-qexp volume (volume ?body :time ?time)
+  :rank scalar
   :symbol-base |V|     
   :short-name "volume"	
   :units |m^3|
@@ -627,6 +639,7 @@
   :complexity major  
   :short-name "Archimedes principle (buoyant force)"
   :nlg-english ("Archimedes' principle")
+  :tutorial nil ;seems to be missing
   :ExpFormat ("applying Archimedes' principle")
   :EqnFormat ("Fb = &rho;f V g"))
 

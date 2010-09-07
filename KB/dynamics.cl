@@ -1150,6 +1150,7 @@
     :Doc "Definition of thrust force."
   :short-name "thrust force (magnitudes)"
     :nlg-english ("the definition of thrust force") 
+    :tutorial nil ;seems to be missing.
     :ExpFormat ("applying the definition of thrust force on ~a ~a"
 		(nlg ?body) (nlg ?time 'pp))
     :EqnFormat ("F = v abs(dmdt)"))
@@ -1191,6 +1192,7 @@
     :Doc "Definition of thrust force."
   :short-name ("thrust force (~A components)" (axis-name ?axis))
     :nlg-english ("the definition of thrust force") 
+    :tutorial nil ;seems to be missing
     :ExpFormat ("applying the definition of thrust-force on ~a ~a"
 		(nlg ?body) (nlg ?time 'pp))
     :EqnFormat ("F<sub>~A</sub> = -v<sub>~a</sub> dmdt" (axis-name ?axis) (axis-name ?axis)))
@@ -1994,6 +1996,7 @@
   :complexity minor
   :short-name "Hooke's law"
   :nlg-english ("Hooke's law")
+  :tutorial "HookesLaw.html"
   :expformat ("applying Hooke's law to ~a " (nlg ?body))
   :EqnFormat ("F = k d" ))
 
@@ -2830,6 +2833,7 @@
   :complexity major ;See Bug #1144
   :short-name ("net ~A defined" (moment-name))
   :nlg-english ("the definition of net ~A" (moment-name))
+  :tutorial "NetTorque.html"
   :expformat ("applying the definition of net ~A on ~a about ~A"
 	      (moment-name) (nlg ?body) (nlg ?pivot 'at-time ?time))
   :eqnformat ((torque-switch "Mnet<sub>z</sub> = M1<sub>z</sub> + M2<sub>z</sub> + ..."
@@ -3142,6 +3146,7 @@
   :complexity major
   :short-name "rotational form of Newton's 2nd law (&alpha; =0)"
   :nlg-english ("rotational version of Newton's second law (&alpha;=0)")
+  :tutorial "NewtonsLawForRotation.html"
   :expformat ("applying rotational version of Newton's second law to ~a about ~A"
 	      (nlg ?body) (nlg ?pivot 'at-time ?time))
   :eqnFormat ((torque-switch "0 = M1<sub>z</sub> + M2<sub>z</sub> + ..." 
@@ -3160,6 +3165,7 @@
   :complexity major
   :short-name "rotational form of Newton's 2nd law"
   :nlg-english ("rotational version of Newton's second law")
+  :tutorial "NewtonsLawForRotation.html"
   :expformat ("applying rotational version of Newton's second law to ~a about ~A"
 	      (nlg ?body) (nlg ?pivot 'at-time ?time))
   :eqnFormat ((torque-switch "Mnet<sub>z</sub> = I &alpha;<sub>z</sub>" "&tau;net<sub>z</sub> = I &alpha;<sub>z</sub>" )))

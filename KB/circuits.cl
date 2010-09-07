@@ -41,6 +41,7 @@
   :complexity major
   :short-name "equivalent resistance series"
   :nlg-english ("Equivalent resistance of series resistors")
+  :tutorial "SeriesResistors.html"
   :eqnFormat ("Req = R1 + R2 + ...") )
 
 (defoperator equiv-resistance-series-contains (?sought)
@@ -57,6 +58,7 @@
  :complexity major
   :short-name "equivalent resistance parallel"
  :nlg-english ("Equivalent resistance of parallel resistors")
+ :tutorial "ParallelResistors.html"
  :eqnFormat ("1/Req = 1/R1 + 1/R2 + ...") )
 
 (defoperator equiv-resistance-parallel-contains (?sought)
@@ -286,6 +288,7 @@
   :complexity definition
   :short-name "Ohm's Law"
   :nlg-english ("Ohm's Law")
+  :tutorial nil ;missing
   :ExpFormat ("applying Ohm's law to ~A" (nlg ?res))
   :eqnFormat ("V = I R"))
 
@@ -363,6 +366,7 @@
   :complexity major 
   :short-name "Kirchoff's loop rule"
   :nlg-english ("Kirchoff's loop rule")
+  :tutorial "LoopRule.html"
   :eqnFormat ("V1 + V2 + V3 ... = 0"))
 
 (defoperator loop-rule-contains (?comp ?t)
@@ -719,6 +723,7 @@
   :complexity major 
   :short-name "Kirchoff's junction rule"
   :nlg-english ("Kirchoff's junction rule")
+  :tutorial "JunctionRule.html"
   :eqnFormat ("Iin = Iout"))
 
 (defoperator junction-rule-contains (?Sought)
@@ -794,6 +799,7 @@
   :complexity major
   :short-name "equivalent capacitance series"
   :nlg-english ("Equivalent capacitance of series capacitors")
+  :tutorial "SeriesCapacitors.html"
   :eqnFormat ("1/Ceq = 1/C1 + 1/C2 + ...") )
 
 (defoperator equiv-capacitance-series-contains (?sought)
@@ -809,6 +815,7 @@
   :complexity major
   :short-name "equivalent capacitance parallel"
   :nlg-english ("Equivalent capacitance of parallel capacitors")
+  :tutorial "ParallelCapacitors.html"
   :eqnFormat ("Ceq = C1 + C2 + ...") )
 
 (defoperator equiv-capacitance-parallel-contains (?sought)
@@ -933,6 +940,7 @@
   :complexity definition
   :short-name "capacitance defined"
   :nlg-english ("Definition of capacitance")
+  :tutorial "Capacitance.html"
   :ExpFormat ("applying the definition of capacitance to ~A" (nlg ?cap))
   :eqnFormat ("C = q/V"))
 
@@ -1125,6 +1133,7 @@
   :complexity major
   :short-name "charge on series capacitors"
   :nlg-english ("Charge on series capacitors")
+  :tutorial "SeriesCapacitors.html"
   :expformat("Using the fact that series capacitors have the same charge.")
   :eqnFormat ("q1 = q2"))
 
@@ -1164,6 +1173,7 @@
   :complexity major 
   :short-name "energy stored in a capacitor"
   :nlg-english ("The formula for energy stored in a capacitor")
+  :tutorial "CapacitorEnergy.html"
   :expformat("Applying the formula for energy stored in a capacitor to ~A" (nlg ?cap))
   :eqnFormat ("U = 0.5 C V<sup>2</sup>"))
 
@@ -1226,6 +1236,7 @@
   :complexity definition 
   :short-name "RC time constant"
   :nlg-english ("RC time constant")
+  :tutorial "RCCircuits.html"
   :eqnFormat ("&tau; = R C"))
 
 (defoperator RC-time-constant-contains (?sought)
@@ -1261,6 +1272,7 @@
   :complexity definition 
   :short-name "RLC time constant"
   :nlg-english ("RLC time constant")
+  :tutorial nil ;missing
   :eqnFormat ("&tau; = 2 L/R"))
 
 (defoperator RLC-time-constant-contains (?sought)
@@ -1303,6 +1315,7 @@
   :complexity definition 
   :short-name "LC angular frequency"
   :nlg-english ("the angular frequency of an LC circuit")
+  :tutorial nil ;missing
   :eqnFormat ("&omega; = 1/sqrt(L C)"))
 
 (defoperator LC-angular-frequency-contains (?sought)
@@ -1345,6 +1358,7 @@
   :complexity definition 
   :short-name "RLC angular frequency"
   :nlg-english ("the angular frequency of an RLC circuit")
+  :tutorial nil ;missing
   :eqnFormat ("&omega; = sqrt(1/(L C)-R<sup>2</sup>/(2 L)<sup>2</sup>)"))
 
 (defoperator RLC-angular-frequency-contains (?sought)
@@ -1396,6 +1410,7 @@
   :complexity major
   :short-name "charge on capacitor in RC circuit"
   :nlg-english ("the charge on capacitor in RC circuit, initially full")
+  :tutorial "RCCircuits.html"
   :eqnFormat ("q = qi exp(-t/&tau;)"))
 
 (defoperator discharging-capacitor-at-time-contains (?sought)
@@ -1449,6 +1464,7 @@
   :complexity major
   :short-name "charge on capacitor in RC circuit with battery"
   :nlg-english ("the charge on capacitor in RC circuit, initially empty")
+  :tutorial "RCCircuits.html"
   :eqnFormat ("q = C Vb (1 - exp(-t/&tau;))"))
 
 (defoperator charging-capacitor-at-time-contains (?sought)
@@ -1531,6 +1547,7 @@
   :complexity major
   :short-name "current in RC circuit"
   :nlg-english ("Current in RC circuit")
+  :tutorial "RCCircuits.html"
   :eqnFormat ("I = (Vb/R) exp(-t/&tau;)"))
 
 (defoperator current-in-RC-at-time-contains (?sought)
@@ -1584,6 +1601,7 @@
   :complexity minor 
   :short-name "RC charge as fraction of max"
   :nlg-english ("the RC circuit charge as percent of maximum")
+  :tutorial "RCCircuits.html"
   :eqnFormat ("q = fraction C Vb"))
 
 (defoperator charge-capacitor-percent-max-contains (?sought)
@@ -1657,6 +1675,7 @@
   :complexity major
   :short-name "self-inductance of long, uniform solenoid"
   :nlg-english ("the self-inductance of a long, uniform solenoid")
+  :tutorial "Inductance.html"
   :ExpFormat ("finding the self-inductance of ~A" (nlg ?solenoid))
   :EqnFormat ("L = &mu;0 N<sup>2</sup> A/l" ))
 
@@ -1803,6 +1822,7 @@
   :complexity major
   :short-name "inductor EMF"
   :nlg-english ("EMF (voltage) across inductor")
+  :tutorial "Inductance.html"
   :ExpFormat ("finding the EMF across inductor ~A ~A" 
 	      (nlg ?inductor) (nlg ?time 'pp))
   :eqnFormat ("V = -L dIdt") 
@@ -1842,6 +1862,7 @@
   :short-name "mutual inductor EMF"
   :nlg-english ("induced EMF (voltage) across ~A due to ~A" 
 	    (nlg ?ind1) (nlg ?ind2))
+  :tutorial "Inductance.html"
   :eqnFormat ("V2 = -M12 dI1dt") 
   )
 
@@ -1882,6 +1903,7 @@
   :complexity major 
   :short-name "energy stored in inductor"
   :nlg-english ("the formula for energy stored in a inductor")
+  :tutorial "Inductance.html"
   :expformat("Applying the formula for energy stored in a inductor to ~A" (nlg ?ind))
   :eqnFormat ("U = 0.5 L I<sup>2</sup>"))
 
@@ -1924,6 +1946,7 @@
   :complexity definition 
   :short-name "LR time constant"
   :nlg-english ("the LR circuit time constant")
+  :tutorial "LRCircuits.html"
   :eqnFormat ("&tau; = L/R"))
 
 
@@ -1960,6 +1983,7 @@
   :complexity major
   :short-name "LR current growth"
   :nlg-english ("current growth in an LR circuit")
+  :tutorial "LRCircuits.html"
   :eqnFormat ("I = Imax (1 - exp(-t/&tau;))"))
 
 (defoperator LR-current-growth-contains (?sought)
@@ -2016,6 +2040,7 @@
   :complexity major 
   :short-name "LR growth final current"
   :nlg-english ("LR circuit growth final current")
+  :tutorial "LRCircuits.html"
   :eqnFormat ("Imax = Vb/R"))
 
 (defoperator LR-growth-Imax-contains (?sought)
@@ -2056,6 +2081,7 @@
   :complexity major
   :short-name "LR current decay"
   :nlg-english ("current decay in an LR circuit")
+  :tutorial "LRCircuits.html"
   :eqnFormat ("I = I0 exp(-t/&tau;)"))
 
 (defoperator LR-current-decay-contains (?sought)
@@ -2107,6 +2133,7 @@
   :complexity major 
   :short-name "LR circuit initial current"
   :nlg-english ("LR circuit initial current")
+  :tutorial "LRCircuits.html"
   :eqnFormat ("I0 = Vb/R"))
 
 (defoperator LR-decay-Imax-contains (?sought)
@@ -2148,6 +2175,7 @@
   :complexity major
   :short-name "electric power"
   :nlg-english ("the formula for electric power")
+  :tutorial nil ;seems to be missing
   :eqnFormat ("P = V I"))
 
 (defoperator electric-power-contains (?sought)

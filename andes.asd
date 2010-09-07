@@ -81,6 +81,7 @@
 				     ;; must be before any ontology
 				     (:file "reset-KB")
 				     (:file "principles")
+				     (:file "quantities")
 				     (:file "constants")
 				     ;; lots of outside dependencies:
 				     (:cl-source-file "errors")

@@ -59,6 +59,8 @@
 (defpackage :match
 	  (:use :cl)
 	  (:export :*whitespace* :best-model-matches :word-parse 
+		   :unknown-object-handler :match-model
+		   :word-count :word-count-handler
 		   :matches-model-syntax :word-string :*grammar-names*))
 
 (eval-when (:load-toplevel :compile-toplevel)
@@ -144,12 +146,21 @@
     ((eql (car model) 'preferred) (word-string (cdr model)))
     (t (warn "word-string can't do ~A" model))))
 
+(defun default-word-count-handler (model &key max)
+  (warn "word-count:  unknown object ~A" model)
+  (if max 10000 0))
+
+(defvar word-count-handler 'default-word-count-handler 
+  "By setting this function, one can extent the model grammar.")
+
 (defun word-count (model &key max)
   "find minimum (or maximum) word count in model"
   ;; In general, arguments of the model can be nil.
   (cond 
     ((null model) 0)
     ((stringp model) 1) ;; or count words in string
+    ((atom model) (funcall word-count-handler model :max max))
+    ;; from here on, assume model is a proper list
     ((test-for-list model)
      (loop for x in model sum (word-count x :max max)))
     ((eql (car model) 'and)
@@ -167,7 +178,8 @@
 	   args)))  ;; 0 or 1 args, drop conjunction
     ((member (car model) '(allowed preferred)) 
      (if max (word-count (cdr model) :max max) 0))
-    (t (warn "word-count found unexpected form ~A" model) (if max 10000 0))))
+    (t (funcall word-count-handler model :max max))))
+
 
 (defun sort-by-complexity (models)
   "Sort an alist of models by increasing complexity"
@@ -212,6 +224,15 @@
   "Gives lower bound for a match based on word count"
   (max 0 (- lstudent u-model) (- l-model lstudent)))
 
+
+(defun default-object-handler (student model &key best)
+  (declare (ignore student best))
+    (error "match-model:  Bad tree ~A" model))
+
+(defvar unknown-object-handler 'default-object-handler 
+  "By setting this function, one can extent the model grammar.")
+
+
 (defun match-model (student model &key (best 20000) l-model u-model)
   "Recursive match to tree, returns minimum word insertion/addition for match."
   ;; for profiling
@@ -237,7 +258,10 @@
          (update-bound best (normalized-levenshtein-distance item model)))
        ;; best fit plus any extra student words.
        (+ best (- (length student) 1))))
-     ;; model optional
+    ((atom model)
+     (funcall unknown-object-handler student model :best best))
+    ;; from here on out, model must be a cons
+    ;; model optional
     ((member (car model) '(preferred allowed))
      (when (cddr model)
        (warn "Model grammar:  ~A can only have one argument" model))
@@ -275,7 +299,8 @@
        ((cdr model) (match-model student (second model) :best best))
        (model (length student)) ;empty conjunction
        (t (error "conjoin must always have a conjunction"))))
-    (t (error "match-model:  Bad tree ~A" model))))
+    (t
+     (funcall unknown-object-handler student model :best best))))
 
 (defun match-model-list (student model &key best)
   (declare (notinline match-model)) ;for profiling
@@ -585,12 +610,42 @@
     ;; and return result. 
     (delete-if #'(lambda (x) (> (car x) (* best equiv))) quants)))
 
+;; Imposing a cutoff on word matching improves speed by 50%
+;; and removes some accidental matches (words
+;; that are clearly different, but have some letter overlap).
+(defconstant +word-cutoff+ 0.4 "Assume words don't match for normalized distances larger than this cutoff.")
 
 (defun normalized-levenshtein-distance (s1 s2)
-  "Normalize levenshtein-distance so complete rewrite is 1.0."
-  (/ (float (levenshtein-distance s1 s2))
-		    (float(max (length s1) (length s2)))))
+  "Normalize levenshtein-distance so complete rewrite is 1.0 and imposing match cutoff."
+  (let ((maxl (max (length s1) (length s2)))
+	(minl (min (length s1) (length s2))))
+    ;; Test if there is any hope of getting below cutoff
+    ;; This gives a 20% improvement in speed.
+    (if (> (* maxl (- 1 +word-cutoff+)) minl)
+	1
+	(let ((x (levenshtein-distance s1 s2)))
+	  (if (> x (* maxl +word-cutoff+))
+	      1
+	      (/ (float x) (float maxl)))))))
 
+;; Not used:  in Benchmarking, this is
+;; significantly slower than no test at all.
+(defun distance-lower-bound (str1 str2)
+  "Get lower bound for Levenshtein distance."
+  ;; This is order n*log(n) in string length n, while 
+  ;; the Levenshtein algorithm is order n^2.
+  (let ((s1 (sort (copy-seq str1) #'char<))
+	(s2 (sort (copy-seq str2) #'char<))
+	(matches 0))
+    (do ((i 0) (j 0))
+	((or (= i (length s1)) (= j (length s2))))
+      (cond ((char> (schar s1 i) (schar s2 j))
+	     (incf j))
+	    ((char< (schar s1 i) (schar s2 j))
+	     (incf i))
+	    ;; match
+	    (t (incf i) (incf j) (incf matches))))
+    (- (max (length s1) (length s2)) matches)))
 
 ;; Levenshtein Distance function.  
 ;; From http://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance#Common_Lisp

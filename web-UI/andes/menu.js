@@ -18,6 +18,10 @@ dojo.addOnLoad(function(){
 		"menuPhysics1":function(){
 			andes.principles.externP();
 		},
+
+		"menuPhysicsQ":function(){
+			andes.principles.review('quantities.html','Quantities');
+		},
 		
 		"menuPhysics2":function(){
 			andes.principles.review('units.html','Units');
