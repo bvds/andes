@@ -302,7 +302,7 @@
     (t
      (funcall unknown-object-handler student model :best best))))
 
-(defun match-model-list (student model &key best)
+(defun match-model-list (student model &key (best 10000))
   (declare (notinline match-model)) ;for profiling
   ;; for n student words and m elements of the model list,
   ;; m n (n+1)/2 matches must be evaluated.  The following
@@ -383,7 +383,7 @@
 ;; systementries.  It may make better sense to find a strategy
 ;; that is optimized for the search over systementries.
 
-(defun match-model-and (student model &key best)
+(defun match-model-and (student model &key (best 10000))
   (declare (notinline match-model)) ;for profiling
   (let* ((width (1+ (length student)))
 	 ;; nil means skip
@@ -542,7 +542,7 @@
       (reduce #'+ (mapcar #'(lambda (x) (- (cdr x) (car x))) 
 			 student-intervals))))
 
-(defun match-model-conjoin (student model &key best)
+(defun match-model-conjoin (student model &key (best 10000))
   (declare (notinline match-model)) ;for profiling
   (let ((conjunction (pop model)))
     ;; Right now, this does not handle commas at all.

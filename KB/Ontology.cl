@@ -1146,7 +1146,7 @@
   :EqnFormat ("V<sub>~a</sub> = V ~:[sin~;cos~](&theta;V - &theta;~a)"
 	      (axis-name ?axis) 
 	      (eq ?axis 'x)
-	      (axis-name ?axis)))
+	      (axis-name 'x)))
 
    
 ;;-------------------------------------------------------
