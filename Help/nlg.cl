@@ -377,16 +377,21 @@
 	((variable-p model) 
 	 (if (all-boundp model bindings)
 	     (expand-new-english (subst-bindings bindings model))
-	     (warn "Unbound variable ~A" model)))
-	((and (consp model) (member (car model) 
-				    '(preferred allowed and or conjoin)))
+	     (warn "expand-new-english:  Unbound variable ~A" model)))
+	((and (consp model) (member (car model) '(preferred allowed)))
+	 (when (cddr model) 
+	   (warn "expand-new-english:  ~(~A~) with more than one argument:  ~A"
+		 (car model) model))
+	 (list (car model) (expand-new-english (cadr model) bindings)))
+	((and (consp model) (member (car model) '(and or conjoin)))
 	 (let ((args (expand-new-english-list (cdr model) bindings)))
 	   (when args (cons (car model) args))))
 	;; expansion of var must be done at run-time.
 	((and (consp model) (eql (car model) 'var)) 
 	 (subst-bindings bindings model))
 	((and (consp model) (eql (car model) 'eval))
-	 (when (cddr model) (warn "Bad model syntax for eval: ~A" model))
+	 ;; For extensibility, allow eval to have more arguments.
+	 ;; Here, we just ignore them.
 	 (expand-new-english
 	  (eval (subst-bindings-quoted bindings (second model)))))
 	;; ordered sequence, remove empty elements
