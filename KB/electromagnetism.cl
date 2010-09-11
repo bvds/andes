@@ -1632,15 +1632,13 @@
   :rank vector
   :units |C.m|
   :short-name "electric dipole moment"
-  :new-english (property-object-time "electric dipole moment" ?dipole 
-				     :time ?time))
+  :new-english (vector-object "electric dipole moment" ?dipole :time ?time))
 
 (def-qexp magnetic-dipole-moment (dipole-moment ?dipole magnetic :time ?time)
   :rank vector
   :units |C.m^2/s|
   :short-name "magnetic dipole moment"
-  :new-english (property-object-time "magnetic dipole moment" ?dipole 
-				     :time ?time))
+  :new-english (vector-object "magnetic dipole moment" ?dipole :time ?time))
 
 ;; modification of draw-efield-vector
 (defoperator draw-Dipole-Moment-given-dir (?dipole ?t)
@@ -3448,9 +3446,7 @@
   :symbol-base |d\\Phidt|  ;needs fixing
   :short-name "rate of change in electric flux"	
   :units |V.m/s|
-  :new-english ((rate (change ("electric flux"))) 
-		(and (preferred ("through" ?surface)
-		     (time ?t)))))
+  :new-english (time-derivative (flux ?surface electric) :time ?t))
 
 (def-qexp magnetic-flux (flux ?surface magnetic :time ?t)
   :rank scalar
@@ -3458,8 +3454,8 @@
   :short-name "magnetic flux"	
   :units |T.m^2|
   :new-english ((the) "magnetic flux" 
-		(and (preferred ("through" ?surface)
-		     (time ?t)))))
+		(and (preferred ("through" ?surface))
+		     (time ?t))))
 
 (def-qexp magnetic-flux-change (rate-of-change 
 				(flux ?surface magnetic :time ?t))
@@ -3467,9 +3463,7 @@
   :symbol-base |d\\Phidt|  ;needs fixing     
   :short-name "rate of change in magnetic flux"	
   :units |T.m^2/s|
-  :new-english ((rate (change ("magnetic flux"))) 
-		(and (preferred ("through" ?surface)
-		     (time ?t)))))
+  :new-english (time-derivative (flux ?surface magnetic) :time ?t))
 
 (defoperator define-flux (?surface ?type ?t)
  :preconditions 
