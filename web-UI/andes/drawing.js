@@ -237,6 +237,16 @@ dojo.provide("andes.drawing");
 				var data = andes.convert.drawingToAndes(item, "new-object")
 				console.info("Save to server:", data);
 				this.save(data);
+				
+				//This is merely for demonstration for now, once we're ready to report
+				//scores and user information we can put the communication in the
+				//correct location
+				console.debug("Sending data to Flash...");
+				correct = dojo.toJson(data, true);
+				dojox.flash.comm.setMessage(correct);
+				actual = dojox.flash.comm.getMessage();
+				console.log("Requesting for it to be repeated back: ",actual);
+				correct != actual ? console.log("Flash communication failed"):console.log("Json successfully passed");
 			}
 		},
 		
