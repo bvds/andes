@@ -56,6 +56,7 @@ $dbserver= "localhost";
 $dbpass= $_POST['passwd'];
 $dbname= "andes3";
 
+function_exists('mysql_connect') or die ("Missing mysql extension");
 mysql_connect($dbserver, $dbuser, $dbpass)
      or die ("UNABLE TO CONNECT TO DATABASE at $dbserver");
 mysql_select_db($dbname)
