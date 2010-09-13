@@ -177,7 +177,8 @@
 	   (+ args (word-count (second model) :max max)) ;add conjuction 
 	   args)))  ;; 0 or 1 args, drop conjunction
     ((member (car model) '(allowed preferred)) 
-     (if max (word-count (cdr model) :max max) 0))
+     ;; Ignore subesequent arguments
+     (if max (word-count (cadr model) :max max) 0))
     (t (funcall word-count-handler model :max max))))
 
 
@@ -232,9 +233,8 @@
 (defvar unknown-object-handler 'default-object-handler 
   "By setting this function, one can extent the model grammar.")
 
-
 (defun match-model (student model &key (best 20000) l-model u-model)
-  "Recursive match to tree, returns minimum word insertion/addition for match."
+  "Recursive match to tree, returns minimum word insertion/addition for match.  Should check for valid model structure before calling match-model."
   ;; for profiling
   (declare (notinline match-model-and match-model-list match-model-conjoin))
 
@@ -248,23 +248,22 @@
 	(unless (< this best) (return-from match-model this))))
 
   (cond 
-    ((null student) (word-count model))
     ((null model) (length student))
     ((stringp model)
-     (let ((best 10000.0)) ;ignore any global value of best
+     (let ((best 1)) ;score for any match to one student word.
        ;; profiling shows that just calculating is slightly
-       ;; faster than also testing against the global best
+       ;; faster than also testing against the global best.
        (dolist (item student)
          (update-bound best (normalized-levenshtein-distance item model)))
        ;; best fit plus any extra student words.
-       (+ best (- (length student) 1))))
+     ;; If student is nil, this should return 1.
+       (+ best (max 0 (- (length student) 1)))))
     ((atom model)
      (funcall unknown-object-handler student model :best best))
-    ;; from here on out, model must be a cons
+    ;; from here on, model must be a proper list
     ;; model optional
     ((member (car model) '(preferred allowed))
-     (when (cddr model)
-       (warn "Model grammar:  ~A can only have one argument" model))
+     ;; Any (cddr model) is ignored.  
      (update-bound best (length student)) ;don't match model
      (update-bound best (match-model student (second model) :best best))
      best)

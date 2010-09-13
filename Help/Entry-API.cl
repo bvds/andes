@@ -470,9 +470,11 @@
 		   (strcat "Note that " (car short-names) " is "
 			   (get-prop-type (car tool-propositions))
 			   ".")
-		   (strcat "Please " *delete-object* " and use "
-			   (get-prop-icon (car tool-propositions))
-			   " for this definition.")))
+		   (strcat "If you meant to define a " 
+			   (get-prop-type (car tool-propositions))
+			   ", please " *delete-object* " and use "
+			   (get-prop-icon (car tool-propositions)) 
+			   " instead.")))
 		 ((= (length tool-propositions) 1)
 		  (list 
 		   (strcat "Are you trying to define "

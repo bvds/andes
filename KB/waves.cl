@@ -1118,7 +1118,7 @@
   :units |W/m^2|
   :restrictions positive
   :new-english ((the) "intensity" 
-	        (and (preferred "supplied to" ?wave)
+	        (and (preferred ("supplied to" ?wave))
 		     (preferred (agent ?agent))
 		     (time ?time)))
 )
@@ -1204,8 +1204,8 @@
   :restrictions positive  
   :short-name "net intensity"
   :new-english ((the) (or "net" "total") "intensity"
-		(and (preferred ("supplied to" ?wave)
-		     (time ?time)))))
+		(and (preferred ("supplied to" ?wave))
+		     (time ?time))))
 
 ;; based on define-net-work
 (defoperator define-net-intensity (?wave ?t)

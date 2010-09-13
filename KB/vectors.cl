@@ -2296,7 +2296,7 @@
   :short-name "rate of change in area"	
   :units |m^2/s|
   :restrictions positive
-  :new-english (rate (change (property-object "area" ?shape)))
+  :new-english (time-derivative (area ?shape))
 )
 
 (defoperator define-area (?shape)

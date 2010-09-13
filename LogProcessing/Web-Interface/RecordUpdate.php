@@ -10,6 +10,7 @@ $userName=$_GET["u"];
 $url=$_GET["c"];
 $comm=explode("&c=",$url);
 
+function_exists('mysql_connect') or die ("Missing mysql extension");
 mysql_connect($dbserver, $dbuser, $dbpass)
      or die ("UNABLE TO CONNECT TO DATABASE $dbserver");
 mysql_select_db($dbname)

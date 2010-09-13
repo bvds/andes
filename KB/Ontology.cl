@@ -61,21 +61,24 @@
 		    (preferred ((or "from" "with respect to") ?from-pt))
 		    (time ?time))))
 
+;; "the car's displacement between T0 and T1"
 (def-qexp displacement (displacement ?body :time ?time)
   :rank vector
   :units |m|
   :short-name "displacement"
   ;; BvdS:  is there a common abbreviation?
-  :new-english (vector-object-time "displacement"
-				   ?body :time ?time)
+  ;; Can't use vector-object, because "average" doesn't make sense.
+  :new-english ((the) "displacement" 
+		(and (preferred (property ?body)) (time ?time)))
 )
 
+;; ex) "the average velocity of the car between T0 and T1"
+;;     "the car's average velocity between T0 and T1" (to do)
 (def-qexp velocity (velocity ?body :time ?time)
   :rank vector
   :units |m/s|
   :short-name "velocity"
-  :new-english (vector-object-time (or "velocity" "vel." "vel") ?body 
-				   :time ?time)
+  :new-english (vector-object (or "velocity" "vel." "vel") ?body :time ?time)
 )
 
 ;; ex) "the velocity of the ball relative to the observer"
@@ -96,9 +99,8 @@
   :rank vector
   :units |m/s^2|
   :short-name "acceleration"
-  :new-english ((vector-object-time (or "acceleration" "accel." "accel") ?body 
-				    :time ?time))
-)
+  :new-english (vector-object (or "acceleration" "accel." "accel") ?body
+				     :time ?time))
 
 (def-qexp momentum (momentum ?body :time ?time)
   :rank vector
@@ -283,103 +285,55 @@
   :new-english ("of" (or (var ?body :namespace :objects) ?body))) 
 
 
-(def-qexp change (change ?property)
-  :new-english ((the) (or "change" "difference" "diff.") (or "in" "of") 
-		?property))
+(def-qexp time-derivative (time-derivative ?property :agent ?agent :time ?time)
+  ;; should work when agent or time are omitted.
+  :new-english ((the)
+		(or "change" "rate of change" "difference" "diff.") 
+		(or "in" "of") 
+		?property
+		(preferred "per unit time")
+		(and (preferred (agent ?agent)) (time ?time))))
 
-(def-qexp rate (rate ?property)
-  :new-english ((the) "rate of" ?property))
-	
 (def-qexp time-type (time-type ?time)
-  :new-english (eval (if (time-intervalp ?time)
-			 ;; "constant" "const." "const" 
-			 '(preferred (or "average" "avg." "avg")) 
-			 ;;  "initial" "init." "init" "final" "terminal"
-			 '(allowed (or "instantaneous" "instant." "instant"))))
-)
-
-(def-qexp time-type-prop (time-type-prop ?time ?property)
-  :new-english (eval (when (check-time-type ?property)
-			'(time-type ?time) ))
-)
-
-(defun check-time-type (?property)
-	(or (and (not (atom ?property))
-		   (exist-intersection '("velocity" "speed" "acceleration" 
-					 "momentum") ?property))
-	    (and (atom ?property)
-		   (exist-member ?property '("velocity" "speed" "acceleration" 
-					     "momentum")))))
-
-(defun exist-member (element string-list)
-	(loop for e in string-list
-		when (string= e element)
-		return e))
-
-(defun exist-intersection (string-list1 string-list2)
-	(loop for e in string-list1
-		when (exist-member e string-list2)
-		return e))
+  ;; These are redundant with time arguments, which are usually "preferred;"
+  ;; make these "allowed" so that both don't show up in default form.
+  :new-english (eval (cond
+		       ((time-intervalp ?time)
+			   ;; to allow "constant", would have to look at problem
+			 '(allowed (or "average" "avg." "avg")))
+		       ((time-pointp ?time)
+			 ;; to do "initial" or "final", would have to adjust
+			 ;; time ontology and look at problem times.
+			 '(allowed (or "instantaneous" "instant." "instant")))
+		       ((null ?time) nil)
+		       (t (warn "time-type:  Bad time ~A" ?time)))))
 
 ;; ex) "the value of average speed of the car at time T1"
-;;    "the car's average speed at time T1" 
-(def-qexp property-object-time (property-object-time ?property ?body 
-						     :time ?time)
+;;    "the car's average speed at time T1"  (to do!)
+;;    "the mass of the crate"
+;;    "the crate's mass" (to do!)
+;;    "the value of crate's mass"
+(def-qexp property-object (property-object ?property ?body :time ?time)
+  ;; Handles timeless case properly.
   :new-english ((allowed ((the) "value of")) 
-		(the) 
-		(time-type-prop ?time ?property) 
-		?property  ; "speed"
+		(the)
+		(time-type ?time)
+		?property  ;the quantity
 		(and (preferred (property ?body)) (time ?time))
 		))
 
 ;; ex) "the average velocity of the car between T0 and T1"
-;;     "the car's average velocity between T0 and T1"
-;;     "the car's displacement between T0 and T1"
-(def-qexp vector-object-time (vector-object-time ?property ?body :time ?time)
-  :new-english ( (the) 
-		 (time-type-prop ?time ?property)
-		 ?property  ; "velocity"
-		 (and (preferred (property ?body)) (time ?time))
-		 ))
-
-;; ex) "the net force exerted by the man"
-(def-qexp property-object-agent (property-object-agent ?property ?body ?agent)
+;;     "the car's average velocity between T0 and T1"  (to do)
+;;     "the car's displacement between T0 and T1"  (to do)
+(def-qexp vector-object (vector-object ?property ?body :time ?time)
+  ;; Don't use "value of" for vectors.
+  ;; Handles timeless case properly.
   :new-english ((the)
-		(time-type-prop ?time ?property)
-		?property  
-		(and (preferred (property ?body)) 
-		     (preferred ((or "due to" "by" "caused by" "made by" 
-				     "exerted by")
-				 ?agent ))) 
+		(time-type ?time)
+		?property  ;the quantity
+		(and (preferred (property ?body)) (time ?time))
 		))
 
-;; ex) "the net force exerted by the man at time T1"
-(def-qexp property-object-agent-time 
-    (property-object-agent-time ?property ?body ?agent :time ?time)
-  :new-english ((the)
-		(time-type-prop ?time ?property)
-		?property  
-		(and (preferred (property ?body))
-		     (preferred ((or "due to" "by" "caused by" "made by" 
-				     "exerted by")
-				 ?agent ))
-		     (time ?time))
-		)
-)
-
-;; ex) "the mass of the crate"
-;;    "the crate's mass"
-;;    "the value of crate's mass"
-(def-qexp property-object (property-object ?property ?body)
-  :new-english ((allowed ((the) "value of")) 
-		(the) ?property
-		(preferred (property ?body))
-		))
-
-;; ex) "the position of the probe"
-(def-qexp vector-object (vector-object ?property ?body)
-  :new-english ((the) ?property
-		(preferred (property ?body))))
 
 (def-qexp preferred-the (the)
   :new-english (preferred "the"))
@@ -400,7 +354,7 @@
 
 (def-qexp agent-prep (agent-prep ?preposition ?body)
   :new-english (eval (when (expand-new-english ?body)
-			'(?preposition
+			`(,?preposition
 			  (or (var ?body :namespace :objects) ?body)))))
 
 (def-qexp time (time ?time)
@@ -430,9 +384,8 @@
   :short-name "mass"	
   :units |kg|
   :restrictions positive
-  ;; "ball's mass" problem s2e
-  :new-english ((the) "mass"
-		(and (preferred (property ?body)) (time ?time))))
+  ;; "ball's mass" problem s2e (to do)
+  :new-english (property-object "mass" ?body :time ?time))
 
 ;; the magnitude of the change of mass of ~A per unit time due to ~A~@[ ~A~]" 
 ;;	       (nlg ?body) (nlg ?agent 'agent) (nlg ?time 'pp)
@@ -442,11 +395,8 @@
   :short-name "magnitude of mass change per unit time"	
   :units |kg/s|
   :restrictions nonnegative
-  :new-english (or ((change (property-object-agent "mass" ?body ?agent) 
-			    :time ?time))
-  		   (property-object-agent-time "mass change" ?body ?agent 
-					       :time ?time))
-)
+  :new-english ((allowed ((the) "magnitude of"))
+		(time-derivative (mass ?body) :agent ?agent :time ?time)))
 
 (def-qexp mass-per-length (mass-per-length ?rope)
   :rank scalar
@@ -454,7 +404,8 @@
   :short-name "mass per length"	
   :units |kg/m|
   :restrictions nonnegative 
-  :new-english ((the) (or "mass per length" "mass-per-length") "of" ?rope) 
+  :new-english (property-object (or "mass per length" "mass-per-unit-length" 
+			  "mass-per-length") ?rope)
 )
 
 (def-qexp distance (distance ?body :time ?time)
@@ -490,12 +441,14 @@
 		(time ?time)))
 
 ;; ex) "the value of the average speed of the aircraft between T0 and T1"
+;; ex) "the value of average speed of the car at time T1"
+;;    "the car's average speed at time T1" 
 (def-qexp speed (speed ?body :time ?time)
   :rank scalar
   :symbol-base |v|     
   :short-name "speed"	
   :units |m/s|
-  :new-english (property-object-time "speed" ?body :time ?time)
+  :new-english (property-object "speed" ?body :time ?time)
 )
 
 ;;ex) "the coeffienct of kinetic friction between the crate and the plain"
@@ -873,8 +826,8 @@
   :symbol-base ||     
   :short-name "rate of change in length"	
   :units |m/s|
-  :new-english (rate (change (property-object (or "length" "len" "len.") 
-					      ?body))))
+  :new-english (time-derivative (property-object (or "length" "len" "len.") 
+					      ?body)))
 
 (def-qexp width  (width ?body)
   :rank scalar

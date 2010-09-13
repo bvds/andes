@@ -569,8 +569,9 @@
   :symbol-base |V|     
   :short-name "volume"	
   :units |m^3|
-  :restrictions nonnegative ; we allow zero-volume for negligible parts of compound bodies
-  :new-english (property-object-time "volume" ?body :time ?time)
+  ;; we allow zero-volume for negligible parts of compound bodies
+  :restrictions nonnegative 
+  :new-english (property-object "volume" ?body :time ?time)
 )
 
 (defoperator define-volume (?body ?time)

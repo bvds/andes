@@ -11,6 +11,7 @@ $userSection = $_GET["s"];
 $tID = $_GET["t"];
 $clientID = $adminName.date("mdy").time();
 
+function_exists('mysql_connect') or die ("Missing mysql extension");
 mysql_connect($dbserver, $dbuser, $dbpass)
      or die ("UNABLE TO CONNECT TO DATABASE");
 mysql_select_db($dbname)
