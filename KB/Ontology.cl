@@ -408,14 +408,18 @@
 			  "mass-per-length") ?rope)
 )
 
+;; Sophia:  "the distance traveled"
+;;          "the distance of the aircraft"  (not very good english)
+;;          "the distance"
 (def-qexp distance (distance ?body :time ?time)
   :rank scalar
   :symbol-base |s|     
   :short-name "distance traveled"	
   :units |m|
   :new-english ((the) (or "distance" "dist." "dist") 
-		(or  ((or "traveled" "travelled" "travels" "moves" "moved")
-		      (and ("by" (or (var ?body :namespace :objects) ?body))
+		(or  ((preferred (or "traveled" "travelled" 
+				     "travels" "moves" "moved"))
+		      (and (preferred ("by" (or (var ?body :namespace :objects) ?body)))
 		           (time ?time)))
 		     ((property-object "distance" ?body)
 		      (and (allowed (or "traveled" "travelled" "travels" 

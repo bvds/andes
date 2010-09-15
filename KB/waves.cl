@@ -181,6 +181,7 @@
 
 ;; ex) "the period of the motion of ~"
 ;;     "the period of oscillations of ~"
+;; Bob S "period of the wave" wave24
 (def-qexp period (period ?body)
   :rank scalar
   :symbol-base |T|     
@@ -188,7 +189,10 @@
   :units |s|
   :restrictions positive
   :new-english (property-object 
-			((allowed "time") "period of" (the) (or "motion" "oscillations" "vibrations")) 
+			((allowed "time") "period"
+			 (preferred ("of" (the) 
+					  (or "motion" "oscillations"
+					      "vibrations"))))
 			?body))
 
 (defoperator define-period-var (?b)
