@@ -1090,7 +1090,7 @@
 
 (defun open-this-window-html (Name href &key title)
   "Html for opening web page in this directory"
-  ;; Not working yet.
+  ;; Not working yet, Bug #1808.
   ;; there are three possibilities:
   ;;    open a dialog box in same window.
   ;;    go forward in same window (in which case, need a back button).
