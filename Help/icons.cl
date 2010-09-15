@@ -71,7 +71,7 @@
 (defparameter *delete-object* (manual-link "delete your entry" 
 					     "delete" :pre ""))
 
-(defparameter *help-button* (manual-link "the help button" 
+(defparameter *help-button* (manual-link "the hint button" 
 					"help-button" :pre ""))
 (defparameter *help-button-action* (strcat "click on " *help-button*))
 

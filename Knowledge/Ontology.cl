@@ -234,16 +234,6 @@
 (defun quantity-expression-p (exp)
  "Non-null if given form is a declared quantity expression"
   (lookup-expression-struct exp))
-
-(defun lookup-expression-short-name (exp)
-  "Find the short-name in the Ontology for a quantity expression."
-  ;; We assume the short-name has no variable bindings.
-  (let ((qexp (lookup-expression-struct exp)))
-    (when qexp
-      (or (exptype-short-name qexp)
-	  (progn
-	    (warn "exptype ~A missing short-name" (exptype-type qexp))
-	    (string-downcase (string (exptype-type qexp))))))))
     
 (defun lookup-expression-units (exp)
   "Lookup the expression units."
