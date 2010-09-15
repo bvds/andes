@@ -394,20 +394,27 @@
 			      :remediation rem))))
   (make-red-turn :id (StudentEntry-id Entry)))
 
+(defun quantity-html-link (qexp)
+  "Create a link to the list of quantities for a given ExpType."
+  (open-review-window-html
+   (or (exptype-short-name qexp)
+       (warn "ExpType ~A missing short-name" (exptype-type qexp))
+       (string-downcase (string (exptype-type qexp))))
+   (strcat "quantities.html#" 
+	   (string (exptype-type qexp)))))
+
+(defun collect-distinct-quantities (matches)
+  "Collect a list of distinct ExpTypes for a list of SystemEntries."
+  (remove-duplicates
+   (mapcar #'(lambda (x) (lookup-expression-struct
+			  (second (systementry-prop x))))
+	   matches)))
+
 (defun too-many-matches-ErrorInterp (entry matches)
-  (let* ((distinct-quantities
-	  (remove-duplicates
-	   (mapcar #'lookup-expression-struct
-		   (mapcar #'second
-			   (mapcar #'SystemEntry-prop matches)))))
-	 (quantities-help 
-	  (nlg-print-list 
-	   (loop for qexp in distinct-quantities
-	      collect (open-review-window-html
-		       (exptype-short-name qexp)
-		       (strcat "quantities.html#" 
-			       (string (exptype-type qexp)))))
-	   "or" 'identity))
+  (let* ((distinct-quantities (collect-distinct-quantities matches))
+	 (quantities-help (nlg-print-list
+			   (mapcar #'quantity-html-link distinct-quantities)
+			   "or" 'identity))
 	 (ambiguous (format nil "Your definition ~:[~1*~;of <var>~A</var> ~]is ambiguous.&nbsp;  It looks like you were trying to define ~A." 
 			    (> (length (StudentEntry-symbol entry)) 0)
 			    (StudentEntry-symbol entry)
@@ -455,19 +462,16 @@
   (let* ((tool-propositions (remove-duplicates 
 			     (mapcar #'(lambda (x) (car (systementry-prop x)))
 				     matches)))
-	 ;; there may be several matches that have the 
-	 ;; same short-name.
-	 (short-names (remove-duplicates
-		       (mapcar #'(lambda (x) (short-english-find
-					      (second (systementry-prop x))))
-			       matches)
-		       :test #'string-equal))
+	 ;; there may be several matches that have the same quantity.
+	 (distinct-quantities (collect-distinct-quantities matches))
 	 (rem 
 	  (make-hint-seq
-	   (cond ((and (= (length short-names) 1)
+	   (cond ((and (= (length distinct-quantities) 1)
 		       (= (length tool-propositions) 1))
 		  (list
-		   (strcat "Note that " (car short-names) " is "
+		   (strcat "Note that " 
+			   (quantity-html-link (car distinct-quantities)) 
+			   " is " 
 			   (get-prop-type (car tool-propositions))
 			   ".")
 		   (strcat "If you meant to define a " 

@@ -333,15 +333,6 @@
 	    `(or (var ,(qnode-exp qnode))
 		 ,(new-english-find (qnode-exp qnode))))))
 
-
-(defun short-english-find (prop)
-  "Find short phrase associated with prop.  Returns a string."
-  ;; first look for genuine short name
-  (or (lookup-expression-short-name prop)
-      ;; then fall back to regular ontology
-      (get-default-phrase prop)))
-
-
 (defun new-english-find (prop)
   "Match proposition to Ontology."
   ;; First, determine if there is any problem-specific
