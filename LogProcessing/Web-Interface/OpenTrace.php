@@ -3,8 +3,6 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
  <LINK REL=StyleSheet HREF="log.css" TYPE="text/css">
-</head>
-<body>
 <?
 
 $dbuser=$_GET["x"];
@@ -36,7 +34,11 @@ if($clientID){
  } else {
   $sess=" for $userName, $userProblem, $userSection";
  }
-echo "<h2>Sesssion $sess $endp</h2>\n";
+
+echo "  <title>$userName, $userProblem</title>\n";
+echo "</head>\n";
+echo "<body>\n";
+echo "<h2>Session $sess $endp</h2>\n";
 
 if($clientID==''){
   $sql = "SELECT initiatingParty,command FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.clientID = P2.clientID AND P1.userName = '$userName' AND P1.userProblem = '$userProblem' AND P1.userSection = '$userSection' $tIDy";

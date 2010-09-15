@@ -187,7 +187,7 @@ if($slice == 'Comments'){
 	$userSection=$myrow["userSection"];
 	$startTime=$myrow["startTime"];
 	
-	echo "<tr><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td><a href=\"OpenTrace.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&cid=$clientID\">Session log</a></td></tr>\n";
+	echo "<tr><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td><a href=\"OpenTrace.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&cid=$clientID&u=$userName&p=$userProblem\">Session log</a></td></tr>\n";
        
       }
     while ($myrow = mysql_fetch_array($result));
