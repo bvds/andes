@@ -237,10 +237,7 @@
 	       #'(lambda (x) (cons (car x) 
 				   (expand-vars (SystemEntry-model (cdr x)))))
 	       best)
-	    (mapcar #'(lambda (x) 
-			(cons (expand-vars (SystemEntry-model x)) 
-			      (systementry-prop x)))
-		    sysentries)))
+	    (mapcar #'systementry-prop sysentries)))
 
     ;; Attempt to detect a wrong tool error.  
     ;; The strategy is to treat the choice of tool as being
@@ -315,7 +312,7 @@
 		    (mapcar #'cdr wrong-tool-best)) hints))
 
       ((null sysentries)
-       (values nil (nothing-to-match-ErrorInterp entry) hints))
+       (values nil (nothing-to-match-ErrorInterp entry tool-prop) hints))
       ((null best)
        ;; "Can't understand your definition," and switch to NSH
        (values nil (no-matches-ErrorInterp entry) hints))
@@ -330,7 +327,7 @@
 		  ;;          the mass of the beam
 		  ;; A mismatch can be off by a variable name like
 		  ;; T0 vs. T1, so we need to display such mismatches.
-		  0.25)
+		  0.15)
 	   (let ((phr (format nil 
 			      "I interpreted your definition ~@[of <var>~A</var> ~]as:&nbsp; ~A."
 			      (when (> (length (StudentEntry-symbol entry)) 0)
@@ -378,11 +375,14 @@
 			      (expand-vars (SystemEntry-model x))))
 		    entries))))
  
-(defun nothing-to-match-ErrorInterp (entry)
+(defun nothing-to-match-ErrorInterp (entry tool-prop)
   (let ((rem (make-hint-seq 
-	      (list (format nil "In this problem, you do not need to define anything like ~A." 
-			    (StudentEntry-text entry))
-		    '(function next-step-help)))))
+	      (list 
+		   (strcat "You don't need to use "
+			   (get-prop-icon tool-prop)
+			   " to solve this problem.&nbsp; Please " 
+			   *delete-object* 
+			   " &amp; use another tool.")))))
     (setf (turn-id rem) (StudentEntry-id entry))
     (setf (turn-coloring rem) +color-red+)
     ;; set state of entry and attach error. But only do if not done already, 
@@ -390,7 +390,7 @@
     (unless (studentEntry-ErrInterp entry)
       (setf (studentEntry-state entry) 'incorrect)
       (setf (studentEntry-ErrInterp entry)
-	    (make-ErrorInterp :diagnosis '(definition-has-no-matches)
+	    (make-ErrorInterp :diagnosis '(nothing-to-match-definition)
 			      :remediation rem))))
   (make-red-turn :id (StudentEntry-id Entry)))
 
@@ -488,7 +488,7 @@
 		   (strcat "I don't think you want to use "
 			   (get-prop-icon tool-prop)
 			   " for this definition.&nbsp; "
-			   "Perhaps you should delete this entry &amp; "
+			   "Perhaps you should " *delete-object* " &amp; "
 			   "use another tool."
 			   "<p>Would you like help choosing what to do next?"
 		    )	
