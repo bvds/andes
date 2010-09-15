@@ -218,7 +218,9 @@ dojo.provide("andes.drawing");
 				var id = item.id;
 				console.log("--------------------------------> onDelete", id);
 				this.remove(item);
-				this.save({action:"delete-object", id:item.id});
+				if(!item.mod){
+					this.save({action:"delete-object", id:item.id});
+				}
 			});
 			
 			item.connect("onChangeData", this, function(item){
@@ -329,6 +331,7 @@ dojo.provide("andes.drawing");
 				}else if(obj.action=="delete-object"){
 				        // need error handling for non-existant objects.
 					if(items[obj.id]){
+						items[obj.id].mod = true;  // don't echo back to server
 						if (items[obj.id].type=="andes.Combo") {
 							items[obj.id].master.destroy();
 						} else {
@@ -377,7 +380,7 @@ dojo.provide("andes.drawing");
 				// obj.mod=="deleted" should never occur if
 				// items[obj.id] exists.
 				if(items[obj.id]){
-					items[obj.id].mod = true;
+					items[obj.id].mod = true;  // don't echo back to server
 				        // style
 					items[obj.id].attr(andes.defaults[obj.mode]);
 					// x, y
@@ -430,7 +433,7 @@ dojo.provide("andes.drawing");
 						items[obj.id].textEdit(obj.text);
 					};
 
-					items[obj.id].mod = false;
+					items[obj.id].mod = false;   // restore echo back to server
 					
 				};
 			},this);
