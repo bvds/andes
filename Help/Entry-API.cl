@@ -189,6 +189,10 @@
   (or (cdr (assoc expr *proposition-types*))
       (warn "get-prop-type bad proposition ~S" expr)))
 
+(defun last-two-characters (x)
+  "Last two characters of a string"
+  (subseq x (max 0 (- (length x) 2))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;
 ;;;;                  Match student phrase to Ontology
@@ -272,7 +276,7 @@
     ;;	(when best (best-value best)) (length best) 
     ;;	(when wrong-tool-best (best-value wrong-tool-best)) 
     ;;	(length wrong-tool-best))
-    
+
     ;; If there is no symbol defined and the fit is >= 1 (for the symbol), 
     ;; then there is a good chance that the student unsuccessfully
     ;; attempted to define a symbol.  Add unsolicited hint.
@@ -283,21 +287,45 @@
 		  "Did you want to " *define-variable* "?")))
 	(push `((:action . "show-hint")
 		(:text . ,phr)) hints)))
+    
+    ;; Give unsolicited hint when "initial..." or "final ..." is used
+    (when (and (or (null best) (>= (best-value best) 1))
+	       (or (member "initial" student :test #'string-equal)
+		   (member "final" student :test #'string-equal)))
+      (let  ((phr (strcat 
+		  "Sorry, I don't understand definitions using "
+		  (manual-link "<em>initial</em> or <em>final</em>"
+			       "initial-or-final" :pre "")
+		  ".")))
+	(push `((:action . "show-hint")
+		(:text . ,phr)) hints)))
+
+    ;; Give unsolicited hint when "...'s" is used
+    (when (and (or (null best) (>= (best-value best) 1))
+	       (member "'s" student :test #'string-equal
+		       :key #'last-two-characters))
+      (let  ((phr (strcat 
+		  "Sorry, I don't understand "
+		  (manual-link "possessives with <em>'s</em>"
+			       "possessive" :pre "")
+		  ".")))
+	(push `((:action . "show-hint")
+		(:text . ,phr)) hints)))
 
     ;; If there is a tie between wrong-tool-best and best,
     ;; then give a hint suggesting the tool may be wrong,
     ;; but proceed as if the tool is correct.
     (when (and best wrong-tool-best
 	       (>= (best-value wrong-tool-best)
-		  (max (- (best-value best) 1) 0.1)))
+		   (max (- (best-value best) 1) 0.1)))
       (let ((phr (strcat 
 		  "Perhaps, you meant to use " 
 		  (get-prop-icon (car (systementry-prop 
-					(car wrong-tool-best))))
+                                       (car wrong-tool-best))))
 		  ", instead?")))
 	(push `((:action . "show-hint")
 		(:text . ,phr)) hints)))
-      
+    
     (cond
       ;; If wrong-tool-best exists, then it contains scores
       ;; that are one smaller than any scores in best.
@@ -637,7 +665,9 @@
 			      :namespace :objects)
 	 ;; finally return entry 
 	 (check-noneq-entry entry :unsolicited-hints hints))
-	(tturn)))))
+	(t 
+	 (setf (turn-result tturn) (append (turn-result tturn) hints))
+	 tturn)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -760,7 +790,9 @@
 
 	 ;; finally return entry
 	 (check-noneq-entry entry  :unsolicited-hints hints))
-	(tturn)))))
+	(t 
+	 (setf (turn-result tturn) (append (turn-result tturn) hints))
+	 tturn)))))
 
 
 ; fetch list of system vars denoting components of vector term
@@ -858,7 +890,9 @@
 
 	 ;; finally return entry
 	 (check-noneq-entry entry :unsolicited-hints hints))
-	(tturn)))))
+	(t 
+	 (setf (turn-result tturn) (append (turn-result tturn) hints))
+	 tturn)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -906,7 +940,9 @@
 	 
 	 ;; finally return entry 
 	 (check-noneq-entry entry :unsolicited-hints hints))
-	(tturn)))))
+	(t 
+	 (setf (turn-result tturn) (append (turn-result tturn) hints))
+	 tturn)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
