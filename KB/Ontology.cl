@@ -54,10 +54,11 @@
   :units |m|
   :short-name "relative position"
   ;; see relative-vel
-  :new-english (or ((vector-object "position" ?to-pt)
-		    (preferred ((or "relative to" "with respect to" "from") ?from-pt))
+  :new-english (or ((property-object "position" ?to-pt :vectorp t)
+		    (preferred ((or "relative to" "with respect to" "from") 
+				?from-pt))
 		    (time ?time))
-		   ((vector-object "relative position" ?to-pt)
+		   ((property-object "relative position" ?to-pt :vectorp t)
 		    (preferred ((or "from" "with respect to") ?from-pt))
 		    (time ?time))))
 
@@ -67,7 +68,7 @@
   :units |m|
   :short-name "displacement"
   ;; BvdS:  is there a common abbreviation?
-  ;; Can't use vector-object, because "average" doesn't make sense.
+  ;; Can't use property-object, because "average" doesn't make sense.
   :new-english ((the) "displacement" 
 		(and (preferred (property ?body)) (time ?time)))
 )
@@ -78,7 +79,8 @@
   :rank vector
   :units |m/s|
   :short-name "velocity"
-  :new-english (vector-object (or "velocity" "vel." "vel") ?body :time ?time)
+  :new-english (property-object (or "velocity" "vel." "vel") ?body 
+				:vectorp t :time ?time)
 )
 
 ;; ex) "the velocity of the ball relative to the observer"
@@ -99,8 +101,8 @@
   :rank vector
   :units |m/s^2|
   :short-name "acceleration"
-  :new-english (vector-object (or "acceleration" "accel." "accel") ?body
-				     :time ?time))
+  :new-english (property-object (or "acceleration" "accel." "accel") ?body
+				     :vectorp t :time ?time))
 
 (def-qexp momentum (momentum ?body :time ?time)
   :rank vector
@@ -313,27 +315,17 @@
 ;;    "the mass of the crate"
 ;;    "the crate's mass" (to do!)
 ;;    "the value of crate's mass"
-(def-qexp property-object (property-object ?property ?body :time ?time)
+;;    "the average velocity of the car between T0 and T1"
+;;    "the car's average velocity between T0 and T1"  (to do)
+;;    "the car's displacement between T0 and T1"  (to do)
+(def-qexp property-object (property-object ?property ?body :vectorp ?vectorp :time ?time)
   ;; Handles timeless case properly.
-  :new-english ((allowed ((the) "value of")) 
+  :new-english ((eval (unless ?vectorp '(allowed ((the) "value of"))))
 		(the)
 		(time-type ?time)
 		?property  ;the quantity
 		(and (preferred (property ?body)) (time ?time))
 		))
-
-;; ex) "the average velocity of the car between T0 and T1"
-;;     "the car's average velocity between T0 and T1"  (to do)
-;;     "the car's displacement between T0 and T1"  (to do)
-(def-qexp vector-object (vector-object ?property ?body :time ?time)
-  ;; Don't use "value of" for vectors.
-  ;; Handles timeless case properly.
-  :new-english ((the)
-		(time-type ?time)
-		?property  ;the quantity
-		(and (preferred (property ?body)) (time ?time))
-		))
-
 
 (def-qexp preferred-the (the)
   :new-english (preferred "the"))
@@ -723,19 +715,19 @@
   :rank scalar
   :units |J|
   :short-name "kinetic energy"
-  :new-english ((the) (allowed (or "total" "net")) (allowed "translational")
-		(or "kinetic energy" "KE")
-		(and (preferred (property ?body)) 
-		     (time ?time))))
+  :new-english (property-object ((allowed (or "total" "net")) 
+				 (allowed "translational")
+				 (or "kinetic energy" "KE"))
+				?body :time ?time))
 
 (def-qexp rotational-energy (rotational-energy ?body :time ?time)
   :rank scalar
   :units |J|
   :short-name "kinetic energy"
-  :new-english ((the) (allowed (or "total" "net")) (or "rotational" "rot") 
-		(or "kinetic energy" "KE")
-		(and (preferred (property ?body)) 
-		     (time ?time))))
+  :new-english (property-object ((allowed (or "total" "net")) 
+				 (preferred (or "rotational" "rot"))
+				 (or "kinetic energy" "KE"))
+				?body :time ?time))
 
 (def-qexp grav-energy (grav-energy ?body ?agent :time ?time)
   :rank scalar
@@ -782,8 +774,7 @@
   :short-name "spring constant"	
   :units |N/m|
   :restrictions positive
-  :new-english ((the) (or "spring" "force") "constant" 
-		(preferred (property ?spring))))
+  :new-english (property-object ((or "spring" "force") "constant") ?spring))
 
 (def-qexp height (height ?body ?zero-height :time ?time)
   :rank scalar

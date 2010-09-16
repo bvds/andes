@@ -1632,13 +1632,13 @@
   :rank vector
   :units |C.m|
   :short-name "electric dipole moment"
-  :new-english (vector-object "electric dipole moment" ?dipole :time ?time))
+  :new-english (property-object "electric dipole moment" ?dipole :vectorp t :time ?time))
 
 (def-qexp magnetic-dipole-moment (dipole-moment ?dipole magnetic :time ?time)
   :rank vector
   :units |C.m^2/s|
   :short-name "magnetic dipole moment"
-  :new-english (vector-object "magnetic dipole moment" ?dipole :time ?time))
+  :new-english (property-object "magnetic dipole moment" ?dipole :vectorp t :time ?time))
 
 ;; modification of draw-efield-vector
 (defoperator draw-Dipole-Moment-given-dir (?dipole ?t)
