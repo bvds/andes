@@ -48,16 +48,17 @@
 
 ;; ex) "the position of the ball relative to the observer"
 ;;     "the ball's relative position to the observer"
-;;    "the ball's position with respect to the observer"
+;;     "the ball's position with respect to the observer"
 (def-qexp relative-position (relative-position ?to-pt ?from-pt :time ?time)
   :rank vector
   :units |m|
   :short-name "relative position"
   ;; see relative-vel
-  :new-english (or ((vector-object "position" ?to-pt)
-		    (preferred ((or "relative to" "with respect to" "from") ?from-pt))
+  :new-english (or ((property-object "position" ?to-pt)
+		    (preferred ((or "relative to" "with respect to" "from") 
+				?from-pt))
 		    (time ?time))
-		   ((vector-object "relative position" ?to-pt)
+		   ((property-object "relative position" ?to-pt)
 		    (preferred ((or "from" "with respect to") ?from-pt))
 		    (time ?time))))
 
@@ -67,10 +68,9 @@
   :units |m|
   :short-name "displacement"
   ;; BvdS:  is there a common abbreviation?
-  ;; Can't use vector-object, because "average" doesn't make sense.
+  ;; Can't use property-object, because "average" doesn't make sense.
   :new-english ((the) "displacement" 
-		(and (preferred (property ?body)) (time ?time)))
-)
+		(and (preferred (property ?body)) (time ?time))))
 
 ;; ex) "the average velocity of the car between T0 and T1"
 ;;     "the car's average velocity between T0 and T1" (to do)
@@ -78,8 +78,8 @@
   :rank vector
   :units |m/s|
   :short-name "velocity"
-  :new-english (vector-object (or "velocity" "vel." "vel") ?body :time ?time)
-)
+  :new-english (property-object (or "velocity" "vel." "vel") ?body 
+				:time ?time))
 
 ;; ex) "the velocity of the ball relative to the observer"
 (def-qexp relative-vel (relative-vel ?to-pt ?from-pt :time ?time)
@@ -99,17 +99,15 @@
   :rank vector
   :units |m/s^2|
   :short-name "acceleration"
-  :new-english (vector-object (or "acceleration" "accel." "accel") ?body
+  :new-english (property-object (or "acceleration" "accel." "accel") ?body
 				     :time ?time))
 
 (def-qexp momentum (momentum ?body :time ?time)
   :rank vector
   :units |kg.m/s|
   :short-name "momentum"
-  :new-english ((the) (or "momentum" "mom." "mom")
-		(time-type ?time)
-		(and (preferred (property ?body))
-		     (time ?time))))
+  :new-english (property-object (or "momentum" "mom." "mom") ?body
+				:time ?time))
 
 ;; ex) "the constant normal force that the man acts on the crate"
 ;;     "the constant normal force of the man acting on the crate"
@@ -176,40 +174,41 @@
 		"force" (and (preferred (object ?body))
 			     (time ?time))))
 
-(def-qexp rotation-adj rotation-adj
-  :new-english (or "angular" "rotational" "rot." "ang." "orb." "rot" "ang") )
+(def-qexp rotation-adj (rotation-adj)
+  :new-english (or "angular" "rotational" "orbital" 
+		   "rot." "ang." "orb." "rot" "ang") )
 
 (def-qexp ang-displacement (ang-displacement ?body :time ?time)
   :rank vector
   :units |rad|
   :short-name "angular displacement"
-  :new-english ((the) rotation-adj	(or "displacement" "disp." "disp")
-		 (and (preferred (property ?body))
-		      (time ?time))))
+  :new-english (property-object 
+		((rotation-adj) (or "displacement" "disp." "disp"))
+		?body :time ?time))
 
 (def-qexp ang-velocity (ang-velocity ?body :time ?time)
   :rank vector
   :units |rad/s|
   :short-name "angular velocity"
-  :new-english ((the) rotation-adj (or "velocity" "vel." "vel")
-		 (and (preferred (property ?body))
-		      (time ?time))))
+  :new-english (property-object
+		((rotation-adj) (or "velocity" "vel." "vel"))
+		?body :time ?time))
 
 (def-qexp ang-accel (ang-accel ?body :time ?time)
   :rank vector
   :units |rad/s^2|
   :short-name "rotational acceleration"
-  :new-english ((the) rotation-adj (or "acceleration" "accel." "accel")
-		(and (preferred (property ?body))
-		     (time ?time))))
+  :new-english (property-object 
+		((rotation-adj) (or "acceleration" "accel." "accel"))
+		?body :time ?time))
 
 (def-qexp ang-momentum (ang-momentum ?body :time ?time)
   :rank vector
   :units |kg.m^2/s|
   :short-name "angular momentum"
-  :new-english ((the) rotation-adj (or "momentum" "mom." "mom")
-		 (and (preferred (property ?body))
-		      (time ?time))))
+  :new-english (property-object
+		((rotation-adj) (or "momentum" "mom." "mom"))
+		?body :time ?time))
 
 (def-qexp torque (torque ?body ?agent :axis ?axis :time ?time)
   :rank vector
@@ -308,32 +307,39 @@
 		       ((null ?time) nil)
 		       (t (warn "time-type:  Bad time ~A" ?time)))))
 
-;; ex) "the value of average speed of the car at time T1"
+;; ex) "the average speed of the car at time T1"
 ;;    "the car's average speed at time T1"  (to do!)
 ;;    "the mass of the crate"
 ;;    "the crate's mass" (to do!)
-;;    "the value of crate's mass"
-(def-qexp property-object (property-object ?property ?body :time ?time)
-  ;; Handles timeless case properly.
-  :new-english ((allowed ((the) "value of")) 
-		(the)
-		(time-type ?time)
-		?property  ;the quantity
-		(and (preferred (property ?body)) (time ?time))
-		))
-
-;; ex) "the average velocity of the car between T0 and T1"
-;;     "the car's average velocity between T0 and T1"  (to do)
-;;     "the car's displacement between T0 and T1"  (to do)
-(def-qexp vector-object (vector-object ?property ?body :time ?time)
-  ;; Don't use "value of" for vectors.
+;;    "the average velocity of the car between T0 and T1"
+;;    "the car's average velocity between T0 and T1"  (to do)
+;;    "the car's displacement between T0 and T1"  (to do)
+;; Exclude "value of", without special help.
+(def-qexp property-object (property-object ?property ?body
+					   :modifier ?mod :time ?time)
   ;; Handles timeless case properly.
   :new-english ((the)
-		(time-type ?time)
-		?property  ;the quantity
-		(and (preferred (property ?body)) (time ?time))
-		))
-
+		(or ((time-type ?time)
+		     ?property  ;the quantity
+		     (and (preferred (property ?body)) ?mod (time ?time)))
+		    ;; See if "initial" or "final" is applicable.
+		    (eval (let ((tp (collect-extremal-time-points *cp*)))
+			    (when (member ?time tp)
+			    `((the) ,(if (equal ?time (car tp))
+					"initial" "final")
+			      ,?property 
+			      (and ,?mod (preferred (property ,?body))))))))))
+  
+(defun collect-extremal-time-points (Problem)
+  "Collect any distinct min or max time points."
+  (let (min max)
+    (dolist (item (problem-wm problem))
+      (when (eql (car item) 'time)
+	(when (or (null min) (tbeforep (cadr item) min)) ;has timepointp test
+	  (setf min (cadr item)))
+	(when (or (null max) (tbeforep max (cadr item))) ;has timepointp test
+	  (setf max (cadr item)))))
+    (when (tbeforep min max) (list min max))))
 
 (def-qexp preferred-the (the)
   :new-english (preferred "the"))
@@ -376,8 +382,7 @@
 
 ;;;; scalar quantities
 
-;;; in the workbench, the time slot is added if feature changing-mass 
-;;  is included.
+;;; Only use time slot if feature changing-mass is included.
 (def-qexp mass	(mass ?body :time ?time)
   :rank scalar
   :symbol-base |m|
@@ -714,35 +719,35 @@
   :rank scalar
   :units |J|
   :short-name "net mechanical energy"
-  :new-english ((the) (or ((preferred (or "total" "net")) "mechanical energy") 
+  :new-english (property-object 
+		(or ((preferred (or "total" "net")) "mechanical energy") 
 			  "TME")
-		(and (preferred (property ?system)) 
-		     (time ?time))))
+		?system :time ?time))
 
 (def-qexp kinetic-energy (kinetic-energy ?body :time ?time)
   :rank scalar
   :units |J|
   :short-name "kinetic energy"
-  :new-english ((the) (allowed (or "total" "net")) (allowed "translational")
-		(or "kinetic energy" "KE")
-		(and (preferred (property ?body)) 
-		     (time ?time))))
+  :new-english (property-object ((allowed (or "total" "net")) 
+				 (allowed (or "translational" "linear"))
+				 (or "kinetic energy" "KE"))
+				?body :time ?time))
 
 (def-qexp rotational-energy (rotational-energy ?body :time ?time)
   :rank scalar
   :units |J|
   :short-name "kinetic energy"
-  :new-english ((the) (allowed (or "total" "net")) (or "rotational" "rot") 
-		(or "kinetic energy" "KE")
-		(and (preferred (property ?body)) 
-		     (time ?time))))
+  :new-english (property-object ((allowed (or "total" "net")) 
+				 (preferred (rotation-adj))
+				 (or "kinetic energy" "KE"))
+				?body :time ?time))
 
 (def-qexp grav-energy (grav-energy ?body ?agent :time ?time)
   :rank scalar
   :units |J|
   :short-name "potential energy"
   :new-english ((the) (allowed "total") (or "gravitational" "grav")
-		(or ((preferred (or "potential" "pot" "pot.")) "energy") "PE")
+		(or ((preferred (or "potential" "pot." "pot")) "energy") "PE")
 		(and (preferred (property ?body))
 		     (preferred (agent ?agent)) 
 		     (time ?time))))
@@ -782,22 +787,23 @@
   :short-name "spring constant"	
   :units |N/m|
   :restrictions positive
-  :new-english ((the) (or "spring" "force") "constant" 
-		(preferred (property ?spring))))
+  :new-english (property-object ((or "spring" "force") "constant") ?spring))
 
 (def-qexp height (height ?body ?zero-height :time ?time)
   :rank scalar
   :symbol-base |h|     
   :short-name "height"	
   :units |m|
-  :new-english ((the) ;(allowed "maximum") 
-		"height"
-		(and (property ?body)
-		     ;; Assume there is no user defined variable for zero-height
-		     (allowed ((or "above" "relative to") 
-			       (or ?zero-height 
-			    	   ((the) (allowed "level of") "origin"))))
-		     (time ?time))))
+  :new-english (property-object 
+		"height" ?body 
+		;; Case with the zero height included.
+		;; Generally, we only have one zero height defined
+		;; in a problem, so we can default to not using it.
+		:modifier (allowed ((or "above" "relative to")
+				    (or ?zero-height 
+					((the) (allowed "level of") 
+					 "origin"))))
+		:time ?time))
 
 ;; default phrase, in absence of something sensible.
 (def-qexp zero-height zero-height
@@ -811,10 +817,11 @@
   :short-name "moment of inertia"	
   :units |kg.m^2|
   :restrictions positive
-  :new-english ((the) "moment of inertia of" ?body 
-		(preferred (eval (when ?axis `("about" ,?axis))))
-		(time ?time))
-)
+  :new-english (property-object 
+		 "moment of inertia" 
+		 ?body 
+		 :modifier (eval (when ?axis `(preferred ("about" ,?axis))))
+		 :time ?time))
 
 ;; for dimensions of certain rigid bodies:
 ;;    from Bob: "the length of the beam"

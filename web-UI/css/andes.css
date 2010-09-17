@@ -107,7 +107,7 @@ body, .tundra .dijitSplitter, #navMenu{
 	margin:1em;
 }
 
-#helpContentPane p em{
+#helpContentPane p .comment{
 	color:#999;
 }
 

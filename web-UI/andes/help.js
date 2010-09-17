@@ -83,7 +83,7 @@ dojo.require("andes.api");
 			// note:
 	                //	setting to the node and not with attr
 	                // 	because ContentPane is throwing errors that way
-      			hlp.containerNode.innerHTML = c + "\n<p><em>" + value + "</em></p>";
+      			hlp.containerNode.innerHTML = c + "\n<p><span class=\"comment\">" + value + "</span></p>";
 			hlp.domNode.scrollTop = hlp.domNode.scrollHeight;
 		}
 	};

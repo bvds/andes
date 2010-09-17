@@ -37,7 +37,9 @@
 
 (defoperator inherit-timeless-mass (?b ?t)
    :preconditions ((test (not (member 'changing-mass (problem-features *cp*))))
-		   (time ?t))
+		   (time ?t)
+		   ;; Don't include in matching in model
+		   (add-to-wm (inherit-quantity-implicitly (mass ?b))))
   :effects ((inherit-quantity (mass ?b :time ?t) (mass ?b))))
 
 (defoperator define-mass (?b ?t)
@@ -2541,7 +2543,10 @@
 
 (defoperator inherit-timeless-moment-of-inertia (?b ?a ?t)
    :preconditions ((test (not (member 'changing-mass (problem-features *cp*))))
-		   (time ?t))
+		   (time ?t)
+		   ;; Don't include in matching in model
+		   (add-to-wm (inherit-quantity-implicitly 
+			       (moment-of-inertia ?b :axis ?a))))
   :effects 
   ((inherit-quantity (moment-of-inertia ?b :axis ?a :time ?t) 
 		     (moment-of-inertia ?b :axis ?a))))
