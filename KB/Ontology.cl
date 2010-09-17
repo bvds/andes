@@ -315,18 +315,20 @@
 ;;    "the car's average velocity between T0 and T1"  (to do)
 ;;    "the car's displacement between T0 and T1"  (to do)
 ;; Exclude "value of", without special help.
-(def-qexp property-object (property-object ?property ?body :time ?time)
+(def-qexp property-object (property-object ?property ?body
+					   :modifier ?mod :time ?time)
   ;; Handles timeless case properly.
   :new-english ((the)
 		(or ((time-type ?time)
 		     ?property  ;the quantity
-		     (and (preferred (property ?body)) (time ?time)))
+		     (and (preferred (property ?body)) ?mod (time ?time)))
 		    ;; See if "initial" or "final" is applicable.
 		    (eval (let ((tp (collect-extremal-time-points *cp*)))
 			    (when (member ?time tp)
 			    `((the) ,(if (equal ?time (car tp))
 					"initial" "final")
-			      ,?property (preferred (property ,?body)))))))))
+			      ,?property 
+			      (and ,?mod (preferred (property ,?body))))))))))
   
 (defun collect-extremal-time-points (Problem)
   "Collect any distinct min or max time points."
@@ -380,8 +382,7 @@
 
 ;;;; scalar quantities
 
-;;; in the workbench, the time slot is added if feature changing-mass 
-;;  is included.
+;;; Only use time slot if feature changing-mass is included.
 (def-qexp mass	(mass ?body :time ?time)
   :rank scalar
   :symbol-base |m|
@@ -793,20 +794,16 @@
   :symbol-base |h|     
   :short-name "height"	
   :units |m|
-  :new-english (or (property-object "height" ?body :time ?time)
-		   ;; Case with the zero height included.
-		   ;; Generally, we only have one zero height defined
-		   ;; in a problem, so we can default to not using it.
-		   ;; 
-		   ;; This doesn't include the use of "initial" or "final"
-		   ((the) ;(allowed "maximum") 
-		    "height"
-		    (and (property ?body)
-			 ;; Assume there is no user defined variable for zero-height
-			 ((or "above" "relative to") 
-			  (or ?zero-height 
-			      ((the) (allowed "level of") "origin")))
-			 (time ?time)))))
+  :new-english (property-object 
+		"height" ?body 
+		;; Case with the zero height included.
+		;; Generally, we only have one zero height defined
+		;; in a problem, so we can default to not using it.
+		:modifier (allowed ((or "above" "relative to")
+				    (or ?zero-height 
+					((the) (allowed "level of") 
+					 "origin"))))
+		:time ?time))
 
 ;; default phrase, in absence of something sensible.
 (def-qexp zero-height zero-height
@@ -820,10 +817,11 @@
   :short-name "moment of inertia"	
   :units |kg.m^2|
   :restrictions positive
-  :new-english ((the) "moment of inertia of" ?body 
-		(preferred (eval (when ?axis `("about" ,?axis))))
-		(time ?time))
-)
+  :new-english (property-object 
+		 "moment of inertia" 
+		 ?body 
+		 :modifier (eval (when ?axis `(preferred ("about" ,?axis))))
+		 :time ?time))
 
 ;; for dimensions of certain rigid bodies:
 ;;    from Bob: "the length of the beam"

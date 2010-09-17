@@ -392,8 +392,18 @@
 	 ;; Bindings are local to one operator in the ontology
 	 ;; so we need to substitute in here.
 	 ;; Assume any recursive calls are covered by New-English.
-	 (new-english-find (subst-bindings bindings model)))))
+	 (new-english-find (subst-bindings-careful bindings model)))))
 
+(defun subst-bindings-careful (bindings x)
+  "Do subst. bindings, but watch out for eval."
+  (cond ((eq bindings fail) fail)
+        ((eq bindings no-bindings) x)
+	((atom x) (subst-bindings bindings x))
+	;; At this point, it is a cons.
+	((eql (car x) 'eval) (subst-bindings-quoted bindings x))
+	(t (reuse-cons (subst-bindings-careful bindings (car x))
+		       (subst-bindings-careful bindings (cdr x))
+		       x))))
 
 ;; Should be "private" to nlg
 (defun expand-new-english-list (x &optional (bindings no-bindings))
