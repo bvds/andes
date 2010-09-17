@@ -288,18 +288,6 @@
 	(push `((:action . "show-hint")
 		(:text . ,phr)) hints)))
     
-    ;; Give unsolicited hint when "initial..." or "final ..." is used
-    (when (and (or (null best) (>= (best-value best) 1))
-	       (or (member "initial" student :test #'string-equal)
-		   (member "final" student :test #'string-equal)))
-      (let  ((phr (strcat 
-		  "Sorry, I don't understand definitions using "
-		  (manual-link "<em>initial</em> or <em>final</em>"
-			       "initial-or-final" :pre "")
-		  ".")))
-	(push `((:action . "show-hint")
-		(:text . ,phr)) hints)))
-
     ;; Give unsolicited hint when "...'s" is used
     (when (and (or (null best) (>= (best-value best) 1))
 	       (member "'s" student :test #'string-equal
@@ -502,7 +490,7 @@
 			   " is " 
 			   (get-prop-type (car tool-propositions))
 			   ".")
-		   (strcat "If you meant to define a " 
+		   (strcat "If you meant to define " 
 			   (get-prop-type (car tool-propositions))
 			   ", please " *delete-object* " and use "
 			   (get-prop-icon (car tool-propositions)) 
@@ -1498,6 +1486,4 @@
        (make-green-turn :id (StudentEntry-id entry)))
       (T (setf (StudentEntry-state entry) +INCORRECT+)
 	 (make-red-turn :id (StudentEntry-id entry))))))
-
-
 
