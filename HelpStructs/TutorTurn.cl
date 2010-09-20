@@ -168,10 +168,12 @@
 ;;----------------------------------------------------------
 ;; define specific tutor turn types.
 
-(defun make-green-dialog-turn (text menu &key Responder)
+(defun make-green-dialog-turn (text menu &key Responder id)
   "Produce a green coloring dialog type tutor turn."
+  (unless id (warn "no id in make-green-dialog-turn"))
   (make-turn :coloring +color-green+
 	     :type +dialog-turn+
+	     :id id
 	     :text text 
 	     :menu menu 
 	     :Responder Responder))
