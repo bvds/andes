@@ -74,6 +74,9 @@ dojo.require("andes.api");
 		// summary:
 		//	Echo any input text in the Tutor pane.
 		//
+		// Test for OLI communication.
+		dojo.byId("flash").sendTextFromHtml(value);
+		
 		if(value == '!'){
 			value = "Ha! A rotten easter egg!"
 		}

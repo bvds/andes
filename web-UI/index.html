@@ -25,6 +25,11 @@
 	</script>
 	<script type="text/javascript">
 		dojo.require("andes.profile");
+		//dojo.require("andes.oli");
+		
+		function recieveTextFromFlash(Txt) {
+		    console.log("Received from flash: ",Txt);
+		}
 	</script>
 </head>
 <body class="tundra">
@@ -103,6 +108,6 @@
 	  Loading list of all Principles
      </div>
   </div>
-
+   <embed src="Andes.swf" id="flash" quality="high" bgcolor="#ffffff" width="550" height="400" name="Andes" align="middle" allowScriptAccess="sameDomain" allowFullScreen="false" type="application/x-shockwave-flash" pluginspage="http://www.adobe.com/go/getflashplayer" />
 </body>
 </html>
