@@ -15,7 +15,7 @@ dojo.require("dijit.MenuItem");
 dojo.require("dijit.PopupMenuItem");
 dojo.require("dijit.form.Button");
 dojo.require("dijit.form.TextBox");
-dojo.require("dojox.flash");
+//dojo.require("dojox.flash");
 
 // needs to be loaded before Drawing:
 dojo.require("andes.defaults");
