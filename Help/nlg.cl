@@ -321,6 +321,27 @@
 	((nlg-find x *Ontology-PSMClasses* #'PSMClass-form #'PSMClass-nlg-english))
 	(t (format nil "equation:[~A]" x))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;
+;;;;   Generate dictionary from set of model sentences.
+;;;;
+
+(defun dictionary-handler (model dictionary)
+  "Extend model to include (var ...), which is ignored."
+  (unless (and (consp model) (eql (car model) 'var))
+      (warn "dictionary-handler:  unknown model ~A" model))
+  dictionary)
+
+(defun generate-dictionary (sysentries)
+  "Generate a list of possible words from a list of models, ignoring (var ...)"
+  (let ((match:add-to-dictionary-handler 'dictionary-handler)
+	dictionary)
+    (dolist (x sysentries)
+      (setf dictionary (match:add-to-dictionary 
+		    (SystemEntry-model x) dictionary)))
+    dictionary))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
