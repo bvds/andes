@@ -411,20 +411,29 @@
   (make-red-turn :id (StudentEntry-id Entry)))
 
 (defun quantity-html-link (qexp)
-  "Create a link to the list of quantities for a given ExpType."
-  (open-review-window-html
-   (or (exptype-short-name qexp)
-       (warn "ExpType ~A missing short-name" (exptype-type qexp))
-       (string-downcase (string (exptype-type qexp))))
-   (strcat "quantities.html#" 
-	   (string (exptype-type qexp)))))
+  "Create a link to the list of quantities for a given ExpType or just returns a string."
+  (if (stringp qexp) 
+      qexp  ;no link, just plain text.
+      (open-review-window-html
+       (or (exptype-short-name qexp)
+	   (warn "ExpType ~A missing short-name" (exptype-type qexp))
+	   (string-downcase (string (exptype-type qexp))))
+       (strcat "quantities.html#" 
+	       (string (exptype-type qexp))))))
 
 (defun collect-distinct-quantities (matches)
-  "Collect a list of distinct ExpTypes for a list of SystemEntries."
+  "Collect a list of distinct ExpTypes or bodies for a list of SystemEntries."
   (remove-duplicates
-   (mapcar #'(lambda (x) (lookup-expression-struct
-			  (second (systementry-prop x))))
-	   matches)))
+   (mapcar #'(lambda (x) (or (lookup-expression-struct
+			      (second (systementry-prop x)))
+			     ;; In the case of a body, it won't be found
+			     ;; in the general quantity ontology; just print
+			     ;; the name of the object.
+			     (match:word-string 
+			      (new-english-find 
+			       (second (systementry-prop x))))))
+	   matches)
+   :test #'equal)) ;for the strings
 
 (defun too-many-matches-ErrorInterp (entry matches)
   (let* ((distinct-quantities (collect-distinct-quantities matches))
