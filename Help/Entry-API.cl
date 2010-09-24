@@ -404,7 +404,7 @@
     ;; set state of entry and attach error. But only do if not done already, 
     ;; so only report on the first error found.
     (unless (studentEntry-ErrInterp entry)
-      (setf (studentEntry-state entry) 'incorrect)
+      (setf (studentEntry-state entry) +INCORRECT+)
       (setf (studentEntry-ErrInterp entry)
 	    (make-ErrorInterp :diagnosis '(nothing-to-match-definition)
 			      :remediation rem))))
@@ -456,7 +456,7 @@
     ;; set state of entry and attach error. But only do if not done already, 
     ;; so only report on the first error found.
     (unless (studentEntry-ErrInterp entry)
-      (setf (studentEntry-state entry) 'incorrect)
+      (setf (studentEntry-state entry) +incorrect+)
       (setf (studentEntry-ErrInterp entry)
 	    (make-ErrorInterp :diagnosis '(definition-has-too-many-matches)
 			      :remediation rem))))
@@ -521,7 +521,7 @@
     ;; set state of entry and attach error. But only do if not done already, 
     ;; so only report on the first error found.
     (unless (studentEntry-ErrInterp entry)
-      (setf (studentEntry-state entry) 'incorrect)
+      (setf (studentEntry-state entry) +incorrect+)
       (setf (studentEntry-ErrInterp entry)
 	    (make-ErrorInterp :diagnosis '(wrong-tool-error)
 			      :remediation rem))))
@@ -543,7 +543,7 @@
     ;; set state of entry and attach error. But only do if not done already, 
     ;; so only report on the first error found.
     (unless (studentEntry-ErrInterp entry)
-      (setf (studentEntry-state entry) 'incorrect)
+      (setf (studentEntry-state entry) +incorrect+)
       (setf (studentEntry-ErrInterp entry)
 	    (make-ErrorInterp :diagnosis '(definition-has-no-matches)
 			      :remediation rem))))
@@ -1081,7 +1081,7 @@
 	 ;; set state of entry and attach error. But only do if not done 
 	 ;; already, so only report on the first error found.
 	 (unless (studentEntry-ErrInterp entry)
-	   (setf (studentEntry-state entry) 'incorrect)
+	   (setf (studentEntry-state entry) +incorrect+)
 	   (setf (studentEntry-ErrInterp entry)
 		 (make-ErrorInterp :diagnosis '(variable-not-defined)
 				   :remediation rem))))))
@@ -1100,7 +1100,7 @@
        ;; set state of entry and attach error. But only do if not done already, so 
        ;; only report on the first error found.
        (unless (studentEntry-ErrInterp entry)
-	 (setf (studentEntry-state entry) 'incorrect)
+	 (setf (studentEntry-state entry) +incorrect+)
 	 (setf (studentEntry-ErrInterp entry)
 	       (make-ErrorInterp :diagnosis '(variable-already-in-use)
 				 :remediation rem)))))
@@ -1484,6 +1484,17 @@
       ((psmg-path-enteredp (enode-path PSM))
        (setf (StudentEntry-state entry) +CORRECT+)
        (make-green-turn :id (StudentEntry-id entry)))
+      ;; Activity is incomplete, give a hint
+      ;; based on goalprop, and then defer to NSH.
       (T (setf (StudentEntry-state entry) +INCORRECT+)
+	 (let ((rem (nsh-walk-node-graph 
+		     (strcat "You have not finished " (goal id) ".<p>") 
+		     psm)))
+	   (setf (StudentEntry-ErrInterp entry)
+		 (make-ErrorInterp 
+		  ;; The diagnosis never makes it to the log file.
+		  ;; Need to log analysis of error.  Bug #1816
+		  :diagnosis (cons 'goal-incomplete ID)
+		  :remediation rem)))
 	 (make-red-turn :id (StudentEntry-id entry))))))
 
