@@ -1,0 +1,26 @@
+Brett,
+
+Here's some updated scripts for debugging php at the cmd line. 
+
+There are 4 other files in this tarball
+
+1) cmdLineDebug.php - the actual script which allows you to pass php scripts 
+parameters at the cmd line
+
+2) mysql_stuff.php - an include file which does all of the database connection
+code
+
+3) debugPhprc an an example of what could be in a .debugPhprc (rc file used by
+cmdLineDebug.php
+
+4) RP.php - a small excerpt of ReviewProcess.php which includes and makes use
+of cmdLineDebug.php 
+
+The header of cmdLineDebug.php provides details on how to use it.
+
+-
+
+
+
+
+

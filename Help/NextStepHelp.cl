@@ -1666,9 +1666,9 @@
 
 (defun nsh-asfp-sought-str ()
   "Get the prompt string for nsh-ask-sought."
-  (if (multi-sought-problem-p *cp*)
-      "Please enter one quantity that the problem is seeking:"
-    "Please enter the quantity that the problem is seeking:"))
+  (strcat "In the box below, please enter "
+	 (if (multi-sought-problem-p *cp*) "the" "one")
+	 " quantity that the problem is seeking:"))
 
 
 ;;; This is the loopback point that will be used for the dialogues at runtime 

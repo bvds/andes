@@ -753,20 +753,12 @@
 	 result-turn
 	 (input (trim-eqn inputo)))
     
-    ;; Determine sought quantity by looking at position on the canvas
-    ;; of the answer box relative to other answer boxes.
-    (let ((previous (remove-if 
-		     #'(lambda (x) (or (equal (StudentEntry-id entry)
-					      (StudentEntry-id x))
-				       (< (StudentEntry-y entry) 
-					  (StudentEntry-y x))))
-		     ;; get list of all previous answers.
-		     (remove '(answer ?quant) *StudentEntries* 
-			     :key #'StudentEntry-prop :test-not #'unify))))
-      (setf sought-quant (nth (length previous) (problem-soughts *cp*))))
-    
-    (setf (StudentEntry-prop entry) `(answer ,sought-quant))
+    ;; Determine which answer this entry corresponds to.
+    (unless (StudentEntry-prop entry) 
+      (select-sought-for-answer entry))
+    (setf sought-quant (second (studentEntry-prop entry)))
     (add-entry entry) ;save entry immediately 
+
     (if (quant-to-sysvar sought-quant)
 	(if (/= (length (remove #\Space input)) 0)
 	    (let* ((stud-var (symbols-label sought-quant)) ; student's var for sought quant, maybe NIL
@@ -875,6 +867,33 @@
 	   ;;(format T "~&failed to get result for answer~%")
 	   (setf (StudentEntry-state entry) +incorrect+)
 	   (make-red-turn :id (StudentEntry-id entry))))))
+
+(defun select-sought-for-answer (entry)
+  "Decide which answer this entry corresponds to by looking at other exisiting answers.  Fills StudentEntry-prop based on this."
+  ;; Get list of all other existing answer boxes and done buttons.
+  ;; Don't include multiple-choice or checkboxes.
+  (let* ((previous (remove-if
+		    #'(lambda (x) (not (member x '(answer done))))
+		    (mapcar #'StudentEntry-prop 
+			    (remove entry *StudentEntries*))
+		    :key #'car))
+	 ;; Some older problems have useless wrapper (answer ...)
+	 (stripped (mapcar 
+		    #'(lambda (x) (if (eql (car x) 'answer) (second x) x))
+		    (problem-soughts *cp*)))
+	 ;; determine which answers don't have a box or done button.
+	 (remaining (set-difference 
+		     ;; remove multiple-choice and checkboxes.
+		     (remove 'choose-answer stripped :key #'car)
+		     (mapcar #'second previous)
+		     :test #'unify)))
+    ;; Assume answer boxes are ordered according to creation
+    ;; time (which is what we do when creating a problem).
+    ;; Use first answer which does not have an associated box.
+    ;; This policy produces the expected behavior if a student moves
+    ;; an answer box or deletes and re-creates an answer box.
+    (when remaining
+      (setf (StudentEntry-prop entry) (list 'answer (car remaining))))))
 
 (defun bad-answer-bad-lhs-ErrorInterp (equation why &key id)
   "LHS of equation is not a variable."

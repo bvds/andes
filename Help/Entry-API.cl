@@ -404,27 +404,36 @@
     ;; set state of entry and attach error. But only do if not done already, 
     ;; so only report on the first error found.
     (unless (studentEntry-ErrInterp entry)
-      (setf (studentEntry-state entry) 'incorrect)
+      (setf (studentEntry-state entry) +INCORRECT+)
       (setf (studentEntry-ErrInterp entry)
 	    (make-ErrorInterp :diagnosis '(nothing-to-match-definition)
 			      :remediation rem))))
   (make-red-turn :id (StudentEntry-id Entry)))
 
 (defun quantity-html-link (qexp)
-  "Create a link to the list of quantities for a given ExpType."
-  (open-review-window-html
-   (or (exptype-short-name qexp)
-       (warn "ExpType ~A missing short-name" (exptype-type qexp))
-       (string-downcase (string (exptype-type qexp))))
-   (strcat "quantities.html#" 
-	   (string (exptype-type qexp)))))
+  "Create a link to the list of quantities for a given ExpType or just returns a string."
+  (if (stringp qexp) 
+      qexp  ;no link, just plain text.
+      (open-review-window-html
+       (or (exptype-short-name qexp)
+	   (warn "ExpType ~A missing short-name" (exptype-type qexp))
+	   (string-downcase (string (exptype-type qexp))))
+       (strcat "quantities.html#" 
+	       (string (exptype-type qexp))))))
 
 (defun collect-distinct-quantities (matches)
-  "Collect a list of distinct ExpTypes for a list of SystemEntries."
+  "Collect a list of distinct ExpTypes or bodies for a list of SystemEntries."
   (remove-duplicates
-   (mapcar #'(lambda (x) (lookup-expression-struct
-			  (second (systementry-prop x))))
-	   matches)))
+   (mapcar #'(lambda (x) (or (lookup-expression-struct
+			      (second (systementry-prop x)))
+			     ;; In the case of a body, it won't be found
+			     ;; in the general quantity ontology; just print
+			     ;; the name of the object.
+			     (match:word-string 
+			      (new-english-find 
+			       (second (systementry-prop x))))))
+	   matches)
+   :test #'equal)) ;for the strings
 
 (defun too-many-matches-ErrorInterp (entry matches)
   (let* ((distinct-quantities (collect-distinct-quantities matches))
@@ -456,7 +465,7 @@
     ;; set state of entry and attach error. But only do if not done already, 
     ;; so only report on the first error found.
     (unless (studentEntry-ErrInterp entry)
-      (setf (studentEntry-state entry) 'incorrect)
+      (setf (studentEntry-state entry) +incorrect+)
       (setf (studentEntry-ErrInterp entry)
 	    (make-ErrorInterp :diagnosis '(definition-has-too-many-matches)
 			      :remediation rem))))
@@ -521,7 +530,7 @@
     ;; set state of entry and attach error. But only do if not done already, 
     ;; so only report on the first error found.
     (unless (studentEntry-ErrInterp entry)
-      (setf (studentEntry-state entry) 'incorrect)
+      (setf (studentEntry-state entry) +incorrect+)
       (setf (studentEntry-ErrInterp entry)
 	    (make-ErrorInterp :diagnosis '(wrong-tool-error)
 			      :remediation rem))))
@@ -543,7 +552,7 @@
     ;; set state of entry and attach error. But only do if not done already, 
     ;; so only report on the first error found.
     (unless (studentEntry-ErrInterp entry)
-      (setf (studentEntry-state entry) 'incorrect)
+      (setf (studentEntry-state entry) +incorrect+)
       (setf (studentEntry-ErrInterp entry)
 	    (make-ErrorInterp :diagnosis '(definition-has-no-matches)
 			      :remediation rem))))
@@ -1081,7 +1090,7 @@
 	 ;; set state of entry and attach error. But only do if not done 
 	 ;; already, so only report on the first error found.
 	 (unless (studentEntry-ErrInterp entry)
-	   (setf (studentEntry-state entry) 'incorrect)
+	   (setf (studentEntry-state entry) +incorrect+)
 	   (setf (studentEntry-ErrInterp entry)
 		 (make-ErrorInterp :diagnosis '(variable-not-defined)
 				   :remediation rem))))))
@@ -1100,7 +1109,7 @@
        ;; set state of entry and attach error. But only do if not done already, so 
        ;; only report on the first error found.
        (unless (studentEntry-ErrInterp entry)
-	 (setf (studentEntry-state entry) 'incorrect)
+	 (setf (studentEntry-state entry) +incorrect+)
 	 (setf (studentEntry-ErrInterp entry)
 	       (make-ErrorInterp :diagnosis '(variable-already-in-use)
 				 :remediation rem)))))
@@ -1484,6 +1493,17 @@
       ((psmg-path-enteredp (enode-path PSM))
        (setf (StudentEntry-state entry) +CORRECT+)
        (make-green-turn :id (StudentEntry-id entry)))
+      ;; Activity is incomplete, give a hint
+      ;; based on goalprop, and then defer to NSH.
       (T (setf (StudentEntry-state entry) +INCORRECT+)
+	 (let ((rem (nsh-walk-node-graph 
+		     (strcat "You have not finished " (goal id) ".<p>") 
+		     psm)))
+	   (setf (StudentEntry-ErrInterp entry)
+		 (make-ErrorInterp 
+		  ;; The diagnosis never makes it to the log file.
+		  ;; Need to log analysis of error.  Bug #1816
+		  :diagnosis (cons 'goal-incomplete ID)
+		  :remediation rem)))
 	 (make-red-turn :id (StudentEntry-id entry))))))
 

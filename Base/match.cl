@@ -61,6 +61,7 @@
 	  (:export :*whitespace* :best-model-matches :word-parse 
 		   :unknown-object-handler :match-model
 		   :word-count :word-count-handler
+		   :add-to-dictionary :add-to-dictionary-handler
 		   :matches-model-syntax :word-string :*grammar-names*))
 
 (eval-when (:load-toplevel :compile-toplevel)
@@ -181,6 +182,28 @@
      (if max (word-count (cadr model) :max max) 0))
     (t (funcall word-count-handler model :max max))))
 
+(defun default-add-to-dictionary-handler (model dictionary)
+  (warn "add-to-dictionary:  unknown object ~A" model)
+  dictionary)
+
+(defvar add-to-dictionary-handler 'default-add-to-dictionary-handler 
+  "By setting this function, one can extent the model grammar.")
+
+(defun add-to-dictionary (model dictionary)
+  "Append all words in model to a list of words"
+  ;; In general, arguments of the model can be nil.
+  (cond 
+    ((null model) dictionary)
+    ((stringp model) (pushnew model dictionary :test #'string-equal))
+    ((atom model) (funcall add-to-dictionary-handler model dictionary))
+    ;; from here on, assume model is a proper list
+    ((test-for-list model)
+     (dolist (x model)
+       (setf dictionary (add-to-dictionary x dictionary)))
+     dictionary)
+    ((member (car model) '(and or conjoin allowed preferred))
+     (add-to-dictionary (cdr model) dictionary))
+    (t (funcall add-to-dictionary-handler model dictionary))))
 
 (defun sort-by-complexity (models)
   "Sort an alist of models by increasing complexity"

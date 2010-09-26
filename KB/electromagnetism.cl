@@ -656,13 +656,13 @@
    )
    :effects (
 	     ;; no reaction force since field is not an object
-	     (force ?b ?source electric ?t ?F-dir action)
+	     (force ?b ?source electric ?t ?F-dir from-field)
 	     ))
 
 (defoperator draw-electric-force-given-field-dir (?b ?source ?t)
   :preconditions 
   (
-   (force ?b ?source electric ?t ?F-dir action)
+   (force ?b ?source electric ?t ?F-dir from-field)
    (test (not (parameter-or-unknownp ?F-dir)))
    ;; found above, make sure this is right situation
    (in-wm (inherit-vector ?ao (field electric :location ?loc :source ?source :time ?t) 

@@ -148,7 +148,7 @@
     (normal '("normal force"))
     (tension '(or ("tension" (preferred "force")) "pulling force" 
 	       ("force" (preferred "of tension"))))
-    (applied '((allowed "applied") "force")) ;catch-all force
+    (applied '((allowed (or "applied" "external")) "force")) ;catch-all force
     (kinetic-friction '(or (((preferred "kinetic") 
 			     (or "friction" "frictional")) "force")
 			("force" "of" (preferred "kinetic") "friction")))
@@ -437,6 +437,7 @@
 ;; ex) "the duration of time between T0 and T1"
 ;;     "the time duration between T0 and T1"
 ;;     "the duration between T0 and T1"
+;; KVL "the duration of the blackbird flight" Bug #1815
 (def-qexp duration (duration ?time)
   :rank scalar
   :symbol-base |t|     
