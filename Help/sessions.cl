@@ -284,15 +284,19 @@
 		 ;; Need to do inlining for answer boxes, Bug #1689
 		 (let ((id (format nil "statement~A" i)))
 		   ;; Add to *StudentEntries* but don't evaluate in Help.
-		   (push (make-studententry :id id :mode "unknown"
-					    :type "statement") 
-			 *studententries*)
+		   (let ((entry (make-studententry :id id :mode "unknown"
+						   :type "statement")))
+		     (select-sought-for-answer entry)
+		     ;; sanity test
+		     (unless (StudentEntry-prop entry)
+		       (warn "Problem answer ~A doesn't match soughts" line))
+		     (push entry *StudentEntries*))
 		   (push `((:action . "new-object") (:type . "statement") 
 			   (:id . ,id) (:mode . "unknown") 
 			   (:x . ,(+ x indent)) (:y . ,y) 
 			   (:width . 100) (:text . "Answer:       ")) 
 			 replies)))
-
+		
 		;; Multiple choice.  See Bug #1551
 		;; Checkboxes (with a done button) or radio buttons
 		((or (unify line '(choose ?label ?a ?b . ?rest))
@@ -309,6 +313,12 @@
 		       (setf dx 0 dy line-sep)
 		       (setf dx (/ 300 (length line)) dy 0))
 		   
+		   ;; sanity check
+		   (unless (member `(choose-answer ,label . ?rest)
+				   (problem-soughts *cp*)
+				   :test #'unify)
+		     (warn "Invalid label ~A for ~A" label button-type))
+
 		   (let* ((id (format nil "~A" label))
 			  (prop `(choose-answer ,label nil))
 			  (buttons
@@ -350,10 +360,13 @@
 		 (let* ((label (pop line))
 			(id (format nil "doneButton~S" i))
 			(prop `(done ,(or label 
-					     (car (problem-soughts *cp*))))))
-		   ;; Sanity check
+					  (car (problem-soughts *cp*))))))
+		   ;; Sanity checks
 		   (when (and (null label) (cdr (problem-soughts *cp*)))
 		     (warn "Ambiguous null label for choose"))
+		   (unless (member (second prop) (problem-soughts *cp*)
+				   :test #'unify)
+		     (warn "Invalid label ~A for choose" label))
 		   ;; Create a single push button
 		   (push `((:action . "new-object") 
 			   (:type . "button") (:id . ,id) 
