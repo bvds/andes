@@ -28,81 +28,97 @@
 	</script>
 </head>
 <body class="tundra">
-	<div id="splashOverlay"></div>
-	<div id="conEdit" contenteditable="true"></div>
-	<div id="main" dojoType="dijit.layout.BorderContainer" gutters="false">
-		<div dojoType="dijit.MenuBar" id="navMenu" region="top" splitter="false">
-		                <span id="problemName" class="dijitMenuItem dijitMenuItemLabel">Problem</span>
+    <div id="splashOverlay"></div>
+    <div id="conEdit" contenteditable="true"></div>
+    <div id="main" dojoType="dijit.layout.BorderContainer" gutters="false">
+	<div dojoType="dijit.MenuBar" id="navMenu" region="top" splitter="false">
+	    <span id="problemName" class="dijitMenuItem dijitMenuItemLabel">Problem</span>
 
-				<div dojoType="dijit.PopupMenuBarItem">
-						<span>Physics</span>
-						<div dojoType="dijit.Menu" id="menuPhysics">
-								<div id="menuPhysics1" dojoType="dijit.MenuItem">Principles</div>
-								<div id="menuPhysicsQ" dojoType="dijit.MenuItem">Quantities</div>
-								<div id="menuPhysics2" dojoType="dijit.MenuItem">Units</div>
-                                                                <div id="menuPhysics3" dojoType="dijit.MenuItem">Constants</div>
-						</div>
-				</div>
-
-
-				<div dojoType="dijit.PopupMenuBarItem">
-						<span>Help</span>
-						<div dojoType="dijit.Menu" id="menuHelp">
-                                                                <div id="menuIntroductionText" dojoType="dijit.MenuItem">Introduction</div>
-								<div id="menuIntroduction" dojoType="dijit.MenuItem">Intro Video</div>
-								<div id="menuSlides" dojoType="dijit.MenuItem">Slide show</div>
-
-								<div id="menuManual" dojoType="dijit.MenuItem">Manual</div>
-				</div>
-                     </div>
-				<div dojoType="dijit.form.Button" id="submitButton" style="position:absolute; top:0; right:10px; margin:0;">Submit</div>
+	    <div dojoType="dijit.PopupMenuBarItem">
+		<span>Physics</span>
+		<div dojoType="dijit.Menu" id="menuPhysics">
+		    <div id="menuPhysics1" dojoType="dijit.MenuItem">Principles</div>
+		    <div id="menuPhysicsQ" dojoType="dijit.MenuItem">Quantities</div>
+		    <div id="menuPhysics2" dojoType="dijit.MenuItem">Units</div>
+		    <div id="menuPhysics3" dojoType="dijit.MenuItem">Constants</div>
 		</div>
+	    </div>
+
+
+	    <div dojoType="dijit.PopupMenuBarItem">
+		<span>Help</span>
+		<div dojoType="dijit.Menu" id="menuHelp">
+		    <div id="menuIntroductionText" dojoType="dijit.MenuItem">Introduction</div>
+		    <div id="menuIntroduction" dojoType="dijit.MenuItem">Intro Video</div>
+		    <div id="menuSlides" dojoType="dijit.MenuItem">Slide show</div>
+		    <div id="menuManual" dojoType="dijit.MenuItem">Manual</div>
+		    <div id="menuOptions" dojoType="dijit.MenuItem">Options</div>
+		</div>
+	    </div>
+	    <div dojoType="dijit.form.Button" id="submitButton" style="position:absolute; top:0; right:10px; margin:0;">Submit</div>
+	</div>
+	
+	<div id="toolPane" dojoType="dijit.layout.ContentPane" region="left" splitter="false">
+	    <div dojoType="dojox.drawing.ui.Toolbar" id="gfxToolbarNode" drawingId="drawing" class="gfxToolbar" orient="V" tools="line,rect,ellipse,textBlock,equation,vector,axes" plugs="all" selected=""></div>
+	</div>
+	<div id="drawingPane" dojoType="dijit.layout.ContentPane" region="center" >
+	    <div dojoType="dojox.drawing.Drawing" id="drawing" jsId="myDrawing" class="drawing"
+		 plugins="[{'name':'dojox.drawing.plugins.drawing.GreekPalette'}]" defaults="andes.defaults">
+	    </div>
+	</div>
 		
-		<div id="toolPane" dojoType="dijit.layout.ContentPane" region="left" splitter="false">
-		
-				<div dojoType="dojox.drawing.ui.Toolbar" id="gfxToolbarNode" drawingId="drawing" class="gfxToolbar" orient="V" tools="line,rect,ellipse,textBlock,equation,vector,axes" plugs="all" selected=""></div>
-		</div>
-		<div id="drawingPane" dojoType="dijit.layout.ContentPane" region="center" >
-				<div dojoType="dojox.drawing.Drawing" id="drawing" jsId="myDrawing" class="drawing"
-				     plugins="[{'name':'dojox.drawing.plugins.drawing.GreekPalette'}]" defaults="andes.defaults">
-				</div>
-		</div>
-			
-		<div id="helpPane" dojoType="andes.widget.ExpandoPane" region="right" splitter="true" title="Tutor" startExpanded="false">
-			<div id="helpWrapPane" dojoType="dijit.layout.BorderContainer" gutters="false">
-				<div id="helpContentPane" dojoType="dijit.layout.ContentPane" region="center"></div>
+	<div id="helpPane" dojoType="andes.widget.ExpandoPane" region="right" splitter="true" title="Tutor" startExpanded="false">
+	    <div id="helpWrapPane" dojoType="dijit.layout.BorderContainer" gutters="false">
+		<div id="helpContentPane" dojoType="dijit.layout.ContentPane" region="center"></div>
 
-				<div id="helpInputPane" dojoType="dijit.layout.ContentPane" region="bottom">
-					<div dojoType="dijit.form.TextBox" id="helpInput"></div>
-					<div dojoType="dijit.form.Button" id="helpSubmit">Hint</div>
-				</div>
-			</div>
+		<div id="helpInputPane" dojoType="dijit.layout.ContentPane" region="bottom">
+		    <div dojoType="dijit.form.TextBox" id="helpInput"></div>
+		    <div dojoType="dijit.form.Button" id="helpSubmit">Hint</div>
 		</div>
-
-		<div id="footerPane" dojoType="dijit.layout.ContentPane" region="bottom"></div>
+	    </div>
 	</div>
 
-	<div dojoType="dojox.widget.UpgradeBar" id="upgradeBar">
-		<div validate="dojo.isIE<7">
-			<span>There may be performance problems with IE 6.0. An upgrade is recommended.</span>
-			<a href="http://www.mozilla.com/firefox/">Download Firefox</a>	
-		</div>
+	<div id="footerPane" dojoType="dijit.layout.ContentPane" region="bottom"></div>
+    </div>
+    
+    <div dojoType="dojox.widget.UpgradeBar" id="upgradeBar">
+	<div validate="dojo.isIE<7">
+	    <span>There may be performance problems with IE 6.0. An upgrade is recommended.</span>
+	    <a href="http://www.mozilla.com/firefox/">Download Firefox</a>	
 	</div>
+    </div>
 
-  <!-- Principles menus constructed last -->
-  <div id="majorPrinciples" dojoType="dijit.Dialog" title="Major Principles">
-     <div id="majorModalTreeText"></div>
-    <div id="majorModalTree" class="tall">
-	  Loading list of major Principles
-     </div>
-  </div>
-
-   <div id="allPrinciples" dojoType="dijit.Dialog" title="Principles">
-     <div id="allModalTreeText"></div>
-     <div id="allModalTree" class="tall">
-	  Loading list of all Principles
-     </div>
-  </div>
+    <!-- Principles menus constructed last -->
+    <div id="majorPrinciples" dojoType="dijit.Dialog" title="Major Principles">
+	<div id="majorModalTreeText"></div>
+	<div id="majorModalTree" class="tall">
+	    Loading list of major Principles
+	</div>
+    </div>
+    
+    <div id="allPrinciples" dojoType="dijit.Dialog" title="Principles">
+	<div id="allModalTreeText"></div>
+	<div id="allModalTree" class="tall">
+	    Loading list of all Principles
+	</div>
+    </div>
+    
+    <div id="options" dojoType="dijit.Dialog" title="Options">
+	<table>
+	    <tr>
+		<td>AngleSnap:</td>
+		<td><input dojoType="dijit.form.NumberSpinner" value="360" smallDelta="1" constraints="{min:1,max:360}" intermediateChanges="true" style="width:70px" id="optionsAngleSnap" name="angleSnap"/></td>
+	    </tr>
+	    <tr>
+		<td>PowerPoint Style:</td>
+		<td><button dojoType="dijit.form.ToggleButton" checked="checked" iconClass="dijitCheckBoxIcon" id="optionsClickMode">Blip</button></td>
+	    </tr>
+	    <tr>
+		<td></td>
+		<td><button dojoType="dijit.form.Button" type="button" id="optionsSave">Save</button></td>
+	    </tr>
+	</table>
+    </div>
 
 </body>
 </html>
