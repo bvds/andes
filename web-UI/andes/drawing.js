@@ -180,7 +180,7 @@ dojo.provide("andes.drawing");
 						});
 					}
 
-					// Checboxes only moke local modifications
+					// Checkboxes only moke local modifications
 					if(item.buttonType != "checkbox"){
 						// Send result to server
 						var data = andes.convert.drawingToAndes(group, "modify-object");
@@ -225,19 +225,22 @@ dojo.provide("andes.drawing");
 			
 			item.connect("onChangeData", this, function(item){
 				if (item.mod == true) { return;};
+				console.trace();
 				console.log("---------------------------------> onChangeData andes.drawing", item.id, item.type);//dojo.toJson(item.data));
 				console.log("drawing.js items:", items)
-				var data = andes.convert.drawingToAndes(item, "modify-object")
-				console.info("Save to server", data);
-				this.save(data);
-				//console.log("------------------setting style: ",item);
+				// Until we know server diagnosis, set to unknown.
+				item.mod = true; // disable save to server, else we get a recursive call
 				item.attr(andes.defaults["unknown"]);
+				item.mod = false; // restore save to sever
+				var data = andes.convert.drawingToAndes(item, "modify-object")
+				console.info("Save mod to server", data);
+				this.save(data);
 			});
 			
 			if(saveToServer){
 				// we need to save it to the server
 				var data = andes.convert.drawingToAndes(item, "new-object")
-				console.info("Save to server:", data);
+				console.info("Save new to server:", data);
 				this.save(data);
 			}
 		},
@@ -433,7 +436,7 @@ dojo.provide("andes.drawing");
 						items[obj.id].textEdit(obj.text);
 					};
 
-					items[obj.id].mod = false;   // restore echo back to server
+					items[obj.id].mod = false;   // restore save to server
 					
 				};
 			},this);
