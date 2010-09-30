@@ -84,16 +84,17 @@ andes.Combo = dojox.drawing.util.oo.declare(
 		textEdit: function(value){
 			// match logic for symbol and label in convert.js
 			var label = andes.variablename.parse(value);
+			var ol = this.master.getLabel();
 			if(label){
-				console.log("LABEL=", label," text=",value);
+				console.log("textEdit:  LABEL=", label," text=",value);
 				this.master.setLabel(label);
 				// if call came from onChangeText, then statement is already updated
 				if(value != this.statement.getText()){
 					this.statement.setText(value);
-				}  
+				}
 				this.statement.selectOnExec = true;
 			}else{
-				console.log("NO LABEL, text=",value);
+				console.log("textEdit:  NO LABEL, text=",value);
 				this.master.setLabel(value);
 				this.statement.setText("");
 				this.statement.selectOnExec = false;
@@ -101,7 +102,11 @@ andes.Combo = dojox.drawing.util.oo.declare(
 			if(!this.created){
 				this.created = true;
 				this._onCreate();
-			}else{
+			}
+
+			// Suspicious:  if the old label was empty,
+			// we need an explicit send to server.  Bug #1820
+			if(!ol){
 				this.onChangeData(this);
 			}
 
