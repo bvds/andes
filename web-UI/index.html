@@ -33,7 +33,12 @@
     <div id="main" dojoType="dijit.layout.BorderContainer" gutters="false">
 	<div dojoType="dijit.MenuBar" id="navMenu" region="top" splitter="false">
 	    <span id="problemName" class="dijitMenuItem dijitMenuItemLabel">Problem</span>
-
+	    <div dojoType="dijit.PopupMenuBarItem">
+		<span>Edit</span>
+		<div dojoType="dijit.Menu" id="menuEdit">
+		    <div id="menuOptions" dojoType="dijit.MenuItem">Options</div>
+		</div>
+	    </div>
 	    <div dojoType="dijit.PopupMenuBarItem">
 		<span>Physics</span>
 		<div dojoType="dijit.Menu" id="menuPhysics">
@@ -52,12 +57,6 @@
 		    <div id="menuIntroduction" dojoType="dijit.MenuItem">Intro Video</div>
 		    <div id="menuSlides" dojoType="dijit.MenuItem">Slide show</div>
 		    <div id="menuManual" dojoType="dijit.MenuItem">Manual</div>
-		</div>
-	    </div>
-	    <div dojoType="dijit.PopupMenuBarItem">
-		<span>Edit</span>
-		<div dojoType="dijit.Menu" id="menuEdit">
-		    <div id="menuOptions" dojoType="dijit.MenuItem">Options</div>
 		</div>
 	    </div>
 	    <div dojoType="dijit.form.Button" id="submitButton" style="position:absolute; top:0; right:10px; margin:0;">Submit</div>
@@ -109,17 +108,17 @@
     </div>
     
     <div id="options" dojoType="dijit.Dialog" title="Options">
-	<table>
+	<table id="optionsTable">
 	    <tr>
-		<td>AngleSnap:</td>
-		<td><input dojoType="dijit.form.NumberSpinner" value="360" smallDelta="1" constraints="{min:1,max:360}" intermediateChanges="true" style="width:70px" id="optionsAngleSnap" name="angleSnap"/></td>
+		<td class="left">AngleSnap:</td>
+		<td><input dojoType="dijit.form.NumberSpinner" value="360" smallDelta="1" constraints="{min:1,max:360}" intermediateChanges="true" style="width:63px" id="optionsAngleSnap" name="angleSnap"/></td>
 	    </tr>
 	    <tr>
-		<td>PowerPoint Style:</td>
+		<td class="left">PowerPoint Style:</td>
 		<td><button dojoType="dijit.form.ToggleButton" checked="checked" iconClass="dijitCheckBoxIcon" id="optionsClickMode">Blip</button></td>
 	    </tr>
 	    <tr>
-		<td></td>
+		<td class="left"></td>
 		<td><button dojoType="dijit.form.Button" type="button" id="optionsSave">Save</button></td>
 	    </tr>
 	</table>
