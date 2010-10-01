@@ -126,7 +126,7 @@ dojo.provide("andes.drawing");
 					var s = statement;
 					item.connect(statement, "onChangeText", this, function(value){
 						item.setLabel(value);
-						console.log("onChangeText calling setLabel for ", item.id,": ",value);
+						console.log("-------> onChangeText calling setLabel for ", item.id,": ",value);
 						this.add(item, true);
 						_drawing.removeStencil(s);
 					});
@@ -180,7 +180,7 @@ dojo.provide("andes.drawing");
 						});
 					}
 
-					// Checkboxes only moke local modifications
+					// Checkboxes only make local modifications
 					if(item.buttonType != "checkbox"){
 						// Send result to server
 						var data = andes.convert.drawingToAndes(group, "modify-object");
