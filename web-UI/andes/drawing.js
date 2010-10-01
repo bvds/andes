@@ -126,7 +126,7 @@ dojo.provide("andes.drawing");
 					var s = statement;
 					item.connect(statement, "onChangeText", this, function(value){
 						item.setLabel(value);
-						console.log("--------------------------------> onNewItem(Axes)", item.id);
+						console.log("onChangeText calling setLabel for ", item.id,": ",value);
 						this.add(item, true);
 						_drawing.removeStencil(s);
 					});
@@ -216,7 +216,7 @@ dojo.provide("andes.drawing");
 
 			item.connect("onDelete", this, function(item){
 				var id = item.id;
-				console.log("--------------------------------> onDelete", id);
+				console.log("----------------------------> onDelete", id);
 				this.remove(item);
 				if(!item.mod){
 					this.save({action:"delete-object", id:item.id});
@@ -225,9 +225,7 @@ dojo.provide("andes.drawing");
 			
 			item.connect("onChangeData", this, function(item){
 				if (item.mod == true) { return;};
-				console.trace();
-				console.log("---------------------------------> onChangeData andes.drawing", item.id, item.type);//dojo.toJson(item.data));
-				console.log("drawing.js items:", items)
+				console.log("----------------> onChangeData andes.drawing", item.id, item.type);
 				// Until we know server diagnosis, set to unknown.
 				item.mod = true; // disable save to server, else we get a recursive call
 				item.attr(andes.defaults["unknown"]);
