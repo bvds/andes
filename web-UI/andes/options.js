@@ -19,18 +19,17 @@ dojo.declare("andes.options",null,{
         // Set up connections
         dojo.connect(this.angleSnap, "onChange", this, "updateAngleSnap");
         dojo.connect(this.clickMode, "onChange", this, "updateClickMode");
-        dojo.connect(this.clickMode, "onBlur", function(evt){dojo.stopEvent(evt);});
         dojo.connect(this.save, "onClick", this, "setChanges");
     },
     
     // Function to update values, change can only take one at a time.
     updateAngleSnap: function(val){
-        console.log("val: ",val);
+        //console.log("val: ",val);
         this.values["angleSnap"] = val;
     },
     
     updateClickMode: function(val){
-        console.log("val: ",val);
+        //console.log("val: ",val);
         this.values["clickMode"] = val;
         this.clickMode.set('label', val ? "enabled" : "disabled");
     },
@@ -41,7 +40,7 @@ dojo.declare("andes.options",null,{
         console.log("Setting Changes: ");
         for(var nm in this.values){
             if(this.values[nm]!=null){
-                console.log("Changing: ",nm," to: ", this.values[nm]);
+                //console.log("Changing: ",nm," to: ", this.values[nm]);
                 var obj = {};
                 obj[nm] = this.values[nm];
                 myDrawing.changeDefaults(obj,true);
