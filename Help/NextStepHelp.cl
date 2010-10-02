@@ -1177,14 +1177,11 @@
 ;;; hint.
 (defun nsh-prompt-axis ()
   (let ((Rot (nsh-get-axis-Rot)))
-    (make-dialog-turn
+    (make-explain-more-turn
      (strcat "It is now a good idea for you to draw an axis.  This "
 	     "will help to ground your work and be useful later on "
 	     "in the process.")
-     +explain-more+
-     :Responder #'(lambda (Response)
-		    (when (eql response +explain-more+)
-		      (nsh-make-axis-prompt Rot)))
+     :hint (nsh-make-axis-prompt Rot)
      :Assoc `((nsh prompt-axis ,Rot)))))
 
 		      
@@ -1195,14 +1192,11 @@
 ;;; way to start this (and most) problems is to draw such a thing.
 (defun nsh-new-start-axis ()
   (let ((Rot (nsh-get-axis-Rot)))
-    (make-dialog-turn
+    (make-explain-more-turn
      (strcat "It is a good idea to begin most problems by drawing "
 	     "an axis.  This helps to ground your work and will be "
 	     "useful later on in the process.")
-     +explain-more+
-     :Responder #'(lambda (Response)
-		    (when (eql response +explain-more+)
-		      (nsh-make-axis-prompt Rot)))
+     :hint (nsh-make-axis-prompt Rot)
      :Assoc `((nsh new-start-axis ,Rot)))))
 
 
@@ -1352,18 +1346,15 @@
 (defun nsh-start-no-quant ()
   "Propt the student to start working on the no-quant problem."
   (let ((principle (caar *nsh-solution-sets*)))
-    (make-dialog-turn
+    (make-explain-more-turn
      (strcat "On problems such as this you need to complete "
 	     "all of the individual goals listed in the "
 	     "problem description.  ")
-     +explain-more+
-     :Responder #'(lambda (Response)
-		    (when (eql response +explain-more+)
-		      (nsh-prompt-Node 
-		       "Why don't you start with "
-		       Principle
-		       :Assoc `((nsh start-no-quant-explain-more
-				    ,(bgnode-exp Principle))))) )
+     :hint (nsh-prompt-Node 
+	    "Why don't you start with "
+	    Principle
+	    :Assoc `((nsh start-no-quant-explain-more
+		      ,(bgnode-exp Principle))))
      :Assoc '((nsh . start-no-quant)))))
 
 
@@ -1456,16 +1447,13 @@
 
 
 (defun nsh-mc-only-prompt-done-incorrect ()
-  (make-dialog-turn 
+  (make-explain-more-turn 
    (strcat "You have answered all of the questions on this problem "
 	   "but some of your answers are incorrect.  If you want to "
 	   "you can stop here and move on to another problem.  "
 	   "However you can also change your answers if you wish to "
 	   "try again.")
-   +explain-more+
-   :Responder #'(lambda (Response)
-		  (when (eql Response +explain-more+)
-		    (nsh-mc-only-prompt-done-reconsider)))
+   :hint (nsh-mc-only-prompt-done-reconsider)
    :Assoc '((nsh mc-only prompt-done-incorrect))))
 
 ;;; If the students are done but incorrect we can offer them the chance
@@ -1484,16 +1472,13 @@
 ;;; When starting an mc-only problem we will give the initial preamble and them 
 ;;; inform the students that they should start work on this task. 
 (defun nsh-mc-only-start ()
-  (make-dialog-turn 
+  (make-explain-more-turn 
    (strcat "On problems of this type you need to answer "
 	   (if (> 1 (length (problem-soughts *cp*)))
 	       "all of the multiple choice questions on your screen."
 	     "the multiple choice question on your screen.")
 	   "You do not need to make any other entries.")
-   +explain-more+
-   :Responder #'(lambda (Response)
-		  (when (eql response +explain-more+)
-		    (nsh-mc-only-prompt-next)))
+   :hint (nsh-mc-only-prompt-next)
    :Assoc '((nsh mc-only start))))
 
 
@@ -1503,18 +1488,15 @@
 ;;; have made any incorrect entries we want to offer them the chance to change 
 ;;; those entries.
 (defun nsh-mc-only-prompt ()
-  (make-dialog-turn 
+  (make-explain-more-turn 
    (strcat "On problems of this type you need to answer "
 	   (if (> 1 (length (problem-soughts *cp*)))
 	       "all of the multiple choice questions on your screen."
 	     "the multiple choice question on your screen.")
 	   "  You do not need to make any other entries.")
-   +explain-more+
-   :Responder #'(lambda (Response)
-		  (when (eql response +explain-more+)
-		    (if (nsh-incorrect-mc-entries-made-p)
-			(nsh-mc-only-prompt-reconsider)
-		      (nsh-mc-only-prompt-next))))
+   :hint (if (nsh-incorrect-mc-entries-made-p)
+	     (nsh-mc-only-prompt-reconsider)
+	     (nsh-mc-only-prompt-next))
    :Assoc '((nsh mc-only prompt))))
 
 
@@ -1807,14 +1789,11 @@
   ;; Filter out possible multiple choice questions.
   (let ((Sought (car (remove-if-not #'quantity-expression-p
 				    (problem-soughts *cp*)))))
-    (make-dialog-turn
+    (make-explain-more-turn
      (strcat message "&nbsp; " "Let's just assume that you are seeking "
 	     (nlg Sought 'def-np) ".")
-     +explain-more+
-     :responder #'(lambda (response)
-		    (when (eql Response +explain-more+)
-		      (nsh-ask-first-principle 
-		       "" (match-exp->qnode Sought (problem-graph *cp*)))))
+     :hint (nsh-ask-first-principle 
+	    "" (match-exp->qnode Sought (problem-graph *cp*)))
      :Assoc `((nsh tell-sought ,Case ,Sought)))))
 
 	 
@@ -2669,14 +2648,11 @@
 (defun nsh-cfp-success-completed (Prefix Best Solution)
   "Promp the student to continue on when the first principle is completed."
   (setq *nsh-current-solutions* (nsh-cfp-match-fp-sol Best))
-  (make-dialog-turn
+  (make-explain-more-turn
    (strcat Prefix "  You have already finished "
 	   (nlg (enode-id Best) 'psm-exp) 
 	   ".  You can move on to the next step in the solution.")
-   +explain-more+
-   :Responder #'(lambda (Resp)
-		  (when (eql Resp +explain-more+)
-		    (nsh-prompt-solution "Why don't you work on " Solution)))
+   :hint (nsh-prompt-solution "Why don't you work on " Solution)
    :Assoc `((nsh cfp-success-completed ,(bgnode-exp Best)))))
 
 
@@ -2766,14 +2742,11 @@
 ;;; Again this is stubbed for now.
 (defun nsh-prompt-done-fp (message Principle Solution &key Case)
   "Prompt the solution."
-  (make-dialog-turn
+  (make-explain-more-turn
    (strcat Message "  You have already finished "
 	   (nlg (enode-id Principle) 'psm-exp)
 	   ".  Why don't you start working on the next principle?")
-   +explain-more+
-   :Responder #'(lambda (Response)
-		  (when (eql response +explain-more+)
-		    (nsh-prompt-solution "Why don't you work on " Solution)))
+   :hint (nsh-prompt-solution "Why don't you work on " Solution)
    :Assoc `((nsh prompt-done-fp ,Case ,(enode-id Principle)))))
 
 
@@ -2855,16 +2828,12 @@
 ;;; solution for them.  
 (defun nsh-start-principle-free ()
   (setq *nsh-current-solutions* (list (nsh-pick-best-solution *nsh-solution-sets*)))
-  (make-dialog-turn
+  (make-explain-more-turn
    (strcat "Excellent, you should now continue your solution by making "
 	   "the entries that are necessary to complete the problem "
 	   (if (> 1 (length (problem-soughts *cp*))) "goals." "goal."))
-   +explain-more+
-   :Responder #'(lambda (Response)
-		  (when (eql Response +explain-more+)
-		    (nsh-prompt-solution 
-		     "Why don't you begin by " 
-		     (car *nsh-current-solutions*))))
+   :hint (nsh-prompt-solution "Why don't you begin by " 
+			      (car *nsh-current-solutions*))
    :Assoc '((nsh . start-principle-free))))
 
 	 
@@ -2916,13 +2885,11 @@
 
 (defun nsh-dialog-prompt-node (Dialog Prefix Node &key Assoc)
   "Prompt the specified node after the specified dialog stack."
-  (make-dialog-turn
-   Dialog +explain-more+
-   :Responder #'(lambda (Resp)
-		  (when (eql Resp +explain-more+)
-		    (nsh-prompt-node 
-		     Prefix Node
-		     :Assoc `((nsh dialog-prompting-node ,(bgnode-exp Node))))))
+  (make-explain-more-turn
+   Dialog 
+   :hint (nsh-prompt-node 
+	  Prefix Node
+	  :Assoc `((nsh dialog-prompting-node ,(bgnode-exp Node))))
    :Assoc (alist-warn Assoc)))
 
 
@@ -2973,12 +2940,9 @@
 (defun nsh-prompt-parameter (Prefix Parameter &key Assoc)
   "Prompt the student to work on the parameter."
   (setq *nsh-last-node* Parameter)
-  (make-dialog-turn 
+  (make-explain-more-turn 
    (strcat prefix (nlg (bgnode-exp Parameter) 'psm-exp) ".  ")
-   +explain-more+
-   :responder #'(lambda (Response)
-		  (when (eql response +explain-more+)
-		    (nsh-walk-node-graph "" Parameter)))
+   :hint (nsh-walk-node-graph "" Parameter)
    :Assoc (alist-warn Assoc)))
 
 
@@ -3006,12 +2970,9 @@
 (defun nsh-prompt-goal-principle (prefix Principle Assoc)
   "Prompt the specified major principle."
   (setq *nsh-last-node* Principle)
-  (make-dialog-turn 
+  (make-explain-more-turn 
    (strcat prefix (nlg (enode-id principle) 'goal) ".  ")
-   +explain-more+
-   :responder #'(lambda (response)
-		  (when (eql response +explain-more+)
-		    (nsh-walk-Node-graph "" principle)))
+   :hint (nsh-walk-Node-graph "" principle)
    :Assoc (alist-warn Assoc)))
 
 
@@ -3044,12 +3005,9 @@
 
 (defun nsh-prompt-principle-final (prefix principle Assoc)
   (setq *nsh-last-node* Principle)
-  (make-dialog-turn 
+  (make-explain-more-turn 
    (strcat prefix (nlg (enode-id principle) 'psm-exp) ".  ")
-   +explain-more+
-   :responder #'(lambda (response)
-		  (when (eql response +explain-more+)
-		    (nsh-walk-Node-graph "" principle)))
+   :hint (nsh-walk-Node-graph "" principle)
    :Assoc (alist-warn Assoc)))
 
 
@@ -3941,15 +3899,12 @@
 ;;; make them do something but not, per-se, to worry about the
 ;;; context of it, or that we have already provided the context.
 (defun nsh-bottom-hint-target-entry (Initial step &key Assoc)
-  (make-dialog-turn
-   Initial +explain-more+
-   :Responder #'(lambda (Response)
-		  (when (eql response +explain-more+)
-		    (let ((source (car (SystemEntry-Sources step))))
-		    (make-hint-seq 
-		     (collect-step-hints Source :types '(bottom-out))
-		     :OpTail (list (csdo-op Source))))))
-   
+  (make-explain-more-turn
+   Initial
+   :hint (let ((source (car (SystemEntry-Sources step))))
+	   (make-hint-seq 
+	    (collect-step-hints Source :types '(bottom-out))
+	    :OpTail (list (csdo-op Source))))
    :Assoc (alist-warn Assoc)))
 
 

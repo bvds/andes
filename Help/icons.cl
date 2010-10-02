@@ -73,7 +73,7 @@
 
 (defparameter *help-button* (manual-link "the hint button" 
 					"help-button" :pre ""))
-(defparameter *help-button-action* (strcat "click on " *help-button*))
+(defparameter *help-button-action* (strcat "click on " *help-button* " below"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

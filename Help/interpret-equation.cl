@@ -467,12 +467,8 @@
   (if messages
       (if (= (length messages) 1)
 	  (make-dialog-turn (first messages) nil)
-	(make-dialog-turn (first messages) 
-			  'explain-more
-			  :responder
-			  #'(lambda (response)
-			      (if (equal response 'explain-more)
-				  (chain-explain-more (rest messages))))))))
+	(make-explain-more-turn (first messages) 
+			  :hint (chain-explain-more (rest messages))))))
 	
 ;; build a color-green turn with given message list
 (defun chain-explain-more-green (messages &key id)
@@ -484,7 +480,9 @@
 			  :responder
 			  #'(lambda (response)
 			      (if (equal response 'explain-more)
-				  (chain-explain-more (rest messages))))
+				  (chain-explain-more (rest messages))
+				  (warn "chain-explain-more-green:  no responder for ~A" 
+					response)))
 			  :id id))))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
