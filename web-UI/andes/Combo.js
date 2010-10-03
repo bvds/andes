@@ -24,7 +24,7 @@ andes.Combo = dojox.drawing.util.oo.declare(
 			[this.master, "onChangeData", this, function(){
 				this.onChangeData(this);
 			}],
-			[this.master, "onChangeText", this, , function(){
+			[this.master, "onChangeText", this, function(){
 				this.onChangeText(this);
 			}]
 		]);
@@ -38,9 +38,6 @@ andes.Combo = dojox.drawing.util.oo.declare(
 
 		this.statement.connectMult([
 			[this.statement, "onChangeText", this, "textEdit"],
-			[this.statement, "onChangeData", this, function(){
-				this.onChangeData(this);
-			}],
 			[this.master, "select", this.statement, "highlight"],
 			[this.master, "deselect", this.statement, "unhighlight"],
 			[this.statement, "deselect", this.master, "unhighlight"],
@@ -83,6 +80,10 @@ andes.Combo = dojox.drawing.util.oo.declare(
 		
 		textEdit: function(value){
 			// match logic for symbol and label in convert.js
+			// This is called as a connect to onChangeText, which is called just before
+			// rendering.  The subsequent this.statement.setText calls also make it render
+			// causing multiple renderings.  For that reason the changeData call should
+			// happen from this function instead of as a connect like the master.
 			var label = andes.variablename.parse(value);
 			var ol = this.master.getLabel();
 			if(label){
@@ -104,12 +105,8 @@ andes.Combo = dojox.drawing.util.oo.declare(
 				this._onCreate();
 			}
 
-			// Suspicious:  if the old label was empty,
-			// we need an explicit send to server.  Bug #1820
-			if(!ol){
-				this.onChangeData(this);
-			}
-
+			// Here's the aforementioned onChangeData
+			this.onChangeData(this);
 			this.onChangeText(this);
 		},
 

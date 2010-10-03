@@ -459,7 +459,7 @@ dojo.provide("andes.drawing");
 		save: function(data){
 			// summary:
 			//	Save an object to the server.
-
+			
 			var dfd = andes.api.step(data);
 			dfd.addCallback(this, function(data){
 				setTimeout(dojo.hitch(this, function(){
