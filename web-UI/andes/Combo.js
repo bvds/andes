@@ -73,7 +73,6 @@ andes.Combo = dojox.drawing.util.oo.declare(
 		onChangeData: function(/*Object*/ stencil){
 			if (stencil.mod == true) { console.log("------------mod, no save to server", stencil.mod);};
 			console.log("--------------on change combo", stencil.id);
-			console.trace();
 			// summary:
 			//	Stub - fires on change of dimensional
 			//	properties or a text change of the master
