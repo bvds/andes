@@ -63,6 +63,7 @@ mysql_select_db($dbname)
      or die ("UNABLE TO SELECT DATABASE"); 
 
 $adminName = $_POST['adminName'];
+$sectionName = $_POST['sectionName'];
 $orderBy = $_POST['item'];
 $order = $_POST['order'];
 $extra = $_POST['extra'];
@@ -74,46 +75,51 @@ if($order=='Descending')
   $order = "DESC";
  else
    $order = "";
+if($adminName==''){
+  $adminNamec = "";
+  $adminNamee = "";
+ } else {
+  $adminNamec = "P1.userName = '$adminName' AND";
+  $adminNamee = " by $adminName,";
+ }  
+if($sectionName==''){
+  $sectionNamec = "";
+  $sectionNamee = "";
+ } else {
+  $sectionNamec = "P1.userSection = '$sectionName' AND";
+  $sectionNamee = " by $sectionName,";
+ }  
+if($extra == 'Reviewed'){
+  $extrac = "P1.extra != 0 AND";
+  $extrae = "reviewed";
+ }else if($extra == 'Original'){
+  $extrac = "P1.extra = 0 AND";
+  $extrae = "solved";
+ }else{
+  $extrac = "";
+  $extrae = "solved or reviewed";
+ }
+if($startDate){
+  $startDatec = "P1.startTime >= '$startDate' AND";
+ } else {
+  $startDatec = "";
+ }
+if($endDate){
+  $endDatec = "P1.startTime <= '$endDate' AND";
+ } else {
+  $endDatec = "";
+ }
 
 if($slice == 'Comments'){
-  
-  if($adminName==''){
-    $adminNamec = "";
-    $adminNamee = "";
-  } else {
-    $adminNamec = "P1.userName = '$adminName' AND";
-    $adminNamee = " by $adminName";
-  }  
-  if($extra == 'Reviewed'){
-    $extrac = "P1.extra != 0 AND";
-    $extrae = "reviewed";
-  }else if($extra == 'Original'){
-    $extrac = "P1.extra = 0 AND";
-    $extrae = "solved";
-  }else{
-    $extrac = "";
-    $extrae = "solved or reviewed";
-  }
-  if($startDate){
-    $startDatec = "P1.startTime >= '$startDate' AND";
-  } else {
-    $startDatec = "";
-  }
-  if($endDate){
-    $endDatec = "P1.startTime <= '$endDate' AND";
-  } else {
-    $endDatec = "";
-  }
 
+  echo "<h2>Comments in problems $extrae,$adminNamee$sectionNamee sorted in $order order of $orderBy</h2>\n";
 
-  echo "<h2>Comments in problems $extrae$adminnamee, sorted in $order order of $orderBy</h2>\n";
-
-  $sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE $adminNamec $extrac $startDatec $endDatec P1.clientID = P2.clientID AND P2.initiatingParty = 'client' AND P2.command LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
+  $sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE $adminNamec $sectionNamec $extrac $startDatec $endDatec P1.clientID = P2.clientID AND P2.initiatingParty = 'client' AND P2.command LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
   
   $result = mysql_query($sql);
   if ($myrow = mysql_fetch_array($result)) {
     echo "<table border=1>";
-    echo "<tr><th>User Name</th><th>Problem</th><th>Section</th><th>Starting Time</th><th>Comment</th><th>Additional</th><th>My Comments</th></tr>\n";
+    echo "<tr><th>User Name</th><th>Problem</th><th>Section</th><th>Starting Time</th><th>Comment</th><th>Additional</th></tr>\n";
     do
       {
 	$tID=$myrow["tID"];
@@ -126,12 +132,14 @@ if($slice == 'Comments'){
 	    $userName=$myrow["userName"];
 	    $userProblem=$myrow["userProblem"];
 	    $userSection=$myrow["userSection"];
+            $clientID=$myrow["clientID"];
+            $tID=$myrow["tID"];
 	    $startTime=$myrow["startTime"];
 	    $tempCommand1=$myrow["command"];
 	    $tempCommand2 =explode("get-help\",\"text\":\"",$tempCommand1);
 	    $command=explode("\"}",$tempCommand2[1]);
 	    
-	    echo "<tr><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td>$command[0]</td><td><a href=\"/web-UI/index.html?s=$userSection&u=$userName&p=$userProblem&e=$extra\" target=\"_blank\">My Analysis</a></td></tr>\n";
+	    echo "<tr><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td>$command[0]</td><td><a href=\"OpenTrace.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&cid=$clientID&u=$userName&p=$userProblem&t=$tID\">Session&nbsp;log</a></td></tr>\n";
 	  }
       }
     while ($myrow = mysql_fetch_array($result));
@@ -141,37 +149,9 @@ if($slice == 'Comments'){
  } else {
   // Select sessions
 
-  if($adminName==''){
-    $adminNamec = "";
-    $adminNamee = "";
-  } else {
-    $adminNamec = "userName = '$adminName' AND";
-    $adminNamee = " by $adminName";
-  }  
-  if($extra == 'Reviewed'){
-    $extrac = "extra != 0 AND";
-    $extrae = "reviewed";
-  }else if($extra == 'Original'){
-    $extrac = "extra = 0 AND";
-    $extrae = "solved";
-  }else{
-    $extrac = "";
-    $extrae = "solved or reviewed";
-  }
-  if($startDate){
-    $startDatec = "startTime >= '$startDate' AND";
-  } else {
-    $startDatec = "";
-  }
-  if($endDate){
-    $endDatec = "startTime <= '$endDate' AND";
-  } else {
-    $endDatec = "";
-  }
+  echo "<h2>Problems $extrae,$adminNamee$sectionNamee sorted in $order order of $orderBy</h2>\n";
 
-  echo "<h2>Problems $extrae$adminNamee, sorted in $order order of $orderBy</h2>\n";
-
-  $sql = "SELECT * FROM PROBLEM_ATTEMPT WHERE $adminNamec $extrac  $startDatec $endDatec clientID = clientID ORDER BY $orderBy $order";
+  $sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1 WHERE $adminNamec $sectionNamec $extrac  $startDatec $endDatec P1.clientID = P1.clientID ORDER BY $orderBy $order";
 
   // echo "mysql query \"$sql\"\n";
   

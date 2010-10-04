@@ -24,7 +24,7 @@ andes.Combo = dojox.drawing.util.oo.declare(
 			[this.master, "onChangeData", this, function(){
 				this.onChangeData(this);
 			}],
-			[this.master, "onChangeText", this, , function(){
+			[this.master, "onChangeText", this, function(){
 				this.onChangeText(this);
 			}]
 		]);
@@ -37,10 +37,8 @@ andes.Combo = dojox.drawing.util.oo.declare(
 		console.warn("combo statement:", this.statement)
 
 		this.statement.connectMult([
+			[this.statement, "onChangeData", this, "textPositionEdit"],
 			[this.statement, "onChangeText", this, "textEdit"],
-			[this.statement, "onChangeData", this, function(){
-				this.onChangeData(this);
-			}],
 			[this.master, "select", this.statement, "highlight"],
 			[this.master, "deselect", this.statement, "unhighlight"],
 			[this.statement, "deselect", this.master, "unhighlight"],
@@ -75,6 +73,7 @@ andes.Combo = dojox.drawing.util.oo.declare(
 		onChangeData: function(/*Object*/ stencil){
 			if (stencil.mod == true) { console.log("------------mod, no save to server", stencil.mod);};
 			console.log("--------------on change combo", stencil.id);
+			console.trace();
 			// summary:
 			//	Stub - fires on change of dimensional
 			//	properties or a text change of the master
@@ -82,18 +81,27 @@ andes.Combo = dojox.drawing.util.oo.declare(
 		},
 		
 		textEdit: function(value){
-			// match logic for symbol and label in convert.js
+			// Summary:
+			// 	match logic for symbol and label in convert.js
+			// Details:
+			//	OnChangeData's are more complicated for statements than
+			//	master objects.  They are rendered multiple times while
+			//	updating labels, etc.  For this reason the onChangeData is
+			//	split in two parts.  First is textEdit which triggers
+			//	onChangeData for final text changes.  TextPositionEdit handles
+			//	position changes.
 			var label = andes.variablename.parse(value);
+			var ol = this.master.getLabel();
 			if(label){
-				console.log("LABEL=", label," text=",value);
+				console.log("textEdit:  LABEL=", label," text=",value);
 				this.master.setLabel(label);
 				// if call came from onChangeText, then statement is already updated
 				if(value != this.statement.getText()){
 					this.statement.setText(value);
-				}  
+				}
 				this.statement.selectOnExec = true;
 			}else{
-				console.log("NO LABEL, text=",value);
+				console.log("textEdit:  NO LABEL, text=",value);
 				this.master.setLabel(value);
 				this.statement.setText("");
 				this.statement.selectOnExec = false;
@@ -101,13 +109,26 @@ andes.Combo = dojox.drawing.util.oo.declare(
 			if(!this.created){
 				this.created = true;
 				this._onCreate();
-			}else{
+			} else {
+				// Always save data except on creation
 				this.onChangeData(this);
 			}
 
 			this.onChangeText(this);
 		},
 
+		textPositionEdit: function(stencil){
+			// summary:
+			//	See textEdit.  This handles position change onChangeData
+			//	events.
+			if(stencil._prevData && (stencil._prevData.x != stencil.data.x || stencil._prevData.y != stencil.data.y)){
+				// Position changed
+				//console.log("-------Position Changed> ", dojo.toJson(stencil._prevData), " new> ", dojo.toJson(stencil.data));
+				this.onChangeData(this);
+			}
+			
+		},
+		
 		onChangeText: function(value){ // value or 'this' ?
 			// summary:
 			//	Stub - fires on change of text in a

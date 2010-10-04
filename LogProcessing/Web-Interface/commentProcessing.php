@@ -101,52 +101,58 @@ $sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WH
  }
 
 $result = mysql_query($sql);
-if ($myrow = mysql_fetch_array($result)) {
-  echo "<table border=1>";
-  echo "<tr><th>Solved</th><th>My Comment</th><th>User Name</th><th>Problem</th><th>Section</th><th>Starting Time</th><th>Comment</th><th>Additional</th></tr>\n";
-do
-  {
-    $tID=$myrow["tID"];
-    // Include cases where reply is null.
-    // It is not quite Kosher to assume the next tID 
-    // is the next one in this session.  Bug #1803
-    $tempSql = "SELECT * FROM PROBLEM_ATTEMPT_TRANSACTION WHERE tID = ($tID+1) and (command LIKE '%\"HANDLE-TEXT\":\"COMMENT\"%' or command not like '%\"result\":%')";
-    $tempResult = mysql_query($tempSql);    
-    if(mysql_fetch_array($tempResult))
-      {
-       $tempResult = NULL;
-       $tempSql = NULL;
-       $userName=$myrow["userName"];
-       $userProblem=$myrow["userProblem"];
-       $userSection=$myrow["userSection"];
-       $startTime=$myrow["startTime"];
-       $tempCommand1=$myrow["command"];
-       $tempCommand2 =explode("get-help\",\"text\":\"",$tempCommand1);
-       $command=explode("\"}",$tempCommand2[1]);
-
-       $rButton="UNCHECKED";
-       $extraQuery="SELECT MAX(radioID),myComment FROM REVIEWED_PROBLEMS WHERE adminName = '$adminName' AND tID = $tID";
-       $extraRes=mysql_query($extraQuery);
-       if ($myExtrarow = mysql_fetch_array($extraRes)) {
-	 $extraField = $myExtrarow["MAX(radioID)"];
-         if($extraField == 1)
-	 $rButton="CHECKED";         
-	 $myCom=$myExtrarow["myComment"];
-	 if($myCom == null)
-	   $myCom="NA";
-       }
-       
-       // Only print out out rows that have right solved status.
-       // It may be more efficient to do this filtering at the database
-       // query level.
-       if(($rButton=='CHECKED' && $solved != "Unsolved") ||
-	  ($rButton=='UNCHECKED' && $solved != "Solved")) {
-	 echo "<tr><td><INPUT TYPE=checkbox NAME=$tID $rButton onclick=\"UpdateRecord('RecordUpdate.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&a=$adminName&t=$tID&u=$userName')\"></td><td>$myCom</td><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td>$command[0]</td><td><a href=\"javascript:;\" onclick=\"copyRecord('\Save.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&a=$adminName&u=$userName&p=$userProblem&s=$userSection&t=$tID');\">View-Solution</a></td></tr>\n";
-       }
+$removed=0;
+$kept=0;
+echo "<table border=1>";
+echo "<tr><th>Solved</th><th>My Comment</th><th>User Name</th><th>Problem</th><th>Section</th><th>Starting Time</th><th>Comment</th><th>Additional</th></tr>\n";
+while ($myrow = mysql_fetch_array($result)) {
+  $tID=$myrow["tID"];
+  // Include cases where reply is null.
+  // It is not quite Kosher to assume the next tID 
+  // is the next one in this session.  Bug #1803
+  $tempSql = "SELECT * FROM PROBLEM_ATTEMPT_TRANSACTION WHERE tID = ($tID+1) and (command LIKE '%\"HANDLE-TEXT\":\"COMMENT\"%' or command not like '%\"result\":%')";
+  $tempResult = mysql_query($tempSql);    
+  if(mysql_fetch_array($tempResult))
+    {
+      $tempResult = NULL;
+      $tempSql = NULL;
+      $clientID=$myrow["clientID"];
+      $tID=$myrow["tID"];
+      $userName=$myrow["userName"];
+      $userProblem=$myrow["userProblem"];
+      $userSection=$myrow["userSection"];
+      $startTime=$myrow["startTime"];
+      $tempCommand1=$myrow["command"];
+      $tempCommand2 =explode("get-help\",\"text\":\"",$tempCommand1);
+      $command=explode("\"}",$tempCommand2[1]);
+      
+      $rButton="UNCHECKED";
+      $extraQuery="SELECT MAX(radioID),myComment FROM REVIEWED_PROBLEMS WHERE adminName = '$adminName' AND tID = $tID";
+      $extraRes=mysql_query($extraQuery);
+      if ($myExtrarow = mysql_fetch_array($extraRes)) {
+	$extraField = $myExtrarow["MAX(radioID)"];
+	if($extraField == 1)
+	  $rButton="CHECKED";         
+	$myCom=$myExtrarow["myComment"];
+	if($myCom == null)
+	  $myCom="NA";
       }
-  }
- while ($myrow = mysql_fetch_array($result));
- echo "</table>";
+      
+      // Only print out out rows that have right solved status.
+      // It may be more efficient to do this filtering at the database
+      // query level.
+      if(($rButton=='CHECKED' && $solved != "Unsolved") ||
+	 ($rButton=='UNCHECKED' && $solved != "Solved")) {
+	echo "<tr><td><INPUT TYPE=checkbox NAME=$tID $rButton onclick=\"UpdateRecord('RecordUpdate.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&a=$adminName&t=$tID&u=$userName')\"></td><td>$myCom</td><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td>$command[0]</td><td><a href=\"javascript:;\" onclick=\"copyRecord('\Save.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&a=$adminName&u=$userName&p=$userProblem&s=$userSection&t=$tID');\">View&nbsp;Solution</a> <a href=\"OpenTrace.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&cid=$clientID&u=$userName&p=$userProblem&t=$tID\">Session&nbsp;log</a></td></tr>\n";
+	$kept++;
+      }else{
+	$removed++;
+      }
+    }
+ }
+echo "</table>";
+if($removed>0){
+    echo "<p>$kept comments shown, after filtering out $removed.\n";
  }
 mysql_close();
 ?>

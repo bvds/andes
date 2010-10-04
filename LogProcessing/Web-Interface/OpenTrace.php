@@ -22,13 +22,7 @@ $userProblem = $_GET["p"];
 $userSection = $_GET["s"];
 $tID = $_GET["t"];
 $clientID = $_GET["cid"];
-if($tID){
-  $tIDy="AND P2.tID <= $tID";
-  $endp=" up to $tID";
- }else{
-  $tIDy="";  // get the whole session
-  $endp="";
- }
+
 if($clientID){
   $sess=$clientID;
  } else {
@@ -36,14 +30,22 @@ if($clientID){
  }
 
 echo "  <title>$userName, $userProblem</title>\n";
+if($tID!=''){
+  echo "<script type=\"text/javascript\">\n";
+  echo "  window.onload = function() {\n";
+  echo "    var row=document.getElementById('t$tID');\n";
+  echo "    window.scrollTo(0,row.offsetTop);\n";
+  echo "  };\n";
+  echo "</script>\n";
+ }
 echo "</head>\n";
 echo "<body>\n";
 echo "<h2>Session $sess $endp</h2>\n";
 
 if($clientID==''){
-  $sql = "SELECT initiatingParty,command FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.clientID = P2.clientID AND P1.userName = '$userName' AND P1.userProblem = '$userProblem' AND P1.userSection = '$userSection' $tIDy";
+  $sql = "SELECT initiatingParty,command,tID FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.clientID = P2.clientID AND P1.userName = '$userName' AND P1.userProblem = '$userProblem' AND P1.userSection = '$userSection'";
  } else {
-  $sql = "SELECT initiatingParty,command FROM PROBLEM_ATTEMPT_TRANSACTION WHERE clientID = '$clientID' $tIDy";
+  $sql = "SELECT initiatingParty,command,tID FROM PROBLEM_ATTEMPT_TRANSACTION WHERE clientID = '$clientID'";
  }
 
 $result = mysql_query($sql);
@@ -60,9 +62,11 @@ while (($myrow1 = mysql_fetch_array($result)) &&
        ($myrow2 = mysql_fetch_array($result))) {
 if($myrow1["initiatingParty"]=='client'){
   $action=$myrow1["command"];
+  $ttID=$myrow1["tID"];
   $response=$myrow2["command"];
  } else {
   $action=$myrow2["command"];
+  $ttID=$myrow2["tID"];
   $response=$myrow1["command"];
  }
 
@@ -82,7 +86,7 @@ if($myrow1["initiatingParty"]=='client'){
  // forward slashes are escaped in json, which looks funny
  $aa=str_replace("\\/","/",$aa);
 
- echo "  <tr class='$method'><td>$ttime</td><td>$aa</td><td>";
+ echo "  <tr class='$method' id='t$ttID'><td>$ttime</td><td>$aa</td><td>";
  if($b->result){
    echo "<ul>";
    foreach($b->result as $bb){

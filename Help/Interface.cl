@@ -364,7 +364,7 @@
 			   (case (turn-menu turn)
 			     (explain-more 
 			      (push `((:action . "show-hint-link")
-				      (:text . "Explain more") 
+				      (:text . ,*explain-more-text*) 
 				      (:value . ,(symbol-name 
 						  +explain-more+)))
 				    result))

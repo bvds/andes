@@ -573,12 +573,8 @@
 ;;; that the error interpretation would cause if it the intended entry
 ;;; were correct.
 (defun dont-bother-but (ei msg)
-  (make-dialog-turn msg
-		    'explain-more
-		    :responder
-		    #'(lambda (r)
-			(if (equal r 'explain-more)
-			    (call-ww-turn-generator ei)))))
+  (make-explain-more-turn msg
+		    :hint (call-ww-turn-generator ei)))
 
 ;;; Used to be more complicated
 (defun call-ww-turn-generator (ei)

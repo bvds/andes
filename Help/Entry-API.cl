@@ -455,8 +455,8 @@
 					  (SystemEntry-model x))))
 				    matches)))
 		   (list
-		    (strcat ambiguous "&nbsp; Would you like help choosing what to do next?"
-			    ) 
+		    (strcat ambiguous 
+			    "&nbsp; I can help you choose what to do next:") 
 			   ;; Should use matches to inform starting point
 			   ;; for NSH.
 		    '(function next-step-help))))))
@@ -519,7 +519,7 @@
 			   " for this definition.&nbsp; "
 			   "Perhaps you should " *delete-object* " &amp; "
 			   "use another tool."
-			   "<p>Would you like help choosing what to do next?"
+			   "<p>I can help you decide what to do next:"
 		    )	
 		   ;; Should use matches to inform starting point
 		   ;; for NSH.
@@ -543,7 +543,7 @@
 			       *delete-object* " and use "
 			       *equation-tool* " instead.")))
 	 (rem (make-hint-seq 
-	      (list (format nil "Sorry, I don't understand your ~:[~1*entry~;definition of <var>~A</var>~].~@[&nbsp; ~A~]&nbsp; Would you like help choosing what to do next?" 
+	      (list (format nil "Sorry, I don't understand your ~:[~1*entry~;definition of <var>~A</var>~].~@[&nbsp; ~A~]&nbsp; I can help you choose what to do next:" 
 			    (> (length (StudentEntry-symbol entry)) 0)
 			    (StudentEntry-symbol entry) equal-sign)
 		    '(function next-step-help)))))
