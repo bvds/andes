@@ -415,13 +415,13 @@
 	    (format NIL
 		    "It is good practice to identify the fundamental principles you are using by writing them in standard form before combining them with other equations or given values. <p>Try to write ~:[an equation~;separate equations~] for ~A~@[, written separately from ~A~]." 
 		    (cdr missing-major) (conjoined-names missing-major) 
-		    (conjoined-names missing-rest))
-	    ;; there should be a bottom-out hint for writing one of the equations
-	    ))
+		    (conjoined-names missing-rest)))
+	   ;; there should be a bottom-out hint for writing one of the equations
+	   :id (StudentEntry-id se))
 	  
 	  (progn
 	    (warn "get-premature-msg called but couldn't find missing equations!~%")
-	    (make-green-turn  :id (StudentEntry-id se)))))))
+	    (make-green-turn :id (StudentEntry-id se)))))))
 
 
 ;;
@@ -467,23 +467,22 @@
   (if messages
       (if (= (length messages) 1)
 	  (make-dialog-turn (first messages) nil)
-	(make-dialog-turn (first messages) 
-			  'explain-more
-			  :responder
-			  #'(lambda (response)
-			      (if (equal response 'explain-more)
-				  (chain-explain-more (rest messages))))))))
+	(make-explain-more-turn (first messages) 
+			  :hint (chain-explain-more (rest messages))))))
 	
 ;; build a color-green turn with given message list
-(defun chain-explain-more-green (messages)
+(defun chain-explain-more-green (messages &key id)
   (if messages
       (if (= (length messages) 1)
-	  (make-green-dialog-turn (first messages) nil)
+	  (make-green-dialog-turn (first messages) nil :id id)
 	(make-green-dialog-turn (first messages) 
 			  'explain-more
 			  :responder
 			  #'(lambda (response)
 			      (if (equal response 'explain-more)
-				  (chain-explain-more (rest messages))))))))
+				  (chain-explain-more (rest messages))
+				  (warn "chain-explain-more-green:  no responder for ~A" 
+					response)))
+			  :id id))))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

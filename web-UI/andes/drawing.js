@@ -126,7 +126,7 @@ dojo.provide("andes.drawing");
 					var s = statement;
 					item.connect(statement, "onChangeText", this, function(value){
 						item.setLabel(value);
-						console.log("--------------------------------> onNewItem(Axes)", item.id);
+						console.log("-------> onChangeText calling setLabel for ", item.id,": ",value);
 						this.add(item, true);
 						_drawing.removeStencil(s);
 					});
@@ -180,7 +180,7 @@ dojo.provide("andes.drawing");
 						});
 					}
 
-					// Checboxes only moke local modifications
+					// Checkboxes only make local modifications
 					if(item.buttonType != "checkbox"){
 						// Send result to server
 						var data = andes.convert.drawingToAndes(group, "modify-object");
@@ -216,26 +216,29 @@ dojo.provide("andes.drawing");
 
 			item.connect("onDelete", this, function(item){
 				var id = item.id;
-				console.log("--------------------------------> onDelete", id);
+				console.log("----------------------------> onDelete", id);
 				this.remove(item);
-				this.save({action:"delete-object", id:item.id});
+				if(!item.mod){
+					this.save({action:"delete-object", id:item.id});
+				}
 			});
 			
 			item.connect("onChangeData", this, function(item){
 				if (item.mod == true) { return;};
-				console.log("---------------------------------> onChangeData andes.drawing", item.id, item.type);//dojo.toJson(item.data));
-				console.log("drawing.js items:", items)
-				var data = andes.convert.drawingToAndes(item, "modify-object")
-				console.info("Save to server", data);
-				this.save(data);
-				//console.log("------------------setting style: ",item);
+				console.log("----------------> onChangeData andes.drawing", item.id, item.type);
+				// Until we know server diagnosis, set to unknown.
+				item.mod = true; // disable save to server, else we get a recursive call
 				item.attr(andes.defaults["unknown"]);
+				item.mod = false; // restore save to sever
+				var data = andes.convert.drawingToAndes(item, "modify-object")
+				console.info("Save mod to server", data);
+				this.save(data);
 			});
 			
 			if(saveToServer){
 				// we need to save it to the server
 				var data = andes.convert.drawingToAndes(item, "new-object")
-				console.info("Save to server:", data);
+				console.info("Save new to server:", data);
 				this.save(data);
 			}
 		},
@@ -329,6 +332,7 @@ dojo.provide("andes.drawing");
 				}else if(obj.action=="delete-object"){
 				        // need error handling for non-existant objects.
 					if(items[obj.id]){
+						items[obj.id].mod = true;  // don't echo back to server
 						if (items[obj.id].type=="andes.Combo") {
 							items[obj.id].master.destroy();
 						} else {
@@ -377,7 +381,7 @@ dojo.provide("andes.drawing");
 				// obj.mod=="deleted" should never occur if
 				// items[obj.id] exists.
 				if(items[obj.id]){
-					items[obj.id].mod = true;
+					items[obj.id].mod = true;  // don't echo back to server
 				        // style
 					items[obj.id].attr(andes.defaults[obj.mode]);
 					// x, y
@@ -430,7 +434,7 @@ dojo.provide("andes.drawing");
 						items[obj.id].textEdit(obj.text);
 					};
 
-					items[obj.id].mod = false;
+					items[obj.id].mod = false;   // restore save to server
 					
 				};
 			},this);
@@ -455,7 +459,7 @@ dojo.provide("andes.drawing");
 		save: function(data){
 			// summary:
 			//	Save an object to the server.
-
+			
 			var dfd = andes.api.step(data);
 			dfd.addCallback(this, function(data){
 				setTimeout(dojo.hitch(this, function(){

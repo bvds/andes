@@ -1,4 +1,5 @@
 dojo.provide("andes.menu");
+dojo.require("andes.options");
 
 dojo.addOnLoad(function(){
 	
@@ -47,6 +48,12 @@ dojo.addOnLoad(function(){
 		
 		"menuManual":function(){
 			andes.principles.review('manual.html','Manual');
+		},
+		
+		"menuOptions":function(){
+			var options = dijit.byId("options");
+			options.show();
+			//options.focus();
 		}
 		
 	};
@@ -54,4 +61,6 @@ dojo.addOnLoad(function(){
 		wireItem(i, spec[i]);
 	}
 	
+	//Instantiate options object to handle menuOptions
+	var menuOptionsController = new andes.options();
 });

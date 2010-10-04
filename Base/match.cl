@@ -62,6 +62,7 @@
 		   :unknown-object-handler :match-model
 		   :word-count :word-count-handler
 		   :best-value
+		   :add-to-dictionary :add-to-dictionary-handler
 		   :matches-model-syntax :word-string :*grammar-names*))
 
 (eval-when (:load-toplevel :compile-toplevel)
@@ -178,9 +179,32 @@
 	   (+ args (word-count (second model) :max max)) ;add conjuction 
 	   args)))  ;; 0 or 1 args, drop conjunction
     ((member (car model) '(allowed preferred)) 
-     (if max (word-count (cdr model) :max max) 0))
+     ;; Ignore subesequent arguments
+     (if max (word-count (cadr model) :max max) 0))
     (t (funcall word-count-handler model :max max))))
 
+(defun default-add-to-dictionary-handler (model dictionary)
+  (warn "add-to-dictionary:  unknown object ~A" model)
+  dictionary)
+
+(defvar add-to-dictionary-handler 'default-add-to-dictionary-handler 
+  "By setting this function, one can extent the model grammar.")
+
+(defun add-to-dictionary (model dictionary)
+  "Append all words in model to a list of words"
+  ;; In general, arguments of the model can be nil.
+  (cond 
+    ((null model) dictionary)
+    ((stringp model) (pushnew model dictionary :test #'string-equal))
+    ((atom model) (funcall add-to-dictionary-handler model dictionary))
+    ;; from here on, assume model is a proper list
+    ((test-for-list model)
+     (dolist (x model)
+       (setf dictionary (add-to-dictionary x dictionary)))
+     dictionary)
+    ((member (car model) '(and or conjoin allowed preferred))
+     (add-to-dictionary (cdr model) dictionary))
+    (t (funcall add-to-dictionary-handler model dictionary))))
 
 (defun sort-by-complexity (models)
   "Sort an alist of models by increasing complexity"
@@ -235,9 +259,8 @@
 (defvar unknown-object-handler 'default-object-handler 
   "By setting this function, one can extent the model grammar.")
 
-
 (defun match-model (student model &key (best 20000) l-model u-model)
-  "Recursive match to tree, returns a cons of the minimum word insertion/addition for match and a tree containing information about the best match."
+  "Recursive match to tree, returns a cons of the minimum word insertion/addition for match and a tree containing information about the best match.  Should check for valid model structure before calling match-model."
   ;; for profiling
   (declare (notinline match-model-and match-model-list match-model-conjoin))
 
@@ -253,9 +276,9 @@
   (cond 
     ((null model) (list (length student)))
     ((stringp model)
-     (let ((best 1)) ;this is value for word match only
-       ;; profiling shows that just calculating is slightly
-       ;; faster than also testing against the global best
+     (let ((best 1))  ;score for any match to one student word.
+       ;; Profiling shows that just calculating is slightly
+       ;; faster than also testing against the global best.
        ;;
        ;; In the case of no student words, loop is not executed
        ;; and result is 1
@@ -266,11 +289,10 @@
        (list (+ best (max 0 (- (length student) 1))) model)))
     ((atom model)
      (funcall unknown-object-handler student model :best best))
-    ;; from here on, model must be a proper list.
+    ;; From here on, model must be a proper list.
     ;; model optional
     ((member (car model) '(preferred allowed))
-     (when (cddr model)
-       (warn "Model grammar:  ~A can only have one argument" model))
+     ;; Any (cddr model) is ignored.  
      (let ((result (list (min best (length student))))) ;model is dropped
        ;; case where model is included
        (update-bound result
@@ -562,7 +584,7 @@
 	;; count remaining student words
 	(list (reduce #'+ (mapcar #'interval-length student-intervals)))))
 
-(defun match-model-conjoin (student model &key best)
+(defun match-model-conjoin (student model &key (best 10000))
   (declare (notinline match-model)) ;for profiling
   (let ((conjunction (pop model))
 	(best-result (list best)))

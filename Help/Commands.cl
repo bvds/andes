@@ -303,12 +303,54 @@
     
     ;; Student types text, but there is no responder
     ;; from last term.
+
+
+    ((and (stringp response-code) (is-a-question response-code))
+     (make-end-dialog-turn 
+      (strcat "Sorry, I don't know how to answer your question.&nbsp; "
+	      "Please " *help-button-action* " for help.")
+      :Assoc '((handle-text . question))))
+    
+    ((and (stringp response-code) (maybe-a-question response-code))
+     (make-end-dialog-turn 
+      (strcat "Your comment has been recorded.&nbsp; "
+	      "If you need help, " *help-button-action* ".")
+      :Assoc '((handle-text . possible-question))))
+     
+    ;; Assume everything else is a genuine comment.
     ((stringp response-code)
      (make-end-dialog-turn "Your comment has been recorded."
 			   :Assoc '((handle-text . comment))))
-    
+
     ;; link clicked, but responder gone!
     (T (make-end-dialog-turn 
 	(strcat "Sorry, but you have already seen this hint.&nbsp; You can " 
 		*help-button-action* " for more help.")
 	:Assoc '((handle-link . stale))))))
+
+(defun is-a-question (str)
+  "Determine if student phrase is a question."
+    ;; Test text for presence of a question.
+    ;; Based on an analysis of the WHRHS logs on Oct. 1, 2010
+    ;; 88 comments, of which 43 are questions or general requests for help
+    ;;    35 questions begin with "how" "is" "should" "what" "where" "why"
+    ;;    8 other questions or requests.  2 start with "help".
+    ;;    2/3 of questions end in ?
+    ;; However, a significant number of regular comments that end in "?"
+  (< (match:match-model (list (car (match:word-parse str)))
+			'(or "how" "is" "should" "what" "where" "why")) 1))
+
+(defun maybe-a-question (str)
+  "Determine if student phrase may be a question."
+    ;; Ending with a "?" is a less reliable indicator of a question,
+    ;; Likewise, comments starting with "help" or "hint" are often not 
+    ;; intended as questions.
+  (or (string-ends-with '(#\?) str)
+	   (< (match:match-model 
+	       (list (car (match:word-parse str)))
+	       '(or "help" "hint")) 1)))
+
+(defun string-ends-with (endings x)
+  "Test if string ends with a given character, trimming whitespace."
+  (let ((y (string-right-trim match:*whitespace* x)))
+    (member (char y (- (length y) 1)) endings)))

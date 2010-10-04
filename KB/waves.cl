@@ -181,6 +181,7 @@
 
 ;; ex) "the period of the motion of ~"
 ;;     "the period of oscillations of ~"
+;; Bob S "period of the wave" wave24
 (def-qexp period (period ?body)
   :rank scalar
   :symbol-base |T|     
@@ -188,7 +189,10 @@
   :units |s|
   :restrictions positive
   :new-english (property-object 
-			((allowed "time") "period of" (the) (or "motion" "oscillations" "vibrations")) 
+			((allowed "time") "period"
+			 (preferred ("of" (the) 
+					  (or "motion" "oscillations"
+					      "vibrations"))))
 			?body))
 
 (defoperator define-period-var (?b)
@@ -1118,7 +1122,7 @@
   :units |W/m^2|
   :restrictions positive
   :new-english ((the) "intensity" 
-	        (and (preferred "supplied to" ?wave)
+	        (and (preferred ("supplied to" ?wave))
 		     (preferred (agent ?agent))
 		     (time ?time)))
 )
@@ -1204,8 +1208,8 @@
   :restrictions positive  
   :short-name "net intensity"
   :new-english ((the) (or "net" "total") "intensity"
-		(and (preferred ("supplied to" ?wave)
-		     (time ?time)))))
+		(and (preferred ("supplied to" ?wave))
+		     (time ?time))))
 
 ;; based on define-net-work
 (defoperator define-net-intensity (?wave ?t)

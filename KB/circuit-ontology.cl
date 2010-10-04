@@ -142,7 +142,7 @@
   :symbol-base |dIdt|     
   :short-name "rate of change of current"	
   :units |A/s|
-  :new-english ((rate (change "current")) "through" ?comp (time ?time)))
+  :new-english (time-derivative (current-thru ?comp) :time ?time))
 
 (def-qexp time-constant (time-constant orderless . ?quants)
   :rank scalar
@@ -230,8 +230,9 @@
   :rank scalar
   :units |J|
   :short-name "electric potential energy"
-  :new-english (property-object-source-time "electric potential energy" ?body 
-					    ?source :time ?time))
+  :new-english ((the) (or "electric" "electrostatic") "potential energy" 
+		(and (preferred (object ?body)) (preferred (agent ?source))
+		     (time ?time))))
 
 (def-qexp stored-energy (stored-energy ?component :time ?time)
   :rank scalar

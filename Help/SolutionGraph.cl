@@ -1006,22 +1006,30 @@
 ;;(Remove nil (mapcar #'(lambda (x) (when (SystemEntry-children x) (cons (systementry-prop x) (systementry-children x)))) *sg-entries*))
 
 (defun find-inheritance (graph-nodes)
-"Cycle through bubblgraph nodes, collect any inheritance and save in SystemEntry-children."
-  ;; Only enodes have a path constructed.
-  (dolist (node graph-nodes)
-    (let ((result (find-inheritance-in-graph (bgnode-path node))))
-      ;; (format t "result for ~A is ~S~%" (bgnode-exp node) result)
-      (dolist (entry (bgnode-entries node))
-	(dolist (x result)
-	  (when (and (not (member (car (SystemEntry-prop entry))
-				  '(eqn implicit-eqn)))
-		     ;; strip the action from the SystemEntry
-		     (unify (second x) (second (SystemEntry-prop entry))))
-	    (pushnew (car x) (systemEntry-children entry) :test #'unify)))
-	;; (when (systementry-children entry)
-	;;  (format t "   systementry ~S~%     children: ~S~%" 
-	;;	  (systemEntry-prop entry) (systementry-children entry)))
-	))))
+  "Cycle through bubblgraph nodes, collect any inheritance and save in SystemEntry-children."
+  ;; Look for directive to not include inheritance in model.
+  ;; This is used for mass, which is normally timeless,
+  ;; but has inheritance for a few problems.
+  (let ((excludes (remove 'inherit-quantity-implicitly 
+			  (problem-wm *cp*) 
+			  :test-not #'eql :key #'car)))
+    ;; Only enodes have a path constructed.
+    (dolist (node graph-nodes)
+      (let ((result (find-inheritance-in-graph (bgnode-path node))))
+	;; (format t "result for ~A is ~S~%" (bgnode-exp node) result)
+	(dolist (entry (bgnode-entries node))
+	  (dolist (x result)
+	    (when (and (not (member (car (SystemEntry-prop entry))
+				    '(eqn implicit-eqn)))
+		       (not (member (second x) excludes 
+				    :key #'second :test #'unify))
+		       ;; strip the action from the SystemEntry
+		       (unify (second x) (second (SystemEntry-prop entry))))
+	      (pushnew (car x) (systemEntry-children entry) :test #'unify)))
+	  ;; (when (systementry-children entry)
+	  ;;  (format t "   systementry ~S~%     children: ~S~%" 
+	  ;;	  (systemEntry-prop entry) (systementry-children entry)))
+	  )))))
 
 (defun find-inheritance-in-graph (path)
   "Go through path and collect any instances of inheritance.  Note that quantities and objects are inherited."

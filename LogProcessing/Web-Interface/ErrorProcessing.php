@@ -56,6 +56,7 @@ $dbserver= "localhost";
 $dbpass= $_POST['passwd'];
 $dbname= "andes3";
 
+function_exists('mysql_connect') or die ("Missing mysql extension");
 mysql_connect($dbserver, $dbuser, $dbpass)
      or die ("UNABLE TO CONNECT TO DATABASE at $dbserver");
 mysql_select_db($dbname)
@@ -134,11 +135,12 @@ while ($myrow = mysql_fetch_array($result)) {
   //  $lastID=$tID-1;
   //  $userSql="select command from PROBLEM_ATTEMPT_TRANSACTION where tID=$lastID";
   $userClientID=$myrow["clientID"];
-  $userSql="SELECT command from PROBLEM_ATTEMPT_TRANSACTION WHERE clientID='$userClientID' AND tID<$tID ORDER BY tID DESC LIMIT 1";
+  $userSql="SELECT command,tID from PROBLEM_ATTEMPT_TRANSACTION WHERE clientID='$userClientID' AND tID<$tID ORDER BY tID DESC LIMIT 1";
 
   $userResult=mysql_query($userSql);
   $myResult=mysql_fetch_array($userResult);
   $userCommand=$myResult["command"];
+  $ttID=$myResult["tID"];  // tID associated with row, for focusing.
   $a=$json->decode($userCommand);
   $method=$a->method;
   $aa=$json->encode($a->params);
@@ -155,7 +157,7 @@ while ($myrow = mysql_fetch_array($result)) {
   echo "<td rowspan=\"$nr\">$aa</td>";
   echo array_shift($yy);
 
-  echo "<td rowspan=\"$nr\"><a href=\"javascript:;\" onclick=\"openTrace('OpenTrace.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;u=$userName&amp;p=$userProblem&amp;s=$userSection&amp;t=$tID');\">Session&nbsp;log</a><br><a href=\"javascript:;\" onclick=\"copyRecord('\Save.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;a=$adminName&amp;a=$adminName&amp;u=$userName&amp;p=$userProblem&amp;s=$userSection&amp;t=$usertID');\">Solution</a></td></tr>\n";
+  echo "<td rowspan=\"$nr\"><a href=\"javascript:;\" onclick=\"openTrace('OpenTrace.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;u=$userName&amp;p=$userProblem&amp;s=$userSection&amp;t=$ttID');\">Session&nbsp;log</a><br><a href=\"javascript:;\" onclick=\"copyRecord('\Save.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;a=$adminName&amp;a=$adminName&amp;u=$userName&amp;p=$userProblem&amp;s=$userSection&amp;t=$usertID');\">Solution</a></td></tr>\n";
 
   foreach ($yy as $bb) {
     echo "<tr class=\"$method\">$bb</tr>\n";

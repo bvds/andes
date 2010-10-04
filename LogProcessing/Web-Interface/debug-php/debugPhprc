@@ -1,0 +1,5 @@
+#
+## syntax GET:var1=val1&var2=val2  and or POST:var1=val1&var2=val2
+#
+POST:dbuser=root&passwd=afroOrEuro
+#GET:foo=bar&bam=boo

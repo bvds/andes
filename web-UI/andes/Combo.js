@@ -24,7 +24,7 @@ andes.Combo = dojox.drawing.util.oo.declare(
 			[this.master, "onChangeData", this, function(){
 				this.onChangeData(this);
 			}],
-			[this.master, "onChangeText", this, , function(){
+			[this.master, "onChangeText", this, function(){
 				this.onChangeText(this);
 			}]
 		]);
@@ -38,9 +38,6 @@ andes.Combo = dojox.drawing.util.oo.declare(
 
 		this.statement.connectMult([
 			[this.statement, "onChangeText", this, "textEdit"],
-			[this.statement, "onChangeData", this, function(){
-				this.onChangeData(this);
-			}],
 			[this.master, "select", this.statement, "highlight"],
 			[this.master, "deselect", this.statement, "unhighlight"],
 			[this.statement, "deselect", this.master, "unhighlight"],
@@ -83,17 +80,22 @@ andes.Combo = dojox.drawing.util.oo.declare(
 		
 		textEdit: function(value){
 			// match logic for symbol and label in convert.js
+			// This is called as a connect to onChangeText, which is called just before
+			// rendering.  The subsequent this.statement.setText calls also make it render
+			// causing multiple renderings.  For that reason the changeData call should
+			// happen from this function instead of as a connect like the master.
 			var label = andes.variablename.parse(value);
+			var ol = this.master.getLabel();
 			if(label){
-				console.log("LABEL=", label," text=",value);
+				console.log("textEdit:  LABEL=", label," text=",value);
 				this.master.setLabel(label);
 				// if call came from onChangeText, then statement is already updated
 				if(value != this.statement.getText()){
 					this.statement.setText(value);
-				}  
+				}
 				this.statement.selectOnExec = true;
 			}else{
-				console.log("NO LABEL, text=",value);
+				console.log("textEdit:  NO LABEL, text=",value);
 				this.master.setLabel(value);
 				this.statement.setText("");
 				this.statement.selectOnExec = false;
@@ -101,10 +103,10 @@ andes.Combo = dojox.drawing.util.oo.declare(
 			if(!this.created){
 				this.created = true;
 				this._onCreate();
-			}else{
-				this.onChangeData(this);
 			}
 
+			// Here's the aforementioned onChangeData
+			this.onChangeData(this);
 			this.onChangeText(this);
 		},
 

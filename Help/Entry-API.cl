@@ -186,6 +186,10 @@
   (or (cdr (assoc expr *proposition-types*))
       (warn "get-prop-type bad proposition ~S" expr)))
 
+(defun last-two-characters (x)
+  "Last two characters of a string"
+  (subseq x (max 0 (- (length x) 2))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;
 ;;;;                  Match student phrase to Ontology
@@ -234,10 +238,7 @@
 	       #'(lambda (x) (cons (car (car x))
 				   (expand-vars (SystemEntry-model (cdr x)))))
 	       best)
-	    (mapcar #'(lambda (x) 
-			(cons (expand-vars (SystemEntry-model x)) 
-			      (systementry-prop x)))
-		    sysentries)))
+	    (mapcar #'systementry-prop sysentries)))
 
     ;; Attempt to detect a wrong tool error.  
     ;; The strategy is to treat the choice of tool as being
@@ -272,7 +273,7 @@
     ;;	(when best (match:best-value best)) (length best) 
     ;;	(when wrong-tool-best (match:best-value wrong-tool-best)) 
     ;;	(length wrong-tool-best))
-    
+
     ;; If there is no symbol defined and the fit is >= 1 (for the symbol), 
     ;; then there is a good chance that the student unsuccessfully
     ;; attempted to define a symbol.  Add unsolicited hint.
@@ -281,6 +282,18 @@
       (let ((phr (strcat 
 		  "No variable has been defined.&nbsp; "
 		  "Did you want to " *define-variable* "?")))
+	(push `((:action . "show-hint")
+		(:text . ,phr)) hints)))
+    
+    ;; Give unsolicited hint when "...'s" is used
+    (when (and (or (null best) (>= (match:best-value best) 1))
+	       (member "'s" student :test #'string-equal
+		       :key #'last-two-characters))
+      (let  ((phr (strcat 
+		  "Sorry, I don't understand "
+		  (manual-link "possessives with <em>'s</em>"
+			       "possessive" :pre "")
+		  ".")))
 	(push `((:action . "show-hint")
 		(:text . ,phr)) hints)))
 
@@ -297,7 +310,7 @@
 		  ", instead?")))
 	(push `((:action . "show-hint")
 		(:text . ,phr)) hints)))
-      
+    
     (cond
       ;; If wrong-tool-best exists, then it contains scores
       ;; that are one smaller than any scores in best.
@@ -312,7 +325,7 @@
 		    (mapcar #'cdr wrong-tool-best)) hints))
 
       ((null sysentries)
-       (values nil (nothing-to-match-ErrorInterp entry) hints))
+       (values nil (nothing-to-match-ErrorInterp entry tool-prop) hints))
       ((null best)
        ;; "Can't understand your definition," and switch to NSH
        (values nil (no-matches-ErrorInterp entry) hints))
@@ -327,7 +340,7 @@
 		  ;;          the mass of the beam
 		  ;; A mismatch can be off by a variable name like
 		  ;; T0 vs. T1, so we need to display such mismatches.
-		  0.25)
+		  0.15)
 	   (let ((phr (format nil 
 			      "I interpreted your definition ~@[of <var>~A</var> ~]as:&nbsp; ~A."
 			      (when (> (length (StudentEntry-symbol entry)) 0)
@@ -375,36 +388,55 @@
 			      (expand-vars (SystemEntry-model x))))
 		    entries))))
  
-(defun nothing-to-match-ErrorInterp (entry)
+(defun nothing-to-match-ErrorInterp (entry tool-prop)
   (let ((rem (make-hint-seq 
-	      (list (format nil "In this problem, you do not need to define anything like ~A." 
-			    (StudentEntry-text entry))
-		    '(function next-step-help)))))
+	      (list 
+		   (strcat "You don't need to use "
+			   (get-prop-icon tool-prop)
+			   " to solve this problem.&nbsp; Please " 
+			   *delete-object* 
+			   " &amp; use another tool.")))))
     (setf (turn-id rem) (StudentEntry-id entry))
     (setf (turn-coloring rem) +color-red+)
     ;; set state of entry and attach error. But only do if not done already, 
     ;; so only report on the first error found.
     (unless (studentEntry-ErrInterp entry)
-      (setf (studentEntry-state entry) 'incorrect)
+      (setf (studentEntry-state entry) +INCORRECT+)
       (setf (studentEntry-ErrInterp entry)
-	    (make-ErrorInterp :diagnosis '(definition-has-no-matches)
+	    (make-ErrorInterp :diagnosis '(nothing-to-match-definition)
 			      :remediation rem))))
   (make-red-turn :id (StudentEntry-id Entry)))
 
+(defun quantity-html-link (qexp)
+  "Create a link to the list of quantities for a given ExpType or just returns a string."
+  (if (stringp qexp) 
+      qexp  ;no link, just plain text.
+      (open-review-window-html
+       (or (exptype-short-name qexp)
+	   (warn "ExpType ~A missing short-name" (exptype-type qexp))
+	   (string-downcase (string (exptype-type qexp))))
+       (strcat "quantities.html#" 
+	       (string (exptype-type qexp))))))
+
+(defun collect-distinct-quantities (matches)
+  "Collect a list of distinct ExpTypes or bodies for a list of SystemEntries."
+  (remove-duplicates
+   (mapcar #'(lambda (x) (or (lookup-expression-struct
+			      (second (systementry-prop x)))
+			     ;; In the case of a body, it won't be found
+			     ;; in the general quantity ontology; just print
+			     ;; the name of the object.
+			     (match:word-string 
+			      (new-english-find 
+			       (second (systementry-prop x))))))
+	   matches)
+   :test #'equal)) ;for the strings
+
 (defun too-many-matches-ErrorInterp (entry matches)
-  (let* ((distinct-quantities
-	  (remove-duplicates
-	   (mapcar #'lookup-expression-struct
-		   (mapcar #'second
-			   (mapcar #'SystemEntry-prop matches)))))
-	 (quantities-help 
-	  (nlg-print-list 
-	   (loop for qexp in distinct-quantities
-	      collect (open-review-window-html
-		       (exptype-short-name qexp)
-		       (strcat "quantities.html#" 
-			       (string (exptype-type qexp)))))
-	   "or" 'identity))
+  (let* ((distinct-quantities (collect-distinct-quantities matches))
+	 (quantities-help (nlg-print-list
+			   (mapcar #'quantity-html-link distinct-quantities)
+			   "or" 'identity))
 	 (ambiguous (format nil "Your definition ~:[~1*~;of <var>~A</var> ~]is ambiguous.&nbsp;  It looks like you were trying to define ~A." 
 			    (> (length (StudentEntry-symbol entry)) 0)
 			    (StudentEntry-symbol entry)
@@ -420,8 +452,8 @@
 					  (SystemEntry-model x))))
 				    matches)))
 		   (list
-		    (strcat ambiguous "&nbsp; Would you like help choosing what to do next?"
-			    ) 
+		    (strcat ambiguous 
+			    "&nbsp; I can help you choose what to do next:") 
 			   ;; Should use matches to inform starting point
 			   ;; for NSH.
 		    '(function next-step-help))))))
@@ -430,7 +462,7 @@
     ;; set state of entry and attach error. But only do if not done already, 
     ;; so only report on the first error found.
     (unless (studentEntry-ErrInterp entry)
-      (setf (studentEntry-state entry) 'incorrect)
+      (setf (studentEntry-state entry) +incorrect+)
       (setf (studentEntry-ErrInterp entry)
 	    (make-ErrorInterp :diagnosis '(definition-has-too-many-matches)
 			      :remediation rem))))
@@ -452,24 +484,23 @@
   (let* ((tool-propositions (remove-duplicates 
 			     (mapcar #'(lambda (x) (car (systementry-prop x)))
 				     matches)))
-	 ;; there may be several matches that have the 
-	 ;; same short-name.
-	 (short-names (remove-duplicates
-		       (mapcar #'(lambda (x) (short-english-find
-					      (second (systementry-prop x))))
-			       matches)
-		       :test #'string-equal))
+	 ;; there may be several matches that have the same quantity.
+	 (distinct-quantities (collect-distinct-quantities matches))
 	 (rem 
 	  (make-hint-seq
-	   (cond ((and (= (length short-names) 1)
+	   (cond ((and (= (length distinct-quantities) 1)
 		       (= (length tool-propositions) 1))
 		  (list
-		   (strcat "Note that " (car short-names) " is "
+		   (strcat "Note that " 
+			   (quantity-html-link (car distinct-quantities)) 
+			   " is " 
 			   (get-prop-type (car tool-propositions))
 			   ".")
-		   (strcat "Please " *delete-object* " and use "
-			   (get-prop-icon (car tool-propositions))
-			   " for this definition.")))
+		   (strcat "If you meant to define " 
+			   (get-prop-type (car tool-propositions))
+			   ", please " *delete-object* " and use "
+			   (get-prop-icon (car tool-propositions)) 
+			   " instead.")))
 		 ((= (length tool-propositions) 1)
 		  (list 
 		   (strcat "Are you trying to define "
@@ -483,9 +514,9 @@
 		   (strcat "I don't think you want to use "
 			   (get-prop-icon tool-prop)
 			   " for this definition.&nbsp; "
-			   "Perhaps you should delete this entry &amp; "
+			   "Perhaps you should " *delete-object* " &amp; "
 			   "use another tool."
-			   "<p>Would you like help choosing what to do next?"
+			   "<p>I can help you decide what to do next:"
 		    )	
 		   ;; Should use matches to inform starting point
 		   ;; for NSH.
@@ -496,7 +527,7 @@
     ;; set state of entry and attach error. But only do if not done already, 
     ;; so only report on the first error found.
     (unless (studentEntry-ErrInterp entry)
-      (setf (studentEntry-state entry) 'incorrect)
+      (setf (studentEntry-state entry) +incorrect+)
       (setf (studentEntry-ErrInterp entry)
 	    (make-ErrorInterp :diagnosis '(wrong-tool-error)
 			      :remediation rem))))
@@ -509,7 +540,7 @@
 			       *delete-object* " and use "
 			       *equation-tool* " instead.")))
 	 (rem (make-hint-seq 
-	      (list (format nil "Sorry, I don't understand your ~:[~1*entry~;definition of <var>~A</var>~].~@[&nbsp; ~A~]&nbsp; Would you like help choosing what to do next?" 
+	      (list (format nil "Sorry, I don't understand your ~:[~1*entry~;definition of <var>~A</var>~].~@[&nbsp; ~A~]&nbsp; I can help you choose what to do next:" 
 			    (> (length (StudentEntry-symbol entry)) 0)
 			    (StudentEntry-symbol entry) equal-sign)
 		    '(function next-step-help)))))
@@ -518,7 +549,7 @@
     ;; set state of entry and attach error. But only do if not done already, 
     ;; so only report on the first error found.
     (unless (studentEntry-ErrInterp entry)
-      (setf (studentEntry-state entry) 'incorrect)
+      (setf (studentEntry-state entry) +incorrect+)
       (setf (studentEntry-ErrInterp entry)
 	    (make-ErrorInterp :diagnosis '(definition-has-no-matches)
 			      :remediation rem))))
@@ -628,7 +659,9 @@
 			      :namespace :objects)
 	 ;; finally return entry 
 	 (check-noneq-entry entry :unsolicited-hints hints))
-	(tturn)))))
+	(t 
+	 (setf (turn-result tturn) (append (turn-result tturn) hints))
+	 tturn)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -751,7 +784,9 @@
 
 	 ;; finally return entry
 	 (check-noneq-entry entry  :unsolicited-hints hints))
-	(tturn)))))
+	(t 
+	 (setf (turn-result tturn) (append (turn-result tturn) hints))
+	 tturn)))))
 
 
 ; fetch list of system vars denoting components of vector term
@@ -849,7 +884,9 @@
 
 	 ;; finally return entry
 	 (check-noneq-entry entry :unsolicited-hints hints))
-	(tturn)))))
+	(t 
+	 (setf (turn-result tturn) (append (turn-result tturn) hints))
+	 tturn)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -897,7 +934,9 @@
 	 
 	 ;; finally return entry 
 	 (check-noneq-entry entry :unsolicited-hints hints))
-	(tturn)))))
+	(t 
+	 (setf (turn-result tturn) (append (turn-result tturn) hints))
+	 tturn)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1048,7 +1087,7 @@
 	 ;; set state of entry and attach error. But only do if not done 
 	 ;; already, so only report on the first error found.
 	 (unless (studentEntry-ErrInterp entry)
-	   (setf (studentEntry-state entry) 'incorrect)
+	   (setf (studentEntry-state entry) +incorrect+)
 	   (setf (studentEntry-ErrInterp entry)
 		 (make-ErrorInterp :diagnosis '(variable-not-defined)
 				   :remediation rem))))))
@@ -1067,7 +1106,7 @@
        ;; set state of entry and attach error. But only do if not done already, so 
        ;; only report on the first error found.
        (unless (studentEntry-ErrInterp entry)
-	 (setf (studentEntry-state entry) 'incorrect)
+	 (setf (studentEntry-state entry) +incorrect+)
 	 (setf (studentEntry-ErrInterp entry)
 	       (make-ErrorInterp :diagnosis '(variable-already-in-use)
 				 :remediation rem)))))
@@ -1451,8 +1490,17 @@
       ((psmg-path-enteredp (enode-path PSM))
        (setf (StudentEntry-state entry) +CORRECT+)
        (make-green-turn :id (StudentEntry-id entry)))
+      ;; Activity is incomplete, give a hint
+      ;; based on goalprop, and then defer to NSH.
       (T (setf (StudentEntry-state entry) +INCORRECT+)
+	 (let ((rem (nsh-walk-node-graph 
+		     (strcat "You have not finished " (goal id) ".<p>") 
+		     psm)))
+	   (setf (StudentEntry-ErrInterp entry)
+		 (make-ErrorInterp 
+		  ;; The diagnosis never makes it to the log file.
+		  ;; Need to log analysis of error.  Bug #1816
+		  :diagnosis (cons 'goal-incomplete ID)
+		  :remediation rem)))
 	 (make-red-turn :id (StudentEntry-id entry))))))
-
-
 

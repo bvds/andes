@@ -321,6 +321,27 @@
 	((nlg-find x *Ontology-PSMClasses* #'PSMClass-form #'PSMClass-nlg-english))
 	(t (format nil "equation:[~A]" x))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;
+;;;;   Generate dictionary from set of model sentences.
+;;;;
+
+(defun dictionary-handler (model dictionary)
+  "Extend model to include (var ...), which is ignored."
+  (unless (and (consp model) (eql (car model) 'var))
+      (warn "dictionary-handler:  unknown model ~A" model))
+  dictionary)
+
+(defun generate-dictionary (sysentries)
+  "Generate a list of possible words from a list of models, ignoring (var ...)"
+  (let ((match:add-to-dictionary-handler 'dictionary-handler)
+	dictionary)
+    (dolist (x sysentries)
+      (setf dictionary (match:add-to-dictionary 
+		    (SystemEntry-model x) dictionary)))
+    dictionary))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -332,15 +353,6 @@
       (setf (Qnode-model qnode)
 	    `(or (var ,(qnode-exp qnode))
 		 ,(new-english-find (qnode-exp qnode))))))
-
-
-(defun short-english-find (prop)
-  "Find short phrase associated with prop.  Returns a string."
-  ;; first look for genuine short name
-  (or (lookup-expression-short-name prop)
-      ;; then fall back to regular ontology
-      (get-default-phrase prop)))
-
 
 (defun new-english-find (prop)
   "Match proposition to Ontology."
@@ -377,16 +389,21 @@
 	((variable-p model) 
 	 (if (all-boundp model bindings)
 	     (expand-new-english (subst-bindings bindings model))
-	     (warn "Unbound variable ~A" model)))
-	((and (consp model) (member (car model) 
-				    '(preferred allowed and or conjoin)))
+	     (warn "expand-new-english:  Unbound variable ~A" model)))
+	((and (consp model) (member (car model) '(preferred allowed)))
+	 (when (cddr model) 
+	   (warn "expand-new-english:  ~(~A~) with more than one argument:  ~A"
+		 (car model) model))
+	 (list (car model) (expand-new-english (cadr model) bindings)))
+	((and (consp model) (member (car model) '(and or conjoin)))
 	 (let ((args (expand-new-english-list (cdr model) bindings)))
 	   (when args (cons (car model) args))))
 	;; expansion of var must be done at run-time.
 	((and (consp model) (eql (car model) 'var)) 
 	 (subst-bindings bindings model))
 	((and (consp model) (eql (car model) 'eval))
-	 (when (cddr model) (warn "Bad model syntax for eval: ~A" model))
+	 ;; For extensibility, allow eval to have more arguments.
+	 ;; Here, we just ignore them.
 	 (expand-new-english
 	  (eval (subst-bindings-quoted bindings (second model)))))
 	;; ordered sequence, remove empty elements
@@ -396,8 +413,18 @@
 	 ;; Bindings are local to one operator in the ontology
 	 ;; so we need to substitute in here.
 	 ;; Assume any recursive calls are covered by New-English.
-	 (new-english-find (subst-bindings bindings model)))))
+	 (new-english-find (subst-bindings-careful bindings model)))))
 
+(defun subst-bindings-careful (bindings x)
+  "Do subst. bindings, but watch out for eval."
+  (cond ((eq bindings fail) fail)
+        ((eq bindings no-bindings) x)
+	((atom x) (subst-bindings bindings x))
+	;; At this point, it is a cons.
+	((eql (car x) 'eval) (subst-bindings-quoted bindings x))
+	(t (reuse-cons (subst-bindings-careful bindings (car x))
+		       (subst-bindings-careful bindings (cdr x))
+		       x))))
 
 ;; Should be "private" to nlg
 (defun expand-new-english-list (x &optional (bindings no-bindings))

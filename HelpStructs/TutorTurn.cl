@@ -124,6 +124,10 @@
 (defconstant +end-dialog+ 'End-Dialog)
 (defconstant +stat-turn+ 'stat-turn)
 
+;; Hook for variable later defined by help system.
+(defvar *help-button*)
+(defvar *help-button-action*)
+
 (defmacro alist-warn (x)
   "Debug macro to check that x is an alist."
   (if nil  ;Turn on/off at compile-time.
@@ -137,6 +141,7 @@
 ;; These are the menus in use by the system.
 ;; nil menu is hide.
 (defconstant +explain-more+ 'Explain-More "The Explain more/hide menu.")
+(defparameter *explain-more-text* "Explain more")
 (defconstant +psm-menu+ 'Psm-Menu)
 (defconstant +equation-menu+ 'Equation-menu)
     
@@ -168,21 +173,65 @@
 ;;----------------------------------------------------------
 ;; define specific tutor turn types.
 
-(defun make-green-dialog-turn (text menu &key Responder)
+(defun make-green-dialog-turn (text menu &key Responder id)
   "Produce a green coloring dialog type tutor turn."
+  (unless id (warn "no id in make-green-dialog-turn"))
   (make-turn :coloring +color-green+
 	     :type +dialog-turn+
+	     :id id
 	     :text text 
 	     :menu menu 
 	     :Responder Responder))
-		  
 
+		  
 (defun make-dialog-turn (text menu &key Responder Assoc)
   "Produce a dialog type tutor turn."
   (make-turn :type +dialog-turn+
 	     :text text
 	     :menu Menu
 	     :responder Responder
+	     :Assoc (alist-warn Assoc)))
+
+(defun make-explain-more-turn (text &key hint Assoc)
+  "Produce a dialog type tutor turn with explain-more."
+  (make-turn :type +dialog-turn+
+	     :text text
+	     :menu +explain-more+
+	     :responder 
+	     #'(lambda (R)
+		 (cond ((eql R +explain-more+) hint) ;student clicks button
+		       ;; Student types text instead.
+		       ;; Cases:  Student asks a question, not realizing they
+		       ;;              are in a hint sequence.  
+		       ;;              (This is most common.)
+		       ;;         Student asks for more help via statement. 
+
+		       ((and (stringp R) (is-a-question R))
+			(make-explain-more-turn 
+			 (strcat "Sorry, I don't know how to answer your question.&nbsp; "
+				 "Either click on \"" *explain-more-text*
+				 "\" or " 
+				 *help-button* " below.")
+			 :hint hint
+			 :Assoc '((handle-text . question))))
+
+		       ((and (stringp R) (maybe-a-question R))
+			(make-explain-more-turn 
+			 (strcat "You comment has been recorded.&nbsp; "
+				 "If you need more help, either click on \"" 
+				 *explain-more-text*
+				 "\" or " 
+				 *help-button* " below.")
+			 :hint hint
+			 :Assoc '((handle-text . possible-question))))
+
+		       ;; Assume everything else is a genuine comment.
+		       ((stringp R)
+			(make-end-dialog-turn "Your comment has been recorded."
+			   :Assoc '((handle-text . comment))))
+ 		       
+		       (T (warn "make-explain-more-turn invalid responder ~A" 
+				R))))
 	     :Assoc (alist-warn Assoc)))
 
 (defun make-end-dialog-turn (text &key Assoc)
@@ -519,14 +568,11 @@
 
 (defun make-string-Ophseq (Hint Next &optional (Prefix "") Assoc OHType OpTail)
   "Make a string Hseq from the car of the hints."
-  (make-dialog-turn 
+  (make-explain-more-turn 
    (strcat Prefix (if (hintspec-p Hint)
 			  (format-hintspec Hint)
 			Hint))
-   +explain-more+
-   :responder #'(lambda (r)
-		  (when (eql R +explain-more+)
-		    (make-hint-seq Next :Assoc (alist-warn Assoc) :OpTail OpTail)))
+   :hint (make-hint-seq Next :Assoc (alist-warn Assoc) :OpTail OpTail)
    :Assoc (alist-warn (or Assoc `((OpHint ,OHType String . ,OpTail))))))
 
 
@@ -557,13 +603,15 @@
   (make-minil-turn 
    (format-hintspec Minil)
    :responder #'(lambda (R) 
-		  (when (eq R 'Close-Lesson)
+		  (if (eq R 'Close-Lesson)
 		    (make-hint-seq 
 		     (cons "Do you wish for more hints?"
 			   Next)
 		     :Assoc (alist-warn Assoc)
-		     :OpTail OpTail)))
-   :Assoc (alist-warn (or Assoc `((OPHint ,OHType MiniLesson ,(format-hintspec Minil) . ,OpTail))))))
+		     :OpTail OpTail)
+		    (warn "make-minil-Ophseq no response for ~A" R)))
+   :Assoc (alist-warn (or Assoc `((OPHint ,OHType MiniLesson 
+				   ,(format-hintspec Minil) . ,OpTail))))))
 
 
 (defun make-minil-end-Ophseq (Minil &optional Assoc OHType OpTail)
@@ -571,11 +619,13 @@
   (make-minil-turn 
    (format-hintspec MiniL)
    :responder #'(lambda (R)
-		  (when (eq R 'Close-Lesson)
+		  (if (eq R 'Close-Lesson)
 		    (make-end-dialog-turn
-		     (strcat "If you wish for more "
-			     "help run NSH again."))))
-      :Assoc (alist-warn (or Assoc `((OPHint ,OHType MiniLesson ,(format-hintspec Minil) . , OpTail))))))
+		     (strcat "If you wish for more help, " 
+			     *help-button-action* "."))
+		    (warn "make-minil-end-Ophseq no response for ~A" R)))
+      :Assoc (alist-warn (or Assoc `((OPHint ,OHType MiniLesson 
+				      ,(format-hintspec Minil) . , OpTail))))))
 
 
 ;;---------------------------------------------------------------
@@ -589,12 +639,9 @@
 
 (defun make-goalhint-hseq (Hint Next &optional (Prefix "") Assoc OpTail)
   "Make a string Hseq from the car of the hints."
-  (make-dialog-turn 
+  (make-explain-more-turn 
    (strcat Prefix (nth 1 Hint))
-   +explain-more+
-   :responder #'(lambda (r)
-		  (when (eql R +explain-more+)
-		    (make-hint-seq Next :Assoc (alist-warn Assoc) :OpTail OpTail)))
+   :hint (make-hint-seq Next :Assoc (alist-warn Assoc) :OpTail OpTail)
    :Assoc (alist-warn (or Assoc (list (nth 2 hint))))))
 
 (defun make-goalhint-end-hseq (Hint &optional (Prefix "") Assoc)
@@ -612,14 +659,11 @@
 
 (defun make-string-hseq (Hint Next &optional (Prefix "") Assoc OpTail)
   "Make a string Hseq from the car of the hints."
-  (make-dialog-turn 
+  (make-explain-more-turn 
    (strcat Prefix (if (hintspec-p Hint)
 			  (format-hintspec Hint)
 			Hint))
-   +explain-more+
-   :responder #'(lambda (r)
-		  (when (eql R +explain-more+)
-		    (make-hint-seq Next :Assoc (alist-warn Assoc) :OpTail OpTail)))
+   :hint (make-hint-seq Next :Assoc (alist-warn Assoc) :OpTail OpTail)
    :Assoc (alist-warn Assoc)))
 
 
@@ -649,12 +693,13 @@
   (make-minil-turn 
    (format-hintspec Minil)
    :responder #'(lambda (R) 
-		  (when (eq R 'Close-Lesson)
+		  (if (eq R 'Close-Lesson)
 		    (make-hint-seq 
 		     (cons "Do you wish for more hints?"
 			   Next)
 		     :Assoc (alist-warn Assoc)
-		     :OpTail OpTail)))
+		     :OpTail OpTail)
+		    (warn "make-minil-hseq:  no response for ~A" R)))
    :Assoc (alist-warn Assoc)))
 
 
@@ -663,11 +708,12 @@
   (make-minil-turn 
    (format-hintspec MiniL)
    :responder #'(lambda (R)
-		  (when (eq R 'Close-Lesson)
+		  (if (eq R 'Close-Lesson)
 		    (make-end-dialog-turn
-		     (strcat "If you wish for more "
-			     "help run NSH again.")
-		     :Assoc (alist-warn Assoc))))
+		     (strcat "If you wish for more help, "
+			     *help-button-action* ".")
+		     :Assoc (alist-warn Assoc))
+		    (warn "make-minil-end-hseq: no response for ~A" R)))
       :Assoc (alist-warn Assoc)))
 
 

@@ -306,15 +306,20 @@
   `(((:action . "show-hint")
      (:text . ,(format nil "An error occurred:<br>~%~A~%" condition)))))
 
+
 (defun log-error (condition)
   "Log after an error or warning has occurred."
-  `((:action . "log")
-    (:error-type . ,(string (type-of condition)))
-    (:error . ,(format nil "~A" condition))
-    (:backtrace . ,(with-output-to-string 
-		    (stream)
-		    ;; sbcl-specific function 
-		    #+sbcl (sb-debug:backtrace 25 stream)))))
+  (let ((x (with-output-to-string (stream)
+	     ;; sbcl-specific function 
+	     #+sbcl (sb-debug:backtrace 25 stream))))
+    `((:action . "log")
+      (:error-type . ,(string (type-of condition)))
+      (:error . ,(format nil "~A" condition))
+      ;; Truncate length.  It would be better to truncate each 
+      ;; level, but that would involve dissecting the backtrace function.
+      ;; The backtrace function disables global formatting variables
+      ;; like *print-pretty*.
+      (:backtrace . ,(subseq x 0 (min (length x) 4000))))))
 
 (defun execute-session (session-hash turn func params)
   "Execute a function in the context of a given session when its turn comes.  If the session doesn't exist, create it.  If there is nothing to save in *env*, delete session."
