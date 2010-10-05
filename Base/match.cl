@@ -60,6 +60,7 @@
 	  (:use :cl)
 	  (:export :*whitespace* :best-model-matches :word-parse 
 		   :unknown-object-handler :match-model
+		   :test-for-list
 		   :word-count :word-count-handler
 		   :add-to-dictionary :add-to-dictionary-handler
 		   :matches-model-syntax :word-string :*grammar-names*))

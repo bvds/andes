@@ -407,7 +407,7 @@
 	 (expand-new-english
 	  (eval (subst-bindings-quoted bindings (second model)))))
 	;; ordered sequence, remove empty elements
-	((and (consp model) (or (stringp (car model)) (listp (car model))))
+	((match:test-for-list model)
 	 (remove nil (expand-new-english-list model bindings)))
 	(t 
 	 ;; Bindings are local to one operator in the ontology
@@ -456,7 +456,7 @@
 	 ;; untrapped error when second arg of conjoin expands to nil
 	 (let ((args (expand-vars (cdr model))))
 	   (when args (cons (car model) args))))
-	((or (stringp (car model)) (listp (car model))) ;plain list
+	((match:test-for-list model) ;plain list
 	 ;; mapcar copies list; subsequent operations can be destructive
 	 (delete nil (mapcar #'expand-vars model)))
 	;; expansion of var must be done at run-time.
