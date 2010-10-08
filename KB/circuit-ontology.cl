@@ -76,7 +76,16 @@
   ;; a compound component.
   ;; Sometimes the component can be defined with the body tool.
   :new-english (or (var ?a :namespace :objects)
-		   (eval (if (consp ?a) `(conjoin (or "and" "&") . ,?a) ?a))))
+		   (eval (if (consp ?a) '(conjoin (or "and" "&") . ?a) ?a)
+			 ;; Remove list for single components
+			 (?a . (append (problem-atoms *cp*)
+				       (problem-circuit-branches *cp*))))))
+
+(defun problem-circuit-branches (problem)
+  ;; The raw branches in the givens also contain junctions.
+  (mapcar #'second (remove '(path-to-branch . ?rest)
+			   (problem-wm problem)
+			   :test-not #'unify)))
 
 ;;; in the workbench, the time slot is added if feature changing-voltage
 ;;; is included.
@@ -184,7 +193,9 @@
   ;;   Bug #1724
   :new-english (eval (if (expand-new-english ?region)
 			'(preferred ((or "in" "inside") ?region))
-			'(allowed ("in" (the) "region")))))
+			'(allowed ("in" (the) "region")))
+		     ;; include case where region is omitted.
+		     (?region . (cons nil (problem-atoms *cp*)))))
 
 ;; All instances of (net-field ...) are for fields at a point
 (def-qexp net-E-field (net-field ?region electric :time ?time)
