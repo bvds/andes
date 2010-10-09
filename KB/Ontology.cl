@@ -60,8 +60,55 @@
     results))
 
 (defun problem-vectors (problem)
-  (mapcar #'third (remove '(vector . ?rest) (problem-wm *cp*)
-				:test-not #'unify)))
+  "Return a list of vectors defined in a problem."
+  (if (problem-wm problem)
+      (mapcar #'third (remove '(vector . ?rest) 
+			      (problem-wm problem)
+			      :test-not #'unify))
+      ;; Only needed for dra1a-old and magtor1a (as of Oct. 2010).
+      ;; These are vector drawing problems involving torques.
+      (mapcar #'second (remove '(vector . ?rest)
+			       (loop for x in (second (problem-graph problem))
+				     append (collect-psmgraph-csdo-effects
+					     (enode-path x)))
+			       :test-not #'unify))))
+
+(defun problem-couples (problem)
+  "Return a list of couples defined in a problem."
+  ;; As of Oct. 2010, this only applies to problem static1t
+  (remove '(couple . ?rest)
+	    (problem-givens problem)
+	    :test-not #'unify))
+
+(defun generate-subsets (set)
+  "List of all subsets of the problem atoms."
+  (let ((atoms (sort (copy-list set) #'string>)) 
+	result)
+    (dotimes (x (ash 1 (length atoms)))
+      (let (this)
+	(dotimes (i (length atoms))
+	  (unless (= (logand x (ash 1 i)) 0)
+	    (push (elt atoms i) this)))
+	(push this result)))
+    (remove nil result)))
+
+(defun problem-bodies-and-compounds (problem)
+  (if t
+      ;; Only use compound bodies that are explicitly declared.
+      ;; This covers all solution quantities, but may be too
+      ;; restrictive if student has trouble with defining 
+      ;; compounds.
+      (append
+       (mapcar #'second
+	       (remove '(object . ?rest)
+		       (problem-givens problem)
+		       :test-not #'unify))
+       (problem-atoms problem))
+      ;; generate compound from all problem atoms
+      (mapcar #'(lambda (x) (if (cdr x) 
+				(append '(compound orderless) x) 
+				(car x)))
+	      (generate-subsets (problem-atoms problem)))))
 
 
 ;;;             Quantity Terms:
@@ -252,7 +299,9 @@
    (and (preferred (object ?body))
 	;; eval is a wrapper simply to specify agent
 	(eval '(preferred (agent ?agent))
-	      (?agent . (mapcar #'remove-time (problem-vectors *cp*))))
+	      (?agent . (mapcar #'remove-time 
+				(append (problem-vectors *cp*)
+					(problem-couples *cp*)))))
 	(preferred (eval (when ?axis '("about" ?axis))
 			 ;; include case where axis is omitted
 			 (?axis . (cons nil (problem-axes *cp*)))))
@@ -326,10 +375,6 @@
 			       (?body . (problem-bodies-and-compounds *cp*)))
 			 ))) 
 
-(defun problem-bodies-and-compounds (problem)
-  (mapcar #'(lambda (x) (if (cdr x) (append '(compound orderless) x) (car x)))
-         (problem-atom-subsets problem)))
-
 
 (def-qexp time-derivative (time-derivative ?property :agent ?agent :time ?time)
   ;; should work when agent or time are omitted.
@@ -397,7 +442,7 @@
 			"applied on" "applied to" "against") 
 		       (or (var ?body :namespace :objects) ?body))
 		     ;; include case where body is omitted
-		     (?body . (problem-atoms *cp*))))
+		     (?body . (problem-bodies-and-compounds *cp*))))
 
 (def-qexp agent (agent ?body)
   ;;+syjung
