@@ -1780,15 +1780,19 @@
 		;; Broken Bug #1650
 		(and 
 		 (eval (when (expand-new-english ?loc) 
-			 `(preferred ("at" ,?loc)))) 
-		 ((eval (unit-vector-orientation-name ?orientation)) ?body) 
+			 '(preferred ("at" ?loc)))
+		       ;; include case where ?loc not supplied
+		       (?loc . (cons nil (problem-atoms *cp*))))
+		 ((eval (unit-vector-orientation-name ?orientation)
+			(?orientation . '(normal-to towards away-from))) ?body)
 		 (time ?time))))
 
 (defun unit-vector-orientation-name (orientation)
   (cond ((eq orientation 'normal-to) "normal to")
 	((eq orientation 'towards) "pointing towards")
 	((eq orientation 'away-from) "pointing away from")
-	(t orientation)))
+	(t (warn "unit-vector-orientation-name:  unknown orientation ~A" 
+		 orientation) orientation)))
 
 (defoperator unit-vector-given-relative-position1 (?body ?orientation ?loc ?t)
   :preconditions 

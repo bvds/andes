@@ -111,6 +111,15 @@ body, .tundra .dijitSplitter, #navMenu{
 	color:#999;
 }
 
+#helpContentPane a {
+	color:#01a1ff;
+}
+
+#helpContentPane a:hover {
+	color:#a65f00;
+	text-decoration:none;
+}
+
 #helpContentPane img.button {
 	vertical-align: middle;
 	width: 1.5em;

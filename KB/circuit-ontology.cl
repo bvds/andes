@@ -76,7 +76,37 @@
   ;; a compound component.
   ;; Sometimes the component can be defined with the body tool.
   :new-english (or (var ?a :namespace :objects)
-		   (eval (if (consp ?a) `(conjoin (or "and" "&") . ,?a) ?a))))
+		   (eval (if (consp ?a) '(conjoin (or "and" "&") . ?a) ?a)
+			 ;; Remove list for single components
+			 (?a . (append (problem-atoms *cp*)
+				       (problem-circuit-compounds *cp*)
+				       (problem-circuit-branches *cp*))))))
+
+(defun problem-circuit-branches (problem)
+  "Collect branches of the circuit."
+  ;; The raw branches in the givens also contain junctions.
+  ;; This is mostly useful for current quantities.
+  (mapcar #'second (remove '(path-to-branch . ?rest)
+			   (problem-wm problem)
+			   :test-not #'unify)))
+
+(defparameter *circuit-compounds* 
+  '(series-resistors parallel-resistors series-capacitors parallel-capacitors))
+
+(defun problem-circuit-compounds (problem)
+  "Collect explicitly declared compound objects"
+  ;; Equivalent resistance & capacitance done
+  ;; with explicit declarations in problem givens.
+  ;;
+  ;; Quantity propositions for compound circuit elements
+  ;;  remove substructure of compounds.
+  ;; The presence of the sort is a bit worrisome since
+  ;;  there is no "orderless" enforcing it in the KB.
+  (mapcar #'(lambda (x) (sort (flatten (second x)) #'string<))
+	  (remove-if
+	   #'(lambda (x) (not (member x *circuit-compounds*)))
+	   (problem-givens problem) 
+	   :key #'car)))
 
 ;;; in the workbench, the time slot is added if feature changing-voltage
 ;;; is included.
@@ -121,7 +151,7 @@
   :short-name "mutual inductance"	
   :units |H|
   :new-english ((the) "mutual inductance" (or "between" "of") 
-		(conjoin (or "and" "&") ?inductors)))
+		(conjoin (or "and" "&") . ?inductors)))
 
 ;;; power as used in circuits problem has slightly different definition
 ;;; than power in mechanics: no agent, and may denote power output (from
@@ -184,7 +214,9 @@
   ;;   Bug #1724
   :new-english (eval (if (expand-new-english ?region)
 			'(preferred ((or "in" "inside") ?region))
-			'(allowed ("in" (the) "region")))))
+			'(allowed ("in" (the) "region")))
+		     ;; include case where region is omitted.
+		     (?region . (cons nil (problem-atoms *cp*)))))
 
 ;; All instances of (net-field ...) are for fields at a point
 (def-qexp net-E-field (net-field ?region electric :time ?time)

@@ -2306,7 +2306,12 @@
   :short-name "dipole energy"
   :units |J|
   :new-english ((the) (preferred "potential") "energy"
-		(and (property ?dipole) (preferred (agent ?field))
+		(and (property ?dipole) 
+		     ;; eval is simply a wrapper to specify possible
+		     ;; fields
+		     (eval '(preferred (agent ?field))
+			   (?field . (or (problem-vectors *cp*) 
+					 (problem-atoms *cp*))))
 		     (time ?time))))
 
 ; called via define-energy-var, which generates variable name

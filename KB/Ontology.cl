@@ -37,6 +37,80 @@
  (torque-switch "moment" "torque"))
 
 
+(defun problem-axes (problem)
+  "return list of possible problem axes propositions."
+  (problem-atoms problem))
+
+(defun problem-atoms (problem)
+  "return list of problem atomic propositions."
+  ;; Start of with problem-specific ontology, then go
+  ;; through list of bodies, etc.
+  (let ((results 
+	 (remove-if #'consp 
+		    (mapcar #'car (problem-english problem)))))
+    (dolist (prop 
+	      (second (find 'bodies (problem-choices problem) :key #'car)))
+	(pushnew prop results))
+    (dolist (prop (second 
+		   (find 'locations (problem-choices problem) :key #'car)))
+	(pushnew prop results))
+    (dolist (prop (second 
+		   (find 'positions (problem-choices problem) :key #'car)))
+	(pushnew prop results))
+    results))
+
+(defun problem-vectors (problem)
+  "Return a list of vectors defined in a problem."
+  (if (problem-wm problem)
+      (mapcar #'third (remove '(vector . ?rest) 
+			      (problem-wm problem)
+			      :test-not #'unify))
+      ;; Only needed for dra1a-old and magtor1a (as of Oct. 2010).
+      ;; These are vector drawing problems involving torques.
+      (mapcar #'second (remove '(vector . ?rest)
+			       (loop for x in (second (problem-graph problem))
+				     append (collect-psmgraph-csdo-effects
+					     (enode-path x)))
+			       :test-not #'unify))))
+
+(defun problem-couples (problem)
+  "Return a list of couples defined in a problem."
+  ;; As of Oct. 2010, this only applies to problem static1t
+  (remove '(couple . ?rest)
+	    (problem-givens problem)
+	    :test-not #'unify))
+
+(defun generate-subsets (set)
+  "List of all subsets of the problem atoms."
+  (let ((atoms (sort (copy-list set) #'string>)) 
+	result)
+    (dotimes (x (ash 1 (length atoms)))
+      (let (this)
+	(dotimes (i (length atoms))
+	  (unless (= (logand x (ash 1 i)) 0)
+	    (push (elt atoms i) this)))
+	(push this result)))
+    (remove nil result)))
+
+(defun problem-bodies-and-compounds (problem)
+  (if t
+      ;; Only use compound bodies that are explicitly declared.
+      ;; This covers all solution quantities, but may be too
+      ;; restrictive if student has trouble with defining 
+      ;; compounds.
+      (append
+       (mapcar #'second
+	       (remove '(object . ?rest)
+		       (problem-givens problem)
+		       :test-not #'unify))
+       (problem-atoms problem))
+      ;; generate compound from all problem atoms
+      (mapcar #'(lambda (x) (if (cdr x) 
+				(append '(compound orderless) x) 
+				(car x)))
+	      (generate-subsets (problem-atoms problem)))))
+
+
 ;;;             Quantity Terms:
 (def-qexp dnum (dnum ?value ?unit :error ?err)
   :new-english ((eval (format nil
@@ -130,41 +204,47 @@
    (eval (when (time-intervalp ?time)
 	   '(allowed (or "constant" "const." "const" "steady" 
 		"average" "avg."))))
-   (eval (force-types ?type))
+   (eval (force-types ?type)
+	 (?type . (mapcar #'car *force-types*)))
    (or 
     ;; This should handle "force of the man acting on the crate"
-    (and (preferred (object ?body)) (preferred (agent ?agent)) (time ?time))
+    (and (preferred (object ?body)) 
+	 (preferred (agent ?agent)) 
+	 (time ?time))
     ;; case "the force that the man exerts on the crate"
     (and ((or "that" "with which") ?agent (or "exerts on" "acts on") ?body) 
 	 (time ?time)))))
 
-(defun force-types (type)
-  (case type 
-    (weight '(or "force of gravity"
+(defparameter *force-types*
+    '((weight . (or "force of gravity"
 	      ((or "weight" "gravitational" "grav." "grav") "force")))
-    (gravitational '(or "force of gravity"
+    (gravitational . (or "force of gravity"
 		     ((or "gravitational" "weight" "grav." "grav") "force")))
     ;; "normal force exerted on a body by the surface" from Y&F 
-    (normal '("normal force"))
-    (tension '(or ("tension" (preferred "force")) "pulling force" 
+    (normal . ("normal force"))
+    (tension . (or ("tension" (preferred "force")) "pulling force" 
 	       ("force" (preferred "of tension"))))
-    (applied '((allowed (or "applied" "external")) "force")) ;catch-all force
-    (kinetic-friction '(or (((preferred "kinetic") 
+    (applied . ((allowed (or "applied" "external")) "force")) ;catch-all force
+    (kinetic-friction . (or (((preferred "kinetic") 
 			     (or "friction" "frictional")) "force")
 			("force" "of" (preferred "kinetic") "friction")))
-    (static-friction  '(or (((preferred "static") 
+    (static-friction . (or (((preferred "static") 
 			     (or "friction" "frictional")) "force")
 			("force" "of" (preferred "static") "friction")))
-    (electric '((or "electric" "E" "coulomb") "force"))
-    (magnetic '((or "magnetic" "B") "force"))
-    (buoyant '((or "buoyant" "buoyancy") "force"))
-    (thrust "thrust force")
-    (spring "spring force")
-    (pressure '(or ("pressure" (allowed "force"))
+    (electric . ((or "electric" "E" "coulomb") "force"))
+    (magnetic . ((or "magnetic" "B") "force"))
+    (buoyant . ((or "buoyant" "buoyancy") "force"))
+    (thrust . "thrust force")
+    (spring . "spring force")
+    (pressure . (or ("pressure" (allowed "force"))
 				   ("force" (preferred "of pressure")) 
 				))
-    (drag '((or "drag" "friction" "frictional") "force"))
-    (t (warn "unknown force type ~A" type) (format nil "~(~A~) force" type))))
+    (drag . ((or "drag" "friction" "frictional") "force"))))
+
+(defun force-types (type)
+  (or (cdr (assoc type *force-types*))
+      (warn "unknown force type ~A" type)
+      (format nil "~(~A~) force" type)))
 
 (def-qexp net-force (net-force ?body :time ?time)
   :rank vector
@@ -214,11 +294,18 @@
   :rank vector
   :units |N.m|
   :short-name "torque"
-  :new-english ((the) (eval (moment-name)) 
-		(and (preferred (object ?body))
-		     (preferred (agent ?agent))
-		     (preferred (eval (when ?axis `("about" ,?axis))))
-		     (time ?time))))
+  :new-english 
+  ((the) (eval (moment-name)) 
+   (and (preferred (object ?body))
+	;; eval is a wrapper simply to specify agent
+	(eval '(preferred (agent ?agent))
+	      (?agent . (mapcar #'remove-time 
+				(append (problem-vectors *cp*)
+					(problem-couples *cp*)))))
+	(preferred (eval (when ?axis '("about" ?axis))
+			 ;; include case where axis is omitted
+			 (?axis . (cons nil (problem-axes *cp*)))))
+	(time ?time))))
 
 (def-qexp net-torque (net-torque ?body ?axis :time ?time)
   :rank vector
@@ -226,7 +313,8 @@
   :short-name "net torque"
   :new-english ((the) (or "net" "total") (eval (moment-name)) 
 		(and (preferred (object ?body))
-		     (preferred (eval (when ?axis `("about" ,?axis))))
+		     (preferred (eval (when ?axis '("about" ?axis))
+				      (?axis . (problem-axes *cp*))))
 		     (time ?time))))
 
 (def-qexp couple (couple orderless . ?bodies)
@@ -281,7 +369,11 @@
 
 (def-qexp property (property ?body)
   ;; "for" is exceptionally used
-  :new-english ("of" (or (var ?body :namespace :objects) ?body))) 
+  :new-english ("of" (or (var ?body :namespace :objects) 
+			 ;; eval as wrapper to set possible values
+			 (eval ?body
+			       (?body . (problem-bodies-and-compounds *cp*)))
+			 ))) 
 
 
 (def-qexp time-derivative (time-derivative ?property :agent ?agent :time ?time)
@@ -345,10 +437,12 @@
   :new-english (preferred "the"))
 
 (def-qexp object (object ?body)
-  :new-english (eval (when (expand-new-english ?body)
-                        '((or "on" "acting on" "exerted on" "that acts on" "applied on" 
-			   "applied to" "against") 
-			  (or (var ?body :namespace :objects) ?body)))))
+  ;; eval wrapper to specify possible values for body.
+  :new-english (eval '((or "on" "acting on" "exerted on" "that acts on" 
+			"applied on" "applied to" "against") 
+		       (or (var ?body :namespace :objects) ?body))
+		     ;; include case where body is omitted
+		     (?body . (problem-bodies-and-compounds *cp*))))
 
 (def-qexp agent (agent ?body)
   ;;+syjung
@@ -356,16 +450,27 @@
   ;; important for the case that it is missing (in elec4b, see Bug #1676)
   :new-english (eval (when (expand-new-english ?body)
 			'((or "due to" "by" "from" "caused by" "exerted by" "of") 
-			  (or (var ?body :namespace :objects) ?body)))))  
+			  (or (var ?body :namespace :objects) ?body)))
+		     ;; include case with no agent
+		     (?body . (cons nil (problem-atoms *cp*)))))
 
 (def-qexp agent-prep (agent-prep ?preposition ?body)
   :new-english (eval (when (expand-new-english ?body)
-			`(,?preposition
-			  (or (var ?body :namespace :objects) ?body)))))
+		       '(?preposition
+			 (or (var ?body :namespace :objects) ?body)))
+		     ;; include case with no agent
+		     (?body . (cons nil (problem-atoms *cp*)))))
+
 
 (def-qexp time (time ?time)
   :new-english (eval (when ?time
-			'(preferred (time-not-omittable ?time)))))
+			'(preferred (time-not-omittable ?time)))
+		     ;; add timeless as possibility.
+                    (?time . (cons nil (get-problem-times)))))
+
+(defun get-problem-times ()
+  (mapcar #'second
+         (remove '(time . ?rest) (problem-givens *cp*) :test-not #'unify)))
 
 (def-qexp time-not-omittable (time-not-omittable ?time)
   :new-english (eval (if (time-pointp ?time) (pp ?time)
@@ -470,7 +575,8 @@
   :units NIL ;; dimensionless
   :new-english ((the) "coefficient of" 
 		(preferred (eval (if (eql ?static-or-kinetic 'static) "static"
-				     "kinetic")))
+				     "kinetic")
+				 (?static-or-kinetic . '(static kinetic))))
 		"friction"
 		(and (preferred 
 		      ("between" 
@@ -576,10 +682,10 @@
   :short-name "radius of circular motion"	
   :units |m|
   :restrictions positive
-  :new-english ((the) "radius"
-		(property ((the) (preferred "circular") 
-			   (or "motion" "path")
-			   (preferred (property ?body))))
+  :new-english ((the) "radius" (preferred "of")
+		(preferred ((the) (preferred "circular") 
+			    (or "motion" "path")))
+		(preferred (property ?body))
 		(time ?time)))
 
 ;; Halliday and Resnick talk about work done by a force
@@ -643,11 +749,11 @@
   :new-english ((the) (allowed "instantaneous") "power" 
 		(or ((preferred (or "developed" "generated" "supplied"))
 		     (and (preferred (agent-prep (or "by" "due to" "from" "caused by" "exerted by" "of") ?agent)) 
-		                     ; (agent (or "by" "due to" "from" "caused by" "exerted by" "of") ?agent)) 
+			  ;; (agent (or "by" "due to" "from" "caused by" "exerted by" "of") ?agent)) 
 		          (preferred (object ?b))
 		          (time ?time)))
 		    ("output" (preferred (agent-prep (or "of" "by" "due to" "from" "caused by" "exerted by") ?agent))
-		                         ;(agent (or "of" "by" "due to" "from" "caused by" "exerted by") ?agent))
+			      ;;(agent (or "of" "by" "due to" "from" "caused by" "exerted by") ?agent))
 		     (or "applied" "supplied") 
 			 (preferred (object ?b))
 		     (time ?time)))))
@@ -723,7 +829,8 @@
   :new-english (property-object 
 		(or ((preferred (or "total" "net")) "mechanical energy") 
 			  "TME")
-		?system :time ?time))
+		?system
+		:time ?time))
 
 (def-qexp kinetic-energy (kinetic-energy ?body :time ?time)
   :rank scalar
@@ -795,16 +902,22 @@
   :symbol-base |h|     
   :short-name "height"	
   :units |m|
-  :new-english (property-object 
-		"height" ?body 
-		;; Case with the zero height included.
-		;; Generally, we only have one zero height defined
-		;; in a problem, so we can default to not using it.
-		:modifier (allowed ((or "above" "relative to")
-				    (or ?zero-height 
-					((the) (allowed "level of") 
-					 "origin"))))
-		:time ?time))
+  :new-english 
+  (property-object 
+   "height" ?body 
+   ;; Case with the zero height included.
+   ;; Generally, we only have one zero height defined
+   ;; in a problem, so we can default to not using it.
+   :modifier (allowed 
+	      ((or "above" "relative to")
+	       ;; eval wrapper to include zero-height as possible
+	       ;; value
+	       (or (eval ?zero-height
+			 (?zero-height . (cons 'zero-height 
+					       (problem-atoms *cp*))))
+		   ((the) (allowed "level of") 
+		    "origin"))))
+   :time ?time))
 
 ;; default phrase, in absence of something sensible.
 (def-qexp zero-height zero-height
@@ -821,7 +934,8 @@
   :new-english (property-object 
 		 "moment of inertia" 
 		 ?body 
-		 :modifier (eval (when ?axis `(preferred ("about" ,?axis))))
+		 :modifier (eval (when ?axis '(preferred ("about" ?axis)))
+				 (?axis . (problem-axes *cp*)))
 		 :time ?time))
 
 ;; for dimensions of certain rigid bodies:
@@ -851,8 +965,9 @@
 (def-qexp num-torques (num-torques ?body ?axis :time ?time)
   :rank scalar
   :short-name "number of torques"
-  :new-english ((the) "number of" (moment-name) "on" ?body 
-		(preferred (eval (when ?axis `("about" ,?axis))))
+  :new-english ((the) "number of" (eval (moment-name)) "on" ?body 
+		(preferred (eval (when ?axis '("about" ?axis))
+				 (?axis . (problem-axes *cp*))))
 		(time ?time)))
 
 (def-qexp compound (compound orderless . ?bodies)
@@ -1051,7 +1166,7 @@
 
 (def-goalprop all-torques (torques ?b ?axis ?time ?torques)
   :nlg-english ("showing the ~A due to each force acting on ~A ~A" 
-	     (moment-name) (nlg ?b) (nlg ?time 'pp)))
+		(moment-name) (nlg ?b) (nlg ?time 'pp)))
 
 
 ;; this goal used as sought in vector-drawing-only problem (magtor*)
