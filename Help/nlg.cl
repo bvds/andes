@@ -463,3 +463,243 @@
 	((eql (car model) 'var)
 	 (apply #'symbols-label (cdr model)))
 	(t (warn "expand-vars:  invalid expand ~A" model) model)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;                   Expand Ontology into set of possible phrases.
+;;;;
+;;;; (trace get-ontology-bindings get-list-ontology-bindings)
+;;;; 
+;;;;  remaining problems:
+;;;;  (test-ontology-bindings '(eqcap1c eqres1c ind3c static1t))
+
+(defvar *ontology-bindings*)
+
+;; Student never defines a vector component directly
+;; angle-between is just too hard.
+(defparameter *disallowed-quantities* '(compo angle-between))
+
+
+(defun test-ontology-bindings (&rest topics)
+  "Load problems and test ontology bindings"
+  (let (results)
+    (andes-init)
+    (dolist (p (choose-working-probs topics))
+      (read-problem-info (string (problem-name P)))
+      (when *cp* 
+	(format t "Loaded ~A~%" (problem-name p))
+	(push (cons (try-ontology-bindings) (problem-name p)) results)))
+    (sort results #'> :key #'car)))
+
+
+(defun try-ontology-bindings (&optional names)
+  (let ((sum 0))
+    ;; The problem-specific ontology is generally specific
+    ;; cases of the general ontology and we are looking
+    ;; for a general set of propositions...
+    (dolist (rule *Ontology-ExpTypes*)
+      (when (and (exptype-rank rule) 
+		 (not (member (exptype-type rule) *disallowed-quantities*))
+		 (or (null names) (member (exptype-type rule) names)))
+	(let (*ontology-bindings* 
+	      (vars (variables-in (exptype-form rule)))
+	      term)
+	      ;; (format t "starting ~A~%" (ExpType-form rule))
+	  (get-ontology-bindings (ExpType-new-english rule))
+	     ;; (format t "final list ~A~%" *ontology-bindings*)
+	  
+	  ;; calculate number of possible propositions
+	  (setf term (apply #'* 
+			    (mapcar #'length 
+				    (mapcar #'cdr *ontology-bindings*))))
+	  (setf sum (+ sum term))
+	  ;; (format t "  with ~A possibilities: ~A~%" term (mapcar #'(lambda (x) (cons (car x) (length (cdr x)))) *ontology-bindings*))
+
+	  ;; Test that all solution props are included in bindings found.
+	  (dolist (entry *sg-entries*)
+	    (dolist (binding (unify (second (systementry-prop entry))
+				    (exptype-form rule)))
+	      (unless (or
+		       ;; if there are no variables, unify returns no-bindings
+		       (equal binding (car no-bindings))
+		       (member (cdr binding)
+			       (cdr (assoc (car binding) 
+					   *ontology-bindings*))
+			       :test #'unify)) 
+		(format t "    unmatched binding ~S for ~A~%      rule ~A~%      list ~S~%" 
+			binding (exptype-type rule) (exptype-form rule) 
+			*ontology-bindings*))))
+	  
+	  (when (set-difference vars (mapcar #'car *ontology-bindings*))
+	    (format t "unbound variables for ~A~%   got ~A~%" 
+		    (exptype-form rule)
+		    *ontology-bindings*))
+	  )))
+    sum))
+
+
+(defun merge-with-ontology-bindings (variable possibilities)
+  (let ((known (find variable *ontology-bindings* :key #'car)))
+    (cond (known
+	   (setf (cdr known) (union (cdr known)
+				    possibilities :test #'unify)))
+	  ;; The case where there are no possibilities should be
+	  ;; understood to mean that the associated quantity 
+	  ;; is not relevant to this problem.
+	  ((null possibilities)
+	   (push (list variable) *ontology-bindings*))
+	  ;; This allows some non-variables to pollute *ontology-bindings*
+	  ((some #'(lambda (x) (unify variable x)) possibilities)
+	   (push (cons variable possibilities) *ontology-bindings*))
+	  (t
+	   (warn "merge-with-ontology-bindings: ~S inconsistent~%      with ~S~%" 
+		 variable possibilities)))))
+
+(defun get-ontology-bindings (model &optional (bindings no-bindings))
+  "Descend through model tree, collecting list of possible bindings."
+  (cond ((stringp model))
+	((null model))
+	((variable-p model)
+	 (if (variable-boundp model bindings)
+	     (get-ontology-bindings (subst-bindings bindings model))
+	     ;; Assume all "bare" variables are bound to atoms
+	     (merge-with-ontology-bindings model (problem-atoms *cp*))))
+	((and (consp model) (member (car model) 
+				    '(preferred allowed or and conjoin)))
+	 (get-list-ontology-bindings (cdr model) bindings))
+	;; ordered sequence
+	((match:test-for-list model)
+	 (get-list-ontology-bindings model bindings))
+	;; expansion of var must be done at run-time.
+	((and (consp model) (eql (car model) 'var))) 
+	((and (consp model) (eql (car model) 'eval))
+	 ;; Can't actually evaluate the eval, since
+	 ;; we cannot bind all the variables.
+	 ;;
+	 ;; subsequent arguments of (eval ...) are to to be cons'es
+	 ;; of a variable and an expression that can be eval'ed to a list
+	 ;; of possible values for that variable.  For instance:
+	 ;;     (eval .... (?a . (problem-atoms *cp*)) 
+	 ;;                (?t . '((time 0) (time 1))))
+	 ;;
+	 (dolist (pair (cddr model))
+	   ;; If variable has been bound by parent, defer
+	   ;; to parent bindings.
+	   (when (variable-p (subst-bindings bindings (car pair)))
+	     (merge-with-ontology-bindings 
+	      (subst-bindings bindings (car pair))
+	      (eval (subst-bindings-quoted bindings (cdr pair)))))))
+	(t 
+	 (ontology-bindings-find model bindings))))
+
+(defun get-list-ontology-bindings (model &optional (bindings no-bindings))
+  (cond
+    ((null model) nil)
+    ((variable-p model)
+     (if (variable-boundp model bindings)
+	 (get-list-ontology-bindings (subst-bindings bindings model))
+	 (merge-with-ontology-bindings model (problem-atom-subsets *cp*))))
+    ((consp model)
+     (get-ontology-bindings (car model) bindings)
+     (get-list-ontology-bindings (cdr model) bindings))
+    (t (warn "get-list-ontology-bindings unexpected ~A" model))))
+
+
+(defun ontology-bindings-find (prop &optional (bindings no-bindings))
+
+  ;; First, run through general Ontology to find match.
+  ;; The problem-specific ontology gives cases special to 
+  ;; the solution of the problem and we are looking for
+  ;; a larger set of possibilities.
+  (dolist (ruler *Ontology-ExpTypes*)
+    ;; Bindings are local to one operator in the ontology.
+    (let* ((rule (rename-variables (cons (Exptype-form ruler)
+					 (ExpType-new-english ruler))))
+	   (bindings (unify (car rule) prop bindings)))
+      (when bindings 
+	;; (format t "  general ontology for ~A ~A~%    bindings=~A~%    parent=~A~%" prop (Exptype-form ruler) bindings *ontology-bindings*)
+	(get-ontology-bindings (cdr rule) bindings)
+	;; (format t "    this=~A~%" *ontology-bindings*)
+	(return-from ontology-bindings-find))))
+
+  ;; Then, we do problem-specific ontology.
+  (dolist (ruler (problem-english *cp*))
+    (let* ((rule (rename-variables ruler))
+	   (bindings (unify (car rule) prop bindings)))
+      (when bindings
+	;; (format t "  problem ontology for ~A ~A~%    bindings=~A~%    parent=~A~%" prop (car rule) bindings *ontology-bindings*)
+	(get-ontology-bindings (cdr rule) bindings)
+	;; (format t "    this=~A~%" *ontology-bindings*)
+	(return-from ontology-bindings-find))))
+  
+  ;; If it is a symbol, test that it exists in problem-atoms.
+  (when (atom prop)
+    (unless (member prop (problem-atoms *cp*))
+      (warn "Unmatched prop ~A" prop))
+    (return-from ontology-bindings-find))
+
+  ;; On failure, warn and return nil
+  (warn "ontology-bindings-find:  no ontology match for ~S" prop))
+
+
+(defmacro accumulate-phrase-list (models var expr)
+  `(let (result)
+    (dolist (,var ,models)
+      (setf result (union result ,expr :test #'equalp)))
+    result))
+
+(defun expand-to-list (model)
+  "Expand model to list of possible phrases.  Return may include nils."
+  ;; Assume all ontology, variables, and evals have been expanded.
+  (cond ((stringp model) 
+	 (list (list model)))
+	((null model) nil)
+	((and (consp model) (member (car model) '(preferred allowed)))
+	 (cons nil (expand-to-list (cdr model))))
+	((and (consp model) (eql (car model) 'or))
+	 (accumulate-phrase-list (cdr model) x (expand-to-list x)))
+	((and (consp model) (eql (car model) 'and))
+	 (if (cddr model)
+	     (accumulate-phrase-list 
+	      (cdr model) x (expand-to-list (list x (remove x model))))
+	     (expand-to-list (second model))))
+	((and (consp model) (eql (car model) 'conjoin))
+	 (if (cdddr model)
+	   (expand-to-list-conjoin (expand-to-list (second model)) 
+				   (cddr model) nil)
+	   (expand-to-list (third model))))
+	;; expansion of var must be done at run-time.
+	((and (consp model) (eql (car model) 'var))
+	 (list (list model)))
+	;; ordered sequence, remove empty elements
+	((match:test-for-list model)
+	 (if (cdr model)
+	     (let (result (yy (expand-to-list (cdr model))))
+	       (dolist (x (expand-to-list (car model)))
+		 (dolist (y yy)
+		   (pushnew (append x y) result :test #'equalp)))
+	       result)
+	     (expand-to-list (car model))))
+	(t (warn "expand-to-list invalid model ~A" model))))
+
+(defun expand-to-list-conjoin (conjunction args parents)
+  (if args
+      (let (result)
+	(dolist (arg args)
+	  (dolist (x (expand-to-list arg))
+	    (setf result (union result
+				(expand-to-list-conjoin 
+				 conjunction 
+				 (remove arg args) 
+				 (if x (cons x parents) parents))
+				:test #'equalp))))
+	result)
+      ;; terminal
+      (if (cdr parents)
+	  (accumulate-phrase-list 
+	     conjunction conj
+	     (list 
+	      (append (apply #'append (butlast parents)) conj 
+		      (car (last parents)))))
+	  (apply #'append parents))))
