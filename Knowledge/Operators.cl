@@ -552,8 +552,12 @@
 (defun eval-spec-arg (arg)
   (if (and (consp arg) 
            (eq (first arg) 'nlg))
-    (apply #'nlg (rest arg))	; if nlg'ing, don't evaluate rest
-    (eval arg)))
+    (apply #'nlg (rest arg))	;if nlg'ing, don't evaluate rest
+    ;; If eval fails, emit warning and continue as best we can.
+    (handler-bind ((error #'(lambda (c) 
+			      (warn "eval-hint-spec bad arg ~A.  ~A" arg c)
+			      (return-from eval-spec-arg arg)))) 
+      (eval arg))))
 
 
 ;;;----------------------------------------------------------------------------
