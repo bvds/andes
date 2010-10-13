@@ -489,9 +489,9 @@
       (read-problem-info (string (problem-name P)))
       (when *cp* 
 	(format t "Loaded ~A~%" (problem-name p))
+	(try-ontology-bodies P)
 	(push (cons (try-ontology-bindings) (problem-name p)) results)))
     (sort results #'> :key #'car)))
-
 
 (defun try-ontology-bindings (&optional names)
   (let ((sum 0))
@@ -516,6 +516,12 @@
 	  (setf sum (+ sum term))
 	  ;; (format t "  with ~A possibilities: ~A~%" term (mapcar #'(lambda (x) (cons (car x) (length (cdr x)))) *ontology-bindings*))
 
+	  ;; Test that all variables have actually been bound.	  
+	  (when (set-difference vars (mapcar #'car *ontology-bindings*))
+	    (format t "unbound variables for ~A~%   got ~A~%" 
+		    (exptype-form rule)
+		    *ontology-bindings*))
+
 	  ;; Test that all solution props are included in bindings found.
 	  (dolist (entry *sg-entries*)
 	    (dolist (binding (unify (second (systementry-prop entry))
@@ -530,13 +536,57 @@
 		(format t "    unmatched binding ~S for ~A~%      rule ~A~%      list ~S~%" 
 			binding (exptype-type rule) (exptype-form rule) 
 			*ontology-bindings*))))
-	  
-	  (when (set-difference vars (mapcar #'car *ontology-bindings*))
-	    (format t "unbound variables for ~A~%   got ~A~%" 
-		    (exptype-form rule)
-		    *ontology-bindings*))
+
 	  )))
     sum))
+
+(defun try-ontology-bodies (problem)
+  "Test that all bodies in the problem solution are included in (problem-bodies-and-compounds ...)."
+  (let ((bodies (problem-bodies-and-compounds problem)))
+    (dolist (entry *sg-entries*)
+      (when (eql (car (systemEntry-prop entry)) 'body)
+	(unless (member (second (systementry-prop entry))
+			bodies
+			:test #'unify)
+	  (format t "    unmatched body ~S in ~S~%" 
+		  (second (systementry-prop entry)) bodies))))))
+
+;;; (progn (rhelp) (andes-init) (read-problem-info 'kt1a) (defvar *tree* (list nil nil)))
+;;; (generate-all-phrases *tree* '(force))  
+;;; kt1a crashes on
+;;; (DB-INTENSITY AIRCRAFT AIRCRAFT :TIME (DURING 1 2))
+
+(defun generate-all-phrases (tree &optional names)
+  ;; empty tree is (list nil nil)
+  (dolist (rule *Ontology-ExpTypes*)
+    (when (and (exptype-rank rule) 
+	       (not (member (exptype-type rule) *disallowed-quantities*))
+	       (or (null names) (member (exptype-type rule) names)))
+      (let (*ontology-bindings*) 
+	(get-ontology-bindings (ExpType-new-english rule))
+	(expand-with-bindings *ontology-bindings* nil 
+			      (exptype-form rule) tree)))))
+	
+(defun expand-with-bindings (binding-sets bindings prop tree)
+  (if binding-sets
+      (loop for binding in (cdr (car binding-sets))
+	    append (expand-with-bindings (cdr binding-sets)
+					 (cons (cons (car (car binding-sets))
+						     binding)
+					       bindings)
+					 prop tree))
+      (progn
+	(format t "starting prop ~S~%" (subst-bindings bindings prop))
+	(prog1 (expand-model-to-tree
+		(new-english-find (subst-bindings bindings prop))
+		nil tree 
+		(subst-bindings bindings prop))
+	  (format t "   done:  ~A nodes ~A leaves~%" 
+		  (string-tree-node-count tree)
+		  (string-tree-leaf-count tree))))))
+
+
+;; (let ((prop '(DB-INTENSITY AIRCRAFT AIRCRAFT :TIME (DURING 1 2)))) (expand-model-to-tree (new-english-find prop) nil *tree* prop))
 
 
 (defun merge-with-ontology-bindings (variable possibilities)
@@ -599,7 +649,9 @@
     ((variable-p model)
      (if (variable-boundp model bindings)
 	 (get-list-ontology-bindings (subst-bindings bindings model))
-	 (merge-with-ontology-bindings model (problem-atom-subsets *cp*))))
+	 (merge-with-ontology-bindings 
+	  model 
+	  (generate-subsets (problem-atoms *cp*)))))
     ((consp model)
      (get-ontology-bindings (car model) bindings)
      (get-list-ontology-bindings (cdr model) bindings))
@@ -650,8 +702,8 @@
     result))
 
 (defun expand-to-list (model)
-  "Expand model to list of possible phrases.  Return may include nils."
-  ;; Assume all ontology, variables, and evals have been expanded.
+  "Expand model to list of possible phrases.  Return may include nils and (var ...)."
+  ;; Assume all ontology and evals have been expanded.
   (cond ((stringp model) 
 	 (list (list model)))
 	((null model) nil)
@@ -678,7 +730,7 @@
 	     (let (result (yy (expand-to-list (cdr model))))
 	       (dolist (x (expand-to-list (car model)))
 		 (dolist (y yy)
-		   (pushnew (append x y) result :test #'equalp)))
+		   (push (append x y) result)))
 	       result)
 	     (expand-to-list (car model))))
 	(t (warn "expand-to-list invalid model ~A" model))))
@@ -703,3 +755,80 @@
 	      (append (apply #'append (butlast parents)) conj 
 		      (car (last parents)))))
 	  (apply #'append parents))))
+
+;; string-tree has format:
+;;            <node> := (<atom> (<prop> ...) . (<node> ...))
+;;            <atom> is a one-word string or (var ...)
+;;            <prop> is a KB proposition, indicating a leaf.
+;; Having more than one <prop> for a given node
+;; indicates a parse ambiguity.
+
+(defun string-tree-leaf-count (node)
+  "count the number of leaves in string-tree"
+  (+ (length (second node)) 
+     (apply #'+ (mapcar #'string-tree-leaf-count (cddr node)))))
+
+(defun string-tree-node-count (node)
+  "count the number of nodes in string-tree"
+  (+ 1 (apply #'+ (mapcar #'string-tree-node-count (cddr node)))))
+
+(defun leaf-equalp (x y)
+  ;; use unify for (var ...) and equalp for strings.
+  (if (and (consp x) (consp y)) (unify x y) (equalp x y)))
+
+(defun expand-model-to-tree (model more-model node prop)
+   "Expand model to list of possible phrases, adding each phrase to string-tree. Returns a list of string-tree nodes."
+  ;; Assume all ontology and evals have been expanded.
+  (cond ((or (stringp model)
+	     (and (consp model) (eql (car model) 'var)))
+	 (pushnew (list model nil) (cddr node) 
+		  :key #'car :test #'leaf-equalp)
+	 (let ((this (find model (cddr node) :key #'car :test #'leaf-equalp)))
+	   (unless this (warn "Can't find model ~S in ~S" model node))
+	   (if more-model
+	       (expand-model-to-tree more-model nil this prop)
+	       (pushnew prop (second this) :test #'unify))))
+	((null model) 
+	 (if more-model 
+	     (expand-model-to-tree more-model nil node prop)
+	     (pushnew prop (second node) :test #'unify)))
+	((and (consp model) (member (car model) '(preferred allowed)))
+	 (expand-model-to-tree more-model nil node prop)
+	 (expand-model-to-tree (cdr model) more-model node prop))
+	((and (consp model) (eql (car model) 'or))
+	 (if (cdr model)
+	     (dolist (x (cdr model))
+	       (expand-model-to-tree x more-model node prop))
+	     (expand-model-to-tree more-model nil node prop)))
+	((and (consp model) (eql (car model) 'and))
+	 (if (cdr model)
+	     (dolist (x (cdr model))
+	       (expand-model-to-tree x (list (remove x model) more-model)
+				     node prop))
+	     (expand-model-to-tree more-model nil node prop)))
+	((and (consp model) (eql (car model) 'conjoin))
+	 (cond ((cddddr model)
+		(dolist (x (cddr model))
+		  (expand-model-to-tree x (list (remove x model) more-model)
+					node prop)))
+	       ((cdddr model)
+		(expand-model-to-tree (third model) 
+				      (list (second model) (fourth model) 
+					    more-model)
+					node prop)
+		(expand-model-to-tree (fourth model) 
+				      (list (second model) (third model) 
+					    more-model)
+					node prop))
+	       ((cddr model)
+		(expand-model-to-tree (third model) more-model node prop))
+	       (t 
+		(expand-model-to-tree more-model nil node prop))))
+	((match:test-for-list model)
+	 (expand-model-to-tree (car model)
+			       (if (and (cdr model) more-model)
+				   (list (cdr model) more-model)
+				   (or (cdr model) more-model))
+			       node prop))
+	(t (warn "expand-model-to-tree invalid model ~A" model))))
+
