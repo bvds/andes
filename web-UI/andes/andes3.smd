@@ -328,6 +328,28 @@
 	}
       }
     },
+
+    "suggest-word": {
+      "description": "word-completion for defining quantities.",
+      "parameters": [
+	      {"name": "words", "type": "array", "items": "string"},
+      ],
+      "returns": {
+	"type": "array",
+	"items": {
+	  "type": "object",
+	  "additionalProperties": false,
+	  "properties":{
+	    "action": {
+	      "type": "string",
+	      "optional": false,
+	      "enum":["next-words"]
+	    },
+	    "words": {"type": "array", "items": {"type":"string"}}
+	  }
+	}
+      }
+    },
     
     "close-problem": {
       "description": "Called when student hits submit button.  Also called when \"back\" button is hit or window is closed",

@@ -551,42 +551,111 @@
 	  (format t "    unmatched body ~S in ~S~%" 
 		  (second (systementry-prop entry)) bodies))))))
 
-;;; (progn (rhelp) (andes-init) (read-problem-info 'kt1a) (defvar *tree* (list nil nil)))
-;;; (generate-all-phrases *tree* '(force))  
-;;; kt1a crashes on
-;;; (DB-INTENSITY AIRCRAFT AIRCRAFT :TIME (DURING 1 2))
+;;; (progn (rhelp) (andes-init) (read-problem-info 'kt1a) (setf *phrase-cache* nil))
+;;; (generate-all-words '(force)) 
+;;;  (progn (setf *result* (generate-all-words)) nil)
 
-(defun generate-all-phrases (tree &optional names)
-  ;; empty tree is (list nil nil)
-  (dolist (rule *Ontology-ExpTypes*)
-    (when (and (exptype-rank rule) 
-	       (not (member (exptype-type rule) *disallowed-quantities*))
-	       (or (null names) (member (exptype-type rule) names)))
-      (let (*ontology-bindings*) 
-	(get-ontology-bindings (ExpType-new-english rule))
-	(expand-with-bindings *ontology-bindings* nil 
-			      (exptype-form rule) tree)))))
+;;; Right now, caching involving variable is not done intelligently.
+;;; So word suggestion will break if the student modifies two
+;;; objects so that their names are swapped.
+
+(defvar *phrase-cache*)
+
+(defun canonicalize-word-list (raw-words)
+  ;; canonicalize words (should probably also trim commas).
+  (mapcar #'string-downcase raw-words))
+
+(defun triples-to-distinct-words (triples)
+  "Get distinct words from a list of triples, substituting in variables."
+  (remove-duplicates 
+   (remove nil (mapcar #'expand-vars
+		       (mapcar #'car triples)))
+	   :test #'string-equal))
+
+(defun next-word-list (raw-words)
+  "Assumes list of words.  Substitute in for any vars."
+  (let ((words (canonicalize-word-list raw-words)))
+    (triples-to-distinct-words
+     (cond 
+       ;; If already cached, go with that.
+       ((member words *phrase-cache* :key #'car :test #'equalp)
+	(cdr (find words *phrase-cache* :key #'car :test #'equalp)))
+       
+       ;; Generate initial word set, add of cache and return.
+       ((null raw-words)
+	(let  ((x (generate-initial-words)))
+	  (push (cons words x) *phrase-cache*)
+	  x))
+       
+       (t 
+	;; if not in cache, first see if previous words
+	;; are in cache, if they are not, generate them.
+	(unless (member (butlast words) *phrase-cache* 
+			:key #'car :test #'equalp)
+	  (next-word-list (butlast words)))
 	
-(defun expand-with-bindings (binding-sets bindings prop tree)
+	;; Now, use result to generate next set of words. 
+	(let (triples (word (car (last words))))
+	  (dolist (triple (cdr (find (butlast words) 
+				     *phrase-cache* 
+				     :key #'car :test #'equalp)))
+	    ;; Evaluate any vars against student 
+	    ;; string here.
+	    (when (string-equal (expand-vars (car triple)) word)
+	      (setf triples
+		    (append triples (get-next-words triple)))))
+	  ;; Cache result
+	  (push (cons words triples) *phrase-cache*)
+	  triples))))))
+
+(defun get-next-words (triple)
+  (mapcar #'(lambda (x) (list (car x) (second triple) (cdr x)))
+	  (get-first-model-words (third triple) nil)))
+
+(defun get-word-list-props (raw-words)
+  "Return list of quantity propositions associated wtih an exact match to list of words.  Any final vars are expanded here."
+  (let ((words (canonicalize-word-list raw-words)) result)
+    ;; If not in cache, add to cache.
+    (unless (member (butlast words) *phrase-cache* :key #'car :test #'equalp)
+      (next-word-list (butlast words)))
+    (dolist (triple (cdr (find (butlast words) *phrase-cache* 
+			       :key #'car :test #'equalp)))
+    (when (and (string-equal (car (last words)) 
+			       (expand-vars (car triple)))
+		 (member nil (get-first-model-words (third triple) nil)))
+	(pushnew (second triple) result :test #'unify)))
+    result))
+
+
+(defun generate-initial-words (&optional names)
+  (let (result)
+    (dolist (rule *Ontology-ExpTypes*)
+      (when (and (exptype-rank rule) 
+		 (not (member (exptype-type rule) *disallowed-quantities*))
+		 (or (null names) (member (exptype-type rule) names)))
+	(let (*ontology-bindings*) 
+	  (get-ontology-bindings (ExpType-new-english rule))
+	  (setf result (append result
+			       (expand-with-bindings *ontology-bindings* nil 
+						     (exptype-form rule)))))))
+    result))
+
+	
+(defun expand-with-bindings (binding-sets bindings prop)
+  "Returns a list of triples (<string> <prop> <model>)."
   (if binding-sets
       (loop for binding in (cdr (car binding-sets))
 	    append (expand-with-bindings (cdr binding-sets)
 					 (cons (cons (car (car binding-sets))
 						     binding)
 					       bindings)
-					 prop tree))
-      (progn
-	(format t "starting prop ~S~%" (subst-bindings bindings prop))
-	(prog1 (expand-model-to-tree
-		(new-english-find (subst-bindings bindings prop))
-		nil tree 
-		(subst-bindings bindings prop))
-	  (format t "   done:  ~A nodes ~A leaves~%" 
-		  (string-tree-node-count tree)
-		  (string-tree-leaf-count tree))))))
+					 prop))
+      (let ((bound-prop (subst-bindings bindings prop)))
+	;; (format t "starting prop ~A~%" bound-prop)
+	(mapcar #'(lambda (x) (list (car x) bound-prop (cdr x)))
+	    (get-first-model-words (new-english-find bound-prop) nil)))))
 
-
-;; (let ((prop '(DB-INTENSITY AIRCRAFT AIRCRAFT :TIME (DURING 1 2)))) (expand-model-to-tree (new-english-find prop) nil *tree* prop))
+;; (let ((prop '(DB-INTENSITY AIRCRAFT AIRCRAFT :TIME (DURING 1 2)))) (get-first-model-words (new-english-find prop) nil))
 
 
 (defun merge-with-ontology-bindings (variable possibilities)
@@ -695,140 +764,71 @@
   (warn "ontology-bindings-find:  no ontology match for ~S" prop))
 
 
-(defmacro accumulate-phrase-list (models var expr)
-  `(let (result)
-    (dolist (,var ,models)
-      (setf result (union result ,expr :test #'equalp)))
-    result))
+;; Previously, tried to generate a tree that could
+;; be used for multiple quantities.  In that case, one cannot have 
+;; multiple pointers to a given subtree without considering which
+;; quantities allow those pointer.  Generating a tree without multiple
+;; pointers to a subtree causes the tree to become too large and 
+;; lisp crashes.
 
-(defun expand-to-list (model)
-  "Expand model to list of possible phrases.  Return may include nils and (var ...)."
+(defmacro dolist-union (vars &rest exprs)
+  "Like dolist, except that results are accumulated via union."
+  (let ((result (gensym)))
+    `(let (,result)
+      (dolist ,vars
+	(setf ,result (union ,result (progn ,@exprs))))
+      ,result)))
+
+(defun get-first-model-words (model more-model)
+  "Get possible first words of a model, returning an alist of word-model pairs., where the model represents possible remaining words and word can be either a string or a (var ...)."
   ;; Assume all ontology and evals have been expanded.
-  (cond ((stringp model) 
-	 (list (list model)))
-	((null model) nil)
-	((and (consp model) (member (car model) '(preferred allowed)))
-	 (cons nil (expand-to-list (cdr model))))
-	((and (consp model) (eql (car model) 'or))
-	 (accumulate-phrase-list (cdr model) x (expand-to-list x)))
-	((and (consp model) (eql (car model) 'and))
-	 (if (cddr model)
-	     (accumulate-phrase-list 
-	      (cdr model) x (expand-to-list (list x (remove x model))))
-	     (expand-to-list (second model))))
-	((and (consp model) (eql (car model) 'conjoin))
-	 (if (cdddr model)
-	   (expand-to-list-conjoin (expand-to-list (second model)) 
-				   (cddr model) nil)
-	   (expand-to-list (third model))))
-	;; expansion of var must be done at run-time.
-	((and (consp model) (eql (car model) 'var))
-	 (list (list model)))
-	;; ordered sequence, remove empty elements
-	((match:test-for-list model)
-	 (if (cdr model)
-	     (let (result (yy (expand-to-list (cdr model))))
-	       (dolist (x (expand-to-list (car model)))
-		 (dolist (y yy)
-		   (push (append x y) result)))
-	       result)
-	     (expand-to-list (car model))))
-	(t (warn "expand-to-list invalid model ~A" model))))
-
-(defun expand-to-list-conjoin (conjunction args parents)
-  (if args
-      (let (result)
-	(dolist (arg args)
-	  (dolist (x (expand-to-list arg))
-	    (setf result (union result
-				(expand-to-list-conjoin 
-				 conjunction 
-				 (remove arg args) 
-				 (if x (cons x parents) parents))
-				:test #'equalp))))
-	result)
-      ;; terminal
-      (if (cdr parents)
-	  (accumulate-phrase-list 
-	     conjunction conj
-	     (list 
-	      (append (apply #'append (butlast parents)) conj 
-		      (car (last parents)))))
-	  (apply #'append parents))))
-
-;; string-tree has format:
-;;            <node> := (<atom> (<prop> ...) . (<node> ...))
-;;            <atom> is a one-word string or (var ...)
-;;            <prop> is a KB proposition, indicating a leaf.
-;; Having more than one <prop> for a given node
-;; indicates a parse ambiguity.
-
-(defun string-tree-leaf-count (node)
-  "count the number of leaves in string-tree"
-  (+ (length (second node)) 
-     (apply #'+ (mapcar #'string-tree-leaf-count (cddr node)))))
-
-(defun string-tree-node-count (node)
-  "count the number of nodes in string-tree"
-  (+ 1 (apply #'+ (mapcar #'string-tree-node-count (cddr node)))))
-
-(defun leaf-equalp (x y)
-  ;; use unify for (var ...) and equalp for strings.
-  (if (and (consp x) (consp y)) (unify x y) (equalp x y)))
-
-(defun expand-model-to-tree (model more-model node prop)
-   "Expand model to list of possible phrases, adding each phrase to string-tree. Returns a list of string-tree nodes."
-  ;; Assume all ontology and evals have been expanded.
+  ;;
+  ;; Since the model can contain nil's, we need to keep track
+  ;; of the remaining parts of the model until we have identified
+  ;; an initial word.  Thus, we have to construct the model containing
+  ;; the remaining possible words anyway.
   (cond ((or (stringp model)
 	     (and (consp model) (eql (car model) 'var)))
-	 (pushnew (list model nil) (cddr node) 
-		  :key #'car :test #'leaf-equalp)
-	 (let ((this (find model (cddr node) :key #'car :test #'leaf-equalp)))
-	   (unless this (warn "Can't find model ~S in ~S" model node))
-	   (if more-model
-	       (expand-model-to-tree more-model nil this prop)
-	       (pushnew prop (second this) :test #'unify))))
+	 (list (cons model more-model)))
 	((null model) 
 	 (if more-model 
-	     (expand-model-to-tree more-model nil node prop)
-	     (pushnew prop (second node) :test #'unify)))
+	     (get-first-model-words more-model nil)
+	     '(nil)))
 	((and (consp model) (member (car model) '(preferred allowed)))
-	 (expand-model-to-tree more-model nil node prop)
-	 (expand-model-to-tree (cdr model) more-model node prop))
+	 (union 
+	  (get-first-model-words more-model nil)
+	 (get-first-model-words (cdr model) more-model)))
 	((and (consp model) (eql (car model) 'or))
 	 (if (cdr model)
-	     (dolist (x (cdr model))
-	       (expand-model-to-tree x more-model node prop))
-	     (expand-model-to-tree more-model nil node prop)))
+	     (dolist-union (x (cdr model))
+			   (get-first-model-words x more-model))
+	     (get-first-model-words more-model nil)))
 	((and (consp model) (eql (car model) 'and))
 	 (if (cdr model)
-	     (dolist (x (cdr model))
-	       (expand-model-to-tree x (list (remove x model) more-model)
-				     node prop))
-	     (expand-model-to-tree more-model nil node prop)))
+	     (dolist-union 
+	      (x (cdr model))
+	      (get-first-model-words x (list (remove x model) more-model)))
+	     (get-first-model-words more-model nil)))
 	((and (consp model) (eql (car model) 'conjoin))
 	 (cond ((cddddr model)
-		(dolist (x (cddr model))
-		  (expand-model-to-tree x (list (remove x model) more-model)
-					node prop)))
+		(dolist-union 
+		 (x (cddr model))
+		 (get-first-model-words x (list (remove x model) more-model))))
 	       ((cdddr model)
-		(expand-model-to-tree (third model) 
-				      (list (second model) (fourth model) 
-					    more-model)
-					node prop)
-		(expand-model-to-tree (fourth model) 
-				      (list (second model) (third model) 
-					    more-model)
-					node prop))
+		(union
+		 (get-first-model-words (third model) 
+				  (list (second model) (fourth model) 
+					more-model))
+		 (get-first-model-words (fourth model) 
+				  (list (second model) (third model) 
+					more-model))))
 	       ((cddr model)
-		(expand-model-to-tree (third model) more-model node prop))
+		(get-first-model-words (third model) more-model))
 	       (t 
-		(expand-model-to-tree more-model nil node prop))))
+		(get-first-model-words more-model nil))))
 	((match:test-for-list model)
-	 (expand-model-to-tree (car model)
+	 (get-first-model-words (car model)
 			       (if (and (cdr model) more-model)
 				   (list (cdr model) more-model)
-				   (or (cdr model) more-model))
-			       node prop))
-	(t (warn "expand-model-to-tree invalid model ~A" model))))
-
+				   (or (cdr model) more-model))))
+	(t (warn "get-first-model-words invalid model ~A" model))))

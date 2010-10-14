@@ -131,6 +131,8 @@
 	  *NSH-PROBLEM-TYPE* symbols::*VARIABLES* *STUDENTENTRIES* 
 	  *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*
           **Condition**  mt19937::*random-state* **grammar**
+	  ;; Cache for word completion utility.
+	  *phrase-cache*
 	  ;; List of Fade items.
 	  *fades*
 	  ;; Solver process (could easily be replaced by function argument
@@ -779,6 +781,13 @@
   (if (>= (or (studententry-time x) 0)
 	 (or (studententry-time y) 0))
       x y))
+
+(webserver:defun-method "/help" suggest-word (&key time words)
+  "return possible next words"
+  (declare (ignore time)) ;for logging
+
+  (env-wrap
+    `(((:action . "next-words") (:words . ,(next-word-list words))))))
 
 (webserver:defun-method "/help" close-problem 
   (&key time) 
