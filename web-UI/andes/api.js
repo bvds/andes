@@ -140,6 +140,11 @@ dojo.require("andes.messages");
 			return queueRequest("seek-help", params);
 		},
 
+                suggestWord: function(params){
+			//console.info("andes.api.step", params);
+			return queueRequest("suggest-word", params);
+		},
+
 		close: function(params){
 			console.info("andes.api.close", params);
 			return queueRequest("close-problem", params);

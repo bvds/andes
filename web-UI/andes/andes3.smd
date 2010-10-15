@@ -332,7 +332,16 @@
     "suggest-word": {
       "description": "word-completion for defining quantities.",
       "parameters": [
-	      {"name": "words", "type": "array", "items": "string"},
+     	      {
+		      "name": "type",
+		      "type": "string",
+		      "enum": ["statement", "circle", "ellipse", 
+		               "rectangle", "vector", "line"],
+		      "optional": true,
+		      "description": "kind of drawn object"
+	      },
+	      {"name": "text", "type": "string"},
+	      {"name": "symbol", "type": "string", "optional": true}
       ],
       "returns": {
 	"type": "array",

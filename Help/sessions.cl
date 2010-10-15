@@ -782,12 +782,27 @@
 	 (or (studententry-time y) 0))
       x y))
 
-(webserver:defun-method "/help" suggest-word (&key time words)
+(defparameter *tool-types*
+  ;; List should match list of types in smd.
+  ;; The help system is free to ignore the tool type.
+  '(("rectangle" . body)
+    ("circle" . body)
+    ("ellipse" . body)
+    ("line" . line)
+    ("statement" . scalar)
+    ("vector" . vector)))
+
+(webserver:defun-method "/help" suggest-word (&key time text type symbol)
   "return possible next words"
   (declare (ignore time)) ;for logging
+  (declare (ignore symbol)) ;might use this later
 
   (env-wrap
-    `(((:action . "next-words") (:words . ,(next-word-list words))))))
+    (let ((type-class (cdr (assoc type *tool-types* :test #'equalp))))
+      `(((:action . "next-words") (:words . ,(next-word-list 
+					      (to-word-list text)
+					      :type type-class)))))))
+
 
 (webserver:defun-method "/help" close-problem 
   (&key time) 
