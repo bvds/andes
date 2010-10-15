@@ -799,9 +799,11 @@
 
   (env-wrap
     (let ((type-class (cdr (assoc type *tool-types* :test #'equalp))))
-      `(((:action . "next-words") (:words . ,(next-word-list 
-					      (to-word-list text)
-					      :type type-class)))))))
+      `(((:action . "next-words") 
+	 (:words . ,(or (next-word-list (to-word-list text)
+					:type type-class)
+			;; Hack for creating an empty array in json
+			(make-array '(0)))))))))
 
 
 (webserver:defun-method "/help" close-problem 
