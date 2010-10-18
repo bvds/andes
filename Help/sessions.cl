@@ -795,12 +795,12 @@
 (webserver:defun-method "/help" suggest-word (&key time text type symbol)
   "return possible next words"
   (declare (ignore time)) ;for logging
-  (declare (ignore symbol)) ;might use this later
 
   (env-wrap
-    (let ((type-class (cdr (assoc type *tool-types* :test #'equalp))))
+    (let ((type-class (cdr (assoc type *tool-types* :test #'equalp)))
+	  (definition (pull-out-quantity symbol text)))
       `(((:action . "next-words") 
-	 (:words . ,(or (next-word-list (to-word-list text)
+	 (:words . ,(or (next-word-list (to-word-list definition)
 					:type type-class)
 			;; Hack for creating an empty array in json
 			(make-array '(0)))))))))

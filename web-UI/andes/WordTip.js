@@ -15,10 +15,12 @@ dojo.declare("andes.WordTip", null, {
     
     textMonitor: function(evt){
         if(evt.keyCode == dojo.keys.SPACE || evt.keyCode == dojo.keys.TAB || evt.keyCode == 188){
+		console.log("this=",this);
             var tx = dojo.trim(this.conEdit.innerHTML);//this.statement.cleanText(conEdit.innerHTML);
             tx = this.removeBreaks(tx);
-            console.log("---Text for word-suggest----> ", tx);
-            this.sendToServer(tx);
+            var symbol = andes.variablename.parse(tx);
+	    console.log("---Text for word-suggest----> ", tx,symbol);
+	    this.sendToServer(tx,symbol);
         };
         if(evt.keyCode == dojo.keys.ENTER || evt.keyCode == dojo.keys.ESCAPE){
             dijit.hideTooltip(this.conEdit);
@@ -32,13 +34,14 @@ dojo.declare("andes.WordTip", null, {
         return txt;
     },
     
-    sendToServer: function(text){
-        andes.api.suggestWord({type: "statement", text: text});
+    sendToServer: function(text,symbol){
+	andes.api.suggestWord({type: "statement", text: text, symbol:symbol});
     },
     
     processResults: function(results){
         console.log("Words server reply: ",results);
         if(results.words){
+		console.log("results.words is true");
             console.log("Successfully retrieved tips: ", results.words.join());
             dijit.showTooltip(results.words.join(),this.conEdit, "above");
         };   
