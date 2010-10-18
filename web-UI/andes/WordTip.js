@@ -34,16 +34,19 @@ dojo.declare("andes.WordTip", null, {
         return txt;
     },
     
-    sendToServer: function(text,symbol){
-	andes.api.suggestWord({type: "statement", text: text, symbol:symbol});
-    },
-    
-    processResults: function(results){
-        console.log("Words server reply: ",results);
-        if(results.words){
-		console.log("results.words is true");
-            console.log("Successfully retrieved tips: ", results.words.join());
-            dijit.showTooltip(results.words.join(),this.conEdit, "above");
-        };   
-    }
+	sendToServer: function(text,symbol){
+	    andes.api.suggestWord({type: "statement", text: text, symbol:symbol});
+	},
+	
+	processResults: function(results){
+		dojo.forEach(results,function(line){
+			console.log("starting line ",line);
+			if(line.action=="next-words"){  
+				console.log("Successfully retrieved tips: ", line.words.join());
+				dijit.showTooltip(line.words.join(),this.conEdit, "above");
+			} else {
+				console.log("no action found");
+			}
+		})
+	}
 });
