@@ -30,6 +30,10 @@ dojo.declare("andes.WordTip", null, {
         if(evt.keyCode == dojo.keys.ENTER || evt.keyCode == dojo.keys.ESCAPE){
             dijit.hideTooltip(this.conEdit);
         }
+        var cn = dojo.connect(document,"mouseup",this, function(evt){
+            dojo.disconnect(cn);
+            dijit.hideTooltip(this.conEdit);
+        })
     },
     
     removeBreaks: function(txt){
@@ -40,27 +44,20 @@ dojo.declare("andes.WordTip", null, {
     },
     
     sendToServer: function(text,symbol){
-        /* This retrieves the parentNode.  Currently we're using drawing
-          to get the currentStencil but this may be a better way to do
-          it.  Leaving here for future reference.
-        var parentObj = dojo.attr(this.conEdit.parentNode,"id");
-        console.log("parentOBj: ",parentObj);
-        */
         var andesTypes = {
 		"dojox.drawing.stencil.Line":"line",
 		"dojox.drawing.stencil.Rect":"rectangle",
-		"dojox.drawing.stencil.Ellipse":"ellipse", // or circle
+		"dojox.drawing.stencil.Ellipse":"ellipse",
 		"dojox.drawing.tools.custom.Vector":"vector",
 		"dojox.drawing.tools.custom.Axes":"axes",
 		"dojox.drawing.tools.custom.Equation":"equation",
 		"dojox.drawing.stencil.Image":"graphics",
-		"dojox.drawing.tools.TextBlock":"statement", // or statement.... hmmmm
-		"andes.buttonCombo":"button"
+		"dojox.drawing.tools.TextBlock":"statement"
 	};
         
         var current = "statement";
         if(this.drawing){
-            var type = this.drawing.currentStencil.type;
+            var type = this.drawing.currentStencil ? this.drawing.currentStencil.type : dojo.attr(this.conEdit.parentNode, "id");
             current = andesTypes[type];
         };
         //console.log("Current-------------------------", current);
@@ -72,7 +69,7 @@ dojo.declare("andes.WordTip", null, {
             console.log("starting line ",line);
             if(line.action=="next-words"){
                 dijit.hideTooltip(this.conEdit);
-                if(line.words.length > 1){
+                if(line.words.length > 0){
                     var size = Math.min(5, line.words.length);
                     var wrd = "";
                     for(var i=0; i<size; i++){
