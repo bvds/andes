@@ -1,5 +1,5 @@
 dojo.provide("andes.main");
-
+dojo.require("andes.WordTip");
 
 (function(){
 	// summary:
@@ -62,6 +62,8 @@ dojo.provide("andes.main");
 	});
 	
 	dojo.addOnLoad(function(){
+		// WordTip needs to be added before conEdit is removed by drawing
+		andes.WordTip = new andes.WordTip();
 		dojo.connect(dojo.byId("submitButton"), "click", function(){
 			andes.api.close({});
 			dojo.cookie("andes", null, { expires: -1 });

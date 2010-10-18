@@ -202,7 +202,6 @@ andes.Combo = dojox.drawing.util.oo.declare(
 	}
 )
 
-
 andes.buttonCombo = dojox.drawing.util.oo.declare(
 	// summary:
 	//	A special object used to combine a Button and a Statement. 

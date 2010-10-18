@@ -142,7 +142,11 @@ dojo.require("andes.messages");
 
                 suggestWord: function(params){
 			//console.info("andes.api.step", params);
-			return queueRequest("suggest-word", params);
+			var dfd = queueRequest("suggest-word", params);
+			dfd.addCallback(function(result){
+				andes.WordTip.processResults(result);
+			});
+			return dfd;
 		},
 
 		close: function(params){
