@@ -410,17 +410,16 @@
 (def-qexp property-object (property-object ?property ?body
 					   :modifier ?mod :time ?time)
   ;; Handles timeless case properly.
-  :new-english ((the)
-		(or ((time-type ?time)
-		     ?property  ;the quantity
-		     (and (preferred (property ?body)) ?mod (time ?time)))
-		    ;; See if "initial" or "final" is applicable.
-		    (eval (let ((tp (collect-extremal-time-points *cp*)))
-			    (when (member ?time tp)
-			    `((the) ,(if (equal ?time (car tp))
-					"initial" "final")
-			      ,?property 
-			      (and ,?mod (preferred (property ,?body))))))))))
+  :new-english (or ((the) (time-type ?time)
+		    ?property  ;the quantity
+		    (and (preferred (property ?body)) ?mod (time ?time)))
+		   ;; See if "initial" or "final" is applicable.
+		   (eval (let ((tp (collect-extremal-time-points *cp*)))
+			   (when (member ?time tp)
+			     `((the) ,(if (equal ?time (car tp))
+					  "initial" "final")
+			       ,?property 
+			       (and ,?mod (preferred (property ,?body)))))))))
   
 (defun collect-extremal-time-points (Problem)
   "Collect any distinct min or max time points."
@@ -615,14 +614,14 @@
   ;;        
   ;; "the constant gravitational acceleration near the surface of the planet" 
   ;; (kt10a)
-  :new-english ((allowed "the magnitude of") (the)
-		(or ((or "gravitational" "grav." "grav")
+  :new-english ((allowed "the magnitude of")
+		(or ((the) (or "gravitational" "grav." "grav")
 		     (or "acceleration" "accel." "accel") (allowed "constant"))
-		    ((or "acceleration" "accel." "accel")
+		    ((the) (or "acceleration" "accel." "accel")
 		     (or ((or "due to" "caused by" "of" "produced by") 
 			  "gravity") "of a freely falling object"))
-		    ("constant" (or "gravitational" "grav." "grav")
-				(or "acceleration" "accel." "accel"))
+		    ((the) "constant" (or "gravitational" "grav." "grav")
+		     (or "acceleration" "accel." "accel"))
 		    (property-object "local gravitational strength" ?planet)	
 		    "free-fall acceleration"
 		    )

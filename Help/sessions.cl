@@ -800,7 +800,9 @@
     (let ((words (next-word-list 
 		  (to-word-list (pull-out-quantity symbol text))
 		  :type (cdr (assoc type *tool-types* :test #'equalp)))))
-      `(((:action . "next-words") 
+      `(((:action . "next-words")
+	 ;; :false is mapped onto json false via a special hack
+	 ;; in Base/web-server.cl
 	 (:last-word . ,(if (member nil words) t :false))
 	 (:words . ,(or (remove nil words)
 			;; Hack for creating an empty array in json

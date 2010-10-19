@@ -133,13 +133,18 @@
   ;; canonicalize words
   (mapcar #'string-downcase (match:word-parse text)))
 
+  
 (defun triples-to-distinct-words (triples)
-  "Get distinct words from a list of triples, substituting in variables.  nil indicates possibility of end of definition."
-  (remove-duplicates 
-   (mapcar #'expand-vars (mapcar #'car triples))
-   :test #'string-equal 
-   :from-end t ;take the first instance of any duplicate
-   ))
+  "Get distinct words from a list of triples, substituting in variables.  nil indicates possibility of end of definition.  Drop any (var ...) that doesn't have a match."
+  ;; Maintain the order of the list, retaining the first 
+  ;; instance of any duplicate.
+  (let (result)
+    (dolist (word (mapcar #'car triples))
+      (if (or (null word) (stringp word))
+	  (pushnew word result :test #'equalp)
+	  (let ((x (expand-vars word)))
+	    (when x (pushnew x result :test #'equalp)))))
+    (reverse result)))
 
 (defun next-word-list (words &key type)
   "Assumes list of words.  Substitute in for any vars."
@@ -168,10 +173,35 @@
 	  ;; Evaluate any vars against student 
 	  ;; string here.
 	  (when (string-equal (expand-vars (car triple)) word)
-	    (setf triples
-		  (append triples (get-next-words triple)))))
+	    
+	    ;; Test of bad termination of phrase
+	    (when (and nil ;turn test on here
+		       (stringp word) 
+		       (member word '("of" "the" "and" "or" "on") 
+			       :test #'string-equal)
+		       (some #'(lambda (x) (null (car x))) 
+			     (get-next-words triple)))
+	      (warn "next-word-list:  bad termination \"~A\" for ~S~%"
+		    word (second triple)))
+	      
+	      (setf triples 
+		    (append triples (get-next-words triple)))))
+	
+	;; Test for word repeats in result
+	(when nil ;turn test on
+	  (dolist (triple triples)
+	    ;; could be either string or (var ...)
+	    (when (if (and (consp (car triple)) (consp word))
+		      (unify (car triple) word)
+		      (equalp (car triple) word))
+	      (warn "Repitition of \"~A\" for ~A, model:~%    ~A" 
+		    word (second triple)
+		    (new-english-find (second triple))))))
+	
 	;; Cache result
 	(push (cons words triples) (cdr (get-cached-phrases type)))
+	
+	;; return list
 	triples)))))
 
 (defun get-next-words (triple)

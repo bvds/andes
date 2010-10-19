@@ -68,6 +68,8 @@ dojo.declare("andes.WordTip", null, {
     },
     
     processResults: function(results){
+        // Return may also include log messages and other directives.
+        // Here, we ignore any other directives.
         dojo.forEach(results, function(line){
             if(line.action=="next-words"){
                 dijit.hideTooltip(this.conEdit);
