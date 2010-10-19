@@ -25,6 +25,7 @@ dojo.declare("andes.WordTip", null, {
             tx = this.removeBreaks(tx);
             var symbol = andes.variablename.parse(tx);
 	    console.log("---Text for word-suggest----> ", tx,symbol);
+	    // BvdS:  this call fails(?) when modifying an existing object.
 	    this.sendToServer(tx,symbol);
         };
         if(evt.keyCode == dojo.keys.ENTER || evt.keyCode == dojo.keys.ESCAPE){
@@ -58,27 +59,31 @@ dojo.declare("andes.WordTip", null, {
 		"andes.buttonCombo":"button"
 	};
         
+        // BvdS:  This strategy doesn't work in the case of modifying
+	// a statement after drawing a vector.
         var current = "statement";
         if(this.drawing){
             var type = this.drawing.currentStencil.type;
             current = andesTypes[type];
         };
-        //console.log("Current-------------------------", current);
+        console.log("Suggest for -----------------------", this);
         andes.api.suggestWord({type: current, text: text, symbol:symbol});
     },
     
     processResults: function(results){
         dojo.forEach(results, function(line){
-            console.log("starting line ",line);
             if(line.action=="next-words"){
                 dijit.hideTooltip(this.conEdit);
-                if(line.words.length > 1){
-                    var size = Math.min(5, line.words.length);
-                    var wrd = "";
+                if(line.words.length > 0 || line["last-word"]){
+                    var size = Math.min(7, line.words.length);
+		    var wrd = line["last-word"]?"&lt;done&gt;":"";
                     for(var i=0; i<size; i++){
+			if(wrd.length>0) {wrd += ", ";}
                         wrd += line.words[i];
-                        wrd += size-1 == i ? "" : ", ";
                     };
+		    if(i<line.words.length){
+			wrd += ", &#8230;";
+		    }
                     console.log("Successfully retrieved tips: ", line.words.join(), " \nminimized to: ", wrd);
                     dijit.showTooltip(wrd, this.conEdit, "above");   
                 };

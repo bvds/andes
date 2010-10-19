@@ -330,7 +330,7 @@
     },
 
     "suggest-word": {
-      "description": "word-completion for defining quantities.",
+      "description": "word-completion for defining quantities and objects.",
       "parameters": [
      	      {
 		      "name": "type",
@@ -354,7 +354,8 @@
 	      "optional": false,
 	      "enum":["next-words"]
 	    },
-	    "words": {"type": "array", "items": {"type":"string"}}
+	  "words": {"type": "array", "items": {"type":"string"}},
+		  "last-word": {"type": "boolean","description":"Whether given words can match a complete definition."}
 	  }
 	}
       }

@@ -134,11 +134,12 @@
   (mapcar #'string-downcase (match:word-parse text)))
 
 (defun triples-to-distinct-words (triples)
-  "Get distinct words from a list of triples, substituting in variables."
+  "Get distinct words from a list of triples, substituting in variables.  nil indicates possibility of end of definition."
   (remove-duplicates 
-   (remove nil (mapcar #'expand-vars
-		       (mapcar #'car triples)))
-	   :test #'string-equal))
+   (mapcar #'expand-vars (mapcar #'car triples))
+   :test #'string-equal 
+   :from-end t ;take the first instance of any duplicate
+   ))
 
 (defun next-word-list (words &key type)
   "Assumes list of words.  Substitute in for any vars."
@@ -193,6 +194,7 @@
 
 
 (defun generate-initial-words (type &optional names)
+  ;; This list could be pre-computed
   (let (result)
     (cond 
       ((or (eql type 'vector) (eql type 'scalar))
@@ -212,7 +214,16 @@
 	 (setf result (append result (prop-to-triples prop)))))
       
       (t (warn "generate-initial-words invalid type ~A" type)))
-    result))
+    
+    ;; Sort so that solution quantity propositions appear first.
+    ;; This is giving some information to the students,
+    ;; so we need to determine whether this is good pedagogy.
+    (let ((relevant (mapcar #'(lambda (x) (second (systementry-prop x)))
+			    *sg-entries*)))
+      (sort result #'(lambda (x y) 
+		       (and (member x relevant :test #'unify)
+			    (not (member y relevant :test #'unify))))
+	  :key #'second))))
 
 	
 (defun expand-with-bindings (binding-sets bindings prop)

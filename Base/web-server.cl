@@ -191,18 +191,26 @@
 			  (raw-post-data :force-text t)
 			  reply)))))
 
+(defparameter +symbol-tokens+
+  (let ((x (copy-list json::+json-lisp-symbol-tokens+)))
+    (setf (cdr (assoc "false" x :test #'equalp)) :false)
+    x))
+
 (defun turn-log-wrapper (id input-json reply)
   "log turn pair to database"
   (let ((reply-json
 	 ;; By default, cl-json turns dashes into camel-case:  
 	 ;; Instead, we convert to lower case, preserving dashes.
-	 (let ((*lisp-identifier-name-to-json* #'string-downcase))
+	 (let ((*lisp-identifier-name-to-json* #'string-downcase)
+               ;; turn lisp keyword :false into json boolean false.
+	       (json::+json-lisp-symbol-tokens+ +symbol-tokens+))
 	   (encode-json-alist-to-string reply))))
     
         (when *log-function*
 	  ;; Log incoming and outgoing raw json-rpc and user/problem session id
 	  (funcall *log-function* id input-json reply-json))
 	reply-json))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 

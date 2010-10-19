@@ -797,11 +797,12 @@
   (declare (ignore time)) ;for logging
 
   (env-wrap
-    (let ((type-class (cdr (assoc type *tool-types* :test #'equalp)))
-	  (definition (pull-out-quantity symbol text)))
+    (let ((words (next-word-list 
+		  (to-word-list (pull-out-quantity symbol text))
+		  :type (cdr (assoc type *tool-types* :test #'equalp)))))
       `(((:action . "next-words") 
-	 (:words . ,(or (next-word-list (to-word-list definition)
-					:type type-class)
+	 (:last-word . ,(if (member nil words) t :false))
+	 (:words . ,(or (remove nil words)
 			;; Hack for creating an empty array in json
 			(make-array '(0)))))))))
 
