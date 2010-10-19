@@ -31,6 +31,10 @@ dojo.declare("andes.WordTip", null, {
         if(evt.keyCode == dojo.keys.ENTER || evt.keyCode == dojo.keys.ESCAPE){
             dijit.hideTooltip(this.conEdit);
         }
+        var cn = dojo.connect(document,"mouseup",this, function(evt){
+            dojo.disconnect(cn);
+            dijit.hideTooltip(this.conEdit);
+        })
     },
     
     removeBreaks: function(txt){
@@ -41,29 +45,22 @@ dojo.declare("andes.WordTip", null, {
     },
     
     sendToServer: function(text,symbol){
-        /* This retrieves the parentNode.  Currently we're using drawing
-          to get the currentStencil but this may be a better way to do
-          it.  Leaving here for future reference.
-        var parentObj = dojo.attr(this.conEdit.parentNode,"id");
-        console.log("parentOBj: ",parentObj);
-        */
         var andesTypes = {
 		"dojox.drawing.stencil.Line":"line",
 		"dojox.drawing.stencil.Rect":"rectangle",
-		"dojox.drawing.stencil.Ellipse":"ellipse", // or circle
+		"dojox.drawing.stencil.Ellipse":"ellipse",
 		"dojox.drawing.tools.custom.Vector":"vector",
 		"dojox.drawing.tools.custom.Axes":"axes",
 		"dojox.drawing.tools.custom.Equation":"equation",
 		"dojox.drawing.stencil.Image":"graphics",
-		"dojox.drawing.tools.TextBlock":"statement", // or statement.... hmmmm
-		"andes.buttonCombo":"button"
+		"dojox.drawing.tools.TextBlock":"statement"
 	};
         
         // BvdS:  This strategy doesn't work in the case of modifying
 	// a statement after drawing a vector.
         var current = "statement";
         if(this.drawing){
-            var type = this.drawing.currentStencil.type;
+            var type = this.drawing.currentStencil ? this.drawing.currentStencil.type : dojo.attr(this.conEdit.parentNode, "id");
             current = andesTypes[type];
         };
         console.log("Suggest for -----------------------", this);
