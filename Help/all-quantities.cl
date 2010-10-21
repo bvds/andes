@@ -254,17 +254,14 @@
     ;; Sort so that solution quantity propositions appear first.
     ;; This is giving some information to the students,
     ;; so we need to determine whether this is good pedagogy.
-
-    ;;  This needs work, profiling shows this takes lots of time.
-    ;;
-    (if nil ; 
-	result
-	(let ((relevant (mapcar #'(lambda (x) (second (systementry-prop x)))
-				*sg-entries*)))
-	  (sort result #'(lambda (x y) 
-			   (and (member x relevant :test #'unify)
-				(not (member y relevant :test #'unify))))
-	  :key #'triple-prop)))))
+    (let ((relevant (mapcar #'(lambda (x) (second (systementry-prop x)))
+			    *sg-entries*))
+	  in out)
+      (dolist (triple result)
+	(if (member (triple-prop triple) relevant :test #'unify)
+	    (push triple in)
+	    (push triple out)))
+      (append (reverse in) (reverse out)))))
 
 	
 (defun expand-with-bindings (binding-sets bindings prop)
