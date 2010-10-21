@@ -34,6 +34,10 @@
 ;; angle-between is just too hard.
 (defparameter *disallowed-quantities* '(compo angle-between))
 
+(defstruct (triple (:type list))
+  word
+  prop
+  model)
 
 (defun test-ontology-bindings (&rest topics)
   "Load problems and test ontology bindings"
@@ -139,7 +143,7 @@
   ;; Maintain the order of the list, retaining the first 
   ;; instance of any duplicate.
   (let (result)
-    (dolist (word (mapcar #'car triples))
+    (dolist (word (mapcar #'triple-word triples))
       (if (or (null word) (stringp word))
 	  (pushnew word result :test #'equalp)
 	  (let ((x (expand-vars word)))
@@ -172,17 +176,17 @@
 	(dolist (triple (get-cached-triples type (butlast words))) 
 	  ;; Evaluate any vars against student 
 	  ;; string here.
-	  (when (string-equal (expand-vars (car triple)) word)
+	  (when (string-equal (expand-vars (triple-word triple)) word)
 	    
 	    ;; Test of bad termination of phrase
 	    (when (and nil ;turn test on here
 		       (stringp word) 
 		       (member word '("of" "the" "and" "or" "on") 
 			       :test #'string-equal)
-		       (some #'(lambda (x) (null (car x))) 
+		       (some #'(lambda (x) (null (triple-word x))) 
 			     (get-next-words triple)))
 	      (warn "next-word-list:  bad termination \"~A\" for ~S~%"
-		    word (second triple)))
+		    word (triple-prop triple)))
 	      
 	      (setf triples 
 		    (append triples (get-next-words triple)))))
@@ -191,12 +195,12 @@
 	(when nil ;turn test on
 	  (dolist (triple triples)
 	    ;; could be either string or (var ...)
-	    (when (if (and (consp (car triple)) (consp word))
-		      (unify (car triple) word)
-		      (equalp (car triple) word))
+	    (when (if (and (consp (triple-word triple)) (consp word))
+		      (unify (triple-word triple) word)
+		      (equalp (triple-word triple) word))
 	      (warn "Repitition of \"~A\" for ~A, model:~%    ~A" 
-		    word (second triple)
-		    (new-english-find (second triple))))))
+		    word (triple-prop triple)
+		    (new-english-find (triple-prop triple))))))
 	
 	;; Cache result
 	(push (cons words triples) (cdr (get-cached-phrases type)))
@@ -205,8 +209,9 @@
 	triples)))))
 
 (defun get-next-words (triple)
-  (mapcar #'(lambda (x) (list (car x) (second triple) (cdr x)))
-	  (get-first-model-words (third triple) nil)))
+  (mapcar #'(lambda (x) (make-triple :word (car x) :prop (triple-prop triple)
+				     :model (cdr x)))
+	  (get-first-model-words (triple-model triple) nil)))
 
 (defun get-word-list-props (text &key type)
   "Return list of quantity propositions associated wtih an exact match to phrase.  Any final vars are expanded here."
@@ -217,9 +222,10 @@
     ;; Go through list of triples and find matches to words.
     (dolist (triple (get-cached-triples type (butlast words)))
       (when (and (string-equal (car (last words)) 
-			       (expand-vars (car triple)))
-		 (member nil (get-first-model-words (third triple) nil)))
-	(pushnew (second triple) result :test #'unify)))
+			       (expand-vars (triple-word triple)))
+		 (member nil (get-first-model-words 
+			      (triple-model triple) nil)))
+	(pushnew (triple-prop triple) result :test #'unify)))
     result))
 
 
@@ -248,12 +254,17 @@
     ;; Sort so that solution quantity propositions appear first.
     ;; This is giving some information to the students,
     ;; so we need to determine whether this is good pedagogy.
-    (let ((relevant (mapcar #'(lambda (x) (second (systementry-prop x)))
-			    *sg-entries*)))
-      (sort result #'(lambda (x y) 
-		       (and (member x relevant :test #'unify)
-			    (not (member y relevant :test #'unify))))
-	  :key #'second))))
+
+    ;;  This needs work, profiling shows this takes lots of time.
+    ;;
+    (if nil ; 
+	result
+	(let ((relevant (mapcar #'(lambda (x) (second (systementry-prop x)))
+				*sg-entries*)))
+	  (sort result #'(lambda (x y) 
+			   (and (member x relevant :test #'unify)
+				(not (member y relevant :test #'unify))))
+	  :key #'triple-prop)))))
 
 	
 (defun expand-with-bindings (binding-sets bindings prop)
@@ -270,7 +281,7 @@
 	(prop-to-triples bound-prop))))
 
 (defun prop-to-triples (prop)
-  (mapcar #'(lambda (x) (list (car x) prop (cdr x)))
+  (mapcar #'(lambda (x) (make-triple :word (car x) :prop prop :model (cdr x)))
 	  (get-first-model-words (new-english-find prop) nil)))
 
 
