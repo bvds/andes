@@ -622,17 +622,6 @@
   (format Stream "  Doc:       ~A]~%" (psmclass-doc class)))
 
 
-;;; In order to display the psmclass and its english form to the 
-;;; USNA this print function was written.  It prints out the 
-;;; psmclass in a useful "enlgish" form by name and descriptors.
-(defun print-display-psmclass (class &optional (Stream t) (Level 0))
-  (declare (ignore level))
-  (let ((form (strip-replace-exp-vars (psmclass-form Class))))
-    (format Stream "~a~% \"~a\"~%  \"~a\"~2%"
-	    (psmclass-name Class) (nlg form 'psm-nlg-english) (nlg form 'psm-exp))))
-
-
-
 (defmacro def-psmclass (name form
 			&key group complexity
 			     help short-name nlg-english tutorial

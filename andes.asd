@@ -51,11 +51,20 @@
 	       (:module "Knowledge"
 			:depends-on ("Base" "HelpStructs" "Algebra")
 			:components ((:file "eqn")         
-				     (:file "Nogood")  
-				     ;; depends on HelpStructs, nlg  
+				     (:file "Nogood") 
+				     ;; depends on HelpStructs
 				     (:file "Problem")
-				     ;; depends on nlg
-				     (:file "Operators")  
+				     (:file "Ontology")  
+
+				     ;; Natural language
+				     (:file "nlg"
+					    ;; also Help/symbols.cl
+					    :depends-on ("Problem" "Ontology"))
+				     (:file "all-quantities"
+					    :depends-on ("nlg" "Problem"))
+
+				     (:file "Operators"
+					    :depends-on ("nlg"))  
 				     (:file "qvar"
 					    :depends-on ("Problem"))
 				     (:file "BubbleGraph" 
@@ -63,8 +72,6 @@
 					    :depends-on ("qvar" "eqn" "Problem"))
 				     (:file "ErrorClass"
 					    :depends-on ("Problem"))
-				     ;; depends on nlg
-				     (:no-compile-file "Ontology")  
 				     (:file "Solution"
 					    :depends-on ("Problem"))))	       
 	       (:module "KB"

@@ -651,29 +651,6 @@
 	   (read (sb-ext:process-output id)))
       (sb-ext:process-close id))))
 
-(defun problem-times-english (problem)
-  "Return list of English sentences defining times."
-  (let ((times (problem-times problem)))
-    (cond ((null times) '("Let T0 be the time."))
-	  ((eql times 'none) nil)
-	  ((listp (problem-times problem))
-	   ;; mapcar copies list; subsequent operations can be destructive
-	   (delete nil (mapcar #'problem-time-english times)))
-	  (t (warn "Invalid time specifications ~A" times)))))
-  
-(defun problem-time-english (time)
-  "Return English sentence for a given problem-times specification."
-  (cond 
-    ((eql (car time) 'during)
-     (when (fourth time)
-       (format nil "~A: ~A." 
-	       (string-upcase (nlg (subseq time 0 3)) :end 1) (fourth time))))
-    ((numberp (car time))
-	 (format nil "Time ~A~:[ has been defined~;:  ~:*~A~]." 
-		 (nlg (car time) 'moment) (second time)))
-    (t (warn "Bad time specification ~A" time))))
-
-
 (defun proper-list-p (x) 
   (or (null x) (and (consp x) (proper-list-p (cdr x)))))
 

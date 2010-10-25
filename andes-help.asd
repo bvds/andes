@@ -72,11 +72,10 @@
 							 "grammar" "icons"))
 				     (:file "interpret-equation"
 					    :depends-on ("SolutionGraph"))
+
+				     (:file "test-all-quantities")
 				     
 				     ;;  Help
-				     (:file "nlg") ;Natural language.
-				     (:file "all-quantities" 
-					    :depends-on ("nlg"))
 				     (:file "icons")
 				     (:file "HelpMessages")
 				     (:file "whatswrong")
@@ -100,7 +99,6 @@
 					    :depends-on ("NextStepHelp"
 							 "parse" "State" 
 							 "database" "fade"
-							 "all-quantities"
 							 "grammar" "symbols" 
 							 "Commands"))))
 	       (:module "Testcode"
