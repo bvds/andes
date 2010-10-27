@@ -190,7 +190,7 @@
 
   (when (and rank (not short-name))
     (error "short-name must be supplied for ~A" type))
-  
+
   (let ((E (make-exptype 
 	    :type type
 	    :form form
@@ -202,10 +202,50 @@
 	    :restrictions restrictions
 	    :Varfunc varfunc
 	    ;; if supplied, arg should be body of fn to be called with these args
-	    :new-english new-english)))
+	    :new-english (compile-evals new-english))))
     (push E *Ontology-ExpTypes*)
     E))
 
+(defun compile-evals (model)
+  "Recurse through new-english and compile any evals."
+  ;; Maybe problematic at load time?
+  (cond ((atom model) model)
+	((and (consp model) (eq (car model) 'eval))
+	 (let ((params (variables-in (second model))))
+	   (append (list 'eval-compiled
+			 (compile nil `(lambda ,params 
+					 ,(transform-quotes (second model))))
+			 params)
+		 (cddr model))))
+	;; Recursion through model
+	((consp model) (reuse-cons (compile-evals (car model))
+				   (compile-evals (cdr model))
+				   model))
+	(t (warn "compile-evals unknown form ~A" model))))
+
+(defun transform-quotes (expr)
+  "Find any quoted subexpressions and unquote any variables therein."
+  (cond ((atom expr) expr)
+	((and (consp expr) (eq (car expr) 'quote))
+	 (unquote-variables (second expr)))
+	((consp expr) (reuse-cons (transform-quotes (car expr))
+				  (transform-quotes (cdr expr))
+				  expr))
+	(t (warn "transform-quotes unknown form ~A" expr))))
+
+(defun unquote-variables (expr)
+  "Rewrite expression so that it evaluates to the original expression, except for variables."
+  ;; This is equivalent to backquoting an expression, putting commas
+  ;; in front of any variables. 
+  (cond ((variable-p expr) expr)
+	((groundp expr) `(quote ,expr))
+	((atom expr) expr)
+	;; For a proper list, map onto list:
+	((and (consp expr) (null (cdr (last expr))))
+	 (cons 'list (mapcar #'unquote-variables expr)))
+	((consp expr) (list 'cons (unquote-variables (car expr))
+			    (unquote-variables (cdr expr))))
+	(t (warn "unqote-variables unknown form ~A" expr))))
 
 ;;;-------------------------------------------------------
 ;;; Expression Lookup Functions. (public)
@@ -220,7 +260,6 @@
   "Lookup the exp struct of ExpType 'TYPE'"
   (find type *Ontology-ExpTypes*
 	:key #'ExpType-Type))
-
 
 (defun lookup-expression-struct (exp)
   "Lookup the first exp with the specified-form."

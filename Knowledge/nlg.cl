@@ -406,6 +406,11 @@
 	 ;; Here, we just ignore them.
 	 (expand-new-english
 	  (eval (subst-bindings-quoted bindings (second model)))))
+	((and (consp model) (eql (car model) 'eval-compiled))
+	 ;; For extensibility, allow eval to have more arguments.
+	 ;; Here, we just ignore them.
+	 (expand-new-english 
+	  (apply (second model) (subst-bindings bindings (third model)))))
 	;; ordered sequence, remove empty elements
 	((match:test-for-list model)
 	 (remove nil (expand-new-english-list model bindings)))
@@ -421,7 +426,14 @@
         ((eq bindings no-bindings) x)
 	((atom x) (subst-bindings bindings x))
 	;; At this point, it is a cons.
-	((eql (car x) 'eval) (subst-bindings-quoted bindings x))
+	((eql (car x) 'eval) 
+	 ;; Drop any subsequent variable bindings from the eval.
+	 ;; One could to a sanity test here with the binding lists.
+	 (list 'eval (subst-bindings-quoted bindings (second x))))
+	;; Substitute into the parameter list
+	((eql (car x) 'eval-compiled)
+	 (list 'eval-compiled (second x) (subst-bindings bindings (third x))))
+	      
 	(t (reuse-cons (subst-bindings-careful bindings (car x))
 		       (subst-bindings-careful bindings (cdr x))
 		       x))))
@@ -437,7 +449,7 @@
 	((variable-p x) (expand-new-english-list 
 			 (subst-bindings bindings x)))
 	;; Handle (... . (eval ...))
-	((and (consp x) (eql (car x) 'eval))
+	((and (consp x) (member (car x) '(eval eval-compiled)))
 	 (let ((result (expand-new-english x bindings)))
 	   (unless (consp result)
 	     (warn "eval must return a list:  ~A returned ~A" x result))

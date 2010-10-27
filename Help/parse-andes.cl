@@ -753,11 +753,11 @@
 	 result-turn
 	 (input (trim-eqn inputo)))
     
-    ;; Determine which answer this entry corresponds to.
+    ;; Determine which answer this entry corresponds to,
+    ;; if this is a new entry.
     (unless (StudentEntry-prop entry) 
       (select-sought-for-answer entry))
     (setf sought-quant (second (studentEntry-prop entry)))
-    (add-entry entry) ;save entry immediately 
 
     (if (quant-to-sysvar sought-quant)
 	(if (/= (length (remove #\Space input)) 0)
@@ -887,6 +887,7 @@
 		     (remove 'choose-answer stripped :key #'car)
 		     (mapcar #'second previous)
 		     :test #'unify)))
+
     ;; Assume answer boxes are ordered according to creation
     ;; time (which is what we do when creating a problem).
     ;; Use first answer which does not have an associated box.

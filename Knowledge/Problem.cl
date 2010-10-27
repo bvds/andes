@@ -131,6 +131,7 @@
   Solutions          ;Set of solution bubbles.  The first will always be
                      ;the best.  (list of Eqnset)
   wm                 ;; Collection of the solver working memory.
+  phrases            ; list of student phrases.
   pointers           ;List of pointer objects.
   )
 
@@ -210,6 +211,7 @@
   (format Stream "IgnorePSMS    ~W~%" (problem-IgnorePSMS Problem))
   (format Stream "VariableMarks ~W~%" (problem-VariableMarks Problem))
   (format Stream "WorkingMemory ~W~%" (problem-wm Problem))
+  (format Stream "Phrases       ~W~%" (problem-phrases Problem))
   (format Stream "Pointers      ~W~%" (problem-pointers Problem))
   (format Stream "Bubblegraph   ") (print-mreadable-bubblegraph (Problem-Graph Problem) Stream)
   (format Stream "~%EqnIndex    ") (print-mreadable-eqns (Problem-EqnIndex Problem) Stream)
@@ -365,6 +367,7 @@
     (IgnorePSMS    (setf (Problem-IgnorePSMS Problem) (mpf-readret Stream)))
     (VariableMarks (setf (Problem-VariableMarks Problem) (mpf-readret Stream)))
     (WorkingMemory (setf (Problem-wm Problem) (mpf-readret Stream)))
+    (Phrases       (setf (Problem-phrases Problem) (mpf-readret Stream)))
     (pointers      (setf (Problem-pointers Problem) (mpf-readret Stream)))
     
     (Bubblegraph (setf (problem-Graph Problem) (read-mreadable-bubblegraph Stream)))
@@ -549,7 +552,7 @@
 )
 
 (defmacro post-process (name args &rest body)
-  (when (or (not (consp args))(cdr args))
+  (when (or (not (consp args)) (cdr args))
     (error "post-process functions take one argument, the problem name."))
   (when (find name *post-processing* :key #'postoperator-name)
     (error "post-processing function ~A already exists." name))

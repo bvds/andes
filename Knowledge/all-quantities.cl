@@ -58,11 +58,11 @@
 
 (defun get-cached-triples (type words)
   (cdr (assoc words (cdr (get-cached-phrases type))
-	      :test #'equalp)))
+	      :test #'equal)))
 
 (defun cached-triples-p (type words)
   (assoc words (cdr (get-cached-phrases type))
-	 :test #'equalp))
+	 :test #'equal))
 
 (defun to-word-list (text)
   ;; canonicalize words
@@ -76,9 +76,9 @@
   (let (result)
     (dolist (word (mapcar #'triple-word triples))
       (if (or (null word) (stringp word))
-	  (pushnew word result :test #'equalp)
+	  (pushnew word result :test #'equal)
 	  (let ((x (expand-vars word)))
-	    (when x (pushnew x result :test #'equalp)))))
+	    (when x (pushnew x result :test #'equal)))))
     (reverse result)))
 
 (defun next-word-list (words &key type)
@@ -128,7 +128,7 @@
 	    ;; could be either string or (var ...)
 	    (when (if (and (consp (triple-word triple)) (consp word))
 		      (unify (triple-word triple) word)
-		      (equalp (triple-word triple) word))
+		      (equal (triple-word triple) word))
 	      (warn "Repitition of \"~A\" for ~A, model:~%    ~A" 
 		    word (triple-prop triple)
 		    (new-english-find (triple-prop triple))))))
@@ -161,10 +161,25 @@
 
 
 (defun generate-initial-words (type &optional names)
+  (declare (notinline get-ontology-bindings))
   ;; This list could be pre-computed
   (let (result)
-    (cond 
-      ((or (eql type 'vector) (eql type 'scalar))
+    (cond
+      ((assoc type (problem-phrases *cp*))
+       (dolist (this (cdr (assoc type (problem-phrases *cp*))))
+	 (let ((rule (lookup-exptype-struct (car this))))
+	   ;; sanity test
+	   (unless (equal (second this) (exptype-form rule))
+	     (warn "generate-initial-words:  cached variables for ~A do not match current ontology." 
+		   (car this)))
+	   (setf result 
+		 (append result
+			 (expand-with-bindings (cddr this) nil rule)))
+	   )))
+	   
+      ((member type '(vector scalar))
+       (warn "generate-initial-words:  No cached quantities for problem ~A"
+	     (problem-name *cp*))
        (dolist (rule *Ontology-ExpTypes*)
 	 (when (and (eql (exptype-rank rule) type)
 		    (not (member (exptype-type rule) *disallowed-quantities*))
@@ -173,12 +188,12 @@
 	     (get-ontology-bindings (ExpType-new-english rule))
 	     (setf result 
 		   (append result
-			   (expand-with-bindings *ontology-bindings* nil 
-						 (exptype-form rule))))))))
+			   (expand-with-bindings *ontology-bindings* 
+						 nil rule)))))))
       
       ((eql type 'body)
        (dolist (prop (problem-bodies-and-compounds *cp*))
-	 (setf result (append result (prop-to-triples prop)))))
+	 (setf result (append result (prop-to-triples prop prop)))))
       
       (t (warn "generate-initial-words invalid type ~A" type)))
     
@@ -195,23 +210,49 @@
       (append (reverse in) (reverse out)))))
 
 	
-(defun expand-with-bindings (binding-sets bindings prop)
+(defun expand-with-bindings (binding-sets bindings rule)
   "Returns a list of triples (<string> <prop> <model>)."
   (if binding-sets
+      ;; Expand binding possibilities, building binding list.
       (loop for binding in (cdr (car binding-sets))
 	    append (expand-with-bindings (cdr binding-sets)
 					 (cons (cons (car (car binding-sets))
 						     binding)
 					       bindings)
-					 prop))
-      (let ((bound-prop (subst-bindings bindings prop)))
-	;; (format t "starting prop ~A~%" bound-prop)
-	(prop-to-triples bound-prop))))
+					 rule))
+      (prop-to-triples (subst-bindings bindings (exptype-form rule))
+		       (subst-bindings bindings (exptype-new-english rule)))))
 
-(defun prop-to-triples (prop)
+(defun prop-to-triples (prop &optional model)
+  ;; Apply bindings to Ontology proposition.
   (mapcar #'(lambda (x) (make-triple :word (car x) :prop prop :model (cdr x)))
-	  (get-first-model-words (new-english-find prop) nil)))
+	  (if model
+	      (get-first-model-words model nil)
+	      (get-first-model-words-find prop nil))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;    Generate possible quantities associated with a given problem.
+;;;;    The result is a list of ontology rules together with
+;;;;    a set of possible bindings associated with each rule          
+;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun generate-initial-bindings (&optional names)
+  "Return an object containing ontology rules and associated bindings for possible quantitites associated with a problem."
+  (let* ((types '(vector scalar))
+	 (result (mapcar #'list types)))
+    (dolist (type '(vector scalar))
+       (dolist (rule *Ontology-ExpTypes*)
+	 (when (and (eql (exptype-rank rule) type)
+		    (not (member (exptype-type rule) *disallowed-quantities*))
+		    (or (null names) (member (exptype-type rule) names)))
+	   (let (*ontology-bindings*) 
+	     (get-ontology-bindings (ExpType-new-english rule))
+	     (push (list* (exptype-type rule) (exptype-form rule) 
+			  *ontology-bindings*) 
+		   (cdr (assoc type result)))))))
+    result))
 
 (defun merge-with-ontology-bindings (variable possibilities)
   (let ((known (find variable *ontology-bindings* :key #'car)))
@@ -247,7 +288,7 @@
 	 (get-list-ontology-bindings model bindings))
 	;; expansion of var must be done at run-time.
 	((and (consp model) (eql (car model) 'var))) 
-	((and (consp model) (eql (car model) 'eval))
+	((and (consp model) (member (car model) '(eval eval-compiled)))
 	 ;; Can't actually evaluate the eval, since
 	 ;; we cannot bind all the variables.
 	 ;;
@@ -257,7 +298,7 @@
 	 ;;     (eval .... (?a . (problem-atoms *cp*)) 
 	 ;;                (?t . '((time 0) (time 1))))
 	 ;;
-	 (dolist (pair (cddr model))
+	 (dolist (pair (if (eq (car model) 'eval) (cddr model) (cdddr model)))
 	   ;; If variable has been bound by parent, defer
 	   ;; to parent bindings.
 	   (when (variable-p (subst-bindings bindings (car pair)))
@@ -319,6 +360,13 @@
   (warn "ontology-bindings-find:  no ontology match for ~S" prop))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;     Find the next word in a New-English model.          
+;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 ;; Previously, tried to generate a tree that could
 ;; be used for multiple quantities.  In that case, one cannot have 
 ;; multiple pointers to a given subtree without considering which
@@ -342,13 +390,20 @@
   ;; of the remaining parts of the model until we have identified
   ;; an initial word.  Thus, we have to construct the model containing
   ;; the remaining possible words anyway.
-  (cond ((or (stringp model)
-	     (and (consp model) (eql (car model) 'var)))
+  (cond ((stringp model)
+	 ;; If there is more than one word, break up into list of words.
+	 (let ((this (match:word-parse model)))
+	   (if (cdr this)
+	       (get-first-model-words this more-model)
+	       (list (cons model more-model)))))
+	((and (consp model) (eql (car model) 'var))
 	 (list (cons model more-model)))
 	((null model) 
 	 (if more-model 
 	     (get-first-model-words more-model nil)
-	     '(nil)))
+	     (list nil)))
+	((variable-p model)
+	 (warn "expand-new-english:  Unbound variable ~A" model) (list nil))
 	((and (consp model) (member (car model) '(preferred allowed)))
 	 (union 
 	  (get-first-model-words more-model nil)
@@ -381,9 +436,53 @@
 		(get-first-model-words (third model) more-model))
 	       (t 
 		(get-first-model-words more-model nil))))
+
+	((and (consp model) (eql (car model) 'eval-compiled))
+	 ;; For extensibility, allow eval to have more arguments.
+	 ;; Here, we just ignore them.
+	 (get-first-model-words (apply (second model) (third model)) more-model))
+	
+	((and (consp model) (eql (car model) 'eval))
+	 ;; For extensibility, allow eval to have more arguments.
+	 ;; Here, we just ignore them.
+	 (get-first-model-words (eval (second model)) more-model))
+
 	((match:test-for-list model)
 	 (get-first-model-words (car model)
 			       (if (and (cdr model) more-model)
 				   (list (cdr model) more-model)
 				   (or (cdr model) more-model))))
-	(t (warn "get-first-model-words invalid model ~A" model))))
+
+	(t 
+	 ;; Bindings are local to one operator in the ontology
+	 ;; so we need to substitute in here.
+	 ;; Assume any recursive calls are covered by New-English.
+	 (get-first-model-words-find model more-model))))
+
+(defun get-first-model-words-find (prop more-model)
+  "Match proposition to Ontology."
+  ;; First, determine if there is any problem-specific
+  ;; Ontology match.
+  (dolist (rule (problem-english *cp*))
+    (let ((bindings (unify (car rule) prop)))
+      (when bindings 
+	(return-from get-first-model-words-find
+	  (get-first-model-words (subst-bindings-careful bindings (cdr rule)) 
+				 more-model)))))
+
+  ;; Then run through general Ontology to find match.
+  (dolist (rule *Ontology-ExpTypes*)
+    (let ((bindings (unify (Exptype-form rule) prop)))
+      (when bindings 
+	(return-from get-first-model-words-find
+	 (get-first-model-words 
+	  (subst-bindings-careful bindings (ExpType-new-english rule))
+				more-model)))))
+
+  ;; If it is a symbol, use improved version of def-np.
+  (when (atom prop)
+    (return-from get-first-model-words-find
+      (get-first-model-words (def-np-model prop) more-model)))
+  
+  ;; On failure, warn and return nil
+  (warn "get-first-model-words-find:  no ontology match for ~S" prop))
