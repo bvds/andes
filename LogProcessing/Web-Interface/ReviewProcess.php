@@ -123,7 +123,7 @@ if($slice == 'Comments'){
     do
       {
 	$tID=$myrow["tID"];
-	$tempSql = "SELECT * FROM PROBLEM_ATTEMPT_TRANSACTION WHERE tID = ($tID+1) and command LIKE '%your comment has been recorded%'";
+	$tempSql = "SELECT * FROM PROBLEM_ATTEMPT_TRANSACTION WHERE tID = ($tID+1) and (command LIKE '%\"HANDLE-TEXT\":\"COMMENT\"%' or command like '%\"HANDLE-TEXT\":\"POSSIBLE-QUESTION\"%' or command not like '%\"result\":%')";
 	$tempResult = mysql_query($tempSql);
 	if(mysql_fetch_array($tempResult))
 	  {

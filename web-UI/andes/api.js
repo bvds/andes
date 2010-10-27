@@ -140,6 +140,15 @@ dojo.require("andes.messages");
 			return queueRequest("seek-help", params);
 		},
 
+                suggestWord: function(params){
+			//console.info("andes.api.step", params);
+			var dfd = queueRequest("suggest-word", params);
+			dfd.addCallback(function(result){
+				andes.WordTip.processResults(result);
+			});
+			return dfd;
+		},
+
 		close: function(params){
 			console.info("andes.api.close", params);
 			return queueRequest("close-problem", params);

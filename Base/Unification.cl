@@ -458,6 +458,7 @@
       when (unify i i2 Bindings)
       collect it))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; filter-values
 ;; Search through a list of expressions and pull out the subset of each 
@@ -471,27 +472,6 @@
 (defun filter-expressions (Filter Exps &optional (Bindings no-bindings))
   (remove-if-not #'(lambda (e) (unify e filter bindings)) Exps))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; generate-bindings
-;; Given a list of variables and a list of matching bindings generate 
-;; a dotted pair style bindings list from the two.
-;;
-;; This is used with the Operator-Variables and OpApp-Values elements.
-;;
-;; Arguments:
-;;   Vars: A list of variables to be matched.
-;;   Vals: The list of values to be matched with them.
-;;
-;; Returns: The result of matching the variables and values.
-
-(defun generate-bindings (Vars Vals)
-  "Obtain a list of bindings for the qual listf of vars and vals."
-  
-  (if (not (equal (length Vars)
-		  (length Vals)))
-      (error "Incompatable Variable/Value lists supplied to generate-bindings. ~A ~A" Vars Vals)
-  
-    (mapcar #'cons Vars Vals)))
 
 
 ;;=============================================================================

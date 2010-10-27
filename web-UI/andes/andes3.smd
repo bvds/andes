@@ -328,6 +328,38 @@
 	}
       }
     },
+
+    "suggest-word": {
+      "description": "word-completion for defining quantities and objects.",
+      "parameters": [
+     	      {
+		      "name": "type",
+		      "type": "string",
+		      "enum": ["statement", "circle", "ellipse", 
+		               "rectangle", "vector", "line"],
+		      "optional": true,
+		      "description": "kind of drawn object"
+	      },
+	      {"name": "text", "type": "string"},
+	      {"name": "symbol", "type": "string", "optional": true}
+      ],
+      "returns": {
+	"type": "array",
+	"items": {
+	  "type": "object",
+	  "additionalProperties": false,
+	  "properties":{
+	    "action": {
+	      "type": "string",
+	      "optional": false,
+	      "enum":["next-words"]
+	    },
+	  "words": {"type": "array", "items": {"type":"string"}},
+		  "last-word": {"type": "boolean","description":"Whether given words can match a complete definition."}
+	  }
+	}
+      }
+    },
     
     "close-problem": {
       "description": "Called when student hits submit button.  Also called when \"back\" button is hit or window is closed",

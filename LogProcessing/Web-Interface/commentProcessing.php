@@ -110,7 +110,7 @@ while ($myrow = mysql_fetch_array($result)) {
   // Include cases where reply is null.
   // It is not quite Kosher to assume the next tID 
   // is the next one in this session.  Bug #1803
-  $tempSql = "SELECT * FROM PROBLEM_ATTEMPT_TRANSACTION WHERE tID = ($tID+1) and (command LIKE '%\"HANDLE-TEXT\":\"COMMENT\"%' or command not like '%\"result\":%')";
+  $tempSql = "SELECT * FROM PROBLEM_ATTEMPT_TRANSACTION WHERE tID = ($tID+1) and (command LIKE '%\"HANDLE-TEXT\":\"COMMENT\"%' or command like '%\"HANDLE-TEXT\":\"POSSIBLE-QUESTION\"%' or command not like '%\"result\":%')";
   $tempResult = mysql_query($tempSql);    
   if(mysql_fetch_array($tempResult))
     {

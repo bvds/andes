@@ -910,3 +910,9 @@
     (setf (problem-graphic problem)
 	  (cons (problem-graphic problem) 
 		(problem-graphic-dimensions (problem-graphic problem))))))
+
+;;; ============== Generate and Cache possible student phrases================
+;;;
+(post-process quantity-bindings (Problem)
+  "Generate and cache possible student phrases"
+  (setf (problem-phrases Problem) (generate-initial-bindings)))

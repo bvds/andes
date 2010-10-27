@@ -72,9 +72,10 @@
 							 "grammar" "icons"))
 				     (:file "interpret-equation"
 					    :depends-on ("SolutionGraph"))
+
+				     (:file "test-all-quantities")
 				     
 				     ;;  Help
-				     (:file "nlg") ;Natural language.
 				     (:file "icons")
 				     (:file "HelpMessages")
 				     (:file "whatswrong")

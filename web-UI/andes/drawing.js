@@ -67,6 +67,7 @@ dojo.provide("andes.drawing");
 		_drawing = dijit.byId(drawingId);
 		var cn = dojo.connect(_drawing, "onSurfaceReady", function(){
 			dojo.disconnect(cn);
+			andes.WordTip.add(_drawing);
 			andes.drawing.onSurfaceReady();
 			if(_drawing.stencils){
 				console.warn("Label double click connected");

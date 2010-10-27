@@ -261,8 +261,7 @@
   ;		       ?b ?interval))
   ((bottom-out (string "~A and define a variable for ~a." 
   		       ((begin-sentence *text-tool-action*) eval)
-  		       (distance ?b :time ?interval)))
-   ))
+  		       ((distance ?b :time ?interval) def-np)))))
 
 ;;; This operator represents knowing what kinds of quantities occur in
 ;;; the speed-distance-duration (sdd) equation.  Like all equations,

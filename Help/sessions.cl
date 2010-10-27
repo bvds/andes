@@ -131,6 +131,8 @@
 	  *NSH-PROBLEM-TYPE* symbols::*VARIABLES* *STUDENTENTRIES* 
 	  *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*
           **Condition**  mt19937::*random-state* **grammar**
+	  ;; Cache for word completion utility.
+	  *phrase-cache*
 	  ;; List of Fade items.
 	  *fades*
 	  ;; Solver process (could easily be replaced by function argument
@@ -595,6 +597,28 @@
 		   prop)
 	     (strcat symbol ":  Can't find definition"))))
 
+(defun problem-times-english (problem)
+  "Return list of English sentences defining times."
+  (let ((times (problem-times problem)))
+    (cond ((null times) '("Let T0 be the time."))
+	  ((eql times 'none) nil)
+	  ((listp (problem-times problem))
+	   ;; mapcar copies list; subsequent operations can be destructive
+	   (delete nil (mapcar #'problem-time-english times)))
+	  (t (warn "Invalid time specifications ~A" times)))))
+  
+(defun problem-time-english (time)
+  "Return English sentence for a given problem-times specification."
+  (cond 
+    ((eql (car time) 'during)
+     (when (fourth time)
+       (format nil "~A: ~A." 
+	       (string-upcase (nlg (subseq time 0 3)) :end 1) (fourth time))))
+    ((numberp (car time))
+	 (format nil "Time ~A~:[ has been defined~;:  ~:*~A~]." 
+		 (nlg (car time) 'moment) (second time)))
+    (t (warn "Bad time specification ~A" time))))
+
 
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
@@ -779,6 +803,33 @@
   (if (>= (or (studententry-time x) 0)
 	 (or (studententry-time y) 0))
       x y))
+
+(defparameter *tool-types*
+  ;; List should match list of types in smd.
+  ;; The help system is free to ignore the tool type.
+  '(("rectangle" . body)
+    ("circle" . body)
+    ("ellipse" . body)
+    ("line" . line)
+    ("statement" . scalar)
+    ("vector" . vector)))
+
+(webserver:defun-method "/help" suggest-word (&key time text type symbol)
+  "return possible next words"
+  (declare (ignore time)) ;for logging
+
+  (env-wrap
+    (let ((words (next-word-list 
+		  (to-word-list (pull-out-quantity symbol text))
+		  :type (cdr (assoc type *tool-types* :test #'equalp)))))
+      `(((:action . "next-words")
+	 ;; :false is mapped onto json false via a special hack
+	 ;; in Base/web-server.cl
+	 (:last-word . ,(if (member nil words) t :false))
+	 (:words . ,(or (remove nil words)
+			;; Hack for creating an empty array in json
+			(make-array '(0)))))))))
+
 
 (webserver:defun-method "/help" close-problem 
   (&key time) 
