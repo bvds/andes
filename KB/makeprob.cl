@@ -109,15 +109,19 @@
 	(when (null E) (setf E (diff-problem-solutions P1 P2)))
 	(format t "~:[OK~;~A~]~%" E E)
 	(when E (push (list (Problem-Name P) (format nil "~A" E)) Errs))
+	;; This is not a very important test, since any updates
+	;; to Englishes are done by hand.
 	(when (and p1 p2
-		   (not (unify (problem-English p1) (problem-English p2))))
+		   (not (unify (mapcar #'car (problem-English p1))
+			       (mapcar #'car (problem-English p2)))))
 	  (push (problem-name P) englishes))))
     ;; dump list of discrepencies 
     (format T "~&Discrepencies in: ~{~W ~}~%" (mapcar #'first Errs))
     (format T "Discrepencies:~%")
     (pprint Errs)
-    (format T "~&Englishes:~%")
-    (pprint Englishes)))
+    (when Englishes 
+      (format T "~&Englishes:~%")
+      (pprint Englishes))))
 
 (defun andes-init ()
   "initialize parser and start up solver"
