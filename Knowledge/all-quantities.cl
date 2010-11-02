@@ -144,9 +144,9 @@
 				     :model (cdr x)))
 	  (get-first-model-words (triple-model triple) nil)))
 
-(defun get-word-list-props (text &key type)
+(defun get-word-list-props (words &key type)
   "Return list of quantity propositions associated wtih an exact match to phrase.  Any final vars are expanded here."
-  (let ((words (to-word-list text)) result)
+  (let (result)
     ;; If not in cache, add to cache.
     (unless (cached-triples-p type (butlast words))
       (next-word-list (butlast words) :type type))
