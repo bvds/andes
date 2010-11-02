@@ -356,11 +356,15 @@
 	    (mapcar #'syseqn-English-with-link rest))))
 
 (defun syseqn-english-with-link (eqn)
-  (let ((psm (lookup-expression->psmclass 
-	      (eqn-exp (syseqn->eqn eqn)))))
-    (open-review-window-html 
-     (nlg-equation (eqn-exp (syseqn->eqn eqn)))
-     (or (psmclass-tutorial psm) "principles.html"))))
+  (let ((index-eqn (syseqn->eqn eqn)))
+    (if (eq (eqn-type index-eqn) 'given-eqn)
+	(strcat "the given " (quantity-html-link
+			      (lookup-expression-struct (eqn-exp index-eqn))))
+	(let ((psm (lookup-expression->psmclass 
+		    (eqn-exp index-eqn))))
+	  (open-review-window-html 
+	   (nlg-equation (eqn-exp index-eqn))
+	   (or (and psm (psmclass-tutorial psm)) "principles-tree.html"))))))
 
 ;; switch -- whether to enforce prematurity constraints on equations
 (defvar **Check-Eqn-Constraints**  T) ; off until we work them out

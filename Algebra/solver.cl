@@ -445,6 +445,8 @@
 	((and (consp expr) (eq (car expr) 'dnum))
 	 (let ((x (copy-list expr)))
 	   (setf (third x) (format nil "|~A|" 
+				   ;; Should use function replace-all,
+				   ;; instead.  Bug #1828
 				   (substitute
 				    "\\\\" "\\"  ;; escape backslashes
 				    (prefix-unit-to-infix 

@@ -315,11 +315,12 @@
 	
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Given an Equation nlg it resulting in the appropriate form.
+;; Given an Equation proposition, find associated English.
 (defun nlg-equation (x)
   (cond ((atom x) (format nil "~A" x))
 	((nlg-find x *Ontology-PSMClasses* #'PSMClass-form #'PSMClass-nlg-english))
-	(t (format nil "equation:[~A]" x))))
+	(t (warn "nlg-equation failure for ~A" x)
+	   (format nil "equation:[~A]" x))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

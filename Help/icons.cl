@@ -29,7 +29,10 @@
 
 (defun open-review-window-html (Name href &key title)
   "Html for opening web page in the review directory"
-  (format nil "<a href=\"#\" onClick=\"andes.principles.review('~A','~A');\">~A</a>" href (or title name) name))
+  (format nil "<a href=\"#\" onClick=\"andes.principles.review('~A','~A');\">~A</a>" 
+	  href (replace-all (or title name) "'" "\\'")  ;escape single quotes.
+	  name))
+  
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
