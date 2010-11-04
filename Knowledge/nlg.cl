@@ -366,11 +366,11 @@
 	  (expand-new-english (cdr rule) bindings)))))
 
   ;; Then run through general Ontology to find match.
-  (dolist (rule *Ontology-ExpTypes*)
-    (let ((bindings (unify (Exptype-form rule) prop)))
-      (when bindings 
-	(return-from new-english-find
-	 (expand-new-english (ExpType-new-english rule) bindings)))))
+  (multiple-value-bind (rule bindings)
+      (lookup-expression-struct prop)
+    (when bindings 
+      (return-from new-english-find
+	(expand-new-english (ExpType-new-english rule) bindings))))
   
   ;; If it is a symbol, use improved version of def-np.
   (when (atom prop)

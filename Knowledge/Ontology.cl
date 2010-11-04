@@ -268,6 +268,10 @@
       (when bindings
 	(return-from lookup-expression-struct
 	  (values qexp bindings))))))
+
+(defmacro with-ontology-exptypes (arg &rest body)
+  "Iterate over members of quantity Ontology."
+  `(dolist (,arg *Ontology-ExpTypes*) ,@body))
 		      
 ; For readability when used as a predicate:
 (defun quantity-expression-p (exp)

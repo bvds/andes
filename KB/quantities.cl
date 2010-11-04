@@ -68,8 +68,11 @@ F-8\">~%"
 	     "<h1>scalar and vector quantities</h1>~%"
 	     "<ul>~%"))
     
-    (dolist (qexp (sort (copy-list *Ontology-exptypes*) 
-			#'string-lessp :key #'exptype-short-name))
+    (dolist (qexp 
+	      ;; Listify quantity Ontology, then alphabetize
+	      (sort (let (rules) (with-ontology-exptypes rule 
+				   (push rule rules)) rules)
+		    #'string-lessp :key #'exptype-short-name))
       ;; There is lots of junk in the quantity ontology that 
       ;; doesn't correspond directly to scalars or vectors.
       ;; Use rank as a filter for listable quantities.

@@ -180,7 +180,7 @@
       ((member type '(vector scalar))
        (warn "generate-initial-words:  No cached quantities for problem ~A"
 	     (problem-name *cp*))
-       (dolist (rule *Ontology-ExpTypes*)
+       (with-ontology-exptypes rule
 	 (when (and (eql (exptype-rank rule) type)
 		    (not (member (exptype-type rule) *disallowed-quantities*))
 		    (or (null names) (member (exptype-type rule) names)))
@@ -243,7 +243,7 @@
   (let* ((types '(vector scalar))
 	 (result (mapcar #'list types)))
     (dolist (type '(vector scalar))
-       (dolist (rule *Ontology-ExpTypes*)
+       (with-ontology-exptypes rule
 	 (when (and (eql (exptype-rank rule) type)
 		    (not (member (exptype-type rule) *disallowed-quantities*))
 		    (or (null names) (member (exptype-type rule) names)))
@@ -329,7 +329,7 @@
   ;; The problem-specific ontology gives cases special to 
   ;; the solution of the problem and we are looking for
   ;; a larger set of possibilities.
-  (dolist (ruler *Ontology-ExpTypes*)
+  (with-ontology-exptypes ruler
     ;; Bindings are local to one operator in the ontology.
     (let* ((rule (rename-variables (cons (Exptype-form ruler)
 					 (ExpType-new-english ruler))))
@@ -471,13 +471,13 @@
 				 more-model)))))
 
   ;; Then run through general Ontology to find match.
-  (dolist (rule *Ontology-ExpTypes*)
-    (let ((bindings (unify (Exptype-form rule) prop)))
-      (when bindings 
-	(return-from get-first-model-words-find
-	 (get-first-model-words 
-	  (subst-bindings-careful bindings (ExpType-new-english rule))
-				more-model)))))
+  (multiple-value-bind (rule bindings)
+      (lookup-expression-struct prop)
+    (when bindings 
+      (return-from get-first-model-words-find
+	(get-first-model-words 
+	 (subst-bindings-careful bindings (ExpType-new-english rule))
+	 more-model))))
 
   ;; If it is a symbol, use improved version of def-np.
   (when (atom prop)
