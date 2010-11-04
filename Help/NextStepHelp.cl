@@ -1720,7 +1720,7 @@
 	 ;; have they tried this before?
 	   ((member Q past) (nsh-sought-resp-rep past))
 	   ;; Is the quantity sought?
-	   ((not (qnode-soughtp Q)) (nsh-sought-resp-ns Q (cons Q past))) 
+	   ((not (qnode-soughtp Q)) (nsh-sought-resp-ns Q past)) 
 	   ;; Else use the value and move on.
 	   (t (nsh-ask-first-principle (random-positive-feedback) Q))))))))
 
@@ -1745,8 +1745,23 @@
 (defun nsh-sought-resp-nil (Past)
   "Return a message signifying wrong sought supplied."
   (nsh-wrong-sought-resp 
-   "Your entry does not match any quantities needed to solve this problem."
-   Past :Case 'Null))
+   (if (member nil past)
+       ;; already messed up once, give a hint
+       (strcat "Note that one of the sought quantities is "
+	       (return-answer-quantity-short-english) ".")
+       "Your entry does not match any quantities needed to solve this problem.")
+   (cons nil Past) :Case 'Null))
+
+(defun return-answer-quantity-short-english ()
+  "Return a string describing the kind of quantitiy associated with a problem sought."
+  (let* ((Sought (car (remove-if-not #'quantity-expression-p
+				     (problem-soughts *cp*))))
+ 	 (qexp (lookup-expression-struct sought)))
+    (if (exptype-p qexp)
+	(quantity-html-link qexp)
+	(progn (warn "return-answer-quantity-short-english: no ontology match for ~A" sought)
+	       (when sought (match:word-string 
+			     (expand-vars (new-english-find sought))))))))
 
 (defun nsh-sought-resp-ambiguous (quants Past)
   "Return a message signifying ambiguous sought supplied."
@@ -1762,10 +1777,9 @@
 ;;; on with appropriate information.  
 (defun nsh-sought-resp-ns (quant Past)
   "Return a message signifying that quantity is not sought."
-  (declare (ignore quant))
   (nsh-wrong-sought-resp 
-   "Your entry is not sought by the problem statement."
-   Past :Case 'not-sought))
+   "This quantity not sought by the problem statement."
+   (cons quant Past) :Case 'not-sought))
 
 
 ;;; ------------------ wrong-sought ---------------------------------
@@ -1776,7 +1790,7 @@
 (defun nsh-wrong-sought-resp (msg past &key (Case 'default-wrong-sought))
   (if (< (length past) **Max-sought-Tries**)
       (nsh-ask-sought (strcat msg "&nbsp; " "Please try again:") past Case)
-    (nsh-tell-sought msg Case)))
+      (nsh-tell-sought msg Case)))
 
 
 ;;; Telling the student the sought is a matter of picking the first 
@@ -1786,12 +1800,13 @@
 ;;; tell all of the soughts.  Else they'll never see the others.
 (defun nsh-tell-sought (message Case)
   "Tell the student what the problem is seeking and move on."
+  (declare (ignore message))
   ;; Filter out possible multiple choice questions.
   (let ((Sought (car (remove-if-not #'quantity-expression-p
 				    (problem-soughts *cp*)))))
     (make-explain-more-turn
-     (strcat message "&nbsp; " "Let's just assume that you are seeking "
-	     (nlg Sought 'def-np) ".")
+     (strcat "Let's just assume that you are seeking "
+	     (get-default-phrase Sought) ".")
      :hint (nsh-ask-first-principle 
 	    "" (match-exp->qnode Sought (problem-graph *cp*)))
      :Assoc `((nsh tell-sought ,Case ,Sought)))))
