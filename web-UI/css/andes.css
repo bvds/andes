@@ -267,6 +267,13 @@ body, .tundra .dijitSplitter, #navMenu{
 	padding:0 13px 0 0;
 }
 
+#optionsTable td a {
+	display:block;
+	overflow:hidden;
+	width:15px;
+	height:15px;
+}
+
 /* Percentage avoids the double scrollbar problem */
 div.tall {
      height: 80%; overflow: auto;
