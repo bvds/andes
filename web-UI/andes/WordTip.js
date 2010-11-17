@@ -20,12 +20,11 @@ dojo.declare("andes.WordTip", null, {
     
     textMonitor: function(evt){
         if(evt.keyCode == dojo.keys.SPACE || evt.keyCode == dojo.keys.TAB || evt.keyCode == 188){
-	    console.log("this=",this);
+	    console.log("andes.WordTip.textMonitor this=",this);
             var tx = dojo.trim(this.conEdit.innerHTML);//this.statement.cleanText(conEdit.innerHTML);
             tx = this.removeBreaks(tx);
             var symbol = andes.variablename.parse(tx);
 	    console.log("---Text for word-suggest----> ", tx,symbol);
-	    // BvdS:  this call fails(?) when modifying an existing object.
 	    this.sendToServer(tx,symbol);
         };
         if(evt.keyCode == dojo.keys.ENTER || evt.keyCode == dojo.keys.ESCAPE){
@@ -45,23 +44,29 @@ dojo.declare("andes.WordTip", null, {
     },
     
     sendToServer: function(text,symbol){
+        // Code duplication with convert.js, should have common data structure.
+        // Bug #1833
         var andesTypes = {
-		"dojox.drawing.stencil.Line":"line",
-		"dojox.drawing.stencil.Rect":"rectangle",
-		"dojox.drawing.stencil.Ellipse":"ellipse",
-		"dojox.drawing.tools.custom.Vector":"vector",
-		"dojox.drawing.tools.custom.Axes":"axes",
-		"dojox.drawing.tools.custom.Equation":"equation",
-		"dojox.drawing.stencil.Image":"graphics",
-		"dojox.drawing.tools.TextBlock":"statement"
-	};
-        
+               "dojox.drawing.stencil.Line":"line",
+               "dojox.drawing.stencil.Rect":"rectangle",
+               "dojox.drawing.stencil.Ellipse":"ellipse",
+               "dojox.drawing.tools.custom.Vector":"vector",
+               "dojox.drawing.tools.custom.Axes":"axes",
+               "dojox.drawing.tools.custom.Equation":"equation",
+               "dojox.drawing.stencil.Image":"graphics",
+               "dojox.drawing.tools.TextBlock":"statement"
+       };
+         
         // BvdS:  This strategy doesn't work in the case of modifying
-	// a statement after drawing a vector.
+	// a statement after drawing a vector.  Bug #1832
         var current = "statement";
         if(this.drawing){
             var type = this.drawing.currentStencil ? this.drawing.currentStencil.type : dojo.attr(this.conEdit.parentNode, "id");
-            current = andesTypes[type];
+	    if(type && andesTypes[type]){
+                current = andesTypes[type];
+	    } else {
+                console.warn("andes.WordTip.sendToServer invalid type=",type);
+	    }
         };
         console.log("Suggest for -----------------------", this);
         andes.api.suggestWord({type: current, text: text, symbol:symbol});
