@@ -112,7 +112,7 @@
 	  ;; By default, cl-json turns camelcase into dashes:  
 	  ;; Instead, we are case insensitive, preserving dashes.
 	  (let ((*json-identifier-name-to-lisp* #'string-upcase))
-	    ;; It would be much better if we gave the source of the error.
+	    ;; Failure to decode is handled as a json-rpc error below.
 	    (ignore-errors (decode-json-from-string 
 			    (raw-post-data :force-text t)))))
 	 (service-uri (request-uri*))

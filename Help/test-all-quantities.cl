@@ -36,7 +36,7 @@
     ;; The problem-specific ontology is generally specific
     ;; cases of the general ontology and we are looking
     ;; for a general set of propositions...
-    (dolist (rule *Ontology-ExpTypes*)
+    (with-ontology-exptypes rule
       (when (and (exptype-rank rule) 
 		 (not (member (exptype-type rule) *disallowed-quantities*))
 		 (or (null names) (member (exptype-type rule) names)))

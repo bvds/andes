@@ -333,8 +333,7 @@
   (let* ((width (1+ (length student)))
 	 (height (1+ (length model)))
 	 (d (make-array (list height width)))
-	 (u-model (mapcar 
-			     #'(lambda (x) (word-count x :max t)) model))
+	 (u-model (mapcar #'(lambda (x) (word-count x :max t)) model))
 	 (l-model (mapcar #'word-count model))
 	 (up 0)
 	 (ur (apply #'+ u-model))

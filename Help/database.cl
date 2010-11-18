@@ -165,6 +165,12 @@ list of characters and replacement strings."
        (format nil "INSERT into PROBLEM_ATTEMPT (clientID,classinformationID,userName,userproblem,userSection~:[~;,extra~]) values ('~a',~A,'~a','~A','~A'~@[,'~A'~])" 
 	       extra client-id 2 student problem section extra))))
 
+(defmacro errors-to-warnings (object &rest forms)
+  "Intercept any errors, turning them into warnings, then return."
+  ;; If there are json errors, we want to log them and then soldier on.
+ `(handler-case (progn ,@forms)
+    (error (c) (warn (format nil "~A for ~A" (type-of c) ,object)))))
+
 ;; (andes-database:get-matching-sessions '("solution-step" "seek-help") :student "bvds" :problem "s2e" :section "1234")
 ;;
 (defun get-matching-sessions (methods &key student problem section extra)
@@ -200,7 +206,7 @@ list of characters and replacement strings."
 			  ;; Sometimes result gets truncated on very long
 			  ;; backtraces.  It might be better to just search 
 			  ;; the string for the timeout message?
-			  (ignore-errors 
+			  (errors-to-warnings (second x)
 			    (decode-json-from-string (second x)))))
 	      (push (second last) filtered)))
 	  (setf last x)))
@@ -214,7 +220,8 @@ list of characters and replacement strings."
 		 (mapcar 
 		  ;; A post with no json sent gets translated into nil;
 		  ;; see write-transaction.
-		  #'(lambda (x) (and x (decode-json-from-string x)))
+		  #'(lambda (x) (and x (errors-to-warnings x
+					 (decode-json-from-string x))))
 		  filtered)))))
 
 (defun server-reply-has-timeout (reply)

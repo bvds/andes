@@ -17,6 +17,8 @@ dojo.provide("andes.convert");
 		radio:		"button"
 	};
 
+        // Code duplication with WordTip.js, should have common data structure.
+        // Bug #1833
 	var andesTypes = {
 		"dojox.drawing.stencil.Line":"line",
 		"dojox.drawing.stencil.Rect":"rectangle",
