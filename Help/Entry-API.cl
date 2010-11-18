@@ -398,7 +398,8 @@
 			   (get-prop-icon tool-prop)
 			   " to solve this problem.&nbsp; Please " 
 			   *delete-object* 
-			   " &amp; use another tool.")))))
+			   " &amp; use another tool."))
+	      :assoc `((inappropriate-tool . ,tool-prop)))))
     (setf (turn-id rem) (StudentEntry-id entry))
     (setf (turn-coloring rem) +color-red+)
     ;; set state of entry and attach error. But only do if not done already, 
@@ -459,7 +460,9 @@
 			    "&nbsp; I can help you choose what to do next:") 
 			   ;; Should use matches to inform starting point
 			   ;; for NSH.
-		    '(function next-step-help))))))
+		    '(function next-step-help)))
+	       :assoc `((too-many-matches . 
+			 ,(mapcar #'systementry-prop matches))))))
     (setf (turn-id rem) (StudentEntry-id entry))
     (setf (turn-coloring rem) +color-red+)
     ;; set state of entry and attach error. But only do if not done already, 
@@ -523,7 +526,8 @@
 		    )	
 		   ;; Should use matches to inform starting point
 		   ;; for NSH.
-		   '(function next-step-help)))))))
+		   '(function next-step-help))))
+	   :assoc `((wrong-tool . ,(mapcar #'systementry-prop matches))))))
 
     (setf (turn-id rem) (StudentEntry-id entry))
     (setf (turn-coloring rem) +color-red+)
@@ -546,7 +550,8 @@
 	      (list (format nil "Sorry, I don't understand your ~:[~1*entry~;definition of <var>~A</var>~].~@[&nbsp; ~A~]&nbsp; I can help you choose what to do next:" 
 			    (> (length (StudentEntry-symbol entry)) 0)
 			    (StudentEntry-symbol entry) equal-sign)
-		    '(function next-step-help)))))
+		    '(function next-step-help))
+	      :assoc '((no-matches . nil)))))
     (setf (turn-id rem) (StudentEntry-id entry))
     (setf (turn-coloring rem) +color-red+)
     ;; set state of entry and attach error. But only do if not done already, 
@@ -571,7 +576,8 @@
 			      (SystemEntry-model sysent)))
 			    (> (length (StudentEntry-symbol old)) 0)
 			    (studentEntry-text old)
-			    (StudentEntry-symbol old))))))
+			    (StudentEntry-symbol old)))
+	      :assoc `((redundant-entry . ,(SystemEntry-prop sysent))))))
     (setf (StudentEntry-ErrInterp se)
 	  (make-ErrorInterp
 	   :diagnosis '(already-defined) ;Not sure where/how this is referenced
@@ -1077,14 +1083,23 @@
 		(quant-to-valid-sysvar referent))
        (let ((entry (find-entry (first entry-ids)))
 	     ;; build the error remediation turn
-	     (rem (make-hint-seq (list
-				  (format nil "You need to ~A for ~A."
-					  *define-variable*
-					  ;; for compo angle and mag,
-					  ;; define parent object.
-					  (nlg (get-vector-parent-prop
-						referent)))))))
-	     
+	     (rem (make-hint-seq 
+		   (list
+		    (format nil "You need to ~A for ~A."
+			    *define-variable*
+			    ;; for compo angle and mag,
+			    ;; define parent object.
+			    (nlg (get-vector-parent-prop
+				  referent)))
+		    (strcat "Double-click on the text and enter:<br>"
+			    (text-box 
+			     (strcat "<em>var</em> is "
+				     (nlg (get-vector-parent-prop referent))))
+			    "<br>where <em>var</em> is the variable "
+			    "name you have chosen."))
+		   :assoc `((no-variable-defined . 
+			     ,(get-vector-parent-prop referent))))))
+
 	 (setf (turn-id rem) (StudentEntry-id entry))
 	 (setf (turn-coloring rem) +color-red+)
 	 ;; set state of entry and attach error. But only do if not done 
@@ -1098,11 +1113,14 @@
      ;; find entry. entry-ids arg may be atom or list, but should not be nil
      (let ((entry (find-entry (first entry-ids)))
 	   ;; build the error remediation turn
-	   (rem (make-hint-seq (list
-				(format nil "The variable ~A is in use to define ~A. Please choose a different label." 
-					label (nlg (symbols-referent 
-						    label
-						    :namespace namespace)))))))
+	   (rem (make-hint-seq 
+		 (list
+		  (format nil "The variable ~A is in use to define ~A. Please choose a different label." 
+			  label (nlg (symbols-referent 
+				      label
+				      :namespace namespace))))
+		 :assoc `((variable-in-use . 
+			   ,(symbols-referent label :namespace namespace))))))
        
        (setf (turn-id rem) (StudentEntry-id entry))
        (setf (turn-coloring rem) +color-red+)
