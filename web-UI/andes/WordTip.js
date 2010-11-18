@@ -51,9 +51,6 @@ dojo.declare("andes.WordTip", null, {
                "dojox.drawing.stencil.Rect":"rectangle",
                "dojox.drawing.stencil.Ellipse":"ellipse",
                "dojox.drawing.tools.custom.Vector":"vector",
-               "dojox.drawing.tools.custom.Axes":"axes",
-               "dojox.drawing.tools.custom.Equation":"equation",
-               "dojox.drawing.stencil.Image":"graphics",
                "dojox.drawing.tools.TextBlock":"statement"
        };
          
@@ -61,15 +58,22 @@ dojo.declare("andes.WordTip", null, {
 	// a statement after drawing a vector.  Bug #1832
         var current = "statement";
         if(this.drawing){
-            var type = this.drawing.currentStencil ? this.drawing.currentStencil.type : dojo.attr(this.conEdit.parentNode, "id");
-	    if(type && andesTypes[type]){
-                current = andesTypes[type];
-	    } else {
-                console.warn("andes.WordTip.sendToServer invalid type=",type);
-	    }
+            // The most recent stencil will either be the last selected or the last
+            // tool.  Thus find out the id, if it matches the last selected that's
+            // it.  If not then it must be the current tool.
+            
+            // console.log("stencils......>>",this.drawing.stencils.getRecentStencil(), "attr check: ", dojo.attr(this.conEdit.parentNode, "id"));
+            var stencilName = dojo.attr(this.conEdit.parentNode, "id");
+            var stencilLastSelected = this.drawing.stencils.getRecentStencil();
+            var type = stencilLastSelected.combo ? stencilLastSelected.combo.master.type : stencilLastSelected.type;
+            var sid = stencilLastSelected.combo ? stencilLastSelected.combo.statement.id : stencilLastSelected.id;
+            type = stencilName != sid ? this.drawing.currentType : type;
+            console.log("rawType......>>>", type);
+            current = andesTypes[type] ? andesTypes[type] : null;
+            console.log("type......>>>", current);
         };
         console.log("Suggest for -----------------------", this);
-        andes.api.suggestWord({type: current, text: text, symbol:symbol});
+        current && andes.api.suggestWord({type: current, text: text, symbol:symbol});
     },
     
     processResults: function(results){

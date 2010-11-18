@@ -14,6 +14,7 @@ andes.Combo = dojox.drawing.util.oo.declare(
 	function(options){
 		this.master = options.master;
 		this.statement = options.statement;
+		this.master.combo = this.statement.combo = this;
 
 		this._props = {style:this.master.style, util:this.master.util, parent:this.master.parent, mouse:this.master.mouse};
 		dojo.mixin(this, this._props);
