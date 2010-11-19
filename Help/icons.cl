@@ -25,13 +25,16 @@
 (defun manual-link (name html-id &key (pre "the"))
   (strcat pre " " (open-review-window-html name 
 					  (strcat "manual.html#" html-id)
-					  :title "Manual")))
+					  :title "Manual" 
+					  :name "manual" :value html-id)))
 
-(defun open-review-window-html (Name href &key title)
+(defun open-review-window-html (text href &key title name value)
   "Html for opening web page in the review directory"
-  (format nil "<a href=\"#\" onClick=\"andes.principles.review('~A','~A');\">~A</a>" 
-	  href (replace-all (or title name) "'" "\\'")  ;escape single quotes.
-	  name))
+  (format nil "<a href=\"#\" onClick=\"andes.help.link('~A'~@[,'~A'~]);andes.principles.review('~A','~A');\">~A</a>" 
+	  (or name href)
+	  value ;loging value (optional)
+	  href (replace-all (or title text) "'" "\\'")  ;escape single quotes.
+	  text))
   
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

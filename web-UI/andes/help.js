@@ -75,7 +75,7 @@ dojo.require("andes.api");
 		//	Echo any input text in the Tutor pane.
 		//
 		if(value == '!'){
-			value = "Ha! A rotten easter egg!"
+			value = "Ha! A rotten easter egg!";
 		}
 		if(value.length>0){
 		        var hlp = dijit.byId("helpContentPane");
@@ -121,5 +121,14 @@ dojo.require("andes.api");
 		// updates score
 		return dijit.byId("helpPane").score(value);
 	};
+
+	andes.help.link = function(name,value){
+		var s={type: "tutor-link",name: name};
+		if(value){
+			s.value=value; // value is optional
+		}
+		andes.api.recordAction(s);
+	};
+		
 })();
 
