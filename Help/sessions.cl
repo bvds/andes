@@ -482,13 +482,19 @@
 	     (params (remove :time
 			     (cdr (assoc :params old-step))
 			     :key #'car))
-	     (reply (apply 
-		     (cond 
-		       ((equal method "solution-step") #'solution-step)
-		       ((equal method "seek-help") #'seek-help))
-		     ;; flatten the alist
-		     (mapcan #'(lambda (x) (list (car x) (cdr x))) 
-			     params))) 
+	     ;; If an old session turn produces an error, convert it
+	     ;; into a warning and move on to the next turn.
+	     ;; Otherwise old sessions with unfixed errors cannot be reopened.
+	     (reply (handler-case
+			(apply 
+			 (cond 
+			   ((equal method "solution-step") #'solution-step)
+			   ((equal method "seek-help") #'seek-help))
+			 ;; flatten the alist
+			 (mapcan #'(lambda (x) (list (car x) (cdr x))) 
+				 params))
+		      (error (c) (warn (format nil "Found ~A for ~A of ~A" 
+					       (type-of c) method params)))))
 	     
 	     ;; solution-steps and help results are passed back to client
 	     ;; to set up state on client.
