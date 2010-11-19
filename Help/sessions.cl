@@ -831,6 +831,17 @@
 			(make-array '(0)))))))))
 
 
+(webserver:defun-method "/help" record-action (&key time type name value)
+  "Record user interface action, but send no reply.  In this case we do something only for preferences."
+  (declare (ignore time)) ;for logging
+
+  (env-wrap
+   (when (equal type "set-preference")
+     (warn "Need to save style to database: ~A ~A" name value)))
+
+  ;; This method has no return
+  nil)
+
 (webserver:defun-method "/help" close-problem 
   (&key time) 
   "shut problem down" 

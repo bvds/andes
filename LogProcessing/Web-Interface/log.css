@@ -10,6 +10,14 @@ tr.seek-help {
   background-color: #ffe0ff;
 }
 
+tr.suggest-word {
+  background-color: #ffffe0;  
+}
+
+tr.record-action {
+  background-color: #e0ffff;  
+}
+
 tr.close-problem {
   background-color: #EFEFEF;
 }
