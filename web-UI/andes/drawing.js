@@ -125,6 +125,7 @@ dojo.provide("andes.drawing");
 				if(hasLabel[item.type]){
 					// axes
 					var s = statement;
+					s.customType = "axes";
 					item.connect(statement, "onChangeText", this, function(value){
 						item.setLabel(value);
 						console.log("-------> onChangeText calling setLabel for ", item.id,": ",value);
@@ -323,7 +324,7 @@ dojo.provide("andes.drawing");
 						var ID = item.id;
 						ID = ID.indexOf("TextBlock");
 						if(item.stencilType=='textBlock' && ID!=-1) item.util.uid(item.type);
-						item.andesType = obj.type; // to tell between equation and statement
+						item.customType = obj.type; // to tell between equation and statement
 						this.add(item);
 					}
 					
