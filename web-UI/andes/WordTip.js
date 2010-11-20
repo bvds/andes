@@ -5,13 +5,21 @@ dojo.declare("andes.WordTip", null, {
     //      Singleton whose job is to watch the textbox
     //      and connect to the server when there are changes
     //      to show them to the student.
-    //stub: null,
+
     conEdit: null,
     stencil: null,
+    
     constructor: function(){
         this.conEdit = dojo.byId("conEdit");    
         dojo.connect(this.conEdit, "keydown", this, "textMonitor");
         console.log("I've got conedit now", this.conEdit);
+    },
+    
+    types: {
+        "rectangle": true,
+        "ellipse": true,
+        "vector": true,
+        "statement": true
     },
     
     add: function(obj){
@@ -44,16 +52,6 @@ dojo.declare("andes.WordTip", null, {
     },
     
     sendToServer: function(text,symbol){
-        // Code duplication with convert.js, should have common data structure.
-        // Bug #1833
-        var andesTypes = {
-               "dojox.drawing.stencil.Line":"line",
-               "dojox.drawing.stencil.Rect":"rectangle",
-               "dojox.drawing.stencil.Ellipse":"ellipse",
-               "dojox.drawing.tools.custom.Vector":"vector",
-               "dojox.drawing.tools.TextBlock":"statement"
-       };
-         
         // BvdS:  This strategy doesn't work in the case of modifying
 	// a statement after drawing a vector.  Bug #1832
         var current = "statement";
@@ -63,17 +61,26 @@ dojo.declare("andes.WordTip", null, {
             // it.  If not then it must be the current tool.
             
             // console.log("stencils......>>",this.drawing.stencils.getRecentStencil(), "attr check: ", dojo.attr(this.conEdit.parentNode, "id"));
-            var stencilName = dojo.attr(this.conEdit.parentNode, "id");
+            var andesTypes = andes.convert.andesTypes;
+            var stencilID = dojo.attr(this.conEdit.parentNode, "id");
             var stencilLastSelected = this.drawing.stencils.getRecentStencil();
             var type = stencilLastSelected.combo ? stencilLastSelected.combo.master.type : stencilLastSelected.type;
             var sid = stencilLastSelected.combo ? stencilLastSelected.combo.statement.id : stencilLastSelected.id;
-            type = stencilName != sid ? this.drawing.currentType : type;
-            console.log("rawType......>>>", type);
-            current = andesTypes[type] ? andesTypes[type] : null;
-            console.log("type......>>>", current);
+            
+            if(stencilID!=sid){
+                // Current statement or equation
+                type = this.drawing.currentType;
+                current = andesTypes[type];
+            }else{
+                // Everything else, meaning combo objects created or an item
+                // is being selected
+                console.log("Selected: ", this.drawing.stencils.stencils[stencilID]);
+                var tmp = this.drawing.stencils.stencils[stencilID];
+                current = tmp.customType ? tmp.customType : andesTypes[type];
+            };
         };
-        console.log("Suggest for -----------------------", this);
-        current && andes.api.suggestWord({type: current, text: text, symbol:symbol});
+        console.log("current: ",current);
+        this.types[current] && andes.api.suggestWord({type: current, text: text, symbol:symbol});
     },
     
     processResults: function(results){
@@ -84,7 +91,7 @@ dojo.declare("andes.WordTip", null, {
                 dijit.hideTooltip(this.conEdit);
                 if(line.words.length > 0 || line["last-word"]){
                     var size = Math.min(7, line.words.length);
-		    var wrd = line["last-word"]?"&lt;done&gt;":"";
+		    var wrd = line["last-word"] ? "&lt;done&gt;" : "";
                     for(var i=0; i<size; i++){
 			if(wrd.length>0) {wrd += ", ";}
                         wrd += line.words[i];

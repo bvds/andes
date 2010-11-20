@@ -85,12 +85,12 @@ dojo.require("andes.WordTip");
 })();
 
 dojo.require("andes.defaults");
+dojo.require("andes.convert");
 dojo.require("andes.drawing");
 dojo.require("andes.menu");
 dojo.require("andes.help");
 dojo.require("andes.api");
 dojo.require("andes.error");
 dojo.require("andes.variablename");
-dojo.require("andes.convert");
 
 andes.drawing.load();

@@ -3,50 +3,47 @@ dojo.provide("andes.convert");
 
 (function(){
 
-	var stencilMods = {
-		statement:	"textBlock",
-		equation:	"textBlock",
-		graphics:	"image",
-		vector:		"vector",
-		axes:		"axes",
-		ellipse:	"ellipse",
-		rectangle:	"rect",
-		line:		"line",
-		done:		"button",
-		checkbox:	"button",
-		radio:		"button"
-	};
-
-        // Code duplication with WordTip.js, should have common data structure.
-        // Bug #1833
-	var andesTypes = {
-		"dojox.drawing.stencil.Line":"line",
-		"dojox.drawing.stencil.Rect":"rectangle",
-		"dojox.drawing.stencil.Ellipse":"ellipse", // or circle
-		"dojox.drawing.tools.custom.Vector":"vector",
-		"dojox.drawing.tools.custom.Axes":"axes",
-		"dojox.drawing.tools.custom.Equation":"equation",
-		"dojox.drawing.stencil.Image":"graphics",
-		"dojox.drawing.tools.TextBlock":"statement", // or statement.... hmmmm
-		"andes.buttonCombo":"button"
-	};
-
-	// dupe code:
-	var getStatementPosition = function(box){
-		var gap = 10;
-		return {data:{
-			x:box.x2 + gap,
-			y:box.y1,
-			showEmpty:true
-		}};
-	};
-	
 	andes.convert = {
 		// summary:
 		//	The conversion object used to transform objects
 		//	from and ande object to a drawing object and
 		//	vice versa.
 		//
+		stencilMods: {
+			statement:	"textBlock",
+			equation:	"textBlock",
+			graphics:	"image",
+			vector:		"vector",
+			axes:		"axes",
+			ellipse:	"ellipse",
+			rectangle:	"rect",
+			line:		"line",
+			done:		"button",
+			checkbox:	"button",
+			radio:		"button"
+		},
+		
+		andesTypes: {
+			"dojox.drawing.stencil.Line":"line",
+			"dojox.drawing.stencil.Rect":"rectangle",
+			"dojox.drawing.stencil.Ellipse":"ellipse", // or circle
+			"dojox.drawing.tools.custom.Vector":"vector",
+			"dojox.drawing.tools.custom.Axes":"axes",
+			"dojox.drawing.tools.custom.Equation":"equation",
+			"dojox.drawing.stencil.Image":"graphics",
+			"dojox.drawing.tools.TextBlock":"statement", // or statement.... hmmmm
+			"andes.buttonCombo":"button"
+		},
+		
+		getStatementPosition: function(box){
+			var gap = 10;
+			return {data:{
+				x:box.x2 + gap,
+				y:box.y1,
+				showEmpty:true}
+			}
+		},
+		
 		andesToDrawing: function(o){
 			// summary:
 			//	Converts from andes to drawing
@@ -69,7 +66,7 @@ dojo.provide("andes.convert");
 			}
 			var obj = {
 				id:o.id,
-				stencilType:stencilMods[o.type],
+				stencilType:this.stencilMods[o.type],
 				data:{
 					x:o.x,
 					y:o.y
@@ -166,7 +163,7 @@ dojo.provide("andes.convert");
 				var ys = o['y-statement'];
 
 				if(xs === undefined){
-					var pt = getStatementPosition({
+					var pt = this.getStatementPosition({
 						y1:o.y,
 						x2:o.x+o.width
 					}).data;
@@ -217,7 +214,7 @@ dojo.provide("andes.convert");
 				combo = true;
 				sbox = round(statement.getBounds());
 			}
-			var type = item.andesType || item.customType || andesTypes[item.type];
+			var type = item.customType || this.andesTypes[item.type];
 
 			if(type=="button"){
 				if(!item.group){
