@@ -127,33 +127,44 @@
     ;; cheap tests for a few common sources of errors
     (cond				
      ((not (position #\= equation))
-      (setf rem (make-hint-seq (list
-				(format nil "Entry \"~a\" is not an equation.&nbsp; If you are trying to define a scalar quantity, ~A and use ~A instead." 
-					equation *delete-object* *text-tool*)
-				"The entry needs an = sign to be an equation."))))
+      (setf rem (make-hint-seq 
+		 (list
+		  (format nil "Entry \"~a\" is not an equation.&nbsp; If you are trying to define a scalar quantity, ~A and use ~A instead." 
+			  equation *delete-object* *text-tool*)
+		  "The entry needs an = sign to be an equation.")
+		 :assoc '((equation-syntax-error . no-equals)))))
      ((> (count #\= equation) 1)
-      (setf rem (make-hint-seq (list
-				(format nil "\"~a\" is not a single equation." equation)
-				"You may enter only one equation on a line."))))
+      (setf rem (make-hint-seq 
+		 (list
+		  (format nil "\"~a\" is not a single equation." equation)
+		  "You may enter only one equation on a line.")
+		 :assoc '((equation-syntax-error . multiple-equals)))))
      ((search "sec" equation)
-      (setf rem (make-hint-seq (list
-				(format nil "Syntax error in ~a" equation)
-				"If you are giving a value in seconds, the correct SI symbol is just s, not sec."))))
+      (setf rem (make-hint-seq 
+		 (list
+		  (format nil "Syntax error in ~a" equation)
+		  "If you are giving a value in seconds, the correct SI symbol is just s, not sec.")
+		 :assoc '((equation-syntax-error . sec-for-seconds)))))
      ((search "ohms" equation)
-      (setf rem (make-hint-seq (list
-				(format nil "Syntax error in ~a" equation)
-				"If you are giving a resistance in Ohms, the correct SI symbol is &Omega;, not ohms."))))
+      (setf rem (make-hint-seq 
+		 (list
+		  (format nil "Syntax error in ~a" equation)
+		  "If you are giving a resistance in Ohms, the correct SI symbol is &Omega;, not ohms.")
+		 :assoc '((equation-syntax-error . ohms-for-ohms)))))
      ;; BvdS:  There should be a handler for "unknown functions"
      ;; analogous to the handler for "unknown variables"
      ;; This is a work-around.
      ((and (search "log" equation) (not (search "log10" equation)))
-      (setf rem (make-hint-seq (list
-				;; (format nil "Syntax error in ~a" equation)
-				"Use ln(x) for natural logarithms and log10(x) for logarithms base 10."))))
+      (setf rem (make-hint-seq 
+		 (list
+		  ;; (format nil "Syntax error in ~a" equation)
+		  "Use ln(x) for natural logarithms and log10(x) for logarithms base 10.")
+		 :assoc '((equation-syntax-error . log-for-logarithm)))))
      ((or (search "_ " equation) (search " _" equation))
       (setf rem (make-hint-seq (list
 				(format nil "Syntax error in ~a" equation)
-				"There is a space next to an underscore in this equation. If you are using a component variable, make sure you type it as a single word without any spaces between the underscore and the rest of the variable name."))))
+				"There is a space next to an underscore in this equation. If you are using a component variable, make sure you type it as a single word without any spaces between the underscore and the rest of the variable name.")
+		 :assoc '((equation-syntax-error . space-underscore))))) 
      (T (setf rem 
 	      (make-hint-seq
 	       (list
@@ -166,7 +177,8 @@
 			"Though I can't tell exactly what the mistake is, a few common sources of errors are:  <ul><li>~A are case sensitive. <li>Multiplication requires an explicit multiplication sign:&nbsp; W=m*g, NOT W=mg. <li>Units attach only to numbers, not to variables or expressions.  <li>There must be a space between a number and a unit.&nbsp; For example:&nbsp;  2.5 m</ul>"
 			(open-review-window-html 
 			 "Unit symbols" "units.html" :title "Units"))
-		)))))
+		)
+	       :assoc '((equation-syntax-error . nil))))))
 
     (setf (turn-id rem) id)
     (setf (turn-coloring rem) +color-red+)
@@ -454,22 +466,22 @@
 	(otherwise
 	 (make-green-turn :id (StudentEntry-id se))))))))
 
-;
-; Note: several canned routines here for particular error interpretations are
-; used for errors that provide unsolicited messages. These routines:
-;    1. create a hint sequence turn for use in the remediation field (rem)
-;    2. construct an error interpretation object (ei) containing rem
-;    3. set the error interp field of the student entry to ei
-;    4. set coloring on the rem turn to color red
-;    5. return rem for use as a final result turn
-; Unsolicited feedback results as the remediation's red+hint turn is returned 
-; up the stack for use as the final result turn for the equation entry.
-; If this is not returned, the hint sequence is saved with the entry but
-; is not given until student asks whats wrong.
+;;
+;; Note: several canned routines here for particular error interpretations are
+;; used for errors that provide unsolicited messages. These routines:
+;;    1. create a hint sequence turn for use in the remediation field (rem)
+;;    2. construct an error interpretation object (ei) containing rem
+;;    3. set the error interp field of the student entry to ei
+;;    4. set coloring on the rem turn to color red
+;;    5. return rem for use as a final result turn
+;; Unsolicited feedback results as the remediation's red+hint turn is returned 
+;; up the stack for use as the final result turn for the equation entry.
+;; If this is not returned, the hint sequence is saved with the entry but
+;; is not given until student asks whats wrong.
 
 
-; forgot-units is returned when equation is dimensionally inconsistent but
-; balances numerically when numbers are treated as having unknown units.
+;; forgot-units is returned when equation is dimensionally inconsistent but
+;; balances numerically when numbers are treated as having unknown units.
 (defun forgot-units-ErrorInterp (se)
   "Given a student entry, return a tutor turn that gives unsolicited feedback saying that
    the student forgot to put units on at least one number.
