@@ -15,7 +15,7 @@ dojo.declare("andes.WordTip", null, {
         console.log("I've got conedit now", this.conEdit);
     },
     
-    types: {
+    hasTip: {
         "rectangle": true,
         "ellipse": true,
         "vector": true,
@@ -74,13 +74,13 @@ dojo.declare("andes.WordTip", null, {
             }else{
                 // Everything else, meaning combo objects created or an item
                 // is being selected
-                console.log("Selected: ", this.drawing.stencils.stencils[stencilID]);
+                //console.log("Selected: ", this.drawing.stencils.stencils[stencilID]);
                 var tmp = this.drawing.stencils.stencils[stencilID];
                 current = tmp.customType ? tmp.customType : andesTypes[type];
             };
         };
-        console.log("current: ",current);
-        this.types[current] && andes.api.suggestWord({type: current, text: text, symbol:symbol});
+        //console.log("current: ",current);
+        this.hasTip[current] && andes.api.suggestWord({type: current, text: text, symbol:symbol});
     },
     
     processResults: function(results){
