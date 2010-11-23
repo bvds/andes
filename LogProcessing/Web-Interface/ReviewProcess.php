@@ -70,6 +70,7 @@ $extra = $_POST['extra'];
 $slice = $_POST['slice'];
 $startDate = $_POST['startDate'];
 $endDate = $_POST['endDate'];
+$methods = implode(",",$_POST['methods']);
 
 if($order=='Descending')
   $order = "DESC";
@@ -139,7 +140,7 @@ if($slice == 'Comments'){
 	    $tempCommand2 =explode("get-help\",\"text\":\"",$tempCommand1);
 	    $command=explode("\"}",$tempCommand2[1]);
 	    
-	    echo "<tr><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td>$command[0]</td><td><a href=\"OpenTrace.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&cid=$clientID&u=$userName&p=$userProblem&t=$tID\">Session&nbsp;log</a></td></tr>\n";
+	    echo "<tr><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td>$command[0]</td><td><a href=\"OpenTrace.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&cid=$clientID&u=$userName&p=$userProblem&t=$tID&m=$methods\">Session&nbsp;log</a></td></tr>\n";
 	  }
       }
     while ($myrow = mysql_fetch_array($result));
@@ -167,7 +168,7 @@ if($slice == 'Comments'){
 	$userSection=$myrow["userSection"];
 	$startTime=$myrow["startTime"];
 	
-	echo "<tr><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td><a href=\"OpenTrace.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&cid=$clientID&u=$userName&p=$userProblem\">Session log</a></td></tr>\n";
+	echo "<tr><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td><a href=\"OpenTrace.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&cid=$clientID&u=$userName&p=$userProblem&m=$methods\">Session log</a></td></tr>\n";
        
       }
     while ($myrow = mysql_fetch_array($result));
