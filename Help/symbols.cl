@@ -77,10 +77,11 @@
   ;; import from common-lisp-user:   
   ;;     unify quant-to-valid-sysvar sysvar-to-quant
   (:use :cl :cl-user) 
-  (:export :initialize-symbol-table ; State.cl
-	   :clear-symbol-table ; State.cl
+  (:export :initialize-symbol-table ;State.cl
+	   :clear-symbol-table ;State.cl
 	   :canonical-to-student ;algebra.cl
-	   :near-miss-var :symbols-sysvar ;parse-andes.cl
+	   :near-miss-vars :capitalization-match-var ;parse-andes.cl 
+	   :symbols-sysvar ;parse-andes.cl
 	   :sym-referent :sym-entries :symbols-fetch :sym-label ;Entry-API.cl 
 	   :symbols-delete-dependents ;Entry-API.cl 
 	   ;; More complicated
@@ -216,11 +217,25 @@
   (let ((sym (symbols-lookup-quant quant :namespace namespace)))
     (when sym (sym-label sym))))
 
-(defun near-miss-var (var)
-"given a symbol return defined variables with similar names"
+(defun capitalization-match-var (var)
+  "Find first match that just differs by capitalization"
   ;; for now, just look for case errors, and just return first one found
-  (let ((sym (find var (get-variables) :key #'sym-label :test #'string-equal)))
-     (when sym (sym-label sym))))
+  (find var (get-variables) :key #'sym-label :test #'string-equal))
+
+(defun near-miss-vars (var)
+  "given a variable, return defined symbols with single-letter spelling errors"
+  ;; For now, just look for single letter error.
+  ;; Add a little padding to avoid floating point compare problems.
+  (let ((cutoff (/ 1.2 (length var))) 
+	(c2 (/ 1.1 (length var)))
+	(match:*word-cutoff* 0.4)) ;only do three letter words or longer
+    (mapcar #'cdr
+	    (remove-if #'(lambda (x) (> (car x) c2))
+		       (match:best-model-matches
+			(list var)  ;student is list of words
+			(mapcar #'(lambda (x) (cons (sym-label x) x)) 
+				(get-variables))
+			:cutoff cutoff)))))
 
 (defun symbols-fetch (pat &key namespace)
   "return list of all symbol records whose referent exprs unify with pat"
