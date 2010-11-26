@@ -58,20 +58,15 @@
 		  (turn-result result)))
     result))
 
-(defun do-lookup-equation-string (eq entry location)
-  (let ((equation eq) tmp)
-    (if (= 0 (length (remove #\Space equation)))
-	(setf tmp (handle-empty-equation entry))
+(defun do-lookup-equation-string (equation entry location)
+  (if (= 0 (length (remove #\Space equation)))
+      (handle-empty-equation entry)
       (let* ((parses (parse-equation **grammar** equation))
 	     (complete (parse-get-complete parses))
 	     (valid (parse-get-valid 'final complete)))
-	(cond
-	 ((null valid)
-	  (setf tmp (handle-bad-syntax-equation eq entry parses)))
-	 (t
-	  (setf tmp (handle-ambiguous-equation eq entry valid location))))))
-    ;;(format t "at end is ~A~%" tmp)
-    tmp))
+	(if valid
+	    (handle-ambiguous-equation equation entry valid location)
+	    (handle-bad-syntax-equation equation entry parses)))))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -112,16 +107,25 @@
    creates a student entry, adds it to the *student-entries*,
    creates an error interpretation for it, and returns
    the first tutor turn of the error interpretation's hint sequence."
+  (let (best best-parse)
+    (dolist (parse parses)
+      (when (or (null best) 
+		(< (if (parse-rem parse) (length (parse-rem parse)) 0) best))
+	(setf best (if (parse-rem parse) (length (parse-rem parse)) 0))
+	(setf best-parse parse)))
     (setf (StudentEntry-verbatim se) equation)
     (setf (StudentEntry-parsedeqn se) parses)
     (setf (StudentEntry-prop se) (list 'eqn equation))
     (setf (StudentEntry-state se) +incorrect+)
     (add-entry se)
-    (setf (StudentEntry-ErrInterp se) (bad-syntax-ErrorInterp equation :id (StudentEntry-id se)))
-    (ErrorInterp-remediation (StudentEntry-ErrInterp se)))
-
+    (setf (StudentEntry-ErrInterp se) 
+	  (bad-syntax-ErrorInterp equation :id (StudentEntry-id se) 
+				  :location (- (length equation)
+					       best)))
+    (ErrorInterp-remediation (StudentEntry-ErrInterp se))))
+  
 ; This returns a plain ErrorInterp:
-(defun bad-syntax-ErrorInterp (equation &key id)
+(defun bad-syntax-ErrorInterp (equation &key id location)
   "Given a syntactically ill-formed equation, returns an error interpretation for it."
   (let (rem)				; remediation hint seq to be assigned
     ;; cheap tests for a few common sources of errors
@@ -168,11 +172,9 @@
      (T (setf rem 
 	      (make-hint-seq
 	       (list
-		(format nil "Syntax error in ~a" equation)
-		(format nil
-			"The equation or ~A in it are not in a recognizable form."
-			(open-review-window-html 
-			 "the units" "units.html" :title "Units"))
+		(format nil "Syntax error in ~A <span class=\"unparsed\">~A</span>" 
+			(subseq equation 0 location)
+			(subseq equation location))
 		(format nil 
 			"Though I can't tell exactly what the mistake is, a few common sources of errors are:  <ul><li>~A are case sensitive. <li>Multiplication requires an explicit multiplication sign:&nbsp; W=m*g, NOT W=mg. <li>Units attach only to numbers, not to variables or expressions.  <li>There must be a space between a number and a unit.&nbsp; For example:&nbsp;  2.5 m</ul>"
 			(open-review-window-html 
