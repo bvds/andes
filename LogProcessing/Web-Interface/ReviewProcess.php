@@ -111,7 +111,7 @@ if($endDate){
   $endDatec = "";
  }
 
-if($slice == 'Comments'){
+if($slice == 'comments'){
 
   echo "<h2>Comments in problems $extrae,$adminNamee$sectionNamee sorted in $order order of $orderBy</h2>\n";
 
@@ -147,8 +147,7 @@ if($slice == 'Comments'){
     echo "</table>";
   }
 
- } else {
-  // Select sessions
+ } elseif($slice == 'sessions') {
 
   echo "<h2>Problems $extrae,$adminNamee$sectionNamee sorted in $order order of $orderBy</h2>\n";
 
@@ -175,6 +174,116 @@ if($slice == 'Comments'){
     echo "</table>\n";
   }
 
+ } elseif($slice == 'errors') {
+   
+   $initialTime = time();
+   $queryTime = 0.0;
+   $jsonTime1 = 0.0;
+   $jsonTime2 = 0.0;
+   // Newer versions of php have a json decoder built-in.  Should 
+   // eventually have test for php version and use built-in, when possible.
+   include 'JSON.php';
+   
+   $json = new Services_JSON();
+
+   echo "<h2>Student errors in problems $extrae,$adminNamee$sectionNamee sorted in $order order of $orderBy</h2>\n";
+   
+   $sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1 WHERE $adminNamec $sectionNamec $extrac  $startDatec $endDatec P1.clientID = P1.clientID ORDER BY $orderBy $order";
+   $queryStart=microtime(true);   
+   $result = mysql_query($sql);
+   $queryTime += microtime(true)-$queryStart;
+   if ($myrow = mysql_fetch_array($result)) {
+     echo "<table border=1>";
+     echo "<tr><th>User Name</th><th>Problem</th><th>Section</th><th>Starting Time</th><th>Count</th><th>time</th><th>Additional</th></tr>\n";
+     $rowOutput=array();
+     
+     do
+       {
+	 $clientID=$myrow["clientID"];
+	 $userName=$myrow["userName"];
+	 $userProblem=$myrow["userProblem"];
+	 $userSection=$myrow["userSection"];
+	 $startTime=$myrow["startTime"];
+	 $tempSql = "SELECT initiatingParty,command,tID FROM PROBLEM_ATTEMPT_TRANSACTION WHERE clientID = '$clientID'";
+	 $queryStart=microtime(true);   
+	 $tempResult = mysql_query($tempSql);
+	 $queryTime += microtime(true)-$queryStart;
+
+	 // loop through session
+	 $confused=false;
+	 $counter=0;
+	 $startTurn=NULL;
+	 
+	 // get student input and server reply
+	 while (($myrow1 = mysql_fetch_array($tempResult)) &&
+		($myrow2 = mysql_fetch_array($tempResult))) {
+	   if($myrow1["initiatingParty"]=='client'){
+	     $action=$myrow1["command"];
+	     $ttID=$myrow1["tID"];
+	     $response=$myrow2["command"];
+	   } else {
+	     $action=$myrow2["command"];
+	     $ttID=$myrow2["tID"];
+	     $response=$myrow1["command"];
+	   }
+	   
+	   // decode json and count number of steps (and time)
+	   // between incorrect turns and next correct turn.
+	   $jsonStart=microtime(true);   
+	   $a=$json->decode($action);
+	   $jsonTime1 += microtime(true)-$jsonStart;
+	   if(isset($a->method) && ($a->method == 'solution-step' || 
+				    $a->method == 'seek-help')){
+	     $jsonStart=microtime(true);   
+	     $b=$json->decode($response);
+	     $jsonTime2 += microtime(true)-$jsonStart;
+	     $ttime=$a->params->time;
+	     $thisTurn=NULL;
+	     if(isset($b->result)){
+	       foreach ($b->result as $row){
+		 //print_r($row); echo "<br>\n";
+		 if($row->action=="modify-object" && isset($row->mode)){
+		   $thisTurn=$row->mode;
+		 }
+	       }
+	     }
+	     if($thisTurn=='correct' && $confused){
+	       if($counter>1){
+		 $dt=$ttime-$confusedStartTime;
+		 $rowOutput[$dt]= "<tr><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td>$counter</td><td>$dt</dt><td><a href=\"OpenTrace.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&cid=$clientID&u=$userName&p=$userProblem&s=$userSection&t=$confusedtID&m=$methods\">Session&nbsp;log</a></td></tr>";
+	       }
+	       $confused=false;
+	     } elseif ($thisTurn=='incorrect') {
+	       if($confused){
+		 $counter++;
+	       } else {
+		 $confused=true;
+		 $counter=0;
+		 $confusedtID=$ttID;
+		 $confusedStartTime=$ttime;
+	       }
+	     } elseif ($confused) {
+	       $counter++;
+	     }
+	   }
+	 } // loop through session rows       
+       }
+     while ($myrow = mysql_fetch_array($result));
+     krsort($rowOutput);
+     foreach($rowOutput as $row){
+       echo "$row\n";
+     }
+     echo "</table>";
+   } else {// if for any session exising
+     echo "No matching sessions found\n";
+   }
+   $elapsedTime = time() - $initialTime;
+   echo "<p>Time to process:&nbsp; $elapsedTime s with " 
+     . number_format($queryTime,2) . " s for mysql.&nbsp;\n";
+   echo "Json decoding times;&nbsp; " . number_format($jsonTime1,2) .
+     " s, " . number_format($jsonTime2,2) . " s.\n";
+ } else {
+  echo "Unknown choice for slice";
  }
 
 mysql_close();

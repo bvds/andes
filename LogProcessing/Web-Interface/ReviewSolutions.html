@@ -1,7 +1,24 @@
 <html>
 <body>
-<h4>Query for comments or sessions</h4>
+<h4>Query for comments, student errors, or sessions</h4>
 <form action="ReviewProcess.php" method="post">
+
+
+
+Type of query:
+<select name="slice">
+<option value="sessions">Entire Sessions</option>
+<option value="comments">Comments</option>
+<option value="errors">Student Errors</option>
+</select>
+Problem types:
+<select name="extra">
+<option>Original</option>
+<option>Reviewed</option>
+<option>Both</option>
+</select>
+
+<p>
 Order Results By :
 <select name="item">
 <option>startTime</option>
@@ -12,19 +29,6 @@ Order Results By :
 <select name="order">
 <option>Ascending</option>
 <option>Descending</option>
-</select>
-
-<p>
-Search for:
-<select name="slice">
-<option>Sessions</option>
-<option>Comments</option>
-</select>
-Problem types:
-<select name="extra">
-<option>Original</option>
-<option>Reviewed</option>
-<option>Both</option>
 </select>
 
 <p>
