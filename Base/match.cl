@@ -63,6 +63,7 @@
 		   :test-for-list
 		   :word-count :word-count-handler
 		   :add-to-dictionary :add-to-dictionary-handler
+		   :*word-cutoff*
 		   :matches-model-syntax :word-string :*grammar-names*))
 
 (eval-when (:load-toplevel :compile-toplevel)
@@ -635,7 +636,7 @@
 ;; Imposing a cutoff on word matching improves speed by 50%
 ;; and removes some accidental matches (words
 ;; that are clearly different, but have some letter overlap).
-(defconstant +word-cutoff+ 0.4 "Assume words don't match for normalized distances larger than this cutoff.")
+(defparameter *word-cutoff* 0.4 "Assume words don't match for normalized distances larger than this cutoff.")
 
 (defun normalized-levenshtein-distance (s1 s2)
   "Normalize levenshtein-distance so complete rewrite is 1.0 and imposing match cutoff."
@@ -643,10 +644,10 @@
 	(minl (min (length s1) (length s2))))
     ;; Test if there is any hope of getting below cutoff
     ;; This gives a 20% improvement in speed.
-    (if (> (* maxl (- 1 +word-cutoff+)) minl)
+    (if (> (* maxl (- 1 *word-cutoff*)) minl)
 	1
 	(let ((x (levenshtein-distance s1 s2)))
-	  (if (> x (* maxl +word-cutoff+))
+	  (if (> x (* maxl *word-cutoff*))
 	      1
 	      (/ (float x) (float maxl)))))))
 
