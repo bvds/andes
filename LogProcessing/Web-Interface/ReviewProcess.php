@@ -2,8 +2,12 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
-  <LINK REL=StyleSheet HREF="log.css" TYPE="text/css">
+  <LINK REL=StyleSheet HREF="log.css" TYPE="text/css" >
+  <title>Review Sessions</title>
 
+  <style type="text/css">
+   tr.quit {background-color: #ffe0e0;}
+  </style>
   <script type="text/javascript">
 
 function createXMLHttp(){
@@ -175,7 +179,8 @@ if($slice == 'comments'){
   }
 
  } elseif($slice == 'errors') {
-   
+  // doesn't use $order or $orderBy
+
    $initialTime = time();
    $queryTime = 0.0;
    $jsonTime1 = 0.0;
@@ -186,24 +191,33 @@ if($slice == 'comments'){
    
    $json = new Services_JSON();
 
-   echo "<h2>Student errors in problems $extrae,$adminNamee$sectionNamee sorted in $order order of $orderBy</h2>\n";
+   echo "<h2>Student errors in problems $extrae,$adminNamee$sectionNamee sorted by time of confusion</h2>\n";
    
    $sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1 WHERE $adminNamec $sectionNamec $extrac  $startDatec $endDatec P1.clientID = P1.clientID ORDER BY $orderBy $order";
    $queryStart=microtime(true);   
    $result = mysql_query($sql);
    $queryTime += microtime(true)-$queryStart;
    if ($myrow = mysql_fetch_array($result)) {
-     echo "<table border=1>";
+     echo "<table border=1>\n";
+     echo "<colgroup><col span=\"4\"><col align=\"right\"><col align=\"char\"></colgroup>\n";
+     echo "<thead>\n";
      echo "<tr><th>User Name</th><th>Problem</th><th>Section</th><th>Starting Time</th><th>Count</th><th>time</th><th>Additional</th></tr>\n";
+     echo "</thead>\n";
+     echo "<tbody>\n";
      $rowOutput=array();
      
      do
        {
 	 $clientID=$myrow["clientID"];
-	 $userName=$myrow["userName"];
-	 $userProblem=$myrow["userProblem"];
-	 $userSection=$myrow["userSection"];
-	 $startTime=$myrow["startTime"];
+	 $sessionColumns = "<td>" . $myrow["userName"] . "</td><td>" . 
+	   $myrow["userProblem"] . "</td><td>" . $myrow["userSection"] . 
+	   "</td><td>" . $myrow["startTime"] . "</td>";
+	 $sessionLink1 = "<td><a href=\"OpenTrace.php?x=" . $dbuser .
+	   "&amp;sv=" . $dbserver . "&amp;pwd=" . $dbpass . "&amp;d=" . $dbname .
+	   "&amp;cid=" . $clientID . "&amp;u=" . $myrow["userName"] . "&amp;p=" . 
+	   $myrow["userProblem"] . "&amp;s=" . $myrow["userSection"] .  
+	   "&amp;m=" . $methods;
+	 $sessionLink2 ="\">Session&nbsp;log</a></td>";
 	 $tempSql = "SELECT initiatingParty,command,tID FROM PROBLEM_ATTEMPT_TRANSACTION WHERE clientID = '$clientID'";
 	 $queryStart=microtime(true);   
 	 $tempResult = mysql_query($tempSql);
@@ -211,8 +225,6 @@ if($slice == 'comments'){
 
 	 // loop through session
 	 $confused=false;
-	 $counter=0;
-	 $startTurn=NULL;
 	 
 	 // get student input and server reply
 	 while (($myrow1 = mysql_fetch_array($tempResult)) &&
@@ -232,12 +244,14 @@ if($slice == 'comments'){
 	   $jsonStart=microtime(true);   
 	   $a=$json->decode($action);
 	   $jsonTime1 += microtime(true)-$jsonStart;
+	   if(isset($a->params->time)){  
+	     $ttime=$a->params->time;
+	   }
 	   if(isset($a->method) && ($a->method == 'solution-step' || 
 				    $a->method == 'seek-help')){
 	     $jsonStart=microtime(true);   
 	     $b=$json->decode($response);
 	     $jsonTime2 += microtime(true)-$jsonStart;
-	     $ttime=$a->params->time;
 	     $thisTurn=NULL;
 	     if(isset($b->result)){
 	       foreach ($b->result as $row){
@@ -250,7 +264,9 @@ if($slice == 'comments'){
 	     if($thisTurn=='correct' && $confused){
 	       if($counter>1){
 		 $dt=$ttime-$confusedStartTime;
-		 $rowOutput[$dt]= "<tr><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td>$counter</td><td>$dt</dt><td><a href=\"OpenTrace.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&cid=$clientID&u=$userName&p=$userProblem&s=$userSection&t=$confusedtID&m=$methods\">Session&nbsp;log</a></td></tr>";
+		 $rowOutput[$dt]= "<tr>" . $sessionColumns . 
+		   "<td>$counter</td><td>$dt</td>" . $sessionLink1 . 
+                    "&amp;t=" . $confusedtID . $sessionLink2 . "</tr>";
 	       }
 	       $confused=false;
 	     } elseif ($thisTurn=='incorrect') {
@@ -267,13 +283,22 @@ if($slice == 'comments'){
 	     }
 	   }
 	 } // loop through session rows       
+
+	 // Case where session ends before confusion is resolved.
+	 if($confused && $counter>1){
+	   $dt=$ttime-$confusedStartTime;
+	   $rowOutput[$dt]= "<tr class=\"quit\">" . $sessionColumns . 
+	     "<td>$counter</td><td>$dt</td>" . $sessionLink1 . 
+	     "&amp;t=" . $confusedtID . $sessionLink2 . "</tr>";
+	 }
        }
      while ($myrow = mysql_fetch_array($result));
      krsort($rowOutput);
      foreach($rowOutput as $row){
        echo "$row\n";
      }
-     echo "</table>";
+     echo "</tbody>\n";
+     echo "</table>\n";
    } else {// if for any session exising
      echo "No matching sessions found\n";
    }
