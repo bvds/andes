@@ -189,6 +189,7 @@
 ;;     "the tension in the wire" in s13 ("wire" is not a defined object in s13)
 ;; "the frictional force on the aircraft"
 ;; "the frictional force against the aircraft"
+;; "force due to gravity" Raj experiment subject Nov 2010.
 
 ;; For tension, need to distinguish scalar and vector
 ;; forms (see Bug #1719):
@@ -216,10 +217,10 @@
 	 (time ?time)))))
 
 (defparameter *force-types*
-    '((weight . (or "force of gravity"
-	      ((or "weight" "gravitational" "grav." "grav") "force")))
-    (gravitational . (or "force of gravity"
-		     ((or "gravitational" "weight" "grav." "grav") "force")))
+  '((weight . (or ("force" (or "of" "due to") "gravity")
+	       ((or "weight" "gravitational" "grav." "grav") "force")))
+    (gravitational . (or ("force" (or "of" "due to") "gravity")
+		      ((or "gravitational" "weight" "grav." "grav") "force")))
     ;; "normal force exerted on a body by the surface" from Y&F 
     (normal . ("normal force"))
     (tension . (or ("tension" (preferred "force")) "pulling force" 
