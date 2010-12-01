@@ -330,8 +330,12 @@
       ((null sysentries)
        (values nil (nothing-to-match-ErrorInterp entry tool-prop) hints))
       ((null best)
-       ;; "Can't understand your definition," and switch to NSH
-       (values nil (no-matches-ErrorInterp entry) hints))
+       (if (and (= (length (StudentEntry-symbol entry)) 0)
+		(Entries-need-variables (StudentEntry-type entry)))
+	   ;; In this case, we can at least hint for adding a variable.
+	   (values nil (add-variable-errorinterp entry) hints)
+	   ;; "Can't understand your definition," and switch to NSH
+	   (values nil (no-matches-ErrorInterp entry) hints)))
       ((= (length best) 1)
        (let ((sysent (cdr (car best))))
 
@@ -540,6 +544,51 @@
 			      :remediation rem))))
   (make-red-turn :id (StudentEntry-id Entry)))
 
+(defparameter *type-entryprop*
+  '((eqn . "equation")
+    (define-var . "statement")
+    (body . "ellipse")
+    (body . "rectangle")
+    (body . "circle")
+    (vector . "vector")
+    (line . "line")
+    (draw-axes . "axes"))
+  "map between entryprops and user interface tools.")
+
+;; helper function to guess api type from entryprop.
+(defun entryprop2type (prop)
+  "Determine Andes3 api \"type\" from entryprop."
+  (or (cdr (assoc (car prop) *type-entryprop*))
+      (warn "entryprop2type: bad prop ~A" prop)))
+
+;; helper function to guess api type from entryprop.
+(defun type2entryprop (type)
+  "Determine entryprop associated with Andes3 api \"type\"."
+  (or (car (rassoc type *type-entryprop* :test #'string-equal))
+      (warn "type2entryprop: bad prop ~A" type)))
+
+(defun Entries-need-variables (typein)
+  "Determine whether uncompleted SystemEntries of this type generate any variables in the algebra."
+  (let* ((type (type2entryprop typein))
+	 ;; Select uncompleted SystemEntry props of this type
+	 (props (delete type 
+			(mapcar #'SystemEntry-prop 
+				(remove-if #'SystemEntry-entered 
+					   *sg-entries*))
+			:key #'car :test-not #'eql))
+	 ;; Retrieve quantity props, getting parent props for any
+	 ;; components, angles, or magnitudes.
+	 (quants (mapcar #'(lambda (x) (get-vector-parent-prop (qvar-exp x)))
+			 (problem-varindex *cp*))))
+    (some #'(lambda (prop) (member prop quants :test #'unify))
+	  (mapcar #'second props))))
+
+(defun Add-variable-errorInterp (entry)
+  (declare (ignore entry))
+  (make-hint-seq 
+   (list (strcat "You should " *define-variable* " for this entry.")
+	 (strcat "Double-click on the text box and " *define-variable* "."))
+   :assoc '((no-variable-defined . nil))))
 
 (defun no-matches-ErrorInterp (entry)
   (let* ((equal-sign (when (find #\= (StudentEntry-text entry))
@@ -610,8 +659,25 @@
 			     (subseq nosym (length equality)))))))))
   text)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;            Handle case where there is no text.
+;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun no-text-handler (entry)
+  "Return unsolicited hint for entry with no text."
+  (make-hint-seq (list "Generally, objects should be labeled."
+		       (strcat "Select the "
+			       ;; We use "text tool" in the hints and manual.
+			       (if (string-equal (StudentEntry-type entry) "statement") 
+				   "text"
+				   (StudentEntry-type entry))
+			       " again, double-click on " 
+			       "the text box and " *add-label* "."))
+		 :assoc `((no-label . (StudentEntry-type entry)))))
 
+		 
 ;;-----------------------------------------------------------------------------
 ;; Workbench Entry API Handler functions
 ;;-----------------------------------------------------------------------------
@@ -655,6 +721,12 @@
 ;;  table this name paired with the system's name for the same quantity.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun assert-object (entry)
+
+  ;; Case of no label at all, don't turn color, but give unsolicited hint.
+  (when (= (length (string-trim match:*whitespace* 
+				(studentEntry-text entry))) 0)
+      (return-from assert-object (no-text-handler entry)))
+
   (let ((id (StudentEntry-id entry))
 	(symbol (StudentEntry-symbol entry)))
     (multiple-value-bind (sysent tturn hints)
@@ -698,6 +770,12 @@
 ;;  enters the variables in the symbol table.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun lookup-vector (entry)
+  
+  ;; Case of no label at all, don't turn color, but give unsolicited hint.
+  (when (= (length (string-trim match:*whitespace* 
+				(studentEntry-text entry))) 0)
+      (return-from lookup-vector (no-text-handler entry)))
+  
   (let* ((id (StudentEntry-id entry))
 	 (symbol (StudentEntry-symbol entry))
 	 (drawn-mag (StudentEntry-radius entry))
@@ -828,6 +906,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun lookup-line (entry)
+
+  ;; Case of no label at all, don't turn color, but give unsolicited hint.
+  (when (= (length (string-trim match:*whitespace* 
+				(studentEntry-text entry))) 0)
+      (return-from lookup-line (no-text-handler entry)))
+
   (let* ((id (StudentEntry-id entry))
 	 ;; Needs to be determined from natural language 
 	 ;;
@@ -1346,16 +1430,16 @@
     (setf (turn-id rem) (StudentEntry-id se))
     (setf (turn-coloring rem) +color-red+)))
 
-; 
-; log-entry-info -- insert extra info for entry into Andes log
-;
-; This function can be used for any student entry including eqns, 
-; after status and possibly error info has been assigned.
-; Logs: parsedEqn (eqns only), error label (if assigned), 
-;       target step and op lists (if one is found)
-; Runs wwh to get an error handler if one is unset.
-; Sends async commands to workbench to do the logging, so
-; the entries go before the final result in the log.
+;; 
+;; log-entry-info -- insert extra info for entry into Andes log
+;;
+;; This function can be used for any student entry including eqns, 
+;; after status and possibly error info has been assigned.
+;; Logs: parsedEqn (eqns only), error label (if assigned), 
+;;       target step and op lists (if one is found)
+;; Runs wwh to get an error handler if one is unset.
+;; Sends async commands to workbench to do the logging, so
+;; the entries go before the final result in the log.
 ;
 (defun log-entry-info (entry)
   ; don't waste time adding info when checking init entries 

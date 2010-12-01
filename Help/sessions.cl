@@ -578,16 +578,6 @@
     ;; assemble list of replies to send to client.
     (append (reverse replies) solution-step-replies)))
 
-;; helper function to guess api type from entryprop.
-(defun entryprop2type (prop)
-  "guess Andes3 api \"type\" from entryprop."
-  (case (car prop)
-    (eqn "equation")
-    (define-var "statement")
-    (body "ellipse") ;could also be rectangle
-    (vector "vector")
-    (line "line")
-    (draw-axes "axes")))
 
 ;; helper function to write out definition text based on Ontology.
 (defun write-definition-text (prop symbol)
