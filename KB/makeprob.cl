@@ -132,31 +132,29 @@
   (solver-logging *solver-logging*))
 
 
-;; (dump-html-prbs #P"/home/bvds/Andes2/solutions/" #P"/home/bvds/solutions/")
+;; (dump-html-prbs #P"/home/bvds/solutions/")
 ;; scp -r ~/solutions/ andes3.lrdc.pitt.edu:/home/andes/public_html/learnlab
 
-(defun dump-html-prbs (in-path out-path &rest topics)  
+(defun dump-html-prbs (out-path &rest topics)  
   "write solutions to working problems into a directory"
   (andes-init)
   (dolist (P (choose-working-probs topics))
     ;; also initializes *sg-entries*
-    (read-problem-info (string (problem-name P))
-		       :path in-path)
+    (read-problem-info (string (problem-name P)))
     (if *cp* (dump-html-problem-solutions *cp* out-path)
 	(format t "Error:  Can't load ~A~%" (problem-name p))))
   (dump-style-file out-path))
 
 
 ;; need helpsystem loaded for this
-;; (dump-entries-operators #P"/home/bvds/Andes2/solutions/" #P"/home/bvds/solutions/")
+;; (dump-entries-operators #P"/home/bvds/solutions/")
 ;; scp -r ~/solutions/ andes3.lrdc.pitt.edu:/home/andes/public_html/learnlab
-(defun dump-entries-operators (in-path out-path &rest topics)  
+(defun dump-entries-operators (out-path &rest topics)  
   "write operators and entries to working problems into a directory"
   (andes-init)
   (dolist (P (choose-working-probs topics))
     ;; also initializes *sg-entries*
-    (read-problem-info (string (problem-name P))
-		       :path in-path)
+    (read-problem-info (string (problem-name P)))
        (if *cp* (dump-entries-operators-problem-solutions *cp* out-path)
 	   (format t "Error:  Can't load ~A~%" (problem-name p)))))
 
@@ -243,8 +241,7 @@
                                  (and (working-problem-p p) 
 				      (Andes2-prob p)
 				      (intersection (cdr pair) (problem-features p))))
-		              (listprobs)))
-	(prob))
+		              (listprobs))))
     (dolist (P Probs)
        (format outf "\<~A\>~%" (problem-name P))
        (dolist (line (Problem-Statement P))
