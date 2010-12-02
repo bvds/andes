@@ -391,7 +391,9 @@
 	 (if (all-boundp model bindings)
 	     (expand-new-english (subst-bindings bindings model))
 	     (warn "expand-new-english:  Unbound variable ~A" model)))
-	((and (consp model) (member (car model) '(preferred allowed)))
+	((and (consp model) (member (car model) 
+				    '(preferred allowed key 
+				      case-insensitive case-sensitive)))
 	 (when (cddr model) 
 	   (warn "expand-new-english:  ~(~A~) with more than one argument:  ~A"
 		 (car model) model))
@@ -465,15 +467,20 @@
   "Expand (var ...) expressions and remove nils from model tree."
   (cond ((stringp model) model)
 	((null model) model)
-	((member (car model) '(preferred allowed and or conjoin))
+	((member (car model) '(preferred allowed key case-sensitive 
+			       case-insensitive))
+	 (let ((arg (expand-vars (second model))))
+	   (when arg (list (car model) arg))))
+	((member (car model) '(and or conjoin))
 	 ;; untrapped error when second arg of conjoin expands to nil
 	 (let ((args (expand-vars (cdr model))))
 	   (when args (cons (car model) args))))
 	((match:test-for-list model) ;plain list
-	 ;; mapcar copies list; subsequent operations can be destructive
+	 ;; mapcar copies list; subsequent operation can be destructive
 	 (delete nil (mapcar #'expand-vars model)))
 	;; expansion of var must be done at run-time.
 	((eql (car model) 'var)
+	 ;; use case-sensitive matching.
 	 (apply #'symbols-label (cdr model)))
 	(t (warn "expand-vars:  invalid expand ~A" model) model)))
 

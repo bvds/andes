@@ -128,11 +128,11 @@
   :units |m|
   :short-name "relative position"
   ;; see relative-vel
-  :new-english (or ((property-object "position" ?to-pt)
+  :new-english (or ((property-object (key "position") ?to-pt)
 		    (preferred ((or "relative to" "with respect to" "from") 
 				?from-pt))
 		    (time ?time))
-		   ((property-object "relative position" ?to-pt)
+		   ((property-object ("relative" (key "position")) ?to-pt)
 		    (preferred ((or "from" "with respect to") ?from-pt))
 		    (time ?time))))
 
@@ -143,7 +143,7 @@
   :short-name "displacement"
   ;; BvdS:  is there a common abbreviation?
   ;; Can't use property-object, because "average" doesn't make sense.
-  :new-english ((the) "displacement" 
+  :new-english ((the) (key "displacement")
 		(and (preferred (property ?body)) (time ?time))))
 
 ;; ex) "the average velocity of the car between T0 and T1"
@@ -152,7 +152,7 @@
   :rank vector
   :units |m/s|
   :short-name "velocity"
-  :new-english (property-object (or "velocity" "vel." "vel") ?body 
+  :new-english (property-object (key (or "velocity" "vel." "vel")) ?body 
 				:time ?time))
 
 ;; ex) "the velocity of the ball relative to the observer"
@@ -163,9 +163,10 @@
   ;; see relative-position
   :new-english ((the) 
 		(time-type ?time)
-		(or ((or "velocity" "vel." "vel") (property ?to-pt) 
+		(or ((key (or "velocity" "vel." "vel")) (property ?to-pt) 
 		     (preferred ("relative to" ?from-pt)))
-		    ((allowed "relative") (or "velocity" "vel." "vel") (property ?to-pt) 
+		    ((allowed "relative") 
+		     (key (or "velocity" "vel." "vel")) (property ?to-pt) 
 		     (preferred ("with respect to" ?from-pt))))
 		(time ?time)))
 
@@ -173,15 +174,15 @@
   :rank vector
   :units |m/s^2|
   :short-name "acceleration"
-  :new-english (property-object (or "acceleration" "accel." "accel") ?body
-				     :time ?time))
+  :new-english (property-object (key (or "acceleration" "accel." "accel")) 
+				?body :time ?time))
 
 (def-qexp momentum (momentum ?body :time ?time)
   :rank vector
   :units |kg.m/s|
   :short-name "momentum"
-  :new-english (property-object (or "momentum" "mom." "mom") ?body
-				:time ?time))
+  :new-english (property-object (key (or "momentum" "mom." "mom")) 
+				?body :time ?time))
 
 ;; ex) "the constant normal force that the man acts on the crate"
 ;;     "the constant normal force of the man acting on the crate"
@@ -222,25 +223,26 @@
     (gravitational . (or ("force" (or "of" "due to") "gravity")
 		      ((or "gravitational" "weight" "grav." "grav") "force")))
     ;; "normal force exerted on a body by the surface" from Y&F 
-    (normal . ("normal force"))
-    (tension . (or ("tension" (preferred "force")) "pulling force" 
-	       ("force" (preferred "of tension"))))
-    (applied . ((allowed (or "applied" "external")) "force")) ;catch-all force
+    (normal . ("normal" (key "force")))
+    (tension . (or ((key "tension") (preferred "force")) 
+		("pulling" (key "force")) 
+		((key "force") (preferred "of tension"))))
+    ;; catch-all force
+    (applied . ((allowed (or "applied" "external")) (key "force")))
     (kinetic-friction . (or (((preferred "kinetic") 
-			     (or "friction" "frictional")) "force")
-			("force" "of" (preferred "kinetic") "friction")))
+			      (or "friction" "frictional")) "force")
+			 ("force" "of" (preferred "kinetic") "friction")))
     (static-friction . (or (((preferred "static") 
 			     (or "friction" "frictional")) "force")
 			("force" "of" (preferred "static") "friction")))
-    (electric . ((or "electric" "E" "coulomb") "force"))
-    (magnetic . ((or "magnetic" "B") "force"))
-    (buoyant . ((or "buoyant" "buoyancy") "force"))
-    (thrust . "thrust force")
-    (spring . "spring force")
-    (pressure . (or ("pressure" (allowed "force"))
-				   ("force" (preferred "of pressure")) 
-				))
-    (drag . ((or "drag" "friction" "frictional") "force"))))
+    (electric . ((or "electric" "E" "coulomb") (key "force")))
+    (magnetic . ((or "magnetic" "B") (key "force")))
+    (buoyant . ((or "buoyant" "buoyancy") (key "force")))
+    (thrust . ("thrust" (key "force")))
+    (spring . ("spring" (key "force")))
+    (pressure . (or ((key "pressure") (allowed "force"))
+		 ((key "force") (preferred "of pressure"))))
+    (drag . ((or "drag" "friction" "frictional") (key "force")))))
 
 (defun force-types (type)
   (or (cdr (assoc type *force-types*))
@@ -252,7 +254,7 @@
   :units N
   :short-name "net force"
   :new-english ((the) (or "net" "total") 
-		"force" (and (preferred (object ?body))
+		(key "force") (and (preferred (object ?body))
 			     (time ?time))))
 
 (def-qexp rotation-adj (rotation-adj)
@@ -272,7 +274,7 @@
   :units |rad/s|
   :short-name "angular velocity"
   :new-english (property-object
-		((rotation-adj) (or "velocity" "vel." "vel"))
+		((rotation-adj) (key (or "velocity" "vel." "vel")))
 		?body :time ?time))
 
 (def-qexp ang-accel (ang-accel ?body :time ?time)
@@ -280,7 +282,7 @@
   :units |rad/s^2|
   :short-name "rotational acceleration"
   :new-english (property-object 
-		((rotation-adj) (or "acceleration" "accel." "accel"))
+		((rotation-adj) (key (or "acceleration" "accel." "accel")))
 		?body :time ?time))
 
 (def-qexp ang-momentum (ang-momentum ?body :time ?time)
@@ -288,7 +290,7 @@
   :units |kg.m^2/s|
   :short-name "angular momentum"
   :new-english (property-object
-		((rotation-adj) (or "momentum" "mom." "mom"))
+		((rotation-adj) (key (or "momentum" "mom." "mom")))
 		?body :time ?time))
 
 (def-qexp torque (torque ?body ?agent :axis ?axis :time ?time)
@@ -296,7 +298,7 @@
   :units |N.m|
   :short-name "torque"
   :new-english 
-  ((the) (eval (moment-name)) 
+  ((the) (key (eval (moment-name)))
    (and (preferred (object ?body))
 	;; eval is a wrapper simply to specify agent
 	(eval '(preferred (agent ?agent))
@@ -312,7 +314,7 @@
   :rank vector
   :units |N.m|
   :short-name "net torque"
-  :new-english ((the) (or "net" "total") (eval (moment-name)) 
+  :new-english ((the) (or "net" "total") (key (eval (moment-name)))
 		(and (preferred (object ?body))
 		     (preferred (eval (when ?axis '("about" ?axis))
 				      (?axis . (problem-axes *cp*))))
@@ -368,9 +370,12 @@
 
 ;;;;         General phrases
 
+(def-qexp var-wrapper (variable . ?rest)
+  :new-English (case-sensitive (var . ?rest)))
+
 (def-qexp property (property ?body)
   ;; "for" is exceptionally used
-  :new-english ("of" (or (var ?body :namespace :objects) 
+  :new-english ("of" (or (variable ?body :namespace :objects) 
 			 ;; eval as wrapper to set possible values
 			 (eval ?body
 			       (?body . (problem-bodies-and-compounds *cp*)))
@@ -440,7 +445,7 @@
   ;; eval wrapper to specify possible values for body.
   :new-english (eval '((or "on" "acting on" "exerted on" "that acts on" 
 			"applied on" "applied to" "against") 
-		       (or (var ?body :namespace :objects) ?body))
+		       (or (variable ?body :namespace :objects) ?body))
 		     ;; include case where body is omitted
 		     (?body . (problem-bodies-and-compounds *cp*))))
 
@@ -450,14 +455,14 @@
   ;; important for the case that it is missing (in elec4b, see Bug #1676)
   :new-english (eval (when (expand-new-english ?body)
 			'((or "due to" "by" "from" "caused by" "exerted by" "of") 
-			  (or (var ?body :namespace :objects) ?body)))
+			  (or (variable ?body :namespace :objects) ?body)))
 		     ;; include case with no agent
 		     (?body . (cons nil (problem-atoms *cp*)))))
 
 (def-qexp agent-prep (agent-prep ?preposition ?body)
   :new-english (eval (when (expand-new-english ?body)
 		       '(?preposition
-			 (or (var ?body :namespace :objects) ?body)))
+			 (or (variable ?body :namespace :objects) ?body)))
 		     ;; include case with no agent
 		     (?body . (cons nil (problem-atoms *cp*)))))
 
@@ -495,7 +500,7 @@
   :units |kg|
   :restrictions positive
   ;; "ball's mass" problem s2e (to do)
-  :new-english (property-object "mass" ?body :time ?time))
+  :new-english (property-object (key "mass") ?body :time ?time))
 
 ;; the magnitude of the change of mass of ~A per unit time due to ~A~@[ ~A~]" 
 ;;	       (nlg ?body) (nlg ?agent 'agent) (nlg ?time 'pp)
@@ -526,18 +531,18 @@
   :symbol-base |s|     
   :short-name "distance traveled"	
   :units |m|
-  :new-english ((the) (or "distance" "dist." "dist") 
-		(or  ((preferred (or "traveled" "travelled" 
-				     "travels" "moves" "moved"))
-		      (and (preferred ("by" (or (var ?body :namespace :objects) ?body)))
-		           (time ?time)))
-		     ((property-object "distance" ?body)
-		      (and (allowed (or "traveled" "travelled" "travels" 
-					"moves" "moved"))
-		           (allowed "from the origin")
-			   (time ?time)))
-		))
-)
+  :new-english (or 
+		((the) (key (or "distance" "dist." "dist"))
+		 (preferred (or "traveled" "travelled" 
+				"travels" "moves" "moved"))
+		 (and (preferred ("by" (or (variable ?body :namespace :objects)
+					   ?body)))
+		      (time ?time)))
+		((property-object (key (or "distance" "dist." "dist")) ?body)
+		 (and (allowed (or "traveled" "travelled" "travels" 
+				   "moves" "moved"))
+		      (allowed "from the origin")
+		      (time ?time)))))
 
 ;; ex) "the duration of time between T0 and T1"
 ;;     "the time duration between T0 and T1"
@@ -563,7 +568,7 @@
   :symbol-base |v|     
   :short-name "speed"	
   :units |m/s|
-  :new-english (property-object "speed" ?body :time ?time)
+  :new-english (property-object (key  "speed") ?body :time ?time)
 )
 
 ;;ex) "the coeffienct of kinetic friction between the crate and the plain"
@@ -581,8 +586,10 @@
 		(and (preferred 
 		      ("between" 
 		       (conjoin (or "and" "&") 
-				(or (var ?body1 :namespace :objects) ?body1)
-				(or (var ?body2 :namespace :objects) ?body2))))
+				(or (variable ?body1 :namespace :objects) 
+				    ?body1)
+				(or (variable ?body2 :namespace :objects) 
+				    ?body2))))
 		     (time ?time))))
 
 ;; "coefficient of drag for ~A moving through ~A" 
@@ -700,7 +707,7 @@
   :symbol-base |W|     
   :short-name "work"	
   :units |J|
-  :new-english ((the) (allowed "average") "work" (preferred "done")
+  :new-english ((the) (allowed "average") (key "work") (preferred "done")
 		(and (preferred (object ?b))
 		     (preferred (agent ?agent))
 		     (time ?time))))
@@ -715,7 +722,7 @@
   :rank scalar
   :units |J|
   :short-name "net work"
-  :new-english (((the) (or "net" "total net" "total") "work" 
+  :new-english (((the) (or "net" "total net" "total") (key "work")
 		 (preferred "done")
 		 (and (preferred (object ?body))
 		      (allowed (agent "all forces"))
@@ -728,7 +735,7 @@
   :rank scalar
   :units |J|
   :short-name "work by non-conservative forces"
-  :new-english (((the) (allowed (or "total" "net")) "work"
+  :new-english (((the) (allowed (or "total" "net")) (key "work")
 		 (preferred "done") 
 		 (and (preferred (object ?body))
 		      (preferred (agent "non-conservative forces"))
@@ -810,15 +817,16 @@
   ;;	      (FORCE ELECTRON UNSPECIFIED ELECTRIC :TIME (DURING 1 2)))
   ;;
   ;;ex) ?vecs=(a b c)
-  ;;    (mapcar .. ?vecs) = ((or (var a) a) (or (var b) b) (or (var c) c))
+  ;;    (mapcar .. ?vecs) = ((or (variable a) a) (or (variable b) b) 
+  ;;                         (or (variable c) c))
   ;;
   ;; Generally, we expect the objects to be already defined before
   ;; angle-between is defined.  Thus, the variable names will be available.
-  :new-english ((the) "angle between" 
+  :new-english ((the) (key "angle") "between" 
 		(conjoin 
 		 (or "and" "&") . 
 		 (eval (mapcar 
-			#'(lambda (x) `(or (var ,x :namespace :objects) 
+			#'(lambda (x) `(or (variable ,x :namespace :objects) 
 					   ,x))
 			?vecs)))))
 
@@ -827,7 +835,8 @@
   :units |J|
   :short-name "net mechanical energy"
   :new-english (property-object 
-		(or ((preferred (or "total" "net")) "mechanical energy") 
+		(or ((preferred (or "total" "net")) "mechanical" 
+		     (key "energy")) 
 			  "TME")
 		?system
 		:time ?time))
@@ -838,7 +847,7 @@
   :short-name "kinetic energy"
   :new-english (property-object ((allowed (or "total" "net")) 
 				 (allowed (or "translational" "linear"))
-				 (or "kinetic energy" "KE"))
+				 (or ("kinetic" (key "energy")) "KE"))
 				?body :time ?time))
 
 (def-qexp rotational-energy (rotational-energy ?body :time ?time)
@@ -847,7 +856,7 @@
   :short-name "kinetic energy"
   :new-english (property-object ((allowed (or "total" "net")) 
 				 (preferred (rotation-adj))
-				 (or "kinetic energy" "KE"))
+				 (or ("kinetic" (key "energy")) "KE"))
 				?body :time ?time))
 
 (def-qexp grav-energy (grav-energy ?body ?agent :time ?time)
@@ -855,7 +864,8 @@
   :units |J|
   :short-name "potential energy"
   :new-english ((the) (allowed "total") (or "gravitational" "grav")
-		(or ((preferred (or "potential" "pot." "pot")) "energy") "PE")
+		(or ((preferred (or "potential" "pot." "pot")) (key "energy"))
+		    "PE")
 		(and (preferred (property ?body))
 		     (preferred (agent ?agent)) 
 		     (time ?time))))
@@ -866,7 +876,7 @@
   :units |J|
   :short-name "potential energy"
   :new-english ((the) (allowed "elastic") (or ((or "potential" "pot" "spring") 
-					       "energy") "PE")
+					       (key "energy")) "PE")
 		(and (preferred (or (property ?body) 
 				    ("transmittable to" ?body)))
 		     ;; always include spring, since that defines force type.
@@ -903,8 +913,7 @@
   :short-name "height"	
   :units |m|
   :new-english 
-  (property-object 
-   "height" ?body 
+  (property-object (key "height") ?body 
    ;; Case with the zero height included.
    ;; Generally, we only have one zero height defined
    ;; in a problem, so we can default to not using it.

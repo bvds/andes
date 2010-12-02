@@ -280,8 +280,11 @@
 	     (get-ontology-bindings (subst-bindings bindings model))
 	     ;; Assume all "bare" variables are bound to atoms
 	     (merge-with-ontology-bindings model (problem-atoms *cp*))))
-	((and (consp model) (member (car model) 
-				    '(preferred allowed or and conjoin)))
+	((and (consp model) 
+	      (member (car model) '(preferred allowed key case-sensitive 
+				    case-insensitive)))
+	 (get-ontology-bindings (second model) bindings))
+	((and (consp model) (member (car model) '(or and conjoin)))
 	 (get-list-ontology-bindings (cdr model) bindings))
 	;; ordered sequence
 	((match:test-for-list model)
@@ -404,10 +407,13 @@
 	     (list nil)))
 	((variable-p model)
 	 (warn "expand-new-english:  Unbound variable ~A" model) (list nil))
+	((and (consp model) (member (car model) 
+				    '(key case-sensitive case-insensitive)))
+	 (get-first-model-words (second model) more-model))
 	((and (consp model) (member (car model) '(preferred allowed)))
 	 (union 
 	  (get-first-model-words more-model nil)
-	 (get-first-model-words (cdr model) more-model)))
+	 (get-first-model-words (second model) more-model)))
 	((and (consp model) (eql (car model) 'or))
 	 (if (cdr model)
 	     (dolist-union (x (cdr model))

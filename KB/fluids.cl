@@ -33,7 +33,7 @@
   :short-name "mass density"	
   :units |kg/m^3|
   :restrictions nonnegative   
-  :new-english (property-object ((preferred "mass") "density") ?material)
+  :new-english (property-object ((preferred "mass") (key "density")) ?material)
 )
 
 (defoperator define-mass-density (?material)
@@ -571,7 +571,8 @@
   :units |m^3|
   ;; we allow zero-volume for negligible parts of compound bodies
   :restrictions nonnegative 
-  :new-english (property-object "volume" ?body :time ?time)
+  :new-english (property-object (key (or "volume" "vol." "vol")) 
+				?body :time ?time)
 )
 
 (defoperator define-volume (?body ?time)

@@ -26,9 +26,13 @@
 ;;                 (conjoin <conjunction> <model> ...)  conjoin orderless
 ;;                               sequence (<model> ...) using <conjunction>, 
 ;;                               where <conjunction> is of type <model>.
+;;                 (key <model>) give higher weight to model
+;;                 (case-sensitive <model>) use case-sensitive matching
+;;                 (case-insensitive <model>) use case-insensitive matching
+;;                               (default)
 ;;                 (var <quant> :namespace <space>)  match student variable 
 ;;                               for <quant> in namespace <space>.
-;;                 (eval <lisp>)  execute <lisp> as lisp code 
+;;                 (eval <lisp> ...)  execute <lisp> as lisp code 
 ;;                 (<atom> ...)  if <atom> matches none of above, 
 ;;                               match with ontology
 ;;                 <string>      leaf nodes, after resolution, are strings
@@ -63,13 +67,15 @@
 		   :test-for-list
 		   :word-count :word-count-handler
 		   :add-to-dictionary :add-to-dictionary-handler
+		   :*key-multiplier
 		   :*word-cutoff*
 		   :matches-model-syntax :word-string :*grammar-names*))
 
 (eval-when (:load-toplevel :compile-toplevel)
   (defparameter match:*grammar-names* 
     (mapcar #'string-upcase ;lisp symbol default is upper case.
-	    '("preferred" "allowed" "and" "or" "conjoin" "var" "eval")))
+	    '("preferred" "allowed" "and" "or" "conjoin" "var" "eval" "key"
+	      "case-sensitive" "case-insensitive")))
 
   ;; For each symbol in the grammar, if the symbol is not defined somewhere 
   ;; define symbol in :cl-user.  Then import each symbol into :match.  
@@ -89,6 +95,9 @@
 
 (defparameter *whitespace* '(#\Space #\Tab #\Newline))
 
+(defvar *key-multiplier* 2 "Multiplication factor for matching key submodels.")
+
+(defvar *case-sensitive* nil "Whether to do case-sensitive matching.")
 
 (defun test-for-list (x)
   (and (consp x) (or (stringp (car x)) (listp (car x)))))
@@ -125,6 +134,8 @@
     ((test-for-list model)
      ;; mapcar copies list; subsequent operations can be destructive
      (join-words (delete nil (mapcar #'word-string model))))
+    ((member (car model) '(key case-insensitive case-sensitive))
+     (when (second model) (word-string (second model))))
     ((eql (car model) 'and)
      (when (cdr model) (word-string (cdr model))))
     ((eql (car model) 'or)
@@ -164,6 +175,8 @@
     ((stringp model) 1) ;; or count words in string
     ((atom model) (funcall word-count-handler model :max max))
     ;; from here on, assume model is a proper list
+    ((member (car model) '(key case-insensitive case-sensitive))
+     (word-count (second model) :max max))
     ((test-for-list model)
      (loop for x in model sum (word-count x :max max)))
     ((eql (car model) 'and)
@@ -203,7 +216,10 @@
      (dolist (x model)
        (setf dictionary (add-to-dictionary x dictionary)))
      dictionary)
-    ((member (car model) '(and or conjoin allowed preferred))
+    ((member (car model) '(allowed preferred key 
+			   case-insensitive case-sensitive))
+     (add-to-dictionary (second model) dictionary))
+    ((member (car model) '(and or conjoin))
      (add-to-dictionary (cdr model) dictionary))
     (t (funcall add-to-dictionary-handler model dictionary))))
 
@@ -219,6 +235,8 @@
   (cond 
     ((null model) nil)
     ((stringp model) 1) ;; or count words in string
+    ((member (car model) '(key case-insensitive case-sensitive))
+     (model-complexity (second model)))
     ((test-for-list model)
      ;; mapcar copies list; subsequent operations can be destructive
      (apply #'* (delete nil (mapcar #'model-complexity model))))
@@ -286,6 +304,12 @@
     ((atom model)
      (funcall unknown-object-handler student model :best best))
     ;; from here on, model must be a proper list
+    ((eql (car model) 'key)
+     (* *key-multiplier* (match-model student (second model) 
+				      :best (/ best *key-multiplier*))))
+    ((member (car model) '(case-insensitive case-sensitive))
+     (let ((*case-sensitive* (eql (car model) 'case-sensitive)))
+       (match-model student (second model) :best best)))
     ;; model optional
     ((member (car model) '(preferred allowed))
      ;; Any (cddr model) is ignored.  
@@ -637,7 +661,7 @@
 ;; Imposing a cutoff on word matching improves speed by 50%
 ;; and removes some accidental matches (words
 ;; that are clearly different, but have some letter overlap).
-(defparameter *word-cutoff* 0.4 "Assume words don't match for normalized distances larger than this cutoff.")
+(defvar *word-cutoff* 0.4 "Assume words don't match for normalized distances larger than this cutoff.")
 
 (defun normalized-levenshtein-distance (s1 s2)
   "Normalize levenshtein-distance so complete rewrite is 1.0 and imposing match cutoff."
@@ -698,6 +722,9 @@
 		(min (1+ (svref col j))
 		     (1+ (svref prev-col (1+ j)))
 		     (+ (svref prev-col j)
-			(if (char-equal (schar str1 i) (schar str2 j)) 0 1)))))
+			(if (if *case-sensitive*
+				(char= (schar str1 i) (schar str2 j))
+				(char-equal (schar str1 i) (schar str2 j))) 
+			    0 1)))))
 	(rotatef col prev-col))
       (svref prev-col m))))
