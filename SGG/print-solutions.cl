@@ -121,6 +121,7 @@
   (format Stream "</table>~%~%"))
 
 (defun print-entries-operators (entries n &optional (Stream t))
+  (declare (ignore n))
   (dolist (entry entries)
     (let ((ops (remove-duplicates (copy-list (SystemEntry-Sources entry))
 				  :key #'csdo-op :test #'unify)))

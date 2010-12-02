@@ -189,6 +189,7 @@
 ;;; quantity adding the resulting nodes to the supplied graph.
 (defun gg-solve-for-sought (Sought Givens &key (Graph Nil) (IgnorePSMS nil))
   "Solve for the sought with the givens and optional Graph."
+  (declare (ignore IgnorePSMS))
   (when (not (quantity-expression-p Sought))
     (Error "Non-quantity sought supplied ~S." Sought))
   ;; AW -- moved this case up so no trace output for preexisting sought
