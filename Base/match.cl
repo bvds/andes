@@ -598,7 +598,7 @@
 (defparameter *debug-print* nil)  ;; debug print in best-model-matches
 
 (defun best-model-matches (student models &key (cutoff 5) (equiv 1.25) 
-			   (epsilon 0.25))
+			   (epsilon 0.25) no-sort)
   "Returns alist of best matches to text using match-model."
   ;; cutoff is the maximum allowed score.
   ;; equiv maximum fraction of the best score such that a fit
@@ -618,7 +618,7 @@
     ;; Do easier ones first, to establish better bound.
     ;; We have  have to do each time, since results of any eval or var 
     ;; is needed for sort.
-    (dolist (x (sort-by-complexity models))
+    (dolist (x (if no-sort models (sort-by-complexity models)))
       (setf bound (max epsilon (* best equiv)))
       (let ((t0 (if *debug-print* (get-internal-run-time) 0)))
 	(setf this (match-model student (car x) :best bound))
@@ -630,8 +630,9 @@
       (when (< this bound) (push (cons this (cdr x)) quants))
       (when (< this best) (setf best this)))
     ;; Remove any quantities that are not equivalent with best fit
-    ;; and return result. 
-    (delete-if #'(lambda (x) (> (car x) (* best equiv))) quants)))
+    ;; and return result in original order.
+    (nreverse
+     (delete-if #'(lambda (x) (> (car x) (* best equiv))) quants))))
 
 ;; Imposing a cutoff on word matching improves speed by 50%
 ;; and removes some accidental matches (words
