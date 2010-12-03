@@ -123,7 +123,7 @@
 ;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
 (#-sbcl defconstant #+sbcl sb-int:defconstant-eqx
 	help-env-vars 
-	;; These are all the variables that are be set by API commands
+	;; These are all the variables that are set by API commands
         ;; listed in Andes2 log files or their descendants.
 	'(*CP* **NSH-NEXT-CALL** *NSH-NODES* *NSH-FIRST-PRINCIPLES*
 	  *NSH-CURRENT-SOLUTIONS* *NSH-LAST-NODE* *NSH-SOLUTION-SETS* 
@@ -133,6 +133,8 @@
           **Condition**  mt19937::*random-state* **grammar**
 	  ;; Cache for word completion utility.
 	  *phrase-cache*
+	  ;; List of quantities and objects not in solutions.
+	  *wrong-quantities*
 	  ;; List of Fade items.
 	  *fades*
 	  ;; Solver process (could easily be replaced by function argument
@@ -815,14 +817,14 @@
   (declare (ignore time)) ;for logging
 
   (env-wrap
-    (let ((words (next-word-list 
-		  (to-word-list (pull-out-quantity symbol text))
-		  :type (cdr (assoc type *tool-types* :test #'equalp)))))
-      `(((:action . "next-words")
-	 ;; :false is mapped onto json false via a special hack
-	 ;; in Base/web-server.cl
-	 (:last-word . ,(if (member nil words) t :false))
-	 (:words . ,(or (remove nil words)
+   (let ((words (next-word-list 
+		 (to-word-list (pull-out-quantity symbol text))
+		 :type (cdr (assoc type *tool-types* :test #'equalp)))))
+     `(((:action . "next-words")
+	;; :false is mapped onto json false via a special hack
+	;; in Base/web-server.cl
+	(:last-word . ,(if (member nil words) t :false))
+	(:words . ,(or (remove nil words)
 			;; Hack for creating an empty array in json
 			(make-array '(0)))))))))
 

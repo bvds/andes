@@ -54,11 +54,13 @@
 				     				     
 				     ;; Entry Intepreter: generic + non-eq
 				     (:file "symbols")
+				     (:file "wrong-quantities")
 				     (:file "State"
 					    :depends-on ("symbols" "grammar"))
 				     (:file "Entry-API"
 					    :depends-on ("HelpMessages" "symbols"
-							 "SolutionGraph" "icons"))
+							 "SolutionGraph" "icons"
+							 "wrong-quantities"))
 				     
 				     ;; Equation parser/interpreter
 				     (:file "physics-algebra-rules")
