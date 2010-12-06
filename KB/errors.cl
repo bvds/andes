@@ -236,6 +236,11 @@
 	    "it out yourself.")
   "This is a canned hint that essentially says, 'do it yourself'")
 
+
+(defun agent-phrase (agent)
+  (get-default-phrase `(agent ,agent)))
+
+
 ;;;; ============== Defining variables =============================
 ;;;; This section covers non-equation entries under the variables menu
 ;;;;=============================================================
@@ -1871,20 +1876,24 @@
   :utility 5)
 
 (defun force-wrong-agent (body sagent cagent ctime type)
+  (declare (ignore ctime))
   (make-hint-seq
-   (list (format nil "Is the force is due to ~A?" 
-		 (nlg sagent 'agent))
+   (list (if sagent (format nil "Is the force really ~A?" 
+			    (agent-phrase sagent))
+	     "What is causing the force?")
 	 ;; contact-and-field-forces
-	 (strcat "Forces are caused by interacting objects.  The force can "
-		 "either be a field force, such as weight, in which case the "
-		 "objects do not have to touch.  Or the force is a contact "
+	 (strcat "Forces are caused by interacting objects.&nbsp; "
+		 "The force can either be a field force, such as weight, "
+		 "in which case the "
+		 "objects do not have to touch.&nbsp; Or the force is a "
+		 "contact "
 		 "force, such as tension or friction, in which case the "
 		 "objects must touch.")
-	 (format nil (strcat "Draw a ~a force on ~a ~a, but make it "
-			     "be due to ~a instead of ~a.") 
+	 (format nil (strcat "Draw a ~a force on ~a~@[ ~A~] "
+			     "~@[ instead of ~a.") 
 		 (nlg type 'adj) (nlg body 'def-np)
-		 (nlg ctime 'pp) (nlg cagent 'agent)
-		 (nlg sagent 'agent)))))
+		 (agent-phrase cagent)
+		 (get-default-phrase sagent)))))
 
 
 
@@ -1955,9 +1964,9 @@
 
 (defun wrong-force-type-single (body agent stype ctype)
   (make-hint-seq
-   (list (format nil (strcat "There is indeed a force on ~a due to ~a, "
+   (list (format nil (strcat "There is indeed a force on ~a~@[~a~], "
 			     "but it is not a ~a force.")
-		 (nlg body 'def-np) (nlg agent 'agent) (nlg stype 'adj))
+		 (nlg body 'def-np) (agent-phrase agent) (nlg stype 'adj))
 	 (format nil "It is a ~a force" (nlg ctype 'adj)))))
 
 
@@ -1992,13 +2001,13 @@
 
 (defun wrong-force-type-dual-undone (body agent stype frict-type force-type)
   (make-hint-seq
-   (list (format nil (strcat "There are indeed forces on ~a due to ~a, "
+   (list (format nil (strcat "There are indeed forces on ~a~@[ ~a~], "
 			     "but a ~a force is not one of them.")
-		 (nlg body 'def-np) (nlg agent 'agent) (nlg stype 'adj))
-	 (format nil (strcat "There are two forces on ~a due to ~a, "
+		 (nlg body 'def-np) (agent-phrase agent) (nlg stype 'adj))
+	 (format nil (strcat "There are two forces on ~a~@[ ~A~], "
 			     "a ~a force and a ~a force.  You should "
 			     "define one of them.")
-		 (nlg body 'def-np) (nlg agent 'agent) 
+		 (nlg body 'def-np) (agent-phrase agent) 
 		 (nlg frict-type 'adj) (nlg force-type 'adj))
 	 (format nil (strcat "Change the force type to either ~a or ~a, "
 	                     "adjusting the direction if necessary to "
@@ -2033,13 +2042,13 @@
 (defun wrong-force-type-dual-frict-done (body agent stype ctime 
 					 frict-type force-type force-dir)
   (make-hint-seq
-   (list (format nil (strcat "There are indeed forces on ~a due to ~a, "
+   (list (format nil (strcat "There are indeed forces on ~a~@[ ~A~], "
 			     "but the ~a force is not one of them.")
-		 (nlg body 'def-np) (nlg agent 'agent) (nlg stype 'adj))
-	 (format nil (strcat "There are two forces on ~a due to ~a, "
+		 (nlg body 'def-np) (agent-phrase agent) (nlg stype 'adj))
+	 (format nil (strcat "There are two forces on ~a~@[ ~A~], "
 			     "a ~a force and a ~a force.  You have "
 			     "already completed the ~a force.")
-		 (nlg body 'def-np) (nlg agent 'agent) 
+		 (nlg body 'def-np) (agent-phrase agent) 
 		 (nlg frict-type 'adj) (nlg force-type 'adj) 
 		 (nlg frict-type 'adj))
 	 *dyi*
@@ -2068,13 +2077,13 @@
 (defun wrong-force-type-dual-other-done (body agent stype ctime 
 					 frict-type frict-dir force-type)
   (make-hint-seq
-   (list (format nil (strcat "There are indeed forces on ~a due to ~a, "
+   (list (format nil (strcat "There are indeed forces on ~a~@[ ~A~], "
 			     "but the ~a force is not one of them.")
-		 (nlg body 'def-np) (nlg agent 'agent) (nlg stype 'adj))
-	 (format nil (strcat "There are two forces on ~a due to ~a, "
+		 (nlg body 'def-np) (agent-phrase agent) (nlg stype 'adj))
+	 (format nil (strcat "There are two forces on ~a~@[ ~A~], "
 			     "a ~a force and a ~a force.  You have "
 			     "already completed the ~a force.")
-		 (nlg body 'def-np) (nlg agent 'agent) 
+		 (nlg body 'def-np) (agent-phrase agent) 
 		 (nlg frict-type 'adj) (nlg force-type 'adj) 
 		 (nlg force-type 'adj))
 	 *dyi*
@@ -2113,14 +2122,16 @@
 (defun wrong-force-agent-and-type (body sagent cagent stype ctype)
   (setq body (nlg body 'def-np))
   (make-hint-seq    
-   (list (format nil (strcat "Andes' solution does not mention any forces on ~a due to ~a, "
-			     "nor any ~a forces on ~a. Either this force does not exist or "
-			     "it is not needed for solving this problem.")
-		 body (nlg sagent 'agent) (nlg stype 'adj) body)
+   (list (format nil 
+		 (strcat "Andes' solution does not mention any ~A forces "
+			 "on ~a~@[ ~A~].&nbsp; Either this force does not "
+			 "exist or "
+			 "it is not needed for solving this problem.")
+		  (nlg stype 'adj) body (agent-phrase sagent))
 
 	 (format nil (strcat "You could try drawing a ~a "
-			     "force on ~a due to ~a.")
-		 (nlg ctype 'adj) body (nlg cagent 'agent)))))
+			     "force on ~a~@[ ~A~].")
+		 (nlg ctype 'adj) body (agent-phrase cagent)))))
 
 
 
@@ -2138,7 +2149,7 @@
   (make-hint-seq
    (list 
     (format nil (strcat "Although there is a weight force acting on ~a, "
-			"it is not due to ~a itself, because all forces, "
+			"it is not~@[ ~A~] itself, because all forces, "
 			"even the weight force, are due to interactions "
 			"between two DIFFERENT objects.") object object)
 
@@ -2235,8 +2246,8 @@
     (strcat "Judging from the direction and type of force you "
 	    "drew, I'd guess you got the two objects switched.")
 
-    (format nil (strcat "Try defining the force on ~a due to ~a, "
-			"rather than the force on ~a due to ~a.")
+    (format nil (strcat "Try defining the force on ~a~@[ ~A~], "
+			"rather than the force on ~a~@[ ~A~].")
 	    sagent sbody sbody sagent))))
 
 
@@ -2833,11 +2844,15 @@
  (declare (ignore loc))    
  (make-hint-seq
    (list
-    (format nil (strcat "Is ~a the source of the ~a field you are defining?") 
-                        (nlg sagent 'agent) (nlg fieldtype 'adj) )
+    (if sagent
+	(format nil "Is ~a the source of the ~a field?"
+                        (get-default-phrase sagent) (nlg fieldtype 'adj))
+	(format nil "What is source of the ~a field?"
+		(nlg fieldtype 'adj)))
     (format nil (strcat "A better choice (but maybe not the only one) "
-                         "would be the field due to ~A, not ~a") 
-                          (nlg cagent 'agent) (nlg sagent 'agent)))))
+                         "would be the field~@[ ~A~]~@[, not ~a~].") 
+                          (agent-phrase cagent) 
+			  (get-default-phrase sagent)))))
 
 ;; instead of non-existent-vector when net-field is used:
 (def-error-class should-be-net-field (?type) 
