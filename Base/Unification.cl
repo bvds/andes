@@ -295,6 +295,31 @@
                        (subst-bindings bindings (cdr x))
                        x))))
 
+(defun canonicalize-unify (x)
+  "Canonicalize keyword pairs and orderless in bound expression."
+  ;; This allows normal expression compare and hashification with equal
+  (cond ((variable-p x) (error "Cannot canonicalize unbound expression ~A" x))
+	((atom x ) x)
+	((eql (car x) 'orderless)
+	 (let ((z (cons (car x)
+			(sort (mapcar #'canonicalize-unify (cdr x)) #'expr<))))
+	   (if (equal z x) x z)))  ;reuse object, when possible
+	((valid-keyword-pair x)
+	 (let ((z (apply #'nconc (sort (keywords-to-pointers x) 
+				       #'string< :key #'car))))
+	   (if (equal z x) x z))) ;reuse object, when possible
+	(t (reuse-cons (canonicalize-unify (car x))
+		       (canonicalize-unify (cdr x))
+		       x))))
+
+(defun keywords-to-pointers (x)
+  ;; Turn keyword pairs into a list of lists, removing nils.
+  (when x 
+    (assert (valid-keyword-pair x))
+    (let ((z (canonicalize-unify (cadr x))))
+      (if z
+	  (cons (list (car x) z) (keywords-to-pointers (cddr x)))
+	  (keywords-to-pointers (cddr x))))))
 
 ;;;; ================================================================== 
 ;;;;                              Unification

@@ -45,7 +45,7 @@
 
 (defmacro union-with (result set)
   "Merge set with result using untion."
-  `(setf ,result (union ,result ,set :key #'cdr :test #'unify)))
+  `(setf ,result (union ,result ,set :key #'cdr :test #'equal)))
 
 (defun generate-wrong-quantities (tool-prop &optional names)
   ;; This function has lots of code copied from all-quantities.cl
@@ -107,4 +107,5 @@
 		       rule)))
 	result)
       (list (cons (expand-new-english (exptype-new-english rule) bindings)
-		  (subst-bindings bindings (exptype-form rule))))))
+		  (canonicalize-unify  ;allow equal for compare.
+		   (subst-bindings bindings (exptype-form rule)))))))
