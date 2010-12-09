@@ -130,7 +130,6 @@
                 ;; on the value.
   documentation ;; A documentation string for the item
 
-  VarFunc       ;; Function that translates the Expression to a var.  
   new-english   ;; Model structure for matching, with multi-word
                 ;; strings allowed.  Any s-expressions are matched to ontology.
   )
@@ -143,7 +142,6 @@
  			Units
 			restrictions
 			documentation
-			VarFunc
 	        	new-english)
   "Define a quantity expression."
   (define-exptype :type type 
@@ -154,7 +152,6 @@
     :Units Units
     :restrictions Restrictions
     :documentation documentation
-    :varfunc Varfunc
     :new-english new-english))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -200,16 +197,17 @@
 	    :short-name short-name
 	    :units Units
 	    :restrictions restrictions
-	    :Varfunc varfunc
-	    ;; if supplied, arg should be body of fn to be called with these args
 	    :new-english (compile-evals new-english))))
     (push E *Ontology-ExpTypes*)
     E))
 
 (defun compile-evals (model)
-  "Recurse through new-english and compile any evals."
+  "Recurse through new-english and compile any evals. Expand strings as side-effect."
   ;; Maybe problematic at load time?
-  (cond ((atom model) model)
+  (cond ((stringp model) 
+	 (let ((this (match:word-parse model))) 
+	   (if (cdr this) this model)))
+	((atom model) model)
 	((and (consp model) (eq (car model) 'eval))
 	 (let ((params (variables-in (second model))))
 	   (append (list 'eval-compiled

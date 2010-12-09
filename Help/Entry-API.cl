@@ -463,9 +463,7 @@
 		   "I interpreted your definition ~@[of <var>~A</var> ~]as:&nbsp; ~A."
 		   (when (> (length (StudentEntry-symbol entry)) 0)
 		     (StudentEntry-symbol entry))
-		   (match:word-string (expand-vars 
-				       (new-english-find 
-					(second full-prop)))))))
+		   (get-default-phrase (second full-prop)))))
       `((:action . "show-hint") (:text . ,phr)))))
 
 (defun nothing-to-match-ErrorInterp (entry tool-prop)
@@ -506,9 +504,7 @@
 			     ;; In the case of a body, it won't be found
 			     ;; in the general quantity ontology; just print
 			     ;; the name of the object as a string.
-			     (match:word-string 
-			      (expand-vars
-			       (new-english-find x)))))
+			     (get-default-phrase x)))
 	   (delete-duplicates (mapcar #'second full-props) :test #'unify))
    :test #'equal)) ;for the strings
 
@@ -527,9 +523,7 @@
 		    ambiguous		    
 		    (format nil "Did you mean?~%<ul>~%~{  <li>~A</li>~%~}</ul>"
 			    (mapcar #'(lambda (x) 
-					(match:word-string 
-					 (expand-vars 
-					  (new-english-find (second x)))))
+					(get-default-phrase (second x)))
 				    full-props)))
 		   (list
 		    (strcat ambiguous 
@@ -689,8 +683,7 @@
   (let ((rem (make-hint-seq
 	      (list (format nil 
 			    "You have already defined ~A~:[ as ~A~1*~;~1* to be <var>~A</var>~]."
-			    (match:word-string
-			     (expand-vars (new-english-find (second prop))))
+			    (get-default-phrase (second prop))
 			    (> (length (StudentEntry-symbol old)) 0)
 			    (studentEntry-text old)
 			    (StudentEntry-symbol old)))

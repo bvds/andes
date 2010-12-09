@@ -73,7 +73,7 @@
 ;;
 (defun get-default-phrase (x)
   (when x
-    (match:word-string (expand-vars (new-english-find x)))))
+    (match:word-string (expand-vars (new-english-find x) :html-format t))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -417,9 +417,9 @@
 	 ;; Here, we just ignore them.
 	 (expand-new-english
 	  (eval (subst-bindings-quoted bindings (second model)))))
-	;; ordered sequence, remove empty elements
+	;; ordered sequence
 	((match:test-for-list model)
-	 (remove nil (expand-new-english-list model bindings)))
+	 (expand-new-english-list model bindings))
 	(t 
 	 ;; Bindings are local to one operator in the ontology
 	 ;; so we need to substitute in here.
@@ -471,37 +471,37 @@
 	(t (warn "expand-new-english-list:  invalid list structure in ~A" x))))
 
 
-(defun expand-vars (model)
+(defun expand-vars (model &key html-format)
   "Expand (var ...) expressions and remove nils from model tree."
   (cond ((stringp model) model)
 	((null model) model)
 	((member (car model) '(preferred allowed key case-sensitive 
 			       case-insensitive))
-	 (let ((arg (expand-vars (second model))))
+	 (let ((arg (expand-vars (second model) :html-format html-format)))
 	   (when arg 
 	     ;; reuse cons, if possible
 	     (if (eql arg (second model)) model (list (car model) arg)))))
 	((member (car model) '(and or conjoin))
 	 ;; untrapped error when second arg of conjoin expands to nil
-	 (let ((args (expand-vars (cdr model))))
+	 (let ((args (expand-vars-list (cdr model) html-format)))
 	   (when args (reuse-cons (car model) args model))))
 	((match:test-for-list model) ;plain list
-	 (expand-vars-list model))
+	 (expand-vars-list model html-format))
 	;; expansion of var must be done at run-time.
 	((eql (car model) 'var)
-	 ;; use case-sensitive matching.
-	 (apply #'symbols-label (cdr model)))
+	 (let ((var (apply #'symbols-label (cdr model))))
+	   (if (and var html-format) (strcat "<var>" var "</var>") var)))
 	(t (warn "expand-vars:  invalid expand ~A" model) model)))
 
-(defun expand-vars-list (model)
+(defun expand-vars-list (model html-format)
   (cond ((atom model) model)
 	((consp model)
-	 (let ((arg (expand-vars (car model))))
+	 (let ((arg (expand-vars (car model) :html-format html-format)))
 	   (if arg ;drop any members of list that expand to nil.
 	       (reuse-cons arg
-			   (expand-vars-list (cdr model))
+			   (expand-vars-list (cdr model) html-format)
 			   model)
-	       (expand-vars-list (cdr model)))))
+	       (expand-vars-list (cdr model) html-format))))
 	(t (warn "expand-vars-list:  invalid list structure for ~A" model))))
 
 (defun pull-out-keywords (model &optional in)

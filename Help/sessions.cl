@@ -590,7 +590,8 @@
 	       ;; no variables have been defined: 
 	       ;; remove any (var ...)
 	       (expand-vars 
-		(systementry-model (find-systementry prop)))))
+		(systementry-model (find-systementry prop))
+		:html-format t)))
       (progn (warn "write-definition-text:  Can't find systementry for ~S" 
 		   prop)
 	     (strcat symbol ":  Can't find definition"))))
