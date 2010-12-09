@@ -294,15 +294,15 @@
 			    (if wrong-tool-best 
 				(best-value wrong-tool-best) 
 				initial-cutoff))
-	      :equiv equiv))
-	    best-wrong)
+	      :equiv equiv
+	      :no-sort t
+	      :single-match t)))
 	;; We don't have any way of handling inheritance for
 	;; non-solution quantities.  As a cheap work-around, 
 	;; take shortest matching proposition.
-	(dolist (x this)
-	  (when (or (null best-wrong) (< (length (cdr x)) best-wrong))
-	    (setf best-wrong (length (cdr x)))
-	    (setf best (list x)))))
+	;; need to pre-order quantities so that shorter propositions
+	;; are matched first...
+	(when this (setf best this)))
       
       ;; Attempt to match to quantities not in solution where
       ;; the wrong tool has also been used.
@@ -335,7 +335,9 @@
 				    (if wrong-tool-best 
 					(- (best-value wrong-tool-best) 1) 
 					initial-cutoff))
-		      :equiv equiv)))
+		      :equiv equiv
+		      :no-sort t
+		      :single-match t)))
 		(if nil ;debug print
 		    (format webserver:*stdout* "For tool ~A got ~A~%" 
 			    tool-prop this))

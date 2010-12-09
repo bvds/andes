@@ -178,9 +178,9 @@
     ((member (car model) '(key case-insensitive case-sensitive))
      (word-count (second model) :max max))
     ((test-for-list model)
-     (loop for x in model sum (word-count x :max max)))
+     (word-count-list model max))
     ((eql (car model) 'and)
-     (word-count (cdr model) :max max))      ;remove the 'and 
+     (word-count-list (cdr model) max))      ;remove the 'and 
     ((eql (car model) 'or)
      ;; don't use loop here because we have to switch between
      ;; maximize and minimize
@@ -196,6 +196,14 @@
      ;; Ignore subesequent arguments
      (if max (word-count (cadr model) :max max) 0))
     (t (funcall word-count-handler model :max max))))
+
+(defun word-count-list (model max)
+  (cond
+    ((null model) 0)
+    ((consp model)
+      (+ (word-count (car model) :max max)
+	 (word-count-list (cdr model) max)))
+    (t (error "word-count-list:  invalid list ~A" model))))
 
 (defun default-add-to-dictionary-handler (model dictionary)
   (warn "add-to-dictionary:  unknown object ~A" model)
@@ -622,7 +630,7 @@
 (defparameter *debug-print* nil)  ;; debug print in best-model-matches
 
 (defun best-model-matches (student models &key (cutoff 5) (equiv 1.25) 
-			   (epsilon 0.25) no-sort)
+			   (epsilon 0.25) no-sort single-match)
   "Returns alist of best matches to text using match-model."
   ;; cutoff is the maximum allowed score.
   ;; equiv maximum fraction of the best score such that a fit
@@ -634,6 +642,10 @@
   ;; we need to adjust the bound so any other perfect matches 
   ;; may also be found.
 
+  ;; Single-match:  return just first instance of best match,
+  ;; assuming integer-valued scores.
+  ;; This allows for a more efficient search.
+
   (unless (>= cutoff 0)
     (warn "best-model-matches:  cutoff=~A  must be nonnegative." cutoff))
   (unless (and (numberp equiv) (> equiv 1.0))
@@ -643,7 +655,12 @@
     ;; We have  have to do each time, since results of any eval or var 
     ;; is needed for sort.
     (dolist (x (if no-sort models (sort-by-complexity models)))
-      (setf bound (max epsilon (* best equiv)))
+      (when (and single-match quants (< best 1))
+	(return-from best-model-matches quants))
+      ;; In the case of single-match we want to only look
+      ;; for something better than what we have now.
+      (setf bound (max epsilon (* (if (and single-match quants) 
+				      (- best 1) best) equiv)))
       (let ((t0 (if *debug-print* (get-internal-run-time) 0)))
 	(setf this (match-model student (car x) :best bound))
 	(when *debug-print*
@@ -651,7 +668,9 @@
 		  this  (/ (- (get-internal-run-time) t0) 
 			   internal-time-units-per-second)
 		  (car x))))
-      (when (< this bound) (push (cons this (cdr x)) quants))
+      (when (< this bound) (if single-match
+			       (setf quants (list (cons this (cdr x))))
+			       (push (cons this (cdr x)) quants)))
       (when (< this best) (setf best this)))
     ;; Remove any quantities that are not equivalent with best fit
     ;; and return result in original order.
