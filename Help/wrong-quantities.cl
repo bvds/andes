@@ -41,6 +41,7 @@
 	;; Generate initial word set, add to cache and return.
 	(let  ((x (generate-wrong-quantities tool-prop)))
 	  (push (cons tool-prop x) *wrong-quantities*)
+	  ;; (format t "get-wrong-quantities ~A got ~A~%" tool-prop (length x))
 	  x)))
 
 (defmacro union-with (result set)
@@ -51,21 +52,34 @@
   ;; This function has lots of code copied from all-quantities.cl
   (declare (notinline get-ontology-bindings))
   ;; This list could be pre-computed
-  (let ((type (cdr (assoc tool-prop *tools-with-definitions*)))
-	result)
+  (let* ((type (cdr (assoc tool-prop *tools-with-definitions*)))
+	 (relevant (mapcar #'second
+			   (remove tool-prop
+				   (mapcar #'systementry-prop *sg-entries*)
+				   :key #'car :test-not #'eql)))
+	 ;; Compile list of ontology members found in solutions.
+	 (quantity-types 
+	  (delete-duplicates
+	   (delete nil
+		   (mapcar
+		    #'(lambda (x) (when (lookup-expression-struct x)
+				    (ExpType-Type 
+				     (lookup-expression-struct x))))
+		    relevant))))
+	 result)
     (cond
       ((assoc type (problem-phrases *cp*))
        (dolist (this (cdr (assoc type (problem-phrases *cp*))))
 	 (let ((rule (lookup-exptype-struct (car this))))
 	   ;; sanity test
 	   (unless (equal (second this) (exptype-form rule))
-	     (warn "generate-initial-words:  cached variables for ~A do not match current ontology." 
+	     (warn "generate-wrong-quantities:  cached variables for ~A do not match current ontology." 
 		   (car this)))
 	   (union-with result
 		       (expand-with-bindings-w (cddr this) nil rule)))))
 	   
       ((member type '(vector scalar))
-       (warn "generate-initial-words:  No cached quantities for problem ~A"
+       (warn "generate-wrong-quantities:  No cached quantities for problem ~A"
 	     (problem-name *cp*))
        (with-ontology-exptypes rule
 	 (when (and (eql (exptype-rank rule) type)
@@ -82,17 +96,24 @@
 	 (union-with result  (list (cons (new-english-find prop) prop)))))
       
       (t (warn "generate-wrong-quantities invalid type ~A" type)))
+
+    ;; Put quantities that share ontology with solution
+    ;; quantities first.  This should improve help-giving.
+    (let (in out)
+      (dolist (x result)
+	(let ((y (lookup-expression-struct (cdr x))))
+	  (if (and nil y (member (exptype-type y)
+			     quantity-types))
+	      (push x in)
+	      (push x out))))
+      (setf result (nconc (reverse in) (reverse out))))
     
-  (let ((relevant (mapcar #'second
-		      (remove tool-prop
-			      (mapcar #'systementry-prop *sg-entries*)
-			      :key #'car :test-not #'eql))))
     (when nil   ;debug print
       (format webserver:*stdout* "got ~A of type ~A~% relevant: ~A~%" 
-	    (length result) type relevant))
+	      (length result) type relevant))
     (delete-if #'(lambda (prop) (member prop relevant :test #'unify))
-	       result :key #'cdr))))
-	
+	       result :key #'cdr)))
+
 (defun expand-with-bindings-w (binding-sets bindings rule)
   "Returns (<model> . <prop>) pair."
   (if binding-sets
