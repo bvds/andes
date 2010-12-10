@@ -96,11 +96,13 @@
  				     (:file "API")
                                      (:file "fade"
 					    :depends-on ("icons"))
+				     (:file "word-suggest")
 				     (:file "sessions"
 					    ;; Mostly for *help-env-vars*
 					    :depends-on ("NextStepHelp"
 							 "parse" "State" 
 							 "database" "fade"
+							 "word-suggest"
 							 "grammar" "symbols" 
 							 "Commands"))))
 	       (:module "Testcode"
