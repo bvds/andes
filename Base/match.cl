@@ -94,6 +94,7 @@
 (defvar *grammar-symbols* (mapcar #'find-symbol *grammar-names*))
 
 (defparameter *whitespace* '(#\Space #\Tab #\Newline))
+(defparameter *word-delimiters* (append *whitespace* (list #\,)))
 
 (defvar *key-multiplier* 2 "Multiplication factor for matching key submodels.")
 
@@ -111,14 +112,46 @@
       (test-for-list form)
       (and (consp form) (member (car form) *grammar-symbols*))))
 
-(defun word-parse (str &key parse)
+(defun word-parse-count (string)
+  "Count number of words in a string."
+  ;; This is a simplification of the standard utility split-sequence
+  (let ((len (length string)))
+    (loop for left = 0 then (1+ right)
+	  for right = (or (position-if 
+			   #'(lambda (x) (member x *word-delimiters*))  
+			   string :start left)
+			  len)
+	  count (not (= left right))
+	  until (>= right len))))
+
+(defun word-parse (string)
   "Break up a string into a list of words, removing whitespace, commas."
-  (let ((p (position (cons #\, *whitespace*) str
-		     :test #'(lambda (x y) (member y x)))))
-    (if p
-	(word-parse (subseq str (+ p 1)) :parse 
-		    (if (> p 0) (push (subseq str 0 p) parse) parse))
-	(reverse (if (> (length str) 0) (push str parse) parse)))))
+  ;; This is a simplification of the standard utility split-sequence
+  (let ((len (length string)))
+    (loop for left = 0 then (1+ right)
+          for right = (or (position-if 
+			   #'(lambda (x) (member x *word-delimiters*))  
+			   string :start left)
+			  len)
+	  unless (= left right)
+          collect (subseq string left right)
+	  until (>= right len))))
+
+;; Not used anywhere, yet.
+(defmacro with-word-parse (word string &rest body)
+  "Macro to iterate over the words in a string."
+  (let ((len (gensym)) (left (gensym)) (right (gensym)))
+  `(let ((,len (length ,string)))
+    (loop for ,left = 0 then (1+ ,right)
+          for ,right = (min (or (position-if 
+				#'(lambda (x) (member x *word-delimiters*))  
+				,string :start ,left)
+			       ,len)
+			   ,len)
+	  unless (= ,left ,right)
+          do (let ((,word (subseq ,string ,left ,right))) ,@body)
+          until (>= ,right ,len)))))
+  
 
 (defun join-words (x)
   "Join together a list of strings."
@@ -172,7 +205,7 @@
   ;; In general, arguments of the model can be nil.
   (cond 
     ((null model) 0)
-    ((stringp model) 1) ;; or count words in string
+    ((stringp model) (word-parse-count model))  ;count words in string
     ((atom model) (funcall word-count-handler model :max max))
     ;; from here on, assume model is a proper list
     ((member (car model) '(key case-insensitive case-sensitive))
@@ -199,10 +232,10 @@
 
 (defun word-count-list (model max)
   (cond
-    ((null model) 0)
     ((consp model)
       (+ (word-count (car model) :max max)
 	 (word-count-list (cdr model) max)))
+    ((null model) 0)
     (t (error "word-count-list:  invalid list ~A" model))))
 
 (defun default-add-to-dictionary-handler (model dictionary)
@@ -217,7 +250,9 @@
   ;; In general, arguments of the model can be nil.
   (cond 
     ((null model) dictionary)
-    ((stringp model) (pushnew model dictionary :test #'string-equal))
+    ((stringp model)
+     (dolist (word (word-parse model))
+       (pushnew word dictionary :test #'string-equal)))
     ((atom model) (funcall add-to-dictionary-handler model dictionary))
     ;; from here on, assume model is a proper list
     ((test-for-list model)
@@ -242,7 +277,7 @@
   ;; Here, we just count number of expansions.
   (cond 
     ((null model) nil)
-    ((stringp model) 1) ;; or count words in string
+    ((stringp model) (word-parse-count model)) ;count words in string
     ((member (car model) '(key case-insensitive case-sensitive))
      (model-complexity (second model)))
     ((test-for-list model)
@@ -301,14 +336,19 @@
   (cond 
     ((null model) (length student))
     ((stringp model)
-     (let ((best 1)) ;score for any match to one student word.
-       ;; profiling shows that just calculating is slightly
-       ;; faster than also testing against the global best.
-       (dolist (item student)
-         (update-bound best (normalized-levenshtein-distance item model)))
-       ;; best fit plus any extra student words.
-     ;; If student is nil, this should return 1.
-       (+ best (max 0 (- (length student) 1)))))
+     (let ((words (word-parse model)))
+       (if (cdr words)
+	   (match-model-list student words :best best :words t)
+	   ;; profiling shows that just calculating is slightly
+	   ;; faster than also testing against the global best.
+	   (let ((best 1))  ;score for any match to one student word.
+	     (dolist (item student)
+	       (update-bound best 
+			     (normalized-levenshtein-distance 
+			      item (car words))))
+	   ;; best fit plus any extra student words.
+	   ;; If student is nil, this should return 1.
+	   (+ best (max 0 (- (length student) (length words))))))))
     ((atom model)
      (funcall unknown-object-handler student model :best best))
     ;; from here on, model must be a proper list
@@ -358,7 +398,7 @@
     (t
      (funcall unknown-object-handler student model :best best))))
 
-(defun match-model-list (student model &key (best 10000))
+(defun match-model-list (student model &key (best 10000) words)
   (declare (notinline match-model)) ;for profiling
   ;; for n student words and m elements of the model list,
   ;; m n (n+1)/2 matches must be evaluated.  The following
@@ -366,12 +406,14 @@
   (let* ((width (1+ (length student)))
 	 (height (1+ (length model)))
 	 (d (make-array (list height width)))
-	 (u-model (mapcar #'(lambda (x) (word-count x :max t)) model))
-	 (l-model (mapcar #'word-count model))
+	 (u-model (unless words 
+		    (mapcar #'(lambda (x) (word-count x :max t)) model)))
+	 (l-model (unless words 
+		    (mapcar #'word-count model)))
 	 (up 0)
-	 (ur (apply #'+ u-model))
-	 (lr (apply #'+ l-model)))
-
+	 (ur (if words (length model) (apply #'+ u-model)))
+	 (lr (if words ur (apply #'+ l-model))))
+    
     (dotimes (y width)
       (setf (aref d 0 y) y)) ;student is one word per slot
 
@@ -383,8 +425,8 @@
     
     (dotimes (x (length model))
       
-      (let ((ux (nth x u-model))
-	    (lx (nth x l-model)))
+      (let ((ux (if words 1 (nth x u-model)))
+	    (lx (if words 1 (nth x l-model))))
 	
 	(decf ur ux)
 	(decf lr lx)
@@ -632,6 +674,7 @@
 (defun best-model-matches (student models &key (cutoff 5) (equiv 1.25) 
 			   (epsilon 0.25) no-sort single-match)
   "Returns alist of best matches to text using match-model."
+  (declare (notinline match-model))
   ;; cutoff is the maximum allowed score.
   ;; equiv maximum fraction of the best score such that a fit
   ;;    is considered equivalent to the best fit.

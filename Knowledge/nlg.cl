@@ -383,9 +383,7 @@
 
 (defun expand-new-english (model &optional (bindings no-bindings))
   "Expand model tree, expanding ontology expressions, parse strings into list of words, substituting bindings, evaluating lisp code, and removing nils."
-  (cond ((stringp model) 
-	 ;; If there is more than one word, break up into list of words.
-	 (let ((this (match:word-parse model))) (if (cdr this) this model)))
+  (cond ((stringp model) model)
 	((null model) model)
 	((variable-p model) 
 	 (if (all-boundp model bindings)

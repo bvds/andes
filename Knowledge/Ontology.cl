@@ -220,12 +220,9 @@
     E))
 
 (defun compile-evals (model)
-  "Recurse through new-english and compile any evals. Expand strings as side-effect."
+  "Recurse through new-english and compile any evals."
   ;; Maybe problematic at load time?
-  (cond ((stringp model) 
-	 (let ((this (match:word-parse model))) 
-	   (if (cdr this) this model)))
-	((atom model) model)
+  (cond ((atom model) model)
 	((and (consp model) (eq (car model) 'eval))
 	 (let ((params (variables-in (second model))))
 	   (append (list 'eval-compiled
