@@ -57,15 +57,6 @@
 			   (remove tool-prop
 				   (mapcar #'systementry-prop *sg-entries*)
 				   :key #'car :test-not #'eql)))
-	 ;; Compile list of ontology members found in solutions.
-	 (quantity-types 
-	  (delete-duplicates
-	   (delete nil
-		   (mapcar
-		    #'(lambda (x) (when (lookup-expression-struct x)
-				    (ExpType-Type 
-				     (lookup-expression-struct x))))
-		    relevant))))
 	 result)
     (cond
       ((assoc type (problem-phrases *cp*))
@@ -76,7 +67,8 @@
 	     (warn "generate-wrong-quantities:  cached variables for ~A do not match current ontology." 
 		   (car this)))
 	   (union-with result
-		       (expand-with-bindings-w (cddr this) nil rule)))))
+		       (expand-with-bindings-w (cddr this) no-bindings 
+					       rule)))))
 	   
       ((member type '(vector scalar))
        (warn "generate-wrong-quantities:  No cached quantities for problem ~A"
@@ -89,7 +81,7 @@
 	     (get-ontology-bindings (ExpType-new-english rule))
 	     (union-with result 
 			  (expand-with-bindings-w *ontology-bindings* 
-						  nil rule))))))
+						  no-bindings rule))))))
       
       ((member type '(body line))
        (dolist (prop (problem-bodies-and-compounds *cp*))
@@ -99,16 +91,24 @@
 
     ;; Put quantities that share ontology with solution
     ;; quantities first.  This should improve help-giving.
-    (let (in out)
+    (let ((quantity-types 
+	   ;; Compile list of ontology members found in solutions.
+	   (delete-duplicates
+	    (delete nil
+		    (mapcar
+		     #'(lambda (x) (when (lookup-expression-struct x)
+				     (ExpType-Type 
+				      (lookup-expression-struct x))))
+		     relevant))))
+	  in out)
       (dolist (x result)
 	(let ((y (lookup-expression-struct (cdr x))))
-	  (if (and nil y (member (exptype-type y)
-			     quantity-types))
+	  (if (and y (member (exptype-type y) quantity-types))
 	      (push x in)
 	      (push x out))))
       (setf result (nconc (reverse in) (reverse out))))
     
-    (when nil   ;debug print
+    (when nil ;debug print
       (format webserver:*stdout* "got ~A of type ~A~% relevant: ~A~%" 
 	      (length result) type relevant))
     (delete-if #'(lambda (prop) (member prop relevant :test #'unify))

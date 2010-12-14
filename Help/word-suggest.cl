@@ -169,7 +169,7 @@
 		   (car this)))
 	   (setf result 
 		 (append result
-			 (expand-with-bindings (cddr this) nil rule)))
+			 (expand-with-bindings (cddr this) no-bindings rule)))
 	   )))
 	   
       ((member type '(vector scalar))
@@ -185,7 +185,7 @@
 	     (setf result 
 		   (append result
 			   (expand-with-bindings *ontology-bindings* 
-						 nil rule)))))))
+						 no-bindings rule)))))))
       
       ((eql type 'body)
        (dolist (prop (problem-bodies-and-compounds *cp*))
