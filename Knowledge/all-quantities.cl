@@ -30,9 +30,9 @@
 
 (defvar *ontology-bindings*)
 
-;; Student never defines a vector component directly
+;; Student never defines a vector component, magnitude, or direction directly
 ;; angle-between is just too hard.
-(defparameter *disallowed-quantities* '(compo angle-between))
+(defparameter *disallowed-quantities* '(mag dir compo angle-between))
   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;
@@ -46,7 +46,7 @@
   "Return an object containing ontology rules and associated bindings for possible quantitites associated with a problem."
   (let* ((types '(vector scalar))
 	 (result (mapcar #'list types)))
-    (dolist (type '(vector scalar))
+    (dolist (type types)
        (with-ontology-exptypes rule
 	 (when (and (eql (exptype-rank rule) type)
 		    (not (member (exptype-type rule) *disallowed-quantities*))
@@ -166,4 +166,73 @@
   ;; On failure, warn and return nil
   (warn "ontology-bindings-find:  no ontology match for ~S" prop))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;            Generate list of keywords, pointing to propositions
+;;;;
+;;;;
+(defvar *quant-keywords*)
+(defvar *quant-required-words*)
 
+(defun generate-types-keyword-pointers (phrase-types)
+  (when t
+    (mapcar #'(lambda (x) (cons (car x) (generate-keyword-pointers (cdr x))))
+	    phrase-types)))
+
+(defun generate-keyword-pointers (quants)
+  (let (keywords required-words)
+    (dolist (quant quants)
+      ;; (format t "starting quant ~A~%" (car quant))
+      (let ((rule (lookup-exptype-struct (car quant)))
+	    *quant-keywords*
+	    *quant-required-words*)
+	(keyword-expand-with-bindings (cddr quant) no-bindings rule)
+	(dolist (word *quant-keywords*)
+	  (unless (assoc word keywords :test #'equal) 
+	    (push (list word) keywords))
+	  (push (car quant) (cdr (assoc word keywords :test #'equal))))
+	(dolist (word *quant-required-words*)
+	  (unless (assoc word required-words :test #'equal) 
+	    (push (list word) required-words))
+	  (push (car quant) (cdr (assoc word required-words :test #'equal))))))
+    (cons keywords required-words)))
+
+;; this is a list of the most common words in the English language
+;; http://en.wikipedia.org/wiki/Most_common_words_in_English
+(defparameter *common-English-words* 
+  '("the" "be" "to" "of" "and" "a" "in" "that" "have" "I" "it"
+    "for" "not" "on" "with" "he" "as" "you" "do" "at" "this" "but"
+    "his" "by" "from" "they" "we" "say" "her" "she" "or" "an"
+    "will" "my" "one" "all" "would" "there" "their" "what" "so"
+    "up" "out" "if" "about" "who" "get" "which" "go" "me"))
+(defparameter *excluded-words* (append *common-English-words* '("&")))
+     
+(defun keyword-expand-with-bindings (binding-sets bindings rule)
+  (if binding-sets
+      ;; Expand binding possibilities, building binding list.
+      (dolist (binding (cdr (car binding-sets)))
+	(keyword-expand-with-bindings
+	 (cdr binding-sets)
+	 (cons (cons (car (car binding-sets)) binding)
+	       bindings)
+	 rule))
+      ;; canonicalize case so we can use string-downcase
+      (let* ((model (expand-new-english 
+		     (exptype-new-english rule) bindings))
+	     (keywords (mapcar #'string-downcase (pull-out-keywords model)))
+	     (required-words (mapcar #'string-downcase 
+				    (pull-out-required-words model))))
+	
+	;; Remove common words from list.
+	(setf required-words 
+	      (set-difference required-words *excluded-words* :test #'equal))
+
+	(cond (keywords
+	       (setf *quant-keywords*
+		     (union *quant-keywords* keywords :test #'equal)))
+	      (required-words
+	       (setf *quant-required-words*
+		     (union *quant-required-words* required-words 
+			    :test #'equal)))
+	      (t (error "No possible word match for ~A" rule))))))
+  
