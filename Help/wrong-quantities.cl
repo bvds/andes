@@ -19,8 +19,23 @@
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
+;; Acts as a cache of expanded models for various quantities.
 (defvar *wrong-quantities*)
+
+(defun get-tool-type-quantity (tool-type)
+  (unless (assoc tool-type *wrong-quantities*)
+    (push (list tool-type) *wrong-quantities*))
+      (assoc tool-type *wrong-quantities*))
+
+(defun quantity-model-p (tool-type ontology-type)
+  (assoc ontology-type (cdr (get-tool-type-quantity tool-type))))
+
+(defun get-quantity-models (tool-type ontology-type)
+  (cdr (assoc ontology-type (cdr (get-tool-type-quantity tool-type)))))
+
+(defun set-quantity-models (tool-type ontology-type models)
+  (push (cons ontology-type models) 
+	(cdr (get-tool-type-quantity tool-type))))
 
 (defparameter *tools-with-definitions*
  '((define-var . scalar)
@@ -33,100 +48,109 @@
   (mapcar #'car *tools-with-definitions*))
 
 ;; top-level routine.  
-(defun get-wrong-quantities (tool-prop)
+(defun get-wrong-quantities (tool-prop ontology-type)
   "Return alist of model-quantity pairs."
-    (if (assoc tool-prop *wrong-quantities*)
+    (if (quantity-model-p tool-prop ontology-type)
 	;; If already cached, go with that.
-	(cdr (assoc tool-prop *wrong-quantities*))
+	(get-quantity-models tool-prop ontology-type)
 	;; Generate initial word set, add to cache and return.
-	(let  ((x (generate-wrong-quantities tool-prop)))
-	  (push (cons tool-prop x) *wrong-quantities*)
+	(let  ((x (generate-wrong-quantities tool-prop ontology-type)))
+	  (set-quantity-models tool-prop ontology-type x)
 	  ;; (format t "get-wrong-quantities ~A got ~A~%" tool-prop (length x))
 	  x)))
 
-(defmacro union-with (result set)
-  "Merge set with result using untion."
-  `(setf ,result (union ,result ,set :key #'cdr :test #'equal)))
+(defvar *wrong-quantity-result*)
 
-(defun generate-wrong-quantities (tool-prop &optional names)
+(defun generate-wrong-quantities (tool-prop ontology-type)
   ;; This function has lots of code copied from all-quantities.cl
   (declare (notinline get-ontology-bindings))
   ;; This list could be pre-computed
   (let* ((type (cdr (assoc tool-prop *tools-with-definitions*)))
-	 (relevant (mapcar #'second
+	 ;; Quantities of the same tool in the solution.
+	 (relevant (mapcar #'(lambda (prop) (canonicalize-unify (second prop)))
 			   (remove tool-prop
 				   (mapcar #'systementry-prop *sg-entries*)
 				   :key #'car :test-not #'eql)))
-	 result)
+	 *wrong-quantity-result*)
     (cond
-      ((assoc type (problem-phrases *cp*))
-       (dolist (this (cdr (assoc type (problem-phrases *cp*))))
-	 (let ((rule (lookup-exptype-struct (car this))))
+      ((and ontology-type
+	    (member ontology-type (cdr (assoc type (problem-phrases *cp*)))
+		    :key #'car))
+       (let ((this (find ontology-type 
+			  (cdr (assoc type (problem-phrases *cp*)))
+			  :key #'car))
+	      (rule (lookup-exptype-struct ontology-type)))
 	   ;; sanity test
 	   (unless (equal (second this) (exptype-form rule))
 	     (warn "generate-wrong-quantities:  cached variables for ~A do not match current ontology." 
 		   (car this)))
-	   (union-with result
-		       (expand-with-bindings-w (cddr this) no-bindings 
-					       rule)))))
-	   
-      ((member type '(vector scalar))
-       (warn "generate-wrong-quantities:  No cached quantities for problem ~A"
-	     (problem-name *cp*))
-       (with-ontology-exptypes rule
-	 (when (and (eql (exptype-rank rule) type)
-		    (not (member (exptype-type rule) *disallowed-quantities*))
-		    (or (null names) (member (exptype-type rule) names)))
-	   (let (*ontology-bindings*) 
-	     (get-ontology-bindings (ExpType-new-english rule))
-	     (union-with result 
-			  (expand-with-bindings-w *ontology-bindings* 
-						  no-bindings rule))))))
+	   (expand-with-bindings-w (cddr this) no-bindings rule)))
       
       ((member type '(body line))
        (dolist (prop (problem-bodies-and-compounds *cp*))
-	 (union-with result  (list (cons (new-english-find prop) prop)))))
-      
-      (t (warn "generate-wrong-quantities invalid type ~A" type)))
-
-    ;; Put quantities that share ontology with solution
-    ;; quantities first.  This should improve help-giving.
-    (let ((quantity-types 
-	   ;; Compile list of ontology members found in solutions.
-	   (delete-duplicates
-	    (delete nil
-		    (mapcar
-		     #'(lambda (x) (when (lookup-expression-struct x)
-				     (ExpType-Type 
-				      (lookup-expression-struct x))))
-		     relevant))))
-	  in out)
-      (dolist (x result)
-	(let ((y (lookup-expression-struct (cdr x))))
-	  (if (and y (member (exptype-type y) quantity-types))
-	      (push x in)
-	      (push x out))))
-      (setf result (nconc (reverse in) (reverse out))))
+	 (push (cons (new-english-find prop) prop) 
+	       *wrong-quantity-result*)))
+     
+      (t (warn "generate-wrong-quantities invalid (or uncached) type ~A" 
+	       type)))
     
-    (when nil ;debug print
+    (when t ;debug print
       (format webserver:*stdout* "got ~A of type ~A~% relevant: ~A~%" 
-	      (length result) type relevant))
-    (delete-if #'(lambda (prop) (member prop relevant :test #'unify))
-	       result :key #'cdr)))
+	      (length *wrong-quantity-result*) type relevant))
+    ;; canonicalize-unify has been applied to both prop and relevant.
+    (nreverse
+     (delete-if #'(lambda (prop) (member prop relevant :test #'equal))
+	       *wrong-quantity-result* :key #'cdr))))
 
 (defun expand-with-bindings-w (binding-sets bindings rule)
   "Returns (<model> . <prop>) pair."
   (if binding-sets
       ;; Expand binding possibilities, building binding list.
-      (let (result)
-	(dolist (binding (cdr (car binding-sets)))
-	  (union-with result
-		      (expand-with-bindings-w 
-		       (cdr binding-sets)
-		       (cons (cons (car (car binding-sets)) binding)
-			     bindings)
-		       rule)))
-	result)
-      (list (cons (expand-new-english (exptype-new-english rule) bindings)
-		  (canonicalize-unify  ;allow equal for compare.
-		   (subst-bindings bindings (exptype-form rule)))))))
+      (dolist (binding (cdr (car binding-sets)))
+	(expand-with-bindings-w 
+	 (cdr binding-sets)
+	 (cons (cons (car (car binding-sets)) binding)
+	       bindings)
+	 rule))
+      ;; This allows possible repeats but if faster than checking.
+      (push 
+       (cons (expand-new-english (exptype-new-english rule) bindings)
+	     (canonicalize-unify  ;allow equal for compare.
+	      (subst-bindings bindings (exptype-form rule))))
+       *wrong-quantity-result*)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;           Lookup keywords
+;;
+(defun lookup-quantity-keyword-props (student tool-prop)
+  (let* ((type (cdr (assoc tool-prop *tools-with-definitions*)))
+	 ;; this will be null for body tool
+	 (quantities (cdr (assoc type (problem-keywords *cp*)))))
+    (cond 
+      (quantities
+       (let ((ontology-types 
+	      (or 
+	       ;; First try to see if student matches any keywords.
+	       (lookup-words-in-quantities (mapcar #'string-downcase student)
+					   (car quantities))
+	       ;; Else try required words.
+	       (lookup-words-in-quantities (mapcar #'string-downcase student)
+					   (cdr quantities)))))
+	 (loop for ontology-type in ontology-types
+	       append (get-wrong-quantities tool-prop ontology-type))))
+            
+      ((member type '(body line)) 
+       (get-wrong-quantities tool-prop nil))
+
+      (t 
+       (warn "lookup-quantity-keyword-props invalid (or uncached) type ~A" 
+	       type)))))
+
+(defun lookup-words-in-quantities (words quantities)
+  (let (result)
+    (dolist (word words)
+      (setf result 
+	    (union result
+		   (cdr (assoc word quantities :test #'equal)))))
+    result))

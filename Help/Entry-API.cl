@@ -285,11 +285,11 @@
       ;; quantities are wrong anyway.
       (let ((this 
 	     (match:best-model-matches 
-	      student	     
+	      student
 	      (mapcar #'(lambda (x) 
 			  (cons (expand-vars (car x)) 
 				(list tool-prop (cdr x))))
-		      (get-wrong-quantities tool-prop))
+		      (lookup-quantity-keyword-props student tool-prop))
 	      :cutoff  (min (if best (- (best-value best) 1) initial-cutoff)
 			    (if wrong-tool-best 
 				(best-value wrong-tool-best) 
@@ -325,7 +325,8 @@
 		      (mapcar #'(lambda (x) 
 				  (cons (expand-vars (car x)) 
 					(list tool-prop (cdr x))))
-			      (get-wrong-quantities tool-prop))
+			      (lookup-quantity-keyword-props 
+			       student tool-prop))
 		      :cutoff  (min (if best-correct
 					(- (best-value best-correct) 2) 
 					initial-cutoff)
