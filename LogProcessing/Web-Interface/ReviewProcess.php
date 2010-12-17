@@ -53,10 +53,10 @@ function openTrace($url){
 </head>
 <body>
 <?
+$dbname= $_POST['dbname'];
 $dbuser= $_POST['dbuser'];
 $dbserver= "localhost";
 $dbpass= $_POST['passwd'];
-$dbname= "andes3";
 
 //CONNECTION STRING  
     
