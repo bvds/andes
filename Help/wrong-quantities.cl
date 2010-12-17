@@ -127,6 +127,7 @@
   (let* ((type (cdr (assoc tool-prop *tools-with-definitions*)))
 	 ;; this will be null for body tool
 	 (quantities (cdr (assoc type (problem-keywords *cp*)))))
+    ;; (format webserver:*stdout* "tool prop ~A~%" tool-prop)
     (cond 
       (quantities
        (let ((ontology-types 
@@ -148,9 +149,18 @@
 	       type)))))
 
 (defun lookup-words-in-quantities (words quantities)
-  (let (result)
+  ;; Take all shortest but non-empty matches.
+  (let (results best)
     (dolist (word words)
-      (setf result 
-	    (union result
-		   (cdr (assoc word quantities :test #'equal)))))
-    result))
+      (let ((this (cdr (assoc word quantities :test #'equal))))
+	(when (and this (or (null best) (< (length this) best)))
+	  (setf best (length this))
+	  (push this results))))
+
+    ;; Merge any ties.
+    (remove-duplicates 
+     (apply #'append 
+	    (reverse ;push reverses order of results.
+	     ;; Remove any collected lists of quantities
+	     ;; that are larger than the shorted non-trivial list
+	     (remove-if #'(lambda (x) (> (length x) best)) results))))))
