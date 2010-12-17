@@ -618,6 +618,7 @@
 		 (nlg (car time) 'moment) (second time)))
     (t (warn "Bad time specification ~A" time))))
 
+(defparameter *comment-leading-characters* '(#\? #\! #\; #\: #\, #\. #\& #\# #\%))
 
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
@@ -698,6 +699,11 @@
 	 ;; For debugging only, should be turned off in production
 	 ((and webserver:*debug* (equal text "help-test-error")
 	       (error "help-test-error response.")))
+
+	 ;; Look for text with leading punctuation.  This indicates
+	 ;; a comment, which is not analyzed by the help system.
+	 ((member (aref text 0) *comment-leading-characters*)
+	  `(((:action . "show-hint") (:text . ,(strcat "A " *unevaluated-entry* ".")))))
 	 
 	 ;; Look for text box marked by "Answer: "
 	 ;; This should come before "equation" and "statement"

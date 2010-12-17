@@ -83,6 +83,9 @@
 					"help-button" :pre ""))
 (defparameter *help-button-action* (strcat "click on " *help-button* " below"))
 
+(defparameter *unevaluated-entry* (manual-link "comment" 
+					       "comment" :pre ""))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defparameter *constants-menu-action* 
