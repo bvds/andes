@@ -8,51 +8,20 @@
   <style type="text/css">
    tr.quit {background-color: #ffe0e0;}
   </style>
-  <script type="text/javascript">
 
-function createXMLHttp(){
-  if(typeof XMLHttpRequest != "undefined"){
-    return new XMLHttpRequest();
-  } else {
-    var aVersions = ["MSXML2.XMLHttp.5.0","MSXML2.XMLHttp.4.0","MSXML2.XMLHttp.3.0","MSXML2.XMLHttp","Microsoft.XMLHttp"];
-    for(var i=0;i<aVersions.length;i++){
-      try {
-        var oXmlHttp = new ActiveXObject(aVersions[i]);
-        return oXmlHttp;
-      } catch(oError){
+<?php
+    include('xml-scripts.html');
+?>
 
-      }
-    }
-  }
-  throw new Error("XMLHttp could not be created");
-}
-
-
-function UpdateRecord($url){
-  var oXmlHttp = createXMLHttp();
-  oXmlHttp.open("GET",$url,true);
-  oXmlHttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
-  oXmlHttp.onreadystatechange = function(){
-    if(oXmlHttp.readyState==4) {
-      if(oXmlHttp.responseText.indexOf('Success')==-1){
-        alert(oXmlHttp.responseText);
-        return false;
-      } else {
-      }
-    }
-  }
-  oXmlHttp.send(null);
-}
-
-function openTrace($url){  
-  window.open($url);
-}
-
+<script type="text/javascript">
+   function openTrace($url){  
+        window.open($url);
+   }
 </script>
 
 </head>
 <body>
-<?
+<?php
 $dbname= $_POST['dbname'];
 $dbuser= $_POST['dbuser'];
 $dbserver= "localhost";
@@ -195,7 +164,7 @@ if($slice == 'comments'){
   
   echo "<h2>Student errors in problems $extrae,$adminNamee$sectionNamee sorted by time of confusion</h2>\n";
   
-  $sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1 WHERE $adminNamec $sectionNamec $extrac  $startDatec $endDatec P1.clientID = P1.clientID ORDER BY $orderBy $order";
+  $sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1 WHERE $adminNamec $sectionNamec $extrac  $startDatec $endDatec P1.clientID = P1.clientID";
   $queryStart=microtime(true);   
   $result = mysql_query($sql);
   $queryTime += microtime(true)-$queryStart;
