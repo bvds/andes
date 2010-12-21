@@ -89,7 +89,7 @@ $server  = new jsonRPCClient('http://localhost/help-test');
 $sessionIdBase = "_" . date('h:i:s') . "_";
 $sessionId = 0;
   
-$sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1 WHERE $adminNamec $sectionNamec $extrac  $startDatec $endDatec P1.clientID = P1.clientID";
+$sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1 WHERE $adminNamec $sectionNamec $extrac  $startDatec $endDatec P1.clientID = P1.clientID ORDER BY startTime";
 
 $result = mysql_query($sql);
 
@@ -146,19 +146,23 @@ while ($myrow = mysql_fetch_array($result)) {
 	  $rows=array();
 	  $i=0; $ni=0;
 	  while($i<$imax && $ni<$nimax){
-	    $bb=$json->encode($jr->result[$i]);
-	    $nbb=$json->encode($njr->result[$ni]);
-	    /*
-	     $j=0;
-	     while(strcmp(substr($bb,0,$j),substr($nbb,0,$j))==0){
-	     $j++;
-	     }
-	     $both=escapeHtml(substr($bb,0,$j));
-	     $bbb=escapeHtml(substr($bb,$j));
-	     $nbbb=escapeHtml(substr($nbb,$j));
-	     array_push($rows,"<td>$both<span class='red'>$bbb</span></td><td>$nbbb</td>");
-	    */
-	    if(strcmp($bb,$nbb)==0){
+	    $bc=$jr->result[$i];  // copy used for compare
+	    $bb=$json->encode($bc); // print this out
+	    $nbc=$njr->result[$ni];  // copy used for compare
+	    $nbb=$json->encode($nbc);  // printed this out
+	    // Remove any backtraces from compare.
+	    unset($bc->backtrace);
+	    $bbc=$json->encode($bc);
+	    unset($nbc->backtrace);
+	    $nbbc=$json->encode($nbc);
+	    // Remove double precision notation from constants.
+	    $bbc=preg_replace('/([0-9])d0/','$1',$bbc);
+	    // Canonicalize new reply.
+	    // commit 14db0660b489c3c2, Nov 19, 2010
+            // Add logging for window clicks.
+	    $nbbc=preg_replace('/andes.help.link.*?;/','',$nbbc);
+	    
+	    if(strcmp($bbc,$nbbc)==0){
 	      $i++; $ni++;
 	    }elseif($imax-$i == $nimax-$ni){
 	      $bbb=escapeHtml($bb);
@@ -176,14 +180,15 @@ while ($myrow = mysql_fetch_array($result)) {
 	    }
 	  }
 	  $nrows=sizeof($rows);
-	  $row=array_shift($rows);
-	  echo "  <tr class='$method'><td rowspan='$nrows'>$tid</td><td rowspan='$nrows'>$aa</td>$row</tr>\n";
-	  foreach($rows as $row){
-	    echo "  <tr class='$method'>$row</tr>\n";
+	  if($nrows>0){
+	    $row=array_shift($rows);
+	    echo "  <tr class='$method'><td rowspan='$nrows'>$tid</td><td rowspan='$nrows'>$aa</td>$row</tr>\n";
+	    foreach($rows as $row){
+	      echo "  <tr class='$method'>$row</tr>\n";
+	    }
 	  }
 	} else {
 	  // json parse of result failed.
-	  $aa=escapeHtml($action);
 	  echo "<tr class='$method'><td>$tid</td><td>$aa</td><td>$response</td><td>$newResponse</td></tr>\n";	   
 	}
       }
