@@ -226,16 +226,18 @@
   "given a variable, return defined symbols with single-letter spelling errors"
   ;; For now, just look for single letter error.
   ;; Add a little padding to avoid floating point compare problems.
-  (let ((cutoff (/ 1.2 (length var))) 
-	(c2 (/ 1.1 (length var)))
-	(match:*word-cutoff* 0.4)) ;only do three letter words or longer
-    (mapcar #'cdr
-	    (remove-if #'(lambda (x) (> (car x) c2))
-		       (match:best-model-matches
-			(list var)  ;student is list of words
-			(mapcar #'(lambda (x) (cons (sym-label x) x)) 
-				(get-variables))
-			:cutoff cutoff)))))
+  (when (> (length var) 2)
+    (let ((cutoff (/ 1.2 (length var)))
+	  (c2 (/ 1.1 (length var)))
+	  (match:*word-cutoff* 0.4)) ;only do three letter words or longer
+      (mapcar #'cdr
+	      (remove-if #'(lambda (x) (> (car x) c2))
+			 (match:best-model-matches
+			  (list var)  ;student is list of words
+			  (mapcar #'(lambda (x) (cons (sym-label x) 
+						      (sym-label x))) 
+				  (get-variables))
+			:cutoff cutoff))))))
 
 (defun symbols-fetch (pat &key namespace)
   "return list of all symbol records whose referent exprs unify with pat"

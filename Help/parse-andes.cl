@@ -107,12 +107,14 @@
    creates a student entry, adds it to the *student-entries*,
    creates an error interpretation for it, and returns
    the first tutor turn of the error interpretation's hint sequence."
-  (let (best best-parse)
+  (let (best)
     (dolist (parse parses)
       (when (or (null best) 
 		(< (if (parse-rem parse) (length (parse-rem parse)) 0) best))
-	(setf best (if (parse-rem parse) (length (parse-rem parse)) 0))
-	(setf best-parse parse)))
+	(setf best (if (parse-rem parse) (length (parse-rem parse)) 0))))
+    (unless best 
+      (warn "handle-bad-syntax-equation: no best parse for ~A from ~A parses" equation (length parses))
+      (setf best 0))
     (setf (StudentEntry-verbatim se) equation)
     (setf (StudentEntry-parsedeqn se) parses)
     (setf (StudentEntry-prop se) (list 'eqn equation))
@@ -120,8 +122,7 @@
     (add-entry se)
     (setf (StudentEntry-ErrInterp se) 
 	  (bad-syntax-ErrorInterp equation :id (StudentEntry-id se) 
-				  :location (- (length equation)
-					       best)))
+				  :location (- (length equation) best)))
     (ErrorInterp-remediation (StudentEntry-ErrInterp se))))
   
 ; This returns a plain ErrorInterp:
@@ -172,9 +173,9 @@
      (T (setf rem 
 	      (make-hint-seq
 	       (list
-		(format nil "Syntax error in ~A <span class=\"unparsed\">~A</span>" 
-			(subseq equation 0 location)
-			(subseq equation location))
+		(format nil "Syntax error in ~A~@[<span class=\"unparsed\">~A</span>~]" 
+			(if location (subseq equation 0 location) equation)
+			(when location (subseq equation location)))
 		(format nil 
 			"Though I can't tell exactly what the mistake is, a few common sources of errors are:  <ul><li>~A are case sensitive. <li>Multiplication requires an explicit multiplication sign:&nbsp; W=m*g, NOT W=mg. <li>Units attach only to numbers, not to variables or expressions.  <li>There must be a space between a number and a unit.&nbsp; For example:&nbsp;  2.5 m</ul>"
 			(open-review-window-html 

@@ -94,7 +94,7 @@
       (t (warn "generate-wrong-quantities invalid (or uncached) type ~A" 
 	       type)))
     
-    (when t ;debug print
+    (when nil ;debug print
       (format webserver:*stdout* "got ~A of type ~A~% relevant: ~A~%" 
 	      (length *wrong-quantity-result*) type relevant))
     ;; canonicalize-unify has been applied to both prop and relevant.
