@@ -915,4 +915,6 @@
 ;;;
 (post-process quantity-bindings (Problem)
   "Generate and cache possible student phrases"
-  (setf (problem-phrases Problem) (generate-initial-bindings)))
+  (setf (problem-phrases Problem) (generate-initial-bindings))
+  (setf (problem-keywords problem) 
+	(generate-types-keyword-pointers (problem-phrases problem))))

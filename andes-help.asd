@@ -54,11 +54,13 @@
 				     				     
 				     ;; Entry Intepreter: generic + non-eq
 				     (:file "symbols")
+				     (:file "wrong-quantities")
 				     (:file "State"
 					    :depends-on ("symbols" "grammar"))
 				     (:file "Entry-API"
 					    :depends-on ("HelpMessages" "symbols"
-							 "SolutionGraph" "icons"))
+							 "SolutionGraph" "icons"
+							 "wrong-quantities"))
 				     
 				     ;; Equation parser/interpreter
 				     (:file "physics-algebra-rules")
@@ -94,11 +96,13 @@
  				     (:file "API")
                                      (:file "fade"
 					    :depends-on ("icons"))
+				     (:file "word-suggest")
 				     (:file "sessions"
 					    ;; Mostly for *help-env-vars*
 					    :depends-on ("NextStepHelp"
 							 "parse" "State" 
 							 "database" "fade"
+							 "word-suggest"
 							 "grammar" "symbols" 
 							 "Commands"))))
 	       (:module "Testcode"

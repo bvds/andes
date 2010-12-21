@@ -73,7 +73,7 @@
 ;;
 (defun get-default-phrase (x)
   (when x
-    (match:word-string (expand-vars (new-english-find x)))))
+    (match:word-string (expand-vars (new-english-find x) :html-format t))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -383,38 +383,41 @@
 
 (defun expand-new-english (model &optional (bindings no-bindings))
   "Expand model tree, expanding ontology expressions, parse strings into list of words, substituting bindings, evaluating lisp code, and removing nils."
-  (cond ((stringp model) 
-	 ;; If there is more than one word, break up into list of words.
-	 (let ((this (match:word-parse model))) (if (cdr this) this model)))
+  (cond ((stringp model) model)
 	((null model) model)
 	((variable-p model) 
 	 (if (all-boundp model bindings)
 	     (expand-new-english (subst-bindings bindings model))
 	     (warn "expand-new-english:  Unbound variable ~A" model)))
-	((and (consp model) (member (car model) '(preferred allowed)))
+	((and (consp model) (member (car model) 
+				    '(preferred allowed key 
+				      case-insensitive case-sensitive)))
 	 (when (cddr model) 
 	   (warn "expand-new-english:  ~(~A~) with more than one argument:  ~A"
 		 (car model) model))
-	 (list (car model) (expand-new-english (cadr model) bindings)))
+	 (let ((arg (expand-new-english (cadr model) bindings)))
+	   (when arg 
+	     ;; reuse cons, if possible
+	     (if (eql arg (cadr model)) model (list (car model) arg)))))
 	((and (consp model) (member (car model) '(and or conjoin)))
 	 (let ((args (expand-new-english-list (cdr model) bindings)))
-	   (when args (cons (car model) args))))
+	   (when args (reuse-cons (car model) args model))))
 	;; expansion of var must be done at run-time.
 	((and (consp model) (eql (car model) 'var)) 
 	 (subst-bindings bindings model))
-	((and (consp model) (eql (car model) 'eval))
-	 ;; For extensibility, allow eval to have more arguments.
-	 ;; Here, we just ignore them.
-	 (expand-new-english
-	  (eval (subst-bindings-quoted bindings (second model)))))
 	((and (consp model) (eql (car model) 'eval-compiled))
 	 ;; For extensibility, allow eval to have more arguments.
 	 ;; Here, we just ignore them.
 	 (expand-new-english 
 	  (apply (second model) (subst-bindings bindings (third model)))))
-	;; ordered sequence, remove empty elements
+	((and (consp model) (eql (car model) 'eval))
+	 ;; For extensibility, allow eval to have more arguments.
+	 ;; Here, we just ignore them.
+	 (expand-new-english
+	  (eval (subst-bindings-quoted bindings (second model)))))
+	;; ordered sequence
 	((match:test-for-list model)
-	 (remove nil (expand-new-english-list model bindings)))
+	 (expand-new-english-list model bindings))
 	(t 
 	 ;; Bindings are local to one operator in the ontology
 	 ;; so we need to substitute in here.
@@ -441,7 +444,7 @@
 
 ;; Should be "private" to nlg
 (defun expand-new-english-list (x &optional (bindings no-bindings))
-  "If object is a list, expand"
+  "If object is a list, expand.  Null elements are not removed."
   ;; Handles cases where members of a list are atoms in Ontology
   ;; and lists with bindings of the form (... . ?rest)
   ;; along with (... . (eval ...))
@@ -455,25 +458,71 @@
 	   (unless (consp result)
 	     (warn "eval must return a list:  ~A returned ~A" x result))
 	   result))
-	;; recursion
-	((consp x) (cons (expand-new-english (car x) bindings)
-			 (expand-new-english-list (cdr x) bindings)))
+	;; recursion, dropping nil terms
+	((consp x) 
+	 (let ((arg (expand-new-english (car x) bindings)))
+	   (if arg 
+	       (reuse-cons arg
+			   (expand-new-english-list (cdr x) bindings)
+			   x)
+	       (expand-new-english-list (cdr x) bindings))))
 	(t (warn "expand-new-english-list:  invalid list structure in ~A" x))))
 
 
-(defun expand-vars (model)
+(defun expand-vars (model &key html-format)
   "Expand (var ...) expressions and remove nils from model tree."
   (cond ((stringp model) model)
 	((null model) model)
-	((member (car model) '(preferred allowed and or conjoin))
+	((member (car model) '(preferred allowed key case-sensitive 
+			       case-insensitive))
+	 (let ((arg (expand-vars (second model) :html-format html-format)))
+	   (when arg 
+	     ;; reuse cons, if possible
+	     (if (eql arg (second model)) model (list (car model) arg)))))
+	((member (car model) '(and or conjoin))
 	 ;; untrapped error when second arg of conjoin expands to nil
-	 (let ((args (expand-vars (cdr model))))
-	   (when args (cons (car model) args))))
+	 (let ((args (expand-vars-list (cdr model) html-format)))
+	   (when args (reuse-cons (car model) args model))))
 	((match:test-for-list model) ;plain list
-	 ;; mapcar copies list; subsequent operations can be destructive
-	 (delete nil (mapcar #'expand-vars model)))
+	 (expand-vars-list model html-format))
 	;; expansion of var must be done at run-time.
 	((eql (car model) 'var)
-	 (apply #'symbols-label (cdr model)))
+	 (let ((var (apply #'symbols-label (cdr model))))
+	   (if (and var html-format) (strcat "<var>" var "</var>") var)))
 	(t (warn "expand-vars:  invalid expand ~A" model) model)))
 
+(defun expand-vars-list (model html-format)
+  (cond ((atom model) model)
+	((consp model)
+	 (let ((arg (expand-vars (car model) :html-format html-format)))
+	   (if arg ;drop any members of list that expand to nil.
+	       (reuse-cons arg
+			   (expand-vars-list (cdr model) html-format)
+			   model)
+	       (expand-vars-list (cdr model) html-format))))
+	(t (warn "expand-vars-list:  invalid list structure for ~A" model))))
+
+(defun pull-out-keywords (model &optional in)
+  "Pull out any keywords from expanded model."
+  (cond ((and in (stringp model)) (match:word-parse model))
+	((atom model) nil)
+	((and (consp model) (eql (car model) 'var)) nil)
+	((and (consp model) (eql (car model) 'key)
+	      (pull-out-keywords (second model) t)))
+	((consp model)
+	 (union (pull-out-keywords (car model) in)
+		(pull-out-keywords (cdr model) in)
+		:test #'string-equal))
+	(t (warn "pull-out-keywords invalid model ~A" model))))
+
+(defun pull-out-required-words (model)
+  "Pull out all required words from expanded model."
+  (cond ((stringp model) (match:word-parse model))
+	((atom model) nil)
+	((and (consp model) 
+	      (member (car model) '(var allowed preferred))) nil)
+	((consp model)
+	 (union (pull-out-required-words (car model))
+		(pull-out-required-words (cdr model))
+		:test #'string-equal))
+	(t (warn "pull-out-required-words invalid model ~A" model))))

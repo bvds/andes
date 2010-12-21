@@ -123,7 +123,7 @@
 ;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
 (#-sbcl defconstant #+sbcl sb-int:defconstant-eqx
 	help-env-vars 
-	;; These are all the variables that are be set by API commands
+	;; These are all the variables that are set by API commands
         ;; listed in Andes2 log files or their descendants.
 	'(*CP* **NSH-NEXT-CALL** *NSH-NODES* *NSH-FIRST-PRINCIPLES*
 	  *NSH-CURRENT-SOLUTIONS* *NSH-LAST-NODE* *NSH-SOLUTION-SETS* 
@@ -133,6 +133,8 @@
           **Condition**  mt19937::*random-state* **grammar**
 	  ;; Cache for word completion utility.
 	  *phrase-cache*
+	  ;; List of quantities and objects not in solutions.
+	  *wrong-quantities*
 	  ;; List of Fade items.
 	  *fades*
 	  ;; Solver process (could easily be replaced by function argument
@@ -482,13 +484,19 @@
 	     (params (remove :time
 			     (cdr (assoc :params old-step))
 			     :key #'car))
-	     (reply (apply 
-		     (cond 
-		       ((equal method "solution-step") #'solution-step)
-		       ((equal method "seek-help") #'seek-help))
-		     ;; flatten the alist
-		     (mapcan #'(lambda (x) (list (car x) (cdr x))) 
-			     params))) 
+	     ;; If an old session turn produces an error, convert it
+	     ;; into a warning and move on to the next turn.
+	     ;; Otherwise old sessions with unfixed errors cannot be reopened.
+	     (reply (handler-case
+			(apply 
+			 (cond 
+			   ((equal method "solution-step") #'solution-step)
+			   ((equal method "seek-help") #'seek-help))
+			 ;; flatten the alist
+			 (mapcan #'(lambda (x) (list (car x) (cdr x))) 
+				 params))
+		      (error (c) (warn (format nil "Found ~A for ~A of ~A" 
+					       (type-of c) method params)))))
 	     
 	     ;; solution-steps and help results are passed back to client
 	     ;; to set up state on client.
@@ -572,16 +580,6 @@
     ;; assemble list of replies to send to client.
     (append (reverse replies) solution-step-replies)))
 
-;; helper function to guess api type from entryprop.
-(defun entryprop2type (prop)
-  "guess Andes3 api \"type\" from entryprop."
-  (case (car prop)
-    (eqn "equation")
-    (define-var "statement")
-    (body "ellipse") ;could also be rectangle
-    (vector "vector")
-    (line "line")
-    (draw-axes "axes")))
 
 ;; helper function to write out definition text based on Ontology.
 (defun write-definition-text (prop symbol)
@@ -592,7 +590,8 @@
 	       ;; no variables have been defined: 
 	       ;; remove any (var ...)
 	       (expand-vars 
-		(systementry-model (find-systementry prop)))))
+		(systementry-model (find-systementry prop))
+		:html-format t)))
       (progn (warn "write-definition-text:  Can't find systementry for ~S" 
 		   prop)
 	     (strcat symbol ":  Can't find definition"))))
@@ -619,7 +618,7 @@
 		 (nlg (car time) 'moment) (second time)))
     (t (warn "Bad time specification ~A" time))))
 
-(defparameter *comment-leading-characters* '(#\? #\! #\; #\: #\, #\. #\& #\# #\%))
+(defparameter *comment-leading-characters* '(#\? #\! #\; #\: #\, #\& #\# #\%))
 
 ;; need error handler for case where the session isn't active
 ;; (webserver:*env* is null).  
@@ -703,7 +702,8 @@
 
 	 ;; Look for text with leading punctuation.  This indicates
 	 ;; a comment, which is not analyzed by the help system.
-	 ((member (aref text 0) *comment-leading-characters*)
+	 ((and (> (length text) 0) 
+	       (member (aref text 0) *comment-leading-characters*))
 	  `(((:action . "show-hint") (:text . ,(strcat "A " *unevaluated-entry* ".")))))
 	 
 	 ;; Look for text box marked by "Answer: "
@@ -825,14 +825,14 @@
   (declare (ignore time)) ;for logging
 
   (env-wrap
-    (let ((words (next-word-list 
-		  (to-word-list (pull-out-quantity symbol text))
-		  :type (cdr (assoc type *tool-types* :test #'equalp)))))
-      `(((:action . "next-words")
-	 ;; :false is mapped onto json false via a special hack
-	 ;; in Base/web-server.cl
-	 (:last-word . ,(if (member nil words) t :false))
-	 (:words . ,(or (remove nil words)
+   (let ((words (next-word-list 
+		 (to-word-list (pull-out-quantity symbol text))
+		 :type (cdr (assoc type *tool-types* :test #'equalp)))))
+     `(((:action . "next-words")
+	;; :false is mapped onto json false via a special hack
+	;; in Base/web-server.cl
+	(:last-word . ,(if (member nil words) t :false))
+	(:words . ,(or (remove nil words)
 			;; Hack for creating an empty array in json
 			(make-array '(0)))))))))
 

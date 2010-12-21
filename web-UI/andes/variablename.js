@@ -31,7 +31,7 @@ andes.variablename.parse = function(intext){
 		cantext = cantext.replace(/:\s*/,": ");
 		cantext = cantext.replace(/^\s+/,"");
 		// Remove leading puctuation (for comments).
-		cantext = cantext.replace(/^[?!;:,.&#%]/,"");
+		cantext = cantext.replace(/^[?!;:,&#%]/,"");
 		// match for forms like ?var is ...
 		var equality=/^([\w\\$]+)(:| is| =) /i;
 		var match = equality.exec(cantext);

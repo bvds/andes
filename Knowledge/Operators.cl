@@ -268,8 +268,7 @@
                   ;; And (a b) is turned into '(b 'a)
 		  ;; note that any subsequent arguments are not quoted.
 		  `(,(second v) (quote ,(car v)) . ,(cddr v))
-		  `(match:word-string 
-		    (expand-vars (new-english-find (quote ,v))))))
+		  `(get-default-phrase (quote ,v))))
 	  Vars))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

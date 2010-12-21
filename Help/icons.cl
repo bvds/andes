@@ -73,6 +73,8 @@
 
 (defparameter *define-variable* (manual-link "define a variable" 
 					     "define-quantities" :pre ""))
+(defparameter *add-label* (manual-link "add a label" 
+					     "define-quantities" :pre ""))
 
 (defparameter *delete-object* (manual-link "delete your entry" 
 					     "delete" :pre ""))

@@ -754,7 +754,7 @@
   :short-name "amplitude"	
   :units |m|
   :restrictions nonnegative 
-  :new-english (property-object "amplitude" ?wave)
+  :new-english (property-object (key "amplitude") ?wave)
 )
 
 (defoperator define-amplitude (?wave ?type)
