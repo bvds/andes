@@ -1681,13 +1681,15 @@
 
 (defun nsh-check-sought-resp (response past)
   "Check the sought response, returning tutor turn."
-
-  ;; In case student clicks on an old "Explain more" in response
-  ;; to this question; see Bug #1686.
+  
   (unless (stringp response)
-    (warn "Response should be a string (Bug #1686): ~S" response)
-    (setf response (format nil "~A" response)))
-
+    (unless (eql response 'explain-more)
+      (warn "nsh-check-sought-resp got unexpected value ~A" response))
+    (return-from nsh-check-sought-resp
+      (nsh-wrong-sought-resp 
+       "Please use the box below to enter the sought quantity."
+       Past :Case response)))
+  
   (let ((best (match:best-model-matches
 	       (match:word-parse response)
 	       (mapcar #'(lambda (x)

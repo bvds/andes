@@ -234,8 +234,7 @@
 	      (remove-if #'(lambda (x) (> (car x) c2))
 			 (match:best-model-matches
 			  (list var)  ;student is list of words
-			  (mapcar #'(lambda (x) (cons (sym-label x) 
-						      (sym-label x))) 
+			  (mapcar #'(lambda (x) (cons (sym-label x) x)) 
 				  (get-variables))
 			:cutoff cutoff))))))
 

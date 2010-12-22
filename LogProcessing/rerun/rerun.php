@@ -24,8 +24,7 @@
 $dbname= 'andes3'; //$_POST['dbname'];
 $dbuser= 'root'; // $_POST['dbuser'];
 $dbserver= "localhost";
-/* don't put into git! */
-$dbpass= 'sin(0)=0';  /// $_POST['passwd'];
+$dbpass= file_get_contents("db_password");  /// $_POST['passwd'];
 
 //CONNECTION STRING  
     
