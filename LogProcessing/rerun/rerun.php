@@ -20,6 +20,15 @@
 <body>
 
 <?php
+
+	     //  Clear database:
+	     //    use andes_test;
+             //    delete from PROBLEM_ATTEMPT;
+
+
+	     // Still need to clean up logging:  consistant format
+	     // Have interp for each red turn?
+$ignoreNewLogs = true;  // ignore any new non-error, log messages
 	    
 $dbname= 'andes3'; //$_POST['dbname'];
 $dbuser= 'root'; // $_POST['dbuser'];
@@ -34,6 +43,7 @@ mysql_connect($dbserver, $dbuser, $dbpass)
 mysql_select_db($dbname)
      or die ("UNABLE TO SELECT DATABASE"); 
 
+/* filters for user name, section, etc.  */
 $adminName = ''; // $_POST['adminName'];
 $sectionName = 'study' ; //$_POST['sectionName'];
 $startDate = ''; // $_POST['startDate'];
@@ -154,25 +164,42 @@ while ($myrow = mysql_fetch_array($result)) {
 	    $bbc=$json->encode($bc);
 	    unset($nbc->backtrace);
 	    $nbbc=$json->encode($nbc);
+	    /*
+	     * Canonicalize strings that are compared, accounting
+	     * for some of the known differences.
+	     */
 	    // Remove double precision notation from constants.
+            // This difference occurs from using slime vs. stand-alone. 
 	    $bbc=preg_replace('/([0-9])d0/','$1',$bbc);
-	    // Canonicalize new reply.
+	    // Add period to end of sentence.
+	    // commit 7227bfa4b73c091d130b79bfcd6c, Nov. 25, 2010
+	    // Escaping for php regexps seems to be buggy ...
+	    $bbc=preg_replace('/(Undefined variable.*?<..var>)\\"/','$1."',$bbc);
 	    // commit 14db0660b489c3c2, Nov 19, 2010
             // Add logging for window clicks.
 	    $nbbc=preg_replace('/andes.help.link.*?;/','',$nbbc);
+	    // Add marker for syntax error
+	    // commit c0f8084f1c41886a17c968e, Nov. 25, 2010
+            // Couldn't figure out match for two characters \/, possible bug
+	    // in php?
+	    $nbbc=preg_replace('/<span class=\\\"unparsed\\\">(.*?)<..span>/','$1',$nbbc);
 	    
-	    if(strcmp($bbc,$nbbc)==0){
+	    if(strcmp($bbc,$nbbc)==0){ // match, go on to next pair
 	      $i++; $ni++;
-	    }elseif($imax-$i == $nimax-$ni){
+	    }elseif($imax-$i == $nimax-$ni){ // mismatch, but same remaining
 	      $bbb=escapeHtml($bb);
 	      $nbbb=escapeHtml($nbb);
 	      array_push($rows,"<td>$bbb</td><td>$nbbb</td>");
 	      $i++; $ni++;
-	    }elseif($imax-$i < $nimax-$ni){
-	      $nbbb=escapeHtml($nbb);
-	      array_push($rows,"<td></td><td>$nbbb</td>");
+	    }elseif($imax-$i < $nimax-$ni){ // mismatch, extra row in new
+	      // drop any added log messages
+	      if(! ($ignoreNewLogs && strcmp($nbc->action,"log")==0 &&
+		    !isset($nbc->error))){
+		$nbbb=escapeHtml($nbb);
+		array_push($rows,"<td></td><td>$nbbb</td>");
+	      }
 	      $ni++;
-	    }else{
+	    }else{  //mismatch, extra row in old
 	      $bbb=escapeHtml($bb);
 	      array_push($rows,"<td>$bbb</td><td></td>");
 	      $i++;
