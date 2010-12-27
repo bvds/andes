@@ -675,6 +675,9 @@
 			   (epsilon 0.25) no-sort single-match)
   "Returns alist of best matches to text using match-model."
   (declare (notinline match-model))
+  (when *debug-print*
+    (format t "best-model-matches for ~A models, cutoff ~A, no-sort=~A single-match=~A~%"
+	    (length models) cutoff no-sort single-match))
   ;; cutoff is the maximum allowed score.
   ;; equiv maximum fraction of the best score such that a fit
   ;;    is considered equivalent to the best fit.
@@ -693,7 +696,8 @@
     (warn "best-model-matches:  cutoff=~A  must be nonnegative." cutoff))
   (unless (and (numberp equiv) (> equiv 1.0))
     (warn "best-model-matches:  equiv=~A  must be larger than 1" equiv))
-  (let (this (best (/ cutoff equiv)) quants bound)
+  (let (this (best (/ cutoff equiv)) quants bound
+	     (t0 (if *debug-print* (get-internal-run-time) 0)))
     ;; Do easier ones first, to establish better bound.
     ;; We have  have to do each time, since results of any eval or var 
     ;; is needed for sort.
@@ -706,15 +710,19 @@
 				      (- best 1) best) equiv)))
       (let ((t0 (if *debug-print* (get-internal-run-time) 0)))
 	(setf this (match-model student (car x) :best bound))
-	(when *debug-print*
+	(when (and nil *debug-print*) ;too noisy for some cases
 	  (format t "     Got ~A for match in ~Fs to~%       ~A~%" 
-		  this  (/ (- (get-internal-run-time) t0) 
-			   internal-time-units-per-second)
+		  this  (/ (float (- (get-internal-run-time) t0))
+			   (float internal-time-units-per-second))
 		  (car x))))
       (when (< this bound) (if single-match
 			       (setf quants (list (cons this (cdr x))))
 			       (push (cons this (cdr x)) quants)))
       (when (< this best) (setf best this)))
+    (when *debug-print*
+      (format t "    total time ~A~%"
+	      (/ (float (- (get-internal-run-time) t0))
+		 (float internal-time-units-per-second))))
     ;; Remove any quantities that are not equivalent with best fit
     ;; and return result in original order.
     (nreverse

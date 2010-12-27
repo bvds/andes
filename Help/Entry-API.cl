@@ -219,17 +219,18 @@
 	 ;; used for best and maybe for wrong-tool-best
 	 (initial-cutoff (min (* cutoff-fraction (length student)) 
 			      cutoff-count))
+	 ;; For any debugging prints in matching package.
+	 ;; This also applies to any wrong matches below.
+	 (*standard-output* webserver:*stdout*)
 	 (best-correct
-	  ;; For any debugging prints in matching package.
-	  (let ((*standard-output* webserver:*stdout*))
-	    (match:best-model-matches 
-	     student
-	     (mapcar #'(lambda (x) 
-			 (cons (expand-vars (SystemEntry-model x)) 
-			       (SystemEntry-prop x)))
-		     sysentries)
-	     :cutoff initial-cutoff
-	     :equiv equiv)))
+	  (match:best-model-matches 
+	   student
+	   (mapcar #'(lambda (x) 
+		       (cons (expand-vars (SystemEntry-model x)) 
+			     (SystemEntry-prop x)))
+		   sysentries)
+	   :cutoff initial-cutoff
+	   :equiv equiv))
 	 (best best-correct) ;This is the best interpretation, so far.
 	 hints
 	 wrong-tool-best)
@@ -262,9 +263,7 @@
 			  #'(lambda (x) (not (member 
 					      (car (SystemEntry-prop x)) 
 					      allowed-tools)))
-			  *sg-entries*))
-	     ;; For any debugging prints in matching package.
-	     (*standard-output* webserver:*stdout*))
+			  *sg-entries*)))
 	(setf wrong-tool-best 
 	      (match:best-model-matches 
 	       student
