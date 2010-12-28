@@ -3,7 +3,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
-   <LINK REL=StyleSheet HREF="../Web-Interface/log.css" TYPE="text/css" >
+   <LINK REL=StyleSheet HREF="/log/log.css" TYPE="text/css" >
    <title>Rerun Sessions</title>
 
 <style type="text/css">
@@ -28,7 +28,12 @@
 
 	     // Still need to clean up logging:  consistant format
 	     // Have interp for each red turn?
+
+	     // To get server timing, need to set:
+	     // (setf webserver:*debug* nil)
+	     // (setf *simulate-loaded-server* nil)
 $ignoreNewLogs = true;  // ignore any new non-error, log messages
+$printDiffs = false;  // Whether to print out results for server diffs
 	    
 $dbname= 'andes3'; //$_POST['dbname'];
 $dbuser= 'root'; // $_POST['dbuser'];
@@ -97,6 +102,9 @@ require_once('jsonRPCClient.php');
 $server  = new jsonRPCClient('http://localhost/help-test');
 $sessionIdBase = "_" . date('h:i:s') . "_";
 $sessionId = 0;
+
+$studentTime = 0; // Total user time for all sessions
+$serverTime = 0; // Total server time for all sessions.
   
 $sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1 WHERE $adminNamec $sectionNamec $extrac  $startDatec $endDatec P1.clientID = P1.clientID ORDER BY startTime";
 
@@ -108,13 +116,22 @@ while ($myrow = mysql_fetch_array($result)) {
   $userSection=$myrow["userSection"];
   $startTime=$myrow["startTime"];
   $clientID=$myrow["clientID"];
-  echo "User:&nbsp; $userName, Problem: &nbsp; $userProblem, Section:&nbsp; $userSection Start:&nbsp; $startTime\n";
-  echo "<table border=1 width=\"100%\">";
-  echo "<tr><th>Turn</th><th>Action</th><th>Old Response</th><th>New Response</th></tr>\n";
+  $sessionLink1 = "<td><a href=\"../Web-Interface/OpenTrace.php?x=" . $dbuser .
+    "&amp;sv=" . $dbserver . "&amp;pwd=" . $dbpass . "&amp;d=" . $dbname .
+    "&amp;cid=" . $clientID . "&amp;u=" . $userName . "&amp;p=" . 
+    $userProblem . "&amp;s=" . $userSection .  "&amp;m=";
+  $sessionLink2 ="\">Session&nbsp;log</a></td>";
+
+  echo "<p>User:&nbsp; $userName, Problem: &nbsp; $userProblem, Section:&nbsp; $userSection Start:&nbsp; $startTime\n";
+  if($printDiffs){
+    echo "<table border=1 width=\"100%\">";
+    echo "<tr><th>Turn</th><th>Action</th><th>Old Response</th><th>New Response</th></tr>\n";
+  }
   
   $tempSql = "SELECT initiatingParty,command,tID FROM PROBLEM_ATTEMPT_TRANSACTION WHERE clientID = '$clientID'";
   $tempResult = mysql_query($tempSql);
-  $sessionId++;  
+  $sessionId++; 
+  $ttime = 0;  // User time for this session
   
   // get student input and server reply
   while (($myrow1 = mysql_fetch_array($tempResult)) &&
@@ -129,16 +146,33 @@ while ($myrow = mysql_fetch_array($result)) {
       $response=$myrow1["command"];
     }
     
+    $queryStart=microtime(true);       
     $newResponse = $server->message($action,$sessionIdBase . $sessionId);
-
+    $dt = microtime(true) - $queryStart;
+    $serverTime += $dt;
     $a=$json->decode($action);
     $method=$a->method;
+    // Problem might be closed later by server.
+    // No attempt here to remove "out of focus" since we
+    // don't have that working yet.
+    if(isset($a->params->time) && strcmp($method,"close-problem")!=0){  
+      $ttime=$a->params->time;
+    }
+    if(isset($methodTime[$method])){
+      $methodTime[$method] += $dt;
+    } else {
+      $methodTime[$method] = $dt;
+    }
+    $timeLink[]=array("dt"=>$dt, "time"=>$ttime, "method"=>$method,
+		      "link"=>$sessionLink1 . "&amp;t=" . $ttID . 
+		      $sessionLink2);
+
     if(isset($a->id)){
       $tid=$a->id;
     } else {
       $tid="none";
     }
-    if(!$methods || in_array($method,$methods)){
+    if($printDiffs && (!$methods || in_array($method,$methods))){
       $aa=$json->encode($a->params);
       // Escape html codes so actual text is seen.
       $aa=str_replace("&","&amp;",$aa);
@@ -220,9 +254,41 @@ while ($myrow = mysql_fetch_array($result)) {
       }
     }
   }
-  echo "</table>\n";
+  if($printDiffs){
+    echo "</table>\n";
+  }
+  $studentTime += $ttime;
  }
 
+echo "<p>Student time " . number_format($studentTime,2) . 
+     " and server time " . number_format($serverTime,2) . " seconds.<br>\n";
+
+echo "Server time usage for each method:<br>\n";
+echo "<table border=1>\n";
+echo "<tr><th>Method</th><th>time (s)</th></tr>\n";
+foreach ($methodTime as $method => $time){
+  echo "<tr class='$method'><td>$method</td><td>" . 
+    number_format($time,2) . "</td></tr>\n";
+}
+echo "</table><br>";
+
+echo "Turns with largest latency:<br>\n";
+function cmp($a,$b){
+  if($a["dt"]==$b["dt"]){
+    return 0;
+  }
+  return ($a["dt"] > $b["dt"]) ? -1 : 1; // descending
+}
+usort($timeLink,"cmp");
+echo "<table border=1>\n";
+echo "<tr><th>latency (s)</th><th>Session<br>time</th><th>Session</th></tr>\n";
+foreach(array_splice($timeLink,0,50) as $val){
+  echo "<tr class='" . $val["method"] . "'><td>" . 
+    number_format($val["dt"],2) . "</td><td>" . 
+    number_format($val["time"],2) . "</td>" .
+    $val["link"] . "</tr>\n";
+}
+echo "</table>";
 
 ?>
 
