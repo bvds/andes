@@ -236,7 +236,7 @@
 	 (best-correct (if best (best-value best) initial-cutoff))
 	 hints
 	 wrong-tool-best)
-    
+
     ;; Debug printout:
     (when nil
       (format t "Best match to ~s is~%   ~S~% from ~S~%" 
@@ -320,7 +320,8 @@
 	  (dolist (tool-prop tool-props)
 	    (when (or (null wrong-tool-best) 
 			   (>= (best-value wrong-tool-best) 1))
-	      ;; (format t "Starting wrong tool ~A:~%" tool-prop)
+	      (when nil ;debug print
+		(format t "Starting wrong tool ~A:~%" tool-prop))
 	      (let ((this 
 		     (match:best-model-matches 
 		      student	     
@@ -339,7 +340,7 @@
 		      :equiv equiv
 		      :no-sort t
 		      :single-match t)))
-		(if nil ;debug print
+		(when nil ;debug print
 		    (format t "For tool ~A got ~A~%" tool-prop this))
 		(when this (setf wrong-tool-best this)))
 	      ))))

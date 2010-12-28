@@ -97,7 +97,7 @@
 	       type)))
     
     (when nil ;debug print
-      (format t "got ~A of type ~A~% relevant: ~A~%" 
+      (format t "      got ~A of type ~A~%        relevant: ~A~%" 
 	      (length *wrong-quantity-result*) type relevant))
     ;; canonicalize-unify has been applied to both prop and relevant.
     (nreverse
@@ -129,7 +129,8 @@
   (let* ((type (cdr (assoc tool-prop *tools-with-definitions*)))
 	 ;; this will be null for body tool
 	 (quantities (cdr (assoc type (problem-keywords *cp*)))))
-    ;; (format t "tool prop ~A~%" tool-prop)
+    (when nil ;debug print
+      (format t "tool prop ~A~%" tool-prop))
     (cond 
       (quantities
        (let ((ontology-types 
@@ -140,7 +141,8 @@
 	       ;; Else try required words.
 	       (lookup-words-in-quantities (mapcar #'string-downcase student)
 					   (cdr quantities)))))
-	 ;; (format t "   using ontology types ~A~%" ontology-types)
+	 (when nil ;debug print
+	   (format t "   using ontology types ~A~%" ontology-types))
 	 (loop for ontology-type in ontology-types
 	       append (get-wrong-quantities tool-prop ontology-type))))
             
