@@ -147,8 +147,8 @@
       ;; Once the problem has been loaded successfully into the *cp* parameter
       ;; then we need to setup the struct for runtime use.
       (progn
-        ;; Initialize sg structures
-	(sg-setup *cp*)
+	(match:initialize-word-count-memo) ;session-local memo for word-count.
+	(sg-setup *cp*) ;Initialize sg structures
 	
 	;; enter appropriate predefined student labels into symbol table: 
 	(enter-predefs)

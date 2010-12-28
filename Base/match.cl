@@ -69,6 +69,7 @@
 		   :add-to-dictionary :add-to-dictionary-handler
 		   :*key-multiplier
 		   :*word-cutoff*
+		   :initialize-word-count-memo
 		   :matches-model-syntax :word-string :*grammar-names*))
 
 (eval-when (:load-toplevel :compile-toplevel)
@@ -200,12 +201,48 @@
 (defvar word-count-handler 'default-word-count-handler 
   "By setting this function, one can extent the model grammar.")
 
+;; This is an idea to memoize word-count function since
+;; it operates repeatedly on a given model tree.
+;; On an intial test, it reduced time from 5.6 seconds to 3.64 seconds.
+
+(defvar *word-count-memo* nil)
+
+(defun initialize-word-count-memo ()
+  "In cases where repeated matches are made to a given model or several models are constructed from a submodel, then it is useful to cache the word counts."
+  (if *word-count-memo*
+      (progn
+	(clrhash (car *word-count-memo*))
+	(clrhash (cdr *word-count-memo*)))
+      (setf *word-count-memo*
+	    ;; Important that we reuse conses when constructing
+	    ;; model trees.
+	    (cons (make-hash-table :test #'eql :size 1000)
+		  (make-hash-table :test #'eql :size 1000)))))
+
 (defun word-count (model &key max)
+  "find minimum (or maximum) word count in model"
+  ;; Allow memoization of this function.
+  (if *word-count-memo*
+      ;; Strings have same upper and lower bound.
+      ;; However, benchmarking shows that testing for
+      ;; strings slows things down.
+      (multiple-value-bind (val found-p)
+	  (gethash model 
+		   (if max (car *word-count-memo*) 
+		       (cdr *word-count-memo*)))
+	(if found-p val
+	    (setf (gethash model 
+			   (if max (car *word-count-memo*) 
+			       (cdr *word-count-memo*)))
+		  (word-count-in model :max max))))
+      (word-count-in model :max max)))
+
+(defun word-count-in (model &key max)
   "find minimum (or maximum) word count in model"
   ;; In general, arguments of the model can be nil.
   (cond 
-    ((null model) 0)
     ((stringp model) (word-parse-count model))  ;count words in string
+    ((null model) 0)
     ((atom model) (funcall word-count-handler model :max max))
     ;; from here on, assume model is a proper list
     ((member (car model) '(key case-insensitive case-sensitive))
@@ -276,8 +313,8 @@
   "Estimate number of alternatives, when expanded."
   ;; Here, we just count number of expansions.
   (cond 
-    ((null model) nil)
     ((stringp model) (word-parse-count model)) ;count words in string
+    ((null model) nil)
     ((member (car model) '(key case-insensitive case-sensitive))
      (model-complexity (second model)))
     ((test-for-list model)
@@ -719,14 +756,17 @@
 			       (setf quants (list (cons this (cdr x))))
 			       (push (cons this (cdr x)) quants)))
       (when (< this best) (setf best this)))
-    (when *debug-print*
-      (format t "    total time ~A~%"
-	      (/ (float (- (get-internal-run-time) t0))
-		 (float internal-time-units-per-second))))
     ;; Remove any quantities that are not equivalent with best fit
     ;; and return result in original order.
-    (nreverse
-     (delete-if #'(lambda (x) (> (car x) (* best equiv))) quants))))
+    (setf quants
+	  (nreverse
+	   (delete-if #'(lambda (x) (> (car x) (* best equiv))) quants)))
+    (when *debug-print*
+      (format t "    Got ~A matches, score ~a, total time ~A.~%"
+	      (length quants) best
+	      (/ (float (- (get-internal-run-time) t0))
+		 (float internal-time-units-per-second))))
+    quants))
 
 ;; Imposing a cutoff on word matching improves speed by 50%
 ;; and removes some accidental matches (words
