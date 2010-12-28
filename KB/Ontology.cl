@@ -303,7 +303,10 @@
 	;; eval is a wrapper simply to specify agent
 	(eval '(preferred (agent ?agent))
 	      (?agent . (mapcar #'remove-time 
-				(append (problem-vectors *cp*)
+				;; torques are due to forces and couples
+				(append (remove '(force . ?rest)
+						(problem-vectors *cp*)
+						:test-not #'unify)
 					(problem-couples *cp*)))))
 	(preferred (eval (when ?axis '("about" ?axis))
 			 ;; include case where axis is omitted
