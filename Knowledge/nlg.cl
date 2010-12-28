@@ -506,7 +506,10 @@
   "Pull out any keywords from expanded model."
   (cond ((and in (stringp model)) (match:word-parse model))
 	((atom model) nil)
-	((and (consp model) (eql (car model) 'var)) nil)
+	;; Ignore any sub-models that are optional,
+	;; even if they contain keywords.
+	((and (consp model) 
+	      (member (car model) '(var allowed preferred))) nil)
 	((and (consp model) (eql (car model) 'key)
 	      (pull-out-keywords (second model) t)))
 	((consp model)
@@ -519,6 +522,7 @@
   "Pull out all required words from expanded model."
   (cond ((stringp model) (match:word-parse model))
 	((atom model) nil)
+	;; Ignore any sub-models that are optional.
 	((and (consp model) 
 	      (member (car model) '(var allowed preferred))) nil)
 	((consp model)
