@@ -56,7 +56,9 @@
 	;; Generate initial word set, add to cache and return.
 	(let  ((x (generate-wrong-quantities tool-prop ontology-type)))
 	  (set-quantity-models tool-prop ontology-type x)
-	  ;; (format t "get-wrong-quantities ~A got ~A~%" tool-prop (length x))
+	  (when nil ;debug print
+	    (format t "get-wrong-quantities ~A for ~A got ~A~%" 
+		    tool-prop ontology-type (length x)))
 	  x)))
 
 (defvar *wrong-quantity-result*)
@@ -95,7 +97,7 @@
 	       type)))
     
     (when nil ;debug print
-      (format webserver:*stdout* "got ~A of type ~A~% relevant: ~A~%" 
+      (format t "got ~A of type ~A~% relevant: ~A~%" 
 	      (length *wrong-quantity-result*) type relevant))
     ;; canonicalize-unify has been applied to both prop and relevant.
     (nreverse
@@ -127,7 +129,7 @@
   (let* ((type (cdr (assoc tool-prop *tools-with-definitions*)))
 	 ;; this will be null for body tool
 	 (quantities (cdr (assoc type (problem-keywords *cp*)))))
-    ;; (format webserver:*stdout* "tool prop ~A~%" tool-prop)
+    ;; (format t "tool prop ~A~%" tool-prop)
     (cond 
       (quantities
        (let ((ontology-types 
@@ -138,6 +140,7 @@
 	       ;; Else try required words.
 	       (lookup-words-in-quantities (mapcar #'string-downcase student)
 					   (cdr quantities)))))
+	 ;; (format t "   using ontology types ~A~%" ontology-types)
 	 (loop for ontology-type in ontology-types
 	       append (get-wrong-quantities tool-prop ontology-type))))
             

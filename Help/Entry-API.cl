@@ -217,12 +217,12 @@
 					    (StudentEntry-text entry)))
 	 (student (match:word-parse student-string))
 	 ;; used for best and maybe for wrong-tool-best
-	 (initial-cutoff (min (* cutoff-fraction (length student)) 
+	 (initial-cutoff (min (* cutoff-fraction (length student))
 			      cutoff-count))
 	 ;; For any debugging prints in matching package.
 	 ;; This also applies to any wrong matches below.
 	 (*standard-output* webserver:*stdout*)
-	 (best-correct
+	 (best
 	  (match:best-model-matches 
 	   student
 	   (mapcar #'(lambda (x) 
@@ -231,13 +231,15 @@
 		   sysentries)
 	   :cutoff initial-cutoff
 	   :equiv equiv))
-	 (best best-correct) ;This is the best interpretation, so far.
+	 ;; The value of the best correct match or the initial cutoff.
+	 ;; This is used to determine cutoffs for wrong quantity matches.
+	 (best-correct (if best (best-value best) initial-cutoff))
 	 hints
 	 wrong-tool-best)
     
     ;; Debug printout:
     (when nil
-      (format webserver:*stdout* "Best match to ~s is~%   ~S~% from ~S~%" 
+      (format t "Best match to ~s is~%   ~S~% from ~S~%" 
 	      student-string
 	      (mapcar 
 	       #'(lambda (x) (cons (car x) 
@@ -247,7 +249,7 @@
     
     ;; If there isn't a good match to solution quantities,
     ;; try another tool and non-solution quanitities.
-    (when (or (null best) (>= (best-value best) 1))
+    (when (>= best-correct 1)
 
       ;; Attempt to detect a wrong tool error.  
       ;; The strategy is to treat the choice of tool as being
@@ -274,7 +276,7 @@
 	       ;; If there is no match in best, then the help is
 	       ;; pretty weak.  In that case, just find anything
 	       ;; below the cutoff.
-	       :cutoff (if best (- (best-value best) 1) initial-cutoff)
+	       :cutoff (- best-correct 1) 
 	       :equiv equiv)))
       
       ;; Attempt to match to quantities not in solution,
@@ -289,7 +291,7 @@
 			  (cons (expand-vars (car x)) 
 				(list tool-prop (cdr x))))
 		      (lookup-quantity-keyword-props student tool-prop))
-	      :cutoff  (min (if best (- (best-value best) 1) initial-cutoff)
+	      :cutoff  (min (- best-correct 1) 
 			    (if wrong-tool-best 
 				(best-value wrong-tool-best) 
 				initial-cutoff))
@@ -307,7 +309,7 @@
       ;; the wrong tool has also been used.
       ;; Must be better than any quantity in solution, but allow
       ;; for ties with one plus any quantity not in solution.
-      (when (and (or (null best-correct) (>= (best-value best-correct) 2))
+      (when (and (>= best-correct 2)
 		 (or (null best) (>= (best-value best) 1)))
 	(let  ((tool-props (intersection
 			    ;; other tools that have natural-language.
@@ -318,6 +320,7 @@
 	  (dolist (tool-prop tool-props)
 	    (when (or (null wrong-tool-best) 
 			   (>= (best-value wrong-tool-best) 1))
+	      ;; (format t "Starting wrong tool ~A:~%" tool-prop)
 	      (let ((this 
 		     (match:best-model-matches 
 		      student	     
@@ -326,11 +329,9 @@
 					(list tool-prop (cdr x))))
 			      (lookup-quantity-keyword-props 
 			       student tool-prop))
-		      :cutoff  (min (if best-correct
-					(- (best-value best-correct) 2) 
-					initial-cutoff)
+		      :cutoff  (min (- best-correct 2) 
 				    (if best 
-					(- (best-value best) 1) 
+					(- (best-value best) 1)
 					initial-cutoff)
 				    (if wrong-tool-best 
 					(- (best-value wrong-tool-best) 1) 
@@ -339,8 +340,7 @@
 		      :no-sort t
 		      :single-match t)))
 		(if nil ;debug print
-		    (format webserver:*stdout* "For tool ~A got ~A~%" 
-			    tool-prop this))
+		    (format t "For tool ~A got ~A~%" tool-prop this))
 		(when this (setf wrong-tool-best this)))
 	      ))))
     
