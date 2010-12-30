@@ -1714,10 +1714,10 @@
       ((null best) ;no matches
        (nsh-sought-resp-nil past))
       ;; too many matches or poor unique match
-      ((or (cdr best) (> (car (car best)) 0.2))  
-       (nsh-sought-resp-ambiguous (mapcar #'cdr best) past))
+      ((or (cdr best) (> (match:best-value (car best)) 0.2))  
+       (nsh-sought-resp-ambiguous (mapcar #'match:best-prop best) past))
       (t          ;unique match
-       (let ((Q (cdr (car best))))
+       (let ((Q (match:best-prop (car best))))
 	 (cond 
 	 ;; have they tried this before?
 	   ((member Q past) (nsh-sought-resp-rep past))

@@ -167,7 +167,7 @@
       ""))
 
 (defun best-value (best)
-  (apply #'min (mapcar #'car best)))
+  (apply #'min (mapcar #'match:best-value best)))
 
 (defparameter *proposition-icons*
   `((define-var . ,*text-tool*)
@@ -242,8 +242,9 @@
       (format t "Best match to ~s is~%   ~S~% from ~S~%" 
 	      student-string
 	      (mapcar 
-	       #'(lambda (x) (cons (car x) 
-				   (expand-vars (SystemEntry-model (cdr x)))))
+	       #'(lambda (x) (cons (match:best-value x) 
+				   (expand-vars (SystemEntry-model 
+						 (match:best-prop x)))))
 	       best)
 	      (mapcar #'systementry-prop sysentries)))
     
@@ -341,7 +342,7 @@
 		      :no-sort t
 		      :single-match t)))
 		(when nil ;debug print
-		    (format t "For tool ~A got ~A~%" tool-prop this))
+		  (format t "For tool ~A got ~A~%" tool-prop this))
 		(when this (setf wrong-tool-best this)))
 	      ))))
     
@@ -367,7 +368,8 @@
 		    (best-value best)))
 	(let ((phr (strcat 
 		    "Perhaps, you meant to use " 
-		    (get-prop-icon (car (cdr (car wrong-tool-best))))
+		    (get-prop-icon (car (match:best-prop 
+					 (car wrong-tool-best))))
 		    ", instead?")))
 	  (push `((:action . "show-hint")
 		  (:text . ,phr)) hints)))
@@ -392,7 +394,7 @@
      (values nil (wrong-tool-ErrorInterp 
 		  entry 
 		  tool-prop
-		  (mapcar #'cdr wrong-tool-best)) hints))
+		  (mapcar #'match:best-prop wrong-tool-best)) hints))
     
     ((null sysentries)
        (values nil (nothing-to-match-ErrorInterp entry tool-prop) hints))
@@ -408,7 +410,7 @@
 	 (values nil (no-matches-ErrorInterp entry) hints)))
     
     ((= (length best) 1)
-     (let* ((prop (cdr (car best)))
+     (let* ((prop (match:best-prop (car best)))
 	    ;; If the best fit isn't too good, give an unsolicited hint.
 	    (hint (close-match-hint (best-value best) entry prop)))
        (when hint (push hint hints))
@@ -425,7 +427,7 @@
        (values prop nil hints)))
     
     (t 
-     (let ((props (mapcar #'cdr best)))
+     (let ((props (mapcar #'match:best-prop best)))
        (values nil (too-many-matches-ErrorInterp entry props) hints))))))
 
 ;; Debug printout:
