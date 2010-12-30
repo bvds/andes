@@ -66,7 +66,6 @@
 		   :unknown-object-handler :match-model
 		   :test-for-list
 		   :word-count :word-count-handler
-		   :add-to-dictionary :add-to-dictionary-handler
 		   :*key-multiplier
 		   :*word-cutoff*
 		   :initialize-word-count-memo
@@ -275,34 +274,6 @@
     ((null model) 0)
     (t (error "word-count-list:  invalid list ~A" model))))
 
-(defun default-add-to-dictionary-handler (model dictionary)
-  (warn "add-to-dictionary:  unknown object ~A" model)
-  dictionary)
-
-(defvar add-to-dictionary-handler 'default-add-to-dictionary-handler 
-  "By setting this function, one can extent the model grammar.")
-
-(defun add-to-dictionary (model dictionary)
-  "Append all words in model to a list of words"
-  ;; In general, arguments of the model can be nil.
-  (cond 
-    ((null model) dictionary)
-    ((stringp model)
-     (dolist (word (word-parse model))
-       (pushnew word dictionary :test #'string-equal)))
-    ((atom model) (funcall add-to-dictionary-handler model dictionary))
-    ;; from here on, assume model is a proper list
-    ((test-for-list model)
-     (dolist (x model)
-       (setf dictionary (add-to-dictionary x dictionary)))
-     dictionary)
-    ((member (car model) '(allowed preferred key 
-			   case-insensitive case-sensitive))
-     (add-to-dictionary (second model) dictionary))
-    ((member (car model) '(and or conjoin))
-     (add-to-dictionary (cdr model) dictionary))
-    (t (funcall add-to-dictionary-handler model dictionary))))
-
 (defun sort-by-complexity (models)
   "Sort an alist of models by increasing complexity"
   (let ((mm (mapcar #'(lambda (x) (cons (model-complexity (car x)) x))
@@ -361,17 +332,15 @@
   ;; for profiling
   (declare (notinline match-model-and match-model-list match-model-conjoin))
 
-  ;; When bound is given, see if there is any hope, based on word count,
-  ;; of doing better.
-  (when (< best 10000)
-      (let ((this (match-bound 
-		   (length student) 
-		   (or l-model (word-count model)) 
-		   (or u-model (word-count model :max t)))))
-	(unless (< this best) (return-from match-model this))))
+  ;; See if there is any hope, based on word count, of doing better 
+  ;; than bound
+  (let ((this (match-bound 
+	       (length student) 
+	       (or l-model (word-count model)) 
+	       (or u-model (word-count model :max t)))))
+    (unless (< this best) (return-from match-model this)))
 
   (cond 
-    ((null model) (length student))
     ((stringp model)
      (let ((words (word-parse model)))
        (if (cdr words)
@@ -386,6 +355,7 @@
 	   ;; best fit plus any extra student words.
 	   ;; If student is nil, this should return 1.
 	   (+ best (max 0 (- (length student) (length words))))))))
+    ((null model) (length student))
     ((atom model)
      (funcall unknown-object-handler student model :best best))
     ;; from here on, model must be a proper list
