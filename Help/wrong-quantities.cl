@@ -48,8 +48,11 @@
   (mapcar #'car *tools-with-definitions*))
 
 ;; top-level routine.  
+;; This function provides caching for the matches to ontology type.
+;; This is largely superfluous because generate-wrong-quantities
+;; simply looks up the pre-computed bindings in problem-phrases.
 (defun get-wrong-quantities (tool-prop ontology-type)
-  "Return alist of model-quantity pairs."
+  "Return a list of triples, with the model, the Ontology prop and any bindings."
     (if (quantity-model-p tool-prop ontology-type)
 	;; If already cached, go with that.
 	(get-quantity-models tool-prop ontology-type)
@@ -67,13 +70,12 @@
   ;; This function has lots of code copied from all-quantities.cl
   (declare (notinline get-ontology-bindings))
   ;; This list could be pre-computed
-  (let* ((type (cdr (assoc tool-prop *tools-with-definitions*)))
-	 ;; Quantities of the same tool in the solution.
-	 (relevant (mapcar #'(lambda (prop) (canonicalize-unify (second prop)))
-			   (remove tool-prop
-				   (mapcar #'systementry-prop *sg-entries*)
-				   :key #'car :test-not #'eql)))
-	 *wrong-quantity-result*)
+  (let ((type (cdr (assoc tool-prop *tools-with-definitions*)))
+	;; Quantities of the same tool in the solution.
+	(relevant (mapcar #'(lambda (prop) (canonicalize-unify (second prop)))
+			  (remove tool-prop
+				  (mapcar #'systementry-prop *sg-entries*)
+				  :key #'car :test-not #'eql))))
     (cond
       ((and ontology-type
 	    (member ontology-type (cdr (assoc type (problem-phrases *cp*)))
@@ -81,45 +83,26 @@
        (let ((this (find ontology-type 
 			  (cdr (assoc type (problem-phrases *cp*)))
 			  :key #'car))
-	      (rule (lookup-exptype-struct ontology-type)))
-	   ;; sanity test
-	   (unless (equal (second this) (exptype-form rule))
-	     (warn "generate-wrong-quantities:  cached variables for ~A do not match current ontology." 
-		   (car this)))
-	   (expand-with-bindings-w (cddr this) no-bindings rule)))
+	     (rule (lookup-exptype-struct ontology-type)))
+	 ;; sanity test
+	 (unless (equal (second this) (exptype-form rule))
+	   (warn "generate-wrong-quantities:  cached variables for ~A do not match current ontology." 
+		 (car this)))
+	 (list (list* (exptype-new-english rule) (exptype-form rule) 
+		      (cddr this)))))
       
+      ;; ignore ontology type
       ((member type '(body line))
-       (dolist (prop (problem-bodies-and-compounds *cp*))
-	 (push (cons (new-english-find prop) prop) 
-	       *wrong-quantity-result*)))
-     
+       (delete-if 
+	;; Remove any that are in the solution
+	#'(lambda (x) (member (cadr x) relevant :test #'equal))
+	(loop for prop in (problem-bodies-and-compounds *cp*)
+	   ;; there are no bindings
+	   collect (list (new-english-find prop) 
+			 (canonicalize-unify prop)))))
+      
       (t (warn "generate-wrong-quantities invalid (or uncached) type ~A" 
-	       type)))
-    
-    (when nil ;debug print
-      (format t "      got ~A of type ~A~%        relevant: ~A~%" 
-	      (length *wrong-quantity-result*) type relevant))
-    ;; canonicalize-unify has been applied to both prop and relevant.
-    (nreverse
-     (delete-if #'(lambda (prop) (member prop relevant :test #'equal))
-	       *wrong-quantity-result* :key #'cdr))))
-
-(defun expand-with-bindings-w (binding-sets bindings rule)
-  "Returns (<model> . <prop>) pair."
-  (if binding-sets
-      ;; Expand binding possibilities, building binding list.
-      (dolist (binding (cdr (car binding-sets)))
-	(expand-with-bindings-w 
-	 (cdr binding-sets)
-	 (cons (cons (car (car binding-sets)) binding)
-	       bindings)
-	 rule))
-      ;; This allows possible repeats but if faster than checking.
-      (push 
-       (cons (expand-new-english (exptype-new-english rule) bindings)
-	     (canonicalize-unify  ;allow equal for compare.
-	      (subst-bindings bindings (exptype-form rule))))
-       *wrong-quantity-result*)))
+	       type)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -144,7 +127,7 @@
 	 (when nil ;debug print
 	   (format t "   using ontology types ~A~%" ontology-types))
 	 (loop for ontology-type in ontology-types
-	       append (get-wrong-quantities tool-prop ontology-type))))
+	      append (get-wrong-quantities tool-prop ontology-type))))
             
       ((member type '(body line)) 
        (get-wrong-quantities tool-prop nil))
@@ -169,3 +152,114 @@
 	     ;; Remove any collected lists of quantities
 	     ;; that are larger than the shorted non-trivial list
 	     (remove-if #'(lambda (x) (> (length x) best)) results))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;   Functions for extending match-model to dynamically
+;;;;   assign bindings.
+;;;;
+
+(defun extend-match-model (student model &key (best 10000))
+  "Extend match-model to handle unbound variables."
+  ;; Substitute in any variables in *iteration-bindings*,
+  ;; iterate ovar any remaining variables using *ontology-bindings*,
+  ;; and expand.
+  ;; After match is done, append bindings used.
+  (let ((best-result (match:make-best :value best)))
+    (dolist (it-bindings (iterate-over-bindings model))
+      (let* ((all-bindings (append it-bindings match:*iteration-bindings*))
+	     (this
+	      (match:match-model
+	       student
+	       (expand-vars
+		(expand-new-english model all-bindings))
+	       :best (match:best-value best-result))))
+	;; This will include some repeats of *iteration-bindings*
+	;; final bindings list.
+	(setf (match:best-extra this) all-bindings)
+	(when (< (match:best-value this) (match:best-value best-result))
+	  (setf best-result this))))
+    best-result))
+
+(defun extend-word-count (model &key max)
+  "Extend match-model to handle unbound variables."
+  ;; Substitute in any variables in *iteration-bindings*,
+  ;; iterate ovar any remaining variables using *ontology-bindings*,
+  ;; and expand.
+  ;; After match is done, append bindings used.
+  (let (best)
+    (dolist (it-bindings (iterate-over-bindings model))
+      (let* ((all-bindings (append it-bindings match:*iteration-bindings*))
+	     (this
+	      (match:word-count
+	       (expand-vars
+		(expand-new-english model all-bindings))
+	      :max max)))
+	(when (or (null best) (if max (> this best) (< this best))) 
+	  (setf best this))))
+    best))
+
+(defun iterate-over-bindings (model)
+  (iterate-over-vars 
+   (set-difference 
+    (variables-in model)
+    (mapcar #'car match:*iteration-bindings*))
+   no-bindings))
+    
+(defun iterate-over-repeated-variables (models)
+  "Take a list of models, find any variables that are common to more than one member, and return a list of possible bindings."
+  (let* ((vars (apply #'nconc (mapcar #'variables-in models)))
+	 (repeats (remove-if #'(lambda (var) (eql (count var vars) 1))
+			     (remove-duplicates vars))))
+    (iterate-over-vars repeats no-bindings)))
+
+(defun iterate-over-vars (vars bindings)
+  (if vars
+      (loop for value in (cdr (assoc (car vars) *ontology-bindings*))
+	   append (iterate-over-vars (cdr vars) 
+				    (cons (cons (car vars) value) bindings)))
+      (list bindings)))
+
+;; Top level routine.
+(defun best-wrong-match (student tool-prop &key cutoff)
+  "Find one or more best matches below cutoff to ontology.  Returns either nil or a list containing some matches.  The prop is set to the matched prop."
+  (let ((best cutoff) result)
+    (dolist (m-f-b (lookup-quantity-keyword-props student tool-prop))
+      (let (match:*iteration-bindings* ;empty at top level
+	    (match:iteration-function 'iterate-over-repeated-variables)
+	    (match:word-count-handler 'extend-word-count)
+	    (match:unknown-object-handler 'extend-match-model)
+	    (*ontology-bindings* (cddr m-f-b)))
+	(let ((this (match:match-model student (car m-f-b) :best best)))
+	  (if (match:best-p this)
+	      (when (< (match:best-value this) best)
+		(setf best (match:best-value this))
+		;; Set proposition using bindings collected during match.
+		(setf (match:best-prop this)
+		      (subst-bindings (match:best-extra this) 
+				      (list tool-prop (cadr m-f-b))))
+		;; Matching to the model may not fully bind 
+		;; the proposition (in the case of optional sub-models).
+		;; In this case, we iterate through any unbound variables.
+		(setf result (make-fully-bound-props this))
+		(when nil ;debug print
+		  (format t "Got match of ~A for props:~%  ~A~%"
+			  (match:best-value (car result))
+			  (mapcar #'match:best-prop result))))
+	      ;; This indicates an error in match-model.
+	      (warn "Match-model returned ~A for ~A" this m-f-b)))))
+    result))
+
+(defun make-fully-bound-props (this)
+  "Iterate through any unbound variables in prop, creating copies of match result."
+  (if (groundp (match:best-prop this))
+      (list this)
+      (let ((partially-bound-prop (match:best-prop this))
+	    results)
+	(dolist (bindings (iterate-over-vars 
+			   (variables-in partially-bound-prop)
+			   no-bindings))
+	  (setf (match:best-prop this)
+		(subst-bindings bindings partially-bound-prop))
+	  (push (match:copy-best this) results))
+	results)))

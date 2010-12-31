@@ -169,6 +169,11 @@
 (defun best-value (best)
   (apply #'min (mapcar #'match:best-value best)))
 
+(defmacro update-bound (best result)
+  (let ((this (gensym)))
+    `(let ((,this ,result))
+       (when ,this (setf ,best ,this)))))
+
 (defparameter *proposition-icons*
   `((define-var . ,*text-tool*)
     (vector . ,*vector-tool*)
@@ -285,26 +290,21 @@
       ;; Never returns more than one quantity:  There is no
       ;; point in having the student resolve an ambiguity if
       ;; quantities are wrong anyway.
-      (let ((this 
-	     (match:best-model-matches 
-	      student
-	      (mapcar #'(lambda (x) 
-			  (cons (expand-vars (car x)) 
-				(list tool-prop (cdr x))))
-		      (lookup-quantity-keyword-props student tool-prop))
-	      :cutoff  (min (- best-correct 1) 
-			    (if wrong-tool-best 
-				(best-value wrong-tool-best) 
-				initial-cutoff))
-	      :equiv equiv
-	      :no-sort t
-	      :single-match t)))
-	;; We don't have any way of handling inheritance for
-	;; non-solution quantities.  As a cheap work-around, 
-	;; take shortest matching proposition.
-	;; need to pre-order quantities so that shorter propositions
-	;; are matched first...
-	(when this (setf best this)))
+
+      ;; We don't have any way of handling inheritance for
+      ;; non-solution quantities.  As a cheap work-around, 
+      ;; take shortest matching proposition.
+      ;; need to pre-order quantities so that shorter propositions
+      ;; are matched first...
+      (update-bound
+       best
+       (best-wrong-match
+	student
+	tool-prop
+	:cutoff  (min (- best-correct 1) 
+		      (if wrong-tool-best 
+			  (best-value wrong-tool-best) 
+			  initial-cutoff))))
       
       ;; Attempt to match to quantities not in solution where
       ;; the wrong tool has also been used.
@@ -320,32 +320,22 @@
 				    *sg-entries*))))
 	  (dolist (tool-prop tool-props)
 	    (when (or (null wrong-tool-best) 
-			   (>= (best-value wrong-tool-best) 1))
+		      (>= (best-value wrong-tool-best) 1))
 	      (when nil ;debug print
 		(format t "Starting wrong tool ~A:~%" tool-prop))
-	      (let ((this 
-		     (match:best-model-matches 
-		      student	     
-		      (mapcar #'(lambda (x) 
-				  (cons (expand-vars (car x)) 
-					(list tool-prop (cdr x))))
-			      (lookup-quantity-keyword-props 
-			       student tool-prop))
-		      :cutoff  (min (- best-correct 2) 
-				    (if best 
-					(- (best-value best) 1)
-					initial-cutoff)
-				    (if wrong-tool-best 
-					(- (best-value wrong-tool-best) 1) 
-					initial-cutoff))
-		      :equiv equiv
-		      :no-sort t
-		      :single-match t)))
-		(when nil ;debug print
-		  (format t "For tool ~A got ~A~%" tool-prop this))
-		(when this (setf wrong-tool-best this)))
-	      ))))
-    
+	      (update-bound
+	       wrong-tool-best
+	       (best-wrong-match 
+		student
+		tool-prop
+		:cutoff  (min (- best-correct 2) 
+			      (if best 
+				  (- (best-value best) 1)
+				  initial-cutoff)
+			      (if wrong-tool-best 
+				  (- (best-value wrong-tool-best) 1) 
+				  initial-cutoff))))))))
+      
       ;; Give unsolicited hint when "...'s" is used
       (when (member "'s" student :test #'string-equal
 		    :key #'last-two-characters)

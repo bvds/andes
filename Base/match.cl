@@ -69,7 +69,9 @@
 		   ;; Accessors for struct returned by
 		   ;; match-model and best-model-matches.
 		   :best-value :best-word :best-extra :best-prop
-		   :iteration-function
+		   :make-best :copy-best :best-p
+		   ;; Hook for iterating over list
+		   :iteration-function :*iteration-bindings*
 		   :*key-multiplier
 		   :*word-cutoff*
 		   :initialize-word-count-memo
@@ -266,8 +268,9 @@
   (cond 
     ((stringp model) (word-parse-count model))  ;count words in string
     ((null model) 0)
-    ((atom model) (funcall word-count-handler model :max max))
-    ;; from here on, assume model is a proper list
+    ((or (atom model) (cdr (last model)))  ;test for a proper list
+     (funcall word-count-handler model :max max))
+    ;; from here on, model is a proper list
     ((member (car model) '(key case-insensitive case-sensitive))
      (word-count (second model) :max max))
     ((test-for-list model)
@@ -355,19 +358,18 @@
 
 
 (defvar iteration-function nil
-  "This function takes a model and returns an alist of models and bindings to be iterated over.  This iteration is performed for list, and, conjoin.  The bindings are appended to the result.")
+  "This function takes a model and returns a list of values that *iteration-bindings* should be iterated over.  This iteration is performed for model structures: list, and, conjoin.")
 
-(defmacro iterate-over (model iteration-function matching-function)
-  (let ((best (gensym)) (m-b (gensym)) (this (gensym)))
-    `(if ,iteration-function
+;; Variable whose dynamic bindings are iterated over.
+(defvar *iteration-bindings*)
+
+(defmacro iterate-over (model matching-function)
+  (let ((best (gensym)) (m-b (gensym)))
+    `(if iteration-function
 	 (let ((,best (make-best)))
-	   (dolist (,m-b (funcall ,iteration-function ,model))
-	     (let* ((,model (car ,m-b))
-		    (,this ,matching-function))
-	       (when (< (best-value ,this) (best-value ,best))
-		 (setf (best-extra ,this) 
-		       (append (cdr ,m-b) (best-extra ,this)))
-		 (setf ,best ,this))))
+	   (dolist (,m-b (funcall iteration-function ,model))
+	     (let ((*iteration-bindings* ,m-b))
+	       (update-bound ,best ,matching-function)))
 	   ,best)
 	 ;; Bypass all this if iteration function has not been specified.
 	 ,matching-function)))
@@ -401,10 +403,11 @@
 			   item (car words)))))
 	     ;; best fit plus any extra student words.
 	     ;; If student is nil, this should return 1.
-	     (make-best :value (+ best (max 0 (- (length student) (length words))))
+	     (make-best :value (+ best (max 0 (- (length student) 
+						 (length words))))
 		        :words (car words))))))
     ((null model) (make-best :value (length student)))
-    ((atom model)
+    ((or (atom model) (cdr (last model)))  ;test for a proper list
      (funcall unknown-object-handler student model :best best))
     ;; from here on, model must be a proper list
     ((eql (car model) 'key)
@@ -426,14 +429,14 @@
     ;; Case (<model> ...)
     ((test-for-list model)
      (if (cdr model)
-	 (iterate-over model iteration-function
+	 (iterate-over model
 		       (match-model-list student model :best best))
 	 (match-model student (car model) :best best)))
     ((eql (car model) 'and)
      (pop model)
      (cond 
        ((cdr model) ;two or more arguments of "and"
-	(iterate-over model iteration-function
+	(iterate-over model
 		      (match-model-and student model :best best)))
        ;; and of one argument
        (model (match-model student (car model) :best best))
@@ -453,7 +456,7 @@
      (pop model)
      (cond 
        ((cddr model) ;two or more items to conjoin
-	(iterate-over model iteration-function
+	(iterate-over model
 		      (match-model-conjoin student model :best best)))
        ;; conjunction of one argument
        ((cdr model) (match-model student (second model) :best best))
@@ -741,12 +744,12 @@
 (defparameter *debug-print* nil)  ;; debug print in best-model-matches
 
 (defun best-model-matches (student models &key (cutoff 5) (equiv 1.25) 
-			   (epsilon 0.25) no-sort single-match)
+			   (epsilon 0.25))
   "Returns a list of best matches to text using match-model. Models is an alist of models and props."
   (declare (notinline match-model))
   (when *debug-print*
-    (format t "best-model-matches for ~A models, cutoff ~A, no-sort=~A single-match=~A~%"
-	    (length models) cutoff no-sort single-match))
+    (format t "best-model-matches for ~A models, cutoff ~A~%" 
+	    (length models) cutoff))
   ;; cutoff is the maximum allowed score.
   ;; equiv maximum fraction of the best score such that a fit
   ;;    is considered equivalent to the best fit.
@@ -770,13 +773,10 @@
     ;; Do easier ones first, to establish better bound.
     ;; We have  have to do each time, since results of any eval or var 
     ;; is needed for sort.
-    (dolist (x (if no-sort models (sort-by-complexity models)))
-      (when (and single-match quants (< best 1))
-	(return-from best-model-matches quants))
+    (dolist (x (sort-by-complexity models))
       ;; In the case of single-match we want to only look
       ;; for something better than what we have now.
-      (setf bound (max epsilon (* (if (and single-match quants) 
-				      (- best 1) best) equiv)))
+      (setf bound (max epsilon (* best equiv)))
       (let ((t0 (if *debug-print* (get-internal-run-time) 0)))
 	(setf this (match-model student (car x) :best bound))
 	(when (and nil *debug-print*) ;too noisy for some cases
@@ -786,7 +786,7 @@
 		  (car x))))
       (when (< (best-value this) bound) 
 	(setf (best-prop this) (cdr x))
-	(if single-match (setf quants (list this)) (push this quants)))
+	(push this quants))
       (when (< (best-value this) best) (setf best (best-value this))))
     ;; Remove any quantities that are not equivalent with best fit
     ;; and return result in original order.
@@ -795,10 +795,11 @@
 	   (delete-if #'(lambda (x) (> (best-value x) (* best equiv))) 
 		      quants)))
     (when *debug-print*
-      (format t "    Got ~A matches, score ~a, total time ~A.~%"
+      (format t "  Got ~A matches, score ~a, total time ~A~@[ for:~%  ~A~]~%"
 	      (length quants) best
 	      (/ (float (- (get-internal-run-time) t0))
-		 (float internal-time-units-per-second))))
+		 (float internal-time-units-per-second))
+	      (mapcar #'best-prop quants)))
     quants))
 
 ;; Imposing a cutoff on word matching improves speed by 50%
