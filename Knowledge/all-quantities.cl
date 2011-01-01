@@ -216,7 +216,7 @@
 	 (cons (cons (car (car binding-sets)) binding)
 	       bindings)
 	 rule))
-      ;; canonicalize case so we can use string-downcase
+      ;; Canonicalize case so we can use equal for compares.
       (let* ((model (expand-new-english 
 		     (exptype-new-english rule) bindings))
 	     (keywords (mapcar #'string-downcase (pull-out-keywords model)))

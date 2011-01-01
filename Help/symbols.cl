@@ -230,12 +230,11 @@
     (let ((cutoff (/ 1.2 (length var)))
 	  (c2 (/ 1.1 (length var)))
 	  (match:*word-cutoff* 0.4)) ;only do three letter words or longer
-      (mapcar #'cdr
-	      (remove-if #'(lambda (x) (> (car x) c2))
+      (mapcar #'match:best-prop
+	      (remove-if #'(lambda (x) (> (match:best-value x) c2))
 			 (match:best-model-matches
 			  (list var)  ;student is list of words
-			  (mapcar #'(lambda (x) (cons (sym-label x) 
-						      (sym-label x))) 
+			  (mapcar #'(lambda (x) (cons (sym-label x) x)) 
 				  (get-variables))
 			:cutoff cutoff))))))
 

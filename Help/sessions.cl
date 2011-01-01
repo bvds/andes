@@ -137,6 +137,8 @@
 	  *wrong-quantities*
 	  ;; List of Fade items.
 	  *fades*
+	  ;; Memo for word-count in matches.
+	  match::*word-count-memo*
 	  ;; Solver process (could easily be replaced by function argument
 	  ;; in solver-load and solver-unload)
 	  *process*

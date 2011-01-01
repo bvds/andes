@@ -238,7 +238,7 @@
 
 
 (defun agent-phrase (agent)
-  (get-default-phrase `(agent ,agent)))
+  (when agent (get-default-phrase `(agent ,agent))))
 
 
 ;;;; ============== Defining variables =============================
@@ -1889,8 +1889,7 @@
 		 "contact "
 		 "force, such as tension or friction, in which case the "
 		 "objects must touch.")
-	 (format nil (strcat "Draw a ~a force on ~a~@[ ~A~] "
-			     "~@[ instead of ~a.") 
+	 (format nil "Draw a ~a force on ~a~@[ ~A~]~@[ instead of ~a~]."
 		 (nlg type 'adj) (nlg body 'def-np)
 		 (agent-phrase cagent)
 		 (get-default-phrase sagent)))))
