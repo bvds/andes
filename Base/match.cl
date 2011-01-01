@@ -412,7 +412,7 @@
   ;; is based on the Levenstein minimum edit distance algorithm.
   (let* ((width (1+ (length student)))
 	 (height (1+ (length model)))
-	 (d (make-array (list height width)))
+	 (d (make-array (list height width) :initial-element nil))
 	 (u-model (unless words 
 		    (mapcar #'(lambda (x) (word-count x :max t)) model)))
 	 (l-model (unless words 
