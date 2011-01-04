@@ -71,7 +71,11 @@ dojo.require("andes.WordTip");
 					console.log("Made the trip", result);
 					// Look for url from server, if it doesn't
 					// exist, default takes user back one page
-					history.go(-1);
+					if(result[0].url){
+						window.location = result[0].url;
+					}else{
+						history.go(-1);
+					}
 				}, function(error){
 					console.warn("Server Error", error);
 					console.log("Returning to previous page");
@@ -80,7 +84,6 @@ dojo.require("andes.WordTip");
 			dojo.cookie("andes", null, { expires: -1 });
 			// should look for url from server that
 			// can overrride default.
-			
 		});
 		
 		var splashNode = dojo.byId("splashOverlay"),
