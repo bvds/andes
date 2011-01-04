@@ -105,7 +105,8 @@ F-8\">~%"
 	      (systementry-model 
 	       (find prop *sg-entries* 
 		     :key #'(lambda (x) (second (systementry-prop x))) 
-		     :test #'unify))))))
+		     :test #'unify))
+	      :html-format t))))
 	;; It is possible that there are things quantities
 	;; in Ontology that are not used.
 	(warn "generate-random-quantity-phrase:  No problems found for ~A" prop))))

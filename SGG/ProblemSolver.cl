@@ -93,6 +93,9 @@
 ;;;; dummy graph for it.  If not then solve it normally.
 (defun solve-problem (Problem)
   "Solve the specified problem returining the results."
+  ;; Wipe out any existing pointers, since the
+  ;; problem graph and working memory will be updated.
+  (setf (problem-pointers problem) nil)
   (if (no-quant-problem-p Problem) 
 	(solve-no-quant-problem Problem)
     (solve-quant-problem Problem))

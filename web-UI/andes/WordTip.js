@@ -23,7 +23,7 @@ dojo.declare("andes.WordTip", null, {
     },
     
     add: function(obj){
-        this[obj.id] = obj;
+        this.theDrawing = obj;
     },
     
     textMonitor: function(evt){
@@ -52,35 +52,35 @@ dojo.declare("andes.WordTip", null, {
     },
     
     sendToServer: function(text,symbol){
-        // BvdS:  This strategy doesn't work in the case of modifying
-	// a statement after drawing a vector.  Bug #1832
-        var current = "statement";
-        if(this.drawing){
-            // The most recent stencil will either be the last selected or the last
-            // tool.  Thus find out the id, if it matches the last selected that's
-            // it.  If not then it must be the current tool.
+	console.assert(this.theDrawing,"WordTip needs drawing initialized");
+        var current;
+        var andesTypes = andes.convert.andesTypes;
+
+        // The most recent stencil will either be the last selected or the last
+        // tool.  Thus find out the id, if it matches the last selected that's
+        // it.  If not then it must be the current tool.
             
-            // console.log("stencils......>>",this.drawing.stencils.getRecentStencil(), "attr check: ", dojo.attr(this.conEdit.parentNode, "id"));
-            var andesTypes = andes.convert.andesTypes;
-            var stencilID = dojo.attr(this.conEdit.parentNode, "id");
-            var stencilLastSelected = this.drawing.stencils.getRecentStencil();
-            var type = stencilLastSelected.combo ? stencilLastSelected.combo.master.type : stencilLastSelected.type;
-            var sid = stencilLastSelected.combo ? stencilLastSelected.combo.statement.id : stencilLastSelected.id;
+        // console.log("stencils......>>",this.theDrawing.stencils.getRecentStencil(), "attr check: ", dojo.attr(this.conEdit.parentNode, "id"));
+        var stencilID = dojo.attr(this.conEdit.parentNode, "id");
+        var stencilLastSelected = this.theDrawing.stencils.getRecentStencil();
+        var type = stencilLastSelected.combo ? stencilLastSelected.combo.master.type : stencilLastSelected.type;
+        var sid = stencilLastSelected.combo ? stencilLastSelected.combo.statement.id : stencilLastSelected.id;
             
-            if(stencilID!=sid){
-                // Current statement or equation
-                type = this.drawing.currentType;
-                current = andesTypes[type];
-            }else{
-                // Everything else, meaning combo objects created or an item
-                // is being selected
-                //console.log("Selected: ", this.drawing.stencils.stencils[stencilID]);
-                var tmp = this.drawing.stencils.stencils[stencilID];
-                current = tmp.customType ? tmp.customType : andesTypes[type];
-            };
+        if(stencilID!=sid){
+            // Current statement or equation
+            type = this.theDrawing.currentType;
+            current = andesTypes[type];
+        }else{
+            // Everything else, meaning combo objects created or an item
+            // is being selected
+            // console.log("Selected: ", this.theDrawing.stencils.stencils[stencilID]);
+            var tmp = this.theDrawing.stencils.stencils[stencilID];
+            current = tmp.customType || andesTypes[type];
         };
-        //console.log("current: ",current);
-        this.hasTip[current] && andes.api.suggestWord({type: current, text: text, symbol:symbol});
+        // console.log("current: ",current);
+	if(current && this.hasTip[current]){
+	    andes.api.suggestWord({type: current, text: text, symbol:symbol});
+	}
     },
     
     processResults: function(results){

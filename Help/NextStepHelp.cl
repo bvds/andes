@@ -1760,15 +1760,15 @@
     (if (exptype-p qexp)
 	(quantity-html-link qexp)
 	(progn (warn "return-answer-quantity-short-english: no ontology match for ~A" sought)
-	       (when sought (match:word-string 
-			     (expand-vars (new-english-find sought))))))))
+	       (get-default-phrase sought)))))
 
 (defun nsh-sought-resp-ambiguous (quants Past)
   "Return a message signifying ambiguous sought supplied."
   (nsh-wrong-sought-resp 
    (format nil "Which quantity are you referring to?&nbsp; Do you mean ~A?"
 	   (match:word-string (expand-vars (qnode-new-english 
-					    (random-elt quants)))))
+					    (random-elt quants))
+					   :html-format t)))
    Past :Case 'Null))
 
 

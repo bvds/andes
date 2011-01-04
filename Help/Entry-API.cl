@@ -175,9 +175,9 @@
     (body . ,*body-tool*)
     (draw-line . ,*line-tool*)))
 
-(defun get-prop-icon (expr)
-  (or (cdr (assoc expr *proposition-icons*))
-      (warn "get-prop-icon bad proposition ~S" expr)))
+(defun get-prop-icon (tool-prop)
+  (or (cdr (assoc tool-prop *proposition-icons*))
+      (warn "get-prop-icon bad proposition ~S" tool-prop)))
 
 (defparameter *proposition-types*
   '((define-var . "a scalar quantity")
@@ -208,28 +208,29 @@
 			     (cutoff-fraction 0.4)
 			     (cutoff-count 4)
 			     (equiv 1.25))
-  "Match student phrase to Ontology, returning best match, tutor turn (if there is an error) and any unsolicited hints."
+  "Match student phrase to Ontology, returning best match prop, tutor turn (if there is an error) and any unsolicited hints."
   ;; :cutoff-fraction is fractional length of student phrase to use as bound.
   ;; :cutoff-count is maximum allowed score to use as bound.
   (let* ((sysentries (remove (cons tool-prop '?rest) *sg-entries* 
 			     :key #'SystemEntry-prop :test-not #'unify))
-	 
 	 (student-string (pull-out-quantity (StudentEntry-symbol entry) 
 					    (StudentEntry-text entry)))
 	 (student (match:word-parse student-string))
 	 ;; used for best and maybe for wrong-tool-best
 	 (initial-cutoff (min (* cutoff-fraction (length student)) 
 			      cutoff-count))
-	 (best 
-	 ;; For any debugging prints in matching package.
+	 (best-correct
+	  ;; For any debugging prints in matching package.
 	  (let ((*standard-output* webserver:*stdout*))
 	    (match:best-model-matches 
 	     student
 	     (mapcar #'(lambda (x) 
-			 (cons (expand-vars (SystemEntry-model x)) x))
+			 (cons (expand-vars (SystemEntry-model x)) 
+			       (SystemEntry-prop x)))
 		     sysentries)
 	     :cutoff initial-cutoff
 	     :equiv equiv)))
+	 (best best-correct) ;This is the best interpretation, so far.
 	 hints
 	 wrong-tool-best)
     
@@ -241,132 +242,191 @@
 	       #'(lambda (x) (cons (car x) 
 				   (expand-vars (SystemEntry-model (cdr x)))))
 	       best)
-	    (mapcar #'systementry-prop sysentries)))
-
-    ;; Attempt to detect a wrong tool error.  
-    ;; The strategy is to treat the choice of tool as being
-    ;; worth 1 word, when matching.
-    ;;
-    ;; Cases:
-    ;; wrong-tool-best same as best-1 (using equiv)
-    ;;     toss-up:  give unsolicited hint and pass through.
-    ;; wrong-tool-best less than best score minus 1 or no best.
-    ;;     this is certainly should be given wrong tool help.
+	      (mapcar #'systementry-prop sysentries)))
+    
+    ;; If there isn't a good match to solution quantities,
+    ;; try another tool and non-solution quanitities.
     (when (or (null best) (>= (best-value best) 1))
-      (let* ((untools `(,tool-prop eqn implicit-eqn))
+
+      ;; Attempt to detect a wrong tool error.  
+      ;; The strategy is to treat the choice of tool as being
+      ;; worth 1 word, when matching.
+      ;;
+      ;; Cases:
+      ;; wrong-tool-best same as best-1 (using equiv)
+      ;;     toss-up:  give unsolicited hint and pass through.
+      ;; wrong-tool-best less than best score minus 1 or no best.
+      ;;     this certainly should be given wrong tool help.
+      (let* ((allowed-tools (remove tool-prop *tool-props-with-definitions*))
 	     (sysentries (remove-if 
-			  (lambda (x) (member (car x) untools))
-			  *sg-entries* 
-			  :key #'SystemEntry-prop))
+			  #'(lambda (x) (not (member 
+					      (car (SystemEntry-prop x)) 
+					      allowed-tools)))
+			  *sg-entries*))
 	     ;; For any debugging prints in matching package.
 	     (*standard-output* webserver:*stdout*))
 	(setf wrong-tool-best 
 	      (match:best-model-matches 
 	       student
 	       (mapcar #'(lambda (x) 
-			   (cons (expand-vars (SystemEntry-model x)) x))
+			   (cons (expand-vars (SystemEntry-model x)) 
+				 (SystemEntry-prop x)))
 		       sysentries)
 	       ;; If there is no match in best, then the help is
 	       ;; pretty weak.  In that case, just find anything
 	       ;; below the cutoff.
 	       :cutoff (if best (- (best-value best) 1) initial-cutoff)
-	       :equiv equiv))))
+	       :equiv equiv)))
+      
+      ;; Attempt to match to quantities not in solution,
+      ;; assuming no wrong-tool error.
+      ;; Never returns more than one quantity:  There is no
+      ;; point in having the student resolve an ambiguity if
+      ;; quantities are wrong anyway.
+      (let ((this 
+	     (match:best-model-matches 
+	      student
+	      (mapcar #'(lambda (x) 
+			  (cons (expand-vars (car x)) 
+				(list tool-prop (cdr x))))
+		      (lookup-quantity-keyword-props student tool-prop))
+	      :cutoff  (min (if best (- (best-value best) 1) initial-cutoff)
+			    (if wrong-tool-best 
+				(best-value wrong-tool-best) 
+				initial-cutoff))
+	      :equiv equiv
+	      :no-sort t
+	      :single-match t)))
+	;; We don't have any way of handling inheritance for
+	;; non-solution quantities.  As a cheap work-around, 
+	;; take shortest matching proposition.
+	;; need to pre-order quantities so that shorter propositions
+	;; are matched first...
+	(when this (setf best this)))
+      
+      ;; Attempt to match to quantities not in solution where
+      ;; the wrong tool has also been used.
+      ;; Must be better than any quantity in solution, but allow
+      ;; for ties with one plus any quantity not in solution.
+      (when (and (or (null best-correct) (>= (best-value best-correct) 2))
+		 (or (null best) (>= (best-value best) 1)))
+	(let  ((tool-props (intersection
+			    ;; other tools that have natural-language.
+			    (remove tool-prop *tool-props-with-definitions*)
+			    ;; list of tools in this problem solution.
+			    (mapcar #'(lambda (x) (car (SystemEntry-prop x)))
+				    *sg-entries*))))
+	  (dolist (tool-prop tool-props)
+	    (when (or (null wrong-tool-best) 
+			   (>= (best-value wrong-tool-best) 1))
+	      (let ((this 
+		     (match:best-model-matches 
+		      student	     
+		      (mapcar #'(lambda (x) 
+				  (cons (expand-vars (car x)) 
+					(list tool-prop (cdr x))))
+			      (lookup-quantity-keyword-props 
+			       student tool-prop))
+		      :cutoff  (min (if best-correct
+					(- (best-value best-correct) 2) 
+					initial-cutoff)
+				    (if best 
+					(- (best-value best) 1) 
+					initial-cutoff)
+				    (if wrong-tool-best 
+					(- (best-value wrong-tool-best) 1) 
+					initial-cutoff))
+		      :equiv equiv
+		      :no-sort t
+		      :single-match t)))
+		(if nil ;debug print
+		    (format webserver:*stdout* "For tool ~A got ~A~%" 
+			    tool-prop this))
+		(when this (setf wrong-tool-best this)))
+	      ))))
     
-    ;; (format webserver:*stdout* "**best=~A (~A) wrong-tool-best=~A (~A)~%" 
-    ;;	(when best (best-value best)) (length best) 
-    ;;	(when wrong-tool-best (best-value wrong-tool-best)) 
-    ;;	(length wrong-tool-best))
-
-    ;; If there is no symbol defined and the fit is >= 1 (for the symbol), 
-    ;; then there is a good chance that the student unsuccessfully
-    ;; attempted to define a symbol.  Add unsolicited hint.
-    (when (and (= (length (StudentEntry-symbol entry)) 0)
-	       best (>= (best-value best) 1))
-      (let ((phr (strcat 
-		  "No variable has been defined.&nbsp; "
-		  "Did you want to " *define-variable* "?")))
-	(push `((:action . "show-hint")
-		(:text . ,phr)) hints)))
+      ;; Give unsolicited hint when "...'s" is used
+      (when (member "'s" student :test #'string-equal
+		    :key #'last-two-characters)
+	(let  ((phr (strcat 
+		     "Sorry, I don't understand "
+		     (manual-link "possessives with <em>'s</em>"
+				  "possessive" :pre "")
+		     ".")))
+	  (push `((:action . "show-hint")
+		  (:text . ,phr)) hints)))
     
-    ;; Give unsolicited hint when "...'s" is used
-    (when (and (or (null best) (>= (best-value best) 1))
-	       (member "'s" student :test #'string-equal
-		       :key #'last-two-characters))
-      (let  ((phr (strcat 
-		  "Sorry, I don't understand "
-		  (manual-link "possessives with <em>'s</em>"
-			       "possessive" :pre "")
-		  ".")))
-	(push `((:action . "show-hint")
-		(:text . ,phr)) hints)))
-
-    ;; If there is a tie between wrong-tool-best and best,
-    ;; then give a hint suggesting the tool may be wrong,
-    ;; but proceed as if the tool is correct.
-    (when (and best wrong-tool-best
-	       (>= (best-value wrong-tool-best)
-		   (max (- (best-value best) 1) 0.1)))
-      (let ((phr (strcat 
-		  "Perhaps, you meant to use " 
-		  (get-prop-icon (car (systementry-prop 
-                                       (car wrong-tool-best))))
-		  ", instead?")))
-	(push `((:action . "show-hint")
-		(:text . ,phr)) hints)))
+      ;; If there is a tie between wrong-tool-best and best,
+      ;; then give a hint suggesting the tool may be wrong,
+      ;; but proceed as if the tool is correct.
+      ;;
+      ;; This doesn't occur very often, since keywords typically
+      ;; break any potential tie.
+      (when (and best wrong-tool-best
+		 (> (+ (best-value wrong-tool-best) 1.05)
+		    (best-value best)))
+	(let ((phr (strcat 
+		    "Perhaps, you meant to use " 
+		    (get-prop-icon (car (cdr (car wrong-tool-best))))
+		    ", instead?")))
+	  (push `((:action . "show-hint")
+		  (:text . ,phr)) hints)))
+      
+    ) ;end of things to try if there isn't good solution match.
+  
+  (when nil ;debug print
+    (format webserver:*stdout* 
+	    "**best=~A (~A) wrong-tool=~A (~A)~%" 
+	    (when best (best-value best)) (length best) 
+	    (when wrong-tool-best (best-value wrong-tool-best)) 
+	    (length wrong-tool-best)))
     
-    (cond
-      ;; If wrong-tool-best exists, then it contains scores
-      ;; that are one smaller than any scores in best.
-      ((and wrong-tool-best 
-	    ;; make sure there isn't a tie.
-	    (or (null best)
-		(< (best-value wrong-tool-best)
-		    (max (- (best-value best) 1) 0.1))))
-       (values nil (wrong-tool-ErrorInterp 
-		    entry 
-		    tool-prop
-		    (mapcar #'cdr wrong-tool-best)) hints))
-
-      ((null sysentries)
+  (cond
+    ;; If wrong-tool-best exists, it contains scores
+    ;; that are one smaller than any scores in best.
+    ((and wrong-tool-best
+	  ;; make sure there isn't a tie.
+	  (or (null best)
+	      (< (+ (best-value wrong-tool-best) 1.05)
+		 (best-value best))))
+     (values nil (wrong-tool-ErrorInterp 
+		  entry 
+		  tool-prop
+		  (mapcar #'cdr wrong-tool-best)) hints))
+    
+    ((null sysentries)
        (values nil (nothing-to-match-ErrorInterp entry tool-prop) hints))
-      ((null best)
-       ;; "Can't understand your definition," and switch to NSH
-       (values nil (no-matches-ErrorInterp entry) hints))
-      ((= (length best) 1)
-       (let ((sysent (cdr (car best))))
 
-	 ;; If the best fit isn't too good, give an unsolicited hint.
-	 ;; Can't put in a tutor turn, since the turn might be good.
-	 (when (> (car (car best)) 
-		  ;; This test must be adjusted empirically.
-		  ;; Example: [the] length of the beam
-		  ;;          the mass of the beam
-		  ;; A mismatch can be off by a variable name like
-		  ;; T0 vs. T1, so we need to display such mismatches.
-		  0.15)
-	   (let ((phr (format nil 
-			      "I interpreted your definition ~@[of <var>~A</var> ~]as:&nbsp; ~A."
-			      (when (> (length (StudentEntry-symbol entry)) 0)
-				(StudentEntry-symbol entry))
-			      (match:word-string (expand-vars 
-						  (SystemEntry-model sysent)))
-			      )))
-	     (push `((:action . "show-hint")
-		     (:text . ,phr)) hints)))
-	 
-	 ;; Determine if the student has already done this
-	 ;; in a previous step.
-	 ;; In Andes2, this test was done on the user interface.
-	 (dolist (se (remove entry *StudentEntries*))
-	   (when (unify (SystemEntry-prop sysent) (studententry-prop se))
-	     (return-from match-student-phrase 
-	       (values nil (redundant-entry-ErrorInterp entry se sysent) hints))))
-	   
-	 ;; Return the best fit entry.
-	 (values sysent nil hints)))
-
-       (t (values nil (too-many-matches-ErrorInterp 
-		       entry (mapcar #'cdr best)) hints)))))
+    ((null best)
+     (if (and (= (length (StudentEntry-symbol entry)) 0)
+	      (Entries-need-variables (StudentEntry-type entry)))
+	 ;; In this case, we can at least hint for adding a variable.
+	 (values nil (add-variable-errorinterp entry) hints)
+	 ;; "Can't understand your definition," and switch to NSH
+	 ;; This is pretty weak help, so we want to avoid this 
+	 ;; choice, when possible.
+	 (values nil (no-matches-ErrorInterp entry) hints)))
+    
+    ((= (length best) 1)
+     (let* ((prop (cdr (car best)))
+	    ;; If the best fit isn't too good, give an unsolicited hint.
+	    (hint (close-match-hint (best-value best) entry prop)))
+       (when hint (push hint hints))
+       
+       ;; Determine if the student has already done this
+       ;; in a previous step.
+       ;; In Andes2, this test was done on the user interface.
+       (dolist (se (remove entry *StudentEntries*))
+	 (when (unify prop (studententry-prop se))
+	   (return-from match-student-phrase 
+	     (values nil (redundant-entry-ErrorInterp entry se prop) hints))))
+       
+       ;; Return the best fit entry.
+       (values prop nil hints)))
+    
+    (t 
+     (let ((props (mapcar #'cdr best)))
+       (values nil (too-many-matches-ErrorInterp entry props) hints))))))
 
 ;; Debug printout:
 (defun test-student-phrase (student)
@@ -390,7 +450,25 @@
 			(cons (systementry-prop x)
 			      (expand-vars (SystemEntry-model x))))
 		    entries))))
- 
+
+(defun close-match-hint (fit-value entry full-prop)
+  ;; If the fit isn't too good, give an unsolicited hint.
+  ;; Can't put in a tutor turn, since the turn might be good.
+  ;;
+  ;; This test must be adjusted empirically.
+  ;; Example: [the] length of the beam
+  ;;          the mass of the beam
+  ;; A mismatch can be off by a variable name like
+  ;; T0 vs. T1, so we need to display such small mismatches.
+  (when (> fit-value 0.15)
+    (let ((phr 
+	   (format nil 
+		   "I interpreted your definition ~@[of <var>~A</var> ~]as:&nbsp; ~A."
+		   (when (> (length (StudentEntry-symbol entry)) 0)
+		     (StudentEntry-symbol entry))
+		   (get-default-phrase (second full-prop)))))
+      `((:action . "show-hint") (:text . ,phr)))))
+
 (defun nothing-to-match-ErrorInterp (entry tool-prop)
   (let ((rem (make-hint-seq 
 	      (list 
@@ -419,25 +497,22 @@
        (or (exptype-short-name qexp)
 	   (warn "ExpType ~A missing short-name" (exptype-type qexp))
 	   (string-downcase (string (exptype-type qexp))))
-       (strcat "quantities.html#" 
-	       (string (exptype-type qexp))))))
+       (strcat "quantities.html#" (string (exptype-type qexp)))
+       :name "quantities" :value (exptype-type qexp))))
 
-(defun collect-distinct-quantities (matches)
+(defun collect-distinct-quantities (full-props)
   "Collect a list of distinct ExpTypes or bodies for a list of SystemEntries."
-  (remove-duplicates
-   (mapcar #'(lambda (x) (or (lookup-expression-struct
-			      (second (systementry-prop x)))
+  (delete-duplicates
+   (mapcar #'(lambda (x) (or (lookup-expression-struct x)
 			     ;; In the case of a body, it won't be found
 			     ;; in the general quantity ontology; just print
-			     ;; the name of the object.
-			     (match:word-string 
-			      (new-english-find 
-			       (second (systementry-prop x))))))
-	   matches)
+			     ;; the name of the object as a string.
+			     (get-default-phrase x)))
+	   (delete-duplicates (mapcar #'second full-props) :test #'unify))
    :test #'equal)) ;for the strings
 
-(defun too-many-matches-ErrorInterp (entry matches)
-  (let* ((distinct-quantities (collect-distinct-quantities matches))
+(defun too-many-matches-ErrorInterp (entry full-props)
+  (let* ((distinct-quantities (collect-distinct-quantities full-props))
 	 (quantities-help (nlg-print-list
 			   (mapcar #'quantity-html-link distinct-quantities)
 			   "or" 'identity))
@@ -446,23 +521,20 @@
 			    (StudentEntry-symbol entry)
 			    quantities-help))
 	 (rem (make-hint-seq
-	       (if (< (length matches) 4)
+	       (if (< (length full-props) 4)
 		   (list 
 		    ambiguous		    
 		    (format nil "Did you mean?~%<ul>~%~{  <li>~A</li>~%~}</ul>"
 			    (mapcar #'(lambda (x) 
-					(match:word-string 
-					 (expand-vars 
-					  (SystemEntry-model x))))
-				    matches)))
+					(get-default-phrase (second x)))
+				    full-props)))
 		   (list
 		    (strcat ambiguous 
 			    "&nbsp; I can help you choose what to do next:") 
-			   ;; Should use matches to inform starting point
+			   ;; Should use props to inform starting point
 			   ;; for NSH.
 		    '(function next-step-help)))
-	       :assoc `((too-many-matches . 
-			 ,(mapcar #'systementry-prop matches))))))
+	       :assoc `((too-many-matches . ,full-props)))))
     (setf (turn-id rem) (StudentEntry-id entry))
     (setf (turn-coloring rem) +color-red+)
     ;; set state of entry and attach error. But only do if not done already, 
@@ -475,7 +547,7 @@
   (make-red-turn :id (StudentEntry-id Entry)))
 
 
-(defun wrong-tool-ErrorInterp (entry tool-prop matches)
+(defun wrong-tool-ErrorInterp (entry tool-prop full-props)
   "Make a hint sequence for using other tool."
   ;; Cases:
   ;;   unique short-name match
@@ -487,11 +559,9 @@
   ;;   more than one match, multiple tools.
   ;;      "I don't think you want to use *this-tool*.
   ;;       Perhaps you should delete this entry & use another tool."
-  (let* ((tool-propositions (remove-duplicates 
-			     (mapcar #'(lambda (x) (car (systementry-prop x)))
-				     matches)))
+  (let* ((tool-propositions (remove-duplicates (mapcar #'car full-props)))
 	 ;; there may be several matches that have the same quantity.
-	 (distinct-quantities (collect-distinct-quantities matches))
+	 (distinct-quantities (collect-distinct-quantities full-props))
 	 (rem 
 	  (make-hint-seq
 	   (cond ((and (= (length distinct-quantities) 1)
@@ -527,7 +597,7 @@
 		   ;; Should use matches to inform starting point
 		   ;; for NSH.
 		   '(function next-step-help))))
-	   :assoc `((wrong-tool . ,(mapcar #'systementry-prop matches))))))
+	   :assoc `((wrong-tool . ,full-props)))))
 
     (setf (turn-id rem) (StudentEntry-id entry))
     (setf (turn-coloring rem) +color-red+)
@@ -540,6 +610,51 @@
 			      :remediation rem))))
   (make-red-turn :id (StudentEntry-id Entry)))
 
+(defparameter *type-entryprop*
+  '((eqn . "equation")
+    (define-var . "statement")
+    (body . "ellipse")
+    (body . "rectangle")
+    (body . "circle")
+    (vector . "vector")
+    (line . "line")
+    (draw-axes . "axes"))
+  "map between entryprops and user interface tools.")
+
+;; helper function to guess api type from entryprop.
+(defun entryprop2type (prop)
+  "Determine Andes3 api \"type\" from entryprop."
+  (or (cdr (assoc (car prop) *type-entryprop*))
+      (warn "entryprop2type: bad prop ~A" prop)))
+
+;; helper function to guess api type from entryprop.
+(defun type2entryprop (type)
+  "Determine entryprop associated with Andes3 api \"type\"."
+  (or (car (rassoc type *type-entryprop* :test #'string-equal))
+      (warn "type2entryprop: bad prop ~A" type)))
+
+(defun Entries-need-variables (typein)
+  "Determine whether uncompleted SystemEntries of this type generate any variables in the algebra."
+  (let* ((type (type2entryprop typein))
+	 ;; Select uncompleted SystemEntry props of this type
+	 (props (delete type 
+			(mapcar #'SystemEntry-prop 
+				(remove-if #'SystemEntry-entered 
+					   *sg-entries*))
+			:key #'car :test-not #'eql))
+	 ;; Retrieve quantity props, getting parent props for any
+	 ;; components, angles, or magnitudes.
+	 (quants (mapcar #'(lambda (x) (get-vector-parent-prop (qvar-exp x)))
+			 (problem-varindex *cp*))))
+    (some #'(lambda (prop) (member prop quants :test #'unify))
+	  (mapcar #'second props))))
+
+(defun Add-variable-errorInterp (entry)
+  (declare (ignore entry))
+  (make-hint-seq 
+   (list (strcat "You should " *define-variable* " for this entry.")
+	 (strcat "Double-click on the text box and " *define-variable* "."))
+   :assoc '((no-variable-defined . nil))))
 
 (defun no-matches-ErrorInterp (entry)
   (let* ((equal-sign (when (find #\= (StudentEntry-text entry))
@@ -566,18 +681,16 @@
 
 ;; This was based on examples in parse-andes.cl
 ;; Most unsolicited hints in Andes2 were associated with equations.
-(defun redundant-entry-ErrorInterp (se old sysent)
+(defun redundant-entry-ErrorInterp (se old prop)
   "Given a student entry, return a tutor turn giving unsolicited feedback saying that the entry has already been done.  Also create an error interpretation in case the student asks a follow-up question, and put it in the student entry's err interp field."
   (let ((rem (make-hint-seq
 	      (list (format nil 
 			    "You have already defined ~A~:[ as ~A~1*~;~1* to be <var>~A</var>~]."
-			    (match:word-string
-			     (expand-vars
-			      (SystemEntry-model sysent)))
+			    (get-default-phrase (second prop))
 			    (> (length (StudentEntry-symbol old)) 0)
 			    (studentEntry-text old)
 			    (StudentEntry-symbol old)))
-	      :assoc `((redundant-entry . ,(SystemEntry-prop sysent))))))
+	      :assoc `((redundant-entry . ,prop)))))
     (setf (StudentEntry-ErrInterp se)
 	  (make-ErrorInterp
 	   :diagnosis '(already-defined) ;Not sure where/how this is referenced
@@ -610,8 +723,25 @@
 			     (subseq nosym (length equality)))))))))
   text)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;            Handle case where there is no text.
+;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun no-text-handler (entry)
+  "Return unsolicited hint for entry with no text."
+  (make-hint-seq (list "Generally, objects should be labeled."
+		       (strcat "Select the "
+			       ;; We use "text tool" in the hints and manual.
+			       (if (string-equal (StudentEntry-type entry) "statement") 
+				   "text"
+				   (StudentEntry-type entry))
+			       " again, double-click on " 
+			       "the text box and " *add-label* "."))
+		 :assoc `((no-label . (StudentEntry-type entry)))))
 
+		 
 ;;-----------------------------------------------------------------------------
 ;; Workbench Entry API Handler functions
 ;;-----------------------------------------------------------------------------
@@ -655,14 +785,20 @@
 ;;  table this name paired with the system's name for the same quantity.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun assert-object (entry)
+
+  ;; Case of no label at all, don't turn color, but give unsolicited hint.
+  (when (= (length (string-trim match:*whitespace* 
+				(studentEntry-text entry))) 0)
+      (return-from assert-object (no-text-handler entry)))
+
   (let ((id (StudentEntry-id entry))
 	(symbol (StudentEntry-symbol entry)))
-    (multiple-value-bind (sysent tturn hints)
+    (multiple-value-bind (prop tturn hints)
 	(match-student-phrase entry 'body)
 
       (cond 
-	(sysent
-	 (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
+	(prop
+	 (setf (StudentEntry-prop entry) prop)
 	 ;; OK if there is no symbol defined.
 	 (check-symbols-enter symbol (second (StudentEntry-prop entry)) id 
 			      :namespace :objects)
@@ -698,6 +834,12 @@
 ;;  enters the variables in the symbol table.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun lookup-vector (entry)
+  
+  ;; Case of no label at all, don't turn color, but give unsolicited hint.
+  (when (= (length (string-trim match:*whitespace* 
+				(studentEntry-text entry))) 0)
+      (return-from lookup-vector (no-text-handler entry)))
+  
   (let* ((id (StudentEntry-id entry))
 	 (symbol (StudentEntry-symbol entry))
 	 (drawn-mag (StudentEntry-radius entry))
@@ -727,13 +869,13 @@
 		     (if (z-dir-spec dir-term) "\\phi" "\\theta")
 		     symbol)))
 
-    (multiple-value-bind (sysent tturn hints)
+    (multiple-value-bind (prop tturn hints)
 	(match-student-phrase entry 'vector)
       
       (cond
-	(sysent    
+	(prop    
 	 ;; Use the quantity from the best match with angle we actually got.
-	 (setf action (list 'vector (second (SystemEntry-prop sysent)) dir-term))
+	 (setf action (list 'vector (second prop) dir-term))
 	 
 	 (setf vector-term (second action))
 	 (setf vector-mag-term `(mag ,vector-term))
@@ -828,6 +970,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun lookup-line (entry)
+
+  ;; Case of no label at all, don't turn color, but give unsolicited hint.
+  (when (= (length (string-trim match:*whitespace* 
+				(studentEntry-text entry))) 0)
+      (return-from lookup-line (no-text-handler entry)))
+
   (let* ((id (StudentEntry-id entry))
 	 ;; Needs to be determined from natural language 
 	 ;;
@@ -850,14 +998,14 @@
 		     (if (z-dir-spec dir-term) "\\phi" "\\theta")
 		     label)))
 
-    (multiple-value-bind (sysent tturn hints)
+    (multiple-value-bind (prop tturn hints)
 	(match-student-phrase entry 'draw-line)
 
       (cond 
-	(sysent
+	(prop
 	 ;; Use the quantity from the best match with angle we actually got.
 	 (setf action (list 'draw-line 
-			    (second (SystemEntry-prop sysent)) dir-term))
+			    (second prop) dir-term))
 	 (setf line-term (second action))
 	 (setf line-mag-term `(mag ,line-term))
 	 (setf line-dir-term `(dir ,line-term))
@@ -920,12 +1068,12 @@
     
     ;; match up text with SystemEntry
     ;;
-    (multiple-value-bind (sysent tturn hints)
+    (multiple-value-bind (prop tturn hints)
 	(match-student-phrase entry 'define-var)
       
       (cond 
-	(sysent
-	 (setf (StudentEntry-prop entry) (SystemEntry-prop sysent))
+	(prop
+	 (setf (StudentEntry-prop entry) prop)
 	 	 
 	 ;; install new variable in symbol table
 	 (check-symbols-enter symbol 
@@ -1202,6 +1350,8 @@
 	;; log and push onto result list.
       (setf (turn-result result)
 	    (append (log-entry-info Entry) (turn-result result)))
+      (setf (turn-result result) 
+	    (append unsolicited-hints (turn-result result)))
       (return-from Check-NonEq-Entry result)) ; go no further
     
     ;; else got a match: set state and correctness from candidate
@@ -1346,16 +1496,16 @@
     (setf (turn-id rem) (StudentEntry-id se))
     (setf (turn-coloring rem) +color-red+)))
 
-; 
-; log-entry-info -- insert extra info for entry into Andes log
-;
-; This function can be used for any student entry including eqns, 
-; after status and possibly error info has been assigned.
-; Logs: parsedEqn (eqns only), error label (if assigned), 
-;       target step and op lists (if one is found)
-; Runs wwh to get an error handler if one is unset.
-; Sends async commands to workbench to do the logging, so
-; the entries go before the final result in the log.
+;; 
+;; log-entry-info -- insert extra info for entry into Andes log
+;;
+;; This function can be used for any student entry including eqns, 
+;; after status and possibly error info has been assigned.
+;; Logs: parsedEqn (eqns only), error label (if assigned), 
+;;       target step and op lists (if one is found)
+;; Runs wwh to get an error handler if one is unset.
+;; Sends async commands to workbench to do the logging, so
+;; the entries go before the final result in the log.
 ;
 (defun log-entry-info (entry)
   ; don't waste time adding info when checking init entries 

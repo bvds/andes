@@ -131,7 +131,9 @@
   Solutions          ;Set of solution bubbles.  The first will always be
                      ;the best.  (list of Eqnset)
   wm                 ;; Collection of the solver working memory.
-  phrases            ; list of student phrases.
+  phrases            ;list of student phrases.
+  keywords           ;For each tool, list of keywords and propositions
+                     ;containing that proposition.
   pointers           ;List of pointer objects.
   )
 
@@ -212,6 +214,7 @@
   (format Stream "VariableMarks ~W~%" (problem-VariableMarks Problem))
   (format Stream "WorkingMemory ~W~%" (problem-wm Problem))
   (format Stream "Phrases       ~W~%" (problem-phrases Problem))
+  (format Stream "Keywords      ~W~%" (problem-keywords Problem))
   (format Stream "Pointers      ~W~%" (problem-pointers Problem))
   (format Stream "Bubblegraph   ") (print-mreadable-bubblegraph (Problem-Graph Problem) Stream)
   (format Stream "~%EqnIndex    ") (print-mreadable-eqns (Problem-EqnIndex Problem) Stream)
@@ -368,6 +371,7 @@
     (VariableMarks (setf (Problem-VariableMarks Problem) (mpf-readret Stream)))
     (WorkingMemory (setf (Problem-wm Problem) (mpf-readret Stream)))
     (Phrases       (setf (Problem-phrases Problem) (mpf-readret Stream)))
+    (Keywords      (setf (Problem-keywords Problem) (mpf-readret Stream)))
     (pointers      (setf (Problem-pointers Problem) (mpf-readret Stream)))
     
     (Bubblegraph (setf (problem-Graph Problem) (read-mreadable-bubblegraph Stream)))

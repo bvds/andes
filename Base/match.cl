@@ -26,9 +26,13 @@
 ;;                 (conjoin <conjunction> <model> ...)  conjoin orderless
 ;;                               sequence (<model> ...) using <conjunction>, 
 ;;                               where <conjunction> is of type <model>.
+;;                 (key <model>) give higher weight to model
+;;                 (case-sensitive <model>) use case-sensitive matching
+;;                 (case-insensitive <model>) use case-insensitive matching
+;;                               (default)
 ;;                 (var <quant> :namespace <space>)  match student variable 
 ;;                               for <quant> in namespace <space>.
-;;                 (eval <lisp>)  execute <lisp> as lisp code 
+;;                 (eval <lisp> ...)  execute <lisp> as lisp code 
 ;;                 (<atom> ...)  if <atom> matches none of above, 
 ;;                               match with ontology
 ;;                 <string>      leaf nodes, after resolution, are strings
@@ -63,12 +67,15 @@
 		   :test-for-list
 		   :word-count :word-count-handler
 		   :add-to-dictionary :add-to-dictionary-handler
+		   :*key-multiplier
+		   :*word-cutoff*
 		   :matches-model-syntax :word-string :*grammar-names*))
 
 (eval-when (:load-toplevel :compile-toplevel)
   (defparameter match:*grammar-names* 
     (mapcar #'string-upcase ;lisp symbol default is upper case.
-	    '("preferred" "allowed" "and" "or" "conjoin" "var" "eval")))
+	    '("preferred" "allowed" "and" "or" "conjoin" "var" "eval" "key"
+	      "case-sensitive" "case-insensitive")))
 
   ;; For each symbol in the grammar, if the symbol is not defined somewhere 
   ;; define symbol in :cl-user.  Then import each symbol into :match.  
@@ -87,7 +94,11 @@
 (defvar *grammar-symbols* (mapcar #'find-symbol *grammar-names*))
 
 (defparameter *whitespace* '(#\Space #\Tab #\Newline))
+(defparameter *word-delimiters* (append *whitespace* (list #\,)))
 
+(defvar *key-multiplier* 2 "Multiplication factor for matching key submodels.")
+
+(defvar *case-sensitive* nil "Whether to do case-sensitive matching.")
 
 (defun test-for-list (x)
   (and (consp x) (or (stringp (car x)) (listp (car x)))))
@@ -101,14 +112,46 @@
       (test-for-list form)
       (and (consp form) (member (car form) *grammar-symbols*))))
 
-(defun word-parse (str &key parse)
+(defun word-parse-count (string)
+  "Count number of words in a string."
+  ;; This is a simplification of the standard utility split-sequence
+  (let ((len (length string)))
+    (loop for left = 0 then (1+ right)
+	  for right = (or (position-if 
+			   #'(lambda (x) (member x *word-delimiters*))  
+			   string :start left)
+			  len)
+	  count (not (= left right))
+	  until (>= right len))))
+
+(defun word-parse (string)
   "Break up a string into a list of words, removing whitespace, commas."
-  (let ((p (position (cons #\, *whitespace*) str
-		     :test #'(lambda (x y) (member y x)))))
-    (if p
-	(word-parse (subseq str (+ p 1)) :parse 
-		    (if (> p 0) (push (subseq str 0 p) parse) parse))
-	(reverse (if (> (length str) 0) (push str parse) parse)))))
+  ;; This is a simplification of the standard utility split-sequence
+  (let ((len (length string)))
+    (loop for left = 0 then (1+ right)
+          for right = (or (position-if 
+			   #'(lambda (x) (member x *word-delimiters*))  
+			   string :start left)
+			  len)
+	  unless (= left right)
+          collect (subseq string left right)
+	  until (>= right len))))
+
+;; Not used anywhere, yet.
+(defmacro with-word-parse (word string &rest body)
+  "Macro to iterate over the words in a string."
+  (let ((len (gensym)) (left (gensym)) (right (gensym)))
+  `(let ((,len (length ,string)))
+    (loop for ,left = 0 then (1+ ,right)
+          for ,right = (min (or (position-if 
+				#'(lambda (x) (member x *word-delimiters*))  
+				,string :start ,left)
+			       ,len)
+			   ,len)
+	  unless (= ,left ,right)
+          do (let ((,word (subseq ,string ,left ,right))) ,@body)
+          until (>= ,right ,len)))))
+  
 
 (defun join-words (x)
   "Join together a list of strings."
@@ -124,6 +167,8 @@
     ((test-for-list model)
      ;; mapcar copies list; subsequent operations can be destructive
      (join-words (delete nil (mapcar #'word-string model))))
+    ((member (car model) '(key case-insensitive case-sensitive))
+     (when (second model) (word-string (second model))))
     ((eql (car model) 'and)
      (when (cdr model) (word-string (cdr model))))
     ((eql (car model) 'or)
@@ -160,13 +205,15 @@
   ;; In general, arguments of the model can be nil.
   (cond 
     ((null model) 0)
-    ((stringp model) 1) ;; or count words in string
+    ((stringp model) (word-parse-count model))  ;count words in string
     ((atom model) (funcall word-count-handler model :max max))
     ;; from here on, assume model is a proper list
+    ((member (car model) '(key case-insensitive case-sensitive))
+     (word-count (second model) :max max))
     ((test-for-list model)
-     (loop for x in model sum (word-count x :max max)))
+     (word-count-list model max))
     ((eql (car model) 'and)
-     (word-count (cdr model) :max max))      ;remove the 'and 
+     (word-count-list (cdr model) max))      ;remove the 'and 
     ((eql (car model) 'or)
      ;; don't use loop here because we have to switch between
      ;; maximize and minimize
@@ -183,6 +230,14 @@
      (if max (word-count (cadr model) :max max) 0))
     (t (funcall word-count-handler model :max max))))
 
+(defun word-count-list (model max)
+  (cond
+    ((consp model)
+      (+ (word-count (car model) :max max)
+	 (word-count-list (cdr model) max)))
+    ((null model) 0)
+    (t (error "word-count-list:  invalid list ~A" model))))
+
 (defun default-add-to-dictionary-handler (model dictionary)
   (warn "add-to-dictionary:  unknown object ~A" model)
   dictionary)
@@ -195,14 +250,19 @@
   ;; In general, arguments of the model can be nil.
   (cond 
     ((null model) dictionary)
-    ((stringp model) (pushnew model dictionary :test #'string-equal))
+    ((stringp model)
+     (dolist (word (word-parse model))
+       (pushnew word dictionary :test #'string-equal)))
     ((atom model) (funcall add-to-dictionary-handler model dictionary))
     ;; from here on, assume model is a proper list
     ((test-for-list model)
      (dolist (x model)
        (setf dictionary (add-to-dictionary x dictionary)))
      dictionary)
-    ((member (car model) '(and or conjoin allowed preferred))
+    ((member (car model) '(allowed preferred key 
+			   case-insensitive case-sensitive))
+     (add-to-dictionary (second model) dictionary))
+    ((member (car model) '(and or conjoin))
      (add-to-dictionary (cdr model) dictionary))
     (t (funcall add-to-dictionary-handler model dictionary))))
 
@@ -217,7 +277,9 @@
   ;; Here, we just count number of expansions.
   (cond 
     ((null model) nil)
-    ((stringp model) 1) ;; or count words in string
+    ((stringp model) (word-parse-count model)) ;count words in string
+    ((member (car model) '(key case-insensitive case-sensitive))
+     (model-complexity (second model)))
     ((test-for-list model)
      ;; mapcar copies list; subsequent operations can be destructive
      (apply #'* (delete nil (mapcar #'model-complexity model))))
@@ -274,17 +336,28 @@
   (cond 
     ((null model) (length student))
     ((stringp model)
-     (let ((best 1)) ;score for any match to one student word.
-       ;; profiling shows that just calculating is slightly
-       ;; faster than also testing against the global best.
-       (dolist (item student)
-         (update-bound best (normalized-levenshtein-distance item model)))
-       ;; best fit plus any extra student words.
-     ;; If student is nil, this should return 1.
-       (+ best (max 0 (- (length student) 1)))))
+     (let ((words (word-parse model)))
+       (if (cdr words)
+	   (match-model-list student words :best best :words t)
+	   ;; profiling shows that just calculating is slightly
+	   ;; faster than also testing against the global best.
+	   (let ((best 1))  ;score for any match to one student word.
+	     (dolist (item student)
+	       (update-bound best 
+			     (normalized-levenshtein-distance 
+			      item (car words))))
+	   ;; best fit plus any extra student words.
+	   ;; If student is nil, this should return 1.
+	   (+ best (max 0 (- (length student) (length words))))))))
     ((atom model)
      (funcall unknown-object-handler student model :best best))
     ;; from here on, model must be a proper list
+    ((eql (car model) 'key)
+     (* *key-multiplier* (match-model student (second model) 
+				      :best (/ best *key-multiplier*))))
+    ((member (car model) '(case-insensitive case-sensitive))
+     (let ((*case-sensitive* (eql (car model) 'case-sensitive)))
+       (match-model student (second model) :best best)))
     ;; model optional
     ((member (car model) '(preferred allowed))
      ;; Any (cddr model) is ignored.  
@@ -325,7 +398,7 @@
     (t
      (funcall unknown-object-handler student model :best best))))
 
-(defun match-model-list (student model &key (best 10000))
+(defun match-model-list (student model &key (best 10000) words)
   (declare (notinline match-model)) ;for profiling
   ;; for n student words and m elements of the model list,
   ;; m n (n+1)/2 matches must be evaluated.  The following
@@ -333,12 +406,14 @@
   (let* ((width (1+ (length student)))
 	 (height (1+ (length model)))
 	 (d (make-array (list height width)))
-	 (u-model (mapcar #'(lambda (x) (word-count x :max t)) model))
-	 (l-model (mapcar #'word-count model))
+	 (u-model (unless words 
+		    (mapcar #'(lambda (x) (word-count x :max t)) model)))
+	 (l-model (unless words 
+		    (mapcar #'word-count model)))
 	 (up 0)
-	 (ur (apply #'+ u-model))
-	 (lr (apply #'+ l-model)))
-
+	 (ur (if words (length model) (apply #'+ u-model)))
+	 (lr (if words ur (apply #'+ l-model))))
+    
     (dotimes (y width)
       (setf (aref d 0 y) y)) ;student is one word per slot
 
@@ -350,8 +425,8 @@
     
     (dotimes (x (length model))
       
-      (let ((ux (nth x u-model))
-	    (lx (nth x l-model)))
+      (let ((ux (if words 1 (nth x u-model)))
+	    (lx (if words 1 (nth x l-model))))
 	
 	(decf ur ux)
 	(decf lr lx)
@@ -597,8 +672,9 @@
 (defparameter *debug-print* nil)  ;; debug print in best-model-matches
 
 (defun best-model-matches (student models &key (cutoff 5) (equiv 1.25) 
-			   (epsilon 0.25))
+			   (epsilon 0.25) no-sort single-match)
   "Returns alist of best matches to text using match-model."
+  (declare (notinline match-model))
   ;; cutoff is the maximum allowed score.
   ;; equiv maximum fraction of the best score such that a fit
   ;;    is considered equivalent to the best fit.
@@ -609,6 +685,10 @@
   ;; we need to adjust the bound so any other perfect matches 
   ;; may also be found.
 
+  ;; Single-match:  return just first instance of best match,
+  ;; assuming integer-valued scores.
+  ;; This allows for a more efficient search.
+
   (unless (>= cutoff 0)
     (warn "best-model-matches:  cutoff=~A  must be nonnegative." cutoff))
   (unless (and (numberp equiv) (> equiv 1.0))
@@ -617,8 +697,13 @@
     ;; Do easier ones first, to establish better bound.
     ;; We have  have to do each time, since results of any eval or var 
     ;; is needed for sort.
-    (dolist (x (sort-by-complexity models))
-      (setf bound (max epsilon (* best equiv)))
+    (dolist (x (if no-sort models (sort-by-complexity models)))
+      (when (and single-match quants (< best 1))
+	(return-from best-model-matches quants))
+      ;; In the case of single-match we want to only look
+      ;; for something better than what we have now.
+      (setf bound (max epsilon (* (if (and single-match quants) 
+				      (- best 1) best) equiv)))
       (let ((t0 (if *debug-print* (get-internal-run-time) 0)))
 	(setf this (match-model student (car x) :best bound))
 	(when *debug-print*
@@ -626,16 +711,19 @@
 		  this  (/ (- (get-internal-run-time) t0) 
 			   internal-time-units-per-second)
 		  (car x))))
-      (when (< this bound) (push (cons this (cdr x)) quants))
+      (when (< this bound) (if single-match
+			       (setf quants (list (cons this (cdr x))))
+			       (push (cons this (cdr x)) quants)))
       (when (< this best) (setf best this)))
     ;; Remove any quantities that are not equivalent with best fit
-    ;; and return result. 
-    (delete-if #'(lambda (x) (> (car x) (* best equiv))) quants)))
+    ;; and return result in original order.
+    (nreverse
+     (delete-if #'(lambda (x) (> (car x) (* best equiv))) quants))))
 
 ;; Imposing a cutoff on word matching improves speed by 50%
 ;; and removes some accidental matches (words
 ;; that are clearly different, but have some letter overlap).
-(defconstant +word-cutoff+ 0.4 "Assume words don't match for normalized distances larger than this cutoff.")
+(defvar *word-cutoff* 0.4 "Assume words don't match for normalized distances larger than this cutoff.")
 
 (defun normalized-levenshtein-distance (s1 s2)
   "Normalize levenshtein-distance so complete rewrite is 1.0 and imposing match cutoff."
@@ -643,10 +731,10 @@
 	(minl (min (length s1) (length s2))))
     ;; Test if there is any hope of getting below cutoff
     ;; This gives a 20% improvement in speed.
-    (if (> (* maxl (- 1 +word-cutoff+)) minl)
+    (if (> (* maxl (- 1 *word-cutoff*)) minl)
 	1
 	(let ((x (levenshtein-distance s1 s2)))
-	  (if (> x (* maxl +word-cutoff+))
+	  (if (> x (* maxl *word-cutoff*))
 	      1
 	      (/ (float x) (float maxl)))))))
 
@@ -696,6 +784,9 @@
 		(min (1+ (svref col j))
 		     (1+ (svref prev-col (1+ j)))
 		     (+ (svref prev-col j)
-			(if (char-equal (schar str1 i) (schar str2 j)) 0 1)))))
+			(if (if *case-sensitive*
+				(char= (schar str1 i) (schar str2 j))
+				(char-equal (schar str1 i) (schar str2 j))) 
+			    0 1)))))
 	(rotatef col prev-col))
       (svref prev-col m))))

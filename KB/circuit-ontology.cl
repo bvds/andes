@@ -75,7 +75,7 @@
   ;; Generally components are a single symbol or a list for
   ;; a compound component.
   ;; Sometimes the component can be defined with the body tool.
-  :new-english (or (var ?a :namespace :objects)
+  :new-english (or (variable ?a :namespace :objects)
 		   (eval (if (consp ?a) '(conjoin (or "and" "&") . ?a) ?a)
 			 ;; Remove list for single components
 			 (?a . (append (problem-atoms *cp*)

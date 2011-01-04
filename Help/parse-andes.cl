@@ -58,20 +58,15 @@
 		  (turn-result result)))
     result))
 
-(defun do-lookup-equation-string (eq entry location)
-  (let ((equation eq) tmp)
-    (if (= 0 (length (remove #\Space equation)))
-	(setf tmp (handle-empty-equation entry))
+(defun do-lookup-equation-string (equation entry location)
+  (if (= 0 (length (remove #\Space equation)))
+      (handle-empty-equation entry)
       (let* ((parses (parse-equation **grammar** equation))
 	     (complete (parse-get-complete parses))
 	     (valid (parse-get-valid 'final complete)))
-	(cond
-	 ((null valid)
-	  (setf tmp (handle-bad-syntax-equation eq entry parses)))
-	 (t
-	  (setf tmp (handle-ambiguous-equation eq entry valid location))))))
-    ;;(format t "at end is ~A~%" tmp)
-    tmp))
+	(if valid
+	    (handle-ambiguous-equation equation entry valid location)
+	    (handle-bad-syntax-equation equation entry parses)))))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -112,61 +107,81 @@
    creates a student entry, adds it to the *student-entries*,
    creates an error interpretation for it, and returns
    the first tutor turn of the error interpretation's hint sequence."
+  (let (best)
+    (dolist (parse parses)
+      (when (or (null best) 
+		(< (if (parse-rem parse) (length (parse-rem parse)) 0) best))
+	(setf best (if (parse-rem parse) (length (parse-rem parse)) 0))))
+    (unless best 
+      (warn "handle-bad-syntax-equation: no best parse for ~A from ~A parses" equation (length parses))
+      (setf best 0))
     (setf (StudentEntry-verbatim se) equation)
     (setf (StudentEntry-parsedeqn se) parses)
     (setf (StudentEntry-prop se) (list 'eqn equation))
     (setf (StudentEntry-state se) +incorrect+)
     (add-entry se)
-    (setf (StudentEntry-ErrInterp se) (bad-syntax-ErrorInterp equation :id (StudentEntry-id se)))
-    (ErrorInterp-remediation (StudentEntry-ErrInterp se)))
-
+    (setf (StudentEntry-ErrInterp se) 
+	  (bad-syntax-ErrorInterp equation :id (StudentEntry-id se) 
+				  :location (- (length equation) best)))
+    (ErrorInterp-remediation (StudentEntry-ErrInterp se))))
+  
 ; This returns a plain ErrorInterp:
-(defun bad-syntax-ErrorInterp (equation &key id)
+(defun bad-syntax-ErrorInterp (equation &key id location)
   "Given a syntactically ill-formed equation, returns an error interpretation for it."
   (let (rem)				; remediation hint seq to be assigned
     ;; cheap tests for a few common sources of errors
     (cond				
      ((not (position #\= equation))
-      (setf rem (make-hint-seq (list
-				(format nil "Entry \"~a\" is not an equation.&nbsp; If you are trying to define a scalar quantity, ~A and use ~A instead." 
-					equation *delete-object* *text-tool*)
-				"The entry needs an = sign to be an equation."))))
+      (setf rem (make-hint-seq 
+		 (list
+		  (format nil "Entry \"~a\" is not an equation.&nbsp; If you are trying to define a scalar quantity, ~A and use ~A instead." 
+			  equation *delete-object* *text-tool*)
+		  "The entry needs an = sign to be an equation.")
+		 :assoc '((equation-syntax-error . no-equals)))))
      ((> (count #\= equation) 1)
-      (setf rem (make-hint-seq (list
-				(format nil "\"~a\" is not a single equation." equation)
-				"You may enter only one equation on a line."))))
+      (setf rem (make-hint-seq 
+		 (list
+		  (format nil "\"~a\" is not a single equation." equation)
+		  "You may enter only one equation on a line.")
+		 :assoc '((equation-syntax-error . multiple-equals)))))
      ((search "sec" equation)
-      (setf rem (make-hint-seq (list
-				(format nil "Syntax error in ~a" equation)
-				"If you are giving a value in seconds, the correct SI symbol is just s, not sec."))))
+      (setf rem (make-hint-seq 
+		 (list
+		  (format nil "Syntax error in ~a" equation)
+		  "If you are giving a value in seconds, the correct SI symbol is just s, not sec.")
+		 :assoc '((equation-syntax-error . sec-for-seconds)))))
      ((search "ohms" equation)
-      (setf rem (make-hint-seq (list
-				(format nil "Syntax error in ~a" equation)
-				"If you are giving a resistance in Ohms, the correct SI symbol is &Omega;, not ohms."))))
+      (setf rem (make-hint-seq 
+		 (list
+		  (format nil "Syntax error in ~a" equation)
+		  "If you are giving a resistance in Ohms, the correct SI symbol is &Omega;, not ohms.")
+		 :assoc '((equation-syntax-error . ohms-for-ohms)))))
      ;; BvdS:  There should be a handler for "unknown functions"
      ;; analogous to the handler for "unknown variables"
      ;; This is a work-around.
      ((and (search "log" equation) (not (search "log10" equation)))
-      (setf rem (make-hint-seq (list
-				;; (format nil "Syntax error in ~a" equation)
-				"Use ln(x) for natural logarithms and log10(x) for logarithms base 10."))))
+      (setf rem (make-hint-seq 
+		 (list
+		  ;; (format nil "Syntax error in ~a" equation)
+		  "Use ln(x) for natural logarithms and log10(x) for logarithms base 10.")
+		 :assoc '((equation-syntax-error . log-for-logarithm)))))
      ((or (search "_ " equation) (search " _" equation))
       (setf rem (make-hint-seq (list
 				(format nil "Syntax error in ~a" equation)
-				"There is a space next to an underscore in this equation. If you are using a component variable, make sure you type it as a single word without any spaces between the underscore and the rest of the variable name."))))
+				"There is a space next to an underscore in this equation. If you are using a component variable, make sure you type it as a single word without any spaces between the underscore and the rest of the variable name.")
+		 :assoc '((equation-syntax-error . space-underscore))))) 
      (T (setf rem 
 	      (make-hint-seq
 	       (list
-		(format nil "Syntax error in ~a" equation)
-		(format nil
-			"The equation or ~A in it are not in a recognizable form."
-			(open-review-window-html 
-			 "the units" "units.html" :title "Units"))
+		(format nil "Syntax error in ~A~@[<span class=\"unparsed\">~A</span>~]" 
+			(if location (subseq equation 0 location) equation)
+			(when location (subseq equation location)))
 		(format nil 
 			"Though I can't tell exactly what the mistake is, a few common sources of errors are:  <ul><li>~A are case sensitive. <li>Multiplication requires an explicit multiplication sign:&nbsp; W=m*g, NOT W=mg. <li>Units attach only to numbers, not to variables or expressions.  <li>There must be a space between a number and a unit.&nbsp; For example:&nbsp;  2.5 m</ul>"
 			(open-review-window-html 
 			 "Unit symbols" "units.html" :title "Units"))
-		)))))
+		)
+	       :assoc '((equation-syntax-error . nil))))))
 
     (setf (turn-id rem) id)
     (setf (turn-coloring rem) +color-red+)
@@ -454,22 +469,22 @@
 	(otherwise
 	 (make-green-turn :id (StudentEntry-id se))))))))
 
-;
-; Note: several canned routines here for particular error interpretations are
-; used for errors that provide unsolicited messages. These routines:
-;    1. create a hint sequence turn for use in the remediation field (rem)
-;    2. construct an error interpretation object (ei) containing rem
-;    3. set the error interp field of the student entry to ei
-;    4. set coloring on the rem turn to color red
-;    5. return rem for use as a final result turn
-; Unsolicited feedback results as the remediation's red+hint turn is returned 
-; up the stack for use as the final result turn for the equation entry.
-; If this is not returned, the hint sequence is saved with the entry but
-; is not given until student asks whats wrong.
+;;
+;; Note: several canned routines here for particular error interpretations are
+;; used for errors that provide unsolicited messages. These routines:
+;;    1. create a hint sequence turn for use in the remediation field (rem)
+;;    2. construct an error interpretation object (ei) containing rem
+;;    3. set the error interp field of the student entry to ei
+;;    4. set coloring on the rem turn to color red
+;;    5. return rem for use as a final result turn
+;; Unsolicited feedback results as the remediation's red+hint turn is returned 
+;; up the stack for use as the final result turn for the equation entry.
+;; If this is not returned, the hint sequence is saved with the entry but
+;; is not given until student asks whats wrong.
 
 
-; forgot-units is returned when equation is dimensionally inconsistent but
-; balances numerically when numbers are treated as having unknown units.
+;; forgot-units is returned when equation is dimensionally inconsistent but
+;; balances numerically when numbers are treated as having unknown units.
 (defun forgot-units-ErrorInterp (se)
   "Given a student entry, return a tutor turn that gives unsolicited feedback saying that
    the student forgot to put units on at least one number.
@@ -571,17 +586,6 @@
     (ErrorInterp-remediation (StudentEntry-ErrInterp se))))
 
 
-(defun has-comp-vars-p (vars)
-  (let ((result nil))
-    (dolist (var vars)
-      (if (> (length var) 2)
-	  (let ((tmp (subseq var (- (length var) 2))))
-	    (if (and (member tmp '("_x" "_X" "_y" "_Y" "_z" "_Z") :test #'equal)
-		     (remove-if-not #'symbols-lookup
-					  (list (subseq var 0 (- (length var) 2)))))
-		(setf result (append result (list var)))))))
-    result))
-
 (defparameter *unknown-variable-error-hint*
   (strcat 
    "<ul>"
@@ -591,29 +595,112 @@
    "<li>Multiplication requires an explicit multiplication sign:  W=m*g, NOT W=mg."
    "</ul>"))
 
+(defun undef-var-error-interp (var)
+  "Returns error interpretation for an undefined variable."
+  ;; Possible errors in order of decreasing priority:
+  ;; with underscore:
+  ;;    axes not defined
+  ;;    subscript doesn't match coordinates
+  ;;    base quantity is a scalar (not a magnitude)
+  ;;    base quantity is an object (not a vector)
+  ;; without underscore:
+  ;;    vector component with underscore missing
+  ;;    is an object, not a scalar
+  ;; either:
+  ;;    capitalization
+  ;;    misspelling
+  ;; not handled and therefore need to be in default hint:  
+  ;;   concatonation of two variables/units.
+  ;;   errors associated with angle \theta...
+  (let ((underscore (position #\_ var)))
+    (if underscore 
+	(let* ((base (subseq var 0 underscore))
+	       (subscript (subseq var (+ 1 underscore))))
+	  (unless (symbols-referent subscript :namespace :objects)
+	    (return-from undef-var-error-interp
+	      (if (symbols-label '(axis . ?rest) :namespace :objects)
+		  (cons (cons 'coordinate-not-matched subscript)
+			(format nil "The subscript of <var>~A</var> does not match any of the coordinates ~{ <var>~A</var>~}." 
+				var
+				(sort (mapcar #'sym-label 
+					      (symbols-fetch '(axis . ?rest) 
+						       :namespace :objects))
+				      #'string<)))
+		  (cons (cons 'component-without-coordinates var)
+			(format nil
+				"Vector components like <var>~a</var> are defined only after you have drawn coordinate axes.&nbsp; Use ~A to draw some axes." 
+				var *axis-tool*)))))
+
+	  (let ((match (symbols-lookup base)))
+	    (when (and match (not (unify '(mag . ?rest) (sym-referent match))))
+	    (return-from undef-var-error-interp
+	      (cons (cons 'component-for-scalar (sym-referent match))
+		    (format nil "<var>~a</var> is a scalar quantity.&nbsp; It does not have components." 
+			    (sym-label match))))))
+
+	  (let ((match (symbols-lookup base :namespace :objects)))
+	    (when (and match 
+		       (not (vector-p (sym-referent match))))
+	    (return-from undef-var-error-interp
+	      (cons (cons 'component-for-object (sym-referent match))
+		    (format nil "<var>~a</var> is not a vector." 
+			    (sym-label match)))))))
+
+	;; regular variable
+	(progn 
+	  (let ((match (match-var-to-compos-without-underscore var)))
+	    (when match
+	      (return-from undef-var-error-interp
+		(cons (cons 'dropped-underscore (sym-referent match))
+		      (format nil "Vector components are written with an underscore;  write <var>~A</var> instead of <var>~A</var>." 
+			      (sym-label match) var)))))
+
+	  (let ((match (symbols-lookup var :namespace :objects)))
+	    (when (and match 
+		       (not (vector-p (sym-referent match))))
+	    (return-from undef-var-error-interp
+	      (cons (cons 'variable-for-object (sym-referent match))
+		    (format nil "<var>~a</var> is not a scalar quantity.&nbsp; It cannot be used in an equation." 
+			    (sym-label match)))))))))
+
+  (let ((match (capitalization-match-var var)))
+    (when match
+      (return-from undef-var-error-interp
+	(cons (cons 'capitalization (sym-referent match))
+	      (format nil "Variable names are case sensitive:&nbsp;  You probably meant <var>~A</var> instead of <var>~A</var>." 
+		      (sym-label match)
+		      var)))))
+  
+  (let ((matches (near-miss-vars var)))
+    (when matches
+      (return-from undef-var-error-interp
+	(cons (cons 'misspelling (mapcar #'sym-referent matches))
+	      (format nil "Spelling error?&nbsp; Perhaps you meant to write <var>~A</var> instead of <var>~A</var>." 
+		      (sym-label (car matches))
+				 var)))))
+
+  ;; Default
+  (cons (cons 'unknown-variable var)
+	*unknown-variable-error-hint*))
+
+(defun vector-p (prop)
+  (let ((qexp (lookup-expression-struct prop)))
+    (and qexp (eql (exptype-rank qexp) 'vector))))
+
+(defun match-var-to-compos-without-underscore (var)
+  (find-if 
+   #'(lambda (sym) (equal var (remove #\_ (sym-label sym))))
+   (symbols-fetch '(compo . ?rest))))
+
 (defun undef-variables-ErrorInterp (undef-vars &key id)
   "Given a list of undefined vars (as strings), returns the error interpretation that will be both stored in the student entry and used to give the student an unsolicited warning."
-  (let* ((is-comp-var (has-comp-vars-p undef-vars))
-	 ;; parallels undef-vars, e.g. (NIL v1 NIL v2 NIL)
-	 (near-misses (mapcar #'near-miss-var undef-vars))  
-	 (i-first-miss (position-if-not #'null near-misses)) ; index of first var with near-mis, else NIL
+  (let* ((interp (some #'undef-var-error-interp undef-vars))
 	 (rem (make-hint-seq
 	       (list
-		(format nil "Undefined variable~:[~;s: ~]~{ <var>~a</var>~}" 
+		(format nil "Undefined variable~:[~;s: ~]~{ <var>~a</var>~}." 
 			(cdr undef-vars) undef-vars)
-		;; check for near misses: currently case errors. 
-		;; Could try to find spelling errors later.
-		(cond 
-		  (i-first-miss     ; report the first one to fix only. Can get others next time if not fixed.
-		   (format nil "Variable names are case sensitive:&nbsp;  You probably meant <var>~A</var> instead of <var>~A</var>." 
-			   (nth i-first-miss near-misses) 
-			   (nth i-first-miss undef-vars)))
-		  ;; else not near-miss: give advice if used compo notation:
-		  (is-comp-var
-		   (format nil "Vector components ~a are defined only after you have drawn coordinate axes." 
-			   is-comp-var))
-		  (t *unknown-variable-error-hint*))))))
-
+		(cdr interp))
+	       :assoc (list (car interp)))))
     (setf (turn-id rem) id)
     (setf (turn-coloring rem) +color-red+)
 
@@ -761,8 +848,9 @@
 
     (if (quant-to-sysvar sought-quant)
 	(if (/= (length (remove #\Space input)) 0)
-	    (let* ((stud-var (symbols-label sought-quant)) ; student's var for sought quant, maybe NIL
-		   (ep (position #\= input))
+	    (let* ((ep (position #\= input))
+		   ;; student's var for sought quant, maybe NIL
+		   (stud-var (symbols-label sought-quant))
 		   (lhs (if ep (remove #\Space (subseq input 0 ep)) nil))
 		   (rhs (if ep (subseq input (+ ep 1) (length input)) input))
 		   (valid t)

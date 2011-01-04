@@ -27,7 +27,7 @@
 	      "optional": false,
 	      "enum":["new-object","modify-object","set-score","log",
 		      "show-hint","show-hint-link","echo-get-help-text",
-		      "new-user-dialog","set-styles"],
+		      "new-user-dialog","set-preferences"],
 	      "description": "show-hint needed in the case of an error"
 	    },
 	    "id": {
@@ -56,13 +56,13 @@
 	    "style":{
 	      "type": "string",
 	      "optional": true,
-		    "description": "Specify visual presentation or user interface action."
+	      "description": "Specify visual presentation of an object."
 	    },	    
 	    "x":	{"type": "number",  "optional": true},
 	    "y":	{"type": "number",  "optional": true},
 	    "width":	{"type": "number",  "optional": true}, 
 	    "height":	{"type": "number",	"optional": true},
-	    "text":	{"type": "string", 	"optional": true},
+	    "text":		{"type": "string", 	"optional": true},
 	    "radius":	{"type": "number", 	"optional": true},
 	    "symbol":	{"type": "string", 	"optional": true},
 	    "x-statement":	{"type": "number", 	"optional": true},
@@ -79,7 +79,7 @@
 			"description": "for buttons"},
 	    "items": {
 	      "type": "array", "items": {"type":"object"}, "optional": true,
-	      "description": "list of sub-objects"
+	      "description": "list of sub-objects, or a list of preferences (for set-preferences)."
 	    },
 	    "score": {
 	      "type": "number", 
@@ -133,12 +133,12 @@
 	  "optional": true,
 	  "description": "kind of drawn object; manditory for new-object and optional for modify-object or delete-object"
 	},
-	{
-	  "name": "style",
-	  "type": "string",
-	  "optional": true,
-	  "description": "subset of type, specify visual presentation (not used yet)"
-	},
+        {
+         "name": "style",
+         "type": "string",
+         "optional": true,
+         "description": "Specify visual presentation of an individual object."
+        },
 	{
 	  "name": "mode",
 	  "type": "string",
@@ -337,7 +337,7 @@
 		      "type": "string",
 		      "enum": ["statement", "circle", "ellipse", 
 		               "rectangle", "vector", "line"],
-		      "optional": true,
+		      "optional": false,
 		      "description": "kind of drawn object"
 	      },
 	      {"name": "text", "type": "string"},
@@ -355,10 +355,34 @@
 	      "enum":["next-words"]
 	    },
 	  "words": {"type": "array", "items": {"type":"string"}},
-		  "last-word": {"type": "boolean","description":"Whether given words can match a complete definition."}
+	  "last-word": {
+              "type": "boolean",
+              "description":"Whether given words can match a complete definition."
+            }
 	  }
 	}
       }
+    },
+
+    "record-action": {
+	    "description": "Record user interface action.  Since there is no server reply, this may be implemented as a json-rpc notification.",
+      "parameters": [
+     	      {
+		      "name": "type",
+		      "type": "string",
+		      "enum": ["menu-choice","tutor-link","set-preference",
+                               "window","greek-palette"],
+		      "optional": false,
+		      "description": "menu-choice:  choosing a menu item.  tutor-link:  clicking on regular link in tutor pane.  set-preference:  global user interface behavior.  window:  scrolling, zooming, etc.  greek-palette: use of the greek palette."
+	      },
+	      {"name": "name", "type": "string"},
+	      {
+                      "name": "value", 
+                      "type": "string", 
+                      "optional": true, 
+		      "description": "For set-preference."
+              }
+      ]
     },
     
     "close-problem": {

@@ -111,6 +111,10 @@ body, .tundra .dijitSplitter, #navMenu{
 	color:#999;
 }
 
+#helpContentPane p .unparsed{
+	color:#e02020;
+}
+
 #helpContentPane a {
 	color:#01a1ff;
 }

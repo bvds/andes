@@ -10,7 +10,18 @@ dojo.addOnLoad(function(){
 	function wireItem(item, fn){
 		var o = dijit.byId(item);
 		if(o){
-			o.onClick = fn;
+			// Wrapper function which adds logging to server
+			// when menu item is selected.
+          		var extendfn = function(){
+				andes.api.recordAction({
+					type: "menu-choice",
+					name: item
+				});
+				fn();
+			};			
+			o.onClick = extendfn;
+		} else {
+			console.warn("Missing DOM object for ",item);
 		}
 	}
 	

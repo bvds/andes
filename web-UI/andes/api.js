@@ -149,6 +149,11 @@ dojo.require("andes.messages");
 			return dfd;
 		},
 
+                recordAction: function(params){
+			// Could be implemented as a json-rpc notification;
+			queueRequest("record-action", params);
+		},
+
 		close: function(params){
 			console.info("andes.api.close", params);
 			return queueRequest("close-problem", params);

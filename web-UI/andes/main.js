@@ -65,11 +65,22 @@ dojo.require("andes.WordTip");
 		// WordTip needs to be added before conEdit is removed by drawing
 		andes.WordTip = new andes.WordTip();
 		dojo.connect(dojo.byId("submitButton"), "click", function(){
-			andes.api.close({});
+			// Needs to be non-blocking
+			var closer = andes.api.close({});
+			closer.then(function(result){
+					console.log("Made the trip", result);
+					// Look for url from server, if it doesn't
+					// exist, default takes user back one page
+					history.go(-1);
+				}, function(error){
+					console.warn("Server Error", error);
+					console.log("Returning to previous page");
+					history.go(-1);
+			});
 			dojo.cookie("andes", null, { expires: -1 });
 			// should look for url from server that
 			// can overrride default.
-			history.go(-1);
+			
 		});
 		
 		var splashNode = dojo.byId("splashOverlay"),

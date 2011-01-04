@@ -44,13 +44,16 @@
 ;; Params
 
 (defparameter *Ontology-ExpTypes* () "List of valid expression types")
+;; Most (or all) ontology forms start with a bound symbol; we can use
+;; this fact to speed up matching of forms.
+(defvar *Ontology-form-table* (make-hash-table :test #'equal :size 100)
+  "Hash table to give leading unbound members of form.")
 (defparameter *Ontology-EntryProp-Types* () "List of valid entry proposition prefixes.")
 (defparameter *Ontology-GoalProp-Types* () "List of valid Goal proposition prefixes.")
 (defparameter *Ontology-Equation-Types* () "List of valid equation types.")
 (defparameter *Ontology-EqnMerge-Lists* () "List of valid type pairs for eqn merging.")
 (defparameter *Ontology-PSMGroups* () "List of valid psm groups.")
 (defparameter *Ontology-PSMClasses* () "List of valid psm classes.")
-
 
 ;;;;;====================================================================
 ;;;;; Ontology structures.
@@ -83,6 +86,7 @@
 (defun clear-ontology ()
   "Clear out the stores expressions."
   (setq *Ontology-ExpTypes* nil)
+  (clrhash *Ontology-form-table*)
   (setq *Ontology-EntryProp-Types* nil)
   (setq *Ontology-Equation-Types* nil)
   (setq *Ontology-PSMGroups* nil)
@@ -130,7 +134,6 @@
                 ;; on the value.
   documentation ;; A documentation string for the item
 
-  VarFunc       ;; Function that translates the Expression to a var.  
   new-english   ;; Model structure for matching, with multi-word
                 ;; strings allowed.  Any s-expressions are matched to ontology.
   )
@@ -143,7 +146,6 @@
  			Units
 			restrictions
 			documentation
-			VarFunc
 	        	new-english)
   "Define a quantity expression."
   (define-exptype :type type 
@@ -154,7 +156,6 @@
     :Units Units
     :restrictions Restrictions
     :documentation documentation
-    :varfunc Varfunc
     :new-english new-english))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -166,24 +167,37 @@
 ;; unit types on the fields that are not supplied and 
 ;; if the user provides a variable for the restrictions
 ;; then that will be tested for here.
-;;
+
+(defun get-bound-sub (x)
+  "Create unique identifier for expression based on first member."
+  (cond ((variable-p x) (error "Unbound expr ~A" x))
+	((atom x) x)
+	((variable-p (car x)) (error "Unbound expr ~A" x))
+	(t (list (car x)))))
+
 ;; This function is not intended to be called directly
 ;; by the users.
 (defun define-exptype (&key type form rank symbol-base short-name 
-			    units 
-			    restrictions 
-			    documentation
-			    varfunc new-english)
+		       units 
+		       restrictions 
+		       documentation
+		       varfunc new-english)
   "Define and store the specified expression if possible."
-
+  
   ;; Remove any existing entry of this name (thus, allowing updates)
   (when (expression-type-p type)
+    (let ((old-bound-sub (get-bound-sub 
+			  (ExpType-form (lookup-exptype-struct type)))))
+      (setf (gethash old-bound-sub *Ontology-form-table*)
+	    (delete type 
+		    (gethash old-bound-sub *Ontology-form-table*) 
+		    :key #'ExpType-Type)))
     (setf *Ontology-ExpTypes*
-	  (remove type *Ontology-ExpTypes* :key #'ExpType-Type :count 1)))
-
+	  (delete type *Ontology-ExpTypes* :key #'ExpType-Type :count 1)))
+  
   (when (match:matches-model-syntax form)
     (error "Ontology ~A form ~A matches model syntax" type form))
-
+  
   (when (lookup-expression-struct Form)
     (error "exptype ~A matching form already exists." 
 	   (exptype-type (lookup-expression-struct Form))))
@@ -200,10 +214,9 @@
 	    :short-name short-name
 	    :units Units
 	    :restrictions restrictions
-	    :Varfunc varfunc
-	    ;; if supplied, arg should be body of fn to be called with these args
 	    :new-english (compile-evals new-english))))
     (push E *Ontology-ExpTypes*)
+    (push E (gethash (get-bound-sub form) *Ontology-form-table* nil))
     E))
 
 (defun compile-evals (model)
@@ -263,7 +276,8 @@
 
 (defun lookup-expression-struct (exp)
   "Lookup the first exp with the specified-form."
-  (dolist (qexp *Ontology-ExpTypes*)
+  (dolist (qexp (gethash (get-bound-sub exp) 
+			 *Ontology-form-table* nil))
     (let ((bindings (unify exp (ExpType-form qexp))))
       (when bindings
 	(return-from lookup-expression-struct
