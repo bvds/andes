@@ -68,17 +68,19 @@ dojo.require("andes.WordTip");
 			// Needs to be non-blocking
 			var closer = andes.api.close({});
 			closer.then(function(result){
-					console.log("Made the trip", result);
+					// console.log("Made the trip", result);
 					// Look for url from server, if it doesn't
 					// exist, default takes user back one page
+					var url, found = false;
 					dojo.forEach(result, function(entry){
 						if(entry.url){
-							console.log("Found url: ",entry.url);
-							window.location = entry.url;
-						}else{
-							history.go(-1);
+							found = true;
+							//console.log("Found url: ",entry.url);
+							url = entry.url;
 						}
 					});
+					
+					found ? window.location = url : history.go(-1);
 				}, function(error){
 					console.warn("Server Error", error);
 					console.log("Returning to previous page");
