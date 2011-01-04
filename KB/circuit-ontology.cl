@@ -141,16 +141,18 @@
   :symbol-base |L|     
   :short-name "self-inductance"	
   :units |H|
-  :new-english ((the) (or ((preferred "self") "inductance")
-			  "self-inductance")
-	        "of" (allowed "inductor") (component ?inductor)))
+  :new-english ((the) (or ((preferred "self") (key (or "inductance" "ind"))
+			   (key "self-inductance"))
+			  (preferred "of" (allowed "inductor") 
+				     (component ?inductor)))))
 
 (def-qexp mutual-inductance (mutual-inductance orderless . ?inductors)
   :rank scalar
   :symbol-base |M|     
   :short-name "mutual inductance"	
   :units |H|
-  :new-english ((the) "mutual inductance" (or "between" "of") 
+  :new-english ((the) (preferred "mutual") (key (or "inductance" "ind")) 
+		(or "between" "of") 
 		(conjoin (or "and" "&") . ?inductors)))
 
 ;;; power as used in circuits problem has slightly different definition

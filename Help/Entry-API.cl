@@ -167,7 +167,12 @@
       ""))
 
 (defun best-value (best)
-  (apply #'min (mapcar #'car best)))
+  (apply #'min (mapcar #'match:best-value best)))
+
+(defmacro update-bound (best result)
+  (let ((this (gensym)))
+    `(let ((,this ,result))
+       (when ,this (setf ,best ,this)))))
 
 (defparameter *proposition-icons*
   `((define-var . ,*text-tool*)
@@ -217,36 +222,40 @@
 					    (StudentEntry-text entry)))
 	 (student (match:word-parse student-string))
 	 ;; used for best and maybe for wrong-tool-best
-	 (initial-cutoff (min (* cutoff-fraction (length student)) 
+	 (initial-cutoff (min (* cutoff-fraction (length student))
 			      cutoff-count))
-	 (best-correct
-	  ;; For any debugging prints in matching package.
-	  (let ((*standard-output* webserver:*stdout*))
-	    (match:best-model-matches 
-	     student
-	     (mapcar #'(lambda (x) 
-			 (cons (expand-vars (SystemEntry-model x)) 
-			       (SystemEntry-prop x)))
-		     sysentries)
-	     :cutoff initial-cutoff
-	     :equiv equiv)))
-	 (best best-correct) ;This is the best interpretation, so far.
+	 ;; For any debugging prints in matching package.
+	 ;; This also applies to any wrong matches below.
+	 (*standard-output* webserver:*stdout*)
+	 (best
+	  (match:best-model-matches 
+	   student
+	   (mapcar #'(lambda (x) 
+		       (cons (expand-vars (SystemEntry-model x)) 
+			     (SystemEntry-prop x)))
+		   sysentries)
+	   :cutoff initial-cutoff
+	   :equiv equiv))
+	 ;; The value of the best correct match or the initial cutoff.
+	 ;; This is used to determine cutoffs for wrong quantity matches.
+	 (best-correct (if best (best-value best) initial-cutoff))
 	 hints
 	 wrong-tool-best)
-    
+
     ;; Debug printout:
     (when nil
-      (format webserver:*stdout* "Best match to ~s is~%   ~S~% from ~S~%" 
+      (format t "Best match to ~s is~%   ~S~% from ~S~%" 
 	      student-string
 	      (mapcar 
-	       #'(lambda (x) (cons (car x) 
-				   (expand-vars (SystemEntry-model (cdr x)))))
+	       #'(lambda (x) (cons (match:best-value x) 
+				   (expand-vars (SystemEntry-model 
+						 (match:best-prop x)))))
 	       best)
 	      (mapcar #'systementry-prop sysentries)))
     
     ;; If there isn't a good match to solution quantities,
     ;; try another tool and non-solution quanitities.
-    (when (or (null best) (>= (best-value best) 1))
+    (when (>= best-correct 1)
 
       ;; Attempt to detect a wrong tool error.  
       ;; The strategy is to treat the choice of tool as being
@@ -262,9 +271,7 @@
 			  #'(lambda (x) (not (member 
 					      (car (SystemEntry-prop x)) 
 					      allowed-tools)))
-			  *sg-entries*))
-	     ;; For any debugging prints in matching package.
-	     (*standard-output* webserver:*stdout*))
+			  *sg-entries*)))
 	(setf wrong-tool-best 
 	      (match:best-model-matches 
 	       student
@@ -275,7 +282,7 @@
 	       ;; If there is no match in best, then the help is
 	       ;; pretty weak.  In that case, just find anything
 	       ;; below the cutoff.
-	       :cutoff (if best (- (best-value best) 1) initial-cutoff)
+	       :cutoff (- best-correct 1) 
 	       :equiv equiv)))
       
       ;; Attempt to match to quantities not in solution,
@@ -283,32 +290,27 @@
       ;; Never returns more than one quantity:  There is no
       ;; point in having the student resolve an ambiguity if
       ;; quantities are wrong anyway.
-      (let ((this 
-	     (match:best-model-matches 
-	      student
-	      (mapcar #'(lambda (x) 
-			  (cons (expand-vars (car x)) 
-				(list tool-prop (cdr x))))
-		      (lookup-quantity-keyword-props student tool-prop))
-	      :cutoff  (min (if best (- (best-value best) 1) initial-cutoff)
-			    (if wrong-tool-best 
-				(best-value wrong-tool-best) 
-				initial-cutoff))
-	      :equiv equiv
-	      :no-sort t
-	      :single-match t)))
-	;; We don't have any way of handling inheritance for
-	;; non-solution quantities.  As a cheap work-around, 
-	;; take shortest matching proposition.
-	;; need to pre-order quantities so that shorter propositions
-	;; are matched first...
-	(when this (setf best this)))
+
+      ;; We don't have any way of handling inheritance for
+      ;; non-solution quantities.  As a cheap work-around, 
+      ;; take shortest matching proposition.
+      ;; need to pre-order quantities so that shorter propositions
+      ;; are matched first...
+      (update-bound
+       best
+       (best-wrong-match
+	student
+	tool-prop
+	:cutoff  (min (- best-correct 1) 
+		      (if wrong-tool-best 
+			  (best-value wrong-tool-best) 
+			  initial-cutoff))))
       
       ;; Attempt to match to quantities not in solution where
       ;; the wrong tool has also been used.
       ;; Must be better than any quantity in solution, but allow
       ;; for ties with one plus any quantity not in solution.
-      (when (and (or (null best-correct) (>= (best-value best-correct) 2))
+      (when (and (>= best-correct 2)
 		 (or (null best) (>= (best-value best) 1)))
 	(let  ((tool-props (intersection
 			    ;; other tools that have natural-language.
@@ -318,33 +320,22 @@
 				    *sg-entries*))))
 	  (dolist (tool-prop tool-props)
 	    (when (or (null wrong-tool-best) 
-			   (>= (best-value wrong-tool-best) 1))
-	      (let ((this 
-		     (match:best-model-matches 
-		      student	     
-		      (mapcar #'(lambda (x) 
-				  (cons (expand-vars (car x)) 
-					(list tool-prop (cdr x))))
-			      (lookup-quantity-keyword-props 
-			       student tool-prop))
-		      :cutoff  (min (if best-correct
-					(- (best-value best-correct) 2) 
-					initial-cutoff)
-				    (if best 
-					(- (best-value best) 1) 
-					initial-cutoff)
-				    (if wrong-tool-best 
-					(- (best-value wrong-tool-best) 1) 
-					initial-cutoff))
-		      :equiv equiv
-		      :no-sort t
-		      :single-match t)))
-		(if nil ;debug print
-		    (format webserver:*stdout* "For tool ~A got ~A~%" 
-			    tool-prop this))
-		(when this (setf wrong-tool-best this)))
-	      ))))
-    
+		      (>= (best-value wrong-tool-best) 1))
+	      (when nil ;debug print
+		(format t "Starting wrong tool ~A:~%" tool-prop))
+	      (update-bound
+	       wrong-tool-best
+	       (best-wrong-match 
+		student
+		tool-prop
+		:cutoff  (min (- best-correct 2) 
+			      (if best 
+				  (- (best-value best) 1)
+				  initial-cutoff)
+			      (if wrong-tool-best 
+				  (- (best-value wrong-tool-best) 1) 
+				  initial-cutoff))))))))
+      
       ;; Give unsolicited hint when "...'s" is used
       (when (member "'s" student :test #'string-equal
 		    :key #'last-two-characters)
@@ -367,7 +358,8 @@
 		    (best-value best)))
 	(let ((phr (strcat 
 		    "Perhaps, you meant to use " 
-		    (get-prop-icon (car (cdr (car wrong-tool-best))))
+		    (get-prop-icon (car (match:best-prop 
+					 (car wrong-tool-best))))
 		    ", instead?")))
 	  (push `((:action . "show-hint")
 		  (:text . ,phr)) hints)))
@@ -392,7 +384,7 @@
      (values nil (wrong-tool-ErrorInterp 
 		  entry 
 		  tool-prop
-		  (mapcar #'cdr wrong-tool-best)) hints))
+		  (mapcar #'match:best-prop wrong-tool-best)) hints))
     
     ((null sysentries)
        (values nil (nothing-to-match-ErrorInterp entry tool-prop) hints))
@@ -408,7 +400,7 @@
 	 (values nil (no-matches-ErrorInterp entry) hints)))
     
     ((= (length best) 1)
-     (let* ((prop (cdr (car best)))
+     (let* ((prop (match:best-prop (car best)))
 	    ;; If the best fit isn't too good, give an unsolicited hint.
 	    (hint (close-match-hint (best-value best) entry prop)))
        (when hint (push hint hints))
@@ -425,7 +417,7 @@
        (values prop nil hints)))
     
     (t 
-     (let ((props (mapcar #'cdr best)))
+     (let ((props (mapcar #'match:best-prop best)))
        (values nil (too-many-matches-ErrorInterp entry props) hints))))))
 
 ;; Debug printout:

@@ -325,28 +325,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;
-;;;;   Generate dictionary from set of model sentences.
-;;;;
-
-(defun dictionary-handler (model dictionary)
-  "Extend model to include (var ...), which is ignored."
-  (unless (and (consp model) (eql (car model) 'var))
-      (warn "dictionary-handler:  unknown model ~A" model))
-  dictionary)
-
-(defun generate-dictionary (sysentries)
-  "Generate a list of possible words from a list of models, ignoring (var ...)"
-  (let ((match:add-to-dictionary-handler 'dictionary-handler)
-	dictionary)
-    (dolist (x sysentries)
-      (setf dictionary (match:add-to-dictionary 
-		    (SystemEntry-model x) dictionary)))
-    dictionary))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (defun qnode-new-english (qnode)
   "Match qnode to Ontology, pulling out model sentence, including any var."
   ;; use same strategy as for systementries.
@@ -504,9 +482,13 @@
 
 (defun pull-out-keywords (model &optional in)
   "Pull out any keywords from expanded model."
-  (cond ((and in (stringp model)) (match:word-parse model))
+  (cond ((and in (stringp model)) 
+	 (remove-duplicates (match:word-parse model) :test #'string-equal))
 	((atom model) nil)
-	((and (consp model) (eql (car model) 'var)) nil)
+	;; Ignore any sub-models that are optional,
+	;; even if they contain keywords.
+	((and (consp model) 
+	      (member (car model) '(var allowed preferred))) nil)
 	((and (consp model) (eql (car model) 'key)
 	      (pull-out-keywords (second model) t)))
 	((consp model)
@@ -517,8 +499,10 @@
 
 (defun pull-out-required-words (model)
   "Pull out all required words from expanded model."
-  (cond ((stringp model) (match:word-parse model))
+  (cond ((stringp model) 
+	 (remove-duplicates (match:word-parse model) :test #'string-equal))
 	((atom model) nil)
+	;; Ignore any sub-models that are optional.
 	((and (consp model) 
 	      (member (car model) '(var allowed preferred))) nil)
 	((consp model)

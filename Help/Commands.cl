@@ -337,8 +337,9 @@
     ;;    8 other questions or requests.  2 start with "help".
     ;;    2/3 of questions end in ?
     ;; However, a significant number of regular comments that end in "?"
-  (< (match:match-model (list (car (match:word-parse str)))
-			'(or "how" "is" "should" "what" "where" "why")) 1))
+  (< (match:best-value
+      (match:match-model (list (car (match:word-parse str)))
+			 '(or "how" "is" "should" "what" "where" "why"))) 1))
 
 (defun maybe-a-question (str)
   "Determine if student phrase may be a question."
@@ -346,9 +347,10 @@
     ;; Likewise, comments starting with "help" or "hint" are often not 
     ;; intended as questions.
   (or (string-ends-with '(#\?) str)
-	   (< (match:match-model 
-	       (list (car (match:word-parse str)))
-	       '(or "help" "hint")) 1)))
+	   (< (match:best-value
+	       (match:match-model 
+		(list (car (match:word-parse str)))
+		'(or "help" "hint"))) 1)))
 
 (defun string-ends-with (endings x)
   "Test if string ends with a given character, trimming whitespace."

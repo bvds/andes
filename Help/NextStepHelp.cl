@@ -1681,13 +1681,15 @@
 
 (defun nsh-check-sought-resp (response past)
   "Check the sought response, returning tutor turn."
-
-  ;; In case student clicks on an old "Explain more" in response
-  ;; to this question; see Bug #1686.
+  
   (unless (stringp response)
-    (warn "Response should be a string (Bug #1686): ~S" response)
-    (setf response (format nil "~A" response)))
-
+    (unless (eql response 'explain-more)
+      (warn "nsh-check-sought-resp got unexpected value ~A" response))
+    (return-from nsh-check-sought-resp
+      (nsh-wrong-sought-resp 
+       "Please use the box below to enter the sought quantity."
+       Past :Case response)))
+  
   (let ((best (match:best-model-matches
 	       (match:word-parse response)
 	       (mapcar #'(lambda (x)
@@ -1712,10 +1714,10 @@
       ((null best) ;no matches
        (nsh-sought-resp-nil past))
       ;; too many matches or poor unique match
-      ((or (cdr best) (> (car (car best)) 0.2))  
-       (nsh-sought-resp-ambiguous (mapcar #'cdr best) past))
+      ((or (cdr best) (> (match:best-value (car best)) 0.2))  
+       (nsh-sought-resp-ambiguous (mapcar #'match:best-prop best) past))
       (t          ;unique match
-       (let ((Q (cdr (car best))))
+       (let ((Q (match:best-prop (car best))))
 	 (cond 
 	 ;; have they tried this before?
 	   ((member Q past) (nsh-sought-resp-rep past))
