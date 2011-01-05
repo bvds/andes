@@ -1690,42 +1690,60 @@
        "Please use the box below to enter the sought quantity."
        Past :Case response)))
   
-  (let ((best (match:best-model-matches
-	       (match:word-parse response)
-	       (mapcar #'(lambda (x)
-			   (cons (expand-vars (qnode-new-english x)) x))
-		       (bubblegraph-qnodes (problem-graph *cp*)))
-	       :cutoff 0.6 :equiv 1.1)))
+  (let ((words (match:word-parse response)))
 
-    ;; Debug printout:
-    (when nil
-      (format webserver:*stdout* "Best match to ~s is~%   ~S~% from ~S~%" 
-	      response
-	      (mapcar 
-	       #'(lambda (x) (cons (car x) 
-				   (expand-vars (qnode-model (cdr x)))))
-	       best)
-	      (mapcar #'(lambda (x) 
-			  (cons (expand-vars (qnode-new-english x)) 
-				(qnode-exp x)))
-		      (bubblegraph-qnodes (problem-graph *cp*)))))
-
-    (cond 
-      ((null best) ;no matches
-       (nsh-sought-resp-nil past))
-      ;; too many matches or poor unique match
-      ((or (cdr best) (> (match:best-value (car best)) 0.2))  
-       (nsh-sought-resp-ambiguous (mapcar #'match:best-prop best) past))
-      (t          ;unique match
-       (let ((Q (match:best-prop (car best))))
-	 (cond 
-	 ;; have they tried this before?
-	   ((member Q past) (nsh-sought-resp-rep past))
-	   ;; Is the quantity sought?
-	   ((not (qnode-soughtp Q)) (nsh-sought-resp-ns Q past)) 
-	   ;; Else use the value and move on.
-	   (t (nsh-ask-first-principle (random-positive-feedback) Q))))))))
-
+    ;; First see if student has entered a previously defined variable.
+    (when (null (cdr words))
+      (let ((prop (symbols:symbols-referent (car words))))
+	(when prop
+	  (return-from nsh-check-sought-resp
+	    (unique-prop-response prop past)))))
+    
+    ;; Else, assume student has entered a definition.
+    ;; Try to find a best match to quantities in solution.
+    (multiple-value-bind (best wrong-tool-best)
+	;; The soughts are all scalar quantities.
+	(match-student-phrase0 words 'define-var)
+      
+      (cond 
+	;; If wrong-tool-best exists, it contains scores
+	;; that are one smaller than any scores in best.
+	(wrong-tool-best 
+	 (let ((wrong-tool-props 
+		(remove-duplicates
+		 (mapcar #'(lambda (x) (car (match:best-prop x)))
+			 wrong-tool-best))))
+	   (nsh-wrong-sought-resp 
+	    (if (member (car wrong-tool-props) past)
+		;; already messed up once, give a hint
+		(strcat "Note that one of the sought quantities is "
+			(return-answer-quantity-short-english) ".")
+		(strcat "The sought is a scalar quantity rather than a "
+			(get-prop-type (car wrong-tool-props))))
+	    (cons (car wrong-tool-props) Past) :Case 'Null)))
+	;; no matches
+	((null best) 
+	 (nsh-sought-resp-nil past))
+	;; too many matches or poor unique match
+	((or (cdr best) (> (match:best-value (car best)) 0.2))  
+	 (nsh-sought-resp-ambiguous (mapcar #'match:best-prop best) past))
+	(t          ;unique match
+	 ;; strip off the define-var
+	 (unique-prop-response (second (match:best-prop (car best))) 
+			       past))))))
+  
+(defun unique-prop-response (prop past)
+  "Construct a response in the case the student entry has a unique interpretation."
+  (cond 
+    ;; have they tried this before?
+    ((member prop past :test #'unify) 
+     (nsh-sought-resp-rep past))
+    ;; Is the quantity sought?
+    ((not (member prop (problem-soughts *cp*) :test #'unify)) 
+     (nsh-sought-resp-ns prop past)) 
+    ;; Else use the value and move on.
+    (t (nsh-ask-first-principle 
+	(random-positive-feedback) prop))))
 
 ;;; If the student has tried this value before and been told 
 ;;; that it was incorrect then we want to merely remind them
@@ -1768,9 +1786,8 @@
   "Return a message signifying ambiguous sought supplied."
   (nsh-wrong-sought-resp 
    (format nil "Which quantity are you referring to?&nbsp; Do you mean ~A?"
-	   (match:word-string (expand-vars (qnode-new-english 
-					    (random-elt quants))
-					   :html-format t)))
+	   ;; note the quant props include the 'define-var.
+	   (get-default-phrase (second (random-elt quants))))
    Past :Case 'Null))
 
 
@@ -1780,9 +1797,11 @@
 (defun nsh-sought-resp-ns (quant Past)
   "Return a message signifying that quantity is not sought."
   (nsh-wrong-sought-resp 
-   "This quantity not sought by the problem statement."
+   (format nil "Sorry, ~A is not sought by the problem statement."
+	   (let ((var (symbols-label quant)))
+	     (if var (strcat "<var>" var "</var>")
+		 (get-default-phrase quant))))
    (cons quant Past) :Case 'not-sought))
-
 
 ;;; ------------------ wrong-sought ---------------------------------
 ;;; When the student picks the wrong sought then we need to give them
@@ -1809,8 +1828,7 @@
     (make-explain-more-turn
      (strcat "Let's just assume that you are seeking "
 	     (get-default-phrase Sought) ".")
-     :hint (nsh-ask-first-principle 
-	    "" (match-exp->qnode Sought (problem-graph *cp*)))
+     :hint (nsh-ask-first-principle "" sought)
      :Assoc `((nsh tell-sought ,Case ,Sought)))))
 
 	 
@@ -1861,7 +1879,7 @@
    :responder #'(lambda (response)
 		  (nsh-check-first-principle-response
 		   Response sought past))
-   :Assoc `((nsh ask-first-principle ,(bgnode-exp Sought)))))
+   :Assoc `((nsh ask-first-principle ,Sought))))
 
    
 
@@ -1890,7 +1908,7 @@
    :responder #'(lambda (response)
 		  (nsh-check-first-principle-response
 		   response sought past))
-   :Assoc `((nsh ask-first-principle-cont ,Case ,(bgnode-exp Sought)))))
+   :Assoc `((nsh ask-first-principle-cont ,Case ,Sought))))
 
 
 ;;; When the student responds incorrectly to the first-principle selection
@@ -3251,11 +3269,12 @@
   "Get the expression form of a quantity."
   (qnode-parameterp Q))
 
-(defun nsh-quantity-principles (Q)
+(defun nsh-quantity-principles (prop)
   "Get the principles connected to quantity."
-  (qnode-eqns Q))
-
-	
+  (let ((qnode (match-exp->qnode prop (problem-graph *cp*))))
+    (if qnode
+	(qnode-eqns qnode)
+	(warn "No matching qnode for ~A" prop))))
 
 
 ;;; =================== Principles ================================
@@ -4025,11 +4044,11 @@
 		:test #'unify))
    ;; Might be nice to have special message for possible 
    ;; magnitude/component confusion about sought
-   (format NIL "Unable to solve for ~A. Notice that this problem does not ask for ~A, so you do not need to solve for it. You probably want to solve for a quantity sought by the problem." var var))
+   (format NIL "Unable to solve for ~A.&nbsp; Notice that this problem does not ask for ~A, so you do not need to solve for it.&nbsp; You probably want to solve for a quantity sought by the problem." var var))
   
   ;; advise of special tricks for these
   ((member 'elastic-collision-help (problem-features *cp*)) 
-     (format NIL "Although you seem to have entered enough equations, the Andes solver is unable to solve them for ~A in their current form.  See the ~A for further help." 
+     (format NIL "Although you seem to have entered enough equations, the Andes solver is unable to solve them for ~A in their current form.&nbsp; See the ~A for further help." 
 	     var 
 	     (open-review-window-html 
 	      "discussion of elastic collisions in one dimension"

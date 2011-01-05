@@ -209,21 +209,18 @@
 ;;  Should have something to handle extra stuff like setting
 ;;     given values in definition.  (either handle it or warning/error).
 
-(defun match-student-phrase (entry tool-prop &key 
-			     (cutoff-fraction 0.4)
-			     (cutoff-count 4)
-			     (equiv 1.25))
-  "Match student phrase to Ontology, returning best match prop, tutor turn (if there is an error) and any unsolicited hints."
+(defun match-student-phrase0 (student tool-prop &key 
+			      (cutoff-fraction 0.4) 
+			      (cutoff-count 4) 
+			      (equiv 1.25))
+  "Match student phrase to Ontology, returning best matches for tool or other tool."
   ;; :cutoff-fraction is fractional length of student phrase to use as bound.
   ;; :cutoff-count is maximum allowed score to use as bound.
-  (let* ((sysentries (remove (cons tool-prop '?rest) *sg-entries* 
-			     :key #'SystemEntry-prop :test-not #'unify))
-	 (student-string (pull-out-quantity (StudentEntry-symbol entry) 
-					    (StudentEntry-text entry)))
-	 (student (match:word-parse student-string))
+  (let* ((sysentries (remove (cons tool-prop '?rest) *sg-entries*
+			     :key #'SystemEntry-prop :test-not #'unify)) 
 	 ;; used for best and maybe for wrong-tool-best
 	 (initial-cutoff (min (* cutoff-fraction (length student))
-			      cutoff-count))
+			      cutoff-count))		 
 	 ;; For any debugging prints in matching package.
 	 ;; This also applies to any wrong matches below.
 	 (*standard-output* webserver:*stdout*)
@@ -239,13 +236,12 @@
 	 ;; The value of the best correct match or the initial cutoff.
 	 ;; This is used to determine cutoffs for wrong quantity matches.
 	 (best-correct (if best (best-value best) initial-cutoff))
-	 hints
 	 wrong-tool-best)
-
+    
     ;; Debug printout:
     (when nil
       (format t "Best match to ~s is~%   ~S~% from ~S~%" 
-	      student-string
+	      (match:word-string student)
 	      (mapcar 
 	       #'(lambda (x) (cons (match:best-value x) 
 				   (expand-vars (SystemEntry-model 
@@ -256,7 +252,7 @@
     ;; If there isn't a good match to solution quantities,
     ;; try another tool and non-solution quanitities.
     (when (>= best-correct 1)
-
+      
       ;; Attempt to detect a wrong tool error.  
       ;; The strategy is to treat the choice of tool as being
       ;; worth 1 word, when matching.
@@ -290,7 +286,7 @@
       ;; Never returns more than one quantity:  There is no
       ;; point in having the student resolve an ambiguity if
       ;; quantities are wrong anyway.
-
+      
       ;; We don't have any way of handling inheritance for
       ;; non-solution quantities.  As a cheap work-around, 
       ;; take shortest matching proposition.
@@ -305,7 +301,7 @@
 		      (if wrong-tool-best 
 			  (best-value wrong-tool-best) 
 			  initial-cutoff))))
-      
+	
       ;; Attempt to match to quantities not in solution where
       ;; the wrong tool has also been used.
       ;; Must be better than any quantity in solution, but allow
@@ -335,90 +331,109 @@
 			      (if wrong-tool-best 
 				  (- (best-value wrong-tool-best) 1) 
 				  initial-cutoff))))))))
-      
-      ;; Give unsolicited hint when "...'s" is used
-      (when (member "'s" student :test #'string-equal
-		    :key #'last-two-characters)
-	(let  ((phr (strcat 
-		     "Sorry, I don't understand "
-		     (manual-link "possessives with <em>'s</em>"
-				  "possessive" :pre "")
-		     ".")))
-	  (push `((:action . "show-hint")
-		  (:text . ,phr)) hints)))
+      ) ;end of things to try if there isn't good solution match.
     
-      ;; If there is a tie between wrong-tool-best and best,
-      ;; then give a hint suggesting the tool may be wrong,
-      ;; but proceed as if the tool is correct.
-      ;;
-      ;; This doesn't occur very often, since keywords typically
-      ;; break any potential tie.
-      (when (and best wrong-tool-best
-		 (> (+ (best-value wrong-tool-best) 1.05)
-		    (best-value best)))
-	(let ((phr (strcat 
-		    "Perhaps, you meant to use " 
-		    (get-prop-icon (car (match:best-prop 
-					 (car wrong-tool-best))))
-		    ", instead?")))
-	  (push `((:action . "show-hint")
-		  (:text . ,phr)) hints)))
-      
-    ) ;end of things to try if there isn't good solution match.
-  
-  (when nil ;debug print
-    (format webserver:*stdout* 
-	    "**best=~A (~A) wrong-tool=~A (~A)~%" 
-	    (when best (best-value best)) (length best) 
-	    (when wrong-tool-best (best-value wrong-tool-best)) 
-	    (length wrong-tool-best)))
-    
-  (cond
-    ;; If wrong-tool-best exists, it contains scores
-    ;; that are one smaller than any scores in best.
-    ((and wrong-tool-best
-	  ;; make sure there isn't a tie.
-	  (or (null best)
-	      (< (+ (best-value wrong-tool-best) 1.05)
-		 (best-value best))))
-     (values nil (wrong-tool-ErrorInterp 
-		  entry 
-		  tool-prop
-		  (mapcar #'match:best-prop wrong-tool-best)) hints))
-    
-    ((null sysentries)
-       (values nil (nothing-to-match-ErrorInterp entry tool-prop) hints))
+      (values best wrong-tool-best best-correct sysentries)))
 
-    ((null best)
-     (if (and (= (length (StudentEntry-symbol entry)) 0)
-	      (Entries-need-variables (StudentEntry-type entry)))
-	 ;; In this case, we can at least hint for adding a variable.
-	 (values nil (add-variable-errorinterp entry) hints)
-	 ;; "Can't understand your definition," and switch to NSH
-	 ;; This is pretty weak help, so we want to avoid this 
-	 ;; choice, when possible.
-	 (values nil (no-matches-ErrorInterp entry) hints)))
+(defun match-student-phrase (entry tool-prop)
+  "Match student phrase to Ontology, returning best match prop, tutor turn (if there is an error) and any unsolicited hints."
+  ;; :cutoff-fraction is fractional length of student phrase to use as bound.
+  ;; :cutoff-count is maximum allowed score to use as bound.
+  (let ((student (match:word-parse 
+		  (pull-out-quantity (StudentEntry-symbol entry) 
+				     (StudentEntry-text entry))))
+	hints)
     
-    ((= (length best) 1)
-     (let* ((prop (match:best-prop (car best)))
-	    ;; If the best fit isn't too good, give an unsolicited hint.
-	    (hint (close-match-hint (best-value best) entry prop)))
-       (when hint (push hint hints))
-       
-       ;; Determine if the student has already done this
-       ;; in a previous step.
-       ;; In Andes2, this test was done on the user interface.
-       (dolist (se (remove entry *StudentEntries*))
-	 (when (unify prop (studententry-prop se))
-	   (return-from match-student-phrase 
-	     (values nil (redundant-entry-ErrorInterp entry se prop) hints))))
-       
-       ;; Return the best fit entry.
-       (values prop nil hints)))
-    
-    (t 
-     (let ((props (mapcar #'match:best-prop best)))
-       (values nil (too-many-matches-ErrorInterp entry props) hints))))))
+    (multiple-value-bind (best wrong-tool-best best-correct sysentries)
+	  (match-student-phrase0 student tool-prop)
+      
+      ;; If there isn't a good match to solution quantities,
+      ;; try another tool and non-solution quanitities.
+      (when (>= best-correct 1)
+	
+	;; Give unsolicited hint when "...'s" is used
+	(when (member "'s" student :test #'string-equal
+		      :key #'last-two-characters)
+	  (let  ((phr (strcat 
+		       "Sorry, I don't understand "
+		       (manual-link "possessives with <em>'s</em>"
+				    "possessive" :pre "")
+		       ".")))
+	    (push `((:action . "show-hint")
+		    (:text . ,phr)) hints)))
+	
+	;; If there is a tie between wrong-tool-best and best,
+	;; then give a hint suggesting the tool may be wrong,
+	;; but proceed as if the tool is correct.
+	;;
+	;; This doesn't occur very often, since keywords typically
+	;; break any potential tie.
+	(when (and best wrong-tool-best
+		   (> (+ (best-value wrong-tool-best) 1.05)
+		      (best-value best)))
+	  (let ((phr (strcat 
+		      "Perhaps, you meant to use " 
+		      (get-prop-icon (car (match:best-prop 
+					   (car wrong-tool-best))))
+		      ", instead?")))
+	    (push `((:action . "show-hint")
+		    (:text . ,phr)) hints)))
+	
+	) ;end of things to try if there isn't good solution match.
+      
+      (when nil ;debug print
+	(format webserver:*stdout* 
+		"**best=~A (~A) wrong-tool=~A (~A)~%" 
+		(when best (best-value best)) (length best) 
+		(when wrong-tool-best (best-value wrong-tool-best)) 
+		(length wrong-tool-best)))
+      
+      (cond
+	;; If wrong-tool-best exists, it contains scores
+	;; that are one smaller than any scores in best.
+	((and wrong-tool-best
+	      ;; make sure there isn't a tie.
+	      (or (null best)
+		  (< (+ (best-value wrong-tool-best) 1.05)
+		     (best-value best))))
+	 (values nil (wrong-tool-ErrorInterp 
+		      entry 
+		      tool-prop
+		      (mapcar #'match:best-prop wrong-tool-best)) hints))
+	
+	((null sysentries)
+	 (values nil (nothing-to-match-ErrorInterp entry tool-prop) hints))
+	
+	((null best)
+	 (if (and (= (length (StudentEntry-symbol entry)) 0)
+		  (Entries-need-variables (StudentEntry-type entry)))
+	     ;; In this case, we can at least hint for adding a variable.
+	     (values nil (add-variable-errorinterp entry) hints)
+	     ;; "Can't understand your definition," and switch to NSH
+	     ;; This is pretty weak help, so we want to avoid this 
+	     ;; choice, when possible.
+	     (values nil (no-matches-ErrorInterp entry) hints)))
+	
+	((= (length best) 1)
+	 (let* ((prop (match:best-prop (car best)))
+		;; If the best fit isn't too good, give an unsolicited hint.
+		(hint (close-match-hint (best-value best) entry prop)))
+	   (when hint (push hint hints))
+	   
+	   ;; Determine if the student has already done this
+	   ;; in a previous step.
+	   ;; In Andes2, this test was done on the user interface.
+	   (dolist (se (remove entry *StudentEntries*))
+	     (when (unify prop (studententry-prop se))
+	       (return-from match-student-phrase 
+		 (values nil (redundant-entry-ErrorInterp entry se prop) hints))))
+	   
+	   ;; Return the best fit entry.
+	   (values prop nil hints)))
+	
+	(t 
+	 (let ((props (mapcar #'match:best-prop best)))
+	   (values nil (too-many-matches-ErrorInterp entry props) hints)))))))
 
 ;; Debug printout:
 (defun test-student-phrase (student)
