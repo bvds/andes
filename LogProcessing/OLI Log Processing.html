@@ -461,7 +461,7 @@ as<br>
 <br>
 Or use the one-liner:
 <pre>
-perl -p -e "s/(\w+)\W+(\w+)/\2 USNA/" log/Spring2009-USNA-mapping.txt > Info/classmap.txt
+perl -p -e 's/^.*?\t(\w+)/$1\tUSNA/' log/Spring2009-USNA-mapping.txt > Info/classmap.txt
 </pre>
 
 <h6>Class information</h6>

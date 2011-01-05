@@ -17,7 +17,7 @@ while (<>) {
   if(/^(.*)# Log of Andes session begun \w+, (.+) by /) {
     if ($1) {
       my $tmp=$1; 
-      chop $tmp; # remove trailing comma
+      chop $tmp; # remove trailing tab
       $date = ($dateformat1->parse_datetime($tmp)
 	       or $dateformat2->parse_datetime($tmp));
     } else {
