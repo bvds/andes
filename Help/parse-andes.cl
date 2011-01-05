@@ -170,6 +170,19 @@
 				(format nil "Syntax error in ~a" equation)
 				"There is a space next to an underscore in this equation. If you are using a component variable, make sure you type it as a single word without any spaces between the underscore and the rest of the variable name.")
 		 :assoc '((equation-syntax-error . space-underscore))))) 
+     ;; Look for attempt at defining a variable.
+     ;; Typically the parser fails at the space after the first word.
+     ;; Need to distinguish from error where multiplication sign 
+     ;; was forgotten.
+     ;; Stratey here is to look for a RHS that consists of words and variables.
+     ((and (find #\= equation)
+	   (phrase-has-words (subseq equation (+ 1 (position #\= equation)))))
+      (setf rem (make-hint-seq 
+		 (list
+		  (format nil "This does not look like an equation.&nbsp; If you are trying to define a scalar quantity, ~A and use ~A instead." 
+			  *delete-object* *text-tool*))
+		 :assoc '((equation-syntax-error . wrong-tool)))))
+	   
      (T (setf rem 
 	      (make-hint-seq
 	       (list
@@ -190,6 +203,21 @@
      :diagnosis '(Syntax-error-in-eqn)
      :remediation rem)))
 
+(defun phrase-has-words (phrase)
+  "See if phrase contains mostly words and variables."
+  (let ((words (match:word-parse phrase))
+	(total 0)
+	(punct '(#\. #\, #\; #\: #\? #\!)))
+    (when (cdr words)
+      (dolist (word words)
+	(when (or (symbols:symbols-referent word)
+		  ;; Purely alpha or punctuation
+		  (every #'(lambda (x) (or (alpha-char-p x)
+					   (member x punct))) 
+			 word))
+	  (incf total)))
+      ;; could adjust this fraction if we have false positives.
+      (> total (* 0.8 (length words))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun handle-ambiguous-equation (equation entry parses location)
