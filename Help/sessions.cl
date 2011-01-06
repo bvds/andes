@@ -862,7 +862,8 @@
 	  (solver-unload)
 	  
 	  (push `((:action . "problem-closed") 
-		  (:URL . "http://www.webassign.net/something/or/other"))
+		  ;; (:URL . "http://www.webassign.net/something/or/other")
+		  )
 		result)
 	  result))
     ;; Tell the session manager that the session is over.
