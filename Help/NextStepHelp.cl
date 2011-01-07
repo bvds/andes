@@ -1742,8 +1742,12 @@
     ((not (member prop (problem-soughts *cp*) :test #'unify)) 
      (nsh-sought-resp-ns prop past)) 
     ;; Else use the value and move on.
-    (t (nsh-ask-first-principle 
-	(random-positive-feedback) prop))))
+    (t 
+     ;; Find matching qnode.
+     (let ((q (match-exp->qnode prop (problem-graph *cp*))))
+       (unless q 
+	 (warn "unique-prop-response no qnode matching ~A" prop))
+       (nsh-ask-first-principle (random-positive-feedback) q)))))
 
 ;;; If the student has tried this value before and been told 
 ;;; that it was incorrect then we want to merely remind them
@@ -1769,11 +1773,11 @@
        ;; already messed up once, give a hint
        (strcat "Note that one of the sought quantities is "
 	       (return-answer-quantity-short-english) ".")
-       "Your entry does not match any quantities needed to solve this problem.")
+       "Sorry, I was not able to understand your entry.")
    (cons nil Past) :Case 'Null))
 
 (defun return-answer-quantity-short-english ()
-  "Return a string describing the kind of quantitiy associated with a problem sought."
+  "Return a string describing the kind of quantity associated with a problem sought."
   (let* ((Sought (car (remove-if-not #'quantity-expression-p
 				     (problem-soughts *cp*))))
  	 (qexp (lookup-expression-struct sought)))
@@ -1803,6 +1807,7 @@
 		 (get-default-phrase quant))))
    (cons quant Past) :Case 'not-sought))
 
+
 ;;; ------------------ wrong-sought ---------------------------------
 ;;; When the student picks the wrong sought then we need to give them
 ;;; a message alerting them to that fact and prompting them to try 
@@ -1828,7 +1833,8 @@
     (make-explain-more-turn
      (strcat "Let's just assume that you are seeking "
 	     (get-default-phrase Sought) ".")
-     :hint (nsh-ask-first-principle "" sought)
+     :hint (nsh-ask-first-principle 
+	    "" (match-exp->qnode Sought (problem-graph *cp*)))
      :Assoc `((nsh tell-sought ,Case ,Sought)))))
 
 	 
@@ -1879,7 +1885,7 @@
    :responder #'(lambda (response)
 		  (nsh-check-first-principle-response
 		   Response sought past))
-   :Assoc `((nsh ask-first-principle ,Sought))))
+   :Assoc `((nsh ask-first-principle ,(bgnode-exp Sought)))))
 
    
 
@@ -1908,7 +1914,7 @@
    :responder #'(lambda (response)
 		  (nsh-check-first-principle-response
 		   response sought past))
-   :Assoc `((nsh ask-first-principle-cont ,Case ,Sought))))
+   :Assoc `((nsh ask-first-principle-cont ,Case ,(bgnode-exp Sought)))))
 
 
 ;;; When the student responds incorrectly to the first-principle selection
@@ -2211,7 +2217,7 @@
 (defun nsh-collect-principles-successors (Principles Ignore)
   "Collect the quantity successors to the principles."
   (remove-if
-   #'(lambda (N) (member N Ignore))
+   #'(lambda (N) (member N Ignore)) 
    (remove-duplicates 
     (apply #'append (mapcar #'nsh-principle-quantities Principles)))))
   
@@ -2232,7 +2238,7 @@
 ;;; In some instances it is necessary to determine whether or not the sought is
 ;;; directly connected to the first-principle without actually searching for it 
 ;;; This predicate will return t if there is at least one first principle that 
-;;; is directly connected to the sought.  Otherwize it will return nil.
+;;; is directly connected to the sought.  Otherwise it will return nil.
 (defun nsh-atleast1-first-principle-directly-connected-p (Sought)
   "Return t if at leasrt one first principle is directly connected."
   (let ((Principles (nsh-collect-first-principles Sought)))
@@ -3269,12 +3275,11 @@
   "Get the expression form of a quantity."
   (qnode-parameterp Q))
 
-(defun nsh-quantity-principles (prop)
+(defun nsh-quantity-principles (Q)
   "Get the principles connected to quantity."
-  (let ((qnode (match-exp->qnode prop (problem-graph *cp*))))
-    (if qnode
-	(qnode-eqns qnode)
-	(warn "No matching qnode for ~A" prop))))
+  (qnode-eqns Q))
+
+
 
 
 ;;; =================== Principles ================================
