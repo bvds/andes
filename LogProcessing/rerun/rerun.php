@@ -33,7 +33,8 @@
 	     // (setf webserver:*debug* nil)
 	     // (setf *simulate-loaded-server* nil)
 $ignoreNewLogs = true;  // ignore any new non-error, log messages
-$printDiffs = false;  // Whether to print out results for server diffs
+$ignoreScores = true;  // ignore any changes to scoring.
+$printDiffs = true;  // Whether to print out results for server diffs
 	    
 $dbname= 'andes3'; //$_POST['dbname'];
 $dbuser= 'root'; // $_POST['dbuser'];
@@ -116,7 +117,7 @@ while ($myrow = mysql_fetch_array($result)) {
   $userSection=$myrow["userSection"];
   $startTime=$myrow["startTime"];
   $clientID=$myrow["clientID"];
-  $sessionLink1 = "<td><a href=\"../Web-Interface/OpenTrace.php?x=" . $dbuser .
+  $sessionLink1 = "<td><a href=\"/log/OpenTrace.php?x=" . $dbuser .
     "&amp;sv=" . $dbserver . "&amp;pwd=" . $dbpass . "&amp;d=" . $dbname .
     "&amp;cid=" . $clientID . "&amp;u=" . $userName . "&amp;p=" . 
     $userProblem . "&amp;s=" . $userSection .  "&amp;m=";
@@ -172,7 +173,9 @@ while ($myrow = mysql_fetch_array($result)) {
     } else {
       $tid="none";
     }
-    if($printDiffs && (!$methods || in_array($method,$methods))){
+    if($printDiffs && 
+       isset($a->params) && // Ignore server shutdown of idle sessions.
+       (!$methods || in_array($method,$methods))){
       $aa=$json->encode($a->params);
       // Escape html codes so actual text is seen.
       $aa=str_replace("&","&amp;",$aa);
@@ -193,6 +196,17 @@ while ($myrow = mysql_fetch_array($result)) {
 	    $bb=$json->encode($bc); // print this out
 	    $nbc=$njr->result[$ni];  // copy used for compare
 	    $nbb=$json->encode($nbc);  // printed this out
+	    // Remove dummy url from close-problem
+	    // commit 512d1492822, Jan 5, 2011
+	    if(strcmp($bc->action,"problem-closed")==0){
+	       unset($bc->url);
+	    }
+	    if($ignoreScores && strcmp($bc->action,"log")==0){
+	       unset($bc->subscores);
+	    }
+	    if($ignoreScores && strcmp($nbc->action,"log")==0){
+	       unset($nbc->subscores);
+	    }
 	    // Remove any backtraces from compare.
 	    unset($bc->backtrace);
 	    $bbc=$json->encode($bc);
@@ -204,7 +218,27 @@ while ($myrow = mysql_fetch_array($result)) {
 	     */
 	    // Remove double precision notation from constants.
             // This difference occurs from using slime vs. stand-alone. 
-	    $bbc=preg_replace('/([0-9])d0/','$1',$bbc);
+	    $bbc=preg_replace('/(\d)d0/','$1',$bbc);
+	    // Canonicalize random positive feedback.
+	    $randomPositive = '/(Good!|Right\.|Correct\.|Yes\.|Yep\.|That.s right\.|Very good\.|Right indeed.) /';
+	    $randomPostiveNew='**random-positive** ';
+	    $bbc=preg_replace($randomPositive,$randomPostiveNew,$bbc);
+	    $nbbc=preg_replace($randomPositive,$randomPostiveNew,$nbbc);
+	    // Canonicalize random goal prefix
+	    $randomPrefix = '/(Try|You should be|A good step would be|Your goal should be) /';
+	    $randomPrefixNew='**random-prefix** ';
+	    $bbc=preg_replace($randomPrefix,$randomPrefixNew,$bbc);
+	    $nbbc=preg_replace($randomPrefix,$randomPrefixNew,$nbbc);
+	    // This shouldn't happen, but some assoc operators hav
+	    // unbound variables which show the internal binding.
+	    $varUnique='/#:\?[\-\w]+/';
+	    $bbc=preg_replace($varUnique,'?VAR',$bbc);
+	    $nbbc=preg_replace($varUnique,'?VAR',$nbbc);	    
+	    // Canonicalize end of sentence.
+	    // commit c828125f4bc0e6, Jan. 5, 2011
+	    $bbc=preg_replace('/\.&nbsp;\s+/','. ',$bbc);
+	    $nbbc=preg_replace('/\.&nbsp;\s+/','. ',$nbbc);
+	    
 	    // Add period to end of sentence.
 	    // commit 7227bfa4b73c091d130b79bfcd6c, Nov. 25, 2010
 	    // Escaping for php regexps seems to be buggy ...
@@ -217,13 +251,38 @@ while ($myrow = mysql_fetch_array($result)) {
             // Couldn't figure out match for two characters \/, possible bug
 	    // in php?
 	    $nbbc=preg_replace('/<span class=\\\"unparsed\\\">(.*?)<..span>/','$1',$nbbc);
+	    // Wrapper <var>...</var> has been added to more cases
+	    // commit c828125f4bc0e6de5b, Jan. 5, 2011
+            // commit 3425f36e509234504b38, Dec. 8, 2010
+	    $bbc=preg_replace('/<var>(.*?)<..var>/','$1',$bbc);
+	    $nbbc=preg_replace('/<var>(.*?)<..var>/','$1',$nbbc);
+	    // Change hint wording for unmatched sought.
+	    // January 7, 2011
+	    $bbc=preg_replace('/Your entry does not match any quantities needed to solve this problem/','**unmatched-sought**',$bbc);
+	    $nbbc=preg_replace('/Sorry, I was not able to understand your entry/','**unmatched-sought**',$nbbc);	      
 	    
 	    if(strcmp($bbc,$nbbc)==0){ // match, go on to next pair
 	      $i++; $ni++;
+	    }elseif($ignoreScores && strcmp($bc->action,"set-score")==0){
+	      $i++;  // Old turn has score.
+	    }elseif($ignoreScores && strcmp($nbc->action,"set-score")==0){
+	      $ni++;  // New turn has score.
+	    }elseif(
+		    // New hints for empty definition
+		    // commit 53a456b8c04e358, Dec. 1, 2010
+		    strcmp($bc->action,"modify-object")==0 &&
+		    isset($bc->mode) && strcmp($bc->mode,"incorrect")==0 &&
+		    strcmp($nbc->action,"show-hint")==0 &&
+		    (preg_match('/Generally, objects should be labeled./',
+				$nbc->text)>0 ||
+		     preg_match('/You should.*define a variable/',
+			       $nbc->text)>0)){ 
+	      // Also, skip over immediately following link.
+	      $i++; $ni+=2; 
 	    }elseif($imax-$i == $nimax-$ni){ // mismatch, but same remaining
-	      $bbb=escapeHtml($bb);
-	      $nbbb=escapeHtml($nbb);
-	      array_push($rows,"<td>$bbb</td><td>$nbbb</td>");
+		$bbb=escapeHtml($bb);
+		$nbbb=escapeHtml($nbb);
+		array_push($rows,"<td>$bbb</td><td>$nbbb</td>");
 	      $i++; $ni++;
 	    }elseif($imax-$i < $nimax-$ni){ // mismatch, extra row in new
 	      // drop any added log messages
