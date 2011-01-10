@@ -64,6 +64,8 @@ dojo.require("andes.WordTip");
 	dojo.addOnLoad(function(){
 		// WordTip needs to be added before conEdit is removed by drawing
 		andes.WordTip = new andes.WordTip();
+		
+		// Problem close actions set
 		dojo.connect(dojo.byId("submitButton"), "click", function(){
 			// Needs to be non-blocking
 			var closer = andes.api.close({});
@@ -91,6 +93,7 @@ dojo.require("andes.WordTip");
 			// can overrride default.
 		});
 		
+		// Splash animation
 		var splashNode = dojo.byId("splashOverlay"),
 		anim = dojo.fadeOut({node:dojo.byId("splashOverlay")}),
 		_h = dojo.connect(anim, "onEnd", function(){
