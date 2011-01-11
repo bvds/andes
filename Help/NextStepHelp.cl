@@ -1771,6 +1771,7 @@
   (nsh-wrong-sought-resp 
    (if (member nil past)
        ;; already messed up once, give a hint
+       ;; See nsh-sought-resp-ambiguous
        (strcat "Note that one of the sought quantities is "
 	       (return-answer-quantity-short-english) ".")
        "Sorry, I was not able to understand your entry.")
@@ -1786,17 +1787,46 @@
 	(progn (warn "return-answer-quantity-short-english: no ontology match for ~A" sought)
 	       (get-default-phrase sought)))))
 
-(defun nsh-sought-resp-ambiguous (quants Past)
+(defun nsh-sought-resp-ambiguous (full-props Past)
   "Return a message signifying ambiguous sought supplied."
-  (nsh-wrong-sought-resp 
-   (format nil "Which quantity are you referring to?&nbsp; Do you mean ~A?"
-	   ;; note the quant props include the 'define-var.
-	   (get-default-phrase (second (random-elt quants))))
-   Past :Case 'Null))
+  ;; see too-many-matches-ErrorInterp in Entry-API.cl
+  (let* ((distinct-quantities (collect-distinct-quantities full-props))
+	 (Soughts (remove-if-not #'quantity-expression-p
+				 (problem-soughts *cp*)))
+	 ;; Distinct quantity types.
+	 (solution-quantities
+	  (delete-if #'(lambda (p) (unless (exptype-p p)
+				     (warn "No ontology match for ~A" p)
+				     t))
+		     (delete-duplicates
+		      (mapcar #'lookup-expression-struct soughts))))
+	 (intersection-quantities
+	  (intersection distinct-quantities solution-quantities)))
+    (nsh-wrong-sought-resp 
+     (cond (intersection-quantities
+	    (format nil "It looks like you were trying to define ~A, but your defintion was ambiguous." 
+		    (nlg-print-list
+		     (mapcar #'quantity-html-link 
+			     intersection-quantities)
+		     "or" 'identity)))
+	   ;; When none of the matches is a sought, then we
+	   ;; tell student what the soughts are.
+	   ((member nil past)
+	    ;; Already messed up once, give a hint;
+	    ;; see nsh-sought-resp-nil.
+	    (strcat "Note that one of the sought quantities is "
+		    (return-answer-quantity-short-english) "."))
+	   ;; The first time, say the type matches
+	   (t (format nil "It looks like you were trying to define ~A, but this does not match any of the problem soughts."
+		    (nlg-print-list
+		     (mapcar #'quantity-html-link 
+			     distinct-quantities)
+		     "or" 'identity))))
+     (cons nil Past) :Case 'Null)))
 
 
-;;; If they select a value that is in the graph but not sought 
-;;; then, again, we giuve them that information and move them 
+;;; If they select a unique quantity but not sought 
+;;; then, again, we give them that information and move them 
 ;;; on with appropriate information.  
 (defun nsh-sought-resp-ns (quant Past)
   "Return a message signifying that quantity is not sought."
@@ -1815,7 +1845,11 @@
 ;;; will simply tell them which quantity to use. 
 (defun nsh-wrong-sought-resp (msg past &key (Case 'default-wrong-sought))
   (if (< (length past) **Max-sought-Tries**)
-      (nsh-ask-sought (strcat msg "&nbsp; " "Please try again:") past Case)
+      (nsh-ask-sought (strcat msg "&nbsp; " "Please try "
+			      (if (= (length past) (- **Max-sought-Tries** 1))
+				  "one more time" 
+				  "again") ":") 
+		      past Case)
       (nsh-tell-sought msg Case)))
 
 

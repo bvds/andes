@@ -519,6 +519,7 @@
    :test #'equal)) ;for the strings
 
 (defun too-many-matches-ErrorInterp (entry full-props)
+  ;; see nsh-sought-resp-ambiguous in NextStepHelp.cl
   (let* ((distinct-quantities (collect-distinct-quantities full-props))
 	 (quantities-help (nlg-print-list
 			   (mapcar #'quantity-html-link distinct-quantities)
