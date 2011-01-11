@@ -468,16 +468,21 @@
 (defparameter *nsh-givens* () "The givens in NSH.")
 (defparameter *nsh-solution-sets* () "The individual solution sets for the student.")
 
+;; This stores the principle being worked on as determined
+;; by some previously generated hint sequence.  The student may
+;; or may not have actually asked for the hint, so the "... continue working
+;; on ..." language may be inappropriate in some cases.  Bug #1854
 (defparameter *nsh-last-node* () "The last principle being solved.")
 (defparameter *nsh-current-solutions* () "A temporary var containing the active solutions.")
 
-;;; This parameter holds an alist that associates soughts to first principles.  When 
-;;; a search for the first principles given the sought is made then the system will 
-;;; first search here to see if the value has been cached.  If not then it will search
-;;; for the values directly and then store them in here.
+;;; This parameter holds an alist that associates soughts to first principles.
+;;; When a search for the first principles given the sought is made then 
+;;; the system will first search here to see if the value has been cached.  
+;;; If not then it will search for the values directly and then store them 
+;;; in here.
 ;;;
-;;; This parameter should only be directly addressed by the nsh-collect-first-principles
-;;; function.  
+;;; This parameter should only be directly addressed by 
+;;; the nsh-collect-first-principles function.  
 (defparameter *nsh-first-principles* () 
   "The relevant first-principles for this problem.")
 
