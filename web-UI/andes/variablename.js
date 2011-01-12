@@ -28,8 +28,8 @@ andes.variablename.parse = function(intext){
 		// canonicalize whitespace
 		var cantext = intext.replace(/\s+/g," ");
 		cantext = cantext.replace(/\s*=\s*/," = ");
-		cantext = cantext.replace(/:\s*/,": ");
-		cantext = cantext.replace(/^\s+/,"");
+		cantext = cantext.replace(/\s*:\s*/,": ");
+		cantext = cantext.replace(/^\s/,"");
 		// Remove leading puctuation (for comments).
 		cantext = cantext.replace(/^[?!;:,&#%]/,"");
 		// match for forms like ?var is ...

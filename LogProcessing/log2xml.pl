@@ -138,7 +138,7 @@ if (open CONDITIONMAP, "<Info/conditionmap.txt") {
 
 # load the student to class mapping table, if it exists
 if (open CLASSMAP, "<Info/classmap.txt") {
-	%classmap = map /(.*) +([^\r^\n]+)/, <CLASSMAP>;
+	%classmap = map /(.*)\t+([^\r^\n]+)/, <CLASSMAP>;
         close CLASSMAP;
 	$have_classmap = 1;
 }
@@ -219,7 +219,7 @@ END_HEADER
               # datashop wants "yyyy-MM-dd HH:mm:ss z". We format it in the local time zone.
 	      $start_date = sprintf("%d-%02d-%02d %02d:%02d:%02d", 
 		                    $year, $month2num{$monthabbr}+1, $mday, $hours, $min, $sec);
-	      print STDERR "start time: " . localtime($start_time) . " = $start_date\n";
+	      # print STDERR "start time: " . localtime($start_time) . " = $start_date\n";
    }
 
     # pick up experiment condition if it's set in log

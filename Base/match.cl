@@ -406,7 +406,10 @@
 	     (make-best :value (+ best (max 0 (- (length student) 
 						 (length words))))
 		        :words (car words))))))
-    ((null model) (make-best :value (length student)))
+    ;; expand-new-english and expand-vars remove any nil's from
+    ;; the model tree.  This is equivalent to forbidding any matches
+    ;; to it.
+    ((null model) (make-best :value (if student 10000 0)))
     ((or (atom model) (cdr (last model)))  ;test for a proper list
      (funcall unknown-object-handler student model :best best))
     ;; from here on, model must be a proper list
