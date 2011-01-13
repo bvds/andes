@@ -722,9 +722,6 @@
       ((cddr model) ; more than two
        ;; For now, just use dumb recursion because we don't have
        ;; any long lists, but this is very expensive, computationally.
-       (when (> (length model) 3)
-	 (warn "using inefficient method for conjoin in match-model for ~A"
-	       model))
        (dolist (item model)
 	 (update-bound 
 	  best-result
@@ -746,7 +743,7 @@
 
 (defparameter *debug-print* nil)  ;; debug print in best-model-matches
 
-(defun best-model-matches (student models &key (cutoff 5) (equiv 1.25) 
+(defun best-model-matches (student models &key (cutoff 4) (equiv 1.25) 
 			   (epsilon 0.25))
   "Returns a list of best matches to text using match-model. Models is an alist of models and props."
   (declare (notinline match-model))
@@ -759,7 +756,7 @@
 
   ;; match-model only finds matches that are better than 
   ;; than the given bound, else it may return the bound itself.  
-  ;; Thus, in the case where a perfect match has been found, 
+  ;; Thus, in the case where a nearly perfect match has been found, 
   ;; we need to adjust the bound so any other perfect matches 
   ;; may also be found.
 
@@ -771,7 +768,8 @@
     (warn "best-model-matches:  cutoff=~A  must be nonnegative." cutoff))
   (unless (and (numberp equiv) (> equiv 1.0))
     (warn "best-model-matches:  equiv=~A  must be larger than 1" equiv))
-  (let (this (best (/ cutoff equiv)) quants bound
+  (let (this (best cutoff) quants 
+	     (bound (max epsilon (* cutoff equiv)))
 	     (t0 (if *debug-print* (get-internal-run-time) 0)))
     ;; Do easier ones first, to establish better bound.
     ;; We have  have to do each time, since results of any eval or var 
@@ -784,19 +782,21 @@
 	(setf this (match-model student (car x) :best bound))
 	(when (and nil *debug-print*) ;too noisy for some cases
 	  (format t "     Got ~A for match in ~Fs to~%       ~A~%" 
-		  this  (/ (float (- (get-internal-run-time) t0))
-			   (float internal-time-units-per-second))
-		  (car x))))
+		  (best-value this)  
+		  (/ (float (- (get-internal-run-time) t0))
+		     (float internal-time-units-per-second))
+		  (cdr x))))
       (when (< (best-value this) bound) 
 	(setf (best-prop this) (cdr x))
 	(push this quants))
-      (when (< (best-value this) best) (setf best (best-value this))))
+      (when (< (best-value this) best) 
+	(setf best (best-value this))
+	(setf bound (max epsilon (* best equiv)))))
     ;; Remove any quantities that are not equivalent with best fit
     ;; and return result in original order.
     (setf quants
 	  (nreverse
-	   (delete-if #'(lambda (x) (> (best-value x) (* best equiv))) 
-		      quants)))
+	   (delete-if #'(lambda (x) (> (best-value x) bound)) quants)))
     (when *debug-print*
       (format t "  Got ~A matches, score ~a, total time ~A~@[ for:~%  ~A~]~%"
 	      (length quants) best
