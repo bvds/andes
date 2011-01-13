@@ -53,6 +53,14 @@
 		    (or (null names) (member (exptype-type rule) names)))
 	   (let (*ontology-bindings*) 
 	     (get-ontology-bindings (ExpType-new-english rule))
+
+	     ;; Sanity test
+	     (dolist (var (variables-in (exptype-form rule)))
+	       (unless (member var *ontology-bindings* :key #'car)
+		 (error "Ontology type ~A form ~A unbound,~%  bindings ~A"
+			(exptype-type rule) (exptype-form rule)
+			*ontology-bindings*)))
+
 	     (push (list* (exptype-type rule) (exptype-form rule) 
 			  *ontology-bindings*) 
 		   (cdr (assoc type result)))))))
@@ -87,6 +95,8 @@
 	((and (consp model) 
 	      (member (car model) '(preferred allowed key case-sensitive 
 				    case-insensitive)))
+	 (when (cddr model) 
+	   (error "get-ontology-bindings:  ~A should have one arg." model))
 	 (get-ontology-bindings (second model) bindings))
 	((and (consp model) (member (car model) '(or and conjoin)))
 	 (get-list-ontology-bindings (cdr model) bindings))
@@ -127,7 +137,7 @@
     ((consp model)
      (get-ontology-bindings (car model) bindings)
      (get-list-ontology-bindings (cdr model) bindings))
-    (t (warn "get-list-ontology-bindings unexpected ~A" model))))
+    (t (error "get-list-ontology-bindings unexpected ~A" model))))
 
 
 (defun ontology-bindings-find (prop &optional (bindings no-bindings))
