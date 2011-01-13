@@ -141,10 +141,11 @@
   :symbol-base |L|     
   :short-name "self-inductance"	
   :units |H|
-  :new-english ((the) (or ((preferred "self") (key (or "inductance" "ind"))
-			   (key "self-inductance"))
-			  (preferred "of" (allowed "inductor") 
-				     (component ?inductor)))))
+  :new-english ((the) (or ((preferred "self") 
+			   (key (or "inductance" "ind." "ind")))
+			  (key "self-inductance"))
+		(preferred ("of" (allowed "inductor") 
+				 (component ?inductor)))))
 
 (def-qexp mutual-inductance (mutual-inductance orderless . ?inductors)
   :rank scalar

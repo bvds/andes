@@ -1723,7 +1723,7 @@
 		;; already messed up once, give a hint
 		(strcat "Note that one of the sought quantities is "
 			(return-answer-quantity-short-english) ".")
-		(strcat "The sought is a scalar quantity rather than a "
+		(strcat "The sought is a scalar quantity rather than "
 			(get-prop-type (car wrong-tool-props))))
 	    (cons (car wrong-tool-props) Past) :Case 'Null)))
 	;; no matches
@@ -3019,7 +3019,7 @@
 ;;; by name and then giving them the sandard psm graph hints.  
 (defun nsh-prompt-parameter (Prefix Parameter &key Assoc)
   "Prompt the student to work on the parameter."
-  (setq *nsh-last-node* Parameter)
+  (setq *nsh-last-node* Parameter) ;Should set when hint is given, Bug #1854
   (make-explain-more-turn 
    (strcat prefix (nlg (bgnode-exp Parameter) 'psm-exp) ".  ")
    :hint (nsh-walk-node-graph "" Parameter)
@@ -3049,7 +3049,7 @@
 ;;; we need to prompt them using a separate form.
 (defun nsh-prompt-goal-principle (prefix Principle Assoc)
   "Prompt the specified major principle."
-  (setq *nsh-last-node* Principle)
+  (setq *nsh-last-node* Principle) ;Should set when hint is given, Bug #1854
   (make-explain-more-turn 
    (strcat prefix (nlg (enode-id principle) 'goal) ".  ")
    :hint (nsh-walk-Node-graph "" principle)
@@ -3084,7 +3084,7 @@
 
 
 (defun nsh-prompt-principle-final (prefix principle Assoc)
-  (setq *nsh-last-node* Principle)
+  (setq *nsh-last-node* Principle) ;Should set when hint is given, Bug #1854
   (make-explain-more-turn 
    (strcat prefix (nlg (enode-id principle) 'psm-exp) ".  ")
    :hint (nsh-walk-Node-graph "" principle)
@@ -4036,18 +4036,21 @@
   (some #'qnode-answer-varp (bubblegraph-qnodes (problem-graph *cp*))))
 
 (defun get-failure-to-solve-hint (var) ; var is student variable name as string
- (let (eqnode)
+ (let ((unable (strcat "Unable to solve for <var>" var "</var>."))
+       eqnode)
  (cond 
   ;; missing given
   ((setq eqnode (find-if-not #'nsh-principle-completed-p *nsh-givens*))
-       (format NIL "Unable to solve for ~a.  One thing you probably need is an equation specifying the given value of ~a."
-		 var (var-or-quant (nsh-given-node-quant eqnode))))
+   (strcat unable "&nbsp; "
+       (format NIL "One thing you probably need is an equation specifying the given value of ~a."
+		 (var-or-quant (nsh-given-node-quant eqnode)))))
 
   ;; missing standard constant
   ((setq eqnode (missing-std-constant *cp*))
-   (format NIL "Unable to solve for ~a.  You may be missing a value for ~A." 
-	   ;; pick out the quantity itself for the hint
-	   var (nlg (second (enode-id eqnode)) 'def-np)))
+   (strcat unable "&nbsp; "
+	   (format NIL "You may be missing a value for ~A."
+		   ;; pick out the quantity itself for the hint
+		   (nlg (second (enode-id eqnode)) 'def-np))))
   
   ;; TODO:
   ;; missing vector projection -- hard to detect! In most problems these are 
@@ -4070,7 +4073,7 @@
   ;; Maybe really want a predicate like all-equations-done. Still, this 
   ;; does indicate that nsh will give a step.
   ((not (nsh-done?))
-      (format NIL "Unable to solve for ~A.  Ask for help if you are unsure what to do next." var))
+   (strcat unable "&nbsp; Ask for help if you are unsure what to do next."))
 
   ;; reach here => have done everything 
 
@@ -4080,7 +4083,7 @@
   ;; but instead only give it when done so students still get helpful prompts 
   ;; about what they're missing if they try earlier. [appropriate?]
   ((problem-has-answer-vars) 
-    (format NIL "Although you seem to have entered enough equations, the Andes solver can only be used to calculate purely numerical answers.  Because this problem seeks an answer in terms of one or more variables, you must do the necessary algebra to obtain an answer expression yourself.")) 
+    "Although you seem to have entered enough equations, the Andes solver can only be used to calculate purely numerical answers.&nbsp; Because this problem seeks an answer in terms of one or more variables, you must do the necessary algebra to obtain an answer expression yourself.") 
   
   ;; Make sure they were solving for a problem sought before assuming solver 
   ;;  problems [Bug 1471].
@@ -4088,11 +4091,12 @@
 		:test #'unify))
    ;; Might be nice to have special message for possible 
    ;; magnitude/component confusion about sought
-   (format NIL "Unable to solve for ~A.&nbsp; Notice that this problem does not ask for ~A, so you do not need to solve for it.&nbsp; You probably want to solve for a quantity sought by the problem." var var))
+   (strcat unable "&nbsp; Notice that this problem does not ask for <var>" 
+	   var "</var>, so you do not need to solve for it.&nbsp; You probably want to solve for a quantity sought by the problem."))
   
   ;; advise of special tricks for these
   ((member 'elastic-collision-help (problem-features *cp*)) 
-     (format NIL "Although you seem to have entered enough equations, the Andes solver is unable to solve them for ~A in their current form.&nbsp; See the ~A for further help." 
+     (format NIL "Although you seem to have entered enough equations, the Andes solver is unable to solve them for <var>~A</var> in their current form.&nbsp; See the ~A for further help." 
 	     var 
 	     (open-review-window-html 
 	      "discussion of elastic collisions in one dimension"
@@ -4101,6 +4105,6 @@
   
   ;; done and not an answer-var problem and solving for a sought
   ;; Need handler for case where one trig function is missing, Bug #719
-  (T (format NIL "Although you seem to have enough equations, the Andes solver is unable to solve them for ~a in their current form.  Try entering algebraic combinations to isolate a calculable expression for ~a yourself.  Combining equations and plugging in numbers for variables, solving for intermediate unknowns if needed, might get you closer to a form that Andes can solve.  If not, you will just have to finish the problem on your own."  var var))
-         
- )))
+  (T (strcat "Although you seem to have enough equations, the Andes solver is unable to solve them for <var>" 
+	     var "</var> in their current form.&nbsp; Try entering algebraic combinations to isolate a calculable expression for <var>"
+	     var "</var> yourself.&nbsp; Combining equations and plugging in numbers for variables, solving for intermediate unknowns if needed, might get you closer to a form that Andes can solve.&nbsp; If not, you will just have to finish the problem on your own.")))))
