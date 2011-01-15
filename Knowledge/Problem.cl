@@ -134,7 +134,7 @@
   phrases            ;list of student phrases.
   keywords           ;For each tool, list of keywords and propositions
                      ;containing that proposition.
-  pointers           ;List of pointer objects.
+  pointers           ;vector of pointer objects.
   )
 
 (defvar *cp*)                  ; the current problem
@@ -667,7 +667,7 @@
   "Replace any pointer in an expression with its expansion, returning expression"
   (cond 
     ((and (consp obj) (eq (car obj) 'pointer))
-     (nth (cdr obj) pointers)) ;pointers itself should be free of pointers
+     (svref pointers (cdr obj))) ;pointers itself should be free of pointers
     ;; Handle binding list elements
     ((and (consp obj) (variable-p (car obj)))
      (setf (cdr obj) (remove-pointers (cdr obj) pointers))
@@ -680,18 +680,12 @@
     (t obj)))
 
 (defun unpointerize-problem (problem)
-  (let (pointers last-end)
+  (let ((pointers (problem-pointers problem)))
     ;; Expand pointers themselves.  This assumes
     ;; that pointers only refer to ones earlier on list
-    (dolist (pointer (problem-pointers problem))
-      ;; The list here is the cons used to construct new objects
-      ;; in memory.  The idea is that this cons will be shared as
-      ;; much as possible by the different expressions.
-      (let ((new-end (list (remove-pointers pointer pointers))))
-	(if last-end
-	    (setf (cdr last-end) new-end)
-	    (setf pointers new-end))
-	(setf last-end new-end)))
+    (dotimes (i (length pointers))
+      (setf (svref pointers i)
+	    (remove-pointers (svref pointers i) pointers)))
     (setf (problem-wm problem) 
 	  (remove-pointers (problem-wm problem) pointers))
     (setf (second (problem-graph problem))
@@ -729,5 +723,5 @@
     (setf (second (problem-graph problem))
 	  (mapcar #'add-pointers (second (problem-graph problem))))
     (setf (problem-pointers problem) 
-	  (reverse (mapcar #'cdr *pointers*))))
+	  (apply #'vector (reverse (mapcar #'cdr *pointers*)))))
   problem)
