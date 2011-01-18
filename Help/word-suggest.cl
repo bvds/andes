@@ -68,12 +68,19 @@
   "Get distinct words from a list of triples, substituting in variables.  nil indicates possibility of end of definition.  Drop any (var ...) that doesn't have a match."
   ;; Maintain the order of the list, retaining the first 
   ;; instance of any duplicate.
-  (let (result)
+  (let (result
+	;; For speed, use hash table to determine if word is new.
+	(dictionary (make-hash-table :test #'equal)))
     (dolist (word (mapcar #'triple-word triples))
       (if (or (null word) (stringp word))
-	  (pushnew word result :test #'equal)
+	  (unless (gethash word dictionary)
+	    (push word result)
+	    (setf (gethash word dictionary) t))
 	  (let ((x (expand-vars word)))
-	    (when x (pushnew x result :test #'equal)))))
+	    (when x 
+	      (unless (gethash x dictionary)
+		(push x result)
+		(setf (gethash x dictionary) t))))))
     (reverse result)))
 
 (defun next-word-list (words &key type)
@@ -196,12 +203,16 @@
     ;; Sort so that solution quantity propositions appear first.
     ;; This is giving some information to the students,
     ;; so we need to determine whether this is good pedagogy.
-    (let ((relevant (mapcar #'(lambda (x) (second (systementry-prop x)))
-			    *sg-entries*))
+    (let ((relevant (make-hash-table :test #'equal))
 	  in out)
+      ;; To speed up compare, create hash table of props.
+      ;; Since we use canonicalize-unify, we can use #'equal 
+      ;; for hash table lookup.
+      (dolist (entry *sg-entries*)
+	(setf (gethash (second (systementry-prop entry)) relevant) t))
+
       (dolist (triple result)
-	;; since we use canonicalize-unify, we can use #'equal here.
-	(if (member (triple-prop triple) relevant :test #'equal)
+	(if (gethash (triple-prop triple) relevant)
 	    (push triple in)
 	    (push triple out)))
       (append (reverse in) (reverse out)))))

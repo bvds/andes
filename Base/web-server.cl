@@ -127,14 +127,18 @@
 	 (version (if in-json (assoc :jsonrpc in-json) '(:jsonrpc . "2.0")))
 	 (method-func (gethash (list service-uri method) 
 			       *service-methods*))
+	 #+sbcl t0
 	 reply)
     
     (when *debug* (with-a-lock (*print-lock* :wait-p t) 
 		    (format *stdout* "session ~A calling ~A with~%     ~S~%" 
 			    client-id method params)))
-    #+sbcl (when *profile* (sb-sprof:start-profiling
-			    :mode :time ;; needed in OS X
-			    :threads (list sb-thread:*current-thread*)))
+    #+sbcl (when *profile* 
+	     (setf t0 (get-internal-run-time))
+	     (sb-sprof:start-profiling
+	      ;; :time fails in linux :cpu fails in OS X
+	      :mode #+linux :cpu #+darwin :time
+	      :threads (list sb-thread:*current-thread*)))
     
     (multiple-value-bind (result error1)
 	(cond
@@ -171,9 +175,21 @@
 	  ;; need error handler for the case where the arguments don't 
 	  ;; match the function...
 	  (t (execute-session client-id turn method-func params)))
-
-      ;; This gives a report based only on the most recent turn.
-      #+sbcl (when *profile* (sb-sprof:report :stream *stdout*))
+      
+      ;; This prints a report based on the most recent turn.
+      #+sbcl (when *profile*
+	       (sb-sprof:stop-profiling)
+	       (let ((t1 (get-internal-run-time)))
+		 ;; Threshold for generating a report.
+		 (when (> (- t1 t0) (* 2.0 internal-time-units-per-second))
+		   (with-a-lock (*print-lock* :wait-p t) 
+		     (format *stdout* 
+			     "Report for session ~A, calling ~A, ~A seconds, with~%    ~A~%"
+			     client-id method
+			     (/ (float (- t1 t0)) 
+				(float internal-time-units-per-second))
+			     params)
+		     (sb-sprof:report :stream *stdout*)))))
 
       (when *debug* (with-a-lock (*print-lock* :wait-p t) 
 		      (format *stdout* 
