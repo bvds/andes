@@ -178,10 +178,7 @@
 ;; This function is not intended to be called directly
 ;; by the users.
 (defun define-exptype (&key type form rank symbol-base short-name 
-		       units 
-		       restrictions 
-		       documentation
-		       varfunc new-english)
+		       units restrictions documentation new-english)
   "Define and store the specified expression if possible."
   
   ;; Remove any existing entry of this name (thus, allowing updates)
