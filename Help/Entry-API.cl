@@ -211,8 +211,8 @@
 
 (defun match-student-phrase0 (student tool-prop &key 
 			      (cutoff-fraction 0.4) 
-			      (cutoff-max 4) ;otherwise, too slow on benchmarks
-			      (equiv 1.25))
+			      ;; If larger, too slow on benchmarks
+			      (cutoff-max 4)) 
   "Match student phrase to Ontology, returning best matches for tool or other tool."
   ;; :cutoff-fraction is fractional length of student phrase to use as bound.
   ;; :cutoff-count is maximum allowed score to use as bound.
@@ -232,8 +232,7 @@
 		       (cons (expand-vars (SystemEntry-model x)) 
 			     (SystemEntry-prop x)))
 		   sysentries)
-	   :cutoff initial-cutoff
-	   :equiv equiv))
+	   :cutoff initial-cutoff))
 	 ;; The value of the best correct match or the initial cutoff.
 	 ;; This is used to determine cutoffs for wrong quantity matches.
 	 (best-correct (if best (best-value best) initial-cutoff))
@@ -279,8 +278,7 @@
 	       ;; If there is no match in best, then the help is
 	       ;; pretty weak.  In that case, just find anything
 	       ;; below the cutoff.
-	       :cutoff (- best-correct 1) 
-	       :equiv equiv)))
+	       :cutoff (- best-correct 1))))
       
       ;; Attempt to match to quantities not in solution,
       ;; assuming no wrong-tool error.
@@ -302,7 +300,7 @@
 		      (if wrong-tool-best 
 			  (best-value wrong-tool-best) 
 			  initial-cutoff))))
-	
+      
       ;; Attempt to match to quantities not in solution where
       ;; the wrong tool has also been used.
       ;; Must be better than any quantity in solution, but allow

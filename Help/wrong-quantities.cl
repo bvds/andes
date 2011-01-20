@@ -159,7 +159,7 @@
 ;;;;   assign bindings.
 ;;;;
 
-(defun extend-match-model (student model &key (best 10000))
+(defun extend-match-model (student model best)
   "Extend match-model to handle unbound variables."
   ;; Substitute in any variables in *iteration-bindings*,
   ;; iterate ovar any remaining variables using *ontology-bindings*,
@@ -181,7 +181,7 @@
 	  (setf best-result this))))
     best-result))
 
-(defun extend-word-count (model &key max)
+(defun extend-word-count (model max)
   "Extend match-model to handle unbound variables."
   ;; Substitute in any variables in *iteration-bindings*,
   ;; iterate ovar any remaining variables using *ontology-bindings*,
@@ -194,7 +194,7 @@
 	      (match:word-count
 	       (expand-vars
 		(expand-new-english model all-bindings))
-	      :max max)))
+	       :max max)))
 	(when (or (null best) (if max (> this best) (< this best))) 
 	  (setf best this))))
     best))
@@ -224,7 +224,6 @@
   "Find one or more best matches below or equal to cutoff to ontology.  Returns either nil or a list containing some matches.  The prop is set to the matched prop."
   (let ((best cutoff)
 	(epsilon 0.25)
-	(equiv 1.25)
 	result)
     (dolist (m-f-b (lookup-quantity-keyword-props student tool-prop))
       (let (match:*iteration-bindings* ;empty at top level
@@ -233,7 +232,7 @@
 	    (match:unknown-object-handler 'extend-match-model)
 	    (*ontology-bindings* (cddr m-f-b))
 	    ;; handle floating pointing point ties
-	    (bound (max (* equiv best) epsilon)))
+	    (bound (+ best epsilon)))
 	(let ((this (match:match-model student (car m-f-b) :best bound)))
 	  (if (match:best-p this)
 	      (when (< (match:best-value this) bound)
