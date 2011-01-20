@@ -24,7 +24,7 @@
   (:use :cl :hunchentoot :json)
   (:export :defun-method :start-json-rpc-service :stop-json-rpc-service 
 	   :*stdout* :print-sessions :*env* :close-idle-sessions :*debug*
-	   :*turn-timeout*
+	   :*turn-timeout* :*time*
 	   :*profile* :get-session-env :*log-id*))
 
 (in-package :webserver)
@@ -40,6 +40,7 @@
 
 (defparameter *debug* t "Special error conditions for debugging")
 (defparameter *profile* nil "Turn profiling, with report sent to *stdout*.")
+(defparameter *time* nil "Turn timing, with report sent to *stdout*.")
 #+sbcl (eval-when (:load-toplevel :compile-toplevel)
 	 (require :sb-sprof))
 (defparameter *print-lock*  #+sbcl (sb-thread:make-mutex)
@@ -127,14 +128,16 @@
 	 (version (if in-json (assoc :jsonrpc in-json) '(:jsonrpc . "2.0")))
 	 (method-func (gethash (list service-uri method) 
 			       *service-methods*))
-	 #+sbcl t0
+	 #+sbcl t0 #+sbcl tt0
 	 reply)
     
     (when *debug* (with-a-lock (*print-lock* :wait-p t) 
 		    (format *stdout* "session ~A calling ~A with~%     ~S~%" 
 			    client-id method params)))
-    #+sbcl (when *profile* 
+    #+sbcl (when (or *profile* *time*)
 	     (setf t0 (get-internal-run-time))
+	     (setf tt0 (get-internal-real-time)))
+    #+sbcl (when *profile*
 	     (sb-sprof:start-profiling
 	      ;; :time fails in linux :cpu fails in OS X
 	      :mode #+linux :cpu #+darwin :time
@@ -177,19 +180,23 @@
 	  (t (execute-session client-id turn method-func params)))
       
       ;; This prints a report based on the most recent turn.
-      #+sbcl (when *profile*
-	       (sb-sprof:stop-profiling)
-	       (let ((t1 (get-internal-run-time)))
+      #+sbcl (when *profile* (sb-sprof:stop-profiling))
+      #+sbcl (when (or *profile* *time*)	      
+	       (let ((t1 (get-internal-run-time))
+		     (tt1 (get-internal-real-time)))
 		 ;; Threshold for generating a report.
-		 (when (> (- t1 t0) (* 2.0 internal-time-units-per-second))
+		 (when (> (- tt1 tt0) (* 1.0 internal-time-units-per-second))
 		   (with-a-lock (*print-lock* :wait-p t) 
 		     (format *stdout* 
-			     "Report for session ~A, calling ~A, ~A seconds, with~%    ~A~%"
+			     "Report for session ~A, calling ~A, ~A & ~A s, with~%    ~A~%"
 			     client-id method
 			     (/ (float (- t1 t0)) 
 				(float internal-time-units-per-second))
+			     (/ (float (- tt1 tt0)) 
+				(float internal-time-units-per-second))
 			     params)
-		     (sb-sprof:report :stream *stdout*)))))
+		     (when *profile*
+		       (sb-sprof:report :stream *stdout*))))))
 
       (when *debug* (with-a-lock (*print-lock* :wait-p t) 
 		      (format *stdout* 
