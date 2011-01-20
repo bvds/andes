@@ -96,6 +96,8 @@
 
 (in-package :match)
 
+(deftype unsigned-integer () (type-of 10000))
+
 (defstruct best 
   (value 10000) ;score
   words         ;list containing best match
@@ -345,6 +347,8 @@
        (when (< (best-value ,this-best) (best-value ,best)) 
 	 (setf ,best ,this-best))))) 
 
+(declaim (ftype (function (unsigned-integer unsigned-integer unsigned-integer)
+			  unsigned-integer) match-bound))
 (defun match-bound (lstudent l-model u-model)
   "Gives lower bound for a match based on word count"
   (max 0 (- lstudent u-model) (- l-model lstudent)))
@@ -485,7 +489,8 @@
 	 (up 0)
 	 (ur (if words (length model) (apply #'+ u-model)))
 	 (lr (if words ur (apply #'+ l-model))))
-    (declare (dynamic-extent col prev-col))
+    (declare (dynamic-extent col prev-col)
+	     (unsigned-integer up ur lr))
 
     (dotimes (y width)
       (setf (svref prev-col y) 
@@ -504,6 +509,7 @@
 
       (let ((ux (if words 1 (nth x u-model)))
 	    (lx (if words 1 (nth x l-model))))
+	(declare (unsigned-integer ux lx))
 
 	(decf ur ux)
 	(decf lr lx)
@@ -823,10 +829,10 @@
     ;; Test if there is any hope of getting below cutoff
     ;; This gives a 20% improvement in speed.
     (if (> (* maxl (- 1 *word-cutoff*)) minl)
-	1
+	(float 1)
 	(let ((x (levenshtein-distance s1 s2)))
 	  (if (> x (* maxl *word-cutoff*))
-	      1
+	      (float 1)
 	      (/ (float x) (float maxl)))))))
 
 ;; Not used:  in Benchmarking, this is
@@ -860,8 +866,8 @@
     ;; Check trivial cases
     (cond ((= 0 n) (return-from levenshtein-distance m))
 	  ((= 0 m) (return-from levenshtein-distance n)))
-    (let ((col (make-array (1+ m) :element-type 'fixnum))
-	  (prev-col (make-array (1+ m) :element-type 'fixnum)))
+    (let ((col (make-array (1+ m) :element-type 'unsigned-integer))
+	  (prev-col (make-array (1+ m) :element-type 'unsigned-integer)))
       (declare (dynamic-extent col prev-col))
       ;; We need to store only two columns---the current one that
       ;; is being built and the previous one
