@@ -24,6 +24,8 @@
 	     //  Clear database:
 	     //    use andes_test;
              //    delete from PROBLEM_ATTEMPT;
+	     //    delete from PROBLEM_ATTEMPT_TRANSACTION;
+	     //  Not having the last line will degrade efficiency.
 
 
 	     // Still need to clean up logging:  consistant format
@@ -235,7 +237,9 @@ while ($myrow = mysql_fetch_array($result)) {
 	    $bbc=preg_replace($varUnique,'?VAR',$bbc);
 	    $nbbc=preg_replace($varUnique,'?VAR',$nbbc);	    
 	    // Canonicalize end of sentence.
-	    // commit c828125f4bc0e6, Jan. 5, 2011
+	    // commit c828125f4bc0e6, Jan. 5, 2011 (and others)
+	    $bbc=preg_replace('/\.\s+/','. ',$bbc);
+	    $nbbc=preg_replace('/\.\s+/','. ',$nbbc);
 	    $bbc=preg_replace('/\.&nbsp;\s+/','. ',$bbc);
 	    $nbbc=preg_replace('/\.&nbsp;\s+/','. ',$nbbc);
 	    
@@ -259,7 +263,10 @@ while ($myrow = mysql_fetch_array($result)) {
 	    // Change hint wording for unmatched sought.
 	    // January 7, 2011
 	    $bbc=preg_replace('/Your entry does not match any quantities needed to solve this problem/','**unmatched-sought**',$bbc);
-	    $nbbc=preg_replace('/Sorry, I was not able to understand your entry/','**unmatched-sought**',$nbbc);	      
+	    $nbbc=preg_replace('/Sorry, I was not able to understand your entry/','**unmatched-sought**',$nbbc);
+	    // Last hint for NSH sought
+	    // eb5239f490dbb5, Jan 10, 2011
+	    $nbbc=preg_replace('/Please try one more time/','Please try again',$nbbc);
 	    
 	    if(strcmp($bbc,$nbbc)==0){ // match, go on to next pair
 	      $i++; $ni++;

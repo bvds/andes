@@ -211,16 +211,17 @@
 
 (defun match-student-phrase0 (student tool-prop &key 
 			      (cutoff-fraction 0.4) 
-			      (cutoff-count 4) 
-			      (equiv 1.25))
+			      ;; If larger, too slow on benchmarks
+			      (cutoff-max 4)) 
   "Match student phrase to Ontology, returning best matches for tool or other tool."
   ;; :cutoff-fraction is fractional length of student phrase to use as bound.
   ;; :cutoff-count is maximum allowed score to use as bound.
   (let* ((sysentries (remove (cons tool-prop '?rest) *sg-entries*
 			     :key #'SystemEntry-prop :test-not #'unify)) 
 	 ;; used for best and maybe for wrong-tool-best
-	 (initial-cutoff (min (* cutoff-fraction (length student))
-			      cutoff-count))		 
+	 (initial-cutoff (max 2 ;always allow wrong-tool, wrong-prop error
+			      (min (* cutoff-fraction (length student))
+			      cutoff-max)))
 	 ;; For any debugging prints in matching package.
 	 ;; This also applies to any wrong matches below.
 	 (*standard-output* webserver:*stdout*)
@@ -231,13 +232,12 @@
 		       (cons (expand-vars (SystemEntry-model x)) 
 			     (SystemEntry-prop x)))
 		   sysentries)
-	   :cutoff initial-cutoff
-	   :equiv equiv))
+	   :cutoff initial-cutoff))
 	 ;; The value of the best correct match or the initial cutoff.
 	 ;; This is used to determine cutoffs for wrong quantity matches.
 	 (best-correct (if best (best-value best) initial-cutoff))
 	 wrong-tool-best)
-    
+   
     ;; Debug printout:
     (when nil
       (format t "Best match to ~s is~%   ~S~% from ~S~%" 
@@ -278,8 +278,7 @@
 	       ;; If there is no match in best, then the help is
 	       ;; pretty weak.  In that case, just find anything
 	       ;; below the cutoff.
-	       :cutoff (- best-correct 1) 
-	       :equiv equiv)))
+	       :cutoff (- best-correct 1))))
       
       ;; Attempt to match to quantities not in solution,
       ;; assuming no wrong-tool error.
@@ -301,7 +300,7 @@
 		      (if wrong-tool-best 
 			  (best-value wrong-tool-best) 
 			  initial-cutoff))))
-	
+      
       ;; Attempt to match to quantities not in solution where
       ;; the wrong tool has also been used.
       ;; Must be better than any quantity in solution, but allow
@@ -332,7 +331,7 @@
 				  (- (best-value wrong-tool-best) 1) 
 				  initial-cutoff))))))))
       ) ;end of things to try if there isn't good solution match.
-    
+
       (values best wrong-tool-best best-correct sysentries)))
 
 (defun match-student-phrase (entry tool-prop)
@@ -361,24 +360,7 @@
 		       ".")))
 	    (push `((:action . "show-hint")
 		    (:text . ,phr)) hints)))
-	
-	;; If there is a tie between wrong-tool-best and best,
-	;; then give a hint suggesting the tool may be wrong,
-	;; but proceed as if the tool is correct.
-	;;
-	;; This doesn't occur very often, since keywords typically
-	;; break any potential tie.
-	(when (and best wrong-tool-best
-		   (> (+ (best-value wrong-tool-best) 1.05)
-		      (best-value best)))
-	  (let ((phr (strcat 
-		      "Perhaps, you meant to use " 
-		      (get-prop-icon (car (match:best-prop 
-					   (car wrong-tool-best))))
-		      ", instead?")))
-	    (push `((:action . "show-hint")
-		    (:text . ,phr)) hints)))
-	
+		
 	) ;end of things to try if there isn't good solution match.
       
       (when nil ;debug print
@@ -391,11 +373,7 @@
       (cond
 	;; If wrong-tool-best exists, it contains scores
 	;; that are one smaller than any scores in best.
-	((and wrong-tool-best
-	      ;; make sure there isn't a tie.
-	      (or (null best)
-		  (< (+ (best-value wrong-tool-best) 1.05)
-		     (best-value best))))
+	(wrong-tool-best
 	 (values nil (wrong-tool-ErrorInterp 
 		      entry 
 		      tool-prop
@@ -428,6 +406,8 @@
 	       (return-from match-student-phrase 
 		 (values nil (redundant-entry-ErrorInterp entry se prop) hints))))
 	   
+	   ;; Sanity test.
+	   (unless prop (warn "Null prop for correct match"))
 	   ;; Return the best fit entry.
 	   (values prop nil hints)))
 	
@@ -749,6 +729,11 @@
 			       "the text box and " *add-label* "."))
 		 :assoc `((no-label . (StudentEntry-type entry)))))
 
+(defun no-text-handler-test (entry prop)
+  (and (= (length (string-trim match:*whitespace* 
+			       (studentEntry-text entry))) 0)
+       (member prop *sg-entries* 
+	       :key #'(lambda (x) (car (SystemEntry-prop x))))))
 		 
 ;;-----------------------------------------------------------------------------
 ;; Workbench Entry API Handler functions
@@ -795,8 +780,7 @@
 (defun assert-object (entry)
 
   ;; Case of no label at all, don't turn color, but give unsolicited hint.
-  (when (= (length (string-trim match:*whitespace* 
-				(studentEntry-text entry))) 0)
+  (when (no-text-handler-test entry 'body)
       (return-from assert-object (no-text-handler entry)))
 
   (let ((id (StudentEntry-id entry))
@@ -844,8 +828,7 @@
 (defun lookup-vector (entry)
   
   ;; Case of no label at all, don't turn color, but give unsolicited hint.
-  (when (= (length (string-trim match:*whitespace* 
-				(studentEntry-text entry))) 0)
+  (when (no-text-handler-test entry 'vector)
       (return-from lookup-vector (no-text-handler entry)))
   
   (let* ((id (StudentEntry-id entry))
@@ -980,8 +963,7 @@
 (defun lookup-line (entry)
 
   ;; Case of no label at all, don't turn color, but give unsolicited hint.
-  (when (= (length (string-trim match:*whitespace* 
-				(studentEntry-text entry))) 0)
+  (when  (no-text-handler-test entry 'draw-line)
       (return-from lookup-line (no-text-handler entry)))
 
   (let* ((id (StudentEntry-id entry))

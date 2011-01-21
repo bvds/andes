@@ -1564,9 +1564,10 @@
   (setf wrong-body (nlg wrong-body 'def-np))
   (make-hint-seq
    (list (format nil "Are you sure you want to define a vector for ~a?" 
-		 wrong-body)
+		 (get-default-phrase wrong-body))
 	 (format nil (strcat "A better choice of body (but maybe not the "
-			     "only one) would be ~a.") correct-body))))
+			     "only one) would be ~a.") 
+		 (get-default-phrase correct-body)))))
 
 
 ;;; On some problems, the student's vector just doesn't appear in any solution.

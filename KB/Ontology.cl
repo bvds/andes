@@ -255,7 +255,7 @@
   :short-name "net force"
   :new-english ((the) (or "net" "total") 
 		(key "force") (and (preferred (object ?body))
-			     (time ?time))))
+				   (time ?time))))
 
 (def-qexp rotation-adj (rotation-adj)
   :new-english (or "angular" "rotational" "orbital" 
@@ -627,14 +627,16 @@
   ;; (kt10a)
   :new-english ((allowed "the magnitude of")
 		(or ((the) (or "gravitational" "grav." "grav")
-		     (or "acceleration" "accel." "accel") (allowed "constant"))
-		    ((the) (or "acceleration" "accel." "accel")
+		     (key (or "acceleration" "accel." "accel")) 
+		     (allowed "constant"))
+		    ((the) (key (or "acceleration" "accel." "accel"))
 		     (or ((or "due to" "caused by" "of" "produced by") 
 			  "gravity") "of a freely falling object"))
 		    ((the) "constant" (or "gravitational" "grav." "grav")
-		     (or "acceleration" "accel." "accel"))
-		    (property-object "local gravitational strength" ?planet)	
-		    "free-fall acceleration"
+		     (key (or "acceleration" "accel." "accel")))
+		    (property-object ("local gravitational" (key "strength")) 
+				     ?planet)	
+		    ("free-fall" (key "acceleration"))
 		    )
 		(preferred ((or "at" "on" "near") 
 			    (property-object "surface" ?planet))))
@@ -840,7 +842,7 @@
   :new-english (property-object 
 		(or ((preferred (or "total" "net")) "mechanical" 
 		     (key "energy")) 
-			  "TME")
+		    (key "TME"))
 		?system
 		:time ?time))
 
@@ -850,7 +852,7 @@
   :short-name "kinetic energy"
   :new-english (property-object ((allowed (or "total" "net")) 
 				 (allowed (or "translational" "linear"))
-				 (or ("kinetic" (key "energy")) "KE"))
+				 (or ("kinetic" (key "energy")) (key "KE")))
 				?body :time ?time))
 
 (def-qexp rotational-energy (rotational-energy ?body :time ?time)
@@ -893,12 +895,14 @@
   :symbol-base |d|     
   :short-name "compression distance"	
   :units |m|
-  :new-english ((the) ((or "compression" "extension" "elongation" "stretch") 
-		       (preferred (or "distance" "displacement")))
+  :new-english ((the) (key (or "compression" "extension" "elongation" 
+			       "stretch") )
+		(allowed (or "distance" "displacement"))
 		(and (property ?spring) 
-		     (preferred ("from" (or "its" "the" "her") 
-			     (or "equilibrium" "unstretched") 
-			     (preferred (or "position" "point" "length"))))
+		     (preferred ("from" 
+				 (or "its" "the" "her") 
+				 (or "equilibrium" "unstretched") 
+				 (preferred (or "position" "point" "length"))))
 		     (time ?time))))
 
 ;; "sprint constant" or "force constant" in Young&Freeman's text book in page 221
@@ -908,7 +912,8 @@
   :short-name "spring constant"	
   :units |N/m|
   :restrictions positive
-  :new-english (property-object ((or "spring" "force") "constant") ?spring))
+  :new-english (property-object ((or "spring" "force") (key "constant"))
+				?spring))
 
 (def-qexp height (height ?body ?zero-height :time ?time)
   :rank scalar
@@ -957,15 +962,16 @@
   :symbol-base ||     
   :short-name "length"	
   :units |m|
-  :new-english (property-object (or "length" "len" "len.") ?body))
+  :new-english (property-object (key (or "length" "len" "len.")) ?body))
 
 (def-qexp length-change (rate-of-change (length ?body))
   :rank scalar
   :symbol-base ||     
   :short-name "rate of change in length"	
   :units |m/s|
-  :new-english (time-derivative (property-object (or "length" "len" "len.") 
-					      ?body)))
+  :new-english (time-derivative (property-object 
+				 (key (or "length" "len" "len."))
+				 ?body)))
 
 (def-qexp width  (width ?body)
   :rank scalar

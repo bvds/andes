@@ -231,7 +231,8 @@
 ;; for concise reference to quantities in algebraic contexts:
 (defun var-or-quant (x &rest args)
 "return student's var for quant if one exists, else full quantity def."
-    (or (symbols-label x)
+    (if (symbols-label x) 
+	(strcat "<var>" (symbols-label x) "</var>")
         (def-np x args)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

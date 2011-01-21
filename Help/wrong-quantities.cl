@@ -159,7 +159,7 @@
 ;;;;   assign bindings.
 ;;;;
 
-(defun extend-match-model (student model &key (best 10000))
+(defun extend-match-model (student model best)
   "Extend match-model to handle unbound variables."
   ;; Substitute in any variables in *iteration-bindings*,
   ;; iterate ovar any remaining variables using *ontology-bindings*,
@@ -181,7 +181,7 @@
 	  (setf best-result this))))
     best-result))
 
-(defun extend-word-count (model &key max)
+(defun extend-word-count (model max)
   "Extend match-model to handle unbound variables."
   ;; Substitute in any variables in *iteration-bindings*,
   ;; iterate ovar any remaining variables using *ontology-bindings*,
@@ -194,7 +194,7 @@
 	      (match:word-count
 	       (expand-vars
 		(expand-new-english model all-bindings))
-	      :max max)))
+	       :max max)))
 	(when (or (null best) (if max (> this best) (< this best))) 
 	  (setf best this))))
     best))
@@ -203,17 +203,16 @@
   (iterate-over-vars 
    (set-difference 
     (variables-in model)
-    (mapcar #'car match:*iteration-bindings*))
-   no-bindings))
+    (mapcar #'car match:*iteration-bindings*))))
     
 (defun iterate-over-repeated-variables (models)
   "Take a list of models, find any variables that are common to more than one member, and return a list of possible bindings."
   (let* ((vars (apply #'nconc (mapcar #'variables-in models)))
 	 (repeats (remove-if #'(lambda (var) (eql (count var vars) 1))
 			     (remove-duplicates vars))))
-    (iterate-over-vars repeats no-bindings)))
+    (iterate-over-vars repeats)))
 
-(defun iterate-over-vars (vars bindings)
+(defun iterate-over-vars (vars &optional bindings)
   (if vars
       (loop for value in (cdr (assoc (car vars) *ontology-bindings*))
 	   append (iterate-over-vars (cdr vars) 
@@ -222,21 +221,30 @@
 
 ;; Top level routine.
 (defun best-wrong-match (student tool-prop &key cutoff)
-  "Find one or more best matches below cutoff to ontology.  Returns either nil or a list containing some matches.  The prop is set to the matched prop."
-  (let ((best cutoff) result)
+  "Find one or more best matches below or equal to cutoff to ontology.  Returns either nil or a list containing some matches.  The prop is set to the matched prop."
+  (let ((best cutoff)
+	(epsilon 0.25)
+	result)
     (dolist (m-f-b (lookup-quantity-keyword-props student tool-prop))
       (let (match:*iteration-bindings* ;empty at top level
 	    (match:iteration-function 'iterate-over-repeated-variables)
 	    (match:word-count-handler 'extend-word-count)
 	    (match:unknown-object-handler 'extend-match-model)
-	    (*ontology-bindings* (cddr m-f-b)))
-	(let ((this (match:match-model student (car m-f-b) :best best)))
+	    (*ontology-bindings* (cddr m-f-b))
+	    ;; handle floating pointing point ties
+	    (bound (+ best epsilon)))
+	(let ((this (match:match-model student (car m-f-b) :best bound)))
 	  (if (match:best-p this)
-	      (when (< (match:best-value this) best)
-		(setf best (match:best-value this))
+	      (when (< (match:best-value this) bound)
+		(when (< (match:best-value this) best)
+		  (setf best (match:best-value this)))
 		;; Set proposition using bindings collected during match.
 		(setf (match:best-prop this)
-		      (subst-bindings (match:best-extra this) 
+		      ;; If there are no bindings to match, best-extra
+		      ;; is nil.  In cases where there are no bindings
+		      ;; and there is a single ontology expand,
+		      ;; extend-match-model may never be called.
+		      (subst-bindings (or (match:best-extra this) no-bindings)
 				      (list tool-prop (cadr m-f-b))))
 		;; Matching to the model may not fully bind 
 		;; the proposition (in the case of optional sub-models).
@@ -257,8 +265,7 @@
       (let ((partially-bound-prop (match:best-prop this))
 	    results)
 	(dolist (bindings (iterate-over-vars 
-			   (variables-in partially-bound-prop)
-			   no-bindings))
+			   (variables-in partially-bound-prop)))
 	  (setf (match:best-prop this)
 		(subst-bindings bindings partially-bound-prop))
 	  (push (match:copy-best this) results))

@@ -96,6 +96,8 @@
 
 (in-package :match)
 
+(deftype unsigned-integer () (type-of 10000))
+
 (defstruct best 
   (value 10000) ;score
   words         ;list containing best match
@@ -104,15 +106,16 @@
 )
 
 (defun combine-best (b1 b2)
+  "Destructively combine two best structs.  The second arg is overwritten."
   ;; Normally the props should be null.
   (unless (eql (best-prop b1) (best-prop b2)) 
     (warn "combine-best can only combine equal props, got ~A ~A"
 	  (best-prop b1) (best-prop b2)))
-  (make-best :value (+ (best-value b1) (best-value b2))
-	     :words (append (string-list (best-words b1))
-			    (string-list (best-words b2)))
-	     :extra (append (best-extra b1) (best-extra b2))
-	     :prop (best-prop b1)))
+    (setf (best-value b2) (+ (best-value b1) (best-value b2)))
+    (setf (best-words b2) (append (string-list (best-words b1))
+                                (string-list (best-words b2))))
+    (setf (best-extra b2) (append (best-extra b1) (best-extra b2)))
+   b2)
 
 (defun string-list (x) (if (stringp x) (list x) x))
 
@@ -219,7 +222,7 @@
     ((eql (car model) 'preferred) (word-string (cdr model)))
     (t (warn "word-string can't do ~A" model))))
 
-(defun default-word-count-handler (model &key max)
+(defun default-word-count-handler (model max)
   (warn "word-count:  unknown object ~A" model)
   (if max 10000 0))
 
@@ -259,17 +262,17 @@
 	    (setf (gethash model 
 			   (if max (car *word-count-memo*) 
 			       (cdr *word-count-memo*)))
-		  (word-count-in model :max max))))
-      (word-count-in model :max max)))
+		  (word-count-in model max))))
+      (word-count-in model max)))
 
-(defun word-count-in (model &key max)
+(defun word-count-in (model max)
   "find minimum (or maximum) word count in model"
   ;; In general, arguments of the model can be nil.
   (cond 
     ((stringp model) (word-parse-count model))  ;count words in string
     ((null model) 0)
     ((or (atom model) (cdr (last model)))  ;test for a proper list
-     (funcall word-count-handler model :max max))
+     (funcall word-count-handler model max))
     ;; from here on, model is a proper list
     ((member (car model) '(key case-insensitive case-sensitive))
      (word-count (second model) :max max))
@@ -291,7 +294,7 @@
     ((member (car model) '(allowed preferred)) 
      ;; Ignore subesequent arguments
      (if max (word-count (cadr model) :max max) 0))
-    (t (funcall word-count-handler model :max max))))
+    (t (funcall word-count-handler model max))))
 
 (defun word-count-list (model max)
   (cond
@@ -344,12 +347,14 @@
        (when (< (best-value ,this-best) (best-value ,best)) 
 	 (setf ,best ,this-best))))) 
 
+(declaim (ftype (function (unsigned-integer unsigned-integer unsigned-integer)
+			  unsigned-integer) match-bound))
 (defun match-bound (lstudent l-model u-model)
   "Gives lower bound for a match based on word count"
   (max 0 (- lstudent u-model) (- l-model lstudent)))
 
 
-(defun default-object-handler (student model &key best)
+(defun default-object-handler (student model best)
   (declare (ignore student best))
     (error "match-model:  Bad tree ~A" model))
 
@@ -377,7 +382,7 @@
 (defun match-model (student model &key (best 10000) l-model u-model)
   "Recursive match to tree, returns minimum word insertion/addition for match.  Should check for valid model structure before calling match-model."
   ;; for profiling
-  (declare (notinline match-model-and match-model-list match-model-conjoin))
+  (declare (notinline match-model match-model-and match-model-list match-model-conjoin)) 
 
   ;; See if there is any hope, based on word count, of doing better 
   ;; than bound
@@ -392,7 +397,7 @@
      (let ((words (word-parse model)))
        (if (cdr words)
 	   ;; don't need iteration wrapper here, since everything is bound.
-	   (match-model-list student words :best best :words t)
+	   (match-model-list student words best :words t)
 	   ;; profiling shows that just calculating is slightly
 	   ;; faster than also testing against the global best.
 	   (let ((best 1))  ;score for any match to one student word.
@@ -411,7 +416,7 @@
     ;; to it.
     ((null model) (make-best :value (if student 10000 0)))
     ((or (atom model) (cdr (last model)))  ;test for a proper list
-     (funcall unknown-object-handler student model :best best))
+     (funcall unknown-object-handler student model best))
     ;; from here on, model must be a proper list
     ((eql (car model) 'key)
      (let ((result (match-model student (second model) 
@@ -433,14 +438,14 @@
     ((test-for-list model)
      (if (cdr model)
 	 (iterate-over model
-		       (match-model-list student model :best best))
+		       (match-model-list student model best))
 	 (match-model student (car model) :best best)))
     ((eql (car model) 'and)
      (pop model)
      (cond 
        ((cdr model) ;two or more arguments of "and"
 	(iterate-over model
-		      (match-model-and student model :best best)))
+		      (match-model-and student model best)))
        ;; and of one argument
        (model (match-model student (car model) :best best))
        (t (make-best :value (length student))))) ;empty "and"
@@ -460,22 +465,23 @@
      (cond 
        ((cddr model) ;two or more items to conjoin
 	(iterate-over model
-		      (match-model-conjoin student model :best best)))
+		      (match-model-conjoin student model best)))
        ;; conjunction of one argument
        ((cdr model) (match-model student (second model) :best best))
        (model (make-best :value (length student))) ;empty conjunction
        (t (error "conjoin must always have a conjunction"))))
     (t
-     (funcall unknown-object-handler student model :best best))))
+     (funcall unknown-object-handler student model best))))
 
-(defun match-model-list (student model &key (best 10000) words)
+(defun match-model-list (student model best &key words)
   (declare (notinline match-model)) ;for profiling
   ;; for n student words and m elements of the model list,
   ;; m n (n+1)/2 matches must be evaluated.  The following
   ;; is based on the Levenstein minimum edit distance algorithm.
+
   (let* ((width (1+ (length student)))
-	 (height (1+ (length model)))
-	 (d (make-array (list height width) :initial-element nil))
+	 (col (make-array width))
+	 (prev-col (make-array width))
 	 (u-model (unless words 
 		    (mapcar #'(lambda (x) (word-count x :max t)) model)))
 	 (l-model (unless words 
@@ -483,9 +489,12 @@
 	 (up 0)
 	 (ur (if words (length model) (apply #'+ u-model)))
 	 (lr (if words ur (apply #'+ l-model))))
-    
+    (declare (dynamic-extent col prev-col)
+	     (unsigned-integer up ur lr))
+
     (dotimes (y width)
-      (setf (aref d 0 y) (make-best :value y))) ;student is one word per slot
+      (setf (svref prev-col y) 
+	    (make-best :value y))) ;student is one word per slot
 
     ;; When the we can't to better than best-minus-rest for an
     ;; iteration of the z loop, then (aref d (1+ x) y) becomes 
@@ -495,9 +504,13 @@
     
     (dotimes (x (length model))
       
+      ;; Fill in to handle cases that are cut out by bounds.
+      (dotimes (y width) (setf (svref col y) nil))
+
       (let ((ux (if words 1 (nth x u-model)))
 	    (lx (if words 1 (nth x l-model))))
-	
+	(declare (unsigned-integer ux lx))
+
 	(decf ur ux)
 	(decf lr lx)
 
@@ -512,7 +525,7 @@
 	      ((= y width) (>= y uy))
 	    	    
 	    ;; initial value so update-bound will work below
-	    (setf (aref d (1+ x) y) (make-best))
+	    (setf (svref col y) (make-best))
 
 	    (let ((best-minus-rest 
 		   (- best (match-bound (- (length student) y) lr ur))))
@@ -521,23 +534,24 @@
 		  ;; include z=y case
 		  ((> z y) (>= z uz) (<= (- y z) lyz))
 		
-		(when (aref d x z)
+		(when (svref prev-col z)
 		  (update-bound 
-		   (aref d (1+ x) y)
+		   (svref col y)
 		   (combine-best 
-		    (aref d x z) 
+		    (svref prev-col z) 
 		    (match-model (subseq student z y) (nth x model)
 		 		 :best (- (min best-minus-rest 
 					       ;; Also, exceed
 					       ;; our best, so far
-					       (best-value (aref d (1+ x) y)))
-					  (best-value (aref d x z)))
+					       (best-value (svref col y)))
+					  (best-value (svref prev-col z)))
 				 :u-model ux :l-model lx))))))))
 
-	(incf up ux)))
+	(incf up ux))
+      (rotatef col prev-col))
     
     ;; in case none comes out, go with best.
-    (or (aref d (length model) (length student)) (make-best :value best))))
+    (or (svref prev-col (length student)) (make-best :value best))))
 
 
 ;; The problem here is a generalization of the "Assignment 
@@ -551,7 +565,7 @@
 ;; systementries.  It may make better sense to find a strategy
 ;; that is optimized for the search over systementries.
 
-(defun match-model-and (student model &key (best 10000))
+(defun match-model-and (student model best)
   (declare (notinline match-model)) ;for profiling
   (let* ((width (1+ (length student)))
 	 (best-result (make-best :value best))
@@ -563,6 +577,7 @@
 	 (l-model (mapcar #'word-count model))
 	 (u-net (apply #'+ u-model))
 	 (l-net (apply #'+ l-model)))
+    (declare (dynamic-extent matches))
     
     ;; Iterate over possible matchings between model and student,
     ;; removing cases which cannot contribute due to the bounds.
@@ -669,7 +684,8 @@
 	(make-best))))
 
 (defun add-interval-lengths (intervals)
-  (apply #'+ (mapcar #'(lambda (x) (- (cdr x) (car x))) intervals)))
+  (loop for interval in intervals
+	sum (- (cdr interval) (car interval))))
 
 ;; Simply iterate through all possibilities.
 ;; For n student words and m elements of the model list,
@@ -687,7 +703,9 @@
   (if model-free
       (let ((best (make-best)))
 	(dolist (interval student-intervals)
-	  (let ((lower (car interval)) (upper (cdr interval)))
+	  (let ((lower (car interval)) (upper (cdr interval))
+		;; Faster to remove and then copy list each time.
+		(remaining-intervals (remove interval student-intervals)))
 	    (do ((y lower (1+ y)))
 		((= y (1+ upper))) 
 	      (do ((z lower (1+ z)))
@@ -697,7 +715,7 @@
 		;; to calculate elements that will never be a best fit.
 		(when (aref matches (car model-free) y z) 
 		  ;; remove best fit interval and add new intervals
-		  (let ((new-student (remove interval student-intervals)))
+		  (let ((new-student (copy-list remaining-intervals)))
 		    (push (cons lower z) new-student)
 		    (push (cons y upper) new-student)
 		    (update-bound 
@@ -713,7 +731,7 @@
 	;; count remaining student words
       (make-best :value (add-interval-lengths student-intervals))))
 
-(defun match-model-conjoin (student model &key (best 10000))
+(defun match-model-conjoin (student model best)
   (declare (notinline match-model)) ;for profiling
   (let ((conjunction (pop model))
 	(best-result (make-best :value best)))
@@ -722,9 +740,6 @@
       ((cddr model) ; more than two
        ;; For now, just use dumb recursion because we don't have
        ;; any long lists, but this is very expensive, computationally.
-       (when (> (length model) 3)
-	 (warn "using inefficient method for conjoin in match-model for ~A"
-	       model))
        (dolist (item model)
 	 (update-bound 
 	  best-result
@@ -746,8 +761,7 @@
 
 (defparameter *debug-print* nil)  ;; debug print in best-model-matches
 
-(defun best-model-matches (student models &key (cutoff 5) (equiv 1.25) 
-			   (epsilon 0.25))
+(defun best-model-matches (student models &key (cutoff 4) (epsilon 0.25))
   "Returns a list of best matches to text using match-model. Models is an alist of models and props."
   (declare (notinline match-model))
   (when *debug-print*
@@ -759,7 +773,7 @@
 
   ;; match-model only finds matches that are better than 
   ;; than the given bound, else it may return the bound itself.  
-  ;; Thus, in the case where a perfect match has been found, 
+  ;; Thus, in the case where a nearly perfect match has been found, 
   ;; we need to adjust the bound so any other perfect matches 
   ;; may also be found.
 
@@ -769,34 +783,32 @@
 
   (unless (>= cutoff 0)
     (warn "best-model-matches:  cutoff=~A  must be nonnegative." cutoff))
-  (unless (and (numberp equiv) (> equiv 1.0))
-    (warn "best-model-matches:  equiv=~A  must be larger than 1" equiv))
-  (let (this (best (/ cutoff equiv)) quants bound
+  (let (this (best cutoff) quants 
+	     (bound (+ cutoff epsilon))
 	     (t0 (if *debug-print* (get-internal-run-time) 0)))
     ;; Do easier ones first, to establish better bound.
     ;; We have  have to do each time, since results of any eval or var 
     ;; is needed for sort.
     (dolist (x (sort-by-complexity models))
-      ;; In the case of single-match we want to only look
-      ;; for something better than what we have now.
-      (setf bound (max epsilon (* best equiv)))
       (let ((t0 (if *debug-print* (get-internal-run-time) 0)))
 	(setf this (match-model student (car x) :best bound))
 	(when (and nil *debug-print*) ;too noisy for some cases
 	  (format t "     Got ~A for match in ~Fs to~%       ~A~%" 
-		  this  (/ (float (- (get-internal-run-time) t0))
-			   (float internal-time-units-per-second))
-		  (car x))))
+		  (best-value this)  
+		  (/ (float (- (get-internal-run-time) t0))
+		     (float internal-time-units-per-second))
+		  (cdr x))))
       (when (< (best-value this) bound) 
 	(setf (best-prop this) (cdr x))
 	(push this quants))
-      (when (< (best-value this) best) (setf best (best-value this))))
+      (when (< (best-value this) best) 
+	(setf best (best-value this))
+	(setf bound (+ best epsilon))))
     ;; Remove any quantities that are not equivalent with best fit
     ;; and return result in original order.
     (setf quants
 	  (nreverse
-	   (delete-if #'(lambda (x) (> (best-value x) (* best equiv))) 
-		      quants)))
+	   (delete-if #'(lambda (x) (> (best-value x) bound)) quants)))
     (when *debug-print*
       (format t "  Got ~A matches, score ~a, total time ~A~@[ for:~%  ~A~]~%"
 	      (length quants) best
@@ -817,10 +829,10 @@
     ;; Test if there is any hope of getting below cutoff
     ;; This gives a 20% improvement in speed.
     (if (> (* maxl (- 1 *word-cutoff*)) minl)
-	1
+	(float 1)
 	(let ((x (levenshtein-distance s1 s2)))
 	  (if (> x (* maxl *word-cutoff*))
-	      1
+	      (float 1)
 	      (/ (float x) (float maxl)))))))
 
 ;; Not used:  in Benchmarking, this is
@@ -854,24 +866,24 @@
     ;; Check trivial cases
     (cond ((= 0 n) (return-from levenshtein-distance m))
 	  ((= 0 m) (return-from levenshtein-distance n)))
-    (let ((col (make-array (1+ m) :element-type 'integer))
-	  (prev-col (make-array (1+ m) :element-type 'integer)))
+    (let ((col (make-array (1+ m) :element-type 'unsigned-integer))
+	  (prev-col (make-array (1+ m) :element-type 'unsigned-integer)))
       (declare (dynamic-extent col prev-col))
       ;; We need to store only two columns---the current one that
       ;; is being built and the previous one
       (dotimes (i (1+ m))
-	(setf (svref prev-col i) i))
+	(setf (aref prev-col i) i))
       ;; Loop across all chars of each string
       (dotimes (i n)
-	(setf (svref col 0) (1+ i))
+	(setf (aref col 0) (1+ i))
 	(dotimes (j m)
-	  (setf (svref col (1+ j))
-		(min (1+ (svref col j))
-		     (1+ (svref prev-col (1+ j)))
-		     (+ (svref prev-col j)
+	  (setf (aref col (1+ j))
+		(min (1+ (aref col j))
+		     (1+ (aref prev-col (1+ j)))
+		     (+ (aref prev-col j)
 			(if (if *case-sensitive*
 				(char= (schar str1 i) (schar str2 j))
 				(char-equal (schar str1 i) (schar str2 j))) 
 			    0 1)))))
 	(rotatef col prev-col))
-      (svref prev-col m))))
+      (aref prev-col m))))
