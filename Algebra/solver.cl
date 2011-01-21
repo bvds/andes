@@ -172,6 +172,10 @@
     (write-line "exit" (sb-ext:process-input *process*))
     ;; see comment in do-solver-turn about buffering
     (force-output (sb-ext:process-input *process*))
+    ;; Put in small sleep to give program time to exit.
+    ;; Otherwise, process-wait will always fail the first
+    ;; time and sleep 1 second.
+    (sb-sys:serve-all-events 0.01)
     (sb-ext:process-wait *process*)
     (sb-ext:process-close *process*)))
 

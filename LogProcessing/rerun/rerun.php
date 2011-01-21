@@ -24,6 +24,8 @@
 	     //  Clear database:
 	     //    use andes_test;
              //    delete from PROBLEM_ATTEMPT;
+	     //    delete from PROBLEM_ATTEMPT_TRANSACTION;
+	     //  Not having the last line will degrade efficiency.
 
 
 	     // Still need to clean up logging:  consistant format
