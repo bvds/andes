@@ -299,6 +299,7 @@ dojo.provide("andes.drawing");
 			var min = 2, max = 5;
 			dojo.forEach(data, function(obj, i){
 				//if(obj.type!="axes"){ return; }
+				//if(obj.action == "modify-object" && obj.type == "vector") console.info("Modify-",obj.type, ": ", obj.symbol,", "," x: ", obj.x, " y: ", obj.y, " x-st: ", obj.x-statement, " y-st: ", obj.y-statement, obj);
 				if(obj.action =="new-object"){
 					var o = andes.convert.andesToDrawing(obj);
 					
