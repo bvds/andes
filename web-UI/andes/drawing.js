@@ -76,10 +76,11 @@ dojo.provide("andes.drawing");
 		});
 		dojo.connect(_drawing, "onRenderStencil", andes.drawing, "onRenderStencil");
 		
-		// Track user's focus on Andes.  This is only on high level,
-		// 
+		// Track user's focus on Andes.  So far only whether they are using the window/tab
+		// or have left to use another program
 		if(dojo.isIE){
 			dojo.connect(dojo.global, "onfocus", andes.drawing, "onWindowFocus");
+			//dojo.connect(dojo.global, "onfocusin", andes.drawing, "onWindowFocus");
 			dojo.connect(dojo.doc, "onfocusout", this, function() {
 				if (this._activeElement != document.activeElement){
 					this._activeElement = document.activeElement;
@@ -87,11 +88,13 @@ dojo.provide("andes.drawing");
 					andes.drawing.onWindowBlur();
 				}
 			});
+		}else if(dojo.isSafari){
+			dojo.connect(window, "onblur", andes.drawing, "onWindowBlur");
+			dojo.connect(window, "onfocus", andes.drawing, "onWindowFocus");
 		}else{
 			dojo.connect(dojo.doc, "onblur", andes.drawing, "onWindowBlur");
 			dojo.connect(dojo.doc, "onfocus", andes.drawing, "onWindowFocus");
 		}
-		//(andes.drawing, "onLabelDoubleClick");
 	});
 
 	
@@ -544,6 +547,7 @@ dojo.provide("andes.drawing");
 			//	Event for when the user leaves this window
 			//	say to open another tab.
 			console.log("Lost window focus");
+			andes.api.recordAction({type:"window", name:"focus", value:"lost"});
 		},
 		
 		onWindowFocus: function(){
@@ -551,6 +555,7 @@ dojo.provide("andes.drawing");
 			// 	Event for when this window is focused, such as
 			// 	switching back to this tab from another browser tab
 			console.log("Gained window focus");
+			andes.api.recordAction({type:"window", name:"focus", value:"gained"});
 		}
 	};
 
