@@ -31,12 +31,18 @@ ifeq ($(shell uname),Linux)
 ifeq ($(shell uname -p),i686)
   binary-release = sbcl-1.0.35-x86-linux-binary.tar.bz2 
 endif
+ifeq ($(shell uname -m),i686)
+  binary-release = sbcl-1.0.35-x86-linux-binary.tar.bz2
+endif
 ifeq ($(shell uname -p),pentium4) # Andrew linux at CMU
   binary-release = sbcl-1.0.35-x86-linux-binary.tar.bz2
 endif 
 ifeq ($(shell uname -p),x86_64)
   binary-release = sbcl-1.0.29-x86_64-linux-binary-r2.tar.bz2
 endif 
+ifeq ($(shell uname -m),x86_64)
+  binary-release = sbcl-1.0.29-x86_64-linux-binary-r2.tar.bz2
+endif
 endif
 ifndef binary-release
   $(error "Unknown architecture")

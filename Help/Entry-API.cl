@@ -204,24 +204,36 @@
 ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;  Here is what is missing:
-;;  Should include "bad" quantity definitions in matching.
 ;;  Should have something to handle extra stuff like setting
 ;;     given values in definition.  (either handle it or warning/error).
+
+;; 1.  Score is number of words wrong plus one for the wrong tool.
+;; 2.  In the event of a tie, a word error has higher weight than
+;;     a tool error.
+;; 3.  Assume, for determining bounds, that scores are integer 
+;;     valued.  Thus, if we want to do better, than we demand the
+;;     bound be decreased by 1.
 
 (defun match-student-phrase0 (student tool-prop &key 
 			      (cutoff-fraction 0.4) 
 			      ;; If larger, too slow on benchmarks
-			      (cutoff-max 4)) 
+			      (cutoff-max 3.7)) 
   "Match student phrase to Ontology, returning best matches for tool or other tool."
-  ;; :cutoff-fraction is fractional length of student phrase to use as bound.
-  ;; :cutoff-count is maximum allowed score to use as bound.
+  ;; :cutoff-fraction is fractional length of student phrase plus one
+  ;;     (for the tool) to use as bound.  This should be adjusted to 
+  ;;     balance type 1 and type 2 errors:
+  ;;         bad matches that are accepted vs. 
+  ;;         good matches that are missed
+  ;; :cutoff-max is maximum allowed score to use as bound.  This should
+  ;;     be adjusted to so that very long student phrases can
+  ;;     be matched quickly enough.
   (let* ((sysentries (remove (cons tool-prop '?rest) *sg-entries*
 			     :key #'SystemEntry-prop :test-not #'unify)) 
-	 ;; used for best and maybe for wrong-tool-best
-	 (initial-cutoff (max 2 ;always allow wrong-tool, wrong-prop error
-			      (min (* cutoff-fraction (length student))
-			      cutoff-max)))
+	 (initial-cutoff (min (* cutoff-fraction (+ (length student) 1))
+			      cutoff-max))
+	 ;; To speed up best-wrong-match for long phrases, maybe reduce 
+	 ;; max cutoff a bit.
+	 (wrong-cutoff-max (- cutoff-max 0))
 	 ;; For any debugging prints in matching package.
 	 ;; This also applies to any wrong matches below.
 	 (*standard-output* webserver:*stdout*)
@@ -234,10 +246,10 @@
 		   sysentries)
 	   :cutoff initial-cutoff))
 	 ;; The value of the best correct match or the initial cutoff.
-	 ;; This is used to determine cutoffs for wrong quantity matches.
-	 (best-correct (if best (best-value best) initial-cutoff))
+	 ;; This is used to determine cutoffs for wrong quantity searches.
+	 (wrong-bound (if best (best-value best) initial-cutoff))
 	 wrong-tool-best)
-   
+
     ;; Debug printout:
     (when nil
       (format t "Best match to ~s is~%   ~S~% from ~S~%" 
@@ -249,19 +261,16 @@
 	       best)
 	      (mapcar #'systementry-prop sysentries)))
     
-    ;; If there isn't a good match to solution quantities,
-    ;; try another tool and non-solution quanitities.
-    (when (>= best-correct 1)
-      
-      ;; Attempt to detect a wrong tool error.  
-      ;; The strategy is to treat the choice of tool as being
-      ;; worth 1 word, when matching.
-      ;;
-      ;; Cases:
-      ;; wrong-tool-best same as best-1 (using equiv)
-      ;;     toss-up:  give unsolicited hint and pass through.
-      ;; wrong-tool-best less than best score minus 1 or no best.
-      ;;     this certainly should be given wrong tool help.
+    ;; Attempt to detect a wrong tool error.  
+    ;; The strategy is to treat the choice of tool as being
+    ;; worth 1 word, when matching.
+    ;;
+    ;; Cases:
+    ;; wrong-tool-best same as best-1 (using equiv)
+    ;;     toss-up:  give unsolicited hint and pass through.
+    ;; wrong-tool-best less than best score minus 1 or no best.
+    ;;     this certainly should be given wrong tool help.
+    (when (>= wrong-bound 1)
       (let* ((allowed-tools (remove tool-prop *tool-props-with-definitions*))
 	     (sysentries (remove-if 
 			  #'(lambda (x) (not (member 
@@ -278,61 +287,65 @@
 	       ;; If there is no match in best, then the help is
 	       ;; pretty weak.  In that case, just find anything
 	       ;; below the cutoff.
-	       :cutoff (- best-correct 1))))
-      
-      ;; Attempt to match to quantities not in solution,
-      ;; assuming no wrong-tool error.
-      ;; Never returns more than one quantity:  There is no
-      ;; point in having the student resolve an ambiguity if
-      ;; quantities are wrong anyway.
-      
-      ;; We don't have any way of handling inheritance for
-      ;; non-solution quantities.  As a cheap work-around, 
-      ;; take shortest matching proposition.
-      ;; need to pre-order quantities so that shorter propositions
-      ;; are matched first...
+	       :cutoff (- wrong-bound 1)))))
+    
+    ;; Attempt to match to quantities not in solution,
+    ;; assuming no wrong-tool error.
+    ;; Never returns more than one quantity:  There is no
+    ;; point in having the student resolve an ambiguity if
+    ;; quantities are wrong anyway.
+    
+    ;; We don't have any way of handling inheritance for
+    ;; non-solution quantities.  As a cheap work-around, 
+    ;; take shortest matching proposition.
+    ;; need to pre-order quantities so that shorter propositions
+    ;; are matched first...
+    (when (or (null best) (>= (best-value best) 1))
       (update-bound
        best
        (best-wrong-match
 	student
 	tool-prop
-	:cutoff  (min (- best-correct 1) 
+	:cutoff  (min wrong-cutoff-max
+		      (if best 
+			  (- (best-value best) 1)
+			  initial-cutoff)
 		      (if wrong-tool-best 
-			  (best-value wrong-tool-best) 
-			  initial-cutoff))))
-      
-      ;; Attempt to match to quantities not in solution where
-      ;; the wrong tool has also been used.
-      ;; Must be better than any quantity in solution, but allow
-      ;; for ties with one plus any quantity not in solution.
-      (when (and (>= best-correct 2)
-		 (or (null best) (>= (best-value best) 1)))
-	(let  ((tool-props (intersection
-			    ;; other tools that have natural-language.
-			    (remove tool-prop *tool-props-with-definitions*)
-			    ;; list of tools in this problem solution.
-			    (mapcar #'(lambda (x) (car (SystemEntry-prop x)))
-				    *sg-entries*))))
-	  (dolist (tool-prop tool-props)
-	    (when (or (null wrong-tool-best) 
-		      (>= (best-value wrong-tool-best) 1))
-	      (when nil ;debug print
-		(format t "Starting wrong tool ~A:~%" tool-prop))
-	      (update-bound
-	       wrong-tool-best
-	       (best-wrong-match 
-		student
-		tool-prop
-		:cutoff  (min (- best-correct 2) 
-			      (if best 
-				  (- (best-value best) 1)
-				  initial-cutoff)
-			      (if wrong-tool-best 
-				  (- (best-value wrong-tool-best) 1) 
-				  initial-cutoff))))))))
-      ) ;end of things to try if there isn't good solution match.
-
-      (values best wrong-tool-best best-correct sysentries)))
+			  (best-value wrong-tool-best)
+			  initial-cutoff)))))
+    
+    ;; Attempt to match to quantities not in solution where
+    ;; the wrong tool has also been used.
+    ;; Must be better than any quantity in solution, but allow
+    ;; for ties with one plus any quantity not in solution.
+    (when (and (>= wrong-cutoff-max 1)
+	       (>= wrong-bound 1)
+	       (or (null best) (>= (best-value best) 1)))
+      (let  ((tool-props (intersection
+			  ;; other tools that have natural-language.
+			  (remove tool-prop *tool-props-with-definitions*)
+			  ;; list of tools in this problem solution.
+			  (mapcar #'(lambda (x) (car (SystemEntry-prop x)))
+				  *sg-entries*))))
+	(dolist (tool-prop tool-props)
+	  (when (or (null wrong-tool-best) 
+		    (>= (best-value wrong-tool-best) 1))
+	    (when nil ;debug print
+	      (format t "Starting wrong tool ~A:~%" tool-prop))
+	    (update-bound
+	     wrong-tool-best
+	     (best-wrong-match 
+	      student
+	      tool-prop
+	      :cutoff  (- (min wrong-cutoff-max
+			       (if best 
+				   (best-value best)
+				   wrong-bound)
+			       (if wrong-tool-best 
+				   (best-value wrong-tool-best) 
+				   wrong-bound)) 1)))))))
+    
+    (values best wrong-tool-best wrong-bound sysentries)))
 
 (defun match-student-phrase (entry tool-prop)
   "Match student phrase to Ontology, returning best match prop, tutor turn (if there is an error) and any unsolicited hints."
