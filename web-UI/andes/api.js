@@ -2,7 +2,7 @@ dojo.provide("andes.api");
 dojo.require("andes.rpc");
 dojo.require("andes.error");
 dojo.require("andes.messages");
-
+dojo.require("andes.timer");
 
 (function(){
 	
@@ -114,6 +114,7 @@ dojo.require("andes.messages");
 		open: function(params){
 			//console.info("andes.api.open", params);
 			startTime = (new Date()).getTime();
+			andes.timer = new andes.timer(startTime);
 			var dfd = queueRequest("open-problem", params);
 			
 			dfd.addCallback(function(result){

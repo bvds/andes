@@ -298,8 +298,17 @@ dojo.provide("andes.drawing");
 			var mods = [];
 			var min = 2, max = 5;
 			dojo.forEach(data, function(obj, i){
-				//if(obj.type!="axes"){ return; }
-				//if(obj.action == "modify-object" && obj.type == "vector") console.info("Modify-",obj.type, ": ", obj.symbol,", "," x: ", obj.x, " y: ", obj.y, " x-st: ", obj.x-statement, " y-st: ", obj.y-statement, obj);
+				// For easier-to-read and target server logs-
+				/*
+				if(obj.action!="new-object" || obj.action!="modify-object"){
+					var description="";
+					for(var o in obj){
+						if(o==undefined || obj[o]==undefined) continue;
+						description += o+": "+obj[o]+" ";
+					}
+					console.log(description);
+				}*/
+				
 				if(obj.action =="new-object"){
 					var o = andes.convert.andesToDrawing(obj);
 					
