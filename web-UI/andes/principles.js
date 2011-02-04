@@ -11,14 +11,19 @@ dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
 andes.principles={
 	
 	// Either constants or Equations.
-	reviewp: null,
+	reviewp: [],
 	review: function(file,title,dimensionString){
+		if(!this.reviewp[title] || this.reviewp[title].closed){
 		var dims = dimensionString?dimensionString+",scrollbars=no":"width=350,height=450,scrollbars=yes";
-		this.reviewp=window.open("../review/"+file,
+		this.reviewp[title]=window.open("../review/"+file,
 					 title,
 					 dims+",directories=no,menubar=no,toolbar=no,location=no,status=no"
 					);
-		this.reviewp && this.reviewp.focus();
+		}
+		if(this.reviewp[title]){
+			andes.drawing.focus = title;
+			this.reviewp[title].focus();
+		}
 	},
 	
 	extp: null,
@@ -38,7 +43,10 @@ andes.principles={
 				dijit.byId("allPrinciples").show();
 			}
 		}
-		this.extp && this.extp.focus();
+		if(this.extp){
+			andes.drawing.focus = "Principles";
+			this.extp.focus();
+		}
 	}
 }
 

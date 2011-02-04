@@ -62,7 +62,7 @@ dojo.provide("andes.drawing");
 
 	var items = {};
 	var masterMap = {};
-	
+
 	dojo.addOnLoad(function(){
 		_drawing = dijit.byId(drawingId);
 		var cn = dojo.connect(_drawing, "onSurfaceReady", function(){
@@ -542,12 +542,14 @@ dojo.provide("andes.drawing");
 			}
 		},
 		
+		focus: "canvas",
 		onWindowBlur: function(){
 			// summary:
 			//	Event for when the user leaves this window
 			//	say to open another tab.
-			console.log("Lost window focus");
-			andes.api.recordAction({type:"window", name:"focus", value:"lost"});
+			console.log("Lost window focus for",this.focus);
+			var val=(this.focus=="canvas"?"lost":this.focus);
+			andes.api.recordAction({type:"window", name:"focus", value: val});
 		},
 		
 		onWindowFocus: function(){
@@ -555,7 +557,8 @@ dojo.provide("andes.drawing");
 			// 	Event for when this window is focused, such as
 			// 	switching back to this tab from another browser tab
 			console.log("Gained window focus");
-			andes.api.recordAction({type:"window", name:"focus", value:"gained"});
+			this.focus = "canvas";
+			andes.api.recordAction({type:"window", name:"focus", value: this.focus});
 		}
 	};
 
