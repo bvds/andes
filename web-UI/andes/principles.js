@@ -12,7 +12,7 @@ andes.principles={
 	
 	// Either constants or Equations.
 	reviewp: [],
-	review: function(file,title,dimensionString){
+	review: function(file,title,section,dimensionString){
 		if(!this.reviewp[title] || this.reviewp[title].closed){
 			var dims = dimensionString?dimensionString+",scrollbars=no":"width=350,height=450,scrollbars=yes";
 			this.reviewp[title]=window.open("../review/"+file,
@@ -27,6 +27,10 @@ andes.principles={
 		}
 		if(this.reviewp[title]){
 			this.reviewp[title].focus();
+			if(section){
+				var obj = this.reviewp[title].document.getElementById(section);
+				obj.scrollIntoView();
+			}
 		}
 	},
 	
@@ -40,16 +44,15 @@ andes.principles={
 					      // status=0 ignored by Firefox.
 					      "width=350,height=450,scrollbars=yes,directories=no,menubar=no,toolbar=no,location=no,status=no"
 					     );
-			// If this fails, open a Modal dialog.
-			if(!this.extp) {
-				// Delete any text leftover from old hints.
-   				dojo.byId("allModalTreeText").innerHTML = "";
-				dijit.byId("allPrinciples").show();
-			}
 			if(this.extp){
 				// Does not work for IE.
 				dojo.connect(this.extp, "onblur", andes.drawing.onWindowBlur);
 				dojo.connect(this.extp, "onfocus", andes.drawing.onWindowFocus);
+			}else{
+				// If window creation fails, open a Modal dialog.
+				// Delete any text leftover from old hints.
+   				dojo.byId("allModalTreeText").innerHTML = "";
+				dijit.byId("allPrinciples").show();
 			}
 		}
 		if(this.extp){

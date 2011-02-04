@@ -23,17 +23,19 @@
 
 (defparameter *images-path* "../review/ui-images/")
 (defun manual-link (name html-id &key (pre "the"))
-  (strcat pre " " (open-review-window-html name 
-					  (strcat "manual.html#" html-id)
-					  :title "Manual" 
-					  :name "manual" :value html-id)))
+  (strcat pre " " (open-review-window-html name "manual.html"
+					   :section html-id
+					   :title "Manual" 
+					   :name "manual" :value html-id)))
 
-(defun open-review-window-html (text href &key title name value)
+(defun open-review-window-html (text href &key section title name value)
   "Html for opening web page in the review directory"
-  (format nil "<a href=\"#\" onClick=\"andes.help.link('~A'~@[,'~A'~]);andes.principles.review('~A','~A');\">~A</a>" 
+  (format nil "<a href=\"#\" onClick=\"andes.help.link('~A'~@[,'~A'~]);andes.principles.review('~A','~A'~@[,'~A'~]);\">~A</a>" 
 	  (or name href)
-	  value ;loging value (optional)
-	  href (replace-all (or title text) "'" "\\'")  ;escape single quotes.
+	  value ;logging value (optional)
+	  href 
+	  (replace-all (or title text) "'" "\\'")  ;escape single quotes.
+	  section
 	  text))
   
 

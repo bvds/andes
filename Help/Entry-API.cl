@@ -497,7 +497,8 @@
        (or (exptype-short-name qexp)
 	   (warn "ExpType ~A missing short-name" (exptype-type qexp))
 	   (string-downcase (string (exptype-type qexp))))
-       (strcat "quantities.html#" (string (exptype-type qexp)))
+       "quantities.html"
+       :section (string (exptype-type qexp))
        :name "quantities" :value (exptype-type qexp))))
 
 (defun collect-distinct-quantities (full-props)
