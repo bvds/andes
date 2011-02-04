@@ -542,23 +542,20 @@ dojo.provide("andes.drawing");
 			}
 		},
 		
-		focus: "canvas",
 		onWindowBlur: function(){
 			// summary:
 			//	Event for when the user leaves this window
 			//	say to open another tab.
-			console.log("Lost window focus for",this.focus);
-			var val=(this.focus=="canvas"?"lost":this.focus);
-			andes.api.recordAction({type:"window", name:"focus", value: val});
+			console.log("Lost window focus for ",this);
+			andes.api.recordAction({type:"window", name:"focus", value: "lost"});
 		},
 		
-		onWindowFocus: function(){
+		onWindowFocus: function(arg){
 			// summary:
 			// 	Event for when this window is focused, such as
 			// 	switching back to this tab from another browser tab
-			console.log("Gained window focus");
-			this.focus = "canvas";
-			andes.api.recordAction({type:"window", name:"focus", value: this.focus});
+			console.log("Gained window focus for ",this);
+			andes.api.recordAction({type:"window", name:"focus", value: this.name || "canvas"});
 		}
 	};
 

@@ -14,14 +14,18 @@ andes.principles={
 	reviewp: [],
 	review: function(file,title,dimensionString){
 		if(!this.reviewp[title] || this.reviewp[title].closed){
-		var dims = dimensionString?dimensionString+",scrollbars=no":"width=350,height=450,scrollbars=yes";
-		this.reviewp[title]=window.open("../review/"+file,
-					 title,
-					 dims+",directories=no,menubar=no,toolbar=no,location=no,status=no"
-					);
+			var dims = dimensionString?dimensionString+",scrollbars=no":"width=350,height=450,scrollbars=yes";
+			this.reviewp[title]=window.open("../review/"+file,
+							title,
+							dims+",directories=no,menubar=no,toolbar=no,location=no,status=no"
+						       );
+			if(this.reviewp[title]){
+				// Does not work for IE.
+				dojo.connect(this.reviewp[title], "onblur", andes.drawing.onWindowBlur);
+				dojo.connect(this.reviewp[title], "onfocus", andes.drawing.onWindowFocus);
+			}
 		}
 		if(this.reviewp[title]){
-			andes.drawing.focus = title;
 			this.reviewp[title].focus();
 		}
 	},
@@ -42,9 +46,13 @@ andes.principles={
    				dojo.byId("allModalTreeText").innerHTML = "";
 				dijit.byId("allPrinciples").show();
 			}
+			if(this.extp){
+				// Does not work for IE.
+				dojo.connect(this.extp, "onblur", andes.drawing.onWindowBlur);
+				dojo.connect(this.extp, "onfocus", andes.drawing.onWindowFocus);
+			}
 		}
 		if(this.extp){
-			andes.drawing.focus = "Principles";
 			this.extp.focus();
 		}
 	}
