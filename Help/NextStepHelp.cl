@@ -4101,7 +4101,7 @@
 	     (open-review-window-html 
 	      "discussion of elastic collisions in one dimension"
 	      "1D_elastic_collision.html"
-	      :title "1D elastic collitions")))
+	      :title "1D elastic collisions")))
   
   ;; done and not an answer-var problem and solving for a sought
   ;; Need handler for case where one trig function is missing, Bug #719

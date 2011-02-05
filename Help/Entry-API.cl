@@ -499,7 +499,7 @@
 	   (string-downcase (string (exptype-type qexp))))
        "quantities.html"
        :section (string (exptype-type qexp))
-       :name "quantities" :value (exptype-type qexp))))
+       :title "Quantities" :value (exptype-type qexp))))
 
 (defun collect-distinct-quantities (full-props)
   "Collect a list of distinct ExpTypes or bodies for a list of SystemEntries."

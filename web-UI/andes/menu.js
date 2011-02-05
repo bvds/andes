@@ -26,9 +26,11 @@ dojo.addOnLoad(function(){
 	}
 	
 	// wire up our menu items
+	// Second arg of andes.principles.review(...) should match keyword :title
+	// in calls to open-review-window-html.
 	var spec = {
 		"menuPhysics1":function(){
-			andes.principles.externP();
+			andes.principles.review('principles-tree.html','Principles');
 		},
 
 		"menuPhysicsQ":function(){

@@ -11,53 +11,37 @@ dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
 andes.principles={
 	
 	// Either constants or Equations.
-	reviewp: [],
+	reviewp: [],	
 	review: function(file,title,section,dimensionString){
-		if(!this.reviewp[title] || this.reviewp[title].closed){
+		if(!this.reviewp[file] || this.reviewp[file].closed){
+			// console.log('New window "'+file+'"');
 			var dims = dimensionString?dimensionString+",scrollbars=no":"width=350,height=450,scrollbars=yes";
-			this.reviewp[title]=window.open("../review/"+file,
+			this.reviewp[file]=window.open("../review/"+file,
 							title,
 							dims+",directories=no,menubar=no,toolbar=no,location=no,status=no"
 						       );
-			if(this.reviewp[title]){
+			if(this.reviewp[file]){
 				// Does not work for IE.
-				dojo.connect(this.reviewp[title], "onblur", andes.drawing.onWindowBlur);
-				dojo.connect(this.reviewp[title], "onfocus", andes.drawing.onWindowFocus);
+				dojo.connect(this.reviewp[file], "onblur", andes.drawing.onWindowBlur);
+				dojo.connect(this.reviewp[file], "onfocus", andes.drawing.onWindowFocus);
 			}
 		}
-		if(this.reviewp[title]){
-			this.reviewp[title].focus();
+		if(this.reviewp[file]){
+			this.reviewp[file].focus();
 			if(section){
-				var obj = this.reviewp[title].document.getElementById(section);
+				// Should wait until window has been loaded
+				// before looking for section.
+				// The scrolling fails for new windows on Chrome.
+				// Sometimes on Firefox.
+				var obj = this.reviewp[file].document.getElementById(section);
 				obj.scrollIntoView();
 			}
-		}
-	},
-	
-	extp: null,
-	externP: function (){
-		if(!this.extp || this.extp.closed){
-			// See https://developer.mozilla.org/en/DOM/window.open
-			this.extp=window.open("../review/principles-tree.html","Principles",
-					      // Default starting size in Firefox is too big, need to set explicitly.
-					      // Need scrollbars=1 in Firefox for reopen with long (opened) tree.
-					      // status=0 ignored by Firefox.
-					      "width=350,height=450,scrollbars=yes,directories=no,menubar=no,toolbar=no,location=no,status=no"
-					     );
-			if(this.extp){
-				// Does not work for IE.
-				dojo.connect(this.extp, "onblur", andes.drawing.onWindowBlur);
-				dojo.connect(this.extp, "onfocus", andes.drawing.onWindowFocus);
-			}else{
-				// If window creation fails, open a Modal dialog.
-				// Delete any text leftover from old hints.
-   				dojo.byId("allModalTreeText").innerHTML = "";
-				dijit.byId("allPrinciples").show();
-			}
-		}
-		if(this.extp){
-			this.extp.focus();
-		}
+		}else if(title=="Principles"){
+                        // If principles window creation has failed, open a Modal dialog.
+                        // Delete any text leftover from old hints.
+                        dojo.byId("allModalTreeText").innerHTML = "";
+                        dijit.byId("allPrinciples").show();
+                }
 	}
 }
 
