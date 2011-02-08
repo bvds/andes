@@ -9,39 +9,41 @@ dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
 // The principles and other review pages can be opened either 
 // via the menus or via the help system (links in the Tutor pane).
 andes.principles={
-	
-	// Either constants or Equations.
 	reviewp: [],	
 	review: function(file,title,section,dimensionString){
 		if(!this.reviewp[file] || this.reviewp[file].closed){
 			// console.log('New window "'+file+'"');
 			var dims = dimensionString?dimensionString+",scrollbars=no":"width=350,height=450,scrollbars=yes";
 			this.reviewp[file]=window.open("../review/"+file,
-							title,
-							dims+",directories=no,menubar=no,toolbar=no,location=no,status=no"
-						       );
+						       title,
+						       dims+",directories=no,menubar=no,toolbar=no,location=no,status=no"
+						      );
 			if(this.reviewp[file]){
+				if(section){
+					// In principle, this could fail if window is already loaded
+					// by the time the code gets to here.
+					this.reviewp[file].onload = function (){
+						var obj=this.document.getElementById(section); 
+						obj.scrollIntoView();
+					}
+				}
 				// Does not work for IE.
 				dojo.connect(this.reviewp[file], "onblur", andes.drawing.onWindowBlur);
 				dojo.connect(this.reviewp[file], "onfocus", andes.drawing.onWindowFocus);
+			}else if(title=="Principles"){
+				// If principles window creation has failed, open a Modal dialog.
+				// Delete any text leftover from old hints.
+				dojo.byId("allModalTreeText").innerHTML = "";
+				dijit.byId("allPrinciples").show();
 			}
-		}
-		if(this.reviewp[file]){
+		}else{
+			// Window already open
 			this.reviewp[file].focus();
 			if(section){
-				// Should wait until window has been loaded
-				// before looking for section.
-				// The scrolling fails for new windows on Chrome.
-				// Sometimes on Firefox.
 				var obj = this.reviewp[file].document.getElementById(section);
 				obj.scrollIntoView();
 			}
-		}else if(title=="Principles"){
-                        // If principles window creation has failed, open a Modal dialog.
-                        // Delete any text leftover from old hints.
-                        dojo.byId("allModalTreeText").innerHTML = "";
-                        dijit.byId("allPrinciples").show();
-                }
+		}
 	}
 }
 
