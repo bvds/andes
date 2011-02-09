@@ -110,8 +110,6 @@ make install-database
 # error messages and add links to DocumentRoot.
 # Run with superuser privileges:
 make configure-httpd  
-# In Ubuntu, the proxy module must be configured using:
-a2enmod proxy; a2enmod proxy_html
 
 # Start up Apache.  In linux, as superuser:
   /sbin/chkconfig httpd on

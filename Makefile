@@ -24,7 +24,8 @@ ifeq ($(shell uname),Darwin)
   httpd-conf-dir = /etc/$(if $(shell test -d /etc/apache2 && echo 1),apache2,httpd)/users
 else
 ifeq ($(shell uname),Linux)
-  httpd-document-root = /var/www/html
+  # Ubuntu uses /var/www while RedHat uses /var/www/html
+  httpd-document-root = /var/www$(shell test -d /var/www/html && echo /html)
   httpd-conf-dir = /etc/$(if $(shell test -d /etc/apache2 && echo 1),apache2,httpd)/conf.d
 else
   $(error "Unknown operating system")
@@ -34,6 +35,10 @@ conf-file = $(shell (/usr/sbin/httpd -v | grep Apache/1. >> /dev/null) && echo -
 
 configure-httpd:
 	@echo "Please run with superuser privileges."
+ifeq ($(shell which a2enmod &> /dev/null && echo 1),1)
+	@echo "In Ubuntu, configuring the proxy modules:"
+	a2enmod proxy; a2enmod proxy_html; a2enmod proxy_http
+endif
 	cp andes-server$(conf-file).conf $(httpd-conf-dir)
 	ln -s `pwd`/web-UI $(httpd-document-root)
 	ln -s `pwd`/review $(httpd-document-root)
