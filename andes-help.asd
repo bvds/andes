@@ -4,6 +4,11 @@
 (defpackage :help-asd (:use :cl :asdf))
 (in-package :help-asd)
 
+;;  make lisp source file extension "cl"  See asdf manual
+#+asdf2 (defclass my-cl-source-file (cl-source-file) ((type :initform "cl")))
+#-asdf2 (defmethod source-file-type ((f my-cl-source-file) (m module))
+	  (declare (ignorable f m)) "cl")
+
 ;;;;   Load the source file, without compiling
 ;;;;   asdf:load-op reloads all files, whether they have been
 ;;;;   changed or not.
@@ -16,6 +21,7 @@
 
 (defsystem :andes-help
   :name "Andes help"
+  :default-component-class my-cl-source-file
   :description "Andes physics tutor system: helpsystem"
   :depends-on (problems web-server)
   :components (
@@ -116,13 +122,8 @@
 				     (:file "StackTests")
 				     (:file "UtilFuncs")
 				     ;; file must be loaded before compile
-				     (:no-compile-file "Tests"
-						       ;;    :in-order-to ((compile-op (load-source-op "Tests")))
+				     (:file "Tests"
+					      :in-order-to ((compile-op (load-source-op "Tests")))
 						       )
 				     ))
 	       ))
-
-;;;  make source file extension "cl"  See asdf manual
-
-(defmethod source-file-type ((c cl-source-file) 
-			     (s (eql (find-system :andes-help)))) "cl")
