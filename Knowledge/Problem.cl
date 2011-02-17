@@ -426,41 +426,39 @@
 ;; Returns: The problem struct.
 
 (defmacro defproblem (name &key (soughts ()) (Givens ())
-				(Statement "")
-		                English
-				Comments Features
-				ModDate (Version *latest-file-version*) 
-				ForbiddenPSMS IgnorePSMS
-				VariableMarks Times
-				Choices Graphic Predefs Fade)
+		      (Statement "")
+		      English
+		      Comments Features
+		      ModDate (Version *latest-file-version*) 
+		      ForbiddenPSMS IgnorePSMS
+		      VariableMarks Times
+		      Choices Graphic Predefs Fade)
   "Define a problem struct and store it."
-
+  
   (dolist (rule English)
     (when (match:matches-model-syntax (car rule))
       (error "Ontology member ~A matches model syntax" rule)))
 
-
-  (let ((Prob (eval `(make-problem :Name ',name                     ;;Define the problem struct.
-				   :soughts ',(remove-answer
-					       (force-to-ll soughts))
-				   :Givens ',(force-to-ll Givens)   
-				   :ForbiddenPSMS ',(force-to-list ForbiddenPSMS)
-				   :IgnorePSMS ',(force-to-list IgnorePSMS)
-				   :VariableMarks ',VariableMarks
-				   :Statement ',(force-to-list Statement)
-				   :English ',English
-				   :Comments ',(force-to-list Comments)
-				   :Features ',Features
-				   :ModDate ',ModDate
-				   :Version ',Version
-				   :Times   ',Times
-				   :Choices ',Choices
-				   :Graphic ',Graphic
-				   :Predefs ',Predefs
-		                   :Fade ',Fade))))
-    (add-problem Prob) ;Store the problem for access
-    Prob))                        ;Return the problem.
-
+  `(eval-when
+       (:load-toplevel)
+     (add-problem (make-problem :Name ',name ;Define the problem struct.
+				:soughts ',(remove-answer
+					    (force-to-ll soughts))
+				:Givens ',(force-to-ll Givens)   
+				:ForbiddenPSMS ',(force-to-list ForbiddenPSMS)
+				:IgnorePSMS ',(force-to-list IgnorePSMS)
+				:VariableMarks ',VariableMarks
+				:Statement ',(force-to-list Statement)
+				:English ',English
+				:Comments ',(force-to-list Comments)
+				:Features ',Features
+				:ModDate ',ModDate
+				:Version ',Version
+				:Times   ',Times
+				:Choices ',Choices
+				:Graphic ',Graphic
+				:Predefs ',Predefs
+				:Fade ',Fade))))
 
 (defun remove-answer (S)
   "Backwards compatability."

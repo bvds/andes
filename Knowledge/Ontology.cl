@@ -148,15 +148,15 @@
 			documentation
 	        	new-english)
   "Define a quantity expression."
-  (define-exptype :type type 
-    :form Form
-    :rank rank
-    :symbol-base symbol-base
-    :short-name short-name
-    :Units Units
-    :restrictions Restrictions
-    :documentation documentation
-    :new-english new-english))
+  `(define-exptype :type ',type 
+    :form ',Form
+    :rank ',rank
+    :symbol-base ',symbol-base
+    :short-name ',short-name
+    :Units ',Units
+    :restrictions ',Restrictions
+    :documentation ',documentation
+    :new-english ',new-english))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; define-exptype (Hidden)

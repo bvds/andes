@@ -202,7 +202,7 @@
   
   "Define a new operator with the specified values and add it to *operators*."
   
-  (let ((Op (eval `(make-operator	;Produce the operator struct.
+  `(let ((Op (make-operator	;Produce the operator struct.
 		    :Name ',Name 
 		    :Arguments ',Arguments 
 		    :Preconditions ',Preconditions 
@@ -215,7 +215,7 @@
 				        :test #'(lambda(x y) (eq (first x) (first y)))))
 		    :CogLoad ',(if Load 
 				   Load
-				 1)))))
+				 1))))
     
     (if (not (list-of-atoms-p Features)) ;Ensure that the features list is valid.
 	(error "The specified Features list for ~A is invalid ~A." ;if not signal an error. 
