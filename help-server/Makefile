@@ -19,8 +19,13 @@ ifeq ($(shell uname),Darwin)
 else
 ifeq ($(shell uname),Linux)
 	cp andes-helpd /etc/init.d
+ifeq ($(shell test -e /sbin/chkconfig && echo 1),1)
 	/sbin/chkconfig --add andes-helpd
 	/sbin/chkconfig andes-helpd on
+else
+	#  Ubuntu/Debian systems
+	update-rc.d andes-helpd defaults
+endif
 	-rm /var/lock/subsys/andes-helpd
 else
 	$(error "Unknown operating system")

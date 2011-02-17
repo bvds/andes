@@ -7,7 +7,12 @@
 # processname: andes-helpd
 
 # Source function library.
-. /etc/rc.d/init.d/functions
+if [ -f /etc/rc.d/init.d/functions ]; then
+        . /etc/rc.d/init.d/functions
+        REDHAT=1
+else
+        . /lib/lsb/init-functions
+fi
 
 if [ -f /etc/andes-help.conf ]; then
         . /etc/andes-help.conf
@@ -36,7 +41,12 @@ start() {
         echo -n $"Starting $prog: "
         # --pidfile=${pidfile} might be used for Bug #1721
         # The OLI version of daemon does not have the --pidfile flag.
-	daemon --user ${LUSER} $prog $SBCL_OPTIONS $ANDES_INIT
+	if [ $REDHAT ]; then 
+  	  daemon --user ${LUSER} $prog $SBCL_OPTIONS $ANDES_INIT
+	else
+	  start-stop-daemon --user ${LUSER} --start --startas $prog \
+               -- $SBCL_OPTIONS $ANDES_INIT
+	fi
         RETVAL=$?
         echo
         [ $RETVAL = 0 ] && touch $LOCK
