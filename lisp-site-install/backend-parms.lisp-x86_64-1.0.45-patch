@@ -1,0 +1,8 @@
+--- sbcl-1.0.45/src/compiler/x86-64/backend-parms.lisp-original	2011-02-16 02:24:10.310654652 -0700
++++ sbcl-1.0.45/src/compiler/x86-64/backend-parms.lisp	2011-02-16 02:24:45.831585004 -0700
+@@ -37,4 +37,4 @@
+ 
+ ;;; The size in bytes of the GENCGC pages. Should be a multiple of the
+ ;;; architecture code size.
+-(def!constant gencgc-page-bytes *backend-page-bytes*)
++(def!constant gencgc-page-bytes (* 8 *backend-page-bytes*))

@@ -29,16 +29,16 @@ endif
 
 ifeq ($(shell uname),Linux)
 ifeq ($(shell uname -p),i686)
-  binary-release = sbcl-1.0.35-x86-linux-binary.tar.bz2 
+  binary-release = sbcl-1.0.45-x86-linux-binary.tar.bz2 
 endif
 ifeq ($(shell uname -m),i686)
-  binary-release = sbcl-1.0.35-x86-linux-binary.tar.bz2
+  binary-release = sbcl-1.0.45-x86-linux-binary.tar.bz2
 endif
 ifeq ($(shell uname -p),pentium4) # Andrew linux at CMU
-  binary-release = sbcl-1.0.35-x86-linux-binary.tar.bz2
+  binary-release = sbcl-1.0.45-x86-linux-binary.tar.bz2
 endif 
 ifeq ($(shell uname -p),x86_64)
-  binary-release = sbcl-1.0.29-x86_64-linux-binary-r2.tar.bz2
+  binary-release = sbcl-1.0.45-x86_64-linux-binary-r2.tar.bz2
 endif 
 ifeq ($(shell uname -m),x86_64)
   binary-release = sbcl-1.0.29-x86_64-linux-binary-r2.tar.bz2
@@ -47,7 +47,11 @@ endif
 ifndef binary-release
   $(error "Unknown architecture")
 endif 
-binary-dir = tar jtf $(binary-release)|grep -o -m 1 "^[^/]*"
+# There seems to be a bug in tar in Ubuntu 10.10
+# See http://www.linuxfromscratch.org/pipermail/lfs-support/2010-March/038236.html
+#  Pipe to file, instead
+binary-dir = tar jtf $(binary-release) > /tmp/sbcl-files;\
+             grep -o -m 1 "^[^/]*" /tmp/sbcl-files
 
 # RedHat custom wget returns an error if file exists
 get-binary:
@@ -60,16 +64,17 @@ binary-install:
 thread-test:
 	cd `$(binary-dir)`; echo '(format t "Threading is~:[ not~;~] supported on binary release.~%" (find :sb-thread *features*)) (quit)' | ./run-sbcl.sh --noinform --noprint
 
-source-dir = sbcl-1.0.37
+source-version = 1.0.45
+source-dir = sbcl-$(source-version)
 source-release = $(source-dir)-source.tar.bz2
 get-source:
 	-wget -nc http://prdownloads.sourceforge.net/sbcl/$(source-release)
 	tar jxf $(source-release)
 	# enable thread support (for OS X) and :sb-hash-table-debug
 	cp customize-target-features.lisp $(source-dir)
-	patch -p 1 -d $(source-dir) < backend-parms.lisp-x86-1.0.36-patch 
-	patch -p 1 -d $(source-dir) < backend-parms.lisp-x86_64-1.0.36-patch
-	patch -p 1 -d $(source-dir) < parms.lisp-1.0.36-patch
+	patch -p 1 -d $(source-dir) < backend-parms.lisp-x86-$(source-version)-patch 
+	patch -p 1 -d $(source-dir) < backend-parms.lisp-x86_64-$(source-version)-patch
+	patch -p 1 -d $(source-dir) < parms.lisp-$(source-version)-patch
 ifdef INSTALL_ROOT 
 	perl -i -p -e "s%#define SBCL_HOME .*%#define SBCL_HOME \"${INSTALL_ROOT}/lib/sbcl/\"%" $(source-dir)/src/runtime/runtime.c
 endif
