@@ -547,15 +547,15 @@ dojo.provide("andes.drawing");
 			//	Event for when the user leaves this window
 			//	say to open another tab.
 			console.log("Lost window focus for ",this);
-			andes.api.recordAction({type:"window", name:"focus", value: "lost"});
+			andes.api.recordAction({type:"window", name: this.name || "canvas", value: "blur"});
 		},
 		
-		onWindowFocus: function(arg){
+		onWindowFocus: function(){
 			// summary:
 			// 	Event for when this window is focused, such as
 			// 	switching back to this tab from another browser tab
 			console.log("Gained window focus for ",this);
-			andes.api.recordAction({type:"window", name:"focus", value: this.name || "canvas"});
+			andes.api.recordAction({type:"window", name: this.name || "canvas", value: "focus"});
 		}
 	};
 
