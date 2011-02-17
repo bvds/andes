@@ -15,13 +15,14 @@ Enterprise 5.4, CentOS 5.4) and OS X (10.4 and 10.6).
 ========================== System Configuration ===============================
 
 # The following packages need to be installed:  
-#    gnu make, git, subversion, gnu c++, mysql, mysql-server, apache and wget.
+#    gnu make, git, subversion, gnu c++, mysql, mysql-server, apache, 
+#    wget and php with mysql
 # For RedHat systems, http://fedoraproject.org/wiki/EPEL may be helpful.  
 # In Linux, test packages using:
-rpm -q make git subversion gcc-c++ mysql mysql-server httpd wget
+rpm -q make git subversion gcc-c++ mysql mysql-server httpd wget php php-mysql
 # For Ubuntu (debian systems) you can use the following (as root):
 apt-get install git make subversion g++ libmysqlclient-dev mysql-server \
-                apache2 libapache2-mod-proxy-html wget
+                apache2 libapache2-mod-proxy-html wget php5 php5-mysql
 
 # The Andes help server should be run in an ordinary user account.  
 # If needed,  set up a user account for the Andes server.  The install,
