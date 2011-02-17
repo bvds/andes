@@ -70,6 +70,8 @@ get-source:
 	patch -p 1 -d $(source-dir) < backend-parms.lisp-x86-1.0.36-patch 
 	patch -p 1 -d $(source-dir) < backend-parms.lisp-x86_64-1.0.36-patch
 	patch -p 1 -d $(source-dir) < parms.lisp-1.0.36-patch
+	# See https://bugs.launchpad.net/sbcl/+bug/720940
+	patch -p 1 -d $(source-dir) < sb-introspect-1.0.37-patch
 ifdef INSTALL_ROOT 
 	perl -i -p -e "s%#define SBCL_HOME .*%#define SBCL_HOME \"${INSTALL_ROOT}/lib/sbcl/\"%" $(source-dir)/src/runtime/runtime.c
 endif
