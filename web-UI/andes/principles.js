@@ -2,9 +2,17 @@ dojo.provide("andes.principles");
 dojo.require("dijit.Tree");
 dojo.require("dojo.data.ItemFileReadStore");
 
-// Modify tree so that HTML is rendered in node labels
-// See Bug #1603
-dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
+// Modify tree so that HTML is rendered in node labels. Bug #1603
+// dijit svn commit 23943 changes object; 
+// see http://bugs.dojotoolkit.org/ticket/12278
+// Should remove switch when release uses new method.
+if(dijit._TreeNode._meta.hidden.attributeMap){
+	dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
+}else if(dijit._TreeNode._meta.hidden._mapLabelAttr){
+	dijit._TreeNode._meta.hidden._mapLabelAttr.type="innerHTML";
+}else{
+	console.error("Can't render HTML in tree.");
+}
 
 // The principles and other review pages can be opened either 
 // via the menus or via the help system (links in the Tutor pane).
@@ -14,6 +22,12 @@ andes.principles={
 		if(!this.reviewp[file] || this.reviewp[file].closed){
 			// console.log('New window "'+file+'"');
 			var dims = dimensionString?dimensionString+",scrollbars=no":"width=350,height=450,scrollbars=yes";
+			// Internet Explorer gives error if window.open arguments contain spaces.
+			// see http://developer.mozilla.org/En/DOM/Window.open
+			if(title.match(' ')){
+				console.error("window.open title with space:  ",title);
+				title=title.replace(/ /g,'_'); // Logging name is modified.
+			}
 			this.reviewp[file]=window.open("../review/"+file,
 						       title,
 						       dims+",directories=no,menubar=no,toolbar=no,location=no,status=no"
@@ -27,9 +41,24 @@ andes.principles={
 						obj.scrollIntoView();
 					}
 				}
-				// Does not work for IE.
-				dojo.connect(this.reviewp[file], "onblur", andes.drawing.onWindowBlur);
-				dojo.connect(this.reviewp[file], "onfocus", andes.drawing.onWindowFocus);
+				if(dojo.isIE){
+					var doc = this.reviewp[file].document;
+					// see parallel code in drawing.js
+					//dojo.connect(doc,"onfocusin", andes.drawing.onWindowFocus);
+					dojo.connect(this.reviewp[file],"onfocus", andes.drawing.onWindowFocus);
+					dojo.connect(doc,"onfocusout",this,function(){
+						if (this.reviewp[file]._activeElement != doc.activeElement){
+							this.reviewp[file]._activeElement = doc.activeElement;
+						}else{
+							// Supply window as context, so name is available.
+							andes.drawing.onWindowBlur.call(this.reviewp[file]);
+						}
+					});
+				} else {
+					dojo.connect(this.reviewp[file], "onblur", andes.drawing.onWindowBlur);
+					dojo.connect(this.reviewp[file], "onfocus", andes.drawing.onWindowFocus);
+				}
+					
 			}else if(title=="Principles"){
 				// If principles window creation has failed, open a Modal dialog.
 				// Delete any text leftover from old hints.

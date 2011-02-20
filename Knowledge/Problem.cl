@@ -426,7 +426,7 @@
 ;; Returns: The problem struct.
 
 (defmacro defproblem (name &key (soughts ()) (Givens ())
-				(Statement "")
+				Statement
 		                English
 				Comments Features
 				ModDate (Version *latest-file-version*) 
@@ -437,17 +437,28 @@
 
   (dolist (rule English)
     (when (match:matches-model-syntax (car rule))
-      (error "Ontology member ~A matches model syntax" rule)))
+      (error "~A: Ontology member ~A matches model syntax" name rule)))
 
+  (unless (list-of-lists-p soughts)
+    (error "~A: Soughts must be a list of lists." name))
+
+  (unless (list-of-lists-p givens)
+    (error "~A: Givens must be a list of lists." name))
+
+  (unless (listp ForbiddenPSMS) 
+    (error "~A: ForbiddenPSMS must be a list." name))
+
+  (unless (listp IgnorePSMS) (error "~A: IgnorePSMS must be a list." name))
+
+  (unless (listp statement) (error "~A: Statement must be a list." name))
 
   (let ((Prob (eval `(make-problem :Name ',name                     ;;Define the problem struct.
-				   :soughts ',(remove-answer
-					       (force-to-ll soughts))
-				   :Givens ',(force-to-ll Givens)   
-				   :ForbiddenPSMS ',(force-to-list ForbiddenPSMS)
-				   :IgnorePSMS ',(force-to-list IgnorePSMS)
+				   :soughts ',soughts
+				   :Givens ',Givens
+				   :ForbiddenPSMS ',ForbiddenPSMS
+				   :IgnorePSMS ',IgnorePSMS
 				   :VariableMarks ',VariableMarks
-				   :Statement ',(force-to-list Statement)
+				   :Statement ',Statement
 				   :English ',English
 				   :Comments ',(force-to-list Comments)
 				   :Features ',Features
@@ -461,21 +472,10 @@
     (add-problem Prob) ;Store the problem for access
     Prob))                        ;Return the problem.
 
-
-(defun remove-answer (S)
-  "Backwards compatability."
-  (if (not (listp S)) S
-    (mapcar #'(lambda (a) 
-		(if (and (listp s) (eq (car a) 'answer))
-		    (cadr a)
-		  a))
-	    S)))
-
 (defun clear-Problem-Registry ()
   "Clear out the problem registry."
   (format t "clearing *problem-registry*")
   (clrhash *Problem-Registry*))
-
 
 
 ;;------------------------------------------------------------------

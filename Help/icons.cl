@@ -29,6 +29,11 @@
 
 (defun open-review-window-html (text href &key section title value)
   "Html for opening web page in the review directory."
+  ;; Any :title must not contain spaces, since it causes and error in IE.
+  ;; Work-around in client breaks logging.
+  ;; See http://developer.mozilla.org/En/DOM/Window.open
+  (when (and title (find #\space title))
+    (warn "open-review-window-html title \"~A\" contains space" title))
   ;; Keyword :title should match name in web-UI/andes/menu.js
   (format nil "<a href=\"#\" onClick=\"andes.help.link('~A'~@[,'~A'~]);andes.principles.review('~A','~A'~@[,'~A'~]);\">~A</a>" 
 	  (or title href)

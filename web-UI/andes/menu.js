@@ -1,5 +1,6 @@
 dojo.provide("andes.menu");
 dojo.require("andes.options");
+dojo.require("dijit.Menu");
 
 dojo.addOnLoad(function(){
 	
@@ -46,17 +47,18 @@ dojo.addOnLoad(function(){
 		},
 		
 		"menuIntroductionText":function(){
-			andes.principles.review('introduction.html','Intro Text');
+			andes.principles.review('introduction.html','IntroText');
 		},
 
 		"menuIntroduction":function(){
 			// add 10px padding.
-			andes.principles.review('vec1a-video.html','Intro Video',null,"width=650,height=395");
+			// should match call in drawing.js
+			andes.principles.review('vec1a-video.html','IntroVideo',null,"width=650,height=395");
 		},		
 		
 	        "menuSlides":function(){
 			andes.principles.review('try11/andes.intro.try11_controller.swf',
-						'Slide show',null,"width=640,height=385");
+						'IntroSlides',null,"width=640,height=385");
 		},
 		
 		"menuManual":function(){
@@ -64,16 +66,61 @@ dojo.addOnLoad(function(){
 		},
 		
 		"menuOptions":function(){
+			// This options is the dijit dialog,
+			// the options class controls its contents
 			var options = dijit.byId("options");
 			options.show();
 			//options.focus();
 		}
 		
 	};
+	
+	// Setup contextMenu and children
+	andes.contextMenu = new dijit.Menu();
+	var contextOptions = {};
 	for(var i in spec){
 		wireItem(i, spec[i]);
+		contextItem(i, spec[i]);
 	}
 	
-	//Instantiate options object to handle menuOptions
-	var menuOptionsController = new andes.options();
+	
+	// var co = {divider: new dijit.MenuSeparator()};
+	function contextItem(desc, fn){
+		var label = dijit.byId(desc).get("label");
+		// Hack I'll fix later
+		if(label=="Options" || label=="Introduction"){
+			andes.contextMenu.addChild(new dijit.MenuSeparator());
+		}
+		
+		contextOptions[label] = new dijit.MenuItem({
+			label:label,
+			onClick:fn
+		});
+		andes.contextMenu.addChild(contextOptions[label]);
+	};
+	
+	// Set up option menu and right click menu
+	andes.options = new andes.options();
+	var _drawing = dijit.byId("drawing");
+	
+	// Setup the menu onScreen
+	var cn = dojo.connect(_drawing, "onSurfaceReady", function(){
+		dojo.disconnect(cn);
+		
+		var node = null;
+		dojo.connect(_drawing.mouse, "onDown", function(evt){
+			// console.log("On down evt: ", evt);
+			// Dynamically prepare menu depending on the target
+			// if it's a stencil, allow delete
+			andes.contextMenu.unBindDomNode(node);
+			node = evt.id=="canvasNode" ? dojo.byId("drawing") : dojo.byId(evt.id);
+			andes.contextMenu.bindDomNode(node);
+		});
+		
+	});
+	
+	// Allow for dynamic updating of the context
+	function updateContext(){
+		console.log("yeps");
+	}
 });

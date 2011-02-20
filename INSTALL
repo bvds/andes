@@ -140,7 +140,7 @@ make install-dojo
 
 ;; To test the Help Server type "sbcl" to start up lisp, then:
 (rhelp)
-(start-help :password "sin(0)=0") ;specify mysql password 
+(start-help :password "my-db-pass") ;specify mysql password 
 
 ;; The help server is now running on port 8080.
 ;; You can test access to the help server by using telnet:

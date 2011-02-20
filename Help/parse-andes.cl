@@ -993,14 +993,10 @@
 		    (mapcar #'StudentEntry-prop 
 			    (remove entry *StudentEntries*))
 		    :key #'car))
-	 ;; Some older problems have useless wrapper (answer ...)
-	 (stripped (mapcar 
-		    #'(lambda (x) (if (eql (car x) 'answer) (second x) x))
-		    (problem-soughts *cp*)))
 	 ;; determine which answers don't have a box or done button.
 	 (remaining (set-difference 
 		     ;; remove multiple-choice and checkboxes.
-		     (remove 'choose-answer stripped :key #'car)
+		     (remove 'choose-answer (problem-soughts *cp*) :key #'car)
 		     (mapcar #'second previous)
 		     :test #'unify)))
 

@@ -215,6 +215,7 @@
 ;;     bound be decreased by 1.
 
 (defun match-student-phrase0 (student tool-prop &key 
+			      all-scalars
 			      (cutoff-fraction 0.4) 
 			      ;; If larger, too slow on benchmarks
 			      (cutoff-max 3.7)) 
@@ -240,10 +241,17 @@
 	 (best
 	  (match:best-model-matches 
 	   student
-	   (mapcar #'(lambda (x) 
-		       (cons (expand-vars (SystemEntry-model x)) 
-			     (SystemEntry-prop x)))
-		   sysentries)
+	   ;; Sought quantities can be any scalar, including ones
+	   ;; that are only defined as side-effects.
+	   (if all-scalars
+	       (mapcar #'(lambda (x)
+			   (cons (expand-vars (new-english-find x))
+				 (list nil x)))
+		       (mapcar #'qvar-exp (problem-varindex *cp*)))	
+	       (mapcar #'(lambda (x) 
+			   (cons (expand-vars (SystemEntry-model x)) 
+				 (SystemEntry-prop x)))
+		       sysentries))
 	   :cutoff initial-cutoff))
 	 ;; The value of the best correct match or the initial cutoff.
 	 ;; This is used to determine cutoffs for wrong quantity searches.

@@ -524,8 +524,8 @@
    (teach (string "You can always use the ~A.&nbsp;  However, when a vector V lies along an axis x, the component of the vector V<sub>x</sub> along the axis is simply equal to plus or minus the magnitude of the vector: V<sub>x</sub> = &plusmn;V.  The sign is positive if the vector points in the positive axis direction, and negative otherwise. "
 		  ("projection equations" 
 		   open-review-window-html
-		   "ProjectionEquations.html" 
-		   :title "Projection equations")))
+		   "ProjectionEquations.html" ;use file name for title 
+		   )))
    (bottom-out (string "Since ~A lies along the ~a axis and points in the ~a ~a direction, write the equation ~A." 
 		       ?vector  (?xyz adj) (?sign adj) (?xyz adj)
 		       ((= ?compo-var (?sign ?mag-var)) algebra)))
@@ -589,8 +589,8 @@
    (teach (string "In general, if a vector V is oriented at &theta;V and the positive x axis is oriented at &theta;x ccw from horizontal, the components of the vector along the axes are given by the ~A:  <ul><li>   V<sub>x</sub> = V cos(&theta;V - &theta;x) <li>V<sub>y</sub> = V sin(&theta;v - &theta;x)</ul>" 
 		  ("projection equations" 
 		   open-review-window-html
-		   "ProjectionEquations.html" 
-		   :title "Projection equations"))
+		   "ProjectionEquations.html" ;use file name for title
+		   ))
 	  (kcd "write_x_trig_projection_equation"))
    (bottom-out (string "Since the direction of ~A is &theta;~A (~A deg) and the orientation of the x axis is &theta;~A (~A deg), you can write the general formula ~A = ~A*~A(&theta;~A - &theta;~A)."
 	       ?vector (?mag-var algebra) (?degrees adj)
@@ -645,8 +645,8 @@
    (teach (string "In general, if a vector V is oriented at &theta;V and the positive x axis is oriented at &theta;x ccw from horizontal, the components of the vector along the axes are given by the ~A: <ul><li> V<sub>x</sub> = V cos(&theta;V - &theta;x)   <li>V<sub>y</sub> = V sin(&theta;v - &theta;x)</ul>" 		  
 		  ("projection equations" 
 		   open-review-window-html
-		   "ProjectionEquations.html" 
-		   :title "Projection equations"))
+		   "ProjectionEquations.html" ;use file name for title
+		   ))
 	  (kcd "write_x_trig_projection_equation"))
    (bottom-out (string "Since the direction of ~a is ~a, and the rotation of the x axis is &theta;~A (~a deg), you can write the general formula ~a = ~a*~a(~a - &theta;~A)." 
 		       ?vector (?dir-var algebra) 
