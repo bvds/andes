@@ -286,6 +286,11 @@ body, .tundra .dijitSplitter, #navMenu{
 	overflow:hidden;
 	width:15px;
 	height:15px;
+	margin:0 0 0 .3em;
+}
+#optionsTable .dijitSpinner{
+	/* Hack b/c other widgets in this theme have this margin*/
+	margin:0 .2em;
 }
 
 /* Percentage avoids the double scrollbar problem */
