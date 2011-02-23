@@ -8,6 +8,7 @@ dojo.declare("andes.options",null,{
         correct: null,
         incorrect: null
     },
+    
     constructor: function(){
         // Get objects
         this.angleSnap = dijit.byId("optionsAngleSnap");
@@ -28,13 +29,16 @@ dojo.declare("andes.options",null,{
         var ops = this;
         this.picker = new dijit.ColorPalette({
             id:"picker",
+            open:false,
             onChange: function(value){
                 this.onExecute();
             },
             onExecute: function(){
+                this.open = false;
                 dijit.popup.close(this);
             },
             onCancel: function(/*Boolean*/ closeAll){
+                this.open = false;
                 dijit.popup.close(this);
             }}, dojo.doc.createElement("div"));
         dijit.popup.moveOffScreen(this.picker);
@@ -45,6 +49,9 @@ dojo.declare("andes.options",null,{
         dojo.connect(this.save, "onClick", this, "setChanges");
         dojo.connect(this.correct, "onclick", this, "colorChange");
         dojo.connect(this.incorrect, "onclick", this, "colorChange");
+        dojo.connect(this.dialog, "onHide", this, function(){
+            this.picker.open && this.picker.onCancel();
+        });
     },
     
     // Function to update values, change can only take one at a time.
@@ -81,6 +88,7 @@ dojo.declare("andes.options",null,{
             console.log("R: ", R, " G: ", G, " B: ", B, " fill: ",fill);
             this.values[v] = {color: value, fill: fill};
         });
+        this.picker.open = true;
         dijit.popup.open({
             popup: this.picker,
             around: evt.target
