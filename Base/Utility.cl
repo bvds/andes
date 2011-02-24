@@ -186,13 +186,6 @@
       L
     (list L)))
 
-
-(defun force-to-ll (l)
-  (if (list-of-lists-p L)
-      L
-    (list L)))
-
-
 (defun wrap-if (x) 
   "Wrap in a list if x is not nil."
   (if x (list x) x))
