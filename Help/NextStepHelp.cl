@@ -1722,9 +1722,9 @@
 	    (if (member (car wrong-tool-props) past)
 		;; already messed up once, give a hint
 		(strcat "Note that one of the sought quantities is "
-			(return-answer-quantity-short-english) ".")
+		       (return-answer-quantity-short-english) ".")
 		(strcat "The sought is a scalar quantity rather than "
-			(get-prop-type (car wrong-tool-props))))
+			(get-prop-type (car wrong-tool-props)) "."))
 	    (cons (car wrong-tool-props) Past) :Case 'Null)))
 	;; no matches
 	((null best) 
@@ -1784,20 +1784,19 @@
 
 (defun return-answer-quantity-short-english ()
   "Return a string describing the kind of quantity associated with a problem sought."
-  (let* ((Sought (car (remove-if-not #'quantity-expression-p
-				     (problem-soughts *cp*))))
- 	 (qexp (lookup-expression-struct sought)))
+  (let* ((sought (car (get-unsolved-soughts)))
+	 (qexp (lookup-expression-struct sought)))
     (if (exptype-p qexp)
 	(quantity-html-link qexp)
-	(progn (warn "return-answer-quantity-short-english: no ontology match for ~A" sought)
+	(progn (warn "return-answer-quantity-short-english: no ontology match for ~A"
+		     sought)
 	       (get-default-phrase sought)))))
 
 (defun nsh-sought-resp-ambiguous (full-props Past)
   "Return a message signifying ambiguous sought supplied."
   ;; see too-many-matches-ErrorInterp in Entry-API.cl
   (let* ((distinct-quantities (collect-distinct-quantities full-props))
-	 (Soughts (remove-if-not #'quantity-expression-p
-				 (problem-soughts *cp*)))
+	 (Soughts (get-unsolved-soughts))
 	 ;; Distinct quantity types.
 	 (solution-quantities
 	  (delete-if #'(lambda (p) (unless (exptype-p p)
@@ -1850,7 +1849,7 @@
 ;;; will simply tell them which quantity to use. 
 (defun nsh-wrong-sought-resp (msg past &key (Case 'default-wrong-sought))
   (if (< (length past) **Max-sought-Tries**)
-      (nsh-ask-sought (strcat msg "&nbsp; " "Please try "
+      (nsh-ask-sought (strcat msg "&nbsp; Please try "
 			      (if (= (length past) (- **Max-sought-Tries** 1))
 				  "one more time" 
 				  "again") ":") 
@@ -1866,9 +1865,7 @@
 (defun nsh-tell-sought (message Case)
   "Tell the student what the problem is seeking and move on."
   (declare (ignore message))
-  ;; Filter out possible multiple choice questions.
-  (let ((Sought (car (remove-if-not #'quantity-expression-p
-				    (problem-soughts *cp*)))))
+  (let ((Sought (car (get-unsolved-soughts))))
     (make-explain-more-turn
      (strcat "Let's just assume that you are seeking "
 	     (get-default-phrase Sought) ".")
@@ -1876,7 +1873,22 @@
 	    "" (match-exp->qnode Sought (problem-graph *cp*)))
      :Assoc `((nsh tell-sought ,Case ,Sought)))))
 
-	 
+(defun get-unsolved-soughts ()
+  "Return a list of sought quantities that have not been found yet."
+  (let* ((Soughts (remove-if-not #'quantity-expression-p
+				 (problem-soughts *cp*)))
+	 (solved (mapcar 
+		  #'(lambda (x) (second (StudentEntry-prop x)))
+		  (remove-if-not
+		   #'(lambda (x) 
+		       (and (eql (StudentEntry-state x) +correct+)
+			    (eql (car (StudentEntry-prop x)) 'answer)))
+		   *StudentEntries*))))
+    ;; In case where student has filled answers in but not
+    ;; completed principles, then fall back to all soughts.
+    (or (set-difference Soughts solved :test #'unify)
+	soughts)))
+ 
 ;;; --------------- ask first principle -------------------------------------
 ;;; prompting the first principle is a matter of selecting the appropriate
 ;;; first principle from the problem solutions.  If we reach this point, we 
@@ -2837,7 +2849,7 @@
 (defun nsh-prompt-fp-solution (Message Principle &key Case)
   "prompt the student to work on the selected first principle."
   (nsh-prompt-principle 
-   (strcat Message "  Lets just assume that you will work on ")
+   (strcat Message "  Let's just assume that you will work on ")
    Principle
    :Assoc `((nsh prompt-fp-solution ,Case ,(enode-id Principle)))))
 
