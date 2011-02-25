@@ -255,6 +255,13 @@ while ($myrow = mysql_fetch_array($result)) {
             // Couldn't figure out match for two characters \/, possible bug
 	    // in php?
 	    $nbbc=preg_replace('/<span class=\\\"unparsed\\\">(.*?)<..span>/','$1',$nbbc);
+	    // andes.principles.review modification
+	    // commit 026a072d1471bd5b17, Feb 4, 2011
+	    $bbc=preg_replace('/andes.principles.review.*?;/',
+			      '',$bbc);
+	    $nbbc=preg_replace('/andes.principles.review.*?;/',
+			      '',$nbbc);
+
 	    // Wrapper <var>...</var> has been added to more cases
 	    // commit c828125f4bc0e6de5b, Jan. 5, 2011
             // commit 3425f36e509234504b38, Dec. 8, 2010

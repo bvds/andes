@@ -1723,8 +1723,6 @@
 	       (vector-sought (find-if 
 			       #'(lambda (x) (member (car x) '(compo dir mag)))
 			       (get-unsolved-soughts))))
-	   (format webserver:*stdout* "stuff ~A ~A ~A~%" (get-unsolved-soughts)
-		   vector-sought wrong-tool-props)
 	   (nsh-wrong-sought-resp 
 	    (cond
 	      ((member (car wrong-tool-props) past)
