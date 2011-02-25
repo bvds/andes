@@ -1708,7 +1708,7 @@
     ;; Try to find a best match to quantities in solution.
     (multiple-value-bind (best wrong-tool-best)
 	;; The soughts are all scalar quantities.
-	(match-student-phrase0 words 'define-var)
+	(match-student-phrase0 words 'define-var :all-scalars t)
       
       (cond 
 	;; If wrong-tool-best exists, it contains scores
@@ -1717,14 +1717,31 @@
 	 (let ((wrong-tool-props 
 		(remove-duplicates
 		 (mapcar #'(lambda (x) (car (match:best-prop x)))
-			 wrong-tool-best))))
+			 wrong-tool-best)))
+	       ;; Find first unsolved sought that is a vector-related
+	       ;; quantity.
+	       (vector-sought (find-if 
+			       #'(lambda (x) (member (car x) '(compo dir mag)))
+			       (get-unsolved-soughts))))
+	   (format webserver:*stdout* "stuff ~A ~A ~A~%" (get-unsolved-soughts)
+		   vector-sought wrong-tool-props)
 	   (nsh-wrong-sought-resp 
-	    (if (member (car wrong-tool-props) past)
-		;; already messed up once, give a hint
-		(strcat "Note that one of the sought quantities is "
-		       (return-answer-quantity-short-english) ".")
-		(strcat "The sought is a scalar quantity rather than "
-			(get-prop-type (car wrong-tool-props)) "."))
+	    (cond
+	      ((member (car wrong-tool-props) past)
+	       ;; already messed up once, give a hint
+	       (strcat "Note that one of the sought quantities is "
+		       (return-answer-quantity-short-english) "."))
+	      ;; Sought quantities are all scalars.
+	      ;; If the match is a vector tool and soughts include
+	      ;; vector-related scalars (compo dir and mag), give special help.
+	      ((and vector-sought (member 'vector wrong-tool-props))
+		 (strcat "That looks like a definition of a vector.&nbsp; "
+			 "Rather, define a " 
+			 (quantity-html-link 
+			  (lookup-expression-struct vector-sought))
+			 "."))
+	      (t (strcat "The sought is a scalar quantity rather than "
+			 (get-prop-type (car wrong-tool-props)) ".")))
 	    (cons (car wrong-tool-props) Past) :Case 'Null)))
 	;; no matches
 	((null best) 
