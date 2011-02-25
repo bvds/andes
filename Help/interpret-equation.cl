@@ -362,9 +362,14 @@
 			      (lookup-expression-struct (eqn-exp index-eqn))))
 	(let ((psm (lookup-expression->psmclass 
 		    (eqn-exp index-eqn))))
-	  (open-review-window-html 
-	   (nlg-equation (eqn-exp index-eqn))
-	   (or (and psm (psmclass-tutorial psm)) "principles-tree.html"))))))
+	  (if (and psm (psmclass-tutorial psm))
+	      (open-review-window-html 
+	       (nlg-equation (eqn-exp index-eqn))
+	       (psmclass-tutorial psm))
+	      (open-review-window-html 
+	       (nlg-equation (eqn-exp index-eqn))
+	       "principles-tree.html"
+	       :title "Principles"))))))
 
 ;; switch -- whether to enforce prematurity constraints on equations
 (defvar **Check-Eqn-Constraints**  T) ; off until we work them out

@@ -24,7 +24,8 @@ ifeq ($(shell uname),Darwin)
   httpd-conf-dir = /etc/$(if $(shell test -d /etc/apache2 && echo 1),apache2,httpd)/users
 else
 ifeq ($(shell uname),Linux)
-  httpd-document-root = /var/www/html
+  # Ubuntu uses /var/www while RedHat uses /var/www/html
+  httpd-document-root = /var/www$(shell test -d /var/www/html && echo /html)
   httpd-conf-dir = /etc/$(if $(shell test -d /etc/apache2 && echo 1),apache2,httpd)/conf.d
 else
   $(error "Unknown operating system")
@@ -34,6 +35,10 @@ conf-file = $(shell (/usr/sbin/httpd -v | grep Apache/1. >> /dev/null) && echo -
 
 configure-httpd:
 	@echo "Please run with superuser privileges."
+ifeq ($(shell which a2enmod &> /dev/null && echo 1),1)
+	@echo "In Ubuntu, configuring the proxy modules:"
+	a2enmod proxy; a2enmod proxy_html; a2enmod proxy_http
+endif
 	cp andes-server$(conf-file).conf $(httpd-conf-dir)
 	ln -s `pwd`/web-UI $(httpd-document-root)
 	ln -s `pwd`/review $(httpd-document-root)
@@ -46,7 +51,9 @@ install-server:
 # Test for mysql database name based on default mysql
 # file locations in Linux.
 # Once everyone's database is updated, this can be removed, Bug #1773.
-OLD_DBNAME=$(shell test -d /var/lib/mysql && cd /var/lib/mysql && test -d andes -a ! -d andes3 && echo "1")
+# On Ubuntu, /var/lib/mysql is not readable, but all Ubuntu 
+# installations are younger than the database rename.
+OLD_DBNAME=$(shell test -r /var/lib/mysql && cd /var/lib/mysql && test -d andes -a ! -d andes3 && echo "1")
 
 update:
 	git pull

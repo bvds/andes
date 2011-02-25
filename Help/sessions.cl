@@ -83,7 +83,7 @@
   ;; Set up database
   (andes-database:create :host host :db (or db "andes3") 
 			 :user (or user "root") 
-			 :password (or password "sin(0)=0"))
+			 :password (or password ""))
 
   ;; start webserver
   (webserver:start-json-rpc-service 

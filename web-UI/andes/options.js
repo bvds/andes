@@ -8,6 +8,7 @@ dojo.declare("andes.options",null,{
         correct: null,
         incorrect: null
     },
+    
     constructor: function(){
         // Get objects
         this.angleSnap = dijit.byId("optionsAngleSnap");
@@ -16,32 +17,41 @@ dojo.declare("andes.options",null,{
         this.dialog = dijit.byId("options");
         this.correct = dojo.byId("colorCorrect");
         this.incorrect = dojo.byId("colorIncorrect");
+        this.showTimer = dijit.byId("showTimer");
         
         // Initialize values
         this.angleSnap.set('value', myDrawing.defaults.angleSnap);
         this.clickMode.set('label', myDrawing.defaults.clickMode ? "enabled" : "disabled");
+        this.showTimer.set('label', andes.timer.display ? "enabled" : "disabled");
         dojo.style(this.correct, "background", myDrawing.defaults.correct.color);
         dojo.style(this.incorrect, "background", myDrawing.defaults.incorrect.color);
         
         var ops = this;
         this.picker = new dijit.ColorPalette({
             id:"picker",
+            open:false,
             onChange: function(value){
                 this.onExecute();
             },
             onExecute: function(){
+                this.open = false;
                 dijit.popup.close(this);
             },
             onCancel: function(/*Boolean*/ closeAll){
+                this.open = false;
                 dijit.popup.close(this);
             }}, dojo.doc.createElement("div"));
         dijit.popup.moveOffScreen(this.picker);
         // Set up connections
         dojo.connect(this.angleSnap, "onChange", this, "updateAngleSnap");
         dojo.connect(this.clickMode, "onChange", this, "updateClickMode");
+        dojo.connect(this.showTimer, "onChange", this, "updateShowTimer");
         dojo.connect(this.save, "onClick", this, "setChanges");
         dojo.connect(this.correct, "onclick", this, "colorChange");
         dojo.connect(this.incorrect, "onclick", this, "colorChange");
+        dojo.connect(this.dialog, "onHide", this, function(){
+            this.picker.open && this.picker.onCancel();
+        });
     },
     
     // Function to update values, change can only take one at a time.
@@ -55,6 +65,12 @@ dojo.declare("andes.options",null,{
         this.values["clickMode"] = val;
         this.clickMode.set('label', val ? "enabled" : "disabled");
     },
+    
+    updateShowTimer: function(val){
+        this.timer = val;
+        this.showTimer.set('label', val ? "enabled" : "disabled");
+    },
+    
     // We need two colors
     colorChange: function(evt){
         var c = dojo.connect(this.picker, "onChange", this, function(value){
@@ -72,6 +88,7 @@ dojo.declare("andes.options",null,{
             console.log("R: ", R, " G: ", G, " B: ", B, " fill: ",fill);
             this.values[v] = {color: value, fill: fill};
         });
+        this.picker.open = true;
         dijit.popup.open({
             popup: this.picker,
             around: evt.target
@@ -90,6 +107,7 @@ dojo.declare("andes.options",null,{
                 myDrawing.changeDefaults(obj,true);
             }
         }
+        this.timer ? andes.timer.displayTimer() : andes.timer.hideTimer();
         this.dialog.hide();
     }
     //This should be instantiated in menu

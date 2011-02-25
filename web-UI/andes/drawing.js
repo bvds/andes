@@ -62,7 +62,7 @@ dojo.provide("andes.drawing");
 
 	var items = {};
 	var masterMap = {};
-	
+
 	dojo.addOnLoad(function(){
 		_drawing = dijit.byId(drawingId);
 		var cn = dojo.connect(_drawing, "onSurfaceReady", function(){
@@ -76,10 +76,11 @@ dojo.provide("andes.drawing");
 		});
 		dojo.connect(_drawing, "onRenderStencil", andes.drawing, "onRenderStencil");
 		
-		// Track user's focus on Andes.  This is only on high level,
-		// 
+		// Track user's focus on Andes.  So far only whether they are using the window/tab
+		// or have left to use another program
 		if(dojo.isIE){
 			dojo.connect(dojo.global, "onfocus", andes.drawing, "onWindowFocus");
+			//dojo.connect(dojo.global, "onfocusin", andes.drawing, "onWindowFocus");
 			dojo.connect(dojo.doc, "onfocusout", this, function() {
 				if (this._activeElement != document.activeElement){
 					this._activeElement = document.activeElement;
@@ -87,11 +88,13 @@ dojo.provide("andes.drawing");
 					andes.drawing.onWindowBlur();
 				}
 			});
+		}else if(dojo.isSafari){
+			dojo.connect(window, "onblur", andes.drawing, "onWindowBlur");
+			dojo.connect(window, "onfocus", andes.drawing, "onWindowFocus");
 		}else{
 			dojo.connect(dojo.doc, "onblur", andes.drawing, "onWindowBlur");
 			dojo.connect(dojo.doc, "onfocus", andes.drawing, "onWindowFocus");
 		}
-		//(andes.drawing, "onLabelDoubleClick");
 	});
 
 	
@@ -298,8 +301,17 @@ dojo.provide("andes.drawing");
 			var mods = [];
 			var min = 2, max = 5;
 			dojo.forEach(data, function(obj, i){
-				//if(obj.type!="axes"){ return; }
-				//if(obj.action == "modify-object" && obj.type == "vector") console.info("Modify-",obj.type, ": ", obj.symbol,", "," x: ", obj.x, " y: ", obj.y, " x-st: ", obj.x-statement, " y-st: ", obj.y-statement, obj);
+				// For easier-to-read and target server logs-
+				/*
+				if(obj.action!="new-object" || obj.action!="modify-object"){
+					var description="";
+					for(var o in obj){
+						if(o==undefined || obj[o]==undefined) continue;
+						description += o+": "+obj[o]+" ";
+					}
+					console.log(description);
+				}*/
+				
 				if(obj.action =="new-object"){
 					var o = andes.convert.andesToDrawing(obj);
 					
@@ -376,7 +388,7 @@ dojo.provide("andes.drawing");
 						     "click", 
 						     function(){
 							     // add 10 px padding
-							     andes.principles.review('vec1a-video.html','Intro Video',"width=650,height=395");
+							     andes.principles.review('vec1a-video.html','Intro Video',null,"width=650,height=395");
 						     });
 
 				}else if(obj.action=="set-styles"){
@@ -534,14 +546,16 @@ dojo.provide("andes.drawing");
 			// summary:
 			//	Event for when the user leaves this window
 			//	say to open another tab.
-			console.log("Lost window focus");
+			console.log("Lost window focus for ",this);
+			andes.api.recordAction({type:"window", name: this.name || "canvas", value: "blur"});
 		},
 		
 		onWindowFocus: function(){
 			// summary:
 			// 	Event for when this window is focused, such as
 			// 	switching back to this tab from another browser tab
-			console.log("Gained window focus");
+			console.log("Gained window focus for ",this);
+			andes.api.recordAction({type:"window", name: this.name || "canvas", value: "focus"});
 		}
 	};
 

@@ -105,6 +105,10 @@
 							 "word-suggest"
 							 "grammar" "symbols" 
 							 "Commands"))))
+	       (:module "dashboard"
+			:depends-on ("Help")
+			:components (
+				     (:file "dashboard")))
 	       (:module "Testcode"
 			:depends-on ("Help" "HelpStructs")
 			:components (

@@ -622,8 +622,11 @@
 	      (sb-ext:process-close id)))
    (when (probe-file "/var/lib/mysql/mysql.sock") 
      "/var/lib/mysql/mysql.sock")
-   (when (probe-file "/tmp/mysql.sock") 
+   (when (probe-file "/tmp/mysql.sock")
      "/tmp/mysql.sock")
+   ;; Ubuntu 
+   (when (probe-file "/var/run/mysqld/mysqld.sock") 
+     "/var/run/mysqld/mysqld.sock")
    (error "Can't find mysql socket file")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

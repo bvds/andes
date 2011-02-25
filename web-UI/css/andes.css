@@ -235,6 +235,16 @@ body, .tundra .dijitSplitter, #navMenu{
 	font-size: larger;
 }
 
+#timer {
+	position:absolute;
+	top:0px;
+	right:70px;
+	border:solid 1px #bbb;
+	background:#efefef;
+	display:none;
+	padding:0px 3px 1px 3px;
+}
+
 #submitButton .dijitButtonText{
 	font-size:.8em;
 	padding:0;
@@ -276,6 +286,11 @@ body, .tundra .dijitSplitter, #navMenu{
 	overflow:hidden;
 	width:15px;
 	height:15px;
+	margin:0 0 0 .3em;
+}
+#optionsTable .dijitSpinner{
+	/* Hack b/c other widgets in this theme have this margin*/
+	margin:0 .2em;
 }
 
 /* Percentage avoids the double scrollbar problem */

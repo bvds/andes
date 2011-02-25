@@ -103,10 +103,6 @@ you may need to rebuild the lisp object files:
 
 <h2>Monitoring the help server</h2>
 
-In order to use the scripts described here, you will
-need to install the packages <code>php</code> and <code>php-mysql</code>.
-
-
 <p>Most errors in the help server are logged in the database.&nbsp;  We have 
 developed some tools for analyzing these errors.&nbsp;  For instance,
 <a href="../LogProcessing/Web-Interface/ShowErrors.html"><code>
@@ -151,7 +147,7 @@ the <code>andes_test</code> database, rather than pollute the regular database.&
 You can use the following to run the help server:
 <pre>
 (rhelp)
-(start-help :db "andes_test" :password "sin(0)=0") ;set database password
+(start-help :db "andes_test" :password "my-db-pass") ;set database password
 (setf *simulate-loaded-server* nil) ;not necessary in stable branch
 (setf webserver:*debug* nil)        ;not necessary in stable branch
 ;; Create thread to monitor memory usage.

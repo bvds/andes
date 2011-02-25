@@ -129,11 +129,13 @@ if($slice == 'comments'){
   // echo "mysql query \"$sql\"\n";
   
   $result = mysql_query($sql);
+  $count = 0;
   if ($myrow = mysql_fetch_array($result)) {
     echo "<table border=1>\n";
     echo "<tr><th>User Name</th><th>Problem</th><th>Section</th><th>Starting Time</th><th>Log</th></tr>\n";
     do
       {
+	$count++;
 	$clientID=$myrow["clientID"];
 	$userName=$myrow["userName"];
 	$userProblem=$myrow["userProblem"];
@@ -146,6 +148,7 @@ if($slice == 'comments'){
     while ($myrow = mysql_fetch_array($result));
     echo "</table>\n";
   }
+  echo "<p>Found $count sessions.\n";
   
 } elseif($slice == 'errors') {
   // doesn't use $order or $orderBy

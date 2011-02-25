@@ -9,36 +9,41 @@ dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
 // The principles and other review pages can be opened either 
 // via the menus or via the help system (links in the Tutor pane).
 andes.principles={
-	
-	// Either constants or Equations.
-	reviewp: null,
-	review: function(file,title,dimensionString){
-		var dims = dimensionString?dimensionString+",scrollbars=no":"width=350,height=450,scrollbars=yes";
-		this.reviewp=window.open("../review/"+file,
-					 title,
-					 dims+",directories=no,menubar=no,toolbar=no,location=no,status=no"
-					);
-		this.reviewp && this.reviewp.focus();
-	},
-	
-	extp: null,
-	externP: function (){
-		if(!this.extp || this.extp.closed){
-			// See https://developer.mozilla.org/en/DOM/window.open
-			this.extp=window.open("../review/principles-tree.html","Principles",
-					      // Default starting size in Firefox is too big, need to set explicitly.
-					      // Need scrollbars=1 in Firefox for reopen with long (opened) tree.
-					      // status=0 ignored by Firefox.
-					      "width=350,height=450,scrollbars=yes,directories=no,menubar=no,toolbar=no,location=no,status=no"
-					     );
-			// If this fails, open a Modal dialog.
-			if(!this.extp) {
+	reviewp: [],	
+	review: function(file,title,section,dimensionString){
+		if(!this.reviewp[file] || this.reviewp[file].closed){
+			// console.log('New window "'+file+'"');
+			var dims = dimensionString?dimensionString+",scrollbars=no":"width=350,height=450,scrollbars=yes";
+			this.reviewp[file]=window.open("../review/"+file,
+						       title,
+						       dims+",directories=no,menubar=no,toolbar=no,location=no,status=no"
+						      );
+			if(this.reviewp[file]){
+				if(section){
+					// In principle, this could fail if window is already loaded
+					// by the time the code gets to here.
+					this.reviewp[file].onload = function (){
+						var obj=this.document.getElementById(section); 
+						obj.scrollIntoView();
+					}
+				}
+				// Does not work for IE.
+				dojo.connect(this.reviewp[file], "onblur", andes.drawing.onWindowBlur);
+				dojo.connect(this.reviewp[file], "onfocus", andes.drawing.onWindowFocus);
+			}else if(title=="Principles"){
+				// If principles window creation has failed, open a Modal dialog.
 				// Delete any text leftover from old hints.
-   				dojo.byId("allModalTreeText").innerHTML = "";
+				dojo.byId("allModalTreeText").innerHTML = "";
 				dijit.byId("allPrinciples").show();
 			}
+		}else{
+			// Window already open
+			this.reviewp[file].focus();
+			if(section){
+				var obj = this.reviewp[file].document.getElementById(section);
+				obj.scrollIntoView();
+			}
 		}
-		this.extp && this.extp.focus();
 	}
 }
 

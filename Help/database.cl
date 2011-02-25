@@ -165,11 +165,18 @@ list of characters and replacement strings."
        (format nil "INSERT into PROBLEM_ATTEMPT (clientID,classinformationID,userName,userproblem,userSection~:[~;,extra~]) values ('~a',~A,'~a','~A','~A'~@[,'~A'~])" 
 	       extra client-id 2 student problem section extra))))
 
+(defun truncate-string (x)
+  "Truncate arg for warning messages."
+  (subseq x 0 (min (length x) 400)))
+
 (defmacro errors-to-warnings (object &rest forms)
   "Intercept any errors, turning them into warnings, then return."
   ;; If there are json errors, we want to log them and then soldier on.
  `(handler-case (progn ,@forms)
-    (error (c) (warn (format nil "~A for ~A" (type-of c) ,object)))))
+    (error (c) (warn (format nil "~A for ~A" (type-of c) 
+			     ;; The objects are generally strings and the 
+			     ;; most common errors occur for very long strings.
+			     (truncate-string ,object))))))
 
 ;; (andes-database:get-matching-sessions '("solution-step" "seek-help") :student "bvds" :problem "s2e" :section "1234")
 ;;
