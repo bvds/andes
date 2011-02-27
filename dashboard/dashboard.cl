@@ -20,7 +20,7 @@
 ;; is defined in the file: web-UI/andes/andes3.smd
 
 
-(webserver:defun-method "/help" dasboard (&key this or that)
+(webserver:defun-method "/help" dashboard (&key this or that)
   "Stub for dashboard service method."
 
   ;; lisp code to handle request would be here.
