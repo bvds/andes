@@ -782,8 +782,8 @@
    (teach (string "When a body is moving at high speed through a fluid medium (like air), the ~A." 
 		  ("drag force is proportional to the velocity squared"
 		   open-review-window-html 
-		   "DragForce.html" :title "Drag Force")
-))
+		   "DragForce.html" ;use file name for title
+		   )))
    (bottom-out (string "Write the equation ~A" 
 		       ((= ?f-var (* ?k-var (^ ?v-var 2))) algebra)))
   ))

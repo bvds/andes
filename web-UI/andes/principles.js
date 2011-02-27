@@ -14,6 +14,12 @@ andes.principles={
 		if(!this.reviewp[file] || this.reviewp[file].closed){
 			// console.log('New window "'+file+'"');
 			var dims = dimensionString?dimensionString+",scrollbars=no":"width=350,height=450,scrollbars=yes";
+			// Internet Explorer gives error if window.open arguments contain spaces.
+			// see http://developer.mozilla.org/En/DOM/Window.open
+			if(title.match(' ')){
+				console.error("window.open title with space:  ",title);
+				title=title.replace(/ /g,'_'); // Logging name is modified.
+			}
 			this.reviewp[file]=window.open("../review/"+file,
 						       title,
 						       dims+",directories=no,menubar=no,toolbar=no,location=no,status=no"

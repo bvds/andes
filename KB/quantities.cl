@@ -53,8 +53,8 @@ and the horizontal axis.&nbsp; It can be expressed as:
   <li><em>the <var>x</var> component of &hellip;</em>
   <li><em><var>y</var> compo of  &hellip;</em>
 </ul>
-You must <a href=\"manual.html#axis-tool\" onclick='window.open(\"manual.html#axis-tool\",\"Using Andes\");return false'>draw axes</a> before using 
-any vector components.")
+You must <a href=\"manual.html#axis-tool\" onclick='if(window.opener){window.opener.andes.principles.review(\"manual.html\",\"Manual\",\"axis-tool\");return false;}'>draw axes</a> 
+before using any vector components.")
     ))
 
 (defun quantity-html-file (&optional (path #P"review/quantities.html"))

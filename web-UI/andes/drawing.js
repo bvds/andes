@@ -388,7 +388,7 @@ dojo.provide("andes.drawing");
 						     "click", 
 						     function(){
 							     // add 10 px padding
-							     andes.principles.review('vec1a-video.html','Intro Video',null,"width=650,height=395");
+							     andes.principles.review('vec1a-video.html','IntroVideo',null,"width=650,height=395");
 						     });
 
 				}else if(obj.action=="set-styles"){
