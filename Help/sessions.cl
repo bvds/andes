@@ -579,6 +579,10 @@
 	    replies)      
       (push `((:action . "set-score") (:score . 0)) replies))
 
+    ;; log the user-agent http header
+    (push `((:action . "log") (:style . "user-agent") 
+	    (:text . ,(hunchentoot:user-agent))) replies)
+
     ;; assemble list of replies to send to client.
     (append (reverse replies) solution-step-replies)))
 
