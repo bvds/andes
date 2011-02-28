@@ -39,11 +39,11 @@ andes.principles={
 					//dojo.connect(doc,"onfocusin", andes.drawing.onWindowFocus);
 					dojo.connect(this.reviewp[file],"onfocus", andes.drawing.onWindowFocus);
 					dojo.connect(doc,"onfocusout",this,function(){
-						console.log("out of focus fired");
 						if (this.reviewp[file]._activeElement != doc.activeElement){
 							this.reviewp[file]._activeElement = doc.activeElement;
 						}else{
-							andes.drawing.onWindowBlur();
+							// Supply window as context, so name is available.
+							andes.drawing.onWindowBlur.call(this.reviewp[file]);
 						}
 					});
 				} else {
