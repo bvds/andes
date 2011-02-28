@@ -33,9 +33,24 @@ andes.principles={
 						obj.scrollIntoView();
 					}
 				}
-				// Does not work for IE.
-				dojo.connect(this.reviewp[file], "onblur", andes.drawing.onWindowBlur);
-				dojo.connect(this.reviewp[file], "onfocus", andes.drawing.onWindowFocus);
+				if(dojo.isIE){
+					var doc = this.reviewp[file].document;
+					// see parallel code in drawing.js
+					//dojo.connect(doc,"onfocusin", andes.drawing.onWindowFocus);
+					dojo.connect(this.reviewp[file],"onfocus", andes.drawing.onWindowFocus);
+					dojo.connect(doc,"onfocusout",this,function(){
+						console.log("out of focus fired");
+						if (this.reviewp[file]._activeElement != doc.activeElement){
+							this.reviewp[file]._activeElement = doc.activeElement;
+						}else{
+							andes.drawing.onWindowBlur();
+						}
+					});
+				} else {
+					dojo.connect(this.reviewp[file], "onblur", andes.drawing.onWindowBlur);
+					dojo.connect(this.reviewp[file], "onfocus", andes.drawing.onWindowFocus);
+				}
+					
 			}else if(title=="Principles"){
 				// If principles window creation has failed, open a Modal dialog.
 				// Delete any text leftover from old hints.
