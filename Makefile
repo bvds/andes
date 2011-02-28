@@ -51,7 +51,9 @@ install-server:
 # Test for mysql database name based on default mysql
 # file locations in Linux.
 # Once everyone's database is updated, this can be removed, Bug #1773.
-OLD_DBNAME=$(shell test -d /var/lib/mysql && cd /var/lib/mysql && test -d andes -a ! -d andes3 && echo "1")
+# On Ubuntu, /var/lib/mysql is not readable, but all Ubuntu 
+# installations are younger than the database rename.
+OLD_DBNAME=$(shell test -r /var/lib/mysql && cd /var/lib/mysql && test -d andes -a ! -d andes3 && echo "1")
 
 update:
 	git pull

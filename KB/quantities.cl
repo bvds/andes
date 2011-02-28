@@ -37,6 +37,24 @@ then you can define the angle using:&nbsp; <em>the angle between F and G</em>.")
     (ang-displacement . "The angular displacement of an object over an interval represents 
 its net change in angular position as it rotates during that interval.&nbsp;  
 The direction of this vector is given by the right hand rule.")
+  (mag . "The magnitude (or length) of a vector can be expressed as:
+<ul>
+  <li><em>the magnitude of &hellip;</em>
+  <li><em>mag of &hellip;</em>
+</ul>")
+  (dir . "The direction of a vector is the angle between the vector
+and the horizontal axis.&nbsp; It can be expressed as:
+<ul> 
+  <li><em>the direction of &hellip;</em>
+  <li><em>dir of &hellip;</em>
+</ul>")
+    (compo . "A component of a vector can be expressed as:
+<ul>
+  <li><em>the <var>x</var> component of &hellip;</em>
+  <li><em><var>y</var> compo of  &hellip;</em>
+</ul>
+You must <a href=\"manual.html#axis-tool\" onclick='if(window.opener){window.opener.andes.principles.review(\"manual.html\",\"Manual\",\"axis-tool\");return false;}'>draw axes</a> 
+before using any vector components.")
     ))
 
 (defun quantity-html-file (&optional (path #P"review/quantities.html"))
@@ -63,10 +81,16 @@ The direction of this vector is given by the right hand rule.")
 	     "   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UT
 F-8\">~%"
 	     "<title>Quantities</title>~%"
+	     "<style type=\"text/css\">~%"
+	     "    ul.big>li {~%"
+	     "         margin-top: 0.5em;~%" 
+	     "         margin-bottom: 0.5em;~%" 
+	     "    }~%"
+	     "</style>~%"
 	     "</head>~%"
 	     "<body>~%"
 	     "<h1>scalar and vector quantities</h1>~%"
-	     "<ul>~%"))
+	     "<ul class=\"big\">~%"))
     
     (dolist (qexp 
 	      ;; Listify quantity Ontology, then alphabetize
@@ -79,7 +103,7 @@ F-8\">~%"
       (when (member (exptype-rank qexp) '(scalar vector))
 	(unless (exptype-short-name qexp)
 	  (warn "missing short-name for ~A" (exptype-type qexp)))
-	(format stream "  <li id=\"~A\"><strong>~A</strong>:&nbsp; ~(~A~)~@[<p>~A~]~@[<p>Example:&nbsp;  <em>~A</em>.~]~%" 
+	(format stream "  <li id=\"~A\"><strong>~A</strong>:&nbsp; ~(~A~)~@[<div>~A</div>~]~@[<div>Example:&nbsp;  <em>~A</em>.</div>~]~%" 
 		(exptype-type qexp) ;used as pointer in hints.
 		(exptype-short-name qexp)
 		(exptype-rank qexp)
@@ -107,7 +131,7 @@ F-8\">~%"
 		     :key #'(lambda (x) (second (systementry-prop x))) 
 		     :test #'unify))
 	      :html-format t))))
-	;; It is possible that there are things quantities
+	;; It is possible that there are quantities
 	;; in Ontology that are not used.
 	(warn "generate-random-quantity-phrase:  No problems found for ~A" prop))))
 

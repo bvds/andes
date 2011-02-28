@@ -388,7 +388,7 @@ dojo.provide("andes.drawing");
 						     "click", 
 						     function(){
 							     // add 10 px padding
-							     andes.principles.review('vec1a-video.html','Intro Video',null,"width=650,height=395");
+							     andes.principles.review('vec1a-video.html','IntroVideo',null,"width=650,height=395");
 						     });
 
 				}else if(obj.action=="set-styles"){
@@ -546,7 +546,7 @@ dojo.provide("andes.drawing");
 			// summary:
 			//	Event for when the user leaves this window
 			//	say to open another tab.
-			console.log("Lost window focus for ",this);
+			console.log("Lost window focus for ",this.name || "canvas","; ",this);
 			andes.api.recordAction({type:"window", name: this.name || "canvas", value: "blur"});
 		},
 		
@@ -554,7 +554,7 @@ dojo.provide("andes.drawing");
 			// summary:
 			// 	Event for when this window is focused, such as
 			// 	switching back to this tab from another browser tab
-			console.log("Gained window focus for ",this);
+			console.log("Gained window focus for ",this.name || "canvas","; ",this);
 			andes.api.recordAction({type:"window", name: this.name || "canvas", value: "focus"});
 		}
 	};

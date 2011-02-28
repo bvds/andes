@@ -83,7 +83,7 @@
   ;; Set up database
   (andes-database:create :host host :db (or db "andes3") 
 			 :user (or user "root") 
-			 :password (or password "sin(0)=0"))
+			 :password (or password ""))
 
   ;; start webserver
   (webserver:start-json-rpc-service 
@@ -578,6 +578,10 @@
 			     ("Correct_Answer_Entries_V_Answer_Entries" . (0 0)))))
 	    replies)      
       (push `((:action . "set-score") (:score . 0)) replies))
+
+    ;; log the user-agent http header
+    (push `((:action . "log") (:style . "user-agent") 
+	    (:text . ,(hunchentoot:user-agent))) replies)
 
     ;; assemble list of replies to send to client.
     (append (reverse replies) solution-step-replies)))
