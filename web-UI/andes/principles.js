@@ -33,28 +33,65 @@ andes.principles={
 						       dims+",directories=no,menubar=no,toolbar=no,location=no,status=no"
 						      );
 			if(this.reviewp[file]){
-				if(section){
-					// In principle, this could fail if window is already loaded
-					// by the time the code gets to here.
-					this.reviewp[file].onload = function (){
-						var obj=this.document.getElementById(section); 
-						obj.scrollIntoView();
-					}
-				}
 				if(dojo.isIE){
-					var doc = this.reviewp[file].document;
-					// see parallel code in drawing.js
-					//dojo.connect(doc,"onfocusin", andes.drawing.onWindowFocus);
-					dojo.connect(this.reviewp[file],"onfocus", andes.drawing.onWindowFocus);
-					dojo.connect(doc,"onfocusout",this,function(){
-						if (this.reviewp[file]._activeElement != doc.activeElement){
-							this.reviewp[file]._activeElement = doc.activeElement;
+					var win = this.reviewp[file];
+					// On IE 8, using this pointer to get properties gives "permission denied" errors.
+					// var doc = this.reviewp[file].document;
+					
+					// On IE 8, child window event objects may not exist when window.open is returned.
+					// window.document exists, but window.document.body may not.  
+					
+					function waitUntilLoaded(){
+						if(!win || win.closed){
+							// Should send message to server?
+							console.log("Window closed.");
+						}else if(win.document.readyState=='complete'){
+							console.log("waiting got it  ....");
+							pollChild();  // poll to test for child window focus.
+							
+							// Since window is already open, we can just scroll.
+							if(section){
+								var obj = win.document.getElementById(section);
+								obj.scrollIntoView();
+							}
 						}else{
-							// Supply window as context, so name is available.
-							andes.drawing.onWindowBlur.call(this.reviewp[file]);
+							console.log("waiting  ....",win.document.readyState);
+							window.setTimeout(waitUntilLoaded,100);
 						}
-					});
+					}					
+
+					// In IE 8, can't get events to reliably track window closing or minimization.
+					// Instead, we poll child window.
+					function pollChild(){
+						if(!win || win.closed){ 
+							// In IE 8, window object does not persist after closing.
+							console.log("Closed window for ",title);
+							andes.api.recordAction({type:"window", name: title, value: "blur"});
+						}else{
+							var f=win.document.hasFocus();
+							if(!f && win._lastFocus){
+								// Supply window as context so name is available.
+								andes.drawing.onWindowBlur.call(win);
+							}else if(f && !win._lastFocus){
+								// Supply window as context so name is available.
+								andes.drawing.onWindowFocus.call(win);
+							}
+							win._lastFocus=f;
+							window.setTimeout(pollChild,100);
+						}							
+					}
+					
+					waitUntilLoaded();
+					
 				} else {
+					if(section){
+						// In principle, this could fail if window is already loaded
+						// by the time the code gets to here.
+						this.reviewp[file].onload = function (){
+							var obj=this.document.getElementById(section); 
+							obj.scrollIntoView();
+						}
+					}
 					dojo.connect(this.reviewp[file], "onblur", andes.drawing.onWindowBlur);
 					dojo.connect(this.reviewp[file], "onfocus", andes.drawing.onWindowFocus);
 				}
