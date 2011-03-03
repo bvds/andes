@@ -230,8 +230,9 @@
 			(make-end-dialog-turn "Your comment has been recorded."
 			   :Assoc '((handle-text . comment))))
  		       
-		       (T (warn "make-explain-more-turn invalid responder ~A" 
-				R))))
+		       (T (warn 'webserver:log-warn 
+				   :tag (list  'invalid-turn-responder R)
+				   :text "invalid responder"))))
 	     :Assoc (alist-warn Assoc)))
 
 (defun make-end-dialog-turn (text &key Assoc)
