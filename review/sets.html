@@ -16,13 +16,16 @@
 # the desired Andes help server.
 # 
 # In the Andes installation, start up lisp and enter (rhelp) to 
-# load the help system.  Then use the appropriate commands in 
-# KB/principles.cl to generate the files sets.json, & principles.json
-# and place them in "sets."  Likewise, generate a list of problem html
-# files and place them in the directory sets/problems.
+# load the help system.  Then use the commands 
+#    (sets-json-file)
+#    (principles-json-file :file "principles.json" :sets t)
+# to generate the files sets.json, & principles.json and place 
+# them in "sets."  Likewise, generate a list of problem files using
+#    (problem-html-files)
+# and place them in the directory sets/problems.
 #
 # Depending on the location of "sets," you may want to create
-# a link to "sets" in /var/www/html.
+# a link to "sets" in your web server root directory (eg. /var/www/html).
  -->
 <head>
 <title>Andes problem chooser</title>
