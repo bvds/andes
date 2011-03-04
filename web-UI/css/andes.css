@@ -236,11 +236,12 @@ body, .tundra .dijitSplitter, #navMenu{
 }
 
 #timer {
+	font-family: monospace;
 	position:absolute;
 	top:0px;
 	right:70px;
 	border:solid 1px #bbb;
-	background:#efefef;
+	background:#f0f0f0;
 	display:none;
 	padding:0px 3px 1px 3px;
 }

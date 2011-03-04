@@ -667,11 +667,13 @@
 	(sleep 2))
       
       (when (and old-entry (equal action "new-object"))
-	(warn "Object ~A already exists, updating old object." id))
+	(warn  'webserver:log-warn :tag (list 'create-existing-object id)
+	       :text "Object already exists, updating old object."))
       
       (when (and (not old-entry) (or (equal action "modify-object")
 				     (equal action "delete-object")))
-	(warn "Object ~A does not exist, creating new object." id))
+	(warn 'webserver:log-warn :tag (list 'modify-non-existant-object id)
+	      :text "Object does not exist, creating new object."))
       
       (when (and type old-entry 
 		 (not (equal type (StudentEntry-type old-entry))))
@@ -806,7 +808,8 @@
 	     (warn "Unknown get-help value ~S, doing nothing; see Bug #1686." 
 		   value))))
       ((equal action "principles-menu")
-       (execute-andes-command 'handle-student-response value))
+       (execute-andes-command 'handle-student-response 
+			      (read-from-string value)))
       (t (warn "undefined action ~A, doing nothing." action)))))
 
 (defun most-recent-entry (x y)

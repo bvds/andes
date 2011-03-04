@@ -57,6 +57,7 @@ $sectionName = 'study' ; //$_POST['sectionName'];
 $startDate = ''; // $_POST['startDate'];
 $endDate = ''; // $_POST['endDate'];
 $methods = array('open-problem','solution-step','seek-help','close-problem');  //implode(",",$_POST['methods']);
+$solutionMethods = array('solution-step','seek-help');
 
 if($adminName==''){
   $adminNamec = "";
@@ -101,6 +102,36 @@ function escapeHtml($bb){
 	    return str_replace("\\/","/",$bbb);
 }
 
+// Use tagged warnings and errors
+// commit 7c0e033a62efbf24a4, March 3, 2011
+function match_error_messages($old,$new){
+  if(preg_match('/interpret-equation: no interpretation for/',$old) &&
+     preg_match('/INTERPRET-EQUATION-MISSING/',$new)){
+    return true;
+  }
+  if(preg_match('/does not exist, creating new object/',$old) &&
+     preg_match('/MODIFY-NON-EXISTANT-OBJECT/',$new)){
+    return true;
+  }
+  if(preg_match('/iea-alternate-axes-prompt response/',$old) &&
+     preg_match('/IEA-ALTERNATE-AXES-PROMPT/',$new)){
+    return true;
+  }
+  if(preg_match('/inaccurate in parse-handler/',$old) &&
+     preg_match('/PARSE-HANDLER-INACCURATE/',$new)){
+    return true;
+  }
+  if(preg_match('/Bad symbol definition/',$old) &&
+     preg_match('/SYMBOL-DEFINITION-MISMATCH/',$new)){
+    return true;
+  }
+  if(preg_match('/Unable to load problem/',$old) &&
+     preg_match('/PROBLEM-LOAD-FAILED/',$new)){
+    return true;
+  }
+  return false;
+}
+
 require_once('jsonRPCClient.php');
 $server  = new jsonRPCClient('http://localhost/help-test');
 $sessionIdBase = "_" . date('h:i:s') . "_";
@@ -135,6 +166,7 @@ while ($myrow = mysql_fetch_array($result)) {
   $tempResult = mysql_query($tempSql);
   $sessionId++; 
   $ttime = 0;  // User time for this session
+  $loadFailed = false;
   
   // get student input and server reply
   while (($myrow1 = mysql_fetch_array($tempResult)) &&
@@ -148,13 +180,26 @@ while ($myrow = mysql_fetch_array($result)) {
       $ttID=$myrow2["tID"];
       $response=$myrow1["command"];
     }
-    
+    $a=$json->decode($action);
+    $method=$a->method;
+
+    // If load has failed don't attempt any solution steps.
+    if($loadFailed && in_array($method,$solutionMethods)){
+      continue;
+    } 
+
+    // Send query to help server.
     $queryStart=microtime(true);       
     $newResponse = $server->message($action,$sessionIdBase . $sessionId);
     $dt = microtime(true) - $queryStart;
     $serverTime += $dt;
-    $a=$json->decode($action);
-    $method=$a->method;
+
+    // Determine if problem load failed, set variable
+    if(strcmp($method,"open-problem")==0 && 
+       preg_match('/PROBLEM-LOAD-FAILED/',$newResponse)!=0){
+      $loadFailed = true;
+    }
+
     // Problem might be closed later by server.
     // No attempt here to remove "out of focus" since we
     // don't have that working yet.
@@ -175,6 +220,7 @@ while ($myrow = mysql_fetch_array($result)) {
     } else {
       $tid="none";
     }
+
     if($printDiffs && 
        isset($a->params) && // Ignore server shutdown of idle sessions.
        (!$methods || in_array($method,$methods))){
@@ -209,6 +255,7 @@ while ($myrow = mysql_fetch_array($result)) {
 	    if($ignoreScores && strcmp($nbc->action,"log")==0){
 	       unset($nbc->subscores);
 	    }
+	    
 	    // Remove any backtraces from compare.
 	    unset($bc->backtrace);
 	    $bbc=$json->encode($bc);
@@ -249,18 +296,21 @@ while ($myrow = mysql_fetch_array($result)) {
 	    $bbc=preg_replace('/(Undefined variable.*?<..var>)\\"/','$1."',$bbc);
 	    // commit 14db0660b489c3c2, Nov 19, 2010
             // Add logging for window clicks.
-	    $nbbc=preg_replace('/andes.help.link.*?;/','',$nbbc);
+	    $bbc=preg_replace('/andes\.help\.link.*?;/','',$bbc);
+	    $nbbc=preg_replace('/andes\.help\.link.*?;/','',$nbbc);
 	    // Add marker for syntax error
 	    // commit c0f8084f1c41886a17c968e, Nov. 25, 2010
             // Couldn't figure out match for two characters \/, possible bug
 	    // in php?
-	    $nbbc=preg_replace('/<span class=\\\"unparsed\\\">(.*?)<..span>/','$1',$nbbc);
+	    $unparsed='/<span class=\\\"unparsed\\\">(.*?)<..span>/';
+	    $bbc=preg_replace($unparsed,'$1',$bbc);
+	    $nbbc=preg_replace($unparsed,'$1',$nbbc);
 	    // andes.principles.review modification
 	    // commit 026a072d1471bd5b17, Feb 4, 2011
-	    $bbc=preg_replace('/andes.principles.review.*?;/',
-			      '',$bbc);
-	    $nbbc=preg_replace('/andes.principles.review.*?;/',
-			      '',$nbbc);
+	    $manualLink='/andes\.principles\.review.*?;/';
+	    $manualHolder='**manual**';
+	    $bbc=preg_replace($manualLink,$manualHolder,$bbc);
+	    $nbbc=preg_replace($manualLink,$manualHolder,$nbbc);
 
 	    // Wrapper <var>...</var> has been added to more cases
 	    // commit c828125f4bc0e6de5b, Jan. 5, 2011
@@ -274,6 +324,12 @@ while ($myrow = mysql_fetch_array($result)) {
 	    // Last hint for NSH sought
 	    // eb5239f490dbb5, Jan 10, 2011
 	    $nbbc=preg_replace('/Please try one more time/','Please try again',$nbbc);
+	    // Use text field for error messages.
+	    // commit 7c0e033a62efbf24a4, March 3, 2011
+	    if(strcmp($bc->action,"log")==0 && isset($bc->error) &&
+	       !isset($nbc->error)){
+	      $bbc=preg_replace('/"error":/','"text":',$bbc);
+	    }
 	    
 	    if(strcmp($bbc,$nbbc)==0){ // match, go on to next pair
 	      $i++; $ni++;
@@ -282,15 +338,33 @@ while ($myrow = mysql_fetch_array($result)) {
 	    }elseif($ignoreScores && strcmp($nbc->action,"set-score")==0){
 	      $ni++;  // New turn has score.
 	    }elseif(
+		    // Use tagged warnings and errors
+		    // commit 7c0e033a62efbf24a4, March 3, 2011
+		    strcmp($bc->action,"log")==0 && 
+		    strcmp($nbc->action,"log")==0 && 
+		    isset($bc->error) && isset($nbc->error) &&
+		    match_error_messages($bc->error,$nbc->error)){
+	      $i++; $ni++; 
+	    }elseif(
+		    // log user agent
+		    // commit e08a0b2487d7b6a, Feb 26, 2011
+		    strcmp($bc->action,"log")==0 && 
+		    isset($bc->style) && strcmp($bc->style,"user-agent")==0){
+	      $i++;
+	    }elseif(
+		    strcmp($nbc->action,"log")==0 && 
+		    isset($nbc->style) && strcmp($nbc->style,"user-agent")==0){
+	      $ni++;
+	    }elseif(
 		    // New hints for empty definition
 		    // commit 53a456b8c04e358, Dec. 1, 2010
 		    strcmp($bc->action,"modify-object")==0 &&
 		    isset($bc->mode) && strcmp($bc->mode,"incorrect")==0 &&
 		    strcmp($nbc->action,"show-hint")==0 &&
 		    (preg_match('/Generally, objects should be labeled./',
-				$nbc->text)>0 ||
+				$nbc->text) ||
 		     preg_match('/You should.*define a variable/',
-			       $nbc->text)>0)){ 
+			       $nbc->text))){ 
 	      // Also, skip over immediately following link.
 	      $i++; $ni+=2; 
 	    }elseif($imax-$i == $nimax-$ni){ // mismatch, but same remaining

@@ -149,13 +149,12 @@
 ;;; list and return the appropriate struct if it is present or 
 ;;; give a warning if it is not.  Once that is done then we will
 ;;; move on to filtering.  
-(defun iea-check-response (rstring)
+(defun iea-check-response (response)
   "Check the supplied iea-name."
-  (unless (stringp rstring)
-    (warn "iea-check-response expecting string:  ~S" rstring)
+  (unless (consp response)
+    (warn "iea-check-response received invalid:  ~S" response)
     (return-from  iea-check-response))
-  (let* ((response (read-from-string rstring))
-	 (name (car response))
+  (let* ((name (car response))
 	 (bindings (or (cdr response) no-bindings))
 	 (equation (lookup-psmclass-name name))
 	 Tmp)
@@ -258,9 +257,12 @@
 		  (cond ((eql Response 'yes)
 			 (iea-prompt-alt-axes-yes Equation Bindings NewAxis))
 			((eql Response 'no) (iea-prompt-alt-axes-no))
-			(t (warn "iea-alternate-axes-prompt response ~A" 
-				 response))))
-   :Assoc `((IEA prompt-alternate-axes ,(PSMClass-name equation) ,Bindings ,NewAxis))))
+			(t (warn 'webserver:log-warn
+				 :tag (list 'iea-alternate-axes-prompt 
+					    response)
+				 :text "invalid response"))))
+   :Assoc `((IEA prompt-alternate-axes ,(PSMClass-name equation) 
+	     ,Bindings ,NewAxis))))
 
 
 

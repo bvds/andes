@@ -156,10 +156,11 @@
 	;; re-initialize the dialog state
 	(reset-next-step-help))
       ;; Raising an error, rather than a warning, keeps subsequent
-      ;; code in open-problem from being executed, and sends a 
+      ;; code in open-problem from being executed and sends a 
       ;; message to the student.
-      (error "Unable to load problem ~A.&nbsp;  Please try another problem." 
-	    name)))
+      (error 'webserver:log-error :tag 'problem-load-failed
+	     :text (strcat "Unable to load problem " name
+			   ".&nbsp;  Please try another problem." ))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; close-problem -- close the specified problem 

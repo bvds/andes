@@ -22,7 +22,13 @@
 
   // Modify tree so that HTML is rendered in node labels
   // See Bug #1603
-  dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
+  if(dijit._TreeNode._meta.hidden.attributeMap){
+    dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
+  }else if(dijit._TreeNode._meta.hidden._mapLabelAttr){
+    dijit._TreeNode._meta.hidden._mapLabelAttr.type="innerHTML";
+  }else{
+    console.error("Can't render HTML in tree.");
+  }
 </script>
 </head>
 <body class="tundra">

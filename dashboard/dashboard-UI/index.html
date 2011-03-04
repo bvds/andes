@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Student Dashboard</title>
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<link href="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dijit/themes/tundra/tundra.css" rel="stylesheet" type="text/css" />
+<script src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/dojo.xd.js" type="text/javascript"></script>
+<script src="js/dashboard.js" type="text/javascript"></script>
+</head>
+
+<body class="tundra">
+<div id="wrap">
+	<div id="title">
+    	<p style="font-size: 24px;">Andes Mastery Dashboard</p>
+    </div>
+	<div id="left">
+    	<script type="text/javascript">
+			if(flag)
+			{
+				document.write("<p><span style=\"font-weight: bold;\">Error!</span></p>");
+			}
+			else
+			{
+				document.write("<p><span style=\"font-weight: bold;\">User:&nbsp;</span>");
+				document.write(document.$_GET['user']);
+				document.write("</p><p><span style=\"font-weight: bold;\">Section:&nbsp;</span>");
+				document.write(document.$_GET['section']);
+				document.write("</p>");
+			}
+			if(document.$_GET['asst'] != null)
+			{
+				document.write("<p><span style=\"font-weight: bold;\">Assignment:&nbsp;</span>");
+				document.write(document.$_GET['asst']);
+				document.write("</p><br/><p><a href=\"index.html?user=" + document.$_GET['user'] + "&section=" + document.$_GET['section'] + "\">Go back to assignment overview</a>");
+			}
+		</script>
+    </div>
+    <div id="right">
+    	<div id="chart" style="width: 560px; height: 320px;"></div>
+    </div>
+    <div id="blank"></div>
+</div>
+
+
+</body>
+</html>
