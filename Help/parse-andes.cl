@@ -484,7 +484,9 @@
 	(inaccurate
 	 ;; not currently used because What's wrong checks for 
 	 ;; inaccuracy but only after checking for other error classes
-	 (warn "inaccurate in parse-handler")
+	 (warn 'webserver:log-warn  
+	       :tag 'parse-handler-inaccurate
+	       :text "inaccurate in parse-handler")
 	 (make-red-turn :id (StudentEntry-id se)))
 	(wrong
 	 (make-red-turn :id (StudentEntry-id se)))

@@ -257,9 +257,12 @@
 		  (cond ((eql Response 'yes)
 			 (iea-prompt-alt-axes-yes Equation Bindings NewAxis))
 			((eql Response 'no) (iea-prompt-alt-axes-no))
-			(t (warn "iea-alternate-axes-prompt response ~A" 
-				 response))))
-   :Assoc `((IEA prompt-alternate-axes ,(PSMClass-name equation) ,Bindings ,NewAxis))))
+			(t (warn 'webserver:log-warn
+				 :tag (list 'iea-alternate-axes-prompt 
+					    response)
+				 :text "invalid response"))))
+   :Assoc `((IEA prompt-alternate-axes ,(PSMClass-name equation) 
+	     ,Bindings ,NewAxis))))
 
 
 
