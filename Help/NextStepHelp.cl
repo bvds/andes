@@ -1546,8 +1546,10 @@
 			   (nsh-mc-only-prompt-do-reconsider Incorrect))
 			  ((eql Response 'next)
 			   (nsh-mc-only-prompt-next))
-			  (t (warn "nsh-mc-only-prompt-reconsider response ~A" 
-				   Response))))
+			  (t (warn 'webserver:log-warn 
+				   :tag (list 'nsh-mc-only-prompt-reconsider 
+					      response)
+				   :text "invalid response"))))
      :Assoc '((nsh mc-only prompt-reconsider)))))
 
 
@@ -1689,7 +1691,9 @@
   
   (unless (stringp response)
     (unless (eql response 'explain-more)
-      (warn "nsh-check-sought-resp got unexpected value ~A" response))
+      (warn  'webserver:log-warn
+	     :tag (list 'nsh-check-sought-resp response)
+	     :text "unexpected value"))
     (return-from nsh-check-sought-resp
       (nsh-wrong-sought-resp 
        "Please use the box below to enter the sought quantity."
@@ -1766,7 +1770,9 @@
      ;; Find matching qnode.
      (let ((q (match-exp->qnode prop (problem-graph *cp*))))
        (unless q 
-	 (warn "unique-prop-response no qnode matching ~A" prop))
+	 (warn 'webserver:log-warn 
+	       :tag (list 'unique-prop-response-no-qnode prop)
+	       :text "no qnode match"))
        (nsh-ask-first-principle (random-positive-feedback) q)))))
 
 ;;; If the student has tried this value before and been told 
@@ -1803,8 +1809,9 @@
 	 (qexp (lookup-expression-struct sought)))
     (if (exptype-p qexp)
 	(quantity-html-link qexp)
-	(progn (warn "return-answer-quantity-short-english: no ontology match for ~A"
-		     sought)
+	(progn (warn 'webserver:log-warn 
+		     :tag (list 'return-answer-quantity-short-english sought)
+		     :text "no ontology match")
 	       (get-default-phrase sought)))))
 
 (defun nsh-sought-resp-ambiguous (full-props Past)
@@ -1814,9 +1821,12 @@
 	 (Soughts (get-unsolved-soughts))
 	 ;; Distinct quantity types.
 	 (solution-quantities
-	  (delete-if #'(lambda (p) (unless (exptype-p p)
-				     (warn "No ontology match for ~A" p)
-				     t))
+	  (delete-if #'(lambda (p) 
+			 (unless (exptype-p p)
+			   (warn 'webserver:log-warn 
+				 :tag (list 'nsh-sought-resp-ambiguous p)
+				 :text "No ontology match")
+			   t))
 		     (delete-duplicates
 		      (mapcar #'lookup-expression-struct soughts))))
 	 (intersection-quantities
@@ -2034,13 +2044,18 @@
 	    "You need to choose something different."))
 
 
-(defun nsh-check-first-principle-response (rstring sought past)
-  (let* ((Value (read-from-string rstring))
-	 Type)
+(defun nsh-check-first-principle-response (Value sought past)
+  (let* (Type)
     (cond ((member Value past :test #'equal) 
 	   (nsh-wrong-fp-resp **nsh-repeat-fp-resp** Sought Past
 			      :Case 'Repeat))
 	  
+	  ;; This means that a text response or link was somehow given.
+	  ;; Generally, this only happens when running logs through
+	  ;; modified help system.
+	  ((not (consp value))
+	   (nsh-cfp-principle-null Sought past))
+
 	  ;; If the student selects a forbidden principle then we want to
 	  ;; tell them that.
 	  ((member (car Value) (problem-forbiddenPSMs *cp*)) 
@@ -2099,8 +2114,8 @@
 (defun nsh-cfp-principle-null (Sought past)
   "Account for an unknown psm name."
   (nsh-wrong-fp-resp
-   (strcat "Although that principle is listed on the menu, Andes has "
-	   "no record of it internally.  Please select again.")
+   (strcat "Andes does not know about this principle.&nbsp "
+	   "Please select something else.")
    Sought past
    :Case 'Null))
 
@@ -2397,8 +2412,11 @@
 			 (nsh-cfp-choose-best-fp
 			  (nsh-cfp-collect-valid-fps Choices Sought) 
 			  Sought Past))
-			(t (warn "nsh-cfp-prompt-change-axis response ~A" 
-				 response))))
+			(t (warn 'webserver:log-warn 
+				 :tag (list 'nsh-cfp-prompt-change-axis
+					    response)
+				 :text "bad response")
+				 response)))
    :Assoc `((nsh cfp-prompt-change-axis ,Axis))))
 
 
@@ -2492,7 +2510,9 @@
 			((eql Response 'principle)
 			 (nsh-wrong-fp-resp "" Sought Past 
 					    :case 'cbf-invalid-no))
-			(t (warn "nsh-cbf-invalid response ~A" Response))))
+			(t  (warn 'webserver:log-warn 
+			    :tag (list 'nsh-cbf-invalid response)
+			    :text "bad response"))))
    :Assoc '((nsh . cbf-invalid))))
 
 
@@ -2569,8 +2589,9 @@
 		       ;; the appropriate axes.
 		       (nsh-cbf-invalid-axis Best Solutions Principles 
 					     Sought Past))
-		      (t (warn "nsh-cbf-invalid-different Response ~A"
-				response))))
+		      (t (warn 'webserver:log-warn 
+			       :tag (list  'nsh-cbf-invalid-different Response)
+			       :text "invalid response"))))
      :Assoc `((nsh cbf-invalid-different ,New ,Prompt))))
 
 

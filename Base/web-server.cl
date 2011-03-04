@@ -25,6 +25,7 @@
   (:export :defun-method :start-json-rpc-service :stop-json-rpc-service 
 	   :*stdout* :print-sessions :*env* :close-idle-sessions :*debug*
 	   :*turn-timeout* :*time*
+	   :log-error :log-warn
 	   :*profile* :get-session-env :*log-id*))
 
 (in-package :webserver)
@@ -337,20 +338,36 @@
   `(((:action . "show-hint")
      (:text . ,(format nil "An error occurred:<br>~%~A~%" condition)))))
 
+(define-condition log-error (error)
+  ((tag :initarg :tag :reader log-tag)
+   (text :initarg :text :reader text))
+  (:report (lambda (c s) (write-string (text c) s))))
 
-(defun log-error (condition)
+(define-condition log-warn (warning)
+  ((tag :initarg :tag :reader log-tag)
+   (text :initarg :text :reader text))
+  (:report (lambda (c s) (write-string (text c) s))))
+
+(defun log-err (condition)
   "Log after an error or warning has occurred."
-  (let ((x (with-output-to-string (stream)
-	     ;; sbcl-specific function 
-	     #+sbcl (sb-debug:backtrace 25 stream))))
-    `((:action . "log")
-      (:error-type . ,(string (type-of condition)))
-      (:error . ,(format nil "~A" condition))
-      ;; Truncate length.  It would be better to truncate each 
-      ;; level, but that would involve dissecting the backtrace function.
-      ;; The backtrace function disables global formatting variables
-      ;; like *print-pretty*.
-      (:backtrace . ,(subseq x 0 (min (length x) 4000))))))
+  (let ((result '((:action . "log"))))
+
+    (push `(:error-type . ,(string (type-of condition))) result)
+    (push `(:text . ,(format nil "~A" condition)) result)
+
+    ;; Name for tagged and backtrace for untagged.
+    (if (member (type-of condition) '(log-error log-warn))
+	(push `(:error . ,(format nil "~S" (log-tag condition))) result)
+	(let ((x (with-output-to-string (stream)
+		   ;; sbcl-specific function 
+		   #+sbcl (sb-debug:backtrace 25 stream))))
+	  ;; Truncate length.  It would be better to truncate each 
+	  ;; level, but that would involve dissecting the backtrace function.
+	  ;; The backtrace function disables global formatting variables
+	  ;; like *print-pretty*.
+	  (push `(:backtrace . ,(subseq x 0 (min (length x) 4000))) 
+		result)))
+    (reverse result)))
 
 (defun execute-session (session-hash turn func params)
   "Execute a function in the context of a given session when its turn comes.  If the session doesn't exist, create it.  If there is nothing to save in *env*, delete session."
@@ -376,7 +393,7 @@
 	 ;; Make thread-local binding of special variable *env*
 	 ;; set up session environment for this session
 	 (let ((*env* (ssn-environment session))
-	       s-reply log-warn)
+	       s-reply log-warning)
 	   (setf (ssn-turn session) turn)
 	   (setf s-reply 
 		 ;; Lisp errors are not treated as Json rpc errors, since there
@@ -387,13 +404,18 @@
 		   (handler-bind 
 		       ;; For errors, we log and break, sending a message to 
 		       ;; the user.
-		       ((error #'(lambda (c) (push (log-error c) log-warn) 
+		       ((error #'(lambda (c) (push (log-err c) log-warning) 
 					 (return-from unwind (error-hint c))))
 			;; For warnings, we log the situation and continue
-			(warning #'(lambda (c) (push (log-error c) log-warn) 
+			(warning #'(lambda (c) (push (log-err c) log-warning) 
+					   (muffle-warning)))
+			(log-error #'(lambda (c) (push (log-err c) log-warning) 
+					 (return-from unwind (error-hint c))))
+			;; For warnings, we log the situation and continue
+			(log-warn #'(lambda (c) (push (log-err c) log-warning) 
 					   (muffle-warning)))
 			(sb-ext:timeout 
-			 #'(lambda (c) (push (log-error c) log-warn)
+			 #'(lambda (c) (push (log-err c) log-warning)
 				   (return-from unwind (error-hint c)))))
 		     
 		     ;; execute the method
@@ -411,7 +433,7 @@
 					 s-reply))))))
 	   
 	   ;; Add any log messages for warnings or errors to the return
-	   (setf s-reply (append s-reply log-warn))
+	   (setf s-reply (append s-reply log-warning))
 	   (setf (ssn-reply session) s-reply)
 	   (setf (ssn-time session) (get-internal-real-time))	   
 	   (if *env*
