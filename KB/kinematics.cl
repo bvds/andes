@@ -2267,6 +2267,7 @@
   :ExpFormat ("noting that the accelaration ~A has no ~A component between ~a to ~a, so the ~A component of velocity remains constant"
 	      (nlg ?body) (axis-name ?axis) (nlg ?time0 'moment) 
 	      (nlg ?time1 'moment) (axis-name ?axis))
+  :short-name ("[a<sub>~A</sub>=0]" (axis-name ?axis))
   ;; alternative form in principles.cl
   :EqnFormat ("vf<sub>~A</sub> = vi<sub>~A</sub>" (axis-name ?axis) (axis-name ?axis)))
 

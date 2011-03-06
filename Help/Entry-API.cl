@@ -716,8 +716,9 @@
   "Pull the quantity phrase out of a definition:  should match variablename.js"
   (when (> (length symbol) 0) ;variablename.js returns empty string on no match
     (if (not (search symbol text))
-	(warn "Bad symbol definition, ~S should be found in ~S."
-	      symbol text)
+	(warn 'webserver:log-warn
+	      :tag (list 'symbol-definition-mismatch symbol text)
+	      :text "Symbol does not match definition.")
 	;; Find first occurence of symbol in text and take rest of text.
 	;; this should be done as a parser.
 	(let* ((si (+ (search symbol text) (length symbol)))
