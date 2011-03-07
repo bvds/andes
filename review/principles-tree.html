@@ -20,12 +20,12 @@
   dojo.require("dijit.tree.ForestStoreModel");
   dojo.require("dojo.parser");
 
-  // Modify tree so that HTML is rendered in node labels
-  // See Bug #1603
-  if(dijit._TreeNode._meta.hidden.attributeMap){
+  // Modify tree so that HTML is rendered in node labels. Bug #1603
+  // See comments in web-UI/andes/principles.js
+  if(dijit._TreeNode._meta.hidden.attributeMap){   // old way
     dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
-  }else if(dijit._TreeNode._meta.hidden._mapLabelAttr){
-    dijit._TreeNode._meta.hidden._mapLabelAttr.type="innerHTML";
+  }else if(dijit._TreeNode._meta.hidden._setLabelAttr){
+    dijit._TreeNode._meta.hidden._setLabelAttr.type="innerHTML";
   }else{
     console.error("Can't render HTML in tree.");
   }
