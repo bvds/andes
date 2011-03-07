@@ -373,11 +373,19 @@
 				    result))
 			     ;; Add text to modal dialog box.
 			     (psm-menu 
+			      (push `((:action . "show-hint-link")
+				      (:text . "choose a principle")
+				      (:value . ,(symbol-name 'major-principle)))
+				    result)
 			      (push (cons '(:action . "focus-major-principles")
 					  (when (turn-text turn) 
 					    `((:text . ,(turn-text turn)))))
 				    result))
 			     (equation-menu 			      
+			      (push `((:action . "show-hint-link")
+				      (:text . "choose an equation")
+				      (:value . ,(symbol-name 'any-principle)))
+				    result)
 			      (push (cons '(:action . "focus-all-principles")
 					  (when (turn-text turn) 
 					    `((:text . ,(turn-text turn)))))

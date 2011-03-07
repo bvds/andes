@@ -1924,9 +1924,6 @@
 ;;; graph we can discuss that else if it is not major, again disucss, else 
 ;;; accept.  As above we keep track of the responses to prevent overlap.
 
-(defparameter **NSH-AFP-String**
-    "Which principle would you like to apply first?")
-
 (defparameter **NSH-AFP-Single-String**
     (strcat "Hint: this principle will usually be one that mentions "
 	    "the sought quantity explicitly.  If so, look for "
@@ -1953,9 +1950,9 @@
 (defun nsh-ask-first-principle (prefix Sought &optional (past nil))
   "Prompt the student for the first principle in the list."
   (make-dialog-turn
-   (strcat prefix **NSH-AFP-String**
-	   "  " (if (multi-sought-problem-p *cp*)
-		    **NSH-AFP-Multi-String**
+   (strcat prefix "Which principle would you like to apply first?&nbsp; "
+	   (if (multi-sought-problem-p *cp*)
+	       **NSH-AFP-Multi-String**
 		  **NSH-AFP-Single-String**))
    +psm-menu+
    :responder #'(lambda (response)
@@ -2005,7 +2002,7 @@
 ;;; principles is directly connected to this sought.  Else it gives the indirect
 ;;; message.  In the future we may prefer erring on the other side.  
 (defun nsh-afp-cont-format-msg (Sought Prefix)
-  (strcat prefix "  " 
+  (strcat prefix "&nbsp;  " 
 	  (if (nsh-atleast1-first-principle-directly-connected-p Sought)
 	      **NSH-AFPC-DIRECT-String**
 	    **NSH-AFPc-INDIRECT-STRing**)))
@@ -2049,7 +2046,12 @@
     (cond ((member Value past :test #'equal) 
 	   (nsh-wrong-fp-resp **nsh-repeat-fp-resp** Sought Past
 			      :Case 'Repeat))
-	  
+
+	  ;; Student has clicked link in tutor pane.
+	  ;; Resume where we left off
+	  ((eql value 'major-principle)
+	       (nsh-ask-first-principle-cont "Let's try again." Sought past))
+
 	  ;; This means that a text response or link was somehow given.
 	  ;; Generally, this only happens when running logs through
 	  ;; modified help system.
