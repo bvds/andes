@@ -53,9 +53,9 @@
     (unless eq (warn "Equation must always have text") (setf eq ""))
     (setf result (do-lookup-equation-string (trim-eqn eq) 
 		   entry 'equation))
-    (setf (turn-result result) 
-	  (append (log-entry-info (find-entry (StudentEntry-id entry))) 
-		  (turn-result result)))
+    (push-when-exists 
+     (log-entry-info (find-entry (StudentEntry-id entry)))
+     (turn-result result))
     result))
 
 (defun do-lookup-equation-string (equation entry location)
@@ -289,7 +289,6 @@
 	 (t
 	  ;; empty slot since it failed
 	  (solver-studentEmptySlot (StudentEntry-Id se))))))
-    ;;(format t "*(*(*( ~A~%" tmp)
     tmp))
 
 (defun sysent-algebra (sysent)
@@ -1145,8 +1144,7 @@
    ; and copy its state back into the main entry.
    (let ((result-turn (check-given-value-eqn eqn-entry)))
       ;; log the subentry details
-      (setf (turn-result result-turn)
-	    (append (log-entry-info eqn-entry) (turn-result result-turn)))
+      (push-when-exists (log-entry-info eqn-entry) (turn-result result-turn))
       ;; copy relevant info from subentry into main student entry
       (setf (StudentEntry-State main-entry) (StudentEntry-State eqn-entry))
       (setf (StudentEntry-ErrInterp main-entry) (StudentEntry-ErrInterp eqn-entry))

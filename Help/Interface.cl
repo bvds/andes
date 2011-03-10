@@ -137,6 +137,12 @@
 		    ((listp Result) result)
 		    (t (warn "Invalid result format ~A" result)))))
 
+    ;; Having nil violates the API
+    (when (and (turn-p result) (member nil (turn-result result)))
+      (warn 'webserver:log-warn 
+	    :tag (list 'result-contains-nil command (turn-result result))
+	    :text "nil in solution-step reply"))
+
     ;; Once the command has been executed and any result parsed then we
     ;; need to add the cmdresult to the current cmd.
     (iface-add-cmdresult-to-cmd NewCMD Result)
@@ -298,14 +304,15 @@
 
   ;; if there is assoc info in the turn, add to reply
   ;; :assoc has the format of an alist.
+  ;; Still need to properly logs into "student" and "tutor", Bug #1870
   (when (and turn (turn-assoc turn))
     (alist-warn (turn-assoc turn))
-    (push `((:action . "log") 
+    (push `((:action . "log") (:log . "tutor")
 	    (:assoc . ,(mapcar #'(lambda (x) (cons (string (car x))
-						 (format nil "~S" (cdr x))))
+						 (prin1-to-string (cdr x))))
 			       (turn-assoc turn))))
 	  (turn-result turn)))
-  (turn->WB-Reply turn))    
+  (turn->WB-Reply turn))
 
 
 ;;-----------------------------------------------------------------------------
@@ -404,7 +411,8 @@
       ;; this code will set the return value ignoring any coloring that
       ;; may have occurred.  No cmd will be set.
       (stat-turn (push `((:action . "log") 
-			 (:subscores . ,(turn-value turn)))
+			 (:log . "subscores")
+			 (:items . ,(turn-value turn)))
 		       result))
       )
     (reverse result)))

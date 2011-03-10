@@ -25,9 +25,10 @@
 	    "action": {
 	      "type": "string",
 	      "optional": false,
-	      "enum":["new-object","modify-object","set-score","log",
+		    "enum":["new-object","modify-object","delete-object",
+                      "set-score","log",
 		      "show-hint","show-hint-link","echo-get-help-text",
-		      "new-user-dialog","set-preferences"],
+		      "new-user-dialog","set-preferences","set-styles"],
 	      "description": "show-hint needed in the case of an error"
 	    },
 	    "id": {
@@ -62,7 +63,7 @@
 	    "y":	{"type": "number",  "optional": true},
 	    "width":	{"type": "number",  "optional": true}, 
 	    "height":	{"type": "number",	"optional": true},
-	    "text":		{"type": "string", 	"optional": true},
+	    "text":	{"type": "string", 	"optional": true},
 	    "radius":	{"type": "number", 	"optional": true},
 	    "symbol":	{"type": "string", 	"optional": true},
 	    "x-statement":	{"type": "number", 	"optional": true},
@@ -78,25 +79,31 @@
 	    "checked": {"type": "array", "items": "string", "optional": true, 
 			"description": "for buttons"},
 	    "items": {
-	      "type": "array", "items": {"type":"object"}, "optional": true,
-	      "description": "list of sub-objects, or a list of preferences (for set-preferences)."
+	      "type": "array", "optional": true,
+		    "description": "list of sub-objects, preferences or subscored."
 	    },
 	    "score": {
 	      "type": "number", 
 	      "optional": true,
 	      "description": "Only for set-score"
 	    },
-	    "subscores": {
-	      "type": "object", 
+	    "value": {
+	      "type": "string",
 	      "optional": true,
-	      "description": "Only for log"
+	      "description": "only for hints"
+	    },
+	    "log": {
+	      "type": "string",
+	      "optional": true,
+		    "enum": ["user-agent","student","server","subscores"],
+	      "description": "Required exclusively for logs."
 	    },
 	    "error-type": {
 	      "type": "string", 
 	      "optional": true,
 	      "description": "Only for error log, student error"
 	    },
-	    "error": {
+	    "entry": {
 	      "type": "string", 
 	      "optional": true,
 	      "description": "Only for error log, help system errors."
@@ -201,17 +208,22 @@
 	    "text":	{
 	      "type": "string", 	
 	      "optional": true,
-	      "description": "For hints, or modifying graphics object"
+	      "description": "For hints, or modifying graphics object."
+	    },
+	    "items": {
+	      "type": "array", "optional": true,
+	      "description": "list of subscores."
 	    },
 	    "score": {
 	      "type": "number", 
 	      "optional": true,
 	      "description": "Only for set-score"
 	    },
-	    "subscores": {
-	      "type": "object", 
+	    "log": {
+	      "type": "string",
 	      "optional": true,
-	      "description": "Only for log"
+		    "enum": ["student","server","subscores","tutor"],
+	      "description": "Required exclusively for logs."
 	    },
 	    "parse": {
 	      "type": "string",
@@ -221,12 +233,12 @@
 	    "entry": {
 	      "type": "string",
 	      "optional": true,
-	      "description": "Only for log"
+	      "description": "Only for log student, tutor, server."
 	    },
 	    "assoc": {
 	      "type": "object",
 	      "optional": true,
-	      "description": "Only for log, list of (op . step)"
+	      "description": "Only for log, alist of (op . step)"
 	    },
 	    "value": {
 	      "type": "string",
@@ -237,11 +249,6 @@
 	      "type": "string", 
 	      "optional": true,
 	      "description": "Only for error log, student error"
-	    },
-	    "error": {
-	      "type": "string", 
-	      "optional": true,
-	      "description": "Only for error log, help system errors."
 	    },
 	    "backtrace": {
 	      "type": "string", 
@@ -279,22 +286,22 @@
 		      "focus-major-principles","focus-all-principles"]
 	    },
 	    "text": {"type": "string", "optional": true},
+	    "items": {
+	      "type": "array", "optional": true,
+	      "description": "list of subscores."
+	    },
 	    "score": {
 	      "type": "number", 
 	      "optional": true,
 	      "description": "Only for set-score"
 	    },
-	    "subscores": {
-	      "type": "object",
-	      "optional": true,
-	      "description": "Only for log"
-	    },
-	    "parse": {
+	    "log": {
 	      "type": "string",
 	      "optional": true,
-	      "description": "Only for log"
+		    "enum": ["student","server","subscores","tutor"],
+	      "description": "Required exclusively for logs."
 	    },
-	    "entry": {
+	    "parse": {
 	      "type": "string",
 	      "optional": true,
 	      "description": "Only for log"
@@ -312,17 +319,17 @@
 	    "error-type": {
 	      "type": "string", 
 	      "optional": true,
-	      "description": "Only for error log, student error"
+	      "description": "Only for log student, server."
 	    },
-	    "error": {
+	    "entry": {
 	      "type": "string", 
 	      "optional": true,
-	      "description": "Only for error log, help system errors."
+	      "description": "Only for log student, tutor, server."
 	    },
 	    "backtrace": {
 	      "type": "string", 
 	      "optional": true,
-	      "description": "Only for error log, help system errors."
+	      "description": "Only for log servers."
 	    }
 	  }
 	}
@@ -358,7 +365,29 @@
 	  "last-word": {
               "type": "boolean",
               "description":"Whether given words can match a complete definition."
-            }
+          },
+	    "text": {"type": "string", "optional": true},
+	    "log": {
+	      "type": "string",
+	      "optional": true,
+		    "enum": ["server"],
+	      "description": "Required exclusively for logs."
+	    },
+	    "error-type": {
+	      "type": "string", 
+	      "optional": true,
+	      "description": "Only for log server."
+	    },
+	    "entry": {
+	      "type": "string", 
+	      "optional": true,
+	      "description": "Only for log server."
+	    },
+	    "backtrace": {
+	      "type": "string", 
+	      "optional": true,
+	      "description": "Only for log server."
+	    }
 	  }
 	}
       }
@@ -400,6 +429,10 @@
 	      "enum": ["set-score","log","problem-closed"]
 	    },
 	    "text": {"type": "string", "optional": true},
+	    "items": {
+	      "type": "array", "optional": true,
+	      "description": "Only for log, list of subscores."
+	    },
 	    "score": {
 	      "type": "number",
 	      "optional": true,
@@ -410,25 +443,26 @@
 	      "optional": true,
 	      "description": "Only for problem-closed.  Next URL for the browser to go to.  Not yet sure if this will be used."
 	    },
-	    "subscores": {
-	      "type": "object",
+	    "log": {
+	      "type": "string",
 	      "optional": true,
-	      "description": "Only for log"
+		    "enum": ["server","subscores"],
+	      "description": "Required exclusively for logs."
 	    },
 	    "error-type": {
 	      "type": "string", 
 	      "optional": true,
-	      "description": "Only for error log, student error"
+	      "description": "Only for log server."
 	    },
-	    "error": {
+	    "entry": {
 	      "type": "string", 
 	      "optional": true,
-	      "description": "Only for error log, help system errors."
+	      "description": "Only for log server."
 	    },
 	    "backtrace": {
 	      "type": "string", 
 	      "optional": true,
-	      "description": "Only for error log, help system errors."
+	      "description": "Only for log server."
 	    }
 	  }
 	}
