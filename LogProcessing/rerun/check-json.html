@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+		"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>Andes3: test returns against smd</title>
+    <style type="text/css">
+	        @import "web-UI/dojo/resources/dojo.css";
+		td {
+		      width:50%;
+                     border: 1px solid black;
+                 }
+    </style>
+
+    <!-- required: the default dijit theme: -->
+    <link id="themeStyles" rel="stylesheet" href="web-UI/dijit/themes/tundra/tundra.css">
+
+    <!-- need to parse dojoType after creating toolbar -->
+    <script src="/web-UI-test/dojo/dojo.js" type="text/javascript" 
+                djConfig="parseOnLoad:false"></script>
+
+    <!--  Demo for json-rpc to server and back -->
+    <script type="text/javascript">
+      dojo.require("dojo.parser");
+      dojo.require("dijit.form.Button");
+      dojo.provide("dojox.rpc.Client");
+      dojo.require("dojox.rpc.Service");
+      dojo.require("dojox.rpc.JsonRPC");
+      dojo.require("dojox.json.schema");
+      var typejson = new dojox.rpc.Service("web-UI/andes/andes3.smd");
+
+ 
+      function sendSession() {
+        var ok=0;
+	var st=dojo.byId('sessions');
+        // remove existing content
+	while(st.rows.length>0){
+          st.deleteRow(0);
+        }
+	dojo.forEach(posts,function(item){
+	  // Determine if return agrees with json schema specified in smd.
+          var returnSchema=typejson._smd.services[item.method].returns;
+	  var valida=dojox.json.schema.validate(item.reply,returnSchema);
+	  if(valida.valid){
+	     ok++;
+	     // console.log("ok");
+	  } else {
+	      var row = document.createElement("tr");
+	      var td = document.createElement("td");
+              var ol = document.createElement("ol");
+	      dojo.forEach(item.reply,function(zz){
+        	  var li = document.createElement("li");
+	          var txt = document.createTextNode(dojo.toJson(zz));
+                  li.appendChild(txt);
+                  ol.appendChild(li);
+              });
+	      td.appendChild(ol);
+	      row.appendChild(td);
+	      td=document.createElement("td");
+              var ul = document.createElement("ul");
+	      for(i=0; i<valida.errors.length; i++){
+        	  var li = document.createElement("li");
+	          var txt=document.createTextNode(
+		             valida.errors[i].property + " message: " 
+                              + valida.errors[i].message);
+                  li.appendChild(txt);
+                  ul.appendChild(li);
+	      }
+	      td.appendChild(ul);
+	      row.appendChild(td);
+              st.appendChild(row);
+	  }
+       });
+       var txt = document.createTextNode("ok returns: "+ok);
+       dojo.byId("ok").appendChild(txt);
+      }
+
+    </script>
+
+    <script type="text/javascript">
+        var posts;
+
+        function getSession() {
+	      console.log("starting getSession");
+	      dojo.xhrGet({
+	         url: dojo.byId('jsonFile').value,
+		 handleAs: "json",
+		 load:  function(data){
+                    posts=data;
+                    console.log("loaded, length " + posts.length);
+		    sendSession();
+                 }
+              });
+        }
+
+        function init(){
+	      dojo.parser.parse();
+	}
+	dojo.addOnLoad(init);
+    </script>
+  </head>
+
+  <body class="tundra">
+
+   <h2>Evaluate Json data file</h2>
+
+       <label>user name:</label>&nbsp;
+             <input type="text" id="jsonFile" size="12" 
+                              value="replies.json"/>&nbsp;
+       <button dojoType="dijit.form.Button" 
+           onclick="getSession">Evaluate json file</button>
+       <table><tbody id="sessions"></tbody></table>
+       <div id="ok"></div>
+  </body>
+</html>

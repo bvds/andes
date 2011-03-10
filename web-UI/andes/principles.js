@@ -3,13 +3,13 @@ dojo.require("dijit.Tree");
 dojo.require("dojo.data.ItemFileReadStore");
 
 // Modify tree so that HTML is rendered in node labels. Bug #1603
-// dijit svn commit 23943 changes object; 
 // see http://bugs.dojotoolkit.org/ticket/12278
 // Should remove switch when release uses new method.
-if(dijit._TreeNode._meta.hidden.attributeMap){
+// Also in review/principles-tree.html
+if(dijit._TreeNode._meta.hidden.attributeMap){	// Old way
 	dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
-}else if(dijit._TreeNode._meta.hidden._mapLabelAttr){
-	dijit._TreeNode._meta.hidden._mapLabelAttr.type="innerHTML";
+}else if(dijit._TreeNode._meta.hidden._setLabelAttr){
+	dijit._TreeNode._meta.hidden._setLabelAttr.type="innerHTML";
 }else{
 	console.error("Can't render HTML in tree.");
 }

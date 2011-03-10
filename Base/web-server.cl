@@ -158,7 +158,7 @@
 	   (values nil (if version
 			   `((:code . -32000) 
 			     (:message . "missing http header client-id"))
-			   (format nil "missing http header client-id"))))
+			   "missing http header client-id")))
 	  ((null method)
 	   (values nil (if version
 			   `((:code . -32600) (:message . "Method missing."))
@@ -350,14 +350,13 @@
 
 (defun log-err (condition)
   "Log after an error or warning has occurred."
-  (let ((result '((:action . "log"))))
-
+  (let ((result '((:log . "server") (:action . "log"))))
     (push `(:error-type . ,(string (type-of condition))) result)
     (push `(:text . ,(format nil "~A" condition)) result)
 
     ;; Name for tagged and backtrace for untagged.
     (if (member (type-of condition) '(log-error log-warn))
-	(push `(:error . ,(format nil "~S" (log-tag condition))) result)
+	(push `(:entry . ,(prin1-to-string (log-tag condition))) result)
 	(let ((x (with-output-to-string (stream)
 		   ;; sbcl-specific function 
 		   #+sbcl (sb-debug:backtrace 25 stream))))
@@ -386,8 +385,10 @@
 	      (< turn (ssn-turn session)))
 	 ;; return message, since client doesn't have to 
 	 ;; act on this, just log it.
-	 '(((:action . "log") (:error-type . "old-turn")
-	    (:error . "Reply already sent for this turn."))))
+	 `(((:action . "log") (:log . "server")
+	    (:error-type . ,(string :log-warning))
+	    (:entry . ,(string :old-turn))
+	    (:text . "Reply already sent for this turn."))))
 	;; Normal case where turn is new
 	(t     
 	 ;; Make thread-local binding of special variable *env*
@@ -427,10 +428,11 @@
 	   ;; Make sure method returned a list of alists
 	   (unless (and (listp s-reply) (every #'alistp s-reply))
 	     (setf s-reply 
-		   `(((:action . "log")
-		      (:error-type . "return-format")
-		      (:error . ,(format nil "Return must be a list of alists, not ~S" 
-					 s-reply))))))
+		   `(((:action . "log") (:log . "server")
+		      (:error-type . ,(string :log-warning))
+		      (:entry . ,(prin1-to-string 
+				  (list :return-alist s-reply)))
+		      (:text . "Return must be a list of alists.")))))
 	   
 	   ;; Add any log messages for warnings or errors to the return
 	   (setf s-reply (append s-reply log-warning))

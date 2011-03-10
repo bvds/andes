@@ -1360,9 +1360,8 @@
       ;; can be included in log even if student never asks whatswrong
       (diagnose Entry)
       (setf result (make-red-turn :id (StudentEntry-id Entry)))
-	;; log and push onto result list.
-      (setf (turn-result result)
-	    (append (log-entry-info Entry) (turn-result result)))
+      ;; log and push onto result list.
+      (push-when-exists (log-entry-info Entry) (turn-result result))
       (setf (turn-result result) 
 	    (append unsolicited-hints (turn-result result)))
       (return-from Check-NonEq-Entry result)) ; go no further
@@ -1414,8 +1413,7 @@
     (setf (turn-result result) 
 	  (append unsolicited-hints (turn-result result)))
     
-    (setf (turn-result result)
-	  (append (log-entry-info Entry) (turn-result result)))
+    (push-when-exists (log-entry-info Entry) (turn-result result))
     
     ;; finally return result
     result))
@@ -1519,16 +1517,16 @@
 ;; Runs wwh to get an error handler if one is unset.
 ;; Sends async commands to workbench to do the logging, so
 ;; the entries go before the final result in the log.
-;
+
 (defun log-entry-info (entry)
-  ; don't waste time adding info when checking init entries 
-  ; ?? might we want it anyway ??
+  ;; don't waste time adding info when checking init entries 
+  ;; ?? might we want it anyway ??
   (when (and entry (not **checking-entries**))
      (do-log-entry-info entry)))
   
 (defun do-log-entry-info (entry)
-  (let (result (target-entries)
-	       (parse (StudentEntry-ParsedEqn entry)))
+  (let (target-entries
+	(parse (StudentEntry-ParsedEqn entry)))
     ;; fetch target entry list for correct or incorrect entries 
     (cond ((eq (StudentEntry-state entry) +incorrect+)
 	   ;; if needed, run whatswrong help to set error interp now, so diagnosis
@@ -1540,16 +1538,17 @@
 	   (setf target-entries (studententry-Cinterp entry))))
     
     ;; OK, do the logging
-    (let ((*print-pretty* NIL)) ;no line breaks when formatting cmd strings!
+    (let ((result '((:log . "student") (:action . "log")))
+	  (*print-pretty* NIL)) ;no line breaks when formatting cmd strings!
       
       ;; log the parse if we have it.  Note for syntax errors it may be list 
-      ;; containing partial parse tree printed as (#S(PARSE :TREE (LM m) :REM =x8*/7))
+      ;; containing partial parse tree printed as 
+      ;; (#S(PARSE :TREE (LM m) :REM =x8*/7))
       ;; print parse of ? for this
       (when (consp parse)  ; non-NIL => either prefix eqn or list of parse trees
-	(push `((:action . "log") 
-		(:parse . ,(format nil "~S" 
-				   (if (eq (type-of (first parse)) 
-					   'parse) '? parse))))
+	(push `(:parse . ,(prin1-to-string 
+			   (if (eq (type-of (first parse)) 
+				   'parse) '? parse)))
 	      result))
       
       ;; For non-eq entries, show entry prop in our notation, so we can 
@@ -1557,30 +1556,27 @@
       ;; the step, but for errors we add it.
       (when (and (not (eq (first (studentEntry-prop entry)) 'eqn))
 		 (eq (StudentEntry-state entry) +incorrect+))
-	(push `((:action . "log") 
-		(:entry . ,(format nil "~S" (studentEntry-prop entry))))
+	(push `(:entry . ,(prin1-to-string (studentEntry-prop entry)))
 	      result))
       
       ;; log the error tag if one was found
       (when (StudentEntry-ErrInterp entry)
-	(push `((:action . "log") 
-		(:error-type . ,(format nil "~S" 
-					 (ErrorInterp-diagnosis 
-					  (StudentEntry-ErrInterp Entry)))))
+	(push `(:error-type . ,(prin1-to-string
+				(ErrorInterp-diagnosis 
+				 (StudentEntry-ErrInterp Entry))))
 	      result))
       
       ;; log the target entry info if we have any. This shows 
       ;; pairs of opnames and entry props "steps."
       (when target-entries
-	(push `((:action . "log") 
-		(:Assoc . ,(alist-warn (mapcar #'opname-prop-pair target-entries))))
-	      result)))
-
-    result))
+	(push `(:Assoc . ,(alist-warn (mapcar #'opname-prop-pair 
+					      target-entries)))
+	      result))
+    (reverse result))))
 
 (defun opname-prop-pair (x)
   (cons (sg-map-SystemEntry->opname x) 
-	(format nil "~s" (SystemEntry-prop x))))
+	(prin1-to-string (SystemEntry-prop x))))
 
 
 ; following does the work of entering an implicit entry associated with

@@ -30,33 +30,33 @@ dojo.addOnLoad(function(){
 	// Second arg of andes.principles.review(...) should match keyword :title
 	// in calls to open-review-window-html.
 	var spec = {
-		"menuPhysics1":function(){
+		"menuPrinciples":function(){
 			andes.principles.review('principles-tree.html','Principles');
 		},
 
-		"menuPhysicsQ":function(){
+		"menuQuantities":function(){
 			andes.principles.review('quantities.html','Quantities');
 		},
 		
-		"menuPhysics2":function(){
+		"menuUnits":function(){
 			andes.principles.review('units.html','Units');
 		},
 		
-		"menuPhysics3":function(){
+		"menuConstants":function(){
 			andes.principles.review('constants.html','Constants');
 		},
 		
-		"menuIntroductionText":function(){
+		"menuIntroText":function(){
 			andes.principles.review('introduction.html','IntroText');
 		},
 
-		"menuIntroduction":function(){
+		"menuIntroVideo":function(){
 			// add 10px padding.
 			// should match call in drawing.js
 			andes.principles.review('vec1a-video.html','IntroVideo',null,"width=650,height=395");
 		},		
 		
-	        "menuSlides":function(){
+	        "menuIntroSlides":function(){
 			andes.principles.review('try11/andes.intro.try11_controller.swf',
 						'IntroSlides',null,"width=640,height=385");
 		},

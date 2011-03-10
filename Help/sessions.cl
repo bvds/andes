@@ -522,6 +522,12 @@
 	
 	;; Echo any solution step action
 	(when (equal method "solution-step")
+	  ;; "checked" is supposed to be a json array.
+	  ;; Need special handling in case it is empty.
+	  (let ((checked (assoc :checked params)))
+	    (when (and checked (null (cdr checked)))
+	      ;; Hack for creating an empty array in json
+	      (setf (cdr checked) (make-array '(0)))))
 	  (push params send-reply))
 	
 	;; Echo any text entered in Tutor pane text box.
@@ -572,15 +578,16 @@
 		   ("Correct_Answer_Entries_V_Answer_Entries" . (0 0))))
    
       (push `((:action . "log") 
-	      (:subscores . (("NSH_BO_Call_Count" . 0)
-			     ("WWH_BO_Call_Count" . 0)
-			     ("Correct_Entries_V_Entries" . (0 0)) 
-			     ("Correct_Answer_Entries_V_Answer_Entries" . (0 0)))))
+	      (:log . "subscores")
+	      (:items . (("NSH_BO_Call_Count" 0)
+			     ("WWH_BO_Call_Count" 0)
+			     ("Correct_Entries_V_Entries" 0 0) 
+			     ("Correct_Answer_Entries_V_Answer_Entries" 0 0))))
 	    replies)      
       (push `((:action . "set-score") (:score . 0)) replies))
 
     ;; log the user-agent http header
-    (push `((:action . "log") (:style . "user-agent") 
+    (push `((:action . "log") (:log . "user-agent") 
 	    (:text . ,(hunchentoot:user-agent))) replies)
 
     ;; assemble list of replies to send to client.

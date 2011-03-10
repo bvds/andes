@@ -21,3 +21,7 @@ tr.record-action {
 tr.close-problem {
   background-color: #EFEFEF;
 }
+
+tr.syntax {
+  background-color: #ff00ff;
+}
