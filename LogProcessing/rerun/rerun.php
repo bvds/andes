@@ -39,10 +39,11 @@ $ignoreScores = true;  // ignore any changes to scoring.
 $printDiffs = true;  // Whether to print out results for server diffs
 $jsonFile = 'replies.json';  // File name for dumping reply json
 	    
-$dbname= 'andes3'; //$_POST['dbname'];
-$dbuser= 'root'; // $_POST['dbuser'];
-$dbserver= "localhost";
-$dbpass= file_get_contents("db_password");  /// $_POST['passwd'];
+$dbserver = "localhost";
+$dbLogin = split("\n",file_get_contents("../../db_user_password")); 	     
+$dbuser = $dbLogin[0];   // $_POST['dbuser'];
+$dbpass = $dbLogin[1];   // $_POST['passwd'];
+$dbname = $dbLogin[2] ? $dbLogin[2] : 'andes3'; //$_POST['dbname'];
 
 //CONNECTION STRING  
     
