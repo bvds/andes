@@ -58,7 +58,10 @@
   ;; db              the name of the database, default "andes"
   ;; user            database user name, default "root"
   ;; password        the database password
+  ;; See Documentation/server.html for setting default values for
+  ;; the database login.
   "start a server with help system, optionally specifying the server port, the log file path, and database access."
+
   ;; global setup
 
   ;; tune garbage collection
@@ -81,9 +84,7 @@
   (physics-algebra-rules-initialize) ;initialize grammar
 
   ;; Set up database
-  (andes-database:create :host host :db (or db "andes3") 
-			 :user (or user "root") 
-			 :password (or password ""))
+  (andes-database:create :host host :db db :user user :password password)
 
   ;; start webserver
   (webserver:start-json-rpc-service 

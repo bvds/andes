@@ -23,6 +23,7 @@
 (defpackage :andes-database
   (:use :cl :json :mysql-connect)
   (:export :write-transaction :destroy :create :set-session 
+	   :read-login-file
 	   :get-matching-sessions :first-session-p))
 (in-package :andes-database)
 
@@ -59,7 +60,20 @@
 	 (sb-thread:with-mutex (*db-lock*) ,@body)
 	 (error "No common database defined, can't continue."))))
 
-(defun create (&key host db user password)
+(defun read-login-file (&optional path)
+  "Read the database login file; file contains user name, password & (optional) database name."
+  (with-open-file (f (or path (merge-pathnames "db_user_password" 
+					       cl-user::*andes-path*))
+		     :if-does-not-exist nil)
+    (when f (values (read-line f) (read-line f) (read-line f nil)))))
+
+(defun create (&key user password db host)
+
+  (multiple-value-bind (u p d) (read-login-file)
+    (setf user (or user u "root"))
+    (setf password (or password p (error "No database password given.")))
+    (setf db (or db d "andes3")))
+
   (unless *skip-db*
     (setf *connection* 
 	  (connect :host host :user user :password password :database db))))

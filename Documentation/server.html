@@ -39,6 +39,25 @@ and <code>seek-help</code> messages are sent to the server.&nbsp;
 A session ends when the student hits the submit button or the back
 button on the browser.&nbsp;
 
+<h2>Database access</h2>
+
+<p>Create the file <code>db_user_password</code> in the Andes root
+directory.&nbsp;  This file should contain, on separate lines,
+the mysql user name, password, and (optionally) the database
+name.&nbsp;
+This file should be readable only by the user:
+<pre>
+chmod 600 db_user_password
+</pre>
+You can test this file by running, in lisp, the commands:
+<pre>
+(rhelp)
+(andes-database:read-login-file)
+</pre>
+The command <code>(start-help)</code> will access this file for any values
+that are not given explicitly.
+
+
 <h2>Running the Help Server</h2>
 
 For normal production use, the Help server will be run as a daemon.&nbsp;
@@ -46,12 +65,6 @@ The daemon reads the config file <code>/etc/andes-help.conf</code>
 and starts up a lisp process that and runs the contents
 of the file <a href="../help-server/init.cl">
 <code>help-server/init.cl</code></a>.&nbsp;
-You may need to edit the <code>start-help</code> command in
-<a href="../help-server/init.cl"><code>help-server/init.cl</code></a> 
-in order to include your mysql password
-or any other customization that you need to run the server.&nbsp;
-The function <code>start-help</code> is documented in the source 
-file <a href="../Help/sessions.cl"><code>Help/sessions.cl</code></a>.
 
 <p>To install the help server, or reinstall it, enter the following
 command in the Andes root directory (as superuser):
@@ -77,7 +90,8 @@ There are a number of things missing from the server; see
 
 <h2>Software Updates</h2>
 
-To update the software, in the Andes root directory, enter:&nbsp; <code>make update</code>
+To update the software, in the Andes root directory, enter:&nbsp;
+<code>make update</code>
 
 <p>If the help server is running, restart the server using:
 <pre>
