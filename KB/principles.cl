@@ -1068,7 +1068,7 @@
 	   (unless sets
 	     ;; turn off pretty-print to prevent line breaks
 	     (push (cons :psm 
-			 (format nil "~S"
+			 (prin1-to-string
 				 (cons (psmclass-name pc) 
 				       (if (eq bindings no-bindings) 
 					   nil bindings))))

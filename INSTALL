@@ -96,8 +96,8 @@ make sbclrc  # Install the sbcl initialization file ~/.sbclrc
 # As superuser:
   /sbin/chkconfig mysqld on
   /sbin/service mysqld start
-# Then set the root password (you can choose your own) and restart:
-  /usr/bin/mysqladmin -u root password 'sin(0)=0'
+# Then set the root password (choose your own) and restart:
+  /usr/bin/mysqladmin -u root password 'mysql-password'
   /sbin/service mysqld restart
 # (In OS X, go to http://dev.mysql.com, install mysql and MySQLStartupItem,
 # add /usr/local/mysql/bin to PATH in ~/.profile,
@@ -140,7 +140,7 @@ make install-dojo
 
 ;; To test the Help Server type "sbcl" to start up lisp, then:
 (rhelp)
-(start-help :password "my-db-pass") ;specify mysql password 
+(start-help :password "my-db-pass") ;specify your mysql password 
 
 ;; The help server is now running on port 8080.
 ;; You can test access to the help server by using telnet:

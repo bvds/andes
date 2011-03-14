@@ -8,7 +8,7 @@
     (setf *swank-loaded* t))
 
 ;; Start help server.
-(start-help :password "my-db-pass")
+(start-help)
 
 ;; Start a Swank server
 #+swank (when *swank-loaded*

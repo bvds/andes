@@ -151,6 +151,12 @@
 ;;; move on to filtering.  
 (defun iea-check-response (response)
   "Check the supplied iea-name."
+
+  ;; Student has clicked on link in tutor pane.
+  ;; Re-open principles menu.
+  (when (eql response 'any-principle)
+    (return-from iea-check-response (IEA-main "")))
+
   (unless (consp response)
     (warn "iea-check-response received invalid:  ~S" response)
     (return-from  iea-check-response))

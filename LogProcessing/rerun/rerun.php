@@ -37,11 +37,13 @@
 $ignoreNewLogs = true;  // ignore any new non-error, log messages
 $ignoreScores = true;  // ignore any changes to scoring.
 $printDiffs = true;  // Whether to print out results for server diffs
+$jsonFile = 'replies.json';  // File name for dumping reply json
 	    
-$dbname= 'andes3'; //$_POST['dbname'];
-$dbuser= 'root'; // $_POST['dbuser'];
-$dbserver= "localhost";
-$dbpass= file_get_contents("db_password");  /// $_POST['passwd'];
+$dbserver = "localhost";
+$dbLogin = split("\n",file_get_contents("../../db_user_password")); 	     
+$dbuser = $dbLogin[0];   // $_POST['dbuser'];
+$dbpass = $dbLogin[1];   // $_POST['passwd'];
+$dbname = $dbLogin[2] ? $dbLogin[2] : 'andes3'; //$_POST['dbname'];
 
 //CONNECTION STRING  
     
@@ -132,10 +134,48 @@ function match_error_messages($old,$new){
   return false;
 }
 
+
+// loop through result array and consolidate student interps.
+// Before March 8, 2011, student interps were
+// placed in separate rows.
+function consolidate_interps($result){
+  $imax=sizeof($result);
+  $studentLog=array(); $tmp=array();
+  $firstLog=-1;
+  $j=0;
+  for($i=0; $i<$imax; $i++){
+    $bc=$result[$i];
+    if(strcmp($bc->action,"log")==0 && 
+       !isset($bc->backtrace)){
+      if($firstLog<0){
+	$firstLog=$i;
+	$j++;
+      }
+      foreach($bc as $key => $value){
+	$studentLog[$key]=$value;
+	// Want to place log right after action so
+	// string matching works.
+	if(strcmp($key,'action')==0){
+	  $studentLog['log']='student';
+	}
+      }
+    }else{
+      $tmp[$j++]=$bc;
+    }
+  }
+  if($firstLog>=0){
+    $tmp[$firstLog]=(object) $studentLog;
+  }
+  return $tmp;
+}
+	     
 require_once('jsonRPCClient.php');
 $server  = new jsonRPCClient('http://localhost/help-test');
 $sessionIdBase = "_" . date('h:i:s') . "_";
 $sessionId = 0;
+$handle = fopen($jsonFile,'w');
+fwrite($handle,"[\n");
+$firstRow = true;
 
 $studentTime = 0; // Total user time for all sessions
 $serverTime = 0; // Total server time for all sessions.
@@ -235,25 +275,26 @@ while ($myrow = mysql_fetch_array($result)) {
 	$jr=$json->decode($response);
 	$njr=$json->decode($newResponse);
 	if(isset($jr->result) && isset($njr->result)){
-	  $imax=sizeof($jr->result);
+      	  $imax=sizeof($jr->result);
 	  $nimax=sizeof($njr->result);
+
+	  // Old logs spread student interpretations over
+	  // several lines.
+	  $jr->result=consolidate_interps($jr->result);
+	  $imax=sizeof($jr->result);
+
 	  $rows=array();
 	  $i=0; $ni=0;
 	  while($i<$imax && $ni<$nimax){
 	    $bc=$jr->result[$i];  // copy used for compare
 	    $bb=$json->encode($bc); // print this out
 	    $nbc=$njr->result[$ni];  // copy used for compare
-	    $nbb=$json->encode($nbc);  // printed this out
+	    $nbb=$json->encode($nbc);  // print this out
+
 	    // Remove dummy url from close-problem
 	    // commit 512d1492822, Jan 5, 2011
 	    if(strcmp($bc->action,"problem-closed")==0){
 	       unset($bc->url);
-	    }
-	    if($ignoreScores && strcmp($bc->action,"log")==0){
-	       unset($bc->subscores);
-	    }
-	    if($ignoreScores && strcmp($nbc->action,"log")==0){
-	       unset($nbc->subscores);
 	    }
 	    
 	    // Remove any backtraces from compare.
@@ -298,6 +339,7 @@ while ($myrow = mysql_fetch_array($result)) {
             // Add logging for window clicks.
 	    $bbc=preg_replace('/andes\.help\.link.*?;/','',$bbc);
 	    $nbbc=preg_replace('/andes\.help\.link.*?;/','',$nbbc);
+
 	    // Add marker for syntax error
 	    // commit c0f8084f1c41886a17c968e, Nov. 25, 2010
             // Couldn't figure out match for two characters \/, possible bug
@@ -305,6 +347,7 @@ while ($myrow = mysql_fetch_array($result)) {
 	    $unparsed='/<span class=\\\"unparsed\\\">(.*?)<..span>/';
 	    $bbc=preg_replace($unparsed,'$1',$bbc);
 	    $nbbc=preg_replace($unparsed,'$1',$nbbc);
+
 	    // andes.principles.review modification
 	    // commit 026a072d1471bd5b17, Feb 4, 2011
 	    $manualLink='/andes\.principles\.review.*?;/';
@@ -317,43 +360,69 @@ while ($myrow = mysql_fetch_array($result)) {
             // commit 3425f36e509234504b38, Dec. 8, 2010
 	    $bbc=preg_replace('/<var>(.*?)<..var>/','$1',$bbc);
 	    $nbbc=preg_replace('/<var>(.*?)<..var>/','$1',$nbbc);
+
 	    // Change hint wording for unmatched sought.
 	    // January 7, 2011
 	    $bbc=preg_replace('/Your entry does not match any quantities needed to solve this problem/','**unmatched-sought**',$bbc);
 	    $nbbc=preg_replace('/Sorry, I was not able to understand your entry/','**unmatched-sought**',$nbbc);
+
 	    // Last hint for NSH sought
 	    // eb5239f490dbb5, Jan 10, 2011
 	    $nbbc=preg_replace('/Please try one more time/','Please try again',$nbbc);
-	    // Use text field for error messages.
+	    // Update format for untagged error messages.
 	    // commit 7c0e033a62efbf24a4, March 3, 2011
 	    if(strcmp($bc->action,"log")==0 && isset($bc->error) &&
-	       !isset($nbc->error)){
+	       !isset($nbc->entry)){  // change only untagged errors
+	      $bbc=preg_replace('/"action":"log",/',
+				'"action":"log","log":"server",',$bbc);
 	      $bbc=preg_replace('/"error":/','"text":',$bbc);
+	    }
+
+	    // fix typo in vec1ay
+	    // problems commit 477931a39be6, March 7, 2011
+	    $bbc=preg_replace('/usethe/','use the',$bbc);
+
+	    // Old logs don't distinguish between log:student and log:tutor
+	    // Turn everything to log:student in new logs
+	    // Logs after March 9, 2011 do.
+	    if(strcmp($bc->action,"log")==0 &&
+	       strcmp($nbc->action,"log")==0 && 
+	       preg_match('/"log":"student"/',$bbc)){
+	      $nbbc=preg_replace('/"log":"tutor"/','"log":"student"',$nbbc);
 	    }
 	    
 	    if(strcmp($bbc,$nbbc)==0){ // match, go on to next pair
 	      $i++; $ni++;
 	    }elseif($ignoreScores && strcmp($bc->action,"set-score")==0){
 	      $i++;  // Old turn has score.
-	    }elseif($ignoreScores && strcmp($nbc->action,"set-score")==0){
+	    }elseif($ignoreScores && isset($nbc->action) &&
+		    strcmp($nbc->action,"set-score")==0){
 	      $ni++;  // New turn has score.
+	    }elseif($ignoreScores && strcmp($bc->action,"log")==0 &&
+		    (isset($bc->subscores) || // old log format
+		     (isset($bc->log) && strcmp($bc->log,"subscores")==0))){
+	      $i++;  // Old turn has subscores.
+	    }elseif($ignoreScores && strcmp($nbc->action,"log")==0 &&
+		    strcmp($nbc->log,"subscores")==0){
+	      $ni++;  // New turn has subscores.
 	    }elseif(
 		    // Use tagged warnings and errors
 		    // commit 7c0e033a62efbf24a4, March 3, 2011
 		    strcmp($bc->action,"log")==0 && 
 		    strcmp($nbc->action,"log")==0 && 
-		    isset($bc->error) && isset($nbc->error) &&
-		    match_error_messages($bc->error,$nbc->error)){
+		    isset($bc->error) && isset($nbc->entry) &&
+		    match_error_messages($bc->error,$nbc->entry)){
 	      $i++; $ni++; 
 	    }elseif(
 		    // log user agent
 		    // commit e08a0b2487d7b6a, Feb 26, 2011
 		    strcmp($bc->action,"log")==0 && 
-		    isset($bc->style) && strcmp($bc->style,"user-agent")==0){
+		    isset($bc->log) && 
+		    strcmp($bc->log,"user-agent")==0){
 	      $i++;
 	    }elseif(
 		    strcmp($nbc->action,"log")==0 && 
-		    isset($nbc->style) && strcmp($nbc->style,"user-agent")==0){
+		    strcmp($nbc->log,"user-agent")==0){
 	      $ni++;
 	    }elseif(
 		    // New hints for empty definition
@@ -373,9 +442,14 @@ while ($myrow = mysql_fetch_array($result)) {
 		array_push($rows,"<td>$bbb</td><td>$nbbb</td>");
 	      $i++; $ni++;
 	    }elseif($imax-$i < $nimax-$ni){ // mismatch, extra row in new
-	      // drop any added log messages
-	      if(! ($ignoreNewLogs && strcmp($nbc->action,"log")==0 &&
-		    !isset($nbc->error))){
+	      // drop new log messages 
+	      // commit ea69ab06944, Jan 4, 2011, "EQUATION-SYNTAX-ERROR":"WRONG-TOOL"
+	      // commit 53a456b8c04, Dec 1, 2010, "NO-VARIABLE-DEFINED":"NIL"
+	      //                                   NO-LABEL
+	      // commit 220f3bcff2f, Nov 19, 2010, EQUATION-SYNTAX-ERROR
+	      // See bug #1870
+	      if(!($ignoreNewLogs && strcmp($nbc->action,"log")==0 &&
+		    strcmp($nbc->log,"tutor")==0)){
 		$nbbb=escapeHtml($nbb);
 		array_push($rows,"<td></td><td>$nbbb</td>");
 	      }
@@ -394,6 +468,17 @@ while ($myrow = mysql_fetch_array($result)) {
 	      echo "  <tr class='$method'>$row</tr>\n";
 	    }
 	  }
+
+	  // Dump reply result to file for testing json against smd
+          // See check-json.html
+	  if($firstRow){
+	    $firstRow=false;
+	  } else {
+	    fwrite($handle,",\n");
+	  }
+	  fwrite($handle,"{\"method\":\"$method\",\"reply\":" .
+                          $json->encode($njr->result) . "}");
+
 	} else {
 	  // json parse of result failed.
 	  echo "<tr class='$method'><td>$tid</td><td>$aa</td><td>$response</td><td>$newResponse</td></tr>\n";	   
@@ -406,6 +491,9 @@ while ($myrow = mysql_fetch_array($result)) {
   }
   $studentTime += $ttime;
  }
+
+fwrite($handle,"\n]\n");
+fclose($handle);
 
 echo "<p>Student time " . number_format($studentTime,2) . 
      " and server time " . number_format($serverTime,2) . " seconds.<br>\n";
