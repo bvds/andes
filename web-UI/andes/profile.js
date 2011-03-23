@@ -16,6 +16,7 @@ dojo.require("dijit.PopupMenuItem");
 dojo.require("dijit.form.Button");
 dojo.require("dijit.form.TextBox");
 dojo.require("dijit.form.NumberSpinner");
+dojo.require("dijit.form.ToggleButton");
 dojo.require("dijit.Tooltip");
 // needs to be loaded before Drawing:
 dojo.require("andes.defaults");
