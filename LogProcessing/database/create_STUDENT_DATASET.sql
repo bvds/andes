@@ -5,4 +5,4 @@ CREATE TABLE `STUDENT_DATASET` (
   `groupname` varchar(45) NOT NULL,
   `problemname` varchar(45) NOT NULL,
   PRIMARY KEY  (`datasetID`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1 COMMENT='A table for a dataset'
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1 COMMENT='A table for a dataset';

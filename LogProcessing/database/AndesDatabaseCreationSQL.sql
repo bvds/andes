@@ -13,19 +13,17 @@
 CREATE DATABASE `andes3` /*!40100 DEFAULT CHARACTER SET latin1 */;
 USE `andes3`;
 -- Creates the tables NOTE: ORDER OF CREATION MATTERS DUE TO FOREIGN KEY DEPENDENCIES! (ALWAYS MAKE SURE YOU CREATE A TABLE BEFORE YOU CREATE ANOTHER THAT REFERENCES IT)
-\. create_STUDENT_DATASET.sql
 \. create_CLASS_INFORMATION.sql
 \. create_PROBLEM_ATTEMPT.sql
-\. create_PROBLEM_ATTEMPT_TRANSACTION.sql
+\. create_STEP_TRANSACTION.sql
 \. create_REVIEWED_PROBLEMS.sql
+\. create_CUSTOMIZATIONS.sql
+\. create_STUDENT_MODEL.sql
+\. create_STUDENT_DATASET.sql
 
 -- Insert initial classes into database
-
 insert into STUDENT_DATASET values (1,"Watchung Hills Regional High School Honors Physics 2008-2009","Statics","S*","S2E");
-insert into STUDENT_DATASET values (2,"dummy dataset","dummy module","dummy group","dummy problem");
-
-insert into CLASS_INFORMATION values (1,"Physics H (430)","Watchung Hills Regional High School",3,"Introductory physics course for 11th and 12th grades preparing students for the physics SAT II exam.","Brian Brown","2008-2009",1);
-insert into CLASS_INFORMATION values (2,"dummy class","dummy school",0,"a dummy class used for lack of knowledge","dumb instructor","dumb year",2);
+insert into CLASS_INFORMATION values ("testSection","Physics H (430)","Watchung Hills Regional High School",3,"Introductory physics course for 11th and 12th grades preparing students for the physics SAT II exam.","Brian Brown","2008-2009",1);
 
 -- Some mysql installations have file loading disabled.
 -- This is the case for CMU/OLI
@@ -36,7 +34,10 @@ insert into CLASS_INFORMATION values (2,"dummy class","dummy school",0,"a dummy 
 -- Create a database for load testing
 CREATE DATABASE `andes_test` /*!40100 DEFAULT CHARACTER SET latin1 */;
 USE `andes_test`;
--- Create the tables.  The test tables have a simpler structure than 'andes'.
 
-\. create_test_PROBLEM_ATTEMPT.sql
-\. create_PROBLEM_ATTEMPT_TRANSACTION.sql
+-- Mirrors Andes3 creation above;
+\. create_CLASS_INFORMATION.sql
+\. create_PROBLEM_ATTEMPT.sql
+\. create_STEP_TRANSACTION.sql
+\. create_CUSTOMIZATIONS.sql
+\. create_STUDENT_MODEL.sql
