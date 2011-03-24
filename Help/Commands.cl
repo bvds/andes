@@ -220,8 +220,8 @@
      ; !!! Should verify we aren't clobbering an existing command
      (setf (turn-type result-turn) +minil-turn+)
      (setf (turn-text result-turn)
-       (format NIL "http://136.142.94.84/cgi-bin/navalkcds?user=~a;prob=~a"
-                   (help-env-student webserver:*env*) (problem-name *cp*)))))
+       (format NIL "http://136.142.94.84/cgi-bin/navalkcds?user=~a&section=~A&prob=~a"
+                   session:*user* session:*section* session:*problem*))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-mc-answer
