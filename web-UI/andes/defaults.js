@@ -119,11 +119,11 @@ dojo.provide("andes.defaults");
 		// double as highlights.
 		//
 		hitNorm:{
-			width:6,
-			color:{r:0, g:255, b:255, a:0},
+			width:10,
+			color:{r:0, g:255, b:255, a:.0001},
 			style:"Solid",
 			cap:"round",
-			fill:{r:255, g:255, b:255, a:0}
+			fill:{r:255, g:255, b:255, a:.0001}
 		},
 		hitSelected:{
 			width:6,
