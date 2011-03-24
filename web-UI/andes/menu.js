@@ -83,15 +83,12 @@ dojo.addOnLoad(function(){
 		contextItem(i, spec[i]);
 	}
 	
-	
-	// var co = {divider: new dijit.MenuSeparator()};
 	function contextItem(desc, fn){
 		var label = dijit.byId(desc).get("label");
 		// Hack I'll fix later
 		if(label=="Options" || label=="Introduction"){
 			andes.contextMenu.addChild(new dijit.MenuSeparator());
-		}
-		
+		};
 		contextOptions[label] = new dijit.MenuItem({
 			label:label,
 			onClick:fn

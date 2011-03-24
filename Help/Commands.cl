@@ -84,33 +84,9 @@
 (in-package :cl-user)
 
 
-;;; ===========================================================================
-;;; State API calls.
-;;; The do definitions are located in state.cl
-
-
-;;-----------------------------------------------------------------------------
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Check-entries -- start or stop loading saved entries.
-;; argument:
-;;  State: T or nil indicating that the workbench is beginning to or will now
-;;    cease sending saved entries to the help system.
-;;
-;; note(s): This was added to port grading from the cmdreader to the help
-;;  system and will now be used for that purpose.
-;;
-;; This code will set the **checking-entries** flag at runtime.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun check-entries (State)
-  (if (equalp State **checking-entries**)
-      (warn "Unmatched check-entries call made for ~A." State)
-    (setq **Checking-Entries** State)))
-
-;;; ===========================================================================
+;;; ==========================================================================
 ;;; Eqn-entry
 ;;; Equation entry commands.
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; solve-for-var -- solve for the given var using the equations the student has
@@ -220,8 +196,8 @@
      ; !!! Should verify we aren't clobbering an existing command
      (setf (turn-type result-turn) +minil-turn+)
      (setf (turn-text result-turn)
-       (format NIL "http://136.142.94.84/cgi-bin/navalkcds?user=~a;prob=~a"
-                   (help-env-student webserver:*env*) (problem-name *cp*)))))
+       (format NIL "http://136.142.94.84/cgi-bin/navalkcds?user=~a&section=~A&prob=~a"
+                   session:*user* session:*section* session:*problem*))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-mc-answer

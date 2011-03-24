@@ -42,6 +42,7 @@
 				     (:file "CMD")
 				     (:file "RuntimeTestScore")
 				     (:file "RuntimeTest")
+				     (:file "session")
 				     ))
 	       (:module "Help"
 			:depends-on ("HelpStructs" "Base")

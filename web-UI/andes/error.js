@@ -81,6 +81,9 @@ dojo.require("dijit.form.Button");
 			title: "Error",
 			style: "width:400px"
 		});
+		window.onerror = function(msg, url, line){
+			console.log("Window error: ",msg," url: ",url, " line: ",line);
+		}
 	});
 
 })();

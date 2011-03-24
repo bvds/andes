@@ -58,7 +58,10 @@
   ;; db              the name of the database, default "andes"
   ;; user            database user name, default "root"
   ;; password        the database password
+  ;; See Documentation/server.html for setting default values for
+  ;; the database login.
   "start a server with help system, optionally specifying the server port, the log file path, and database access."
+
   ;; global setup
 
   ;; tune garbage collection
@@ -81,9 +84,7 @@
   (physics-algebra-rules-initialize) ;initialize grammar
 
   ;; Set up database
-  (andes-database:create :host host :db (or db "andes3") 
-			 :user (or user "root") 
-			 :password (or password ""))
+  (andes-database:create :host host :db db :user user :password password)
 
   ;; start webserver
   (webserver:start-json-rpc-service 
@@ -105,7 +106,7 @@
     (loop
        ;; MySql drops connections that have been idle for over 8 hours.
        ;; Send trivial query, to keep connection alive.
-       (andes-database:first-session-p :student "none" :section "none") 
+       (andes-database:get-most-recent-tID) 
        (sleep cutoff)
        (webserver:close-idle-sessions :idle cutoff :method 'close-problem))))
 
@@ -162,20 +163,19 @@
 	  *test-cache-drawing-entries* **Current-Body-Expression-Form**
 	  **Current-Prob-Requires-nonanswer-entries** **entry-entered**
 	  *sg-systementry-optional-p-memo*
+	  ;; Session state information
+	  session:*user* session:*section* session:*problem* 
+	  session:*state-cache*
 	  )
 	#-sbcl "List of global variables that need to be saved between turns in a session."
 	#+sbcl #'equalp
 	)
 
-(defstruct help-env  
-  "Quantities that must be saved between turns of a session.  Member vals contains list of values for help-env-vars." 
-	   section student problem vals)
-
 ;; Should be useful for debugging.
 (defun get-session-variable (session var)
   "Get a session local variable for a given session (string)."
   (nth (position var help-env-vars)
-       (help-env-vals (webserver:get-session-env session))))
+       (webserver:get-session-env session)))
 
 (eval-when (:load-toplevel :compile-toplevel)
   (defun globally-special-p (s)
@@ -195,7 +195,7 @@
   "Make session-local copy of global variables, retrieving values from webserver:*env* at the beginning of a turn and saving them again at the end of the turn"
   (let ((save-help-env-vals
 	 ;; Save local variables back to *env*.
-	 `(setf (help-env-vals webserver:*env*) (list ,@help-env-vars))))
+	 `(setf webserver:*env* (list ,@help-env-vars))))
     
     ;; If the variable is not already declared special (via defvar,
     ;; for instance), then its scope will not be dynamic and env-wrap
@@ -207,9 +207,9 @@
     `(progn
       ;; Null webserver:*env* indicates that the student is trying to work
       ;; on a session that has been idle or has not been initialized:  
-      (if (and webserver:*env* (help-env-p webserver:*env*))
+      (if (and webserver:*env* (listp webserver:*env*))
 	  (let ,(mapcar 
-		 #'(lambda (x) (list x '(pop (help-env-vals webserver:*env*))))
+		 #'(lambda (x) (list x '(pop webserver:*env*)))
 		 help-env-vars)
 	    ;; If there is an error or timeout, need to save current values
 	    ;; back to the environment variable before passing control
@@ -243,20 +243,30 @@
   ;; the session already exists.
   (when webserver:*env* 
     (warn "webserver:*env* already exists.  Session in progress?"))
-  
+
   ;; webserver:*env* needs to be initialized before the wrapper
-  (setq webserver:*env* (make-help-env :student user :problem problem 
-				       :section section))
+  (setq webserver:*env* (make-list (length help-env-vars) 
+				   :initial-element nil))
 
   ;; Update logging with session information
+  ;; Should be done first so that entry in PROBLEM_ATTEMPT exists 
+  ;; before starting turn logging.
   (andes-database:set-session 
    webserver:*log-id* :student user :problem problem :section section
    :extra extra)
   
   (let (replies solution-step-replies predefs
+		last-client-id ;used when re-running old sessions
 		;; Override global variable on start-up
 		(*simulate-loaded-server* nil))
     (env-wrap
+
+      ;; Save session information for later accessing student
+      ;; model and customizations.
+      (setf session:*user* user
+	    session:*section* section
+	    session:*problem* problem)
+
       (setq **base-Htime** (universal-time->htime (get-universal-time)))
       (solver-load)
       (solver-logging *solver-logging*)
@@ -264,9 +274,6 @@
       ;; Config modifies *runtime-testset*, so we
       ;; need to make the session-local copy first. 
       (session-local-runtime-testset)
-
-      ;; Used by some Runtime tests
-      (setf **checking-entries** nil)
 
       ;; Andes2 had the following calls that can be found in log files:
       ;;   read-student-info; the only remaining step is:
@@ -452,9 +459,8 @@
 	      (push `(:y . ,y) (cdr predef)))
 	  ;; (format webserver:*stdout* "  Turned to ~A~%" (cdr predef))
 	  (setf y (+ y 25))))
-
-
-      (check-entries t))
+      
+      (setf **checking-entries** t))
     
     ;; Send pre-defined quantities to the help system via
     ;; the solution-step method.
@@ -462,89 +468,104 @@
     (dolist (predef (mapcar #'cdr predefs)) ;ignore any entry-prop
       ;; (format webserver:*stdout* "Sending predef ~A~%" (cdr predef))
       (let ((reply (apply #'solution-step 
-			  ;; flatten the alist
-			  (mapcan 
-			   #'(lambda (x) (list (car x) (cdr x)))
-			   predef))))
+			   ;; flatten the alist
+			   (mapcan 
+			    #'(lambda (x) (list (car x) (cdr x)))
+			    predef))))
 	(setf solution-step-replies 
 	      (append solution-step-replies 
 		      (cons predef reply))))
       ;; (format webserver:*stdout* "   done with predef ~A~%" (cdr predef))
       )
-      
-    (env-wrap (check-entries nil))     
+
+    (env-wrap (setf **checking-entries** nil))
     
     ;; Pull old sessions out of the database that match
     ;; student, problem, & section.  Run turns through help system
     ;; to set problem up and set scoring state.
-    (dolist (old-step (andes-database:get-matching-sessions 
-		       '("solution-step" "seek-help")
-		       :student user :problem problem :section section
-		       :extra extra))
-      (let* ((method (cdr (assoc :method old-step))) 
-	     ;; Remove time, since it is no longer meaningful.
-	     (params (remove :time
-			     (cdr (assoc :params old-step))
-			     :key #'car))
-	     ;; If an old session turn produces an error, convert it
-	     ;; into a warning and move on to the next turn.
-	     ;; Otherwise old sessions with unfixed errors cannot be reopened.
-	     (reply (handler-case
-			(apply 
-			 (cond 
-			   ((equal method "solution-step") #'solution-step)
-			   ((equal method "seek-help") #'seek-help))
-			 ;; flatten the alist
-			 (mapcan #'(lambda (x) (list (car x) (cdr x))) 
-				 params))
-		      (error (c) (warn (format nil "Found ~A for ~A of ~A" 
-					       (type-of c) method params)))))
-	     
-	     ;; solution-steps and help results are passed back to client
-	     ;; to set up state on client.
-	     ;;
-	     ;; Help requests are sent to the help system, to set the solution
-	     ;; status and grading state.  Alternatively, we could just send 
-	     ;; the solution steps to the help system state and then set 
-	     ;; the grading state by brute force.
-	     ;; 
-	     ;; Drop actions that make modal changes to the user interface.
-	     ;; Since there is no mechanism to connect log messages to specific
-	     ;; solution steps or help actions, also drop log messages.
-	     (send-reply (remove-if 
-			  #'(lambda (x) (member (cdr (assoc :action x)) 
-						'("focus-hint-text-box" "log"
-						  "focus-major-principles" 
-						  "focus-all-principles")
-						:test #'equal))
-			  reply)))
+    (andes-database:old-sessions
+     (dolist (old-step (andes-database:get-matching-sessions 
+			 '("solution-step" "seek-help")
+			 :student user :problem problem :section section
+			 :extra extra))
 
+       ;; Detect first turn in an old session.
+       (unless (equal last-client-id (cdr old-step))
+	 ;; flush state cache
+	 (env-wrap 
+	   (setf session:*state-cache* nil))
+	 (andes-database:set-old-session-start (cdr old-step))
+	 (setf last-client-id (cdr old-step)))
+       
+	(let* ((method (cdr (assoc :method (car old-step))))
+	       ;; Remove time, since it is no longer meaningful.
+	       (params (remove :time
+			       (cdr (assoc :params (car old-step)))
+			       :key #'car))	       
+	       ;; If an old session turn produces an error, convert it
+	       ;; into a warning and move on to the next turn.
+	       ;; Otherwise old sessions with unfixed errors cannot 
+	       ;; be reopened.
+	       (reply (handler-case
+			  (apply 
+			   (cond 
+			     ((equal method "solution-step") #'solution-step)
+			     ((equal method "seek-help") #'seek-help))
+			   ;; flatten the alist
+			   (mapcan #'(lambda (x) (list (car x) (cdr x))) 
+				   params))
+			(error (c) (warn (format nil "Found ~A for ~A of ~A" 
+						 (type-of c) method 
+						 params)))))
+	       
+	       ;; solution-steps and help results are passed back to client
+	       ;; to set up state on client.
+	       ;;
+	       ;; Help requests are sent to the help system to set 
+	       ;; the solution status and grading state.  Alternatively, 
+	       ;; we could just send the solution steps to the help 
+	       ;; system state and then set the grading state by brute force.
+	       ;; 
+	       ;; Drop actions that make modal changes to the user interface.
+	       ;; Since there is no mechanism to connect log messages to 
+	       ;; specific solution steps or help actions, also drop log 
+	       ;; messages.
+	       (send-reply (remove-if 
+			    #'(lambda (x) (member (cdr (assoc :action x)) 
+						  '("focus-hint-text-box" "log"
+						    "focus-major-principles" 
+						    "focus-all-principles")
+						  :test #'equal))
+			    reply)))
+	  
 	
-	;; Echo any solution step action
-	(when (equal method "solution-step")
-	  ;; "checked" is supposed to be a json array.
-	  ;; Need special handling in case it is empty.
-	  (let ((checked (assoc :checked params)))
-	    (when (and checked (null (cdr checked)))
-	      ;; Hack for creating an empty array in json
-	      (setf (cdr checked) (make-array '(0)))))
-	  (push params send-reply))
-	
-	;; Echo any text entered in Tutor pane text box.
-	(when (and (equal method "seek-help") 
-		   (equal (cdr (assoc :action params)) "get-help")
-		   (assoc :text params))
-	  (push `((:action . "echo-get-help-text") 
-		  (:text . ,(cdr (assoc :text params)))) send-reply))
-	
+	  ;; Echo any solution step action
+	  (when (equal method "solution-step")
+	    ;; "checked" is supposed to be a json array.
+	    ;; Need special handling in case it is empty.
+	    (let ((checked (assoc :checked params)))
+	      (when (and checked (null (cdr checked)))
+		;; Hack for creating an empty array in json
+		(setf (cdr checked) (make-array '(0)))))
+	    (push params send-reply))
+	  
+	  ;; Echo any text entered in Tutor pane text box.
+	  (when (and (equal method "seek-help") 
+		     (equal (cdr (assoc :action params)) "get-help")
+		     (assoc :text params))
+	    (push `((:action . "echo-get-help-text") 
+		    (:text . ,(cdr (assoc :text params)))) send-reply))
+	  
 	(setf solution-step-replies
-	      (append solution-step-replies send-reply))))
-
+	      (append solution-step-replies send-reply)))))
     (env-wrap
+      ;; After running through old session, flush state cache
+      (setf session:*state-cache* nil)
 
       ;; Determine if this is the first session for this user.
-      (when (andes-database:first-session-p :student user :section section 
-					    :extra extra)
+      ;; Do separately from seen-intro-video in case video window
+      ;; is killed by pop-up blocker on client.
+      (unless (andes-database:get-state-property 'has-seen-intro-dialog)
 	(let ((dialog-text 
 	       (if (member 'introduction (problem-features *cp*))
 		   (strcat "If this is your first time using Andes, "
@@ -553,6 +574,8 @@
 		   (strcat "If this is your first time using Andes, "
 			   "you should go back and try an "
 			   "introductory problem."))))
+	  (andes-database:set-state-property 
+		   'has-seen-intro-dialog t)
 	  ;; Start up special dialog box.
 	  (push `((:action . "new-user-dialog")
 		  (:text . ,dialog-text)) replies)))
@@ -794,6 +817,10 @@
       ;; Press help button.  
       ;; call next-step-help or do-whats-wrong
       ((equal action "help-button")
+       ;; Increment property value (probably should write a routine for this.)
+       (let ((x (andes-database:get-state-property 'clicked-help-button)))
+	 (andes-database:set-state-property 'clicked-help-button 
+					    (if x (+ x 1) 1)))
        ;; Find if there are any current errors.
        (let ((mistakes (remove +incorrect+ *studententries* 
 			       :test-not #'eql
@@ -810,6 +837,7 @@
       ;; Student has clicked a link associated with the help.
       ((and (equal action "get-help") value)
        (let ((response-code (find-symbol value)))
+	 (andes-database:set-state-property 'clicked-help-link T)
 	 (if response-code 
 	     (execute-andes-command 'handle-student-response response-code)
 	     (warn "Unknown get-help value ~S, doing nothing; see Bug #1686." 
@@ -858,8 +886,15 @@
   (declare (ignore time)) ;for logging
 
   (env-wrap
-   (when (equal type "set-preference")
-     (warn "Need to save style to database: ~A ~A" name value)))
+    (cond 
+      ((and (equal type "window") (equal name "IntroVideo"))
+       (andes-database:set-state-property 'intro-video-opened T))
+      ((and (equal type "menu-choice") (equal name "menuIntroVideo"))
+       (andes-database:set-state-property 'seen-intro-video 'menu))
+      ((equal type "tutor-link")
+       (andes-database:set-state-property 'clicked-tutor-link T))
+      ((equal type "set-preference")
+       (warn "Need to save style to database: ~A ~A" name value))))
 
   ;; This method has no return
   nil)

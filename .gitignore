@@ -8,3 +8,5 @@ CVS
 *.o
 *.fasl
 #*#
+db_user_password
+db_update_version

@@ -26,7 +26,7 @@
 	   :*stdout* :print-sessions :*env* :close-idle-sessions :*debug*
 	   :*turn-timeout* :*time*
 	   :log-error :log-warn
-	   :*profile* :get-session-env :*log-id*))
+	   :*profile* :get-session-env :*log-id* :*log-variable*))
 
 (in-package :webserver)
 
@@ -36,6 +36,7 @@
 (defvar *server* nil)
 (defvar *log-function* nil "Logging function, function of 3 variables.")
 (defvar *log-id* nil "Id sent to the logging function.")
+(defvar *log-variable* nil "Parameter local to turn & available to logging function.")
 (defvar *stdout* *standard-output*)
 (defvar *service-methods* (make-hash-table :test #'equal))
 
@@ -122,8 +123,10 @@
 	 (params (cdr (assoc :params in-json)))
 	 (turn (cdr (assoc :id in-json)))
 	 (client-id (header-in* :client-id))
-	 ;; Make thread local variable, this is the id used by logging
+	 ;; Make thread-local variable, this is the id used by logging
 	 (*log-id* client-id)
+	 ;; thread-local variable, available to method & log function.
+	 *log-variable* 
 	 (*trace-output* *stdout*) ;So we can see traces.
 	 ;; If I can't parse the json, assume it is 2.0.
 	 (version (if in-json (assoc :jsonrpc in-json) '(:jsonrpc . "2.0")))
