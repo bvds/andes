@@ -24,7 +24,11 @@
   (:use :cl :json :mysql-connect)
   (:export :write-transaction :destroy :create :set-session 
 	   :read-login-file
-	   :get-matching-sessions :first-session-p))
+	   :get-matching-sessions
+	   :old-sessions :set-old-session-start 
+	   :get-start-tID :get-most-recent-tID
+	   :get-state-property :get-state-properties
+	   :set-state-property))
 (in-package :andes-database)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -73,7 +77,7 @@
     (setf user (or user u "root"))
     (setf password (or password p (error "No database password given.")))
     (setf db (or db d "andes3")))
-
+  
   (unless *skip-db*
     (setf *connection* 
 	  (connect :host host :user user :password password :database db))))
@@ -91,24 +95,32 @@
       ;; or has failed.
       (unless 
 	  (query *connection*
-	   (format nil
-		   "SELECT clientID FROM PROBLEM_ATTEMPT WHERE clientID = '~A'" 
-		   client-id)
-	   ;:field-names nil :flatp t :result-types :auto
-	   )
+		 (format nil
+			 "SELECT clientID FROM PROBLEM_ATTEMPT WHERE clientID = '~A'" 
+			 client-id)
+		 ;;:field-names nil :flatp t :result-types :auto
+		 )
 	(query *connection*
-	 (format nil
-		 "INSERT into PROBLEM_ATTEMPT (clientID,classinformationID) values ('~A',2)"
-		 client-id)))
+	       (format nil
+		       "INSERT into PROBLEM_ATTEMPT (clientID) values ('~A')"
+		       client-id)))
     
     ;; If a post contains no json, j-string is lisp nil and 
     ;; sql null is inserted into database.
-      (query *connection* 
-       (format nil "INSERT into PROBLEM_ATTEMPT_TRANSACTION (clientID, Command, initiatingParty) values ('~A',~:[null~;~:*'~A'~],'client')" 
-	       client-id (make-safe-string input)))
-      (query *connection* 
-     (format nil "INSERT into PROBLEM_ATTEMPT_TRANSACTION (clientID, Command, initiatingParty) values ('~A',~:[null~;~:*'~A'~],'server')" 
-	   client-id (make-safe-string reply)))))
+    (query *connection* 
+	   (format nil "INSERT into STEP_TRANSACTION (clientID,client,server) values ('~A',~:[null~;~:*'~A'~],~:[null~;~:*'~A'~])" 
+		   client-id (make-safe-string input) 
+		   (make-safe-string reply)))
+
+    ;; Add any model updates associated with the step.
+    (when webserver:*log-variable*
+      ;; We consolidate turn updates (only log one per session)
+      ;; to minimize size of STUDENT_STATE table.
+      (let ((tID (get-start-tID client-id)))
+	;; Do oldest ones first.
+	(dolist (update (reverse webserver:*log-variable*))
+	  (query *connection*
+		 (format nil update tID)))))))
 
 ;; Escaping ' via '' follows ANSI SQL standard.
 ;; If the Database escapes backslashes, must also do those.
@@ -173,11 +185,22 @@ list of characters and replacement strings."
     (setf extra nil))   ;drop from query if missing.
   
   (with-db    
+      ;; Test that section entry already exits or create an empty one.
+      (unless 
+	  (query *connection*
+		 (format nil
+			 "SELECT classSection FROM CLASS_INFORMATION WHERE classSection = '~A'" 
+			 section)
+		 )
+	(query *connection*
+	       (format nil
+		       "INSERT into CLASS_INFORMATION (classSection,description) values ('~A','unknown section')"
+		       section)))
     ;; session is labeled by client-id 
     ;; This sets up entry in PROBLEM attempt for a given session.
       (query *connection*
-       (format nil "INSERT into PROBLEM_ATTEMPT (clientID,classinformationID,userName,userproblem,userSection~:[~;,extra~]) values ('~a',~A,'~a','~A','~A'~@[,'~A'~])" 
-	       extra client-id 2 student problem section extra))))
+       (format nil "INSERT into PROBLEM_ATTEMPT (clientID,userName,userproblem,userSection~:[~;,extra~]) values ('~a','~a','~A','~A'~@[,'~A'~])" 
+	       extra client-id student problem section extra))))
 
 (defun truncate-string (x)
   "Truncate arg for warning messages."
@@ -202,48 +225,54 @@ list of characters and replacement strings."
   
   (with-db
     (let ((result (query *connection*
-		   (format nil "SELECT initiatingParty,command FROM PROBLEM_ATTEMPT,PROBLEM_ATTEMPT_TRANSACTION WHERE userName='~A' AND userProblem='~A' AND userSection='~A'~@[ AND extra=~A~] AND PROBLEM_ATTEMPT.clientID=PROBLEM_ATTEMPT_TRANSACTION.clientID" 
-			   student problem section extra) 
+			 (format nil "SELECT server,client,STEP_TRANSACTION.clientID FROM PROBLEM_ATTEMPT,STEP_TRANSACTION WHERE userName='~A' AND userProblem='~A' AND userSection='~A'~@[ AND extra=~A~] AND PROBLEM_ATTEMPT.clientID=STEP_TRANSACTION.clientID" 
+				 student problem section extra) 
 		   ;:flatp t
-		   ))
-	  filtered
+			 ))
 	  ;; By default, cl-json turns camelcase into dashes:  
 	  ;; Instead, we are case insensitive, preserving dashes.
 	  (*json-identifier-name-to-lisp* #'string-upcase))
-
+      
       ;; Filter out turns where the reply contains a timeout error.
       ;; Unless the bug causing the timeout has been fixed, these errors
       ;; prevent a student from reopening a problem.
-      (let ((last (car result)))
-	(dolist (x (cdr result))
-	  ;; find client turn such that any following server
-	  ;; turn does not have a timeout error.
-	  (when (equal (car last) "client")
-	    (unless (and (equal (car x) "server")
-			 (second x)
-			 (server-reply-has-timeout
-			  ;; Actually, we only need to decode the 
-			  ;; top-level list.
-			  ;; Sometimes result gets truncated on very long
-			  ;; backtraces.  It might be better to just search 
-			  ;; the string for the timeout message?
-			  (errors-to-warnings (second x)
-			    (decode-json-from-string (second x)))))
-	      (push (second last) filtered)))
-	  (setf last x)))
-      (setf filtered (reverse filtered))
-
+      (setf result
+	    (remove-if
+	     #'(lambda (x)
+		 ;; find client turn such that associated server
+		 ;; reply does not have a timeout error.
+		 (and x
+		      (server-reply-has-timeout
+		       ;; Actually, we only need to decode the 
+		       ;; top-level list.
+		       ;; Sometimes result gets truncated on very long
+		       ;; backtraces.  It might be better to just search 
+		       ;; the string for the timeout message?
+		       (errors-to-warnings x (decode-json-from-string x)))))
+	     result
+	     :key #'car))
+      
+      ;; parse json in each member of result
+      ;; pick out post and client-id
+      (setf result
+	    (mapcar 
+	     ;; A post with no json sent gets translated into nil;
+	     ;; see write-transaction.
+	     #'(lambda (x) 
+		 (let ((y (second x)))
+		   (cons (and y 
+			      (errors-to-warnings 
+			       y
+			     (decode-json-from-string y)))
+			 (third x))))
+	     result))
+      
       ;; pick out the solution-set and get-help methods
       (remove-if #'(lambda (x) (not (member (cdr (assoc :method x))
 					    methods
 					    :test #'equal)))
-		 ;; parse json in each member of result
-		 (mapcar 
-		  ;; A post with no json sent gets translated into nil;
-		  ;; see write-transaction.
-		  #'(lambda (x) (and x (errors-to-warnings x
-					 (decode-json-from-string x))))
-		  filtered)))))
+		 result
+		 :key #'car))))
 
 (defun server-reply-has-timeout (reply)
   "Test whether a server reply includes a timeout error."
@@ -252,12 +281,141 @@ list of characters and replacement strings."
 					 "timeout")))
 	(cdr (assoc :result reply))))
 
-(defun first-session-p (&key student section extra)
-  "Determine student has solved any problem previously."
-  (unless (or *skip-db* (> (length extra) 0)) ;can be empty string
-    (with-db
-      (> 2 (parse-integer 
-	    (car (car (query *connection*
-			     (format nil "SELECT count(*) FROM PROBLEM_ATTEMPT WHERE userName = '~A' AND userSection='~A'" 
-				     student section) 
-			     ))))))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;;          Access student and section customizations.
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun single-query (x)
+  "Perform database query that expects a single column reply."
+  ;; Do not use inside another with-db wrapper.
+  (let ((result 
+	 (mapcar #'car
+		 (with-db (query *connection* x)))))
+    (when nil ;debug print
+      (format webserver:*stdout*
+	      "database query:~%  ~A~%  ~A~%  " x result))
+    result))
+
+;; Only set these inside an old-sessions wrapper.
+(defvar *disable-saving-state* nil)
+(defvar *old-client-id* nil)
+
+(defun set-old-session-start (client-id)
+  "Use client-id from old session to set session tID.  Should be called inside an old-sessions wrapper."
+  (setf *old-client-id* client-id))
+
+(defmacro old-sessions (&body body)
+  "Turn off writing state to database."
+  `(let ((*disable-saving-state* t) *old-client-id*) ,@body))
+
+;; It would be more efficient if we cached the results for 
+;; this query.  However, it cannot be cached as a session
+;; variable because write-transaction cannot access session 
+;; variables.
+;; A global cache would need periodic flushing.
+(defun get-start-tID (client-id)
+  (car (car 
+	(query *connection* 
+	       (format nil "SELECT MIN(tID) FROM STEP_TRANSACTION WHERE clientID='~A'"
+		       client-id))))) 
+
+(defun get-session-starting-tID ()
+  "Get any existing tID associated with the start of the current session.  If client-id is a string, use that session."
+      ;; Should cache result of this query.
+      (with-db (get-start-tID 
+		(or *old-client-id* webserver:*log-id*))))
+
+(defun get-most-recent-tID ()
+  (car (single-query "SELECT MAX(tID) FROM STEP_TRANSACTION")))
+
+(defun get-state-properties (&key (student session:*user*) 
+			     (section session:*section*) (model "default")
+			     (tID (get-session-starting-tID)))
+  "Retrieve state parameters from the database.  Model includes \"default\", \"client\", or \"server\".  Returns an alist of property-value pairs.  Null student returns section-wide results."  
+  (let ((properties
+	 (single-query
+	  ;; If student exists, still need to look for any section defaults
+	  ;; for the case 
+	  (format nil "SELECT DISTINCT property FROM STUDENT_STATE WHERE userSection='~A' AND (~@[userName='~A' OR ~]userName IS NULL) AND model='~A'~@[ AND tID<~A~]" 
+		  section student model tID)))
+	result)
+
+    ;; Add any cached properties.
+    (dolist (p session:*state-cache*)
+      (when (equal model (car (car p)))
+	(pushnew (cdr (car p)) properties :test #'equal)))
+    
+    (dolist (property properties)
+      (multiple-value-bind (value flag)
+	  (get-state-property property :section section :student student
+			      :model model :tID tID)
+	;; Remove properties that have been deleted.
+	(when flag (push (cons property value) result))))
+    result))
+
+(defun get-state-property (property &key (student session:*user*) 
+			   (section session:*section*) (model "default")
+			   (tID (get-session-starting-tID)))
+  "Retrieve state parameter from the database.  Model includes \"default\", \"client\", or \"server\".  Returns value and flag indicating a value has been found.  Null student returns section-wide results."  
+  
+  ;; First, see if property is cached.
+  ;; Using the cache is necessary for re-running old sessions.
+  ;; Cache needs to be flushed between different old sessions.
+  (let ((x (assoc (cons model property) session:*state-cache* :test #'equal)))
+    (when x
+      (return-from get-state-property
+	(values (cdr x) t))))
+  
+  ;; Then look in database for student-specific match.
+  (when student
+    (let ((student-result
+	   (single-query
+	    (format nil "SELECT value FROM STUDENT_STATE WHERE userSection='~A' AND userName='~A' AND model='~A' AND property='~A'~@[ AND tID<~A~] ORDER BY tID DESC LIMIT 1" 
+		    section student model property tID))))
+      (when (and student-result (car student-result))
+	(return-from get-state-property
+	  (values (read-from-string (car student-result)) t)))))
+  
+  ;; Look for section-wide match.
+  (let ((section-result
+	 (single-query
+	  (format nil "SELECT value FROM STUDENT_STATE WHERE userSection='~A' AND userName IS NULL AND model='~A' AND property='~A'~@[ AND tID<~A~] ORDER BY tID DESC LIMIT 1" 
+		  section model property tID))))
+    (when (and section-result (car section-result))
+      (return-from get-state-property
+	(values (read-from-string (car section-result)) t))))
+  
+  ;; Nothing found
+  (values nil nil))
+
+(defun set-state-property (property value &key (student session:*user*) 
+			   (section session:*section*)
+			   (model "default")
+			   tID)
+  "Update a student or section state parameter.  If value is null, delete 
+that   parameter.  If tID is not specified, insert at end of turn; 
+if it is an integer, insert directly with specified tID; 
+otherwise, use latest step tID."
+  (unless tID
+    (push (cons (cons model property) value) session:*state-cache*))
+  (unless *disable-saving-state*
+    (let ((query-format-string
+	   (format nil "REPLACE into STUDENT_STATE (userSection,userName,model,property,tID,value) VALUES ('~A',~:[null~;~:*'~A'~],'~A','~A','~~A',~:[NULL~*~;'~A'~])"
+		   section student model
+		   (prin1-to-string property)
+		   ;; tID itself is passed in by the logging function.
+		   value 
+		   (when value (make-safe-string (prin1-to-string value))))))
+
+      ;; If tID is specified, insert directly at that point,
+      ;; else insert into beginning of session after step is completed.
+      (if tID
+	  (with-db 
+	    (query *connection* 
+		   (format nil query-format-string
+			   (if (integerp tID)
+			       tID
+			       (get-most-recent-tID)))))
+	  (push query-format-string webserver:*log-variable*)))))
