@@ -21,10 +21,11 @@
 
 <?php
 
-	     //  Clear database:
+	     //  Clear test database:
 	     //    use andes_test;
              //    delete from PROBLEM_ATTEMPT;
-	     //    delete from PROBLEM_ATTEMPT_TRANSACTION;
+	     //    delete from STEP_TRANSACTION;
+	     //    delete from STUDENT_STATE;
 	     //  Not having the last line will degrade efficiency.
 
 
