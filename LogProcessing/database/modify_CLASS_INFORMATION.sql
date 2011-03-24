@@ -10,6 +10,6 @@ ALTER TABLE `CLASS_INFORMATION`
   MODIFY COLUMN `instructorName` varchar(50) NULL,
   MODIFY COLUMN `schoolyearInfo` varchar(50) NULL,
   MODIFY COLUMN `datasetID` int(10) unsigned NULL COMMENT 'If it exists, should match datasetID in STUDENT_DATASET';
-insert into CLASS_INFORMATION (classSection) values ("defaultSection");
-INSERT INTO CLASS_INFORMATION (classSection) SELECT DISTINCT userSection FROM
+REPLACE INTO CLASS_INFORMATION (classSection) values ("defaultSection");
+REPLACE INTO CLASS_INFORMATION (classSection) SELECT DISTINCT userSection FROM
   PROBLEM_ATTEMPT WHERE userSection is not null;
