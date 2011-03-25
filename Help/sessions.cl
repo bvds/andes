@@ -591,6 +591,14 @@
 	    (push '((:action . "set-styles")
 		    (:tool . "vectorSecondary")
 		    (:style . "disabled")) replies))
+
+      ;; Return user customizations.
+      (dolist (preference (andes-database:get-state-properties 
+			   :model "client"))
+	(push `((:action . "set-preference")
+		(:name . ,(car preference))
+		(:value . ,(cdr preference)))
+	      replies))
       
       ;; set-stats (if there was an old score) (to do)
       ;; Should this be wrapped in execute-andes-command?
@@ -894,7 +902,7 @@
       ((equal type "tutor-link")
        (andes-database:set-state-property 'clicked-tutor-link T))
       ((equal type "set-preference")
-       (warn "Need to save style to database: ~A ~A" name value))))
+       (andes-database:set-state-property name value :model "client"))))
 
   ;; This method has no return
   nil)

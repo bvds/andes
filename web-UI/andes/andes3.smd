@@ -87,10 +87,15 @@
 	      "optional": true,
 	      "description": "Only for set-score"
 	    },
+            "name":  {
+               "type": "string", 
+               "optional": true, 
+	       "description": "For set-preference."
+            },
 	    "value": {
-	      "type": "string",
+	      "type": "any",
 	      "optional": true,
-	      "description": "only for hints"
+	      "description": "only for hints, set-preference"
 	    },
 	    "log": {
 	      "type": "string",
@@ -407,7 +412,7 @@
 	      {"name": "name", "type": "string"},
 	      {
                       "name": "value", 
-                      "type": "string", 
+		      "type": "any",
                       "optional": true, 
 		      "description": "For set-preference."
               }

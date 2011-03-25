@@ -404,7 +404,7 @@ otherwise, use latest step tID."
     (let ((query-format-string
 	   (format nil "REPLACE into STUDENT_STATE (userSection,userName,model,property,tID,value) VALUES ('~A',~:[null~;~:*'~A'~],'~A','~A','~~A',~:[NULL~*~;'~A'~])"
 		   section student model
-		   (prin1-to-string property)
+		   (if (stringp property) property (prin1-to-string property))
 		   ;; tID itself is passed in by the logging function.
 		   value 
 		   (when value (make-safe-string (prin1-to-string value))))))
