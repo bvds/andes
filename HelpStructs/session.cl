@@ -30,4 +30,4 @@
 (defvar *user*)
 (defvar *section*)
 (defvar *problem*)
-(defvar *state-cache*)
+(defvar *state-cache* nil "Cache of state modifications.")
