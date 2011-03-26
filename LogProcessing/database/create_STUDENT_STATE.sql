@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS `STUDENT_STATE` (
   `userSection` varchar(50) NOT NULL COMMENT 'Should match section in CLASS_INFORMATION.',
-  `userName` varchar(20) NULL COMMENT 'NULL means that this is a section-wide model.  Otherwise, should match userName in PROBLEM_ATTEMPT',
+  `userName` varchar(20) NOT NULL DEFAULT '' COMMENT 'Empty string means that this is a section-wide model.  Otherwise, should match userName in PROBLEM_ATTEMPT',
   `model` varchar(20) NOT NULL DEFAULT 'default' COMMENT '"default" is default student model; "client"/"server" are client/help system customizations.',
   `property` varchar(50) NOT NULL COMMENT 'For a student model, this is the name of the knowledge component.',
   `tID` int(10) unsigned NOT NULL,

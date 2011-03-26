@@ -338,7 +338,7 @@ list of characters and replacement strings."
 	 (single-query
 	  ;; If student exists, still need to look for any section defaults
 	  ;; for the case 
-	  (format nil "SELECT DISTINCT property FROM STUDENT_STATE WHERE userSection='~A' AND (~@[userName='~A' OR ~]userName IS NULL) AND model='~A'~@[ AND tID<~A~]" 
+	  (format nil "SELECT DISTINCT property FROM STUDENT_STATE WHERE userSection='~A' AND (~@[userName='~A' OR ~]userName='') AND model='~A'~@[ AND tID<~A~]" 
 		  section student model tID)))
 	result)
 
@@ -381,7 +381,7 @@ list of characters and replacement strings."
   ;; Look for section-wide match.
   (let ((section-result
 	 (single-query
-	  (format nil "SELECT value FROM STUDENT_STATE WHERE userSection='~A' AND userName IS NULL AND model='~A' AND property='~A'~@[ AND tID<~A~] ORDER BY tID DESC LIMIT 1" 
+	  (format nil "SELECT value FROM STUDENT_STATE WHERE userSection='~A' AND userName='' AND model='~A' AND property='~A'~@[ AND tID<~A~] ORDER BY tID DESC LIMIT 1" 
 		  section model property tID))))
     (when (and section-result (car section-result))
       (return-from get-state-property
@@ -395,14 +395,14 @@ list of characters and replacement strings."
 			   (model "default")
 			   tID)
   "Update a student or section state parameter.  If value is null, delete 
-that   parameter.  If tID is not specified, insert at end of turn; 
+that parameter.  If tID is not specified, insert at end of turn; 
 if it is an integer, insert directly with specified tID; 
 otherwise, use latest step tID."
   (unless tID
     (push (cons (cons model property) value) session:*state-cache*))
   (unless *disable-saving-state*
     (let ((query-format-string
-	   (format nil "REPLACE into STUDENT_STATE (userSection,userName,model,property,tID,value) VALUES ('~A',~:[null~;~:*'~A'~],'~A','~A','~~A',~:[NULL~*~;'~A'~])"
+	   (format nil "REPLACE into STUDENT_STATE (userSection,userName,model,property,tID,value) VALUES ('~A',~:[''~;~:*'~A'~],'~A','~A',~~A,~:[NULL~*~;'~A'~])"
 		   section student model
 		   (if (stringp property) property (prin1-to-string property))
 		   ;; tID itself is passed in by the logging function.
@@ -412,10 +412,10 @@ otherwise, use latest step tID."
       ;; If tID is specified, insert directly at that point,
       ;; else insert into beginning of session after step is completed.
       (if tID
-	  (with-db 
-	    (query *connection* 
-		   (format nil query-format-string
-			   (if (integerp tID)
-			       tID
-			       (get-most-recent-tID)))))
+	  (progn
+	    (unless (integerp tID) (setf tID (get-most-recent-tID)))
+	    ;; (format t "~S~%~S~%" query-format-string (format nil query-format-string tID))
+	    (with-db 
+	      (query *connection* 
+		     (format nil query-format-string tID))))
 	  (push query-format-string webserver:*log-variable*)))))

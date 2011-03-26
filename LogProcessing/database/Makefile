@@ -48,6 +48,13 @@ ifeq ($(shell test ${version} -lt 2 && echo 1),1)
 	mysql -u ${dbUser} -p'${dbPass}' andes_test < modify-andes-test-2.sql
 	echo 2 > ${versionFile}
 endif
+ifeq ($(shell test ${version} -lt 3 && echo 1),1)
+	mysqldump -u ${dbUser} -p'${dbPass}' ${dbName} > \
+	   ${dbName}-${version}-dump.sql
+	mysql -u ${dbUser} -p'${dbPass}' ${dbName} < modify_3.sql
+	mysql -u ${dbUser} -p'${dbPass}' andes_test < modify_3.sql
+	@echo "this update is safe to rerun, so leave in old version."
+endif
 
 # This is just for debugging update script.
 reset:

@@ -17,8 +17,7 @@ USE `andes3`;
 \. create_PROBLEM_ATTEMPT.sql
 \. create_STEP_TRANSACTION.sql
 \. create_REVIEWED_PROBLEMS.sql
-\. create_CUSTOMIZATIONS.sql
-\. create_STUDENT_MODEL.sql
+\. create_STUDENT_STATE.sql
 \. create_STUDENT_DATASET.sql
 
 -- Insert initial classes into database
@@ -39,5 +38,4 @@ USE `andes_test`;
 \. create_CLASS_INFORMATION.sql
 \. create_PROBLEM_ATTEMPT.sql
 \. create_STEP_TRANSACTION.sql
-\. create_CUSTOMIZATIONS.sql
-\. create_STUDENT_MODEL.sql
+\. create_STUDENT_STATE.sql
