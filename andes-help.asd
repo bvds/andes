@@ -86,12 +86,14 @@
 				     (:file "NextStepHelp"
 					    :depends-on ("icons" "symbols"))
 				     (:file "IEA")
+				     (:file "model")
 				     
 				     ;; Automatic statistics code.
 				     (:file "Statistics")
 				     
 				     ;; Top-level manager
-		 		     (:file "Interface") ;The interface api.
+		 		     (:file "Interface"
+					    :depends-on ("model"))
 	 			     (:file "Commands"
 					    :depends-on ("Entry-API" "symbols"
 							 "Interface" "icons"))

@@ -237,8 +237,6 @@
 						   section extra) 
   "initial problem statement" 
 
-  (declare (ignore time)) ;Time is used by logging
-
   ;; Need to think about error handling for the case where 
   ;; the session already exists.
   (when webserver:*env* 
@@ -282,7 +280,7 @@
       (set-condition 'none) ;Any experimental condition
       ;;  Most of the set-up is done here.
       ;; The return for this may be of some use.
-      (execute-andes-command 'read-problem-info problem)
+      (execute-andes-command time 'read-problem-info problem)
 
       ;; Intialize fade list
       (initialize-fades *cp*)
@@ -498,10 +496,7 @@
 	 (setf last-client-id (cdr old-step)))
        
 	(let* ((method (cdr (assoc :method (car old-step))))
-	       ;; Remove time, since it is no longer meaningful.
-	       (params (remove :time
-			       (cdr (assoc :params (car old-step)))
-			       :key #'car))	       
+	       (params (cdr (assoc :params (car old-step))))
 	       ;; If an old session turn produces an error, convert it
 	       ;; into a warning and move on to the next turn.
 	       ;; Otherwise old sessions with unfixed errors cannot 
@@ -735,12 +730,15 @@
        x-label y-label z-label angle cosphi checked)
       
       (add-entry new-entry)   ;remove existing info and update
+
+      (model-no-tutor-turn time) ;for model of doing step without help
       
       (update-fades
        (cond
 	 ((equal action "delete-object")
 	  ;; We should pass the object to be deleted rather than the id.
-	  (execute-andes-command 'delete-object (StudentEntry-id new-entry)))
+	  (execute-andes-command time 'delete-object 
+				 (StudentEntry-id new-entry)))
 	 
 	 ;; For debugging only, should be turned off in production
 	 ((and webserver:*debug* (equal text "help-test-error")
@@ -760,7 +758,7 @@
 	  ;; In Andes2 this was set in do-check-answer
 	  (setf (StudentEntry-verbatim new-entry) 
 	       (string-trim match:*whitespace* (subseq text (length ans))))
-	  (execute-andes-command 'check-answer new-entry))
+	  (execute-andes-command time 'check-answer new-entry))
 	 
 	 ((equal (StudentEntry-type new-entry) "equation")
 	  (let ((eq (search "=" text)))
@@ -772,37 +770,37 @@
 	      ((and eq (search "?" (subseq text eq)))
 	       (setf (StudentEntry-symbol new-entry) 
 		     (string-trim match:*whitespace* (subseq text 0 eq)))
-	       (execute-andes-command 'solve-for-var new-entry))
+	       (execute-andes-command time 'solve-for-var new-entry))
 	      ;; Default case: ordinary equation
-	      (t (execute-andes-command 'lookup-eqn-string new-entry)))))
+	      (t (execute-andes-command time 'lookup-eqn-string new-entry)))))
 	 
 	 ((equal (StudentEntry-type new-entry) "statement")
-	  (execute-andes-command 'define-variable new-entry))
+	  (execute-andes-command time 'define-variable new-entry))
 	 
 	 ((equal (StudentEntry-type new-entry) "graphics")
 	  (warn "Can't modify a graphic object, id=~A" 
 		(studententry-id new-entry)))
 	
 	 ((equal (StudentEntry-type new-entry) "circle")
-	  (execute-andes-command 'assert-object new-entry))
+	  (execute-andes-command time 'assert-object new-entry))
 	 
 	 ((equal (StudentEntry-type new-entry) "ellipse")
-	  (execute-andes-command 'assert-object new-entry))
+	  (execute-andes-command time 'assert-object new-entry))
 	 
 	 ((equal (StudentEntry-type new-entry) "rectangle")
-	  (execute-andes-command 'assert-object new-entry))
+	  (execute-andes-command time 'assert-object new-entry))
 	 
 	 ((equal (StudentEntry-type new-entry) "axes")
-	  (execute-andes-command 'assert-x-axis new-entry))
+	  (execute-andes-command time 'assert-x-axis new-entry))
 	 
 	 ((equal (StudentEntry-type new-entry) "vector")
-	  (execute-andes-command 'lookup-vector new-entry))
+	  (execute-andes-command time 'lookup-vector new-entry))
 	 
 	 ((equal (StudentEntry-type new-entry) "line")
-	  (execute-andes-command 'lookup-line new-entry))
+	  (execute-andes-command time 'lookup-line new-entry))
 
 	 ((equal (StudentEntry-type new-entry) "button")
-	  (execute-andes-command 'lookup-mc-answer new-entry))
+	  (execute-andes-command time 'lookup-mc-answer new-entry))
 	 
 	 (t (warn "Undefined type ~A, doing nothing."  
 		  (StudentEntry-type new-entry))))))))
@@ -813,7 +811,6 @@
 (webserver:defun-method "/help" seek-help 
     (&key time action href value text) 
   "ask for help, or do a step in a help dialog" 
-  (declare (ignore time))  ;used by logging.
 
   ;; for choosing principle of physics, not working yet.
   (declare (ignore href))  
@@ -825,6 +822,7 @@
       ;; Press help button.  
       ;; call next-step-help or do-whats-wrong
       ((equal action "help-button")
+       (model-tutor-turn)
        ;; Increment property value (probably should write a routine for this.)
        (let ((x (andes-database:get-state-property 'clicked-help-button)))
 	 (andes-database:set-state-property 'clicked-help-button 
@@ -834,24 +832,27 @@
 			       :test-not #'eql
 			       :key #'StudentEntry-state)))
 	 (if mistakes
-	     (execute-andes-command 'do-whats-wrong 
+	     (execute-andes-command time
+				    'do-whats-wrong 
 				    ;; find most recent mistake, time-wise
 				    (reduce #'most-recent-entry
 					    mistakes))
-	     (execute-andes-command 'next-step-help))))
+	     (execute-andes-command time 'next-step-help))))
       ;; Student has typed text in Tutor pane input box.
       ((and (equal action "get-help") text)
-       (execute-andes-command 'handle-student-response text))
+       (model-tutor-turn)
+       (execute-andes-command time 'handle-student-response text))
       ;; Student has clicked a link associated with the help.
       ((and (equal action "get-help") value)
+       (model-tutor-turn)
        (let ((response-code (find-symbol value)))
 	 (andes-database:set-state-property 'clicked-help-link T)
 	 (if response-code 
-	     (execute-andes-command 'handle-student-response response-code)
+	     (execute-andes-command time 'handle-student-response response-code)
 	     (warn "Unknown get-help value ~S, doing nothing; see Bug #1686." 
 		   value))))
       ((equal action "principles-menu")
-       (execute-andes-command 'handle-student-response 
+       (execute-andes-command time 'handle-student-response 
 			      (read-from-string value)))
       (t (warn "undefined action ~A, doing nothing." action)))))
 
@@ -900,6 +901,7 @@
       ((and (equal type "menu-choice") (equal name "menuIntroVideo"))
        (andes-database:set-state-property 'seen-intro-video 'menu))
       ((equal type "tutor-link")
+       (model-tutor-turn)
        (andes-database:set-state-property 'clicked-tutor-link T))
       ((equal type "set-preference")
        (andes-database:set-state-property name value :model "client"))))
@@ -910,10 +912,9 @@
 (webserver:defun-method "/help" close-problem 
   (&key time) 
   "shut problem down" 
-  (declare (ignore time))  ;used by logging.
   (unwind-protect
       (env-wrap
-	(let ((result (execute-andes-command 'get-stats 'persist)))
+	(let ((result (execute-andes-command time 'get-stats 'persist)))
 		 
 	  (do-close-problem)
 	  (solver-unload)

@@ -121,7 +121,7 @@
 ;;;
 ;;;
 
-(defun execute-andes-command (Command &optional entry)
+(defun execute-andes-command (time Command &optional entry)
   "Execute the api call with the command and arguments."
   ;; Generally, the solution steps are StudentEntry structs
   ;; and the help calls are not
@@ -133,7 +133,7 @@
 			  (member 'answer-only-mode (problem-features *cp*)))
 		     (answer-only-dispatcher Command Arguments)
 		     (apply command Arguments)))
-	 (Str (cond ((turn-p Result) (return-turn Result)) 
+	 (Str (cond ((turn-p Result) (return-turn time Result)) 
 		    ((listp Result) result)
 		    (t (warn "Invalid result format ~A" result)))))
 
@@ -291,7 +291,7 @@
 ;;
 ;; return-turn -- wrapper for returning turn to workbench
 ;; saves on last turn and converts given turn to workbench result str
-(defun return-turn (turn)
+(defun return-turn (time turn)
   ;; Only update saved turn if new turn is non-null, and not a No-Op-Turn.
   ;; This is defense against a bug when a delayed notification of equation 
   ;; deletion sent just after a next-step-help call. An empty equation 
@@ -312,7 +312,7 @@
 						 (prin1-to-string (cdr x))))
 			       (turn-assoc turn))))
 	  (turn-result turn)))
-  (turn->WB-Reply turn))
+  (turn->WB-Reply time turn))
 
 
 ;;-----------------------------------------------------------------------------
@@ -325,7 +325,7 @@
 ;; or a hint string. FIXED: Andes2 workbench should now understand 
 ;; !show-hint command even where bare hint text was formerly expected, so we 
 ;; can safely use this in all cases in context-independent manner.
-(defun turn->WB-Reply (turn)
+(defun turn->WB-Reply (time turn)
   "return reply string to send to wb for given tutor turn"
   ;; null turn is special case
   (when (null turn)
@@ -336,11 +336,14 @@
     (when (and (turn-coloring turn) (not (turn-id turn))) 
       (warn "turn->WB-Reply has no id for ~S" turn))
     (case (turn-coloring turn)
-      (color-green (push `((:action . "modify-object") (:id . ,id)
-			    (:mode . "correct")) result))
-      (color-red (push `((:action . "modify-object") (:id . ,id)
-			    (:mode . "incorrect")) result))
-    )
+      (color-green (model-green-turn)
+		   (push `((:action . "modify-object") (:id . ,id)
+			   (:mode . "correct")) result))
+      (color-red (model-red-turn time)
+		 (push `((:action . "modify-object") (:id . ,id)
+			 (:mode . "incorrect")) result))
+      )
+    
     ;; switch on type to see what message commnd we have to append to result
     ;; also have to check for an equation result to return
     (case (turn-type turn)
@@ -352,53 +355,59 @@
 		    (push `((:action . "show-hint")
 			    (:text . ,(turn-text turn))) result)
 		    ;; else just return result equation text
-		      (push `((:action . "modify-object") (:id . ,id)
-			      (:text . ,(turn-text turn))) result)))
-      (dialog-turn (when (turn-text turn) 
-		     (push `((:action . "show-hint")
-			     (:text . ,(turn-text turn))) result)
-		     ;; add followup codes if any
-		     (when (turn-menu turn)
-		       (if (consp (turn-menu turn)) 
-			   ;; alist of keyword, text pairs
-			   ;; to be presented as a list of choices
-			   (dolist (choice (turn-menu turn))
-			      (push `((:action . "show-hint-link")
-				      (:text . ,(cdr choice)) 
-				      (:value . ,(symbol-name (car choice))))
-				    result))
-			   ;; else predefined menu:
-			   (case (turn-menu turn)
-			     (explain-more 
-			      (push `((:action . "show-hint-link")
-				      (:text . ,*explain-more-text*) 
-				      (:value . ,(symbol-name 
-						  +explain-more+)))
-				    result))
-			     (text-input  
-			      (push '((:action . "focus-hint-text-box"))
-				    result))
-			     ;; Add text to modal dialog box.
-			     (psm-menu 
-			      (push `((:action . "show-hint-link")
-				      (:text . "choose a principle")
-				      (:value . ,(symbol-name 'major-principle)))
-				    result)
-			      (push (cons '(:action . "focus-major-principles")
-					  (when (turn-text turn) 
-					    `((:text . ,(turn-text turn)))))
-				    result))
-			     (equation-menu 			      
-			      (push `((:action . "show-hint-link")
-				      (:text . "choose an equation")
-				      (:value . ,(symbol-name 'any-principle)))
-				    result)
-			      (push (cons '(:action . "focus-all-principles")
-					  (when (turn-text turn) 
-					    `((:text . ,(turn-text turn)))))
-				    result))
-			     (T  (warn "WB menu code unimplemented: ~A" 
-				       (turn-menu turn))))))))
+		    (push `((:action . "modify-object") (:id . ,id)
+			    (:text . ,(turn-text turn))) result)))
+      (dialog-turn 
+       (cond 
+	 ((turn-text turn) 
+	  (push `((:action . "show-hint")
+		  (:text . ,(turn-text turn))) result)
+	  ;; add followup codes if any
+	  (when (turn-menu turn)
+	    (if (consp (turn-menu turn)) 
+		;; alist of keyword, text pairs
+		;; to be presented as a list of choices
+		(dolist (choice (turn-menu turn))
+		  (push `((:action . "show-hint-link")
+			  (:text . ,(cdr choice)) 
+			  (:value . ,(symbol-name (car choice))))
+			result))
+		;; else predefined menu:
+		(case (turn-menu turn)
+		  (explain-more 
+		   (push `((:action . "show-hint-link")
+			   (:text . ,*explain-more-text*) 
+			   (:value . ,(symbol-name 
+				       +explain-more+)))
+			 result))
+		  (text-input  
+		   (push '((:action . "focus-hint-text-box"))
+			 result))
+		  ;; Add text to modal dialog box.
+		  (psm-menu 
+		   (push `((:action . "show-hint-link")
+			   (:text . "choose a principle")
+			   (:value . ,(symbol-name 'major-principle)))
+			 result)
+		   (push (cons '(:action . "focus-major-principles")
+			       (when (turn-text turn) 
+				 `((:text . ,(turn-text turn)))))
+			 result))
+		  (equation-menu 			      
+		   (push `((:action . "show-hint-link")
+			   (:text . "choose an equation")
+			   (:value . ,(symbol-name 'any-principle)))
+			 result)
+		   (push (cons '(:action . "focus-all-principles")
+			       (when (turn-text turn) 
+				 `((:text . ,(turn-text turn)))))
+			 result))
+		  (T  (warn "WB menu code unimplemented: ~A" 
+			    (turn-menu turn)))))))
+	 ((use-help-button-hint-test time)
+	  (push (use-help-button-hint) result))))
+      ((nil) (when (use-help-button-hint-test time)
+	     (push (use-help-button-hint) result)))
       (tcard-turn (warn "Training card turn with ~A." (turn-text turn)))
       (minil-turn (warn "Minilesson card turn with ~A." (turn-text turn)))
       (end-dialog (warn "end-dialog turn.  What is this?"))
