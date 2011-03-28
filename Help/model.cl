@@ -26,102 +26,155 @@
 ;;            Give unsolicited hint in case of floundering.
 ;;            Solicited hint
 ;;
+(use-package :andes-database)
+
+(defun model-increment-state-property (property &key ceiling)
+  ;; Increment property value, allowing for ceiling.
+  (let ((x (get-state-property property)))
+    (unless (eql x T) ;allow for ceiling
+      (set-state-property property 
+			  (cond ((null x) 1) ;doesn't exist
+				((and ceiling (>= x ceiling)) t)
+				(t (+ x 1)))))))
 
 (defun model-red-turn (time)
   (unless time (error "Null time supplied"))
   ;; Time and turns spent in a "state of frustration"
-  (if (andes-database:get-state-property 'f-time)
-      (andes-database:set-state-property 
-       'f-turns (+ (andes-database:get-state-property 'f-turns) 1) :no-store t)
+  (if (get-state-property 'f-time)
+      (set-state-property 'f-turns 
+			  (+ (get-state-property 'f-turns) 1) 
+			  :no-store t)
       (progn
-	(andes-database:set-state-property 
-	 'f-time time :no-store t)
-	(andes-database:set-state-property 
-	 'f-turns 0 :no-store t))))
+	(set-state-property 'f-time time :no-store t)
+	(set-state-property 'f-turns 0 :no-store t))))
 
 (defun model-green-turn ()
-  (andes-database:set-state-property 
-   'f-time nil :no-store t)
-  (andes-database:set-state-property 
-   'f-turns nil :no-store t))
+  (set-state-property 'f-time nil :no-store t)
+  (set-state-property 'f-turns nil :no-store t))
 
-  ;; Likewise, time and turns spent in state of help refusal.
+;; Likewise, time and turns spent in state of help refusal.
 (defun model-no-tutor-turn (time)
-  (if (andes-database:get-state-property 't-time)
-      (andes-database:set-state-property 
-       't-turns (+ (andes-database:get-state-property 't-turns) 1) :no-store t)
+  (if (get-state-property 't-time)
+      (set-state-property 't-turns 
+			  (+ (get-state-property 't-turns) 1) 
+			  :no-store t)
       (progn
-	(andes-database:set-state-property 
-	 't-time time :no-store t)
-	(andes-database:set-state-property 
-	 't-turns 0 :no-store t))))
+	(set-state-property 't-time time :no-store t)
+	(set-state-property 't-turns 0 :no-store t))))
   
 (defun model-tutor-turn ()
   "Clicking help button, clicking on link (either kind) in tutor pane."
   ;; What to do about looking at manual, list of principles, et cetera?
-  (andes-database:set-state-property 
-   't-time nil :no-store t)
-  (andes-database:set-state-property 
-   't-turns nil :no-store t))
+  (set-state-property 't-time nil :no-store t)
+  (set-state-property 't-turns nil :no-store t))
+
+(defun model-no-hint-turn (time)
+  (if (get-state-property 'h-time)
+      (set-state-property 'h-turns 
+			  (+ (get-state-property 'h-turns) 1) 
+			  :no-store t)
+      (progn
+	(set-state-property 'h-time time :no-store t)
+	(set-state-property 'h-turns 0 :no-store t))))
+  
+(defun model-hint-turn ()
+  "Received some kind of help from tutor, whether solicited or not."
+  ;; What to do about looking at manual, list of principles, et cetera?
+  (set-state-property 'h-time nil :no-store t)
+  (set-state-property 'h-turns nil :no-store t))
+
+(defun model-looking-at-video (time)
+  "Start looking at video, whether from menu or given."
+  (set-state-property 'intro-video-opened T) ;store open, in case blur fails
+  (set-state-property 'intro-video-start-time time :no-store t))
+
+(defun model-stop-looking-at-video (time)
+  ;; What to do about looking at manual, list of principles, et cetera?
+  (when (get-state-property 'intro-video-start-time)
+    (set-state-property 
+     'intro-video-time
+     (+  (- time (get-state-property 'intro-video-start-time))
+	 (or (get-state-property 'intro-video-time) 0)))
+    ;; Reset timer.
+    (set-state-property 'intro-video-start-time nil :no-store t)))
+
 
 (defconstant +floundering-time+ 30 "time in seconds")
 (defconstant +floundering-turns+ 5)
 
 ;; To test: 
 ;; login as student in section "study" to create section.
-;; (andes-database:set-state-property 'raj-experiment 'experiment :model "server" :section "study" :student nil :tid t)
+;; (set-state-property 'raj-experiment 'experiment :model "server" :section "study" :student nil :tid t)
+;; Monitor status with:
+;;  (get-session-variable "bvdsvec1a1301333460364" 'session:*state-cache*)
 
 (defun use-help-button-hint-test (time)
   (when nil  ;debug flag
     (format webserver:*stdout* "use-help-button-hint-test ~A ~A ~A ~A~%"
-	    (and (andes-database:get-state-property 'f-time)
-		 (> (- time (andes-database:get-state-property 'f-time)) 
-		    +floundering-time+))
-	    (and (andes-database:get-state-property 't-time)
-		 (> (- time (andes-database:get-state-property 't-time)) 
-		    +floundering-time+))
-	    (and (andes-database:get-state-property 'f-turns)
-		 (> (andes-database:get-state-property 'f-turns) 
-		    +floundering-turns+))
-	    (and (andes-database:get-state-property 't-turns)
-		 (> (andes-database:get-state-property 't-turns)
-		    +floundering-turns+)))
-    
-  (and (equal (andes-database:get-state-property 
+	    (and (get-state-property 'f-time)
+		 (> (- time (get-state-property 'f-time)) +floundering-time+))
+	    (and (get-state-property 'h-time)
+		 (> (- time (get-state-property 'h-time)) +floundering-time+))
+	    (and (get-state-property 'f-turns)
+		 (> (get-state-property 'f-turns) +floundering-turns+))
+	    (and (get-state-property 'h-turns)
+		 (> (get-state-property 'h-turns) +floundering-turns+))))
+  
+  (and (equal (get-state-property 
 	       'raj-experiment :model "server") 'experiment)
        ;; Test that it was a red turn.
-       (andes-database:get-state-property 'f-time)
+       (get-state-property 'f-time)
        (or 
 	;; Detect a new user.
-	(or (null (andes-database:get-state-property 
-		   'CLICKED-HELP-BUTTON))
-	    (< (andes-database:get-state-property 
-		'CLICKED-HELP-BUTTON) 3))
+	(let ((x (get-state-property 'CLICKED-HELP-BUTTON)))
+	  (unless (eql x T) (or (null x) (< x 3))))
 	;; Detect floundering:  in a state of confusion
 	;; and not asking for help.
 	(and
-	 (andes-database:get-state-property 'f-time)
-	 (> (- time (andes-database:get-state-property 'f-time)) 
-	    +floundering-time+)
-	 (andes-database:get-state-property 't-time)
-	 (> (- time (andes-database:get-state-property 't-time)) 
-	    +floundering-time+))
+	 (get-state-property 'f-time)
+	 (> (- time (get-state-property 'f-time)) +floundering-time+)
+	 (get-state-property 'h-time)
+	 (> (- time (get-state-property 'h-time)) +floundering-time+))
 	(and
-	 (andes-database:get-state-property 'f-turns)
-	 (> (andes-database:get-state-property 'f-turns) 
-	    +floundering-turns+)
-	 (andes-database:get-state-property 't-turns)
-	 (> (andes-database:get-state-property 't-turns)
-	    +floundering-turns+)))))
+	 (get-state-property 'f-turns)
+	 (> (get-state-property 'f-turns) +floundering-turns+)
+	 (get-state-property 'h-turns)
+	 (> (get-state-property 'h-turns) +floundering-turns+)))))
 
 (defun use-help-button-hint ()
   ;; use new user test, since that is simpler.
-  (if (or (null (andes-database:get-state-property 
-	    'CLICKED-HELP-BUTTON))
-	  (< (andes-database:get-state-property 'CLICKED-HELP-BUTTON) 3))
+  (cond 
+
+    ;; If they haven't looked at the intro video, start
+    ;; by suggesting that.
+    ((if (get-state-property 'INTRO-VIDEO-TIME) 
+	 ;; Logging for blur has succeeded, use time.
+	 (< (get-state-property 'INTRO-VIDEO-TIME) 15)
+	 ;; Logging for blur has failed, fall back on open flag.
+	 (null (get-state-property 'INTRO-VIDEO-OPENED)))
+     `((:action . "show-hint")
+       (:text . ,(strcat "Perhaps you should " 
+			 *intro-video-action* "."))))
+    
+    ((or (null (get-state-property 
+		'CLICKED-HELP-BUTTON))
+	 (< (get-state-property 'CLICKED-HELP-BUTTON) 3))
       `((:action . "show-hint")
 	(:text . ,(strcat "Your entry has turned red.&nbsp;  You can "
-			  *help-button-action* " to get help.")))
-      `((:action . "show-hint")
-	(:text . ,(strcat "It looks like you are having difficulty.&nbsp;  Perhaps you should "
-			  *help-button-action* " to get help.")))))
+			  *help-button-action* " to get help."))))
+
+    (t
+     `((:action . "show-hint")
+       (:text . ,(strcat "It looks like you are having difficulty.&nbsp;  Perhaps you should "
+			 *help-button-action* " to get help."))))))
+
+;; If student has never clicked on a link in the tutor pane,
+;; give hint telling them that they can click on links.
+
+(defun model-link-click-test ()
+  (let ((x (get-state-property 'CLICKED-HELP-LINK)))
+    (unless (eql x T) (or (null x) (< x 3)))))
+
+(defun model-link-click ()
+    '((:action . "show-hint")
+       (:text . "You can click on the above link to get more help.")))

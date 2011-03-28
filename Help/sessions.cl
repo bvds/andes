@@ -823,10 +823,7 @@
       ;; call next-step-help or do-whats-wrong
       ((equal action "help-button")
        (model-tutor-turn)
-       ;; Increment property value (probably should write a routine for this.)
-       (let ((x (andes-database:get-state-property 'clicked-help-button)))
-	 (andes-database:set-state-property 'clicked-help-button 
-					    (if x (+ x 1) 1)))
+       (model-increment-state-property 'clicked-help-button)
        ;; Find if there are any current errors.
        (let ((mistakes (remove +incorrect+ *studententries* 
 			       :test-not #'eql
@@ -845,8 +842,8 @@
       ;; Student has clicked a link associated with the help.
       ((and (equal action "get-help") value)
        (model-tutor-turn)
+       (model-increment-state-property 'clicked-help-link)
        (let ((response-code (find-symbol value)))
-	 (andes-database:set-state-property 'clicked-help-link T)
 	 (if response-code 
 	     (execute-andes-command time 'handle-student-response response-code)
 	     (warn "Unknown get-help value ~S, doing nothing; see Bug #1686." 
@@ -892,17 +889,20 @@
 
 (webserver:defun-method "/help" record-action (&key time type name value)
   "Record user interface action, but send no reply.  In this case we do something only for preferences."
-  (declare (ignore time)) ;for logging
 
   (env-wrap
     (cond 
       ((and (equal type "window") (equal name "IntroVideo"))
-       (andes-database:set-state-property 'intro-video-opened T))
+       (cond 
+	 ((equal value "focus")
+	  (model-looking-at-video time))
+	 ((equal value "blur")
+	  (model-stop-looking-at-video time))))
       ((and (equal type "menu-choice") (equal name "menuIntroVideo"))
        (andes-database:set-state-property 'seen-intro-video 'menu))
       ((equal type "tutor-link")
        (model-tutor-turn)
-       (andes-database:set-state-property 'clicked-tutor-link T))
+       (model-increment-state-property 'clicked-help-link))
       ((equal type "set-preference")
        (andes-database:set-state-property name value :model "client"))))
 

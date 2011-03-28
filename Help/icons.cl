@@ -43,6 +43,8 @@
 	  section
 	  text))
   
+(defparameter *intro-video-action*
+   "view the <a href=\"#\" onClick=\"andes.help.link('IntroVideo');andes.principles.review('vec1a-video.html','IntroVideo',null,'width=650,height=395');\">introductory video</a>")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
