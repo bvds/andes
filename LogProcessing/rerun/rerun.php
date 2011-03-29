@@ -24,8 +24,7 @@
 	     //  Clear test database:
 	     //    use andes_test;
              //    delete from PROBLEM_ATTEMPT;
-	     //    delete from STEP_TRANSACTION;
-	     //    delete from STUDENT_STATE;
+	     //    REPLACE INTO CLASS_INFORMATION (classSection) values ('study');
 	     //  Not having the last line will degrade efficiency.
 
 

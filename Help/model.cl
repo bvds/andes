@@ -105,6 +105,7 @@
 ;; To test: 
 ;; login as student in section "study" to create section.
 ;; (set-state-property 'raj-experiment 'experiment :model "server" :section "study" :student nil :tid t)
+;; (set-state-property 'intro-video-opened t :section "study" :student nil :tid t)
 ;; Monitor status with:
 ;;  (get-session-variable "bvdsvec1a1301333460364" 'session:*state-cache*)
 
@@ -129,7 +130,7 @@
 	(let ((x (get-state-property 'CLICKED-HELP-BUTTON)))
 	  (unless (eql x T) (or (null x) (< x 3))))
 	;; Detect floundering:  in a state of confusion
-	;; and not asking for help.
+	;; and not having received any help.
 	(and
 	 (get-state-property 'f-time)
 	 (> (- time (get-state-property 'f-time)) +floundering-time+)
@@ -172,8 +173,10 @@
 ;; give hint telling them that they can click on links.
 
 (defun model-link-click-test ()
-  (let ((x (get-state-property 'CLICKED-HELP-LINK)))
-    (unless (eql x T) (or (null x) (< x 3)))))
+  (and (equal (get-state-property 
+	       'raj-experiment :model "server") 'experiment)
+       (let ((x (get-state-property 'CLICKED-HELP-LINK)))
+	 (unless (eql x T) (or (null x) (< x 2))))))
 
 (defun model-link-click ()
     '((:action . "show-hint")

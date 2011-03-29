@@ -47,11 +47,16 @@ echo "<body>\n";
 echo "<h2>Session $sess</h2>\n";
 
 if($clientID==''){
-  $sql = "SELECT initiatingParty,command,tID FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.clientID = P2.clientID AND P1.userName = '$userName' AND P1.userProblem = '$userProblem' AND P1.userSection = '$userSection'";
+  // Old style with PROBLEM_ATTEMPT_TRANSACTION
+  $sqlOld = "SELECT initiatingParty,command,tID FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.clientID = P2.clientID AND P1.userName = '$userName' AND P1.userProblem = '$userProblem' AND P1.userSection = '$userSection'";
+  $sql = "SELECT client,server,tID FROM PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE P1.clientID = P2.clientID AND P1.userName = '$userName' AND P1.userProblem = '$userProblem' AND P1.userSection = '$userSection' ORDER BY tID";
  } else {
-  $sql = "SELECT initiatingParty,command,tID FROM PROBLEM_ATTEMPT_TRANSACTION WHERE clientID = '$clientID'";
+  // Old style with PROBLEM_ATTEMPT_TRANSACTION
+  $sqlOld = "SELECT initiatingParty,command,tID FROM PROBLEM_ATTEMPT_TRANSACTION WHERE clientID = '$clientID'";
+  $sql = "SELECT client,server,tID FROM STEP_TRANSACTION WHERE clientID = '$clientID' ORDER BY tID";
  }
 
+$resultOld = mysql_query($sqlOld);   // Old style with PROBLEM_ATTEMPT_TRANSACTION
 $result = mysql_query($sql);
 echo "<table border=1 width=\"100%\">";
 echo "<tr><th>Time</th><th>Action</th><th>Response</th></tr>\n";
@@ -62,52 +67,61 @@ include 'JSON.php';
 $json = new Services_JSON();
 
 // get student input and server reply
-while (($myrow1 = mysql_fetch_array($result)) &&
-       ($myrow2 = mysql_fetch_array($result))) {
-if($myrow1["initiatingParty"]=='client'){
-  $action=$myrow1["command"];
-  $ttID=$myrow1["tID"];
-  $response=$myrow2["command"];
- } else {
-  $action=$myrow2["command"];
-  $ttID=$myrow2["tID"];
-  $response=$myrow1["command"];
- }
-
-
- $a=$json->decode($action);
- $b=$json->decode($response);
- $ttime=$a->params->time;
- unset($a->params->time);  // so time doesn't show up twice.
- $method=$a->method;
- if(!$methods || in_array($method,$methods)){
-      $aa=$json->encode($a->params);
-      // Escape html codes so actual text is seen.
-      $aa=str_replace("&","&amp;",$aa);
-      $aa=str_replace(">","&gt;",$aa);
-      $aa=str_replace("<","&lt;",$aa);
-      // add space after commas, for better line wrapping
-      $aa=str_replace("\",\"","\", \"",$aa);
-      // forward slashes are escaped in json, which looks funny
-      $aa=str_replace("\\/","/",$aa);
-      
-      echo "  <tr class='$method' id='t$ttID'><td>$ttime</td><td>$aa</td><td>";
-      if(isset($b->result)){
-	echo "<ul>";
-	foreach($b->result as $bb){
-	  // add space after commas, for better line wrapping
-	  $bbb=str_replace("\",\"","\", \"",$json->encode($bb));
-	  // forward slashes are escaped in json, which looks funny
-	  $bbb=str_replace("\\/","/",$bbb);
-	  echo "<li>$bbb</li>";
-	}
-	echo "</ul>";
-      } else {
-	// json parse of result failed.
-	echo "$response";
+while (
+       // Old style with PROBLEM_ATTEMPT_TRANSACTION
+       (($myrow1 = mysql_fetch_array($resultOld)) &&
+	($myrow2 = mysql_fetch_array($resultOld))) ||
+       $myrow = mysql_fetch_array($result)) {
+  
+  // Old style with PROBLEM_ATTEMPT_TRANSACTION
+  if($myrow1["initiatingParty"]=='client'){
+    $action=$myrow1["command"];
+    $ttID=$myrow1["tID"];
+    $response=$myrow2["command"];
+  } else if ($myrow1["initiatingParty"]=='server'){
+    $action=$myrow2["command"];
+    $ttID=$myrow2["tID"];
+    $response=$myrow1["command"];
+  } else {
+    $action=$myrow["client"];
+    $ttID=$myrow["tID"];
+    $response=$myrow["server"];
+  }  
+  
+  
+  $a=$json->decode($action);
+  $b=$json->decode($response);
+  $ttime=$a->params->time;
+  unset($a->params->time);  // so time doesn't show up twice.
+  $method=$a->method;
+  if(!$methods || in_array($method,$methods)){
+    $aa=$json->encode($a->params);
+    // Escape html codes so actual text is seen.
+    $aa=str_replace("&","&amp;",$aa);
+    $aa=str_replace(">","&gt;",$aa);
+    $aa=str_replace("<","&lt;",$aa);
+    // add space after commas, for better line wrapping
+    $aa=str_replace("\",\"","\", \"",$aa);
+    // forward slashes are escaped in json, which looks funny
+    $aa=str_replace("\\/","/",$aa);
+    
+    echo "  <tr class='$method' id='t$ttID'><td>$ttime</td><td>$aa</td><td>";
+    if(isset($b->result)){
+      echo "<ul>";
+      foreach($b->result as $bb){
+	// add space after commas, for better line wrapping
+	$bbb=str_replace("\",\"","\", \"",$json->encode($bb));
+	// forward slashes are escaped in json, which looks funny
+	$bbb=str_replace("\\/","/",$bbb);
+	echo "<li>$bbb</li>";
       }
-      echo "</td></tr>\n";
+      echo "</ul>";
+    } else {
+      // json parse of result failed.
+      echo "$response";
     }
+    echo "</td></tr>\n";
+  }
  }
 
 mysql_close();

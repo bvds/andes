@@ -449,11 +449,12 @@
 
 (defun reply-has-link (reply)
     (or 
-     ;; Look for link in a hint.
-     (and (equal (cdr (assoc :action reply)) "show-hint")
-	  (search "<a href=" (cdr (assoc :text reply))))
      ;; look for a tutor link.
-     (equal (cdr (assoc :action reply)) "show-hint-link")))
+     (equal (cdr (assoc :action reply)) "show-hint-link")
+     ;; Look for link in a hint, ignoring any help buttons.
+     (and (equal (cdr (assoc :action reply)) "show-hint")
+	  (search "<a href=" (cdr (assoc :text reply)))
+	  (not (search *help-button-action* (cdr (assoc :text reply)))))))
 
 ;;; ==========================================================================
 ;;; Update with results.
