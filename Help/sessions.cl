@@ -483,7 +483,7 @@
     ;; to set problem up and set scoring state.
     (andes-database:old-sessions
      (dolist (old-step (andes-database:get-matching-sessions 
-			 '("solution-step" "seek-help")
+			 '("solution-step" "seek-help" "record-action")
 			 :student user :problem problem :section section
 			 :extra extra))
 
@@ -505,7 +505,8 @@
 			  (apply 
 			   (cond 
 			     ((equal method "solution-step") #'solution-step)
-			     ((equal method "seek-help") #'seek-help))
+			     ((equal method "seek-help") #'seek-help)
+			     ((equal method "record-action") #'record-action))
 			   ;; flatten the alist
 			   (mapcan #'(lambda (x) (list (car x) (cdr x))) 
 				   params))
@@ -542,7 +543,8 @@
 	      (when (and checked (null (cdr checked)))
 		;; Hack for creating an empty array in json
 		(setf (cdr checked) (make-array '(0)))))
-	    (push params send-reply))
+	    ;; Remove time from reply
+	    (push (remove :time params :key #'car) send-reply))
 	  
 	  ;; Echo any text entered in Tutor pane text box.
 	  (when (and (equal method "seek-help") 

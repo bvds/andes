@@ -26,7 +26,8 @@
 ;;            Give unsolicited hint in case of floundering.
 ;;            Solicited hint
 ;;
-(use-package :andes-database)
+(eval-when (:load-toplevel :compile-toplevel)
+  (use-package :andes-database))
 
 (defun model-increment-state-property (property &key ceiling)
   ;; Increment property value, allowing for ceiling.
@@ -36,6 +37,10 @@
 			  (cond ((null x) 1) ;doesn't exist
 				((and ceiling (>= x ceiling)) t)
 				(t (+ x 1)))))))
+
+(defun incremented-property-test (property value)
+  (let ((x (get-state-property property)))
+	 (unless (eql x T) (or (null x) (< x value)))))
 
 (defun model-red-turn (time)
   (unless time (error "Null time supplied"))
@@ -101,6 +106,7 @@
 
 (defconstant +floundering-time+ 30 "time in seconds")
 (defconstant +floundering-turns+ 5)
+(defconstant +master-clicking+ 2)
 
 ;; To test: 
 ;; login as student in section "study" to create section.
@@ -127,8 +133,7 @@
        (get-state-property 'f-time)
        (or 
 	;; Detect a new user.
-	(let ((x (get-state-property 'CLICKED-HELP-BUTTON)))
-	  (unless (eql x T) (or (null x) (< x 3))))
+	(incremented-property-test 'CLICKED-HELP-BUTTON +master-clicking+)
 	;; Detect floundering:  in a state of confusion
 	;; and not having received any help.
 	(and
@@ -157,9 +162,7 @@
        (:text . ,(strcat "Perhaps you should " 
 			 *intro-video-action* "."))))
     
-    ((or (null (get-state-property 
-		'CLICKED-HELP-BUTTON))
-	 (< (get-state-property 'CLICKED-HELP-BUTTON) 3))
+    ((incremented-property-test 'CLICKED-HELP-BUTTON +master-clicking+)
       `((:action . "show-hint")
 	(:text . ,(strcat "Your entry has turned red.&nbsp;  You can "
 			  *help-button-action* " to get help."))))
@@ -175,8 +178,7 @@
 (defun model-link-click-test ()
   (and (equal (get-state-property 
 	       'raj-experiment :model "server") 'experiment)
-       (let ((x (get-state-property 'CLICKED-HELP-LINK)))
-	 (unless (eql x T) (or (null x) (< x 2))))))
+       (incremented-property-test 'CLICKED-HELP-LINK +master-clicking+)))
 
 (defun model-link-click ()
     '((:action . "show-hint")
