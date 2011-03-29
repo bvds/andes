@@ -424,8 +424,37 @@
 			 (:items . ,(turn-value turn)))
 		       result))
       )
+
+    ;; When reply has a link, see if student needs hint to
+    ;; Click on link
+    (when nil ;debug print
+      (format webserver:*stdout* "Link test ~A and ~A~%" 
+	      (mapcar #'reply-has-link result)
+	      (model-link-click-test)))
+    (when (and (some #'reply-has-link result)
+	   (model-link-click-test))
+      (push (model-link-click) result))
+
+    ;; Test if student has received some sort of hint
+    ;; from the tutor.
+    (if (member "show-hint" result
+		:key #'(lambda (x) (cdr (assoc :action x)))
+		:test #'equal)
+	(progn ;(format webserver:*stdout* "***turn with hint~%")
+	  (model-hint-turn))
+	(progn ;(format webserver:*stdout* "***turn with no hint~%")
+	  (model-no-hint-turn time)))
+    
     (reverse result)))
 
+(defun reply-has-link (reply)
+    (or 
+     ;; look for a tutor link.
+     (equal (cdr (assoc :action reply)) "show-hint-link")
+     ;; Look for link in a hint, ignoring any help buttons.
+     (and (equal (cdr (assoc :action reply)) "show-hint")
+	  (search "<a href=" (cdr (assoc :text reply)))
+	  (not (search *help-button-action* (cdr (assoc :text reply)))))))
 
 ;;; ==========================================================================
 ;;; Update with results.
