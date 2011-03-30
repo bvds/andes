@@ -34,15 +34,21 @@ andes.principles={
 			);
 			if(this.reviewp[file]){
 				if(dojo.isIE){
-					console.log("==========================>>>We've got IE here");
-					var win = this.reviewp[file];
-					setTimeout(function(){
-						var n = win.document.createElement("script");
-						n.src = "../web-UI/andes/recordIE.js";
-						var body = win.document.getElementsByTagName("body");
-						body[0].appendChild(n);
-						console.log("Completed operation inserting: ",n);
-					},1000);
+					// console.log("==========================>>>We've got IE here");
+					var body, win = this.reviewp[file];
+					function childLoaded(){
+						body = win.document.getElementsByTagName("body");
+						if(body[0]==null){
+							// Not loaded yet, try again
+							setTimeout(childLoaded, 20);
+						}else{
+							var n = win.document.createElement("script");
+							n.src = "../web-UI/andes/recordIE.js";
+							body[0].appendChild(n);
+							// console.log("Completed operation inserting: ",n);
+						}
+					}
+					childLoaded();
 				} else {
 					if(section){
 						// In principle, this could fail if window is already loaded
