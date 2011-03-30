@@ -87,8 +87,9 @@
   (andes-database:create :host host :db db :user user :password password)
 
   ;; start webserver
-  (webserver:start-json-rpc-service 
-   "/help" :port port :log-function #'andes-database:write-transaction
+  (webserver:start-json-rpc-services 
+   '(("/help" :log-function andes-database:write-transaction))
+   :port port
    ;; Path for Hunchentoot server (and database access) errors.
    ;; Generally, these errors indicate something disasterous has
    ;; occurred.  Might want to find some way to inform the administrator.
@@ -108,7 +109,9 @@
        ;; Send trivial query, to keep connection alive.
        (andes-database:get-most-recent-tID) 
        (sleep cutoff)
-       (webserver:close-idle-sessions :idle cutoff :method 'close-problem))))
+       (webserver:close-idle-sessions 
+	:log-function 'andes-database:write-transaction
+	:idle cutoff :method 'close-problem))))
 
 (defun stop-help () 
   "stop the web server running this service"
@@ -117,7 +120,7 @@
     #+sbcl (sb-thread:terminate-thread *cleanup-thread*)
     #-sbcl (error "cleanup not implemented"))
 
-  (webserver:stop-json-rpc-service)
+  (webserver:stop-json-rpc-services)
   ;; Stop database.
   (andes-database:destroy))
 
