@@ -107,6 +107,9 @@ dojo.declare("andes.options",null,{
                 myDrawing.changeDefaults(obj,true);
             }
         }
+// This is just for testing:  should only send message if
+// the value is actually changed.
+	 andes.api.recordAction({type:"set-preference", name: "display-timer", value: this.timer});
         this.timer ? andes.timer.displayTimer() : andes.timer.hideTimer();
         this.dialog.hide();
     }
