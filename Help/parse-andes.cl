@@ -515,13 +515,13 @@
 ;; forgot-units is returned when equation is dimensionally inconsistent but
 ;; balances numerically when numbers are treated as having unknown units.
 (defun forgot-units-ErrorInterp (se)
-  "Given a student entry, return a tutor turn that gives unsolicited feedback saying that
-   the student forgot to put units on at least one number.
-   Also create an error interpreation in case the student asks a follow-up question, and
-   put it in the student entry's err interp field."
+  "Given a student entry, return a tutor turn that gives unsolicited 
+feedback saying that the student forgot to put units on at least one number.
+Also create an error interpreation in case the student asks a follow-up 
+question, and put it in the student entry's err interp field."
   (let ((rem (make-hint-seq
 	      '("Forgot to put units on a number."
-		"This equation is dimensionally inconsistent. When numbers are used in equations, they must include the appropriate units.  It looks like one of the numbers you've used is lacking the units."))))
+		"This equation is dimensionally inconsistent.&nbsp; When numbers are used in equations, they must include the appropriate units.&nbsp; It looks like one of the numbers you've used is lacking the units."))))
     (setf (StudentEntry-ErrInterp se)
       (make-ErrorInterp
        :diagnosis '(forgot-units)
@@ -529,72 +529,95 @@
 
     (setf (turn-id rem) (StudentEntry-id se))
     (setf (turn-coloring rem) +color-red+)
-
-    rem))
+    
+    ;; For Raj experiment, control group make hint solicited.
+    ;; This is more consistant with the general policy of making
+    ;; physics-related hints solicited.
+    (if (eql (andes-database:get-state-property
+	      'raj-experiment :model "server") 'control)
+	(make-red-turn :id (StudentEntry-id se))
+	rem)))
 
 
 (defun assignment-eqn (parsed-eqn)
   "true if given prefix eqn parse is a numerical assignment statement"
-  (and (consp parsed-eqn)           ; just sanity checks on argument
+  (and (consp parsed-eqn)           ;just sanity checks on argument
        (eq (first parsed-eqn) '=)   
        (= (length parsed-eqn) 3)
        ;; predicate defined in errors.cl takes (lhs rhs)
        (assignmentp (second parsed-eqn) (third parsed-eqn))))
 
 
-; maybe-forgot units is returned when equation is dimensionally inconsistent but
-; could be dimensionally OK if numbers are treated as having unknown units -- though
-; it STILL fails to balance acceptably. So we are unsure what the true cause of the
-; inconsistency is, but can suggest maybe they forgot units. If this occurs for a simple 
-; numerical assignment statement we promote the response to the more definite "forgot units" 
-; message: The value may be wrong but we are still sure they have forgotten the units on a number.
+;; maybe-forgot units is returned when equation is dimensionally 
+;; inconsistent but could be dimensionally OK if numbers are treated as 
+;; having unknown units -- though it STILL fails to balance acceptably. 
+;; So we are unsure what the true cause of the inconsistency is, 
+;; but can suggest maybe they forgot units.  If this occurs for a simple 
+;; numerical assignment statement we promote the response to the more 
+;; definite "forgot units" message:  The value may be wrong but we are 
+;; still sure they have forgotten the units on a number.
 (defun maybe-forgot-units-ErrorInterp (se)
-  "Given a student entry, return a tutor turn that gives unsolicited feedback saying that
-   the student appears to have left units off at least one number.
-   Also create an error interpreation in case the student asks a follow-up question, and
-   put it in the student entry's err interp field."
-  ; in case of a simple assignment statement, change to forgot-units error interpretation
+  "Given a student entry, return a tutor turn that gives unsolicited 
+feedback saying that the student appears to have left units off at 
+least one number.  Also create an error interpreation in case the 
+student asks a follow-up question, and put it in the student entry's 
+err interp field."
+  ;; in case of a simple assignment statement, change to forgot-units 
+  ;; error interpretation
   (when (assignment-eqn (StudentEntry-ParsedEqn se))
-       (return-from maybe-forgot-units-ErrorInterp (forgot-units-ErrorInterp se)))
+    (return-from maybe-forgot-units-ErrorInterp (forgot-units-ErrorInterp se)))
   
   (let ((rem (make-hint-seq
-	      '( "The units in this equation are not consistent.  If this is a symbolic equation, there is probably an error:  check all your terms.  Another possibility is that a number has been used without correct associated units."))))
+	      '( "The units in this equation are not consistent.&nbsp;  If this is a symbolic equation, there is probably an error:  check all your terms.&nbsp;  Another possibility is that a number has been used without correct associated units."))))
     (setf (StudentEntry-ErrInterp se)
-      (make-ErrorInterp
-       :diagnosis '(maybe-forgot-units)
-       :remediation rem))
+	  (make-ErrorInterp
+	   :diagnosis '(maybe-forgot-units)
+	   :remediation rem))
 
     (setf (turn-id rem) (StudentEntry-id se))
     (setf (turn-coloring rem) +color-red+)
+    
+    ;; For Raj experiment, control group make hint solicited.
+    ;; This is more consistant with the general policy of making
+    ;; physics-related hints solicited.
+    (if (eql (andes-database:get-state-property
+	      'raj-experiment :model "server") 'control)
+	(make-red-turn :id (StudentEntry-id se))
+	rem)))
 
-    rem))
-
-; If this is a simple numerical assignment statement, we can say more specifically
-; that units are wrong.
+;; If this is a simple numerical assignment statement, we can say more 
+;; specifically that units are wrong.
 (defun wrong-units-ErrorInterp (se)
-  "Given a student entry, return a tutor turn giving unsolicited feedback saying that
-   the student equation has a dimensional inconsistency
-   Also create an error interpreation in case the student asks a follow-up question, and
-   put it in the student entry's err interp field."
+  "Given a student entry, return a tutor turn giving unsolicited feedback 
+saying that the student equation has a dimensional inconsistency.  
+Also create an error interpreation in case the student asks a 
+follow-up question and put it in the student entry's err interp field."
   (let ((rem (make-hint-seq
 	      '("Units are inconsistent."))))
     (setf (StudentEntry-ErrInterp se)
-      (make-ErrorInterp
+	  (make-ErrorInterp
        :diagnosis '(wrong-units)
        :remediation rem))
-
+    
     (setf (turn-id rem) (StudentEntry-id se))
     (setf (turn-coloring rem) +color-red+)
-
-    rem))
+    
+    ;; For Raj experiment, control group make hint solicited.
+    ;; This is more consistant with the general policy of making
+    ;; physics-related hints solicited.
+    (if (eql (andes-database:get-state-property
+	      'raj-experiment :model "server") 'control)
+	(make-red-turn :id (StudentEntry-id se))
+	rem)))
 
 (defun solver-exception-interp (se)
-  ;; To tag buggy unprocessable parse so can prefer others. Hopefully won't ever show this to students.
+  ;; To tag buggy unprocessable parse so can prefer others. Hopefully won't 
+  ;; ever show this to students.
   (let ((rem (make-hint-seq '("Internal error: could not process equation."))))
     (setf (turn-coloring rem) NIL) ; leaves color alone, since we don't know if it is right.
-     (setf (StudentEntry-ErrInterp se)
-      (make-ErrorInterp
-       :diagnosis '(internal-error)
+    (setf (StudentEntry-ErrInterp se)
+	  (make-ErrorInterp
+	   :diagnosis '(internal-error)
        :remediation rem))
     rem))
 

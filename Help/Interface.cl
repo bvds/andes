@@ -426,7 +426,7 @@
       )
 
     ;; When reply has a link, see if student needs hint to
-    ;; Click on link
+    ;; Click on link.
     (when nil ;debug print
       (format webserver:*stdout* "Link test ~A and ~A~%" 
 	      (mapcar #'reply-has-link result)

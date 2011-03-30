@@ -398,8 +398,19 @@ dojo.provide("andes.drawing");
 						disable ? tool.disable() : tool.enable();
 					}
 
+				}else if(obj.action=="set-preference"){
+					// BvdS:  temporary code:  just does timer.
+ 					if(obj["name"]=="display-timer"){
+						if(obj["value"]){
+							andes.timer.displayTimer();
+						} else {
+							andes.timer.hideTimer();
+						}
+					}					
+				}else if(obj.action=="log"){
+					// Log actions are ignored by client.
 				}else{
-					//console.warn("UNUSED ANDES OBJECT:", obj)
+					console.warn("UNUSED ANDES OBJECT:", obj)
 				}
 			}, this);
 

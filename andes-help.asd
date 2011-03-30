@@ -86,7 +86,8 @@
 				     (:file "NextStepHelp"
 					    :depends-on ("icons" "symbols"))
 				     (:file "IEA")
-				     (:file "model")
+				     (:file "model"
+					    :depends-on ("database"))
 				     
 				     ;; Automatic statistics code.
 				     (:file "Statistics")
