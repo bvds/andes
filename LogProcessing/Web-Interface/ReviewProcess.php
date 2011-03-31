@@ -4,21 +4,12 @@
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
   <LINK REL=StyleSheet HREF="log.css" TYPE="text/css" >
   <title>Review Sessions</title>
-
-  <style type="text/css">
-   tr.quit {background-color: #ffe0e0;}
-  </style>
-
-<?php
-    include('xml-scripts.html');
-?>
-
-<script type="text/javascript">
-   function openTrace($url){  
-        window.open($url);
+  <script type="text/javascript" src='xml-scripts.js'></script>
+  <script type="text/javascript">
+    function openTrace(url){  
+        window.open(url);
    }
-</script>
-
+  </script>
 </head>
 <body>
 <?php

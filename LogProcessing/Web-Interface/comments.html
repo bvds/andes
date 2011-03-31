@@ -11,7 +11,6 @@
     margin-top:15px;
     }
     .loginbox{
-    width:400px;
     height:auto;
     padding:0 10px 20px 10px;
     border:1px solid #ccc;
@@ -49,11 +48,11 @@ return "";
 <h1>Querying for the Comments given by Students..</h1>
 <form name="queryForm" action="commentProcessing.php" method="post">
 <div class="loginbox">
-<label>Your user name (for saving status):</label>
+<label>Your user name (for saving status and your comments):</label>
 <input name="adminName" type="text" size="6"/>
-<label>DB User:</label>
+<label>DB user:</label>
 <input name="dbuser" type="text" value="root" size="6"/>
-<label>DB Password:</label>
+<label>DB password:</label>
 <input name="passwd" type="password" size="6"/><br>
 <script language=JavaScript>
 document.queryForm.adminName.value=getCookie("userName");
