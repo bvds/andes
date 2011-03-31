@@ -146,6 +146,26 @@
   (dump-style-file out-path))
 
 
+(defun problem-kcs (prob)
+  "Returns a list of kc's found in all solutions and a list of kc's found in only some solutions."
+  ;; need help system loaded to use this function.
+  ;; run function (andes-init) first.
+  (read-problem-info prob)
+  (let (not-all any)
+    (dolist (solution (problem-solutions *cp*))
+      (let (this)
+	(dolist (entry (distinct-SystemEntries 
+			(mappend #'bgnode-entries (EqnSet-nodes solution))))
+	  (dolist (opinst (remove-duplicates 
+			   (copy-list (SystemEntry-Sources entry))
+			   :key #'csdo-op :test #'unify))
+	    (let ((kc (csdo-op opinst)))
+	      (pushnew (car kc) any)
+	      (pushnew (car kc) this))))
+	(dolist (op any)
+	  (unless (member op this) (pushnew op not-all)))))
+    (list (set-difference any  not-all))))
+
 ;; need helpsystem loaded for this
 ;; (dump-entries-operators #P"/home/bvds/solutions/")
 ;; scp -r ~/solutions/ andes3.lrdc.pitt.edu:/home/andes/public_html/learnlab
