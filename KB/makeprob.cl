@@ -164,7 +164,7 @@
 	      (pushnew (car kc) this))))
 	(dolist (op any)
 	  (unless (member op this) (pushnew op not-all)))))
-    (list (set-difference any  not-all))))
+    (list (set-difference any not-all) not-all)))
 
 ;; need helpsystem loaded for this
 ;; (dump-entries-operators #P"/home/bvds/solutions/")
