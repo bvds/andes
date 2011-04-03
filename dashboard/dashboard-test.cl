@@ -1,8 +1,5 @@
 (in-package :webserver)
 
-(defun-method "/dashboard" call-dashboard (&key param1 param2)
+(defun-method "/dashboard" test (&key param1 param2)
    "This is a method associated with the dashboard service"
-   (call-dashboard :x param1  :y param2))
-
-(defun call-dashboard (&key x y)
-  (+ x y))
+   (cons :value (+ param1 param2)))
