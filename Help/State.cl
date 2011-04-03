@@ -159,7 +159,7 @@
       ;; code in open-problem from being executed and sends a 
       ;; message to the student.
       (error 'webserver:log-error :tag 'problem-load-failed
-	     :text (strcat "Unable to load problem " name
+	     :text (strcat "Unable to load problem " (string name)
 			   ".&nbsp;  Please try another problem." ))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
