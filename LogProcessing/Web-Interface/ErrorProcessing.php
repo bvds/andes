@@ -4,17 +4,11 @@
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
   <LINK REL=StyleSheet HREF="log.css" TYPE="text/css">
 
-
-<?
-	    include('xml-scripts.html');
-?>
-
-<script type="text/javascript">
-
-function openTrace(url){  
-  window.open(url);
-}
-
+  <script type="text/javascript" src='xml-scripts.js'></script>
+  <script type="text/javascript">
+    function openTrace(url){  
+        window.open(url);
+   }
   </script>
 
 </head>
@@ -55,7 +49,7 @@ $errorType=$_POST['errorType'];
 
 echo "<h2>The Errors and Warnings are as given below:</h2>";
 echo "<table border=1>\n";
-echo "<tr><th>Starting Time</th><th>Input</th><th>Error Type</th><th>Error Message</th><th>View</th></tr>\n";
+echo "<tr><th>Starting Time</th><th>Input</th><th>Error Type</th><th>Message</th><th>Tag</th><th>View</th></tr>\n";
 
 
 // Newer versions of php have json decoder built-in.  Should
@@ -63,28 +57,51 @@ echo "<tr><th>Starting Time</th><th>Input</th><th>Error Type</th><th>Error Messa
 include 'JSON.php';
 $json = new Services_JSON();
 
-$sql="SELECT startTime,userName,userProblem,userSection,tID,command,P1.clientID from PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE $startDatec $endDatec P2.initiatingParty='server' AND P2.command like '%\"error-type\":$errorTypec%' AND P2.command like '%\"error\":%' AND P2.clientID=P1.clientID AND P1.extra=0 order by P2.tID";
+$sqlOld="SELECT startTime,userName,userProblem,userSection,tID,command,P1.clientID from PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE $startDatec $endDatec P2.initiatingParty='server' AND P2.command like '%\"error-type\":$errorTypec%' AND P2.command like '%\"error\":%' AND P2.clientID=P1.clientID AND P1.extra=0 order by P2.tID";
+$sql="SELECT startTime,userName,userProblem,userSection,tID,client,server,P1.clientID from PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE $startDatec $endDatec P2.server like '%\"log\":\"server\"%' AND P2.clientID=P1.clientID AND P1.extra=0 order by P2.tID";
+$resultOld=mysql_query($sqlOld);
 $result=mysql_query($sql);
 
   
-while ($myrow = mysql_fetch_array($result)) {
+while (($myrow = mysql_fetch_array($resultOld)) ||
+       ($myrow = mysql_fetch_array($result))) {
   $tID=$myrow["tID"];  
-  $usertID=$tID-3;
+  $userClientID=$myrow["clientID"];
   $userName=$myrow["userName"];
   $userProblem=$myrow["userProblem"];
   $userSection=$myrow["userSection"];
   $startTime=$myrow["startTime"];
-  $command=$json->decode($myrow["command"]);
+  if(isset($myrow["command"])){
+    $usertID=$tID-3;
+    $cc=$myrow["command"];
+    $userSql="SELECT command,tID from PROBLEM_ATTEMPT_TRANSACTION WHERE clientID='$userClientID' AND tID<$tID ORDER BY tID DESC LIMIT 1";
+    $userResult=mysql_query($userSql);
+    $myResult=mysql_fetch_array($userResult);
+    $ttID=$myResult["tID"];  // tID associated with row, for focusing.
+    $userCommand=$myResult["command"];
+  } else {
+    $usertID=$tID-1;
+    $ttID=$tID;
+    $cc=$myrow["server"];
+    $userCommand=$myrow["client"];
+  }
+  $command=$json->decode($cc);
+  $a=$json->decode($userCommand);
+
   $yy=array();
   if($command){
     // Don't know why I can't just use $command->result in the foreach
     $zz=$command->result; 
     foreach($zz as $bb) {
-     if($bb->action == "log" && $bb->error){
+      if($bb->action == "log" && 
+	 // New or old style logging
+	 (strcmp($bb->log,"server")==0 || $bb->error)){
         $key1="error-type";  // work-around for the dash
         $errorType=$bb->$key1;
-        $errorMsg=$bb->error;
-        array_push($yy,"<td>$errorType</td><td>$errorMsg</td>");
+	// New or old style logging
+        $errorMsg=isset($bb->text)?$bb->text:$bb->error;
+	$tag=isset($bb->entry)?$bb->entry:'';
+        array_push($yy,"<td>$errorType</td><td>$errorMsg</td><td>$tag</td>");
       }
     }
   }
@@ -92,7 +109,7 @@ while ($myrow = mysql_fetch_array($result)) {
   // with the json decoding.  These are usually associated with very
   // long backtraces that have somehow gotten truncated.
   if(count($yy)==0) {
-    $bb=$myrow["command"];
+    $bb=$cc;
     // add space after commas, for better line wrapping
     $bb=str_replace("\",\"","\", \"",$bb);
     // forward slashes are escaped in json, which looks funny
@@ -104,14 +121,6 @@ while ($myrow = mysql_fetch_array($result)) {
 
   //  $lastID=$tID-1;
   //  $userSql="select command from PROBLEM_ATTEMPT_TRANSACTION where tID=$lastID";
-  $userClientID=$myrow["clientID"];
-  $userSql="SELECT command,tID from PROBLEM_ATTEMPT_TRANSACTION WHERE clientID='$userClientID' AND tID<$tID ORDER BY tID DESC LIMIT 1";
-
-  $userResult=mysql_query($userSql);
-  $myResult=mysql_fetch_array($userResult);
-  $userCommand=$myResult["command"];
-  $ttID=$myResult["tID"];  // tID associated with row, for focusing.
-  $a=$json->decode($userCommand);
   $method=$a->method;
   $aa=$json->encode($a->params);
   // Escape html codes so actual text is seen.

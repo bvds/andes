@@ -43,6 +43,8 @@
   :effects ((inherit-quantity (mass ?b :time ?t) (mass ?b))))
 
 (defoperator define-mass (?b ?t)
+  :short-name "define mass"
+  :description "define a variable for the mass of an object"
   :preconditions
   (
    ;; only use time when allowed by feature changing-mass
@@ -192,7 +194,7 @@
 		     (force ?b ?planet weight :time ?t-big))))
  
 (defoperator draw-weight (?b ?t ?planet)
-  :specifications "
+  :description "
     If ?body is not massless, and
        it is near a ?planet,
     then draw a weight vector for it pointing straight down,
@@ -248,7 +250,7 @@
   ))
 
 (defoperator draw-weight-at-cm (?cm ?planet ?t)
-  :specifications "
+  :description "
     If rigid body is not massless, and it is near a planet,
     then draw a weight force vector acting at the center of mass, pointing straight down,
        define a magnitude variable and an direction variable for it."
@@ -314,7 +316,7 @@
   ))
 
 (defoperator draw-tension (?b ?string ?t)
-  :specifications "
+  :description "
    If there is a string tied to a body with the direction known,
    then draw a tension force on the body due to the string,
      with its direction being the given string-body connection,
@@ -350,7 +352,7 @@
 ;;; done with a conditional effect, but we don't have those yet.
 
 (defoperator draw-tension-unknown-dir (?b ?string ?t)
-  :specifications "
+  :description "
    If there is a string tied to a body with the direction unknown,
    then draw a tension force on the body due to the string,
      with its direction being the given string-body connection,
@@ -399,7 +401,7 @@
   ))
 
 (defoperator draw-normal (?b ?surface ?t)
-  :specifications 
+  :description 
   "If an object slides along a plane,
       and the plane has a known direction ?dir,
    then there is normal force on the object due to the plane,
@@ -452,7 +454,7 @@
 
 ;; Draw a applied ("given") force at a certain direction. 
 (defoperator draw-applied-force (?b ?agent ?t)
-  :specifications 
+  :description 
   "if you are given that there is an applied force on an object at a time
    at a certain direction,
   then draw the force at that direction"
@@ -496,7 +498,7 @@
   ))
 
 (defoperator draw-applied-force-unknown (?b ?agent ?t)
-  :specifications 
+  :description 
   "if you are given that there is an applied force on an object at a time
    at a certain direction,
   then draw the force at that direction"
@@ -549,7 +551,7 @@
   ))
 
 (defoperator draw-kinetic-friction (?b ?surface ?t)
-  :specifications 
+  :description 
    "If an object slides along a surface in direction ?dir,
    then there is a kinetic friction force on the object due to the surface,
       and it is opposite the direction of motion"
@@ -627,7 +629,7 @@
    ))
 
 (defoperator draw-static-friction (?b ?surface ?t)
-  :specifications 
+  :description 
    "If it is known that there is a static friction force in a given direction, draw it"
   :preconditions
    ((force ?b ?surface static-friction ?t ?friction-dir action)
@@ -722,7 +724,7 @@
   ))
 
 (defoperator draw-drag (?b ?medium ?t)
-  :specifications 
+  :description 
    "If an object moves in a fluid medium in direction ?dir,
    then there is a drag force on the object due to the medium,
       and it is opposite the direction of motion"
@@ -1676,7 +1678,7 @@
 
 
 (defoperator draw-any-forces (?b ?t)
-   :specifications 
+   :description 
     "If there are some forces on ?body at ?time,
      then make them the set of forces on ?body at ?time"
    :preconditions
@@ -1856,7 +1858,7 @@
 ;;; does the actual process of preparing to write the equation then writing it.
    
 (defoperator wt-law-contains (?quantity)
-  :specifications "
+  :description "
    If a body is near a planet,
    then the weight law for the body potentially contains
      the magnitude of the weight force,
@@ -1930,7 +1932,7 @@
 				(force ?b ?planet weight :time ?t))))
 
 (defoperator wt-law (?b ?t)
-  :specifications "
+  :description "
    If a body is near a planet,
      and it is not massless,
      and you can find the appropriate variables,
@@ -1956,7 +1958,7 @@
 ;; variant applies weight to a rigid body. In this case the quantity is
 ;; specified as a force acting on the cm, not on the whole body.
 (defoperator wt-law-cm-contains (?quantity)
-  :specifications "
+  :description "
    If a rigid body is near a planet,
    then the weight law for the body potentially contains
      the magnitude of the weight force acting at the cm,
@@ -2003,7 +2005,7 @@
   :EqnFormat ("F = k d" ))
 
 (defoperator spring-law-contains (?quantity)
-  :specifications "
+  :description "
    the spring law for the body potentially contains
      the magnitude of the spring force,the spring constant, and
      the compression/extension."
@@ -2023,7 +2025,7 @@
   )
 
 (defoperator spring-law-compression (?b ?t)
-  :specifications "
+  :description "
      and you can find the appropriate variables,
      then write Fs=k*d where Fs is the magnitude of the spring force
      on the body, k is the spring constant and d is the compression or
@@ -2070,7 +2072,7 @@
 
 
 (defoperator NL-vector-contains (?quantity)
-  :specifications 
+  :description 
   "Newton's law potentially contains the body's mass, 
      the magnitude of its acceleration, and
      the direction of its acceleration"
@@ -2096,7 +2098,7 @@
   :effects ((eqn-family-contains (NL ?b ?t) ?quantity)))
 
 (defoperator NL-net-vector-contains (?quantity)
-  :specifications 
+  :description 
   "Newton's law potentially contains the body's mass, 
      the magnitude of its acceleration, and
      the direction of its acceleration"
@@ -2137,7 +2139,7 @@
             (nlg ?body) (nlg ?time 'pp))) ;time may be interval or instant
 
 (defoperator draw-nl-fbd (?rot ?b ?t)
-  :specifications 
+  :description 
    "If the goal is to draw a fbd for newton's law,
    then draw a body, draw the forces, the acceleration and the axes,
    in any order."
@@ -2156,7 +2158,7 @@
 ;; Following draws a free-body diagram for the net-force variant of NL
 ;;
 (defoperator draw-NL-net-fbd (?rot ?b ?t)
-  :specifications 
+  :description 
    "If the goal is to draw a fbd for newton's law in terms of net force,
    then draw a body, draw the acceleration, draw the net force vector and the axes,
    in any order."
@@ -2182,7 +2184,7 @@
 ;;; second law for zero (NFL) and nonzero (NSL) acceleration.  
   
 (defoperator NFL-zero-accel (?quantity)
-  :specifications "
+  :description "
    If the object has zero acceleration over a time period,
       and that time period includes the one we're useing for NL,
    then NFL applies and it potentially contains
@@ -2230,7 +2232,7 @@
 ;;; fail to determine forces applying over this composite segment]
 
 (defoperator NSL (?quantity)
-  :specifications "
+  :description "
    If the acceleration is not zero during the target time period
       and the body is not massless during the target time period,
    then NSL applies and it potentially contains
@@ -2258,7 +2260,7 @@
 ;;; targetted by the help system yet.
 
 (defoperator write-NFL-compo (?b ?t ?xyz ?rot)
-  :specifications 
+  :description 
    "If the goal is to write newton's first law in component form 
       for ?body at ?time along ?axis at ?rot,
       ensure there are component variables ?compo-vars for the components 
@@ -2300,7 +2302,7 @@
 ;;; equation.  
 
 (defoperator write-NSL-compo (?b ?t ?xyz ?rot)
-  :specifications 
+  :description 
    "If the goal is to write newton's second law in component form,
       ensure there are component variables ?compo-vars for the components 
       of each of the forces on ?b at ?t,
@@ -2342,7 +2344,7 @@
 ;;;
 
 (defoperator write-NSL-net-compo (?b ?t ?xyz ?rot)
-  :specifications 
+  :description 
    "If the goal is to use newton's second law for net force in component form,
       define component variables for the net force and acceleration,
    then write ?fnet_c = ?m * ?ac"
@@ -2488,7 +2490,7 @@
 ;;; give for these equation-contains operators.
 
 (defoperator tensions-equal-contains (?quantity)
-  :specifications "
+  :description "
    If the same string is attached to two objects,
    then the tensions-equal law can be applied,
      and it mentions the magnitudes of the tension forces on the objects."
@@ -2513,7 +2515,7 @@
 
 (defoperator write-tensions-equal (?string ?bodies ?t)
   
-  :specifications 
+  :description 
    "If a string is tied to two blocks,
    then the tension forces on them are equal."
   :preconditions
@@ -2795,7 +2797,7 @@
 
 
 (defoperator draw-torques (?b ?axis ?t)
-   :specifications 
+   :description 
     "If there are any torques on ?body at ?time,
      then make them the set of torques on ?body at ?time"
    :preconditions
@@ -3087,7 +3089,7 @@
 ;;;
 
 (defoperator NL-rot-contains (?quantity)
-  :specifications 
+  :description 
   "Newton's law potentially contains the body's mass, 
      the magnitude of its acceleration, and
      the direction of its acceleration"
@@ -3214,7 +3216,7 @@
 
 
 (defoperator write-NSL-rot-compo (?b ?axis ?t ?xyz ?rot)
-  :specifications 
+  :description 
    "If the goal is to write newton's second law in component form,
       ensure there are component variables ?compo-vars for the components 
       of each of the forces on ?b at ?t,

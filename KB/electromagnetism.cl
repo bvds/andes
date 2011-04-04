@@ -1150,7 +1150,7 @@
 ;; This derives sign on charge of ?b when Fe_x and E_x are given at location 
 ;; of ?b x-component can't be zero
 (defoperator get-sign-charge-from-FE-compos (?b ?t ?xyz ?rot)
-  :specifications " "
+  :description " "
   :preconditions 
   ((rdebug "sign-on-charge ~%")                   
    (given (compo ?xyz ?rot (force ?b ?source electric :time ?t)) 
@@ -2684,7 +2684,7 @@
 
 ;; First form draws if we aren't given field dir:
 (defoperator draw-Bforce-unknown-field (?b ?t)
-  :specifications " "
+  :description " "
   :preconditions 
   ((rdebug "Using draw-Bforce-unknown ~%")
    (given-field magnetic :location ?loc :source ?source :dir ?dir :time ?t)

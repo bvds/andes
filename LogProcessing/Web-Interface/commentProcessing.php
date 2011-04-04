@@ -25,11 +25,7 @@ setcookie("passWord",$dbpass,time()+(8*60*60));
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
   <LINK REL=StyleSheet HREF="log.css" TYPE="text/css">
-
-<?
-	    include('xml-scripts.html');
-?>
-
+  <script type="text/javascript" src='xml-scripts.js'></script>
 </head>
 <body>
 
@@ -40,26 +36,37 @@ if($order=='Descending')
  else
    $order = "";
 if($filter=='All'){
-$sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.clientID = P2.clientID AND P2.initiatingParty = 'client' AND P2.command LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
+  $sqlOld = "SELECT * FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.clientID = P2.clientID AND P2.initiatingParty = 'client' AND P2.command LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
+  $sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE P1.clientID = P2.clientID AND P2.client LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
  }
  else if($filter=='Student'){
-$sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.extra<=0 AND P1.clientID = P2.clientID AND P2.initiatingParty = 'client' AND P2.command LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
+   $sqlOld = "SELECT * FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.extra<=0 AND P1.clientID = P2.clientID AND P2.initiatingParty = 'client' AND P2.command LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
+   $sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE P1.extra<=0 AND P1.clientID = P2.clientID AND P2.client LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
 }
  else{
-$sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.extra>0 AND P1.clientID = P2.clientID AND P2.initiatingParty = 'client' AND P2.command LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
+   $sqlOld = "SELECT * FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.extra>0 AND P1.clientID = P2.clientID AND P2.initiatingParty = 'client' AND P2.command LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
+   $sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE P1.extra>0 AND P1.clientID = P2.clientID AND P2.client LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
  }
 
+$resultOld = mysql_query($sqlOld);
 $result = mysql_query($sql);
 $removed=0;
 $kept=0;
 echo "<table border=1>";
 echo "<tr><th>Solved</th><th>My Comment</th><th>User Name</th><th>Problem</th><th>Section</th><th>Starting Time</th><th>Comment</th><th>Additional</th></tr>\n";
-while ($myrow = mysql_fetch_array($result)) {
+while (($myrow = mysql_fetch_array($result)) ||
+       ($myrow = mysql_fetch_array($resultOld))) {
   $tID=$myrow["tID"];
-  // Include cases where reply is null.
-  // It is not quite Kosher to assume the next tID 
-  // is the next one in this session.  Bug #1803
-  $tempSql = "SELECT * FROM PROBLEM_ATTEMPT_TRANSACTION WHERE tID = ($tID+1) and (command LIKE '%\"HANDLE-TEXT\":\"COMMENT\"%' or command like '%\"HANDLE-TEXT\":\"POSSIBLE-QUESTION\"%' or command not like '%\"result\":%')";
+  // Choose new style with STEP_TRANSACTION or old style 
+  // with PROBLEM_ATTEMPT_TRANSACTION
+  if(isset($myrow["client"])){
+    // Include cases where reply is null.
+    $tempSql = "SELECT * FROM STEP_TRANSACTION WHERE tID = $tID and (server LIKE '%\"HANDLE-TEXT\":\"COMMENT\"%' or server like '%\"HANDLE-TEXT\":\"POSSIBLE-QUESTION\"%' or server not like '%\"result\":%')";
+  } else {
+    // Include cases where reply is null.
+    // It is not quite Kosher to assume the next tID 
+     $tempSql = "SELECT * FROM PROBLEM_ATTEMPT_TRANSACTION WHERE tID = ($tID+1) and (command LIKE '%\"HANDLE-TEXT\":\"COMMENT\"%' or command like '%\"HANDLE-TEXT\":\"POSSIBLE-QUESTION\"%' or command not like '%\"result\":%')";
+  }
   $tempResult = mysql_query($tempSql);    
   if(mysql_fetch_array($tempResult))
     {
@@ -71,7 +78,9 @@ while ($myrow = mysql_fetch_array($result)) {
       $userProblem=$myrow["userProblem"];
       $userSection=$myrow["userSection"];
       $startTime=$myrow["startTime"];
-      $tempCommand1=$myrow["command"];
+      // new style with STEP_TRANSACTION or old style with 
+      // PROBLEM_ATTEMPT_TRANSACTION
+      $tempCommand1=isset($myrow["client"])?$myrow["client"]:$myrow["command"];
       $tempCommand2 =explode("get-help\",\"text\":\"",$tempCommand1);
       $command=explode("\"}",$tempCommand2[1]);
       

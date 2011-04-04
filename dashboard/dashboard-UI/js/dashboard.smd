@@ -1,0 +1,26 @@
+{
+	"envelope": "JSON-RPC-2.0",
+	"transport": "POST",
+	"target": "/dashboard",
+	"SMDVersion": "2.0",
+	"parameters": 
+	[
+		{"name": "param1", "type": "number"}
+  	],
+    "services": 
+	{
+        "test":
+		{
+            "transport": "GET",
+            "parameters": 
+			[
+                {"name": "param1", "optional": false, "type": "number"},
+				{"name": "param2", "optional": false, "type": "number"}
+            ],
+			"returns": 
+			{
+				"value": {"type": "number"}
+			}
+        }
+    }
+}

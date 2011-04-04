@@ -59,7 +59,7 @@
 ;;  HintVars:  A listing of all the variables used in the hints.  These will
 ;;    Be used later for forming the hints at runtime.  
 ;;  
-;;  specifications:  A Comment-ish stringdescribing the operator itself and
+;;  description:  A Comment-ish stringdescribing the operator itself and
 ;;    later useful for documentation.
 ;;
 ;;  Variables:  A list of all the variables that appear in this operator 
@@ -130,22 +130,23 @@
 ;; name for the s-expression form.
 
 (defstruct (operator (:print-function print-operator))
-  name             ;;Unique Operator name.
-  arguments        ;;List of operator arguments for use in defining the operator s-expression.
-  preconditions    ;;The preconditions for this operator to occur.
+  name             ;Unique Operator name.
+  arguments        ;List of operator arguments for use in defining the operator s-expression.
+  preconditions    ;The preconditions for this operator to occur.
 
-  effects          ;;The operator's effects.
-  hint             ;;The hint field.
-  specifications   ;;The operaor specifications.
+  effects          ;The operator's effects.
+  hint             ;The hint field.
+  short-name       ;Short description of knowledge component.
+  description    ;The operator description.
 
-  Variables        ;;A list consisting of all the variables in this operator.
+  Variables        ;A list consisting of all the variables in this operator.
   
-  Features         ;;A list of operator features e.g. PSM, and Ordered which
-                   ;;are used to determine aspects of the operator.
-  
-  (CogLoad 1 :type real)      ;;The 'cognitive load' of this operator used for min searching.
-                              ;; Needs to be edded into the loop.
-
+  Features         ;A list of operator features e.g. PSM, and Ordered which
+                   ;are used to determine aspects of the operator.
+  ;;The 'cognitive load' of this operator used for min searching.
+  ;; Needs to be edded into the loop.
+  (CogLoad 1 :type real)
+             
   order           ;List of dotted pairs giving order specifications
 		  ;when several operators apply choose those with maximal order 
   )
@@ -197,7 +198,7 @@
 
 (defmacro defoperator (Name Arguments 
 		       &key Preconditions Effects 
-			    Hint Specifications Features
+			    Hint short-name Description Features
 			    Load (Order '((default . NORMAL))) )
   
   "Define a new operator with the specified values and add it to *operators*."
@@ -208,7 +209,8 @@
 		    :Preconditions ',Preconditions 
 		    :Effects ',Effects
 		    :Hint ',(subst-nlgs-hints Hint) ;Substitute the NLG functions into the system.
-		    :Specifications ',Specifications
+		    :short-name ',short-name
+		    :Description ',Description
 		    :Order ',(sublis *op-order-ids* ; replace order symbols with numerical values
 		                ; ensure order list contains a value for default group
 		                (adjoin '(default . NORMAL) Order
@@ -385,8 +387,20 @@
   (clrhash *Operators-By-Effect*))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;              Get english associated with operator
+;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun get-operator-short-name (op)
+  "Return the a short description of the operator."
+  (or (operator-short-name (get-operator-by-name op))
+      (string-downcase (string op))))
 
+(defun get-operator-description (op)
+  "Return a longer string, if it exists, describing operator."
+  (operator-description (get-operator-by-name op)))
 
 ;;-----------------------------------------------------------------------------
 ;; Operator-var-copy (public)
@@ -591,10 +605,6 @@
    #'null (mapcar #'(lambda (s)
 		      (if (eq (hintspec-type s) type) s))
 		  (Ophint-hintspecs hint))))
-
-
-
-   
 
 
 ;;;===========================================================

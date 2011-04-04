@@ -193,7 +193,7 @@
 ;;; only the relevant ones in a 'time' proposition.
 
 (defoperator define-duration (?interval)
-  :specifications "
+  :description "
    If there is a time interval defined,
    then define a duration variable for it."
   :preconditions
@@ -218,7 +218,7 @@
 ;;; have one.  
 
 (defoperator define-speed (?b ?t)
-  :specifications "
+  :description "
    If there is time interval and an object,
    then you can define a speed of the object"
   :preconditions
@@ -243,7 +243,7 @@
 ;; as for the speed variable.
 
 (defoperator define-distance (?b ?interval)
-  :specifications "
+  :description "
    If there is a time interval and an object,
    then you can define a distance variable for the object."
   :preconditions
@@ -270,7 +270,7 @@
 ;;; is seeking.
 
 (defoperator sdd-contains (?quantity)
-  :specifications "
+  :description "
    the speed-distance-duration equation (sdd) contains
       the speed of ?b and the distance it traveled during ?t,
       and the duration of ?t,
@@ -294,7 +294,7 @@
 ;;; consistency with standard Andes problem-solving procedure.
 
 (defoperator write-sdd (?b ?t)
-  :specifications "
+  :description "
    If the goal is to write the sdd equations,
    then the subgoals are to define variables for speed, distance and duration,
    then write speed = distance / duration. "
@@ -596,7 +596,7 @@
 
 
 (defoperator draw-displacement-straight (?b ?t)
-  :specifications "
+  :description "
    If an object is moving in a straight line over a time interval
    then draw a displacement vector for it in the direction of its motion."
   :preconditions
@@ -633,7 +633,7 @@
 
 
 (defoperator draw-displacement-straight-unknown (?b ?t)
-  :specifications "
+  :description "
    If an object is moving in a straight line over a time interval in an unknown direction,
    then draw a displacement vector for it in the direction of its motion."
   :preconditions
@@ -668,7 +668,7 @@
 ;; that is at rest over an interval.  This would seldom be useful in practice.
 
 (defoperator draw-displacement-at-rest (?b ?t)
-  :specifications "If an object is at rest,
+  :description "If an object is at rest,
    then draw a zero displacement vector."
   :preconditions
    ((motion ?b at-rest :time ?t-motion)
@@ -694,7 +694,7 @@
 ;; specifier to entail this, it is just specified by zero displacement.
 
 (defoperator draw-displacement-zero (?b ?t)
-  :specifications 
+  :description 
    "If an object has no net change of position over an interval, then
    draw a zero displacement vector"
   :preconditions
@@ -716,7 +716,7 @@
 ;; is irregular but the net displacement direction is known.
 
 (defoperator draw-displacement-given-dir (?b ?t)
-  :specifications 
+  :description 
    "If you are given the direction of a net displacement over an interval
    then draw a displacement vector for it in the direction of its motion."
   :preconditions
@@ -749,7 +749,7 @@
 ;; not given. 
 
 (defoperator draw-displacement-projectile (?b ?t)
-  :specifications 
+  :description 
    "If you don't know the direction of a net displacement over an interval
    then draw a displacement vector for it at an unspecified direction"
   :preconditions
@@ -826,7 +826,7 @@
 ;; unification with an effect. 
 
 (defoperator draw-velocity-at-rest (?b ?t)
-  :specifications 
+  :description 
   "If there is an object,
      and it is at rest at a certain time,
    then its velocity at that time is zero."
@@ -886,7 +886,7 @@
 ;; In the future might want projectile motion rule to handle this case.
 ;;
 (defoperator draw-velocity-momentarily-at-rest (?body ?t)
-  :specifications 
+  :description 
   "If there is an object,
      and it is momentarily at rest at a certain instant,
    then its velocity at that time is zero."
@@ -917,7 +917,7 @@
 ;; effects. 
 
 (defoperator draw-velocity-straight (?b ?t)
-  :specifications 
+  :description 
   "If an object is moving in a straight line at a certain time,
    then its velocity at that time is non-zero and in the same direction
      as its motion."
@@ -947,7 +947,7 @@
    ))
 
 (defoperator draw-velocity-straight-unknown (?b ?t)
-  :specifications 
+  :description 
   "If an object is moving in a straight line at a certain time,
    then its velocity at that time is non-zero and in the same direction
      as its motion."
@@ -982,7 +982,7 @@
 ;;;
 
 (defoperator draw-velocity-curved (?b ?t)
-  :specifications 
+  :description 
    "If an object is moving along a curved at a certain time point,
    then its velocity is tangent to the curve at that time."
   :preconditions
@@ -1040,7 +1040,7 @@
 ; !!! Note we assume the curve is going from left to right. Should have this 
 ; in motion specs somehow but don't currently.
 (defoperator draw-velocity-apex(?b ?t)
-  :specifications "if a projectile is at the apex of parabolic flight then its velocity is horizontal at that point"
+  :description "if a projectile is at the apex of parabolic flight then its velocity is horizontal at that point"
   :preconditions (
      (apex ?b ?t)  ;only use if there is horizontal motion
      (not (vector ?b (velocity ?b :time ?t) ?dir))
@@ -1242,7 +1242,7 @@
 	    ))
 
 (defoperator draw-relative-vel-given-dir (?b1 ?b2 ?t)
-  :specifications "If the relative velocity vector of a body wrt to
+  :description "If the relative velocity vector of a body wrt to
                    something else is needed & the direction is given, 
                    then draw it at the given direction"
   :preconditions ((rdebug "Using draw-rel-vel-vector-given-dir ~%")
@@ -1276,7 +1276,7 @@
 
 
 (defoperator draw-rel-vel-vector-unknown (?b1 ?b2 ?t)
-  :specifications "If the relative velocity vector of a body wrt to
+  :description "If the relative velocity vector of a body wrt to
                    something else is needed & the direction is not given, 
                    then draw it with an unknown direction"
   :preconditions 
@@ -1405,7 +1405,7 @@
 ;; the acceleration is zero at that instant.
 
 (defoperator accel-at-rest (?b ?t)
-  :specifications 
+  :description 
    "If a body is a rest, then it has zero acceleration."
   :preconditions
    ((motion ?b at-rest :time ?t-motion)
@@ -1460,7 +1460,7 @@
 ;; includes the desired time.  
 
 (defoperator accel-constant-speed (?b ?t)
-  :specifications 
+  :description 
    "If ?body is moving in a straight line with constant speed during ?time,
    then its acceleration during ?time is zero."
   :preconditions
@@ -1488,7 +1488,7 @@
    ))
 
 (defoperator draw-accel-potential-zero (?b ?t)
-  :specifications 
+  :description 
    "If a body is a rest, then it has zero acceleration."
   :preconditions
    ((potential ?b :force-dir zero :time ?t-motion)
@@ -1546,7 +1546,7 @@
 ;;; third argument is the direction of the object's velocity. 
 
 (defoperator draw-accel-speed-up (?b ?t)
-  :specifications 
+  :description 
    "If ?body is moving in a straight line during ?time,
       and it is speeding up,
       and the direction of motion ?direction,
@@ -1623,7 +1623,7 @@
 ;;; straight line.
 
 (defoperator draw-accel-unknown (?b ?t)
-  :specifications 
+  :description 
    "If ?body is moving in a straight line during ?time,
       and it is subject to more than one given force,
    then draw a non-zero acceleration in ?direction during ?time."
@@ -1663,7 +1663,7 @@
 ;; draw acceleration when all we are given is its direction, and have no
 ;; other specification about the motion. Used in simple vector problems.
 (defoperator draw-accel-given-dir (?b ?t)
-  :specifications 
+  :description 
    "If you are given the direction of acceleration at some time
    then draw an acceleration vector for it in the given direction."
   :preconditions
@@ -1738,7 +1738,7 @@
 ;; with ?accel-dir bound to 'zero coming in, causing error when we 
 ;; attempt to bind ?accel-dir.
 (defoperator draw-accel-slow-down (?b ?t)
- :specifications 
+ :description 
    "If ?body is moving in a straight line and slowing down during ?time,
    then its acceleration is opposite its direction of motion."
   :preconditions
@@ -1777,7 +1777,7 @@
 ;; acceleration
 ;;
 (defoperator draw-accel-free-fall (?b ?t)
-  :specifications 
+  :description 
    "If ?body is in free-fall during ?time,
    then draw a non-zero acceleration straight down during ?time."
   :preconditions
@@ -1825,7 +1825,7 @@
 ;;;
 
 (defoperator free-fall-accel-contains (?quantity)
-  :specifications 
+  :description 
   "if an object is in free-fall near a planet during an interval, 
   then the equation for free-fall acceleration may be used to relate
   the body's acceleration and the gravitational acceleration for the planet"
@@ -1844,7 +1844,7 @@
 ;;; acceleration of the body. g is a variable for the gravitational accel
 ;;; of the relevant planet.
 (defoperator write-free-fall-accel (?b ?t)
-  :specifications 
+  :description 
   "if an object is in free-fall near a planet during an interval, 
   then for any interior time period,
      the magnitude of its acceleration equals the gravitational acceleration for
@@ -1874,7 +1874,7 @@
 ;;; The centripetal acceleration law will specify an equation for the 
 ;;; magnitude of the acceleration.
 (defoperator draw-centripetal-acceleration (?B ?t)
-  :specifications 
+  :description 
    "If ?body is in uniform circular motion during ?time,
    then draw a non-zero acceleration perpendicular to the velocity at ?time."
   :preconditions
@@ -1984,7 +1984,7 @@
 ;;; centripetal acceleration law: acceleration = v^2/r
 ;;;
 (defoperator centripetal-accel-contains (?quantity)
-  :specifications 
+  :description 
   "if an object is in uniform circular motion during an interval, 
   then the equation for centripetal acceleration may be used to relate
   the body's acceleration and its velocity and radius of circular motion"
@@ -2004,7 +2004,7 @@
 ;;; of the acceleration of the body. 
 (defoperator write-centripetal-accel (?b ?t)
   
-  :specifications 
+  :description 
   "if an object is in uniform circular motion during an interval, 
   then for any interior time instant,
      the magnitude of its acceleration equals the velocity squared 
@@ -2193,7 +2193,7 @@
 	    (axis-name ?axis)))
 
 (defoperator LK-no-s-contains (?quantity)
-  :specifications 
+  :description 
    "Lists the quantities contained in vf = vi + a * t"
   :preconditions
   (
@@ -2212,7 +2212,7 @@
     (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-s ?quantity)))
 
 (defoperator draw-lk-no-s-fbd (?b ?t1 ?t2 ?rot)
-  :specifications "
+  :description "
    If the goal is to draw a lk fbd for lk-no-s
    then draw the body, the initial and final velocity, 
       the acceleration, and axes"
@@ -2228,7 +2228,7 @@
 )
 
 (defoperator write-lk-no-s-compo (?b ?t1 ?t2 ?xyz ?rot)
-  :specifications "
+  :description "
    writes vf=vi+a*t.  That is, it leaves out displacement (s)."
   :preconditions
    (;; make sure accel compo doesn't vanish
@@ -2286,7 +2286,7 @@
     (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) const-v ?quantity)))
 
 (defoperator draw-const-v-fbd (?b ?t1 ?t2 ?rot)
-  :specifications "
+  :description "
    If the goal is to draw a lk fbd for lk-no-s
    then draw the body, the initial and final velocity, 
       the acceleration, and axes"
@@ -2355,7 +2355,7 @@
    :nlg-english ("writing a constant acceleration equation in terms of vector components along the ~A axis" ?axis))
 
 (defoperator LK-no-t-contains (?quantity)
-  :specifications "
+  :description "
    Lists the quantities contained in vf^2 = vi^2+2*a*s"
   :preconditions
   (
@@ -2378,7 +2378,7 @@
     (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-t ?quantity)))
 
 (defoperator draw-lk-no-t-fbd (?b ?t1 ?t2 ?rot)
-  :specifications "
+  :description "
    If the goal is to draw a lk fbd for lk-no-s
    then draw the body, the initial and final velocity, 
       the acceleration, and axes"
@@ -2395,7 +2395,7 @@
 )
 
 (defoperator write-lk-no-t-compo (?b ?t1 ?t2 ?xyz ?rot)
-  :specifications "
+  :description "
    Writes the equation vf^2 = vi^2 + 2*a*s, which is lacking a duration."
   :preconditions
    (
@@ -2440,7 +2440,7 @@
   :nlg-english ("writing a constant acceleration equation in terms of vector components along the ~A axis" ?axis))
 
 (defoperator LK-no-vf-contains (?quantity)
-  :specifications "
+  :description "
    Lists the quantities contained in s = vi*t + 0.5*a*t^2"
   :preconditions
   (
@@ -2464,7 +2464,7 @@
     (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-vf ?quantity)))
 
 (defoperator draw-lk-no-vf-fbd (?b ?t1 ?t2 ?rot)
-  :specifications "
+  :description "
    If the goal is to draw a lk fbd for lk-no-s
    then draw the body, the initial and final velocity, 
       the acceleration, and axes"
@@ -2480,7 +2480,7 @@
 )
 
 (defoperator write-lk-no-vf-compo (?b ?t1 ?t2 ?xyz ?rot)
-  :specifications 
+  :description 
   "Writes the equation s = vi*t + 0.5*a*t^2 (which lacks vf)"
   :preconditions
    (;; make sure accel compo doesn't vanish
@@ -2564,7 +2564,7 @@
   :EqnFormat ("d<sub>~a</sub> = v<sub>~a</sub>   t" (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator sdd-constvel-compo-contains (?quantity)
-  :specifications 
+  :description 
    "Lists the quantities contained in s_x = v0_x*t when a_x = 0" 
   :preconditions
   (
@@ -2598,7 +2598,7 @@
 )
 
 (defoperator sdd-constvel-compo (?b ?t1 ?t2 ?xyz ?rot)
-  :specifications 
+  :description 
   "Writes the component equation s_x = vi_x*t when a_x = 0"
   :preconditions
   ( ;; make sure accel compo vanishes
@@ -2646,7 +2646,7 @@
 ;;; problems.
 
 (defoperator draw-relative-position (?b1 ?b2 ?t)
-  :specifications 
+  :description 
   "if you are given that one body is at a certain direction with respect to another,
   then draw the relative position vector from one to the other in that direction"
   :preconditions 
@@ -2712,7 +2712,7 @@
 
 ;; draw rba at direction opposite given dir of rab
 (defoperator draw-opposite-relative-position (?b1 ?b2 ?t)
-  :specifications 
+  :description 
   "if you are given that one body is at a certain direction with respect to another,
   then draw the relative position vector from one to the other in that direction"
   :preconditions ( 
@@ -2787,7 +2787,7 @@
 
 
 (defoperator draw-relative-position-unknown (?b1 ?b2 ?t)
-  :specifications 
+  :description 
   "if the direction of the relative position of one body with respect to 
   another is not given, you can introduce the relative position vector by drawing it with an unknown direction"
   :preconditions 
@@ -3089,6 +3089,8 @@
    (bottom-out (string "Write the equation ~A" ((= ?g-var (dnum 9.8 |m/s^2|)) algebra))) ))
 
 (defoperator define-grav-accel (?planet)
+  :short-name "define g"
+  :description "Define the acceleration due to gravity, assuming it is constant."
   :preconditions 
   (
    (near-planet ?planet :body ?whatever)
@@ -3120,7 +3122,7 @@
 ;;; vb1 = vb2  and vb2 = vb1.
 
 (defoperator string-connects (?string ?b1 ?b2 ?t)
-  :specifications "
+  :description "
   If a string connects two objects,
   then they are connected."
   :preconditions
@@ -3143,7 +3145,7 @@
 
 
 (defoperator connected-accels-contains (?quantity)
-  :specifications "
+  :description "
   If two objects are connected over a time period
   then for any interior time period,
      you can infer that magnitudes of their accelerations are equal,
@@ -3173,7 +3175,7 @@
 
 (defoperator write-connected-accels (?b1 ?b2 ?t)
   
-  :specifications "
+  :description "
   If two objects are connected over a time period
   then for any interior time period,
      their magnitudes are equal."
@@ -3202,7 +3204,7 @@
 ;; to straight line motion in connected-accels.
 ;;
 (defoperator connected-velocities-contains (?quantity)
-  :specifications "
+  :description "
   If two objects are connected over a time period
   then for any interior time period,
      you can infer that magnitudes of their velocities are equal,
@@ -3224,7 +3226,7 @@
 
 (defoperator write-connected-velocities (?b1 ?b2 ?t)
   
-  :specifications "
+  :description "
   If two objects are connected over a time period
   then for any interior time period,
      their magnitudes are equal."
@@ -3398,7 +3400,7 @@
    ))
 
 (defoperator ang-accel-at-rest (?b ?t)
-  :specifications 
+  :description 
    "If a body is a rest, then it has zero acceleration."
   :preconditions
    ((motion ?b ang-at-rest :time ?t-motion)
@@ -3930,7 +3932,7 @@
 ;; motion in terms of relative position vectors in the problem statement, 
 ;; while the formula uses the revolution-radius quantity.
 (defoperator radius-equals-relpos (?pt ?t)
-   :specifications "the radius of revolution of a point on a rotating object is equal
+   :description "the radius of revolution of a point on a rotating object is equal
    to the magnitude of its relative position from the axis of rotation" 
    :preconditions (
    (point-on-body ?pt ?whole-body)

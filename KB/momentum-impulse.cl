@@ -100,7 +100,7 @@
 ;;; these exactly parallel the velocity drawing operators
 
 (defoperator draw-momentum-at-rest (?b ?t)
-  :specifications 
+  :description 
    "If there is an object,
      and it is at rest at a certain time,
    then its momentum at that time is zero."
@@ -131,7 +131,7 @@
 ;; get it from straight-line motion spec, so that it is not required that 
 ;; velocity be drawn first.
 (defoperator draw-momentum-straight (?b ?t)
-  :specifications 
+  :description 
    "If an object is moving in a straight line at a certain time,
    then its momentum at that time is non-zero and in the same direction
      as its motion."
@@ -159,7 +159,7 @@
     (bottom-out (string "Because ~a is moving in a straight line ~a, draw a non-zero momentum vector in direction ~a." ?b (?t pp) ?dir))))
 
 (defoperator draw-momentum-straight-unknown (?b ?t)
-  :specifications 
+  :description 
    "If an object is moving in a straight line at a certain time,
    then its momentum at that time is non-zero and in the same direction
      as its motion."

@@ -4,21 +4,12 @@
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
   <LINK REL=StyleSheet HREF="log.css" TYPE="text/css" >
   <title>Review Sessions</title>
-
-  <style type="text/css">
-   tr.quit {background-color: #ffe0e0;}
-  </style>
-
-<?php
-    include('xml-scripts.html');
-?>
-
-<script type="text/javascript">
-   function openTrace($url){  
-        window.open($url);
+  <script type="text/javascript" src='xml-scripts.js'></script>
+  <script type="text/javascript">
+    function openTrace(url){  
+        window.open(url);
    }
-</script>
-
+  </script>
 </head>
 <body>
 <?php
@@ -88,16 +79,28 @@ if($slice == 'comments'){
   
   echo "<h2>Comments in problems $extrae,$adminNamee$sectionNamee sorted in $order order of $orderBy</h2>\n";
   
-  $sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE $adminNamec $sectionNamec $extrac $startDatec $endDatec P1.clientID = P2.clientID AND P2.initiatingParty = 'client' AND P2.command LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
+  $sqlOld = "SELECT * FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE $adminNamec $sectionNamec $extrac $startDatec $endDatec P1.clientID = P2.clientID AND P2.initiatingParty = 'client' AND P2.command LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
+  $sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE $adminNamec $sectionNamec $extrac $startDatec $endDatec P1.clientID = P2.clientID AND P2.client LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
   
+  $resultOld = mysql_query($sqlOld);
   $result = mysql_query($sql);
-  if ($myrow = mysql_fetch_array($result)) {
+  if (($myrow = mysql_fetch_array($result)) ||
+      ($myrow = mysql_fetch_array($resultOld))) {
     echo "<table border=1>";
     echo "<tr><th>User Name</th><th>Problem</th><th>Section</th><th>Starting Time</th><th>Comment</th><th>Additional</th></tr>\n";
     do
       {
 	$tID=$myrow["tID"];
-	$tempSql = "SELECT * FROM PROBLEM_ATTEMPT_TRANSACTION WHERE tID = ($tID+1) and (command LIKE '%\"HANDLE-TEXT\":\"COMMENT\"%' or command like '%\"HANDLE-TEXT\":\"POSSIBLE-QUESTION\"%' or command not like '%\"result\":%')";
+	// Choose new style with STEP_TRANSACTION or old style 
+	// with PROBLEM_ATTEMPT_TRANSACTION
+	if(isset($myrow["client"])){
+	  // Include cases where reply is null.
+	  $tempSql = "SELECT * FROM STEP_TRANSACTION WHERE tID = $tID and (server LIKE '%\"HANDLE-TEXT\":\"COMMENT\"%' or server like '%\"HANDLE-TEXT\":\"POSSIBLE-QUESTION\"%' or server not like '%\"result\":%')";
+	} else {
+	  // Include cases where reply is null.
+	  // It is not quite Kosher to assume the next tID 
+	  $tempSql = "SELECT * FROM PROBLEM_ATTEMPT_TRANSACTION WHERE tID = ($tID+1) and (command LIKE '%\"HANDLE-TEXT\":\"COMMENT\"%' or command like '%\"HANDLE-TEXT\":\"POSSIBLE-QUESTION\"%' or command not like '%\"result\":%')";
+	}
 	$tempResult = mysql_query($tempSql);
 	if(mysql_fetch_array($tempResult))
 	  {
@@ -109,7 +112,9 @@ if($slice == 'comments'){
             $clientID=$myrow["clientID"];
             $tID=$myrow["tID"];
 	    $startTime=$myrow["startTime"];
-	    $tempCommand1=$myrow["command"];
+	    // new style with STEP_TRANSACTION or old style with 
+	    // PROBLEM_ATTEMPT_TRANSACTION
+	    $tempCommand1=isset($myrow["client"])?$myrow["client"]:$myrow["command"];
 	    $tempCommand2 =explode("get-help\",\"text\":\"",$tempCommand1);
 	    $command=explode("\"}",$tempCommand2[1]);
 	    
@@ -192,25 +197,35 @@ if($slice == 'comments'){
 	  $myrow["userProblem"] . "&amp;s=" . $myrow["userSection"] .  
 	  "&amp;m=" . $methods;
 	$sessionLink2 ="\">Session&nbsp;log</a></td>";
-	$tempSql = "SELECT initiatingParty,command,tID FROM PROBLEM_ATTEMPT_TRANSACTION WHERE clientID = '$clientID'";
+	$tempSqlOld = "SELECT initiatingParty,command,tID FROM PROBLEM_ATTEMPT_TRANSACTION WHERE clientID = '$clientID'";
+	$tempSql = "SELECT client,server,tID FROM STEP_TRANSACTION WHERE clientID = '$clientID'";
 	$queryStart=microtime(true);   
+	$tempResultOld = mysql_query($tempSqlOld);
 	$tempResult = mysql_query($tempSql);
 	$queryTime += microtime(true)-$queryStart;
 	
 	// loop through session
 	$confused=false;
+	$ttime=-1;
 	
 	// get student input and server reply
-	while (($myrow1 = mysql_fetch_array($tempResult)) &&
-	       ($myrow2 = mysql_fetch_array($tempResult))) {
-	  if($myrow1["initiatingParty"]=='client'){
-	    $action=$myrow1["command"];
-	    $ttID=$myrow1["tID"];
-	    $response=$myrow2["command"];
+	while (($myrow = mysql_fetch_array($tempResult)) ||
+	       ($myrow = mysql_fetch_array($tempResultOld))) {
+	  if(isset($myrow["command"])){
+	    $myrow2 = mysql_fetch_array($tempResultOld);
+	    if($myrow["initiatingParty"]=='client'){
+	      $action=$myrow["command"];
+	      $ttID=$myrow["tID"];
+	      $response=$myrow2["command"];
+	    } else {
+	      $action=$myrow2["command"];
+	      $ttID=$myrow2["tID"];
+	      $response=$myrow["command"];
+	    }
 	  } else {
-	    $action=$myrow2["command"];
-	    $ttID=$myrow2["tID"];
-	    $response=$myrow1["command"];
+	    $action=$myrow["client"];
+	    $ttID=$myrow["tID"];
+	    $response=$myrow["server"];
 	  }
 	  
 	  // decode json and count number of steps (and time)
@@ -218,8 +233,13 @@ if($slice == 'comments'){
 	  $jsonStart=microtime(true);   
 	  $a=$json->decode($action);
 	  $jsonTime1 += microtime(true)-$jsonStart;
-	  if(isset($a->params->time)){  
+	  if(isset($a->params) && isset($a->params->time)){  
 	    $ttime=$a->params->time;
+	    $ttimeAction=$action;
+	  } else {
+	    // drop turns without timestamps;
+	    // this is generally from the server dropping idle sessions
+	    continue;  
 	  }
 	  if(isset($a->method) && ($a->method == 'solution-step' || 
 				   $a->method == 'seek-help')){

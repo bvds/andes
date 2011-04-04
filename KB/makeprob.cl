@@ -145,7 +145,49 @@
 	(format t "Error:  Can't load ~A~%" (problem-name p))))
   (dump-style-file out-path))
 
+(defun set-kcs ()
+  (andes-init)
+  (let (prob-kcs results)
+    (dolist (set *sets*)
+      (let (all required)
+	(dolist (prob (second set))
+	  (unless (assoc prob prob-kcs)
+	    (push (cons prob (problem-kcs prob)) prob-kcs))
+	  (let ((kcs (cdr (assoc prob prob-kcs))))
+	    (when kcs
+	      (setf all (union (car kcs) all))
+	      (setf all (union (cdr kcs) all))
+	      (setf required (union (car kcs) required)))))
+	;; (format t "set ~A got:~%  ~A~%  ~A~%" (car set) required all)
+	(push (list (car set) required (set-difference all required))
+	      results)))
+    (reverse results)))
+	  
 
+(defun problem-kcs (prob)
+  "Returns a list of kc's found in all solutions and a list of kc's found in only some solutions."
+  ;; need help system loaded to use this function.
+  ;; run function (andes-init) first.
+  (handler-case
+      (read-problem-info prob)
+    (error (c) (declare (ignore c))
+	   (format T "File read error: ~A~%" prob)))
+  (when *cp*
+    (let (not-all any)
+      (dolist (solution (problem-solutions *cp*))
+	(let (this)
+	  (dolist (entry (distinct-SystemEntries 
+			  (mappend #'bgnode-entries (EqnSet-nodes solution))))
+	    (dolist (opinst (remove-duplicates 
+			     (copy-list (SystemEntry-Sources entry))
+			     :key #'csdo-op :test #'unify))
+	      (let ((kc (csdo-op opinst)))
+		(pushnew (car kc) any)
+		(pushnew (car kc) this))))
+	  (dolist (op any)
+	    (unless (member op this) (pushnew op not-all)))))
+      (cons (set-difference any not-all) not-all))))
+  
 ;; need helpsystem loaded for this
 ;; (dump-entries-operators #P"/home/bvds/solutions/")
 ;; scp -r ~/solutions/ andes3.lrdc.pitt.edu:/home/andes/public_html/learnlab
