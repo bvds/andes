@@ -55,7 +55,7 @@ dojo.provide("andes.convert");
 					id:o.id,
 					type:o.type,
 					itemType:o.items[0].type,
-					items:dojo.map(o.items,andes.convert.andesToDrawing),
+					items:dojo.map(o.items,andes.convert.andesToDrawing, this),
 					checked: o.checked || [] 
 				}
 				return obj;
@@ -73,7 +73,6 @@ dojo.provide("andes.convert");
 				},
 				enabled:o.mode!="locked"
 			};
-			
 			var buttonWidth;
 			// o.type can be:  statement, graphics, radio, done, checkbox, axes, ellipse, 
 			//                 vector, equation, line, rectangle
