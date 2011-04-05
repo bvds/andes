@@ -2,24 +2,55 @@ dojo.provide("andes.options");
 dojo.require("dijit.ColorPalette");
 
 dojo.declare("andes.options",null,{
-    values: {
-        angleSnap: null,
-        clickMode: null,
-        correct: null,
-        incorrect: null
+    // Summary:
+    //      Options is a pseudo dijit which is contained
+    //      in a dijit.Dialog in HTML.  Probably should be a full
+    //      blown widget, that would help with event control which
+    //      is sloppy here.
+    //
+    //      This contains values which can be modified and saved by the user.
+    //      Because of that it needs to register these prefs with PreferenceRegistry
+    //      in order to interface with the server.
+    _prefs: {
+        "angleSnap":    "setAngleSnap",
+        "clickMode":    "setClickMode",
+        "timer":        "setShowTimer",
+        "correct":      "setCorrectColor",
+        "incorrect":    "setIncorrectColor"
+    },
+    
+    // Name value pair of a widget used to set values in this object.
+    // The name associated with it first, followed by its ID in the HTML
+    userWidgets: {
+        "angleSnap": "optionsAngleSnap",
+        "clickMode": "optionsClickMode",
+        "save":      "optionsSave",
+        "dialog":    "options",
+        "showTimer": "showTimer"
+    },
+    
+    // Name value pair of html elements showing settings, same idea as
+    // userWidgets except these are dojo.byId while widgets are dijit.byId
+    userVisuals: {
+        "correct":   "colorCorrect",
+        "incorrect": "colorIncorrect"
     },
     
     constructor: function(){
-        // Get objects
-        this.angleSnap = dijit.byId("optionsAngleSnap");
-        this.clickMode = dijit.byId("optionsClickMode");
-        this.save = dijit.byId("optionsSave");
-        this.dialog = dijit.byId("options");
-        this.correct = dojo.byId("colorCorrect");
-        this.incorrect = dojo.byId("colorIncorrect");
-        this.showTimer = dijit.byId("showTimer");
+        // Link up references to the HTML/Dijits
+        for(var nm in this.userWidgets){
+            this[nm] = dijit.byId(this.userWidgets[nm]);
+        }
+        for(var nm in this.userVisuals){
+            this[nm] = dojo.byId(this.userVisuals[nm]);
+        }
         
-        // Initialize values
+        // Register preferences
+        for(var nm in this._prefs){
+            andes.preferenceRegistry.registerPref(nm, this[this._prefs[nm]], this);
+        }
+        
+        // Initialize values -- myDrawing is a GLOBAL
         this.angleSnap.set('value', myDrawing.defaults.angleSnap);
         this.clickMode.set('label', myDrawing.defaults.clickMode ? "enabled" : "disabled");
         this.showTimer.set('label', andes.timer.display ? "enabled" : "disabled");
@@ -42,51 +73,89 @@ dojo.declare("andes.options",null,{
                 dijit.popup.close(this);
             }}, dojo.doc.createElement("div"));
         dijit.popup.moveOffScreen(this.picker);
+        
         // Set up connections
-        dojo.connect(this.angleSnap, "onChange", this, "updateAngleSnap");
-        dojo.connect(this.clickMode, "onChange", this, "updateClickMode");
-        dojo.connect(this.showTimer, "onChange", this, "updateShowTimer");
-        dojo.connect(this.save, "onClick", this, "setChanges");
-        dojo.connect(this.correct, "onclick", this, "colorChange");
-        dojo.connect(this.incorrect, "onclick", this, "colorChange");
-        dojo.connect(this.dialog, "onHide", this, function(){
-            this.picker.open && this.picker.onCancel();
+        this.connectMult([
+            [this.angleSnap, "onChange", this, "setAngleSnap"],
+            [this.clickMode, "onChange", this, "setClickMode"],
+            [this.showTimer, "onChange", this, "setShowTimer"],
+            [this.correct, "onclick", this, "colorChange"],
+            [this.incorrect, "onclick", this, "colorChange"],
+            [this.dialog, "onHide", this, function(){ this.picker.open && this.picker.onCancel(); }]
+        ]);
+    },
+    
+    connectMult: function(c){
+        dojo.forEach(c, function(o){
+            dojo.connect.apply(this, o);
         });
     },
     
     // Function to update values, change can only take one at a time.
-    updateAngleSnap: function(val){
-        //console.log("val: ",val);
-        this.values["angleSnap"] = val;
+    setAngleSnap: function(val){
+        this._setChange("angleSnap", val);
     },
     
-    updateClickMode: function(val){
-        //console.log("val: ",val);
-        this.values["clickMode"] = val;
+    setClickMode: function(val){
         this.clickMode.set('label', val ? "enabled" : "disabled");
+        this._setChange("clickMode", val);
     },
     
-    updateShowTimer: function(val){
+    setShowTimer: function(val){
         this.timer = val;
         this.showTimer.set('label', val ? "enabled" : "disabled");
+        this._setChange("timer", val, andes.timer.displayTimer, andes.timer);
     },
     
-    // We need two colors
+    // TODO:
+    //      Right now the fill color is always calculated, not always
+    //      perfectly.  Possibly work on the calculation?  or allow
+    //      the fill to also be set.
+    //
+    //      Separate set colors for the preference registry api
+    setCorrectColor: function(val){
+        this._setColor(this.correct, "correct", val);
+    },
+    
+    setIncorrectColor: function(val){
+        this._setColor(this.incorrect, "incorrect", val);
+    },
+    
+    _setColor: function(node, name, val){
+        var o = {};
+        if(typeof(val)=="object"){
+            // We already have a fill value
+            o = val;
+        }else{
+            var fill = this._getFill(val);
+            o = { color:val, fill:fill };
+        }
+        
+        dojo.style(node, "background", o.color);
+        this._setChange(name, o);
+    },
+    
+    _getFill: function(/*Hexadecimal Number*/color){
+        var R = Math.round(parseInt(color.substr(1,2),16)+50),
+            G = Math.round(parseInt(color.substr(3,2),16)+50),
+            B = Math.round(parseInt(color.substr(5,2),16)+50);
+        R = R > 255 ? 255 : R;
+        G = G > 255 ? 255 : G;
+        B = B > 255 ? 255 : B;
+        //console.log("R: ", R, " G: ", G, " B: ", B, " fill: ",fill);
+        return "#"+R.toString(16)+G.toString(16)+B.toString(16);
+    },
+    
+    // Connected to the color picker this allows the user to change
+    // both correct and incorrect color schemes
     colorChange: function(evt){
         var c = dojo.connect(this.picker, "onChange", this, function(value){
             dojo.disconnect(c);
-            dojo.style(evt.target, "background", value);
-            var v = evt.target == this.correct ? "correct" : "incorrect";
-            console.log("fill: ",value);
-            var R = Math.round(parseInt(value.substr(1,2),16)+50);
-            var G = Math.round(parseInt(value.substr(3,2),16)+50);
-            var B = Math.round(parseInt(value.substr(5,2),16)+50);
-            R = R > 255 ? 255 : R;
-            G = G > 255 ? 255 : G;
-            B = B > 255 ? 255 : B;
-            var fill = "#"+R.toString(16)+G.toString(16)+B.toString(16);
-            console.log("R: ", R, " G: ", G, " B: ", B, " fill: ",fill);
-            this.values[v] = {color: value, fill: fill};
+            if(evt.target == this.correct){
+                this.setCorrectColor(value);
+            }else{
+                this.setIncorrectColor(value);
+            }
         });
         this.picker.open = true;
         dijit.popup.open({
@@ -95,23 +164,16 @@ dojo.declare("andes.options",null,{
         });
     },
 
-    // Function to setDefaults (call update first)
-    setChanges: function(){
-        // First see what changed, now it's only one check
-        console.log("Setting Changes: ");
-        for(var nm in this.values){
-            if(this.values[nm]!=null){
-                //console.log("Changing: ",nm," to: ", this.values[nm]);
-                var obj = {};
-                obj[nm] = this.values[nm];
-                myDrawing.changeDefaults(obj,true);
-            }
+    // Function to set the changes in the actual UI
+    _setChange: function(name, value, /*function*/f, /*scope*/s){
+        if(!f){
+            var o = {};
+            o[name] = value;
+            myDrawing.changeDefaults(o, true);
+        }else{
+            f.call(s, value);
         }
-// This is just for testing:  should only send message if
-// the value is actually changed.
-	 andes.api.recordAction({type:"set-preference", name: "display-timer", value: this.timer});
-        this.timer ? andes.timer.displayTimer() : andes.timer.hideTimer();
-        this.dialog.hide();
+        andes.preferenceRegistry.savePref(name, value);
     }
     //This should be instantiated in menu
 });

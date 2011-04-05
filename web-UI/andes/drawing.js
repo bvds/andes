@@ -399,14 +399,10 @@ dojo.provide("andes.drawing");
 					}
 
 				}else if(obj.action=="set-preference"){
-					// BvdS:  temporary code:  just does timer.
- 					if(obj["name"]=="display-timer"){
-						if(obj["value"]){
-							andes.timer.displayTimer();
-						} else {
-							andes.timer.hideTimer();
-						}
-					}					
+					// Try to set in the preferenceRegistry.  All
+					// values that can be saved should be available there
+					andes.preferenceRegistry.setPref(obj["name"],obj["value"]);
+					
 				}else if(obj.action=="log"){
 					// Log actions are ignored by client.
 				}else{

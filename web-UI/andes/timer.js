@@ -6,23 +6,31 @@ dojo.declare("andes.timer", null, {
     //      initialized.
     node: null,
     display:false,
+    ready:false,
     constructor: function(st){
         this.startTime = st;
         dojo.addOnLoad(this, function(){
             this.node = dojo.byId("timer");
+            this.ready = true;
+            if(this.display) this.displayTimer(true);
         });
     },
     
-    displayTimer: function(){
-        this.display = true;
-        this.interval = setInterval(dojo.hitch(this, function(){ this.updateTime(); }), 500);
-        dojo.style(this.node,{"display":"block"});
-    },
-    
-    hideTimer: function(){
-        this.display = false;
-        dojo.style(this.node,{"display":"none"});
-        clearInterval(this.interval);
+    displayTimer: function(/*boolean*/t){
+        this.display = t;
+        console.log("Before ready: node:",this.node," param:",t);
+        if(!this.ready) return;
+        
+        var disp;
+        if(t){
+            disp = "block";
+            this.interval = setInterval(dojo.hitch(this, function(){ this.updateTime(); }), 500);
+        }else{
+            disp = "none";
+            if(this.interval) clearInterval(this.interval);
+        }
+        console.log("Display timer: ",disp," node:",this.node);
+        dojo.style(this.node, {"display": disp });
     },
     
     updateTime: function(){
