@@ -217,13 +217,15 @@
       (loop for value in (cdr (assoc (car vars) *ontology-bindings*))
 	   append (iterate-over-vars (cdr vars) 
 				    (cons (cons (car vars) value) bindings)))
-      (list bindings)))
+      ;; no-bindings is case where original vars is empty
+      ;; still want to do one iteration
+      (list (or bindings no-bindings))))
 
 ;; Top level routine.
 (defun best-wrong-match (student tool-prop &key cutoff)
   "Find one or more best matches below or equal to cutoff to ontology.  Returns either nil or a list containing some matches.  The prop is set to the matched prop."
   (let ((best cutoff)
-	(epsilon 0.25)
+	(epsilon 0.01)
 	result)
     (dolist (m-f-b (lookup-quantity-keyword-props student tool-prop))
       (let (match:*iteration-bindings* ;empty at top level

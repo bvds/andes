@@ -73,7 +73,7 @@
 				     (:file "parse-andes"
 					    :depends-on ("SolutionGraph" "symbols"
 							 "grammar" "icons"
-							 "Entry-API"))
+							 "Entry-API" "database"))
 				     (:file "interpret-equation"
 					    :depends-on ("SolutionGraph"))
 

@@ -220,17 +220,18 @@
 			      ;; If larger, too slow on benchmarks
 			      (cutoff-max 3.7)) 
   "Match student phrase to Ontology, returning best matches for tool or other tool."
-  ;; :cutoff-fraction is fractional length of student phrase plus one
-  ;;     (for the tool) to use as bound.  This should be adjusted to 
+  ;; :cutoff-fraction is fractional length of student phrase to
+  ;;     use as bound, adding 1 for the tool.  This should be adjusted to 
   ;;     balance type 1 and type 2 errors:
   ;;         bad matches that are accepted vs. 
   ;;         good matches that are missed
+  ;;     See *word-cutoff* in Base/match.cl
   ;; :cutoff-max is maximum allowed score to use as bound.  This should
   ;;     be adjusted to so that very long student phrases can
   ;;     be matched quickly enough.
   (let* ((sysentries (remove (cons tool-prop '?rest) *sg-entries*
 			     :key #'SystemEntry-prop :test-not #'unify)) 
-	 (initial-cutoff (min (* cutoff-fraction (+ (length student) 1))
+	 (initial-cutoff (min (+ (* cutoff-fraction (length student)) 1)
 			      cutoff-max))
 	 ;; To speed up best-wrong-match for long phrases, maybe reduce 
 	 ;; max cutoff a bit.
@@ -258,14 +259,14 @@
 	 (wrong-bound (if best (best-value best) initial-cutoff))
 	 wrong-tool-best)
 
-    ;; Debug printout:
-    (when nil
+    (when nil ;debug print
       (format t "Best match to ~s is~%   ~S~% from ~S~%" 
-	      (match:word-string student)
+	      (when student (match:word-string student))
 	      (mapcar 
 	       #'(lambda (x) (cons (match:best-value x) 
-				   (expand-vars (SystemEntry-model 
-						 (match:best-prop x)))))
+				   (expand-vars (new-english-find
+						 (second 
+						 (match:best-prop x))))))
 	       best)
 	      (mapcar #'systementry-prop sysentries)))
     

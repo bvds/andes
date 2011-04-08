@@ -218,6 +218,9 @@
 	 (time ?time)))))
 
 (defparameter *force-types*
+  ;; Generally, we demand that the student specifies
+  ;; the kind of force, if known.  This might be a little problematic
+  ;; for odd forces like "spring" or "thrust".
   '((weight . (or ("force" (or "of" "due to") "gravity")
 	       ((or "weight" "gravitational" "grav." "grav") "force")))
     (gravitational . (or ("force" (or "of" "due to") "gravity")
@@ -226,8 +229,8 @@
     (normal . ("normal" (key "force")))
     (tension . (or ((key "tension") (preferred "force")) 
 		("pulling" (key "force")) 
-		((key "force") (preferred "of tension"))))
-    ;; catch-all force
+		((key "force") "of" "tension")))
+    ;; catch-all force.  In this case, the force type is allowed.
     (applied . ((allowed (or "applied" "external")) (key "force")))
     (kinetic-friction . (or (((preferred "kinetic") 
 			      (or "friction" "frictional")) "force")
@@ -241,7 +244,7 @@
     (thrust . ("thrust" (key "force")))
     (spring . ("spring" (key "force")))
     (pressure . (or ((key "pressure") (allowed "force"))
-		 ((key "force") (preferred "of pressure"))))
+		 ((key "force") "of pressure")))
     (drag . ((or "drag" "friction" "frictional") (key "force")))))
 
 (defun force-types (type)
