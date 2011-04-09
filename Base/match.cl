@@ -761,7 +761,7 @@
 
 (defparameter *debug-print* nil)  ;; debug print in best-model-matches
 
-(defun best-model-matches (student models &key (cutoff 4) (epsilon 0.25))
+(defun best-model-matches (student models &key (cutoff 4) (epsilon 0.01))
   "Returns a list of best matches to text using match-model. Models is an alist of models and props."
   (declare (notinline match-model))
   (when *debug-print*

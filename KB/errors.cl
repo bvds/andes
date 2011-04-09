@@ -1938,7 +1938,8 @@
 
 ;;; ------------------ Right Body and Agent, wrong Type ------------------
 ;;; If the student defines a force vector and gets the body and agent right 
-;;; but not the type then there are three possibilities:  
+;;; but not the type then there are four possibilities:  
+;;;   0) Student does not specify type explicitly when type is known.
 ;;;   1) There is a single force on that body by that 
 ;;;      agent but it is of a different type.
 ;;;   2) There are two foces for that body and agent 
@@ -1947,7 +1948,26 @@
 ;;;   3) There are two forces (see above) and one of 
 ;;;      them has been completed.  
 ;;;
-;;; Below are three errors handlers one for each possibility. 
+;;; Below are four errors handlers one for each possibility. 
+
+(def-error-class force-type-unspecified (?body ?agent ?ctype)
+  ;; Applied is the catch-all.  If type is not supplied, then
+  ;; matching defaults to applied.
+  ((student (vector (force ?body ?agent applied :time ?stime) ?sdir))
+   (no-correct (vector (force ?body ?agent applied :time ?time2) ?dir2))
+   (correct (vector (force ?body ?agent ?ctype :time ?ctime) ?cdir)))
+  :probability
+  (+ 0.35 ;; this should have higher weight than other three
+     (if (equal ?stime ?ctime) 0.2 0.0)
+     (if (equal ?sdir ?cdir) 0.1 0.0)))
+
+(defun force-type-unspecified (body agent ctype)
+  (make-hint-seq
+   (list (strcat "You need to specify the <em>kind</em> of "
+			     (quantity-html-link 
+			      (lookup-exptype-struct 'force)) 
+			     " acting on " (nlg body 'def-np) ".")
+	 (format nil "It is a ~a force" (nlg ctype 'adj)))))
 
 ;;; Typically there is only one force between the two objects and so all 
 ;;; that we need to do is tell them the right one to use.  This 
