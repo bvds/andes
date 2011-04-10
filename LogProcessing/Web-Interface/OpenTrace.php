@@ -71,21 +71,23 @@ while (
        // Old style with PROBLEM_ATTEMPT_TRANSACTION
        (($myrow1 = mysql_fetch_array($resultOld)) &&
 	($myrow2 = mysql_fetch_array($resultOld))) ||
-       $myrow = mysql_fetch_array($result)) {
+       $myrow1 = mysql_fetch_array($result)) {
   
-  // Old style with PROBLEM_ATTEMPT_TRANSACTION
-  if($myrow1["initiatingParty"]=='client'){
-    $action=$myrow1["command"];
-    $ttID=$myrow1["tID"];
-    $response=$myrow2["command"];
-  } else if ($myrow1["initiatingParty"]=='server'){
-    $action=$myrow2["command"];
-    $ttID=$myrow2["tID"];
-    $response=$myrow1["command"];
+  if(isset($myrow1["command"])){
+    // Old style with PROBLEM_ATTEMPT_TRANSACTION
+    if($myrow1["initiatingParty"]=='client'){
+      $action=$myrow1["command"];
+      $ttID=$myrow1["tID"];
+      $response=$myrow2["command"];
+    } else {
+      $action=$myrow2["command"];
+      $ttID=$myrow2["tID"];
+      $response=$myrow1["command"];
+    }
   } else {
-    $action=$myrow["client"];
-    $ttID=$myrow["tID"];
-    $response=$myrow["server"];
+    $action=$myrow1["client"];
+    $ttID=$myrow1["tID"];
+    $response=$myrow1["server"];
   }  
   
   
