@@ -1,5 +1,7 @@
+var flag, asst;
+
 dojo.require("dojox.charting.Chart");
-dojo.require('dojox.charting.widget.Chart');
+dojo.require("dojox.charting.widget.Chart");
 dojo.require("dojox.charting.themes.BlueDusk");
 dojo.require("dojox.charting.action2d.Highlight");
 dojo.require("dojox.charting.action2d.Tooltip");

@@ -12,7 +12,7 @@ dojo.addOnLoad(
 		console.log("sent request")
 		dfd.addCallback(
 			function(result) {
-    			console.log(result);
+    				console.log(result);
 			},
 			function(error) {
 				console.log(error);
