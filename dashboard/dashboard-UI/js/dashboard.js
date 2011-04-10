@@ -1,12 +1,11 @@
-// JavaScript Document
-
-var flag, asst;
-
-dojo.require("dojox.charting.Chart2D");
-dojo.require('dojox.charting.widget.Chart2D');
+dojo.require("dojox.charting.Chart");
+dojo.require('dojox.charting.widget.Chart');
 dojo.require("dojox.charting.themes.BlueDusk");
 dojo.require("dojox.charting.action2d.Highlight");
 dojo.require("dojox.charting.action2d.Tooltip");
+
+var asst, flag;
+document.$_GET = [];
 
 var json = 	{
 				assignment_labels:
@@ -25,7 +24,27 @@ var json = 	{
 
 dojo.addOnLoad(
 	function() {
-		var chart = new dojox.charting.Chart2D("chart");
+		
+		
+		var urlHalves = String(document.location).split('?');
+		
+		if(urlHalves[1])
+		{
+		  var urlVars = urlHalves[1].split('&');
+		  for(var i=0; i<=(urlVars.length); i++)
+		  {
+		     if(urlVars[i])
+			 {
+		        var urlVarPair = urlVars[i].split('=');
+		        document.$_GET[urlVarPair[0]] = urlVarPair[1];
+		     }
+		  }
+		}
+	   
+		flag = (document.$_GET['user'] == null || document.$_GET['section'] == null);
+		asst = (document.$_GET['asst'] != null);
+		
+		/*var chart = new dojox.charting.Chart2D("chart");
 		chart.setTheme(dojox.charting.themes.BlueDusk);
 		
 		if(asst)
@@ -75,28 +94,5 @@ dojo.addOnLoad(
 			}
 		});
 		
-		chart.render();
+		chart.render();*/
 });
-
-function loading()
-{ 
-   document.$_GET = [];
-   var urlHalves = String(document.location).split('?');
-   if(urlHalves[1])
-   {
-      var urlVars = urlHalves[1].split('&');
-      for(var i=0; i<=(urlVars.length); i++)
-	  {
-         if(urlVars[i])
-		 {
-            var urlVarPair = urlVars[i].split('=');
-            document.$_GET[urlVarPair[0]] = urlVarPair[1];
-         }
-      }
-   }
-   
-	flag = (document.$_GET['user'] == null || document.$_GET['section'] == null);
-	asst = (document.$_GET['asst'] != null);
-};
-
-window.onload = loading();

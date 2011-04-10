@@ -3,15 +3,21 @@ dojo.require("dojox.rpc.Service");
 dojo.require("dojox.rpc.JsonRPC");
 dojo.require("dojox.json.schema");
 
-dashboard.rpc = new dojox.rpc.Service(dojo.moduleUrl("dashboard", "file:///home/brian/andes/dashboard/dashboard-UI/js/dashboard.smd"));
+dashboard.rpc = new dojox.rpc.Service("js/dashboard.smd");
+json = {"method": "test", "params": {"param1": 1, "param2": 2}};
 
-function sendRequest(req){
-	dashboard.rpc[req.method](req);
-}
+dojo.addOnLoad(
+	function() {
+		var dfd = dashboard.rpc["test"](json);
+		console.log("sent request")
+		dfd.addCallback(
+			function(result) {
+    			console.log(result);
+			},
+			function(error) {
+				console.log(error);
+			}
+		);
+	}
+);
 
-request = {"method": "test", 
-			"params": {"param1": 1, "param2": 2},
-			"jsonrpc": "2.0"
-		};
-
-document.onload = sendRequest(request);
