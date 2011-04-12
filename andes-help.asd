@@ -52,6 +52,9 @@
 				     
                                      (:file "utilities")
 				     (:file "database")
+				     (:file "icons")
+				     (:file "model"
+					    :depends-on ("database" "icons"))
 				     				     
 				     ;; Entry Intepreter: generic + non-eq
 				     (:file "symbols")
@@ -60,6 +63,7 @@
 					    :depends-on ("symbols" "grammar"))
 				     (:file "Entry-API"
 					    :depends-on ("HelpMessages" "symbols"
+							 "model"
 							 "SolutionGraph" "icons"
 							 "wrong-quantities"))
 				     
@@ -80,14 +84,11 @@
 				     (:file "test-all-quantities")
 				     
 				     ;;  Help
-				     (:file "icons")
 				     (:file "HelpMessages")
 				     (:file "whatswrong")
 				     (:file "NextStepHelp"
 					    :depends-on ("icons" "symbols"))
 				     (:file "IEA")
-				     (:file "model"
-					    :depends-on ("database"))
 				     
 				     ;; Automatic statistics code.
 				     (:file "Statistics")

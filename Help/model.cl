@@ -104,8 +104,8 @@
     (set-state-property 'intro-video-start-time nil :no-store t)))
 
 
-(defconstant +floundering-time+ 30 "time in seconds")
-(defconstant +floundering-turns+ 5)
+(defconstant +floundering-time+ 20 "time in seconds")
+(defconstant +floundering-turns+ 3)
 (defconstant +master-clicking+ 2)
 
 ;; To test: 
