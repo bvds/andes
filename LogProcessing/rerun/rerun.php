@@ -23,10 +23,8 @@
 
 	     //  Clear test database:
 	     //    use andes_test;
-             //    delete from PROBLEM_ATTEMPT;
+             //    DELETE FROM PROBLEM_ATTEMPT WHERE clientID LIKE '\_%';
 	     //    REPLACE INTO CLASS_INFORMATION (classSection) values ('study');
-	     //  Not having the last line will degrade efficiency.
-
 
 	     // Still need to clean up logging:  consistant format
 	     // Have interp for each red turn?
@@ -58,8 +56,7 @@ $adminName = ''; // $_POST['adminName'];   student name.
 $sectionName = 'study' ; //$_POST['sectionName'];
 $startDate = ''; // $_POST['startDate'];
 $endDate = ''; // $_POST['endDate'];
-$methods = array('open-problem','solution-step','seek-help','close-problem');  //implode(",",$_POST['methods']);
-$solutionMethods = array('solution-step','seek-help');
+$methods = array('open-problem','solution-step','seek-help','record-action','close-problem');  //implode(",",$_POST['methods']);
 
 if($adminName==''){
   $adminNamec = "";
@@ -170,7 +167,7 @@ function consolidate_interps($result){
 }
 	     
 require_once('jsonRPCClient.php');
-$server  = new jsonRPCClient('http://localhost/help-test');
+$server  = new jsonRPCClient('http://localhost/help');
 $sessionIdBase = "_" . date('h:i:s') . "_";
 $sessionId = 0;
 $handle = fopen($jsonFile,'w');
@@ -202,29 +199,47 @@ while ($myrow = mysql_fetch_array($result)) {
     echo "<tr><th>Turn</th><th>Action</th><th>Old Response</th><th>New Response</th></tr>\n";
   }
   
-  $tempSql = "SELECT initiatingParty,command,tID FROM PROBLEM_ATTEMPT_TRANSACTION WHERE clientID = '$clientID'";
+  $tempSqlOld = "SELECT initiatingParty,command,tID FROM PROBLEM_ATTEMPT_TRANSACTION WHERE clientID = '$clientID'";
+  $tempSql = "SELECT client,server,tID FROM STEP_TRANSACTION WHERE clientID = '$clientID'";
+  $tempResultOld = mysql_query($tempSqlOld);
   $tempResult = mysql_query($tempSql);
   $sessionId++; 
   $ttime = 0;  // User time for this session
   $loadFailed = false;
   
   // get student input and server reply
-  while (($myrow1 = mysql_fetch_array($tempResult)) &&
-	 ($myrow2 = mysql_fetch_array($tempResult))) {
-    if($myrow1["initiatingParty"]=='client'){
-      $action=$myrow1["command"];
+  while (($myrow1 = mysql_fetch_array($tempResult)) ||
+	 // Old style with PROBLEM_ATTEMPT_TRANSACTION
+	 (($myrow1 = mysql_fetch_array($tempResultOld)) &&
+	  ($myrow2 = mysql_fetch_array($tempResultOld)))) {
+    if(isset($myrow1["command"])){
+      if($myrow1["initiatingParty"]=='client'){
+	$action=$myrow1["command"];
+	$ttID=$myrow1["tID"];
+	$response=$myrow2["command"];
+      } else {
+	$action=$myrow2["command"];
+	$ttID=$myrow2["tID"];
+	$response=$myrow1["command"];
+      }
+    } else if(isset($myrow1["client"])) {
+      $action=$myrow1["client"];
       $ttID=$myrow1["tID"];
-      $response=$myrow2["command"];
+      $response=$myrow1["server"];	 
     } else {
-      $action=$myrow2["command"];
-      $ttID=$myrow2["tID"];
-      $response=$myrow1["command"];
+      // For new style, drop turns without client
+      continue;
     }
     $a=$json->decode($action);
+    // Drop turns without method.
+    if(!isset($a->method)){
+      continue;
+    }
     $method=$a->method;
 
     // If load has failed don't attempt any solution steps.
-    if($loadFailed && in_array($method,$solutionMethods)){
+    if($loadFailed && in_array($method,$methods) && 
+       strcmp($method,"close-problem")!=0){
       continue;
     } 
 

@@ -3,15 +3,20 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <title>Student Dashboard</title>
-        <link href="css/style.css" rel="stylesheet" type="text/css" />
-        <link href="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dijit/themes/tundra/tundra.css" rel="stylesheet" type="text/css" />
-        <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/dojo.xd.js" type="text/javascript">
-        </script>
-		<script src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/AdapterRegistry.js" type="text/javascript">
-        </script>
-		<script src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojox/rpc/Service.js" type="text/javascript">
-        </script>
-		<script src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojox/rpc/AdapterRegistry.js" type="text/javascript">
+		<script type="text/javascript">
+			djConfig = {
+				isDebug: true,
+				parseOnLoad: true,
+				popup: true
+			}
+			
+			if(djConfig.isDebug) {
+				djConfig.modulePaths = {'dashboard': '../dashboard-UI'};
+				document.write('<link href="css/style.css" rel="stylesheet" />');
+			}
+		</script>
+        <link href="dijit/themes/tundra/tundra.css" rel="stylesheet" type="text/css" />
+        <script src="dojo/dojo.js" type="text/javascript">
         </script>
         <script src="js/dashboard.js" type="text/javascript">
         </script>

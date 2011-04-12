@@ -11,7 +11,6 @@
 	{
         "test":
 		{
-            "transport": "GET",
             "parameters": 
 			[
                 {"name": "param1", "optional": false, "type": "number"},
