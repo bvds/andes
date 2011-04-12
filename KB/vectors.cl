@@ -55,6 +55,8 @@
   :effects ((inherit-quantity (body ?b :time ?t) (body ?b))))
 
 (defoperator draw-body (?b ?t)
+  :short-name "draw a body"
+  :description "draw a body representing an object"
   :preconditions 
   (
    (object ?b)
@@ -182,7 +184,7 @@
    :effects ( (get-axis ?xyz ?rot)))
 
 (defoperator draw-unrotated-axes ()
-  :specifications 
+  :description 
    "If  there are no vectors with numerical directions,
    then draw unrotated coordinate axes"
    :preconditions 
@@ -223,7 +225,7 @@
 ;; in forming entry propositions for use at help time.
 ;;
 (defoperator draw-compo-form-axes ()
-  :specifications 
+  :description 
    "If the problem is seeking horizontal or vertical components then use standard axes"
   :preconditions (
     (component-form)
@@ -299,7 +301,7 @@
 ;;; drawn axes for another body without drawing again.
 
 (defoperator draw-vector-aligned-axes (?rot)
-  :specifications 
+  :description 
   "If the goal is to draw coordinate axes for use on some body's vectors,
        and there are any vectors on that body drawn at known angles
    then draw coordinate axes so that one of them is alligned with ?vector,"
@@ -347,7 +349,7 @@
        (not (nsh-multi-axis-problemp)))) ; only one is required for solution 
 
 (defoperator use-system-axes (?b ?rot)
-   :specifications 
+   :description 
    "If the goal is to choose an axis for a body b and we have already drawn an
    axis for a many-body system containing b, then use the system's axis
    as the axis for b."
@@ -362,7 +364,7 @@
 
 (defoperator use-body-axes-for-point (?point ?rot)
   :order ( (default . LOW) ) ; prefer other axes drawing ops w/useful hints
-  :specifications 
+  :description 
   "Axes for points on a body inherit the axes used for the whole body."
   :preconditions (
 		  (point-on-body ?point ?body)
@@ -469,7 +471,7 @@
 ;;; unifying a goal with the effects.
 
 (defoperator compo-zero-vector (?xyz ?rot ?vector)
-  :specifications 
+  :description 
   "If the goal is to write a projection equation for a given component 
    variable ?v, and the vector is zero, then write ?v = 0."
   :preconditions
@@ -497,7 +499,7 @@
 ;;; also enables us to put out implicit equations for orthogonal component, 
 ;;; so that it gets into the Andes solution, even if otherwise unused.
 (defoperator compo-parallel-axis (?compo-var)
-  :specifications "
+  :description "
    If ?compo-var is the variable for a component of a vector,
       and the vector is at a known angle parallel or antiparallel to the axis,
    then write ?compo-var = +/- ?mag-var as appropriate"
@@ -547,7 +549,7 @@
 ;;; of the angle made with the X axis.
 
 (defoperator compo-general-case (?xyz ?rot ?vector)
-  :specifications "
+  :description "
    If ?compo-var is the variable for a component of a vector,
       and the vector is at a known angle not perpendicular to the axis,
    then the projection equation is ?compo-var = ?mag*cos(?dir - ?rot)
@@ -603,7 +605,7 @@
    ))
 
 (defoperator compo-general-case-unknown (?xyz ?rot ?vector)
-  :specifications "
+  :description "
    If ?compo-var is the variable for a component of a vector,
       and the vector is drawn at an unknown direction,
    then the projection equation is ?compo-var = ?mag*cos((?dir - ?rot))
@@ -665,7 +667,7 @@
 ;;; it removes the vector's magnitude from the system of equations.
 
 (defoperator compo-perpendicular (?xyz ?rot ?vector)
-  :specifications "
+  :description "
    If a vector is perpendicular to an axis,
    then its component along that axis is zero."
   :preconditions (
@@ -824,7 +826,7 @@
 ;;; called.
 
 (defoperator define-compo (?var)
-  :specifications "
+  :description "
    If there is an axis defined
       and there is a vector defined
    then define a component variable for the vector along the axis"
@@ -1545,6 +1547,8 @@
 			      (angle-between orderless . ?parents))))
 
 (defoperator define-angle-between-vectors (?vecs)
+  :short-name "define angle, vectors"
+  :description "define the angle between two vectors; value between 0 and 180 degrees."
  :preconditions 
  (
   ;; assume that ?vec1 and ?vec2 are parent quantities
@@ -1578,6 +1582,8 @@
 
 
 (defoperator define-angle-between-lines (?lines)
+  :short-name "define angle, lines"
+  :description "define the angle between two vectors; value between 0 and 90 degrees."
  :preconditions 
  (
   (any-member ?lines (((line ?r1) (line ?r2))))

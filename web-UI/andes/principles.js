@@ -29,65 +29,31 @@ andes.principles={
 				title=title.replace(/ /g,'_'); // Logging name is modified.
 			}
 			this.reviewp[file]=window.open("../review/"+file,
-						       title,
-						       dims+",directories=no,menubar=no,toolbar=no,location=no,status=no"
-						      );
+						title,
+						dims+",directories=no,menubar=no,toolbar=no,location=no,status=no"
+			);
 			if(this.reviewp[file]){
 				if(dojo.isIE){
-					var win = this.reviewp[file];
-					// On IE 8, using this pointer to get properties gives "permission denied" errors.
-					// var doc = this.reviewp[file].document;
-					
-					// On IE 8, child window event objects may not exist when window.open is returned.
-					// window.document exists, but window.document.body may not.  
-					
-					function waitUntilLoaded(){
-						if(!win || win.closed){
-							// Should send message to server?
-							console.log("Window closed.");
-						}else if(win.document.readyState=='complete'){
-							console.log("waiting got it  ....");
-							pollChild();  // poll to test for child window focus.
-							
-							// Since window is already open, we can just scroll.
-							if(section){
-								var obj = win.document.getElementById(section);
-								obj.scrollIntoView();
-							}
+					// console.log("==========================>>>We've got IE here");
+					var body, win = this.reviewp[file];
+					function childLoaded(){
+						body = win.document.getElementsByTagName("body");
+						if(body[0]==null){
+							// Not loaded yet, try again
+							setTimeout(childLoaded, 20);
 						}else{
-							console.log("waiting  ....",win.document.readyState);
-							window.setTimeout(waitUntilLoaded,100);
+							var n = win.document.createElement("script");
+							n.src = "../web-UI/andes/recordIE.js";
+							body[0].appendChild(n);
+							// console.log("Completed operation inserting: ",n);
 						}
-					}					
-
-					// In IE 8, can't get events to reliably track window closing or minimization.
-					// Instead, we poll child window.
-					function pollChild(){
-						if(!win || win.closed){ 
-							// In IE 8, window object does not persist after closing.
-							console.log("Closed window for ",title);
-							andes.api.recordAction({type:"window", name: title, value: "blur"});
-						}else{
-							var f=win.document.hasFocus();
-							if(!f && win._lastFocus){
-								// Supply window as context so name is available.
-								andes.drawing.onWindowBlur.call(win);
-							}else if(f && !win._lastFocus){
-								// Supply window as context so name is available.
-								andes.drawing.onWindowFocus.call(win);
-							}
-							win._lastFocus=f;
-							window.setTimeout(pollChild,100);
-						}							
 					}
-					
-					waitUntilLoaded();
-					
+					childLoaded();
 				} else {
 					if(section){
 						// In principle, this could fail if window is already loaded
 						// by the time the code gets to here.
-						this.reviewp[file].onload = function (){
+						this.reviewp[file].onload = function(){
 							var obj=this.document.getElementById(section); 
 							obj.scrollIntoView();
 						}

@@ -328,7 +328,10 @@ list of characters and replacement strings."
 		(or *old-client-id* webserver:*log-id*))))
 
 (defun get-most-recent-tID ()
-  (car (single-query "SELECT MAX(tID) FROM STEP_TRANSACTION")))
+  "Get largest tID from STEP_TRANSACTION; if table is empty, create dummy step."
+  (loop for i from 0 to 1
+	thereis  (car (single-query "SELECT MAX(tID) FROM STEP_TRANSACTION"))
+	do (format t "writing it~%") (write-transaction "_dummy_session" nil nil)))
 
 (defun get-state-properties (&key (student session:*user*) 
 			     (section session:*section*) (model "default")
@@ -393,14 +396,23 @@ list of characters and replacement strings."
 (defun set-state-property (property value &key (student session:*user*) 
 			   (section session:*section*)
 			   (model "default")
+			   no-store
 			   tID)
   "Update a student or section state parameter.  If value is null, delete 
 that parameter.  If tID is not specified, insert at end of turn; 
 if it is an integer, insert directly with specified tID; 
-otherwise, use latest step tID."
+otherwise, use latest step tID.  No-store means add to cache only."
+
+  ;; Save in cache, by either updating or pushing
   (unless tID
-    (push (cons (cons model property) value) session:*state-cache*))
-  (unless *disable-saving-state*
+    (let ((x (assoc (cons model property) session:*state-cache* 
+		    :test #'equal)))
+      (if x
+	  (setf (cdr x) value)
+	  (push (cons (cons model property) value) session:*state-cache*))))
+
+  (unless (or *disable-saving-state* no-store)
+    ;; Save to STUDENT_STATE either now or later.
     (let ((query-format-string
 	   (format nil "REPLACE into STUDENT_STATE (userSection,userName,model,property,tID,value) VALUES ('~A',~:[''~;~:*'~A'~],'~A','~A',~~A,~:[NULL~*~;'~A'~])"
 		   section student model
@@ -414,7 +426,7 @@ otherwise, use latest step tID."
       (if tID
 	  (progn
 	    (unless (integerp tID) (setf tID (get-most-recent-tID)))
-	    ;; (format t "~S~%~S~%" query-format-string (format nil query-format-string tID))
+	    ;; (format t query-format-string tID)
 	    (with-db 
 	      (query *connection* 
 		     (format nil query-format-string tID))))

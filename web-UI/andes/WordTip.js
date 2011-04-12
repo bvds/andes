@@ -61,10 +61,10 @@ dojo.declare("andes.WordTip", null, {
         // it.  If not then it must be the current tool.
             
         // console.log("stencils......>>",this.theDrawing.stencils.getRecentStencil(), "attr check: ", dojo.attr(this.conEdit.parentNode, "id"));
-        var stencilID = dojo.attr(this.conEdit.parentNode, "id");
-        var stencilLastSelected = this.theDrawing.stencils.getRecentStencil();
-        var type = stencilLastSelected.combo ? stencilLastSelected.combo.master.type : stencilLastSelected.type;
-        var sid = stencilLastSelected.combo ? stencilLastSelected.combo.statement.id : stencilLastSelected.id;
+        var stencilID = dojo.attr(this.conEdit.parentNode, "id"),
+            stencilLastSelected = this.theDrawing.stencils.getRecentStencil(),
+            type = stencilLastSelected.combo ? stencilLastSelected.combo.master.type : stencilLastSelected.type,
+            sid = stencilLastSelected.combo ? stencilLastSelected.combo.statement.id : stencilLastSelected.id;
             
         if(stencilID!=sid){
             // Current statement or equation

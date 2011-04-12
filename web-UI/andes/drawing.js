@@ -398,8 +398,15 @@ dojo.provide("andes.drawing");
 						disable ? tool.disable() : tool.enable();
 					}
 
+				}else if(obj.action=="set-preference"){
+					// Try to set in the preferenceRegistry.  All
+					// values that can be saved should be available there
+					andes.preferenceRegistry.setPref(obj["name"],obj["value"]);
+					
+				}else if(obj.action=="log"){
+					// Log actions are ignored by client.
 				}else{
-					//console.warn("UNUSED ANDES OBJECT:", obj)
+					console.warn("UNUSED ANDES OBJECT:", obj)
 				}
 			}, this);
 

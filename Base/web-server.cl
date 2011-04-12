@@ -22,7 +22,7 @@
 
 (defpackage :webserver
   (:use :cl :hunchentoot :json)
-  (:export :defun-method :start-json-rpc-service :stop-json-rpc-service 
+  (:export :defun-method :start-json-rpc-services :stop-json-rpc-services 
 	   :*stdout* :print-sessions :*env* :close-idle-sessions :*debug*
 	   :*turn-timeout* :*time*
 	   :log-error :log-warn
@@ -34,7 +34,6 @@
 ;; See Bug #1710
 (defvar *turn-timeout* 20 "Timeout for a turn, in seconds.")
 (defvar *server* nil)
-(defvar *log-function* nil "Logging function, function of 3 variables.")
 (defvar *log-id* nil "Id sent to the logging function.")
 (defvar *log-variable* nil "Parameter local to turn & available to logging function.")
 (defvar *stdout* *standard-output*)
@@ -58,16 +57,19 @@
   #-(or sbcl bordeaux-threads) 
   '(error "no thread locking, possible race condition"))
 
-(defun start-json-rpc-service (uri &key (port 8080) log-function
-			       server-log-path)
+(defun start-json-rpc-services (services &key (port 8080) server-log-path)
   "Start a web server that runs a single service for handling json-rpc"
   ;; One could easily extend this to multiple web servers or multiple
   ;; services, but we don't need that now.
   (when *server* (error "server already started"))
-  (setq  *dispatch-table*
-	 (list #'dispatch-easy-handlers
-	       (create-prefix-dispatcher uri 'handle-json-rpc)
-	       #'default-dispatcher))
+  (setf *dispatch-table* (list #'default-dispatcher))
+  (dolist (service services)
+    (push (create-prefix-dispatcher 
+	   (car service)	   
+	   #'(lambda () (handle-json-rpc 
+			 (cadr (member :log-function service)))))
+	  *dispatch-table*))
+  (push #'dispatch-easy-handlers *dispatch-table*)
 
   ;; Send *debug* to file
   (unless *stdout*
@@ -76,9 +78,8 @@
 
   ;; Error handlers
   (setf *http-error-handler* 'json-rpc-error-message)
-  (setf *log-function* log-function)
   ;; Log any errors in Hunchentoot or not otherwise handled.
-  ;; In particular, log any errors or warning in *log-function*
+  ;; In particular, log any errors or warning using log-function
   (when server-log-path (setf *MESSAGE-LOG-PATHNAME* server-log-path))
 
   ;; Test for multi-threading
@@ -91,7 +92,7 @@
   (format nil "{\"jsonrpc\": \"2.0\", \"error\": {\"code\": ~A, \"message\": \"Hunchentoot error:  ~A\"}, \"id\": null}" 
 	  err (reason-phrase err)))
 
-(defun stop-json-rpc-service ()
+(defun stop-json-rpc-services ()
   (when (streamp *debug*) (close *debug*))
   (stop *server*) (setf *server* nil))
 
@@ -104,7 +105,7 @@
 (defun register-method-for-service (uri method method-name)
   (setf (gethash (list uri method-name) *service-methods*) method))
 
-(defun handle-json-rpc ()
+(defun handle-json-rpc (log-function)
   "Handles json-rpc 1.0 and 2.0"
   (setf (content-type*) "application/json; charset=UTF-8")
   ;; Hunchentoot is supposed to take care of charset encoding
@@ -122,7 +123,17 @@
 	 (method (cdr (assoc :method in-json)))
 	 (params (cdr (assoc :params in-json)))
 	 (turn (cdr (assoc :id in-json)))
-	 (client-id (header-in* :client-id))
+	 ;; If client-id is supplied, use it for session hash,
+	 ;; else use ip address(es).
+	 ;;
+	 ;; A session will cease to be accessible if the client's remote 
+	 ;; IP changes.  This might for example be an issue if the client 
+	 ;; uses a proxy server which doesn't send correct 'X_FORWARDED_FOR' 
+	 ;; headers.
+	 ;;
+	 ;; It might be a good idea to switch to cookies or 
+	 ;; use the Hunchentoot session manager.
+	 (client-id (or (header-in* :client-id) (real-remote-addr)))
 	 ;; Make thread-local variable, this is the id used by logging
 	 (*log-id* client-id)
 	 ;; thread-local variable, available to method & log function.
@@ -136,7 +147,8 @@
 	 reply)
     
     (when *debug* (with-a-lock (*print-lock* :wait-p t) 
-		    (format *stdout* "session ~A calling ~A with~%     ~S~%" 
+		    (format *stdout* 
+			    "session ~A calling ~A with~%     ~S~%" 
 			    client-id method params)))
     #+sbcl (when (or *profile* *time*)
 	     (setf t0 (get-internal-run-time))
@@ -214,7 +226,7 @@
 	(push (cons :id turn) reply)
 	(when version (push version reply))
 
-	(turn-log-wrapper *log-id* 
+	(turn-log-wrapper *log-id* log-function
 			  (raw-post-data :force-text t)
 			  reply)))))
 
@@ -223,7 +235,7 @@
     (setf (cdr (assoc "false" x :test #'equalp)) :false)
     x))
 
-(defun turn-log-wrapper (id input-json reply)
+(defun turn-log-wrapper (id log-function input-json reply)
   "log turn pair to database"
   (let ((reply-json
 	 ;; By default, cl-json turns dashes into camel-case:  
@@ -233,9 +245,9 @@
 	       (json::+json-lisp-symbol-tokens+ +symbol-tokens+))
 	   (encode-json-alist-to-string reply))))
     
-        (when *log-function*
+        (when log-function
 	  ;; Log incoming and outgoing raw json-rpc and user/problem session id
-	  (funcall *log-function* id input-json reply-json))
+	  (funcall log-function id input-json reply-json))
 	reply-json))
 
 
@@ -310,7 +322,8 @@
 			#-(or sbcl bordeaux-threads) (warn "can't lock")
 			)))))
 
-(defun close-idle-sessions (&key (idle 0) (method 'identity) params)
+(defun close-idle-sessions (&key log-function (idle 0) (method 'identity) 
+			    params)
   "Apply method to all (idle) sessions.  idle is time in seconds."
   (let ((cutoff (- (get-internal-real-time) 
 		   (* idle internal-time-units-per-second))))
@@ -325,7 +338,7 @@
 	     ;; We can't push reply back to the client;
 	     ;; but we do want to log it.
 	     (turn-log-wrapper 
-	      id
+	      id log-function
 	      ;; Make fake log entry for command sent.
 	      ;; By default, cl-json turns dashes into camel-case:  
 	      ;; Instead, we convert to lower case, preserving dashes.

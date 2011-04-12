@@ -893,7 +893,9 @@
 ;; This can write either the component or the angle form of the work equation,
 ;; depending on ?rot. Work is done in dot product operators.
 (defoperator write-work (?b ?agent ?t ?rot)
- :preconditions (
+  :short-name "work formula"
+  :description "formula for work in the case of constant force along path"
+  :preconditions (
     ;; !!! could be more than one force from agent, e.g. normal and friction
     ;; from floor.  This should be fixed by adding type slot to work argument.
     ;; Until then, just ignore normal force if there's more than one, since
@@ -949,6 +951,8 @@
 ;;; Following defines a variable for the work done by a force agent
 ;;; over a time interval.
 (defoperator define-work (?b ?agent ?t)
+  :short-name "define work"
+  :description "define a variable for work"
  :preconditions (
  (object ?b)
  (time ?t)
@@ -1075,7 +1079,7 @@
 ;; end chaining version of net-work method
 
 (defoperator draw-net-work-diagram (?b ?t)
-  :specifications "choose body and draw all forces on it"
+  :description "choose body and draw all forces on it"
   :preconditions 
    ((body ?b)
     ;; make sure axis is allowed, even if unused

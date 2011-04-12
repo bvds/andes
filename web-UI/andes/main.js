@@ -107,6 +107,7 @@ dojo.require("andes.WordTip");
 })();
 
 dojo.require("andes.defaults");
+dojo.require("andes.PreferenceRegistry");
 dojo.require("andes.convert");
 dojo.require("andes.drawing");
 dojo.require("andes.menu");

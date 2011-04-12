@@ -73,7 +73,7 @@
 
 
 (defoperator equiv-resistance-series (?res-list)
-  :specifications "doc"
+  :description "doc"
   :preconditions (
 		  ;; verify sought list equivalent to some set of series resistors
 		  ;; For simplicity we just put info about series resistors into givens. 
@@ -104,7 +104,7 @@
 
 
 (defoperator equiv-resistance-parallel (?res-list)
-  :specifications "doc"
+  :description "doc"
   :preconditions(
 		 ;; verify sought list equivalent to some list of parallel resistors
 		 ;; List can include complex 
@@ -319,7 +319,7 @@
   :effects ((eqn-contains (ohms-law ?res ?t) ?sought)))
 
 (defoperator write-ohms-law (?res ?t)
-  :specifications "doc"
+  :description "doc"
   :preconditions
   (
    (variable ?r-var (resistance ?res))
@@ -829,7 +829,7 @@
 
 
 (defoperator equiv-capacitance-series (?cap-list)
-  :specifications "doc"
+  :description "doc"
   :preconditions (
 		  ;; verify sought list equals some list of series capacitors
 		  ;; For simplicity we just put info about series capacitors into givens. 
@@ -862,7 +862,7 @@
 
 
 (defoperator equiv-capacitance-parallel (?cap-list)
-  :specifications "doc"
+  :description "doc"
   :preconditions(
 		 ;; verify sought list equals some list of parallel capacitors
 		 ;; This list may not be able to include complex 
@@ -971,7 +971,7 @@
    ))
 
 (defoperator write-capacitance-definition (?cap ?t)
-  :specifications "doc"
+  :description "doc"
   :preconditions
   (
    (variable ?c-var (capacitance ?cap))

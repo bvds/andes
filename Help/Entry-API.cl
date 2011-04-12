@@ -220,17 +220,25 @@
 			      ;; If larger, too slow on benchmarks
 			      (cutoff-max 3.7)) 
   "Match student phrase to Ontology, returning best matches for tool or other tool."
-  ;; :cutoff-fraction is fractional length of student phrase plus one
-  ;;     (for the tool) to use as bound.  This should be adjusted to 
+  ;; :cutoff-fraction is fractional length of student phrase to
+  ;;     use as bound, adding 1 for the tool.  This should be adjusted to 
   ;;     balance type 1 and type 2 errors:
   ;;         bad matches that are accepted vs. 
   ;;         good matches that are missed
+  ;;     See *word-cutoff* in Base/match.cl
+  ;;     In the case of one word, look for match right tool using 
+  ;;     cutoff-fraction, else match one word with wrong tool.
+  ;;     For more than one word, look for match with right tool
+  ;;     using cutoff-fraction.  If match exists, use score minus 1
+  ;;     subsequent wrong tool match.  If match does not exist, use
+  ;;     same bound for wrong tool match.
+  ;;         
   ;; :cutoff-max is maximum allowed score to use as bound.  This should
   ;;     be adjusted to so that very long student phrases can
   ;;     be matched quickly enough.
   (let* ((sysentries (remove (cons tool-prop '?rest) *sg-entries*
 			     :key #'SystemEntry-prop :test-not #'unify)) 
-	 (initial-cutoff (min (* cutoff-fraction (+ (length student) 1))
+	 (initial-cutoff (min (* cutoff-fraction (length student))
 			      cutoff-max))
 	 ;; To speed up best-wrong-match for long phrases, maybe reduce 
 	 ;; max cutoff a bit.
@@ -255,17 +263,17 @@
 	   :cutoff initial-cutoff))
 	 ;; The value of the best correct match or the initial cutoff.
 	 ;; This is used to determine cutoffs for wrong quantity searches.
-	 (wrong-bound (if best (best-value best) initial-cutoff))
+	 (wrong-bound (if best (- (best-value best) 1) initial-cutoff))
 	 wrong-tool-best)
 
-    ;; Debug printout:
-    (when nil
+    (when nil ;debug print
       (format t "Best match to ~s is~%   ~S~% from ~S~%" 
-	      (match:word-string student)
+	      (when student (match:word-string student))
 	      (mapcar 
 	       #'(lambda (x) (cons (match:best-value x) 
-				   (expand-vars (SystemEntry-model 
-						 (match:best-prop x)))))
+				   (expand-vars (new-english-find
+						 (second 
+						 (match:best-prop x))))))
 	       best)
 	      (mapcar #'systementry-prop sysentries)))
     
@@ -278,7 +286,7 @@
     ;;     toss-up:  give unsolicited hint and pass through.
     ;; wrong-tool-best less than best score minus 1 or no best.
     ;;     this certainly should be given wrong tool help.
-    (when (>= wrong-bound 1)
+    (when (>= wrong-bound 0)
       (let* ((allowed-tools (remove tool-prop *tool-props-with-definitions*))
 	     (sysentries (remove-if 
 			  #'(lambda (x) (not (member 
@@ -295,7 +303,7 @@
 	       ;; If there is no match in best, then the help is
 	       ;; pretty weak.  In that case, just find anything
 	       ;; below the cutoff.
-	       :cutoff (- wrong-bound 1)))))
+	       :cutoff wrong-bound))))
     
     ;; Attempt to match to quantities not in solution,
     ;; assuming no wrong-tool error.
@@ -327,7 +335,7 @@
     ;; Must be better than any quantity in solution, but allow
     ;; for ties with one plus any quantity not in solution.
     (when (and (>= wrong-cutoff-max 1)
-	       (>= wrong-bound 1)
+	       (>= wrong-bound 0)
 	       (or (null best) (>= (best-value best) 1)))
       (let  ((tool-props (intersection
 			  ;; other tools that have natural-language.
@@ -345,13 +353,13 @@
 	     (best-wrong-match 
 	      student
 	      tool-prop
-	      :cutoff  (- (min wrong-cutoff-max
+	      :cutoff  (min (- wrong-cutoff-max 1)
 			       (if best 
-				   (best-value best)
+				   (- (best-value best) 1)
 				   wrong-bound)
 			       (if wrong-tool-best 
-				   (best-value wrong-tool-best) 
-				   wrong-bound)) 1)))))))
+				   (- (best-value wrong-tool-best) 1)
+				   wrong-bound))))))))
     
     (values best wrong-tool-best wrong-bound sysentries)))
 

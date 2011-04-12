@@ -140,7 +140,7 @@
 ;;; preamble, it has no hints.
 
 (defoperator apply-scalar-PSM (?sought ?eqn-id)
-  :specifications "If the goal is to apply a PSM to find a quantity,
+  :description "If the goal is to apply a PSM to find a quantity,
       and there is a scalar equation  that contains that quantity,
       then generate the equation."
   :preconditions 
@@ -175,7 +175,7 @@
 ;;;
 
 (defoperator write-known-value-eqn (?quantity)
-  :specifications "If a quantity's value is known, then define a variable 
+  :description "If a quantity's value is known, then define a variable 
     for it and write an equation giving its value"
   :preconditions 
   ;; right now, bubblegraph generator stops once it has found a given value
@@ -246,7 +246,7 @@
 ;; They have to be printed out as equations however for algebraic completeness 
 ;; of the set sent to algebra.
 (defoperator write-implicit-eqn (?quantity)
-  :specifications "If a quantity's value becomes known as a side effect of some other step, then define a variable for it and write an equation giving its value"
+  :description "If a quantity's value becomes known as a side effect of some other step, then define a variable for it and write an equation giving its value"
   :preconditions 
   ((in-wm (given ?quantity ?value-expr . ?rest))
    ;; Make sure expression is usable in equation, not special atom. 
@@ -315,7 +315,7 @@
 ;; equation-contains stuff.
 ;;
 (defoperator apply-vector-PSM (?sought ?eqn-id) 
-  :specifications " If the goal is to apply a PSM to find a vector component,
+  :description " If the goal is to apply a PSM to find a vector component,
       and there is a vector equation that contains the vector magnitude,
       then
       find a component equation that contains the quantity,
@@ -423,7 +423,7 @@
 ;;; a scalar.  
 
 (defoperator select-compo-eqn-for-scalar (?vec-eqn-id ?compo-eqn-name ?quantity)
-  :specifications 
+  :description 
    "If the sought quantity is a scalar,
       and ?compo-eqn-name is a component equation for the given vector equation
         that could contain that quantity,
@@ -601,14 +601,14 @@
 ;;; be fully grounded so it can be added to wm in the skip case.
 
 (defoperator do-optional-step (?goal)
-  :specifications "If you have an optional step to do then do it"
+  :description "If you have an optional step to do then do it"
   :preconditions ( 
       ?goal ; embedded goal proposition to be achieved
   )
   :effects ( (optional ?goal) ))
 
 (defoperator skip-optional-step (?goal)
-  :specifications "let's not and say we did"
+  :description "let's not and say we did"
   :effects ( (optional ?goal) ))
 
 ;;; =================== Generic: failing to derive goal =====================
