@@ -56,8 +56,7 @@ $adminName = ''; // $_POST['adminName'];   student name.
 $sectionName = 'study' ; //$_POST['sectionName'];
 $startDate = ''; // $_POST['startDate'];
 $endDate = ''; // $_POST['endDate'];
-$methods = array('open-problem','solution-step','seek-help','close-problem');  //implode(",",$_POST['methods']);
-$solutionMethods = array('solution-step','seek-help');
+$methods = array('open-problem','solution-step','seek-help','record-action','close-problem');  //implode(",",$_POST['methods']);
 
 if($adminName==''){
   $adminNamec = "";
@@ -239,7 +238,8 @@ while ($myrow = mysql_fetch_array($result)) {
     $method=$a->method;
 
     // If load has failed don't attempt any solution steps.
-    if($loadFailed && in_array($method,$solutionMethods)){
+    if($loadFailed && in_array($method,$methods) && 
+       strcmp($method,"close-problem")!=0){
       continue;
     } 
 
