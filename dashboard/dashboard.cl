@@ -17,5 +17,10 @@
 
 (in-package :cl-user)
 
-(webserver:defun-method "/dashboard" test (&key param1 param2)
-   (cons :value (+ param1 param2)))
+(webserver:defun-method "/dashboard" dashboard (&key version (model () model-p) 
+						     section (student () student-p) 
+						     (assignment () assignment-p)) 
+ (apply #'dummy-process-api-request (append (list :version version :section section)
+				      (if model-p (list :model model))
+				      (if assignment-p (list :assignment assignment))
+				      (if student-p (list :student student)))))

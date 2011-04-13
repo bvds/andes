@@ -1,19 +1,16 @@
-
 (defun formatted-time ()
   (multiple-value-bind
 	(second minute hour date month year day-of-week dst-p tz)
       (get-decoded-time)
     (format nil "~A-~A-~AT~A:~A" year month date hour minute)))
 
-(defun fixit (&optional (x 20)) (setf sb-kernel:*maximum-error-depth* x))
-
-(defun test-make-file ()
-  (setf sb-kernel:*maximum-error-depth* 20)
-  (with-open-file (stream "/home/benefluence/Dropbox/Capstone/api_return_test_file"
-			  :direction :output
-			  :if-exists :supersede
-			  :if-does-not-exist :create)
-    (write-string (encode-string (process-api-request)) stream)))
+(defun dummy-process-api-request  (&key 
+			    (version 1)
+			    (model "capstone")
+			    (section "andesTutor")
+			    (student () supply-student-p)
+			    (assignment () supply-assignment-p))
+'(((:this . is) (:a . test))))
 
 (defun process-api-request (&key 
 			    (version 1)
