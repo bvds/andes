@@ -1,6 +1,7 @@
 dojo.provide("andes.menu");
 dojo.require("andes.options");
 dojo.require("dijit.Menu");
+dojo.require("dijit.MenuSeparator");
 
 dojo.addOnLoad(function(){
 	

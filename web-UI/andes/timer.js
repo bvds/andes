@@ -18,7 +18,6 @@ dojo.declare("andes.timer", null, {
     
     displayTimer: function(/*boolean*/t){
         this.display = t;
-        console.log("Before ready: node:",this.node," param:",t);
         if(!this.ready) return;
         
         var disp;
@@ -29,7 +28,6 @@ dojo.declare("andes.timer", null, {
             disp = "none";
             if(this.interval) clearInterval(this.interval);
         }
-        console.log("Display timer: ",disp," node:",this.node);
         dojo.style(this.node, {"display": disp });
     },
     
