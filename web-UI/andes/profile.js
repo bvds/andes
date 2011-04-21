@@ -4,7 +4,6 @@ dojo.require("dojo.parser");
 dojo.require("dijit.layout.BorderContainer");
 dojo.require("dijit.layout.ContentPane");
 dojo.require("andes.widget.ExpandoPane");
-dojo.require("dojox.drawing.plugins.drawing.GreekPalette");
 dojo.require("dojox.drawing.util.typeset");
 dojo.require("dojox.widget.UpgradeBar");
 
@@ -25,6 +24,7 @@ dojo.require("dojox.drawing");
 
 // Previous includes in Drawing no longer in Dojox
 dojo.require("dojox.drawing.plugins.drawing.Silverlight");
+dojo.require("dojox.drawing.plugins.drawing.GreekPalette");
 
 dojo.require("dojox.drawing.tools.TextBlock");
 dojo.require("dojox.drawing.tools.Rect");

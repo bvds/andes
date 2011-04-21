@@ -9,16 +9,20 @@
   	],
     "services": 
 	{
-        "test":
+        "dashboard":
 		{
             "parameters": 
 			[
-                {"name": "param1", "optional": false, "type": "number"},
-				{"name": "param2", "optional": false, "type": "number"}
+                {"name": "version", "optional": false, "type": "integer"},
+				{"name": "model", "optional": true, "type": "string", "default": "capstone"},
+				{"name": "section", "optional": false, "type": "string"},
+				{"name": "student", "optional": true, "type": "string"},
+	        	{"name": "assignment", "optional": true, "type": "string"}
             ],
 			"returns": 
 			{
-				"value": {"type": "number"}
+				"version": {"type": "number"},
+				"success": {"type": "number"}
 			}
         }
     }

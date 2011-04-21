@@ -27,8 +27,9 @@ dojo.require("andes.api");
 				hlp.containerNode.innerHTML = c + "\n<p><a href=\"#\" onclick=\"andes.help." + fn + "('" + val + "'); return false\">" + r.text + "</a></p>";
 				break;
 			    case "show-hint":
+				var style = r.style ? " class=\""+ r.style + "\"":"";
 				// Student math symbols may be echoed in help statements.
-				hlp.containerNode.innerHTML = c + "\n<p>" + dojox.drawing.util.typeset.convertLaTeX(r.text) + "</p>";
+				hlp.containerNode.innerHTML = c + "\n<p" + style +">" + dojox.drawing.util.typeset.convertLaTeX(r.text) + "</p>";
 				break;
 			    case "echo-get-help-text":
 		  		// Escape any html codes on input text echo.

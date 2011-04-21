@@ -159,6 +159,10 @@ body, .tundra .dijitSplitter, #navMenu{
 	width: 1.5em;
 }
 
+#helpContentPane .meta-hint {
+	font-style: italic;
+}
+
 
 .dojoxExpandoClosed .dojoxExpandoIcon,
 .dojoxExpandoClosed .dojoxExpandoTitle{

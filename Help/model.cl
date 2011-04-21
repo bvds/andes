@@ -104,8 +104,8 @@
     (set-state-property 'intro-video-start-time nil :no-store t)))
 
 
-(defconstant +floundering-time+ 30 "time in seconds")
-(defconstant +floundering-turns+ 5)
+(defconstant +floundering-time+ 20 "time in seconds")
+(defconstant +floundering-turns+ 3)
 (defconstant +master-clicking+ 2)
 
 ;; To test: 
@@ -150,9 +150,11 @@
 (defun use-help-button-hint ()
   ;; use new user test, since that is simpler.
   (cond 
-
+    
     ;; If they haven't looked at the intro video, start
     ;; by suggesting that.
+    ;; These could be considered to be meta-hints.
+    ;; but we need to contrast them with model-link-click below.
     ((if (get-state-property 'INTRO-VIDEO-TIME) 
 	 ;; Logging for blur has succeeded, use time.
 	 (< (get-state-property 'INTRO-VIDEO-TIME) 15)
@@ -163,10 +165,10 @@
 			 *intro-video-action* "."))))
     
     ((incremented-property-test 'CLICKED-HELP-BUTTON +master-clicking+)
-      `((:action . "show-hint")
-	(:text . ,(strcat "Your entry has turned red.&nbsp;  You can "
-			  *help-button-action* " to get help."))))
-
+     `((:action . "show-hint")
+       (:text . ,(strcat "Your entry has turned red.&nbsp;  You can "
+			 *help-button-action* " to get help."))))
+    
     (t
      `((:action . "show-hint")
        (:text . ,(strcat "It looks like you are having difficulty.&nbsp;  Perhaps you should "
@@ -181,5 +183,6 @@
        (incremented-property-test 'CLICKED-HELP-LINK +master-clicking+)))
 
 (defun model-link-click ()
-    '((:action . "show-hint")
-       (:text . "You can click on the above link to get more help.")))
+  '((:action . "show-hint")
+    (:style . "meta-hint")
+    (:text . "You can click on the above link to get more help.")))

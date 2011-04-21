@@ -747,18 +747,64 @@
 ;;;;            Handle case where there is no text.
 ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 
+;; There is a question whether this should be considered a "user interface"
+;; or physics skill.  So far, we have treated this as a user interface
+;; skill, giving an unsolicited hint and not coloring the object.
+;; For the experiment, we treat this as a "physics skill" in the control
+;; group and a user interface skill in experimental group.
 
 (defun no-text-handler (entry)
   "Return unsolicited hint for entry with no text."
-  (make-hint-seq (list "Generally, objects should be labeled."
-		       (strcat "Select the "
-			       ;; We use "text tool" in the hints and manual.
-			       (if (string-equal (StudentEntry-type entry) "statement") 
-				   "text"
-				   (StudentEntry-type entry))
-			       " again, double-click on " 
-			       "the text box and " *add-label* "."))
-		 :assoc `((no-label . (StudentEntry-type entry)))))
+  (let ((rem 
+	 (make-hint-seq 
+	  (list "Generally, objects should be labeled."
+		(strcat "Select the "
+			;; We use "text tool" in the hints and manual.
+			(if (string-equal (StudentEntry-type entry) 
+					  "statement") 
+			    "text"
+			    (StudentEntry-type entry))
+			" again, double-click on " 
+			"the text box and " *add-label* "."))
+	  :assoc `((no-label . ,(StudentEntry-type entry))))))
+    
+    (cond
+      ;; Normal case:  turn is not colored.  Unsolicited hint.
+      ((null (andes-database:get-state-property 'raj-experiment :model "server"))
+       rem)
+      ;; Raj experimental condition gets unsolicited hint if they
+      ;; have not mastered skill.
+      ((and 
+	(eql (andes-database:get-state-property
+		'raj-experiment :model "server") 'experiment)
+	(incremented-property-test 'object-with-label 3))
+       (setf (StudentEntry-ErrInterp entry)
+	     (make-ErrorInterp
+	      ;; right now, this is never logged.
+	      :diagnosis (cons 'no-label (StudentEntry-type entry))
+	      :remediation rem))
+       (setf (turn-id rem) (StudentEntry-id entry))
+       (setf (turn-coloring rem) +color-red+)
+       (setf (StudentEntry-state entry) +incorrect+)
+       rem)
+      ;; Raj experiment control condition and experimental 
+      ;; condition after mastery: object turns red and hint
+      ;; sequence available.
+      (t
+       (setf (StudentEntry-ErrInterp entry)
+	     (make-ErrorInterp
+	      ;; right now, this is never logged.
+	      :diagnosis (cons 'no-label (StudentEntry-type entry))
+	      :remediation rem))
+       (setf (turn-id rem) (StudentEntry-id entry))
+       (setf (turn-coloring rem) +color-red+)
+       (setf (StudentEntry-state entry) +incorrect+)
+       (make-red-turn :id  (StudentEntry-id entry))))))
+
+(defun with-text-handler ()
+  "Update skill of making entry with text"
+  (model-increment-state-property 'object-with-label))
 
 (defun no-text-handler-test (entry prop)
   (and (= (length (string-trim match:*whitespace* 
@@ -811,8 +857,9 @@
 (defun assert-object (entry)
 
   ;; Case of no label at all, don't turn color, but give unsolicited hint.
-  (when (no-text-handler-test entry 'body)
-      (return-from assert-object (no-text-handler entry)))
+  (if (no-text-handler-test entry 'body)
+      (return-from assert-object (no-text-handler entry))
+      (with-text-handler))
 
   (let ((id (StudentEntry-id entry))
 	(symbol (StudentEntry-symbol entry)))
@@ -859,8 +906,9 @@
 (defun lookup-vector (entry)
   
   ;; Case of no label at all, don't turn color, but give unsolicited hint.
-  (when (no-text-handler-test entry 'vector)
-      (return-from lookup-vector (no-text-handler entry)))
+  (if (no-text-handler-test entry 'vector)
+      (return-from lookup-vector (no-text-handler entry))
+      (with-text-handler))
   
   (let* ((id (StudentEntry-id entry))
 	 (symbol (StudentEntry-symbol entry))
@@ -994,8 +1042,9 @@
 (defun lookup-line (entry)
 
   ;; Case of no label at all, don't turn color, but give unsolicited hint.
-  (when  (no-text-handler-test entry 'draw-line)
-      (return-from lookup-line (no-text-handler entry)))
+  (if  (no-text-handler-test entry 'draw-line)
+      (return-from lookup-line (no-text-handler entry))
+      (with-text-handler))
 
   (let* ((id (StudentEntry-id entry))
 	 ;; Needs to be determined from natural language 
