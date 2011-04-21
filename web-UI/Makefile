@@ -8,6 +8,7 @@
 #  are not in the latest release.  Eventually, we will just use
 #  the release version.
 
+# 1.6 Does not work, See Bug #1887
 dojo-version=1.5
 dojo-svn=http://svn.dojotoolkit.org/src/branches/$(dojo-version)
 
@@ -19,12 +20,14 @@ install:
 	# Use the development version of  dojox/drawing.
 	# The command "svn update dojox" will overwrite this change.
 	rm -r -f dojox/drawing
-	svn co http://svn.dojotoolkit.org/src/dojox/trunk/drawing dojox/drawing
+       # Temporarily, until AMD loader is working, use snapshot 
+       # of dojox/drawing,  See Bug #1886
+	svn co -r 24429 http://svn.dojotoolkit.org/src/dojox/trunk/drawing dojox/drawing
 	svn co $(dojo-svn)/util util
 	./andes.build.sh
 	echo "${dojo-version}" > dojo-install-version	
 	@echo "Installed Dojo $(dojo-version); is this the latest?"
-	@echo "dojox/drawing is from development version."
+	@echo "dojox/drawing is from revision 24429 of development version."
 
 
 #  If the latest version is installed, update, else upgrade to new version
