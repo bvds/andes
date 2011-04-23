@@ -22,12 +22,12 @@ install:
 	rm -r -f dojox/drawing
        # Temporarily, until AMD loader is working, use snapshot 
        # of dojox/drawing,  See Bug #1886
-	svn co -r 24429 http://svn.dojotoolkit.org/src/dojox/trunk/drawing dojox/drawing
+	svn co -r 24082 http://svn.dojotoolkit.org/src/dojox/trunk/drawing dojox/drawing
 	svn co $(dojo-svn)/util util
 	./andes.build.sh
 	echo "${dojo-version}" > dojo-install-version	
 	@echo "Installed Dojo $(dojo-version); is this the latest?"
-	@echo "dojox/drawing is from revision 24429 of development version."
+	@echo "dojox/drawing is from development branch."
 
 
 #  If the latest version is installed, update, else upgrade to new version
@@ -36,9 +36,13 @@ ifeq ($(shell test -f dojo-install-version && cat dojo-install-version),${dojo-v
 	svn update dojo dijit util
 	svn update -N dojox
 	svn update dojox/*
+	# Temporarily, until AMD loader is working, use snapshot 
+	# of dojox/drawing,  See Bug #1886
+	rm -r -f dojox/drawing
+	svn co -r 24082 http://svn.dojotoolkit.org/src/dojox/trunk/drawing dojox/drawing
 	./andes.build.sh
 	@echo "Updated Dojo $(dojo-version); is this the latest?"
-	@echo "dojox/drawing is from development version."
+	@echo "dojox/drawing is from development branch."
 else
 	$(MAKE) install
 endif
