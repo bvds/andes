@@ -8,8 +8,7 @@
 #  are not in the latest release.  Eventually, we will just use
 #  the release version.
 
-# 1.6 Does not work, See Bug #1887
-dojo-version=1.5
+dojo-version=1.6
 dojo-svn=http://svn.dojotoolkit.org/src/branches/$(dojo-version)
 
 install:
