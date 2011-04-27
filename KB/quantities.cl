@@ -78,8 +78,7 @@ before using any vector components.")
 	     "<html> <head>~%"
 	     ;;      "   <meta http-equiv=\"Content-Type\" content=\"text/html; "
 	     ;;     "charset=iso-8859-1\">~%"
-	     "   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UT
-F-8\">~%"
+	     "   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">~%"
 	     "<title>Quantities</title>~%"
 	     "<style type=\"text/css\">~%"
 	     "    ul.big>li {~%"
