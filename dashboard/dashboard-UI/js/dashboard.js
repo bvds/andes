@@ -1,100 +1,127 @@
-var flag, asst;
-
 dojo.require("dojox.charting.Chart");
+dojo.require("dojox.charting.axis2d.Default")
+dojo.require("dojox.charting.plot2d.Columns")
+dojo.require("dojox.charting.plot2d.ClusteredBars")
 dojo.require("dojox.charting.widget.Chart");
 dojo.require("dojox.charting.themes.BlueDusk");
 dojo.require("dojox.charting.action2d.Highlight");
 dojo.require("dojox.charting.action2d.Tooltip");
 
-var asst, flag;
-document.$_GET = [];
+var response = {
+	"API-Version" : "1",
+	"Timestamp" : "2010-12-01T11:00",
+	"SectionId" : "andestutor.org",
+	"StudentList":
+	[
+		{
+			"StudentId" : "bja",
+			"AssignmentList":
+			[
+				{
+					"AssignmentId" : "ASST1",
+					"KCList":
+					[
+						{"Name" : "draw-vector-aligned-axes", "MasteryLevel" : .85, "ChancesToUse" : 54},
+						{"Name" : "draw-bodys", "MasteryLevel" : .74, "ChancesToUse" : 37},
+						{"Name" : "draw-applied-force","MasteryLevel" : .68, "ChancesToUse" : 42}
+					]
+				},
+				{
+					"AssignmentId" : "ASST2",
+					"KCList":
+					[
+						{"Name" : "draw-vector-aligned-axes", "MasteryLevel" : .85, "ChancesToUse" : 54},
+						{"Name" : "draw-bodys", "MasteryLevel" : .74, "ChancesToUse" : 37},
+						{"Name" : "draw-applied-force","MasteryLevel" : .68, "ChancesToUse" : 42}
+					]
+				}
+			]
+		}
+	]
+}
 
-var json = 	{
-				assignment_labels:
-				[	
-					{ value: 1, text: "ASST1" }, { value: 2, text: "ASST2" }, { value: 3, text: "ASST3" }, { value: 4, text: "ASST4" },
-					{ value: 5, text: "ASST5" }, { value: 6, text: "ASST6" }, { value: 7, text: "ASST7" }, { value: 8, text: "ASST8" },
-				],
-				kc_labels:
-				[	
-					{ value: 1, text: "KC1" }, { value: 2, text: "KC2" }, { value: 3, text: "KC3" }, { value: 4, text: "KC4" },
-					{ value: 5, text: "KC5" }, { value: 6, text: "KC6" }, { value: 7, text: "KC7" }, { value: 8, text: "KC8" },
-				],
-				assignment_data: [85, 75, 80, 65, 70, 55, 40, 25],
-				kc_data: [75, 85, 65, 80, 55, 70, 25, 40],
+var chart_labels = [], chart_data = [];
+
+function parse()
+{
+	// get all info
+	if(!asst)
+	{
+		var index = 1;
+		for (a in response['StudentList'][0]['AssignmentList'])
+		{
+			var total = 0, count = 0;
+			
+			for (kc in response['StudentList'][0]['AssignmentList'][a]['KCList'])
+			{
+				total += response['StudentList'][0]['AssignmentList'][a]['KCList'][kc]['MasteryLevel'] * 100;
+				count++;
 			}
+			
+			chart_data.push(total/count);
+			chart_labels.push({ value: index, text: response['StudentList'][0]['AssignmentList'][a]['AssignmentId'] });
+			
+			index++;
+		}
+	}
+	// get KC info
+	else
+	{	
+		var index = 1;
+		var asst_index = parseInt(get['asst']);
+		
+		for (kc in response['StudentList'][0]['AssignmentList'][asst_index]['KCList'])
+		{
+			chart_data.push(response['StudentList'][0]['AssignmentList'][asst_index]['KCList'][kc]['MasteryLevel'] * 100);
+			chart_labels.push({ value: index, text: response['StudentList'][0]['AssignmentList'][asst_index]['KCList'][kc]['Name'] });
+			index++;
+		}	
+	}
+}
 
 dojo.addOnLoad(
 	function() {
-		
-		
-		var urlHalves = String(document.location).split('?');
-		
-		if(urlHalves[1])
-		{
-		  var urlVars = urlHalves[1].split('&');
-		  for(var i=0; i<=(urlVars.length); i++)
-		  {
-		     if(urlVars[i])
-			 {
-		        var urlVarPair = urlVars[i].split('=');
-		        document.$_GET[urlVarPair[0]] = urlVarPair[1];
-		     }
-		  }
-		}
-	   
-		flag = (document.$_GET['user'] == null || document.$_GET['section'] == null);
-		asst = (document.$_GET['asst'] != null);
-		
-		/*var chart = new dojox.charting.Chart2D("chart");
+		// create a new chart with id 'chart' and set the theme to BlueDusk
+		var chart = new dojox.charting.Chart("chart");
 		chart.setTheme(dojox.charting.themes.BlueDusk);
 		
-		if(asst)
-		{
-			chart.addAxis("x", {labels: json['kc_labels'], minorTicks: false});
-		}
-		else
-		{
-			chart.addAxis("x", {labels: json['assignment_labels'], minorTicks: false});
-		}
+		// parse JSON data for desired information
+		parse();
+		
+		chart.addAxis("x", {labels: chart_labels, minorTicks: false});
 		
 		chart.addAxis("y", {vertical: true, min: 0, max: 100});
 		chart.addPlot("default", {type: "Columns", gap: 8 });
 		
-		if(asst)
-		{
-			chart.addSeries("Mastery", json['kc_data']);
-		}
-		else
-		{
-			chart.addSeries("Mastery", json['assignment_data']);
-		}
+		chart.addSeries("Mastery", chart_data);
 
 		new dojox.charting.action2d.Highlight(chart, "default");
-		new dojox.charting.action2d.Tooltip(chart, 'default');
+		new dojox.charting.action2d.Tooltip(chart, "default");
 		
 		chart.connectToPlot("default", function(args)
 		{
-			switch(args.type) 
-			{
-				case "onclick":
-					var i = 0;
-					for (i = 0; i < 8; i++)
-					{
-						if (args.index == i && !asst) 
+			if(!asst)
+				switch(args.type) 
+				{
+					case "onclick":
+						var i = 0;
+						for (i = 0; i < 8; i++)
 						{
-							window.location = document.URL + "&asst=ASST" + (i + 1);
+							if (args.index == i) 
+							{
+								window.location = document.URL + "&asst=" + (i + 1);
+							}
 						}
-					}
-					break;
-				case "onmouseover":
-					break;
-				case "onmouseout":
-					break;
-				default:
-					break;
-			}
+						break;
+					case "onmouseover":
+						break;
+					case "onmouseout":
+						break;
+					default:
+						break;
+				}
 		});
 		
-		chart.render();*/
+		chart.render();
 });
+
