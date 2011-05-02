@@ -24,7 +24,7 @@
   (:use :cl :json :mysql-connect)
   (:export :write-transaction :destroy :create :set-session 
 	   :read-login-file
-	   :get-matching-sessions
+	   :get-matching-sessions :get-score
 	   :old-sessions :set-old-session-start 
 	   :get-start-tID :get-most-recent-tID
 	   :get-state-property :get-state-properties
@@ -267,7 +267,7 @@ list of characters and replacement strings."
 			 (third x))))
 	     result))
       
-      ;; pick out the solution-set and get-help methods
+      ;; pick out the solution-step and get-help methods
       (remove-if #'(lambda (x) (not (member (cdr (assoc :method x))
 					    methods
 					    :test #'equal)))
@@ -280,6 +280,56 @@ list of characters and replacement strings."
 			   (string-equal (cdr (assoc :error-type x))
 					 "timeout")))
 	(cdr (assoc :result reply))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;;         Acess grade
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun get-score (&key student problem section extra)
+  "Get latest score."
+  
+  (unless (> (length extra) 0) ;treat empty string as null.
+    (setf extra nil)) ;drop from query if missing.
+  
+  ;; Assume every session has a grade reported somewhere in it.
+  ;; Thus, we only need to search the most recent session.
+  ;; Only methods open-problem, solution-step, get-help, close-problem should be searched.
+  ;; open-problem puts a dummy set-score=0 at the beginning, but then the value
+  ;; is updated as old sessions are rerun.
+  
+  (with-db
+      (let* ((client-id (car (car (query *connection*
+			       (format nil "SELECT clientID FROM PROBLEM_ATTEMPT WHERE userName='~A' AND userProblem='~A' AND userSection='~A'~@[ AND extra=~A~] ORDER BY startTime DESC LIMIT 1"
+				       student problem section extra) 
+					;:flatp t
+			       ))))
+	     (results (query *connection*
+			    (format nil "SELECT server FROM STEP_TRANSACTION WHERE clientID='~A'"
+				    client-id)
+					;:flatp t
+			    ))
+	     ;; By default, cl-json turns camelcase into dashes:  
+	     ;; Instead, we are case insensitive, preserving dashes.
+	     (*json-identifier-name-to-lisp* #'string-upcase))      
+      
+	;; Go through turns in a session backwords looking for 
+	;; last set-score.
+	(dolist (result (reverse results))
+	  ;; Go through lines in a reply backwards looking for
+	  ;; the last set-score.
+	  (dolist (line (reverse 
+			 (cdr (assoc :result 
+				     (when result 
+				       (errors-to-warnings 
+					(car result)
+					(decode-json-from-string 
+					 (car result))))))))
+	    (when (equal (cdr (assoc :action line)) "set-score")
+	      (return-from get-score 
+		(cdr (assoc :score line)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
