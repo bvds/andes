@@ -31,9 +31,6 @@
 			     }
 			  }
 			}
-		   
-			flag = (get['user'] == null || get['section'] == null);
-			asst = (get['asst'] != null);
 		</script>
         <link href="dijit/themes/tundra/tundra.css" rel="stylesheet" type="text/css" />
         <script src="dojo/dojo.js" type="text/javascript">
@@ -48,12 +45,12 @@
         <div id="wrap">
             <div id="title">
                 <p style="font-size: 24px;">
-                    Andes Mastery Dashboard
+                    Andes Mastery Dashboard - Student
                 </p>
             </div>
             <div id="left">
                 <script type="text/javascript">
-					if (flag) {
+					if (get['user'] == null || get['section'] == null) {
                         document.write("<p><span style=\"font-weight: bold;\">Error!</span></p>");
                     }
                     else {
@@ -65,7 +62,7 @@
                     }
                     if (get['asst'] != null) {
                         document.write("<p><span style=\"font-weight: bold;\">Assignment:&nbsp;</span>");
-                        document.write(get['asst']);
+                        document.write(response['StudentList'][0]['AssignmentList'][parseInt(get['asst'])]['AssignmentId']);
                         document.write("</p><br/><p><a href=\"index.html?user=" + get['user'] + "&section=" + get['section'] + "\">Go back to assignment overview</a>");
                     }
                 </script>
