@@ -943,23 +943,26 @@
 
 (webserver:defun-method "/get-score" nil (input)
   "Pull grade from database."
-  (format webserver:*stdout* "in get-score method for ~S~%"
-(cdr (assoc "LONCAPA_correct_answer" input :test #'equal)))
+  (when nil
+    (format webserver:*stdout* "in get-score method for ~S~%"
+	    (cdr (assoc "LONCAPA_correct_answer" 
+			input :test #'equal))))
   (let* ((ans  (json:decode-json-from-string 
 		(cdr (assoc "LONCAPA_correct_answer" input
 			    :test #'equal))))
-	 (student (cdr (assoc :student ans)))
+	 (student (cdr (assoc :user ans)))
 	 (problem (cdr (assoc :problem ans)))
-	 (section (cdr (assoc :section ans)))
+	 (section (cdr (assoc :class ans)))
 	 (score (andes-database:get-score
 		 :student student :problem problem 
 		 :section section)))
     (format nil (strcat "<loncapagrade>~%"
 			"  <awarddetail>ASSIGNED_SCORE</awarddetail>~%"
-			"  <awarded>~A</awarded>~%"
-			"  <message>Thank you</message>~%"
+			"  <awarded>~F</awarded>~%"
+			;; could include message
+			;; "  <message>Thank you</message>~%"
 			"</loncapagrade>~%")
 	    ;; null score indicates session missing.
-	    (or score 0))))
+	    (if score (/ score 100) 0))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

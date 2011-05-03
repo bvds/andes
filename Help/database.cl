@@ -301,35 +301,40 @@ list of characters and replacement strings."
   ;; is updated as old sessions are rerun.
   
   (with-db
-      (let* ((client-id (car (car (query *connection*
-			       (format nil "SELECT clientID FROM PROBLEM_ATTEMPT WHERE userName='~A' AND userProblem='~A' AND userSection='~A'~@[ AND extra=~A~] ORDER BY startTime DESC LIMIT 1"
-				       student problem section extra) 
+    (let* ((query (format nil "SELECT clientID FROM PROBLEM_ATTEMPT WHERE userName='~A' AND userProblem='~A' AND userSection='~A'~@[ AND extra=~A~] ORDER BY startTime DESC LIMIT 1"				
+			  student problem section extra))
+	   (client-id (car (car (query *connection* query))))
+	   (results (when client-id
+		      (query *connection*
+			     (format nil "SELECT server FROM STEP_TRANSACTION WHERE clientID='~A'"
+				     client-id)
 					;:flatp t
-			       ))))
-	     (results (query *connection*
-			    (format nil "SELECT server FROM STEP_TRANSACTION WHERE clientID='~A'"
-				    client-id)
-					;:flatp t
-			    ))
-	     ;; By default, cl-json turns camelcase into dashes:  
-	     ;; Instead, we are case insensitive, preserving dashes.
-	     (*json-identifier-name-to-lisp* #'string-upcase))      
+			     )))
+	   ;; By default, cl-json turns camelcase into dashes:  
+	   ;; Instead, we are case insensitive, preserving dashes.
+	   (*json-identifier-name-to-lisp* #'string-upcase))
       
-	;; Go through turns in a session backwords looking for 
-	;; last set-score.
-	(dolist (result (reverse results))
-	  ;; Go through lines in a reply backwards looking for
-	  ;; the last set-score.
-	  (dolist (line (reverse 
-			 (cdr (assoc :result 
-				     (when result 
-				       (errors-to-warnings 
-					(car result)
-					(decode-json-from-string 
-					 (car result))))))))
-	    (when (equal (cdr (assoc :action line)) "set-score")
-	      (return-from get-score 
-		(cdr (assoc :score line)))))))))
+      (when nil  ;; debug prints
+	(unless client-id (format webserver:*stdout* "query ~S~%" 
+				  query))
+	(format webserver:*stdout* "db results for ~S:~%  ~S~%" 
+		client-id results))
+      
+      ;; Go through turns in a session backwords looking for 
+      ;; last set-score.
+      (dolist (result (reverse results))
+	;; Go through lines in a reply backwards looking for
+	;; the last set-score.
+	(dolist (line (reverse 
+		       (cdr (assoc :result 
+				   (when result 
+				     (errors-to-warnings 
+				      (car result)
+				      (decode-json-from-string 
+				       (car result))))))))
+	  (when (equal (cdr (assoc :action line)) "set-score")
+	    (return-from get-score 
+	      (cdr (assoc :score line)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
