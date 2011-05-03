@@ -38,8 +38,9 @@
   (dashboard:destroy-connection))
 
 
-(in-package :dashboard)
+;(in-package :dashboard)
 
+<<<<<<< Updated upstream
   (webserver:defun-method "/dashboard" dashboard (&key version (model () model-p)
 						       section (student () student-p)
 						       (assignment () assignment-p))
@@ -47,6 +48,15 @@
 					 (if model-p (list :model model))
 					 (if assignment-p (list :assignment assignment))
 					 (if student-p (list :student student)))))
+=======
+(webserver:defun-method "/dashboard" dashboard (&key version (model () model-p)
+						     section (student () student-p)
+						     (assignment () assignment-p))
+  (apply #'process-api-request (append (list :version version :section section)
+				       (if model-p (list :model model))
+				       (if assignment-p (list :assignment assignment))
+				       (if student-p (list :student student)))))
+>>>>>>> Stashed changes
 
 (defvar *connection* nil "connection to db")
 
