@@ -1649,3 +1649,216 @@
 		(problem-graphic prob)))
       (format stream (strcat "</body>~%</html>~%"))
       (when (streamp stream) (close stream)))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;             Create set of lon-capa problems
+;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun set-file-name (set)
+  (remove #\(
+	  (remove #\)
+		  (substitute #\x #\&
+			      (substitute #\_ #\space set)))))
+
+(defun lookup-set-name (problem)
+  (loop for set in *sets*
+	do (when (member problem (second set))
+	     (return-from lookup-set-name (car set))))
+  (error "problem not found:  ~A" problem))
+			
+	  
+
+(defun lon-capa-problem-sets (sets &optional (path #P"./"))
+  "construct lon-capa xml files for all problems"
+  ;; sets can be *sets* or *guerra-assigned*
+  (dolist (set sets)
+    (let ((path (merge-pathnames (strcat (set-file-name (car set)) "/") 
+				 path)))
+      (ensure-directories-exist path)
+      ;; Need to save the homework set name and order somewhere.
+      ;; This is just a dummy/placeholder.
+      (lon-capa-meta-file (car set) path)
+      (dolist (problem (second set))
+	(lon-capa-meta-file (format nil "problem ~(~A~)" problem)
+			    path 
+			    (format nil "~(~A~).problem" problem))
+	(lon-capa-problem-file problem path)))))
+
+(defun lon-capa-meta-file (title &optional (path #P"./") (name "default"))
+  "construct meta file containing title of problem set"
+  (let ((*print-pretty* NIL) ;disble line breaks
+	(stream (open (merge-pathnames 
+		       (format nil "~A.meta" name) path)
+		      :direction :output :if-exists :supersede
+		      :external-format #+sbcl :utf-8 #-sbcl :default)))
+    (when (streamp Stream) 
+      #+sbcl (unless (eq (stream-external-format Stream) ':utf-8)
+	       (error "Wrong character code ~A, should be UTF-8" 
+		      (stream-external-format Stream))))
+    (format Stream "<title>~A</title>~%" title)
+    (when (streamp stream) (close stream))))    
+
+(defun lon-capa-problem-file (problem &optional (path #P"./"))
+  "construct lon-capa xml file for given problem"
+  (let ((*print-pretty* NIL) ;disble line breaks
+	(stream (open (merge-pathnames 
+		       (format nil "~(~A~).problem" 
+			       problem) 
+		       path)
+		      :direction :output :if-exists :supersede
+		      :external-format #+sbcl :utf-8 #-sbcl :default)))
+    
+    (format t "starting problem ~A at ~A~%" problem
+	    (merge-pathnames 
+	     (format nil "~(~A~).problem" 
+		     problem) 
+	     path))
+    
+    ;;  Assume stream has UTF-8 encoding (default for sbcl)
+    ;;  Should test this is actually true or change the charset to match
+    ;;  the actual character code being used by the stream
+    ;;  something like:
+    (when (streamp Stream) 
+      #+sbcl (unless (eq (stream-external-format Stream) ':utf-8)
+	       (error "Wrong character code ~A, should be UTF-8" 
+		      (stream-external-format Stream))))
+    (format Stream *lon-capa-problem-template*
+	    (if (find problem *times-scores* :key #'car)
+		(ceiling (/ (second (find problem *times-scores* 
+					  :key #'car)) 60))
+		10)
+	    problem)
+      (when (streamp stream) (close stream))))
+
+(defun lon-capa-problem-files (&optional (path #P"./"))
+  "construct lon-capa xml files for all problems"
+  (dolist (prob (listprobs))
+    (lon-capa-problem-file (problem-name prob) path)))
+
+
+(defvar *lon-capa-problem-template*
+  ;; This is a format string
+  ;; Must escape the following:  ~ ->  ~~    \ -> \\    " -> \"
+  ;; Format directives for weight and problem name.
+  "<problem>
+    
+    <parameter name=\"weight\" id=\"12\" type=\"float_pos\" default=\"~A\" description=\"Weight\" />
+<script type=\"loncapa/perl\">
+
+# Name of the problem in ANDES
+$problem='~(~A~)';
+
+# Internal stuff to build a unique keys for student and seciton
+$user=&EXT('user.name').'_'.&EXT('user.domain');  # Andy Pawl used 'user.name'
+$class=&EXT('request.course.id').'_'.&sec();  # Andy Pawl used 'user.course.sec'
+# Simulate a new submission
+$timestamp=time;
+$response=\"{\\\"user\\\": \\\"$user\\\", \\\"class\\\": \\\"$class\\\", \\\"problem\\\": \\\"$problem\\\"}\";
+
+# create status to date.
+$weight=&EXT('resource.0.weight');
+if ((!defined($weight)) || ($weight eq '')) { $weight=1; }
+$awarded=&EXT('user.resource.resource.0.awarded');
+if (!defined($awarded)) { $awarded=0; }
+$scoreformat=&EXT('resource.0.scoreformat');
+if (!defined($scoreformat) || $scoreformat eq '') { $scoreformat=\"2f\"; }
+$display='';
+if (&EXT('resource.0.problemstatus')!~~/^no/) {
+   if (!defined($awarded)) {
+      $display=$weight.' possible points.';
+   } else {
+      $display='You have '.&format($awarded*$weight,$scoreformat).' out of '.
+            $weight.' possible points.';
+   }
+}
+</script>
+
+<startouttext />
+<a href=\"http://gideon.eas.asu.edu/web-UI/index.html?s=$class&amp;u=$user&amp;p=$problem&amp;e=\">Solve problem $problem</a>.&nbsp; 
+$display
+<endouttext />
+<externalresponse answer=\"$response\" url=\"http://gideon.eas.asu.edu/get-score\">
+    <hiddensubmission value=\"$timestamp\" />
+
+</externalresponse>
+</problem>")
+
+
+;; Login, choose role "author"
+;; For all-maps and assigned-maps "Choose action" publish.
+;;         check "include subdirectories" and "force republication"
+
+
+(defun lon-capa-problem-maps (sets src &optional (path #P"./"))
+  "construct lon-capa map files for all problem sets."
+  ;; sets can be *sets* or *guerra-assigned*
+  (ensure-directories-exist path)
+  (dolist (set sets)
+    (let ((base-name (strcat (set-file-name (car set)) ".sequence")))
+      (lon-capa-meta-file (car set) path base-name)
+      (let ((*print-pretty* NIL) ;disable line breaks
+	    (stream (open (merge-pathnames 
+			   base-name
+			   path)
+			  :direction :output :if-exists :supersede
+			  :external-format #+sbcl :utf-8 #-sbcl :default))
+	    (assigned (apply #'append (mapcar #'second *guerra-assigned*))))
+	(format Stream "<map>~%")
+	(loop for problem in (second set) and
+	      i from 1 and
+	      j from 1
+	      do
+	      (when (> i 1) (format Stream "<link to=\"~A\" index=\"~A\" from=\"~A\" />~%"
+				    i j (- i 1)))
+	      (format Stream "<resource src=\"~A/~A/~(~A~).problem\" id=\"~A\" ~@[~*type=\"start\" ~]~@[~*type=\"finish\" ~]title=\"problem ~(~A~)\" />~%"
+		      (or src  "/res/asu/bvds/all-problems")
+		      ;; Find correct directory in all-problems
+		      (set-file-name (lookup-set-name problem))
+		      problem i 
+		      (= i 1) (= i (length (second set)))
+		      problem)
+	     (unless (member problem assigned)
+	       (format Stream "<param to=\"~A\" type=\"string_questiontype\" name=\"parameter_0_type\" value=\"practice\" />~%" i)))
+	(format Stream "</map>~%")
+	(when (streamp stream) (close stream))))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;;                Temporary holder for Guerra assignments
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defvar *guerra-assigned* 
+'(
+("Chapter 1: Vectors" (VEC1AY VEC1C VEC3B))
+("Chapter 2: Static Forces" (S1C S7B))
+("Chapter 3: Rotational Equilibrium" (DR2A DR8A))
+("Chapter 4: Gravity" (DT12A S11A))
+("Chapter 5: Electric forces and Fields" (Coul1B Coul2A FOR1B FOR2A FOR10A))
+("Chapter 6: Magnetic Forces" (MAG2A MAG3B MAG4A))
+("Chapter 7: Fluid Forces" (Fluids1 Fluids9 Fluids11))
+("Chapter 8: Four Forces of Nature (no ANDES problems))" ())
+("Chapter 9: Kinematics" (KT1A KT3A KT6A KT8B KGRAPH2 KGRAPH3 KGRAPH5 KGRAPH7))
+("Chapter 10: F=ma" (DT1A DT6B DT1C ELEC3B))
+("Chapter 11: Friction & Inclines" (DT6C DT7A DT11B DT10A))
+("Chapter 12: Parabolic Motion" (KT11B KT13A KT12A))
+("Chapter 13: CIRCULAR MOTION" (ROTS3A ROTS8A ROTS6B MAG5A))
+("Chapter 14: Rotational Motion" (KR2B KR4A KR7A DR6A))
+("Chapter 15: Simple Harmonic Motion" (OSC3 OSC5 OSC8))
+("Chapter 16: Waves" (WAVE1 WAVE5 WAVE6))
+("Chapter 17: Sound Waves" (WAVE2 WAVE3 WAVE8))
+("Chapter 18: Energy" (E2A E4B E5A E7B E9A))
+("Chapter 19: Momentum" (IMP1 LMOM2A LMOM4A))
+("Chapter 20: Angular Momentum" (MOMR2A MOMR3A))
+("Chapter 21: Fluid Dynamics" (FLUIDS2 FLUIDS3 FLUIDS4 FLUIDS5))
+("Chapter 22: Thermodynamics; No ANDES Questions" ())
+("Chapter 23: Electric Circuits" (EQRES2A EQRES3A EQRES5A EQRES7A EQRES8A    
+                    KIR2A KIR4A EPOW3))
+("Chapter 24: Capacitance" (CAP2A CAP4A CAP6B CAP9A CAP9B))
+("Chapter 25: Magnetic Fields" (MAG1A MAG6A MAG6C MAG8A FARA2A FARA4B FARA3A FARA5A FARA6B FARA10B FARA11A))
+("Chapter 27: Geometric Optics" (Lens1A LENS2B LENS3A REF2C))
+("Chapter 28: Physical Optics" (WAVE19 INT1A INT1B INT1D))))
