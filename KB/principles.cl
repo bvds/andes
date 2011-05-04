@@ -1649,3 +1649,90 @@
 		(problem-graphic prob)))
       (format stream (strcat "</body>~%</html>~%"))
       (when (streamp stream) (close stream)))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;             Create set of lon-capa problems
+;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun lon-capa-problem-files (&optional (path #P"./"))
+  "construct xml files for all problems"
+  (dolist (prob (listprobs))
+    (let ((*print-pretty* NIL) ;disble line breaks
+	  (stream (open (merge-pathnames 
+			 (format nil "~(~A~).problem" 
+				 (problem-name prob)) 
+			 path)
+			:direction :output :if-exists :supersede
+			:external-format #+sbcl :utf-8 #-sbcl :default)))
+      
+      (format t "starting problem ~A at ~A~%" (problem-name prob)
+	      (merge-pathnames 
+			 (format nil "~(~A~).problem" 
+				 (problem-name prob)) 
+			 path))
+
+      ;;  Assume stream has UTF-8 encoding (default for sbcl)
+      ;;  Should test this is actually true or change the charset to match
+      ;;  the actual character code being used by the stream
+      ;;  something like:
+      (when (streamp Stream) 
+	#+sbcl (unless (eq (stream-external-format Stream) ':utf-8)
+		 (error "Wrong character code ~A, should be UTF-8" 
+			(stream-external-format Stream))))
+      (format Stream *lon-capa-problem-template*
+	      (if (find (problem-name prob) *times-scores* :key #'car)
+		(ceiling (/ (second (find (problem-name prob) *times-scores* 
+				 :key #'car)) 60))
+		10)
+	      (problem-name prob))
+      (when (streamp stream) (close stream)))))
+
+(defvar *lon-capa-problem-template*
+;; This is a format string
+;; Must escape the following:  ~ ->  ~~    \ -> \\    " -> \"
+;; Format directives for weight and problem name.
+  "<problem>
+    
+    <parameter name=\"weight\" id=\"12\" type=\"float_pos\" default=\"~A\" description=\"Weight\" />
+<script type=\"loncapa/perl\">
+
+# Name of the problem in ANDES
+$problem='~(~A~)';
+
+# Internal stuff to build a unique keys for student and seciton
+$user=&EXT('user.name').'_'.&EXT('user.domain');  # Andy Pawl used 'user.name'
+$class=&EXT('request.course.id').'_'.&sec();  # Andy Pawl used 'user.course.sec'
+# Simulate a new submission
+$timestamp=time;
+$response=\"{\\\"user\\\": \\\"$user\\\", \\\"class\\\": \\\"$class\\\", \\\"problem\\\": \\\"$problem\\\"}\";
+
+# create status to date.
+$weight=&EXT('resource.0.weight');
+if ((!defined($weight)) || ($weight eq '')) { $weight=1; }
+$awarded=&EXT('user.resource.resource.0.awarded');
+if (!defined($awarded)) { $awarded=0; }
+$scoreformat=&EXT('resource.0.scoreformat');
+if (!defined($scoreformat) || $scoreformat eq '') { $scoreformat=\"2f\"; }
+$display='';
+if (&EXT('resource.0.problemstatus')!~~/^no/) {
+   if (!defined($awarded)) {
+      $display=$weight.' possible points.';
+   } else {
+      $display='You have '.&format($awarded*$weight,$scoreformat).' out of '.
+            $weight.' possible points.';
+   }
+}
+</script>
+
+<startouttext />
+<a href=\"http://gideon.eas.asu.edu/web-UI/index.html?s=$class&amp;u=$user&amp;p=$problem&amp;e=\">$problem</a>
+$display
+<endouttext />
+<externalresponse answer=\"$response\" url=\"http://gideon.eas.asu.edu/get-score\">
+    <hiddensubmission value=\"$timestamp\" />
+
+</externalresponse>
+</problem>")
