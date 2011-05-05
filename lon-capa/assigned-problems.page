@@ -1,0 +1,56 @@
+<map>
+<resource src="/res/asu/bvds/assigned-maps/Chapter_1:_Vectors.page" id="3" type="start" title="Assigned problems" />
+<link to="4" index="1" from="3" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_2:_Static_Forces.page" id="4" title="Assigned problems" />
+<link to="5" index="2" from="4" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_3:_Rotational_Equilibrium.page" id="5" title="Assigned problems" />
+<link to="6" index="3" from="5" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_4:_Gravity.page" id="6" title="Assigned problems" />
+<link to="7" index="4" from="6" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_5:_Electric_forces_and_Fields.page" id="7" title="Assigned problems" />
+<link to="8" index="5" from="7" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_6:_Magnetic_Forces.page" id="8" title="Assigned problems" />
+<link to="9" index="6" from="8" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_7:_Fluid_Forces.page" id="9" title="Assigned problems" />
+<link to="10" index="7" from="9" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_8:_Four_Forces_of_Nature_(no_ANDES_problems)).page" id="10" title="Assigned problems" />
+<link to="11" index="8" from="10" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_9:_Kinematics.page" id="11" title="Assigned problems" />
+<link to="12" index="9" from="11" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_10:_F=ma_DT1A_(Basic_Dynamics)).page" id="12" title="Assigned problems" />
+<link to="13" index="10" from="12" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_11:_Friction_x_Inclines.page" id="13" title="Assigned problems" />
+<link to="14" index="11" from="13" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_12:_Parabolic_Motion.page" id="14" title="Assigned problems" />
+<link to="15" index="12" from="14" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_13:_CIRCULAR_MOTION.page" id="15" title="Assigned problems" />
+<link to="16" index="13" from="15" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_14:_Rotational_Motion.page" id="16" title="Assigned problems" />
+<link to="17" index="14" from="16" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_15:_Simple_Harmonic_Motion.page" id="17" title="Assigned problems" />
+<link to="18" index="15" from="17" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_16:_Waves.page" id="18" title="Assigned problems" />
+<link to="19" index="16" from="18" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_17:_Sound_Waves.page" id="19" title="Assigned problems" />
+<link to="20" index="17" from="19" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_18:_Energy.page" id="20" title="Assigned problems" />
+<link to="21" index="18" from="20" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_19:_Momentum.page" id="21" title="Assigned problems" />
+<link to="22" index="19" from="21" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_20:_Angular_Momentum.page" id="22" title="Assigned problems" />
+<link to="23" index="20" from="22" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_21:_Fluid_Dynamics.page" id="23" title="Assigned problems" />
+<link to="24" index="21" from="23" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_22:_Thermodynamics;_No_ANDES_Questions.page" id="24" title="Assigned problems" />
+<link to="25" index="22" from="24" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_23:_Electric_Circuits.page" id="25" title="Assigned problems" />
+<link to="26" index="23" from="25" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_24:_Capacitance.page" id="26" title="Assigned problems" />
+<link to="27" index="24" from="26" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_25:_Magnetic_Fields.page" id="27" title="Assigned problems" />
+<link to="28" index="25" from="27" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_27:_Geometric_Optics.page" id="28" title="Assigned problems" />
+<link to="29" index="26" from="28" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_28:_Physical_Optics.page" id="29" type="finish" title="Assigned problems" />
+</map>
+
