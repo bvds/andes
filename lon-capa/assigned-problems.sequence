@@ -1,0 +1,55 @@
+<map>
+<resource src="/res/asu/bvds/assigned-maps/Chapter_1:_Vectors.page" id="31" type="start" title="Chapter 1: Vectors" />
+<link to="32" index="1" from="31" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_2:_Static_Forces.page" id="32" title="Chapter 2: Static Forces" />
+<link to="33" index="2" from="32" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_3:_Rotational_Equilibrium.page" id="33" title="Chapter 3: Rotational Equilibrium" />
+<link to="34" index="3" from="33" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_4:_Gravity.page" id="34" title="Chapter 4: Gravity" />
+<link to="35" index="4" from="34" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_5:_Electric_forces_and_Fields.page" id="35" title="Chapter 5: Electric forces and Fields" />
+<link to="36" index="5" from="35" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_6:_Magnetic_Forces.page" id="36" title="Chapter 6: Magnetic Forces" />
+<link to="37" index="6" from="36" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_7:_Fluid_Forces.page" id="37" title="Chapter 7: Fluid Forces" />
+<link to="38" index="7" from="37" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_8:_Four_Forces_of_Nature_(no_ANDES_problems)).page" id="38" title="Chapter 8: Four Forces of Nature (no ANDES problems))" />
+<link to="39" index="8" from="38" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_9:_Kinematics.page" id="39" title="Chapter 9: Kinematics" />
+<link to="40" index="9" from="39" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_10:_F=ma.page" id="40" title="Chapter 10: F=ma" />
+<link to="41" index="10" from="40" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_11:_Friction_x_Inclines.page" id="41" title="Chapter 11: Friction &amp; Inclines" />
+<link to="42" index="11" from="41" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_12:_Parabolic_Motion.page" id="42" title="Chapter 12: Parabolic Motion" />
+<link to="43" index="12" from="42" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_13:_CIRCULAR_MOTION.page" id="43" title="Chapter 13: CIRCULAR MOTION" />
+<link to="44" index="13" from="43" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_14:_Rotational_Motion.page" id="44" title="Chapter 14: Rotational Motion" />
+<link to="45" index="14" from="44" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_15:_Simple_Harmonic_Motion.page" id="45" title="Chapter 15: Simple Harmonic Motion" />
+<link to="46" index="15" from="45" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_16:_Waves.page" id="46" title="Chapter 16: Waves" />
+<link to="47" index="16" from="46" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_17:_Sound_Waves.page" id="47" title="Chapter 17: Sound Waves" />
+<link to="48" index="17" from="47" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_18:_Energy.page" id="48" title="Chapter 18: Energy" />
+<link to="49" index="18" from="48" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_19:_Momentum.page" id="49" title="Chapter 19: Momentum" />
+<link to="50" index="19" from="49" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_20:_Angular_Momentum.page" id="50" title="Chapter 20: Angular Momentum" />
+<link to="51" index="20" from="50" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_21:_Fluid_Dynamics.page" id="51" title="Chapter 21: Fluid Dynamics" />
+<link to="52" index="21" from="51" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_22:_Thermodynamics;_No_ANDES_Questions.page" id="52" title="Chapter 22: Thermodynamics; No ANDES Questions" />
+<link to="53" index="22" from="52" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_23:_Electric_Circuits.page" id="53" title="Chapter 23: Electric Circuits" />
+<link to="54" index="23" from="53" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_24:_Capacitance.page" id="54" title="Chapter 24: Capacitance" />
+<link to="55" index="24" from="54" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_25:_Magnetic_Fields.page" id="55" title="Chapter 25: Magnetic Fields" />
+<link to="56" index="25" from="55" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_27:_Geometric_Optics.page" id="56" title="Chapter 27: Geometric Optics" />
+<link to="57" index="26" from="56" />
+<resource src="/res/asu/bvds/assigned-maps/Chapter_28:_Physical_Optics.page" id="57" type="finish" title="Chapter 28: Physical Optics" />
+</map>

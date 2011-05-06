@@ -1658,14 +1658,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun set-file-name (set)
-  (substitute #\x #\&
-	      (substitute #\_ #\space set)))
+  (remove #\(
+	  (remove #\)
+		  (substitute #\x #\&
+			      (substitute #\_ #\space set)))))
 
 ;; Use like this:
 ;;  (lon-capa-problem-sets *sets* #P"/home/bvds/Andes2-database/all-problems/")
 ;;  (lon-capa-problem-sets *guerra-assigned* #P"/home/bvds/Andes2-database/guerra/")
 ;; cp lon-capa/default.meta guerra/
 ;; scp -r guerra/ andes.eas.asu.edu:public_html
+;; Then need to modify permission/owner to allow www.www to 
+;; write to the files.
 
 (defun lon-capa-problem-sets (sets &optional (path #P"./"))
   "construct lon-capa xml files for all problems"
@@ -1773,7 +1777,7 @@ if (&EXT('resource.0.problemstatus')!~~/^no/) {
 </script>
 
 <startouttext />
-<a href=\"http://gideon.eas.asu.edu/web-UI/index.html?s=$class&amp;u=$user&amp;p=$problem&amp;e=\">$problem</a>
+<a href=\"http://gideon.eas.asu.edu/web-UI/index.html?s=$class&amp;u=$user&amp;p=$problem&amp;e=\">Solve problem $problem</a>.&nbsp; 
 $display
 <endouttext />
 <externalresponse answer=\"$response\" url=\"http://gideon.eas.asu.edu/get-score\">
@@ -1787,13 +1791,15 @@ $display
 ;;  (lon-capa-problem-maps *guerra-assigned* nil #P"/home/bvds/Andes2-database/assigned-maps/")
 ;;   cp lon-capa/assigned-maps-default.meta assigned-maps/default.meta
 ;; scp -r assigned-maps/ andes.eas.asu.edu:public_html
+;; scp lon-capa/assigned-problems.sequence* andes.eas.asu.edu:public_html
+;; then on andes.eas.asu.edu, need to make all files writable for www.bvds
 
 (defun lon-capa-problem-maps (sets src &optional (path #P"./"))
   "construct lon-capa map files for all problem sets."
   ;; sets can be *sets* or *guerra-assigned*
   (ensure-directories-exist path)
   (dolist (set sets)
-    (let ((base-name (strcat (set-file-name (car set)) ".page")))
+    (let ((base-name (strcat (set-file-name (car set)) ".sequence")))
       (lon-capa-meta-file (car set) path base-name)
       (let ((*print-pretty* NIL) ;disble line breaks
 	    (stream (open (merge-pathnames 
