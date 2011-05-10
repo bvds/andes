@@ -1665,11 +1665,11 @@
 
 ;; Use like this:
 ;;  (lon-capa-problem-sets *sets* #P"/home/bvds/Andes2-database/all-problems/")
-;;  (lon-capa-problem-sets *guerra-assigned* #P"/home/bvds/Andes2-database/guerra/")
-;; cp lon-capa/default.meta guerra/
-;; scp -r guerra/ andes.eas.asu.edu:public_html
-;; Then need to modify permission/owner to allow www.www to 
-;; write to the files.
+;; In the andes root directory:
+;;     cp lon-capa/default.meta all-problems
+;;     scp -r all-problems andes.eas.asu.edu:public_html
+;; On lon-capa server, allow UI to write:
+;;     chown -R www.bvds all-problems
 
 (defun lon-capa-problem-sets (sets &optional (path #P"./"))
   "construct lon-capa xml files for all problems"
@@ -1789,10 +1789,18 @@ $display
 ;; Use like this:
 ;;  (lon-capa-problem-maps *sets* nil #P"/home/bvds/Andes2-database/all-maps/")
 ;;  (lon-capa-problem-maps *guerra-assigned* nil #P"/home/bvds/Andes2-database/assigned-maps/")
+;; In the andes root directory:
+;;   cp lon-capa/all-maps-default.meta all-maps/default.meta
 ;;   cp lon-capa/assigned-maps-default.meta assigned-maps/default.meta
-;; scp -r assigned-maps/ andes.eas.asu.edu:public_html
-;; scp lon-capa/assigned-problems.sequence* andes.eas.asu.edu:public_html
-;; then on andes.eas.asu.edu, need to make all files writable for www.bvds
+;;   scp lon-capa/assigned-problems.sequence* andes.eas.asu.edu:public_html
+;;   scp -r *-maps/ andes.eas.asu.edu:public_html
+;; On lon-capa server:
+;;   chown -R www.bvds *-maps # On server, allow UI to write.
+
+;; Login, choose role "author"
+;; For all-maps and assigned-maps "Choose action" publish.
+;;         check "include subdirectories" and "force republication"
+
 
 (defun lon-capa-problem-maps (sets src &optional (path #P"./"))
   "construct lon-capa map files for all problem sets."
@@ -1801,12 +1809,13 @@ $display
   (dolist (set sets)
     (let ((base-name (strcat (set-file-name (car set)) ".sequence")))
       (lon-capa-meta-file (car set) path base-name)
-      (let ((*print-pretty* NIL) ;disble line breaks
+      (let ((*print-pretty* NIL) ;disable line breaks
 	    (stream (open (merge-pathnames 
 			   base-name
 			   path)
 			  :direction :output :if-exists :supersede
-			  :external-format #+sbcl :utf-8 #-sbcl :default)))
+			  :external-format #+sbcl :utf-8 #-sbcl :default))
+	    (assigned (apply #'append (mapcar #'second *guerra-assigned*))))
 	(format Stream "<map>~%")
 	(loop for problem in (second set) and
 	      i from 1 and
@@ -1815,11 +1824,13 @@ $display
 	      (when (> i 1) (format Stream "<link to=\"~A\" index=\"~A\" from=\"~A\" />~%"
 				    i j (- i 1)))
 	      (format Stream "<resource src=\"~A/~A/~(~A~).problem\" id=\"~A\" ~@[~*type=\"start\" ~]~@[~*type=\"finish\" ~]title=\"problem ~(~A~)\" />~%"
-		      (or src  "/res/asu/bvds/guerra")
+		      (or src  "/res/asu/bvds/all-problems")
 		      (set-file-name (car set))
 		      problem i 
 		      (= i 1) (= i (length (second set)))
-		      problem))
+		      problem)
+	     (unless (member problem assigned)
+	       (format Stream "<param to=\"~A\" type=\"string_questiontype\" name=\"parameter_0_type\" value=\"practice\" />~%" i)))
 	(format Stream "</map>~%")
 	(when (streamp stream) (close stream))))))
 
@@ -1833,9 +1844,9 @@ $display
 (defvar *guerra-assigned* 
 '(
 ("Chapter 1: Vectors" (VEC1C VEC3B))
-("Chapter 2: Static Forces" (S1C and S7B))
-("Chapter 3: Rotational Equilibrium" (DR2A and DR8A ))
-("Chapter 4: Gravity" (DT 12A S 11A))
+("Chapter 2: Static Forces" (S1C S7B))
+("Chapter 3: Rotational Equilibrium" (DR2A DR8A))
+("Chapter 4: Gravity" (DT12A S11A))
 ("Chapter 5: Electric forces and Fields" (Coul1B Coul2A FOR1B FOR2A FOR10A))
 ("Chapter 6: Magnetic Forces" (MAG2A MAG3B MAG4A))
 ("Chapter 7: Fluid Forces" (Fluid1 Fluid9 Fluid11))
