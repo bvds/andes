@@ -1663,13 +1663,13 @@
 		  (substitute #\x #\&
 			      (substitute #\_ #\space set)))))
 
-;; Use like this:
-;;  (lon-capa-problem-sets *sets* #P"/home/bvds/Andes2-database/all-problems/")
-;; In the andes root directory:
-;;     cp lon-capa/default.meta all-problems
-;;     scp -r all-problems andes.eas.asu.edu:public_html
-;; On lon-capa server, allow UI to write:
-;;     chown -R www.bvds all-problems
+(defun lookup-set-name (problem)
+  (loop for set in *sets*
+	do (when (member problem (second set))
+	     (return-from lookup-set-name (car set))))
+  (error "problem not found:  ~A" problem))
+			
+	  
 
 (defun lon-capa-problem-sets (sets &optional (path #P"./"))
   "construct lon-capa xml files for all problems"
@@ -1786,16 +1786,6 @@ $display
 </externalresponse>
 </problem>")
 
-;; Use like this:
-;;  (lon-capa-problem-maps *sets* nil #P"/home/bvds/Andes2-database/all-maps/")
-;;  (lon-capa-problem-maps *guerra-assigned* nil #P"/home/bvds/Andes2-database/assigned-maps/")
-;; In the andes root directory:
-;;   cp lon-capa/all-maps-default.meta all-maps/default.meta
-;;   cp lon-capa/assigned-maps-default.meta assigned-maps/default.meta
-;;   scp lon-capa/assigned-problems.sequence* andes.eas.asu.edu:public_html
-;;   scp -r *-maps/ andes.eas.asu.edu:public_html
-;; On lon-capa server:
-;;   chown -R www.bvds *-maps # On server, allow UI to write.
 
 ;; Login, choose role "author"
 ;; For all-maps and assigned-maps "Choose action" publish.
@@ -1825,7 +1815,8 @@ $display
 				    i j (- i 1)))
 	      (format Stream "<resource src=\"~A/~A/~(~A~).problem\" id=\"~A\" ~@[~*type=\"start\" ~]~@[~*type=\"finish\" ~]title=\"problem ~(~A~)\" />~%"
 		      (or src  "/res/asu/bvds/all-problems")
-		      (set-file-name (car set))
+		      ;; Find correct directory in all-problems
+		      (set-file-name (lookup-set-name problem))
 		      problem i 
 		      (= i 1) (= i (length (second set)))
 		      problem)
@@ -1849,7 +1840,7 @@ $display
 ("Chapter 4: Gravity" (DT12A S11A))
 ("Chapter 5: Electric forces and Fields" (Coul1B Coul2A FOR1B FOR2A FOR10A))
 ("Chapter 6: Magnetic Forces" (MAG2A MAG3B MAG4A))
-("Chapter 7: Fluid Forces" (Fluid1 Fluid9 Fluid11))
+("Chapter 7: Fluid Forces" (Fluids1 Fluids9 Fluids11))
 ("Chapter 8: Four Forces of Nature (no ANDES problems))" ())
 ("Chapter 9: Kinematics" (KT1A KT3A KT6A KT8B KGRAPH2 KGRAPH3 KGRAPH5 KGRAPH7))
 ("Chapter 10: F=ma" (DT1A DT6B DT1C ELEC3B))
@@ -1859,7 +1850,7 @@ $display
 ("Chapter 14: Rotational Motion" (KR2B KR4A KR7A DR6A))
 ("Chapter 15: Simple Harmonic Motion" (OSC3 OSC5 OSC8))
 ("Chapter 16: Waves" (WAVE1 WAVE5 WAVE6))
-("Chapter 17: Sound Waves" (WAVES2 WAVES3 WAVES8))
+("Chapter 17: Sound Waves" (WAVE2 WAVE3 WAVE8))
 ("Chapter 18: Energy" (E2A E4B E5A E7B E9A))
 ("Chapter 19: Momentum" (IMP1 LMOM2A LMOM4A))
 ("Chapter 20: Angular Momentum" (MOMR2A MOMR3A))
@@ -1868,6 +1859,6 @@ $display
 ("Chapter 23: Electric Circuits" (EQRES2A EQRES3A EQRES5A EQRES7A EQRES8A    
                     KIR2A KIR4A EPOW3))
 ("Chapter 24: Capacitance" (CAP2A CAP4A CAP6B CAP9A CAP9B))
-("Chapter 25: Magnetic Fields" (MAG1A MAG6A MAG6C MAG8A FAR2A FAR4B FAR3A FAR5A FAR6B FAR10B FAR11A))
+("Chapter 25: Magnetic Fields" (MAG1A MAG6A MAG6C MAG8A FARA2A FARA4B FARA3A FARA5A FARA6B FARA10B FARA11A))
 ("Chapter 27: Geometric Optics" (Lens1A LENS2B LENS3A REF2C))
 ("Chapter 28: Physical Optics" (WAVE19 INT1A INT1B INT1D))))
