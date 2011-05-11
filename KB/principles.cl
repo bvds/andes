@@ -1834,7 +1834,7 @@ $display
 
 (defvar *guerra-assigned* 
 '(
-("Chapter 1: Vectors" (VEC1C VEC3B))
+("Chapter 1: Vectors" (VEC1AY VEC1C VEC3B))
 ("Chapter 2: Static Forces" (S1C S7B))
 ("Chapter 3: Rotational Equilibrium" (DR2A DR8A))
 ("Chapter 4: Gravity" (DT12A S11A))

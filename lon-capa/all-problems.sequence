@@ -50,32 +50,5 @@
 <resource src="/res/asu/bvds/all-maps/Electromagnetic_Waves.sequence" id="82" title="Electromagnetic Waves" />
 <link to="83" index="25" from="82" />
 <resource src="/res/asu/bvds/all-maps/Optics.sequence" id="83" type="finish" title="Optics" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_1:_Vectors.page" id="31" type="zombie" title="Chapter 1: Vectors [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_2:_Static_Forces.page" id="32" type="zombie" title="Chapter 2: Static Forces [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_3:_Rotational_Equilibrium.page" id="33" type="zombie" title="Chapter 3: Rotational Equilibrium [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_4:_Gravity.page" id="34" type="zombie" title="Chapter 4: Gravity [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_5:_Electric_forces_and_Fields.page" id="35" type="zombie" title="Chapter 5: Electric forces and Fields [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_6:_Magnetic_Forces.page" id="36" type="zombie" title="Chapter 6: Magnetic Forces [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_7:_Fluid_Forces.page" id="37" type="zombie" title="Chapter 7: Fluid Forces [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_8:_Four_Forces_of_Nature_(no_ANDES_problems)).page" id="38" type="zombie" title="Chapter 8: Four Forces of Nature (no ANDES problems)) [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_9:_Kinematics.page" id="39" type="zombie" title="Chapter 9: Kinematics [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_10:_F=ma.page" id="40" type="zombie" title="Chapter 10: F=ma [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_11:_Friction_x_Inclines.page" id="41" type="zombie" title="Chapter 11: Friction &amp; Inclines [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_12:_Parabolic_Motion.page" id="42" type="zombie" title="Chapter 12: Parabolic Motion [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_13:_CIRCULAR_MOTION.page" id="43" type="zombie" title="Chapter 13: CIRCULAR MOTION [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_14:_Rotational_Motion.page" id="44" type="zombie" title="Chapter 14: Rotational Motion [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_15:_Simple_Harmonic_Motion.page" id="45" type="zombie" title="Chapter 15: Simple Harmonic Motion [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_16:_Waves.page" id="46" type="zombie" title="Chapter 16: Waves [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_17:_Sound_Waves.page" id="47" type="zombie" title="Chapter 17: Sound Waves [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_18:_Energy.page" id="48" type="zombie" title="Chapter 18: Energy [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_19:_Momentum.page" id="49" type="zombie" title="Chapter 19: Momentum [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_20:_Angular_Momentum.page" id="50" type="zombie" title="Chapter 20: Angular Momentum [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_21:_Fluid_Dynamics.page" id="51" type="zombie" title="Chapter 21: Fluid Dynamics [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_22:_Thermodynamics;_No_ANDES_Questions.page" id="52" type="zombie" title="Chapter 22: Thermodynamics; No ANDES Questions [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_23:_Electric_Circuits.page" id="53" type="zombie" title="Chapter 23: Electric Circuits [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_24:_Capacitance.page" id="54" type="zombie" title="Chapter 24: Capacitance [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_25:_Magnetic_Fields.page" id="55" type="zombie" title="Chapter 25: Magnetic Fields [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_27:_Geometric_Optics.page" id="56" type="zombie" title="Chapter 27: Geometric Optics [(1305062599,bvds,asu)]" />
-<resource src="/res/asu/bvds/assigned-maps/Chapter_28:_Physical_Optics.page" id="57" type="zombie" title="Chapter 28: Physical Optics [(1305062599,bvds,asu)]" />
 </map>
 
