@@ -21,42 +21,34 @@
   (:use :cl :cl-user :json :mysql-connect)
   (:export :destroy-connection :create-connection :create-local-connection
 	   :dummy-process-api-request :process-api-request
+	   :start :stop
 	   ))
 
-(defun start-dashboard (&key (port 8080) host db user password)
+(in-package :dashboard)
+
+(defun start (&key (port 8080) host db user password)
   (webserver:start-json-rpc-services '(("/dashboard" :json-rpc t))
 				     :port 8080
 				     :server-log-path
 				     (merge-pathnames "dashboard-server.log" *andes-path*))
   
-  (dashboard:create-connection :user user :password password :db db :host host)
+  (create-connection :user user :password password :db db :host host)
   nil)
 
-(defun stop-dashboard ()
+(defun stop ()
   (webserver:stop-json-rpc-services)
   ;; Stop database.
-  (dashboard:destroy-connection))
+  (destroy-connection))
 
-
-;(in-package :dashboard)
-
-<<<<<<< Updated upstream
-  (webserver:defun-method "/dashboard" dashboard (&key version (model () model-p)
-						       section (student () student-p)
-						       (assignment () assignment-p))
-    (apply #'process-api-request (append (list :version version :section section)
-					 (if model-p (list :model model))
-					 (if assignment-p (list :assignment assignment))
-					 (if student-p (list :student student)))))
-=======
-(webserver:defun-method "/dashboard" dashboard (&key version (model () model-p)
-						     section (student () student-p)
-						     (assignment () assignment-p))
-  (apply #'process-api-request (append (list :version version :section section)
-				       (if model-p (list :model model))
-				       (if assignment-p (list :assignment assignment))
-				       (if student-p (list :student student)))))
->>>>>>> Stashed changes
+(webserver:defun-method "/dashboard" dashboard 
+  (&key version (model () model-p)
+	section (student () student-p)
+	(assignment () assignment-p))
+  (apply #'process-api-request 
+	 (append (list :version version :section section)
+		 (if model-p (list :model model))
+		 (if assignment-p (list :assignment assignment))
+		 (if student-p (list :student student)))))
 
 (defvar *connection* nil "connection to db")
 
@@ -178,8 +170,8 @@
   (let (kc-info (decode state))
     (append
      (list (cons :*name name)
-	   (cons :*short-desc (get-operator-short-name (intern (string-upcase name)))); if the kc is not in the andes model
-	   (cons :*long-desc (get-operator-description (intern (string-upcase name))))); these lines could cause problems
+	   (cons :*short-desc (cl-user::get-operator-short-name (intern (string-upcase name)))); if the kc is not in the andes model
+	   (cons :*long-desc (cl-user::get-operator-description (intern (string-upcase name))))); these lines could cause problems
      (decode state))))
 
 (defun kc-query-string (section-id student-id assignment-kcs model)
@@ -212,7 +204,8 @@
       ())); right now only one section works
 
 (defun get-kc-names (kc)
-  (list kc (get-operator-short-name kc) (get-operator-description kc)))
+  (list kc (cl-user::get-operator-short-name kc) 
+	(cl-user::get-operator-description kc)))
 
 (defun encode (x &optional (stream nil supply-stream-p))
   (if supply-stream-p

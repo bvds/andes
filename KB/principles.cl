@@ -1699,6 +1699,9 @@
 	       (error "Wrong character code ~A, should be UTF-8" 
 		      (stream-external-format Stream))))
     (format Stream "<title>~A</title>~%" title)
+    ;; Odd, but setting this in the default.meta is
+    ;; not sufficient.
+    (format Stream "<sourceavail>open</sourceavail>~%")
     (when (streamp stream) (close stream))))    
 
 (defun lon-capa-problem-file (problem &optional (path #P"./"))
