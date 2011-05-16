@@ -30,7 +30,8 @@
   (webserver:start-json-rpc-services '(("/dashboard" :json-rpc t))
 				     :port 8080
 				     :server-log-path
-				     (merge-pathnames "dashboard-server.log" *andes-path*))
+				     (merge-pathnames "dashboard-server.log" 
+						      cl-user::*andes-path*))
   
   (create-connection :user user :password password :db db :host host)
   nil)
