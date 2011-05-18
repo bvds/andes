@@ -1,3 +1,48 @@
+(in-package :cl-user)
+
+(defvar *connection* nil "connection to db")
+
+(defmacro with-db (&body body)
+  "Excecute body with db mutex."
+  `(if *connection*
+      (sb-thread:with-mutex (*db-lock*) ,@body)
+      (error "No common database defined, can't continue.")))
+
+(defun read-login-file (&optional path)
+  "Read the database login file; file contains user name, password & (optional) database name."
+  (with-open-file (f (or path (merge-pathnames "db_user_password" 
+                                               cl-user::*andes-path*))
+                     :if-does-not-exist nil)
+    (when f (values (read-line f) (read-line f) (read-line f nil)))))
+
+;;
+(defun create (&key user password db host)
+  
+  (multiple-value-bind (u p d) (read-login-file)
+    (setf user (or user u "root"))
+    (setf password (or password p (error "No database password given.")))
+    (setf db (or db d "andes3")))
+  
+  (setf *connection* 
+	(mysql-connect:connect :host host :user user :password password :database db)))
+
+(defun create-local (&key user password db host)
+  
+  (multiple-value-bind (u p d) (read-login-file "/home/benefluence/Desktop/database_stuff")
+    (setf user (or user u "root"))
+    (setf password (or password p (error "No database password given.")))
+    (setf db (or db d "andes3")))
+  
+  (setf *connection* 
+	(mysql-connect:connect :host host :user user :password password :database db)))
+
+
+(defun destroy ()
+  (disconnect *connection*))
+
+
+
+
 (defun formatted-time ()
   (multiple-value-bind
 	(second minute hour date month year day-of-week dst-p tz)
@@ -10,7 +55,7 @@
 			    (section "andesTutor")
 			    (student () supply-student-p)
 			    (assignment () supply-assignment-p))
-'(((:this . is) (:a . test))))
+  '(((:this . is) (:a . test))))
 
 (defun process-api-request (&key 
 			    (version 1)
@@ -34,7 +79,7 @@
 	(student-ids
 	 (if supply-student-p 
 	     (list (list student))
-	     (test-query (concatenate 'string 
+	     (run-query (concatenate 'string 
 				      "SELECT DISTINCT userName FROM dummy_student_model WHERE userSection = \"" 
 				      section
 				      "\"")))))
@@ -64,7 +109,7 @@
 (defun build-assignment (section-id student-id assignment-id assignment-kcs model)
   (list 
    (cons :*assignment-id assignment-id)
-   (build-kc-list (test-query (kc-query-string section-id student-id assignment-kcs model)))))
+   (build-kc-list (run-query (kc-query-string section-id student-id assignment-kcs model)))))
 
 (defun build-kc-list (kc-list-data)
   (cons :+kcl+ist
@@ -102,7 +147,7 @@
 					;happens when the assignments don't exist? do we return anything?
   (if (equal section "andesTutor"); we need to pull the kcs correctly depending on the section name
       (loop for kc-set in *set-kcs* append
-	  (if (member (car kc-set) assignments :test #'equal)
+	   (if (member (car kc-set) assignments :test #'equal)
 	      (list
 	       (list (car kc-set) (apply #'append (cdr kc-set))))));combines common and uncommon kcs
       ())); right now only one section works
@@ -126,17 +171,7 @@
 (defun decode-file () (with-open-file (stream "experiment.js") (json:decode-json stream)))
 
 (defun dummy-student-record ()
-  (test-query "SELECT * FROM dummy_student_model WHERE uid=1"))
+  (run-query "SELECT * FROM dummy_student_model WHERE uid=1"))
 
-(defun test-query (query-string)
-					; this is a utility function for running SQL queries 
-					; while developing the dashboard server functions
-					; obviously, it is very inefficient, as it opens and closes 
-					; a connection to the database every time it is run
-  (let* ((a
-	  (mysql-connect:connect :host "localhost" :user "root" :password "asdf_4259_ghjk" :database "andes3"))
-	 (b 
-	  (mysql-connect:query a query-string)))
-    (mysql-connect:disconnect a)
-    b
-    ))
+(defun run-query (query-string)
+  (mysql-connect:query *connection* query-string))

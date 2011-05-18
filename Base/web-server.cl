@@ -64,13 +64,17 @@
   (when *server* (error "server already started"))
   (setf *dispatch-table* (list #'default-dispatcher))
   (dolist (service services)
-    (push (create-prefix-dispatcher 
-	   (car service)	   
-	   #'(lambda () (handle-json-rpc 
-			 (cadr (member :log-function service)))))
-	  *dispatch-table*))
+    (let ((logger (cadr (member :log-function (cdr service)))))
+      (push (create-prefix-dispatcher 
+	     (car service)	   
+	     (cond ((cadr (member :json-rpc (cdr service)))
+		    #'(lambda () (handle-json-rpc logger)))
+		   ((cadr (member :post (cdr service)))
+		    #'handle-post)
+		   (t (error "Need valid service type."))))
+	    *dispatch-table*)))
   (push #'dispatch-easy-handlers *dispatch-table*)
-
+  
   ;; Send *debug* to file
   (unless *stdout*
     (setf *stdout* (open (merge-pathnames "help-debug.log" server-log-path)
@@ -96,14 +100,15 @@
   (when (streamp *debug*) (close *debug*))
   (stop *server*) (setf *server* nil))
 
-(defmacro defun-method (uri name lambda-list &body body)
-  "Defines a function and registers it as a method associated with a service."
-  `(progn (defun ,name ,lambda-list ,@body)
-    (register-method-for-service ,uri #',name 
-     (string-downcase (symbol-name ',name)))))
+(defmacro defun-method (uri method lambda-list &body body)
+  "Defines a function and registers it as a method associated with a service.  Null method indicates that this is the only handler for this service."
+  (let ((function-name (or method (gensym))))
+    `(progn (defun ,function-name ,lambda-list ,@body)
+      (register-method-for-service ,uri #',function-name
+       ,(when method (string-downcase (symbol-name method)))))))
 
-(defun register-method-for-service (uri method method-name)
-  (setf (gethash (list uri method-name) *service-methods*) method))
+(defun register-method-for-service (uri function-name method)
+  (setf (gethash (list uri method) *service-methods*) function-name))
 
 (defun handle-json-rpc (log-function)
   "Handles json-rpc 1.0 and 2.0"
@@ -470,3 +475,24 @@
 (defun flatten-alist (x) 
   "turn an alist into plain list"
   (mapcan #'(lambda (x) (list (car x) (cdr x))) x))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;          Bare post and reply
+;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun handle-post ()
+  "Get and return (stateless) http post, no logging."
+  (let* ((service-uri (request-uri*))
+	 (method-func (gethash (list service-uri nil) 
+			       *service-methods*))
+	 (result (funcall method-func (post-parameters*))))
+    (when *debug* (with-a-lock (*print-lock* :wait-p t) 
+		    (format *stdout* 
+			    "post calling ~A~%  with:  ~S~%  result:  ~S~%" 
+			    method-func
+			    (post-parameters*)
+			    result)))
+    result))

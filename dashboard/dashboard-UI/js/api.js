@@ -4,7 +4,7 @@ dojo.require("dojox.rpc.JsonRPC");
 dojo.require("dojox.json.schema");
 
 dashboard.rpc = new dojox.rpc.Service("js/dashboard.smd");
-json = {"version": 1, "section": "andes-tutor"};
+json = {"version": 1, "section": "andestutor.org"};
 
 dojo.addOnLoad(
 	function() {

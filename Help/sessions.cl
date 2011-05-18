@@ -88,7 +88,8 @@
 
   ;; start webserver
   (webserver:start-json-rpc-services 
-   '(("/help" :log-function andes-database:write-transaction))
+   '(("/help" :json-rpc t :log-function andes-database:write-transaction)
+     ("/get-score" :post t))
    :port port
    ;; Path for Hunchentoot server (and database access) errors.
    ;; Generally, these errors indicate something disasterous has
@@ -932,5 +933,36 @@
     ;; Tell the session manager that the session is over.
     ;; Must be done after env-wrap
     (setf webserver:*env* nil)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;            Grade reporting service
+;; 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(webserver:defun-method "/get-score" nil (input)
+  "Pull grade from database."
+  (when nil
+    (format webserver:*stdout* "in get-score method for ~S~%"
+	    (cdr (assoc "LONCAPA_correct_answer" 
+			input :test #'equal))))
+  (let* ((ans  (json:decode-json-from-string 
+		(cdr (assoc "LONCAPA_correct_answer" input
+			    :test #'equal))))
+	 (student (cdr (assoc :user ans)))
+	 (problem (cdr (assoc :problem ans)))
+	 (section (cdr (assoc :class ans)))
+	 (score (andes-database:get-score
+		 :student student :problem problem 
+		 :section section)))
+    (format nil (strcat "<loncapagrade>~%"
+			"  <awarddetail>ASSIGNED_SCORE</awarddetail>~%"
+			"  <awarded>~F</awarded>~%"
+			;; could include message
+			;; "  <message>Thank you</message>~%"
+			"</loncapagrade>~%")
+	    ;; null score indicates session missing.
+	    (if score (/ score 100) 0))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
