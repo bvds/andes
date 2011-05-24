@@ -530,7 +530,6 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
   (solver-load)
   (solver-logging *solver-logging*)
   (physics-algebra-rules-initialize) ;initialize grammar
-  (enable-errors)
   )
 
 (defun andes-stop ()

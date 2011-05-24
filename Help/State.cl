@@ -228,9 +228,6 @@
   ;; continue, perhaps without student information, so don't let Lisp errors
   ;; propagate out of this routine. !!! Might want to communicate warning 
   ;; message in case of failure to load student file, though.
-
-  ;; Don't fail call if fail to load student file. 
-  (safe-apply 'StudentFile-load (list name))
    
   ;; we want to load the config file after student name is known, so it can
   ;; include customizations based on student name (used in some experiments).

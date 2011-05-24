@@ -118,6 +118,7 @@
   Solutions          ;Set of solution bubbles.  The first will always be
                      ;the best.  (list of Eqnset)
   wm                 ;; Collection of the solver working memory.
+
   )
 
 ;;-----------------------------------------------------------------------------
@@ -346,7 +347,13 @@
                   (read-mreadable-EqnSets Stream (Problem-EqnIndex Problem) (Problem-Graph Problem)
 		  (problem-version Problem))))
 
-    (t (error "Undefined Problem-header tag. ~A" name))))
+    ;; New version may have other tags.
+    (Fade (mpf-readret Stream))
+    (Keywords (mpf-readret Stream))
+    (Phrases (mpf-readret Stream))
+
+    ;; Don't try to read pointers.
+    (t (error "Unknown Problem-header tag. ~A" name))))
 
 
 
@@ -401,7 +408,10 @@
 				(ModDate nil) (Version *latest-file-version*) 
 				(ForbiddenPSMS nil) (IgnorePSMS nil)
 				(VariableMarks Nil) (Times nil)
-				(Choices nil) (Graphic nil) (Predefs nil))
+				(Choices nil) (Graphic nil) (Predefs nil)
+		      ;; For forward compatibility with Andes3 problem definitions
+		      fade english
+		      )
   "Define a problem struct and store it."
   (let ((Prob (eval `(make-problem :Name ',name                     ;;Define the problem struct.
 				   :soughts ',(remove-answer

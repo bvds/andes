@@ -1067,10 +1067,21 @@
 ;; Note "get" on unset values return NIL.
 ;;
 (defun history-get (key)
-   (studentfile-ask key))
+  ;; (studentfile-ask key)
+)
 
 (defun history-set (key value)
-   (studentfile-tell key value))
+ ;;  (studentfile-tell key value)
+)
+
+(defvar *errors-on* nil
+  "If t then errors are sent to *error-stream* else are ignored.")
+
+(defun error-message (message)
+  (if *errors-on*
+      (if (stringp message)
+         (format t "(Error: ~A)~%" message)
+       (format t "(Error: ~A)~%" message))))
 
 
 

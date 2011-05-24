@@ -67,7 +67,8 @@
 				     (:file "parse-andes"
 					    :depends-on ("SolutionGraph"))
 				     (:file "interpret-equation"
-					    :depends-on ("SolutionGraph"))
+					    :depends-on ("SolutionGraph")
+					    :depends-on ("HelpMessages"))
 				     
 				     ;;  Help
 				     (:file "HelpMessages")

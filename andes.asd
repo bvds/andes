@@ -27,6 +27,7 @@
 
 (defsystem :andes
   :name "Andes"
+  :depends-on (cffi-uffi-compat)
   :description "Andes physics tutor system"
   :components (
 ;;;    this should eventually be removed
