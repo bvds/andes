@@ -201,8 +201,9 @@
     ;; Note that eval cannot have local unbound variables, since
     ;; these are collected by variables-in below.
     ;; This can cause an error.
-    (unless best (error "extend-word-count not setting best for ~A~% with bindings ~A"
-			model (iterate-over-bindings model)))
+    (unless best (error 'iterate-over-bindings
+			:tag (list model (iterate-over-bindings model))
+			:text "extend-word-count not setting best"))
     best))
 
 (defun iterate-over-bindings (model)
