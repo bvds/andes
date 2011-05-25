@@ -331,11 +331,24 @@
 	 ;; Here, we just ignore them.
 	 (get-first-model-words (eval (second model)) more-model))
 
-	((match:test-for-list model)
-	 (get-first-model-words (car model)
-			       (if (and (cdr model) more-model)
-				   (list (cdr model) more-model)
-				   (or (cdr model) more-model))))
+	;; Test for list may fail if we strip off
+	;; first member.  Thus, we need to explicitly mark
+	;; the remainder of the list.
+	((or (match:test-for-list model)
+	     (and (consp model) (eql (car model) 'list)))
+	 ;; remove any explicit marker for list
+	 (when (eql (car model) 'list) (pop model)) 
+	 (get-first-model-words 
+	  (car model)
+	  ;; explicitly mark rest of list as 'list for recursion
+	  (cond ((and (cdr model) more-model)
+		 ;; could combine into one list, but this would
+		 ;; disturb data structures more.
+		 (list (cons 'list (cdr model)) more-model))
+		((null (cdr model))
+		 more-model)
+		((cdr model) ;more-model must be null
+		 (cons 'list (cdr model))))))
 
 	(t 
 	 ;; Bindings are local to one operator in the ontology
