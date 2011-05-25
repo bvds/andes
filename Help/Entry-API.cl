@@ -938,14 +938,18 @@
 	 (dir-label (strcat-nonzero 
 		     (if (z-dir-spec dir-term) "\\phi" "\\theta")
 		     symbol)))
-
+    
     (multiple-value-bind (prop tturn hints)
 	(match-student-phrase entry 'vector)
       
       (cond
 	(prop    
-	 ;; Use the quantity from the best match with angle we actually got.
-	 (setf action (list 'vector (second prop) dir-term))
+	 ;; Use the quantity from the best match with angle we actually got,
+	 ;; unless the best-match quantity is unknown.
+	 (setf action (list 'vector (second prop) 
+			    (if (member (third prop) '(unknown z-unknown))
+				(third prop)
+				dir-term)))
 	 
 	 (setf vector-term (second action))
 	 (setf vector-mag-term `(mag ,vector-term))
@@ -965,7 +969,7 @@
 		  (compo-var (strcat-nonzero symbol "_" axis-label))
 		  (compo-term (vector-compo vector-term axis-term)) ; Physics-Funcs
 		  )
-        (check-symbols-enter compo-var compo-term (list id axis-entry-id))))
+	     (check-symbols-enter compo-var compo-term (list id axis-entry-id))))
 	 
 	 ;; Different given values are handled in different ways:
 	 ;; 1. Direction value or unknown or zero-mag values get checked 
@@ -996,9 +1000,11 @@
 	 (when (eq (first vector-term) 'unit-vector)
 	   (add-implicit-eqn entry (make-implicit-assignment-entry symbol 1)))
 	 ;; if direction is known, associate implicit equation dirV = dir deg.
-	 (when (degree-specifierp dir-term)          ; known xy plane direction
+	 (when (and (degree-specifierp (third prop))
+		    (degree-specifierp dir-term))          ; known xy plane direction
 	   (add-implicit-eqn entry (make-implicit-assignment-entry dir-label dir-term)))
-	 (when (z-dir-spec dir-term) ; known z axis direction
+	 (when (and (z-dir-spec (third prop))
+		(z-dir-spec dir-term)) ; known z axis direction
 	   (add-implicit-eqn entry (make-implicit-assignment-entry dir-label (zdir-phi dir-term))))
 	 
 	 ;; Associated eqns will be entered later if entry is found correct.
