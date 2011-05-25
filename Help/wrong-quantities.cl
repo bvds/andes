@@ -197,6 +197,12 @@
 	       :max max)))
 	(when (or (null best) (if max (> this best) (< this best))) 
 	  (setf best this))))
+    
+    ;; Note that eval cannot have local unbound variables, since
+    ;; these are collected by variables-in below.
+    ;; This can cause an error.
+    (unless best (error "extend-word-count not setting best for ~A~% with bindings ~A"
+			model (iterate-over-bindings model)))
     best))
 
 (defun iterate-over-bindings (model)

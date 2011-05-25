@@ -307,9 +307,9 @@
 	(eval '(preferred (agent ?agent))
 	      (?agent . (mapcar #'remove-time 
 				;; torques are due to forces and couples
-				(append (remove '(force . ?rest)
+				(append (remove 'force
 						(problem-vectors *cp*)
-						:test-not #'unify)
+						:key #'car :test-not #'eql)
 					(problem-couples *cp*)))))
 	(preferred (eval (when ?axis '("about" ?axis))
 			 ;; include case where axis is omitted
