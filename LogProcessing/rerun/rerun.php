@@ -29,7 +29,7 @@
 	     // Still need to clean up logging:  consistant format
 	     // Have interp for each red turn?
 
-	     // To get server timing, need to set:
+	     // To get help server timing, need to set:
 	     // (setf webserver:*debug* nil)
 	     // (setf *simulate-loaded-server* nil)
 $ignoreNewLogs = true;  // ignore any new non-error, log messages
@@ -53,8 +53,8 @@ mysql_select_db($dbname)
 
 /* filters for user name, section, etc.  */
 $adminName = ''; // $_POST['adminName'];   student name.
-$sectionName = 'study' ; //$_POST['sectionName'];
-$startDate = ''; // $_POST['startDate'];
+$sectionName = '' ; //$_POST['sectionName'];
+$startDate = '2011-05-05'; // $_POST['startDate'];
 $endDate = ''; // $_POST['endDate'];
 $methods = array('open-problem','solution-step','seek-help','record-action','close-problem');  //implode(",",$_POST['methods']);
 
@@ -167,7 +167,7 @@ function consolidate_interps($result){
 }
 	     
 require_once('jsonRPCClient.php');
-$server  = new jsonRPCClient('http://localhost/help');
+$server  = new jsonRPCClient('http://localhost/help-test');
 $sessionIdBase = "_" . date('h:i:s') . "_";
 $sessionId = 0;
 $handle = fopen($jsonFile,'w');

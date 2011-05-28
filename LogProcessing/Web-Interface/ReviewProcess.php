@@ -241,6 +241,26 @@ if($slice == 'comments'){
 	    // this is generally from the server dropping idle sessions
 	    continue;  
 	  }
+
+	  // Add up times that canvas is out of focus.
+	  // Needs to be robust against missing blur and focus events
+	  // Any other kind of input resets the counter.
+	  if(isset($a->method) && $a->method == 'record-action' &&
+                       $a->params->type == 'window' &&
+	     $a->params->name == 'canvas'){
+	    if($a->params->value == 'focus'){
+	      if($blurred){
+		$idleTime=$idleTime+$ttime-$blurStartTime;
+	      }
+	      $blurred = false;	      
+	    } elseif($a->params->value == 'blur'){
+	      $blurStartTime=$ttime;
+	      $blurred = true;
+	    }
+	  } else {
+	    $blurred = false;
+	  }
+
 	  if(isset($a->method) && ($a->method == 'solution-step' || 
 				   $a->method == 'seek-help')){
 	    $jsonStart=microtime(true);   
@@ -257,7 +277,7 @@ if($slice == 'comments'){
 	    }
 	    if($thisTurn=='correct' && $confused){
 	      if($counter>1){
-		$dt=$ttime-$confusedStartTime;
+		$dt=$ttime-$confusedStartTime-$idleTime;
 		$rowOutput[$dt]= "<tr>" . $sessionColumns . 
 		  "<td>$counter</td><td>$dt</td>" . $sessionLink1 . 
 		  "&amp;t=" . $confusedtID . $sessionLink2 . "</tr>";
@@ -269,6 +289,7 @@ if($slice == 'comments'){
 	      } else {
 		$confused=true;
 		$counter=0;
+		$idleTime=0;
 		$confusedtID=$ttID;
 		$confusedStartTime=$ttime;
 	      }
@@ -280,7 +301,7 @@ if($slice == 'comments'){
 	
 	// Case where session ends before confusion is resolved.
 	if($confused && $counter>1){
-	  $dt=$ttime-$confusedStartTime;
+	  $dt=$ttime-$confusedStartTime-$idleTime;
 	  $rowOutput[$dt]= "<tr class=\"quit\">" . $sessionColumns . 
 	    "<td>$counter</td><td>$dt</td>" . $sessionLink1 . 
 	    "&amp;t=" . $confusedtID . $sessionLink2 . "</tr>";
