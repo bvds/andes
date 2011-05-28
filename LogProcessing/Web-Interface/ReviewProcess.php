@@ -314,7 +314,7 @@ if($slice == 'comments'){
     }
     echo "</tbody>\n";
     echo "</table>\n";
-  } else {// if for any session exising
+  } else {// if for any session existing
     echo "No matching sessions found\n";
   }
   $elapsedTime = time() - $initialTime;
