@@ -1019,8 +1019,8 @@ follow-up question and put it in the student entry's err interp field."
 		    :key #'car))
 	 ;; determine which answers don't have a box or done button.
 	 (remaining (remove-if
-		     #'(lambda (x) (member x (mapcar #'second previous) 
-				   :test #'unify))
+		     #'(lambda (x) (member x previous
+				   :key #'second :test #'unify))
 		     ;; remove multiple-choice and checkboxes.
 		     (remove 'choose-answer (problem-soughts *cp*) 
 			     :key #'car))))
