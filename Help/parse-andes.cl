@@ -1018,11 +1018,12 @@ follow-up question and put it in the student entry's err interp field."
 			    (remove entry *StudentEntries*))
 		    :key #'car))
 	 ;; determine which answers don't have a box or done button.
-	 (remaining (set-difference 
+	 (remaining (remove-if
+		     #'(lambda (x) (member x (mapcar #'second previous) 
+				   :test #'unify))
 		     ;; remove multiple-choice and checkboxes.
-		     (remove 'choose-answer (problem-soughts *cp*) :key #'car)
-		     (mapcar #'second previous)
-		     :test #'unify)))
+		     (remove 'choose-answer (problem-soughts *cp*) 
+			     :key #'car))))
 
     ;; Assume answer boxes are ordered according to creation
     ;; time (which is what we do when creating a problem).
