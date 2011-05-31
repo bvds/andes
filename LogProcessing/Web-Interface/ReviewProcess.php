@@ -44,14 +44,14 @@ if($adminName==''){
   $adminNamec = "";
   $adminNamee = "";
  } else {
-  $adminNamec = "P1.userName = '$adminName' AND";
+  $adminNamec = "P1.userName REGEXP '$adminName' AND";
   $adminNamee = " by $adminName,";
  }  
 if($sectionName==''){
   $sectionNamec = "";
   $sectionNamee = "";
  } else {
-  $sectionNamec = "P1.userSection = '$sectionName' AND";
+  $sectionNamec = "P1.userSection REGEXP '$sectionName' AND";
   $sectionNamee = " by $sectionName,";
  }  
 if($extra == 'Reviewed'){
