@@ -430,7 +430,9 @@
 	((eq (car Hint) 'Minilesson) (make-minil-hseq Hint Rest Assoc OpTail))
 	((eq (car Hint) 'Eval)       (make-eval-hseq Hint Rest))
 	((eq (car Hint) 'Function)   (make-function-hseq (cdr Hint) Prefix))
-	(t (Error "Unrecognized hint type supplied."))))
+	(t (Error 'webserver:log-error :tag 'problem-load-failed
+		  :tag (list 'unrecognized-hint-type 'next hint)
+		  :text "Unrecognized hint type supplied."))))
 
 
 ;;; When there are no more hints in the list then the system
@@ -447,7 +449,9 @@
 	((eq (car Hint) 'Minilesson) (make-minil-end-hseq (cadr Hint) Assoc))
 	((eq (car Hint) 'Eval)       (make-eval-hseq (cadr Hint)))
 	((eq (car Hint) 'function)   (make-function-hseq (cdr Hint) Prefix))
-	(t (Error "Unrecognized hint type supplied."))))
+	(t (Error 'webserver:log-error
+		  :tag (list 'unrecognized-hint-type 'end hint)
+		  :text "Unrecognized hint type supplied."))))
 
 
 

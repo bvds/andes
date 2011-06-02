@@ -72,6 +72,11 @@
 (defparameter *vector-tool*  (manual-link "Vector Tool" "vector-tool"))
 (defparameter *vector-tool-action* (strcat "click on " *vector-tool*))
 
+(defparameter *z-axis-icon* 
+  (strcat "<img src=\"" *images-path* "z-axis.png\" class=\"button\"  alt=\"z-axis button\">"))
+(defparameter *z-axis-vector*  (manual-link "Vector Tool (with z-axis)" "z-axis-vector"))
+(defparameter *z-axis-vector-action* (strcat "click on " *vector-tool* " and " *z-axis-icon*))
+
 (defparameter *equation-icon* 
   (strcat "<img src=\"" *images-path* "equation-tool.png\" class=\"button\"  alt=\"equation tool\">"))
 (defparameter *equation-tool*  (manual-link "Equation Tool" "equation-tool"))

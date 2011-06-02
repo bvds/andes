@@ -1086,7 +1086,7 @@
    )
   :hint (
     (point (string "You can determine the components of ~a from the problem statement." ?vec))
-    (bottom-out (string "Use ~A to draw ~a at an approximately correct angle.  After defining the vector, use ~A to enter the component values."
+    (bottom-out (string "Use ~A to draw ~a at an approximately correct angle.&nbsp; After defining the vector, use ~A to enter the component values."
 			(*vector-tool* eval) ?vec
 			(*equation-tool* eval)))
     ))
@@ -1115,9 +1115,9 @@
    )
   :hint (
     (point (string "The problem statement tells you the components of ~a." ?vec))
-    (bottom-out (string "Use ~A to draw ~a at an approximately correct angle.  After defining the vector, use ~A to enter values for the components."
-			(*vector-tool* eval)
-			?vec ?dir-expr) (*equation-tool* eval))
+    (bottom-out (string "Use ~A to draw ~a.&nbsp;  After defining the vector, use ~A to enter values for the components."
+			(*z-axis-vector* eval)
+			?vec (*equation-tool* eval)))
     ))
 
 
