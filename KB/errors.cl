@@ -1350,28 +1350,6 @@
 ;;; known/unknown error. Need several defaults under (1) to give special 
 ;;; messages for these.
 
-
-;;; need should-be-z-unknown for unknown but in the z direction.
-(def-error-class default-should-be-z-unknown ()
-  ((student (vector ?descr ?dir))
-   (correct (vector ?descr z-unknown))
-   (test (not (or (eql ?dir 'into) (eql ?dir 'out-of))))))
-
-(defun default-should-be-z-unknown ()
-  (make-hint-seq
-   (list 
-    (strcat "When the direction of a vector is not given or easily "
-	        "inferred from the problem statement, you should mark "
-		"it unknown.  Since you do know the vector points along "
-		"the z-axis, either into or out of the plane of the diagram "
-		"you should define it as having an unknown z axis direction.")
-        "Double-click on the vector in order to bring up its properties, then select Unknown Z Direction from the drop-down list in the box to the right of the direction variable"
-	 )))
-
-;;; case should-be-known is adequately handled by general wrong direction 
-;;; handler:"Do you want the direction to be unknown?...It should be 30 degrees"
-
-
 ;;; If the student draws a zero length vector when it should be non-zero,
 ;;; or vice versa, prompt then bottom out.  Tests should ensure that 
 ;;; default-wrong-dir doesn't apply on zero/non-zero error so leave with 

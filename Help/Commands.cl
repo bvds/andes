@@ -112,8 +112,7 @@
   (let* ((new-id (StudentEntry-id entry))
 	 (var (StudentEntry-symbol entry))
 	 (tmp (student-to-canonical var))
-	 (result (when tmp (solver-power-solve 
-			    31 (student-to-canonical var) new-id))))
+	 (result (when tmp (solver-power-solve 31 tmp new-id))))
     
     (cond ((and result (listp result)) 
 	   (solve-for-var-success entry result))
