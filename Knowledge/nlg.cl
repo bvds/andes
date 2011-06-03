@@ -72,8 +72,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun get-default-phrase (x)
-  (when x
-    (match:word-string (expand-vars (new-english-find x) :html-format t))))
+  (let ((y (expand-vars (new-english-find x) :html-format t)))
+    (when y (match:word-string y))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
