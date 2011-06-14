@@ -3451,10 +3451,10 @@
     ;(?dir rotation-name) (?t pp) (?dir adj)
     ;(*vector-tool* eval)
     ;?b (?dir adj)))
-    (bottom-out (string "Because it is accelerating in a ~a direction ~a, you should use ~A to draw ~A pointing ~A." 
-	    (?dir rotation-name) (?t pp) (?dir adj)
+    (bottom-out (string "Because it is accelerating in a ~a direction, you should use ~A to draw ~A pointing ~A." 
+	    (?dir rotation-name)
 	    (*vector-tool* eval)
-	    (ang-accel ?b :time ?t) (?dir adj)))
+	    ((ang-accel ?b :time ?t) def-np) (?dir adj)))
     ))
 
 (defoperator draw-ang-accel-speed-up (?b ?t)
