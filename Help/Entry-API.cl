@@ -1001,10 +1001,10 @@
 	   (add-implicit-eqn entry (make-implicit-assignment-entry symbol 1)))
 	 ;; if direction is known, associate implicit equation dirV = dir deg.
 	 (when (and (degree-specifierp (third prop))
-		    (degree-specifierp dir-term))          ; known xy plane direction
+		    (degree-specifierp dir-term))          ;known xy plane direction
 	   (add-implicit-eqn entry (make-implicit-assignment-entry dir-label dir-term)))
 	 (when (and (z-dir-spec (third prop))
-		(z-dir-spec dir-term)) ; known z axis direction
+		(z-dir-spec dir-term)) ;known z axis direction
 	   (add-implicit-eqn entry (make-implicit-assignment-entry dir-label (zdir-phi dir-term))))
 	 
 	 ;; Associated eqns will be entered later if entry is found correct.
@@ -1053,13 +1053,11 @@
       (with-text-handler))
 
   (let* ((id (StudentEntry-id entry))
-	 ;; Needs to be determined from natural language 
-	 ;;
-	 (mag (StudentEntry-radius entry))
-	 (label (StudentEntry-symbol entry))
-	 ;; note dir may be dnum or 'unknown (and maybe into/out-of)
+	 (symbol (StudentEntry-symbol entry))
+	 (drawn-mag (StudentEntry-radius entry))
+	 ;; See comments about unknown directions in function lookup-vector.
 	 (dir-term (arg-to-dir (StudentEntry-angle entry)
-			       :mag-arg mag
+			       :mag-arg drawn-mag
 			       :cosphi (StudentEntry-cosphi entry)
 			       :modulus 180)) ;lines defined mod 180 deg
 	 ;; this defines magnitude and direction variables
@@ -1072,32 +1070,36 @@
 	 ;; Don't append to empty symbol
 	 (dir-label (strcat-nonzero 
 		     (if (z-dir-spec dir-term) "\\phi" "\\theta")
-		     label)))
+		     symbol)))
 
     (multiple-value-bind (prop tturn hints)
 	(match-student-phrase entry 'draw-line)
 
       (cond 
 	(prop
-	 ;; Use the quantity from the best match with angle we actually got.
-	 (setf action (list 'draw-line 
-			    (second prop) dir-term))
+	 ;; Use the quantity from the best match with angle we actually got,
+	 ;; unless the best-match quantity is unknown.
+	 (setf action (list 'draw-line (second prop) 
+			    (if (member (third prop) '(unknown z-unknown))
+				(third prop)
+				dir-term)))
 	 (setf line-term (second action))
 	 (setf line-mag-term `(mag ,line-term))
 	 (setf line-dir-term `(dir ,line-term))
 
 	 (setf (StudentEntry-prop entry) action)
-	 (check-symbols-enter label line-term id :namespace :objects)
-	 (check-symbols-enter label line-mag-term id)
+	 (check-symbols-enter symbol line-term id :namespace :objects)
+	 (check-symbols-enter symbol line-mag-term id)
 	 (check-symbols-enter dir-label line-dir-term id)
 	 
 	 ;; if direction is known, associate implicit equation dirV = dir deg.
-	 (when (degree-specifierp dir-term)          ; known xy plane direction
+	 (when (and (degree-specifierp (third prop))
+		    (degree-specifierp dir-term))         ;known xy plane direction
 	   (add-implicit-eqn entry 
 			     (make-implicit-assignment-entry 
 			      dir-label dir-term)))
-	 (when (and (z-dir-spec dir-term) 
-		    (not (equal dir-term 'z-unknown))) ; known z axis direction
+	 (when (and (z-dir-spec dir-term)
+		    (z-dir-spec dir-term))   ;known z axis direction
 	   (add-implicit-eqn entry 
 			     (make-implicit-assignment-entry 
 			      dir-label (zdir-phi dir-term))))
