@@ -85,6 +85,7 @@
 	<div id="footerPane" dojoType="dijit.layout.ContentPane" region="bottom"></div>
     </div>
     
+    
     <div dojoType="dojox.widget.UpgradeBar" id="upgradeBar">
 	<div validate="dojo.isIE<7">
 	    <span>There may be performance problems with IE 6.0. An upgrade is recommended.</span>
@@ -131,6 +132,9 @@
 	    </tr>
 	</table>
     </div>
-
+    
+    <!--Because this is a widget it is included in markup and NOT like the other plugins-->
+    <div dojoType="dojox.drawing.plugins.drawing.GreekPalette" id="greekPalette">
+    </div>
 </body>
 </html>
