@@ -60,7 +60,7 @@
     ((eql (first eq) 'dnum)
      ;; may add parentheses if there are units or errors
      (wrap-parentheses (and parent (or (third eq) (member :error eq)))
-		       (get-default-phrase eq)))
+		       (def-np eq)))
     ;; binary operators
     ((member (car eq) '(/ ^))
      (when (cdddr eq) (warn "binop with ~A" eq))

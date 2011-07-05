@@ -482,7 +482,7 @@
 		   "I interpreted your definition ~@[of <var>~A</var> ~]as:&nbsp; ~A."
 		   (when (> (length (StudentEntry-symbol entry)) 0)
 		     (StudentEntry-symbol entry))
-		   (get-default-phrase (second full-prop)))))
+		   (def-np (second full-prop)))))
       `((:action . "show-hint") (:text . ,phr)))))
 
 (defun nothing-to-match-ErrorInterp (entry tool-prop)
@@ -524,7 +524,7 @@
 			     ;; In the case of a body, it won't be found
 			     ;; in the general quantity ontology; just print
 			     ;; the name of the object as a string.
-			     (get-default-phrase x)))
+			     (def-np x)))
 	   (delete-duplicates (mapcar #'second full-props) :test #'unify))
    :test #'equal)) ;for the strings
 
@@ -544,7 +544,7 @@
 		    ambiguous		    
 		    (format nil "Did you mean?~%<ul>~%~{  <li>~A</li>~%~}</ul>"
 			    (mapcar #'(lambda (x) 
-					(get-default-phrase (second x)))
+					(def-np (second x)))
 				    full-props)))
 		   (list
 		    (strcat ambiguous 
@@ -704,7 +704,7 @@
   (let ((rem (make-hint-seq
 	      (list (format nil 
 			    "You have already defined ~A~:[ as ~A~1*~;~1* to be <var>~A</var>~]."
-			    (get-default-phrase (second prop))
+			    (def-np (second prop))
 			    (> (length (StudentEntry-symbol old)) 0)
 			    (studentEntry-text old)
 			    (StudentEntry-symbol old)))

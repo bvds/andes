@@ -831,13 +831,13 @@
   ;; Generally, we expect the objects to be already defined before
   ;; angle-between is defined.  Thus, the variable names will be available.
   :new-english ((the) (key "angle") "between" 
-		(conjoin 
-		 (or "and" "&") . 
-		 (eval (mapcar 
-			#'(lambda (x) `(or (variable ,x :namespace :objects) 
-					   ,x))
+		    (conjoin 
+		     (or "and" "&") . 
+		     (eval (mapcar 
+			    #'(lambda (x) `(or (variable ,x :namespace :objects) 
+					       ,x))
 			?vecs)))))
-
+  
 (def-qexp total-energy (total-energy ?system :time ?time) 
   :rank scalar
   :units |J|
@@ -1043,7 +1043,7 @@
 (defun ont-vector-entryprop-format-func (Body Quantity Direction)
   "Format the vector entry."
   (declare (ignore body))
-  (let ((Quant (get-default-phrase Quantity))
+  (let ((Quant (def-np Quantity))
 	(Dir (if (listp Direction) (nlg Direction)
 	       (nlg Direction 'adjective))))
     (if (listp Direction) 
