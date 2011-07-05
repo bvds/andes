@@ -1812,7 +1812,7 @@
 	(progn (warn 'webserver:log-warn 
 		     :tag (list 'return-answer-quantity-short-english sought)
 		     :text "no ontology match")
-	       (get-default-phrase sought)))))
+	       (def-np sought)))))
 
 (defun nsh-sought-resp-ambiguous (full-props Past)
   "Return a message signifying ambiguous sought supplied."
@@ -1863,7 +1863,7 @@
    (format nil "Sorry, ~A is not sought by the problem statement."
 	   (let ((var (symbols-label quant)))
 	     (if var (strcat "<var>" var "</var>")
-		 (get-default-phrase quant))))
+		 (def-np quant))))
    (cons quant Past) :Case 'not-sought))
 
 
@@ -1893,7 +1893,7 @@
   (let ((Sought (car (get-unsolved-soughts))))
     (make-explain-more-turn
      (strcat "Let's just assume that you are seeking "
-	     (get-default-phrase Sought) ".")
+	     (def-np Sought) ".")
      :hint (nsh-ask-first-principle 
 	    "" (match-exp->qnode Sought (problem-graph *cp*)))
      :Assoc `((nsh tell-sought ,Case ,Sought)))))

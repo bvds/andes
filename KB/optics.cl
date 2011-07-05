@@ -515,6 +515,9 @@
 ;; Need to add trivial wrapper to Ontology, to compensate.
 (def-qexp line (line ?r)
   :units nil
+  ;; Used in the hint for the line tool in quantity-html-link.
+  ;; indefinite noun phrase.
+  :short-name "a line" 
   :new-english ?r)
 
 ;; Helper routine to give expression for a line
@@ -684,7 +687,7 @@
   :short-name "total internal reflection (minimum angle)"
   :nlg-english ("Formula for angle of total internal reflection")
   :ExpFormat ("using total internal reflection formula for ~A (minimum angle)" 
-	      (nlg ?line1))
+	      (def-np ?line1))
   :eqnFormat ("n1 sin(&theta;1) = n2"))
 
 (defoperator total-internal-reflection-contains (?sought)
@@ -771,7 +774,7 @@
 	     (assume using-complimentary-angles . ?angles))
   :hint 
   ((point (string "What is the relation between ~A and ~A?"
-		  (?ang1 def-np) (?ang2 def-np)))
+		  (?ang1 variable-defnp) (?ang2 variable-defnp)))
    (teach (string "If two angles are complimentary, then their measure adds up to 90 degrees.")) 
    (bottom-out (string "Write the equation ~A." 
 		       ((= (+ ?angle1 ?angle2) (dnum 90 |deg|)) algebra)))

@@ -270,7 +270,7 @@
                   ;; And (a b) is turned into '(b 'a)
 		  ;; note that any subsequent arguments are not quoted.
 		  `(,(second v) (quote ,(car v)) . ,(cddr v))
-		  `(get-default-phrase (quote ,v))))
+		  `(def-np (quote ,v))))
 	  Vars))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

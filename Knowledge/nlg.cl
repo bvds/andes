@@ -71,7 +71,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-(defun get-default-phrase (x)
+(defun def-np (x)
   (let ((y (expand-vars (new-english-find x) :html-format t)))
     (when y (match:word-string y))))
 
@@ -132,24 +132,12 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-(defun def-np (x &rest args)
-  (declare (ignore args))
-  (if (listp x)
-      (get-default-phrase x)  
-    ;; Assume x is an atom
-    (cond ((numberp x)      (format nil "~A" x))
-	  ((pronounp x) (format nil "~(~A~)" x))
-	  ((upper-case-namep x) (format nil "~A" x))
-	  ((proper-namep x) (format nil "~(~A~)" x))
-	  ;; else assuming x is a common noun
-	  (T                (format nil "the ~(~A~)" x)))
-    ))
 
 (defun def-np-model (x)
   (if (listp x)
       x  
       ;; Assume x is an atom
-      (cond ((numberp x)      (format nil "~A" x))
+      (cond ((numberp x) (format nil "~A" x))
 	    ((pronounp x) (format nil "~(~A~)" x))
 	    ((upper-case-namep x) (format nil "~A" x))
 	    ((proper-namep x) 
@@ -158,6 +146,14 @@
 	    ;; else assume x is a common noun
 	    (T `((preferred "the") ,(format nil "~(~A~)" x))))
       ))
+
+(defun variable-defnp (x)
+  "Find English phrase for a quantity, allowing for possibility of an associated variable name."
+  (let ((y (expand-vars 
+	     ;; Create a model phrase.
+	     (expand-new-english `(or (variable ,x) ,x)) :html-format t)))
+    (when y (match:word-string y))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -171,14 +167,14 @@
 	(if (member (char (symbol-name x) 0) '(#\a #\e #\i #\o #\u #\A #\E #\I #\O #\U ))
 	    (format nil "an ~(~A~)" x)
 	  (format nil "a ~(~A~)" x)))
-    (get-default-phrase x)))
+    (def-np x)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun pp (x &rest args) 
   "return a temporal prepositional phrase for the given time"
   (declare (ignore args))
   (cond ((null x) NIL) ; NB: must be prepared for NIL for timeless things.
-	((listp x) (get-default-phrase x)) ;handles (during ...)
+	((listp x) (def-np x)) ;handles (during ...)
 	((numberp x) (format nil "at T~D" (- x 1)))
 	(t (format nil "at ~(~A~)" x))))
 
@@ -220,7 +216,7 @@
 	(if answer
 	    (format nil "~A" (cdr answer))
 	  (format nil "~(~A~)" x)))
-    (get-default-phrase x)))
+    (def-np x)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun adj (x &rest args)
   (adjective x args))
@@ -239,11 +235,13 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-(defun conjoined-defnp (x &rest args)
-  (declare (ignore args))
-  (if (atom x)
-      (nlg-atom-default x)
-    (nlg-print-list x "and" 'def-np)))
+(defun conjoined-defnp (x &optional (conjunction "and"))
+  "Expand a list of objects using conjoin."
+  (let ((y (expand-vars 
+	    (expand-new-english
+	     ;; Create a model phrase.
+	     (list* 'conjoin conjunction x)) :html-format t)))
+    (when y (match:word-string y))))
 
 (defun conjoined-names (x &rest args)
   "assume list is proper names"
@@ -258,16 +256,16 @@
   (declare (ignore args))
   (if (atom x)
       (format nil "T~(~A~)" (if (numberp x) (1- x) x))
-    (get-default-phrase x)))
+    (def-np x)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  This is a shortcut for including time when it exists
 (defun at-time (x &rest args)
   (when (cdr args) (warn "unexpected extra args ~A in at-time" (cdr args)))
   (if (= (length args) 1)
-      (format nil "~A~@[ ~A~]" (get-default-phrase x)
-	      (get-default-phrase (list 'time (car args))))
-      (get-default-phrase x)))
+      (format nil "~A~@[ ~A~]" (def-np x)
+	      (def-np (list 'time (car args))))
+      (def-np x)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -275,7 +273,7 @@
   (declare (ignore args))
   (if (atom x)
       (format nil "~(~A~)" x)
-    (get-default-phrase x)))
+    (def-np x)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

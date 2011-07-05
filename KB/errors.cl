@@ -238,7 +238,7 @@
 
 
 (defun agent-phrase (agent)
-  (when agent (get-default-phrase `(agent ,agent))))
+  (when agent (def-np `(agent ,agent))))
 
 
 ;;;; ============== Defining variables =============================
@@ -1542,10 +1542,10 @@
   (setf wrong-body (nlg wrong-body 'def-np))
   (make-hint-seq
    (list (format nil "Are you sure you want to define a vector for ~a?" 
-		 (get-default-phrase wrong-body))
+		 (def-np wrong-body))
 	 (format nil (strcat "A better choice of body (but maybe not the "
 			     "only one) would be ~a.") 
-		 (get-default-phrase correct-body)))))
+		 (def-np correct-body)))))
 
 
 ;;; On some problems, the student's vector just doesn't appear in any solution.
@@ -1871,7 +1871,7 @@
 	 (format nil "Draw a ~a force on ~a~@[ ~A~]~@[ instead of ~a~]."
 		 (nlg type 'adj) (nlg body 'def-np)
 		 (agent-phrase cagent)
-		 (get-default-phrase sagent)))))
+		 (def-np sagent)))))
 
 
 
@@ -2844,13 +2844,13 @@
    (list
     (if sagent
 	(format nil "Is ~a the source of the ~a field?"
-                        (get-default-phrase sagent) (nlg fieldtype 'adj))
+                        (def-np sagent) (nlg fieldtype 'adj))
 	(format nil "What is source of the ~a field?"
 		(nlg fieldtype 'adj)))
     (format nil (strcat "A better choice (but maybe not the only one) "
                          "would be the field~@[ ~A~]~@[, not ~a~].") 
                           (agent-phrase cagent) 
-			  (get-default-phrase sagent)))))
+			  (def-np sagent)))))
 
 ;; instead of non-existent-vector when net-field is used:
 (def-error-class should-be-net-field (?type) 
