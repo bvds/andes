@@ -345,7 +345,9 @@
   ;; Then run through general Ontology to find match.
   (multiple-value-bind (rule bindings)
       (lookup-expression-struct prop)
-    (when bindings 
+    ;; some members of Ontology are just for internal use
+    ;; and have no natural language phrase associated with them.
+    (when (and bindings (ExpType-new-english rule))
       (return-from new-english-find
 	(expand-new-english (ExpType-new-english rule) bindings))))
   
