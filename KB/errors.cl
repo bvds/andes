@@ -1940,6 +1940,7 @@
      (if (equal ?sdir ?cdir) 0.1 0.0)))
 
 (defun force-type-unspecified (body agent ctype)
+  (declare (ignore agent))
   (make-hint-seq
    (list (strcat "You need to specify the <em>kind</em> of "
 			     (quantity-html-link 
