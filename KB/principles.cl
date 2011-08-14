@@ -1831,7 +1831,7 @@ $display
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;;                Temporary holder for Guerra assignments
+;;;                Temporary holder for class-specific assignments
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1865,3 +1865,32 @@ $display
 ("Chapter 25: Magnetic Fields" (MAG1A MAG6A MAG6C MAG8A FARA2A FARA4B FARA3A FARA5A FARA6B FARA10B FARA11A))
 ("Chapter 27: Geometric Optics" (Lens1A LENS2B LENS3A REF2C))
 ("Chapter 28: Physical Optics" (WAVE19 INT1A INT1B INT1D))))
+
+
+(defvar *blacwood-assigned* 
+'(
+("Vectors" (Vec1ay vec1b vec1d vec1e vec2a vec2c vec3a vec3b vec4a vec4b 9 mot1 mot2))
+("Kinematics Graphs" (kgraph1 kgraph2 kgraph3 kgraph5b kgraph5c kgraph6 kgraph8 kgraph11 kgraph13))
+("Translational Kinematics" (kt1a kt1b kt2a kt3a kt4a kt5a kt6a kt8a kt9a kt9b kt9c kt10a kt10c kt11a kt11b kt11c kt13a kt13d))
+("Free Body Diagrams" (fbd1b fbd2a fbd3a fbd4a fbd6a fbd8 fbd9 fbd11))
+("Statics" (s1b s1c s1d s1f s2a s2b s4a s5a s6a s10a s11a s12a))
+("Translations Dynamics" (dt1 dt1a dt1b dt1c dt2a dt3a dt3c dt4a dt6c dt7a dt9a dt12a dt13a dt13b dt16))
+("Circular Motion" (rots1a rots3a rots4a rots7a))
+("Work and Entergy" (Weq2 weq4 weq5 e1a e1b e2b e3a e4b e5a e5b e6a e9b e11a we1a we3a))
+("Power" (pow1a pow1b pow3a pow5c))
+("Linear Momentum" (lmom1a lmom2a imp1 imp2 imp3a cm3 roc1))
+("Rotational Kinematics" (kr8 kr9 kr1a kr3b kr7a))
+("Rotational Dynamics" (dr2a dr3a dr8a))
+("Fluids" (fluids1 fluids9 fluids11 fluids12))
+("Oscillations" (osc3 osc5 osc6 osc7 osc8))
+("Waves" (wave1 wave2 wave3 wave10 wave12 wave24))
+("Electric Field" (charge1a charge1b charge2 coul1a coul3 ediag1 efield1b efield1d efield2 efield3 efield4a efield4b for1a for7b elec1a elec1d gauss1 gauss4))
+("Electric Potential" (epot1a 2 pot1b pot3b))
+("Resistance" (eqres1a eqres1c eqres1d eqres1e eqres4a eqres5a))
+("Capacitance" (eqcap1a eqcap6a cap1b cap6a cap6b cap9b))
+("DC Circuits" (kir1a kir1b kir3a kir4a epow1 epow3 epow4)) 
+("Magnetic Field" (mag1b mag1c mag2a magtor1a mag6a mag7 mag8a))
+("Electromagnetic Induction" (fara1a fara2a fara4a fara5c fara6a fara10a fara10b))
+("Electromatics Waves" (emwave1 wave19 emwave3a))
+("Optics" (mirror1 mirror2 mirror4 lens1a lengs2b lens5a lens5b ref1 ref2a ref2b ref3a ref3b ref4a ref4b ref5a))
+))
