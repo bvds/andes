@@ -148,7 +148,7 @@
 (defun set-kcs ()
   (andes-init)
   (let (prob-kcs results)
-    (dolist (set *sets*)
+    (dolist (set (cadr *sets*))
       (let (all required)
 	(dolist (prob (second set))
 	  (unless (assoc prob prob-kcs)
