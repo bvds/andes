@@ -770,15 +770,8 @@
 	  :assoc `((no-label . ,(StudentEntry-type entry))))))
     
     (cond
-      ;; Normal case:  turn is not colored.  Unsolicited hint.
-      ((null (andes-database:get-state-property 'raj-experiment :model "server"))
-       rem)
-      ;; Raj experimental condition gets unsolicited hint if they
-      ;; have not mastered skill.
-      ((and 
-	(eql (andes-database:get-state-property
-		'raj-experiment :model "server") 'experiment)
-	(incremented-property-test 'object-with-label 3))
+      ;; Student gets unsolicited hint if they have not mastered skill.
+      ((incremented-property-test 'object-with-label 3)
        (setf (StudentEntry-ErrInterp entry)
 	     (make-ErrorInterp
 	      ;; right now, this is never logged.

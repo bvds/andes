@@ -108,13 +108,6 @@
 (defconstant +floundering-turns+ 3)
 (defconstant +master-clicking+ 2)
 
-;; To test: 
-;; login as student in section "study" to create section.
-;; (set-state-property 'raj-experiment 'experiment :model "server" :section "study" :student nil :tid t)
-;; (set-state-property 'intro-video-opened t :section "study" :student nil :tid t)
-;; Monitor status with:
-;;  (get-session-variable "bvdsvec1a1301333460364" 'session:*state-cache*)
-
 (defun use-help-button-hint-test (time)
   (when nil  ;debug flag
     (format webserver:*stdout* "use-help-button-hint-test ~A ~A ~A ~A~%"
@@ -127,8 +120,7 @@
 	    (and (get-state-property 'h-turns)
 		 (> (get-state-property 'h-turns) +floundering-turns+))))
   
-  (and (equal (get-state-property 
-	       'raj-experiment :model "server") 'experiment)
+  (and 
        ;; Test that it was a red turn.
        (get-state-property 'f-time)
        (or 
@@ -178,9 +170,7 @@
 ;; give hint telling them that they can click on links.
 
 (defun model-link-click-test ()
-  (and (equal (get-state-property 
-	       'raj-experiment :model "server") 'experiment)
-       (incremented-property-test 'CLICKED-HELP-LINK +master-clicking+)))
+  (incremented-property-test 'CLICKED-HELP-LINK +master-clicking+))
 
 (defun model-link-click ()
   '((:action . "show-hint")
