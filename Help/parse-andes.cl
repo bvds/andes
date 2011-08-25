@@ -530,13 +530,14 @@ question, and put it in the student entry's err interp field."
     (setf (turn-id rem) (StudentEntry-id se))
     (setf (turn-coloring rem) +color-red+)
     
-    ;; For Raj experiment, control group make hint solicited.
-    ;; This is more consistant with the general policy of making
-    ;; physics-related hints solicited.
-    (if (eql (andes-database:get-state-property
-	      'raj-experiment :model "server") 'control)
-	(make-red-turn :id (StudentEntry-id se))
-	rem)))
+    ;; Follow Raj experiment, experimental condition to make
+    ;; this an unsolicited hint.  However, we follow the general 
+    ;; policy of making physics-related hints solicited.
+    ;; We do want students to learn the skill of recognizing and
+    ;; self-correcting such errors.
+    ;; Might want to make this unsolicited if the student has not
+    ;; mastered some skill?  Which skill?
+    (make-red-turn :id (StudentEntry-id se))))
 
 
 (defun assignment-eqn (parsed-eqn)
@@ -548,7 +549,7 @@ question, and put it in the student entry's err interp field."
        (assignmentp (second parsed-eqn) (third parsed-eqn))))
 
 
-;; maybe-forgot units is returned when equation is dimensionally 
+;; maybe-forgot-units is returned when equation is dimensionally 
 ;; inconsistent but could be dimensionally OK if numbers are treated as 
 ;; having unknown units -- though it STILL fails to balance acceptably. 
 ;; So we are unsure what the true cause of the inconsistency is, 
@@ -577,13 +578,8 @@ err interp field."
     (setf (turn-id rem) (StudentEntry-id se))
     (setf (turn-coloring rem) +color-red+)
     
-    ;; For Raj experiment, control group make hint solicited.
-    ;; This is more consistant with the general policy of making
-    ;; physics-related hints solicited.
-    (if (eql (andes-database:get-state-property
-	      'raj-experiment :model "server") 'control)
-	(make-red-turn :id (StudentEntry-id se))
-	rem)))
+    ;; See comments in forgot-units-ErrorInterp
+    (make-red-turn :id (StudentEntry-id se))))
 
 ;; If this is a simple numerical assignment statement, we can say more 
 ;; specifically that units are wrong.
@@ -602,13 +598,8 @@ follow-up question and put it in the student entry's err interp field."
     (setf (turn-id rem) (StudentEntry-id se))
     (setf (turn-coloring rem) +color-red+)
     
-    ;; For Raj experiment, control group make hint solicited.
-    ;; This is more consistant with the general policy of making
-    ;; physics-related hints solicited.
-    (if (eql (andes-database:get-state-property
-	      'raj-experiment :model "server") 'control)
-	(make-red-turn :id (StudentEntry-id se))
-	rem)))
+    ;; See comments in forgot-units-ErrorInterp
+    (make-red-turn :id (StudentEntry-id se))))
 
 (defun solver-exception-interp (se)
   ;; To tag buggy unprocessable parse so can prefer others. Hopefully won't 
