@@ -24,7 +24,7 @@
 	<script>
 		doSubmit = function(){
 			var u = document.getElementById("user").value;
-			if(! u){
+                        if(! u.replace(/\s+$/, '')){
 			  alert("Please enter a user name.");
 			  form.user.focus();
 			  return;

@@ -448,7 +448,8 @@ list of characters and replacement strings."
   ;; Nothing found
   (values nil nil))
 
-(defun set-state-property (property value &key (student session:*user*) 
+(defun set-state-property (property value &key 
+			   (student session:*user*)
 			   (section session:*section*)
 			   (model "default")
 			   no-store
@@ -457,6 +458,13 @@ list of characters and replacement strings."
 that parameter.  If tID is not specified, insert at end of turn; 
 if it is an integer, insert directly with specified tID; 
 otherwise, use latest step tID.  No-store means add to cache only."
+
+  ;; Test that student is not empty string.
+  ;; The correct way for setting up section defaults is by using nil for student.
+  (when (and (stringp student) 
+	     (equal (string-right-trim match:*whitespace* student) ""))
+    (error 'webserver:log-error :tag 'empty-student-string 
+	   :text "Null string sent for student"))
 
   ;; Save in cache, by either updating or pushing
   (unless tID

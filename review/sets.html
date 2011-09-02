@@ -103,8 +103,8 @@
     var query = dojo.queryToObject(window.location.search.substring(1));
     var s = query.s || "andestutor.org";
     var x = query.x || "web-UI";
-    if(! u){
-      alert("Please enter a user name.");
+    if(! u.replace(/\s+$/, '')){
+     alert("Please enter a user name.");
       return;
     }  
     if(! thisProblem){
