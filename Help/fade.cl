@@ -45,8 +45,9 @@
 			  (member (second (car fade)) (problem-soughts *cp*)
 				  :test #'unify)
 			  (car fade))
-		     (warn "No systementry, bgnode, solver, or answer match for ~A"
-			   (car fade))))
+		     (warn  'webserver:log-warn 
+			    :tag (list 'invalid-fade-proposition (car fade))
+			    :text "No systementry, bgnode, solver, or answer match.")))
 	       ;; Evaluate the hints.
 	       ;; The result should be a list of strings.
 	       (eval (cdr fade))))))
