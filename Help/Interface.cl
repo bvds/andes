@@ -336,10 +336,11 @@
     (when (and (turn-coloring turn) (not (turn-id turn))) 
       (warn "turn->WB-Reply has no id for ~S" turn))
     (case (turn-coloring turn)
-      (color-green (model-green-turn)
+      ;;  Predefs have no time slot, don't want them to affect any model.
+      (color-green (when time (model-green-turn))
 		   (push `((:action . "modify-object") (:id . ,id)
 			   (:mode . "correct")) result))
-      (color-red (model-red-turn time)
+      (color-red (when time (model-red-turn time))
 		 (push `((:action . "modify-object") (:id . ,id)
 			 (:mode . "incorrect")) result))
       )
