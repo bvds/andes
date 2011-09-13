@@ -11,8 +11,8 @@ create:
 
 push:
 	ssh ${SERVER} '(cd public_html/;rm -r -f *-problems/ *-maps/)'
-	scp -r *-problems/ ${SERVER}:public_html/
-	scp -r *-maps/ ${SERVER}:public_html/
+	scp -p -r *-problems/ ${SERVER}:public_html/
+	scp -p -r *-maps/ ${SERVER}:public_html/
 	@echo "On lon-capa server, as root do:"
 	@echo 'cd public_html/; chown -R www.bvds *-problems *-maps'
 

@@ -162,3 +162,39 @@
 ("Thin Film Interference" (Int2a int2b))
 ("Diffraction by Small Apertures" (Ref4a ref4b ref5a ref5b))
 )))
+
+
+;;;;
+#|
+ (asdf:operate 'asdf:load-op 'lon-capa)
+  (lon-capa-problem-maps *sets* "/res/asu/bvds/all-problems" 
+		       :practice-p t
+		       :exclude-sets *mamenko-2011*
+		       :path #P"mamenko-maps/"
+		       :title "Practice problems")
+(lon-capa-problem-maps *mamenko-2011* "/res/asu/bvds/all-problems" 
+		       :path #P"mamenko-maps/"
+		       :title "Assigned problems")
+
+|#
+;;;;
+
+(defvar *mamenko-2011* 
+'("First few weeks of assignments."
+(
+ ("Set 1: Translational Kinematics" (kt1a kt1b kt4a ;kt4b kt4c kt5a 
+		kt6a kt6b kt7a kt8b ;kt9b kt9c 
+		kt10c 
+					;kt11b kt11c 
+		kt13a kt13d kgraph1 kgraph2 kgraph3 kgraph4 kgraph5 
+		kgraph5b kgraph5c kgraph5d kgraph6 kgraph8
+		))
+("Set 2: Vectors" 
+ (
+  kt4b kt4c kt5a kt9c kt11b kt11c
+       vec1a vec1b vec1c vec1d vec1e vec3a vec3b vec3c vec6a vec6b vec6c vec6d))
+("Set 3: Translational Dynamics" (fbd1a fbd2a fbd3a
+   s1a s1b s1c s2a s2b s2c s2d ;s11a s11b
+   dq1 dt1a dt4a dt4b dt6b dt6c dt7a dt8a dt10a dt16 dt17))
+("Set 4: Energy and Work" (s11a s11b weq1 weq2 weq4 e1a e1b e3a e8a we1a))
+)))

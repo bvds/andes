@@ -715,7 +715,8 @@
 ;; for problems like the bumblebee where the trajectory over the interval
 ;; is irregular but the net displacement direction is known.
 
-(defoperator draw-displacement-given-dir (?b ?t)
+;; See bug #1899
+(defoperator draw-displacement-given-dir (?b ?t) 
   :description 
    "If you are given the direction of a net displacement over an interval
    then draw a displacement vector for it in the direction of its motion."
@@ -1241,6 +1242,7 @@
 	    (vector-diagram ?rot (relative-vel ?b1 ?b2 ?b3 ?t))
 	    ))
 
+;; See bug #1899
 (defoperator draw-relative-vel-given-dir (?b1 ?b2 ?t)
   :description "If the relative velocity vector of a body wrt to
                    something else is needed & the direction is given, 
@@ -1662,6 +1664,7 @@
 
 ;; draw acceleration when all we are given is its direction, and have no
 ;; other specification about the motion. Used in simple vector problems.
+;; See bug #1899
 (defoperator draw-accel-given-dir (?b ?t)
   :description 
    "If you are given the direction of acceleration at some time
@@ -1691,6 +1694,44 @@
     ;(bottom-out (string "The problem specifies that the acceleration of ~a ~a is at ~a, so just draw an acceleration vector oriented at ~a." ?b (?t pp) ?dir ?dir))
     (bottom-out (string "The problem specifies that ~a is at ~a, so just draw an acceleration vector oriented at ~a." ((accel ?b :time ?t) def-np) ?dir ?dir))
     ))
+
+;; draw acceleration when all we are given is its direction, and have no
+;; other specification about the motion. Used in simple vector problems.
+;; See bug #1899
+(defoperator draw-accel-given-dir-with-hint (?b ?t)
+  :description 
+   "If you are given the direction of acceleration at some time
+   then draw an acceleration vector for it in the given direction."
+  :preconditions
+   ((in-wm (given (dir (accel ?b :time ?t-given)) ?dir :hint ?hints))
+    (test ?hints)
+    (test (not (equal ?dir 'unknown)))  
+    (time ?t)
+    (test (tinsidep ?t ?t-given))
+    ;; make sure no other motion specification in problem for time
+    ;; !! Too strict, some motion specs leave accel dir out.
+    (not (motion ?b ?dontcare :time ?t-motion . ?whatever)
+         (tinsidep ?t ?t-motion))
+    (not (vector ?b (accel ?b :time ?t) ?dir))
+    (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?dir))
+    (bind ?hint1 (car ?hints))
+    (bind ?hint2 (second ?hints))
+    (bind ?hint3 (third ?hints))
+    )
+  :effects
+   ((vector ?b (accel ?b :time ?t) ?dir)
+    (variable ?mag-var (mag (accel ?b :time ?t)))
+    (variable ?dir-var (dir (accel ?b :time ?t)))
+    (given (dir (accel ?b :time ?t)) ?dir)
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (accel ?b :time ?t)))
+    ) 
+   :hint
+   ((point (string "~a" (?hint1 identity)))
+    (teach (string "~a" (?hint2 identity)))
+    (bottom-out (string "~a" (?hint3 identity))))
+   )
 
 ;; draw average acceleration when we know that the motion is 
 ;; curved (from a motion statement), but no direction is given.
@@ -1856,7 +1897,7 @@
   :effects
   ((eqn (= ?accel-var ?g-var) (free-fall-accel ?b ?t)))
   :hint
-  ((teach (string "If an object is in free-fall near a planet, its acceleration equals the acceleration due to gravity for that planet. The variable g is predefined in Andes to denote the magnitude of the gravitational acceleration, so you don't have to define g before you use it. However, you will have to enter an equation giving the value of g."))
+  ((teach (string "If an object is in free-fall near a planet, its acceleration equals the acceleration due to gravity for that planet. The variable <var>g</var> is predefined in Andes to denote the magnitude of the gravitational acceleration, so you don't have to define <var>g</var> before you use it. However, you will have to enter an equation giving the value of <var>g</var>."))
    (bottom-out (string "Write the equation ~A." ((= ?accel-var ?g-var) algebra)))
    ))
 
@@ -1911,6 +1952,7 @@
 ;;; the projectile motion spec
 ;;; Like draw-centripetal-accel in pulling dir from curved motion spec, 
 ;;; differing only in that it does not assume uniform circular motion.
+;; See bug #1899
 (defoperator draw-accel-projectile-given-dir (?b ?t)
    :preconditions 
    (
