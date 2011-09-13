@@ -65,9 +65,10 @@
       (mapcar #'third (remove '(vector . ?rest) 
 			      (problem-wm problem)
 			      :test-not #'unify))
-      ;; Only needed for dra1a-old and magtor1a (as of Oct. 2010).
-      ;; These are vector drawing problems involving torques.
-      (mapcar #'second (remove '(vector . ?rest)
+      ;; Qualitative problems do not have problem-wm set.
+      ;; This retrieves any vectors from qualitative problems
+      ;; with vector drawing.
+      (mapcar #'third (remove '(vector ?b ?quantity . ?rest)
 			       (loop for x in (second (problem-graph problem))
 				     append (collect-psmgraph-csdo-effects
 					     (enode-path x)))
