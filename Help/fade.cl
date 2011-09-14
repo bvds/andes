@@ -27,35 +27,39 @@
   ;; match to either a systementry, a bubblegraph node, solver-tool
   ;; invocation or an answer variable.
   (setf *fades* 
-	(loop for fade in (problem-fade problem) collect
+	(loop for fade in (problem-fade problem)
+	      unless (car fade) do
+	      (warn 'webserver:log-warn
+		    :tag (list 'fade-null-prop fade)
+		    :text "Fade with null prop on load.")
+	      else collect
 	      (cons 
-	       (when (car fade)
-		 ;; uses *sg-entries*
-		 (or (find-systementry (car fade))
-		     (match-exp->bgnode (car fade) (problem-graph problem))
-		     ;; Solve for quantity that is in problem bubblegraph.
-		     (and (listp (car fade))
-			  (eql (first (car fade)) 'solve-for-var)
-			  (match-exp->qnode (second (car fade)) 
-					    (problem-graph *cp*))
-			  (car fade))
-		     ;; 
-		     (and (listp (car fade))
-			  (eql (first (car fade)) 'answer)
-			  (member (second (car fade)) (problem-soughts *cp*)
-				  :test #'unify)
-			  (car fade))
-		     (warn  'webserver:log-warn 
-			    :tag (list 'invalid-fade-proposition (car fade))
-			    :text "No systementry, bgnode, solver, or answer match.")))
+	       ;; uses *sg-entries*
+	       (or (find-systementry (car fade))
+		   (match-exp->bgnode (car fade) (problem-graph problem))
+		   ;; Solve for quantity that is in problem bubblegraph.
+		   (and (listp (car fade))
+			(eql (first (car fade)) 'solve-for-var)
+			(match-exp->qnode (second (car fade)) 
+					  (problem-graph *cp*))
+			(car fade))
+		   ;; 
+		   (and (listp (car fade))
+			(eql (first (car fade)) 'answer)
+			(member (second (car fade)) (problem-soughts *cp*)
+				:test #'unify)
+			(car fade))
+		   (warn  'webserver:log-warn 
+			  :tag (list 'invalid-fade-proposition (car fade))
+			  :text "No systementry, bgnode, solver, or answer match."))
 	       ;; Evaluate the hints.
 	       ;; The result should be a list of strings.
 	       (eval (cdr fade))))))
-
-
+  
+  
 ;; This should be called after any entries may have been completed.
-(defun update-fades (result)
-  "update list of fades, removing finished entries and returning a list of replies"
+(defun update-fades (result &key push-p)
+  "Update list of fades, removing finished entries and returning a list of replies"
   ;; Go through list and remove any that have been completed.
   (dolist (fade (copy-list *fades*)) ;copy so we can remove elements.
     ;; (format webserver:*stdout* "fade ~A~%" fade)
@@ -77,13 +81,16 @@
 			(let ((this-answer (find (car fade) *StudentEntries* 
 						 :key #'StudentEntry-prop
 						 :test #'unify)))
-			  (and this-answer (eql (studententry-state
-						 this-answer) +correct+))))))
+			 (and this-answer (eql (studententry-state
+						this-answer) +correct+))))))
       (setf *fades* (remove fade *fades*))))
+
   ;; When not on canvas, prompt next step in hint window.
   (when *fades*
-    ;; do backwards because of push being backwards
-    (dolist (text (reverse (cdr (car *fades*))))
-      (push `((:action . "show-hint") (:text . ,text))
-	    result)))
+    (dolist (text (cdr (car *fades*)))
+      ;; Push onto end of result.
+      (let ((x `((:action . "show-hint") (:text . ,text))))
+	(if push-p
+	    (push x result)
+	    (setf result (append result (list x)))))))
   result)

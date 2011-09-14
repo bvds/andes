@@ -580,11 +580,12 @@
 	  ;; Start up special dialog box.
 	  (push `((:action . "new-user-dialog")
 		  (:text . ,dialog-text)) replies)))
-
+      
       ;; If there was no previous session, perform initial update of 
       ;; faded items.  In the case of Fades in the Tutor pane, write 
       ;; initial instruction.
-      (unless solution-step-replies (setf replies (update-fades replies)))
+      (unless solution-step-replies
+	(setf replies (update-fades replies :push-p t)))
 
       ;; Enable z-axis vectors, based on problem features
       (unless (intersection '(circular rotkin angmom torque mag gauss) 
