@@ -211,6 +211,23 @@
 		       ((duration ?interval) def-np)))
    ))
 
+(post-process add-duration (problem)
+  "Add predef for duration"
+  ;; test whether other planets are involved in problem
+  (when ;; test whether any duration has been done as predef already
+	     (not (member '(define-var 
+			    (duration . ?rest))
+			  (problem-predefs problem) :key #'car :test #'unify))
+    (dolist (prop (mapcar #'qvar-exp (problem-varindex problem)))
+      (let ((vars (unify prop '(duration (during ?t ?tt)))))
+	(when vars
+	  (push `((define-var ,prop) . 
+		  ((:type . "statement")
+		   (:symbol . ,(format nil "t~A~A" 
+				       (- (cdr (assoc '?t vars)) 1)
+				       (- (cdr (assoc '?tt vars)) 1)))))
+		(problem-predefs problem)))))))
+
 ;;; This operator defines a speed variable.  Its only restriction is
 ;;; that there be an object and and an interval for it.  It expects to
 ;;; get these given to it by unification of a goal with its effects.

@@ -491,11 +491,17 @@
 
 (def-qexp during (during ?ta ?tb)
   :new-english (or ((or "between" "during") 
-			(allowed ((the) (allowed "time") "interval") )
-			(eval (moment ?ta)) (or "and" "&") 
-			(eval (moment ?tb)))
+		    (allowed ((the) (allowed "time") "interval") )
+		    (eval (moment ?ta)) (or "and" "&") 
+		    (eval (moment ?tb)))
 		   ((or "from" "during") (eval (moment ?ta)) 
-		    (or "to" "until") (eval (moment ?tb)))))
+		    (or "to" "until") (eval (moment ?tb)))
+		   ;; allow other order for "between ta & tb"
+		   ;; Heckler did this when trying a problem.
+		   ((or "between" "during") 
+		    (allowed ((the) (allowed "time") "interval") )
+		    (eval (moment ?tb)) (or "and" "&") 
+		    (eval (moment ?ta)))))
 
 ;;;; scalar quantities
 
