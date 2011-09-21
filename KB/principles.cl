@@ -367,7 +367,7 @@
 (defparameter *sets* 
 '("All Andes problems"
 (
-("Vectors" (vec1ay vec1a vec1b vec1c vec1d vec1e vec1f vec2a vec2b vec2c vec2d vec2e vec2f vec3a vec3b vec3c vec3d vec4a vec4b vec4c vec4d vec5a vec5b vec5c vec5d vec6a vec6b vec6c vec6d vec7a vec8a vec8b vec8c vec9 relvel1a relvel2a relvel3a mot1 mot2 mot3 mot4 mot5 vec20 vec21))
+("Vectors" (vec1ay vec1a vec1b vec1c vec1d vec1e vec1f vec2a vec2b vec2c vec2d vec2e vec2f vec3a vec3b vec3c vec3dy vec4a vec4b vec4c vec4d vec5a vec5b vec5c vec5d vec6a vec6b vec6c vec6d vec7a vec8a vec8b vec8c vec9 relvel1a relvel2a relvel3a mot1 mot2 mot3 mot4 mot5 vec20 vec21))
 ("Kinematics Graphs" (kgraph1 kgraph2 kgraph3 kgraph4 kgraph5 kgraph5b kgraph5c kgraph5d kgraph5e kgraph5f kgraph6 kgraph7 kgraph8 kgraph8b kgraph8c kgraph8d kgraph8e kgraph8f kgraph8g kgraph9 kgraph9b kgraph10 kgraph10b kgraph11 kgraph12 kgraph13 kgraph14 kgraph16 kgraph17 kgraph18 kgraph19 kgraph20 kgraph21 kgraph22 kgraph30 kgraph31))
 ("Translational Kinematics" (kq1 kt1a kt1b kt2a kt2b kt3a kt3b kt4a kt4b kt4c kt5a kt6a kt6b kt7a kt7b kt8a kt8b kt9a kt9b kt9c kt10a kt10c kt11ay kt11a kt11b kt11c kt12a kt12b kt12c kt13a kt13b kt13c kt13d kt14a kt14b kt20 kt21))
 ("Free Body Diagrams" (fbd1a fbd1b fbd2a fbd3a fbd4a fbd5a fbd6a fbd8 fbd9 fbd10 fbd11 fbd12 fbd13 fbd14 fbd15 fbd16))
