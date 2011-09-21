@@ -1,0 +1,40 @@
+<script type="text/javascript">
+    response=function(reply){
+      console.log("Dialog button response: ",reply);
+      andes.api.recordAction({type:"set-preference", name: "informed-consent", value: reply});
+      dijit.byId("consentDialog").hide();
+    };
+ </script>
+
+<h2>Physics 131 FEH<h2>
+<h3>Autumn 2011</h3>
+
+<div dojoType="dijit.layout.ContentPane" style="width: 300px; height: 200px; overflow:auto; ">
+
+<p>
+<strong>Introduction:</strong>&nbsp;  In this course you will be using the Andes intelligent tutor system for a portion of your homework assignments.&nbsp;  The purpose of this form is to inform you about a research study that will be conducted when you are using Andes.&nbsp;  Although use of Andes in this class is mandatory, participation in the research study is voluntary.&nbsp;  You may withdraw your data from this study at any time without any penalty.
+
+<p>
+<strong>Study Purpose:</strong>&nbsp;  To study the effectiveness of the Andes intelligent tutor system.&nbsp;  In particular, we will be investigating how different ways of presenting a problem to the student affects student problem-solving and student learning.&nbsp;  The results of this study will allow us to make improvements to Andes as well as give us insight into how students learn physics.
+
+<p>
+<strong>Study Procedure:</strong>&nbsp;  As you solve problems in Andes, we will collect your work and store it in a database.&nbsp;  For a select set of problems, we will randomly divide the class into two groups, with each group seeing a different format for those problems.&nbsp;  We will also collect some of your answers to problems on tests and exams.  
+
+<p>
+<strong>Confidentiality:</strong>&nbsp;  Your work on Andes will be stored in a password-protected database.&nbsp;  Each student who has agreed to participate in the study will be assigned an ID.&nbsp;  Researchers will only have access to your log data and ID, but not your name or any other identifying information.&nbsp;  Any test results that are used in the study will have your name blocked out and replaced by the ID before they are examined by any researchers.&nbsp;  The anonymous log data and tests results will be made available to Prof. Heckler's research team, as well as researchers at the Pittsburgh Science of Learning Center (PSLC).
+
+<p>
+<strong>Contacts and Questions:</strong>&nbsp;  Professor Andrew Heckler, Department of Physics, 614-688-3048.&nbsp;  For questions about your rights as a participant in this study or to discuss other study-related concerns or complaints with someone who is not part of the research team, you may contact Ms. Sandra Meadows in the Office of Responsible Research Practices at 1-800-678-6251.
+
+<p>
+<strong>Details about the Study:</strong>&nbsp; If you would like to know more about the details of the study, what we analyze, how and why we designed the study, or how we analyze the data, feel free to contact Prof. Heckler. 
+
+</div>
+<p>
+<strong>Voluntary Consent:</strong>&nbsp; By clicking on the "I Agree" button below, am stating that I am at least 18 years old and am giving my consent to participate in this study.&nbsp;
+I understand that I may withdraw my data from this research study at any time by contacting my instructor or by contacting Andrew Heckler.
+<table><tr><td>
+<button onClick="response('agree'); return false;">I Agree</button>
+</td><td>
+<button onClick="response('disagree'); return false;">I Disagree</button>
+</tr></table>

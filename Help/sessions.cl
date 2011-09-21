@@ -563,6 +563,16 @@
       ;; After running through old session, flush state cache
       (setf session:*state-cache* nil)
 
+      ;; Determine if student needs an informed consent dialog
+      ;; initial dialog flag (usually for section) should contain
+      ;; url for content.
+      (when (and (andes-database:get-state-property 'consent-dialog)
+		 (not (andes-database:get-state-property 
+		       'informed-consent :model "client")))
+	(push `((:action . "new-user-dialog")
+		(:url . ,(andes-database:get-state-property 'consent-dialog)))
+	      replies))
+
       ;; Determine if this is the first session for this user.
       ;; Do separately from seen-intro-video in case video window
       ;; is killed by pop-up blocker on client.
@@ -571,7 +581,8 @@
 	       (if (member 'introduction (problem-features *cp*))
 		   (strcat "If this is your first time using Andes, "
 			   "this problem will help you get started.&nbsp; "
-			   "Just follow the instructions on the right.")
+			   "After watching the video, "
+			   "just follow the instructions on the right.")
 		   (strcat "If this is your first time using Andes, "
 			   "you should go back and try an "
 			   "introductory problem."))))
