@@ -118,7 +118,7 @@ if($slice == 'comments'){
 	    $tempCommand2 =explode("get-help\",\"text\":\"",$tempCommand1);
 	    $command=explode("\"}",$tempCommand2[1]);
 	    
-	    echo "<tr><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td>$command[0]</td><td><a href=\"OpenTrace.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&cid=$clientID&u=$userName&p=$userProblem&t=$tID&m=$methods\">Session&nbsp;log</a></td></tr>\n";
+	    echo "<tr><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td>$command[0]</td><td><a href=\"OpenTrace.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&cid=$clientID&u=$userName&p=$userProblem&s=$userSection&t=$tID&m=$methods\">Session&nbsp;log</a></td></tr>\n";
 	  }
       }
     while ($myrow = mysql_fetch_array($result));
@@ -147,7 +147,7 @@ if($slice == 'comments'){
 	$userSection=$myrow["userSection"];
 	$startTime=$myrow["startTime"];
 	
-	echo "<tr><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td><a href=\"OpenTrace.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&cid=$clientID&u=$userName&p=$userProblem&m=$methods\">Session log</a></td></tr>\n";
+	echo "<tr><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td><a href=\"OpenTrace.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&cid=$clientID&u=$userName&p=$userProblem&s=$userSection&m=$methods\">Session log</a></td></tr>\n";
 	
       }
     while ($myrow = mysql_fetch_array($result));
@@ -184,7 +184,7 @@ if($slice == 'comments'){
     echo "</thead>\n";
     echo "<tbody>\n";
     $rowOutput=array();
-    
+    $tt=0;
     do
       {
 	$clientID=$myrow["clientID"];
@@ -207,6 +207,8 @@ if($slice == 'comments'){
 	// loop through session
 	$confused=false;
 	$ttime=-1;
+	$it=0;
+	$idleTime=0;
 	
 	// get student input and server reply
 	while (($myrow = mysql_fetch_array($tempResult)) ||
@@ -251,6 +253,7 @@ if($slice == 'comments'){
 	    if($a->params->value == 'focus'){
 	      if($blurred){
 		$idleTime=$idleTime+$ttime-$blurStartTime;
+		$it=$it+$ttime-$blurStartTime;;
 	      }
 	      $blurred = false;	      
 	    } elseif($a->params->value == 'blur'){
@@ -306,6 +309,8 @@ if($slice == 'comments'){
 	    "<td>$counter</td><td>$dt</td>" . $sessionLink1 . 
 	    "&amp;t=" . $confusedtID . $sessionLink2 . "</tr>";
 	}
+
+	$tt+=$ttime-$it;
       }
     while ($myrow = mysql_fetch_array($result));
     krsort($rowOutput);
@@ -317,6 +322,8 @@ if($slice == 'comments'){
   } else {// if for any session existing
     echo "No matching sessions found\n";
   }
+  echo "<p>Total time used:&nbsp; $tt seconds.\n";
+
   $elapsedTime = time() - $initialTime;
   echo "<p>Time to process:&nbsp; $elapsedTime s with " 
   . number_format($queryTime,2) . " s for mysql.&nbsp;\n";

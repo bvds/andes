@@ -89,13 +89,14 @@ while (($myrow = mysql_fetch_array($resultOld)) ||
   $a=$json->decode($userCommand);
 
   $yy=array();
-  if($command){
+  if($command && isset($command->result)){
     // Don't know why I can't just use $command->result in the foreach
     $zz=$command->result; 
     foreach($zz as $bb) {
       if($bb->action == "log" && 
 	 // New or old style logging
-	 (strcmp($bb->log,"server")==0 || $bb->error)){
+	 ((isset($bb->log) && strcmp($bb->log,"server")==0) || 
+	  isset($bb->error))){
         $key1="error-type";  // work-around for the dash
         $errorType=$bb->$key1;
 	// New or old style logging
@@ -115,7 +116,7 @@ while (($myrow = mysql_fetch_array($resultOld)) ||
     // forward slashes are escaped in json, which looks funny
     $bb=str_replace("\\/","/",$bb);
     $bb=substr($bb,0,200);
-    array_push($yy,"<td colspan=\"2\">$bb &#8230;</td>");
+    array_push($yy,"<td colspan=\"3\">$bb &#8230;</td>");
   }
   $nr=count($yy); // should always be nonzero
 
