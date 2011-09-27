@@ -55,16 +55,20 @@ echo "<tr><th>Starting Time</th><th>Input</th><th>Error Type</th><th>Message</th
 // Newer versions of php have json decoder built-in.  Should
 // eventually have test for php version and use built-in, when possible.
 include 'JSON.php';
+// However, this is really slow.  For now, just increase time limit:  
+set_time_limit(300);
 $json = new Services_JSON();
 
 $sqlOld="SELECT startTime,userName,userProblem,userSection,tID,command,P1.clientID from PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE $startDatec $endDatec P2.initiatingParty='server' AND P2.command like '%\"error-type\":$errorTypec%' AND P2.command like '%\"error\":%' AND P2.clientID=P1.clientID AND P1.extra=0 order by P2.tID";
 $sql="SELECT startTime,userName,userProblem,userSection,tID,client,server,P1.clientID from PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE $startDatec $endDatec P2.server like '%\"log\":\"server\"%' AND P2.clientID=P1.clientID AND P1.extra=0 order by P2.tID";
 $resultOld=mysql_query($sqlOld);
 $result=mysql_query($sql);
+$ecount=0;
 
   
 while (($myrow = mysql_fetch_array($resultOld)) ||
        ($myrow = mysql_fetch_array($result))) {
+  $ecount++;
   $tID=$myrow["tID"];  
   $userClientID=$myrow["clientID"];
   $userName=$myrow["userName"];
@@ -146,6 +150,7 @@ while (($myrow = mysql_fetch_array($resultOld)) ||
  }
 
 echo "</table>\n";
+echo "<p>total of $ecount errors.\n";
 
 mysql_close();
 ?>
