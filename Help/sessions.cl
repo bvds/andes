@@ -959,6 +959,13 @@
     (format webserver:*stdout* "in get-score method for ~S~%"
 	    (cdr (assoc "LONCAPA_correct_answer" 
 			input :test #'equal))))
+
+  ;; This will go into the general Hunchentoot log
+  ;; along with a backtrace.  Bug #1907
+  (unless (cdr (assoc "LONCAPA_correct_answer" input
+			    :test #'equal))
+    (error "get-score received invalid input:  ~A" input))
+
   (let* ((ans  (json:decode-json-from-string 
 		(cdr (assoc "LONCAPA_correct_answer" input
 			    :test #'equal))))
