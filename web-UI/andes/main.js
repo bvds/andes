@@ -39,7 +39,7 @@ dojo.require("andes.WordTip");
 	andes.closeFirst = false;
 	andes.userId = query.u;
 	andes.projectId = query.p;
-	andes.sectionId = query.s || 1234;
+	andes.sectionId = query.s || "no-section";
 	andes.extra = query.e; //extra field for Raj
 	var ck = dojo.cookie("andes");
 	if(ck && ck.u){
