@@ -126,9 +126,11 @@ at <code>log/ShowErrors.html</code>) generates a list of all help
 system warnings and errors.&nbsp;
 More serious errors, such as losing contact with the database,
 are logged in the file <a href="../help-server.log">
-<code>help-server.log</code></a>.
+<code>help-server.log</code></a>.&nbsp;  Finally, client
+errors are dumped into the Apache error log file with identifier <code>andes-client</code>
+(see <a href="http://www.andestutor.org/bugzilla/show_bug.cgi?id=1908">Bug #1908</a>).
 
-<p>Likewise, student comments can be accessed at
+<p>Student comments can be accessed at
 <a href="../LogProcessing/Web-Interface/adminLogin.html"><code>
 LogProcessing/Web-Interface/adminLogin.html</code></a> 
 (which can be found on the Andes server
@@ -171,10 +173,11 @@ You can use the following to run the help server:
    (hash-table-count webserver::*sessions*)) 
     (gen-stats webserver:*stdout*) (sleep 120))))
 </pre>
-After a run, you can use the following mysql script to flush the
+After a run, you can use the following in mysql to flush the
 <code>andes_test</code> database:
 <pre>
-mysql -u root -p < LogProcessing/databaseCreationScripts/delete_test_database.sql
+use andes_test;
+DELETE FROM PROBLEM_ATTEMPT WHERE clientID LIKE '\_%';
 </pre>
 
 <h2>Memory Usage and Garbage collection</h2>

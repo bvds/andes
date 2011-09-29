@@ -833,6 +833,9 @@
   ;; for choosing principle of physics, not working yet.
   (declare (ignore href))  
 
+  ;; Typing this string in help window will cause server to sleep.
+  (when (equalp text "sleep-test") (sleep 20))
+
   (env-wrap 
     ;; Doesn't correctly handle case where "Explain-more" is clicked after
     ;; a bottom-out hint.

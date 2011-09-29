@@ -20,7 +20,7 @@ dojo.require("andes.WordTip");
 			console.error("FIXME: Finalize the error message for needing to return to WebAssign.");
 			andes.error({
 				title: "Fatal Error",
-				message: "No user and/or problem data was provided; cannot continue. Please return to the WebAssign page.",
+				message: "No user and/or problem data was provided; cannot continue. Please click on your browser's back button.",
 				dialogType: andes.error.FATAL
 			});
 		});
