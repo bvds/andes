@@ -9,7 +9,7 @@ dojo.require("dijit.form.Button");
 
 	andes.errorLog = function(spec){
 		dojo.xhrPost({
-			url: "/log/client_log.php",
+			url: "client_log.php",
 			content: {
 				"Client-Id": andes.sessionId,
 				tag: spec.title,
