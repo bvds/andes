@@ -378,7 +378,8 @@ dojo.provide("andes.drawing");
 					andes.error({
 						title: "Welcome to Andes!",
 						message: obj.text,
-						dialogType: andes.error.OK
+						dialogType: andes.error.OK,
+						noLog: true
 					});
 					// Add event to Error box default OK button.
 					// This opens the general introduction.

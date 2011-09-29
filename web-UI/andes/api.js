@@ -36,9 +36,19 @@ dojo.require("andes.timer");
 		// send an RPC request
 		var request = prepRequest(req.params);
 		requestInFlight = true;
+		req.startTime = (new Date()).getTime();
 		andes.rpc[req.method](request).addCallbacks(
 			function(result){
 				requestInFlight = false;
+				var dt=(new Date()).getTime()-req.startTime;
+				// log any server latency larger than cutoff in ms.
+				// Should match Andes server timeout.
+				if(dt>15000){
+					andes.errorLog({
+						title: "latency",
+						message: dt + " ms for " + req.method 
+			        	});
+				};
 				req.dfd.callback(result);
 				nextRequest();
 			},

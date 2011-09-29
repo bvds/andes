@@ -7,6 +7,16 @@ dojo.require("dijit.form.Button");
 
 	var dialog = null;
 
+	andes.errorLog = function(spec){
+		dojo.xhrPost({
+			url: "client_log.php",
+			content: {
+				"Client-Id": andes.sessionId,
+				tag: spec.title,
+				text: spec.message
+			}});
+	};				
+
 	andes.error = function(spec){
 		var message = spec.message || "An unknown error occurred.",
 		    title = spec.title || "Error",
@@ -17,8 +27,14 @@ dojo.require("dijit.form.Button");
 			dialogType: dialogType
 		});
 		dialog.show();
+		if(!spec.noLog){
+			andes.errorLog({
+				title: title,
+			        message: message,
+			});
+		}
 	};
-
+		
 	// dialogType constants
 	andes.error.FATAL = 0;
 	andes.error.OK = 1;
