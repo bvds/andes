@@ -26,7 +26,7 @@
 	   :read-login-file
 	   :get-matching-sessions :get-score
 	   :old-sessions :set-old-session-start 
-	   :get-start-tID :get-most-recent-tID
+	   :get-most-recent-tID
 	   :get-state-property :get-state-properties
 	   :set-state-property))
 (in-package :andes-database)
@@ -89,6 +89,7 @@
 (defun write-transaction (client-id input reply)
   "Record raw transaction in database."
   
+  (test-safe-string client-id)
   (with-db
       ;; Test that PROBLEM_ATTEMPT entry already exits or create an empty one
       ;; Generally, this will only happen if open-problem has not been called
@@ -122,6 +123,20 @@
 	  (query *connection*
 		 (format nil update tID)))))))
 
+;; Alist of sql control characters and replacement strings
+(#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
+        +sql-control-characters+ '((#\' . "''") (#\\ . "\\\\"))
+        #+sbcl #'equalp)
+
+;; Test for any sql control characters.
+;; This test can be used to detect an sql injection attack.
+(defun test-safe-string (&rest strs)
+  (dolist (s strs)
+    (when s
+      (unless (loop for c across s
+		 never (assoc c +sql-control-characters+ :test #'char=))
+	(error "Invalid character in ~S" s)))))
+
 ;; Escaping ' via '' follows ANSI SQL standard.
 ;; If the Database escapes backslashes, must also do those.
 ;; (In mysql, NO_BACKSLASH_ESCAPES is not set)
@@ -129,7 +144,7 @@
 (defun make-safe-string (s)
   "Escape strings for database export."
   (and s (substitute-chars-strings 
-	  s '((#\' . "''") (#\\ . "\\\\")))))
+	  s +sql-control-characters+)))
 
 ;; Taken from clsql file sql/utils.lisp (under LLGPL).
 (defun substitute-chars-strings (str repl-alist)
@@ -180,7 +195,9 @@ list of characters and replacement strings."
   "Updates transaction with session information."
 
   (unless client-id (error "set-session called with no client-id"))
-    
+
+  (test-safe-string client-id student problem section extra)
+
   (unless (> (length extra) 0) ;treat empty string as null
     (setf extra nil))   ;drop from query if missing.
   
@@ -222,6 +239,8 @@ list of characters and replacement strings."
   
   (unless (> (length extra) 0) ;treat empty string as null.
     (setf extra nil)) ;drop from query if missing.
+
+  (test-safe-string student problem section extra)
   
   (with-db
     (let ((result (query *connection*
@@ -293,6 +312,8 @@ list of characters and replacement strings."
   
   (unless (> (length extra) 0) ;treat empty string as null.
     (setf extra nil)) ;drop from query if missing.
+
+  (test-safe-string student problem section extra)
   
   ;; Assume every session has a grade reported somewhere in it.
   ;; Thus, we only need to search the most recent session.
