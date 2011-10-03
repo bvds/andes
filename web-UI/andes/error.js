@@ -30,7 +30,7 @@ dojo.require("dijit.form.Button");
 		if(!spec.noLog){
 			andes.errorLog({
 				title: title,
-			        message: message,
+			        message: message
 			});
 		}
 	};
