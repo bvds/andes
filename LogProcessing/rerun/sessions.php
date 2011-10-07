@@ -20,13 +20,15 @@
 <body>
 
 <?php
+	     // Send filtered set of sessions to server in
+	     // order of session start time.
 
 	     //  Clear test database:
 	     //    use andes_test;
              //    DELETE FROM PROBLEM_ATTEMPT WHERE clientID LIKE '\_%';
 	     //    REPLACE INTO CLASS_INFORMATION (classSection) values ('study');
 
-	     // Still need to clean up logging:  consistant format
+	     // Still need to clean up logging:  consistent format
 	     // Have interp for each red turn?
 
 	     // To get help server timing, need to set:
