@@ -87,8 +87,10 @@
     </div>
     
     <div dojoType="dojox.widget.UpgradeBar" id="upgradeBar">
-	<div validate="dojo.isIE<7">
-	    <span>There may be performance problems with IE 6.0. An upgrade is recommended.</span>
+        <!-- Show upgrade bar for IE8 and below.  See Bug #1919 -->
+	<div validate="dojo.isIE<9">
+	    <span>Andes does not work well with older versions of Internet Explorer.&nbsp; 
+                Please upgrade to Firefox, Google Chrome, or IE 9.</span>
 	    <a href="http://www.mozilla.com/firefox/">Download Firefox</a>	
 	</div>
     </div>
