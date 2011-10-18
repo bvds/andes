@@ -97,7 +97,14 @@ dojo.require("dijit.form.Button");
 			title: "Error",
 			style: "width:400px"
 		});
+
+                // This clobbers any existing onerror handler.
+		// Perhaps one should use addHandler instead.
 		window.onerror = function(msg, url, line){
+			andes.errorLog({
+				title:  "javascript-error",
+				message: url + ":" + line + " " + msg
+			});
 			console.log("Window error: ",msg," url: ",url, " line: ",line);
 		}
 	});
