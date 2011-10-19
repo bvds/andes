@@ -329,6 +329,106 @@ if($slice == 'comments'){
   . number_format($queryTime,2) . " s for mysql.&nbsp;\n";
   echo "Json decoding times:&nbsp; " . number_format($jsonTime1,2) .
   " s, " . number_format($jsonTime2,2) . " s.\n";
+
+} elseif($slice == 'user-agent') {
+  // doesn't use $order or $orderBy
+  $initialTime = time();
+  $queryTime = 0.0;
+  $jsonTime1 = 0.0;
+  $jsonTime2 = 0.0;
+  // Newer versions of php have a json decoder built-in.  Should 
+  // eventually have test for php version and use built-in, when possible.
+  include 'JSON.php';
+  // However, this is really slow.  For now, just increase time limit:  
+  set_time_limit(300);
+  
+  $json = new Services_JSON();
+  
+  echo "<h2>User Agent Strings</h2>\n";
+  echo "<p>Record only the initial user agent string for each user since\n";
+  echo "students may change browser based on an initial bad experience.\n";
+  
+  $sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1 WHERE $adminNamec $sectionNamec $extrac  $startDatec $endDatec P1.clientID = P1.clientID ORDER BY startTime";
+  $queryStart=microtime(true);   
+  $result = mysql_query($sql);
+  $queryTime += microtime(true)-$queryStart;
+  if ($myrow = mysql_fetch_array($result)) {
+    $agentString=array();
+    do
+      {
+	$clientID=$myrow["clientID"];
+	$userSection =  $myrow["userName"] . "_" .  $myrow["userSection"];
+	if(isset($agentString[$userSection])) {
+	  continue;
+	}
+
+	// Only get initial transaction.
+	$tempSql = "SELECT client,server,tID FROM STEP_TRANSACTION WHERE clientID = '$clientID' ORDER BY tID LIMIT 1";
+	$queryStart=microtime(true);   
+	$tempResult = mysql_query($tempSql);
+	$queryTime += microtime(true)-$queryStart;
+		
+	// get student input and server reply
+	while ($myrow = mysql_fetch_array($tempResult)) {
+	  $action=$myrow["client"];
+	  $ttID=$myrow["tID"];
+	  $response=$myrow["server"];
+	  
+	  // decode json
+	  $jsonStart=microtime(true);   
+	  $a=$json->decode($action);
+	  $jsonTime1 += microtime(true)-$jsonStart;
+
+	  if (isset($a->method) && $a->method == 'open-problem'){
+            // Go through open-problem and pick out user agent string.
+	    $jsonStart=microtime(true);   
+	    $b=$json->decode($response);
+	    $jsonTime2 += microtime(true)-$jsonStart;
+	    if(isset($b->result)){
+	      foreach ($b->result as $row){
+		if($row->action=='log' && $row->log=='user-agent' &&
+		   !isset($agentString[$userSection])){
+		  $agentString[$userSection]=$row->text;
+		}
+	      }
+	    }
+	  }
+	} // loop through session rows       
+      }
+    while ($myrow = mysql_fetch_array($result));
+  } else {// if for any session existing
+    echo "No matching sessions found\n";
+  }
+
+  // Accumulate histogram and sort by popularity
+  $agentHistogram = array();
+  foreach ($agentString as $us => $agent){  
+    if(isset($agentHistogram[$agent])){
+      $agentHistogram[$agent]++;
+    } else {
+      $agentHistogram[$agent]=1;
+    }
+  }
+  arsort($agentHistogram);
+  
+  $nn=count($agentString);
+  echo "<p>Total of $nn users.\n";
+  echo "<table border=1>\n";
+  echo "<thead>\n";
+  echo "<tr><th>Number</th><th>User Agent String</th></tr>\n";
+  echo "</thead>\n";
+  echo "<tbody>\n";
+  foreach ($agentHistogram as $agent => $count){  
+    echo "<tr><td>$count</td><td>$agent</td></tr>\n";
+  }
+  echo "</tbody>\n";
+  echo "</table>\n";
+
+  $elapsedTime = time() - $initialTime;
+  echo "<p>Time to process:&nbsp; $elapsedTime s with " 
+  . number_format($queryTime,2) . " s for mysql.&nbsp;\n";
+  echo "Json decoding times:&nbsp; " . number_format($jsonTime1,2) .
+  " s, " . number_format($jsonTime2,2) . " s.\n";
 } else {
   echo "Unknown choice for slice";
 }
