@@ -411,8 +411,44 @@ if($slice == 'comments'){
   }
   arsort($agentHistogram);
   
+  // Divide into major browser types
+  $x=array('Chrome' => 0, 'Safari' => 0, 'Firefox' => 0, 
+	   'IE 7' => 0, 'IE 8' => 0, 'IE 9' => 0, 'other' => 0); 
+  foreach ($agentHistogram as $agent => $count){  
+    if(preg_match('/ MSIE 7.0;/',$agent)){
+      $x['IE 7']+=$count;
+    } elseif(preg_match('/ MSIE 8.0;/',$agent)){
+      $x['IE 8']+=$count;
+    } elseif(preg_match('/ MSIE 9.0;/',$agent)){
+      $x['IE 9']+=$count;
+      // Chrome must come before Safari
+    } elseif(preg_match('/ Chrome/',$agent)){
+      $x['Chrome']+=$count;
+    } elseif(preg_match('/ Safari/',$agent)){
+      $x['Safari']+=$count;
+    } elseif(preg_match('/ Firefox/',$agent)){
+      $x['Firefox']+=$count;
+    } else {
+      $x['other']+=$count;
+    }
+  }
+
   $nn=count($agentString);
   echo "<p>Total of $nn users.\n";
+
+  echo "<table border=1>\n";
+  echo "<thead>\n";
+  echo "<tr><th>Percentage</th><th>Browser</th></tr>\n";
+  echo "</thead>\n";
+  echo "<tbody>\n";
+  foreach ($x as $agent => $count){  
+    echo "<tr><td>" . number_format($count/$nn*100,1) . 
+      "</td><td>$agent</td></tr>\n";
+  }
+  echo "</tbody>\n";
+  echo "</table>\n";
+
+  echo "<p>Full list of user agents:\n";
   echo "<table border=1>\n";
   echo "<thead>\n";
   echo "<tr><th>Number</th><th>User Agent String</th></tr>\n";

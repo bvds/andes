@@ -85,7 +85,7 @@
     
     
     <div dojoType="dojox.widget.UpgradeBar" id="upgradeBar">
-        <!-- Show upgrade bar for IE8 and below.  See Bug #1919 -->
+        <!-- IE8 and below use VML which is very slow. -->
 	<div validate="dojo.isIE<9">
 	    <span>Andes does not work well with older versions of Internet Explorer.&nbsp; 
                 Please upgrade to Firefox, Google Chrome, or IE 9.</span>
