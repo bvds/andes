@@ -34,7 +34,9 @@
 			;; PsmGraph, StudentEntry SystemEntry are also 
 			;; defined in "andes"
 			:components ((:file "StudentEntry")
-				     (:file "SystemEntry")
+				     (:file "graded")
+				     (:file "SystemEntry"
+					    :depends-on ("graded"))
 				     (:file "PsmGraph")
 				     (:file "TutorTurn"
 					    :depends-on ("CMD"))
@@ -55,12 +57,16 @@
 				     (:file "icons")
 				     (:file "model"
 					    :depends-on ("database" "icons"))
+
+				     ;; Automatic statistics code.
+				     (:file "Statistics")
+				     (:file "grade")
 				     				     
 				     ;; Entry Intepreter: generic + non-eq
 				     (:file "symbols")
 				     (:file "wrong-quantities")
 				     (:file "State"
-					    :depends-on ("symbols" "grammar"))
+					    :depends-on ("grade" "symbols" "grammar"))
 				     (:file "Entry-API"
 					    :depends-on ("HelpMessages" "symbols"
 							 "model"
@@ -89,10 +95,7 @@
 				     (:file "NextStepHelp"
 					    :depends-on ("icons" "symbols"))
 				     (:file "IEA")
-				     
-				     ;; Automatic statistics code.
-				     (:file "Statistics")
-				     
+				     				     
 				     ;; Top-level manager
 		 		     (:file "Interface"
 					    :depends-on ("model"))
@@ -106,6 +109,7 @@
 				     (:file "sessions"
 					    ;; Mostly for *help-env-vars*
 					    :depends-on ("NextStepHelp"
+							 "grade"
 							 "parse" "State" 
 							 "database" "fade"
 							 "word-suggest"

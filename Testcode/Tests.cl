@@ -440,7 +440,7 @@
 
 
 ;;; In order to associate the object entries with the solutions we need
-;;; to collect the set of all "top-level" objects that app[ear at the 
+;;; to collect the set of all "top-level" objects that appear at the 
 ;;; "top-level" of the solution.  For speed's sake I will make use of 
 ;;; some code that is "internal" to the NextStepHelp system.  Note that
 ;;; in doing so I have connected the two libraries together in an 

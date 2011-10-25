@@ -577,7 +577,8 @@
 ;;; Note: This code assumes that the problem has at least one sought.  
 (defun nsh-multiple-choice-only-problem-p (Problem)
   "Return t if this is a multiple-choice only problem."
-  (every #'multiple-choice-sought-p (problem-soughts Problem)))
+  (every #'(lambda (x) (eql (car x) 'choose-answer)) 
+	 (problem-soughts Problem)))
 
 
 ;;; For these problems we will need to set the problem type and then to 

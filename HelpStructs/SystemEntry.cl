@@ -34,7 +34,6 @@
 (defconstant +dead-path+ 'Dead-Path "Dead path interpretation.")
 (defconstant +incorrect+ 'Incorrect "The Entry has no interpretation.")
 
-(defvar *SG-Solutions* () "The set of solutions to be done.")
 (defvar *SG-Entries* () "The System entries from the bubblegraph.")
 (defvar *SG-Eqns* () "Equation list with eqn-index->entry mappings.")
 (defvar *help-last-entries* () "List of SystemEntries for which the termination of the most recent help sequence was constructed.  Used to determine assignment of blame for bottom-out hint.")
@@ -63,7 +62,9 @@
   CogLoad  ;; The cognitive load of the systementry.
   Entered  ;; A list of student entries that have entered
            ;; this system entry if nil it has not been entered.
+  in-Sg-Solutions ;whether this entry is listed in *Sg-Solutions*
   model    ;; Model sentence.
+  (graded (make-graded))  ;; Graded object.
   )
 
 (defun print-SystemEntry (Entry &optional (Stream t) (level 0))

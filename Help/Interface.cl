@@ -147,14 +147,42 @@
     ;; need to add the cmdresult to the current cmd.
     (iface-add-cmdresult-to-cmd NewCMD Result)
     
-    ;; This is the primary call to autograding.  It will handle the 
-    ;; execution of any tests and the updating of results.  It calls 
-    ;; the code in AutoCalc.cl and will handle the send-fbd command 
-    ;; as necessary.
-    ;;
-    (let ((Tmp (iface-handle-Statistics NewCmd)))
-      (when Tmp (push Tmp str)))
+    ;; Hints only affect grading when there has been an explicit
+    ;; request for help.  These are all the criteria for 
+    ;; bottom-out hints as required by Andes2 grading:
+    (when (and (eql (cmd-class NewCmd) 'help)
+	       ;; Test that hint is child of student request
+	       ;; for help.  In Andes2, this was done by calls
+	       ;; to wwh-bottom-out-hintp and proc-bottom-out-hintp 
+	       (bottom-out-hintp **Current-cmd-Stack**)
+	       (turn-p result) 
+	       (eql (turn-type result) 'dialog-turn)
+	       (turn-text result) ;hint given
+	       (null (turn-menu result)) ;last hint in sequence
+	       )	       
+      (score-hint-request (turn-assoc result)
+			  *help-last-entries*))
 
+    ;; Old code for generating grade
+    (iface-handle-Statistics NewCmd)
+    
+    ;; New code for grading
+    (let ((current-score (calculate-score)))
+      (when (not (equal current-score *last-score*))
+	;; Temporary, for debugging: log large discrepencies to old
+	;; grading.  Need call to iface-handle-Statistics.
+	(when (> (abs (- current-score 
+			 *Runtime-Testset-current-total-score*)) 0.25)
+	  (warn 'webserver:log-warn 
+		:tag (list 'diff-scores current-score
+			   *Runtime-Testset-current-total-score*)
+		:text "old and new grades don't match"))
+	;;
+	(setf *last-score* current-score)
+	;; Return a percentage, rounded to nearest percent.
+	(push `((:action . "set-score") 
+		(:score . ,(round (* 100 current-score)))) str)))
+        
     (when *debug-help* (format t "Result ~A~%" Result))
 
     str))
@@ -195,6 +223,14 @@
     (setq **Current-CMD** C)
     C))
 
+(defun bottom-out-hintp (Stack)
+  ;; Functional equivalent to Andes2 test for
+  ;; WWH or NSH hint being a result of 
+  ;; previous student request for help.
+  (let ((R (car (help-stackc Stack))))
+    (when R (member (cmd-command R) 
+		    '(next-step-help do-whats-wrong)))))
+ 
 
 ;;; ===================================================================
 ;;; Stats
@@ -228,13 +264,8 @@
 	 (iface-handle-stats-student))
 	(t (update-runtime-testset-scores)))
  
-  ;; Irrespective of the entry we need to inform the workbench of
-  ;; the current total score if it has changed since last sent
-  (let ((current-score (get-current-runtime-total-score)))
-    (when (not (equal current-score *last-score*))
-      (setf *last-score* current-score)
-      `((:action . "set-score") (:score . ,current-score)))
-      ))
+  ;; just return score.
+      (get-current-runtime-total-score))
 
 ;;; AW: now we no longer load and save problem statistics in the
 ;;; student history file. Instead, the workbench will fetch the 
@@ -278,7 +309,6 @@
   (reset-runtime-testset-scores)
   (update-runtime-testset-scores)) ; AW: maybe not still needed
 
-
 ;;; On a read-student-info command we need to reset the 
 ;;; stored stats variable.  
 (defun iface-handle-stats-student ()
@@ -316,15 +346,8 @@
 
 
 ;;-----------------------------------------------------------------------------
-;; For forming reply strings returned to workbench
+;; For forming reply alist to return to client
 ;;
-;; Note there are some problems with this routine given Andes1 workbench:
-;; you can't actually construct the right string from a turn in a context-
-;; independent manner; what to send depends on what the WB is expecting
-;; in response to which call, either a status return with piggybacked cmd
-;; or a hint string. FIXED: Andes2 workbench should now understand 
-;; !show-hint command even where bare hint text was formerly expected, so we 
-;; can safely use this in all cases in context-independent manner.
 (defun turn->WB-Reply (time turn)
   "return reply string to send to wb for given tutor turn"
   ;; null turn is special case
@@ -524,7 +547,7 @@
 ;;; --------------------------------------------------------------------------
 ;;; Status-return-val
 ;;; Status return vals are used for entries (Eqn and non-eqn) and State 
-;;; Commands.  They contain coloring, indicating success or failue, and an
+;;; Commands.  They contain coloring, indicating success or failure, and an
 ;;; optional errors list (currently unused as of this writing) as well as the
 ;;; command and value fields.  
 ;;;

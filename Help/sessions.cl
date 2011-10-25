@@ -159,7 +159,8 @@
           *Runtime-Testset* *Runtime-Score-Testset*
 	  *Runtime-testset-current-Solindex*
 	  *Runtime-Testset-current-total-score*
-          *help-last-entries*
+	  ;; Variables used for grades
+	  *grade* *random-average-score* *help-last-entries*
 	  ;; Variables holding session-local memos.
 	  *parse-memo* *lexical-rules-memo* *rules-starting-with-memo*
 	  ;; Cache variables in Testcode/Tests.cl
@@ -335,6 +336,18 @@
 				   :test #'unify)
 		     (warn "Invalid label ~A for ~A" label button-type))
 
+		   ;; Add weight and choices to grading
+		   (let ((sysent (find-SystemEntry `(choose-answer ,label . ?rest))))
+		     (if sysent
+			 (setf (graded-possibilities (SystemEntry-graded sysent))
+			       (length line)  ;should be list, but for now...
+			       ;;(list nil nil (length line))
+			       ;; Need a real determination of weight.
+			       (graded-weight (SystemEntry-graded sysent))
+			       11
+			       )
+			 (warn "No SystemEntry for multiple-choice ~A" label)))
+		   
 		   (let* ((id (format nil "~A" label))
 			  (prop `(choose-answer ,label nil))
 			  (buttons

@@ -1285,6 +1285,7 @@
 	(t x)))
 ;;
 ;; Check-NonEq-Entry -- Generic checker for non-equation student entry 
+;; Adds grading information.
 ;; Returns: tutor turn
 ;;
 ;; Note, could be done differently with a cond or two.
@@ -1295,6 +1296,7 @@
   ;; being processed further. Return appropriate turn with unsolicited 
   ;; error message in this case.
   (when (studentEntry-ErrInterp entry) 
+    (warn "Not grading update 1 for ~A" entry)
     (return-from Check-NonEq-Entry 
       (ErrorInterp-remediation (studentEntry-ErrInterp entry))))
   
@@ -1315,6 +1317,7 @@
                (StudentEntry-GivenEqns Entry))
       (setf result (Check-Vector-Given-Form Entry))
       (when (not (eq (turn-coloring result) +color-green+))
+	(warn "Not grading update 2 for ~A" entry)
 	    (return-from Check-NonEq-Entry result))) ; early exit
     
     ;; Get set of candidate interpretations into PossibleCInterps.  
@@ -1334,7 +1337,27 @@
       (setf (StudentEntry-state entry) +incorrect+)
       ;; run whatswrong help to set error interp now, so diagnosis
       ;; can be included in log even if student never asks whatswrong
-      (diagnose Entry)
+      (let ((intended (ErrorInterp-intended (diagnose Entry)))
+	    (info (make-info-provided :prop (studententry-prop entry)
+				      :slots 1 ;should be list, but for now, just
+				      :penalize t)))
+	
+	(format webserver:*stdout* "++++++intended is ~S~%" intended)
+	
+	;; If there is a unique systementry, we can mark it as incorrect,
+	;; for grading purposes.
+	(unless (cdr intended)
+	  (update-grade-status (car intended) +incorrect+))
+	
+	;; Take diagnosis and add grading information.
+	;; It looks like the "new" part does not work for multiple-choice.
+	;; try vec1e.
+	(dolist (sysent intended)
+	  (pushnew info
+		   (graded-incorrects (SystemEntry-graded sysent))
+		   :key #'info-provided-prop
+		   :test #'unify)))
+      
       (setf result (make-red-turn :id (StudentEntry-id Entry)))
       ;; log and push onto result list.
       (push-when-exists (log-entry-info Entry) (turn-result result))
@@ -1349,6 +1372,9 @@
     (when *debug-help* 
       (format t "Matched ~A system entry: ~S~%" (car cand) match))
     
+    ;; Grading:  attach grade to SystemEntry
+    (update-grade-status match +correct+)
+
     ;; decide what to return based on major state of entry
     (case (StudentEntry-State entry)
       (correct 
@@ -1380,6 +1406,7 @@
       (otherwise (warn "Unrecognized interp state! ~A~%" 
 		       (StudentEntry-state entry))
 		 (setf result (make-red-turn :id (StudentEntry-id entry)))))
+
 
     ;; Note for variables with given equations, we are
     ;; logging correctness of the variable definition substep, 
@@ -1629,14 +1656,21 @@
 ;; has been completed if so then the value is green if not then don't. 
 (defun check-mc-no-quant-done-answer-sought (entry)
   (let* ((id (second (StudentEntry-prop entry)))
-	 (PSM (match-exp->enode ID (problem-graph *cp*))))
+	 (PSM (match-exp->enode ID (problem-graph *cp*)))
+	 ;; corresponding systementry
+	 (sysent (find-SystemEntry (StudentEntry-prop entry))))
     (cond 
       ;; If the PSM is not found then we need to throw an error saying that.
       ((null PSM) 
        (make-bad-problem-turn 
 	(format nil "No problem step found for button labelled ~a" ID)))
+
+      ((null sysent)
+        (make-bad-problem-turn 
+	(format nil "No SystemEntry for button labelled ~a" ID)))
       
-      ;; If this is not a non-quant psm then we also need to thro an error 
+      
+      ;; If this is not a non-quant psm then we also need to throw an error 
       ;; asserting that fact. 
       ((not (enode-has-mark? PSM 'non-quant))
        (make-bad-problem-turn 
