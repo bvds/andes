@@ -359,6 +359,7 @@
   `(((:action . "show-hint")
      (:text . ,(format nil "An error occurred:<br>~%~A~%" condition)))))
 
+;; The :text field is supposed to be plain text (rather than html).
 (define-condition log-error (error)
   ((tag :initarg :tag :reader log-tag)
    (text :initarg :text :reader text))

@@ -1,4 +1,9 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+  <title>Search Andes Logs</title>
+</head>
 <body>
 <h4>Query for comments, student errors, or sessions</h4>
 <form action="ReviewProcess.php" method="post">
@@ -34,30 +39,31 @@ Order Results By :
 
 <p>
 <label>Optional User Name</label>:&nbsp;  
-            <input name="adminName" type="text" />
+            <input name="adminName" type="text" >
             (<a href="http://en.wikipedia.org/wiki/Regular_expression">POSIX extended regexp</a>)<br>
 <label>Optional Section Name</label>:&nbsp;  
-            <input name="sectionName" type="text" />
+            <input name="sectionName" type="text" >
             (<a href="http://en.wikipedia.org/wiki/Regular_expression">POSIX extended regexp</a>)<br>
 <label>Optional dates (format 2010-06-11)</label>:&nbsp; 
-           from <input name="startDate" type="text" size="8"/> to
-                <input name="endDate" type="text" size="8"/><br>
+           from <input name="startDate" type="text" size="8"> to
+                <input name="endDate" type="text" size="8"><br>
 <label>DB Name</label>:&nbsp;
-<input name="dbname" type="text" value="andes3" size="6"/>
+<input name="dbname" type="text" value="andes3" size="6">
 <label>DB User</label>:&nbsp;
-<input name="dbuser" type="text" value="root" size="6"/>
+<input name="dbuser" type="text" value="root" size="6">
 <label>DB Password</label>:&nbsp;
-<input name="passwd" type="password" size="6"/><br>
+<input name="passwd" type="password" size="6"><br>
 Methods:&nbsp;
-<input type="checkbox" name="methods[]" value="open-problem" checked>open problem</input>
-<input type="checkbox" name="methods[]" value="solution-step" checked>solution step</input>
-<input type="checkbox" name="methods[]" value="seek-help" checked>get help</input>
-<input type="checkbox" name="methods[]" value="suggest-word">suggest word</input>
-<input type="checkbox" name="methods[]" value="record-action" checked>log action</input>
-<input type="checkbox" name="methods[]" value="close-problem" checked>close problem</input><br>
+<input type="checkbox" name="methods[]" value="open-problem" checked>open problem&nbsp;
+<input type="checkbox" name="methods[]" value="solution-step" checked>solution step&nbsp;
+<input type="checkbox" name="methods[]" value="seek-help" checked>get help&nbsp;
+<input type="checkbox" name="methods[]" value="suggest-word">suggest word&nbsp;
+<input type="checkbox" name="methods[]" value="record-action" checked>log action&nbsp;
+<input type="checkbox" name="methods[]" value="close-problem" checked>close problem<br>
    
 
-<input type="submit"/>
+<input type="submit">
 </form>
 
-</body></html>
+</body>
+</html>

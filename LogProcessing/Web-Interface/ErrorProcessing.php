@@ -2,6 +2,7 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+  <title>Andes Errors</title>
   <LINK REL=StyleSheet HREF="log.css" TYPE="text/css">
 
   <script type="text/javascript" src='xml-scripts.js'></script>
@@ -105,6 +106,10 @@ while (($myrow = mysql_fetch_array($resultOld)) ||
         $errorType=$bb->$key1;
 	// New or old style logging
         $errorMsg=isset($bb->text)?$bb->text:$bb->error;
+	// Error text is supposed to be plain text, so escape any html.
+	$errorMsg=str_replace("&","&amp;",$errorMsg);
+	$errorMsg=str_replace(">","&gt;",$errorMsg);
+	$errorMsg=str_replace("<","&lt;",$errorMsg);
 	$tag=isset($bb->entry)?$bb->entry:'';
         array_push($yy,"<td>$errorType</td><td>$errorMsg</td><td>$tag</td>");
       }

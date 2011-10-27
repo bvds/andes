@@ -154,13 +154,15 @@
 	(enter-predefs)
 	
 	;; re-initialize the dialog state
-	(reset-next-step-help))
+	(reset-next-step-help)
+
+	(initialize-grading))
       ;; Raising an error, rather than a warning, keeps subsequent
       ;; code in open-problem from being executed and sends a 
       ;; message to the student.
       (error 'webserver:log-error :tag 'problem-load-failed
 	     :text (strcat "Unable to load problem " (string name)
-			   ".&nbsp;  Please try another problem." ))))
+			   ".  Please try another problem." ))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; close-problem -- close the specified problem 

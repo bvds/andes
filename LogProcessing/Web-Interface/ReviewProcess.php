@@ -118,7 +118,7 @@ if($slice == 'comments'){
 	    $tempCommand2 =explode("get-help\",\"text\":\"",$tempCommand1);
 	    $command=explode("\"}",$tempCommand2[1]);
 	    
-	    echo "<tr><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td>$command[0]</td><td><a href=\"OpenTrace.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&cid=$clientID&u=$userName&p=$userProblem&s=$userSection&t=$tID&m=$methods\">Session&nbsp;log</a></td></tr>\n";
+	    echo "<tr><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td>$command[0]</td><td><a href=\"OpenTrace.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;cid=$clientID&amp;u=$userName&amp;p=$userProblem&amp;s=$userSection&amp;t=$tID&amp;m=$methods\">Session&nbsp;log</a></td></tr>\n";
 	  }
       }
     while ($myrow = mysql_fetch_array($result));
@@ -147,7 +147,7 @@ if($slice == 'comments'){
 	$userSection=$myrow["userSection"];
 	$startTime=$myrow["startTime"];
 	
-	echo "<tr><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td><a href=\"OpenTrace.php?x=$dbuser&sv=$dbserver&pwd=$dbpass&d=$dbname&cid=$clientID&u=$userName&p=$userProblem&s=$userSection&m=$methods\">Session log</a></td></tr>\n";
+	echo "<tr><td>$userName</td><td>$userProblem</td><td>$userSection</td><td>$startTime</td><td><a href=\"OpenTrace.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;cid=$clientID&amp;u=$userName&amp;p=$userProblem&amp;s=$userSection&amp;m=$methods\">Session log</a></td></tr>\n";
 	
       }
     while ($myrow = mysql_fetch_array($result));
