@@ -649,8 +649,16 @@
 ;;; !!! Someday we may want to extend this to enable some helpful feedback on 
 ;;; some wrong answers, say.
 (defoperator select-mc-answer (?question-id)
-  ; no preconditions!
+  ;; no preconditions!
   :effects ((choose-answer ?question-id ?correct-choice)))
+
+(defoperator done-button (?activity)
+  ;; no preconditions
+  :effects ((done ?activity)))
+
+(defoperator answer-box (?quant)
+  ;; no preconditions!
+  :effects ((answer ?quant)))
 
 
 ;;; ================= Generic: do selected steps =====================

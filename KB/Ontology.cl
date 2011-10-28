@@ -1095,6 +1095,16 @@
   :nlg-english ("answer for multiple-choice question number ~A" 
 	    (choose-answer-ontology-fixfunc ?question-id)))
 
+(def-entryprop done (done ?activity)
+  :doc "Select done button"
+  :nlg-english ("hitting the done button for ~A"
+		(new-english-find ?activity)))
+
+(def-entryprop answer (answer ?quant)
+  :doc "enter algebraic answer"
+  :nlg-english ("entering the value of ~A in the answer box"
+		(new-english-find ?quant)))
+
 (def-eqn-entryprop eqn (eqn ?equation ?eqn-id) 
   :helpform (eqn ?equation)
   :Doc "Entering an equation with the specified id."

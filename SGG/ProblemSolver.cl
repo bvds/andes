@@ -537,14 +537,13 @@
 ;;; if necessary.
 (defun generate-no-quant-problem-graph (Soughts Givens)
   "Generate a non-quantity bubblegraph."
-  (let (Graph)
-    (if **solve-soughts-separate**
-	(setq Graph (generate-separate-no-quant-bg Soughts Givens))
-      (setq Graph (generate-group-no-quant-bg Soughts Givens)))
-        
-    (if (null Graph) (format t "Error :no nodes generated for no-quant graph")
-      (index-bubblegraph Graph))))
+  (let ((Graph (if **solve-soughts-separate**
+		   (generate-separate-no-quant-bg Soughts Givens)
+		   (generate-group-no-quant-bg Soughts Givens))))
     
+    (if (null Graph) (format t "Error :no nodes generated for no-quant graph")
+	(index-bubblegraph Graph))))
+
 
 ;;; Given a set of soughts and givens generate a bubblegraph
 ;;; consisting of a separate PSM node for each sought.  The 
@@ -552,7 +551,7 @@
 ;;; them.
 (defun generate-separate-no-quant-bg (Soughts Givens)
   "Generate a separate no-quant bubblegraph."
-  (let ((Graph (make-bubblegraph)) (Q))
+  (let ((Graph (make-bubblegraph)) Q)
     (dolist (S Soughts)
       (setq Q (solve-for-non-quantity (list S) Givens))
       (when (null Q) (error "Unable to solve for non-quant sought: ~s~%" S))

@@ -23,7 +23,7 @@
 ;;
 ;; This file defines the core element of the Andes2 solver system including
 ;; the central solver struct and the access functions.  This file as well
-;; as all associated files are loacated in the Turkey-Solver package.
+;; as all associated files are located in the Turkey-Solver package.
 ;;
 ;; This system is intended to function as a subsystem of a larger solution
 ;; system and is used to solve given a specified knowledge base of operators
