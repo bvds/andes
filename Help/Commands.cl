@@ -114,7 +114,15 @@
 	 (tmp (student-to-canonical var))
 	 (result (when tmp (solver-power-solve 31 tmp new-id))))
     
-    (cond ((and result (listp result)) 
+    (cond ((and (null tmp) (has-algebraic-operators var))
+	   (make-eqn-failure-turn
+	    "Sorry, Andes can only solve for a single variable."
+	    :id new-id))
+	  ((null tmp)
+	   (make-eqn-failure-turn
+	    (format nil "The variable <var>~A</var> is undefined." var)
+	    :id new-id))
+	  ((and result (listp result)) 
 	   (solve-for-var-success entry result))
 	  ((stringp result) 
 	   (make-eqn-failure-turn 
@@ -124,6 +132,13 @@
 	      ;; implemented in next-step-help.cl
 	      (get-failure-to-solve-hint var)
 	      :id new-id)))))
+
+(defparameter *algebraic-operators* '(#\+ #\- #\/ #\^ #\*))
+
+(defun has-algebraic-operators (var)
+  "Determine if string has algebraic operators."
+  (loop for x across var 
+       thereis (member x *algebraic-operators*)))
 
 (defun solve-for-var-success (entry result)
   (let* ((studText (algebra result)))
