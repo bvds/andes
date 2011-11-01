@@ -3994,45 +3994,23 @@
     (list (format nil "~A is not the correct value for ~A. When you have entered enough equations, ask Andes to solve for ~A, then transfer the result to this answer box."
             (nlg wrongval 'algebra) (nlg quant) (var-or-quant quant)))))
 
-; sign error in answer: 
-; -sought is pos magnitude, answer entry is negative 
-;   - Could give message for any negative number, even if abs is wrong.
-; -sought is neg compo, answer entry is positive
-; other sign error in answer (unlikely, no diagnose).
-
-#|
-; magnitude is sought but they've entered a negative answer
-(def-error-class neg-answer-for-mag (?quant ?wrongval)
-  ((student (answer (mag ?vector)))
-   (bind ?eqn (studentEntry-ParsedEqn (get-answer-entry ?quant)))
-   (bind ?wrongval (third ?eqn))))
-   
-; neg compo is sought but they've entered a positive number
-(def-error-class pos-answer-for-neg-compo (?quant ?wrongval)
-  ((student (answer (mag ?vector)))
-   (bind ?eqn (studentEntry-ParsedEqn (get-answer-entry ?quant)))
-   (bind ?wrongval (third ?eqn))))
-   
-|#
 
 ;;; ================== Multiple choice entries
 
 ;;;
-;;; Following shows a way to associate error handlers with particular
-;;; choices on multiple choice questions in our current simple (problem-specific)
-;;; framework. Might make sense to define a macro for multiple choice
-;;; errors that expands to these, since all they really depend on is problem name
-;;; question id and choice number.
-#|
-(def-error-class mc-wrong-field-direction ()
-   ( (test (eq (problem-name *cp*) 'fara1a))
-     (student (choose-answer MC-1 2))))
+;;; Associate multiple-choice answer with correct entry.
 
 
-(defun mc-wrong-field-direction ()
-  (make-hint-seq (list "That is not the correct field direction"))
+(def-entry-test multiple-choice (?question ?sa ?ca) 
+  :preconditions ((student (choose-answer ?question ?sa))
+		  (correct (choose-answer ?question ?ca))
+		  (test (not (equal ?ca ?sa)))
+		  )
+  :state +incorrect+
+  :hint (list "Incorrect.&nbsp;  Please try again.")
+  :order ((correct . 3))
 )
-|#
+
 
 ;;; ================= Undiagnosed equation errors ==============
 
