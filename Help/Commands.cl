@@ -246,10 +246,13 @@
 	  (StudentEntry-checked entry))
      ;; update with the box that has been clicked
      (let ((ch (mapcar #'read-from-string (StudentEntry-checked entry))))
-       (setf (third (StudentEntry-prop entry))
-	   (if (cdr (StudentEntry-checked entry))
-	       (cons 'orderless ch)   ;checkboxes
-	       (car ch))))            ;radio buttons
+       ;; Construct new list since old prop still used in grading
+       (setf (StudentEntry-prop entry)
+	     (list (car (StudentEntry-prop entry))
+		   (cadr (StudentEntry-prop entry))
+		   (if (cdr (StudentEntry-checked entry))
+		       (cons 'orderless ch)   ;checkboxes
+		       (car ch)))))            ;radio buttons
      (check-noneq-entry entry))
     
     ;; In the event that an unrecognized type is supplied handle it like so.
