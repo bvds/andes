@@ -350,6 +350,7 @@
   (and (= #xFE (aref buffer 0))
        (= 5    (length buffer))))
 
+;; Not called by anyone.
 (defun parse-eof-packet (buffer)
   (let ((warning-count (+ (aref buffer 1)
                           (ash (aref buffer 2) 8)))

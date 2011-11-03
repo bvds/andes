@@ -118,8 +118,6 @@
 
 (defvar *sg-systementry-optional-p-memo*) ;memo for holding session-local info
 
-(defparameter **entry-entered** nil)
-
 ;;;; =======================================================================
 ;;;; Test Struct
 ;;;; This struct encodes the information about the runtime tests.  It is used
@@ -186,13 +184,6 @@
 
 (defun credit-testp (Test)
   (equalp (Runtime-Test-CreditType Test) 'Credit))
-
-(defun extra-credit-testp (Test)
-  (equalp (Runtime-Test-CreditType Test) 'Extra))
-
-(defun debit-testp (Test)
-  (equalp (Runtime-Test-CreditType Test) 'Debit))
-
 
 ;;; -----------------------------------------------------------------------
 ;;; Test Registration.
@@ -320,34 +311,34 @@
     (if (= 0 Multiplier) 0
       (/ 1 Multiplier))))
 
-    
+
 
 ;;;; --------------------------------------------------------------------
 ;;;; Weight access code
 ;;;; For the physicists, we want to make it possible to change the weights
-;;;; of specified tests at runtime.  This will make it possible for 
+;;;; of specified tests at runtime.  This will make it possible for
 ;;;; them to modify the code as needed to experiment with appropriate
-;;;; weights.  This function will lookup the tests by name and, if a 
+;;;; weights.  This function will lookup the tests by name and, if a
 ;;;; match is found set the weight appropriately.
 ;;;;
 ;;;; Once this has been run we want to re-sort the weights and to reset
 ;;;; the *runtime-score-testset* to reflect the changes.
 ;;;;
-;;;; Each Weight is assumed to be a list of 3 elements containing the 
-;;;; The Test name, a weight, and a credit type.  The values will then 
-;;; be set into the loaded code at runtime.  
+;;;; Each Weight is assumed to be a list of 3 elements containing the
+;;;; The Test name, a weight, and a credit type.  The values will then
+;;; be set into the loaded code at runtime.
 
 (defun set-runtime-test-weights (NewWeights)
   (let (Test)
     (dolist (New NewWeights)
       (when (or (not (listp New))
 		(not (numberp (second New)))
-		(not (member (third New) '(Credit Debit Extra Nil) 
+		(not (member (third New) '(Credit Debit Extra Nil)
 			     :test #'equalp)))
-      	(error "Improper test weight supplied."))
+	(error "Improper test weight supplied."))
       
       (setq Test (lookup-name->runtime-test (car New)))
-      (when Test 
+      (when Test
 	(setf (runtime-test-weight Test) (second New))
 	(setf (runtime-test-CreditType Test) (third New))))
     

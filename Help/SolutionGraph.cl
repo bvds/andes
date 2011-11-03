@@ -84,18 +84,6 @@
 
 (in-package :cl-user)
 
-
-;; ================================================
-;; Solution struct.  
-;; This code exists primarily for code cleanliness
-;; and is here defined and used only within this 
-;; module.
-
-(defstruct sgsol
-  Num
-  Entries)
-
-
 ;;=========================================================
 ;; Memory Storage.
 
@@ -759,7 +747,7 @@
 	     (eq +correct+ State)
 	     (SystemEntries-Prematurep (sg-unmark-interp Interp) *cp*))
 	+premature-entry+
-      State)))
+	State)))
 
 
 ;;----------------------------------------------------------------------
@@ -858,23 +846,6 @@
 ;;==========================================================================
 ;; Utility functions.
 ;;----------------------------------------------------------
-;; Given a list of integers collect the entries that they
-;; index from *sg-entries*
-
-(defun sg-subst-nth-entries (lst)
-  "Collect a list of indexed entries from the entry index."
-  (loop for E in lst 
-      collect (nth E *sg-Entries*)))
-
-
-;;--------------------------------------------------------------
-;; sg-fetch-entry-props 
-;; Helper returns list of all entry propositions matching given pattern.
-
-(defun sg-fetch-entry-props (prop-pat) 
-  "fetch all entry propositions that match given proposition form"
-  (filter-expressions prop-pat (mapcar #'SystemEntry-Prop *SG-Entries*)))
-
 
 ;; utility function to find system entry for a given vector quantity
 ;; Depends on structure of vector entry proposition

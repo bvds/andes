@@ -120,7 +120,6 @@
 			:components (
 				     (:file "StackProcessing")
 				     (:file "StackTests")
-				     (:file "UtilFuncs")
 				     ;; file must be loaded before compile
 				     (:no-compile-file "Tests"
 						       ;;    :in-order-to ((compile-op (load-source-op "Tests")))

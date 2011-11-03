@@ -403,7 +403,6 @@
 (defconstant +parameter+ 'Parameter "The specified qnode is a parameter.")
 (defconstant +sought+ 'Sought "Sought quantity marking.")
 (defconstant +answer-var+ 'Answer-Var "Sought qnode is an answer var.")
-(defconstant +cancelling-var+ 'Cancelling-Var "Sought qnode is a cancelling-var.")
 (defconstant +nogood+ 'Nogood "Specified nodes are nogood (depreciated).")
 (defconstant +given+ 'Given "The specified node is Given in the problem.")
 
@@ -568,13 +567,6 @@
        (Qvar-Value (Qnode-Vindex Qnode))))
 
 
-;;; Qnodes contain SystemEntries within their Entries fields
-;;; these entries are searched to identify the source when neccessary.
-(defun qnode-contains-entryp (Entry Node)
-  "Does the quantity node contain the specified entry."
-  (member Entry (Qnode-Entries Node) :test #'unify)) ;could use "equal"
-
-
 ;;------------------------------------------------------------------
 ;; Qnode Markings.
 ;; Individual qnodes can have symbols added to their marks field.  
@@ -587,24 +579,12 @@
 (defun qnode-dead-pathp (Q)
   "Is the Qnode on a dead path?"
   (qnode-has-mark? Q +dead-path+))
-
-
-;; (Add-qnode-sought-mark <Qnode>) Mark the qnode as +sought+.
-(defun mark-qnode-sought (Q)
-  "Mark the Qnode as sought."
-  (mark-qnode Q +sought+))
-
   
 ;;; (Qnode-soughtp <Qnode>) Returns t iff the qnode is marked as +sought+.
 (defun qnode-soughtp (Q)
   "Is the specified qnode sought?"
   (qnode-has-mark? Q +sought+))
 
-
-;;; (mark-qnode-parameter <Qnode>) Mark the qnode as a parameter.
-(defun mark-qnode-parameter (Q)
-  "Mark the qnode as a Parameter."
-  (mark-qnode Q +parameter+))
    
 ;;; (Qnode-Parameterp <Qnode>) Return t iff the qnode is marked +parameter+.
 (defun qnode-parameterp (Q)
@@ -612,64 +592,21 @@
   (qnode-has-mark? Q +parameter+))
 
 
-;;; (mark-qnode-answer-var <Qnode>) Mark the specified qnode as an answer-var.
-(defun mark-qnode-answer-var (Q)
-  "Mark the qnode as an answer-var."
-  (mark-qnode Q +parameter+)
-  (mark-qnode Q +answer-var+))
-
 ;;; (Qnode-Answer-VarP <Qnode>) 
 ;;; Returns t iff Qnode has the +answer-var+ mark.
 (defun qnode-answer-varp (Q)
   "Is the Qnode an answer-var?"
   (qnode-has-mark? Q +answer-var+))
 
-
-;;; (mark-qnode-optimal-path <Qnode>) Mark QNODE as +optimal-path+
-(defun mark-qnode-optimal-path (Q)
-  "Mark the qnode as an optimal path."
-  (mark-qnode Q +optimal-path+))
-
-;;; (Qnode-optimal-pathP <Qnode>) Returns t iff Qnode is marked +optimal-path+.
-(defun qnode-optimal-pathp (Q)
-  "Is the qnode a member of the optimal path?"
-  (qnode-has-mark? Q +optimal-path+))
-
-
-
-;;; (mark-qnode-cancelling-var <Qnode>) Mark the qnode as a cancelling-var.
-(defun mark-qnode-cancelling-Var (Q)
-  "Mark the qnode as a cancelling var."
-  (mark-qnode Q +parameter+))
-
-;;; (Qnode-cancelling-varp <Qnode>) Return t iff the qnode is a cancelling var.
-(defun qnode-cancelling-varp (Q)
-  "Is the qnode a cancelling-var?"
-  (and (qnode-parameterp Q)
-       (not (qnode-answer-varp Q))))
-
 (defun known-constantp (quant)
   (let ((qnode (match-exp->qnode quant (problem-graph *cp*))))
   (and qnode (Qnode-has-mark? qnode 'constant))))
 
-;;; (mark-qnode <Mark> <Qnode>) Add MARK to QNODE's markings
-(defun mark-qnode (mark Qnode)
-  "Add the specified Marking to the specified qnode."
-  (pushnew Mark (Qnode-Marks Qnode)))
-
-;;; (remove-qnode-mark <Mark> <Qnode>) 
-;;; Destructively remove MARK from QNODE if present.
-(defun remove-qnode-mark (mark Qnode)
-  "remove the specified mark (if-present) from the qnode's marks."
-  (setf (Qnode-Marks Qnode)
-    (remove-if Mark (Qnode-Marks Qnode))))
 
 ;;; (Qnode-Has-Mark <Qnode> <Mark>) Return t iff QNODE has MARK.
 (defun qnode-has-mark? (Qnode Mark &key (test #'equal))
   "Does the specified qnode contain the marking?"
   (find Mark (Qnode-Marks Qnode) :test test))
-
-
 
 
 ;;======================================================================
@@ -839,14 +776,6 @@
 		    (mapcar #'Qnode-Exp (Enode-Qnodes E2)))))
 
 
-;;; Enodes contain lists of systementries within them.
-;;; This function locates a matching entry within the
-;;; node if present and returns it if found.
-(defun enode-contains-entryp (Entry Node)
-  "Does the quantity node contain the specified entry."
-  (find Entry (Enode-Entries Node) :test #'unify)) ;could use "equal"
-
-
 ;;; An Enode represents (one :time level) a collection of equations
 ;;; therefore it is considered to be solved iff all of its subeqns
 ;;; (located in the SubEqns slot) are labelled as solved.
@@ -870,10 +799,6 @@
 (defun enode-dead-pathp (E)
   "Is the Enode on a dead path?"
   (Enode-has-mark? E +dead-path+))
-
-(defun enode-optimal-pathp (E)
-  "Is the enode on the optimal path?"
-  (Enode-has-mark? E +optimal-path+))
 
 (defun enode-forbiddenp (E)
   (Enode-has-mark? E +forbidden+))
@@ -936,14 +861,6 @@
       (Enode-Path N)
     (Qnode-Path N)))
 
-
-;;; Get the gindex of the supplied bgnode.
-(defun bgnode-gindex (N)
-  "Get the gindex of the supplied bgnode."
-  (if (Enode-p N) 
-      (Enode-gindex N)
-    (qnode-gindex N)))
-
 ;;; Get the other nodes in the graph that are linked
 ;;; to this node.  These will be enodes if the current
 ;;; node is a qnode or qnodes if the current node is an
@@ -996,6 +913,7 @@
 ;; Output the graph for human-readable and Machine readable purposes.
 
 (defun form-print-bgnodes (Nodes &optional (form 'graph) (Stream t) (level 0))
+  "print bgnodes for testing."
   (mapcar #'(lambda (N) (if (qnode-p N) (form-print-qnode N form Stream Level)
 			  (form-print-enode N form Stream Level)))
 	  Nodes))
@@ -1151,10 +1069,11 @@
  
 
 ;;; Add a qnode to the Bubblegraph
-(defun add-qnode-to-bubblegraph (Qnode Graph)
-  "Add the specified enode to the bubblegraph."
-  (list (cons Qnode (bubblegraph-qnodes Graph))
-	(bubblegraph-enodes Graph)))
+;; Not called
+;;(defun add-qnode-to-bubblegraph (Qnode Graph)
+;;  "Add the specified qnode to the bubblegraph."
+;;  (list (cons Qnode (bubblegraph-qnodes Graph))
+;;	(bubblegraph-enodes Graph)))
 
 
 
@@ -1162,10 +1081,11 @@
 ;; Bubblegraph comparison.
 ;; In comparing two problem solutions it is necessary to test
 ;; for the equality of two or more bubblegraphs.  This function will
-;; test for equality of the graphs bu ensuiring that for each unique 
+;; test for equality of the graphs by ensuring that for each unique 
 ;; node in the graph there exists a comprable node in the other graph
 ;; and that the two comprable nodes are equalp.
 
+;; Not called in Andes, for debugging.
 (defun set-diff-bubblegraphs (GA GB)
   "Perform a set-difference style comparison of two bublegraphs."
   (list (set-difference (bubblegraph-qnodes GA) 
@@ -1260,67 +1180,11 @@
 		 (Qnode-Assumptions N)
 	       (Enode-Assumptions N))))
 
-
-
-(defun collect-predicate-qnodes (Predicate Graph)
-  "Collect all the qnodes from graph that match predicate."
-  (loop for N in (Bubblegraph-Qnodes Graph)
-      when (funcall Predicate N)
-      collect N))
-
-
 (defun collect-predicate-Enodes (Predicate Graph)
   "Collect all the enodes from graph that match predicate."
   (loop for N in (Bubblegraph-Enodes Graph)
       when (funcall Predicate N)
       collect N))
-
-
-(defun collect-predicate-bgnodes (Predicate Graph)
-  "Collect all of the bgnodes that match predicate in Graph."
-  (append (collect-predicate-qnodes Predicate Graph)
-	  (collect-predicate-enodes Predicate Graph)))
-
-
-(defun collect-marked-qnodes (Mark Graph &key (test #'equal))
-  "Collect all qnodes with the supplied mark."
-  (collect-predicate-qnodes
-   #'(lambda (Q) (qnode-has-mark? Q Mark :test test))
-   Graph))
-
-
-(defun collect-marked-enodes (mark Graph &key (test #'equal))
-  "Collect enodes with the mark."
-  (collect-predicate-enodes
-   #'(lambda (E) (Enode-has-mark? E Mark :test test))
-   Graph))
-
-
-(defun collect-marked-bgnodes (Mark Graph &key (test #'equal)) 
-  "Collect all bgnodes with the supplied mark."
-  (append (collect-marked-qnodes Mark Graph :test Test)
-	  (collect-marked-enodes Mark Graph :test Test)))
-
-
-(defun collect-unmarked-qnodes (Mark Graph &key (test #'equal))
-  "Collect all qnodes with the supplied mark."
-  (collect-predicate-qnodes
-   #'(lambda (Q) (not (qnode-has-mark? Q Mark :test test)))
-   Graph))
-
-
-(defun collect-unmarked-enodes (mark Graph &key (test #'equal))
-  "Collect enodes with the mark."
-  (collect-predicate-enodes
-   #'(lambda (E) (not (Enode-has-mark? E Mark :test test)))
-   Graph))
-
-
-(defun collect-unmarked-bgnodes (Mark Graph &key (test #'equal))
-  "Collect all bgnodes without the suplied mark."
-  (append (collect-unmarked-qnodes Mark Graph :test Test)
-	  (collect-unmarked-enodes Mark Graph :test Test)))
-
 
 ;;; -----------------------------------------------------------------
 ;;; Path collection.
@@ -1453,31 +1317,10 @@
 ;;; map the specified function to the relevant elements of the 
 ;;; bubblegraph and return the results mapcar style.
 
-(defun mapcar-bubblegraph-qnodes (func Graph)
-  "Mapcar the function over the qnodes."
-  (mapcar Func (bubblegraph-qnodes Graph)))
-
 (defun mapcar-bubblegraph-enodes (func Graph)
   "Mapcar the function over the enodes."
   (mapcar Func (bubblegraph-enodes Graph)))
 
-(defun mapcar-bubblegraph-bgnodes (func Graph)
-  "Mapcar the function over the bgnodes."
-  (append (mapcar Func (bubblegraph-qnodes Graph))
-	  (mapcar Func (bubblegraph-enodes Graph))))
-
-(defun mapcan-bubblegraph-qnodes (func Graph)
-  "Mapcan the function over the qnodes."
-  (mapcan Func (bubblegraph-qnodes Graph)))
-
-(defun mapcan-bubblegraph-enodes (func Graph)
-  "Mapcan the function over the enodes."
-  (mapcan Func (bubblegraph-enodes Graph)))
-
-(defun mapcan-bubblegraph-bgnodes (func Graph)
-  "Mapcan the function over the bgnodes."
-  (append (mapcan Func (bubblegraph-qnodes Graph))
-	  (mapcan Func (bubblegraph-enodes Graph))))
 
 ;;--------------------------------------------------------------------
 ;; Bubblegraph dead-path code
@@ -1621,16 +1464,6 @@
     (vindex-qnodes (bubblegraph-qnodes Graph) I)
     (vindex-Enodes (bubblegraph-Enodes Graph) I)
     I))
-
-(defun collect-active-bg-qvars (Graph)
-  "Collect all the vars from the graph."
-  (append (loop for Q in (bubblegraph-qnodes Graph)
-	      unless (Qnode-dead-pathp Q)
-	      collect (qnode->qvar Q)) 
-	  (loop for E in (bubblegraph-Enodes Graph)
-	      unless (Enode-Dead-pathp E)
-	      append (Enode->qvars E))))
-
 
 (defun collect-bg-qvars (Graph &key (ExpMarks Nil))
   "Collect all the vars from the graph."

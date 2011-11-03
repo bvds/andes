@@ -157,7 +157,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-(defun indef-np	(x &rest args)
+(defun indef-np (x &rest args)
   (declare (ignore args))
   (if (atom x)
       (if (stringp x)
@@ -324,13 +324,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun qnode-new-english (qnode)
-  "Match qnode to Ontology, pulling out model sentence, including any var."
-  ;; use same strategy as for systementries.
-  (or (Qnode-model qnode)   ;Use Qnode-model as a cache
-      (setf (Qnode-model qnode)
-	    `(or (var ,(qnode-exp qnode))
-		 ,(new-english-find (qnode-exp qnode))))))
 
 (defun new-english-find (prop)
   "Match proposition to Ontology."

@@ -1632,12 +1632,6 @@
 ;;; 2. Notice when they are choosing something forbidden
 ;;; 3. slap them silly when they keep making the same mistake.
 
-(defparameter **NSH-Sought-Str**
-    (strcat "Most problems ask you to find the value of one or more "
-	    "quantities.  To solve such problems it is helpful to "
-	    "first identify precisely a sought quantity because this "
-	    "may remind you of a principle that can be used to find it."))
-
 
 (defun nsh-ask-sought-and-fp ()
   "Start the NSH sought and FP loop."
@@ -3254,16 +3248,6 @@
 	       :key #'(lambda (E) (cadr (SystemEntry-prop E)))))
    Solutions))
 
-
-;;; ---------------------------------------------------------------------------
-;;; Given a list of solutions 
-(defun nsh-filter-solutions-by-axes (Axes &optional (Solutions *nsh-solution-sets*))
-  "Pick solutions on which one of the axes have been drawn."
-  (remove-if-not
-   #'(lambda (S) (intersection Axes (nsh-collect-solution-axes S)))
-   Solutions))
-
-
 ;;; ---------------------------------------------------------------------------
 ;;; Given a set of solutions collect all those that contain at least one of the
 ;;; proposed first principles.
@@ -3382,15 +3366,6 @@
   "Return t iff the specified principle has been completed."
   (path-completedp (bgnode-path principle)))
 
-
-;;; nsh-principle-completed?
-;;; Has the specified principle been completed?  
-;;; Uses the psmg entered values.
-(defun nsh-principle-uncompleted-p (principle)
-  "Return t iff the specified principle has been completed."
-  (not (path-completedp (enode-path principle))))
-
-
 ;;; nsh-principle-started-p
 ;;; Has the student begun working on the principle at 
 ;;; all or is it completely empty.  
@@ -3398,18 +3373,6 @@
   "Has the student begiun working on the principle or not?"
   (and (enode-entries principle)
        (member-if #'SystemEntry-entered (enode-entries principle))))
-
-
-;;; nsh-principle-only-started-p
-;;; Has the student begun working on the principle at 
-;;; all but not completed it?
-(defun nsh-principle-only-started-p (principle)
-  "Has the student begiun working on the principle but not completed it?"
-  (and (enode-entries principle)
-       (member-if #'SystemEntry-entered (enode-entries principle))
-       (member-if-not #'SystemEntry-entered (enode-entries principle))))
-
-
 
 ;;; Is this a given principle node?
 (defun nsh-given-principle-p (node)

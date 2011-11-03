@@ -165,7 +165,7 @@
 	  *test-cache-eqn-entries* *test-cache-given-eqn-entries*
 	  *test-cache-axis-entries* *test-cache-objects* 
 	  *test-cache-drawing-entries* **Current-Body-Expression-Form**
-	  **Current-Prob-Requires-nonanswer-entries** **entry-entered**
+	  **Current-Prob-Requires-nonanswer-entries**
 	  *sg-systementry-optional-p-memo*
 	  ;; Session state information
 	  session:*user* session:*section* session:*problem* 
@@ -175,7 +175,7 @@
 	#+sbcl #'equalp
 	)
 
-;; Should be useful for debugging.
+;; Useful for debugging.
 (defun get-session-variable (session var)
   "Get a session local variable for a given session (string)."
   (nth (position var help-env-vars)

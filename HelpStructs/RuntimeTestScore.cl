@@ -320,9 +320,6 @@
 ;;; This function is used to generate new instances of the rt-score
 ;;; specifically.  It is not a method but parallels to it should
 ;;; be generated for the other subclasses below.  
-(defun make-rt-score (Val)
-  "Make a new runtime-test-score class with the specified val."
-  (make-instance 'rt-score :Value Val))
 
 
 (defclass rt-score (rt-val) ())
@@ -424,9 +421,6 @@
 ;;; rt-sum-score class specifically.  It is not a method 
 ;;; but parallels to it should be generated for the other 
 ;;; subclasses below.  
-(defun make-rt-sum-score (Val)
-  "Make a new rt-sum-score class with the specified val."
-  (make-instance 'rt-sum-score :Value (list Val)))
 
 
 (defclass rt-sum-score (rt-score) ())
@@ -448,21 +442,6 @@
     (car (rt-val-value Score))))
 
 
-;;; rt-sum-score Type test
-;;; CLOS (unlike structs) does not define a <type>-p 
-;;; function or other syntacitc assistants.  Therefore
-;;; I have defined this function here.  It will return t
-;;; if an rt-score or a subclass of it is supplied 
-;;; as the argument.  
-
-(defun rt-sum-score-p (Obj)
-  "Return t if obj is an rt-score."
-  (typep Obj (find-class 'rt-sum-score)))
-
-
-
-
-
 ;;; ==================================================================
 ;;; Numeric score types.
 ;;; The classes in this section are designed to store and maintain
@@ -477,12 +456,6 @@
 ;;;
 ;;; Because the initial runtime-score type has a numeric external type
 ;;; this one will not define its own form.
-
-(defun make-rt-num-score (Val)
-  "Make a new runtime-test-score class with the specified val."
-  (if (not (numberp Val))
-      (error "Non # supplied to rt-int-score constructor: ~a" Val)
-    (make-instance 'rt-num-score :Value Val)))
 
 
 ;; statt here ensuring appropriate values returned.
@@ -514,13 +487,6 @@
 ;;; This runtime test class is used to keep a count of a numeric value
 ;;; it implements the inc and dec functions and should be used for 
 ;;; any value that needs to be treated as a counter.
-
-(defun make-rt-num-sum-score (Val)
-  "Make a new runtime-test-score class with the specified val."
-  (if (not (numberp Val))
-      (error "Non # supplied to rt-int-score constructor: ~a" Val)
-    (make-instance 'rt-num-sum-score :Value Val)))
-
 
 (defclass rt-num-sum-score (rt-num-score) ())
 
@@ -554,12 +520,6 @@
 ;;; newly supplied value.  This should be used for storing a number
 ;;; of visible components or other values.  Counts can be better 
 ;;; maintained by the rt-int-sum-score class below. 
-
-(defun make-rt-int-score (Val)
-  "Make a new runtime-test-score class with the specified val."
-  (if (not (integerp Val))
-      (error "Non Int supplied to rt-int-score constructor: ~a" Val)
-    (make-instance 'rt-int-score :Value Val)))
 
 
 (defclass rt-int-score (rt-num-score) ())
@@ -639,11 +599,6 @@
 ;;; values.  The update function for this class will replace the
 ;;; current value with the next value.
 
-(defun make-rt-float-score (Val)
-  "Make a new runtime-test-score class with the specified val."
-  (if (not (floatp Val))
-      (error "Non float supplied to rt-float-score constructor: ~a" Val)
-    (make-instance 'rt-float-score :Value Val)))
 
 
 
@@ -684,12 +639,6 @@
 ;;; Floating point sum socre.  This class should be used to track
 ;;; floating point units that are updated by addition.  
 
-(defun make-rt-float-sum-score (Val)
-  "Make a new runtime-test-score class with the specified val."
-  (if (not (floatp Val))
-      (error "Non float supplied to rt-float-sum-score constructor: ~a" Val)
-    (make-instance 'rt-float-sum-score :Value Val)))
-
 
 (defclass rt-float-sum-score (rt-float-score rt-num-sum-score) ())
 
@@ -723,11 +672,6 @@
 ;;; runtime-test-htime-score
 ;;; This runtime test score is used to track an htime value.  
 
-(defun make-rt-htime-score (Val)
-  "Make a new runtime-test-score class with the specified val."
-  (if (not (htime-p Val))
-      (error "Non htime supplied to rt-htime-score constructor: ~a" Val)
-    (make-instance 'rt-htime-score :Value (copy-structure Val))))
 
 
 
@@ -831,11 +775,6 @@
 ;;; a floating point value will return a safe division of the numerator
 ;;; by the denominator.
 
-(defun make-rt-fract-score (Num Denom)
-  "Make a new runtime-test-score class with the specified val."
-  (if (not (and (numberp Num) (numberp Denom)))
-      (error "Non fract list supplied to rt-fract-score constructor: ~a ~a" Num Denom)
-    (make-instance 'rt-fract-score :Value (list Num Denom))))
 
 
 (defclass rt-fract-score (rt-score) ())
@@ -964,11 +903,6 @@
 ;;;
 ;;; Most of the methods for this class are defined above.
 
-(defun make-rt-fract1-score (Num Denom)
-  "Make a new runtime-test-score class with the specified val."
-  (if (not (and (numberp Num) (numberp Denom)))
-      (error "Non fract list supplied to rt-fract-score constructor: ~a ~a" Num Denom)
-    (make-instance 'rt-fract1-score :Value (list Num Denom))))
 
 
 (defclass rt-fract1-score (rt-fract-score) ())
@@ -1006,11 +940,6 @@
 ;;; a floating point number.  Therefore it inherits directly
 ;;; from rt-fract1-score and rt-fract-sum-score.
 
-(defun make-rt-fract1-sum-score (Num Denom)
-  "Make a new runtime-test-score class with the specified val."
-  (if (not (and (numberp Num) (numberp Denom)))
-      (error "Non fract list supplied to rt-fract-score constructor: ~a ~a" Num Denom)
-    (make-instance 'rt-fract1-sum-score :Value (list Num Denom))))
 
 (defclass rt-fract1-sum-score (rt-fract1-score rt-fract-sum-score) ())
 
@@ -1060,11 +989,6 @@
 ;;; inc function may be set to throw an error if someone attempts to 
 ;;; set the numerator greater than the denominator.
 
-(defun make-rt-fract-num-sum-score (Num Denom)
-  "Make a new runtime-test-score class with the specified val."
-  (if (not (and (numberp Num) (numberp Denom)))
-      (error "Non fract list supplied to rt-fract-score constructor: ~a ~a" Num Denom)
-    (make-instance 'rt-fract-num-sum-score :Value (list Num Denom))))
 
 
 (defclass rt-fract-num-sum-score (rt-fract-num-score rt-fract-sum-score) ())
@@ -1098,11 +1022,6 @@
 ;;; of this is to facilitate ratios of entries that do not need 
 ;;; to have both numerator and denominator updated at runtime.
 
-(defun make-rt-fract1-num-score (Num Denom)
-  "Make a new runtime-test-score class with the specified val."
-  (if (not (and (numberp Num) (numberp Denom)))
-      (error "Non fract list supplied to rt-fract-score constructor: ~a ~a" Num Denom)
-    (make-instance 'rt-fract1-num-score :Value (list Num Denom))))
 
 
 (defclass rt-fract1-num-score (rt-fract1-score) ())
@@ -1130,11 +1049,6 @@
 ;;; inc function may be set to throw an error if someone attempts to 
 ;;; set the numerator greater than the denominator.
 
-(defun make-rt-fract1-num-sum-score (Num Denom)
-  "Make a new runtime-test-score class with the specified val."
-  (if (not (and (numberp Num) (numberp Denom)))
-      (error "Non fract list supplied to rt-fract-score constructor: ~a ~a" Num Denom)
-    (make-instance 'rt-fract1-num-sum-score :Value (list Num Denom))))
 
 
 (defclass rt-fract1-num-sum-score (rt-fract1-num-score rt-fract-sum-score) ())

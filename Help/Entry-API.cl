@@ -52,83 +52,6 @@
 ;;-----------------------------------------------------------------------------
 
 ;;
-;; Times
-;;
-
-(defun arg-to-time (time-arg)
-  "convert workbench time argument symbol into a KB time expression"
-  (cond 
-	; may be NIL on probs w/o distinguished times
-        ((null time-arg) NIL) ;(get-default-time))
-	; Andes1 WB allowed defined student variable for duration as interval name.
-	; no longer used in Andes2
-	; ((get-student-time time-arg))
-	; may be time interval symbol of form |T0 to T1|
-	((wb-interval-namep time-arg) (get-wb-interval time-arg))
-	; or may be time point name of form T1
-        ((wb-time-pt-namep time-arg) (get-wb-time-pt time-arg)) 
-	(T (warn "unrecognized time argument:~A" time-arg)
-	   `(unrecognized ,time-arg)) ;need error handler
-	))
-
-(defun get-default-time () 
-  "return the default KB time for the problem"
-   1) ; assuming it will always be time point 1 
-
-(defun get-student-time (label)
-  "return time term for student-defined duration, NIL if not a duration"
-  (let* ((label-str (if (symbolp label) (symbol-name label) label))
-         (quant (symbols-referent label-str)))
-    (if (and (consp quant) 
-             (eq (first quant) 'duration))
-        (second quant))))
-
-;; The Andes1 helpsys relied on a problem-specific file giving a map of the 
-;; predefined WB time point symbols for the problem to the KB time point 
-;; numbers together with their verbal descriptions used to refer to them. 
-;; With this method, any symbols at all could in theory have been used for the 
-;; predefined time points.  
-;;
-;; However the WB time point symbols are *always* of form Ti where i = WB 
-;; time point index.  Moreover, in *almost* all problems, the WB time point 
-;; indices start at 0.  Andes2 KB time point numbers always start at 1 so we 
-;; can easily convert by adding 1.
-;;
-;; However, for no particular reason, the WB time point names in problems 
-;; Exlmom* and Exvec[2-5]a happen to start with T1 instead of T0. 
-;; We will probably change these workbench problem files so workbench times 
-;; adhere to the 0-based convention uniformly in the future. However, if 
-;; backwards compatibility is required, say to test the Andes2 help system on 
-;; entries in Andes1 logs, then we would need to insert a little filter here 
-;; to adjust the time point mapping based on the problem name.
- 
-(defun wb-time-pt-namep (sym)
-   "true if this has form of a predefined workbench time point symbol"
-   (let ((str (symbol-name sym)))
-    (and (equal (subseq str 0 1) "T")
-	 (not (wb-interval-namep sym))
-         (numberp (read-from-string (subseq str 1))))))
-
-(defun get-wb-time-pt (sym)
-   "convert WB time point label to KB time point number"
-   ; assume it's 1+ the number read after initial T
-   (1+ (read-from-string (subseq (symbol-name sym) 1))))
-
-;; Workbench time interval name is symbol of form |T0 to T1| 
-;; where the endpoint expressions are WB time point names.
-(defun wb-interval-namep (sym)
-  "true if this is a workbench time interval name"
-  (search " to " (symbol-name sym) :test #'equalp))
-
-(defun get-wb-interval (sym)
-  "convert WB time interval name to KB time interval expression"
-  (let* ((str (string-trim '(#\Space) (symbol-name sym)))
-	 (pt1 (read-from-string (subseq str 0 (position #\Space str))))
-	 (pt2 (read-from-string (subseq str (1+ (position #\Space str :from-end t))))))
-
-     (list 'during (get-wb-time-pt pt1) (get-wb-time-pt pt2))))
-
-;;
 ;; Vector directions
 ;;
 (defun arg-to-dir (dir-arg &key mag-arg cosphi (modulus 360))
@@ -154,11 +77,6 @@
 (defun sym-match (sym1 sym2)
    "case independent comparison of symbol names"
    (string-equal (string sym1) (string sym2)))
-
-
-(defun ndiffs (set1 set2)
-  (length (set-difference set1 set2)))
-
 
 (defun strcat-nonzero (&rest x)
   "If every argument is nonzero length, apply strcat, else return \"\"."

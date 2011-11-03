@@ -133,14 +133,6 @@
      (* 60 (Htime-Min Htime))
      (Htime-Sec Htime)))
 
-
-;;; Convert the Htime to a raw number of minutes
-(defun convert-Htime->Min (Htime)
-  "Convert the Htime to a raw number of Minutes."
-  (+ (* 60 (Htime-Hour Htime))
-     (Htime-Min Htime)
-     (/ (Htime-Sec Htime))))
-
 ;;; Subtract one time from the next.
 (defun sub-htimes (&rest htimes)
   (cond ((null htimes) (error "No times supplied for sub."))
@@ -214,23 +206,6 @@
 	 #'(lambda (H1 H2) 
 	     (< (convert-Htime->Secs H1) 
 		(convert-Htime->Secs H2)))  
-	 Htimes))
-
-
-(defun htimes<= (&rest Htimes)
-  "Run a < test on the htimes."
-  (apply #'htimes-comp 
-	 #'(lambda (H1 H2) 
-	     (<= (convert-Htime->Secs H1) 
-		 (convert-Htime->Secs H2)))  
-	 Htimes))
-
-(defun htimes>= (&rest Htimes)
-  "Run a < test on the htimes."
-  (apply #'htimes-comp 
-	 #'(lambda (H1 H2) 
-	     (>= (convert-Htime->Secs H1) 
-		 (convert-Htime->Secs H2)))  
 	 Htimes))
 
 

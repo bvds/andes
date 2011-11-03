@@ -28,14 +28,6 @@
   "Pick a random element out of a sequence."
   (elt seq (mt19937:random (length seq))))
 
-(defun random-choice (probability)
-  "Return T randomly with given probability"
-  ; Macro attempting to inline constant arg calls had bug causing
-  ; inlining of compile-time *random-state* value. Now fixed, but
-  ; safest to avoid dubious macro.
-   (let ((one 1.0)) 
-    (> probability (mt19937:random one))))
-
 ;; seeding mt19937 is not obvious.  Copied the following from a Maxima page  
 (defun set-mt19937 (seed)
   (setq mt19937::*random-state* 

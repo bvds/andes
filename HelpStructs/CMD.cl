@@ -73,21 +73,6 @@
   "Is this cmd an answer post?"
   (equalp (cmd-Class CMD) 'Answer))
 
-;;; State calls are used to update or alter the system state and 
-;;; signify values being refrshed/set.  As dde's these calls will
-;;; get a status return-val type
-(defun State-cmdp (Cmd)
-  "Is this cmd a state call?"
-  (equalp (cmd-Class CMD) 'State))
-
-;;; At present there is only one control command.  This doesn't 
-;;; appear in our student docs so it should appear rarely.  when
-;;; it does it should only appear as a dde post so no return type
-;;; should be given.
-(defun Control-cmdp (Cmd)
-  "Is this cmd a control command?"
-  (equalp (cmd-Class CMD) 'Control))
-
 ;;; non-eq entries such as assert object are dde's that post a 
 ;;; value to the system.  As such they get a status return val
 (defun noneq-entry-cmdp (Cmd)
@@ -124,12 +109,6 @@
   "Is this cmd a help call?"
   (equalp (cmd-Class CMD) 'Help))
 
-;; For whatever reson the logs contain many api calls that we no 
-;; longer have documentation for.  These are those calls.
-(defun Unknown-cmdp (Cmd)
-  "Is this cmd a help call?"
-  (equalp (cmd-Class CMD) 'UNKNOWN))
-
 
 ;;;; --------------------------------------------
 ;;;; Composite types
@@ -142,35 +121,6 @@
   "Is this an entry command (either eq or noneq)?"
   (or (eq-entry-cmdp Cmd)
       (noneq-entry-cmdp Cmd)))
-
-;;; solution-action-cmdp
-;;; This describes the superset of all commands that Kurt considers
-;;; to be solution actions.  These being the commands that represent
-;;; changes to the solution state or to the student's mental state.
-(defun solution-action-cmdp (Cmd)
-  "Is this a solution action command?"
-  (or (entry-cmdp Cmd)
-      (help-cmdp Cmd)
-      (delete-cmdp Cmd)
-      (Answer-cmdp Cmd)))
-
-;;; Solution-state-change-cmdp 
-;;; This superset describes all entry actions that changes the solution
-;;; state of the system.  These actions include answer attempts, entries
-;;; and deletions.
-;;; Algebra only reifies what is already written so the state does not
-;;; really change fundementally.
-
-(defun Solution-State-Change-cmdp (Cmd)
-  (or (entry-cmdp Cmd)
-      (delete-cmdp Cmd)
-      (answer-cmdp Cmd)))
-
-;;; Assertion-cmdp
-;;; Assertion commands change the solution state of the system by asserting
-;;; new objects.  They are either Answer assertions or entry assertions.
-(defun assertion-cmdp (Cmd)
-  (or (entry-cmdp Cmd) (answer-cmdp Cmd)))
 
 
 ;;;; ---------------------------------------------------------------------
@@ -387,17 +337,6 @@
 			(cmdresult-value Result))))))
 
 
-;;; A cmd is incorrect when it it has a result, that result has 
-;;; a status return val and that status return val is neither
-;;; red nor green. 
-(defun unvalued-cmdp (Cmd)
-  (let ((Result (cmd-result CMD)))
-    (and Result (cmdresult-p Result)
-	 (status-return-val-p (cmdresult-value Result))
-	 (not (member (status-return-val-coloring 
-		       (cmdresult-value Result))
-		      '(RED GREEN))))))
-
 
 
 ;;; ------------------------------------------------------------------
@@ -462,11 +401,3 @@
   (and (not (help-cmdp Command))
        (show-hint-cmdp Command)))
 
-
-;;; --------------------------------------------------------
-;;; commands time diff.
-;;; Given a pair of commands relate them acc
-
-(defun cmds-time-diff (A B)
-  "Return the amount of time elapsed between Cmd A and Cmd B."
-  (sub-htimes (cmd-Time A) (cmd-time B)))

@@ -1139,13 +1139,6 @@
 ;; be predictable from their position in the operator.
 ;;========================================================
 
-; helper to use in format strings when args may be variables
-; needed because "if" is special form, makes problems for our apply.
-; uses var text if arg is var, else nlg's arg using nlg-type.
-(defun if-var (form var-text &optional (nlg-type 'def-np))
-  (if (variable-p form) var-text
-    (nlg form nlg-type))) 
-
 (def-goalprop lk-fbd (vector-diagram ?rot (lk ?body ?time))
    :doc "diagram showing all lk vectors and axes"
    :nlg-english ("drawing a diagram showing all of the needed kinematic vectors of ~A ~A and coordinate axes" 

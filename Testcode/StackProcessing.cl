@@ -109,39 +109,6 @@
 	    (cdr Stack) Test (cons A Result)))
 	  (t Result))))
 
-;;; -------------------------------------------------------------------------
-;;; Max Time-Diff Stackc
-;;; Given a list of cmds collect the stack rotted at the base of commands
-;;; that are within the threshold of time from one-another.  This is used
-;;; to implement the abused searches and could be used as an alternative
-;;; to the max-thresh-help-stackc.
-;;;
-;;; This takes a newest-first stack and returns an oldest-first stack 
-;;; of at minimum two elements.
-(defparameter **default-time-diff** (make-htime :Sec 30))
-
-(defun max-time-diff-stackc (Stack &optional (Diff **default-time-diff**))
-  "Return t if the cmds A and B are less than Diff (htime) apart."
-  (multi-test-stackc 
-   Stack 
-   #'(lambda (A B) (htimes>= Diff (cmds-time-diff A B)))))
-
-
-;;; -------------------------------------------------------------------------
-;;; Min Time-Diff Stackc
-;;; Given a list of cmds collect the stack rotted at the base of commands
-;;; that are above the threshold of time from one-another.  
-;;;
-;;; This takes a newest-first stack and returns an oldest-first stack 
-;;; of at minimum two elements.
-(defun Min-time-diff-stackc (Stack &optional (Diff **default-time-diff**))
-  "Return t if the cmds A and B are further than Diff (htime) apart."
-  (multi-test-stackc 
-   Stack 
-   #'(lambda (A B) (htimes< Diff (cmds-time-diff A B)))))
-
-
-
 
 
 ;;;; ==========================================================================
@@ -237,38 +204,6 @@
        (show-hint-ddr-menu 
 	(cmdresult-value (cmd-result cmd)))))
 
-
-;;; Trace the help stack utilities.
-(defun trace-help-stack-utils ()
-  (trace help-stack-cont-cmdp
-	 help-stack-capp
-	 help-stack-nohelp-capp))
-
-
-
-;;;; --------------------------------------------------------
-;;;; Hints by stack type.
-;;;; Given a stack for which Help-Stackc returns a valid 
-;;;; stack value, this code will return t depending upon
-;;;; the type of the stack's cap.  
-
-(defun get-proc-help-stackp (Stack)
-  "Is this a helpstack capped with a next-step-help call?"
-  (let ((S (help-stackc Stack)))
-    (when S (get-proc-help-cmdp (car S)))))
-
-(defun Why-wrong-stackp (Stack)
-  "Is this a helpstack capped with a WWH call?"
-  (let ((S (help-stackc Stack)))
-    (when S (why-wrong-cmdp (car S)))))
-
-(defun unsolicited-help-stackp (Stack)
-  "Is this a helpstack capped with an unsolicited help cmd?"
-  (let ((S (help-stackc Stack)))
-    (when S (unsolicited-hint-cmdp (car S)))))
-
-
-
 ;;;; --------------------------------------------------------
 ;;;; Bottom Out Hint-stackc
 ;;;; Given a cmdstack return t if the bottommost command in
@@ -278,58 +213,6 @@
   "Is this the tail of a het-proc-help call?"
   (and (tail-hint-cmdp (car Stack))
        (help-stackc Stack)))
-
-
-
-;;; ---------------------------------------------------------------------------
-;;; Max-Diff-Help-Stackc
-;;; Return t if the topmost cmd is part of a help stack and if the student 
-;;; passed through it without pausing for more than a set amount of time 
-;;; between each call.  If both of these conditions are met then the entry 
-;;; capping the help stack will be returned  If not Nil will be returned.  
-;;;
-;;; This code is used to test for help abuse and can also be used to detect 
-;;; points where the students are pausing for inordinately long times when
-;;; reading through the help calls.
-;;;
-;;; The citeria for being a viable help stack are the same as those listed 
-;;; above.
-;;;
-;;; The max-threshold helpstack takes a stack of entries in lifo order (the top is the
-;;; newest entry) and returns a help stack or nil in fifo order (top is oldest).
-;;; all members will be help cmds.  There is a minimum of two entries.  
-
-;; (iterate-st-logfiles "Log/Sample/*/*/" :ResultFuncs '(max-thresh-help-stackc) :type ".hm")
-
-;;(defparameter **max-abuse-time-diff** (make-htime :Sec 30))
-
-;;(defun max-diff-help-stackc (Stack)
-;;  (max-time-diff-stackc
-;;   (reverse (help-stackc Stack))))
-
-
-
-
-;;;; ------------------------------------------------------------------------
-;;;; Helpstack-predicate-pairc
-;;;; Given a stack and a pair of optional predicates cmd-pred and stack-pred
-;;;; return t iff:
-;;;;   1. the stack exists.
-;;;;   2. It has at least two elements
-;;;;   3. The topmost element satisfies the cmd-pred.
-;;;;   4. The cdr of the stack is capped by a help stack.
-;;;;   5. That help stack (in fifo order) satisfies the stack-pred.
-
-(defun helpstack-predicate-pairp (Stack &key (Cmd-Pred #'identity) (Help-Pred #'identity))
-  "Return t if the system satisfies the predicates."
-  (and (car Stack) (cdr Stack)
-       (funcall Cmd-Pred (car Stack))
-       (let ((R (help-stackc (cdr Stack))))
-	 (and R (funcall Help-Pred R)))))
-
-
-
-
 
 
 ;;;; ==================================================================
@@ -415,30 +298,6 @@
 
 
 
-;;;; ==================================================================
-;;;; Independent-helpstackc
-;;;; Given a stack of entries test to see if the n-1st entries form 
-;;;; part of a help stack and if the bottommost entry is part of it.
-;;;; If it is not then return t.  In order for a stack S to pass this
-;;;; test it must be the case that:
-;;;;  1. The 2nd cmd in the stack is a help-cmd.
-;;;;  2. Help Stackc returns a stack on the cdr of the list.
-;;;;  3. The Car of the list is either:
-;;;;     a. a non-help cmd.
-;;;;     b. Or a help cap cmd such as next-step-help.
-;;;;     this test is done by simply checking to see if this is 
-;;;;     not a cont cmd.
-
-;;;; NOTE:: This is a bug, this should be a *not* preceeding the 
-;;;;  help-stack-cont-cmdp  dammnit.
-(defun independent-nested-helpstackc (Stack)
-  "Return t if the cdr of the list passes as a helpstack but the car does not."
-  (when (help-cmdp (nth 1 Stack))
-    (let ((S (reverse (help-stackc (cdr Stack)))))
-      (when (not (help-stack-cont-cmdp (car Stack)))
-	S))))
-
-
 
 ;;;; ==================================================================
 ;;;; Minimum hints num. 
@@ -452,23 +311,6 @@
 ;;;;
 ;;;; Use these recursivly to test portions of the stack.  String them 
 ;;;; together to make explicit patterns.
-
-;;; -------------------------------------------------------------------
-;;; Match Single.
-;;; Given a stack test to see if it is timable and if the last hint in 
-;;; it is fast if so return the cdr of the stack if not return nil.
-(defun match-single-fast-hint-stackc (Stack)
-  (when (and (timable-hint-stackp Stack)
-	     (fast-hint-stackp Stack))
-    (cdr Stack)))
-
-
-;;; Given a stack test to see if it is timable and if the last hint in 
-;;; it is slow if so return the cdr of the stack if not return nil.
-(defun match-single-slow-hint-stackc (Stack)
-  (when (and (timable-hint-stackp Stack)
-	     (slow-hint-stackp Stack))
-    (cdr Stack)))
 
 
 ;;; -------------------------------------------------------------------
@@ -528,20 +370,3 @@
       (and (slow-hint-stackp Stack)
 	   (match-slow-hint-stackc (cdr Stack))))))
   
-#|(defun tst-foo (Stack Test)
-  (dotimes (N (length Stack))
-    (when (funcall Test (subseq Stack N))
-      (format t "~a ~%" N))))
-            |#
-;; (format t "~a ~a~%" N (subseq Stack N)))))
-
-
-
-
-;;;; ==================================================================
-;;;; Utility functions.
-
-(defun get-stack-subseq (Stack Base)
-  "Get all the items between The Top of Stack and Base."
-  (subseq Stack 0 (position Base Stack)))
-

@@ -60,7 +60,6 @@
 ;; gets it.  
 ;;
 
-(defparameter *S-print-Num* t "Print the step Number.")
 (defparameter *S-print-steps* () "Print intermediate solution steps.")
 (defparameter *cp* () "Current problem.")
 
@@ -159,6 +158,12 @@
     (pprint (Problem-Graph Problem))
     (print-BubbleGraph (Problem-Graph Problem)))
     (Problem-Graph Problem))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;;    debug functions
+;;;
+;;;
 
 (defun gpb ()
   (generate-problem-bubblegraph *cp*))
@@ -651,15 +656,3 @@
 
 (defun ps-bp (form &rest args)
   (format t "~76@<~A~;~?~>~%" (print-outline-indent 0) form args))
-
-
-;;;;============================================================
-(defun trace-solve-problem ()
-  (trace solve-problem
-	 Generate-Problem-Bubblegraph
-	 Generate-Problem-Indicies
-	 generate-problem-Solutionpoint
-	 generate-problem-eqn-sets
-	 mark-problem-graph
-	 solve-for-non-quantity))
-	 

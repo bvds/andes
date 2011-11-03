@@ -293,7 +293,7 @@
 ;; write one text file per problem, containing the problem statement text lines
 ;; puts into "Statements" directory. This is a convenience for the script that
 ;; generates OLI learning pages from problem sets.
-(defun write-stmts()
+(defun write-stmts ()
    (map-problems 
       #'(lambda(p) 
          (with-open-file (outf (merge-pathnames (strcat "Statements/" (string (problem-name p)) ".txt") *andes-path*)

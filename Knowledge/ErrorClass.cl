@@ -93,7 +93,3 @@
 			      :order (quote ,order)
 			      )
         **entry-tests**)))
-
-
-(defun get-error-class-by-name (name)
- (find name **entry-tests** :key #'EntryTest-name))

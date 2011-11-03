@@ -72,7 +72,9 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;; Not called by anyone.
 (defun test-parse (eq)
+ "Debugging utility to test parser."
   (let ((equation eq))
     (if (= 0 (length (remove #\Space equation)))
 	(format nil "Empty Equation <~W>~%" eq)
@@ -265,10 +267,17 @@
 	 ((equal +color-green+ (turn-coloring tmp))
 	  (sg-Enter-StudentEntry se)
 	  
-	  ;; also enter scalar variables whose only uses are in this entry's interp
+	  ;; also enter scalar variables whose only uses are in this 
+	  ;; entry's interp
 	  (let ((eqn-interp (StudentEntry-Cinterp se))
 		unneeded-vardefs)
-					; collect list of variable entries no longer needed
+	    
+	    ;; Add this equation to matching systementries.
+	    ;; A student equation is classified according to
+	    ;; the systementry equations it overlaps with.
+	    
+
+	    ;; collect list of variable entries no longer needed
 	    (when eqn-interp ; if interp is empty, don't reduce #'union NIL, Bug 949
 	      (dolist (var (reduce #'union (mapcar #'(lambda (sysent) 
 						       (vars-in-eqn (sysent-algebra sysent)))
@@ -277,9 +286,11 @@
 			   (subsetp (syseqns-containing-var var) eqn-interp))
 	          (pushnew (var-to-sysentry var) unneeded-vardefs))))
 	    (when unneeded-vardefs
-					; temporarily munge this entry's interpretations to get variable definition entries 
-					; associated with it to be marked as entered by this student entry, restore when done. 
-					; Note sg-delete-StudentEntry adjusted to undo this on equation entry deletions.
+	      ;; temporarily munge this entry's interpretations to get 
+	      ;; variable definition entries associated with it to be 
+	      ;; marked as entered by this student entry, restore when done. 
+	      ;; Note sg-delete-StudentEntry adjusted to undo this on 
+	      ;; equation entry deletions.
 	      (when *debug-help* 
 		(format t "entering unneeded vardefs: ~s~%" unneeded-vardefs))
 	      (setf (StudentEntry-Cinterp se) unneeded-vardefs)
@@ -786,11 +797,6 @@ follow-up question and put it in the student entry's err interp field."
 	   (if (equal x expr)
 	       (list (append p (list count))))))
      eq)))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun handle-unused-variables (equation)
-  (if (find-all-in equation 'nil) nil equation)) ;; probably a better to do this
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   

@@ -459,16 +459,3 @@
 
 (defun gg-debug-decdepth ()
   (decf *gg-debug-depth*))
-
-(defun trace-gbg ()
-  (trace generate-bubblegraph
-	 gg-solve-for-sought
-	 gg-solve-preexisting-sought
-	 gg-solve-given-sought
-	 gg-find-matching-given
-	 gg-solve-constant-sought
-	 gg-solve-complex-sought
-	 gg-solve-complex-psm
-	 gg-collect-psm-qnodes
-	 gg-collect-next-psm-qnode))
-

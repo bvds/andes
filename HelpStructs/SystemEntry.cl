@@ -183,23 +183,6 @@
 ;;----------------------------------------------
 ;; State testing code.
 
-(defun Systementry-correctp (Entry)
-  (equalp (SystemEntry-State Entry) +correct+))
-
-(defun Systementry-forbiddenp (Entry)
-  (equalp (SystemEntry-State Entry) +forbidden+))
-
-(defun Systementry-incorrectp (Entry)
-  (equalp (SystemEntry-State Entry) +incorrect+))
-
-(defun Systementry-deadpathp (Entry)
-  (equalp (SystemEntry-State Entry) +dead-path+))
-
-(defun SystemEntries-EnteredP (Entries)
-  (loop for E in (if (SystemEntry-P (car Entries))
-		     Entries
-		   (cdr Entries))
-      always (SystemEntry-Entered E)))
 
 (defun systementry-equationp (Entry)
   "Is the systementry an equation?"
@@ -302,5 +285,20 @@
 (defun find-systementry (prop)
   "Find systementry that matches a given prop"
   (find prop *sg-entries* :key #'SystemEntry-prop :test #'unify))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;               SystemEntries arranged according to solution.
+;;;;
+;;;;
+;; ================================================
+;; Solution struct.  
+
+(defstruct sgsol
+  Num
+  Entries)
+
+(defvar *SG-Solutions* () "The set of solutions to be done, type sgsol.")
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
