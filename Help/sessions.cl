@@ -158,7 +158,7 @@
 	  ;; Variables used for scoring in Help/RunTimeTest.cl
           *Runtime-Testset* *Runtime-Score-Testset*
 	  *Runtime-testset-current-Solindex*
-	  *Runtime-Testset-current-total-score* **Checking-entries**
+	  *Runtime-Testset-current-total-score*
 	  ;; Variables holding session-local memos.
 	  *parse-memo* *lexical-rules-memo* *rules-starting-with-memo*
 	  ;; Cache variables in Testcode/Tests.cl
@@ -460,27 +460,24 @@
 		(setf y (max y (cdr (assoc :y (cdr predef))))))
 	      (push `(:y . ,y) (cdr predef)))
 	  ;; (format webserver:*stdout* "  Turned to ~A~%" (cdr predef))
-	  (setf y (+ y 25))))
-      
-      (setf **checking-entries** t))
+	  (setf y (+ y 25)))))
     
     ;; Send pre-defined quantities to the help system via
     ;; the solution-step method.
     ;; Execute outside of env-wrap and with check-entries turned on.
-    (dolist (predef (mapcar #'cdr predefs)) ;ignore any entry-prop
-      ;; (format webserver:*stdout* "Sending predef ~A~%" (cdr predef))
-      (let ((reply (apply #'solution-step 
-			   ;; flatten the alist
-			   (mapcan 
-			    #'(lambda (x) (list (car x) (cdr x)))
-			    predef))))
-	(setf solution-step-replies 
-	      (append solution-step-replies 
-		      (cons predef reply))))
-      ;; (format webserver:*stdout* "   done with predef ~A~%" (cdr predef))
-      )
-
-    (env-wrap (setf **checking-entries** nil))
+    (let ((**checking-entries** t))
+      (dolist (predef (mapcar #'cdr predefs)) ;ignore any entry-prop
+	;; (format webserver:*stdout* "Sending predef ~A~%" (cdr predef))
+	(let ((reply (apply #'solution-step 
+			    ;; flatten the alist
+			    (mapcan 
+			     #'(lambda (x) (list (car x) (cdr x)))
+			     predef))))
+	  (setf solution-step-replies 
+		(append solution-step-replies 
+			(cons predef reply))))
+	;; (format webserver:*stdout* "   done with predef ~A~%" (cdr predef))
+	))
     
     ;; Pull old sessions out of the database that match
     ;; student, problem, & section.  Run turns through help system
