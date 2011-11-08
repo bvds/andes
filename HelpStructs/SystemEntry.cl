@@ -171,11 +171,14 @@
     (setf (SystemEntry-Prereqs E)
       (loop for Pr in (SystemEntry-Prereqs E)
 	  collect (loop for P in Pr
-		      collect (Prop->Sysent (SystemEntry-Prop P)
+		      collect (find-SystemEntry (SystemEntry-Prop P)
 					    Index))))))
 
 
-(defun prop->Sysent (Prop Entries)
+;;
+;;   Find systementry that matches a given prop
+;;
+(defun find-SystemEntry (Prop &optional (Entries *sg-entries*))
   (find Prop Entries
 	:key #'SystemEntry-Prop
 	:test #'unify))
@@ -278,13 +281,6 @@
 	     (setq s +dead-path+))))
     s))
 
-
-;;
-;;   Find systementry that matches a given prop
-;;
-(defun find-systementry (prop)
-  "Find systementry that matches a given prop"
-  (find prop *sg-entries* :key #'SystemEntry-prop :test #'unify))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;
