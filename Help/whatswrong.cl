@@ -50,6 +50,8 @@
   "Given the id selected by the student in what's wrong help, returns a 
    tutor turn containing the associated error interpretation."
     (diagnose student)
+    (setf *help-last-entries* 
+	  (ErrorInterp-intended (StudentEntry-ErrInterp student)))
     (ErrorInterp-Remediation (StudentEntry-ErrInterp student)))
 
 

@@ -159,6 +159,7 @@
           *Runtime-Testset* *Runtime-Score-Testset*
 	  *Runtime-testset-current-Solindex*
 	  *Runtime-Testset-current-total-score*
+          *help-last-entries*
 	  ;; Variables holding session-local memos.
 	  *parse-memo* *lexical-rules-memo* *rules-starting-with-memo*
 	  ;; Cache variables in Testcode/Tests.cl

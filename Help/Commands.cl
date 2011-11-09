@@ -329,7 +329,7 @@
     ;;    35 questions begin with "how" "is" "should" "what" "where" "why"
     ;;    8 other questions or requests.  2 start with "help".
     ;;    2/3 of questions end in ?
-    ;; However, a significant number of regular comments that end in "?"
+    ;; However, a significant number of regular comments end in "?"
   (< (match:best-value
       (match:match-model (list (car (match:word-parse str)))
 			 '(or "how" "is" "should" "what" "where" "why"))) 1))

@@ -37,6 +37,7 @@
 (defvar *SG-Solutions* () "The set of solutions to be done.")
 (defvar *SG-Entries* () "The System entries from the bubblegraph.")
 (defvar *SG-Eqns* () "Equation list with eqn-index->entry mappings.")
+(defvar *help-last-entries* () "List of SystemEntries for which the termination of the most recent help sequence was constructed.  Used to determine assignment of blame for bottom-out hint.")
 
 ;; dynamically bound to correct entry if known before calling turn
 ;; generator, so generating functions can use it. Generating functions
