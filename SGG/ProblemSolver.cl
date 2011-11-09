@@ -78,13 +78,6 @@
 			  (* 60 internal-time-units-per-second)))
      (values))) ; don't return any value
 
-(defmacro scp (Pname)
-  `(setq *cp* (get-problem ',Pname)))
-
-(defun p ()
-  "Print out *cp*"
-  (format t "~A~%" *cp*))
-
 
 ;;;;==================================================================
 ;;;; Solve problem main function  

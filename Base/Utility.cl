@@ -385,13 +385,6 @@
 		    :if-exists :supersede
 		    :if-does-not-exist :create)
      ,@Body))
-
-(defmacro wopen-eread (File Name &rest Body)
-  (eval `(with-open-file (,File 
-			  ,Name
-			  :direction :input
-			  :if-does-not-exist :error)
-	   ,@Body)))
     
 (defun fprint (obj &optional (Stream t) (depth 0))
   (when (listp obj)

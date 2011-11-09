@@ -279,9 +279,6 @@
 (defmacro mpf-read (S C)
   `(when (not (equalp (read ,S) ,C))
      (error "Malformed Problem file.")))
-     
-(defmacro mpf-readset (S L)
-  `(setf ,L ,`(read ,S "Error: malformed problem file.~%")))
 
 (defmacro mpf-readret (S)
   `(read ,S "Error: invalid problem file."))
