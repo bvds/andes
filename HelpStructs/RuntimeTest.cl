@@ -489,14 +489,6 @@
 ;;;; that can be returned to the workbench via the stat-turn.  Thee functions
 ;;;; are used to collect up the individual tests and to map them as necessary.
 
-;;; Get the cached runtime testset-total-score and return it 
-;;; to the user for later use. For now this code will multiply
-;;; the total score by 100 and send the integer value.  This may
-;;; change later on when the renormalization is put in place.
-(defun get-current-runtime-total-score ()
-  (round (* 100 *Runtime-Testset-current-total-score*)))
-
-
 ;;; Given a set of runtime tests translate it into a list of 3-tuples
 ;;; containing the name of each test, its weight and its score.
 ;;; Uses internal id by default. Specify #'runtime-test-PrintStr to 

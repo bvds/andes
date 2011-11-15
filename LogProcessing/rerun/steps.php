@@ -44,7 +44,7 @@
 	     // (setf *simulate-loaded-server* nil)
 
 $ignoreNewLogs = true;  // ignore any new non-error, log messages
-$ignoreScores = true;  // ignore any changes to scoring.
+$ignoreScores = false;  // ignore any changes to scoring.
 $printDiffs = true;  // Whether to print out results for server diffs
 $jsonFile = 'replies.json';  // File name for dumping reply json
 	    
@@ -64,7 +64,8 @@ mysql_select_db($dbname)
 
 /* filters for user name, section, etc.  
    Use regexp matching for user name and section. */
-$sectionName = '' ; //$_POST['sectionName'];
+$adminName = '' ;   // user name
+$sectionName = 'MIT_.*_' ; //$_POST['sectionName'];
 $startDate = '2011-04-01'; // $_POST['startDate'];
 $endDate = ''; // $_POST['endDate'];
 $methods = array('open-problem','solution-step','seek-help','record-action','close-problem');  //implode(",",$_POST['methods']);

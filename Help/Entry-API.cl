@@ -1296,7 +1296,9 @@
   ;; being processed further. Return appropriate turn with unsolicited 
   ;; error message in this case.
   (when (studentEntry-ErrInterp entry) 
-    (warn "Not grading update 1 for ~A" entry)
+    (when *debug-grade* (warn `webserver:log-warn
+			      :text "Not grading update 1" 
+			      :tag (list 'not-grading 1 entry)))
     (return-from Check-NonEq-Entry 
       (ErrorInterp-remediation (studentEntry-ErrInterp entry))))
   
@@ -1317,8 +1319,10 @@
                (StudentEntry-GivenEqns Entry))
       (setf result (Check-Vector-Given-Form Entry))
       (when (not (eq (turn-coloring result) +color-green+))
-	(warn "Not grading update 2 for ~A" entry)
-	    (return-from Check-NonEq-Entry result))) ; early exit
+	(when *debug-grade* (warn `webserver:log-warn
+				  :text "Not grading update 2" 
+				  :tag (list 'not-grading 2 entry)))
+	(return-from Check-NonEq-Entry result))) ; early exit
     
     ;; Get set of candidate interpretations into PossibleCInterps.  
     ;; For generality needed for equation entries, an "interpretation" 
@@ -1344,11 +1348,8 @@
 				      :slots 1 ;should be list, but for now, just
 				      :penalize t)))
 	
-	(format webserver:*stdout* "++++++intended is ~S~%" intended)
-	
-	;; If there is a unique systementry, we can mark it as incorrect,
-	;; for grading purposes.
-	  (update-grade-status intended +incorrect+))
+	;; Mark associated SystemEntry or SystemEntries, as incorrect.
+	(update-grade-status intended +incorrect+)
 	
 	;; Take diagnosis and add grading information.
 	;; It looks like the "new" part does not work for multiple-choice.
@@ -1378,7 +1379,7 @@
       (correct 
 
        ;; Grading:  attach grade to SystemEntry
-       (update-grade-status match +correct+)
+       (update-grade-status (StudentEntry-CInterp entry) +correct+)
     
        ;; check any given value equations associated. At first one that is wrong, its
        ;; result turn becomes the result for the main entry; checking routine 

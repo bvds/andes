@@ -62,7 +62,8 @@
 ;;;
 
 
-(defvar *grade* "Alist of (prop . graded object).")
+(defvar *grade* nil "Alist of (prop . graded object).")
+(defvar *debug-grade* nil "Flag for debugging grading.")
 
 (defconstant +random-average-score+ 0.25 "global default value")
 (defvar *random-average-score* +random-average-score+
@@ -109,17 +110,22 @@
 	   ;; in list of SystemEntries.
 	   ;; old:  equivalent to *test-cache-drawing-entries*
 	   ;; old:  corresponds to Diagram_Entry_Subscore
-	   (dolist (entry (enode-required-entries
-			   (match-exp->enode ans (problem-graph *cp*))))
-	     (setf (graded-required (SystemEntry-graded entry)) t))
+	   ;; Default is that entries are required.
+	   ;; must set optional explicitly
+	   ;;(dolist (entry (enode-required-entries
+	;;		   (match-exp->enode ans (problem-graph *cp*))))
+	 ;;    (setf (graded-required (SystemEntry-graded entry)) t))
 	   ;; These are already defined in *sg-entries*
 	   ;; Add done button, if it exists.
 	   ;; old: corresponds to MC_Answer_Entry_Subscore ???
 	   ))
 
     ;; Add weights and possiblities to *SG-Entries*
+    ;; Ignore implicit-eqn
     (dolist (sysent *SG-Entries*)
       (let ((graded (SystemEntry-graded sysent)))
+	(when (eql (car (SystemEntry-prop sysent)) 'implicit-eqn)
+	  (setf (graded-ignore graded) t))
 	;; For now, just put in dummy value
 	(unless (graded-weight graded)
 	  (setf (graded-weight graded) 13))
@@ -140,16 +146,19 @@
     ))
 
 (defun score-hint-request (hint-assoc entries)
-  (format webserver:*stdout* "***score-hint-request with ~A~%    props: ~A~%" 
-	  hint-assoc
-	  entries))
+  (when *debug-grade* ;debug print
+    (format webserver:*stdout* "***score-hint-request with ~A~%    props: ~A~%" 
+	    hint-assoc
+	    entries))
+  )
 
 (defun update-grade-status (entries status)
-  (let ((grade (SystemEntry-graded entry)))
-    (setf (graded-status grade) status)
-    ;; Once ignored has been set, it is always set.
-    (unless (graded-ignore grade)
-      (setf (graded-ignore grade) **checking-entries**))))
+  (dolist (entry entries)
+    (let ((grade (SystemEntry-graded entry)))
+      (setf (graded-status grade) status)
+      ;; Once ignored has been set, it is always set.
+      (unless (graded-ignore grade)
+	(setf (graded-ignore grade) **checking-entries**)))))
 
 
 (defstruct tally
@@ -170,6 +179,7 @@
 	    :tag (list 'graded-possibilities-missing (SystemEntry-prop sysent))
 	    :text "Entry missing grading possibilities.")
       (return-from grade-sysentry))
+    ;; Right now, ignoring graded-optional
     (unless (graded-ignore graded)
       (incf (tally-possible tally) weight)
       (when (eql (graded-status graded) +correct+)
@@ -205,12 +215,13 @@
   
   ;;  For testing, just loop through systementries.
   (dolist (sysent *sg-entries*)
-    (when (or (graded-incorrects (systementry-graded sysent))
-	      (graded-status (systementry-graded sysent)))
-      (when nil ;debug print
-	(format webserver:*stdout* "*** Grade ~A:~%    ~A~%" 
+    (when (and *debug-grade* ;debug print
+	       (or t (graded-incorrects (systementry-graded sysent))
+	      (graded-status (systementry-graded sysent))))
+	(format webserver:*stdout* "*** Grade~@[ global~*~] ~A:~%    ~A~%"
+		(null (SystemEntry-in-Sg-Solutions sysent))
 		(systementry-prop sysent)
-		(systementry-graded sysent)))))
+		(systementry-graded sysent))))
 
   (let (best-score best-possible best-number 
 	(global-score (make-tally)))
@@ -239,12 +250,15 @@
 	  (setf best-possible (tally-possible this-score))
 	  (setf best-number (sgsol-num soln)))))
 
-    (format webserver:*stdout* "*** Global grade ~A/~A.  "
-	    (tally-score global-score) 
-	    (tally-possible global-score))
-    (format webserver:*stdout* "Best grade ~A/~A from solution ~A~%"
-	    best-score best-possible best-number)
-    ))
+    (when *debug-grade* ;debug print
+      (format webserver:*stdout* "*** Global grade ~A/~A.  "
+	      (tally-score global-score) 
+	      (tally-possible global-score))
+      (format webserver:*stdout* "Best grade ~A/~A from solution ~A~%"
+	    best-score best-possible best-number))
+
+    (/ (+ best-score (tally-score global-score))
+       (+ best-possible (tally-possible global-score)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

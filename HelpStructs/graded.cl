@@ -23,17 +23,37 @@
 
 
 ;; These are attached to SystemEntry objects.
-(defstruct graded 
+(defstruct (graded  (:print-function print-graded))
   incorrects ;list of info-provided
   hints ;list of bottom-out hints associated with entry.
   eqns  ;alist of (StudentEntry . length) overlapping with SystemEntry.
   status     ;Current status.  Can be:
   ;; +correct+ +incorrect+ or nil (deleted or not created)
-  required   ;Flag if step is required, rather than optional
+  optional  ;Flag if step is optional, default (nil) is required.
+  ;;  Can be: nil 'allowed 'preferred
   weight     ;Weight is an estimate of time needed (seconds).
   possibilities ;list of number of possible choices for each slot of prop
-  ignore ;Flag to ignore entry.  For instance, for pre-defined quantities.
+  ignore ;Flag to ignore entry.  
+  ;; For instance, for pre-defined quantities or implicit equations.
 )
+
+(defun print-graded (grade &optional (Stream t) (level 0))
+  (pprint-indent :block level stream)
+  (format Stream "[grade: ~A ~@[~A ~]weight ~A ~@[ignore~]~%"
+	  (graded-status grade) (graded-optional grade) 
+	  (graded-weight grade) (graded-ignore grade))
+  (when (graded-hints grade) 
+    (format Stream "    hints: ~A~%" (graded-hints grade)))
+  (when (graded-incorrects grade) 
+    (format Stream "    incorrects: ~A~%" (graded-incorrects grade)))
+  (when (graded-eqns grade) 
+    (format Stream "    ~A~%"
+	    (mapcar #'(lambda (x) (cons (StudentEntry-prop (car x)) (cdr x)))
+		    (graded-eqns grade))))
+(format Stream "    ]~%"))
+	   
+	   
+
 
 (defstruct info-provided
   prop  ;prop associated with incorrect attempt or label for a hint.

@@ -49,8 +49,13 @@
 	       (:module "Help"
 			:depends-on ("HelpStructs" "Base")
 			:components (
- 				     ;; Solution graph
-	 			     (:file "SolutionGraph")
+ 				     ;; Automatic statistics code.
+				     (:file "Statistics")
+				     (:file "grade")
+
+				     ;; Solution graph
+	 			     (:file "SolutionGraph"
+					    :depends-on ("grade"))
 				     
                                      (:file "utilities")
 				     (:file "database")
@@ -58,9 +63,6 @@
 				     (:file "model"
 					    :depends-on ("database" "icons"))
 
-				     ;; Automatic statistics code.
-				     (:file "Statistics")
-				     (:file "grade")
 				     				     
 				     ;; Entry Intepreter: generic + non-eq
 				     (:file "symbols")
@@ -73,6 +75,13 @@
 							 "SolutionGraph" "icons"
 							 "wrong-quantities"))
 				     
+				     ;;  Help
+				     (:file "HelpMessages")
+				     (:file "whatswrong")
+				     (:file "NextStepHelp"
+					    :depends-on ("icons" "symbols"))
+				     (:file "IEA")
+
 				     ;; Equation parser/interpreter
 				     (:file "physics-algebra-rules")
 				     (:file "parse"
@@ -80,22 +89,18 @@
 				     (:file "grammar" :depends-on ("parse"))
 				     (:file "algebra"
 					    :depends-on ("symbols"))
-				     (:file "parse-andes"
-					    :depends-on ("SolutionGraph" "symbols"
-							 "grammar" "icons"
-							 "Entry-API" "database"))
 				     (:file "interpret-equation"
 					    :depends-on ("SolutionGraph"))
+				     (:file "parse-andes"
+					    :depends-on ("SolutionGraph" 
+							 "symbols"
+							 "whatswrong"
+							 "interpret-equation"
+							 "grammar" "icons"
+							 "Entry-API" "database"))
 
 				     (:file "test-all-quantities")
 				     
-				     ;;  Help
-				     (:file "HelpMessages")
-				     (:file "whatswrong")
-				     (:file "NextStepHelp"
-					    :depends-on ("icons" "symbols"))
-				     (:file "IEA")
-				     				     
 				     ;; Top-level manager
 		 		     (:file "Interface"
 					    :depends-on ("model"))

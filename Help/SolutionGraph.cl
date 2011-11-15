@@ -770,14 +770,13 @@
   
   (let ((len-enter (cons Entry 
 			 (length (sg-unmark-interp 
-				  (studentEntry-Cinterp Entry))))))
-    (dolist (E (sg-unmark-interp (studentEntry-Cinterp Entry)))
+				  (studentEntry-Cinterp Entry)))))
+	(entries (sg-unmark-interp (studentEntry-Cinterp Entry))))
+    (update-grade-status entries +correct+)
+    (dolist (E entries)
       (let ((grade (SystemEntry-graded E)))
-      (pushnew len-enter (graded-eqns grade) :test #'unify)
-      (setf (graded-status grade) +correct+)
-    (unless (graded-ignore grade)
-      (setf (graded-ignore grade) **checking-entries**))
-      (push Entry (SystemEntry-Entered E)))))
+	(pushnew len-enter (graded-eqns grade) :test #'unify)
+	(push Entry (SystemEntry-Entered E))))))
 
 
 ;;---------------------------------------------------------------------
