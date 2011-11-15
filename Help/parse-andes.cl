@@ -54,6 +54,7 @@
     (setf result (do-lookup-equation-string (trim-eqn eq) 
 		   entry 'equation))
     (push-when-exists 
+     ;; Finds any applicable error analysis
      (log-entry-info (find-entry (StudentEntry-id entry)))
      (turn-result result))
     result))
@@ -272,16 +273,14 @@
 	  (let ((eqn-interp (StudentEntry-Cinterp se))
 		unneeded-vardefs)
 	    
-	    ;; Add this equation to matching systementries.
-	    ;; A student equation is classified according to
-	    ;; the systementry equations it overlaps with.
-	    
-
 	    ;; collect list of variable entries no longer needed
-	    (when eqn-interp ; if interp is empty, don't reduce #'union NIL, Bug 949
-	      (dolist (var (reduce #'union (mapcar #'(lambda (sysent) 
-						       (vars-in-eqn (sysent-algebra sysent)))
-						   eqn-interp)))
+	    (when eqn-interp 
+	      ;; if interp is empty, don't reduce #'union NIL, Bug 949
+	      (dolist (var (reduce 
+			    #'union 
+			    (mapcar #'(lambda (sysent) 
+					(vars-in-eqn (sysent-algebra sysent)))
+				    eqn-interp)))
 		(when (and (var-to-sysentry var) ;nil for vector quantities, ignore
 			   (subsetp (syseqns-containing-var var) eqn-interp))
 	          (pushnew (var-to-sysentry var) unneeded-vardefs))))
@@ -294,14 +293,38 @@
 	      (when *debug-help* 
 		(format t "entering unneeded vardefs: ~s~%" unneeded-vardefs))
 	      (setf (StudentEntry-Cinterp se) unneeded-vardefs)
-	      (sg-Enter-StudentEntry se)
+	      (sg-Enter-StudentEntry se)  ;mark grade
 	      (setf (StudentEntry-Cinterp se) eqn-interp)))
 	  )
 	 (t
-	  ;; empty slot since it failed
-	  (solver-studentEmptySlot (StudentEntry-Id se))))))
+	 ;; empty slot since it failed
+	  (solver-studentEmptySlot (StudentEntry-Id se))
 
-    ;; finally return result
+	  ;; Identical to code in Check-NonEq-Entry in Help/Entry-API.cl
+	  ;; run whatswrong help to set error interp now, so diagnosis
+	  ;; can be included in log even if student never asks whatswrong
+	  (let ((intended (ErrorInterp-intended (diagnose result)))
+		(info (make-info-provided :prop (StudentEntry-prop result)
+					  :slots 1 ;should be list, but for now, just
+					  :penalize t)))
+	
+	    (format webserver:*stdout* "++++++intended is ~S~%" intended)
+	    
+	    ;; If there is a unique systementry, we can mark it as incorrect,
+	    ;; for grading purposes.
+	    (unless (cdr intended)
+	      (update-grade-status (car intended) +incorrect+))
+	    
+	    ;; Take diagnosis and add grading information.
+	    ;; It looks like the "new" part does not work for multiple-choice.
+	    ;; try vec1e.
+	    (dolist (sysent intended)
+	      (pushnew info
+		       (graded-incorrects (SystemEntry-graded sysent))
+		       :key #'info-provided-prop
+		       :test #'unify)))
+	  
+	  ))))
     result))
 
 (defun sysent-algebra (sysent)

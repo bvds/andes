@@ -163,26 +163,17 @@
       (score-hint-request (turn-assoc result)
 			  *help-last-entries*))
 
-    ;; Old code for generating grade
-    (iface-handle-Statistics NewCmd)
-    
     ;; New code for grading
-    (let ((current-score (calculate-score)))
-      (when (not (equal current-score *last-score*))
-	;; Temporary, for debugging: log large discrepencies to old
-	;; grading.  Need call to iface-handle-Statistics.
-	(when (> (abs (- current-score 
-			 *Runtime-Testset-current-total-score*)) 0.25)
-	  (warn 'webserver:log-warn 
-		:tag (list 'diff-scores current-score
-			   *Runtime-Testset-current-total-score*)
-		:text "old and new grades don't match"))
-	;;
-	(setf *last-score* current-score)
-	;; Return a percentage, rounded to nearest percent.
-	(push `((:action . "set-score") 
-		(:score . ,(round (* 100 current-score)))) str)))
-        
+    (calculate-score)
+
+    ;; This is the primary call to autograding.  It will handle the 
+    ;; execution of any tests and the updating of results.  It calls 
+    ;; the code in AutoCalc.cl and will handle the send-fbd command 
+    ;; as necessary.
+    ;;
+    (let ((Tmp (iface-handle-Statistics NewCmd)))
+      (when Tmp (push Tmp str)))
+
     (when *debug-help* (format t "Result ~A~%" Result))
 
     str))
@@ -264,8 +255,13 @@
 	 (iface-handle-stats-student))
 	(t (update-runtime-testset-scores)))
  
-  ;; just return score.
-      (get-current-runtime-total-score))
+  ;; Irrespective of the entry we need to inform the workbench of
+  ;; the current total score if it has changed since last sent
+  (let ((current-score (get-current-runtime-total-score)))
+    (when (not (equal current-score *last-score*))
+      (setf *last-score* current-score)
+      `((:action . "set-score") (:score . ,current-score)))
+      ))
 
 ;;; AW: now we no longer load and save problem statistics in the
 ;;; student history file. Instead, the workbench will fetch the 

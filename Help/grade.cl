@@ -140,19 +140,11 @@
     ))
 
 (defun score-hint-request (hint-assoc entries)
-  (when t ;debug print
-    (format webserver:*stdout* "***score-hint-request with ~A~%    props: ~A~%" 
-	    hint-assoc
-	    entries))
-  (cond ((null entries)) ;There is no known SystemEntry associated with hint.
-	((null (cdr entries))
-	  ;; If there is one SystemEntry, tag that entry with hint
-	  (pushnew hint-assoc (graded-hints (SystemEntry-graded (car entries)))
-		   :test #'equal))
-	(t ;more than one match: do nothing
-	 )))
+  (format webserver:*stdout* "***score-hint-request with ~A~%    props: ~A~%" 
+	  hint-assoc
+	  entries))
 
-(defun update-grade-status (entry status)
+(defun update-grade-status (entries status)
   (let ((grade (SystemEntry-graded entry)))
     (setf (graded-status grade) status)
     ;; Once ignored has been set, it is always set.
@@ -181,15 +173,11 @@
     (unless (graded-ignore graded)
       (incf (tally-possible tally) weight)
       (when (eql (graded-status graded) +correct+)
-	(if (graded-hints graded)
-	    ;; If there has been a bottom-out hint, then the grade
-	    ;; is simply the same average grade that is given for guessing.
-	    (incf (tally-score tally) (* weight *random-average-score*))
 	(let ((n (graded-possibilities graded))
 	      (j (length (graded-incorrects graded))))
 	  (incf (tally-score tally) 
 		(* weight 
-		   (weight-correct-after-failures j n)))))))))
+		   (weight-correct-after-failures j n))))))))
   
 
 (defun calculate-score ()
@@ -216,22 +204,22 @@
   ;; old:  Correct_Answer_Entries_V_Answer_Entries
   
   ;;  For testing, just loop through systementries.
-  (when nil ;debug print
-    (dolist (sysent *sg-entries*)
-      (when (or (graded-incorrects (systementry-graded sysent))
-		(graded-status (systementry-graded sysent)))
-  	(format webserver:*stdout* "*** Grade ~A:~%    ~A~%" 
+  (dolist (sysent *sg-entries*)
+    (when (or (graded-incorrects (systementry-graded sysent))
+	      (graded-status (systementry-graded sysent)))
+      (when nil ;debug print
+	(format webserver:*stdout* "*** Grade ~A:~%    ~A~%" 
 		(systementry-prop sysent)
 		(systementry-graded sysent)))))
-  
+
   (let (best-score best-possible best-number 
-		   (global-score (make-tally)))
-    
+	(global-score (make-tally)))
+
     ;; Loop through non-solution SystemEntries
     (dolist (sysent *Sg-Entries*)
       (unless (SystemEntry-in-Sg-Solutions sysent)
 	(grade-sysentry global-score sysent)))
-    
+
     ;; Loop through solutions
     (dolist (soln *sg-solutions*)
       (let ((this-score (make-tally)))
@@ -241,7 +229,7 @@
 	    (Warn "SystemEntry in *sg-solutions* without mark, ~A" 
 		  (SystemEntry-prop sysent)))	  
 	  (grade-sysentry this-score sysent))
-	
+
 	(when (or (null best-score)
 		  (> (* (+ (tally-score this-score)  (tally-score global-score)) 
 			best-possible) 
@@ -256,10 +244,7 @@
 	    (tally-possible global-score))
     (format webserver:*stdout* "Best grade ~A/~A from solution ~A~%"
 	    best-score best-possible best-number)
-
-    ;; Return score as fraction
-    (/ (+  (tally-score global-score) best-score) 
-       (+ (tally-possible global-score) best-possible))))
+    ))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

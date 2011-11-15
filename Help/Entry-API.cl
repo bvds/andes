@@ -1335,6 +1335,8 @@
       (when *debug-help* 
 	(format t "No matching system entry found~%"))
       (setf (StudentEntry-state entry) +incorrect+)
+
+      ;; Identical to code in handle-ambiguous-equation in Help/parse-andes.cl
       ;; run whatswrong help to set error interp now, so diagnosis
       ;; can be included in log even if student never asks whatswrong
       (let ((intended (ErrorInterp-intended (diagnose Entry)))
@@ -1346,8 +1348,7 @@
 	
 	;; If there is a unique systementry, we can mark it as incorrect,
 	;; for grading purposes.
-	(unless (cdr intended)
-	  (update-grade-status (car intended) +incorrect+))
+	  (update-grade-status intended +incorrect+))
 	
 	;; Take diagnosis and add grading information.
 	;; It looks like the "new" part does not work for multiple-choice.
@@ -1533,10 +1534,12 @@
 	(parse (StudentEntry-ParsedEqn entry)))
     ;; fetch target entry list for correct or incorrect entries 
     (cond ((eq (StudentEntry-state entry) +incorrect+)
-	   ;; if needed, run whatswrong help to set error interp now, so diagnosis
-	   ;; can be included in log even if student never asks whatswrong
-	   (unless (StudentEntry-ErrInterp entry) (diagnose Entry))
-	   (setf target-entries (ErrorInterp-Intended (StudentEntry-ErrInterp Entry))))
+	   (unless (StudentEntry-ErrInterp entry)
+	     (error 'webserver:log-error 
+		    :tag (list 'undiagnosed-error (StudentEntry-prop entry))
+		    :text "Undiagnosed error for studententry."))
+	   (setf target-entries (ErrorInterp-Intended 
+				 (StudentEntry-ErrInterp Entry))))
 	  
 	  ((eq (StudentEntry-state entry) +correct+)
 	   (setf target-entries (studententry-Cinterp entry))))

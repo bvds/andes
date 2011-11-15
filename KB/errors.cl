@@ -2948,6 +2948,7 @@
   :order ((expected-utility . 0.1)))
 
 (defun wrong-trig-function (wrong right)
+  (error "wrong-trig-function backtrace")
   (list "Check your trigonometry."
 	;; teach projection 
 	;; !!! may not be projection they are trying to write, 
