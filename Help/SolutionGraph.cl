@@ -755,7 +755,7 @@
 ;; StudentEntry is pushed onto the Entered field
 ;; of each SystemEntry in the Cinterp.  
 (defun sg-enter-StudentEntry (Entry)
-  "For each system entry in the cinterps mark it with entry."
+  "For each system entry in the cinterps mark it with entry and add to grading."
 	     
   ; For equation entries, apply constraint loss check if flag is set
   (when (and **Filter-Constraint-Losses** 
@@ -768,8 +768,13 @@
 	    "Entering Interp:=====================================~%")
     (format t "~A~%" (StudentEntry-Cinterp Entry)))
   
-  (dolist (E (sg-unmark-interp (studentEntry-Cinterp Entry)))
-    (push Entry (SystemEntry-Entered E))))
+  (let ((len-enter (cons Entry 
+			 (length (sg-unmark-interp (studentEntry-Cinterp Entry))))))
+    (dolist (E (sg-unmark-interp (studentEntry-Cinterp Entry)))
+      (pushnew len-enter (graded-eqns (SystemEntry-graded E))
+	       :test #'unify)
+      (setf (graded-status (SystemEntry-graded E)) +correct+)
+      (push Entry (SystemEntry-Entered E)))))
 
 
 ;;---------------------------------------------------------------------

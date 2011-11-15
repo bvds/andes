@@ -26,6 +26,7 @@
 (defstruct graded 
   incorrects ;list of info-provided
   hints ;list of bottom-out hints associated with entry.
+  eqns  ;alist of (StudentEntry . length) overlapping with SystemEntry.
   status     ;Current status.  Can be:
   ;; +correct+ +incorrect+ or nil (deleted or not created)
   required   ;Flag if step is required, rather than optional

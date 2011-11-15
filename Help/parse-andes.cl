@@ -224,7 +224,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun handle-ambiguous-equation (equation entry parses location)
   ;(prl parses)
-  (let (tmp bad (cont t) result se save)
+  (let (result bad (cont t) result se save)
     (dolist (parse parses)
       (when (and cont (not (member parse save :test #'equal)))
 	(setf save (append save (list parse)))
@@ -238,21 +238,21 @@
 	(setf (StudentEntry-parsedeqn se) parse)
 	(setf (StudentEntry-prop se) (list 'eqn equation))
 	(setf (StudentEntry-State se) +incorrect+)
-	(setf tmp (parse-handler se location))
+	(setf result (parse-handler se location))
 	(cond
-	  ((equal +color-green+ (turn-coloring tmp))
+	  ((equal +color-green+ (turn-coloring result))
 	   (setf (StudentEntry-State se) +correct+)
 	   ;; know this entry has winning parse so save entry now 
 	   (add-entry se) 	
 	   (setf result se)
 	   (setf cont nil))
-        (t ;;(equal +color-red+ (turn-coloring tmp))
-          (setf bad (append bad (list (list tmp se))))))))    
+        (t ;;(equal +color-red+ (turn-coloring result))
+          (setf bad (append bad (list (list result se))))))))    
     (cond
       (cont
-       (setf tmp (choose-ambiguous-bad-turn bad se)) ;does add-entry on winning candidate
-       (if (null tmp)
-	   (setf tmp (progn (warn "Should not see this error")
+       (setf result (choose-ambiguous-bad-turn bad se)) ;does add-entry on winning candidate
+       (unless result
+	   (setf result (progn (warn "Should not see this error")
 			    (make-red-turn :id (StudentEntry-Id se))))))
       (t
        ;; Record correct eqn in algebra. (Must happen before interpretation 
@@ -261,10 +261,10 @@
        ;; premature, etc), algebra slot should be cleared.
        (if (stringp (solver-studentAddOkay (StudentEntry-Id se) 
 					   (StudentEntry-ParsedEqn se)))
-	   (setf tmp (make-red-turn :id (StudentEntry-Id se))) ;to trap exceptions
-	   (setf tmp (interpret-equation result location)))
+	   (setf result (make-red-turn :id (StudentEntry-Id se))) ;to trap exceptions
+	   (setf result (interpret-equation result location)))
        (cond
-	 ((equal +color-green+ (turn-coloring tmp))
+	 ((equal +color-green+ (turn-coloring result))
 	  (sg-Enter-StudentEntry se)
 	  
 	  ;; also enter scalar variables whose only uses are in this 
@@ -300,7 +300,9 @@
 	 (t
 	  ;; empty slot since it failed
 	  (solver-studentEmptySlot (StudentEntry-Id se))))))
-    tmp))
+
+    ;; finally return result
+    result))
 
 (defun sysent-algebra (sysent)
 "return algebra for a system equation entry; NIL if not an eqn entry"

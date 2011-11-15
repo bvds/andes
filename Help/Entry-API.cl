@@ -1372,12 +1372,13 @@
     (when *debug-help* 
       (format t "Matched ~A system entry: ~S~%" (car cand) match))
     
-    ;; Grading:  attach grade to SystemEntry
-    (update-grade-status match +correct+)
-
     ;; decide what to return based on major state of entry
     (case (StudentEntry-State entry)
       (correct 
+
+       ;; Grading:  attach grade to SystemEntry
+       (update-grade-status match +correct+)
+    
        ;; check any given value equations associated. At first one that is wrong, its
        ;; result turn becomes the result for the main entry; checking routine 
        ;; updates main entry record with error interp of the bad equation.
