@@ -47,12 +47,13 @@ endif
 ifndef binary-release
   $(error "Unknown architecture")
 endif 
-binary-dir = tar jtf $(binary-release)|grep -o -m 1 "^[^/]*"
+binary-dir = head -n 1 lisp-binary-dir-files|grep -o "^[^/]*"
 
 # RedHat custom wget returns an error if file exists
 get-binary:
 	-wget -nc http://downloads.sourceforge.net/sbcl/$(binary-release)
-	tar jxf $(binary-release)
+	tar jxvf $(binary-release) > lisp-binary-dir-files
+	@echo "changing to directory `$(binary-dir)`:"
 	cd `$(binary-dir)`; chmod u+x run-sbcl.sh
 binary-install:
 	@echo "Needs superuser privileges for install into /usr/local"
