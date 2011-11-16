@@ -344,10 +344,18 @@
       (return-from new-english-find
 	(expand-new-english (ExpType-new-english rule) bindings))))
   
+  ;; If it is a goalprop, use that.  
+  ;; GoalProp still uses old format for english.
+  ;; Returns a single string expression.
+  (let ((goal (nlg-find prop *Ontology-GoalProp-Types* 
+			#'GoalProp-Form #'GoalProp-nlg-english)))
+    (when goal
+      (return-from new-english-find goal)))
+
   ;; If it is a symbol, use improved version of def-np.
   (when (atom prop)
     (return-from new-english-find (def-np-model prop)))
-  
+
   ;; On failure, warn and return nil
   (warn "new-english-find:  no ontology match for ~S" prop))
 

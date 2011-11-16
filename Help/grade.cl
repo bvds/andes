@@ -241,10 +241,12 @@
 		  (SystemEntry-prop sysent)))	  
 	  (grade-sysentry this-score sysent))
 
-	(when (or (null best-score)
-		  (> (* (+ (tally-score this-score)  (tally-score global-score)) 
+	(when (or (null best-score) (null best-possible)
+		  (> (* (+ (tally-score this-score) 
+			   (tally-score global-score)) 
 			best-possible) 
-		     (* (+ (tally-possible this-score) (tally-possible global-score))
+		     (* (+ (tally-possible this-score) 
+			   (tally-possible global-score))
 			best-score)))
 	  (setf best-score (tally-score this-score))
 	  (setf best-possible (tally-possible this-score))
@@ -257,8 +259,15 @@
       (format webserver:*stdout* "Best grade ~A/~A from solution ~A~%"
 	    best-score best-possible best-number))
 
-    (/ (+ best-score (tally-score global-score))
-       (+ best-possible (tally-possible global-score)))))
+    ;; Need to handle case where best-score is never set
+    ;; by going through solutions.
+    (let ((denominator (+ (or best-possible 0) 
+			  (tally-possible global-score))))
+      (if (> denominator 0)
+	  (/ (+ (or best-score 0) (tally-score global-score))
+	     denominator)
+	  0  ;zero denominator
+	  ))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

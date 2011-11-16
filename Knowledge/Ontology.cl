@@ -623,7 +623,7 @@
 ;;;-------------------------------------------------------------
 ;;; Psm Classes
 ;;; Psm expressions will need to be unified with at help
-;;; time for the purposes of analizing student responses.
+;;; time for the purposes of analyzing student responses.
 ;;; This code performs that comparison allowin the response
 ;;; to be tested agains one of the specified types and to 
 ;;; be flagged if necessary.  

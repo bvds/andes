@@ -516,18 +516,17 @@
 	       ;; into a warning and move on to the next turn.
 	       ;; Otherwise old sessions with unfixed errors cannot 
 	       ;; be reopened.
-	       (reply (handler-case
-			  (apply 
-			   (cond 
-			     ((equal method "solution-step") #'solution-step)
-			     ((equal method "seek-help") #'seek-help)
-			     ((equal method "record-action") #'record-action))
-			   ;; flatten the alist
-			   (mapcan #'(lambda (x) (list (car x) (cdr x))) 
-				   params))
-			(error (c) (warn (format nil "Found ~A for ~A of ~A" 
-						 (type-of c) method 
-						 params)))))
+	       (reply 
+		(handler-case
+		    (apply 
+		     (cond 
+		       ((equal method "solution-step") #'solution-step)
+		       ((equal method "seek-help") #'seek-help)
+		       ((equal method "record-action") #'record-action))
+		     ;; flatten the alist
+		     (mapcan #'(lambda (x) (list (car x) (cdr x))) 
+			     params))
+		  (error (c) (old-errors-into-warnings c method params))))
 	       
 	       ;; solution-steps and help results are passed back to client
 	       ;; to set up state on client.
@@ -647,6 +646,15 @@
 
     ;; assemble list of replies to send to client.
     (append (reverse replies) solution-step-replies)))
+
+
+;; helper function to handle errors from old sessions
+;; Turns errors into log-warn.
+(defun old-errors-into-warnings (c method params)
+  (warn 'webserver:log-warn
+	:tag (list 'old-session-error method params 
+		   (type-of c) (webserver:get-any-log-tag c))
+	:text (format nil "Error from rerunning old sessions: ~A" c)))  
 
 
 ;; helper function to write out definition text based on Ontology.

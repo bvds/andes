@@ -25,7 +25,7 @@
   (:export :defun-method :start-json-rpc-services :stop-json-rpc-services 
 	   :*stdout* :print-sessions :*env* :close-idle-sessions :*debug*
 	   :*turn-timeout* :*time*
-	   :log-error :log-warn
+	   :log-error :log-warn :get-any-log-tag
 	   :*profile* :get-session-env :*log-id* :*log-variable*))
 
 (in-package :webserver)
@@ -389,6 +389,11 @@
 	  (push `(:backtrace . ,(subseq x 0 (min (length x) 4000))) 
 		result)))
     (reverse result)))
+
+(defun get-any-log-tag (condition)
+  "Get any tag associated with condition."
+  (when (member (type-of condition) '(log-error log-warn))
+    (log-tag condition)))
 
 (defun execute-session (session-hash turn func params)
   "Execute a function in the context of a given session when its turn comes.  If the session doesn't exist, create it.  If there is nothing to save in *env*, delete session."

@@ -1535,10 +1535,15 @@
 	(parse (StudentEntry-ParsedEqn entry)))
     ;; fetch target entry list for correct or incorrect entries 
     (cond ((eq (StudentEntry-state entry) +incorrect+)
-	   (unless (StudentEntry-ErrInterp entry)
-	     (error 'webserver:log-error 
-		    :tag (list 'undiagnosed-error (StudentEntry-prop entry))
-		    :text "Undiagnosed error for studententry."))
+	   (unless (StudentEntry-ErrInterp entry) 
+	     (when *debug-grade*
+	       ;; StudentEntry-ErrInterp should have been set before
+	       ;; calling this function, perhaps by a call to (diagnose entry).
+	       ;; Otherwise, this means that the grading has not been done.
+	       (warn 'webserver:log-warn
+		     :tag (list 'undiagnosed-entry (StudentEntry-prop entry))
+		     :text "Undiagnosed error for studententry."))
+	     (diagnose entry))
 	   (setf target-entries (ErrorInterp-Intended 
 				 (StudentEntry-ErrInterp Entry))))
 	  

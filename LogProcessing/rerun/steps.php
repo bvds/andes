@@ -44,7 +44,8 @@
 	     // (setf *simulate-loaded-server* nil)
 
 $ignoreNewLogs = true;  // ignore any new non-error, log messages
-$ignoreScores = false;  // ignore any changes to scoring.
+$ignoreScores = true;  // ignore any changes to scoring.
+$ignoreMetaHints = true;  // Ignore meta hints
 $printDiffs = true;  // Whether to print out results for server diffs
 $jsonFile = 'replies.json';  // File name for dumping reply json
 	    
@@ -133,6 +134,14 @@ $theProblem = array();
 $lastTime = array();
 // Time used by student in each session
 $sessionTime = array();
+
+// Test if text corresponds to a meta-hint
+function containsMetaHint($t){
+  return strpos($t,'introductory video') !== false ||
+    strcmp($t,"You can click on the above link to get more help.") ==0 ||
+    (strpos($t,"Your entry has turned red") !== false &&
+     strpos($t,"the hint button") !== false);
+}
   
 $sql = "SELECT S.tID,S.clientID,S.client,S.server FROM STEP_TRANSACTION AS S, PROBLEM_ATTEMPT as P1 WHERE $adminNamec $sectionNamec $extrac  $startDatec $endDatec S.clientID = P1.clientID ORDER BY S.tID";
 
@@ -296,6 +305,7 @@ while ($myrow = mysql_fetch_array($result)) {
 	  // Remove double precision notation from constants.
 	  // This difference occurs from using slime vs. stand-alone. 
 	  $bbc=preg_replace('/(\d)d0/','$1',$bbc);
+	  $nbbc=preg_replace('/(\d)d0/','$1',$nbbc);
 	  // Canonicalize random positive feedback.
 	  $randomPositive = '/(Good!|Right\.|Correct\.|Yes\.|Yep\.|That.s right\.|Very good\.|Right indeed.) /';
 	  $randomPostiveNew='**random-positive** ';
@@ -317,6 +327,16 @@ while ($myrow = mysql_fetch_array($result)) {
 	  $nbbc=preg_replace('/\.\s+/','. ',$nbbc);
 	  $bbc=preg_replace('/\.&nbsp;\s+/','. ',$bbc);
 	  $nbbc=preg_replace('/\.&nbsp;\s+/','. ',$nbbc);
+	  // Canonicalize logging for multiple choice
+	  // commit 54b004f2d529e, Tue Nov 1 14:21:55 2011
+	  if(isset($nbc->action) && isset($nbc->log) &&
+	     isset($nbc->entry) &&
+	     strcmp($nbc->action,"log")==0 &&
+	     strcmp($nbc->log,"student")==0 &&
+	     strpos($nbc->entry,"CHOOSE-ANSWER ") !== false){
+	    $mcerror='"error-type":"(NO-ERROR-INTERPRETATION)"}';
+	    $nbbc=preg_replace('/"error-type.*/',$mcerror,$nbbc);
+	  }
 	  // new-user-dialog
           // commit 212960a3c713fe, Tue Sep 20 17:04:41 2011
 	  $bbc=preg_replace('/After watching the video, just follow the instructions/','Just follow the instructions',$bbc);
@@ -349,6 +369,15 @@ while ($myrow = mysql_fetch_array($result)) {
 		  strcmp($nbc->action,"log")==0 &&
 		  strcmp($nbc->log,"subscores")==0){
 	    $ni++;  // New turn has subscores.
+	  }elseif($ignoreMetaHints && isset($bc->action) &&
+		  strcmp($bc->action,"show-hint")==0 &&
+		  containsMetaHint($bc->text)){
+	    $i++;  // Old turn has meta-hint
+	  }elseif($ignoreMetaHints && 
+		  isset($nbc->action) && isset($nbc->action) &&
+		  strcmp($nbc->action,"show-hint")==0 &&
+		  containsMetaHint($nbc->text)){
+	    $ni++;  // New turn has meta-hint
 	  }elseif(
 		  // kgraph8b problem change
 		  // problems, commit fb5ec251c3a974a14, Tue Sep 27 2011
