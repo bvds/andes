@@ -686,32 +686,23 @@
 			" again, double-click on " 
 			"the text box and " *add-label* "."))
 	  :assoc `((no-label . ,(StudentEntry-type entry))))))
+
+    (setf (StudentEntry-ErrInterp entry)
+	  (make-ErrorInterp
+	   ;; right now, this is never logged.
+	   :diagnosis (cons 'no-label (StudentEntry-type entry))
+	   :remediation rem))
+    (setf (turn-id rem) (StudentEntry-id entry))
+    (setf (turn-coloring rem) +color-red+)
+    (setf (StudentEntry-state entry) +incorrect+)
     
-    (cond
-      ;; Student gets unsolicited hint if they have not mastered skill.
-      ((incremented-property-test 'object-with-label 3)
-       (setf (StudentEntry-ErrInterp entry)
-	     (make-ErrorInterp
-	      ;; right now, this is never logged.
-	      :diagnosis (cons 'no-label (StudentEntry-type entry))
-	      :remediation rem))
-       (setf (turn-id rem) (StudentEntry-id entry))
-       (setf (turn-coloring rem) +color-red+)
-       (setf (StudentEntry-state entry) +incorrect+)
-       rem)
-      ;; Raj experiment control condition and experimental 
-      ;; condition after mastery: object turns red and hint
-      ;; sequence available.
-      (t
-       (setf (StudentEntry-ErrInterp entry)
-	     (make-ErrorInterp
-	      ;; right now, this is never logged.
-	      :diagnosis (cons 'no-label (StudentEntry-type entry))
-	      :remediation rem))
-       (setf (turn-id rem) (StudentEntry-id entry))
-       (setf (turn-coloring rem) +color-red+)
-       (setf (StudentEntry-state entry) +incorrect+)
-       (make-red-turn :id  (StudentEntry-id entry))))))
+    (if (incremented-property-test 'object-with-label 3)
+	;; Student gets unsolicited hint if they have not mastered skill.
+	rem
+	;; Raj experiment control condition and experimental 
+	;; condition after mastery: object turns red and hint
+	;; sequence available.
+       (make-red-turn :id  (StudentEntry-id entry)))))
 
 (defun with-text-handler ()
   "Update skill of making entry with text"
