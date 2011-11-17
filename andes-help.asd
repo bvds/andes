@@ -42,15 +42,11 @@
 					    :depends-on ("CMD"))
 				     (:file "ErrorInterp")
 				     (:file "CMD")
-				     (:file "RuntimeTestScore")
-				     (:file "RuntimeTest")
 				     (:file "session")
 				     ))
 	       (:module "Help"
 			:depends-on ("HelpStructs" "Base")
 			:components (
- 				     ;; Automatic statistics code.
-				     (:file "Statistics")
 				     (:file "grade")
 
 				     ;; Solution graph
@@ -128,11 +124,7 @@
 			:depends-on ("Help" "HelpStructs")
 			:components (
 				     (:file "StackProcessing")
-				     (:file "StackTests")
-				     ;; file must be loaded before compile
-				     (:no-compile-file "Tests"
-						       ;;    :in-order-to ((compile-op (load-source-op "Tests")))
-						       )
+;				     (:file "StackTests")
 				     ))
 	       ))
 

@@ -153,22 +153,12 @@
 	  **current-cmd-stack** **current-cmd** *last-turn-response* 
 	  *last-score*
           ;; Variables set in Config.cl, which is loaded for each session.
-	  **Testing-Pause-Time-Threshold** **Filter-Constraint-losses**
+	  **Filter-Constraint-losses**
           *followup-problems*
-	  ;; Variables used for scoring in Help/RunTimeTest.cl
-          *Runtime-Testset* *Runtime-Score-Testset*
-	  *Runtime-testset-current-Solindex*
-	  *Runtime-Testset-current-total-score*
 	  ;; Variables used for grades
 	  *grade* *random-average-score* *help-last-entries*
 	  ;; Variables holding session-local memos.
 	  *parse-memo* *lexical-rules-memo* *rules-starting-with-memo*
-	  ;; Cache variables in Testcode/Tests.cl
-	  *test-cache-eqn-entries* *test-cache-given-eqn-entries*
-	  *test-cache-axis-entries* *test-cache-objects* 
-	  *test-cache-drawing-entries* **Current-Body-Expression-Form**
-	  **Current-Prob-Requires-nonanswer-entries**
-	  *sg-systementry-optional-p-memo*
 	  ;; Session state information
 	  session:*user* session:*section* session:*problem* 
 	  session:*state-cache*
@@ -271,14 +261,9 @@
 	    session:*section* section
 	    session:*problem* problem)
 
-      (setq **base-Htime** (universal-time->htime (get-universal-time)))
       (solver-load)
       (solver-logging *solver-logging*)
       
-      ;; Config modifies *runtime-testset*, so we
-      ;; need to make the session-local copy first. 
-      (session-local-runtime-testset)
-
       ;; Andes2 had the following calls that can be found in log files:
       ;;   read-student-info; the only remaining step is:
       (Load-Config-File)			
@@ -622,22 +607,7 @@
 		(:name . ,(car preference))
 		(:value . ,(cdr preference)))
 	      replies))
-      
-      ;; set-stats (if there was an old score) (to do)
-      ;; Should this be wrapped in execute-andes-command?
-
-      (set-stats '(("NSH_BO_Call_Count" . 0)
-		   ("WWH_BO_Call_Count" . 0)
-		   ("Correct_Entries_V_Entries" . (0 0)) 
-		   ("Correct_Answer_Entries_V_Answer_Entries" . (0 0))))
-   
-      (push `((:action . "log") 
-	      (:log . "subscores")
-	      (:items . (("NSH_BO_Call_Count" 0)
-			     ("WWH_BO_Call_Count" 0)
-			     ("Correct_Entries_V_Entries" 0 0) 
-			     ("Correct_Answer_Entries_V_Answer_Entries" 0 0))))
-	    replies)      
+           
       (push `((:action . "set-score") (:score . 0)) replies))
 
     ;; log the user-agent http header

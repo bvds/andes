@@ -197,8 +197,6 @@
    (or (zero-eqn-p eqn)
        (combinable-identity-p eqn)))
 
-(defun trivial-syseqn-p (syseqn)
-   (trivial-eqn-p (syseqn->eqn syseqn)))
 
 ; We will now allow equations marked "definitions" to be combined with principles.
 ; This is intended for the small number of definitions used in conservation laws,

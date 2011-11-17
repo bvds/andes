@@ -180,6 +180,8 @@
 	    :text "Entry missing grading possibilities.")
       (return-from grade-sysentry))
     ;; Right now, ignoring graded-optional
+    ;; Need test for optionality; see sg-systementry-optional-p
+    ;; and enode-required-entries
     (unless (graded-ignore graded)
       (incf (tally-possible tally) weight)
       (when (eql (graded-status graded) +correct+)

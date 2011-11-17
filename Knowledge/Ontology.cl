@@ -711,11 +711,3 @@
 				       (subst-bindings-quoted bindings x))))
 	((typep x 'string) x)
 	(t (error "invalid print spec ~A" x))))
-
-;;;---------------------------------------------------------
-;;; Complexity tests.
-
-(defun psmclass-major-p (Class)
-  "Is this a major PSM?"
-  (equal 'major (psmclass-complexity Class)))
-

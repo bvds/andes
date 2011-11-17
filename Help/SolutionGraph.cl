@@ -932,7 +932,7 @@
 ;; either the node doesn't contain it at all or
 ;; there exists a path through that node that doesn't 
 ;; include the entry. This requires traversing the hairy
-;; psm graph structure
+;; psm graph structure.
 ;;
 ;; NB: Optionality here is defined by path structure and 
 ;; will not exclude implicit eqn entries.  Other code in 

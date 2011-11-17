@@ -163,36 +163,16 @@
       (score-hint-request (turn-assoc result)
 			  *help-last-entries*))
 
-
-    ;; This is the primary call to autograding.  It will handle the 
-    ;; execution of any tests and the updating of results.  It calls 
-    ;; the code in AutoCalc.cl and will handle the send-fbd command 
-    ;; as necessary.
-    ;;
-    (iface-handle-Statistics NewCmd)
-
   ;; Irrespective of the entry we need to inform the workbench of
   ;; the current total score if it has changed since last sent
-  (let ((grading-score (calculate-score))
-	(old-score *Runtime-Testset-current-total-score*)
-	(current-score *Runtime-Testset-current-total-score*))
+  (let ((current-score (calculate-score)))
     (cond 
-      ((null grading-score)
+      ((null current-score)
 	   (warn 'webserver:log-warn :tag (list 'null-grading-score)
 		 :text "null grading score"))
-      ((null old-score)
-	   (warn 'webserver:log-warn :tag (list 'null-old-score)
-		 :text "null old score"))
       ((or (null *last-score*)
 	   (> (abs (- current-score *last-score*)) 0.01))
        (setf *last-score* current-score)
-       (when (and nil  ;turn off warning for regression test.
-		  (> (abs (- grading-score old-score)) 
-		     (max 0.02
-			  (* 0.2 (min current-score (- 1 current-score))))))
-	 (warn 'webserver:log-warn 
-	       :tag (list 'grading-discrepency old-score grading-score)
-	       :text "grades differ substantially"))
        (push `((:action . "set-score") 
 	       (:score . ,(round (* 100 current-score)))) 
 	     str))))
@@ -229,7 +209,6 @@
   ;; This is the only place where cmd is constructed
   (let ((C (make-cmd :Class (lookup-command->class Command)
 		     :Type 'DDE
-		     :Time (get-current-htime)
 		     :command command
 		     :text text  ;; used only for delete-equation-cmdp
 		     )))
@@ -245,86 +224,6 @@
     (when R (member (cmd-command R) 
 		    '(next-step-help do-whats-wrong)))))
  
-
-;;; ===================================================================
-;;; Stats
-;;; The code in this section interfaces with the autocalc code.  It will
-;;; handle the maintenance of the cmd list (clearing it on new problems)
-;;; and the scores.  When a command is completed then this code will be 
-;;; called.  
-;;;
-;;; If the cmd is a close-problem or read-problem-info cmd then we need
-;;; to call the special-case code to store and reset the scores as well
-;;; as taking care of any routine maintenance.  If not then we will 
-;;; update the current scores and report the current total score to 
-;;; the fbd.
-;;;
-;;; The Preexisting scores will be loaded when the student opens a new 
-;;; problem, closes an old-problem or a read-student-info cmd is sent
-;;; Note that this will not allow the system to make use of the time 
-;;; that occurs between the initialization of Andes and the initial
-;;; read-student-info cmd.  However this should not be much of an issue
-;;; as little if anything can occur save a long delay.
-(defun iface-handle-Statistics (NewCmd)
-  "Handle the autocalc code for computing grades."
-  ;; Handle the close-problem, read-problem and other
-  ;; cases by updating and resetting the stats as 
-  ;; necessary.
-  (cond ((read-problem-info-cmdp NewCmd)
-	 (iface-handle-stats-read NewCmd))
-	((close-problem-cmdp NewCmd)
-	 (iface-handle-stats-close))
-	((read-student-info-cmdp NewCmd)
-	 (iface-handle-stats-student))
-	(t (update-runtime-testset-scores))))
- 
-;;; AW: now we no longer load and save problem statistics in the
-;;; student history file. Instead, the workbench will fetch the 
-;;; few persistent score statistics from us via (get-stats 'persist),
-;;; save them in the problem solution file, and restore them via
-;;; an API call on problem open. Non-score statistics will not be
-;;; saved (and could be dropped entirely from the test list).
-;;; Following code is therefore mostly obsolete; we keep it in
-;;; case we ever go back to the history file method. 
-;;; Not clear if the stat updates on student/read/close events
-;;; are still necessary. Time stat might change on these, but this
-;;; is not part of score so is no longer accurately tracked. Not
-;;; sure if any other stat could change on these events, or if
-;;; any update is necessary for proper initialization.
-
-
-;;; When NewCmd is a close-problem then the system will update the 
-;;; current scores one last time, store the stats within the 
-;;; Student.dat file.  Once that is done the stats will be reset
-;;; in preparation for the next problem-instance.  
-;;;
-;;; This is being done so that any dde's that the student sends or
-;;; time that they spend between problems will not effect the scores
-;;; that they recieve on each problem-instance.
-(defun iface-handle-stats-close ()
-  (update-runtime-testset-scores)  ; AW: maybe not still needed
-  (setq **Current-Cmd-Stack** Nil)
-  (setq **Current-Cmd** Nil)
-  (reset-runtime-testset-scores))
-
-
-;;; On a read-problem-info cmd the system will store the current 
-;;; stats in the student.dat file associating them with nil to
-;;; indicate no problem instance.  Following that the stats will
-;;; be reset and updated to reflect the new problem instance.
-(defun iface-handle-stats-read (NewCmd)
-  ; AW -- no longer store stats in history file
-  ; (store-runtime-test-stats Nil)
-  (setq **Current-Cmd-Stack** (list NewCmd))
-  (setq **current-cmd** NewCmd)
-  (reset-runtime-testset-scores)
-  (update-runtime-testset-scores)) ; AW: maybe not still needed
-
-;;; On a read-student-info command we need to reset the 
-;;; stored stats variable.  
-(defun iface-handle-stats-student ()
-  (update-runtime-testset-scores))  ; AW: maybe not still needed
-
 
 ;; ---------------------------------------------------------------------
 ;; This code handles the task of maintaining the *last-turn-response*
@@ -722,7 +621,6 @@
 	;; this is the only place where cmdresult is created.
 	(make-cmdresult
 	 :Class Class
-	 :Time (get-current-htime)
 	 :Value Value
 	 :Assoc Assoc
 	 :Commands Commands)))

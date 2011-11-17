@@ -267,23 +267,6 @@
 (defun make-noop-turn ()
   (make-turn :Type +no-op-turn+))
 
-
-;;; ----------------------------------------------------------------------
-;;; Make-stat-turn
-;;; Score turns are used to return the student's stats.  They have no 
-;;; coloring or other values associated and will merely be translated 
-;;; into a string of the score values.  
-;;;
-;;; Stat-turns, at present only make use of the type and value fields of
-;;; the tutor-turn.  In the future I will add the possibility of dialog-stat
-;;; turns or other combined forms that will be used to conduct dialogs
-;;; with the students
-
-(defun make-stat-turn (Stats)
-  "Make a statistics turn."
-  (make-turn :Type +stat-turn+ :Value Stats))
-
-
 ;;; This is a specialized error turn that gives the student a 
 ;;; "this problem is bad, move on..." message and is associated
 ;;; with the optional error.  This facilitates oops locations in

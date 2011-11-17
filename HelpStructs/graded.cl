@@ -18,6 +18,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 
+;; Global variable that is bound dynamically to indicate
+;; that predefined quantities are being entered. 
+(defvar **Checking-Entries** nil)
 
 ;; Need to add these to Documentation/data_structures.html
 
