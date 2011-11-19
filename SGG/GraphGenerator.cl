@@ -124,7 +124,7 @@
 ;;; If the sought quantity is already a member of the graph then that node will
 ;;; be marked as sought and the search will move on.  If the node is a 
 ;;; parameter then it will be marked as such and returned.  
-;;; If it is A given then it will 
+;;; If it is a given then it will 
 ;;; be marked as such and its supporting given psm node will be added to the 
 ;;; graph and the resulting graph will be returned.
 ;;;
@@ -133,7 +133,7 @@
 ;;; and the resulting graph will be returned.  
 
 (defun generate-bubblegraph (Soughts Givens &key (IgnorePSMS nil))
-  (let ((graph) (Q) (qualpart-graph))
+  (let (graph Q qualpart-graph)
 
     (dolist (S Soughts)
       (cond ((not (quantity-expression-p S))
@@ -152,15 +152,29 @@
 			  Graph  (first (second qualpart-graph)))))
 	    
 	    ((setq Q (match-exp->qnode S Graph))
+	     (setq Graph (add-answer-box S Graph Givens))
 	     (push 'Sought (Qnode-Marks Q)))
 	    
-	    (t (setq q (gg-solve-for-sought S Givens :graph Graph 
+	    (t (setq Q (gg-solve-for-sought S Givens :graph Graph 
 					    :ignorepSMS IgnorePSMS))
 	       (push 'Sought (Qnode-Marks (car Q)))
-	       (setq Graph (cdr Q)))))
+	       (setq Graph (cdr Q))
+	       (setq Graph (add-answer-box S Graph Givens)))))
 
     (index-bubblegraph Graph)))
 
+;; For quantitative soughts, we need to add an answer box
+;; to the graph.  Here we just ask for an answer box, then 
+;; add to the problem graph.  
+;; It might be more elegant to add (answer ...) as a wrapper,
+;; then have operator in KB demand PSM for associated quantity
+;; as a precondition.  See defoperator answer-box.
+
+(defun add-answer-box (quant graph Givens)
+  (let ((qualpart-graph (generate-no-quant-problem-graph
+			 (list (list 'answer quant)) Givens)))
+    (add-nodes-to-bubblegraph
+     graph (first (second qualpart-graph)))))
 
 ;;; This is the top level recursive call for the generator.  Given a 
 ;;; sought expression this will generate a Qnode for it of the 
@@ -445,16 +459,3 @@
 
 (defun gg-debug-decdepth ()
   (decf *gg-debug-depth*))
-
-(defun trace-gbg ()
-  (trace generate-bubblegraph
-	 gg-solve-for-sought
-	 gg-solve-preexisting-sought
-	 gg-solve-given-sought
-	 gg-find-matching-given
-	 gg-solve-constant-sought
-	 gg-solve-complex-sought
-	 gg-solve-complex-psm
-	 gg-collect-psm-qnodes
-	 gg-collect-next-psm-qnode))
-

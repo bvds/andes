@@ -50,12 +50,6 @@
 ;; the code in this section deals with those lists and the
 ;; modification of them.
 
-(defun csstruct-p (wm)
-  "Is the node a structural element."
-  (or (cssplit-p wm)
-      (csnext-p wm)
-      (csjoin-p wm)
-      (cschoose-p wm)))
 
 (defun cssplit-p (wm) 
   (equalp wm 'split))
@@ -69,13 +63,6 @@
 (defun cschoose-p (wm)
   (and (listp wm)
        (equalp (car wm) 'choose)))
-
-(defun csstep-p (wm)
-  "Is the em element a cognitive step."
-  (or (cswm-p wm)
-      (cssg-p wm)
-      (csop-p wm)
-      (csdo-p wm)))
 
 (defun cswm-p (wm) 
   (and (listp wm)
@@ -249,15 +236,6 @@
    graph))
 
 
-;;; psm-optags
-;;; Collect the operator tags that are used in the 
-;;; psmgraph supplied and return them for later use.
-(defun collect-psmgraph-optags (graph)
-  "Collect the op tags from the psm graph."
-  (psmgraph-mapcar
-   #'(lambda (d) (if (csdo-p d) (csdo-op d)))
-   graph))
-
 ;;; Psm-effects
 ;;; Collect the effects from the psmgraph and return them.
 (defun collect-psmgraph-csdo-effects (graph)
@@ -265,16 +243,3 @@
   (remove-duplicates 
    (mappend #'csdo-effects (collect-psmgraph-csdos graph))
    :test #'equalp))
-
-;;; "Effect-Opinst pair" -- two-element list whose first element is 
-;;; a list of effect proposition and whose second entry is the instance
-;;; form for the op that has those effects. Utility for reporting.
-;;; NB: effects are lists and might not all be entry propositions. So 
-;;; still must filter to find entry props
-(defun collect-psmgraph-effect-op-pairs (graph)
-  (psmgraph-mapcar 
-      #'(lambda (d) (when (csdo-p d) 
-                       (list (csdo-effects d) (csdo-op d))))
-      graph))
-
-

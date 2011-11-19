@@ -114,7 +114,15 @@
 	 (tmp (student-to-canonical var))
 	 (result (when tmp (solver-power-solve 31 tmp new-id))))
     
-    (cond ((and result (listp result)) 
+    (cond ((and (null tmp) (has-algebraic-operators var))
+	   (make-eqn-failure-turn
+	    "Sorry, Andes can only solve for a single variable."
+	    :id new-id))
+	  ((null tmp)
+	   (make-eqn-failure-turn
+	    (format nil "The variable <var>~A</var> is undefined." var)
+	    :id new-id))
+	  ((and result (listp result)) 
 	   (solve-for-var-success entry result))
 	  ((stringp result) 
 	   (make-eqn-failure-turn 
@@ -124,6 +132,13 @@
 	      ;; implemented in next-step-help.cl
 	      (get-failure-to-solve-hint var)
 	      :id new-id)))))
+
+(defparameter *algebraic-operators* '(#\+ #\- #\/ #\^ #\*))
+
+(defun has-algebraic-operators (var)
+  "Determine if string has algebraic operators."
+  (loop for x across var 
+       thereis (member x *algebraic-operators*)))
 
 (defun solve-for-var-success (entry result)
   (let* ((studText (algebra result)))
@@ -231,10 +246,13 @@
 	  (StudentEntry-checked entry))
      ;; update with the box that has been clicked
      (let ((ch (mapcar #'read-from-string (StudentEntry-checked entry))))
-       (setf (third (StudentEntry-prop entry))
-	   (if (cdr (StudentEntry-checked entry))
-	       (cons 'orderless ch)   ;checkboxes
-	       (car ch))))            ;radio buttons
+       ;; Construct new list since old prop still used in grading
+       (setf (StudentEntry-prop entry)
+	     (list (car (StudentEntry-prop entry))
+		   (cadr (StudentEntry-prop entry))
+		   (if (cdr (StudentEntry-checked entry))
+		       (cons 'orderless ch)   ;checkboxes
+		       (car ch)))))            ;radio buttons
      (check-noneq-entry entry))
     
     ;; In the event that an unrecognized type is supplied handle it like so.
@@ -311,7 +329,7 @@
     ;;    35 questions begin with "how" "is" "should" "what" "where" "why"
     ;;    8 other questions or requests.  2 start with "help".
     ;;    2/3 of questions end in ?
-    ;; However, a significant number of regular comments that end in "?"
+    ;; However, a significant number of regular comments end in "?"
   (< (match:best-value
       (match:match-model (list (car (match:word-parse str)))
 			 '(or "how" "is" "should" "what" "where" "why"))) 1))

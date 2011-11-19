@@ -52,83 +52,6 @@
 ;;-----------------------------------------------------------------------------
 
 ;;
-;; Times
-;;
-
-(defun arg-to-time (time-arg)
-  "convert workbench time argument symbol into a KB time expression"
-  (cond 
-	; may be NIL on probs w/o distinguished times
-        ((null time-arg) NIL) ;(get-default-time))
-	; Andes1 WB allowed defined student variable for duration as interval name.
-	; no longer used in Andes2
-	; ((get-student-time time-arg))
-	; may be time interval symbol of form |T0 to T1|
-	((wb-interval-namep time-arg) (get-wb-interval time-arg))
-	; or may be time point name of form T1
-        ((wb-time-pt-namep time-arg) (get-wb-time-pt time-arg)) 
-	(T (warn "unrecognized time argument:~A" time-arg)
-	   `(unrecognized ,time-arg)) ;need error handler
-	))
-
-(defun get-default-time () 
-  "return the default KB time for the problem"
-   1) ; assuming it will always be time point 1 
-
-(defun get-student-time (label)
-  "return time term for student-defined duration, NIL if not a duration"
-  (let* ((label-str (if (symbolp label) (symbol-name label) label))
-         (quant (symbols-referent label-str)))
-    (if (and (consp quant) 
-             (eq (first quant) 'duration))
-        (second quant))))
-
-;; The Andes1 helpsys relied on a problem-specific file giving a map of the 
-;; predefined WB time point symbols for the problem to the KB time point 
-;; numbers together with their verbal descriptions used to refer to them. 
-;; With this method, any symbols at all could in theory have been used for the 
-;; predefined time points.  
-;;
-;; However the WB time point symbols are *always* of form Ti where i = WB 
-;; time point index.  Moreover, in *almost* all problems, the WB time point 
-;; indices start at 0.  Andes2 KB time point numbers always start at 1 so we 
-;; can easily convert by adding 1.
-;;
-;; However, for no particular reason, the WB time point names in problems 
-;; Exlmom* and Exvec[2-5]a happen to start with T1 instead of T0. 
-;; We will probably change these workbench problem files so workbench times 
-;; adhere to the 0-based convention uniformly in the future. However, if 
-;; backwards compatibility is required, say to test the Andes2 help system on 
-;; entries in Andes1 logs, then we would need to insert a little filter here 
-;; to adjust the time point mapping based on the problem name.
- 
-(defun wb-time-pt-namep (sym)
-   "true if this has form of a predefined workbench time point symbol"
-   (let ((str (symbol-name sym)))
-    (and (equal (subseq str 0 1) "T")
-	 (not (wb-interval-namep sym))
-         (numberp (read-from-string (subseq str 1))))))
-
-(defun get-wb-time-pt (sym)
-   "convert WB time point label to KB time point number"
-   ; assume it's 1+ the number read after initial T
-   (1+ (read-from-string (subseq (symbol-name sym) 1))))
-
-;; Workbench time interval name is symbol of form |T0 to T1| 
-;; where the endpoint expressions are WB time point names.
-(defun wb-interval-namep (sym)
-  "true if this is a workbench time interval name"
-  (search " to " (symbol-name sym) :test #'equalp))
-
-(defun get-wb-interval (sym)
-  "convert WB time interval name to KB time interval expression"
-  (let* ((str (string-trim '(#\Space) (symbol-name sym)))
-	 (pt1 (read-from-string (subseq str 0 (position #\Space str))))
-	 (pt2 (read-from-string (subseq str (1+ (position #\Space str :from-end t))))))
-
-     (list 'during (get-wb-time-pt pt1) (get-wb-time-pt pt2))))
-
-;;
 ;; Vector directions
 ;;
 (defun arg-to-dir (dir-arg &key mag-arg cosphi (modulus 360))
@@ -154,11 +77,6 @@
 (defun sym-match (sym1 sym2)
    "case independent comparison of symbol names"
    (string-equal (string sym1) (string sym2)))
-
-
-(defun ndiffs (set1 set2)
-  (length (set-difference set1 set2)))
-
 
 (defun strcat-nonzero (&rest x)
   "If every argument is nonzero length, apply strcat, else return \"\"."
@@ -768,32 +686,23 @@
 			" again, double-click on " 
 			"the text box and " *add-label* "."))
 	  :assoc `((no-label . ,(StudentEntry-type entry))))))
+
+    (setf (StudentEntry-ErrInterp entry)
+	  (make-ErrorInterp
+	   ;; right now, this is never logged.
+	   :diagnosis (cons 'no-label (StudentEntry-type entry))
+	   :remediation rem))
+    (setf (turn-id rem) (StudentEntry-id entry))
+    (setf (turn-coloring rem) +color-red+)
+    (setf (StudentEntry-state entry) +incorrect+)
     
-    (cond
-      ;; Student gets unsolicited hint if they have not mastered skill.
-      ((incremented-property-test 'object-with-label 3)
-       (setf (StudentEntry-ErrInterp entry)
-	     (make-ErrorInterp
-	      ;; right now, this is never logged.
-	      :diagnosis (cons 'no-label (StudentEntry-type entry))
-	      :remediation rem))
-       (setf (turn-id rem) (StudentEntry-id entry))
-       (setf (turn-coloring rem) +color-red+)
-       (setf (StudentEntry-state entry) +incorrect+)
-       rem)
-      ;; Raj experiment control condition and experimental 
-      ;; condition after mastery: object turns red and hint
-      ;; sequence available.
-      (t
-       (setf (StudentEntry-ErrInterp entry)
-	     (make-ErrorInterp
-	      ;; right now, this is never logged.
-	      :diagnosis (cons 'no-label (StudentEntry-type entry))
-	      :remediation rem))
-       (setf (turn-id rem) (StudentEntry-id entry))
-       (setf (turn-coloring rem) +color-red+)
-       (setf (StudentEntry-state entry) +incorrect+)
-       (make-red-turn :id  (StudentEntry-id entry))))))
+    (if (incremented-property-test 'object-with-label 3)
+	;; Student gets unsolicited hint if they have not mastered skill.
+	rem
+	;; Raj experiment control condition and experimental 
+	;; condition after mastery: object turns red and hint
+	;; sequence available.
+       (make-red-turn :id  (StudentEntry-id entry)))))
 
 (defun with-text-handler ()
   "Update skill of making entry with text"
@@ -1367,6 +1276,7 @@
 	(t x)))
 ;;
 ;; Check-NonEq-Entry -- Generic checker for non-equation student entry 
+;; Adds grading information.
 ;; Returns: tutor turn
 ;;
 ;; Note, could be done differently with a cond or two.
@@ -1377,6 +1287,9 @@
   ;; being processed further. Return appropriate turn with unsolicited 
   ;; error message in this case.
   (when (studentEntry-ErrInterp entry) 
+    (when *debug-grade* (warn `webserver:log-warn
+			      :text "Not grading update 1" 
+			      :tag (list 'not-grading 1 entry)))
     (return-from Check-NonEq-Entry 
       (ErrorInterp-remediation (studentEntry-ErrInterp entry))))
   
@@ -1397,7 +1310,10 @@
                (StudentEntry-GivenEqns Entry))
       (setf result (Check-Vector-Given-Form Entry))
       (when (not (eq (turn-coloring result) +color-green+))
-	    (return-from Check-NonEq-Entry result))) ; early exit
+	(when *debug-grade* (warn `webserver:log-warn
+				  :text "Not grading update 2" 
+				  :tag (list 'not-grading 2 entry)))
+	(return-from Check-NonEq-Entry result))) ; early exit
     
     ;; Get set of candidate interpretations into PossibleCInterps.  
     ;; For generality needed for equation entries, an "interpretation" 
@@ -1414,9 +1330,27 @@
       (when *debug-help* 
 	(format t "No matching system entry found~%"))
       (setf (StudentEntry-state entry) +incorrect+)
+
+      ;; Identical to code in handle-ambiguous-equation in Help/parse-andes.cl
       ;; run whatswrong help to set error interp now, so diagnosis
       ;; can be included in log even if student never asks whatswrong
-      (diagnose Entry)
+      (let ((intended (ErrorInterp-intended (diagnose Entry)))
+	    (info (make-info-provided :prop (studententry-prop entry)
+				      :slots 1 ;should be list, but for now, just
+				      :penalize t)))
+	
+	;; Mark associated SystemEntry or SystemEntries, as incorrect.
+	(update-grade-status intended +incorrect+)
+	
+	;; Take diagnosis and add grading information.
+	;; It looks like the "new" part does not work for multiple-choice.
+	;; try vec1e.
+	(dolist (sysent intended)
+	  (pushnew info
+		   (graded-incorrects (SystemEntry-graded sysent))
+		   :key #'info-provided-prop
+		   :test #'unify)))
+      
       (setf result (make-red-turn :id (StudentEntry-id Entry)))
       ;; log and push onto result list.
       (push-when-exists (log-entry-info Entry) (turn-result result))
@@ -1434,6 +1368,10 @@
     ;; decide what to return based on major state of entry
     (case (StudentEntry-State entry)
       (correct 
+
+       ;; Grading:  attach grade to SystemEntry
+       (update-grade-status (StudentEntry-CInterp entry) +correct+)
+    
        ;; check any given value equations associated. At first one that is wrong, its
        ;; result turn becomes the result for the main entry; checking routine 
        ;; updates main entry record with error interp of the bad equation.
@@ -1462,6 +1400,7 @@
       (otherwise (warn "Unrecognized interp state! ~A~%" 
 		       (StudentEntry-state entry))
 		 (setf result (make-red-turn :id (StudentEntry-id entry)))))
+
 
     ;; Note for variables with given equations, we are
     ;; logging correctness of the variable definition substep, 
@@ -1587,10 +1526,17 @@
 	(parse (StudentEntry-ParsedEqn entry)))
     ;; fetch target entry list for correct or incorrect entries 
     (cond ((eq (StudentEntry-state entry) +incorrect+)
-	   ;; if needed, run whatswrong help to set error interp now, so diagnosis
-	   ;; can be included in log even if student never asks whatswrong
-	   (unless (StudentEntry-ErrInterp entry) (diagnose Entry))
-	   (setf target-entries (ErrorInterp-Intended (StudentEntry-ErrInterp Entry))))
+	   (unless (StudentEntry-ErrInterp entry) 
+	     (when *debug-grade*
+	       ;; StudentEntry-ErrInterp should have been set before
+	       ;; calling this function, perhaps by a call to (diagnose entry).
+	       ;; Otherwise, this means that the grading has not been done.
+	       (warn 'webserver:log-warn
+		     :tag (list 'undiagnosed-entry (StudentEntry-prop entry))
+		     :text "Undiagnosed error for studententry."))
+	     (diagnose entry))
+	   (setf target-entries (ErrorInterp-Intended 
+				 (StudentEntry-ErrInterp Entry))))
 	  
 	  ((eq (StudentEntry-state entry) +correct+)
 	   (setf target-entries (studententry-Cinterp entry))))
@@ -1711,14 +1657,21 @@
 ;; has been completed if so then the value is green if not then don't. 
 (defun check-mc-no-quant-done-answer-sought (entry)
   (let* ((id (second (StudentEntry-prop entry)))
-	 (PSM (match-exp->enode ID (problem-graph *cp*))))
+	 (PSM (match-exp->enode ID (problem-graph *cp*)))
+	 ;; corresponding systementry
+	 (sysent (find-SystemEntry (StudentEntry-prop entry))))
     (cond 
       ;; If the PSM is not found then we need to throw an error saying that.
       ((null PSM) 
        (make-bad-problem-turn 
 	(format nil "No problem step found for button labelled ~a" ID)))
+
+      ((null sysent)
+        (make-bad-problem-turn 
+	(format nil "No SystemEntry for button labelled ~a" ID)))
       
-      ;; If this is not a non-quant psm then we also need to thro an error 
+      
+      ;; If this is not a non-quant psm then we also need to throw an error 
       ;; asserting that fact. 
       ((not (enode-has-mark? PSM 'non-quant))
        (make-bad-problem-turn 

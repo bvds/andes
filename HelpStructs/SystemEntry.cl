@@ -34,9 +34,9 @@
 (defconstant +dead-path+ 'Dead-Path "Dead path interpretation.")
 (defconstant +incorrect+ 'Incorrect "The Entry has no interpretation.")
 
-(defvar *SG-Solutions* () "The set of solutions to be done.")
 (defvar *SG-Entries* () "The System entries from the bubblegraph.")
 (defvar *SG-Eqns* () "Equation list with eqn-index->entry mappings.")
+(defvar *help-last-entries* () "List of SystemEntries for which the termination of the most recent help sequence was constructed.  Used to determine assignment of blame for bottom-out hint.")
 
 ;; dynamically bound to correct entry if known before calling turn
 ;; generator, so generating functions can use it. Generating functions
@@ -62,7 +62,9 @@
   CogLoad  ;; The cognitive load of the systementry.
   Entered  ;; A list of student entries that have entered
            ;; this system entry if nil it has not been entered.
+  in-Sg-Solutions ;whether this entry is listed in *Sg-Solutions*
   model    ;; Model sentence.
+  (graded (make-graded))  ;; Graded object.
   )
 
 (defun print-SystemEntry (Entry &optional (Stream t) (level 0))
@@ -171,11 +173,14 @@
     (setf (SystemEntry-Prereqs E)
       (loop for Pr in (SystemEntry-Prereqs E)
 	  collect (loop for P in Pr
-		      collect (Prop->Sysent (SystemEntry-Prop P)
+		      collect (find-SystemEntry (SystemEntry-Prop P)
 					    Index))))))
 
 
-(defun prop->Sysent (Prop Entries)
+;;
+;;   Find systementry that matches a given prop
+;;
+(defun find-SystemEntry (Prop &optional (Entries *sg-entries*))
   (find Prop Entries
 	:key #'SystemEntry-Prop
 	:test #'unify))
@@ -183,23 +188,6 @@
 ;;----------------------------------------------
 ;; State testing code.
 
-(defun Systementry-correctp (Entry)
-  (equalp (SystemEntry-State Entry) +correct+))
-
-(defun Systementry-forbiddenp (Entry)
-  (equalp (SystemEntry-State Entry) +forbidden+))
-
-(defun Systementry-incorrectp (Entry)
-  (equalp (SystemEntry-State Entry) +incorrect+))
-
-(defun Systementry-deadpathp (Entry)
-  (equalp (SystemEntry-State Entry) +dead-path+))
-
-(defun SystemEntries-EnteredP (Entries)
-  (loop for E in (if (SystemEntry-P (car Entries))
-		     Entries
-		   (cdr Entries))
-      always (SystemEntry-Entered E)))
 
 (defun systementry-equationp (Entry)
   "Is the systementry an equation?"
@@ -296,11 +284,19 @@
     s))
 
 
-;;
-;;   Find systementry that matches a given prop
-;;
-(defun find-systementry (prop)
-  "Find systementry that matches a given prop"
-  (find prop *sg-entries* :key #'SystemEntry-prop :test #'unify))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;               SystemEntries arranged according to solution.
+;;;;
+;;;;
+;; ================================================
+;; Solution struct.  
+
+(defstruct sgsol
+  Num
+  Entries)
+
+(defvar *SG-Solutions* () "The set of solutions to be done, type sgsol.")
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -47,26 +47,6 @@
 (defparameter **play-Minilessons** t
   "If t minilesson ophints will be played when present.")
 
-;;; Both KCDS and minilessons can appear within hint sequences
-;;; The parameters below determine the number of times that a
-;;; specific kcd or minilesson can be repeated to the student as
-;;; part of a hint sequence.  The workbench allows the students to 
-;;; access them in other ways after they stop appearing in the 
-;;; hints themselves.  
-(defparameter **max-minilesson-repeats** 2 
-  "The number of times that a minilesson may be repeated to the student.")
-(defparameter **max-kcd-repeats** 1
-  "The number of times that a kcd can be viewed by a student as part of a hint seq.")
-
-;;; For research purposes it is necessary to set condition flags for the kcds.
-;;; Specifically in order to test whether or not the KCDS show any improvement
-;;; over minilessons.  Therefore we need to establish two conditions one for
-;;; the kcd students and one for minilesson students.  If this flag is set to
-;;; t then any hint-seq calls to kcds will cause the corresponding (same name)
-;;; minilesson to be opened instead.
-(defparameter **Play-KCDS-as-Minilessons** nil 
-  "If t then any calls to a kcd will be treated as calls to kcd will be treated as minilessons.")
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Turn Structs.
 ;; The tutor turn struct itself is intended to encapsulate all the responses to 
@@ -118,10 +98,7 @@
 
 (defconstant +dialog-turn+ 'Dialog-Turn)
 (defconstant +minil-turn+ 'Minil-Turn)
-(defconstant +tcard-turn+ 'TCard-Turn)
-(defconstant +kcd-turn+ 'KCD-Turn)
 (defconstant +eqn-turn+ 'Eqn-turn)
-(defconstant +end-dialog+ 'End-Dialog)
 (defconstant +stat-turn+ 'stat-turn)
 
 ;; Hook for variable later defined by help system.
@@ -289,23 +266,6 @@
 
 (defun make-noop-turn ()
   (make-turn :Type +no-op-turn+))
-
-
-;;; ----------------------------------------------------------------------
-;;; Make-stat-turn
-;;; Score turns are used to return the student's stats.  They have no 
-;;; coloring or other values associated and will merely be translated 
-;;; into a string of the score values.  
-;;;
-;;; Stat-turns, at present only make use of the type and value fields of
-;;; the tutor-turn.  In the future I will add the possibility of dialog-stat
-;;; turns or other combined forms that will be used to conduct dialogs
-;;; with the students
-
-(defun make-stat-turn (Stats)
-  "Make a statistics turn."
-  (make-turn :Type +stat-turn+ :Value Stats))
-
 
 ;;; This is a specialized error turn that gives the student a 
 ;;; "this problem is bad, move on..." message and is associated

@@ -198,3 +198,61 @@
    dq1 dt1a dt4a dt4b dt6b dt6c dt7a dt8a dt10a dt16 dt17))
 ("Set 4: Energy and Work" (s11a s11b weq1 weq2 weq4 e1a e1b e3a e8a we1a))
 )))
+
+;; Ted Harder.  These are gotten from the Andes2 log files using:
+;; perl -n -e 'm/Open-Problem (\w+)/ && print "$1\n"; m/^2010\/(.....)/ && print "$1 ";' Fall2010*Harder-5.dat | sort -k 2 | uniq -s 6 | sort > junk.out
+;;
+;; Added by hand vec1ay vec3dy kt11ay
+
+#|
+ (asdf:operate 'asdf:load-op 'lon-capa)
+  (lon-capa-problem-maps *sets* "/res/asu/bvds/all-problems" 
+		       :practice-p t
+		       :exclude-sets *harder-fall-2010*
+		       :path #P"harder-maps/"
+		       :title "Practice problems")
+(lon-capa-problem-maps *harder-fall-2010* "/res/asu/bvds/all-problems" 
+		       :path #P"harder-maps/"
+		       :title "Assigned problems")
+
+|#
+
+(defvar *harder-fall-2010*
+'("Assignments guessed from Andes2 logs."
+(
+("Assignment 1" (VEC1AY VEC1A VEC1B VEC1C VEC2A VEC1D VEC1E VEC2B VEC2C VEC2D VEC3DY VEC3A VEC3B VEC3C VEC4A VEC4B VEC4C VEC4D))
+("Assignment 2" (VEC5A VEC5C MOT1 VEC5D MOT2 MOT4 VEC5B VEC6B VEC6D VEC8B))
+("Assignment 3" (VEC6A VEC6C VEC7A VEC8A VEC8C VEC9 KGRAPH1 KGRAPH2 KGRAPH3 KGRAPH4 KGRAPH5 KGRAPH5B KGRAPH5C RELVEL1A))
+("Assignment 4" (RELVEL2A RELVEL3A KGRAPH6 KGRAPH9 KGRAPH10 KGRAPH10B KGRAPH11 KGRAPH12 KGRAPH13 KGRAPH14 KGRAPH16 KGRAPH17 KGRAPH18 KGRAPH19 KGRAPH20 KGRAPH21 KGRAPH5D KGRAPH5E KGRAPH7 KGRAPH8 KGRAPH8B KGRAPH9B))
+("Assignment 5" (KGRAPH22 KT1A KT2A KT3A KT4A))
+("Assignment 6" (KT9A KT7B KT9C KT2B KT3B KT4C KT1B KT6A KT7A KT8A KT10A KT11AY KT11A KT11C KT12A KT12C KT13A KT13C KT14A))
+("Assignment 7" (KT11B KT12B KT13B KT8B KT13D KT14B FBD1A FBD2A FBD10 FBD11 FBD4A FBD5A FBD6A FBD8 FBD9 S14 S1A S1C S2A S2C S2E S3A S3C S4A))
+("Assignment 8" (S5A FBD1B FBD3A))
+)))
+
+#|
+ (asdf:operate 'asdf:load-op 'lon-capa)
+  (lon-capa-problem-maps *sets* "/res/asu/bvds/all-problems" 
+		       :practice-p t
+		       :exclude-sets *wingfield-fall-2011*
+		       :path #P"wingfield-maps/"
+		       :title "Practice problems")
+(lon-capa-problem-maps *wingfield-fall-2011* "/res/asu/bvds/all-problems" 
+		       :path #P"wingfield-maps/"
+		       :title "Assigned problems")
+  ;; on andes.eas.asu.edu, as root:
+  ;;   cd public_html; chown -R www.bvds harder-maps
+|#
+
+(defvar *wingfield-fall-2011*
+'("Initial assignment from email"
+(
+("Free Body Diagrams" (fbd1a fbd1b fbd2a fbd3a fbd4a fbd6a fbd8))
+("Statics" (s1e s1f  s2b s2c s4a s4b s5a s11a))
+("Translational Dynamics" (dq1 dt1a dt1b dt3a dt3c dt6b dt7a dt7b dt9a dt9b dt13b dt14a dt16 dt18))
+("Circular Motion" (rots1a rots2a rots3a rots8b))
+("Work and Energy" (weq2 weq4 weq5 e1a e1b e4b e5a e5b e6a e11a we1a we3a we8 we9 egrav1))
+("Power" (pow1a pow4a pow5a pow6a))
+("Linear Momentum" (lmom1b lmom2a lmom4a pgraph1 pgraph2 pgraph3 imp1 imp2 roc1 roc6))
+)))
+

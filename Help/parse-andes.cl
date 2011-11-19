@@ -72,7 +72,9 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;; Not called by anyone.
 (defun test-parse (eq)
+ "Debugging utility to test parser."
   (let ((equation eq))
     (if (= 0 (length (remove #\Space equation)))
 	(format nil "Empty Equation <~W>~%" eq)
@@ -222,7 +224,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun handle-ambiguous-equation (equation entry parses location)
   ;(prl parses)
-  (let (tmp bad (cont t) result se save)
+  (let (result bad (cont t) tmp se save)
     (dolist (parse parses)
       (when (and cont (not (member parse save :test #'equal)))
 	(setf save (append save (list parse)))
@@ -236,60 +238,93 @@
 	(setf (StudentEntry-parsedeqn se) parse)
 	(setf (StudentEntry-prop se) (list 'eqn equation))
 	(setf (StudentEntry-State se) +incorrect+)
-	(setf tmp (parse-handler se location))
+	(setf result (parse-handler se location))
 	(cond
-	  ((equal +color-green+ (turn-coloring tmp))
+	  ((equal +color-green+ (turn-coloring result))
 	   (setf (StudentEntry-State se) +correct+)
 	   ;; know this entry has winning parse so save entry now 
 	   (add-entry se) 	
-	   (setf result se)
+	   (setf tmp se)
 	   (setf cont nil))
-        (t ;;(equal +color-red+ (turn-coloring tmp))
-          (setf bad (append bad (list (list tmp se))))))))    
+        (t ;;(equal +color-red+ (turn-coloring result))
+          (setf bad (append bad (list (list result se))))))))    
     (cond
       (cont
-       (setf tmp (choose-ambiguous-bad-turn bad se)) ;does add-entry on winning candidate
-       (if (null tmp)
-	   (setf tmp (progn (warn "Should not see this error")
+       (setf result (choose-ambiguous-bad-turn bad se)) ;does add-entry on winning candidate
+       (unless result
+	   (setf result (progn (warn "Should not see this error")
 			    (make-red-turn :id (StudentEntry-Id se))))))
       (t
        ;; Record correct eqn in algebra. (Must happen before interpretation 
        ;; testing)
        ;; NB: If we later reject it for some reason (because forbidden, 
        ;; premature, etc), algebra slot should be cleared.
-       (if (stringp (solver-studentAddOkay (StudentEntry-Id se) 
-					   (StudentEntry-ParsedEqn se)))
-	   (setf tmp (make-red-turn :id (StudentEntry-Id se))) ;to trap exceptions
-	   (setf tmp (interpret-equation result location)))
+       (setf result
+	     (if (stringp (solver-studentAddOkay (StudentEntry-Id se) 
+						 (StudentEntry-ParsedEqn se)))
+		 (make-red-turn :id (StudentEntry-Id se)) ;to trap exceptions
+		 (interpret-equation tmp location)))
        (cond
-	 ((equal +color-green+ (turn-coloring tmp))
+	 ((equal +color-green+ (turn-coloring result))
 	  (sg-Enter-StudentEntry se)
 	  
-	  ;; also enter scalar variables whose only uses are in this entry's interp
+	  ;; also enter scalar variables whose only uses are in this 
+	  ;; entry's interp
 	  (let ((eqn-interp (StudentEntry-Cinterp se))
 		unneeded-vardefs)
-					; collect list of variable entries no longer needed
-	    (when eqn-interp ; if interp is empty, don't reduce #'union NIL, Bug 949
-	      (dolist (var (reduce #'union (mapcar #'(lambda (sysent) 
-						       (vars-in-eqn (sysent-algebra sysent)))
-						   eqn-interp)))
+	    
+	    ;; collect list of variable entries no longer needed
+	    (when eqn-interp 
+	      ;; if interp is empty, don't reduce #'union NIL, Bug 949
+	      (dolist (var (reduce 
+			    #'union 
+			    (mapcar #'(lambda (sysent) 
+					(vars-in-eqn (sysent-algebra sysent)))
+				    eqn-interp)))
 		(when (and (var-to-sysentry var) ;nil for vector quantities, ignore
 			   (subsetp (syseqns-containing-var var) eqn-interp))
 	          (pushnew (var-to-sysentry var) unneeded-vardefs))))
 	    (when unneeded-vardefs
-					; temporarily munge this entry's interpretations to get variable definition entries 
-					; associated with it to be marked as entered by this student entry, restore when done. 
-					; Note sg-delete-StudentEntry adjusted to undo this on equation entry deletions.
+	      ;; temporarily munge this entry's interpretations to get 
+	      ;; variable definition entries associated with it to be 
+	      ;; marked as entered by this student entry, restore when done. 
+	      ;; Note sg-delete-StudentEntry adjusted to undo this on 
+	      ;; equation entry deletions.
 	      (when *debug-help* 
 		(format t "entering unneeded vardefs: ~s~%" unneeded-vardefs))
 	      (setf (StudentEntry-Cinterp se) unneeded-vardefs)
-	      (sg-Enter-StudentEntry se)
+	      (sg-Enter-StudentEntry se)  ;mark grade
 	      (setf (StudentEntry-Cinterp se) eqn-interp)))
 	  )
 	 (t
-	  ;; empty slot since it failed
-	  (solver-studentEmptySlot (StudentEntry-Id se))))))
-    tmp))
+	 ;; empty slot since it failed
+	  (solver-studentEmptySlot (StudentEntry-Id se))
+
+	  ;; Identical to code in Check-NonEq-Entry in Help/Entry-API.cl
+	  ;; run whatswrong help to set error interp now, so diagnosis
+	  ;; can be included in log even if student never asks whatswrong
+	  (let ((intended (ErrorInterp-intended (diagnose se)))
+		(info (make-info-provided :prop (StudentEntry-prop se)
+					  :slots 1 ;should be list, but for now, just
+					  :penalize t)))
+	
+	    (format webserver:*stdout* "++++++intended is ~S~%" intended)
+	    
+	    ;; Mark associated systemEntry or SystemEntries as incorrect.
+	    ;; for grading purposes.
+	    (update-grade-status intended +incorrect+)
+	    
+	    ;; Take diagnosis and add grading information.
+	    ;; It looks like the "new" part does not work for multiple-choice.
+	    ;; try vec1e.
+	    (dolist (sysent intended)
+	      (pushnew info
+		       (graded-incorrects (SystemEntry-graded sysent))
+		       :key #'info-provided-prop
+		       :test #'unify)))))))
+
+    ;; finally return result turn
+    result))
 
 (defun sysent-algebra (sysent)
 "return algebra for a system equation entry; NIL if not an eqn entry"
@@ -788,11 +823,6 @@ follow-up question and put it in the student entry's err interp field."
      eq)))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun handle-unused-variables (equation)
-  (if (find-all-in equation 'nil) nil equation)) ;; probably a better to do this
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -878,17 +908,17 @@ follow-up question and put it in the student entry's err interp field."
   (let*
       ;; This is the only place where StudentEntry-verbatim is used.
       ((inputo (StudentEntry-verbatim entry))
-	 sought-quant
-	 (id (StudentEntry-id entry))
-	 result-turn
-	 (input (trim-eqn inputo)))
+       sought-quant
+       (id (StudentEntry-id entry))
+       result-turn
+       (input (trim-eqn inputo)))
     
     ;; Determine which answer this entry corresponds to,
     ;; if this is a new entry.
     (unless (StudentEntry-prop entry) 
       (select-sought-for-answer entry))
     (setf sought-quant (second (studentEntry-prop entry)))
-
+    
     (if (quant-to-sysvar sought-quant)
 	(if (/= (length (remove #\Space input)) 0)
 	    (let* ((ep (position #\= input))
@@ -961,40 +991,53 @@ follow-up question and put it in the student entry's err interp field."
 			   (symbols-delete "Answer"))
 			  (T ; answer has non-parameter vars
 			   (setf (StudentEntry-ErrInterp entry) 
-				 (bad-variables-vs-parameters-ErrorInterp input 
-			                         (bad-vars-in-answer valid)
-						 :id id))
-			  (setf result-turn (ErrorInterp-remediation
-					     (StudentEntry-ErrInterp entry)))))
-		      (progn ; didn't parse. Note re message that input might not have been a full equation.
+				 (bad-variables-vs-parameters-ErrorInterp 
+				  input 
+				  (bad-vars-in-answer valid)
+				  :id id))
+			   (setf result-turn (ErrorInterp-remediation
+					      (StudentEntry-ErrInterp entry)))))
+			;; valid is null: parse failed.
+			(progn ;Note re message that input might not have been a full equation.
 			(setf (StudentEntry-ErrInterp entry) 
 			      (bad-syntax-ErrorInterp
 			       (if ep input (strcat lhs "=" rhs)) :id id))
 			(setf result-turn (ErrorInterp-remediation
 					   (StudentEntry-ErrInterp entry))))))
-		(cond ; failed to get a candidate to test.
-		 ((and why (equal (car why) 'bad-var))
-		  (warn "do-check-answer bad var ~A~%" entry)
+		  (cond ; failed to get a candidate to test.
+		    ((and why (equal (car why) 'bad-var))
+		     (warn "do-check-answer bad var ~A~%" entry)
 		  (setf (StudentEntry-ErrInterp entry)
-		    (bad-answer-bad-lhs-ErrorInterp input why :id id))
-		  (setf result-turn (ErrorInterp-remediation (StudentEntry-ErrInterp entry))))
-		 ((and why (equal (car why) 'bad-sought))
+			(bad-answer-bad-lhs-ErrorInterp input why :id id))
+		     (setf result-turn (ErrorInterp-remediation (StudentEntry-ErrInterp entry))))
+		    ((and why (equal (car why) 'bad-sought))
 		  (warn "do-check-answer bad sought ~A~%" entry)
-		  (setf (StudentEntry-ErrInterp entry)
-		    (bad-answer-bad-sought-ErrorInterp input why :id id))
-		  (setf result-turn (ErrorInterp-remediation (StudentEntry-ErrInterp entry))))
-		 (t
-		  (setf (StudentEntry-ErrInterp entry)
-		    (bad-answer-syntax-ErrorInterp input :id id))
+		     (setf (StudentEntry-ErrInterp entry)
+			   (bad-answer-bad-sought-ErrorInterp input why :id id))
+		     (setf result-turn (ErrorInterp-remediation (StudentEntry-ErrInterp entry))))
+		    (t
+		     (setf (StudentEntry-ErrInterp entry)
+			   (bad-answer-syntax-ErrorInterp input :id id))
 		  (setf result-turn (ErrorInterp-remediation (StudentEntry-ErrInterp entry)))))
-		))
+		  ))
 	    
 	    ;; Empty answer box (this is usually just a mistake).
 	    (setf result-turn (empty-answer-ErrorInterp entry)))
-
+	
 	(warn "No system variable for ~A. Possible mismatch with answer box." sought-quant))
+
+    ;; Grading for result.  Since var=value equation is not
+    ;; among SystemeEtries, need to find associated SystemEntry by hand.
+    (let ((sysent (find-SystemEntry (StudentEntry-prop entry))))
+      (if sysent
+	  (update-grade-status (list sysent) (StudentEntry-state entry))
+	  (warn 'webserver:log-warn :text "No matching systementry for box"
+		:tag (list 'box-no-systementry (StudentEntry-prop entry)))))
+      
+
     (cond (result-turn) ;; if we got result from check above return it
-          (T ;; else failed somewhere. !!! Should process syntax errors same as eqn.
+          (T ;; else failed somewhere. 
+	   ;; !!! Should process syntax errors same as eqn.
 	   ;;(format T "~&failed to get result for answer~%")
 	   (setf (StudentEntry-state entry) +incorrect+)
 	   (make-red-turn :id (StudentEntry-id entry))))))

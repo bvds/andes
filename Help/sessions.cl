@@ -153,20 +153,12 @@
 	  **current-cmd-stack** **current-cmd** *last-turn-response* 
 	  *last-score*
           ;; Variables set in Config.cl, which is loaded for each session.
-	  **Testing-Pause-Time-Threshold** **Filter-Constraint-losses**
+	  **Filter-Constraint-losses**
           *followup-problems*
-	  ;; Variables used for scoring in Help/RunTimeTest.cl
-          *Runtime-Testset* *Runtime-Score-Testset*
-	  *Runtime-testset-current-Solindex*
-	  *Runtime-Testset-current-total-score* **Checking-entries**
+	  ;; Variables used for grades
+	  *grade* *random-average-score* *help-last-entries*
 	  ;; Variables holding session-local memos.
 	  *parse-memo* *lexical-rules-memo* *rules-starting-with-memo*
-	  ;; Cache variables in Testcode/Tests.cl
-	  *test-cache-eqn-entries* *test-cache-given-eqn-entries*
-	  *test-cache-axis-entries* *test-cache-objects* 
-	  *test-cache-drawing-entries* **Current-Body-Expression-Form**
-	  **Current-Prob-Requires-nonanswer-entries** **entry-entered**
-	  *sg-systementry-optional-p-memo*
 	  ;; Session state information
 	  session:*user* session:*section* session:*problem* 
 	  session:*state-cache*
@@ -175,7 +167,7 @@
 	#+sbcl #'equalp
 	)
 
-;; Should be useful for debugging.
+;; Useful for debugging.
 (defun get-session-variable (session var)
   "Get a session local variable for a given session (string)."
   (nth (position var help-env-vars)
@@ -269,14 +261,9 @@
 	    session:*section* section
 	    session:*problem* problem)
 
-      (setq **base-Htime** (universal-time->htime (get-universal-time)))
       (solver-load)
       (solver-logging *solver-logging*)
       
-      ;; Config modifies *runtime-testset*, so we
-      ;; need to make the session-local copy first. 
-      (session-local-runtime-testset)
-
       ;; Andes2 had the following calls that can be found in log files:
       ;;   read-student-info; the only remaining step is:
       (Load-Config-File)			
@@ -334,6 +321,18 @@
 				   :test #'unify)
 		     (warn "Invalid label ~A for ~A" label button-type))
 
+		   ;; Add weight and choices to grading
+		   (let ((sysent (find-SystemEntry `(choose-answer ,label . ?rest))))
+		     (if sysent
+			 (setf (graded-possibilities (SystemEntry-graded sysent))
+			       (length line)  ;should be list, but for now...
+			       ;;(list nil nil (length line))
+			       ;; Need a real determination of weight.
+			       (graded-weight (SystemEntry-graded sysent))
+			       11
+			       )
+			 (warn "No SystemEntry for multiple-choice ~A" label)))
+		   
 		   (let* ((id (format nil "~A" label))
 			  (prop `(choose-answer ,label nil))
 			  (buttons
@@ -460,27 +459,24 @@
 		(setf y (max y (cdr (assoc :y (cdr predef))))))
 	      (push `(:y . ,y) (cdr predef)))
 	  ;; (format webserver:*stdout* "  Turned to ~A~%" (cdr predef))
-	  (setf y (+ y 25))))
-      
-      (setf **checking-entries** t))
+	  (setf y (+ y 25)))))
     
     ;; Send pre-defined quantities to the help system via
     ;; the solution-step method.
     ;; Execute outside of env-wrap and with check-entries turned on.
-    (dolist (predef (mapcar #'cdr predefs)) ;ignore any entry-prop
-      ;; (format webserver:*stdout* "Sending predef ~A~%" (cdr predef))
-      (let ((reply (apply #'solution-step 
-			   ;; flatten the alist
-			   (mapcan 
-			    #'(lambda (x) (list (car x) (cdr x)))
-			    predef))))
-	(setf solution-step-replies 
-	      (append solution-step-replies 
-		      (cons predef reply))))
-      ;; (format webserver:*stdout* "   done with predef ~A~%" (cdr predef))
-      )
-
-    (env-wrap (setf **checking-entries** nil))
+    (let ((**checking-entries** t))
+      (dolist (predef (mapcar #'cdr predefs)) ;ignore any entry-prop
+	;; (format webserver:*stdout* "Sending predef ~A~%" (cdr predef))
+	(let ((reply (apply #'solution-step 
+			    ;; flatten the alist
+			    (mapcan 
+			     #'(lambda (x) (list (car x) (cdr x)))
+			     predef))))
+	  (setf solution-step-replies 
+		(append solution-step-replies 
+			(cons predef reply))))
+	;; (format webserver:*stdout* "   done with predef ~A~%" (cdr predef))
+	))
     
     ;; Pull old sessions out of the database that match
     ;; student, problem, & section.  Run turns through help system
@@ -505,18 +501,17 @@
 	       ;; into a warning and move on to the next turn.
 	       ;; Otherwise old sessions with unfixed errors cannot 
 	       ;; be reopened.
-	       (reply (handler-case
-			  (apply 
-			   (cond 
-			     ((equal method "solution-step") #'solution-step)
-			     ((equal method "seek-help") #'seek-help)
-			     ((equal method "record-action") #'record-action))
-			   ;; flatten the alist
-			   (mapcan #'(lambda (x) (list (car x) (cdr x))) 
-				   params))
-			(error (c) (warn (format nil "Found ~A for ~A of ~A" 
-						 (type-of c) method 
-						 params)))))
+	       (reply 
+		(handler-case
+		    (apply 
+		     (cond 
+		       ((equal method "solution-step") #'solution-step)
+		       ((equal method "seek-help") #'seek-help)
+		       ((equal method "record-action") #'record-action))
+		     ;; flatten the alist
+		     (mapcan #'(lambda (x) (list (car x) (cdr x))) 
+			     params))
+		  (error (c) (old-errors-into-warnings c method params))))
 	       
 	       ;; solution-steps and help results are passed back to client
 	       ;; to set up state on client.
@@ -612,22 +607,7 @@
 		(:name . ,(car preference))
 		(:value . ,(cdr preference)))
 	      replies))
-      
-      ;; set-stats (if there was an old score) (to do)
-      ;; Should this be wrapped in execute-andes-command?
-
-      (set-stats '(("NSH_BO_Call_Count" . 0)
-		   ("WWH_BO_Call_Count" . 0)
-		   ("Correct_Entries_V_Entries" . (0 0)) 
-		   ("Correct_Answer_Entries_V_Answer_Entries" . (0 0))))
-   
-      (push `((:action . "log") 
-	      (:log . "subscores")
-	      (:items . (("NSH_BO_Call_Count" 0)
-			     ("WWH_BO_Call_Count" 0)
-			     ("Correct_Entries_V_Entries" 0 0) 
-			     ("Correct_Answer_Entries_V_Answer_Entries" 0 0))))
-	    replies)      
+           
       (push `((:action . "set-score") (:score . 0)) replies))
 
     ;; log the user-agent http header
@@ -636,6 +616,15 @@
 
     ;; assemble list of replies to send to client.
     (append (reverse replies) solution-step-replies)))
+
+
+;; helper function to handle errors from old sessions
+;; Turns errors into log-warn.
+(defun old-errors-into-warnings (c method params)
+  (warn 'webserver:log-warn
+	:tag (list 'old-session-error method params 
+		   (type-of c) (webserver:get-any-log-tag c))
+	:text (format nil "Error from rerunning old sessions: ~A" c)))  
 
 
 ;; helper function to write out definition text based on Ontology.

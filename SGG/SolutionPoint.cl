@@ -117,17 +117,6 @@ The solver,
 (defun sp-debug (&rest form)
   (if *debug-sp* (apply 'format (cons t form))))
   
-(defun trace-solution-point ()
-  (trace get-solution-point)
-  (trace send-solution-elements)
-  (trace collect-result-vals)
-  
-  (trace Solver-new-problem)
-  (trace solver-send-problem-statement)
-  (trace solver-solve-problem)
-  (trace solver-solve-more-problem))
-
-
 			    	
 
 (defun error-test (V &optional (command 'solver-command))

@@ -146,22 +146,6 @@
 				     :model (cdr x)))
 	  (get-first-model-words (triple-model triple) nil)))
 
-(defun get-word-list-props (words &key type)
-  "Return list of quantity propositions associated wtih an exact match to phrase.  Any final vars are expanded here."
-  (let (result)
-    ;; If not in cache, add to cache.
-    (unless (cached-triples-p type (butlast words))
-      (next-word-list (butlast words) :type type))
-    ;; Go through list of triples and find matches to words.
-    (dolist (triple (get-cached-triples type (butlast words)))
-      (when (and (string-equal (car (last words)) 
-			       (expand-vars (triple-word triple)))
-		 (member nil (get-first-model-words 
-			      (triple-model triple) nil)))
-	(pushnew (triple-prop triple) result :test #'unify)))
-    result))
-
-
 (defun generate-initial-words (type &optional names)
   (declare (notinline get-ontology-bindings))
   ;; This list could be pre-computed

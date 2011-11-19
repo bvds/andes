@@ -23,7 +23,7 @@
 ;;
 ;; This file defines the core element of the Andes2 solver system including
 ;; the central solver struct and the access functions.  This file as well
-;; as all associated files are loacated in the Turkey-Solver package.
+;; as all associated files are located in the Turkey-Solver package.
 ;;
 ;; This system is intended to function as a subsystem of a larger solution
 ;; system and is used to solve given a specified knowledge base of operators
@@ -418,32 +418,6 @@
       (format t "WARNING:  two paths differ only by unbound variables:~%    ~A~%  Path:  ~S~%"
 	      bindings x))
     (equal bindings no-bindings)))
-
-(defun solver-trace ()
-  (trace solve-for)
-  (trace solution-sts)
-  (trace initial-st)
-  (trace collect-path))
-
-(defun trace-qsolver ()
-  (trace solve-for-PSM-Quantity
-	 solve-for-Constant-Quantity
-	 solve-for-given-eqn
-	 solve-for-param-var 
-	 solve-for-non-quantity 
-	 qsolve-for
-	 
-	 collect-Path
-	 collect-subvars
-	 collect-subEqns
-	 collect-assumptions
-	 
-	 merge-duplicate-psms
-	 merge-psm
-	 merge-duplicate-givens
-	 merge-duplicate-param-vars
-	 merge-paths 
-	 insert-choose))
 	 
 ;;; ========================= top level ==========================
 ;;; This function solves the problem and then dumps the solution graph
@@ -495,10 +469,6 @@
 (defun action< (a1 a2)
    "return T if action a1 has lower rank than a2"
   (alist< (action-order a1) (action-order a2)))
-
-(defun action> (a1 a2) 
-   "return T if action a1 has higher rank than a2"
-    (action< a2 a1))
 
 			      
 

@@ -186,13 +186,6 @@
   "true if system equation entry is step of writing a given equation"
   (given-eqn-p (syseqn->eqn syseqn)))
 
-;; for dealing with interpretations = sets of syseqns:
-(defun get-nonzero-eqns (interp)
-"return list of non-zero equations in interp"
-   (remove-if #'(lambda (syseqn) 
-                  (zero-eqn-p (syseqn->eqn syseqn)))
-	      interp))
-
 ; Identities and zero equations will be dubbed "trivial". User may
 ; permissibly combine them with fundamental equations in their heads,
 ; to drop obviously zero terms or use equivalent variables.
@@ -204,11 +197,6 @@
    (or (zero-eqn-p eqn)
        (combinable-identity-p eqn)))
 
-(defun trivial-syseqn-p (syseqn)
-   (trivial-eqn-p (syseqn->eqn syseqn)))
-
-(defun get-nontrivial-eqns (interp)
-   (remove-if #'trivial-syseqn-p interp))
 
 ; We will now allow equations marked "definitions" to be combined with principles.
 ; This is intended for the small number of definitions used in conservation laws,
@@ -294,24 +282,6 @@
                    (projection-eqn-p (syseqn->eqn syseqn)))
 	     interp)))
 
-
-; the prematurity constraints: 
-
-; premature substitution of givens:
-; Note that even after student fixes by replacing numbers with variables,
-; symbolic equation may still involve combination of fundamental equations.
-; This doesn't depend on whether non-given equation combined with is major or not, 
-; so effectively it is treating given equations like required-explicit principles,
-; requiring them to be entered explicitly by themselves, but for few exceptions.
-(defun is-premature-substitution-p (interp)
-"true if interp combines non-zero given values with a non-entered equation"
- (let ((nz-eqns (get-nonzero-eqns interp)))
-  (and (some #'given-eqn-entry-p nz-eqns)
-       (some #'(lambda (syseqn)
-                   (and (not (given-eqn-entry-p syseqn))
-		        (not (entered-explicitly syseqn))))
-	     nz-eqns)
-       (not (allowed-compo-mag-combo interp)))))
 
 ;; Premature combination of equations:
 ;; We treat compo-form vector equations separately from other major equations

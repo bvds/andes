@@ -157,7 +157,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-(defun indef-np	(x &rest args)
+(defun indef-np (x &rest args)
   (declare (ignore args))
   (if (atom x)
       (if (stringp x)
@@ -324,13 +324,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun qnode-new-english (qnode)
-  "Match qnode to Ontology, pulling out model sentence, including any var."
-  ;; use same strategy as for systementries.
-  (or (Qnode-model qnode)   ;Use Qnode-model as a cache
-      (setf (Qnode-model qnode)
-	    `(or (var ,(qnode-exp qnode))
-		 ,(new-english-find (qnode-exp qnode))))))
 
 (defun new-english-find (prop)
   "Match proposition to Ontology."
@@ -351,10 +344,18 @@
       (return-from new-english-find
 	(expand-new-english (ExpType-new-english rule) bindings))))
   
+  ;; If it is a goalprop, use that.  
+  ;; GoalProp still uses old format for english.
+  ;; Returns a single string expression.
+  (let ((goal (nlg-find prop *Ontology-GoalProp-Types* 
+			#'GoalProp-Form #'GoalProp-nlg-english)))
+    (when goal
+      (return-from new-english-find goal)))
+
   ;; If it is a symbol, use improved version of def-np.
   (when (atom prop)
     (return-from new-english-find (def-np-model prop)))
-  
+
   ;; On failure, warn and return nil
   (warn "new-english-find:  no ontology match for ~S" prop))
 

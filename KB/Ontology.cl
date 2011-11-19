@@ -1095,6 +1095,16 @@
   :nlg-english ("answer for multiple-choice question number ~A" 
 	    (choose-answer-ontology-fixfunc ?question-id)))
 
+(def-entryprop done (done ?activity)
+  :doc "Select done button"
+  :nlg-english ("hitting the done button for ~A"
+		(new-english-find ?activity)))
+
+(def-entryprop answer (answer ?quant)
+  :doc "enter algebraic answer"
+  :nlg-english ("entering the value of ~A in the answer box"
+		(new-english-find ?quant)))
+
 (def-eqn-entryprop eqn (eqn ?equation ?eqn-id) 
   :helpform (eqn ?equation)
   :Doc "Entering an equation with the specified id."
@@ -1128,13 +1138,6 @@
 ;; point at which they are encountered. Typically this will
 ;; be predictable from their position in the operator.
 ;;========================================================
-
-; helper to use in format strings when args may be variables
-; needed because "if" is special form, makes problems for our apply.
-; uses var text if arg is var, else nlg's arg using nlg-type.
-(defun if-var (form var-text &optional (nlg-type 'def-np))
-  (if (variable-p form) var-text
-    (nlg form nlg-type))) 
 
 (def-goalprop lk-fbd (vector-diagram ?rot (lk ?body ?time))
    :doc "diagram showing all lk vectors and axes"

@@ -577,7 +577,8 @@
 ;;; Note: This code assumes that the problem has at least one sought.  
 (defun nsh-multiple-choice-only-problem-p (Problem)
   "Return t if this is a multiple-choice only problem."
-  (every #'multiple-choice-sought-p (problem-soughts Problem)))
+  (every #'(lambda (x) (eql (car x) 'choose-answer)) 
+	 (problem-soughts Problem)))
 
 
 ;;; For these problems we will need to set the problem type and then to 
@@ -603,27 +604,26 @@
 (defun nsh-reset-quant ()
   "Setup the appropriate settings for the quant problem."
   (setq *nsh-problem-type* 'quant)
-  ; following will be called on nodes repeatedly during setup:
+  ;; following will be called on nodes repeatedly during setup:
   (let ((nodes (nsh-collect-quant-snodes *cp*)))
     (setq *nsh-givens* (sort (remove-duplicates (mapcan #'car nodes))
                              #'earlier-given :key #'nsh-given-node-quant))
     (setq *nsh-solution-sets* (mapcar #'cadr nodes)))
-
-  ; for final-answer-only problems, mark intermediate entries as entered, so
-  ; we won't hint to do them
+  
+  ;; for final-answer-only problems, mark intermediate entries as entered, so
+  ;; we won't hint to do them
   (when (nsh-final-answer-only-p)
-     (nsh-init-final-answer-only)))
+    (nsh-init-final-answer-only)))
 
 (defun nsh-init-final-answer-only ()
- "predefine any non-answer entries for final-answer-only quant problem"
- (dolist (sysent (remove-if #'answer-only-entry-p *sg-entries*))
-	(format T "Predefining non-answer entry: ~A~%" (systemEntry-prop sysent))
-	;; Make entry behave as if predefined by forging a student entry for it. 
-	;; There is no path to deleting this dummy entry during the problem.
-	(sg-enter-StudentEntry (make-StudentEntry :id 'PREDEF ; special ID
-	                            :prop (systemEntry-prop sysent)
-				    :state +correct+
-				    :CInterp (list sysent)))))
+  "predefine any non-answer entries for final-answer-only quant problem"
+  (dolist (sysent (remove-if #'answer-only-entry-p *sg-entries*))
+    ;; Make entry behave as if predefined by forging a student entry for it. 
+    ;; There is no path to deleting this dummy entry during the problem.
+    (sg-enter-StudentEntry (make-StudentEntry :id 'PREDEF ; special ID
+					      :prop (systemEntry-prop sysent)
+					      :state +correct+
+					      :CInterp (list sysent)))))
 
 (defun answer-only-entry-p (sysent)
   "true if this is an answer entry for a final-answer-only problem" 
@@ -724,7 +724,6 @@
     (nsh-filter-valid-entries '(draw-axes ?rot))))
 
 
-
 ;;; --------------------- Collecting Bodies --------------------
 ;;; We have the pedagogical goal of getting the students to 
 ;;; define the bodies necessary for a solution first.  In theory 
@@ -794,7 +793,7 @@
 ;;; to drawing bodies at the top-level.  These entries will consitute 
 ;;; the necessary body(ies) for the principle.  This takes the individual
 ;;; bodies and locates the corresponding entries. 
-;;;
+;;; Returns a list of SystemEntries.
 (defun nsh-collect-principle-bodyents (principle)
   (let ((Bodies (nsh-collect-principle-body-args principle)))
     (when Bodies
@@ -979,6 +978,9 @@
 
 (defun next-step-help ()
   "Call next-step help."
+  ;; Clear out any old value because next-step-help doesn't
+  ;; always assign a new value.
+  (setf *help-last-entries* nil)
   (cond ((nsh-next-call-set?) (nsh-execute-next-call))
 	((nsh-continue-last-node?) (nsh-prompt-last-node))
 	((not (nsh-student-has-done-work?)) (nsh-prompt-start))
@@ -1072,7 +1074,7 @@
 ;;;; students will be prompted to draw a body that we have implicitly labelled as
 ;;;; "unecessary" by not including it here and that might bother them.  
 ;;;;
-;;;; As an exampke consider exs3a (book on package on table).  For the ideal 
+;;;; As an exampke consider s3a (book on package on table).  For the ideal 
 ;;;; solution the student needs only 1 body, the compound Book/Package body.  
 ;;;; However, they will need the mass variables in that body later on.  
 ;;;; Therefore they might be prompted to draw a body that they got away with ignoring 
@@ -1181,12 +1183,12 @@
 ;;; to prompt the student to enter one of them with the following
 ;;; hint.
 (defun nsh-prompt-axis ()
-  (let ((Rot (nsh-get-axis-Rot)))
+  (multiple-value-bind (Rot entry) (nsh-get-axis-Rot)
     (make-explain-more-turn
      (strcat "It is now a good idea for you to draw an axis.  This "
 	     "will help to ground your work and be useful later on "
 	     "in the process.")
-     :hint (nsh-make-axis-prompt Rot)
+     :hint (nsh-make-axis-prompt Rot entry)
      :Assoc `((nsh prompt-axis ,Rot)))))
 
 		      
@@ -1196,50 +1198,53 @@
 ;;; should be working on, we want to tell them that an appropriate
 ;;; way to start this (and most) problems is to draw such a thing.
 (defun nsh-new-start-axis ()
-  (let ((Rot (nsh-get-axis-Rot)))
+  (multiple-value-bind (Rot entry) (nsh-get-axis-Rot)
     (make-explain-more-turn
      (strcat "It is a good idea to begin most problems by drawing "
 	     "an axis.  This helps to ground your work and will be "
 	     "useful later on in the process.")
-     :hint (nsh-make-axis-prompt Rot)
+     :hint (nsh-make-axis-prompt Rot entry)
      :Assoc `((nsh new-start-axis ,Rot)))))
 
 
 ;;; Once we begin prompting the student to work on axes we 
 ;;; need to give them a standard set of prompts.  That is done
 ;;; here.
-(defun nsh-make-axis-prompt (Rot)
+(defun nsh-make-axis-prompt (Rot entry)
   "Make the axes prompts."
-  (declare (special **nsh-standard-axis-prompt** **nsh-rotated-axis-prompt**
-		    **nsh-rotated-axis-bottom-prompt**))
+  (setf *help-last-entries* (list entry))
   (make-hint-seq 
-   (if (= Rot 0) (list **nsh-standard-axis-prompt**)
-     (list (format Nil **nsh-rotated-axis-prompt** (nsh-get-axis-rot))
-	   (format Nil **nsh-rotated-axis-bottom-prompt** (nsh-get-axis-rot))))
+   (if (= Rot 0) 
+       (list 
+	(strcat "Use " *axis-tool* 
+		" to draw a pair of standard axes with the <var>x</var> "
+		"axis at 0 degrees."))
+       (list 
+	(format Nil (strcat 
+		     "On this problem you should draw a pair of axes with the "
+		     "positive <var>x</var> axis set to ~a degrees.&nbsp; " 
+		     "This will line them up with the vectors that you "
+		     "will be drawing and make your solution simpler.") 
+		rot)
+	(format Nil 
+		(strcat "Use " *axis-tool* 
+			" to draw a pair of axes setting the positive "
+			"<var>x</var> axis at ~a degrees.") 
+		rot)))
    :Assoc `((nsh make-axis-prompt ,Rot))))
 
 
 
 (defun nsh-get-axis-rot ()
-  (if (member 0 *nsh-axis-entries* :key #'(lambda (E) (cadr (SystemEntry-prop E))))
-      0
-    (cadr (SystemEntry-prop (car *nsh-axis-entries*)))))
-    
-
-
-(defparameter **nsh-standard-axis-prompt**
-    (strcat "Use " *axis-tool* " to draw a pair of standard axes with the <var>x</var> axis at 0 degrees."))
-
-(defparameter **nsh-rotated-axis-prompt**
-    (strcat "On this problem you should draw a pair of axes with the "
-	    "positive <var>x</var> axis set to ~a degrees.&nbsp; " 
-	    "This will line them up "
-	    "with the vectors that you will be drawing and make your "
-	    "solution simpler."))
-
-(defparameter **nsh-rotated-axis-bottom-prompt**
-    (strcat "Use " *axis-tool* " to draw a pair of axes setting the positive <var>x</var> axis at ~a degrees."))
-
+  "Set axis entry, returning angle and associated entry"
+  (let ((axis-entry 
+	 (or (find-if #'(lambda (E) (eql 0 (cadr (SystemEntry-prop E))))
+		      *nsh-axis-entries*)
+	     (car *nsh-axis-entries*))))
+    (values
+     ;; pull the angle out of the prop.
+     (cadr (SystemEntry-prop axis-entry))
+     axis-entry)))
 
 
 ;;;; ==================== Prompting Givens ===================================
@@ -1349,7 +1354,7 @@
 ;;; working on (the core of) it, then we tell them so and indicate 
 ;;; what it is that they have to do.  
 (defun nsh-start-no-quant ()
-  "Propt the student to start working on the no-quant problem."
+  "Prompt the student to start working on the no-quant problem."
   (let ((principle (caar *nsh-solution-sets*)))
     (make-explain-more-turn
      (strcat "On problems such as this you need to complete "
@@ -1631,12 +1636,6 @@
 ;;;    but not the front.
 ;;; 2. Notice when they are choosing something forbidden
 ;;; 3. slap them silly when they keep making the same mistake.
-
-(defparameter **NSH-Sought-Str**
-    (strcat "Most problems ask you to find the value of one or more "
-	    "quantities.  To solve such problems it is helpful to "
-	    "first identify precisely a sought quantity because this "
-	    "may remind you of a principle that can be used to find it."))
 
 
 (defun nsh-ask-sought-and-fp ()
@@ -3048,6 +3047,7 @@
 
 (defun nsh-prompt-node (Prefix Node &key Assoc)
   "Prompt the node as appropriate."
+  (setf *help-last-entries* (bgnode-entries Node))
   (if (nsh-quantity-p Node)
       (nsh-prompt-quantity Prefix Node :Assoc (alist-warn Assoc))
     (nsh-prompt-Principle Prefix Node :Assoc (alist-warn Assoc))))
@@ -3060,7 +3060,7 @@
 ;;; have any subentries so the system will error if they do not but that may
 ;;; change if we find it necessary.
 (defun nsh-prompt-quantity (Prefix Quantity &key Assoc)
-  (cond ((nsh-quantity-parameter-P quantity) 
+  (cond ((nsh-quantity-parameter-P Quantity) 
 	 (nsh-prompt-parameter Prefix Quantity :Assoc (alist-warn Assoc)))
 			       
 	(t (error "Inappropriate quantity passed to hint ~a" Quantity))))
@@ -3084,15 +3084,10 @@
 
 (defun nsh-prompt-principle (Prefix principle &key Assoc)
   "Prompt the specified principle appropriately based upoin how \"done\" it is"
+  (setq *nsh-last-node* Principle) ;Should set when hint is given, Bug #1854
   (cond ((nsh-goal-principle-P Principle) 
 	 (nsh-prompt-goal-principle Prefix Principle Assoc))
-	((nsh-major-principle-P Principle) 
-	 (nsh-prompt-major-principle Prefix Principle Assoc))
-	((nsh-given-principle-P Principle) 
-	 (nsh-prompt-given-principle Prefix Principle Assoc))
-	((nsh-Definition-principle-P Principle) 
-	 (nsh-prompt-definition-principle Prefix Principle Assoc))
-	(t (nsh-prompt-minor-principle Prefix Principle Assoc))))
+	(t (nsh-prompt-principle-final Prefix Principle Assoc))))
   
 
 ;;; Goal principles, unlike the major/minor/given principles found in quantity
@@ -3100,42 +3095,13 @@
 ;;; we need to prompt them using a separate form.
 (defun nsh-prompt-goal-principle (prefix Principle Assoc)
   "Prompt the specified major principle."
-  (setq *nsh-last-node* Principle) ;Should set when hint is given, Bug #1854
   (make-explain-more-turn 
    (strcat prefix (nlg (enode-id principle) 'goal) ".  ")
    :hint (nsh-walk-Node-graph "" principle)
    :Assoc (alist-warn Assoc)))
 
 
-
-
-;;; The following three pompt types all make use of the final 
-;;; principle prompting to provide the student with appropriate
-;;; hinting as they all follow the same format. They have been 
-;;; left in here in the event of my needing to provide specialized
-;;; hits for each type.  
-(defun nsh-prompt-major-principle (prefix Principle Assoc)
-  "Prompt the specified major principle."
-  (nsh-prompt-principle-final Prefix Principle Assoc))
-
-
-(defun nsh-prompt-given-principle (prefix Principle Assoc)
-  "Prompt the specified major principle."
-  (nsh-prompt-principle-final Prefix Principle Assoc))
-
-
-(defun nsh-prompt-minor-principle (prefix Principle Assoc)
-  "Prompt the specified major principle."
-  (nsh-prompt-principle-final Prefix Principle Assoc))
-
-
-(defun nsh-prompt-definition-principle (prefix Principle Assoc)
-  "Prompt the specified definition principle."
-  (nsh-prompt-principle-final Prefix Principle Assoc))
-
-
 (defun nsh-prompt-principle-final (prefix principle Assoc)
-  (setq *nsh-last-node* Principle) ;Should set when hint is given, Bug #1854
   (make-explain-more-turn 
    (strcat prefix (nlg (enode-id principle) 'psm-exp) ".  ")
    :hint (nsh-walk-Node-graph "" principle)
@@ -3254,16 +3220,6 @@
 	       :key #'(lambda (E) (cadr (SystemEntry-prop E)))))
    Solutions))
 
-
-;;; ---------------------------------------------------------------------------
-;;; Given a list of solutions 
-(defun nsh-filter-solutions-by-axes (Axes &optional (Solutions *nsh-solution-sets*))
-  "Pick solutions on which one of the axes have been drawn."
-  (remove-if-not
-   #'(lambda (S) (intersection Axes (nsh-collect-solution-axes S)))
-   Solutions))
-
-
 ;;; ---------------------------------------------------------------------------
 ;;; Given a set of solutions collect all those that contain at least one of the
 ;;; proposed first principles.
@@ -3275,6 +3231,7 @@
 ;;; ---------------------------------------------------------------------------
 ;;; Given a set of nodes collect all of the axes drawing entries that appear
 ;;; within them.
+;; returns list of SystemEntries
 (defun nsh-collect-solution-axes-entries (Solution)
   (remove-duplicates
    (mapcan
@@ -3382,15 +3339,6 @@
   "Return t iff the specified principle has been completed."
   (path-completedp (bgnode-path principle)))
 
-
-;;; nsh-principle-completed?
-;;; Has the specified principle been completed?  
-;;; Uses the psmg entered values.
-(defun nsh-principle-uncompleted-p (principle)
-  "Return t iff the specified principle has been completed."
-  (not (path-completedp (enode-path principle))))
-
-
 ;;; nsh-principle-started-p
 ;;; Has the student begun working on the principle at 
 ;;; all or is it completely empty.  
@@ -3398,18 +3346,6 @@
   "Has the student begiun working on the principle or not?"
   (and (enode-entries principle)
        (member-if #'SystemEntry-entered (enode-entries principle))))
-
-
-;;; nsh-principle-only-started-p
-;;; Has the student begun working on the principle at 
-;;; all but not completed it?
-(defun nsh-principle-only-started-p (principle)
-  "Has the student begiun working on the principle but not completed it?"
-  (and (enode-entries principle)
-       (member-if #'SystemEntry-entered (enode-entries principle))
-       (member-if-not #'SystemEntry-entered (enode-entries principle))))
-
-
 
 ;;; Is this a given principle node?
 (defun nsh-given-principle-p (node)
@@ -3619,7 +3555,7 @@
    stack))
 
 
-;;; Splits, Nexts, and Joins delineate paralell unordered branches
+;;; Splits, Nexts, and Joins delineate parallel unordered branches
 ;;; in the path.  They are generated by an operator that has been
 ;;; marked as unordered.  In this event all of its preconditions 
 ;;; must still be satisfied but they can be done in any order.  A
@@ -3991,6 +3927,8 @@
 ;;; down to the step from top to bottom.  
 (defun hint-target-entry (prefix step stack)
   (when **Print-NSH-Stack** (pprint (reverse Stack)))
+  ;; cs-do can have copies of entry.
+  (setf *help-last-entries* (remove-duplicates (csdo-entries step)))
   (make-hint-seq  
    (append (collect-stack-hintstrs stack)
 	   `((function make-hint-seq 
@@ -4030,6 +3968,7 @@
 ;;; make them do something but not, per-se, to worry about the
 ;;; context of it, or that we have already provided the context.
 (defun nsh-bottom-hint-target-entry (Initial step &key Assoc)
+  (setf *help-last-entries* (list step))
   (make-explain-more-turn
    Initial
    :hint (let ((source (car (SystemEntry-Sources step))))

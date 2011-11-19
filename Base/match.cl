@@ -165,23 +165,7 @@
 	  unless (= left right)
           collect (subseq string left right)
 	  until (>= right len))))
-
-;; Not used anywhere, yet.
-(defmacro with-word-parse (word string &rest body)
-  "Macro to iterate over the words in a string."
-  (let ((len (gensym)) (left (gensym)) (right (gensym)))
-  `(let ((,len (length ,string)))
-    (loop for ,left = 0 then (1+ ,right)
-          for ,right = (min (or (position-if 
-				#'(lambda (x) (member x *word-delimiters*))  
-				,string :start ,left)
-			       ,len)
-			   ,len)
-	  unless (= ,left ,right)
-          do (let ((,word (subseq ,string ,left ,right))) ,@body)
-          until (>= ,right ,len)))))
   
-
 (defun join-words (x)
   "Join together a list of strings."
   (if (cdr x) (concatenate 'string (car x) " " (join-words (cdr x)))

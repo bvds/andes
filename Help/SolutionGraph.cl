@@ -84,18 +84,6 @@
 
 (in-package :cl-user)
 
-
-;; ================================================
-;; Solution struct.  
-;; This code exists primarily for code cleanliness
-;; and is here defined and used only within this 
-;; module.
-
-(defstruct sgsol
-  Num
-  Entries)
-
-
 ;;=========================================================
 ;; Memory Storage.
 
@@ -157,7 +145,7 @@
   (setq *Sg-Eqns* (sg-collect-Eqns Problem))
   (sg-prime-algebra (problem-varindex Problem) *Sg-Eqns*)
   (sg-setup-systementries (Problem-Graph Problem))
-  (setq *sg-eqns* (sg-match-eqn-entries *Sg-Eqns* *Sg-Entries*))
+  (setq *Sg-Eqns* (sg-match-eqn-entries *Sg-Eqns* *Sg-Entries*))
   (sg-setup-solutions (Problem-Solutions Problem) 
 		      (Problem-Graph Problem) *Sg-Eqns*))
 
@@ -358,26 +346,20 @@
 
 
 (defun sg-generate-sysents (Do Stack State)
-  "Generate the sysnts for a csdo and return them."
+  "Generate the sysents for a csdo and return them."
   (loop for E in (csdo-effects do)
       when (help-entryprop-p E)
       collect (sg-generate-sysent Do E Stack State)))
-
-; custom condition subclass to be signalled on apparent version errors
-; This inherits from the simple-error class which defines initargs 
-; :format-control and :format-arguments, used in the report function
-; to format an error message. The "error" function can take a class
-; name and init arguments to construct a condition object (see below)
-(define-condition wrong-version-prb (simple-error)
-   ())    ; no custom slots added to this subclass
 
 (defun sg-generate-sysent (Do Entry Stack State)
   "Given a help entry prop generate the system entry for it and return."
   ;; include helpful message for this error: 
   (when (not (get-operator-by-tag (csdo-op Do)))
-    (error 'wrong-version-prb 
-             :format-control "Solution operator ~A not found in current KB. Maybe need to regenerate .prb"
-	     :format-arguments (list (first (csdo-op Do)))))
+    (error 'webserver:log-error
+	   :tag (list 'operator-not-in-problem-file (csdo-op Do))
+	   
+             :text (strcat "Operator not found in current KB.  "
+			   "Maybe need to regenerate *.prb file.")))
   ;; else didn't signal error above:
   (make-SystemEntry 
    :Prop Entry
@@ -546,35 +528,40 @@
 ;; the count for use by the matching code.
 
 (defun sg-setup-solutions (Solutions Graph Eqns)
-  ; special handling for no-quant problems
-  (if (no-quant-problem-p *cp*)
-      (sg-setup-solutions-no-quant Graph Eqns)
-   (sg-setup-solutions-quant Solutions Eqns)))
+  ;; special handling for no-quant problems
+  (setf *Sg-Solutions*
+	(if (no-quant-problem-p *cp*)
+	    (sg-setup-solutions-no-quant Graph Eqns)
+	    (sg-setup-solutions-quant Solutions Eqns)))
+  
+  ;; Mark SystemEntries found in *Sg-Solutions
+  (dolist (soln *Sg-Solutions*)
+    (dolist (sysent (sgsol-entries soln))
+      (setf (SystemEntry-in-Sg-Solutions sysent) t))))
 
 (defun sg-setup-solutions-quant (Solutions Eqns)
   "Define the list of solutions and store them in the algebra system."
-  (setf *Sg-Solutions*
-    (loop for S below (length Solutions)
-	do (sg-add-solution S (nth S Solutions) Eqns)
-	collect (sg-encode-solution S (nth S Solutions)))))
+  (loop for S below (length Solutions)
+     do (sg-add-solution S (nth S Solutions) Eqns)
+     collect (sg-encode-solution S (nth S Solutions))))
 
 (defun sg-add-solution (Num Solution Eqns)
   "Add the numbered solution to the system"
-  (let ((Eq))
-    (dolist (E (EqnSet-AllEqns Solution))
-      (when (eqn-entry-type-p (eqn-type E)) 
-	(if (setq eq (find (Eqn-Algebra E) Eqns
-			   :key #'cadr :test #'equalp))
-	    (Solver-IndyAddEq2Set Num (car Eq))
-	  (error "NonIndy Solution Supplied ~A~% ~A." E Solution))))))
+  (dolist (E (EqnSet-AllEqns Solution))
+    (when (eqn-entry-type-p (eqn-type E)) 
+      (let ((Eqn (find (Eqn-Algebra E) Eqns
+		      :key #'cadr :test #'equalp)))
+	(if Eqn 
+	    (Solver-IndyAddEq2Set Num (car Eqn))
+	    (error "NonIndy Solution Supplied ~A~% ~A." E Solution))))))
 
 (defun sg-encode-solution (Num Solution)
   "Translate elements of the solution for use."
   (make-sgsol 
    :num Num
    :Entries (remove-duplicates
-	     (loop for N in (EqnSet-Nodes Solution)
-		 append (BGNode-Entries N)))))
+	     (loop for node in (EqnSet-Nodes Solution)
+		 append (BGNode-Entries node)))))
 
 ;; Variant for non-quant problems: these may include equation
 ;; writing steps (for entering given values of variables, say)
@@ -586,32 +573,25 @@
 ;; This still won't work for equations in a non-quant part
 ;; of a hybrid problem including quantitative soughts. 
 
-(defun sg-setup-solutions-no-quant (Graph SG-Eqns)
-  ;; only do if we have some equations
-  ;; note each element in sg-eqns is a list formed by eqns->help-sys-eqns
-  ;; containing index, algebra, and system entry
-  ;; e.g (1 (= 0 foo) [System-Entry: ...])
-  (when SG-Eqns
-    ;; instead of sg-add-solution above:
-    ;; look through eqn index. For every equation matching one 
-    ;; in SG-Eqns, add it's sg index to current set 0
-    (let (eq)
-      (dolist (E (Problem-EqnIndex *cp*))
-	(when (eqn-entry-type-p (eqn-type E)) 
-	  (if (setq eq (find (Eqn-Algebra E) SG-Eqns
-			     :key #'cadr :test #'equalp))
-	      (Solver-IndyAddEq2Set 0 (car Eq))))))
-    ;; instead of sg-encode-solution above
-    ;; map solution 0 to all entries in all eq-nodes
-    (let ((entries 
-	   ;; maybe could use:
-	   ;; (reduce #'union (mapcar #'BGNode-Entries (bubble-graph-Enodes Graph)))
-	   (remove-duplicates
-	    (loop for N in (bubblegraph-Enodes Graph)
-	       append (BGNode-Entries N)))))
-      (setf *Sg-Solutions*
-	    (list (make-sgsol :num 0
-			      :Entries entries))))))
+(defun sg-setup-solutions-no-quant (Graph Eqns)
+  ;; instead of sg-add-solution above:
+  ;; look through eqn index. For every equation matching one 
+  ;; in Eqns, add it's sg index to current set 0
+    (dolist (E (Problem-EqnIndex *cp*))
+      (when (eqn-entry-type-p (eqn-type E)) 
+	(let ((Eqn (find (Eqn-Algebra E) Eqns
+			:key #'cadr :test #'equalp)))
+	  (when Eqn (Solver-IndyAddEq2Set 0 (car Eqn))))))
+  ;; instead of sg-encode-solution above
+  ;; map solution 0 to all entries in all eq-nodes
+  (let ((entries 
+	 ;; maybe could use:
+	 ;; (reduce #'union (mapcar #'BGNode-Entries (bubble-graph-Enodes Graph)))
+	 (remove-duplicates
+	  (loop for N in (bubblegraph-Enodes Graph)
+	     append (BGNode-Entries N)))))
+	  (list (make-sgsol :num 0
+			    :Entries entries))))
 
 
 ;;=========================================================================
@@ -765,7 +745,7 @@
 	     (eq +correct+ State)
 	     (SystemEntries-Prematurep (sg-unmark-interp Interp) *cp*))
 	+premature-entry+
-      State)))
+	State)))
 
 
 ;;----------------------------------------------------------------------
@@ -775,7 +755,7 @@
 ;; StudentEntry is pushed onto the Entered field
 ;; of each SystemEntry in the Cinterp.  
 (defun sg-enter-StudentEntry (Entry)
-  "For each system entry in the cinterps mark it with entry."
+  "For each system entry in the cinterps mark it with entry, marking it correct for the purposes of grading."
 	     
   ; For equation entries, apply constraint loss check if flag is set
   (when (and **Filter-Constraint-Losses** 
@@ -788,8 +768,15 @@
 	    "Entering Interp:=====================================~%")
     (format t "~A~%" (StudentEntry-Cinterp Entry)))
   
-  (dolist (E (sg-unmark-interp (studentEntry-Cinterp Entry)))
-    (push Entry (SystemEntry-Entered E))))
+  (let ((len-enter (cons Entry 
+			 (length (sg-unmark-interp 
+				  (studentEntry-Cinterp Entry)))))
+	(entries (sg-unmark-interp (studentEntry-Cinterp Entry))))
+    (update-grade-status entries +correct+)
+    (dolist (E entries)
+      (let ((grade (SystemEntry-graded E)))
+	(pushnew len-enter (graded-eqns grade) :test #'unify)
+	(push Entry (SystemEntry-Entered E))))))
 
 
 ;;---------------------------------------------------------------------
@@ -864,25 +851,8 @@
 ;;==========================================================================
 ;; Utility functions.
 ;;----------------------------------------------------------
-;; Given a list of integers collect the entries that they
-;; index from *sg-entries*
 
-(defun sg-subst-nth-entries (lst)
-  "Collect a list of indexed entries from the entry index."
-  (loop for E in lst 
-      collect (nth E *sg-Entries*)))
-
-
-;;--------------------------------------------------------------
-;; sg-fetch-entry-props 
-;; Helper returns list of all entry propositions matching given pattern.
-
-(defun sg-fetch-entry-props (prop-pat) 
-  "fetch all entry propositions that match given proposition form"
-  (filter-expressions prop-pat (mapcar #'SystemEntry-Prop *SG-Entries*)))
-
-
-;; utility function to find system entry for a given vector quantity
+;; Utility function to find system entry for a given vector quantity.
 ;; Depends on structure of vector entry proposition
 (defun sg-find-vector-entry (vector-quant)
  "return the system entry for a vector quantity"
@@ -962,7 +932,7 @@
 ;; either the node doesn't contain it at all or
 ;; there exists a path through that node that doesn't 
 ;; include the entry. This requires traversing the hairy
-;; psm graph structure
+;; psm graph structure.
 ;;
 ;; NB: Optionality here is defined by path structure and 
 ;; will not exclude implicit eqn entries.  Other code in 

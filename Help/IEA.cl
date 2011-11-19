@@ -120,10 +120,6 @@
 ;;;; that will occur as necessary.  If the full prompts do not narrow
 ;;;; the list down then random selection will occur.
 
-(defparameter **IEA-Lost-Dialog**
-    (strcat "I am not sure what equation you are trying to write.  "
-	    "Why don't you pick it by name from this list?"))
-
 
 (defun elicit-intended-equation (&optional (Studententry nil))
   (declare (ignore Studententry))
@@ -317,19 +313,3 @@
 	 '(function next-step-help))
    :Assoc `((IEA Incorrect ,(PSMClass-name Equation)))))
 
-
-
-
-;;;; ===================== Trace functions ==========================
-
-(defun trace-iea ()
-  (trace elicit-intended-equation
-	 iea-main
-	 
-	 iea-check-response
-	 iea-check-name
-	 
-	 iea-filter-equations-by-form
-	 iea-platonic-prompt
-	 iea-incorrect-prompt
-	 ))
