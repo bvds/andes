@@ -1,29 +1,42 @@
 {
-	"envelope": "JSON-RPC-2.0",
-	"transport": "POST",
-	"target": "/dashboard",
-	"SMDVersion": "2.0",
-	"parameters": 
-	[
-		{"name": "param1", "type": "number"}
-  	],
+    "envelope": "JSON-RPC-2.0",
+    "transport": "POST",
+    "target": "/dashboard",
+    "SMDVersion": "2.0",
+    "parameters": 
+    [
+        {"name": "param1", "type": "number"}
+    ],
     "services": 
-	{
+    {
         "dashboard":
-		{
+        {
             "parameters": 
-			[
-                {"name": "version", "optional": false, "type": "integer"},
-				{"name": "model", "optional": true, "type": "string", "default": "capstone"},
-				{"name": "section", "optional": false, "type": "string"},
-				{"name": "student", "optional": true, "type": "string"},
-	        	{"name": "assignment", "optional": true, "type": "string"}
+            [
+                 {"name": "version", "optional": false, "type": "integer"},
+                 {"name": "model", "optional": true, "type": "string", "default": "capstone"},
+                 {"name": "section", "optional": false, "type": "string"},
+                 {"name": "student", "optional": true, "type": "string"},
+	         {"name": "assignment", "optional": true, "type": "string"}
             ],
-			"returns": 
-			{
-				"version": {"type": "number"},
-				"success": {"type": "number"}
-			}
+            "returns": 
+            {
+                "version": {"type": "number"},
+                "success": {"type": "number"}
+            }
+        },
+        "dashboard-rpc-test":
+        {
+            "parameters": 
+            [
+                {"name": "m", "type": "string", "default": "meh"},
+                {"name": "e", "type": "string", "default": "meh"},
+                {"name": "h", "type": "string", "default": "meh"},
+            ],
+            "returns": 
+            {
+                result: {"type": "object"}
+            }
         }
     }
 }
