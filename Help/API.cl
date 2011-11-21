@@ -95,17 +95,7 @@
 	close-problem 
 	check-entries
 	))
-      
-      ;; --------------------------------------------------------------
-      ;; Autocalc
-      ;; There is only one autocalc api.  It is what we use to return
-      ;; the score values and as such constiutes a separate class of 
-      ;; return value.  This is used for displaying the students scores
-      ;; to them at runtime.  
-      (Statistics . 
-       (set-stats
-	get-stats))
-      
+            
       ;; -------------------------------------------------------------
       ;; Noneq-Entry
       ;; non-eq entries such as assert object are dde's that post a 

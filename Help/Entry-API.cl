@@ -1656,37 +1656,50 @@
 ;; Having done that look up the corresponding PSM and determine if the PSM 
 ;; has been completed if so then the value is green if not then don't. 
 (defun check-mc-no-quant-done-answer-sought (entry)
-  (let* ((id (second (StudentEntry-prop entry)))
-	 (PSM (match-exp->enode ID (problem-graph *cp*)))
-	 ;; corresponding systementry
-	 (sysent (find-SystemEntry (StudentEntry-prop entry))))
+  (let* ((id (second (StudentEntry-prop entry))) ;prop of task to be done
+	 ;; Corresponding systementry for done button.
+	 (sysent (find-SystemEntry (StudentEntry-prop entry)))
+	 ;; Find enode that is associated with the done button.
+	 (PSM (find-if
+		  #'(lambda (x) (member sysent x))
+		  (bubblegraph-enodes (problem-graph *cp*))
+		  :key #'enode-entries)))
     (cond 
-      ;; If the PSM is not found then we need to throw an error saying that.
-      ((null PSM) 
-       (make-bad-problem-turn 
-	(format nil "No problem step found for button labelled ~a" ID)))
-
       ((null sysent)
-        (make-bad-problem-turn 
-	(format nil "No SystemEntry for button labelled ~a" ID)))
+       (error 'webserver:log-error 
+	      :tag (list 'done-button-without-systementry id)
+	      :text "No SystemEntry for button"))
       
+      ((null PSM) 
+       (error 'webserver:log-error 
+	       :tag (list 'done-button-without-enode id)
+	       :text "No problem step found for button"))
       
       ;; If this is not a non-quant psm then we also need to throw an error 
       ;; asserting that fact. 
       ((not (enode-has-mark? PSM 'non-quant))
-       (make-bad-problem-turn 
-	(format nil "Unmarked enode matching non-quant IDNum ~a ~a" PSM ID)))
+       (error 'webserver:log-error 
+	       :tag (list 'bad-mark-for-button-enode psm id)
+	       :text "Unmarked enode matching non-quant IDNum"))
       
-      ;; Otherwise test to see if it present and behave appropriately.
-      ((psmg-path-enteredp (enode-path PSM))
+      ;; Otherwise, test to see if task is completed by finding prerequisite
+      ;; do-steps and seeing if all associated SystemEntries are done.
+      ((every #'(lambda (x) (or (null (csdo-entries x)) 
+				(csdo-enteredp x)))
+	      (find-prop-in-path id (enode-path PSM)))
        (setf (StudentEntry-state entry) +CORRECT+)
+       (pushnew entry (SystemEntry-entered sysent))
        (make-green-turn :id (StudentEntry-id entry)))
       ;; Activity is incomplete, give a hint
       ;; based on goalprop, and then defer to NSH.
       (T (setf (StudentEntry-state entry) +INCORRECT+)
-	 (let ((rem (nsh-walk-node-graph 
-		     (strcat "You have not finished " (goal id) ".<p>") 
-		     psm)))
+	 (setf (SystemEntry-entered sysent) nil)
+	 (let ((rem (if t ;new BvdS
+			(walk-psm-path "You have not finished " 
+				       (bgnode-path psm) nil)
+			(nsh-walk-node-graph 
+			 (strcat "You have not finished " (goal id) ".<p>") 
+			 psm))))
 	   (setf (StudentEntry-ErrInterp entry)
 		 (make-ErrorInterp 
 		  ;; The diagnosis never makes it to the log file.

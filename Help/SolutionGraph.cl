@@ -783,7 +783,7 @@
     (dolist (E entries)
       (let ((grade (SystemEntry-graded E)))
 	(pushnew len-enter (graded-eqns grade) :test #'unify)
-	(push Entry (SystemEntry-Entered E))))))
+	(pushnew Entry (SystemEntry-Entered E))))))
 
 
 ;;---------------------------------------------------------------------
@@ -844,11 +844,11 @@
 ;; fields of the System Entries in its cinterp.  
 (defun sg-delete-StudentEntry (Entry)
   "Remove the markings from each node in the Entrie's CInterp."
-  ; AW: unneeded variable check will mark define-var sysentries
-  ; as entered by some student equation entries, even though 
-  ; the define-vars are NOT saved in the studentEntry's Cinterp.
-  ; Change to loop over ALL system entries to allow for this case.
-  ; Hairy technique, probably should be changed.
+  ;; AW: unneeded variable check will mark define-var sysentries
+  ;; as entered by some student equation entries, even though 
+  ;; the define-vars are NOT saved in the studentEntry's Cinterp.
+  ;; Change to loop over ALL system entries to allow for this case.
+  ;; Hairy technique, probably should be changed.
   (dolist (E *sg-entries*) ; was: (E (studentEntry-Cinterp Entry))
     (setf (SystemEntry-Entered E)
       (remove Entry (SystemEntry-Entered E)))))

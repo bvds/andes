@@ -362,7 +362,7 @@
 ;;; psms that are attached to it.  This function will cycle through the psms
 ;;; list that is provided to it.  (the contents of results from above) and
 ;;; test each PSM.  If the psm in question has already been generated then
-;;; it will simply be added to the node.  Otherwize it will be generated
+;;; it will simply be added to the node.  Otherwise it will be generated
 ;;; recursively using gg-solve-complex-psm to produce the psm and will  add that
 ;;; to the updated graph.
 (defun gg-collect-complex-psms (Psms Givens Qnode Graph)

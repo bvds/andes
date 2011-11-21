@@ -373,20 +373,31 @@
 		 (pop line)
 		 (let* ((label (pop line))
 			(id (format nil "doneButton~S" i))
-			(prop `(done ,(or label 
-					  (car (problem-soughts *cp*))))))
+			;; If name of activity was supplied, use that.
+			;; else search for any done button.
+			(label-match (if label (list 'done label) 
+					     '(done . ?rest)))
+			;; Find any done button SystemEntry.
+			(donners (remove label-match 
+					 *sg-entries*
+					 :key #'SystemEntry-prop
+					 :test-not #'unify))
+			(prop (when donners (SystemEntry-prop (car donners)))))
 		   ;; Sanity checks
-		   (when (and (null label) (cdr (problem-soughts *cp*)))
-		     (warn "Ambiguous null label for choose"))
-		   (unless (member (second prop) (problem-soughts *cp*)
-				   :test #'unify)
-		     (warn "Invalid label ~A for choose" label))
+		   (when (or (null donners) (cdr donners))
+		     ;; Student can't successfully solve the problem if
+		     ;; this is broken.
+		     (error 'webserver:log-error
+			   :tag (list 'setup-button-match label 
+				      (mapcar #'SystemEntry-prop donners))
+		     :text "Bad SystemEntry match for button."))
 		   ;; Create a single push button
 		   (push `((:action . "new-object") 
 			   (:type . "button") (:id . ,id) 
 			   (:items . (((:type . "done") (:label . "Done")
 				       ;; Indent buttons relative to text
-				       (:x . ,(+ x indent)) (:y . ,y) (:width . 300)
+				       (:x . ,(+ x indent)) (:y . ,y) 
+				       (:width . 300)
 				       (:text . ,(car line)))))) replies)
 		   (push (make-studententry 
 			  :id id :mode "unknown" :type "button" 
@@ -924,7 +935,7 @@
   "shut problem down" 
   (unwind-protect
       (env-wrap
-	(let ((result (execute-andes-command time 'get-stats 'persist)))
+	(let (result)
 		 
 	  (do-close-problem)
 	  (solver-unload)

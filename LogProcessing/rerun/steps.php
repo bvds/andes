@@ -37,6 +37,7 @@
 	     // Still need to clean up logging:  consistent format
 	     // Have interp for each red turn?
 
+             // Lisp with space:  sbcl --dynamic-space-size 1000
              // Start help server using 
              //         (start-help :db "andes_test")
 	     // To get help server timing, need to set:
@@ -65,8 +66,11 @@ mysql_select_db($dbname)
 
 /* filters for user name, section, etc.  
    Use regexp matching for user name and section. */
+	     // oneill.193_asu
 $adminName = '' ;   // user name
-$sectionName = 'MIT_.*_' ; //$_POST['sectionName'];
+	     // MIT_.*
+	     // asu_3u16472755e704e5fasul1_.*
+$sectionName = 'asu_3u16472755e704e5fasul1_.*' ; //$_POST['sectionName'];
 $startDate = '2011-04-01'; // $_POST['startDate'];
 $endDate = ''; // $_POST['endDate'];
 $methods = array('open-problem','solution-step','seek-help','record-action','close-problem');  //implode(",",$_POST['methods']);
@@ -86,7 +90,9 @@ if($sectionName==''){
   $sectionNamee = " by $sectionName,";
  }  
 
-$extrac = "P1.extra = 0 AND";
+  // Changed extra from number to string or null
+  // commit a0719d09f0017cb, Nov 9, 2011
+$extrac = "(P1.extra IS NULL or P1.extra = 0) AND";
 $extrae = "solved";
 
 if($startDate){
@@ -142,7 +148,23 @@ function containsMetaHint($t){
     (strpos($t,"Your entry has turned red") !== false &&
      strpos($t,"the hint button") !== false);
 }
-  
+
+// Test to see if problem had a done button removed.
+function doneButtonProblem ($p){
+  $dbp = array("DT18", "EFIELD1A", "EFIELD1B", "EFIELD1C", 
+	       "EFIELD1D", "EFIELD1E", "EFIELD4A", "EFIELD4B", 
+	       "KGRAPH10B", "KGRAPH22", "KGRAPH9", "KGRAPH9B", "KT13D", 
+	       "MAG1A", "MAG1B", "MAG6B", "MAG6C", "MAGTOR1A", "MAGTOR1B", 
+	       "MAGTOR1C", "MAGTOR1D", "MOT5", "Q1", "Q2", 
+	       "Q3", "Q4", "Q5", "WE9");
+  foreach ($dbp as $prob){
+    if(strcasecmp($p,$prob)==0){
+      return true;
+    }
+  }
+  return false;
+}
+
 $sql = "SELECT S.tID,S.clientID,S.client,S.server FROM STEP_TRANSACTION AS S, PROBLEM_ATTEMPT as P1 WHERE $adminNamec $sectionNamec $extrac  $startDatec $endDatec S.clientID = P1.clientID ORDER BY S.tID";
 
 // get student input and server reply
@@ -189,7 +211,17 @@ while ($myrow = mysql_fetch_array($result)) {
      strcmp($method,"close-problem")!=0){
     continue;
   } 
-  
+
+  // Remove Done button from some problems, ignore
+  // associated button events.
+  // problems commit 6376f20fd808, Nov 19 2011
+  if(strcmp($method,"solution-step")==0 &&
+     doneButtonProblem($theProblem[$clientID]) &&
+     isset($a->params) && isset($a->params->id) &&
+     strpos($a->params->id,"doneButton")!== false){
+    continue;
+  }
+
   // Send query to help server.
   $queryStart=microtime(true);       
   $newResponse = $server->message($action,$sessionIdBase . $clientID);
@@ -261,6 +293,80 @@ while ($myrow = mysql_fetch_array($result)) {
       $jr=$json->decode($response);
       $njr=$json->decode($newResponse);
       if(isset($jr->result) && isset($njr->result)){
+
+	// Loop through old result and remove unwanted rows
+	$bcr=array();
+	foreach($jr->result as $bc){
+	  if(!(
+	       // Remove Done button from some problems
+	       // problems commit 6376f20fd808, Nov 19 2011
+	       (strcmp($method,"open-problem")==0 &&
+		doneButtonProblem($theProblem[$clientID]) &&
+		isset($bc->id) &&
+		strpos($bc->id,"doneButton")!== false) ||
+	       
+	       // Old turn has score.
+	       ($ignoreScores && isset($bc->action) && 
+		strcmp($bc->action,"set-score")==0) ||
+	       
+	       // Old turn has subscores.
+	       ($ignoreScores && isset($bc->action) &&
+		strcmp($bc->action,"log")==0 &&
+		(isset($bc->subscores) || // old log format
+		 (isset($bc->log) && strcmp($bc->log,"subscores")==0))) ||
+	       
+	       // Old turn has meta-hint
+	       ($ignoreMetaHints && isset($bc->action) &&
+		strcmp($bc->action,"show-hint")==0 &&
+		containsMetaHint($bc->text)) ||
+	       
+	       // kgraph8b problem addition
+	       // problems, commit fb5ec251c3a974a14, Tue Sep 27 2011
+	       (strcmp($theProblem[$clientID],"kgraph8b")==0 &&
+		isset($bc->text) &&
+		strcmp($bc->text,"Assume the positive x-axis is pointing towards the right.")==0) ||
+	       // User agent will change when rerunning.
+	       // Drop any log of user-agent.
+	       (isset($bc->action) && isset($bc->log) &&
+		strcmp($bc->action,"log")==0 &&
+		strcmp($bc->log,"user-agent")==0))
+	     ){
+	    array_push($bcr,$bc);
+	  }
+	}
+	$jr->result=$bcr;
+	
+	// Loop through new result and remove unwanted rows
+	$nbcr=array();
+	foreach($njr->result as $bc){
+	  if(!(	       
+	       // New turn has score.
+	       ($ignoreScores && isset($bc->action) &&
+		strcmp($bc->action,"set-score")==0) ||
+	       
+	       // New turn has meta-hint
+	       ($ignoreMetaHints && 
+		isset($bc->action) && isset($bc->action) &&
+		strcmp($bc->action,"show-hint")==0 &&
+		containsMetaHint($bc->text)) ||
+	       
+	       // kgraph8b problem addition
+	       // problems, commit fb5ec251c3a974a14, Tue Sep 27 2011
+	       (strcmp($theProblem[$clientID],"kgraph8b")==0 &&
+		isset($bc->text) &&
+		strcmp($bc->text,"Assume the positive x-axis is pointing towards the right.")==0) ||
+	       
+	       // User agent will change when rerunning.
+	       // Drop any log of user-agent.
+	       (isset($bc->action) && isset($bc->log) &&
+		strcmp($bc->action,"log")==0 &&
+		strcmp($bc->log,"user-agent")==0))
+	     ){
+	    array_push($nbcr,$bc);
+	  }
+	}
+	$njr->result=$nbcr;
+	
 	$imax=sizeof($jr->result);
 	$nimax=sizeof($njr->result);
 	
@@ -327,6 +433,13 @@ while ($myrow = mysql_fetch_array($result)) {
 	  $nbbc=preg_replace('/\.\s+/','. ',$nbbc);
 	  $bbc=preg_replace('/\.&nbsp;\s+/','. ',$bbc);
 	  $nbbc=preg_replace('/\.&nbsp;\s+/','. ',$nbbc);
+	  // Remove spaces at end of make-explain-more hints 
+	  // in Help/NextStepHelp.cl
+	  // Dec. 1 2011
+	  if(isset($bc->action) && strcmp($bc->action,"show-hint")==0){
+	    $bbc=preg_replace('/\.[ ]+"/','."',$bbc);
+	    $bbc=preg_replace('/\.&nbsp;[ ]*"/','."',$bbc);
+	  }
 	  // Canonicalize logging for multiple choice
 	  // commit 54b004f2d529e, Tue Nov 1 14:21:55 2011
 	  if(isset($nbc->action) && isset($nbc->log) &&
@@ -350,62 +463,25 @@ while ($myrow = mysql_fetch_array($result)) {
 	    $bbc=preg_replace('/"y":\d+/','"y":nnn',$bbc);
 	    $nbbc=preg_replace('/"y":\d+/','"y":nnn',$nbbc);
 	  }
-	  
+	  //  Help for answer=?
+	  // commit 03a6db800399b2, Fri Oct 28 21:33:47 2011
+	  $unable='/Unable to solve for [^"]+/';
+	  $solve_error='**solve-error**';
+	  $bbc=preg_replace($unable,$solve_error,$bbc);
+	  $nbbc=preg_replace($unable,$solve_error,$nbbc);
+	  $nbbc=preg_replace('/The variable .* is undefined./',$solve_error,$nbbc);
+	  $nbbc=preg_replace('/Sorry, Andes can only solve for a single variable./',$solve_error,$nbbc);
+	  // Remove Done button from some problems
+	  // problems commit 6376f20fd808, Nov 19 2011
+	  // Subsequent y-values will be off.
+	  if(strcmp($method,"open-problem")==0 &&
+	     doneButtonProblem($theProblem[$clientID])){
+	    $bbc=preg_replace('/"y":\d+/','"y":*y-pos*',$bbc);
+	    $nbbc=preg_replace('/"y":\d+/','"y":*y-pos*',$nbbc);
+	  }
+	  	  
 	  if(strcmp($bbc,$nbbc)==0){ // match, go on to next pair
 	    $i++; $ni++;
-	  }elseif($ignoreScores && isset($bc->action) && 
-		  strcmp($bc->action,"set-score")==0){
-	    $i++;  // Old turn has score.
-	  }elseif($ignoreScores && isset($nbc->action) &&
-		  strcmp($nbc->action,"set-score")==0){
-	    $ni++;  // New turn has score.
-	  }elseif($ignoreScores && isset($bc->action) &&
-		  strcmp($bc->action,"log")==0 &&
-		  (isset($bc->subscores) || // old log format
-		   (isset($bc->log) && strcmp($bc->log,"subscores")==0))){
-	    $i++;  // Old turn has subscores.
-	  }elseif($ignoreScores && 
-		  isset($nbc->action) && isset($nbc->log) &&
-		  strcmp($nbc->action,"log")==0 &&
-		  strcmp($nbc->log,"subscores")==0){
-	    $ni++;  // New turn has subscores.
-	  }elseif($ignoreMetaHints && isset($bc->action) &&
-		  strcmp($bc->action,"show-hint")==0 &&
-		  containsMetaHint($bc->text)){
-	    $i++;  // Old turn has meta-hint
-	  }elseif($ignoreMetaHints && 
-		  isset($nbc->action) && isset($nbc->action) &&
-		  strcmp($nbc->action,"show-hint")==0 &&
-		  containsMetaHint($nbc->text)){
-	    $ni++;  // New turn has meta-hint
-	  }elseif(
-		  // kgraph8b problem change
-		  // problems, commit fb5ec251c3a974a14, Tue Sep 27 2011
-		  strcmp($theProblem[$clientID],"kgraph8b")==0 &&
-		  isset($bc->text) &&
-		  strcmp($bc->text,"Assume the positive x-axis is pointing towards the right.")==0){
-	    $i++;
-	  }elseif(
-		  // kgraph8b problem change
-		  // problems, commit fb5ec251c3a974a14, Tue Sep 27 2011
-		  strcmp($theProblem[$clientID],"kgraph8b")==0 &&
-		  isset($nbc->text) &&
-		  strcmp($nbc->text,"Assume the positive x-axis is pointing towards the right.")==0){
-	    $ni++;
-	  }elseif(
-		  // User agent will change when rerunning.
-		  // Drop any log of user-agent.
-		  isset($bc->action) && isset($bc->log) &&
-		  strcmp($bc->action,"log")==0 &&
-		  strcmp($bc->log,"user-agent")==0){
-	    $i++;
-	  }elseif(
-		  // User agent will change when rerunning.
-		  // Drop any log of user-agent.
-		  isset($nbc->action) && isset($nbc->log) &&
-		  strcmp($nbc->action,"log")==0 &&
-		  strcmp($nbc->log,"user-agent")==0){
-	    $ni++;
 	  }elseif($imax-$i == $nimax-$ni){ // mismatch, but same remaining
 	    // Position of first discrepency
 	    $pos=strspn($bbc ^ $nbbc, "\0");
@@ -429,7 +505,8 @@ while ($myrow = mysql_fetch_array($result)) {
 	$nrows=sizeof($rows);
 	if($nrows>0){
 	  $row=array_shift($rows);
-	  echo "  <tr class='$method'><td rowspan='$nrows'>$tid</td><td rowspan='$nrows'>$aa</td>$row</tr>\n";
+	  $aaa = "<a href=\"/log/OpenTrace.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;cid=$clientID&amp;t=$tid\">$tid</a>";
+	  echo "  <tr class='$method'><td rowspan='$nrows'>$aaa</td><td rowspan='$nrows'>$aa</td>$row</tr>\n";
 	  foreach($rows as $row){
 	    echo "  <tr class='$method'>$row</tr>\n";
 	  }

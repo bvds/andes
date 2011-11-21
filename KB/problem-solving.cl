@@ -635,7 +635,7 @@
 
 ;; define English for goal used as sought in planning-only problem 
 (def-goalprop read-problem (read-problem)
-  :nlg-english ("reading the problem statement then indicating you have done so."))
+  :nlg-english ("reading the problem statement then indicating you have done so"))
 
 ;;; =================== Generic: Multiple choice answer ======================
 ;;;
@@ -654,7 +654,20 @@
 
 (defoperator done-button (?activity)
   ;; no preconditions
-  :effects ((done ?activity)))
+  :effects ((done ?activity))
+  :hint ((point (string "Are you finished ~A?" ?activity))
+	 (teach (string "When you are finished, hit the \"Done\" button."))
+	 (bottom-out (string "Hit the \"Done\" button now."))))
+
+;; Wrapper to add done button to activity
+(defoperator with-done-button (?activity)
+  :preconditions (
+		 ?activity
+		  ;; Done button.  Should have sanity check for button actually
+		  ;; existing on startup, Bug #1927.
+		 (done ?activity)
+		 )
+  :effects ((done-button ?activity)))
 
 (defoperator answer-box (?quant)
   ;; no preconditions!
@@ -748,7 +761,7 @@
 
 ;;; ================= Generic: Draw each requested vector =====================
 ;;;
-;;; A goal of form (draw-vectors . ?vector-list) gives a list of vector 
+;;; A goal of form (draw-vectors ?vector-list) gives a list of vector 
 ;;; quantities to draw. This is a convenience used for batching a list of 
 ;;; vectors into a single goal to be the sought for a non-quantititive problem.
 ;;; That is needed by our implementation so we can have a single "done" button 

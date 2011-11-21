@@ -171,7 +171,7 @@
 ;;; Fix to deal with single selection problem.			      
 (defun solve-for-non-quantity (goals givens)
   "Solve for the specified non-quantity goal."
-  (let ((R) (P) (N))
+  (let (R P N)
     (loop for S in (qsolve-for goals givens)
 	do (setq N (subst-bindings (st-bindings S) goals))
 	   (setq P (find N R :key #'qsolres-id :test #'unify))

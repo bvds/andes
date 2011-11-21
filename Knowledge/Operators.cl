@@ -452,7 +452,7 @@
 ;; in if supplied.
 (defun get-op-hints (Op Values)
   "Get the operator hints with vals substituted."
-  (when Op
+  (when (and Op (operator-hint op))
     (let ((result (subst-bindings values (Operator-Hint Op))))
       (unless (all-boundp result no-bindings)
 	(warn "Hint with unbound variables:  ~A" result))

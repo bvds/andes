@@ -1776,9 +1776,6 @@
    ;; So we can't use unbound axis rotation inside optional; instead, 
    ;; have to break out call to another operator.
    (optional (fbd-axes-drawn ?b))
-   ;; Done button.  Should have sanity check for button actually
-   ;; existing on startup, Bug #1927.
-   (done (fbd ?b ?t))
    )
   :effects ((fbd ?b ?t)))
 

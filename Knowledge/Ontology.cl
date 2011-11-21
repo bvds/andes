@@ -446,10 +446,13 @@
 ;;;;============================================================
 ;;;; Goal propositions.
 ;;;; Goal props are located within the sg subsections of the 
-;;;; qsolver trees.  Goald such as draw-forces are used in the
+;;;; qsolver trees.  Goals such as draw-forces are used in the
 ;;;; knowledge base to express the goals that we want to acheive
-;;;; by specific actions.  Goal props are used in the nlg code
-;;;; for the purposes of nlg.
+;;;; by specific actions. 
+;;;
+;;; These are used solely for hinting in Help/NextStepHelp.cl
+
+
 (defstruct GoalProp
   Type     ;; Proposition type label.
   Form     ;; Unification form for the goal.
@@ -472,9 +475,9 @@
 
 (defun goalprop-exp-p (exp)
   "Is the expression a goalprop expression?"
-  (find-if #'(lambda (g) (unify exp g))
-	   *Ontology-GoalProp-Types*
-	   :key #'GoalProp-Form))
+  (find exp *Ontology-GoalProp-Types*
+	:test #'unify
+	:key #'GoalProp-Form))
 
 
 ;;;;=================================================================
@@ -619,6 +622,11 @@
   "Lookup psm groups by name."
   (find name *Ontology-PSMGroups*
 	:key #'PsmGroup-Name))
+
+(defun lookup-expression->psmgroup (exp)
+"return first psmclass whose form unifies with expression"
+  (find exp *Ontology-PSMGroups* 
+        :key #'psmgroup-form :test 'unify))
 
 ;;;-------------------------------------------------------------
 ;;; Psm Classes

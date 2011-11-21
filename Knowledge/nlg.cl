@@ -294,6 +294,15 @@
 	(nlg-find x *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-nlg-english)
 	(format nil "[PSM: ~A]" x))))
 
+
+(defun psm-exp-hintable (prop)
+  "See if psm-exp can return something from Ontology."
+  (let ((x (lookup-expression->psmclass prop))
+	(y (lookup-expression->psmgroup prop)))
+    (or (and x (or (psmclass-nlg-english x) (psmclass-expformat x)))
+	(and y (or (psmgroup-nlg-english y) (psmgroup-expformat y))))))
+
+
 (defun psm-english (x)
   (if (atom x)
       (nlg-atom-default x)

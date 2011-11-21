@@ -1304,7 +1304,7 @@
   "Prompt for the student to start working on the givens."
   (nsh-dialog-prompt-Node
    (strcat "At this point it would be a good idea to begin enumerating "
-	   "all of the useful given quantities in the problem."  )
+	   "all of the useful given quantities in the problem.")
    "Why don't you start with "
    (car *nsh-givens*)
    :Assoc `((nsh prompt-start-givens ,(bgnode-exp (car *nsh-givens*))))))
@@ -1359,7 +1359,7 @@
     (make-explain-more-turn
      (strcat "On problems such as this you need to complete "
 	     "all of the individual goals listed in the "
-	     "problem description.  ")
+	     "problem description.")
      :hint (nsh-prompt-Node 
 	    "Why don't you start with "
 	    Principle
@@ -1377,22 +1377,15 @@
        (null (remove-if #'nsh-principle-completed-p 
 			(car *nsh-solution-sets*)))))
 
-;;; Inform the students that they are done, and prompt them to go 
+;;; Inform the students that they are done., and prompt them to go 
 ;;; ahead and check off the boxes (if they have not already done so
 ;; and tell them to quit.
 (defun nsh-prompt-no-quant-done ()
   "Prompt that the student is done with the problem."
   (make-end-dialog-turn
-   (strcat "You have completed all of the principles necessary "
-	   "in this problem.  " (nsh-get-no-quant-done-str))
+   (strcat "You have completed all of the steps necessary "
+	   "to solve this problem.")
    :Assoc '((nsh . prompt-no-quant-done))))
-
-(defun nsh-get-no-quant-done-str ()
-  (if (< 1 (length (problem-soughts *cp*)))
-      "Please check the \"I am done\" checkboxes on the screen."
-    "Please check the \"I am done\" checkbox and quit."))
-
-  
 
 
 ;;;; ====================== Multiple-choice-Problems ==========================
@@ -2771,7 +2764,6 @@
 		 *nsh-solution-sets*))
 
 
-
 ;;; If the student has already completed the best principle, then
 ;;; we want to prompt them to move on to the next principle in the
 ;;; solution.  
@@ -2780,11 +2772,10 @@
   (setq *nsh-current-solutions* (nsh-cfp-match-fp-sol Best))
   (make-explain-more-turn
    (strcat Prefix "  You have already finished "
-	   (nlg (enode-id Best) 'psm-exp) 
-	   ".  You can move on to the next step in the solution.")
+	   (psm-exp (enode-id Best)) 
+	   ".&nbsp; You can move on to the next step in the solution.")
    :hint (nsh-prompt-solution "Why don't you work on " Solution)
    :Assoc `((nsh cfp-success-completed ,(bgnode-exp Best)))))
-
 
 
 ;;; If the student has not completed the first principle
@@ -2795,10 +2786,7 @@
   (setq *nsh-current-solutions* (nsh-cfp-match-fp-sol Best))
   (nsh-walk-node-graph Prefix Best))
 
-
-	 
-  
-  
+ 
 ;;; ----------------- invalid choices --------------------------------
 ;;; If the student selects principles that are present but invalid
 ;;; then we want to tell them that.  In future this will be modified
@@ -2813,7 +2801,6 @@
 	   "to this problem but you cannot use it as the "
 	   "first principle.")
    Sought Past :Case 'Invalid))
-
 
 
 ;;;-------------------------- Wrong principle ---------------------------------
@@ -2874,8 +2861,8 @@
   "Prompt the solution."
   (make-explain-more-turn
    (strcat Message "  You have already finished "
-	   (nlg (enode-id Principle) 'psm-exp)
-	   ".  Why don't you start working on the next principle?")
+	   (psm-exp (enode-id Principle))
+	   ".&nbsp;  Why don't you start working on the next principle?")
    :hint (nsh-prompt-solution "Why don't you work on " Solution)
    :Assoc `((nsh prompt-done-fp ,Case ,(enode-id Principle)))))
 
@@ -3071,10 +3058,14 @@
 (defun nsh-prompt-parameter (Prefix Parameter &key Assoc)
   "Prompt the student to work on the parameter."
   (setq *nsh-last-node* Parameter) ;Should set when hint is given, Bug #1854
-  (make-explain-more-turn 
-   (strcat prefix (nlg (bgnode-exp Parameter) 'psm-exp) ".  ")
-   :hint (nsh-walk-node-graph "" Parameter)
-   :Assoc (alist-warn Assoc)))
+  ;; Only add this turn if principle itself is hintable.
+  (if (psm-exp-hintable (bgnode-exp parameter))
+      (make-explain-more-turn 
+       (strcat prefix (psm-exp (bgnode-exp Parameter)) ".")
+       :hint (nsh-walk-node-graph "" Parameter)
+       :Assoc (alist-warn Assoc))
+      ;; otherwise, defer to principles on bubblegraph
+      (walk-psm-path prefix (bgnode-path parameter) nil)))
 
 
 ;;; ---------------------------------------------------------------------------
@@ -3083,7 +3074,7 @@
 ;;; that will be used.  Apart from that they are all the same.
 
 (defun nsh-prompt-principle (Prefix principle &key Assoc)
-  "Prompt the specified principle appropriately based upoin how \"done\" it is"
+  "Prompt the specified principle appropriately based upon how \"done\" it is"
   (setq *nsh-last-node* Principle) ;Should set when hint is given, Bug #1854
   (cond ((nsh-goal-principle-P Principle) 
 	 (nsh-prompt-goal-principle Prefix Principle Assoc))
@@ -3091,21 +3082,29 @@
   
 
 ;;; Goal principles, unlike the major/minor/given principles found in quantity
-;;; problems are not psm-classes or psmtypes they are simply goalprops.  Therefore
-;;; we need to prompt them using a separate form.
+;;; problems are not psm-classes or psmtypes they are simply goalprops.  
+;;; Therefore we need to prompt them using a separate form.
 (defun nsh-prompt-goal-principle (prefix Principle Assoc)
   "Prompt the specified major principle."
-  (make-explain-more-turn 
-   (strcat prefix (nlg (enode-id principle) 'goal) ".  ")
-   :hint (nsh-walk-Node-graph "" principle)
-   :Assoc (alist-warn Assoc)))
+  ;; Only add this turn if principle itself is hintable.
+  (if (goalprop-exp-p (enode-id principle))
+      (make-explain-more-turn 
+       (strcat prefix (goal (enode-id principle)) ".")
+       :hint (nsh-walk-Node-graph "" principle)
+       :Assoc (alist-warn Assoc))
+      ;; otherwise, defer to principles on bubblegraph
+      (walk-psm-path prefix (bgnode-path principle) nil)))
 
 
 (defun nsh-prompt-principle-final (prefix principle Assoc)
-  (make-explain-more-turn 
-   (strcat prefix (nlg (enode-id principle) 'psm-exp) ".  ")
-   :hint (nsh-walk-Node-graph "" principle)
-   :Assoc (alist-warn Assoc)))
+  ;; Only add this turn if principle itself is hintable.
+  (if (psm-exp-hintable (enode-id principle))
+      (make-explain-more-turn 
+       (strcat prefix (psm-exp (enode-id principle)) ".")
+       :hint (nsh-walk-Node-graph "" principle)
+       :Assoc (alist-warn Assoc))
+      ;; otherwise, defer to principles on bubblegraph
+      (walk-psm-path prefix (bgnode-path principle) nil)))
 
 
 ;;;; ======================== Support functions ==================================
@@ -3415,12 +3414,6 @@
      "Your goal should be ")))
 
 
-
-
-
-
-
-
 ;;;;============================ psm graph ==================================
 ;;;; we encounter the psm graphs in three instances.  Firstly when asking if
 ;;;; a psm is entered.  Secondly when we are traversing the psm path to find
@@ -3445,10 +3438,15 @@
 ;;; to traverse the path is made based upon the structure of the graph.
 ;;; this depends upon the graph structures defined in the psmg file
 ;;; of helpstructs.
+
+;; node is an enode.
 (defun nsh-walk-node-graph (prefix node)
   ;; Get the specified node's graph.
   (walk-psm-path prefix (cdr (bgnode-path Node)) nil))
 
+;; Returns turn struct or nil.
+;; stack is list of cssg objects.
+;; path is from bgnode-path.
 (defun walk-psm-path (prefix path stack)
   (cond ((null path) 
 	 (error "Reached end of psm path before finding target entry"))
@@ -3735,7 +3733,7 @@
 
 ;;; When the path-entered? search encounters a csdo it tests to see
 ;;; if the csdo has entries and if so if it has not been entered  
-;;; increment the count and recurse.  Otherwize return 1 (path entered.)
+;;; increment the count and recurse.  Otherwise return 1 (path entered.)
 (defun path-entered-csdo? (path count)
   "Has the csdo been entered or not?"
   (cond ((null (remove-if #'SystemEntry-implicit-eqnp
@@ -3929,35 +3927,42 @@
   (when **Print-NSH-Stack** (pprint (reverse Stack)))
   ;; cs-do can have copies of entry.
   (setf *help-last-entries* (remove-duplicates (csdo-entries step)))
-  (make-hint-seq  
-   (append (collect-stack-hintstrs stack)
-	   `((function make-hint-seq 
-		       ,(collect-step-hints step)
-		       ;; BvdS: subsequent steps don't need affirmation.
-		       :prefix ""	; ,prefix
-		       :OpTail ,(list (csdo-op Step)))))
-   :prefix Prefix))
-
-
+  (let ((stepHints (collect-step-hints step)))
+    (make-hint-seq
+     (append (collect-stack-hintstrs prefix stack)
+	     (if stepHints
+		 `((function make-hint-seq 
+			     ,stepHints
+		    ;; BvdS: subsequent steps don't need affirmation.
+			     :prefix ""	;,prefix
+			     :OpTail ,(list (csdo-op Step))))
+		 nil)))))
 
 
 ;;; the goal hintstrs returns a list of hint strings for each goal
 ;;; located in the stack in reverse order.  This sequence of strings 
 ;;; which have been passed to nlg can be used to generate a hint 
-;;; sequence.
-(defun collect-stack-hintstrs (stack)
+;;; sequence. 
+;;; 
+;;;  Add random goal prefix only to subsequent goals.
+(defun collect-stack-hintstrs (prefix stack)
   "Collect the stack hint strings."
-  (let ((hints))
-    (dolist (g stack)
-      (if (goalprop-exp-p (cssg-goal g))
-	  (push	`(goal ,(strcat (random-goal-prefix)
-				(nlg (cssg-goal g) 'goal) ".")
-		       (goal ,(cssg-op g) ,(cssg-goal g)))
-		
-		hints)
-	(when *debug-help* 
-	  (format t "NSH: Skipping unhintable goal ~S~%" (cssg-goal g)))))
-    hints))
+  (let (hints)
+    (dolist (g (reverse stack))
+      (let ((goalprop (goalprop-exp-p (cssg-goal g))))
+	(if (and goalprop (goalprop-nlg-english goalprop))
+	    (progn
+	      (push `(goal ,(strcat (if (> (length prefix) 0) 
+					prefix 
+					(random-goal-prefix))
+				    (goal (cssg-goal g)) ".")
+		      (goal ,(cssg-op g) ,(cssg-goal g)))		  
+		    hints)
+	      (setf prefix nil))
+	    (when *debug-help* 
+	      (format t "NSH: Skipping unhintable goal ~S~%" 
+		      (cssg-goal g))))))
+    (reverse hints)))
 
 
 ;;; ------------------------------------------------------------

@@ -267,20 +267,6 @@
 (defun make-noop-turn ()
   (make-turn :Type +no-op-turn+))
 
-;;; This is a specialized error turn that gives the student a 
-;;; "this problem is bad, move on..." message and is associated
-;;; with the optional error.  This facilitates oops locations in
-;;; the code.
-(defun make-bad-problem-turn (assoc)
-  "Make a bad-problem error turn."
-  (warn "make-bad-problem-turn: ~A" assoc)
-  (make-turn 
-   :Coloring +color-red+
-   :type +dialog-turn+
-   :text "This is an incorrectly formed problem.  Please try a different problem."
-   :Assoc (alist-warn assoc)))
-
-
 
 ;;=============================================================
 ;; Hint sequences 
@@ -367,7 +353,7 @@
 ;; where type is one of {Point, Teach, Apply} and <Class> is
 ;; one of {String, KCD, MiniLesson, etc.}  
 
-
+;; Returns nil or a turn struct.
 (defun make-hint-seq (Hints &key (Prefix nil) (Assoc nil) (OpTail nil))
   "make the appropriate hint sequence."
   (when Hints
@@ -397,7 +383,7 @@
 
 ;;; When there are no more hints in the list then the system
 ;;; will generate an end-dialog style hint of the appropriate
-;;; type and return it.
+;;; type and return it.  Returns nil or turn struct.
 (defun make-end-hseq (Hint &optional (Prefix "") (Assoc Nil) (OpTail Nil))
   ;;(if (listp hint) (pprint (car Hint)))
   (cond ((stringp Hint)	             (make-string-end-hseq Hint Prefix Assoc))
