@@ -190,8 +190,8 @@
 	      (mapcar 
 	       #'(lambda (x) (cons (match:best-value x) 
 				   (expand-vars (new-english-find
-						 (second 
-						 (match:best-prop x))))))
+						 (reduce-prop 
+						  (match:best-prop x))))))
 	       best)
 	      (mapcar #'systementry-prop sysentries)))
     
@@ -400,7 +400,7 @@
 		   "I interpreted your definition ~@[of <var>~A</var> ~]as:&nbsp; ~A."
 		   (when (> (length (StudentEntry-symbol entry)) 0)
 		     (StudentEntry-symbol entry))
-		   (def-np (second full-prop)))))
+		   (def-np (reduce-prop full-prop)))))
       `((:action . "show-hint") (:text . ,phr)))))
 
 (defun nothing-to-match-ErrorInterp (entry tool-prop)
@@ -462,7 +462,7 @@
 		    ambiguous		    
 		    (format nil "Did you mean?~%<ul>~%~{  <li>~A</li>~%~}</ul>"
 			    (mapcar #'(lambda (x) 
-					(def-np (second x)))
+					(def-np (reduce-prop x)))
 				    full-props)))
 		   (list
 		    (strcat ambiguous 
@@ -622,7 +622,7 @@
   (let ((rem (make-hint-seq
 	      (list (format nil 
 			    "You have already defined ~A~:[ as ~A~1*~;~1* to be <var>~A</var>~]."
-			    (def-np (second prop))
+			    (def-np (reduce-prop prop))
 			    (> (length (StudentEntry-symbol old)) 0)
 			    (studentEntry-text old)
 			    (StudentEntry-symbol old)))

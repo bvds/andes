@@ -1023,6 +1023,13 @@
   :nlg-english ("the body for ~a" (nlg ?body 'at-time ?t)))
 
 
+;; See function reduce-prop in Help/SolutionGraph.cl
+(def-qexp body-wrapper (body ?body :time ?t)
+  ;; ?body is very often an atom, so use (or ...) as
+  ;; wrapper so new-english-find does not look for (?body ...)
+  ;; in ontology.
+  :new-english ((or ?body) (time ?t)))
+
 ;;; Nlging the vector is complex.  The dir term can be an angle
 ;;; dnum in which case the nlg is easy, or it can be one of a 
 ;;; set of special atoms indicating the direction and (possibly)

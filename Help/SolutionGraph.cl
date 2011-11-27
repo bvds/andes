@@ -351,6 +351,12 @@
       when (help-entryprop-p E)
       collect (sg-generate-sysent Do E Stack State)))
 
+(defun reduce-prop (full-prop)
+  "Take full prop and get quantity, except for bodies."
+  (if (eql (car full-prop) 'body)
+      full-prop ;use def-qexp body-wrapper
+      (second full-prop)))
+
 (defun sg-generate-sysent (Do Entry Stack State)
   "Given a help entry prop generate the system entry for it and return."
   ;; include helpful message for this error: 
@@ -367,8 +373,9 @@
    :CogLoad (operator-CogLoad (get-operator-by-tag (csdo-op Do)))
    :Sources (list Do)
    :Prereqs (wrap-if (sg-collect-sysent-prereqs Entry Stack))
-   :model (unless (member (car entry) '(eqn implicit-eqn)) 
-	    (new-english-find (second entry)))))     
+   ;; This doesn't give anything useful for axes, just the number.
+   :model (unless (member (car entry) '(choose-answer eqn implicit-eqn draw-axes))
+	    (new-english-find (reduce-prop entry)))))
 
 ;;; Determination of what is and is not a prerequisite depends upon the problem
 ;;; specification at hand.  At one time variable definitions were removed from 
@@ -1027,7 +1034,7 @@
 
 (defun add-inheritance-to-model (entries)
   "Add any children into model sentence."
-  ;; This is models are combined in a rather unintelligent manner
+  ;; Models are combined in a rather unintelligent manner
   ;; since child quantities typically have a large overlap with
   ;; each other and with parent quantities.
   (dolist (entry entries)

@@ -179,6 +179,15 @@
 						 no-bindings rule)))))))
       
       ((eql type 'body)
+       (dolist (entry *sg-entries*)
+	 ;; Special case for body with time slot (fbd10)
+	 ;; include full (body ...) prop.
+	 ;; See def-qexp body-wrap and function reduce-prop Help/SolutionGraph.cl
+	 (let ((prop (SystemEntry-prop entry)))
+	   (when (and (eql (car prop) 'body)
+		      (member :time  prop)
+		      (second (member :time prop)))
+	     (setf result (append result (prop-to-triples prop prop))))))
        (dolist (prop (problem-bodies-and-compounds *cp*))
 	 (setf result (append result (prop-to-triples prop prop)))))
       
