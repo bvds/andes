@@ -916,7 +916,10 @@ follow-up question and put it in the student entry's err interp field."
     ;; Determine which answer this entry corresponds to,
     ;; if this is a new entry.
     (unless (StudentEntry-prop entry) 
-      (select-sought-for-answer entry))
+      (unless (select-sought-for-answer entry)
+	(return-from do-check-answer 
+	  (extra-answer-ErrorInterp entry))))
+
     (setf sought-quant (second (studentEntry-prop entry)))
     
     (if (quant-to-sysvar sought-quant)
@@ -1024,10 +1027,11 @@ follow-up question and put it in the student entry's err interp field."
 	    ;; Empty answer box (this is usually just a mistake).
 	    (setf result-turn (empty-answer-ErrorInterp entry)))
 	
-	(warn "No system variable for ~A. Possible mismatch with answer box." sought-quant))
+	(warn "No system variable for ~A. Possible mismatch with answer box." 
+	      sought-quant))
 
     ;; Grading for result.  Since var=value equation is not
-    ;; among SystemeEtries, need to find associated SystemEntry by hand.
+    ;; among SystemEntries, need to find associated SystemEntry by hand.
     (let ((sysent (find-SystemEntry (StudentEntry-prop entry))))
       (if sysent
 	  (update-grade-status (list sysent) (StudentEntry-state entry))
@@ -1106,6 +1110,20 @@ follow-up question and put it in the student entry's err interp field."
        :remediation rem))
 
     (setf (turn-id rem) (StudentEntry-id se))
+
+    rem))
+
+(defun extra-answer-ErrorInterp (se)
+  "Unsolicted hint for extra answer box."
+  (let ((rem (make-hint-seq
+	      '("You already have enough answer boxes.&nbsp;  You don't need to create another one."))))
+    (setf (StudentEntry-ErrInterp se)
+      (make-ErrorInterp
+       :diagnosis '(extra-answer)
+       :remediation rem))
+
+    (setf (turn-id rem) (StudentEntry-id se))
+    (setf (turn-coloring rem) +color-red+)
 
     rem))
 
