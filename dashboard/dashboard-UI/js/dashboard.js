@@ -7,103 +7,35 @@ dojo.require("dojox.charting.themes.BlueDusk");
 dojo.require("dojox.charting.action2d.Highlight");
 dojo.require("dojox.charting.action2d.Tooltip");
 
-var response = {
-	"API-Version" : "1",
-	"Timestamp" : "2010-12-01T11:00",
-	"SectionId" : "andestutor.org",
-	"StudentList":
-	[
-		{
-			"StudentId" : "bja",
-			"AssignmentList":
-			[
-				{
-					"AssignmentId" : "ASST1",
-					"KCList":
-					[
-						{"Name" : "draw-vector-aligned-axes", "MasteryLevel" : .65, "ChancesToUse" : 54},
-						{"Name" : "draw-bodys", "MasteryLevel" : .74, "ChancesToUse" : 37},
-						{"Name" : "draw-applied-force","MasteryLevel" : .56, "ChancesToUse" : 42}
-					]
-				},
-				{
-					"AssignmentId" : "ASST2",
-					"KCList":
-					[
-						{"Name" : "draw-vector-aligned-axes", "MasteryLevel" : .85, "ChancesToUse" : 54},
-						{"Name" : "draw-bodys", "MasteryLevel" : .42, "ChancesToUse" : 37},
-						{"Name" : "draw-applied-force","MasteryLevel" : .39, "ChancesToUse" : 42}
-					]
-				},
-				{
-					"AssignmentId" : "ASST3",
-					"KCList":
-					[
-						{"Name" : "draw-vector-aligned-axes", "MasteryLevel" : .85, "ChancesToUse" : 54},
-						{"Name" : "draw-bodys", "MasteryLevel" : .42, "ChancesToUse" : 37},
-						{"Name" : "draw-applied-force","MasteryLevel" : .39, "ChancesToUse" : 42}
-					]
-				}
-			]
-		},
-		{
-			"StudentId" : "kvl",
-			"AssignmentList":
-			[
-				{
-					"AssignmentId" : "ASST1",
-					"KCList":
-					[
-						{"Name" : "draw-vector-aligned-axes", "MasteryLevel" : .42, "ChancesToUse" : 54},
-						{"Name" : "draw-bodys", "MasteryLevel" : .74, "ChancesToUse" : 37},
-						{"Name" : "draw-applied-force","MasteryLevel" : .58, "ChancesToUse" : 42}
-					]
-				},
-				{
-					"AssignmentId" : "ASST2",
-					"KCList":
-					[
-						{"Name" : "draw-vector-aligned-axes", "MasteryLevel" : .85, "ChancesToUse" : 54},
-						{"Name" : "draw-bodys", "MasteryLevel" : .56, "ChancesToUse" : 37},
-						{"Name" : "draw-applied-force","MasteryLevel" : .68, "ChancesToUse" : 42}
-					]
-				}
-			]
-		},{
-			"StudentId" : "bvds",
-			"AssignmentList":
-			[
-				{
-					"AssignmentId" : "ASST1",
-					"KCList":
-					[
-						{"Name" : "draw-vector-aligned-axes", "MasteryLevel" : .65, "ChancesToUse" : 54},
-						{"Name" : "draw-bodys", "MasteryLevel" : .74, "ChancesToUse" : 37},
-						{"Name" : "draw-applied-force","MasteryLevel" : .87, "ChancesToUse" : 42}
-					]
-				},
-				{
-					"AssignmentId" : "ASST2",
-					"KCList":
-					[
-						{"Name" : "draw-vector-aligned-axes", "MasteryLevel" : .85, "ChancesToUse" : 54},
-						{"Name" : "draw-bodys", "MasteryLevel" : .90, "ChancesToUse" : 37},
-						{"Name" : "draw-applied-force","MasteryLevel" : .39, "ChancesToUse" : 42}
-					]
-				},
-				{
-					"AssignmentId" : "ASST3",
-					"KCList":
-					[
-						{"Name" : "draw-vector-aligned-axes", "MasteryLevel" : .85, "ChancesToUse" : 54},
-						{"Name" : "draw-bodys", "MasteryLevel" : .42, "ChancesToUse" : 37},
-						{"Name" : "draw-applied-force","MasteryLevel" : .69, "ChancesToUse" : 42}
-					]
-				}
-			]
-		}
-	]
-}
+dojo.require("dojox.rpc.Service"); // from
+dojo.require("dojox.rpc.JsonRPC"); // api.js
+dojo.require("dojox.json.schema"); //
+
+///////////////////////////////////////////////////
+json = {"version": 1, "section": "andestutor.org"};
+
+dashboard_rpc = new dojox.rpc.Service("js/dashboard.smd");
+
+var dfd;
+dojo.addOnLoad(
+	function() {
+		dfd = dashboard_rpc["dashboard"]({"version":"1","section":"andesTutor"});
+//		dfd = dashboard_rpc["dashboard-rpc-test"]();
+		console.log("sent request")
+		dfd.addCallbacks(
+			function(candy) {
+   				console.log(candy);
+				response = candy[0];
+				makeChart();
+			},
+			function(error) {
+				console.log(error);
+			}
+		);
+	}
+);
+
+//////////////////////////////////////////////////
 
 var chart_labels = [], chart_data = [];
 
@@ -116,16 +48,16 @@ function parse()
 	if(student) {
 		// Student Top Level
 		if(get['asst'] == null) {
-			for (a in response['StudentList'][0]['AssignmentList']) {
+			for (a in response["student-list"][0]["assignment-list"]) {
 				var total = 0, count = 0;
 				
-				for (kc in response['StudentList'][0]['AssignmentList'][a]['KCList']) {
-					total += response['StudentList'][0]['AssignmentList'][a]['KCList'][kc]['MasteryLevel'] * 100;
+				for (kc in response["student-list"][0]["assignment-list"][a]["kc-list"]) {
+					total += response["student-list"][0]["assignment-list"][a]["kc-list"][kc]["mastery-level"] * 100;
 					count++;
 				}
 				
 				chart_data.push(total/count);
-				chart_labels.push({ value: index, text: response['StudentList'][0]['AssignmentList'][a]['AssignmentId'] });
+				chart_labels.push({ value: index, text: response["student-list"][0]["assignment-list"][a]["assignment-id"] });
 				
 				index++;
 			}
@@ -133,9 +65,9 @@ function parse()
 		// Student Assignment Level
 			var asst_index = parseInt(get['asst']);
 			
-			for (kc in response['StudentList'][0]['AssignmentList'][asst_index]['KCList']) {
-				chart_data.push(response['StudentList'][0]['AssignmentList'][asst_index]['KCList'][kc]['MasteryLevel'] * 100);
-				chart_labels.push({ value: index, text: response['StudentList'][0]['AssignmentList'][asst_index]['KCList'][kc]['Name'] });
+			for (kc in response["student-list"][0]["assignment-list"][asst_index]["kc-list"]) {
+				chart_data.push(response["student-list"][0]["assignment-list"][asst_index]["kc-list"][kc]["mastery-level"] * 100);
+				chart_labels.push({ value: index, text: response["student-list"][0]["assignment-list"][asst_index]["kc-list"][kc]["name"] });
 				index++;
 			}	
 		}
@@ -143,118 +75,120 @@ function parse()
 	} else { 
 		// Teacher Top Level
 		if (get['user'] == null && get['asst'] == null) {
-			for (s in response['StudentList']) {
+			for (s in response["student-list"]) {
 				var total = 0, count = 0;
 				
-				for (a in response['StudentList'][s]['AssignmentList']) {
-					for (kc in response['StudentList'][s]['AssignmentList'][a]['KCList']) {
-						total += response['StudentList'][s]['AssignmentList'][a]['KCList'][kc]['MasteryLevel'] * 100;
+				for (a in response["student-list"][s]["assignment-list"]) {
+					for (kc in response["student-list"][s]["assignment-list"][a]["kc-list"]) {
+						total += response["student-list"][s]["assignment-list"][a]["kc-list"][kc]["mastery-level"] * 100;
 						count++;
 					}
 				}
 				
 				chart_data.push(total/count);
-				chart_labels.push({ value: index, text: response['StudentList'][s]['StudentId'] });
+				chart_labels.push({ value: index, text: response["student-list"][s]["student-id"] });
 				
 				index++;
 			}
 		} else if (get['asst'] == null) {
 		// Teacher Student Level
-			for(s in response['StudentList']) {
-				if(response['StudentList'][s]['StudentId'] == get['user'])
+			for(s in response["student-list"]) {
+				if(response["student-list"][s]["student-id"] == get['user'])
 					stud_id = s;
 			}
 		
-			for (a in response['StudentList'][stud_id]['AssignmentList']) {
+			for (a in response["student-list"][stud_id]["assignment-list"]) {
 				var total = 0, count = 0;
 				
-				for (kc in response['StudentList'][stud_id]['AssignmentList'][a]['KCList']) {
-					total += response['StudentList'][stud_id]['AssignmentList'][a]['KCList'][kc]['MasteryLevel'] * 100;
+				for (kc in response["student-list"][stud_id]["assignment-list"][a]["kc-list"]) {
+					total += response["student-list"][stud_id]["assignment-list"][a]["kc-list"][kc]["mastery-level"] * 100;
 					count++;
 				}
 				
 				chart_data.push(total/count);
-				chart_labels.push({ value: index, text: response['StudentList'][stud_id]['AssignmentList'][a]['AssignmentId'] });
+				chart_labels.push({ value: index, text: response["student-list"][stud_id]["assignment-list"][a]["assignment-id"] });
 				
 				index++;
 			}
 		} else {
-			for(s in response['StudentList']) {
-				if(response['StudentList'][s]['StudentId'] == get['user'])
+			for(s in response["student-list"]) {
+				if(response["student-list"][s]["student-id"] == get['user'])
 					stud_id = s;
 			}
 		
 			var asst_index = parseInt(get['asst']);
 			
-			for (kc in response['StudentList'][stud_id]['AssignmentList'][asst_index]['KCList']) {
-				chart_data.push(response['StudentList'][stud_id]['AssignmentList'][asst_index]['KCList'][kc]['MasteryLevel'] * 100);
-				chart_labels.push({ value: index, text: response['StudentList'][0]['AssignmentList'][asst_index]['KCList'][kc]['Name'] });
+			for (kc in response["student-list"][stud_id]["assignment-list"][asst_index]["kc-list"]) {
+				chart_data.push(response["student-list"][stud_id]["assignment-list"][asst_index]["kc-list"][kc]["mastery-level"] * 100);
+				chart_labels.push({ value: index, text: response["student-list"][0]["assignment-list"][asst_index]["kc-list"][kc]["name"] });
 				index++;
 			}			
 		}
 	}
 }
 
-dojo.addOnLoad(
-	function() {
-		// create a new chart with id 'chart' and set the theme to BlueDusk
-		var chart = new dojox.charting.Chart("chart");
-		chart.setTheme(dojox.charting.themes.BlueDusk);
-		
-		// parse JSON data for desired information
-		parse();
-		
-		// fill in chart
-		if(!student && get['user'] == null && get['asst'] == null) {
-			chart.addAxis("x", {min: 0, max: 100});
-			chart.addAxis("y", {vertical: true, labels: chart_labels, minorTicks: false});
-			chart.addPlot("default", {type: "Bars", gap: 8 });
-			chart.addSeries("", chart_data);
-		} else {
-			chart.addAxis("x", {labels: chart_labels, rotation: 20, minorTicks: false});
-			chart.addAxis("y", {vertical: true, min: 0, max: 100});
-			chart.addPlot("default", {type: "Columns", gap: 8 });
-			chart.addSeries("", chart_data);
-		}
+function makeChart() 
+{
+	// create a new chart with id 'chart' and set the theme to BlueDusk
+	var chart = new dojox.charting.Chart("chart");
+	chart.setTheme(dojox.charting.themes.BlueDusk);
+	
+	// parse JSON data for desired information
+	parse();
+	
+	// fill in chart
+	if(!student && get['user'] == null && get['asst'] == null) {
+		chart.addAxis("x", {min: 0, max: 100});
+		chart.addAxis("y", {vertical: true, labels: chart_labels, minorTicks: false});
+		chart.addPlot("default", {type: "Bars", gap: 8 });
+		chart.addSeries("", chart_data);
+	} else {
+		chart.addAxis("x", {labels: chart_labels, rotation: 20, minorTicks: false});
+		chart.addAxis("y", {vertical: true, min: 0, max: 100});
+		chart.addPlot("default", {type: "Columns", gap: 8 });
+		chart.addSeries("", chart_data);
+	}
 
-		// add mouse over and tooltip actions
-		new dojox.charting.action2d.Highlight(chart, "default");
-		new dojox.charting.action2d.Tooltip(chart, "default");
-		
-		// create links to other pages if on top level
-		chart.connectToPlot("default", function(args) {
-			switch (args.type) {
-				case "onclick":
-					if(!student && get['user'] == null && get['asst'] == null) {
-						for(s in response['StudentList']) {
-							if (args.index == s) {
-								window.location = document.URL + "&user=" + response['StudentList'][s]['StudentId'];
-							}
-						}
-					} else if (!student && get['asst'] == null ) {
-						for(a in response['StudentList'][s]['AssignmentList']) {
-							if (args.index == a) {
-								window.location = document.URL + "&asst=" + a;
-							}
-						}
-					} else if (student && get['asst'] == null){
-						for(a in response['StudentList'][0]['AssignmentList']) {
-							if (args.index == a) {
-								window.location = document.URL + "&asst=" + a;
-							}
+	// add mouse over and tooltip actions
+	new dojox.charting.action2d.Highlight(chart, "default");
+	new dojox.charting.action2d.Tooltip(chart, "default");
+	
+	// create links to other pages if on top level
+	chart.connectToPlot("default", function(args) 
+	{
+		switch (args.type) 
+		{
+			case "onclick":
+				if(!student && get['user'] == null && get['asst'] == null) {
+					for(s in response["student-list"]) {
+						if (args.index == s) {
+							window.location = document.URL + "&user=" + response["student-list"][s]["student-id"];
 						}
 					}
-					
-					break;
-				case "onmouseover":
-					break;
-				case "onmouseout":
-					break;
-				default:
-					break;
-			}
-		});
+				} else if (!student && get['asst'] == null ) {
+					for(a in response["student-list"][s]["assignment-list"]) {
+						if (args.index == a) {
+							window.location = document.URL + "&asst=" + a;
+						}
+					}
+				} else if (student && get['asst'] == null){
+					for(a in response["student-list"][0]["assignment-list"]) {
+						if (args.index == a) {
+							window.location = document.URL + "&asst=" + a;
+						}
+					}
+				}
+				
+				break;
+			case "onmouseover":
+				break;
+			case "onmouseout":
+				break;
+			default:
+				break;
+		}
+	});
 		
-		chart.render();
-});
+	chart.render();
+};
 

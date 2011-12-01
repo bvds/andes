@@ -1,3 +1,4 @@
+
 ;;; Copyright 2011 by ...
 ;;; This file is part of the Andes Intelligent Tutor Stystem.
 ;;;
@@ -17,6 +18,13 @@
 
 (in-package :cl-user)
 
+;; rdash doesn't work yet - rhelp will compile dashboard
+;;(defun rdash ()
+;;  "Load or reload dashboard system using asdf"
+;;  (asdf:operate 'asdf:load-op 'dashboard))
+
+(setf sb-kernel::*maximum-error-depth* 20) ; necessary for json to encode our structures properly
+
 (defpackage :dashboard
   (:use :cl :cl-user :json :mysql-connect)
   (:export :destroy-connection :create-connection :create-local-connection
@@ -26,14 +34,17 @@
 
 (in-package :dashboard)
 
-(defun start (&key (port 8080) host db user password)
+(defvar *table* "dummy_student_model" "table in db being referenced")
+
+(defun start (&key (port 8080) host db user password table)
   (webserver:start-json-rpc-services '(("/dashboard" :json-rpc t))
-				     :port 8080
+				     :port port
 				     :server-log-path
 				     (merge-pathnames "dashboard-server.log" 
 						      cl-user::*andes-path*))
   
   (create-connection :user user :password password :db db :host host)
+  (if table (setf *table* table))
   nil)
 
 (defun stop ()
@@ -45,11 +56,17 @@
   (&key version (model () model-p)
 	section (student () student-p)
 	(assignment () assignment-p))
-  (apply #'process-api-request 
-	 (append (list :version version :section section)
+  (list 
+    (apply #'process-api-request 
+      (append (list :version version :section section)
 		 (if model-p (list :model model))
 		 (if assignment-p (list :assignment assignment))
-		 (if student-p (list :student student)))))
+		 (if student-p (list :student student))))))
+
+
+;; this function can be used to send sample data from a file to test the rpc functionality
+(webserver:defun-method "/dashboard" dashboard-rpc-test (&key m e h)
+  (list (decode-file  "/home/benefluence/response.json")))
 
 (defvar *connection* nil "connection to db")
 
@@ -91,9 +108,6 @@
 (defun destroy-connection ()
   (disconnect *connection*))
 
-
-
-
 (defun formatted-time ()
   (multiple-value-bind
 	(second minute hour date month year day-of-week dst-p tz)
@@ -118,65 +132,86 @@
 					;when one is missing we just pull all of the records
 					;because the assignment data is not anywhere in the table,
 					;separate assignments are best run as separate queries
+                                        ;to the database.
 					;in the case of a different model we might need to return
 					;different kcs, different data about those kcs.
   (let (
 	(assignment-list-data
 	 (get-kcs-for-assignments section
 				  (if supply-assignment-p
-				      (list assignment)
-				      (get-assignments-for-section section))
+				      (list assignment) ;either 1 assignment or all of them
+				      (get-assignments-for-section section)) ;this function currently only works for the andesTutor section
 				  model))
 	(student-ids
 	 (if supply-student-p
-	     (list (list student))
+	     (list (list student)) ; either 1 student or all of them
 	     (run-query (concatenate 'string
-				     "SELECT DISTINCT userName FROM student_state WHERE userSection = \""
+				     "SELECT DISTINCT userName FROM "
+                                     *table*
+                                     " WHERE userSection = \""
 				     section
 				     "\"")))))
     (list (cons :api-version version)
 	  (cons :timestamp (formatted-time))
 	  (cons :sectionid section)
-	  (build-student-list section student-ids assignment-list-data model))))
+	  (build-student-list section student-ids assignment-list-data model)
+    )))
 
 (defun get-assignments-for-section (section)
   (if (equal section "andesTutor") (mapcar #'car (cadr cl-user::*sets*))))
 
 (defun build-student-list (section-id student-ids assignment-list-data model)
-  (cons :*student-list
+  (cons :student-list
 	(loop for student-record in student-ids collect
-	     (build-student-data section-id (car student-record) assignment-list-data model))))
+	     (build-student-data section-id (car student-record) assignment-list-data model))
+  ))
 
 (defun build-student-data (section-id student-id assignment-list-data model)
   (list
-   (cons :*student-id student-id)
-   (build-assignment-list section-id student-id assignment-list-data model)))
+   (cons :student-id student-id)
+   (build-assignment-list section-id student-id assignment-list-data model)
+  ))
 
 (defun build-assignment-list (section-id student-id assignment-list-data model)
-  (cons :*assignment-list
-	(loop for assignment-data in assignment-list-data collect
-	     (build-assignment section-id student-id (first assignment-data) (second assignment-data) model))))
+  (cons :assignment-list
+	(loop for assignment-data in assignment-list-data append
+	     (build-assignment section-id student-id (first assignment-data) (second assignment-data) model))
+  ))
 
 (defun build-assignment (section-id student-id assignment-id assignment-kcs model)
-  (list
-   (cons :*assignment-id assignment-id)
-   (build-kc-list (run-query (kc-query-string section-id student-id assignment-kcs model)))))
+  (let ((kc-list-data (run-query (kc-query-string section-id student-id assignment-kcs model))))
+    (if kc-list-data                                ;if the assignment has no kc's worked on in it then skip it
+      (list                                         ;enclose in a list for appending purposes
+        (append
+          (list
+            (cons :assignment-id assignment-id))
+            (build-kc-list kc-list-data)
+          nil
+        )))))
 
-(defun build-kc-list (kc-list-data)
-  (cons :+kcl+ist
-	(loop for kc-data in kc-list-data collect
-	     (apply #'build-kc kc-data))))
+(defun build-kc-list (kc-list-data)                ;will only run if kc-list-data isn't null, 
+                                                   ;so it should always return correct json
+    (list                                          ;enclose in a list for appending purposes
+      (cons :kc-list                             
+	(loop for kc-data in kc-list-data collect  
+	     (apply #'build-kc kc-data))
+      )))
 
 (defun build-kc (name state)
   (let (kc-info (decode state))
     (append
-     (list (cons :*name name)
-	   (cons :*short-desc (cl-user::get-operator-short-name (intern (string-upcase name)))); if the kc is not in the andes model
-	   (cons :*long-desc (cl-user::get-operator-description (intern (string-upcase name))))); these lines could cause problems
-     (decode state))))
+      (list (cons :name name)
+ 	    (cons :short-desc (cl-user::get-operator-short-name (intern (string-upcase name) :cl-user)));if kc is not in the andes model
+	    (cons :long-desc (cl-user::get-operator-description (intern (string-upcase name) :cl-user))); these lines could cause problems
+      )
+      (decode state)
+      nil
+    )
+  ))
 
 (defun kc-query-string (section-id student-id assignment-kcs model)
-  (format nil "SELECT property,value FROM student_state WHERE userSection = \"~A\" ~A ~A ~A" ;need to incorporate model checking
+  (format nil "SELECT property,value FROM ~A WHERE userSection = \"~A\" ~A ~A ~A" ;need to incorporate model checking
+          *table*
 	  section-id
 	  (concatenate 'string "AND userName = \"" student-id "\"")
 					;think about sanitizing inputs
@@ -196,22 +231,23 @@
 					;the assignment. we should have a section value (nil?) that
 					;pulls the data from the andes defined problem sets. what
 					;happens when the assignments don't exist? do we return anything?
-  (if (equal section "andesTutor"); we need to pull the kcs correctly depending on the section name
+  (if (equal section "andesTutor")      ; we need to pull the kcs correctly depending on the section name
       (loop for kc-set in
 	 cl-user::*set-kcs* append
 	   (if (member (car kc-set) assignments :test #'equal)
 	       (list
 		(list (car kc-set) (apply #'append (cdr kc-set))))));combines common and uncommon kcs
-      ())); right now only one section works
+      nil)); right now only one section works
 
 (defun get-kc-names (kc)
   (list kc (cl-user::get-operator-short-name kc) 
 	(cl-user::get-operator-description kc)))
 
 (defun encode (x &optional (stream nil supply-stream-p))
-  (if supply-stream-p
+  (let ((sb-kernel::*maximum-error-depth* 20))
+    (if supply-stream-p
       (json:encode-json x stream)
-      (json:encode-json x)))
+      (json:encode-json x))))
 
 (defun encodea (x) (json:encode-json-alist x))
 
@@ -221,7 +257,7 @@
 
 (defun decode (x) (with-input-from-string (stream x) (json:decode-json stream)))
 
-(defun decode-file () (with-open-file (stream "experiment.js") (json:decode-json stream)))
+(defun decode-file (file-name) (with-open-file (stream file-name) (json:decode-json stream)))
 
 (defun dummy-student-record ()
   (run-query "SELECT * FROM student_state WHERE uid=1"))
