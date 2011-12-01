@@ -55,10 +55,12 @@ if($sectionName==''){
   $sectionNamee = " by $sectionName,";
  }  
 if($extra == 'Reviewed'){
-  $extrac = "P1.extra != 0 AND";
+  // Changed extra from number to string or null
+  // commit a0719d09f0017cb, Nov 9, 2011
+  $extrac = "(P1.extra IS NOT NULL OR P1.extra !=0) AND";
   $extrae = "reviewed";
  }else if($extra == 'Original'){
-  $extrac = "P1.extra = 0 AND";
+  $extrac = "(P1.extra IS NULL or P1.extra = 0) AND";
   $extrae = "solved";
  }else{
   $extrac = "";

@@ -350,7 +350,8 @@
 	      (let ((*lisp-identifier-name-to-json* #'string-downcase))
 		(encode-json-alist-to-string 
 		 `((:method . ,method) (:params . ,params))))
-	      `((:result . ,result))))))
+	      ;; Hack for creating an empty array in json
+	      `((:result . ,(or result (make-array '(0)))))))))
      *sessions*)))
 
 
