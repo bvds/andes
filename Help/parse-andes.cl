@@ -1012,16 +1012,19 @@ follow-up question and put it in the student entry's err interp field."
 		     (warn "do-check-answer bad var ~A~%" entry)
 		  (setf (StudentEntry-ErrInterp entry)
 			(bad-answer-bad-lhs-ErrorInterp input why :id id))
-		     (setf result-turn (ErrorInterp-remediation (StudentEntry-ErrInterp entry))))
+		     (setf result-turn (ErrorInterp-remediation 
+					(StudentEntry-ErrInterp entry))))
 		    ((and why (equal (car why) 'bad-sought))
 		  (warn "do-check-answer bad sought ~A~%" entry)
 		     (setf (StudentEntry-ErrInterp entry)
 			   (bad-answer-bad-sought-ErrorInterp input why :id id))
-		     (setf result-turn (ErrorInterp-remediation (StudentEntry-ErrInterp entry))))
+		     (setf result-turn (ErrorInterp-remediation 
+					(StudentEntry-ErrInterp entry))))
 		    (t
 		     (setf (StudentEntry-ErrInterp entry)
 			   (bad-answer-syntax-ErrorInterp input :id id))
-		  (setf result-turn (ErrorInterp-remediation (StudentEntry-ErrInterp entry)))))
+		  (setf result-turn (ErrorInterp-remediation 
+				     (StudentEntry-ErrInterp entry)))))
 		  ))
 	    
 	    ;; Empty answer box (this is usually just a mistake).
@@ -1030,21 +1033,28 @@ follow-up question and put it in the student entry's err interp field."
 	(warn "No system variable for ~A. Possible mismatch with answer box." 
 	      sought-quant))
 
-    ;; Grading for result.  Since var=value equation is not
-    ;; among SystemEntries, need to find associated SystemEntry by hand.
+    ;; Since var=value equation is not among SystemEntries, 
+    ;; need to find associated SystemEntry by hand.
     (let ((sysent (find-SystemEntry (StudentEntry-prop entry))))
       (if sysent
-	  (update-grade-status (list sysent) (StudentEntry-state entry))
+	  (progn
+	    (if (eql (StudentEntry-state entry) +correct+)
+		(pushnew entry (SystemEntry-entered sysent))
+		(setf (SystemEntry-entered sysent) nil))
+	    ;; Grading for result.  
+	    (update-grade-status (list sysent) (StudentEntry-state entry)))
 	  (warn 'webserver:log-warn :text "No matching systementry for box"
 		:tag (list 'box-no-systementry (StudentEntry-prop entry)))))
       
+    (unless result-turn
+      (warn 'webserver:log-warn :text "No turn reply for answer"
+	    :tag (list 'box-no-reply (StudentEntry-prop entry)))
+      (return-from  do-check-answer
+	(make-end-dialog-turn 
+	 "Unable to evaluate answer.  Please try another problem.")))
 
-    (cond (result-turn) ;; if we got result from check above return it
-          (T ;; else failed somewhere. 
-	   ;; !!! Should process syntax errors same as eqn.
-	   ;;(format T "~&failed to get result for answer~%")
-	   (setf (StudentEntry-state entry) +incorrect+)
-	   (make-red-turn :id (StudentEntry-id entry))))))
+    result-turn))
+
 
 (defun select-sought-for-answer (entry)
   "Decide which answer this entry corresponds to by looking at other exisiting answers.  Fills StudentEntry-prop based on this."

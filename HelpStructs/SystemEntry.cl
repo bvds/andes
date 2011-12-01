@@ -52,19 +52,24 @@
 
 
 (defstruct (SystemEntry (:print-function print-SystemEntry))
-  Index	   ;; Index in the entry list.
-  Prop     ;; The Entry proposition for this node.
-  children ;; Children props, through inheritance.
-  Sources  ;; Cognitive steps that produced this.
-  State    ;; State of the system 
-  Prereqs  ;; The set of sets of system prerequisites 
-           ;; that must be satisfied to produce this.
-  CogLoad  ;; The cognitive load of the systementry.
-  Entered  ;; A list of student entries that have entered
-           ;; this system entry if nil it has not been entered.
+  Index	   ;Index in the entry list.
+  Prop     ;The Entry proposition for this node.
+  children ;Children props, through inheritance.
+  Sources  ;Cognitive steps that produced this.
+  State    ;State of the system.  This is a private element:
+  ;; it is only read via function SystemEntries->State
+  ;; and only set via function make-SystemEntry
+  Prereqs  ;The set of sets of system prerequisites 
+  ;; that must be satisfied to produce this.
+  CogLoad  ;The cognitive load of the systementry.
+  Entered  ;A list of student entries that have entered
+  ;; this system entry. If nil, it has not been entered.
+  ;; For Multiple-choice, set if correct, nil if wrong or not attempted.
+  ;; Set via StudentEntry-Cinterps when student entry is correct.
+  ;; For answer boxes, set if correct, nil if wrong or empty.
   in-Sg-Solutions ;whether this entry is listed in *Sg-Solutions*
-  model    ;; Model sentence.
-  (graded (make-graded))  ;; Graded object.
+  model    ;Model sentence.
+  (graded (make-graded))  ;Graded object.
   )
 
 (defun print-SystemEntry (Entry &optional (Stream t) (level 0))
