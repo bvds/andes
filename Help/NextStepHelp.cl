@@ -1021,7 +1021,10 @@
 ;;; but for now null *studententries* is all.
 (defun nsh-student-has-done-work? ()
   "Return t iff the student has done no work."
-  *studententries*)
+  ;; Test if any entries have been evaluated.
+  ;; Answer boxes and mutiple choice and buttons
+  ;; all have student entries associated with them.
+  (some #'StudentEntry-state *studententries*))
 
 
 (defun nsh-prompt-start ()
@@ -2703,7 +2706,8 @@
 ;;; prompt them to work on the best.
 (defun nsh-cbf-change-no (Solutions Principles Sought Past)
   "Prompt the best of the compatible solutions."
-  (nsh-cbf-success (nsh-pick-best-solution (nsh-pick-axes-done-solutions Solutions))
+  (nsh-cbf-success (nsh-pick-best-solution 
+		    (nsh-pick-axes-done-solutions Solutions))
 		   Principles Sought Past 
 		   :Prefix "As you wish.  "))
 
@@ -2747,7 +2751,7 @@
 ;;;
 ;;; NOTE:: for the purposes of this code I am assuming that all acceptable 
 ;;; fp's are the same and am ignoring the Principle/Definition divide.  
-(defun nsh-cbf-success (Solution Principles Sought Past &Key (Prefix ()))
+(defun nsh-cbf-success (Solution Principles Sought Past &Key Prefix)
   (declare (ignore Sought) (ignore Past))
   (let (Best (Choices (intersection Solution Principles))
 	(Comment (or Prefix (random-positive-feedback))))
@@ -2766,7 +2770,7 @@
 
 ;;; If the student has already completed the best principle, then
 ;;; we want to prompt them to move on to the next principle in the
-;;; solution.  
+;;; solution.
 (defun nsh-cfp-success-completed (Prefix Best Solution)
   "Promp the student to continue on when the first principle is completed."
   (setq *nsh-current-solutions* (nsh-cfp-match-fp-sol Best))
@@ -2784,7 +2788,7 @@
 (defun nsh-cfp-success-uncompleted (Prefix Best)
   "Prompt the student to work on an uncompleted first principle."
   (setq *nsh-current-solutions* (nsh-cfp-match-fp-sol Best))
-  (nsh-walk-node-graph Prefix Best))
+  (nsh-walk-node-graph (strcat Prefix (random-goal-prefix)) Best))
 
  
 ;;; ----------------- invalid choices --------------------------------
@@ -3440,6 +3444,8 @@
 ;;; of helpstructs.
 
 ;; node is an enode.
+;; Prefix is either empty or should include beginning 
+;; of the sentence.
 (defun nsh-walk-node-graph (prefix node)
   ;; Get the specified node's graph.
   (walk-psm-path prefix (cdr (bgnode-path Node)) nil))

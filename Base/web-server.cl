@@ -227,6 +227,8 @@
       ;; only give a response when there is an error or id is given
       (when (or error1 turn)
 	(when (or error1 (not version)) (push (cons :error error1) reply))
+	;; If result is empty, drop keyword entirely.
+	;; This may break json-rpc or the andes3 smd?
 	(when (or result (not version)) (push (cons :result result) reply))
 	(push (cons :id turn) reply)
 	(when version (push version reply))

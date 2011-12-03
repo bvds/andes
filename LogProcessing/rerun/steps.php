@@ -66,7 +66,7 @@ mysql_select_db($dbname)
 
 /* filters for user name, section, etc.  
    Use regexp matching for user name and section. */
-	     // oneill.193_asu
+	     // oneill.193_asu crell.1_asu
 $adminName = '' ;   // user name
 	     // MIT_.*
 	     // asu_3u16472755e704e5fasul1_.*
@@ -292,8 +292,14 @@ while ($myrow = mysql_fetch_array($result)) {
     if (strcmp($response,$newResponse) != 0) {
       $jr=$json->decode($response);
       $njr=$json->decode($newResponse);
-      if(isset($jr->result) && isset($njr->result)){
-
+      $aaa = "<a href=\"/log/OpenTrace.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;cid=$clientID&amp;t=$tid\">$tid</a>";
+      if(isset($jr->error) || isset($njr->error)){
+	echo "<tr class='$method'><td>$aaa</td><td>$aa</td><td>$response</td><td>$newResponse</td><td></td></tr>\n";       
+      } else {
+	// Server drops result key-value pair if array is empty.
+	if(!isset($jr->result)){$jr->result=array();}
+	if(!isset($njr->result)){$njr->result=array();}
+	
 	// Loop through old result and remove unwanted rows
 	$bcr=array();
 	foreach($jr->result as $bc){
@@ -314,7 +320,7 @@ while ($myrow = mysql_fetch_array($result)) {
 		strcmp($bc->action,"log")==0 &&
 		(isset($bc->subscores) || // old log format
 		 (isset($bc->log) && strcmp($bc->log,"subscores")==0))) ||
-	       
+	     
 	       // Old turn has meta-hint
 	       ($ignoreMetaHints && isset($bc->action) &&
 		strcmp($bc->action,"show-hint")==0 &&
@@ -451,7 +457,7 @@ while ($myrow = mysql_fetch_array($result)) {
 	    $nbbc=preg_replace('/"error-type.*/',$mcerror,$nbbc);
 	  }
 	  // new-user-dialog
-          // commit 212960a3c713fe, Tue Sep 20 17:04:41 2011
+	  // commit 212960a3c713fe, Tue Sep 20 17:04:41 2011
 	  $bbc=preg_replace('/After watching the video, just follow the instructions/','Just follow the instructions',$bbc);
 	  $nbbc=preg_replace('/After watching the video, just follow the instructions/','Just follow the instructions',$nbbc);
 	  // kgraph8b problem change
@@ -479,7 +485,12 @@ while ($myrow = mysql_fetch_array($result)) {
 	    $bbc=preg_replace('/"y":\d+/','"y":*y-pos*',$bbc);
 	    $nbbc=preg_replace('/"y":\d+/','"y":*y-pos*',$nbbc);
 	  }
-	  	  
+	  // Change hints in nsh-prompt-no-quant-done
+	  // commit 1dfa98550be16cb3f, Nov 21 2011
+	    $bbc=preg_replace('/"You have completed all of the principles necessary .*\."/',
+			      '"You have completed all of the steps necessary to solve this problem."',$bbc);
+	  
+	  
 	  if(strcmp($bbc,$nbbc)==0){ // match, go on to next pair
 	    $i++; $ni++;
 	  }elseif($imax-$i == $nimax-$ni){ // mismatch, but same remaining
@@ -501,17 +512,16 @@ while ($myrow = mysql_fetch_array($result)) {
 	    $i++;
 	  }
 	}
-	
+      
 	$nrows=sizeof($rows);
 	if($nrows>0){
 	  $row=array_shift($rows);
-	  $aaa = "<a href=\"/log/OpenTrace.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;cid=$clientID&amp;t=$tid\">$tid</a>";
 	  echo "  <tr class='$method'><td rowspan='$nrows'>$aaa</td><td rowspan='$nrows'>$aa</td>$row</tr>\n";
 	  foreach($rows as $row){
 	    echo "  <tr class='$method'>$row</tr>\n";
 	  }
 	}
-	
+      
 	// Dump reply result to file for testing json against smd
 	// See check-json.html
 	if($firstRow){
@@ -521,10 +531,6 @@ while ($myrow = mysql_fetch_array($result)) {
 	}
 	fwrite($handle,"{\"method\":\"$method\",\"reply\":" .
 	       $json->encode($njr->result) . "}");
-	
-      } else {
-	// json parse of result failed.
-	echo "<tr class='$method'><td>$tid</td><td>$aa</td><td>$response</td><td>$newResponse</td><td></td></tr>\n";	   
       }
     }
   }

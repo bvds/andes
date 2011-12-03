@@ -314,7 +314,7 @@
   :description "
    If the goal is to write the sdd equations,
    then the subgoals are to define variables for speed, distance and duration,
-   then write speed = distance / duration. "
+   then write speed = distance / duration."
   :preconditions
   ((inherit-variable ?s-var (speed ?b :time ?t))
    (variable ?d-var (distance ?b :time ?t))
@@ -2378,7 +2378,7 @@
   ((point (string "What happens to the ~A-component of the velocity of ~A ~A?"
 		  ((axis ?xyz ?rot) symbols-label :namespace :objects) 
 		  ?b ((during ?t1 ?t2) pp)))
-   (teach (string "Because the acceleration of ~A ~A is perpendicular to the ~A axis, is has no component in the ~A direction.  Therefore, the ~A component of velocity remains constant. You can use this to relate ~A to ~A. " 
+   (teach (string "Because the acceleration of ~A ~A is perpendicular to the ~A axis, is has no component in the ~A direction.  Therefore, the ~A component of velocity remains constant. You can use this to relate ~A to ~A." 
 		  ?b ((during ?t1 ?t2) pp)  
 		  ((axis ?xyz ?rot) symbols-label :namespace :objects) 
 		  ((axis ?xyz ?rot) symbols-label :namespace :objects) 

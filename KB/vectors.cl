@@ -335,7 +335,7 @@
 	  (kcd "draw-rotate-axes")
 	  ;; Careful with wording: we can't be sure that the axis direction 
 	  ;; being prompted actually conforms to the recommended heuristic. 
-	  (string "Although you can choose any rotation for the axes and still get a correct answer, the solution is usually simpler if you rotate the axes so at least one vector is parallel to an axis.  Typically, the more vectors that come out parallel to the axes, the better, although which choice is most efficient will depend on the particular problem. "))
+	  (string "Although you can choose any rotation for the axes and still get a correct answer, the solution is usually simpler if you rotate the axes so at least one vector is parallel to an axis.  Typically, the more vectors that come out parallel to the axes, the better, although which choice is most efficient will depend on the particular problem."))
    ;; The case "Draw" never actually occurs (from scanning log files)
    ;; since the NSH is pre-empted by hints in Help/NextStepHelp.cl
    (bottom-out (string "~:[Draw~;Rotate~] the coordinate axes setting the <var>x</var> axis to ~a degrees." 
@@ -523,7 +523,7 @@
   ((point (string "Since ~A lies along the ~A axis, it has a non-zero component along that axis."  
 		  ?vector 
 		  ((axis ?xyz ?rot) symbols-label :namespace :objects)))
-   (teach (string "You can always use the ~A.&nbsp;  However, when a vector V lies along an axis x, the component of the vector V<sub>x</sub> along the axis is simply equal to plus or minus the magnitude of the vector: V<sub>x</sub> = &plusmn;V.  The sign is positive if the vector points in the positive axis direction, and negative otherwise. "
+   (teach (string "You can always use the ~A.&nbsp;  However, when a vector V lies along an axis x, the component of the vector V<sub>x</sub> along the axis is simply equal to plus or minus the magnitude of the vector: V<sub>x</sub> = &plusmn;V.  The sign is positive if the vector points in the positive axis direction, and negative otherwise."
 		  ("projection equations" 
 		   open-review-window-html
 		   "ProjectionEquations.html" ;use file name for title 

@@ -1694,12 +1694,8 @@
       ;; based on goalprop, and then defer to NSH.
       (T (setf (StudentEntry-state entry) +INCORRECT+)
 	 (setf (SystemEntry-entered sysent) nil)
-	 (let ((rem (if t ;new BvdS
-			(walk-psm-path "You have not finished " 
-				       (bgnode-path psm) nil)
-			(nsh-walk-node-graph 
-			 (strcat "You have not finished " (goal id) ".<p>") 
-			 psm))))
+	 (let ((rem (walk-psm-path "You have not finished " 
+				       (bgnode-path psm) nil)))
 	   (setf (StudentEntry-ErrInterp entry)
 		 (make-ErrorInterp 
 		  ;; The diagnosis never makes it to the log file.
