@@ -480,6 +480,9 @@ while ($myrow = mysql_fetch_array($result)) {
 	  $randomPrefixNew='**random-prefix** ';
 	  $bbc=preg_replace($randomPrefix,$randomPrefixNew,$bbc);
 	  $nbbc=preg_replace($randomPrefix,$randomPrefixNew,$nbbc);
+	  // Remove dash from "multiple-choice"
+	  // commit 5bfc4b76a7fc7b1, Wed Dec 7 09:54:58 2011
+	  $bbc=preg_replace('/multiple.choice/','multiple choice',$bbc);
 	  // This shouldn't happen, but some assoc operators hav
 	  // unbound variables which show the internal binding.
 	  $varUnique='/#:\?[\-\w]+/';
@@ -573,10 +576,20 @@ while ($myrow = mysql_fetch_array($result)) {
 		  // Add help for multiple-choice.
 		  // commit 54b004f2d529efdab, Tue Nov 1 14:21:55 2011
 		  isset($bc->action) && strcmp($bc->action,"log") == 0 &&
-		  strpos($bbc,'"NO-ERROR-INTERPRETATION":"NIL"') !== false &&
 		  isset($nbc->action) && strcmp($nbc->action,"log") == 0 &&
-		  strpos($nbbc,'"MULTIPLE-CHOICE":') !== false){
+		  ((strpos($bbc,'"NO-ERROR-INTERPRETATION":"NIL"') !== false &&
+		    strpos($nbbc,'"MULTIPLE-CHOICE":') !== false) ||
+		   ((strpos($bbc,'(MC-ONLY PROMPT-DONE-INCORRECT)') !== false &&
+		     strpos($nbbc,'(MC-ONLY PROMPT-NEXT ') !== false)))){
 	    $i+=3; $ni+=2;
+	  }elseif(strcmp($method,"seek-help") == 0 &&
+		  // Add help for multiple-choice.
+		  // commit 54b004f2d529efdab, Tue Nov 1 14:21:55 2011
+		  isset($bc->action) && strcmp($bc->action,"log") == 0 &&
+		  isset($nbc->action) && strcmp($nbc->action,"log") == 0 &&
+		  strpos($bbc,'(MC-ONLY PROMPT-DONE-RECONSIDER)') !== false &&
+		  strpos($nbbc,'(MC-ONLY PROMPT-NEXT ') !== false){
+	    $i+=2; $ni+=2;
 	  }elseif($imax-$i == $nimax-$ni){ // mismatch, but same remaining
 	    // Position of first discrepency
 	    $pos=strspn($bbc ^ $nbbc, "\0");
