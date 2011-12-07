@@ -70,6 +70,7 @@ mysql_select_db($dbname)
 $adminName = '' ;   // user name
 	     // MIT_.*
 	     // asu_3u16472755e704e5fasul1_.*
+	     // asu_3u16472755e704e5fasul1_15865
 $sectionName = 'asu_3u16472755e704e5fasul1_.*' ; //$_POST['sectionName'];
 $startDate = '2011-04-01'; // $_POST['startDate'];
 $endDate = ''; // $_POST['endDate'];
@@ -165,8 +166,24 @@ function doneButtonProblem ($p){
   return false;
 }
 
-$sql = "SELECT S.tID,S.clientID,S.client,S.server FROM STEP_TRANSACTION AS S, PROBLEM_ATTEMPT as P1 WHERE $adminNamec $sectionNamec $extrac  $startDatec $endDatec S.clientID = P1.clientID ORDER BY S.tID";
+//  Initial query to determine when sessions end
+//  If the server crashes, then any sessions running will be
+//  left open according to the log files.
 
+$sqlFilter = "FROM STEP_TRANSACTION AS S, PROBLEM_ATTEMPT as P1 WHERE $adminNamec $sectionNamec $extrac  $startDatec $endDatec S.clientID = P1.clientID ORDER BY S.tID";
+$sql = "SELECT S.tID,S.clientID,P1.startTime " . $sqlFilter;
+// get student input and server reply
+$result = mysql_query($sql);
+$lastID=array();
+while ($myrow = mysql_fetch_array($result)) {
+  $tID=$myrow["tID"];
+  $clientID=$myrow["clientID"];
+  $lastID[$clientID]=$tID;
+  $sessionStartTime[$clientID]=$myrow["startTime"];
+ }
+
+//  Now query to get posts and replies
+$sql = "SELECT S.tID,S.clientID,S.client,S.server " . $sqlFilter;
 // get student input and server reply
 $result = mysql_query($sql);
 
@@ -227,6 +244,19 @@ while ($myrow = mysql_fetch_array($result)) {
   $newResponse = $server->message($action,$sessionIdBase . $clientID);
   $dt = microtime(true) - $queryStart;
   $serverTime += $dt;
+
+  // See if this is the last turn in a session and if
+  // the problem has not yet been closed.
+  if($lastID[$clientID] == $ttID &&
+     !((array_key_exists($clientID,$lastTime) &&
+	$lastTime[$clientID] == -2))){
+    // Close the session "by hand" and record
+    $closeID=$a->id + 1;
+    $closeAction="{\"id\":$closeID,\"method\":\"close-problem\",\"params\":{},\"jsonrpc\":\"2.0\"}";
+    $closeResponse = $server->message($closeAction,$sessionIdBase . $clientID);
+    $closeTime=$sessionStartTime[$clientID];
+    $closeSession[$clientID]="<td>$closeTime</td>" . $sessionLink1 . "&amp;cid=" . $clientID . $sessionLink2;
+  }
   
   // Determine if problem load failed, set variable
   if(strcmp($method,"open-problem")==0 && 
@@ -251,7 +281,6 @@ while ($myrow = mysql_fetch_array($result)) {
   // or after "blur" event.
   if(array_key_exists($clientID,$lastTime) &&
      $lastTime[$clientID] == -2){
-    // just leave it
   } elseif(!isset($a->params->time) || 
 	   (strcmp($method,"record-action")==0 &&
 	    isset($a->params->value) && 
@@ -304,6 +333,13 @@ while ($myrow = mysql_fetch_array($result)) {
 	$bcr=array();
 	foreach($jr->result as $bc){
 	  if(!(
+	       // Remove hints from open-problem:  these are
+	       // generally from rerunning old sessions through 
+	       // help, and have already been evaluated.
+	       (strcmp($method,"open-problem")==0 && isset($bc->action) && 
+		(strcmp($bc->action,"show-hint") == 0 || 
+		 strcmp($bc->action,"show-hint-link") == 0)) ||
+
 	       // Remove Done button from some problems
 	       // problems commit 6376f20fd808, Nov 19 2011
 	       (strcmp($method,"open-problem")==0 &&
@@ -335,8 +371,17 @@ while ($myrow = mysql_fetch_array($result)) {
 	       // Drop any log of user-agent.
 	       (isset($bc->action) && isset($bc->log) &&
 		strcmp($bc->action,"log")==0 &&
-		strcmp($bc->log,"user-agent")==0))
-	     ){
+		strcmp($bc->log,"user-agent")==0) ||
+
+	       // Add test for creation of excess answer box.
+	       // commit c9ca2cccd4f4b5685a4, Mon Nov 28 13:13:02 2011
+	       // Here, we remove the old error message on startup.
+	       (strcmp($method,"open-problem") == 0 &&
+		isset($bc->action) && isset($bc->text) &&
+		strcmp($bc->action,"log")==0 &&
+		// Adding punctuation or NIL screws up match?
+		preg_match("/No system variable for .*Possible mismatch with answer box/",$bc->text)!=0)
+	     )){
 	    array_push($bcr,$bc);
 	  }
 	}
@@ -346,6 +391,13 @@ while ($myrow = mysql_fetch_array($result)) {
 	$nbcr=array();
 	foreach($njr->result as $bc){
 	  if(!(	       
+	       // Remove hints from open-problem:  these are
+	       // generally from rerunning old sessions through 
+	       // help, and have already been evaluated.
+	       (strcmp($method,"open-problem")==0 && isset($bc->action) && 
+		(strcmp($bc->action,"show-hint") == 0 || 
+		 strcmp($bc->action,"show-hint-link") == 0)) ||
+
 	       // New turn has score.
 	       ($ignoreScores && isset($bc->action) &&
 		strcmp($bc->action,"set-score")==0) ||
@@ -493,6 +545,38 @@ while ($myrow = mysql_fetch_array($result)) {
 	  
 	  if(strcmp($bbc,$nbbc)==0){ // match, go on to next pair
 	    $i++; $ni++;
+	  }elseif(strcmp($method,"seek-help") == 0 &&
+		  // Fix test for work done in Help/NextStepHelp.cl function
+		  // nsh-student-has-done-work?
+		  // commit 22f414c44ad00ce, Fri Dec 2 22:42:28 2011
+		  ((strpos($bbc,'"NSH":"(PROMPT-AXIS ') !== false &&
+		    strpos($nbbc,'"NSH":"(NEW-START-AXIS ') !== false) ||
+		   (preg_match('/"It is now a good idea for you to draw an axis.*This will help to ground your work and be useful later on in the process\."/',$bbc) != 0 &&
+		    preg_match('/"It is a good idea to begin most problems by drawing an axis.*This helps to ground your work and will be useful later on in the process\."/',$nbbc) != 0))){
+	    $i++; $ni++;
+	  }elseif(strcmp($method,"solution-step") == 0 &&
+		  // Add test for creation of excess answer box.
+		  // commit c9ca2cccd4f4b5685a4, Mon Nov 28 13:13:02 2011
+		  // Escaping is different with single quotes?  Just use wild card.
+		  preg_match('/"No system variable for NIL.*Possible mismatch with answer box\."/',$bbc) != 0 &&
+		  preg_match('/"You already have enough answer boxes.*You don\'t need to create another one\."/',$nbbc) != 0){
+	    $i++; $ni++;
+	  }elseif(strcmp($method,"open-problem") == 0 &&
+		  // Change format for json error messages.
+		  // commit 22f414c44ad00ceb0, Fri Dec 2 22:42:28 2011
+		  isset($bc->text) &&
+		  preg_match('/JSON-SYNTAX-ERROR/',$bc->text) != 0 &&
+		  isset($nbc->entry) &&
+		  preg_match('/JSON-SYNTAX-ERROR/',$nbc->entry) != 0){
+	    $i++; $ni++;
+	  }elseif(strcmp($method,"seek-help") == 0 &&
+		  // Add help for multiple-choice.
+		  // commit 54b004f2d529efdab, Tue Nov 1 14:21:55 2011
+		  isset($bc->action) && strcmp($bc->action,"log") == 0 &&
+		  strpos($bbc,'"NO-ERROR-INTERPRETATION":"NIL"') !== false &&
+		  isset($nbc->action) && strcmp($nbc->action,"log") == 0 &&
+		  strpos($nbbc,'"MULTIPLE-CHOICE":') !== false){
+	    $i+=3; $ni+=2;
 	  }elseif($imax-$i == $nimax-$ni){ // mismatch, but same remaining
 	    // Position of first discrepency
 	    $pos=strspn($bbc ^ $nbbc, "\0");
@@ -579,6 +663,17 @@ foreach(array_splice($sessionTime,0,20) as $key => $value){
     $sessionLink1 . "&amp;cid=" . $key . $sessionLink2 . "</tr>\n";
 }
 echo "</table>\n";
+
+// List any sessions that had to be closed automatically.
+if(count($closeSession)>0){
+  echo "<p>Hanging Sessions:<br>\n";
+  echo "<table border=1>\n";
+  echo "<tr><th>Start Time</th><th>Session</th></tr>\n";
+  foreach($closeSession as $value){
+    echo " <tr>$value</tr>\n";
+  }
+  echo "</table>\n";
+ }
 
 ?>
 

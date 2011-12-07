@@ -1019,8 +1019,7 @@
 ;;====================================================
 ;; Entry Propositions.
 (def-entryprop body (body ?body :time ?t)
-  :Doc "The body tool."
-  :nlg-english ("the body for ~a" (nlg ?body 'at-time ?t)))
+  :Doc "The body tool.")
 
 
 ;; See function reduce-prop in Help/SolutionGraph.cl
@@ -1049,85 +1048,40 @@
 ;;;   " A zero length vector for FOO.
 
 (def-entryprop vector (vector ?body ?quantity ?direction)
-  :helpform (vector ?quantity ?direction)
-  :Doc "The generic vector entry tool."
-  :nlg-english ("a ~a" (ont-vector-entryprop-format-func ?body ?quantity 
-							 ?direction)))
-
-(defun ont-vector-entryprop-format-func (Body Quantity Direction)
-  "Format the vector entry."
-  (declare (ignore body))
-  (let ((Quant (def-np Quantity))
-	(Dir (if (listp Direction) (nlg Direction)
-	       (nlg Direction 'adjective))))
-    (if (listp Direction) 
-	(format Nil "vector for ~a rotated to ~a" Quant Dir)
-      (case Direction
-	(unknown (format Nil "vector for ~a in an unknown direction." Quant))
-	(into (format Nil "vector for ~a directed ~a." Quant Dir))
-	(out-of (format Nil "vector for ~a directed ~a." Quant Dir))
-	(z-unknown (format Nil "vector for ~a the direction is ~a." Quant Dir))
-	(zero (format nil "zero length vector for ~a." Quant))))))
+  :helpform (vector ?quantity ?direction))
 
 (def-entryprop draw-line (draw-line ?line ?dir)
-  :Doc "The line drawing tool"
-  :nlg-english ("a line ~A representing ~A" 
-	    (draw-line-entryprop ?dir) (nlg ?line)))
-
-(defun draw-line-entryprop (dir)
-  (if (eq dir 'unknown) "in an unknown direction" 
-    (format nil "at an angle of ~A" (nlg dir))))
+  :Doc "The line drawing tool")
 	
 (def-entryprop draw-axes (draw-axes ?body ?x-direction)
   ;; until workbench associates bodies and times w/axes, just
   ;; leave them out of the entry proposition for axes
   :helpform (draw-axes ?x-direction)
-  :Doc "The Axes drawing tool."
-  :nlg-english ("a pair of axes on ~a rotated to ~a" 
-	    ?body  (nlg ?x-direction)))
-  
+  :Doc "The Axes drawing tool.")
 
 (def-entryprop define-var (define-var ?quantity)
-  :Doc "Defining a variable for a specific quantity"
-  :nlg-english ("a variable for ~a" (nlg ?Quantity)))
-
-(defun choose-answer-ontology-fixfunc (ID)
-  (let ((D (format Nil "~a" ID)))
-    (if (string-equal (subseq D 0 2) "MC")
-	(subseq D 3)
-      D)))
+  :Doc "Defining a variable for a specific quantity")
 
 (def-entryprop choose-answer (choose-answer ?question-id ?answer-num)
-  :doc "Select multiple choice question answer"
-  :nlg-english ("answer for multiple-choice question number ~A" 
-	    (choose-answer-ontology-fixfunc ?question-id)))
+  :doc "Select multiple choice question answer")
 
 (def-entryprop done (done ?activity)
-  :doc "Select done button"
-  :nlg-english ("hitting the done button for ~A"
-		(new-english-find ?activity)))
+  :doc "Select done button")
 
 (def-entryprop answer (answer ?quant)
-  :doc "enter algebraic answer"
-  :nlg-english ("entering the value of ~A in the answer box"
-		(new-english-find ?quant)))
+  :doc "enter algebraic answer")
 
 (def-eqn-entryprop eqn (eqn ?equation ?eqn-id) 
   :helpform (eqn ?equation)
-  :Doc "Entering an equation with the specified id."
-  :nlg-english ("the equation ~a in slot ~a" ?Equation ?Eqn-ID))
+  :Doc "Entering an equation with the specified id.")
 
 (def-eqn-entryprop given-eqn (given-eqn ?equation ?quantity) 
   :helpform (eqn ?equation)
-  :Doc "A given equation entry."
-  :nlg-english ("the given equation ~a for: ~a" 
-	       ?Equation (nlg ?Quantity 'def-np)))
+  :Doc "A given equation entry.")
   
 (def-eqn-entryprop implicit-eqn (implicit-eqn ?equation ?quantity) 
   :helpform (implicit-eqn ?equation)
-  :Doc "An implicit equation entry."
-  :nlg-english ("the implicit equation ~a for: ~a"
-	     ?Equation (nlg ?quantity 'def-np)))
+  :Doc "An implicit equation entry.")
 
 ;;========================================================
 ;; goal proposition forms

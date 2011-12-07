@@ -1050,8 +1050,9 @@
 (defun nsh-prompt-next ()
   (cond	
    ((equal *nsh-problem-type* 'mc-only) 
-            (if (nsh-mc-only-done?) (nsh-mc-only-prompt-done)
-               (nsh-mc-only-prompt)))
+            (if (nsh-mc-only-done?) 
+		(nsh-mc-only-prompt-done-correct)
+               (nsh-mc-only-prompt-next)))
    ((nsh-prompt-bodies?) (nsh-prompt-bodies))
    ((nsh-prompt-axis?) (nsh-prompt-axis))
    ((nsh-prompt-givens?) (nsh-prompt-givens))
@@ -1064,7 +1065,7 @@
 
 
 
-;;;; ====================== Prompt Bodies ======================================
+;;;; ======================= Prompt Bodies ==================================
 ;;;; We want the students to begin all problems by defining all of the "necessary"
 ;;;; bodies in for a solution.  If they ask NSH will prompt them to make all of 
 ;;;; the necessary body entries for the ideal solution.  Bodies are considered
@@ -1391,204 +1392,87 @@
    :Assoc '((nsh . prompt-no-quant-done))))
 
 
-;;;; ====================== Multiple-choice-Problems ==========================
-;;;; For the Multiple-choice only problems the only tasks that they students need
-;;;; to complete are the multiple-choice problems themselves.  Therefore the only
-;;;; help that NSH will give is to alert the students to this fact and to prompt 
-;;;; them to coninue their work on the problem.  
+;;;; ====================== Multiple-choice-Problems =========================
+;;;; For the Multiple-choice only problems the only tasks that the students 
+;;;; need to complete are the multiple-choice problems themselves.  Therefore 
+;;;; the only help that NSH will give is to alert the students to this fact 
+;;;; and to prompt them to coninue their work on the problem.  
 
-;;; -------------------------------- Done -------------------------------------
-;;; On a multiple-choice only problem the student is done working on the problem
-;;; when they have answered all of the questions.  This is defined by them having
-;;; defined one entry for each sought.  I am not going to require that the entries
-;;; be correct only that they be made.  
+;;; -------------------------------- Done ------------------------------------
+;;; On a multiple-choice only problem the student is done working on the 
+;;; problem when they have answered all of the questions.
+
+(defun mc-SystemEntries ()
+  "List of system entries that are multiple choice."
+  ;; Use list of soughts to determine order.
+  (mapcar #'find-SystemEntry
+	  (remove 'choose-answer (problem-soughts *cp*) 
+		  :key #'car 
+		  :test-not #'eql)))
+  
 (defun nsh-mc-only-done? ()
-  (when *Studententries*
-    (nsh-mc-only-done-rec (problem-soughts *cp*))))
-
-(defun nsh-mc-only-done-rec (Soughts)
-  (when (nsh-mc-only-match-SE (car Soughts))
-    (if (= 1 (length Soughts)) t
-      (nsh-mc-only-done-rec (cdr Soughts)))))
-
-
-(defun nsh-mc-only-match-SE (Sought)
-  "Attempt to locate a matching entry for the sought."
-  (find (nth 1 Sought) *Studententries*
-	:key #'(lambda (E) (nth 1 (Studententry-prop E)))
-	:Test #'equalp))
-
-;;; Return t if all of the multiple-choice entries have been made and 
-;;; are correct.  
-(defun nsh-mc-only-done-correct-p ()
-  (let ((Soughts (remove-if-not #'(lambda (V) (equalp 'CHOOSE-ANSWER V)) 
-				(problem-soughts *cp*) :key #'car)))
-    (nsh-mc-only-done-correct-p-rec Soughts)))
-
-(defun nsh-mc-only-done-correct-p-rec (Soughts)
-  "Recursively deal with the correctness."
-  (let ((Ent (nsh-mc-only-match-SE (car Soughts))))
-    (when (and Ent (equalp (studententry-state Ent) +correct+))
-      (if (= 1 (length Soughts)) t
-	(nsh-mc-only-done-correct-p-rec (cdr Soughts))))))
+  "Every entry has been completed." 
+  (every #'SystemEntry-entered (mc-SystemEntries)))
 
 
 ;;; When the student is done then we need to inform them that they have 
 ;;; answered all the questions.  If they have not answered all of the 
 ;;; equations successfully then we can offer them the chance to change 
 ;;; their answers if they wish.
-(defun nsh-mc-only-prompt-done ()
-  "Inform the students that they are done."
-  (if (nsh-mc-only-done-correct-p)
-      (nsh-mc-only-prompt-done-correct)
-    (nsh-mc-only-prompt-done-incorrect)))
-
 
 (defun nsh-mc-only-prompt-done-correct ()
   (make-end-dialog-turn
-   (strcat "You have correctly completed all of the multiple-choice "
-	   "questions on this problem.  There is no more that you "
-	   "need to do.  You can now move on to the next problem.")
+   (strcat "You have correctly completed all of the multiple choice "
+	   "questions on this problem.&nbsp; There is no more that you "
+	   "need to do.&nbsp; You can now move on to the next problem.")
    :Assoc '((nsh mc-only prompt-done-correct))))
 
 
-(defun nsh-mc-only-prompt-done-incorrect ()
-  (make-explain-more-turn 
-   (strcat "You have answered all of the questions on this problem "
-	   "but some of your answers are incorrect.  If you want to "
-	   "you can stop here and move on to another problem.  "
-	   "However you can also change your answers if you wish to "
-	   "try again.")
-   :hint (nsh-mc-only-prompt-done-reconsider)
-   :Assoc '((nsh mc-only prompt-done-incorrect))))
-
-;;; If the students are done but incorrect we can offer them the chance
-;;; to reconsider some of their incorrect answers by listing them here.
-(defun nsh-mc-only-prompt-done-reconsider ()
-  (make-end-dialog-turn
-   (format Nil "Why don't you reconsider your ~a."
-	   (nlg (studententry-prop 
-		 (nsh-mc-only-select-first-incorrect)) 
-		'nlg-entryprop))
-   :Assoc '((nsh mc-only prompt-done-reconsider))))
-
-
-
 ;;; ---------------------------- Start ----------------------------------------
-;;; When starting an mc-only problem we will give the initial preamble and them 
-;;; inform the students that they should start work on this task. 
+;;; When starting an mc-only problem we will give the initial preamble and 
+;;; then inform the students that they should start work on this task.
+ 
 (defun nsh-mc-only-start ()
   (make-explain-more-turn 
-   (strcat "On problems of this type you need to answer "
-	   (if (> 1 (length (problem-soughts *cp*)))
-	       "all of the multiple choice questions on your screen."
-	     "the multiple choice question on your screen.")
-	   "You do not need to make any other entries.")
+   (strcat "On problems of this type, you need to answer "
+	   (let ((count-mc-entries (length (mc-SystemEntries))))
+	     (if (> count-mc-entries 1)
+		 (format nil "all ~R multiple choice questions" 
+			 count-mc-entries)
+		 "the multiple choice question"))
+	   ".&nbsp; You do not need to make any other entries.")
    :hint (nsh-mc-only-prompt-next)
    :Assoc '((nsh mc-only start))))
 
 
-;;; -------------------------------- Next -------------------------------------
-;;; When the student has already been working on an mc-only problem we want to
-;;; give them the same message that they were given originally but, if they 
-;;; have made any incorrect entries we want to offer them the chance to change 
-;;; those entries.
-(defun nsh-mc-only-prompt ()
-  (make-explain-more-turn 
-   (strcat "On problems of this type you need to answer "
-	   (if (> 1 (length (problem-soughts *cp*)))
-	       "all of the multiple choice questions on your screen."
-	     "the multiple choice question on your screen.")
-	   "  You do not need to make any other entries.")
-   :hint (if (nsh-incorrect-mc-entries-made-p)
-	     (nsh-mc-only-prompt-reconsider)
-	     (nsh-mc-only-prompt-next))
-   :Assoc '((nsh mc-only prompt))))
-
-
-;;; If the student has made any incorrect entries then we want to locate them
-;;; and then prompt them to reconsider the earliest one.  This will be done 
-;;; by selecting the subset of them and then sorting them by the mc value.
-
-;;; Collect the incorrect mc-only answers that the student has made (if any).
-(defun nsh-collect-mc-only-incorrect-attempts ()
-  (remove-if-not 
-   #'(lambda (E) 
-       (and (unify (studententry-prop E) '(CHOOSE-ANSWER ?A ?B))
-	    (not (equalp (studententry-state E) +correct+))))
-   *Studententries*))
-
-
-(defun nsh-mc-only-select-first-incorrect ()
-  "Collect the first incorrect answer given."
-  (car (sort (nsh-collect-mc-only-incorrect-attempts) 
-	     #'String<
-	     :key #'(lambda (E) 
-		      (format 
-		       Nil "~a" 
-		       (nth 1 (studententry-prop E)))))))
-  
-(defun nsh-incorrect-mc-entries-made-p ()
-  (when (and *Studententries* 
-	     (nsh-collect-mc-only-incorrect-attempts))
-    t))
-
-
-(defun nsh-mc-only-prompt-reconsider ()
-  (let ((incorrect (nsh-collect-mc-only-incorrect-attempts)))
-    (make-dialog-turn 
-     (strcat (if (> 1 (length incorrect))
-		 "You have made more than one incorrect answer attempt.  "
-	       "You have made an incorrect answer attempt.  ")
-	     "Do you want to:")
-     '((reconsider . "Reconsider it, or") (next . "work on the next question?"))
-     :Responder #'(lambda (Response)
-		    (cond ((eql Response 'reconsider)
-			   (nsh-mc-only-prompt-do-reconsider Incorrect))
-			  ((eql Response 'next)
-			   (nsh-mc-only-prompt-next))
-			  (t (warn 'webserver:log-warn 
-				   :tag (list 'nsh-mc-only-prompt-reconsider 
-					      response)
-				   :text "invalid response"))))
-     :Assoc '((nsh mc-only prompt-reconsider)))))
-
-
-;;; If the student elects to reconsider one or more of their incorrect
-;;; entries.  Then we will select the first incorrect answer attempt 
-;;; and will suggest that they to reconsider it.
-(defun nsh-mc-only-prompt-do-reconsider (Incorrect)
-  "Prompt the student to reconsider the specific value."
-  (let ((Entry (car (sort Incorrect #'String<
-			  :key #'(lambda (E) 
-				   (format 
-				    Nil "~a" 
-				    (nth 1 (studententry-prop E))))))))
-    (make-end-dialog-turn
-     (format Nil "Why don't you reconsider your ~a."
-	     (nlg (studententry-prop Entry) 'nlg-entryprop))
-     :Assoc `((nsh mc-only prompt-do-reconsider ,(studententry-prop Entry))))))
-
-
-;;; If the student is starting the problem, has made no incorrect entries
-;;; or has not elected to work on them then we want to prompt them to make
-;;; the next necessary entry.  
+;;; -------------------------------- Next ------------------------------------
+;;; When the student has already been working on an mc-only problem we want 
+;;; just prompt them to work on the next step.
+ 
 (defun nsh-mc-only-prompt-next ()
   (let ((next (nsh-mc-only-pick-next-undone-sought))) 
     (make-end-dialog-turn
-     (format Nil "Why don't you work on ~a" 
-	     (nlg Next 'nlg-entryprop))
-     :Assoc `((nsh mc-only prompt-next ,Next)))))
+     (format Nil "Why don't you work on ~A."
+	     (nsh-mc-only-english next))	     
+     :Assoc `((nsh mc-only prompt-next ,(SystemEntry-prop Next))))))
 
+(defun nsh-mc-only-english (entry)
+  "English def-np for a multiple choice question."
+  ;; This should more properly go in the Ontology, but
+  ;; it uses the system entries, which are only available 
+  ;; during run time.
+  (format nil "the ~:R multiple choice question"
+	  (+ 1 (position entry (mc-SystemEntries))))) 
 
 (defun nsh-mc-only-pick-next-undone-sought ()
   "Select the next mc-answer that the student should work on."
-  (car (sort (remove-if #'nsh-mc-only-match-SE (problem-soughts *cp*))
-	     #'string<
-	     :key #'(lambda (S) (format Nil "~a" (nth 1 S))))))
+  ;; Find first entry that is not correct.
+  (find nil (mc-SystemEntries)
+	:key #'SystemEntry-Entered
+	:test #'eql))
 
 
-;;;; ================ prompting the sought/first principle ====================
+;;;; ================ prompting the sought/first principle ===================
 ;;;; Once the student has completed the givens we want to prompt them to 
 ;;;; identify whant quantities the problem is seeking and then what major 
 ;;;; principle the student will use to find (it|them).  This takes the student 
@@ -1620,7 +1504,6 @@
 	   (null (find-if #'nsh-principle-started-p
 			  *nsh-current-solutions*
 			  :key #'car)))))
-
 
 
 ;;; Prompting for the sought is a matter of displaying the old what quant?
@@ -2199,8 +2082,6 @@
     (or (member (psmgroup-name group) (problem-ForbiddenPSMS *cp*))
 	(nsh-forbidden-psmgroupp (psmgroup-supergroup Group)))))
 			       
-
-
 
 ;;; Given a form cycle through the list of principles in the solution
 ;;; filtering out all those that don't unify with the form.

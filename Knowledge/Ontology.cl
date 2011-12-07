@@ -324,7 +324,6 @@
   KBForm   ;; Proposition KB form. 
   HelpForm ;; Propositin help form for mapping.
   Doc      ;; Documentation.
-  nlg-english  ;; Englishification code.
   )
 
 ;;(defun print-entryprop (Prop &optional (Stream t) (Level 0))
@@ -337,14 +336,13 @@
   
 (defmacro def-entryprop (Type form
 			 &key (helpform form)
-			      doc nlg-English)
+			      doc)
   "Define an Entry proposition type and store the value."
   (let ((E (make-entryProp 
 	    :type Type
 	    :kbform form
 	    :helpform helpform
-	    :Doc Doc
-	    :nlg-English nlg-English)))
+	    :Doc Doc)))
     (postpend *Ontology-EntryProp-Types* E)
     E))
 
@@ -406,13 +404,12 @@
 
 (defmacro def-eqn-entryprop (type form
 			   &key (helpform form)
-				doc nlg-English)
+				doc)
   "define an eqn entry proposition."
   `(progn (def-eqntype ',type)
 	  (def-entryprop ,type ,form
 	    :helpform ,helpform
-	    :doc ,doc
-	    :nlg-English ,nlg-English)))
+	    :doc ,doc)))
 
 (defun def-eqntype (type)
   "Define an equation type."

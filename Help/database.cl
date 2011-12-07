@@ -227,8 +227,8 @@ list of characters and replacement strings."
 				   client-id student 
 				   problem section extra)
 			;; What the student sees.
-			:text (strcat "Failed to open session.  "
-				      "Please exit this problem and try again."))))))
+			:text "Failed to open session.  Please exit this problem and try again."
+			)))))
 
 (defun truncate-string (x)
   "Truncate arg for warning messages."

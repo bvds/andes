@@ -312,17 +312,6 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Handling Entry-Props
-(defun nlg-entryprop (x &rest args)
-  (declare (ignore args))
-  (if (atom x) 
-      (nlg-atom-default x)
-    (or (nlg-find x *Ontology-EntryProp-Types* #'EntryProp-KBForm #'EntryProp-nlg-english)
-	(nlg-find x *Ontology-EntryProp-Types* #'EntryProp-HelpForm #'EntryProp-nlg-english)
-	(format Nil "[EntryProp: ~a]" x))))
-	
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Given an Equation proposition, find associated English.
 (defun nlg-equation (x)
   (cond ((atom x) (format nil "~A" x))
@@ -352,13 +341,15 @@
     (when (and bindings (ExpType-new-english rule))
       (return-from new-english-find
 	(expand-new-english (ExpType-new-english rule) bindings))))
-  
+
   ;; If it is a goalprop, use that.  
   ;; GoalProp still uses old format for english.
   ;; Returns a single string expression.
   (let ((goal (nlg-find prop *Ontology-GoalProp-Types* 
-			#'GoalProp-Form #'GoalProp-nlg-english)))
+                       #'GoalProp-Form #'GoalProp-nlg-english)))
     (when goal
+      ;; Want backtrace to see whose fault this is.
+      (warn "Prop ~A found in goals, but not english." prop)
       (return-from new-english-find goal)))
 
   ;; If it is a symbol, use improved version of def-np.
