@@ -1032,12 +1032,15 @@
   (cond ((nsh-prompt-bodies?) (nsh-start-bodies)) 
 	((nsh-prompt-axis?) (nsh-new-start-axis))
 	((nsh-prompt-givens?) (nsh-new-start-givens))
-	((equal *nsh-problem-type* 'no-quant) (nsh-start-no-quant))
-	((equal *nsh-problem-type* 'mc-only) (nsh-mc-only-start))
+	((eql *nsh-problem-type* 'no-quant) (nsh-start-no-quant))
+	((eql *nsh-problem-type* 'mc-only) (nsh-mc-only-start))
 	((nsh-start-principle-free?) (nsh-start-principle-free))
 	;; At this point we know that an error has occured so we
 	;; need to signal that to the system for later use.
-	(t (error "Invalid problem setup supplied."))))
+	(t (warn 'webserver:log-warn
+		 :tag (list 'nsh-prompt-start-invalid (problem-name *cp*) 
+			    *nsh-problem-type*)
+		 :text "Invalid problem setup supplied."))))
 
 
 ;;;; -----------------------------------------------------------------------

@@ -374,7 +374,10 @@
    :Sources (list Do)
    :Prereqs (wrap-if (sg-collect-sysent-prereqs Entry Stack))
    ;; This doesn't give anything useful for axes, just the number.
-   :model (unless (member (car entry) '(choose-answer eqn implicit-eqn draw-axes))
+   ;; Done button is a goalprop.
+   :model (unless (member (car entry) 
+			  '(done choose-answer 
+			    eqn implicit-eqn draw-axes))
 	    (new-english-find (reduce-prop entry)))))
 
 ;;; Determination of what is and is not a prerequisite depends upon the problem

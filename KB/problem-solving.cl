@@ -653,9 +653,11 @@
   :effects ((choose-answer ?question-id ?correct-choice)))
 
 (defoperator done-button (?activity)
-  ;; no preconditions
+  ;; Sanity test:  ?activity must be a registered goalprop
+  :preconditions ((test (or (goalprop-exp-p ?activity)
+			   (error "~A must be a goalprop." ?activity))))
   :effects ((done ?activity))
-  :hint ((point (string "Are you finished ~A?" ?activity))
+  :hint ((point (string "Are you finished ~A?" (?activity goal)))
 	 (teach (string "When you are finished, hit the \"Done\" button."))
 	 (bottom-out (string "Hit the \"Done\" button now."))))
 

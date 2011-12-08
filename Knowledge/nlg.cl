@@ -278,10 +278,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun goal (x &rest args)
-  (if (atom x)
-      (lower-case x args)
-    (or (nlg-find x *Ontology-GoalProp-Types* #'GoalProp-Form #'GoalProp-nlg-english)
-	(format nil "[GOAL: ~A]" x))))
+  (or 
+   (nlg-find x *Ontology-GoalProp-Types* #'GoalProp-Form 
+	     #'GoalProp-nlg-english)
+   ;; Want backtrace if this fails
+   (progn (warn "Goal ~A not found in *Ontology-GoalProp-Types*" x)
+	  (format nil "[GOAL: ~A]" x))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun psm-exp (x &rest args)
