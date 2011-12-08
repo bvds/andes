@@ -5,7 +5,9 @@
 #
 dojo-version=trunk
 # Work-around for Bug #1886
-dojo-svn=-r 24327 http://svn.dojotoolkit.org/src
+#   dojo-svn=-r 24327 http://svn.dojotoolkit.org/src
+# But try the latest version:
+dojo-svn=http://svn.dojotoolkit.org/src
 
 install:
 	-rm -r -f dojo dijit dojox util
@@ -18,14 +20,17 @@ install:
 	-git checkout dojox 
 	-git checkout dijit 
 	-git checkout util
-	./andes.build.sh
+	# In case the build fails, we tag version first.
 	echo "${dojo-version}" > dojo-install-version   
+	./andes.build.sh
 	@echo "Installed Dojo $(dojo-version)."
 
 update:
 ifeq ($(shell test -f dojo-install-version && cat dojo-install-version),${dojo-version})
 	# Work-around for Bug #1886
-	svn update -r 24327 *
+	#   svn update -r 24327 *
+	# But try the latest version:
+	svn update *
 	./andes.build.sh
 	@echo "Updated Dojo $(dojo-version)."
 else
