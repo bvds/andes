@@ -517,6 +517,11 @@
 		    (apply 
 		     (cond 
 		       ((equal method "solution-step") #'solution-step)
+		       ;; Help requests are sent to the help system to set 
+		       ;; the solution status and grading state.  
+		       ;; Alternatively, we could just send the solution 
+		       ;; steps to the help system state and then set 
+		       ;; the grading state by brute force.
 		       ((equal method "seek-help") #'seek-help)
 		       ((equal method "record-action") #'record-action))
 		     ;; flatten the alist
@@ -526,25 +531,8 @@
 	       
 	       ;; solution-steps and help results are passed back to client
 	       ;; to set up state on client.
-	       ;;
-	       ;; Help requests are sent to the help system to set 
-	       ;; the solution status and grading state.  Alternatively, 
-	       ;; we could just send the solution steps to the help 
-	       ;; system state and then set the grading state by brute force.
-	       ;; 
-	       ;; Drop actions that make modal changes to the user interface.
-	       ;; Since there is no mechanism to connect log messages to 
-	       ;; specific solution steps or help actions, also drop log 
-	       ;; messages.
-	       (send-reply (remove-if 
-			    #'(lambda (x) (member (cdr (assoc :action x)) 
-						  '("focus-hint-text-box" "log"
-						    "focus-major-principles" 
-						    "focus-all-principles")
-						  :test #'equal))
-			    reply)))
+	       (send-reply (filter-reply reply)))	  
 	  
-	
 	  ;; Echo any solution step action
 	  (when (equal method "solution-step")
 	    ;; "checked" is supposed to be a json array.
@@ -652,6 +640,27 @@
       (progn (warn "write-definition-text:  Can't find systementry for ~S" 
 		   prop)
 	     (strcat symbol ":  Can't find definition"))))
+
+;; Drop actions that make modal changes to the user interface.
+;; Since there is no mechanism to connect log messages to 
+;; specific solution steps or help actions, also drop log 
+;; messages.
+;;
+(defun filter-reply (reply)
+  "Filter out replies to send back to client."
+  (let ((actions '("new-object" "modify-object" "delete-object"
+		   "set-score" "set-preferences" "set-styles"))
+	(hints '("show-hint" "show-hint-link" "echo-get-help-text")) 
+	result (count 0))
+    (dolist (line (reverse reply))
+      (let ((action (cdr (assoc :action line))))
+	;; Very long old sessions can have reply strings
+	;; that overflow the 65535 byte text field in the database.
+	;; Need to consolidate or drop some hints.  Bug #1934
+	(when (or (member action hints :test #'equal)
+		  (member action actions :test #'equal))
+	  (push line result))))
+    result))
 
 (defun problem-times-english (problem)
   "Return list of English sentences defining times."

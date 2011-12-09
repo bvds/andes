@@ -190,6 +190,7 @@ $result = mysql_query($sql);
 // Wall clock time for sending to server.
 $startTime=time();
 
+$closeSession=array();
 while ($myrow = mysql_fetch_array($result)) {
   $clientID=$myrow["clientID"];
   $response=$myrow["server"];	 
@@ -219,6 +220,14 @@ while ($myrow = mysql_fetch_array($result)) {
   // Record problem name for this session
   if(strcmp($method,"open-problem")==0){
     $theProblem[$clientID] = $a->params->problem;
+  }
+
+  // Skip problems kt1apart and kt1asolved:
+  // fix to predefs changes things too much to analyze.
+  // problems commit 820119b3e82bd, Thu Dec 8 12:04:10 2011
+  if(strcasecmp($theProblem[$clientID],"kt1apart")==0 ||
+     strcasecmp($theProblem[$clientID],"kt1asolved")==0){
+    continue;
   }
   
   // If load has failed don't attempt any solution steps.
@@ -255,7 +264,8 @@ while ($myrow = mysql_fetch_array($result)) {
     $closeAction="{\"id\":$closeID,\"method\":\"close-problem\",\"params\":{},\"jsonrpc\":\"2.0\"}";
     $closeResponse = $server->message($closeAction,$sessionIdBase . $clientID);
     $closeTime=$sessionStartTime[$clientID];
-    $closeSession[$clientID]="<td>$closeTime</td>" . $sessionLink1 . "&amp;cid=" . $clientID . $sessionLink2;
+    $closeSession[$clientID]="<td>$closeTime</td>" . $sessionLink1 . "&amp;cid=" . 
+      $clientID . $sessionLink2 . "<td>$closeResponse</td>";
   }
   
   // Determine if problem load failed, set variable
@@ -321,8 +331,19 @@ while ($myrow = mysql_fetch_array($result)) {
     if (strcmp($response,$newResponse) != 0) {
       $jr=$json->decode($response);
       $njr=$json->decode($newResponse);
-      $aaa = "<a href=\"/log/OpenTrace.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;cid=$clientID&amp;t=$tid\">$tid</a>";
-      if(isset($jr->error) || isset($njr->error)){
+      $aaa = "<a href=\"/log/OpenTrace.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;cid=$clientID&amp;t=$ttID\">$tid</a>";
+      if($jr == null || $njr == null){
+	// One of the json decodes fails, can't compare old
+	// and new response.
+	    // Position of first discrepency
+	    $pos=strspn($response ^ $newResponse, "\0");
+	    echo "<tr class='syntax'><td>$aaa</td><td>$aa</td>" . 
+	      "<td>" . ($jr== null?"json decode failed":"OK") . 
+	      "<br>len. " . strlen($response) . "</td>" .
+	      "<td>" . ($njr== null?"json decode failed":"OK") . 
+	      "<br>len. " . strlen($newResponse) . "</td>" .
+	      "<td>pos. $pos</td></tr>\n";
+      } elseif(isset($jr->error) || isset($njr->error)){
 	echo "<tr class='$method'><td>$aaa</td><td>$aa</td><td>$response</td><td>$newResponse</td><td></td></tr>\n";       
       } else {
 	// Server drops result key-value pair if array is empty.
@@ -579,16 +600,20 @@ while ($myrow = mysql_fetch_array($result)) {
 		  isset($nbc->action) && strcmp($nbc->action,"log") == 0 &&
 		  ((strpos($bbc,'"NO-ERROR-INTERPRETATION":"NIL"') !== false &&
 		    strpos($nbbc,'"MULTIPLE-CHOICE":') !== false) ||
-		   ((strpos($bbc,'(MC-ONLY PROMPT-DONE-INCORRECT)') !== false &&
-		     strpos($nbbc,'(MC-ONLY PROMPT-NEXT ') !== false)))){
+		   (strpos($bbc,'(MC-ONLY PROMPT-DONE-INCORRECT)') !== false &&
+		    strpos($nbbc,'(MC-ONLY PROMPT-NEXT ') !== false) ||
+		   (strpos($bbc,'(MC-ONLY PROMPT-DONE-INCORRECT)') !== false &&
+		    strpos($nbbc,'"HANDLE-LINK":"STALE"') !== false))){
 	    $i+=3; $ni+=2;
 	  }elseif(strcmp($method,"seek-help") == 0 &&
 		  // Add help for multiple-choice.
 		  // commit 54b004f2d529efdab, Tue Nov 1 14:21:55 2011
 		  isset($bc->action) && strcmp($bc->action,"log") == 0 &&
 		  isset($nbc->action) && strcmp($nbc->action,"log") == 0 &&
-		  strpos($bbc,'(MC-ONLY PROMPT-DONE-RECONSIDER)') !== false &&
-		  strpos($nbbc,'(MC-ONLY PROMPT-NEXT ') !== false){
+		  ((strpos($bbc,'(MC-ONLY PROMPT-DONE-RECONSIDER)') !== false &&
+		    strpos($nbbc,'(MC-ONLY PROMPT-NEXT ') !== false) ||
+		   (strpos($bbc,'(MC-ONLY PROMPT-DONE-INCORRECT)') !== false &&
+		    strpos($nbbc,'(MC-ONLY START)') !== false))){
 	    $i+=2; $ni+=2;
 	  }elseif($imax-$i == $nimax-$ni){ // mismatch, but same remaining
 	    // Position of first discrepency
@@ -681,7 +706,7 @@ echo "</table>\n";
 if(count($closeSession)>0){
   echo "<p>Hanging Sessions:<br>\n";
   echo "<table border=1>\n";
-  echo "<tr><th>Start Time</th><th>Session</th></tr>\n";
+  echo "<tr><th>Start Time</th><th>Session</th><th>Response</th></tr>\n";
   foreach($closeSession as $value){
     echo " <tr>$value</tr>\n";
   }
