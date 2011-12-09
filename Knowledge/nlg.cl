@@ -157,7 +157,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-(defun indef-np	(x &rest args)
+(defun indef-np (x &rest args)
   (declare (ignore args))
   (if (atom x)
       (if (stringp x)
@@ -278,10 +278,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun goal (x &rest args)
-  (if (atom x)
-      (lower-case x args)
-    (or (nlg-find x *Ontology-GoalProp-Types* #'GoalProp-Form #'GoalProp-nlg-english)
-	(format nil "[GOAL: ~A]" x))))
+  (or 
+   (nlg-find x *Ontology-GoalProp-Types* #'GoalProp-Form 
+	     #'GoalProp-nlg-english)
+   ;; Want backtrace if this fails
+   (progn (warn "Goal ~A not found in *Ontology-GoalProp-Types*" x)
+	  (format nil "[GOAL: ~A]" x))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun psm-exp (x &rest args)
@@ -294,6 +297,15 @@
 	(nlg-find x *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-nlg-english)
 	(format nil "[PSM: ~A]" x))))
 
+
+(defun psm-exp-hintable (prop)
+  "See if psm-exp can return something from Ontology."
+  (let ((x (lookup-expression->psmclass prop))
+	(y (lookup-expression->psmgroup prop)))
+    (or (and x (or (psmclass-nlg-english x) (psmclass-expformat x)))
+	(and y (or (psmgroup-nlg-english y) (psmgroup-expformat y))))))
+
+
 (defun psm-english (x)
   (if (atom x)
       (nlg-atom-default x)
@@ -301,17 +313,6 @@
 	(nlg-find x *Ontology-PSMGroups* #'PSMGroup-Form #'PSMGroup-nlg-english)
 	(format nil "[PSM: ~A]" x))))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Handling Entry-Props
-(defun nlg-entryprop (x &rest args)
-  (declare (ignore args))
-  (if (atom x) 
-      (nlg-atom-default x)
-    (or (nlg-find x *Ontology-EntryProp-Types* #'EntryProp-KBForm #'EntryProp-nlg-english)
-	(nlg-find x *Ontology-EntryProp-Types* #'EntryProp-HelpForm #'EntryProp-nlg-english)
-	(format Nil "[EntryProp: ~a]" x))))
-	
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Given an Equation proposition, find associated English.
@@ -324,13 +325,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun qnode-new-english (qnode)
-  "Match qnode to Ontology, pulling out model sentence, including any var."
-  ;; use same strategy as for systementries.
-  (or (Qnode-model qnode)   ;Use Qnode-model as a cache
-      (setf (Qnode-model qnode)
-	    `(or (var ,(qnode-exp qnode))
-		 ,(new-english-find (qnode-exp qnode))))))
 
 (defun new-english-find (prop)
   "Match proposition to Ontology."
@@ -350,11 +344,21 @@
     (when (and bindings (ExpType-new-english rule))
       (return-from new-english-find
 	(expand-new-english (ExpType-new-english rule) bindings))))
-  
+
+  ;; If it is a goalprop, use that.  
+  ;; GoalProp still uses old format for english.
+  ;; Returns a single string expression.
+  (let ((goal (nlg-find prop *Ontology-GoalProp-Types* 
+                       #'GoalProp-Form #'GoalProp-nlg-english)))
+    (when goal
+      ;; Want backtrace to see whose fault this is.
+      (warn "Prop ~A found in goals, but not english." prop)
+      (return-from new-english-find goal)))
+
   ;; If it is a symbol, use improved version of def-np.
   (when (atom prop)
     (return-from new-english-find (def-np-model prop)))
-  
+
   ;; On failure, warn and return nil
   (warn "new-english-find:  no ontology match for ~S" prop))
 

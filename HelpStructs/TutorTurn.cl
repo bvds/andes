@@ -47,26 +47,6 @@
 (defparameter **play-Minilessons** t
   "If t minilesson ophints will be played when present.")
 
-;;; Both KCDS and minilessons can appear within hint sequences
-;;; The parameters below determine the number of times that a
-;;; specific kcd or minilesson can be repeated to the student as
-;;; part of a hint sequence.  The workbench allows the students to 
-;;; access them in other ways after they stop appearing in the 
-;;; hints themselves.  
-(defparameter **max-minilesson-repeats** 2 
-  "The number of times that a minilesson may be repeated to the student.")
-(defparameter **max-kcd-repeats** 1
-  "The number of times that a kcd can be viewed by a student as part of a hint seq.")
-
-;;; For research purposes it is necessary to set condition flags for the kcds.
-;;; Specifically in order to test whether or not the KCDS show any improvement
-;;; over minilessons.  Therefore we need to establish two conditions one for
-;;; the kcd students and one for minilesson students.  If this flag is set to
-;;; t then any hint-seq calls to kcds will cause the corresponding (same name)
-;;; minilesson to be opened instead.
-(defparameter **Play-KCDS-as-Minilessons** nil 
-  "If t then any calls to a kcd will be treated as calls to kcd will be treated as minilessons.")
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Turn Structs.
 ;; The tutor turn struct itself is intended to encapsulate all the responses to 
@@ -118,10 +98,7 @@
 
 (defconstant +dialog-turn+ 'Dialog-Turn)
 (defconstant +minil-turn+ 'Minil-Turn)
-(defconstant +tcard-turn+ 'TCard-Turn)
-(defconstant +kcd-turn+ 'KCD-Turn)
 (defconstant +eqn-turn+ 'Eqn-turn)
-(defconstant +end-dialog+ 'End-Dialog)
 (defconstant +stat-turn+ 'stat-turn)
 
 ;; Hook for variable later defined by help system.
@@ -291,37 +268,6 @@
   (make-turn :Type +no-op-turn+))
 
 
-;;; ----------------------------------------------------------------------
-;;; Make-stat-turn
-;;; Score turns are used to return the student's stats.  They have no 
-;;; coloring or other values associated and will merely be translated 
-;;; into a string of the score values.  
-;;;
-;;; Stat-turns, at present only make use of the type and value fields of
-;;; the tutor-turn.  In the future I will add the possibility of dialog-stat
-;;; turns or other combined forms that will be used to conduct dialogs
-;;; with the students
-
-(defun make-stat-turn (Stats)
-  "Make a statistics turn."
-  (make-turn :Type +stat-turn+ :Value Stats))
-
-
-;;; This is a specialized error turn that gives the student a 
-;;; "this problem is bad, move on..." message and is associated
-;;; with the optional error.  This facilitates oops locations in
-;;; the code.
-(defun make-bad-problem-turn (assoc)
-  "Make a bad-problem error turn."
-  (warn "make-bad-problem-turn: ~A" assoc)
-  (make-turn 
-   :Coloring +color-red+
-   :type +dialog-turn+
-   :text "This is an incorrectly formed problem.  Please try a different problem."
-   :Assoc (alist-warn assoc)))
-
-
-
 ;;=============================================================
 ;; Hint sequences 
 ;; During next step-help and whats-wrong-help it is often
@@ -407,7 +353,7 @@
 ;; where type is one of {Point, Teach, Apply} and <Class> is
 ;; one of {String, KCD, MiniLesson, etc.}  
 
-
+;; Returns nil or a turn struct.
 (defun make-hint-seq (Hints &key (Prefix nil) (Assoc nil) (OpTail nil))
   "make the appropriate hint sequence."
   (when Hints
@@ -437,7 +383,7 @@
 
 ;;; When there are no more hints in the list then the system
 ;;; will generate an end-dialog style hint of the appropriate
-;;; type and return it.
+;;; type and return it.  Returns nil or turn struct.
 (defun make-end-hseq (Hint &optional (Prefix "") (Assoc Nil) (OpTail Nil))
   ;;(if (listp hint) (pprint (car Hint)))
   (cond ((stringp Hint)	             (make-string-end-hseq Hint Prefix Assoc))

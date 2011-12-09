@@ -91,21 +91,6 @@
 	     X Y))
     (and exp alg (merge-eqn-types (Eqn-Type X) (Eqn-Type Y)))))
 
-;;; make-qsolver-eqn
-;;; As Eqns come out of the qsolver they consist of lists that
-;;; need to be modified.  This code takes those eqn list of
-;;; the form (<Type> <Algebra> <ID>) and generates eqn strcuts
-;;; from them.
-(defun make-qsolver-eqn (QE)
-  "Convert QE to an eqn."
-  (make-eqn :type (car QE)
-	    :Algebra (nth 1 QE)
-	    :Exp (Nth 2 QE)))
-
-(defun collect-qsolver-eqns (QEqns)
-  "Collect the eqns for the specified Qsolver eqns."
-  (loop for Q in Qeqns
-      collect (make-qsolver-eqn Q)))
 
 ;;;-----------------------------------------------------------------
 ;;;
@@ -164,12 +149,6 @@
       when (Eqn-Solved E)
       collect E))
 
-(defun collect-unsolved-eqns (Eqns)
-  "Get the solved equations from the list."
-  (loop for E in Eqns
-      unless (Eqn-Solved E)
-      collect E))
-
 (defun eqns->IndyEqns (Eqns)
   (push-index
    (loop for E in Eqns
@@ -189,13 +168,6 @@
       when (not (eq (Eqn-Type E) 'Derived-Eqn))   ;; IE Eqn, Given Eqn and Implicit-Eqn.
       collect E))
 
-
-;;; Return t iff the specified equation's algebra contains
-;;; the specified element be it list or atom.
-(defun eqn-algebra-contains? (Elt Eqn &key (test #'equal))
-  "Return t iff the equation algebra contains the specified element."
-  (recursive-member Elt (eqn-algebra Eqn) :test Test))
-  
 
 ;;-----------------------------------------------------------------
 ;; Equation Index.
@@ -229,36 +201,4 @@
     (when (not (= I (Eqn-Index eqn)))
       (error "Incompatible variable index ~A ~A" I Eqns))
     eqn))
-
-(defun collect-algebra->eqns (Equations Eqns)
-  (loop for E in Equations
-      when (find-algebra->eqn (eqn-algebra E) Eqns)
-      collect it
-      else do (error "Unrecognized Equation ~A supplied." E)))
   
-
-
-;;; Given an element and a list of equations collect all those
-;;; eqns in the list that contain the specified element.
-(defun collect-eqn-algebra-contains? (Elt Eqns &key (test #'equal))
-  "Return t iff the equation algebra contains the specified element."
-  (remove-if-not
-   #'(lambda (E) (recursive-member Elt (eqn-algebra E) :test Test))
-   Eqns))
-
-  
-;;----------------------------------------------------
-;; compare eqn indicies
-
-(defun eqn-indicies-equalp (I1 I2)
-  "Are the two indicies equalp?"
-  (null (set-exclusive-or I1 I2 :test #'eqns-ni-equalp)))
-
-(defun eqns-ni-equalp (e1 e2)
-  "Are the two qvars equal but for their index."
-  (and (unify (eqn-type e1) (eqn-type e2))
-       (unify (eqn-algebra e1) (eqn-algebra e2))
-       (unify (eqn-exp e1) (eqn-exp e2))
-       (unify (eqn-solved e1) (eqn-solved e2))
-       (equal-sets (mapcar #'bgnode-exp (eqn-Nodes e1))
-		    (mapcar #'bgnode-exp (eqn-Nodes e2)))))

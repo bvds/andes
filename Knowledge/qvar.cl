@@ -238,46 +238,6 @@
   (nth I Vars))
 
 
-
-
-
-
-;;; make-qsolver-var
-;;; Given a qsolver var form define a qvar 
-;;; struct for it.  Or a list if vars is called.
-(defun make-qsolver-var (QV)
-  "Make a qsolver var from QV."
-  (make-qvar :Var (nth 1 QV)
-	     :exp (nth 2 QV)))
-
-(defun make-qsolver-vars (QVars)
-  "Collect the vars for the qsolver qvars."
-  (let ((Vars))
-    (dolist (Q Qvars)
-      (push (make-qsolver-var Q) Vars))))
-
-
-
-;;----------------------------------------------------
-;; compare var indicies
-
-(defun diff-var-indicies (V1 V2)
-  "Are the two indicies equalp?"
-  (list (set-difference V1 V2 :test #'qvars-ni-equalp)
-	(set-difference V2 V1 :test #'qvars-ni-equalp)))
-
-(defun qvars-ni-equalp (q1 q2)
-  "Are the two qvars equal but for their index."
-  (and (unify (qvar-var q1) (qvar-var q2))
-       (unify (qvar-exp q1) (qvar-exp q2))
-       (unify (qvar-value q1) (qvar-value q2))
-       (unify (qvar-units q1) (qvar-units q2))
-       (equal-sets (qvar-Marks q1) (qvar-Marks q2))
-       (equal-sets (mapcar #'bgnode-exp (qvar-Nodes q1))
-		    (mapcar #'bgnode-exp (qvar-Nodes q2)))))
-
-
-
 ;;;===================================================================
 ;;; At help time it is necessary to test whether a given canonical
 ;;; var (qvar) is a parameter, answer-var etc.  The functions in this
@@ -353,11 +313,6 @@
   "Given a kb expression look up the qvar that matches it from List."
   (find Exp Vars :test #'unify :key #'Qvar-Exp)) ;could use "equal"
 
-
-(defun qvars-solvedp (Vars)
-  (not (loop for V in Vars
-	   unless (qvar-value V)
-	   return t)))
 
 ;;-----------------------------------------------------------------------------
 ;;                 Utility functions for mapping variables:

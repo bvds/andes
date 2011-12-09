@@ -580,7 +580,7 @@
   :short-name "index of refraction"
   :nlg-english ("the definition of index of refraction")
   :ExpFormat ("relating the speed of waves in ~A to the index of refraction" 
-	      (nlg ?medium 'conjoined-defnp))
+	      (nlg ?medium))
   :EqnFormat ("n = c/v")) 
 
 (defoperator wave-speed-refraction-contains (?sought)

@@ -153,20 +153,12 @@
 	  **current-cmd-stack** **current-cmd** *last-turn-response* 
 	  *last-score*
           ;; Variables set in Config.cl, which is loaded for each session.
-	  **Testing-Pause-Time-Threshold** **Filter-Constraint-losses**
+	  **Filter-Constraint-losses**
           *followup-problems*
-	  ;; Variables used for scoring in Help/RunTimeTest.cl
-          *Runtime-Testset* *Runtime-Score-Testset*
-	  *Runtime-testset-current-Solindex*
-	  *Runtime-Testset-current-total-score* **Checking-entries**
+	  ;; Variables used for grades
+	  *grade* *random-average-score* *help-last-entries*
 	  ;; Variables holding session-local memos.
 	  *parse-memo* *lexical-rules-memo* *rules-starting-with-memo*
-	  ;; Cache variables in Testcode/Tests.cl
-	  *test-cache-eqn-entries* *test-cache-given-eqn-entries*
-	  *test-cache-axis-entries* *test-cache-objects* 
-	  *test-cache-drawing-entries* **Current-Body-Expression-Form**
-	  **Current-Prob-Requires-nonanswer-entries** **entry-entered**
-	  *sg-systementry-optional-p-memo*
 	  ;; Session state information
 	  session:*user* session:*section* session:*problem* 
 	  session:*state-cache*
@@ -175,7 +167,7 @@
 	#+sbcl #'equalp
 	)
 
-;; Should be useful for debugging.
+;; Useful for debugging.
 (defun get-session-variable (session var)
   "Get a session local variable for a given session (string)."
   (nth (position var help-env-vars)
@@ -269,14 +261,9 @@
 	    session:*section* section
 	    session:*problem* problem)
 
-      (setq **base-Htime** (universal-time->htime (get-universal-time)))
       (solver-load)
       (solver-logging *solver-logging*)
       
-      ;; Config modifies *runtime-testset*, so we
-      ;; need to make the session-local copy first. 
-      (session-local-runtime-testset)
-
       ;; Andes2 had the following calls that can be found in log files:
       ;;   read-student-info; the only remaining step is:
       (Load-Config-File)			
@@ -334,6 +321,18 @@
 				   :test #'unify)
 		     (warn "Invalid label ~A for ~A" label button-type))
 
+		   ;; Add weight and choices to grading
+		   (let ((sysent (find-SystemEntry `(choose-answer ,label . ?rest))))
+		     (if sysent
+			 (setf (graded-possibilities (SystemEntry-graded sysent))
+			       (length line)  ;should be list, but for now...
+			       ;;(list nil nil (length line))
+			       ;; Need a real determination of weight.
+			       (graded-weight (SystemEntry-graded sysent))
+			       11
+			       )
+			 (warn "No SystemEntry for multiple-choice ~A" label)))
+		   
 		   (let* ((id (format nil "~A" label))
 			  (prop `(choose-answer ,label nil))
 			  (buttons
@@ -374,20 +373,31 @@
 		 (pop line)
 		 (let* ((label (pop line))
 			(id (format nil "doneButton~S" i))
-			(prop `(done ,(or label 
-					  (car (problem-soughts *cp*))))))
+			;; If name of activity was supplied, use that.
+			;; else search for any done button.
+			(label-match (if label (list 'done label) 
+					     '(done . ?rest)))
+			;; Find any done button SystemEntry.
+			(donners (remove label-match 
+					 *sg-entries*
+					 :key #'SystemEntry-prop
+					 :test-not #'unify))
+			(prop (when donners (SystemEntry-prop (car donners)))))
 		   ;; Sanity checks
-		   (when (and (null label) (cdr (problem-soughts *cp*)))
-		     (warn "Ambiguous null label for choose"))
-		   (unless (member (second prop) (problem-soughts *cp*)
-				   :test #'unify)
-		     (warn "Invalid label ~A for choose" label))
+		   (when (or (null donners) (cdr donners))
+		     ;; Student can't successfully solve the problem if
+		     ;; this is broken.
+		     (error 'webserver:log-error
+			   :tag (list 'setup-button-match label 
+				      (mapcar #'SystemEntry-prop donners))
+		     :text "Bad SystemEntry match for button."))
 		   ;; Create a single push button
 		   (push `((:action . "new-object") 
 			   (:type . "button") (:id . ,id) 
 			   (:items . (((:type . "done") (:label . "Done")
 				       ;; Indent buttons relative to text
-				       (:x . ,(+ x indent)) (:y . ,y) (:width . 300)
+				       (:x . ,(+ x indent)) (:y . ,y) 
+				       (:width . 300)
 				       (:text . ,(car line)))))) replies)
 		   (push (make-studententry 
 			  :id id :mode "unknown" :type "button" 
@@ -460,27 +470,24 @@
 		(setf y (max y (cdr (assoc :y (cdr predef))))))
 	      (push `(:y . ,y) (cdr predef)))
 	  ;; (format webserver:*stdout* "  Turned to ~A~%" (cdr predef))
-	  (setf y (+ y 25))))
-      
-      (setf **checking-entries** t))
+	  (setf y (+ y 25)))))
     
     ;; Send pre-defined quantities to the help system via
     ;; the solution-step method.
     ;; Execute outside of env-wrap and with check-entries turned on.
-    (dolist (predef (mapcar #'cdr predefs)) ;ignore any entry-prop
-      ;; (format webserver:*stdout* "Sending predef ~A~%" (cdr predef))
-      (let ((reply (apply #'solution-step 
-			   ;; flatten the alist
-			   (mapcan 
-			    #'(lambda (x) (list (car x) (cdr x)))
-			    predef))))
-	(setf solution-step-replies 
-	      (append solution-step-replies 
-		      (cons predef reply))))
-      ;; (format webserver:*stdout* "   done with predef ~A~%" (cdr predef))
-      )
-
-    (env-wrap (setf **checking-entries** nil))
+    (let ((**checking-entries** t))
+      (dolist (predef (mapcar #'cdr predefs)) ;ignore any entry-prop
+	;; (format webserver:*stdout* "Sending predef ~A~%" (cdr predef))
+	(let ((reply (apply #'solution-step 
+			    ;; flatten the alist
+			    (mapcan 
+			     #'(lambda (x) (list (car x) (cdr x)))
+			     predef))))
+	  (setf solution-step-replies 
+		(append solution-step-replies 
+			(cons predef reply))))
+	;; (format webserver:*stdout* "   done with predef ~A~%" (cdr predef))
+	))
     
     ;; Pull old sessions out of the database that match
     ;; student, problem, & section.  Run turns through help system
@@ -505,40 +512,27 @@
 	       ;; into a warning and move on to the next turn.
 	       ;; Otherwise old sessions with unfixed errors cannot 
 	       ;; be reopened.
-	       (reply (handler-case
-			  (apply 
-			   (cond 
-			     ((equal method "solution-step") #'solution-step)
-			     ((equal method "seek-help") #'seek-help)
-			     ((equal method "record-action") #'record-action))
-			   ;; flatten the alist
-			   (mapcan #'(lambda (x) (list (car x) (cdr x))) 
-				   params))
-			(error (c) (warn (format nil "Found ~A for ~A of ~A" 
-						 (type-of c) method 
-						 params)))))
+	       (reply 
+		(handler-case
+		    (apply 
+		     (cond 
+		       ((equal method "solution-step") #'solution-step)
+		       ;; Help requests are sent to the help system to set 
+		       ;; the solution status and grading state.  
+		       ;; Alternatively, we could just send the solution 
+		       ;; steps to the help system state and then set 
+		       ;; the grading state by brute force.
+		       ((equal method "seek-help") #'seek-help)
+		       ((equal method "record-action") #'record-action))
+		     ;; flatten the alist
+		     (mapcan #'(lambda (x) (list (car x) (cdr x))) 
+			     params))
+		  (error (c) (old-errors-into-warnings c method params))))
 	       
 	       ;; solution-steps and help results are passed back to client
 	       ;; to set up state on client.
-	       ;;
-	       ;; Help requests are sent to the help system to set 
-	       ;; the solution status and grading state.  Alternatively, 
-	       ;; we could just send the solution steps to the help 
-	       ;; system state and then set the grading state by brute force.
-	       ;; 
-	       ;; Drop actions that make modal changes to the user interface.
-	       ;; Since there is no mechanism to connect log messages to 
-	       ;; specific solution steps or help actions, also drop log 
-	       ;; messages.
-	       (send-reply (remove-if 
-			    #'(lambda (x) (member (cdr (assoc :action x)) 
-						  '("focus-hint-text-box" "log"
-						    "focus-major-principles" 
-						    "focus-all-principles")
-						  :test #'equal))
-			    reply)))
+	       (send-reply (filter-reply reply)))	  
 	  
-	
 	  ;; Echo any solution step action
 	  (when (equal method "solution-step")
 	    ;; "checked" is supposed to be a json array.
@@ -612,22 +606,7 @@
 		(:name . ,(car preference))
 		(:value . ,(cdr preference)))
 	      replies))
-      
-      ;; set-stats (if there was an old score) (to do)
-      ;; Should this be wrapped in execute-andes-command?
-
-      (set-stats '(("NSH_BO_Call_Count" . 0)
-		   ("WWH_BO_Call_Count" . 0)
-		   ("Correct_Entries_V_Entries" . (0 0)) 
-		   ("Correct_Answer_Entries_V_Answer_Entries" . (0 0))))
-   
-      (push `((:action . "log") 
-	      (:log . "subscores")
-	      (:items . (("NSH_BO_Call_Count" 0)
-			     ("WWH_BO_Call_Count" 0)
-			     ("Correct_Entries_V_Entries" 0 0) 
-			     ("Correct_Answer_Entries_V_Answer_Entries" 0 0))))
-	    replies)      
+           
       (push `((:action . "set-score") (:score . 0)) replies))
 
     ;; log the user-agent http header
@@ -636,6 +615,15 @@
 
     ;; assemble list of replies to send to client.
     (append (reverse replies) solution-step-replies)))
+
+
+;; helper function to handle errors from old sessions
+;; Turns errors into log-warn.
+(defun old-errors-into-warnings (c method params)
+  (warn 'webserver:log-warn
+	:tag (list 'old-session-error method params 
+		   (type-of c) (webserver:get-any-log-tag c))
+	:text (format nil "Error from rerunning old sessions: ~A" c)))  
 
 
 ;; helper function to write out definition text based on Ontology.
@@ -652,6 +640,27 @@
       (progn (warn "write-definition-text:  Can't find systementry for ~S" 
 		   prop)
 	     (strcat symbol ":  Can't find definition"))))
+
+;; Drop actions that make modal changes to the user interface.
+;; Since there is no mechanism to connect log messages to 
+;; specific solution steps or help actions, also drop log 
+;; messages.
+;;
+(defun filter-reply (reply)
+  "Filter out replies to send back to client."
+  (let ((actions '("new-object" "modify-object" "delete-object"
+		   "set-score" "set-preferences" "set-styles"))
+	(hints '("show-hint" "show-hint-link" "echo-get-help-text")) 
+	result (count 0))
+    (dolist (line (reverse reply))
+      (let ((action (cdr (assoc :action line))))
+	;; Very long old sessions can have reply strings
+	;; that overflow the 65535 byte text field in the database.
+	;; Need to consolidate or drop some hints.  Bug #1934
+	(when (or (member action hints :test #'equal)
+		  (member action actions :test #'equal))
+	  (push line result))))
+    result))
 
 (defun problem-times-english (problem)
   "Return list of English sentences defining times."
@@ -935,7 +944,7 @@
   "shut problem down" 
   (unwind-protect
       (env-wrap
-	(let ((result (execute-andes-command time 'get-stats 'persist)))
+	(let (result)
 		 
 	  (do-close-problem)
 	  (solver-unload)

@@ -31,7 +31,7 @@
 	     // Still need to clean up logging:  consistent format
 	     // Have interp for each red turn?
 
-	     // To get server timing, need to set:
+	     // To get help server timing, need to set:
 	     // (setf webserver:*debug* nil)
 	     // (setf *simulate-loaded-server* nil)
 $ignoreNewLogs = true;  // ignore any new non-error, log messages
@@ -54,8 +54,9 @@ mysql_select_db($dbname)
      or die ("UNABLE TO SELECT DATABASE"); 
 
 /* filters for user name, section, etc.  */
+/* These are regexp */
 $adminName = ''; // $_POST['adminName'];   student name.
-$sectionName = 'study' ; //$_POST['sectionName'];
+$sectionName = 'asu_9Q1920841f2ca4d1fasul1_*' ; //$_POST['sectionName'];
 $startDate = ''; // $_POST['startDate'];
 $endDate = ''; // $_POST['endDate'];
 $methods = array('open-problem','solution-step','seek-help','record-action','close-problem');  //implode(",",$_POST['methods']);
@@ -64,18 +65,20 @@ if($adminName==''){
   $adminNamec = "";
   $adminNamee = "";
  } else {
-  $adminNamec = "P1.userName = '$adminName' AND";
+  $adminNamec = "P1.userName REGEXP '$adminName' AND";
   $adminNamee = " by $adminName,";
  }  
 if($sectionName==''){
   $sectionNamec = "";
   $sectionNamee = "";
  } else {
-  $sectionNamec = "P1.userSection = '$sectionName' AND";
+  $sectionNamec = "P1.userSection REGEXP '$sectionName' AND";
   $sectionNamee = " by $sectionName,";
  }  
 
-$extrac = "P1.extra = 0 AND";
+// Changed extra from number to string or null
+// commit a0719d09f0017cb, Nov 9, 2011
+$extrac = "(P1.extra IS NULL or P1.extra = 0) AND";
 $extrae = "solved";
 
 if($startDate){
@@ -169,7 +172,7 @@ function consolidate_interps($result){
 }
 	     
 require_once('jsonRPCClient.php');
-$server  = new jsonRPCClient('http://localhost/help');
+$server  = new jsonRPCClient('http://localhost/help-test');
 $sessionIdBase = "_" . date('h:i:s') . "_";
 $sessionId = 0;
 $handle = fopen($jsonFile,'w');

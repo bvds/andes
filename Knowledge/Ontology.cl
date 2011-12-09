@@ -51,7 +51,6 @@
 (defparameter *Ontology-EntryProp-Types* () "List of valid entry proposition prefixes.")
 (defparameter *Ontology-GoalProp-Types* () "List of valid Goal proposition prefixes.")
 (defparameter *Ontology-Equation-Types* () "List of valid equation types.")
-(defparameter *Ontology-EqnMerge-Lists* () "List of valid type pairs for eqn merging.")
 (defparameter *Ontology-PSMGroups* () "List of valid psm groups.")
 (defparameter *Ontology-PSMClasses* () "List of valid psm classes.")
 
@@ -325,7 +324,6 @@
   KBForm   ;; Proposition KB form. 
   HelpForm ;; Propositin help form for mapping.
   Doc      ;; Documentation.
-  nlg-english  ;; Englishification code.
   )
 
 ;;(defun print-entryprop (Prop &optional (Stream t) (Level 0))
@@ -338,14 +336,13 @@
   
 (defmacro def-entryprop (Type form
 			 &key (helpform form)
-			      doc nlg-English)
+			      doc)
   "Define an Entry proposition type and store the value."
   (let ((E (make-entryProp 
 	    :type Type
 	    :kbform form
 	    :helpform helpform
-	    :Doc Doc
-	    :nlg-English nlg-English)))
+	    :Doc Doc)))
     (postpend *Ontology-EntryProp-Types* E)
     E))
 
@@ -407,13 +404,12 @@
 
 (defmacro def-eqn-entryprop (type form
 			   &key (helpform form)
-				doc nlg-English)
+				doc)
   "define an eqn entry proposition."
   `(progn (def-eqntype ',type)
 	  (def-entryprop ,type ,form
 	    :helpform ,helpform
-	    :doc ,doc
-	    :nlg-English ,nlg-English)))
+	    :doc ,doc)))
 
 (defun def-eqntype (type)
   "Define an equation type."
@@ -447,10 +443,13 @@
 ;;;;============================================================
 ;;;; Goal propositions.
 ;;;; Goal props are located within the sg subsections of the 
-;;;; qsolver trees.  Goald such as draw-forces are used in the
+;;;; qsolver trees.  Goals such as draw-forces are used in the
 ;;;; knowledge base to express the goals that we want to acheive
-;;;; by specific actions.  Goal props are used in the nlg code
-;;;; for the purposes of nlg.
+;;;; by specific actions. 
+;;;
+;;; These are used solely for hinting in Help/NextStepHelp.cl
+
+
 (defstruct GoalProp
   Type     ;; Proposition type label.
   Form     ;; Unification form for the goal.
@@ -473,9 +472,9 @@
 
 (defun goalprop-exp-p (exp)
   "Is the expression a goalprop expression?"
-  (find-if #'(lambda (g) (unify exp g))
-	   *Ontology-GoalProp-Types*
-	   :key #'GoalProp-Form))
+  (find exp *Ontology-GoalProp-Types*
+	:test #'unify
+	:key #'GoalProp-Form))
 
 
 ;;;;=================================================================
@@ -621,24 +620,15 @@
   (find name *Ontology-PSMGroups*
 	:key #'PsmGroup-Name))
 
-(defun lookup-psmgroups-form (form &optional (bindings no-bindings))
-  "Collect the psmgroups that unify with pattern."
-  (loop for G in *Ontology-PSMGroups*
-      when (unify (psmgroup-form G) form bindings)
-      collect G))
-
-
-(defun lookup-expressions->psmgroups (exp &optional (bindings no-bindings))
-  "Find all psmgroups matching expression exp."
-  (loop for G in *Ontology-PSMGroups*
-      when (unify (psmgroup-form G) exp bindings)
-      collect G))
-
+(defun lookup-expression->psmgroup (exp)
+"return first psmclass whose form unifies with expression"
+  (find exp *Ontology-PSMGroups* 
+        :key #'psmgroup-form :test 'unify))
 
 ;;;-------------------------------------------------------------
 ;;; Psm Classes
 ;;; Psm expressions will need to be unified with at help
-;;; time for the purposes of analizing student responses.
+;;; time for the purposes of analyzing student responses.
 ;;; This code performs that comparison allowin the response
 ;;; to be tested agains one of the specified types and to 
 ;;; be flagged if necessary.  
@@ -726,111 +716,3 @@
 				       (subst-bindings-quoted bindings x))))
 	((typep x 'string) x)
 	(t (error "invalid print spec ~A" x))))
-
-;;;---------------------------------------------------------
-;;; Complexity tests.
-
-(defun psmclass-major-p (Class)
-  "Is this a major PSM?"
-  (equal 'major (psmclass-complexity Class)))
-
-
-;;; --------------------------------------------------------------
-;;; Complexity classes.
-;;; Given a list of psmclasses calculate the planning complexity
-;;; of the set by determining the number of major, connect, and
-;;; minor psms in the set.
-;;; 
-;;; This is stored as an alist of values for later use.
-
-;;; Iterate through the list of psms incrementally building
-;;; an alist of classes and their counts.  This defines the
-;;; complexity of the associated set.
-(defun psmclasses->complexity (psms &optional (comp ()))
-  "Given the set of psms calculate their complexity."
-  (let ((c) (classes (if comp comp nil)))
-    (dolist (p psms)
-      (setq c (assoc (psmclass-complexity p) classes))
-      (if c (incf (cdr c))
-	(push (cons (psmclass-complexity p) 1) classes)))
-    classes))
-	  
-
-;;; Given a list of complexity classes calculate 
-;;; the average values of each set.
-(defun calc-complexity-averages (sets)
-  "calculate the averages of the complexity sets."
-  (let (Result Class)
-    ;;; Calculate the initial values.
-    (dolist (Set sets)
-      (dolist (Val Set)
-	(setq Class (assoc (car Val) Result))
-	(when (null Class)
-	  (setq Class (cons (car Val) 0))
-	  (push Class Result))
-	(setf (cdr Class) (+ (cdr Class) (cdr Val)))))
-
-    ;;; Average the final Values.
-    (dolist (Val Result)
-      (setf (cdr Val) (/ (cdr Val) (length sets))))
-
-    Result))
-
-
-;;; Given a list of psms identify them by class
-;;; associating them by the appropriate complexity.
-(defun assoc-psms-by-complexity (psms)
-  "Assoc the psms by complexity class."
-  (let (Result Class) 
-    (dolist (P Psms)
-      (cond ((setq Class (assoc (psmclass-complexity P) Result))
-	     (setf (cdr Class) (cons P (cdr Class))))
-	    (t (setq Class (cons (psmclass-complexity P) (list P)))
-	       (push Class Result))))
-    Result))
-
-
-;;; --------------------------------------------------------------
-;;; Lookup-maching-variable-values
-;;; Given a variable, a list of expression forms all of which 
-;;; contain that variable and a list of bound expressions this 
-;;; function will extract all of the assertions inside the list
-;;; that can be bound to at least one of the supplied expression
-;;; types.  It will then extract the variable value from each of
-;;; those bindings.
-;;;
-;;; This code begins by testing errors then iterates over the items
-;;; in the list conducting the match tests.
-;;;
-;;; NOTE:: This code makes use of all the matches that can be made
-;;;  for a given expression within the forms.  That is, for each
-;;;  expression E it attempts to match it to each and every form 
-;;;  and takes the binding values for any and all that return them.
-;;;
-;;; NOTE:: This is a short-term hack that will most likely be 
-;;; replaced at a later date by a more full-fledged knowledge-base 
-;;; lookup and type-checking system.  
-;;;
-;;; NOTE:: This code will not work properly when we are attempting 
-;;;  to bind one variable with another.  The process has a tendency 
-;;;  to reverse the order of the variables in the binding lists.  
-;;;  Therefore in order for this code to work properly the list of
-;;;  exp's must be fully bound.  
-
-(defun lookup-matching-var-vals (Var Forms Exps)
-  (when (not (variable-p Var))
-    (error "Specified var ~a is not a valid variable." Var))
-  
-  (dolist (Form Forms)
-    (when (not (member Var (variables-in Form) :test #'unify)) ;could use "equal"
-      (error "Specified form ~a does not contain var: ~a" Form Var)))
-
-  (when (variables-in Exps)
-    (error "Variables found in Expressions."))
-  
-  (let (R B)
-    (dolist (Exp Exps)
-      (when (setq B (unify-with-list Exp Forms))
-	(dolist (Binding B)
-	  (push (lookup Var Binding) R))))
-    (remove-duplicates R :test #'unify))) ;could use "equal"

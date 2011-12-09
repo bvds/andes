@@ -89,7 +89,7 @@
 	  (build-student-list section student-ids assignment-list-data model))))
 
 (defun get-assignments-for-section (section)
-  (if (equal section "andesTutor") (mapcar #'car *sets*)))
+  (if (equal section "andesTutor") (mapcar #'car (cadr *sets*))))
 
 (defun build-student-list (section-id student-ids assignment-list-data model)
   (cons :*student-list

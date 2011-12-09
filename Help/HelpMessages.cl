@@ -38,8 +38,8 @@
 
 (#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
  +dead-path-help+
- '("Correct, but does not lead to a solution.  Try a different approach."
-   "Sometimes guessing is required to solve problems.  For instance, you might know two different principles that mention the sought quantity, but you usually don't need to apply both, so you have to guess which one try first.  Whenever you have two or more correct choices, and you guess one that won't ultimately lead to a solution, Andes will tell you so, thus saving you some work."
+ '("Correct, but does not lead to a solution.&nbsp; Try a different approach."
+   "Sometimes guessing is required to solve problems.&nbsp; For instance, you might know two different principles that mention the sought quantity, but you usually don't need to apply both, so you have to guess which one try first.  Whenever you have two or more correct choices, and you guess one that won't ultimately lead to a solution, Andes will tell you so, thus saving you some work."
    (function next-step-help)) #+sbcl #'equalp)
 
 (#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 

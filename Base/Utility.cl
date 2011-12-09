@@ -165,15 +165,6 @@
   (dolist (S Strings)
     (pprint-indent :current Level Stream)
     (format Stream "~W~%" S)))
-
-
-(defun print-separator (str count)
-  "Print out a separator bar."
-  (let ((s str))
-    (dotimes (n count)
-      (setq s (strcat s str)))
-    (format t (strcat S "~%"))))
-
   
 (defun list-of-lists-p (L)
   "Return t iff L is a list of lists."
@@ -235,24 +226,6 @@
 	   (contains-sym (cdr Exp) Sym))))
 
 
-(defun collect-with-index (lst)
-  "Collect the elements of the list with the index 
-consed on if lists or as list otherwize."
-  (loop for n upto (length lst)
-      collect (if (listp (nth n lst))
-		  (cons n (nth n lst))
-		(list n (nth n lst)))))
-
-
-(defun make-count-list (count &key (type nil))
-  "make a sequence of integers to count."
-  (cond ((eq type 'string) 
-	 (loop for n upto count
-	     collect (format nil "~A" n)))
-	(t (loop for n upto count
-	       collect n))))
-
-
 ;;--------------------------------------------------------------------------
 ;; Calculate the number of differences between Trees a and b.
 (defun tree-diff (Tree1 Tree2 &optional (count 0))
@@ -281,10 +254,6 @@ consed on if lists or as list otherwize."
 
 ;;--------------------------------------------------------------------------
 ;; Sets code.
-(defun sets-difference (S &rest Sets)
-  "Obtain the set of elements in S that are not present in any of the remaining sets."
-  (set-difference S (loop for Sp in Sets
-			append Sp)))
        
 
 (defun sets-intersect (Set1 Set2 &key (Test #'equal))
@@ -316,39 +285,6 @@ consed on if lists or as list otherwize."
 	(push s n)))
     (values y n)))
 
-
-;;; list-difference
-;;; Given two lists compare the elements in each one.  Return nil iff the two
-;;; lists are identical or a list where the first element is a list of all the
-;;; elements present in the first list that are not in the second and the second
-;;; element is a list of all the elements in the second list that are not present 
-;;; in the first.
-(defun list-differences (L1 L2 &key (Test #'equalp))
-  "Compare the two lists using equalp or test iff it is provided and providea a list of the results."
-  (cons (set-difference L1 L2 :test Test)
-	(list (set-difference L2 L1 :test Test))))
-
-
-(defun filter-list (filter lst &key (key #'identity))
-  "Filter out the elements from the list using key."
-  (loop for l in lst 
-      when (member (funcall key l) filter
-		   :test #'equalp)
-      collect l))
-
-(defun list-to-strings (lst &optional (formstr "~A"))
-  (mapcar #'(lambda (i) (format nil formstr i)) lst))
-
-(defun sort-ascending-size (lst)
-  (if (not (listp lst)) lst
-    (sort lst #'length-LE-comp)))
-
-(defun length-LE-comp (x y)
-  (or (and (not (listp x)) (listp y))
-      (and (or (listp x) (stringp x))
-	   (or (listp y) (stringp y))
-	   (<= (length x) (length y)))))
-      
 
 ;;; ------------------------------------------------------
 ;;; Sometimes we want to locate the specific differences
@@ -423,39 +359,6 @@ consed on if lists or as list otherwize."
       (if R (list R (car Set)) 
 	(set-search (cdr Set) Sequence :from-end from-end :start Start :end End)))))
 
-
-
-
-
-;;; Format Justify String 
-;;; Given a string containing separators such as spaces and possible
-;;; newline character sequences format it within the justification
-;;; cap provided.
-(defun format-justify-string (string &key (cap 10) (Stream t) (newlines '("\\n")) 
-					  (separators '(" ")))
-  "Justify the supplied string using a soft cap"
-  (do ((val) (inc 1 1) (end) (start 0)) 
-      ((and End (>= end (length String))))
-    (cond ((setq val (set-search newlines String :start Start 
-				 :end (min (+ Start Cap) (length String))))
-	   (setq end (car val))
-	   (setq inc (length (cadr val))))
-
-	  ((> cap (- (length String) start))
-	   (setq end (length String))
-	   (setq inc 1))
-	  
-	  ((setq val (set-search separators String :from-end t :start Start 
-				 :end (min (+ Start Cap) (length String))))
-	   (setq end (car val))
-	   (setq inc (length (cadr val))))
-	  
-	  (t (setq end (+ start cap)) (setq inc 1)))
-    
-    (format Stream "~A~%" (subseq String start end))
-    (setq start (+ inc end))))
-      
-
 ;;------------------------------------------------------
 ;; printing info.
 
@@ -468,27 +371,6 @@ consed on if lists or as list otherwize."
   (format t "~A  " Bar)
   (apply #'format t form)
   (format t "  ~A~%" Bar))
-
-;;; ------------------------------------------------------------------
-;;; Given a list of values filter them by the supplied function
-;;; all elements that return t on the function are grouped 
-;;; into sets. 
-(defun group-by-func (Func Set &key (test #'equal))
-  "Group the elements in set into subsets by func."
-  (let (Result Tmp Tmp2)
-    (dolist (S Set)
-      (setq tmp (funcall Func S))
-      (if (setq tmp2 (find tmp Result :key #'car :test test))
-	  (push S (cdr tmp2))
-	(push (list tmp S) Result)))
-    Result))
-	    
-
-
-
-
-
-
 
 
 
@@ -503,13 +385,6 @@ consed on if lists or as list otherwize."
 		    :if-exists :supersede
 		    :if-does-not-exist :create)
      ,@Body))
-
-(defmacro wopen-eread (File Name &rest Body)
-  (eval `(with-open-file (,File 
-			  ,Name
-			  :direction :input
-			  :if-does-not-exist :error)
-	   ,@Body)))
     
 (defun fprint (obj &optional (Stream t) (depth 0))
   (when (listp obj)
@@ -524,14 +399,6 @@ consed on if lists or as list otherwize."
 	(format Stream "~A~%" o))
       (format Stream ")~%"))))
 
-
-;;; Given a set of lists generate a list of those list items paired.
-(defun listpair-lists (&rest lists)
-  "Pair up the lists of lists."
-  (when (not (null (car lists)))
-    (listpair-list-o-lists 
-     (mapcar #'list (car lists))
-     (cdr lists))))
     
 (defun listpair-list-o-lists (init lists)
   (cond ((null lists) init)
@@ -555,182 +422,3 @@ consed on if lists or as list otherwize."
   "Evaluate the expression by wrapping it as a funcall and applying."
   (funcall (append '(lambda ()) expressions)))
 
-;;;----------------------------------------------------------------------
-;;; Time decoding.
-;;; Universal time can be decoded but there are no easy named functions
-;;; to do so.  The following functions are those named values.
-;;; The values are:
-;;;     Second: Integer 0-59
-;;;     Minute: Integer 0-59
-;;;     Hour:   Integer 0-23
-;;;     Date:   Integer between 1-31
-;;;     Month:  integer 1-12
-;;;     Year:   Should be full four digit year e.g 2002
-;;;     Day-of-week:  Integer 0-6 Mon-Sun
-;;;     Daylight-savings-time: t or nil if active.
-;;;     Time-Zone:  Real # representing number of hours west of GMT
-;;;                 Non int because some countries use <1hr changes.
-(defun get-universal-time-component (Component Time)
-  "Get the specified component from the Universal time."
-  (let ((Decoded (multiple-value-list (decode-universal-time Time))))
-    (case Component
-      (Second (nth 0 Decoded))
-      (Minute (nth 1 Decoded))
-      (Hour (nth 2 Decoded))
-      (Date (nth 3 Decoded))
-      (Month (nth 4 Decoded))
-      (Year (nth 5 Decoded))
-      (Day-of-week (nth 6 Decoded))
-      (Daylight-Savings-time (nth 7 Decoded))
-      (Time-Zone (nth 8 Decoded)))))
-
-
-;;; Get the specified component from the 
-;;; current time.
-(defun get-current-time-component (Component)
-  "Get the specified component from the current time."
-  (get-universal-time-component Component (get-universal-time)))
-
-;;; Get the specified component (by name)
-;;; from the supplied universal time.
-
-(defun get-universal-time-second (Time)
-  "Get the second from the supplied time."
-  (get-universal-time-component 'Second Time))
-
-(defun get-universal-time-Minute (Time)
-  "Get the Minute from the supplied time."
-  (get-universal-time-component 'Minute Time))
-
-(defun get-universal-time-Hour (Time)
-  "Get the Hour from the supplied time."
-  (get-universal-time-component 'Hour Time))
-
-(defun get-universal-time-Date (Time)
-  "Get the Date from the supplied time."
-  (get-universal-time-component 'Date Time))
-
-(defun get-universal-time-Month (Time)
-  "Get the Month from the supplied time."
-  (get-universal-time-component 'Month Time))
-
-(defun get-universal-time-Year (Time)
-  "Get the Year from the supplied time."
-  (get-universal-time-component 'Year Time))
-
-(defun get-universal-time-Day-of-week (Time)
-  "Get the Day-of-week from the supplied time."
-  (get-universal-time-component 'Day-of-week Time))
-
-(defun get-universal-time-Daylight-saving-time (Time)
-  "Get the Daylight-Savings-Time from the supplied time."
-  (get-universal-time-component 'Daylight-savings-time Time))
-
-(defun get-universal-time-Time-Zone (Time)
-  "Get the Time-Zone from the supplied time."
-  (get-universal-time-component 'Time-Zone Time))
-
-
-;;; Get the specified component (by name)
-;;; from the supplied universal time.
-
-(defun get-current-time-second ()
-  "Get the second from the supplied time."
-  (get-current-time-component 'Second))
-
-(defun get-current-time-Minute ()
-  "Get the Minute from the supplied time."
-  (get-current-time-component 'Minute))
-
-(defun get-current-time-Hour ()
-  "Get the Hour from the supplied time."
-  (get-current-time-component 'Hour))
-
-(defun get-current-time-Date ()
-  "Get the Date from the supplied time."
-  (get-current-time-component 'Date))
-
-(defun get-current-time-Month ()
-  "Get the Month from the supplied time."
-  (get-current-time-component 'Month))
-
-(defun get-current-time-Year ()
-  "Get the Year from the supplied time."
-  (get-current-time-component 'Year))
-
-(defun get-current-time-Day-of-week ()
-  "Get the Day-of-week from the supplied time."
-  (get-current-time-component 'Day-of-week))
-
-(defun get-current-time-Daylight-saving-time ()
-  "Get the Daylight-Savings-Time from the supplied time."
-  (get-current-time-component 'Daylight-savings-time))
-
-(defun get-current-time-Time-Zone ()
-  "Get the Time-Zone from the supplied time."
-  (get-current-time-component 'Time-Zone))
-
-
-
-
-(defun collect-smallest (Set &key (Sizefunc #'length))
-  "Collect the shortest lists in the set."
-  (let ((size (funcall Sizefunc (car Set)))
-	(shortest (list (car Set))))
-    (dolist (Elt (cdr Set))
-      (cond ((= (funcall Sizefunc Elt) Size)
-	     (push Elt Shortest))
-	    ((< (funcall Sizefunc Elt) Size)
-	     (setq Size (funcall Sizefunc Elt))
-	     (setq Shortest (list Elt)))))
-    (reverse Shortest)))
-
-   
-
-;;; -----------------------------------------------
-;;; Sum-lists are used by the Behavior Studies code.
-;;; This will be necessary for the Cmd test code.
-
-(defun sum-lists2 (&rest Rlists)
-  (apply #'mapcar #'+ Rlists))
-
-(defun sum-lists (&rest Rlists)
-  (declare (type (cons (cons integer *) *) Rlists)
-	   (optimize speed (safety 0)))
-  (let ((Len (length (car Rlists)))
-	(A (make-list (length (car Rlists)) :initial-element 0)))
-    (dolist (L Rlists)
-      (dotimes (N Len)
-	(setf (nth N A) (+ (nth N A) (nth N L)))))
-    A))
-
-(defun sum-int-list-pair (L1 L2)
-  (declare (type (cons integer *) L1)
-	   (type (cons integer *) L2)
-	   (optimize speed (safety 0)))
-  (let ((Len (length L1)) (R (make-list (length L1))))
-    (dotimes (N Len)
-      (setf (nth N R) (+ (nth N L1) (nth N L2))))
-    R))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;
-
-;; Taken from The Common Lisp Cookbook,
-;; http://cl-cookbook.sourceforge.net
-
-(defun replace-all (string part replacement &key (test #'char=))
-"Returns a new string in which all the occurences of the part 
-is replaced with replacement."
-    (with-output-to-string (out)
-      (loop with part-length = (length part)
-            for old-pos = 0 then (+ pos part-length)
-            for pos = (search part string
-                              :start2 old-pos
-                              :test test)
-            do (write-string string out
-                             :start old-pos
-                             :end (or pos (length string)))
-            when pos do (write-string replacement out)
-            while pos))) 

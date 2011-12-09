@@ -37,7 +37,6 @@
 ;; tree is an alist with a Left-Hand Side (lhs) and a Right-Hand Side (rhs)
 (defun new-tree (cat rhs) (cons cat rhs))
 (defun tree-lhs (tree) (first tree))
-(defun tree-rhs (tree) (rest tree))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

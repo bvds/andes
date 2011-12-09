@@ -37,6 +37,7 @@
 	     // Still need to clean up logging:  consistent format
 	     // Have interp for each red turn?
 
+             // Lisp with space:  sbcl --dynamic-space-size 1000
              // Start help server using 
              //         (start-help :db "andes_test")
 	     // To get help server timing, need to set:
@@ -45,6 +46,7 @@
 
 $ignoreNewLogs = true;  // ignore any new non-error, log messages
 $ignoreScores = true;  // ignore any changes to scoring.
+$ignoreMetaHints = true;  // Ignore meta hints
 $printDiffs = true;  // Whether to print out results for server diffs
 $jsonFile = 'replies.json';  // File name for dumping reply json
 	    
@@ -64,7 +66,12 @@ mysql_select_db($dbname)
 
 /* filters for user name, section, etc.  
    Use regexp matching for user name and section. */
-$sectionName = '' ; //$_POST['sectionName'];
+	     // oneill.193_asu crell.1_asu
+$adminName = '' ;   // user name
+	     // MIT_.*
+	     // asu_3u16472755e704e5fasul1_.*
+	     // asu_3u16472755e704e5fasul1_15865
+$sectionName = 'asu_3u16472755e704e5fasul1_.*' ; //$_POST['sectionName'];
 $startDate = '2011-04-01'; // $_POST['startDate'];
 $endDate = ''; // $_POST['endDate'];
 $methods = array('open-problem','solution-step','seek-help','record-action','close-problem');  //implode(",",$_POST['methods']);
@@ -84,7 +91,9 @@ if($sectionName==''){
   $sectionNamee = " by $sectionName,";
  }  
 
-$extrac = "P1.extra = 0 AND";
+  // Changed extra from number to string or null
+  // commit a0719d09f0017cb, Nov 9, 2011
+$extrac = "(P1.extra IS NULL or P1.extra = 0) AND";
 $extrae = "solved";
 
 if($startDate){
@@ -132,15 +141,56 @@ $theProblem = array();
 $lastTime = array();
 // Time used by student in each session
 $sessionTime = array();
-  
-$sql = "SELECT S.tID,S.clientID,S.client,S.server FROM STEP_TRANSACTION AS S, PROBLEM_ATTEMPT as P1 WHERE $adminNamec $sectionNamec $extrac  $startDatec $endDatec S.clientID = P1.clientID ORDER BY S.tID";
 
+// Test if text corresponds to a meta-hint
+function containsMetaHint($t){
+  return strpos($t,'introductory video') !== false ||
+    strcmp($t,"You can click on the above link to get more help.") ==0 ||
+    (strpos($t,"Your entry has turned red") !== false &&
+     strpos($t,"the hint button") !== false);
+}
+
+// Test to see if problem had a done button removed.
+function doneButtonProblem ($p){
+  $dbp = array("DT18", "EFIELD1A", "EFIELD1B", "EFIELD1C", 
+	       "EFIELD1D", "EFIELD1E", "EFIELD4A", "EFIELD4B", 
+	       "KGRAPH10B", "KGRAPH22", "KGRAPH9", "KGRAPH9B", "KT13D", 
+	       "MAG1A", "MAG1B", "MAG6B", "MAG6C", "MAGTOR1A", "MAGTOR1B", 
+	       "MAGTOR1C", "MAGTOR1D", "MOT5", "Q1", "Q2", 
+	       "Q3", "Q4", "Q5", "WE9");
+  foreach ($dbp as $prob){
+    if(strcasecmp($p,$prob)==0){
+      return true;
+    }
+  }
+  return false;
+}
+
+//  Initial query to determine when sessions end
+//  If the server crashes, then any sessions running will be
+//  left open according to the log files.
+
+$sqlFilter = "FROM STEP_TRANSACTION AS S, PROBLEM_ATTEMPT as P1 WHERE $adminNamec $sectionNamec $extrac  $startDatec $endDatec S.clientID = P1.clientID ORDER BY S.tID";
+$sql = "SELECT S.tID,S.clientID,P1.startTime " . $sqlFilter;
+// get student input and server reply
+$result = mysql_query($sql);
+$lastID=array();
+while ($myrow = mysql_fetch_array($result)) {
+  $tID=$myrow["tID"];
+  $clientID=$myrow["clientID"];
+  $lastID[$clientID]=$tID;
+  $sessionStartTime[$clientID]=$myrow["startTime"];
+ }
+
+//  Now query to get posts and replies
+$sql = "SELECT S.tID,S.clientID,S.client,S.server " . $sqlFilter;
 // get student input and server reply
 $result = mysql_query($sql);
 
 // Wall clock time for sending to server.
 $startTime=time();
 
+$closeSession=array();
 while ($myrow = mysql_fetch_array($result)) {
   $clientID=$myrow["clientID"];
   $response=$myrow["server"];	 
@@ -171,6 +221,14 @@ while ($myrow = mysql_fetch_array($result)) {
   if(strcmp($method,"open-problem")==0){
     $theProblem[$clientID] = $a->params->problem;
   }
+
+  // Skip problems kt1apart and kt1asolved:
+  // fix to predefs changes things too much to analyze.
+  // problems commit 820119b3e82bd, Thu Dec 8 12:04:10 2011
+  if(strcasecmp($theProblem[$clientID],"kt1apart")==0 ||
+     strcasecmp($theProblem[$clientID],"kt1asolved")==0){
+    continue;
+  }
   
   // If load has failed don't attempt any solution steps.
   if(array_key_exists($clientID,$loadFailed) &&
@@ -179,12 +237,36 @@ while ($myrow = mysql_fetch_array($result)) {
      strcmp($method,"close-problem")!=0){
     continue;
   } 
-  
+
+  // Remove Done button from some problems, ignore
+  // associated button events.
+  // problems commit 6376f20fd808, Nov 19 2011
+  if(strcmp($method,"solution-step")==0 &&
+     doneButtonProblem($theProblem[$clientID]) &&
+     isset($a->params) && isset($a->params->id) &&
+     strpos($a->params->id,"doneButton")!== false){
+    continue;
+  }
+
   // Send query to help server.
   $queryStart=microtime(true);       
   $newResponse = $server->message($action,$sessionIdBase . $clientID);
   $dt = microtime(true) - $queryStart;
   $serverTime += $dt;
+
+  // See if this is the last turn in a session and if
+  // the problem has not yet been closed.
+  if($lastID[$clientID] == $ttID &&
+     !((array_key_exists($clientID,$lastTime) &&
+	$lastTime[$clientID] == -2))){
+    // Close the session "by hand" and record
+    $closeID=$a->id + 1;
+    $closeAction="{\"id\":$closeID,\"method\":\"close-problem\",\"params\":{},\"jsonrpc\":\"2.0\"}";
+    $closeResponse = $server->message($closeAction,$sessionIdBase . $clientID);
+    $closeTime=$sessionStartTime[$clientID];
+    $closeSession[$clientID]="<td>$closeTime</td>" . $sessionLink1 . "&amp;cid=" . 
+      $clientID . $sessionLink2 . "<td>$closeResponse</td>";
+  }
   
   // Determine if problem load failed, set variable
   if(strcmp($method,"open-problem")==0 && 
@@ -209,7 +291,6 @@ while ($myrow = mysql_fetch_array($result)) {
   // or after "blur" event.
   if(array_key_exists($clientID,$lastTime) &&
      $lastTime[$clientID] == -2){
-    // just leave it
   } elseif(!isset($a->params->time) || 
 	   (strcmp($method,"record-action")==0 &&
 	    isset($a->params->value) && 
@@ -250,7 +331,121 @@ while ($myrow = mysql_fetch_array($result)) {
     if (strcmp($response,$newResponse) != 0) {
       $jr=$json->decode($response);
       $njr=$json->decode($newResponse);
-      if(isset($jr->result) && isset($njr->result)){
+      $aaa = "<a href=\"/log/OpenTrace.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;cid=$clientID&amp;t=$ttID\">$tid</a>";
+      if($jr == null || $njr == null){
+	// One of the json decodes fails, can't compare old
+	// and new response.
+	    // Position of first discrepency
+	    $pos=strspn($response ^ $newResponse, "\0");
+	    echo "<tr class='syntax'><td>$aaa</td><td>$aa</td>" . 
+	      "<td>" . ($jr== null?"json decode failed":"OK") . 
+	      "<br>len. " . strlen($response) . "</td>" .
+	      "<td>" . ($njr== null?"json decode failed":"OK") . 
+	      "<br>len. " . strlen($newResponse) . "</td>" .
+	      "<td>pos. $pos</td></tr>\n";
+      } elseif(isset($jr->error) || isset($njr->error)){
+	echo "<tr class='$method'><td>$aaa</td><td>$aa</td><td>$response</td><td>$newResponse</td><td></td></tr>\n";       
+      } else {
+	// Server drops result key-value pair if array is empty.
+	if(!isset($jr->result)){$jr->result=array();}
+	if(!isset($njr->result)){$njr->result=array();}
+	
+	// Loop through old result and remove unwanted rows
+	$bcr=array();
+	foreach($jr->result as $bc){
+	  if(!(
+	       // Remove hints from open-problem:  these are
+	       // generally from rerunning old sessions through 
+	       // help, and have already been evaluated.
+	       (strcmp($method,"open-problem")==0 && isset($bc->action) && 
+		(strcmp($bc->action,"show-hint") == 0 || 
+		 strcmp($bc->action,"show-hint-link") == 0)) ||
+
+	       // Remove Done button from some problems
+	       // problems commit 6376f20fd808, Nov 19 2011
+	       (strcmp($method,"open-problem")==0 &&
+		doneButtonProblem($theProblem[$clientID]) &&
+		isset($bc->id) &&
+		strpos($bc->id,"doneButton")!== false) ||
+	       
+	       // Old turn has score.
+	       ($ignoreScores && isset($bc->action) && 
+		strcmp($bc->action,"set-score")==0) ||
+	       
+	       // Old turn has subscores.
+	       ($ignoreScores && isset($bc->action) &&
+		strcmp($bc->action,"log")==0 &&
+		(isset($bc->subscores) || // old log format
+		 (isset($bc->log) && strcmp($bc->log,"subscores")==0))) ||
+	     
+	       // Old turn has meta-hint
+	       ($ignoreMetaHints && isset($bc->action) &&
+		strcmp($bc->action,"show-hint")==0 &&
+		containsMetaHint($bc->text)) ||
+	       
+	       // kgraph8b problem addition
+	       // problems, commit fb5ec251c3a974a14, Tue Sep 27 2011
+	       (strcmp($theProblem[$clientID],"kgraph8b")==0 &&
+		isset($bc->text) &&
+		strcmp($bc->text,"Assume the positive x-axis is pointing towards the right.")==0) ||
+	       // User agent will change when rerunning.
+	       // Drop any log of user-agent.
+	       (isset($bc->action) && isset($bc->log) &&
+		strcmp($bc->action,"log")==0 &&
+		strcmp($bc->log,"user-agent")==0) ||
+
+	       // Add test for creation of excess answer box.
+	       // commit c9ca2cccd4f4b5685a4, Mon Nov 28 13:13:02 2011
+	       // Here, we remove the old error message on startup.
+	       (strcmp($method,"open-problem") == 0 &&
+		isset($bc->action) && isset($bc->text) &&
+		strcmp($bc->action,"log")==0 &&
+		// Adding punctuation or NIL screws up match?
+		preg_match("/No system variable for .*Possible mismatch with answer box/",$bc->text)!=0)
+	     )){
+	    array_push($bcr,$bc);
+	  }
+	}
+	$jr->result=$bcr;
+	
+	// Loop through new result and remove unwanted rows
+	$nbcr=array();
+	foreach($njr->result as $bc){
+	  if(!(	       
+	       // Remove hints from open-problem:  these are
+	       // generally from rerunning old sessions through 
+	       // help, and have already been evaluated.
+	       (strcmp($method,"open-problem")==0 && isset($bc->action) && 
+		(strcmp($bc->action,"show-hint") == 0 || 
+		 strcmp($bc->action,"show-hint-link") == 0)) ||
+
+	       // New turn has score.
+	       ($ignoreScores && isset($bc->action) &&
+		strcmp($bc->action,"set-score")==0) ||
+	       
+	       // New turn has meta-hint
+	       ($ignoreMetaHints && 
+		isset($bc->action) && isset($bc->action) &&
+		strcmp($bc->action,"show-hint")==0 &&
+		containsMetaHint($bc->text)) ||
+	       
+	       // kgraph8b problem addition
+	       // problems, commit fb5ec251c3a974a14, Tue Sep 27 2011
+	       (strcmp($theProblem[$clientID],"kgraph8b")==0 &&
+		isset($bc->text) &&
+		strcmp($bc->text,"Assume the positive x-axis is pointing towards the right.")==0) ||
+	       
+	       // User agent will change when rerunning.
+	       // Drop any log of user-agent.
+	       (isset($bc->action) && isset($bc->log) &&
+		strcmp($bc->action,"log")==0 &&
+		strcmp($bc->log,"user-agent")==0))
+	     ){
+	    array_push($nbcr,$bc);
+	  }
+	}
+	$njr->result=$nbcr;
+	
 	$imax=sizeof($jr->result);
 	$nimax=sizeof($njr->result);
 	
@@ -295,6 +490,7 @@ while ($myrow = mysql_fetch_array($result)) {
 	  // Remove double precision notation from constants.
 	  // This difference occurs from using slime vs. stand-alone. 
 	  $bbc=preg_replace('/(\d)d0/','$1',$bbc);
+	  $nbbc=preg_replace('/(\d)d0/','$1',$nbbc);
 	  // Canonicalize random positive feedback.
 	  $randomPositive = '/(Good!|Right\.|Correct\.|Yes\.|Yep\.|That.s right\.|Very good\.|Right indeed.) /';
 	  $randomPostiveNew='**random-positive** ';
@@ -305,6 +501,9 @@ while ($myrow = mysql_fetch_array($result)) {
 	  $randomPrefixNew='**random-prefix** ';
 	  $bbc=preg_replace($randomPrefix,$randomPrefixNew,$bbc);
 	  $nbbc=preg_replace($randomPrefix,$randomPrefixNew,$nbbc);
+	  // Remove dash from "multiple-choice"
+	  // commit 5bfc4b76a7fc7b1, Wed Dec 7 09:54:58 2011
+	  $bbc=preg_replace('/multiple.choice/','multiple choice',$bbc);
 	  // This shouldn't happen, but some assoc operators hav
 	  // unbound variables which show the internal binding.
 	  $varUnique='/#:\?[\-\w]+/';
@@ -316,8 +515,25 @@ while ($myrow = mysql_fetch_array($result)) {
 	  $nbbc=preg_replace('/\.\s+/','. ',$nbbc);
 	  $bbc=preg_replace('/\.&nbsp;\s+/','. ',$bbc);
 	  $nbbc=preg_replace('/\.&nbsp;\s+/','. ',$nbbc);
+	  // Remove spaces at end of make-explain-more hints 
+	  // in Help/NextStepHelp.cl
+	  // Dec. 1 2011
+	  if(isset($bc->action) && strcmp($bc->action,"show-hint")==0){
+	    $bbc=preg_replace('/\.[ ]+"/','."',$bbc);
+	    $bbc=preg_replace('/\.&nbsp;[ ]*"/','."',$bbc);
+	  }
+	  // Canonicalize logging for multiple choice
+	  // commit 54b004f2d529e, Tue Nov 1 14:21:55 2011
+	  if(isset($nbc->action) && isset($nbc->log) &&
+	     isset($nbc->entry) &&
+	     strcmp($nbc->action,"log")==0 &&
+	     strcmp($nbc->log,"student")==0 &&
+	     strpos($nbc->entry,"CHOOSE-ANSWER ") !== false){
+	    $mcerror='"error-type":"(NO-ERROR-INTERPRETATION)"}';
+	    $nbbc=preg_replace('/"error-type.*/',$mcerror,$nbbc);
+	  }
 	  // new-user-dialog
-          // commit 212960a3c713fe, Tue Sep 20 17:04:41 2011
+	  // commit 212960a3c713fe, Tue Sep 20 17:04:41 2011
 	  $bbc=preg_replace('/After watching the video, just follow the instructions/','Just follow the instructions',$bbc);
 	  $nbbc=preg_replace('/After watching the video, just follow the instructions/','Just follow the instructions',$nbbc);
 	  // kgraph8b problem change
@@ -329,53 +545,76 @@ while ($myrow = mysql_fetch_array($result)) {
 	    $bbc=preg_replace('/"y":\d+/','"y":nnn',$bbc);
 	    $nbbc=preg_replace('/"y":\d+/','"y":nnn',$nbbc);
 	  }
+	  //  Help for answer=?
+	  // commit 03a6db800399b2, Fri Oct 28 21:33:47 2011
+	  $unable='/Unable to solve for [^"]+/';
+	  $solve_error='**solve-error**';
+	  $bbc=preg_replace($unable,$solve_error,$bbc);
+	  $nbbc=preg_replace($unable,$solve_error,$nbbc);
+	  $nbbc=preg_replace('/The variable .* is undefined./',$solve_error,$nbbc);
+	  $nbbc=preg_replace('/Sorry, Andes can only solve for a single variable./',$solve_error,$nbbc);
+	  // Remove Done button from some problems
+	  // problems commit 6376f20fd808, Nov 19 2011
+	  // Subsequent y-values will be off.
+	  if(strcmp($method,"open-problem")==0 &&
+	     doneButtonProblem($theProblem[$clientID])){
+	    $bbc=preg_replace('/"y":\d+/','"y":*y-pos*',$bbc);
+	    $nbbc=preg_replace('/"y":\d+/','"y":*y-pos*',$nbbc);
+	  }
+	  // Change hints in nsh-prompt-no-quant-done
+	  // commit 1dfa98550be16cb3f, Nov 21 2011
+	    $bbc=preg_replace('/"You have completed all of the principles necessary .*\."/',
+			      '"You have completed all of the steps necessary to solve this problem."',$bbc);
+	  
 	  
 	  if(strcmp($bbc,$nbbc)==0){ // match, go on to next pair
 	    $i++; $ni++;
-	  }elseif($ignoreScores && isset($bc->action) && 
-		  strcmp($bc->action,"set-score")==0){
-	    $i++;  // Old turn has score.
-	  }elseif($ignoreScores && isset($nbc->action) &&
-		  strcmp($nbc->action,"set-score")==0){
-	    $ni++;  // New turn has score.
-	  }elseif($ignoreScores && isset($bc->action) &&
-		  strcmp($bc->action,"log")==0 &&
-		  (isset($bc->subscores) || // old log format
-		   (isset($bc->log) && strcmp($bc->log,"subscores")==0))){
-	    $i++;  // Old turn has subscores.
-	  }elseif($ignoreScores && 
-		  isset($nbc->action) && isset($nbc->log) &&
-		  strcmp($nbc->action,"log")==0 &&
-		  strcmp($nbc->log,"subscores")==0){
-	    $ni++;  // New turn has subscores.
-	  }elseif(
-		  // kgraph8b problem change
-		  // problems, commit fb5ec251c3a974a14, Tue Sep 27 2011
-		  strcmp($theProblem[$clientID],"kgraph8b")==0 &&
+	  }elseif(strcmp($method,"seek-help") == 0 &&
+		  // Fix test for work done in Help/NextStepHelp.cl function
+		  // nsh-student-has-done-work?
+		  // commit 22f414c44ad00ce, Fri Dec 2 22:42:28 2011
+		  ((strpos($bbc,'"NSH":"(PROMPT-AXIS ') !== false &&
+		    strpos($nbbc,'"NSH":"(NEW-START-AXIS ') !== false) ||
+		   (preg_match('/"It is now a good idea for you to draw an axis.*This will help to ground your work and be useful later on in the process\."/',$bbc) != 0 &&
+		    preg_match('/"It is a good idea to begin most problems by drawing an axis.*This helps to ground your work and will be useful later on in the process\."/',$nbbc) != 0))){
+	    $i++; $ni++;
+	  }elseif(strcmp($method,"solution-step") == 0 &&
+		  // Add test for creation of excess answer box.
+		  // commit c9ca2cccd4f4b5685a4, Mon Nov 28 13:13:02 2011
+		  // Escaping is different with single quotes?  Just use wild card.
+		  preg_match('/"No system variable for NIL.*Possible mismatch with answer box\."/',$bbc) != 0 &&
+		  preg_match('/"You already have enough answer boxes.*You don\'t need to create another one\."/',$nbbc) != 0){
+	    $i++; $ni++;
+	  }elseif(strcmp($method,"open-problem") == 0 &&
+		  // Change format for json error messages.
+		  // commit 22f414c44ad00ceb0, Fri Dec 2 22:42:28 2011
 		  isset($bc->text) &&
-		  strcmp($bc->text,"Assume the positive x-axis is pointing towards the right.")==0){
-	    $i++;
-	  }elseif(
-		  // kgraph8b problem change
-		  // problems, commit fb5ec251c3a974a14, Tue Sep 27 2011
-		  strcmp($theProblem[$clientID],"kgraph8b")==0 &&
-		  isset($nbc->text) &&
-		  strcmp($nbc->text,"Assume the positive x-axis is pointing towards the right.")==0){
-	    $ni++;
-	  }elseif(
-		  // User agent will change when rerunning.
-		  // Drop any log of user-agent.
-		  isset($bc->action) && isset($bc->log) &&
-		  strcmp($bc->action,"log")==0 &&
-		  strcmp($bc->log,"user-agent")==0){
-	    $i++;
-	  }elseif(
-		  // User agent will change when rerunning.
-		  // Drop any log of user-agent.
-		  isset($nbc->action) && isset($nbc->log) &&
-		  strcmp($nbc->action,"log")==0 &&
-		  strcmp($nbc->log,"user-agent")==0){
-	    $ni++;
+		  preg_match('/JSON-SYNTAX-ERROR/',$bc->text) != 0 &&
+		  isset($nbc->entry) &&
+		  preg_match('/JSON-SYNTAX-ERROR/',$nbc->entry) != 0){
+	    $i++; $ni++;
+	  }elseif(strcmp($method,"seek-help") == 0 &&
+		  // Add help for multiple-choice.
+		  // commit 54b004f2d529efdab, Tue Nov 1 14:21:55 2011
+		  isset($bc->action) && strcmp($bc->action,"log") == 0 &&
+		  isset($nbc->action) && strcmp($nbc->action,"log") == 0 &&
+		  ((strpos($bbc,'"NO-ERROR-INTERPRETATION":"NIL"') !== false &&
+		    strpos($nbbc,'"MULTIPLE-CHOICE":') !== false) ||
+		   (strpos($bbc,'(MC-ONLY PROMPT-DONE-INCORRECT)') !== false &&
+		    strpos($nbbc,'(MC-ONLY PROMPT-NEXT ') !== false) ||
+		   (strpos($bbc,'(MC-ONLY PROMPT-DONE-INCORRECT)') !== false &&
+		    strpos($nbbc,'"HANDLE-LINK":"STALE"') !== false))){
+	    $i+=3; $ni+=2;
+	  }elseif(strcmp($method,"seek-help") == 0 &&
+		  // Add help for multiple-choice.
+		  // commit 54b004f2d529efdab, Tue Nov 1 14:21:55 2011
+		  isset($bc->action) && strcmp($bc->action,"log") == 0 &&
+		  isset($nbc->action) && strcmp($nbc->action,"log") == 0 &&
+		  ((strpos($bbc,'(MC-ONLY PROMPT-DONE-RECONSIDER)') !== false &&
+		    strpos($nbbc,'(MC-ONLY PROMPT-NEXT ') !== false) ||
+		   (strpos($bbc,'(MC-ONLY PROMPT-DONE-INCORRECT)') !== false &&
+		    strpos($nbbc,'(MC-ONLY START)') !== false))){
+	    $i+=2; $ni+=2;
 	  }elseif($imax-$i == $nimax-$ni){ // mismatch, but same remaining
 	    // Position of first discrepency
 	    $pos=strspn($bbc ^ $nbbc, "\0");
@@ -395,16 +634,16 @@ while ($myrow = mysql_fetch_array($result)) {
 	    $i++;
 	  }
 	}
-	
+      
 	$nrows=sizeof($rows);
 	if($nrows>0){
 	  $row=array_shift($rows);
-	  echo "  <tr class='$method'><td rowspan='$nrows'>$tid</td><td rowspan='$nrows'>$aa</td>$row</tr>\n";
+	  echo "  <tr class='$method'><td rowspan='$nrows'>$aaa</td><td rowspan='$nrows'>$aa</td>$row</tr>\n";
 	  foreach($rows as $row){
 	    echo "  <tr class='$method'>$row</tr>\n";
 	  }
 	}
-	
+      
 	// Dump reply result to file for testing json against smd
 	// See check-json.html
 	if($firstRow){
@@ -414,10 +653,6 @@ while ($myrow = mysql_fetch_array($result)) {
 	}
 	fwrite($handle,"{\"method\":\"$method\",\"reply\":" .
 	       $json->encode($njr->result) . "}");
-	
-      } else {
-	// json parse of result failed.
-	echo "<tr class='$method'><td>$tid</td><td>$aa</td><td>$response</td><td>$newResponse</td><td></td></tr>\n";	   
       }
     }
   }
@@ -466,6 +701,17 @@ foreach(array_splice($sessionTime,0,20) as $key => $value){
     $sessionLink1 . "&amp;cid=" . $key . $sessionLink2 . "</tr>\n";
 }
 echo "</table>\n";
+
+// List any sessions that had to be closed automatically.
+if(count($closeSession)>0){
+  echo "<p>Hanging Sessions:<br>\n";
+  echo "<table border=1>\n";
+  echo "<tr><th>Start Time</th><th>Session</th><th>Response</th></tr>\n";
+  foreach($closeSession as $value){
+    echo " <tr>$value</tr>\n";
+  }
+  echo "</table>\n";
+ }
 
 ?>
 

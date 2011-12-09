@@ -148,7 +148,7 @@
 (defun set-kcs ()
   (andes-init)
   (let (prob-kcs results)
-    (dolist (set *sets*)
+    (dolist (set (cadr *sets*))
       (let (all required)
 	(dolist (prob (second set))
 	  (unless (assoc prob prob-kcs)
@@ -293,7 +293,7 @@
 ;; write one text file per problem, containing the problem statement text lines
 ;; puts into "Statements" directory. This is a convenience for the script that
 ;; generates OLI learning pages from problem sets.
-(defun write-stmts()
+(defun write-stmts ()
    (map-problems 
       #'(lambda(p) 
          (with-open-file (outf (merge-pathnames (strcat "Statements/" (string (problem-name p)) ".txt") *andes-path*)
@@ -360,6 +360,7 @@
      (let ((t0 (get-internal-run-time))) 
        (read-problem-info (string (problem-name p)))
 	    (check-entry-opvars)
+	    (check-answers-vs-statement)
 	    (format t "~A: ~A solution~:p loaded in ~,2F seconds.~%"
 		    (problem-name *cp*) (length (problem-solutions *cp*))
 		    (/ (- (get-internal-run-time) t0) 
@@ -373,6 +374,53 @@
   (format T "Errors:~%")
   (pprint Errs)))
 
+(defun check-answers-vs-statement ()
+  "Check done button matches problem"
+  ;; This is adapted from open-problem method in Help/sessions.cl
+  (let ((id 0))
+    (dolist  (line (problem-statement *cp*))
+      (cond ((unify line '(answer . ?rest))
+	     ;; Add to *StudentEntries* but don't evaluate in Help.
+	     (let ((entry (make-studententry :id (format nil "~A" (incf id)) 
+					     :mode "unknown" :type "statement")))
+	       (select-sought-for-answer entry)
+	       ;; sanity test
+	       (unless (StudentEntry-prop entry)
+		 (error "Problem answer ~A doesn't match soughts" line))))
+	    
+	    ;; Multiple choice.  See Bug #1551
+	    ;; Checkboxes (with a done button) or radio buttons
+	    ((or (unify line '(choose ?label ?a ?b . ?rest))
+		 (unify line '(checkbox ?label ?a ?b . ?rest)))
+	     (let* ((checkbox-p (eq (pop line) 'checkbox))
+		    (button-type (if checkbox-p "checkbox" "radio"))
+		    (label (pop line)))
+	       ;; sanity check
+	       (unless (member `(choose-answer ,label . ?rest) (problem-soughts *cp*)
+			       :test #'unify)
+		 (error "Invalid label ~A for ~A" label button-type))
+	     
+	     ;; Add weight and choices to grading
+	     (let ((sysent (find-SystemEntry `(choose-answer ,label . ?rest))))
+	       (unless sysent
+		   (error "No SystemEntry for multiple-choice ~A" label)))))
+	    
+	  ;; "I am done" button.  See Bug #1551
+	    ((unify line '(choose ?label ?a))
+	     (pop line)
+	     (let* ((label (pop line)) 
+		    ;; If name of activity was supplied, use that.
+		    ;; else search for any done button.
+		    (label-match (if label (list 'done label) '(done . ?rest)))
+		    ;; Find any done button SystemEntry.
+		    (donners (remove label-match *sg-entries*
+				     :key #'SystemEntry-prop :test-not #'unify)))
+	       ;; Sanity checks
+	       (when (or (null donners) (cdr donners))
+		 ;; Student can't successfully solve the problem if
+		 ;; this is broken.
+		 (error "Bad SystemEntry match for button ~A." label))))))))
+  
 (defun check-entry-opvars ()
   "check all entry operators for variable list mismatch"
   ;; for each solution entry in current problem 
