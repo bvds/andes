@@ -424,7 +424,7 @@ list of characters and replacement strings."
   "Get largest tID from STEP_TRANSACTION; if table is empty, create dummy step."
   (loop for i from 0 to 1
 	thereis  (car (single-query "SELECT MAX(tID) FROM STEP_TRANSACTION"))
-	do (format t "writing it~%") (write-transaction "_dummy_session" nil nil)))
+	do (write-transaction "_dummy_session" nil nil)))
 
 (defun get-state-properties (&key (student session:*user*) 
 			     (section session:*section*) (model "default")

@@ -61,8 +61,8 @@
 ;; The fields are:
 ;;  coloring:  One of red, green, delete, nil (noop) (not sure about these) 
 ;;             Informs the workbench what to do with the associated entry.
-;;  type:      One of dialog, minilesson, eqn-entry (solve-tool), 
-;;             end-dialog, score-turn or nil (none).
+;;  type:      One of minilesson, eqn-entry (solve-tool), 
+;;             or nil (dialog or just red-green).
 ;;  text:      If type is a dialog then this string will be displayed
 ;;             If type is an eq entry this is the eq to be added.
 ;;             If d type is minilesson this is the url to be displayed.
@@ -73,11 +73,6 @@
 ;;  responder: A single-arg function called with the result of this item.
 ;;  Assoc:     A spare pointer for linking to goals or entries or any
 ;;             information that we might need. 
-;;  Commands:  One or more strings that are to be sent to the workbench as 
-;;             Asynchronous commands before the turn result itself is sent.
-;;             In the future it might be possible to accomplish this by altering
-;;             The workbench API to pack more commands in but this is probably 
-;;             the most flexible way to go about it.  
 
 
 (defstruct (Turn (:print-function print-Turn))
@@ -96,10 +91,8 @@
 (defconstant +color-green+ 'Color-Green)
 (defconstant +no-op-turn+ 'No-Op-Turn)
 
-(defconstant +dialog-turn+ 'Dialog-Turn)
 (defconstant +minil-turn+ 'Minil-Turn)
 (defconstant +eqn-turn+ 'Eqn-turn)
-(defconstant +stat-turn+ 'stat-turn)
 
 ;; Hook for variable later defined by help system.
 (defvar *help-button*)
@@ -154,7 +147,6 @@
   "Produce a green coloring dialog type tutor turn."
   (unless id (warn "no id in make-green-dialog-turn"))
   (make-turn :coloring +color-green+
-	     :type +dialog-turn+
 	     :id id
 	     :text text 
 	     :menu menu 
@@ -163,16 +155,14 @@
 		  
 (defun make-dialog-turn (text menu &key Responder Assoc)
   "Produce a dialog type tutor turn."
-  (make-turn :type +dialog-turn+
-	     :text text
+  (make-turn :text text
 	     :menu Menu
 	     :responder Responder
 	     :Assoc (alist-warn Assoc)))
 
 (defun make-explain-more-turn (text &key hint Assoc)
   "Produce a dialog type tutor turn with explain-more."
-  (make-turn :type +dialog-turn+
-	     :text text
+  (make-turn :text text
 	     :menu +explain-more+
 	     :responder 
 	     #'(lambda (R)
@@ -214,8 +204,7 @@
 
 (defun make-end-dialog-turn (text &key Assoc)
   "Make a turn that ends the dialog."
-  (make-turn :type +dialog-turn+
-	     :text text
+  (make-turn :text text
 	     :Assoc (alist-warn Assoc)))
 	     
 			    

@@ -161,7 +161,6 @@
   
   Assoc    ;; An assoc if one is present
   Score    ;; A set-score if one is present.  This is new in 2004.
-  Commands ;; Async commands if they are present.
   )
 
 ;;; ---------------------------------------------------------------------------
@@ -212,18 +211,6 @@
   Eqn  ;; The equation string.
   )
 
-
-;;; Stat-results
-;;; Calc results consist of a list of lists of stat values of the form
-;;; ((<Valname> <Grading Weight> <Value>) ...) that represent the result
-;;; of grading calculations on the help system side.  
-;;;
-;;; These structures have no values above and beyond the fields in the
-;;; dde-result struct and will only load the value field at runtime.
-;;; The code has no command but we could include one if it became 
-;;; necessary.
-(defstruct (stat-result (:include dde-result))
-  )
 
 ;;; -------------------------------------------------------------------
 ;;; Command parameters.

@@ -42,7 +42,7 @@
 ;;  eqn-string: the equation as the student entered is
 ;;  id: the slot the workbench holds the students input in (0 based indexing)
 ;; returns:
-;;  entry status return value -- see end of code for description of this
+;;  turn
 ;; note(s):
 ;;  This is a hack-ish way to get the assoc value but (for now), it works.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -250,7 +250,8 @@
           (setf bad (append bad (list (list result se))))))))    
     (cond
       (cont
-       (setf result (choose-ambiguous-bad-turn bad se)) ;does add-entry on winning candidate
+       ;; does add-entry on winning candidate
+       (setf result (choose-ambiguous-bad-turn bad se))
        (unless result
 	   (setf result (progn (warn "Should not see this error")
 			    (make-red-turn :id (StudentEntry-Id se))))))
@@ -357,31 +358,53 @@
   ;(prl badlist)
   (let (choice wrong unk uni mis err unused)
     (dolist (te badlist)
-      ; collect sets of results of each distinguished class
-      ; (format T "choose-ambiguous: parse w/tag ~a~%" (te-error-tag te))
+      ;; collect sets of results of each distinguished class
+      ;; (format T "choose-ambiguous: parse w/tag ~a~%" (te-error-tag te))
       (case (te-error-tag te)
         (undefined-variables
-	   (setf unk (append unk (list te))))
+	 (setf unk (append unk (list te))))
 	(Unused-variables
- 	   (setf unused (append unused (list te))))
+	 (setf unused (append unused (list te))))
 	(wrong-units
-	  (setf uni (append uni (list te))))
-	; forgot units given for forgot-units-but-ok OR maybe-forgot-units on assignmentp
-	; prefer it to maybe-forgot-units in mis set
+	 (setf uni (append uni (list te))))
+	;; forgot units given for forgot-units-but-ok OR 
+	;; maybe-forgot-units on assignmentp
+	;; prefer it to maybe-forgot-units in mis set
 	(forgot-units
-	  (setf mis (cons te mis)))
+	 (setf mis (cons te mis)))
 	(maybe-forgot-units
-	   (setf mis (append mis (list te))))
+	 (setf mis (append mis (list te))))
 	(internal-error
-	  (setf err (append err (list te))))
-	; everything else should have OK syntax, vars & units, just plain wrong
+	 (setf err (append err (list te))))
+	;; everything else should have OK syntax, vars & units, 
+	;; just plain wrong
 	(otherwise 
-	      ; should verify it really is wrong, but no special tag for that
-	      (when (te-error-tag te)
-	      	   (format T "choose-ambiguous-bad: unknown error ~A. Treated as wrong~%" 
-		           (te-error-tag te)))
-	      (setf wrong (append wrong (list te))))))	
-
+	 ;; This scheme duplicates the weighting scheme in entryTest.
+	 ;; If we assume the order of error handlers for a given
+	 ;; parse is the same as the order of error handlers for
+	 ;; multiple parses, we should defer to the weighting scheme
+	 ;; in entryTest.
+	 ;;
+	 ;; There are a substantial number of error handlers
+	 ;; that are not handled by this scheme.
+	 ;; Through analysis of the log files, at least the
+	 ;; following are unhandled:
+	 ;; WRONG-VALUE-NON-GIVEN UNDIAGNOSED-EQN-ERROR
+	 ;; SWITCHED-X-AND-Y-SUBSCRIPT
+	 ;; TRIG-ARGUMENT-UNITS VAR-HAS-WRONG-TIME-SPECIFIER
+	 ;; DEFAULT-SIGN-ERROR
+	 ;; Surely UNDIAGNOSED-EQN-ERROR should have a very low weight
+	 ;; compared to TRIG-ARGUMENT-UNITS.
+	 ;;
+	 ;; See Bug #1936
+	 ;; This log-warn was used to find errors that are
+	 ;; not properly handled:
+	 (when (and nil (te-error-tag te))
+	   (warn 'webserver:log-warn
+		 :tag (list 'choose-ambiguous-bad-turn (te-error-tag te))
+		 :text "choose-ambiguous-bad: unknown error treated as wrong"))
+	 (setf wrong (append wrong (list te))))))	
+    
     ;; now look for choice in order from most charitable to least:
     ;; big OR falls through cases in order till non-NIL:
     (setf choice 
