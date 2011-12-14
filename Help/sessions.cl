@@ -135,7 +135,7 @@
 	  *NSH-GIVENS* *NSH-AXIS-ENTRIES* *NSH-BODYSETS* *NSH-VALID-ENTRIES* 
 	  *NSH-PROBLEM-TYPE* symbols::*VARIABLES* *STUDENTENTRIES* 
 	  *SG-EQNS* *SG-ENTRIES* *SG-SOLUTIONS*
-          **Condition**  mt19937::*random-state* **grammar**
+          mt19937::*random-state* **grammar**
 	  ;; Cache for word completion utility.
 	  *phrase-cache*
 	  ;; List of quantities and objects not in solutions.
@@ -152,9 +152,6 @@
 	  ;; Session-specific variables in Help/Interface.cl
 	  **current-cmd-stack** **current-cmd** *last-turn-response* 
 	  *last-score*
-          ;; Variables set in Config.cl, which is loaded for each session.
-	  **Filter-Constraint-losses**
-          *followup-problems*
 	  ;; Variables used for grades
 	  *grade* *random-average-score* *help-last-entries*
 	  ;; Variables holding session-local memos.
@@ -264,11 +261,6 @@
       (solver-load)
       (solver-logging *solver-logging*)
       
-      ;; Andes2 had the following calls that can be found in log files:
-      ;;   read-student-info; the only remaining step is:
-      (Load-Config-File)			
-      ;;   set-condition none
-      (set-condition 'none) ;Any experimental condition
       ;;  Most of the set-up is done here.
       ;; The return for this may be of some use.
       (execute-andes-command time 'read-problem-info problem)
@@ -651,7 +643,7 @@
   (let ((actions '("new-object" "modify-object" "delete-object"
 		   "set-score" "set-preferences" "set-styles"))
 	(hints '("show-hint" "show-hint-link" "echo-get-help-text")) 
-	result (count 0))
+	result)
     (dolist (line (reverse reply))
       (let ((action (cdr (assoc :action line))))
 	;; Very long old sessions can have reply strings

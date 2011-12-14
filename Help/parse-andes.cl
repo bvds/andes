@@ -927,7 +927,7 @@ follow-up question and put it in the student entry's err interp field."
 ;; accuracy to see if its correct.
 ;;
 
-(defun do-check-answer (entry)
+(defun check-answer (entry)
   (let*
       ;; This is the only place where StudentEntry-verbatim is used.
       ((inputo (StudentEntry-verbatim entry))
@@ -940,7 +940,7 @@ follow-up question and put it in the student entry's err interp field."
     ;; if this is a new entry.
     (unless (StudentEntry-prop entry) 
       (unless (select-sought-for-answer entry)
-	(return-from do-check-answer 
+	(return-from check-answer 
 	  (extra-answer-ErrorInterp entry))))
 
     (setf sought-quant (second (studentEntry-prop entry)))
@@ -1032,13 +1032,13 @@ follow-up question and put it in the student entry's err interp field."
 					   (StudentEntry-ErrInterp entry))))))
 		  (cond ; failed to get a candidate to test.
 		    ((and why (equal (car why) 'bad-var))
-		     (warn "do-check-answer bad var ~A~%" entry)
+		     (warn "check-answer bad var ~A~%" entry)
 		  (setf (StudentEntry-ErrInterp entry)
 			(bad-answer-bad-lhs-ErrorInterp input why :id id))
 		     (setf result-turn (ErrorInterp-remediation 
 					(StudentEntry-ErrInterp entry))))
 		    ((and why (equal (car why) 'bad-sought))
-		  (warn "do-check-answer bad sought ~A~%" entry)
+		  (warn "check-answer bad sought ~A~%" entry)
 		     (setf (StudentEntry-ErrInterp entry)
 			   (bad-answer-bad-sought-ErrorInterp input why :id id))
 		     (setf result-turn (ErrorInterp-remediation 
@@ -1072,7 +1072,7 @@ follow-up question and put it in the student entry's err interp field."
     (unless result-turn
       (warn 'webserver:log-warn :text "No turn reply for answer"
 	    :tag (list 'box-no-reply (StudentEntry-prop entry)))
-      (return-from  do-check-answer
+      (return-from  check-answer
 	(make-end-dialog-turn 
 	 "Unable to evaluate answer.  Please try another problem.")))
 
