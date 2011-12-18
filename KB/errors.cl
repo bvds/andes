@@ -3819,21 +3819,21 @@
 
 ;;; ========================== Answer box entries ===========================
 
-(defun get-answer-entry (quant)
-"return student's answer entry for given quant"
-  (find `(answer ,quant) *studententries* 
-         :key #'StudentEntry-Prop :test #'equal))
-
 ;; default wrong-answer is kind of vacuous, but we want something to say:
 (def-error-class default-wrong-answer (?quant ?wrongval)
- ((student (answer ?quant))
-  (bind ?eqn (studentEntry-ParsedEqn (get-answer-entry ?quant)))
-  (bind ?wrongval (third ?eqn))))
+  ((student (answer ?quant))
+   (student-eqn ?eqn)
+   (bind ?wrongval (third ?eqn))))
 (defun default-wrong-answer (quant wrongval)
   (make-hint-seq
-    (list (format nil "~A is not the correct value for ~A.&nbsp; When you have entered enough equations, you can ~A ~A, then transfer the result to this answer box."
+   (list (format nil "~A is not the correct value for ~A.&nbsp; When you have entered enough equations, you can ~A ~A, then transfer the result to this answer box."
             (nlg wrongval 'algebra) (nlg quant) *solve-for-quantity* 
-	    (var-or-quant quant)))))
+	    ;; Hack to ignore dummy answer variable defined in 
+	    ;; function check-answer.
+	    (let ((var (symbols-label quant)))
+	      (if (or (null var) (equalp var "Answer"))
+		  "this quantity"
+		  (var-or-quant quant)))))))
 
 
 ;;; ================== Multiple choice entries

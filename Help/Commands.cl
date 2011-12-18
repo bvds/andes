@@ -115,23 +115,37 @@
 	 (result (when tmp (solver-power-solve 31 tmp new-id))))
     
     (cond ((and (null tmp) (has-algebraic-operators var))
-	   (make-eqn-failure-turn
+	   (make-eqn-failure-turn 
+	    entry
 	    "Sorry, Andes can only solve for a single variable."
-	    :id new-id))
+	    :mode 'complicated-lhs))
 	  ((null tmp)
-	   (make-eqn-failure-turn
+	   (make-eqn-failure-turn 
+	    entry
 	    (format nil "The variable <var>~A</var> is undefined." var)
-	    :id new-id))
+	    :mode 'undefined-var))
 	  ((and result (listp result)) 
 	   (solve-for-var-success entry result))
 	  ((stringp result) 
 	   (make-eqn-failure-turn 
+	    entry
 	    (format NIL "Unable to solve for ~A: ~A" var result)
-	    :id new-id))
-	  (t (make-eqn-failure-turn
+	    :mode result))
+	  (t (make-eqn-failure-turn 
+	      entry
 	      ;; implemented in next-step-help.cl
-	      (get-failure-to-solve-hint var)
-	      :id new-id)))))
+	      (get-failure-to-solve-hint var))))))
+
+;; see function make-red-turn
+(defun make-eqn-failure-turn (entry Msg &key mode)
+  "Generate an eqn entry turn."
+  (make-tutor-response 
+   entry 
+   (list msg) 
+   :state +incorrect+ 
+   :spontaneous t
+   :diagnosis (list 'solve-for-var mode)))
+
 
 (defparameter *algebraic-operators* '(#\+ #\- #\/ #\^ #\*))
 
@@ -160,7 +174,6 @@
 
 ;;; =========================================================================
 ;;; Answer API Calls
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-mc-answer
@@ -199,8 +212,8 @@
     
     ;; In the event that an unrecognized type is supplied handle it like so.
     (t (warn "Unrecognized button entry: ~a, checked:  ~A" 
-	     (StudentEntry-prop entry)
-	     (StudentEntry-checked entry)))))
+	      (StudentEntry-prop entry)
+	      (StudentEntry-checked entry)))))
 
   
 ;;; ==========================================================================

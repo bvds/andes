@@ -231,6 +231,7 @@
 ;;
 ;; return-turn -- wrapper for returning turn to workbench
 ;; saves on last turn and converts given turn to workbench result str
+;; returns alist reply.
 (defun return-turn (time turn)
   ;; Only update saved turn if new turn is non-null, and not a No-Op-Turn.
   ;; This is defense against a bug when a delayed notification of equation 
@@ -274,6 +275,13 @@
 		   (push `((:action . "modify-object") (:id . ,id)
 			   (:mode . "correct")) result))
       (color-red (when time (model-red-turn time))
+		 ;; Test that an error interpretation has
+		 ;; been logged.  Bug #1935
+		 (when (and (notany #'student-log-line result)
+			    (not **checking-entries**))
+		   (warn 'webserver:log-warn
+			 :tag (list 'incorrect-missing-interp id)
+			 :text "Red turn without logging interp."))
 		 (push `((:action . "modify-object") (:id . ,id)
 			 (:mode . "incorrect")) result))
       )
@@ -342,12 +350,12 @@
 	  (push (use-help-button-hint) result))))
       (tcard-turn (warn "Training card turn with ~A." (turn-text turn)))
       (minil-turn (warn "Minilesson card turn with ~A." (turn-text turn)))
-      (end-dialog (warn "end-dialog turn.  What is this?"))
       (kcd-turn (push `((:action . "show-hint") 
 			(:text . ,(turn-text turn))) result)
 		(case (Turn-menu turn)
 		  (Explain-More (warn "kcd explain more."))
 		  (otherwize (warn "kcd otherwize."))))
+      ;; Should have test of unknown type.
       )
 
     ;; When reply has a link, see if student needs hint to
@@ -380,6 +388,7 @@
      (and (equal (cdr (assoc :action reply)) "show-hint")
 	  (search "<a href=" (cdr (assoc :text reply)))
 	  (not (search *help-button-action* (cdr (assoc :text reply)))))))
+
 
 ;;; ==========================================================================
 ;;; Update with results.
@@ -725,8 +734,8 @@
 			      "Help is not available on this problem."))))
       ;; Algebra gets null answer
       (Algebra (make-eqn-failure-turn 
-		"The Andes calculator is not available on this problem."
-		:id (StudentEntry-id (car args))))
+		(car args)
+		"The Andes calculator is not available on this problem."))
       ;; anything else: empty string should function as null return value.
       (otherwise (warn "unclassifed api command: ~A~%" cmd)
                   "")))
