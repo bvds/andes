@@ -100,6 +100,9 @@
 (defparameter *unevaluated-entry* (manual-link "comment" 
 					       "comment" :pre ""))
 
+(defparameter *solve-for-quantity*  
+  (manual-link "solve for" "solve-for" :pre ""))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defparameter *constants-menu-action* 
