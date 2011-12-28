@@ -221,11 +221,6 @@
   "Push but for the end."
   `(setq ,Dest ,`(append ,Dest (list ,Val)))) 
 
-(defmacro push-when-exists (x y)
-  "push when the object to be pushed is non-null."
-  (let ((z (gensym)))
-    `(let ((,z ,x)) (when ,z (push ,z ,y)))))
-
 (defun contains-sym (Exp Sym)
   "Return t iff Exp contains the symbol Sym."
   (and (not (null Exp)) 

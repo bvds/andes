@@ -118,12 +118,24 @@
 	   (solve-for-var-success entry result))
 	  ((stringp result) 
 	   (make-eqn-failure-turn 
+	    entry
 	    (format NIL "Unable to solve for ~A: ~A" var result)
-	    :id new-id))
-	  (t (make-eqn-failure-turn
+	    :mode result))
+	  (t (make-eqn-failure-turn 
+	      entry
 	      ;; implemented in next-step-help.cl
-	      (get-failure-to-solve-hint var)
-	      :id new-id)))))
+	      (get-failure-to-solve-hint var))))))
+
+;; see function make-red-turn
+(defun make-eqn-failure-turn (entry Msg &key mode)
+  "Generate an eqn entry turn."
+  (make-tutor-response 
+   entry 
+   (list msg) 
+   :state +incorrect+ 
+   :spontaneous t
+   :diagnosis (list 'solve-for-var mode)))
+
 
 (defun solve-for-var-success (entry result)
   (let* ((studText (algebra result)))

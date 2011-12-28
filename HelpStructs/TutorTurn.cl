@@ -262,21 +262,6 @@
 	     :text Eqn
 	     :Responder #'(lambda (x) (declare (ignore x)) nil)))
 
-(defun make-eqn-failure-turn (Msg &key id)
-  "Generate an eqn entry turn."
-  (unless id (warn "no id in make-eqn-failure-turn"))
-  (make-turn :type +eqn-turn+
-             :coloring +color-red+
-	     :id id
-	     :text Msg
-	     :Responder #'(lambda (x) (declare (ignore x)) nil)))
-	     
-;; red/green convenience funcs take optional unsolicited message string:
-(defun make-red-turn (&key id)
-  (unless id (warn "no id in make-red-turn"))
-  (make-turn :coloring +color-red+
-	     :id id))
-
 (defun make-green-turn (&key id)
   (unless id (warn "no id in make-green-turn"))
   (make-turn :coloring +color-green+
