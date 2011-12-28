@@ -71,7 +71,7 @@ $adminName = '' ;   // user name
 	     // MIT_.*
 	     // asu_3u16472755e704e5fasul1_.*
 	     // asu_3u16472755e704e5fasul1_15865
-$sectionName = 'asu_3u16472755e704e5fasul1_.*' ; //$_POST['sectionName'];
+$sectionName = 'MIT_.*' ; //$_POST['sectionName'];
 $startDate = '2011-04-01'; // $_POST['startDate'];
 $endDate = ''; // $_POST['endDate'];
 $methods = array('open-problem','solution-step','seek-help','record-action','close-problem');  //implode(",",$_POST['methods']);
@@ -148,6 +148,51 @@ function containsMetaHint($t){
     strcmp($t,"You can click on the above link to get more help.") ==0 ||
     (strpos($t,"Your entry has turned red") !== false &&
      strpos($t,"the hint button") !== false);
+}
+
+// Test for known student errors.
+function containsErrorType($p){
+  // Errors with unsolicited hints were logged in old
+  // log files.  There are commented out here:
+  $errNames = array("(DEFAULT-WRONG-ANSWER ",
+		    "(DEFAULT-WRONG-DIR ",
+		    "(already-defined)",
+		    "(answer-is-malformed)",
+		    "(answer-is-not-sought)",
+		    "(answer-sought-is-undefined)",
+		    "(definition-has-no-matches)",
+		    "(definition-has-too-many-matches)",
+		    "(empty-answer)",
+		    //  "(equation-syntax-error ",
+		    "(extra-answer)",
+		    // "(forgot-units)",
+		    "(goal-incomplete ",
+		    "(internal-error ",
+		    // "(maybe-forgot-units)",
+		    "(more-than-given)",
+		    "(no-label ",
+		    "(no-variable-defined)",
+		    "(nothing-to-match-definition)",
+		    "(should-be-compo-form)",
+		    "(should-be-given)",
+		    "(should-be-known)",
+		    "(should-be-magdir-form)",
+		    "(should-be-unknown)",
+		    "(solve-for-var ",
+		    // "(Undefined-variables ",
+		    // "(Unused-variables ",
+		    "(using-variables-in-answer)",
+		    "(variable-already-in-use)",
+		    "(variable-not-defined)",
+		    "(wrong-given-value)",
+		    "(wrong-tool-error)",
+		    "(wrong-units ");
+  foreach ($errNames as $errName){
+    if(strncasecmp($p,$errName,strlen($errName))==0){
+      return true;
+    }
+  }
+  return false;
 }
 
 // Test to see if problem had a done button removed.
@@ -382,6 +427,15 @@ while ($myrow = mysql_fetch_array($result)) {
 	       ($ignoreMetaHints && isset($bc->action) &&
 		strcmp($bc->action,"show-hint")==0 &&
 		containsMetaHint($bc->text)) ||
+
+	       // Add log message to all incorrect entries
+	       // commit 4889f5fb386998, Dec 17 20:17:21 2011
+	       // Remove redundant log message.
+	       (isset($bc->action) && isset($bc->log) && 
+		isset($bc->{'error-type'}) &&
+		strcmp($bc->action,"log")==0 &&
+		strcmp($bc->log,"student")==0 &&
+		strcmp($bc->{'error-type'},"(SYNTAX-ERROR-IN-EQN)")==0) ||
 	       
 	       // kgraph8b problem addition
 	       // problems, commit fb5ec251c3a974a14, Tue Sep 27 2011
@@ -425,9 +479,19 @@ while ($myrow = mysql_fetch_array($result)) {
 	       
 	       // New turn has meta-hint
 	       ($ignoreMetaHints && 
-		isset($bc->action) && isset($bc->action) &&
+		isset($bc->action) &&
 		strcmp($bc->action,"show-hint")==0 &&
 		containsMetaHint($bc->text)) ||
+
+	       
+	       // Add log message to all incorrect entries
+	       // commit 4889f5fb386998, Dec 17 20:17:21 2011
+	       (strcmp($method,"solution-step")==0 && 
+		isset($bc->action) && isset($bc->log) && 
+		isset($bc->{'error-type'}) &&
+		strcmp($bc->action,"log")==0 &&
+		strcmp($bc->log,"student")==0 &&
+		containsErrorType($bc->{'error-type'})) ||
 	       
 	       // kgraph8b problem addition
 	       // problems, commit fb5ec251c3a974a14, Tue Sep 27 2011
@@ -577,6 +641,14 @@ while ($myrow = mysql_fetch_array($result)) {
 		    strpos($nbbc,'"NSH":"(NEW-START-AXIS ') !== false) ||
 		   (preg_match('/"It is now a good idea for you to draw an axis.*This will help to ground your work and be useful later on in the process\."/',$bbc) != 0 &&
 		    preg_match('/"It is a good idea to begin most problems by drawing an axis.*This helps to ground your work and will be useful later on in the process\."/',$nbbc) != 0))){
+	    $i++; $ni++;
+	  }elseif(isset($bc->action) && strcmp($bc->action,"log") == 0 &&
+		  isset($nbc->action) && strcmp($nbc->action,"log") == 0 &&
+		  // Add log message to all incorrect entries
+		  // commit 4889f5fb386998, Dec 17 20:17:21 2011
+		  // Compare syntax error logs
+		  strpos($bbc,'EQUATION-SYNTAX-ERROR') !== false &&
+		  strpos($nbbc,'EQUATION-SYNTAX-ERROR') !== false){
 	    $i++; $ni++;
 	  }elseif(strcmp($method,"solution-step") == 0 &&
 		  // Add test for creation of excess answer box.
