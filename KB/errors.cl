@@ -3978,21 +3978,27 @@
 
 ;;; ========================== Answer box entries ===========================
 
-;; default wrong-answer is kind of vacuous, but we want something to say:
+; default wrong-answer is kind of vacuous, but we want something to say:
 (def-error-class default-wrong-answer (?quant ?wrongval)
   ((student (answer ?quant))
    (student-eqn ?eqn)
    (bind ?wrongval (third ?eqn))))
 (defun default-wrong-answer (quant wrongval)
   (make-hint-seq
-   (list (format nil "~A is not the correct value for ~A.&nbsp; When you have entered enough equations, you can ~A ~A, then transfer the result to this answer box."
-            (nlg wrongval 'algebra) (nlg quant) *solve-for-quantity* 
+   (list (format nil "~A is not the correct value for ~A. When you have entered enough equations, ask Andes to solve for ~A, then transfer the result to this answer box."
+            (nlg wrongval 'algebra) (nlg quant) 
 	    ;; Hack to ignore dummy answer variable defined in 
 	    ;; function check-answer.
 	    (let ((var (symbols-label quant)))
 	      (if (or (null var) (equalp var "Answer"))
-		  "this quantity"
+		  (nlg quant)
 		  (var-or-quant quant)))))))
+
+; sign error in answer:
+; -sought is pos magnitude, answer entry is negative
+;   - Could give message for any negative number, even if abs is wrong.
+; -sought is neg compo, answer entry is positive
+; other sign error in answer (unlikely, no diagnose).
 
 #|
 ; magnitude is sought but they've entered a negative answer

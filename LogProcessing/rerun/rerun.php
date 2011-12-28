@@ -53,8 +53,8 @@ mysql_select_db($dbname)
 
 /* filters for user name, section, etc.  */
 $adminName = ''; // $_POST['adminName'];   student name.
-$sectionName = 'study' ; //$_POST['sectionName'];
-$startDate = ''; // $_POST['startDate'];
+$sectionName = 'asu_9Q1920841f2ca4d1fasul1_.' ; //$_POST['sectionName'];
+$startDate = '2011-05-05'; // $_POST['startDate'];
 $endDate = ''; // $_POST['endDate'];
 $methods = array('open-problem','solution-step','seek-help','record-action','close-problem');  //implode(",",$_POST['methods']);
 
@@ -62,14 +62,14 @@ if($adminName==''){
   $adminNamec = "";
   $adminNamee = "";
  } else {
-  $adminNamec = "P1.userName = '$adminName' AND";
+  $adminNamec = "P1.userName REGEXP '$adminName' AND";
   $adminNamee = " by $adminName,";
  }  
 if($sectionName==''){
   $sectionNamec = "";
   $sectionNamee = "";
  } else {
-  $sectionNamec = "P1.userSection = '$sectionName' AND";
+  $sectionNamec = "P1.userSection REGEXP '$sectionName' AND";
   $sectionNamee = " by $sectionName,";
  }  
 
@@ -167,12 +167,13 @@ function consolidate_interps($result){
 }
 	     
 require_once('jsonRPCClient.php');
-$server  = new jsonRPCClient('http://localhost/help');
+$server  = new jsonRPCClient('http://localhost/help-test');
 $sessionIdBase = "_" . date('h:i:s') . "_";
 $sessionId = 0;
 $handle = fopen($jsonFile,'w');
 fwrite($handle,"[\n");
 $firstRow = true;
+$methodTime=array();
 
 $studentTime = 0; // Total user time for all sessions
 $serverTime = 0; // Total server time for all sessions.

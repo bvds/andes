@@ -363,6 +363,12 @@
       when (help-entryprop-p E)
       collect (sg-generate-sysent Do E Stack State)))
 
+(defun reduce-prop (full-prop)
+  "Take full prop and get quantity, except for bodies."
+  (if (eql (car full-prop) 'body)
+      full-prop ;use def-qexp body-wrapper
+      (second full-prop)))
+
 ; custom condition subclass to be signalled on apparent version errors
 ; This inherits from the simple-error class which defines initargs 
 ; :format-control and :format-arguments, used in the report function

@@ -1039,28 +1039,7 @@ follow-up question and put it in the student entry's err interp field."
 	;; quant-to-sysvar failed.
 	(warn "No system variable for ~A. Possible mismatch with answer box." 
 	      sought-quant))
-    
-    ;; Since var=value equation is not among SystemEntries, 
-    ;; need to find associated SystemEntry by hand and upgrade
-    ;; its status.
-    (let ((sysent (find-SystemEntry (StudentEntry-prop entry))))
-      (if sysent
-	  (progn
-	    (if (eql (StudentEntry-state entry) +correct+)
-		(pushnew entry (SystemEntry-entered sysent))
-		(setf (SystemEntry-entered sysent) nil)))
-	  (warn 'webserver:log-warn :text "No matching systementry for box"
-		:tag (list 'box-no-systementry (StudentEntry-prop entry)))))
-    
-    (unless (turn-p result-turn)
-      (warn 'webserver:log-warn :text "No reply turn for answer"
-	    :tag (list 'box-no-reply (StudentEntry-prop entry)))
-      (return-from  check-answer
-	(make-tutor-response
-	 entry
-	 '("Unable to evaluate answer.&nbsp;  Please try another problem.")
-	 :spontaneous t)))
-    
+        
     result-turn))
 
 
