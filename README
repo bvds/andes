@@ -1,0 +1,31 @@
+Branch for rerunning summer 2011 courses from St. Anselm 
+through the help system to add logging for incorrect turns.
+
+Setup git:
+
+git checkout stable-with-logging
+cd problems; git checkout d3749a851b015f46794bdf5dab0
+cd solutions; git checkout 2c76b93fcae573f77f25f
+
+Database Setup:
+
+mysql -u root -p andes_anslem < andes_test.sql
+  
+INSERT into CLASS_INFORMATION (classSection,description) values ('asu_9Q1920841f2ca4d1fasul1_c','Raj experiment control condition');
+INSERT into CLASS_INFORMATION (classSection,description) values ('asu_9Q1920841f2ca4d1fasul1_e','Raj experiment experimental condition');
+
+Database refresh (should be done before starting up session below):
+
+DELETE FROM PROBLEM_ATTEMPT WHERE clientID LIKE '\_%';
+
+In lisp:
+
+(rhelp)
+(start-help :port 8081 :db "andes_anselm")
+(setf webserver:*debug* nil)
+(setf *simulate-loaded-server* nil)
+;; Set up section-wide defaults
+(andes-database:set-state-property 'raj-experiment 'control :model "server" :section "asu_9Q1920841f2ca4d1fasul1_c" :student nil :tid t)
+(andes-database:set-state-property 'raj-experiment 'experiment :model "server" :section "asu_9Q1920841f2ca4d1fasul1_e" :student nil :tid t)
+(andes-database:set-state-property "timer" t :model "client" :section "asu_9Q1920841f2ca4d1fasul1_c" :student nil :tid t)
+(andes-database:set-state-property "timer" t :model "client" :section "asu_9Q1920841f2ca4d1fasul1_e" :student nil :tid t)

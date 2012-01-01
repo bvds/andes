@@ -2,6 +2,7 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+  <title>Andes Errors</title>
   <LINK REL=StyleSheet HREF="log.css" TYPE="text/css">
 
   <script type="text/javascript" src='xml-scripts.js'></script>
@@ -55,16 +56,20 @@ echo "<tr><th>Starting Time</th><th>Input</th><th>Error Type</th><th>Message</th
 // Newer versions of php have json decoder built-in.  Should
 // eventually have test for php version and use built-in, when possible.
 include 'JSON.php';
+// However, this is really slow.  For now, just increase time limit:  
+set_time_limit(300);
 $json = new Services_JSON();
 
 $sqlOld="SELECT startTime,userName,userProblem,userSection,tID,command,P1.clientID from PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE $startDatec $endDatec P2.initiatingParty='server' AND P2.command like '%\"error-type\":$errorTypec%' AND P2.command like '%\"error\":%' AND P2.clientID=P1.clientID AND P1.extra=0 order by P2.tID";
 $sql="SELECT startTime,userName,userProblem,userSection,tID,client,server,P1.clientID from PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE $startDatec $endDatec P2.server like '%\"log\":\"server\"%' AND P2.clientID=P1.clientID AND P1.extra=0 order by P2.tID";
 $resultOld=mysql_query($sqlOld);
 $result=mysql_query($sql);
+$ecount=0;
 
   
 while (($myrow = mysql_fetch_array($resultOld)) ||
        ($myrow = mysql_fetch_array($result))) {
+  $ecount++;
   $tID=$myrow["tID"];  
   $userClientID=$myrow["clientID"];
   $userName=$myrow["userName"];
@@ -89,17 +94,22 @@ while (($myrow = mysql_fetch_array($resultOld)) ||
   $a=$json->decode($userCommand);
 
   $yy=array();
-  if($command){
+  if($command && isset($command->result)){
     // Don't know why I can't just use $command->result in the foreach
     $zz=$command->result; 
     foreach($zz as $bb) {
       if($bb->action == "log" && 
 	 // New or old style logging
-	 (strcmp($bb->log,"server")==0 || $bb->error)){
+	 ((isset($bb->log) && strcmp($bb->log,"server")==0) || 
+	  isset($bb->error))){
         $key1="error-type";  // work-around for the dash
         $errorType=$bb->$key1;
 	// New or old style logging
         $errorMsg=isset($bb->text)?$bb->text:$bb->error;
+	// Error text is supposed to be plain text, so escape any html.
+	$errorMsg=str_replace("&","&amp;",$errorMsg);
+	$errorMsg=str_replace(">","&gt;",$errorMsg);
+	$errorMsg=str_replace("<","&lt;",$errorMsg);
 	$tag=isset($bb->entry)?$bb->entry:'';
         array_push($yy,"<td>$errorType</td><td>$errorMsg</td><td>$tag</td>");
       }
@@ -115,7 +125,7 @@ while (($myrow = mysql_fetch_array($resultOld)) ||
     // forward slashes are escaped in json, which looks funny
     $bb=str_replace("\\/","/",$bb);
     $bb=substr($bb,0,200);
-    array_push($yy,"<td colspan=\"2\">$bb &#8230;</td>");
+    array_push($yy,"<td colspan=\"3\">$bb &#8230;</td>");
   }
   $nr=count($yy); // should always be nonzero
 
@@ -145,6 +155,7 @@ while (($myrow = mysql_fetch_array($resultOld)) ||
  }
 
 echo "</table>\n";
+echo "<p>total of $ecount errors.\n";
 
 mysql_close();
 ?>

@@ -17,12 +17,13 @@ mysql_select_db($dbname)
      or die ("UNABLE TO SELECT DATABASE");
 
 
+$clientID = isset($_GET["cid"])?$_GET["cid"]:''; // Optional
 $userName = $_GET["u"];
 $userProblem = $_GET["p"];
 $userSection = $_GET["s"];
-$tID = $_GET["t"];
-$clientID = $_GET["cid"];
-$methods = $_GET["m"];
+$tID = isset($_GET["t"])?$_GET["t"]:''; // Optional
+
+$methods = isset($_GET["m"])?$_GET["m"]:''; // Optional
 if($methods){
   $methods = explode(",",$_GET["m"]);
  }

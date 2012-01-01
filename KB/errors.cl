@@ -3963,7 +3963,7 @@
    ;; our advice to use the symbol throughout is a little odd for problem
    ;; soughts since they do have to enter an equation for the answer somewhere.
    ;; Could check:
-   ;; (test (not (problem-sought-var-p ?var)))
+   (test (not *is-answer-box*))
    ))
 
 (defun wrong-value-non-given (var wrongval) 
@@ -3978,11 +3978,19 @@
 
 ;;; ========================== Answer box entries ===========================
 
+(defun get-answer-entry (quant)
+"return student's answer entry for given quant"
+  (find `(answer ,quant) *studententries*
+         :key #'StudentEntry-Prop :test #'equal))
+
 ; default wrong-answer is kind of vacuous, but we want something to say:
 (def-error-class default-wrong-answer (?quant ?wrongval)
-  ((student (answer ?quant))
-   (student-eqn ?eqn)
-   (bind ?wrongval (third ?eqn))))
+  (
+   ;; No way to tell if this is supposed to be an
+   ;; answer box.  Define dynamically bound variable.
+   (test *is-answer-box*)
+   (student-eqn (= ?var ?wrongval))
+   (bind ?quant (sysvar-to-quant ?var))))
 (defun default-wrong-answer (quant wrongval)
   (make-hint-seq
    (list (format nil "~A is not the correct value for ~A. When you have entered enough equations, ask Andes to solve for ~A, then transfer the result to this answer box."

@@ -66,7 +66,7 @@ mysql_select_db($dbname)
 
 /* filters for user name, section, etc.  
    Use regexp matching for user name and section. */
-	     // oneill.193_asu crell.1_asu
+//         rking_asu
 $adminName = '' ;   // user name
 	     // MIT_.*
 	     // asu_3u16472755e704e5fasul1_.*
@@ -115,6 +115,12 @@ include '../Web-Interface/JSON.php';
 $json = new Services_JSON();
 
 function escapeHtml($bb){
+  // Would be nice to leave in valid html and
+  // escape everything else.
+  // Escape html codes so actual text is seen.
+  $bb=str_replace("&","&amp;",$bb);
+  $bb=str_replace(">","&gt;",$bb);
+  $bb=str_replace("<","&lt;",$bb);
   // add space after commas, for better line wrapping
   $bbb=str_replace("\",\"","\", \"",$bb);
   // forward slashes are escaped in json, which looks funny
@@ -151,10 +157,10 @@ function containsMetaHint($t){
 }
 
 // Test for known student errors.
-function containsErrorType($p){
+function containsErrorType($p,$ans){
   // Errors with unsolicited hints were logged in old
   // log files.  There are commented out here:
-  $errNames = array("(DEFAULT-WRONG-ANSWER ",
+  $normalErrs = array(
 		    "(DEFAULT-WRONG-DIR ",
 		    "(already-defined)",
 		    "(answer-is-malformed)",
@@ -187,7 +193,11 @@ function containsErrorType($p){
 		    "(wrong-given-value)",
 		    "(wrong-tool-error)",
 		    "(wrong-units ");
-  foreach ($errNames as $errName){
+  $ansErrs=array("(ANSWER-SOUGHT-IS-UNDEFINED)",
+		 "(FORGOT-UNITS)",
+		 "(WRONG-UNITS)",
+		 "(DEFAULT-WRONG-ANSWER ");
+  foreach (($ans?$ansErrs:$normalErrs) as $errName){
     if(strncasecmp($p,$errName,strlen($errName))==0){
       return true;
     }
@@ -336,10 +346,6 @@ while ($myrow = mysql_fetch_array($result)) {
      isset($a->params) && // Ignore server shutdown of idle sessions.
      (!$methods || in_array($method,$methods))){
     $aa=$json->encode($a->params);
-    // Escape html codes so actual text is seen.
-    $aa=str_replace("&","&amp;",$aa);
-    $aa=str_replace(">","&gt;",$aa);
-    $aa=str_replace("<","&lt;",$aa);
     $aa=escapeHtml($aa);
     
     if (strcmp($response,$newResponse) != 0) {
@@ -447,7 +453,9 @@ while ($myrow = mysql_fetch_array($result)) {
 		isset($bc->{'error-type'}) &&
 		strcmp($bc->action,"log")==0 &&
 		strcmp($bc->log,"student")==0 &&
-		containsErrorType($bc->{'error-type'})) ||
+		containsErrorType($bc->{'error-type'},
+				  isset($a->params->symbol) &&
+				  strcmp($a->params->symbol,"Answer")==0)) ||
 	       
 	       // User agent will change when rerunning.
 	       // Drop any log of user-agent.
@@ -532,6 +540,14 @@ while ($myrow = mysql_fetch_array($result)) {
 	  if(isset($bc->action) && strcmp($bc->action,"show-hint")==0){
 	    $bbc=preg_replace('/\.[ ]+"/','."',$bbc);
 	    $bbc=preg_replace('/\.&nbsp;[ ]*"/','."',$bbc);
+	  }
+	  // Canonicalize indy equation numbers.
+	  // Not sure what is causing different numbering.
+	  if(isset($bc->action) && strcmp($bc->action,"log")==0){
+	    $bbc=preg_replace('/indyStudentAddEquationOkay..\d+ /','/indyStudentAddEquationOkay((0 ',$bbc);
+	  }
+	  if(isset($nbc->action) && strcmp($nbc->action,"log")==0){
+	    $nbbc=preg_replace('/indyStudentAddEquationOkay..\d+ /','/indyStudentAddEquationOkay((0 ',$nbbc);
 	  }
 	  
 	  

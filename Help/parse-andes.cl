@@ -250,9 +250,7 @@
 	(setf se (copy-StudentEntry entry))
 	(setf (StudentEntry-verbatim se) equation)
 	(setf (StudentEntry-parsedeqn se) parse)
-	;; Answer boxes already have a prop.
-	(unless (eql location 'answer)
-	  (setf (StudentEntry-prop se) (list 'eqn equation)))
+	(setf (StudentEntry-prop se) (list 'eqn equation))
 	(setf (StudentEntry-State se) +incorrect+)
 	(setf tmp (parse-handler se location))
 	(cond
@@ -906,6 +904,8 @@ follow-up question and put it in the student entry's err interp field."
 ;; accuracy to see if its correct.
 ;;
 
+(defvar *is-answer-box* nil)
+
 (defun do-check-answer (entry)
   (let*
       ;; This is the only place where StudentEntry-verbatim is used.
@@ -971,7 +971,8 @@ follow-up question and put it in the student entry's err interp field."
 			   ;; need to make a fake entry with different 
 			   ;; id so real entry is not overwritten.
 			   ;; Fake entry is deleted below.
-			   (let ((temp-entry (copy-studententry entry)))
+			   (let ((temp-entry (copy-studententry entry))
+				 (*is-answer-box* t))
 			     (setf (studententry-id temp-entry) 
 				   'check-answer-equation)
 			     (setf result-turn 
@@ -1022,11 +1023,11 @@ follow-up question and put it in the student entry's err interp field."
 		  (setf result-turn
 			(cond 
 			  ((and why (equal (car why) 'bad-var))
-			   (warn "check-answer bad var ~A~%" entry)
+			   (warn "do-check-answer bad var ~A~%" entry)
 			   (bad-answer-bad-lhs-ErrorInterp entry
 						     input why))
 			  ((and why (equal (car why) 'bad-sought))
-			   (warn "check-answer bad sought ~A~%" entry)
+			   (warn "do-check-answer bad sought ~A~%" entry)
 			   (bad-answer-bad-sought-ErrorInterp entry
 							input why))
 			  (t 

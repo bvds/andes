@@ -25,3 +25,7 @@ tr.close-problem {
 tr.syntax {
   background-color: #ff00ff;
 }
+
+tr.quit {
+  background-color: #e0e0e0;  
+}
