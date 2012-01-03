@@ -47,6 +47,7 @@
 $ignoreNewLogs = true;  // ignore any new non-error, log messages
 $ignoreScores = true;  // ignore any changes to scoring.
 $ignoreMetaHints = true;  // Ignore meta hints
+$ignorePreferences = true; // Ignore any client preferences
 $printDiffs = true;  // Whether to print out results for server diffs
 $jsonFile = 'replies.json';  // File name for dumping reply json
 	    
@@ -136,6 +137,8 @@ $firstRow = true;
 
 $studentTime = 0; // Total user time for all sessions.
 $serverTime = 0; // Total server time for all sessions.
+$stepTally = 0; // Number of steps analyzed
+$diffStepTally = 0;  // Number of steps where unexplained diff was found.
 
 $sessionLink1 = "<td><a href=\"/log/OpenTrace.php?x=" . $dbuser .
 	     "&amp;sv=" . $dbserver . "&amp;pwd=" . $dbpass . "&amp;d=" . $dbname;
@@ -191,12 +194,16 @@ function containsErrorType($p,$ans){
 		    "(variable-already-in-use)",
 		    "(variable-not-defined)",
 		    "(wrong-given-value)",
-		    "(wrong-tool-error)",
-		    "(wrong-units ");
+		    "(wrong-tool-error)"
+		    // "(wrong-units "
+		    );
   $ansErrs=array("(ANSWER-SOUGHT-IS-UNDEFINED)",
-		 "(FORGOT-UNITS)",
-		 "(WRONG-UNITS)",
-		 "(DEFAULT-WRONG-ANSWER ");
+		 // "(FORGOT-UNITS)",
+		 "(DEFAULT-WRONG-ANSWER ",
+		 "(MISSING-NEGATION-ON-VECTOR-MAGNITUDE ",
+		 "(Undefined-variables ",
+		 "(WRONG-UNITS)"
+		 );
   foreach (($ans?$ansErrs:$normalErrs) as $errName){
     if(strncasecmp($p,$errName,strlen($errName))==0){
       return true;
@@ -278,11 +285,14 @@ while ($myrow = mysql_fetch_array($result)) {
   $dt = microtime(true) - $queryStart;
   $serverTime += $dt;
 
-  // See if this is the last turn in a session and if
-  // the problem has not yet been closed.
-  if($lastID[$clientID] == $ttID &&
-     !((array_key_exists($clientID,$lastTime) &&
-	$lastTime[$clientID] == -2))){
+  // See if this is the last turn in a session 
+  // Or if the server has closed the session and
+  // the problem has not already been closed.
+  // Then close the session.
+  if(($lastID[$clientID] == $ttID || 
+      strpos($response,"Your session is no longer active.") !== false) &&
+     !(array_key_exists($clientID,$lastTime) &&
+       $lastTime[$clientID] == -2)){
     // Close the session "by hand" and record
     $closeID=$a->id + 1;
     $closeAction="{\"id\":$closeID,\"method\":\"close-problem\",\"params\":{},\"jsonrpc\":\"2.0\"}";
@@ -341,10 +351,11 @@ while ($myrow = mysql_fetch_array($result)) {
   } else {
     $tid="none";
   }
-  
+
   if($printDiffs && 
      isset($a->params) && // Ignore server shutdown of idle sessions.
      (!$methods || in_array($method,$methods))){
+    $stepTally++;
     $aa=$json->encode($a->params);
     $aa=escapeHtml($aa);
     
@@ -363,8 +374,10 @@ while ($myrow = mysql_fetch_array($result)) {
 	      "<td>" . ($njr== null?"json decode failed":"OK") . 
 	      "<br>len. " . strlen($newResponse) . "</td>" .
 	      "<td>pos. $pos</td></tr>\n";
+	    $diffStepTally++;
       } elseif(isset($jr->error) || isset($njr->error)){
-	echo "<tr class='$method'><td>$aaa</td><td>$aa</td><td>$response</td><td>$newResponse</td><td></td></tr>\n";       
+	echo "<tr class='$method'><td>$aaa</td><td>$aa</td><td>$response</td><td>$newResponse</td><td></td></tr>\n"; 
+	$diffStepTally++;
       } else {
 	// Server drops result key-value pair if array is empty.
 	if(!isset($jr->result)){$jr->result=array();}
@@ -396,6 +409,10 @@ while ($myrow = mysql_fetch_array($result)) {
 	       ($ignoreMetaHints && isset($bc->action) &&
 		strcmp($bc->action,"show-hint")==0 &&
 		containsMetaHint($bc->text)) ||
+
+	       // Ignore client preferneces
+	       ($ignorePreferences && isset($bc->action) &&
+		strcmp($bc->action,"set-preference")==0) ||
 
 	       // Add log message to all incorrect entries
 	       // commit 4889f5fb386998, Dec 17 20:17:21 2011
@@ -445,6 +462,9 @@ while ($myrow = mysql_fetch_array($result)) {
 		strcmp($bc->action,"show-hint")==0 &&
 		containsMetaHint($bc->text)) ||
 
+	       // Ignore client preferneces
+	       ($ignorePreferences && isset($bc->action) &&
+		strcmp($bc->action,"set-preference")==0) ||
 	       
 	       // Add log message to all incorrect entries
 	       // commit 4889f5fb386998, Dec 17 20:17:21 2011
@@ -583,6 +603,7 @@ while ($myrow = mysql_fetch_array($result)) {
       
 	$nrows=sizeof($rows);
 	if($nrows>0){
+	  $diffStepTally++;
 	  $row=array_shift($rows);
 	  echo "  <tr class='$method'><td rowspan='$nrows'>$aaa</td><td rowspan='$nrows'>$aa</td>$row</tr>\n";
 	  foreach($rows as $row){
@@ -608,6 +629,9 @@ fwrite($handle,"\n]\n");
 fclose($handle);
 
 echo "</table>\n";
+if($printDiffs){
+  echo "<p>Analysed $stepTally steps with $diffStepTally discrepencies.\n";
+ }
 echo "<p>Student time " . number_format($studentTime,2) . ", \n";
 echo "server time " . number_format($serverTime,2) . ", \n";
 echo "and wall time " . (time()-$startTime) . " seconds.<br>\n";
