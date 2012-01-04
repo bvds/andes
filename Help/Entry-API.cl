@@ -567,7 +567,7 @@
 	 (strcat "Double-click on the text box and " 
 		 *define-variable* "."))
    :assoc '((no-variable-defined . nil))
-   :state +incorrect+
+   :state nil
    :diagnosis '(no-variable-defined)
    :spontaneous t))
 
@@ -605,16 +605,16 @@
    :spontaneous t))
 
 
-(defun pull-out-quantity (symbol text)
+(defun pull-out-quantity (symbol text &key (test #'string=))
   "Pull the quantity phrase out of a definition:  should match variablename.js"
   (when (> (length symbol) 0) ;variablename.js returns empty string on no match
-    (if (not (search symbol text))
+    (if (not (search symbol text :test test))
 	(warn 'webserver:log-warn
 	      :tag (list 'symbol-definition-mismatch symbol text)
 	      :text "Symbol does not match definition.")
 	;; Find first occurence of symbol in text and take rest of text.
 	;; this should be done as a parser.
-	(let* ((si (+ (search symbol text) (length symbol)))
+	(let* ((si (+ (search symbol text :test test) (length symbol)))
 	       (nosym (string-left-trim match:*whitespace* (subseq text si))))
 	  ;; Find any subsequent equality in string.
 	  ;; The empty string is a catch-all in case there is no match
@@ -1181,7 +1181,7 @@
 		   "name you have chosen."))
 	  :assoc `((no-variable-defined 
 		    . ,(get-vector-parent-prop referent)))
-	  :state +incorrect+
+	  :state nil
 	  :diagnosis '(variable-not-defined)
 	  :spontaneous t))))
    

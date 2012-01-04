@@ -69,7 +69,7 @@ $adminName = '' ;   // user name
 	     // MIT_.*
 	     // asu_3u16472755e704e5fasul1_.*
 	     // asu_3u16472755e704e5fasul1_15865
-$sectionName = 'MIT_.*' ; //$_POST['sectionName'];
+$sectionName = 'asu_3u16472755e704e5fasul1_15865' ; //$_POST['sectionName'];
 $startDate = '2011-04-01'; // $_POST['startDate'];
 $endDate = ''; // $_POST['endDate'];
 $methods = array('open-problem','solution-step','seek-help','record-action','close-problem');  //implode(",",$_POST['methods']);
@@ -162,11 +162,11 @@ function containsErrorType($p,$ans){
   // log files.  There are commented out here:
   $normalErrs = array(
 		    "(DEFAULT-WRONG-ANSWER ",
-		    "(DEFAULT-WRONG-DIR ",
 		    "(already-defined)",
 		    "(answer-is-malformed)",
 		    "(answer-is-not-sought)",
 		    "(answer-sought-is-undefined)",
+		    // "(DEFAULT-WRONG-DIR ",
 		    "(definition-has-no-matches)",
 		    "(definition-has-too-many-matches)",
 		    "(empty-answer)",
@@ -202,6 +202,8 @@ function containsErrorType($p,$ans){
 		 "(MAYBE-FORGOT-UNITS)",
 		 "(MISSING-NEGATION-ON-VECTOR-MAGNITUDE ",
 		 "(Undefined-variables ",
+		 "(USING-VARIABLES-IN-ANSWER)",
+		 "(VAR-HAS-WRONG-TIME-SPECIFIER ",
 		 "(WRONG-UNITS)"
 		 );
   foreach (($ans?$ansErrs:$normalErrs) as $errName){
@@ -660,11 +662,16 @@ while ($myrow = mysql_fetch_array($result)) {
 	  $nbbc=preg_replace('/The variable .* is undefined./',$solve_error,$nbbc);
 	  $nbbc=preg_replace('/Sorry, Andes can only solve for a single variable./',$solve_error,$nbbc);
 	  // Canonicalize help message for default-wrong-answer
+	  // and wrong-value-non-given
 	  // commit 55da152aa4efda176cff6be71b1, Sat Dec 17 20:17:21 2011
 	  $defaultWrongAnswer='/When you have entered enough equations.*transfer the result to this answer box./';
 	  $defaultWrongAnswerC='**default-wrong-answer**';
 	  $bbc=preg_replace($defaultWrongAnswer,$defaultWrongAnswerC,$bbc);
 	  $nbbc=preg_replace($defaultWrongAnswer,$defaultWrongAnswerC,$nbbc);
+	  $wrongValueNonGiven='/ is not the correct value for .* the final answer when you have entered enough equations to determine it./';
+	  $wrongValueNonGivenC='**wrong-given-value**';
+	  $bbc=preg_replace($wrongValueNonGiven,$wrongValueNonGivenC,$bbc);
+	  $nbbc=preg_replace($wrongValueNonGiven,$wrongValueNonGivenC,$nbbc);
 	  // Remove Done button from some problems
 	  // problems commit 6376f20fd808, Nov 19 2011
 	  // Subsequent y-values will be off.
@@ -675,8 +682,16 @@ while ($myrow = mysql_fetch_array($result)) {
 	  }
 	  // Change hints in nsh-prompt-no-quant-done
 	  // commit 1dfa98550be16cb3f, Nov 21 2011
-	    $bbc=preg_replace('/"You have completed all of the principles necessary .*\."/',
-			      '"You have completed all of the steps necessary to solve this problem."',$bbc);
+	  $bbc=preg_replace('/"You have completed all of the principles necessary .*\."/',
+			    '"You have completed all of the steps necessary to solve this problem."',$bbc);
+	  // New format for solver error message
+	  // commit e21fb5c471ded851dd3f, Tue Jan 3 16:20:39 2012
+	  $bbc=preg_replace('/\(Error: <(.*)\(.*\) (\\".*\\")\)/',
+			    '(solverError $1 $2 $3)',$bbc);
+	  // Rename do-check-answer to check-answer
+	  // commit df74f09dc916cb490, Tue Dec 13 17:21:04 2011
+	  $bbc=preg_replace('/do-check-answer/','check-answer',$bbc);
+	  $bbc=preg_replace('/DO-CHECK-ANSWER/','CHECK-ANSWER',$bbc);
 	  
 	  
 	  if(strcmp($bbc,$nbbc)==0){ // match, go on to next pair

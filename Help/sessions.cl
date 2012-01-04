@@ -710,8 +710,7 @@
     ;; old set-up and get things working, and then make changes to
     ;; move the handling of StudentEntries to the top level.
 
-    (let ((old-entry (find-entry id)) new-entry 
-	  (ans "Answer:"))
+    (let ((old-entry (find-entry id)) new-entry)
       
       (when *simulate-loaded-server* 
 	(format webserver:*stdout* 
@@ -769,14 +768,16 @@
 	       (member (aref text 0) *comment-leading-characters*))
 	  `(((:action . "show-hint") (:text . ,(strcat "A " *unevaluated-entry* ".")))))
 	 
-	 ;; Look for text box marked by "Answer: "
+	 ;; Look for text box marked by "Answer..."
 	 ;; This should come before "equation" and "statement"
-	 ((and (>= (length text) (length ans))
-	       (string-equal (string-left-trim match:*whitespace* text)
-			     ans :end1 (length ans)))
+	 ((eql 0 (search "Answer" 
+			 (string-left-trim match:*whitespace* text) 
+			 :test #'string-equal ;case insensitive
+			 ))
 	  ;; In Andes2 this was set in do-check-answer
 	  (setf (StudentEntry-verbatim new-entry) 
-	       (string-trim match:*whitespace* (subseq text (length ans))))
+		;; Make it case-insensitive
+		(pull-out-quantity "Answer" text :test #'string-equal))
 	  (execute-andes-command time 'check-answer new-entry))
 	 
 	 ((equal (StudentEntry-type new-entry) "equation")

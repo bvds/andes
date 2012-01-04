@@ -2857,6 +2857,7 @@
 ;;; initial velocity in an equation.
 (def-error-class var-has-wrong-time-specifier (?wrong-var ?wrong-time ?right-time )
   ((student-eqn ?dontcare0)
+   (student (eqn ?this-eqn))  ;don't apply to answer boxes.
    (var-loc ?wrong-var-loc ?wrong-var ?specifier)
    (bind ?wrong-time (time-of ?specifier))
    (correct-var ?right-var ?specifier2)
@@ -2885,6 +2886,7 @@
 ;;; be that V_x=-V_y, and a sign error is more likely.
 (def-error-class switched-x-and-y-subscript (?svar ?cvar)
   ((student-eqn ?dontcare0)
+   (student (eqn ?this-eqn)) ;don't apply to answer boxes.
    (var-loc ?svar-loc ?svar (compo ?s-xyz ?rot ?s-vector))
    (test (member ?s-xyz '(x y)))
    (bind ?c-xyz (if (equal ?s-xyz 'x) 'y 'x))
@@ -3654,7 +3656,8 @@
 ; !! Will apply for mere sign error in value. 
 ; Need to compare to other sign error handlers.
 (def-error-class wrong-given-value (?var ?wrongval)
-  ((student-eqn (= ?var ?wrongval)) ; so far matches any eqn entry
+  ((student-eqn (= ?var ?wrongval)) ;so far matches any eqn entry
+   (student (eqn ?whatever)) ;not an answer box
    (test (assignmentp ?var ?wrongval))
    (test (given-p ?var))))
 
@@ -3682,7 +3685,7 @@
    (list 
 	;; Be sure to include full quantity def in message, in case problem
 	;; is that student thinks var denotes some other quantity.
-        (format nil "~A is not the correct value for ~A, ~A.  ~A can be determined ~A." 
+        (format nil "~A is not the correct value for ~A, ~A.&nbsp;  ~A can be determined ~A." 
 	            studval studvar (nlg quant) studvar given-loc)
 	;; ?? should we tell them correct given value?
 	(format nil "~@[~A  ~]The correct value for ~A is ~A." more studvar rightval)
@@ -3793,8 +3796,8 @@
    ))))
 
 (def-error-class wrong-value-non-given (?var ?wrongval)
-  ((student-eqn (= ?var ?wrongval)) ; so far matches any eqn entry
-   (student (eqn ?whatever))
+  ((student-eqn (= ?var ?wrongval)) ;so far matches any eqn entry
+   (student (eqn ?whatever)) ;not an answer box
    (test (assignmentp ?var ?wrongval))
    (test (not (given-p ?var)))
    (test (not (sysvar-parameter-p ?var)))
