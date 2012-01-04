@@ -1130,8 +1130,9 @@
 	  (symbols-delete-dependents (StudentEntry-ID entry)))
 
   ;; special to equation entries: remove from algebra system
-  (when (member (first (StudentEntry-prop entry)) 
-		'(eqn solve-for-var implicit-eqn))
+  (when (or (member (first (StudentEntry-prop entry)) 
+		    '(eqn solve-for-var implicit-eqn))
+	    (eql (StudentEntry-id entry) 'check-answer-equation))
 	(undo-eqn-entry entry)))
 
 

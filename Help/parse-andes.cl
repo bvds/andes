@@ -317,9 +317,9 @@
 	      (setf (StudentEntry-Cinterp se) eqn-interp)))
 	  )
 	 (t
-	 ;; empty slot since it failed
+	  ;; empty slot since it failed
 	  (solver-studentEmptySlot (StudentEntry-Id se))
-
+	  
 	  ;; Identical to code in Check-NonEq-Entry in Help/Entry-API.cl
 	  ;; run whatswrong help to set error interp now, so diagnosis
 	  ;; can be included in log even if student never asks whatswrong
@@ -996,8 +996,10 @@ follow-up question and put it in the student entry's err interp field."
 			   ;; need to make a fake entry with different 
 			   ;; id so real entry is not overwritten.
 			   ;; Fake entry is deleted below.
+			   ;; Use same prop as original entry.
 			   (let ((temp-entry (copy-studententry entry)))
-			     (setf (studententry-id temp-entry) 
+			     (setf (studententry-id temp-entry)
+				   ;; Name used by function undo-entry
 				   'check-answer-equation)
 			     (setf result-turn 
 				   (do-lookup-equation-string
