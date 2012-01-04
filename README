@@ -4,6 +4,7 @@ through the help system to add logging for incorrect turns.
 Setup git:
 
 git checkout stable-with-logging
+cd Algebra/src; make executable
 cd problems; git checkout d3749a851b015f46794bdf5dab0
 cd solutions; git checkout 2c76b93fcae573f77f25f
 

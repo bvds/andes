@@ -198,7 +198,7 @@ function containsErrorType($p,$ans){
 		    // "(wrong-units "
 		    );
   $ansErrs=array("(ANSWER-SOUGHT-IS-UNDEFINED)",
-		 // "(FORGOT-UNITS)",
+		 "(FORGOT-UNITS)",
 		 "(DEFAULT-WRONG-ANSWER ",
 		 "(MISSING-NEGATION-ON-VECTOR-MAGNITUDE ",
 		 "(Undefined-variables ",
