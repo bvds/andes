@@ -196,8 +196,10 @@ function containsErrorType($p,$ans){
 		    // "(wrong-units "
 		    );
   $ansErrs=array("(ANSWER-SOUGHT-IS-UNDEFINED)",
-		 // "(FORGOT-UNITS)",
+		 "(EXTRA-ANSWER)",
+		 "(FORGOT-UNITS)",
 		 "(DEFAULT-WRONG-ANSWER ",
+		 "(MAYBE-FORGOT-UNITS)",
 		 "(MISSING-NEGATION-ON-VECTOR-MAGNITUDE ",
 		 "(Undefined-variables ",
 		 "(WRONG-UNITS)"
@@ -657,6 +659,12 @@ while ($myrow = mysql_fetch_array($result)) {
 	  $nbbc=preg_replace($unable,$solve_error,$nbbc);
 	  $nbbc=preg_replace('/The variable .* is undefined./',$solve_error,$nbbc);
 	  $nbbc=preg_replace('/Sorry, Andes can only solve for a single variable./',$solve_error,$nbbc);
+	  // Canonicalize help message for default-wrong-answer
+	  // commit 55da152aa4efda176cff6be71b1, Sat Dec 17 20:17:21 2011
+	  $defaultWrongAnswer='/When you have entered enough equations.*transfer the result to this answer box./';
+	  $defaultWrongAnswerC='**default-wrong-answer**';
+	  $bbc=preg_replace($defaultWrongAnswer,$defaultWrongAnswerC,$bbc);
+	  $nbbc=preg_replace($defaultWrongAnswer,$defaultWrongAnswerC,$nbbc);
 	  // Remove Done button from some problems
 	  // problems commit 6376f20fd808, Nov 19 2011
 	  // Subsequent y-values will be off.
