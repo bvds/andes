@@ -156,7 +156,7 @@
 	       ;; to wwh-bottom-out-hintp and proc-bottom-out-hintp 
 	       (bottom-out-hintp **Current-cmd-Stack**)
 	       (turn-p result) 
-	       (eql (turn-type result) 'dialog-turn)
+	       (eql (turn-type result) nil)
 	       (turn-text result) ;hint given
 	       (null (turn-menu result)) ;last hint in sequence
 	       )	       
@@ -231,6 +231,7 @@
 ;;
 ;; return-turn -- wrapper for returning turn to workbench
 ;; saves on last turn and converts given turn to workbench result str
+;; returns alist reply.
 (defun return-turn (time turn)
   ;; Only update saved turn if new turn is non-null, and not a No-Op-Turn.
   ;; This is defense against a bug when a delayed notification of equation 
@@ -239,7 +240,7 @@
   ;; turn with its responder in place to handle the student's response 
   ;; which comes later.
   (when (and turn (turn-responder turn)
-	     (not (equalp (turn-type Turn) +no-op-turn+)))
+	     (not (eql (turn-type Turn) +no-op-turn+)))
     (setf *last-turn-response* (turn-responder turn)))
 
   ;; if there is assoc info in the turn, add to reply
@@ -274,11 +275,18 @@
 		   (push `((:action . "modify-object") (:id . ,id)
 			   (:mode . "correct")) result))
       (color-red (when time (model-red-turn time))
+		 ;; Test that an error interpretation has
+		 ;; been logged.  Bug #1935
+		 (when (and (notany #'student-log-line result)
+			    (not **checking-entries**))
+		   (warn 'webserver:log-warn
+			 :tag (list 'incorrect-missing-interp id)
+			 :text "Red turn without logging interp."))
 		 (push `((:action . "modify-object") (:id . ,id)
 			 (:mode . "incorrect")) result))
       )
     
-    ;; switch on type to see what message commnd we have to append to result
+    ;; switch on type to see what message command we have to append to result
     ;; also have to check for an equation result to return
     (case (turn-type turn)
       (Eqn-turn (when (null (turn-text turn)) 
@@ -291,7 +299,7 @@
 		    ;; else just return result equation text
 		    (push `((:action . "modify-object") (:id . ,id)
 			    (:text . ,(turn-text turn))) result)))
-      (dialog-turn 
+      ((nil) 
        (cond 
 	 ((turn-text turn) 
 	  (push `((:action . "show-hint")
@@ -340,23 +348,14 @@
 			    (turn-menu turn)))))))
 	 ((use-help-button-hint-test time)
 	  (push (use-help-button-hint) result))))
-      ((nil) (when (use-help-button-hint-test time)
-	     (push (use-help-button-hint) result)))
       (tcard-turn (warn "Training card turn with ~A." (turn-text turn)))
       (minil-turn (warn "Minilesson card turn with ~A." (turn-text turn)))
-      (end-dialog (warn "end-dialog turn.  What is this?"))
       (kcd-turn (push `((:action . "show-hint") 
 			(:text . ,(turn-text turn))) result)
 		(case (Turn-menu turn)
 		  (Explain-More (warn "kcd explain more."))
 		  (otherwize (warn "kcd otherwize."))))
-      ;; Format the stat turn as a list of values for the workbench.  
-      ;; this code will set the return value ignoring any coloring that
-      ;; may have occurred.  No cmd will be set.
-      (stat-turn (push `((:action . "log") 
-			 (:log . "subscores")
-			 (:items . ,(turn-value turn)))
-		       result))
+      ;; Should have test of unknown type.
       )
 
     ;; When reply has a link, see if student needs hint to
@@ -389,6 +388,7 @@
      (and (equal (cdr (assoc :action reply)) "show-hint")
 	  (search "<a href=" (cdr (assoc :text reply)))
 	  (not (search *help-button-action* (cdr (assoc :text reply)))))))
+
 
 ;;; ==========================================================================
 ;;; Update with results.
@@ -450,7 +450,6 @@
     (Status-Return-Val (iface-add-srv-cmdresult Cmd Result))
     (Eqn-Result (iface-add-eqr-cmdresult Cmd Result))
     (Hint-Return-Val (iface-add-hrv-cmdresult Cmd Result))
-    (stat-result (iface-add-stat-cmdresult Cmd Result))
     (Ignore (iface-add-ignore-cmdresult Cmd Result))))
 
 
@@ -581,19 +580,6 @@
      :Value Val
      :Assoc (alist-warn Assoc))))
 
-
-;;; ---------------------------------------------------------------------
-;;; Stat-Results
-;;; Stat result values are retuned by the autocalc grading code.  They
-;;; are used to convey lists of statistical values to the workbench from
-;;; the help system.  The code here will turn the appropriate turn into
-;;; a cmdresult.  The assumption is that it will be a turn.
-(defun iface-add-stat-cmdresult (Cmd Result)
-  (when (not (turn-p Result))
-    (error "non-turn passed to iface-add-stat-cmdresult."))
-  (iface-set-cmdresult
-   Cmd
-   :Assoc (alist-warn (turn-assoc Result))))
    
 ;;; ---------------------------------------------------------------------
 ;;; Ignore commands.
@@ -616,14 +602,13 @@
 ;;; this code handles the general tasks of setting the Linenum
 ;;; time and other elements and relies upon keyword arguments to 
 ;;; set the class, value, assocs, and commands.
-(defun iface-set-cmdresult (Cmd &key (Class 'DDE-Result) Value Assoc Commands)
+(defun iface-set-cmdresult (Cmd &key (Class 'DDE-Result) Value Assoc)
   (setf (cmd-result Cmd)
 	;; this is the only place where cmdresult is created.
 	(make-cmdresult
 	 :Class Class
 	 :Value Value
-	 :Assoc Assoc
-	 :Commands Commands)))
+	 :Assoc Assoc)))
 
 
 
@@ -648,8 +633,7 @@
     (Minil-Turn (iface-set-ddr-Minil-turn-c Val Result))
     (TCard-turn (iface-set-ddr-tcard-turn-c Val Result))
     (KCD-turn (iface-set-ddr-kcd-turn-c Val Result))
-    (End-Dialog (iface-set-ddr-end-turn-c Val Result))
-    (Dialog-Turn (iface-set-ddr-dialog-turn-c Val Result))
+    ((nil) (iface-set-ddr-dialog-turn-c Val Result))
     (Eqn-turn (error "Incorrect-turn-type-supplied."))))
     
 
@@ -678,17 +662,6 @@
   (setf (dde-result-command Val) +show-hint+)
   (setf (dde-result-value Val) (turn-text Result))
   (setf (dde-result-menu Val) (turn-menu Result)))
-
-
-
-;;; End-dialog turns are effectively empty turns that will be sent
-;;; to the workbench soley to signal the end of a dialog.  This 
-;;; code is unused at present.
-(defun iface-set-ddr-end-turn-c (Val Result)
-  (declare (ignore Result))
-  (setf (dde-result-command Val) Nil)
-  (setf (dde-result-value Val) Nil)
-  (setf (dde-result-menu Val) Nil))
 
 
 ;;; Dialog turns are used for the hint process and will be used to 
@@ -748,7 +721,7 @@
    ; switch on type of command, from API.cl
    (case (lookup-command->class cmd)
       ;; all following cmd classes can just be dispatched as usual
-      ((State Answer Statistics Delete Control) (apply cmd args))
+      ((State Answer Delete Control) (apply cmd args))
       ;; Entries should be left black
       ((noneq-entry eq-entry) (make-no-color-turn 
 			       :id (StudentEntry-id (car args))))
@@ -757,11 +730,12 @@
       ;; Reject all others help requests.
       (Help (case cmd 
                   (explain-more (apply cmd args))
-                  (otherwise (make-end-dialog-turn "Help is not available on this problem."))))
+                  (otherwise (make-end-dialog-turn 
+			      "Help is not available on this problem."))))
       ;; Algebra gets null answer
       (Algebra (make-eqn-failure-turn 
-		"The Andes calculator is not available on this problem."
-		:id (StudentEntry-id (car args))))
+		(car args)
+		"The Andes calculator is not available on this problem."))
       ;; anything else: empty string should function as null return value.
       (otherwise (warn "unclassifed api command: ~A~%" cmd)
                   "")))

@@ -44,6 +44,7 @@
 			:depends-on ("Base")
 			:components ((:file "PsmGraph")
 				     (:file "StudentEntry")
+				     (:file "hint-symbols")
 				     (:file "SystemEntry"
 					    :depends-on ("PsmGraph"))
 				     ))

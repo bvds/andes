@@ -115,23 +115,37 @@
 	 (result (when tmp (solver-power-solve 31 tmp new-id))))
     
     (cond ((and (null tmp) (has-algebraic-operators var))
-	   (make-eqn-failure-turn
+	   (make-eqn-failure-turn 
+	    entry
 	    "Sorry, Andes can only solve for a single variable."
-	    :id new-id))
+	    :mode 'complicated-lhs))
 	  ((null tmp)
-	   (make-eqn-failure-turn
+	   (make-eqn-failure-turn 
+	    entry
 	    (format nil "The variable <var>~A</var> is undefined." var)
-	    :id new-id))
+	    :mode 'undefined-var))
 	  ((and result (listp result)) 
 	   (solve-for-var-success entry result))
 	  ((stringp result) 
 	   (make-eqn-failure-turn 
+	    entry
 	    (format NIL "Unable to solve for ~A: ~A" var result)
-	    :id new-id))
-	  (t (make-eqn-failure-turn
+	    :mode result))
+	  (t (make-eqn-failure-turn 
+	      entry
 	      ;; implemented in next-step-help.cl
-	      (get-failure-to-solve-hint var)
-	      :id new-id)))))
+	      (get-failure-to-solve-hint var))))))
+
+;; see function make-red-turn
+(defun make-eqn-failure-turn (entry Msg &key mode)
+  "Generate an eqn entry turn."
+  (make-tutor-response 
+   entry 
+   (list msg) 
+   :state +incorrect+ 
+   :spontaneous t
+   :diagnosis (list 'solve-for-var mode)))
+
 
 (defparameter *algebraic-operators* '(#\+ #\- #\/ #\^ #\*))
 
@@ -158,60 +172,8 @@
     (make-eqn-turn studText :id (StudentEntry-id entry))))
 
 
-;;; ===========================================================================
+;;; =========================================================================
 ;;; Answer API Calls
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; check-answer -- lookup a students answer in the answer box
-;; argument(s):
-;;  answer: the contents of the answer field the student entered
-;;  answer-id: the author-defined id for the answer field. must start with the
-;;    string "ANSWER"
-;; returns:
-;;  entry status return value -- see end of code for description of this
-;; note(s):
-;;  This uses the same hack on lookup-eqn-string to obtain the entry.  It works
-;;  but it ain't exactly clean.  
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun check-answer (entry)
-  ;; for Skatz experiment, and maybe generally:
-  ;; remember done state before checking answer to detect event of
-  ;; "finishing" problem.
-  (let ((was-done (all-answers-done-p))
-        (result (Do-Check-Answer entry)))
-    (when (and (not was-done)
-               (all-answers-done-p)    ; is now done
-	       (not-curr-checking-problemp)) ; ignore if in initial entry check
-       (add-followup-if-needed result))
-    Result))
-
-; display followup dialog in browser on done for certain problems in 
-; Skatz experiment
-(defvar *followup-problems* NIL) ; now disable followups by default
-
-(defun show-kcds ()
-"true if should show post-problem kcds when available"
-  (or (sym-match (get-condition) 'Experiment)
-      (sym-match (get-condition) 'Experiment1)
-      (sym-match (get-condition) 'Experiment2)
-      (and (sym-match (get-condition) 'Control)
-           (member (problem-name *cp*) '(PRETEST POSTTEST)))))
-
-(defun add-followup-if-needed (result-turn)
-  (when (and (member (problem-name *cp*) *followup-problems*)
-	     (show-kcds)
-	     (equal (type-of result-turn) 'Turn))
-     ; Add show lesson command to result turn. Gross hackery.
-     ; We have to change existing result turn (presumably type dialog turn
-     ; with color green and no message) into a minilesson turn with the 
-     ; appropriate URL (and color) in order to get the command piggybacked
-     ; on the returned color.  If we used an async command to do it, it would
-     ; enter mode before color result is returned, I think.
-     ; !!! Should verify we aren't clobbering an existing command
-     (setf (turn-type result-turn) +minil-turn+)
-     (setf (turn-text result-turn)
-       (format NIL "http://136.142.94.84/cgi-bin/navalkcds?user=~a&section=~A&prob=~a"
-                   session:*user* session:*section* session:*problem*))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-mc-answer
@@ -231,14 +193,7 @@
   (cond
     ;; Case of an "I am done button"
     ((equal (car (StudentEntry-prop entry)) 'done)
-     (let ((was-done (all-answers-done-p))
-	   (result (check-mc-no-quant-done-answer-sought entry)))
-       (when (and (not was-done)
-		  (all-answers-done-p)    ; is now done
-		  ;; ignore if in initial entry check
-		  (not-curr-checking-problemp)) 
-	 (add-followup-if-needed result))
-       result))
+     (check-mc-no-quant-done-answer-sought entry))
     
     ;; Handle the multiple choice case by generating the entry prop
     ;; and then handling it like any other.
@@ -261,7 +216,7 @@
 	      (StudentEntry-checked entry)))))
 
   
-;;; ===========================================================================
+;;; ==========================================================================
 ;;; Help API Types.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

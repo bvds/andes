@@ -256,11 +256,15 @@ list of characters and replacement strings."
   (test-safe-string student problem section extra)
   
   (with-db
-    (let ((result (query *connection*
-			 (format nil "SELECT server,client,STEP_TRANSACTION.clientID FROM PROBLEM_ATTEMPT,STEP_TRANSACTION WHERE userName='~A' AND userProblem='~A' AND userSection='~A'~@[ AND extra=~A~] AND PROBLEM_ATTEMPT.clientID=STEP_TRANSACTION.clientID" 
-				 student problem section extra) 
-		   ;:flatp t
-			 ))
+    (let ((result 
+	   (query *connection*
+		  (if (and (> (length extra) 1)
+			   (equal (subseq extra 0 2) "Q_"))
+		      (format nil "SELECT server,client,STEP_TRANSACTION.clientID FROM PROBLEM_ATTEMPT,STEP_TRANSACTION WHERE userProblem='~A' AND userSection='~A' AND extra='~A' AND PROBLEM_ATTEMPT.clientID=STEP_TRANSACTION.clientID"
+			      problem section extra)
+		      (format nil "SELECT server,client,STEP_TRANSACTION.clientID FROM PROBLEM_ATTEMPT,STEP_TRANSACTION WHERE userName='~A' AND userProblem='~A' AND userSection='~A'~@[ AND extra='~A'~] AND PROBLEM_ATTEMPT.clientID=STEP_TRANSACTION.clientID" 
+			      student problem section extra) )
+		  ))
 	  ;; By default, cl-json turns camelcase into dashes:  
 	  ;; Instead, we are case insensitive, preserving dashes.
 	  (*json-identifier-name-to-lisp* #'string-upcase))
@@ -335,7 +339,7 @@ list of characters and replacement strings."
   ;; is updated as old sessions are rerun.
   
   (with-db
-    (let* ((query (format nil "SELECT clientID FROM PROBLEM_ATTEMPT WHERE userName='~A' AND userProblem='~A' AND userSection='~A'~@[ AND extra=~A~] ORDER BY startTime DESC LIMIT 1"				
+    (let* ((query (format nil "SELECT clientID FROM PROBLEM_ATTEMPT WHERE userName='~A' AND userProblem='~A' AND userSection='~A'~@[ AND extra='~A'~] ORDER BY startTime DESC LIMIT 1"				
 			  student problem section extra))
 	   (client-id (car (car (query *connection* query))))
 	   (results (when client-id
@@ -420,7 +424,7 @@ list of characters and replacement strings."
   "Get largest tID from STEP_TRANSACTION; if table is empty, create dummy step."
   (loop for i from 0 to 1
 	thereis  (car (single-query "SELECT MAX(tID) FROM STEP_TRANSACTION"))
-	do (format t "writing it~%") (write-transaction "_dummy_session" nil nil)))
+	do (write-transaction "_dummy_session" nil nil)))
 
 (defun get-state-properties (&key (student session:*user*) 
 			     (section session:*section*) (model "default")

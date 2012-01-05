@@ -34,6 +34,7 @@
 			;; PsmGraph, StudentEntry SystemEntry are also 
 			;; defined in "andes"
 			:components ((:file "StudentEntry")
+				     (:file "hint-symbols")
 				     (:file "graded")
 				     (:file "SystemEntry"
 					    :depends-on ("graded"))

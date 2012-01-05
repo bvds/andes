@@ -392,7 +392,7 @@
 ;;; and prefix form.
 (defun check-err-eqn (pattern eh student conditions system bindings)
   (let (b)
-    (and (eq 'eqn (car (StudentEntry-prop Student)))
+    (and (member (car (StudentEntry-prop Student)) '(eqn answer))
 	 (StudentEntry-ParsedEqn Student)
 	 (setq b (unify pattern (studentEntry-ParsedEqn Student) bindings))
 	 (check-err-conditions eh student conditions system b))))

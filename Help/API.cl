@@ -185,7 +185,6 @@
 ;;; Ignore types will be stored with no parsing. 
 (defparameter **Commandclasses->ResultClasses**
     '((State . status-return-val)
-      (Statistics . stat-result)
       (noneq-entry . status-return-val)
       (eq-entry . status-return-val)
       (algebra . eqn-result)

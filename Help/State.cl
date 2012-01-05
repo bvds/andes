@@ -40,13 +40,6 @@
 ;;========================================================
 ;; Storage elements.
 
-;;; The Andes2 Configuration file is a lisp-source file that is
-;;; loaded (and evaluated) at runtime.  This file is intended to
-;;; set parameters and make any modifications that are necessary
-;;; but cannot be hardcoded into the distribution.  
-(defparameter **Config-File-Name** "Config.cl")
-
-
 ;;; Problem Instance Time.
 ;;; Whenever the student starts andes, opens a new problem, or closes a problem
 ;;; then they are beginning a new "problem instance".  This instance represents
@@ -301,30 +294,6 @@
       (push givenEntry (studentEntry-GivenEqns mainEntry))))
 
 
-;;==============================================================
-;; Experimental condition
-;;
-;; Could be set in config file.
-;; In OLI version, workbench may set this from OLI-sent task
-;; descriptor before opening problem. 
-;;
-(defvar **Condition** NIL)
-(defun set-condition (value) 
-  (when *debug-help* (format t "Setting **condition** to ~A~%" value))
-  (setq **Condition** value))
-(defun get-condition () **Condition**)
-
-
-;;==============================================================
-;; Configuration files
-;; The config file is essentially a lisp-source file that
-;; is loaded (and evaluated in the process) at runtime.
-;; this file may set parameters as necessary for experiements
-;; it may also modify the state of the system depending upon
-;; other info.
-(defun load-config-file ()
-  "Load the configuration file."
-  (load (andes-path **Config-File-Name**)))
 
 ;;;; =====================================================================
 ;;;; Shared utility problems

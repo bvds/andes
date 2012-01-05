@@ -93,3 +93,10 @@
 			      :order (quote ,order)
 			      )
         **entry-tests**)))
+
+
+(defun print-error-names ()
+  "Print list of names of all errors, for debugging."
+  (sort (loop for test in **entry-tests**
+	when (eql (eval (EntryTest-state test)) +incorrect+)
+	collect (EntryTest-name test)) #'string<))

@@ -34,9 +34,6 @@
              //    DELETE FROM PROBLEM_ATTEMPT WHERE clientID LIKE '\_%';
 	     //    REPLACE INTO CLASS_INFORMATION (classSection) values ('study');
 
-	     // Still need to clean up logging:  consistent format
-	     // Have interp for each red turn?
-
              // Lisp with space:  sbcl --dynamic-space-size 1000
              // Start help server using 
              //         (start-help :db "andes_test")
@@ -47,6 +44,7 @@
 $ignoreNewLogs = true;  // ignore any new non-error, log messages
 $ignoreScores = true;  // ignore any changes to scoring.
 $ignoreMetaHints = true;  // Ignore meta hints
+$ignorePreferences = false; // Ignore any client preferences
 $printDiffs = true;  // Whether to print out results for server diffs
 $jsonFile = 'replies.json';  // File name for dumping reply json
 	    
@@ -115,6 +113,12 @@ include '../Web-Interface/JSON.php';
 $json = new Services_JSON();
 
 function escapeHtml($bb){
+  // Would be nice to leave in valid html and
+  // escape everything else.
+  // Escape html codes so actual text is seen.
+  $bb=str_replace("&","&amp;",$bb);
+  $bb=str_replace(">","&gt;",$bb);
+  $bb=str_replace("<","&lt;",$bb);
   // add space after commas, for better line wrapping
   $bbb=str_replace("\",\"","\", \"",$bb);
   // forward slashes are escaped in json, which looks funny
@@ -130,6 +134,8 @@ $firstRow = true;
 
 $studentTime = 0; // Total user time for all sessions.
 $serverTime = 0; // Total server time for all sessions.
+$stepTally = 0; // Number of steps analyzed
+$diffStepTally = 0;  // Number of steps where unexplained diff was found.
 
 $sessionLink1 = "<td><a href=\"/log/OpenTrace.php?x=" . $dbuser .
 	     "&amp;sv=" . $dbserver . "&amp;pwd=" . $dbpass . "&amp;d=" . $dbname;
@@ -148,6 +154,64 @@ function containsMetaHint($t){
     strcmp($t,"You can click on the above link to get more help.") ==0 ||
     (strpos($t,"Your entry has turned red") !== false &&
      strpos($t,"the hint button") !== false);
+}
+
+// Test for known student errors.
+function containsErrorType($p,$ans){
+  // Errors with unsolicited hints were logged in old
+  // log files.  There are commented out here:
+  $normalErrs = array(
+		    "(DEFAULT-WRONG-ANSWER ",
+		    "(already-defined)",
+		    "(answer-is-malformed)",
+		    "(answer-is-not-sought)",
+		    "(answer-sought-is-undefined)",
+		    // "(DEFAULT-WRONG-DIR ",
+		    "(definition-has-no-matches)",
+		    "(definition-has-too-many-matches)",
+		    "(empty-answer)",
+		    //  "(equation-syntax-error ",
+		    "(extra-answer)",
+		    // "(forgot-units)",
+		    "(goal-incomplete ",
+		    "(internal-error ",
+		    // "(maybe-forgot-units)",
+		    "(more-than-given)",
+		    "(no-label ",
+		    "(no-variable-defined)",
+		    "(nothing-to-match-definition)",
+		    "(should-be-compo-form)",
+		    "(should-be-given)",
+		    "(should-be-known)",
+		    "(should-be-magdir-form)",
+		    "(should-be-unknown)",
+		    "(solve-for-var ",
+		    // "(Undefined-variables ",
+		    // "(Unused-variables ",
+		    "(using-variables-in-answer)",
+		    "(variable-already-in-use)",
+		    "(variable-not-defined)",
+		    "(wrong-given-value)",
+		    "(wrong-tool-error)"
+		    // "(wrong-units "
+		    );
+  $ansErrs=array("(ANSWER-SOUGHT-IS-UNDEFINED)",
+		 "(EXTRA-ANSWER)",
+		 "(FORGOT-UNITS)",
+		 "(DEFAULT-WRONG-ANSWER ",
+		 "(MAYBE-FORGOT-UNITS)",
+		 "(MISSING-NEGATION-ON-VECTOR-MAGNITUDE ",
+		 "(Undefined-variables ",
+		 "(USING-VARIABLES-IN-ANSWER)",
+		 "(VAR-HAS-WRONG-TIME-SPECIFIER ",
+		 "(WRONG-UNITS)"
+		 );
+  foreach (($ans?$ansErrs:$normalErrs) as $errName){
+    if(strncasecmp($p,$errName,strlen($errName))==0){
+      return true;
+    }
+  }
+  return false;
 }
 
 // Test to see if problem had a done button removed.
@@ -254,11 +318,14 @@ while ($myrow = mysql_fetch_array($result)) {
   $dt = microtime(true) - $queryStart;
   $serverTime += $dt;
 
-  // See if this is the last turn in a session and if
-  // the problem has not yet been closed.
-  if($lastID[$clientID] == $ttID &&
-     !((array_key_exists($clientID,$lastTime) &&
-	$lastTime[$clientID] == -2))){
+  // See if this is the last turn in a session 
+  // Or if the server has closed the session and
+  // the problem has not already been closed.
+  // Then close the session.
+  if(($lastID[$clientID] == $ttID || 
+      strpos($response,"Your session is no longer active.") !== false) &&
+     !(array_key_exists($clientID,$lastTime) &&
+       $lastTime[$clientID] == -2)){
     // Close the session "by hand" and record
     $closeID=$a->id + 1;
     $closeAction="{\"id\":$closeID,\"method\":\"close-problem\",\"params\":{},\"jsonrpc\":\"2.0\"}";
@@ -317,15 +384,12 @@ while ($myrow = mysql_fetch_array($result)) {
   } else {
     $tid="none";
   }
-  
+
   if($printDiffs && 
      isset($a->params) && // Ignore server shutdown of idle sessions.
      (!$methods || in_array($method,$methods))){
+    $stepTally++;
     $aa=$json->encode($a->params);
-    // Escape html codes so actual text is seen.
-    $aa=str_replace("&","&amp;",$aa);
-    $aa=str_replace(">","&gt;",$aa);
-    $aa=str_replace("<","&lt;",$aa);
     $aa=escapeHtml($aa);
     
     if (strcmp($response,$newResponse) != 0) {
@@ -343,8 +407,10 @@ while ($myrow = mysql_fetch_array($result)) {
 	      "<td>" . ($njr== null?"json decode failed":"OK") . 
 	      "<br>len. " . strlen($newResponse) . "</td>" .
 	      "<td>pos. $pos</td></tr>\n";
+	    $diffStepTally++;
       } elseif(isset($jr->error) || isset($njr->error)){
-	echo "<tr class='$method'><td>$aaa</td><td>$aa</td><td>$response</td><td>$newResponse</td><td></td></tr>\n";       
+	echo "<tr class='$method'><td>$aaa</td><td>$aa</td><td>$response</td><td>$newResponse</td><td></td></tr>\n"; 
+	$diffStepTally++;
       } else {
 	// Server drops result key-value pair if array is empty.
 	if(!isset($jr->result)){$jr->result=array();}
@@ -382,7 +448,28 @@ while ($myrow = mysql_fetch_array($result)) {
 	       ($ignoreMetaHints && isset($bc->action) &&
 		strcmp($bc->action,"show-hint")==0 &&
 		containsMetaHint($bc->text)) ||
-	       
+
+	       // Ignore client preferneces
+	       ($ignorePreferences && isset($bc->action) &&
+		strcmp($bc->action,"set-preference")==0) ||
+
+	       // Add log message to all incorrect entries
+	       // commit 4889f5fb386998, Dec 17 20:17:21 2011
+	       // Remove redundant log message.
+	       (isset($bc->action) && isset($bc->log) && 
+		isset($bc->{'error-type'}) &&
+		strcmp($bc->action,"log")==0 &&
+		strcmp($bc->log,"student")==0 &&
+		strcmp($bc->{'error-type'},"(SYNTAX-ERROR-IN-EQN)")==0) ||
+
+	       // Remove superfluous warnings
+	       // commit df8ccca928365ee880, Wed Jan 4 21:30:12 2012
+	       (isset($bc->action) && isset($bc->log) && 
+		isset($bc->text) &&
+		strcmp($bc->action,"log")==0 &&
+		strcmp($bc->log,"server")==0 &&
+		strpos($bc->text,"check-answer bad ") !== false) ||
+
 	       // kgraph8b problem addition
 	       // problems, commit fb5ec251c3a974a14, Tue Sep 27 2011
 	       (strcmp($theProblem[$clientID],"kgraph8b")==0 &&
@@ -425,9 +512,24 @@ while ($myrow = mysql_fetch_array($result)) {
 	       
 	       // New turn has meta-hint
 	       ($ignoreMetaHints && 
-		isset($bc->action) && isset($bc->action) &&
+		isset($bc->action) &&
 		strcmp($bc->action,"show-hint")==0 &&
 		containsMetaHint($bc->text)) ||
+
+	       // Ignore client preferneces
+	       ($ignorePreferences && isset($bc->action) &&
+		strcmp($bc->action,"set-preference")==0) ||
+	       
+	       // Add log message to all incorrect entries
+	       // commit 4889f5fb386998, Dec 17 20:17:21 2011
+	       (strcmp($method,"solution-step")==0 && 
+		isset($bc->action) && isset($bc->log) && 
+		isset($bc->{'error-type'}) &&
+		strcmp($bc->action,"log")==0 &&
+		strcmp($bc->log,"student")==0 &&
+		containsErrorType($bc->{'error-type'},
+				  isset($a->params->symbol) &&
+				  strcmp($a->params->symbol,"Answer")==0)) ||
 	       
 	       // kgraph8b problem addition
 	       // problems, commit fb5ec251c3a974a14, Tue Sep 27 2011
@@ -487,6 +589,16 @@ while ($myrow = mysql_fetch_array($result)) {
 	  // See Bug #1915
 	  $bbc=str_replace("\\n",'',$bbc);
 	  $nbbc=str_replace("\\n",'',$nbbc);
+	  // Canonicalize whitespace in log messages.
+	  // Some server log messsages have lisp code that is pretty-printed
+	  if(isset($bc->action) && strcmp($bc->action,"log")==0 &&
+	    isset($bc->log) && strcmp($bc->log,"server")==0){
+	    $bbc=preg_replace('/\s\s+/',' ',$bbc);
+	  }
+	  if(isset($nbc->action) && strcmp($nbc->action,"log")==0 &&
+	    isset($nbc->log) && strcmp($nbc->log,"server")==0){
+	    $nbbc=preg_replace('/\s\s+/',' ',$nbbc);
+	  }
 	  // Remove double precision notation from constants.
 	  // This difference occurs from using slime vs. stand-alone. 
 	  $bbc=preg_replace('/(\d)d0/','$1',$bbc);
@@ -522,6 +634,20 @@ while ($myrow = mysql_fetch_array($result)) {
 	    $bbc=preg_replace('/\.[ ]+"/','."',$bbc);
 	    $bbc=preg_replace('/\.&nbsp;[ ]*"/','."',$bbc);
 	  }
+	  // Canonicalize indy equation numbers, which can be
+	  // seen in error messages reported by solver.
+	  // This discrepency occurred when rerunning St. Anselm
+	  // Summer 2011 sessions through help system.
+	  // See git branch "stable-with-logging".
+	  $canonicalizeIndyNumbers = false;
+	  if($canonicalizeIndyNumbers && isset($bc->action) && 
+	     strcmp($bc->action,"log")==0){
+	    $bbc=preg_replace('/indyStudentAddEquationOkay..\d+ /','/indyStudentAddEquationOkay((0 ',$bbc);
+	  }
+	  if($canonicalizeIndyNumbers && isset($nbc->action) && 
+	     strcmp($nbc->action,"log")==0){
+	    $nbbc=preg_replace('/indyStudentAddEquationOkay..\d+ /','/indyStudentAddEquationOkay((0 ',$nbbc);
+	  }
 	  // Canonicalize logging for multiple choice
 	  // commit 54b004f2d529e, Tue Nov 1 14:21:55 2011
 	  if(isset($nbc->action) && isset($nbc->log) &&
@@ -553,6 +679,17 @@ while ($myrow = mysql_fetch_array($result)) {
 	  $nbbc=preg_replace($unable,$solve_error,$nbbc);
 	  $nbbc=preg_replace('/The variable .* is undefined./',$solve_error,$nbbc);
 	  $nbbc=preg_replace('/Sorry, Andes can only solve for a single variable./',$solve_error,$nbbc);
+	  // Canonicalize help message for default-wrong-answer
+	  // and wrong-value-non-given
+	  // commit 55da152aa4efda176cff6be71b1, Sat Dec 17 20:17:21 2011
+	  $defaultWrongAnswer='/When you have entered enough equations.*transfer the result to this answer box./';
+	  $defaultWrongAnswerC='**default-wrong-answer**';
+	  $bbc=preg_replace($defaultWrongAnswer,$defaultWrongAnswerC,$bbc);
+	  $nbbc=preg_replace($defaultWrongAnswer,$defaultWrongAnswerC,$nbbc);
+	  $wrongValueNonGiven='/ is not the correct value for .* the final answer when you have entered enough equations to determine it./';
+	  $wrongValueNonGivenC='**wrong-given-value**';
+	  $bbc=preg_replace($wrongValueNonGiven,$wrongValueNonGivenC,$bbc);
+	  $nbbc=preg_replace($wrongValueNonGiven,$wrongValueNonGivenC,$nbbc);
 	  // Remove Done button from some problems
 	  // problems commit 6376f20fd808, Nov 19 2011
 	  // Subsequent y-values will be off.
@@ -563,8 +700,16 @@ while ($myrow = mysql_fetch_array($result)) {
 	  }
 	  // Change hints in nsh-prompt-no-quant-done
 	  // commit 1dfa98550be16cb3f, Nov 21 2011
-	    $bbc=preg_replace('/"You have completed all of the principles necessary .*\."/',
-			      '"You have completed all of the steps necessary to solve this problem."',$bbc);
+	  $bbc=preg_replace('/"You have completed all of the principles necessary .*\."/',
+			    '"You have completed all of the steps necessary to solve this problem."',$bbc);
+	  // New format for solver error message
+	  // commit e21fb5c471ded851dd3f, Tue Jan 3 16:20:39 2012
+	  $bbc=preg_replace('/\(Error: <(.*)\(.*\) (\\".*\\")\)/',
+			    '(solverError $1 $2 $3)',$bbc);
+	  // Rename do-check-answer to check-answer
+	  // commit df74f09dc916cb490, Tue Dec 13 17:21:04 2011
+	  $bbc=preg_replace('/do-check-answer/','check-answer',$bbc);
+	  $bbc=preg_replace('/DO-CHECK-ANSWER/','CHECK-ANSWER',$bbc);
 	  
 	  
 	  if(strcmp($bbc,$nbbc)==0){ // match, go on to next pair
@@ -577,6 +722,14 @@ while ($myrow = mysql_fetch_array($result)) {
 		    strpos($nbbc,'"NSH":"(NEW-START-AXIS ') !== false) ||
 		   (preg_match('/"It is now a good idea for you to draw an axis.*This will help to ground your work and be useful later on in the process\."/',$bbc) != 0 &&
 		    preg_match('/"It is a good idea to begin most problems by drawing an axis.*This helps to ground your work and will be useful later on in the process\."/',$nbbc) != 0))){
+	    $i++; $ni++;
+	  }elseif(isset($bc->action) && strcmp($bc->action,"log") == 0 &&
+		  isset($nbc->action) && strcmp($nbc->action,"log") == 0 &&
+		  // Add log message to all incorrect entries
+		  // commit 4889f5fb386998, Dec 17 20:17:21 2011
+		  // Compare syntax error logs
+		  strpos($bbc,'EQUATION-SYNTAX-ERROR') !== false &&
+		  strpos($nbbc,'EQUATION-SYNTAX-ERROR') !== false){
 	    $i++; $ni++;
 	  }elseif(strcmp($method,"solution-step") == 0 &&
 		  // Add test for creation of excess answer box.
@@ -637,6 +790,7 @@ while ($myrow = mysql_fetch_array($result)) {
       
 	$nrows=sizeof($rows);
 	if($nrows>0){
+	  $diffStepTally++;
 	  $row=array_shift($rows);
 	  echo "  <tr class='$method'><td rowspan='$nrows'>$aaa</td><td rowspan='$nrows'>$aa</td>$row</tr>\n";
 	  foreach($rows as $row){
@@ -662,6 +816,9 @@ fwrite($handle,"\n]\n");
 fclose($handle);
 
 echo "</table>\n";
+if($printDiffs){
+  echo "<p>Analysed $stepTally steps with $diffStepTally discrepencies.\n";
+ }
 echo "<p>Student time " . number_format($studentTime,2) . ", \n";
 echo "server time " . number_format($serverTime,2) . ", \n";
 echo "and wall time " . (time()-$startTime) . " seconds.<br>\n";

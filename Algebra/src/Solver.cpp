@@ -157,7 +157,8 @@ static void copyToResult(const char* const d, int s, int e, int sp = 0) {
 // note(s):
 //////////////////////////////////////////////////////////////////////////////
 static void makeError(const char* const m, const char* const r, const char* const a) {
-  sprintf(result, "(Error: <%s(%s)> \"%s\")", r, a, m);
+  // Make it look like a lisp expression:
+  sprintf(result, "(solverError %s %s \"%s\")", r, a, m);
 }
 
 //////////////////////////////////////////////////////////////////////////////

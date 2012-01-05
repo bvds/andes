@@ -1,5 +1,6 @@
-;;; Config.cl
-;;; Collin Lynch
+;;;  defines the struct used by whatswrong.cl to represent error interpretations
+;;;  Kurt VanLehn
+;;;  Copyright Kurt VanLehn 2001
 ;;; Modifications by Anders Weinstein 2002-2008
 ;;; Modifications by Brett van de Sande, 2005-2008
 ;;; Copyright 2009 by Kurt Vanlehn and Brett van de Sande
@@ -19,18 +20,9 @@
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; This file contains runtime initialization code for Andes
-;;; This allows one to change parameters without recompiling 
-;;; the lisp code.
-;;;
 
+;;
+;; Allocate for KB/errors.cl
 
-; disable constraint loss filter
-(setq **Filter-Constraint-losses** NIL)
-
-(setq *followup-problems* '(PRETEST s1f s2e s4b s6a dt1a dt11a rots1a rots4a 
-rots7a dt13b dt7b e1b e2b e8b e10a e6a e7a pow3a pow4a pow5a lmom2a lmom2b 
-imp1 imp2 lmom3a lmom4a POSTTEST))
-
-;(solver-logging T)
+;; Help/icons.cl
+(defvar *solve-for-quantity*)

@@ -2857,6 +2857,7 @@
 ;;; initial velocity in an equation.
 (def-error-class var-has-wrong-time-specifier (?wrong-var ?wrong-time ?right-time )
   ((student-eqn ?dontcare0)
+   (student (eqn ?this-eqn))  ;don't apply to answer boxes.
    (var-loc ?wrong-var-loc ?wrong-var ?specifier)
    (bind ?wrong-time (time-of ?specifier))
    (correct-var ?right-var ?specifier2)
@@ -2885,6 +2886,7 @@
 ;;; be that V_x=-V_y, and a sign error is more likely.
 (def-error-class switched-x-and-y-subscript (?svar ?cvar)
   ((student-eqn ?dontcare0)
+   (student (eqn ?this-eqn)) ;don't apply to answer boxes.
    (var-loc ?svar-loc ?svar (compo ?s-xyz ?rot ?s-vector))
    (test (member ?s-xyz '(x y)))
    (bind ?c-xyz (if (equal ?s-xyz 'x) 'y 'x))
@@ -3654,7 +3656,8 @@
 ; !! Will apply for mere sign error in value. 
 ; Need to compare to other sign error handlers.
 (def-error-class wrong-given-value (?var ?wrongval)
-  ((student-eqn (= ?var ?wrongval)) ; so far matches any eqn entry
+  ((student-eqn (= ?var ?wrongval)) ;so far matches any eqn entry
+   (student (eqn ?whatever)) ;not an answer box
    (test (assignmentp ?var ?wrongval))
    (test (given-p ?var))))
 
@@ -3682,7 +3685,7 @@
    (list 
 	;; Be sure to include full quantity def in message, in case problem
 	;; is that student thinks var denotes some other quantity.
-        (format nil "~A is not the correct value for ~A, ~A.  ~A can be determined ~A." 
+        (format nil "~A is not the correct value for ~A, ~A.&nbsp;  ~A can be determined ~A." 
 	            studval studvar (nlg quant) studvar given-loc)
 	;; ?? should we tell them correct given value?
 	(format nil "~@[~A  ~]The correct value for ~A is ~A." more studvar rightval)
@@ -3711,7 +3714,8 @@
         (quant   (sysvar-to-quant var)))
   (make-hint-seq
    (list 
-        (format nil "The numerical value of ~A, ~A, is not defined in this problem. This value is not needed for the solution. You should be able to enter enough equations so that terms containing ~A will cancel out, and the 'Solve For' command can compute the final answer anyway." studvar (nlg quant) studvar) 
+        (format nil "The numerical value of ~A, ~A, is not defined in this problem.&nbsp; This value is not needed for the solution.&nbsp; You should be able to enter enough equations so that terms containing ~A will cancel out, and you can ~A the final answer." 
+		studvar (nlg quant) studvar *solve-for-quantity*) 
   '(function next-step-help)))))
 
 ; special case for height if no zero-level defined
@@ -3737,8 +3741,8 @@
         (quant   (sysvar-to-quant var)))
   (make-hint-seq
    (list 
-        (format nil "Because this problem does not stipulate a zero-level, the numerical value of ~A, ~A, is not defined. Since only differences in height are relevant to changes in energy, this value is not needed for the solution. Include an equation determining the difference between heights (h2-h1 = ...) and the 'Solve For' command should be able compute the final answer anyway." 
-		studvar (nlg quant)) 
+        (format nil "Because this problem does not stipulate a zero-level, the numerical value of ~A, ~A, is not defined.&nbsp; Since only differences in height are relevant to changes in energy, this value is not needed for the solution.&nbsp; Include an equation determining the difference between heights (h2-h1 = ...) and then ~A the final answer." 
+		studvar (nlg quant) *solve-for-quantity*) 
    '(function next-step-help)))))
 
 
@@ -3786,14 +3790,14 @@
 	      (strcat "Although final answers may be rounded off, Andes requires "
 	              "values in equations to agree to within one part in 10<sup>11</sup>. "
 		      "It will be easier to stick to the symbol ~A throughout your "
-		      "solution equations. Use the 'Solve For' command to let Andes "
-		      "compute the final answer when you have entered enough equations "
+		      "solution equations. You can ~A the final answer when you have entered enough equations "
 		      "to determine it." )
-	       studvar) 
+	       studvar *solve-for-quantity*) 
    ))))
 
 (def-error-class wrong-value-non-given (?var ?wrongval)
-  ((student-eqn (= ?var ?wrongval)) ; so far matches any eqn entry
+  ((student-eqn (= ?var ?wrongval)) ;so far matches any eqn entry
+   (student (eqn ?whatever)) ;not an answer box
    (test (assignmentp ?var ?wrongval))
    (test (not (given-p ?var)))
    (test (not (sysvar-parameter-p ?var)))
@@ -3806,31 +3810,33 @@
    ))
 
 (defun wrong-value-non-given (var wrongval) 
- (let* ((studvar (nlg var 'algebra))
-	(studval (nlg wrongval 'algebra))
-        (quant   (sysvar-to-quant var)))
+  (let ((studval (nlg wrongval 'algebra))
+        (quant (sysvar-to-quant var)))
   (make-hint-seq
    (list 
-        (format nil "~A is not the correct value for ~A, ~A.  It will usually be easier to leave the symbol ~A in your solution equations and let Andes do all calculations.  Use the 'Solve For' command to compute the final answer when you have entered enough equations to determine it." studval studvar (nlg quant) studvar) 
+    (format nil "~A is not the correct value for ~A.&nbsp;  It will usually be easier to leave the symbol ~A in your solution equations.&nbsp;  You can ~A the final answer when you have entered enough equations to determine it." 
+	    studval (var-or-quant quant) (var-or-quant quant)
+	    *solve-for-quantity*) 
    ))))
 
 
 ;;; ========================== Answer box entries ===========================
 
-(defun get-answer-entry (quant)
-"return student's answer entry for given quant"
-  (find `(answer ,quant) *studententries* 
-         :key #'StudentEntry-Prop :test #'equal))
-
-; default wrong-answer is kind of vacuous, but we want something to say:
+;; default wrong-answer is kind of vacuous, but we want something to say:
 (def-error-class default-wrong-answer (?quant ?wrongval)
- ((student (answer ?quant))
-  (bind ?eqn (studentEntry-ParsedEqn (get-answer-entry ?quant)))
-  (bind ?wrongval (third ?eqn))))
+  ((student (answer ?quant))
+   (student-eqn ?eqn)
+   (bind ?wrongval (third ?eqn))))
 (defun default-wrong-answer (quant wrongval)
   (make-hint-seq
-    (list (format nil "~A is not the correct value for ~A. When you have entered enough equations, ask Andes to solve for ~A, then transfer the result to this answer box."
-            (nlg wrongval 'algebra) (nlg quant) (var-or-quant quant)))))
+   (list (format nil "~A is not the correct value for ~A.&nbsp; When you have entered enough equations, you can ~A ~A, then transfer the result to this answer box."
+            (nlg wrongval 'algebra) (nlg quant) *solve-for-quantity* 
+	    ;; Hack to ignore dummy answer variable defined in 
+	    ;; function check-answer.
+	    (let ((var (symbols-label quant)))
+	      (if (or (null var) (equalp var "Answer"))
+		  "this quantity"
+		  (var-or-quant quant)))))))
 
 
 ;;; ================== Multiple choice entries
