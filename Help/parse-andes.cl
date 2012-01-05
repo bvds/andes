@@ -954,7 +954,7 @@ follow-up question and put it in the student entry's err interp field."
 		   (lhs (if ep (remove #\Space (subseq input 0 ep)) nil))
 		   (rhs (if ep (subseq input (+ ep 1) (length input)) input))
 		   (valid t)
-		   (why nil))
+		   why)
 	      (if ep ; student entered a complete equation
 		  (if (/= (length (remove #\Space rhs)) 0)
 		      (if (/= (length (remove #\Space lhs)) 0)
@@ -1049,11 +1049,9 @@ follow-up question and put it in the student entry's err interp field."
 		  (setf result-turn
 			(cond 
 			  ((and why (equal (car why) 'bad-var))
-			   (warn "check-answer bad var ~A~%" entry)
 			   (bad-answer-bad-lhs-ErrorInterp entry
 						     input why))
 			  ((and why (equal (car why) 'bad-sought))
-			   (warn "check-answer bad sought ~A~%" entry)
 			   (bad-answer-bad-sought-ErrorInterp entry
 							input why))
 			  (t 
