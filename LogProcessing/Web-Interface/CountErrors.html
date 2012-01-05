@@ -1,0 +1,58 @@
+<html lang="en">
+
+<head>
+<title>Count Errors</title>
+<script language=JavaScript>
+<!--
+function getCookie(c_name)
+{
+if (document.cookie.length>0)
+  {
+  c_start=document.cookie.indexOf(c_name + "=");
+  if (c_start!=-1)
+    {
+    c_start=c_start + c_name.length+1;
+    c_end=document.cookie.indexOf(";",c_start);
+    if (c_end==-1) c_end=document.cookie.length;
+    return unescape(document.cookie.substring(c_start,c_end));
+    }
+  }
+return "";
+}
+// -->
+</script>
+</head>
+<body>
+
+<h1>Count the Number of Errors</h1>
+
+<form name="ErrorForm" action="CountErrors.php" method="post">
+
+<br>
+
+<label>Optional User Name</label>:&nbsp;
+            <input name="userName" type="text" /><br>
+<label>Optional Section Name</label>:&nbsp;
+                <input name="userSection" type="text" /><br>
+<label>Optional dates (format 2010-06-11)</label>:&nbsp;
+           from <input name="startDate" type="text" size="8"/> to
+	   <input name="endDate" type="text" size="8"/><br>
+
+<label>DB Name</label>:&nbsp;
+<input name="dbname" type="text" value="andes3" size="5"/>
+<label>DB User</label>:&nbsp;
+<input name="dbuser" type="text" value="root" size="4"/>
+<label>DB Password</label>:&nbsp;
+<input name="passwd" type="password" size="6"/><br>
+
+<script language=JavaScript>
+document.ErrorForm.passwd.value=getCookie("passWord");
+</script>
+
+<br/>
+<input type="submit"/>
+
+</body>
+
+</form>
+</html>

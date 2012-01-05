@@ -73,10 +73,6 @@
   "Find a (variable . value) pair in a binding list."
   (assoc var bindings))
 
-(defun binding-var (binding)
-  "Get the variable part of a single binding."
-  (car binding))
-
 (defun binding-val (binding)
   "Get the value part of a single binding."
   (cdr binding))
@@ -239,19 +235,6 @@
         ((atom pat) pat)
         (t (cons (expand-pat-match-abbrev (first pat))
                  (expand-pat-match-abbrev (rest pat))))))
-
-(defun rule-based-translator 
-       (input rules &key (matcher #'pat-match) 
-        (rule-if #'first) (rule-then #'rest) (action #'sublis))
-  "Find the first rule in rules that matches input,
-  and apply the action to that rule."
-  (some 
-    #'(lambda (rule)
-        (let ((result (funcall matcher (funcall rule-if rule) 
-                               input)))
-          (if (not (eq result fail))
-              (funcall action result (funcall rule-then rule)))))
-    rules))
 
 
 ;;;;
@@ -474,16 +457,6 @@
 	((expr< (car b) (car a)) nil)
 	((circular-expr< (cdr a) (cdr b) (- n 1)))))
 
-;;; ===========================================================================
-
-(defun unify-with-list (i L &optional (Bindings No-Bindings))
-  "Attempt to unify item i with some element in list L returning all 
-   possible unifications."
-  (loop for i2 in L
-      when (unify i i2 Bindings)
-      collect it))
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; filter-values
 ;; Search through a list of expressions and pull out the subset of each 
@@ -567,13 +540,6 @@
 	      pattern bindings))
    set))
   
-
-;;; given a format spec in need of unification and bindings
-;;; substitute the bindings into it and call format on the
-;;; results.
-(defun format-subst (form bindings)
-  "Apply format to the result of binding the elements."
-  (apply 'format (cons nil (subst-bindings bindings form))))
 
 ;;;; ==================================================================
 ;;;; Strip off the leading question mark from a variable

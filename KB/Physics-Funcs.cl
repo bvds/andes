@@ -115,13 +115,6 @@
   "non-null if the first time is inside the second time, the second time is a closed interval"
   (or (tinsidep t1 t2) (tendpointp t1 t2)))
 
-(defun tinsidep-include-second-endpoint (t1 t2)
-  "non-null if the first time is inside the second time, the second time is a half-open interval"
-  (or (tinsidep t1 t2)
-      (and (time-intervalp t2)
-	   (time-pointp t1)
-	   (equal t1 (third t2)))))
-
 (defun tbeforep (t1 t2)
    "non-null if t1 and t2 are both time points and t1 is before t2"
    (and (time-pointp t1)
@@ -435,12 +428,6 @@
 		'out-of 'into))
 	   (t (error "unknown directions ~A ~A" dir-term1 dir-term2))))))
 
-(defun horizontal-or-vertical (dir-expr)
- "return true if this specifies a horizontal or vertical direction"
-    (when (degrees-or-num dir-expr)
-       (= (mod (convert-dnum-to-number dir-expr) 90)
-          0)))
-
 ;;
 ;; Compound body terms: (compound orderless body1 ... bodyn)
 ;; Body names should be sorted by expr<
@@ -449,14 +436,6 @@
 (defun compound-bodyp (body)
    "non-null if arg is a compound body term"
    (and (consp body) (eq (car body) 'compound) (orderless-p (cdr body))))
-
-#|  ;; not used anywhere
-(defun part-of-body (body1 body2)
-   "non-null if body1 is part or all of body2"
-   (or (equal body1 body2) ; same
-       (and (atom body1) (compound-bodyp body2)
-            (member body1 (cdr body2)))))
-|#
 
 (defun simple-parts (body)
    "get list of atomic parts of a body, simple or compound"
@@ -539,19 +518,6 @@
   (if (and (dimensioned-numberp x) (member ':error x))
 	   (second (member ':error x))
     0))
-
-;;; This is used in Newton's laws to convert a component equation 
-;;; into an equation with the component variables replaced by expressions.
-
-(defun subst-parallel-lists (old new expr)
-   "Given list of old elements as first argument, and list of new elements as
-    second argument, replaces the old elements with the corresponding new ones
-    in a copy of given expressin, which is in the third argument."
-   (let ((nexpr (copy-tree expr)))
-        (loop for o1 in old as n1 in new do 
-           (nsubst n1 o1 nexpr :test #'equal))
-        nexpr))
-
 
 (defun scalar-quantityp (q)
   "True if the given quantity is neither a magnitude nor a direction."

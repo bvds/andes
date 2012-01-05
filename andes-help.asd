@@ -34,54 +34,43 @@
 			;; PsmGraph, StudentEntry SystemEntry are also 
 			;; defined in "andes"
 			:components ((:file "StudentEntry")
-				     (:file "SystemEntry")
+				     (:file "hint-symbols")
+				     (:file "graded")
+				     (:file "SystemEntry"
+					    :depends-on ("graded"))
 				     (:file "PsmGraph")
 				     (:file "TutorTurn"
 					    :depends-on ("CMD"))
 				     (:file "ErrorInterp")
 				     (:file "CMD")
-				     (:file "RuntimeTestScore")
-				     (:file "RuntimeTest")
 				     (:file "session")
 				     ))
 	       (:module "Help"
 			:depends-on ("HelpStructs" "Base")
 			:components (
- 				     ;; Solution graph
-	 			     (:file "SolutionGraph")
+				     (:file "grade")
+
+				     ;; Solution graph
+	 			     (:file "SolutionGraph"
+					    :depends-on ("grade"))
 				     
                                      (:file "utilities")
 				     (:file "database")
 				     (:file "icons")
 				     (:file "model"
 					    :depends-on ("database" "icons"))
+
 				     				     
 				     ;; Entry Intepreter: generic + non-eq
 				     (:file "symbols")
 				     (:file "wrong-quantities")
 				     (:file "State"
-					    :depends-on ("symbols" "grammar"))
+					    :depends-on ("grade" "symbols" "grammar"))
 				     (:file "Entry-API"
 					    :depends-on ("HelpMessages" "symbols"
 							 "model"
 							 "SolutionGraph" "icons"
 							 "wrong-quantities"))
-				     
-				     ;; Equation parser/interpreter
-				     (:file "physics-algebra-rules")
-				     (:file "parse"
-					    :depends-on ("utilities"))
-				     (:file "grammar" :depends-on ("parse"))
-				     (:file "algebra"
-					    :depends-on ("symbols"))
-				     (:file "parse-andes"
-					    :depends-on ("SolutionGraph" "symbols"
-							 "grammar" "icons"
-							 "Entry-API" "database"))
-				     (:file "interpret-equation"
-					    :depends-on ("SolutionGraph"))
-
-				     (:file "test-all-quantities")
 				     
 				     ;;  Help
 				     (:file "HelpMessages")
@@ -89,9 +78,25 @@
 				     (:file "NextStepHelp"
 					    :depends-on ("icons" "symbols"))
 				     (:file "IEA")
-				     
-				     ;; Automatic statistics code.
-				     (:file "Statistics")
+
+				     ;; Equation parser/interpreter
+				     (:file "physics-algebra-rules")
+				     (:file "parse"
+					    :depends-on ("utilities"))
+				     (:file "grammar" :depends-on ("parse"))
+				     (:file "algebra"
+					    :depends-on ("symbols"))
+				     (:file "interpret-equation"
+					    :depends-on ("SolutionGraph"))
+				     (:file "parse-andes"
+					    :depends-on ("SolutionGraph" 
+							 "symbols"
+							 "whatswrong"
+							 "interpret-equation"
+							 "grammar" "icons"
+							 "Entry-API" "database"))
+
+				     (:file "test-all-quantities")
 				     
 				     ;; Top-level manager
 		 		     (:file "Interface"
@@ -106,6 +111,7 @@
 				     (:file "sessions"
 					    ;; Mostly for *help-env-vars*
 					    :depends-on ("NextStepHelp"
+							 "grade"
 							 "parse" "State" 
 							 "database" "fade"
 							 "word-suggest"
@@ -119,12 +125,7 @@
 			:depends-on ("Help" "HelpStructs")
 			:components (
 				     (:file "StackProcessing")
-				     (:file "StackTests")
-				     (:file "UtilFuncs")
-				     ;; file must be loaded before compile
-				     (:no-compile-file "Tests"
-						       ;;    :in-order-to ((compile-op (load-source-op "Tests")))
-						       )
+;				     (:file "StackTests")
 				     ))
 	       ))
 

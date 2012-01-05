@@ -43,15 +43,9 @@
 			(match-exp->qnode (second (car fade)) 
 					  (problem-graph *cp*))
 			(car fade))
-		   ;; 
-		   (and (listp (car fade))
-			(eql (first (car fade)) 'answer)
-			(member (second (car fade)) (problem-soughts *cp*)
-				:test #'unify)
-			(car fade))
 		   (warn  'webserver:log-warn 
 			  :tag (list 'invalid-fade-proposition (car fade))
-			  :text "No systementry, bgnode, solver, or answer match."))
+			  :text "No systementry or bgnode match for fade."))
 	       ;; Evaluate the hints.
 	       ;; The result should be a list of strings.
 	       (eval (cdr fade))))))
@@ -73,18 +67,9 @@
 			(eql (first (car fade)) 'solve-for-var)
 			(member (car fade) *StudentEntries* 
 				:key #'StudentEntry-prop
-				:test #'unify))
-		   ;; If it is an answer, find any corresponding Student Entry
-		   ;; and see if it is correct.
-		   (and (listp (car fade))
-			(eql (first (car fade)) 'answer)
-			(let ((this-answer (find (car fade) *StudentEntries* 
-						 :key #'StudentEntry-prop
-						 :test #'unify)))
-			 (and this-answer (eql (studententry-state
-						this-answer) +correct+))))))
+				:test #'unify))))
       (setf *fades* (remove fade *fades*))))
-
+  
   ;; When not on canvas, prompt next step in hint window.
   (when *fades*
     (dolist (text (cdr (car *fades*)))

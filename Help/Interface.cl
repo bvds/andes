@@ -147,13 +147,35 @@
     ;; need to add the cmdresult to the current cmd.
     (iface-add-cmdresult-to-cmd NewCMD Result)
     
-    ;; This is the primary call to autograding.  It will handle the 
-    ;; execution of any tests and the updating of results.  It calls 
-    ;; the code in AutoCalc.cl and will handle the send-fbd command 
-    ;; as necessary.
-    ;;
-    (let ((Tmp (iface-handle-Statistics NewCmd)))
-      (when Tmp (push Tmp str)))
+    ;; Hints only affect grading when there has been an explicit
+    ;; request for help.  These are all the criteria for 
+    ;; bottom-out hints as required by Andes2 grading:
+    (when (and (eql (cmd-class NewCmd) 'help)
+	       ;; Test that hint is child of student request
+	       ;; for help.  In Andes2, this was done by calls
+	       ;; to wwh-bottom-out-hintp and proc-bottom-out-hintp 
+	       (bottom-out-hintp **Current-cmd-Stack**)
+	       (turn-p result) 
+	       (eql (turn-type result) nil)
+	       (turn-text result) ;hint given
+	       (null (turn-menu result)) ;last hint in sequence
+	       )	       
+      (score-hint-request (turn-assoc result)
+			  *help-last-entries*))
+
+  ;; Irrespective of the entry we need to inform the workbench of
+  ;; the current total score if it has changed since last sent
+  (let ((current-score (calculate-score)))
+    (cond 
+      ((null current-score)
+	   (warn 'webserver:log-warn :tag (list 'null-grading-score)
+		 :text "null grading score"))
+      ((or (null *last-score*)
+	   (> (abs (- current-score *last-score*)) 0.01))
+       (setf *last-score* current-score)
+       (push `((:action . "set-score") 
+	       (:score . ,(round (* 100 current-score)))) 
+	     str))))
 
     (when *debug-help* (format t "Result ~A~%" Result))
 
@@ -187,7 +209,6 @@
   ;; This is the only place where cmd is constructed
   (let ((C (make-cmd :Class (lookup-command->class Command)
 		     :Type 'DDE
-		     :Time (get-current-htime)
 		     :command command
 		     :text text  ;; used only for delete-equation-cmdp
 		     )))
@@ -195,95 +216,14 @@
     (setq **Current-CMD** C)
     C))
 
-
-;;; ===================================================================
-;;; Stats
-;;; The code in this section interfaces with the autocalc code.  It will
-;;; handle the maintenance of the cmd list (clearing it on new problems)
-;;; and the scores.  When a command is completed then this code will be 
-;;; called.  
-;;;
-;;; If the cmd is a close-problem or read-problem-info cmd then we need
-;;; to call the special-case code to store and reset the scores as well
-;;; as taking care of any routine maintenance.  If not then we will 
-;;; update the current scores and report the current total score to 
-;;; the fbd.
-;;;
-;;; The Preexisting scores will be loaded when the student opens a new 
-;;; problem, closes an old-problem or a read-student-info cmd is sent
-;;; Note that this will not allow the system to make use of the time 
-;;; that occurs between the initialization of Andes and the initial
-;;; read-student-info cmd.  However this should not be much of an issue
-;;; as little if anything can occur save a long delay.
-(defun iface-handle-Statistics (NewCmd)
-  "Handle the autocalc code for computing grades."
-  ;; Handle the close-problem, read-problem and other
-  ;; cases by updating and resetting the stats as 
-  ;; necessary.
-  (cond ((read-problem-info-cmdp NewCmd)
-	 (iface-handle-stats-read NewCmd))
-	((close-problem-cmdp NewCmd)
-	 (iface-handle-stats-close))
-	((read-student-info-cmdp NewCmd)
-	 (iface-handle-stats-student))
-	(t (update-runtime-testset-scores)))
+(defun bottom-out-hintp (Stack)
+  ;; Functional equivalent to Andes2 test for
+  ;; WWH or NSH hint being a result of 
+  ;; previous student request for help.
+  (let ((R (car (help-stackc Stack))))
+    (when R (member (cmd-command R) 
+		    '(next-step-help do-whats-wrong)))))
  
-  ;; Irrespective of the entry we need to inform the workbench of
-  ;; the current total score if it has changed since last sent
-  (let ((current-score (get-current-runtime-total-score)))
-    (when (not (equal current-score *last-score*))
-      (setf *last-score* current-score)
-      `((:action . "set-score") (:score . ,current-score)))
-      ))
-
-;;; AW: now we no longer load and save problem statistics in the
-;;; student history file. Instead, the workbench will fetch the 
-;;; few persistent score statistics from us via (get-stats 'persist),
-;;; save them in the problem solution file, and restore them via
-;;; an API call on problem open. Non-score statistics will not be
-;;; saved (and could be dropped entirely from the test list).
-;;; Following code is therefore mostly obsolete; we keep it in
-;;; case we ever go back to the history file method. 
-;;; Not clear if the stat updates on student/read/close events
-;;; are still necessary. Time stat might change on these, but this
-;;; is not part of score so is no longer accurately tracked. Not
-;;; sure if any other stat could change on these events, or if
-;;; any update is necessary for proper initialization.
-
-
-;;; When NewCmd is a close-problem then the system will update the 
-;;; current scores one last time, store the stats within the 
-;;; Student.dat file.  Once that is done the stats will be reset
-;;; in preparation for the next problem-instance.  
-;;;
-;;; This is being done so that any dde's that the student sends or
-;;; time that they spend between problems will not effect the scores
-;;; that they recieve on each problem-instance.
-(defun iface-handle-stats-close ()
-  (update-runtime-testset-scores)  ; AW: maybe not still needed
-  (setq **Current-Cmd-Stack** Nil)
-  (setq **Current-Cmd** Nil)
-  (reset-runtime-testset-scores))
-
-
-;;; On a read-problem-info cmd the system will store the current 
-;;; stats in the student.dat file associating them with nil to
-;;; indicate no problem instance.  Following that the stats will
-;;; be reset and updated to reflect the new problem instance.
-(defun iface-handle-stats-read (NewCmd)
-  ; AW -- no longer store stats in history file
-  ; (store-runtime-test-stats Nil)
-  (setq **Current-Cmd-Stack** (list NewCmd))
-  (setq **current-cmd** NewCmd)
-  (reset-runtime-testset-scores)
-  (update-runtime-testset-scores)) ; AW: maybe not still needed
-
-
-;;; On a read-student-info command we need to reset the 
-;;; stored stats variable.  
-(defun iface-handle-stats-student ()
-  (update-runtime-testset-scores))  ; AW: maybe not still needed
-
 
 ;; ---------------------------------------------------------------------
 ;; This code handles the task of maintaining the *last-turn-response*
@@ -291,6 +231,7 @@
 ;;
 ;; return-turn -- wrapper for returning turn to workbench
 ;; saves on last turn and converts given turn to workbench result str
+;; returns alist reply.
 (defun return-turn (time turn)
   ;; Only update saved turn if new turn is non-null, and not a No-Op-Turn.
   ;; This is defense against a bug when a delayed notification of equation 
@@ -299,7 +240,7 @@
   ;; turn with its responder in place to handle the student's response 
   ;; which comes later.
   (when (and turn (turn-responder turn)
-	     (not (equalp (turn-type Turn) +no-op-turn+)))
+	     (not (eql (turn-type Turn) +no-op-turn+)))
     (setf *last-turn-response* (turn-responder turn)))
 
   ;; if there is assoc info in the turn, add to reply
@@ -316,15 +257,8 @@
 
 
 ;;-----------------------------------------------------------------------------
-;; For forming reply strings returned to workbench
+;; For forming reply alist to return to client
 ;;
-;; Note there are some problems with this routine given Andes1 workbench:
-;; you can't actually construct the right string from a turn in a context-
-;; independent manner; what to send depends on what the WB is expecting
-;; in response to which call, either a status return with piggybacked cmd
-;; or a hint string. FIXED: Andes2 workbench should now understand 
-;; !show-hint command even where bare hint text was formerly expected, so we 
-;; can safely use this in all cases in context-independent manner.
 (defun turn->WB-Reply (time turn)
   "return reply string to send to wb for given tutor turn"
   ;; null turn is special case
@@ -341,11 +275,18 @@
 		   (push `((:action . "modify-object") (:id . ,id)
 			   (:mode . "correct")) result))
       (color-red (when time (model-red-turn time))
+		 ;; Test that an error interpretation has
+		 ;; been logged.  Bug #1935
+		 (when (and (notany #'student-log-line result)
+			    (not **checking-entries**))
+		   (warn 'webserver:log-warn
+			 :tag (list 'incorrect-missing-interp id)
+			 :text "Red turn without logging interp."))
 		 (push `((:action . "modify-object") (:id . ,id)
 			 (:mode . "incorrect")) result))
       )
     
-    ;; switch on type to see what message commnd we have to append to result
+    ;; switch on type to see what message command we have to append to result
     ;; also have to check for an equation result to return
     (case (turn-type turn)
       (Eqn-turn (when (null (turn-text turn)) 
@@ -358,7 +299,7 @@
 		    ;; else just return result equation text
 		    (push `((:action . "modify-object") (:id . ,id)
 			    (:text . ,(turn-text turn))) result)))
-      (dialog-turn 
+      ((nil) 
        (cond 
 	 ((turn-text turn) 
 	  (push `((:action . "show-hint")
@@ -407,23 +348,14 @@
 			    (turn-menu turn)))))))
 	 ((use-help-button-hint-test time)
 	  (push (use-help-button-hint) result))))
-      ((nil) (when (use-help-button-hint-test time)
-	     (push (use-help-button-hint) result)))
       (tcard-turn (warn "Training card turn with ~A." (turn-text turn)))
       (minil-turn (warn "Minilesson card turn with ~A." (turn-text turn)))
-      (end-dialog (warn "end-dialog turn.  What is this?"))
       (kcd-turn (push `((:action . "show-hint") 
 			(:text . ,(turn-text turn))) result)
 		(case (Turn-menu turn)
 		  (Explain-More (warn "kcd explain more."))
 		  (otherwize (warn "kcd otherwize."))))
-      ;; Format the stat turn as a list of values for the workbench.  
-      ;; this code will set the return value ignoring any coloring that
-      ;; may have occurred.  No cmd will be set.
-      (stat-turn (push `((:action . "log") 
-			 (:log . "subscores")
-			 (:items . ,(turn-value turn)))
-		       result))
+      ;; Should have test of unknown type.
       )
 
     ;; When reply has a link, see if student needs hint to
@@ -456,6 +388,7 @@
      (and (equal (cdr (assoc :action reply)) "show-hint")
 	  (search "<a href=" (cdr (assoc :text reply)))
 	  (not (search *help-button-action* (cdr (assoc :text reply)))))))
+
 
 ;;; ==========================================================================
 ;;; Update with results.
@@ -517,14 +450,13 @@
     (Status-Return-Val (iface-add-srv-cmdresult Cmd Result))
     (Eqn-Result (iface-add-eqr-cmdresult Cmd Result))
     (Hint-Return-Val (iface-add-hrv-cmdresult Cmd Result))
-    (stat-result (iface-add-stat-cmdresult Cmd Result))
     (Ignore (iface-add-ignore-cmdresult Cmd Result))))
 
 
 ;;; --------------------------------------------------------------------------
 ;;; Status-return-val
 ;;; Status return vals are used for entries (Eqn and non-eqn) and State 
-;;; Commands.  They contain coloring, indicating success or failue, and an
+;;; Commands.  They contain coloring, indicating success or failure, and an
 ;;; optional errors list (currently unused as of this writing) as well as the
 ;;; command and value fields.  
 ;;;
@@ -648,19 +580,6 @@
      :Value Val
      :Assoc (alist-warn Assoc))))
 
-
-;;; ---------------------------------------------------------------------
-;;; Stat-Results
-;;; Stat result values are retuned by the autocalc grading code.  They
-;;; are used to convey lists of statistical values to the workbench from
-;;; the help system.  The code here will turn the appropriate turn into
-;;; a cmdresult.  The assumption is that it will be a turn.
-(defun iface-add-stat-cmdresult (Cmd Result)
-  (when (not (turn-p Result))
-    (error "non-turn passed to iface-add-stat-cmdresult."))
-  (iface-set-cmdresult
-   Cmd
-   :Assoc (alist-warn (turn-assoc Result))))
    
 ;;; ---------------------------------------------------------------------
 ;;; Ignore commands.
@@ -683,15 +602,13 @@
 ;;; this code handles the general tasks of setting the Linenum
 ;;; time and other elements and relies upon keyword arguments to 
 ;;; set the class, value, assocs, and commands.
-(defun iface-set-cmdresult (Cmd &key (Class 'DDE-Result) Value Assoc Commands)
+(defun iface-set-cmdresult (Cmd &key (Class 'DDE-Result) Value Assoc)
   (setf (cmd-result Cmd)
 	;; this is the only place where cmdresult is created.
 	(make-cmdresult
 	 :Class Class
-	 :Time (get-current-htime)
 	 :Value Value
-	 :Assoc Assoc
-	 :Commands Commands)))
+	 :Assoc Assoc)))
 
 
 
@@ -716,8 +633,7 @@
     (Minil-Turn (iface-set-ddr-Minil-turn-c Val Result))
     (TCard-turn (iface-set-ddr-tcard-turn-c Val Result))
     (KCD-turn (iface-set-ddr-kcd-turn-c Val Result))
-    (End-Dialog (iface-set-ddr-end-turn-c Val Result))
-    (Dialog-Turn (iface-set-ddr-dialog-turn-c Val Result))
+    ((nil) (iface-set-ddr-dialog-turn-c Val Result))
     (Eqn-turn (error "Incorrect-turn-type-supplied."))))
     
 
@@ -746,17 +662,6 @@
   (setf (dde-result-command Val) +show-hint+)
   (setf (dde-result-value Val) (turn-text Result))
   (setf (dde-result-menu Val) (turn-menu Result)))
-
-
-
-;;; End-dialog turns are effectively empty turns that will be sent
-;;; to the workbench soley to signal the end of a dialog.  This 
-;;; code is unused at present.
-(defun iface-set-ddr-end-turn-c (Val Result)
-  (declare (ignore Result))
-  (setf (dde-result-command Val) Nil)
-  (setf (dde-result-value Val) Nil)
-  (setf (dde-result-menu Val) Nil))
 
 
 ;;; Dialog turns are used for the hint process and will be used to 
@@ -816,7 +721,7 @@
    ; switch on type of command, from API.cl
    (case (lookup-command->class cmd)
       ;; all following cmd classes can just be dispatched as usual
-      ((State Answer Statistics Delete Control) (apply cmd args))
+      ((State Answer Delete Control) (apply cmd args))
       ;; Entries should be left black
       ((noneq-entry eq-entry) (make-no-color-turn 
 			       :id (StudentEntry-id (car args))))
@@ -825,11 +730,12 @@
       ;; Reject all others help requests.
       (Help (case cmd 
                   (explain-more (apply cmd args))
-                  (otherwise (make-end-dialog-turn "Help is not available on this problem."))))
+                  (otherwise (make-end-dialog-turn 
+			      "Help is not available on this problem."))))
       ;; Algebra gets null answer
       (Algebra (make-eqn-failure-turn 
-		"The Andes calculator is not available on this problem."
-		:id (StudentEntry-id (car args))))
+		(car args)
+		"The Andes calculator is not available on this problem."))
       ;; anything else: empty string should function as null return value.
       (otherwise (warn "unclassifed api command: ~A~%" cmd)
                   "")))

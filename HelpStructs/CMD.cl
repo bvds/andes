@@ -61,32 +61,6 @@
 ;;;; --------------------------------------------
 ;;;; CMD class
 
-;;; ALGEBRA commands deal with calls such as solve-for
-;;;  and simplify.
-(defun Algebra-cmdp (Cmd)
-  "Is this cmd an algebra call?"
-  (equalp (cmd-Class CMD) 'Algebra))
-
-;;; Answers deal with final answer submissions either in the answer
-;;; field or a bring up a status-return-val.
-(defun Answer-cmdp (Cmd)
-  "Is this cmd an answer post?"
-  (equalp (cmd-Class CMD) 'Answer))
-
-;;; State calls are used to update or alter the system state and 
-;;; signify values being refrshed/set.  As dde's these calls will
-;;; get a status return-val type
-(defun State-cmdp (Cmd)
-  "Is this cmd a state call?"
-  (equalp (cmd-Class CMD) 'State))
-
-;;; At present there is only one control command.  This doesn't 
-;;; appear in our student docs so it should appear rarely.  when
-;;; it does it should only appear as a dde post so no return type
-;;; should be given.
-(defun Control-cmdp (Cmd)
-  "Is this cmd a control command?"
-  (equalp (cmd-Class CMD) 'Control))
 
 ;;; non-eq entries such as assert object are dde's that post a 
 ;;; value to the system.  As such they get a status return val
@@ -124,12 +98,6 @@
   "Is this cmd a help call?"
   (equalp (cmd-Class CMD) 'Help))
 
-;; For whatever reson the logs contain many api calls that we no 
-;; longer have documentation for.  These are those calls.
-(defun Unknown-cmdp (Cmd)
-  "Is this cmd a help call?"
-  (equalp (cmd-Class CMD) 'UNKNOWN))
-
 
 ;;;; --------------------------------------------
 ;;;; Composite types
@@ -142,35 +110,6 @@
   "Is this an entry command (either eq or noneq)?"
   (or (eq-entry-cmdp Cmd)
       (noneq-entry-cmdp Cmd)))
-
-;;; solution-action-cmdp
-;;; This describes the superset of all commands that Kurt considers
-;;; to be solution actions.  These being the commands that represent
-;;; changes to the solution state or to the student's mental state.
-(defun solution-action-cmdp (Cmd)
-  "Is this a solution action command?"
-  (or (entry-cmdp Cmd)
-      (help-cmdp Cmd)
-      (delete-cmdp Cmd)
-      (Answer-cmdp Cmd)))
-
-;;; Solution-state-change-cmdp 
-;;; This superset describes all entry actions that changes the solution
-;;; state of the system.  These actions include answer attempts, entries
-;;; and deletions.
-;;; Algebra only reifies what is already written so the state does not
-;;; really change fundementally.
-
-(defun Solution-State-Change-cmdp (Cmd)
-  (or (entry-cmdp Cmd)
-      (delete-cmdp Cmd)
-      (answer-cmdp Cmd)))
-
-;;; Assertion-cmdp
-;;; Assertion commands change the solution state of the system by asserting
-;;; new objects.  They are either Answer assertions or entry assertions.
-(defun assertion-cmdp (Cmd)
-  (or (entry-cmdp Cmd) (answer-cmdp Cmd)))
 
 
 ;;;; ---------------------------------------------------------------------
@@ -198,15 +137,6 @@
 ;;; These functions are used to id specific api-calls
 ;;; that we want to track and make use of.
 
-(defun get-proc-help-cmdp (CMD)
-  "Is this a next-step-help call?"
-  (and (help-cmdp CMD) 
-       (eql (cmd-command CMD) 'next-step-help)))
-
-(defun why-wrong-cmdp (CMD)
-  "Is this a do-whats-wrong call?"
-  (and (help-cmdp CMD)
-       (eql (cmd-command CMD) 'do-whats-wrong)))
   
 ;; Note: delete-cmdp does not work for equation deletions
 ;; sent as DDE-POST of (lookup-eqn-string "" id) [Bug 1254]
@@ -215,22 +145,6 @@
   (and (eql (cmd-type CMD) 'DDE-POST)
        (eql (cmd-command CMD) 'LOOKUP-EQN-STRING)
        (eql (cmd-text CMD) "")))
-
-(defun read-problem-info-cmdp (CMD)
-  "Return t if this is an open-problem command."
-  (and (cmd-command Cmd) 
-       (equalp (cmd-command Cmd) 'read-problem-info)))
-
-(defun close-problem-cmdp (CMD)
-  "Return t if this is a close-problem command."
-  (and (cmd-command Cmd) 
-       (equalp (cmd-command Cmd) 'close-problem)))
-
-(defun read-student-info-cmdp (CMD)
-  "Return t if this is an open-problem command."
-  (and (cmd-command Cmd) 
-       (equalp (cmd-command Cmd) 'read-student-info)))
-
 
 ;;;; ========================================================================
 ;;;; Result Struct
@@ -242,13 +156,11 @@
 
 (defstruct CMDResult
   Class    ;; one of dde-failed or dde-result.
-  Time     ;; The Time that it occured (Htime)
   Value    ;; The value of the result:
            ;; status-return-val or dde-result or nil
   
   Assoc    ;; An assoc if one is present
   Score    ;; A set-score if one is present.  This is new in 2004.
-  Commands ;; Async commands if they are present.
   )
 
 ;;; ---------------------------------------------------------------------------
@@ -300,18 +212,6 @@
   )
 
 
-;;; Stat-results
-;;; Calc results consist of a list of lists of stat values of the form
-;;; ((<Valname> <Grading Weight> <Value>) ...) that represent the result
-;;; of grading calculations on the help system side.  
-;;;
-;;; These structures have no values above and beyond the fields in the
-;;; dde-result struct and will only load the value field at runtime.
-;;; The code has no command but we could include one if it became 
-;;; necessary.
-(defstruct (stat-result (:include dde-result))
-  )
-
 ;;; -------------------------------------------------------------------
 ;;; Command parameters.
 
@@ -322,9 +222,6 @@
 ;;; -------------------------------------------------------------------
 ;;; dde-result command tests.
 
-(defun ddr-show-hintp (Result)
-  "Is this a show-hint dde result."
-  (equal (dde-result-command Result) +show-hint+))
 
 
 ;;; -------------------------------------------------------------------
@@ -343,15 +240,6 @@
 ;;; DDE Hint Results
 ;;; For code's sake these functions extract the hint text from a show-hint-cmd
 
-(defun show-hint-cmd-hintstring (Cmd)
-  "Extract the hint text from the cmd returns nil if this has no hint."
-  (let ((Result (cmd-result CMD)))
-    (when (and Result (cmdresult-p Result)
-	       (setq Result (cmdresult-value Result)) ;; returns the val.
-	       (dde-result-p Result)
-	       (equal (dde-result-command Result) +show-hint+))
-      ;;(nth 0 (dde-result-value Result)))))
-      (dde-result-value Result))))
 
 
 ;;;; ========================================================================
@@ -369,34 +257,6 @@
 
 ;;; A cmd is incorrect when it it has a result, that result has 
 ;;; a status return val and that status return val is color red.
-(defun incorrect-cmdp (Cmd)
-  (let ((Result (cmd-result CMD)))
-    (and Result (cmdresult-p Result)
-	 (status-return-val-p (cmdresult-value Result))
-	 (equalp 'Red (status-return-val-coloring 
-		       (cmdresult-value Result))))))
-
-
-;;; A cmd is incorrect when it it has a result, that result has 
-;;; a status return val and that status return val is color green.
-(defun correct-cmdp (Cmd)
-  (let ((Result (cmd-result CMD)))
-    (and Result (cmdresult-p Result)
-	 (status-return-val-p (cmdresult-value Result))
-	 (equal 'GREEN (status-return-val-coloring 
-			(cmdresult-value Result))))))
-
-
-;;; A cmd is incorrect when it it has a result, that result has 
-;;; a status return val and that status return val is neither
-;;; red nor green. 
-(defun unvalued-cmdp (Cmd)
-  (let ((Result (cmd-result CMD)))
-    (and Result (cmdresult-p Result)
-	 (status-return-val-p (cmdresult-value Result))
-	 (not (member (status-return-val-coloring 
-		       (cmdresult-value Result))
-		      '(RED GREEN))))))
 
 
 
@@ -406,15 +266,6 @@
 ;;; test its state.
 
 ;;; General entries.
-(defun incorrect-entry-cmdp (Command)
-  "Is this an incorrect entry?"
-  (and (entry-cmdp Command)
-       (incorrect-cmdp Command)))
-
-(defun correct-entry-cmdp (Command)
-  "Is this a correct entry?"
-  (and (entry-cmdp Command)
-       (correct-cmdp Command)))
 
 
 ;;;; ----------------------------------------------------------------------
@@ -434,39 +285,3 @@
 	 (equal (dde-result-command Result) +show-hint+))))
 
 
-;;; Return t if the topmost cmd has has a dde-result with a show-hint command
-;;; and that command has no follow-up menu.  This is either a an atomic hint or
-;;; one that is at the tail of some hint sequence.
-;;; 1 does it have a result
-;;; 2 Is that result a cmdresult struct?
-;;; 3 Does that result have a value?
-;;; 4 Is that value a dde-result?
-;;; 5 Does that dde-result have a show-hint?
-;;; 6 Is the menu nil?
-(defun tail-hint-cmdp (cmd)
-  "Is this a tail hint command?"
-  (let ((Result (cmd-Result cmd)))
-    (and Result (cmdresult-p Result)
-	 (let ((value (cmdresult-Value Result)))
-	   (and Value (dde-result-p Value)
-		(ddr-show-hintp Value)
-		(null (show-hint-ddr-menu Value)))))))
-
-
-;;; Return t if the command represents an unsolicited hint.  That is return
-;;; t if it is not a help cmd but results in a show-hint command.  This will
-;;; probably be an error flag such as misunderstood signs on an equation entry
-;;; or some other similar problem.  
-(defun unsolicited-hint-cmdp (Command)
-  "Return t if this is an unsolicited hint."
-  (and (not (help-cmdp Command))
-       (show-hint-cmdp Command)))
-
-
-;;; --------------------------------------------------------
-;;; commands time diff.
-;;; Given a pair of commands relate them acc
-
-(defun cmds-time-diff (A B)
-  "Return the amount of time elapsed between Cmd A and Cmd B."
-  (sub-htimes (cmd-Time A) (cmd-time B)))

@@ -50,10 +50,12 @@
   "Given the id selected by the student in what's wrong help, returns a 
    tutor turn containing the associated error interpretation."
     (diagnose student)
+    (setf *help-last-entries* 
+	  (ErrorInterp-intended (StudentEntry-ErrInterp student)))
     (ErrorInterp-Remediation (StudentEntry-ErrInterp student)))
 
 
-;;; Given a student entry, returns a error interpretation.  If the
+;;; Given a student entry, returns an ErrorInterp struct.  If the
 ;;; entry has been diagnosed before, or is an equation entry (in which
 ;;; case parse-andes will have taken care of it) then just repeat the 
 ;;; hint sequence by returning the old error interpretation.  If the
@@ -169,6 +171,7 @@
 ;;; entries in the overall solution process.  The third phase is to
 ;;; select the best error interpreation.  The fourth phase is to
 ;;; generate the remediation turn for the selected interpretation.
+;;; Returns an ErrorInterp struct.
   
 (defun new-error (student)
   "Given an incorrect student entry that has not been given before,
@@ -389,7 +392,7 @@
 ;;; and prefix form.
 (defun check-err-eqn (pattern eh student conditions system bindings)
   (let (b)
-    (and (eq 'eqn (car (StudentEntry-prop Student)))
+    (and (member (car (StudentEntry-prop Student)) '(eqn answer))
 	 (StudentEntry-ParsedEqn Student)
 	 (setq b (unify pattern (studentEntry-ParsedEqn Student) bindings))
 	 (check-err-conditions eh student conditions system b))))

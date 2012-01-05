@@ -60,7 +60,6 @@
 ;; gets it.  
 ;;
 
-(defparameter *S-print-Num* t "Print the step Number.")
 (defparameter *S-print-steps* () "Print intermediate solution steps.")
 (defparameter *cp* () "Current problem.")
 
@@ -78,13 +77,6 @@
 	     (/ (- (get-internal-run-time) t0) 
 			  (* 60 internal-time-units-per-second)))
      (values))) ; don't return any value
-
-(defmacro scp (Pname)
-  `(setq *cp* (get-problem ',Pname)))
-
-(defun p ()
-  "Print out *cp*"
-  (format t "~A~%" *cp*))
 
 
 ;;;;==================================================================
@@ -159,6 +151,12 @@
     (pprint (Problem-Graph Problem))
     (print-BubbleGraph (Problem-Graph Problem)))
     (Problem-Graph Problem))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;;    debug functions
+;;;
+;;;
 
 (defun gpb ()
   (generate-problem-bubblegraph *cp*))
@@ -537,14 +535,13 @@
 ;;; if necessary.
 (defun generate-no-quant-problem-graph (Soughts Givens)
   "Generate a non-quantity bubblegraph."
-  (let (Graph)
-    (if **solve-soughts-separate**
-	(setq Graph (generate-separate-no-quant-bg Soughts Givens))
-      (setq Graph (generate-group-no-quant-bg Soughts Givens)))
-        
-    (if (null Graph) (format t "Error :no nodes generated for no-quant graph")
-      (index-bubblegraph Graph))))
+  (let ((Graph (if **solve-soughts-separate**
+		   (generate-separate-no-quant-bg Soughts Givens)
+		   (generate-group-no-quant-bg Soughts Givens))))
     
+    (if (null Graph) (format t "Error :no nodes generated for no-quant graph")
+	(index-bubblegraph Graph))))
+
 
 ;;; Given a set of soughts and givens generate a bubblegraph
 ;;; consisting of a separate PSM node for each sought.  The 
@@ -552,7 +549,7 @@
 ;;; them.
 (defun generate-separate-no-quant-bg (Soughts Givens)
   "Generate a separate no-quant bubblegraph."
-  (let ((Graph (make-bubblegraph)) (Q))
+  (let ((Graph (make-bubblegraph)) Q)
     (dolist (S Soughts)
       (setq Q (solve-for-non-quantity (list S) Givens))
       (when (null Q) (error "Unable to solve for non-quant sought: ~s~%" S))
@@ -652,15 +649,3 @@
 
 (defun ps-bp (form &rest args)
   (format t "~76@<~A~;~?~>~%" (print-outline-indent 0) form args))
-
-
-;;;;============================================================
-(defun trace-solve-problem ()
-  (trace solve-problem
-	 Generate-Problem-Bubblegraph
-	 Generate-Problem-Indicies
-	 generate-problem-Solutionpoint
-	 generate-problem-eqn-sets
-	 mark-problem-graph
-	 solve-for-non-quantity))
-	 

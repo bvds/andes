@@ -502,34 +502,3 @@
 (defun cs-list (x &rest args)
   (when *Debug-cs* (format t "~A ~A~%" (print-outline-indent (+ x 1) nil) 
 			   args)))
-			     
-
-;;=======================================================================
-;; Trace functions.
-
-(defun trace-solutions ()
-  (trace collect-solutions)
-  (trace Expand-for-Q)
-  (trace Expand-for-E)
-  (trace collect-eqn-sets)
-  (trace make-eset)
-  (trace Solution-Successor)
-  (trace get-extension-eqns)
-  
-  (trace prime-solution-indy)
-  (trace solver-indyEmpty)
-  (trace solver-indyAddVar)
-  (trace solver-indyDoneAddVar)
-  (trace solver-indyAddEquation)
-
-  (trace solver-isindependent)
-
-  (trace get-indy-ext-eqns)
-  (trace setup-indyset)
-  (trace get-nonindy-ext-eqns)
-  (trace remove-nogood-eqns)
-  
-  (trace expand-for-q-eqns)
-  )
-			       
-  	

@@ -39,12 +39,8 @@
     ;; trailing / makes it a directory
     (merge-pathnames  "solutions/" *Andes-Path*))
 
-(defparameter *Number-Of-Problems* 0 
-  "The number of problems registered to the system.")
 (defparameter *Problem-Registry* (make-hash-table) 
   "A list of all the currently known problem structs.")
-(defparameter **read-old-problemfile-header** nil 
-  "Read in oldstyle file headers. (sans forbidden and ignore).")
 
 ; We use the version slot in the external prb file to store
 ; a version number for the external file format used, in case 
@@ -283,9 +279,6 @@
 (defmacro mpf-read (S C)
   `(when (not (equalp (read ,S) ,C))
      (error "Malformed Problem file.")))
-     
-(defmacro mpf-readset (S L)
-  `(setf ,L ,`(read ,S "Error: malformed problem file.~%")))
 
 (defmacro mpf-readret (S)
   `(read ,S "Error: invalid problem file."))
@@ -382,25 +375,6 @@
 		  (problem-version Problem))))
 
     (t (error "Undefined Problem-header tag. ~A" name))))
-
-
-(defun problem-file-exists (Name &optional (Path (Default-ProblemFile-Path)))
-  (probe-file (namestring (problem-filename (format nil "~A" Name) Path))))
-
-(defun trace-readpfile ()
-  (trace read-problem-file
-	 read-pfile-contents
-	 set-pfile-header-contents
-	 read-mreadable-bubblegraph
-	 read-mreadable-qnode-lst
-	 read-mreadable-qnode
-	 read-mreadable-enode-lst
-	 read-mreadable-Enode
-	 read-mreadable-eqns
-	 read-mreadable-qvars
-	 read-mreadable-eqnsets))
-
-
 
 
 ;;===================================================================
@@ -527,15 +501,6 @@
   "Does the problem seek more than 1 sought?"
   (< 1 (length (problem-soughts Problem))))
 
-
-(defun single-sought-problem-p (Problem)
-  "Does the problem have only 1 sought?"
-  (= 1 (length (problem-soughts Problem))))
-
-(defun problem-has-feature-p (Problem Feature)
-  "Return t if the specified problem has the specified feature."
-  (member Feature (problem-features Problem)))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;
 ;;;;     Macros to apply to a problem after solutions have been found
@@ -609,40 +574,6 @@
 ;;; Problem-queries.
 ;;; For reporting purposes these functions can query specified info
 ;;; from the problem struct and return it as necessary.
-
-;;; collect-problem-kcds
-;;; collect all of the kcds that might be hinted inside the
-;;; problem itself and return them in a list form.
-(defun collect-problem-kcds (Problem)
-  (remove-duplicates
-   (append 
-    (mapcan-bubblegraph-qnodes
-     #'(lambda (n) (map-optags->minilessons 
-		    (collect-psmgraph-optags
-		     (qnode-path n))))
-     (Problem-Graph Problem))
-    (mapcan-bubblegraph-enodes
-     #'(lambda (n) (map-optags->minilessons
-		    (collect-psmgraph-optags
-		     (enode-path n))))
-    (problem-graph Problem)))))
-
-;;; collect-problem-minilessons
-;;; collect all of the minilessons that might be hinted 
-;;; inside the problem itself and return them in a list form.
-(defun collect-problem-minilessons (Problem)
-  (remove-duplicates
-   (append 
-    (mapcan-bubblegraph-qnodes
-     #'(lambda (n) (map-optags->minilessons 
-		    (collect-psmgraph-optags
-		     (qnode-path n))))
-     (Problem-Graph Problem))
-    (mapcan-bubblegraph-enodes
-     #'(lambda (n) (map-optags->minilessons
-		    (collect-psmgraph-optags
-		     (enode-path n))))
-    (problem-graph Problem)))))
 
 (defun problem-graphic-dimensions (graphic)
   "Return list with width and height of graphic file"

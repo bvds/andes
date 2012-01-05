@@ -25,7 +25,7 @@
   (:export :defun-method :start-json-rpc-services :stop-json-rpc-services 
 	   :*stdout* :print-sessions :*env* :close-idle-sessions :*debug*
 	   :*turn-timeout* :*time*
-	   :log-error :log-warn
+	   :log-error :log-warn :get-any-log-tag
 	   :*profile* :get-session-env :*log-id* :*log-variable*))
 
 (in-package :webserver)
@@ -227,6 +227,8 @@
       ;; only give a response when there is an error or id is given
       (when (or error1 turn)
 	(when (or error1 (not version)) (push (cons :error error1) reply))
+	;; If result is empty, drop keyword entirely.
+	;; This may break json-rpc or the andes3 smd?
 	(when (or result (not version)) (push (cons :result result) reply))
 	(push (cons :id turn) reply)
 	(when version (push version reply))
@@ -350,7 +352,8 @@
 	      (let ((*lisp-identifier-name-to-json* #'string-downcase))
 		(encode-json-alist-to-string 
 		 `((:method . ,method) (:params . ,params))))
-	      `((:result . ,result))))))
+	      ;; Hack for creating an empty array in json
+	      `((:result . ,(or result (make-array '(0)))))))))
      *sessions*)))
 
 
@@ -359,6 +362,7 @@
   `(((:action . "show-hint")
      (:text . ,(format nil "An error occurred:<br>~%~A~%" condition)))))
 
+;; The :text field is supposed to be plain text (rather than html).
 (define-condition log-error (error)
   ((tag :initarg :tag :reader log-tag)
    (text :initarg :text :reader text))
@@ -388,6 +392,11 @@
 	  (push `(:backtrace . ,(subseq x 0 (min (length x) 4000))) 
 		result)))
     (reverse result)))
+
+(defun get-any-log-tag (condition)
+  "Get any tag associated with condition."
+  (when (member (type-of condition) '(log-error log-warn))
+    (log-tag condition)))
 
 (defun execute-session (session-hash turn func params)
   "Execute a function in the context of a given session when its turn comes.  If the session doesn't exist, create it.  If there is nothing to save in *env*, delete session."

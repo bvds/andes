@@ -206,9 +206,6 @@
 	(push (cons id slot) *id-solver-slot-map*)
 	slot)))
 
-(defun solver-slot2id (slot)
-  (car (find slot *id-solver-slot-map* :key #'cdr :test #'equal)))
-
 (defun remove-id (id)
   (let ((slot (cdr (find id *id-solver-slot-map* :key #'car :test #'equal))))
     (when slot
@@ -248,12 +245,13 @@
   ; update Lisp-side state flag, and set in currently loaded solver
   (do-solver-turn "solverDoLog" (format nil "~A" x)))
 
-(defun solver-log-new-name (x)
-  (do-solver-turn "solverStartLog" (format nil "~A" x)))
+;;  Unused
+;;(defun solver-log-new-name (x)
+;;  (do-solver-turn "solverStartLog" (format nil "~A" x)))
 
 ;; never called in Andes
-(defun solver-debug-level (x)  ;use #x... for hexadecimal format
-  (do-solver-turn "solverDebugLevel" (format nil "~A" x)))
+;;(defun solver-debug-level (x)  ;use #x... for hexadecimal format
+;;  (do-solver-turn "solverDebugLevel" (format nil "~A" x)))
 
 (defun solver-solve-problem ()
   (do-solver-turn "solveBubble"))
@@ -330,18 +328,19 @@
 		   (format nil "(~A ~A ~A)" strength varName 
 			   (id2solver-slot equationID))))
 
-(defun solver-eqn-simplify (equationID destinationID)
-  (do-solver-turn "c_simplifyEqn" 
-    (format nil "(~A ~A)" (id2solver-slot equationID) 
-	    (id2solver-slot destinationID))))
+;;  Never called.
+;; (defun solver-eqn-simplify (equationID destinationID)
+;;  (do-solver-turn "c_simplifyEqn" 
+;;    (format nil "(~A ~A)" (id2solver-slot equationID) 
+;;	    (id2solver-slot destinationID))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; utility routine to read as lisp string only when not an error
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun my-read-answer (x)
   "If '(Error: <' is start return string else lisp-read."
-  (cond ((and (>= (length x) 9)
-	      (equal "Error: <" (subseq x 1 9)))
+  (cond ((and (>= (length x) 13)
+	      (string-equal "solverError " (subseq x 1 13)))
 	 (warn "Error reported by SOLVER:  ~A" x) ;trace msg on error returns
 	 x)
 	((= 0 (length x)) nil)

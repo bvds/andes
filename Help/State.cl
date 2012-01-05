@@ -40,47 +40,6 @@
 ;;========================================================
 ;; Storage elements.
 
-;;; The Andes2 Configuration file is a lisp-source file that is
-;;; loaded (and evaluated) at runtime.  This file is intended to
-;;; set parameters and make any modifications that are necessary
-;;; but cannot be hardcoded into the distribution.  
-(defparameter **Config-File-Name** "Config.cl")
-;;; The Session ID is a value that is sent by the Workbench when it 
-;;; loggs in.  This ID consists of a date-time pair in the following
-;;; format: <Month><DAY>-<HR>-<Min>-<Sec>  
-;;; Where: 
-;;;  <Month> is a 3-character string listing the month name (Aug, Sep, etc.)
-;;;  <Day> is a 2-character day format (01 - 31)
-;;;  <Hr> is a 2-character hour representation (0-23)
-;;;  <Min> is a 2-digit integer minute representation (0-59)
-;;;  <Sec> is a 2-digit Second representation (0-59).
-(defvar *Current-Andes-Session-ID* Nil "The current Session ID.")
-
-;;; The current Andes Session Start UTime is an encoded universal time
-;;; that is used to timestamp the Scores for storage and for later
-;;; sorting of the scores.  
-;;;
-;;; For now this value is parsed from The Session ID although that 
-;;; may change at a later date.
-(defparameter *Current-Andes-Session-Start-Utime* Nil "The start time.")
-
-;;; The current andes session start date is a listing of the date 
-;;; that the session was started not the current date at any point 
-;;; in time.  This is maintained becuase we want to tie data to a 
-;;; single session, and the students have shown their willingness 
-;;; to leave a single andes session running for more than 24 hours.  
-;;; This allows us to link sessions by date.  
-;;;
-;;; This value will be set form the session ID for now although it may 
-;;; change later.
-;;(defvar *Current-Andes-Session-Start-Date* Nil "The current Session Date.")
-
-;;; The Current Andes session start time is an htime taken from the 
-;;; Andes session iD representing the time of day that the current 
-;;; Andes session was begun.  This value is not used at present but 
-;;; is calculated as necessary.
-;;(defvar *Current-Andes-Session-Start-Time* Nil "The current Session Start time.")
-
 ;;; Problem Instance Time.
 ;;; Whenever the student starts andes, opens a new problem, or closes a problem
 ;;; then they are beginning a new "problem instance".  This instance represents
@@ -154,13 +113,15 @@
 	(enter-predefs)
 	
 	;; re-initialize the dialog state
-	(reset-next-step-help))
+	(reset-next-step-help)
+
+	(initialize-grading))
       ;; Raising an error, rather than a warning, keeps subsequent
       ;; code in open-problem from being executed and sends a 
       ;; message to the student.
       (error 'webserver:log-error :tag 'problem-load-failed
 	     :text (strcat "Unable to load problem " (string name)
-			   ".&nbsp;  Please try another problem." ))))
+			   ".  Please try another problem." ))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; close-problem -- close the specified problem 
@@ -333,30 +294,6 @@
       (push givenEntry (studentEntry-GivenEqns mainEntry))))
 
 
-;;==============================================================
-;; Experimental condition
-;;
-;; Could be set in config file.
-;; In OLI version, workbench may set this from OLI-sent task
-;; descriptor before opening problem. 
-;;
-(defvar **Condition** NIL)
-(defun set-condition (value) 
-  (when *debug-help* (format t "Setting **condition** to ~A~%" value))
-  (setq **Condition** value))
-(defun get-condition () **Condition**)
-
-
-;;==============================================================
-;; Configuration files
-;; The config file is essentially a lisp-source file that
-;; is loaded (and evaluated in the process) at runtime.
-;; this file may set parameters as necessary for experiements
-;; it may also modify the state of the system depending upon
-;; other info.
-(defun load-config-file ()
-  "Load the configuration file."
-  (load (andes-path **Config-File-Name**)))
 
 ;;;; =====================================================================
 ;;;; Shared utility problems
@@ -436,55 +373,3 @@
   (format Stream "FILTER::~%  Types: ~a~%  Commands: ~a~%  Entries: ~a~%"
 	  (api-filter-Types Filter) (api-filter-Commands Filter) 
 	  (api-filter-Entries Filter)))
-
-
-
-
-;;; -----------------------------------------------------------------------------
-;;; The current filter is set here and maintained by the functions below for
-;;; use by Commands.cl
-
-(defparameter **current-api-filter** (make-api-filter))
-
-
-
-(defun clear-api-filter (&optional (filter **current-api-filter**))
-  "Clear the supplied filter."
-  (setf (api-filter-types Filter) Nil)
-  (setf (api-filter-Commands Filter) Nil)
-  (setf (api-filter-Entries Filter) Nil))
-
-
-
-;;; Return t if the specified type is acceptable to the filter (defualt
-;;; to **current-api-filter**).
-(defun filter-blocked-typep (type &optional (Filter **Current-API-Filter**))
-  "Is the specific type acceptable to the filter?"
-  (let ((F (api-filter-Types Filter)))
-    (or (null F) (member Type F))))
-
-(defun filter-blocked-commandp (Command &optional (Filter **Current-API-Filter**))
-  "Is the specific command acceptable to the filter?"
-  (let ((F (api-filter-Commands Filter)))
-    (or (null F) (member Command F))))
-
-(defun filter-blocked-entryp (Entry &optional (Filter **Current-API-Filter**))
-  "Is the specific command acceptable to the filter?"
-  (let ((F (api-filter-Entries Filter)))
-    (or (null F) (member Entry F))))
-
-
-
-;;; Adding elements to the filter is simply a matter of 
-;;; pushing them onto the relevant locations.
-(defun add-type-to-filter (Type &optional (Filter **current-API-Filter**))
-  (when (not (member Type (api-filter-types Filter)))
-    (push Type (api-filter-types Filter))))
-
-(defun add-Command-to-filter (Command &optional (Filter **current-API-Filter**))
-  (when (not (member Command (api-filter-Commands Filter)))
-    (push Command (api-filter-Commands Filter))))
-
-(defun add-Entry-to-filter (Entry &optional (Filter **current-API-Filter**))
-  (when (not (member Entry (api-filter-Commands Filter)))
-    (push Entry (api-filter-Commands Filter))))

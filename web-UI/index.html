@@ -17,8 +17,7 @@
 		}else{
 			djConfig.modulePaths = {'andes':'../andes'};
 			document.write('<link href="release/dojo/css/andes.css" rel="stylesheet" />');
-			// Using uncompressed version; see Bug #1912.
-			document.write('<scr'+'ipt src="release/dojo/dojo/dojo.js.uncompressed.js"></scr'+'ipt>');
+			document.write('<scr'+'ipt src="release/dojo/dojo/dojo.js"></scr'+'ipt>');
 		}
 	</script>
 	<script type="text/javascript">
@@ -83,14 +82,23 @@
 	<div id="footerPane" dojoType="dijit.layout.ContentPane" region="bottom"></div>
     </div>
     
+    
     <div dojoType="dojox.widget.UpgradeBar" id="upgradeBar">
-        <!-- Show upgrade bar for IE8 and below.  See Bug #1919 -->
+        <!-- IE8 and below use VML which is very slow. -->
 	<div validate="dojo.isIE<9">
 	    <span>Andes does not work well with older versions of Internet Explorer.&nbsp; 
                 Please upgrade to Firefox, Google Chrome, or IE 9.</span>
 	    <a href="http://www.mozilla.com/firefox/">Download Firefox</a>	
 	</div>
     </div>
+
+    <!--Because this is a widget it is included in markup and NOT like the other plugins-->
+    <div id="greekPalette" dojoType="dojox.drawing.plugins.drawing.GreekPalette">
+    </div>
+
+    <!-- Modal dialog box for generic use -->
+    <div id="consentDialog" dojoType="dijit.Dialog">
+    <div>
 
     <!-- Principles menus constructed last -->
     <div id="majorPrinciples" dojoType="dijit.Dialog" title="Major Principles">
@@ -131,6 +139,6 @@
 	    </tr>
 	</table>
     </div>
-
+    
 </body>
 </html>

@@ -47,26 +47,6 @@
 (defparameter **play-Minilessons** t
   "If t minilesson ophints will be played when present.")
 
-;;; Both KCDS and minilessons can appear within hint sequences
-;;; The parameters below determine the number of times that a
-;;; specific kcd or minilesson can be repeated to the student as
-;;; part of a hint sequence.  The workbench allows the students to 
-;;; access them in other ways after they stop appearing in the 
-;;; hints themselves.  
-(defparameter **max-minilesson-repeats** 2 
-  "The number of times that a minilesson may be repeated to the student.")
-(defparameter **max-kcd-repeats** 1
-  "The number of times that a kcd can be viewed by a student as part of a hint seq.")
-
-;;; For research purposes it is necessary to set condition flags for the kcds.
-;;; Specifically in order to test whether or not the KCDS show any improvement
-;;; over minilessons.  Therefore we need to establish two conditions one for
-;;; the kcd students and one for minilesson students.  If this flag is set to
-;;; t then any hint-seq calls to kcds will cause the corresponding (same name)
-;;; minilesson to be opened instead.
-(defparameter **Play-KCDS-as-Minilessons** nil 
-  "If t then any calls to a kcd will be treated as calls to kcd will be treated as minilessons.")
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Turn Structs.
 ;; The tutor turn struct itself is intended to encapsulate all the responses to 
@@ -81,8 +61,8 @@
 ;; The fields are:
 ;;  coloring:  One of red, green, delete, nil (noop) (not sure about these) 
 ;;             Informs the workbench what to do with the associated entry.
-;;  type:      One of dialog, minilesson, eqn-entry (solve-tool), 
-;;             end-dialog, score-turn or nil (none).
+;;  type:      One of minilesson, eqn-entry (solve-tool), 
+;;             or nil (dialog or just red-green).
 ;;  text:      If type is a dialog then this string will be displayed
 ;;             If type is an eq entry this is the eq to be added.
 ;;             If d type is minilesson this is the url to be displayed.
@@ -93,11 +73,6 @@
 ;;  responder: A single-arg function called with the result of this item.
 ;;  Assoc:     A spare pointer for linking to goals or entries or any
 ;;             information that we might need. 
-;;  Commands:  One or more strings that are to be sent to the workbench as 
-;;             Asynchronous commands before the turn result itself is sent.
-;;             In the future it might be possible to accomplish this by altering
-;;             The workbench API to pack more commands in but this is probably 
-;;             the most flexible way to go about it.  
 
 
 (defstruct (Turn (:print-function print-Turn))
@@ -116,13 +91,8 @@
 (defconstant +color-green+ 'Color-Green)
 (defconstant +no-op-turn+ 'No-Op-Turn)
 
-(defconstant +dialog-turn+ 'Dialog-Turn)
 (defconstant +minil-turn+ 'Minil-Turn)
-(defconstant +tcard-turn+ 'TCard-Turn)
-(defconstant +kcd-turn+ 'KCD-Turn)
 (defconstant +eqn-turn+ 'Eqn-turn)
-(defconstant +end-dialog+ 'End-Dialog)
-(defconstant +stat-turn+ 'stat-turn)
 
 ;; Hook for variable later defined by help system.
 (defvar *help-button*)
@@ -177,7 +147,6 @@
   "Produce a green coloring dialog type tutor turn."
   (unless id (warn "no id in make-green-dialog-turn"))
   (make-turn :coloring +color-green+
-	     :type +dialog-turn+
 	     :id id
 	     :text text 
 	     :menu menu 
@@ -186,16 +155,14 @@
 		  
 (defun make-dialog-turn (text menu &key Responder Assoc)
   "Produce a dialog type tutor turn."
-  (make-turn :type +dialog-turn+
-	     :text text
+  (make-turn :text text
 	     :menu Menu
 	     :responder Responder
 	     :Assoc (alist-warn Assoc)))
 
 (defun make-explain-more-turn (text &key hint Assoc)
   "Produce a dialog type tutor turn with explain-more."
-  (make-turn :type +dialog-turn+
-	     :text text
+  (make-turn :text text
 	     :menu +explain-more+
 	     :responder 
 	     #'(lambda (R)
@@ -237,8 +204,7 @@
 
 (defun make-end-dialog-turn (text &key Assoc)
   "Make a turn that ends the dialog."
-  (make-turn :type +dialog-turn+
-	     :text text
+  (make-turn :text text
 	     :Assoc (alist-warn Assoc)))
 	     
 			    
@@ -262,21 +228,6 @@
 	     :text Eqn
 	     :Responder #'(lambda (x) (declare (ignore x)) nil)))
 
-(defun make-eqn-failure-turn (Msg &key id)
-  "Generate an eqn entry turn."
-  (unless id (warn "no id in make-eqn-failure-turn"))
-  (make-turn :type +eqn-turn+
-             :coloring +color-red+
-	     :id id
-	     :text Msg
-	     :Responder #'(lambda (x) (declare (ignore x)) nil)))
-	     
-;; red/green convenience funcs take optional unsolicited message string:
-(defun make-red-turn (&key id)
-  (unless id (warn "no id in make-red-turn"))
-  (make-turn :coloring +color-red+
-	     :id id))
-
 (defun make-green-turn (&key id)
   (unless id (warn "no id in make-green-turn"))
   (make-turn :coloring +color-green+
@@ -289,37 +240,6 @@
 
 (defun make-noop-turn ()
   (make-turn :Type +no-op-turn+))
-
-
-;;; ----------------------------------------------------------------------
-;;; Make-stat-turn
-;;; Score turns are used to return the student's stats.  They have no 
-;;; coloring or other values associated and will merely be translated 
-;;; into a string of the score values.  
-;;;
-;;; Stat-turns, at present only make use of the type and value fields of
-;;; the tutor-turn.  In the future I will add the possibility of dialog-stat
-;;; turns or other combined forms that will be used to conduct dialogs
-;;; with the students
-
-(defun make-stat-turn (Stats)
-  "Make a statistics turn."
-  (make-turn :Type +stat-turn+ :Value Stats))
-
-
-;;; This is a specialized error turn that gives the student a 
-;;; "this problem is bad, move on..." message and is associated
-;;; with the optional error.  This facilitates oops locations in
-;;; the code.
-(defun make-bad-problem-turn (assoc)
-  "Make a bad-problem error turn."
-  (warn "make-bad-problem-turn: ~A" assoc)
-  (make-turn 
-   :Coloring +color-red+
-   :type +dialog-turn+
-   :text "This is an incorrectly formed problem.  Please try a different problem."
-   :Assoc (alist-warn assoc)))
-
 
 
 ;;=============================================================
@@ -407,7 +327,7 @@
 ;; where type is one of {Point, Teach, Apply} and <Class> is
 ;; one of {String, KCD, MiniLesson, etc.}  
 
-
+;; Returns nil or a turn struct.
 (defun make-hint-seq (Hints &key (Prefix nil) (Assoc nil) (OpTail nil))
   "make the appropriate hint sequence."
   (when Hints
@@ -437,7 +357,7 @@
 
 ;;; When there are no more hints in the list then the system
 ;;; will generate an end-dialog style hint of the appropriate
-;;; type and return it.
+;;; type and return it.  Returns nil or turn struct.
 (defun make-end-hseq (Hint &optional (Prefix "") (Assoc Nil) (OpTail Nil))
   ;;(if (listp hint) (pprint (car Hint)))
   (cond ((stringp Hint)	             (make-string-end-hseq Hint Prefix Assoc))

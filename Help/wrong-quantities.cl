@@ -64,8 +64,6 @@
 		    tool-prop ontology-type (length x)))
 	  x)))
 
-(defvar *wrong-quantity-result*)
-
 (defun generate-wrong-quantities (tool-prop ontology-type)
   ;; This function has lots of code copied from all-quantities.cl
   (declare (notinline get-ontology-bindings))

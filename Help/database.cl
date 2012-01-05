@@ -26,7 +26,7 @@
 	   :read-login-file
 	   :get-matching-sessions :get-score
 	   :old-sessions :set-old-session-start 
-	   :get-start-tID :get-most-recent-tID
+	   :get-most-recent-tID
 	   :get-state-property :get-state-properties
 	   :set-state-property))
 (in-package :andes-database)
@@ -89,6 +89,7 @@
 (defun write-transaction (client-id input reply)
   "Record raw transaction in database."
   
+  (test-safe-string client-id)
   (with-db
       ;; Test that PROBLEM_ATTEMPT entry already exits or create an empty one
       ;; Generally, this will only happen if open-problem has not been called
@@ -122,6 +123,20 @@
 	  (query *connection*
 		 (format nil update tID)))))))
 
+;; Alist of sql control characters and replacement strings
+(#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
+        +sql-control-characters+ '((#\' . "''") (#\\ . "\\\\"))
+        #+sbcl #'equalp)
+
+;; Test for any sql control characters.
+;; This test can be used to detect an sql injection attack.
+(defun test-safe-string (&rest strs)
+  (dolist (s strs)
+    (when s
+      (unless (loop for c across s
+		 never (assoc c +sql-control-characters+ :test #'char=))
+	(error "Invalid character in ~S" s)))))
+
 ;; Escaping ' via '' follows ANSI SQL standard.
 ;; If the Database escapes backslashes, must also do those.
 ;; (In mysql, NO_BACKSLASH_ESCAPES is not set)
@@ -129,7 +144,7 @@
 (defun make-safe-string (s)
   "Escape strings for database export."
   (and s (substitute-chars-strings 
-	  s '((#\' . "''") (#\\ . "\\\\")))))
+	  s +sql-control-characters+)))
 
 ;; Taken from clsql file sql/utils.lisp (under LLGPL).
 (defun substitute-chars-strings (str repl-alist)
@@ -178,29 +193,42 @@ list of characters and replacement strings."
 
 (defun set-session (client-id &key student problem section extra)
   "Updates transaction with session information."
-
+  
   (unless client-id (error "set-session called with no client-id"))
-    
+  
+  (test-safe-string client-id student problem section extra)
+  
   (unless (> (length extra) 0) ;treat empty string as null
     (setf extra nil))   ;drop from query if missing.
   
   (with-db    
-      ;; Test that section entry already exits or create an empty one.
-      (unless 
-	  (query *connection*
-		 (format nil
-			 "SELECT classSection FROM CLASS_INFORMATION WHERE classSection = '~A'" 
-			 section)
-		 )
+    ;; Test that section entry already exits or create an empty one.
+    (unless 
 	(query *connection*
 	       (format nil
-		       "INSERT into CLASS_INFORMATION (classSection,description) values ('~A','unknown section')"
-		       section)))
+		       "SELECT classSection FROM CLASS_INFORMATION WHERE classSection = '~A'" 
+		       section)
+	       )
+      (query *connection*
+	     (format nil
+		     "INSERT into CLASS_INFORMATION (classSection,description) values ('~A','unknown section')"
+		     section)))
     ;; session is labeled by client-id 
     ;; This sets up entry in PROBLEM attempt for a given session.
-      (query *connection*
-       (format nil "INSERT into PROBLEM_ATTEMPT (clientID,userName,userproblem,userSection~:[~;,extra~]) values ('~a','~a','~A','~A'~@[,'~A'~])" 
-	       extra client-id student problem section extra))))
+    (handler-case
+	(query *connection*
+	       (format nil "INSERT into PROBLEM_ATTEMPT (clientID,userName,userproblem,userSection~:[~;,extra~]) values ('~a','~a','~A','~A'~@[,'~A'~])" 
+		       extra client-id student problem section extra))
+      ;; Dec. 1, 2011; have seen error:
+      ;; MySQL(1062): Duplicate entry 'crell.1_asukt2a1317076052242' for ...
+      (error (c) (error 'webserver:log-error
+			:tag (list 'set-session-failed
+				   (format nil "~A" c) 
+				   client-id student 
+				   problem section extra)
+			;; What the student sees.
+			:text "Failed to open session.  Please exit this problem and try again."
+			)))))
 
 (defun truncate-string (x)
   "Truncate arg for warning messages."
@@ -209,11 +237,13 @@ list of characters and replacement strings."
 (defmacro errors-to-warnings (object &rest forms)
   "Intercept any errors, turning them into warnings, then return."
   ;; If there are json errors, we want to log them and then soldier on.
- `(handler-case (progn ,@forms)
-    (error (c) (warn (format nil "~A for ~A" (type-of c) 
-			     ;; The objects are generally strings and the 
-			     ;; most common errors occur for very long strings.
-			     (truncate-string ,object))))))
+  `(handler-case (progn ,@forms)
+     (error (c) (warn 'webserver:log-warn
+		      :tag (list 'database-error (type-of c)
+			      ;; The objects are generally strings and the 
+			      ;; most errors occur for very long strings.
+				 (truncate-string ,object))
+		      :text (format nil "~A" c)))))
 
 ;; (andes-database:get-matching-sessions '("solution-step" "seek-help") :student "bvds" :problem "s2e" :section "1234")
 ;;
@@ -222,13 +252,19 @@ list of characters and replacement strings."
   
   (unless (> (length extra) 0) ;treat empty string as null.
     (setf extra nil)) ;drop from query if missing.
+
+  (test-safe-string student problem section extra)
   
   (with-db
-    (let ((result (query *connection*
-			 (format nil "SELECT server,client,STEP_TRANSACTION.clientID FROM PROBLEM_ATTEMPT,STEP_TRANSACTION WHERE userName='~A' AND userProblem='~A' AND userSection='~A'~@[ AND extra=~A~] AND PROBLEM_ATTEMPT.clientID=STEP_TRANSACTION.clientID" 
-				 student problem section extra) 
-		   ;:flatp t
-			 ))
+    (let ((result 
+	   (query *connection*
+		  (if (and (> (length extra) 1)
+			   (equal (subseq extra 0 2) "Q_"))
+		      (format nil "SELECT server,client,STEP_TRANSACTION.clientID FROM PROBLEM_ATTEMPT,STEP_TRANSACTION WHERE userProblem='~A' AND userSection='~A' AND extra='~A' AND PROBLEM_ATTEMPT.clientID=STEP_TRANSACTION.clientID"
+			      problem section extra)
+		      (format nil "SELECT server,client,STEP_TRANSACTION.clientID FROM PROBLEM_ATTEMPT,STEP_TRANSACTION WHERE userName='~A' AND userProblem='~A' AND userSection='~A'~@[ AND extra='~A'~] AND PROBLEM_ATTEMPT.clientID=STEP_TRANSACTION.clientID" 
+			      student problem section extra) )
+		  ))
 	  ;; By default, cl-json turns camelcase into dashes:  
 	  ;; Instead, we are case insensitive, preserving dashes.
 	  (*json-identifier-name-to-lisp* #'string-upcase))
@@ -263,7 +299,7 @@ list of characters and replacement strings."
 		   (cons (and y 
 			      (errors-to-warnings 
 			       y
-			     (decode-json-from-string y)))
+			       (decode-json-from-string y)))
 			 (third x))))
 	     result))
       
@@ -293,6 +329,8 @@ list of characters and replacement strings."
   
   (unless (> (length extra) 0) ;treat empty string as null.
     (setf extra nil)) ;drop from query if missing.
+
+  (test-safe-string student problem section extra)
   
   ;; Assume every session has a grade reported somewhere in it.
   ;; Thus, we only need to search the most recent session.
@@ -301,7 +339,7 @@ list of characters and replacement strings."
   ;; is updated as old sessions are rerun.
   
   (with-db
-    (let* ((query (format nil "SELECT clientID FROM PROBLEM_ATTEMPT WHERE userName='~A' AND userProblem='~A' AND userSection='~A'~@[ AND extra=~A~] ORDER BY startTime DESC LIMIT 1"				
+    (let* ((query (format nil "SELECT clientID FROM PROBLEM_ATTEMPT WHERE userName='~A' AND userProblem='~A' AND userSection='~A'~@[ AND extra='~A'~] ORDER BY startTime DESC LIMIT 1"				
 			  student problem section extra))
 	   (client-id (car (car (query *connection* query))))
 	   (results (when client-id
@@ -386,7 +424,7 @@ list of characters and replacement strings."
   "Get largest tID from STEP_TRANSACTION; if table is empty, create dummy step."
   (loop for i from 0 to 1
 	thereis  (car (single-query "SELECT MAX(tID) FROM STEP_TRANSACTION"))
-	do (format t "writing it~%") (write-transaction "_dummy_session" nil nil)))
+	do (write-transaction "_dummy_session" nil nil)))
 
 (defun get-state-properties (&key (student session:*user*) 
 			     (section session:*section*) (model "default")

@@ -50,12 +50,6 @@
 ;; the code in this section deals with those lists and the
 ;; modification of them.
 
-(defun csstruct-p (wm)
-  "Is the node a structural element."
-  (or (cssplit-p wm)
-      (csnext-p wm)
-      (csjoin-p wm)
-      (cschoose-p wm)))
 
 (defun cssplit-p (wm) 
   (equalp wm 'split))
@@ -69,13 +63,6 @@
 (defun cschoose-p (wm)
   (and (listp wm)
        (equalp (car wm) 'choose)))
-
-(defun csstep-p (wm)
-  "Is the em element a cognitive step."
-  (or (cswm-p wm)
-      (cssg-p wm)
-      (csop-p wm)
-      (csdo-p wm)))
 
 (defun cswm-p (wm) 
   (and (listp wm)
@@ -111,7 +98,7 @@
 ;; SystemEntry and csdo are interdependent structures
 
 (defun csdo-enteredp (do)
-  "Return t iff the entry attatched to the do has been entered."
+  "Return t iff the entry attached to the do has been entered."
   (let ((Entries (remove-if #'systementry-implicit-eqnp 
 			    (csdo-entries do))))
     (and Entries 
@@ -145,54 +132,29 @@
 	(loop for G in (cdr choose)
 	    collect (psmg->help-psmg G))))
 
-
-
-;;----------------------------------------------------------------
-;; pmgraph-path-enteredp 
-;; In order to determine if a specific enode has been entered we 
-;; conduct a depth-first traversal of the graph returning t when
-;; we encounter a path that has been completely entered or nil
-;; otherwize.  
 ;;
-;; becuase of the split/next/join nodes we cannot
-;; guarantee that the last element in the stack contains all of the
-;; elements as prerequisites but we can use it as a heuristic.
-;; Requires systementries to be loaded.
+;;  Find prop in graph
+;;
 
-(defun psmg-path-enteredp (psmg)
-  "Return t iff the psmg is entered."
-  (cond ((null psmg) t)
-	
-	((not (listp (car psmg)))
-	 (psmg-path-enteredp (cdr psmg)))
-	
-	((csdo-p (car psmg))
-	 (psmg-csdo-enteredp psmg))
-	
-	((and (listp (car psmg))
-	      (eq (caar psmg) 'CHOOSE))
-	 (psmg-choose-path-enteredp (cdar psmg)))
-	
-	(t (psmg-path-enteredp (cdr psmg)))))
-
-
-;;; If the search encounters a csdo it continues
-;;; iff the csdo has no entry or the csdo has 
-;;; been entered.
-(defun psmg-csdo-enteredp (psmg)
-  "If the car of psmg is a csdo."
-  (cond ((not (csdo-entries (car psmg)))
-	 (psmg-path-enteredp (cdr psmg)))
-	((csdo-enteredp (car psmg))
-	 (psmg-path-enteredp (cdr psmg)))))
-
-
-(defun psmg-choose-path-enteredp (Choices)
-  "Return t iff one of the chooses is entered."
-  (loop for C in Choices
-      when (psmg-path-enteredp C)
-      return t))
-
+(defun find-prop-in-path (prop path &optional stack)
+  "Go through path and find any instances of effect prop, returning prerequisite steps for the associated op."
+  (dolist (step path)
+    (cond 
+      ;; ignore wm, op, sg
+      ((or (cswm-p step) (csop-p step) (cssg-p step)) nil)
+      ((csdo-p step)
+       (when (csdo-entries step) (push step stack))
+       (dolist (effect (csdo-effects step))
+	 (when (unify effect prop)
+	     (return-from find-prop-in-path stack))))
+	;; 'SPLIT' (beginning of unordered)  (not implemented)
+	;; Choose alternate paths.	 
+	((cschoose-p step)
+	 (dolist (x (cdr step))
+	   (let ((y (find-prop-in-path prop x stack)))
+	   (when y (return-from find-prop-in-path Y)))))
+	(T (warn "invalid graph form ~A" step)))))
+			   
 
 ;;;----------------------------------------------------------------
 ;;; PSM Graph Collections.
@@ -235,9 +197,6 @@
     (if (null tmp) (psmgraph-mapcar func (cdr Graph) Result)
 	(psmgraph-mapcar func (cdr Graph) (cons tmp Result)))))
 
-	  
-	  
-	
 
 ;;; psm-opapps
 ;;; Given a psm graph collect all of the operator apps 
@@ -249,15 +208,6 @@
    graph))
 
 
-;;; psm-optags
-;;; Collect the operator tags that are used in the 
-;;; psmgraph supplied and return them for later use.
-(defun collect-psmgraph-optags (graph)
-  "Collect the op tags from the psm graph."
-  (psmgraph-mapcar
-   #'(lambda (d) (if (csdo-p d) (csdo-op d)))
-   graph))
-
 ;;; Psm-effects
 ;;; Collect the effects from the psmgraph and return them.
 (defun collect-psmgraph-csdo-effects (graph)
@@ -265,16 +215,3 @@
   (remove-duplicates 
    (mappend #'csdo-effects (collect-psmgraph-csdos graph))
    :test #'equalp))
-
-;;; "Effect-Opinst pair" -- two-element list whose first element is 
-;;; a list of effect proposition and whose second entry is the instance
-;;; form for the op that has those effects. Utility for reporting.
-;;; NB: effects are lists and might not all be entry propositions. So 
-;;; still must filter to find entry props
-(defun collect-psmgraph-effect-op-pairs (graph)
-  (psmgraph-mapcar 
-      #'(lambda (d) (when (csdo-p d) 
-                       (list (csdo-effects d) (csdo-op d))))
-      graph))
-
-

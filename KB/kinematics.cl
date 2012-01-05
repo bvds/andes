@@ -211,6 +211,23 @@
 		       ((duration ?interval) def-np)))
    ))
 
+(post-process add-duration (problem)
+  "Add predef for duration"
+  ;; test whether other planets are involved in problem
+  (when ;; test whether any duration has been done as predef already
+	     (not (member '(define-var 
+			    (duration . ?rest))
+			  (problem-predefs problem) :key #'car :test #'unify))
+    (dolist (prop (mapcar #'qvar-exp (problem-varindex problem)))
+      (let ((vars (unify prop '(duration (during ?t ?tt)))))
+	(when vars
+	  (push `((define-var ,prop) . 
+		  ((:type . "statement")
+		   (:symbol . ,(format nil "t~A~A" 
+				       (- (cdr (assoc '?t vars)) 1)
+				       (- (cdr (assoc '?tt vars)) 1)))))
+		(problem-predefs problem)))))))
+
 ;;; This operator defines a speed variable.  Its only restriction is
 ;;; that there be an object and and an interval for it.  It expects to
 ;;; get these given to it by unification of a goal with its effects.
@@ -297,7 +314,7 @@
   :description "
    If the goal is to write the sdd equations,
    then the subgoals are to define variables for speed, distance and duration,
-   then write speed = distance / duration. "
+   then write speed = distance / duration."
   :preconditions
   ((inherit-variable ?s-var (speed ?b :time ?t))
    (variable ?d-var (distance ?b :time ?t))
@@ -2361,7 +2378,7 @@
   ((point (string "What happens to the ~A-component of the velocity of ~A ~A?"
 		  ((axis ?xyz ?rot) symbols-label :namespace :objects) 
 		  ?b ((during ?t1 ?t2) pp)))
-   (teach (string "Because the acceleration of ~A ~A is perpendicular to the ~A axis, is has no component in the ~A direction.  Therefore, the ~A component of velocity remains constant. You can use this to relate ~A to ~A. " 
+   (teach (string "Because the acceleration of ~A ~A is perpendicular to the ~A axis, is has no component in the ~A direction.  Therefore, the ~A component of velocity remains constant. You can use this to relate ~A to ~A." 
 		  ?b ((during ?t1 ?t2) pp)  
 		  ((axis ?xyz ?rot) symbols-label :namespace :objects) 
 		  ((axis ?xyz ?rot) symbols-label :namespace :objects) 

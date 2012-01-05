@@ -95,5 +95,8 @@
         **entry-tests**)))
 
 
-(defun get-error-class-by-name (name)
- (find name **entry-tests** :key #'EntryTest-name))
+(defun print-error-names ()
+  "Print list of names of all errors, for debugging."
+  (sort (loop for test in **entry-tests**
+	when (eql (eval (EntryTest-state test)) +incorrect+)
+	collect (EntryTest-name test)) #'string<))

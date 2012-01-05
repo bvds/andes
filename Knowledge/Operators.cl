@@ -358,7 +358,7 @@
   "Obtain a list of operators that have an effect of the specified predicate type or nil if none exist."
   (gethash Predicate *Operators-By-Effect*))
 
-;; Following utility mainly for kb maintenance. takes either atom or form 
+;; Following utility mainly for kb debugging. takes either atom or form 
 (defun list-ops (Predicate-or-Form)
   "return list of operators with effects using specified predicate or unifying with form"
   ; turn atomic argument into unify pattern
@@ -452,7 +452,7 @@
 ;; in if supplied.
 (defun get-op-hints (Op Values)
   "Get the operator hints with vals substituted."
-  (when Op
+  (when (and Op (operator-hint op))
     (let ((result (subst-bindings values (Operator-Hint Op))))
       (unless (all-boundp result no-bindings)
 	(warn "Hint with unbound variables:  ~A" result))
@@ -571,99 +571,3 @@
 			      (warn "eval-hint-spec bad arg ~A.  ~A" arg c)
 			      (return-from eval-spec-arg arg)))) 
       (eval arg))))
-
-
-;;;----------------------------------------------------------------------------
-;;; Collecting hint specs
-;;; Given an operator it may be necessary to extract specific elements such
-;;; as the kcd or minilesson names that might be hinted within it.  This code
-;;; does that returning the kcd name or minilesson names (all we care about 
-;;; for hints of those types) to the user.
-
-(defun collect-operator-kcds (op)
-  "Collect the kcd's hinted in op."
-  (remove-if 
-   #'null
-   (mapcan #'(lambda (h) 
-	       (mapcar #'hintspec-form
-		       (collect-ophint-types 'KCD h)))
-	   (operator-hint op))))
-   
-(defun collect-operator-Minilessons (op)
-  "Collect the kcd's hinted in op."
-  (remove-if 
-   #'null
-   (mapcan #'(lambda (h) 
-	       (mapcar #'hintspec-form 
-		(collect-ophint-types 'Minilesson h)))
-	   (operator-hint op))))
-
-
-(defun collect-ophint-types (type hint)
-  "Collect the kcds from an ophint."
-  (remove-if
-   #'null (mapcar #'(lambda (s)
-		      (if (eq (hintspec-type s) type) s))
-		  (Ophint-hintspecs hint))))
-
-
-;;;===========================================================
-;;; Mapping from operator tags to non-op-elements.
-
-;;; Given a list of operator tags collect the matching
-;;; operators.
-(defun map-optags->operators (tags)
-  "Collect the operators for the tags."
-  (remove-duplicates
-   (remove-if 
-    #'null (mapcar #'get-operator-by-tag tags))))
-
-;;; Given a list of operators map them to the list of 
-;;; kcds that appear within their hint specifications.
-(defun map-operators->kcds (operators)
-  (remove-duplicates
-   (mapcan #'collect-operator-kcds
-	   operators)))
-
-;;; Given a list of operators map them to the list of 
-;;; minilessons that appear within their hint specifications.
-(defun map-operators->minilessons (operators)
-  (remove-duplicates
-   (mapcan #'collect-operator-kcds
-	   operators)))
-
-
-(defun map-optags->kcds (tags)
-  "Map the operator tags to the kcds."
-  (map-operators->kcds 
-   (map-optags->operators tags)))
-
-
-(defun map-optags->minilessons (tags)
-  "Map the operator tags to the kcds."
-  (map-operators->minilessons
-   (map-optags->operators tags)))
-
-  
-
-
-
-;;===========================================================
-;; trace-operators 
-;; trace the relevant operator functions.
-
-(defun trace-operators ()
-  "Trace the operator functions."
-  
-  (trace defoperator)
-  (trace get-operator-by-name)
-  (trace get-operators-by-effect)
-  (trace operator-var-copy)
-  )		 
-
-
-(defun trace-depops ()
-  (trace operator-struct)
-  (trace is-operator)
-  (trace operator-s-expression))
-

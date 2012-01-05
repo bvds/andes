@@ -52,83 +52,6 @@
 ;;-----------------------------------------------------------------------------
 
 ;;
-;; Times
-;;
-
-(defun arg-to-time (time-arg)
-  "convert workbench time argument symbol into a KB time expression"
-  (cond 
-	; may be NIL on probs w/o distinguished times
-        ((null time-arg) NIL) ;(get-default-time))
-	; Andes1 WB allowed defined student variable for duration as interval name.
-	; no longer used in Andes2
-	; ((get-student-time time-arg))
-	; may be time interval symbol of form |T0 to T1|
-	((wb-interval-namep time-arg) (get-wb-interval time-arg))
-	; or may be time point name of form T1
-        ((wb-time-pt-namep time-arg) (get-wb-time-pt time-arg)) 
-	(T (warn "unrecognized time argument:~A" time-arg)
-	   `(unrecognized ,time-arg)) ;need error handler
-	))
-
-(defun get-default-time () 
-  "return the default KB time for the problem"
-   1) ; assuming it will always be time point 1 
-
-(defun get-student-time (label)
-  "return time term for student-defined duration, NIL if not a duration"
-  (let* ((label-str (if (symbolp label) (symbol-name label) label))
-         (quant (symbols-referent label-str)))
-    (if (and (consp quant) 
-             (eq (first quant) 'duration))
-        (second quant))))
-
-;; The Andes1 helpsys relied on a problem-specific file giving a map of the 
-;; predefined WB time point symbols for the problem to the KB time point 
-;; numbers together with their verbal descriptions used to refer to them. 
-;; With this method, any symbols at all could in theory have been used for the 
-;; predefined time points.  
-;;
-;; However the WB time point symbols are *always* of form Ti where i = WB 
-;; time point index.  Moreover, in *almost* all problems, the WB time point 
-;; indices start at 0.  Andes2 KB time point numbers always start at 1 so we 
-;; can easily convert by adding 1.
-;;
-;; However, for no particular reason, the WB time point names in problems 
-;; Exlmom* and Exvec[2-5]a happen to start with T1 instead of T0. 
-;; We will probably change these workbench problem files so workbench times 
-;; adhere to the 0-based convention uniformly in the future. However, if 
-;; backwards compatibility is required, say to test the Andes2 help system on 
-;; entries in Andes1 logs, then we would need to insert a little filter here 
-;; to adjust the time point mapping based on the problem name.
- 
-(defun wb-time-pt-namep (sym)
-   "true if this has form of a predefined workbench time point symbol"
-   (let ((str (symbol-name sym)))
-    (and (equal (subseq str 0 1) "T")
-	 (not (wb-interval-namep sym))
-         (numberp (read-from-string (subseq str 1))))))
-
-(defun get-wb-time-pt (sym)
-   "convert WB time point label to KB time point number"
-   ; assume it's 1+ the number read after initial T
-   (1+ (read-from-string (subseq (symbol-name sym) 1))))
-
-;; Workbench time interval name is symbol of form |T0 to T1| 
-;; where the endpoint expressions are WB time point names.
-(defun wb-interval-namep (sym)
-  "true if this is a workbench time interval name"
-  (search " to " (symbol-name sym) :test #'equalp))
-
-(defun get-wb-interval (sym)
-  "convert WB time interval name to KB time interval expression"
-  (let* ((str (string-trim '(#\Space) (symbol-name sym)))
-	 (pt1 (read-from-string (subseq str 0 (position #\Space str))))
-	 (pt2 (read-from-string (subseq str (1+ (position #\Space str :from-end t))))))
-
-     (list 'during (get-wb-time-pt pt1) (get-wb-time-pt pt2))))
-
-;;
 ;; Vector directions
 ;;
 (defun arg-to-dir (dir-arg &key mag-arg cosphi (modulus 360))
@@ -154,11 +77,6 @@
 (defun sym-match (sym1 sym2)
    "case independent comparison of symbol names"
    (string-equal (string sym1) (string sym2)))
-
-
-(defun ndiffs (set1 set2)
-  (length (set-difference set1 set2)))
-
 
 (defun strcat-nonzero (&rest x)
   "If every argument is nonzero length, apply strcat, else return \"\"."
@@ -272,8 +190,8 @@
 	      (mapcar 
 	       #'(lambda (x) (cons (match:best-value x) 
 				   (expand-vars (new-english-find
-						 (second 
-						 (match:best-prop x))))))
+						 (reduce-prop 
+						  (match:best-prop x))))))
 	       best)
 	      (mapcar #'systementry-prop sysentries)))
     
@@ -482,28 +400,18 @@
 		   "I interpreted your definition ~@[of <var>~A</var> ~]as:&nbsp; ~A."
 		   (when (> (length (StudentEntry-symbol entry)) 0)
 		     (StudentEntry-symbol entry))
-		   (def-np (second full-prop)))))
+		   (def-np (reduce-prop full-prop)))))
       `((:action . "show-hint") (:text . ,phr)))))
 
 (defun nothing-to-match-ErrorInterp (entry tool-prop)
-  (let ((rem (make-hint-seq 
-	      (list 
-		   (strcat "You don't need to use "
-			   (get-prop-icon tool-prop)
-			   " to solve this problem.&nbsp; Please " 
-			   *delete-object* 
-			   " &amp; use another tool."))
-	      :assoc `((inappropriate-tool . ,tool-prop)))))
-    (setf (turn-id rem) (StudentEntry-id entry))
-    (setf (turn-coloring rem) +color-red+)
-    ;; set state of entry and attach error. But only do if not done already, 
-    ;; so only report on the first error found.
-    (unless (studentEntry-ErrInterp entry)
-      (setf (studentEntry-state entry) +INCORRECT+)
-      (setf (studentEntry-ErrInterp entry)
-	    (make-ErrorInterp :diagnosis '(nothing-to-match-definition)
-			      :remediation rem))))
-  (make-red-turn :id (StudentEntry-id Entry)))
+  (make-tutor-response 
+   entry
+   (list (strcat "You don't need to use " (get-prop-icon tool-prop)
+	    " to solve this problem.&nbsp; Please " *delete-object* 
+	    " &amp; use another tool."))
+   :assoc `((inappropriate-tool . ,tool-prop))
+   :state +incorrect+
+   :diagnosis '(nothing-to-match-definition)))
 
 (defun quantity-html-link (qexp)
   "Create a link to the list of quantities for a given ExpType or just returns a string."
@@ -537,32 +445,25 @@
 	 (ambiguous (format nil "Your definition ~:[~1*~;of <var>~A</var> ~]is ambiguous.&nbsp;  It looks like you were trying to define ~A." 
 			    (> (length (StudentEntry-symbol entry)) 0)
 			    (StudentEntry-symbol entry)
-			    quantities-help))
-	 (rem (make-hint-seq
-	       (if (< (length full-props) 4)
-		   (list 
-		    ambiguous		    
-		    (format nil "Did you mean?~%<ul>~%~{  <li>~A</li>~%~}</ul>"
-			    (mapcar #'(lambda (x) 
-					(def-np (second x)))
-				    full-props)))
-		   (list
-		    (strcat ambiguous 
-			    "&nbsp; I can help you choose what to do next:") 
-			   ;; Should use props to inform starting point
-			   ;; for NSH.
-		    '(function next-step-help)))
-	       :assoc `((too-many-matches . ,full-props)))))
-    (setf (turn-id rem) (StudentEntry-id entry))
-    (setf (turn-coloring rem) +color-red+)
-    ;; set state of entry and attach error. But only do if not done already, 
-    ;; so only report on the first error found.
-    (unless (studentEntry-ErrInterp entry)
-      (setf (studentEntry-state entry) +incorrect+)
-      (setf (studentEntry-ErrInterp entry)
-	    (make-ErrorInterp :diagnosis '(definition-has-too-many-matches)
-			      :remediation rem))))
-  (make-red-turn :id (StudentEntry-id Entry)))
+			    quantities-help)))
+    (make-tutor-response
+     entry
+     (if (< (length full-props) 4)
+	 (list 
+	  ambiguous		    
+	  (format nil "Did you mean?~%<ul>~%~{  <li>~A</li>~%~}</ul>"
+		  (mapcar #'(lambda (x) 
+			      (def-np (reduce-prop x)))
+			  full-props)))
+	 (list
+	  (strcat ambiguous 
+		  "&nbsp; I can help you choose what to do next:") 
+	  ;; Should use props to inform starting point
+	  ;; for NSH.
+	  '(function next-step-help)))
+     :assoc `((too-many-matches . ,full-props))
+     :state +incorrect+
+     :diagnosis '(definition-has-too-many-matches))))
 
 
 (defun wrong-tool-ErrorInterp (entry tool-prop full-props)
@@ -579,54 +480,45 @@
   ;;       Perhaps you should delete this entry & use another tool."
   (let* ((tool-propositions (remove-duplicates (mapcar #'car full-props)))
 	 ;; there may be several matches that have the same quantity.
-	 (distinct-quantities (collect-distinct-quantities full-props))
-	 (rem 
-	  (make-hint-seq
-	   (cond ((and (= (length distinct-quantities) 1)
-		       (= (length tool-propositions) 1))
-		  (list
-		   (strcat "Note that " 
-			   (quantity-html-link (car distinct-quantities)) 
-			   " is " 
-			   (get-prop-type (car tool-propositions))
-			   ".")
-		   (strcat "If you meant to define " 
-			   (get-prop-type (car tool-propositions))
-			   ", please " *delete-object* " and use "
-			   (get-prop-icon (car tool-propositions)) 
-			   " instead.")))
-		 ((= (length tool-propositions) 1)
-		  (list 
-		   (strcat "Are you trying to define "
-			   (get-prop-type (car tool-propositions))
-			   "?")
-		   (strcat "If so, " *delete-object* " and use "
-			   (get-prop-icon (car tool-propositions))
-			   " instead.")))
-		 (t
-		  (list      
-		   (strcat "I don't think you want to use "
-			   (get-prop-icon tool-prop)
-			   " for this definition.&nbsp; "
-			   "Perhaps you should " *delete-object* " &amp; "
-			   "use another tool."
-			   "<p>I can help you decide what to do next:"
-		    )	
-		   ;; Should use matches to inform starting point
-		   ;; for NSH.
-		   '(function next-step-help))))
-	   :assoc `((wrong-tool . ,full-props)))))
-
-    (setf (turn-id rem) (StudentEntry-id entry))
-    (setf (turn-coloring rem) +color-red+)
-    ;; set state of entry and attach error. But only do if not done already, 
-    ;; so only report on the first error found.
-    (unless (studentEntry-ErrInterp entry)
-      (setf (studentEntry-state entry) +incorrect+)
-      (setf (studentEntry-ErrInterp entry)
-	    (make-ErrorInterp :diagnosis '(wrong-tool-error)
-			      :remediation rem))))
-  (make-red-turn :id (StudentEntry-id Entry)))
+	 (distinct-quantities (collect-distinct-quantities full-props)))
+    (make-tutor-response
+     entry
+     (cond ((and (= (length distinct-quantities) 1)
+		 (= (length tool-propositions) 1))
+	    (list
+	     (strcat "Note that " 
+		     (quantity-html-link (car distinct-quantities)) 
+		     " is " 
+		     (get-prop-type (car tool-propositions))
+		     ".")
+	     (strcat "If you meant to define " 
+		     (get-prop-type (car tool-propositions))
+		     ", please " *delete-object* " and use "
+		     (get-prop-icon (car tool-propositions)) 
+		     " instead.")))
+	   ((= (length tool-propositions) 1)
+	    (list 
+	     (strcat "Are you trying to define "
+		     (get-prop-type (car tool-propositions))
+		     "?")
+	     (strcat "If so, " *delete-object* " and use "
+		     (get-prop-icon (car tool-propositions))
+		     " instead.")))
+	   (t
+	    (list      
+	     (strcat "I don't think you want to use "
+		     (get-prop-icon tool-prop)
+		     " for this definition.&nbsp; "
+		     "Perhaps you should " *delete-object* " &amp; "
+		     "use another tool."
+		     "<p>I can help you decide what to do next:"
+		     )	
+	     ;; Should use matches to inform starting point
+	     ;; for NSH.
+	     '(function next-step-help))))
+	   :assoc `((wrong-tool . ,full-props))
+	   :state +incorrect+
+	   :diagnosis '(wrong-tool-error))))
 
 (defparameter *type-entryprop*
   '((eqn . "equation")
@@ -668,68 +560,60 @@
 	  (mapcar #'second props))))
 
 (defun Add-variable-errorInterp (entry)
-  (declare (ignore entry))
-  (make-hint-seq 
-   (list (strcat "You should " *define-variable* " for this entry.")
-	 (strcat "Double-click on the text box and " *define-variable* "."))
-   :assoc '((no-variable-defined . nil))))
+  (make-tutor-response
+   entry
+   (list (strcat "You should " *define-variable* 
+		 " for this entry.")
+	 (strcat "Double-click on the text box and " 
+		 *define-variable* "."))
+   :state +incorrect+
+   :diagnosis '(no-variable-defined nil)
+   :spontaneous t))
 
 (defun no-matches-ErrorInterp (entry)
-  (let* ((equal-sign (when (find #\= (StudentEntry-text entry))
-		       (strcat "If you are trying to write an equation, "
-			       *delete-object* " and use "
-			       *equation-tool* " instead.")))
-	 (rem (make-hint-seq 
-	      (list (format nil "Sorry, I don't understand your ~:[~1*entry~;definition of <var>~A</var>~].~@[&nbsp; ~A~]&nbsp; I can help you choose what to do next:" 
-			    (> (length (StudentEntry-symbol entry)) 0)
-			    (StudentEntry-symbol entry) equal-sign)
-		    '(function next-step-help))
-	      :assoc '((no-matches . nil)))))
-    (setf (turn-id rem) (StudentEntry-id entry))
-    (setf (turn-coloring rem) +color-red+)
-    ;; set state of entry and attach error. But only do if not done already, 
-    ;; so only report on the first error found.
-    (unless (studentEntry-ErrInterp entry)
-      (setf (studentEntry-state entry) +incorrect+)
-      (setf (studentEntry-ErrInterp entry)
-	    (make-ErrorInterp :diagnosis '(definition-has-no-matches)
-			      :remediation rem))))
-  (make-red-turn :id (StudentEntry-id Entry)))
+  (let ((equal-sign (when (find #\= (StudentEntry-text entry))
+		      (strcat "If you are trying to write an equation, "
+			      *delete-object* " and use "
+			      *equation-tool* " instead."))))
+    (make-tutor-response
+     entry
+     (list (format nil "Sorry, I don't understand your ~:[~1*entry~;definition of <var>~A</var>~].~@[&nbsp; ~A~]&nbsp; I can help you choose what to do next:" 
+		   (> (length (StudentEntry-symbol entry)) 0)
+		   (StudentEntry-symbol entry) equal-sign)
+	   '(function next-step-help))
+     :assoc '((no-matches . nil))
+     :state +incorrect+
+     :diagnosis '(definition-has-no-matches))))
 
 
 ;; This was based on examples in parse-andes.cl
 ;; Most unsolicited hints in Andes2 were associated with equations.
 (defun redundant-entry-ErrorInterp (se old prop)
   "Given a student entry, return a tutor turn giving unsolicited feedback saying that the entry has already been done.  Also create an error interpretation in case the student asks a follow-up question, and put it in the student entry's err interp field."
-  (let ((rem (make-hint-seq
-	      (list (format nil 
-			    "You have already defined ~A~:[ as ~A~1*~;~1* to be <var>~A</var>~]."
-			    (def-np (second prop))
-			    (> (length (StudentEntry-symbol old)) 0)
-			    (studentEntry-text old)
-			    (StudentEntry-symbol old)))
-	      :assoc `((redundant-entry . ,prop)))))
-    (setf (StudentEntry-ErrInterp se)
-	  (make-ErrorInterp
-	   :diagnosis '(already-defined) ;Not sure where/how this is referenced
-	   :remediation rem))
-    
-    (setf (turn-id rem) (StudentEntry-id se))
-    (setf (turn-coloring rem) +color-red+)
-    
-    rem))
+  (make-tutor-response
+   se
+   (list (format nil 
+		 "You have already defined ~A~:[ as ~A~1*~;~1* to be <var>~A</var>~]."
+		 (def-np (reduce-prop prop))
+		 (> (length (StudentEntry-symbol old)) 0)
+		 (studentEntry-text old)
+		 (StudentEntry-symbol old)))
+   :assoc `((redundant-entry . ,prop))
+   :diagnosis '(already-defined) 
+   :state +incorrect+
+   :spontaneous t))
 
 
-(defun pull-out-quantity (symbol text)
+(defun pull-out-quantity (symbol text &key (test #'string=))
   "Pull the quantity phrase out of a definition:  should match variablename.js"
   (when (> (length symbol) 0) ;variablename.js returns empty string on no match
-    (if (not (search symbol text))
+    (if (not (search symbol text :test test))
 	(warn 'webserver:log-warn
 	      :tag (list 'symbol-definition-mismatch symbol text)
 	      :text "Symbol does not match definition.")
 	;; Find first occurence of symbol in text and take rest of text.
 	;; this should be done as a parser.
-	(let* ((si (+ (search symbol text) (length symbol)))
+	(let* ((si (+ (search symbol text :test test) (length symbol)))
 	       (nosym (string-left-trim match:*whitespace* (subseq text si))))
 	  ;; Find any subsequent equality in string.
 	  ;; The empty string is a catch-all in case there is no match
@@ -756,8 +640,8 @@
 
 (defun no-text-handler (entry)
   "Return unsolicited hint for entry with no text."
-  (let ((rem 
-	 (make-hint-seq 
+  (make-tutor-response
+   entry
 	  (list "Generally, objects should be labeled."
 		(strcat "Select the "
 			;; We use "text tool" in the hints and manual.
@@ -767,33 +651,11 @@
 			    (StudentEntry-type entry))
 			" again, double-click on " 
 			"the text box and " *add-label* "."))
-	  :assoc `((no-label . ,(StudentEntry-type entry))))))
-    
-    (cond
-      ;; Student gets unsolicited hint if they have not mastered skill.
-      ((incremented-property-test 'object-with-label 3)
-       (setf (StudentEntry-ErrInterp entry)
-	     (make-ErrorInterp
-	      ;; right now, this is never logged.
-	      :diagnosis (cons 'no-label (StudentEntry-type entry))
-	      :remediation rem))
-       (setf (turn-id rem) (StudentEntry-id entry))
-       (setf (turn-coloring rem) +color-red+)
-       (setf (StudentEntry-state entry) +incorrect+)
-       rem)
-      ;; Raj experiment control condition and experimental 
-      ;; condition after mastery: object turns red and hint
-      ;; sequence available.
-      (t
-       (setf (StudentEntry-ErrInterp entry)
-	     (make-ErrorInterp
-	      ;; right now, this is never logged.
-	      :diagnosis (cons 'no-label (StudentEntry-type entry))
-	      :remediation rem))
-       (setf (turn-id rem) (StudentEntry-id entry))
-       (setf (turn-coloring rem) +color-red+)
-       (setf (StudentEntry-state entry) +incorrect+)
-       (make-red-turn :id  (StudentEntry-id entry))))))
+	  :assoc `((no-label . ,(StudentEntry-type entry)))
+	  :diagnosis (cons 'no-label (StudentEntry-type entry))
+	  :state +incorrect+
+	;; Student gets unsolicited hint if they have not mastered skill.
+	  :spontaneous (incremented-property-test 'object-with-label 3)))
 
 (defun with-text-handler ()
   "Update skill of making entry with text"
@@ -1267,8 +1129,9 @@
 	  (symbols-delete-dependents (StudentEntry-ID entry)))
 
   ;; special to equation entries: remove from algebra system
-  (when (member (first (StudentEntry-prop entry)) 
-		'(eqn solve-for-var implicit-eqn))
+  (when (or (member (first (StudentEntry-prop entry)) 
+		    '(eqn solve-for-var implicit-eqn))
+	    (eql (StudentEntry-id entry) 'check-answer-equation))
 	(undo-eqn-entry entry)))
 
 
@@ -1300,56 +1163,43 @@
      ;; with sysvars.
      (when (and (or (null namespace) (eql namespace :scalars))
 		(quant-to-valid-sysvar referent))
-       (let ((entry (find-entry (first entry-ids)))
-	     ;; build the error remediation turn
-	     (rem (make-hint-seq 
-		   (list
-		    (format nil "You need to ~A for ~A."
-			    *define-variable*
-			    ;; for compo angle and mag,
-			    ;; define parent object.
-			    (nlg (get-vector-parent-prop
-				  referent)))
-		    (strcat "Double-click on the text and enter:<br>"
-			    (text-box 
-			     (strcat "<em>var</em> is "
-				     (nlg (get-vector-parent-prop referent))))
-			    "<br>where <em>var</em> is the variable "
-			    "name you have chosen."))
-		   :assoc `((no-variable-defined . 
-			     ,(get-vector-parent-prop referent))))))
-
-	 (setf (turn-id rem) (StudentEntry-id entry))
-	 (setf (turn-coloring rem) +color-red+)
-	 ;; set state of entry and attach error. But only do if not done 
-	 ;; already, so only report on the first error found.
-	 (unless (studentEntry-ErrInterp entry)
-	   (setf (studentEntry-state entry) +incorrect+)
-	   (setf (studentEntry-ErrInterp entry)
-		 (make-ErrorInterp :diagnosis '(variable-not-defined)
-				   :remediation rem))))))
+       (let ((entry (find-entry (first entry-ids))))
+	 (make-tutor-response
+	  entry
+	  (list
+	   (format nil "You need to ~A for ~A."
+		   *define-variable*
+		   ;; for compo angle and mag,
+		   ;; define parent object.
+		   (nlg (get-vector-parent-prop
+			 referent)))
+	   (strcat "Double-click on the text and enter:<br>"
+		   (text-box 
+		    (strcat "<em>var</em> is "
+			    (nlg (get-vector-parent-prop referent))))
+		   "<br>where <em>var</em> is the variable "
+		   "name you have chosen."))
+	  :state +incorrect+
+	  :diagnosis (list 'no-variable-defined 
+			   (get-vector-parent-prop referent))
+	  :spontaneous t))))
+   
     ((symbols-lookup label :namespace namespace) ;variable already defined!
      ;; find entry. entry-ids arg may be atom or list, but should not be nil
-     (let ((entry (find-entry (first entry-ids)))
-	   ;; build the error remediation turn
-	   (rem (make-hint-seq 
-		 (list
-		  (format nil "The variable ~A is in use to define ~A. Please choose a different label." 
-			  label (nlg (symbols-referent 
-				      label
+     (let ((entry (find-entry (first entry-ids))))
+       ;; build the error remediation turn
+       (make-tutor-response
+	entry
+	(list
+	 (format nil "The variable ~A is in use to define ~A.&nbsp; Please choose a different label." 
+		 label (nlg (symbols-referent 
+			     label
 				      :namespace namespace))))
-		 :assoc `((variable-in-use . 
-			   ,(symbols-referent label :namespace namespace))))))
-       
-       (setf (turn-id rem) (StudentEntry-id entry))
-       (setf (turn-coloring rem) +color-red+)
-       ;; set state of entry and attach error. But only do if not done already, so 
-       ;; only report on the first error found.
-       (unless (studentEntry-ErrInterp entry)
-	 (setf (studentEntry-state entry) +incorrect+)
-	 (setf (studentEntry-ErrInterp entry)
-	       (make-ErrorInterp :diagnosis '(variable-already-in-use)
-				 :remediation rem)))))
+	:assoc `((variable-in-use 
+		  . ,(symbols-referent label :namespace namespace)))
+	:state +incorrect+
+	:diagnosis '(variable-already-in-use)
+	:spontaneous t)))
     
     ;; else no conflict: just make the definition
     (T 
@@ -1357,7 +1207,7 @@
      ;; new-english-find itself emits a warning if there is no match.
      (new-english-find referent)
      (symbols-enter label referent :entries entry-ids :sysvar sysvar 
-		      :namespace namespace))))
+		    :namespace namespace))))
 
 (defun get-vector-parent-prop (x)
   "For vector (or line) compo, dir, or mag, return parent prop."
@@ -1367,6 +1217,7 @@
 	(t x)))
 ;;
 ;; Check-NonEq-Entry -- Generic checker for non-equation student entry 
+;; Adds grading information.
 ;; Returns: tutor turn
 ;;
 ;; Note, could be done differently with a cond or two.
@@ -1377,6 +1228,9 @@
   ;; being processed further. Return appropriate turn with unsolicited 
   ;; error message in this case.
   (when (studentEntry-ErrInterp entry) 
+    (when *debug-grade* (warn `webserver:log-warn
+			      :text "Not grading update 1" 
+			      :tag (list 'not-grading 1 entry)))
     (return-from Check-NonEq-Entry 
       (ErrorInterp-remediation (studentEntry-ErrInterp entry))))
   
@@ -1397,7 +1251,10 @@
                (StudentEntry-GivenEqns Entry))
       (setf result (Check-Vector-Given-Form Entry))
       (when (not (eq (turn-coloring result) +color-green+))
-	    (return-from Check-NonEq-Entry result))) ; early exit
+	(when *debug-grade* (warn `webserver:log-warn
+				  :text "Not grading update 2" 
+				  :tag (list 'not-grading 2 entry)))
+	(return-from Check-NonEq-Entry result))) ; early exit
     
     ;; Get set of candidate interpretations into PossibleCInterps.  
     ;; For generality needed for equation entries, an "interpretation" 
@@ -1414,12 +1271,28 @@
       (when *debug-help* 
 	(format t "No matching system entry found~%"))
       (setf (StudentEntry-state entry) +incorrect+)
+
+      ;; Identical to code in handle-ambiguous-equation in Help/parse-andes.cl
       ;; run whatswrong help to set error interp now, so diagnosis
       ;; can be included in log even if student never asks whatswrong
-      (diagnose Entry)
-      (setf result (make-red-turn :id (StudentEntry-id Entry)))
-      ;; log and push onto result list.
-      (push-when-exists (log-entry-info Entry) (turn-result result))
+      (let ((intended (ErrorInterp-intended (diagnose Entry)))
+	    (info (make-info-provided :prop (studententry-prop entry)
+				      :slots 1 ;should be list, but for now, just
+				      :penalize t)))
+	
+	;; Mark associated SystemEntry or SystemEntries, as incorrect.
+	(update-grade-status intended +incorrect+)
+	
+	;; Take diagnosis and add grading information.
+	;; It looks like the "new" part does not work for multiple-choice.
+	;; try vec1e.
+	(dolist (sysent intended)
+	  (pushnew info
+		   (graded-incorrects (SystemEntry-graded sysent))
+		   :key #'info-provided-prop
+		   :test #'unify)))
+      
+      (setf result (make-red-turn Entry))
       (setf (turn-result result) 
 	    (append unsolicited-hints (turn-result result)))
       (return-from Check-NonEq-Entry result)) ; go no further
@@ -1434,6 +1307,10 @@
     ;; decide what to return based on major state of entry
     (case (StudentEntry-State entry)
       (correct 
+
+       ;; Grading:  attach grade to SystemEntry
+       (update-grade-status (StudentEntry-CInterp entry) +correct+)
+    
        ;; check any given value equations associated. At first one that is wrong, its
        ;; result turn becomes the result for the main entry; checking routine 
        ;; updates main entry record with error interp of the bad equation.
@@ -1461,7 +1338,8 @@
       (Nogood (setf result (make-hint-seq +nogood-help+)))
       (otherwise (warn "Unrecognized interp state! ~A~%" 
 		       (StudentEntry-state entry))
-		 (setf result (make-red-turn :id (StudentEntry-id entry)))))
+		 (setf result (make-red-turn entry))))
+
 
     ;; Note for variables with given equations, we are
     ;; logging correctness of the variable definition substep, 
@@ -1471,11 +1349,16 @@
     (setf (turn-result result) 
 	  (append unsolicited-hints (turn-result result)))
     
-    (push-when-exists (log-entry-info Entry) (turn-result result))
+    (add-log-entry-info entry result)
     
     ;; finally return result
     result))
 
+(defun student-log-line (line)
+  (and (assoc :action line)
+       (equal (cdr (assoc :action line)) "log")
+       (assoc :log line)
+       (equal (cdr (assoc :log line)) "student")))
 
 
 (defun sol-gives-magdir (vector-quant)
@@ -1520,15 +1403,15 @@
                                 (StudentEntry-GivenEqns entry)) 'compo
 	               'magdir))
 	(vector-quant (second (StudentEntry-prop entry))))
-    ; Check for mismatch in form of givens.
-    ; NB: if system gives nothing, either form should be OK for unknown.
-    ; A student's form is incorrect iff no attribute of the student form 
-    ; is given AND some attribute of the other form is given. 
+    ;; Check for mismatch in form of givens.
+    ;; NB: if system gives nothing, either form should be OK for unknown.
+    ;; A student's form is incorrect iff no attribute of the student form 
+    ;; is given AND some attribute of the other form is given. 
     (when (and (not (sol-has-givens vector-quant stud-form))
                (sol-has-givens vector-quant (other-form stud-form)))
           (format T "mismatch: student form: ~A system form: ~A~%" 
                      stud-form (other-form stud-form))
-          ; flag main entry as wrong and fill in error interp
+          ;; flag main entry as wrong and fill in error interp
           (setf (StudentEntry-state entry) +incorrect+)
 	  (return-from Check-Vector-Given-Form
 	   (if (eq stud-form 'compo) (should-be-magdir-form entry vector-quant)
@@ -1539,34 +1422,23 @@
 
 (defun should-be-compo-form (se quant)
   (declare (ignore quant))
-  (let ((rem (make-hint-seq
-	      (list (format nil "Use component form for this vector.")))))
-    (setf (StudentEntry-ErrInterp se)
-      (make-ErrorInterp
-       :diagnosis '(should-be-compo-form)
-       ; unclear what intended should be
-       ; :intended (get-given-interp quant)
-       :remediation rem))
-
-    (setf (turn-id rem) (StudentEntry-id se))
-    (setf (turn-coloring rem) +color-red+)))
+  (make-tutor-response
+   se
+   (list "Use component form for this vector.")
+   :diagnosis '(should-be-compo-form)
+   :state +incorrect+
+   :spontaneous t))
 
 (defun should-be-magdir-form (se quant)
   (declare (ignore quant))
-  (let ((rem (make-hint-seq
-	      (list (format nil "Use mag/dir form for this vector.")))))
-    (setf (StudentEntry-ErrInterp se)
-      (make-ErrorInterp
-       :diagnosis '(should-be-magdir-form)
-       ; unclear what intended should be, maybe eqn for one given compo
-       ; :intended (get-given-interp `(compo x 0 ,quant))
-       :remediation rem))
-
-    (setf (turn-id rem) (StudentEntry-id se))
-    (setf (turn-coloring rem) +color-red+)))
-
+  (make-tutor-response
+   se
+   (list "Use mag/dir form for this vector.")
+   :diagnosis '(should-be-magdir-form)
+   :state +incorrect+
+   :spontaneous t))
 ;; 
-;; log-entry-info -- insert extra info for entry into Andes log
+;; add-log-entry-info -- insert log info for entry into Andes log
 ;;
 ;; This function can be used for any student entry including eqns, 
 ;; after status and possibly error info has been assigned.
@@ -1576,21 +1448,36 @@
 ;; Sends async commands to workbench to do the logging, so
 ;; the entries go before the final result in the log.
 
+(defun add-log-entry-info (entry result-turn)
+  ;; Add log entry to result turn.
+  (let ((log-line (log-entry-info Entry)))
+    (when log-line
+      (when (member-if #'student-log-line (turn-result result-turn))
+	(warn "Already have log in result for ~A"
+	      (StudentEntry-prop entry)))
+      (push log-line (turn-result result-turn)))))
+
 (defun log-entry-info (entry)
-  ;; don't waste time adding info when checking init entries 
-  ;; ?? might we want it anyway ??
+  "Wrapper to inhibit logging when rerunning old sessions."
   (when (and entry (not **checking-entries**))
-     (do-log-entry-info entry)))
-  
+    (do-log-entry-info entry)))
+
 (defun do-log-entry-info (entry)
   (let (target-entries
 	(parse (StudentEntry-ParsedEqn entry)))
     ;; fetch target entry list for correct or incorrect entries 
     (cond ((eq (StudentEntry-state entry) +incorrect+)
-	   ;; if needed, run whatswrong help to set error interp now, so diagnosis
-	   ;; can be included in log even if student never asks whatswrong
-	   (unless (StudentEntry-ErrInterp entry) (diagnose Entry))
-	   (setf target-entries (ErrorInterp-Intended (StudentEntry-ErrInterp Entry))))
+	   (unless (StudentEntry-ErrInterp entry) 
+	     (when *debug-grade*
+	       ;; StudentEntry-ErrInterp should have been set before
+	       ;; calling this function, perhaps by a call to (diagnose entry).
+	       ;; Otherwise, this means that the grading has not been done.
+	       (warn 'webserver:log-warn
+		     :tag (list 'undiagnosed-entry (StudentEntry-prop entry))
+		     :text "Undiagnosed error for studententry."))
+	     (diagnose entry))
+	   (setf target-entries (ErrorInterp-Intended 
+				 (StudentEntry-ErrInterp Entry))))
 	  
 	  ((eq (StudentEntry-state entry) +correct+)
 	   (setf target-entries (studententry-Cinterp entry))))
@@ -1611,8 +1498,9 @@
       
       ;; For non-eq entries, show entry prop in our notation, so we can 
       ;; identify common errors.   For correct non-eq entries, it will be 
-      ;; the step, but for errors we add it.
-      (when (and (not (eq (first (studentEntry-prop entry)) 'eqn))
+      ;; the step, but for errors we add it, if it is known.
+      (when (and (studentEntry-prop entry)
+		 (not (eq (first (studentEntry-prop entry)) 'eqn))
 		 (eq (StudentEntry-state entry) +incorrect+))
 	(push `(:entry . ,(prin1-to-string (studentEntry-prop entry)))
 	      result))
@@ -1710,35 +1598,112 @@
 ;; Having done that look up the corresponding PSM and determine if the PSM 
 ;; has been completed if so then the value is green if not then don't. 
 (defun check-mc-no-quant-done-answer-sought (entry)
-  (let* ((id (second (StudentEntry-prop entry)))
-	 (PSM (match-exp->enode ID (problem-graph *cp*))))
+  (let* ((id (second (StudentEntry-prop entry))) ;prop of task to be done
+	 ;; Corresponding systementry for done button.
+	 (sysent (find-SystemEntry (StudentEntry-prop entry)))
+	 ;; Find enode that is associated with the done button.
+	 (PSM (find-if
+		  #'(lambda (x) (member sysent x))
+		  (bubblegraph-enodes (problem-graph *cp*))
+		  :key #'enode-entries)))
     (cond 
-      ;; If the PSM is not found then we need to throw an error saying that.
-      ((null PSM) 
-       (make-bad-problem-turn 
-	(format nil "No problem step found for button labelled ~a" ID)))
+      ((null sysent)
+       (error 'webserver:log-error 
+	      :tag (list 'done-button-without-systementry id)
+	      :text "No SystemEntry for button"))
       
-      ;; If this is not a non-quant psm then we also need to thro an error 
+      ((null PSM) 
+       (error 'webserver:log-error 
+	       :tag (list 'done-button-without-enode id)
+	       :text "No problem step found for button"))
+      
+      ;; If this is not a non-quant psm then we also need to throw an error 
       ;; asserting that fact. 
       ((not (enode-has-mark? PSM 'non-quant))
-       (make-bad-problem-turn 
-	(format nil "Unmarked enode matching non-quant IDNum ~a ~a" PSM ID)))
+       (error 'webserver:log-error 
+	       :tag (list 'bad-mark-for-button-enode psm id)
+	       :text "Unmarked enode matching non-quant IDNum"))
       
-      ;; Otherwise test to see if it present and behave appropriately.
-      ((psmg-path-enteredp (enode-path PSM))
+      ;; Otherwise, test to see if task is completed by finding prerequisite
+      ;; do-steps and seeing if all associated SystemEntries are done.
+      ((every #'(lambda (x) (or (null (csdo-entries x)) 
+				(csdo-enteredp x)))
+	      (find-prop-in-path id (enode-path PSM)))
        (setf (StudentEntry-state entry) +CORRECT+)
+       (pushnew entry (SystemEntry-entered sysent))
        (make-green-turn :id (StudentEntry-id entry)))
       ;; Activity is incomplete, give a hint
       ;; based on goalprop, and then defer to NSH.
       (T (setf (StudentEntry-state entry) +INCORRECT+)
-	 (let ((rem (nsh-walk-node-graph 
-		     (strcat "You have not finished " (goal id) ".<p>") 
-		     psm)))
+	 (setf (SystemEntry-entered sysent) nil)
+	 (let ((rem (walk-psm-path "You have not finished " 
+				       (bgnode-path psm) nil)))
 	   (setf (StudentEntry-ErrInterp entry)
 		 (make-ErrorInterp 
-		  ;; The diagnosis never makes it to the log file.
-		  ;; Need to log analysis of error.  Bug #1816
-		  :diagnosis (cons 'goal-incomplete ID)
+ 		  :diagnosis (cons 'goal-incomplete ID)
 		  :remediation rem)))
-	 (make-red-turn :id (StudentEntry-id entry))))))
+	 (make-red-turn Entry)))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Create turn struct for incorrect student entry.
+;;  This adds logging of error to the reply.
+;;
+;; see function make-eqn-failure-turn
+(defun make-red-turn (entry)
+  (let ((id (StudentEntry-id entry))
+	(log (log-entry-info entry)))
+    (unless id (warn "no id in make-red-turn for ~A"
+		     (StudentEntry-prop entry)))
+    (unless (StudentEntry-errInterp entry)
+      (warn "make-red-turn needs errInterp for ~A" 
+	    (StudentEntry-prop entry)))
+    (unless (eql (StudentEntry-state entry) +incorrect+)
+      (warn "make-red-turn entry ~A state is ~A; should be incorrect" 
+	    (StudentEntry-prop entry)
+	    (StudentEntry-state entry)))
+    (make-turn :coloring +color-red+
+	       :id id
+	       :result (when log (list log)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun make-tutor-response (entry hints &key state spontaneous 
+			    diagnosis intended assoc)
+  "Construct response turn to student entry with coloring, logging, and possible hint sequence.  Incorrect turns must have a hint sequence."
+  (cond 
+    ((eql state +incorrect+)
+     (let ((rem (make-hint-seq hints :assoc assoc)))
+       (setf (turn-id rem) (StudentEntry-id entry))
+       (setf (turn-coloring rem) +color-red+)
+       ;; set state of entry and attach error. 
+       ;; But only do if not done already, 
+       ;; so only report on the first error found.
+       (unless (studentEntry-ErrInterp entry)
+	 (setf (studentEntry-state entry) +INCORRECT+)
+	 ;; Hint when help button is pressed, just give same
+	 ;; hint again.
+	 (setf (studentEntry-ErrInterp entry)
+	       (make-ErrorInterp :diagnosis diagnosis
+				 :intended intended
+				 :remediation rem)))
+
+       (if spontaneous
+	   (progn
+	     ;; Add log message to return
+	     (add-log-entry-info entry rem)
+	     ;; Unsolicited hint.
+	     rem)
+	   (make-red-turn Entry))))
+
+    ((and (null state) spontaneous)
+     (let ((rem (make-hint-seq hints :assoc assoc)))
+       (setf (studentEntry-ErrInterp entry)
+	     (make-ErrorInterp :diagnosis diagnosis
+			       :remediation rem))
+       (setf (turn-id rem) (StudentEntry-id entry))
+       rem))
+    
+     (t (warn 'webserver:log-warn
+	      :tag (list 'make-tutor-response-bad-arge state spontaneous)
+	      :text "unsupported state"))))

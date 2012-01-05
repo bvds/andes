@@ -27,6 +27,7 @@
 (defvar *last-user-time* 0)
 (defvar *last-gc-time* 0)
 
+;; For benchmarking/testing.
 (defun gen-stats (&optional (str t))
   (format str "Gen byte alloc gcs avgage~%")
   #-sbcl (warn "sbcl-specific")

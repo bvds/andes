@@ -577,7 +577,8 @@
 ;;; Note: This code assumes that the problem has at least one sought.  
 (defun nsh-multiple-choice-only-problem-p (Problem)
   "Return t if this is a multiple-choice only problem."
-  (every #'multiple-choice-sought-p (problem-soughts Problem)))
+  (every #'(lambda (x) (eql (car x) 'choose-answer)) 
+	 (problem-soughts Problem)))
 
 
 ;;; For these problems we will need to set the problem type and then to 
@@ -603,27 +604,26 @@
 (defun nsh-reset-quant ()
   "Setup the appropriate settings for the quant problem."
   (setq *nsh-problem-type* 'quant)
-  ; following will be called on nodes repeatedly during setup:
+  ;; following will be called on nodes repeatedly during setup:
   (let ((nodes (nsh-collect-quant-snodes *cp*)))
     (setq *nsh-givens* (sort (remove-duplicates (mapcan #'car nodes))
                              #'earlier-given :key #'nsh-given-node-quant))
     (setq *nsh-solution-sets* (mapcar #'cadr nodes)))
-
-  ; for final-answer-only problems, mark intermediate entries as entered, so
-  ; we won't hint to do them
+  
+  ;; for final-answer-only problems, mark intermediate entries as entered, so
+  ;; we won't hint to do them
   (when (nsh-final-answer-only-p)
-     (nsh-init-final-answer-only)))
+    (nsh-init-final-answer-only)))
 
 (defun nsh-init-final-answer-only ()
- "predefine any non-answer entries for final-answer-only quant problem"
- (dolist (sysent (remove-if #'answer-only-entry-p *sg-entries*))
-	(format T "Predefining non-answer entry: ~A~%" (systemEntry-prop sysent))
-	;; Make entry behave as if predefined by forging a student entry for it. 
-	;; There is no path to deleting this dummy entry during the problem.
-	(sg-enter-StudentEntry (make-StudentEntry :id 'PREDEF ; special ID
-	                            :prop (systemEntry-prop sysent)
-				    :state +correct+
-				    :CInterp (list sysent)))))
+  "predefine any non-answer entries for final-answer-only quant problem"
+  (dolist (sysent (remove-if #'answer-only-entry-p *sg-entries*))
+    ;; Make entry behave as if predefined by forging a student entry for it. 
+    ;; There is no path to deleting this dummy entry during the problem.
+    (sg-enter-StudentEntry (make-StudentEntry :id 'PREDEF ; special ID
+					      :prop (systemEntry-prop sysent)
+					      :state +correct+
+					      :CInterp (list sysent)))))
 
 (defun answer-only-entry-p (sysent)
   "true if this is an answer entry for a final-answer-only problem" 
@@ -724,7 +724,6 @@
     (nsh-filter-valid-entries '(draw-axes ?rot))))
 
 
-
 ;;; --------------------- Collecting Bodies --------------------
 ;;; We have the pedagogical goal of getting the students to 
 ;;; define the bodies necessary for a solution first.  In theory 
@@ -794,7 +793,7 @@
 ;;; to drawing bodies at the top-level.  These entries will consitute 
 ;;; the necessary body(ies) for the principle.  This takes the individual
 ;;; bodies and locates the corresponding entries. 
-;;;
+;;; Returns a list of SystemEntries.
 (defun nsh-collect-principle-bodyents (principle)
   (let ((Bodies (nsh-collect-principle-body-args principle)))
     (when Bodies
@@ -979,6 +978,9 @@
 
 (defun next-step-help ()
   "Call next-step help."
+  ;; Clear out any old value because next-step-help doesn't
+  ;; always assign a new value.
+  (setf *help-last-entries* nil)
   (cond ((nsh-next-call-set?) (nsh-execute-next-call))
 	((nsh-continue-last-node?) (nsh-prompt-last-node))
 	((not (nsh-student-has-done-work?)) (nsh-prompt-start))
@@ -1019,7 +1021,10 @@
 ;;; but for now null *studententries* is all.
 (defun nsh-student-has-done-work? ()
   "Return t iff the student has done no work."
-  *studententries*)
+  ;; Test if any entries have been evaluated.
+  ;; Answer boxes and mutiple choice and buttons
+  ;; all have student entries associated with them.
+  (some #'StudentEntry-state *studententries*))
 
 
 (defun nsh-prompt-start ()
@@ -1027,12 +1032,15 @@
   (cond ((nsh-prompt-bodies?) (nsh-start-bodies)) 
 	((nsh-prompt-axis?) (nsh-new-start-axis))
 	((nsh-prompt-givens?) (nsh-new-start-givens))
-	((equal *nsh-problem-type* 'no-quant) (nsh-start-no-quant))
-	((equal *nsh-problem-type* 'mc-only) (nsh-mc-only-start))
+	((eql *nsh-problem-type* 'no-quant) (nsh-start-no-quant))
+	((eql *nsh-problem-type* 'mc-only) (nsh-mc-only-start))
 	((nsh-start-principle-free?) (nsh-start-principle-free))
 	;; At this point we know that an error has occured so we
 	;; need to signal that to the system for later use.
-	(t (error "Invalid problem setup supplied."))))
+	(t (warn 'webserver:log-warn
+		 :tag (list 'nsh-prompt-start-invalid (problem-name *cp*) 
+			    *nsh-problem-type*)
+		 :text "Invalid problem setup supplied."))))
 
 
 ;;;; -----------------------------------------------------------------------
@@ -1045,8 +1053,9 @@
 (defun nsh-prompt-next ()
   (cond	
    ((equal *nsh-problem-type* 'mc-only) 
-            (if (nsh-mc-only-done?) (nsh-mc-only-prompt-done)
-               (nsh-mc-only-prompt)))
+            (if (nsh-mc-only-done?) 
+		(nsh-mc-only-prompt-done-correct)
+               (nsh-mc-only-prompt-next)))
    ((nsh-prompt-bodies?) (nsh-prompt-bodies))
    ((nsh-prompt-axis?) (nsh-prompt-axis))
    ((nsh-prompt-givens?) (nsh-prompt-givens))
@@ -1059,7 +1068,7 @@
 
 
 
-;;;; ====================== Prompt Bodies ======================================
+;;;; ======================= Prompt Bodies ==================================
 ;;;; We want the students to begin all problems by defining all of the "necessary"
 ;;;; bodies in for a solution.  If they ask NSH will prompt them to make all of 
 ;;;; the necessary body entries for the ideal solution.  Bodies are considered
@@ -1072,7 +1081,7 @@
 ;;;; students will be prompted to draw a body that we have implicitly labelled as
 ;;;; "unecessary" by not including it here and that might bother them.  
 ;;;;
-;;;; As an exampke consider exs3a (book on package on table).  For the ideal 
+;;;; As an exampke consider s3a (book on package on table).  For the ideal 
 ;;;; solution the student needs only 1 body, the compound Book/Package body.  
 ;;;; However, they will need the mass variables in that body later on.  
 ;;;; Therefore they might be prompted to draw a body that they got away with ignoring 
@@ -1181,12 +1190,12 @@
 ;;; to prompt the student to enter one of them with the following
 ;;; hint.
 (defun nsh-prompt-axis ()
-  (let ((Rot (nsh-get-axis-Rot)))
+  (multiple-value-bind (Rot entry) (nsh-get-axis-Rot)
     (make-explain-more-turn
      (strcat "It is now a good idea for you to draw an axis.  This "
 	     "will help to ground your work and be useful later on "
 	     "in the process.")
-     :hint (nsh-make-axis-prompt Rot)
+     :hint (nsh-make-axis-prompt Rot entry)
      :Assoc `((nsh prompt-axis ,Rot)))))
 
 		      
@@ -1196,50 +1205,53 @@
 ;;; should be working on, we want to tell them that an appropriate
 ;;; way to start this (and most) problems is to draw such a thing.
 (defun nsh-new-start-axis ()
-  (let ((Rot (nsh-get-axis-Rot)))
+  (multiple-value-bind (Rot entry) (nsh-get-axis-Rot)
     (make-explain-more-turn
      (strcat "It is a good idea to begin most problems by drawing "
 	     "an axis.  This helps to ground your work and will be "
 	     "useful later on in the process.")
-     :hint (nsh-make-axis-prompt Rot)
+     :hint (nsh-make-axis-prompt Rot entry)
      :Assoc `((nsh new-start-axis ,Rot)))))
 
 
 ;;; Once we begin prompting the student to work on axes we 
 ;;; need to give them a standard set of prompts.  That is done
 ;;; here.
-(defun nsh-make-axis-prompt (Rot)
+(defun nsh-make-axis-prompt (Rot entry)
   "Make the axes prompts."
-  (declare (special **nsh-standard-axis-prompt** **nsh-rotated-axis-prompt**
-		    **nsh-rotated-axis-bottom-prompt**))
+  (setf *help-last-entries* (list entry))
   (make-hint-seq 
-   (if (= Rot 0) (list **nsh-standard-axis-prompt**)
-     (list (format Nil **nsh-rotated-axis-prompt** (nsh-get-axis-rot))
-	   (format Nil **nsh-rotated-axis-bottom-prompt** (nsh-get-axis-rot))))
+   (if (= Rot 0) 
+       (list 
+	(strcat "Use " *axis-tool* 
+		" to draw a pair of standard axes with the <var>x</var> "
+		"axis at 0 degrees."))
+       (list 
+	(format Nil (strcat 
+		     "On this problem you should draw a pair of axes with the "
+		     "positive <var>x</var> axis set to ~a degrees.&nbsp; " 
+		     "This will line them up with the vectors that you "
+		     "will be drawing and make your solution simpler.") 
+		rot)
+	(format Nil 
+		(strcat "Use " *axis-tool* 
+			" to draw a pair of axes setting the positive "
+			"<var>x</var> axis at ~a degrees.") 
+		rot)))
    :Assoc `((nsh make-axis-prompt ,Rot))))
 
 
 
 (defun nsh-get-axis-rot ()
-  (if (member 0 *nsh-axis-entries* :key #'(lambda (E) (cadr (SystemEntry-prop E))))
-      0
-    (cadr (SystemEntry-prop (car *nsh-axis-entries*)))))
-    
-
-
-(defparameter **nsh-standard-axis-prompt**
-    (strcat "Use " *axis-tool* " to draw a pair of standard axes with the <var>x</var> axis at 0 degrees."))
-
-(defparameter **nsh-rotated-axis-prompt**
-    (strcat "On this problem you should draw a pair of axes with the "
-	    "positive <var>x</var> axis set to ~a degrees.&nbsp; " 
-	    "This will line them up "
-	    "with the vectors that you will be drawing and make your "
-	    "solution simpler."))
-
-(defparameter **nsh-rotated-axis-bottom-prompt**
-    (strcat "Use " *axis-tool* " to draw a pair of axes setting the positive <var>x</var> axis at ~a degrees."))
-
+  "Set axis entry, returning angle and associated entry"
+  (let ((axis-entry 
+	 (or (find-if #'(lambda (E) (eql 0 (cadr (SystemEntry-prop E))))
+		      *nsh-axis-entries*)
+	     (car *nsh-axis-entries*))))
+    (values
+     ;; pull the angle out of the prop.
+     (cadr (SystemEntry-prop axis-entry))
+     axis-entry)))
 
 
 ;;;; ==================== Prompting Givens ===================================
@@ -1299,7 +1311,7 @@
   "Prompt for the student to start working on the givens."
   (nsh-dialog-prompt-Node
    (strcat "At this point it would be a good idea to begin enumerating "
-	   "all of the useful given quantities in the problem."  )
+	   "all of the useful given quantities in the problem.")
    "Why don't you start with "
    (car *nsh-givens*)
    :Assoc `((nsh prompt-start-givens ,(bgnode-exp (car *nsh-givens*))))))
@@ -1349,12 +1361,12 @@
 ;;; working on (the core of) it, then we tell them so and indicate 
 ;;; what it is that they have to do.  
 (defun nsh-start-no-quant ()
-  "Propt the student to start working on the no-quant problem."
+  "Prompt the student to start working on the no-quant problem."
   (let ((principle (caar *nsh-solution-sets*)))
     (make-explain-more-turn
      (strcat "On problems such as this you need to complete "
 	     "all of the individual goals listed in the "
-	     "problem description.  ")
+	     "problem description.")
      :hint (nsh-prompt-Node 
 	    "Why don't you start with "
 	    Principle
@@ -1372,222 +1384,98 @@
        (null (remove-if #'nsh-principle-completed-p 
 			(car *nsh-solution-sets*)))))
 
-;;; Inform the students that they are done, and prompt them to go 
+;;; Inform the students that they are done., and prompt them to go 
 ;;; ahead and check off the boxes (if they have not already done so
 ;; and tell them to quit.
 (defun nsh-prompt-no-quant-done ()
   "Prompt that the student is done with the problem."
   (make-end-dialog-turn
-   (strcat "You have completed all of the principles necessary "
-	   "in this problem.  " (nsh-get-no-quant-done-str))
+   (strcat "You have completed all of the steps necessary "
+	   "to solve this problem.")
    :Assoc '((nsh . prompt-no-quant-done))))
 
-(defun nsh-get-no-quant-done-str ()
-  (if (< 1 (length (problem-soughts *cp*)))
-      "Please check the \"I am done\" checkboxes on the screen."
-    "Please check the \"I am done\" checkbox and quit."))
 
+;;;; ====================== Multiple-choice-Problems =========================
+;;;; For the Multiple-choice only problems the only tasks that the students 
+;;;; need to complete are the multiple-choice problems themselves.  Therefore 
+;;;; the only help that NSH will give is to alert the students to this fact 
+;;;; and to prompt them to coninue their work on the problem.  
+
+;;; -------------------------------- Done ------------------------------------
+;;; On a multiple-choice only problem the student is done working on the 
+;;; problem when they have answered all of the questions.
+
+(defun mc-SystemEntries ()
+  "List of system entries that are multiple choice."
+  ;; Use list of soughts to determine order.
+  (mapcar #'find-SystemEntry
+	  (remove 'choose-answer (problem-soughts *cp*) 
+		  :key #'car 
+		  :test-not #'eql)))
   
-
-
-;;;; ====================== Multiple-choice-Problems ==========================
-;;;; For the Multiple-choice only problems the only tasks that they students need
-;;;; to complete are the multiple-choice problems themselves.  Therefore the only
-;;;; help that NSH will give is to alert the students to this fact and to prompt 
-;;;; them to coninue their work on the problem.  
-
-;;; -------------------------------- Done -------------------------------------
-;;; On a multiple-choice only problem the student is done working on the problem
-;;; when they have answered all of the questions.  This is defined by them having
-;;; defined one entry for each sought.  I am not going to require that the entries
-;;; be correct only that they be made.  
 (defun nsh-mc-only-done? ()
-  (when *Studententries*
-    (nsh-mc-only-done-rec (problem-soughts *cp*))))
-
-(defun nsh-mc-only-done-rec (Soughts)
-  (when (nsh-mc-only-match-SE (car Soughts))
-    (if (= 1 (length Soughts)) t
-      (nsh-mc-only-done-rec (cdr Soughts)))))
-
-
-(defun nsh-mc-only-match-SE (Sought)
-  "Attempt to locate a matching entry for the sought."
-  (find (nth 1 Sought) *Studententries*
-	:key #'(lambda (E) (nth 1 (Studententry-prop E)))
-	:Test #'equalp))
-
-;;; Return t if all of the multiple-choice entries have been made and 
-;;; are correct.  
-(defun nsh-mc-only-done-correct-p ()
-  (let ((Soughts (remove-if-not #'(lambda (V) (equalp 'CHOOSE-ANSWER V)) 
-				(problem-soughts *cp*) :key #'car)))
-    (nsh-mc-only-done-correct-p-rec Soughts)))
-
-(defun nsh-mc-only-done-correct-p-rec (Soughts)
-  "Recursively deal with the correctness."
-  (let ((Ent (nsh-mc-only-match-SE (car Soughts))))
-    (when (and Ent (equalp (studententry-state Ent) +correct+))
-      (if (= 1 (length Soughts)) t
-	(nsh-mc-only-done-correct-p-rec (cdr Soughts))))))
+  "Every entry has been completed." 
+  (every #'SystemEntry-entered (mc-SystemEntries)))
 
 
 ;;; When the student is done then we need to inform them that they have 
 ;;; answered all the questions.  If they have not answered all of the 
 ;;; equations successfully then we can offer them the chance to change 
 ;;; their answers if they wish.
-(defun nsh-mc-only-prompt-done ()
-  "Inform the students that they are done."
-  (if (nsh-mc-only-done-correct-p)
-      (nsh-mc-only-prompt-done-correct)
-    (nsh-mc-only-prompt-done-incorrect)))
-
 
 (defun nsh-mc-only-prompt-done-correct ()
   (make-end-dialog-turn
-   (strcat "You have correctly completed all of the multiple-choice "
-	   "questions on this problem.  There is no more that you "
-	   "need to do.  You can now move on to the next problem.")
+   (strcat "You have correctly completed all of the multiple choice "
+	   "questions on this problem.&nbsp; There is no more that you "
+	   "need to do.&nbsp; You can now move on to the next problem.")
    :Assoc '((nsh mc-only prompt-done-correct))))
 
 
-(defun nsh-mc-only-prompt-done-incorrect ()
-  (make-explain-more-turn 
-   (strcat "You have answered all of the questions on this problem "
-	   "but some of your answers are incorrect.  If you want to "
-	   "you can stop here and move on to another problem.  "
-	   "However you can also change your answers if you wish to "
-	   "try again.")
-   :hint (nsh-mc-only-prompt-done-reconsider)
-   :Assoc '((nsh mc-only prompt-done-incorrect))))
-
-;;; If the students are done but incorrect we can offer them the chance
-;;; to reconsider some of their incorrect answers by listing them here.
-(defun nsh-mc-only-prompt-done-reconsider ()
-  (make-end-dialog-turn
-   (format Nil "Why don't you reconsider your ~a."
-	   (nlg (studententry-prop 
-		 (nsh-mc-only-select-first-incorrect)) 
-		'nlg-entryprop))
-   :Assoc '((nsh mc-only prompt-done-reconsider))))
-
-
-
 ;;; ---------------------------- Start ----------------------------------------
-;;; When starting an mc-only problem we will give the initial preamble and them 
-;;; inform the students that they should start work on this task. 
+;;; When starting an mc-only problem we will give the initial preamble and 
+;;; then inform the students that they should start work on this task.
+ 
 (defun nsh-mc-only-start ()
   (make-explain-more-turn 
-   (strcat "On problems of this type you need to answer "
-	   (if (> 1 (length (problem-soughts *cp*)))
-	       "all of the multiple choice questions on your screen."
-	     "the multiple choice question on your screen.")
-	   "You do not need to make any other entries.")
+   (strcat "On problems of this type, you need to answer "
+	   (let ((count-mc-entries (length (mc-SystemEntries))))
+	     (if (> count-mc-entries 1)
+		 (format nil "all ~R multiple choice questions" 
+			 count-mc-entries)
+		 "the multiple choice question"))
+	   ".&nbsp; You do not need to make any other entries.")
    :hint (nsh-mc-only-prompt-next)
    :Assoc '((nsh mc-only start))))
 
 
-;;; -------------------------------- Next -------------------------------------
-;;; When the student has already been working on an mc-only problem we want to
-;;; give them the same message that they were given originally but, if they 
-;;; have made any incorrect entries we want to offer them the chance to change 
-;;; those entries.
-(defun nsh-mc-only-prompt ()
-  (make-explain-more-turn 
-   (strcat "On problems of this type you need to answer "
-	   (if (> 1 (length (problem-soughts *cp*)))
-	       "all of the multiple choice questions on your screen."
-	     "the multiple choice question on your screen.")
-	   "  You do not need to make any other entries.")
-   :hint (if (nsh-incorrect-mc-entries-made-p)
-	     (nsh-mc-only-prompt-reconsider)
-	     (nsh-mc-only-prompt-next))
-   :Assoc '((nsh mc-only prompt))))
-
-
-;;; If the student has made any incorrect entries then we want to locate them
-;;; and then prompt them to reconsider the earliest one.  This will be done 
-;;; by selecting the subset of them and then sorting them by the mc value.
-
-;;; Collect the incorrect mc-only answers that the student has made (if any).
-(defun nsh-collect-mc-only-incorrect-attempts ()
-  (remove-if-not 
-   #'(lambda (E) 
-       (and (unify (studententry-prop E) '(CHOOSE-ANSWER ?A ?B))
-	    (not (equalp (studententry-state E) +correct+))))
-   *Studententries*))
-
-
-(defun nsh-mc-only-select-first-incorrect ()
-  "Collect the first incorrect answer given."
-  (car (sort (nsh-collect-mc-only-incorrect-attempts) 
-	     #'String<
-	     :key #'(lambda (E) 
-		      (format 
-		       Nil "~a" 
-		       (nth 1 (studententry-prop E)))))))
-  
-(defun nsh-incorrect-mc-entries-made-p ()
-  (when (and *Studententries* 
-	     (nsh-collect-mc-only-incorrect-attempts))
-    t))
-
-
-(defun nsh-mc-only-prompt-reconsider ()
-  (let ((incorrect (nsh-collect-mc-only-incorrect-attempts)))
-    (make-dialog-turn 
-     (strcat (if (> 1 (length incorrect))
-		 "You have made more than one incorrect answer attempt.  "
-	       "You have made an incorrect answer attempt.  ")
-	     "Do you want to:")
-     '((reconsider . "Reconsider it, or") (next . "work on the next question?"))
-     :Responder #'(lambda (Response)
-		    (cond ((eql Response 'reconsider)
-			   (nsh-mc-only-prompt-do-reconsider Incorrect))
-			  ((eql Response 'next)
-			   (nsh-mc-only-prompt-next))
-			  (t (warn 'webserver:log-warn 
-				   :tag (list 'nsh-mc-only-prompt-reconsider 
-					      response)
-				   :text "invalid response"))))
-     :Assoc '((nsh mc-only prompt-reconsider)))))
-
-
-;;; If the student elects to reconsider one or more of their incorrect
-;;; entries.  Then we will select the first incorrect answer attempt 
-;;; and will suggest that they to reconsider it.
-(defun nsh-mc-only-prompt-do-reconsider (Incorrect)
-  "Prompt the student to reconsider the specific value."
-  (let ((Entry (car (sort Incorrect #'String<
-			  :key #'(lambda (E) 
-				   (format 
-				    Nil "~a" 
-				    (nth 1 (studententry-prop E))))))))
-    (make-end-dialog-turn
-     (format Nil "Why don't you reconsider your ~a."
-	     (nlg (studententry-prop Entry) 'nlg-entryprop))
-     :Assoc `((nsh mc-only prompt-do-reconsider ,(studententry-prop Entry))))))
-
-
-;;; If the student is starting the problem, has made no incorrect entries
-;;; or has not elected to work on them then we want to prompt them to make
-;;; the next necessary entry.  
+;;; -------------------------------- Next ------------------------------------
+;;; When the student has already been working on an mc-only problem we want 
+;;; just prompt them to work on the next step.
+ 
 (defun nsh-mc-only-prompt-next ()
   (let ((next (nsh-mc-only-pick-next-undone-sought))) 
     (make-end-dialog-turn
-     (format Nil "Why don't you work on ~a" 
-	     (nlg Next 'nlg-entryprop))
-     :Assoc `((nsh mc-only prompt-next ,Next)))))
+     (format Nil "Why don't you work on ~A."
+	     (nsh-mc-only-english next))	     
+     :Assoc `((nsh mc-only prompt-next ,(SystemEntry-prop Next))))))
 
+(defun nsh-mc-only-english (entry)
+  "English def-np for a multiple choice question."
+  ;; This should more properly go in the Ontology, but
+  ;; it uses the system entries, which are only available 
+  ;; during run time.
+  (format nil "the ~:R multiple choice question"
+	  (+ 1 (position entry (mc-SystemEntries))))) 
 
 (defun nsh-mc-only-pick-next-undone-sought ()
   "Select the next mc-answer that the student should work on."
-  (car (sort (remove-if #'nsh-mc-only-match-SE (problem-soughts *cp*))
-	     #'string<
-	     :key #'(lambda (S) (format Nil "~a" (nth 1 S))))))
+  ;; Find first entry that is not correct.
+  (find nil (mc-SystemEntries)
+	:key #'SystemEntry-Entered
+	:test #'eql))
 
 
-;;;; ================ prompting the sought/first principle ====================
+;;;; ================ prompting the sought/first principle ===================
 ;;;; Once the student has completed the givens we want to prompt them to 
 ;;;; identify whant quantities the problem is seeking and then what major 
 ;;;; principle the student will use to find (it|them).  This takes the student 
@@ -1621,7 +1509,6 @@
 			  :key #'car)))))
 
 
-
 ;;; Prompting for the sought is a matter of displaying the old what quant?
 ;;; dialog from the previous form of NSH.  Once the student gets through that,
 ;;; then we move on to selecting the first major principle that they will use
@@ -1631,12 +1518,6 @@
 ;;;    but not the front.
 ;;; 2. Notice when they are choosing something forbidden
 ;;; 3. slap them silly when they keep making the same mistake.
-
-(defparameter **NSH-Sought-Str**
-    (strcat "Most problems ask you to find the value of one or more "
-	    "quantities.  To solve such problems it is helpful to "
-	    "first identify precisely a sought quantity because this "
-	    "may remind you of a principle that can be used to find it."))
 
 
 (defun nsh-ask-sought-and-fp ()
@@ -2205,8 +2086,6 @@
 	(nsh-forbidden-psmgroupp (psmgroup-supergroup Group)))))
 			       
 
-
-
 ;;; Given a form cycle through the list of principles in the solution
 ;;; filtering out all those that don't unify with the form.
 (defun nsh-filter-principles-by-form (form Bindings)
@@ -2711,7 +2590,8 @@
 ;;; prompt them to work on the best.
 (defun nsh-cbf-change-no (Solutions Principles Sought Past)
   "Prompt the best of the compatible solutions."
-  (nsh-cbf-success (nsh-pick-best-solution (nsh-pick-axes-done-solutions Solutions))
+  (nsh-cbf-success (nsh-pick-best-solution 
+		    (nsh-pick-axes-done-solutions Solutions))
 		   Principles Sought Past 
 		   :Prefix "As you wish.  "))
 
@@ -2755,7 +2635,7 @@
 ;;;
 ;;; NOTE:: for the purposes of this code I am assuming that all acceptable 
 ;;; fp's are the same and am ignoring the Principle/Definition divide.  
-(defun nsh-cbf-success (Solution Principles Sought Past &Key (Prefix ()))
+(defun nsh-cbf-success (Solution Principles Sought Past &Key Prefix)
   (declare (ignore Sought) (ignore Past))
   (let (Best (Choices (intersection Solution Principles))
 	(Comment (or Prefix (random-positive-feedback))))
@@ -2772,20 +2652,18 @@
 		 *nsh-solution-sets*))
 
 
-
 ;;; If the student has already completed the best principle, then
 ;;; we want to prompt them to move on to the next principle in the
-;;; solution.  
+;;; solution.
 (defun nsh-cfp-success-completed (Prefix Best Solution)
   "Promp the student to continue on when the first principle is completed."
   (setq *nsh-current-solutions* (nsh-cfp-match-fp-sol Best))
   (make-explain-more-turn
    (strcat Prefix "  You have already finished "
-	   (nlg (enode-id Best) 'psm-exp) 
-	   ".  You can move on to the next step in the solution.")
+	   (psm-exp (enode-id Best)) 
+	   ".&nbsp; You can move on to the next step in the solution.")
    :hint (nsh-prompt-solution "Why don't you work on " Solution)
    :Assoc `((nsh cfp-success-completed ,(bgnode-exp Best)))))
-
 
 
 ;;; If the student has not completed the first principle
@@ -2794,12 +2672,9 @@
 (defun nsh-cfp-success-uncompleted (Prefix Best)
   "Prompt the student to work on an uncompleted first principle."
   (setq *nsh-current-solutions* (nsh-cfp-match-fp-sol Best))
-  (nsh-walk-node-graph Prefix Best))
+  (nsh-walk-node-graph (strcat Prefix (random-goal-prefix)) Best))
 
-
-	 
-  
-  
+ 
 ;;; ----------------- invalid choices --------------------------------
 ;;; If the student selects principles that are present but invalid
 ;;; then we want to tell them that.  In future this will be modified
@@ -2814,7 +2689,6 @@
 	   "to this problem but you cannot use it as the "
 	   "first principle.")
    Sought Past :Case 'Invalid))
-
 
 
 ;;;-------------------------- Wrong principle ---------------------------------
@@ -2875,8 +2749,8 @@
   "Prompt the solution."
   (make-explain-more-turn
    (strcat Message "  You have already finished "
-	   (nlg (enode-id Principle) 'psm-exp)
-	   ".  Why don't you start working on the next principle?")
+	   (psm-exp (enode-id Principle))
+	   ".&nbsp;  Why don't you start working on the next principle?")
    :hint (nsh-prompt-solution "Why don't you work on " Solution)
    :Assoc `((nsh prompt-done-fp ,Case ,(enode-id Principle)))))
 
@@ -3048,6 +2922,7 @@
 
 (defun nsh-prompt-node (Prefix Node &key Assoc)
   "Prompt the node as appropriate."
+  (setf *help-last-entries* (bgnode-entries Node))
   (if (nsh-quantity-p Node)
       (nsh-prompt-quantity Prefix Node :Assoc (alist-warn Assoc))
     (nsh-prompt-Principle Prefix Node :Assoc (alist-warn Assoc))))
@@ -3060,7 +2935,7 @@
 ;;; have any subentries so the system will error if they do not but that may
 ;;; change if we find it necessary.
 (defun nsh-prompt-quantity (Prefix Quantity &key Assoc)
-  (cond ((nsh-quantity-parameter-P quantity) 
+  (cond ((nsh-quantity-parameter-P Quantity) 
 	 (nsh-prompt-parameter Prefix Quantity :Assoc (alist-warn Assoc)))
 			       
 	(t (error "Inappropriate quantity passed to hint ~a" Quantity))))
@@ -3071,10 +2946,14 @@
 (defun nsh-prompt-parameter (Prefix Parameter &key Assoc)
   "Prompt the student to work on the parameter."
   (setq *nsh-last-node* Parameter) ;Should set when hint is given, Bug #1854
-  (make-explain-more-turn 
-   (strcat prefix (nlg (bgnode-exp Parameter) 'psm-exp) ".  ")
-   :hint (nsh-walk-node-graph "" Parameter)
-   :Assoc (alist-warn Assoc)))
+  ;; Only add this turn if principle itself is hintable.
+  (if (psm-exp-hintable (bgnode-exp parameter))
+      (make-explain-more-turn 
+       (strcat prefix (psm-exp (bgnode-exp Parameter)) ".")
+       :hint (nsh-walk-node-graph "" Parameter)
+       :Assoc (alist-warn Assoc))
+      ;; otherwise, defer to principles on bubblegraph
+      (walk-psm-path prefix (bgnode-path parameter) nil)))
 
 
 ;;; ---------------------------------------------------------------------------
@@ -3083,63 +2962,37 @@
 ;;; that will be used.  Apart from that they are all the same.
 
 (defun nsh-prompt-principle (Prefix principle &key Assoc)
-  "Prompt the specified principle appropriately based upoin how \"done\" it is"
+  "Prompt the specified principle appropriately based upon how \"done\" it is"
+  (setq *nsh-last-node* Principle) ;Should set when hint is given, Bug #1854
   (cond ((nsh-goal-principle-P Principle) 
 	 (nsh-prompt-goal-principle Prefix Principle Assoc))
-	((nsh-major-principle-P Principle) 
-	 (nsh-prompt-major-principle Prefix Principle Assoc))
-	((nsh-given-principle-P Principle) 
-	 (nsh-prompt-given-principle Prefix Principle Assoc))
-	((nsh-Definition-principle-P Principle) 
-	 (nsh-prompt-definition-principle Prefix Principle Assoc))
-	(t (nsh-prompt-minor-principle Prefix Principle Assoc))))
+	(t (nsh-prompt-principle-final Prefix Principle Assoc))))
   
 
 ;;; Goal principles, unlike the major/minor/given principles found in quantity
-;;; problems are not psm-classes or psmtypes they are simply goalprops.  Therefore
-;;; we need to prompt them using a separate form.
+;;; problems are not psm-classes or psmtypes they are simply goalprops.  
+;;; Therefore we need to prompt them using a separate form.
 (defun nsh-prompt-goal-principle (prefix Principle Assoc)
   "Prompt the specified major principle."
-  (setq *nsh-last-node* Principle) ;Should set when hint is given, Bug #1854
-  (make-explain-more-turn 
-   (strcat prefix (nlg (enode-id principle) 'goal) ".  ")
-   :hint (nsh-walk-Node-graph "" principle)
-   :Assoc (alist-warn Assoc)))
-
-
-
-
-;;; The following three pompt types all make use of the final 
-;;; principle prompting to provide the student with appropriate
-;;; hinting as they all follow the same format. They have been 
-;;; left in here in the event of my needing to provide specialized
-;;; hits for each type.  
-(defun nsh-prompt-major-principle (prefix Principle Assoc)
-  "Prompt the specified major principle."
-  (nsh-prompt-principle-final Prefix Principle Assoc))
-
-
-(defun nsh-prompt-given-principle (prefix Principle Assoc)
-  "Prompt the specified major principle."
-  (nsh-prompt-principle-final Prefix Principle Assoc))
-
-
-(defun nsh-prompt-minor-principle (prefix Principle Assoc)
-  "Prompt the specified major principle."
-  (nsh-prompt-principle-final Prefix Principle Assoc))
-
-
-(defun nsh-prompt-definition-principle (prefix Principle Assoc)
-  "Prompt the specified definition principle."
-  (nsh-prompt-principle-final Prefix Principle Assoc))
+  ;; Only add this turn if principle itself is hintable.
+  (if (goalprop-exp-p (enode-id principle))
+      (make-explain-more-turn 
+       (strcat prefix (goal (enode-id principle)) ".")
+       :hint (nsh-walk-Node-graph "" principle)
+       :Assoc (alist-warn Assoc))
+      ;; otherwise, defer to principles on bubblegraph
+      (walk-psm-path prefix (bgnode-path principle) nil)))
 
 
 (defun nsh-prompt-principle-final (prefix principle Assoc)
-  (setq *nsh-last-node* Principle) ;Should set when hint is given, Bug #1854
-  (make-explain-more-turn 
-   (strcat prefix (nlg (enode-id principle) 'psm-exp) ".  ")
-   :hint (nsh-walk-Node-graph "" principle)
-   :Assoc (alist-warn Assoc)))
+  ;; Only add this turn if principle itself is hintable.
+  (if (psm-exp-hintable (enode-id principle))
+      (make-explain-more-turn 
+       (strcat prefix (psm-exp (enode-id principle)) ".")
+       :hint (nsh-walk-Node-graph "" principle)
+       :Assoc (alist-warn Assoc))
+      ;; otherwise, defer to principles on bubblegraph
+      (walk-psm-path prefix (bgnode-path principle) nil)))
 
 
 ;;;; ======================== Support functions ==================================
@@ -3254,16 +3107,6 @@
 	       :key #'(lambda (E) (cadr (SystemEntry-prop E)))))
    Solutions))
 
-
-;;; ---------------------------------------------------------------------------
-;;; Given a list of solutions 
-(defun nsh-filter-solutions-by-axes (Axes &optional (Solutions *nsh-solution-sets*))
-  "Pick solutions on which one of the axes have been drawn."
-  (remove-if-not
-   #'(lambda (S) (intersection Axes (nsh-collect-solution-axes S)))
-   Solutions))
-
-
 ;;; ---------------------------------------------------------------------------
 ;;; Given a set of solutions collect all those that contain at least one of the
 ;;; proposed first principles.
@@ -3275,6 +3118,7 @@
 ;;; ---------------------------------------------------------------------------
 ;;; Given a set of nodes collect all of the axes drawing entries that appear
 ;;; within them.
+;; returns list of SystemEntries
 (defun nsh-collect-solution-axes-entries (Solution)
   (remove-duplicates
    (mapcan
@@ -3382,15 +3226,6 @@
   "Return t iff the specified principle has been completed."
   (path-completedp (bgnode-path principle)))
 
-
-;;; nsh-principle-completed?
-;;; Has the specified principle been completed?  
-;;; Uses the psmg entered values.
-(defun nsh-principle-uncompleted-p (principle)
-  "Return t iff the specified principle has been completed."
-  (not (path-completedp (enode-path principle))))
-
-
 ;;; nsh-principle-started-p
 ;;; Has the student begun working on the principle at 
 ;;; all or is it completely empty.  
@@ -3398,18 +3233,6 @@
   "Has the student begiun working on the principle or not?"
   (and (enode-entries principle)
        (member-if #'SystemEntry-entered (enode-entries principle))))
-
-
-;;; nsh-principle-only-started-p
-;;; Has the student begun working on the principle at 
-;;; all but not completed it?
-(defun nsh-principle-only-started-p (principle)
-  "Has the student begiun working on the principle but not completed it?"
-  (and (enode-entries principle)
-       (member-if #'SystemEntry-entered (enode-entries principle))
-       (member-if-not #'SystemEntry-entered (enode-entries principle))))
-
-
 
 ;;; Is this a given principle node?
 (defun nsh-given-principle-p (node)
@@ -3479,12 +3302,6 @@
      "Your goal should be ")))
 
 
-
-
-
-
-
-
 ;;;;============================ psm graph ==================================
 ;;;; we encounter the psm graphs in three instances.  Firstly when asking if
 ;;;; a psm is entered.  Secondly when we are traversing the psm path to find
@@ -3509,10 +3326,17 @@
 ;;; to traverse the path is made based upon the structure of the graph.
 ;;; this depends upon the graph structures defined in the psmg file
 ;;; of helpstructs.
+
+;; node is an enode.
+;; Prefix is either empty or should include beginning 
+;; of the sentence.
 (defun nsh-walk-node-graph (prefix node)
   ;; Get the specified node's graph.
   (walk-psm-path prefix (cdr (bgnode-path Node)) nil))
 
+;; Returns turn struct or nil.
+;; stack is list of cssg objects.
+;; path is from bgnode-path.
 (defun walk-psm-path (prefix path stack)
   (cond ((null path) 
 	 (error "Reached end of psm path before finding target entry"))
@@ -3619,7 +3443,7 @@
    stack))
 
 
-;;; Splits, Nexts, and Joins delineate paralell unordered branches
+;;; Splits, Nexts, and Joins delineate parallel unordered branches
 ;;; in the path.  They are generated by an operator that has been
 ;;; marked as unordered.  In this event all of its preconditions 
 ;;; must still be satisfied but they can be done in any order.  A
@@ -3799,7 +3623,7 @@
 
 ;;; When the path-entered? search encounters a csdo it tests to see
 ;;; if the csdo has entries and if so if it has not been entered  
-;;; increment the count and recurse.  Otherwize return 1 (path entered.)
+;;; increment the count and recurse.  Otherwise return 1 (path entered.)
 (defun path-entered-csdo? (path count)
   "Has the csdo been entered or not?"
   (cond ((null (remove-if #'SystemEntry-implicit-eqnp
@@ -3991,35 +3815,44 @@
 ;;; down to the step from top to bottom.  
 (defun hint-target-entry (prefix step stack)
   (when **Print-NSH-Stack** (pprint (reverse Stack)))
-  (make-hint-seq  
-   (append (collect-stack-hintstrs stack)
-	   `((function make-hint-seq 
-		       ,(collect-step-hints step)
-		       ;; BvdS: subsequent steps don't need affirmation.
-		       :prefix ""	; ,prefix
-		       :OpTail ,(list (csdo-op Step)))))
-   :prefix Prefix))
-
-
+  ;; cs-do can have copies of entry.
+  (setf *help-last-entries* (remove-duplicates (csdo-entries step)))
+  (let ((stepHints (collect-step-hints step)))
+    (make-hint-seq
+     (append (collect-stack-hintstrs prefix stack)
+	     (if stepHints
+		 `((function make-hint-seq 
+			     ,stepHints
+		    ;; BvdS: subsequent steps don't need affirmation.
+			     :prefix ""	;,prefix
+			     :OpTail ,(list (csdo-op Step))))
+		 nil)))))
 
 
 ;;; the goal hintstrs returns a list of hint strings for each goal
 ;;; located in the stack in reverse order.  This sequence of strings 
 ;;; which have been passed to nlg can be used to generate a hint 
-;;; sequence.
-(defun collect-stack-hintstrs (stack)
+;;; sequence. 
+;;; 
+;;;  Add random goal prefix only to subsequent goals.
+(defun collect-stack-hintstrs (prefix stack)
   "Collect the stack hint strings."
-  (let ((hints))
-    (dolist (g stack)
-      (if (goalprop-exp-p (cssg-goal g))
-	  (push	`(goal ,(strcat (random-goal-prefix)
-				(nlg (cssg-goal g) 'goal) ".")
-		       (goal ,(cssg-op g) ,(cssg-goal g)))
-		
-		hints)
-	(when *debug-help* 
-	  (format t "NSH: Skipping unhintable goal ~S~%" (cssg-goal g)))))
-    hints))
+  (let (hints)
+    (dolist (g (reverse stack))
+      (let ((goalprop (goalprop-exp-p (cssg-goal g))))
+	(if (and goalprop (goalprop-nlg-english goalprop))
+	    (progn
+	      (push `(goal ,(strcat (if (> (length prefix) 0) 
+					prefix 
+					(random-goal-prefix))
+				    (goal (cssg-goal g)) ".")
+		      (goal ,(cssg-op g) ,(cssg-goal g)))		  
+		    hints)
+	      (setf prefix nil))
+	    (when *debug-help* 
+	      (format t "NSH: Skipping unhintable goal ~S~%" 
+		      (cssg-goal g))))))
+    (reverse hints)))
 
 
 ;;; ------------------------------------------------------------
@@ -4030,6 +3863,7 @@
 ;;; make them do something but not, per-se, to worry about the
 ;;; context of it, or that we have already provided the context.
 (defun nsh-bottom-hint-target-entry (Initial step &key Assoc)
+  (setf *help-last-entries* (list step))
   (make-explain-more-turn
    Initial
    :hint (let ((source (car (SystemEntry-Sources step))))

@@ -6,12 +6,13 @@
 		<script type="text/javascript">
 			djConfig = {
 				isDebug: true,
+				DebugAtAllCosts: true,
 				parseOnLoad: true,
 				popup: true
 			}
 			
 			if(djConfig.isDebug) {
-				djConfig.modulePaths = {'dashboard': '../dashboard-UI'};
+				//djConfig.modulePaths = {'dashboard': '../dashboard-UI'};
 				document.write('<link href="css/style.css" rel="stylesheet" />');
 			}
 			
@@ -38,8 +39,8 @@
         </script>
         <script src="js/dashboard.js" type="text/javascript">
         </script>
-        <!--<script src="js/api.js" type="text/javascript">
-        </script-->
+<!--        <script src="dashboard/api.js" type="text/javascript">
+        </script> -->
     </head>
     <body class="tundra">
         <div id="wrap">
@@ -63,13 +64,13 @@
                         document.write("</p><p><a href=\"instructor.html?section=" + get['section'] + "\">Go back to section overview</a>");
                     }
 					if (get['asst'] != null) {
-						for(s in response['StudentList']) {
-							if(response['StudentList'][s]['StudentId'] == get['user'])
+						for(s in response["student-list"]) {
+							if(response["student-list"][s]["student-id"] == get['user'])
 								stud_id = s;
 						}
 						
                         document.write("<p><span style=\"font-weight: bold;\">Assignment:&nbsp;</span>");
-                        document.write(response['StudentList'][stud_id]['AssignmentList'][parseInt(get['asst'])]['AssignmentId']);
+                        document.write(response["student-list"][stud_id]["assignment-list"][parseInt(get['asst'])]["assignment-id"]);
                         document.write("</p><p><a href=\"instructor.html?section=" + get['section'] + "&user=" + get['user'] + "\">Go back to student overview</a>");
                     }
                 </script>

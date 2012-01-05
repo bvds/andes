@@ -1191,142 +1191,6 @@
 			     "the white box") rot rot))))
 
 
-#|
-;;; If the student draws a rotated axis when a unrotated one is
-;;; correct, and this step is part of a projectile motion PSM, then
-;;; first get the student to agree that we are applying a projectile
-;;; motion, explain that alligning the axes with gravitational force
-;;; is best, then bottom out.
-
-  (def-error-class axis-tilted-for-projectile-psm (?correct ?body)
-  ((student (draw-axes ?rotation))
-  (test (not (equal ?rotation (dnum 0 degrees))))
-  (correct (draw-axes (dnum 0 degrees)))
-  (psm (projectile-motion ?body)))
-  :utility 100)
-  
-  (defun axis-tilted-for-projectile-psm (correct body)
-  (make-dialog-turn
-  (format nil "Can ~a be classified as a projectile?" body)
-  *yes-no-huh*
-  :responder #'(lambda (response) (projectile-axis1-resp response body))))
-
-  
-;;; First round of projectile axis dialogue.
-  (defun projectile-axis1-resp (response body)
-  ;; tutor just asked if body is a projectile
-  (case response
-  (huh (projectile-axis1-resp-huh body))
-  (no (projectile-axis1-resp-no body))
-  (yes  (peojectile-axis1-resp-yes body))))
-  
-  (defun projectile-axis1-resp-huh (body)
-  (make-dialog-turn
-  (format nil (strcat "If a moving body has only a gravitational force "
-  "acting on it, it is called a projectile.  "
-  "So is ~a a projectile?") body)
-  *yes-no-huh*
-  :responder #'(lambda (response) (projectile-axis1 response body))))
-  
-  (defun projectile-axis1-resp-no (body)
-  (make-dialog-turn
-  (format nil "Does ~a have only a gravitational force acting on it?") body)
-  *yes-no*
-  :responder #'(lambda (r) (projectile-axis2 r body)))
-  
-  (defun projectile-axis1-resp-yes (body)
-  (make-dialog-turn
-  (format nil (strcat "Right. So when analyzing the motion of a projectile, "
-  "is it better to rotate the coordinate system so that "
-  "an axis alligns with the motion of the projectile or "
-  "so that an axis alligns with the gravitational force?") 
-  body)
-  '(|allign with motion| |allign with gravitational force|)
-  :responder #'projectile-axis4))
-
-;;; Second round of projectile axis dialogue.
-  (defun projectile-axis2 (response body)
-  ;; tutor just asked if body has only a gravitational force on it
-  (case response
-  (no (projectile-axis2-resp-no body))
-  (yes (projectile-axis3-resp-yes body))))
-  
-  (defun projectile-axis2-resp-no (body)
-  (make-dialog-turn
-  (format nil (strcat "Actually, we ignore friction so ~a has only a "
-  "gravitation force acting on it. Does this make "
-  "it a projectile?") body)
-  *yes-no*
-  :responder #'(lambda (r) (projectile-axis3 r body))))
-
-  (defun projectile-axis2-resp-yes (body)
-  (make-dialog-turn
-  "Right.  Does this make it a projectile?" 
-  *yes-no*
-  :responder #'(lambda (r) (projectile-axis3 r body))))
-
-
-  ;;; Third round of projectile axis dialogue.
-  (defun projectile-axis3 (response body)
-  ;; tutor just asked a second time if body is a projectile
-  (case response
-  (no (projectile-axis3-resp-no body))
-  (yes (projectile-axis3-resp-yes body)))) 
-
-  (defun projectile-axis3-resp-no (body)
-  (make-dialog-turn
-  (format nil 
-  (strcat "Actually, any moving object with just a gravitation "
-  "force on it is called a projectile.  So ~a IS a "
-  "projectile.  When analyzing the motion of a projectile, "
-  "is it better to rotate the coordinate system so that an "
-  "axis alligns with the motion of the projectile or so that "
-  "an axis alligns with the gravitational force?") body)
-  '(|allign with motion| |allign with gravitational force|)
-  :responder #'projectile-axis4))
-  
-  (defun projectile-axis3-resp-yes (body)
-  (make-dialog-turn
-  (format nil 
-  (strcat "Right.  Any moving object with only a gravitational force "
-  "on it is called a projectile.  When analyzing the motion of "
-  "a projectile, is it better to rotate the coordinate system "
-  "so that an axis alligns with the motion of the projectile or"
-  " so that an axis alligns with the gravitational force?") body)
-  '(|allign with motion| |allign with gravitational force|)
-  :responder #'projectile-axis4))
-  
-
-  ;;; Final round of projectile axis drawing dialogue.
-  (defun projectile-axis4 (response)
-  ;; tutor just asked if axes should be alligned with motion or gravity
-  (make-hint-seq
-  (list (strcat (projectile-axis4-resp response)
-  **projectile-axis4-respstring**)
-  (strcat "Rotate the axes so that the y-axis aligns "
-  "with the gravitational force.")
-  "Click and drag on the axes to make the y-axis vertical.")))
-  
-  (defun projectile-axis4-resp (response)
-  (case response
-  (|allign with motion| 
-  (strcat "Although alligning axes with the object's motion is "
-  "often good, in the case of projectile motion, it is "
-  "better to allign axes with the gravitational force.  "))
-  
-  (|allign with gravitational force| 
-  "Right.  ")))
-  
-  (defconstant **Projectile-axis4-respstring**
-  (strcat "Because only gravitational force acts on the projectile, all the "
-  "acceleration is parallel to the gravitational force.  Making the "
-  "axes alligned with the gravitational force puts all the acceleration"
-  " on one axis and no acceleration on the other, and that makes the "
-  "math simpler."))
-  
-  |#
-
-
 ;; ================================================================
 ;;  This section covers all vector-drawing entries
 ;; ================================================================
@@ -2424,7 +2288,7 @@
      (if (equal ?spt ?cbody) 0.2 0.0)
      (if (equal ?stime ?ctime) 0.1 0.0)))
 
-(defun wrong-applied-pt-torque(spt cpt)
+(defun wrong-applied-pt-torque (spt cpt)
   (make-hint-seq
    (list
     (format nil (strcat "You specified that the point where the force is "
@@ -2993,6 +2857,7 @@
 ;;; initial velocity in an equation.
 (def-error-class var-has-wrong-time-specifier (?wrong-var ?wrong-time ?right-time )
   ((student-eqn ?dontcare0)
+   (student (eqn ?this-eqn))  ;don't apply to answer boxes.
    (var-loc ?wrong-var-loc ?wrong-var ?specifier)
    (bind ?wrong-time (time-of ?specifier))
    (correct-var ?right-var ?specifier2)
@@ -3021,6 +2886,7 @@
 ;;; be that V_x=-V_y, and a sign error is more likely.
 (def-error-class switched-x-and-y-subscript (?svar ?cvar)
   ((student-eqn ?dontcare0)
+   (student (eqn ?this-eqn)) ;don't apply to answer boxes.
    (var-loc ?svar-loc ?svar (compo ?s-xyz ?rot ?s-vector))
    (test (member ?s-xyz '(x y)))
    (bind ?c-xyz (if (equal ?s-xyz 'x) 'y 'x))
@@ -3520,27 +3386,6 @@
            (sg-map-systemEntry->hints (sg-find-vector-entry vector-quant))))))
 
 
-#|
-  (defun addends (expr)
-  "If the given a sum in nested form e.g., (+ (- ...) ...), returns all the addends
-  wrapping some in unary minuses.  If the given expr is not a sum, return it
-  inside a list"
-  (cond ((not (listp expr))
-  (list expr))
-  ((eql (car expr) '+)
-  (loop for a in (cdr expr) nconc (addends a)))
-  ((eql (car expr) '-)
-  (if (null (cddr expr))	; unary minus)
-  (wrap-unary-minu (addends (second expr)))
-  (nconc (flatten-sum (second expr))
-  (wrap-unary-minu (addends (third expr))))))
-  (T (list expr))))
-  
-  (defun wrap-unary-minus (L)
-  "Given a list, wrap a minus sign around each of the members."
-  (loop for x in L collect (list '- x)))
-  |#						      
-
 ;; Given an arbitrary expression (defined as a list of atoms and functions)
 ;; return t iff it is a function (defined recursively) as a list starting
 ;; with + or - whose cdr is an atom or expression.
@@ -3708,11 +3553,6 @@
 	(= (length exp) 2)
 	(numvalp (second exp))))
 
-; not used yet:
-(defun mangled-dnum-term (exp)
-"true if this is possibly a mangled dnum term"
-  (unify exp '(* ?val (dnum 1 ?units)) no-bindings))
-
 ;; Following takes sides of legal prefix equation in systemese.
 (defun assignmentp (lhs rhs)
 "true if lhs=rhs is assignment of numerical value to variable"
@@ -3816,7 +3656,8 @@
 ; !! Will apply for mere sign error in value. 
 ; Need to compare to other sign error handlers.
 (def-error-class wrong-given-value (?var ?wrongval)
-  ((student-eqn (= ?var ?wrongval)) ; so far matches any eqn entry
+  ((student-eqn (= ?var ?wrongval)) ;so far matches any eqn entry
+   (student (eqn ?whatever)) ;not an answer box
    (test (assignmentp ?var ?wrongval))
    (test (given-p ?var))))
 
@@ -3844,7 +3685,7 @@
    (list 
 	;; Be sure to include full quantity def in message, in case problem
 	;; is that student thinks var denotes some other quantity.
-        (format nil "~A is not the correct value for ~A, ~A.  ~A can be determined ~A." 
+        (format nil "~A is not the correct value for ~A, ~A.&nbsp;  ~A can be determined ~A." 
 	            studval studvar (nlg quant) studvar given-loc)
 	;; ?? should we tell them correct given value?
 	(format nil "~@[~A  ~]The correct value for ~A is ~A." more studvar rightval)
@@ -3873,7 +3714,8 @@
         (quant   (sysvar-to-quant var)))
   (make-hint-seq
    (list 
-        (format nil "The numerical value of ~A, ~A, is not defined in this problem. This value is not needed for the solution. You should be able to enter enough equations so that terms containing ~A will cancel out, and the 'Solve For' command can compute the final answer anyway." studvar (nlg quant) studvar) 
+        (format nil "The numerical value of ~A, ~A, is not defined in this problem.&nbsp; This value is not needed for the solution.&nbsp; You should be able to enter enough equations so that terms containing ~A will cancel out, and you can ~A the final answer." 
+		studvar (nlg quant) studvar *solve-for-quantity*) 
   '(function next-step-help)))))
 
 ; special case for height if no zero-level defined
@@ -3899,8 +3741,8 @@
         (quant   (sysvar-to-quant var)))
   (make-hint-seq
    (list 
-        (format nil "Because this problem does not stipulate a zero-level, the numerical value of ~A, ~A, is not defined. Since only differences in height are relevant to changes in energy, this value is not needed for the solution. Include an equation determining the difference between heights (h2-h1 = ...) and the 'Solve For' command should be able compute the final answer anyway." 
-		studvar (nlg quant)) 
+        (format nil "Because this problem does not stipulate a zero-level, the numerical value of ~A, ~A, is not defined.&nbsp; Since only differences in height are relevant to changes in energy, this value is not needed for the solution.&nbsp; Include an equation determining the difference between heights (h2-h1 = ...) and then ~A the final answer." 
+		studvar (nlg quant) *solve-for-quantity*) 
    '(function next-step-help)))))
 
 
@@ -3948,14 +3790,14 @@
 	      (strcat "Although final answers may be rounded off, Andes requires "
 	              "values in equations to agree to within one part in 10<sup>11</sup>. "
 		      "It will be easier to stick to the symbol ~A throughout your "
-		      "solution equations. Use the 'Solve For' command to let Andes "
-		      "compute the final answer when you have entered enough equations "
+		      "solution equations. You can ~A the final answer when you have entered enough equations "
 		      "to determine it." )
-	       studvar) 
+	       studvar *solve-for-quantity*) 
    ))))
 
 (def-error-class wrong-value-non-given (?var ?wrongval)
-  ((student-eqn (= ?var ?wrongval)) ; so far matches any eqn entry
+  ((student-eqn (= ?var ?wrongval)) ;so far matches any eqn entry
+   (student (eqn ?whatever)) ;not an answer box
    (test (assignmentp ?var ?wrongval))
    (test (not (given-p ?var)))
    (test (not (sysvar-parameter-p ?var)))
@@ -3968,71 +3810,51 @@
    ))
 
 (defun wrong-value-non-given (var wrongval) 
- (let* ((studvar (nlg var 'algebra))
-	(studval (nlg wrongval 'algebra))
-        (quant   (sysvar-to-quant var)))
+  (let ((studval (nlg wrongval 'algebra))
+        (quant (sysvar-to-quant var)))
   (make-hint-seq
    (list 
-        (format nil "~A is not the correct value for ~A, ~A.  It will usually be easier to leave the symbol ~A in your solution equations and let Andes do all calculations.  Use the 'Solve For' command to compute the final answer when you have entered enough equations to determine it." studval studvar (nlg quant) studvar) 
+    (format nil "~A is not the correct value for ~A.&nbsp;  It will usually be easier to leave the symbol ~A in your solution equations.&nbsp;  You can ~A the final answer when you have entered enough equations to determine it." 
+	    studval (var-or-quant quant) (var-or-quant quant)
+	    *solve-for-quantity*) 
    ))))
 
 
 ;;; ========================== Answer box entries ===========================
 
-(defun get-answer-entry (quant)
-"return student's answer entry for given quant"
-  (find `(answer ,quant) *studententries* 
-         :key #'StudentEntry-Prop :test #'equal))
-
-; default wrong-answer is kind of vacuous, but we want something to say:
+;; default wrong-answer is kind of vacuous, but we want something to say:
 (def-error-class default-wrong-answer (?quant ?wrongval)
- ((student (answer ?quant))
-  (bind ?eqn (studentEntry-ParsedEqn (get-answer-entry ?quant)))
-  (bind ?wrongval (third ?eqn))))
+  ((student (answer ?quant))
+   (student-eqn ?eqn)
+   (bind ?wrongval (third ?eqn))))
 (defun default-wrong-answer (quant wrongval)
   (make-hint-seq
-    (list (format nil "~A is not the correct value for ~A. When you have entered enough equations, ask Andes to solve for ~A, then transfer the result to this answer box."
-            (nlg wrongval 'algebra) (nlg quant) (var-or-quant quant)))))
+   (list (format nil "~A is not the correct value for ~A.&nbsp; When you have entered enough equations, you can ~A ~A, then transfer the result to this answer box."
+            (nlg wrongval 'algebra) (nlg quant) *solve-for-quantity* 
+	    ;; Hack to ignore dummy answer variable defined in 
+	    ;; function check-answer.
+	    (let ((var (symbols-label quant)))
+	      (if (or (null var) (equalp var "Answer"))
+		  "this quantity"
+		  (var-or-quant quant)))))))
 
-; sign error in answer: 
-; -sought is pos magnitude, answer entry is negative 
-;   - Could give message for any negative number, even if abs is wrong.
-; -sought is neg compo, answer entry is positive
-; other sign error in answer (unlikely, no diagnose).
-
-#|
-; magnitude is sought but they've entered a negative answer
-(def-error-class neg-answer-for-mag (?quant ?wrongval)
-  ((student (answer (mag ?vector)))
-   (bind ?eqn (studentEntry-ParsedEqn (get-answer-entry ?quant)))
-   (bind ?wrongval (third ?eqn))))
-   
-; neg compo is sought but they've entered a positive number
-(def-error-class pos-answer-for-neg-compo (?quant ?wrongval)
-  ((student (answer (mag ?vector)))
-   (bind ?eqn (studentEntry-ParsedEqn (get-answer-entry ?quant)))
-   (bind ?wrongval (third ?eqn))))
-   
-|#
 
 ;;; ================== Multiple choice entries
 
 ;;;
-;;; Following shows a way to associate error handlers with particular
-;;; choices on multiple choice questions in our current simple (problem-specific)
-;;; framework. Might make sense to define a macro for multiple choice
-;;; errors that expands to these, since all they really depend on is problem name
-;;; question id and choice number.
-#|
-(def-error-class mc-wrong-field-direction ()
-   ( (test (eq (problem-name *cp*) 'fara1a))
-     (student (choose-answer MC-1 2))))
+;;; Associate multiple-choice answer with correct entry.
 
 
-(defun mc-wrong-field-direction ()
-  (make-hint-seq (list "That is not the correct field direction"))
+(def-entry-test multiple-choice (?question ?sa ?ca) 
+  :preconditions ((student (choose-answer ?question ?sa))
+		  (correct (choose-answer ?question ?ca))
+		  (test (not (equal ?ca ?sa)))
+		  )
+  :state +incorrect+
+  :hint (list "Incorrect.&nbsp;  Please try again.")
+  :order ((correct . 3))
 )
-|#
+
 
 ;;; ================= Undiagnosed equation errors ==============
 
@@ -4047,7 +3869,7 @@
  :probability .001  ; default is .1
 )
 
-(defun undiagnosed-eqn-error(eqn)
+(defun undiagnosed-eqn-error (eqn)
    ;; following routine shows query and does all the work from there
    (elicit-intended-equation eqn)
 )

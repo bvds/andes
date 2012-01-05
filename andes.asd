@@ -33,8 +33,7 @@
 	       (:file "andes-path")
 	       (:module "Base"
 ;;;			:description "Common Utilities"
-			:components ((:file "Htime")
-				     (:file "Unification")
+			:components ((:file "Unification")
 				     (:file "auxiliary")
 				     (:file "hash")
 				     (:file "match")
@@ -45,6 +44,7 @@
 			:depends-on ("Base")
 			:components ((:file "PsmGraph")
 				     (:file "StudentEntry")
+				     (:file "hint-symbols")
 				     (:file "SystemEntry"
 					    :depends-on ("PsmGraph"))
 				     ))

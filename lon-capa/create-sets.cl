@@ -20,10 +20,38 @@
 ;;;;   
 
 
-(rkb)
+(asdf:operate 'asdf:load-op 'lon-capa)
 (lon-capa-problem-sets *sets* #P"all-problems/")
 (lon-capa-problem-maps *sets* "/res/asu/bvds/all-problems" 
-		       #P"all-maps/")
+		       :practice-p t
+		       :exclude-sets *guerra-assigned*
+		       :path #P"guerra-maps/"
+		       :title "Practice problems")
 (lon-capa-problem-maps *guerra-assigned* "/res/asu/bvds/all-problems" 
-		       #P"assigned-maps/")
+		       :path #P"guerra-maps/"
+		       :title "Assigned problems")
+(lon-capa-problem-maps *sets* "/res/asu/bvds/all-problems" 
+		       :practice-p t
+		       :exclude-sets *blackwood-assigned*
+		       :path #P"blackwood-maps/"
+		       :title "Practice problems")
+(lon-capa-problem-maps *blackwood-assigned* "/res/asu/bvds/all-problems" 
+		       :path #P"blackwood-maps/"
+		       :title "Assigned problems")
+(lon-capa-problem-maps *sets* "/res/asu/bvds/all-problems" 
+		       :practice-p t
+		       :exclude-sets *usna-fall-2007*
+		       :path #P"usna-fall-maps/"
+		       :title "Practice problems")
+(lon-capa-problem-maps *usna-fall-2007* "/res/asu/bvds/all-problems" 
+		       :path #P"usna-fall-maps/"
+		       :title "Assigned problems")
+(lon-capa-problem-maps *sets* "/res/asu/bvds/all-problems" 
+		       :practice-p t
+		       :exclude-sets *usna-spring-2008*
+		       :path #P"usna-spring-maps/"
+		       :title "Practice problems")
+(lon-capa-problem-maps *usna-spring-2008* "/res/asu/bvds/all-problems" 
+		       :path #P"usna-spring-maps/"
+		       :title "Assigned problems")
 (quit)

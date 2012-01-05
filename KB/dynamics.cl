@@ -1775,7 +1775,8 @@
    ;; case where step is skipped and goal is just posted to wm.
    ;; So we can't use unbound axis rotation inside optional; instead, 
    ;; have to break out call to another operator.
-   (optional (fbd-axes-drawn ?b)))
+   (optional (fbd-axes-drawn ?b))
+   )
   :effects ((fbd ?b ?t)))
 
 (defoperator choose-axes-for-fbd (?b)
