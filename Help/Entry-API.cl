@@ -567,7 +567,7 @@
 	 (strcat "Double-click on the text box and " 
 		 *define-variable* "."))
    :assoc '((no-variable-defined . nil))
-   :state nil
+   :state +incorrect+
    :diagnosis '(no-variable-defined)
    :spontaneous t))
 
@@ -1182,7 +1182,7 @@
 		   "name you have chosen."))
 	  :assoc `((no-variable-defined 
 		    . ,(get-vector-parent-prop referent)))
-	  :state nil
+	  :state +incorrect+
 	  :diagnosis '(variable-not-defined)
 	  :spontaneous t))))
    
