@@ -42,8 +42,9 @@ dojo.require("andes.timer");
 				requestInFlight = false;
 				var dt=(new Date()).getTime()-req.startTime;
 				// log any server latency larger than cutoff in ms.
-				// Should match Andes server timeout.
-				if(dt>15000){
+				// Should be somewhat smaller than the Andes 
+				// server timeout.
+				if(dt>10000){
 					andes.errorLog({
 						title: "latency",
 						message: dt + " ms for " + req.method 
