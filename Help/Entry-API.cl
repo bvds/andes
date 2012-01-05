@@ -566,9 +566,8 @@
 		 " for this entry.")
 	 (strcat "Double-click on the text box and " 
 		 *define-variable* "."))
-   :assoc '((no-variable-defined . nil))
    :state +incorrect+
-   :diagnosis '(no-variable-defined)
+   :diagnosis '(no-variable-defined nil)
    :spontaneous t))
 
 (defun no-matches-ErrorInterp (entry)
@@ -1180,10 +1179,9 @@
 			    (nlg (get-vector-parent-prop referent))))
 		   "<br>where <em>var</em> is the variable "
 		   "name you have chosen."))
-	  :assoc `((no-variable-defined 
-		    . ,(get-vector-parent-prop referent)))
 	  :state +incorrect+
-	  :diagnosis '(variable-not-defined)
+	  :diagnosis (list 'no-variable-defined 
+			   (get-vector-parent-prop referent))
 	  :spontaneous t))))
    
     ((symbols-lookup label :namespace namespace) ;variable already defined!
