@@ -69,7 +69,7 @@ $adminName = '' ;   // user name
 	     // MIT_.*
 	     // asu_3u16472755e704e5fasul1_.*
 	     // asu_3u16472755e704e5fasul1_15865
-$sectionName = 'asu_3u16472755e704e5fasul1_15865' ; //$_POST['sectionName'];
+$sectionName = 'asu_3u16472755e704e5fasul1_.*' ; //$_POST['sectionName'];
 $startDate = '2011-04-01'; // $_POST['startDate'];
 $endDate = ''; // $_POST['endDate'];
 $methods = array('open-problem','solution-step','seek-help','record-action','close-problem');  //implode(",",$_POST['methods']);
@@ -461,7 +461,15 @@ while ($myrow = mysql_fetch_array($result)) {
 		strcmp($bc->action,"log")==0 &&
 		strcmp($bc->log,"student")==0 &&
 		strcmp($bc->{'error-type'},"(SYNTAX-ERROR-IN-EQN)")==0) ||
-	       
+
+	       // Remove superfluous warnings
+	       // commit df8ccca928365ee880, Wed Jan 4 21:30:12 2012
+	       (isset($bc->action) && isset($bc->log) && 
+		isset($bc->text) &&
+		strcmp($bc->action,"log")==0 &&
+		strcmp($bc->log,"server")==0 &&
+		strpos($bc->text,"check-answer bad ") !== false) ||
+
 	       // kgraph8b problem addition
 	       // problems, commit fb5ec251c3a974a14, Tue Sep 27 2011
 	       (strcmp($theProblem[$clientID],"kgraph8b")==0 &&
@@ -581,6 +589,16 @@ while ($myrow = mysql_fetch_array($result)) {
 	  // See Bug #1915
 	  $bbc=str_replace("\\n",'',$bbc);
 	  $nbbc=str_replace("\\n",'',$nbbc);
+	  // Canonicalize whitespace in log messages.
+	  // Some server log messsages have lisp code that is pretty-printed
+	  if(isset($bc->action) && strcmp($bc->action,"log")==0 &&
+	    isset($bc->log) && strcmp($bc->log,"server")==0){
+	    $bbc=preg_replace('/\s\s+/',' ',$bbc);
+	  }
+	  if(isset($nbc->action) && strcmp($nbc->action,"log")==0 &&
+	    isset($nbc->log) && strcmp($nbc->log,"server")==0){
+	    $nbbc=preg_replace('/\s\s+/',' ',$nbbc);
+	  }
 	  // Remove double precision notation from constants.
 	  // This difference occurs from using slime vs. stand-alone. 
 	  $bbc=preg_replace('/(\d)d0/','$1',$bbc);
