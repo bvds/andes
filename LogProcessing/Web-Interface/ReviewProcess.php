@@ -168,7 +168,7 @@ if($slice == 'comments'){
   // eventually have test for php version and use built-in, when possible.
   include 'JSON.php';
   // However, this is really slow.  For now, just increase time limit:  
-  set_time_limit(300);
+  set_time_limit(3000);
   
   $json = new Services_JSON();
   
