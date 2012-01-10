@@ -406,16 +406,22 @@
 	  (setf y (+ y line-sep)))
 	
 	(when (problem-graphic *cp*)
-	  (let ((g (problem-graphic *cp*)))
+	  (let* ((g (problem-graphic *cp*))
+		 (width (second g)) (height (third g)))
+	    (unless (and height width)
+	      (setf height 100 width 100) ;give some value so we can muddle through.
+	      (warn 'webserver:log-warn
+		    :tag (list 'graphic-dimensions-missing (first g))
+		    :text "Graphic dimensions not included."))
 	    (push `((:action . "new-object") (:id . "graphic") 
 		    (:type . "graphics") (:mode . "locked") 
 		    (:x . ,x) (:y . ,y) 
-		    (:width . ,(second g)) (:height . ,(third g))
+		    (:width . ,width) (:height . ,height)
 		    ;; This is the URL for the graphic, which may not
 		    ;; match its location on the server filesystem.
 		    (:href . ,(strcat "../images/" (first g))))
 		  replies)
-	    (setf y (+ y (third g) 15)))))
+	    (setf y (+ y height 15)))))
 	
       ;; Second column for times and predefs.
       (let ((x 450) (y 15) (i 0))
