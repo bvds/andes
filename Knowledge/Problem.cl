@@ -580,13 +580,15 @@
   ;; Assume all images are in this subdirectory:
   (let* ((graphic-dir (merge-pathnames "images/" *andes-path*))
 	 (file (namestring (merge-pathnames graphic graphic-dir)))
-	 (id (sb-ext:run-program "identify" 
+	 (program-name "identify")
+	 (id (sb-ext:run-program program-name
 				 (list "-ping" "-format" "(%w %h)" file)
 				 :output :stream :search t)))
-    (unwind-protect
-	 ;; Only return something if the program was successful.
-	 (when (= 0 (sb-ext:process-exit-code id))
-	   (read (sb-ext:process-output id)))
+    ;; Only return something if the program was successful.
+    (prog1 (if (= 0 (sb-ext:process-exit-code id))
+	       (read (sb-ext:process-output id))
+	       (warn (or (read-line (sb-ext:process-output id) nil)
+			 (format nil "command \"~A\" not found" program-name))))
       (sb-ext:process-close id))))
 
 (defun proper-list-p (x) 
