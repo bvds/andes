@@ -1,11 +1,11 @@
 <?php
    include 'JSON.php';
-  //$userName = 'mconway_asu';
+  $userName = 'chbishop_asu';
    $i = 1;
    $db = new PDO("mysql:dbname=andes_anselm;host=localhost", "root", "hello123" );
-   foreach($db->query("select distinct pa.userName from problem_attempt pa") as $rowfirst)
-   {
-       $userName = $rowfirst['userName'];
+   //foreach($db->query("select distinct pa.userName from problem_attempt pa") as $rowfirst)
+   //{
+      // $userName = $rowfirst['userName'];
    echo "*********************\nCreating ".$i;
    $i++;
    //Create context message element
@@ -17,7 +17,7 @@
    foreach ($db->query("select pa.clientID, pa.starttime, pa.userproblem, pa.usersection, ci.name, ci.school, ci.period, ci.description, ci.instructorName, ci.schoolyearInfo, ci.datasetID, sd.datasetname, sd.modulename, sd.groupname, sd.problemname from problem_attempt pa, class_information ci, student_dataset sd where pa.usersection = ci.classSection and ci.datasetID = sd.datasetID and pa.userName = '".$userName."'") as $row)
    { 
        $context_msg_el = $doc->createElement("context_message");
-       $context_msg_el->setAttribute('context_message_id', $row['clientID']);
+       $context_msg_el->setAttribute('context_message_id', md5($row['clientID']));
        $context_msg_el->setAttribute('name', 'START_PROBLEM');
     
        // Creating Meta tag
@@ -27,13 +27,13 @@
     
        $user_id = $doc->createElement("user_id");
        $user_id->setAttribute('anonFlag', "true");
-       $user_id->nodeValue = $userName;
+       $user_id->nodeValue = md5($userName);
     
        // Append user id into meta
        $meta->appendChild($user_id);
        $sessionID = $doc->createElement("session_id");
        //$user_id->setAttribute('anonFlag', "true");
-       $sessionID->nodeValue = $row['clientID'];
+       $sessionID->nodeValue = md5($row['clientID']);
        $meta->appendChild($sessionID);
        // Append session_id to meta
        $timerec = $doc->createElement("time");
@@ -41,9 +41,9 @@
        $timerec->nodeValue = $row['starttime'];
        $meta->appendChild($timerec);
        // Append time to meta
-       $timezone = $doc->createElement("timezone");
+       $timezone = $doc->createElement("time_zone");
        //$user_id->setAttribute('anonFlag', "true");
-       $timezone->nodeValue = 'US/MNT';
+       $timezone->nodeValue = 'MST';
        $meta->appendChild($timezone);
        //Append timezone to meta
     
@@ -67,11 +67,11 @@
        // Append school as child element to class
        $class->appendChild($school_name);
        
-       $period = $doc->createElement("period");
-       $period->nodeValue = $row['period'];
+       //$period = $doc->createElement("period");
+       //$period->nodeValue = $row['period'];
     
         // Append period as child element to class
-       $class->appendChild($period);
+       //$class->appendChild($period);
        
        $description = $doc->createElement("description");
        $description->nodeValue = $row['description'];
@@ -126,7 +126,7 @@
        // Append level with module attribute as child element to dataset       
        $dataset->appendChild($dslevel);
         // Append level with section attribute as child element to dataset     
-       $dataset->appendChild($dslevel2);
+       $dslevel->appendChild($dslevel2);
         // Append dataset as child element to context_message    
        $context_msg_el->appendChild($dataset);
        // Append context_message as child element to tutor_related_message_sequence
@@ -140,19 +140,19 @@
            $sat19_id = '';
            //Create tool message 
            $tool_msg_el = $doc->createElement("tool_message");
-           $tool_msg_el->setAttribute('context_message_id', $row['clientID']);
+           $tool_msg_el->setAttribute('context_message_id', md5($row['clientID']));
            
            $toolmeta = $doc->createElement("meta");
               
            $user_id = $doc->createElement("user_id");
            $user_id->setAttribute('anonFlag', "true");
-           $user_id->nodeValue = $userName;
+           $user_id->nodeValue = md5($userName);
     
            // Append user_id as a child to meta
            $toolmeta->appendChild($user_id);
            $sessionID = $doc->createElement("session_id");
            //$user_id->setAttribute('anonFlag', "true");
-           $sessionID->nodeValue = $row['clientID'];
+           $sessionID->nodeValue = md5($row['clientID']);
            // Append session_id as a child to meta
             $toolmeta->appendChild($sessionID);
             
@@ -162,9 +162,9 @@
             // Append time as a child to meta
             $toolmeta->appendChild($timerec);
             
-            $timezone = $doc->createElement("timezone");
+            $timezone = $doc->createElement("time_zone");
             //$user_id->setAttribute('anonFlag', "true");
-            $timezone->nodeValue = 'US/MNT';
+            $timezone->nodeValue = 'MST';
             // Append timezone as a child to meta
             $toolmeta->appendChild($timezone);
        
@@ -262,15 +262,29 @@
                         //if params has field called text, input that into input and make it a child to event_descriptor
                         if(isset($parms->text))
                         {
-                            $event_child_input->nodeValue = $parms->text;
-                            $event_descriptor->appendChild($event_child_input);
+                            $input_text = $parms->text;
+                            if ($input_text != '')
+                            {
+                                $input_text = str_replace("&nbsp", "", $input_text);
+                                $input_text = str_replace("&", "", $input_text);
+                                $input_text = str_replace("'\'", "", $input_text);
+                                $event_child_input->nodeValue = $input_text;
+                                $event_descriptor->appendChild($event_child_input);
+                            }
                         }
                         
                         
                     }
+                  // Added on Jan 19 to remove warnings due to event_descriptor
+                  if($method_val != "record-action" && $method_val != "open-problem" && $method_val != "close-problem" )
+                    {
                     //Append event_descriptor as child to tool_message
-                    $tool_msg_el->appendChild($event_descriptor);
+                      if($method_val == "suggest-word" && $input_text != '' || $method_val == "solution-step" || $method_val == "seek-help")
+                        {
+                            $tool_msg_el->appendChild($event_descriptor);
+                        }                       
                     //Append tool_message as a child to root
+                    }
                     $root->appendChild($tool_msg_el);
                     
                 }
@@ -282,22 +296,25 @@
            }
            if($isValid)
            {
-                //create tutor_message
+                 $server = $json->decode($row2['server']); // Added on 18 Jan                
+                 if(isset($server->result)) // Added on 18 Jan
+                 {
+//create tutor_message
                 $tutor_msg_el = $doc->createElement("tutor_message");
-                $tutor_msg_el->setAttribute('context_message_id', $row['clientID']);
+                $tutor_msg_el->setAttribute('context_message_id', md5($row['clientID']));
                 //create meta element
                 $tutormeta = $doc->createElement("meta");
                 //$tutormeta = $doc->createElement("meta");
     
                 $user_id = $doc->createElement("user_id");
                 $user_id->setAttribute('anonFlag', "true");
-                $user_id->nodeValue = $userName;
+                $user_id->nodeValue = md5($userName);
              
                 // Append user id into meta
                 $tutormeta->appendChild($user_id);
                 $sessionID = $doc->createElement("session_id");
                 //$user_id->setAttribute('anonFlag', "true");
-                $sessionID->nodeValue = $row['clientID'];
+                $sessionID->nodeValue = md5($row['clientID']);
                 $tutormeta->appendChild($sessionID);
                 
                 $timerec = $doc->createElement("time");
@@ -305,9 +322,9 @@
                 $timerec->nodeValue = $row['starttime'];
                 $tutormeta->appendChild($timerec);
                 
-                $timezone = $doc->createElement("timezone");
+                $timezone = $doc->createElement("time_zone");
                 //$user_id->setAttribute('anonFlag', "true");
-                $timezone->nodeValue = 'US/MNT';
+                $timezone->nodeValue = 'MST';
                 $tutormeta->appendChild($timezone);
                 //Append meta as a child to tutor_message
                 $tutor_msg_el->appendChild($tutormeta);
@@ -329,6 +346,15 @@
                         break;
                     case "RECORD ACTION":
                         $tutor_semantic_name = "FEEDBACK";
+                         break;
+                    case "OPEN PROBLEM":
+                        $tutor_semantic_name = "NEW PROBLEM"; // Added on 18 Jan
+                         break;
+                     case "CLOSE PROBLEM":
+                        $tutor_semantic_name = "END PROBLEM"; // Added on 18 Jan
+                          break;
+                     case "SUGGEST WORD":
+                        $tutor_semantic_name = "NEXT WORDS"; // Added on 18 Jan
                         break;
                     default :
                         $isValid = FALSE;
@@ -344,24 +370,7 @@
                     //continue - Populate tutor message
                     $server = $json->decode($row2['server']);
                     //If server has a field called result start to iterate
-                    if(isset($server->result))
-                    {
-                        
-                        foreach($server->result as $resultval)
-                        {
-                            if(isset($resultval->action) && ($resultval->action == 'show-hint') && isset ($resultval->text))
-                            {
-                                //Create tutor_advice
-                                 $tutAdvice = $doc->createElement("tutor_advice");
-                                 $tutAdvice->nodeValue = $resultval->text;
-                                 //Append tutor_advice as child to tool_message
-                                 $tutor_msg_el->appendChild($tutAdvice);
-                            }
-                            
-                        }                        
-                        
-                    }
-                    
+                                        
                     //If the type of event is Result and server has a field called result
                     if($tutor_semantic_name == 'RESULT')
                     {
@@ -376,14 +385,14 @@
                                {
                                    $error_type_val = $resultval1->$error_type;                                   
                                }
-                               if(isset( $resultval1->mode ) )
+                               if(isset($resultval1->mode ) )
                                {
                                    //create element action_evalution if there is a mode field in result
                                    $action_evaluation = $doc->createElement("action_evaluation");
                                    if($error_type_val != "")
                                    {
-                                      //$error_type_val = str_replace("(", "", $error_type_val);
-                                      //$error_type_val = str_replace(")", "", $error_type_val);
+                                      $error_type_val = str_replace("(", "", $error_type_val);
+                                      $error_type_val = str_replace(")", "", $error_type_val);
                                       $action_evaluation->setAttribute("classification", $error_type_val);
                                    }
                                    $action_evaluation->nodeValue = $resultval1->mode;
@@ -422,6 +431,29 @@
                         }
                         //Append action_evaluation as a child to tutor message
                         $tutor_msg_el->appendChild($action_evaluation);
+                    }
+                    if(isset($server->result))
+                    {
+                        
+                        foreach($server->result as $resultval)
+                            
+                        {
+                            //$rmode = $resultval->mode;
+                            if(($tutor_semantic_name != "NEW PROBLEM") && isset ($resultval->text)) // Added on 18 Jan
+                            {
+                                //Create tutor_advice
+                                $text_val = $resultval->text;
+                                $text_val = str_replace("&nbsp", "", $text_val);
+                                $text_val = str_replace("&", "", $text_val);
+                                $text_val = str_replace("'\'", "", $text_val);
+                                 $tutAdvice = $doc->createElement("tutor_advice");
+                                 $tutAdvice->nodeValue = $text_val;
+                                 //Append tutor_advice as child to tool_message
+                                 $tutor_msg_el->appendChild($tutAdvice);
+                            }
+                            
+                        }                        
+                        
                     }
                     //If server has field called result
                     if(isset($server->result))
@@ -580,7 +612,7 @@
                         foreach($server->result as $resultval3)
                         {
                             
-                            if(isset($resultval3->parse))
+                            if(($tutor_semantic_name != "NEW PROBLEM") && isset($resultval3->parse))
                             {
                                     $custom_field = $doc->createElement("custom_field");
                                     $custom_field_name = $doc->createElement("name");
@@ -592,7 +624,7 @@
                                     $custom_field->appendChild($custom_field_value);
                                     $tutor_msg_el->appendChild($custom_field);
                             }
-                            if(isset($resultval3->score))
+                            if(($tutor_semantic_name != "NEW PROBLEM") && isset($resultval3->score))
                             {
                                     $custom_field = $doc->createElement("custom_field");
                                     $custom_field_name = $doc->createElement("name");
@@ -611,7 +643,7 @@
                     
                 }
                 $root->appendChild($tutor_msg_el);
-
+            }
            }
 
 
@@ -624,7 +656,7 @@ $doc->formatOutput = true;
 
 //echo $doc->saveXML();
 // Saving the generated XML
-$doc->save($userName.".xml");
-   }
+$doc->save(md5($userName).".xml");
+   //}
    
 ?>
