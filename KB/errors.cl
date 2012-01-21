@@ -274,10 +274,10 @@
 
 (defun should-be-net-variable (type)
   (make-hint-seq
-   ; Several net quants are defined as quant "due to all sources" 
-   ; on interface, so we include that phrase in the message. 
-   ; Work and power actually use "all forces", but message
-   ; should still be understood in this case.
+   ;; Several net quants are defined as quant "due to all sources" 
+   ;; on interface, so we include that phrase in the message. 
+   ;; Work and power actually use "all forces", but message
+   ;; should still be understood in this case.
    (list (format nil (strcat "In this problem you should use a "
 			     "variable to represent the " 
 			     "net ~a resulting from all sources.")
@@ -307,8 +307,8 @@
 			     "solution I know of needs it ~a.")
 		 descr stime)
 	 *dyi*
-	 (format nil "Define a variable for ~a ~a instead of ~a."
-		 descr ctime stime))))
+	 `(bottom-out (string ,(format nil "Define a variable for ~a ~a instead of ~a."
+		 descr ctime stime))))))
 
 ;; generic error for the wrong body (second argument)
 (def-error-class only-body-wrong (?sbody ?cbody) 
@@ -321,8 +321,8 @@
 (defun only-body-wrong (sbody cbody)
   (make-hint-seq
    (list (format nil "Are you sure you want to choose ~A?" (nlg sbody 'def-np))
-	 (format nil "Perhaps you should choose ~A instead." 
-		 (nlg cbody 'def-np)))))
+	 `(bottom-out (string ,(format nil "Perhaps you should choose ~A instead." 
+		 (nlg cbody 'def-np)))))))
 
 ;;; ============= defining a mass variable ==========================
 ;;; The mass variable has only one slot: the body.  Thus, he only
@@ -429,8 +429,8 @@
    (list (format nil "You'll need a speed variable, but maybe not for ~a." 
 		 sbody)
 	 *dyi*
-	 (format nil "Define the speed variable for ~a instead of ~a."
-		 (nlg cbody 'def-np) sbody))))
+	 `(bottom-out (string ,(format nil "Define the speed variable for ~a instead of ~a."
+		 (nlg cbody 'def-np) sbody))))))
 
 ;;; Special case: On a problem where velocities are appropriate, the
 ;;; student uses speed instead.  Since a velocity problem will never
@@ -450,9 +450,9 @@
 (defun velocity-not-speed (body time)
   (make-hint-seq
    (list "On this problem, you should use velocity instead of speed."
-	 (format nil (strcat "Delete the speed variable and draw a "
+	 `(bottom-out (string ,(format nil (strcat "Delete the speed variable and draw a "
 			     "velocity vector for ~a ~a.") 
-		 (nlg body 'def-np) (nlg time 'pp)))))
+		 (nlg body 'def-np) (nlg time 'pp)))))))
 
 ;;
 ;; On problems where wave-speed is defined...
@@ -541,8 +541,8 @@
                  "respect to the surface exerting the friction force. "
                  "Static friction keeps an object at rest with respect to "
 		 "a surface when it would otherwise move against it.")
-	(format NIL "Change the coefficient of friction type from ~a to ~a."
-	        (adj stype) (adj ctype)))))
+	`(bottom-out (string ,(format NIL "Change the coefficient of friction type from ~a to ~a."
+	        (adj stype) (adj ctype)))))))
 
 ;; can also get order of arguments wrong
 
@@ -576,8 +576,8 @@
 		 (nlg sbody 'def-np) energy-type)
 	 (strcat "No solution I know needs that energy.")
 	 *dyi*
-	 (format nil "Define ~a for ~a instead of ~a."
-		 energy-type (nlg cbody 'def-np) (nlg sbody 'def-np)))))
+	 `(bottom-out (string ,(format nil "Define ~a for ~a instead of ~a."
+		 energy-type (nlg cbody 'def-np) (nlg sbody 'def-np)))))))
 
 ;; if the order of the body and agent wrong, according to Andes convention.
 (def-error-class wrong-order-potential-energy (?energy-type ?sbody ?sagent)
@@ -592,8 +592,8 @@
   (setq energy-type (nlg energy-type 'adj))
   (make-hint-seq
    (list (format nil "Although interactions are symmetrical, Andes uses the convention that the body argument in the potential energy definition should be the primary body whose motion you are considering.   ")
-	 (format nil "Re-order the arguments in your definition to define the ~a due to the interaction of ~a and ~a."
-		 energy-type (nlg sagent 'def-np) (nlg sbody 'def-np)))))
+	 `(bottom-out (string ,(format nil "Re-order the arguments in your definition to define the ~a due to the interaction of ~a and ~a."
+		 energy-type (nlg sagent 'def-np) (nlg sbody 'def-np)))))))
 
 ;;; If they have a wild body (ignoring agent and time).
 ;;; default utility, so wrong order should take precedence
@@ -615,8 +615,8 @@
 	 (format nil "Andes uses the convention that the body argument in the potential energy definition should be the primary body whose motion you are considering. No solution I know chooses ~a as the primary body.  " 
 			 (nlg sbody 'def-np))
 	 *dyi*
-	 (format nil "You could define ~a using ~a instead of ~a in the body slot."
-		 energy-type (nlg cbody 'def-np) (nlg sbody 'def-np)))))
+	 `(bottom-out (string ,(format nil "You could define ~a using ~a instead of ~a in the body slot."
+		 energy-type (nlg cbody 'def-np) (nlg sbody 'def-np)))))))
 
 (def-error-class wrong-agent-for-energy (?energy-type ?sagent ?cagent ?body)
   ((student    (define-var (?energy-type ?body ?sagent :time ?stime)))
@@ -628,9 +628,9 @@
   (make-hint-seq
    (list (format nil "Is ~a the agent of a conservative force on ~a that gives rise to ~a?"
 		 (nlg sagent 'def-np) (nlg body 'def-np) (nlg energy-type 'adj))
-	 (format nil (strcat "Instead of defining ~a as due to interaction with ~a, you "
+	 `(bottom-out (string ,(format nil (strcat "Instead of defining ~a as due to interaction with ~a, you "
 			     "should define it as due to ~a instead.")
-	    (nlg energy-type 'adj) (nlg sagent 'def-np) (nlg cagent 'def-np)))))
+	    (nlg energy-type 'adj) (nlg sagent 'def-np) (nlg cagent 'def-np)))))))
 
 
 
@@ -653,9 +653,9 @@
    (list (strcat "The compression distance should be specified "
 		 "for the object that is being compressed, such "
 		 "as a spring.")
-	 (format nil (strcat "You should define the compression "
+	 `(bottom-out (string ,(format nil (strcat "You should define the compression "
 			     "distance of ~a instead ~a.")
-		 (nlg cspring 'def-np) (nlg sspring 'def-np)))))
+		 (nlg cspring 'def-np) (nlg sspring 'def-np)))))))
 
 	    
 ;;; =============== defining spring constant ====================
@@ -673,8 +673,8 @@
   (make-hint-seq
    (list (strcat "The spring constant should be specified for "
 		 "the object that is being compressed, such as a spring.")
-	 (format nil "You should define the spring constant of ~a instead ~a."
-		 (nlg cspring 'def-np) (nlg sspring 'def-np)))))
+	 `(bottom-out (string ,(format nil "You should define the spring constant of ~a instead ~a."
+		 (nlg cspring 'def-np) (nlg sspring 'def-np)))))))
 
 
 ;;; I can't find a problem to test this.  Spring constant appears on
@@ -715,8 +715,8 @@
   (make-hint-seq
    (list (strcat "You should specify the height of the "
 		 "body whose motion is being analyzed.")
-	 (format nil "Define the height of ~a instead of ~a."
-		 (nlg cbody 'def-np) (nlg sbody 'def-np)))))
+	 `(bottom-out (string ,(format nil "Define the height of ~a instead of ~a."
+		 (nlg cbody 'def-np) (nlg sbody 'def-np)))))))
 
 ;;; special case: Students might think that height is relative, so
 ;;; they could define it using a time interval.  Andes doesn't use
@@ -778,8 +778,8 @@
    (list (format nil "Are you sure you need the moment of inertia of ~a?"
 		 (nlg sbody 'def-np))
 	 *dyi*
-	 (format nil "Define the moment-of-inertia for ~a instead of ~a."
-		 (nlg cbody 'def-np) (nlg sbody 'def-np)))))
+	 `(bottom-out (string ,(format nil "Define the moment-of-inertia for ~a instead of ~a."
+		 (nlg cbody 'def-np) (nlg sbody 'def-np)))))))
 
 ;;; ==================== radius of revolution ============================
 ;;; There are two slots on the radius variable tool: body and time, except 
@@ -808,9 +808,9 @@
 	 (format nil (strcat "Choose an object that is moving in a circle.  "
 			     "Even if ~a has the same radius, it's really the"
 			     " radius of the motion that matters.") sbody)
-	 (format nil (strcat "Because ~a is moving in a circle, define the "
+	 `(bottom-out (string ,(format nil (strcat "Because ~a is moving in a circle, define the "
 			     "radius of its motion instead of ~a.")
-		 (nlg cbody 'def-np) sbody))))
+		 (nlg cbody 'def-np) sbody))))))
 
 ;;; =============== defining the radius of an object =================
 ;;; The radius drawing tool and the define variable > radius both
@@ -828,8 +828,8 @@
   (make-hint-seq
    (list (format nil "Are you sure it's ~a that you want the radius of?"
 		 (nlg sbody 'def-np))
-	 (format nil "Define a variable for the radius of ~a."
-		 (nlg cbody 'def-np)))))
+	 `(bottom-out (string ,(format nil "Define a variable for the radius of ~a."
+		 (nlg cbody 'def-np)))))))
 
 (def-error-class wrong-kind-of-radius (?body)
   ((student    (define-var (radius-of-circle ?body)))
@@ -869,8 +869,8 @@
   (setq type (nlg type 'lower-case))
   (make-hint-seq
    (list (format nil "Are you sure you need the ~a of ~a?" type sbody)
-	 (format nil "Define the ~a of ~a instead of ~a." 
-		 type (nlg cbody 'def-np) sbody))))
+	 `(bottom-out (string ,(format nil "Define the ~a of ~a instead of ~a." 
+		 type (nlg cbody 'def-np) sbody))))))
 
 ;;; On torque problems with bars, if the pivot is at one end of the
 ;;; bar, then the bar's length has the same value as the position of
@@ -928,8 +928,8 @@
 			     "Are you sure you need ~a to have a work "
 			     "variable defined for it?") (nlg sbody 'def-np))
 	 *dyi*
-	 (format nil "Try defining the work on ~a done by ~a."
-		 (nlg cbody 'def-np) (nlg cagent 'def-np)))))
+	 `(bottom-out (string ,(format nil "Try defining the work on ~a done by ~a."
+		 (nlg cbody 'def-np) (nlg cagent 'def-np)))))))
 
 ;;; If the student gets the body right but the agent wrong, then 
 ;;; teach when work gets done.
@@ -946,9 +946,9 @@
 	 (strcat "An object does work on a moving body when it exerts a "
 		 "force on the body and the force is not perpendicular "
 		 "to the object's motion.")
-	 (format nil (strcat "Instead of defining the work done by ~a, you "
+	 `(bottom-out (string ,(format nil (strcat "Instead of defining the work done by ~a, you "
 			     "could try defining the work done by ~a instead.")
-	    (nlg sagent 'def-np) (nlg cagent 'def-np)))))
+	    (nlg sagent 'def-np) (nlg cagent 'def-np)))))))
 
 ;;; ======================= net work ==============================
 ;;; There are two slots: the body and the time.  The general code
@@ -968,8 +968,8 @@
 		 "when solving the problem, the net work of only some "
 		 "bodies is useful.")
 	 *dyi*
-	 (format nil "Try defining the net work done on ~a instead of on ~a."
-		 (nlg cbody 'def-np) (nlg sbody 'def-np)))))
+	 `(bottom-out (string ,(format nil "Try defining the net work done on ~a instead of on ~a."
+		 (nlg cbody 'def-np) (nlg sbody 'def-np)))))))
 
 
 ;;; ===================== optics variables ============================
@@ -1064,9 +1064,9 @@
    (list "It is okay to choose a massless object as the body."
 	 (strcat "Choose a body that fits your strategy even if it doesn't "
 		 "have mass.")
-	 (format nil (strcat "Although ~a has mass, it is not a good choice "
+	 `(bottom-out (string ,(format nil (strcat "Although ~a has mass, it is not a good choice "
 			     "for the body.  Analyze the motion of ~a "
-			     "instead.") wrong-body correct-body))))
+			     "instead.") wrong-body correct-body))))))
 
 ;; the student draws a body for an object but another object needs defining
 (def-error-class wrong-object-for-body-tool (?correct-body)
@@ -1081,7 +1081,7 @@
    (list (strcat "What other bodies can you define?")
 	 (format nil (strcat "Analyzing ~a is more important for solving " 
 			     "this problem.") correct-body)
-	 (format nil "Choose ~a as the body." correct-body))))
+	 `(bottom-out (string ,(format nil "Choose ~a as the body." correct-body))))))
 
 ;; the student draws a body, but it doesn't need defining.
 (def-error-class extra-object-for-body-tool (?wrong-body)
@@ -1186,9 +1186,8 @@
 		 "to the sought vector.  If  you are seeking a scalar quantity, "
 		 "then you should rotate the axes to maximize the number of "
 		 "vectors that are parallel to axes.")
-	 (format nil (strcat "You should rotate the axes by ~a degrees.  To "
-			     "do so, double click on the axes and put ~a in "
-			     "the white box") rot rot))))
+	 `(bottom-out (string ,(format nil (strcat "You should rotate the axes by ~a degrees.&nbsp; To "
+			     "do so, double click on the axes and change the angle.") rot rot))))))
 
 
 ;; ================================================================
@@ -1243,10 +1242,10 @@
 (defun default-should-be-non-zero ()
   (make-hint-seq
    (append (list "Do you really want that vector to have a zero magnitude?"
-		 ; don't give bottom-out hint prematurely
-	         ;"It should have a non-zero magnitude." 
+		 ;; don't give bottom-out hint prematurely
+	         ;; "It should have a non-zero magnitude." 
 		 )
-           ; delegate to operator hints to explain correct magnitude.
+           ;; delegate to operator hints to explain correct magnitude.
 	   (sg-map-systemEntry->hints *correct-entry*)
 	 )))
 
@@ -1269,10 +1268,10 @@
    (append
      (list (format nil "Do you really want the direction of that ~A to be ~A?"
 		 object (nlg wrong-dir 'adj))
-	   ; Don't give this bottom-out hint prematurely
-	   ; (format nil "It should be ~a." (nlg correct-dir 'adj))
+	   ;; Don't give this bottom-out hint prematurely
+	   ;; (format nil "It should be ~a." (nlg correct-dir 'adj))
 	   )
-     ; delegate to the operator hints to explain correct direction.
+     ;; delegate to the operator hints to explain correct direction.
      (sg-map-systemEntry->hints *correct-entry*))))
 
 ;;; !!! want special case message if drawn in the plane when should 
@@ -1305,7 +1304,7 @@
    (list (format nil (strcat "You don't need to draw ~a ~a.  You need to draw "
 			     "it for a different time. ") 
 			     descr bad-time)
-	 (format nil "You should draw ~a ~a." descr good-time))))
+	 `(bottom-out (string ,(format nil "You should draw ~a ~a." descr good-time))))))
 
 ;;; (ref Pitt non-eqn 2-29-27) If the student defines a vector only
 ;;; for a time inside the time interval of the correct system entry,
@@ -1330,8 +1329,8 @@
    (list (format nil (strcat "Although ~a certainly exists ~a, you want to "
 			     "analyze its motion ~a.")
 		 descr wrong-time correct-time correct-time)
-	 (format nil "Define ~a ~a instead of ~a."
-		 descr correct-time wrong-time ))))
+	 `(bottom-out (string ,(format nil "Define ~a ~a instead of ~a."
+		 descr correct-time wrong-time ))))))
 
 ;;; default for wrong time and direction.  This is less likely than
 ;;; just one of them being wrong.  The low probability is not
@@ -1359,10 +1358,10 @@
 		 "Next-Step-Help and it will guide you in "
 		 "defining a solution.")
 	 *dyi*
-	 (format nil (strcat "You should draw ~a ~a with a ~a direction, "
+	 `(bottom-out (string ,(format nil (strcat "You should draw ~a ~a with a ~a direction, "
 			     "rather than ~a with a ~a direction")
 		 (nlg descr 'def-np) (nlg ctime 'pp) (nlg cdir 'adj) 
-		 (nlg stime 'pp) (nlg sdir 'adj)))))
+		 (nlg stime 'pp) (nlg sdir 'adj)))))))
 
 ;;; default in case everything but body matches some correct vector
 ;;; high probability since close match
@@ -1381,7 +1380,7 @@
   (make-hint-seq
    (list (format nil "Are you sure you want the body on that vector to be ~a?" 
 		 wrong-body)
-	 (format nil "Maybe the body should be ~a." correct-body))))
+	 `(bottom-out (string ,(format nil "Maybe the body should be ~a." correct-body))))))
 
 ;;; default error handler for wrong body choice, such that no correct
 ;;; vector on that body exists in the solution. Ignores time.  Ignores the
@@ -1407,9 +1406,9 @@
   (make-hint-seq
    (list (format nil "Are you sure you want to define a vector for ~a?" 
 		 (def-np wrong-body))
-	 (format nil (strcat "A better choice of body (but maybe not the "
+	 `(bottom-out (string ,(format nil (strcat "A better choice of body (but maybe not the "
 			     "only one) would be ~a.") 
-		 (def-np correct-body)))))
+		 (def-np correct-body)))))))
 
 
 ;;; On some problems, the student's vector just doesn't appear in any solution.
@@ -1495,7 +1494,7 @@
   (make-hint-seq
    (list (format nil "Are you sure you want to draw ~a?" 
 		 wrong-line)
-	 (format nil "You should draw ~a." correct-line))))
+	 `(bottom-out (string ,(format nil "You should draw ~a." correct-line))))))
 
 
 ;;; ==================== velocity drawing ===========================
@@ -1512,7 +1511,7 @@
   (setf body (nlg body 'def-np))
   (make-hint-seq
    (list "On this problem, you should use speed instead of velocity."
-	 (format nil "Delete the velocity and define a speed variable for ~a." 
+	 (format nil "Delete the velocity vector and define a speed variable for ~a." 
 		 body))))
 
 ;;; If the student draws a zero velocity when it should be non-zero,
@@ -1529,9 +1528,9 @@
   (setf time (nlg time 'pp))
   (make-hint-seq
    (list (format nil "Is ~a is at rest ~a?" body time)
-	 (format nil (strcat "Since ~a is not at rest ~a, the "
+	 `(bottom-out (string ,(format nil (strcat "Since ~a is not at rest ~a, the "
 			     "velocity vector needs to be non-zero.") 
-		 body time))))
+		 body time))))))
 
 
 ;;; If the student draws a non-zero velocity vector when it should be
@@ -1552,8 +1551,8 @@
    (list (format nil "Are you sure the velocity of ~a is non-zero ~a?" body time)
 	 (format nil "Because ~a is at rest ~a, its velocity ~a is zero." 
 		 body time time)
-	 (strcat "Click on this vector and change its length to be zero.&nbsp; "
-		 "The vector will be drawn as a circle to indicate it has zero length."))))
+	 `(bottom-out (string ,(strcat "Click on this vector and change its length to be zero.&nbsp; "
+		 "The vector will be drawn as a circle to indicate it has zero length."))))))
 
 ;;; ====================== drawing acceleration ====================
 ;;; the default cases are handled by the general vector error classes,
@@ -1580,8 +1579,8 @@
 		 "down, its acceleration is in the opposite direction from "
 		 "its velocity.  That is, it opposes the velocity, reducing "
 		 "it, and thus slowing the body down.")
-	 (format nil "Make the direction of the acceleration be ~a instead of ~a."
-		 (nlg cdir 'adj) (nlg sdir 'adj)))))
+	 `(bottom-out (string ,(format nil "Make the direction of the acceleration be ~a instead of ~a."
+		 (nlg cdir 'adj) (nlg sdir 'adj)))))))
 
 
 ;;; =================== drawing displacement ===================== 
@@ -1703,8 +1702,8 @@
   (make-hint-seq
    (list (format nil "Although that force does act on ~a, in problems where the precise point of application of a force matters, you should define the force as acting on the point of application." 
 		 wrong-body)
-	 (format nil "Define the force to act on ~a instead of ~A." 
-	         correct-body wrong-body))))
+	 `(bottom-out (string ,(format nil "Define the force to act on ~a instead of ~A." 
+	         correct-body wrong-body))))))
 
 ;;; If the student gets the body and type right but the agent wrong,
 ;;; then teach them the force-is-an-interaction concept.
@@ -1721,21 +1720,21 @@
 (defun force-wrong-agent (body sagent cagent ctime type)
   (declare (ignore ctime))
   (make-hint-seq
-   (list (if sagent (format nil "Is the force really ~A?" 
+   (list `(point (string ,(if sagent (format nil "Is the force really ~A?" 
 			    (agent-phrase sagent))
-	     "What is causing the force?")
+	     "What is causing the force?")))
 	 ;; contact-and-field-forces
-	 (strcat "Forces are caused by interacting objects.&nbsp; "
+	 `(teach (string ,(strcat "Forces are caused by interacting objects.&nbsp; "
 		 "The force can either be a field force, such as weight, "
 		 "in which case the "
 		 "objects do not have to touch.&nbsp; Or the force is a "
 		 "contact "
 		 "force, such as tension or friction, in which case the "
-		 "objects must touch.")
-	 (format nil "Draw a ~a force on ~a~@[ ~A~]~@[ instead of ~a~]."
+		 "objects must touch.")))
+	 `(bottom-out (string ,(format nil "Draw a ~a force on ~a~@[ ~A~]~@[ instead of ~a~]."
 		 (nlg type 'adj) (nlg body 'def-np)
 		 (agent-phrase cagent)
-		 (def-np sagent)))))
+		 (def-np sagent)))))))
 
 
 
@@ -1774,8 +1773,8 @@
 	   (format nil (strcat "For this problem you only need to define "
 			       "a net-force vector on ~a.") b)
 	   *dyi*
-	   (format nil (strcat "You need to define a net-force on ~a "
-			       "~a at ~a.") b nt nd)))))
+	   `(bottom-out (string ,(format nil (strcat "You need to define a net-force on ~a "
+			       "~a at ~a.") b nt nd)))))))
 		 
 
 ;;; ------------------ Right Body and Agent, wrong Type ------------------
@@ -1810,7 +1809,7 @@
 			     (quantity-html-link 
 			      (lookup-exptype-struct 'force)) 
 			     " acting on " (nlg body 'def-np) ".")
-	 (format nil "It is a ~a force" (nlg ctype 'adj)))))
+	 `(bottom-out (string ,(format nil "It is a ~a force" (nlg ctype 'adj)))))))
 
 ;;; Typically there is only one force between the two objects and so all 
 ;;; that we need to do is tell them the right one to use.  This 
@@ -1830,7 +1829,7 @@
    (list (format nil (strcat "There is indeed a force on ~a~@[~a~], "
 			     "but it is not a ~a force.")
 		 (nlg body 'def-np) (agent-phrase agent) (nlg stype 'adj))
-	 (format nil "It is a ~a force" (nlg ctype 'adj)))))
+	 `(bottom-out (string ,(format nil "It is a ~a force" (nlg ctype 'adj)))))))
 
 
 ;;; When there are two forces on same body given a specific time and
@@ -1872,10 +1871,10 @@
 			     "define one of them.")
 		 (nlg body 'def-np) (agent-phrase agent) 
 		 (nlg frict-type 'adj) (nlg force-type 'adj))
-	 (format nil (strcat "Change the force type to either ~a or ~a, "
+	 `(bottom-out (string ,(format nil (strcat "Change the force type to either ~a or ~a, "
 	                     "adjusting the direction if necessary to "
 			     "match your choice.")
-		 (nlg frict-type 'adj) (nlg force-type 'adj)))))
+		 (nlg frict-type 'adj) (nlg force-type 'adj)))))))
 
 
 
@@ -1915,10 +1914,10 @@
 		 (nlg frict-type 'adj) (nlg force-type 'adj) 
 		 (nlg frict-type 'adj))
 	 *dyi*
-	 (format nil (strcat "You should draw a ~a force on ~a due to "
+	 `(bottom-out (string ,(format nil (strcat "You should draw a ~a force on ~a due to "
 			     "~a ~a at ~a")
 		 (nlg force-type 'adj) (nlg body 'def-np) (nlg agent 'def-np) 
-		 (nlg ctime 'pp) (nlg force-dir 'def-np)))))
+		 (nlg ctime 'pp) (nlg force-dir 'def-np)))))))
 
 
 
@@ -1950,10 +1949,10 @@
 		 (nlg frict-type 'adj) (nlg force-type 'adj) 
 		 (nlg force-type 'adj))
 	 *dyi*
-	 (format nil (strcat "You should draw a ~a force on ~a due to "
+	 `(bottom-out (string ,(format nil (strcat "You should draw a ~a force on ~a due to "
 			     "~a ~a at ~a")
 		 (nlg frict-type 'adj) (nlg body 'def-np) (nlg agent 'def-np) 
-		 (nlg ctime 'pp) (nlg frict-dir 'def-np)))))
+		 (nlg ctime 'pp) (nlg frict-dir 'def-np)))))))
 
 
 
@@ -1992,9 +1991,9 @@
 			 "it is not needed for solving this problem.")
 		  (nlg stype 'adj) body (agent-phrase sagent))
 
-	 (format nil (strcat "You could try drawing a ~a "
+	 `(bottom-out (string ,(format nil (strcat "You could try drawing a ~a "
 			     "force on ~a~@[ ~A~].")
-		 (nlg ctype 'adj) body (agent-phrase cagent)))))
+		 (nlg ctype 'adj) body (agent-phrase cagent)))))))
 
 
 
@@ -2021,8 +2020,8 @@
 	    "and a nearby planet.  Indeed, if the planet vanished, so would "
 	    "the force.")
 
-    (format nil (strcat "Change the definition of the force so it is due "
-			"to ~a instead of ~a.") (nlg planet 'def-np) object))))
+    `(bottom-out (string ,(format nil (strcat "Change the definition of the force so it is due "
+			"to ~a instead of ~a.") (nlg planet 'def-np) object))))))
 
 
 
@@ -2090,8 +2089,8 @@
     (strcat "When a surface pushes on an object, the force it "
 	    "exerts is called a 'normal' force.")
 
-    (format nil (strcat "Double click on the force and change "
-			"the type from ~a to normal.") badtype))))
+    `(bottom-out (string ,(format nil (strcat "Double click on the force and change "
+			"the type from ~a to normal.") badtype))))))
 
 ;;; Special case: (ref Pitt 1-56-19) If the student draws a force that
 ;;; is correct except that the body and agent are switched, then they
@@ -2109,9 +2108,9 @@
     (strcat "Judging from the direction and type of force you "
 	    "drew, I'd guess you got the two objects switched.")
 
-    (format nil (strcat "Try defining the force on ~a~@[ ~A~], "
+    `(bottom-out (string ,(format nil (strcat "Try defining the force on ~a~@[ ~A~], "
 			"rather than the force on ~a~@[ ~A~].")
-	    sagent sbody sbody sagent))))
+	    sagent sbody sbody sagent))))))
 
 
 
@@ -2132,9 +2131,9 @@
 	    "that causes it.  Of course the normal force is a 'pushing' "
 	    "force rather than a 'pulling' force, so it points away from "
 	    "the surface, not into it.")
-    (format nil (strcat "Because the normal force on ~a is perpendicular "
+    `(bottom-out (string ,(format nil (strcat "Because the normal force on ~a is perpendicular "
 			"to ~a, make its direction be ~a.")
-	    (nlg body 'def-np) (nlg surface 'def-np) (nlg dir 'adj)))))
+	    (nlg body 'def-np) (nlg surface 'def-np) (nlg dir 'adj)))))))
 
 
 ;;; Special case: (ref pitt 1-35-23) Friction forces should
@@ -2152,8 +2151,8 @@
     "Think about the direction of the force."
     ;; teach friction-is-parallel
     "Friction forces are always parallel to the surface causing them."
-    (format nil "The direction of the force should be ~a instead of ~a."
-	    (nlg cdir 'adj) (nlg sdir 'adj)))))
+    `(bottom-out (string ,(format nil "The direction of the force should be ~a instead of ~a."
+	    (nlg cdir 'adj) (nlg sdir 'adj)))))))
 
 ;;; Special case: Static friction opposes the direction of relative motion
 (def-error-class static-friction-force-sense (?sdir ?cdir)
@@ -2172,8 +2171,8 @@
 	    "that the surface is frictionless, and see which direction "
 	    "the body would move relative to the surface.  The static "
 	    "friction opposes this imaginary relative motion.")
-    (format nil "The direction of the force should be ~a instead of ~a."
-	    (nlg cdir 'adj) (nlg sdir 'adj)))))
+    `(bottom-out (string ,(format nil "The direction of the force should be ~a instead of ~a."
+	    (nlg cdir 'adj) (nlg sdir 'adj)))))))
 
 ;;; Special case: Kinetic friction opposes the direction of relative motion
 (def-error-class kinetic-friction-force-sense (?sdir ?cdir)
@@ -2191,8 +2190,8 @@
     (strcat "Kinetic friction opposes the direction of relative motion.  "
 	    "For example, if an object is moving leftward across a surface, "
 	    "the kinetic friction points rightward.")
-    (format nil "The direction of the force should be ~a instead of ~a."
-	    (nlg cdir 'adj) (nlg sdir 'adj)))))
+    `(bottom-out (string ,(format nil "The direction of the force should be ~a instead of ~a."
+	    (nlg cdir 'adj) (nlg sdir 'adj)))))))
 
 
 ;;; ==================== drawing net force ========================
@@ -2246,10 +2245,10 @@
 			"a non-zero acceleration, the net force acting on "
 			"it must be non-zero.  This follows directly from "
 			"Newton's law, <var>F</var>=<var>m</var> <var>a</var>.") speed-up-or-slow-down)
-    (format nil (strcat "Because ~a is ~a ~a, it has non-zero acceleration.  "
+    `(bottom-out (string ,(format nil (strcat "Because ~a is ~a ~a, it has non-zero acceleration.  "
 			"You should change the net force to make it "
 			"a non-zero vector.") 
-	    body speed-up-or-slow-down time ))))
+	    body speed-up-or-slow-down time ))))))
 
 
 
@@ -2299,8 +2298,8 @@
 			"the body whose rotation you want to analyze.")
 	    (nlg spt 'def-np))
     
-    (format nil "For instance, define the ~A due to a force applied to ~a."
-	  (moment-name)  (nlg cpt 'def-np)))))
+    `(bottom-out (string ,(format nil "For instance, define the ~A due to a force applied to ~a."
+	  (moment-name)  (nlg cpt 'def-np)))))))
 
 ;;; default case for a correct applied point but a wrong axis point.
 ;;; Probably a user-interface confusion, so handled it bluntly.
@@ -2325,8 +2324,8 @@
 			"  Is that what you really want?") 
 	    (nlg spt 'def-np) (nlg body 'def-np))
 
-    (format nil "Because ~a rotates about ~a, choose it as the axis point."
-	    (nlg body 'def-np) (nlg cpt 'def-np)))))
+    `(bottom-out (string ,(format nil "Because ~a rotates about ~a, choose it as the axis point."
+	    (nlg body 'def-np) (nlg cpt 'def-np)))))))
 
 ; instead of non-existent-vector when need net-torque
 ; Note we don't check for matches on net-torque args, just prompt them to
@@ -2516,8 +2515,8 @@
 			"about.  Is that what you really want?")
 	    (nlg spt 'def-np) (nlg body 'def-np))
     
-    (format nil "Because ~a rotates about ~a, choose it as the axis point."
-	    (nlg body 'def-np) (nlg cpt 'def-np)))))
+    `(bottom-out (string ,(format nil "Because ~a rotates about ~a, choose it as the axis point."
+	    (nlg body 'def-np) (nlg cpt 'def-np)))))))
 
 
 ;;; ============= drawing relative position vectors ================
@@ -2547,9 +2546,9 @@
    (list
     (format nil "Do you really want the relative position of ~a?"
 	    (nlg spt 'def-np))
-    (format nil (strcat "Perhaps you should define the relative position "
+    `(bottom-out (string ,(format nil (strcat "Perhaps you should define the relative position "
 			"from ~a to ~a instead of to ~a.")
-	    (nlg cpivot 'def-np) (nlg cpt 'def-np) (nlg spt 'def-np)))))
+	    (nlg cpivot 'def-np) (nlg cpt 'def-np) (nlg spt 'def-np)))))))
 
 ;;; default case for a correct point but a wrong refernce point.
 ;;; Probably a user-interface confusion, so handled it bluntly.
@@ -2570,9 +2569,9 @@
    (list
     (format nil (strcat "You've picked ~a as the reference point.  "
 			"Is that what you really want?") (nlg spt 'def-np))
-    (format nil (strcat "You probably want to define the relative position "
+    `(bottom-out (string ,(format nil (strcat "You probably want to define the relative position "
 			"from ~a instead of from ~a.")
-	    (nlg cpt 'def-np) (nlg spt 'def-np)))))
+	    (nlg cpt 'def-np) (nlg spt 'def-np)))))))
 
 ;;; Case where defined opposite relative position than one we want. Exact 
 ;;; reason we want direction rather than another depends on equation being 
@@ -2604,9 +2603,9 @@
    (list 
     (format nil (strcat "The relative position you defined will point FROM ~a TO ~a. "
                         "Is that the direction you want?") (nlg cpt) (nlg cref-pt))
-    (format nil (strcat "For this problem you need to use the relative position "
+    `(bottom-out (string ,(format nil (strcat "For this problem you need to use the relative position "
                         "of ~a with respect to ~a, instead of the other way around.")
-			 (nlg cpt) (nlg cref-pt)))))
+			 (nlg cpt) (nlg cref-pt)))))))
 
 ;;; ===================== relative-vel ============================
 
@@ -2655,8 +2654,8 @@
     (format nil (strcat "For doppler problems, you should define velocities  "
 			"with respect to the wave medium (~A).") 
 	    (nlg cpt 'def-np))
-    (format nil (strcat "Define the velocity of ~A with respect to ~A.")
-	    (nlg pt 'def-np) (nlg cpt 'def-np)))))
+    `(bottom-out (string ,(format nil (strcat "Define the velocity of ~A with respect to ~A.")
+	    (nlg pt 'def-np) (nlg cpt 'def-np)))))))
 
 ;;; ============= drawing electric/magnetic field vectors ================
 ;;; quantity has location, agent and time.
@@ -2676,8 +2675,8 @@
   (make-hint-seq
    (list (format nil "Are you sure you want to consider the ~a field at ~a?" 
 		      (nlg fieldtype 'adj) wrong-loc)
-	 (format nil (strcat "A better choice of location (but maybe not the "
-			     "only one) would be ~a.") correct-loc))))
+	 `(bottom-out (string ,(format nil (strcat "A better choice of location (but maybe not the "
+			     "only one) would be ~a.") correct-loc))))))
 
 (def-error-class field-loc-too-specific (?cloc ?sloc ?type)
   ((student (vector (field ?type :location ?sloc :source ?sagent :time ?stime) ?sdir))
@@ -2692,10 +2691,10 @@
   (setf correct-loc (nlg correct-loc 'def-np))
   (setf wrong-loc (nlg wrong-loc 'def-np))
   (make-hint-seq
-   (list (format nil "Yes, an ~a field exists at ~a.  However, you can define it for a more general region." 
+   (list (format nil "Yes, an ~a field exists at ~a.&nbsp;  However, you can define it for a more general region." 
 		      (nlg fieldtype 'adj) wrong-loc)
-	 (format nil (strcat "A more general choice of location "
-			     "would be ~a.") correct-loc))))
+	 `(bottom-out (string ,(format nil (strcat "A more general choice of location "
+			     "would be ~a.") correct-loc))))))
 
 (def-error-class field-wrong-agent (?sagent ?cagent ?loc ?type)
   ((student    (vector (field ?type :location ?loc :source ?sagent :time ?stime) ?sdir))
@@ -2712,10 +2711,10 @@
                         (def-np sagent) (nlg fieldtype 'adj))
 	(format nil "What is source of the ~a field?"
 		(nlg fieldtype 'adj)))
-    (format nil (strcat "A better choice (but maybe not the only one) "
+    `(bottom-out (string ,(format nil (strcat "A better choice (but maybe not the only one) "
                          "would be the field~@[ ~A~]~@[, not ~a~].") 
                           (agent-phrase cagent) 
-			  (def-np sagent)))))
+			  (def-np sagent)))))))
 
 ;; instead of non-existent-vector when net-field is used:
 (def-error-class should-be-net-field (?type) 
@@ -2744,8 +2743,8 @@
    (list
     (format nil (strcat "Is the field really supposed to be ~A?") 
                         (nlg stype 'adj) )
-    (format nil (strcat "You probably want the ~A field.")
-                          (nlg ctype 'adj)))))
+    `(bottom-out (string ,(format nil (strcat "You probably want the ~A field.")
+                          (nlg ctype 'adj)))))))
 
 (def-error-class flux-wrong-type (?stype ?ctype ?loc)
   ((student    (define-var (flux ?loc ?stype :time ?stime)))
@@ -2759,8 +2758,8 @@
    (list
     (format nil (strcat "Is the flux really supposed to be ~A?") 
                         (nlg stype 'adj) )
-    (format nil (strcat "You probably want the ~A flux.")
-                          (nlg ctype 'adj)))))
+    `(bottom-out (string ,(format nil (strcat "You probably want the ~A flux.")
+                          (nlg ctype 'adj)))))))
 
 (def-error-class dipole-moment-wrong-type (?stype ?ctype ?loc)
   ((student    (vector (dipole-moment ?loc ?stype :time ?stime) ?sdir))
@@ -2774,8 +2773,8 @@
    (list
     (format nil (strcat "Is the dipole moment really supposed to be ~A?") 
                         (nlg stype 'adj) )
-    (format nil (strcat "You probably want the ~A dipole moment.")
-                          (nlg ctype 'adj)))))
+    `(bottom-out (string ,(format nil (strcat "You probably want the ~A dipole moment.")
+                          (nlg ctype 'adj)))))))
 
 
 ;;; -------------------------- equation error handlers ------------------------
@@ -2825,10 +2824,10 @@
     (format nil "Did you really mean to use ~a in this equation?  ~a is defined as ~a." 
                 (nlg svar 'algebra) (nlg svar 'algebra) (nlg squant))
     ; use var-or-quant for cvar since might not be any student var for it yet
-    (format nil (strcat "I am not sure this is what you intended, but "
+    `(bottom-out (string ,(format nil (strcat "I am not sure this is what you intended, but "
                         "replacing one occurrence of ~a with ~a "
 			"would make this equation numerically correct. ")
-	    (nlg svar 'algebra) (nlg cquant 'var-or-quant))))))
+	    (nlg svar 'algebra) (nlg cquant 'var-or-quant))))))))
 
 ;;; Used as a rough means for picking correct variables whose
 ;;; definitions are "similar" to the student's variable's definition.
@@ -2922,8 +2921,8 @@
    (list
     (format nil "You used ~a, which is the MAGNITUDE of ~a.  Is that what you intended?"
 	    (nlg svar 'algebra) (nlg vector 'def-np))
-    (format nil  "Instead of the magnitude, perhaps you should use the component along an axis."
-	   ))))
+    `(bottom-out (string ,(format nil  "Instead of the magnitude, perhaps you should use the component along an axis."
+	   ))))))
 
 
 ;;; ============== trig & projection errors ====================================
@@ -3001,8 +3000,8 @@
     (format nil (strcat "The ~a(~a) means ~a(~a rad).  You need to write ~a(~a deg) "
 			"in order to get the ~a interpreted as degrees.") 
 	    trig-fn arg trig-fn arg trig-fn arg arg)
-    (format nil "Replace ~a(~a) with ~a(~a deg) in your equation."
-	    trig-fn arg trig-fn arg))))
+    `(bottom-out (string ,(format nil "Replace ~a(~a) with ~a(~a deg) in your equation."
+	    trig-fn arg trig-fn arg))))))
 
 ;;; (ref eq-Pitt A8  1-17-51) If the student enters "V_y = 0" when the
 ;;; correct equation is "V_y=V", then they have got the two special
@@ -3060,9 +3059,9 @@
 			"orientations. You need to take this into account when calculating the projection of a vector along the axis.")
 	    rot)
     ;; !!! general formula and link to minilesson here
-    (format nil (strcat "Because the positive x axis is rotated by &theta;x = ~A deg from the horizontal, change ~A to ~A in your equation.")
+    `(bottom-out (string ,(format nil (strcat "Because the positive x axis is rotated by &theta;x = ~A deg from the horizontal, change ~A to ~A in your equation.")
             (algebra rot) (algebra bad-expr) (algebra good-expr))
-   ))))
+   ))))))
 
 ;; TODO: if used wrong angle value (var or numerical)
 ;;   Maybe special case if off by 180 degrees?  Especially common
@@ -3086,8 +3085,8 @@
 (defun default-sign-error (var)
   (make-hint-seq
    (list "Check your signs."
-	 (format nil "Perhaps the sign of the ~a term should be changed." 
-		 (nlg var 'algebra)))))
+	 `(bottom-out (string ,(format nil "Perhaps the sign of the ~a term should be changed." 
+		 (nlg var 'algebra)))))))
 
 (def-error-class abs-sign-error ()
   ;; student equation does not contain an absolute value
@@ -3173,9 +3172,9 @@
 			  "with either -~a or with ~a")
 	      xyz (nlg compo-var 'algebra)
 	      (nlg compo-var 'algebra) (nlg mag-var 'algebra))|#
-	(format nil (strcat "Changing the sign on ~a "
+	`(bottom-out (string ,(format nil (strcat "Changing the sign on ~a "
 			    "would make this a correct equation.")
-	      (nlg compo-var 'algebra))
+	      (nlg compo-var 'algebra))))
 )))
 
 
@@ -3222,9 +3221,9 @@
 			  "is parallel to the ~a axis but in the negative "
 			  "direction, the projection equation is ~a.") 
 	      vector xyz xyz (nlg `(= ,compo-var (- ,mag-var)) 'algebra))
-      (format nil (strcat "Because the vector is parallel to the ~a axis and in "
+      `(bottom-out (string ,(format nil (strcat "Because the vector is parallel to the ~a axis and in "
 			  "the negative direction, replace ~a with either -~a or ~a")
-	      xyz (nlg mag-var 'algebra) (nlg mag-var 'algebra) (nlg compo-var 'algebra)))))
+	      xyz (nlg mag-var 'algebra) (nlg mag-var 'algebra) (nlg compo-var 'algebra)))))))
 
 ;;; (ref eq-Pitt A8 2-25-02) Students sometimes think that because the
 ;;; accel due to gravity is downward, there should be a negative sign
@@ -3366,13 +3365,13 @@
       (make-hint-seq
        (list (format nil "Did you leave a ~A out of your sum of ~As?"
 		     quant quant) ;no nlg here
-	     (format nil "You left ~a out of your sum of ~As" 
-		     (nlg (car forces) 'def-np) quant)))
+	     `(bottom-out (string ,(format nil "You left ~a out of your sum of ~As" 
+		     (nlg (car forces) 'def-np) quant)))))
     (make-hint-seq
      (list (format nil "Some ~As may be missing from your sum of ~As."
 		   quant quant) ;no nlg here
-	   (format nil "You left several ~As out: ~a"
-		   quant (nlg forces 'conjoined-defnp))))))
+	   `(bottom-out (string ,(format nil "You left several ~As out: ~a"
+		   quant (nlg forces 'conjoined-defnp))))))))
 
 (defun hint-undrawn-vector (msg vector-quant)
   "Return a hint sequence for a vector that has not yet been drawn by
@@ -3383,6 +3382,7 @@
 	(time (time-of vector-quant)))
     (make-hint-seq
      (cons (format nil msg (nlg body 'def-np) (nlg  time 'pp))
+	   ;defer to operator hints.
            (sg-map-systemEntry->hints (sg-find-vector-entry vector-quant))))))
 
 
@@ -3499,13 +3499,13 @@
 		      "When the acceleration is zero, you should always write "
 		      "Newton's second law in the form <all-forces>=0.") 
 	      ldir rdir)
-      (format nil (strcat "You can rewrite your equation as ~a=0.  There may "
+      `(bottom-out (string ,(format nil (strcat "You can rewrite your equation as ~a=0.  There may "
 			  "be other errors in your equation, but this form will be "
 			  "an improvement.")
 	      (nlg (cons '+ (append (if (and (consp lhs) (eq (first lhs) '+)) 
 				      (cdr lhs) (list lhs)) 
 				    (if (and (consp rhs) (eq (first rhs) '+)) 
-					(cdr rhs) (list rhs)))) 'algebra)))))
+					(cdr rhs) (list rhs)))) 'algebra)))))))
 
 (defun directed-forces (dirs)
   "Are all the forces pointing in the same direction?"
@@ -3688,8 +3688,8 @@
         (format nil "~A is not the correct value for ~A, ~A.&nbsp;  ~A can be determined ~A." 
 	            studval studvar (nlg quant) studvar given-loc)
 	;; ?? should we tell them correct given value?
-	(format nil "~@[~A  ~]The correct value for ~A is ~A." more studvar rightval)
-   ))))
+	`(bottom-out (string ,(format nil "~@[~A  ~]The correct value for ~A is ~A." more studvar rightval))))
+   )))
 
 ;; Wrong value for a non-given (i.e. calculated) quantity: 
 ;;  1. Parameter?

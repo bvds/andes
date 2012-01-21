@@ -36,6 +36,7 @@
 ;;  produced the desired hint along and its status (bottom-out, etc.)
 ;;  This will allow reconstruction from hints as necessary.
 ;;
+(in-package :cl-user)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -318,14 +319,14 @@
 ;; Assoc
 ;; Assoc is presumed to be a value that we want added to the 
 ;; Assoc field of the next hint.  If an assoc is passed in 
-;; at the top level then it will be perpetuated to all 
+;; at the top level then it will be inherited by all 
 ;; successive hints.  
 ;;
-;; If no assoc is passed in then, if ophints are encountered 
-;; then they will set the assoc fields to reflect their types
-;; and values.  they will be of the form (op, <type> <Class>)
-;; where type is one of {Point, Teach, Apply} and <Class> is
-;; one of {String, KCD, MiniLesson, etc.}  
+;; If ophints are encountered then they will add to the assoc
+;; fields to reflect their types and values.  They will be of
+;; the form (op, <type> <Class>) where
+;;   <type> is one of {Point, Teach, Apply} and
+;;   <Class> is one of {String, KCD, MiniLesson, etc.}
 
 ;; Returns nil or a turn struct.
 (defun make-hint-seq (Hints &key (Prefix nil) (Assoc nil) (OpTail nil))
@@ -349,7 +350,11 @@
 	((eq (car Hint) 'KCD)        (error "KCD's have been removed."))
 	((eq (car Hint) 'Minilesson) (make-minil-hseq Hint Rest Assoc OpTail))
 	((eq (car Hint) 'Eval)       (make-eval-hseq Hint Rest))
-	((eq (car Hint) 'Function)   (make-function-hseq (cdr Hint) Prefix))
+	((eq (car Hint) 'Function)
+	 (warn 'webserver:log-warn 
+	       :tag (list 'hints-after-function rest)
+	       :text "Hints in sequence after function inaccessible.")
+	 (make-function-hseq (cdr Hint) Prefix))
 	(t (Error 'webserver:log-error :tag 'problem-load-failed
 		  :tag (list 'unrecognized-hint-type 'next hint)
 		  :text "Unrecognized hint type supplied."))))
@@ -498,7 +503,7 @@
 			  (format-hintspec Hint)
 			Hint))
    :hint (make-hint-seq Next :Assoc (alist-warn Assoc) :OpTail OpTail)
-   :Assoc (alist-warn (or Assoc `((OpHint ,OHType String . ,OpTail))))))
+   :Assoc (alist-warn (append Assoc `((OpHint ,OHType String . ,OpTail))))))
 
 
 (defun make-string-end-Ophseq (Hint &optional (Prefix "") Assoc OHType OpTail)
@@ -507,7 +512,7 @@
    (strcat Prefix (if (hintspec-p Hint)
 		      (format-hintspec Hint)
 		    Hint))
-   :Assoc (alist-warn (or Assoc `((OpHint ,OHType String . ,OpTail))))))
+   :Assoc (alist-warn (append Assoc `((OpHint ,OHType String . ,OpTail))))))
      
 
 
@@ -535,7 +540,7 @@
 		     :Assoc (alist-warn Assoc)
 		     :OpTail OpTail)
 		    (warn "make-minil-Ophseq no response for ~A" R)))
-   :Assoc (alist-warn (or Assoc `((OPHint ,OHType MiniLesson 
+   :Assoc (alist-warn (append Assoc `((OPHint ,OHType MiniLesson 
 				   ,(format-hintspec Minil) . ,OpTail))))))
 
 
@@ -549,7 +554,7 @@
 		     (strcat "If you wish for more help, " 
 			     *help-button-action* "."))
 		    (warn "make-minil-end-Ophseq no response for ~A" R)))
-      :Assoc (alist-warn (or Assoc `((OPHint ,OHType MiniLesson 
+      :Assoc (alist-warn (append Assoc `((OPHint ,OHType MiniLesson 
 				      ,(format-hintspec Minil) . , OpTail))))))
 
 
@@ -567,13 +572,13 @@
   (make-explain-more-turn 
    (strcat Prefix (nth 1 Hint))
    :hint (make-hint-seq Next :Assoc (alist-warn Assoc) :OpTail OpTail)
-   :Assoc (alist-warn (or Assoc (list (nth 2 hint))))))
+   :Assoc (alist-warn (append Assoc (list (nth 2 hint))))))
 
 (defun make-goalhint-end-hseq (Hint &optional (Prefix "") Assoc)
   "Make an end-hseq string hint."
   (make-end-dialog-turn
    (strcat Prefix (nth 1 Hint))
-   :Assoc (alist-warn (or Assoc (list (nth 2 Hint))))))
+   :Assoc (alist-warn (append Assoc (list (nth 2 Hint))))))
 	      
 
 ;;---------------------------------------------------------------
@@ -660,8 +665,6 @@
 ;; Occasionally it is necessary to call a specific function
 ;; The function hint types are function expressions that will
 ;; be evaluated at runtime and should return a tutor turn.  
-;; An optional rest argument can be supplied to continue the 
-;; sequence of hints.  Note that for printing reasons
 (defun make-function-hseq (Hint &optional (Prefix ""))
   "Call the specified function."
   (let ((result (apply (car Hint) (cdr Hint))))

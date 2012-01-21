@@ -18,6 +18,8 @@
 ;;;  <http:;;;www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Platform-independent random number generator
+(in-package :cl-user)
+(export 'random-elt)  ;for random-help-experiment package
 
 (defun initialize-random-elt (name)
 "Turn a string into a vector of unsigned 32 bit integers and use this to seed the random number generator."

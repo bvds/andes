@@ -1292,6 +1292,8 @@
 		   :key #'info-provided-prop
 		   :test #'unify)))
       
+      ;; How do I turn this (optionally) into a
+      ;; response with an unsolicited hint?
       (setf result (make-red-turn Entry))
       (setf (turn-result result) 
 	    (append unsolicited-hints (turn-result result)))
@@ -1332,10 +1334,13 @@
        (setf result (make-green-turn :id (StudentEntry-id entry))))
       
       ;; give special messages for some varieties of incorrectness:
-      (Forbidden (setf result (make-hint-seq +forbidden-help+ )))
-      (Premature-Entry (setf result (make-hint-seq +premature-entry-help+)))
-      (Dead-Path (setf result (make-hint-seq +dead-path-help+)))
-      (Nogood (setf result (make-hint-seq +nogood-help+)))
+      (Forbidden (setf result (make-tutor-response 
+			       entry +forbidden-help+)))
+      (Premature-Entry (setf result (make-tutor-response 
+				     entry +premature-entry-help+)))
+      (Dead-Path (setf result (make-tutor-response 
+			       entry +dead-path-help+)))
+      (Nogood (setf result (make-tutor-response entry +nogood-help+)))
       (otherwise (warn "Unrecognized interp state! ~A~%" 
 		       (StudentEntry-state entry))
 		 (setf result (make-red-turn entry))))
@@ -1637,12 +1642,12 @@
       (T (setf (StudentEntry-state entry) +INCORRECT+)
 	 (setf (SystemEntry-entered sysent) nil)
 	 (let ((rem (walk-psm-path "You have not finished " 
-				       (bgnode-path psm) nil)))
+				   (bgnode-path psm) nil)))
 	   (setf (StudentEntry-ErrInterp entry)
 		 (make-ErrorInterp 
  		  :diagnosis (cons 'goal-incomplete ID)
-		  :remediation rem)))
-	 (make-red-turn Entry)))))
+		  :remediation rem))
+	   (make-incorrect-reply entry rem))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -1687,14 +1692,8 @@
 	       (make-ErrorInterp :diagnosis diagnosis
 				 :intended intended
 				 :remediation rem)))
-
-       (if spontaneous
-	   (progn
-	     ;; Add log message to return
-	     (add-log-entry-info entry rem)
-	     ;; Unsolicited hint.
-	     rem)
-	   (make-red-turn Entry))))
+       
+       (make-incorrect-reply entry rem :spontaneous spontaneous)))
 
     ((and (null state) spontaneous)
      (let ((rem (make-hint-seq hints :assoc assoc)))
@@ -1707,3 +1706,13 @@
      (t (warn 'webserver:log-warn
 	      :tag (list 'make-tutor-response-bad-arge state spontaneous)
 	      :text "unsupported state"))))
+
+(defun make-incorrect-reply (entry rem &key spontaneous)
+  (if spontaneous
+      (progn 
+	;; Add log message to return
+	(add-log-entry-info entry rem)
+	;; Unsolicited hint.
+	rem)
+      ;; Turn without hint.
+      (make-red-turn Entry)))
