@@ -26,6 +26,8 @@
 ;;            Give unsolicited hint in case of floundering.
 ;;            Solicited hint
 ;;
+(in-package :cl-user)
+
 (eval-when (:load-toplevel :compile-toplevel)
   (use-package :andes-database))
 
@@ -120,8 +122,7 @@
 	    (and (get-state-property 'h-turns)
 		 (> (get-state-property 'h-turns) +floundering-turns+))))
   
-  (and 
-       ;; Test that it was a red turn.
+  (and ;; Test that it was a red turn.
        (get-state-property 'f-time)
        (or 
 	;; Detect a new user.
@@ -176,3 +177,99 @@
   '((:action . "show-hint")
     (:style . "meta-hint")
     (:text . "You can click on the above link to get more help.")))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;              Random Help Study 2012
+;;;;
+;; 
+;;  We need a mechanism to make study manipulations be
+;;  more "pluggable" in Andes.  Bug #1940
+;;  For now, we use the setup that was used in the 2011 
+;;  Raj lab studies and 2011 St. Anselm study.
+;;  
+;;
+(defpackage :random-help-experiment
+  (:use :cl :cl-user :andes-database)
+  (:export :set-current-object
+	   :help-mod-p
+	   :*help-mods*))
+
+;; Should be eventually pushed to by various 
+;; Help files at compile-time?
+(defvar random-help-experiment:*help-mods* 
+  '(
+    ;; (give-spontaneous-hint) (give-hints-backwards)
+    (give-spontaneous-hint give-hints-backwards)))
+
+;; Set hook to test for backwards hints
+(setf *backwards-hints-hook* 
+      #'(lambda () (random-help-experiment:help-mod-p 'give-hints-backwards)))
+
+(in-package :random-help-experiment)
+
+;; Property names can either be a string or symbol;
+;; using a string avoids issues with package names.
+(defparameter +prob-flag+ "prob-flag")
+(defparameter +current-object+ "current-object")
+(defparameter +help-customizations+ "help-customizations")
+
+(defun set-experiment-probability (prob)
+  "Run once with database open to set flag experiment using probability."
+  (unless (and (numberp prob) (<= 0 prob 1))
+    (warn "must be probablility, not ~s" prob))
+  ;; Sections must already exist in database.
+  (dolist (x (or '("random-help-test")
+		 '(
+		   ;; Andy Pawl sections
+		   "uwplatt_51421910795174fcfuwplattl1_" ;physics 2240A1 
+		   "uwplatt_6l13051599e174fb5uwplattl1_" ;physics 2240A2
+		   "uwplatt_2Y1305989a5174f1cuwplattl1_" ;physics 2340C1
+		   "uwplatt_3n13056a8a6174fbeuwplattl1_" ;physics 2340C2
+		   ;; Tomm Scaife sections
+		   )))
+    (set-state-property +prob-flag+ prob :model "server" :section x 
+			:student nil :tid t)))
+
+(defun set-current-object (x)
+  (unless (stringp x)
+    (warn "invalid object ~s" x))
+  (when (get-state-property +prob-flag+ :model "server")
+    (set-state-property +current-object+ x :model "server" :no-store t)))
+
+(defun in-experiment-p ()
+  "Randomly assign experimental vs. control condition."
+  (let ((x (get-state-property +prob-flag+ :model "server")))
+    (when x (< (random 1.0) x))))
+
+(defun help-mod-p (x)
+  (when (get-state-property +prob-flag+ :model "server")
+    (let ((current-object (or (get-state-property +current-object+
+						  :model "server")
+			      ;; When a problem is first opened,
+			      ;; no object has been set.
+			      "no-current-object"))
+	  (h-c (get-state-property +help-customizations+ 
+				   :model "server")))
+      ;; Sanity test: make sure it is an alist
+      (unless (and (listp h-c) (every #'consp h-c))
+	(error "h-c not an alist:  ~S" h-c))
+      (when nil ;debug      
+	(format webserver:*stdout* "help-mod-p with ~S and ~S~%"
+		current-object h-c))
+      (unless (assoc current-object h-c)
+	;; current-object must be a new object, 
+	;; randomly select experiment vs. control
+	;; and add a help modification in the experimental case.
+	(push (cons current-object 
+		    (when (in-experiment-p)
+		      ;; Randomly choose one of the help mod lists.
+		      (random-elt *help-mods*)))
+	      h-c)
+	;;  (format webserver:*stdout* "help-mod-p setting h-c ~S~%" h-c)
+	(set-state-property +help-customizations+ h-c
+			    :model "server"))
+      
+      ;; Now, help customizations for object exists, 
+      ;; look for this one.
+      (member x (cdr (assoc current-object h-c))))))

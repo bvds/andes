@@ -1708,10 +1708,18 @@
 	      :text "unsupported state"))))
 
 (defun make-incorrect-reply (entry rem &key spontaneous)
-  (if spontaneous
+  (if (or spontaneous
+	  ;; Turn on experiment effect; see Bug #1940.
+	  (random-help-experiment:help-mod-p 'give-spontaneous-hint))
       (progn 
 	;; Add log message to return
 	(add-log-entry-info entry rem)
+	;; In the case where random-help-experiment has changed
+	;; a hint to spontaneous, log that fact.
+	(unless spontaneous
+	  (push '((:action . "log") (:log . "help")
+		  (:assoc . ((random-help . spontaneous-hint))))
+		(turn-result rem)))
 	;; Unsolicited hint.
 	rem)
       ;; Turn without hint.

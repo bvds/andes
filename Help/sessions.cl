@@ -755,6 +755,11 @@
       
       (add-entry new-entry)   ;remove existing info and update
 
+      ;; For Modified help experiment.
+      ;; Need a way to do this kind of stuff that is
+      ;; "pluggable".  Bug #1940
+      (random-help-experiment:set-current-object id)
+
       (model-no-tutor-turn time) ;for model of doing step without help
       
       (update-fades

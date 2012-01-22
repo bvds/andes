@@ -38,6 +38,9 @@
 ;;
 (in-package :cl-user)
 
+(defvar *backwards-hints-hook* nil 
+  "Hook for function call that turns on backwards hints.
+   See random-help-experiment.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Control parameters.  
@@ -322,15 +325,29 @@
 ;; at the top level then it will be inherited by all 
 ;; successive hints.  
 ;;
-;; If ophints are encountered then they will add to the assoc
-;; fields to reflect their types and values.  They will be of
-;; the form (op, <type> <Class>) where
-;;   <type> is one of {Point, Teach, Apply} and
-;;   <Class> is one of {String, KCD, MiniLesson, etc.}
+;; If ophints are encountered then they will add to the assoc 
+;; fields to reflect their types and values.  They will be of 
+;; the form (op, <type> <Class>) where 
+;;   <type> is one of {Point, Teach, Apply} and 
+;;   <Class> is one of {String, KCD, MiniLesson, etc.}  
 
 ;; Returns nil or a turn struct.
 (defun make-hint-seq (Hints &key (Prefix nil) (Assoc nil) (OpTail nil))
   "make the appropriate hint sequence."
+
+  ;; Give hints backwards if sequence ends with a bottom-out hint.
+  ;; This is turned on by setting *backwards-hints-hook* to
+  ;; a function of no variables.
+  (when (and *backwards-hints-hook*
+	     (funcall *backwards-hints-hook*)
+	     ;; Here we make the *big* assumption that any
+	     ;; function will pan out to have a bottom-out hint. 
+	     (consp (car (last Hints)))
+	     (member (car (car (last Hints))) '(bottom-out function)))
+    ;; Add mark to logging.  Should be marked as a tutor strategy.
+    (push '(random-help . give-backwards-hints) assoc)
+    (setf Hints (reverse hints)))
+
   (when Hints
     ;;(pprint (functionp (car hints)))
     (if (null (cdr hints))
@@ -656,7 +673,7 @@
 ;; Hints is (Eval <Contents>)  where <Contents> is a set of lisp
 ;; code that will be funcalled via a progn for legal reasons.
 (defun make-eval-hseq (Hint &optional (Rest nil))
-  "Call the hseq function with args and return."
+  "Call the hseq function with args and return."      
   (make-hint-seq (cons (func-eval (cdr Hint)) Rest)))
 
 
