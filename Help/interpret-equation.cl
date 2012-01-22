@@ -50,7 +50,7 @@
 		       (StudentEntry-ParsedEqn se))
 	    :text "Can't find interpretations.")
       (setf (StudentEntry-State se) +incorrect+)
-      (setf result (make-red-turn se)))
+      (setf result (try-make-incorrect-reply se 'interpret-equation)))
      (correct1
       (setf (StudentEntry-CInterp se) correct1)
       (setf (StudentEntry-State se) +correct+)

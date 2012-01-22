@@ -1294,7 +1294,7 @@
       
       ;; How do I turn this (optionally) into a
       ;; response with an unsolicited hint?
-      (setf result (make-red-turn Entry))
+      (setf result (try-make-incorrect-reply entry 'Check-NonEq-Entry-no-rem))
       (setf (turn-result result) 
 	    (append unsolicited-hints (turn-result result)))
       (return-from Check-NonEq-Entry result)) ; go no further
@@ -1343,7 +1343,7 @@
       (Nogood (setf result (make-tutor-response entry +nogood-help+)))
       (otherwise (warn "Unrecognized interp state! ~A~%" 
 		       (StudentEntry-state entry))
-		 (setf result (make-red-turn entry))))
+		 (setf result (try-make-incorrect-reply entry 'check-non-eq-entry-1))))
 
 
     ;; Note for variables with given equations, we are
@@ -1679,9 +1679,6 @@
   (cond 
     ((eql state +incorrect+)
      (let ((rem (make-hint-seq hints :assoc assoc)))
-       (setf (turn-id rem) (StudentEntry-id entry))
-       (setf (turn-coloring rem) +color-red+)
-       ;; set state of entry and attach error. 
        ;; But only do if not done already, 
        ;; so only report on the first error found.
        (unless (studentEntry-ErrInterp entry)
@@ -1707,17 +1704,37 @@
 	      :tag (list 'make-tutor-response-bad-arge state spontaneous)
 	      :text "unsupported state"))))
 
+(defun try-make-incorrect-reply (entry error-tag)
+  "Take Entry and attempt to make it optionally spontaneous."
+  ;; This is a hopefully temporary replacement to
+  ;; Calls to make-red-turn.
+  (if (and (StudentEntry-ErrInterp entry)
+	   (ErrorInterp-remediation
+	    (StudentEntry-ErrInterp entry)))
+      (make-incorrect-reply entry (ErrorInterp-remediation
+				   (StudentEntry-ErrInterp entry)))
+      (progn
+	(warn 'webserver:log-warn
+	      :tag (list 'reply-missing-rem error-tag 
+			 (when (StudentEntry-ErrInterp entry) t)
+			 (studentEntry-prop entry))
+	      :text "No rem for entry")
+	(make-red-turn entry))))
+
 (defun make-incorrect-reply (entry rem &key spontaneous)
+  (setf (turn-id rem) (StudentEntry-id entry))
   (if (or spontaneous
 	  ;; Turn on experiment effect; see Bug #1940.
 	  (random-help-experiment:help-mod-p 'give-spontaneous-hint))
       (progn 
+       ;; Only turn red if rem is this reply.
+	(setf (turn-coloring rem) +color-red+)
 	;; Add log message to return
 	(add-log-entry-info entry rem)
 	;; In the case where random-help-experiment has changed
 	;; a hint to spontaneous, log that fact.
 	(unless spontaneous
-	  (push '((:action . "log") (:log . "help")
+	  (push '((:action . "log") (:log . "tutor")
 		  (:assoc . ((random-help . spontaneous-hint))))
 		(turn-result rem)))
 	;; Unsolicited hint.

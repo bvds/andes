@@ -214,6 +214,7 @@
 (defparameter +current-object+ "current-object")
 (defparameter +help-customizations+ "help-customizations")
 
+;; (random-help-experiment::set-experiment-probability 1)
 (defun set-experiment-probability (prob)
   "Run once with database open to set flag experiment using probability."
   (unless (and (numberp prob) (<= 0 prob 1))
