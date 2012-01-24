@@ -107,6 +107,9 @@ if($endDate){
 
 echo "<h2>Problems $extrae,$adminNamee$sectionNamee</h2>\n";
 
+// Will run out of memory for large runs.
+ini_set('memory_limit', '1024M');
+
 // Newer versions of php have a json decoder built-in.  Should 
 // eventually have test for php version and use built-in, when possible.
 include '../Web-Interface/JSON.php';

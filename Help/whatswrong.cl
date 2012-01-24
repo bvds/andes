@@ -49,6 +49,12 @@
 (defun do-whats-wrong (student)
   "Given the id selected by the student in what's wrong help, returns a 
    tutor turn containing the associated error interpretation."
+
+      ;; For Modified help experiment.
+      ;; Need a way to do this kind of stuff that is
+      ;; "pluggable".  Bug #1940
+      (random-help-experiment:set-current-object (StudentEntry-id student))
+     
     (diagnose student)
     (setf *help-last-entries* 
 	  (ErrorInterp-intended (StudentEntry-ErrInterp student)))

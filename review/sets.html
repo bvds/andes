@@ -57,15 +57,17 @@
   dojo.require("dijit.Tree");
   dojo.require("dijit.layout.ContentPane");
 
-  // Modify tree so that HTML is rendered in node labels
-  // See Bug #1603
-  if(dijit._TreeNode._meta.hidden.attributeMap){
-    dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
-  }else if(dijit._TreeNode._meta.hidden._mapLabelAttr){
-    dijit._TreeNode._meta.hidden._mapLabelAttr.type="innerHTML";
-  }else{
-    console.error("Can't render HTML in tree.");
-  }
+// Modify tree so that HTML is rendered in node labels. Bug #1603
+// see http://bugs.dojotoolkit.org/ticket/12278
+// Should remove switch when release uses new method.
+// Copied from web-UI/andes/principles.js
+if(dijit._TreeNode._meta.hidden.attributeMap){  // Old way
+        dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
+}else if(dijit._TreeNode._meta.hidden._setLabelAttr){
+        dijit._TreeNode._meta.hidden._setLabelAttr.type="innerHTML";
+}else{
+        console.error("Can't render HTML in tree.");
+}
 
   var thisProblem;
 
@@ -75,19 +77,19 @@
       thisProblem=store.getValue(item,"expand");
       dojo.byId("try").disabled=false;
       // console.log("from json:  "+store.getValue(item,"expand"));
-      dijit.byId('prob').setHref("problems/"+store.getValue(item,"expand")+".html");
+      dijit.byId('prob').set('href',"problems/"+store.getValue(item,"expand")+".html");
       var label=store.getValue(item,"label");
       if(store.hasAttribute(item,"set")) {
           label = store.getValue(item,"set") + "&nbsp; " + label;
       }
-      dijit.byId('label').setContent(label);
+      dijit.byId('label').set('content',label);
       if(store.hasAttribute(item,"graphic")) {
         // console.log("from json:  "+store.getValue(item,"graphic"));
 	// console.log("   "+"<img src=\"problems/"+store.getValue(item,"graphic")+"\">");
-	dijit.byId('graphic').setContent("<img src=\"problems/"+store.getValue(item,"graphic")+"\">");
+	dijit.byId('graphic').set('content',"<img src=\"problems/"+store.getValue(item,"graphic")+"\">");
       } else {
 	// console.log("no graphic");
-	dijit.byId('graphic').setContent(null);
+	dijit.byId('graphic').set('content',null);
       }
     }
   }
@@ -104,7 +106,7 @@
     var s = query.s || "andestutor.org";
     var x = query.x || "web-UI";
     if(! u.replace(/\s+$/, '')){
-     alert("Please enter a user name.");
+      alert("Please enter a user name.");
       return;
     }  
     if(! thisProblem){
@@ -119,8 +121,12 @@
 
 <body class="tundra">
 
-<div dojoType="dojo.data.ItemFileReadStore" url="sets.json" jsId="setStore" />
-<div dojoType="dojo.data.ItemFileReadStore" url="principles.json" jsId="principlesStore" />
+<div dojoType="dojo.data.ItemFileReadStore" jsId="setStore" url="sets.json"/>
+<div dojoType="dijit.tree.ForestStoreModel" jsId="setModel" 
+     store="setStore" childrenAttrs="items"/>
+<div dojoType="dojo.data.ItemFileReadStore" jsId="principlesStore" url="principles.json"/>
+<div dojoType="dijit.tree.ForestStoreModel" jsId="principlesModel" 
+     store="principlesStore" childrenAttrs="items"/>
   
   <h1>Andes problem chooser tool</h1>
  
@@ -141,13 +147,13 @@
     <tr><th>Homework Sets</th><th>List of principles</th>
          <th><div dojoType="dijit.layout.ContentPane" id="label"></div></th></tr>
 	    <tr><td valign="top">
-        <div dojoType="dijit.Tree" store="setStore" labelAttr="identifier" childrenAttr="items" class="tall">
+        <div dojoType="dijit.Tree" model="setModel" class="tall" showRoot="false">
 	  <script type="dojo/method" event="onClick" args="item">
 	  addProblem(item,setStore);
 	  </script>
 	</div>
 	</td><td valign="top">
-        <div dojoType="dijit.Tree" store="principlesStore" labelAttr="identifier" childrenAttr="items" class="tall">
+        <div dojoType="dijit.Tree" model="principlesModel" class="tall" showRoot="false">
 	  <script type="dojo/method" event="onClick" args="item">
 	  addProblem(item,principlesStore);
 	  </script>

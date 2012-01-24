@@ -239,7 +239,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun handle-ambiguous-equation (equation entry parses location)
-  ;(prl parses)
+					;(prl parses)
   (let (result bad (cont t) tmp se save)
     (dolist (parse parses)
       (when (and cont (not (member parse save :test #'equal)))
@@ -264,16 +264,16 @@
 	   (add-entry se) 	
 	   (setf tmp se)
 	   (setf cont nil))
-        (t ;;(equal +color-red+ (turn-coloring result))
-          (setf bad (append bad (list (list result se))))))))
-
+	  (t ;;(equal +color-red+ (turn-coloring result))
+	   (setf bad (append bad (list (list result se))))))))
+    
     (cond
       (cont
        ;; does add-entry on winning candidate
        (setf result (choose-ambiguous-bad-turn bad se)) 
        (unless result
-	   (setf result (progn (warn "Should not see this error")
-			    (make-red-turn se)))))
+	 (warn "Should not see this error")
+	 (setf result (try-make-incorrect-reply se 'handle-ambiguous-equaation-1))))
       (t
        ;; Record correct eqn in algebra. (Must happen before interpretation 
        ;; testing)
@@ -282,7 +282,8 @@
        (setf result
 	     (if (stringp (solver-studentAddOkay (StudentEntry-Id se) 
 						 (StudentEntry-ParsedEqn se)))
-		 (make-red-turn se) ;to trap exceptions
+		 ;; to trap exceptions
+		 (try-make-incorrect-reply se 'handle-ambiguous-equation-2)
 		 (interpret-equation tmp location)))
        (cond
 	 ((equal +color-green+ (turn-coloring result))
@@ -571,9 +572,11 @@
 	 (warn 'webserver:log-warn  
 	       :tag 'parse-handler-inaccurate
 	       :text "inaccurate in parse-handler")
-	 (make-red-turn se))
-	(wrong
-	 (make-red-turn se))
+	 (diagnose se)
+	 (try-make-incorrect-reply se 'parse-handler-1))
+	(wrong 
+	 (diagnose se)
+	 (try-make-incorrect-reply se 'parse-handler-2))
 	;; Following mainly occurs for parses giving rise to bad syntax
 	;; equations. Usually when this happens another parse will
 	;; produce legal equation so its not a problem. But we need 
