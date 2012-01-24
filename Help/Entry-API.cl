@@ -1292,8 +1292,6 @@
 		   :key #'info-provided-prop
 		   :test #'unify)))
       
-      ;; How do I turn this (optionally) into a
-      ;; response with an unsolicited hint?
       (setf result (try-make-incorrect-reply entry 'Check-NonEq-Entry-no-rem))
       (setf (turn-result result) 
 	    (append unsolicited-hints (turn-result result)))

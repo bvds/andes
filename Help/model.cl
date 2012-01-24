@@ -199,7 +199,7 @@
 ;; Help files at compile-time?
 (defvar random-help-experiment:*help-mods* 
   '(
-    ;; (give-spontaneous-hint) (give-hints-backwards)
+    (give-spontaneous-hint) (give-hints-backwards)
     (give-spontaneous-hint give-hints-backwards)))
 
 ;; Set hook to test for backwards hints
@@ -214,20 +214,34 @@
 (defparameter +current-object+ "current-object")
 (defparameter +help-customizations+ "help-customizations")
 
-;; (random-help-experiment::set-experiment-probability 1)
+
+;; In mysql, need to define sections, if they don't exist;
+;; see random-help-experiment-setup.sql
+
+;; (random-help-experiment::set-experiment-probability 0.5)
 (defun set-experiment-probability (prob)
   "Run once with database open to set flag experiment using probability."
   (unless (and (numberp prob) (<= 0 prob 1))
     (warn "must be probablility, not ~s" prob))
   ;; Sections must already exist in database.
-  (dolist (x (or '("random-help-test")
+  (dolist (x (and '("random-help-test"
+		   ;; Fall 2011 MIT sections
+		   "MIT_96238198fb0774e40MITl1_"
+		   "MIT_397367142947c4ec7MITl1_"
+		   ;; Fall 2011 ASU Heckler, two of the sections
+		   "asu_3u16472755e704e5fasul1_15865"
+		   "asu_3u16472755e704e5fasul1_15854"
+		   )
 		 '(
+		   ;; Sections for Spring 2012 at UW Plattville
 		   ;; Andy Pawl sections
 		   "uwplatt_51421910795174fcfuwplattl1_" ;physics 2240A1 
 		   "uwplatt_6l13051599e174fb5uwplattl1_" ;physics 2240A2
 		   "uwplatt_2Y1305989a5174f1cuwplattl1_" ;physics 2340C1
 		   "uwplatt_3n13056a8a6174fbeuwplattl1_" ;physics 2340C2
 		   ;; Tomm Scaife sections
+		   "uwplatt_8p130495419184f26uwplattl1_" ;Physics 2240
+		   "uwplatt_9047621c019184fdbuwplattl1_" ;Physics 2340
 		   )))
     (set-state-property +prob-flag+ prob :model "server" :section x 
 			:student nil :tid t)))
