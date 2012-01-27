@@ -247,10 +247,11 @@
 			:student nil :tid t)))
 
 (defun set-current-object (x)
-  (unless (stringp x)
-    (warn "invalid object ~s" x))
+  (unless (stringp x) (warn "invalid object ~s" x))
   (when (get-state-property +prob-flag+ :model "server")
-    (set-state-property +current-object+ x :model "server" :no-store t)))
+    (set-state-property +current-object+ 
+			(concatenate 'string session:*problem* "_" x) 
+			:model "server" :no-store t)))
 
 (defun in-experiment-p ()
   "Randomly assign experimental vs. control condition."
@@ -264,28 +265,21 @@
 						  :model "server")
 			      ;; When a problem is first opened,
 			      ;; no object has been set.
-			      "no-current-object"))
-	  (h-c (get-state-property +help-customizations+ 
-				   :model "server")))
-      ;; Sanity test: make sure it is an alist
-      (unless (and (listp h-c) (every #'consp h-c))
-	(error "h-c not an alist:  ~S" h-c))
-      (when nil ;debug      
-	(format webserver:*stdout* "help-mod-p with ~S and ~S~%"
-		current-object h-c))
-      (unless (assoc current-object h-c :test #'equal) ;string equality
-	;; current-object must be a new object, 
-	;; randomly select experiment vs. control
-	;; and add a help modification in the experimental case.
-	(push (cons current-object 
-		    (when (in-experiment-p)
-		      ;; Randomly choose one of the help mod lists.
-		      (random-elt *help-mods*)))
-	      h-c)
-	;;  (format webserver:*stdout* "help-mod-p setting h-c ~S~%" h-c)
-	(set-state-property +help-customizations+ h-c
-			    :model "server"))
-      
-      ;; Now, help customizations for object exists, 
-      ;; look for this one.  Use string equality for matching object.
-      (member x (cdr (assoc current-object h-c :test #'equal))))))
+			      (concatenate 'string session:*problem* 
+				      "_no-current-object"))))
+      (member x 
+	      (multiple-value-bind (val is-set)
+		  (get-state-property current-object :model "server")
+		(if is-set
+		    val
+		    (let ((new-val 
+			   ;; Randomly choose if Help will
+			   ;; be modified
+			   (when (in-experiment-p)
+			     ;; Randomly choose one of the 
+			     ;; help mod lists.
+			     (random-elt *help-mods*))))
+		      (set-state-property current-object new-val
+					  :model "server")
+		      new-val)))))))
+

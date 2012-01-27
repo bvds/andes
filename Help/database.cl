@@ -320,7 +320,7 @@ list of characters and replacement strings."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;;         Acess grade
+;;;         Access grade
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -373,6 +373,33 @@ list of characters and replacement strings."
 	  (when (equal (cdr (assoc :action line)) "set-score")
 	    (return-from get-score 
 	      (cdr (assoc :score line)))))))))
+
+;;
+;;  Experiment-specific code.  See Bug #1940
+;;
+;;
+;; physics 2240A1 
+;; (andes-database::get-student-grades "uwplatt_51421910795174fcfuwplattl1_")
+;; physics 2240A2
+;; (andes-database::get-student-grades "uwplatt_6l13051599e174fb5uwplattl1_")
+;; physics 2340C1
+;; (andes-database::get-student-grades "uwplatt_2Y1305989a5174f1cuwplattl1_")
+;; physics 2340C2
+;; (andes-database::get-student-grades "uwplatt_3n13056a8a6174fbeuwplattl1_")
+
+(defun get-student-grades (Section)
+  "Get list of scores for a given section."
+  (test-safe-string section)
+  (let* ((query (format nil "SELECT DISTINCT userName,userProblem FROM PROBLEM_ATTEMPT where userSection='~A'" Section))
+	 (results (with-db (query *connection* query)))
+	 x)
+    (dolist (result (sort results #'string-greaterp :key #'car))
+      (let ((score (get-score :student (car result) 
+		   :problem (second result) 
+		   :section Section)))
+	(when score (push (list (car result) (second result) score) x))))
+    (format t "~:{~A~t~A~t~A~%~}" x)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
