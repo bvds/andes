@@ -255,7 +255,8 @@
 (defun in-experiment-p ()
   "Randomly assign experimental vs. control condition."
   (let ((x (get-state-property +prob-flag+ :model "server")))
-    (when x (< (random 1.0) x))))
+    ;; Each session gets its own seed based on problem name.
+    (when x (< (mt19937:random 1.0) x))))
 
 (defun help-mod-p (x)
   (when (get-state-property +prob-flag+ :model "server")
@@ -272,7 +273,7 @@
       (when nil ;debug      
 	(format webserver:*stdout* "help-mod-p with ~S and ~S~%"
 		current-object h-c))
-      (unless (assoc current-object h-c)
+      (unless (assoc current-object h-c :test #'equal) ;string equality
 	;; current-object must be a new object, 
 	;; randomly select experiment vs. control
 	;; and add a help modification in the experimental case.
@@ -286,5 +287,5 @@
 			    :model "server"))
       
       ;; Now, help customizations for object exists, 
-      ;; look for this one.
-      (member x (cdr (assoc current-object h-c))))))
+      ;; look for this one.  Use string equality for matching object.
+      (member x (cdr (assoc current-object h-c :test #'equal))))))

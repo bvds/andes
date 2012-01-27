@@ -368,9 +368,11 @@
 	((eq (car Hint) 'Minilesson) (make-minil-hseq Hint Rest Assoc OpTail))
 	((eq (car Hint) 'Eval)       (make-eval-hseq Hint Rest))
 	((eq (car Hint) 'Function)
-	 (warn 'webserver:log-warn 
-	       :tag (list 'hints-after-function rest)
-	       :text "Hints in sequence after function inaccessible.")
+	 (unless (and *backwards-hints-hook*
+		      (funcall *backwards-hints-hook*))
+	   (warn 'webserver:log-warn 
+		 :tag (list 'hints-after-function rest)
+		 :text "Hints in sequence after function inaccessible."))
 	 (make-function-hseq (cdr Hint) Prefix))
 	(t (Error 'webserver:log-error :tag 'problem-load-failed
 		  :tag (list 'unrecognized-hint-type 'next hint)
