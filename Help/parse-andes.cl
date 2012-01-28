@@ -130,9 +130,12 @@
 ;; This returns a plain ErrorInterp:
 (defun bad-syntax-ErrorInterp (entry equation &key location)
   "Given a syntactically ill-formed equation, returns a tutor turn."
-  (cond				
-    ((not (position #\= equation))
-     (make-tutor-response
+  (let ((se (format nil "~A~@[<span class=\"unparsed\">~A</span>~]" 
+		    (if location (subseq equation 0 location) equation)
+		    (when location (subseq equation location)))))
+    (cond				
+      ((not (position #\= equation))
+       (make-tutor-response
       entry
       (list
        (format nil "Entry \"~a\" is not an equation.&nbsp; If you are trying to define a scalar quantity, ~A and use ~A instead." 
@@ -141,84 +144,95 @@
       :diagnosis '(equation-syntax-error no-equals)
       :state +incorrect+
       :spontaneous t))
-    ((> (count #\= equation) 1)
-     (make-tutor-response
+      ((> (count #\= equation) 1)
+       (make-tutor-response
+	entry
+	(list
+	 (format nil "\"~a\" is not a single equation." se)
+	 "You may enter only one equation on a line.")
+	:diagnosis '(equation-syntax-error multiple-equals)
+	:state +incorrect+
+	:spontaneous t))
+      ((search "sec" equation)
+       (make-tutor-response
+	entry
+	(list
+	 (format nil "Syntax error in ~a" se)
+	 "If you are giving a value in seconds, the correct SI symbol is just s, not sec.")
+	:diagnosis '(equation-syntax-error  sec-for-seconds)
+	:state +incorrect+
+	:spontaneous t))
+      ((search "ohms" equation)
+       (make-tutor-response
+	entry
+	(list
+	 (format nil "Syntax error in ~a" se)
+	 "If you are giving a resistance in Ohms, the correct SI symbol is &Omega;, not ohms.")
+	:diagnosis '(equation-syntax-error ohms-for-ohms)
+	:state +incorrect+
+	:spontaneous t))
+      ;; BvdS:  There should be a handler for "unknown functions"
+      ;; analogous to the handler for "unknown variables"
+      ;; This is a work-around.
+      ((and (search "log" equation) (not (search "log10" equation)))
+       (make-tutor-response
+	entry
+	(list
+	 (format nil "Syntax error in ~a" equation)
+	 "Use ln(x) for natural logarithms and log10(x) for logarithms base 10.")
+	:diagnosis '(equation-syntax-error log-for-logarithm)
+	:state +incorrect+
+	:spontaneous t))
+      ((or (search "_ " equation) (search " _" equation))
+       (make-tutor-response
       entry
       (list
-       (format nil "\"~a\" is not a single equation." equation)
-       "You may enter only one equation on a line.")
-      :diagnosis '(equation-syntax-error multiple-equals)
-      :state +incorrect+
-      :spontaneous t))
-    ((search "sec" equation)
-     (make-tutor-response
-      entry
-      (list
-       (format nil "Syntax error in ~a" equation)
-       "If you are giving a value in seconds, the correct SI symbol is just s, not sec.")
-      :diagnosis '(equation-syntax-error  sec-for-seconds)
-      :state +incorrect+
-      :spontaneous t))
-    ((search "ohms" equation)
-     (make-tutor-response
-      entry
-      (list
-       (format nil "Syntax error in ~a" equation)
-       "If you are giving a resistance in Ohms, the correct SI symbol is &Omega;, not ohms.")
-      :diagnosis '(equation-syntax-error ohms-for-ohms)
-      :state +incorrect+
-      :spontaneous t))
-    ;; BvdS:  There should be a handler for "unknown functions"
-    ;; analogous to the handler for "unknown variables"
-    ;; This is a work-around.
-    ((and (search "log" equation) (not (search "log10" equation)))
-     (make-tutor-response
-      entry
-      (list
-       ;; (format nil "Syntax error in ~a" equation)
-       "Use ln(x) for natural logarithms and log10(x) for logarithms base 10.")
-      :diagnosis '(equation-syntax-error log-for-logarithm)
-      :state +incorrect+
-      :spontaneous t))
-    ((or (search "_ " equation) (search " _" equation))
-     (make-tutor-response
-      entry
-      (list
-       (format nil "Syntax error in ~a" equation)
-       "There is a space next to an underscore in this equation. If you are using a component variable, make sure you type it as a single word without any spaces between the underscore and the rest of the variable name.")
+       (format nil "Syntax error in ~a" se)
+       "There is a space next to an underscore in this equation.&nbsp; If you are using a component variable, make sure you type it as a single word without any spaces between the underscore and the rest of the variable name.")
       :diagnosis '(equation-syntax-error space-underscore)
       :state +incorrect+
       :spontaneous t))
-    ;; Look for attempt at defining a variable.
-    ;; Typically the parser fails at the space after the first word.
-    ;; Need to distinguish from error where multiplication sign 
-    ;; was forgotten.
-    ;; Stratey here is to look for a RHS that consists of words and variables.
-    ((and (find #\= equation)
-	   (phrase-has-words (subseq equation (+ 1 (position #\= equation)))))
-     (make-tutor-response
-      entry
-      (list
-       (format nil "This does not look like an equation.&nbsp; If you are trying to define a scalar quantity, ~A and use ~A instead." 
-	       *delete-object* *text-tool*))
-      :diagnosis '(equation-syntax-error wrong-tool)
-      :state +incorrect+
-      :spontaneous t))
-    (T 
-     (make-tutor-response
-      entry
-      (list
-       (format nil "Syntax error in ~A~@[<span class=\"unparsed\">~A</span>~]" 
-	       (if location (subseq equation 0 location) equation)
-	       (when location (subseq equation location)))
-       (format nil 
-	       "Though I can't tell exactly what the mistake is, a few common sources of errors are:  <ul><li>~A are case sensitive. <li>Multiplication requires an explicit multiplication sign:&nbsp; W=m*g, NOT W=mg. <li>Units attach only to numbers, not to variables or expressions.  <li>There must be a space between a number and a unit.&nbsp; For example:&nbsp;  2.5 m</ul>"
-			(open-review-window-html 
-			 "Unit symbols" "units.html" :title "Units"))
-       )
-      :diagnosis '(equation-syntax-error nil)
-      :state +incorrect+
-      :spontaneous t))))
+      ;; Look for attempt at defining a variable.
+      ;; Typically the parser fails at the space after the first word.
+      ;; Need to distinguish from error where multiplication sign 
+      ;; was forgotten.
+      ;; Strategy here is to look for a RHS that consists of words and variables.
+      ((and (find #\= equation)
+	    (phrase-has-words (subseq equation (+ 1 (position #\= equation)))))
+       (make-tutor-response
+	entry
+	(list
+	 (format nil "\"~A\" does not look like an equation.&nbsp; If you are trying to define a scalar quantity, ~A and use ~A instead." 
+		 se
+		 *delete-object* *text-tool*))
+	:diagnosis '(equation-syntax-error wrong-tool)
+	:state +incorrect+
+	:spontaneous t))
+      ;; Space between number and units is a common error
+      ((and location (> location 0)
+	    (digit-char-p (char equation (- location 1)))
+	    (alpha-char-p (char equation location)))
+       (make-tutor-response
+	entry
+	(list 
+	 (format nil "Syntax error in ~A." se)
+	 "Note the following Andes conventions:  <ul><li>There must be a space between a number and a unit.&nbsp; For example:&nbsp;  2.5 m<li>Multiplication requires an explicit multiplication sign:&nbsp; d=2*r, NOT d=2r.  </ul>")
+	:diagnosis '(equation-syntax-error number-units-space)
+	:state +incorrect+
+	:spontaneous t))
+      (T 
+       (make-tutor-response
+	entry
+	(list
+	 (format nil "Syntax error in ~A." se)
+	 (format nil 
+		 "Though I can't tell exactly what the mistake is, a few common sources of errors are:  <ul><li>There must be a space between a number and a unit.&nbsp; For example:&nbsp;  2.5 m<li>Multiplication requires an explicit multiplication sign:&nbsp; W=m*g, NOT W=mg.<li>~A are case sensitive.<li>Units attach only to numbers, not to variables or expressions.</ul>"
+		 (open-review-window-html 
+		  "Unit symbols" "units.html" :title "Units"))
+	 )
+	:diagnosis '(equation-syntax-error nil)
+	:state +incorrect+
+	:spontaneous t)))))
 
 
 (defun phrase-has-words (phrase)
