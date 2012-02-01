@@ -69,8 +69,13 @@ $adminName = '' ;   // user name
 	     // MIT_.*
 	     // asu_3u16472755e704e5fasul1_.*
 	     // asu_3u16472755e704e5fasul1_15865
-$sectionName = 'asu_3u16472755e704e5fasul1_.*' ; //$_POST['sectionName'];
-$startDate = '2011-04-01'; // $_POST['startDate'];
+	     // Help server dies on this section when running all osu:
+	     // asu_3u16472755e704e5fasul1_15854
+	     // uwplatt_.*
+	     // 
+$sectionName = 'uwplatt_.*' ; //$_POST['sectionName'];
+             // '2011-04-01'
+$startDate = '2012-01-20'; // $_POST['startDate'];
 $endDate = ''; // $_POST['endDate'];
 $methods = array('open-problem','solution-step','seek-help','record-action','close-problem');  //implode(",",$_POST['methods']);
 
@@ -181,7 +186,7 @@ function containsErrorType($p,$ans){
 		    // "(maybe-forgot-units)",
 		    "(more-than-given)",
 		    "(no-label ",
-		    "(no-variable-defined)",
+		    // "(no-variable-defined ",
 		    "(nothing-to-match-definition)",
 		    "(should-be-compo-form)",
 		    "(should-be-given)",
@@ -260,6 +265,9 @@ $startTime=time();
 $closeSession=array();
 while ($myrow = mysql_fetch_array($result)) {
   $clientID=$myrow["clientID"];
+  // Don't send clientID that is longer than width of column 
+  // in PROBLEM_ATTEMPT table.
+  $thisClientID=$sessionIdBase . substr($clientID,strlen($sessionIdBase)-50);
   $response=$myrow["server"];	 
   
   // If problem is closed by either student or server,
@@ -317,7 +325,7 @@ while ($myrow = mysql_fetch_array($result)) {
 
   // Send query to help server.
   $queryStart=microtime(true);       
-  $newResponse = $server->message($action,$sessionIdBase . $clientID);
+  $newResponse = $server->message($action,$thisClientID);
   $dt = microtime(true) - $queryStart;
   $serverTime += $dt;
 
@@ -332,7 +340,7 @@ while ($myrow = mysql_fetch_array($result)) {
     // Close the session "by hand" and record
     $closeID=$a->id + 1;
     $closeAction="{\"id\":$closeID,\"method\":\"close-problem\",\"params\":{},\"jsonrpc\":\"2.0\"}";
-    $closeResponse = $server->message($closeAction,$sessionIdBase . $clientID);
+    $closeResponse = $server->message($closeAction,$thisClientID);
     $closeTime=$sessionStartTime[$clientID];
     $closeSession[$clientID]="<td>$closeTime</td>" . $sessionLink1 . "&amp;cid=" . 
       $clientID . $sessionLink2 . "<td>$closeResponse</td>";
@@ -717,6 +725,16 @@ while ($myrow = mysql_fetch_array($result)) {
 	  
 	  if(strcmp($bbc,$nbbc)==0){ // match, go on to next pair
 	    $i++; $ni++;
+	  }elseif(strcmp($method,"solution-step") == 0 &&
+		  // Fix logging & hint for no-variable-defined
+		  // commit 54e016bea53e54feb3, Wed Jan 4 23:13:53 2012
+		  // commit 136d75770d5ddd8d15, Wed Jan 4 22:40:43 2012
+		  // commit 55da152aa4efda176, Sat Dec 17 20:17:21 2011
+		  isset($bc->action) && strcmp($bc->action,"log") == 0 &&
+		  isset($nbc->action) && strcmp($nbc->action,"log") == 0 &&
+		  strpos($bbc,'NO-VARIABLE-DEFINED') !== false &&
+		  strpos($nbbc,'NO-VARIABLE-DEFINED') !== false){
+	    $i++; $ni+=(strpos($nbbc,'NO-VARIABLE-DEFINED NIL') !== false?2:1);
 	  }elseif(strcmp($method,"seek-help") == 0 &&
 		  // Fix test for work done in Help/NextStepHelp.cl function
 		  // nsh-student-has-done-work?

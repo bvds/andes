@@ -52,6 +52,7 @@
 ;;; mysql-connect:disconnect connection
 ;;; mysql-connect:query connection query-strings => list of results
 ;;; mysql-connect:get-last-insert-id connection  => number 
+;;; mysql-connect:get-affected-rows connection  => number 
 ;;;
 ;;; Notes:
 ;;; On connection sets the utf-8 encoding to comunicate with the server.
@@ -66,14 +67,15 @@
   (:export connect
            disconnect
            query
-           get-last-insert-id))
+           get-last-insert-id
+	   get-affected-rows))
 
 (in-package :mysql-connect)
 
 #+lispworks (require "comm")
 ;;-
 
-(defstruct mysqlcon stream host port connection-id insert-id)
+(defstruct mysqlcon stream host port connection-id insert-id affected-rows)
 
 (defconstant +max-packet-size+ (* 1024 1024))
 
@@ -173,7 +175,6 @@
   (make-mysqlcon :stream stream
                  :host host
                  :port port
-                 :insert-id nil
                  :connection-id (getf server-info :thread-id)))
 
 ;;-
@@ -206,15 +207,17 @@
                 stream :packet-number 0))
 
 (defun update-connection-data (connection packet)
-  (let* ((ok (parse-ok-packet packet))
-         (insert-id (getf ok :insert-id)))
-    (setf (mysqlcon-insert-id connection) insert-id))
-  nil)
+  (let ((ok (parse-ok-packet packet)))
+    (setf (mysqlcon-insert-id connection) (getf ok :insert-id))
+    (setf (mysqlcon-affected-rows connection) (getf ok :affected-rows))))
 
 ;;-
 
 (defun get-last-insert-id (connection)
   (mysqlcon-insert-id connection))
+
+(defun get-affected-rows (connection)
+  (mysqlcon-affected-rows connection))
 
 ;;-
 

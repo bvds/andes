@@ -200,7 +200,10 @@
 (defvar random-help-experiment:*help-mods* 
   '(
     (give-spontaneous-hint) (give-hints-backwards)
-    (give-spontaneous-hint give-hints-backwards)))
+    (give-spontaneous-hint give-hints-backwards)
+    (no-join-hints give-spontaneous-hint) (no-join-hints give-hints-backwards)
+    (no-join-hints give-spontaneous-hint give-hints-backwards)
+    ))
 
 ;; Set hook to test for backwards hints
 (setf *backwards-hints-hook* 
