@@ -98,7 +98,7 @@
 	  (query *connection*
 		 (format nil
 			 "SELECT clientID FROM PROBLEM_ATTEMPT WHERE clientID = '~A'" 
-			 client-id)
+			 (truncate-client-id client-id))
 		 ;;:field-names nil :flatp t :result-types :auto
 		 )
 	(query *connection*
@@ -106,7 +106,7 @@
 		       "INSERT into PROBLEM_ATTEMPT (clientID) values ('~A')"
 		       client-id)))
     
-    ;; If a post contains no json, j-string is lisp nil and 
+    ;; If an input or reply contains no json then it is a lisp nil and
     ;; sql null is inserted into database.
     (query *connection* 
 	   (format nil "INSERT into STEP_TRANSACTION (clientID,client,server) values ('~A',~:[null~;~:*'~A'~],~:[null~;~:*'~A'~])" 
@@ -118,10 +118,12 @@
       ;; We consolidate turn updates (only log one per session)
       ;; to minimize size of STUDENT_STATE table.
       (let ((tID (get-start-tID client-id)))
-	;; Do oldest ones first.
-	(dolist (update (reverse webserver:*log-variable*))
-	  (query *connection*
-		 (format nil update tID)))))))
+	(if tID
+	    ;; Do oldest ones first.
+	    (dolist (update (reverse webserver:*log-variable*))
+	      (query *connection*
+		     (format nil update tID)))
+	    (warn "No tID found for session ~A" client-id))))))
 
 ;; Alist of sql control characters and replacement strings
 (#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
@@ -139,7 +141,7 @@
 
 ;; Escaping ' via '' follows ANSI SQL standard.
 ;; If the Database escapes backslashes, must also do those.
-;; (In mysql, NO_BACKSLASH_ESCAPES is not set)
+;; In mysql, NO_BACKSLASH_ESCAPES is not set, by default.
 ;; See http://lists.b9.com/pipermail/clsql-help/2005-July/000456.html
 (defun make-safe-string (s)
   "Escape strings for database export."
@@ -215,20 +217,16 @@ list of characters and replacement strings."
 		     section)))
     ;; session is labeled by client-id 
     ;; This sets up entry in PROBLEM attempt for a given session.
-    (handler-case
-	(query *connection*
-	       (format nil "INSERT into PROBLEM_ATTEMPT (clientID,userName,userproblem,userSection~:[~;,extra~]) values ('~a','~a','~A','~A'~@[,'~A'~])" 
-		       extra client-id student problem section extra))
-      ;; Dec. 1, 2011; have seen error:
-      ;; MySQL(1062): Duplicate entry 'crell.1_asukt2a1317076052242' for ...
-      (error (c) (error 'webserver:log-error
-			:tag (list 'set-session-failed
-				   (format nil "~A" c) 
-				   client-id student 
-				   problem section extra)
-			;; What the student sees.
-			:text "Failed to open session.  Please exit this problem and try again."
-			)))))
+    (query *connection*
+	   (format nil "REPLACE INTO PROBLEM_ATTEMPT (clientID,userName,userproblem,userSection~:[~;,extra~]) values ('~a','~a','~A','~A'~@[,'~A'~])" 
+		   extra client-id student problem section extra))
+    (when (> (get-affected-rows *connection*) 1)
+      (warn 'webserver:log-warn
+	    :tag (list 'duplicate-client-id
+		       client-id student 
+		       problem section extra)
+	    :text "ClientID already exists in PROBLEM_ATTTEMPT."
+	    ))))
 
 (defun truncate-string (x)
   "Truncate arg for warning messages."
@@ -238,12 +236,12 @@ list of characters and replacement strings."
   "Intercept any errors, turning them into warnings, then return."
   ;; If there are json errors, we want to log them and then soldier on.
   `(handler-case (progn ,@forms)
-     (error (c) (warn 'webserver:log-warn
-		      :tag (list 'database-error (type-of c)
-			      ;; The objects are generally strings and the 
-			      ;; most errors occur for very long strings.
-				 (truncate-string ,object))
-		      :text (format nil "~A" c)))))
+    (error (c) (warn 'webserver:log-warn
+		:tag (list 'database-error (type-of c)
+			   ;; The objects are generally strings and the 
+			   ;; most errors occur for very long strings.
+			   (truncate-string ,object))
+		:text (format nil "~A" c)))))
 
 ;; (andes-database:get-matching-sessions '("solution-step" "seek-help") :student "bvds" :problem "s2e" :section "1234")
 ;;
@@ -263,7 +261,8 @@ list of characters and replacement strings."
 		      (format nil "SELECT server,client,STEP_TRANSACTION.clientID FROM PROBLEM_ATTEMPT,STEP_TRANSACTION WHERE userProblem='~A' AND userSection='~A' AND extra='~A' AND PROBLEM_ATTEMPT.clientID=STEP_TRANSACTION.clientID"
 			      problem section extra)
 		      (format nil "SELECT server,client,STEP_TRANSACTION.clientID FROM PROBLEM_ATTEMPT,STEP_TRANSACTION WHERE userName='~A' AND userProblem='~A' AND userSection='~A'~@[ AND extra='~A'~] AND PROBLEM_ATTEMPT.clientID=STEP_TRANSACTION.clientID" 
-			      student problem section extra) )
+			      (truncate-student student) 
+			      problem section extra) )
 		  ))
 	  ;; By default, cl-json turns camelcase into dashes:  
 	  ;; Instead, we are case insensitive, preserving dashes.
@@ -345,6 +344,8 @@ list of characters and replacement strings."
 	   (results (when client-id
 		      (query *connection*
 			     (format nil "SELECT server FROM STEP_TRANSACTION WHERE clientID='~A'"
+				     ;; Here, client-id should be ok length
+				     ;; since it is from query.
 				     client-id)
 					;:flatp t
 			     )))
@@ -439,13 +440,34 @@ list of characters and replacement strings."
   (car (car 
 	(query *connection* 
 	       (format nil "SELECT MIN(tID) FROM STEP_TRANSACTION WHERE clientID='~A'"
-		       client-id))))) 
+		       (truncate-client-id client-id))))))
 
 (defun get-session-starting-tID ()
   "Get any existing tID associated with the start of the current session.  If client-id is a string, use that session."
       ;; Should cache result of this query.
       (with-db (get-start-tID 
-		(or *old-client-id* webserver:*log-id*))))
+		 (or *old-client-id* webserver:*log-id*))))
+
+(defconstant +client-id-width+ 50 
+  "Width of clientID column in table PROBLEM_ATTEMPT.")
+
+(defun truncate-client-id (client-id)
+  "client-id in table is fixed width.  Test if given string is too large, else any match will fail."
+  (if (> (length client-id) +client-id-width+)
+      (progn (warn "clientID too long ~A" client-id)
+	     (subseq client-id 0 +client-id-width+))
+      client-id))
+
+(defconstant +student-width+ 20 "Match userName in table PROBLEM_ATTEMPT.")
+
+;; This is a temporary work-around for Bug #1941.
+(defun truncate-student (student)
+  "Student name in database is fixed width.  Test if given string is too large, else any match will fail."
+  (if (> (length student) +student-width+)
+      ;; Could have warning, but this would really pollute
+      ;; the database with a lot of error messages.
+      (subseq student 0 +student-width+)
+      student))
 
 (defun get-most-recent-tID ()
   "Get largest tID from STEP_TRANSACTION; if table is empty, create dummy step."
@@ -462,7 +484,7 @@ list of characters and replacement strings."
 	  ;; If student exists, still need to look for any section defaults
 	  ;; for the case 
 	  (format nil "SELECT DISTINCT property FROM STUDENT_STATE WHERE userSection='~A' AND (~@[userName='~A' OR ~]userName='') AND model='~A'~@[ AND tID<~A~]" 
-		  section student model tID)))
+		  section (truncate-student student) model tID)))
 	result)
 
     ;; Add any cached properties.
@@ -496,7 +518,7 @@ list of characters and replacement strings."
     (let ((student-result
 	   (single-query
 	    (format nil "SELECT value FROM STUDENT_STATE WHERE userSection='~A' AND userName='~A' AND model='~A' AND property='~A'~@[ AND tID<~A~] ORDER BY tID DESC LIMIT 1" 
-		    section student model property tID))))
+		    section (truncate-student student) model property tID))))
       (when (and student-result (car student-result))
 	(return-from get-state-property
 	  (values (read-from-string (car student-result)) t)))))

@@ -26,7 +26,9 @@ dojo.require("andes.WordTip");
 		});
 	}
 	var setCookie = function(){
-		andes.sessionId = andes.userId + andes.projectId + new Date().getTime();
+		// Andes database requires that clientID be 50 characters.
+		andes.sessionId = andes.projectId + new Date().getTime();
+		andes.sessionId = andes.userId.substr(0,50-andes.sessionId.length) + andes.sessionId;
 		var andesCookie = {
 			u:andes.userId,
 			p:andes.projectId,
