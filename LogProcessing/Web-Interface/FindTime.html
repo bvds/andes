@@ -31,9 +31,11 @@ return "";
 
 <form name="TimeForm" action="FindTime.php" method="post">
 <label>Optional User Name</label>:&nbsp;
-            <input name="userName" type="text" /><br>
+            <input name="userName" type="text" />
+            (<a href="http://en.wikipedia.org/wiki/Regular_expression">POSIX extended regexp</a>)<br>
 <label>Optional Section Name</label>:&nbsp;
-<input name="userSection" type="text" /><br>
+         <input name="userSection" type="text" />
+        (<a href="http://en.wikipedia.org/wiki/Regular_expression">POSIX extended regexp</a>)<br>
 <label>Optional Problem Name</label>:&nbsp;
 <input name="userProblem" type="text" /><br>
 <label>Optional dates (format 2010-06-11)</label>:&nbsp;
