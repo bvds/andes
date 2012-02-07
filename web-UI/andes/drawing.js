@@ -413,7 +413,9 @@ dojo.provide("andes.drawing");
 				}else if(obj.action=="log"){
 					// Log actions are ignored by client.
 				}else{
-					console.warn("UNUSED ANDES OBJECT:", obj)
+					// Ignore items for the help pane.
+					// These are handled by handleHelp().
+					console.log("    handleServerActions ignoring \"", obj.action,"\"");
 				}
 			}, this);
 

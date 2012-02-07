@@ -14,30 +14,36 @@ dojo.require("andes.api");
 			return;
 		}
 		var hlp = dijit.byId("helpContentPane");
-		dijit.byId("helpPane").open();
 		dojo.forEach(result, function(r){
 			var c = hlp.get("content");
 			// note:
 			//	setting to the node and not with attr
 			// 	because ContentPane is throwing errors that way
+			// note:
+			//      helpPane open() tests if pane is already opened
+			//      so multiple calls are OK.
 			switch(r.action){
 			    case "show-hint-link":
+				dijit.byId("helpPane").open();
 				var fn = r.href ? "link" : "explain",
 				val = r.href || r.value;
 				hlp.containerNode.innerHTML = c + "\n<p><a href=\"#\" onclick=\"andes.help." + fn + "('" + val + "'); return false\">" + r.text + "</a></p>";
 				break;
 			    case "show-hint":
+				dijit.byId("helpPane").open();
 				var style = r.style ? " class=\""+ r.style + "\"":"";
 				// Student math symbols may be echoed in help statements.
 				hlp.containerNode.innerHTML = c + "\n<p" + style +">" + dojox.drawing.util.typeset.convertLaTeX(r.text) + "</p>";
 				break;
 			    case "echo-get-help-text":
+				dijit.byId("helpPane").open();
 		  		// Escape any html codes on input text echo.
                		        // Should use future function dojo.string.escape
                                 // See http://trac.dojotoolkit.org/ticket/8995
 				andes.help.echo(r.text.replace(/\&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
 				break;
 			    case "focus-hint-text-box":
+				dijit.byId("helpPane").open();
 				dijit.focus(dojo.byId("helpInput"));
 				break;
 			    case "focus-major-principles":
