@@ -34,7 +34,8 @@
   :symbol-base |R| 
   :short-name "resistance"
   :units |ohm| ;also \Omega
-  :new-english ((the) "resistance of" (allowed "resistor") (component ?name)))
+  :new-english ((the) (key "resistance") "of" (allowed "resistor") 
+		(component ?name)))
 
 (def-qexp current (current-thru ?component :time ?time)
   :rank scalar
@@ -59,7 +60,7 @@
   :symbol-base |C|     
   :short-name "capacitance"
   :units |F|
-  :new-english ((the) "capacitance of" (allowed "capacitor") 
+  :new-english ((the) (key "capacitance") "of" (allowed "capacitor") 
 		(component ?name)))
 
 ;;; in the workbench, the time slot is added if feature changing-voltage
@@ -69,7 +70,7 @@
   :symbol-base |q|     
   :short-name "charge"	
   :units |C|
-  :new-english ((the) "charge on" (component ?name) (time ?time)))
+  :new-english ((the) (key "charge") "on" (component ?name) (time ?time)))
 
 (def-qexp circuit-component (component ?a)
   ;; Generally components are a single symbol or a list for
@@ -124,14 +125,14 @@
   :symbol-base |q|     
   :short-name "charge"	
   :units |C|
-  :new-english ((the) "charge in" (component ?name) (time ?time)))
+  :new-english ((the) (key "charge") "in" (component ?name) (time ?time)))
 
 (def-qexp max-charge (max-charge ?name :time ?time)
   :rank scalar
   :symbol-base |q|     
   :short-name "max-charge"	
   :units |C|
-  :new-english ((the) (or "maximum" "max") "charge in" 
+  :new-english ((the) (or "maximum" "max") (key "charge") "in" 
 		(component ?name)  (time ?time)))
 
 ;; ind3a "self-inductance"
