@@ -415,26 +415,37 @@
 
 (defun quantity-html-link (qexp)
   "Create a link to the list of quantities for a given ExpType or just returns a string."
-  (if (stringp qexp) 
-      qexp  ;no link, just plain text.
-      (open-review-window-html
-       (or (exptype-short-name qexp)
-	   (warn "ExpType ~A missing short-name" (exptype-type qexp))
-	   (string-downcase (string (exptype-type qexp))))
-       "quantities.html"
-       :section (string (exptype-type qexp))
-       :title "Quantities" :value (exptype-type qexp))))
+  (cond 
+    ((stringp qexp) qexp)  ;no link, just plain text.
+    ((member (exptype-rank qexp) '(scalar vector))
+     (open-review-window-html
+      (or (exptype-short-name qexp)
+	  (progn 
+	    (warn 'webserver:log-warn 
+		  :tag (list 'exptype-no-short-name (exptype-type qexp))
+		  :text "ExpType missing short-name.")
+	    (string-downcase (string (exptype-type qexp)))))
+      "quantities.html"
+      :section (string (exptype-type qexp))
+      :title "Quantities" :value (exptype-type qexp)))
+    (t (warn 'webserver:log-warn
+	     :tag (list 'exptype-non-quantity (exptype-type qexp))
+	     :text "Exptype is not a quantity.")
+       (string-downcase (string (exptype-type qexp))))))
 
 (defun collect-distinct-quantities (full-props)
   "Collect a list of distinct ExpTypes or bodies for a list of SystemEntries."
   (delete-duplicates
-   (mapcar #'(lambda (x) (or (lookup-expression-struct x)
-			     ;; In the case of a body, it won't be found
-			     ;; in the general quantity ontology; just print
-			     ;; the name of the object as a string.
-			     (def-np x)))
+   (mapcar #'quantity-exptype-or-phrase
 	   (delete-duplicates (mapcar #'second full-props) :test #'unify))
    :test #'equal)) ;for the strings
+
+(defun quantity-exptype-or-phrase (prop)
+  "If prop is scalar or vector quantity, return ExpType, else return name."
+  (let ((quant (lookup-expression-struct prop)))
+    (if (and quant (member (ExpType-rank quant) '(scalar vector)))
+	quant
+	(def-np prop))))
 
 (defun too-many-matches-ErrorInterp (entry full-props)
   ;; see nsh-sought-resp-ambiguous in NextStepHelp.cl
@@ -1200,6 +1211,21 @@
 	:state +incorrect+
 	:diagnosis '(variable-already-in-use)
 	:spontaneous t)))
+
+    ;; Test for valid variable names.  This should match
+    ;; 'unknown in Help/physics-algebra-rules.cl
+    ((or (digit-char-p (char label 0))
+	 (char= (char label 0) #\_))
+     (let ((entry (find-entry (first entry-ids))))
+       (make-tutor-response
+	entry
+	(list
+	 (format nil
+		 "Variable names may not start with a ~:[underscore~;number~].&nbsp; Please choose a different name." (digit-char-p (char label 0))))
+	 :assoc (list (list 'invalid-variable-name label))
+	 :state +incorrect+
+	 :diagnosis (list 'invalid-variable-name label)
+	 :spontaneous t)))
     
     ;; else no conflict: just make the definition
     (T 
@@ -1699,7 +1725,7 @@
        rem))
     
      (t (warn 'webserver:log-warn
-	      :tag (list 'make-tutor-response-bad-arge state spontaneous)
+	      :tag (list 'make-tutor-response-bad-arg state spontaneous)
 	      :text "unsupported state"))))
 
 (defun try-make-incorrect-reply (entry error-tag)
