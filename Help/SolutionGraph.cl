@@ -785,9 +785,8 @@
     (update-grade-status entries +correct+)
     (dolist (E entries)
       (let ((grade (SystemEntry-graded E)))
-	(pushnew len-enter (graded-eqns grade) :test #'unify)
+	(pushnew len-enter (graded-eqns grade) :test #'graded-eqns-equalp)
 	(pushnew Entry (SystemEntry-Entered E))))))
-
 
 ;;---------------------------------------------------------------------
 ;; Filter-constraint-losses
