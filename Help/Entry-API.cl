@@ -1634,11 +1634,24 @@
 	      (find-prop-in-path id (enode-path PSM)))
        (setf (StudentEntry-state entry) +CORRECT+)
        (pushnew entry (SystemEntry-entered sysent))
+      ;; This parallels code in Check-NonEq-Entry; should merge
+       ;; Update grading
+       (update-grade-status (list sysent) +correct+)
        (make-green-turn :id (StudentEntry-id entry)))
       ;; Activity is incomplete, give a hint
       ;; based on goalprop, and then defer to NSH.
       (T (setf (StudentEntry-state entry) +INCORRECT+)
 	 (setf (SystemEntry-entered sysent) nil)
+	 ;; This parallels code in Check-NonEq-Entry; should merge
+	 ;; Update grading
+	 (update-grade-status (list sysent) +incorrect+)
+	 ;; Take diagnosis and add grading information.
+	 (pushnew (make-info-provided :prop (studententry-prop entry)
+				      :slots 1 ;should be list, but for now, just
+				      :penalize t)
+		  (graded-incorrects (SystemEntry-graded sysent))
+		  :key #'info-provided-prop
+		  :test #'unify)
 	 (let ((rem (walk-psm-path "You have not finished " 
 				   (bgnode-path psm) nil)))
 	   (setf (StudentEntry-ErrInterp entry)

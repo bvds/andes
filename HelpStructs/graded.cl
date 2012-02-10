@@ -29,7 +29,8 @@
 (defstruct (graded  (:print-function print-graded))
   incorrects ;list of info-provided
   hints ;list of bottom-out hints associated with entry.
-  eqns  ;alist of (StudentEntry . length) overlapping with SystemEntry.
+  eqns  ;alist of distinct (StudentEntry . length) overlapping 
+  ;; with SystemEntry.
   status     ;Current status.  Can be:
   ;; +correct+ +incorrect+ or nil (deleted or not created)
   optional  ;Flag if step is optional, default (nil) is required.
@@ -56,6 +57,11 @@
 (format Stream "    ]~%"))
 	   
 	   
+(defun graded-eqns-equalp (x y)
+  "Equality for two graded-eqns objects"
+  (and (unify (StudentEntry-prop (car x)) 
+	      (StudentEntry-prop (car y))) 
+       (equal (cdr x) (cdr y))))
 
 
 (defstruct info-provided
