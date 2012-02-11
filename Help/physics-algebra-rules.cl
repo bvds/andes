@@ -379,6 +379,7 @@
 						))
   
   ;; variable/identifiers
+  ;; This should match test in Help/Entry-API.cl
   (grammar-add-nonterminal '**common-grammar** 'rest-of-unknown 
 			   '((letter (rest-of-unknown))
 			     (backslash rest-of-unknown) ;backslash can't be last

@@ -73,7 +73,7 @@ $adminName = '' ;   // user name
 	     // asu_3u16472755e704e5fasul1_15854
 	     // uwplatt_.*
 	     // 
-$sectionName = 'uwplatt_.*' ; //$_POST['sectionName'];
+$sectionName = 'uwplatt_(8p1304|90476).*' ; //$_POST['sectionName'];
              // '2011-04-01'
 $startDate = '2012-01-20'; // $_POST['startDate'];
 $endDate = ''; // $_POST['endDate'];

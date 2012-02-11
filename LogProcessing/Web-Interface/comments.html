@@ -2,24 +2,6 @@
 
 <head>
     <title>Andes Admin Login</title>
-    <style>
-    label, input{
-    display:block;
-    width:250px;
-    }
-    label{
-    margin-top:15px;
-    }
-    .loginbox{
-    height:auto;
-    padding:0 10px 20px 10px;
-    border:1px solid #ccc;
-    margin:10px auto;
-    }
-    h1{
-    text-align:center;
-    }
-    </style>
 
 <script language=JavaScript>
 <!--
@@ -49,15 +31,7 @@ return "";
 <form name="queryForm" action="commentProcessing.php" method="post">
 <div class="loginbox">
 <label>Your user name (for saving status and your comments):</label>
-<input name="adminName" type="text" size="6"/>
-<label>DB user:</label>
-<input name="dbuser" type="text" value="root" size="6"/>
-<label>DB password:</label>
-<input name="passwd" type="password" size="6"/><br>
-<script language=JavaScript>
-document.queryForm.adminName.value=getCookie("userName");
-document.queryForm.passwd.value=getCookie("passWord");
-</script>
+<input name="adminName" type="text" size="6"/> <br>
 <label>Order Results By: </label> 
 <select name="item">
 <option>startTime</option>
@@ -71,16 +45,31 @@ document.queryForm.passwd.value=getCookie("passWord");
 </select>
 <BR />
 <BR />
-Filter Results By: <select name="filter">
-<option>Student</option>
-<option>Admin</option>
-<option>All</option>
-</select>&nbsp;
+Problem types:
+<select name="extra">
+<option>Original</option>
+<option>Reviewed</option>
+<option>Both</option>
+</select><br>
+Comment status:&nbsp;
 <select name="solved">
 <option>Unsolved</option>
 <option>Solved</option>
 <option>All</option>
-</select>
+</select><br>
+<label>Optional dates (format 2010-06-11)</label>:&nbsp; 
+           from <input name="startDate" type="text" size="8"> to
+                <input name="endDate" type="text" size="8"><br>
+<label>DB Name</label>:&nbsp;
+<input name="dbname" type="text" value="andes3" size="6">
+<label>DB user</label>:&nbsp;
+<input name="dbuser" type="text" value="root" size="6"/>
+<label>DB password</label>:&nbsp;
+<input name="passwd" type="password" size="6"/><br>
+<script language=JavaScript>
+document.queryForm.adminName.value=getCookie("userName");
+document.queryForm.passwd.value=getCookie("passWord");
+</script>
 <BR />
 <BR />
 <input type="submit"/>

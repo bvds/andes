@@ -154,8 +154,15 @@
     (return-from iea-check-response (IEA-main "")))
 
   (unless (consp response)
-    (warn "iea-check-response received invalid:  ~S" response)
+    ;; These cases should be handled more intelligently.
+    ;; Often occurs when rerunning logs through help 
+    ;; server and hint sequence has changed.
+    ;; Bug #1947
+    (warn 'webserver:log-warn
+	  :tag (list 'iea-check-response response)
+	  :text "iea-check-response expecting cons")
     (return-from  iea-check-response))
+
   (let* ((name (car response))
 	 (bindings (or (cdr response) no-bindings))
 	 (equation (lookup-psmclass-name name))

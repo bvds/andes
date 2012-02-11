@@ -16,10 +16,10 @@
 <body>
 
 <?
+$dbname= $_POST['dbname'];
 $dbuser= $_POST['dbuser'];
 $dbserver= "localhost";
 $dbpass= $_POST['passwd'];
-$dbname= "andes3";
 
 function_exists('mysql_connect') or die ("Missing mysql extension");
 mysql_connect($dbserver, $dbuser, $dbpass)
@@ -61,7 +61,7 @@ set_time_limit(300);
 $json = new Services_JSON();
 
 $sqlOld="SELECT startTime,userName,userProblem,userSection,tID,command,P1.clientID from PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE $startDatec $endDatec P2.initiatingParty='server' AND P2.command like '%\"error-type\":$errorTypec%' AND P2.command like '%\"error\":%' AND P2.clientID=P1.clientID AND P1.extra=0 order by P2.tID";
-$sql="SELECT startTime,userName,userProblem,userSection,tID,client,server,P1.clientID from PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE $startDatec $endDatec P2.server like '%\"log\":\"server\"%' AND P2.clientID=P1.clientID AND P1.extra=0 order by P2.tID";
+$sql="SELECT startTime,userName,userProblem,userSection,tID,client,server,P1.clientID from PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE $startDatec $endDatec P2.server like '%\"log\":\"server\"%' AND P2.clientID=P1.clientID AND (P1.extra IS NULL OR P1.extra=0) order by P2.tID";
 $resultOld=mysql_query($sqlOld);
 $result=mysql_query($sql);
 $ecount=0;
@@ -71,7 +71,7 @@ while (($myrow = mysql_fetch_array($resultOld)) ||
        ($myrow = mysql_fetch_array($result))) {
   $ecount++;
   $tID=$myrow["tID"];  
-  $userClientID=$myrow["clientID"];
+  $clientID=$myrow["clientID"];
   $userName=$myrow["userName"];
   $userProblem=$myrow["userProblem"];
   $userSection=$myrow["userSection"];
@@ -79,7 +79,7 @@ while (($myrow = mysql_fetch_array($resultOld)) ||
   if(isset($myrow["command"])){
     $usertID=$tID-3;
     $cc=$myrow["command"];
-    $userSql="SELECT command,tID from PROBLEM_ATTEMPT_TRANSACTION WHERE clientID='$userClientID' AND tID<$tID ORDER BY tID DESC LIMIT 1";
+    $userSql="SELECT command,tID from PROBLEM_ATTEMPT_TRANSACTION WHERE clientID='$clientID' AND tID<$tID ORDER BY tID DESC LIMIT 1";
     $userResult=mysql_query($userSql);
     $myResult=mysql_fetch_array($userResult);
     $ttID=$myResult["tID"];  // tID associated with row, for focusing.
@@ -92,6 +92,7 @@ while (($myrow = mysql_fetch_array($resultOld)) ||
   }
   $command=$json->decode($cc);
   $a=$json->decode($userCommand);
+  $method=$a->method;  // Changed if reply parse fails.
 
   $yy=array();
   if($command && isset($command->result)){
@@ -119,6 +120,7 @@ while (($myrow = mysql_fetch_array($resultOld)) ||
   // with the json decoding.  These are usually associated with very
   // long backtraces that have somehow gotten truncated.
   if(count($yy)==0) {
+    $method='syntax';
     $bb=$cc;
     // add space after commas, for better line wrapping
     $bb=str_replace("\",\"","\", \"",$bb);
@@ -131,7 +133,6 @@ while (($myrow = mysql_fetch_array($resultOld)) ||
 
   //  $lastID=$tID-1;
   //  $userSql="select command from PROBLEM_ATTEMPT_TRANSACTION where tID=$lastID";
-  $method=$a->method;
   $aa=$json->encode($a->params);
   // Escape html codes so actual text is seen.
   $aa=str_replace("&","&amp;",$aa);
@@ -146,7 +147,7 @@ while (($myrow = mysql_fetch_array($resultOld)) ||
   echo "<td rowspan=\"$nr\">$aa</td>";
   echo array_shift($yy);
 
-  echo "<td rowspan=\"$nr\"><a href=\"javascript:;\" onclick=\"openTrace('OpenTrace.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;u=$userName&amp;p=$userProblem&amp;s=$userSection&amp;t=$ttID');\">Session&nbsp;log</a><br><a href=\"javascript:;\" onclick=\"copyRecord('\Save.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;a=$adminName&amp;a=$adminName&amp;u=$userName&amp;p=$userProblem&amp;s=$userSection&amp;t=$usertID');\">Solution</a></td></tr>\n";
+  echo "<td rowspan=\"$nr\"><a href=\"javascript:;\" onclick=\"openTrace('OpenTrace.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;cid=$clientID&amp;u=$userName&amp;p=$userProblem&amp;s=$userSection&amp;t=$ttID');\">Session&nbsp;log</a><br><a href=\"javascript:;\" onclick=\"copyRecord('\Save.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;a=$adminName&amp;a=$adminName&amp;u=$userName&amp;p=$userProblem&amp;s=$userSection&amp;t=$usertID');\">Solution</a></td></tr>\n";
 
   foreach ($yy as $bb) {
     echo "<tr class=\"$method\">$bb</tr>\n";

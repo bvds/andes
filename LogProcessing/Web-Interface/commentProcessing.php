@@ -1,13 +1,15 @@
 <?
+$dbname= $_POST['dbname'];
 $dbuser= $_POST['dbuser'];
 $dbserver= "localhost";
 $dbpass= $_POST['passwd'];
-$dbname= "andes3";
 
 $adminName = $_POST['adminName'];
 $orderBy = $_POST['item'];
 $order = $_POST['order'];
-$filter=$_POST['filter'];
+$extra=$_POST['extra'];
+$startDate = $_POST['startDate'];
+$endDate = $_POST['endDate'];
 $solved=$_POST['solved'];
 
 //******** BEGIN LISTING THE CONTENTS OF  testTable*********                                                                                                            
@@ -35,23 +37,37 @@ if($order=='Descending')
   $order = "DESC";
  else
    $order = "";
-if($filter=='All'){
-  $sqlOld = "SELECT * FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.clientID = P2.clientID AND P2.initiatingParty = 'client' AND P2.command LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
-  $sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE P1.clientID = P2.clientID AND P2.client LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
+if($extra == 'Reviewed'){
+  // Changed extra from number to string or null
+  // commit a0719d09f0017cb, Nov 9, 2011
+  $extrac = "(P1.extra IS NOT NULL OR P1.extra !=0) AND";
+  $extrae = "reviewed";
+ }else if($extra == 'Original'){
+  $extrac = "(P1.extra IS NULL or P1.extra = 0) AND";
+  $extrae = "solved";
+ }else{
+  $extrac = "";
+  $extrae = "solved or reviewed";
  }
- else if($filter=='Student'){
-   $sqlOld = "SELECT * FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.extra<=0 AND P1.clientID = P2.clientID AND P2.initiatingParty = 'client' AND P2.command LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
-   $sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE P1.extra<=0 AND P1.clientID = P2.clientID AND P2.client LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
-}
- else{
-   $sqlOld = "SELECT * FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.extra>0 AND P1.clientID = P2.clientID AND P2.initiatingParty = 'client' AND P2.command LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
-   $sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE P1.extra>0 AND P1.clientID = P2.clientID AND P2.client LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
+if($startDate){
+  $startDatec = "P1.startTime >= '$startDate' AND";
+ } else {
+  $startDatec = "";
  }
+if($endDate){
+  $endDatec = "P1.startTime <= '$endDate' AND";
+ } else {
+  $endDatec = "";
+ }
+
+$sqlOld = "SELECT * FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE $extrac $startDatec $endDatec P1.clientID = P2.clientID AND P2.initiatingParty = 'client' AND P2.command LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
+$sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE $extrac $startDatec $endDatec P1.clientID = P2.clientID AND P2.client LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
 
 $resultOld = mysql_query($sqlOld);
 $result = mysql_query($sql);
 $removed=0;
 $kept=0;
+
 echo "<table border=1>";
 echo "<tr><th>Solved</th><th>My Comment</th><th>User Name</th><th>Problem</th><th>Section</th><th>Starting Time</th><th>Comment</th><th>Additional</th></tr>\n";
 while (($myrow = mysql_fetch_array($result)) ||
@@ -109,9 +125,9 @@ while (($myrow = mysql_fetch_array($result)) ||
     }
  }
 echo "</table>";
-if($removed>0){
-    echo "<p>$kept comments shown, after filtering out $removed.\n";
- }
+
+echo "<p>$kept comments shown, after filtering out $removed.\n";
+
 mysql_close();
 ?>
 </body>

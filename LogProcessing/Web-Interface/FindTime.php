@@ -11,25 +11,26 @@ mysql_connect($dbserver, $dbuser, $dbpass)
 mysql_select_db($dbname)
      or die ("UNABLE TO SELECT DATABASE $dbname");
 
-$userSection = $_POST['userSection'];
+$sectionName = $_POST['userSection'];
 $hintType=$_POST['HintType'];
 $user=$_POST['userName'];
 $prob=$_POST['userProblem'];
 
-if($user){
-  $userName="P.userName='$user' AND";
- }
- else{
-   if($userSection=='study-e')
-     $userName="P.userName LIKE 'ThesisE%' AND";
-   else
-     $userName="P.userName LIKE 'ThesisC%' AND";
+if($user==''){
+  $userName = "";
+ } else {
+  $userName="P.userName REGEXP '$user' AND";
+ } 
+if($sectionName==''){
+  $userSection='';
+ }else {
+  $userSection = "P.userSection REGEXP  '$sectionName' AND";
  }
 if($prob){
   $userProblem="P.userProblem='$prob' AND";
  }
 
-$sql="select Count(DISTINCT userName) from PROBLEM_ATTEMPT as P,STEP_TRANSACTION as S where $userName $userProblem P.userSection='$userSection' and P.clientID=S.clientID and S.server like '%\"action\":\"problem-closed\"%' and S.server like '%\"correct_answer_entries_v_answer_entries\"%' and S.client like '%\"time\"%' order by startTime";
+$sql="select Count(DISTINCT userName) from PROBLEM_ATTEMPT as P,STEP_TRANSACTION as S where $userName $userProblem $userSection and P.clientID=S.clientID and S.server like '%\"action\":\"problem-closed\"%' and S.client like '%\"time\"%' order by startTime";
 $result = mysql_query($sql);
 if ($myrow = mysql_fetch_array($result)) {
   $TotUsers=$myrow["Count(DISTINCT userName)"];

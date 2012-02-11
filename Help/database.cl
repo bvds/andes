@@ -437,10 +437,18 @@ list of characters and replacement strings."
 ;; variables.
 ;; A global cache would need periodic flushing.
 (defun get-start-tID (client-id)
-  (car (car 
-	(query *connection* 
-	       (format nil "SELECT MIN(tID) FROM STEP_TRANSACTION WHERE clientID='~A'"
-		       (truncate-client-id client-id))))))
+  (let ((result 
+	 (query *connection* 
+		(format nil "SELECT MIN(tID) FROM STEP_TRANSACTION WHERE clientID='~A'"
+			(truncate-client-id client-id)))))
+    (if (and (consp result) (consp (car result)))
+	(car (car result))
+	(warn 'webserver:log-warn 
+	      :tag (list 'get-start-tID result 
+			 *old-client-id* 
+			 webserver:*log-id* 
+			 (truncate-client-id client-id))
+	      :text "get-start-tID expecting list of lists"))))
 
 (defun get-session-starting-tID ()
   "Get any existing tID associated with the start of the current session.  If client-id is a string, use that session."

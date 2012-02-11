@@ -538,12 +538,20 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-(defun contains-strings (eq)
+
+(defun contains-strings (answer)
+  (handler-case 
+      (do-contains-strings answer)
+    (warn (c) (warn 'webserver:log-warn
+		    :tag (list 'contains-strings answer)
+		    :text "Invalid contains-string object."))))
+
+(defun do-contains-strings (eq)
   (cond
-   ((null eq) nil)
    ((stringp eq) (list eq))
    ((consp eq)
-    (append (contains-strings (car eq)) (contains-strings (cdr eq))))
+    (mapcan #'do-contains-strings eq))
+   ((null eq) (warn "Null encountered in contains-strings."))
    (t nil)))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1485,15 +1493,22 @@ follow-up question and put it in the student entry's err interp field."
 
 (defun subst-canonical-vars (Exp)
   "Translate expression subsituting canonical vars for student vars, or standard vars throughout."
+  (handler-case 
+      (do-subst-canonical-vars Exp)
+    (warn (c) (warn 'webserver:log-warn
+		    :tag (list 'subst-canonical-vars Exp)
+		    :text "Invalid subst-canonical-vars object."))))
+
+(defun do-subst-canonical-vars (Exp)
   ;; NB: student variables must be *strings* in Exp, not symbols
   ;; Strings with no matching expression pass through translation unchanged.
   (cond ((stringp exp)
 	 (or (symbols-sysvar exp) ;find canonical variable
 	     (get-phys-const exp) ;special symbols recognized by solver
 	     exp))
-	((atom Exp) Exp) 
-	(t (cons (subst-canonical-vars (car Exp))
-		 (subst-canonical-vars (cdr Exp))))))
+	((and exp (atom Exp)) Exp)
+	((consp Exp) (mapcar #'do-subst-canonical-vars Exp))
+	(T (warn "subst-canonical-vars invalid structure"))))
 
 (defun parse-to-prefix (expr)
   "Turn parsed expression into lisp prefix form, assuming parentheses and spaces have been removed."
