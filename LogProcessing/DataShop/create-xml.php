@@ -2,10 +2,10 @@
    include 'JSON.php';
   $userName = 'chbishop_asu';
    $i = 1;
-   $db = new PDO("mysql:dbname=andes_anselm;host=localhost", "root", "hello123" );
-   //foreach($db->query("select distinct pa.userName from problem_attempt pa") as $rowfirst)
-   //{
-      // $userName = $rowfirst['userName'];
+   $db = new PDO("mysql:dbname=andes;host=localhost", "root", "hello123" );
+   foreach($db->query("select distinct pa.userName from problem_attempt pa where pa.userSection='asu_9Q1920841f2ca4d1fasul1_e'") as $rowfirst)
+   {
+      $userName = $rowfirst['userName'];
    echo "*********************\nCreating ".$i;
    $i++;
    //Create context message element
@@ -14,7 +14,7 @@
    $root = $doc->getElementsByTagName('tutor_related_message_sequence')->item(0);
    $isValid = TRUE;
    //selecting a specific username from problem attempt table and creating a context message for various clientId from problem attempt table of the username
-   foreach ($db->query("select pa.clientID, pa.starttime, pa.userproblem, pa.usersection, ci.name, ci.school, ci.period, ci.description, ci.instructorName, ci.schoolyearInfo, ci.datasetID, sd.datasetname, sd.modulename, sd.groupname, sd.problemname from problem_attempt pa, class_information ci, student_dataset sd where pa.usersection = ci.classSection and ci.datasetID = sd.datasetID and pa.userName = '".$userName."'") as $row)
+   foreach ($db->query("select pa.clientID, pa.starttime, pa.userproblem, pa.usersection, ci.name, ci.school, ci.period, ci.description, ci.instructorName, ci.schoolyearInfo, ci.datasetID, sd.datasetname, sd.modulename, sd.groupname, sd.problemname from problem_attempt pa, class_information ci, student_dataset sd where pa.usersection = ci.classSection and ci.datasetID = sd.datasetID and pa.usersection ='asu_9Q1920841f2ca4d1fasul1_e' and pa.userName = '".$userName."'") as $row)
    { 
        $context_msg_el = $doc->createElement("context_message");
        $context_msg_el->setAttribute('context_message_id', md5($row['clientID']));
@@ -142,36 +142,7 @@
            $tool_msg_el = $doc->createElement("tool_message");
            $tool_msg_el->setAttribute('context_message_id', md5($row['clientID']));
            
-           $toolmeta = $doc->createElement("meta");
-              
-           $user_id = $doc->createElement("user_id");
-           $user_id->setAttribute('anonFlag', "true");
-           $user_id->nodeValue = md5($userName);
-    
-           // Append user_id as a child to meta
-           $toolmeta->appendChild($user_id);
-           $sessionID = $doc->createElement("session_id");
-           //$user_id->setAttribute('anonFlag', "true");
-           $sessionID->nodeValue = md5($row['clientID']);
-           // Append session_id as a child to meta
-            $toolmeta->appendChild($sessionID);
-            
-            $timerec = $doc->createElement("time");
-            //$user_id->setAttribute('anonFlag', "true");
-            $timerec->nodeValue = $row['starttime'];
-            // Append time as a child to meta
-            $toolmeta->appendChild($timerec);
-            
-            $timezone = $doc->createElement("time_zone");
-            //$user_id->setAttribute('anonFlag', "true");
-            $timezone->nodeValue = 'MST';
-            // Append timezone as a child to meta
-            $toolmeta->appendChild($timezone);
-       
                      
-           // Append meta as a child to tool_message
-           $tool_msg_el->appendChild($toolmeta);
-           
            $json = new Services_JSON();
            // Initialize isValid as True
            $isValid = TRUE;
@@ -182,7 +153,44 @@
            
            if($b != null)
            {
+               
+               $toolmeta = $doc->createElement("meta");              
+                $user_id = $doc->createElement("user_id");
+                $user_id->setAttribute('anonFlag', "true");
+                $user_id->nodeValue = md5($userName);    
+           // Append user_id as a child to meta
+                $toolmeta->appendChild($user_id);
+                $sessionID = $doc->createElement("session_id");
+           //$user_id->setAttribute('anonFlag', "true");
+                 $sessionID->nodeValue = md5($row['clientID']);
+           // Append session_id as a child to meta
+                 $toolmeta->appendChild($sessionID);            
+                $timerec = $doc->createElement("time");
+                //Added on Jan-30-2012
+                if(isset ($b->params))
+                {
+                    $params1 = $b->params;
+                    if(isset ($params1->time))
+                    {
+                        $timetrans = $params1->time;
+                        $srttime = strtotime($row['starttime']);
+                        $newtime = date('Y-m-d H:i:s', $srttime + $timetrans);
+            //$user_id->setAttribute('anonFlag', "true");
+                        $timerec->nodeValue = ($newtime);
+            // Append time as a child to meta
+                        $toolmeta->appendChild($timerec);
+                    }
+                }
+                $timezone = $doc->createElement("time_zone");
+            //$user_id->setAttribute('anonFlag', "true");
+                $timezone->nodeValue = 'MST';
+            // Append timezone as a child to meta
+                $toolmeta->appendChild($timezone);     
+                  
+           // Append meta as a child to tool_message
+                $tool_msg_el->appendChild($toolmeta);
                //create semantic_event if client in steptransaction is not null
+                
                 $semantic_evnt_trans = $doc->createElement("semantic_event");
                 //if client has a field id, set attribute of semantic_event as id
                 if(isset ($b->id))
@@ -319,7 +327,7 @@
                 
                 $timerec = $doc->createElement("time");
                 //$user_id->setAttribute('anonFlag', "true");
-                $timerec->nodeValue = $row['starttime'];
+                $timerec->nodeValue = ($newtime);
                 $tutormeta->appendChild($timerec);
                 
                 $timezone = $doc->createElement("time_zone");
@@ -657,6 +665,6 @@ $doc->formatOutput = true;
 //echo $doc->saveXML();
 // Saving the generated XML
 $doc->save(md5($userName).".xml");
-   //}
+   }
    
 ?>

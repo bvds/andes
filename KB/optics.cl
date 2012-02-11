@@ -164,14 +164,16 @@
 			     ))
        ))
 
+;; student:  "d: separation between slits"
 (def-qexp slit-separation (slit-separation ?grating)
   :rank scalar
   :symbol-base |d|     
   :short-name "slit separation"	
   :units |m|
   :restrictions positive
-  :new-english ((the) "distance between slits in" ?grating)
-)
+  :new-english ((the) (or "distance" "separation") 
+		"between slits" (preferred "in" ?grating))
+  )
 
 (defoperator define-slit-separation (?grating)
   :preconditions ( (bind ?do-var (format-sym "ds_~A" (body-name ?grating))) )
