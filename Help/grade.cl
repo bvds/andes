@@ -21,7 +21,7 @@
 ;;;
 ;;;  Currently (2011), old sessions are run through the help
 ;;;  system to set the system state.  Thus, we don't need to store
-;;;  details of the grading algorithm.
+;;;  details of the grading state.
 ;;;
 ;;;  The general strategy is to attach bottom-out hints and red turns 
 ;;;  to steps in the solution.  If a student receives such a hint,
