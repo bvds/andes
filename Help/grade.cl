@@ -126,6 +126,10 @@
       (let ((graded (SystemEntry-graded sysent)))
 	(when (eql (car (SystemEntry-prop sysent)) 'implicit-eqn)
 	  (setf (graded-ignore graded) t))
+	;; Set optionality.  For now, test is based on tree structure,
+	;; ignoring the explicit optionality operators.
+	(setf (graded-optional graded)
+	       (sg-systementry-optional-p sysent))
 	;; For now, just put in dummy value
 	(unless (graded-weight graded)
 	  (setf (graded-weight graded) 13))
@@ -179,10 +183,7 @@
 	    :tag (list 'graded-possibilities-missing (SystemEntry-prop sysent))
 	    :text "Entry missing grading possibilities.")
       (return-from grade-sysentry))
-    ;; Right now, ignoring graded-optional
-    ;; Need test for optionality; see sg-systementry-optional-p
-    ;; and enode-required-entries
-    (unless (graded-ignore graded)
+    (unless (or (graded-ignore graded) (graded-optional graded))
       (incf (tally-possible tally) weight)
       (when (eql (graded-status graded) +correct+)
 	(let ((n (graded-possibilities graded))
