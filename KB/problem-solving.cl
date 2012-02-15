@@ -600,6 +600,7 @@
 ;;; unification with effects when these operators are invoked. It must
 ;;; be fully grounded so it can be added to wm in the skip case.
 
+;; Operator name is used by sg-psmg->sysents in Help/SolutionGraph.cl
 (defoperator do-optional-step (?goal)
   :description "If you have an optional step to do then do it"
   :preconditions ( 
