@@ -130,6 +130,18 @@
 	;; ignoring the explicit optionality operators.
 	(setf (graded-optional graded)
 	       (sg-systementry-optional-p sysent))
+	;; There are cases where optionality is generated
+	;; by things other than the (optional ...) in KB,
+	;; so this does not necessarily match (SystemEntry-optional sysent).
+	;; For fixing Bug #972, need to resolve discrepencies.
+	;;
+	;; Sanity test to see both methods match.
+	;; Should be extend to allowed & preferred, Bug #972
+	(unless (or T (eql (null (graded-optional graded))
+		     (null (SystemEntry-optional sysent))))
+	  (warn 'webserver:log-warn
+		:tag (list 'SystemEntry-optional (SystemEntry-prop sysent))
+		:text (format nil "Two methods of finding optionality don't match. ~A ~A ~A" (systemEntry-prop sysent) (graded-optional graded) (SystemEntry-optional sysent))))
 	;; For now, just put in dummy value
 	(unless (graded-weight graded)
 	  (setf (graded-weight graded) 13))

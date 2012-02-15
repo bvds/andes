@@ -69,16 +69,18 @@
   ;; For answer boxes, set if correct, nil if wrong or empty.
   in-Sg-Solutions ;whether this entry is listed in *Sg-Solutions*
   model    ;Model sentence.
+  optional ;level of optionality, currently Boolean; see Bug #972
   (graded (make-graded))  ;Graded object.
   )
 
 (defun print-SystemEntry (Entry &optional (Stream t) (level 0))
   "Print out the system entry."
   (pprint-indent :block Level Stream)
-  (format Stream "[SystemEntry: ~A ~S ~A ~A ~A]~%" 
+  (format Stream "[SystemEntry: ~A ~S ~A ~A ~A opt:~A]~%" 
 	  (SystemEntry-Index Entry) (SystemEntry-Prop Entry) 
 	  (SystemEntry-State Entry) (if (SystemEntry-Entered Entry) t nil)
-	  (SystemEntry-CogLoad Entry)))
+	  (SystemEntry-CogLoad Entry)
+	  (SystemEntry-optional Entry)))
 
 (defun print-full-SystemEntry (Entry &optional (Stream t) (level 0))
   "Print out the system entry."
@@ -129,6 +131,7 @@
   
   (merge-SystemEntry-States X Y)
   (merge-SystemEntry-Sources X Y)
+  (merge-SystemEntry-optionality X Y)
   (merge-SystemEntry-Prereqs X Y))
 
 (defun merge-SystemEntry-Sources (X Y)
@@ -155,7 +158,7 @@
 	     (setf (SystemEntry-State Y) +correct+)))))
 
 
-(defun merge-systementry-prereqs (X Y)
+(defun merge-SystemEntry-prereqs (X Y)
   "Merge the prerequisites for X and Y."
   (cond ((SystemEntry-Prereqs Y)
 	 (dolist (P (SystemEntry-Prereqs X))
@@ -164,6 +167,12 @@
 	     (push P (SystemEntry-Prereqs Y)))))
 	(t (setf (SystemEntry-Prereqs Y) (cons nil (SystemEntry-Prereqs X))))))
   
+(defun merge-SystemEntry-optionality (X Y)
+  "Merge the optionality for X and Y."
+  ;; Should handle cases of "allowed", "preferred", Bug #972.
+  (when (null (SystemEntry-optional x))
+    (setf (SystemEntry-optional y) nil)))
+
   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; sg-subst-preconds-syents
