@@ -30,8 +30,8 @@
 <head>
 <title>Andes problem chooser</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link href="dojo/resources/dojo.css" rel="stylesheet" />
-<link href="dijit/themes/tundra/tundra.css" rel="stylesheet" />
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/dojo/1.6/dijit/themes/tundra/tundra.css" media="screen">
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/dojo/1.6/dojo/resources/dojo.css">
 <style type="text/css">
  div#graphic {
        overflow: hidden;
@@ -49,30 +49,27 @@
       font-size: 115%;
    }
 </style>
-<script type="text/javascript" src="dojo/dojo.js"
-	djConfig="parseOnLoad: true, isDebug: true"></script>
+<script src="//ajax.googleapis.com/ajax/libs/dojo/1.6/dojo/dojo.xd.js" type="text/javascript" data-dojo-config="parseOnLoad:true,isDebug:true"></script>
+
 <script type="text/javascript">
   dojo.require("dojo.parser");
   dojo.require("dojo.data.ItemFileReadStore");
   dojo.require("dijit.Tree");
   dojo.require("dijit.layout.ContentPane");
 
-// Modify tree so that HTML is rendered in node labels. Bug #1603
-// see http://bugs.dojotoolkit.org/ticket/12278
-// Should remove switch when release uses new method.
-// Copied from web-UI/andes/principles.js
-if(dijit._TreeNode._meta.hidden.attributeMap){  // Old way
-        dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
-}else if(dijit._TreeNode._meta.hidden._setLabelAttr){
-        dijit._TreeNode._meta.hidden._setLabelAttr.type="innerHTML";
-}else{
+// See review/principles-tree.html
+dojo.ready(function(){  // wait until dom is loaded
+    if(dijit._TreeNode._meta.hidden._setLabelAttr){
+       dijit._TreeNode._meta.hidden._setLabelAttr.type="innerHTML";
+    }else{
         console.error("Can't render HTML in tree.");
-}
+    }
+});
 
-  var thisProblem;
+var thisProblem;
 
-  // add problem statement and any graphic to third column.
-  addProblem = function (item,store){
+    // add problem statement and any graphic to third column.
+addProblem = function (item,store){
     if(store.hasAttribute(item,"expand")) {
       thisProblem=store.getValue(item,"expand");
       dojo.byId("try").disabled=false;
@@ -92,7 +89,7 @@ if(dijit._TreeNode._meta.hidden.attributeMap){  // Old way
 	dijit.byId('graphic').set('content',null);
       }
     }
-  }
+};
 </script>
 
 <script>
