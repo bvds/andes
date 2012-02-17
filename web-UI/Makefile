@@ -20,7 +20,6 @@ install:
 	./andes.build.sh
 	echo "${dojo-version}" > dojo-install-version	
 	@echo "Installed Dojo $(dojo-version); is this the latest?"
-	@echo "dojox/drawing is from development branch."
 
 
 #  If the latest version is installed, update, else upgrade to new version
@@ -32,7 +31,6 @@ ifeq ($(shell test -f dojo-install-version && cat dojo-install-version),${dojo-v
 	svn update util
 	./andes.build.sh
 	@echo "Updated Dojo $(dojo-version); is this the latest?"
-	@echo "dojox/drawing is from development branch."
 else
 	$(MAKE) install
 endif

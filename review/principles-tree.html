@@ -11,20 +11,11 @@
 
 <!-- Use the local copy of dojo.  Since this mirrors code in
      web-UI/andes/principles.js, all routines will be there. -->
-<script type="text/javascript">
-  djConfig = {
-      isDebug:true,
-      parseOnLoad:true
-  }
-		
-  if(djConfig.isDebug){
-      document.write('<scr'+'ipt src="/web-UI/dojo/dojo.js"></scr'+'ipt>');
-  }else{
-      document.write('<scr'+'ipt src="/web-UI/release/dojo/dojo/dojo.js"></scr'+'ipt>');
-  }
-</script>
+<!-- Use only uncompiled dojo, Bug #1949
+<script type="text/javascript" src="/web-UI/dojo/dojo.js"
+       djConfig="parseOnLoad: true, isDebug: true"></script>
 
-<script>
+<script type="text/javascript">
   dojo.require("dijit.dijit"); 
   dojo.require("dojo.data.ItemFileReadStore");
   dojo.require("dijit.Tree");
@@ -33,13 +24,17 @@
 
 // Also used in review/sets.html and web-UI/andes/principles.js
 dojo.ready(function(){  // wait until dom is loaded
-    if(dijit._TreeNode._meta.hidden._setLabelAttr){
+  if(dijit._TreeNode._meta.hidden.attributeMap){   // old way
+    // See Bug #1949
+   dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
+    console.warn("old way for html render, version ",dojo.version.toString());
+  }else if(dijit._TreeNode._meta.hidden._setLabelAttr){
         // An example of how to do this more properly at:
         // http://livedocs.dojotoolkit.org/dijit/Tree-examples
         dijit._TreeNode._meta.hidden._setLabelAttr.type="innerHTML";
     }else{
-        console.error("Can't render HTML in tree.");
-    }
+        console.error("Can't render HTML in tree. Version ",dojo.version.toString());
+   }
 });
 </script>
 </head>

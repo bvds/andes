@@ -4,10 +4,14 @@ dojo.require("dojo.data.ItemFileReadStore");
 
 // See review/principles-tree.html
 dojo.ready(function(){  // wait until dom is loaded
-    if(dijit._TreeNode._meta.hidden._setLabelAttr){
+  if(dijit._TreeNode._meta.hidden.attributeMap){   // old way
+    // See Bug #1949
+    dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
+    console.warn("old way for html render, version ",dojo.version.toString());
+  }else if(dijit._TreeNode._meta.hidden._setLabelAttr){
         dijit._TreeNode._meta.hidden._setLabelAttr.type="innerHTML";
     }else{
-        console.error("Can't render HTML in tree.");
+        console.error("Can't render HTML in tree. Version ",dojo.version.toString());
     }
 });
 
