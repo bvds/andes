@@ -2,17 +2,15 @@ dojo.provide("andes.principles");
 dojo.require("dijit.Tree");
 dojo.require("dojo.data.ItemFileReadStore");
 
-// Modify tree so that HTML is rendered in node labels. Bug #1603
-// see http://bugs.dojotoolkit.org/ticket/12278
-// Should remove switch when release uses new method.
-// Also in review/principles-tree.html
-if(dijit._TreeNode._meta.hidden.attributeMap){	// Old way
-	dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
-}else if(dijit._TreeNode._meta.hidden._setLabelAttr){
-	dijit._TreeNode._meta.hidden._setLabelAttr.type="innerHTML";
-}else{
-	console.error("Can't render HTML in tree.");
-}
+// See review/principles-tree.html
+dojo.ready(function(){  // wait until dom is loaded
+    if(dijit._TreeNode._meta.hidden._setLabelAttr){
+        dijit._TreeNode._meta.hidden._setLabelAttr.type="innerHTML";
+    }else{
+        console.error("Can't render HTML in tree.");
+    }
+});
+
 
 // The principles and other review pages can be opened either 
 // via the menus or via the help system (links in the Tutor pane).
