@@ -133,7 +133,18 @@
   (if (random-help-experiment:help-mod-p 'no-join-hints)
       hints
       (list (reduce #'(lambda (x y) (strcat x "&nbsp; " y)) hints))))
-  
+
+(defun balanced-parentheses (str)
+  "Test that expression has balanced parentheses"
+  (loop for char across str	
+	with depth = 0
+	do 
+	(cond
+	  ((char= char #\() (incf depth))
+	  ((char= char #\)) (decf depth)))
+	never (< depth 0)
+	finally (return (= depth 0))))
+	
   
 ;; This returns a plain ErrorInterp:
 (defun bad-syntax-ErrorInterp (entry equation &key location)
@@ -170,13 +181,22 @@
 	:diagnosis '(equation-syntax-error  sec-for-seconds)
 	:state +incorrect+
 	:spontaneous t))
-      ((search "ohms" equation)
+      ((search "ohm" equation :test #'char-equal) ;case insensitive
        (make-tutor-response
 	entry
 	(list-or-join-hints
 	 (format nil "Syntax error in ~a." se)
 	 "If you are giving a resistance in Ohms, the correct SI symbol is &Omega;, not ohms.")
 	:diagnosis '(equation-syntax-error ohms-for-ohms)
+	:state +incorrect+
+	:spontaneous t))
+      ((search "degree" equation :test #'char-equal) ;case insensitive
+       (make-tutor-response
+	entry
+	(list-or-join-hints
+	 (format nil "Syntax error in ~a." se)
+	 "If you are expressing an angle in degrees, use \"deg\".")
+	:diagnosis '(equation-syntax-error degrees-for-degrees)
 	:state +incorrect+
 	:spontaneous t))
       ;; BvdS:  There should be a handler for "unknown functions"
@@ -189,6 +209,16 @@
 	 (format nil "Syntax error in ~a." equation)
 	 "Use ln(x) for natural logarithms and log10(x) for logarithms base 10.")
 	:diagnosis '(equation-syntax-error log-for-logarithm)
+	:state +incorrect+
+	:spontaneous t))
+      ;; unbalanced parentheses.
+      ((not (balanced-parentheses equation))
+       (make-tutor-response
+	entry
+	(list-or-join-hints
+	 (format nil "Syntax error in ~a." equation)
+	 "Unbalanced parentheses.")
+	:diagnosis '(equation-syntax-error unbalanced-parentheses)
 	:state +incorrect+
 	:spontaneous t))
       ((or (search "_ " equation) (search " _" equation))
@@ -542,9 +572,10 @@
 (defun contains-strings (answer)
   (handler-case 
       (do-contains-strings answer)
-    (warn (c) (warn 'webserver:log-warn
-		    :tag (list 'contains-strings answer)
-		    :text "Invalid contains-string object."))))
+    (warn (c) (declare (ignore c))
+	  (warn 'webserver:log-warn
+		:tag (list 'contains-strings answer)
+		:text "Invalid contains-string object."))))
 
 (defun do-contains-strings (eq)
   (cond
@@ -1495,9 +1526,10 @@ follow-up question and put it in the student entry's err interp field."
   "Translate expression subsituting canonical vars for student vars, or standard vars throughout."
   (handler-case 
       (do-subst-canonical-vars Exp)
-    (warn (c) (warn 'webserver:log-warn
-		    :tag (list 'subst-canonical-vars Exp)
-		    :text "Invalid subst-canonical-vars object."))))
+    (warn (c) (declare (ignore c))
+	  (warn 'webserver:log-warn
+		:tag (list 'subst-canonical-vars Exp)
+		:text "Invalid subst-canonical-vars object."))))
 
 (defun do-subst-canonical-vars (Exp)
   ;; NB: student variables must be *strings* in Exp, not symbols
