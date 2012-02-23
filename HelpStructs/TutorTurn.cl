@@ -177,29 +177,8 @@
 		       ;;              (This is most common.)
 		       ;;         Student asks for more help via statement. 
 
-		       ((and (stringp R) (is-a-question R))
-			(make-explain-more-turn 
-			 (strcat "Sorry, I don't know how to answer your question.&nbsp; "
-				 "Either click on \"" *explain-more-text*
-				 "\" or " 
-				 *help-button* " below.")
-			 :hint hint
-			 :Assoc '((handle-text . question))))
-
-		       ((and (stringp R) (maybe-a-question R))
-			(make-explain-more-turn 
-			 (strcat "You comment has been recorded.&nbsp; "
-				 "If you need more help, either click on \"" 
-				 *explain-more-text*
-				 "\" or " 
-				 *help-button* " below.")
-			 :hint hint
-			 :Assoc '((handle-text . possible-question))))
-
-		       ;; Assume everything else is a genuine comment.
 		       ((stringp R)
-			(make-end-dialog-turn "Your comment has been recorded."
-			   :Assoc '((handle-text . comment))))
+			(string-responder R :explain-more t))
  		       
 		       (T (warn 'webserver:log-warn 
 				   :tag (list  'invalid-turn-responder R)
