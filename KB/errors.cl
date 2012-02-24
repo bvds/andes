@@ -1056,9 +1056,8 @@
    (problem (given (mass ?wrong-body) ?dontcare)))
   :Utility 50)
 
-(defun massless-body (correct-body time wrong-body)
+(defun massless-body (correct-body wrong-body)
   (setq correct-body (nlg correct-body 'def-np))
-  (setq time (nlg time 'pp))
   (setq wrong-body (nlg wrong-body 'def-np))
   (make-hint-seq
    (list "It is okay to choose a massless object as the body."
@@ -1070,9 +1069,9 @@
 
 ;; the student draws a body for an object but another object needs defining
 (def-error-class wrong-object-for-body-tool (?correct-body)
-  ((student (body ?wrong-body))
-   (correct (body ?correct-body))
-   (no-student (body ?correct-body)))
+  ((student (body ?wrong-body . ?wrest))
+   (correct (body ?correct-body . ?crest))
+   (no-student (body ?correct-body . ?crest)))
   :probability 0.5)
 
 (defun wrong-object-for-body-tool (correct-body)
@@ -1085,8 +1084,8 @@
 
 ;; the student draws a body, but it doesn't need defining.
 (def-error-class extra-object-for-body-tool (?wrong-body)
-  ((student (body ?wrong-body))
-   (correct (body ?correct-body)))
+  ((student (body ?wrong-body . ?wrest))
+   (correct (body ?correct-body . ?crest)))
   :probability 0.1  ;more general than above
   )
 
@@ -1103,8 +1102,8 @@
 ;;; exist right now.  If so, this error class handles the case of
 ;;; drawing a body when none are needed.
 (def-error-class non-existent-body ()
-  ((student (body ?sbody))
-   (no-correct (body ?cbody)))
+  ((student (body ?sbody . ?wrest))
+   (no-correct (body ?cbody . ?crest)))
   :probability 0.01)
 
 (defun non-existent-body ()
