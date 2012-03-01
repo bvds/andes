@@ -555,16 +555,6 @@
       ;; After running through old session, flush state cache
       (setf session:*state-cache* nil)
 
-      ;; Determine if student needs an informed consent dialog
-      ;; initial dialog flag (usually for section) should contain
-      ;; url for content.
-      (when (and (andes-database:get-state-property 'consent-dialog)
-		 (not (andes-database:get-state-property 
-		       'informed-consent :model "client")))
-	(push `((:action . "new-user-dialog")
-		(:url . ,(andes-database:get-state-property 'consent-dialog)))
-	      replies))
-
       ;; Determine if this is the first session for this user.
       ;; Do separately from seen-intro-video in case video window
       ;; is killed by pop-up blocker on client.
@@ -583,6 +573,26 @@
 	  ;; Start up special dialog box.
 	  (push `((:action . "new-user-dialog")
 		  (:text . ,dialog-text)) replies)))
+
+      ;; Determine if student needs an informed consent dialog
+      ;; initial dialog flag (usually for section) should contain
+      ;; file for content.
+      ;;
+      ;; (andes-database:set-state-property "consent-dialog" "none" :model "client" :section "consent-none" :student nil :tid t)
+      ;; (andes-database:set-state-property "consent-dialog" "osu-heckler-consent.html" :model "client" :section "consent-osu" :student nil :tid t)
+      (unless (andes-database:get-state-property 
+		'informed-consent :model "client")
+	(let ((consent-dialog 
+	       (or (andes-database:get-state-property 
+		    'consent-dialog :model "client")
+		   ;; default consent form.
+		   "consent.html")))
+	  ;; The only way for the consent dialog to never appear is
+	  ;; to explicitly supress it for a section by using "none".
+	  (unless (string-equal consent-dialog "none")
+	    (push `((:action . "new-user-dialog") 
+		    (:url . ,(strcat "/review/" consent-dialog)))
+		  replies))))
       
       ;; If there was no previous session, perform initial update of 
       ;; faded items.  In the case of Fades in the Tutor pane, write 

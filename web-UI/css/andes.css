@@ -319,9 +319,3 @@ h2.tall, h3.tall {
     margin-top: 0.33ex;
     margin-bottom: 0.33ex;
 }
-
-#consentDialog {
-    height:95%;
-    width: 95%;
-    overflow: auto;
-}

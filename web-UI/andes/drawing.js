@@ -391,13 +391,12 @@ dojo.provide("andes.drawing");
 							     // add 10 px padding
 							     andes.principles.review('vec1a-video.html','IntroVideo',null,"width=650,height=395");
 						     });
-
+					
 				}else if(obj.action=="new-user-dialog" && obj.url){
 					var x=dijit.byId("consentDialog");
-					x.setHref(obj.url);
+					x.set("href",obj.url);
 					x.set("title","Consent Form");
 					x.show();
-
 				}else if(obj.action=="set-styles"){
 					if(obj["tool"] && obj["style"]){
 						var disable = obj["style"]=="disabled" ? true : false;

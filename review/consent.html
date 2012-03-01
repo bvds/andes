@@ -1,0 +1,50 @@
+<!--
+   ;; With help system loaded, turn on consent dialog using:
+   (andes-database:set-state-property 'consent-dialog "/review/consent.html" :section "54321" :student nil :tid t)
+
+-->
+<script type="text/javascript">
+    response=function(reply){
+      console.log("Dialog button response: ",reply);
+      andes.api.recordAction({type:"set-preference", name: "informed-consent", 
+                          value: reply + ":" + window.location.pathname});
+      dijit.byId("consentDialog").hide();
+    };
+ </script>
+
+<h2 class="tall">Consent Form</h2>
+<h3 class="tall">Arizona State University</h3>
+
+<div id="consentScroll" dojoType="dijit.layout.ContentPane" style="border:1px solid #b7b7b7; padding: 0.5em; margin: 2px; height: 27ex; overflow:auto; ">
+
+<p>
+Welcome to Andes!&nbsp;  Our team at Arizona State University, under
+the direction of Prof. Kurt Vanlehn, is studying how students learn 
+as they use the Andes tutor system.&nbsp;  As you solve problems
+in Andes, your activities will be recorded and stored in a database.&nbsp;
+Our research study will involve analysis of the student work that 
+has been recorded.&nbsp;  We invite you participate in this study.
+
+<p>
+<strong>Study Purpose:</strong>&nbsp;  To study how students learn physics when using an intelligent tutoring system.&nbsp; The results of this study will allow us to make improvements to Andes and other tutoring systems, as well as give us insight into how students learn physics.
+
+<p>
+<strong>Study Procedure:</strong>&nbsp;  As you solve problems in Andes, we will collect your work, or "log data", and store it in a database.&nbsp;  We will then analyze the log data to learn how students behave and learn when using Andes.&nbsp;  Your participation in the study will not affect in any way the behavior of Andes or the grades you receive.
+
+<p>
+<strong>Confidentiality:</strong>&nbsp;  Your log data will be stored in a password-protected database.&nbsp;  Researchers will not be able to see your user name or any other identifying information.&nbsp;  In addition, if you state that you do not want to participate in the study, researchers will not be able to access your log data.&nbsp;   The log data of study participants will be made available to Prof. Vanlehn's research team, as well as researchers at the <a href="http://learnlab.org">Pittsburgh Science of Learning Center (PSLC)</a>.
+
+<p>
+<strong>Contacts and Questions:</strong>&nbsp; If you have any questions concerning the research study, please contact Prof. Vanlehn at <a href='mailto:Kurt.Vanlehn@asu.edu'>Kurt.Vanlehn@asu.edu</a> or Brett van de Sande at <a href='mailto:bvds@asu.edu'>bvds@asu.edu</a>.&nbsp; If you have any questions about your rights as a subject/participant in this research, or if you feel you have been placed at risk, you can contact the Chair of the Human Subjects Institutional Review Board, through the ASU Office of Research Integrity and Assurance, at (480) 965-6788.
+
+</div>
+<p>
+<strong>Voluntary Consent:</strong>&nbsp; By clicking on the "I Agree" button below, I am stating that I am at least 18 years old and am giving my consent to participate in this research study.&nbsp;  I understand that my participation in
+this study is voluntary.&nbsp;  
+I understand that I may change my participation in this study at 
+any time by clicking on the Andes "Help" menu and selecting "consent".
+<table><tr><td>
+<button onClick="response('agree'); return false;">I Agree</button>
+</td><td>
+<button onClick="response('disagree'); return false;">I Disagree</button>
+</tr></table>

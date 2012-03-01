@@ -49,8 +49,8 @@ echo "<h2>Session $sess</h2>\n";
 
 if($clientID==''){
   // Old style with PROBLEM_ATTEMPT_TRANSACTION
-  $sqlOld = "SELECT initiatingParty,command,tID FROM PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.clientID = P2.clientID AND P1.userName = '$userName' AND P1.userProblem = '$userProblem' AND P1.userSection = '$userSection'";
-  $sql = "SELECT client,server,tID FROM PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE P1.clientID = P2.clientID AND P1.userName = '$userName' AND P1.userProblem = '$userProblem' AND P1.userSection = '$userSection' ORDER BY tID";
+  $sqlOld = "SELECT initiatingParty,command,tID FROM OPEN_PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.clientID = P2.clientID AND P1.userName = '$userName' AND P1.userProblem = '$userProblem' AND P1.userSection = '$userSection'";
+  $sql = "SELECT client,server,tID FROM OPEN_PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE P1.clientID = P2.clientID AND P1.userName = '$userName' AND P1.userProblem = '$userProblem' AND P1.userSection = '$userSection' ORDER BY tID";
  } else {
   // Old style with PROBLEM_ATTEMPT_TRANSACTION
   $sqlOld = "SELECT initiatingParty,command,tID FROM PROBLEM_ATTEMPT_TRANSACTION WHERE clientID = '$clientID'";

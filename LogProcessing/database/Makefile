@@ -19,12 +19,13 @@ endif
 versionFile := db_update_version
 version := $(shell test -f ${versionFile} && cat ${versionFile} || echo "0")
 #  should be incremented as changes are made to database
-installVersion := 2
+installVersion := 5
 
 install:
 	@echo "This will destroy any existing database!"
 	@echo "Enter mysql password:"
 	mysql -u  ${dbUser} -p < AndesDatabaseCreationSQL.sql
+	make open-pass
 	echo "${installVersion}" > ${versionFile}
 
 try:
@@ -62,6 +63,19 @@ ifeq ($(shell test ${version} -lt 4 && echo 1),1)
 	mysql -u ${dbUser} -p'${dbPass}' andes_test < modify_4.sql
 	echo 4 > ${versionFile}
 endif
+ifeq ($(shell test ${version} -lt 5 && echo 1),1)
+	mysqldump -u ${dbUser} -p'${dbPass}' ${dbName} > \
+	   ${dbName}-${version}-dump.sql
+	mysql -u ${dbUser} -p'${dbPass}' ${dbName} < modify_5rev.sql
+	mysql -u ${dbUser} -p'${dbPass}' ${dbName} < modify_5.sql
+	mysql -u ${dbUser} -p'${dbPass}' andes_test < modify_5.sql
+	make open-pass
+	echo 5 > ${versionFile}
+endif
+
+open-pass:
+	@echo "Input password for user 'open':"
+	@read pass; mysql -u ${dbUser} -p'${dbPass}' -e "SET PASSWORD FOR 'open'@'localhost'=PASSWORD('$$pass')"
 
 # This is just for debugging update script.
 reset:

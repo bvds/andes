@@ -20,6 +20,11 @@ $dbname= $_POST['dbname'];
 $dbuser= $_POST['dbuser'];
 $dbserver= "localhost";
 $dbpass= $_POST['passwd'];
+if(strcmp($dbuser,'open')==0){
+     $problem_attempt='OPEN_PROBLEM_ATTEMPT';
+   } else {
+     $problem_attempt='PROBLEM_ATTEMPT';
+   } 
 
 function_exists('mysql_connect') or die ("Missing mysql extension");
 mysql_connect($dbserver, $dbuser, $dbpass)
@@ -47,7 +52,7 @@ $errorType=$_POST['errorType'];
   } else {
     $errorTypec = "";
   }
-
+    
 echo "<h2>The Errors and Warnings are as given below:</h2>";
 echo "<table border=1>\n";
 echo "<tr><th>Starting Time</th><th>Input</th><th>Error Type</th><th>Message</th><th>Tag</th><th>View</th></tr>\n";
@@ -60,8 +65,8 @@ include 'JSON.php';
 set_time_limit(300);
 $json = new Services_JSON();
 
-$sqlOld="SELECT startTime,userName,userProblem,userSection,tID,command,P1.clientID from PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE $startDatec $endDatec P2.initiatingParty='server' AND P2.command like '%\"error-type\":$errorTypec%' AND P2.command like '%\"error\":%' AND P2.clientID=P1.clientID AND P1.extra=0 order by P2.tID";
-$sql="SELECT startTime,userName,userProblem,userSection,tID,client,server,P1.clientID from PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE $startDatec $endDatec P2.server like '%\"log\":\"server\"%' AND P2.clientID=P1.clientID AND (P1.extra IS NULL OR P1.extra=0) order by P2.tID";
+$sqlOld="SELECT startTime,userName,userProblem,userSection,tID,command,P1.clientID from $problem_attempt AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE $startDatec $endDatec P2.initiatingParty='server' AND P2.command like '%\"error-type\":$errorTypec%' AND P2.command like '%\"error\":%' AND P2.clientID=P1.clientID AND P1.extra=0 order by P2.tID";
+$sql="SELECT startTime,userName,userProblem,userSection,tID,client,server,P1.clientID from $problem_attempt AS P1,STEP_TRANSACTION AS P2 WHERE $startDatec $endDatec P2.server like '%\"log\":\"server\"%' AND P2.clientID=P1.clientID AND (P1.extra IS NULL OR P1.extra=0) order by P2.tID";
 $resultOld=mysql_query($sqlOld);
 $result=mysql_query($sql);
 $ecount=0;

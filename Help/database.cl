@@ -401,6 +401,12 @@ list of characters and replacement strings."
 	(when score (push (list (car result) (second result) score) x))))
     (format t "~:{~A~t~A~t~A~%~}" x)))
 
+(defun get-distinct-sections (Section-regexp)
+  "Get list of matching sections."
+  (test-safe-string section-regexp)
+  (let ((query (format nil "SELECT DISTINCT userSection FROM PROBLEM_ATTEMPT where userSection REGEXP '~A'" Section-regexp)))
+	 (mapcar #'car (with-db (query *connection* query)))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -466,15 +472,13 @@ list of characters and replacement strings."
 	     (subseq client-id 0 +client-id-width+))
       client-id))
 
-(defconstant +student-width+ 20 "Match userName in table PROBLEM_ATTEMPT.")
+(defconstant +student-width+ 50 "Match userName in table PROBLEM_ATTEMPT.")
 
-;; This is a temporary work-around for Bug #1941.
 (defun truncate-student (student)
   "Student name in database is fixed width.  Test if given string is too large, else any match will fail."
   (if (> (length student) +student-width+)
-      ;; Could have warning, but this would really pollute
-      ;; the database with a lot of error messages.
-      (subseq student 0 +student-width+)
+      (progn (warn "userName too long ~A" student)
+	     (subseq student 0 +student-width+))
       student))
 
 (defun get-most-recent-tID ()

@@ -30,21 +30,21 @@ if($prob){
   $userProblem="P.userProblem='$prob' AND";
  }
 
-$sql="select Count(DISTINCT userName) from PROBLEM_ATTEMPT as P,STEP_TRANSACTION as S where $userName $userProblem $userSection and P.clientID=S.clientID and S.server like '%\"action\":\"problem-closed\"%' and S.client like '%\"time\"%' order by startTime";
+$sql="select Count(DISTINCT userName) from OPEN_PROBLEM_ATTEMPT as P,STEP_TRANSACTION as S where $userName $userProblem $userSection and P.clientID=S.clientID and S.server like '%\"action\":\"problem-closed\"%' and S.client like '%\"time\"%' order by startTime";
 $result = mysql_query($sql);
 if ($myrow = mysql_fetch_array($result)) {
   $TotUsers=$myrow["Count(DISTINCT userName)"];
   echo "<p align='center'><font color=\"red\">Number of Students who attempted $prob are $TotUsers</p>";
  }
 
-$sql="select Count(DISTINCT userName) from PROBLEM_ATTEMPT as P,STEP_TRANSACTION as S where $userName $userProblem P.userSection='$userSection' and P.clientID=S.clientID and S.server like '%\"action\":\"problem-closed\"%' and S.server like '%\"correct_answer_entries_v_answer_entries\"%' and S.client like '%\"time\"%' and S.server like '%\"1\/%' order by startTime";
+$sql="select Count(DISTINCT userName) from OPEN_PROBLEM_ATTEMPT as P,STEP_TRANSACTION as S where $userName $userProblem P.userSection='$userSection' and P.clientID=S.clientID and S.server like '%\"action\":\"problem-closed\"%' and S.server like '%\"correct_answer_entries_v_answer_entries\"%' and S.client like '%\"time\"%' and S.server like '%\"1\/%' order by startTime";
 $result = mysql_query($sql);
 if ($myrow = mysql_fetch_array($result)) {
   $TotUsers=$myrow["Count(DISTINCT userName)"];
   //  echo "<p align='center'><font color=\"red\">Number of Students who completed $prob are $TotUsers</p>";
  }
 
-$sql="select * from PROBLEM_ATTEMPT as P,STEP_TRANSACTION as S where $userName $userProblem P.userSection='$userSection' and P.clientID=S.clientID and S.server like '%\"action\":\"problem-closed\"%' and S.server like '%\"correct_answer_entries_v_answer_entries\"%' and S.client like '%\"time\"%' order by startTime";
+$sql="select * from OPEN_PROBLEM_ATTEMPT as P,STEP_TRANSACTION as S where $userName $userProblem P.userSection='$userSection' and P.clientID=S.clientID and S.server like '%\"action\":\"problem-closed\"%' and S.server like '%\"correct_answer_entries_v_answer_entries\"%' and S.client like '%\"time\"%' order by startTime";
 
 $result = mysql_query($sql);
 $Count=0;

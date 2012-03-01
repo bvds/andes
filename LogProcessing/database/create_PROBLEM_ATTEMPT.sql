@@ -1,5 +1,5 @@
 CREATE TABLE `PROBLEM_ATTEMPT` (
-  `userName` varchar(20) NOT NULL,
+  `userName` varchar(50) NOT NULL COMMENT 'Needs to hold encrypted names',
   `startTime` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
   `clientID` varchar(50) NOT NULL default 'fill in clientID, should match +client-id-width+ in Help/database.cl',
   `userProblem` varchar(50) default NULL COMMENT 'The problem the user asks for when communicating with server. May or may not exist. If it exists, it should match up with a given problem name in STUDENT_DATASET',
@@ -9,3 +9,6 @@ CREATE TABLE `PROBLEM_ATTEMPT` (
   KEY `FK_problemstate_classinformation` (`userSection`),
   CONSTRAINT `FK_problemstate_classinformation` FOREIGN KEY (`userSection`) REFERENCES `CLASS_INFORMATION` (`classSection`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='the base table corresponding to problem state at any given t';
+
+-- Can't access this table.
+GRANT USAGE ON PROBLEM_ATTEMPT TO 'open'@'localhost';
