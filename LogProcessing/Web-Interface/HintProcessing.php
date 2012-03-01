@@ -31,7 +31,7 @@ if($prob){
   $userProblem="P1.userProblem='$prob' AND";
  }
 
-$tQuery="SELECT COUNT(*) FROM PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE $userName $userProblem P1.userSection='$userSection' AND P1.clientID = P2.clientID";
+$tQuery="SELECT COUNT(*) FROM OPEN_PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE $userName $userProblem P1.userSection='$userSection' AND P1.clientID = P2.clientID";
 $tResult=mysql_query($tQuery);
 $myT = mysql_fetch_array($tResult);
 $tIn=$myT["COUNT(*)"];
@@ -40,15 +40,15 @@ echo "<p align='center' />'$prob'<br>";
 
 if($hintType=='Solicited'){
   //echo "<p align='center' />Instances of Solicited Hints are as follows:<br><br>";
-  $sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE $userName $userProblem P1.userSection='$userSection' AND P1.clientID = P2.clientID AND (P2.client LIKE '%\"action\":\"get-help\"%' OR P2.client LIKE '%\"action\":\"help-button\"%')";
+  $sql = "SELECT * FROM OPEN_PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE $userName $userProblem P1.userSection='$userSection' AND P1.clientID = P2.clientID AND (P2.client LIKE '%\"action\":\"get-help\"%' OR P2.client LIKE '%\"action\":\"help-button\"%')";
  }
  else if($hintType=='All'){
    //echo "<p align='center' />Instances of Both Solicited and Unsolicited Hints are as follows:<br><br>";
-   $sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE $userName $userProblem P1.userSection='$userSection' AND P1.clientID = P2.clientID AND P2.server LIKE '%\"action\":\"show-hint\"%'";
+   $sql = "SELECT * FROM OPEN_PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE $userName $userProblem P1.userSection='$userSection' AND P1.clientID = P2.clientID AND P2.server LIKE '%\"action\":\"show-hint\"%'";
  }
  else if($hintType=='Unsolicited'){
    //echo "<p align='center' />Instances of Unsolicited Hints are as follows:<br><br>";
-   $sql = "SELECT * FROM PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE $userName $userProblem P1.userSection='$userSection' AND P1.clientID = P2.clientID AND P2.server LIKE '%\"action\":\"show-hint\"%' AND P2.client Not LIKE '%\"action\":\"get-help\"%' AND P2.client Not LIKE '%\"action\":\"help-button\"%'";
+   $sql = "SELECT * FROM OPEN_PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE $userName $userProblem P1.userSection='$userSection' AND P1.clientID = P2.clientID AND P2.server LIKE '%\"action\":\"show-hint\"%' AND P2.client Not LIKE '%\"action\":\"get-help\"%' AND P2.client Not LIKE '%\"action\":\"help-button\"%'";
 }
  else{
    //echo "<p align='center' />Instances of Hint Abuse are as follows:";

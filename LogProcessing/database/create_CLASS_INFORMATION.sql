@@ -10,3 +10,5 @@ CREATE TABLE `CLASS_INFORMATION` (
   PRIMARY KEY  (`classSection`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1 COMMENT='A table for class information';
 insert into CLASS_INFORMATION (classSection) values ("defaultSection");
+
+GRANT SELECT,INSERT,UPDATE ON CLASS_INFORMATION TO 'open'@'localhost';

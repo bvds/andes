@@ -9,6 +9,8 @@
   attempt to populate them with data based upon CSV files stored in a local directory, in the present case, mine.
   In the future, this is a good candidate to be converted into a shell script, with command line arguments for the user directory
 */  
+-- Creates user that can read tables.
+CREATE USER 'open'@'localhost';
 -- Creates the database
 CREATE DATABASE `andes3` /*!40100 DEFAULT CHARACTER SET latin1 */;
 USE `andes3`;
@@ -19,6 +21,7 @@ USE `andes3`;
 \. create_REVIEWED_PROBLEMS.sql
 \. create_STUDENT_STATE.sql
 \. create_STUDENT_DATASET.sql
+\. create_CONSENT.sql
 
 -- Insert initial classes into database
 insert into STUDENT_DATASET values (1,"Watchung Hills Regional High School Honors Physics 2008-2009","Statics","S*","S2E");
@@ -39,3 +42,4 @@ USE `andes_test`;
 \. create_PROBLEM_ATTEMPT.sql
 \. create_STEP_TRANSACTION.sql
 \. create_STUDENT_STATE.sql
+\. create_CONSENT.sql

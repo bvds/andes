@@ -20,7 +20,7 @@ if($userSection=='study-e')
  else
    $userName="";
 
-$userProblemQ="SELECT DISTINCT (userProblem) FROM PROBLEM_ATTEMPT AS P1 WHERE $userName P1.userSection='$userSection'";
+$userProblemQ="SELECT DISTINCT (userProblem) FROM OPEN_PROBLEM_ATTEMPT AS P1 WHERE $userName P1.userSection='$userSection'";
 $userProbResult=mysql_query($userProblemQ);
 
 if ($myProbs = mysql_fetch_array($userProbResult)){
@@ -28,8 +28,8 @@ if ($myProbs = mysql_fetch_array($userProbResult)){
     $curProb=$myProbs["userProblem"];
     echo "<BR>Problem Name : '$curProb'<BR>";
     $userProblem="P1.userProblem = '$curProb' AND";
-    $sql = "SELECT P1.userName,COUNT(*) FROM PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE $userName $userProblem P1.userSection='$userSection' AND P1.clientID = P2.clientID AND P2.server LIKE '%\"mode\":\"incorrect\"%' GROUP BY P1.userName ORDER BY P1.startTime";
-    $sqlTot = "SELECT P1.userName,COUNT(*) FROM PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE $userName $userProblem P1.userSection='$userSection' AND P1.clientID = P2.clientID GROUP BY(P1.userName) ORDER BY(P1.startTime)";
+    $sql = "SELECT P1.userName,COUNT(*) FROM OPEN_PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE $userName $userProblem P1.userSection='$userSection' AND P1.clientID = P2.clientID AND P2.server LIKE '%\"mode\":\"incorrect\"%' GROUP BY P1.userName ORDER BY P1.startTime";
+    $sqlTot = "SELECT P1.userName,COUNT(*) FROM OPEN_PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE $userName $userProblem P1.userSection='$userSection' AND P1.clientID = P2.clientID GROUP BY(P1.userName) ORDER BY(P1.startTime)";
 
     $result = mysql_query($sql);
     $cResult = mysql_query($sqlTot);

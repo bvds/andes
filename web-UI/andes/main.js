@@ -24,11 +24,26 @@ dojo.require("andes.WordTip");
 				dialogType: andes.error.FATAL
 			});
 		});
-	}
+	};
+        // FNV-1a for string, 32 bit version, returning hex.
+	var FNV1aHash = function(x){
+		var hash = 0x811c9dc5; // 2166136261
+		for (i = 0; i < x.length; i++) {
+			hash ^= x.charCodeAt(i);
+			hash *= 0x01000193; // 16777619
+		}
+		hash &= hash; // restrict to lower 32 bits.
+		// javascript doesn't handle negatives correctly
+		// when converting to hex.
+		if(hash<0){
+			hash = 0xffffffff + hash + 1;
+		}
+		return Number(hash).toString(16);
+	};
 	var setCookie = function(){
 		// Andes database requires that clientID be 50 characters.
-		andes.sessionId = andes.projectId + new Date().getTime();
-		andes.sessionId = andes.userId.substr(0,50-andes.sessionId.length) + andes.sessionId;
+		andes.sessionId = FNV1aHash(andes.userId+andes.projectId) + 
+			'_' + new Date().getTime();
 		var andesCookie = {
 			u:andes.userId,
 			p:andes.projectId,
@@ -36,7 +51,7 @@ dojo.require("andes.WordTip");
 			closed:false
 		};
 		dojo.cookie("andes", dojo.toJson(andesCookie), { expires: 999 });
-	}
+	};
 	
 	andes.closeFirst = false;
 	andes.userId = query.u;

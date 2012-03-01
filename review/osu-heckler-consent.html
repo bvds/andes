@@ -1,12 +1,13 @@
 <!--
    ;; With help system loaded, turn on consent dialog using:
-   (andes-database:set-state-property 'consent-dialog "/review/osu-heckler-consent.html" :section "54321" :student nil :tid t)
+   (andes-database:set-state-property 'consent-dialog "osu-heckler-consent.html" :section "...." :student nil :tid t)
 
 -->
 <script type="text/javascript">
     response=function(reply){
       console.log("Dialog button response: ",reply);
-      andes.api.recordAction({type:"set-preference", name: "informed-consent", value: reply});
+      andes.api.recordAction({type:"set-preference", name: "informed-consent", 
+                value:  reply + ":" + window.location.pathname});
       dijit.byId("consentDialog").hide();
     };
  </script>
