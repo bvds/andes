@@ -593,6 +593,23 @@
 	    (push `((:action . "new-user-dialog") 
 		    (:url . ,(strcat "/review/" consent-dialog)))
 		  replies))))
+
+      (let ((informed-consent (andes-database:get-state-property 
+		'informed-consent :model "client"))
+	    (consent-dialog (or (andes-database:get-state-property 
+				 'consent-dialog :model "client")
+				;; default consent form.
+				"consent.html")))
+	;; The only way for the consent dialog to never appear is
+	;; to explicitly supress it for a section by using "none".
+	(unless (or (string-equal consent-dialog "none")
+		    (string-equal informed-consent "agree:" 
+				  :end1 (min (length informed-consent) 6))
+		    (string-equal informed-consent "disagree:" 
+				  :end1 (min (length informed-consent) 9)))
+	  (push `((:action . "new-user-dialog") 
+		  (:url . ,(strcat "/review/" consent-dialog)))
+		  replies)))
       
       ;; If there was no previous session, perform initial update of 
       ;; faded items.  In the case of Fades in the Tutor pane, write 
