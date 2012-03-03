@@ -10,7 +10,8 @@
   In the future, this is a good candidate to be converted into a shell script, with command line arguments for the user directory
 */  
 -- Creates user that can read tables.
-CREATE USER 'open'@'localhost';
+GRANT USAGE ON *.* TO 'open'@'localhost';
+
 -- Creates the database
 CREATE DATABASE `andes3` /*!40100 DEFAULT CHARACTER SET latin1 */;
 USE `andes3`;
