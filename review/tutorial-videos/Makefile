@@ -22,14 +22,12 @@ convert-ogv: $(ogv)
 convert-mp4: $(mp4)
 
 #
-#   To see what the UI conversion is, go to interface->messages
-#   and set verbosity level to 1 or higher.
+#   To see what the UI conversion is, open the Messages window
+#   and set verbosity level to 1 or higher.  The transcode settings
+#   are shown there. 
 #
-#   I can't get this to work:  the output videos don't work in IE 9
-#   and I can't see why output is different from conversion via the UI.
-#   See http://forum.videolan.org/viewtopic.php?f=2&t=98465
+#   Sadly, it looks like transcode cannot adjust audio volume.
 #
-#  deinterlace=0 ,samplerate=44100
 %.mp4: %.mov
 	cvlc -v "$<" --sout="#transcode{vcodec=h264,vb=0,scale=0,acodec=mp4a,ab=128,channels=2,samplerate=44100}:file{dst='$@'}" vlc://quit
 
