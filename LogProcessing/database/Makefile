@@ -22,9 +22,9 @@ version := $(shell test -f ${versionFile} && cat ${versionFile} || echo "0")
 installVersion := 5
 
 install:
-	@echo "This will destroy any existing database!"
-	@echo "Enter mysql password:"
-	mysql -u  ${dbUser} -p < AndesDatabaseCreationSQL.sql
+	@echo "${dbFrom}" 
+	@echo "You must drop any existing ${dbName} or andes_test db."
+	mysql -u  ${dbUser} -p'${dbPass}' < AndesDatabaseCreationSQL.sql
 	make open-pass
 	echo "${installVersion}" > ${versionFile}
 
