@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                      "http://www.w3.org/TR/html4/loose.dtd">
+<html> <head>
+<title>Research with Andes</title>
+</head>
+
+<body>
+<h1>Research</h1>
+
+<h2>Informed Consent</h2>
+
+The status of informed consent is tracked in the <code>STUDENT_STATE</code>
+table in the database, with <code>model='client'</code>.&nbsp;  
+The properties <code>consent-dialog</code> &amp; <code>informed-consent</code>
+are used to track status for each user and section.
+
+<p>The property <code>consent-dialog</code> sets the consent form
+for a section or user; consent forms are stored as <code>*.html</code> files
+in the <code>review</code> directory.&nbsp;  The value for this 
+property normally contains the name of the <code>*.html</code> file.&nbsp;
+If no consent form has been specified, then the student is
+shown the default form <code>consent.html</code>.&nbsp;
+If <code>consent-dialog</code> is set to value <code>none</code> 
+then the student is never shown a consent form.
+
+<p>The property <code>informed-consent</code>
+specifies the status for a particular student or section.&nbsp;
+If the student clicks on a consent form, then the result
+is recorded in  <code>informed-consent</code> as
+<code>agree:<em>name</em></code> or 
+<code>disagree:<em>name</em></code>.&nbsp;
+If consent has been given externally to Andes, this can be
+specified as <code>external:<em>name</em></code>.
+
+<p>To create a consent form for a new section, create a new
+file in the <code>review</code> directory, 
+using <code>review/consent.html</code> as a model.&nbsp;
+Start up lisp and do the following to use that form
+for a given section:
+<pre>
+(rhelp) ;load help system
+(andes-database:create) ;open database connection
+;; Use form my-consent.html for section my-section:
+(andes-database:set-state-property "consent-dialog" "my-consent.html" 
+      :model "client" :section "my-section" :student nil :tid t)
+(andes-database:destroy)
+</pre>
+
+<p>If students have given consent externally for a
+section, this can be specified in the following manner: 
+<pre>
+(rhelp) ;load help system
+(andes-database:create) ;open database connection
+(andes-database:set-state-property "consent-dialog" "none" 
+      :model "client" :section "my-section" :student nil :tid t)
+(andes-database:set-state-property "informed-consent" "external:my-form" 
+      :model "client" :section "my-section" :student nil :tid t)
+;; If a particular student has opted-out, it can be specified as:
+(andes-database:set-state-property "informed-consent" "opt-out:my-form" 
+      :model "client" :section "my-section" :student "bad-student" :tid t)
+(andes-database:destroy)
+</pre>
+
+<h2>Researcher Access</h2>
+
+The Andes database has a user account <code>open</code> which
+gives access only to anonymized data where informed consent has been 
+given.&nbsp; The user <code>open</code> has access the tables
+<code>OPEN_STUDENT_STATE</code> and <code>OPEN_PROBLEM_ATTEMPT</code>
+which have anonymized user names and contain only users who have
+given informed consent.
+
+<p>Note that user names starting with <code>x:</code> or <code>md5:</code>
+are assumed to have already been anonymized.&nbsp;  This allows user names
+to be encoded externally to Andes.&nbsp;  Generally, this is a preferred
+method of anonymization since user names are then protected between
+the client and the Andes server.
+
+</body> </html>

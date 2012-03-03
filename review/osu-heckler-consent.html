@@ -7,7 +7,7 @@
     response=function(reply){
       console.log("Dialog button response: ",reply);
       andes.api.recordAction({type:"set-preference", name: "informed-consent", 
-                value:  reply + ":" + window.location.pathname});
+                value:  reply + ":osu-heckler-2011"});
       dijit.byId("consentDialog").hide();
     };
  </script>
