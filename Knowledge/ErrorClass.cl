@@ -20,7 +20,7 @@
 ;;; Defines the struct and the macro for defining error classes, which
 ;;; appear in errors.cl and are interpreted by whatswrong.cl
 
-(defvar **entry-tests**)
+(defvar **entry-tests** ())
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -61,16 +61,16 @@
 
 (defmacro def-Error-Class (name arguments conditions &key (Probability 0.1) 
 				(Utility 1.0))
-  `(push (make-EntryTest   :name (quote ,name)
-	                   :arguments (quote ,arguments)
-			   :preconditions (quote ,conditions)
-			   :apply 'no-match
-			   :state '+incorrect+ ;these are all errors
-			   :hint (quote ,(cons name arguments))
-			   :order (quote ((expected-utility .
-					   (* ,probability ,utility))))
-			   )
-	 **entry-tests**))
+  ;; Doesn't really need to be at end ...
+  `(push-to-end (make-EntryTest   :name ',name
+		 :arguments ',arguments
+		 :preconditions ',conditions
+		 :apply 'no-match
+		 :state '+incorrect+ ;these are all errors
+		 :hint ',(cons name arguments)
+		 :order '((expected-utility .
+			   (* ,probability ,utility))))
+    **entry-tests** :key #'EntryTest-name))
 
 ;;;
 ;;;   More general utility to perform tests
@@ -78,21 +78,16 @@
 
 
 (defmacro def-entry-test (name arguments &key preconditions apply state hint
-			       (order '((global . 1))))
-  `(progn 
-     ;; remove any existing test of this name (allowing updates).
-     (setf **entry-tests** (remove (quote ,name) **entry-tests** 
-				   :key #'EntryTest-name))
-
-     (push (make-EntryTest :name (quote ,name)
-                              :arguments (quote ,arguments)
-			      :preconditions (quote ,preconditions)
-			      :apply (quote ,apply)
-			      :state (quote ,state)
-			      :hint (quote (make-hint-seq ,hint))
-			      :order (quote ,order)
-			      )
-        **entry-tests**)))
+			  (order '((global . 1))))
+  ;; Doesn't really need to be at end ...
+  `(push-to-end (make-EntryTest :name ',name
+		 :arguments ',arguments
+		 :preconditions ',preconditions
+		 :apply ',apply
+		 :state ',state
+		 :hint '(make-hint-seq ,hint)
+		 :order ',order)
+    **entry-tests** :key #'EntryTest-name))
 
 
 (defun print-error-names ()

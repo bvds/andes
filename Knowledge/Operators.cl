@@ -94,7 +94,7 @@
 ;; Since we will not be adding operators at runtime we can trade addition
 ;; cost for access speed.
 
-(defparameter *Operators-by-Effect* (make-hash-table :test #'equalp
+(defvar *Operators-by-Effect* (make-hash-table :test #'equalp
 						     :size 20
 						     :rehash-size 5
 						     :rehash-threshold .8)
@@ -105,7 +105,7 @@
 ;; A hashtable in which we will store operators by name for efficient selection
 ;; when necessary.
 
-(defparameter *Operators-By-Name* (make-hash-table :test #'equalp
+(defvar *Operators-By-Name* (make-hash-table :test #'equalp
 						   :size 20
 						   :rehash-size 5
 						   :rehash-threshold .8)
@@ -203,7 +203,14 @@
   
   "Define a new operator with the specified values and add it to *operators*."
   
-  (let ((Op (eval `(make-operator	;Produce the operator struct.
+  ;; compile-time tests
+  
+  ;; Ensure that the features list is valid.
+  (unless (list-of-atoms-p Features)
+	(error "The specified Features list for ~A is invalid ~A." 
+	       Name Features))
+
+  `(let ((Op (make-operator	;Produce the operator struct.
 		    :Name ',Name 
 		    :Arguments ',Arguments 
 		    :Preconditions ',Preconditions 
@@ -211,33 +218,27 @@
 		    :Hint ',(subst-nlgs-hints Hint) ;Substitute the NLG functions into the system.
 		    :short-name ',short-name
 		    :Description ',Description
-		    :Order ',(sublis *op-order-ids* ; replace order symbols with numerical values
-		                ; ensure order list contains a value for default group
+		    :Order ',(sublis *op-order-ids* 
+				     ;; replace order symbols with numerical 
+				     ;; values ensure order list contains a 
+				     ;; value for default group
 		                (adjoin '(default . NORMAL) Order
-				        :test #'(lambda(x y) (eq (first x) (first y)))))
-		    :CogLoad ',(if Load 
-				   Load
-				 1)))))
+				        :test #'(lambda(x y) 
+						  (eq (first x) (first y)))))
+		    :CogLoad ',(or Load 1))))
     
-    (if (not (list-of-atoms-p Features)) ;Ensure that the features list is valid.
-	(error "The specified Features list for ~A is invalid ~A." ;if not signal an error. 
-	       Name Features) 
-      (setf (Operator-Features Op) Features)) ;otherwize set the features.
-	
-                                                                 
-    (setf (Operator-Variables Op)	;Set the variables list.
-      (get-operator-variables Op))
-
+      (setf (Operator-Features Op) ',Features)
+	                                                                
+    (setf (Operator-Variables Op)    ;Set the variables list.
+     (get-operator-variables Op))
 
     (let ((unmatched (set-difference (get-operator-hintvars Op) 
 				     (Operator-Variables Op))))
       (when unmatched
 	(error "Unmatched variables in hint specification of ~A:~%   ~A"
-	       name unmatched)))
+	       ',name unmatched)))
 
-    (Register-operator Op)		;Store the operator struct.
-    
-    Op))				;and return it.
+    (Register-operator Op)))		;Store the operator struct.
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -310,7 +311,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Resgister-operator
-;; Index the specified operator in the *Operators-by-Effect* and *Operators-by-name*
+;; Index the specified operator in the *Operators-by-Effect* and 
+;;            *Operators-by-name*
 ;; 
 ;; Arguments: Op: The operator being indexed.
 ;;
@@ -318,18 +320,13 @@
 
 (defun register-operator (Op)
   "Index the specified operator in *Operators-by-Effect* and *Operators-by-name*"
-  (dolist (Eff (Operator-Effects Op))                                             ;;for each effect Eff of the operator.   
-    (if (not (member Op (gethash (car Eff) *Operators-by-Effect*))) ;;If Op is not already associated with
-       	                                                            ;;the car of Eff in *Operators-By-Effect*
-	(push Op (gethash (car Eff) *Operators-By-Effect*))))                     ;;then associate it.
-  (setf (gethash (Operator-name Op) *Operators-By-Name*) Op)                      ;;Index the operator by name.
-  Op)                                                                              ;;return the operator.
+  (dolist (Eff (Operator-Effects Op))
+	(push-to-end Op (gethash (car Eff) *Operators-By-Effect*)
+		     :key #'operator-name))
+  (setf (gethash (Operator-name Op) *Operators-By-Name*) Op))
 
 
-
-
-
-;;---------------------------------------------------------------------------------
+;;----------------------------------------------------------------------------
 ;; Operator selection
 ;; These functions are called at runtime by the problem solver and the 
 ;; help system to retreive the operators for solution or help queries.

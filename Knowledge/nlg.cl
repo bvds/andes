@@ -278,6 +278,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun goal (x &rest args)
+  (declare (ignore args))
   (or 
    (nlg-find x *Ontology-GoalProp-Types* #'GoalProp-Form 
 	     #'GoalProp-nlg-english)
@@ -482,8 +483,7 @@
 	       (reuse-cons arg
 			   (expand-vars-list (cdr model) html-format)
 			   model)
-	       (expand-vars-list (cdr model) html-format))))
-	(t (warn "expand-vars-list:  invalid list structure for ~A" model))))
+	       (expand-vars-list (cdr model) html-format))))))
 
 (defun pull-out-keywords (model &optional in)
   "Pull out any keywords from expanded model."
@@ -499,8 +499,7 @@
 	((consp model)
 	 (union (pull-out-keywords (car model) in)
 		(pull-out-keywords (cdr model) in)
-		:test #'string-equal))
-	(t (warn "pull-out-keywords invalid model ~A" model))))
+		:test #'string-equal))))
 
 (defun pull-out-required-words (model)
   "Pull out all required words from expanded model."
@@ -513,5 +512,4 @@
 	((consp model)
 	 (union (pull-out-required-words (car model))
 		(pull-out-required-words (cdr model))
-		:test #'string-equal))
-	(t (warn "pull-out-required-words invalid model ~A" model))))
+		:test #'string-equal))))

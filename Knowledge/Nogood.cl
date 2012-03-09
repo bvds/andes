@@ -71,7 +71,7 @@
 ;;=============================================================================
 ;; Nogoood parameters.
 
-(defparameter *nogoods* ())
+(defvar *nogoods* ())
 (defparameter *print-nogood-messages* () "If a nogood is signalled print out the nogood message.")
 
 ;;=============================================================================
@@ -103,12 +103,12 @@
 ;; Define a nogood and register it in the system for later use.
 
 (defmacro defnogood (label triggers &key (specs nil) (message nil))
-  (let ((ng (make-nogood :label Label          ;;Generate a new nogood struct.
-			 :triggers triggers
-			 :specs specs
-			 :message message)))
-    (push ng *nogoods*)                       ;;Store the struct.
-    ng))                                      ;;and return it.
+  `(let ((ng (make-nogood :label ',Label      ;Generate a new nogood struct.
+			 :triggers ',triggers
+			 :specs ',specs
+			 :message ',message)))
+    ;; Doesn't need to be at end.
+    (push-to-end ng *nogoods* :key #'nogood-label)))  ;Store the struct.
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
