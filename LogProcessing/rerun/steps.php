@@ -65,15 +65,19 @@ mysql_select_db($dbname)
 /* filters for user name, section, etc.  
    Use regexp matching for user name and section. */
 	     // oneill.193_asu crell.1_asu
-$adminName = '' ;   // user name
+	     // P2240AS12U53_uwplatt
+$adminName = '(P2240AS12U4_uwplatt|P2240AS12U49_uwplatt)' ;   // user name
 	     // MIT_.*
 	     // asu_3u16472755e704e5fasul1_.*
 	     // asu_3u16472755e704e5fasul1_15865
 	     // Help server dies on this section when running all osu:
 	     // asu_3u16472755e704e5fasul1_15854
-	     // uwplatt_.*
+	     // ^uwplatt_
+	     // ^uwplatt_(8p1304|90476) Scaife sections 
+	     //       user names got mangled in these sections.
+	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Pawl sections
 	     // 
-$sectionName = 'uwplatt_(8p1304|90476).*' ; //$_POST['sectionName'];
+$sectionName = '^uwplatt_(2Y130|514219|6l1305|3n130)' ; //$_POST['sectionName'];
              // '2011-04-01'
 $startDate = '2012-01-20'; // $_POST['startDate'];
 $endDate = ''; // $_POST['endDate'];
@@ -520,6 +524,15 @@ while ($myrow = mysql_fetch_array($result)) {
 	       // New turn has score.
 	       ($ignoreScores && isset($bc->action) &&
 		strcmp($bc->action,"set-score")==0) ||
+	       
+	       // New turn has consent form
+	       // commit 8ea61fad90031a754263e, Thu Mar 1 23:46:45 2012
+	       (strcmp($bc->action,"set-preference")==0 &&
+		(strcmp($bc->name,"informed-consent")==0 ||
+		 strcmp($bc->name,"consent-dialog")==0)) ||
+	       // remove consent dialog.
+	       (strcmp($bc->action,"new-user-dialog")==0 &&
+		isset($bc->url)) ||
 	       
 	       // New turn has meta-hint
 	       ($ignoreMetaHints && 
