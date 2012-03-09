@@ -158,7 +158,7 @@
     ;; Often occurs when rerunning logs through help 
     ;; server and hint sequence has changed.
     ;; Bug #1947
-    (warn 'webserver:log-warn
+    (warn 'log-condition:log-warn
 	  :tag (list 'iea-check-response response)
 	  :text "iea-check-response expecting cons")
     (return-from  iea-check-response))
@@ -266,7 +266,7 @@
 		  (cond ((eql Response 'yes)
 			 (iea-prompt-alt-axes-yes Equation Bindings NewAxis))
 			((eql Response 'no) (iea-prompt-alt-axes-no))
-			(t (warn 'webserver:log-warn
+			(t (warn 'log-condition:log-warn
 				 :tag (list 'iea-alternate-axes-prompt 
 					    response)
 				 :text "invalid response"))))

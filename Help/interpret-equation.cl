@@ -45,7 +45,7 @@
     (cond
      ((null interps)
       (setf (StudentEntry-CInterp se) nil)
-      (warn 'webserver:log-warn 
+      (warn 'log-condition:log-warn 
 	    :tag (list 'interpret-equation-none 
 		       (StudentEntry-ParsedEqn se))
 	    :text "Can't find interpretations.")
@@ -74,7 +74,7 @@
       (setf (StudentEntry-State se) +nogood+)
       (setf result (chain-explain-more +nogood-help+)))
      (t
-      (warn 'webserver:log-warn :tag (list 'interpret-equation-missing 
+      (warn 'log-condition:log-warn :tag (list 'interpret-equation-missing 
 					   (StudentEntry-ParsedEqn se))
 	    :text "No interpretation.")
       (setf (StudentEntry-CInterp se) shortest)

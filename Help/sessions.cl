@@ -379,7 +379,7 @@
 		   (when (or (null donners) (cdr donners))
 		     ;; Student can't successfully solve the problem if
 		     ;; this is broken.
-		     (error 'webserver:log-error
+		     (error 'log-condition:log-error
 			   :tag (list 'setup-button-match label 
 				      (mapcar #'SystemEntry-prop donners))
 		     :text "Bad SystemEntry match for button."))
@@ -410,7 +410,7 @@
 		 (width (second g)) (height (third g)))
 	    (unless (and height width)
 	      (setf height 100 width 100) ;give some value so we can muddle through.
-	      (warn 'webserver:log-warn
+	      (warn 'log-condition:log-warn
 		    :tag (list 'graphic-dimensions-missing (first g))
 		    :text "Graphic dimensions not included."))
 	    (push `((:action . "new-object") (:id . "graphic") 
@@ -645,7 +645,7 @@
 ;; helper function to handle errors from old sessions
 ;; Turns errors into log-warn.
 (defun old-errors-into-warnings (c method params)
-  (warn 'webserver:log-warn
+  (warn 'log-condition:log-warn
 	:tag (list 'old-session-error method params 
 		   (type-of c) (webserver:get-any-log-tag c))
 	:text (format nil "Error from rerunning old sessions: ~A" c)))  
@@ -751,12 +751,12 @@
 	(sleep 2))
       
       (when (and old-entry (equal action "new-object"))
-	(warn  'webserver:log-warn :tag (list 'create-existing-object id)
+	(warn  'log-condition:log-warn :tag (list 'create-existing-object id)
 	       :text "Object already exists, updating old object."))
       
       (when (and (not old-entry) (or (equal action "modify-object")
 				     (equal action "delete-object")))
-	(warn 'webserver:log-warn :tag (list 'modify-non-existant-object id)
+	(warn 'log-condition:log-warn :tag (list 'modify-non-existant-object id)
 	      :text "Object does not exist, creating new object."))
       
       (when (and type old-entry 
@@ -1003,7 +1003,7 @@
 	    (cdr (assoc "LONCAPA_correct_answer" 
 			input :test #'equal))))
 
-  ;; This will go into the general Hunchentoot log
+  ;; This error will go into the general Hunchentoot log
   ;; along with a backtrace.  Bug #1907
   (unless (cdr (assoc "LONCAPA_correct_answer" input
 			    :test #'equal))

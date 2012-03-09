@@ -180,7 +180,7 @@
 		       ((stringp R)
 			(string-responder R :explain-more t))
  		       
-		       (T (warn 'webserver:log-warn 
+		       (T (warn 'log-condition:log-warn 
 				   :tag (list  'invalid-turn-responder R)
 				   :text "invalid responder"))))
 	     :Assoc (alist-warn Assoc)))
@@ -349,11 +349,11 @@
 	((eq (car Hint) 'Function)
 	 (unless (and *backwards-hints-hook*
 		      (funcall *backwards-hints-hook*))
-	   (warn 'webserver:log-warn 
+	   (warn 'log-condition:log-warn 
 		 :tag (list 'hints-after-function rest)
 		 :text "Hints in sequence after function inaccessible."))
 	 (make-function-hseq (cdr Hint) Prefix))
-	(t (Error 'webserver:log-error :tag 'problem-load-failed
+	(t (Error 'log-condition:log-error :tag 'problem-load-failed
 		  :tag (list 'unrecognized-hint-type 'next hint)
 		  :text "Unrecognized hint type supplied."))))
 
@@ -372,7 +372,7 @@
 	((eq (car Hint) 'Minilesson) (make-minil-end-hseq (cadr Hint) Assoc))
 	((eq (car Hint) 'Eval)       (make-eval-hseq (cadr Hint)))
 	((eq (car Hint) 'function)   (make-function-hseq (cdr Hint) Prefix))
-	(t (Error 'webserver:log-error
+	(t (Error 'log-condition:log-error
 		  :tag (list 'unrecognized-hint-type 'end hint)
 		  :text "Unrecognized hint type supplied."))))
 

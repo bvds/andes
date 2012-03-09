@@ -474,7 +474,7 @@
 	 ;; This log-warn was used to find errors that are
 	 ;; not properly handled:
 	 (when (and nil (te-error-tag te))
-	   (warn 'webserver:log-warn
+	   (warn 'log-condition:log-warn
 		 :tag (list 'choose-ambiguous-bad-turn (te-error-tag te))
 		 :text "choose-ambiguous-bad: unknown error treated as wrong"))
 	 (setf wrong (append wrong (list te))))))	
@@ -573,7 +573,7 @@
   (handler-case 
       (do-contains-strings answer)
     (warn (c) (declare (ignore c))
-	  (warn 'webserver:log-warn
+	  (warn 'log-condition:log-warn
 		:tag (list 'contains-strings answer)
 		:text "Invalid contains-string object."))))
 
@@ -630,7 +630,7 @@
 	(inaccurate
 	 ;; not currently used because What's wrong checks for 
 	 ;; inaccuracy but only after checking for other error classes
-	 (warn 'webserver:log-warn  
+	 (warn 'log-condition:log-warn  
 	       :tag 'parse-handler-inaccurate
 	       :text "inaccurate in parse-handler")
 	 (diagnose se)
@@ -1140,11 +1140,11 @@ follow-up question and put it in the student entry's err interp field."
 		(setf (SystemEntry-entered sysent) nil))
 	    ;; Grading for result.  
 	    (update-grade-status (list sysent) (StudentEntry-state entry)))
-	  (warn 'webserver:log-warn :text "No matching systementry for box"
+	  (warn 'log-condition:log-warn :text "No matching systementry for box"
 		:tag (list 'box-no-systementry (StudentEntry-prop entry)))))
     
     (unless (turn-p result-turn)
-      (warn 'webserver:log-warn :text "No reply turn for answer"
+      (warn 'log-condition:log-warn :text "No reply turn for answer"
 	    :tag (list 'box-no-reply (StudentEntry-prop entry)))
       (return-from  check-answer
 	(make-tutor-response
@@ -1527,7 +1527,7 @@ follow-up question and put it in the student entry's err interp field."
   (handler-case 
       (do-subst-canonical-vars Exp)
     (warn (c) (declare (ignore c))
-	  (warn 'webserver:log-warn
+	  (warn 'log-condition:log-warn
 		:tag (list 'subst-canonical-vars Exp)
 		:text "Invalid subst-canonical-vars object."))))
 

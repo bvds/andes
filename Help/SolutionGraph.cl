@@ -368,7 +368,7 @@
   "Given a help entry prop generate the system entry for it and return."
   ;; include helpful message for this error: 
   (when (not (get-operator-by-tag (csdo-op Do)))
-    (error 'webserver:log-error
+    (error 'log-condition:log-error
 	   :tag (list 'operator-not-in-problem-file (csdo-op Do))
 	   
              :text (strcat "Operator not found in current KB.  "

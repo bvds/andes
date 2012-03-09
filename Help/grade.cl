@@ -139,7 +139,7 @@
 	;; Should be extend to allowed & preferred, Bug #972
 	(unless (or T (eql (null (graded-optional graded))
 		     (null (SystemEntry-optional sysent))))
-	  (warn 'webserver:log-warn
+	  (warn 'log-condition:log-warn
 		:tag (list 'SystemEntry-optional (SystemEntry-prop sysent))
 		:text (format nil "Two methods of finding optionality don't match. ~A ~A ~A" (systemEntry-prop sysent) (graded-optional graded) (SystemEntry-optional sysent))))
 	;; For now, just put in dummy value
@@ -186,12 +186,12 @@
   "Calculate contribution of individual SystemEntry to score."
   (let* ((graded (SystemEntry-graded sysent))
 	 (weight (graded-weight graded)))
-    (unless weight (warn 'webserver:log-warn 
+    (unless weight (warn 'log-condition:log-warn 
 			 :tag (list 'graded-weight-missing (SystemEntry-prop sysent))
 			 :text "Entry missing grading weight.")
 	    (return-from grade-sysentry))
     (unless (graded-possibilities graded) 
-      (warn 'webserver:log-warn 
+      (warn 'log-condition:log-warn 
 	    :tag (list 'graded-possibilities-missing (SystemEntry-prop sysent))
 	    :text "Entry missing grading possibilities.")
       (return-from grade-sysentry))

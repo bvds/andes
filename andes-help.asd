@@ -4,19 +4,10 @@
 (defpackage :help-asd (:use :cl :asdf))
 (in-package :help-asd)
 
-;;;;   Load the source file, without compiling
-;;;;   asdf:load-op reloads all files, whether they have been
-;;;;   changed or not.
-
-(defclass no-compile-file (cl-source-file) ())
-(defmethod perform ((o compile-op) (s no-compile-file)) nil)
-(defmethod output-files ((o compile-op) (s no-compile-file))
-  (list (component-pathname s)))
-
-
 (defsystem :andes-help
   :name "Andes help"
   :description "Andes physics tutor system: helpsystem"
+  :default-component-class cl-source-file.cl ;use *.cl as default extension
   :depends-on (problems web-server)
   :components (
 	       (:module "Base"
@@ -128,8 +119,3 @@
 ;				     (:file "StackTests")
 				     ))
 	       ))
-
-;;;  make source file extension "cl"  See asdf manual
-
-(defmethod source-file-type ((c cl-source-file) 
-			     (s (eql (find-system :andes-help)))) "cl")
