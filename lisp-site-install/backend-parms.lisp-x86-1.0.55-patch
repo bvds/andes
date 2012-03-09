@@ -1,0 +1,8 @@
+--- sbcl-1.0.55/src/compiler/x86/backend-parms.lisp-original	2012-03-07 12:31:26.000000000 -0700
++++ sbcl-1.0.55/src/compiler/x86/backend-parms.lisp	2012-03-07 12:31:42.000000000 -0700
+@@ -56,4 +56,4 @@
+ (def!constant gencgc-alloc-granularity 0)
+ ;;; The minimum size at which we release address ranges to the OS.
+ ;;; This must be a multiple of the OS page size.
+-(def!constant gencgc-release-granularity *backend-page-bytes*)
++(def!constant gencgc-release-granularity (* 4 *backend-page-bytes*))

@@ -1,0 +1,14 @@
+
+;; This is later re-defined to reset ontology
+;; and reload everything.
+(defun rkb ()
+  "Reset the lists in KB and reload all files using asdf"
+  (ql:quickload 'problems))
+
+(defun rhelp ()
+  "Load or reload help system using asdf"
+  (ql:quickload 'andes-help))
+
+(defun r-lon-capa ()
+  "Load stuff for lon-capa"
+  (ql:quickload 'lon-capa))

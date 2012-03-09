@@ -1,29 +1,7 @@
 ;;;; -*- Lisp -*-
 ;;;; above sets emacs major mode to Lisp
 ;;;;
-;;;;  initialization file for sbcl
+;;;;  initialization file for Andes
 ;;;;
-;;; Muffle compiler-notes globally
-(declaim (sb-ext:muffle-conditions sb-ext:compiler-note))
 
 (require :asdf)  ; asdf is built-in
-
-;;;;
-;;;;  load andes system
-;;;;
-
-(defun rkb ()
-  "Reset the lists in KB and reload all files using asdf"
-  (asdf:operate 'asdf:load-op 'problems))
-
-(defun rhelp ()
-  "Load or reload help system using asdf"
-  (asdf:operate 'asdf:load-op 'andes-help))
-
-;;;;
-;;;;  Add andes path to the asdf search path
-;;;;
-
-;;;;
-;;;;  load dashboard service code
-;;;;
