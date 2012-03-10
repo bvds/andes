@@ -343,17 +343,21 @@
   (gethash Opname *Operators-By-Name*))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; get-operators-by-effect (public)
 ;; get the specified operators that have effects of the specified predicate type.
 ;;
 ;; Arguments: Predicate: The predicate e.g. 'Variable' that we are seaching for.
-;; Returns: A list of operators who have at least one effect of the specified type
-;;          ornil if noe exist.
+;; Returns: A list of operators who have at least one effect of the 
+;;           specified type or nil if none exist.
 
 (defun get-operators-by-effect (Predicate)
   "Obtain a list of operators that have an effect of the specified predicate type or nil if none exist."
-  (gethash Predicate *Operators-By-Effect*))
+  ;; In principle, the order of the operators on 
+  ;; this list should not matter.  However, 
+  ;; problems LMOM6 KT11B ELEC7 DR20 fail to solve
+  ;; if order is reversed.  Bug #1954
+  (reverse (gethash Predicate *Operators-By-Effect*)))
 
 ;; Following utility mainly for kb debugging. takes either atom or form 
 (defun list-ops (Predicate-or-Form)
