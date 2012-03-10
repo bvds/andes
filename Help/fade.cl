@@ -29,7 +29,7 @@
   (setf *fades* 
 	(loop for fade in (problem-fade problem)
 	      unless (car fade) do
-	      (warn 'webserver:log-warn
+	      (warn 'log-condition:log-warn
 		    :tag (list 'fade-null-prop fade)
 		    :text "Fade with null prop on load.")
 	      else collect
@@ -43,7 +43,7 @@
 			(match-exp->qnode (second (car fade)) 
 					  (problem-graph *cp*))
 			(car fade))
-		   (warn  'webserver:log-warn 
+		   (warn  'log-condition:log-warn 
 			  :tag (list 'invalid-fade-proposition (car fade))
 			  :text "No systementry or bgnode match for fade."))
 	       ;; Evaluate the hints.

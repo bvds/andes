@@ -23,14 +23,19 @@
 
 ;;
 (defstruct (ErrorInterp (:print-function write-ErrorInterp))
-  Intended      ; interpretation of student's intended action
-  Remediation   ; a tutor turn. Typically contains a hint sequence
-  Diagnosis     ; a cons containing name and parameters, for assoc.
-  hints         ; evaluates to a hint sequence
-  Order         ; alist of specifications to determine priority
-  State         ; (The following list is obsolete) 
-;;; One of forbidden, premature, premature-subst, done-already, inefficient or none
+  Intended      ;interpretation of student's intended action
+  Remediation   ;a tutor turn or a function that evaluates to one
+  Diagnosis     ;a cons containing name and parameters, for assoc
+  hints         ;evaluates to a hint sequence
+  Order         ;alist of specifications to determine priority
+  State         ;(The following list is obsolete) 
+  ;; One of forbidden, premature, premature-subst, done-already, 
+  ;; inefficient or none
   )
+
+(defun ErrorInterp-remediate (x)
+  (let ((y (ErrorInterp-remediation x)))
+    (if (functionp y) (funcall y) y)))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

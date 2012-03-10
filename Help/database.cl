@@ -221,7 +221,7 @@ list of characters and replacement strings."
 	   (format nil "REPLACE INTO PROBLEM_ATTEMPT (clientID,userName,userproblem,userSection~:[~;,extra~]) values ('~a','~a','~A','~A'~@[,'~A'~])" 
 		   extra client-id student problem section extra))
     (when (> (get-affected-rows *connection*) 1)
-      (warn 'webserver:log-warn
+      (warn 'log-condition:log-warn
 	    :tag (list 'duplicate-client-id
 		       client-id student 
 		       problem section extra)
@@ -236,7 +236,7 @@ list of characters and replacement strings."
   "Intercept any errors, turning them into warnings, then return."
   ;; If there are json errors, we want to log them and then soldier on.
   `(handler-case (progn ,@forms)
-    (error (c) (warn 'webserver:log-warn
+    (error (c) (warn 'log-condition:log-warn
 		:tag (list 'database-error (type-of c)
 			   ;; The objects are generally strings and the 
 			   ;; most errors occur for very long strings.
@@ -267,7 +267,13 @@ list of characters and replacement strings."
 	  ;; By default, cl-json turns camelcase into dashes:  
 	  ;; Instead, we are case insensitive, preserving dashes.
 	  (*json-identifier-name-to-lisp* #'string-upcase))
-      
+
+      (unless (listp result)
+	(warn 'log-condition:log-warn
+	      :tag (list 'get-matching-sessions-result result)
+	      :text "get-matching-sessions-result got invalid result.")
+	(return-from get-matching-sessions))
+
       ;; Filter out turns where the reply contains a timeout error.
       ;; Unless the bug causing the timeout has been fixed, these errors
       ;; prevent a student from reopening a problem.
@@ -449,7 +455,7 @@ list of characters and replacement strings."
 			(truncate-client-id client-id)))))
     (if (and (consp result) (consp (car result)))
 	(car (car result))
-	(warn 'webserver:log-warn 
+	(warn 'log-condition:log-warn 
 	      :tag (list 'get-start-tID result 
 			 *old-client-id* 
 			 webserver:*log-id* 
@@ -562,7 +568,7 @@ otherwise, use latest step tID.  No-store means add to cache only."
   ;; The correct way for setting up section defaults is by using nil for student.
   (when (and (stringp student) 
 	     (equal (string-right-trim match:*whitespace* student) ""))
-    (error 'webserver:log-error :tag 'empty-student-string 
+    (error 'log-condition:log-error :tag 'empty-student-string 
 	   :text "Null string sent for student"))
 
   ;; Save in cache, by either updating or pushing

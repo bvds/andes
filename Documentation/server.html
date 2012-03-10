@@ -163,12 +163,12 @@ the <code>andes_test</code> database, rather than pollute the regular database.&
 You can use the following to run the help server:
 <pre>
 (rhelp)
-(start-help :db "andes_test" :password "my-db-pass") ;set database password
+(start-help :db "andes_test") ;see db_user_password above
 (setf *simulate-loaded-server* nil) ;not necessary in stable branch
 (setf webserver:*debug* nil)        ;not necessary in stable branch
 ;; Create thread to monitor memory usage.
 (sb-thread:make-thread 
- (lambda () (loop for i from 1 to 77 do 
+ (lambda () (loop for i from 1 to 177 do 
   (format webserver:*stdout* "~%~A sessions~%" 
    (hash-table-count webserver::*sessions*)) 
     (gen-stats webserver:*stdout*) (sleep 120))))

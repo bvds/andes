@@ -18,12 +18,8 @@
   :name "LON-CAPA"
   :description "Creat LON-CAPA courses"
   :depends-on (problems)
+  :default-component-class cl-source-file.cl ;make *.cl default extension
   :components (
 	       (:module "lon-capa"
 			:components ((:file "assignments")
 				     (:file "sets")))))
-
-;;;  make source file extension "cl"  See asdf manual
-
-(defmethod source-file-type ((c cl-source-file) 
-			     (s (eql (find-system :lon-capa)))) "cl")

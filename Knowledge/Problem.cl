@@ -39,7 +39,7 @@
     ;; trailing / makes it a directory
     (merge-pathnames  "solutions/" *Andes-Path*))
 
-(defparameter *Problem-Registry* (make-hash-table) 
+(defvar *Problem-Registry* (make-hash-table) 
   "A list of all the currently known problem structs.")
 
 ; We use the version slot in the external prb file to store
@@ -409,9 +409,7 @@
 				Choices Graphic Predefs Fade)
   "Define a problem struct and store it."
 
-  (dolist (rule English)
-    (when (match:matches-model-syntax (car rule))
-      (error "~A: Ontology member ~A matches model syntax" name rule)))
+  ;; compile-time tests
 
   (unless (list-of-lists-p soughts)
     (error "~A: Soughts must be a list of lists." name))
@@ -426,7 +424,7 @@
 
   (unless (listp statement) (error "~A: Statement must be a list." name))
 
-  (let ((Prob (eval `(make-problem :Name ',name                     ;;Define the problem struct.
+  `(let ((Prob (make-problem :Name ',name          ;Define the problem struct.
 				   :soughts ',soughts
 				   :Givens ',Givens
 				   :ForbiddenPSMS ',ForbiddenPSMS
@@ -442,9 +440,14 @@
 				   :Choices ',Choices
 				   :Graphic ',Graphic
 				   :Predefs ',Predefs
-		                   :Fade ',Fade))))
-    (add-problem Prob) ;Store the problem for access
-    Prob))                        ;Return the problem.
+		                   :Fade ',Fade)))
+
+    ;; Tests to occur at load time
+   (dolist (rule ',English)
+    (when (match:matches-model-syntax (car rule))
+      (error "~A: Ontology member ~A matches model syntax" ',name rule)))
+
+   (add-problem Prob))) ;Store the problem for access
 
 (defun clear-Problem-Registry ()
   "Clear out the problem registry."
@@ -521,17 +524,20 @@
 )
 
 (defmacro post-process (name args &rest body)
+
   (when (or (not (consp args)) (cdr args))
     (error "post-process functions take one argument, the problem name."))
-  (when (find name *post-processing* :key #'postoperator-name)
-    (error "post-processing function ~A already exists." name))
+
   ;; Here, one might want to define a regular "defun" function 
   ;; which could be called directly.
-  (let ((e  (make-postoperator :name name
-			       :comment (when (stringp (car body)) (pop body))
-			       :lambda (compile nil `(lambda ,args ,@body)))))
-    (push e *post-processing*)
-    e))
+  `(let ((e  (make-postoperator :name ',name
+			       :comment ',(when (stringp (car body)) 
+						(pop body))
+			       :lambda (compile nil '(lambda ,args ,@body)))))
+    (when (member ',name *post-processing* :key #'postoperator-name)
+      (setf *post-processing* (delete ',name *post-processing* 
+				      :key #'postoperator-name)))
+    (push e *post-processing*)))
 
 (defun run-post-processing (problem)
   (ps-bp "Apply post-process functions:  ~A" (Problem-Name Problem))

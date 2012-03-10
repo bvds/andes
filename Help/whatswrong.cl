@@ -49,53 +49,57 @@
 (defun do-whats-wrong (student)
   "Given the id selected by the student in what's wrong help, returns a 
    tutor turn containing the associated error interpretation."
+  
+  ;; For Modified help experiment.   Need a way to do this 
+  ;; kind of stuff that is "pluggable".  Bug #1940
+  (random-help-experiment:set-current-object (StudentEntry-id student))
+  
+  (diagnose student)
+  (setf *help-last-entries* 
+	(ErrorInterp-intended (StudentEntry-ErrInterp student)))
+  (let ((turn (ErrorInterp-Remediate (StudentEntry-ErrInterp student))))
+    ;; If entry is already colored, don't send color
+    (when (eql (StudentEntry-state student) +incorrect+) 
+      (setf (turn-coloring turn) nil))
+    turn))
 
-      ;; For Modified help experiment.
-      ;; Need a way to do this kind of stuff that is
-      ;; "pluggable".  Bug #1940
-      (random-help-experiment:set-current-object (StudentEntry-id student))
-     
-    (diagnose student)
-    (setf *help-last-entries* 
-	  (ErrorInterp-intended (StudentEntry-ErrInterp student)))
-    (ErrorInterp-Remediation (StudentEntry-ErrInterp student)))
 
+;;; Given a student entry, returns an ErrorInterp struct.
+;;; The student may have made other entries since the error
+;;; was made, so we need to re-evaluate the error, so that
+;;; up-to-date hints are given.
+;;;
+;;; There is a possibility that subesequent student actions 
+;;; may warrrent changing the StudentEntry-State.  In that 
+;;; case, the help given will be inorrect.
 
-;;; Given a student entry, returns an ErrorInterp struct.  If the
-;;; entry has been diagnosed before, or is an equation entry (in which
-;;; case parse-andes will have taken care of it) then just repeat the 
-;;; hint sequence by returning the old error interpretation.  If the
-;;; student entry is incorrect, then we have a new error that needs to
-;;; be given an interpretation.  If the student's entry is premature
-;;; or forbidden, then we need to construct an error interpretation
-;;; that explains why.  If the entry is acceptable to color-by-numbers
+;;; If the student entry is incorrect, then we have a new 
+;;; error that needs to be given an interpretation.  If the 
+;;; student's entry is premature or forbidden, then we need 
+;;; to construct an error interpretation that explains why.  
+;;; If the entry is acceptable to color-by-numbers
 ;;; but not relevant to the solution (a yellow error), then say so.
 ;;; These are the only student entry states that should occur.
 (defun diagnose (student)
   "Given a student entry, sets the error interpretation."
-  (if (StudentEntry-ErrInterp student)
-      ;; Even if the error interpretation originally caused the entry to 
-      ;; turn colors make sure that this time it is just a plain dialog 
-      ;; turn and does no coloring
-      (setf (turn-coloring (ErrorInterp-Remediation 
-			    (studentEntry-ErrInterp student)))  NIL)
+  (unless (StudentEntry-ErrInterp student)
     (setf (StudentEntry-ErrInterp student)
 	  (let ((state (StudentEntry-State student)))
 	    (cond
-	     ((eq state +premature-entry+)
-	      (explain-premature-entry student))
-	     ((eq state +premature-subst+)
-	      (explain-premature-subst student))
-	     ((eq state +forbidden+)
-	      (explain-forbidden student))
-	     ((not (eq state +incorrect+))
-	      (make-failed-error-interpretation))
-	     ((and (eq 'eqn (car (StudentEntry-Prop student)))
-		   (not (solver-equation-redp 
-			 (studentEntry-ParsedEqn student))))
-	      (yellow-error student))
-	     (T	(new-error student)))))))
-
+	      ((eq state +premature-entry+)
+	       (explain-premature-entry student))
+	      ((eq state +premature-subst+)
+	       (explain-premature-subst student))
+	      ((eq state +forbidden+)
+	       (explain-forbidden student))
+	      ((not (eq state +incorrect+))
+	       (make-failed-error-interpretation))
+	      ((and (eq 'eqn (car (StudentEntry-Prop student)))
+		    (not (solver-equation-redp 
+			  (studentEntry-ParsedEqn student))))
+	       (yellow-error student))
+	      (T (new-error student)))))))
+  
 
 (defun make-failed-error-interpretation (&optional (fn-msg 'no-error-interpretation))
  "Returns an error interpretaton indicate that Andes could not understand the student's error"
@@ -589,6 +593,11 @@
 (defun call-ww-turn-generator (ei)
   ;; wrapper attaches function name as assoc info to turn
   (let ((result-turn (eval (ErrorInterp-hints ei))))
+
+    ;; This can be either turn struct or function that evaluates to one.
+    (when (functionp result-turn)
+      (setf result-turn (funcall result-turn)))
+
      (setf (turn-assoc result-turn) 
 	   (alist-warn (list (ErrorInterp-diagnosis ei))))
      result-turn))

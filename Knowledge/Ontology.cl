@@ -43,16 +43,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Params
 
-(defparameter *Ontology-ExpTypes* () "List of valid expression types")
+(defvar *Ontology-ExpTypes* () "List of valid expression types")
 ;; Most (or all) ontology forms start with a bound symbol; we can use
 ;; this fact to speed up matching of forms.
 (defvar *Ontology-form-table* (make-hash-table :test #'equal :size 100)
   "Hash table to give leading unbound members of form.")
-(defparameter *Ontology-EntryProp-Types* () "List of valid entry proposition prefixes.")
-(defparameter *Ontology-GoalProp-Types* () "List of valid Goal proposition prefixes.")
-(defparameter *Ontology-Equation-Types* () "List of valid equation types.")
-(defparameter *Ontology-PSMGroups* () "List of valid psm groups.")
-(defparameter *Ontology-PSMClasses* () "List of valid psm classes.")
+(defvar *Ontology-EntryProp-Types* () "List of valid entry proposition prefixes.")
+(defvar *Ontology-GoalProp-Types* () "List of valid Goal proposition prefixes.")
+(defvar *Ontology-Equation-Types* () "List of valid equation types.")
+(defvar *Ontology-PSMGroups* () "List of valid psm groups.")
+(defvar *Ontology-PSMClasses* () "List of valid psm classes.")
 
 ;;;;;====================================================================
 ;;;;; Ontology structures.
@@ -147,15 +147,48 @@
 			documentation
 	        	new-english)
   "Define a quantity expression."
-  (define-exptype :type type 
-    :form Form
-    :rank rank
-    :symbol-base symbol-base
-    :short-name short-name
-    :Units Units
-    :restrictions Restrictions
-    :documentation documentation
-    :new-english new-english))
+ 
+  ;; Compile-time tests
+
+  (when (match:matches-model-syntax form)
+    (error "Ontology ~A form ~A matches model syntax" type form))
+
+  (when (and rank (not short-name))
+    (error "short-name must be supplied for ~A" type))
+  
+
+  `(let ((E (make-exptype 
+	    :type ',type
+	    :form ',form
+	    :rank ',rank
+	    :documentation ',documentation
+	    :symbol-base ',symbol-base
+	    :short-name ',short-name
+	    :units ',Units
+	    :restrictions ',restrictions
+	    :new-english (compile-evals ',new-english))))
+
+  ;; Remove any existing entry of this name (thus, allowing updates)
+  (when (expression-type-p ',type)
+    (let ((old-bound-sub (get-bound-sub 
+			  (ExpType-form (lookup-exptype-struct ',type)))))
+      (setf (gethash old-bound-sub *Ontology-form-table*)
+	    (delete ',type 
+		    (gethash old-bound-sub *Ontology-form-table*) 
+		    :key #'ExpType-Type)))
+    (setf *Ontology-ExpTypes*
+	  (delete ',type *Ontology-ExpTypes* :key #'ExpType-Type :count 1)))
+
+     (let ((matching-form (lookup-expression-struct ',Form)))
+      (when matching-form
+	(error "Adding ~A with form ~A: ~%conflict for exptype ~A with form ~A."
+	   ',type ',form 
+	   (exptype-type matching-form)
+	   (exptype-form matching-form))))
+
+    (push E *Ontology-ExpTypes*)
+    (push E (gethash (get-bound-sub ',form) *Ontology-form-table* nil))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; define-exptype (Hidden)
@@ -174,46 +207,6 @@
 	((variable-p (car x)) (error "Unbound expr ~A" x))
 	(t (list (car x)))))
 
-;; This function is not intended to be called directly
-;; by the users.
-(defun define-exptype (&key type form rank symbol-base short-name 
-		       units restrictions documentation new-english)
-  "Define and store the specified expression if possible."
-  
-  ;; Remove any existing entry of this name (thus, allowing updates)
-  (when (expression-type-p type)
-    (let ((old-bound-sub (get-bound-sub 
-			  (ExpType-form (lookup-exptype-struct type)))))
-      (setf (gethash old-bound-sub *Ontology-form-table*)
-	    (delete type 
-		    (gethash old-bound-sub *Ontology-form-table*) 
-		    :key #'ExpType-Type)))
-    (setf *Ontology-ExpTypes*
-	  (delete type *Ontology-ExpTypes* :key #'ExpType-Type :count 1)))
-  
-  (when (match:matches-model-syntax form)
-    (error "Ontology ~A form ~A matches model syntax" type form))
-  
-  (when (lookup-expression-struct Form)
-    (error "exptype ~A matching form already exists." 
-	   (exptype-type (lookup-expression-struct Form))))
-
-  (when (and rank (not short-name))
-    (error "short-name must be supplied for ~A" type))
-
-  (let ((E (make-exptype 
-	    :type type
-	    :form form
-	    :rank rank
-	    :documentation documentation
-	    :symbol-base symbol-base
-	    :short-name short-name
-	    :units Units
-	    :restrictions restrictions
-	    :new-english (compile-evals new-english))))
-    (push E *Ontology-ExpTypes*)
-    (push E (gethash (get-bound-sub form) *Ontology-form-table* nil))
-    E))
 
 (defun compile-evals (model)
   "Recurse through new-english and compile any evals."
@@ -229,8 +222,7 @@
 	;; Recursion through model
 	((consp model) (reuse-cons (compile-evals (car model))
 				   (compile-evals (cdr model))
-				   model))
-	(t (warn "compile-evals unknown form ~A" model))))
+				   model))))
 
 (defun transform-quotes (expr)
   "Find any quoted subexpressions and unquote any variables therein."
@@ -239,8 +231,7 @@
 	 (unquote-variables (second expr)))
 	((consp expr) (reuse-cons (transform-quotes (car expr))
 				  (transform-quotes (cdr expr))
-				  expr))
-	(t (warn "transform-quotes unknown form ~A" expr))))
+				  expr))))
 
 (defun unquote-variables (expr)
   "Rewrite expression so that it evaluates to the original expression, except for variables."
@@ -253,8 +244,7 @@
 	((and (consp expr) (null (cdr (last expr))))
 	 (cons 'list (mapcar #'unquote-variables expr)))
 	((consp expr) (list 'cons (unquote-variables (car expr))
-			    (unquote-variables (cdr expr))))
-	(t (warn "unqote-variables unknown form ~A" expr))))
+			    (unquote-variables (cdr expr))))))
 
 ;;;-------------------------------------------------------
 ;;; Expression Lookup Functions. (public)
@@ -336,15 +326,14 @@
   
 (defmacro def-entryprop (Type form
 			 &key (helpform form)
-			      doc)
+			 doc)
   "Define an Entry proposition type and store the value."
-  (let ((E (make-entryProp 
-	    :type Type
-	    :kbform form
-	    :helpform helpform
-	    :Doc Doc)))
-    (postpend *Ontology-EntryProp-Types* E)
-    E))
+  `(let ((E (make-entryProp 
+	     :type ',Type
+	     :kbform ',form
+	     :helpform ',helpform
+	     :Doc ',Doc)))
+    (push-to-end E *Ontology-EntryProp-Types* :key #'entryProp-type)))
 
 
 (defun kb-entryprop-p (Prop)
@@ -391,8 +380,6 @@
 	:test #'unify))		;could use "equal"
 
 
-
-
 ;;;;=====================================================
 ;;;; Equation Types.
 ;;;; equation types are used to determine if an
@@ -406,14 +393,10 @@
 			   &key (helpform form)
 				doc)
   "define an eqn entry proposition."
-  `(progn (def-eqntype ',type)
+  `(progn (pushnew ',type *Ontology-Equation-types*)
 	  (def-entryprop ,type ,form
 	    :helpform ,helpform
 	    :doc ,doc)))
-
-(defun def-eqntype (type)
-  "Define an equation type."
-  (push type *Ontology-Equation-types*))
 
 (defun eqn-prop-p (prop)
   "Return t iff the prop is an eqn prop."
@@ -462,13 +445,12 @@
 (defmacro def-goalprop (Type form
 			&key nlg-English doc)
   "Define an Entry proposition type and store the value."
-  (let ((E (make-goalProp 
-	    :type Type
-	    :form form
-	    :Doc Doc
-	    :nlg-english nlg-English)))
-    (postpend *Ontology-GoalProp-Types* E)
-    E))
+  `(let ((E (make-goalProp 
+	    :type ',Type
+	    :form ',form
+	    :Doc ',Doc
+	    :nlg-english ',nlg-English)))
+    (push-to-end E *Ontology-GoalProp-Types* :key #'goalProp-type)))
 
 (defun goalprop-exp-p (exp)
   "Is the expression a goalprop expression?"
@@ -578,41 +560,37 @@
 
 (defmacro def-psmgroup (name 
 			&key form members supergroup
-			     help doc nlg-english ExpFormat)
+			help doc nlg-english ExpFormat)
   "Define a new psmgroup."
-  (test-defpsmgroup-errors name supergroup members)
-  (let* ((sup (lookup-psmgroup-name supergroup))
-	 (new (make-psmgroup
-	       :name name
-	       :form form
-	       :supergroup sup
-	       :help help
-	       :doc doc
-	       :nlg-english nlg-english
-	       :expformat expformat)))
+  `(let* ((sup (lookup-psmgroup-name ',supergroup))
+	  (new (make-psmgroup
+		:name ',name
+		:form ',form
+		:supergroup sup
+		:help ',help
+		:doc ',doc
+		:nlg-english ',nlg-english
+		:expformat ',expformat)))
+    
+    ;; Load-time tests
+    
+    (when (lookup-psmclass-name ',name)
+      (error "A PSM Type named ~A already exists." ',name))
+    
+    (when (and ',supergroup (not (lookup-psm-name ',supergroup)))
+      (error "Designated superclass ~A does not exist."
+	     ',supergroup))
+    
+    (dolist (n ',members)
+      (when (not (lookup-psm-name n))
+	(error "Designated member class ~N in ~A does not exist."
+	       n ',members)))
     
     (setf (psmgroup-members new)
-      (loop for c in members
+      (loop for c in ',members
 	  collect (lookup-psm-name c)))
     (if sup (push new (psmgroup-members sup)))
-    (postpend *Ontology-PSMGroups* New)
-    New))
-
-
-
-(defun test-defpsmgroup-errors (name supergroup members)
-  "Test for errors in the defpsmclass call."
-  (cond ((lookup-psmgroup-name name)
-	 (error "PsmClass ~A already exists." name))
-	((lookup-psmclass-name name)
-	 (error "A PSM Type named ~A already exists." name))
-	((and supergroup (not (lookup-psm-name supergroup)))
-	 (error "Designated superclass ~A does not exist."
-		supergroup))
-	(t (loop for n in members
-	       when (not (lookup-psm-name n))
-	       do (error "Some designated member class in ~A does not exist."
-			 members)))))
+    (push-to-end New *Ontology-PSMGroups* :key #'psmgroup-name)))
 
 
 (defun lookup-psmgroup-name (name)
@@ -668,35 +646,45 @@
 
 (defmacro def-psmclass (name form
 			&key group complexity
-			     help short-name nlg-english tutorial
-			     doc  ExpFormat EqnFormat)
+			help short-name nlg-english tutorial
+			doc  ExpFormat EqnFormat)
   "Define and store a psm type."
-  (test-defpsmclass-errors name group)
-  (let* ((g (lookup-psmgroup-name group))
-	 (New (make-psmclass
-	       :name name
-	       :form form
-	       :group g
-	       :complexity complexity
-	       :help help
-	       :short-name short-name
-	       :nlg-english nlg-english
-	       :tutorial tutorial ;should verify file exists.
-	       :ExpFormat ExpFormat
-	       :EqnFormat EqnFormat
-	       :doc doc)))
-    (if g (push New (psmgroup-members g)))
-    (postpend *Ontology-PSMClasses* New)    
-    New))
+  `(let* ((g (lookup-psmgroup-name ',group))
+	  (class (make-psmclass
+		  :name ',name
+		  :form ',form
+		  :group g
+		  :complexity ',complexity
+		  :help ',help
+		  :short-name ',short-name
+		  :nlg-english ',nlg-english
+		  :tutorial ',tutorial ;should verify file exists.
+		  :ExpFormat ',ExpFormat
+		  :EqnFormat ',EqnFormat
+		  :doc ',doc)))
+    
+    ;; Load-time tests
+    
+    (when (and ',group (not g))
+      (error "Designated group ~A does not exist." ',group))
+    
+    (when g (push class (psmgroup-members g)))
+    
+    (push-to-end class *Ontology-PSMClasses* :key #'PSMClass-Name)))
 
-
-(defun test-defpsmclass-errors (name group)
-  "Test for errors in a psmclass definition."
-  (cond ((lookup-psm-name name)
-	 (error "PsmClass name ~A is already in use." name))
-	((and group (not (lookup-psmgroup-name Group)))
-	 (error "Designated group ~A does not exist." group))))
-
+;; Keyword defaults get evaled before they are used.
+(defmacro push-to-end (mem class &key (key (quote #'identity)))
+"If object matches one already in list, replace old object, otherwise add object onto end."
+  `(setf ,class (replace-or-postpend ,mem ,class :key ,key)))
+	  
+(defun replace-or-postpend (mem class &key (key #'identity))
+  "Replace element of list, or add to end."
+  (cond ((null class) (list mem)) ;add to end
+	((eql (funcall key mem) (funcall key (car class)))
+	 (cons mem (cdr class))) ;found match, replace
+	;; recursion
+	(t (cons (car class)
+		 (replace-or-postpend mem (cdr class) :key key)))))
 
 (defun lookup-psmclass-name (name)
   "Lookup psm classes by name."

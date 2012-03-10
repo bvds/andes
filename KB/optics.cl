@@ -172,7 +172,7 @@
   :units |m|
   :restrictions positive
   :new-english ((the) (or "distance" "separation") 
-		"between slits" (preferred "in" ?grating))
+		"between" (the) "slits" (preferred ((or "of" "in") ?grating)))
   )
 
 (defoperator define-slit-separation (?grating)

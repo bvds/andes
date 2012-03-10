@@ -1056,9 +1056,8 @@
    (problem (given (mass ?wrong-body) ?dontcare)))
   :Utility 50)
 
-(defun massless-body (correct-body time wrong-body)
+(defun massless-body (correct-body wrong-body)
   (setq correct-body (nlg correct-body 'def-np))
-  (setq time (nlg time 'pp))
   (setq wrong-body (nlg wrong-body 'def-np))
   (make-hint-seq
    (list "It is okay to choose a massless object as the body."
@@ -1070,9 +1069,9 @@
 
 ;; the student draws a body for an object but another object needs defining
 (def-error-class wrong-object-for-body-tool (?correct-body)
-  ((student (body ?wrong-body))
-   (correct (body ?correct-body))
-   (no-student (body ?correct-body)))
+  ((student (body ?wrong-body . ?wrest))
+   (correct (body ?correct-body . ?crest))
+   (no-student (body ?correct-body . ?crest)))
   :probability 0.5)
 
 (defun wrong-object-for-body-tool (correct-body)
@@ -1085,8 +1084,8 @@
 
 ;; the student draws a body, but it doesn't need defining.
 (def-error-class extra-object-for-body-tool (?wrong-body)
-  ((student (body ?wrong-body))
-   (correct (body ?correct-body)))
+  ((student (body ?wrong-body . ?wrest))
+   (correct (body ?correct-body . ?crest)))
   :probability 0.1  ;more general than above
   )
 
@@ -1103,8 +1102,8 @@
 ;;; exist right now.  If so, this error class handles the case of
 ;;; drawing a body when none are needed.
 (def-error-class non-existent-body ()
-  ((student (body ?sbody))
-   (no-correct (body ?cbody)))
+  ((student (body ?sbody . ?wrest))
+   (no-correct (body ?cbody . ?crest)))
   :probability 0.01)
 
 (defun non-existent-body ()
@@ -3295,6 +3294,7 @@
 					       (axis-dir 'x ?rot)))
      (test (not (null ?missing-non-zero)))
      (bind ?missing-compo-vars (vectors-to-compo-sysvars 'x ?rot ?missing-non-zero))
+     (test (every #'identity ?missing-compo-vars))
      (bind ?new-sum (cons '+ (cons ?sum  ?missing-compo-vars)))
      (fix-eqn-by-replacing ?loc ?new-sum))
     :probability
@@ -3319,6 +3319,7 @@
 					       (axis-dir 'y ?rot)))
      (test ?missing-non-zero)
      (bind ?missing-compo-vars (vectors-to-compo-sysvars 'y ?rot ?missing-non-zero))
+     (test (every #'identity ?missing-compo-vars))
      (bind ?new-sum (cons '+ (cons ?sum ?missing-compo-vars)))
      (fix-eqn-by-replacing ?loc ?new-sum))
     :probability
@@ -3457,7 +3458,10 @@
   "Given a list of vector descriptors, return the list of system
    variables for the vector components along the given axis label, rotation and time"
   (loop for v in vectors collect
-	(quant-to-sysvar `(compo ,xyz ,rot ,v))))
+	(or (quant-to-sysvar `(compo ,xyz ,rot ,v))
+	    (warn 'log-condition:log-warn
+		  :tag (list 'vectors-to-compo-sysvars xyz rot v)
+		  :text "Missing sysvar for given vector compo."))))
 
 ;;; (ref eq-Pitt A10 47-02) Students sometimes try to write Newton's
 ;;; law as <sum of left forces> = <sum of right forces>, where the

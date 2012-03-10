@@ -62,15 +62,15 @@
 
 (defun cschoose-p (wm)
   (and (listp wm)
-       (equalp (car wm) 'choose)))
+       (eql (car wm) 'choose)))
 
 (defun cswm-p (wm) 
   (and (listp wm)
-       (equalp (car wm) +goal-unified-with-fact+)))
+       (eql (car wm) +goal-unified-with-fact+)))
 
 (defun csop-p (wm)
   (and (listp wm)
-       (equalp (car wm) +goal-unified-with-effect+)))
+       (eql (car wm) +goal-unified-with-effect+)))
 
 
 (defstruct (cssg (:type list))
@@ -80,7 +80,7 @@
 
 (defun cssg-p (wm)
   (and (listp wm)
-       (equalp (car wm) +next-operator+)))
+       (eql (car wm) +next-operator+)))
 
 
 (defstruct (csdo (:type list))

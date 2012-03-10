@@ -208,10 +208,6 @@
   (apply #'concatenate (cons 'string strings)))
 	 
 
-(defmacro postpend (Dest val)
-  "Push but for the end."
-  `(setq ,Dest ,`(append ,Dest (list ,Val)))) 
-
 (defun contains-sym (Exp Sym)
   "Return t iff Exp contains the symbol Sym."
   (and (not (null Exp)) 
@@ -404,16 +400,11 @@
 		 (append (nth n init) (list (nth n (car lists))))))
 	     (listpair-list-o-lists R (cdr lists))))))
 	
-		
 (defun qlist (lst)
   (if (= (length lst) 1)
       (eval `(list '',(car lst)))
     (eval `(cons '',(car lst) ,`(qlist ',(cdr lst))))))    
 
-
-;;-----------------------------------------------------------------------------
-;; code by collin Lynch.
-(defun func-eval (expressions)
-  "Evaluate the expression by wrapping it as a funcall and applying."
-  (funcall (append '(lambda ()) expressions)))
-
+(defun alistp (x)
+  "determine if x is an alist"
+  (and (listp x) (every #'consp x)))

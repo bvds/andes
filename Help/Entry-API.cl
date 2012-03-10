@@ -421,14 +421,14 @@
      (open-review-window-html
       (or (exptype-short-name qexp)
 	  (progn 
-	    (warn 'webserver:log-warn 
+	    (warn 'log-condition:log-warn 
 		  :tag (list 'exptype-no-short-name (exptype-type qexp))
 		  :text "ExpType missing short-name.")
 	    (string-downcase (string (exptype-type qexp)))))
       "quantities.html"
       :section (string (exptype-type qexp))
       :title "Quantities" :value (exptype-type qexp)))
-    (t (warn 'webserver:log-warn
+    (t (warn 'log-condition:log-warn
 	     :tag (list 'exptype-non-quantity (exptype-type qexp))
 	     :text "Exptype is not a quantity.")
        (string-downcase (string (exptype-type qexp))))))
@@ -619,7 +619,7 @@
   "Pull the quantity phrase out of a definition:  should match variablename.js"
   (when (> (length symbol) 0) ;variablename.js returns empty string on no match
     (if (not (search symbol text :test test))
-	(warn 'webserver:log-warn
+	(warn 'log-condition:log-warn
 	      :tag (list 'symbol-definition-mismatch symbol text)
 	      :text "Symbol does not match definition.")
 	;; Find first occurence of symbol in text and take rest of text.
@@ -665,7 +665,7 @@
 	  :assoc `((no-label . ,(StudentEntry-type entry)))
 	  :diagnosis (cons 'no-label (StudentEntry-type entry))
 	  :state +incorrect+
-	;; Student gets unsolicited hint if they have not mastered skill.
+	  ;; Student gets unsolicited hint if they have not mastered skill.
 	  :spontaneous (incremented-property-test 'object-with-label 3)))
 
 (defun with-text-handler ()
@@ -1254,11 +1254,11 @@
   ;; being processed further. Return appropriate turn with unsolicited 
   ;; error message in this case.
   (when (studentEntry-ErrInterp entry) 
-    (when *debug-grade* (warn `webserver:log-warn
+    (when *debug-grade* (warn `log-condition:log-warn
 			      :text "Not grading update 1" 
 			      :tag (list 'not-grading 1 entry)))
     (return-from Check-NonEq-Entry 
-      (ErrorInterp-remediation (studentEntry-ErrInterp entry))))
+      (ErrorInterp-remediate (studentEntry-ErrInterp entry))))
   
   ;; else have a real student entry to check
   (when *debug-help* 
@@ -1277,7 +1277,7 @@
                (StudentEntry-GivenEqns Entry))
       (setf result (Check-Vector-Given-Form Entry))
       (when (not (eq (turn-coloring result) +color-green+))
-	(when *debug-grade* (warn `webserver:log-warn
+	(when *debug-grade* (warn `log-condition:log-warn
 				  :text "Not grading update 2" 
 				  :tag (list 'not-grading 2 entry)))
 	(return-from Check-NonEq-Entry result))) ; early exit
@@ -1501,7 +1501,7 @@
 	       ;; StudentEntry-ErrInterp should have been set before
 	       ;; calling this function, perhaps by a call to (diagnose entry).
 	       ;; Otherwise, this means that the grading has not been done.
-	       (warn 'webserver:log-warn
+	       (warn 'log-condition:log-warn
 		     :tag (list 'undiagnosed-entry (StudentEntry-prop entry))
 		     :text "Undiagnosed error for studententry."))
 	     (diagnose entry))
@@ -1637,19 +1637,19 @@
 		  :key #'enode-entries)))
     (cond 
       ((null sysent)
-       (error 'webserver:log-error 
+       (error 'log-condition:log-error 
 	      :tag (list 'done-button-without-systementry id)
 	      :text "No SystemEntry for button"))
       
       ((null PSM) 
-       (error 'webserver:log-error 
+       (error 'log-condition:log-error 
 	       :tag (list 'done-button-without-enode id)
 	       :text "No problem step found for button"))
       
       ;; If this is not a non-quant psm then we also need to throw an error 
       ;; asserting that fact. 
       ((not (enode-has-mark? PSM 'non-quant))
-       (error 'webserver:log-error 
+       (error 'log-condition:log-error 
 	       :tag (list 'bad-mark-for-button-enode psm id)
 	       :text "Unmarked enode matching non-quant IDNum"))
       
@@ -1726,7 +1726,6 @@
 	       (make-ErrorInterp :diagnosis diagnosis
 				 :intended intended
 				 :remediation rem)))
-       
        (make-incorrect-reply entry rem :spontaneous spontaneous)))
 
     ((and (null state) spontaneous)
@@ -1734,10 +1733,11 @@
        (setf (studentEntry-ErrInterp entry)
 	     (make-ErrorInterp :diagnosis diagnosis
 			       :remediation rem))
+       (when (functionp rem) (setf rem (funcall rem)))
        (setf (turn-id rem) (StudentEntry-id entry))
        rem))
     
-     (t (warn 'webserver:log-warn
+     (t (warn 'log-condition:log-warn
 	      :tag (list 'make-tutor-response-bad-arg state spontaneous)
 	      :text "unsupported state"))))
 
@@ -1751,7 +1751,7 @@
       (make-incorrect-reply entry (ErrorInterp-remediation
 				   (StudentEntry-ErrInterp entry)))
       (progn
-	(warn 'webserver:log-warn
+	(warn 'log-condition:log-warn
 	      :tag (list 'reply-missing-rem error-tag 
 			 (when (StudentEntry-ErrInterp entry) t)
 			 (studentEntry-prop entry))
@@ -1759,11 +1759,12 @@
 	(make-red-turn entry))))
 
 (defun make-incorrect-reply (entry rem &key spontaneous)
-  (setf (turn-id rem) (StudentEntry-id entry))
   (if (or spontaneous
 	  ;; Turn on experiment effect; see Bug #1940.
 	  (random-help-experiment:help-mod-p 'give-spontaneous-hint))
       (progn 
+       (when (functionp rem) (setf rem (funcall rem)))
+       (setf (turn-id rem) (StudentEntry-id entry))
        ;; Only turn red if rem is this reply.
 	(setf (turn-coloring rem) +color-red+)
 	;; Add log message to return

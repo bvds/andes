@@ -77,7 +77,6 @@ make install-solver
 # a binary release and then use that to compile the sbcl source code.
 
 # The default sbcl install directory is /usr/local/;
-# see https://bugs.launchpad.net/sbcl/+bug/550889.
 # If you wish to install in a location other than /usr/local
 # set the environment variable INSTALL_ROOT to this location,
 # for example, "export INSTALL_ROOT=$HOME", before using the make
@@ -88,9 +87,9 @@ cd lisp-site-install
   make get-source     # download and compile source code
   make source-install # install in /usr/local (do as superuser) 
                       #      or in INSTALL_ROOT 
+  make sbclrc         # Install the sbcl initialization file ~/.sbclrc
 cd ../                # return to Andes root directory
 
-make sbclrc  # Install the sbcl initialization file ~/.sbclrc
 
 ================================== MySql ======================================
 

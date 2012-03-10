@@ -134,12 +134,14 @@
 		     (answer-only-dispatcher Command Arguments)
 		     (apply command Arguments)))
 	 (Str (cond ((turn-p Result) (return-turn time Result)) 
-		    ((listp Result) result)
-		    (t (warn "Invalid result format ~A" result)))))
-
+		    ((every #'alistp result) result)
+		    (t (warn 'log-condition:log-warn
+			     :tag (list 'invalid-turn-result-format result)
+			     :text "Invalid result format.")))))
+    
     ;; Having nil violates the API
     (when (and (turn-p result) (member nil (turn-result result)))
-      (warn 'webserver:log-warn 
+      (warn 'log-condition:log-warn 
 	    :tag (list 'result-contains-nil command (turn-result result))
 	    :text "nil in solution-step reply"))
 
@@ -163,12 +165,12 @@
       (score-hint-request (turn-assoc result)
 			  *help-last-entries*))
 
-  ;; Irrespective of the entry we need to inform the workbench of
+  ;; Irrespective of the entry, we need to inform the workbench of
   ;; the current total score if it has changed since last sent
   (let ((current-score (calculate-score)))
     (cond 
       ((null current-score)
-	   (warn 'webserver:log-warn :tag (list 'null-grading-score)
+	   (warn 'log-condition:log-warn :tag (list 'null-grading-score)
 		 :text "null grading score"))
       ((or (null *last-score*)
 	   (> (abs (- current-score *last-score*)) 0.01))
@@ -279,7 +281,7 @@
 		 ;; been logged.  Bug #1935
 		 (when (and (notany #'student-log-line result)
 			    (not **checking-entries**))
-		   (warn 'webserver:log-warn
+		   (warn 'log-condition:log-warn
 			 :tag (list 'incorrect-missing-interp id)
 			 :text "Red turn without logging interp."))
 		 (push `((:action . "modify-object") (:id . ,id)

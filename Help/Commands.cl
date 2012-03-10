@@ -240,41 +240,74 @@
      ;; dispatch the response to the responder function.  
      ;; Since handle-student-response is wrapped by return-turn, the 
      ;; result will be logged, and *last-turn-response* will be updated.
-     (prog1 (apply *last-turn-response*
-		   (list response-code))
+     (let ((response (apply *last-turn-response*
+			    (list response-code))))
        ;; Retire this response.
        ;; This prevents the student from getting the same hint repeatedly
        ;; by clicking on "explain-more."
        ;; If there are multiple-choice responses, it may no longer
        ;; make sense to retire old ones.
-       (setf *last-turn-response* nil)))
+       (setf *last-turn-response* nil)
+
+       ;; Result may be a tutor turn or a function that
+       ;; evaluates to one.
+       (when (functionp response) (setf response (funcall response)))
+       (if (or (null response) (turn-p response))
+	   response
+	   (warn 'log-condition:log-warn
+		 :tag (list 'invalid-last-turn-response response)
+		 :text "*last-turn-response* invalid form"))))
     
     ;; Student types text, but there is no responder
     ;; from last term.
-
-
-    ((and (stringp response-code) (is-a-question response-code))
-     (make-end-dialog-turn 
-      (strcat "Sorry, I don't know how to answer your question.&nbsp; "
-	      "Please " *help-button-action* " for help.")
-      :Assoc '((handle-text . question))))
-    
-    ((and (stringp response-code) (maybe-a-question response-code))
-     (make-end-dialog-turn 
-      (strcat "Your comment has been recorded.&nbsp; "
-	      "If you need help, " *help-button-action* ".")
-      :Assoc '((handle-text . possible-question))))
-     
-    ;; Assume everything else is a genuine comment.
-    ((stringp response-code)
-     (make-end-dialog-turn "Your comment has been recorded."
-			   :Assoc '((handle-text . comment))))
+    ((and (stringp response-code) 
+	  (string-responder response-code)))
 
     ;; link clicked, but responder gone!
     (T (make-end-dialog-turn 
 	(strcat "Sorry, but you have already seen this hint.&nbsp; You can " 
 		*help-button-action* " for more help.")
 	:Assoc '((handle-link . stale))))))
+
+(defun string-responder (str &key explain-more)
+  (cond 
+    ((is-a-question str)
+     (make-end-dialog-turn 
+      (strcat "Sorry, I don't know how to answer your question.&nbsp; "
+	      (if explain-more
+		  (strcat "Either click on \"" *explain-more-text*
+			  "\" or " 
+			  *help-button* " below.")
+		  (strcat "Please " *help-button-action* " for help.")))
+      :Assoc '((handle-text . question))))
+    
+    ((bad-language str)
+     (make-end-dialog-turn 
+      (strcat "Please watch your language.&nbsp; "
+	      (random-elt
+	       '("I am just a machine and don't always understand people."
+		 "Sorry you find me to be so frustrating."
+		 "However, constructive comments are always welcome.")))
+      :Assoc '((handle-text . bad-language)))) 
+    
+    ((maybe-a-question str)
+     (make-end-dialog-turn 
+      (strcat "Your comment has been recorded.&nbsp; "
+	      (if explain-more 
+		  (strcat "If you need help, either click on \"" 
+			  *explain-more-text*
+			  "\" or " 
+			  *help-button* " below.")
+		  (strcat "If you need help, " *help-button-action* ".")))
+      :Assoc '((handle-text . possible-question))))
+    
+    ;; Assume everything else is a genuine comment.
+    (t
+     (make-end-dialog-turn 
+      (random-elt '("Your comment has been recorded."
+		    "Thanks for the comment."
+		    "I am just a machine.&nbsp; Comments will be read later by a human."))
+			   :Assoc '((handle-text . comment))))))
 
 (defun is-a-question (str)
   "Determine if student phrase is a question."
@@ -304,3 +337,9 @@
   "Test if string ends with a given character, trimming whitespace."
   (let ((y (string-right-trim match:*whitespace* x)))
     (member (char y (- (length y) 1)) endings)))
+
+(defparameter *foul-language* '("shit" "fuck" "asshole"))
+
+(defun bad-language (str)
+  (loop for word in *foul-language*
+	thereis (search word str :test #'char-equal)))

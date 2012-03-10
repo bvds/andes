@@ -21,7 +21,7 @@
 (in-package :cl-user)
 
 (defpackage :webserver
-  (:use :cl :hunchentoot :json)
+  (:use :cl :hunchentoot :json :log-condition)
   (:export :defun-method :start-json-rpc-services :stop-json-rpc-services 
 	   :*stdout* :print-sessions :*env* :close-idle-sessions :*debug*
 	   :*turn-timeout* :*time*
@@ -62,7 +62,7 @@
   ;; One could easily extend this to multiple web servers or multiple
   ;; services, but we don't need that now.
   (when *server* (error "server already started"))
-  (setf *dispatch-table* (list #'default-dispatcher))
+  (setf *dispatch-table* (list))
   (dolist (service services)
     (let ((logger (cadr (member :log-function (cdr service)))))
       (push (create-prefix-dispatcher 
@@ -82,15 +82,24 @@
 
   ;; Error handlers
   (setf *http-error-handler* 'json-rpc-error-message)
-  ;; Log any errors in Hunchentoot or not otherwise handled.
-  ;; In particular, log any errors or warning using log-function
   (when server-log-path (setf *MESSAGE-LOG-PATHNAME* server-log-path))
 
   ;; Test for multi-threading
   (unless hunchentoot::*supports-threads-p*
     (warn "Hunchentoot running without thread support, performance may be seriously degraded."))
 
-  (setf *server* (start (make-instance 'acceptor :port port))))
+  (setf *server* (start 
+		  (make-instance 
+		   'easy-acceptor 
+		   :port port
+		   ;; access already logged by Apache
+		   :ACCESS-LOG-DESTINATION nil
+		   ;; Log any errors in Hunchentoot or 
+		   ;; not otherwise handled.
+		   ;; In particular, log any errors or 
+		   ;; warning using log-function
+		   :message-log-destination server-log-path
+		   ))))
 
 (defun json-rpc-error-message (err)
   (format nil "{\"jsonrpc\": \"2.0\", \"error\": {\"code\": ~A, \"message\": \"Hunchentoot error:  ~A\"}, \"id\": null}" 
@@ -361,17 +370,6 @@
   "Message shown to the user after a lisp error has occurred."
   `(((:action . "show-hint")
      (:text . ,(format nil "An error occurred:<br>~%~A~%" condition)))))
-
-;; The :text field is supposed to be plain text (rather than html).
-(define-condition log-error (error)
-  ((tag :initarg :tag :reader log-tag)
-   (text :initarg :text :reader text))
-  (:report (lambda (c s) (write-string (text c) s))))
-
-(define-condition log-warn (warning)
-  ((tag :initarg :tag :reader log-tag)
-   (text :initarg :text :reader text))
-  (:report (lambda (c s) (write-string (text c) s))))
 
 (defun log-err (condition)
   "Log after an error or warning has occurred."

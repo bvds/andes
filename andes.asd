@@ -10,24 +10,11 @@
 (defpackage :andes-asd (:use :cl :asdf))
 (in-package :andes-asd)
 
-;;;;   Load the source file, without compiling
-;;;;   asdf:load-op reloads all files, whether they have been
-;;;;   changed or not.
-
-(defclass no-compile-file (cl-source-file) ())
-(defmethod perform ((o compile-op) (s no-compile-file)) nil)
-(defmethod output-files ((o compile-op) (s no-compile-file))
-  (list (component-pathname s)))
-
-;;;
-;;;  Add directory of problem files to  
-;;;
-
-
 (defsystem :andes
   :name "Andes"
   :description "Andes physics tutor system"
   :depends-on (cl-json)  ;KB/principles.cl
+  :default-component-class cl-source-file.cl ;use *.cl as default
   :components (
 ;;;    this should eventually be removed
 	       (:file "andes-path")
@@ -37,6 +24,7 @@
 				     (:file "auxiliary")
 				     (:file "hash")
 				     (:file "match")
+				     (:file "log-condition")
 				     (:file "Utility")))
 	       (:module "Algebra"
 			:components ((:file "solver")))
@@ -45,6 +33,8 @@
 			:components ((:file "PsmGraph")
 				     (:file "StudentEntry")
 				     (:file "hint-symbols")
+				     ;;for make-hint-seq in KB/errors.cl
+				     (:file "TutorTurn") 
 				     (:file "SystemEntry"
 					    :depends-on ("PsmGraph"))
 				     ))
@@ -78,12 +68,11 @@
 ;;;	    	:description "Knowledge Base"
 			;; Also depends on nlg
 			:depends-on ("Knowledge" "Base")
-			:default-component-class no-compile-file
   			:serial t  ;real dependancies would be better
 			:components (
 				     ;; treat these as normal lisp files
-				     (:cl-source-file "Physics-Funcs")
-				     (:cl-source-file "makeprob")        
+				     (:file "Physics-Funcs")
+				     (:file "makeprob")        
 				     
 				     ;; must be before any ontology
 				     (:file "reset-KB")
@@ -91,7 +80,7 @@
 				     (:file "quantities")
 				     (:file "constants")
 				     ;; lots of outside dependencies:
-				     (:cl-source-file "errors")
+				     (:file "errors")
 				     ;; TELL and NLG not defined
 				     (:file "Ontology" )
 				     (:file "circuit-ontology")  
@@ -124,8 +113,3 @@
 				     (:file "print-solutions")
 				     (:file "SolutionSets")))
 ))
-
-;;;  make lisp source file extension "cl"  See asdf manual
-
-(defmethod source-file-type ((c cl-source-file) (s (eql (find-system :andes))))
-   "cl")

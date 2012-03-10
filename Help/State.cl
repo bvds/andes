@@ -119,7 +119,7 @@
       ;; Raising an error, rather than a warning, keeps subsequent
       ;; code in open-problem from being executed and sends a 
       ;; message to the student.
-      (error 'webserver:log-error :tag 'problem-load-failed
+      (error 'log-condition:log-error :tag 'problem-load-failed
 	     :text (strcat "Unable to load problem " (string name)
 			   ".  Please try another problem." ))))
 

@@ -306,7 +306,7 @@
 ;; Entry3 will have Entry0 and Entry2 but not Entry1 in its preconditions.
 ;;
 
-(defun sg-psmg->sysents (Graph &key (Stk NIL) (State +correct+))
+(defun sg-psmg->sysents (Graph &key (Stk NIL) (State +correct+) optional)
   "Collect the System entries from the specified PSM Graph."
   (let ((Stack Stk) Entries tmp)
     (dolist (N Graph)
@@ -316,26 +316,33 @@
 	    ((csjoin-p N)                 ;When a join is encountered clear
 	     (setq Stack (sg-drop-snj Stack)))   ;the splits and nexts preceeding it.
 	    
+	    ;; This should match optional operators in KB/problem-solving.cl
+	    ((and (cssg-p N) (eql (cssg-op N) 'do-optional-step))
+	     ;; Later, for Bug #972, this should set variable 
+	     ;; to 'allowed or 'preferred.
+	     (setf optional (cssg-goal N)))
+
 	    ((and (csdo-p N)                    ;When a do is encountered
 		  (find-if #'help-EntryProp-p (csdo-effects N))) ;and it contains an entry prop.
 	     ;; Generate the systementries.
-	     (setq tmp (sg-generate-sysents N Stack State))  
+	     (setq tmp (sg-generate-sysents N Stack State optional))  
 	     (setq stack (append tmp stack))     ;Add them to the stack.
 	     (setq entries (append tmp Entries)) ;Add to the list of entries.
 	     (setf (csdo-Entries N) tmp))    ;Set the back pointer to the csdo.
 	     	    
 	    ((cschoose-p N)                 ;When a choose is encountered 
 	     (setq Entries                  ;split the search for each element.
-	       (append Entries (sg-split-psmg->sysents (cdr N) Stack State))))))
+	       (append Entries (sg-split-psmg->sysents 
+				(cdr N) Stack State optional))))))
 		       
     Entries))                                ;Return the entries.
 
 
-(defun sg-split-psmg->sysents (Lst Stack State)
+(defun sg-split-psmg->sysents (Lst Stack State optional)
   "Split the psmg->sysents search."
   (loop for C in Lst       
       append (sg-psmg->sysents 
-	      C :stk Stack :State State)))
+	      C :stk Stack :State State :optional optional)))
 
 
 (defun sg-drop-snj (Stack)
@@ -345,11 +352,11 @@
 	    (subseq Stack (+ Loc 1)))))
 
 
-(defun sg-generate-sysents (Do Stack State)
+(defun sg-generate-sysents (Do Stack State optional)
   "Generate the sysents for a csdo and return them."
   (loop for E in (csdo-effects do)
       when (help-entryprop-p E)
-      collect (sg-generate-sysent Do E Stack State)))
+      collect (sg-generate-sysent Do E Stack State optional)))
 
 (defun reduce-prop (full-prop)
   "Take full prop and get quantity, except for bodies."
@@ -357,11 +364,11 @@
       full-prop ;use def-qexp body-wrapper
       (second full-prop)))
 
-(defun sg-generate-sysent (Do Entry Stack State)
+(defun sg-generate-sysent (Do Entry Stack State optional)
   "Given a help entry prop generate the system entry for it and return."
   ;; include helpful message for this error: 
   (when (not (get-operator-by-tag (csdo-op Do)))
-    (error 'webserver:log-error
+    (error 'log-condition:log-error
 	   :tag (list 'operator-not-in-problem-file (csdo-op Do))
 	   
              :text (strcat "Operator not found in current KB.  "
@@ -373,6 +380,7 @@
    :CogLoad (operator-CogLoad (get-operator-by-tag (csdo-op Do)))
    :Sources (list Do)
    :Prereqs (wrap-if (sg-collect-sysent-prereqs Entry Stack))
+   :optional optional
    ;; This doesn't give anything useful for axes, just the number.
    ;; Done button is a goalprop.
    :model (unless (member (car entry) 
@@ -507,10 +515,15 @@
 
 
 (defun sg-pair-eqn-entries (Eqns Entries)
-  (let ((tmp))
+  (let (tmp)
     (dolist (E Eqns)
       (setq tmp (sg-find-eqn->entry (cadr E) Entries)) 
-      (if (null tmp) (error "Unmatched eqn entry found in setup ~A." (cadr E)))
+      (unless tmp 
+	(error 'log-condition:log-error
+	       :text "Eqn not found in Entries.  Can't load problem." 
+	       :tag (list 'sg-setup-eqn-entries
+			  (cadr E) 
+			  (mapcar #'SystemEntry-prop Entries))))
       (setf (nth 2 E) tmp))))
 
 
