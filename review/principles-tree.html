@@ -33,13 +33,15 @@
 
 // Also used in review/sets.html and web-UI/andes/principles.js
 dojo.ready(function(){  // wait until dom is loaded
-    if(dijit._TreeNode._meta.hidden._setLabelAttr){
-        // An example of how to do this more properly at:
-        // http://livedocs.dojotoolkit.org/dijit/Tree-examples
+  if(dijit._TreeNode._meta.hidden.attributeMap){   // old way
+    // See Bug #1949
+    dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
+    console.warn("old way for html render, version ",dojo.version.toString());
+  }else if(dijit._TreeNode._meta.hidden._setLabelAttr){
         dijit._TreeNode._meta.hidden._setLabelAttr.type="innerHTML";
-    }else{
-        console.error("Can't render HTML in tree.");
-    }
+  }else{
+          console.error("Can't render HTML in tree. Version ",dojo.version.toString());
+  }
 });
 </script>
 </head>
