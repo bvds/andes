@@ -4,7 +4,6 @@ dojo.require("dojo.data.ItemFileReadStore");
 
 // See review/principles-tree.html
 dojo.ready(function(){  // wait until dom is loaded
-<<<<<<< HEAD
   if(dijit._TreeNode._meta.hidden.attributeMap){   // old way
     // See Bug #1949
     dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
@@ -13,12 +12,6 @@ dojo.ready(function(){  // wait until dom is loaded
         dijit._TreeNode._meta.hidden._setLabelAttr.type="innerHTML";
     }else{
         console.error("Can't render HTML in tree. Version ",dojo.version.toString());
-=======
-    if(dijit._TreeNode._meta.hidden._setLabelAttr){
-        dijit._TreeNode._meta.hidden._setLabelAttr.type="innerHTML";
-    }else{
-        console.error("Can't render HTML in tree.");
->>>>>>> master
     }
 });
 
