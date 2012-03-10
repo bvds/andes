@@ -3294,6 +3294,7 @@
 					       (axis-dir 'x ?rot)))
      (test (not (null ?missing-non-zero)))
      (bind ?missing-compo-vars (vectors-to-compo-sysvars 'x ?rot ?missing-non-zero))
+     (test (every #'identity ?missing-compo-vars))
      (bind ?new-sum (cons '+ (cons ?sum  ?missing-compo-vars)))
      (fix-eqn-by-replacing ?loc ?new-sum))
     :probability
@@ -3318,6 +3319,7 @@
 					       (axis-dir 'y ?rot)))
      (test ?missing-non-zero)
      (bind ?missing-compo-vars (vectors-to-compo-sysvars 'y ?rot ?missing-non-zero))
+     (test (every #'identity ?missing-compo-vars))
      (bind ?new-sum (cons '+ (cons ?sum ?missing-compo-vars)))
      (fix-eqn-by-replacing ?loc ?new-sum))
     :probability
@@ -3456,7 +3458,10 @@
   "Given a list of vector descriptors, return the list of system
    variables for the vector components along the given axis label, rotation and time"
   (loop for v in vectors collect
-	(quant-to-sysvar `(compo ,xyz ,rot ,v))))
+	(or (quant-to-sysvar `(compo ,xyz ,rot ,v))
+	    (warn 'log-condition:log-warn
+		  :tag (list 'vectors-to-compo-sysvars xyz rot v)
+		  :text "Missing sysvar for given vector compo."))))
 
 ;;; (ref eq-Pitt A10 47-02) Students sometimes try to write Newton's
 ;;; law as <sum of left forces> = <sum of right forces>, where the
