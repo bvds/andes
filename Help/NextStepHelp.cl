@@ -981,10 +981,12 @@
   ;; Clear out any old value because next-step-help doesn't
   ;; always assign a new value.
   (setf *help-last-entries* nil)
-  (cond ((nsh-next-call-set?) (nsh-execute-next-call))
-	((nsh-continue-last-node?) (nsh-prompt-last-node))
-	((not (nsh-student-has-done-work?)) (nsh-prompt-start))
-	(t (nsh-prompt-next))))
+  (let ((result 
+	 (cond ((nsh-next-call-set?) (nsh-execute-next-call))
+	       ((nsh-continue-last-node?) (nsh-prompt-last-node))
+	       ((not (nsh-student-has-done-work?)) (nsh-prompt-start))
+	       (t (nsh-prompt-next)))))
+    (if (functionp result) (funcall result) result)))
 
 
 

@@ -240,14 +240,23 @@
      ;; dispatch the response to the responder function.  
      ;; Since handle-student-response is wrapped by return-turn, the 
      ;; result will be logged, and *last-turn-response* will be updated.
-     (prog1 (apply *last-turn-response*
-		   (list response-code))
+     (let ((response (apply *last-turn-response*
+			    (list response-code))))
        ;; Retire this response.
        ;; This prevents the student from getting the same hint repeatedly
        ;; by clicking on "explain-more."
        ;; If there are multiple-choice responses, it may no longer
        ;; make sense to retire old ones.
-       (setf *last-turn-response* nil)))
+       (setf *last-turn-response* nil)
+
+       ;; Result may be a tutor turn or a function that
+       ;; evaluates to one.
+       (when (functionp response) (setf response (funcall response)))
+       (if (or (null response) (turn-p response))
+	   response
+	   (warn 'log-condition:log-warn
+		 :tag (list 'invalid-last-turn-response response)
+		 :text "*last-turn-response* invalid form"))))
     
     ;; Student types text, but there is no responder
     ;; from last term.

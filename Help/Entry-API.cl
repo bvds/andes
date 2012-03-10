@@ -665,7 +665,7 @@
 	  :assoc `((no-label . ,(StudentEntry-type entry)))
 	  :diagnosis (cons 'no-label (StudentEntry-type entry))
 	  :state +incorrect+
-	;; Student gets unsolicited hint if they have not mastered skill.
+	  ;; Student gets unsolicited hint if they have not mastered skill.
 	  :spontaneous (incremented-property-test 'object-with-label 3)))
 
 (defun with-text-handler ()
@@ -1254,11 +1254,11 @@
   ;; being processed further. Return appropriate turn with unsolicited 
   ;; error message in this case.
   (when (studentEntry-ErrInterp entry) 
-    (when *debug-grade* (warn `webserver:log-warn
+    (when *debug-grade* (warn `log-condition:log-warn
 			      :text "Not grading update 1" 
 			      :tag (list 'not-grading 1 entry)))
     (return-from Check-NonEq-Entry 
-      (ErrorInterp-remediation (studentEntry-ErrInterp entry))))
+      (ErrorInterp-remediate (studentEntry-ErrInterp entry))))
   
   ;; else have a real student entry to check
   (when *debug-help* 
@@ -1277,7 +1277,7 @@
                (StudentEntry-GivenEqns Entry))
       (setf result (Check-Vector-Given-Form Entry))
       (when (not (eq (turn-coloring result) +color-green+))
-	(when *debug-grade* (warn `webserver:log-warn
+	(when *debug-grade* (warn `log-condition:log-warn
 				  :text "Not grading update 2" 
 				  :tag (list 'not-grading 2 entry)))
 	(return-from Check-NonEq-Entry result))) ; early exit
@@ -1726,7 +1726,6 @@
 	       (make-ErrorInterp :diagnosis diagnosis
 				 :intended intended
 				 :remediation rem)))
-       
        (make-incorrect-reply entry rem :spontaneous spontaneous)))
 
     ((and (null state) spontaneous)
@@ -1734,6 +1733,7 @@
        (setf (studentEntry-ErrInterp entry)
 	     (make-ErrorInterp :diagnosis diagnosis
 			       :remediation rem))
+       (when (functionp rem) (setf rem (funcall rem)))
        (setf (turn-id rem) (StudentEntry-id entry))
        rem))
     
@@ -1759,11 +1759,12 @@
 	(make-red-turn entry))))
 
 (defun make-incorrect-reply (entry rem &key spontaneous)
-  (setf (turn-id rem) (StudentEntry-id entry))
   (if (or spontaneous
 	  ;; Turn on experiment effect; see Bug #1940.
 	  (random-help-experiment:help-mod-p 'give-spontaneous-hint))
       (progn 
+       (when (functionp rem) (setf rem (funcall rem)))
+       (setf (turn-id rem) (StudentEntry-id entry))
        ;; Only turn red if rem is this reply.
 	(setf (turn-coloring rem) +color-red+)
 	;; Add log message to return

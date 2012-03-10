@@ -515,10 +515,15 @@
 
 
 (defun sg-pair-eqn-entries (Eqns Entries)
-  (let ((tmp))
+  (let (tmp)
     (dolist (E Eqns)
       (setq tmp (sg-find-eqn->entry (cadr E) Entries)) 
-      (if (null tmp) (error "Unmatched eqn entry found in setup ~A." (cadr E)))
+      (unless tmp 
+	(error 'log-condition:log-error
+	       :text "Eqn not found in Entries.  Can't load problem." 
+	       :tag (list 'sg-setup-eqn-entries
+			  (cadr E) 
+			  (mapcar #'SystemEntry-prop Entries))))
       (setf (nth 2 E) tmp))))
 
 

@@ -263,7 +263,7 @@
 ;;  <Specs> is a list of hint specifications of the form 
 ;;   (<class> <string> . <vars>)
 ;;   where:
-;;     <Class> is one of STRING KCD MINILESSON or EVAL or FUNCTION
+;;     <Class> is one of STRING KCD MINILESSON or FUNCTION
 ;;     <String> is a format string complete with ~A's.
 ;;     <Vars> is alist of operator vars that will be
 ;;            substituted into the string via a format.
@@ -279,11 +279,6 @@
 ;; called this function will be called and in so doing terminate
 ;; the hint sequence irrespective of what follows the function.
 ;;
-;; For some damn reason functionp is not working the compilation
-;; step prevents it from succeeding.  Accordingly there is a new
-;; hintspec type called 'function this will then call the element
-;; immediately following on on the rest of the elements in the
-;; hintspec.  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; continuations
 ;; As long as there are more hints in the stack for the 
@@ -310,7 +305,7 @@
 ;;   <type> is one of {Point, Teach, Apply} and 
 ;;   <Class> is one of {String, KCD, MiniLesson, etc.}  
 
-;; Returns nil or a turn struct.
+;; Returns ((func args ...) . prefix) or a turn struct.
 (defun make-hint-seq (Hints &key (Prefix nil) (Assoc nil) (OpTail nil))
   "make the appropriate hint sequence."
 
@@ -345,7 +340,6 @@
 	((eq (car Hint) 'String)     (make-string-hseq Hint rest Prefix Assoc OpTail))
 	((eq (car Hint) 'KCD)        (error "KCD's have been removed."))
 	((eq (car Hint) 'Minilesson) (make-minil-hseq Hint Rest Assoc OpTail))
-	((eq (car Hint) 'Eval)       (make-eval-hseq Hint Rest))
 	((eq (car Hint) 'Function)
 	 (unless (and *backwards-hints-hook*
 		      (funcall *backwards-hints-hook*))
@@ -353,7 +347,7 @@
 		 :tag (list 'hints-after-function rest)
 		 :text "Hints in sequence after function inaccessible."))
 	 (make-function-hseq (cdr Hint) Prefix))
-	(t (Error 'log-condition:log-error :tag 'problem-load-failed
+	(t (Error 'log-condition:log-error
 		  :tag (list 'unrecognized-hint-type 'next hint)
 		  :text "Unrecognized hint type supplied."))))
 
@@ -370,8 +364,7 @@
 	((eq (car Hint) 'String)     (make-string-end-hseq Hint Prefix Assoc))
 	((eq (car Hint) 'KCD) 	     (error "KCD's have been removed."))
 	((eq (car Hint) 'Minilesson) (make-minil-end-hseq (cadr Hint) Assoc))
-	((eq (car Hint) 'Eval)       (make-eval-hseq (cadr Hint)))
-	((eq (car Hint) 'function)   (make-function-hseq (cdr Hint) Prefix))
+	((eq (car Hint) 'function)   (make-function-hseq (cdr Hint) Prefix)) 
 	(t (Error 'log-condition:log-error
 		  :tag (list 'unrecognized-hint-type 'end hint)
 		  :text "Unrecognized hint type supplied."))))
@@ -647,32 +640,20 @@
 
 
 ;;--------------------------------------------------------------
-;; Eval hints.
-;; Occasionally it is necessary to embed code within the hints
-;; so that the step hints can modify themselves based upon the 
-;; problem state or the student's location.  The format for the
-;; Hints is (Eval <Contents>)  where <Contents> is a set of lisp
-;; code that will be funcalled via a progn for legal reasons.
-(defun make-eval-hseq (Hint &optional (Rest nil))
-  "Call the hseq function with args and return."      
-  (make-hint-seq (cons (func-eval (cdr Hint)) Rest)))
-
-
-;;--------------------------------------------------------------
 ;; function hints
 ;; Occasionally it is necessary to call a specific function
 ;; The function hint types are function expressions that will
-;; be evaluated at runtime and should return a tutor turn.  
+;; be evaluated at runtime and should return a tutor turn.
 (defun make-function-hseq (Hint &optional (Prefix ""))
-  "Call the specified function."
-  (let ((result (apply (car Hint) (cdr Hint))))
-    (when (eq (type-of result) 'turn) ; succeeded w/turn
-       ; prepend prefix to existing text in result turn.
-       (setf (turn-text result)
-             (strcat Prefix (turn-text result))))
-    result))  ; return value
-       
-
+  "Create lambda expression for specified function."
+  #'(lambda ()
+      (let ((result (apply (car Hint) (cdr Hint))))
+	(if (turn-p result)
+	    ;; prepend prefix to existing text in result turn.
+	    (setf (turn-text result)
+		  (strcat Prefix (turn-text result)))
+	    (warn "make-function-hseq given non-turn ~A." hint))
+    result)))
 
 
 ;;---------------------------------------------------------------

@@ -267,7 +267,13 @@ list of characters and replacement strings."
 	  ;; By default, cl-json turns camelcase into dashes:  
 	  ;; Instead, we are case insensitive, preserving dashes.
 	  (*json-identifier-name-to-lisp* #'string-upcase))
-      
+
+      (unless (listp result)
+	(warn 'log-condition:log-warn
+	      :tag (list 'get-matching-sessions-result result)
+	      :text "get-matching-sessions-result got invalid result.")
+	(return-from get-matching-sessions))
+
       ;; Filter out turns where the reply contains a timeout error.
       ;; Unless the bug causing the timeout has been fixed, these errors
       ;; prevent a student from reopening a problem.
