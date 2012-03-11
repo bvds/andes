@@ -117,7 +117,15 @@ if($endDate){
 	$sessionTime=0;  // total active time for session.
 	$lastCorrectSessionTime=0;  // $sessionTime for last green entry
 	$lastInorrectSessionTime=0;  // $sessionTime for last red entry
+	$lastStepTime=0;         // $sessionTime for last step.
 	$sessionCorrects=array();  // Objects that have turned green. 
+	$missingInterp=array();    // Turns that are associated with object, but missing interpretation.
+	$missingObject=array();    // Turns with no object or interpretation
+	// For a turn without an interp, the temporal next turn kc's
+	$temporalHeuristic=array(); 
+	$orphanTurn=array();   // Candidates for temporal heuristic.
+	$thisKC=array();      // turns for each KC (not sorted).
+	// 
 	// echo "session " . $myrow["startTime"] . "<br>\n";
 	
 	// get student input and server reply
@@ -200,13 +208,18 @@ if($endDate){
 	    $b=$json->decode($response);
 	    $jsonTime2 += microtime(true)-$jsonStart;
 	    $thisTurn=NULL;
+	    $thisObject=isset($a->params->id)?$a->params->id:NULL;
 	    if(isset($b->result)){
 	      foreach ($b->result as $row){
 		//print_r($row); echo "<br>\n";
 		if($row->action=="modify-object" && isset($row->mode)){
 		  $thisTurn=$row->mode;
+		  $thisObject=$row->id;
 		}
 	      }
+	    }
+	    if($a->method == 'seek-help'){
+	      $thisTurn="help";
 	    }
 	    if($thisTurn=='correct'){
 	      if($confused && $counter>1){
@@ -227,39 +240,132 @@ if($endDate){
 	    } else {
 	      $counter++;
 	    }
-
-	    // Collect Knowledge components
 	    
-	    if($thisTurn && isset($a->id)){
-	      foreach ($b->result as $row){
-		if(isset($row->action) && $row->action == 'log' &&
-		   $row->log == 'student' && isset($row->assoc) &&
-		   // ignore object once it turns green.
-		   !array_key_exists($a->id,$sessionCorrects)){
-		  if($thisTurn=='correct'){
-		    $sessionCorrects[$a->id]=1;
-		  }
-		  foreach($row->assoc as $kc => $kcInstance) {
-		    // push onto end of array
-		    $thisKC[$thisSection][$thisName][$kc][] = $thisTurn;
+	    // Collect Knowledge components
+	    // $a->id or $b->id is number of turn.
+	    // $thisObject is name of object on user interface.
+	    
+	    if($thisTurn && // 'correct' 'incorrect' or 'help'
+	       // If turn doesn't have object, then need to record.
+	       // WWH hints should log associated object, but they don't...
+	       // In any case, NSH doesn't have an object.
+	       !$thisObject ||
+	       // ignore object once it turns green.
+	       !array_key_exists($thisObject,$sessionCorrects)){
+	      if($thisTurn=='correct' && $thisObject){
+		$sessionCorrects[$thisObject]=1;
+	      }
+
+	      // 'timeStamp' is included for debugging only.
+	      $turnTable=array('grade' => $thisTurn, 
+			       'timeStamp' => $timeStamp,
+			       'dt' => $sessionTime-$lastStepTime);
+	      // Determine if there is an associated error.
+	      $car1 = '/^.([^ ]*).+$/'; $car2='$1';
+	      if(isset($b->result)){
+		foreach ($b->result as $row){
+		  if(isset($row->action) && $row->action == 'log' &&
+		     $row->log == 'student' && isset($row->{'error-type'})){
+		    $turnTable['error']=
+		      // pull out first word in error.
+		      preg_replace($car1,$car2,$row->{'error-type'},1);
 		  }
 		}
 	      }
-	    }
-	    
-	    
-	  }
-	} // loop through session rows       
+	      
+	      $hasInterp=false;
+	      if(isset($b->result)){
+		foreach ($b->result as $row){
+		  if(isset($row->action) && $row->action == 'log' &&
+		     $row->log == 'student' && isset($row->assoc)){
+		    foreach($row->assoc as $kc => $kcInstance) {
+		      // If there were any previous turns without
+		      // interp, give pointers to next turn kc's.
+		      foreach($orphanTurn as $id){
+			$temporalHeuristic[$id][]=$kc;
+		      }
+		      // See if there were any previous turns without
+		      // interp and add them.
+		      if($thisObject && isset($missingInterp[$thisObject])){
+			foreach ($missingInterp[$thisObject] as $turn){
+			  // push onto end of array
+			  $thisKC[$kc][$a->id] = $turn;
+			}
+		      }
+		      // push this turn onto kc attempts
+		      $thisKC[$kc][$a->id] = $turnTable;
+		      $hasInterp=true;
+		    }
+		    $orphanTurn=array();
+		  unset($missingInterp[$thisObject]);
+		  }
+		}
+		if(!$hasInterp){
+		  $orphanTurn[]=$a->id;
+		  if($thisObject){
+		    // Turn without a KC to blame
+		    // In this case, we use location heuristic.
+		    // If that fails, then we switch to time heuristic.
+		    $missingInterp[$thisObject][$a->id] =  $turnTable;
+		  } elseif (!$hasInterp && !$thisObject){
+		    // Turn without a KC or object, then 
+		    // look for next turn with associated object.
+		    $missingObject[$a->id]= $turnTable;
+		  }
+		}
+	      }
+
+	      // Note that time spend modifying green objects
+	      // is counted towards work on the next step.
+	      $lastStepTime=$sessionTime;
+
+	    }	      
+	  } // loop through session rows    
+	}   
 	
 	//  Session has ended before confusion is resolved.
 	if($confused && $counter>1){
 	  $dt=$sessionTime-$lastCorrectSessionTime;
 	  $totalFloundering+=$dt;
 	  $rowOutput[$dt]=  $counter . round($dt) . "</td>" . 
-	   $confusedtID;
+	    $confusedtID;
+	}
+	
+	// Now go back and do assignment of blame for entries
+	// with an object, but no later interp has been found.
+	foreach ($missingInterp as $id => $turns){
+	  foreach ($turns as $turn){
+	    if(isset($temporalHeuristic[$id])){
+	      foreach($temporalHeuristic[$id] as $kc){
+		$thisKC[$kc][$id] = $turn;
+	      }
+	    } else {
+	      // Turn has no assignment of blame.
+	    }
+	  }	  
+	}
+	// Do assignment of blame for entries without object.
+	foreach ($missingObject as $id => $turn){
+	  if(isset($temporalHeuristic[$id])){
+	    foreach($temporalHeuristic[$id] as $kc){
+	      $thisKC[$kc][$id] = $turn;
+	    }
+	  } else {
+	    // Turn has no assignment of blame.
+	  }
 	}
 
+	// Finally, we need to sort the turns in this session
+	// and add to global list
+	foreach ($thisKC as $kc => $turns){
+	  sort($turns);
+	  foreach($turns as $turn){
+	    $allStudentKC[$thisSection][$thisName][$kc][]= $turn;
+	  }
+	}
+	
 	$tt+=$sessionTime;
+
       }
     while ($myrow = mysql_fetch_array($result));
     krsort($rowOutput);
@@ -302,12 +408,14 @@ if($endDate){
     echo "</table>\n";
   }
 
-foreach($thisKC as $thisSection => $nn) {
+foreach($allStudentKC as $thisSection => $nn) {
   foreach($nn as $thisName => $mm) {
     foreach($mm as $kc => $xx) {
       echo "$thisSection $thisName $kc";
       foreach($xx as $yy) {
-	echo " $yy";
+	$g=$yy['grade']; $tt=$yy['timeStamp']; 
+	$err=isset($yy['error'])?$yy['error']:'';
+	echo " ($g,$tt,$err)";
       }
       echo "\n";
     }
