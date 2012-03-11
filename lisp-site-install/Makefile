@@ -17,13 +17,13 @@ ifeq ($(shell uname -p),powerpc)
   binary-release = sbcl-1.0.47-powerpc-darwin-binary.tar.bz2
 endif
 ifeq ($(shell uname -p),i386)
-  binary-release = sbcl-1.0.55-x86-darwin-binary-r2.tar.bz2
+  binary-release = sbcl-1.0.55-x86-darwin-binary.tar.bz2
   # work-around for bug in make-config.sh which guesses the wrong platform
   # on OSX 10.4.11, MacBook Pro.
   platform = SBCL_ARCH=x86; export SBCL_ARCH;
 endif
 ifeq ($(shell uname -p),x86_64)
-  binary-release = sbcl-1.0.55-x86_64-darwin-binary-r2.tar.bz2
+  binary-release = sbcl-1.0.55-x86-64-darwin-binary.tar.bz2
 endif
 endif
 
@@ -38,10 +38,10 @@ ifeq ($(shell uname -p),pentium4) # Andrew linux at CMU
   binary-release = sbcl-1.0.55-x86-linux-binary.tar.bz2
 endif 
 ifeq ($(shell uname -p),x86_64)
-  binary-release = sbcl-1.0.55-x86_64-linux-binary-r2.tar.bz2
+  binary-release = sbcl-1.0.55-x86-64-linux-binary.tar.bz2
 endif 
 ifeq ($(shell uname -m),x86_64)
-  binary-release = sbcl-1.0.55-x86_64-linux-binary-r2.tar.bz2
+  binary-release = sbcl-1.0.55-x86-64-linux-binary.tar.bz2
 endif
 endif
 ifndef binary-release
