@@ -1,4 +1,11 @@
 <?php
+
+// These are all optional
+$userName = '';  // regexp to match
+$sectionName = 'uwplatt_2Y1305989a5174f1cuwplattl1_';  // regexp to match
+$startDate = ''; 
+$endDate = '';
+
   // File with user name and password.
   // chmod 600 db_onelog_password
 $myFile = "db_onelog_password";
@@ -43,12 +50,6 @@ mysql_connect($dbserver, $dbuser, $dbpass)
      or die ("UNABLE TO CONNECT TO DATABASE");
 mysql_select_db($dbname)
      or die ("UNABLE TO SELECT DATABASE"); 
-
-// These are all optional
-$userName = '';  // regexp to match
-$sectionName = 'uwplatt_2Y1305989a5174f1cuwplattl1_';  // regexp to match
-$startDate = ''; 
-$endDate = '';
 
 $extra = 'Original'; // can be 'Reviewed', 'Original', or '' for both.
 
@@ -267,9 +268,9 @@ if ($myrow = mysql_fetch_array($result)) {
 	     // If turn doesn't have object, then need to record.
 	     // WWH hints should log associated object, but they don't...
 	     // In any case, NSH doesn't have an object.
-	     (!$thisObject ||
-	     // ignore object once it turns green.
-	      !array_key_exists($thisObject,$sessionCorrects))){
+	     !($thisObject &&
+	       // ignore object once it turns green.
+	       array_key_exists($thisObject,$sessionCorrects))){
 
 	    // ignore object once it turns green.
 	    if($thisTurn=='correct' && $thisObject){
@@ -295,7 +296,6 @@ if ($myrow = mysql_fetch_array($result)) {
 	      }
 	    }
 
-
 	    // Treat some kinds of errors as "slips":  that is
 	    // they have their own special KCs and don't count
 	    // towards regular learning.  
@@ -306,7 +306,9 @@ if ($myrow = mysql_fetch_array($result)) {
 	      // For book-keeping, record this turn as if it were a kc
 	      // However, don't let it count it as target when 
 	      // figuring out time or spatial heuristic.
-	      $thisKC[$simpleErrors[$turnTable['error']]][$a->id] = $turnTable;
+	      // Just use object ID for instantiation.
+	      $thisKC[$simpleErrors[$turnTable['error']]][$thisObject][$a->id] = 
+		$turnTable;
 	      $allKCs[$simpleErrors[$turnTable['error']]]=1;
 	    } else {
 
@@ -314,8 +316,15 @@ if ($myrow = mysql_fetch_array($result)) {
 	      // These exist in parallel with physics KC's
 	      if(isset($a->params) && isset($a->params->type) && 
 		 isset($UIKCs[$a->params->type])){
+		$turnTableUI=$turnTable;
+		// Any errors here are associated with physics stuff:
+		// These turns should be counted as correct with
+		// respect to UI skills.
+		unset($turnTableUI['error']);
+		$turnTableUI['grade']='correct';
+		$turnTableUI['dt']=0; // Assume time spent was on physics
 		foreach ($UIKCs[$a->params->type] as $kc){
-		  $thisKC[$kc][$a->id] = $turnTable;
+		  $thisKC[$kc][$thisObject][$a->id] = $turnTableUI;
 		  $allKCs[$kc]=1;
 		}
 	      }
@@ -325,23 +334,25 @@ if ($myrow = mysql_fetch_array($result)) {
 		foreach ($b->result as $row){
 		  if(isset($row->action) && $row->action == 'log' &&
 		     $row->log == 'student' && isset($row->assoc)){
-		    foreach($row->assoc as $kc => $kcInstance) {
+		    foreach($row->assoc as $kc => $inst) {
 		      $allKCs[$kc]=1;
 		      // If there were any previous turns without
 		      // interp, give pointers to next turn kc's.
 		      foreach($orphanTurn as $id){
-			$temporalHeuristic[$id][]=$kc;
+			$temporalHeuristic[$id][]=
+			  array('kc' => $kc, 'inst' => $inst);
 		      }
 		      // See if there were any previous turns without
 		      // interp and add them.
 		      if($thisObject && isset($missingInterp[$thisObject])){
 			foreach ($missingInterp[$thisObject] as $id => $turn){
 			  // push onto array
-			  $thisKC[$kc][$id] = $turn;
+			  $thisKC[$kc][$inst][$id] = $turn;
 			}
 		      }
+		      
 		      // push this turn onto kc attempts
-		      $thisKC[$kc][$a->id] = $turnTable;
+		      $thisKC[$kc][$inst][$a->id] = $turnTable;
 		      $hasInterp=true;
 		    }
 		    $orphanTurn=array();
@@ -386,8 +397,8 @@ if ($myrow = mysql_fetch_array($result)) {
       foreach ($missingInterp as $id => $turns){
 	foreach ($turns as $turn){
 	  if(isset($temporalHeuristic[$id])){
-	    foreach($temporalHeuristic[$id] as $kc){
-	      $thisKC[$kc][$id] = $turn;
+	    foreach($temporalHeuristic[$id] as $kcI){
+	      $thisKC[$kcI['kc']][$kcI['inst']][$id] = $turn;
 	    }
 	  } else {
 	    // Turn has no assignment of blame.
@@ -397,47 +408,46 @@ if ($myrow = mysql_fetch_array($result)) {
       // Do assignment of blame for entries without object.
       foreach ($missingObject as $id => $turn){
 	if(isset($temporalHeuristic[$id])){
-	  foreach($temporalHeuristic[$id] as $kc){
-	    $thisKC[$kc][$id] = $turn;
+	  foreach($temporalHeuristic[$id] as $kcI){
+	    $thisKC[$kcI['kc']][$kcI['inst']][$id] = $turn;
 	  }
 	} else {
 	  // Turn has no assignment of blame.
 	}
       }
       
-      
-      
       // Finally, we need to sort the turns in this session,
       // consolidate help requests, and append to global list.
-      foreach ($thisKC as $kc => $turns){
-	ksort($turns);
-	
-	// Consolidate consecutive help requests	
-	$lastTurn=NULL;
-	$turns2=array();
-	foreach($turns as $id => $turn){
-	  if($lastTurn && $lastTurn['grade']=='help'&&
-	     $turn['grade']=='help'){
-	    // Consolidate two turns
-	   $lastTurn['dt'] += $turn['dt'];
-	    if(!isset($lastTurn['error']) && 
-	       isset($turn['error'])){
-	      $lastTurn['error'] = $turn['error'];
-	    }
-	  } else {
-	    $turns2[$id] = $turn;
-	    // get reference to end element of array.
-	    $lastTurn = &$turns2[$id];
+      foreach ($thisKC as $kc => $instTurns){
+	$firstid = array();
+	// sort the instances by the id of the first turn.
+	// Drop id and inst, since they don't have meaning
+	// outside the session.
+	foreach($instTurns as $turns){
+	  // $turns indexed by id, so this will give time-order in session.
+	  ksort($turns);
+	  reset($turns);
+	  $id=key($turns);
+
+	  // Normalize array keys:
+	  $turns2=array();
+	  foreach($turns as $turn){
+	    $turns2[]=$turn;
 	  }
+	  // Use id for first turn as index.
+	  $firstid[$id]=$turns2;
 	}
 	
-	foreach($turns2 as $turn){
-	  $allStudentKC[$thisSection][$thisName][$kc][]= $turn;
+	// sort KC instantiations by id of first turn.
+	ksort($firstid);
+	foreach($firstid as $turns){
+	  $allStudentKC[$thisSection][$thisName][$kc][]= $turns;
+	  $allKCStudent[$kc][$thisSection][$thisName][]= $turns;
 	}
+	
+	$tt+=$sessionTime;
+	
       }
-      
-      $tt+=$sessionTime;
-      
     }
   while ($myrow = mysql_fetch_array($result));
   krsort($rowOutput);
@@ -480,17 +490,145 @@ if(count($badTimes)>0){
   echo "</table>\n";
  }
 
+// Find the Maximun Likelihood solution for a model
+// with three paramenters: P(G) P(S) step where skill was learned.
+//
+$debugML=true;
 foreach($allStudentKC as $thisSection => $nn) {
   foreach($nn as $thisName => $mm) {
-    foreach($mm as $kc => $xx) {
-      echo "$thisSection $thisName $kc\n";
-      foreach($xx as $yy) {
-	$g=$yy['grade']; $dt=$yy['dt'];
-	$id=$yy['id']; $tt=$yy['timeStamp']; $clientID=$yy['clientID'];
-	$err=isset($yy['error'])?$yy['error']:'';
-	echo "    ($g,$dt,$err)\n";
+    foreach($mm as $kc => $opps) {
+      if($debugML){
+	echo "$thisSection $thisName $kc\n";
+	foreach($opps as $j => $opp){
+	  $yy=reset($opp);
+	  $gg=$yy['grade'];
+	  echo " $gg";
+	}
+	echo "\n";
       }
-      echo "\n";
+      
+      $maxll=false;
+      // For each KC, step through possible choices for learning skill.
+      for($learn=0; $learn<count($opps); $learn++){
+	$cbl=0; $wbl=0; $cal=0; $wal=0;
+	foreach($opps as $j => $opp){
+	  $yy=reset($opp);
+	  if($j<$learn){
+	    if($yy['grade']=='correct'){
+	      $cbl++;
+	    } else {
+	      $wbl++;
+	    }
+	  }else{
+	    if($yy['grade']=='correct'){
+	      $cal++;
+	    } else {
+	      $wal++;
+	    }
+	  }
+	}
+
+	// Values are from maximum liklihood.
+	$pg=$cbl+$wbl>0?$cbl/($cbl+$wbl):false;
+	$ps=$cal+$wal>0?$wal/($cal+$wal):false;
+	// Note that this number is negative (so we are trying to maximize it)
+	// Also, note that the case $learn=0 corresponds to not learning.
+	$ll=0;
+	$ll+=$cbl>0?$cbl*log($pg):0.0;
+	$ll+=$wbl>0?$wbl*log(1.0-$pg):0.0;
+	$ll+=$wal>0?$wal*log($ps):0.0;
+	$ll+=$cal>0?$cal*log(1.0-$ps):0.0;
+	if($debugML){
+	  echo " ($learn," . (is_numeric($pg)?number_format($pg,2):$pg) . ',' .
+	    (is_numeric($ps)?number_format($ps,2):$ps) . ',' . 
+	    number_format($ll,3) . ')';
+	}
+	
+	// Find maximum value.
+	if(!$maxll || $ll>$maxll){
+	  $maxll=$ll;
+	  $model[$thisSection][$thisName][$kc] = 
+	    array('logLike' => $ll, 'learn' => $learn, 'pg' => $pg, 'ps' => $ps);
+	}
+      }
+      if($debugML){
+	echo "\n";
+      }
+      // Do this later:
+      // 
+      // To get standard errors for P(G) and P(S),
+      // calculate second derivative of log likelihood at
+      // solution point and use 1/sqrt(value):
+      //     sqrt($cbl*$wbl/pow($cbl+$wbl,3))
+      // To get standard error for learning step: calculate numerically
+      // range of $ll that is above maxll-s^2/2 (for s standard deviations).
+      // Probably want an interval since it doesn't look very parabolic
+      // in most examples.
+      // Also, may just want to use value of $ll for P(G) and P(S) minimized
+      // (as we have caculated above):
+      // this would take into account any correlations.
+    }
+  }
+}
+
+
+// Average kc's over students
+foreach ($allKCStudent as $kc => $ss){
+  $sums=array();
+  $total=array();
+  foreach($ss as $thisSection => $st){
+    foreach($st as $thisName => $insts){
+      foreach($insts as $i => $turns){
+	if(!isset($sums[$i][$turns[0]['grade']])){
+	  $sums[$i][$turns[0]['grade']]=0;
+	}
+	$sums[$i][$turns[0]['grade']]++;
+	if(!isset($total[$i])){
+	  $total[$i]=0;
+	}
+	$total[$i]++;
+      }
+    }
+  }
+  foreach($sums as $i => $sum){
+    if(!isset($sum['correct'])){
+      $sum['correct']=0;
+    }
+    $frac = $sum['correct']/$total[$i];
+    // This counting error suitable for large values
+    // need to find small number formula...
+    $err = sqrt($sum['correct'])/$total[$i];
+    $avgCorrectKC[$kc][$i] = array("val" => $frac, "error" => $err);
+  }
+}
+
+// Print out avg
+if(false){
+  foreach($avgCorrectKC as $kc => $ii){
+    echo "$kc:  ";
+    foreach($ii as $i => $correct){
+      $val=$correct['val']; $err=$correct['error'];
+      echo " ($val,$err)";
+    }
+    echo "\n";
+  }
+ }
+
+// Print out
+if(false){
+  foreach($allStudentKC as $thisSection => $nn) {
+    foreach($nn as $thisName => $mm) {
+      foreach($mm as $kc => $xx) {
+	echo "$thisSection $thisName $kc\n";
+	foreach($xx as $yyy) {
+	  $yy=reset($yyy); // return first element.
+	  $g=$yy['grade']; $dt=$yy['dt'];
+	  $id=$yy['id']; $tt=$yy['timeStamp']; $clientID=$yy['clientID'];
+	  $err=isset($yy['error'])?$yy['error']:'';
+	  echo "    ($g,$dt,$err)\n";
+	}
+	echo "\n";
+      }
     }
   }
 }
