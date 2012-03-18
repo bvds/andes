@@ -2,7 +2,17 @@
 
 // These are all optional
 $userName = '';  // regexp to match
-$sectionName = 'uwplatt_2Y1305989a5174f1cuwplattl1_';  // regexp to match
+	     // MIT_.*
+	     // asu_3u16472755e704e5fasul1_.*
+	     // asu_3u16472755e704e5fasul1_15865
+	     // Help server dies on this section when running all osu:
+	     // asu_3u16472755e704e5fasul1_15854
+	     // ^uwplatt_
+	     // ^uwplatt_(8p1304|90476) Scaife sections 
+	     //       user names got mangled in these sections.
+	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Pawl sections
+	     // 
+$sectionName = 'uwplatt_(2Y130|514219|6l1305|3n130)';  // regexp to match
 $startDate = ''; 
 $endDate = '';
 
@@ -28,9 +38,14 @@ if(strcmp($dbuser,'open')==0){
 // Errors to treat as special KC's instead of regular ones.
 $simpleErrors=array(
 		    'NO-LABEL' => 'object-label', 
+		    'NO-VARIABLE-DEFINED' =>  'object-label',
 		    'EQUATION-SYNTAX-ERROR' => 'equation-syntax',
+		    // Andes uses radians convention
+		    'TRIG-ARGUMENT-UNITS' => 'equation-syntax',
 		    'SOLVE-FOR-VAR' => 'write-known-value-eqn',
-		    'NOTHING-TO-MATCH-DEFINITION' => 'definition-syntax'
+		    'NOTHING-TO-MATCH-DEFINITION' => 'definition-syntax',
+		    'DEFINITION-HAS-NO-MATCHES' => 'definition-syntax',
+		    'DEFINITION-HAS-TOO-MANY-MATCHES' => 'definition-syntax'
 		    );
 
 // Additional kcs associated with user-interface elements
@@ -90,6 +105,68 @@ if($endDate){
   $endDatec = "";
  }
 
+function log_binomial($p,$params){
+  if(($p<1e-15 && $params[0]>0) || (1.0-$p<1e-15 && $params[1]>0)){
+    return -1;
+  }
+  // add constant so max is at zero.
+  $phat=$params[0]/($params[0]+$params[1]);
+    return ($params[0]>0?$params[0]*log($p/$phat):0)+
+    ($params[1]>0?$params[1]*log((1.0-$p)/(1.0-$phat)):0)-$params[2];
+}
+
+function root_finder($function,$params,$lower,$upper){
+  $yl=call_user_func($function,$lower,$params);
+  $yu=call_user_func($function,$lower,$params);
+  while($upper>$lower+1.0e-12){
+    $x=($lower+$upper)*0.5;
+    // echo "root_finder $lower $upper $yl $yu\n";
+    $y=call_user_func($function,$x,$params);
+    if($yl*$y>0){
+      $lower=$x;
+      $yl=$y;
+    } else {
+      $upper=$x;
+      $yu=$y;
+    }
+  }
+  return 0.5*($lower+$upper);
+}
+
+// Calculate weighted average for asymmetric errors.
+// See http://arxiv.org/abs/physics/0401042
+function average_model($ss,$val,$l,$u,$test){
+  $sumVal=0;
+  $sumWeight=0;
+  $countValid=0;
+  $countNoValid=0;
+  foreach($ss as $thisSection => $st){
+    foreach($st as $thisName => $maxv){
+      if($maxv[$test]===false){
+	$countNoValid++;
+      }else{
+	$countValid++;
+	$sigma=0.5*($maxv[$u]+$maxv[$l]);
+	$alpha=0.5*($maxv[$u]-$maxv[$l]);	
+	$weight=1.0/($sigma*$sigma+2.0*$alpha*$alpha);
+	$sumVal += $maxv[$val]*$weight;
+	$sumWeight += $weight;
+      }
+    }
+  }
+  return array('val' => ($sumWeight>0?$sumVal/$sumWeight:false),
+	       // From http://en.wikipedia.org/wiki/Weighted_mean
+	       // "Dealing with variance" 
+	       // Don't know how to extend to asymmetric errors:
+	       // just a guess.
+	       'err' => ($sumWeight>0?1.0/sqrt($sumWeight):false),
+	       'countValid' => $countValid,
+	       'countNoValid' => $countNoValid);
+}
+  
+function print2($pg){
+  return (is_numeric($pg)?number_format($pg,2):$pg);
+}
 
 $initialTime = time();
 $queryTime = 0.0;  // Time needed to query database.
@@ -113,6 +190,7 @@ if ($myrow = mysql_fetch_array($result)) {
   $rowOutput=array();
   $tt=0;  // Total time for all sessions, with out-of-focus removed.
   $totalFloundering=0;  // Total time for all sessions for floundering
+  $badTimes=array();
   do
     {
       $clientID=$myrow["clientID"];
@@ -167,12 +245,17 @@ if ($myrow = mysql_fetch_array($result)) {
 	  $ttID=$myrow["tID"];
 	  $response=$myrow["server"];
 	}
-	
+
 	// decode json and count number of steps (and time)
 	// between incorrect turns and next correct turn.
 	$jsonStart=microtime(true);   
 	$a=$json->decode($action);
 	$jsonTime1 += microtime(true)-$jsonStart;
+	// Ignore fade problems
+	if(isset($a->method) && $a->method == 'open-problem' &&
+	   $a->params->problem == "vec1ay"){
+	  break;
+	}
 	// If session is closed, don't continue
 	if((isset($a->method) && $a->method == 'close-problem') ||
 	   // Help server has closed an idle session.
@@ -493,7 +576,7 @@ if(count($badTimes)>0){
 // Find the Maximun Likelihood solution for a model
 // with three paramenters: P(G) P(S) step where skill was learned.
 //
-$debugML=true;
+$debugML=false;
 foreach($allStudentKC as $thisSection => $nn) {
   foreach($nn as $thisName => $mm) {
     foreach($mm as $kc => $opps) {
@@ -529,6 +612,7 @@ foreach($allStudentKC as $thisSection => $nn) {
 	}
 
 	// Values are from maximum liklihood.
+	// This is the mean and variance of the binonial distribution
 	$pg=$cbl+$wbl>0?$cbl/($cbl+$wbl):false;
 	$ps=$cal+$wal>0?$wal/($cal+$wal):false;
 	// Note that this number is negative (so we are trying to maximize it)
@@ -538,37 +622,106 @@ foreach($allStudentKC as $thisSection => $nn) {
 	$ll+=$wbl>0?$wbl*log(1.0-$pg):0.0;
 	$ll+=$wal>0?$wal*log($ps):0.0;
 	$ll+=$cal>0?$cal*log(1.0-$ps):0.0;
+
+	$allll[$learn]=$ll;
+		
+	// Find maximum value.
+	if($maxll===false || $ll>$maxll){
+	  $maxll=$ll;
+	  $maxv=array('logLike' => $ll, 'learn' => $learn, 'pg' => $pg, 'ps' => $ps,
+		  'cbl' => $cbl, 'wbl' => $wbl, 'cal' => $cal, 'wal' => $wal);
+	}
+
 	if($debugML){
-	  echo " ($learn," . (is_numeric($pg)?number_format($pg,2):$pg) . ',' .
-	    (is_numeric($ps)?number_format($ps,2):$ps) . ',' . 
+	  echo " ($learn," . print2($pg) . ',' . print2($ps) . ',' . 
 	    number_format($ll,3) . ')';
 	}
+
 	
-	// Find maximum value.
-	if(!$maxll || $ll>$maxll){
-	  $maxll=$ll;
-	  $model[$thisSection][$thisName][$kc] = 
-	    array('logLike' => $ll, 'learn' => $learn, 'pg' => $pg, 'ps' => $ps);
-	}
       }
       if($debugML){
 	echo "\n";
       }
-      // Do this later:
-      // 
-      // To get standard errors for P(G) and P(S),
-      // calculate second derivative of log likelihood at
-      // solution point and use 1/sqrt(value):
-      //     sqrt($cbl*$wbl/pow($cbl+$wbl,3))
+
+      
       // To get standard error for learning step: calculate numerically
       // range of $ll that is above maxll-s^2/2 (for s standard deviations).
       // Probably want an interval since it doesn't look very parabolic
       // in most examples.
       // Also, may just want to use value of $ll for P(G) and P(S) minimized
-      // (as we have caculated above):
+      // (as we have calculated above):
       // this would take into account any correlations.
+
+      $llDev=$maxv['logLike']-1/2;
+      if($allll[0]>$llDev){
+	$maxv['learn']=false;  // can't determine point of learning.
+	$minLearn=false;
+	$maxLearn=false;
+      } else {
+	$minLearn=false; $maxLearn=false;
+	foreach($allll as $learn => $ll){
+	  if($ll>$llDev){
+	    $maxLearn = $learn-$maxv['learn']+0.5; // half a step
+	    if($minLearn===false){
+	      $minLearn = $maxv['learn']-$learn+0.5; // half a step
+	    } 
+	  }
+	}
+      }
+      
+      $cbl=$maxv['cbl']; $wbl=$maxv['wbl']; $pg=$maxv['pg'];
+      $cal=$maxv['cal']; $wal=$maxv['wal']; $ps=$maxv['ps'];
+      // Calculate lower and upper numerically.
+      if($cbl+$wbl>0){
+	$pgl=$pg-root_finder('log_binomial',array($cbl,$wbl,-0.5),0,$pg);
+	$pgu=root_finder('log_binomial',array($cbl,$wbl,-0.5),$pg,1)-$pg;
+      } else {
+	$pgl=false;
+	$pgu=false;
+      }
+      // Analytic formula (Should be good away from endpoints).
+      $pge=$cbl+$wbl>0?sqrt($pg*(1.0-$pg)/($cbl+$wbl)):false;
+      
+      // Calculate lower and upper numerically.
+      $psl=$ps-root_finder('log_binomial',array($wal,$cal,-0.5),0,$ps);
+      $psu=root_finder('log_binomial',array($wal,$cal,-0.5),$ps,1)-$ps;
+      // Analytic formula (Should be good away from endpoints).
+      $pse=$cal+$wal>0?sqrt($ps*(1.0-$ps)/($cal+$wal)):false;
+
+      // If no significant improvement is actually seen, then 
+      // model has failed, "point of learning" doesn't exist.
+      if($pg+$pgu+$ps+$psu>1.0){
+	$maxv['learn']=false;
+      }
+      
+      $maxv['pgl']=$pgl; $maxv['pgu']=$pgu; 
+      $maxv['psl']=$psl; $maxv['psu']=$psu;
+      $maxv['learnl']=$minLearn; $maxv['learnu']=$maxLearn;
+      
+      if($debugML){
+	$learn=$maxv['learn'];
+	$ll=$maxv['logLike'];
+	echo ' (' . print2($learn) . ',' . print2($pg) . ',' . print2($ps) . ',' . 
+	  number_format($ll,3) . ')';
+	echo " <" . print2($minLearn) . ',' . print2($maxLearn) . '>';
+	echo " <" . print2($pge) . ',' . print2($pgl) . ',' . print2($pgu) . '>';
+	echo " <" . print2($pse) . ',' . print2($psl) . ',' . print2($psu) . '>';
+	echo "\n";
+      }
+      
+      $model[$kc][$thisSection][$thisName] = $maxv;
     }
   }
+}
+
+
+// Average model over students.
+// Use http://arxiv.org/abs/physics/0401042
+// for handling errors
+foreach ($model as $kc => $ss){
+  $allModel[$kc]=array('learn' => average_model($ss,'learn','learnl','learnu','learn'),
+		      'pg' => average_model($ss,'pg','pgl','pgu','learn'),
+		      'ps' => average_model($ss,'ps','psl','psu','learn'));
 }
 
 
@@ -602,13 +755,25 @@ foreach ($allKCStudent as $kc => $ss){
   }
 }
 
+// Print out avg model
+if(true){
+  foreach($allModel as $kc => $params){
+    echo "$kc:  ";
+    foreach($params as $param => $value){
+      $val=$value['val']; $err=$value['err'];
+      echo " ($param," . print2($val) . ',' . print2($err) . ')';
+    }
+    echo "\n";
+  }
+ }
+
 // Print out avg
-if(false){
+if(true){
   foreach($avgCorrectKC as $kc => $ii){
     echo "$kc:  ";
     foreach($ii as $i => $correct){
       $val=$correct['val']; $err=$correct['error'];
-      echo " ($val,$err)";
+      echo ' (' . print2($val) . ',' . print2($err) . ')';
     }
     echo "\n";
   }
