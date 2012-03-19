@@ -12,7 +12,7 @@ $userName = '';  // regexp to match
 	     //       user names got mangled in these sections.
 	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Pawl sections
 	     // 
-$sectionName = '^uwplatt_(2Y130|514219|6l1305|3n130)';  // regexp to match
+$sectionName = '^uwplatt_(2Y130)';  // regexp to match
 $startDate = ''; 
 $endDate = '';
 
@@ -757,6 +757,12 @@ foreach($allStudentKC as $thisSection => $nn) {
 // Average model over students.
 // Use http://arxiv.org/abs/physics/0401042
 // for handling errors
+//
+// Since the model is not the same over students, there
+// is both the error associated with each student as
+// well as the actual variation across the population.
+// In the following, we estimate the error due to the
+// uncertainty of each student model.
 foreach ($model as $kc => $ss){
   $allModel[$kc]=array('learn' => average_model($ss,'learn',true),
 		       'pg' => average_model($ss,'pg',true),
@@ -784,14 +790,19 @@ foreach ($allKCStudent as $kc => $ss){
     }
   }
   foreach($sums as $i => $sum){
-    if(!isset($sum['correct'])){
+    if(!isset($sum['correct']))
       $sum['correct']=0;
-    }
-    $frac = $sum['correct']/$total[$i];
-    // This counting error suitable for large values
-    // need to find small number formula...
-    $err = sqrt($sum['correct'])/$total[$i];
-    $avgCorrectKC[$kc][$i] = new valErr($frac,$err);
+    $c = $sum['correct']; $w = $total[$i]-$c;
+    $frac = $c/($c+$w);
+    // Calculate lower and upper numerically.
+    $y = new valErr($frac);
+    $y->l=$frac-root_finder('log_binomial',array($c,$w,-0.5),0,$frac);
+    $y->u=root_finder('log_binomial',array($c,$w,-0.5),$frac,1)-$frac;
+    // Analytic formula (Should be good away from endpoints).
+    // This is just for debugging.
+    $y->e=sqrt($frac*(1.0-$frac)/($c+$w));
+    
+    $avgCorrectKC[$kc][$i] = $y;
   }
 }
 
