@@ -12,7 +12,7 @@ $userName = '';  // regexp to match
 	     //       user names got mangled in these sections.
 	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Pawl sections
 	     // 
-$sectionName = '^uwplatt_(2Y130)';  // regexp to match
+$sectionName = '^uwplatt_(2Y130|514219|6l1305|3n130)';  // regexp to match
 $startDate = ''; 
 $endDate = '';
 
@@ -105,91 +105,7 @@ if($endDate){
   $endDatec = "";
  }
 
-function print2($pg){
-  return (is_numeric($pg)?number_format($pg,2):$pg);
-}
-
-class valErr {
-  public $val;       // value
-  public $e;         // standard error
-  public $u = false; // upper limit standard error
-  public $l = false; // lower limit standard error
-  function __construct($x = false,$err = false){
-    $this->val = $x;
-    $this->e = $err;
-  }
-  function print0(){  // php doesn't allow 'print'
-    return '(' . print2($this->val) .
-      (is_numeric($this->e)?',' . print2($this->e):'') .
-      ((is_numeric($this->l) || is_numeric($this->u))?
-	',' . print2($this->l) . ',' . print2($this->u):'') . ')';
-  }
-}
-
-function log_binomial($p,$params){
-  if(($p<1e-15 && $params[0]>0) || (1.0-$p<1e-15 && $params[1]>0)){
-    return -1;
-  }
-  // add constant so max is at zero.
-  $phat=$params[0]/($params[0]+$params[1]);
-    return ($params[0]>0?$params[0]*log($p/$phat):0)+
-    ($params[1]>0?$params[1]*log((1.0-$p)/(1.0-$phat)):0)-$params[2];
-}
-
-function root_finder($function,$params,$lower,$upper){
-  $yl=call_user_func($function,$lower,$params);
-  $yu=call_user_func($function,$lower,$params);
-  while($upper>$lower+1.0e-12){
-    $x=($lower+$upper)*0.5;
-    // echo "root_finder $lower $upper $yl $yu\n";
-    $y=call_user_func($function,$x,$params);
-    if($yl*$y>0){
-      $lower=$x;
-      $yl=$y;
-    } else {
-      $upper=$x;
-      $yu=$y;
-    }
-  }
-  return 0.5*($lower+$upper);
-}
-
-// Calculate weighted average for asymmetric errors.
-// See http://arxiv.org/abs/physics/0401042
-function average_model($ss,$val,$valid){
-  $sumVal=0;
-  $sumWeight=0;
-  $countValid=0;
-  $countAll=0;
-  foreach($ss as $thisSection => $st){
-    foreach($st as $thisName => $maxv){
-      $x=$maxv[$val];
-      if(!is_object($x) || get_class($x) != 'valErr'){
-	echo "Bad class for $val:\n";
-	print_r($maxv);
-      }
-      $countAll++;
-      if($valid?$maxv['valid']:!$maxv['valid']){
-	$countValid++;
-	$sigma=0.5*($x->u+$x->l);
-	$alpha=0.5*($x->u-$x->l);	
-	$weight=1.0/($sigma*$sigma+2.0*$alpha*$alpha);
-	$sumVal += $x->val*$weight;
-	$sumWeight += $weight;
-      }	
-    }
-  }
-  return array('val' =>
-	       new valErr($sumWeight>0?$sumVal/$sumWeight:false,
-			  // From http://en.wikipedia.org/wiki/Weighted_mean
-			  // "Dealing with variance" 
-			  // Don't know how to extend to asymmetric errors:
-			  // just a guess.
-			  $sumWeight>0?1.0/sqrt($sumWeight):false),
-	       'countValid' => $countValid,
-	       'countAll' => $countAll);
-}
-
+require("binomials.php");
 $initialTime = time();
 $queryTime = 0.0;  // Time needed to query database.
 $jsonTime1 = 0.0;
@@ -662,15 +578,13 @@ foreach($allStudentKC as $thisSection => $nn) {
 	if($debugML){
 	  echo ' (' . $learn->val . ',' . print2($pg->val) . ',' . 
 	    print2($ps->val) . ',' .  number_format($ll,3) . ')';
-	}
-
-	
+	}	
       }
+
       if($debugML){
 	echo "\n";
       }
 
-      
       // To get standard error for learning step: calculate numerically
       // range of $ll that is above maxll-s^2/2 (for s standard deviations).
       // Probably want an interval since it doesn't look very parabolic
@@ -678,7 +592,6 @@ foreach($allStudentKC as $thisSection => $nn) {
       // Also, may just want to use value of $ll for P(G) and P(S) minimized
       // (as we have calculated above):
       // this would take into account any correlations.
-
       $llDev=$maxv['logLike']-1/2;
       if($allll[0]>$llDev){
 	$maxv['learn']=new valErr();  // can't determine point of learning.
@@ -693,50 +606,33 @@ foreach($allStudentKC as $thisSection => $nn) {
 	  }
 	}
       }
-      
-      $cbl=$maxv['cbl']; $wbl=$maxv['wbl']; $pg=$maxv['pg'];
-      $cal=$maxv['cal']; $wal=$maxv['wal']; $ps=$maxv['ps'];
-      // Calculate lower and upper numerically.
-      if($cbl+$wbl>0){
-	$pg->l=$pg->val-root_finder('log_binomial',array($cbl,$wbl,-0.5),0,$pg->val);
-	$pg->u=root_finder('log_binomial',array($cbl,$wbl,-0.5),$pg->val,1)-$pg->val;
-      } 
-      // Analytic formula (Should be good away from endpoints).
-      // For debugging.
-      $pg->e=$cbl+$wbl>0?sqrt($pg->val*(1.0-$pg->val)/($cbl+$wbl)):false;
-      
-      // Calculate lower and upper numerically.
-      $ps->l=$ps->val-root_finder('log_binomial',array($wal,$cal,-0.5),0,$ps->val);
-      $ps->u=root_finder('log_binomial',array($wal,$cal,-0.5),$ps->val,1)-$ps->val;
-      // Analytic formula (Should be good away from endpoints).
-      $ps->e=$cal+$wal>0?sqrt($ps->val*(1.0-$ps->val)/($cal+$wal)):false;
 
+      // Add error estimates to P(G) and P(S).
+      $pg=$maxv['pg']; $ps=$maxv['ps'];
+      if($maxv['cbl']+$maxv['wbl']>0)
+	binomial_errors($pg,$maxv['cbl'],$maxv['wbl']);
+      binomial_errors($ps,$maxv['wal'],$maxv['cal']);
+            
       // If no significant improvement is actually seen, then 
       // model has failed, "point of learning" doesn't exist.
       //
       // The correct way to add errors is here:
       // http://statistics.stanford.edu/~ckirby/techreports/ONR/SOL%20ONR%20467.pdf 
       // However, we simply add upper limit errors in 
-      // quadrature, which is only correct in large N limit.
-
+      // quadrature, which is only really correct in large N limit.      
       $maxv['valid']=is_numeric($maxv['learn']->val) && 
 	is_numeric($pg->val) && is_numeric($ps->val) && 
 	$pg->val+$ps->val+sqrt($pg->u*$pg->u+$ps->u*$ps->u)<1.0;
-
+      
       if(!$maxv['valid'] && is_numeric($maxv['learn']->val)){
-	// use slip values from first slice if no valid model found.
-	$maxv['learn']=new valErr();
-	$maxv['ps']=$maxv0['ps']; $ps=$maxv['ps'];
-	$maxv['cal']=$maxv0['cal']; $cal=$maxv['cal'];
-	$maxv['wal']=$maxv0['wal']; $wal=$maxv['wal'];
+	// If no significant learning was found with best fit,
+	// use the value from learn=0 for P(S).
+	$maxv=$maxv0;
+	$maxv['valid']=false;  // Note that no learning found.
 	// Recalculate associated errors.
-	$ps->l=$ps->val-root_finder('log_binomial',array($wal,$cal,-0.5),0,$ps->val);
-	$ps->u=root_finder('log_binomial',array($wal,$cal,-0.5),$ps->val,1)-$ps->val;
-	// Analytic formula (Should be good away from endpoints).
-	$ps->e=$cal+$wal>0?sqrt($ps->val*(1.0-$ps->val)/($cal+$wal)):false;
+	binomial_errors($maxv['ps'],$maxv['wal'],$maxv['cal']);
       }
-      
-      
+   
       if($debugML){
 	if($maxv['valid']){
 	  echo ' model with learn=' .$maxLearn->print0() . ', pg=' . 
@@ -796,12 +692,7 @@ foreach ($allKCStudent as $kc => $ss){
     $frac = $c/($c+$w);
     // Calculate lower and upper numerically.
     $y = new valErr($frac);
-    $y->l=$frac-root_finder('log_binomial',array($c,$w,-0.5),0,$frac);
-    $y->u=root_finder('log_binomial',array($c,$w,-0.5),$frac,1)-$frac;
-    // Analytic formula (Should be good away from endpoints).
-    // This is just for debugging.
-    $y->e=sqrt($frac*(1.0-$frac)/($c+$w));
-    
+    binomial_errors($y,$c,$w);
     $avgCorrectKC[$kc][$i] = $y;
   }
 }
@@ -849,6 +740,7 @@ if(false){
   }
 }
 
+// Print out all KS's used.
 echo "\n";
 ksort($allKCs);
 foreach($allKCs as $kc => $dummy){
@@ -856,6 +748,7 @@ foreach($allKCs as $kc => $dummy){
 }
 echo "\n\n";
 
+// Print out all errors.
 ksort($allErrors);
 foreach($allErrors as $err => $dummy){
   echo "$err ";
