@@ -82,6 +82,7 @@ if($endDate){
   $endDatec = "";
  }
 
+require("time.php");
 require("blame.php");
 require("binomials.php");
 $initialTime = time();
@@ -120,17 +121,11 @@ if ($myrow = mysql_fetch_array($result)) {
       $queryTime += microtime(true)-$queryStart;
       
       // loop through session
-      $cutoff=600; // Minimum number of seconds between turns where 
+
+      // Minimum number of seconds between turns where 
       // we assume user is not "on task."
-      $confused=false;
-      $counter=-1;  // number of steps while in confused state.
-      $lastTimeStamp=-1; // time stamp for this transaction.
-      $timeStamp=-1; // time stamp for this transaction.
-      $lastState='none'; // can be 'blur' 'focus' or 'something'
-      $sessionTime=0;  // total active time for session.
-      $lastCorrectSessionTime=0;  // $sessionTime for last green entry
-      $lastInorrectSessionTime=0;  // $sessionTime for last red entry
-      $lastStepTime=0;         // $sessionTime for last step.
+      $cutoff=600; 
+      $sessionTime = new session_time();
       $sessionCorrects=array();  // Objects that have turned green. 
       $blame = new turn_blame();
       // 
@@ -174,12 +169,12 @@ if ($myrow = mysql_fetch_array($result)) {
 	  break;
 	}
 	// Drop turns where timestamp is corrupted
-	if(isset($a->params->time) && $a->params->time<$timeStamp){
+	if(isset($a->params->time) && 
+	   $a->params->time<$sessionTime->timeStamp){
 	  $badTimes[$a->params->time]=$action;
 	  continue;
 	} elseif(isset($a->params) && isset($a->params->time)){
-	  $lastTimeStamp=$timeStamp;
-	  $timeStamp=$a->params->time;
+	  $sessionTime->update_timeStamp($a->params->time);
 	  $timeStampAction=$action;
 	} else {
 	  // drop turns without timestamps;
@@ -187,31 +182,7 @@ if ($myrow = mysql_fetch_array($result)) {
 	  continue;  
 	}
 	
-	// Add up times that canvas is out of focus.
-	// Sometimes blur or focus events get dropped.
-	// Count consecutive blur-blur, blur-focus, focus-focus,
-	//                   something-focus, blur-something  
-	// as time out of focus.  That is, any time a blur or
-	// focus event is missing, we assume maximum idle time.
-	if(isset($a->method) && $a->method == 'record-action' &&
-	   $a->params->type == 'window' && $a->params->name == 'canvas'){
-	  if($a->params->value == 'focus'){
-	    // cases blur-focus focus-focus something-focus
-	    $lastState = 'focus';	      
-	  } elseif($a->params->value == 'blur'){
-	    if($lastState != 'blur' && $timeStamp-$lastTimeStamp<$cutoff){
-	      // cases something-blur focus-blur
-	      $sessionTime += $timeStamp-$lastTimeStamp;
-	    }
-	    $lastState = 'blur';
-	  }
-	} else {
-	  if($lastState!='blur' && $timeStamp-$lastTimeStamp<$cutoff){
-	    // cases focus-something something-something
-	    $sessionTime += $timeStamp-$lastTimeStamp;
-	  }
-	  $lastState = 'something';
-	}
+	$sessionTime->update_focus($cutoff,$a);
 	
 	// echo "  step $timeStamp  $sessionTime $ttID<br>\n";
 	
@@ -234,25 +205,7 @@ if ($myrow = mysql_fetch_array($result)) {
 	  if($a->method == 'seek-help'){
 	    $thisTurn="help";
 	  }
-	  if($thisTurn=='correct'){
-	    if($confused && $counter>1){
-	      $dt=$lastIncorrectSessionTime-$lastCorrectSessionTime;
-	      $totalFloundering+=$dt;
-	      // End of floundering episode.
-	    }
-	    $lastCorrectSessionTime = $sessionTime;
-	    $confused=false;
-	    $counter=0;
-	  } elseif ($thisTurn=='incorrect'){
-	    if(!$confused){
-	      $confusedtID=$ttID;
-	    }		
-	    $lastIncorrectSessionTime = $sessionTime;
-	    $confused=true;
-	    $counter++;
-	  } else {
-	    $counter++;
-	  }
+	  $sessionTime->update_flounder($thisTurn,$ttID);
 	  
 	  // Collect Knowledge components
 	  // $a->id or $b->id is number of turn.
@@ -272,10 +225,10 @@ if ($myrow = mysql_fetch_array($result)) {
 	    }
 	    
 	    $turnTable=array('grade' => $thisTurn, 
-			     'timeStamp' => $timeStamp,
+			     'timeStamp' => $sessionTime->timeStamp,
 			     'id' => $a->id,
 			     'clientID' => $clientID,
-			     'dt' => $sessionTime-$lastStepTime);
+			     'dt' => $sessionTime->dt());
 	    // Determine if there is an associated error.
 	    $car1 = '/^.([^ ]*).+$/'; $car2='$1';
 	    if(isset($b->result)){
@@ -296,19 +249,13 @@ if ($myrow = mysql_fetch_array($result)) {
 	      // Note that time spend modifying green objects
 	      // is counted towards work on the next step.
 	      // Assume that no time is spent on slips.
-	      $lastStepTime = $sessionTime;
+	      $sessionTime->endNonSlip();
 	    }
 	  }	      
 	} // loop through session rows    
       }   
       
-      //  Session has ended before confusion is resolved.
-      if($confused && $counter>1){
-	$dt=$sessionTime-$lastCorrectSessionTime;
-	$totalFloundering+=$dt;
-	$rowOutput[$dt]=  $counter . round($dt) . "</td>" . 
-	  $confusedtID;
-      }
+      $sessionTime->endSession();
       
       // Now go back and do assignment of blame for entries
       // with an object, but no later interp has been found,
@@ -318,7 +265,6 @@ if ($myrow = mysql_fetch_array($result)) {
       // consolidate help requests, and append to global lists
       $blame->resolve($thisSection,$thisName);
       
-      $tt+=$sessionTime;
       
     } while ($myrow = mysql_fetch_array($result));
 
