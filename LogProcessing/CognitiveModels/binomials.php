@@ -101,4 +101,136 @@ function average_model($ss,$val,$valid){
 	       'countAll' => $countAll);
 }
 
+
+function maximum_likelihood_models($opps,$debugML=false){
+  
+  if($debugML){
+    echo "$thisSection $thisName $kc\n";
+    foreach($opps as $j => $opp){
+      $yy=reset($opp);
+      $gg=$yy['grade'];
+      echo " $gg";
+    }
+    echo "\n";
+  }
+  
+  $maxll=false;
+  // Step through possible chances for learning skill.
+  for($step=0; $step<count($opps); $step++){
+    $cbl=0; $wbl=0; $cal=0; $wal=0;
+    foreach($opps as $j => $opp){
+      $yy=reset($opp);
+      if($j<$step){
+	if($yy['grade']=='correct'){
+	  $cbl++;
+	} else {
+	  $wbl++;
+	}
+      }else{
+	if($yy['grade']=='correct'){
+	  $cal++;
+	} else {
+	  $wal++;
+	}
+      }
+    }
+    
+    // Values are from maximum liklihood.
+    // This is the mean and variance of the binonial distribution
+    $pg=new valErr($cbl+$wbl>0?$cbl/($cbl+$wbl):false);
+    $ps=new valErr($cal+$wal>0?$wal/($cal+$wal):false);
+    // Note that this number is negative (so we are trying to maximize it)
+    // Also, note that the case $step=0 corresponds to not learning.
+    $ll=0;
+    $ll+=$cbl>0?$cbl*log($pg->val):0.0;
+    $ll+=$wbl>0?$wbl*log(1.0-$pg->val):0.0;
+    $ll+=$wal>0?$wal*log($ps->val):0.0;
+    $ll+=$cal>0?$cal*log(1.0-$ps->val):0.0;
+    
+    $allll[$step]=$ll;
+    
+    // Find maximum value.
+    if($maxll===false || $ll>$maxll){
+      $maxll=$ll;
+      $learn=new valErr($step);
+      $maxv=array('logLike' => $ll, 'learn' => $learn, 
+		  'pg' => $pg, 'ps' => $ps,
+		  'cbl' => $cbl, 'wbl' => $wbl, 'cal' => $cal, 'wal' => $wal);
+      if($step==0){
+	$maxv0=$maxv;
+      }
+    }
+    
+    if($debugML){
+      echo ' (' . $learn->val . ',' . print2($pg->val) . ',' . 
+	print2($ps->val) . ',' .  number_format($ll,3) . ')';
+    }	
+  }
+  
+  if($debugML){
+    echo "\n";
+  }
+  
+  // To get standard error for learning step: calculate numerically
+  // range of $ll that is above maxll-s^2/2 (for s standard deviations).
+  // Probably want an interval since it doesn't look very parabolic
+  // in most examples.
+  // Also, may just want to use value of $ll for P(G) and P(S) minimized
+  // (as we have calculated above):
+  // this would take into account any correlations.
+  $llDev=$maxv['logLike']-1/2;
+  if($allll[0]>$llDev){
+    $maxv['learn']=new valErr();  // can't determine point of learning.
+  } else {
+    $maxLearn=$maxv['learn'];
+    foreach($allll as $learn => $ll){
+      if($ll>$llDev){
+	$maxLearn->u = $learn-$maxLearn->val+0.5; // half a step
+	if($maxLearn->l===false){
+	  $maxLearn->l = $maxLearn->val-$learn+0.5; // half a step
+	} 
+      }
+    }
+  }
+  
+  // Add error estimates to P(G) and P(S).
+  $pg=$maxv['pg']; $ps=$maxv['ps'];
+  if($maxv['cbl']+$maxv['wbl']>0)
+    binomial_errors($pg,$maxv['cbl'],$maxv['wbl']);
+  binomial_errors($ps,$maxv['wal'],$maxv['cal']);
+  
+  // If no significant improvement is actually seen, then 
+  // model has failed, "point of learning" doesn't exist.
+  //
+  // The correct way to add errors is here:
+  // http://statistics.stanford.edu/~ckirby/techreports/ONR/SOL%20ONR%20467.pdf 
+  // However, we simply add upper limit errors in 
+  // quadrature, which is only really correct in large N limit.      
+  $maxv['valid']=is_numeric($maxv['learn']->val) && 
+    is_numeric($pg->val) && is_numeric($ps->val) && 
+    $pg->val+$ps->val+sqrt($pg->u*$pg->u+$ps->u*$ps->u)<1.0;
+  
+  if(!$maxv['valid'] && is_numeric($maxv['learn']->val)){
+    // If no significant learning was found with best fit,
+    // use the value from learn=0 for P(S).
+    $maxv=$maxv0;
+    $maxv['valid']=false;  // Note that no learning found.
+    // Recalculate associated errors.
+    binomial_errors($maxv['ps'],$maxv['wal'],$maxv['cal']);
+  }
+  
+  if($debugML){
+    if($maxv['valid']){
+      echo ' model with learn=' .$maxLearn->print0() . ', pg=' . 
+	$pg->print0() . ', ps=' . $ps->print0() . ', logLike=' . 
+	number_format($maxv['logLike'],3) . ')';
+    } else {
+      echo ' no learning: ps=' . $ps->print0();
+    }
+    echo "\n";
+  }
+
+  return $maxv;
+}
+
 ?>
