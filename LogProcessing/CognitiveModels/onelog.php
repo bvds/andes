@@ -365,9 +365,7 @@ foreach($model as $kc => $sec){
 	for($opp=ceil($learn->val-$learn->l)-1; 
 	    $opp<floor($learn->val+$learn->u); $opp++){
 	  $turns=$allKCStudent[$kc][$thisSection][$thisName][$opp];
-	  if($debugLearn){
-	    echo "  success [$nop]:"; //print_r($turns);
-	  }
+	  if($debugLearn) echo "  success [$nop]:";
 	  foreach($turns as $turn){
 	    // This is a turn that contributed to learning
 	    // with probability 1/$nop.
@@ -380,9 +378,7 @@ foreach($model as $kc => $sec){
 	// in learning.
 	for($opp=0; $opp<ceil($learn->val-$learn->l)-1; $opp++){
 	  $turns=$allKCStudent[$kc][$thisSection][$thisName][$opp];
-	  if($debugLearn){
-	    echo "  failure 1:"; //print_r($turns);
-	  }
+	  if($debugLearn) echo "  failure 1:";
 	  foreach($turns as $turn){
 	    // This is a turn that did not result in learning.
 	    if($debugLearn) echo ' ' . print_turn($turn);
@@ -397,10 +393,7 @@ foreach($model as $kc => $sec){
 	array_pop($opps); 
 	if($debugLearn && count($opps)==0) echo "  too few opportunities\n";
 	foreach($opps as $turns){
-	  if($debugLearn){
-	    echo "  failure 2:";
-	    // print_r($turns);
-	  }
+	  if($debugLearn) echo "  failure 2:";
 	  foreach($turns as $turn){
 	    // This is a turn that did not result in learning.
 	    if($debugLearn) echo ' ' .  print_turn($turn);
