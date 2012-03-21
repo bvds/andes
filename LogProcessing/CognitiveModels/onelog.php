@@ -228,9 +228,12 @@ if ($myrow = mysql_fetch_array($result)) {
 			     'timeStamp' => $sessionTime->timeStamp,
 			     'id' => $a->id,
 			     'clientID' => $clientID,
-			     'dt' => $sessionTime->dt());
+			     'dt' => $sessionTime->dt(),
+			     'random-help' => array());
 	    // Determine if there is an associated error.
 	    $car1 = '/^.([^ ]*).+$/'; $car2='$1';
+	    $hints=false;
+	    $hintSequence=false;
 	    if(isset($b->result)){
 	      foreach ($b->result as $row){
 		if(isset($row->action) && $row->action == 'log' &&
@@ -239,11 +242,25 @@ if ($myrow = mysql_fetch_array($result)) {
 		  $thisError=preg_replace($car1,$car2,$row->{'error-type'},1);
 		  $turnTable['error']= $thisError;
 		  $allErrors[$thisError]=1;
+		} elseif(isset($row->action) && $row->action == 'log' &&
+			  $row->log == 'tutor' && isset($row->assoc)){
+		  foreach($row->assoc as $var => $val){
+		    if(strcasecmp($var,'random-help')==0){
+		      $turnTable['random-help'][]=$val;
+		    }
+		  }
+		} elseif(isset($row->action) && $row->action == 'show-hint'){
+		  $hints=true;
+		} elseif(isset($row->action) && $row->action == 'show-hint-link'){
+		  $hintSequence=true;
 		}
 	      }
 	    }
-	    
+	    if(!$hints)$turnTable['random-help'][]='no-hints';
+	    if($hintSequence)$turnTable['random-help'][]='hint-sequence';
+
 	    $blame->update($turnTable,$thisObject,$a,$b);
+
 	    if(!isset($turnTable['error']) || 
 	       !isset($simpleErrors[$turnTable['error']])){
 	      // Note that time spend modifying green objects
@@ -313,15 +330,89 @@ if(count($badTimes)>0){
 // For each student and KC, find the Maximun Likelihood solution for a model
 // with three paramenters: P(G) P(S) step where skill was learned.
 //
-foreach($allStudentKC as $thisSection => $nn) {
-  foreach($nn as $thisName => $mm) {
-    foreach($mm as $kc => $opps) {
+foreach($allKCStudent as $kc => $sec) {
+  foreach($sec as $thisSection => $stu) {
+    foreach($stu as $thisName => $opps) {
       $model[$kc][$thisSection][$thisName] =
 	maximum_likelihood_models($opps);
     }
   }
 }
 
+// For each KC, find all opportunities to learn skill that
+// did or did not result in learning.
+
+function printv($arr){
+  $s='('; $i=0;
+  foreach($arr as $v){
+    $s=$s . ($i++==0?'':',') . $v;
+  }
+  return $s . ')';
+}   
+function print_turn($turn){
+  return $turn['grade'] . printv($turn['random-help']);
+}
+$debugLearn=true;
+foreach($model as $kc => $sec){
+  foreach($sec as $thisSection => $stu){
+    foreach($stu as $thisName => $maxv){
+      if($debugLearn) echo "$kc for $thisName $thisSection: \n";
+      if($maxv['valid']){
+	$learn = $maxv['learn'];
+	// Number of opportunities to look at.
+	$nop = 1+floor($learn->u)+floor($learn->l);
+	// Look at opportunity directly before learning.
+	for($opp=ceil($learn->val-$learn->l)-1; 
+	    $opp<floor($learn->val+$learn->u); $opp++){
+	  $turns=$allKCStudent[$kc][$thisSection][$thisName][$opp];
+	  if($debugLearn){
+	    echo "  success [$nop]:"; //print_r($turns);
+	  }
+	  foreach($turns as $turn){
+	    // This is a turn that contributed to learning
+	    // with probability 1/$nop.
+	    if($debugLearn) echo ' ' . print_turn($turn);
+	  }
+	  if($debugLearn) echo "\n";	  
+	}
+	// Now, look at any opportunities before that.
+	// These are cases where help did not directly result
+	// in learning.
+	for($opp=0; $opp<ceil($learn->val-$learn->l)-1; $opp++){
+	  $turns=$allKCStudent[$kc][$thisSection][$thisName][$opp];
+	  if($debugLearn){
+	    echo "  failure 1:"; //print_r($turns);
+	  }
+	  foreach($turns as $turn){
+	    // This is a turn that did not result in learning.
+	    if($debugLearn) echo ' ' . print_turn($turn);
+	  }	  
+	  if($debugLearn) echo "\n";	  
+	}
+      } elseif($maxv['ps']->val>0.5){ // less than 50% correct.
+	// Case where the student did not know skill and never learned it.
+	$opps=$allKCStudent[$kc][$thisSection][$thisName];
+	// Ignore last opportinuty:  student could have learned skill 
+	// at that time, but we'll never know.
+	array_pop($opps); 
+	if($debugLearn && count($opps)==0) echo "  too few opportunities\n";
+	foreach($opps as $turns){
+	  if($debugLearn){
+	    echo "  failure 2:";
+	    // print_r($turns);
+	  }
+	  foreach($turns as $turn){
+	    // This is a turn that did not result in learning.
+	    if($debugLearn) echo ' ' .  print_turn($turn);
+	  }
+	  if($debugLearn) echo "\n";	  
+	} 
+      } else {
+	if($debugLearn) echo " already learned\n";
+      }
+    }
+  }
+}
 
 // Average model over students.
 // Use http://arxiv.org/abs/physics/0401042
@@ -371,7 +462,7 @@ foreach ($allKCStudent as $kc => $ss){
 }
 
 // Print out model parameters for each kc, averaged over student.
-if(true){
+if(false){
   foreach($allModel as $kc => $params){
     echo "$kc:  ";
     foreach($params as $param => $value){
@@ -384,7 +475,7 @@ if(true){
 
 // Print out fraction of time first step is correct for each
 // opportunity and kc, averaged over students.
-if(true){
+if(false){
   foreach($avgCorrectKC as $kc => $ii){
     echo "$kc:  ";
     foreach($ii as $i => $correct){
@@ -395,7 +486,7 @@ if(true){
  }
 
 // For each student and kc, print out first step for each opportunity.
-if(true){
+if(false){
   foreach($allStudentKC as $thisSection => $nn) {
     foreach($nn as $thisName => $mm) {
       foreach($mm as $kc => $xx) {
