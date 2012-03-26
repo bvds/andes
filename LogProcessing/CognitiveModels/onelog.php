@@ -1,3 +1,11 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+  <LINK REL=StyleSheet HREF="log.css" TYPE="text/css" >
+  <title>Review Sessions</title>
+</head>
+<body>
 <?php
 
 // These are all optional
@@ -12,7 +20,7 @@ $userName = '';  // regexp to match
 	     //       user names got mangled in these sections.
 	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Pawl sections
 	     // 
-$sectionName = '^uwplatt_(2Y130)';  // regexp to match
+$sectionName = '^uwplatt_(90476)';  // regexp to match
 $startDate = ''; 
 $endDate = '';
 
@@ -81,6 +89,14 @@ if($endDate){
  } else {
   $endDatec = "";
  }
+
+function prob_link($turns){
+  global $dbuser,$dbserver,$dbpass,$dbname;
+  $turn=reset($turns);
+  $clientID=$turn['clientID'];
+  $tID=$turn['tID'];
+  return "<a href=\"/log/OpenTrace.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;cid=$clientID&amp;t=$tID\">Session&nbsp;log</a>";
+}
 
 require("time.php");
 require("blame.php");
@@ -228,12 +244,12 @@ if ($myrow = mysql_fetch_array($result)) {
 			     'timeStamp' => $sessionTime->timeStamp,
 			     'id' => $a->id,
 			     'clientID' => $clientID,
+			     'tID' => $ttID,
 			     'dt' => $sessionTime->dt(),
 			     'random-help' => array());
 	    // Determine if there is an associated error.
 	    $car1 = '/^.([^ ]*).+$/'; $car2='$1';
 	    $hints=false;
-	    $hintSequence=false;
 	    if(isset($b->result)){
 	      foreach ($b->result as $row){
 		if(isset($row->action) && $row->action == 'log' &&
@@ -247,18 +263,35 @@ if ($myrow = mysql_fetch_array($result)) {
 		  foreach($row->assoc as $var => $val){
 		    if(strcasecmp($var,'random-help')==0){
 		      $turnTable['random-help'][]=$val;
+		      // Any OPHINT is candidate for backwards hints
+		    } elseif (strcasecmp($var,'OPHINT')==0){
+		      $turnTable['random-help'][]=$var;
+		      // Andes gives spontaneous hint for no-label
+		      // based on student model.  Thus, the help
+		      // strategy changes with time.
+		    } elseif (strcasecmp($var,'NO-LABEL')==0){
+		      $turnTable['random-help'][]='spontaneous-hint';
 		    }
 		  }
+		  // meta-hints are ignored as feedback.
+		} elseif(isset($row->action) && $row->action == 'show-hint' &&
+			 isClarificationHint($row->text)){
+		  // meta-hints are ignored as feedback.
+		  // If we had meta skill "asking for help when floundering"
+		  // then we would do something with these.
+		} elseif(isset($row->action) && $row->action == 'show-hint' &&
+			 isMetaHint($row->text)){
+		  // do nothing for meta-hints
 		} elseif(isset($row->action) && $row->action == 'show-hint'){
 		  $hints=true;
-		} elseif(isset($row->action) && $row->action == 'show-hint-link'){
-		  $hintSequence=true;
 		}
 	      }
 	    }
-	    if(!$hints)$turnTable['random-help'][]='no-hints';
-	    if($hintSequence)$turnTable['random-help'][]='hint-sequence';
-
+	    // Could have given a hint, but didn't
+	    if($thisTurn=='incorrect' && !$hints){
+	      $turnTable['random-help'][]='no-hints';
+	    }
+	    
 	    $blame->update($turnTable,$thisObject,$a,$b);
 
 	    if(!isset($turnTable['error']) || 
@@ -286,20 +319,8 @@ if ($myrow = mysql_fetch_array($result)) {
     } while ($myrow = mysql_fetch_array($result));
 
   krsort($rowOutput);
-  
-  echo "<table border=1>\n";
-  echo "<colgroup><col span=\"4\"><col align=\"right\"><col align=\"char\"></colgroup>\n";
-  echo "<thead>\n";
-  echo "<tr><th>User Name</th><th>Problem</th><th>Section</th><th>Starting Time</th><th>Count</th><th>time</th><th>Additional</th></tr>\n";
-  echo "</thead>\n";
-  echo "<tbody>\n";    
-  foreach($rowOutput as $row){
-    echo "$row\n";
-  }
-  echo "</tbody>\n";
-  echo "</table>\n";
- } else {// if for any session existing
-  echo "No matching sessions found\n";
+   } else {// if for any session existing
+  echo "<p>No matching sessions found\n";
  }
 echo "<p>Total student time:&nbsp; " . number_format($tt,0) . 
 " seconds; total time <em>floundering</em>:&nbsp; " . 
@@ -350,40 +371,45 @@ function printv($arr){
   return $s . ')';
 }   
 function print_turn($turn){
-  return $turn['grade'] . printv($turn['random-help']);
+  return $turn['timeStamp'] . $turn['grade'] . printv($turn['random-help']);
 }
 $debugLearn=true;
+if($debugLearn) echo "<ul>\n";
 foreach($model as $kc => $sec){
   foreach($sec as $thisSection => $stu){
     foreach($stu as $thisName => $maxv){
-      if($debugLearn) echo "$kc for $thisName $thisSection: \n";
+      if($debugLearn) echo "  <li>$kc for $thisName $thisSection: \n" . 
+	"  <ul>\n";
       if($maxv['valid']){
 	$learn = $maxv['learn'];
+	// First opportunity where student may have learned skill.
+	// It is just before first opportunity where student 
+	// demonstrates mastery.
+	$firstLearn=ceil($learn->val-$learn->l)-1;
 	// Number of opportunities to look at.
 	$nop = 1+floor($learn->u)+floor($learn->l);
-	// Look at opportunity directly before learning.
-	for($opp=ceil($learn->val-$learn->l)-1; 
-	    $opp<floor($learn->val+$learn->u); $opp++){
+	// First, look at any opportunities before any success.
+	// These are cases where help did not directly result
+	// in mastery.
+	for($opp=0; $opp<$firstLearn; $opp++){
 	  $turns=$allKCStudent[$kc][$thisSection][$thisName][$opp];
-	  if($debugLearn) echo "  success [$nop]:";
+	  if($debugLearn) echo "    <li>failure 1:";
+	  foreach($turns as $turn){
+	    // This is a turn that did not result in learning.
+	    if($debugLearn) echo ' ' . print_turn($turn);
+	  }	  
+	  if($debugLearn) echo ' ' . prob_link($turns) . "\n";	  
+	}
+	// Look at opportunities directly before learning.
+	for($opp=$firstLearn; $opp<$firstLearn+$nop; $opp++){
+	  $turns=$allKCStudent[$kc][$thisSection][$thisName][$opp];
+	  if($debugLearn) echo "    <li>success [$nop]:";
 	  foreach($turns as $turn){
 	    // This is a turn that contributed to learning
 	    // with probability 1/$nop.
 	    if($debugLearn) echo ' ' . print_turn($turn);
 	  }
-	  if($debugLearn) echo "\n";	  
-	}
-	// Now, look at any opportunities before that.
-	// These are cases where help did not directly result
-	// in learning.
-	for($opp=0; $opp<ceil($learn->val-$learn->l)-1; $opp++){
-	  $turns=$allKCStudent[$kc][$thisSection][$thisName][$opp];
-	  if($debugLearn) echo "  failure 1:";
-	  foreach($turns as $turn){
-	    // This is a turn that did not result in learning.
-	    if($debugLearn) echo ' ' . print_turn($turn);
-	  }	  
-	  if($debugLearn) echo "\n";	  
+	  if($debugLearn) echo ' ' . prob_link($turns) . "\n";	  
 	}
       } elseif($maxv['ps']->val>0.5){ // less than 50% correct.
 	// Case where the student did not know skill and never learned it.
@@ -391,21 +417,24 @@ foreach($model as $kc => $sec){
 	// Ignore last opportinuty:  student could have learned skill 
 	// at that time, but we'll never know.
 	array_pop($opps); 
-	if($debugLearn && count($opps)==0) echo "  too few opportunities\n";
+	if($debugLearn && count($opps)==0) echo "    <li>too few opportunities\n";
 	foreach($opps as $turns){
-	  if($debugLearn) echo "  failure 2:";
+	  if($debugLearn) echo "    <li>failure 2:";
 	  foreach($turns as $turn){
 	    // This is a turn that did not result in learning.
 	    if($debugLearn) echo ' ' .  print_turn($turn);
 	  }
-	  if($debugLearn) echo "\n";	  
+	  if($debugLearn) echo ' ' . prob_link($turns) . "\n";	  
 	} 
       } else {
-	if($debugLearn) echo " already learned\n";
+	if($debugLearn) echo "    <li>already learned\n";
       }
+      if($debugLearn) echo "  </ul>\n";
     }
   }
 }
+if($debugLearn) echo "</ul>\n";
+
 
 // Average model over students.
 // Use http://arxiv.org/abs/physics/0401042
@@ -478,12 +507,12 @@ if(false){
   }
  }
 
-// For each student and kc, print out first step for each opportunity.
+// For each kc and student, print out first step for each opportunity.
 if(false){
-  foreach($allStudentKC as $thisSection => $nn) {
-    foreach($nn as $thisName => $mm) {
-      foreach($mm as $kc => $xx) {
-	echo "$thisSection $thisName $kc\n";
+  foreach ($allKCStudent as $kc => $ss){
+    foreach($ss as $thisSection => $st){
+      foreach($st as $thisName => $xx){
+	echo "$kc $thisSection $thisName\n";
 	foreach($xx as $yyy) {
 	  $yy=reset($yyy); // return first element.
 	  $g=$yy['grade']; $dt=$yy['dt'];
@@ -498,12 +527,12 @@ if(false){
 }
 
 // Print out all KS's used.
-echo "\n";
+echo "<p>";
 ksort($allKCs);
 foreach($allKCs as $kc => $dummy){
   echo "$kc ";
 }
-echo "\n\n";
+echo "<p>";
 
 // Print out all errors.
 ksort($allErrors);

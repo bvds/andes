@@ -25,6 +25,35 @@ $UIKCs = array(
 	       'line' => array('object-label')
 	       );
 
+$metaHints = array(
+		   '/It looks like you are having difficulty/',
+		   '/click on .*the hint button.* below/',
+		   '/should view the .*introductory video/',
+		   '/You can click on the above link to get more help/'
+		   );
+
+function isMetaHint($text){
+  global $metaHints;
+  foreach ($metaHints as $hint){
+    if(preg_match($hint,$text))
+      return true;
+  }
+  return false;
+}
+
+$clarificationHints = array(
+			    '/^I interpreted your definition of /'
+			    );
+
+function isClarificationHint($text){
+  global $clarificationHints;
+  foreach ($clarificationHints as $hint){
+    if(preg_match($hint,$text))
+      return true;
+  }
+  return false;
+}
+
 class turn_blame {
   
   // Turns that are associated with object, but missing interpretation.
@@ -66,6 +95,7 @@ class turn_blame {
 	// respect to UI skills.
 	unset($turnTableUI['error']);
 	$turnTableUI['grade']='correct';
+	$turnTable['random-help']=array();
 	$turnTableUI['dt']=0; // Assume time spent was on physics
 	foreach ($UIKCs[$a->params->type] as $kc){
 	  $this->KC[$kc][$thisObject][$a->id] = $turnTableUI;
