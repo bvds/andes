@@ -20,7 +20,7 @@ $userName = '';  // regexp to match
 	     //       user names got mangled in these sections.
 	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Pawl sections
 	     // 
-$sectionName = '^uwplatt_(90476)';  // regexp to match
+$sectionName = '^uwplatt_(2Y130|514219|6l1305|3n130)';  // regexp to match
 $startDate = ''; 
 $endDate = '';
 
@@ -250,6 +250,7 @@ if ($myrow = mysql_fetch_array($result)) {
 	    // Determine if there is an associated error.
 	    $car1 = '/^.([^ ]*).+$/'; $car2='$1';
 	    $hints=false;
+	    $ophint=false;
 	    if(isset($b->result)){
 	      foreach ($b->result as $row){
 		if(isset($row->action) && $row->action == 'log' &&
@@ -262,26 +263,25 @@ if ($myrow = mysql_fetch_array($result)) {
 			  $row->log == 'tutor' && isset($row->assoc)){
 		  foreach($row->assoc as $var => $val){
 		    if(strcasecmp($var,'random-help')==0){
-		      $turnTable['random-help'][]=$val;
+		      $turnTable['random-help'][$val]=1;
 		      // Any OPHINT is candidate for backwards hints
 		    } elseif (strcasecmp($var,'OPHINT')==0){
-		      $turnTable['random-help'][]=$var;
+		      $ophint=true;
 		      // Andes gives spontaneous hint for no-label
 		      // based on student model.  Thus, the help
 		      // strategy changes with time.
 		    } elseif (strcasecmp($var,'NO-LABEL')==0){
-		      $turnTable['random-help'][]='spontaneous-hint';
+		      $turnTable['random-help']['spontaneous-hint']=1;
 		    }
 		  }
-		  // meta-hints are ignored as feedback.
 		} elseif(isset($row->action) && $row->action == 'show-hint' &&
 			 isClarificationHint($row->text)){
+		  // clarification hints are ignored as feedback.
+		} elseif(isset($row->action) && $row->action == 'show-hint' &&
+			 isMetaHint($row->text)){
 		  // meta-hints are ignored as feedback.
 		  // If we had meta skill "asking for help when floundering"
 		  // then we would do something with these.
-		} elseif(isset($row->action) && $row->action == 'show-hint' &&
-			 isMetaHint($row->text)){
-		  // do nothing for meta-hints
 		} elseif(isset($row->action) && $row->action == 'show-hint'){
 		  $hints=true;
 		}
@@ -289,9 +289,20 @@ if ($myrow = mysql_fetch_array($result)) {
 	    }
 	    // Could have given a hint, but didn't
 	    if($thisTurn=='incorrect' && !$hints){
-	      $turnTable['random-help'][]='no-hints';
+	      $turnTable['random-help']['no-hints']=1;
 	    }
-	    
+	    if($ophint && 
+	       !isset($turnTable['random-help']['GIVE-BACKWARDS-HINTS'])){
+	      $turnTable['random-help']['forwards-hint']=1;
+	    }
+	    // Still need to mark cases where we could have
+	    // backwards hints, but are not ophints.  These
+	    // are basically a set of error handlers.
+	    if(!$ophint && 
+	       isset($turnTable['random-help']['GIVE-BACKWARDS-HINTS'])){
+	      $turnTable['random-help']['not-ophint']=1;
+	    }
+
 	    $blame->update($turnTable,$thisObject,$a,$b);
 
 	    if(!isset($turnTable['error']) || 
@@ -365,7 +376,7 @@ foreach($allKCStudent as $kc => $sec) {
 
 function printv($arr){
   $s='('; $i=0;
-  foreach($arr as $v){
+  foreach($arr as $v => $ignore){
     $s=$s . ($i++==0?'':',') . $v;
   }
   return $s . ')';
@@ -393,7 +404,7 @@ foreach($model as $kc => $sec){
 	// in mastery.
 	for($opp=0; $opp<$firstLearn; $opp++){
 	  $turns=$allKCStudent[$kc][$thisSection][$thisName][$opp];
-	  if($debugLearn) echo "    <li>failure 1:";
+	  if($debugLearn) echo "    <li>failure:";
 	  foreach($turns as $turn){
 	    // This is a turn that did not result in learning.
 	    if($debugLearn) echo ' ' . print_turn($turn);
@@ -419,7 +430,7 @@ foreach($model as $kc => $sec){
 	array_pop($opps); 
 	if($debugLearn && count($opps)==0) echo "    <li>too few opportunities\n";
 	foreach($opps as $turns){
-	  if($debugLearn) echo "    <li>failure 2:";
+	  if($debugLearn) echo "    <li>failure:";
 	  foreach($turns as $turn){
 	    // This is a turn that did not result in learning.
 	    if($debugLearn) echo ' ' .  print_turn($turn);

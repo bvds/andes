@@ -19,10 +19,10 @@ $simpleErrors=array(
 $UIKCs = array(
 	       'statement' => array('definition-syntax'),
 	       'equation' => array('equation-syntax'),
-	       'ellipse' => array('object-label'),
-	       'rectangle' => array('object-label'),
-	       'vector' => array('object-label'),
-	       'line' => array('object-label')
+	       'ellipse' => array('object-label','definition-syntax'),
+	       'rectangle' => array('object-label','definition-syntax'),
+	       'vector' => array('object-label','definition-syntax'),
+	       'line' => array('object-label','definition-syntax')
 	       );
 
 $metaHints = array(
@@ -95,7 +95,7 @@ class turn_blame {
 	// respect to UI skills.
 	unset($turnTableUI['error']);
 	$turnTableUI['grade']='correct';
-	$turnTable['random-help']=array();
+	$turnTableUI['random-help']=array();
 	$turnTableUI['dt']=0; // Assume time spent was on physics
 	foreach ($UIKCs[$a->params->type] as $kc){
 	  $this->KC[$kc][$thisObject][$a->id] = $turnTableUI;
