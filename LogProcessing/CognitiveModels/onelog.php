@@ -250,7 +250,9 @@ if ($myrow = mysql_fetch_array($result)) {
 	    // Determine if there is an associated error.
 	    $car1 = '/^.([^ ]*).+$/'; $car2='$1';
 	    $hints=false;
-	    $ophint=false;
+	    $reversibleOp=false; // Hint name matches $reversibleErrors
+	    $reversibleHint=false; // Hint text matches $reversibleHints
+	    $hasHintLog=false;  // Hint is explained in assoc field.
 	    if(isset($b->result)){
 	      foreach ($b->result as $row){
 		if(isset($row->action) && $row->action == 'log' &&
@@ -259,19 +261,24 @@ if ($myrow = mysql_fetch_array($result)) {
 		  $thisError=preg_replace($car1,$car2,$row->{'error-type'},1);
 		  $turnTable['error']= $thisError;
 		  $allErrors[$thisError]=1;
+		  $hasHintLog=true;
 		} elseif(isset($row->action) && $row->action == 'log' &&
 			  $row->log == 'tutor' && isset($row->assoc)){
 		  foreach($row->assoc as $var => $val){
 		    if(strcasecmp($var,'random-help')==0){
 		      $turnTable['random-help'][$val]=1;
-		      // Any OPHINT is candidate for backwards hints
-		    } elseif (strcasecmp($var,'OPHINT')==0){
-		      $ophint=true;
+		      // Any operator that is candidate for backwards hints
+		    } elseif (isReversibleError($var)){
+		      $reversibleOp=true;
+		      $hasHintLog=true;
+		    } elseif (strcasecmp($var,'NO-LABEL')==0){
 		      // Andes gives spontaneous hint for no-label
 		      // based on student model.  Thus, the help
 		      // strategy changes with time.
-		    } elseif (strcasecmp($var,'NO-LABEL')==0){
 		      $turnTable['random-help']['spontaneous-hint']=1;
+		      $hasHintLog=true;
+		    } else {
+		      $hasHintLog=true;
 		    }
 		  }
 		} elseif(isset($row->action) && $row->action == 'show-hint' &&
@@ -284,6 +291,13 @@ if ($myrow = mysql_fetch_array($result)) {
 		  // then we would do something with these.
 		} elseif(isset($row->action) && $row->action == 'show-hint'){
 		  $hints=true;
+		  // This test is probably rather time-consuming.
+		  // It doesn't really need to be run, except
+		  // as a sanity test.
+		  if(!$reversibleOp // if this is true, no testing done
+		     && isReversibleHint($row->text)){
+		    $reversibleHint=true;
+		  }
 		}
 	      }
 	    }
@@ -291,17 +305,27 @@ if ($myrow = mysql_fetch_array($result)) {
 	    if($thisTurn=='incorrect' && !$hints){
 	      $turnTable['random-help']['no-hints']=1;
 	    }
-	    if($ophint && 
-	       !isset($turnTable['random-help']['GIVE-BACKWARDS-HINTS'])){
-	      $turnTable['random-help']['forwards-hint']=1;
-	    }
-	    // Still need to mark cases where we could have
-	    // backwards hints, but are not ophints.  These
-	    // are basically a set of error handlers.
-	    if(!$ophint && 
-	       isset($turnTable['random-help']['GIVE-BACKWARDS-HINTS'])){
-	      $turnTable['random-help']['not-ophint']=1;
-	    }
+	    // Detect cases where backwards hint could be given.
+	    if($hints && ($thisTurn=='incorrect' || $thisTurn=='hint')){
+	      $mark=!isset($turnTable['random-help']['GIVE-BACKWARDS-HINTS']);
+	      if($reversibleOp){
+		if($mark)
+		  $turnTable['random-help']['forwards-hint']=1;
+	      } else if($reversibleHint && !$hasHintLog){
+		if($mark)
+		  $turnTable['random-help']['forwards-hint']=1;
+	      } else if(!$reversibleHint && $hasHintLog){
+		// ok, hint not eligible for reverse
+		// This should not ever be marked as backwards.
+	      } else if($hasHintLog){
+		// non error-hint matches list
+		$turnTable['random-help']['zz-extra-hint']=1;
+	      } else {
+		// Hint without logging but not in error hint list:
+		// Should check.
+		$turnTable['random-help']['zz-unclassified-hint']=1;
+	      }
+	    }	
 
 	    $blame->update($turnTable,$thisObject,$a,$b);
 
@@ -392,53 +416,35 @@ foreach($model as $kc => $sec){
       if($debugLearn) echo "  <li>$kc for $thisName $thisSection: \n" . 
 	"  <ul>\n";
       if($maxv['valid']){
-	$learn = $maxv['learn'];
-	// First opportunity where student may have learned skill.
-	// It is just before first opportunity where student 
-	// demonstrates mastery.
-	$firstLearn=ceil($learn->val-$learn->l)-1;
-	// Number of opportunities to look at.
-	$nop = 1+floor($learn->u)+floor($learn->l);
-	// First, look at any opportunities before any success.
-	// These are cases where help did not directly result
-	// in mastery.
-	for($opp=0; $opp<$firstLearn; $opp++){
+	$top=count($allKCStudent[$kc][$thisSection][$thisName]);
+	for($opp=0; $opp<$top; $opp++){
 	  $turns=$allKCStudent[$kc][$thisSection][$thisName][$opp];
-	  if($debugLearn) echo "    <li>failure:";
+	  $learn=isset($maxv['learnProb'][$opp])?
+	    number_format($maxv['learnProb'][$opp],2):'???';
+	  if($debugLearn) echo "    <li>learn $learn:";
 	  foreach($turns as $turn){
-	    // This is a turn that did not result in learning.
 	    if($debugLearn) echo ' ' . print_turn($turn);
 	  }	  
 	  if($debugLearn) echo ' ' . prob_link($turns) . "\n";	  
 	}
-	// Look at opportunities directly before learning.
-	for($opp=$firstLearn; $opp<$firstLearn+$nop; $opp++){
-	  $turns=$allKCStudent[$kc][$thisSection][$thisName][$opp];
-	  if($debugLearn) echo "    <li>success [$nop]:";
-	  foreach($turns as $turn){
-	    // This is a turn that contributed to learning
-	    // with probability 1/$nop.
-	    if($debugLearn) echo ' ' . print_turn($turn);
-	  }
-	  if($debugLearn) echo ' ' . prob_link($turns) . "\n";	  
-	}
-      } elseif($maxv['ps']->val>0.5){ // less than 50% correct.
+      } else {
+	// less than 50% correct is "never learn skill"
+	$status=$maxv['ps']->val>0.5?'never':'already';
 	// Case where the student did not know skill and never learned it.
 	$opps=$allKCStudent[$kc][$thisSection][$thisName];
 	// Ignore last opportinuty:  student could have learned skill 
 	// at that time, but we'll never know.
-	array_pop($opps); 
-	if($debugLearn && count($opps)==0) echo "    <li>too few opportunities\n";
-	foreach($opps as $turns){
-	  if($debugLearn) echo "    <li>failure:";
+	for($opp=0; $opp<count($opps); $opp++){
+	  $turns=$opps[$opp];
+	  if($debugLearn)
+	    echo '    <li>' . 
+	      (($opp==count($opps)-1)?'???':"$status learned:");
 	  foreach($turns as $turn){
 	    // This is a turn that did not result in learning.
 	    if($debugLearn) echo ' ' .  print_turn($turn);
 	  }
 	  if($debugLearn) echo ' ' . prob_link($turns) . "\n";	  
 	} 
-      } else {
-	if($debugLearn) echo "    <li>already learned\n";
       }
       if($debugLearn) echo "  </ul>\n";
     }

@@ -218,6 +218,29 @@ function maximum_likelihood_models($opps,$debugML=false){
     // Recalculate associated errors.
     binomial_errors($maxv['ps'],$maxv['wal'],$maxv['cal']);
   }
+
+  // Find relative probabilities for learning on each opportunity
+  //
+  // We are are going from "the probability of producing seen behavior
+  // for a given L" to "the probablitiy of a certain L given the 
+  // seen behavior."  Thus, we are assuming that the
+  // prior p.d.f. for a given L is constant.  See Section 33.1.4 of
+  // http://pdg.lbl.gov/2011/reviews/rpp2011-rev-statistics.pdf
+  //
+  // Elements where learning cannot be determined are left empty.
+
+  $maxv['learnProb']=array();
+  if($maxv['valid']){
+    // First need to normalize.
+    $sum=0;
+    for($i=1; $i<count($allll); $i++){
+      $sum += exp($allll[$i]);
+    }
+    // There is no way to measure learning on last opportunity.
+    for($i=1; $i<count($allll); $i++){
+      $maxv['learnProb'][$i-1]=exp($allll[$i])/$sum;
+    }
+  }
   
   if($debugML){
     if($maxv['valid']){
