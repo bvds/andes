@@ -34,9 +34,9 @@ CREATE FUNCTION crypt(user VARCHAR(50))
   RETURNS VARCHAR(50)
   DETERMINISTIC
   BEGIN
-  IF user REGEXP '^(bvds|x:)' THEN
+  IF user REGEXP '^(bvds|x:|md5:)' THEN
     RETURN user;
-  ELSEIF user REGEXP '^md5:[0-9a-f]*$' THEN
+  ELSEIF user='' THEN
     RETURN user;
   ELSE
     RETURN CONCAT('md5:',md5(user));

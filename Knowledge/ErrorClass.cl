@@ -67,7 +67,7 @@
 		 :preconditions ',conditions
 		 :apply 'no-match
 		 :state '+incorrect+ ;these are all errors
-		 :hint ',(cons name arguments)
+		 :hint '(make-hint-seq ,(cons name arguments))
 		 :order '((expected-utility .
 			   (* ,probability ,utility))))
     **entry-tests** :key #'EntryTest-name))

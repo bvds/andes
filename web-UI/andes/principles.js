@@ -10,9 +10,9 @@ dojo.ready(function(){  // wait until dom is loaded
     console.warn("old way for html render, version ",dojo.version.toString());
   }else if(dijit._TreeNode._meta.hidden._setLabelAttr){
         dijit._TreeNode._meta.hidden._setLabelAttr.type="innerHTML";
-    }else{
-        console.error("Can't render HTML in tree. Version ",dojo.version.toString());
-    }
+  }else{
+          console.error("Can't render HTML in tree. Version ",dojo.version.toString());
+  }
 });
 
 

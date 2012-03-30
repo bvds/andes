@@ -38,12 +38,10 @@ dojo.ready(function(){  // wait until dom is loaded
    dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
     console.warn("old way for html render, version ",dojo.version.toString());
   }else if(dijit._TreeNode._meta.hidden._setLabelAttr){
-        // An example of how to do this more properly at:
-        // http://livedocs.dojotoolkit.org/dijit/Tree-examples
         dijit._TreeNode._meta.hidden._setLabelAttr.type="innerHTML";
-    }else{
-        console.error("Can't render HTML in tree. Version ",dojo.version.toString());
-   }
+  }else{
+          console.error("Can't render HTML in tree. Version ",dojo.version.toString());
+  }
 });
 </script>
 </head>

@@ -17,13 +17,13 @@ ifeq ($(shell uname -p),powerpc)
   binary-release = sbcl-1.0.47-powerpc-darwin-binary.tar.bz2
 endif
 ifeq ($(shell uname -p),i386)
-  binary-release = sbcl-1.0.55-x86-darwin-binary-r2.tar.bz2
+  binary-release = sbcl-1.0.55-x86-darwin-binary.tar.bz2
   # work-around for bug in make-config.sh which guesses the wrong platform
   # on OSX 10.4.11, MacBook Pro.
   platform = SBCL_ARCH=x86; export SBCL_ARCH;
 endif
 ifeq ($(shell uname -p),x86_64)
-  binary-release = sbcl-1.0.55-x86_64-darwin-binary-r2.tar.bz2
+  binary-release = sbcl-1.0.55-x86-64-darwin-binary.tar.bz2
 endif
 endif
 
@@ -38,10 +38,10 @@ ifeq ($(shell uname -p),pentium4) # Andrew linux at CMU
   binary-release = sbcl-1.0.55-x86-linux-binary.tar.bz2
 endif 
 ifeq ($(shell uname -p),x86_64)
-  binary-release = sbcl-1.0.55-x86_64-linux-binary-r2.tar.bz2
+  binary-release = sbcl-1.0.55-x86-64-linux-binary.tar.bz2
 endif 
 ifeq ($(shell uname -m),x86_64)
-  binary-release = sbcl-1.0.55-x86_64-linux-binary-r2.tar.bz2
+  binary-release = sbcl-1.0.55-x86-64-linux-binary.tar.bz2
 endif
 endif
 ifndef binary-release
@@ -76,6 +76,9 @@ get-source:
 	patch -p 1 -d $(source-dir) < parms.lisp-1.0.55-patch
 	# See https://bugs.launchpad.net/sbcl/+bug/720940
 	patch -p 1 -d $(source-dir) < sb-introspect-1.0.55-patch
+	# Won't compile on OS X 10.4.11
+	# See https://bugs.launchpad.net/sbcl/+bug/957385
+	cp unix-foreign-load.lisp $(source-dir)/src/code/
 ifdef INSTALL_ROOT 
 	$(platform) cd $(source-dir); sh make.sh --prefix ${INSTALL_ROOT} $(shell echo "../`$(binary-dir)`/run-sbcl.sh")
 	@echo "Install directory ${INSTALL_ROOT}"
@@ -105,8 +108,8 @@ quicklisp-install: quicklisp.lisp
 
 sbclrc: quicklisp.lisp
 	cat sbclrc-sample >> ~/.sbclrc
-	echo "(pushnew #P\"`pwd`/\" asdf:*central-registry*)" >> ~/.sbclrc
-	sbcl --load quicklisp.lisp --eval "(ql:update-client)" --quit
+	echo "(pushnew #P\"`cd ..;pwd`/\" asdf:*central-registry*)" >> ~/.sbclrc
+	sbcl --eval "(load \"${INSTALL_ROOT}/quicklisp/setup.lisp\")" --eval "(ql:add-to-init-file)" --quit
 	cat sbclrc-sample-end >> ~/.sbclrc
 
 quicklisp.lisp:

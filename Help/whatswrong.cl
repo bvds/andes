@@ -194,7 +194,7 @@
     (contextualize candidates)
     ;; trace conflicts, so we can vet the results
     (when (and *debug-help* (cdr candidates))
-      (format t "  Error candidates: ~W~%" 
+      (format webserver:*stdout* "  Error candidates: ~W~%" 
 	      (mapcar #'(lambda (x) (cons (car (ErrorInterp-diagnosis x))
 					  (ErrorInterp-order x))) 
 		      (sort (copy-list candidates) #'alist< 
@@ -203,7 +203,7 @@
 		   (select-error-interpretation candidates)
 		   (make-failed-error-interpretation)))
     (when *debug-help* 
-      (format t "  Choose: ~A~%" (ErrorInterp-diagnosis best)))
+      (format webserver:*stdout* "  Choose: ~A~%" (ErrorInterp-diagnosis best)))
     ;; (format t "Best candidate is ~W" best)
     (setf (ErrorInterp-Remediation best) (generate-ww-turn best))
     best))
@@ -222,9 +222,8 @@
 (defun check-err-conds-watched (error student)
   "Check the error conds with watching."
   (trace-class-checking)
-  (let ((r (check-err-conds error student)))
-    (untrace-class-checking)
-    r))
+  (prog1 (check-err-conds error student)
+    (untrace-class-checking)))
 
 (defun check-err-conds (test student)
   (check-err-conditions test student (EntryTest-preconditions test)))
@@ -616,15 +615,12 @@
    or NIL if there is no matching student entry."
   (loop for se in *StudentEntries* thereis (unify pattern (StudentEntry-prop se) bindings)))
 
-(defparameter **watch-error-classes** nil
-  "If t the error classes in **watched-error-classes** will be watched.")
-(defparameter **Watched-Error-Classes** () "The Error classes being watched.")
+(defvar **Watched-Error-Classes** () "The Error classes being watched.")
 
 ;;; Trace the matching run for specific error tests using the
 ;;; trace facility.
 (defun watch-this-error-class-p (class)
-  (and **Watch-error-classes**
-       (member (EntryTest-name class) **Watched-error-classes**)))
+  (member (EntryTest-name class) **Watched-error-classes**))
 
 (defun trace-class-checking ()
   (trace check-err-conditions
