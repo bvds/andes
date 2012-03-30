@@ -681,6 +681,7 @@
   "Replace element of list, or add to end."
   (cond ((null class) (list mem)) ;add to end
 	((eql (funcall key mem) (funcall key (car class)))
+	 (warn "Redefining operator ~A." (funcall key mem))
 	 (cons mem (cdr class))) ;found match, replace
 	;; recursion
 	(t (cons (car class)

@@ -1209,7 +1209,7 @@
 
 ;;; (ref Pitt non-eqn 4-17) If the student's vector is correct except
 ;;; for the angle, then just point that out.  This is the default case.
-(def-error-class default-wrong-dir ("vector" ?wrong-dir ?correct-dir)
+(def-error-class default-wrong-dir-vector (?wrong-dir ?correct-dir)
   ((student (vector ?descr ?wrong-dir))
    (correct (vector ?descr ?correct-dir))
    (test (not (equal ?wrong-dir 'zero))) ; either zero handled above
@@ -1219,6 +1219,12 @@
   :utility 50
   ;; Low probability since we want any quantity-specific rules to act first
   :probability 0.08)
+
+(defun default-wrong-dir-vector (wrong-dir correct-dir)
+  (default-wrong-dir "vector" wrong-dir correct-dir))
+
+(defun default-wrong-dir-line (wrong-dir correct-dir)
+  (default-wrong-dir "line" wrong-dir correct-dir))
 
 (defun default-wrong-dir (object wrong-dir correct-dir)
   (declare (ignore correct-dir))
@@ -1422,7 +1428,7 @@
 
 ;;; If the student's line is correct except
 ;;; for the angle, then just point that out.  This is the default case.
-(def-error-class default-wrong-dir ("line" ?wrong-dir ?correct-dir)
+(def-error-class default-wrong-dir-line (?wrong-dir ?correct-dir)
   ((student (draw-line ?descr ?wrong-dir))
    (correct (draw-line ?descr ?correct-dir))
    (test (not (equal ?correct-dir 'unknown))) ; should-be-unknown above
