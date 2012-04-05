@@ -164,6 +164,9 @@ if($slice == 'comments'){
   
 } elseif($slice == 'errors') {
   // doesn't use $order or $orderBy
+
+  require("time.php");
+  $badTimes=array();
     
   $initialTime = time();
   $queryTime = 0.0;  // Time needed to query database.
@@ -209,15 +212,7 @@ if($slice == 'comments'){
 	// loop through session
 	$cutoff=600; // Minimum number of seconds between turns where 
 	             // we assume user is not "on task."
-	$confused=false;
-	$counter=-1;  // number of steps while in confused state.
-	$lastTimeStamp=-1; // time stamp for this transaction.
-	$timeStamp=-1; // time stamp for this transaction.
-	$lastState='none'; // can be 'blur' 'focus' or 'something'
-	$sessionTime=0;  // total active time for session.
-	$lastCorrectSessionTime=0;  // $sessionTime for last green entry
-	$lastInorrectSessionTime=0;  // $sessionTime for last red entry
-	// echo "session " . $myrow["startTime"] . "<br>\n";
+	$sessionTime = new session_time();
 	
 	// get student input and server reply
 	while (($myrow = mysql_fetch_array($tempResult)) ||
@@ -251,12 +246,12 @@ if($slice == 'comments'){
 	    break;
 	  }
 	  // Drop turns where timestamp is corrupted
-	  if(isset($a->params->time) && $a->params->time<$timeStamp){
+	  if(isset($a->params->time) && 
+	   $a->params->time<$sessionTime->timeStamp){
 	    $badTimes[$a->params->time]=$action;
 	    continue;
 	  } elseif(isset($a->params) && isset($a->params->time)){
-	    $lastTimeStamp=$timeStamp;
-	    $timeStamp=$a->params->time;
+	    $sessionTime->update_timeStamp($a->params->time);
 	    $timeStampAction=$action;
 	  } else {
 	    // drop turns without timestamps;
@@ -264,32 +259,7 @@ if($slice == 'comments'){
 	    continue;  
 	  }
 
-
-	  // Add up times that canvas is out of focus.
-	  // Sometimes blur or focus events get dropped.
-	  // Count consecutive blur-blur, blur-focus, focus-focus,
-	  //                   something-focus, blur-something  
-	  // as time out of focus.  That is, any time a blur or
-	  // focus event is missing, we assume maximum idle time.
-	  if(isset($a->method) && $a->method == 'record-action' &&
-	     $a->params->type == 'window' && $a->params->name == 'canvas'){
-	    if($a->params->value == 'focus'){
-	      // cases blur-focus focus-focus something-focus
-	      $lastState = 'focus';	      
-	    } elseif($a->params->value == 'blur'){
-	      if($lastState != 'blur' && $timeStamp-$lastTimeStamp<$cutoff){
-		// cases something-blur focus-blur
-		$sessionTime += $timeStamp-$lastTimeStamp;
-	      }
-	      $lastState = 'blur';
-	    }
-	  } else {
-	    if($lastState!='blur' && $timeStamp-$lastTimeStamp<$cutoff){
-	      // cases focus-something something-something
-	      $sessionTime += $timeStamp-$lastTimeStamp;
-	    }
-	    $lastState = 'something';
-	  }
+	  $sessionTime->update_focus($cutoff,$a);
 
 	  // echo "  step $timeStamp  $sessionTime $ttID<br>\n";
 
@@ -307,41 +277,25 @@ if($slice == 'comments'){
 		}
 	      }
 	    }
-	    if($thisTurn=='correct'){
-	      if($confused && $counter>1){
-		$dt=$lastIncorrectSessionTime-$lastCorrectSessionTime;
-		$totalFloundering+=$dt;
-		$rowOutput[$dt]= "<tr>" . $sessionColumns . 
-		  "<td>$counter</td><td>" . round($dt) . "</td>" . 
-		  $sessionLink1 . "&amp;t=" . $confusedtID . $sessionLink2 . 
-		  "</tr>";
-	      }
-	      $lastCorrectSessionTime = $sessionTime;
-	      $confused=false;
-	      $counter=0;
-	    } elseif ($thisTurn=='incorrect'){
-	      if(!$confused){
-		$confusedtID=$ttID;
-	      }		
-	      $lastIncorrectSessionTime = $sessionTime;
-	      $confused=true;
-	      $counter++;
-	    } else {
-	      $counter++;
+
+	    // true if at end of floundering episode
+	    if($sessionTime->update_flounder($thisTurn,$ttID)){
+	      $rowOutput[$sessionTime->fTime]= "<tr>" . $sessionColumns . 
+		'<td>' . $sessionTime->fSteps . '</td><td>' . 
+		round($sessionTime->fTime) . "</td>" . $sessionLink1 . "&amp;t=" . 
+		$sessionTime->confusedtID . $sessionLink2 . "</tr>";
 	    }
 	  }
 	} // loop through session rows       
 	
-	//  Session has ended before confusion is resolved.
-	if($confused && $counter>1){
-	  $dt=$sessionTime-$lastCorrectSessionTime;
-	  $totalFloundering+=$dt;
-	  $rowOutput[$dt]= "<tr class=\"quit\">" . $sessionColumns . 
-	    "<td>$counter</td><td>" . round($dt) . "</td>" . 
-	    $sessionLink1 . "&amp;t=" . $confusedtID . $sessionLink2 . "</tr>";
+	// true if at end of floundering episode
+	if($sessionTime->endSession()){
+	  $rowOutput[$sessionTime->fTime]= "<tr class=\"quit\">" . 
+	    $sessionColumns . '<td>' . $sessionTime->fSteps . '</td><td>' . 
+	    round($sessionTime->fTime) . "</td>" . $sessionLink1 . "&amp;t=" . 
+	    $sessionTime->confusedtID . $sessionLink2 . "</tr>";
 	}
 
-	$tt+=$sessionTime;
       }
     while ($myrow = mysql_fetch_array($result));
     krsort($rowOutput);
