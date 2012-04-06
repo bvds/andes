@@ -81,7 +81,8 @@ class session_time {
       $this->counter=0;
     } elseif ($thisTurn=='incorrect'){
       if(!$this->confused){
-	$confusedtID=$ttID; // can be used as pointer to beginning of episode
+	// can be used as pointer to beginning of episode
+	$this->confusedtID=$ttID; 
       }
       $this->lastIncorrectSessionTime = $this->sessionTime;
       $this->confused=true;

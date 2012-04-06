@@ -261,7 +261,7 @@ if($slice == 'comments'){
 
 	  $sessionTime->update_focus($cutoff,$a);
 
-	  // echo "  step $timeStamp  $sessionTime $ttID<br>\n";
+	  // echo "  step $ttID<br>\n";
 
 	  if(isset($a->method) && ($a->method == 'solution-step' || 
 				   $a->method == 'seek-help')){
@@ -276,6 +276,9 @@ if($slice == 'comments'){
 		  $thisTurn=$row->mode;
 		}
 	      }
+	    }
+	    if($a->method == 'seek-help'){
+	      $thisTurn="help";
 	    }
 
 	    // true if at end of floundering episode
