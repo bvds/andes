@@ -115,7 +115,8 @@ $json = new Services_JSON();
 
 echo "Analyze problems $extrae,$userNamee$sectionNamee\n";
 
-$sql = "SELECT * FROM $problem_attempt AS P1 WHERE $userNamec $sectionNamec $extrac $startDatec $endDatec P1.clientID = P1.clientID";
+// Always do sessions in chronological order
+$sql = "SELECT * FROM $problem_attempt AS P1 WHERE $userNamec $sectionNamec $extrac $startDatec $endDatec P1.clientID = P1.clientID ORDER BY startTime ASC";
 $queryStart=microtime(true);   
 $result = mysql_query($sql);
 $queryTime += microtime(true)-$queryStart;
@@ -126,9 +127,10 @@ if ($myrow = mysql_fetch_array($result)) {
   $badTimes=array();
   do
     {
-      $clientID=$myrow["clientID"];
-      $thisName=$myrow["userName"];
-      $thisSection=$myrow["userSection"];
+      $clientID=$myrow['clientID'];
+      $thisName=$myrow['userName'];
+      $thisSection=$myrow['userSection'];
+      $thisProblem=$myrow['userProblem'];
       $tempSqlOld = "SELECT initiatingParty,command,tID FROM PROBLEM_ATTEMPT_TRANSACTION WHERE clientID = '$clientID'";
       $tempSql = "SELECT client,server,tID FROM STEP_TRANSACTION WHERE clientID = '$clientID'";
       $queryStart=microtime(true);   
@@ -174,7 +176,7 @@ if ($myrow = mysql_fetch_array($result)) {
 	$a=$json->decode($action);
 	$jsonTime1 += microtime(true)-$jsonStart;
 	// Ignore fade problems
-	if(isset($a->method) && $a->method == 'open-problem' &&
+	if(false && isset($a->method) && $a->method == 'open-problem' &&
 	   $a->params->problem == "vec1ay"){
 	  break;
 	}
@@ -199,7 +201,7 @@ if ($myrow = mysql_fetch_array($result)) {
 	}
 	
 	$sessionTime->update_focus($cutoff,$a);
-	
+       
 	// echo "  step $timeStamp  $sessionTime $ttID<br>\n";
 	
 	if(isset($a->method) && ($a->method == 'solution-step' || 
@@ -349,7 +351,40 @@ if ($myrow = mysql_fetch_array($result)) {
       // Finally, we need to sort the turns in this session,
       // consolidate help requests, and append to global lists
       $blame->resolve($thisSection,$thisName);
-      
+
+      // Look at intervention
+      $fProbs=array('vec1ay','kt11ay','vec3dy');
+      $fCut=4*3600;  // Cutoff, in seconds
+      if(!isset($fade[$thisSection][$thisName])){
+	$fade[$thisSection][$thisName] =
+	  array('tTime0' => 0, 'fTime0' => 0, // before intervention
+		'tTime1' => 0, 'fTime1' => 0, // during intervention
+		'tTime2' => 0, 'fTime2' => 0, // after intervention
+		'G' => 0);
+      }
+      $f=&$fade[$thisSection][$thisName];
+      if($f['tTime0']+$f['tTime1']+$f['tTime2']<$fCut){
+	if(in_array($thisProblem,$fProbs)){
+	  // Is fade problem
+	  $f['G']+=$sessionTime->sessionTime;
+	  $f['tTime1']+=$sessionTime->sessionTime;
+	  $f['fTime1']+=$sessionTime->sessionFlounder;
+	  // Any time previously marked as "after intervention"
+	  // is now moved to "during intervention"
+	  $f['tTime1']+=$f['tTime2'];
+	  $f['fTime1']+=$f['fTime2'];
+	  $f['tTime2']=0;
+	  $f['fTime2']=0;
+	} else if($f['G']==0){
+	  // Has not done fade problem yet.
+	  $f['tTime0']+=$sessionTime->sessionTime;
+	  $f['fTime0']+=$sessionTime->sessionFlounder;
+	} else {
+	  // Not a fade problem, but fade problems have been done.
+	  $f['tTime2']+=$sessionTime->sessionTime;
+	  $f['fTime2']+=$sessionTime->sessionFlounder;
+	}
+      }
       
     } while ($myrow = mysql_fetch_array($result));
 
@@ -408,7 +443,7 @@ function printv($arr){
 function print_turn($turn){
   return $turn['timeStamp'] . $turn['grade'] . printv($turn['random-help']);
 }
-$debugLearn=true;
+$debugLearn=false;
 if($debugLearn) echo "<ul>\n";
 foreach($model as $kc => $sec){
   foreach($sec as $thisSection => $stu){
@@ -542,6 +577,24 @@ if(false){
     }
   }
 }
+
+// dump fade data out to mathematica
+if(true){
+  $i=0;
+  echo "fades={";
+  foreach($fade as $thisSection => $ss){
+    foreach($ss as $thisName => $st){
+      if($i++>0)
+	echo ",\n  ";
+      $tTime0=$st['tTime0']; $fTime0=$st['fTime0'];
+      $tTime1=$st['tTime1']; $fTime1=$st['fTime1'];
+      $tTime2=$st['tTime2']; $fTime2=$st['fTime2'];
+      $G=$st['G'];
+      echo '{' . "\"$thisSection\",\"$thisName\",$G,$tTime0,$fTime0,$tTime1,$fTime1,$tTime2,$fTime2" . '}';
+    }
+  }
+  echo "};\n";
+ }
 
 // Print out all KS's used.
 echo "<p>";

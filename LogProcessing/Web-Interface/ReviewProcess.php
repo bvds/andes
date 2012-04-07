@@ -182,7 +182,8 @@ if($slice == 'comments'){
   
   echo "<h2>Student errors in problems $extrae,$adminNamee$sectionNamee sorted by time of confusion</h2>\n";
   
-  $sql = "SELECT * FROM $problem_attempt AS P1 WHERE $adminNamec $sectionNamec $extrac  $startDatec $endDatec P1.clientID = P1.clientID";
+  // Doesn't need order, but useful for debugging.
+  $sql = "SELECT * FROM $problem_attempt AS P1 WHERE $adminNamec $sectionNamec $extrac  $startDatec $endDatec P1.clientID = P1.clientID ORDER BY $orderBy $order";
   $queryStart=microtime(true);   
   $result = mysql_query($sql);
   $queryTime += microtime(true)-$queryStart;
@@ -260,9 +261,9 @@ if($slice == 'comments'){
 	  }
 
 	  $sessionTime->update_focus($cutoff,$a);
-
+	  
 	  // echo "  step $ttID<br>\n";
-
+	  
 	  if(isset($a->method) && ($a->method == 'solution-step' || 
 				   $a->method == 'seek-help')){
 	    $jsonStart=microtime(true);   

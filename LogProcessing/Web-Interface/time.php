@@ -7,12 +7,13 @@ class session_time {
   private $lastTimeStamp=-1; // time stamp for this transaction.
   public $timeStamp=-1; // time stamp for this transaction.
   private $lastState='none'; // can be 'blur' 'focus' or 'something'
-  private $sessionTime=0;  // total active time for session.
+  public $sessionTime=0;  // total active time for session
+  public $sessionFlounder=0;  // total flounder time for session
   private $lastStepTime=0;         // $sessionTime for last step.
   private $confused=false;
   private $counter=-1;  // number of steps while in confused state.
-  public  $fSteps=-1;
-  public  $fTime=-1;
+  public $fSteps=-1;
+  public $fTime=-1;
   private $lastCorrectSessionTime=0;  // $sessionTime for last green entry
   private $lastInorrectSessionTime=0;  // $sessionTime for last red entry
   public $confusedtID;
@@ -71,6 +72,7 @@ class session_time {
 	// End of floundering episode.
 	$this->fTime=$this->lastIncorrectSessionTime-$this->lastCorrectSessionTime;
 	$totalFloundering+=$this->fTime;
+	$this->sessionFlounder+=$this->fTime;
 	$endFlounder=true;
 	// $this->counter holds number of steps while floundering.
 	// Save value before resetting counter.
@@ -103,7 +105,8 @@ class session_time {
     if($this->confused && $this->counter>1){
       $this->fTime=$this->sessionTime-$this->lastCorrectSessionTime;
       $totalFloundering+=$this->fTime;
-      $endFlounder=true;
+      $this->sessionFlounder+=$this->fTime;
+     $endFlounder=true;
       //save value before resetting counter
       $this->fSteps=$this->counter;
     }
