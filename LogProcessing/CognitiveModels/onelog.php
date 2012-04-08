@@ -11,6 +11,7 @@
 // These are all optional
 $userName = '';  // regexp to match
 	     // MIT_.*
+             // asu experiment
 	     // asu_3u16472755e704e5fasul1_.*
 	     // asu_3u16472755e704e5fasul1_15865
 	     // Help server dies on this section when running all osu:
@@ -20,8 +21,8 @@ $userName = '';  // regexp to match
 	     //       user names got mangled in these sections.
 	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Pawl sections
 	     // 
-$sectionName = '^uwplatt_(2Y130|514219|6l1305|3n130)';  // regexp to match
-$startDate = ''; 
+$sectionName = '';  // regexp to match
+$startDate = '2011-04-01'; 
 $endDate = '';
 
   // File with user name and password.
@@ -110,6 +111,7 @@ $jsonTime2 = 0.0;
 include 'JSON.php';
 // However, this is really slow.  For now, just increase time limit:  
 set_time_limit(300000);
+ini_set("memory_limit","1024M");  // if I do everything, it gets big...
 
 $json = new Services_JSON();
 
@@ -146,6 +148,7 @@ if ($myrow = mysql_fetch_array($result)) {
       $sessionTime = new session_time();
       $sessionCorrects=array();  // Objects that have turned green. 
       $blame = new turn_blame();
+      $sessionScore=0;
       // 
       // echo "session " . $myrow["startTime"] . "<br>\n";
       
@@ -300,6 +303,8 @@ if ($myrow = mysql_fetch_array($result)) {
 		     && isReversibleHint($row->text)){
 		    $reversibleHint=true;
 		  }
+		} elseif(isset($row->action) && $row->action == 'set-score'){
+		  $sessionScore=$row->score;
 		}
 	      }
 	    }
@@ -360,13 +365,17 @@ if ($myrow = mysql_fetch_array($result)) {
 	  array('tTime0' => 0, 'fTime0' => 0, // before intervention
 		'tTime1' => 0, 'fTime1' => 0, // during intervention
 		'tTime2' => 0, 'fTime2' => 0, // after intervention
-		'G' => 0);
+		'G' => 0, 'score' => 0, 'video' => 0);
       }
       $f=&$fade[$thisSection][$thisName];
       if($f['tTime0']+$f['tTime1']+$f['tTime2']<$fCut){
-	if(in_array($thisProblem,$fProbs)){
-	  // Is fade problem
-	  $f['G']+=$sessionTime->sessionTime;
+	if(in_array($thisProblem,$fProbs) || $sessionTime->videoTime>0){
+	  // Is fade problem or watched video
+	  if(in_array($thisProblem,$fProbs)){
+	    $f['G']+=$sessionTime->sessionTime;
+	    $f['score']=max($f['score'],$sessionScore);
+	  }
+	  $f['video']+=$sessionTime->videoTime;
 	  $f['tTime1']+=$sessionTime->sessionTime;
 	  $f['fTime1']+=$sessionTime->sessionFlounder;
 	  // Any time previously marked as "after intervention"
@@ -589,8 +598,8 @@ if(true){
       $tTime0=$st['tTime0']; $fTime0=$st['fTime0'];
       $tTime1=$st['tTime1']; $fTime1=$st['fTime1'];
       $tTime2=$st['tTime2']; $fTime2=$st['fTime2'];
-      $G=$st['G'];
-      echo '{' . "\"$thisSection\",\"$thisName\",$G,$tTime0,$fTime0,$tTime1,$fTime1,$tTime2,$fTime2" . '}';
+      $G=$st['G']; $score=$st['score']; $video=$st['video'];
+      echo '{' . "\"$thisSection\",\"$thisName\",$G,$score,$video,$tTime0,$fTime0,$tTime1,$fTime1,$tTime2,$fTime2" . '}';
     }
   }
   echo "};\n";

@@ -17,6 +17,9 @@ class session_time {
   private $lastCorrectSessionTime=0;  // $sessionTime for last green entry
   private $lastInorrectSessionTime=0;  // $sessionTime for last red entry
   public $confusedtID;
+  public $videoTime=0;  // time spent watching video this session
+  private $videoTimeStamp=-1;
+  private $lastVideo='none';
 
   function update_timeStamp($t){
     $this->lastTimeStamp=$this->timeStamp;
@@ -51,6 +54,27 @@ class session_time {
       }
       $this->lastState = 'something';
     }
+    
+    // Keep tabs of intro video usage.
+    if(isset($a->method) && $a->method == 'record-action' &&
+       $a->params->type == 'window' && $a->params->name == 'IntroVideo'){
+      if($a->params->value == 'focus'){
+	if($this->lastVideo!='focus')
+	  $this->videoTimeStamp=$this->timeStamp;
+	$this->lastVideo='focus';
+      } elseif($a->params->value == 'blur'){
+	$this->videoTime += $this->timeStamp-$this->videoTimeStamp;
+	$this->lastVideo = 'blur';	  
+      } 
+    } else {
+      if($this->lastVideo=='focus'){
+	// Missing video blur
+	$this->videoTime += $this->timeStamp-$this->videoTimeStamp;
+      }
+      $this->lastVideo = 'blur';
+      $this->videoTimeStamp=$this->timeStamp;
+     }
+
   }
 
   function dt(){
