@@ -144,7 +144,7 @@ if ($myrow = mysql_fetch_array($result)) {
 
       // Minimum number of seconds between turns where 
       // we assume user is not "on task."
-      $cutoff=600; 
+      $cutoff=180; 
       $sessionTime = new session_time();
       $sessionCorrects=array();  // Objects that have turned green. 
       $blame = new turn_blame();
@@ -359,7 +359,7 @@ if ($myrow = mysql_fetch_array($result)) {
 
       // Look at intervention
       $fProbs=array('vec1ay','kt11ay','vec3dy');
-      $fCut=4*3600;  // Cutoff, in seconds
+      $fCut=1*3600;  // Cutoff, in seconds of student time.
       if(!isset($fade[$thisSection][$thisName])){
 	$fade[$thisSection][$thisName] =
 	  array('tTime0' => 0, 'fTime0' => 0, // before intervention
@@ -589,8 +589,9 @@ if(false){
 
 // dump fade data out to mathematica
 if(true){
-  $i=0;
+  echo "(* Total time cutoff $fCut s.*)\n";
   echo "fades={";
+  $i=0;
   foreach($fade as $thisSection => $ss){
     foreach($ss as $thisName => $st){
       if($i++>0)

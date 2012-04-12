@@ -329,6 +329,9 @@ class turn_blame {
   private $temporalHeuristic=array(); 
   private $orphanTurn=array();   // Candidates for temporal heuristic.
   private $KC=array();      // turns for each KC (not sorted).
+  // Max number of turns associated with an object 
+  // where a switch to temporal heuristic is permitted
+  public $switchToTemporalCutoff=1;  
 
   function update($turnTable,$thisObject,$a,$b){
     global $simpleErrors, $UIKCs, $allKCs;
@@ -371,18 +374,21 @@ class turn_blame {
       $hasInterp=false;
       if(isset($b->result)){
 	foreach ($b->result as $row){
+	  // KC found in 
+	  // "action":"log","log":"student","assoc":<list of KCs>
+	  // 
 	  if(isset($row->action) && $row->action == 'log' &&
 	     $row->log == 'student' && isset($row->assoc)){
 	    foreach($row->assoc as $kc => $inst) {
 	      $allKCs[$kc]=1;
 	      // If there were any previous turns without
-	      // interp, give pointers to next turn kc's.
+	      // interp, create pointers to this turn's KCs.
 	      foreach($this->orphanTurn as $id){
 		$this->temporalHeuristic[$id][]=
 		  array('kc' => $kc, 'inst' => $inst);
 	      }
-	      // See if there were any previous turns without
-	      // interp and add them.
+	      // See if there were any previous turns for
+	      // this object without interp and add them.
 	      if($thisObject && isset($this->missingInterp[$thisObject])){
 		foreach ($this->missingInterp[$thisObject] as $id => $turn){
 		  // push onto array
@@ -418,17 +424,26 @@ class turn_blame {
   function resolve($thisSection,$thisName){
     global $allStudentKC, $allKCStudent;
     
-    foreach ($this->missingInterp as $id => $turns){
-      foreach ($turns as $turn){
-	if(isset($this->temporalHeuristic[$id])){
-	  foreach($this->temporalHeuristic[$id] as $kcI){
-	    $this->KC[$kcI['kc']][$kcI['inst']][$id] = $turn;
+    // Assignment of blame for entries associate with an object
+    foreach ($this->missingInterp as $object => $turns){
+      // Only if there are a few turns in an object
+      // do we switch to temporal hueristic.
+      // Empirically, we find that if a student has
+      // spent a long time working on an object without
+      // success, they then switch to doing something else.
+      if(count($turns)<=$this->switchToTemporalCutoff){
+	foreach ($turns as $id => $turn){
+	  if(isset($this->temporalHeuristic[$id])){
+	    foreach($this->temporalHeuristic[$id] as $kcI){
+	      $this->KC[$kcI['kc']][$kcI['inst']][$id] = $turn;
+	    }
+	  } else {
+	    // Turn has no assignment of blame.
 	  }
-	} else {
-	  // Turn has no assignment of blame.
-	}
-      }	  
+	}	  
+      }
     }
+
     // Do assignment of blame for entries without object.
     foreach ($this->missingObject as $id => $turn){
       if(isset($this->temporalHeuristic[$id])){
