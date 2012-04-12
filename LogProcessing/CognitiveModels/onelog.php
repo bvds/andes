@@ -22,7 +22,7 @@ $userName = '';  // regexp to match
 	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Pawl sections
 	     // 
 $sectionName = '';  // regexp to match
-$startDate = '2011-04-01'; 
+$startDate = '2012-04-01'; 
 $endDate = '';
 
   // File with user name and password.
@@ -102,6 +102,8 @@ function prob_link($turns){
 require("time.php");
 require("blame.php");
 require("binomials.php");
+require("training.php");
+$training = new training();
 $initialTime = time();
 $queryTime = 0.0;  // Time needed to query database.
 $jsonTime1 = 0.0;
@@ -357,43 +359,8 @@ if ($myrow = mysql_fetch_array($result)) {
       // consolidate help requests, and append to global lists
       $blame->resolve($thisSection,$thisName);
 
-      // Look at intervention
-      $fProbs=array('vec1ay','kt11ay','vec3dy');
-      $fCut=1*3600;  // Cutoff, in seconds of student time.
-      if(!isset($fade[$thisSection][$thisName])){
-	$fade[$thisSection][$thisName] =
-	  array('tTime0' => 0, 'fTime0' => 0, // before intervention
-		'tTime1' => 0, 'fTime1' => 0, // during intervention
-		'tTime2' => 0, 'fTime2' => 0, // after intervention
-		'G' => 0, 'score' => 0, 'video' => 0);
-      }
-      $f=&$fade[$thisSection][$thisName];
-      if($f['tTime0']+$f['tTime1']+$f['tTime2']<$fCut){
-	if(in_array($thisProblem,$fProbs) || $sessionTime->videoTime>0){
-	  // Is fade problem or watched video
-	  if(in_array($thisProblem,$fProbs)){
-	    $f['G']+=$sessionTime->sessionTime;
-	    $f['score']=max($f['score'],$sessionScore);
-	  }
-	  $f['video']+=$sessionTime->videoTime;
-	  $f['tTime1']+=$sessionTime->sessionTime;
-	  $f['fTime1']+=$sessionTime->sessionFlounder;
-	  // Any time previously marked as "after intervention"
-	  // is now moved to "during intervention"
-	  $f['tTime1']+=$f['tTime2'];
-	  $f['fTime1']+=$f['fTime2'];
-	  $f['tTime2']=0;
-	  $f['fTime2']=0;
-	} else if($f['G']==0){
-	  // Has not done fade problem yet.
-	  $f['tTime0']+=$sessionTime->sessionTime;
-	  $f['fTime0']+=$sessionTime->sessionFlounder;
-	} else {
-	  // Not a fade problem, but fade problems have been done.
-	  $f['tTime2']+=$sessionTime->sessionTime;
-	  $f['fTime2']+=$sessionTime->sessionFlounder;
-	}
-      }
+      $training->update($thisSection,$thisName,$thisProblem,
+			$sessionScore,$sessionTime);
       
     } while ($myrow = mysql_fetch_array($result));
 
@@ -589,21 +556,7 @@ if(false){
 
 // dump fade data out to mathematica
 if(true){
-  echo "(* Total time cutoff $fCut s.*)\n";
-  echo "fades={";
-  $i=0;
-  foreach($fade as $thisSection => $ss){
-    foreach($ss as $thisName => $st){
-      if($i++>0)
-	echo ",\n  ";
-      $tTime0=$st['tTime0']; $fTime0=$st['fTime0'];
-      $tTime1=$st['tTime1']; $fTime1=$st['fTime1'];
-      $tTime2=$st['tTime2']; $fTime2=$st['fTime2'];
-      $G=$st['G']; $score=$st['score']; $video=$st['video'];
-      echo '{' . "\"$thisSection\",\"$thisName\",$G,$score,$video,$tTime0,$fTime0,$tTime1,$fTime1,$tTime2,$fTime2" . '}';
-    }
-  }
-  echo "};\n";
+  $training->mma_dump();
  }
 
 // Print out all KS's used.
