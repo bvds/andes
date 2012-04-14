@@ -1,0 +1,94 @@
+This is a list of candidate features to be used
+to define the student "state" at a given step.
+
+The following is an attempt to match features listed
+in Chapter 6 of Min Chi's thesis.
+
+********************************************************************
+
+fraction of terminal hints (hints without accompanying 
+explain-more), in response to help request, over number opportunities 
+for the student during current session.  
+[sort of matches tellsSinceElicitA]
+
+fraction of terminal hints (hints without accompanying 
+explain-more), in response to a help request, over number opportunities 
+for the student overall.
+
+time since last application of current KC. Probably take 
+log.  Need to consider case where there is no previous
+case and spanning between sessions.  [durationKCBetweenDecisionT]
+
+sessionTime: Total time spent in current session.  [TimeInSessionT]
+
+Time between this session and previous session.  Probably 
+take log.  [TimeBetweenSessionT]
+
+Number of SystemEntries for current problem.  Run Andes, store
+in data file.  [SimpleProblemPS]
+
+Number of previous opportunities for current KC in session.  [NKCsPS]
+
+Number of previous opportunities for current KC overall. 
+
+Change in number of SystemEntries since previous problem. 
+[newLevelDifficultyPS]
+
+Average time spent on current problem, averaging over all students.  From datamining log files. [conceptDifficultyPS]
+
+Average error rate on current problem, averaging over all students.  From datamining log files. [conceptDifficultyPS]
+
+Number of SystemEntries solved on this problem, so-far [numPhysConceptsTutorDialogueSessionPS].
+
+Number of hint requests, so far, for this problem.  [tutAverageConceptsSessionPS]
+
+Fraction of correct entries for first attempt of each opportunity, for student, over all KCs. [pctCorrectPM]
+
+Fraction of correct entries for first attempt of each opportunity, for student, for current KC. [pctCorrectPM]
+
+Fraction of correct entries for first attempt of each opportunity, for student, current session, all KCs. [pctCorrectPM]
+
+Fraction of correct entries for first attempt of each opportunity, for student, current session, current KC. [pctCorrectPM]
+
+Average "assistance score"  (number of incorrects plus help requests), averaged over all sessions, all KCs, for student.  [nCorrectKCPM].
+
+Average "assistance score"  (number of incorrects plus help requests), current session, all KCs, for student.  [nCorrectKCPM].
+
+Average "assistance score"  (number of incorrects plus help requests), averaged over all sessions, current KC, for student.  [nCorrectKCPM].
+
+Average "assistance score"  (number of incorrects plus help requests), current session, current KC, for student.  [nCorrectKCPM].
+
+Number of opportunities for this KC, all sessions, for this student.  [nCorrectKCPM]
+
+Number of opportunities for this KC tried, all sessions, for this student. 
+
+Number of opportunities for this KC tried, this session, for this student [nCorrectKCSessionPM]
+
+
+*************************************************************************
+
+The following matches stuff I had:
+
+*************************************************************************
+
+nowFlounderTime: Time of floundering, at this moment
+
+nowFlounderSteps:  Steps of floundering, at this moment
+
+fracSessionFlounderTime:  Fractional Time of flounder, this session.
+
+Fractional time of floundering, so far, this student.
+
+nowStepTime:  Time for this past entry.
+
+State of past entry (incorrect/correct/help/none)
+
+Does step model detect learning for this KC?
+
+If learning occurred, according to step model, 
+how many opportunities ago?
+
+Current slip/guess rate for this KC, according to step model.
+
+***************************************************************************
+

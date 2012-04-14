@@ -338,6 +338,16 @@ if ($myrow = mysql_fetch_array($result)) {
 
 	    $blame->update($turnTable,$thisObject,$a,$b);
 
+	    // Update student state
+	    $studentState[$ttID] =
+	      array('sessionTime' => $sessionTime->sessionTime,
+		    'fracSessionFlounderTime' => 
+		    $sessionTime->sessionFlounder/$sessionTime->sessionTime,
+		    'nowFlounderSteps' => $sessionTime->now_flounder_steps(),
+		    'nowFlounderTime' => $sessionTime->now_flounder_time(),
+		    'nowStepTime' => $sessionTime->dt()
+		    );
+
 	    if(!isset($turnTable['error']) || 
 	       !isset($simpleErrors[$turnTable['error']])){
 	      // Note that time spend modifying green objects
