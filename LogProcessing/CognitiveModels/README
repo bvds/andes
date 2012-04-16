@@ -81,6 +81,14 @@ Fractional time of floundering, so far, this student.
 
 nowStepTime:  Time for this past entry.
 
+sessionCorrect:  Number of correct entries, this session.
+
+sessionIncorrect:  Number of incorrect entries, this session.
+
+sessionHelp:  Number of help requests, this session.
+
+fracSessionCorrect:  Of correct entries over total entries, this session.
+
 State of past entry (incorrect/correct/help/none)
 
 Does step model detect learning for this KC?

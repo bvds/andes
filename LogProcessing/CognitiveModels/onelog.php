@@ -9,7 +9,7 @@
 <?php
 
 // These are all optional
-$userName = '';  // regexp to match
+$userName = 'sbartley.*';  // regexp to match
 	     // MIT_.*
              // asu experiment
 	     // asu_3u16472755e704e5fasul1_.*
@@ -22,8 +22,8 @@ $userName = '';  // regexp to match
 	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Pawl sections
 	     // 
 $sectionName = '';  // regexp to match
-$startDate = '2012-04-01'; 
-$endDate = '';
+$startDate = '2011-05-25 11:20:00'; 
+$endDate = '2011-05-26';
 
   // File with user name and password.
   // chmod 600 db_onelog_password
@@ -103,7 +103,9 @@ require("time.php");
 require("blame.php");
 require("binomials.php");
 require("training.php");
+require("state.php");
 $training = new training();
+$state = new student_state();
 $initialTime = time();
 $queryTime = 0.0;  // Time needed to query database.
 $jsonTime1 = 0.0;
@@ -151,6 +153,7 @@ if ($myrow = mysql_fetch_array($result)) {
       $sessionCorrects=array();  // Objects that have turned green. 
       $blame = new turn_blame();
       $sessionScore=0;
+      $state->begin_session();
       // 
       // echo "session " . $myrow["startTime"] . "<br>\n";
       
@@ -339,14 +342,7 @@ if ($myrow = mysql_fetch_array($result)) {
 	    $blame->update($turnTable,$thisObject,$a,$b);
 
 	    // Update student state
-	    $studentState[$ttID] =
-	      array('sessionTime' => $sessionTime->sessionTime,
-		    'fracSessionFlounderTime' => 
-		    $sessionTime->sessionFlounder/$sessionTime->sessionTime,
-		    'nowFlounderSteps' => $sessionTime->now_flounder_steps(),
-		    'nowFlounderTime' => $sessionTime->now_flounder_time(),
-		    'nowStepTime' => $sessionTime->dt()
-		    );
+	    $state->update($ttID,$thisTurn,$sessionTime);
 
 	    if(!isset($turnTable['error']) || 
 	       !isset($simpleErrors[$turnTable['error']])){
@@ -427,9 +423,10 @@ function printv($arr){
   return $s . ')';
 }   
 function print_turn($turn){
-  return $turn['timeStamp'] . $turn['grade'] . printv($turn['random-help']);
+  return $turn['timeStamp'] . ':' . $turn['id'] . $turn['grade'] . 
+    printv($turn['random-help']);
 }
-$debugLearn=false;
+$debugLearn=true;
 if($debugLearn) echo "<ul>\n";
 foreach($model as $kc => $sec){
   foreach($sec as $thisSection => $stu){
@@ -521,6 +518,30 @@ foreach ($allKCStudent as $kc => $ss){
   }
 }
 
+
+// Print out all KS's used.
+echo "<p>";
+ksort($allKCs);
+foreach($allKCs as $kc => $dummy){
+  echo "$kc ";
+}
+echo "<p>";
+
+// Print out all errors.
+ksort($allErrors);
+foreach($allErrors as $err => $dummy){
+  echo "$err ";
+}
+echo "\n\n";
+	    
+mysql_close();
+?>
+</body>
+</html>
+<?php
+
+// Non-html format output
+
 // Print out model parameters for each kc, averaged over student.
 if(false){
   foreach($allModel as $kc => $params){
@@ -565,26 +586,13 @@ if(false){
 }
 
 // dump fade data out to mathematica
-if(true){
+if(false){
   $training->mma_dump();
  }
 
-// Print out all KS's used.
-echo "<p>";
-ksort($allKCs);
-foreach($allKCs as $kc => $dummy){
-  echo "$kc ";
-}
-echo "<p>";
+// Dump student state in csv format.
+if(false){
+  $state->csv();
+ }      
 
-// Print out all errors.
-ksort($allErrors);
-foreach($allErrors as $err => $dummy){
-  echo "$err ";
-}
-echo "\n\n";
-	    
-mysql_close();
 ?>
-</body>
-</html>
