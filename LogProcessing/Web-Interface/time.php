@@ -77,6 +77,15 @@ class session_time {
 
   }
 
+  function now_flounder_steps(){
+    return $this->confused&&$this->counter>1?$this->counter:0;
+  }
+
+  function now_flounder_time(){
+    return $this->confused&&$this->counter>1?
+      $this->lastIncorrectSessionTime-$this->lastCorrectSessionTime:0;
+  }
+
   function dt(){
     return $this->sessionTime-$this->lastStepTime;
   }
@@ -123,14 +132,14 @@ class session_time {
     global $totalFloundering, $tt;
     
     $endFlounder=false;
-    $this->fSteps=-1;
-    $this->fTime=-1;
+      $this->fSteps=-1;
+      $this->fTime=-1;
     //  Session has ended before confusion is resolved.
     if($this->confused && $this->counter>1){
       $this->fTime=$this->sessionTime-$this->lastCorrectSessionTime;
       $totalFloundering+=$this->fTime;
       $this->sessionFlounder+=$this->fTime;
-     $endFlounder=true;
+      $endFlounder=true;
       //save value before resetting counter
       $this->fSteps=$this->counter;
     }

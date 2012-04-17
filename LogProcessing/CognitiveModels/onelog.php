@@ -9,7 +9,7 @@
 <?php
 
 // These are all optional
-$userName = 'sbartley.*';  // regexp to match
+$userName = '^md5:b50efc';  // regexp to match
 	     // MIT_.*
              // asu experiment
 	     // asu_3u16472755e704e5fasul1_.*
@@ -21,9 +21,9 @@ $userName = 'sbartley.*';  // regexp to match
 	     //       user names got mangled in these sections.
 	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Pawl sections
 	     // 
-$sectionName = '';  // regexp to match
-$startDate = '2011-05-25 11:20:00'; 
-$endDate = '2011-05-26';
+$sectionName = 'asu_9Q1920841f2ca4d1fasul1_.';  // regexp to match
+$startDate = '2011-03-25';
+$endDate = '';
 
   // File with user name and password.
   // chmod 600 db_onelog_password
@@ -426,7 +426,7 @@ function print_turn($turn){
   return $turn['timeStamp'] . ':' . $turn['id'] . $turn['grade'] . 
     printv($turn['random-help']);
 }
-$debugLearn=true;
+$debugLearn=false;
 if($debugLearn) echo "<ul>\n";
 foreach($model as $kc => $sec){
   foreach($sec as $thisSection => $stu){
@@ -563,6 +563,22 @@ if(false){
       echo $correct->print0();
     }
     echo "\n";
+  }
+ }
+
+// For each student, print out first step for each opportunity, 
+// with kc and grade (for debugging).
+if(true){
+  foreach ($allStudentKC as $thisSection => $st){
+    foreach($st as $thisName => $opps){
+      echo "$thisSection $thisName\n";
+      foreach($opps as $yy) {
+	$kc=$yy['kc']; $g=$yy['grade'];
+	$id=$yy['id']; $tt=$yy['timeStamp']; $clientID=$yy['clientID'];
+	echo "    $clientID, $id, $tt, $kc, $g\n";
+      }
+      echo "\n";
+    }
   }
  }
 

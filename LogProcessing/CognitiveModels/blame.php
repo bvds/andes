@@ -488,10 +488,13 @@ class turn_blame {
       
       // sort KC instantiations by id of first turn.
       ksort($firstid);
+
+      // Save session results in global variables.
       foreach($firstid as $turns){
-	// Results are put into global variables.
-	$allStudentKC[$thisSection][$thisName][$kc][]= $turns;
-	$allKCStudent[$kc][$thisSection][$thisName][]= $turns;
+	$firstTurn=reset($turns);
+	$firstTurn['kc']=$kc;
+	$allStudentKC[$thisSection][$thisName][]=$firstTurn; 
+	$allKCStudent[$kc][$thisSection][$thisName][]=$turns;
       }
     }
   }
