@@ -9,7 +9,7 @@
 <?php
 
 // These are all optional
-$userName = '^md5:b50efc';  // regexp to match
+$userName = '';  // regexp to match
 	     // MIT_.*
              // asu experiment
 	     // asu_3u16472755e704e5fasul1_.*
@@ -21,7 +21,7 @@ $userName = '^md5:b50efc';  // regexp to match
 	     //       user names got mangled in these sections.
 	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Pawl sections
 	     // 
-$sectionName = 'asu_9Q1920841f2ca4d1fasul1_.';  // regexp to match
+$sectionName = '^uwplatt_';  // regexp to match
 $startDate = '2011-03-25';
 $endDate = '';
 
@@ -566,9 +566,10 @@ if(false){
   }
  }
 
+
 // For each student, print out first step for each opportunity, 
-// with kc and grade (for debugging).
-if(true){
+// with kc and grade in csv format (for debugging).
+if(false){
   foreach ($allStudentKC as $thisSection => $st){
     foreach($st as $thisName => $opps){
       echo "$thisSection $thisName\n";
@@ -600,6 +601,72 @@ if(false){
     }
   }
 }
+
+// For each kc and step, print model parameters, step id (ttID)
+// and policy used, in csv format.
+if(true){
+  $randomHelpCategories=array();
+  foreach ($allKCStudent as $ss){
+    foreach($ss as $st){
+      foreach($st as $opp){
+	foreach($opp as $turns){
+	  foreach($turns as $turn){
+	    foreach($turn['random-help'] as $var => $val){
+	      if(!isset($randomHelpCategories[$var])){
+		echo "adding $var\n";
+		$randomHelpCategories[$var]=1;
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+
+  // Header
+  echo "KC, clientID, ttID, learning, slip";
+  foreach($randomHelpCategories as $var => $val){
+    echo ", $var";
+  }
+  echo "\n";
+  
+  foreach ($allKCStudent as $kc => $ss){
+    foreach($ss as $thisSection => $st){
+      foreach($st as $thisName => $opps){
+	$maxv=$model[$kc][$thisSection][$thisName];
+        $i=0;
+	foreach($opps as $turns){
+	  $learn=($maxv['valid'] && isset($maxv['learnProb'][$i])?
+		  $maxv['learnProb'][$i++]:-1);
+	  $slip=$maxv['ps']->val;
+	  foreach($turns as $turn){
+	    // Only print out instances where policy 
+	    // change may apply.
+	    if(count($turn['random-help'])>0){
+	      $ttID=$turn['tID'];
+	      $clientID=$turn['clientID'];
+	      echo "\"$kc\", \"$clientID\", $ttID, $learn, $slip";
+	      // sanity test
+	      foreach($turn['random-help'] as $var => $val){
+		if(!isset($randomHelpCategories[$var])){
+		  exit("bad category $var");
+		}
+	      }
+	      foreach($randomHelpCategories as $var => $val){
+		if(isset($turn['random-help'][$var])){
+		  echo ", 1";
+		} else {
+		  echo ", 0";
+		}
+	      }
+	      echo "\n";
+	    }
+	  }
+	}
+      }
+    }
+  }
+ }
 
 // dump fade data out to mathematica
 if(false){
