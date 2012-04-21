@@ -1,5 +1,9 @@
 <?php
 
+function log0($x){
+  return $x>0?log($x):-1;
+}
+
 class student_state {
 
   private $sessionGrades;      // Talley grades
@@ -14,12 +18,12 @@ class student_state {
     if($thisTurn)
       $this->sessionGrades[$thisTurn]++; 
     $this->studentState[$ttID] =
-      array('sessionTime' => $sessionTime->sessionTime,
+      array('logSessionTime' => log0($sessionTime->sessionTime),
 	    'fracSessionFlounderTime' => 
 	    $sessionTime->sessionFlounder/$sessionTime->sessionTime,
-	    'nowFlounderSteps' => $sessionTime->now_flounder_steps(),
-	    'nowFlounderTime' => $sessionTime->now_flounder_time(),
-	    'nowStepTime' => $sessionTime->dt(),
+	    'logNowFlounderSteps' => log0($sessionTime->now_flounder_steps()),
+	    'logNowFlounderTime' => log0($sessionTime->now_flounder_time()),
+	    'logNowStepTime' => log0($sessionTime->dt()),
 	    'sessionCorrect' => $this->sessionGrades['correct'],
 	    'sessionIncorrect' => $this->sessionGrades['incorrect'],
 	    'sessionHelp' => $this->sessionGrades['help'],

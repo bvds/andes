@@ -21,7 +21,7 @@ $userName = '';  // regexp to match
 	     //       user names got mangled in these sections.
 	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Pawl sections
 	     // 
-$sectionName = '^uwplatt_';  // regexp to match
+$sectionName = '^uwplatt_2Y130';  // regexp to match
 $startDate = '2011-03-25';
 $endDate = '';
 
@@ -624,20 +624,32 @@ if(true){
   }
 
   // Header
-  echo "KC, clientID, ttID, learning, slip";
+  echo "\"KC\",\"clientID\",\"ttID\",\"learning\",\"useSlip\",\"slip\",\"nTurns\"";
   foreach($randomHelpCategories as $var => $val){
-    echo ", $var";
+    echo ",\"$var\"";
   }
   echo "\n";
   
   foreach ($allKCStudent as $kc => $ss){
     foreach($ss as $thisSection => $st){
       foreach($st as $thisName => $opps){
+	$nTurns=0;
+	foreach($opps as $turns){
+	  foreach($turns as $turn){
+	    if(count($turn['random-help'])>0){
+	      $nTurns++;
+	    }
+	  }
+	}
 	$maxv=$model[$kc][$thisSection][$thisName];
         $i=0;
 	foreach($opps as $turns){
 	  $learn=($maxv['valid'] && isset($maxv['learnProb'][$i])?
-		  $maxv['learnProb'][$i++]:-1);
+		  $maxv['learnProb'][$i]/count($turns):-1);
+	  // If learning has been detected, only use slip after
+	  // most likely point of learning.  If no learning has
+	  // been detected, can always use slip.
+	  $useSlip=($maxv['valid'] && $maxv['learn']->val>=$i?0:1);
 	  $slip=$maxv['ps']->val;
 	  foreach($turns as $turn){
 	    // Only print out instances where policy 
@@ -645,13 +657,7 @@ if(true){
 	    if(count($turn['random-help'])>0){
 	      $ttID=$turn['tID'];
 	      $clientID=$turn['clientID'];
-	      echo "\"$kc\", \"$clientID\", $ttID, $learn, $slip";
-	      // sanity test
-	      foreach($turn['random-help'] as $var => $val){
-		if(!isset($randomHelpCategories[$var])){
-		  exit("bad category $var");
-		}
-	      }
+	      echo "\"$kc\",\"$clientID\",$ttID,$learn,$useSlip,$slip,$nTurns";
 	      foreach($randomHelpCategories as $var => $val){
 		if(isset($turn['random-help'][$var])){
 		  echo ", 1";
@@ -662,6 +668,7 @@ if(true){
 	      echo "\n";
 	    }
 	  }
+	  $i++;
 	}
       }
     }
