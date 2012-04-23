@@ -9,6 +9,7 @@
 <?php
 
 // These are all optional
+ //    md5:b50efcf5
 $userName = '';  // regexp to match
 	     // MIT_.*
              // asu experiment
@@ -602,6 +603,21 @@ if(false){
   }
 }
 
+// For each student and KC, Print out the model parameters.
+// For some reason, this seems to be missing tool/UI related KC's
+if(false){
+  foreach($allKCStudent as $kc => $sec) {
+    foreach($sec as $thisSection => $stu) {
+      foreach($stu as $thisName => $opps) {
+	$maxv=$model[$kc][$thisSection][$thisName];
+	$ll=$maxv['logLike'];
+	echo "\"$kc\",\"$thisSection\",\"$thisName\",$ll\n";
+      }
+    }
+  }
+ }
+
+
 // For each kc and step, print model parameters, step id (ttID)
 // and policy used, in csv format.
 if(true){
@@ -624,7 +640,7 @@ if(true){
   }
 
   // Header
-  echo "\"KC\",\"clientID\",\"ttID\",\"learning\",\"useSlip\",\"slip\",\"nTurns\"";
+  echo "\"KC\",\"clientID\",\"ttID\",\"learning\",\"slipTurns\",\"slip\"";
   foreach($randomHelpCategories as $var => $val){
     echo ",\"$var\"";
   }
@@ -633,23 +649,37 @@ if(true){
   foreach ($allKCStudent as $kc => $ss){
     foreach($ss as $thisSection => $st){
       foreach($st as $thisName => $opps){
-	$nTurns=0;
+	// If learning has been detected, only use slip after
+	// most likely point of learning.  If no learning has
+	// been detected, can always use slip.
+	$slipTurns=0; 
+	$i=0;
 	foreach($opps as $turns){
-	  foreach($turns as $turn){
-	    if(count($turn['random-help'])>0){
-	      $nTurns++;
+	  // If there is learning, only count steps after
+	  // point of learning.  For no learning, use all steps.
+	  if(!$maxv['valid'] || $maxv['learn']->val<=$i){
+	    foreach($turns as $turn){
+	      // Only count instances where policy change may apply.
+	      if(count($turn['random-help'])>0){
+		$slipTurns++;
+	      }
 	    }
 	  }
+	  $i++;
 	}
 	$maxv=$model[$kc][$thisSection][$thisName];
         $i=0;
 	foreach($opps as $turns){
-	  $learn=($maxv['valid'] && isset($maxv['learnProb'][$i])?
-		  $maxv['learnProb'][$i]/count($turns):-1);
-	  // If learning has been detected, only use slip after
-	  // most likely point of learning.  If no learning has
-	  // been detected, can always use slip.
-	  $useSlip=($maxv['valid'] && $maxv['learn']->val>=$i?0:1);
+	  $oppTurns=0;  // # turns in this opportunity where policy applies
+	  foreach($turns as $turn){
+	    if(count($turn['random-help'])>0){
+	      $oppTurns++;
+	    }
+	  }
+	  // If there is no learning, set to zero.
+	  $learn=($maxv['valid'] && isset($maxv['learnProb'][$i]) && 
+		  $oppTurns>0? // avoid divide by zero.
+		  $maxv['learnProb'][$i]/$oppTurns:0);
 	  $slip=$maxv['ps']->val;
 	  foreach($turns as $turn){
 	    // Only print out instances where policy 
@@ -657,12 +687,12 @@ if(true){
 	    if(count($turn['random-help'])>0){
 	      $ttID=$turn['tID'];
 	      $clientID=$turn['clientID'];
-	      echo "\"$kc\",\"$clientID\",$ttID,$learn,$useSlip,$slip,$nTurns";
+	      echo "\"$kc\",\"$clientID\",$ttID,$learn,$slipTurns,$slip";
 	      foreach($randomHelpCategories as $var => $val){
 		if(isset($turn['random-help'][$var])){
-		  echo ", 1";
+		  echo ",1";
 		} else {
-		  echo ", 0";
+		  echo ",0";
 		}
 	      }
 	      echo "\n";
