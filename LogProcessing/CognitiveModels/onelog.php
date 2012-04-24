@@ -9,8 +9,9 @@
 <?php
 
 // These are all optional
- //    md5:b50efcf5
-$userName = '';  // regexp to match
+ //     ^md5:b50efcf5
+ //     ^md5:e2ed3385  // student in '^uwplatt_2Y130'
+$userName = '^md5:e2ed3385';  // regexp to match
 	     // MIT_.*
              // asu experiment
 	     // asu_3u16472755e704e5fasul1_.*
@@ -22,7 +23,7 @@ $userName = '';  // regexp to match
 	     //       user names got mangled in these sections.
 	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Pawl sections
 	     // 
-$sectionName = '^uwplatt_2Y130';  // regexp to match
+$sectionName = '^uwplatt_';  // regexp to match
 $startDate = '2011-03-25';
 $endDate = '';
 
@@ -647,6 +648,8 @@ if(true){
   echo "\n";
   
   foreach ($allKCStudent as $kc => $ss){
+    // 'none' is catch-all for steps where assignment of blame failed.
+    if($kc=='none')continue; 
     foreach($ss as $thisSection => $st){
       foreach($st as $thisName => $opps){
 	// If learning has been detected, only use slip after
@@ -657,25 +660,23 @@ if(true){
 	foreach($opps as $turns){
 	  // If there is learning, only count steps after
 	  // point of learning.  For no learning, use all steps.
+	  // 
+	  // There are things other than the hints which may
+	  // cause learning.  Thus, count all turns for determining
+	  // weighting.  We don't know which of the turns in a given
+	  // opportunity actually contributed to learning, so we
+	  // weight them all equally. 
 	  if(!$maxv['valid'] || $maxv['learn']->val<=$i){
-	    foreach($turns as $turn){
-	      // Only count instances where policy change may apply.
-	      if(count($turn['random-help'])>0){
-		$slipTurns++;
-	      }
-	    }
+	    $slipTurns+= count($turns);
 	  }
 	  $i++;
 	}
 	$maxv=$model[$kc][$thisSection][$thisName];
         $i=0;
 	foreach($opps as $turns){
-	  $oppTurns=0;  // # turns in this opportunity where policy applies
-	  foreach($turns as $turn){
-	    if(count($turn['random-help'])>0){
-	      $oppTurns++;
-	    }
-	  }
+	  // Weight by number of turns in opportunity.
+	  // See comments for $slipTurn above.
+	  $oppTurns=count($turns);
 	  // If there is no learning, set to zero.
 	  $learn=($maxv['valid'] && isset($maxv['learnProb'][$i]) && 
 		  $oppTurns>0? // avoid divide by zero.
