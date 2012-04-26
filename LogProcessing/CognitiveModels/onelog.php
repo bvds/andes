@@ -11,7 +11,7 @@
 // These are all optional
  //     ^md5:b50efcf5
  //     ^md5:e2ed3385  // student in '^uwplatt_2Y130'
-$userName = '^md5:e2ed3385';  // regexp to match
+$userName = '';  // regexp to match
 	     // MIT_.*
              // asu experiment
 	     // asu_3u16472755e704e5fasul1_.*
@@ -163,21 +163,21 @@ if ($myrow = mysql_fetch_array($result)) {
       while (($myrow = mysql_fetch_array($tempResult)) ||
 	     ($tempResultOld &&
 	      ($myrow = mysql_fetch_array($tempResultOld)))) {
-	if(isset($myrow["command"])){
+	if(isset($myrow['command'])){
 	  $myrow2 = mysql_fetch_array($tempResultOld);
-	  if($myrow["initiatingParty"]=='client'){
-	    $action=$myrow["command"];
-	    $ttID=$myrow["tID"];
-	    $response=$myrow2["command"];
+	  if($myrow['initiatingParty']=='client'){
+	    $action=$myrow['command'];
+	    $ttID=$myrow['tID'];
+	    $response=$myrow2['command'];
 	  } else {
-	    $action=$myrow2["command"];
-	    $ttID=$myrow2["tID"];
-	    $response=$myrow["command"];
+	    $action=$myrow2['command'];
+	    $ttID=$myrow2['tID'];
+	    $response=$myrow['command'];
 	  }
 	} else {
-	  $action=$myrow["client"];
-	  $ttID=$myrow["tID"];
-	  $response=$myrow["server"];
+	  $action=$myrow['client'];
+	  $ttID=$myrow['tID'];
+	  $response=$myrow['server'];
 	}
 
 	// decode json and count number of steps (and time)
@@ -193,7 +193,7 @@ if ($myrow = mysql_fetch_array($result)) {
 	// If session is closed, don't continue
 	if((isset($a->method) && $a->method == 'close-problem') ||
 	   // Help server has closed an idle session.
-	   strpos($response,"Your session is no longer active.")!==false){
+	   strpos($response,'Your session is no longer active.')!==false){
 	  break;
 	}
 	// Drop turns where timestamp is corrupted
@@ -224,14 +224,14 @@ if ($myrow = mysql_fetch_array($result)) {
 	  if(isset($b->result)){
 	    foreach ($b->result as $row){
 	      //print_r($row); echo "<br>\n";
-	      if($row->action=="modify-object" && isset($row->mode)){
+	      if($row->action=='modify-object' && isset($row->mode)){
 		$thisTurn=$row->mode;
 		$thisObject=$row->id;
 	      }
 	    }
 	  }
 	  if($a->method == 'seek-help'){
-	    $thisTurn="help";
+	    $thisTurn='help';
 	  }
 	  $sessionTime->update_flounder($thisTurn,$ttID);
 	  
@@ -320,7 +320,7 @@ if ($myrow = mysql_fetch_array($result)) {
 	      $turnTable['random-help']['no-hints']=1;
 	    }
 	    // Detect cases where backwards hint could be given.
-	    if($hints && ($thisTurn=='incorrect' || $thisTurn=='hint')){
+	    if($hints && ($thisTurn=='incorrect' || $thisTurn=='help')){
 	      $mark=!isset($turnTable['random-help']['GIVE-BACKWARDS-HINTS']);
 	      if($reversibleOp){
 		if($mark)
@@ -330,7 +330,7 @@ if ($myrow = mysql_fetch_array($result)) {
 		  $turnTable['random-help']['forwards-hint']=1;
 	      } else if(!$reversibleHint && $hasHintLog){
 		// ok, hint not eligible for reverse
-		// This should not ever be marked as backwards.
+		// This should never be marked as backwards.
 	      } else if($hasHintLog){
 		// non error-hint matches list
 		$turnTable['random-help']['zz-extra-hint']=1;
