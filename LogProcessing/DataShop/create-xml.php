@@ -1,9 +1,9 @@
 <?php
    include 'JSON.php';
-  $userName = 'chbishop_asu';
+  //$userName = 'chbishop_asu';
    $i = 1;
-   $db = new PDO("mysql:dbname=andes;host=localhost", "open", "hello123" );
-   foreach($db->query("select distinct pa.userName from OPEN_PROBLEM_ATTEMPT pa where pa.userSection='asu_9Q1920841f2ca4d1fasul1_e'") as $rowfirst)
+   $db = new PDO("mysql:dbname=andes;host=localhost", "root", "hello123" );
+   foreach($db->query("select distinct pa.userName from problem_attempt pa where pa.userSection='asu_9Q1920841f2ca4d1fasul1_e'") as $rowfirst)
    {
       $userName = $rowfirst['userName'];
    echo "*********************\nCreating ".$i;
@@ -14,7 +14,7 @@
    $root = $doc->getElementsByTagName('tutor_related_message_sequence')->item(0);
    $isValid = TRUE;
    //selecting a specific username from problem attempt table and creating a context message for various clientId from problem attempt table of the username
-   foreach ($db->query("select pa.clientID, pa.starttime, pa.userproblem, pa.usersection, ci.name, ci.school, ci.period, ci.description, ci.instructorName, ci.schoolyearInfo, ci.datasetID, sd.datasetname, sd.modulename, sd.groupname, sd.problemname from OPEN_PROBLEM_ATTEMPT pa, class_information ci, student_dataset sd where pa.usersection = ci.classSection and ci.datasetID = sd.datasetID and pa.usersection ='asu_9Q1920841f2ca4d1fasul1_e' and pa.userName = '".$userName."'") as $row)
+   foreach ($db->query("select pa.clientID, pa.starttime, pa.userproblem, pa.usersection, ci.name, ci.school, ci.period, ci.description, ci.instructorName, ci.schoolyearInfo, ci.datasetID, sd.datasetname, sd.modulename, sd.groupname, sd.problemname from problem_attempt pa, class_information ci, student_dataset sd where pa.usersection = ci.classSection and ci.datasetID = sd.datasetID and pa.usersection ='asu_9Q1920841f2ca4d1fasul1_e' and pa.userName = '".$userName."'") as $row)
    { 
        $context_msg_el = $doc->createElement("context_message");
        $context_msg_el->setAttribute('context_message_id', md5($row['clientID']));
@@ -27,7 +27,7 @@
     
        $user_id = $doc->createElement("user_id");
        $user_id->setAttribute('anonFlag', "true");
-       $user_id->nodeValue = $userName;
+       $user_id->nodeValue = md5($userName);
     
        // Append user id into meta
        $meta->appendChild($user_id);
@@ -88,6 +88,10 @@
        // Append class as child element to context_message
        // *************
        //
+      
+       
+        
+       
        //Creating dataset
        
        $dataset = $doc->createElement("dataset");
@@ -113,7 +117,7 @@
        $dslevel2 = $doc->createElement("level"); 
        $dslevel2->setAttribute('type', "section");
        $dslevel2_name = $doc->createElement("name"); 
-       $dslevel2_name->nodeValue = $row['usersection'];
+       $dslevel2_name->nodeValue ='Andes Homework Problems'; //April 8th 2012
        $dslevel2_prob = $doc->createElement("problem"); 
        $dslevel2_prob_name = $doc->createElement("name");
        $dslevel2_prob_name->nodeValue = $row['userproblem'];
@@ -129,12 +133,24 @@
        $dslevel->appendChild($dslevel2);
         // Append dataset as child element to context_message    
        $context_msg_el->appendChild($dataset);
+        //Creating element condition
+       $condition = $doc->createElement("condition");
+       $condition_name = $doc->createElement("name");
+       $condition_name->nodeValue = $row['usersection'];
+        $condition->appendChild($condition_name);
+        $condition_type = $doc->createElement("type");
+       $condition_type->nodeValue = 'experimental'; //April 8th
+       $condition->appendChild($condition_type);
+       $condition_desc = $doc->createElement("description");
+       $condition_desc->nodeValue = 'Raj experiment experimental condition';
+       $condition->appendChild($condition_desc);
+       $context_msg_el->appendChild($condition);
        // Append context_message as child element to tutor_related_message_sequence
        $root->appendChild($context_msg_el);
        
        
        //for a specific clientID in the problem attempt table get the corresponding transactions from the step transaction table
-       foreach ($db->query("SELECT st.tid, st.client, st.server, pa.clientID, pa.userName, pa.startTime, pa.userProblem, pa.userSection FROM step_transaction st, OPEN_PROBLEM_ATTEMPT pa where st.clientID = pa.clientID and st.clientID = '".$row['clientID']."'") as $row2)
+       foreach ($db->query("SELECT st.tid, st.client, st.server, pa.clientID, pa.userName, pa.startTime, pa.userProblem, pa.userSection FROM step_transaction st, problem_attempt pa where st.clientID = pa.clientID and st.clientID = '".$row['clientID']."'") as $row2)
        {
            $sat19_action_eval = '';
            $sat19_id = '';
@@ -157,7 +173,7 @@
                $toolmeta = $doc->createElement("meta");              
                 $user_id = $doc->createElement("user_id");
                 $user_id->setAttribute('anonFlag', "true");
-                $user_id->nodeValue = $userName;
+                $user_id->nodeValue = md5($userName);    
            // Append user_id as a child to meta
                 $toolmeta->appendChild($user_id);
                 $sessionID = $doc->createElement("session_id");
@@ -273,10 +289,12 @@
                             $input_text = $parms->text;
                             if ($input_text != '')
                             {
-                                $input_text = str_replace("&nbsp", "", $input_text);
-                                $input_text = str_replace("&", "", $input_text);
-                                $input_text = str_replace("'\'", "", $input_text);
-                                $event_child_input->nodeValue = $input_text;
+                                //$input_text = str_replace("&nbsp", "", $input_text);
+                                //$input_text = str_replace("&", "&amp;", $input_text);
+                                //$input_text = str_replace("<", "", $input_text);
+                                
+                                $ct = $doc->createCDATASection($input_text); //April 16th
+                                $event_child_input-> appendChild($ct);
                                 $event_descriptor->appendChild($event_child_input);
                             }
                         }
@@ -316,7 +334,7 @@
     
                 $user_id = $doc->createElement("user_id");
                 $user_id->setAttribute('anonFlag', "true");
-                $user_id->nodeValue = $userName;
+                $user_id->nodeValue = md5($userName);
              
                 // Append user id into meta
                 $tutormeta->appendChild($user_id);
@@ -391,7 +409,7 @@
                             {
                                if(isset($resultval1->$error_type))
                                {
-                                   $error_type_val = $resultval1->$error_type;                                   
+                                   $error_type_val = $resultval1->$error_type; //April 1st                           
                                }
                                if(isset($resultval1->mode ) )
                                {
@@ -401,7 +419,8 @@
                                    {
                                       $error_type_val = str_replace("(", "", $error_type_val);
                                       $error_type_val = str_replace(")", "", $error_type_val);
-                                      $action_evaluation->setAttribute("classification", $error_type_val);
+                                      $error_type_val = explode(" ",$error_type_val);//April 1st
+                                      $action_evaluation->setAttribute("classification", $error_type_val[0]); //April 1st
                                    }
                                    $action_evaluation->nodeValue = $resultval1->mode;
                                    //Set the variables sat19_id and sat19_action_eval to the id and mode fields of result in server
@@ -419,23 +438,59 @@
                     elseif($tutor_semantic_name == 'HINT MESSAGE')
                     {
                         $hint_id = "";
+                        $apr16_assoc_set = FALSE;
+                        
                         if(isset($server->result))
                         {
                             //Iterate through the whole result field to get hint_id attribute
                             foreach($server->result as $resultval2)
                             {
                                if(isset( $resultval2->assoc ) )
-                               {                                   
-                                   $hint_id = $json->encode($resultval2->assoc);
+                               { 
+                                   $apr16_assoc_set = TRUE;
+                                   $hint_scan = $json->encode($resultval2->assoc);
+                                   $hint_scan = str_replace("{", "", $hint_scan); //April 1st
+                                    $hint_scan = str_replace("}", "", $hint_scan);
+                                    $hint_scan = str_replace('"', "", $hint_scan);
+                                    //$hint_scan = str_replace("(", "", $hint_scan);
+                                   $hint_temp = explode(":",$hint_scan);
+                                   $hint_classif = $hint_temp[0];
+                                   if($hint_classif == "IEA")
+                                   {
+                                       $hint_temp[1] = str_replace("(", "", $hint_temp[1]);
+                                       $hint_id = $hint_temp[1];
+                                   }
+                                   elseif($hint_classif == "OPHINT")
+                                   {
+                                       $hint_id_array = explode(" ", substr($hint_temp[1], 1 + strpos($hint_temp[1], "(", 1)));
+                                       $hint_id = $hint_id_array[0];
+                                   }
+                                   elseif($hint_classif == "NSH"||$hint_classif=="DEFAULT-WRONG-DIR"||$hint_classif=="EQUATION-SYNTAX-ERROR"||$hint_classif=="GOAL"||$hint_classif=="HANDLE-LINK"||$hint_classif=="HANDLE-TEXT"||$hint_classif=="INAPPROPRIATE-TOOL"||$hint_classif=="NO-LABEL")
+                                   {
+                                    $hint_temp[1] = str_replace("(", "", $hint_temp[1]);
+                                    $hint_id_array = explode(" ",$hint_temp[1]);
+                                    $hint_id = $hint_id_array[0]; //April 1st
+                                   }
+                                   else
+                                   {
+                                       $hint_id = "";
+                                   }
+                                   //April 1st
                                }
                             }
                         }
+                        
+                        
                         //Create action_evaluation element
                         $action_evaluation = $doc->createElement("action_evaluation");
                         $action_evaluation->nodeValue = "HINT";
-                        if($hint_id != "")
+                        if($hint_classif != "")
                         {
-                            $action_evaluation->setAttribute("hint_id",$hint_id);                 
+                            $action_evaluation->setAttribute("classification",$hint_classif);
+                            if($hint_id != "")
+                            {
+                            $action_evaluation->setAttribute("hint_id",$hint_id);    
+                            }
                         }
                         //Append action_evaluation as a child to tutor message
                         $tutor_msg_el->appendChild($action_evaluation);
@@ -451,11 +506,13 @@
                             {
                                 //Create tutor_advice
                                 $text_val = $resultval->text;
-                                $text_val = str_replace("&nbsp", "", $text_val);
-                                $text_val = str_replace("&", "", $text_val);
-                                $text_val = str_replace("'\'", "", $text_val);
+                                //$text_val = str_replace("&nbsp", "", $text_val);
+                                //$text_val = str_replace("&", "&amp;", $text_val);
+                                //$text_val = str_replace("&lt;.","&amp;lt;", $text_val);
                                  $tutAdvice = $doc->createElement("tutor_advice");
-                                 $tutAdvice->nodeValue = $text_val;
+                                 $ct1 = $doc->createCDATASection($text_val); //April 16th
+                                $tutAdvice-> appendChild($ct1);
+                                 
                                  //Append tutor_advice as child to tool_message
                                  $tutor_msg_el->appendChild($tutAdvice);
                             }
@@ -464,6 +521,52 @@
                         
                     }
                     //If server has field called result
+                     if($tutor_semantic_name == 'HINT MESSAGE')
+                     {
+                         if(!$apr16_assoc_set)
+                           ////April 16
+                        {
+                            foreach($db->query("SELECT server FROM step_transaction where tid > ".$row2['tid']." and server like '%\"mode\":\"correct\"%' and clientID = '".
+$row2['clientID']."'") as $apr16)
+                                    {
+                                       if(!$apr16_assoc_set)
+                                       {
+                                        $apr16_temp=$json->decode($apr16['server']);
+                                        if(isset($apr16_temp->result))
+                                        {
+                                            foreach($apr16_temp->result as $resultval_apr)
+                                            {
+                                                if(isset($resultval_apr->assoc))
+                                                {
+                                                    $apr16_assoc_set = TRUE;
+                                                    $assoc_val16 = $json->encode($resultval_apr->assoc);
+                                                    $assoc_val16 = str_replace("{", "", $assoc_val16);
+                                                    $assoc_val16 = str_replace("}", "", $assoc_val16);
+                                                    $assoc_val16 = str_replace('"', "", $assoc_val16);
+                                                    $temp_array16 = explode(",", $assoc_val16);
+                                                    foreach($temp_array16 as $skill_16)
+                                                    {
+                                                        $skill_16_temp = explode(":",$skill_16);
+                                                        $skill_16_el = $doc->createElement("skill");
+                                                        $skill_16_name_el = $doc->createElement("name");                                    
+
+                                                        $skill_16_name_el->nodeValue = $skill_16_temp[0];
+                                                        $skill_16_model = $doc->createelement("model_name");
+                                                        $skill_16_model->nodeValue = "Imputed_Time";
+                                                        $skill_16_el->appendChild($skill_16_name_el);
+                                                        $skill_16_el->appendChild($skill_16_model);
+                                                        $tutor_msg_el->appendChild($skill_16_el);
+
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                  }
+                            
+                        }
+                         }//April 16
+                        
                     if(isset($server->result))
                     {
                         //Create variable sat19_assoc_set and set it to FALSE
@@ -498,10 +601,10 @@
                                     else
                                     {
                                         $skill_name_el->nodeValue = $skill_temp[0];
-                                        $skill__cat_el = $doc->createElement("category");
-                                        $skill__cat_el->nodeValue = $skill_temp[1];
+                                       // $skill__cat_el = $doc->createElement("category"); //ON MAR 20
+                                        //$skill__cat_el->nodeValue = $skill_temp[1];
                                         $skill_el->appendChild($skill_name_el);
-                                        $skill_el->appendChild($skill__cat_el);
+                                       // $skill_el->appendChild($skill__cat_el);
                                         //Append skill to tutor_message
                                         $tutor_msg_el->appendChild($skill_el);
                                     }
@@ -548,12 +651,12 @@
                                                     $skill_name_el = $doc->createElement("name");                                    
 
                                                     $skill_name_el->nodeValue = $skill_temp[0];
-                                                    $skill__cat_el = $doc->createElement("category");
-                                                    $skill__cat_el->nodeValue = $skill_temp[1];
+                                                    //$skill__cat_el = $doc->createElement("category");
+                                                    //$skill__cat_el->nodeValue = $skill_temp[1];
                                                     $skill_model = $doc->createelement("model_name");
                                                     $skill_model->nodeValue = "Imputed_Location";
                                                     $skill_el->appendChild($skill_name_el);
-                                                    $skill_el->appendChild($skill__cat_el);
+                                                    //$skill_el->appendChild($skill__cat_el);
                                                     $skill_el->appendChild($skill_model);
                                                     $tutor_msg_el->appendChild($skill_el);
                                                     
@@ -594,12 +697,12 @@
                                                         $skill_name_el = $doc->createElement("name");                                    
 
                                                         $skill_name_el->nodeValue = $skill_temp[0];
-                                                        $skill__cat_el = $doc->createElement("category");
-                                                        $skill__cat_el->nodeValue = $skill_temp[1];
+                                                        //$skill__cat_el = $doc->createElement("category");
+                                                       // $skill__cat_el->nodeValue = $skill_temp[1];
                                                         $skill_model = $doc->createelement("model_name");
                                                         $skill_model->nodeValue = "Imputed_Time";
                                                         $skill_el->appendChild($skill_name_el);
-                                                        $skill_el->appendChild($skill__cat_el);
+                                                        //$skill_el->appendChild($skill__cat_el);
                                                         $skill_el->appendChild($skill_model);
                                                         $tutor_msg_el->appendChild($skill_el);
 
@@ -608,7 +711,7 @@
                                             }
                                         }
                                     }
-                                    }
+                                  } //Here
                                 }
                                 }
                                 
@@ -664,7 +767,7 @@ $doc->formatOutput = true;
 
 //echo $doc->saveXML();
 // Saving the generated XML
-$doc->save($userName.".xml");
+$doc->save(md5($userName).".xml");
    }
    
 ?>
