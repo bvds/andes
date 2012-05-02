@@ -115,6 +115,8 @@ function maximum_likelihood_models($opps,$debugML=false){
   }
   
   $maxll=false;
+  $allll=array();
+  $allGain=array();
   // Step through possible chances for learning skill.
   for($step=0; $step<count($opps); $step++){
     $cbl=0; $wbl=0; $cal=0; $wal=0;
@@ -148,6 +150,13 @@ function maximum_likelihood_models($opps,$debugML=false){
     $ll+=$cal>0?$cal*log(1.0-$ps->val):0.0;
     
     $allll[$step]=$ll;
+    // Expectation value for the learning gain 1-G-S.
+    // This is gotten by integrating over the binomial
+    // distributions P(G) and P(S).
+    $thisGain=1-(1+$cbl)/(2+$cbl+$wbl)-(1+$wal)/(2+$cal+$wal);
+    // For some choices of step, there is no learning.
+    $allGain[$step]=($thisGain>0?$thisGain:0);
+    $allSlip[$step]=$ps->val;
     
     // Find maximum value.
     if($maxll===false || $ll>$maxll){
@@ -228,18 +237,29 @@ function maximum_likelihood_models($opps,$debugML=false){
   // http://pdg.lbl.gov/2011/reviews/rpp2011-rev-statistics.pdf
   //
   // Elements where learning cannot be determined are left empty.
+  // 
+  // In fact, we use AIC to determine the relative probability
+  // of different models with various values of L.  When there
+  // is a fit with a step, there are two model parameters.  When no 
+  // learning is found ($i=0), there is one model parameter.
+  // See http://en.wikipedia.org/wiki/Akaike_information_criterion
 
   $maxv['learnProb']=array();
   if($maxv['valid']){
-    // First need to normalize.
+    // First, need to normalize.
     $sum=0;
-    for($i=1; $i<count($allll); $i++){
-      $sum += exp($allll[$i]);
+    // Include no learning case.
+    for($i=0; $i<count($allll); $i++){
+      // Using AIC, to determing the relative probability.
+      $sum += exp($allll[$i]-($i==0?1:2));
     }
     // There is no way to measure learning on last opportunity.
-    for($i=1; $i<count($allll); $i++){
-      $maxv['learnProb'][$i-1]=exp($allll[$i])/$sum;
+    for($i=0; $i<count($allll); $i++){
+      $maxv['learnProb'][$i]=exp($allll[$i]-($i==0?1:2))/$sum;
     }
+    // Associated learning gains
+    $maxv['learnGain']=$allGain;
+    $maxv['slip']=$allSlip;
   }
   
   if($debugML){

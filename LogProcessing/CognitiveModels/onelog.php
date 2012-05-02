@@ -1,3 +1,7 @@
+<?php 
+$htmlHeaders=false;  // Add html header to beginning
+if($htmlHeaders):
+?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -7,9 +11,10 @@
 </head>
 <body>
 <?php
+   endif;
 
 // These are all optional
- //     ^md5:b50efcf5
+ //     ^md5:b50efc   // Student used for tests of different models.
  //     ^md5:e2ed3385  // student in '^uwplatt_2Y130'
 $userName = '';  // regexp to match
 	     // MIT_.*
@@ -19,9 +24,9 @@ $userName = '';  // regexp to match
 	     // Help server dies on this section when running all osu:
 	     // asu_3u16472755e704e5fasul1_15854
 	     // ^uwplatt_
-	     // ^uwplatt_(8p1304|90476) Scaife sections 
+	     // ^uwplatt_(8p1304|90476) Thomas Scaife sections 
 	     //       user names got mangled in these sections.
-	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Pawl sections
+	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Andy Pawl sections
 	     // 
 $sectionName = '^uwplatt_';  // regexp to match
 $startDate = '2011-03-25';
@@ -121,7 +126,9 @@ ini_set("memory_limit","1024M");  // if I do everything, it gets big...
 
 $json = new Services_JSON();
 
-echo "Analyze problems $extrae,$userNamee$sectionNamee\n";
+if($htmlHeaders){
+  echo "Analyze problems $extrae,$userNamee$sectionNamee\n";
+ }
 
 // Always do sessions in chronological order
 $sql = "SELECT * FROM $problem_attempt AS P1 WHERE $userNamec $sectionNamec $extrac $startDatec $endDatec P1.clientID = P1.clientID ORDER BY startTime ASC";
@@ -376,30 +383,30 @@ if ($myrow = mysql_fetch_array($result)) {
    } else {// if for any session existing
   echo "<p>No matching sessions found\n";
  }
-echo "<p>Total student time:&nbsp; " . number_format($tt,0) . 
-" seconds; total time <em>floundering</em>:&nbsp; " . 
-number_format($totalFloundering,0) . " seconds.\n";
+if($htmlHeaders){
+  echo "<p>Total student time:&nbsp; " . number_format($tt,0) . 
+    " seconds; total time <em>floundering</em>:&nbsp; " . 
+    number_format($totalFloundering,0) . " seconds.\n";
+  $elapsedTime = time() - $initialTime;
+  echo "<p>Time to process:&nbsp; $elapsedTime s with " 
+    . number_format($queryTime,2) . " s for mysql.&nbsp;\n";
+  echo "Json decoding times:&nbsp; " . number_format($jsonTime1,2) .
+    " s, " . number_format($jsonTime2,2) . " s.\n";
 
-$elapsedTime = time() - $initialTime;
-echo "<p>Time to process:&nbsp; $elapsedTime s with " 
-. number_format($queryTime,2) . " s for mysql.&nbsp;\n";
-echo "Json decoding times:&nbsp; " . number_format($jsonTime1,2) .
-" s, " . number_format($jsonTime2,2) . " s.\n";
-
-if(count($badTimes)>0){
-  echo "<p>Bad Timestamps:</p>\n";
-  echo "<table border=1>\n";
-  echo "<thead>\n";
-  echo "<tr><th>Time</th><th>Action</th></tr>\n";
-  echo "</thead>\n";
-  echo "<tbody>\n";
-  foreach ($badTimes as $time => $action){  
-    echo "<tr><td>$time</td><td>$action</td></tr>\n";
+  if(count($badTimes)>0){
+    echo "<p>Bad Timestamps:</p>\n";
+    echo "<table border=1>\n";
+    echo "<thead>\n";
+    echo "<tr><th>Time</th><th>Action</th></tr>\n";
+    echo "</thead>\n";
+    echo "<tbody>\n";
+    foreach ($badTimes as $time => $action){  
+      echo "<tr><td>$time</td><td>$action</td></tr>\n";
+    }
+    echo "</tbody>\n";
+    echo "</table>\n";
   }
-  echo "</tbody>\n";
-  echo "</table>\n";
  }
-
 
 
 // For each student and KC, find the Maximun Likelihood solution for a model
@@ -439,8 +446,8 @@ foreach($model as $kc => $sec){
 	$top=count($allKCStudent[$kc][$thisSection][$thisName]);
 	for($opp=0; $opp<$top; $opp++){
 	  $turns=$allKCStudent[$kc][$thisSection][$thisName][$opp];
-	  $learn=isset($maxv['learnProb'][$opp])?
-	    number_format($maxv['learnProb'][$opp],2):'???';
+	  $learn=isset($maxv['learnProb'][$opp+1])?
+	    number_format($maxv['learnProb'][$opp+1],2):'???';
 	  if($debugLearn) echo "    <li>learn $learn:";
 	  foreach($turns as $turn){
 	    if($debugLearn) echo ' ' . print_turn($turn);
@@ -520,27 +527,25 @@ foreach ($allKCStudent as $kc => $ss){
   }
 }
 
-
-// Print out all KS's used.
-echo "<p>";
-ksort($allKCs);
-foreach($allKCs as $kc => $dummy){
-  echo "$kc ";
-}
-echo "<p>";
-
-// Print out all errors.
-ksort($allErrors);
-foreach($allErrors as $err => $dummy){
-  echo "$err ";
-}
-echo "\n\n";
-	    
 mysql_close();
-?>
-</body>
-</html>
-<?php
+if($htmlHeaders){
+  // Print out all KS's used.
+  echo "<p>";
+  ksort($allKCs);
+  foreach($allKCs as $kc => $dummy){
+    echo "$kc ";
+  }
+  echo "<p>";
+  
+  // Print out all errors.
+  ksort($allErrors);
+  foreach($allErrors as $err => $dummy){
+    echo "$err ";
+  }
+  echo "\n\n";
+  echo "</body>";
+  echo "</html>";
+ }
 
 // Non-html format output
 
@@ -587,6 +592,7 @@ if(false){
 
 // For each kc and student, print out first step for each opportunity.
 if(false){
+  ksort($allKCStudent);
   foreach ($allKCStudent as $kc => $ss){
     foreach($ss as $thisSection => $st){
       foreach($st as $thisName => $xx){
@@ -604,23 +610,34 @@ if(false){
   }
 }
 
+function skipKC($kc){
+    // none:  entries where assigment of blame failed
+    // select-mc-answer  answer multiple-choice questions
+  return $kc=='none' || $kc=='select-mc-answer';
+}
+
 // For each student and KC, Print out the model parameters.
-// For some reason, this seems to be missing tool/UI related KC's
 if(false){
+  echo "\"KC\",\"Section\",\"Name\",\"AIC\"\n";
+  ksort($allKCStudent);
   foreach($allKCStudent as $kc => $sec) {
-    foreach($sec as $thisSection => $stu) {
-      foreach($stu as $thisName => $opps) {
-	$maxv=$model[$kc][$thisSection][$thisName];
-	$ll=$maxv['logLike'];
-	echo "\"$kc\",\"$thisSection\",\"$thisName\",$ll\n";
+    // none:  entries where assigment of blame failed
+    // select-mc-answer  answer multiple-choice questions
+    if(!skipKC($kc)){
+      foreach($sec as $thisSection => $stu) {
+	foreach($stu as $thisName => $opps) {
+	  $maxv=$model[$kc][$thisSection][$thisName];
+	  $aic=$maxv['valid']?2*3-2*$maxv['logLike']:0;
+	  echo "\"$kc\",\"$thisSection\",\"$thisName\",$aic\n";
+	}
       }
     }
   }
  }
 
 
-// For each kc and step, print model parameters, step id (ttID)
-// and policy used, in csv format.
+// For each kc and step, print model parameters, step id (ttID),
+// and policies used, in csv format.
 if(true){
   $randomHelpCategories=array();
   foreach ($allKCStudent as $ss){
@@ -630,7 +647,7 @@ if(true){
 	  foreach($turns as $turn){
 	    foreach($turn['random-help'] as $var => $val){
 	      if(!isset($randomHelpCategories[$var])){
-		echo "adding $var\n";
+		// echo "adding $var\n";
 		$randomHelpCategories[$var]=1;
 	      }
 	    }
@@ -641,54 +658,64 @@ if(true){
   }
 
   // Header
-  echo "\"KC\",\"clientID\",\"ttID\",\"learning\",\"slipTurns\",\"slip\"";
+  echo "\"KC\",\"clientID\",\"ttID\",\"learning\",\"oppTurns\",\"noSlip\"";
   foreach($randomHelpCategories as $var => $val){
     echo ",\"$var\"";
   }
   echo "\n";
   
+  // Discount factor.
+  // According to min's thesis, they use a discount factor
+  // for number of kc-relevant turns before reward with a 
+  // value of 0.9.
+  // We will do this opportunity-wise, since any 
+  // model-scaffold-fade strategy would be implemented
+  // in that way.
+  $gamma=0.5; 
   foreach ($allKCStudent as $kc => $ss){
-    // 'none' is catch-all for steps where assignment of blame failed.
-    if($kc=='none')continue; 
+    // none:  entries where assigment of blame failed
+    // select-mc-answer  answer multiple-choice questions
+    if(skipKC($kc))continue; 
     foreach($ss as $thisSection => $st){
       foreach($st as $thisName => $opps){
-	// If learning has been detected, only use slip after
-	// most likely point of learning.  If no learning has
-	// been detected, can always use slip.
-	$slipTurns=0; 
-	$i=0;
+	$maxv=$model[$kc][$thisSection][$thisName];
+        $i=0;
 	foreach($opps as $turns){
-	  // If there is learning, only count steps after
-	  // point of learning.  For no learning, use all steps.
-	  // 
 	  // There are things other than the hints which may
 	  // cause learning.  Thus, count all turns for determining
 	  // weighting.  We don't know which of the turns in a given
 	  // opportunity actually contributed to learning, so we
 	  // weight them all equally. 
-	  if(!$maxv['valid'] || $maxv['learn']->val<=$i){
-	    $slipTurns+= count($turns);
-	  }
-	  $i++;
-	}
-	$maxv=$model[$kc][$thisSection][$thisName];
-        $i=0;
-	foreach($opps as $turns){
-	  // Weight by number of turns in opportunity.
-	  // See comments for $slipTurn above.
 	  $oppTurns=count($turns);
 	  // If there is no learning, set to zero.
-	  $learn=($maxv['valid'] && isset($maxv['learnProb'][$i]) && 
-		  $oppTurns>0? // avoid divide by zero.
-		  $maxv['learnProb'][$i]/$oppTurns:0);
-	  $slip=$maxv['ps']->val;
+	  // Weight by actual learning gain an probability
+	  // of that model.
+	  $learn=0;
+	  for($k=1; $k<count($opps)-$i; $k++){
+	    if($maxv['valid'] && isset($maxv['learnProb'][$i+$k])){
+	      $learn+=$maxv['learnProb'][$i+1]*$maxv['learnGain'][$i+$k]*
+		($k==1?1:pow($gamma,$k-1));
+	    }
+	  }
+	  // In cases where there is no learning, student
+	  // may have already learned skill.  In any case, we
+	  // want to minimize slips after learning so that the
+	  // tutor has an after-learning strategy.
+	  if($maxv['valid']){
+	    $noSlip=0;
+	    for($k=0; $k<=$i; $k++){
+	      $noSlip+=(1-$maxv['slip'][$k])*$maxv['learnProb'][$k];
+	    }
+	  } else {
+	    $noSlip=1-$maxv['ps'];
+	  } 
 	  foreach($turns as $turn){
 	    // Only print out instances where policy 
 	    // change may apply.
 	    if(count($turn['random-help'])>0){
 	      $ttID=$turn['tID'];
 	      $clientID=$turn['clientID'];
-	      echo "\"$kc\",\"$clientID\",$ttID,$learn,$slipTurns,$slip";
+	      echo "\"$kc\",\"$clientID\",$ttID,$learn,$oppTurns,$noSlip";
 	      foreach($randomHelpCategories as $var => $val){
 		if(isset($turn['random-help'][$var])){
 		  echo ",1";
