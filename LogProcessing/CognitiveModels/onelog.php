@@ -108,7 +108,7 @@ function prob_link($turns){
 
 require("time.php");
 require("blame.php");
-require("binomials.php");
+require("step-model.php");
 require("training.php");
 require("state.php");
 $training = new training();
@@ -658,7 +658,7 @@ if(true){
   }
 
   // Header
-  echo "\"KC\",\"clientID\",\"ttID\",\"learning\",\"oppTurns\",\"noSlip\"";
+  echo "\"KC\",\"clientID\",\"ttID\"\"oppTurns\",,\"learning\",\"noSlip\"";
   foreach($randomHelpCategories as $var => $val){
     echo ",\"$var\"";
   }
@@ -704,10 +704,13 @@ if(true){
 	  if($maxv['valid']){
 	    $noSlip=0;
 	    for($k=0; $k<=$i; $k++){
-	      $noSlip+=(1-$maxv['slip'][$k])*$maxv['learnProb'][$k];
+	      $noSlip+=($maxv['slip'][$k]>0?
+			(1-$maxv['slip'][$k])*$maxv['learnProb'][$k]/
+			((count($opps)-$k)*$maxv['slip'][$k]):0);
 	    }
 	  } else {
-	    $noSlip=1-$maxv['ps'];
+	    $noSlip=($maxv['ps']>0?
+		     (1-$maxv['ps'])/(count($opps)*$maxv['ps']):0);
 	  } 
 	  foreach($turns as $turn){
 	    // Only print out instances where policy 
@@ -715,7 +718,7 @@ if(true){
 	    if(count($turn['random-help'])>0){
 	      $ttID=$turn['tID'];
 	      $clientID=$turn['clientID'];
-	      echo "\"$kc\",\"$clientID\",$ttID,$learn,$oppTurns,$noSlip";
+	      echo "\"$kc\",\"$clientID\",$ttID,$oppTurns,$learn,$noSlip";
 	      foreach($randomHelpCategories as $var => $val){
 		if(isset($turn['random-help'][$var])){
 		  echo ",1";

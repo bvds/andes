@@ -154,6 +154,9 @@ function maximum_likelihood_models($opps,$debugML=false){
     // This is gotten by integrating over the binomial
     // distributions P(G) and P(S).
     $thisGain=1-(1+$cbl)/(2+$cbl+$wbl)-(1+$wal)/(2+$cal+$wal);
+    // this is gotten by finding the variance of G+S and taking square root:
+    $thisGainErr=sqrt((1+$cbl)*(1+$wbl)/(pow(2+$cbl+$wbl,2)*(3+$cbl+$wbl))
+		     +(1+$cal)*(1+$wal)/(pow(2+$cal+$wal,2)*(3+$cal+$wal)));
     // For some choices of step, there is no learning.
     $allGain[$step]=($thisGain>0?$thisGain:0);
     $allSlip[$step]=$ps->val;
