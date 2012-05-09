@@ -55,6 +55,19 @@ function root_finder($function,$params,$lower,$upper){
   return 0.5*($lower+$upper);
 }
 
+$learnCache=array();
+function learnProb($cbl,$wbl,$cal,$wal){
+  if($cbl==0 && $cal==0){
+    return (1+$wbl)/(2+$wbl+$wal);
+  } else if($cal==0){
+    return 1-learnProb(0,$wal,$cbl,$wbl);
+    // need to figure out how to make flat hash table for this.
+  } else if (isset($learnCache[array($cbl,$wbl,$cal,$wal)])){
+    return $learnCache[array($cbl,$wbl,$cal,$wal)];
+  } else {
+    return // formula
+  }
+}
 
 function binomial_errors($p,$c,$w){
   // Analytic formula (Should be good away from endpoints).
