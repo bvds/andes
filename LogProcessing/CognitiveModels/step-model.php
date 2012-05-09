@@ -3,6 +3,7 @@
 // Functions for handling binomial distributed quantities
 
 
+
 function print2($pg){
   return (is_numeric($pg)?number_format($pg,2):$pg);
 }
@@ -57,15 +58,19 @@ function root_finder($function,$params,$lower,$upper){
 
 $learnCache=array();
 function learnProb($cbl,$wbl,$cal,$wal){
+  // Could use symmetries to reduce size of cacheArray by 
+  // a factor of four.
   if($cbl==0 && $cal==0){
     return (1+$wbl)/(2+$wbl+$wal);
   } else if($cal==0){
     return 1-learnProb(0,$wal,$cbl,$wbl);
-    // need to figure out how to make flat hash table for this.
-  } else if (isset($learnCache[array($cbl,$wbl,$cal,$wal)])){
-    return $learnCache[array($cbl,$wbl,$cal,$wal)];
+  } else if (isset($learnCache[$cbl . ',' . $wbl . ',' . $cal . ',' . $wal])){
+    return $learnCache[$cbl . ',' . $wbl . ',' . $cal . ',' . $wal];
   } else {
-    return // formula
+    $val=($cal+$wal+1)*learnProb($cbl,$wbl,$cal-1,$wal)/$cal
+      -(1+$wal)*learnProb($cbl,$wbl,$cal-1,$wal+1)/$cal;
+    $learnCache[$cbl . ',' . $wbl . ',' . $cal . ',' . $wal]=$val;
+    return $val;
   }
 }
 
