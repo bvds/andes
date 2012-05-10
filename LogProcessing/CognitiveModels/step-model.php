@@ -15,7 +15,13 @@ function print2($pg){
 
 $learnCache=array();
 function learnProb($cbl,$wbl,$cal,$wal){
+  global $learnCache;
   $val=learnProb2($cbl,$wbl,$cal,$wal);
+  if($val<0 || $val>1){
+    echo "learnProb for $cbl,$wbl,$cal,$wal";
+    echo "  $val\n";
+    print_r($learnCache);
+  }
   // The recursion traverses a two-dimensional surface
   // in a four-dimensional space.  Thus, cached values
   // will not be reused very often for different function calls.
@@ -24,18 +30,20 @@ function learnProb($cbl,$wbl,$cal,$wal){
   return $val;
 }
 function learnProb2($cbl,$wbl,$cal,$wal){
+  global $learnCache;
+  $key=$cbl . ',' . $wbl . ',' . $cal . ',' . $wal;
   // Could use symmetries to reduce size of cacheArray by 
   // a factor of four.
   if($cbl==0 && $cal==0){
     return (1+$wbl)/(2+$wbl+$wal);
-  } else if($cal==0){
-    return 1-learnProb(0,$wal,$cbl,$wbl);
-  } else if (isset($learnCache[$cbl . ',' . $wbl . ',' . $cal . ',' . $wal])){
-    return $learnCache[$cbl . ',' . $wbl . ',' . $cal . ',' . $wal];
+  } else if($cal<$cbl){
+    return 1-learnProb2($cal,$wal,$cbl,$wbl);
+  } else if (isset($learnCache[$key])){
+    return $learnCache[$key];
   } else {
-    $val=($cal+$wal+1)*learnProb2($cbl,$wbl,$cal-1,$wal)/$cal
-      -(1+$wal)*learnProb2($cbl,$wbl,$cal-1,$wal+1)/$cal;
-    $learnCache[$cbl . ',' . $wbl . ',' . $cal . ',' . $wal]=$val;
+    $val=(($cal+$wal+1)*learnProb2($cbl,$wbl,$cal-1,$wal)
+	  -(1+$wal)*learnProb2($cbl,$wbl,$cal-1,$wal+1))/$cal;
+    $learnCache[$key]=$val;
     return $val;
   }
 }
@@ -46,9 +54,10 @@ function learnProb2($cbl,$wbl,$cal,$wal){
 $confidenceLevel=0.6826895;
 
 function maximum_likelihood_models($opps,$debugML=false){
-  
+  global $confidenceLevel; 
+
   if($debugML){
-    echo "$thisSection $thisName $kc\n";
+    echo "Grades for this student and KC:\n";
     foreach($opps as $j => $opp){
       $yy=reset($opp);
       $gg=$yy['grade'];
@@ -62,6 +71,9 @@ function maximum_likelihood_models($opps,$debugML=false){
   $allGain=array();
   // Step through possible chances for learning skill.
   for($step=0; $step<count($opps); $step++){
+    if($debugML){
+      echo "step $step of " . count($opps) . " ";
+    }
     $cbl=0; $wbl=0; $cal=0; $wal=0;
     foreach($opps as $j => $opp){
       $yy=reset($opp);
@@ -84,6 +96,9 @@ function maximum_likelihood_models($opps,$debugML=false){
     $pg=$cbl+$wbl>0?$cbl/($cbl+$wbl):false;
     $ps=$cal+$wal>0?$wal/($cal+$wal):false;
     $allSlip[$step]=$ps;
+    if($debugML){
+      echo " hi1 ";
+    }
 
     // Calculate the log likelihood for model with step at $step.
     // Note that this number is negative (so we are trying to maximize it)
@@ -104,6 +119,10 @@ function maximum_likelihood_models($opps,$debugML=false){
     $gainProb=$step>0?learnProb($cbl,$wbl,$cal,$wal):0;
     $allGainProb[$step]=$gainProb;
 
+    if($debugML){
+      echo " hi3 ";
+    }
+
     // Find maximum value.
     if($maxll===false || $ll>$maxll){
       $maxll=$ll;
@@ -117,7 +136,7 @@ function maximum_likelihood_models($opps,$debugML=false){
     }
     
     if($debugML){
-      echo ' (' . $learn . ',' . print2($pg) . ',' . 
+      echo ' (' . $step . ',' . print2($pg) . ',' . 
 	print2($ps) . ',' .  number_format($ll,3) . ')';
     }	
   }

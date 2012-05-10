@@ -1,5 +1,5 @@
 <?php 
-$htmlHeaders=false;  // Add html header to beginning
+$htmlHeaders=true;  // Add html header to beginning
 if($htmlHeaders):
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -16,7 +16,7 @@ if($htmlHeaders):
 // These are all optional
  //     ^md5:b50efc   // Student used for tests of different models.
  //     ^md5:e2ed3385  // student in '^uwplatt_2Y130'
-$userName = '';  // regexp to match
+$userName = '^md5:e2ed3385';  // regexp to match
 	     // MIT_.*
              // asu experiment
 	     // asu_3u16472755e704e5fasul1_.*
@@ -416,7 +416,7 @@ foreach($allKCStudent as $kc => $sec) {
   foreach($sec as $thisSection => $stu) {
     foreach($stu as $thisName => $opps) {
       $model[$kc][$thisSection][$thisName] =
-	maximum_likelihood_models($opps);
+	maximum_likelihood_models($opps,true);
     }
   }
 }
@@ -435,7 +435,7 @@ function print_turn($turn){
   return $turn['timeStamp'] . ':' . $turn['id'] . $turn['grade'] . 
     printv($turn['random-help']);
 }
-$debugLearn=false;
+$debugLearn=true;
 if($debugLearn) echo "<ul>\n";
 foreach($model as $kc => $sec){
   foreach($sec as $thisSection => $stu){
@@ -613,7 +613,7 @@ function skipKC($kc){
 }
 
 // For each student and KC, Print out the model parameters.
-if(false){
+if(true){
   echo "\"KC\",\"Section\",\"Name\",\"AIC\"\n";
   ksort($allKCStudent);
   foreach($allKCStudent as $kc => $sec) {
@@ -634,7 +634,7 @@ if(false){
 
 // For each kc and step, print model parameters, step id (ttID),
 // and policies used, in csv format.
-if(true){
+if(false){
   $randomHelpCategories=array();
   foreach ($allKCStudent as $ss){
     foreach($ss as $st){
@@ -664,7 +664,7 @@ if(true){
   // According to min's thesis, they use a discount factor
   // for number of kc-relevant transactions (page 36 of thesis) 
   // before the reward with a value of 0.9.
-  // We will do this step-wise, since any  model-scaffold-fade 
+  // We will do this per incorrect step, since any  model-scaffold-fade 
   // strategy would be implemented in that manner. 
   $gamma=0.5; 
   foreach ($allKCStudent as $kc => $ss){
@@ -686,11 +686,16 @@ if(true){
 	  // Weight by actual learning gain, probability
 	  // of that model, and discount factor.
 	  $learn=0;
-	  for($k=1; $k<count($opps)-$i; $k++){
-	    if(isset($maxv['learnGainProb'][$i+$k]) &&
-	       $maxv['learnGainProb'][$i+$k]>$confidenceLevel){
-	      $learn+=$maxv['learnHereProb'][$i+1]*$maxv['learnGain'][$i+$k]*
-		($k==1?1:pow($gamma,$k-1));
+	  $gammaFactor=1;
+	  for($k=$i+1; $k<count($opps); $k++){
+	    if(isset($maxv['learnGainProb'][$k]) &&
+	       // $confidenceLevel is defined in step-model.php.
+	       $maxv['learnGainProb'][$k]>$confidenceLevel){
+	      $learn+=$maxv['learnHereProb'][$k]*$maxv['learnGain'][$k]*
+		$gammaFactor;
+	    }
+	    if($opps[$k]['grade'] != 'correct'){
+	      $gamaFactor *= $gamma;
 	    }
 	  }
 	  // In cases where there is no learning, student
@@ -704,7 +709,8 @@ if(true){
 	  // Otherwise we get a situation where cases with 
 	  // lots of slips get a higher total reward.
 	  //
-	  // $confidenceLevel is defined in step-model.php.
+	  // If the slip rate is zero, then the reward term 
+	  // will never apply.
 	  if($maxv['learnGainProb'][$i]>$confidenceLevel){
 	    $noSlip=0;
 	    for($k=0; $k<=$i; $k++){
