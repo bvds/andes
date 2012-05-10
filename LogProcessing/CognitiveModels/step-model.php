@@ -8,56 +8,22 @@ function print2($pg){
   return (is_numeric($pg)?number_format($pg,2):$pg);
 }
 
-
-class valErr {
-  public $val;       // value
-  public $e;         // standard error
-  public $u = false; // upper limit standard error
-  public $l = false; // lower limit standard error
-  function __construct($x = false,$err = false){
-    $this->val = $x;
-    $this->e = $err;
-  }
-  function print0(){  // php doesn't allow 'print'
-    return '(' . print2($this->val) .
-      (is_numeric($this->e)?',' . print2($this->e):'') .
-      ((is_numeric($this->l) || is_numeric($this->u))?
-	',' . print2($this->l) . ',' . print2($this->u):'') . ')';
-  }
-}
-
-
-function log_binomial($p,$params){
-  if(($p<1e-15 && $params[0]>0) || (1.0-$p<1e-15 && $params[1]>0)){
-    return -1;
-  }
-  // add constant so max is at zero.
-  $phat=$params[0]/($params[0]+$params[1]);
-    return ($params[0]>0?$params[0]*log($p/$phat):0)+
-    ($params[1]>0?$params[1]*log((1.0-$p)/(1.0-$phat)):0)-$params[2];
-}
-
-
-function root_finder($function,$params,$lower,$upper){
-  $yl=call_user_func($function,$lower,$params);
-  $yu=call_user_func($function,$lower,$params);
-  while($upper>$lower+1.0e-12){
-    $x=($lower+$upper)*0.5;
-    // echo "root_finder $lower $upper $yl $yu\n";
-    $y=call_user_func($function,$x,$params);
-    if($yl*$y>0){
-      $lower=$x;
-      $yl=$y;
-    } else {
-      $upper=$x;
-      $yu=$y;
-    }
-  }
-  return 0.5*($lower+$upper);
-}
+// Find the probability that S+G is less than one, in 
+// which case, learning has occurred. This is calculated
+// by integrating the probability distributions for G & S
+// over the triangular region G+S<1.
 
 $learnCache=array();
 function learnProb($cbl,$wbl,$cal,$wal){
+  $val=learnProb2($cbl,$wbl,$cal,$wal);
+  // The recursion traverses a two-dimensional surface
+  // in a four-dimensional space.  Thus, cached values
+  // will not be reused very often for different function calls.
+  // Thus, we clear cache to keep the memory use from blowing up.
+  $learnCache=array();
+  return $val;
+}
+function learnProb2($cbl,$wbl,$cal,$wal){
   // Could use symmetries to reduce size of cacheArray by 
   // a factor of four.
   if($cbl==0 && $cal==0){
@@ -67,58 +33,17 @@ function learnProb($cbl,$wbl,$cal,$wal){
   } else if (isset($learnCache[$cbl . ',' . $wbl . ',' . $cal . ',' . $wal])){
     return $learnCache[$cbl . ',' . $wbl . ',' . $cal . ',' . $wal];
   } else {
-    $val=($cal+$wal+1)*learnProb($cbl,$wbl,$cal-1,$wal)/$cal
-      -(1+$wal)*learnProb($cbl,$wbl,$cal-1,$wal+1)/$cal;
+    $val=($cal+$wal+1)*learnProb2($cbl,$wbl,$cal-1,$wal)/$cal
+      -(1+$wal)*learnProb2($cbl,$wbl,$cal-1,$wal+1)/$cal;
     $learnCache[$cbl . ',' . $wbl . ',' . $cal . ',' . $wal]=$val;
     return $val;
   }
 }
 
-function binomial_errors($p,$c,$w){
-  // Analytic formula (Should be good away from endpoints).
-  $p->e=sqrt($p->val*(1.0-$p->val)/($c+$w));
-  // Exact upper and lower limits for binomial distribution.
-  $p->l=$p->val-root_finder('log_binomial',array($c,$w,-0.5),0,$p->val);
-  $p->u=root_finder('log_binomial',array($c,$w,-0.5),$p->val,1)-$p->val;
-}
 
-
-// Calculate weighted average for asymmetric errors.
-// See http://arxiv.org/abs/physics/0401042
-function average_model($ss,$val,$valid){
-  $sumVal=0;
-  $sumWeight=0;
-  $countValid=0;
-  $countAll=0;
-  foreach($ss as $thisSection => $st){
-    foreach($st as $thisName => $maxv){
-      $x=$maxv[$val];
-      if(!is_object($x) || get_class($x) != 'valErr'){
-	echo "Bad class for $val:\n";
-	print_r($maxv);
-      }
-      $countAll++;
-      if($valid?$maxv['valid']:!$maxv['valid']){
-	$countValid++;
-	$sigma=0.5*($x->u+$x->l);
-	$alpha=0.5*($x->u-$x->l);	
-	$weight=1.0/($sigma*$sigma+2.0*$alpha*$alpha);
-	$sumVal += $x->val*$weight;
-	$sumWeight += $weight;
-      }	
-    }
-  }
-  return array('val' =>
-	       new valErr($sumWeight>0?$sumVal/$sumWeight:false,
-			  // From http://en.wikipedia.org/wiki/Weighted_mean
-			  // "Dealing with variance" 
-			  // Don't know how to extend to asymmetric errors:
-			  // just a guess.
-			  $sumWeight>0?1.0/sqrt($sumWeight):false),
-	       'countValid' => $countValid,
-	       'countAll' => $countAll);
-}
-
+// Confidence level for accepting a model.
+// In terms of standard deviation:  0.6826895, 0.9544997, 0.9973002
+$confidenceLevel=0.6826895;
 
 function maximum_likelihood_models($opps,$debugML=false){
   
@@ -155,45 +80,45 @@ function maximum_likelihood_models($opps,$debugML=false){
       }
     }
     
-    // Values are from maximum liklihood.
-    // This is the mean and variance of the binonial distribution
-    $pg=new valErr($cbl+$wbl>0?$cbl/($cbl+$wbl):false);
-    $ps=new valErr($cal+$wal>0?$wal/($cal+$wal):false);
+    // Values for guess and slip are from maximum likelihood.
+    $pg=$cbl+$wbl>0?$cbl/($cbl+$wbl):false;
+    $ps=$cal+$wal>0?$wal/($cal+$wal):false;
+    $allSlip[$step]=$ps;
+
+    // Calculate the log likelihood for model with step at $step.
     // Note that this number is negative (so we are trying to maximize it)
     // Also, note that the case $step=0 corresponds to not learning.
     $ll=0;
-    $ll+=$cbl>0?$cbl*log($pg->val):0.0;
-    $ll+=$wbl>0?$wbl*log(1.0-$pg->val):0.0;
-    $ll+=$wal>0?$wal*log($ps->val):0.0;
-    $ll+=$cal>0?$cal*log(1.0-$ps->val):0.0;
-    
+    $ll+=$cbl>0?$cbl*log($pg):0.0;
+    $ll+=$wbl>0?$wbl*log(1.0-$pg):0.0;
+    $ll+=$wal>0?$wal*log($ps):0.0;
+    $ll+=$cal>0?$cal*log(1.0-$ps):0.0;    
     $allll[$step]=$ll;
+    
     // Expectation value for the learning gain 1-G-S.
     // This is gotten by integrating over the binomial
     // distributions P(G) and P(S).
-    $thisGain=1-(1+$cbl)/(2+$cbl+$wbl)-(1+$wal)/(2+$cal+$wal);
-    // this is gotten by finding the variance of G+S and taking square root:
-    $thisGainErr=sqrt((1+$cbl)*(1+$wbl)/(pow(2+$cbl+$wbl,2)*(3+$cbl+$wbl))
-		     +(1+$cal)*(1+$wal)/(pow(2+$cal+$wal,2)*(3+$cal+$wal)));
     // For some choices of step, there is no learning.
-    $allGain[$step]=($thisGain>0?$thisGain:0);
-    $allSlip[$step]=$ps->val;
-    
+    $allGain[$step]=1-(1+$cbl)/(2+$cbl+$wbl)-(1+$wal)/(2+$cal+$wal);
+    // Only count cases where step occurs inside student data
+    $gainProb=$step>0?learnProb($cbl,$wbl,$cal,$wal):0;
+    $allGainProb[$step]=$gainProb;
+
     // Find maximum value.
     if($maxll===false || $ll>$maxll){
       $maxll=$ll;
-      $learn=new valErr($step);
-      $maxv=array('logLike' => $ll, 'learn' => $learn, 
-		  'pg' => $pg, 'ps' => $ps,
-		  'cbl' => $cbl, 'wbl' => $wbl, 'cal' => $cal, 'wal' => $wal);
+      $maxv=array('logLike' => $ll, 'learn' => $step, 
+		  'gainProb' => $gainProb,
+		  'valid' => $gainProb>$confidenceLevel,
+		  'pg' => $pg, 'ps' => $ps);
       if($step==0){
 	$maxv0=$maxv;
       }
     }
     
     if($debugML){
-      echo ' (' . $learn->val . ',' . print2($pg->val) . ',' . 
-	print2($ps->val) . ',' .  number_format($ll,3) . ')';
+      echo ' (' . $learn . ',' . print2($pg) . ',' . 
+	print2($ps) . ',' .  number_format($ll,3) . ')';
     }	
   }
   
@@ -201,55 +126,14 @@ function maximum_likelihood_models($opps,$debugML=false){
     echo "\n";
   }
   
-  // To get standard error for learning step: calculate numerically
-  // range of $ll that is above maxll-s^2/2 (for s standard deviations).
-  // Probably want an interval since it doesn't look very parabolic
-  // in most examples.
-  // Also, may just want to use value of $ll for P(G) and P(S) minimized
-  // (as we have calculated above):
-  // this would take into account any correlations.
-  $llDev=$maxv['logLike']-1/2;
-  if($allll[0]>$llDev){
-    $maxv['learn']=new valErr();  // can't determine point of learning.
-  } else {
-    $maxLearn=$maxv['learn'];
-    foreach($allll as $learn => $ll){
-      if($ll>$llDev){
-	$maxLearn->u = $learn-$maxLearn->val+0.5; // half a step
-	if($maxLearn->l===false){
-	  $maxLearn->l = $maxLearn->val-$learn+0.5; // half a step
-	} 
-      }
-    }
-  }
-  
-  // Add error estimates to P(G) and P(S).
-  $pg=$maxv['pg']; $ps=$maxv['ps'];
-  if($maxv['cbl']+$maxv['wbl']>0)
-    binomial_errors($pg,$maxv['cbl'],$maxv['wbl']);
-  binomial_errors($ps,$maxv['wal'],$maxv['cal']);
-  
-  // If no significant improvement is actually seen, then 
+  // If no significant gain is seen at maximum likelihood, then 
   // model has failed, "point of learning" doesn't exist.
-  //
-  // The correct way to add errors is here:
-  // http://statistics.stanford.edu/~ckirby/techreports/ONR/SOL%20ONR%20467.pdf 
-  // However, we simply add upper limit errors in 
-  // quadrature, which is only really correct in large N limit.      
-  $maxv['valid']=is_numeric($maxv['learn']->val) && 
-    is_numeric($pg->val) && is_numeric($ps->val) && 
-    $pg->val+$ps->val+sqrt($pg->u*$pg->u+$ps->u*$ps->u)<1.0;
-  
-  if(!$maxv['valid'] && is_numeric($maxv['learn']->val)){
-    // If no significant learning was found with best fit,
-    // use the value from learn=0 for P(S).
+  // use the value from learn=0 
+  if(!$maxv['valid']){
     $maxv=$maxv0;
-    $maxv['valid']=false;  // Note that no learning found.
-    // Recalculate associated errors.
-    binomial_errors($maxv['ps'],$maxv['wal'],$maxv['cal']);
-  }
+   }
 
-  // Find relative probabilities for learning on each opportunity
+  // Find relative probabilities for learning on each step.
   //
   // We are are going from "the probability of producing seen behavior
   // for a given L" to "the probablitiy of a certain L given the 
@@ -265,7 +149,7 @@ function maximum_likelihood_models($opps,$debugML=false){
   // learning is found ($i=0), there is one model parameter.
   // See http://en.wikipedia.org/wiki/Akaike_information_criterion
 
-  $maxv['learnProb']=array();
+  $maxv['learnHereProb']=array();
   if($maxv['valid']){
     // First, need to normalize.
     $sum=0;
@@ -274,13 +158,14 @@ function maximum_likelihood_models($opps,$debugML=false){
       // Using AIC, to determing the relative probability.
       $sum += exp($allll[$i]-($i==0?1:2));
     }
-    // There is no way to measure learning on last opportunity.
+    // There is no way to measure learning on last step.
     for($i=0; $i<count($allll); $i++){
-      $maxv['learnProb'][$i]=exp($allll[$i]-($i==0?1:2))/$sum;
+      $maxv['learnHereProb'][$i]=exp($allll[$i]-($i==0?1:2))/$sum;
     }
     // Associated learning gains
     $maxv['learnGain']=$allGain;
     $maxv['slip']=$allSlip;
+    $maxv['learnGainProb']=$allGainProb;
   }
   
   if($debugML){

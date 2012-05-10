@@ -155,7 +155,7 @@ if ($myrow = mysql_fetch_array($result)) {
       
       // loop through session
 
-      // Minimum number of seconds between turns where 
+      // Minimum number of seconds between transactions where 
       // we assume user is not "on task."
       $cutoff=180; 
       $sessionTime = new session_time();
@@ -187,8 +187,8 @@ if ($myrow = mysql_fetch_array($result)) {
 	  $response=$myrow['server'];
 	}
 
-	// decode json and count number of steps (and time)
-	// between incorrect turns and next correct turn.
+	// decode json and count number of transactions (and time)
+	// between incorrect transactions and next correct transaction.
 	$jsonStart=microtime(true);   
 	$a=$json->decode($action);
 	$jsonTime1 += microtime(true)-$jsonStart;
@@ -203,7 +203,7 @@ if ($myrow = mysql_fetch_array($result)) {
 	   strpos($response,'Your session is no longer active.')!==false){
 	  break;
 	}
-	// Drop turns where timestamp is corrupted
+	// Drop transactions where timestamp is corrupted
 	if(isset($a->params->time) && 
 	   $a->params->time<$sessionTime->timeStamp){
 	  $badTimes[$a->params->time]=$action;
@@ -212,7 +212,7 @@ if ($myrow = mysql_fetch_array($result)) {
 	  $sessionTime->update_timeStamp($a->params->time);
 	  $timeStampAction=$action;
 	} else {
-	  // drop turns without timestamps;
+	  // drop transactions without timestamps;
 	  // this is generally from the server dropping idle sessions
 	  continue;  
 	}
@@ -247,7 +247,7 @@ if ($myrow = mysql_fetch_array($result)) {
 	  // $thisObject is name of object on user interface.
 	  
 	  if($thisTurn && // 'correct' 'incorrect' or 'help'
-	     // If turn doesn't have object, then need to record.
+	     // If transaction doesn't have object, then need to record.
 	     // WWH hints should log associated object, but they don't...
 	     // In any case, NSH doesn't have an object.
 	     !($thisObject &&
@@ -370,7 +370,7 @@ if ($myrow = mysql_fetch_array($result)) {
       // with an object, but no later interp has been found,
       // along with entries without object.
    
-      // Finally, we need to sort the turns in this session,
+      // Finally, we need to sort the transactions in this session,
       // consolidate help requests, and append to global lists
       $blame->resolve($thisSection,$thisName);
 
@@ -421,7 +421,7 @@ foreach($allKCStudent as $kc => $sec) {
   }
 }
 
-// For each KC, find all opportunities to learn skill that
+// For each KC, find all steps (opportunities to learn skill) that
 // did or did not result in learning.
 
 function printv($arr){
@@ -446,8 +446,8 @@ foreach($model as $kc => $sec){
 	$top=count($allKCStudent[$kc][$thisSection][$thisName]);
 	for($opp=0; $opp<$top; $opp++){
 	  $turns=$allKCStudent[$kc][$thisSection][$thisName][$opp];
-	  $learn=isset($maxv['learnProb'][$opp+1])?
-	    number_format($maxv['learnProb'][$opp+1],2):'???';
+	  $learn=isset($maxv['learnHereProb'][$opp+1])?
+	    number_format($maxv['learnHereProb'][$opp+1],2):'???';
 	  if($debugLearn) echo "    <li>learn $learn:";
 	  foreach($turns as $turn){
 	    if($debugLearn) echo ' ' . print_turn($turn);
@@ -456,10 +456,10 @@ foreach($model as $kc => $sec){
 	}
       } else {
 	// less than 50% correct is "never learn skill"
-	$status=$maxv['ps']->val>0.5?'never':'already';
+	$status=$maxv['ps']>0.5?'never':'already';
 	// Case where the student did not know skill and never learned it.
 	$opps=$allKCStudent[$kc][$thisSection][$thisName];
-	// Ignore last opportinuty:  student could have learned skill 
+	// Ignore last step:  student could have learned skill 
 	// at that time, but we'll never know.
 	for($opp=0; $opp<count($opps); $opp++){
 	  $turns=$opps[$opp];
@@ -519,11 +519,7 @@ foreach ($allKCStudent as $kc => $ss){
     if(!isset($sum['correct']))
       $sum['correct']=0;
     $c = $sum['correct']; $w = $total[$i]-$c;
-    $frac = $c/($c+$w);
-    // Calculate lower and upper numerically.
-    $y = new valErr($frac);
-    binomial_errors($y,$c,$w);
-    $avgCorrectKC[$kc][$i] = $y;
+    $avgCorrectKC[$kc][$i] = $c/($c+$w);
   }
 }
 
@@ -562,7 +558,7 @@ if(false){
  }
 
 // Print out fraction of time first step is correct for each
-// opportunity and kc, averaged over students.
+// step and kc, averaged over students.
 if(false){
   foreach($avgCorrectKC as $kc => $ii){
     echo "$kc:  ";
@@ -574,7 +570,7 @@ if(false){
  }
 
 
-// For each student, print out first step for each opportunity, 
+// For each student, print out first transaction for each step, 
 // with kc and grade in csv format (for debugging).
 if(false){
   foreach ($allStudentKC as $thisSection => $st){
@@ -590,7 +586,7 @@ if(false){
   }
  }
 
-// For each kc and student, print out first step for each opportunity.
+// For each kc and student, print out first transaction for each step.
 if(false){
   ksort($allKCStudent);
   foreach ($allKCStudent as $kc => $ss){
@@ -658,7 +654,7 @@ if(true){
   }
 
   // Header
-  echo "\"KC\",\"clientID\",\"ttID\"\"oppTurns\",,\"learning\",\"noSlip\"";
+  echo "\"KC\",\"clientID\",\"ttID\"\"stepTrans\",,\"learning\",\"noSlip\"";
   foreach($randomHelpCategories as $var => $val){
     echo ",\"$var\"";
   }
@@ -666,11 +662,10 @@ if(true){
   
   // Discount factor.
   // According to min's thesis, they use a discount factor
-  // for number of kc-relevant turns before reward with a 
-  // value of 0.9.
-  // We will do this opportunity-wise, since any 
-  // model-scaffold-fade strategy would be implemented
-  // in that way.
+  // for number of kc-relevant transactions (page 36 of thesis) 
+  // before the reward with a value of 0.9.
+  // We will do this step-wise, since any  model-scaffold-fade 
+  // strategy would be implemented in that manner. 
   $gamma=0.5; 
   foreach ($allKCStudent as $kc => $ss){
     // none:  entries where assigment of blame failed
@@ -682,30 +677,39 @@ if(true){
         $i=0;
 	foreach($opps as $turns){
 	  // There are things other than the hints which may
-	  // cause learning.  Thus, count all turns for determining
-	  // weighting.  We don't know which of the turns in a given
-	  // opportunity actually contributed to learning, so we
+	  // cause learning.  Thus, count all transactions for determining
+	  // weighting.  We don't know which of the transactions in a given
+	  // step actually contributed to learning, so we
 	  // weight them all equally. 
 	  $oppTurns=count($turns);
 	  // If there is no learning, set to zero.
-	  // Weight by actual learning gain an probability
-	  // of that model.
+	  // Weight by actual learning gain, probability
+	  // of that model, and discount factor.
 	  $learn=0;
 	  for($k=1; $k<count($opps)-$i; $k++){
-	    if($maxv['valid'] && isset($maxv['learnProb'][$i+$k])){
-	      $learn+=$maxv['learnProb'][$i+1]*$maxv['learnGain'][$i+$k]*
+	    if(isset($maxv['learnGainProb'][$i+$k]) &&
+	       $maxv['learnGainProb'][$i+$k]>$confidenceLevel){
+	      $learn+=$maxv['learnHereProb'][$i+1]*$maxv['learnGain'][$i+$k]*
 		($k==1?1:pow($gamma,$k-1));
 	    }
 	  }
 	  // In cases where there is no learning, student
 	  // may have already learned skill.  In any case, we
-	  // want to minimize slips after learning so that the
-	  // tutor has an after-learning strategy.
-	  if($maxv['valid']){
+	  // want to minimize slips after learning so that we can
+	  // reward effective after-learning strategies.
+	  //
+	  // For the present policy choices, the policies
+	  // can only be applied when a step not 'correct'
+	  // Need to distribute reward over only those steps.
+	  // Otherwise we get a situation where cases with 
+	  // lots of slips get a higher total reward.
+	  //
+	  // $confidenceLevel is defined in step-model.php.
+	  if($maxv['learnGainProb'][$i]>$confidenceLevel){
 	    $noSlip=0;
 	    for($k=0; $k<=$i; $k++){
 	      $noSlip+=($maxv['slip'][$k]>0?
-			(1-$maxv['slip'][$k])*$maxv['learnProb'][$k]/
+			(1-$maxv['slip'][$k])*$maxv['learnHereProb'][$k]/
 			((count($opps)-$k)*$maxv['slip'][$k]):0);
 	    }
 	  } else {

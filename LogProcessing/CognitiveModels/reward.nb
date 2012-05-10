@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       145,          7]
-NotebookDataLength[    213236,       5269]
-NotebookOptionsPosition[    203237,       4940]
-NotebookOutlinePosition[    203594,       4956]
-CellTagsIndexPosition[    203551,       4953]
+NotebookDataLength[    214767,       5318]
+NotebookOptionsPosition[    204611,       4984]
+NotebookOutlinePosition[    204968,       5000]
+CellTagsIndexPosition[    204925,       4997]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -4644,7 +4644,51 @@ Cell[BoxData["1"], "Output",
    3.545491594006665*^9}, {3.545491699370546*^9, 3.545491704865899*^9}, 
    3.545491977219587*^9, {3.545493061462026*^9, 3.54549307489072*^9}, {
    3.545493815682741*^9, 3.545493819600965*^9}, 3.545503980762714*^9, 
-   3.545505605001643*^9}]
+   3.545505605001643*^9, 3.545578472739799*^9}]
+}, Open  ]],
+
+Cell["Find the expecation value for the learning gain.", "Text",
+ CellChangeTimes->{{3.54557837831205*^9, 3.54557838765299*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"1", "-", 
+  RowBox[{"Integrate", "[", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"(", 
+      RowBox[{"g", "+", "s"}], ")"}], " ", 
+     RowBox[{"bind", "[", 
+      RowBox[{"g", ",", "cbl", ",", "wbl"}], "]"}], " ", 
+     RowBox[{"bind", "[", 
+      RowBox[{"s", ",", "wal", ",", "cal"}], "]"}]}], ",", 
+    RowBox[{"{", 
+     RowBox[{"g", ",", "0", ",", "1"}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"s", ",", "0", ",", "1"}], "}"}], ",", 
+    RowBox[{"Assumptions", "\[Rule]", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"cbl", ">", 
+        RowBox[{"-", "1"}]}], ",", 
+       RowBox[{"wbl", ">", 
+        RowBox[{"-", "1"}]}], ",", 
+       RowBox[{"cal", ">", 
+        RowBox[{"-", "1"}]}], ",", 
+       RowBox[{"wal", ">", 
+        RowBox[{"-", "1"}]}]}], "}"}]}]}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.545578398562622*^9, 3.545578487427134*^9}}],
+
+Cell[BoxData[
+ RowBox[{"1", "-", 
+  FractionBox[
+   RowBox[{"1", "+", "wal"}], 
+   RowBox[{"2", "+", "cal", "+", "wal"}]], "-", 
+  FractionBox[
+   RowBox[{"1", "+", "cbl"}], 
+   RowBox[{"2", "+", "cbl", "+", "wbl"}]]}]], "Output",
+ CellChangeTimes->{{3.545578466546341*^9, 3.545578491082285*^9}}]
 }, Open  ]],
 
 Cell["\<\
@@ -4939,7 +4983,7 @@ Cell[BoxData[
 }, Open  ]]
 },
 WindowSize->{854, 886},
-WindowMargins->{{52, Automatic}, {Automatic, 0}},
+WindowMargins->{{46, Automatic}, {Automatic, 0}},
 ShowSelection->True,
 FrontEndVersion->"7.0 for Linux x86 (32-bit) (November 10, 2008)",
 StyleDefinitions->"Default.nb"
@@ -5251,24 +5295,29 @@ Cell[191091, 4590, 351, 6, 51, "Text"],
 Cell[191445, 4598, 738, 21, 32, "Input"],
 Cell[CellGroupData[{
 Cell[192208, 4623, 504, 15, 32, "Input"],
-Cell[192715, 4640, 360, 6, 31, "Output"]
+Cell[192715, 4640, 382, 6, 31, "Output"]
 }, Open  ]],
-Cell[193090, 4649, 232, 5, 31, "Text"],
-Cell[193325, 4656, 1573, 36, 77, "Input"],
-Cell[194901, 4694, 183, 4, 31, "Text"],
-Cell[195087, 4700, 1959, 51, 99, "Input"],
+Cell[193112, 4649, 128, 1, 31, "Text"],
 Cell[CellGroupData[{
-Cell[197071, 4755, 664, 17, 55, "Input"],
-Cell[197738, 4774, 2797, 84, 112, "Output"]
+Cell[193265, 4654, 885, 26, 55, "Input"],
+Cell[194153, 4682, 296, 8, 47, "Output"]
+}, Open  ]],
+Cell[194464, 4693, 232, 5, 31, "Text"],
+Cell[194699, 4700, 1573, 36, 77, "Input"],
+Cell[196275, 4738, 183, 4, 31, "Text"],
+Cell[196461, 4744, 1959, 51, 99, "Input"],
+Cell[CellGroupData[{
+Cell[198445, 4799, 664, 17, 55, "Input"],
+Cell[199112, 4818, 2797, 84, 112, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[200572, 4863, 408, 8, 32, "Input"],
-Cell[200983, 4873, 237, 4, 31, "Output"]
+Cell[201946, 4907, 408, 8, 32, "Input"],
+Cell[202357, 4917, 237, 4, 31, "Output"]
 }, Open  ]],
-Cell[201235, 4880, 119, 1, 31, "Text"],
+Cell[202609, 4924, 119, 1, 31, "Text"],
 Cell[CellGroupData[{
-Cell[201379, 4885, 1080, 30, 55, "Input"],
-Cell[202462, 4917, 747, 19, 47, "Output"]
+Cell[202753, 4929, 1080, 30, 55, "Input"],
+Cell[203836, 4961, 747, 19, 47, "Output"]
 }, Open  ]]
 }, Open  ]]
 }
