@@ -13,38 +13,30 @@ function print2($pg){
 // by integrating the probability distributions for G & S
 // over the triangular region G+S<1.
 
-$learnCache=array();
-function learnProb($cbl,$wbl,$cal,$wal){
-  global $learnCache;
-  $val=learnProb2($cbl,$wbl,$cal,$wal);
-  if($val<0 || $val>1){
-    echo "learnProb for $cbl,$wbl,$cal,$wal";
-    echo "  $val\n";
-    print_r($learnCache);
-  }
-  // The recursion traverses a two-dimensional surface
-  // in a four-dimensional space.  Thus, cached values
-  // will not be reused very often for different function calls.
-  // Thus, we clear cache to keep the memory use from blowing up.
-  $learnCache=array();
-  return $val;
-}
-function learnProb2($cbl,$wbl,$cal,$wal){
-  global $learnCache;
-  $key=$cbl . ',' . $wbl . ',' . $cal . ',' . $wal;
-  // Could use symmetries to reduce size of cacheArray by 
-  // a factor of four.
-  if($cbl==0 && $cal==0){
-    return (1+$wbl)/(2+$wbl+$wal);
-  } else if($cal<$cbl){
-    return 1-learnProb2($cal,$wal,$cbl,$wbl);
-  } else if (isset($learnCache[$key])){
-    return $learnCache[$key];
+$logFactorialCache=array();
+function logFactorial($x){
+  global $logFactorialCache;
+  if($x==0){
+    return 0;
+  }else if(isset($logFactorialCache[$x])){
+    return $logFactorialCache[$x];
   } else {
-    $val=(($cal+$wal+1)*learnProb2($cbl,$wbl,$cal-1,$wal)
-	  -(1+$wal)*learnProb2($cbl,$wbl,$cal-1,$wal+1))/$cal;
-    $learnCache[$key]=$val;
+    $val=log($x)+logFactorial($x-1);
+    $logFactorialCache[$x]=$val;
     return $val;
+  }
+}
+
+function learnProb($a,$b,$c,$d){
+  if($c==0){
+    return exp(logFactorial(1+$b+$d)+logFactorial(1+$a+$b)
+	       -logFactorial($b)-logFactorial(2+$a+$b+$d));
+  } else {
+    return learnProb($a,$b,$c-1,$d+1)
+      +exp(logFactorial($c+$d+1)+logFactorial($a+$c)+logFactorial($a+$b+1)
+	   +logFactorial($b+$d+1)-logFactorial($a+$b+$c+$d+2)
+	   -logFactorial($a)-logFactorial($b)-logFactorial($c)
+	   -logFactorial($d+1));
   }
 }
 
@@ -71,9 +63,6 @@ function maximum_likelihood_models($opps,$debugML=false){
   $allGain=array();
   // Step through possible chances for learning skill.
   for($step=0; $step<count($opps); $step++){
-    if($debugML){
-      echo "step $step of " . count($opps) . " ";
-    }
     $cbl=0; $wbl=0; $cal=0; $wal=0;
     foreach($opps as $j => $opp){
       $yy=reset($opp);
@@ -96,9 +85,6 @@ function maximum_likelihood_models($opps,$debugML=false){
     $pg=$cbl+$wbl>0?$cbl/($cbl+$wbl):false;
     $ps=$cal+$wal>0?$wal/($cal+$wal):false;
     $allSlip[$step]=$ps;
-    if($debugML){
-      echo " hi1 ";
-    }
 
     // Calculate the log likelihood for model with step at $step.
     // Note that this number is negative (so we are trying to maximize it)
@@ -115,20 +101,14 @@ function maximum_likelihood_models($opps,$debugML=false){
     // distributions P(G) and P(S).
     // For some choices of step, there is no learning.
     $allGain[$step]=1-(1+$cbl)/(2+$cbl+$wbl)-(1+$wal)/(2+$cal+$wal);
-    // Only count cases where step occurs inside student data
     $gainProb=$step>0?learnProb($cbl,$wbl,$cal,$wal):0;
     $allGainProb[$step]=$gainProb;
-
-    if($debugML){
-      echo " hi3 ";
-    }
 
     // Find maximum value.
     if($maxll===false || $ll>$maxll){
       $maxll=$ll;
+      // Only count cases where step occurs inside student data
       $maxv=array('logLike' => $ll, 'learn' => $step, 
-		  'gainProb' => $gainProb,
-		  'valid' => $gainProb>$confidenceLevel,
 		  'pg' => $pg, 'ps' => $ps);
       if($step==0){
 	$maxv0=$maxv;
@@ -144,13 +124,6 @@ function maximum_likelihood_models($opps,$debugML=false){
   if($debugML){
     echo "\n";
   }
-  
-  // If no significant gain is seen at maximum likelihood, then 
-  // model has failed, "point of learning" doesn't exist.
-  // use the value from learn=0 
-  if(!$maxv['valid']){
-    $maxv=$maxv0;
-   }
 
   // Find relative probabilities for learning on each step.
   //
@@ -169,33 +142,44 @@ function maximum_likelihood_models($opps,$debugML=false){
   // See http://en.wikipedia.org/wiki/Akaike_information_criterion
 
   $maxv['learnHereProb']=array();
-  if($maxv['valid']){
-    // First, need to normalize.
-    $sum=0;
-    // Include no learning case.
-    for($i=0; $i<count($allll); $i++){
-      // Using AIC, to determing the relative probability.
-      $sum += exp($allll[$i]-($i==0?1:2));
-    }
-    // There is no way to measure learning on last step.
-    for($i=0; $i<count($allll); $i++){
-      $maxv['learnHereProb'][$i]=exp($allll[$i]-($i==0?1:2))/$sum;
-    }
-    // Associated learning gains
-    $maxv['learnGain']=$allGain;
-    $maxv['slip']=$allSlip;
-    $maxv['learnGainProb']=$allGainProb;
+  $sum=0;
+  $maxv['gainProb']=0;
+  // Include no learning case.
+  // There is no way to measure learning on last step.
+  for($i=0; $i<count($allll); $i++){
+    // Using AIC, to determing the relative probability.
+    $val= exp($allll[$i]-($i==0?1:2));
+    $maxv['learnHereProb'][$i]=$val;
+    $sum += $val;
+    $maxv['gainProb']+=$val*$allGainProb[$i];
   }
+  // Next, normalize probabilities;
+  for($i=0; $i<count($allll); $i++){
+    $maxv['learnHereProb'][$i]/=$sum;
+  }
+  $maxv['gainProb']/=$sum;
+
+  // If no significant model-weighted gain is seen, then 
+  // model has failed, "point of learning" doesn't exist.
+  // use the value from learn=0 
+  $maxv['valid']=$maxv['gainProb']>$confidencLevel;
+  if(!$maxv['valid']){
+    $maxv=$maxv0;
+   }
+
+  // Associated learning gains
+  $maxv['learnGain']=$allGain;
+  $maxv['slip']=$allSlip;
   
   if($debugML){
     if($maxv['valid']){
-      echo ' model with learn=' .$maxLearn->print0() . ', pg=' . 
-	$pg->print0() . ', ps=' . $ps->print0() . ', logLike=' . 
-	number_format($maxv['logLike'],3) . ')';
+      echo ' model with pg=' . number_format($pg,3) . 
+	', ps=' . number_format($ps,3) . ', logLike=' . 
+	number_format($maxv['logLike'],3) . ', gainProb=' .
+	number_format($maxv['gainProb'],3);
     } else {
-      echo ' no learning: ps=' . $ps->print0();
+      echo ' no learning: ps=' . number_format($ps,2);
     }
-    echo "\n";
   }
 
   return $maxv;

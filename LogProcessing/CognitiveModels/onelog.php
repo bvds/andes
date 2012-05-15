@@ -1,5 +1,5 @@
 <?php 
-$htmlHeaders=true;  // Add html header to beginning
+$htmlHeaders=false;  // Add html header to beginning
 if($htmlHeaders):
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -410,13 +410,15 @@ if($htmlHeaders){
 
 
 // For each student and KC, find the Maximun Likelihood solution for a model
-// with three paramenters: P(G) P(S) step where skill was learned.
+// with three paramenters: P(G) P(S) and L=step where skill was learned.
+// Also, find a set of models for each L, and the relative probability
+// of each sub-model.
 //
 foreach($allKCStudent as $kc => $sec) {
   foreach($sec as $thisSection => $stu) {
     foreach($stu as $thisName => $opps) {
       $model[$kc][$thisSection][$thisName] =
-	maximum_likelihood_models($opps,true);
+	maximum_likelihood_models($opps);
     }
   }
 }
@@ -435,7 +437,7 @@ function print_turn($turn){
   return $turn['timeStamp'] . ':' . $turn['id'] . $turn['grade'] . 
     printv($turn['random-help']);
 }
-$debugLearn=true;
+$debugLearn=false;
 if($debugLearn) echo "<ul>\n";
 foreach($model as $kc => $sec){
   foreach($sec as $thisSection => $stu){
@@ -478,23 +480,6 @@ foreach($model as $kc => $sec){
   }
 }
 if($debugLearn) echo "</ul>\n";
-
-
-// Average model over students.
-// Use http://arxiv.org/abs/physics/0401042
-// for handling errors
-//
-// Since the model is not the same over students, there
-// is both the error associated with each student as
-// well as the actual variation across the population.
-// In the following, we estimate the error due to the
-// uncertainty of each student model.
-foreach ($model as $kc => $ss){
-  $allModel[$kc]=array('learn' => average_model($ss,'learn',true),
-		       'pg' => average_model($ss,'pg',true),
-		       'ps' => average_model($ss,'ps',true),
-		       'psNot' => average_model($ss,'ps',false));
-}
 
 
 // Average kc's over students
@@ -545,17 +530,6 @@ if($htmlHeaders){
 
 // Non-html format output
 
-// Print out model parameters for each kc, averaged over student.
-if(false){
-  foreach($allModel as $kc => $params){
-    echo "$kc:  ";
-    foreach($params as $param => $value){
-      $countValid=$value['countValid']; $countAll=$value['countAll'];
-      echo " $param=" . $value['val']->print0() . "[$countValid/$countAll],";
-    }
-    echo "\n";
-  }
- }
 
 // Print out fraction of time first step is correct for each
 // step and kc, averaged over students.
@@ -614,7 +588,7 @@ function skipKC($kc){
 
 // For each student and KC, Print out the model parameters.
 if(true){
-  echo "\"KC\",\"Section\",\"Name\",\"AIC\"\n";
+  echo "\"KC\",\"Section\",\"Name\",\"AIC\",\"gainProb\"\n";
   ksort($allKCStudent);
   foreach($allKCStudent as $kc => $sec) {
     // none:  entries where assigment of blame failed
@@ -624,7 +598,8 @@ if(true){
 	foreach($stu as $thisName => $opps) {
 	  $maxv=$model[$kc][$thisSection][$thisName];
 	  $aic=$maxv['valid']?2*3-2*$maxv['logLike']:0;
-	  echo "\"$kc\",\"$thisSection\",\"$thisName\",$aic\n";
+	  $gainProb=$maxv['gainProb'];
+	  echo "\"$kc\",\"$thisSection\",\"$thisName\",$aic,$gainProb\n";
 	}
       }
     }
@@ -682,18 +657,11 @@ if(false){
 	  // step actually contributed to learning, so we
 	  // weight them all equally. 
 	  $oppTurns=count($turns);
-	  // If there is no learning, set to zero.
-	  // Weight by actual learning gain, probability
-	  // of that model, and discount factor.
 	  $learn=0;
 	  $gammaFactor=1;
 	  for($k=$i+1; $k<count($opps); $k++){
-	    if(isset($maxv['learnGainProb'][$k]) &&
-	       // $confidenceLevel is defined in step-model.php.
-	       $maxv['learnGainProb'][$k]>$confidenceLevel){
-	      $learn+=$maxv['learnHereProb'][$k]*$maxv['learnGain'][$k]*
-		$gammaFactor;
-	    }
+	    $learn+=$maxv['learnHereProb'][$k]*$maxv['learnGain'][$k]*
+	      $gammaFactor;
 	    if($opps[$k]['grade'] != 'correct'){
 	      $gamaFactor *= $gamma;
 	    }
@@ -704,24 +672,18 @@ if(false){
 	  // reward effective after-learning strategies.
 	  //
 	  // For the present policy choices, the policies
-	  // can only be applied when a step not 'correct'
+	  // can only be applied when a step is not 'correct'
 	  // Need to distribute reward over only those steps.
 	  // Otherwise we get a situation where cases with 
 	  // lots of slips get a higher total reward.
 	  //
-	  // If the slip rate is zero, then the reward term 
-	  // will never apply.
-	  if($maxv['learnGainProb'][$i]>$confidenceLevel){
-	    $noSlip=0;
-	    for($k=0; $k<=$i; $k++){
-	      $noSlip+=($maxv['slip'][$k]>0?
-			(1-$maxv['slip'][$k])*$maxv['learnHereProb'][$k]/
-			((count($opps)-$k)*$maxv['slip'][$k]):0);
-	    }
-	  } else {
-	    $noSlip=($maxv['ps']>0?
-		     (1-$maxv['ps'])/(count($opps)*$maxv['ps']):0);
-	  } 
+	  $noSlip=0;
+	  for($k=0; $k<=$i; $k++){
+	    $noSlip+=($maxv['slip'][$k]>0?
+		      (1-$maxv['slip'][$k])*$maxv['learnHereProb'][$k]/
+		      ((count($opps)-$k)*$maxv['slip'][$k]):0);
+	  }
+	  
 	  foreach($turns as $turn){
 	    // Only print out instances where policy 
 	    // change may apply.
