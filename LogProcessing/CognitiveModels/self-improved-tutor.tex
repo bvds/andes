@@ -46,180 +46,141 @@ requests for help; otherwise, the step is marked as ``incorrect.''
 
 \section{Objective function}
 
-
-
-The objective function is 
+The basic appoach for solving this problem, in terms of reinforcement
+learning, is called a ``direct policy search.''
+For each student, help-giving policy, and KC, we define the objective 
+function to be 
+%
 \begin{eqnarray}
-  Z&=&\sum_{\mbox{student, KC, policy}} \sum{j}  \frac{P^*_j}{n_j}
-  \sum_{k\in \sigma_j} \left(f(\mathbf{x}_k)-d_k\right))^2 \\
- &&+\frac{1-P*^*_j}{n_j}
-  \sum_{k\in \sigma_j} \left(f(\mathbf{x}_k)-(1-d_k)\right)^2 + \\
+  Z &=& \sum_{j \in \mathcal{I},L>j}  
+  % Actually, we use the number of incorrect steps
+  % between j and L for the discount factor.
+  % need to add this to formula.
+       \frac{\gamma^{n(L,j)-1} w_L \Delta_L}{\left|\sigma_j\right|}
+  \sum_{k\in \sigma_j} \left(f(\mathbf{x}_k)-d_k\right))^2 \nonumber \\
+ % reward for after-learning policy
+ % Includes case with no learning as k=0.
+  &&+\beta \sum_{j \in \mathcal{I},L \le j} \frac{(1-P(S)) w_L}
+      {\left(\left|\matchal{I}\right|-L\right)\left|\sigma_j\right|}
+             \sum_{k\in \sigma_j} \left(f(\mathbf{x}_k)-d_k\right))^2
 \end{eqnarray}
-where $P_j^*$, $n_j$, $\mathbf{x}_k$, and $d_k$ are understood to be
-functions of student, KC, and tutor policy.  $d_k\in \{0,1\}$ is the
+%
+where  $\mathcal{I}$ is the set of incorrect steps associated
+with that student, policy, and KC when the model has detected 
+learning.  Also, $n(L,j)$ is the number
+of $\mathcal{I}$ between $L$ and $j$, $w_L$ is the probability 
+that the student learned the skill at step $L$, $\Delta_L$ is the learning
+gain $1-\left\langle g+s \right\rangle$ at step $L$, and $\gamma$ 
+is the ``discount factor''\cite{ml}.  
+$\sigma_j$ is the set of transactions associated with step $j$ and
+$d_k\in \{0,1\}$ is the
 policy actually taken by the random-help version of Andes for transaction
-$k$.  
-$\sigma_j$ is the set of transactions associated with step $j$ 
-and $n_j$ is the associated number of turns
-taken.  Finally, $P^*_j$ is the probability that the student learned the
-given skill, given that they haven't learned it already.
+$k$,
+We have arranged things so that finding an optimal policy 
+corresponds to {\em minimizing} $Z$.
 
 
 \section{Models of learning}
 
 A number of authors have used a logistic funtion, 
-${\mathrm logit}(x)=(1+\tanh(x/2))/2$, to 
+$\mathrm{logit}(x)=(1+\tanh(x/2))/2$, to 
 model student learning.  In that case, we have a two-parameter
 model for the probability that the student gets step $j$ correct:
 %
 \begin{equation}
-               P_j^{\mathrm logit} = {\mathrm logit}\left(\beta (j-L)\right)
+               P_j^\mathrm{logit} = \mathrm{logit}\left(\beta (j-L)\right)
 \end{equation}
 %
-where $\beta$ is the steepness of the function and $L$ is the moment
-of learning.
+where $\beta$ is the learning rate and $L$ is the ``moment
+of learning''~\cite{aha}.
 
 Alternatively, we can use a function that retains the 
-guess $P(G)$ and slip $P(S)$ probabilities of Corbett and Anderson~\cite{anderson}.
-The simplest such model is a step:
+guess $P(G)$ and slip $P(S)$ probabilities of Corbett and 
+Anderson~\cite{anderson}.
+The simplest such model is a step-function:
+%
 \begin{equation}
-               P_j^{\mathrm step} = \left\{\begin{array}{cc}
-                                       P(G),& j<L\\
-				       1-P(S),& j\ge L
+               P_j^\mathrm{step} = \left\{\begin{array}{cc}
+                                       g,& j<L\\
+				       1-s,& j\ge L
                                     \end{array}\right. \label{step}
 \end{equation}
+where $g$ is the guess rate, $s$ is the slip rate and 
+$L$ is the moment of learning.
 %
 \[
 \includegraphics{step.eps}
 \]
-We can match $P_j^{\mathrm step} $ to the student data using the
+%
+We can match $P_j^\mathrm{step} $ to the student data using the
 Maximun Likelihood method.
 Let $c_i$ \& $w_i$ be the number of correct \& incorrect steps observed
-for $j<L$ and $c_f$ \& $w_f$ be the number of correct \& incorrect
-steps for $j\ge L$.  The associated log likelihood for a given $L$ is
+for steps $j<L$ and $c_f$ \& $w_f$ be the number of correct \& incorrect
+steps for steps $j\ge L$.  The associated log likelihood for a given $L$ is
 %
-\begin{eqnarray}
-  \mathcal{L}_L = &\sum_j & \log\left(P(G)^{c_i} \left(1-P(G)\right)^{w_i}\right) 
-                      + \log\left(P(S)^{w_f} 
-                     \left(1-P(S)\right)^{c_f} \right)  \nonumber \\
-                   & &+(\mbox{normalization constant}) \, .
-\end{eqnarray}
-Note that the guess and slip rates follow the binomial distribution.
+\begin{equation}
+  \mathcal{L}_L  =  \log\left(B_{c_i,w_i}(g)\right) 
+                      + \log\left(B_{c_f,w_f}(1-s) \right)  \, ,
+\end{equation}
+%
+where the guess rate $g$ and slip rate $s$ follow the binomial distribution,
+%
+\begin{equation}
+       B_{a,b}(x) = x^a (1-x)^b\; \frac{(x+b+1)!}{a!\, b!} 
+      \;\;\;\; \mbox{where} \;\;\;\;
+      1=\int_0^1 B_{a,b}(x) \,\mathrm{d}x \; .
+\end{equation} 
+%
 $\mathcal{L}_L$ is maximized when:
 %
 \begin{eqnarray}
-  P(G) &=&  \frac{c_i}{c_i+w_i} \, ,\\
-  P(S) &=&  \frac{w_f}{c_f+w_f} \,  .
+  g = P(G) &=&  \frac{c_i}{c_i+w_i} \, ,\\
+  s = P(S) &=&  \frac{w_f}{c_f+w_f} \,  .
 \end{eqnarray}
 %
-Next, on can maximize $\mathcal{L}_L$ with respect to $L$ to find
+Next, one can maximize $\mathcal{L}_L$ with respect to $L$ to find
 the most likely value $L=L_\mathrm{max}$.  However, in practice, the 
-uncertainty in $L$ can be significant and is often not normally
-distributed.   Instead we will consider a set of models, each with a 
-different value of $L$, and a relative probability given by AIC ~\cite{aic-book}.  That
-is, the model for each value of $L$ has weight,
+uncertainty in $L$ can be significant and may not have a normal
+distribution.   Instead, we will consider a set of sub-models, each with a 
+different value of $L$, and a relative probability given by 
+AIC~\cite{aic-book}.  
+That is, the sub-model for a particular value of $L$ has weight,
 %
 \begin{equation}
                    w_L = \frac{\mathrm{e}^{\mathcal{L}_L-2} }{W}\, ,
 \end{equation}
+%
 with normalization $W$ such that $\sum_L w_L=1$.
-
-Finally, we need to determine whether learning has occurred.  Thus,
-we demand that the step in~(\ref{step}) is increasing: $P(S)+P(G) <1$.
-
-
-
-\section{Baysian Knowledge tracing}
-
-The Bayesian Knowledge tracing model~\cite{anderson} has four parameters:
-%
-\begin{itemize}
-   \item $P_0$ is the initial probability of knowing a skill.
-   \item $P(G)$ is probability of guessing correctly, if the student        
-         doesn't know the skill.
-   \item $P(S)$ is probability of slips, if student does know the skill.
-   \item $P(L)$ is probability of learning the skill if the student 
-         does not know the skill.  Note that this is assumed to 
-         be constant over steps.
-\end{itemize}
-%
-Let $P_j$ be the probability that the student knows the skill at 
-step $j$. According to the model,  $P_j$ can
-be determined in terms of the previous opportunity:
+For each sub-model, we can define an averag learning gain,
 %
 \begin{equation}
-          P_j = P_{j-1} + P(L)\left(1-P_{j-1}\right)
+     % need actual formula here.
+         \Delta_L = 1- \left\langle g+s \right\rangle \; .
 \end{equation}
-%
-According to this model, the probability that the student actually gets
-opportunity $n$ correct is:
+
+Finally, we need to determine whether, in the context
+of the step-function model (\ref{step}), learning has occurred.
+We say that learning has occurred at $L$ if $g<1-s$.
+Since the model is a fit to student data ($c_i$, $w_i$, $c_f$, $w_f$), 
+we can, at best, determine the {\em probability} that learning has occurred. 
+The probability that learning has occurred can be calculated by
+integrating over the possible slip and guess rates in the region
+$p+g<1$, weighted by the probability distributions:
 %
 \begin{equation}
-         P_j(C) = P(G)\left(1-P_j\right) + \left(1-P(S)\right) P_j \label{pnc}
+   P(c_i, w_i, c_f, w_f)= \int_0^1 \int_0^{1-g} 
+   B_{c_i,w_i}(g) \, B_{c_f,w_f}(1-s) \,\mathrm{d}g\,\mathrm{d}g 
 \end{equation}
 %
-(Unlike the four model parameters above, there isn't a consistent
-notation for $P_j(C)$ in the literature.)
-This model can be exactly solved with solution: 
+This integral can be solved by repeated integration by parts,
+giving:
 %
 \begin{equation}
-            P_j = 1-\left(1-P(L)\right)^j\left(1-P_0\right)
-	    \label{sol}
+   P(c_i, w_i, c_f, w_f)= \mbox{long formula here} \; .
 \end{equation}
-%
-%
-Substituting (\ref{sol}) into (\ref{pnc}), we get:
-%
-\begin{equation}
-         P_j(C) = 1-P(S) -\left(1-P(S)-P(G)\right) \left(1-P_0\right)
-                   \left(1-P(L)\right)^j \label{pncsoln}
-\end{equation}
-%
-Note that the functional form of $P_j(C)$ is a function of {\em three}
-parameters:  $P(S)$, $P(L)$, and $\left(1-P(S)-P(G)\right) \left(1-P_0\right)$.
-This degeneracy of the model was first noticed by Beck and 
-Chang~\cite{beckchang}.  In their paper, they notice that multiple
-combinations of $P(G)$ and $P_0$ give exactly the same $P_j(C)$, but
-fail to explain why this is the case.
 
-The functional form of (\ref{pncsoln}) is an exponential.
-If we define 
-$A=\left(1-P(S)-P(G)\right) \left(1-P_0\right)$ and
-$\beta=-\log(1-P(L))$, then we can rewrite (\ref{pncsoln}) in 
-a clearer form:
-%
-\begin{equation}
-         P_j(C) = 1-P(S) -A e^{-\beta j}
-\end{equation}
-%
-So the graph of  $P_j(C)$ looks like the following:
-%
-\[
-\includegraphics{exponential.eps}
-\]
 
-There are several conclusions for our project:
-\begin{enumerate}
 
-  \item The functional form of $P_j(C)$ (and of $P_j$) means that
-  the biggest change in learning always occurs in the first
-  opportunity and decreases monotonically after that.  So, using
-  this model to determine where the greatest learning
-  occurred is pointless.
-
-  \item Is $P_n(C)$ better than the step-function model that I
-  introduced?  Both are three-parameter models that are 
-  to be fitted to the log data.  The real question is which
-  model better fits, on average, the log data?  That is something
-  that can only be determined experimentally.
-
-  \item Probably the most appropriate method of fitting
-  $P_j(C)$ to the log data is by using Maximum Likelihood.
-  I looked into finding a partial algebraic solution, but
-  the equations are too complicated.  Thus, one would need
-  to calculate the three model parameters numerically.
-
-\end{enumerate}
 
 \begin{thebibliography}{9}
 
@@ -237,6 +198,10 @@ the Acquisition of Procedural Knowledge.  \emph{User Modeling and
 \bibitem{aic-book}Burnham, K.~P., and Anderson, D.~R. \emph{Model
   Selection and Multimodel Inference: A Practical
   Information-Theoretic Approach}, 2nd ed. Springer-Verlag. 2002.
+
+\bibitem{aha}Kurt and Kasia moment of learning paper.
+
+\bibitem{ml}Discount factor citation.
 
 \end{thebibliography}
 
