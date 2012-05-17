@@ -1,4 +1,5 @@
 \documentclass[11pt,letterpaper]{article}
+\usepackage{amsmath}
 \usepackage{graphics}
 \usepackage{fullpage}
 \addtolength{\voffset}{0.5in}
@@ -35,7 +36,7 @@ Each step $j$ corresponds some some number of student {\em transactions}:
 attempts at constructing the associated object, or associated
 interactions with the Andes help system.  
 
-Next, we need of student learning for a particular KC.
+Next, we need a model of student learning for a particular KC.
 Since the policies chosen by the random-help version of Andes
 are different for each student,
 we need to determine the point of learning for each student.
@@ -43,49 +44,12 @@ For each KC and student, mark each step as ``correct'' if
 the student completes the step correctly without any associated errors or 
 requests for help; otherwise, the step is marked as ``incorrect.''
 
-
-\section{Objective function}
-
-The basic appoach for solving this problem, in terms of reinforcement
-learning, is called a ``direct policy search.''
-For each student, help-giving policy, and KC, we define the objective 
-function to be 
-%
-\begin{eqnarray}
-  Z &=& \sum_{j \in \mathcal{I},L>j}  
-  % Actually, we use the number of incorrect steps
-  % between j and L for the discount factor.
-  % need to add this to formula.
-       \frac{\gamma^{n(L,j)-1} w_L \Delta_L}{\left|\sigma_j\right|}
-  \sum_{k\in \sigma_j} \left(f(\mathbf{x}_k)-d_k\right))^2 \nonumber \\
- % reward for after-learning policy
- % Includes case with no learning as k=0.
-  &&+\beta \sum_{j \in \mathcal{I},L \le j} \frac{(1-P(S)) w_L}
-      {\left(\left|\matchal{I}\right|-L\right)\left|\sigma_j\right|}
-             \sum_{k\in \sigma_j} \left(f(\mathbf{x}_k)-d_k\right))^2
-\end{eqnarray}
-%
-where  $\mathcal{I}$ is the set of incorrect steps associated
-with that student, policy, and KC when the model has detected 
-learning.  Also, $n(L,j)$ is the number
-of $\mathcal{I}$ between $L$ and $j$, $w_L$ is the probability 
-that the student learned the skill at step $L$, $\Delta_L$ is the learning
-gain $1-\left\langle g+s \right\rangle$ at step $L$, and $\gamma$ 
-is the ``discount factor''\cite{ml}.  
-$\sigma_j$ is the set of transactions associated with step $j$ and
-$d_k\in \{0,1\}$ is the
-policy actually taken by the random-help version of Andes for transaction
-$k$,
-We have arranged things so that finding an optimal policy 
-corresponds to {\em minimizing} $Z$.
-
-
 \section{Models of learning}
 
-A number of authors have used a logistic funtion, 
-$\mathrm{logit}(x)=(1+\tanh(x/2))/2$, to 
+A number of authors have used a logistic function, 
+$\mathrm{logit}(x)=1/\left(1+e^{-x}\right)$, to 
 model student learning.  In that case, we have a two-parameter
-model for the probability that the student gets step $j$ correct:
+model for the probability that the student gets step $j$ correct is:
 %
 \begin{equation}
                P_j^\mathrm{logit} = \mathrm{logit}\left(\beta (j-L)\right)
@@ -113,14 +77,14 @@ $L$ is the moment of learning.
 \]
 %
 We can match $P_j^\mathrm{step} $ to the student data using the
-Maximun Likelihood method.
+Maximum Likelihood method.
 Let $c_i$ \& $w_i$ be the number of correct \& incorrect steps observed
 for steps $j<L$ and $c_f$ \& $w_f$ be the number of correct \& incorrect
 steps for steps $j\ge L$.  The associated log likelihood for a given $L$ is
 %
 \begin{equation}
   \mathcal{L}_L  =  \log\left(B_{c_i,w_i}(g)\right) 
-                      + \log\left(B_{c_f,w_f}(1-s) \right)  \, ,
+                  + \log\left(B_{c_f,w_f}(1-s) \right)  \, ,
 \end{equation}
 %
 where the guess rate $g$ and slip rate $s$ follow the binomial distribution,
@@ -151,11 +115,11 @@ That is, the sub-model for a particular value of $L$ has weight,
 \end{equation}
 %
 with normalization $W$ such that $\sum_L w_L=1$.
-For each sub-model, we can define an averag learning gain,
+For each sub-model, we can define an average learning gain,
 %
 \begin{equation}
      % need actual formula here.
-         \Delta_L = 1- \left\langle g+s \right\rangle \; .
+         \Delta_L = 1- \left\langle g+s \right\rangle_L \; .
 \end{equation}
 
 Finally, we need to determine whether, in the context
@@ -172,13 +136,94 @@ $p+g<1$, weighted by the probability distributions:
    B_{c_i,w_i}(g) \, B_{c_f,w_f}(1-s) \,\mathrm{d}g\,\mathrm{d}g 
 \end{equation}
 %
-This integral can be solved by repeated integration by parts,
-giving:
+This integral can be solved exactly by repeated integration by parts.
+
+
+\section{Objective function}
+
+The basic approach for solving this problem, in terms of reinforcement
+learning, is called a ``direct policy search.''
+For each student, help-giving policy, and KC, we define the objective 
+function to be 
+%
+\begin{subequations}
+  \label{objective}
+  \begin{align}
+  Z =& \sum_L w_L \left\{\sum_{j \in \mathcal{I},\,j<L}  
+  % Actually, we use the number of incorrect steps
+  % between j and L for the discount factor.
+  % need to add this to formula.
+       \frac{\gamma^{n(j,L)} \Delta_L}{\left|\sigma_j\right|}
+  \sum_{k\in \sigma_j} \left(f(\mathbf{x}_k)-d_k\right))^2 \right.
+     \label{before} \\
+ % reward for after-learning policy
+ % Includes case with no learning as k=0.
+  &+\beta \left. \sum_{j \in \mathcal{I},\,j \ge L} \frac{(1-P(S))}
+      {n(L,j_\mathrm{max})\left|\sigma_j\right|}
+             \sum_{k\in \sigma_j} \left(f(\mathbf{x}_k)-d_k\right))^2
+     \right\}
+  \label{after}
+  \end{align}
+\end{subequations}
+%
+where $L$ labels different sub-models, each with weight $w_L$;
+$\mathcal{I}$ is the set of steps associated
+with that student, policy, and KC that were marked ``incorrect.''  
+$\sigma_j$ is the set of transactions associated with step $j$,
+$f(\mathbf{x}_k)$ is the machine-learned policy associated
+with transaction $k$ and
+$d_k\in \{0,1\}$ is the
+policy actually taken by the random-help version of Andes for that 
+transaction.
+We have arranged things so that finding an optimal policy 
+corresponds to {\em minimizing} $Z$.
+
+The first term (\ref{before}) rewards policies applied directly before
+the moment of learning (or step $L$ for sub-model $L$).  
+These are weighted by the 
+average learning gain $\Delta_L = 1-\left\langle g+s\right\rangle_L$ 
+predicted by sub-model $L$.
+Also, $n(j,L)$ is the number
+of $\mathcal{I}$ between $j$ and $L$, 
+and $\gamma$ is the ``discount factor''~\cite{ml}. 
+A good value for $\gamma \in [0,1]$ must be determined empirically.
+In a previous study~\cite{mint}, $\gamma=0.9$ was chosen.
+However, the discount factor was applied transaction-wise in 
+a case where there were many transactions per step.  In our case, 
+we apply $\gamma$ to incorrect steps $\mathcal{I}$, suggesting a lower
+number might be appropriate.
+
+The second term (\ref{after}) rewards policies applied after
+the KC has been learned.  Since the only measure of effectiveness
+after is the slip rate $P(S)$, we look for a policy that maximizes
+$1-P(s)$.  The reward for an this policy is evenly divided
+among the $n(L,j_\mathrm{max})$ incorrect steps after $L$.
+Since our primary objective is to produce learning in the first
+place (\ref{before}), we want the effect of (\ref{after}) to be 
+relatively small.
+Thus, the parameter $\beta$ should be small, but nonzero; an
+optimum value must be determined empirically.
+
+The machine learning algorithm finds a function $f$ that acts on
+the set of states $\left\{\mathbf{x}_k\right\}$ that minimizes
+the objective function $Z$ summed overs students and KC's.  
+Since our policies are binary-valued
+and many of our features are well ordered (times, counts of transactions,
+{\em et cetera}), it is natural to define $f$ in terms of a 
+linear classifier.  Thus
 %
 \begin{equation}
-   P(c_i, w_i, c_f, w_f)= \mbox{long formula here} \; .
+              f(\mathbf{x}_k) = \left\{\begin{array}{cc}
+		1,& \mathbf{a}\cdot \mathbf{x}_k <b \\
+                0 & \mathbf{a}\cdot \mathbf{x}_k \ge b
+		\end{array} \right.
 \end{equation}
-
+%
+That is, $\mathbf{a}$ and $b$ define a hyperplane in feature
+space.  All states on one side of the plane are given policy 0
+and states on the other side have policy 1.
+Numerically, we find $\mathbf{a}$ and $b$ that minimizes $Z$
+summed over students and KC's.
 
 
 
@@ -202,6 +247,11 @@ the Acquisition of Procedural Knowledge.  \emph{User Modeling and
 \bibitem{aha}Kurt and Kasia moment of learning paper.
 
 \bibitem{ml}Discount factor citation.
+
+\bibitem{mint}Min's Thesis (or publication?)
+
+\bibitem{linear}Linear classifier Ref. 
+     http://en.wikipedia.org/wiki/Linear\_classifier
 
 \end{thebibliography}
 

@@ -93,7 +93,7 @@ function maximum_likelihood_models($opps,$debugML=false){
     $ll+=$cbl>0?$cbl*log($pg):0.0;
     $ll+=$wbl>0?$wbl*log(1.0-$pg):0.0;
     $ll+=$wal>0?$wal*log($ps):0.0;
-    $ll+=$cal>0?$cal*log(1.0-$ps):0.0;    
+    $ll+=$cal>0?$cal*log(1.0-$ps):0.0;
     $allll[$step]=$ll;
     
     // Expectation value for the learning gain 1-G-S.
@@ -101,7 +101,7 @@ function maximum_likelihood_models($opps,$debugML=false){
     // distributions P(G) and P(S).
     // For some choices of step, there is no learning.
     $allGain[$step]=1-(1+$cbl)/(2+$cbl+$wbl)-(1+$wal)/(2+$cal+$wal);
-    $gainProb=$step>0?learnProb($cbl,$wbl,$cal,$wal):0;
+    $gainProb=($step>0?learnProb($cbl,$wbl,$cal,$wal):0);
     $allGainProb[$step]=$gainProb;
 
     // Find maximum value.
@@ -117,7 +117,9 @@ function maximum_likelihood_models($opps,$debugML=false){
     
     if($debugML){
       echo ' (' . $step . ',' . print2($pg) . ',' . 
-	print2($ps) . ',' .  number_format($ll,3) . ')';
+	print2($ps) . ',' .  number_format($ll,3) . ',' .
+        number_format($gainProb,3) . ')';
+      // echo " <$cbl,$wbl,$cal,$wal>";
     }	
   }
   
@@ -161,11 +163,25 @@ function maximum_likelihood_models($opps,$debugML=false){
 
   // If no significant model-weighted gain is seen, then 
   // model has failed, "point of learning" doesn't exist.
+  // There are two possible strategies to determine learning:  
+  // 1.  The best fit parameters predict positive learning or
+  // 2.  The model predicts positive learning with probability
+  //     greater than some confidence level.
+  //
+  // The model weighted gain is about 1/2 for any data
+  // where the initial rate cbl/(cbl+wbl) is equal to the 
+  // final rate cal/(cal+wal).
+  // This includes all correct, all wrong, or some
+  // random rate of correctness.
+  $maxv['valid']=($maxv['gainProb']>$confidenceLevel) && 
+    ($maxv['learn']>0) && ($maxv['ps']+$maxv['pg']<1);
   // use the value from learn=0 
-  $maxv['valid']=$maxv['gainProb']>$confidencLevel;
   if(!$maxv['valid']){
-    $maxv=$maxv0;
-   }
+    $maxv['learn']=0;
+    $maxv['pg']=false;
+    $maxv['ps']=$maxv0['ps'];
+    $maxv['logLike']=$maxv0['logLike'];
+  }
 
   // Associated learning gains
   $maxv['learnGain']=$allGain;
@@ -175,11 +191,11 @@ function maximum_likelihood_models($opps,$debugML=false){
     if($maxv['valid']){
       echo ' model with pg=' . number_format($pg,3) . 
 	', ps=' . number_format($ps,3) . ', logLike=' . 
-	number_format($maxv['logLike'],3) . ', gainProb=' .
-	number_format($maxv['gainProb'],3);
+	number_format($maxv['logLike'],3);
     } else {
       echo ' no learning: ps=' . number_format($ps,2);
     }
+    echo ', gainProb=' . number_format($maxv['gainProb'],3) . "\n";
   }
 
   return $maxv;

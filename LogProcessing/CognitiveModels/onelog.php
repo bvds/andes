@@ -16,7 +16,7 @@ if($htmlHeaders):
 // These are all optional
  //     ^md5:b50efc   // Student used for tests of different models.
  //     ^md5:e2ed3385  // student in '^uwplatt_2Y130'
-$userName = '^md5:e2ed3385';  // regexp to match
+$userName = '';  // regexp to match
 	     // MIT_.*
              // asu experiment
 	     // asu_3u16472755e704e5fasul1_.*
@@ -27,8 +27,8 @@ $userName = '^md5:e2ed3385';  // regexp to match
 	     // ^uwplatt_(8p1304|90476) Thomas Scaife sections 
 	     //       user names got mangled in these sections.
 	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Andy Pawl sections
-	     // 
-$sectionName = '^uwplatt_';  // regexp to match
+	     //  discrepencies
+$sectionName = '^uwplatt_2Y130';  // regexp to match
 $startDate = '2011-03-25';
 $endDate = '';
 
@@ -111,6 +111,7 @@ require("blame.php");
 require("step-model.php");
 require("training.php");
 require("state.php");
+
 $training = new training();
 $state = new student_state();
 $initialTime = time();
@@ -414,11 +415,15 @@ if($htmlHeaders){
 // Also, find a set of models for each L, and the relative probability
 // of each sub-model.
 //
+$debugML=false;
 foreach($allKCStudent as $kc => $sec) {
   foreach($sec as $thisSection => $stu) {
     foreach($stu as $thisName => $opps) {
+      if($debugML){
+	echo "$kc, $thisSection, $thisName \n";
+      }
       $model[$kc][$thisSection][$thisName] =
-	maximum_likelihood_models($opps);
+	maximum_likelihood_models($opps,$debugML);
     }
   }
 }
@@ -587,7 +592,7 @@ function skipKC($kc){
 }
 
 // For each student and KC, Print out the model parameters.
-if(true){
+if(false){
   echo "\"KC\",\"Section\",\"Name\",\"AIC\",\"gainProb\"\n";
   ksort($allKCStudent);
   foreach($allKCStudent as $kc => $sec) {
@@ -609,7 +614,7 @@ if(true){
 
 // For each kc and step, print model parameters, step id (ttID),
 // and policies used, in csv format.
-if(false){
+if(true){
   $randomHelpCategories=array();
   foreach ($allKCStudent as $ss){
     foreach($ss as $st){
@@ -629,7 +634,7 @@ if(false){
   }
 
   // Header
-  echo "\"KC\",\"clientID\",\"ttID\"\"stepTrans\",,\"learning\",\"noSlip\"";
+  echo "\"KC\",\"clientID\",\"ttID\",\"stepTrans\",\"learning\",\"noSlip\"";
   foreach($randomHelpCategories as $var => $val){
     echo ",\"$var\"";
   }
@@ -662,8 +667,9 @@ if(false){
 	  for($k=$i+1; $k<count($opps); $k++){
 	    $learn+=$maxv['learnHereProb'][$k]*$maxv['learnGain'][$k]*
 	      $gammaFactor;
-	    if($opps[$k]['grade'] != 'correct'){
-	      $gamaFactor *= $gamma;
+	    // grade undefined.
+	    if($opps[$k][0]['grade'] != 'correct'){
+	      $gammaFactor *= $gamma;
 	    }
 	  }
 	  // In cases where there is no learning, student
