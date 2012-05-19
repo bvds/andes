@@ -24,31 +24,43 @@
 
 \maketitle
 
+To do:  add in list of features.
+
+Experimental design:  two conditions: normal Andes and learned
+help policy.  For each homework, randomly Divide students into two 
+even groups.  Reward for experiment is number of incorrect turns
+for each KC while that policy is being enforced.
+
 \section{A model of learning}
 
 For each student and KC, the student has attempted some number of 
-{\em steps} that involve a given skill.   We will label
+{\em steps} that involve that KC.   We will label
 steps with $j$.  Usually a given step is associated
 with a single user interface object (an equation, vector, etc.)  but
 not always, since a student may attempt a particular problem solving
 step, delete the object, and later attempt that solution step again.
-Each step $j$ corresponds some some number of student {\em transactions}:
-attempts at constructing the associated object, or associated
-interactions with the Andes help system.  
+Each step $j$ corresponds some some number of student-tutor 
+{\em transactions}: attempts at constructing the associated object, 
+or associated interactions with the Andes help system.  
 
-Next, we need a model of student learning for a particular KC.
-Since the policies chosen by the random-help version of Andes
-are different for each student,
-we need to determine the point of learning for each student.
+%Next, we need a model of student learning for a particular KC.
+%Since the policies chosen by the random-help version of Andes
+%are different for each student,
+%we need to determine the point of learning for each student.
 For each KC and student, mark each step as ``correct'' if
 the student completes the step correctly without any associated errors or 
 requests for help; otherwise, the step is marked as ``incorrect.''
+%
+% From Kurt:
+Thus, if each incorrect/correct step is marked with a 0/1, then
+a single student's performance on a single KC is a bit string,
+{\em exempli gratia} 00101011.
 
 \section{Models of learning}
 
 A number of authors have used a logistic function, 
 $\mathrm{logit}(x)=1/\left(1+e^{-x}\right)$, to 
-model student learning.  In that case, we have a two-parameter
+model student learning of a KC.  In that case, we have a two-parameter
 model for the probability that the student gets step $j$ correct is:
 %
 \begin{equation}
@@ -56,11 +68,12 @@ model for the probability that the student gets step $j$ correct is:
 \end{equation}
 %
 where $\beta$ is the learning rate and $L$ is the ``moment
-of learning''~\cite{aha}.
+of learning''~\cite{aha}.  
+Thus, at step $j=L$, the probability is 1/2.
 
 Alternatively, we can use a function that retains the 
-guess $P(G)$ and slip $P(S)$ probabilities of Corbett and 
-Anderson~\cite{anderson}.
+guess $P(G)$ and slip $P(S)$ rates of Corbett and 
+Anderson~\cite{anderson}, .
 The simplest such model is a step-function:
 %
 \begin{equation}
@@ -70,13 +83,24 @@ The simplest such model is a step-function:
                                     \end{array}\right. \label{step}
 \end{equation}
 where $g$ is the guess rate, $s$ is the slip rate and 
-$L$ is the moment of learning.
+$L$ is ``the moment of learning,'' the step where the student
+first shows mastery of the KC; see Figure~\ref{stepf}.
+For a given $L$, we can define an average learning gain,
 %
-\[
+\begin{equation}
+     % need actual formula here.
+         \Delta_L = 1- \left\langle g+s \right\rangle_L ,
+\end{equation}
+%
+where $\left\langle \cdots \right\rangle_L$ denotes the
+expecation value.
+\begin{figure}
 \includegraphics{step.eps}
-\]
+\caption{The step model with $g=0.15$, $s=0.8$, and $L=3$.}
+         \label{stepf}
+\end{figure}
 %
-We can match $P_j^\mathrm{step} $ to the student data using the
+We can fit $P_j^\mathrm{step} $ to the student data using the
 Maximum Likelihood method.
 Let $c_i$ \& $w_i$ be the number of correct \& incorrect steps observed
 for steps $j<L$ and $c_f$ \& $w_f$ be the number of correct \& incorrect
@@ -85,6 +109,7 @@ steps for steps $j\ge L$.  The associated log likelihood for a given $L$ is
 \begin{equation}
   \mathcal{L}_L  =  \log\left(B_{c_i,w_i}(g)\right) 
                   + \log\left(B_{c_f,w_f}(1-s) \right)  \, ,
+		  \label{logLike}
 \end{equation}
 %
 where the guess rate $g$ and slip rate $s$ follow the binomial distribution,
@@ -95,45 +120,42 @@ where the guess rate $g$ and slip rate $s$ follow the binomial distribution,
       1=\int_0^1 B_{a,b}(x) \,\mathrm{d}x \; .
 \end{equation} 
 %
-$\mathcal{L}_L$ is maximized when:
+The maximum-likelihood estimators (MLE) for $g$ and $s$ are
 %
 \begin{eqnarray}
-  g = P(G) &=&  \frac{c_i}{c_i+w_i} \, ,\\
-  s = P(S) &=&  \frac{w_f}{c_f+w_f} \,  .
+  \hat{g} &=&  \frac{c_i}{c_i+w_i} \, ,\\
+  \hat{s} &=&  \frac{w_f}{c_f+w_f} \,  .
 \end{eqnarray}
 %
-Next, one can maximize $\mathcal{L}_L$ with respect to $L$ to find
-the most likely value $L=L_\mathrm{max}$.  However, in practice, the 
-uncertainty in $L$ can be significant and may not have a normal
-distribution.   Instead, we will consider a set of sub-models, each with a 
-different value of $L$, and a relative probability given by 
-AIC~\cite{aic-book}.  
-That is, the sub-model for a particular value of $L$ has weight,
+Similarly, one can find the maximum-likelihood estimator
+for $L$.  However, in practice, the 
+uncertainty in $L$ can be significant and $L$ may not have a normal
+distribution.   Instead of using the MLE value of $L$ and some
+associated error, we will use a set of sub-models, one
+for each value of $L$, with a relative probability given by the
+Akaike information criterion (AIC)~\cite{aic-book}.  
+The sub-model for each value of $L$ has weight given by AIC,
 %
 \begin{equation}
                    w_L = \frac{\mathrm{e}^{\mathcal{L}_L-2} }{W}\, ,
 \end{equation}
 %
 with normalization $W$ such that $\sum_L w_L=1$.
-For each sub-model, we can define an average learning gain,
-%
-\begin{equation}
-     % need actual formula here.
-         \Delta_L = 1- \left\langle g+s \right\rangle_L \; .
-\end{equation}
 
-Finally, we need to determine whether, in the context
+%
+%  This is not really needed below
+Finally, we may want to determine whether, in the context
 of the step-function model (\ref{step}), learning has occurred.
 We say that learning has occurred at $L$ if $g<1-s$.
 Since the model is a fit to student data ($c_i$, $w_i$, $c_f$, $w_f$), 
 we can, at best, determine the {\em probability} that learning has occurred. 
-The probability that learning has occurred can be calculated by
-integrating over the possible slip and guess rates in the region
-$p+g<1$, weighted by the probability distributions:
+The probability that learning has occurred (for a given L) 
+can be calculated by integrating the Likelihood (see Eqn.~(\ref{logLike})) 
+over the possible slip and guess rates in the region $g+s<1$:
 %
 \begin{equation}
    P(c_i, w_i, c_f, w_f)= \int_0^1 \int_0^{1-g} 
-   B_{c_i,w_i}(g) \, B_{c_f,w_f}(1-s) \,\mathrm{d}g\,\mathrm{d}g 
+   B_{c_i,w_i}(g) \, B_{c_f,w_f}(1-s) \,\mathrm{d}g\,\mathrm{d}s
 \end{equation}
 %
 This integral can be solved exactly by repeated integration by parts.
@@ -158,7 +180,7 @@ function to be
      \label{before} \\
  % reward for after-learning policy
  % Includes case with no learning as k=0.
-  &+\beta \left. \sum_{j \in \mathcal{I},\,j \ge L} \frac{(1-P(S))}
+  &+\beta \left. \sum_{j \in \mathcal{I},\,j \ge L} \frac{1-\hat{s}}
       {n(L,j_\mathrm{max})\left|\sigma_j\right|}
              \sum_{k\in \sigma_j} \left(f(\mathbf{x}_k)-d_k\right))^2
      \right\}
@@ -195,8 +217,8 @@ number might be appropriate.
 
 The second term (\ref{after}) rewards policies applied after
 the KC has been learned.  Since the only measure of effectiveness
-after is the slip rate $P(S)$, we look for a policy that maximizes
-$1-P(s)$.  The reward for an this policy is evenly divided
+after is the slip rate $\hat{s}$, we look for a policy that maximizes
+$1-\hat{s}$.  The reward for this policy is evenly divided
 among the $n(L,j_\mathrm{max})$ incorrect steps after $L$.
 Since our primary objective is to produce learning in the first
 place (\ref{before}), we want the effect of (\ref{after}) to be 
