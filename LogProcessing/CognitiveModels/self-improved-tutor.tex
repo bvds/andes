@@ -96,7 +96,7 @@ where $\left\langle \cdots \right\rangle_L$ denotes the
 expecation value.
 \begin{figure}
 \includegraphics{step.eps}
-\caption{The step model with $g=0.15$, $s=0.8$, and $L=3$.}
+\caption{The step model with $g=0.15$, $s=0.8$, and $L=4$.}
          \label{stepf}
 \end{figure}
 %
@@ -247,7 +247,58 @@ and states on the other side have policy 1.
 Numerically, we find $\mathbf{a}$ and $b$ that minimizes $Z$
 summed over students and KC's.
 
+\section{Feature space}
 
+The student state at any given time is described by a list of
+features.   Since the machine learned policy is to act on this list of
+features, they must be computable in real time.  This is can be a
+challenge in tutor system with a free-form interface like  Andes:
+there is not always a way to determine, in real time, what a student was
+attempting when they make an entry and get it wrong, even if the attempt
+is examined by an expert human tutor .  Andes has a
+number of error handlers that do make such a determination, but they 
+apply only for certain well-known errors.
+
+For determining which features to select, we used Min Chi's thesis
+as a starting point ~\cite{mint}, although she was doing this for a
+rather different kind of tutor system.  The following items were
+chosen mostly for convenience, and they avoided issues with determing
+the KC associated with an entry.
+%
+\begin{description}
+
+\item[logSessionTime] Log of number of seconds since start of current
+  session.  This is a measure of student fatigue.
+
+\item[fracSectionFlounderTime] Flounder time is the time spent between 
+consecutive correct (object turns green) transactions, where at least
+one intervening help request or incorrect (object turns red)
+transaction is found.  {\em fracSectionFlounderTime} is the flounder
+time for the current session over total session time.
+
+\item[logNowFlounderTrans] Log of number of transactions since last
+  correct (object turns green) transaction.
+
+\item[logNowFlounderTime] Log of number of seconds since last
+  correct (object turns green) transaction.
+
+\item[logNowStepTime] Log of number of seconds since last transaction.
+
+\item[sessionCorrect] Number of transactions in current session where 
+   object has been marked  correct.
+
+\item[sessionIncorrect] Number of transactions in current session where 
+   object has been marked  correct.
+
+\item[sessionHelp] Number of help requests in current session.
+
+\item[fracSessionCorrect] $\mbox{sessionCorrect}/\left(\mbox{sessionCorrect}+\mbox{sessionIncorrect}+\mbox{sessionHelp}\right)$.
+
+
+\end{description}
+%
+We have taken the logarithm of quantities where the student data
+for that quantity ranges over several orders of magnitude.
 
 \begin{thebibliography}{9}
 
