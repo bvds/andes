@@ -120,20 +120,14 @@
 ;;;; that will occur as necessary.  If the full prompts do not narrow
 ;;;; the list down then random selection will occur.
 
-
-(defun elicit-intended-equation (&optional (Studententry nil))
-  (declare (ignore Studententry))
-  (iea-main ""))
-
-
-(defun IEA-Main (Prefix)
+(defun IEA-Main (&optional eqn)
   (make-dialog-turn
-   (strcat Prefix "What equation do you wish to write?")
+   "What equation do you wish to write?"
    +equation-menu+ 
    :Responder #'(lambda (Response)
 		  (iea-check-response Response))
-   :Assoc '((iea . Main))))
-
+   ;; This doesn't seem to go anywhere.
+   :Assoc `((iea unknown-equation ,eqn))))
 
 ;;;; -------------------- Check Response ----------------------------
 ;;;; The initial IEA response will be a cons containing an equation
@@ -151,7 +145,7 @@
   ;; Student has clicked on link in tutor pane.
   ;; Re-open principles menu.
   (when (eql response 'any-principle)
-    (return-from iea-check-response (IEA-main "")))
+    (return-from iea-check-response (IEA-main)))
 
   (unless (consp response)
     ;; These cases should be handled more intelligently.
