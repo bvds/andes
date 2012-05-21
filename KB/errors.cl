@@ -1266,7 +1266,8 @@
    (list (format nil (strcat "You don't need to draw ~a ~a.  You need to draw "
 			     "it for a different time. ") 
 			     descr bad-time)
-	 `(bottom-out (string ,(format nil "You should draw ~a ~a." descr good-time)))))
+	 `(bottom-out (string ,(format nil "You should draw ~a ~a." 
+				       descr good-time)))))
 
 ;;; (ref Pitt non-eqn 2-29-27) If the student defines a vector only
 ;;; for a time inside the time interval of the correct system entry,
@@ -1319,7 +1320,7 @@
 		 "defining a solution.")
 	 *dyi*
 	 `(bottom-out (string ,(format nil (strcat "You should draw ~a ~a with a ~a direction, "
-			     "rather than ~a with a ~a direction")
+			     "rather than ~a with a ~a direction.")
 		 (nlg descr 'def-np) (nlg ctime 'pp) (nlg cdir 'adj) 
 		 (nlg stime 'pp) (nlg sdir 'adj))))))
 
@@ -1479,7 +1480,7 @@
 (defun velocity-should-be-non-zero (body time)
   (setf body (nlg body 'def-np))
   (setf time (nlg time 'pp))
-   (list (format nil "Is ~a is at rest ~a?" body time)
+  (list (format nil "Is ~a at rest ~a?" body time)
 	 `(bottom-out (string ,(format nil (strcat "Since ~a is not at rest ~a, the "
 			     "velocity vector needs to be non-zero.") 
 		 body time)))))
@@ -1751,7 +1752,7 @@
 			     (quantity-html-link 
 			      (lookup-exptype-struct 'force)) 
 			     " acting on " (nlg body 'def-np) ".")
-	 `(bottom-out (string ,(format nil "It is a ~a force" (nlg ctype 'adj))))))
+	 `(bottom-out (string ,(format nil "It is a ~a force." (nlg ctype 'adj))))))
 
 ;;; Typically there is only one force between the two objects and so all 
 ;;; that we need to do is tell them the right one to use.  This 
@@ -1770,7 +1771,7 @@
    (list (format nil (strcat "There is indeed a force on ~a~@[~a~], "
 			     "but it is not a ~a force.")
 		 (nlg body 'def-np) (agent-phrase agent) (nlg stype 'adj))
-	 `(bottom-out (string ,(format nil "It is a ~a force" (nlg ctype 'adj))))))
+	 `(bottom-out (string ,(format nil "It is a ~a force." (nlg ctype 'adj))))))
 
 
 ;;; When there are two forces on same body given a specific time and
@@ -3764,7 +3765,7 @@
 
 (defun undiagnosed-eqn-error (eqn)
    ;; following routine shows query and does all the work from there
-   (elicit-intended-equation eqn)
+   (list `(function IEA-Main ,eqn))
 )
 
 ;;;
