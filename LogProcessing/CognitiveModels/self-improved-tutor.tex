@@ -24,7 +24,7 @@
 
 \maketitle
 
-To do:  add in list of features.
+\section*{To do:}
 
 Experimental design:  two conditions: normal Andes and learned
 help policy.  For each homework, randomly Divide students into two 
@@ -67,13 +67,12 @@ model for the probability that the student gets step $j$ correct is:
                P_j^\mathrm{logit} = \mathrm{logit}\left(\beta (j-L)\right)
 \end{equation}
 %
-where $\beta$ is the learning rate and $L$ is the ``moment
-of learning''~\cite{aha}.  
-Thus, at step $j=L$, the probability is 1/2.
+where $\beta$ is the learning rate and $L$ is 
+the the step where the probability of correctness has risen to 50\%.
 
 Alternatively, we can use a function that retains the 
 guess $P(G)$ and slip $P(S)$ rates of Corbett and 
-Anderson~\cite{anderson}, .
+Anderson~\cite{anderson}.
 The simplest such model is a step-function:
 %
 \begin{equation}
@@ -82,6 +81,7 @@ The simplest such model is a step-function:
 				       1-s,& j\ge L
                                     \end{array}\right. \label{step}
 \end{equation}
+%
 where $g$ is the guess rate, $s$ is the slip rate and 
 $L$ is ``the moment of learning,'' the step where the student
 first shows mastery of the KC; see Figure~\ref{stepf}.
@@ -96,7 +96,7 @@ where $\left\langle \cdots \right\rangle_L$ denotes the
 expecation value.
 \begin{figure}
 \includegraphics{step.eps}
-\caption{The step model with $g=0.15$, $s=0.8$, and $L=3$.}
+\caption{The step model with $g=0.15$, $s=0.8$, and $L=4$.}
          \label{stepf}
 \end{figure}
 %
@@ -116,7 +116,11 @@ where the guess rate $g$ and slip rate $s$ follow the binomial distribution,
 %
 \begin{equation}
        B_{a,b}(x) = x^a (1-x)^b\; \frac{(x+b+1)!}{a!\, b!} 
-      \;\;\;\; \mbox{where} \;\;\;\;
+\end{equation}
+%
+with normalization
+%
+\begin{equation}
       1=\int_0^1 B_{a,b}(x) \,\mathrm{d}x \; .
 \end{equation} 
 %
@@ -128,16 +132,16 @@ The maximum-likelihood estimators (MLE) for $g$ and $s$ are
 \end{eqnarray}
 %
 Similarly, one can find the maximum-likelihood estimator
-for $L$.  However, in practice, the 
-uncertainty in $L$ can be significant and $L$ may not have a normal
-distribution.   Instead of using the MLE value of $L$ and some
-associated error, we will use a set of sub-models, one
-for each value of $L$, with a relative probability given by the
-Akaike information criterion (AIC)~\cite{aic-book}.  
-The sub-model for each value of $L$ has weight given by AIC,
+for $L$.  However, in some cases, $L$ is not normally
+distributed and has a large uncertainty.
+So, instead of using the MLE value of $L$ and some
+associated error, we will use a multimodel approach~\cite{aic-book}.
+We will use a set of models of the form (\ref{step}), 
+one for each $L$. Each model has a relative probability given 
+by its Akaike weight,  
 %
 \begin{equation}
-                   w_L = \frac{\mathrm{e}^{\mathcal{L}_L-2} }{W}\, ,
+                   w_L = \frac{\mathrm{e}^{\mathcal{L}_L-2}}{W}\, ,
 \end{equation}
 %
 with normalization $W$ such that $\sum_L w_L=1$.
@@ -188,7 +192,7 @@ function to be
   \end{align}
 \end{subequations}
 %
-where $L$ labels different sub-models, each with weight $w_L$;
+where $L$ labels different models, each with weight $w_L$;
 $\mathcal{I}$ is the set of steps associated
 with that student, policy, and KC that were marked ``incorrect.''  
 $\sigma_j$ is the set of transactions associated with step $j$,
@@ -201,10 +205,10 @@ We have arranged things so that finding an optimal policy
 corresponds to {\em minimizing} $Z$.
 
 The first term (\ref{before}) rewards policies applied directly before
-the moment of learning (or step $L$ for sub-model $L$).  
+the moment of learning (or step $L$ for model $L$).  
 These are weighted by the 
 average learning gain $\Delta_L = 1-\left\langle g+s\right\rangle_L$ 
-predicted by sub-model $L$.
+predicted by model $L$.
 Also, $n(j,L)$ is the number
 of $\mathcal{I}$ between $j$ and $L$, 
 and $\gamma$ is the ``discount factor''~\cite{ml}. 
@@ -221,10 +225,9 @@ after is the slip rate $\hat{s}$, we look for a policy that maximizes
 $1-\hat{s}$.  The reward for this policy is evenly divided
 among the $n(L,j_\mathrm{max})$ incorrect steps after $L$.
 Since our primary objective is to produce learning in the first
-place (\ref{before}), we want the effect of (\ref{after}) to be 
-relatively small.
-Thus, the parameter $\beta$ should be small, but nonzero; an
-optimum value must be determined empirically.
+place (\ref{before}), we want the contribution of (\ref{after})
+to $Z$ to be somewhat smaller.  Thus, we choose $\beta$ numerically 
+such that (\ref{after}) is somewhat smaller than (\ref{before}).
 
 The machine learning algorithm finds a function $f$ that acts on
 the set of states $\left\{\mathbf{x}_k\right\}$ that minimizes
@@ -247,6 +250,58 @@ and states on the other side have policy 1.
 Numerically, we find $\mathbf{a}$ and $b$ that minimizes $Z$
 summed over students and KC's.
 
+\section{Feature space}
+
+The student state at any given time is described by a list of
+features.   Since the machine learned policy is to act on this list of
+features, they must be computable in real time.  This is can be a
+challenge in tutor system with a free-form interface like  Andes:
+there is not always a way to determine, in real time, what a student was
+attempting when they make an entry and get it wrong, even if the attempt
+is examined by an expert human tutor .  Andes has a
+number of error handlers that do make such a determination, but they 
+apply only for certain well-known errors.
+
+For determining which features to select, we used Min Chi's thesis
+as a starting point ~\cite{mint}, although she was doing this for a
+rather different kind of tutor system.  The following items were
+chosen mostly for convenience, and they avoided issues with determing
+the KC associated with an entry.
+%
+\begin{description}
+
+\item[logSessionTime] Log of number of seconds since start of current
+  session.  This is a measure of student fatigue.
+
+\item[fracSectionFlounderTime] Flounder time is the time spent between 
+consecutive correct (object turns green) transactions, where at least
+one intervening help request or incorrect (object turns red)
+transaction is found.  {\em fracSectionFlounderTime} is the flounder
+time for the current session over total session time.
+
+\item[logNowFlounderTrans] Log of number of transactions since last
+  correct (object turns green) transaction.
+
+\item[logNowFlounderTime] Log of number of seconds since last
+  correct (object turns green) transaction.
+
+\item[logNowStepTime] Log of number of seconds since last transaction.
+
+\item[sessionCorrect] Number of transactions in current session where 
+   object has been marked  correct.
+
+\item[sessionIncorrect] Number of transactions in current session where 
+   object has been marked  correct.
+
+\item[sessionHelp] Number of help requests in current session.
+
+\item[fracSessionCorrect] $\mbox{sessionCorrect}/\left(\mbox{sessionCorrect}+\mbox{sessionIncorrect}+\mbox{sessionHelp}\right)$.
+
+
+\end{description}
+%
+We have taken the logarithm of quantities where the student data
+for that quantity ranges over several orders of magnitude.
 
 
 \begin{thebibliography}{9}
@@ -266,7 +321,7 @@ the Acquisition of Procedural Knowledge.  \emph{User Modeling and
   Selection and Multimodel Inference: A Practical
   Information-Theoretic Approach}, 2nd ed. Springer-Verlag. 2002.
 
-\bibitem{aha}Kurt and Kasia moment of learning paper.
+%\bibitem{aha}Kurt and Kasia moment of learning paper.
 
 \bibitem{ml}Discount factor citation.
 
