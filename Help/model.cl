@@ -45,8 +45,13 @@
 	 (unless (eql x T) (or (null x) (< x value)))))
 
 (defun model-red-turn (time)
+  "Tutor has turned something red."
   (unless time (error "Null time supplied"))
-  ;; Time and turns spent in a "state of frustration"
+  (if (get-state-property 's-h-time)
+      (set-state-property 'f-turns 
+			  (+ (get-state-property 'f-turns) 1) 
+			  :no-store t)
+  ;; Time and turns spent "floundering"
   (if (get-state-property 'f-time)
       (set-state-property 'f-turns 
 			  (+ (get-state-property 'f-turns) 1) 
@@ -56,6 +61,7 @@
 	(set-state-property 'f-turns 0 :no-store t))))
 
 (defun model-green-turn ()
+  "Tutor has turned something green."
   (set-state-property 'f-time nil :no-store t)
   (set-state-property 'f-turns nil :no-store t))
 
@@ -75,7 +81,9 @@
   (set-state-property 't-time nil :no-store t)
   (set-state-property 't-turns nil :no-store t))
 
+;; h-time & h-turns Time and turns since last hint received.
 (defun model-no-hint-turn (time)
+  "Received no hint from tutor."
   (if (get-state-property 'h-time)
       (set-state-property 'h-turns 
 			  (+ (get-state-property 'h-turns) 1) 
@@ -286,3 +294,135 @@
 					  :model "server")
 		      new-val)))))))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;              Learned Policy experiment 2012
+;;;;
+;; 
+;;  We need a mechanism to make study manipulations be
+;;  more "pluggable" in Andes.  Bug #1940
+;;  
+;;
+(in-package :cl-user)
+(defpackage :learned-help-experiment
+  (:use :cl :cl-user :andes-database)
+  (:export :set-policy
+	   :help-mod-p
+	   :*help-mods*))
+
+;; Should be eventually pushed to by various 
+;; Help files at compile-time?
+(defvar learned-help-experiment:*help-mods* 
+  '(
+    (give-spontaneous-hint) (give-hints-backwards)
+    (give-spontaneous-hint give-hints-backwards)
+    (no-join-hints give-spontaneous-hint) (no-join-hints give-hints-backwards)
+    (no-join-hints give-spontaneous-hint give-hints-backwards)
+    ))
+
+;; Set hook to test for backwards hints
+(setf *backwards-hints-hook* 
+      #'(lambda () (random-help-experiment:help-mod-p 'give-hints-backwards)))
+
+(in-package :learned-help-experiment)
+
+;; Property names can either be a string or symbol;
+;; using a string avoids issues with package names.
+(defparameter +prob-flag+ "prob-flag")
+(defparameter +current-object+ "current-object")
+(defparameter +help-customizations+ "help-customizations")
+
+
+;; In mysql, need to define sections, if they don't exist;
+;; see random-help-experiment-setup.sql
+
+;; (random-help-experiment::set-experiment-probability 0.5)
+(defun set-experiment-probability (prob)
+  "Run once with database open to set flag experiment using probability."
+  (unless (and (numberp prob) (<= 0 prob 1))
+    (warn "must be probablility, not ~s" prob))
+  ;; Sections must already exist in database.
+  (dolist (x (and '("random-help-test"
+		   ;; Fall 2011 MIT sections
+		   "MIT_96238198fb0774e40MITl1_"
+		   "MIT_397367142947c4ec7MITl1_"
+		   ;; Fall 2011 ASU Heckler, two of the sections
+		   "asu_3u16472755e704e5fasul1_15865"
+		   "asu_3u16472755e704e5fasul1_15854"
+		   )
+		 '(
+		   ;; Sections for Spring 2012 at UW Plattville
+		   ;; Andy Pawl sections
+		   "uwplatt_51421910795174fcfuwplattl1_" ;physics 2240A1 
+		   "uwplatt_6l13051599e174fb5uwplattl1_" ;physics 2240A2
+		   "uwplatt_2Y1305989a5174f1cuwplattl1_" ;physics 2340C1
+		   "uwplatt_3n13056a8a6174fbeuwplattl1_" ;physics 2340C2
+		   ;; Tomm Scaife sections
+		   "uwplatt_8p130495419184f26uwplattl1_" ;Physics 2240
+		   "uwplatt_9047621c019184fdbuwplattl1_" ;Physics 2340
+		   )))
+    ;; No consent forms.
+    (set-state-property "consent-dialog" "none" 
+			:model "client" :section x :student nil :tid t)
+    (set-state-property "informed-consent" "external:my-form" 
+			:model "client" :section x :student nil :tid t)
+    (set-state-property +prob-flag+ prob :model "server" :section x 
+			:student nil :tid t)))
+
+(defun set-current-object (x)
+  (unless (stringp x) (warn "invalid object ~s" x))
+  (when (get-state-property +prob-flag+ :model "server")
+    (set-state-property +current-object+ 
+			(concatenate 'string session:*problem* "_" x) 
+			:model "server" :no-store t)))
+
+(defun in-experiment-p ()
+  "Randomly assign experimental vs. control condition."
+  (let ((x (get-state-property +prob-flag+ :model "server")))
+    ;; Each session gets its own seed based on problem name.
+    (when x (< (mt19937:random 1.0) x))))
+
+(defun help-mod-p (x)
+  (when (get-state-property +prob-flag+ :model "server")
+    (let ((current-object (or (get-state-property +current-object+
+						  :model "server")
+			      ;; When a problem is first opened,
+			      ;; no object has been set.
+			      (concatenate 'string session:*problem* 
+				      "_no-current-object"))))
+      (member x 
+	      (multiple-value-bind (val is-set)
+		  (get-state-property current-object :model "server")
+		(if is-set
+		    val
+		    (let ((new-val 
+			   ;; Randomly choose if Help will
+			   ;; be modified
+			   (when (in-experiment-p)
+			     ;; Randomly choose one of the 
+			     ;; help mod lists.
+			     (random-elt *help-mods*))))
+		      (set-state-property current-object new-val
+					  :model "server")
+		      new-val)))))))
+
+(defun set-policy (time)
+  (let ((state (list
+		;; logSessionTime
+		(if (> time 0) (log time) -1)
+		;; fracSessionFlounderTime
+		(/ (+ (or (get-state-property 's-f-time) 0)
+		      (or (get-state-property 's-h-time) 0)) time)
+		;; logNowFlounderTrans
+		
+		;; logNowFlounderTime
+		;; logNowStepTime
+		;; sessionCorrect
+		;; sessionIncorrect
+		;; sessionHelp
+		;; fracSessionCorrect
+		)))
+    
+    )
+  )

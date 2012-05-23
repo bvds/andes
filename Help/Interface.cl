@@ -125,6 +125,12 @@
   "Execute the api call with the command and arguments."
   ;; Generally, the solution steps are StudentEntry structs
   ;; and the help calls are not
+
+  ;; Determine the student state and set hinting policy.
+  ;; This must be at the beginning of the turn, before
+  ;; any hinting decisions are made.
+  (learned-help-experiment:set-policy time)
+
   (let* ((text (and entry (StudentEntry-p entry) (StudentEntry-text entry)))
 	 (Arguments (and entry (list entry)))
 	 ;; Set the last api call to be this call.
