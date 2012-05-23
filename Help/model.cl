@@ -47,10 +47,10 @@
 (defun model-red-turn (time)
   "Tutor has turned something red."
   (unless time (error "Null time supplied"))
-  (if (get-state-property 's-h-time)
-      (set-state-property 'f-turns 
-			  (+ (get-state-property 'f-turns) 1) 
-			  :no-store t)
+;  (if (get-state-property 's-h-time)
+;      (set-state-property 'f-turns 
+;			  (+ (get-state-property 'f-turns) 1) 
+;			  :no-store t)
   ;; Time and turns spent "floundering"
   (if (get-state-property 'f-time)
       (set-state-property 'f-turns 
@@ -108,7 +108,7 @@
   (when (get-state-property 'intro-video-start-time)
     (set-state-property 
      'intro-video-time
-     (+  (- time (get-state-property 'intro-video-start-time))
+     (+ (- time (get-state-property 'intro-video-start-time))
 	 (or (get-state-property 'intro-video-time) 0)))
     ;; Reset timer.
     (set-state-property 'intro-video-start-time nil :no-store t)))
@@ -162,13 +162,15 @@
 	 ;; Logging for blur has failed, fall back on open flag.
 	 (null (get-state-property 'INTRO-VIDEO-OPENED)))
      `((:action . "show-hint")
-       (:text . ,(strcat "Perhaps you should " 
-			 *intro-video-action* "."))))
+       (:text . ,(video-tutorial "help-button" 
+				 :pre (strcat "Perhaps you should " 
+			 *intro-video-action* ".")))))
     
     ((incremented-property-test 'CLICKED-HELP-BUTTON +master-clicking+)
      `((:action . "show-hint")
-       (:text . ,(strcat "Your entry has turned red.&nbsp;  You can "
-			 *help-button-action* " to get help."))))
+       (:text . ,(video-tutorial "help-button" 
+				 :pre (strcat "Your entry has turned red.&nbsp;  You can "
+			 *help-button-action* " to get help.")))))
     
     (t
      `((:action . "show-hint")
@@ -254,6 +256,11 @@
 		   "uwplatt_8p130495419184f26uwplattl1_" ;Physics 2240
 		   "uwplatt_9047621c019184fdbuwplattl1_" ;Physics 2340
 		   )))
+    ;; No consent forms.
+    (set-state-property "consent-dialog" "none" 
+			:model "client" :section x :student nil :tid t)
+    (set-state-property "informed-consent" "external:my-form" 
+			:model "client" :section x :student nil :tid t)
     (set-state-property +prob-flag+ prob :model "server" :section x 
 			:student nil :tid t)))
 
@@ -311,19 +318,6 @@
 	   :help-mod-p
 	   :*help-mods*))
 
-;; Should be eventually pushed to by various 
-;; Help files at compile-time?
-(defvar learned-help-experiment:*help-mods* 
-  '(
-    (give-spontaneous-hint) (give-hints-backwards)
-    (give-spontaneous-hint give-hints-backwards)
-    (no-join-hints give-spontaneous-hint) (no-join-hints give-hints-backwards)
-    (no-join-hints give-spontaneous-hint give-hints-backwards)
-    ))
-
-;; Set hook to test for backwards hints
-(setf *backwards-hints-hook* 
-      #'(lambda () (random-help-experiment:help-mod-p 'give-hints-backwards)))
 
 (in-package :learned-help-experiment)
 

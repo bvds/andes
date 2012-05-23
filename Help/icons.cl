@@ -46,6 +46,19 @@
 (defparameter *intro-video-action*
    "view the <a href=\"#\" onClick=\"andes.help.link('IntroVideo');andes.principles.review('vec1a-video.html','IntroVideo',null,'width=650,height=395');\">introductory video</a>")
 
+(defun video-tutorial (html-id &key pre (width 250))
+  (let ((name (strcat "/review/tutorial-videos/" html-id)))
+    (format nil
+	    "~@[~A<br>~%~]<video width=\"~A\" controls=\"controls\">
+    <source src=\"~A.ogv\"  type=\"video/ogg\" />
+    <source src=\"~A.mov\"  type=\"video/mov\" />
+    <source src=\"~A.mp4\"  type=\"video/mp4\" />
+    <object data=\"~A.mp4\" width=\"~A\" >
+    <a href=\"~A.mp4\">Watch short video.</a>
+    </object>
+</video>"
+	    pre width name name name name width name)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defparameter *line-icon* 

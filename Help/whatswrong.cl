@@ -250,7 +250,8 @@
 						(EntryTest-arguments eh)))
 	   ;; Can't evaluate this yet, because *correct-entry* has not 
 	   ;; been set.
-	   :hints (subst-bindings-quoted bindings (EntryTest-hint eh))
+	   :hints `(make-hint-seq
+		    ,(subst-bindings-quoted bindings (EntryTest-hint eh)))
 	   :state (eval (subst-bindings-quoted bindings (EntryTest-state eh)))
 	   ;; for fix-eqn-by-replacing, sy has form (state . SystemEntries) 
 	   ;; for correct, sy has form (SystemEntry)

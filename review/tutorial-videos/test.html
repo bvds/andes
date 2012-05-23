@@ -6,7 +6,7 @@
 </head>
 <body>
 Test video on different browsers<br />
-<video width="250" controls="controls" autoplay="autoplay">
+<video width="250" controls="controls" autoplay="autoplay" title="test video">
 	<source src="axes-tool.ogv"  type="video/ogg" />
 	<source src="axes-tool.mov"  type="video/mov" />
 	<source src="axes-tool.mp4"  type="video/mp4" />
@@ -14,5 +14,16 @@ Test video on different browsers<br />
 	<a href="axes-tool.mp4">Watch short video.</a>
         </object>
 </video>
+
+<p>No auto-start:<br />
+<video width="250" controls="controls">
+	<source src="axes-tool.ogv"  type="video/ogg" />
+	<source src="axes-tool.mov"  type="video/mov" />
+	<source src="axes-tool.mp4"  type="video/mp4" />
+        <object data="axes-tool.mp4" width="250" >
+	<a href="axes-tool.mp4">Watch short video.</a>
+        </object>
+</video>
+
 </body>
 </html>
