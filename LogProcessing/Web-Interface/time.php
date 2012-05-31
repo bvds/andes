@@ -14,7 +14,9 @@ class session_time {
   private $counter=-1;  // number of steps while in confused state.
   public $fSteps=-1;
   public $fTime=-1;
-  private $lastCorrectSessionTime=0;  // $sessionTime for last green entry
+  public $nongreenSteps=0; // Number of transactions since last green entry.
+  public $nongreenTime=0;  // Number of seconds since last green entry.
+  private $lastCorrectSessionTime=0; // $sessionTime for last green entry
   private $lastInorrectSessionTime=0;  // $sessionTime for last red entry
   public $confusedtID;
   public $videoTime=0;  // time spent watching video this session
@@ -77,15 +79,6 @@ class session_time {
 
   }
 
-  function now_flounder_steps(){
-    return $this->confused&&$this->counter>1?$this->counter:0;
-  }
-
-  function now_flounder_time(){
-    return $this->confused&&$this->counter>1?
-      $this->lastIncorrectSessionTime-$this->lastCorrectSessionTime:0;
-  }
-
   function dt(){
     return $this->sessionTime-$this->lastStepTime;
   }
@@ -94,58 +87,62 @@ class session_time {
     $this->lastStepTime = $this->sessionTime;
   }
 
+  // This should match code in Help/model.cl function model-flounder
+  // Flounder time is time between incorrect transactions (object is marked red)
+  // with no intervening correct (an object is marked green) transactions.  
+  // The associated number of turns starts with the first
+  // red transaction counted as zero.  Thus, any flounder episode will have
+  // at least 1 turn.
   function update_flounder($thisTurn,$ttID){
     global $totalFloundering;
     
     $endFlounder=false;
-    $this->fSteps=-1;
-    $this->fTime=-1;
+
+    // Time and turns since last green.
     if($thisTurn=='correct'){
-      if($this->confused && $this->counter>1){
-	// End of floundering episode.
-	$this->fTime=$this->lastIncorrectSessionTime-$this->lastCorrectSessionTime;
-	$totalFloundering+=$this->fTime;
-	$this->sessionFlounder+=$this->fTime;
-	$endFlounder=true;
-	// $this->counter holds number of steps while floundering.
-	// Save value before resetting counter.
-	$this->fSteps=$this->counter;  
-      }
       $this->lastCorrectSessionTime = $this->sessionTime;
+      $this->nongreenSteps=0;
+      $this->nongreenTime=0;
+    } else {
+      $this->nongreenSteps++;
+      $this->nongreenTime= $this->sessionTime-$this->lastCorrectSessionTime;
+    }
+      
+    if($thisTurn=='correct'){
+      if($this->confused && $this->fSteps>0){
+	// End of floundering episode.
+	$endFlounder=true;
+      }
       $this->confused=false;
-      $this->counter=0;
     } elseif ($thisTurn=='incorrect'){
       if(!$this->confused){
-	// can be used as pointer to beginning of episode
-	$this->confusedtID=$ttID; 
+	// Beginning of possible flounder episode.
+	$this->confusedtID=$ttID; // pointer to beginning of episode
+	$this->counter=0;
+	$this->fTime=0;
+	$this->confused=true;
+      } else {
+	// It is indeed a flounder episode, update times and steps.
+	$dt=$this->sessionTime-$this->lastIncorrectSessionTime;
+	$this->fTime+=$dt;
+	$this->sessionFlounder+=$dt;
+	$totalFloundering+=$dt;
+	$this->counter++;
+	$this->fSteps=$this->counter;  
       }
       $this->lastIncorrectSessionTime = $this->sessionTime;
-      $this->confused=true;
-      $this->counter++;
-    } else {
+    } elseif ($this->confused) {
       $this->counter++;
     }
     return $endFlounder;
   }
 
   function endSession(){
-    global $totalFloundering, $tt;
+    global $tt;
     
-    $endFlounder=false;
-      $this->fSteps=-1;
-      $this->fTime=-1;
-    //  Session has ended before confusion is resolved.
-    if($this->confused && $this->counter>1){
-      $this->fTime=$this->sessionTime-$this->lastCorrectSessionTime;
-      $totalFloundering+=$this->fTime;
-      $this->sessionFlounder+=$this->fTime;
-      $endFlounder=true;
-      //save value before resetting counter
-      $this->fSteps=$this->counter;
-    }
-
     $tt+=$this->sessionTime;
-    return $endFlounder;
+    // Are we in flounder episode?
+    return $this->confused && $this->fSteps>0;
   }
 
 }

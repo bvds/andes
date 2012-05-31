@@ -147,22 +147,23 @@ by its Akaike weight,
 with normalization $W$ such that $\sum_L w_L=1$.
 
 %
-%  This is not really needed below
-Finally, we may want to determine whether, in the context
-of the step-function model (\ref{step}), learning has occurred.
-We say that learning has occurred at $L$ if $g<1-s$.
-Since the model is a fit to student data ($c_i$, $w_i$, $c_f$, $w_f$), 
-we can, at best, determine the {\em probability} that learning has occurred. 
-The probability that learning has occurred (for a given L) 
-can be calculated by integrating the Likelihood (see Eqn.~(\ref{logLike})) 
-over the possible slip and guess rates in the region $g+s<1$:
+%  This is not really needed below (remove later)
 %
-\begin{equation}
-   P(c_i, w_i, c_f, w_f)= \int_0^1 \int_0^{1-g} 
-   B_{c_i,w_i}(g) \, B_{c_f,w_f}(1-s) \,\mathrm{d}g\,\mathrm{d}s
-\end{equation}
+%Finally, we may want to determine whether, in the context
+%of the step-function model (\ref{step}), learning has occurred.
+%We say that learning has occurred at $L$ if $g<1-s$.
+%Since the model is a fit to student data ($c_i$, $w_i$, $c_f$, $w_f$), 
+%we can, at best, determine the {\em probability} that learning has occurred. 
+%The probability that learning has occurred (for a given L) 
+%can be calculated by integrating the Likelihood (see Eqn.~(\ref{logLike})) 
+%over the possible slip and guess rates in the region $g+s<1$:
 %
-This integral can be solved exactly by repeated integration by parts.
+%\begin{equation}
+%   P(c_i, w_i, c_f, w_f)= \int_0^1 \int_0^{1-g} 
+%   B_{c_i,w_i}(g) \, B_{c_f,w_f}(1-s) \,\mathrm{d}g\,\mathrm{d}s
+%\end{equation}
+%%
+%This integral can be solved exactly by repeated integration by parts.
 
 
 \section{Objective function}
@@ -205,29 +206,33 @@ We have arranged things so that finding an optimal policy
 corresponds to {\em minimizing} $Z$.
 
 The first term (\ref{before}) rewards policies applied directly before
-the moment of learning (or step $L$ for model $L$).  
+the moment of learning (or step $j=L$ for model $L$).  
 These are weighted by the 
 average learning gain $\Delta_L = 1-\left\langle g+s\right\rangle_L$ 
 predicted by model $L$.
 Also, $n(j,L)$ is the number
-of $\mathcal{I}$ between $j$ and $L$, 
+of incorrect steps $\mathcal{I}$ between $j$ and $L$, 
 and $\gamma$ is the ``discount factor''~\cite{ml}. 
 A good value for $\gamma \in [0,1]$ must be determined empirically.
 In a previous study~\cite{mint}, $\gamma=0.9$ was chosen.
-However, the discount factor was applied transaction-wise in 
-a case where there were many transactions per step.  In our case, 
-we apply $\gamma$ to incorrect steps $\mathcal{I}$, suggesting a lower
-number might be appropriate.
+However, in that case, the discount factor was applied transaction-wise in 
+a situation where there were many transactions per step.  In our case, 
+we apply $\gamma$ step-wise to incorrect steps $\mathcal{I}$, 
+suggesting a lower number might be appropriate.
 
+Also, the tutor must have a strategy to apply in the case of slips: 
+errors that occur after the student has learned the KC.
 The second term (\ref{after}) rewards policies applied after
-the KC has been learned.  Since the only measure of effectiveness
-after is the slip rate $\hat{s}$, we look for a policy that maximizes
-$1-\hat{s}$.  The reward for this policy is evenly divided
-among the $n(L,j_\mathrm{max})$ incorrect steps after $L$.
+the KC has been learned.  Since the only available measure of 
+effectiveness after the moment of learning is the slip rate $\hat{s}$, 
+we look for a policy that maximizes $1-\hat{s}$.  The reward for 
+this policy is evenly divided among the $n(L,j_\mathrm{max})$ 
+incorrect steps after $L$.
 Since our primary objective is to produce learning in the first
 place (\ref{before}), we want the contribution of (\ref{after})
 to $Z$ to be somewhat smaller.  Thus, we choose $\beta$ numerically 
-such that (\ref{after}) is somewhat smaller than (\ref{before}).
+such that the contribution of (\ref{after}) is somewhat smaller than 
+the contribution of (\ref{before}).
 
 The machine learning algorithm finds a function $f$ that acts on
 the set of states $\left\{\mathbf{x}_k\right\}$ that minimizes
@@ -274,50 +279,39 @@ the KC associated with an entry.
   session.  This is a measure of student fatigue.
 
 \item[fracSessionFlounderTime] Flounder time is the time spent between 
-consecutive correct (object turns green) transactions, where at least
-one intervening help request or incorrect (object turns red)
-transaction is found.  {\em fracSessionFlounderTime} is the flounder
+incorrect (object turns red) transactions, with no intervening correct 
+(object turns green) transactions. 
+ {\em fracSessionFlounderTime} is the total flounder
 time for the current session over total session time.
 
-\item[logNowFlounderTrans] Log of number of transactions since last
+\item[logNowRedTrans] Log of number of transactions since last
   correct (object turns green) transaction.
 
-\item[logNowFlounderTime] Log of number of seconds since last
+\item[logNowRedTime] Log of number of seconds since last
   correct (object turns green) transaction.
 
-\item[logNowStepTime] Log of number of seconds since last transaction.
+\item[logNowIdleTime] Log of number of seconds since last transaction.
 
-\item[sessionCorrect] Number of transactions in current session where 
-   object has been marked  correct.
+\item[sessionCorrect] Number of objects in current session that have
+  been  been marked  correct.
 
 \item[sessionIncorrect] Number of transactions in current session where 
-   object has been marked  correct.
+   object has been marked  incorrect.
 
 \item[sessionHelp] Number of help requests in current session.
 
 \item[fracSessionCorrect] $\mbox{sessionCorrect}/\left(\mbox{sessionCorrect}+\mbox{sessionIncorrect}+\mbox{sessionHelp}\right)$.
-
 
 \end{description}
 %
 We have taken the logarithm of quantities where the student data
 for that quantity ranges over several orders of magnitude.
 
-\item[sessionCorrect] Number of transactions in current session where 
-   object has been marked  correct.
-
-\item[sessionIncorrect] Number of transactions in current session where 
-   object has been marked  correct.
-
-\item[sessionHelp] Number of help requests in current session.
-
-\item[fracSessionCorrect] $\mbox{sessionCorrect}/\left(\mbox{sessionCorrect}+\mbox{sessionIncorrect}+\mbox{sessionHelp}\right)$.
-
-
-\end{description}
-%
-We have taken the logarithm of quantities where the student data
-for that quantity ranges over several orders of magnitude.
+On the Andes help server, the state for a given transaction 
+is determined before the student action itself is analyzed,
+in order that the help policy for that transaction can be set.  
+Thus the state can only depend correct/incorrect (or floundering) 
+information from previous transactions. 
 
 \begin{thebibliography}{9}
 

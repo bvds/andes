@@ -28,7 +28,7 @@ $userName = '';  // regexp to match
 	     //       user names got mangled in these sections.
 	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Andy Pawl sections
 	     //  discrepencies
-$sectionName = '^uwplatt_2Y130';  // regexp to match
+$sectionName = '^uwplatt_';  // regexp to match
 $startDate = '2011-03-25';
 $endDate = '';
 
@@ -241,6 +241,15 @@ if ($myrow = mysql_fetch_array($result)) {
 	  if($a->method == 'seek-help'){
 	    $thisTurn='help';
 	  }
+
+
+	  // Record state before floundering for transaction 
+	  // is calculated.  See Bug #1956.
+	  //
+	  // Could slim down the number of states that get
+	  // recorded since only some are needed.
+	  $state->update($ttID,$thisTurn,$sessionTime,$sessionCorrects);
+
 	  $sessionTime->update_flounder($thisTurn,$ttID);
 	  
 	  // Collect Knowledge components
@@ -350,9 +359,6 @@ if ($myrow = mysql_fetch_array($result)) {
 	    }	
 
 	    $blame->update($turnTable,$thisObject,$a,$b);
-
-	    // Update student state
-	    $state->update($ttID,$thisTurn,$sessionTime);
 
 	    if(!isset($turnTable['error']) || 
 	       !isset($simpleErrors[$turnTable['error']])){
@@ -614,7 +620,7 @@ if(false){
 
 // For each kc and step, print model parameters, step id (ttID),
 // and policies used, in csv format.
-if(true){
+if(false){
   $randomHelpCategories=array();
   foreach ($allKCStudent as $ss){
     foreach($ss as $st){
@@ -720,7 +726,7 @@ if(false){
  }
 
 // Dump student state in csv format.
-if(false){
+if(true){
   $state->csv();
  }      
 
