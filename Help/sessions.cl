@@ -877,6 +877,10 @@
   (when (equalp text "sleep-test") (sleep 20))
 
   (env-wrap 
+
+    ;; Experiment-specific function call.
+    (learned-help-experiment:help-method time)
+
     ;; Doesn't correctly handle case where "Explain-more" is clicked after
     ;; a bottom-out hint.
     (cond

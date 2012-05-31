@@ -319,9 +319,10 @@
 	     (consp (car (last Hints)))
 	     (member (car (car (last Hints))) '(bottom-out function)))
     ;; Add mark to logging.  Should be marked as a tutor strategy.
-    (push '(random-help . give-backwards-hints) assoc)
-    (setf Hints (reverse hints)))
-
+    (push `(backwards-hint . ,(funcall *backwards-hints-hook*)) assoc)
+    (when (eql (funcall *backwards-hints-hook*) 1)
+      (setf Hints (reverse hints))))
+  
   (when Hints
     ;;(pprint (functionp (car hints)))
     (if (null (cdr hints))

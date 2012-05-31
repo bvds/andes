@@ -124,11 +124,11 @@
 (defun execute-andes-command (time Command &optional entry)
   "Execute the api call with the command and arguments."
   ;; Generally, the solution steps are StudentEntry structs
-  ;; and the help calls are not
+  ;; and the help calls are not.
 
   ;; Determine the student state and set hinting policy.
-  ;; This must be at the beginning of the turn, before
-  ;; any hinting decisions are made.
+  ;; It really should be done after the student action has
+  ;; been analyzed; see Bug #1956
   (learned-help-experiment:set-policy time)
 
   (let* ((text (and entry (StudentEntry-p entry) (StudentEntry-text entry)))
@@ -277,13 +277,15 @@
 	(id (turn-id turn)))
     (when (and (turn-coloring turn) (not (turn-id turn))) 
       (warn "turn->WB-Reply has no id for ~S" turn))
+
+    ;; Update floundering measurement.
+    (when time (model-flounder time (turn-coloring turn)))
+    
     (case (turn-coloring turn)
       ;;  Predefs have no time slot, don't want them to affect any model.
-      (color-green (when time (model-green-turn))
-		   (push `((:action . "modify-object") (:id . ,id)
+      (color-green (push `((:action . "modify-object") (:id . ,id)
 			   (:mode . "correct")) result))
-      (color-red (when time (model-red-turn time))
-		 ;; Test that an error interpretation has
+      (color-red ;; Test that an error interpretation has
 		 ;; been logged.  Bug #1935
 		 (when (and (notany #'student-log-line result)
 			    (not **checking-entries**))
