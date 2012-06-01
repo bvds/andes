@@ -580,20 +580,6 @@
       ;;
       ;; (andes-database:set-state-property "consent-dialog" "none" :model "client" :section "consent-none" :student nil :tid t)
       ;; (andes-database:set-state-property "consent-dialog" "osu-heckler-consent.html" :model "client" :section "consent-osu" :student nil :tid t)
-      (unless (andes-database:get-state-property 
-		'informed-consent :model "client")
-	(let ((consent-dialog 
-	       (or (andes-database:get-state-property 
-		    'consent-dialog :model "client")
-		   ;; default consent form.
-		   "consent.html")))
-	  ;; The only way for the consent dialog to never appear is
-	  ;; to explicitly supress it for a section by using "none".
-	  (unless (string-equal consent-dialog "none")
-	    (push `((:action . "new-user-dialog") 
-		    (:url . ,(strcat "/review/" consent-dialog)))
-		  replies))))
-
       (let ((informed-consent (andes-database:get-state-property 
 		'informed-consent :model "client"))
 	    (consent-dialog (or (andes-database:get-state-property 

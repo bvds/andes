@@ -441,9 +441,16 @@
 ;;; bind it to the ?var.
 (defun check-err-correct-var (var pattern eh student conditions system bindings)
   (loop for v in (Problem-VarIndex *cp*) with b nconc
-        (and (setf b (unify pattern (qvar-exp v) bindings))
-	     (check-err-conditions eh student conditions system
-				   (extend-bindings var (qvar-var v) b)))))
+        (and 
+	 ;; Test that value for this quantity has been found.
+	 ;; Otherwise, the quantity is not needed to solve
+	 ;; the problem.
+	 ;; An error results if it is substituted in and
+	 ;; send to the solver; see function qvars->indyVars.
+	 (qvar-value v) 
+	 (setf b (unify pattern (qvar-exp v) bindings))
+	 (check-err-conditions eh student conditions system
+			       (extend-bindings var (qvar-var v) b)))))
 
 ;;; if the condition is (var-defn <?var> <pattern>), then the variable
 ;;; should be bound to a system variable and the variable's definition

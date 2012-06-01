@@ -71,10 +71,13 @@
   ;; Tutor has turned something green.
   (cond ((eql color +color-green+)
 	 (incf-state-property session-correct 1)
+	 (set-state-property 'f-time nil :no-store t)
+	 (set-state-property 'red-turns nil :no-store t)
 	 (set-state-property 'count-turns nil :no-store t))
 	
 	((eql color +color-red+)
 	 (incf-state-property session-incorrect 1)
+	 (incf-state-property red-turns 1)
 	 (if (get-state-property 'count-turns)
 	     (let ((dt (- time (get-state-property 'last-i-time))))
 	       (incf-state-property f-time dt)
@@ -85,6 +88,7 @@
 				   :no-store t))
 	     (progn
 	       (set-state-property 'count-turns 0 :no-store t)
+	       (set-state-property 'f-time 0 :no-store t)
 	       (set-state-property 't-turns 0 :no-store t)))
 	 (set-state-property 'last-i-time time :no-store t))
 	
@@ -119,13 +123,9 @@
 ;; hint sent by tutor, whether solicited or not.
 (defun model-no-hint-turn (time)
   "Tutor is not sending hint back to student."
-  (if (get-state-property 'h-time)
-      (set-state-property 'h-turns 
-			  (+ (get-state-property 'h-turns) 1) 
-			  :no-store t)
-      (progn
-	(set-state-property 'h-time time :no-store t)
-	(set-state-property 'h-turns 0 :no-store t))))
+  (incf-state-property h-turns 1)
+  (unless (get-state-property 'h-time)
+	(set-state-property 'h-time time :no-store t)))
   
 (defun model-hint-turn ()
   "Tutor sending help back to student, whether solicited or not."
@@ -150,18 +150,19 @@
 
 
 (defconstant +floundering-time+ 20 "time in seconds")
-(defconstant +floundering-turns+ 3)
+(defconstant +floundering-turns+ 4)
 (defconstant +master-clicking+ 2)
 
 (defun use-help-button-hint-test (time)
-  (when nil  ;debug flag
-    (format webserver:*stdout* "use-help-button-hint-test ~A ~A ~A ~A~%"
+  (when nil ;debug flag
+    (format webserver:*stdout* "use-help-button-hint-test ~A ~A ~A ~A ~A~%"
+	    (incremented-property-test 'CLICKED-HELP-BUTTON +master-clicking+)
 	    (and (get-state-property 'f-time)
-		 (> (- time (get-state-property 'f-time)) +floundering-time+))
+		 (> (get-state-property 'f-time) +floundering-time+))
 	    (and (get-state-property 'h-time)
 		 (> (- time (get-state-property 'h-time)) +floundering-time+))
-	    (and (get-state-property 'f-turns)
-		 (> (get-state-property 'f-turns) +floundering-turns+))
+	    (and (get-state-property 'red-turns)
+		 (> (get-state-property 'red-turns) +floundering-turns+))
 	    (and (get-state-property 'h-turns)
 		 (> (get-state-property 'h-turns) +floundering-turns+))))
   
@@ -174,12 +175,12 @@
 	;; and not having received any help.
 	(and
 	 (get-state-property 'f-time)
-	 (> (- time (get-state-property 'f-time)) +floundering-time+)
+	 (> (get-state-property 'f-time) +floundering-time+)
 	 (get-state-property 'h-time)
 	 (> (- time (get-state-property 'h-time)) +floundering-time+))
 	(and
-	 (get-state-property 'f-turns)
-	 (> (get-state-property 'f-turns) +floundering-turns+)
+	 (get-state-property 'red-turns)
+	 (> (get-state-property 'red-turns) +floundering-turns+)
 	 (get-state-property 'h-turns)
 	 (> (get-state-property 'h-turns) +floundering-turns+)))))
 
