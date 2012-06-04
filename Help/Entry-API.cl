@@ -1758,24 +1758,32 @@
 	      :text "No rem for entry")
 	(make-red-turn entry))))
 
+(defun hint-log-line (x)
+  `((:action . "log") (:log . "tutor") (:assoc . ((spontaneous-hint . ,x)))))
+
 (defun make-incorrect-reply (entry rem &key spontaneous)
-  (if (or spontaneous
-	  ;; Turn on experiment effect; see Bug #1940.
-	  (random-help-experiment:help-mod-p 'give-spontaneous-hint))
-      (progn 
-       (when (functionp rem) (setf rem (funcall rem)))
-       (setf (turn-id rem) (StudentEntry-id entry))
-       ;; Only turn red if rem is this reply.
-	(setf (turn-coloring rem) +color-red+)
-	;; Add log message to return
-	(add-log-entry-info entry rem)
-	;; In the case where random-help-experiment has changed
-	;; a hint to spontaneous, log that fact.
-	(unless spontaneous
-	  (push '((:action . "log") (:log . "tutor")
-		  (:assoc . ((random-help . spontaneous-hint))))
-		(turn-result rem)))
-	;; Unsolicited hint.
-	rem)
-      ;; Turn without hint.
-      (make-red-turn Entry)))
+  (let ((hint-policy
+	 (get-state-property 'spontaneous-hint :model "server")))
+    (if (or spontaneous
+	    (eql hint-policy 1)
+	    ;; Turn on experiment effect; see Bug #1940.
+	    (random-help-experiment:help-mod-p 'give-spontaneous-hint))
+	(progn 
+	  (when (functionp rem) (setf rem (funcall rem)))
+	  (setf (turn-id rem) (StudentEntry-id entry))
+	  ;; Only turn red if rem is this reply.
+	  (setf (turn-coloring rem) +color-red+)
+	  ;; Add log message to return
+	  (add-log-entry-info entry rem)
+	  ;; In the case where there was change to spontaneous hint
+	  ;; a hint to spontaneous, log that fact.
+	  (unless spontaneous
+	    (push (hint-log-line hint-policy) (turn-result rem)))
+	  ;; Unsolicited hint.
+	  rem)
+	;; Turn without hint.
+	(let ((result-turn (make-red-turn Entry)))
+	  ;; Log that we could have given sponaneous hint and didn't
+	  (when hint-policy
+	    (push (hint-log-line hint-policy) (turn-result result-turn)))
+	  result-turn))))

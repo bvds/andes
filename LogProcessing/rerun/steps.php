@@ -32,7 +32,7 @@
 	     //  Clear test database:
 	     //    use andes_test;
              //    DELETE FROM PROBLEM_ATTEMPT WHERE clientID LIKE '\_%';
-	     //    REPLACE INTO CLASS_INFORMATION (classSection) values ('study');
+	     //    REPLACE INTO CLASS_INFORMATION (classSection) values ('asu_7e256268bab914fb5asul1_');
 
              // Lisp with space:  sbcl --dynamic-space-size 1000
              // Start help server using 
@@ -41,12 +41,14 @@
 	     // (setf webserver:*debug* nil)
 	     // (setf *simulate-loaded-server* nil)
 
-$ignoreNewLogs = true;  // ignore any new non-error, log messages
-$ignoreScores = true;  // ignore any changes to scoring.
-$ignoreMetaHints = true;  // Ignore meta hints
+$ignoreNewLogs = false;  // ignore any new non-error, log messages
+$ignoreScores = false;  // ignore any changes to scoring.
+$ignoreMetaHints = false;  // Ignore meta hints
 $ignorePreferences = false; // Ignore any client preferences
+$ignoreConsent = false;   // Ignore any consent forms
 $printDiffs = true;  // Whether to print out results for server diffs
 $jsonFile = 'replies.json';  // File name for dumping reply json
+$badResponseFile = 'badResponses.txt';  // File name for dumping bad responses.
 	    
 $dbserver = "localhost";
 $dbLogin = split("\n",file_get_contents("../../db_user_password")); 	     
@@ -66,7 +68,7 @@ mysql_select_db($dbname)
    Use regexp matching for user name and section. */
 	     // oneill.193_asu crell.1_asu
 	     // P2240AS12U53_uwplatt
-$adminName = '(P2240AS12U4_uwplatt|P2240AS12U49_uwplatt)' ;   // user name
+$adminName = '' ;   // user name
 	     // MIT_.*
 	     // asu_3u16472755e704e5fasul1_.*
 	     // asu_3u16472755e704e5fasul1_15865
@@ -77,7 +79,7 @@ $adminName = '(P2240AS12U4_uwplatt|P2240AS12U49_uwplatt)' ;   // user name
 	     //       user names got mangled in these sections.
 	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Pawl sections
 	     // 
-$sectionName = '^uwplatt_(2Y130|514219|6l1305|3n130)' ; //$_POST['sectionName'];
+$sectionName = '^asu_7e256268bab914fb5asul1_' ; //$_POST['sectionName'];
              // '2011-04-01'
 $startDate = '2012-01-20'; // $_POST['startDate'];
 $endDate = ''; // $_POST['endDate'];
@@ -122,7 +124,11 @@ ini_set('memory_limit', '1024M');
 // Newer versions of php have a json decoder built-in.  Should 
 // eventually have test for php version and use built-in, when possible.
 include '../Web-Interface/JSON.php';
-$json = new Services_JSON();
+$json1 = new Services_JSON();
+// It seems that the json object gets corrumpted
+// for some server replies.  As work-around, have
+// separate object for replies
+$json2 = new Services_JSON();
 
 function escapeHtml($bb){
   // Would be nice to leave in valid html and
@@ -141,6 +147,7 @@ require_once('jsonRPCClient.php');
 $server  = new jsonRPCClient('http://localhost/help-test');
 $sessionIdBase = "_" . date('h:i:s') . "_";
 $handle = fopen($jsonFile,'w');
+$handle2 = fopen($badResponseFile,'w');
 fwrite($handle,"[\n");
 $firstRow = true;
 
@@ -288,7 +295,7 @@ while ($myrow = mysql_fetch_array($result)) {
     // Drop turns without client
     continue;
   }
-  $a=$json->decode($action);
+  $a=$json1->decode($action);
   // Drop turns without method.
   if(!isset($a->method)){
     $lastTime[$clientID] = -1;  // Turn off timing
@@ -404,25 +411,28 @@ while ($myrow = mysql_fetch_array($result)) {
      isset($a->params) && // Ignore server shutdown of idle sessions.
      (!$methods || in_array($method,$methods))){
     $stepTally++;
-    $aa=$json->encode($a->params);
+    $aa=$json1->encode($a->params);
     $aa=escapeHtml($aa);
     
     if (strcmp($response,$newResponse) != 0) {
-      $jr=$json->decode($response);
-      $njr=$json->decode($newResponse);
+      $jr=$json2->decode($response);
+      $njr=$json2->decode($newResponse);
       $aaa = "<a href=\"/log/OpenTrace.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;cid=$clientID&amp;t=$ttID\">$tid</a>";
       if($jr == null || $njr == null){
 	// One of the json decodes fails, can't compare old
 	// and new response.
-	    // Position of first discrepency
-	    $pos=strspn($response ^ $newResponse, "\0");
-	    echo "<tr class='syntax'><td>$aaa</td><td>$aa</td>" . 
-	      "<td>" . ($jr== null?"json decode failed":"OK") . 
-	      "<br>len. " . strlen($response) . "</td>" .
-	      "<td>" . ($njr== null?"json decode failed":"OK") . 
-	      "<br>len. " . strlen($newResponse) . "</td>" .
-	      "<td>pos. $pos</td></tr>\n";
-	    $diffStepTally++;
+	// Position of first discrepency
+	$pos=strspn($response ^ $newResponse, "\0");
+	if($njr==null){
+	  fwrite($handle2,$tid . ':  ' . $newResponse . "\n");
+	}
+	echo "<tr class='syntax'><td>$aaa</td><td>$aa</td>" . 
+	  "<td>" . ($jr== null?"json decode failed":"OK") . 
+	  "<br>len. " . strlen($response) . "</td>" .
+	  "<td>" . ($njr== null?"json decode failed":"OK") . 
+	  "<br>len. " . strlen($newResponse) . "</td>" .
+	  "<td>pos. $pos</td></tr>\n";
+	$diffStepTally++;
       } elseif(isset($jr->error) || isset($njr->error)){
 	echo "<tr class='$method'><td>$aaa</td><td>$aa</td><td>$response</td><td>$newResponse</td><td></td></tr>\n"; 
 	$diffStepTally++;
@@ -433,7 +443,9 @@ while ($myrow = mysql_fetch_array($result)) {
 	
 	// Loop through old result and remove unwanted rows
 	$bcr=array();
+	$alreadyConsented=''; 
 	foreach($jr->result as $bc){
+
 	  if(!(
 	       // Remove hints from open-problem:  these are
 	       // generally from rerunning old sessions through 
@@ -458,6 +470,11 @@ while ($myrow = mysql_fetch_array($result)) {
 		strcmp($bc->action,"log")==0 &&
 		(isset($bc->subscores) || // old log format
 		 (isset($bc->log) && strcmp($bc->log,"subscores")==0))) ||
+	       
+	       // Old turn has two copies of consent form
+	       // Bug Introduced March 1, 2012; fixed June 1, 2012
+	       (strcmp($bc->action,"new-user-dialog")==0 &&
+		isset($bc->url) && strcmp($bc->url,$alreadyConsented)==0) ||
 	     
 	       // Old turn has meta-hint
 	       ($ignoreMetaHints && isset($bc->action) &&
@@ -496,6 +513,15 @@ while ($myrow = mysql_fetch_array($result)) {
 		strcmp($bc->action,"log")==0 &&
 		strcmp($bc->log,"user-agent")==0) ||
 
+	       // Error in fix-eqn-by-replacing where variables not
+	       // in solver substituted in. Fixed June 1, 2012; Bug 657
+	       (isset($bc->action) && isset($bc->log) && isset($bc->text) &&
+		isset($bc->backtrace) &&
+		strcmp($bc->action,"log")==0 && 
+		strcmp($bc->log,"server")==0 && 
+		preg_match('/variable \w* not declared/',$bc->text)  !=0 &&
+		preg_match('/CHECK-ERR-FIX-EQN-BY-REPLACING/',$bc->backtrace) != 0) ||
+	       
 	       // Add test for creation of excess answer box.
 	       // commit c9ca2cccd4f4b5685a4, Mon Nov 28 13:13:02 2011
 	       // Here, we remove the old error message on startup.
@@ -507,9 +533,16 @@ while ($myrow = mysql_fetch_array($result)) {
 	     )){
 	    array_push($bcr,$bc);
 	  }
+
+	  // Old turn has copy of consent form
+	  // Bug fixed on June 1, 2012
+	  if(strcmp($bc->action,"new-user-dialog")==0 && isset($bc->url)) {
+	    $alreadyConsented=$bc->url;
+	  }
+	  
 	}
 	$jr->result=$bcr;
-	
+
 	// Loop through new result and remove unwanted rows
 	$nbcr=array();
 	foreach($njr->result as $bc){
@@ -527,11 +560,13 @@ while ($myrow = mysql_fetch_array($result)) {
 	       
 	       // New turn has consent form
 	       // commit 8ea61fad90031a754263e, Thu Mar 1 23:46:45 2012
-	       (strcmp($bc->action,"set-preference")==0 &&
+	       ($ignoreConsent &&
+		strcmp($bc->action,"set-preference")==0 &&
 		(strcmp($bc->name,"informed-consent")==0 ||
 		 strcmp($bc->name,"consent-dialog")==0)) ||
 	       // remove consent dialog.
-	       (strcmp($bc->action,"new-user-dialog")==0 &&
+	       ($ignoreConsent &&
+		strcmp($bc->action,"new-user-dialog")==0 &&
 		isset($bc->url)) ||
 	       
 	       // New turn has meta-hint
@@ -581,11 +616,11 @@ while ($myrow = mysql_fetch_array($result)) {
 	  
 	  if($i<$imax){
 	    $bc=$jr->result[$i];  // copy used for compare
-	    $bb=$json->encode($bc); // print this out
+	    $bb=$json1->encode($bc); // print this out
 	    
 	    // Remove any backtraces from compare.
 	    unset($bc->backtrace);
-	    $bbc=$json->encode($bc);
+	    $bbc=$json1->encode($bc);
 	  } else {
 	    $bc=(object) null;
 	    $bb='';
@@ -594,11 +629,11 @@ while ($myrow = mysql_fetch_array($result)) {
 	  
 	  if($ni<$nimax){
 	    $nbc=$njr->result[$ni];  // copy used for compare
-	    $nbb=$json->encode($nbc);  // print this out
+	    $nbb=$json1->encode($nbc);  // print this out
 	    
 	    // Remove any backtraces from compare.	
 	    unset($nbc->backtrace);
-	    $nbbc=$json->encode($nbc);
+	    $nbbc=$json1->encode($nbc);
 	  } else {
 	    $nbc=(object) null;
 	    $nbb='';
@@ -840,7 +875,7 @@ while ($myrow = mysql_fetch_array($result)) {
 	  fwrite($handle,",\n");
 	}
 	fwrite($handle,"{\"method\":\"$method\",\"reply\":" .
-	       $json->encode($njr->result) . "}");
+	       $json1->encode($njr->result) . "}");
       }
     }
   }
@@ -848,6 +883,7 @@ while ($myrow = mysql_fetch_array($result)) {
 
 fwrite($handle,"\n]\n");
 fclose($handle);
+fclose($handle2);
 
 echo "</table>\n";
 if($printDiffs){

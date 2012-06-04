@@ -95,6 +95,7 @@ while (
   $a=$json->decode($action);
   $b=$json->decode($response);
   $ttime=$a->params->time;
+  $id=$a->id;  // Maybe want to add this to row...
   unset($a->params->time);  // so time doesn't show up twice.
   $method=$a->method;
   if(!$methods || in_array($method,$methods)){

@@ -6,37 +6,37 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defvar *guerra-assigned* 
-'("Andes assginments for St. Anselm"
-(
-("Chapter 1: Vectors" (VEC1AY VEC1C VEC3B))
-("Chapter 2: Static Forces" (S1C S7B))
-("Chapter 3: Rotational Equilibrium" (DR2A DR8A))
-("Chapter 4: Gravity" (DT12A S11A))
-("Chapter 5: Electric forces and Fields" (Coul1B Coul2A FOR1B FOR2A FOR10A))
-("Chapter 6: Magnetic Forces" (MAG2A MAG3B MAG4A))
-("Chapter 7: Fluid Forces" (Fluids1 Fluids9 Fluids11))
-("Chapter 8: Four Forces of Nature (no ANDES problems))" ())
-("Chapter 9: Kinematics" (KT1A KT3A KT6A KT8B KGRAPH2 KGRAPH3 KGRAPH5 KGRAPH7))
-("Chapter 10: F=ma" (DT1A DT6B DT1C ELEC3B))
-("Chapter 11: Friction & Inclines" (DT6C DT7A DT11B DT10A))
-("Chapter 12: Parabolic Motion" (KT11B KT13A KT12A))
-("Chapter 13: CIRCULAR MOTION" (ROTS3A ROTS8A ROTS6B MAG5A))
-("Chapter 14: Rotational Motion" (KR2B KR4A KR7A DR6A))
-("Chapter 15: Simple Harmonic Motion" (OSC3 OSC5 OSC8))
-("Chapter 16: Waves" (WAVE1 WAVE5 WAVE6))
-("Chapter 17: Sound Waves" (WAVE2 WAVE3 WAVE8))
-("Chapter 18: Energy" (E2A E4B E5A E7B E9A))
-("Chapter 19: Momentum" (IMP1 LMOM2A LMOM4A))
-("Chapter 20: Angular Momentum" (MOMR2A MOMR3A))
-("Chapter 21: Fluid Dynamics" (FLUIDS2 FLUIDS3 FLUIDS4 FLUIDS5))
-("Chapter 22: Thermodynamics; No ANDES Questions" ())
-("Chapter 23: Electric Circuits" (EQRES2A EQRES3A EQRES5A EQRES7A EQRES8A    
-                    KIR2A KIR4A EPOW3))
-("Chapter 24: Capacitance" (CAP2A CAP4A CAP6B CAP9A CAP9B))
-("Chapter 25: Magnetic Fields" (MAG1A MAG6A MAG6C MAG8A FARA2A FARA4B FARA3A FARA5A FARA6B FARA10B FARA11A))
-("Chapter 27: Geometric Optics" (Lens1A LENS2B LENS3A REF2C))
-("Chapter 28: Physical Optics" (WAVE19 INT1A INT1B INT1D))
-)))
+  '("Andes assginments for St. Anselm"
+    (
+     ("Chapter 1: Vectors" (VEC1AY VEC1C VEC3B))
+     ("Chapter 2: Static Forces" (S1C S7B))
+     ("Chapter 3: Rotational Equilibrium" (DR2A DR8A))
+     ("Chapter 4: Gravity" (DT12A S11A))
+     ("Chapter 5: Electric forces and Fields" (Coul1B Coul2A FOR1B FOR2A FOR10A))
+     ("Chapter 6: Magnetic Forces" (MAG2A MAG3B MAG4A))
+     ("Chapter 7: Fluid Forces" (Fluids1 Fluids9 Fluids11))
+     ("Chapter 8: Four Forces of Nature (no ANDES problems))" ())
+     ("Chapter 9: Kinematics" (KT1A KT3A KT6A KT8B KGRAPH2 KGRAPH3 KGRAPH5 KGRAPH7))
+     ("Chapter 10: F=ma" (DT1A DT6B DT1C ELEC3B))
+     ("Chapter 11: Friction & Inclines" (DT6C DT7A DT11B DT10A))
+     ("Chapter 12: Parabolic Motion" (KT11B KT13A KT12A))
+     ("Chapter 13: CIRCULAR MOTION" (ROTS3A ROTS8A ROTS6B MAG5A))
+     ("Chapter 14: Rotational Motion" (KR2B KR4A KR7A DR6A))
+     ("Chapter 15: Simple Harmonic Motion" (OSC3 OSC5 OSC8))
+     ("Chapter 16: Waves" (WAVE1 WAVE5 WAVE6))
+     ("Chapter 17: Sound Waves" (WAVE2 WAVE3 WAVE8))
+     ("Chapter 18: Energy" (E2A E4B E5A E7B E9A))
+     ("Chapter 19: Momentum" (IMP1 LMOM2A LMOM4A))
+     ("Chapter 20: Angular Momentum" (MOMR2A MOMR3A))
+     ("Chapter 21: Fluid Dynamics" (FLUIDS2 FLUIDS3 FLUIDS4 FLUIDS5))
+     ("Chapter 22: Thermodynamics; No ANDES Questions" ())
+     ("Chapter 23: Electric Circuits" (EQRES2A EQRES3A EQRES5A EQRES7A EQRES8A    
+					       KIR2A KIR4A EPOW3))
+     ("Chapter 24: Capacitance" (CAP2A CAP4A CAP6B CAP9A CAP9B))
+     ("Chapter 25: Magnetic Fields" (MAG1A MAG6A MAG6C MAG8A FARA2A FARA4B FARA3A FARA5A FARA6B FARA10B FARA11A))
+     ("Chapter 27: Geometric Optics" (Lens1A LENS2B LENS3A REF2C))
+     ("Chapter 28: Physical Optics" (WAVE19 INT1A INT1B INT1D))
+     )))
 
 
 (defvar *blackwood-assigned* 

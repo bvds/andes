@@ -1,3 +1,7 @@
+<?php 
+$htmlHeaders=false;  // Add html header to beginning
+if($htmlHeaders):
+?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -7,21 +11,25 @@
 </head>
 <body>
 <?php
+   endif;
 
 // These are all optional
+ //     ^md5:b50efc   // Student used for tests of different models.
+ //     ^md5:e2ed3385  // student in '^uwplatt_2Y130'
 $userName = '';  // regexp to match
 	     // MIT_.*
+             // asu experiment
 	     // asu_3u16472755e704e5fasul1_.*
 	     // asu_3u16472755e704e5fasul1_15865
 	     // Help server dies on this section when running all osu:
 	     // asu_3u16472755e704e5fasul1_15854
 	     // ^uwplatt_
-	     // ^uwplatt_(8p1304|90476) Scaife sections 
+	     // ^uwplatt_(8p1304|90476) Thomas Scaife sections 
 	     //       user names got mangled in these sections.
-	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Pawl sections
-	     // 
-$sectionName = '^uwplatt_(2Y130|514219|6l1305|3n130)';  // regexp to match
-$startDate = ''; 
+	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Andy Pawl sections
+	     //  discrepencies
+$sectionName = '^uwplatt_';  // regexp to match
+$startDate = '2011-03-25';
 $endDate = '';
 
   // File with user name and password.
@@ -100,7 +108,12 @@ function prob_link($turns){
 
 require("time.php");
 require("blame.php");
-require("binomials.php");
+require("step-model.php");
+require("training.php");
+require("state.php");
+
+$training = new training();
+$state = new student_state();
 $initialTime = time();
 $queryTime = 0.0;  // Time needed to query database.
 $jsonTime1 = 0.0;
@@ -110,12 +123,16 @@ $jsonTime2 = 0.0;
 include 'JSON.php';
 // However, this is really slow.  For now, just increase time limit:  
 set_time_limit(300000);
+ini_set("memory_limit","1024M");  // if I do everything, it gets big...
 
 $json = new Services_JSON();
 
-echo "Analyze problems $extrae,$userNamee$sectionNamee\n";
+if($htmlHeaders){
+  echo "Analyze problems $extrae,$userNamee$sectionNamee\n";
+ }
 
-$sql = "SELECT * FROM $problem_attempt AS P1 WHERE $userNamec $sectionNamec $extrac $startDatec $endDatec P1.clientID = P1.clientID";
+// Always do sessions in chronological order
+$sql = "SELECT * FROM $problem_attempt AS P1 WHERE $userNamec $sectionNamec $extrac $startDatec $endDatec P1.clientID = P1.clientID ORDER BY startTime ASC";
 $queryStart=microtime(true);   
 $result = mysql_query($sql);
 $queryTime += microtime(true)-$queryStart;
@@ -126,9 +143,10 @@ if ($myrow = mysql_fetch_array($result)) {
   $badTimes=array();
   do
     {
-      $clientID=$myrow["clientID"];
-      $thisName=$myrow["userName"];
-      $thisSection=$myrow["userSection"];
+      $clientID=$myrow['clientID'];
+      $thisName=$myrow['userName'];
+      $thisSection=$myrow['userSection'];
+      $thisProblem=$myrow['userProblem'];
       $tempSqlOld = "SELECT initiatingParty,command,tID FROM PROBLEM_ATTEMPT_TRANSACTION WHERE clientID = '$clientID'";
       $tempSql = "SELECT client,server,tID FROM STEP_TRANSACTION WHERE clientID = '$clientID'";
       $queryStart=microtime(true);   
@@ -138,12 +156,14 @@ if ($myrow = mysql_fetch_array($result)) {
       
       // loop through session
 
-      // Minimum number of seconds between turns where 
+      // Minimum number of seconds between transactions where 
       // we assume user is not "on task."
-      $cutoff=600; 
+      $cutoff=180; 
       $sessionTime = new session_time();
       $sessionCorrects=array();  // Objects that have turned green. 
       $blame = new turn_blame();
+      $sessionScore=0;
+      $state->begin_session();
       // 
       // echo "session " . $myrow["startTime"] . "<br>\n";
       
@@ -151,40 +171,40 @@ if ($myrow = mysql_fetch_array($result)) {
       while (($myrow = mysql_fetch_array($tempResult)) ||
 	     ($tempResultOld &&
 	      ($myrow = mysql_fetch_array($tempResultOld)))) {
-	if(isset($myrow["command"])){
+	if(isset($myrow['command'])){
 	  $myrow2 = mysql_fetch_array($tempResultOld);
-	  if($myrow["initiatingParty"]=='client'){
-	    $action=$myrow["command"];
-	    $ttID=$myrow["tID"];
-	    $response=$myrow2["command"];
+	  if($myrow['initiatingParty']=='client'){
+	    $action=$myrow['command'];
+	    $ttID=$myrow['tID'];
+	    $response=$myrow2['command'];
 	  } else {
-	    $action=$myrow2["command"];
-	    $ttID=$myrow2["tID"];
-	    $response=$myrow["command"];
+	    $action=$myrow2['command'];
+	    $ttID=$myrow2['tID'];
+	    $response=$myrow['command'];
 	  }
 	} else {
-	  $action=$myrow["client"];
-	  $ttID=$myrow["tID"];
-	  $response=$myrow["server"];
+	  $action=$myrow['client'];
+	  $ttID=$myrow['tID'];
+	  $response=$myrow['server'];
 	}
 
-	// decode json and count number of steps (and time)
-	// between incorrect turns and next correct turn.
+	// decode json and count number of transactions (and time)
+	// between incorrect transactions and next correct transaction.
 	$jsonStart=microtime(true);   
 	$a=$json->decode($action);
 	$jsonTime1 += microtime(true)-$jsonStart;
 	// Ignore fade problems
-	if(isset($a->method) && $a->method == 'open-problem' &&
+	if(false && isset($a->method) && $a->method == 'open-problem' &&
 	   $a->params->problem == "vec1ay"){
 	  break;
 	}
 	// If session is closed, don't continue
 	if((isset($a->method) && $a->method == 'close-problem') ||
 	   // Help server has closed an idle session.
-	   strpos($response,"Your session is no longer active.")!==false){
+	   strpos($response,'Your session is no longer active.')!==false){
 	  break;
 	}
-	// Drop turns where timestamp is corrupted
+	// Drop transactions where timestamp is corrupted
 	if(isset($a->params->time) && 
 	   $a->params->time<$sessionTime->timeStamp){
 	  $badTimes[$a->params->time]=$action;
@@ -193,13 +213,13 @@ if ($myrow = mysql_fetch_array($result)) {
 	  $sessionTime->update_timeStamp($a->params->time);
 	  $timeStampAction=$action;
 	} else {
-	  // drop turns without timestamps;
+	  // drop transactions without timestamps;
 	  // this is generally from the server dropping idle sessions
 	  continue;  
 	}
 	
 	$sessionTime->update_focus($cutoff,$a);
-	
+       
 	// echo "  step $timeStamp  $sessionTime $ttID<br>\n";
 	
 	if(isset($a->method) && ($a->method == 'solution-step' || 
@@ -212,15 +232,24 @@ if ($myrow = mysql_fetch_array($result)) {
 	  if(isset($b->result)){
 	    foreach ($b->result as $row){
 	      //print_r($row); echo "<br>\n";
-	      if($row->action=="modify-object" && isset($row->mode)){
+	      if($row->action=='modify-object' && isset($row->mode)){
 		$thisTurn=$row->mode;
 		$thisObject=$row->id;
 	      }
 	    }
 	  }
 	  if($a->method == 'seek-help'){
-	    $thisTurn="help";
+	    $thisTurn='help';
 	  }
+
+
+	  // Record state before floundering for transaction 
+	  // is calculated.  See Bug #1956.
+	  //
+	  // Could slim down the number of states that get
+	  // recorded since only some are needed.
+	  $state->update($ttID,$thisTurn,$sessionTime,$sessionCorrects);
+
 	  $sessionTime->update_flounder($thisTurn,$ttID);
 	  
 	  // Collect Knowledge components
@@ -228,7 +257,7 @@ if ($myrow = mysql_fetch_array($result)) {
 	  // $thisObject is name of object on user interface.
 	  
 	  if($thisTurn && // 'correct' 'incorrect' or 'help'
-	     // If turn doesn't have object, then need to record.
+	     // If transaction doesn't have object, then need to record.
 	     // WWH hints should log associated object, but they don't...
 	     // In any case, NSH doesn't have an object.
 	     !($thisObject &&
@@ -298,6 +327,8 @@ if ($myrow = mysql_fetch_array($result)) {
 		     && isReversibleHint($row->text)){
 		    $reversibleHint=true;
 		  }
+		} elseif(isset($row->action) && $row->action == 'set-score'){
+		  $sessionScore=$row->score;
 		}
 	      }
 	    }
@@ -306,7 +337,7 @@ if ($myrow = mysql_fetch_array($result)) {
 	      $turnTable['random-help']['no-hints']=1;
 	    }
 	    // Detect cases where backwards hint could be given.
-	    if($hints && ($thisTurn=='incorrect' || $thisTurn=='hint')){
+	    if($hints && ($thisTurn=='incorrect' || $thisTurn=='help')){
 	      $mark=!isset($turnTable['random-help']['GIVE-BACKWARDS-HINTS']);
 	      if($reversibleOp){
 		if($mark)
@@ -316,7 +347,7 @@ if ($myrow = mysql_fetch_array($result)) {
 		  $turnTable['random-help']['forwards-hint']=1;
 	      } else if(!$reversibleHint && $hasHintLog){
 		// ok, hint not eligible for reverse
-		// This should not ever be marked as backwards.
+		// This should never be marked as backwards.
 	      } else if($hasHintLog){
 		// non error-hint matches list
 		$turnTable['random-help']['zz-extra-hint']=1;
@@ -346,10 +377,12 @@ if ($myrow = mysql_fetch_array($result)) {
       // with an object, but no later interp has been found,
       // along with entries without object.
    
-      // Finally, we need to sort the turns in this session,
+      // Finally, we need to sort the transactions in this session,
       // consolidate help requests, and append to global lists
       $blame->resolve($thisSection,$thisName);
-      
+
+      $training->update($thisSection,$thisName,$thisProblem,
+			$sessionScore,$sessionTime);
       
     } while ($myrow = mysql_fetch_array($result));
 
@@ -357,45 +390,51 @@ if ($myrow = mysql_fetch_array($result)) {
    } else {// if for any session existing
   echo "<p>No matching sessions found\n";
  }
-echo "<p>Total student time:&nbsp; " . number_format($tt,0) . 
-" seconds; total time <em>floundering</em>:&nbsp; " . 
-number_format($totalFloundering,0) . " seconds.\n";
+if($htmlHeaders){
+  echo "<p>Total student time:&nbsp; " . number_format($tt,0) . 
+    " seconds; total time <em>floundering</em>:&nbsp; " . 
+    number_format($totalFloundering,0) . " seconds.\n";
+  $elapsedTime = time() - $initialTime;
+  echo "<p>Time to process:&nbsp; $elapsedTime s with " 
+    . number_format($queryTime,2) . " s for mysql.&nbsp;\n";
+  echo "Json decoding times:&nbsp; " . number_format($jsonTime1,2) .
+    " s, " . number_format($jsonTime2,2) . " s.\n";
 
-$elapsedTime = time() - $initialTime;
-echo "<p>Time to process:&nbsp; $elapsedTime s with " 
-. number_format($queryTime,2) . " s for mysql.&nbsp;\n";
-echo "Json decoding times:&nbsp; " . number_format($jsonTime1,2) .
-" s, " . number_format($jsonTime2,2) . " s.\n";
-
-if(count($badTimes)>0){
-  echo "<p>Bad Timestamps:</p>\n";
-  echo "<table border=1>\n";
-  echo "<thead>\n";
-  echo "<tr><th>Time</th><th>Action</th></tr>\n";
-  echo "</thead>\n";
-  echo "<tbody>\n";
-  foreach ($badTimes as $time => $action){  
-    echo "<tr><td>$time</td><td>$action</td></tr>\n";
+  if(count($badTimes)>0){
+    echo "<p>Bad Timestamps:</p>\n";
+    echo "<table border=1>\n";
+    echo "<thead>\n";
+    echo "<tr><th>Time</th><th>Action</th></tr>\n";
+    echo "</thead>\n";
+    echo "<tbody>\n";
+    foreach ($badTimes as $time => $action){  
+      echo "<tr><td>$time</td><td>$action</td></tr>\n";
+    }
+    echo "</tbody>\n";
+    echo "</table>\n";
   }
-  echo "</tbody>\n";
-  echo "</table>\n";
  }
 
 
-
 // For each student and KC, find the Maximun Likelihood solution for a model
-// with three paramenters: P(G) P(S) step where skill was learned.
+// with three paramenters: P(G) P(S) and L=step where skill was learned.
+// Also, find a set of models for each L, and the relative probability
+// of each sub-model.
 //
+$debugML=false;
 foreach($allKCStudent as $kc => $sec) {
   foreach($sec as $thisSection => $stu) {
     foreach($stu as $thisName => $opps) {
+      if($debugML){
+	echo "$kc, $thisSection, $thisName \n";
+      }
       $model[$kc][$thisSection][$thisName] =
-	maximum_likelihood_models($opps);
+	maximum_likelihood_models($opps,$debugML);
     }
   }
 }
 
-// For each KC, find all opportunities to learn skill that
+// For each KC, find all steps (opportunities to learn skill) that
 // did or did not result in learning.
 
 function printv($arr){
@@ -406,9 +445,10 @@ function printv($arr){
   return $s . ')';
 }   
 function print_turn($turn){
-  return $turn['timeStamp'] . $turn['grade'] . printv($turn['random-help']);
+  return $turn['timeStamp'] . ':' . $turn['id'] . $turn['grade'] . 
+    printv($turn['random-help']);
 }
-$debugLearn=true;
+$debugLearn=false;
 if($debugLearn) echo "<ul>\n";
 foreach($model as $kc => $sec){
   foreach($sec as $thisSection => $stu){
@@ -419,8 +459,8 @@ foreach($model as $kc => $sec){
 	$top=count($allKCStudent[$kc][$thisSection][$thisName]);
 	for($opp=0; $opp<$top; $opp++){
 	  $turns=$allKCStudent[$kc][$thisSection][$thisName][$opp];
-	  $learn=isset($maxv['learnProb'][$opp])?
-	    number_format($maxv['learnProb'][$opp],2):'???';
+	  $learn=isset($maxv['learnHereProb'][$opp+1])?
+	    number_format($maxv['learnHereProb'][$opp+1],2):'???';
 	  if($debugLearn) echo "    <li>learn $learn:";
 	  foreach($turns as $turn){
 	    if($debugLearn) echo ' ' . print_turn($turn);
@@ -429,10 +469,10 @@ foreach($model as $kc => $sec){
 	}
       } else {
 	// less than 50% correct is "never learn skill"
-	$status=$maxv['ps']->val>0.5?'never':'already';
+	$status=$maxv['ps']>0.5?'never':'already';
 	// Case where the student did not know skill and never learned it.
 	$opps=$allKCStudent[$kc][$thisSection][$thisName];
-	// Ignore last opportinuty:  student could have learned skill 
+	// Ignore last step:  student could have learned skill 
 	// at that time, but we'll never know.
 	for($opp=0; $opp<count($opps); $opp++){
 	  $turns=$opps[$opp];
@@ -451,23 +491,6 @@ foreach($model as $kc => $sec){
   }
 }
 if($debugLearn) echo "</ul>\n";
-
-
-// Average model over students.
-// Use http://arxiv.org/abs/physics/0401042
-// for handling errors
-//
-// Since the model is not the same over students, there
-// is both the error associated with each student as
-// well as the actual variation across the population.
-// In the following, we estimate the error due to the
-// uncertainty of each student model.
-foreach ($model as $kc => $ss){
-  $allModel[$kc]=array('learn' => average_model($ss,'learn',true),
-		       'pg' => average_model($ss,'pg',true),
-		       'ps' => average_model($ss,'ps',true),
-		       'psNot' => average_model($ss,'ps',false));
-}
 
 
 // Average kc's over students
@@ -492,28 +515,35 @@ foreach ($allKCStudent as $kc => $ss){
     if(!isset($sum['correct']))
       $sum['correct']=0;
     $c = $sum['correct']; $w = $total[$i]-$c;
-    $frac = $c/($c+$w);
-    // Calculate lower and upper numerically.
-    $y = new valErr($frac);
-    binomial_errors($y,$c,$w);
-    $avgCorrectKC[$kc][$i] = $y;
+    $avgCorrectKC[$kc][$i] = $c/($c+$w);
   }
 }
 
-// Print out model parameters for each kc, averaged over student.
-if(false){
-  foreach($allModel as $kc => $params){
-    echo "$kc:  ";
-    foreach($params as $param => $value){
-      $countValid=$value['countValid']; $countAll=$value['countAll'];
-      echo " $param=" . $value['val']->print0() . "[$countValid/$countAll],";
-    }
-    echo "\n";
+mysql_close();
+if($htmlHeaders){
+  // Print out all KS's used.
+  echo "<p>";
+  ksort($allKCs);
+  foreach($allKCs as $kc => $dummy){
+    echo "$kc ";
   }
+  echo "<p>";
+  
+  // Print out all errors.
+  ksort($allErrors);
+  foreach($allErrors as $err => $dummy){
+    echo "$err ";
+  }
+  echo "\n\n";
+  echo "</body>";
+  echo "</html>";
  }
 
+// Non-html format output
+
+
 // Print out fraction of time first step is correct for each
-// opportunity and kc, averaged over students.
+// step and kc, averaged over students.
 if(false){
   foreach($avgCorrectKC as $kc => $ii){
     echo "$kc:  ";
@@ -524,8 +554,26 @@ if(false){
   }
  }
 
-// For each kc and student, print out first step for each opportunity.
+
+// For each student, print out first transaction for each step, 
+// with kc and grade in csv format (for debugging).
 if(false){
+  foreach ($allStudentKC as $thisSection => $st){
+    foreach($st as $thisName => $opps){
+      echo "$thisSection $thisName\n";
+      foreach($opps as $yy) {
+	$kc=$yy['kc']; $g=$yy['grade'];
+	$id=$yy['id']; $tt=$yy['timeStamp']; $clientID=$yy['clientID'];
+	echo "    $clientID, $id, $tt, $kc, $g\n";
+      }
+      echo "\n";
+    }
+  }
+ }
+
+// For each kc and student, print out first transaction for each step.
+if(false){
+  ksort($allKCStudent);
   foreach ($allKCStudent as $kc => $ss){
     foreach($ss as $thisSection => $st){
       foreach($st as $thisName => $xx){
@@ -543,22 +591,143 @@ if(false){
   }
 }
 
-// Print out all KS's used.
-echo "<p>";
-ksort($allKCs);
-foreach($allKCs as $kc => $dummy){
-  echo "$kc ";
+function skipKC($kc){
+    // none:  entries where assigment of blame failed
+    // select-mc-answer  answer multiple-choice questions
+  return $kc=='none' || $kc=='select-mc-answer';
 }
-echo "<p>";
 
-// Print out all errors.
-ksort($allErrors);
-foreach($allErrors as $err => $dummy){
-  echo "$err ";
-}
-echo "\n\n";
-	    
-mysql_close();
+// For each student and KC, Print out the model parameters.
+if(false){
+  echo "\"KC\",\"Section\",\"Name\",\"AIC\",\"gainProb\"\n";
+  ksort($allKCStudent);
+  foreach($allKCStudent as $kc => $sec) {
+    // none:  entries where assigment of blame failed
+    // select-mc-answer  answer multiple-choice questions
+    if(!skipKC($kc)){
+      foreach($sec as $thisSection => $stu) {
+	foreach($stu as $thisName => $opps) {
+	  $maxv=$model[$kc][$thisSection][$thisName];
+	  $aic=$maxv['valid']?2*3-2*$maxv['logLike']:0;
+	  $gainProb=$maxv['gainProb'];
+	  echo "\"$kc\",\"$thisSection\",\"$thisName\",$aic,$gainProb\n";
+	}
+      }
+    }
+  }
+ }
+
+
+// For each kc and step, print model parameters, step id (ttID),
+// and policies used, in csv format.
+if(false){
+  $randomHelpCategories=array();
+  foreach ($allKCStudent as $ss){
+    foreach($ss as $st){
+      foreach($st as $opp){
+	foreach($opp as $turns){
+	  foreach($turns as $turn){
+	    foreach($turn['random-help'] as $var => $val){
+	      if(!isset($randomHelpCategories[$var])){
+		// echo "adding $var\n";
+		$randomHelpCategories[$var]=1;
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+
+  // Header
+  echo "\"KC\",\"clientID\",\"ttID\",\"stepTrans\",\"learning\",\"noSlip\"";
+  foreach($randomHelpCategories as $var => $val){
+    echo ",\"$var\"";
+  }
+  echo "\n";
+  
+  // Discount factor.
+  // According to min's thesis, they use a discount factor
+  // for number of kc-relevant transactions (page 36 of thesis) 
+  // before the reward with a value of 0.9.
+  // We will do this per incorrect step, since any  model-scaffold-fade 
+  // strategy would be implemented in that manner. 
+  $gamma=0.5; 
+  foreach ($allKCStudent as $kc => $ss){
+    // none:  entries where assigment of blame failed
+    // select-mc-answer  answer multiple-choice questions
+    if(skipKC($kc))continue; 
+    foreach($ss as $thisSection => $st){
+      foreach($st as $thisName => $opps){
+	$maxv=$model[$kc][$thisSection][$thisName];
+        $i=0;
+	foreach($opps as $turns){
+	  // There are things other than the hints which may
+	  // cause learning.  Thus, count all transactions for determining
+	  // weighting.  We don't know which of the transactions in a given
+	  // step actually contributed to learning, so we
+	  // weight them all equally. 
+	  $oppTurns=count($turns);
+	  $learn=0;
+	  $gammaFactor=1;
+	  for($k=$i+1; $k<count($opps); $k++){
+	    $learn+=$maxv['learnHereProb'][$k]*$maxv['learnGain'][$k]*
+	      $gammaFactor;
+	    // grade undefined.
+	    if($opps[$k][0]['grade'] != 'correct'){
+	      $gammaFactor *= $gamma;
+	    }
+	  }
+	  // In cases where there is no learning, student
+	  // may have already learned skill.  In any case, we
+	  // want to minimize slips after learning so that we can
+	  // reward effective after-learning strategies.
+	  //
+	  // For the present policy choices, the policies
+	  // can only be applied when a step is not 'correct'
+	  // Need to distribute reward over only those steps.
+	  // Otherwise we get a situation where cases with 
+	  // lots of slips get a higher total reward.
+	  //
+	  $noSlip=0;
+	  for($k=0; $k<=$i; $k++){
+	    $noSlip+=($maxv['slip'][$k]>0?
+		      (1-$maxv['slip'][$k])*$maxv['learnHereProb'][$k]/
+		      ((count($opps)-$k)*$maxv['slip'][$k]):0);
+	  }
+	  
+	  foreach($turns as $turn){
+	    // Only print out instances where policy 
+	    // change may apply.
+	    if(count($turn['random-help'])>0){
+	      $ttID=$turn['tID'];
+	      $clientID=$turn['clientID'];
+	      echo "\"$kc\",\"$clientID\",$ttID,$oppTurns,$learn,$noSlip";
+	      foreach($randomHelpCategories as $var => $val){
+		if(isset($turn['random-help'][$var])){
+		  echo ",1";
+		} else {
+		  echo ",0";
+		}
+	      }
+	      echo "\n";
+	    }
+	  }
+	  $i++;
+	}
+      }
+    }
+  }
+ }
+
+// dump fade data out to mathematica
+if(false){
+  $training->mma_dump();
+ }
+
+// Dump student state in csv format.
+if(true){
+  $state->csv();
+ }      
+
 ?>
-</body>
-</html>

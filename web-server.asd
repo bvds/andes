@@ -21,4 +21,5 @@
   :components (
 	       (:module "Base"
 			:components ((:file "log-condition")
-				     (:file "web-server")))))
+				     (:file "web-server"
+					    :depends-on ("log-condition"))))))

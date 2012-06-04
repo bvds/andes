@@ -329,6 +329,9 @@ class turn_blame {
   private $temporalHeuristic=array(); 
   private $orphanTurn=array();   // Candidates for temporal heuristic.
   private $KC=array();      // turns for each KC (not sorted).
+  // Max number of turns associated with an object 
+  // where a switch to temporal heuristic is permitted
+  public $switchToTemporalCutoff=1;  
 
   function update($turnTable,$thisObject,$a,$b){
     global $simpleErrors, $UIKCs, $allKCs;
@@ -371,24 +374,36 @@ class turn_blame {
       $hasInterp=false;
       if(isset($b->result)){
 	foreach ($b->result as $row){
+	  // KC found in 
+	  // "action":"log","log":"student","assoc":<list of KCs>
+	  // 
 	  if(isset($row->action) && $row->action == 'log' &&
 	     $row->log == 'student' && isset($row->assoc)){
 	    foreach($row->assoc as $kc => $inst) {
 	      $allKCs[$kc]=1;
 	      // If there were any previous turns without
-	      // interp, give pointers to next turn kc's.
+	      // interp, create pointers to this turn's KCs.
 	      foreach($this->orphanTurn as $id){
 		$this->temporalHeuristic[$id][]=
 		  array('kc' => $kc, 'inst' => $inst);
 	      }
-	      // See if there were any previous turns without
-	      // interp and add them.
+	      // See if there were any previous turns for
+	      // this object without interp and add them.
 	      if($thisObject && isset($this->missingInterp[$thisObject])){
 		foreach ($this->missingInterp[$thisObject] as $id => $turn){
 		  // push onto array
 		  $this->KC[$kc][$inst][$id] = $turn;
 		}
 	      }
+	      // See if there were any previous turns
+	      // with out an associated object.  Use temporal
+	      // heuristic and add them to the current KC.
+	      if(isset($this->missingObject)){
+		foreach($this->missingObject as $id => $turn){
+		  // push onto array
+		  $this->KC[$kc][$inst][$id] = $turn;
+		}
+	      }		  
 	      
 	      // push this turn onto kc attempts
 	      $this->KC[$kc][$inst][$a->id] = $turnTable;
@@ -396,6 +411,7 @@ class turn_blame {
 	    }
 	    $this->orphanTurn=array();
 	    unset($this->missingInterp[$thisObject]);
+	    $this->missingObject=array();
 	  }
 	}
 	if(!$hasInterp){
@@ -418,26 +434,34 @@ class turn_blame {
   function resolve($thisSection,$thisName){
     global $allStudentKC, $allKCStudent;
     
-    foreach ($this->missingInterp as $id => $turns){
-      foreach ($turns as $turn){
-	if(isset($this->temporalHeuristic[$id])){
+    // Assignment of blame for entries associated with an object
+    // Can only do this after the fact, since student may 
+    // do further steps on object, changing which heuristic 
+    // to use.
+    foreach ($this->missingInterp as $object => $turns){
+      foreach ($turns as $id => $turn){
+	// Only if there are a few turns in an object
+	// do we switch to temporal hueristic.
+	// Empirically, we find that if a student has
+	// spent a long time working on an object without
+	// success, they then switch to doing something else.
+	if(count($turns)<=$this->switchToTemporalCutoff &&
+	   isset($this->temporalHeuristic[$id])){
 	  foreach($this->temporalHeuristic[$id] as $kcI){
 	    $this->KC[$kcI['kc']][$kcI['inst']][$id] = $turn;
 	  }
 	} else {
 	  // Turn has no assignment of blame.
+	  $this->KC['none']['none'][$id] = $turn;
 	}
-      }	  
+      }	 
     }
-    // Do assignment of blame for entries without object.
+
+    // For remaining entries without object, assignment
+    // of blame has failed.
     foreach ($this->missingObject as $id => $turn){
-      if(isset($this->temporalHeuristic[$id])){
-	foreach($this->temporalHeuristic[$id] as $kcI){
-	  $this->KC[$kcI['kc']][$kcI['inst']][$id] = $turn;
-	}
-      } else {
-	// Turn has no assignment of blame.
-      }
+      // Turn has no assignment of blame.
+      $this->KC['none']['none'][$id] = $turn;
     }
   
     // Sort the turns in this session,
@@ -464,10 +488,13 @@ class turn_blame {
       
       // sort KC instantiations by id of first turn.
       ksort($firstid);
+
+      // Save session results in global variables.
       foreach($firstid as $turns){
-	// Results are put into global variables.
-	$allStudentKC[$thisSection][$thisName][$kc][]= $turns;
-	$allKCStudent[$kc][$thisSection][$thisName][]= $turns;
+	$firstTurn=reset($turns);
+	$firstTurn['kc']=$kc;
+	$allStudentKC[$thisSection][$thisName][]=$firstTurn; 
+	$allKCStudent[$kc][$thisSection][$thisName][]=$turns;
       }
     }
   }
