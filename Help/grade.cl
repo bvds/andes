@@ -200,6 +200,12 @@
       (when (eql (graded-status graded) +correct+)
 	(let ((n (graded-possibilities graded))
 	      (j (length (graded-incorrects graded))))
+	  ;; The value for n is sometimes just a guess.
+	  ;; In fact, if j is as big as n, then we know that 
+	  ;; the guess was wrong.  In that case, we adjust n.
+	  (unless (> n j)
+	    (setf n (+ j 1))
+	    (setf (graded-possibilities graded) n))
 	  (incf (tally-score tally) 
 		(* weight 
 		   (weight-correct-after-failures j n))))))))
