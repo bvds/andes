@@ -158,7 +158,7 @@
 	  *parse-memo* *lexical-rules-memo* *rules-starting-with-memo*
 	  ;; Session state information
 	  session:*user* session:*section* session:*problem* 
-	  session:*state-cache*
+	  session:*state-cache* 
 	  )
 	#-sbcl "List of global variables that need to be saved between turns in a session."
 	#+sbcl #'equalp
@@ -247,7 +247,6 @@
    :extra extra)
   
   (let (replies solution-step-replies predefs
-		last-client-id ;used when re-running old sessions
 		;; Override global variable on start-up
 		(*simulate-loaded-server* nil))
     (env-wrap
@@ -366,7 +365,7 @@
 		 (let* ((label (pop line))
 			(id (format nil "doneButton~S" i))
 			;; If name of activity was supplied, use that.
-			;; else search for any done button.
+			;; Else, search for any done button.
 			(label-match (if label (list 'done label) 
 					     '(done . ?rest)))
 			;; Find any done button SystemEntry.
@@ -490,71 +489,15 @@
     ;; Pull old sessions out of the database that match
     ;; student, problem, & section.  Run turns through help system
     ;; to set problem up and set scoring state.
-    (andes-database:old-sessions
-     (dolist (old-step (andes-database:get-matching-sessions 
-			 '("solution-step" "seek-help" "record-action")
-			 :student user :problem problem :section section
-			 :extra extra))
-
-       ;; Detect first turn in an old session.
-       (unless (equal last-client-id (cdr old-step))
-	 ;; flush state cache
-	 (env-wrap 
-	   (setf session:*state-cache* nil))
-	 (andes-database:set-old-session-start (cdr old-step))
-	 (setf last-client-id (cdr old-step)))
-       
-	(let* ((method (cdr (assoc :method (car old-step))))
-	       (params (cdr (assoc :params (car old-step))))
-	       ;; If an old session turn produces an error, convert it
-	       ;; into a warning and move on to the next turn.
-	       ;; Otherwise old sessions with unfixed errors cannot 
-	       ;; be reopened.
-	       (reply 
-		(handler-case
-		    (apply 
-		     (cond 
-		       ((equal method "solution-step") #'solution-step)
-		       ;; Help requests are sent to the help system to set 
-		       ;; the solution status and grading state.  
-		       ;; Alternatively, we could just send the solution 
-		       ;; steps to the help system state and then set 
-		       ;; the grading state by brute force.
-		       ((equal method "seek-help") #'seek-help)
-		       ((equal method "record-action") #'record-action))
-		     ;; flatten the alist
-		     (mapcan #'(lambda (x) (list (car x) (cdr x))) 
-			     params))
-		  (error (c) (old-errors-into-warnings c method params))))
-	       
-	       ;; solution-steps and help results are passed back to client
-	       ;; to set up state on client.
-	       (send-reply (filter-reply reply)))	  
-	  
-	  ;; Echo any solution step action
-	  (when (equal method "solution-step")
-	    ;; "checked" is supposed to be a json array.
-	    ;; Need special handling in case it is empty.
-	    (let ((checked (assoc :checked params)))
-	      (when (and checked (null (cdr checked)))
-		;; Hack for creating an empty array in json
-		(setf (cdr checked) (make-array '(0)))))
-	    ;; Remove time from reply
-	    (push (remove :time params :key #'car) send-reply))
-	  
-	  ;; Echo any text entered in Tutor pane text box.
-	  (when (and (equal method "seek-help") 
-		     (equal (cdr (assoc :action params)) "get-help")
-		     (assoc :text params))
-	    (push `((:action . "echo-get-help-text") 
-		    (:text . ,(cdr (assoc :text params)))) send-reply))
-	  
-	(setf solution-step-replies
-	      (append solution-step-replies send-reply)))))
+    (setf solution-step-replies
+	  (append solution-step-replies 
+		  (rerun-old-sessions :user user :problem problem
+				      :section section :extra extra)))
+    
     (env-wrap
       ;; After running through old session, flush state cache
       (setf session:*state-cache* nil)
-
+      
       ;; Determine if this is the first session for this user.
       ;; Do separately from seen-intro-video in case video window
       ;; is killed by pop-up blocker on client.
@@ -628,10 +571,214 @@
     (append (reverse replies) solution-step-replies)))
 
 
+;; lines are supposed in reverse chronological order
+;; Only modify last occurrence of object.
+(defmacro push-reply-to-replies (line lines)
+  "Add line to list of replies, consolidating any object modifications."
+  `(let ((action (cdr (assoc :action ,line))))
+    (setf ,lines
+     (cond
+       ((equal action "modify-object")
+	(consolidate-modify ,line ,lines))
+       ((equal action "delete-object")
+        (consolidate-delete ,line ,lines))
+       (t (cons ,line ,lines))))))
+
+(defvar *debug-consolidate* nil) 
+
+(defun consolidate-modify (line lines)
+  (cond 
+    (*debug-consolidate* (cons line lines))
+    ((null lines)
+     ;; Assume any id's not found in lines apply
+     ;; to an object already created (answer box, for example).
+     (list line))
+    ((and (member (cdr (assoc :action (car lines)))
+		  '("new-object" "modify-object") :test #'equal)
+	  (equal (assoc :id line) (assoc :id (car lines))))
+     (cons (consolidate-line (remove :action line :key #'car) 
+			     (car lines)) (cdr lines)))
+    (t (cons (car lines) (consolidate-modify line (cdr lines))))))
+
+(defun consolidate-delete (line lines)
+  (cond 
+    (*debug-consolidate* (cons line lines))
+    ((null lines)
+     ;; Assume any id's not found in lines apply
+     ;; to an object already created (answer box, for example).
+     (list line))
+    ((and (equal (cdr (assoc :action (car lines))) "new-object")
+	  (equal (cdr (assoc :id line)) (cdr (assoc :id (car lines)))))
+     (cdr lines))
+    ((and (equal (cdr (assoc :action (car lines))) "modify-object")
+	  (equal (cdr (assoc :id line)) (cdr (assoc :id (car lines)))))
+     (consolidate-delete line (cdr lines)))
+    (t (cons (car lines) (consolidate-delete line (cdr lines))))))
+
+;; update old line with new line, maintaining order of oldline.
+(defun consolidate-line (newline oldline)
+  (if oldline
+      (let ((match (assoc (car (car oldline)) newline)))
+	(if match 
+	    (cons match (consolidate-line (remove match newline) 
+					  (cdr oldline)))
+	    (cons (car oldline) (consolidate-line newline (cdr oldline)))))
+      newline))
+
+
+(defvar *debug-old-sessions* nil)
+
+;; Pull old sessions out of the database that match
+;; student, problem, & section.  Run turns through help system
+;; to set problem up and set scoring state.
+;; returns list of replies.
+;;
+;; For very long sessions, the reply can be too big, resulting
+;; in trucation of the reply.  As a work-around, consolidate
+;; creation/modification/deletion of of objects.
+(defun rerun-old-sessions (&key user problem section extra)
+  
+  (let (last-client-id solution-step-replies
+	      (tn (get-internal-run-time)) (ttn (get-internal-real-time)))
+    
+    (andes-database:old-sessions
+      (dolist (old-step (andes-database:get-matching-sessions 
+			 '("solution-step" "seek-help" "record-action")
+			 :student user :problem problem :section section
+			 :extra extra))
+	
+	(let ((client-id (third old-step))
+	      (method (cdr (assoc :method (second old-step))))
+	      (params (cdr (assoc :params (second old-step))))
+	      guesses
+	      (t0 (get-internal-run-time)) (tt0 (get-internal-real-time)))
+
+	  ;; Collect any interpretations from old server reply
+	  (when (string-equal method "solution-step")
+	    (dolist (line (cdr (assoc :result (car old-step))))
+	      (when (and (string-equal (cdr (assoc :action line)) "log")
+			 (string-equal (cdr (assoc :log line)) "student"))
+		(cond 
+		  ;; Error where too many matches found.
+		  ;; Logs from before middle of June 2012 do not contiain
+		  ;; list of matches.
+		  ((and (assoc :error-type line)
+			;; Actually, we just want to match beginning
+			;; of strings
+			(search "(DEFINITION-HAS-TOO-MANY-MATCHES"
+				(cdr (assoc :error-type line))
+				:test #'char-equal))
+		   ;; This looks rather kludgy: convert from string
+		   ;; break into a list, and convert each prop back
+		   ;; into a string.  However, since guesses can potentially
+		   ;; come from a client, they should be passed as strings.
+		   ;; Right now, andes3.smd specifies this should be an
+		   ;; array of strings.
+		   (let ((props (mapcar #'prin1-to-string
+					(cdr (read-from-string
+					      (cdr (assoc :error-type line)))))))
+		   (push (list* :guesses t props) guesses)))
+		  ;; Error where no matches were found
+		  ;; Before June 2012, logs sometimes included
+		  ;; an incorrect prop for DEFINITION-HAS-NO-MATCHES.
+		  ((and (assoc :error-type line)
+			(string-equal (cdr (assoc :error-type line))
+				      "(DEFINITION-HAS-NO-MATCHES)"))
+		   (push (list :guesses t) guesses))
+		  ;; Error where student entry was evaluated
+		  ;; Too many matches is handled above.
+		  ;;
+		  ;; Before June 2012, logs sometimes included
+		  ;; an incorrect prop for too-many-matches that was
+		  ;; a left-over from a previous turn.
+		  ((assoc :entry line)
+		   (let ((prop (cdr (assoc :entry line))))
+		     (push (list :guesses t prop) guesses)))
+		  ;; Normal case
+		  ((assoc :assoc line)
+		   (push (list* :guesses t
+				(mapcar #'cdr (cdr (assoc :assoc line))))
+			 guesses))))))
+
+	  (when *debug-old-sessions*
+	    (format webserver:*stdout* "===== starting:  ~A ~A~%    guesses:  ~A~%"
+		    method params guesses))
+	  
+	  ;; Detect first turn in an old session.
+	  (unless (equal last-client-id client-id)
+	    ;; flush state cache
+	    (env-wrap 
+	      (setf session:*state-cache* nil))
+	    (andes-database:set-old-session-start client-id)
+	    (setf last-client-id client-id))
+	  
+	  ;; Echo any text entered in Tutor pane text box.
+	  (when (and (equal method "seek-help") 
+		     (equal (cdr (assoc :action params)) "get-help")
+		     (assoc :text params))
+	    (push-reply-to-replies `((:action . "echo-get-help-text") 
+				     (:text . ,(cdr (assoc :text params)))) 
+				   solution-step-replies))
+	  
+	  ;; Echo any solution step action
+	  (when (equal method "solution-step")
+	    ;; "checked" is supposed to be a json array.
+	    ;; Need special handling in case it is empty.
+	    (let ((checked (assoc :checked params)))
+	      (when (and checked (null (cdr checked)))
+		;; Hack for creating an empty array in json
+		(setf (cdr checked) (make-array '(0)))))
+	    ;; Remove time from reply
+	    (push-reply-to-replies (remove :time params :key #'car) 
+				   solution-step-replies))
+
+	  (let ((reply
+		 ;; If an old session turn produces an error, convert it
+		 ;; into a warning and move on to the next turn.
+		 ;; Otherwise old sessions with unfixed errors cannot 
+		 ;; be reopened.
+		;; (handler-case
+		     (apply 
+		      (cond 
+			((equal method "solution-step") #'solution-step)
+			;; Help requests are sent to the help system to set 
+			;; the solution status and grading state.  
+			;; Alternatively, we could just send the solution 
+			;; steps to the help system state and then set 
+			;; the grading state by brute force.
+			((equal method "seek-help") #'seek-help)
+			((equal method "record-action") #'record-action))
+		      ;; flatten the alist
+		      (mapcan #'(lambda (x) (list (car x) (cdr x))) 
+			      (append params guesses)))
+		 ;;  (error (c) (old-errors-into-warnings c method params)))
+))
+	    ;; solution-steps and help results are passed back to client
+	    ;; to set up state on client.
+	    (dolist (line (filter-reply reply))
+	      (push-reply-to-replies line solution-step-replies))
+	    
+	    (let* ((t1 (get-internal-run-time))
+		   (tt1 (get-internal-real-time))
+		   (dt (/ (float (- t1 t0)) 
+			  (float internal-time-units-per-second)))
+		   (dtt (/ (float (- tt1 tt0)) 
+			   (float internal-time-units-per-second))))
+	      (when *debug-old-sessions*
+		(format webserver:*stdout* "    time: ~,3F(~,3F)s; net ~,3F(~,3F)s~@[~*    ****~]~%"
+			dt dtt
+			(/ (float (- t1 tn)) 
+			   (float internal-time-units-per-second))
+			(/ (float (- tt1 ttn)) 
+			   (float internal-time-units-per-second))
+			(> dt 1)))))))
+      
+      (reverse solution-step-replies))))
+    
 ;; helper function to handle errors from old sessions
 ;; Turns errors into log-warn.
 (defun old-errors-into-warnings (c method params)
-  (warn 'log-condition:log-warn
+ (warn 'log-condition:log-warn
 	:tag (list 'old-session-error method params 
 		   (type-of c) (webserver:get-any-log-tag c))
 	:text (format nil "Error from rerunning old sessions: ~A" c)))  
@@ -673,6 +820,7 @@
 	  (push line result))))
     result))
 
+
 (defun problem-times-english (problem)
   "Return list of English sentences defining times."
   (let ((times (problem-times problem)))
@@ -702,7 +850,8 @@
 (webserver:defun-method "/help" solution-step 
     (&key time id action type mode x y checked
 	  text width height radius symbol x-statement y-statement
-	  x-label y-label z-label angle cosphi) 
+	  x-label y-label z-label angle cosphi
+	  guesses) 
   "problem-solving step"
   ;; fixed attributes:      type style id
   ;; updatable attributes:  mode x y text width height radius symbol 
@@ -749,7 +898,10 @@
 		 (not (equal type (StudentEntry-type old-entry))))
 	(warn "Attempting to change type from ~A to ~A"
 	      (StudentEntry-type old-entry) type))
-
+      
+      ;; In Andes2, a new entry was created each time.  This 
+      ;; unnecessary step should be removed. Bug #1958
+      
       ;; create new object
       (setf new-entry (make-StudentEntry :id id :type type :time time))
       
@@ -758,21 +910,21 @@
 	(update-entry-from-entry 
 	 new-entry old-entry 
 	 type mode style x y text width height radius symbol x-statement 
-         y-statement x-label y-label z-label angle cosphi checked prop))
+	 y-statement x-label y-label z-label angle cosphi checked prop))
       
       ;; update new object from non-null variables
       (update-entry-from-variables 
        new-entry  
        mode x y text width height radius symbol x-statement y-statement
-       x-label y-label z-label angle cosphi checked)
+       x-label y-label z-label angle cosphi checked guesses)
       
       (add-entry new-entry)   ;remove existing info and update
-
+      
       ;; For Modified help experiment.
       ;; Need a way to do this kind of stuff that is
       ;; "pluggable".  Bug #1940
       (random-help-experiment:set-current-object id)
-
+      
       (model-no-tutor-turn time) ;for model of doing step without help
       
       (update-fades
@@ -785,7 +937,7 @@
 	 ;; For debugging only, should be turned off in production
 	 ((and webserver:*debug* (equal text "help-test-error")
 	       (error "help-test-error response.")))
-
+	 
 	 ;; Look for text with leading punctuation.  This indicates
 	 ;; a comment, which is not analyzed by the help system.
 	 ((and (> (length text) 0) 
@@ -824,7 +976,7 @@
 	 ((equal (StudentEntry-type new-entry) "graphics")
 	  (warn "Can't modify a graphic object, id=~A" 
 		(studententry-id new-entry)))
-	
+	 
 	 ((equal (StudentEntry-type new-entry) "circle")
 	  (execute-andes-command time 'assert-object new-entry))
 	 
@@ -842,7 +994,7 @@
 	 
 	 ((equal (StudentEntry-type new-entry) "line")
 	  (execute-andes-command time 'lookup-line new-entry))
-
+	 
 	 ((equal (StudentEntry-type new-entry) "button")
 	  (execute-andes-command time 'lookup-mc-answer new-entry))
 	 

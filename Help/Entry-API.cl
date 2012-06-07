@@ -116,6 +116,26 @@
   "Last two characters of a string"
   (subseq x (max 0 (- (length x) 2))))
 
+(defun format-props (sysentries &key allowed-tools)
+  "Find guesses or sysentries associated with given tools, returning an alist of models and props."
+  (mapcar 
+   #'(lambda (x) (cons (expand-vars (SystemEntry-model x)) 
+		       (SystemEntry-prop x)))
+   (remove-if #'(lambda (prop) (not (member (car prop) allowed-tools)))
+	      sysentries 
+	      :key #'SystemEntry-prop)))
+
+(defun matches-from-guesses (guesses allowed-tools)
+  (mapcar 
+   ;; This could be made faster by borrowing the 
+   ;; SystemEntry-model from any matching SystemEntry instead
+   ;; of constructing a new one.
+   #'(lambda (prop) (match:make-best :prop prop))
+   (remove-if 
+    #'(lambda (prop) (not (member (car prop) allowed-tools)))
+    (mapcar #'read-from-string guesses))))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;
 ;;;;                  Match student phrase to Ontology
@@ -132,12 +152,27 @@
 ;;     valued.  Thus, if we want to do better, than we demand the
 ;;     bound be decreased by 1.
 
-(defun match-student-phrase0 (student tool-prop &key 
+(defun match-student-phrase0 (student tool-prop &key
+			      guesses
 			      all-scalars
 			      (cutoff-fraction 0.4) 
 			      ;; If larger, too slow on benchmarks
 			      (cutoff-max 3.7)) 
   "Match student phrase to Ontology, returning best matches for tool or other tool."
+
+  ;; When guesses are provided, we will assume they are correct and
+  ;; complete, and ignore any sysentries.  This is appropriate
+  ;; when the guesses are from the old server replies when 
+  ;; rerunning old sessions.
+  ;;
+  (when (and guesses (eql t (car guesses)))
+      (let ((allowed-tools (remove tool-prop *tool-props-with-definitions*)))
+	(return-from match-student-phrase0
+	  (values
+	   (matches-from-guesses (cdr guesses) (list tool-prop))
+	   (matches-from-guesses (cdr guesses) allowed-tools)
+	   0))))
+
   ;; :cutoff-fraction is fractional length of student phrase to
   ;;     use as bound, adding 1 for the tool.  This should be adjusted to 
   ;;     balance type 1 and type 2 errors:
@@ -154,9 +189,7 @@
   ;; :cutoff-max is maximum allowed score to use as bound.  This should
   ;;     be adjusted to so that very long student phrases can
   ;;     be matched quickly enough.
-  (let* ((sysentries (remove (cons tool-prop '?rest) *sg-entries*
-			     :key #'SystemEntry-prop :test-not #'unify)) 
-	 (initial-cutoff (min (* cutoff-fraction (length student))
+  (let* ((initial-cutoff (min (* cutoff-fraction (length student))
 			      cutoff-max))
 	 ;; To speed up best-wrong-match for long phrases, maybe reduce 
 	 ;; max cutoff a bit.
@@ -173,27 +206,25 @@
 	       (mapcar #'(lambda (x)
 			   (cons (expand-vars (new-english-find x))
 				 (list nil x)))
-		       (mapcar #'qvar-exp (problem-varindex *cp*)))	
-	       (mapcar #'(lambda (x) 
-			   (cons (expand-vars (SystemEntry-model x)) 
-				 (SystemEntry-prop x)))
-		       sysentries))
+		       (mapcar #'qvar-exp (problem-varindex *cp*)))
+	       (format-props *sg-entries*
+			      :allowed-tools (list tool-prop)))
 	   :cutoff initial-cutoff))
 	 ;; The value of the best correct match or the initial cutoff.
 	 ;; This is used to determine cutoffs for wrong quantity searches.
 	 (wrong-bound (if best (- (best-value best) 1) initial-cutoff))
 	 wrong-tool-best)
-
+    
     (when nil ;debug print
-      (format t "Best match to ~s is~%   ~S~% from ~S~%" 
+      (format webserver:*stdout* 
+	      "Best match to ~s is~%   ~S~%" 
 	      (when student (match:word-string student))
 	      (mapcar 
 	       #'(lambda (x) (cons (match:best-value x) 
 				   (expand-vars (new-english-find
 						 (reduce-prop 
 						  (match:best-prop x))))))
-	       best)
-	      (mapcar #'systementry-prop sysentries)))
+	       best)))
     
     ;; Attempt to detect a wrong tool error.  
     ;; The strategy is to treat the choice of tool as being
@@ -205,19 +236,12 @@
     ;; wrong-tool-best less than best score minus 1 or no best.
     ;;     this certainly should be given wrong tool help.
     (when (>= wrong-bound 0)
-      (let* ((allowed-tools (remove tool-prop *tool-props-with-definitions*))
-	     (sysentries (remove-if 
-			  #'(lambda (x) (not (member 
-					      (car (SystemEntry-prop x)) 
-					      allowed-tools)))
-			  *sg-entries*)))
+      (let ((allowed-tools (remove tool-prop *tool-props-with-definitions*)))
 	(setf wrong-tool-best 
 	      (match:best-model-matches 
 	       student
-	       (mapcar #'(lambda (x) 
-			   (cons (expand-vars (SystemEntry-model x)) 
-				 (SystemEntry-prop x)))
-		       sysentries)
+	       (format-props *sg-entries* 
+			      :allowed-tools allowed-tools)
 	       ;; If there is no match in best, then the help is
 	       ;; pretty weak.  In that case, just find anything
 	       ;; below the cutoff.
@@ -234,6 +258,8 @@
     ;; take shortest matching proposition.
     ;; need to pre-order quantities so that shorter propositions
     ;; are matched first...
+    ;;
+    ;; Assume guesses contain all viable props.
     (when (or (null best) (>= (best-value best) 1))
       (update-bound
        best
@@ -252,6 +278,8 @@
     ;; the wrong tool has also been used.
     ;; Must be better than any quantity in solution, but allow
     ;; for ties with one plus any quantity not in solution.
+    ;;
+    ;; Assume guesses contain all viable props.
     (when (and (>= wrong-cutoff-max 1)
 	       (>= wrong-bound 0)
 	       (or (null best) (>= (best-value best) 1)))
@@ -279,7 +307,7 @@
 				   (- (best-value wrong-tool-best) 1)
 				   wrong-bound))))))))
     
-    (values best wrong-tool-best wrong-bound sysentries)))
+    (values best wrong-tool-best wrong-bound)))
 
 (defun match-student-phrase (entry tool-prop)
   "Match student phrase to Ontology, returning best match prop, tutor turn (if there is an error) and any unsolicited hints."
@@ -288,10 +316,15 @@
   (let ((student (match:word-parse 
 		  (pull-out-quantity (StudentEntry-symbol entry) 
 				     (StudentEntry-text entry))))
+	;; Was previously calculated in match-student-phrase0
+        (no-tool-sysentries 
+	 (notany #'(lambda (x) (eql tool-prop (car (SystemEntry-prop x))))
+		 *sg-entries*))
 	hints)
     
-    (multiple-value-bind (best wrong-tool-best best-correct sysentries)
-	  (match-student-phrase0 student tool-prop)
+    (multiple-value-bind (best wrong-tool-best best-correct)
+	(match-student-phrase0 student tool-prop 
+			       :guesses (StudentEntry-guesses entry))
       
       ;; If there isn't a good match to solution quantities,
       ;; try another tool and non-solution quanitities.
@@ -326,7 +359,7 @@
 		      tool-prop
 		      (mapcar #'match:best-prop wrong-tool-best)) hints))
 	
-	((null sysentries)
+	(no-tool-sysentries
 	 (values nil (nothing-to-match-ErrorInterp entry tool-prop) hints))
 	
 	((null best)
@@ -357,9 +390,9 @@
 	   (unless prop (warn "Null prop for correct match"))
 	   ;; Return the best fit entry.
 	   (values prop nil hints)))
-	
+
 	(t 
-	 (let ((props (mapcar #'match:best-prop best)))
+	 (let ((props (mapcar #'match:best-prop best)))       
 	   (values nil (too-many-matches-ErrorInterp entry props) hints)))))))
 
 ;; Debug printout:
@@ -472,9 +505,9 @@
 	  ;; Should use props to inform starting point
 	  ;; for NSH.
 	  '(function next-step-help)))
-     :assoc `((too-many-matches . ,full-props))
+     :assoc `((too-many-matches . ,(length full-props)))
      :state +incorrect+
-     :diagnosis '(definition-has-too-many-matches))))
+     :diagnosis `(definition-has-too-many-matches . ,full-props))))
 
 
 (defun wrong-tool-ErrorInterp (entry tool-prop full-props)
@@ -987,7 +1020,7 @@
 
 	 ;; finally return entry
 	 (check-noneq-entry entry :unsolicited-hints hints))
-	(t
+	(t 
 	 (setf (StudentEntry-prop entry) nil)
 	 (setf (turn-result tturn) (append (turn-result tturn) hints))
 	 tturn)))))
@@ -1038,7 +1071,7 @@
 	 
 	 ;; finally return entry 
 	 (check-noneq-entry entry :unsolicited-hints hints))
-	(t
+	(t 
 	 (setf (StudentEntry-prop entry) nil)
 	 (setf (turn-result tturn) (append (turn-result tturn) hints))
 	 tturn)))))

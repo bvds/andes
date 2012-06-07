@@ -253,7 +253,7 @@
 
   ;; if there is assoc info in the turn, add to reply
   ;; :assoc has the format of an alist.
-  ;; Still need to properly logs into "student" and "tutor", Bug #1870
+  ;; Still need to properly log into "student" and "tutor", Bug #1870
   (when (and turn (turn-assoc turn))
     (alist-warn (turn-assoc turn))
     (push `((:action . "log") (:log . "tutor")

@@ -184,8 +184,11 @@
  	                 "description": "cos(phi), default is zero"},
 	{"name": "checked", "type": "array", "items": "string", 
 	               "optional": true, 
-			"description": "for buttons"}
-      ],
+	               "description": "for buttons"},
+	{"name": "guesses", "type": "array", "items": "string", 
+	               "optional": true, 
+	               "description": "list of props for interpreting student entry."}
+       ],
       "returns": {
 	"type": "array",
 	"items": {
