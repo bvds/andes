@@ -334,52 +334,58 @@ list of characters and replacement strings."
   
   (unless (> (length extra) 0) ;treat empty string as null.
     (setf extra nil)) ;drop from query if missing.
-
+  
   (test-safe-string student problem section extra)
   
-  ;; Assume every session has a grade reported somewhere in it.
-  ;; Thus, we only need to search the most recent session.
-  ;; Only methods open-problem, solution-step, get-help, close-problem should be searched.
-  ;; open-problem puts a dummy set-score=0 at the beginning, but then the value
-  ;; is updated as old sessions are rerun.
+  ;; Assume every session starts with open-problem, which we
+  ;; discard.  Look through sessions in reverse chronological order
+  ;; until we find a grade.
+  ;; Only methods solution-step, get-help, close-problem should be searched.
+  ;;
+  ;; In principle, we could search open-problem, but there are sometimes
+  ;; issues with the reply being too long and getting truncated in 
+  ;; the database.
   
   (with-db
-    (let* ((query (format nil "SELECT clientID FROM PROBLEM_ATTEMPT WHERE userName='~A' AND userProblem='~A' AND userSection='~A'~@[ AND extra='~A'~] ORDER BY startTime DESC LIMIT 1"				
-			  student problem section extra))
-	   (client-id (car (car (query *connection* query))))
-	   (results (when client-id
-		      (query *connection*
-			     (format nil "SELECT server FROM STEP_TRANSACTION WHERE clientID='~A'"
-				     ;; Here, client-id should be ok length
-				     ;; since it is from query.
-				     client-id)
+    (let* ((query (format nil "SELECT clientID FROM PROBLEM_ATTEMPT WHERE userName='~A' AND userProblem='~A' AND userSection='~A'~@[ AND extra='~A'~] ORDER BY startTime DESC"				
+			 student problem section extra))
+	  (client-ids (mapcar #'car (query *connection* query))))
+      (dolist (client-id client-ids)
+	(let ((results 
+	       (query *connection*
+		      ;; Drop the the first line, which is presumably
+		      ;; open-problem
+		      (format nil "SELECT server FROM STEP_TRANSACTION WHERE clientID='~A' limit 1,18446744073709551615"
+			      ;; Here, client-id should be ok length
+			      ;; since it is from query.
+			      client-id)
 					;:flatp t
-			     )))
-	   ;; By default, cl-json turns camelcase into dashes:  
-	   ;; Instead, we are case insensitive, preserving dashes.
-	   (*json-identifier-name-to-lisp* #'string-upcase))
-      
-      (when nil  ;; debug prints
-	(unless client-id (format webserver:*stdout* "query ~S~%" 
-				  query))
-	(format webserver:*stdout* "db results for ~S:~%  ~S~%" 
-		client-id results))
-      
-      ;; Go through turns in a session backwords looking for 
-      ;; last set-score.
-      (dolist (result (reverse results))
-	;; Go through lines in a reply backwards looking for
-	;; the last set-score.
-	(dolist (line (reverse 
-		       (cdr (assoc :result 
-				   (when result 
-				     (errors-to-warnings 
-				      (car result)
-				      (decode-json-from-string 
-				       (car result))))))))
-	  (when (equal (cdr (assoc :action line)) "set-score")
-	    (return-from get-score 
-	      (cdr (assoc :score line)))))))))
+		      ))
+	      ;; By default, cl-json turns camelcase into dashes:  
+	      ;; Instead, we are case insensitive, preserving dashes.
+	      (*json-identifier-name-to-lisp* #'string-upcase))
+	  
+	  (when nil  ;; debug prints
+	    (unless client-id (format webserver:*stdout* "query ~S~%" 
+				      query))
+	    (format webserver:*stdout* "db results for ~S:~%  ~S~%" 
+		    client-id results))
+	  
+	  ;; Go through turns in a session backwords looking for 
+	  ;; last set-score.
+	  (dolist (result (reverse results))
+	    ;; Go through lines in a reply backwards looking for
+	    ;; the last set-score.
+	    (dolist (line (reverse 
+			   (cdr (assoc :result 
+				       (when result 
+					 (errors-to-warnings 
+					  (car result)
+					  (decode-json-from-string 
+					   (car result))))))))
+	      (when (equal (cdr (assoc :action line)) "set-score")
+		(return-from get-score 
+		  (cdr (assoc :score line)))))))))))
 
 ;;
 ;;  Experiment-specific code.  See Bug #1940
