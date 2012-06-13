@@ -355,7 +355,12 @@ dojo.provide("andes.drawing");
 						item.customType = obj.type; // to tell between equation and statement
 						this.add(item);
 					}
-					
+
+					// Add any color
+					if(obj.mode){
+						items[o.id].attr(andes.defaults[obj.mode]);
+					}					
+
 				}else if(obj.action=="modify-object"){
 					mods.push(obj);
 					
