@@ -81,8 +81,8 @@ $adminName = '' ;   // user name
 	     // 
 $sectionName = '^asu_7e256268bab914fb5asul1_' ; //$_POST['sectionName'];
              // '2011-04-01'
-$startDate = '2012-01-20'; // $_POST['startDate'];
-$endDate = ''; // $_POST['endDate'];
+$startDate = ''; // $_POST['startDate'];
+$endDate = '2012-06-04 00:00:00'; // $_POST['endDate'];
 $methods = array('open-problem','solution-step','seek-help','record-action','close-problem');  //implode(",",$_POST['methods']);
 
 if($adminName==''){
@@ -424,7 +424,7 @@ while ($myrow = mysql_fetch_array($result)) {
 	// Position of first discrepency
 	$pos=strspn($response ^ $newResponse, "\0");
 	if($njr==null){
-	  fwrite($handle2,$tid . ':  ' . $newResponse . "\n");
+	  fwrite($handle2,$ttID . ':  ' . $newResponse . "\n");
 	}
 	echo "<tr class='syntax'><td>$aaa</td><td>$aa</td>" . 
 	  "<td>" . ($jr== null?"json decode failed":"OK") . 

@@ -193,7 +193,7 @@
 (defun qvars->indyVars (Qvars)
   "Given a list of qvars generate the indyVars for the independence system."
   (loop for Q in Qvars
-      when (not (null (Qvar-Value Q)))
+      when (Qvar-Value Q)
       collect (qvar->indyvar Q)))
 
 (defun qvar->indyvar (Qvar)
