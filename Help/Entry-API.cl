@@ -741,6 +741,7 @@
 	 ;; finally return entry 
 	 (check-noneq-entry entry :unsolicited-hints hints))
 	(t 
+	 (setf (StudentEntry-prop entry) nil)
 	 (setf (turn-result tturn) (append (turn-result tturn) hints))
 	 tturn)))))
 
@@ -878,6 +879,7 @@
 	 ;; finally return entry
 	 (check-noneq-entry entry  :unsolicited-hints hints))
 	(t 
+	 (setf (StudentEntry-prop entry) nil)
 	 (setf (turn-result tturn) (append (turn-result tturn) hints))
 	 tturn)))))
 
@@ -985,7 +987,8 @@
 
 	 ;; finally return entry
 	 (check-noneq-entry entry :unsolicited-hints hints))
-	(t 
+	(t
+	 (setf (StudentEntry-prop entry) nil)
 	 (setf (turn-result tturn) (append (turn-result tturn) hints))
 	 tturn)))))
 
@@ -1035,7 +1038,8 @@
 	 
 	 ;; finally return entry 
 	 (check-noneq-entry entry :unsolicited-hints hints))
-	(t 
+	(t
+	 (setf (StudentEntry-prop entry) nil)
 	 (setf (turn-result tturn) (append (turn-result tturn) hints))
 	 tturn)))))
 
