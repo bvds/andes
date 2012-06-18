@@ -46,6 +46,7 @@ $ignoreScores = false;  // ignore any changes to scoring.
 $ignoreMetaHints = false;  // Ignore meta hints
 $ignorePreferences = false; // Ignore any client preferences
 $ignoreConsent = false;   // Ignore any consent forms
+$ignoreOpenObjects = true; // Ignore object manipulations on open-problem.
 $printDiffs = true;  // Whether to print out results for server diffs
 $jsonFile = 'replies.json';  // File name for dumping reply json
 $badResponseFile = 'badResponses.txt';  // File name for dumping bad responses.
@@ -81,8 +82,8 @@ $adminName = '' ;   // user name
 	     // 
 $sectionName = '^asu_7e256268bab914fb5asul1_' ; //$_POST['sectionName'];
              // '2011-04-01'
-$startDate = '2012-01-20'; // $_POST['startDate'];
-$endDate = ''; // $_POST['endDate'];
+$startDate = ''; // $_POST['startDate'];
+$endDate = '2012-06-04 00:00:00'; // $_POST['endDate'];
 $methods = array('open-problem','solution-step','seek-help','record-action','close-problem');  //implode(",",$_POST['methods']);
 
 if($adminName==''){
@@ -424,7 +425,7 @@ while ($myrow = mysql_fetch_array($result)) {
 	// Position of first discrepency
 	$pos=strspn($response ^ $newResponse, "\0");
 	if($njr==null){
-	  fwrite($handle2,$tid . ':  ' . $newResponse . "\n");
+	  fwrite($handle2,$ttID . ':  ' . $newResponse . "\n");
 	}
 	echo "<tr class='syntax'><td>$aaa</td><td>$aa</td>" . 
 	  "<td>" . ($jr== null?"json decode failed":"OK") . 
@@ -453,6 +454,14 @@ while ($myrow = mysql_fetch_array($result)) {
 	       (strcmp($method,"open-problem")==0 && isset($bc->action) && 
 		(strcmp($bc->action,"show-hint") == 0 || 
 		 strcmp($bc->action,"show-hint-link") == 0)) ||
+
+	       // Remove object manipulations from open-problem.
+	       // In June 2012, consolidated objects in open-problem reply.
+	       ($ignoreOpenObjects && strcmp($method,"open-problem")==0 && 
+		isset($bc->action) && 
+		(strcmp($bc->action,"new-object") == 0 || 
+		 strcmp($bc->action,"modify-object") == 0 ||
+		 strcmp($bc->action,"delete-object") == 0)) ||
 
 	       // Remove Done button from some problems
 	       // problems commit 6376f20fd808, Nov 19 2011
@@ -553,6 +562,14 @@ while ($myrow = mysql_fetch_array($result)) {
 	       (strcmp($method,"open-problem")==0 && isset($bc->action) && 
 		(strcmp($bc->action,"show-hint") == 0 || 
 		 strcmp($bc->action,"show-hint-link") == 0)) ||
+
+	       // Remove object manipulations from open-problem.
+	       // In June 2012, consolidated objects in open-problem reply.
+	       ($ignoreOpenObjects && strcmp($method,"open-problem")==0 && 
+		isset($bc->action) && 
+		(strcmp($bc->action,"new-object") == 0 || 
+		 strcmp($bc->action,"modify-object") == 0 ||
+		 strcmp($bc->action,"delete-object") == 0)) ||
 
 	       // New turn has score.
 	       ($ignoreScores && isset($bc->action) &&
@@ -799,6 +816,12 @@ while ($myrow = mysql_fetch_array($result)) {
 		  // Compare syntax error logs
 		  strpos($bbc,'EQUATION-SYNTAX-ERROR') !== false &&
 		  strpos($nbbc,'EQUATION-SYNTAX-ERROR') !== false){
+	    $i++; $ni++;
+	  }elseif(strcmp($method,"solution-step") == 0 &&
+		  // Add list of matches to DEFINITION-HAS-TOO-MANY-MATCHES
+		  // June 2012
+		  preg_match('/DEFINITION-HAS-TOO-MANY-MATCHES/',$bbc) != 0 &&
+		  preg_match('/DEFINITION-HAS-TOO-MANY-MATCHES/',$nbbc) != 0){
 	    $i++; $ni++;
 	  }elseif(strcmp($method,"solution-step") == 0 &&
 		  // Add test for creation of excess answer box.

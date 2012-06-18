@@ -274,50 +274,39 @@ list of characters and replacement strings."
 	      :text "get-matching-sessions-result got invalid result.")
 	(return-from get-matching-sessions))
 
-      ;; Filter out turns where the reply contains a timeout error.
-      ;; Unless the bug causing the timeout has been fixed, these errors
-      ;; prevent a student from reopening a problem.
-      (setf result
-	    (remove-if
-	     #'(lambda (x)
-		 ;; find client turn such that associated server
-		 ;; reply does not have a timeout error.
-		 (and x
-		      (server-reply-has-timeout
-		       ;; Actually, we only need to decode the 
-		       ;; top-level list.
-		       ;; Sometimes result gets truncated on very long
-		       ;; backtraces.  It might be better to just search 
-		       ;; the string for the timeout message?
-		       (errors-to-warnings x (decode-json-from-string x)))))
-	     result
-	     :key #'car))
-      
-      ;; parse json in each member of result
-      ;; pick out post and client-id
-      (setf result
-	    (mapcar 
-	     ;; A post with no json sent gets translated into nil;
-	     ;; see write-transaction.
-	     #'(lambda (x) 
-		 (let ((y (second x)))
-		   (cons (and y 
-			      (errors-to-warnings 
-			       y
-			       (decode-json-from-string y)))
-			 (third x))))
-	     result))
-      
-      ;; pick out the solution-step and get-help methods
-      (remove-if #'(lambda (x) (not (member (cdr (assoc :method x))
-					    methods
-					    :test #'equal)))
-		 result
-		 :key #'car))))
+      (loop for line in result
+	    with client and server
+	    when 
+	    (and (second line)
+		 ;; Decode client post, if it exists
+		 ;; A post with no json sent gets translated into nil;
+		 ;; see write-transaction.
+		 (setf client (errors-to-warnings 
+			       (second line)
+			       (decode-json-from-string (second line))))
+		 ;; pick out the solution-step and get-help methods
+		 (member (cdr (assoc :method client))
+			 methods :test #'string-equal)
+		 ;; Filter out turns where the reply contains a timeout error.
+		 ;; Unless the bug causing the timeout has been fixed, 
+		 ;; these errors prevent a student from reopening a problem.
+		 (server-reply-has-no-timeout 
+		  (setf server 
+			(errors-to-warnings 
+			 (first line)
+			 ;; Actually, we only need to decode the 
+			 ;; top-level list.
+			 ;; Sometimes result gets truncated on 
+			 ;; very long backtraces.  
+			 (when (first line)
+			   (decode-json-from-string (first line)))))))
+	    collect
+	    (list server client (third line))))))
 
-(defun server-reply-has-timeout (reply)
+
+(defun server-reply-has-no-timeout (reply)
   "Test whether a server reply includes a timeout error."
-  (some #'(lambda (x) (and (string-equal (cdr (assoc :action x)) "log")
+  (notany #'(lambda (x) (and (string-equal (cdr (assoc :action x)) "log")
 			   (string-equal (cdr (assoc :error-type x))
 					 "timeout")))
 	(cdr (assoc :result reply))))
@@ -455,18 +444,22 @@ list of characters and replacement strings."
 ;; variables.
 ;; A global cache would need periodic flushing.
 (defun get-start-tID (client-id)
-  (let ((result 
-	 (query *connection* 
-		(format nil "SELECT MIN(tID) FROM STEP_TRANSACTION WHERE clientID='~A'"
-			(truncate-client-id client-id)))))
+  (let* ((sel (format nil "SELECT MIN(tID) FROM STEP_TRANSACTION WHERE clientID='~A'"
+		      (truncate-client-id client-id)))
+	   (result (query *connection* sel)))
+
     (if (and (consp result) (consp (car result)))
 	(car (car result))
-	(warn 'log-condition:log-warn 
-	      :tag (list 'get-start-tID result 
-			 *old-client-id* 
-			 webserver:*log-id* 
-			 (truncate-client-id client-id))
-	      :text "get-start-tID expecting list of lists"))))
+	
+	;; If there is no entry in STEP_TRANSACTION, then something
+	;; has gone wrong.  Determine if session exists.
+	(let ((nst (query *connection* (format nil "Select count(*) FROM STEP_TRANSACTION WHERE clientID='~A'" 
+					       (truncate-client-id client-id))))
+	      (npa (query *connection* (format nil "Select count(*) FROM PROBLEM_ATTEMPT WHERE clientID='~A'" 
+					       (truncate-client-id client-id)))))
+	  (warn 'log-condition:log-warn 
+		:tag (list 'get-start-tID client-id  nst npa)
+		:text "get-start-tID dif not find matching entry")))))
 
 (defun get-session-starting-tID ()
   "Get any existing tID associated with the start of the current session.  If client-id is a string, use that session."

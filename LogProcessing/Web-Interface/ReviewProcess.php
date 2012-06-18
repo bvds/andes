@@ -31,6 +31,7 @@ mysql_connect($dbserver, $dbuser, $dbpass)
 mysql_select_db($dbname)
      or die ("UNABLE TO SELECT DATABASE"); 
 
+$problem = $_POST['problem'];
 $adminName = $_POST['adminName'];
 $sectionName = $_POST['sectionName'];
 $orderBy = $_POST['item'];
@@ -45,6 +46,11 @@ if($order=='Descending')
   $order = "DESC";
  else
    $order = "";
+if($problem==''){
+  $problemc = "";
+ } else {
+  $problemc = "P1.userProblem REGEXP '$problem' AND";
+ }  
 if($adminName==''){
   $adminNamec = "";
   $adminNamee = "";
@@ -86,9 +92,9 @@ if($slice == 'comments'){
   
   echo "<h2>Comments in problems $extrae,$adminNamee$sectionNamee sorted in $order order of $orderBy</h2>\n";
   
-  $sqlOld = "SELECT * FROM $problem_attempt AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE $adminNamec $sectionNamec $extrac $startDatec $endDatec P1.clientID = P2.clientID AND P2.initiatingParty = 'client' AND P2.command LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
-  $sql = "SELECT * FROM $problem_attempt AS P1,STEP_TRANSACTION AS P2 WHERE $adminNamec $sectionNamec $extrac $startDatec $endDatec P1.clientID = P2.clientID AND P2.client LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
-  
+  $sqlOld = "SELECT * FROM $problem_attempt AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE $problemc $adminNamec $sectionNamec $extrac $startDatec $endDatec P1.clientID = P2.clientID AND P2.initiatingParty = 'client' AND P2.command LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
+  $sql = "SELECT * FROM $problem_attempt AS P1,STEP_TRANSACTION AS P2 WHERE $problemc $adminNamec $sectionNamec $extrac $startDatec $endDatec P1.clientID = P2.clientID AND P2.client LIKE '%\"action\":\"get-help\",\"text\":%' ORDER BY $orderBy $order";
+
   $resultOld = mysql_query($sqlOld);
   $result = mysql_query($sql);
   if (($myrow = mysql_fetch_array($result)) ||
@@ -136,7 +142,7 @@ if($slice == 'comments'){
   
   echo "<h2>Problems $extrae,$adminNamee$sectionNamee sorted in $order order of $orderBy</h2>\n";
   
-  $sql = "SELECT * FROM $problem_attempt AS P1 WHERE $adminNamec $sectionNamec $extrac  $startDatec $endDatec P1.clientID = P1.clientID ORDER BY $orderBy $order";
+  $sql = "SELECT * FROM $problem_attempt AS P1 WHERE $problemc $adminNamec $sectionNamec $extrac  $startDatec $endDatec P1.clientID = P1.clientID ORDER BY $orderBy $order";
   
   // echo "mysql query \"$sql\"\n";
   
@@ -183,7 +189,7 @@ if($slice == 'comments'){
   echo "<h2>Student errors in problems $extrae,$adminNamee$sectionNamee sorted by time of confusion</h2>\n";
   
   // Doesn't need order, but useful for debugging.
-  $sql = "SELECT * FROM $problem_attempt AS P1 WHERE $adminNamec $sectionNamec $extrac  $startDatec $endDatec P1.clientID = P1.clientID ORDER BY $orderBy $order";
+  $sql = "SELECT * FROM $problem_attempt AS P1 WHERE $problemc $adminNamec $sectionNamec $extrac  $startDatec $endDatec P1.clientID = P1.clientID ORDER BY $orderBy $order";
   $queryStart=microtime(true);   
   $result = mysql_query($sql);
   $queryTime += microtime(true)-$queryStart;
@@ -360,7 +366,7 @@ if($slice == 'comments'){
   echo "<p>Record only the initial user agent string for each user since\n";
   echo "students may change browser based on an initial bad experience.\n";
   
-  $sql = "SELECT * FROM $problem_attempt AS P1 WHERE $adminNamec $sectionNamec $extrac  $startDatec $endDatec P1.clientID = P1.clientID ORDER BY startTime";
+  $sql = "SELECT * FROM $problem_attempt AS P1 WHERE $problemc $adminNamec $sectionNamec $extrac  $startDatec $endDatec P1.clientID = P1.clientID ORDER BY startTime";
   $queryStart=microtime(true);   
   $result = mysql_query($sql);
   $queryTime += microtime(true)-$queryStart;

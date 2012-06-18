@@ -36,6 +36,7 @@ $adminName=$_POST['adminName'];
 $startDate = $_POST['startDate'];
 $endDate = $_POST['endDate'];
 $errorType=$_POST['errorType'];
+$problem=$_POST['problem'];
 
   if($startDate){
     $startDatec = "P1.startTime >= '$startDate' AND";
@@ -48,9 +49,14 @@ $errorType=$_POST['errorType'];
     $endDatec = "";
   }
   if($errorType){
-    $errorTypec = "\"$errorType\"";
+    $errorTypec = "P2.server REGEXP '\"error-type\":\"$errorType\"' AND";
   } else {
     $errorTypec = "";
+  }
+  if($problem){
+    $problemc = "P1.userProblem = '$problem' AND";
+  } else {
+    $problemc = "";
   }
     
 echo "<h2>The Errors and Warnings are as given below:</h2>";
@@ -65,8 +71,9 @@ include 'JSON.php';
 set_time_limit(300);
 $json = new Services_JSON();
 
-$sqlOld="SELECT startTime,userName,userProblem,userSection,tID,command,P1.clientID from $problem_attempt AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE $startDatec $endDatec P2.initiatingParty='server' AND P2.command like '%\"error-type\":$errorTypec%' AND P2.command like '%\"error\":%' AND P2.clientID=P1.clientID AND P1.extra=0 order by P2.tID";
-$sql="SELECT startTime,userName,userProblem,userSection,tID,client,server,P1.clientID from $problem_attempt AS P1,STEP_TRANSACTION AS P2 WHERE $startDatec $endDatec P2.server like '%\"log\":\"server\"%' AND P2.clientID=P1.clientID AND (P1.extra IS NULL OR P1.extra=0) order by P2.tID";
+$sqlOld="SELECT startTime,userName,userProblem,userSection,tID,command,P1.clientID from $problem_attempt AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE $startDatec $endDatec $problemc $errorTypec P2.initiatingParty='server' AND P2.command like '%\"error\":%' AND P2.clientID=P1.clientID AND P1.extra=0 order by P2.tID";
+$sql="SELECT startTime,userName,userProblem,userSection,tID,client,server,P1.clientID from $problem_attempt AS P1,STEP_TRANSACTION AS P2 WHERE $startDatec $endDatec $problemc $errorTypec P2.server like '%\"log\":\"server\"%' AND P2.clientID=P1.clientID AND (P1.extra IS NULL OR P1.extra=0) order by P2.tID";
+// echo "<pre>$sql</pre><br>\n";
 $resultOld=mysql_query($sqlOld);
 $result=mysql_query($sql);
 $ecount=0;
@@ -152,7 +159,7 @@ while (($myrow = mysql_fetch_array($resultOld)) ||
   echo "<td rowspan=\"$nr\">$aa</td>";
   echo array_shift($yy);
 
-  echo "<td rowspan=\"$nr\"><a href=\"javascript:;\" onclick=\"openTrace('OpenTrace.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;cid=$clientID&amp;u=$userName&amp;p=$userProblem&amp;s=$userSection&amp;t=$ttID');\">Session&nbsp;log</a><br><a href=\"javascript:;\" onclick=\"copyRecord('\Save.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;a=$adminName&amp;a=$adminName&amp;u=$userName&amp;p=$userProblem&amp;s=$userSection&amp;t=$usertID');\">Solution</a></td></tr>\n";
+  echo "<td rowspan=\"$nr\"><a href=\"javascript:;\" onclick=\"openTrace('OpenTrace.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;cid=$clientID&amp;u=$userName&amp;p=$userProblem&amp;s=$userSection&amp;t=$ttID');\">Session&nbsp;log</a><br><a href=\"javascript:;\" onclick=\"copyRecord('\Save.php?x=$dbuser&amp;sv=$dbserver&amp;pwd=$dbpass&amp;d=$dbname&amp;a=$adminName&amp;a=$adminName&amp;&cid=$clientID&u=$userName&amp;p=$userProblem&amp;s=$userSection&amp;t=$usertID');\">Copy&nbsp;Session</a></td></tr>\n";
 
   foreach ($yy as $bb) {
     echo "<tr class=\"$method\">$bb</tr>\n";

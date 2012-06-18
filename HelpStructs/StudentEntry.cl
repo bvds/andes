@@ -42,6 +42,10 @@
   x-label y-label z-label angle cosphi 
   checked  ;for buttons
 
+  ;; Possible good matches, from previous sessions or turns.
+  ;; Can be systementry
+  guesses
+
   ;; State overlaps with mode (need to fix this).
   State  ;One of:  correct, inefficient, dead-path, forbidden, incorrect.
   Prop   ;Entry proposition (Equalp to SystemEntry-prop, except for

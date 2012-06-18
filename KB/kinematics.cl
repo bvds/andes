@@ -388,7 +388,7 @@
 
 ;; only handles writing as sum of atomic sub-intervals
 (defoperator write-sum-distances (?b ?tt)
-  :preconditions 
+  :preconditions
   ((variable ?tt-var (distance ?b :time ?tt))
    (bind ?intervals (successive-intervals ?tt))
    (map ?interval ?intervals
@@ -1289,7 +1289,7 @@
 	 ;		(*vector-tool* eval)
 	 ;		?b1 ?b2 (?t pp) ?dir ?dir))
 	 (bottom-out (string "The problem specifies that ~a is at ~a, so use ~A to draw that vector at ~a." 
-			(relative-vel ?b1 ?b2 :time ?t) ?dir 
+			((relative-vel ?b1 ?b2 :time ?t) def-np) ?dir 
 			(*vector-tool* eval) ?dir))
 	 ))
 
