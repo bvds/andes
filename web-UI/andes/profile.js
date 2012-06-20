@@ -6,6 +6,7 @@ dojo.require("dijit.layout.ContentPane");
 dojo.require("andes.widget.ExpandoPane");
 dojo.require("dojox.drawing.util.typeset");
 dojo.require("dojox.widget.UpgradeBar");
+dojo.require("dojox.widget.DialogSimple");  // for consent form
 
 dojo.require("dijit.MenuBar");
 dojo.require("dijit.PopupMenuBarItem");

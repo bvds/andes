@@ -4,7 +4,7 @@
 
 -->
 <script type="text/javascript">
-    response=function(reply){
+    consentResponse=function(reply){
       console.log("Dialog button response: ",reply);
       andes.api.recordAction({type:"set-preference", name: "informed-consent", 
                 value:  reply + ":osu-heckler-2011"});
@@ -40,7 +40,7 @@
 <strong>Voluntary Consent:</strong>&nbsp; By clicking on the "I Agree" button below, I am stating that I am at least 18 years old and am giving my consent to participate in this study.&nbsp;
 I understand that I may withdraw my data from this research study at any time by contacting my instructor or by contacting Andrew Heckler.
 <table><tr><td>
-<button onClick="response('agree'); return false;">I Agree</button>
+<button onClick="consentResponse('agree'); return false;">I Agree</button>
 </td><td>
-<button onClick="response('disagree'); return false;">I Disagree</button>
+<button onClick="consentResponse('disagree'); return false;">I Disagree</button>
 </tr></table>
