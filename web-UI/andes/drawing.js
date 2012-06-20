@@ -398,12 +398,10 @@ dojo.provide("andes.drawing");
 						     });
 					
 				}else if(obj.action=="new-user-dialog" && obj.url){
-                                       // Consent forms not working; Bug #1964
-                                       // Until they work, disable.
-					// var x=dijit.byId("consentDialog");
-					// x.set("href",obj.url);
-					// x.set("title","Consent Form");
-					// x.show();
+					var x=dijit.byId("consentDialog");
+					x.set("href",obj.url);
+					x.set("title","Consent Form");
+					x.show();
 				}else if(obj.action=="set-styles"){
 					if(obj["tool"] && obj["style"]){
 						var disable = obj["style"]=="disabled" ? true : false;
