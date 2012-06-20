@@ -279,6 +279,11 @@ dojo.provide("andes.convert");
 				var txt = statement.getText();
 				var lbl = item.getLabel() || "";
 				if(txt){
+					// Variable and symbol mismatch.
+					// See Bug #1962.
+					if(lbl != andes.variablename.parse(txt)){
+						console.warn("Symbol '" +lbl+"' does not match text '"+txt+"'.");
+					}
 					obj.text = txt;
 					obj.symbol = lbl;
 				}else{

@@ -4,7 +4,7 @@
 
 -->
 <script type="text/javascript">
-    response=function(reply){
+    consentResponse=function(reply){
       console.log("Dialog button response: ",reply);
       andes.api.recordAction({type:"set-preference", name: "informed-consent", 
                           value: reply + ":default-consent-asu"});
@@ -51,7 +51,7 @@ this study is voluntary.&nbsp;
 I understand that I may change my participation in this study at 
 any time by clicking on the Andes "Help" menu and selecting "consent".
 <table><tr><td>
-<button onClick="response('agree'); return false;">I Agree</button>
+<button onClick="consentResponse('agree'); return false;">I Agree</button>
 </td><td>
-<button onClick="response('disagree'); return false;">I Disagree</button>
+<button onClick="consentResponse('disagree'); return false;">I Disagree</button>
 </tr></table>
