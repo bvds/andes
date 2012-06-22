@@ -2,11 +2,25 @@
    include 'JSON.php';
   //$userName = 'chbishop_asu';
    $i = 1;
-   $db = new PDO("mysql:dbname=andes;host=localhost", "root", "hello123" );
-   foreach($db->query("select distinct pa.userName from problem_attempt pa where pa.userSection='asu_9Q1920841f2ca4d1fasul1_e'") as $rowfirst)
+
+// To log into database, create file db_user_password
+// with user name and password.  then "chmod 600 db_user_password"
+$myFile = "db_user_password";
+$fh = fopen($myFile, 'r');
+$dbuser = chop(fgets($fh));
+$dbpass = chop(fgets($fh));
+$dbname = chop(fgets($fh));
+if(strlen($dbname)==0){
+  $dbname='andes3';
+ }
+fclose($fh);
+
+// Since this is for reasearch purposes, access only anonymized ids.
+$db = new PDO("mysql:dbname=$dbname;host=localhost",$dbuser,$dbpass);
+   foreach($db->query("select distinct pa.userName FROM OPEN_PROBLEM_ATTEMPT pa where pa.userSection REGEXP '^study-(c|e)' and pa.startTime > '2011-04-01'") as $rowfirst)
    {
       $userName = $rowfirst['userName'];
-   echo "*********************\nCreating ".$i;
+   echo "*********************\nCreating $i $userName ";
    $i++;
    //Create context message element
    $doc = new DOMDocument();  // Creating new document
@@ -14,7 +28,11 @@
    $root = $doc->getElementsByTagName('tutor_related_message_sequence')->item(0);
    $isValid = TRUE;
    //selecting a specific username from problem attempt table and creating a context message for various clientId from problem attempt table of the username
-   foreach ($db->query("select pa.clientID, pa.starttime, pa.userproblem, pa.usersection, ci.name, ci.school, ci.period, ci.description, ci.instructorName, ci.schoolyearInfo, ci.datasetID, sd.datasetname, sd.modulename, sd.groupname, sd.problemname from problem_attempt pa, class_information ci, student_dataset sd where pa.usersection = ci.classSection and ci.datasetID = sd.datasetID and pa.usersection ='asu_9Q1920841f2ca4d1fasul1_e' and pa.userName = '".$userName."'") as $row)
+   $query="select pa.clientID, pa.starttime, pa.userproblem, pa.usersection, ci.name, ci.school, ci.period, ci.description, ci.instructorName, ci.schoolyearInfo, ci.datasetID, sd.datasetname, sd.modulename, sd.groupname, sd.problemname from OPEN_PROBLEM_ATTEMPT pa, CLASS_INFORMATION ci, STUDENT_DATASET sd where pa.usersection = ci.classSection and ci.datasetID = sd.datasetID and pa.usersection REGEXP '^study-(c|e)' and pa.startTime > '2011-04-01' and pa.userName = '$userName'";
+   echo "query: $query\n";  // for debug
+   $result=$db->query($query);
+   echo "result: $result\n";  // for debug
+   foreach ($result as $row)
    { 
        $context_msg_el = $doc->createElement("context_message");
        $context_msg_el->setAttribute('context_message_id', md5($row['clientID']));
@@ -27,7 +45,7 @@
     
        $user_id = $doc->createElement("user_id");
        $user_id->setAttribute('anonFlag', "true");
-       $user_id->nodeValue = md5($userName);
+       $user_id->nodeValue = $userName;
     
        // Append user id into meta
        $meta->appendChild($user_id);
@@ -150,7 +168,7 @@
        
        
        //for a specific clientID in the problem attempt table get the corresponding transactions from the step transaction table
-       foreach ($db->query("SELECT st.tid, st.client, st.server, pa.clientID, pa.userName, pa.startTime, pa.userProblem, pa.userSection FROM step_transaction st, problem_attempt pa where st.clientID = pa.clientID and st.clientID = '".$row['clientID']."'") as $row2)
+       foreach ($db->query("SELECT st.tid, st.client, st.server, pa.clientID, pa.userName, pa.startTime, pa.userProblem, pa.userSection FROM step_transaction st, OPEN_PROBLEM_ATTEMPT pa where st.clientID = pa.clientID and st.clientID = '".$row['clientID']."'") as $row2)
        {
            $sat19_action_eval = '';
            $sat19_id = '';
@@ -173,7 +191,7 @@
                $toolmeta = $doc->createElement("meta");              
                 $user_id = $doc->createElement("user_id");
                 $user_id->setAttribute('anonFlag', "true");
-                $user_id->nodeValue = md5($userName);    
+                $user_id->nodeValue = $userName;    
            // Append user_id as a child to meta
                 $toolmeta->appendChild($user_id);
                 $sessionID = $doc->createElement("session_id");
@@ -334,7 +352,7 @@
     
                 $user_id = $doc->createElement("user_id");
                 $user_id->setAttribute('anonFlag', "true");
-                $user_id->nodeValue = md5($userName);
+                $user_id->nodeValue = $userName;
              
                 // Append user id into meta
                 $tutormeta->appendChild($user_id);
@@ -767,7 +785,7 @@ $doc->formatOutput = true;
 
 //echo $doc->saveXML();
 // Saving the generated XML
-$doc->save(md5($userName).".xml");
+$doc->save($userName.".xml");
    }
    
 ?>

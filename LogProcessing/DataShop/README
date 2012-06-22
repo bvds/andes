@@ -1,0 +1,43 @@
+This file has notes for creating specific datasets.
+
+*** Raj lab study, Spring 2011
+
+The Raj lab study is sections 'study-c' and 'study-e' 
+and date after 2011-04-01.  The experimental conditions
+are identical with the Guerra dataset above.
+
+UPDATE CLASS_INFORMATION name='', school='', description='',
+    instructorName=''
+WHERE classSection='';
+
+*** St. Anselm class, Summer 2011:  Done ***
+
+asu_9Q1920841f2ca4d1fasul1_e
+asu_9Q1920841f2ca4d1fasul1_c
+
+<condition>
+   <name>asu_9Q1920841f2ca4d1fasul1_e</name>
+   <type>experimental</type>
+   <desc>Raj experiment: experimental condition</desc>
+</condition>
+
+
+*** OSU class, Fall 2011
+
+The OSU data dataset has no experimental conditions.
+Its sections match regexp '^asu_3u16472755e704e5fasul1_.*'
+
+*** UW Platteville class, Spring 2012
+
+The uwplatt dataset has sections that match regexp
+   '^uwplatt_(2Y130|514219|6l1305|3n130) for instructor Andy Pawl and
+   '^uwplatt_(8p1304|90476)' for instructor David Schaife.
+These all should be marked as an experiment with one
+experimental condition.  Maybe something like:
+
+<condition>
+   <name>random-help-experiment</name>
+   <desc>Randomly choose help strategy.</desc>
+</condition>
+
+*** St. Anselm class, Summer 2012

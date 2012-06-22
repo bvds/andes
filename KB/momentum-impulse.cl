@@ -476,7 +476,7 @@
 ;; 
 
 (def-psmclass cons-angmom (?eq-type angmom-id ?xyz ?rot 
-				    (cons-angmom ?bodies ?ti))
+				    (cons-angmom ?bodies ?time))
   :complexity major
   :short-name "conservation of angular momentum"
   :nlg-english ("conservation of angular momentum")
