@@ -731,13 +731,13 @@
 	    ;; Remove time from reply
 	    (push-reply-to-replies (remove :time params :key #'car) 
 				   solution-step-replies))
-
+	  
 	  (let ((reply
 		 ;; If an old session turn produces an error, convert it
 		 ;; into a warning and move on to the next turn.
 		 ;; Otherwise old sessions with unfixed errors cannot 
 		 ;; be reopened.
-		;; (handler-case
+		 (handler-case
 		     (apply 
 		      (cond 
 			((equal method "solution-step") #'solution-step)
@@ -751,8 +751,7 @@
 		      ;; flatten the alist
 		      (mapcan #'(lambda (x) (list (car x) (cdr x))) 
 			      (append params guesses)))
-		 ;;  (error (c) (old-errors-into-warnings c method params)))
-))
+		   (error (c) (old-errors-into-warnings c method params)))))
 	    ;; solution-steps and help results are passed back to client
 	    ;; to set up state on client.
 	    (dolist (line (filter-reply reply))
