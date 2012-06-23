@@ -31,6 +31,7 @@ help policy.  For each homework, randomly Divide students into two
 even groups.  Reward for experiment is number of incorrect turns
 for each KC while that policy is being enforced.
 
+
 \section{A model of learning}
 
 For each student and KC, the student has attempted some number of 
@@ -95,7 +96,7 @@ For a given $L$, we can define an average learning gain,
 where $\left\langle \cdots \right\rangle_L$ denotes the
 expecation value.
 \begin{figure}
-\includegraphics{step.eps}
+\centering    \includegraphics{step.eps}
 \caption{The step model with $g=0.15$, $s=0.8$, and $L=4$.}
          \label{stepf}
 \end{figure}
@@ -164,6 +165,15 @@ with normalization $W$ such that $\sum_L w_L=1$.
 %\end{equation}
 %%
 %This integral can be solved exactly by repeated integration by parts.
+
+\section{Self-improved tutor system}
+
+\begin{figure}
+\centering    \includegraphics{process.eps}
+\caption{Iterative process for improvement of help-giving policies in a
+  tutor system.} \label{process}
+\end{figure}
+
 
 
 \section{Objective function}
