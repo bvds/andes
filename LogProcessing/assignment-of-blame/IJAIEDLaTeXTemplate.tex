@@ -1,0 +1,287 @@
+% revision 2: 23rd August 2007
+\documentclass[dvips,11pt,twoside]{article}
+\usepackage{natbib}
+
+\usepackage[dvips]{graphicx}
+
+\renewcommand{\figurename}{{\small Fig.}}
+\renewcommand{\tablename}{{\small Table}}
+\renewcommand{\refname}{\large REFERENCES}
+\makeatletter
+\long\def\@makefigurecaption#1#2{\footnotesize%
+ \vskip\abovecaptionskip
+\setbox\@tempboxa\hbox{\textbf{#1}#2}%
+  \ifdim \wd\@tempboxa >\hsize
+    \unhbox\@tempboxa\par
+  \else
+    \hbox to\hsize{\hfil\box\@tempboxa\hfil}%
+  \fi}
+\long\def\@makecaption#1#2{%
+  \vskip\abovecaptionskip
+  \sbox\@tempboxa{#1. #2}%
+  \ifdim \wd\@tempboxa >\hsize
+    {\small #1. #2}\par % revision 2: made \small
+  \else
+    \global \@minipagefalse  
+    \hb@xt@\hsize{\hfil\box\@tempboxa\hfil}%
+  \fi
+  \vskip\belowcaptionskip}
+\def\fnum@figure{\figurename\thefigure}
+\def\fnum@table{\tablename\nobreakspace\thetable}
+\renewenvironment{table}
+               {\let\@makecaption\@maketablecaption%
+               \let\@floatboxreset\@tableboxreset\@float{table}}
+               {\end@float}
+\renewenvironment{table*}
+               {\let\@makecaption\@maketablecaption%
+               \let\@floatboxreset\@tableboxreset\@dblfloat{table}}
+               {\end@dblfloat}
+%
+\def\@tableboxreset{%
+        \reset@font%
+        \centering\footnotesize%
+        \def\arraystretch{1.0}
+        \@setnobreak%
+        \@setminipage%
+}
+%
+\newdimen\tablewidth \tablewidth\textwidth
+\newdimen\saved@tablewidth \saved@tablewidth\textwidth
+%
+\long\def\@maketablecaption#1#2{%
+ \begingroup%
+    \footnotesize%
+    \global\setbox\@tempboxa\hbox{#2}%
+ \endgroup%
+ \centering%
+ \ifdim \wd\@tempboxa>\tablewidth %
+    \parbox[t]{\tablewidth}{\footnotesize \hfill#1\hfill\vphantom{Ay}\par #2\vphantom{Ay}\par}%
+ \else
+    {\small #1} \par \hbox 
+    to\hsize{\hfill\box\@tempboxa\vphantom{Ay}\hfill}%revision 2 made #1 %small
+ \fi%
+ \global\saved@tablewidth\tablewidth%
+ \global\tablewidth\hsize\vskip\belowcaptionskip}
+%\makeatother
+
+\topmargin = -18pt
+% \textheight = 22.00 cm % had been 24.73 cm  %A4 - 5 cm
+\textheight = 19.7 cm % fudge to include header in 22 cm
+\oddsidemargin= 14pt
+\evensidemargin= 14pt
+\textwidth = 16.00 cm % had been 15.02 cm   %A4 - 6 cm
+\parindent=0.75cm               % see General Layout
+\setcounter{secnumdepth}{0}     %no numbering on sections for IJAIED
+\def\eg{{\it e.g.~}}
+\def\ie{{\it i.e.~}}
+\newdimen\mpindentsz\mpindentsz=\the\parindent 
+\def\mpindent{\leavevmode\hbox to \mpindentsz{\phantom{a}\hss}}
+\usepackage{times}
+\normalfont
+\usepackage[T1]{fontenc}
+
+\makeatletter
+\def\ps@myownheadings{%
+   \def\@oddfoot{\small 1560-4292/08/\$17.00 \copyright \ 2008 -- IOS 
+   Press and the authors. All rights reserved\hfil\mbox{}}
+    \def\@evenfoot{\small 1560-4292/08/\$17.00 \copyright \ 2008 -- 
+    IOS Press and the authors. All rights reserved\hfil\mbox{}} 
+    \def\@evenhead{\parbox{12cm}{\small International Journal of 
+    Artificial Intelligence in Education 18 (2008) xxx 
+    -- xxx \hfil\thepage
+    \protect\\ IOS Press}\hfil\mbox{}}%
+    \def\@oddhead{\parbox{\textwidth}{\small International Journal of 
+    Artificial Intelligence in Education 18 (2008) xxx 
+    -- xxx  \hfill\small\thepage
+    \protect\\ IOS Press}\hfil\mbox{}}%
+    }
+   \def\ps@myheadings{%
+   \let\@oddfoot\@empty\let\@evenfoot\@empty
+   \def\@evenhead{\small\thepage\hfil\slshape\leftmark\hfil\mbox{}}%
+   \def\@oddhead{\small\mbox{}\hfil{\slshape\rightmark}\hfil\thepage}%
+    \let\@mkboth\@gobbletwo
+    \let\sectionmark\@gobble
+    \let\subsectionmark\@gobble
+    }
+\makeatother
+
+\markboth{\it A.N.Other / Title}{\it A.N.Other / Title}
+
+\def\half{{1\over 2}}
+\setlength{\bibindent}{0.75cm}\setlength{\labelwidth}{0.75cm}
+\begin{document}\thispagestyle{myownheadings}
+
+
+\mbox{}\\
+\begin{flushleft}
+    \noindent{\LARGE\bf
+Full Title}
+\end{flushleft}
+
+\vskip 1cm \noindent\large{\bf
+Name,}
+{\it 
+Address\\
+email address\\
+optional WWW address}
+
+\vskip 22pt % 2 lines at 11 pt
+\noindent\normalsize
+\begin{small}
+{\bf Abstract.} Vestibulum vel massa quisque imperdietleo a enim
+pellentesque sem hasellus hendrerit volutpat maurisonec lectus felis
+molestie quis suscipit vel elementum a massa nam wisi.  Sed odio
+mauris at neque.
+\end{small}
+
+\pagestyle{myheadings}
+
+\vskip 22pt % 2 lines at 11 pt
+\noindent\normalsize
+\begin{small}
+{\bf Keywords.} intelligent tutoring systems, collaborative learning, 
+student modelling
+\end{small}
+
+\vskip 22pt
+\section{\large\bf FIRST SECTION}                                              
+
+Nonummy a est mauris at erat.  Maecenas sit amet nulla id tellus
+fringilla aliquamnteger interdum venenatis nulla.  Proin vel massa
+vitae velit blandit lobortis.  Proin sed leo quis metus fringilla
+fermentum.  Aliquam erat volutpat.  Sed nec purus.  Vivamus rhoncus,
+neque in varius tincidunt, mauris mi scelerisque leo, at aliquam lacus
+metus quis velit.  Nullam sit amet wisi.  Hasellus in purus.  Nunc a
+purus.  Fusce pellentesque honcus, neque in varius.
+
+\subsection{\bf First Subsection}      
+Maecenas scelerisque tincidunt velit.  Donec mattis, massa id ultrices
+facilisis, magna dolor sollicitudin felis, non dictum dui arcu non
+eros.  Morbi in felis sit amet arcu suscipit posuere.  Pellentesque
+consequat.  Nulla facilisi.  Proin in quam.  Morbi fringilla tincidunt
+enim.  Lorem ipsum dolor sit amet, consectetuer adipiscing elit.  Duis
+fringilla tristique felis.  Quisque condimentum suscipit quam.  Proin
+sit amet nisl nec enim commodo laoreet.  Proin tincidunt, dolor sed
+hendrerit dapibus, arcu nisl tempus nunc, eget blandit elit urna ut
+velit.  Nulla dolor pede, eleifend posuere, condimentum commodo.
+Vivamus rhoncus, neque in varius tincidunt, mauris mi scelerisque
+mauris consequat ante.  Sed elit dui, bibendum sit amet, bibendum sed,
+aliquam id, mauris.  Mauris consequat facilisis ante.  Ut luctus nulla
+quis purus.  Integer rhoncus nulla vel ante.  Morbi malesuada pharetra
+ligula.  Donec sollicitudin quam non nulla.  Aliquam justo nisl,
+iaculis non, faucibus non, vestibulum vel, massa.  
+
+\subsubsection{\large\bf\it First Subsubsection}
+Maecenas
+scelerisque tincidunt velit.  Quisque condimentum suscipit quam.
+Proin sit amet nisl nec enim commodo laoreet.  Donec mattis, massa id
+ultrices facilisis, magna dolor sollicitudin felis, non dictum dui
+arcu non eros.  Morbi in felis sit amet arcu suscipit posuere.
+Pellentesque consequat.
+
+
+
+\begin{figure}[thb]
+\begin{center}
+    % \includegraphics[width=2.84in]{figure.eps}   
+    
+    {\small Text below figure}         
+\end{center}
+\caption{{\small Caption for Figure.}}
+\end{figure}
+
+\begin{figure}[thb]
+\begin{center}
+    \includegraphics[width=2.84in]{figure.eps}
+    
+    {\small Text below figure}         
+\end{center}
+\caption{{\small Caption for figure when the caption gets longer than a 
+    single line 
+    and centering really doesn't look so very great at all.}}
+\end{figure}
+
+\begin{table}[thb]
+    \caption{{\small Caption for Table}}
+\begin{center}
+    \begin{tabular}{ccc}
+	a&b&c\\
+	d&e&f\\
+	\end{tabular}
+    
+{\small Text below table  if it is required}         \end{center}
+
+\end{table}
+
+\begin{table}[thb]
+    \caption{{\small Caption for table when the caption gets longer than a 
+    single line 
+    and centering really doesn't look so very great at all}}
+\begin{center}
+    \begin{tabular}{ccc}
+	a&b&c\\
+	d&e&f\\
+	\end{tabular}
+    
+{\small Text below table if it is required}         \end{center}
+
+\end{table}
+
+\section{\large\bf LAST SECTION}  
+Maecenas scelerisque tincidunt velit.  Donec mattis, massa id ultrices
+facilisis, magna dolor sollicitudin felis, non dictum dui arcu non
+eros.  Morbi in felis sit amet arcu suscipit posuere.  Pellentesque
+consequat.  Nulla facilisi.  Proin in quam.  Morbi fringilla tincidunt
+enim.  Lorem ipsum dolor sit amet, consectetuer adipiscing elit.  Duis
+fringilla tristique felis.  Quisque condimentum suscipit quam.  Proin
+sit amet nisl nec enim commodo laoreet.  Proin tincidunt, dolor sed
+hendrerit dapibus, arcu nisl tempus nunc, eget blandit elit urna ut
+velit.  Nulla dolor pede, eleifend posuere, condimentum commodo.
+Vivamus rhoncus, neque in varius tincidunt, mauris mi scelerisque
+mauris consequat ante.  Sed elit dui, bibendum sit amet, bibendum sed,
+aliquam id, mauris.  Mauris consequat facilisis ante.  Ut luctus nulla
+quis purus.  Integer rhoncus nulla vel ante.  Morbi malesuada pharetra
+ligula.  Donec sollicitudin quam non nulla.  Aliquam justo nisl,
+iaculis non, faucibus non, vestibulum vel, massa.  
+
+Maecenas sit amet nulla id tellus
+fringilla aliquamnteger interdum venenatis nulla.  Proin vel massa
+vitae velit blandit lobortis.  Proin sed leo quis metus fringilla
+fermentum.  Aliquam erat volutpat.  Sed nec purus. 
+
+\section{\large\bf ACKNOWLEDGEMENTS}
+Maecenas sit amet nulla id tellus
+fringilla aliquamnteger interdum venenatis nulla.  Proin vel massa
+vitae velit blandit lobortis.  Proin sed leo quis metus fringilla
+fermentum.  Aliquam erat volutpat.  Sed nec purus. 
+
+% some example references generated by using \bibliographystyle{natbib}
+\setlength{\bibhang}{0.75cm}
+\begin{small}
+\begin{thebibliography}{}\itemsep=0pt
+  
+\bibitem[Brown \& Burton(1978)Brown \& Burton]{BBbuggy}
+Brown, J.~S., \& Burton, R.~R. (1978).
+\newblock Diagnostic models for procedural bugs in basic mathematical skills.
+\newblock {\em Cognitive Science,} {2(2)}, 155--192.
+
+\bibitem[Gertner(1998)Gertner]{gertner:eqent}
+Gertner, A.~S. (1998).
+\newblock Providing feedback to equation entries in an intelligent tutoring
+  system in physics.
+\newblock In B.R. Goettl, H.M. Halff, C.L. Redfield, \& V.J. Shute (Eds.)
+{\em Proceedings of the 4th International Conference on Intelligent Tutoring Systems, ITS
+  '98,} (pp. 254--263). LNCS 1452. Berlin: Springer.
+
+\bibitem[VanLehn et~al.(2005b)VanLehn, Lynch, Schulze, Shapiro, Shelby,
+  Taylor, Treacy, Weinstein, \& Wintersgill]{andesLL}
+VanLehn, K., Lynch, C., Schulze, K., Shapiro, J.~A., Shelby, R., Taylor, L.,
+  Treacy, D., Weinstein, A., \& Wintersgill, M. (2005b).
+\newblock The Andes physics tutoring system: Lessons learned.
+\newblock {\em International Journal of Artificial Intelligence in
+Education,} {15(3)}, 147--203.
+\end{thebibliography}
+\end{small}
+
+
+\end{document}
