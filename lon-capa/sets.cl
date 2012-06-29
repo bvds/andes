@@ -20,7 +20,7 @@
 	  
 
 (defun lon-capa-problem-sets (sets &optional (path #P"./"))
-  "construct lon-capa xml files for all problems"
+  "construct lon-capa xml files for all working problems"
   ;; sets can be *sets* or *guerra-assigned*
   (dolist (set (cadr sets))
     (let ((path (merge-pathnames (strcat (set-file-name (car set)) "/") 
@@ -30,10 +30,11 @@
       ;; This is just a dummy/placeholder.
       (lon-capa-meta-file (car set) path)
       (dolist (problem (second set))
-	(lon-capa-meta-file (format nil "problem ~(~A~)" problem)
-			    path 
-			    (format nil "~(~A~).problem" problem))
-	(lon-capa-problem-file problem path)))))
+	(when (working-problem-p (get-problem problem))
+	  (lon-capa-meta-file (format nil "problem ~(~A~)" problem)
+			      path 
+			      (format nil "~(~A~).problem" problem))
+	  (lon-capa-problem-file problem path))))))
 
 (defun lon-capa-meta-file (title &optional (path #P"./") (name "default"))
   "construct meta file containing title of problem set"
@@ -220,7 +221,8 @@ $display
 		    j from 1
 		    with lasti
 		    ;; Excluding problems makes id non-consecutive
-		    unless (member problem exclude)
+		    when (and (not (member problem exclude))
+			      (working-problem-p (get-problem problem)))
 		    do
 		    (format t "  problem ~A~%" problem)
 		    (when lasti (format Stream "<link to=\"~A\" index=\"~A\" from=\"~A\" />~%"

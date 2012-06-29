@@ -363,7 +363,8 @@
 ;;; 
 ;;;            List of Andes distribution homework sets
 ;;;
-;;
+;;  Warning:  this list contains problems that are not working (or don't
+;;            exist) yet.  One should filter out non-applicable problems.
 (defparameter *sets* 
 '("All Andes problems"
 (
