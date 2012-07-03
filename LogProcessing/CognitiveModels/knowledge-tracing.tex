@@ -8,8 +8,48 @@
 %   http://en.wikibooks.org/wiki/LaTeX
 
 \begin{document}
-\title{Some notes on Knowledge Tracing}
+\title{Models of student learning and multimodel inference}
 \author{Brett van de Sande}
+
+\begin{abstract}
+We compare several models of student learning of specific
+skills with the goal of determing when a student has 
+learned that skill.  We use Likelihood Theory to determine
+which of several models best describes the acquisition
+of skills associated with introductory physics.  Then we
+use a multimodel approach to determine the relative probability
+that a student has learned a given skill at a particular 
+problem-solving step.  Finally, we relate this
+approach with Hidden Markov model based approaches like
+Bayesian Knowledge tracing.
+\end{abstract}
+
+\section{Introduction}
+
+\section{A model of learning}
+
+For each student and KC, the student has attempted some number of 
+{\em steps} that involve that KC.   We will label
+steps with $j$.  Usually a given step is associated
+with a single user interface object (an equation, vector, etc.)  but
+not always, since a student may attempt a particular problem solving
+step, delete the object, and later attempt that solution step again.
+Each step $j$ corresponds some some number of student-tutor 
+{\em transactions}: attempts at constructing the associated object, 
+or associated interactions with the Andes help system.  
+
+%Next, we need a model of student learning for a particular KC.
+%Since the policies chosen by the random-help version of Andes
+%are different for each student,
+%we need to determine the point of learning for each student.
+For each KC and student, mark each step as ``correct'' if
+the student completes the step correctly without any associated errors or 
+requests for help; otherwise, the step is marked as ``incorrect.''
+%
+% From Kurt:
+Thus, if each incorrect/correct step is marked with a 0/1, then
+a single student's performance on a single KC is a bit string,
+{\em exempli gratia} 00101011.
 
 
 \section{Baysian Knowledge tracing}

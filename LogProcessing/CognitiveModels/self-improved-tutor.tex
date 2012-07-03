@@ -24,6 +24,49 @@
 
 \maketitle
 
+\begin{abstract}
+Both human and computer tutors constantly make decisions about
+what kind of help they are going to give (or not give).  Ideally,
+they make these decisions based on some determination of how
+the student is progressing coupled with some knowledge of what kind
+of tutoring strategies have worked in similar situations in the past.
+Thus, we have implemented a method for iteratively improving 
+help-giving policies of a computer tutor for introductory physics.  
+We created a version of the tutor that randomly uses one of several 
+(reasonable) policies when helping students and deployed it in the
+classroom.  We then used the resulting student log data to 
+train a new version of the tutor having improved hinting policies
+and deployed the new version of the tutor in the classroom.  
+We discuss what is needed to make this into a sustainable iterative process.
+\end{abstract}
+
+\section{Introduction}
+
+Conventional theories of learning can tell us what kind of help-giving
+strategies may be effective and, broadly, when they might be effective.
+Likewise, theories of learning may help us identify what kinds of 
+features might be useful for determining the student's ``state'' at
+a given moment.  The purpose of this project is to fill in the gap
+by determining exactly what strategy the tutor should use in a 
+particular situation.
+The task of finding an optimal help-giving strategy for a
+given student state is commonly known as ``Reinforcement Learning.''
+We use past student behavior in response to various help-giving
+actions on the part of the tutor to construct a reward function
+and use that reward function to determine an optimal hinting policy.
+
+Since the agent must give hints in real time, the student state
+must contain features that are available in real time, so that
+the learned policy can be applied immediately.  In contrast,
+the reward function uses subsequent student actions and is only
+available after the fact.  Thus, there must be a two-phase process:
+an ``off-line'' learning phase to determine the optimal help-giving 
+policy and an ``online'' tutoring phase where the policy is applied.
+
+
+
+% No action-value function...
+
 \section*{To do:}
 
 Experimental design:  two conditions: normal Andes and learned
@@ -32,30 +75,6 @@ even groups.  Reward for experiment is number of incorrect turns
 for each KC while that policy is being enforced.
 
 
-\section{A model of learning}
-
-For each student and KC, the student has attempted some number of 
-{\em steps} that involve that KC.   We will label
-steps with $j$.  Usually a given step is associated
-with a single user interface object (an equation, vector, etc.)  but
-not always, since a student may attempt a particular problem solving
-step, delete the object, and later attempt that solution step again.
-Each step $j$ corresponds some some number of student-tutor 
-{\em transactions}: attempts at constructing the associated object, 
-or associated interactions with the Andes help system.  
-
-%Next, we need a model of student learning for a particular KC.
-%Since the policies chosen by the random-help version of Andes
-%are different for each student,
-%we need to determine the point of learning for each student.
-For each KC and student, mark each step as ``correct'' if
-the student completes the step correctly without any associated errors or 
-requests for help; otherwise, the step is marked as ``incorrect.''
-%
-% From Kurt:
-Thus, if each incorrect/correct step is marked with a 0/1, then
-a single student's performance on a single KC is a bit string,
-{\em exempli gratia} 00101011.
 
 \section{Models of learning}
 
