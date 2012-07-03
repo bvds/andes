@@ -362,10 +362,11 @@
 		(property ?vector)))
 
 ;; this is only used by implicit-eqns, so it should never be visible
-;; to the user
+;; to the user.
 (def-qexp test-var (test-var . ?angle)
   :units nil
-  :restrictions nonnegative)
+  ;; See match-student-phrase0 where it is excluded from possible soughts
+  :restrictions (nonnegative not-possible-sought))
 
 ;; Special axis terms entered into the symbol table. These are not
 ;; used as quantities, but may need to be Englished.
