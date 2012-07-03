@@ -201,14 +201,18 @@
 	  (match:best-model-matches 
 	   student
 	   ;; Sought quantities can be any scalar, including ones
-	   ;; that are only defined as side-effects.
+	   ;; that are only defined as side-effects.  
+	   ;; But any test-var is excluded; see (def-qexp test-var ...).
 	   (if all-scalars
 	       (mapcar #'(lambda (x)
-			   (cons (expand-vars (new-english-find x))
-				 (list nil x)))
-		       (mapcar #'qvar-exp (problem-varindex *cp*)))
+			   (cons (expand-vars (new-english-find (qvar-exp x)))
+				 (list nil (qvar-exp x))))
+		       (remove-if 
+			#'(lambda (qvar) (member 'not-possible-sought
+						 (qvar-marks qvar)))
+			(problem-varindex *cp*)))
 	       (format-props *sg-entries*
-			      :allowed-tools (list tool-prop)))
+			     :allowed-tools (list tool-prop)))
 	   :cutoff initial-cutoff))
 	 ;; The value of the best correct match or the initial cutoff.
 	 ;; This is used to determine cutoffs for wrong quantity searches.
