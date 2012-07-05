@@ -16,7 +16,7 @@ if($htmlHeaders):
 // These are all optional
  //     ^md5:b50efc   // Student used for tests of different models.
  //     ^md5:e2ed3385  // student in '^uwplatt_2Y130'
-$userName = '';  // regexp to match
+$userName = '^md5:b50efc';  // regexp to match
 	     // MIT_.*
              // asu experiment
 	     // asu_3u16472755e704e5fasul1_.*
@@ -28,7 +28,7 @@ $userName = '';  // regexp to match
 	     //       user names got mangled in these sections.
 	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Andy Pawl sections
 	     //  discrepencies
-$sectionName = '^uwplatt_';  // regexp to match
+$sectionName = '';  // regexp to match
 $startDate = '2011-03-25';
 $endDate = '';
 
@@ -571,6 +571,28 @@ if(false){
   }
  }
 
+// For each kc and student, list correctness of first transaction
+// in each opportunity, csv format.  
+// Suitable as input for models of learning.
+if(true){
+  ksort($allKCStudent);
+  foreach ($allKCStudent as $kc => $ss){
+    // 'none' are transactions where assignment of blame
+    // has failed.
+    if($kc=='none'){continue;} 
+    foreach($ss as $thisSection => $st){
+      foreach($st as $thisName => $opps){
+	echo "\"$kc\",\"$thisSection\",\"$thisName\"";
+	foreach($opps as $opp) {
+	  $yy=reset($opp); // return first element.
+	  echo "," . ($yy['grade']=='correct'?'1':'0');
+	}
+	echo "\n";
+      }
+    }
+  }
+ }
+
 // For each kc and student, print out first transaction for each step.
 if(false){
   ksort($allKCStudent);
@@ -726,7 +748,7 @@ if(false){
  }
 
 // Dump student state in csv format.
-if(true){
+if(false){
   $state->csv();
  }      
 
