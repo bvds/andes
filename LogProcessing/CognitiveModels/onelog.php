@@ -16,7 +16,7 @@ if($htmlHeaders):
 // These are all optional
  //     ^md5:b50efc   // Student used for tests of different models.
  //     ^md5:e2ed3385  // student in '^uwplatt_2Y130'
-$userName = '^md5:b50efc';  // regexp to match
+$userName = '';  // regexp to match
 	     // MIT_.*
              // asu experiment
 	     // asu_3u16472755e704e5fasul1_.*
@@ -28,7 +28,8 @@ $userName = '^md5:b50efc';  // regexp to match
 	     //       user names got mangled in these sections.
 	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Andy Pawl sections
 	     //  discrepencies
-$sectionName = '';  // regexp to match
+             //  ^asu_7e256268bab914fb5asul1_ Guerra summer 2012
+$sectionName = '^asu_7e256268bab914fb5asul1_';  // regexp to match
 $startDate = '2011-03-25';
 $endDate = '';
 
@@ -111,6 +112,10 @@ require("blame.php");
 require("step-model.php");
 require("training.php");
 require("state.php");
+require("condition.php");
+
+$expt = new experiment_condition();
+$expt->get_conditions($sectionName);
 
 $training = new training();
 $state = new student_state();
@@ -574,20 +579,21 @@ if(false){
 // For each kc and student, list correctness of first transaction
 // in each opportunity, csv format.  
 // Suitable as input for models of learning.
-if(true){
+if(false){
   ksort($allKCStudent);
   foreach ($allKCStudent as $kc => $ss){
-    // 'none' are transactions where assignment of blame
-    // has failed.
-    if($kc=='none'){continue;} 
-    foreach($ss as $thisSection => $st){
-      foreach($st as $thisName => $opps){
-	echo "\"$kc\",\"$thisSection\",\"$thisName\"";
-	foreach($opps as $opp) {
-	  $yy=reset($opp); // return first element.
-	  echo "," . ($yy['grade']=='correct'?'1':'0');
+    // none:  entries where assigment of blame failed
+    // select-mc-answer  answer multiple-choice questions
+    if(!skipKC($kc)){
+      foreach($ss as $thisSection => $st){
+	foreach($st as $thisName => $opps){
+	  echo "\"$kc\",\"$thisSection\",\"$thisName\"";
+	  foreach($opps as $opp) {
+	    $yy=reset($opp); // return first element.
+	    echo "," . ($yy['grade']=='correct'?'1':'0');
+	  }
+	  echo "\n";
 	}
-	echo "\n";
       }
     }
   }
@@ -621,7 +627,7 @@ function skipKC($kc){
 
 // For each student and KC, Print out the model parameters.
 if(false){
-  echo "\"KC\",\"Section\",\"Name\",\"AIC\",\"gainProb\"\n";
+  echo "\"KC\",\"Section\",\"Name\",\"AIC\",\"gainProb\",\"opps\"\n";
   ksort($allKCStudent);
   foreach($allKCStudent as $kc => $sec) {
     // none:  entries where assigment of blame failed
@@ -632,7 +638,8 @@ if(false){
 	  $maxv=$model[$kc][$thisSection][$thisName];
 	  $aic=$maxv['valid']?2*3-2*$maxv['logLike']:0;
 	  $gainProb=$maxv['gainProb'];
-	  echo "\"$kc\",\"$thisSection\",\"$thisName\",$aic,$gainProb\n";
+	  $opps=$maxv['opps'];
+	  echo "\"$kc\",\"$thisSection\",\"$thisName\",$aic,$gainProb,$opps\n";
 	}
       }
     }
