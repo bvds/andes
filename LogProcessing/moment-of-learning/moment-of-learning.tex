@@ -133,24 +133,28 @@ summer course in 2011 at St.\ Anselm College.  The course
 covered the same content as a normal two-semester introductory
 course.  Log data was recorded as students solved homework 
 problems while using the Andes intelligent tutor homework system.
-231 hours of log data were recorded, covering 85,744 transactions,
-and 26,204 student steps.  Each step was assigned to one or more
-of 245 distinct KC's.  Most KC's are associated with physics
+231 hours of log data were recorded.
+%, covering 85,744 transactions, and 26,204 student steps.  
+Each step was assigned to one or more different KC's.  
+There were a total of 2017 distinct
+student-KC pairs covering a total of 245 distinct KC's.
+Most KC's are associated with physics
 or relevant math skills while others we associated with 
 Andes conventions or user-interface actions (such as, notation
-for defining a variable).  There were a total of 2017 distinct
-student-KC pairs.
+for defining a variable). 
+
+\subsection{Analysis}
 
 We determined the correctness of each step (Section~\ref{steps}),
 assigning a 1 if the step is correct or 0 if it is not.
 Thus, for each student-KC pair, we construct bit string, {\em exempli gratia},
-001001101.  This bit string is then fit to each of the three models,
+001001101.  This bit string was then fit to each of the three models,
 $P_{\rm step}(j)$, $P_{\rm logit}(j)$, and $P_{\rm bkt}(j)$ by
-maximizing the associated log likelihood.  This determines
-the free parameters in each model.  Since our goodness of fit
-criterion is valid in the limit of many steps, we 
+maximizing the associated log likelihood.  
+%This determines the free parameters in each model.  
+Since our goodness of fit criterion is valid in the limit of many steps, we 
 further cut the data to include only student-KC pairs that
-contained more than 10 turns, reducing the number of student KC
+contained more than 10 turns, reducing the number of student-KC
 pairs to 267, covering 38 distinct KC's.
 
 
