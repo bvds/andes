@@ -11,6 +11,8 @@
 \title{Models of student learning and multimodel inference}
 \author{Brett van de Sande}
 
+\maketitle
+
 \begin{abstract}
 We compare several models of student learning of specific
 skills with the goal of determing when a student has 
@@ -45,14 +47,132 @@ or associated interactions with the Andes help system.
 For each KC and student, mark each step as ``correct'' if
 the student completes the step correctly without any associated errors or 
 requests for help; otherwise, the step is marked as ``incorrect.''
+\label{steps} 
 %
 % From Kurt:
 Thus, if each incorrect/correct step is marked with a 0/1, then
 a single student's performance on a single KC is a bit string,
 {\em exempli gratia} 00101011.
 
+\section{Three models of learning}
 
+In order to determine when a student has learned a given still,
+we need to introduce a model of learning for that student and skill.
+Ideally, the model should have the the following properties:
+\begin{itemize}
+
+\item Give the probability that learning has occurred at a given step.
+
+\item  Assuming learning has occurred at a given step, give the 
+     associated increase in performance and 
+     the rate of errors after learning. \label{second}
+
+\item Match well with actual student data.
+      See Section~\ref{model-selection}.
+
+\end{itemize}
+
+A simple model that meets these criteria is the ``step model,'' defined
+as:
+\begin{equation}
+    P_{\rm step}(j)= \left\{\begin{array}{cc}
+                 1-s, & j\ge L \\
+                 g, & j<l
+                 \end{array} \right. 
+\end{equation}
+where $L$ is the step where the student first shows mastery of the
+KC, $g$ is the ``guess rate'' and $s$ is the ``slip rate'' similar
+to Bayesian Knowledge tracing~\cite{anderson}.  To determine
+when learning has occurred (and the associated probabilities), 
+we will use a multimodel approach, 
+Section~\ref{multi-model}.  The associated gain in performance
+is $1-g-s$ and the error rate after learning is simply $s$ in this
+model.  Thus, we can satisfy both criteria with this model.
+
+Another model that is frequently used in this context~\cite{logit} 
+is a logistic model,
+%
+\begin{equation}
+    P_{\rm logit}(j)= \frac{1}{1+\exp\left(-b (j-L)\right)} \; .
+\end{equation}
+%
+It is natural to associate $L$ with the moment of learning.  However,
+a smaller value of $b$ would associate learning with a range of 
+$1/b$ steps.  The gain in performance is always 1 and the final error
+rate is always 1.  Thus, although we can perhaps satisfy the first
+criterion, the second criterion is difficult to satisfy with this model.
+
+The third model is the Bayesian Knowledge Tracing (bkt) model~\cite{anderson}.
+Although it is usually expressed as a Markov model, the solution
+is an exponential function (see Appendix~\ref{bkt}),
+%
+\begin{equation}
+         P_{\rm bkt}(j) = 1-P(S) -A e^{-\beta j} \; .
+\end{equation}
+%
+One central assumption of bkt is that, given that learning
+has not already occurred, mastery is {\em equally probable} on each step.
+This assumption does not match well with the goal of
+determining at which steps learning has occurred.
+On the other hand, the model does provide initial and final
+error rates.  Thus, for this model, the second criterion is 
+satisfied, but the first criterion is problematic.
+
+\section{Model selection using AIC}
+\label{model-selection}
+
+Perhaps the most important question is how well the three
+models compare to actual student behavior.  For this, we
+will use the Akaike Information Criterion (AIC)~\cite{akaike,aicbook}
+to determine how well the three models match student data.
+
+\subsection{Method}
+
+We examined log data from 12 students taking an intensive
+summer course in 2011 at St.\ Anselm College.  The course
+covered the same content as a normal two-semester introductory
+course.  Log data was recorded as students solved homework 
+problems while using the Andes intelligent tutor homework system.
+231 hours of log data were recorded, covering 85,744 transactions,
+and 26,204 student steps.  Each step was assigned to one or more
+of 245 distinct KC's.  Most KC's are associated with physics
+or relevant math skills while others we associated with 
+Andes conventions or user-interface actions (such as, notation
+for defining a variable).  There were a total of 2017 distinct
+student-KC pairs.
+
+We determined the correctness of each step (Section~\ref{steps}),
+assigning a 1 if the step is correct or 0 if it is not.
+Thus, for each student-KC pair, we construct bit string, {\em exempli gratia},
+001001101.  This bit string is then fit to each of the three models,
+$P_{\rm step}(j)$, $P_{\rm logit}(j)$, and $P_{\rm bkt}(j)$ by
+maximizing the associated log likelihood.  This determines
+the free parameters in each model.  Since our goodness of fit
+criterion is valid in the limit of many steps, we 
+further cut the data to include only student-KC pairs that
+contained more than 10 turns, reducing the number of student KC
+pairs to 267, covering 38 distinct KC's.
+
+
+
+
+
+
+
+
+
+\[
+\includegraphics{scatter-weights.eps}
+\]
+
+
+\section{Multi-model approach}
+\label{multi-model}
+
+
+\appendix
 \section{Baysian Knowledge tracing}
+\label{bkt}
 
 The Bayesian Knowledge tracing model~\cite{anderson} has four parameters:
 %
@@ -78,11 +198,12 @@ According to this model, the probability that the student actually gets
 opportunity $j$ correct is:
 %
 \begin{equation}
-         P_j(C) = P(G)\left(1-P_j\right) + \left(1-P(S)\right) P_j \label{pnc}
+        P_{\rm bkt}(j) = P(G)\left(1-P_j\right) + 
+                     \left(1-P(S)\right) P_j \label{pnc}
 \end{equation}
 %
 (Unlike the four model parameters above, there isn't a consistent
-notation for $P_j(C)$ in the literature.)
+notation for $P_{\rm bkt}(j)$ in the literature.)
 This model can be exactly solved with solution: 
 %
 \begin{equation}
@@ -94,15 +215,15 @@ This model can be exactly solved with solution:
 Substituting (\ref{sol}) into (\ref{pnc}), we get:
 %
 \begin{equation}
-         P_j(C) = 1-P(S) -\left(1-P(S)-P(G)\right) \left(1-P_0\right)
+         P_{\rm bkt}(j) = 1-P(S) -\left(1-P(S)-P(G)\right) \left(1-P_0\right)
                    \left(1-P(L)\right)^j \label{pncsoln}
 \end{equation}
 %
-Note that the functional form of $P_j(C)$ is a function of {\em three}
+Note that the functional form of $P_{\rm bkt}(j)$ is a function of {\em three}
 parameters:  $P(S)$, $P(L)$, and $\left(1-P(S)-P(G)\right) \left(1-P_0\right)$.
 This degeneracy of the model was first noticed by Beck and 
 Chang~\cite{beckchang}.  In their paper, they notice that multiple
-combinations of $P(G)$ and $P_0$ give exactly the same $P_j(C)$, but
+combinations of $P(G)$ and $P_0$ give exactly the same $P_{\rm bkt}(j)$, but
 fail to explain why this is the case.
 
 The functional form of (\ref{pncsoln}) is an exponential.
@@ -112,10 +233,10 @@ $\beta=-\log(1-P(L))$, then we can rewrite (\ref{pncsoln}) in
 a clearer form:
 %
 \begin{equation}
-         P_j(C) = 1-P(S) -A e^{-\beta j}
+         P_{\rm bkt}(j) = 1-P(S) -A e^{-\beta j}
 \end{equation}
 %
-So the graph of  $P_j(C)$ looks like the following:
+So the graph of  $P_{\rm bkt}(j)$ looks like the following:
 %
 \[
 \includegraphics{exponential.eps}
@@ -167,6 +288,16 @@ the Acquisition of Procedural Knowledge.  \emph{User Modeling and
 \bibitem{brunskill}
    Lee, J.\ I., Brunskill, E.\ The impact of Individualizing Student 
   Modesls on Necessary Practice Opportunities.  EDM, 2012.
+
+\bibitem{logit}
+  Ken Koedinger paper, other papers, using logistical regression.
+  Min Co-author on some?
+
+\bibitem{akaike}
+   Akaike original paper
+
+\bibitem{aicbook}
+   Burnham \& Johnson book
 
 \end{thebibliography}
 
