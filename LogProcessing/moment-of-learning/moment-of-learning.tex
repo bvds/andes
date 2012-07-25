@@ -81,8 +81,8 @@ A simple model that meets these criteria is the ``step model,'' defined
 as:
 \begin{equation}
     P_{\rm step}(j)= \left\{\begin{array}{cc}
-                 1-s, & j\ge L \\
-                 g, & j<l
+                 g, & j<l \\
+                 1-s, & j\ge L 
                  \end{array} \right. 
 \end{equation}
 where $L$ is the step where the student first shows mastery of the
@@ -111,8 +111,8 @@ rate is always 1.  Thus, although we can satisfy the first
 criterion, the second criterion is difficult to satisfy with this model.
 
 The third model is the Bayesian Knowledge Tracing (bkt) model~\cite{anderson}.
-Although it is usually expressed as a Markov model, the solution
-is an exponential function (see Appendix~\ref{bkt}),
+Although it is usually expressed as a Markov model, the solution of
+this model is an exponential function (see Appendix~\ref{bkt}),
 %
 \begin{equation}
          P_{\rm bkt}(j) = 1-P(S) -A e^{-\beta j} \; .
@@ -121,19 +121,19 @@ is an exponential function (see Appendix~\ref{bkt}),
 One central assumption of bkt is that, given that learning
 has not already occurred, mastery is {\em equally probable} on each step.
 This assumption of equal probability does not match well with 
-the goal of determining empirically at which steps 
-learning has probably occurred.
-On the other hand, the model does provide initial and final
+the goal of determining empirically the steps where learning has actually occurred.
+On the other hand, this model does provide initial and final
 error rates.  Thus, for $P_{\rm bkt}(j)$, the second criterion is 
 satisfied, but the first criterion is problematic.
 
 \section{Model selection using AIC}
 \label{model-selection}
 
-Perhaps the most important question is how well the three
-models compare to actual student behavior.  For this, we
-will use the Akaike Information Criterion (AIC)~\cite{akaike,aicbook}
-to determine how well the three models match student data.
+Although this will not determine our choice of model, it 
+would be reassuring to know whether the step model 
+describes the student data as well (or better than) the
+other two models.  For this, we believe that the Akaike Information 
+Criterion (AIC) is the most appropriate metric~\cite{akaike,aicbook}.
 
 \subsection{Method}
 
@@ -156,7 +156,7 @@ for defining a variable).
 
 Since the goodness of fit criterion, AIC, is valid in the limit 
 of many steps, we include only student-KC 
-pairs that contained more than 10 turns, reducing the number of 
+pairs that contained 10 or more turns, reducing the number of 
 student-KC pairs to 267, covering 38 distinct KC's.
 We determined the correctness of each step (Section~\ref{steps}),
 assigning a 1 if the step is correct or 0 if it is not.
@@ -170,7 +170,8 @@ for each fit.
 Finally, we calculated the Akaike weights, $w_{\mathrm logit}$,
 $w_{\mathrm step}$, and $w_{\mathrm bkt}$ for each student-KC pair.  
 The Akaike weight represents the relative probability that
-a particular model is the best model in a given set of models.
+a particular model in a given set of models most closely matches
+the true model that has actually generated the data.
 The weights are normalized so that 
 %
 \begin{equation}
@@ -180,22 +181,21 @@ The weights are normalized so that
 A scatter plot of the weights is shown in Fig.~\ref{scatter1}.
 Since we are fitting to an average of 16 data points in
 each fit, we expect that AIC$_{\mathrm c}$ would not strongly
-discriminate between the models.  It is only over examining
-hundreds of student-KC pairs that one might expect to see
-one model favored over the others.  However, this is not what
-we found:  we see that $P_{\rm bkt}$ is strongly disfavored 
+discriminate between the models.  It is only by examining
+hundreds of student-KC pairs that one might find that
+one model is statistically favored over the other two..  However, this is not what
+we found; instead, we see that $P_{\rm bkt}$ is strongly disfavored 
 over the other two.
 
 \begin{figure}
-\includegraphics{scatter-weights.eps}
-\caption{Akaike weights for the three models, $P_{\rm step}$,
+  \centering \includegraphics{scatter-weights.eps}
+  \caption{Akaike weights for the three models, $P_{\rm step}$,
    $P_{\rm logit}$, and $P_{\rm bkt}$, when fit to 267
    student-KC pairs from an introductory physics course.
    The model $P_{\rm bkt}$ seems to be highly disfavored over
    the other two models; however, we believe this result
    to be spurious. \label{scatter1}}
 \end{figure}
-
 
 To further investigate this situation, we constructed an
 artificial dataset containing 100 random bit strings (each
@@ -225,8 +225,8 @@ of AIC-based model selection for count-type data need more
 more study for small sample sizes.''
 
 \begin{figure}
-\includegraphics{scatter-random-weights.eps}
-\caption{Akaike weights for the three models, $P_{\rm step}$,
+  \centering \includegraphics{scatter-random-weights.eps}
+  \caption{Akaike weights for the three models, $P_{\rm step}$,
    $P_{\rm logit}$, and $P_{\rm bkt}$, when fit to randomly
    generated data.  For this dataset, each model should perform
    equally well; the large bias in favor of one model indicates
@@ -242,20 +242,29 @@ the sample sizes are small (10 to 100 points), and the models
 have very different functional forms.  Since the use of such
 models is foundational to KC-based approaches to Educational
 Data mining, we believe that it is imperative that this issue 
-is resolved.
+be resolved.
 
 Demonstrating that the step model fits student data as well as,
 or better than, the other two would be an
 {\em ex post facto} justification for using that model.  
 However, the use of the step model is primarily justified
-by the three criteria listed in Section~\ref{model-criteria}.
+by the first two criteria listed in Section~\ref{model-criteria}.
 In Section~\ref{multi-model}, we show how AIC-based methods
-can yield probabilities for learning at a given step.
+can yield the probability that learning has occurred during given step.
 
 \section{Multi-model approach}
 \label{multi-model}
 
+We need to determine the step where a student has learned a given
+skill.  Our strategy is to take the step model, $P_{\rm step}(j)$, and treat $L$ is a 
+constant, yielding a set of sub-models, one for each $L$.
+We then fit each of the sub-models to the student data, obtaining an
+AIC value.  Finally, we find the Akaike weighs for each of the
+sub-models.  The Akaike weights gives that probability that learning
+occurred at a particular step.
 
+Let us illustrate this technique with a simple example.  Suppose the 
+bit-string for 
 
 \appendix
 \section{Baysian Knowledge tracing}
@@ -313,6 +322,13 @@ Chang~\cite{beckchang}.  In their paper, they notice that multiple
 combinations of $P(G)$ and $P_0$ give exactly the same $P_{\rm bkt}(j)$, but
 fail to explain why this is the case.
 
+\begin{figure}
+  \centering \includegraphics{exponential.eps}
+   \caption{The graph of the solution of the Bayesian Knowledge
+     Tracing model.}
+    \label{bkt-function}
+\end{figure}
+
 The functional form of (\ref{pncsoln}) is an exponential.
 If we define 
 $A=\left(1-P(S)-P(G)\right) \left(1-P_0\right)$ and
@@ -323,13 +339,10 @@ a clearer form:
          P_{\rm bkt}(j) = 1-P(S) -A e^{-\beta j}
 \end{equation}
 %
-So the graph of  $P_{\rm bkt}(j)$ looks like the following:
-%
-\[
-\includegraphics{exponential.eps}
-\]
 In conclusion, Bayesian Knowledge tracing is equivalent to using
-an exponential function with three parameters to fit the student data.
+an exponential function with three parameters to fit the student data;
+see Fig.~\ref{bkt-function}
+
 
 %Equations (1) and (2) of \cite{brunskill} 
 %are equivalent to the first three equations in \cite{baker}
