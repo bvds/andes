@@ -1,4 +1,5 @@
 \documentclass[11pt,letterpaper]{article}
+%\usepackage{amsmath}
 \usepackage{graphics}
 \usepackage{fullpage}
 \addtolength{\voffset}{0.5in}
@@ -265,26 +266,40 @@ occurred at a particular step.
 
 \begin{figure}
   \centering \includegraphics{step-weights.eps}
-   \caption{Akaike weights for the step model $P_{\rm step}(j)$
+   \caption{Akaike weights for the submodel $P_{\rm step}(j)$
       where $L$ is fixed.  This gives the relative probability that
       the student learned the KC just before step $L$.}
     \label{step-weights}
 \end{figure}
 
-Let us illustrate this technique with a simple example.  Suppose the 
-bit-string for a particular KC is 00011011 (8 opportunities).
-We fit this data to 8 sub-models, corresponding to $L\in\{1,2,\ldots,8\}$,
-using maximum likelihood.  The AIC values are 
+Let us illustrate this technique with a simple example. 
+ Suppose the bit-string for a particular KC is 00011011 (8 opportunities); see
+Fig.~\ref{step-weights}.
+We fit this data to 8 sub-models of the step model, corresponding to
+$L\in\{1,2,\ldots,8\}$, by maximizing the likelihood $\mathcal{L}$.  
+The associated AIC values are
+given by $\mathrm{AIC}_L=2 K-\log \mathcal{L}$  where $K$ is the
+number of fit parameters.  When $L>1$, $K=2$  (parameters $s$ and $g$) and 
+when $L=1$, $K=1$ (paramter $s$ only).
 %
-\begin{tabular}
-   13.1, 13.6, 11.6, 9.0, 13.0, 14.5, 11.6, 13.6
-\end{equation}
+%\begin{table}
+%\caption{
+%\begin{tabular}{crrrrrrrr}
+% opportunity & 1 & 2 & 3 &4 & 5 & 6 & 7 & 8 \\
+ % AIC &   13.1 & 13.6 & 11.6 & 9.0 & 13.0 & 14.5 & 11.6 & 13.6 \\
+%\end{tabular}
+%\end{equation}
 %
 Not suprisingly, the best fit (lowest AIC) corresponds to the first
-1 in the dataset at step 4.  From this, we calculate the Akaike weights
-$w_L$; see Fig.~\ref{step-weights}.  
+1 in the dataset at opportunity~4.  From the AICs, we calculate the Akaike weights
+%
+\begin{equation}
+     w_L=\frac{e^{-\mathrm{AIC}_L/2} }{\sum_{L^\prime}
+       e^{-\mathrm{AIC}_{L^\prime}/2}} \; .
+\end{equation}
+%
 
-Note that $L=1$ correspon<ds to the student having ``learned the skill'' 
+Note that $L=1$ corresponds to the student having ``learned the skill'' 
 some time before the first step.  That is to say, they don't acquire 
 the skill while using the tutor system.
 Thus, $w_{L=1}$ should be interpreted as the relative probability
