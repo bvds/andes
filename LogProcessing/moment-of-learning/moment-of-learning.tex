@@ -305,7 +305,60 @@ the skill while using the tutor system.
 Thus, $w_{L=1}$ should be interpreted as the relative probability
 that no learning has occurred while using the tutor system.
 
+\section{Model Effectiveness}
 
+Our ultimate goal is to distinguish steps that result in 
+learning from steps that do not.  Hopefully, one can use this
+information to infer something about the effectiveness of the help
+given on a particular step, or the effectiveness of
+the student activity on that step.
+
+\begin{figure}
+  \centering \includegraphics{weight-ratio-histogram.eps}
+   \caption{Histogram of weight ratios $w_L/\bar{w}_L$ for
+     student data along with random order data.
+     The random order data is created from the 
+     student dataset by randomly shuffling the order
+     of the steps for each student.}
+    \label{weights-ratio-histogram}
+\end{figure}
+
+Thus, we need some metric that indicates how well the 
+weights given by the Multimodel approach distinguish between
+any ``good'' and ``bad'' steps.  If we were to construct
+a dataset by randomly reordering the steps, we would expect
+there would be no significant indication that the student has learned
+any KC, and we would expect all the weights $w_L$ to be
+roughly equal.  Let $\bar{w}_L$ be the average weight for
+such a model.  In this case
+\begin{equation}
+  \bar{w}_L = \left\{ \begin{array}{cc} \frac{e}{e+n-1}, & L=1 \\
+                                        \frac{1}{e+n-1}, & L>1
+                     \end{array} \right.
+\end{equation}
+%
+where $n$ is the number of steps for a given student and KC.
+So, if the ratio $w_L/\bar{w}_L$ is near 1, the datset will
+not distinguish between steps very well, and if $w_L/\bar{w}_L$
+are far away from 1, the dataset will distinguish between steps
+effectively.  In Fig.~\ref{weights-ratio-histogram}, we see
+that the histogram of $w_L/\bar{w}_L$ for the student
+dataset is wider than the histogram for the
+random order dataset.  This leads us to a propose
+a goodness-of-fit style metric for the effectiveness of the
+multimodel approach for a given dataset:
+%
+\begin{equation}
+           \bar{\chi} = \sqrt{\sum_j^N 
+          \frac{\left(\log w_L-\log \bar{w}_L\right)^2}{N}}
+%
+For the student dataset, we get $\bar{\chi}=0.867$ while for
+the random order dataset, we get $\bar{\chi}=0.675$. 
+This suggests that the multimodel approach can distiguish
+between any ``good'' and ``bad'' steps at a modest 
+level.
+ 
+        
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
