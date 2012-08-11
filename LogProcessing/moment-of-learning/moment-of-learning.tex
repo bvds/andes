@@ -159,8 +159,8 @@ to use for this purpose.
 
 \begin{figure}
   \centering \includegraphics{student-kc-length-histogram.eps}
-  \caption{Histogram of number of student-KC pairs having
-    a given number of steps in student dataset.}
+  \caption{Histogram of number of student-KC pairs in the student 
+    dataset having a given number of steps.}
     \label{student-length-histogram}
 \end{figure}
 
@@ -188,7 +188,7 @@ since these skills are exercised throughout the entire course.
 The presence of many student-KC pairs with just one or two
 steps suggests that the cognitive model associated with this tutor
 system may be sub-optimal; there has not been any attempt, to date,
-to improve on the cognitive model of Andes with, say Learning 
+to improve on the cognitive model of Andes with, say, Learning 
 Factors Analysis~\cite{lfa}.
 
 \subsection{Analysis}
@@ -204,7 +204,7 @@ Thus, for each student-KC pair, we construct bit string, {\em exempli gratia},
 $P_\mathrm{step}(j)$, $P_\mathrm{logit}(j)$, and $P_\mathrm{BKT}(j)$ by
 maximizing the associated log likelihood.  
 %This determines the free parameters in each model. 
-We then calculat the corrected AIC score, AIC$_\mathrm{c}$~\cite{aicbook} 
+We then calculate the corrected AIC score, AIC$_\mathrm{c}$~\cite{aicbook} 
 for each fit.  
 Finally, we calculated the Akaike weights, $w_\mathrm{logit}$,
 $w_\mathrm{step}$, and $w_\mathrm{BKT}$ for each student-KC pair.  
@@ -218,10 +218,10 @@ The weights are normalized so that
 \end{equation}
 %
 A scatter plot of the weights is shown in Fig.~\ref{scatter1}.
-Since an average student-KC pair has only about 16 steps, we 
+Since a student-KC pair contains only an average of about 16 steps, we 
 expect that AIC$_\mathrm{c}$ should not strongly
 discriminate between the models.  Instead, we expect that
-any statistically significant diffence will only appear 
+any statistically significant difference will only appear 
 after including hundreds of student-KC in our sample.  However, 
 this is not what we found; instead, we see that $P_\mathrm{BKT}$ is 
 strongly disfavored over $P_\mathrm{step}(j)$ and $P_\mathrm{logit}(j)$.
@@ -284,7 +284,7 @@ the sample sizes are small (10 to 100 points), and the models
 have very different functional forms.  Since the use of such
 models is foundational to KC-based approaches to Educational
 Data mining, we believe that it is imperative that this issue 
-with model selection must be resolved.
+associated with model selection must be resolved.
 
 Demonstrating that the step model fits student data as well as,
 or better than, the other two would be an
@@ -318,7 +318,7 @@ occurred at each step.
 Let us illustrate this technique with a simple example. 
 Suppose the bit-string for a particular student-KC pair is 
 00011011 (8 opportunities); see Fig.~\ref{step-weights}.
-We fit this data to 8 sub-models of the step model, corresponding to
+We fit this datum to 8 sub-models of the step model, corresponding to
 $L\in\{1,2,\ldots,8\}$, by maximizing the likelihood $\mathcal{L}$.  
 The associated AIC values are
 given by $\mathrm{AIC}_L=2 K-\log \mathcal{L}$  where $K$ is the
@@ -365,18 +365,19 @@ the student activity on that step.
 
 In using the weights to determine whether a specific step $L$
 is ``good'' or ``bad'' for learning, we will use the Akaike
-weight times the associated learning gain, $w_L \Delta_L$
-where $\Delta_L=1-\hat{g}-\hat{s}$ and $\hat{g}$ and $\hat{s}$
+weight times the associated learning gain, $w_L \Delta_L$.
+The learning gain $\Delta_L=1-\hat{g}-\hat{s}$ where $\hat{g}$ and $\hat{s}$
 are the Maximum Likelihood estimators for $g$ and $s$ given
-by submodel  $P_{\mathrm{step},L}(j)$.  We define $\Delta_1=0$.
+by submodel  $P_{\mathrm{step},L}(j)$.  We define the ``no learning''
+case, $\Delta_1=0$.
 We will call  $w_L \Delta_L$ the ``weighted gain'' associated with 
 $P_{\mathrm{step},L}(j)$.
 A histogram of $w_L \Delta_L$ for the student dataset is
 shown in Fig.~\ref{weighted-gain-histogram}.
 
 We propose to use the average of the weighed gains as
-a ``figure of merit'' $Q$ for determining how suitable a 
-dataset is for determining learning for an individual
+a ``quality index'' $Q$ for determining how suitable a 
+dataset is for determining the point of learning for an individual
 student-KC pair:
 %
 \begin{equation}
@@ -388,8 +389,8 @@ dataset and $N$ is the number of student-KC pairs.
 For random data, we expect the distribution of weighted gains
 to be symmetric about zero and $Q$ to be zero. 
 For the best possible data (with the form $00\cdots011\cdots1$), 
-we expect one $w_L$ to be around one with associated $\Delta_L\approx 1$ so
-that $Q\approx 1$.
+we expect the maximum value of $w_L$ to be nearly 1 
+with associated $\Delta_L\approx 1$ so that $Q\approx 1$.
 
 Returning to our student dataset, we find $Q=0.074\pm0.014$, which
 is small, but significant.  Let us compare this to an artificially
