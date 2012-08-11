@@ -159,8 +159,8 @@ to use for this purpose.
 
 \begin{figure}
   \centering \includegraphics{student-kc-length-histogram.eps}
-  \caption{Histogram of number of student-KC pairs in the student 
-    dataset having a given number of steps.}
+  \caption{Histogram of number of student-KC pairs in student 
+    dataset $\mathcal{A}$ having a given number of steps.}
     \label{student-length-histogram}
 \end{figure}
 
@@ -175,8 +175,9 @@ problems while using the Andes intelligent tutor homework system.
 Each step was assigned to one or more different KC's.  
 The dataset contains a total of 2017 distinct
 student-KC pairs covering a total of 245 distinct KC's.
+We will refer to this dataset as student dataset $\mathcal{A}$.
 See Figure~\ref{student-length-histogram} for a histogram
-of the number of steps.
+of the number student-KC pairs having a given number of steps.
 
 Most KC's are associated with physics
 or relevant math skills while others are associated with 
@@ -348,7 +349,7 @@ the student does not acquire the skill while using the tutor system.
 Thus, $w_{L=1}$ should be interpreted as the relative probability
 that no learning has occurred while using the tutor system.
 
-\section{Model Effectiveness}
+\section{Weighted gain}
 
 Our ultimate goal is to distinguish steps that result in 
 learning from steps that do not.  Hopefully, one can use this
@@ -359,24 +360,59 @@ the student activity on that step.
 \begin{figure}
   \centering \includegraphics{weighted-gain-histogram.eps}
    \caption{Histogram of weighted gains $w_L \Delta_L$ for
-     all steps in all student-KC pairs in the student dataset.}
+     all steps in all student-KC pairs in student dataset $\mathcal{A}$.}
     \label{weighted-gain-histogram}
 \end{figure}
 
-In using the weights to determine whether a specific step $L$
-is ``good'' or ``bad'' for learning, we will use the Akaike
-weight times the associated learning gain, $w_L \Delta_L$.
-The learning gain $\Delta_L=1-\hat{g}-\hat{s}$ where $\hat{g}$ and $\hat{s}$
+It is not sufficient to know {\it when} learning has occurred but 
+one must also determine {\it how much} learning has occurred.  
+Consider the bit sequence 11011000.   When fit to the step model,  
+the best fit will occur at $L=6$ but this would correspond to a
+decrease in student performance for that skill.  In other cases, the 
+change in student performance may be almost zero.  
+In order to take this into account, we propose 
+using the Akaike weight $w_L$ times the associated learning gain $\Delta_L$
+to characterize a step.
+We define the learning gain $\Delta_L=1-\hat{g}-\hat{s}$ where $\hat{g}$ and $\hat{s}$
 are the Maximum Likelihood estimators for $g$ and $s$ given
-by submodel  $P_{\mathrm{step},L}(j)$.  We define the ``no learning''
-case, $\Delta_1=0$.
+by submodel  $P_{\mathrm{step},L}(j)$.   For the ``no learning''
+case $L=1$, we set $\Delta_1=0$.
 We will call  $w_L \Delta_L$ the ``weighted gain'' associated with 
 $P_{\mathrm{step},L}(j)$.
-A histogram of $w_L \Delta_L$ for the student dataset is
-shown in Fig.~\ref{weighted-gain-histogram}.
+A histogram of $w_L \Delta_L$ for student dataset $\mathcal{A}$ is
+shown in Fig.~\ref{weighted-gain-histogram}.  Note that the vast
+majority of steps (11885) have almost zero normalized gain.  We also see that there
+is a significant number of steps with negative gain (652),
+but there are somewhat more steps with positive gain (860) .
 
-We propose to use the average of the weighed gains as
-a ``quality index'' $Q$ for determining how suitable a 
+The fact that there are so many steps with negative gain is
+symptomatic of bit-sequences that are very noisy (a lot of
+randomness).  Indeed, if we compare the histogram for student
+dataset $\mathcal{A}$ with the histogram for 
+randomly generated data $\mathcal{R}$ (we take $\mathcal{A}$ and
+randomly permute the steps) we find a similar distribution;
+see Fig.~\ref{weighted-gain-histogram2}.
+
+What would the distribution look like if the data weren't 
+so noisy?  To see this, we took generated an artificial dataset
+$\mathcal{P}$ where there were no slips or guesses.  Thus,
+we have bit sequences of the form $00\cdots011\cdots1$.
+In this case, for each student-KC pair, we expect a single 
+large weighted gain and the remaining weighted gains to
+be nearly zero.  The resulting distribution of gains is shown
+in  Fig.~\ref{weighted-gain-histogram2}.
+
+\begin{figure}
+  \centering \includegraphics{weighted-gain-histogram2.eps}
+   \caption{Histogram of weighted gains $w_L \Delta_L$ for
+     student dataset $\mathcal{A}$, randomly generated dataset $\mathcal{R}$,
+     and an artificial ideal dataset $\mathcal{I}$.}
+    \label{weighted-gain-histogram2}
+\end{figure}
+
+
+We propose to use the following average of the weighed gains as
+a ``quality index'' for determining how suitable a 
 dataset is for determining the point of learning for an individual
 student-KC pair:
 %
@@ -386,18 +422,17 @@ student-KC pair:
 %
 where $\alpha$ is an index running over all student-KC pairs in a 
 dataset and $N$ is the number of student-KC pairs.
-For random data, we expect the distribution of weighted gains
-to be symmetric about zero and $Q$ to be zero. 
-For the best possible data (with the form $00\cdots011\cdots1$), 
+For random data $\mathcal{R}$, we expect the distribution of weighted gains
+to be symmetric about zero and $Q$ to be zero.  Numerically, we 
+get  $Q=-0.004\pm0.004$, consistent with zero.
+For a perfect dataset $\mathcal{P}$,
 we expect the maximum value of $w_L$ to be nearly 1 
 with associated $\Delta_L\approx 1$ so that $Q\approx 1$.
-
-Returning to our student dataset, we find $Q=0.074\pm0.014$, which
-is small, but significant.  Let us compare this to an artificially
-constructed ideal dataset (as describe above) with a similar number 
-of steps as the student dataset, we get $Q=0.81\pm0.01$.  For 
-a datset where we take the student dataset and randomly
-reorder the steps, we get $Q=-0.004\pm0.004$, consistent with zero.
+Numerically, we get $Q=0.81\pm0.01$.  For student dataset
+$\mathcal{A}$, we obtain $Q=0.074\pm0.014$, which
+is small, but significant.  Since $Q$ is 5 standard deviations from
+zero, we conclude that the student dataset is of sufficient quality
+to use for determining where learning has occurred.
 
 \section{Conclusion}
 
@@ -411,7 +446,8 @@ However, the fact that we can find significant positive average gains,
 suggests the situation is not hopeless.  We can use $Q$ to determine
 the predictive power of a given dataset. 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \appendix
 \section{Bayesian Knowledge tracing}
 \label{bkt}
