@@ -626,8 +626,9 @@ function skipKC($kc){
 }
 
 // For each student and KC, Print out the model parameters.
+// this was used to compare with Anirudh fits to logistic model.
 if(false){
-  echo "\"KC\",\"Section\",\"Name\",\"AIC\",\"gainProb\",\"opps\"\n";
+  echo "\"KC\",\"Section\",\"Name\",\"AIC\",\"opps\"\n";
   ksort($allKCStudent);
   foreach($allKCStudent as $kc => $sec) {
     // none:  entries where assigment of blame failed
@@ -637,9 +638,8 @@ if(false){
 	foreach($stu as $thisName => $opps) {
 	  $maxv=$model[$kc][$thisSection][$thisName];
 	  $aic=$maxv['valid']?2*3-2*$maxv['logLike']:0;
-	  $gainProb=$maxv['gainProb'];
 	  $opps=$maxv['opps'];
-	  echo "\"$kc\",\"$thisSection\",\"$thisName\",$aic,$gainProb,$opps\n";
+	  echo "\"$kc\",\"$thisSection\",\"$thisName\",$aic,$opps\n";
 	}
       }
     }

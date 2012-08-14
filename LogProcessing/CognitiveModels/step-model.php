@@ -27,6 +27,10 @@ function logFactorial($x){
   }
 }
 
+// Find probability that positive learning has occurred.
+// This is not used anywhere since we just use normalized
+// gain and include everything.
+
 function learnProb($a,$b,$c,$d){
   if($c==0){
     return exp(logFactorial(1+$b+$d)+logFactorial(1+$a+$b)
@@ -41,12 +45,7 @@ function learnProb($a,$b,$c,$d){
 }
 
 
-// Confidence level for accepting a model.
-// In terms of standard deviation:  0.6826895, 0.9544997, 0.9973002
-$confidenceLevel=0.6826895;
-
 function maximum_likelihood_models($opps,$debugML=false){
-  global $confidenceLevel; 
 
   if($debugML){
     echo "Grades for this student and KC:\n";
@@ -96,13 +95,8 @@ function maximum_likelihood_models($opps,$debugML=false){
     $ll+=$cal>0?$cal*log(1.0-$ps):0.0;
     $allll[$step]=$ll;
     
-    // Expectation value for the learning gain 1-G-S.
-    // This is gotten by integrating over the binomial
-    // distributions P(G) and P(S).
-    // For some choices of step, there is no learning.
-    $allGain[$step]=1-(1+$cbl)/(2+$cbl+$wbl)-(1+$wal)/(2+$cal+$wal);
-    $gainProb=($step>0?learnProb($cbl,$wbl,$cal,$wal):0);
-    $allGainProb[$step]=$gainProb;
+    // Maximum likelihood estimator for the learning gain 1-g-s
+    $allGain[$step]=($ps && $pg)?1-$ps-$pg:0;
 
     // Find maximum value.
     if($maxll===false || $ll>$maxll){
@@ -117,8 +111,7 @@ function maximum_likelihood_models($opps,$debugML=false){
     
     if($debugML){
       echo ' (' . $step . ',' . print2($pg) . ',' . 
-	print2($ps) . ',' .  number_format($ll,3) . ',' .
-        number_format($gainProb,3) . ')';
+	print2($ps) . ',' .  number_format($ll,3) . ',' . ')';
       // echo " <$cbl,$wbl,$cal,$wal>";
     }	
   }
@@ -143,9 +136,9 @@ function maximum_likelihood_models($opps,$debugML=false){
   // learning is found ($i=0), there is one model parameter.
   // See http://en.wikipedia.org/wiki/Akaike_information_criterion
 
+  $maxv['opps']=count($opps);
   $maxv['learnHereProb']=array();
   $sum=0;
-  $maxv['gainProb']=0;
   // Include no learning case.
   // There is no way to measure learning on last step.
   for($i=0; $i<count($allll); $i++){
@@ -153,13 +146,11 @@ function maximum_likelihood_models($opps,$debugML=false){
     $val= exp($allll[$i]-($i==0?1:2));
     $maxv['learnHereProb'][$i]=$val;
     $sum += $val;
-    $maxv['gainProb']+=$val*$allGainProb[$i];
   }
   // Next, normalize probabilities;
   for($i=0; $i<count($allll); $i++){
     $maxv['learnHereProb'][$i]/=$sum;
   }
-  $maxv['gainProb']/=$sum;
 
   // If no significant model-weighted gain is seen, then 
   // model has failed, "point of learning" doesn't exist.
@@ -173,8 +164,10 @@ function maximum_likelihood_models($opps,$debugML=false){
   // final rate cal/(cal+wal).
   // This includes all correct, all wrong, or some
   // random rate of correctness.
-  $maxv['valid']=($maxv['gainProb']>$confidenceLevel) && 
-    ($maxv['learn']>0) && ($maxv['ps']+$maxv['pg']<1);
+
+  //  get all fits where there is enough data to fit.
+  $maxv['valid']=(count($opps)>=3) || 
+    (($maxv['learn']>0) && ($maxv['ps']+$maxv['pg']<1));
   // use the value from learn=0 
   if(!$maxv['valid']){
     $maxv['learn']=0;
@@ -195,7 +188,7 @@ function maximum_likelihood_models($opps,$debugML=false){
     } else {
       echo ' no learning: ps=' . number_format($ps,2);
     }
-    echo ', gainProb=' . number_format($maxv['gainProb'],3) . "\n";
+    echo "\n";
   }
 
   return $maxv;
