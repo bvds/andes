@@ -305,22 +305,22 @@ $P_\mathrm{step}(j)$, and treat $L$ as a constant, yielding a set of
 sub-models $P_{\mathrm{step},L}(j)$.
 We then fit each of the sub-models to the student data, obtaining an
 AIC value.  Finally, we find the Akaike weighs for each of the
-sub-models.  The Akaike weights gives that probability that learning
+sub-models.  The Akaike weights give the relative probability that learning
 occurred at each step.
 
 \begin{figure}
   \centering \includegraphics{step-weights.eps}
-   \caption{Akaike weights for the submodel $P_\mathrm{step}(j)$
-      where $L$ is fixed.  This gives the relative probability that
+   \caption{Akaike weights for the submodel $P_\mathrm{step,L}(j)$.  
+     This gives the relative probability that
       the student learned the KC just before step $L$.}
     \label{step-weights}
 \end{figure}
 
 Let us illustrate this technique with a simple example. 
-Suppose the bit-string for a particular student-KC pair is 
+Suppose the bit string for a particular student-KC pair is 
 00011011 (8 opportunities); see Fig.~\ref{step-weights}.
 We fit this datum to 8 sub-models of the step model, corresponding to
-$L\in\{1,2,\ldots,8\}$, by maximizing the likelihood $\mathcal{L}$.  
+$L\in\{1,2,\ldots,8\}$, by maximizing the log likelihood $\log\mathcal{L}$.  
 The associated AIC values are
 given by $\mathrm{AIC}_L=2 K-\log \mathcal{L}$  where $K$ is the
 number of fit parameters.  When $L>1$, $K=2$  (parameters $s$ and $g$) and 
@@ -335,18 +335,23 @@ when $L=1$, $K=1$ (paramter $s$ only).
 %\end{equation}
 %
 Not suprisingly, the best fit (lowest AIC) corresponds to the first
-1 in the dataset at step~4.  From the AICs, we calculate the Akaike weights
+``1'' in the bit string at step~4.  From the AICs, we calculate 
+the Akaike weights
 %
 \begin{equation}
      w_L=\frac{e^{-\mathrm{AIC}_L/2} }{\sum_{L^\prime}
        e^{-\mathrm{AIC}_{L^\prime}/2}} \; .
 \end{equation}
 %
+The Akaike weight $w_L$ gives the relative probability that sub-model 
+$P_{\mathrm{step},L}(j)$ is, of all the sub-models, the closest to the 
+the model that actually generated the data.
+
 
 Note that the case $L=1$ corresponds to the student having 
 ``learned the skill'' some time before the first step.  That is to say, 
 the student does not acquire the skill while using the tutor system.
-Thus, $w_{L=1}$ should be interpreted as the relative probability
+Thus, $w_1$ should be interpreted as the relative probability
 that no learning has occurred while using the tutor system.
 
 \section{Weighted gain}
@@ -381,22 +386,25 @@ We will call  $w_L \Delta_L$ the ``weighted gain'' associated with
 $P_{\mathrm{step},L}(j)$.
 A histogram of $w_L \Delta_L$ for student dataset $\mathcal{A}$ is
 shown in Fig.~\ref{weighted-gain-histogram}.  Note that the vast
-majority of steps (11885) have almost zero normalized gain.  We also see that there
-is a significant number of steps with negative gain (652),
-but there are somewhat more steps with positive gain (860) .
+majority of steps (29730) have almost zero normalized gain.  
+We also see that there
+is a significant number of steps with negative gain (988),
+but there are somewhat more steps with positive gain (1312) .
 
 The fact that there are so many steps with negative gain is
-symptomatic of bit-sequences that are very noisy (a lot of
+symptomatic of bit strings that are very noisy (a lot of
 randomness).  Indeed, if we compare the histogram for student
-dataset $\mathcal{A}$ with the histogram for 
-randomly generated data $\mathcal{R}$ (we take $\mathcal{A}$ and
+dataset $\mathcal{A}$ with the histogram for a randomly 
+generated dataset $\mathcal{R}$ (we take $\mathcal{A}$ and
 randomly permute the steps) we find a similar distribution;
 see Fig.~\ref{weighted-gain-histogram2}.
 
 What would the distribution look like if the data weren't 
-so noisy?  To see this, we took generated an artificial dataset
-$\mathcal{P}$ where there were no slips or guesses.  Thus,
-we have bit sequences of the form $00\cdots011\cdots1$.
+so noisy?  To see this, we generated an artificial ``ideal'' dataset
+$\mathcal{I}$ where there were no slips or guesses, but having
+the same length distribution as $\mathcal{A}$ 
+(Fig.~\ref{student-length-histogram}).  Thus, the bit strings
+in $\mathcal{I}$ have the form $00\cdots011\cdots1$.
 In this case, for each student-KC pair, we expect a single 
 large weighted gain and the remaining weighted gains to
 be nearly zero.  The resulting distribution of gains is shown
@@ -422,15 +430,18 @@ student-KC pair:
 %
 where $\alpha$ is an index running over all student-KC pairs in a 
 dataset and $N$ is the number of student-KC pairs.
-For random data $\mathcal{R}$, we expect the distribution of weighted gains
+For the random dataset $\mathcal{R}$, we expect the distribution of 
+weighted gains
 to be symmetric about zero and $Q$ to be zero.  Numerically, we 
-get  $Q=-0.004\pm0.004$, consistent with zero.
-For a perfect dataset $\mathcal{P}$,
-we expect the maximum value of $w_L$ to be nearly 1 
+get  $Q=-0.002\pm0.002$, consistent with zero.
+For the ``ideal'' dataset $\mathcal{I}$,
+we expect the maximum value of $w_L$ to be nearly one 
 with associated $\Delta_L\approx 1$ so that $Q\approx 1$.
-Numerically, we get $Q=0.81\pm0.01$.  For student dataset
-$\mathcal{A}$, we obtain $Q=0.074\pm0.014$, which
-is small, but significant.  Since $Q$ is 5 standard deviations from
+Numerically, we get $Q=0.5240\pm0.0003$, which is a little lower
+than expected due to the large number of student-KC pairs with just one
+or two steps.  For the student dataset
+$\mathcal{A}$, we obtain $Q=0.047\pm0.008$, which
+is small, but significant.  Since $Q$ is 6 standard deviations from
 zero, we conclude that the student dataset is of sufficient quality
 to use for determining where learning has occurred.
 
