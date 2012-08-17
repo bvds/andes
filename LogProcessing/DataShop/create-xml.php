@@ -1,7 +1,6 @@
 <?php
-   include 'JSON.php';
-  //$userName = 'chbishop_asu';
-   $i = 1;
+include 'JSON.php';
+//$userName = 'md5:0aa1ea9a5a04b78d4581dd6d17742627';
 
 // To log into database, create file db_user_password
 // with user name and password.  then "chmod 600 db_user_password"
@@ -15,39 +14,39 @@ if(strlen($dbname)==0){
  }
 fclose($fh);
 
-// Since this is for reasearch purposes, access only anonymized ids.
 $db = new PDO("mysql:dbname=$dbname;host=localhost",$dbuser,$dbpass);
-   foreach($db->query("select distinct pa.userName FROM OPEN_PROBLEM_ATTEMPT pa where pa.userSection REGEXP '^study-(c|e)' and pa.startTime > '2011-04-01'") as $rowfirst)
-   {
-      $userName = $rowfirst['userName'];
-   echo "*********************\nCreating $i $userName ";
-   $i++;
-   //Create context message element
-   $doc = new DOMDocument();  // Creating new document
-   $doc->load( 'structure.xml' ); // Loading from the default structure
-   $root = $doc->getElementsByTagName('tutor_related_message_sequence')->item(0);
-   $isValid = TRUE;
-   //selecting a specific username from problem attempt table and creating a context message for various clientId from problem attempt table of the username
-   $query="select pa.clientID, pa.starttime, pa.userproblem, pa.usersection, ci.name, ci.school, ci.period, ci.description, ci.instructorName, ci.schoolyearInfo, ci.datasetID, sd.datasetname, sd.modulename, sd.groupname, sd.problemname from OPEN_PROBLEM_ATTEMPT pa, CLASS_INFORMATION ci, STUDENT_DATASET sd where pa.usersection = ci.classSection and ci.datasetID = sd.datasetID and pa.usersection REGEXP '^study-(c|e)' and pa.startTime > '2011-04-01' and pa.userName = '$userName'";
-   echo "query: $query\n";  // for debug
-   $result=$db->query($query);
-   echo "result: $result\n";  // for debug
-   foreach ($result as $row)
-   { 
-       $context_msg_el = $doc->createElement("context_message");
-       $context_msg_el->setAttribute('context_message_id', md5($row['clientID']));
-       $context_msg_el->setAttribute('name', 'START_PROBLEM');
-    
-       // Creating Meta tag
-       
-       $meta = $doc->createElement("meta");
+// Since this is for reasearch purposes, access only anonymized ids.
+$query="select distinct pa.userName FROM OPEN_PROBLEM_ATTEMPT pa WHERE pa.userSection REGEXP '^study-(c|e)' and pa.startTime > '2011-04-01'";
+// Since we do queries inside the loop, get result array all at once.
+foreach($db->query($query)->fetchAll() as $rowfirst)
+{
+  $userName = $rowfirst['userName'];
+  echo "*********************\nCreating $userName ";
+  //Create context message element
+  $doc = new DOMDocument();  // Creating new document
+  $doc->load( 'structure.xml' ); // Loading from the default structure
+  $root = $doc->getElementsByTagName('tutor_related_message_sequence')->item(0);
+  $isValid = TRUE;
+  //selecting a specific username from problem attempt table and creating a context message for various clientId from problem attempt table of the username
+  $query="SELECT pa.clientID, pa.startTime, pa.userProblem, pa.userSection, ci.name, ci.school, ci.period, ci.description, ci.instructorName, ci.schoolyearInfo, ci.datasetID, sd.datasetname, sd.modulename, sd.groupname, sd.problemname from OPEN_PROBLEM_ATTEMPT pa, CLASS_INFORMATION ci, STUDENT_DATASET sd WHERE pa.userSection = ci.classSection and ci.datasetID = sd.datasetID and pa.userSection REGEXP '^study-(c|e)' and pa.startTime > '2011-04-01' and pa.userName = '$userName'";
+  //echo "query: $query\n";  // for debug
+  $result=$db->query($query);
+  foreach ($result as $row)
+    { 
+      $context_msg_el = $doc->createElement("context_message");
+      $context_msg_el->setAttribute('context_message_id', md5($row['clientID']));
+      $context_msg_el->setAttribute('name', 'START_PROBLEM');
+      
+      // Creating Meta tag
+      
+      $meta = $doc->createElement("meta");
        //$toolmeta = $doc->createElement("meta");
-    
-       $user_id = $doc->createElement("user_id");
-       $user_id->setAttribute('anonFlag', "true");
-       $user_id->nodeValue = $userName;
-    
-       // Append user id into meta
+      
+      $user_id = $doc->createElement("user_id");
+      $user_id->setAttribute('anonFlag', "true");
+      $user_id->nodeValue = $userName;
+      
+      // Append user id into meta
        $meta->appendChild($user_id);
        $sessionID = $doc->createElement("session_id");
        //$user_id->setAttribute('anonFlag', "true");
@@ -56,7 +55,7 @@ $db = new PDO("mysql:dbname=$dbname;host=localhost",$dbuser,$dbpass);
        // Append session_id to meta
        $timerec = $doc->createElement("time");
        //$user_id->setAttribute('anonFlag', "true");
-       $timerec->nodeValue = $row['starttime'];
+       $timerec->nodeValue = $row['startTime'];
        $meta->appendChild($timerec);
        // Append time to meta
        $timezone = $doc->createElement("time_zone");
@@ -97,11 +96,11 @@ $db = new PDO("mysql:dbname=$dbname;host=localhost",$dbuser,$dbpass);
        // Append description as child element to class
        $class->appendChild($description);
        
-       $instructor = $doc->createElement("instructor");
-       $instructor->nodeValue = $row['instructorName'];
+       //$instructor = $doc->createElement("instructor");
+       //$instructor->nodeValue = $row['instructorName'];
     
-        // Append instructor as child element to class
-       $class->appendChild($instructor);
+       // Append instructor as child element to class
+       //$class->appendChild($instructor);
        $context_msg_el->appendChild($class);
        // Append class as child element to context_message
        // *************
@@ -109,6 +108,7 @@ $db = new PDO("mysql:dbname=$dbname;host=localhost",$dbuser,$dbpass);
       
        
         
+
        
        //Creating dataset
        
@@ -122,7 +122,7 @@ $db = new PDO("mysql:dbname=$dbname;host=localhost",$dbuser,$dbpass);
        
     
        $dslevel = $doc->createElement("level");
-       $dslevel->setAttribute('type', "module");
+       $dslevel->setAttribute('type', "subject");
        
        $dslevelName = $doc->createElement("name");
        $dslevelName->nodeValue = $row['modulename'];
@@ -132,35 +132,47 @@ $db = new PDO("mysql:dbname=$dbname;host=localhost",$dbuser,$dbpass);
        
        //////
        
-       $dslevel2 = $doc->createElement("level"); 
-       $dslevel2->setAttribute('type', "section");
-       $dslevel2_name = $doc->createElement("name"); 
-       $dslevel2_name->nodeValue ='Andes Homework Problems'; //April 8th 2012
+       //$dslevel2 = $doc->createElement("level"); 
+       //$dslevel2->setAttribute('type', "section");
+       //$dslevel2_name = $doc->createElement("name"); 
+       //$dslevel2_name->nodeValue =''; //April 8th 2012
        $dslevel2_prob = $doc->createElement("problem"); 
        $dslevel2_prob_name = $doc->createElement("name");
-       $dslevel2_prob_name->nodeValue = $row['userproblem'];
+       $dslevel2_prob_name->nodeValue = $row['userProblem'];
        // Append name as child element to problem
        $dslevel2_prob->appendChild($dslevel2_prob_name);
        // Append name as child element to level
-       $dslevel2->appendChild($dslevel2_name);
+       //$dslevel2->appendChild($dslevel2_name);
        // Append problem as child element to level
-       $dslevel2->appendChild($dslevel2_prob);
+       $dslevel->appendChild($dslevel2_prob);
        // Append level with module attribute as child element to dataset       
        $dataset->appendChild($dslevel);
         // Append level with section attribute as child element to dataset     
-       $dslevel->appendChild($dslevel2);
+       //$dslevel->appendChild($dslevel2);
         // Append dataset as child element to context_message    
        $context_msg_el->appendChild($dataset);
         //Creating element condition
        $condition = $doc->createElement("condition");
        $condition_name = $doc->createElement("name");
-       $condition_name->nodeValue = $row['usersection'];
-        $condition->appendChild($condition_name);
-        $condition_type = $doc->createElement("type");
-       $condition_type->nodeValue = 'experimental'; //April 8th
+       $condition_name->nodeValue = $row['userSection'];
+       $condition->appendChild($condition_name);
+       $cond = $row['userSection'];
+       if($cond == 'study-c')
+	 {
+             $condtype = 'control';
+	     
+             $conddesc ='Raj experiment, control condition';
+         }
+       else
+         {
+	   $condtype = 'experimental';
+	   $conddesc ='Raj experiment, experimental condition';
+         }
+       $condition_type = $doc->createElement("type");
+       $condition_type->nodeValue = $condtype; //April 8th
        $condition->appendChild($condition_type);
        $condition_desc = $doc->createElement("description");
-       $condition_desc->nodeValue = 'Raj experiment experimental condition';
+       $condition_desc->nodeValue = $conddesc;
        $condition->appendChild($condition_desc);
        $context_msg_el->appendChild($condition);
        // Append context_message as child element to tutor_related_message_sequence
@@ -168,7 +180,7 @@ $db = new PDO("mysql:dbname=$dbname;host=localhost",$dbuser,$dbpass);
        
        
        //for a specific clientID in the problem attempt table get the corresponding transactions from the step transaction table
-       foreach ($db->query("SELECT st.tid, st.client, st.server, pa.clientID, pa.userName, pa.startTime, pa.userProblem, pa.userSection FROM step_transaction st, OPEN_PROBLEM_ATTEMPT pa where st.clientID = pa.clientID and st.clientID = '".$row['clientID']."'") as $row2)
+       foreach ($db->query("SELECT st.tid, st.client, st.server, pa.clientID, pa.userName, pa.startTime, pa.userProblem, pa.userSection FROM STEP_TRANSACTION st, OPEN_PROBLEM_ATTEMPT pa WHERE st.clientID = pa.clientID and st.clientID = '".$row['clientID']."'") as $row2)
        {
            $sat19_action_eval = '';
            $sat19_id = '';
@@ -207,7 +219,7 @@ $db = new PDO("mysql:dbname=$dbname;host=localhost",$dbuser,$dbpass);
                     if(isset ($params1->time))
                     {
                         $timetrans = $params1->time;
-                        $srttime = strtotime($row['starttime']);
+                        $srttime = strtotime($row['startTime']);
                         $newtime = date('Y-m-d H:i:s', $srttime + $timetrans);
             //$user_id->setAttribute('anonFlag', "true");
                         $timerec->nodeValue = ($newtime);
@@ -229,6 +241,7 @@ $db = new PDO("mysql:dbname=$dbname;host=localhost",$dbuser,$dbpass);
                 //if client has a field id, set attribute of semantic_event as id
                 if(isset ($b->id))
                 {
+
                      $semantic_evnt_trans->setAttribute('transaction_id', $b->id);
                      //initialize transaction_id_tool_tutor to id of client
                      $transaction_id_tool_tutor = $b->id;
@@ -544,8 +557,7 @@ $db = new PDO("mysql:dbname=$dbname;host=localhost",$dbuser,$dbpass);
                          if(!$apr16_assoc_set)
                            ////April 16
                         {
-                            foreach($db->query("SELECT server FROM step_transaction where tid > ".$row2['tid']." and server like '%\"mode\":\"correct\"%' and clientID = '".
-$row2['clientID']."'") as $apr16)
+                            foreach($db->query("SELECT server FROM STEP_TRANSACTION WHERE tid > ".$row2['tid']." and server like '%\"mode\":\"correct\"%' and clientID = '".$row2['clientID']."'") as $apr16)
                                     {
                                        if(!$apr16_assoc_set)
                                        {
@@ -638,14 +650,14 @@ $row2['clientID']."'") as $apr16)
                               //if($error_type_val == '')
                               //{
                                 // {Addition for Heuristic-1} if(rows>1)- elseif(rows==1)
-                                $res = $db->query("SELECT server FROM step_transaction where server like '%".$sat19_id."%' and clientID = '".$row2['clientID']."'") ;
+                                $res = $db->query("SELECT server FROM STEP_TRANSACTION WHERE server like '%".$sat19_id."%' and clientID = '".$row2['clientID']."'") ;
                                 $rows = $res->rowCount();
                                 //Addition for Heurisitc- 2 $res has  tid > ".$row2['tid']." if(rows>0) - elseif(rows==0)
                                 
                                 if($rows > 1)
                                 {  
                                   //scroll down look for ID and mode = correct, get assoc value                                   
-                                foreach($db->query("SELECT server FROM step_transaction where tid > ".$row2['tid']." and server like '%".$sat19_id."%' AND server like '%\"mode\":\"correct\"%' and clientID = '".$row2['clientID']."'") as $sat19)
+                                foreach($db->query("SELECT server FROM STEP_TRANSACTION WHERE tid > ".$row2['tid']." and server like '%".$sat19_id."%' AND server like '%\"mode\":\"correct\"%' and clientID = '".$row2['clientID']."'") as $sat19)
                                 {
                                     if(!$sat19_assoc_set)
                                     {
@@ -691,7 +703,7 @@ $row2['clientID']."'") as $apr16)
                                    
                                 if(!$sat19_assoc_set)
                                 {
-                                   foreach($db->query("SELECT server FROM step_transaction where tid > ".$row2['tid']." and server like '%\"mode\":\"correct\"%' and clientID = '".$row2['clientID']."'") as $sat20)
+                                   foreach($db->query("SELECT server FROM STEP_TRANSACTION WHERE tid > ".$row2['tid']." and server like '%\"mode\":\"correct\"%' and clientID = '".$row2['clientID']."'") as $sat20)
                                     {
                                        if(!$sat19_assoc_set)
                                        {
@@ -781,11 +793,19 @@ $row2['clientID']."'") as $apr16)
    }
    
    //make the output pretty
-$doc->formatOutput = true;
-
-//echo $doc->saveXML();
-// Saving the generated XML
-$doc->save($userName.".xml");
-   }
+   $doc->formatOutput = true;
    
+   //echo $doc->saveXML();
+   // Saving the generated XML
+   $outputfile = explode(":",$userName);
+   if(count($outputfile) > 1 && $outputfile[1] != "")
+     {
+       $doc->save($outputfile[1].".xml");
+     }
+   else
+     {
+       $doc->save($userName.".xml");
+     }
+   }
+
 ?>
