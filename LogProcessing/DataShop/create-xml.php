@@ -27,6 +27,17 @@ $db = new PDO("mysql:dbname=$dbname;host=localhost",$dbuser,$dbpass);
 // The following tells PDO we want it to throw Exceptions for every error.
 // This is far more useful than the default mode of throwing php errors
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
+
+// Get list of problems for Summer 2012 experiment
+$query="SELECT userName,value from OPEN_STUDENT_STATE where userSection REGEXP '$userSection' and property='EXPERIMENT-PROBLEMS'";
+$experimentProblems=array();
+foreach($db->query($query) as $stud){
+  foreach(explode(' ',trim($stud['value'],'()')) as $prob){
+    $experimentProblems[$stud['userName']][strtolower(trim($prob))]=1;
+  }
+}
+//print_r($experimentProblems);
+  
 // Since this is for reasearch purposes, access only anonymized ids.
 $query="select distinct pa.userName FROM OPEN_PROBLEM_ATTEMPT pa WHERE pa.userSection REGEXP '$userSection' and pa.startTime > '$startTime'";
 // Since we do queries inside the loop, get result array all at once.
@@ -176,9 +187,15 @@ foreach($db->query($query)->fetchAll() as $rowfirst)
        $condition_name->nodeValue = $row['userSection'];
        $condition->appendChild($condition_name);
 
-       // Need code to define conditions
-       $condtype = 'experimental';
-       $conddesc ='Raj experiment, experimental condition';   
+       // Two experimental conditions for Summer 2012 class
+       if(isset($experimentProblems[$userName][$row['userProblem']])){
+	 $condtype = 'experimental';
+	 $conddesc ='Improved help policy experiment, experimental condition';   
+       } else {
+	 $condtype = 'control';
+	 $conddesc ='Improved help policy experiment, control condition';   
+       }
+       //echo "$condtype " . $userName . " " . $row['userProblem'] . "\n";
 
        $condition_type = $doc->createElement("type");
        $condition_type->nodeValue = $condtype; //April 8th
