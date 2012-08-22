@@ -79,17 +79,14 @@ foreach($db->query($query)->fetchAll() as $rowfirst)
       // Append user id into meta
        $meta->appendChild($user_id);
        $sessionID = $doc->createElement("session_id");
-       //$user_id->setAttribute('anonFlag', "true");
        $sessionID->nodeValue = $row['clientID'];
        $meta->appendChild($sessionID);
        // Append session_id to meta
        $timerec = $doc->createElement("time");
-       //$user_id->setAttribute('anonFlag', "true");
        $timerec->nodeValue = $row['startTime'];
        $meta->appendChild($timerec);
        // Append time to meta
        $timezone = $doc->createElement("time_zone");
-       //$user_id->setAttribute('anonFlag', "true");
        $timezone->nodeValue = 'MST';
        $meta->appendChild($timezone);
        //Append timezone to meta
@@ -162,6 +159,10 @@ foreach($db->query($query)->fetchAll() as $rowfirst)
        
        //////
        
+       // This is where problems might be grouped
+       // according to sections or weeks or chapters
+       // or something.
+
        //$dslevel2 = $doc->createElement("level"); 
        //$dslevel2->setAttribute('type', "section");
        //$dslevel2_name = $doc->createElement("name"); 
@@ -237,7 +238,6 @@ foreach($db->query($query)->fetchAll() as $rowfirst)
            // Append user_id as a child to meta
                 $toolmeta->appendChild($user_id);
                 $sessionID = $doc->createElement("session_id");
-           //$user_id->setAttribute('anonFlag', "true");
                  $sessionID->nodeValue = $row['clientID'];
            // Append session_id as a child to meta
                  $toolmeta->appendChild($sessionID);            
@@ -251,14 +251,12 @@ foreach($db->query($query)->fetchAll() as $rowfirst)
                         $timetrans = $params1->time;
                         $srttime = strtotime($row['startTime']);
                         $newtime = date('Y-m-d H:i:s', $srttime + $timetrans);
-            //$user_id->setAttribute('anonFlag', "true");
                         $timerec->nodeValue = ($newtime);
             // Append time as a child to meta
                         $toolmeta->appendChild($timerec);
                     }
                 }
                 $timezone = $doc->createElement("time_zone");
-            //$user_id->setAttribute('anonFlag', "true");
                 $timezone->nodeValue = 'MST';
             // Append timezone as a child to meta
                 $toolmeta->appendChild($timezone);     

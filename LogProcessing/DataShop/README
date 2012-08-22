@@ -6,7 +6,7 @@ The Raj lab study is sections 'study-c' and 'study-e'
 and date after 2011-04-01.  The experimental conditions
 are identical with the Guerra dataset above.
 
-UPDATE CLASS_INFORMATION name='', school='', description='',
+UPDATE CLASS_INFORMATION SET name='', school='', description='',
     instructorName=''
 WHERE classSection='';
 
@@ -41,3 +41,17 @@ experimental condition.  Maybe something like:
 </condition>
 
 *** St. Anselm class, Summer 2012
+
+asu_7e256268bab914fb5asul1_
+
+Experimental condition is problem-wise and must be
+applied externally.
+
+INSERT INTO STUDENT_DATASET SET datasetname='St. Anselm College, Introductory Physics, Summer 2012', modulename='Physics';
+
+SELECT * FROM STUDENT_DATASET;  // to get dataset ID, use below.
+
+UPDATE CLASS_INFORMATION SET name='PS 121-122, General Physics I-II', 
+    school='St. Anselm College', description='Condensed summer school version of two-semester course.',
+    instructorName='David Guerra', datasetID=6
+    WHERE classSection='asu_7e256268bab914fb5asul1_';

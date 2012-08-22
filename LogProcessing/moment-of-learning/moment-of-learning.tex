@@ -29,24 +29,92 @@ Bayesian Knowledge tracing.
 
 \section{Introduction}
 
-Talk about ultimate goal of using this to determine effectiveness
-of help given or of a particular student behavior.
+%Talk about ultimate goal of using this to determine effectiveness
+%of help given or of a particular student behavior.
 
-Survey of BKT work done to date.
+There is ample evidence that a well-designed Intelligent Tutor 
+System (ITS) can be almost as effective as an expert human 
+tutor~\cite{its}.  A key ingredient for improving an ITS is
+determining whether a particular student action or the 
+tutoring given by the ITS at a given instance was effective.
+There are several senses in which an activity might be ``effective.''
+For instance:  
+%
+\begin{itemize}
+\item Did it improve the student's attitude toward
+the subject?  
+\item Did it minimize time-on-task (assuming 
+a skill was eventually learned)?  
+\item Did it improve the student's 
+problem-solving skills?  
+\item Did it prepare the student to learn
+material later in the course?
+\end{itemize}
 
-\section{A model of learning}
+In the present investigation, we will take a narrower definition
+of effectiveness of a particular student or tutor action:  
+Did the action immediately precede the
+student learning a new skill?  Answering this question requires
+the use of some sort of embedded assessment of student learning.
+Presumably, a student will encounter a given skill multiple times
+during a problem solving session, so any pre-test/post-test will
+not tell us a what step the student learned the skill.
+In addition, it means that the determination must be made
+after the fact, typically through some log file analysis. 
 
-Define steps and transactions.
+In this work, we investigate a methods for determining
+when a student may have learned a skill based on their
+ability to apply that skill without errors or asking for hints.
+In principle, there are other observables that may give us
+clues on mastery:  for instance, how much time a student takes
+to complete a step.  However, other such observables need
+some additional interpretation (How long is too long?).
 
-For each student and KC, the student has attempted some number of 
+Baker, Goldstein, and Heffernan~\cite{bgh} attempt a model
+of learning based on a Hidden Markov model approach.  In their
+model, they consider additional variables.  However, the
+goal of their model is the same as ours:  a prediction 
+of the probability that the student learns a particular
+skill at a given step.
+
+First we will compare three different models of learning
+and examine whether there is emphirical support for using
+one model over the others.  In fact, using Akaike Information
+Criteria (AIC), we obtain results that seem to favor one 
+model over the others, but conclude that there are some
+unresolved issues.
+
+Second, we select a model and use a multimodel approach
+to predict where learning has occurred, with what probability,
+and how much learning has occurred.  We apply our approach
+to student data and discuss the reliability of our predictions.
+
+
+\subsection{Correct/Incorrect steps}
+
+Although there are other observables that may be used
+to determine whether a skill has been mastered, Table 1 of
+\cite{bgh} list 14 different observables.  However, we 
+will focus on correctness of a step.  Thus, we need to
+define precisely what we mean by a step being correct.
+
+For each student and Knowledge Component (KC)~\cite{kc}, 
+the student has attempted some number of 
 {\em steps} that involve that KC.   We will label
 steps with $j$.  Usually a given step is associated
 with a single user interface object (an equation, vector, etc.)  but
 not always, since a student may attempt a particular problem solving
 step, delete the object, and later attempt that solution step again.
-Each step $j$ corresponds some some number of student-tutor 
-{\em transactions}: attempts at constructing the associated object, 
-or associated interactions with the Andes help system.  
+Sometimes, we talk of a step being an {\em opportunity} to learn
+a given skill if the student needs to apply that skill
+to complete that step.
+
+%
+%  Not needed in this paper.
+%
+%Each step $j$ corresponds some some number of student-tutor 
+%{\em transactions}: attempts at constructing the associated object, 
+%or associated interactions with the Andes help system.  
 
 %Next, we need a model of student learning for a particular KC.
 %Since the policies chosen by the random-help version of Andes
@@ -323,8 +391,8 @@ We fit this datum to 8 sub-models of the step model, corresponding to
 $L\in\{1,2,\ldots,8\}$, by maximizing the log likelihood $\log\mathcal{L}$.  
 The associated AIC values are
 given by $\mathrm{AIC}_L=2 K-\log \mathcal{L}$  where $K$ is the
-number of fit parameters.  When $L>1$, $K=2$  (parameters $s$ and $g$) and 
-when $L=1$, $K=1$ (paramter $s$ only).
+number of fit parameters.  Note that there are two parameters 
+($s$ and $g$) when $L>1$ and there is only one parameter ($s$) when $L=1$.
 %
 %\begin{table}
 %\caption{
@@ -402,12 +470,13 @@ see Fig.~\ref{weighted-gain-histogram2}.
 What would the distribution look like if the data weren't 
 so noisy?  To see this, we generated an artificial ``ideal'' dataset
 $\mathcal{I}$ where there were no slips or guesses, but having
-the same length distribution as $\mathcal{A}$ 
+the same bit string length distribution as $\mathcal{A}$ 
 (Fig.~\ref{student-length-histogram}).  Thus, the bit strings
 in $\mathcal{I}$ have the form $00\cdots011\cdots1$.
 In this case, for each student-KC pair, we expect a single 
-large weighted gain and the remaining weighted gains to
-be nearly zero.  The resulting distribution of gains is shown
+large weighted gain (corresponding to the first 1 in the bit string) 
+and the remaining weighted gains to be nearly zero.  The resulting 
+distribution of gains is shown
 in  Fig.~\ref{weighted-gain-histogram2}.
 
 \begin{figure}
@@ -431,21 +500,22 @@ student-KC pair:
 where $\alpha$ is an index running over all student-KC pairs in a 
 dataset and $N$ is the number of student-KC pairs.
 For the random dataset $\mathcal{R}$, we expect the distribution of 
-weighted gains
-to be symmetric about zero and $Q$ to be zero.  Numerically, we 
-get  $Q=-0.002\pm0.002$, consistent with zero.
+weighted gains to be symmetric about zero and thus $Q$ to approach zero.  
+Numerically, we get  $Q=-0.002\pm0.002$, consistent with zero.
 For the ``ideal'' dataset $\mathcal{I}$,
-we expect the maximum value of $w_L$ to be nearly one 
-with associated $\Delta_L\approx 1$ so that $Q\approx 1$.
-Numerically, we get $Q=0.5240\pm0.0003$, which is a little lower
-than expected due to the large number of student-KC pairs with just one
-or two steps.  For the student dataset
-$\mathcal{A}$, we obtain $Q=0.047\pm0.008$, which
+we expect, for the first 1 in the bit string, $w_L$ to be nearly one 
+with associated $\Delta_L$ also nearly one so that $Q\to 1$ in
+the limit of many opportunities.
+Numerically, we get $Q=0.5240\pm0.0003$, which is due to the 
+large number of student-KC pairs having just a few steps.  
+For the student dataset $\mathcal{A}$, we obtain $Q=0.047\pm0.008$, which
 is small, but significant.  Since $Q$ is 6 standard deviations from
 zero, we conclude that the student dataset is of sufficient quality
 to use for determining where learning has occurred.
 
 \section{Conclusion}
+
+{\bf Compare with Hidden Markow Model approaches}.
 
 One thing that we can conclude is that determining the
 moment of learning for an individual student is a murky
@@ -456,6 +526,7 @@ randomly generated dataset.
 However, the fact that we can find significant positive average gains,
 suggests the situation is not hopeless.  We can use $Q$ to determine
 the predictive power of a given dataset. 
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -563,6 +634,10 @@ see Fig.~\ref{bkt-function}
 
 \begin{thebibliography}{9}
 
+\bibitem{kc}Reference with definition of KC.
+
+\bibitem{its}Kurt meta-analysis of tutor systems vs. human tutors.
+
 \bibitem{anderson} 
   Corbett, A.\ T., Anderson, J.\ R. Knowledge Tracing:  Modeling 
 the Acquisition of Procedural Knowledge.  \emph{User Modeling and
@@ -577,6 +652,9 @@ the Acquisition of Procedural Knowledge.  \emph{User Modeling and
 \bibitem{baker} Baker, R, Corbett, A., Aleven, V.,  Improving Contextual 
     Models of Guessing and Slipping with a Truncated Training Set. 
     First International Conference on Educational Data Mining. 2008. 
+
+\bibitem{bgh} Baker, R., Goldstein, A., Heffernan, N., Detecting
+ the Moment of Learning, ITS 2010.
 
 \bibitem{brunskill}
    Lee, J.\ I., Brunskill, E.\ The impact of Individualizing Student 
