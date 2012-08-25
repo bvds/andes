@@ -279,6 +279,8 @@ if ($myrow = mysql_fetch_array($result)) {
 			     'id' => $a->id,
 			     'clientID' => $clientID,
 			     'tID' => $ttID,
+			     // Needed for Summer 2012 experimental conditions
+			     'problem' => $thisProblem,
 			     'dt' => $sessionTime->dt(),
 			     'random-help' => array());
 	    // Determine if there is an associated error.
@@ -646,6 +648,40 @@ if(false){
   }
  }
 
+// For each Student/KC print out: probability learning occurred 
+// during experiment, avg gain, avg steps before learning.
+//
+// Could also do conditional probabilities:
+//        Avg number of steps given that learning occurred during experiment
+//        etc.
+if(true){
+  // Header
+  echo "\"Section\",\"student\",\"KC\",\"exptProb\",\"avgGain\",\"avgLearnSteps\"\n";
+  foreach ($allKCStudent as $kc => $ss){
+    // none:  entries where assigment of blame failed
+    // select-mc-answer  answer multiple-choice questions
+    if(skipKC($kc))continue; 
+    foreach($ss as $thisSection => $st){
+      foreach($st as $thisName => $opps){
+	$maxv=$model[$kc][$thisSection][$thisName];
+	$learn=0;
+	$jj=0;
+	$eProb=0;
+	// set when turn is defined.  All transactions in an
+	// opportunity must occur in the same problem.
+	$thisProb=$opps[0]['problem'];
+	for($k=0; $k<count($opps); $k++){
+	  $learn+=$maxv['learnHereProb'][$k]*$maxv['learnGain'][$k];
+	  $jj+=$maxv['learnHereProb'][$k]*$k;
+	  if($expt->inExperiment($thisSection,$thisName,$thisProb)){
+	    $eProb+=$maxv['learnHereProb'][$k];
+	  }
+	}
+	echo "\"$thisSection\",\"$thisName\",\"$kc\",$eProb,$learn,$jj\n";
+      }
+    }
+  }
+ }
 
 // For each kc and step, print model parameters, step id (ttID),
 // and policies used, in csv format.

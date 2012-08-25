@@ -5,7 +5,8 @@
   // See README file for details
   //
   // (Sigh) The code that Anirudh wrote contains lots of 
-  // code duplication.
+  // code duplication.  It also duplicates other php code
+  // used to analyze log files.
 
 include 'JSON.php';
 $userSection='^asu_7e256268bab914fb5asul1_';
@@ -29,7 +30,8 @@ $db = new PDO("mysql:dbname=$dbname;host=localhost",$dbuser,$dbpass);
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
 
 // Get list of problems for Summer 2012 experiment
-$query="SELECT userName,value from OPEN_STUDENT_STATE where userSection REGEXP '$userSection' and property='EXPERIMENT-PROBLEMS'";
+// See condtion.php
+$query="SELECT userName,value from OPEN_STUDENT_STATE where userSection REGEXP '$userSection' and property='EXPERIMENT-PROBLEMS' and model='server'";
 $experimentProblems=array();
 foreach($db->query($query) as $stud){
   foreach(explode(' ',trim($stud['value'],'()')) as $prob){
