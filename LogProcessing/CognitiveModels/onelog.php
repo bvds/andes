@@ -16,6 +16,7 @@ if($htmlHeaders):
 // These are all optional
  //     ^md5:b50efc   // Student used for tests of different models.
  //     ^md5:e2ed3385  // student in '^uwplatt_2Y130'
+ //     ^md5:3f638244   // Student in Guerra summer 2012
 $userName = '';  // regexp to match
 	     // MIT_.*
              // asu experiment
@@ -656,7 +657,7 @@ if(false){
 //        etc.
 if(true){
   // Header
-  echo "\"Section\",\"student\",\"KC\",\"exptProb\",\"avgGain\",\"avgLearnSteps\"\n";
+  echo "\"Section\",\"student\",\"KC\",\"exptProb\",\"controlProb\",\"avgGain\",\"avgLearnSteps\"\n";
   foreach ($allKCStudent as $kc => $ss){
     // none:  entries where assigment of blame failed
     // select-mc-answer  answer multiple-choice questions
@@ -664,20 +665,22 @@ if(true){
     foreach($ss as $thisSection => $st){
       foreach($st as $thisName => $opps){
 	$maxv=$model[$kc][$thisSection][$thisName];
-	$learn=0;
-	$jj=0;
 	$eProb=0;
-	// set when turn is defined.  All transactions in an
-	// opportunity must occur in the same problem.
-	$thisProb=$opps[0]['problem'];
-	for($k=0; $k<count($opps); $k++){
-	  $learn+=$maxv['learnHereProb'][$k]*$maxv['learnGain'][$k];
-	  $jj+=$maxv['learnHereProb'][$k]*$k;
+	$cProb=0;
+	for($k=1; $k<count($opps); $k++){
+	  // All transactions in an
+	  // opportunity must occur in the same problem.
+	  $thisProb=$opps[$k-1][0]['problem'];
 	  if($expt->inExperiment($thisSection,$thisName,$thisProb)){
 	    $eProb+=$maxv['learnHereProb'][$k];
+	  } else {
+	    $cProb+=$maxv['learnHereProb'][$k];
 	  }
 	}
-	echo "\"$thisSection\",\"$thisName\",\"$kc\",$eProb,$learn,$jj\n";
+	// Use Maximum Likelihood estimater for gain and step.
+	$learnGain=1-$maxv['pg']-$maxv['ps'];
+	echo "\"$thisSection\",\"$thisName\",\"$kc\",$eProb,$cProb,$learnGain," .
+	  $maxv['learn'] . "\n";
       }
     }
   }
