@@ -8,20 +8,57 @@
 %   http://en.wikibooks.org/wiki/LaTeX
 
 \begin{document}
-\title{Some notes on Bayesian Knowledge tracing}
+\title{Bayesian Knowledge Tracing and the Identifiability Problem}
 \author{Brett van de Sande}
-\maketitle
 
-\section{Introduction}
-
+\begin{abstract}
 The Bayesian Knowledge tracing model is very widely used in
 modeling student learning.  Unlike most Hidden Markov Models,
 it is simple enough that it can be solved analytically, which
-gives some insight into its behavior.
+gives some insight into its behavior.  In particular, we show that
+it is, in fact, a model with three parameters and has the 
+functional form of an exponential.
+\end{abstract}
 
-\section{Baysian Knowledge tracing}
+\maketitle
 
-The Bayesian Knowledge tracing model~\cite{anderson} has four parameters:
+
+\section{Introduction}
+
+The Bayesian Knowledge Tracing (BKT) model was first introduced by Corbett
+and Anderson~\cite{anderson}.  Since then, it has been widely applied
+in
+studies of student learning.  In addition, it often serves as the starting
+%
+%   Need examples of BKT-based models, only look at examples
+%   where identifiability problem exists.
+%
+point for more complcated models of learning, for example~\cite{bca,brunskill}.  
+While using this model,  number of authors have noted have noted the 
+existence of what is called the ``identifiability problem'' \cite{beckchang}.    
+That is, there seems to be certain combinations of the model 
+parameters that produce identical models.   
+
+The BKT model is commonly expressed as a Hidden Markov Model (HMM).
+A typical HMM must be solved numerically to find its functional form.
+However, the BKT model is simple enough that it can be solved analytically,
+which we will do here.  We will see that the model, in functional
+form, is an exponential.  Moreoever, we will see that it is, in fact,
+a three parameter model, explaining the identifiability problem.
+
+%There are several reasons why a HMM is a good represention.  First,
+%the parameters of the HMM are often thought to have some physical
+%significance.  In BKT, for instance, $P_j$ is the probability that the
+%student knows the skill at a certain point of time:  it is a simple
+%mental model of the student.  Thus, a distinction can be made between
+%the student's mental state and their actual behavior (whether they
+%can apply the skill correctly).   In contrast, a more behaviorist
+%approach would eshew $P_j$ in favor of a model of actual behavior.
+
+
+\section{Baysian Knowledge Tracing}
+
+The Bayesian Knowledge Tracing model~\cite{anderson} has four parameters:
 %
 \begin{itemize}
    \item $P_0$ is the initial probability of knowing a skill.
@@ -29,7 +66,7 @@ The Bayesian Knowledge tracing model~\cite{anderson} has four parameters:
          doesn't know the skill.
    \item $P(S)$ is probability of slips, if student does know the skill.
    \item $P(L)$ is probability of learning the skill if the student 
-         does not know the skill.  Note that this is assumed to 
+         does not know the skill.  Note that $P(L)$ is assumed to 
          be constant over steps.
 \end{itemize}
 %
@@ -38,18 +75,19 @@ step $j$. According to the model,  $P_j$ can
 be determined in terms of the previous opportunity:
 %
 \begin{equation}
-          P_j = P_{j-1} + P(L)\left(1-P_{j-1}\right) \label{recurse}
+          P_j = P_{j-1} + P(L)\left(1-P_{j-1}\right)  \; . \label{recurse}
 \end{equation}
 %
 According to this model, the probability that the student actually gets
 opportunity $j$ correct is:
 %
 \begin{equation}
-         P_j(C) = P(G)\left(1-P_j\right) + \left(1-P(S)\right) P_j \label{pnc}
+         P_j(C) = P(G)\left(1-P_j\right) + \left(1-P(S)\right) P_j \; . \label{pnc}
 \end{equation}
 %
 (Unlike the four model parameters above, there isn't a consistent
 notation for $P_j(C)$ in the literature.)
+
 This model can be  solved exactly.  First, we rewrite (\ref{recurse}) in a
 more suggestive form:
 %
@@ -69,15 +107,14 @@ Substituting (\ref{sol}) into (\ref{pnc}), we get:
 %
 \begin{equation}
          P_j(C) = 1-P(S) -\left(1-P(S)-P(G)\right) \left(1-P_0\right)
-                   \left(1-P(L)\right)^j \label{pncsoln}
+                   \left(1-P(L)\right)^j \; . \label{pncsoln}
 \end{equation}
 %
 Note that the functional form of $P_j(C)$ is a function of {\em three}
 parameters:  $P(S)$, $P(L)$, and $\left(1-P(S)-P(G)\right) \left(1-P_0\right)$.
 This degeneracy of the model was first noticed by Beck and 
 Chang~\cite{beckchang} where they call it the ``identifiability
-problem.''  
-In their paper, they note that multiple
+problem.''   In their paper, they note that multiple
 combinations of $P(G)$ and $P_0$ give exactly the same $P_j(C)$, but
 fail to explain why this is the case.
 
@@ -95,13 +132,46 @@ see Fig.~\ref{bktgraph}.
 
 \begin{figure}
 \centering\includegraphics{exponential.eps}
-\caption{Graph of $P_j(C)$ the probability of  the student getting step $j$
-  correct.}
+\caption{The Baysian Knowledge Tracing model in functional form. 
+          $P_j(C)$ the probability of  the student getting step $j$ correct.}
  \label{bktgraph}
 \end{figure}
 
-In conclusion, Baysian Knowledge tracing is equivalent to using
-an exponential function with three parameters to fit the student data.
+\section{Conclusion}
+
+In conclusion, the Baysian Knowledge Tracing model, when expressed
+in functional form, is an exponential function with three parameters.
+It is unclear how the identifiability problem has affected previous
+results.  Certainly, any study that relies on a value for $P(G)$ or
+$P_0$ as output from a fit to student data would be affected.
+On the other hand, studies that rely only on $P(S)$ or $P(L)$ from
+a fit to student data should be OK.
+
+Some authors have addressed the identifiability problem by 
+fixing $P_0$ using some additional constraint~\cite{fix}.  
+This is only necessary in the case
+where $P(G)$ or $P_0$ are being used as output from a fit 
+to to student data.
+
+% This needs work!  Should find one or more examples and investigate!
+In the case of more complicated models, such as seen 
+in~\cite{bca,brunskill}, analytic solutions are not available.  However,
+there are qualitative methods that can be applied~\cite{qualitative},
+so the solutions can be classified and asymptotic values can 
+be found.
+
+% Question:  can Markov chains produce power law behavior?
+% Need supporting literature for power law vs. exponential.
+
+Finally, we see that the functional form of BKT corresponds 
+to an exponential.  There is a long discussion in the literature 
+concerning the question whether learning is better explained as
+a power law or an exponential~\cite{powerlaw}.  The answer to this question has
+profound implications for the kinds of models of learning are
+reasonable.  However, despite the wide use of BKT, I believe there
+is no conclusive experimental evidence that one is preferred over the 
+other.
+
 
 %Equations (1) and (2) of \cite{brunskill} 
 %are equivalent to the first three equations in \cite{baker}
@@ -134,19 +204,28 @@ an exponential function with three parameters to fit the student data.
 the Acquisition of Procedural Knowledge.  \emph{User Modeling and
  User-Adapted Interaction}, 1995, 4, 253--278.
 
+\bibitem{qualitative}Qualitative methods for HMMs.  I have in mind
+here the analog to qualitative methods for Diff. Eqs.
+
 \bibitem{beckchang}
   Beck, J.\ E., Chang, K.-m.\ Identifiability: A Fundamental Problem of
   Student Modeling.
   \emph{Proceedings of the $11^{th}$ International Conference on User 
     Modeling}, 2007.
 
-%\bibitem{baker} Baker, R, Corbett, A., Aleven, V.,  Improving Contextual 
-%    Models of Guessing and Slipping with a Truncated Training Set. 
-%    First International Conference on Educational Data Mining. 2008. 
+\bibitem{fix}Paper (Aleven?) where ambiguity is addressed by fixing 
+a parameter.
 
-%\bibitem{brunskill}
-%   Lee, J.\ I., Brunskill, E.\ The impact of Individualizing Student 
-%  Modesls on Necessary Practice Opportunities.  EDM, 2012.
+\bibitem{bca} Baker, R, Corbett, A., Aleven, V.,  Improving Contextual 
+    Models of Guessing and Slipping with a Truncated Training Set. 
+    First International Conference on Educational Data Mining. 2008. 
+
+\bibitem{brunskill}
+   Lee, J.\ I., Brunskill, E.\ The impact of Individualizing Student 
+  Modesls on Necessary Practice Opportunities.  EDM, 2012.
+
+\bibitem{powerlaw}Papers on power law versus exponential as a model
+of learning.
 
 \end{thebibliography}
 
