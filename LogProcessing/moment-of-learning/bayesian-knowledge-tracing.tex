@@ -38,7 +38,7 @@ step $j$. According to the model,  $P_j$ can
 be determined in terms of the previous opportunity:
 %
 \begin{equation}
-          P_j = P_{j-1} + P(L)\left(1-P_{j-1}\right)
+          P_j = P_{j-1} + P(L)\left(1-P_{j-1}\right) \label{recurse}
 \end{equation}
 %
 According to this model, the probability that the student actually gets
@@ -50,10 +50,17 @@ opportunity $j$ correct is:
 %
 (Unlike the four model parameters above, there isn't a consistent
 notation for $P_j(C)$ in the literature.)
-This model can be exactly solved with solution: 
+This model can be  solved exactly.  First, we rewrite (\ref{recurse}) in a
+more suggestive form:
 %
 \begin{equation}
-            P_j = 1-\left(1-P(L)\right)^j\left(1-P_0\right)
+        1-P_j = \left(1-P(L)\right) \left(1-P_{j-1}\right) \; .
+\end{equation}
+%
+One can show that this recursion relation has solutions of the form:
+%
+\begin{equation}
+            1-P_j = \left(1-P(L)\right)^j\left(1-P_0\right) \; .
 	    \label{sol}
 \end{equation}
 %
@@ -68,7 +75,9 @@ Substituting (\ref{sol}) into (\ref{pnc}), we get:
 Note that the functional form of $P_j(C)$ is a function of {\em three}
 parameters:  $P(S)$, $P(L)$, and $\left(1-P(S)-P(G)\right) \left(1-P_0\right)$.
 This degeneracy of the model was first noticed by Beck and 
-Chang~\cite{beckchang}.  In their paper, they notice that multiple
+Chang~\cite{beckchang} where they call it the ``identifiability
+problem.''  
+In their paper, they note that multiple
 combinations of $P(G)$ and $P_0$ give exactly the same $P_j(C)$, but
 fail to explain why this is the case.
 
@@ -79,14 +88,18 @@ $\beta=-\log(1-P(L))$, then we can rewrite (\ref{pncsoln}) in
 a clearer form:
 %
 \begin{equation}
-         P_j(C) = 1-P(S) -A e^{-\beta j}
+         P_j(C) = 1-P(S) -A e^{-\beta j} \, ;
 \end{equation}
 %
-So the graph of  $P_j(C)$ looks like the following:
-%
-\[
-\includegraphics{exponential.eps}
-\]
+see Fig.~\ref{bktgraph}.
+
+\begin{figure}
+\centering\includegraphics{exponential.eps}
+\caption{Graph of $P_j(C)$ the probability of  the student getting step $j$
+  correct.}
+ \label{bktgraph}
+\end{figure}
+
 In conclusion, Baysian Knowledge tracing is equivalent to using
 an exponential function with three parameters to fit the student data.
 
