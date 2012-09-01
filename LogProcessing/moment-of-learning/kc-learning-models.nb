@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       145,          7]
-NotebookDataLength[     13519,        370]
-NotebookOptionsPosition[     12674,        335]
-NotebookOutlinePosition[     13014,        350]
-CellTagsIndexPosition[     12971,        347]
+NotebookDataLength[     14157,        388]
+NotebookOptionsPosition[     13312,        353]
+NotebookOutlinePosition[     13652,        368]
+CellTagsIndexPosition[     13609,        365]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -25,8 +25,10 @@ Cell[BoxData[
   RowBox[{"NotebookDirectory", "[", "]"}], "]"}]], "Input",
  CellChangeTimes->{{3.544401989256278*^9, 3.544402015850553*^9}}],
 
-Cell[BoxData["\<\"/Volumes/BRETT-STUFF\"\>"], "Output",
- CellChangeTimes->{3.545415442781939*^9, 3.546131563162306*^9}]
+Cell[BoxData["\<\"/Users/bvds/Andes2/LogProcessing/moment-of-learning\"\>"], \
+"Output",
+ CellChangeTimes->{3.545415442781939*^9, 3.546131563162306*^9, 
+  3.55544133519975*^9}]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -197,12 +199,16 @@ Cell[BoxData[
         RowBox[{"0", ",", "1"}], "}"}]}], ",", 
       RowBox[{"AxesLabel", "\[Rule]", 
        RowBox[{"{", 
-        RowBox[{"\"\<j\>\"", ",", 
+        RowBox[{"\"\<\!\(\*
+StyleBox[\"j\",
+FontSlant->\"Italic\"]\)\>\"", ",", 
          RowBox[{"SequenceForm", "[", 
           RowBox[{
            RowBox[{"Subscript", "[", 
-            RowBox[{"\"\<P\>\"", ",", "\"\<bkt\>\""}], "]"}], ",", 
-           "\"\<(j)\>\""}], "]"}]}], "}"}]}], ",", 
+            RowBox[{"\"\<P\>\"", ",", "\"\<\!\(\*
+StyleBox[\"j\",
+FontSlant->\"Italic\"]\)\>\""}], "]"}], ",", "\"\<(C)\>\""}], "]"}]}], 
+        "}"}]}], ",", 
       RowBox[{"BaseStyle", "\[Rule]", 
        RowBox[{"{", 
         RowBox[{"FontSize", "\[Rule]", "12"}], "}"}]}], ",", " ", 
@@ -212,7 +218,9 @@ Cell[BoxData[
        RowBox[{"{", 
         RowBox[{
          RowBox[{"Text", "[", 
-          RowBox[{"\"\<1-P(S)-A\>\"", ",", 
+          RowBox[{"\"\<1-P(S)-\!\(\*
+StyleBox[\"A\",
+FontSlant->\"Italic\"]\)\>\"", ",", 
            RowBox[{"{", 
             RowBox[{"2", ",", "pg"}], "}"}], ",", 
            RowBox[{"{", 
@@ -256,7 +264,7 @@ Cell[BoxData[
    3.545442538816387*^9, 3.545442539835766*^9}, {3.552180336924226*^9, 
    3.552180701960452*^9}, {3.552180737062706*^9, 3.5521808187432213`*^9}, {
    3.55218085126927*^9, 3.552180870095912*^9}, {3.552181336334396*^9, 
-   3.552181416802292*^9}}],
+   3.552181416802292*^9}, {3.5554411588731422`*^9, 3.555441163628972*^9}}],
 
 Cell[BoxData[
  GraphicsBox[{{}, {}, 
@@ -294,18 +302,26 @@ lo9EzRpcc+vYlF5P4O8+gzvdukj4D+MTXbE=
     Rational[1, 2], 0.5],
   Axes->True,
   AxesLabel->{
-    FormBox["\"j\"", TraditionalForm], 
+    FormBox[
+    "\"\\!\\(\\*\\nStyleBox[\\\"j\\\",\\nFontSlant->\\\"Italic\\\"]\\)\"", 
+     TraditionalForm], 
     FormBox[
      InterpretationBox[
       RowBox[{
-        SubscriptBox["\"P\"", "\"bkt\""], "\[InvisibleSpace]", "\"(j)\""}], 
+        SubscriptBox[
+        "\"P\"", 
+         "\"\\!\\(\\*\\nStyleBox[\\\"j\\\",\\nFontSlant->\\\"Italic\\\"]\\)\"\
+"], "\[InvisibleSpace]", "\"(C)\""}], 
       SequenceForm[
-       Subscript["P", "bkt"], "(j)"], Editable -> False], TraditionalForm]},
+       Subscript["P", "\!\(\*\nStyleBox[\"j\",\nFontSlant->\"Italic\"]\)"], 
+       "(C)"], Editable -> False], TraditionalForm]},
   AxesOrigin->{0, 0},
   BaseStyle->{FontSize -> 12},
   Epilog->{
     InsetBox[
-     FormBox["\"1-P(S)-A\"", TraditionalForm], {2, 0.15}, {0, -1}], 
+     FormBox[
+     "\"1-P(S)-\\!\\(\\*\\nStyleBox[\\\"A\\\",\\nFontSlant->\\\"Italic\\\"]\\)\
+\"", TraditionalForm], {2, 0.15}, {0, -1}], 
     InsetBox[
      FormBox["\"1-P(S)\"", TraditionalForm], {9, 0.8}, {0, -1}], 
     Dashing[{Small, Small}], 
@@ -317,7 +333,8 @@ lo9EzRpcc+vYlF5P4O8+gzvdukj4D+MTXbE=
     Scaled[0.02], Automatic}]], "Output",
  CellChangeTimes->{
   3.55218082022683*^9, 3.5521808727172747`*^9, {3.552181383666133*^9, 
-   3.5521814188017273`*^9}}]
+   3.5521814188017273`*^9}, 3.555441169067082*^9, 3.555441227540443*^9, 
+   3.555441337677527*^9}]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -329,7 +346,8 @@ Cell[BoxData[
   3.552181423625525*^9, 3.5521814522066727`*^9}}],
 
 Cell[BoxData["\<\"exponential.eps\"\>"], "Output",
- CellChangeTimes->{{3.552181429375592*^9, 3.552181454984557*^9}}]
+ CellChangeTimes->{{3.552181429375592*^9, 3.552181454984557*^9}, 
+   3.5554412334594107`*^9, 3.5554413411321774`*^9}]
 }, Open  ]]
 }, Open  ]]
 },
@@ -351,25 +369,25 @@ CellTagsIndex->{}
 Notebook[{
 Cell[CellGroupData[{
 Cell[567, 22, 170, 3, 27, "Input"],
-Cell[740, 27, 119, 1, 27, "Output"]
+Cell[740, 27, 176, 3, 27, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[896, 33, 155, 2, 34, "Subsection"],
+Cell[953, 35, 155, 2, 34, "Subsection"],
 Cell[CellGroupData[{
-Cell[1076, 39, 2446, 59, 118, "Input"],
-Cell[3525, 100, 2178, 55, 204, "Output"]
+Cell[1133, 41, 2446, 59, 118, "Input"],
+Cell[3582, 102, 2178, 55, 204, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[5740, 160, 170, 3, 27, "Input"],
-Cell[5913, 165, 203, 3, 27, "Output"]
+Cell[5797, 162, 170, 3, 27, "Input"],
+Cell[5970, 167, 203, 3, 27, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[6153, 173, 3403, 85, 118, "Input"],
-Cell[9559, 260, 2704, 59, 219, "Output"]
+Cell[6210, 175, 3584, 91, 118, "Input"],
+Cell[9797, 268, 3052, 68, 219, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[12300, 324, 227, 4, 27, "Input"],
-Cell[12530, 330, 116, 1, 27, "Output"]
+Cell[12886, 341, 227, 4, 27, "Input"],
+Cell[13116, 347, 168, 2, 27, "Output"]
 }, Open  ]]
 }, Open  ]]
 }

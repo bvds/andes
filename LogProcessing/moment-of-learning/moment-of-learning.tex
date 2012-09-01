@@ -57,6 +57,7 @@ This work is supported by the National Science Foundation, award
 number SBE-0836012.
 \end{bottomstuff}
 
+
 \maketitle
 
 
@@ -235,7 +236,7 @@ which is an exponential function,
          P_\mathrm{BKT}(j) = 1-P(S) -A e^{-\beta j} \; .
 \end{equation}
 %
-Note that this is a function of three parameters~\cit{bktsolution}.
+Note that this is a function of three parameters~\cite{bktsolution}.
 One central assumption of BKT is that, given that learning
 has not already occurred, mastery is {\em equally probable} on each step.
 This assumption of equal probability does not match well with 
@@ -298,12 +299,12 @@ Factors Analysis~\cite{lfa}.
 
 Since the goodness of fit criterion, AIC, is valid in the limit 
 of many steps, we include in this analysis only student-KC 
-pairs that contain 10 or more turns, reducing the number of 
+pairs that contain 10 or more steps, reducing the number of 
 student-KC pairs to 267, covering 38 distinct KC's.
 We determine the correctness of each step (Section~\ref{steps}),
-assigning a 1 if the step is correct or 0 if it is not.
-Thus, for each student-KC pair, we construct bit string, {\em exempli gratia},
-001001101.  This bit string is then fit to each of the three models,
+constructing a bit string, {\em exempli gratia},
+001001101, for each student-KC pair.  
+This bit string is then fit to each of the three models,
 $P_\mathrm{step}(j)$, $P_\mathrm{logit}(j)$, and $P_\mathrm{BKT}(j)$ by
 maximizing the associated log likelihood.  
 %This determines the free parameters in each model. 
@@ -365,8 +366,7 @@ taken into account.  Burnham \& Johnson conclude
 that there is more work to be done in this area~\cite[p.~380]{aicbook}: 
 ``Operating characteristics
 of AIC-based model selection for count-type data need more 
-more study for small sample sizes.''  Apparently, 100 data points
-is still too small.
+more study for small sample sizes.'' 
 
 \begin{figure}
   \centering \includegraphics{scatter-random-weights.eps}

@@ -11,6 +11,8 @@
 \title{Bayesian Knowledge Tracing and the Identifiability Problem}
 \author{Brett van de Sande}
 
+\maketitle
+
 \begin{abstract}
 The Bayesian Knowledge tracing model is very widely used in
 modeling student learning.  Unlike most Hidden Markov Models,
@@ -20,30 +22,27 @@ it is, in fact, a model with three parameters and has the
 functional form of an exponential.
 \end{abstract}
 
-\maketitle
-
 
 \section{Introduction}
 
 The Bayesian Knowledge Tracing (BKT) model was first introduced by Corbett
 and Anderson~\cite{anderson}.  Since then, it has been widely applied
-in
-studies of student learning.  In addition, it often serves as the starting
+in studies of student learning.  In addition, it often serves as the starting
 %
 %   Need examples of BKT-based models, only look at examples
 %   where identifiability problem exists.
 %
-point for more complcated models of learning, for example~\cite{bca,brunskill}.  
+point for more complicated models of learning, for example~\cite{bca,brunskill}.  
 While using this model,  number of authors have noted have noted the 
 existence of what is called the ``identifiability problem'' \cite{beckchang}.    
-That is, there seems to be certain combinations of the model 
+That is, there seem to be certain combinations of the model 
 parameters that produce identical models.   
 
 The BKT model is commonly expressed as a Hidden Markov Model (HMM).
 A typical HMM must be solved numerically to find its functional form.
 However, the BKT model is simple enough that it can be solved analytically,
 which we will do here.  We will see that the model, in functional
-form, is an exponential.  Moreoever, we will see that it is, in fact,
+form, is an exponential.  Moreover, we will see that it is, in fact,
 a three parameter model, explaining the identifiability problem.
 
 %There are several reasons why a HMM is a good represention.  First,
@@ -53,10 +52,10 @@ a three parameter model, explaining the identifiability problem.
 %mental model of the student.  Thus, a distinction can be made between
 %the student's mental state and their actual behavior (whether they
 %can apply the skill correctly).   In contrast, a more behaviorist
-%approach would eshew $P_j$ in favor of a model of actual behavior.
+%approach would eschew $P_j$ in favor of a model of actual behavior.
 
 
-\section{Baysian Knowledge Tracing}
+\section{Bayesian Knowledge Tracing}
 
 The Bayesian Knowledge Tracing model~\cite{anderson} has four parameters:
 %
@@ -132,14 +131,14 @@ see Fig.~\ref{bktgraph}.
 
 \begin{figure}
 \centering\includegraphics{exponential.eps}
-\caption{The Baysian Knowledge Tracing model in functional form. 
+\caption{The Bayesian Knowledge Tracing model in functional form. 
           $P_j(C)$ the probability of  the student getting step $j$ correct.}
  \label{bktgraph}
 \end{figure}
 
 \section{Conclusion}
 
-In conclusion, the Baysian Knowledge Tracing model, when expressed
+In conclusion, the Bayesian Knowledge Tracing model, when expressed
 in functional form, is an exponential function with three parameters.
 It is unclear how the identifiability problem has affected previous
 results.  Certainly, any study that relies on a value for $P(G)$ or
@@ -150,8 +149,7 @@ a fit to student data should be OK.
 Some authors have addressed the identifiability problem by 
 fixing $P_0$ using some additional constraint~\cite{fix}.  
 This is only necessary in the case
-where $P(G)$ or $P_0$ are being used as output from a fit 
-to to student data.
+where, after fitting the model to data, $P(G)$ a being used as an output.
 
 % This needs work!  Should find one or more examples and investigate!
 In the case of more complicated models, such as seen 
@@ -160,17 +158,17 @@ there are qualitative methods that can be applied~\cite{qualitative},
 so the solutions can be classified and asymptotic values can 
 be found.
 
-% Question:  can Markov chains produce power law behavior?
+% Question:  can Markov chains produce power law behavior? YES!
 % Need supporting literature for power law vs. exponential.
 
 Finally, we see that the functional form of BKT corresponds 
-to an exponential.  There is a long discussion in the literature 
-concerning the question whether learning is better explained as
-a power law or an exponential~\cite{powerlaw}.  The answer to this question has
-profound implications for the kinds of models of learning are
-reasonable.  However, despite the wide use of BKT, I believe there
-is no conclusive experimental evidence that one is preferred over the 
-other.
+to an exponential, rather than a power law.  
+Heathcote, Brown, and Mewhort~\cite{powerlaw}
+argue that learning for individuals is better described by
+exponentials while (as shown in earlier studies) learning averaged
+over individuals is better described by a power law function.
+This would suggest that BKT may be more appropriate for describing
+individual learners.
 
 
 %Equations (1) and (2) of \cite{brunskill} 
@@ -222,10 +220,11 @@ a parameter.
 
 \bibitem{brunskill}
    Lee, J.\ I., Brunskill, E.\ The impact of Individualizing Student 
-  Modesls on Necessary Practice Opportunities.  EDM, 2012.
+  Models on Necessary Practice Opportunities.  EDM, 2012.
 
-\bibitem{powerlaw}Papers on power law versus exponential as a model
-of learning.
+\bibitem{powerlaw}Heathcote, A., Brown, S., Mewhort, D. 
+  The power law repealed: The case for an exponential law of practice.
+  Psychonomic Bulletin \& Review, 2000, 7, 185-207.
 
 \end{thebibliography}
 
