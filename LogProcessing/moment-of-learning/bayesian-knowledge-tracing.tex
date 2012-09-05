@@ -8,6 +8,9 @@
 %   http://en.wikibooks.org/wiki/LaTeX
 
 \begin{document}
+
+\bibliographystyle{plain}
+
 \title{Bayesian Knowledge Tracing and the Identifiability Problem}
 \author{Brett van de Sande}
 
@@ -22,20 +25,29 @@ it is, in fact, a model with three parameters and has the
 functional form of an exponential.
 \end{abstract}
 
+%
+%  Had idea to look at extensions to BKT where the analytic solution
+%  is  not feasible but use variation of parameters to find any
+%  "identifiability problem" (degeneracies).  However, the two that I
+%  know about, Lee and  Brunskill and Baker's models do not have any 
+%  degeneracies.   Probably not worth the effort, since a random, very 
+%  complicated model, in general, will not have any degeneracies.
+%
+
 
 \section{Introduction}
 
 The Bayesian Knowledge Tracing (BKT) model was first introduced by Corbett
-and Anderson~\cite{anderson}.  Since then, it has been widely applied
+and Anderson~\cite{corbett_knowledge_1994}.  Since then, it has been widely applied
 in studies of student learning.  In addition, it often serves as the starting
 %
 %   Need examples of BKT-based models, only look at examples
 %   where identifiability problem exists.
 %
-point for more complicated models of learning, for example~\cite{bca,brunskill}.  
+point for more complicated models of learning, for example~\cite{baker_r._improving_2008,lee_impact_2012}.  
 While using this model,  number of authors have noted have noted the 
-existence of what is called the ``identifiability problem'' \cite{beckchang}.    
-That is, there seem to be certain combinations of the model 
+existence of what is called the ``identifiability problem'' \cite{beck_identifiability:_2007}.    
+That is, there are certain combinations of the model 
 parameters that produce identical models.   
 
 The BKT model is commonly expressed as a Hidden Markov Model (HMM).
@@ -57,7 +69,7 @@ a three parameter model, explaining the identifiability problem.
 
 \section{Bayesian Knowledge Tracing}
 
-The Bayesian Knowledge Tracing model~\cite{anderson} has four parameters:
+The Bayesian Knowledge Tracing model~\cite{corbett_knowledge_1994} has four parameters:
 %
 \begin{itemize}
    \item $P_0$ is the initial probability of knowing a skill.
@@ -111,16 +123,15 @@ Substituting (\ref{sol}) into (\ref{pnc}), we get:
 %
 Note that the functional form of $P_j(C)$ is a function of {\em three}
 parameters:  $P(S)$, $P(L)$, and $\left(1-P(S)-P(G)\right) \left(1-P_0\right)$.
-This degeneracy of the model was first noticed by Beck and 
-Chang~\cite{beckchang} where they call it the ``identifiability
-problem.''   In their paper, they note that multiple
-combinations of $P(G)$ and $P_0$ give exactly the same $P_j(C)$, but
-fail to explain why this is the case.
 
 The functional form of (\ref{pncsoln}) is an exponential.
-If we define 
-$A=\left(1-P(S)-P(G)\right) \left(1-P_0\right)$ and
-$\beta=-\log(1-P(L))$, then we can rewrite (\ref{pncsoln}) in 
+If we define
+%
+\begin{equation} 
+          A=\left(1-P(S)-P(G)\right) \left(1-P_0\right)  \label{aa}
+\end{equation}
+%
+ and $\beta=-\log(1-P(L))$, then we can rewrite (\ref{pncsoln}) in 
 a clearer form:
 %
 \begin{equation}
@@ -136,6 +147,30 @@ see Fig.~\ref{bktgraph}.
  \label{bktgraph}
 \end{figure}
 
+\section{Identifiability and Model Degeneracy}
+
+The fact that the BKT model is a function of three parameters
+was first noticed by Beck and Chang~\cite{beck_identifiability:_2007} 
+where they call it the ``identifiability problem.''   In their paper, they noteed that multiple
+combinations of $P(G)$ and $P_0$ give exactly the same $P_j(C)$, but
+failed to explain why this is the case.  An example showing the relation
+between $P(G)$ and $P_0$ for a given model is shown in Fig.~\ref{table1}.
+
+Baker and co dicsuss the need for paramters to.
+Let us use parameters from Table~1 of
+\cite{beck_identifiability:_2007} for the BKT model: 
+$P(S)=0.05$, $P(T)=0.1$, and $A=0.418$.
+
+\begin{figure}
+\centering\includegraphics{table1.eps}
+\caption{Relation between $P(G)$ and $P_0$ for the BKT model in Table~1
+  of \cite{beck_identifiability:_2007}.  The three points are the
+  three models in Table~1 of \cite{beck_identifiability:_2007}.  The
+  line is from Eqn.~\ref{aa}, with $P(S)=0.05$ and $A=0.418$. }
+ \label{table1}
+\end{figure}
+
+
 \section{Conclusion}
 
 In conclusion, the Bayesian Knowledge Tracing model, when expressed
@@ -144,34 +179,35 @@ It is unclear how the identifiability problem has affected previous
 results.  Certainly, any study that relies on a value for $P(G)$ or
 $P_0$ as output from a fit to student data would be affected.
 On the other hand, studies that rely only on $P(S)$ or $P(L)$ from
-a fit to student data should be OK.
+a fit to student data should be OK.  In addition, expressing
+the model in terms of three parameters should improve speed
+and accuracy of any maximum likelihood fit to student data.
 
 Some authors have addressed the identifiability problem by 
+% paper with work-around for identifiability problem (Aleven?)
+%
+% Dynamic Cognitive Tracing: Towards Unified Discovery of 
+% Student and Cognitive Models  Jose P. Gonzalez-Brenes and Jack
+% Mostow  set P_0=0.
 fixing $P_0$ using some additional constraint~\cite{fix}.  
-This is only necessary in the case
-where, after fitting the model to data, $P(G)$ a being used as an output.
-
-% This needs work!  Should find one or more examples and investigate!
-In the case of more complicated models, such as seen 
-in~\cite{bca,brunskill}, analytic solutions are not available.  However,
-there are qualitative methods that can be applied~\cite{qualitative},
-so the solutions can be classified and asymptotic values can 
-be found.
+This is of use in the case where, after fitting the model to data, 
+$P(G)$ a being used as a model output.  Otherwise, the impsition
+of the additional constraint has no effect on the result.
 
 % Question:  can Markov chains produce power law behavior? YES!
 % Need supporting literature for power law vs. exponential.
 
 Finally, we see that the functional form of BKT corresponds 
 to an exponential, rather than a power law.  
-Heathcote, Brown, and Mewhort~\cite{powerlaw}
+Heathcote, Brown, and Mewhort~\cite{heathcote_power_2000}
 argue that learning for individuals is better described by
 exponentials while (as shown in earlier studies) learning averaged
 over individuals is better described by a power law function.
-This would suggest that BKT may be more appropriate for describing
-individual learners.
+This suggests that BKT may be more appropriate for describing
+individual learners, rather than performance averaged over students.
 
 
-%Equations (1) and (2) of \cite{brunskill} 
+%Equations (1) and (2) of \cite{lee_impact_2012} 
 %are equivalent to the first three equations in \cite{baker}
 %\begin{eqnarray}
 %   P(L_n|\mbox{correct}) &=& P(T)+\frac{\left(1-P(T)\right) P(L_{n-1})
@@ -189,46 +225,10 @@ individual learners.
 %This equivalence is from changing the order of updating
 %student mastery and updating the estimate based on student
 %response, as noted by the authors.  However, this raises
-%a question for Equations (3) and (4) of \cite{brunskill}.
+%a question for Equations (3) and (4) of \cite{lee_impact_2012}.
 %Should the probability be taken before or after updating the
 %student mastery:
 
-
-
-\begin{thebibliography}{9}
-
-\bibitem{anderson} 
-  Corbett, A.\ T., Anderson, J.\ R. Knowledge Tracing:  Modeling 
-the Acquisition of Procedural Knowledge.  \emph{User Modeling and
- User-Adapted Interaction}, 1995, 4, 253--278.
-
-\bibitem{qualitative}Qualitative methods for HMMs.  I have in mind
-here the analog to qualitative methods for Diff. Eqs.
-
-\bibitem{beckchang}
-  Beck, J.\ E., Chang, K.-m.\ Identifiability: A Fundamental Problem of
-  Student Modeling.
-  \emph{Proceedings of the $11^{th}$ International Conference on User 
-    Modeling}, 2007.
-
-\bibitem{fix}Paper (Aleven?) where ambiguity is addressed by fixing 
-a parameter.
-
-\bibitem{bca} Baker, R, Corbett, A., Aleven, V.,  Improving Contextual 
-    Models of Guessing and Slipping with a Truncated Training Set. 
-    First International Conference on Educational Data Mining. 2008. 
-
-\bibitem{brunskill}
-   Lee, J.\ I., Brunskill, E.\ The impact of Individualizing Student 
-  Models on Necessary Practice Opportunities.  EDM, 2012.
-
-\bibitem{powerlaw}Heathcote, A., Brown, S., Mewhort, D. 
-  The power law repealed: The case for an exponential law of practice.
-  Psychonomic Bulletin \& Review, 2000, 7, 185-207.
-
-\end{thebibliography}
-
-
-
+\bibliography{education-modeling}
 
 \end{document}
