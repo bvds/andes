@@ -149,27 +149,41 @@ see Fig.~\ref{bktgraph}.
 
 \section{Identifiability and Model Degeneracy}
 
-The fact that the BKT model is a function of three parameters
-was first noticed by Beck and Chang~\cite{beck_identifiability:_2007} 
-where they call it the ``identifiability problem.''   In their paper, they noteed that multiple
-combinations of $P(G)$ and $P_0$ give exactly the same $P_j(C)$, but
-failed to explain why this is the case.  An example showing the relation
-between $P(G)$ and $P_0$ for a given model is shown in Fig.~\ref{table1}.
-
-Baker and co dicsuss the need for paramters to.
-Let us use parameters from Table~1 of
-\cite{beck_identifiability:_2007} for the BKT model: 
-$P(S)=0.05$, $P(T)=0.1$, and $A=0.418$.
 
 \begin{figure}
 \centering\includegraphics{table1.eps}
-\caption{Relation between $P(G)$ and $P_0$ for the BKT model in Table~1
-  of \cite{beck_identifiability:_2007}.  The three points are the
-  three models in Table~1 of \cite{beck_identifiability:_2007}.  The
-  line is from Eqn.~\ref{aa}, with $P(S)=0.05$ and $A=0.418$. }
+\caption{Relation between $P(G)$ and $P_0$ for the BKT model
+  described in Table~1 of \cite{beck_identifiability:_2007}.  
+  The three points are the
+  three parameter sets listed in Table~1 of \cite{beck_identifiability:_2007}.
+   The line is from Eqn.~\ref{aa}, with $P(S)=0.05$ and $A=0.418$. }
  \label{table1}
 \end{figure}
 
+
+The fact that the BKT model is a function of three parameters
+was first noticed by Beck and Chang~\cite{beck_identifiability:_2007} 
+where they call it the ``Identifiability Problem.''   In their paper, 
+they noted that multiple
+combinations of $P(G)$ and $P_0$ give exactly the same $P_j(C)$, but
+failed to explain why this is the case.  An example showing the relation
+between $P(G)$ and $P_0$ for a given model is shown in Fig.~\ref{table1}.
+Thus, we can see that Eqn.~\ref{aa} provides an explanation of the
+Identifiability Problem.
+
+Baker, Corbett, and Aleven~\cite{baker_more_2008} discuss the need for 
+model parameters to be physically meaningful.  They call this the
+``Model   For example, all probabilities should lie between zero and one.  
+In the case of the BKT model, we demand that $0\le P_0\le 1$ and
+ $0\le P(G) \le 1$.
+If we further demand that learning is positive (which may not be justified
+by empirical data, in some cases), then we demand that $A>0$ or $P(G)<1-P(S)$.
+These constraints explain the rectangular region 
+
+to guesses $P(G)$ must be less than 
+Let us use parameters from Table~1 of
+\cite{beck_identifiability:_2007} for the BKT model: 
+$P(S)=0.05$, $P(T)=0.1$, and $A=0.418$.
 
 \section{Conclusion}
 
