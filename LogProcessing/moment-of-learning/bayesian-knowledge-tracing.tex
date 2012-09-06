@@ -154,9 +154,10 @@ see Fig.~\ref{bktgraph}.
 \centering\includegraphics{table1.eps}
 \caption{Relation between $P(G)$ and $P_0$ for the BKT model
   described in Table~1 of \cite{beck_identifiability:_2007}.  
-  The three points are the
-  three parameter sets listed in Table~1 of \cite{beck_identifiability:_2007}.
-   The line is from Eqn.~\ref{aa}, with $P(S)=0.05$ and $A=0.418$. }
+  The line is from Eqn.~\ref{aa}, with $P(S)=0.05$ and $A=0.418$.
+  The three points are the  three parameter sets listed in Table~1 of
+  \cite{beck_identifiability:_2007}. 
+ }
  \label{table1}
 \end{figure}
 
@@ -172,18 +173,67 @@ Thus, we can see that Eqn.~\ref{aa} provides an explanation of the
 Identifiability Problem.
 
 Baker, Corbett, and Aleven~\cite{baker_more_2008} discuss the need for 
-model parameters to be physically meaningful.  They call this the
-``Model   For example, all probabilities should lie between zero and one.  
+model parameters to be physically meaningful.  They call this 
+``Model Degeneracy.''   For example, all probabilities should lie between zero and one.  
 In the case of the BKT model, we demand that $0\le P_0\le 1$ and
  $0\le P(G) \le 1$.
-If we further demand that learning is positive (which may not be justified
-by empirical data, in some cases), then we demand that $A>0$ or $P(G)<1-P(S)$.
-These constraints explain the rectangular region 
+If we further demand that learning is positive (which may or may not be justified
+by empirical data), then we have the constraint $A>0$ or $P(G)<1-P(S)$.
+These constraints on $P_0$ and $P(G)$ correspond to the rectangular region shown in Fig.~\ref{table1}.
+In terms of $A$, valid values of $P(G)$ and $P_0$ occur when
+$0<A<1-P(S)$; for negative learning, valid values occur when
+$-P(S)<A<0$.  This sets the range of physically meaningful values of
+$A$ when fitting to student data.
 
-to guesses $P(G)$ must be less than 
-Let us use parameters from Table~1 of
-\cite{beck_identifiability:_2007} for the BKT model: 
-$P(S)=0.05$, $P(T)=0.1$, and $A=0.418$.
+\section{Bayesian Form}
+
+\begin{figure}
+\centering\includegraphics{p-recursion.eps}
+\caption{
+  Recusion relations Eqn.~\ref{correct} and Eqn.~\ref{incorrect}.
+  The stable fixed point for each recursion relation is marked
+  by a dot.  The fact that the ``step $j$ correct'' curve is above the
+  dashed line means that Eqn.~\ref{correct} causes $P_j$ to 
+   converge to $P_j=1$.  Likewise the fact that 
+   the ``step $j$ incorrect'' curve is below $P_{j+1}=P_j$ means that 
+   Eqn.~\ref{incorrect} causes $P_j$ to converge to~\ref{incorrectfixedpoint}.
+ }
+ \label{p-recursion}
+\end{figure}
+
+
+So far, we have discussed using BKT as a model which, when expressed
+in functional form, can be fitted to empirical data to obtain values
+for the three model parameters.  In order to predict $P_j$ for an
+individual student in real time, an alternative form is used where
+$P_j$ updated using the data from the student itself.
+In this case, the recursion relation for updating $P_j$ 
+is~\cite{corbett_knowledge_1994,baker_more_2008} depends on
+student performance on that step:
+%
+\begin{eqnarray}
+       P_j &=&
+       1-\frac{\left(1-P(T)\right)\left(1-P_{j-1}\right)P(G)}{P(G)+\left(1-P(S)-P(G)\right)
+         P_{j-1}}  \mbox{~,~~ step $j$ correct} \label{correct}\\
+       P_j &=& 1-\frac{\left(1-P(T)\right)\left(1-P_{j-1}\right)\left(1-P(G)\right)}
+                                 {1-P(G)-\left(1-P(S)-P(G)\right) P_{j-1}}
+                        \mbox{~ ,~~ step $j$ incorrect.} \label{incorrect}
+\end{eqnarray}
+%
+While these recursion relations cannot be solve analytically, we
+can learn much about their solutions using a fixed point analysis.
+First, we find the fixed points of each recursion, \ref{correct} and
+\ref{incorrect} by setting $P_j=P_{j-1}$.  For Eqn.~\ref{incorrect}, we
+find a stable fixed point at $P_j=1$ and an unstable fixed point at
+\begin{equation}
+    P_j=- \frac{P(G) P(T)}{1-P(g)-P(S)} \; .
+\end{equation}
+Similarly, Eqn.~\ref{correct} has an unstable fixed point at $P_j=1$
+and a stable fixed point at
+\begin{equation}
+    P_j=\frac{\left(1-P(G)\right) P(T)}{1-P(g)-P(S)} \; . \label{incorrectfixedpoint}
+\end{equation}
+See Fig.~\ref{p-recursion}.
 
 \section{Conclusion}
 
