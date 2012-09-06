@@ -1,29 +1,52 @@
-\documentclass[11pt,letterpaper]{article}
+% acmsmall-sample.tex, dated 24th May 2012
+% This is a sample file for ACM small trim journals
+% Users can also go through the FAQs available on the journal's submission webpage.
+%
+% Steps to compile: latex, bibtex, latex latex
+%
+% For tracking purposes => this is v1.3 - May 2012
+\documentclass{acmlarge-edm}
+
 \usepackage{graphics}
-\usepackage{fullpage}
-\addtolength{\voffset}{0.5in}
 
 %
 %  Cool LaTeX resource:
 %   http://en.wikibooks.org/wiki/LaTeX
 
-\begin{document}
+\firstfoot{}
+\runningfoot{}
 
-\bibliographystyle{plain}
+% Page heads
+% Doesn't seem to be used in JEDM
+\markboth{}{}
+
 
 \title{Bayesian Knowledge Tracing and the Identifiability Problem}
-\author{Brett van de Sande}
+\author{BRETT VAN DE SANDE
+\affil{Arizona State University\\bvds@asu.edu}}
 
-\maketitle
 
 \begin{abstract}
-The Bayesian Knowledge tracing model is very widely used in
-modeling student learning.  Unlike most Hidden Markov Models,
+The Bayesian Knowledge Tracing model is very widely used to
+model student learning.  Unlike most Hidden Markov Models,
 it is simple enough that it can be solved analytically, which
 gives some insight into its behavior.  In particular, we show that
 it is, in fact, a model with three parameters and has the 
 functional form of an exponential.
 \end{abstract}
+\keywords{Bayesian Knowledge Tracing, student modelling}
+
+\begin{document}
+
+\bibliographystyle{acmlarge}
+
+
+\begin{bottomstuff}
+This work is supported by the National Science Foundation, award
+number SBE-0836012.
+\end{bottomstuff}
+
+\maketitle
 
 %
 %  Had idea to look at extensions to BKT where the analytic solution
@@ -37,16 +60,19 @@ functional form of an exponential.
 
 \section{Introduction}
 
-The Bayesian Knowledge Tracing (BKT) model was first introduced by Corbett
-and Anderson~\cite{corbett_knowledge_1994}.  Since then, it has been widely applied
-in studies of student learning.  In addition, it often serves as the starting
+Since its introduction in 1994, the Bayesian Knowledge Tracing (BKT) 
+model~\cite{corbett_knowledge_1994} has been widely applied
+in studies of student learning and in various tutor systems.  
+In addition, BKT  often serves as the starting
 %
 %   Need examples of BKT-based models, only look at examples
-%   where identifiability problem exists.
+%   where Identifiability Problem exists.
 %
-point for more complicated models of learning, for example~\cite{baker_r._improving_2008,lee_impact_2012}.  
+point for more complicated models of learning, for 
+example~\cite{baker_r._improving_2008,lee_impact_2012}.  
 While using this model,  number of authors have noted have noted the 
-existence of what is called the ``identifiability problem'' \cite{beck_identifiability:_2007}.    
+existence of what is called the ``Identifiability Problem'' 
+\cite{beck_identifiability:_2007}.    
 That is, there are certain combinations of the model 
 parameters that produce identical models.   
 
@@ -55,7 +81,7 @@ A typical HMM must be solved numerically to find its functional form.
 However, the BKT model is simple enough that it can be solved analytically,
 which we will do here.  We will see that the model, in functional
 form, is an exponential.  Moreover, we will see that it is, in fact,
-a three parameter model, explaining the identifiability problem.
+a three parameter model, explaining the Identifiability Problem.
 
 %There are several reasons why a HMM is a good represention.  First,
 %the parameters of the HMM are often thought to have some physical
@@ -99,6 +125,13 @@ opportunity $j$ correct is:
 (Unlike the four model parameters above, there isn't a consistent
 notation for $P_j(C)$ in the literature.)
 
+\begin{figure}
+\centering\includegraphics{exponential.eps}
+\caption{The Bayesian Knowledge Tracing model in functional form. 
+          $P_j(C)$ the probability of  the student getting step $j$ correct.}
+ \label{bktgraph}
+\end{figure}
+
 This model can be  solved exactly.  First, we rewrite (\ref{recurse}) in a
 more suggestive form:
 %
@@ -121,10 +154,9 @@ Substituting (\ref{sol}) into (\ref{pnc}), we get:
                    \left(1-P(L)\right)^j \; . \label{pncsoln}
 \end{equation}
 %
-Note that the functional form of $P_j(C)$ is a function of {\em three}
-parameters:  $P(S)$, $P(L)$, and $\left(1-P(S)-P(G)\right) \left(1-P_0\right)$.
-
-The functional form of (\ref{pncsoln}) is an exponential.
+Note that the form of $P_j(C)$, as a function of $j$, 
+depends on only {\em three} parameters:  $P(S)$, $P(L)$, and 
+$\left(1-P(S)-P(G)\right) \left(1-P_0\right)$.
 If we define
 %
 \begin{equation} 
@@ -135,17 +167,10 @@ If we define
 a clearer form:
 %
 \begin{equation}
-         P_j(C) = 1-P(S) -A e^{-\beta j} \, ;
+         P_j(C) = 1-P(S) -A e^{-\beta j} \, .
 \end{equation}
 %
-see Fig.~\ref{bktgraph}.
-
-\begin{figure}
-\centering\includegraphics{exponential.eps}
-\caption{The Bayesian Knowledge Tracing model in functional form. 
-          $P_j(C)$ the probability of  the student getting step $j$ correct.}
- \label{bktgraph}
-\end{figure}
+Thus, $P_j(C)$ is an exponential; see Fig.~\ref{bktgraph}.
 
 \section{Identifiability and Model Degeneracy}
 
@@ -154,7 +179,7 @@ see Fig.~\ref{bktgraph}.
 \centering\includegraphics{table1.eps}
 \caption{Relation between $P(G)$ and $P_0$ for the BKT model
   described in Table~1 of \cite{beck_identifiability:_2007}.  
-  The line is from Eqn.~\ref{aa}, with $P(S)=0.05$ and $A=0.418$.
+  The line is from Eqn.~(\ref{aa}), with $P(S)=0.05$ and $A=0.418$.
   The three points are the  three parameter sets listed in Table~1 of
   \cite{beck_identifiability:_2007}. 
  }
@@ -169,7 +194,7 @@ they noted that multiple
 combinations of $P(G)$ and $P_0$ give exactly the same $P_j(C)$, but
 failed to explain why this is the case.  An example showing the relation
 between $P(G)$ and $P_0$ for a given model is shown in Fig.~\ref{table1}.
-Thus, we can see that Eqn.~\ref{aa} provides an explanation of the
+Thus, we can see that Eqn.~(\ref{aa}) provides an explanation of the
 Identifiability Problem.
 
 Baker, Corbett, and Aleven~\cite{baker_more_2008} discuss the need for 
@@ -190,13 +215,15 @@ $A$ when fitting to student data.
 \begin{figure}
 \centering\includegraphics{p-recursion.eps}
 \caption{
-  Recusion relations Eqn.~\ref{correct} and Eqn.~\ref{incorrect}.
+  Recursion relations Eqn.~(\ref{correct}) and 
+  Eqn.~(\ref{incorrect}).
   The stable fixed point for each recursion relation is marked
-  by a dot.  The fact that the ``step $j$ correct'' curve is above the
-  dashed line means that Eqn.~\ref{correct} causes $P_j$ to 
-   converge to $P_j=1$.  Likewise the fact that 
-   the ``step $j$ incorrect'' curve is below $P_{j+1}=P_j$ means that 
-   Eqn.~\ref{incorrect} causes $P_j$ to converge to~\ref{incorrectfixedpoint}.
+  by a dot.  Since the ``step $j$ correct'' curve is above the
+  dashed line, Eqn.~(\ref{correct}) causes $P_j$ to 
+   converge to the fixed point at 1.  Likewise, since 
+   the ``step $j$ incorrect'' curve is below the line, 
+   Eqn.~(\ref{incorrect}) causes $P_j$ to converge 
+   to the fixed point~(\ref{incorrectfixedpoint}).
  }
  \label{p-recursion}
 \end{figure}
@@ -205,41 +232,78 @@ $A$ when fitting to student data.
 So far, we have discussed using BKT as a model which, when expressed
 in functional form, can be fitted to empirical data to obtain values
 for the three model parameters.  In order to predict $P_j$ for an
-individual student in real time, an alternative form is used where
-$P_j$ updated using the data from the student itself.
+individual student in real time, an alternative form is often used where
+$P_j$ is updated using the data from the student itself.
 In this case, the recursion relation for updating $P_j$ 
-is~\cite{corbett_knowledge_1994,baker_more_2008} depends on
+\cite{corbett_knowledge_1994,baker_more_2008} depends on
 student performance on that step:
 %
 \begin{eqnarray}
        P_j &=&
-       1-\frac{\left(1-P(T)\right)\left(1-P_{j-1}\right)P(G)}{P(G)+\left(1-P(S)-P(G)\right)
+       1-\frac{\left(1-P(L)\right)\left(1-P_{j-1}\right)P(G)}{P(G)+\left(1-P(S)-P(G)\right)
          P_{j-1}}  \mbox{~,~~ step $j$ correct} \label{correct}\\
-       P_j &=& 1-\frac{\left(1-P(T)\right)\left(1-P_{j-1}\right)\left(1-P(G)\right)}
+       P_j &=& 1-\frac{\left(1-P(L)\right)\left(1-P_{j-1}\right)\left(1-P(G)\right)}
                                  {1-P(G)-\left(1-P(S)-P(G)\right) P_{j-1}}
                         \mbox{~ ,~~ step $j$ incorrect.} \label{incorrect}
 \end{eqnarray}
 %
 While these recursion relations cannot be solve analytically, we
-can learn much about their solutions using a fixed point analysis.
-First, we find the fixed points of each recursion, \ref{correct} and
-\ref{incorrect} by setting $P_j=P_{j-1}$.  For Eqn.~\ref{incorrect}, we
-find a stable fixed point at $P_j=1$ and an unstable fixed point at
+can learn much about their solutions by conducting a fixed point analysis.
+First, we find the fixed points of each recursion, (\ref{correct}) and
+(\ref{incorrect}), by setting $P_j=P_{j-1}$.  For Eqn.~(\ref{correct}), we
+find a stable fixed point at $1$ and an unstable fixed point at
 \begin{equation}
-    P_j=- \frac{P(G) P(T)}{1-P(g)-P(S)} \; .
+    - \frac{P(G) P(L)}{1-P(G)-P(S)} \; .
+      \label{correctfixedpoint}
 \end{equation}
-Similarly, Eqn.~\ref{correct} has an unstable fixed point at $P_j=1$
+Similarly, Eqn.~(\ref{incorrect}) has an unstable fixed point at $1$
 and a stable fixed point at
 \begin{equation}
-    P_j=\frac{\left(1-P(G)\right) P(T)}{1-P(g)-P(S)} \; . \label{incorrectfixedpoint}
+    \frac{\left(1-P(G)\right) P(L)}{1-P(G)-P(S)} \; . 
+       \label{incorrectfixedpoint}
 \end{equation}
-See Fig.~\ref{p-recursion}.
+The stable fixed points are plotted in Fig.~\ref{p-recursion}.
+
+In order for $P_j$ to remain in the interval $\left[0,1\right]$ 
+for any starting value $P_0\in \left[0,1\right]$ and any sequence of 
+correct/incorrect steps, 
+we need the stable fixed point (\ref{incorrectfixedpoint})
+to lie in the interval $\left[0,1\right]$ and the unstable fixed point 
+(\ref{correctfixedpoint}) to remain negative.  This gives us the following
+constraints on allowed values for the model parameters:
+%
+\begin{eqnarray}
+        P(G)+P(S)&<& 1 \\
+        0 < P(L) &<& 1-\frac{P(S)}{1-P(G)}  \; .
+        \label{bigconstraint}
+\end{eqnarray}
+%
+Note that these constraints do not allow for the model to
+exhibit negative learning ($A<0$):  such parameter
+choices can lead to $P_j$ straying outside the physical
+region $\left[0,1\right]$.
+
+The ``Identifiability Problem'' for this model in this form
+does not exist, so long as there are both correct and incorrect steps.
+This fact can be seen by examining Eqns.~(\ref{correct}) and (\ref{incorrect})
+where we see that $P(G)$ has a different functional form in each.
+Thus, any rescaling of $P_j$ cannot be compensated for by a rescaling
+of the parameters in both  (\ref{correct}) and (\ref{incorrect}).
+
+For the ``Model Degeneracy'' issue, we see that (\ref{bigconstraint})
+provides a significant constraint on allowed values of model parameters.
+It would be interesting to see of often this constraint is 
+violated in real tutor systems, such as the 
+Cognitive Tutors~\cite{ritter_cognitive_2007}, 
+where BKT is applied in this form.
+
 
 \section{Conclusion}
 
+
 In conclusion, the Bayesian Knowledge Tracing model, when expressed
 in functional form, is an exponential function with three parameters.
-It is unclear how the identifiability problem has affected previous
+It is unclear how the Identifiability Problem has affected previous
 results.  Certainly, any study that relies on a value for $P(G)$ or
 $P_0$ as output from a fit to student data would be affected.
 On the other hand, studies that rely only on $P(S)$ or $P(L)$ from
@@ -247,51 +311,37 @@ a fit to student data should be OK.  In addition, expressing
 the model in terms of three parameters should improve speed
 and accuracy of any maximum likelihood fit to student data.
 
-Some authors have addressed the identifiability problem by 
-% paper with work-around for identifiability problem (Aleven?)
-%
-% Dynamic Cognitive Tracing: Towards Unified Discovery of 
-% Student and Cognitive Models  Jose P. Gonzalez-Brenes and Jack
-% Mostow  set P_0=0.
-fixing $P_0$ using some additional constraint~\cite{fix}.  
-This is of use in the case where, after fitting the model to data, 
-$P(G)$ a being used as a model output.  Otherwise, the impsition
-of the additional constraint has no effect on the result.
+Some authors have addressed the Identifiability Problem by 
+fixing $P_0$ using some arbitrary constraint such as setting
+$P_0=0$~\cite{jose_gonzalez-brenes_dynamic_2012}. 
+Another popular approach is to use Dirichlet 
+priors~\cite{beck_identifiability:_2007} to bias the
+parameters towards certain values.  However, one must provide
+some additional theoretical justification for the
+particular priors chosen.
 
-% Question:  can Markov chains produce power law behavior? YES!
-% Need supporting literature for power law vs. exponential.
+We see that BKT in the second form does not have
+the Identifiability Problem:  all four model parameter
+affect model behavior separately.  Thus, it is imperative that
+all four model parameters are determined in a sensible manner.
+We also see that, for the model to behave properly,  there are 
+significant constraints on allowed values for $P(S)$, $P(G)$, and $P(L)$.
 
 Finally, we see that the functional form of BKT corresponds 
 to an exponential, rather than a power law.  
 Heathcote, Brown, and Mewhort~\cite{heathcote_power_2000}
-argue that learning for individuals is better described by
-exponentials while (as shown in earlier studies) learning averaged
+argue that learning for individuals is better described by an
+exponential while (as shown in earlier studies) learning averaged
 over individuals is better described by a power law function.
 This suggests that BKT may be more appropriate for describing
 individual learners, rather than performance averaged over students.
+This contradicts the popular practice of fitting BKT to 
+student-averaged data.
 
-
-%Equations (1) and (2) of \cite{lee_impact_2012} 
-%are equivalent to the first three equations in \cite{baker}
-%\begin{eqnarray}
-%   P(L_n|\mbox{correct}) &=& P(T)+\frac{\left(1-P(T)\right) P(L_{n-1})
-%          \left(1-P(S)\right)}
-%               {P(L_{n-1})\left(1-P(S)\right)+\left(1- P(L_{n-1})\right) P(G)}\\
-%   P(L_n|\mbox{incorrect}) &=& P(T)+\frac{\left(1-P(T)\right) P(L_{n-1})
-%          \P(S)\right}
-%               {P(L_{n-1})P(S)+\left(1- P(L_{n-1})\right) \left(1-P(G)\right)}\\
-%with the substitution:
-%
-%\begin{equation}
-%         P(L_{n-1}) \to P(T)+\left(1-P(t)\right) p(L_t)
-%\end{equation}
-%
-%This equivalence is from changing the order of updating
-%student mastery and updating the estimate based on student
-%response, as noted by the authors.  However, this raises
-%a question for Equations (3) and (4) of \cite{lee_impact_2012}.
-%Should the probability be taken before or after updating the
-%student mastery:
+\begin{acks}
+I would like to thank Ken Koedinger and Tristan Nixon for
+useful comments.
+\end{acks}
 
 \bibliography{education-modeling}
 
