@@ -83,7 +83,7 @@
 %% `NP' means `no parentheses' 
 %%
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{acmlarge} [2010/07/15 ACM Transactions class]
+\ProvidesClass{acmlarge-edm} [2010/07/15 ACM Transactions class]
 %
 \def\fileversion{v1.3}            
 \def\filedate{May 25, 2012}
@@ -92,8 +92,10 @@
 \def\@acmNumber{N} %the number
 \def\@acmYear{YY}  %the last two digits of the year, 
 \def\@acmMonth{1}  %the month
-\def\@journalName{ACM Journal Name} %the name of the ACM journal
-\def\@journalNameShort{jn} %the acronym of the ACM journal
+% BvdS:  Set the journal name.  Normally, this is done by setting a
+% class option.
+\def\@journalName{Journal of Educational Data Mining} %the name of the ACM journal
+\def\@journalNameShort{JEDM} %the acronym of the ACM journal
 \def\@permissionCodeOne{0000-0000} %the permission code of the ACM journal
 \def\@permissionCodeTwo{0000} %the permission code of the ACM journal part 2
 \def\@articleSeq{1} %Article sequence
@@ -174,13 +176,22 @@
 \def\acmMonth#1{\gdef\@acmMonth{#1}}
 \def\doi#1{\gdef\@doi{#1}}
 %
-\newcommand{\monthWord}[1]{\ifcase#1\or
-  January\or February\or March\or April\or May\or June\or
-  July\or August\or September\or October\or November\or December\else Month\fi}
+% BvdS:  If arg is not an integer, just print out value.
+\newcommand{\monthWord}[1]{%
+\if!\ifnum9<1#1!\else \fi
+   {\ifcase#1\or
+      January\or February\or March\or April\or May\or June\or
+       July\or August\or September\or October\or November\or
+       December\else #1\fi}%
+\else#1\fi}
 %
-\newcommand{\monthInf}[1]{\ifcase#1\or
-  01\or 02\or 03\or 04\or 05\or 06\or
-  07\or 08\or 09\or 10\or 11\or 12\else 00\fi}
+% BvdS:  If arg is not an integer, just print out 00
+\newcommand{\monthInf}[1]{%
+\if!\ifnum9<1#1!\else \fi
+  {\ifcase#1\or
+    01\or 02\or 03\or 04\or 05\or 06\or
+    07\or 08\or 09\or 10\or 11\or 12\else 00\fi}%
+\else 00\fi}
 %
 \lineskip 1pt \normallineskip 1pt
 \def\baselinestretch{1}
@@ -914,14 +925,18 @@ the#1\endcsname{\@thmcounter{#1}}\global
 	\begingroup \addtolength{\baselineskip}{2pt}
 	\@author\par \vskip -2pt 
 	\endgroup }
-      {\ifx \@categories\@empty 
-	\else 
-	\baselineskip 17pt\relax
+ 	\baselineskip 17pt\relax
 	\hbox{\vrule height .2pt width \@acmWidth}%to eliminate the lines for jacm
-      }
       \vskip 8.5pt \footnotesize \box\@abstract \vskip 4pt\relax %vskip8.5 space above abstract
-	     {\def\and{\unskip\/{\rm ; }}
-	       Categories and Subject Descriptors: \@categories \fi}\par\vskip 4pt\relax
+          % BvdS: Move test for categories to act only on categories
+          % line.  Previously, this included the horizontal line and
+          % abstract, as well (probably a bug).
+          \ifx  \@categories\@empty 
+          \else 
+	         {\def\and{\unskip\/{\rm ; }}
+	        Categories and Subject Descriptors:
+                \@categories}\par\vskip 4pt\relax
+          \fi
 	     \box\@terms \vskip 4pt\relax
 	     \box\@keywords \par
 	     \ifx\@acmformat\@empty\else
@@ -991,7 +1006,9 @@ DOI $=$ \doiline}%10.1145/\@doi\ http://doi.acm.org/10.1145/\@doi}
     \vskip 10pt
     \hrule height .2pt width \@acmWidth
     \vskip 2pt\rule{0pt}{10pt}\ignorespaces}
-\def\endbottomstuff{\permission\end{figure}\gdef\permission{}}
+% BvdS: remove copyright statement from bottom of first page:
+%                               \permission
+\def\endbottomstuff{\end{figure}\gdef\permission{}}
 \newenvironment{ackslike}[1]
 	       {\par \footnotesize 
 		 \@ucheadfalse
@@ -1010,15 +1027,22 @@ DOI $=$ \doiline}%10.1145/\@doi\ http://doi.acm.org/10.1145/\@doi}
 %
 \def\bull{{\fontsize{7}{7}\selectfont\raise1.6pt\hbox{$\bullet$}}}
 \def\ps@headings{\let\@mkboth\@gobbletwo
-\def\@oddhead{\hbox{}\hfill \small\sf \rightmark\hskip 19pt{\bull}\hskip 17pt\ifStBan\@acmArticle:\fi\mypage}
-\def\@oddfoot{\hbox{}\hfill\tiny\@runningfoot}
-\def\@evenhead{\small\sf\ifStBan\@acmArticle:\fi\mypage \hskip 17pt{\bull}\hskip 19pt\leftmark\hfill \hbox{}}
-\def\@evenfoot{\tiny\@runningfoot\hfill\hbox{}}
+% BvdS: remove headers
+%\def\@oddhead{\hbox{}\hfill \small\sf \rightmark\hskip
+%19pt{\bull}\hskip 17pt\ifStBan\@acmArticle:\fi\mypage}
+% BvdS:  add page number
+\def\@oddfoot{{\tiny\@runningfoot}\hfill\thepage}
+% BvdS: remove headers
+%\def\@evenhead{\small\sf\ifStBan\@acmArticle:\fi\mypage \hskip 17pt{\bull}\hskip 19pt\leftmark\hfill \hbox{}}
+% BvdS:  add page number
+\def\@evenfoot{\thepage\tiny\@runningfoot}
 \def\sectionmark##1{}\def\subsectionmark##1{}}
 \def\@runningfoot{}
-\def\runningfoot{\def\@runningfoot{\@journalName, Vol.\ \@acmVolume, No.\ \@acmNumber, Article~\@acmArticle, Publication date: \monthWord{\@acmMonth}\ \@acmYear.}}
+% BvdS:  Remove number and Publication Date
+\def\runningfoot{\def\@runningfoot{\@journalName, Vol.\ \@acmVolume, No.\ \@acmNumber,  Article~\@acmArticle, \monthWord{\@acmMonth}\ \@acmYear.}}
 \def\@firstfoot{}
-\def\firstfoot{\def\@firstfoot{\@journalName, Vol.\ \@acmVolume, No.\ \@acmNumber, Article~\@acmArticle, Publication date: \monthWord{\@acmMonth}\ \@acmYear.}}%, Pages \thepage--\@endpage
+% BvdS:  Remove number and Publication Date
+\def\firstfoot{\def\@firstfoot{\@journalName, Vol.\ \@acmVolume, No.\ \@acmNumber, Article~\@acmArticle, \monthWord{\@acmMonth}\ \@acmYear.}}%, Pages \thepage--\@endpage
 %
 \def\@marrayclassiv{\@addtopreamble{$\displaystyle \@nextchar$}}
 \def\@marrayclassz{\ifcase \@lastchclass \@acolampacol \or \@ampacol \or
@@ -1171,13 +1195,17 @@ DOI $=$ \doiline}%10.1145/\@doi\ http://doi.acm.org/10.1145/\@doi}
 \def\@xstartdef#1[#2]{\begin{italic@#1}[{\em #2}]\rm}
 \def\@ystartdef#1{\begin{italic@#1}\rm}
 %
-\def\@oddfoot{\hbox{}\hfill\scriptsize\@runningfoot}
-\def\@evenfoot{\scriptsize\@runningfoot\hfill\hbox{}}
+% BvdS:  add page number
+\def\@oddfoot{{\scriptsize\@runningfoot}\hfill\thepage}
+% BvdS:  add page number
+\def\@evenfoot{\thepage\hfill\scriptsize\@runningfoot}
 %
 \def\firstfootsize{\@setsize\firstfootsize{7pt}\vipt\@vipt}
 \def\ps@titlepage{\let\@mkboth\@gobbletwo
-\def\@oddhead{}\def\@oddfoot{\hbox{}\hfill\firstfootsize\@firstfoot}%
-\def\@evenhead{}\def\@evenfoot{\firstfootsize\@firstfoot\hfill\hbox{}}}
+% BvdS:  add page number
+\def\@oddhead{}\def\@oddfoot{{\firstfootsize\@firstfoot}\hfill\thepage}%
+% BvdS:  add page number
+\def\@evenhead{}\def\@evenfoot{\thepage\hfill\firstfootsize\@firstfoot}}
 %
 \long\def\permission{\par\ifStBan
 Permission to make digital or hard copies of part or all of this work 

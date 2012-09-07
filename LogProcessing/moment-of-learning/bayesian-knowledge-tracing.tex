@@ -7,19 +7,17 @@
 % For tracking purposes => this is v1.3 - May 2012
 \documentclass{acmlarge-edm}
 
+% Metadata Information
+\acmVolume{1}
+\acmArticle{3}
+\acmYear{2012}
+\acmMonth{5}  % can also put in literal name
+
 \usepackage{graphics}
 
 %
 %  Cool LaTeX resource:
 %   http://en.wikibooks.org/wiki/LaTeX
-
-\firstfoot{}
-\runningfoot{}
-
-% Page heads
-% Doesn't seem to be used in JEDM
-\markboth{}{}
-
 
 \title{Bayesian Knowledge Tracing and the Identifiability Problem}
 \author{BRETT VAN DE SANDE
@@ -34,12 +32,12 @@ gives some insight into its behavior.  In particular, we show that
 it is, in fact, a model with three parameters and has the 
 functional form of an exponential.
 \end{abstract}
+
 \keywords{Bayesian Knowledge Tracing, student modelling}
 
 \begin{document}
 
 \bibliographystyle{acmlarge}
-
 
 \begin{bottomstuff}
 This work is supported by the National Science Foundation, award
@@ -215,15 +213,15 @@ $A$ when fitting to student data.
 \begin{figure}
 \centering\includegraphics{p-recursion.eps}
 \caption{
-  Recursion relations Eqn.~(\ref{correct}) and 
-  Eqn.~(\ref{incorrect}).
+  Recursion relations the BKT model, Eqns.~(\ref{correct}) and 
+  (\ref{incorrect}).
   The stable fixed point for each recursion relation is marked
   by a dot.  Since the ``step $j$ correct'' curve is above the
   dashed line, Eqn.~(\ref{correct}) causes $P_j$ to 
    converge to the fixed point at 1.  Likewise, since 
    the ``step $j$ incorrect'' curve is below the line, 
    Eqn.~(\ref{incorrect}) causes $P_j$ to converge 
-   to the fixed point~(\ref{incorrectfixedpoint}).
+   to the lower fixed point~(\ref{incorrectfixedpoint}).
  }
  \label{p-recursion}
 \end{figure}
@@ -247,7 +245,7 @@ student performance on that step:
                         \mbox{~ ,~~ step $j$ incorrect.} \label{incorrect}
 \end{eqnarray}
 %
-While these recursion relations cannot be solve analytically, we
+While these recursion relations cannot be solved analytically, we
 can learn much about their solutions by conducting a fixed point analysis.
 First, we find the fixed points of each recursion, (\ref{correct}) and
 (\ref{incorrect}), by setting $P_j=P_{j-1}$.  For Eqn.~(\ref{correct}), we
@@ -321,9 +319,9 @@ some additional theoretical justification for the
 particular priors chosen.
 
 We see that BKT in the second form does not have
-the Identifiability Problem:  all four model parameter
-affect model behavior separately.  Thus, it is imperative that
-all four model parameters are determined in a sensible manner.
+the Identifiability Problem:  all four model parameters
+affect model behavior separately.  Thus, it is important to determine
+sensible values for all four model parameters.
 We also see that, for the model to behave properly,  there are 
 significant constraints on allowed values for $P(S)$, $P(G)$, and $P(L)$.
 

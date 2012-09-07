@@ -7,8 +7,13 @@
 % For tracking purposes => this is v1.3 - May 2012
 
 
-\documentclass[prodmode,acmtecs]{acmsmall}
+\documentclass{acmlarge-edm}
 
+% Metadata Information
+\acmVolume{1}
+\acmArticle{3}
+\acmYear{2012}
+\acmMonth{5}  % can also put in literal name
 
 \usepackage{graphics}
 
@@ -68,7 +73,7 @@ number SBE-0836012.
 
 There is ample evidence that a well-designed Intelligent Tutor 
 System (ITS) can be almost as effective as an expert human 
-tutor~\cite{its}.  A key ingredient for improving an ITS is
+tutor~\cite{vanlehn_relative_2011}.  A key ingredient for improving an ITS is
 determining whether a particular student action or the 
 tutoring given by the ITS at a given instance was effective.
 There are several senses in which an activity might be ``effective.''
@@ -104,7 +109,7 @@ clues on mastery:  for instance, how much time a student takes
 to complete a step.  However, other such observables need
 some additional interpretation (How long is too long?).
 
-Baker, Goldstein, and Heffernan~\cite{bgh} attempt a model
+Baker, Goldstein, and Heffernan~\cite{baker_detecting_2010} attempt a model
 of learning based on a Hidden Markov model approach.  In their
 model, they consider additional variables.  However, the
 goal of their model is the same as ours:  a prediction 
@@ -128,11 +133,11 @@ to student data and discuss the reliability of our predictions.
 
 Although there are other observables that may be used
 to determine whether a skill has been mastered, Table 1 of
-\cite{bgh} list 14 different observables.  However, we 
+\cite{baker_detecting_2010} list 14 different observables.  However, we 
 will focus on correctness of a step.  Thus, we need to
 define precisely what we mean by a step being correct.
 
-For each student and Knowledge Component (KC)~\cite{kc}, 
+For each student and Knowledge Component (KC)~\cite{vanlehn_behavior_2006}, 
 the student has attempted some number of 
 {\em steps} that involve that KC.   We will label
 steps with $j$.  Usually a given step is associated
@@ -191,7 +196,7 @@ We will consider three candidate models:  the ``step model,''
 the logistic function, and the Bayesian Knowledge Tracing model.
 
 The ``step model'' assumes that learning occurs all at 
-once~\cite{aha-moments}.  It is defined as:
+once~\cite{baker_detecting_2011}.  It is defined as:
 %
 \begin{equation}
     P_\mathrm{step}(j)= \left\{\begin{array}{cc}
@@ -205,14 +210,14 @@ KC, $g$ is the ``guess rate,'' the probability that the student
 gets a step correct by accident, and $s$ is the ``slip rate,''
 the chance that the student makes an error after learning
 the skill.  These are analogous to the guess and slip parameters 
-of Bayesian Knowledge Tracing~\cite{anderson}.  
+of Bayesian Knowledge Tracing~\cite{corbett_knowledge_1994}.  
 The associated gain in performance
 is $1-g-s$ and the error rate after learning is simply $s$ in this
 model.  Thus, this model satisfies criteria \ref{crit:step} and
 \ref{crit:perform}.
 
 Another model that is frequently used in the context of 
-learning is the logistic model~\cite{logit},
+learning is the logistic model~\cite{cen_learning_2006,min_chi_instructional_2011},
 %
 \begin{equation}
     P_\mathrm{logit}(j)= \frac{1}{1+\exp\left(-b (j-L)\right)} \; .
@@ -226,9 +231,9 @@ rate is always 0.  Thus although this model makes a prediction for
 when the skill is learned, criterion~\ref{crit:step}, it does
 not predict a gain in performance, criterion~\ref{crit:perform}.
 
-The third model is the Bayesian Knowledge Tracing (BKT) model~\cite{anderson}.
+The third model is the Bayesian Knowledge Tracing (BKT) model~\cite{corbett_knowledge_1994}.
 Although this model is usually expressed as a Hidden Markov model, 
-one can express it in terms of its solution~\cite{bktsolution},
+one can express it in terms of its solution~\cite{van_de_sande_solutions_2012},
 which is an exponential function,
 %
 %  A and \beta are kind of messy, so we don't include them here.
@@ -236,7 +241,7 @@ which is an exponential function,
          P_\mathrm{BKT}(j) = 1-P(S) -A e^{-\beta j} \; .
 \end{equation}
 %
-Note that this is a function of three parameters~\cite{bktsolution}.
+Note that this is a function of three parameters~\cite{van_de_sande_solutions_2012}.
 One central assumption of BKT is that, given that learning
 has not already occurred, mastery is {\em equally probable} on each step.
 This assumption of equal probability does not match well with 
@@ -254,7 +259,7 @@ $P_\mathrm{step}(j)$
 describes the student data as well (or better than) the
 other two models, $P_\mathrm{logit}(j)$ and $P_\mathrm{BKT}(j)$.  
 We believe that the Akaike Information 
-Criterion (AIC) is the most appropriate metric~\cite{akaike,aicbook}
+Criterion (AIC) is the most appropriate metric~\cite{akaike_new_1974,burnham_model_2002}
 to use for this purpose.
 
 \subsection{Method}
@@ -293,7 +298,7 @@ The presence of many student-KC pairs with just one or two
 steps suggests that the cognitive model associated with this tutor
 system may be sub-optimal; there has not been any attempt, to date,
 to improve on the cognitive model of Andes with, say, Learning 
-Factors Analysis~\cite{lfa}.
+Factors Analysis~\cite{cen_learning_2006}.
 
 \subsection{Analysis}
 
@@ -308,7 +313,7 @@ This bit string is then fit to each of the three models,
 $P_\mathrm{step}(j)$, $P_\mathrm{logit}(j)$, and $P_\mathrm{BKT}(j)$ by
 maximizing the associated log likelihood.  
 %This determines the free parameters in each model. 
-We then calculate the corrected AIC score, AIC$_\mathrm{c}$~\cite{aicbook} 
+We then calculate the corrected AIC score, AIC$_\mathrm{c}$~\cite{burnham_model_2002} 
 for each fit.  
 Finally, we calculated the Akaike weights, $w_\mathrm{logit}$,
 $w_\mathrm{step}$, and $w_\mathrm{BKT}$ for each student-KC pair.  
@@ -326,7 +331,7 @@ Since a student-KC pair contains only an average of about 16 steps, we
 expect that AIC$_\mathrm{c}$ should not strongly
 discriminate between the models.  Instead, we expect that
 any statistically significant difference will only appear 
-after including hundreds of student-KC in our sample.  However, 
+after including hundreds of student-KC pairs in our sample.  However, 
 this is not what we found; instead, we see that $P_\mathrm{BKT}$ is 
 strongly disfavored over $P_\mathrm{step}(j)$ and $P_\mathrm{logit}(j)$.
 Perhaps this result is too good to be true?
@@ -363,7 +368,7 @@ the other two; see Fig.~\ref{scatter2}.
 This indicates that there are large non-leading
 corrections to the AIC$_\mathrm{c}$ that have not been
 taken into account.  Burnham \& Johnson conclude 
-that there is more work to be done in this area~\cite[p.~380]{aicbook}: 
+that there is more work to be done in this area~\cite[p.~380]{burnham_model_2002}: 
 ``Operating characteristics
 of AIC-based model selection for count-type data need more 
 more study for small sample sizes.'' 
@@ -562,7 +567,7 @@ the predictive power of a given dataset.
 
 
 % Bibliography
-\bibliographystyle{acmsmall}
+\bibliographystyle{acmlarge}
 \bibliography{education-modeling}
 
 
