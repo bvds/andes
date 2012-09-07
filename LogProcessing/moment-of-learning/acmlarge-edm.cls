@@ -991,7 +991,9 @@ DOI $=$ \doiline}%10.1145/\@doi\ http://doi.acm.org/10.1145/\@doi}
     \vskip 10pt
     \hrule height .2pt width \@acmWidth
     \vskip 2pt\rule{0pt}{10pt}\ignorespaces}
-\def\endbottomstuff{\permission\end{figure}\gdef\permission{}}
+% BvdS: remove copyright statement from bottom of first page:
+%                               \permission
+\def\endbottomstuff{\end{figure}\gdef\permission{}}
 \newenvironment{ackslike}[1]
 	       {\par \footnotesize 
 		 \@ucheadfalse
@@ -1010,9 +1012,11 @@ DOI $=$ \doiline}%10.1145/\@doi\ http://doi.acm.org/10.1145/\@doi}
 %
 \def\bull{{\fontsize{7}{7}\selectfont\raise1.6pt\hbox{$\bullet$}}}
 \def\ps@headings{\let\@mkboth\@gobbletwo
-\def\@oddhead{\hbox{}\hfill \small\sf \rightmark\hskip 19pt{\bull}\hskip 17pt\ifStBan\@acmArticle:\fi\mypage}
+% BvdS: remove headers
+%\def\@oddhead{\hbox{}\hfill \small\sf \rightmark\hskip 19pt{\bull}\hskip 17pt\ifStBan\@acmArticle:\fi\mypage}
 \def\@oddfoot{\hbox{}\hfill\tiny\@runningfoot}
-\def\@evenhead{\small\sf\ifStBan\@acmArticle:\fi\mypage \hskip 17pt{\bull}\hskip 19pt\leftmark\hfill \hbox{}}
+% BvdS: remove headers
+%\def\@evenhead{\small\sf\ifStBan\@acmArticle:\fi\mypage \hskip 17pt{\bull}\hskip 19pt\leftmark\hfill \hbox{}}
 \def\@evenfoot{\tiny\@runningfoot\hfill\hbox{}}
 \def\sectionmark##1{}\def\subsectionmark##1{}}
 \def\@runningfoot{}
