@@ -9,6 +9,7 @@
 
 % Metadata Information
 \acmVolume{1}
+\acmNumber{2}
 \acmArticle{3}
 \acmYear{2012}
 \acmMonth{5}  % can also put in literal name
@@ -19,18 +20,30 @@
 %  Cool LaTeX resource:
 %   http://en.wikibooks.org/wiki/LaTeX
 
-\title{Bayesian Knowledge Tracing and the Identifiability Problem}
+\title{The Bayesian Knowledge Tracing Model and Algorithm}
 \author{BRETT VAN DE SANDE
 \affil{Arizona State University\\bvds@asu.edu}}
 
 
 \begin{abstract}
-The Bayesian Knowledge Tracing model is very widely used to
-model student learning.  Unlike most Hidden Markov Models,
-it is simple enough that it can be solved analytically, which
-gives some insight into its behavior.  In particular, we show that
+Bayesian Knowledge Tracing is very widely used to
+model student learning.  It is used in two different forms:
+The first form is the Bayesian Knowledge Tracing {\em model} which is a 
+model that predicts the probability of correct application of a skill 
+as a function of time and the model parameters.  
+%This model can be fit to student prerformance data to determine model
+%parameters.  
+It is commonly expressed as a Hidden Markov Model.
+We present an analytical solution to the model and show that
 it is, in fact, a model with three parameters and has the 
 functional form of an exponential.
+The second form is the Bayesian Knowledge Tracing {\em algorithm}
+which uses student performance at each opportunity to
+update the probability that the student has learned a skill.
+We use a fixed point analysis to study solutions of this 
+model and find a range of parameters where it has
+the desired behavior.
+
 \end{abstract}
 
 \keywords{Bayesian Knowledge Tracing, student modelling}
@@ -58,16 +71,18 @@ number SBE-0836012.
 
 \section{Introduction}
 
-Since its introduction in 1994, the Bayesian Knowledge Tracing (BKT) 
-model~\cite{corbett_knowledge_1994} has been widely applied
+Since its introduction in 1994, Bayesian Knowledge Tracing (BKT) 
+\cite{corbett_knowledge_1994} has been widely applied
 in studies of student learning and in various tutor systems.  
-In addition, BKT  often serves as the starting
+In addition, BKT often serves as the starting
 %
 %   Need examples of BKT-based models, only look at examples
 %   where Identifiability Problem exists.
 %
 point for more complicated models of learning, for 
-example~\cite{baker_r._improving_2008,lee_impact_2012}.  
+example~\cite{baker_r._improving_2008,lee_impact_2012}.
+
+  
 While using this model,  number of authors have noted have noted the 
 existence of what is called the ``Identifiability Problem'' 
 \cite{beck_identifiability:_2007}.    
@@ -91,7 +106,7 @@ a three parameter model, explaining the Identifiability Problem.
 %approach would eschew $P_j$ in favor of a model of actual behavior.
 
 
-\section{Bayesian Knowledge Tracing}
+\section{Bayesian Knowledge Tracing model}
 
 The Bayesian Knowledge Tracing model~\cite{corbett_knowledge_1994} has four parameters:
 %
@@ -208,7 +223,7 @@ $0<A<1-P(S)$; for negative learning, valid values occur when
 $-P(S)<A<0$.  This sets the range of physically meaningful values of
 $A$ when fitting to student data.
 
-\section{Bayesian Form}
+\section{Bayesian Knowledge Tracing Algorithm}
 
 \begin{figure}
 \centering\includegraphics{p-recursion.eps}
@@ -285,7 +300,7 @@ The ``Identifiability Problem'' for this model in this form
 does not exist, so long as there are both correct and incorrect steps.
 This fact can be seen by examining Eqns.~(\ref{correct}) and (\ref{incorrect})
 where we see that $P(G)$ has a different functional form in each.
-Thus, any rescaling of $P_j$ cannot be compensated for by a rescaling
+Thus, any rescaling of $1-P_j$ cannot be compensated for by a rescaling
 of the parameters in both  (\ref{correct}) and (\ref{incorrect}).
 
 For the ``Model Degeneracy'' issue, we see that (\ref{bigconstraint})
@@ -318,7 +333,7 @@ parameters towards certain values.  However, one must provide
 some additional theoretical justification for the
 particular priors chosen.
 
-We see that BKT in the second form does not have
+We see that BKT algorithm does not have
 the Identifiability Problem:  all four model parameters
 affect model behavior separately.  Thus, it is important to determine
 sensible values for all four model parameters.

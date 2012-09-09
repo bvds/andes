@@ -1365,7 +1365,9 @@ permissions@acm.org.\fi\par
                                 % the group?
   \if@specialpage
     \ifStBan
-        \vbox to 0pt{\vskip2pt\hbox to 8.625in{\hfill\tab}}
+%  BvdS:  get rid of black box on first page
+%  It would maybe be better to do this by setting stBan or specialpage?
+%        \vbox to 0pt{\vskip2pt\hbox to 8.625in{\hfill\tab}}
     \fi
     \global\@specialpagefalse\@nameuse{ps@\@specialstyle}%
   \fi
