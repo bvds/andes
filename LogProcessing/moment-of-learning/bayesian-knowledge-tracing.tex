@@ -20,7 +20,7 @@
 %  Cool LaTeX resource:
 %   http://en.wikibooks.org/wiki/LaTeX
 
-\title{The Bayesian Knowledge Tracing Model and Algorithm}
+\title{Bayesian Knowledge Tracing:  the Markov Model and Algorithm}
 \author{BRETT VAN DE SANDE
 \affil{Arizona State University\\bvds@asu.edu}}
 
@@ -28,12 +28,11 @@
 \begin{abstract}
 Bayesian Knowledge Tracing is very widely used to
 model student learning.  It is used in two different forms:
-The first form is the Bayesian Knowledge Tracing {\em model} which is a 
-model that predicts the probability of correct application of a skill 
+The first form is the Bayesian Knowledge Tracing {\em Hidden Markov Model} 
+which predicts the probability of correct application of a skill 
 as a function of time and the model parameters.  
 %This model can be fit to student prerformance data to determine model
 %parameters.  
-It is commonly expressed as a Hidden Markov Model.
 We present an analytical solution to the model and show that
 it is, in fact, a model with three parameters and has the 
 functional form of an exponential.
@@ -46,15 +45,17 @@ the desired behavior.
 
 \end{abstract}
 
-\keywords{Bayesian Knowledge Tracing, student modelling}
+\keywords{Bayesian Knowledge Tracing, student modelling, Hidden Markov
+Model}
 
 \begin{document}
 
 \bibliographystyle{acmlarge}
 
 \begin{bottomstuff}
-This work is supported by the National Science Foundation, award
-number SBE-0836012.
+Funding for this research was provided by the Pittsburgh Science of
+Learning Center which is funded by the National Science Foundation
+award No. SBE-0836012
 \end{bottomstuff}
 
 \maketitle
@@ -81,8 +82,16 @@ In addition, BKT often serves as the starting
 %
 point for more complicated models of learning, for 
 example~\cite{baker_r._improving_2008,lee_impact_2012}.
+%  BKT comes in two flavors:  regular and unsweetened. 
+BKT has been used in two related but distinct forms:  The {\em Hidden Markov Model}
+(HMM) form and the {\em Knowledge Tracing Algorithm} form.
+The purpose of this paper is to investigate solutions of both
+forms of the BKT model.
 
-  
+The HMM form of BKT predicts the probability of a student 
+getting a step correct when they must apply a given skill.
+Typically, this model is fit to student data using either
+a $\chi^2$ or a Maximum Likelihood test.
 While using this model,  number of authors have noted have noted the 
 existence of what is called the ``Identifiability Problem'' 
 \cite{beck_identifiability:_2007}.    
