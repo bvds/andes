@@ -154,8 +154,8 @@ In this model, the probability that the student actually gets
 opportunity $j$ correct is:
 %
 \begin{equation}
-         P(C_j) = P(G)\left(1-P_j\right) + \left(1-P(S)\right) P_j \; . 
-          \label{pnc}
+        P(C_j) = P(G)\left(1-P_j\right) + \left(1-P(S)\right) P_j \; . 
+         \label{pnc}
 \end{equation}
 %
 %(Unlike the four model parameters above, there isn't a consistent
@@ -167,8 +167,8 @@ Eqns.~(\ref{recurse}) and
 \begin{figure}
 \centering\includegraphics{exponential.eps}
 \caption{Solution of the hidden Markov model form of BKT. 
-          $P(C_j)$ the probability of  the student getting step $j$ correct.}
- \label{bktgraph}
+          $P(C_j)$ is the probability of  the student getting step $j$ correct.}
+\label{bktgraph}
 \end{figure}
 
 This model can be  solved exactly.  First, we rewrite (\ref{recurse}) in a
@@ -189,7 +189,7 @@ One can show that this recursion relation has solutions of the form:
 Substituting (\ref{sol}) into (\ref{pnc}), we get:
 %
 \begin{equation}
-         P(C_j) = 1-P(S) -\left(1-P(S)-P(G)\right) \left(1-P_0\right)
+        P(C_j) = 1-P(S) -\left(1-P(S)-P(G)\right) \left(1-P_0\right)
                    \left(1-P(T)\right)^j \; . \label{pncsoln}
 \end{equation}
 %
@@ -220,9 +220,8 @@ Thus, $P(C_j)$ is an exponential; see Fig.~\ref{bktgraph}.
   Markov model form of BKT.  
   The curve is from Eqn.~(\ref{aa}), with $P(S)=0.05$ and $A=0.418$.
   The three points are the three parameter sets listed in Table~1 of
-  \cite{beck_identifiability:_2007}; all points on the curve have
-  equivalent functional form.
- }
+  \cite{beck_identifiability:_2007}.
+}
  \label{table1}
 \end{figure}
 
@@ -253,10 +252,10 @@ $A$ when fitting to student data.
 \begin{figure}
 \centering\includegraphics{p-recursion.eps}
 \caption{
-  Recursion relation for the Knowledge Tracing Algorithm, 
+ Recursion relation for the Knowledge Tracing Algorithm, 
   Eqns.~(\ref{correct}) and (\ref{incorrect}).
   The stable fixed point for each equation is marked
-  by a dot.  Since the ``step $j$ correct'' curve is above the
+ by a dot.  Since the ``step $j$ correct'' curve is above the
   dashed line, Eqn.~(\ref{correct}) causes $P_j$ to converge to the fixed point at 1.  Likewise, since 
    the ``step $j$ incorrect'' curve is below the line, 
    Eqn.~(\ref{incorrect}) causes $P_j$ to converge to the lower fixed point~(\ref{incorrectfixedpoint}).
@@ -291,8 +290,8 @@ $\mbox{incorrect}_n$.  These equations can be combined to give:
 \begin{eqnarray}
        P_j &=&
        1-\frac{\left(1-P(T)\right)\left(1-P_{j-1}\right)P(G)}{P(G)+\left(1-P(S)-P(G)\right)
-         P_{j-1}}  \;,\;\; \mbox{step $j$ correct} \label{correct}\\
-       P_j &=& 1-\frac{\left(1-P(T)\right)\left(1-P_{j-1}\right)\left(1-P(G)\right)}
+        P_{j-1}}  \;,\;\; \mbox{step $j$ correct} \label{correct}\\
+      P_j &=& 1-\frac{\left(1-P(T)\right)\left(1-P_{j-1}\right)\left(1-P(G)\right)}
                                  {1-P(G)-\left(1-P(S)-P(G)\right) P_{j-1}}
                         \; ,\;\; \mbox{step $j$ incorrect.} \label{incorrect}
 \end{eqnarray}
