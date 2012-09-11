@@ -273,19 +273,19 @@ the recursion relation for updating $P_j$
 \cite{corbett_knowledge_1994,baker_more_2008} depends on
 student performance on that step:
 \begin{eqnarray}
-       P\left(L_{j-1}|\mbox{correct}_n\right) &=&
+       P\left(L_{j-1}|\mbox{correct}_j\right) &=&
        \frac{P_{j-1}\left(1-P(S)\right)}{P_{j-1}\left(1-P(S)\right)+
                                        \left(1-P_{j-1}\right)P(G)} \\
-        P\left(L_{j-1}|\mbox{incorrect}_n\right) &=& 
+        P\left(L_{j-1}|\mbox{incorrect}_j\right) &=& 
               \frac{P_{j-1} P(S)}
               {P_{j-1} P(S)+ \left(1-P_{j-1}\right)\left(1-P(G)\right)}
                         \\
-       P_j &=& P\left(L_{j-1}|\mbox{action}_n\right)+
-               \left(1-P\left(L_{j-1}|\mbox{action}_n\right)\right) P(T)
+       P_j &=& P\left(L_{j-1}|\mbox{action}_j\right)+
+               \left(1-P\left(L_{j-1}|\mbox{action}_j\right)\right) P(T)
 \end{eqnarray}
 %
-where $\mbox{action}_n$ can be either $\mbox{correct}_n$ or 
-$\mbox{incorrect}_n$.  These equations can be combined to give:
+where $\mbox{action}_j$ can be either $\mbox{correct}_j$ or 
+$\mbox{incorrect}_j$.  These equations can be combined to give:
 %
 \begin{eqnarray}
        P_j &=&
