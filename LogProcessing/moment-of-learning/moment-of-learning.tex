@@ -11,6 +11,7 @@
 
 % Metadata Information
 \acmVolume{1}
+\acmNumber{2}
 \acmArticle{3}
 \acmYear{2012}
 \acmMonth{5}  % can also put in literal name
@@ -22,13 +23,11 @@
 % Document starts
 \begin{document}
 
-% Page heads
-\markboth{B. van de Sande}{Models of student learning and multimodel inference}
 
 % Title portion
 \title{Models of student learning and multimodel inference}
 \author{Brett van de Sande
-\affil{Arizona State University}}
+\affil{Arizona State University\\bvds@asu.edu}}
 
 %
 %  Cool LaTeX resource:
@@ -42,9 +41,7 @@ which of several models best describes the acquisition
 of skills associated with introductory physics.  Then we
 use a multimodel approach to determine the relative probability
 that a student has learned a given skill at a particular 
-problem-solving step.  Finally, we relate this
-approach with Hidden Markov model based approaches like
-Bayesian Knowledge tracing.
+problem-solving step.
 \end{abstract}
 
 %\category{C.2.2}{Computer-Communication Networks}{Network Protocols}
@@ -58,8 +55,9 @@ Bayesian Knowledge tracing.
 %designed for  wireless sensor network applications.}
 
 \begin{bottomstuff}
-This work is supported by the National Science Foundation, award
-number SBE-0836012.
+Funding for this research was provided by the Pittsburgh Science of
+Learning Center which is funded by the National Science Foundation
+award No. SBE-0836012.
 \end{bottomstuff}
 
 
@@ -97,30 +95,31 @@ student learning a new skill?  Answering this question requires
 the use of some sort of embedded assessment of student learning.
 Presumably, a student will encounter a given skill multiple times
 during a problem solving session, so any pre-test/post-test will
-not tell us a what step the student learned the skill.
+not tell us directly at what step the student learned the skill
+(although the effectiveness of a particular action can
+be experimentally inferred by conducting a two-condition study).
 In addition, it means that the determination must be made
 after the fact, typically through some log file analysis. 
 
-In this work, we investigate a methods for determining
+In this work, we investigate a method for determining
 when a student may have learned a skill based on their
 ability to apply that skill without errors or asking for hints.
 In principle, there are other observables that may give us
 clues on mastery:  for instance, how much time a student takes
 to complete a step.  However, other such observables need
-some additional interpretation (How long is too long?).
-
-Baker, Goldstein, and Heffernan~\cite{baker_detecting_2010} attempt a model
-of learning based on a Hidden Markov model approach.  In their
-model, they consider additional variables.  However, the
-goal of their model is the same as ours:  a prediction 
-of the probability that the student learns a particular
-skill at a given step.
+some additional interpretation 
+({\em exempli gratia,} How long is too long?).
+Baker, Goldstein, and Heffernan~\citeyear{baker_detecting_2010} 
+attempt a model of learning based on a Hidden Markov model approach.  In their
+model, they consider additional variables.  Inclusion of
+such additional observables is a natural extension of
+the approach we will present here.
 
 First we will compare three different models of learning
 and examine whether there is emphirical support for using
 one model over the others.  In fact, using Akaike Information
-Criteria (AIC), we obtain results that seem to favor one 
-model over the others, but conclude that there are some
+Criteria (AIC), we obtain results that seem to favor two
+models over the third, but conclude that there are some
 unresolved issues.
 
 Second, we select a model and use a multimodel approach
@@ -132,9 +131,9 @@ to student data and discuss the reliability of our predictions.
 \subsection{Correct/Incorrect steps}
 
 Although there are other observables that may be used
-to determine whether a skill has been mastered, Table 1 of
-\cite{baker_detecting_2010} list 14 different observables.  However, we 
-will focus on correctness of a step.  Thus, we need to
+to determine whether a skill has been mastered, Table~1 of
+\cite{baker_detecting_2010} list 14 different observables.  
+However, we will focus on correctness of a step.  Thus, we need to
 define precisely what we mean by a step being correct.
 
 For each student and Knowledge Component (KC)~\cite{vanlehn_behavior_2006}, 
@@ -179,7 +178,8 @@ Ideally, the model should have the the following properties:
 \begin{enumerate} 
 
 \item Be compatible with actual student behavior.
-      See Section~\ref{model-selection}.
+      See Section~\ref{model-selection}.  That is, its
+      functional form should fit well with student data.
 
 \item \label{crit:step}
       Give the probability that learning has occurred at a given step.
@@ -194,6 +194,42 @@ Ideally, the model should have the the following properties:
 %
 We will consider three candidate models:  the ``step model,'' 
 the logistic function, and the Bayesian Knowledge Tracing model.
+
+
+The first model is the Bayesian Knowledge Tracing (BKT) 
+model~\cite{corbett_knowledge_1994}.  The hidden Markov model
+form of BKT is often fit to student performance 
+data~\cite{beck_identifiability:_2007}.  One can show that
+this model, in functional form, is an exponential function
+with three model parameters~\cite{van_de_sande_bayesian_2012}:
+%
+%  A and \beta are kind of messy, so we don't include them here.
+\begin{equation}
+         P_\mathrm{BKT}(j) = 1-P(S) -A e^{-\beta j} \; .
+\end{equation}
+%
+One central assumption of BKT is that, given that learning
+has not already occurred, mastery is {\em equally probable} on each step.
+This assumption of equal probability does not match well with 
+our goal of determining empirically the steps where learning has 
+actually occurred for an individual student, criterion~\ref{crit:step}.
+On the other hand, this model does provide initial and final
+error rates, so criterion~\ref{crit:perform} is satisfied. 
+
+Another model that is frequently used in the context of 
+learning is the logistic model~\cite{cen_learning_2006,min_chi_instructional_2011},
+%
+\begin{equation}
+    P_\mathrm{logit}(j)= \frac{1}{1+\exp\left(-b (j-L)\right)} \; .
+\end{equation}
+%
+It is natural to associate $L$ with the moment of learning.  However,
+the finite slope $P_\mathrm{logit}(j)$ means that learning may occur
+in a range of roughly $1/b$ steps before and after $L$.    For  
+$P_\mathrm{logit}(j)$, the gain in performance is always 1 and the final error
+rate is always 0.  Thu,s although this model makes a prediction for
+when the skill is learned, criterion~\ref{crit:step}, it does
+not predict a gain in performance, criterion~\ref{crit:perform}.
 
 The ``step model'' assumes that learning occurs all at 
 once~\cite{baker_detecting_2011}.  It is defined as:
@@ -210,45 +246,11 @@ KC, $g$ is the ``guess rate,'' the probability that the student
 gets a step correct by accident, and $s$ is the ``slip rate,''
 the chance that the student makes an error after learning
 the skill.  These are analogous to the guess and slip parameters 
-of Bayesian Knowledge Tracing~\cite{corbett_knowledge_1994}.  
+of BKT~\cite{corbett_knowledge_1994}.  
 The associated gain in performance
 is $1-g-s$ and the error rate after learning is simply $s$ in this
 model.  Thus, this model satisfies criteria \ref{crit:step} and
 \ref{crit:perform}.
-
-Another model that is frequently used in the context of 
-learning is the logistic model~\cite{cen_learning_2006,min_chi_instructional_2011},
-%
-\begin{equation}
-    P_\mathrm{logit}(j)= \frac{1}{1+\exp\left(-b (j-L)\right)} \; .
-\end{equation}
-%
-It is natural to associate $L$ with the moment of learning.  However,
-the finite slope $P_\mathrm{logit}(j)$ means that learning may occur
-in a range of roughly $1/b$ steps before and after $L$.    For  
-$P_\mathrm{logit}(j)$, the gain in performance is always 1 and the final error
-rate is always 0.  Thus although this model makes a prediction for
-when the skill is learned, criterion~\ref{crit:step}, it does
-not predict a gain in performance, criterion~\ref{crit:perform}.
-
-The third model is the Bayesian Knowledge Tracing (BKT) model~\cite{corbett_knowledge_1994}.
-Although this model is usually expressed as a Hidden Markov model, 
-one can express it in terms of its solution~\cite{van_de_sande_solutions_2012},
-which is an exponential function,
-%
-%  A and \beta are kind of messy, so we don't include them here.
-\begin{equation}
-         P_\mathrm{BKT}(j) = 1-P(S) -A e^{-\beta j} \; .
-\end{equation}
-%
-Note that this is a function of three parameters~\cite{van_de_sande_solutions_2012}.
-One central assumption of BKT is that, given that learning
-has not already occurred, mastery is {\em equally probable} on each step.
-This assumption of equal probability does not match well with 
-our goal of determining empirically the steps where learning has 
-actually occurred for an individual student, criterion~\ref{crit:step}.
-On the other hand, this model does provide initial and final
-error rates, so criterion~\ref{crit:perform} is satisfied. 
 
 \section{Model selection using AIC}
 \label{model-selection}
@@ -295,10 +297,10 @@ number of steps are associated with user-interface related skills,
 since these skills are exercised throughout the entire course. 
 
 The presence of many student-KC pairs with just one or two
-steps suggests that the cognitive model associated with this tutor
-system may be sub-optimal; there has not been any attempt, to date,
-to improve on the cognitive model of Andes with, say, Learning 
-Factors Analysis~\cite{cen_learning_2006}.
+steps may indicate that the default cognitive model associated 
+with this tutor system may be sub-optimal; to date, there has not 
+been any attempt, to date, to improve on the cognitive model of 
+Andes with, say, Learning Factors Analysis~\cite{cen_learning_2006}.
 
 \subsection{Analysis}
 
@@ -307,14 +309,14 @@ of many steps, we include in this analysis only student-KC
 pairs that contain 10 or more steps, reducing the number of 
 student-KC pairs to 267, covering 38 distinct KC's.
 We determine the correctness of each step (Section~\ref{steps}),
-constructing a bit string, {\em exempli gratia},
+constructing a bit string, {\em exempli gratia}
 001001101, for each student-KC pair.  
 This bit string is then fit to each of the three models,
 $P_\mathrm{step}(j)$, $P_\mathrm{logit}(j)$, and $P_\mathrm{BKT}(j)$ by
 maximizing the associated log likelihood.  
 %This determines the free parameters in each model. 
-We then calculate the corrected AIC score, AIC$_\mathrm{c}$~\cite{burnham_model_2002} 
-for each fit.  
+We then calculate the corrected AIC score,
+ AIC$_\mathrm{c}$~\cite{burnham_model_2002} for each fit.  
 Finally, we calculated the Akaike weights, $w_\mathrm{logit}$,
 $w_\mathrm{step}$, and $w_\mathrm{BKT}$ for each student-KC pair.  
 The Akaike weight represents the relative probability that
@@ -417,7 +419,7 @@ occurred at each step.
 
 \begin{figure}
   \centering \includegraphics{step-weights.eps}
-   \caption{Akaike weights for the submodel $P_\mathrm{step,L}(j)$.  
+   \caption{Akaike weights for the submodels $P_\mathrm{step,L}(j)$.  
      This gives the relative probability that
       the student learned the KC just before step $L$.}
     \label{step-weights}
@@ -487,13 +489,13 @@ using the Akaike weight $w_L$ times the associated learning gain $\Delta_L$
 to characterize a step.
 We define the learning gain $\Delta_L=1-\hat{g}-\hat{s}$ where $\hat{g}$ and $\hat{s}$
 are the Maximum Likelihood estimators for $g$ and $s$ given
-by submodel  $P_{\mathrm{step},L}(j)$.   For the ``no learning''
+by submodel $P_{\mathrm{step},L}(j)$.   For the ``no learning''
 case $L=1$, we set $\Delta_1=0$.
 We will call  $w_L \Delta_L$ the ``weighted gain'' associated with 
 $P_{\mathrm{step},L}(j)$.
 A histogram of $w_L \Delta_L$ for student dataset $\mathcal{A}$ is
 shown in Fig.~\ref{weighted-gain-histogram}.  Note that the vast
-majority of steps (29730) have almost zero normalized gain.  
+majority of steps (29730) have almost zero weighted gain.  
 We also see that there
 is a significant number of steps with negative gain (988),
 but there are somewhat more steps with positive gain (1312) .
@@ -521,7 +523,8 @@ in  Fig.~\ref{weighted-gain-histogram2}.
 \begin{figure}
   \centering \includegraphics{weighted-gain-histogram2.eps}
    \caption{Histogram of weighted gains $w_L \Delta_L$ for
-     student dataset $\mathcal{A}$, randomly generated dataset $\mathcal{R}$,
+     the student dataset $\mathcal{A}$, 
+     a randomly generated dataset $\mathcal{R}$,
      and an artificial ideal dataset $\mathcal{I}$.}
     \label{weighted-gain-histogram2}
 \end{figure}
@@ -551,9 +554,8 @@ For the student dataset $\mathcal{A}$, we obtain $Q=0.047\pm0.006$, which
 is small, but significant ($p<0.001$). Thus, we conclude that the
 student dataset is of sufficient quality to use in determining where learning has occurred.
 
-\section{Conclusion}
 
-{\bf Compare with Hidden Markow Model approaches}.
+\section{Conclusion}
 
 One thing that we can conclude is that determining the
 moment of learning for an individual student is a murky

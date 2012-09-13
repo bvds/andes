@@ -110,12 +110,12 @@ Beck and Chang~\citeyear{beck_identifiability:_2007}.
 
 %There are several reasons why a HMM is a good represention.  First,
 %the parameters of the HMM are often thought to have some physical
-%significance.  In BKT, for instance, $P_j$ is the probability that the
+%significance.  In BKT, for instance, $P(L_j)$ is the probability that the
 %student knows the skill at a certain point of time:  it is a simple
 %mental model of the student.  Thus, a distinction can be made between
 %the student's mental state and their actual behavior (whether they
 %can apply the skill correctly).   In contrast, a more behaviorist
-%approach would eschew $P_j$ in favor of a model of actual behavior.
+%approach would eschew $P(L_j)$ in favor of a model of actual behavior.
 
 Knowledge Tracing Algorithm form~\cite{corbett_knowledge_1994} 
 of BKT is used to 
@@ -133,7 +133,7 @@ The Bayesian Knowledge Trading model~\cite{corbett_knowledge_1994}
 (in both forms) has four parameters:
 %
 \begin{itemize}
-   \item $P_0$ is the initial probability of knowing a skill.
+   \item $P(L_0)$ is the initial probability of knowing a skill.
    \item $P(G)$ is probability of guessing correctly, if the student        
          doesn't know the skill.
    \item $P(S)$ is probability of slips, if student does know the skill.
@@ -142,26 +142,27 @@ The Bayesian Knowledge Trading model~\cite{corbett_knowledge_1994}
          be constant over steps.
 \end{itemize}
 %
-Let $P_j$ be the probability that the student knows the skill at 
-step $j$. According to the model,  $P_j$ can
-be determined in terms of the previous opportunity:
+Let $P(L_j)$ be the probability that the student knows the skill at 
+step $j$. According to the model,  $P(L_j)$ can
+be determined from the previous opportunity:
 %
 \begin{equation}
-          P_j = P_{j-1} + P(T)\left(1-P_{j-1}\right)  \; . \label{recurse}
+          P(L_j) = P(L_{j-1}) + P(T)\left(1-P(L_{j-1})\right)  \; . 
+        \label{recurse}
 \end{equation}
 %
 In this model, the probability that the student actually gets
 opportunity $j$ correct is:
 %
 \begin{equation}
-        P(C_j) = P(G)\left(1-P_j\right) + \left(1-P(S)\right) P_j \; . 
+        P(C_j) = P(G)\left(1-P(L_j)\right) + \left(1-P(S)\right) P(L_j) \; . 
          \label{pnc}
 \end{equation}
 %
 %(Unlike the four model parameters above, there isn't a consistent
 %notation for $P(C_j)$ in the literature.)  
 Eqns.~(\ref{recurse}) and
-(\ref{pnc}) define a hidden Markov model, where $P_j$ is the 
+(\ref{pnc}) define a hidden Markov model, where $P(L_j)$ is the 
 ``hidden'' variable.
 
 \begin{figure}
@@ -175,13 +176,13 @@ This model can be  solved exactly.  First, we rewrite (\ref{recurse}) in a
 more suggestive form:
 %
 \begin{equation}
-        1-P_j = \left(1-P(T)\right) \left(1-P_{j-1}\right) \; .
+        1-P(L_j) = \left(1-P(T)\right) \left(1-P(L_{j-1})\right) \; .
 \end{equation}
 %
 One can show that this recursion relation has solutions of the form:
 %
 \begin{equation}
-            1-P_j = \left(1-P(T)\right)^j\left(1-P_0\right) \; .
+            1-P(L_j) = \left(1-P(T)\right)^j\left(1-P(L_0)\right) \; .
 	    \label{sol}
 \end{equation}
 %
@@ -189,17 +190,17 @@ One can show that this recursion relation has solutions of the form:
 Substituting (\ref{sol}) into (\ref{pnc}), we get:
 %
 \begin{equation}
-        P(C_j) = 1-P(S) -\left(1-P(S)-P(G)\right) \left(1-P_0\right)
+        P(C_j) = 1-P(S) -\left(1-P(S)-P(G)\right) \left(1-P(L_0)\right)
                    \left(1-P(T)\right)^j \; . \label{pncsoln}
 \end{equation}
 %
 Note that the form of $P(C_j)$, as a function of $j$, 
 depends on only {\em three} parameters:  $P(S)$, $P(T)$, and 
-$\left(1-P(S)-P(G)\right) \left(1-P_0\right)$.
+$\left(1-P(S)-P(G)\right) \left(1-P(L_0)\right)$.
 If we define
 %
 \begin{equation} 
-          A=\left(1-P(S)-P(G)\right) \left(1-P_0\right)  \label{aa}
+          A=\left(1-P(S)-P(G)\right) \left(1-P(L_0)\right)  \label{aa}
 \end{equation}
 %
  and $\beta=-\log(1-P(T))$, then we can rewrite (\ref{pncsoln}) in 
@@ -216,7 +217,7 @@ Thus, $P(C_j)$ is an exponential; see Fig.~\ref{bktgraph}.
 
 \begin{figure}
 \centering\includegraphics{table1.eps}
-\caption{The relation between $P(G)$ and $P_0$ for the hidden
+\caption{The relation between $P(G)$ and $P(L_0)$ for the hidden
   Markov model form of BKT.  
   The curve is from Eqn.~(\ref{aa}), with $P(S)=0.05$ and $A=0.418$.
   The three points are the three parameter sets listed in Table~1 of
@@ -225,25 +226,25 @@ Thus, $P(C_j)$ is an exponential; see Fig.~\ref{bktgraph}.
  \label{table1}
 \end{figure}
 
-The fact that the HMM form is a function of three parameters
+The fact that the Markov model is a function of three parameters
 was first noticed by Beck and Chang~\citeyear{beck_identifiability:_2007} 
 where they call it the ``Identifiability Problem.''   In their paper, 
 they noted that multiple
-combinations of $P(G)$ and $P_0$ give exactly the same $P(C_j)$, but
+combinations of $P(G)$ and $P(L_0)$ give exactly the same $P(C_j)$, but
 failed to explain why this is the case.  An example showing the relation
-between $P(G)$ and $P_0$ for a given model is shown in Fig.~\ref{table1}.
-Thus, we can see that Eqn.~(\ref{aa}) provides an explanation of the
-Identifiability Problem.
+between $P(G)$ and $P(L_0)$ for a given model is shown in Fig.~\ref{table1}.
+Thus, we can see that Eqn.~(\ref{aa}) provides an explanation
+of the Identifiability problem.
 
 Baker, Corbett, and Aleven~\citeyear{baker_more_2008} discuss the need for 
 model parameters to be physically meaningful.  They call this 
 ``Model Degeneracy.''   For example, all probabilities should lie between 
-zero and one.  For instance, $0\le P_0\le 1$ and $0\le P(G) \le 1$.
+zero and one.  In particular, $0\le P(L_0)\le 1$ and $0\le P(G) \le 1$.
 If we further demand that learning is positive (which may or may not be
 empirically justified), then we have the constraint $A>0$ or $P(G)+P(S)<1$.
-These constraints on $P_0$ and $P(G)$ correspond to the rectangular region shown in Fig.~\ref{table1}.
-In terms of $A$, valid values of $P(G)$ and $P_0$ occur when
-$0<A<1-P(S)$; for negative learning, valid values occur when
+These constraints on $P(L_0)$ and $P(G)$ correspond to the rectangular region shown in Fig.~\ref{table1}.
+In terms of $A$, valid values of $P(G)$ and $P(L_0)$ occur when
+$0<A<1-P(S)$; for negative learning, meaningful values occur when
 $-P(S)<A<0$.  This sets the range of physically meaningful values of
 $A$ when fitting to student data.
 
@@ -256,9 +257,9 @@ $A$ when fitting to student data.
   Eqns.~(\ref{correct}) and (\ref{incorrect}).
   The stable fixed point for each equation is marked
  by a dot.  Since the ``step $j$ correct'' curve is above the
-  dashed line, Eqn.~(\ref{correct}) causes $P_j$ to converge to the fixed point at 1.  Likewise, since 
+  dashed line, Eqn.~(\ref{correct}) causes $P(L_j)$ to converge to the fixed point at 1.  Likewise, since 
    the ``step $j$ incorrect'' curve is below the line, 
-   Eqn.~(\ref{incorrect}) causes $P_j$ to converge to the lower fixed point~(\ref{incorrectfixedpoint}).
+   Eqn.~(\ref{incorrect}) causes $P(L_j)$ to converge to the lower fixed point~(\ref{incorrectfixedpoint}).
  }
  \label{p-recursion}
 \end{figure}
@@ -267,20 +268,20 @@ $A$ when fitting to student data.
 %So far, we have discussed using BKT as a model which, when expressed
 %in functional form, can be fitted to empirical data to obtain values
 %for the three model parameters.  
-In order to predict $P_j$ for an individual student in real time,
+In order to predict $P(L_j)$ for an individual student in real time,
 the Knowledge Tracing Algorithm may be employed.  In this case, 
-the recursion relation for updating $P_j$ 
+the recursion relation for updating $P(L_j)$ 
 \cite{corbett_knowledge_1994,baker_more_2008} depends on
 student performance on that step:
 \begin{eqnarray}
        P\left(L_{j-1}|\mbox{correct}_j\right) &=&
-       \frac{P_{j-1}\left(1-P(S)\right)}{P_{j-1}\left(1-P(S)\right)+
-                                       \left(1-P_{j-1}\right)P(G)} \\
+       \frac{P(L_{j-1})\left(1-P(S)\right)}{P(L_{j-1})\left(1-P(S)\right)+
+                                       \left(1-P(L_{j-1})\right)P(G)} \\
         P\left(L_{j-1}|\mbox{incorrect}_j\right) &=& 
-              \frac{P_{j-1} P(S)}
-              {P_{j-1} P(S)+ \left(1-P_{j-1}\right)\left(1-P(G)\right)}
+              \frac{P(L_{j-1}) P(S)}
+              {P(L_{j-1}) P(S)+ \left(1-P(L_{j-1})\right)\left(1-P(G)\right)}
                         \\
-       P_j &=& P\left(L_{j-1}|\mbox{action}_j\right)+
+       P(L_j) &=& P\left(L_{j-1}|\mbox{action}_j\right)+
                \left(1-P\left(L_{j-1}|\mbox{action}_j\right)\right) P(T)
 \end{eqnarray}
 %
@@ -288,18 +289,19 @@ where $\mbox{action}_j$ can be either $\mbox{correct}_j$ or
 $\mbox{incorrect}_j$.  These equations can be combined to give:
 %
 \begin{eqnarray}
-       P_j &=&
-       1-\frac{\left(1-P(T)\right)\left(1-P_{j-1}\right)P(G)}{P(G)+\left(1-P(S)-P(G)\right)
-        P_{j-1}}  \;,\;\; \mbox{step $j$ correct} \label{correct}\\
-      P_j &=& 1-\frac{\left(1-P(T)\right)\left(1-P_{j-1}\right)\left(1-P(G)\right)}
-                                 {1-P(G)-\left(1-P(S)-P(G)\right) P_{j-1}}
-                        \; ,\;\; \mbox{step $j$ incorrect.} \label{incorrect}
+       P(L_j) =&
+       1-\frac{\left(1-P(T)\right)\left(1-P(L_{j-1})\right)P(G)}{P(G)+\left(1-P(S)-P(G)\right)
+        P(L_{j-1})}  \;,&\; \mbox{step $j$ correct} \label{correct}\\
+      P(L_j) =& 1-\frac{\left(1-P(T)\right)\left(1-P(L_{j-1})\right)\left(1-P(G)\right)}
+                                 {1-P(G)-\left(1-P(S)-P(G)\right) P(L_{j-1})}
+                        \; ,&\; \mbox{step $j$ incorrect.} \label{incorrect}
 \end{eqnarray}
 %
+These equations are plotted in Fig.~\ref{p-recursion}.
 While this recursion relation cannot be solved analytically, we
 can learn much about its solutions by conducting a fixed point analysis.
 First, we find the fixed points of each equation, (\ref{correct}) and
-(\ref{incorrect}), by setting $P_j=P_{j-1}$.  For Eqn.~(\ref{correct}), we
+(\ref{incorrect}), by setting $P(L_j)=P(L_{j-1})$.  For Eqn.~(\ref{correct}), we
 find a stable fixed point at $1$ and an unstable fixed point at
 \begin{equation}
     - \frac{P(G) P(T)}{1-P(G)-P(S)} \; .
@@ -317,12 +319,12 @@ The ``Identifiability Problem'' for the Knowledge Tracing Algorithm
 does not exist, so long as there are both correct and incorrect steps.
 This fact can be seen by examining Eqns.~(\ref{correct}) and (\ref{incorrect})
 where we see that $P(G)$ has a different functional form in
-the numerator of each equation.  Thus, any redefinition of $1-P_j$ 
+the numerator of each equation.  Thus, any redefinition of $1-P(L_j)$ 
 cannot be compensated for by a redefinition
 of the parameters in both  (\ref{correct}) and (\ref{incorrect}).
 
-In order for $P_j$ to remain in the interval $\left[0,1\right]$ 
-for any starting value $P_0\in \left[0,1\right]$ and any sequence of 
+In order for $P(L_j)$ to remain in the interval $\left[0,1\right]$ 
+for any starting value $P(L_0)\in \left[0,1\right]$ and any sequence of 
 correct/incorrect steps, 
 we need the stable fixed point (\ref{incorrectfixedpoint})
 to lie in the interval $\left[0,1\right]$ and the unstable fixed point 
@@ -335,10 +337,9 @@ constraints on allowed values for the model parameters:
         \label{bigconstraint}
 \end{eqnarray}
 %
-Note that these constraints do not allow for the model to
-exhibit negative learning ($A<0$):  such parameter
-choices can lead to $P_j$ straying outside the physical
-region $\left[0,1\right]$.
+If we choose parameters consistant with negative learning,
+$P(S)+P(G)>1$, we find that $P(L_j)$ becomes inverted: $P(L_j)$ 
+decreases for correct steps and increases for incorrect steps.
 
 For the ``Model Degeneracy'' issue, we see that (\ref{bigconstraint})
 provides a significant constraint on allowed values of model parameters.
@@ -356,8 +357,8 @@ in functional form, is an exponential function with three parameters.
 Expressing the model in terms of three parameters should 
 improve the speed and stability of any $\chi^2$ or maximum likelihood 
 fit to student data.  In that case, if $P(G)$ or
-$P_0$ is needed as output, then we suggest finding $A$ by
-the fitting process,  fixing $P(G)$ or $P_0$ by some 
+$P(L_0)$ is needed as output, then we suggest finding $A$ by
+the fitting process,  fixing $P(G)$ or $P(L_0)$ by some 
 external constraint, and using Eqn.~(\ref{aa}) to find the remaining
 variable.
 This would be equivalent to the Dirichlet 
@@ -366,7 +367,7 @@ some authors, but is much easier to implement.
 
 Our other result is that the functional form of the Markov model 
 corresponds to an exponential, rather than a power law.  
-Heathcote, Brown, and Mewhort~\cite{heathcote_power_2000}
+Heathcote, Brown, and Mewhort~\citeyear{heathcote_power_2000}
 argue that learning for individuals is better described by an
 exponential while (as shown in earlier studies) learning averaged
 over individuals is better described by a power law function.
