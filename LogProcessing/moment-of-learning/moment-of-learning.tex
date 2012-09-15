@@ -220,13 +220,13 @@ Another model that is frequently used in the context of
 learning is the logistic model~\cite{cen_learning_2006,min_chi_instructional_2011},
 %
 \begin{equation}
-    P_\mathrm{logit}(j)= \frac{1}{1+\exp\left(-b (j-L)\right)} \; .
+    P_\mathrm{logistic}(j)= \frac{1}{1+\exp\left(-b (j-L)\right)} \; .
 \end{equation}
 %
 It is natural to associate $L$ with the moment of learning.  However,
-the finite slope $P_\mathrm{logit}(j)$ means that learning may occur
+the finite slope $P_\mathrm{logistic}(j)$ means that learning may occur
 in a range of roughly $1/b$ steps before and after $L$.    For  
-$P_\mathrm{logit}(j)$, the gain in performance is always 1 and the final error
+$P_\mathrm{logistic}(j)$, the gain in performance is always 1 and the final error
 rate is always 0.  Thu,s although this model makes a prediction for
 when the skill is learned, criterion~\ref{crit:step}, it does
 not predict a gain in performance, criterion~\ref{crit:perform}.
@@ -259,7 +259,7 @@ Although this will not determine our choice of model in subsequent
 work, it would be reassuring to know whether the step model 
 $P_\mathrm{step}(j)$
 describes the student data as well (or better than) the
-other two models, $P_\mathrm{logit}(j)$ and $P_\mathrm{BKT}(j)$.  
+other two models, $P_\mathrm{logistic}(j)$ and $P_\mathrm{BKT}(j)$.  
 We believe that the Akaike Information 
 Criterion (AIC) is the most appropriate metric~\cite{akaike_new_1974,burnham_model_2002}
 to use for this purpose.
@@ -312,12 +312,12 @@ We determine the correctness of each step (Section~\ref{steps}),
 constructing a bit string, {\em exempli gratia}
 001001101, for each student-KC pair.  
 This bit string is then fit to each of the three models,
-$P_\mathrm{step}(j)$, $P_\mathrm{logit}(j)$, and $P_\mathrm{BKT}(j)$ by
+$P_\mathrm{step}(j)$, $P_\mathrm{logistic}(j)$, and $P_\mathrm{BKT}(j)$ by
 maximizing the associated log likelihood.  
 %This determines the free parameters in each model. 
 We then calculate the corrected AIC score,
  AIC$_\mathrm{c}$~\cite{burnham_model_2002} for each fit.  
-Finally, we calculated the Akaike weights, $w_\mathrm{logit}$,
+Finally, we calculated the Akaike weights, $w_\mathrm{logistic}$,
 $w_\mathrm{step}$, and $w_\mathrm{BKT}$ for each student-KC pair.  
 The Akaike weight represents the relative probability that
 a particular model in a given set of models most closely matches
@@ -325,7 +325,7 @@ the true model that has actually generated the data.
 The weights are normalized so that 
 %
 \begin{equation}
-   1=w_\mathrm{logit}+ w_\mathrm{step} + w_\mathrm{BKT} \; .
+   1=w_\mathrm{logistic}+ w_\mathrm{step} + w_\mathrm{BKT} \; .
 \end{equation}
 %
 A scatter plot of the weights is shown in Fig.~\ref{scatter1}.
@@ -335,13 +335,13 @@ discriminate between the models.  Instead, we expect that
 any statistically significant difference will only appear 
 after including hundreds of student-KC pairs in our sample.  However, 
 this is not what we found; instead, we see that $P_\mathrm{BKT}$ is 
-strongly disfavored over $P_\mathrm{step}(j)$ and $P_\mathrm{logit}(j)$.
+strongly disfavored over $P_\mathrm{step}(j)$ and $P_\mathrm{logistic}(j)$.
 Perhaps this result is too good to be true?
 
 \begin{figure}
   \centering \includegraphics{scatter-weights.eps}
   \caption{Scatter plot of  Akaike weights for the three models, 
-   $P_\mathrm{step}$, $P_\mathrm{logit}$, and $P_\mathrm{BKT}$, 
+   $P_\mathrm{step}$, $P_\mathrm{logistic}$, and $P_\mathrm{BKT}$, 
    when fit to 267 student-KC pairs from an introductory physics course.
    The model $P_\mathrm{BKT}$ seems to be highly disfavored over
    the other two models; however, we believe this result
@@ -364,7 +364,7 @@ should perform equally well since all three can equal
 $P_\mathrm{random}(j)$.
 Thus, we would expect a scatter plot of the Akaike weights to 
 center around 
-$w_\mathrm{logit}=w_\mathrm{step}=w_\mathrm{BKT}=1/3$.
+$w_\mathrm{logistic}=w_\mathrm{step}=w_\mathrm{BKT}=1/3$.
 Instead, we find that $P_\mathrm{step}$ is highly favored over
 the other two; see Fig.~\ref{scatter2}.  
 This indicates that there are large non-leading
@@ -378,7 +378,7 @@ more study for small sample sizes.''
 \begin{figure}
   \centering \includegraphics{scatter-random-weights.eps}
   \caption{Scatter plot of Akaike weights for the three models, 
-   $P_\mathrm{step}$, $P_\mathrm{logit}$, and $P_\mathrm{BKT}$, 
+   $P_\mathrm{step}$, $P_\mathrm{logistic}$, and $P_\mathrm{BKT}$, 
    when fit to randomly generated data.  For this dataset, each 
    model should perform
    equally well; the large bias in favor of one model indicates
