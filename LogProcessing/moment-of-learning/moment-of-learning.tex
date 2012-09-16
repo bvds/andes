@@ -541,16 +541,20 @@ student-KC pair:
 %
 where $\alpha$ is an index running over all student-KC pairs in a 
 dataset and $N$ is the number of student-KC pairs.
+We use the sample standard deviation of the weighted gains $w_L \Delta_L$
+to calculate the standard error associated with $Q$. 
+
 For the random dataset $\mathcal{R}$, we expect the distribution of 
 weighted gains to be symmetric about zero and thus $Q$ to approach zero.  
-Numerically, we get  $Q=-0.002\pm0.002$, consistent with zero.
+Numerically, we find  $Q=-0.002\pm0.002$, consistent with zero.
 For the ``ideal'' dataset $\mathcal{I}$,
 we expect, for the first 1 in the bit string, $w_L$ to be nearly one 
-with associated $\Delta_L$ also nearly one so that $Q\to 1$ in
+with the associated $\Delta_L$ also nearly one so that $Q\to 1$ in
 the limit of many opportunities.
-Numerically, we get $Q=0.5240\pm0.0003$, which is due to the 
+Numerically, we obtain $Q=0.5240\pm0.0003$.  The fact that it
+is much smaller than one is due to the 
 large number of student-KC pairs having just a few steps.  
-For the student dataset $\mathcal{A}$, we obtain $Q=0.047\pm0.006$, which
+For the student dataset $\mathcal{A}$, we obtain $Q=0.0467\pm0.0065$, which
 is small, but significant ($p<0.001$). Thus, we conclude that the
 student dataset is of sufficient quality to use in determining where learning has occurred.
 
