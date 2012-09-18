@@ -20,7 +20,7 @@
 %  Cool LaTeX resource:
 %   http://en.wikibooks.org/wiki/LaTeX
 
-\title{Bayesian Knowledge Tracing:  the Markov Model and Algorithm}
+\title{Properties of the Bayesian Knowledge Tracing Model}
 \author{BRETT VAN DE SANDE
 \affil{Arizona State University\\bvds@asu.edu}}
 
@@ -38,8 +38,8 @@ it is, in fact, a function of three parameters and has the
 functional form of an exponential.
 The second form is the Knowledge Tracing {\em algorithm}
 which uses student performance at each opportunity to apply
-a skill to update the probability that the student has learned 
-that skill.
+a skill to update the conditional probability that the 
+student has learned that skill.
 We use a fixed point analysis to study solutions of this 
 model and find a range of parameters where it has
 the desired behavior.
@@ -217,7 +217,8 @@ Thus, $P(C_j)$ is an exponential; see Fig.~\ref{bktgraph}.
 \begin{figure}
 \centering\includegraphics{table1.eps}
 \caption{The relation between $P(G)$ and $P(L_0)$ for the hidden
-  Markov model form of BKT.  
+  Markov model form of BKT;  all points along the curve correspond
+  to the same model.  
   The curve is from Eqn.~(\ref{aa}), with $P(S)=0.05$ and $A=0.418$.
   The three points are the three parameter sets listed in Table~1 of
   \cite{beck_identifiability:_2007}.
@@ -268,13 +269,13 @@ $A$ when fitting to student data.
 %in functional form, can be fitted to empirical data to obtain values
 %for the three model parameters.  
 In order to predict $P(L_j)$ for an individual student in real time,
-the Knowledge Tracing Algorithm may be employed.  In this case, 
-we find $P(L_j|O_j)$,  the probability that the student has learned a skill given
-student performance on previous
-steps~\cite{corbett_knowledge_1994,baker_more_2008},  
-where $O_j=\left\{o_1,\ldots,o_j\right\}$ is the student performance
+the Knowledge Tracing Algorithm~\cite{corbett_knowledge_1994} may be employed.
+In this case, we find $P(L_j|O_j)$,  the probability that the student has 
+learned a skill given  student performance on previous
+steps, where $O_j=\left\{o_1,\ldots,o_j\right\}$ is the student performance
 on the first $j$ opportunities and $o_i\in O_j$ can be either correct or
-incorrect.  This probability obeys the recursion:
+incorrect.  This conditional probability obeys the 
+recursion~\cite{baker_more_2008}:
 %
 \begin{eqnarray}
        P(L_{j-1}|O_j) &=&
@@ -284,7 +285,7 @@ incorrect.  This probability obeys the recursion:
         P(L_{j-1}|O_j) &=& 
               \frac{P(L_{j-1}|O_{j-1}) P(S)}
               {P(L_{j-1}|O_{j-1}) P(S)+ \left[1-P(L_{j-1}|O_{j-1})\right]\left(1-P(G)\right)}
-                        \; , \;\; o_j=\mbox{correct}\\
+                        \; , \;\; o_j=\mbox{incorrect}\\
        P(L_j|O_j) &=& P\left(L_{j-1}|O_j\right)+
                \left[1-P(L_{j-1}|O_j)\right] P(T)
 \end{eqnarray}
@@ -392,21 +393,9 @@ significant constraints on allowed values for $P(S)$, $P(G)$, and $P(T)$
 and that parameters consistent with negative learning are not allowed.
 
 \begin{acks}
-I would like to thank Ken Koedinger and Tristan Nixon for
+I would like to thank Ken Koedinger, Michael Yudelson, and Tristan Nixon for
 useful comments.
 \end{acks}
-
-The likelihood for HMMs are often computed using 
-the forwards algorithm.  The forwards algorithm gives $P(L_j \cap O_j)$ and
-$P(\neg L_j \cap O_j)$ as output.  Using the definition of conditional
-probability, $P(L_j \cap O_j)=P(L_j|O_j) P(O_j)$, where $P(O_j)$ is
-the likelihood that the HMM produces $O_j$.  Thus, 
-%
-\begin{eqnarray}
-P(O_j)&=&P(L_j\cap O_j) +P(\neg L_j \cap O_j)  \;\; \mbox{and} \\
- P(L_j|O_j)&=&\frac{P(L_j\cap O_j)}{ P(L_j\cap O_j) +P(\neg L_j \cap
-   O_j)} \; .
-\end{eqnarray}
 
 \bibliography{education-modeling}
 
