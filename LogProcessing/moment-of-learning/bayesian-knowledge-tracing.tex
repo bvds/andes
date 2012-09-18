@@ -129,8 +129,7 @@ study the behavior of its solutions.  This leads to constraints on possible mode
 
 \section{Hidden Markov Model form}
 
-The Bayesian Knowledge Trading model~\cite{corbett_knowledge_1994}
-(in both forms) has four parameters:
+The Bayesian Knowledge Trading model~\cite{corbett_knowledge_1994} has four parameters:
 %
 \begin{itemize}
    \item $P(L_0)$ is the initial probability of knowing a skill.
@@ -257,9 +256,9 @@ $A$ when fitting to student data.
   Eqns.~(\ref{correct}) and (\ref{incorrect}).
   The stable fixed point for each equation is marked
  by a dot.  Since the ``step $j$ correct'' curve is above the
-  dashed line, Eqn.~(\ref{correct}) causes $P(L_j)$ to converge to the fixed point at 1.  Likewise, since 
+  dashed line, Eqn.~(\ref{correct}) causes $P(L_j|O_j)$ to converge to the fixed point at 1.  Likewise, since 
    the ``step $j$ incorrect'' curve is below the line, 
-   Eqn.~(\ref{incorrect}) causes $P(L_j)$ to converge to the lower fixed point~(\ref{incorrectfixedpoint}).
+   Eqn.~(\ref{incorrect}) causes $P(L_j|O_j)$ to converge to the lower fixed point~(\ref{incorrectfixedpoint}).
  }
  \label{p-recursion}
 \end{figure}
@@ -270,38 +269,42 @@ $A$ when fitting to student data.
 %for the three model parameters.  
 In order to predict $P(L_j)$ for an individual student in real time,
 the Knowledge Tracing Algorithm may be employed.  In this case, 
-the recursion relation for updating $P(L_j)$ 
-\cite{corbett_knowledge_1994,baker_more_2008} depends on
-student performance on that step:
-\begin{eqnarray}
-       P\left(L_{j-1}|\mbox{correct}_j\right) &=&
-       \frac{P(L_{j-1})\left(1-P(S)\right)}{P(L_{j-1})\left(1-P(S)\right)+
-                                       \left(1-P(L_{j-1})\right)P(G)} \\
-        P\left(L_{j-1}|\mbox{incorrect}_j\right) &=& 
-              \frac{P(L_{j-1}) P(S)}
-              {P(L_{j-1}) P(S)+ \left(1-P(L_{j-1})\right)\left(1-P(G)\right)}
-                        \\
-       P(L_j) &=& P\left(L_{j-1}|\mbox{action}_j\right)+
-               \left(1-P\left(L_{j-1}|\mbox{action}_j\right)\right) P(T)
-\end{eqnarray}
-%
-where $\mbox{action}_j$ can be either $\mbox{correct}_j$ or 
-$\mbox{incorrect}_j$.  These equations can be combined to give:
+we find $P(L_j|O_j)$,  the probability that the student has learned a skill given
+student performance on previous
+steps~\cite{corbett_knowledge_1994,baker_more_2008},  
+where $O_j=\left\{o_1,\ldots,o_j\right\}$ is the student performance
+on the first $j$ opportunities and $o_i\in O_j$ can be either correct or
+incorrect.  This probability obeys the recursion:
 %
 \begin{eqnarray}
-       P(L_j) =&
-       1-\frac{\left(1-P(T)\right)\left(1-P(L_{j-1})\right)P(G)}{P(G)+\left(1-P(S)-P(G)\right)
-        P(L_{j-1})}  \;,&\; \mbox{step $j$ correct} \label{correct}\\
-      P(L_j) =& 1-\frac{\left(1-P(T)\right)\left(1-P(L_{j-1})\right)\left(1-P(G)\right)}
-                                 {1-P(G)-\left(1-P(S)-P(G)\right) P(L_{j-1})}
-                        \; ,&\; \mbox{step $j$ incorrect.} \label{incorrect}
+       P(L_{j-1}|O_j) &=&
+       \frac{P(L_{j-1}|O_{j-1})\left(1-P(S)\right)}{P(L_{j-1}|O_{j-1})\left(1-P(S)\right)+
+                                       \left[1-P(L_{j-1}|O_{j-1})\right]P(G)}
+                                     \; , \;\; o_j=\mbox{correct}\\
+        P(L_{j-1}|O_j) &=& 
+              \frac{P(L_{j-1}|O_{j-1}) P(S)}
+              {P(L_{j-1}|O_{j-1}) P(S)+ \left[1-P(L_{j-1}|O_{j-1})\right]\left(1-P(G)\right)}
+                        \; , \;\; o_j=\mbox{correct}\\
+       P(L_j|O_j) &=& P\left(L_{j-1}|O_j\right)+
+               \left[1-P(L_{j-1}|O_j)\right] P(T)
 \end{eqnarray}
 %
-These equations are plotted in Fig.~\ref{p-recursion}.
+These equations can be combined to give:
+%
+\begin{eqnarray}
+       P(L_j|O_j) &=&
+       1-\frac{\left(1-P(T)\right)\left[1-P(L_{j-1}|O_{j-1})\right]P(G)}{P(G)+\left(1-P(S)-P(G)\right)
+        P(L_{j-1}|O_{j-1})}  \;,\;\; o_j=\mbox{correct} \label{correct}\\
+      P(L_j|O_j) &=& 1-\frac{\left(1-P(T)\right)\left[1-P(L_{j-1}|O_{j-1})\right]\left(1-P(G)\right)}
+                                 {1-P(G)-\left(1-P(S)-P(G)\right) P(L_{j-1}|O_{j-1})}
+                        \; ,\;\; o_j=\mbox{incorrect} \; . \label{incorrect}
+\end{eqnarray}
+%
+Their functional forms are plotted in Fig.~\ref{p-recursion}.
 While this recursion relation cannot be solved analytically, we
 can learn much about its solutions by conducting a fixed point analysis.
 First, we find the fixed points of each equation, (\ref{correct}) and
-(\ref{incorrect}), by setting $P(L_j)=P(L_{j-1})$.  For Eqn.~(\ref{correct}), we
+(\ref{incorrect}), by setting $P(L_j|O_j)=P(L_{j-1}|O_{j-1})$.  For Eqn.~(\ref{correct}), we
 find a stable fixed point at $1$ and an unstable fixed point at
 \begin{equation}
     - \frac{P(G) P(T)}{1-P(G)-P(S)} \; .
@@ -319,11 +322,11 @@ The ``Identifiability Problem'' for the Knowledge Tracing Algorithm
 does not exist, so long as there are both correct and incorrect steps.
 This fact can be seen by examining Eqns.~(\ref{correct}) and (\ref{incorrect})
 where we see that $P(G)$ has a different functional form in
-the numerator of each equation.  Thus, any redefinition of $1-P(L_j)$ 
+the numerator of each equation.  Thus, any redefinition of $1-P(L_j|O_j)$ 
 cannot be compensated for by a redefinition
 of the parameters in both  (\ref{correct}) and (\ref{incorrect}).
 
-In order for $P(L_j)$ to remain in the interval $\left[0,1\right]$ 
+In order for $P(L_j|O_j)$ to remain in the interval $\left[0,1\right]$ 
 for any starting value $P(L_0)\in \left[0,1\right]$ and any sequence of 
 correct/incorrect steps, 
 we need the stable fixed point (\ref{incorrectfixedpoint})
@@ -338,8 +341,8 @@ constraints on allowed values for the model parameters:
 \end{eqnarray}
 %
 If we instead choose parameters consistant with negative learning,
-$P(S)+P(G)>1$, we find that the behavior of $P(L_j)$ becomes inverted: 
-$P(L_j)$ decreases for correct steps and increases for incorrect steps.
+$P(S)+P(G)>1$, we find that the behavior of $P(L_j|O_j)$ becomes inverted: 
+$P(L_j|O_j)$ decreases for correct steps and increases for incorrect steps.
 
 For the ``Model Degeneracy'' issue, we see that (\ref{bigconstraint})
 provides a significant constraint on allowed values of model parameters.
@@ -392,6 +395,18 @@ and that parameters consistent with negative learning are not allowed.
 I would like to thank Ken Koedinger and Tristan Nixon for
 useful comments.
 \end{acks}
+
+The likelihood for HMMs are often computed using 
+the forwards algorithm.  The forwards algorithm gives $P(L_j \cap O_j)$ and
+$P(\neg L_j \cap O_j)$ as output.  Using the definition of conditional
+probability, $P(L_j \cap O_j)=P(L_j|O_j) P(O_j)$, where $P(O_j)$ is
+the likelihood that the HMM produces $O_j$.  Thus, 
+%
+\begin{eqnarray}
+P(O_j)&=&P(L_j\cap O_j) +P(\neg L_j \cap O_j)  \;\; \mbox{and} \\
+ P(L_j|O_j)&=&\frac{P(L_j\cap O_j)}{ P(L_j\cap O_j) +P(\neg L_j \cap
+   O_j)} \; .
+\end{eqnarray}
 
 \bibliography{education-modeling}
 
