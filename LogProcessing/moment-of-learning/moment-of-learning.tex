@@ -34,13 +34,12 @@
 %   http://en.wikibooks.org/wiki/LaTeX
 
 \begin{abstract}
-We compare several models of student learning with the goal of 
-determining when a specific student has learned a particular skill.  
-We use Likelihood Theory to determine
-which of several models best describes the acquisition
-of skills associated with introductory physics.  Then we
-use a multimodel approach to determine the relative probability
-that a student has learned a given skill at a particular 
+We compare several models of student learning with the goal of
+determining when a specific student has learned a particular skill.
+We use Likelihood Theory to determine which of several models best
+describes the acquisition of skills associated with introductory
+physics.  Then we use a multimodel approach to determine the relative
+probability that a student has learned a given skill at a particular
 problem-solving step.
 \end{abstract}
 
@@ -69,13 +68,12 @@ award No. SBE-0836012.
 %Talk about ultimate goal of using this to determine effectiveness
 %of help given or of a particular student behavior.
 
-There is ample evidence that a well-designed Intelligent Tutor 
-System (ITS) can be almost as effective as an expert human 
-tutor~\cite{vanlehn_relative_2011}.  A key ingredient for improving an ITS is
-determining whether a particular student action or the 
-tutoring given by the ITS at a given instance was effective.
-There are several senses in which an activity might be ``effective.''
-For instance:  
+There is ample evidence that a well-designed Intelligent Tutor System
+(ITS) can be almost as effective as an expert human
+tutor~\cite{vanlehn_relative_2011}.  A key ingredient for improving an
+ITS is determining whether a particular student action or the tutoring
+given by the ITS at a given instance was effective.  There are several
+senses in which an activity might be ``effective.''  For instance:
 %
 \begin{itemize}
 \item Did it improve the student's attitude toward
@@ -101,31 +99,29 @@ be experimentally inferred by conducting a two-condition study).
 In addition, it means that the determination must be made
 after the fact, typically through some log file analysis. 
 
-In this work, we investigate a method for determining
-when a student may have learned a skill based on their
-ability to apply that skill without errors or asking for hints.
-In principle, there are other observables that may give us
-clues on mastery:  for instance, how much time a student takes
-to complete a step.  However, other such observables need
-some additional interpretation 
-({\em exempli gratia,} How long is too long?).
-Baker, Goldstein, and Heffernan~\citeyear{baker_detecting_2010} 
-attempt a model of learning based on a Hidden Markov model approach.  In their
-model, they consider additional variables.  Inclusion of
-such additional observables is a natural extension of
-the approach we will present here.
+In this work, we investigate a method for determining when a student
+may have learned a skill based on their ability to apply that skill
+without errors or asking for hints.  In principle, there are other
+observables that may give us clues on mastery: for instance, how much
+time a student takes to complete a step.  However, other such
+observables need some additional interpretation ({\em exempli gratia,}
+How long is too long?).  Baker, Goldstein, and
+Heffernan~\citeyear{baker_detecting_2010} attempt a model of learning
+based on a Hidden Markov model approach.  In their model, they
+consider additional variables.  Inclusion of such additional
+observables is a natural extension of the approach we will present
+here.
 
-First we will compare three different models of learning
-and examine whether there is emphirical support for using
-one model over the others.  In fact, using Akaike Information
-Criteria (AIC), we obtain results that seem to favor two
-models over the third, but conclude that there are some
-unresolved issues.
+First we will compare three different models of learning and examine
+whether there is emphirical support for using one model over the
+others.  In fact, using Akaike Information Criteria (AIC), we obtain
+results that seem to favor two models over the third, but conclude
+that there are some unresolved issues.
 
-Second, we select a model and use a multimodel approach
-to predict where learning has occurred, with what probability,
-and how much learning has occurred.  We apply our approach
-to student data and discuss the reliability of our predictions.
+Second, we select a model and use a multimodel approach to predict
+where learning has occurred, with what probability, and how much
+learning has occurred.  We apply our approach to student data and
+discuss the reliability of our predictions.
 
 
 \subsection{Correct/Incorrect steps}
@@ -216,22 +212,24 @@ actually occurred for an individual student, criterion~\ref{crit:step}.
 On the other hand, this model does provide initial and final
 error rates, so criterion~\ref{crit:perform} is satisfied. 
 
-Another model that is frequently used in the context of 
-learning is the logistic model~\cite{cen_learning_2006,min_chi_instructional_2011},
+Another model that is frequently used in the context of learning is
+the logistic
+model~\cite{cen_learning_2006,min_chi_instructional_2011},
 %
 \begin{equation}
     P_\mathrm{logistic}(j)= \frac{1}{1+\exp\left(-b (j-L)\right)} \; .
 \end{equation}
 %
 It is natural to associate $L$ with the moment of learning.  However,
-the finite slope $P_\mathrm{logistic}(j)$ means that learning may occur
-in a range of roughly $1/b$ steps before and after $L$.    For  
-$P_\mathrm{logistic}(j)$, the gain in performance is always 1 and the final error
-rate is always 0.  Thus, although this model makes a prediction for
-when the skill is learned, criterion~\ref{crit:step}, it does
-not predict a gain in performance, criterion~\ref{crit:perform}.
+the finite slope $P_\mathrm{logistic}(j)$ means that learning may
+occur in a range of roughly $1/b$ steps before and after $L$.  For
+$P_\mathrm{logistic}(j)$, the gain in performance is always 1 and the
+final error rate is always 0.  Thus, although this model makes a
+prediction for when the skill is learned, criterion~\ref{crit:step},
+it does not predict a gain in performance,
+criterion~\ref{crit:perform}.
 
-The ``step model'' assumes that learning occurs all at 
+The ``step model'' assumes that learning occurs all at
 once~\cite{baker_detecting_2011}.  It is defined as:
 %
 \begin{equation}
@@ -241,13 +239,12 @@ once~\cite{baker_detecting_2011}.  It is defined as:
                  \end{array} \right. 
 \end{equation}
 %
-where $L$ is the step where the student first shows mastery of the
-KC, $g$ is the ``guess rate,'' the probability that the student
-gets a step correct by accident, and $s$ is the ``slip rate,''
-the chance that the student makes an error after learning
-the skill.  These are analogous to the guess and slip parameters 
-of BKT~\cite{corbett_knowledge_1994}.  
-The associated gain in performance
+where $L$ is the step where the student first shows mastery of the KC,
+$g$ is the ``guess rate,'' the probability that the student gets a
+step correct by accident, and $s$ is the ``slip rate,'' the chance
+that the student makes an error after learning the skill.  These are
+analogous to the guess and slip parameters of
+BKT~\cite{corbett_knowledge_1994}.  The associated gain in performance
 is $1-g-s$ and the error rate after learning is simply $s$ in this
 model.  Thus, this model satisfies criteria \ref{crit:step} and
 \ref{crit:perform}.
@@ -256,13 +253,13 @@ model.  Thus, this model satisfies criteria \ref{crit:step} and
 \label{model-selection}
 
 Although this will not determine our choice of model in subsequent
-work, it would be reassuring to know whether the step model 
-$P_\mathrm{step}(j)$
-describes the student data as well (or better than) the
-other two models, $P_\mathrm{logistic}(j)$ and $P_\mathrm{BKT}(j)$.  
-We believe that the Akaike Information 
-Criterion (AIC) is the most appropriate metric~\cite{akaike_new_1974,burnham_model_2002}
-to use for this purpose.
+work, it would be reassuring to know whether the step model
+$P_\mathrm{step}(j)$ describes the student data as well (or better
+than) the other two models, $P_\mathrm{logistic}(j)$ and
+$P_\mathrm{BKT}(j)$.  We believe that the Akaike Information Criterion
+(AIC) is the most appropriate
+metric~\cite{akaike_new_1974,burnham_model_2002} to use for this
+purpose.
 
 \subsection{Method}
 
@@ -274,20 +271,19 @@ to use for this purpose.
     \label{student-length-histogram}
 \end{figure}
 
-We examined log data from 12 students taking an intensive 
-introductory physics course at St.\ Anselm College during
-summer 2011.  The course
-covered the same content as a normal two-semester introductory
-course.  Log data was recorded as students solved homework 
-problems while using the Andes intelligent tutor homework system.
-231 hours of log data were recorded.
+We examined log data from 12 students taking an intensive introductory
+physics course at St.\ Anselm College during summer 2011.  The course
+covered the same content as a normal two-semester introductory course.
+Log data was recorded as students solved homework problems while using
+the Andes intelligent tutor homework system.  231 hours of log data
+were recorded.
 %, covering 85,744 transactions, and 26,204 student steps.  
-Each step was assigned to one or more different KC's.  
-The dataset contains a total of 2017 distinct
-student-KC pairs covering a total of 245 distinct KC's.
-We will refer to this dataset as student dataset $\mathcal{A}$.
-See Figure~\ref{student-length-histogram} for a histogram
-of the number student-KC pairs having a given number of steps.
+Each step was assigned to one or more different KC's.  The dataset
+contains a total of 2017 distinct student-KC pairs covering a total of
+245 distinct KC's.  We will refer to this dataset as student dataset
+$\mathcal{A}$.  See Figure~\ref{student-length-histogram} for a
+histogram of the number student-KC pairs having a given number of
+steps.
 
 Most KC's are associated with physics
 or relevant math skills while others are associated with 
@@ -304,39 +300,38 @@ Andes with, say, Learning Factors Analysis~\cite{cen_learning_2006}.
 
 \subsection{Analysis}
 
-Since the goodness of fit criterion, AIC, is valid in the limit 
-of many steps, we include in this analysis only student-KC 
-pairs that contain 10 or more steps, reducing the number of 
-student-KC pairs to 267, covering 38 distinct KC's.
-We determine the correctness of each step (Section~\ref{steps}),
-constructing a bit string, {\em exempli gratia}
-001001101, for each student-KC pair.  
-This bit string is then fit to each of the three models,
-$P_\mathrm{step}(j)$, $P_\mathrm{logistic}(j)$, and $P_\mathrm{BKT}(j)$ by
-maximizing the associated log likelihood.  
+Since the goodness of fit criterion, AIC, is valid in the limit of
+many steps, we include in this analysis only student-KC pairs that
+contain 10 or more steps, reducing the number of student-KC pairs to
+267, covering 38 distinct KC's.  We determine the correctness of each
+step (Section~\ref{steps}), constructing a bit string, {\em exempli
+gratia} 001001101, for each student-KC pair.  This bit string is then
+fit to each of the three models, $P_\mathrm{step}(j)$,
+$P_\mathrm{logistic}(j)$, and $P_\mathrm{BKT}(j)$ by maximizing the
+associated log likelihood.
 %This determines the free parameters in each model. 
 We then calculate the corrected AIC score,
- AIC$_\mathrm{c}$~\cite{burnham_model_2002} for each fit.  
-Finally, we calculated the Akaike weights, $w_\mathrm{logistic}$,
-$w_\mathrm{step}$, and $w_\mathrm{BKT}$ for each student-KC pair.  
-The Akaike weight represents the relative probability that
-a particular model in a given set of models most closely matches
-the true model that has actually generated the data.
-The weights are normalized so that 
+ AIC$_\mathrm{c}$~\cite{burnham_model_2002} for each fit.  Finally, we
+ calculated the Akaike weights, $w_\mathrm{logistic}$,
+ $w_\mathrm{step}$, and $w_\mathrm{BKT}$ for each student-KC pair.
+ The Akaike weight represents the relative probability that a
+ particular model in a given set of models most closely matches the
+ true model that has actually generated the data.  The weights are
+ normalized so that
 %
 \begin{equation}
    1=w_\mathrm{logistic}+ w_\mathrm{step} + w_\mathrm{BKT} \; .
 \end{equation}
 %
-A scatter plot of the weights is shown in Fig.~\ref{scatter1}.
-Since a student-KC pair contains only an average of about 16 steps, we 
-expect that AIC$_\mathrm{c}$ should not strongly
-discriminate between the models.  Instead, we expect that
-any statistically significant difference will only appear 
-after including hundreds of student-KC pairs in our sample.  However, 
-this is not what we found; instead, we see that $P_\mathrm{BKT}$ is 
-strongly disfavored over $P_\mathrm{step}(j)$ and $P_\mathrm{logistic}(j)$.
-Perhaps this result is too good to be true?
+A scatter plot of the weights is shown in Fig.~\ref{scatter1}.  Since
+a student-KC pair contains only an average of about 16 steps, we
+expect that AIC$_\mathrm{c}$ should not strongly discriminate between
+the models.  Instead, we expect that any statistically significant
+difference will only appear after including hundreds of student-KC
+pairs in our sample.  However, this is not what we found; instead, we
+see that $P_\mathrm{BKT}$ is strongly disfavored over
+$P_\mathrm{step}(j)$ and $P_\mathrm{logistic}(j)$.  Perhaps this
+result is too good to be true?
 
 \begin{figure}
   \centering \includegraphics{scatter-weights.eps}
@@ -357,23 +352,19 @@ This dataset corresponds to a model of the form
         P_\mathrm{random}(j)=1/2 \; .
 \end{equation}
 %
-We then repeated our analysis of the three models using this
-dataset.  In this case, one expects that all three models 
-should perform equally well since all three can equal 
-(with suitable choice of parameters) the known correct model 
-$P_\mathrm{random}(j)$.
-Thus, we would expect a scatter plot of the Akaike weights to 
-center around 
-$w_\mathrm{logistic}=w_\mathrm{step}=w_\mathrm{BKT}=1/3$.
-Instead, we find that $P_\mathrm{step}$ is highly favored over
-the other two; see Fig.~\ref{scatter2}.  
-This indicates that there are large non-leading
-corrections to the AIC$_\mathrm{c}$ that have not been
-taken into account.  Burnham \& Johnson conclude 
-that there is more work to be done in this area~\cite[p.~380]{burnham_model_2002}: 
-``Operating characteristics
-of AIC-based model selection for count-type data need more 
-more study for small sample sizes.'' 
+We then repeated our analysis of the three models using this dataset.
+In this case, one expects that all three models should perform equally
+well since all three can equal (with suitable choice of parameters)
+the known correct model $P_\mathrm{random}(j)$.  Thus, we would expect
+a scatter plot of the Akaike weights to center around
+$w_\mathrm{logistic}=w_\mathrm{step}=w_\mathrm{BKT}=1/3$.  Instead, we
+find that $P_\mathrm{step}$ is highly favored over the other two; see
+Fig.~\ref{scatter2}.  This indicates that there are large non-leading
+corrections to the AIC$_\mathrm{c}$ that have not been taken into
+account.  Burnham \& Johnson conclude that there is more work to be
+done in this area~\cite[p.~380]{burnham_model_2002}: ``Operating
+characteristics of AIC-based model selection for count-type data need
+more more study for small sample sizes.''
 
 \begin{figure}
   \centering \includegraphics{scatter-random-weights.eps}
@@ -425,15 +416,15 @@ occurred at each step.
     \label{step-weights}
 \end{figure}
 
-Let us illustrate this technique with a simple example. 
-Suppose the bit string for a particular student-KC pair is 
-00011011 (8 opportunities); see Fig.~\ref{step-weights}.
-We fit this datum to 8 sub-models of the step model, corresponding to
-$L\in\{1,2,\ldots,8\}$, by maximizing the log likelihood $\log\mathcal{L}$.  
-The associated AIC values are
-given by $\mathrm{AIC}_L=2 K-\log \mathcal{L}$  where $K$ is the
-number of fit parameters.  Note that there are two parameters 
-($s$ and $g$) when $L>1$ and there is only one parameter ($s$) when $L=1$.
+Let us illustrate this technique with a simple example.  Suppose the
+bit string for a particular student-KC pair is 00011011 (8
+opportunities); see Fig.~\ref{step-weights}.  We fit this datum to 8
+sub-models of the step model, corresponding to $L\in\{1,2,\ldots,8\}$,
+by maximizing the log likelihood $\log\mathcal{L}$.  The associated
+AIC values are given by $\mathrm{AIC}_L=2 K-\log \mathcal{L}$ where
+$K$ is the number of fit parameters.  Note that there are two
+parameters ($s$ and $g$) when $L>1$ and there is only one parameter
+($s$) when $L=1$.
 %
 %\begin{table}
 %\caption{
@@ -478,27 +469,24 @@ the student activity on that step.
     \label{weighted-gain-histogram}
 \end{figure}
 
-It is not sufficient to know {\it when} learning has occurred but 
-one must also determine {\it how much} learning has occurred.  
-Consider the bit sequence 11011000.   When fit to the step model,  
-the best fit will occur at $L=6$ but this would correspond to a
-decrease in student performance for that skill.  In other cases, the 
-change in student performance may be almost zero.  
-In order to take this into account, we propose 
-using the Akaike weight $w_L$ times the associated learning gain $\Delta_L$
-to characterize a step.
-We define the learning gain $\Delta_L=1-\hat{g}-\hat{s}$ where $\hat{g}$ and $\hat{s}$
-are the Maximum Likelihood estimators for $g$ and $s$ given
-by submodel $P_{\mathrm{step},L}(j)$.   For the ``no learning''
-case $L=1$, we set $\Delta_1=0$.
-We will call  $w_L \Delta_L$ the ``weighted gain'' associated with 
-$P_{\mathrm{step},L}(j)$.
-A histogram of $w_L \Delta_L$ for student dataset $\mathcal{A}$ is
-shown in Fig.~\ref{weighted-gain-histogram}.  Note that the vast
-majority of steps (29730) have almost zero weighted gain.  
-We also see that there
-is a significant number of steps with negative gain (988),
-but there are somewhat more steps with positive gain (1312) .
+It is not sufficient to know {\it when} learning has occurred but one
+must also determine {\it how much} learning has occurred.  Consider
+the bit sequence 11011000.  When fit to the step model, the best fit
+will occur at $L=6$ but this would correspond to a decrease in student
+performance for that skill.  In other cases, the change in student
+performance may be almost zero.  In order to take this into account,
+we propose using the Akaike weight $w_L$ times the associated learning
+gain $\Delta_L$ to characterize a step.  We define the learning gain
+$\Delta_L=1-\hat{g}-\hat{s}$ where $\hat{g}$ and $\hat{s}$ are the
+Maximum Likelihood estimators for $g$ and $s$ given by submodel
+$P_{\mathrm{step},L}(j)$.  For the ``no learning'' case $L=1$, we set
+$\Delta_1=0$.  We will call $w_L \Delta_L$ the ``weighted gain''
+associated with $P_{\mathrm{step},L}(j)$.  A histogram of $w_L
+\Delta_L$ for student dataset $\mathcal{A}$ is shown in
+Fig.~\ref{weighted-gain-histogram}.  Note that the vast majority of
+steps (29730) have almost zero weighted gain.  We also see that there
+is a significant number of steps with negative gain (988), but there
+are somewhat more steps with positive gain (1312) .
 
 The fact that there are so many steps with negative gain is
 symptomatic of bit strings that are very noisy (a lot of
@@ -511,7 +499,7 @@ see Fig.~\ref{weighted-gain-histogram2}.
 What would the distribution look like if the data weren't 
 so noisy?  To see this, we generated an artificial ``ideal'' dataset
 $\mathcal{I}$ where there were no slips or guesses, but having
-the same bit string length distribution as $\mathcal{A}$ 
+the same length distribution as $\mathcal{A}$ 
 (Fig.~\ref{student-length-histogram}).  Thus, the bit strings
 in $\mathcal{I}$ have the form $00\cdots011\cdots1$.
 In this case, for each student-KC pair, we expect a single 
@@ -544,50 +532,48 @@ dataset and $N$ is the number of student-KC pairs.
 We use the sample standard deviation of the weighted gains $w_L \Delta_L$
 to calculate the standard error associated with $Q$. 
 
-For the random dataset $\mathcal{R}$, we expect the distribution of 
-weighted gains to be symmetric about zero and thus $Q$ to approach zero.  
-Numerically, we find  $Q=-0.002\pm0.002$, consistent with zero.
-For the ``ideal'' dataset $\mathcal{I}$,
-we expect, for the first 1 in the bit string, $w_L$ to be nearly one 
-with the associated $\Delta_L$ also nearly one so that $Q\to 1$ in
-the limit of many opportunities.
-Numerically, we obtain $Q=0.5240\pm0.0003$.  The fact that it
-is much smaller than one is due to the 
-large number of student-KC pairs having just a few steps.  
-For the student dataset $\mathcal{A}$, we obtain $Q=0.0467\pm0.0065$, which
-is small, but significant ($p<0.001$). Thus, we conclude that the
-student dataset is of sufficient quality to use in determining where learning has occurred.
+For the random dataset $\mathcal{R}$, we expect the distribution of
+weighted gains to be symmetric about zero and thus $Q$ to approach
+zero.  Numerically, we find $Q=-0.002\pm0.002$, consistent with zero.
+For the ``ideal'' dataset $\mathcal{I}$, we expect, for the first 1 in
+the bit string, $w_L$ to be nearly one with the associated $\Delta_L$
+also nearly one so that $Q\to 1$ in the limit of many opportunities.
+Numerically, we obtain $Q=0.5240\pm0.0003$.  The fact that it is much
+smaller than one is due to the large number of student-KC pairs having
+just a few steps.  For the student dataset $\mathcal{A}$, we obtain
+$Q=0.0467\pm0.0065$, which is small, but significant
+($p<0.001$). Thus, we conclude that the student dataset is of
+sufficient quality to use in determining where learning has occurred.
 
 
 \section{Conclusion}
 
-We conclude is that determining the moment of learning for an 
+We conclude is that determining the moment of learning for an
 individual student is a murky business.  As can be seen in
-Fig.~\ref{weighted-gain-histogram2},  there is not much difference
-between a student dataset and a randomly generated dataset.  
- We have introduced the quality index $Q$ which can be used to
-quantify the size of the signal and the size of the background.  We
-see that $Q=0.0467\pm0.0065$ for the student dataset $\mathcal{A}$ is 
-roughly 10\% the size of $Q$ for the ideal dataset $\mathcal{I}$;  we
-interpret this to mean that the ``signal'' is rougly 10\% as big as
-the ``noise.''  However, the fact that $Q$ for the student dataset is
-seven standard deviations from zero means that we have
-detected learning for 2000 student-KC pairs with room to spare.  
-Using the fact that the relative error goes as
-$1/\sqrt{\mbox{pairs}}$, we estimate that we can detect learning with only 260
-student-KC pairs at the $p=0.01$ level.  This gives us an initial estimate for the amount of
-log data needed to measure learning.
+Fig.~\ref{weighted-gain-histogram2}, there is not much difference
+between a student dataset and a randomly generated dataset.  We have
+introduced the quality index $Q$ which can be used to quantify the
+size of the signal and the size of the background.  We see that
+$Q=0.0467\pm0.0065$ for the student dataset $\mathcal{A}$ is roughly
+10\% the size of $Q$ for the ideal dataset $\mathcal{I}$; we interpret
+this to mean that the ``signal'' is rougly 10\% as big as the
+``noise.''  However, the fact that $Q$ for the student dataset is
+seven standard deviations from zero means that we have detected
+learning for 2000 student-KC pairs with room to spare.  Using the fact
+that the relative error goes as $1/\sqrt{\mbox{pairs}}$, we estimate
+that we can detect learning with only 260 student-KC pairs at the
+$p=0.01$ level.  This gives us an initial estimate for the amount of
+log data needed to measure the moment of learning.
 
-
-As seen in Fig.~\ref{student-length-histogram}, we see that many of the student 
-student-KC pairs are quite short.  We speculate that this is perhaps
-due to to the way that physics is typically taught, with little
-reinforcement of specific KCs, emphasizing, instead, more general
-problem solving meta-skills.  If we were to repeat this analysis for
-high school or grade school math, where there is more repitition, we
-speculate that there would be significantly fewer KCs with less than
-10 opportunities and that detecting when learning has occurred
-would be significantly easier.
+As seen in Fig.~\ref{student-length-histogram}, we see that many of
+the student student-KC pairs are quite short.  We speculate that this
+is perhaps due to to the way that physics is typically taught, with
+little reinforcement of specific KCs, emphasizing, instead, more
+general problem solving meta-skills.  If we were to repeat this
+analysis for high school or grade school math, where there is more
+repitition, we speculate that there would be significantly fewer KCs
+with less than 10 opportunities and that detecting when learning has
+occurred would be significantly easier.
 
 
 % Bibliography
