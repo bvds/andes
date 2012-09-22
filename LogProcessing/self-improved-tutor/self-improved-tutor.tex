@@ -1,16 +1,32 @@
-\documentclass[11pt,letterpaper]{article}
+% Users can also go through the FAQs available on the journal's submission webpage.
+%
+% Steps to compile: latex, bibtex, latex latex
+%
+% For tracking purposes => this is v1.3 - May 2012
+
+
+\documentclass{acmlarge-edm}
+
+% Metadata Information
+\acmVolume{1}
+\acmNumber{2}
+\acmArticle{3}
+\acmYear{2012}
+\acmMonth{5}  % can also put in literal name
+
 \usepackage{amsmath}
 \usepackage{graphics}
-\usepackage{fullpage}
-\addtolength{\voffset}{0.5in}
 
 %
 %  Cool LaTeX resource:
 %   http://en.wikibooks.org/wiki/LaTeX
 
 \begin{document}
+
+% Title portion
 \title{Self-improving tutor system}
-\author{Brett van de Sande}
+\author{Brett van de Sande
+\affil{Arizona State University\\bvds@asu.edu}}
 
 % Assignment of blame paper: 
 % http://www.public.asu.edu/~kvanlehn/Stringent/PDF/07UM_KVL_KK_etal.pdf
@@ -22,7 +38,6 @@
 % http://www.cs.brown.edu/research/pubs/theses/phd/2002/peshkin.pdf
 
 
-\maketitle
 
 \begin{abstract}
 Both human and computer tutors constantly make decisions about
@@ -39,6 +54,17 @@ train a new version of the tutor having improved hinting policies
 and deployed the new version of the tutor in the classroom.  
 We discuss what is needed to make this into a sustainable iterative process.
 \end{abstract}
+
+\keywords{data mininig, models of student learning}
+
+\begin{bottomstuff}
+Funding for this research was provided by the Pittsburgh Science of
+Learning Center which is funded by the National Science Foundation
+award No. SBE-0836012.
+\end{bottomstuff}
+
+\maketitle
+
 
 \section{Introduction1}
 
@@ -134,7 +160,7 @@ the the step where the probability of correctness has risen to 50\%.
 
 Alternatively, we can use a function that retains the 
 guess $P(G)$ and slip $P(S)$ rates of Corbett and 
-Anderson~\cite{anderson}.
+Anderson~\cite{corbett_knowledge_1994}.
 The simplest such model is a step-function:
 %
 \begin{equation}
@@ -197,7 +223,7 @@ Similarly, one can find the maximum-likelihood estimator
 for $L$.  However, in some cases, $L$ is not normally
 distributed and has a large uncertainty.
 So, instead of using the MLE value of $L$ and some
-associated error, we will use a multimodel approach~\cite{aic-book}.
+associated error, we will use a multimodel approach~\cite{burnham_model_2002}.
 We will use a set of models of the form (\ref{step}), 
 one for each $L$. Each model has a relative probability given 
 by its Akaike weight,  
@@ -283,9 +309,10 @@ average learning gain $\Delta_L = 1-\left\langle g+s\right\rangle_L$
 predicted by model $L$.
 Also, $n(j,L)$ is the number
 of incorrect steps $\mathcal{I}$ between $j$ and $L$, 
-and $\gamma$ is the ``discount factor''~\cite{ml}. 
+and $\gamma$ is the ``discount factor''~\cite{russell_artificial_2002}. 
 A good value for $\gamma \in [0,1]$ must be determined empirically.
-In a previous study~\cite{mint}, $\gamma=0.9$ was chosen.
+In a previous study involving physics learning~\cite{chi_empirically_2011}, 
+$\gamma=0.9$ was chosen.
 However, in that case, the discount factor was applied transaction-wise in 
 a situation where there were many transactions per step.  In our case, 
 we apply $\gamma$ step-wise to incorrect steps $\mathcal{I}$, 
@@ -339,7 +366,8 @@ number of error handlers that do make such a determination, but they
 apply only for certain well-known errors.
 
 For determining which features to select, we used Min Chi's thesis
-as a starting point~\cite{mint}, although she was doing this for a
+as a starting point~\citeyear{chi_micro-level_2009}, 
+although she was doing this for a
 rather different kind of tutor system.  The following items were
 chosen mostly for convenience, and they avoided issues with determing
 the KC associated with an entry.
@@ -384,35 +412,9 @@ in order that the help policy for that transaction can be set.
 Thus the state can only depend correct/incorrect (or floundering) 
 information from previous transactions. 
 
-\begin{thebibliography}{9}
 
-\bibitem{anderson} 
-  Corbett, A.\ T., Anderson, J.\ R. Knowledge Tracing:  Modeling 
-the Acquisition of Procedural Knowledge.  \emph{User Modeling and
- User-Adapted Interaction}, 1995, 4, 253--278.
-
-\bibitem{beckchang}
-  Beck, J.\ E., Chang, K.-m.\ Identifiability: A Fundamental Problem of
-  Student Modeling.
-  \emph{Proceedings of the $11^{th}$ International Conference on User 
-    Modeling}, 2007.
-
-\bibitem{aic-book}Burnham, K.~P., and Anderson, D.~R. \emph{Model
-  Selection and Multimodel Inference: A Practical
-  Information-Theoretic Approach}, 2nd ed. Springer-Verlag. 2002.
-
-%\bibitem{aha}Kurt and Kasia moment of learning paper.
-
-\bibitem{ml}Discount factor citation.
-
-\bibitem{mint}Min's Thesis (or publication?)
-
-\bibitem{linear}Linear classifier Ref. 
-     http://en.wikipedia.org/wiki/Linear\_classifier
-
-\end{thebibliography}
-
-
-
+% Bibliography
+\bibliographystyle{acmlarge}
+\bibliography{education-modeling}
 
 \end{document}
