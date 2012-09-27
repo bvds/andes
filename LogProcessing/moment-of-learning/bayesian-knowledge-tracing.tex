@@ -30,7 +30,7 @@ Bayesian Knowledge Tracing is used very widely to
 model student learning.  It comes in two different forms:
 The first form is the Bayesian Knowledge Tracing {\em hidden Markov model} 
 which predicts the probability of correct application of a skill 
-as a function of time and the model parameters.  
+as a function of the number of opportunities and the model parameters.  
 %This model can be fit to student prerformance data to determine model
 %parameters.  
 We present an analytical solution to this model and show that
@@ -73,9 +73,10 @@ award No. SBE-0836012.
 
 \section{Introduction}
 
-Since its introduction by Corbett and Anderson~\citeyear{corbett_knowledge_1994}, 
+Since its introduction by Corbett and 
+Anderson~\citeyear{corbett_knowledge_1994}, 
 Bayesian Knowledge Tracing (BKT) has been widely applied
-in studies of student learning and in various tutor systems.  
+to studies of student learning and to various tutor systems.  
 In addition, BKT often serves as the starting
 %
 %   Need examples of BKT-based models, only look at examples
@@ -84,8 +85,9 @@ In addition, BKT often serves as the starting
 point for more complicated models of learning, for 
 example~\cite{baker_r._improving_2008,lee_impact_2012}.
 %  BKT comes in two flavors:  regular and unsweetened. 
-Researchers have applied BKT in two distinct ways:  The {\em Hidden Markov Model}
-(HMM) form and the {\em Knowledge Tracing Algorithm} form.
+Researchers have applied BKT in two distinct ways:  
+The {\em Hidden Markov Model} (HMM) form and the 
+{\em Knowledge Tracing Algorithm} form.
 The purpose of this paper is to investigate solutions of both
 forms of the BKT model.
 
@@ -93,7 +95,7 @@ The HMM form~\cite{beck_identifiability:_2007} of BKT
 predicts the probability of that a student will 
 correctly apply a skill when they have an opportunity to apply it.
 Typically, this model is fit to student performance data 
-using either a $\chi^2$ or a maximum likelihood test.  The 
+using either a $\chi^2$ or a Maximum Likelihood test.  The 
 fit is then used to fix the model parameters.
 %While using this model,  number of authors have noted have noted the 
 %existence of what is called the ``Identifiability Problem'' 
@@ -125,11 +127,13 @@ updated by student performance at each opportunity to apply
 that skill.  The model has four parameters which must be 
 supplied externally.  Although, this form of BKT is too complicated
 to solve analytically, we will use a fixed point analysis to
-study the behavior of its solutions.  This leads to constraints on possible model parameters.
+study the behavior of its solutions.  This leads to constraints on 
+possible model parameters.
 
 \section{Hidden Markov Model form}
 
-The Bayesian Knowledge Trading model~\cite{corbett_knowledge_1994} has four parameters:
+The Bayesian Knowledge Trading model~\cite{corbett_knowledge_1994} 
+has four parameters:
 %
 \begin{itemize}
    \item $P(L_0)$ is the initial probability of knowing a skill.
@@ -160,9 +164,8 @@ opportunity $j$ correct is:
 %
 %(Unlike the four model parameters above, there isn't a consistent
 %notation for $P(C_j)$ in the literature.)  
-Eqns.~(\ref{recurse}) and
-(\ref{pnc}) define a hidden Markov model, where $P(L_j)$ is the 
-``hidden'' variable.
+Eqns.~(\ref{recurse}) and (\ref{pnc}) define a hidden Markov model, 
+where $P(L_j)$ is the ``hidden'' variable.
 
 \begin{figure}
 \centering\includegraphics{exponential.eps}
@@ -171,8 +174,8 @@ Eqns.~(\ref{recurse}) and
 \label{bktgraph}
 \end{figure}
 
-This model can be  solved exactly.  First, we rewrite (\ref{recurse}) in a
-more suggestive form:
+This model can be  solved exactly.  First, we rewrite (\ref{recurse}) 
+in a more suggestive form:
 %
 \begin{equation}
         1-P(L_j) = \left(1-P(T)\right) \left(1-P(L_{j-1})\right) \; .
@@ -305,18 +308,23 @@ Their functional forms are plotted in Fig.~\ref{p-recursion}.
 While this recursion relation cannot be solved analytically, we
 can learn much about its solutions by conducting a fixed point analysis.
 First, we find the fixed points of each equation, (\ref{correct}) and
-(\ref{incorrect}), by setting $P(L_j|O_j)=P(L_{j-1}|O_{j-1})$.  For Eqn.~(\ref{correct}), we
-find a stable fixed point at $1$ and an unstable fixed point at
+(\ref{incorrect}), by setting $P(L_j|O_j)=P(L_{j-1}|O_{j-1})$.  
+For Eqn.~(\ref{correct}), we find a stable fixed point at $1$ and 
+an unstable fixed point at
+%
 \begin{equation}
     - \frac{P(G) P(T)}{1-P(G)-P(S)} \; .
       \label{correctfixedpoint}
 \end{equation}
+%
 Similarly, Eqn.~(\ref{incorrect}) has an unstable fixed point at $1$
 and a stable fixed point at
+%
 \begin{equation}
     \frac{\left(1-P(G)\right) P(T)}{1-P(G)-P(S)} \; . 
        \label{incorrectfixedpoint}
 \end{equation}
+%
 The stable fixed points are plotted in Fig.~\ref{p-recursion}.
 
 The ``Identifiability Problem'' for the Knowledge Tracing Algorithm
@@ -329,7 +337,7 @@ of the parameters in both  (\ref{correct}) and (\ref{incorrect}).
 
 In order for $P(L_j|O_j)$ to remain in the interval $\left[0,1\right]$ 
 for any starting value $P(L_0)\in \left[0,1\right]$ and any sequence of 
-correct/incorrect steps, 
+correct/incorrect steps $O_j$, 
 we need the stable fixed point (\ref{incorrectfixedpoint})
 to lie in the interval $\left[0,1\right]$ and the unstable fixed point 
 (\ref{correctfixedpoint}) to remain negative.  This gives us the following
