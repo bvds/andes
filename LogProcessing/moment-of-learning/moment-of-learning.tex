@@ -227,8 +227,8 @@ prediction for when the skill is learned, criterion~\ref{crit:step},
 it does not predict a gain in performance,
 criterion~\ref{crit:perform}.
 
-The ``step model'' assumes that learning occurs all at
-once~\cite{baker_detecting_2011}.  It is defined as:
+The third model is the ``step model'' which assumes that learning 
+occurs all at once~\cite{baker_detecting_2011}.  It is defined as:
 %
 \begin{equation}
     P_\mathrm{step}(j)= \left\{\begin{array}{cc}
@@ -298,6 +298,23 @@ Andes with, say, Learning Factors Analysis~\cite{cen_learning_2006}.
 
 \subsection{Analysis}
 
+\begin{figure}
+  \centering \includegraphics{scatter-weights.eps}
+  \caption{Scatter plot of  Akaike weights for the three models, 
+   $P_\mathrm{step}$, $P_\mathrm{logistic}$, and $P_\mathrm{BKT}$, 
+   when fit to student-KC pairs from an introductory physics course.
+   The point where
+   $P_\mathrm{step}=P_\mathrm{logistic}=P_\mathrm{BKT}=1/3$ is
+   marked with a cross.
+   The point where all three models fit the
+   data exactly is marked with a circle.  
+   The dashed line on the left represents points
+   where $P_\mathrm{step}=P_\mathrm{BKT}$.  Finally, the line on 
+   the right marks data with bit strings of the form
+   $00\cdots 011\cdots 1$.} 
+   \label{scatter1}
+\end{figure}
+
 Since the goodness of fit criterion, AIC, is valid in the limit of
 many steps, we include in this analysis only student-KC pairs that
 contain 10 or more steps, reducing the number of student-KC pairs to
@@ -308,9 +325,8 @@ fit to each of the three models, $P_\mathrm{step}(j)$,
 $P_\mathrm{logistic}(j)$, and $P_\mathrm{BKT}(j)$ by maximizing the
 associated log likelihood.
 %This determines the free parameters in each model. 
-We then calculate the corrected AIC score,
- AIC$_\mathrm{c}$~\cite{burnham_model_2002} for each fit.  Finally, we
- calculated the Akaike weights, $w_\mathrm{logistic}$,
+We then calculate the AIC score~\cite{burnham_model_2002} for each fit.  
+Finally, we calculated the Akaike weights, $w_\mathrm{logistic}$,
  $w_\mathrm{step}$, and $w_\mathrm{BKT}$ for each student-KC pair.
  The Akaike weight represents the relative probability that a
  particular model in a given set of models most closely matches the
@@ -321,25 +337,29 @@ We then calculate the corrected AIC score,
    1=w_\mathrm{logistic}+ w_\mathrm{step} + w_\mathrm{BKT} \; .
 \end{equation}
 %
-A scatter plot of the weights is shown in Fig.~\ref{scatter1}.  Since
+A scatter plot of the weights is shown in Fig.~\ref{scatter1}.
+If all three models described the data equally well, then
+we would expect points to be scattered evenly about 
+center point $=w_\mathrm{logistic}= w_\mathrm{step}= w_\mathrm{BKT}=1/3$.
+Instead, we see the step model weakly favored over the logistic 
+model and strongly favored over BKT.
+Indeed, we find no data points where $w_\mathrm{step}< w_\mathrm{BKT}$,
+although there is a noticable accumulation of points when
+$w_\mathrm{step}= w_\mathrm{BKT}$.
+
+
+Since the student-KC pairs contain an average of about 16 steps,
+it is surprising that we find a strong bias of 
+
+  Since
 a student-KC pair contains only an average of about 16 steps, we
-expect that AIC$_\mathrm{c}$ should not strongly discriminate between
+expect that AI should not strongly discriminate between
 the models.  Instead, we expect that any statistically significant
 difference will only appear after including hundreds of student-KC
 pairs in our sample.  However, this is not what we found; instead, we
 see that $P_\mathrm{BKT}$ is strongly disfavored over
 $P_\mathrm{step}(j)$ and $P_\mathrm{logistic}(j)$.  Perhaps this
 result is too good to be true?
-
-\begin{figure}
-  \centering \includegraphics{scatter-weights.eps}
-  \caption{Scatter plot of  Akaike weights for the three models, 
-   $P_\mathrm{step}$, $P_\mathrm{logistic}$, and $P_\mathrm{BKT}$, 
-   when fit to 267 student-KC pairs from an introductory physics course.
-   The model $P_\mathrm{BKT}$ seems to be highly disfavored over
-   the other two models; however, we believe this result
-   may be spurious.} \label{scatter1}
-\end{figure}
 
 To further investigate this situation, we constructed an
 artificial dataset containing 100 random bit strings (each
