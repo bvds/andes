@@ -9,27 +9,27 @@
        (mapcar #'(lambda (y) (cons 1 y)) x)))))
 
 (defun step-model (s g l) 
-  (lambda (j) (if (< j l) g (- 1 s)))) 
+  (lambda (j n) (declare (ignore n)) (if (< j l) g (- 1 s)))) 
 
 (defun bkt-model (s g a) 
-  (lambda (j) (- 1 s (* (- 1 s g) (exp (* (log a) j))))))
+  (lambda (j n) (- 1 s (* (- 1 s g) (expt a (/ j (- n 1) a))))))
 
 ;; (log-like '(0 1 1) (bkt-model .2 .2 .3))
 (defun log-like (data model)
-  (loop for d in data and
+  (let ((n (length data)))
+    (loop for d in data and
        j from 0 
        sum (log (if (= d 1)
-	       (funcall model j)
-	       (- 1 (funcall model j))))))
+		    (funcall model j n)
+		    (- 1 (funcall model j n)))))))
 
-(defvar *search-steps* 5)
 
 (defmacro my-loop (var limits &rest body)
-  `(loop for ,var from (car ,limits) to (cdr ,limits) 
-      by (/ (- (cdr ,limits) (car ,limits)) *search-steps*) do
+  `(loop for ,var from (car ,limits) to (cadr ,limits) 
+      by (or (caddr ,limits) 1) do
 	,@body))
 
-;; (find-minimum '(0 0 1) 'step-model '(0.1 . 0.9) '(0.01 . 0.99) '(0.001 . 2))
+;; (find-minimum '(0 0 1) 'step-model '(0 1 .25) '(0 1 .25) '(0 2))
 (defun find-minimum (data model-name l1 l2 l3)
  "Brute force search for minimum for given bit-string and model and limits"
  (let (best best-params)
@@ -42,9 +42,24 @@
 			     (when (or (null best) (> ll best))
 			       (setf best ll)
 			       (setf best-params (list x1 x2 x3)))))))
-   (values best best-params)))
+   (cons best best-params)))
 
-(defun compare-models (n)
-  (dolist (data (binary-digits n))
-    (let (
-   
+;; 114 sec for 10, 10 on laptop.
+(defun compare-models (steps n)
+  (let ((dx (/ 1 n)))
+  (dolist (data (binary-digits steps))
+    (let ((step-result (find-minimum data 'step-model 
+				     (list 0 1 dx)
+				     (list 0 1 dx)
+				     (list 0 (- steps 1))))
+	  (bkt-result (find-minimum data 'bkt-model 
+				    (list 0 1 dx)
+				    (list 0 1 dx)
+				    ;; Can't be exactly zero
+				    (list (/ dx 2) (- 1 (/ dx 2)) dx)
+				    )))
+      (when (> (car bkt-result) (car step-result))
+	(format t "Results for ~A: step ~A and BKT ~A~%" 
+		data step-result bkt-result))))))
+
+(time (compare-models 10 20))

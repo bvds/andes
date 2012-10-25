@@ -263,6 +263,27 @@ between a given model and the true model (assumed to be complicated)
 that actually generated the observed data.  It is valid in limit of 
 many data points, $N\to\infty$, with leading corrections of order $1/N$.
 
+A related method for choosing between models is the Bayesian Information
+Criterion (BIC) introduced by Schwarz~\citeyear{schwarz_estimating_1978}.
+Burnham \& Anderson~\citeyear[Sections~6.3 \& 6.4]{burnham_model_2002} explain that 
+BIC is appropriate in cases where the ``true'' model that actually
+created the data is relatively simple (few parameters).  If the true
+model is contained in the set of  models being considered, then
+BIC will correctly identify the true model in the $N\to\infty$
+limit.    The authors argue that, while BIC may be  appropriate
+in some of the physical sciences and engineering, in the biological
+and social sciences, medicine, and other ``noisy'' sciences, the assumptions that underlie
+BIC are generally not met.  In particular, as the sample size increases, it is
+typical that the underlying ``true'' model also becomes more complicated.
+This is certainly true in educational datamining:  datasets are
+increased by adding data from new schools, or different years and one
+typically expects noticable variation of the data from school to
+school or from year to year.  In such cases, one safely can say that
+the ``true'' model is complicated and becomes more complicated as
+a dataset is increased.
+
+
+
 \subsection{Method}
 
 
