@@ -196,7 +196,7 @@ model~\cite{corbett_knowledge_1994}.  The hidden Markov model
 form of BKT is often fit to student performance 
 data~\cite{beck_identifiability:_2007}.  One can show that
 this model, in functional form, is an exponential function
-with three model parameters~\cite{van_de_sande_bayesian_2012}:
+with three model parameters~\cite{van_de_sande_properties_2012}:
 %
 %  A and \beta are kind of messy, so we don't include them here.
 \begin{equation}
@@ -213,7 +213,7 @@ error rates, so criterion~\ref{crit:perform} is satisfied.
 
 Another model that is frequently used in the context of learning is
 the logistic
-model~\cite{cen_learning_2006,min_chi_instructional_2011},
+model~\cite{cen_learning_2006,chi_instructional_2011},
 %
 \begin{equation}
     P_\mathrm{logistic}(j)= \frac{1}{1+\exp\left(-b (j-L)\right)} \; .
@@ -263,26 +263,30 @@ between a given model and the true model (assumed to be complicated)
 that actually generated the observed data.  It is valid in limit of 
 many data points, $N\to\infty$, with leading corrections of order $1/N$.
 
-A related method for choosing between models is the Bayesian Information
-Criterion (BIC) introduced by Schwarz~\citeyear{schwarz_estimating_1978}.
-Burnham \& Anderson~\citeyear[Sections~6.3 \& 6.4]{burnham_model_2002} explain that 
-BIC is appropriate in cases where the ``true'' model that actually
-created the data is relatively simple (few parameters).  If the true
-model is contained in the set of  models being considered, then
-BIC will correctly identify the true model in the $N\to\infty$
-limit.    The authors argue that, while BIC may be  appropriate
-in some of the physical sciences and engineering, in the biological
-and social sciences, medicine, and other ``noisy'' sciences, the assumptions that underlie
-BIC are generally not met.  In particular, as the sample size increases, it is
-typical that the underlying ``true'' model also becomes more complicated.
-This is certainly true in educational datamining:  datasets are
-increased by adding data from new schools, or different years and one
-typically expects noticable variation of the data from school to
-school or from year to year.  In such cases, one safely can say that
-the ``true'' model is complicated and becomes more complicated as
-a dataset is increased.
-
-
+A related method for choosing between models is the Bayesian
+Information Criterion (BIC) introduced by
+Schwarz~\citeyear{schwarz_estimating_1978}.  Burnham \&
+Anderson~\citeyear[Sections~6.3 \& 6.4]{burnham_model_2002} explain
+that BIC is appropriate in cases where the ``true'' model that
+actually created the data is relatively simple (few parameters).  If
+the true model is contained in the set of models being considered,
+then BIC will correctly identify the true model in the $N\to\infty$
+limit.  For BIC to have this property, the true model must stay fixed as 
+$N$ increases.  
+The authors argue that, while BIC may be appropriate in some
+of the physical sciences and engineering, in the biological and social
+sciences, medicine, and other ``noisy'' sciences, the assumptions that
+underlie BIC are generally not met.  In particular, as the sample size
+increases, it is typical that the underlying ``true'' model also
+becomes more complicated.  This is certainly true in educational
+datamining: datasets are increased by adding data from new schools, or
+different years and one generally expects noticable variation of student
+behavior from school to school or from year to year.  In such cases, one
+safely can say that the ``true'' model is complicated (because people are
+complicated) and becomes more complicated as a dataset is increased.
+Although authors often quote both AIC and BIC values, there
+is good reason to believe that AIC is generally more appropriate for
+educational datamining work.
 
 \subsection{Method}
 
@@ -372,18 +376,18 @@ find no data points where $w_\mathrm{step}< w_\mathrm{BKT}$,
 although there is a noticable accumulation of points along the line 
 $w_\mathrm{step}= w_\mathrm{BKT}$.
 
-Note that data in the form of a step without
-gains or slips, {\it exempli gratia}, $00\cdots 011\cdots 1$
+Note that data in the form of incorrect steps then correct steps, 
+{\it exempli gratia}, $00\cdots 011\cdots 1$
 is fit perfectly by both the $P_\mathrm{step}$ and 
 $P_\mathrm{logistic}$ models.  
 In this case, since $P_\mathrm{logistic}$ has one fewer parameter
-than $P_\mathrm{step}$, it is favored by AIC and
+than $P_\mathrm{step}$, it is favored by AIC by a constant factor and
 $w_\mathrm{step}=\mathrm{e}^{-1} w_\mathrm{logistic}$.  This case is
 plotted as the increasing dashed line in Fig.~\ref{scatter1}.
 
 Since the student-KC pairs contain an average of about $N=16$ 
 steps, it is surprising that we find that AIC so strongly
-discriminates between the model.  Perhaps this is due to
+discriminates between the models.  Perhaps this is due to
 some finite $N$ correction?  Recall that AIC is only 
 strictly valid in the $N\to\infty$ limit.
 
@@ -403,17 +407,35 @@ strictly valid in the $N\to\infty$ limit.
     $P_\mathrm{random}(j)=1/2$.}\label{scatter2}
 \end{figure}
 
-To further investigate this situation, we constructed
-artificial datasets containing random bit strings (each
-step has 50\% probability of being ``correct'') of length $N$.
-This dataset corresponds to a model of the form
+To further investigate this situation, we constructed an
+artificial dataset containing random bit strings (each
+step has 50\% probability of being ``correct'') of length 
+$N\in\left\{10,20,30,40,50\right\}$.
+This data set corresponds to a model of the form
 %
 \begin{equation}
         P_\mathrm{random}(j)=1/2 \; .
 \end{equation}
 %
-We then repeated our analysis of the three models using this dataset.
-In this case, one expects that all three models should perform equally
+We then repeated our analysis of the three models using this dataset
+and AIC as our selection criterion.  Note that all three models,
+with a suitable choice of parameters, can be made equal to 
+$P_\mathrm{random}$.
+
+As mentioned earlier, for data that is generated by a simple 
+model ($P_\mathrm{random}$ is about as
+simple as one can get) and the ``true'' model is included among
+the set of models, BIC is the more appropriate criterion
+for model selection~\cite[Sections~6.3 \& 6.4]{burnham_model_2002}.
+However, the only difference in our results is that BIC favors
+$P_\mathrm{logistic}$ more strongly over $P_\mathrm{step}$ and
+$P_\mathrm{BKT}$.  In order to maintain consistancy with
+our experimental results, Fig.~\ref{scatter1}, we will continue
+to use AIC.  The use of AIC versus BIC will not affect our conclusions.
+
+
+For data generated by $P_\mathrm{random}$,
+one expects that all three models should perform equally
 well since all three can equal (with suitable choice of parameters)
 the known correct model $P_\mathrm{random}$.  Thus, we would expect
 a scatter plot of the Akaike weights to center around
