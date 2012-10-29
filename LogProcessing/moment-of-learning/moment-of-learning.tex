@@ -258,16 +258,30 @@ than) the other two models, $P_\mathrm{logistic}(j)$ and
 $P_\mathrm{BKT}(j)$.  We believe that the Akaike Information Criterion
 (AIC) is the most appropriate
 metric~\cite{akaike_new_1974,burnham_model_2002} to use for this
-purpose.  AIC is an estimate of the expected relative distance 
+purpose.  AIC is defined as
+%
+\begin{equation}
+   \mathrm{AIC}= -2 \log\left(\mathcal{L}\right) + 2K
+\end{equation}
+% 
+where $\mathcal{L}$ is the maximized value of the likelihood function
+and $K$ is the number of parameters in the model.
+ AIC is an estimate of the expected relative distance 
 between a given model and the true model (assumed to be complicated) 
 that actually generated the observed data.  It is valid in limit of 
 many data points, $N\to\infty$, with leading corrections of order $1/N$.
 
 A related method for choosing between models is the Bayesian
 Information Criterion (BIC) introduced by
-Schwarz~\citeyear{schwarz_estimating_1978}.  Burnham \&
-Anderson~\citeyear[Sections~6.3 \& 6.4]{burnham_model_2002} explain
-that BIC is appropriate in cases where the ``true'' model that
+Schwarz~\citeyear{schwarz_estimating_1978}.  BIC is defined as
+%
+\begin{equation}
+   \mathrm{AIC}= -2 \log\left(\mathcal{L}\right) + K \log\left(N\right)
+\end{equation}
+% 
+where $N$ is the number of data points.
+Burnham \& Anderson~\citeyear[Sections~6.3 \& 6.4]{burnham_model_2002} explain
+that BIC is more appropriate in cases where the ``true'' model that
 actually created the data is relatively simple (few parameters).  If
 the true model is contained in the set of models being considered,
 then BIC will correctly identify the true model in the $N\to\infty$
@@ -283,8 +297,8 @@ datamining: datasets are increased by adding data from new schools, or
 different years and one generally expects noticable variation of student
 behavior from school to school or from year to year.  In such cases, one
 safely can say that the ``true'' model is complicated (because people are
-complicated) and becomes more complicated as a dataset is increased.
-Although authors often quote both AIC and BIC values, there
+complicated) and becomes more complicated as a dataset is increased in
+size.  Although most authors quote both AIC and BIC values, there
 is good reason to believe that AIC is generally more appropriate for
 educational datamining work.
 
@@ -472,6 +486,12 @@ This shows that AIC, in the asymptotic limit $N\to\infty$,
 still favors  $P_\mathrm{step}$ over the other two models
 when used to evaluate randomly generated data.
 
+If we repeat this analysis with BIC, we would also
+find that the weights converge to a constant value with 
+$1/N$ leading errors.  The only difference is that the logistic
+model has a larger weight than the other two.  This is to be
+expected since all three models contain the true model.
+
 \subsection{Summary}
 
 In conclusion, we obtain some suprising results when we compare
@@ -481,6 +501,18 @@ string,  $P_\mathrm{BKT}$ {\em never} fits the data better than $P_\mathrm{BKT}$
 both models have three parameters, this result holds for both
 AIC and BIC.  We don't have an analytic proof explaining this result, 
 but the numerical evidence (see Fig.~\ref{meanweight}) is quite strong.
+It would be quite useful to better understand this result.
+
+Second, we see that the scatter plot of Akaike weights for student
+data is remarkably similar to the scatter plots for the random model.
+This suggests that the student data has a high degree of randomness,
+and that study of the random model may be quite useful for better
+understanding the student data.
+
+Third, tanking into account the fact that AIC seems to prefer the step model over the other
+two for the random data (when we expect them to all work equally
+well), we can still conclude that the step model works at least as
+well as the other two for the student data.
 
 Demonstrating that the step model fits student data as well as,
 or better than, the other two would be an
@@ -496,10 +528,10 @@ can yield the probability that learning has occurred during given step.
 
 We need to determine the step where a specific student has learned a
 particular skill.  Our strategy is to take the step model, 
-$P_\mathrm{step}(j)$, and treat $L$ as a constant, yielding a set of 
-sub-models $P_{\mathrm{step},L}(j)$.
-We then fit each of the sub-models to the student data, obtaining an
-AIC value.  Finally, we find the Akaike weighs for each of the
+$P_\mathrm{step}(j)$, and treat $L$ as a constant, yielding a set of $N$ 
+sub-models $P_{\mathrm{step},L}(j)$, one for each value of $L$.
+We then fit each of the $N$ sub-models to the student data and
+calculate an AIC value.  Finally, we find the Akaike weighs for each of the
 sub-models.  The Akaike weights give the relative probability that learning
 occurred at each step.
 
@@ -656,7 +688,7 @@ this to mean that the ``signal'' is rougly 10\% as big as the
 seven standard deviations from zero means that we have detected
 learning for 2000 student-KC pairs with room to spare.  Using the fact
 that the error goes as $1/\sqrt{N}$, we estimate
-that we can detect learning with only 260 student-KC pairs at the
+that we could still detect learning with only 260 student-KC pairs at the
 $p=0.01$ level.  This gives us an initial estimate for the amount of
 log data needed to measure the moment of learning, at least for
 students using the Andes tutor system.
