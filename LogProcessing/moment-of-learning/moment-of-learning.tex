@@ -165,6 +165,13 @@ a single student's performance on a single KC is a bit string,
 
 \section{Three models of learning}
 
+\begin{figure}
+  \centering \includegraphics{three-models.eps}
+  \caption{Functional form of the three models of student learning.}
+    \label{three-models}
+\end{figure}
+
+
 In order to determine when a student has learned a particular still,
 we need to introduce a model of learning for that student and skill.
 Ideally, the model should have the the following properties:
@@ -173,22 +180,25 @@ Ideally, the model should have the the following properties:
 \begin{enumerate} 
 
 \item Be compatible with actual student behavior.
-      See Section~\ref{model-selection}.  That is, its
+      That is, its
       functional form should fit well with student data.
+      We will explore this question in Section~\ref{model-selection}.  
 
 \item \label{crit:step}
       Give the probability that learning has occurred at a given step.
-      See Section~\ref{multi-model}.
+      We will address this issue in Section~\ref{multi-model}.
 
 \item  \label{crit:perform}
-      Assuming learning has occurred at a given step, give the 
+     Assuming learning has occurred at a given step, the model
+     should give an prediction for the 
      associated increase in performance and 
      the rate of errors after learning.
 
 \end{enumerate}
 %
 We will consider three candidate models:  the ``step model,'' 
-the logistic function, and the Bayesian Knowledge Tracing model.
+the logistic function, and the Bayesian Knowledge Tracing model;
+see Fig.~\ref{three-models}.
 
 
 The first model is the Bayesian Knowledge Tracing (BKT) 
@@ -307,7 +317,7 @@ educational datamining work.
 
 \begin{figure}
   \centering \includegraphics{student-kc-length-histogram.eps}
-  \caption{Histogram of number of student-KC pairs in student 
+  \caption{Histogram of number of distinct student-KC pairs in student 
     dataset $\mathcal{A}$ having a given number of steps $N$.}
     \label{student-length-histogram}
 \end{figure}
@@ -346,10 +356,11 @@ Andes with, say, Learning Factors Analysis~\cite{cen_learning_2006}.
   \caption{Scatter plot of  Akaike weights for the three models, 
    $P_\mathrm{step}$, $P_\mathrm{logistic}$, and $P_\mathrm{BKT}$, 
    when fit to student-KC pairs from an introductory physics course.
-   The point where
-   $w_\mathrm{step}=w_\mathrm{logistic}=w_\mathrm{BKT}=1/3$ is
-   marked with a  large cross.  The average of the  weights is marked with
-   the smaller cross.
+   The point where all models are equal,
+   $w_\mathrm{step}=w_\mathrm{logistic}=w_\mathrm{BKT}=1/3$, is
+   marked with the lower cross.  
+   The average of the  weights is marked with
+   the upper cross.
   The dashed line on the left represents points
    where $w_\mathrm{step}=w_\mathrm{BKT}$.  Finally, the line on 
    the right marks data with bit strings of the form
@@ -687,7 +698,8 @@ this to mean that the ``signal'' is rougly 10\% as big as the
 ``noise.''  However, the fact that $Q$ for the student dataset is
 seven standard deviations from zero means that we have detected
 learning for 2000 student-KC pairs with room to spare.  Using the fact
-that the error goes as $1/\sqrt{N}$, we estimate
+that the error goes as $1/\sqrt{n}$, where $n$ is the number 
+of student-KC pairs, we estimate
 that we could still detect learning with only 260 student-KC pairs at the
 $p=0.01$ level.  This gives us an initial estimate for the amount of
 log data needed to measure the moment of learning, at least for
