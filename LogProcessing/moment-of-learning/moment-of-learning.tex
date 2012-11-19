@@ -32,11 +32,11 @@
 %   http://en.wikibooks.org/wiki/LaTeX
 
 \begin{abstract}
-We compare several models of student learning with the goal of
+We compare three models of student learning with the goal of
 determining when a specific student has learned a particular skill.
-We use Likelihood Theory to determine which of several models best
+We use the Akaike Information Criterion to determine which of the models best
 describes the acquisition of skills associated with introductory
-physics.  Then we use a multimodel approach to determine the relative
+physics.  Then we use a multi-model approach to determine the relative
 probability that a student has learned a given skill at a particular
 problem-solving step.
 \end{abstract}
@@ -151,22 +151,21 @@ discuss the reliability of our predictions.
 
 \subsection{Correct/Incorrect steps}
 
-Although there are other observables that may be used
-to determine whether a skill has been mastered, Table~1 of
-\cite{baker_detecting_2010} list 14 different observables.  
+There are many observables that may be used
+to determine whether a skill has been mastered; Table~1 of
+\cite{baker_detecting_2010} lists 14 different observables.  
 However, we will focus on correctness of a step.  Thus, we need to
 define precisely what we mean by a step being correct.
 
 For each student and Knowledge Component (KC)~\cite{vanlehn_behavior_2006}, 
-the student has attempted some number of 
-{\em steps} that involve that KC.   We will label
-steps with $j\in\left\{1,\ldots,N\right\}$.  
+the student attempts some number of 
+{\em steps}  when solving a problem.  
 Usually a given step is associated
-with a single user interface object (an equation, vector, etc.)  but
+with creating/modifying a single user interface object (an equation, vector, etc.)  but
 not always, since a student may attempt a particular problem solving
 step, delete the object, and later attempt that solution step again.
-Sometimes, we talk of a step being an {\em opportunity} to learn
-a given skill if the student needs to apply that skill
+A step can be an {\em opportunity} to learn
+a given KC if the student needs to apply that skill
 to complete that step.
 
 %
@@ -180,15 +179,15 @@ to complete that step.
 %Since the policies chosen by the random-help version of Andes
 %are different for each student,
 %we need to determine the point of learning for each student.
-For each KC and student, mark each step as ``correct'' if
-the student completes the step correctly without any associated errors or 
+For each KC and student, we select all steps that involve application
+of that KC that were available to that student, and mark each step as ``correct'' if
+the student completes that step correctly without any associated errors or 
 requests for help; otherwise, the step is marked as ``incorrect.''
-\label{steps} 
-%
-% From Kurt:
+\label{steps}  % Section reference for correct/incorrect
 Thus, if each incorrect/correct step is marked with a 0/1, then
-a single student's performance on a single KC is a bit string,
-{\em exempli gratia} 00101011.
+a single student's performance on a single KC is a bit sequence,
+{\em exempli gratia} 00101011.  We will label
+steps with $j\in\left\{1,\ldots,n\right\}$.  
 
 \section{Three models of learning}
 
@@ -306,24 +305,24 @@ and $K$ is the number of parameters in the model.
  AIC is an estimate of the expected relative distance 
 between a given model and the true model (assumed to be complicated) 
 that actually generated the observed data.  It is valid in limit of 
-many data points, $N\to\infty$, with leading corrections of order $1/N$.
+many data points, $n\to\infty$, with leading corrections of order $1/n$.
 
 A related method for choosing between models is the Bayesian
 Information Criterion (BIC) introduced by
 Schwarz~\citeyear{schwarz_estimating_1978}.  BIC is defined as
 %
 \begin{equation}
-   \mathrm{AIC}= -2 \log\left(\mathcal{L}\right) + K \log\left(N\right)
+   \mathrm{AIC}= -2 \log\left(\mathcal{L}\right) + K \log\left(n\right)
 \end{equation}
 % 
-where $N$ is the number of data points.
+where $n$ is the number of data points.
 Burnham \& Anderson~\citeyear[Sections~6.3 \& 6.4]{burnham_model_2002} explain
 that BIC is more appropriate in cases where the ``true'' model that
 actually created the data is relatively simple (few parameters).  If
 the true model is contained in the set of models being considered,
-then BIC will correctly identify the true model in the $N\to\infty$
+then BIC will correctly identify the true model in the $n\to\infty$
 limit.  For BIC to have this property, the true model must stay fixed as 
-$N$ increases.  
+$n$ increases.  
 The authors argue that, while BIC may be appropriate in some
 of the physical sciences and engineering, in the biological and social
 sciences, medicine, and other ``noisy'' sciences, the assumptions that
@@ -344,8 +343,8 @@ educational datamining work.
 
 \begin{figure}
   \centering \includegraphics{student-kc-length-histogram.eps}
-  \caption{Histogram of number of distinct student-KC pairs in student 
-    dataset $\mathcal{A}$ having a given number of steps $N$.}
+  \caption{Histogram of number of distinct student-KC sequences in student 
+    dataset $\mathcal{A}$ having a given number of steps $n$.}
     \label{student-length-histogram}
 \end{figure}
 
@@ -357,20 +356,20 @@ the Andes intelligent tutor homework system.  231 hours of log data
 were recorded.
 %, covering 85,744 transactions, and 26,204 student steps.  
 Each step was assigned to one or more different KC's.  The dataset
-contains a total of 2017 distinct student-KC pairs covering a total of
+contains a total of 2017 distinct student-KC sequences covering a total of
 245 distinct KC's.  We will refer to this dataset as student dataset
 $\mathcal{A}$.  See Figure~\ref{student-length-histogram} for a
-histogram of the number student-KC pairs having a given number of
+histogram of the number student-KC sequences having a given number of
 steps.
 
 Most KC's are associated with physics
 or relevant math skills while others are associated with 
 Andes conventions or user-interface actions (such as, notation
-for defining a variable).  The student-KC pairs with the largest 
+for defining a variable).  The student-KC sequences with the largest 
 number of steps are associated with user-interface related skills,
 since these skills are exercised throughout the entire course. 
 
-The presence of many student-KC pairs with just one or two
+The presence of many student-KC sequences with just one or two
 steps may indicate that the default cognitive model associated 
 with this tutor system may be sub-optimal; to date, there has not 
 been any attempt, to date, to improve on the cognitive model of 
@@ -382,7 +381,7 @@ Andes with, say, Learning Factors Analysis~\cite{cen_learning_2006}.
   \centering \includegraphics{scatter-weights.eps}
   \caption{Scatter plot of  Akaike weights for the three models, 
    $P_\mathrm{step}$, $P_\mathrm{logistic}$, and $P_\mathrm{BKT}$, 
-   when fit to student-KC pairs from an introductory physics course.
+   when fit to student-KC sequences from an introductory physics course.
    The point where all models are equal,
    $w_\mathrm{step}=w_\mathrm{logistic}=w_\mathrm{BKT}=1/3$, is
    marked with the lower cross.  
@@ -396,17 +395,17 @@ Andes with, say, Learning Factors Analysis~\cite{cen_learning_2006}.
 \end{figure}
 
 Since the goodness of fit criterion, AIC, is valid in the limit of
-many steps, we include in this analysis only student-KC pairs that
-contain 10 or more steps, reducing the number of student-KC pairs to
+many steps, we include in this analysis only student-KC sequences that
+contain 10 or more steps, reducing the number of student-KC sequences to
 267, covering 38 distinct KC's.  We determine the correctness of each
 step (Section~\ref{steps}), constructing a bit string, {\em exempli
-gratia} 001001101, for each student-KC pair.  This bit string is then
+gratia} 001001101, for each student-KC sequence.  This bit string is then
 fit to each of the three models, $P_\mathrm{step}$,
 $P_\mathrm{logistic}$, and $P_\mathrm{BKT}$ by maximizing the
 associated log likelihood.
 %This determines the free parameters in each model. 
 We then calculate the AIC score~\cite{burnham_model_2002} for each fit.  
-Finally, we calculated the Akaike weights, $w_\mathrm{logistic}$, $w_\mathrm{step}$, and $w_\mathrm{BKT}$ for each student-KC pair.
+Finally, we calculated the Akaike weights, $w_\mathrm{logistic}$, $w_\mathrm{step}$, and $w_\mathrm{BKT}$ for each student-KC sequence.
 The weights are normalized so that
 %
 \begin{equation}
@@ -437,11 +436,11 @@ than $P_\mathrm{step}$, it is favored by AIC by a constant factor and
 $w_\mathrm{step}=\mathrm{e}^{-1} w_\mathrm{logistic}$.  This case is
 plotted as the increasing dashed line in Fig.~\ref{scatter1}.
 
-Since the student-KC pairs contain an average of about $N=16$ 
+Since the student-KC sequences contain an average of about $n=16$ 
 steps, it is surprising that we find that AIC so strongly
 discriminates between the models.  Perhaps this is due to
-some finite $N$ correction?  Recall that AIC is only 
-strictly valid in the $N\to\infty$ limit.
+some finite $n$ correction?  Recall that AIC is only 
+strictly valid in the $n\to\infty$ limit.
 
 \subsection{Random data}
 
@@ -462,7 +461,7 @@ strictly valid in the $N\to\infty$ limit.
 To further investigate this situation, we constructed an
 artificial dataset containing random bit strings (each
 step has 50\% probability of being ``correct'') of length 
-$N\in\left\{10,20,30,40,50\right\}$.
+$n\in\left\{10,20,30,40,50\right\}$.
 This dataset corresponds to a model of the form
 %
 \begin{equation}
@@ -494,39 +493,39 @@ the known correct model $P_\mathrm{random}$.  Thus, we would expect
 a scatter plot of the Akaike weights to center around
 $w_\mathrm{logistic}=w_\mathrm{step}=w_\mathrm{BKT}=1/3$.  Instead, we
 find that $P_\mathrm{step}$ is highly favored over the other two; see
-Fig.~\ref{scatter2}. This bias seems to persist as we increase $N$.
+Fig.~\ref{scatter2}. This bias seems to persist as we increase $n$.
 
 \begin{figure}
    \centering\includegraphics{mean-weights.eps}
   \caption{Mean Akaike weights for the three models, 
    $P_\mathrm{step}$, $P_\mathrm{logistic}$, and $P_\mathrm{BKT}$, 
-   when fit to randomly generated data of length $N$.
+   when fit to randomly generated data of length $n$.
    (Each mean is calculated by averaging over 10,000 random bit strings.)
-   Also shown is a fit to a function of the form $a+b/N$ and
+   Also shown is a fit to a function of the form $a+b/n$ and
    a dashed line marking the asymptotic value $a$.
    Note that the differences between the weights persist
-   in the $N\to\infty$ limit.}\label{meanweight}
+   in the $n\to\infty$ limit.}\label{meanweight}
 \end{figure}
 
-If we plot the average weight as a function of $N$, we find
+If we plot the average weight as a function of $n$, we find
 that the differences between the weights persist
-in the $N\to\infty$ limit;  see Fig.~\ref{meanweight}.
-If we fit the average weights to a constant plus $1/N$;
+in the $n\to\infty$ limit;  see Fig.~\ref{meanweight}.
+If we fit the average weights to a constant plus $1/n$;
 the fits are:
 %
 \begin{eqnarray}
- \langle w_\mathrm{step}\rangle &=& 0.58 - \frac{1.50}{N} \\
- \langle w_\mathrm{logistic}\rangle &=& 0.24 + \frac{1.2}{N} \\
- \langle w_\mathrm{BKT}\rangle &=& 0.17+\frac{0.30}{N} \; .
+ \langle w_\mathrm{step}\rangle &=& 0.58 - \frac{1.50}{n} \\
+ \langle w_\mathrm{logistic}\rangle &=& 0.24 + \frac{1.2}{n} \\
+ \langle w_\mathrm{BKT}\rangle &=& 0.17+\frac{0.30}{n} \; .
 \end{eqnarray}
 %
-This shows that AIC, in the asymptotic limit $N\to\infty$, 
+This shows that AIC, in the asymptotic limit $n\to\infty$, 
 still favors  $P_\mathrm{step}$ over the other two models
 when used to evaluate randomly generated data.
 
 If we repeat this analysis with BIC, we would also
 find that the weights converge to a constant value with 
-$1/N$ leading errors.  The only difference is that the logistic
+$1/n$ leading errors.  The only difference is that the logistic
 model has a larger weight than the other two.  This is to be
 expected since all three models contain the true model.
 
@@ -566,9 +565,9 @@ can yield the probability that learning has occurred during given step.
 
 We need to determine the step where a specific student has learned a
 particular skill.  Our strategy is to take the step model, 
-$P_\mathrm{step}(j)$, and treat $L$ as a constant, yielding a set of $N$ 
+$P_\mathrm{step}(j)$, and treat $L$ as a constant, yielding a set of $n$ 
 sub-models $P_{\mathrm{step},L}(j)$, one for each value of $L$.
-We then fit each of the $N$ sub-models to the student data and
+We then fit each of the $n$ sub-models to the student data and
 calculate an AIC value.  Finally, we find the Akaike weighs for each of the
 sub-models.  The Akaike weights give the relative probability that learning
 occurred at each step.
@@ -582,7 +581,7 @@ occurred at each step.
 \end{figure}
 
 Let us illustrate this technique with a simple example.  Suppose the
-bit string for a particular student-KC pair is 00011011 (8
+bit string for a particular student-KC sequence is 00011011 (8
 opportunities); see Fig.~\ref{step-weights}.  We fit this datum to 8
 sub-models of the step model, corresponding to $L\in\{1,2,\ldots,8\}$,
 by maximizing the log likelihood $\log\mathcal{L}$.  The associated
@@ -630,7 +629,7 @@ the student activity on that step.
 \begin{figure}
   \centering \includegraphics{weighted-gain-histogram.eps}
    \caption{Histogram of weighted gains $w_L \Delta_L$ for
-     all steps in all student-KC pairs in student dataset $\mathcal{A}$.}
+     all steps in all student-KC sequences in student dataset $\mathcal{A}$.}
     \label{weighted-gain-histogram}
 \end{figure}
 
@@ -667,7 +666,7 @@ $\mathcal{I}$ where there were no slips or guesses, but having
 the same length distribution as $\mathcal{A}$ 
 (Fig.~\ref{student-length-histogram}).  Thus, the bit strings
 in $\mathcal{I}$ have the form $00\cdots011\cdots1$.
-In this case, for each student-KC pair, we expect a single 
+In this case, for each student-KC sequence, we expect a single 
 large weighted gain (corresponding to the first 1 in the bit string) 
 and the remaining weighted gains to be nearly zero.  The resulting 
 distribution of gains is shown
@@ -686,24 +685,24 @@ in  Fig.~\ref{weighted-gain-histogram2}.
 We propose to use the following average of the weighed gains as
 a ``quality index'' for determining how suitable a 
 dataset is for determining the point of learning for an individual
-student-KC pair:
+student-KC sequence:
 %
 \begin{equation}
            Q= \frac{1}{N} \sum_\alpha \sum_L w_L \Delta_L
 \end{equation}
 %
-where $\alpha$ is an index running over all student-KC pairs in a 
-dataset and $N$ is the number of student-KC pairs.
+where $\alpha$ is an index running over all student-KC sequences in a 
+dataset and $N$ is the number of student-KC sequences.
 We use the sample standard deviation of the weighted gains $w_L \Delta_L$
 to calculate the standard error associated with $Q$. 
 
 For the random dataset $\mathcal{R}$, we the distribution of $\Delta_L$
-is symmetric about zero and thus $Q$ approachs zero at $N \to \infty$.
+is symmetric about zero and thus $Q$ approachs zero as $N \to \infty$.
 For the ``ideal'' dataset $\mathcal{I}$, we expect, for the first 1 in
 the bit string, $w_L$ to be nearly one with the associated $\Delta_L$
 also nearly one so that $Q\to 1$ in the limit of many opportunities.
 Numerically, we obtain $Q=0.5240\pm0.0003$.  The fact that it is
-smaller than one is due to the large number of student-KC pairs having
+smaller than one is due to the large number of student-KC sequences having
 just a few steps.  For the student dataset $\mathcal{A}$, we obtain
 $Q=0.0467\pm0.0065$, which is small, but significant
 ($p<0.001$). Thus, we conclude that the student dataset is of
@@ -717,7 +716,7 @@ learns a skill could be very useful for improving instruction,
 improving help-giving and understanding student learning.
 However, the question of whether learning has occurred at a particular
 step can only be answered in a probabalistic sense:
-unamibiguous ``Aha moments'' are relatively rare~\cite{}.
+unamibiguous ``Aha moments'' are relatively rare~\cite{???}.
 Using the Akaike Information Criterion, we have introduced a method
 for determing this probability.
 
@@ -731,16 +730,16 @@ $Q=0.0467\pm0.0065$ for the student dataset $\mathcal{A}$ is roughly
 this to mean that the ``signal'' is rougly 10\% as big as the
 ``noise.''  However, the fact that $Q$ for the student dataset is
 seven standard deviations from zero means that we have detected
-learning for 2000 student-KC pairs with room to spare.  Using the fact
+learning for 2000 student-KC sequences with room to spare.  Using the fact
 that the error goes as $1/\sqrt{N}$, where $N$ is the number 
-of student-KC pairs, we estimate
-that we could still detect learning with only 260 student-KC pairs at the
+of student-KC sequences, we estimate
+that we could still detect learning with only 260 student-KC sequences at the
 $p=0.01$ level.  This gives us an initial estimate for the amount of
 log data needed to measure the moment of learning, at least for
 students using the Andes tutor system.
 
 As seen in Fig.~\ref{student-length-histogram}, we see that many of
-the student-KC pairs are quite short.  We speculate that this
+the student-KC sequences are quite short.  We speculate that this
 is due to to the way that physics is typically taught, with relatively
 little reinforcement of specific KCs, emphasizing, instead, more
 general problem solving meta-skills.  If we were to repeat this
