@@ -63,6 +63,11 @@ award No. SBE-0836012.
 
 \section{Introduction}
 
+%
+%  There is a post-it with note''  ``ICAP frame chi Cog Sci''
+%  http://gamesandimpact.org/uncategorized/cgi-qa-with-asu-fellow-dr-michelene-micki-chi/
+%
+
 %Talk about ultimate goal of using this to determine effectiveness
 %of help given or of a particular student behavior.
 
@@ -692,13 +697,12 @@ dataset and $N$ is the number of student-KC pairs.
 We use the sample standard deviation of the weighted gains $w_L \Delta_L$
 to calculate the standard error associated with $Q$. 
 
-For the random dataset $\mathcal{R}$, we expect the distribution of
-weighted gains to be symmetric about zero and thus $Q$ to approach
-zero.  Numerically, we find $Q=-0.002\pm0.002$, consistent with zero.
+For the random dataset $\mathcal{R}$, we the distribution of $\Delta_L$
+is symmetric about zero and thus $Q$ approachs zero at $N \to \infty$.
 For the ``ideal'' dataset $\mathcal{I}$, we expect, for the first 1 in
 the bit string, $w_L$ to be nearly one with the associated $\Delta_L$
 also nearly one so that $Q\to 1$ in the limit of many opportunities.
-Numerically, we obtain $Q=0.5240\pm0.0003$.  The fact that it is much
+Numerically, we obtain $Q=0.5240\pm0.0003$.  The fact that it is
 smaller than one is due to the large number of student-KC pairs having
 just a few steps.  For the student dataset $\mathcal{A}$, we obtain
 $Q=0.0467\pm0.0065$, which is small, but significant
@@ -708,11 +712,19 @@ sufficient quality to use in determining where learning has occurred.
 
 \section{Conclusion}
 
-It is clear that determining the moment of learning for an
-individual student is a murky business.  As can be seen in
+We believe that a direct estimate of the moment when a student
+learns a skill could be very useful for improving instruction,
+improving help-giving and understanding student learning.
+However, the question of whether learning has occurred at a particular
+step can only be answered in a probabalistic sense:
+unamibiguous ``Aha moments'' are relatively rare~\cite{}.
+Using the Akaike Information Criterion, we have introduced a method
+for determing this probability.
+
+As can be seen in
 Fig.~\ref{weighted-gain-histogram2}, there is not much difference
-between a student dataset and a randomly generated dataset.  We have
-introduced the quality index $Q$ which can be used to quantify the
+between a student dataset and a randomly generated dataset.  However,
+the quality index $Q$ which can be used to quantify the
 size of the signal as well as the size of the background.  We see that
 $Q=0.0467\pm0.0065$ for the student dataset $\mathcal{A}$ is roughly
 10\% the size of $Q$ for the ideal dataset $\mathcal{I}$; we interpret
@@ -720,7 +732,7 @@ this to mean that the ``signal'' is rougly 10\% as big as the
 ``noise.''  However, the fact that $Q$ for the student dataset is
 seven standard deviations from zero means that we have detected
 learning for 2000 student-KC pairs with room to spare.  Using the fact
-that the error goes as $1/\sqrt{n}$, where $n$ is the number 
+that the error goes as $1/\sqrt{N}$, where $N$ is the number 
 of student-KC pairs, we estimate
 that we could still detect learning with only 260 student-KC pairs at the
 $p=0.01$ level.  This gives us an initial estimate for the amount of
