@@ -36,9 +36,9 @@ We compare three models of student learning with the goal of
 determining when a specific student has learned a particular skill.
 We use the Akaike Information Criterion to determine which of the models best
 describes the acquisition of skills associated with introductory
-physics.  Then we use a multi-model approach to determine the relative
-probability that a student has learned a given skill at a particular
-problem-solving step.
+physics.  Then we introduce a multi-model approach for determining 
+the probability that a student has learned a given skill at a 
+particular problem-solving step.
 \end{abstract}
 
 %\category{C.2.2}{Computer-Communication Networks}{Network Protocols}
@@ -75,30 +75,36 @@ The traditional experimental paradigm for studying student learning
 is to use a pre-test and post-test combined with two or more experimental
 conditions.  Pre-test and post-test scores can indicate {\em whether}
 learning has occurred, but not {\em when} it may have occurred.  
-One can see if a particular change to the instructional materials or 
-help-giving strategy results in greater learning and from this,
-one might infer when learning has occurred.  It is more difficult
-to infer that a change in student {\em behavior} has resulted in 
-greater learning, since this is uncontrolled.
-Also, in a more realistic setting, such as in an {\em in vivo}
-study~\cite{in-vivo}, there is relatively little control over what
-happens during the experimental intervention and there is necessarily
-an extended time between the the pre-test and post-test.  Thus, in
-cases where the intervetion is applied briefly, any
-experimental ``signal'' can easily be swamped by these uncontrolled effects.
+At best, one might infer when learning has occurred if a change to 
+the instructional materials or help-giving strategy at some point results in better post-test performance.  
+It is more difficult to infer whether a change in student {\em behavior} at
+some point has resulted in greater learning, since student behavior is 
+largely uncontrolled and must be recorded in some way.
+In a laboratory setting, addressing these issues is a part of every-day 
+experimental design.
 
-%Talk about micky chi paper with relative infrequency of well-defined 
-%Aha moments.
+Moving from the laboratory to a more realistic setting, such as in a classroom
+study, there is much less control over what
+happens during an experiment and there is necessarily
+an extended time between any pre-test and post-test.  Thus, in
+cases where an experimental intervention is applied briefly, any
+experimental effect can easily be swamped by ``noise'' 
+(uncontrolled effects). 
+
+% Talk about studies by Heckler
+
 
 The use of an intelligent tutor systems (ITS) facilitates 
 a style of experimentation where there is continuous recording of
-student actions as they work.  Instead of relying on a distant
-pre-test or post-test, the experimenter can easily examine student
+%  Need a good citation for ITS with fine-grain logging in literature. 
+% "First paper" is Aleven and Ken?
+student actions as they work in the classroom (or at home)~\cite{Aleven_???}.  
+Instead of relying on a distant
+pre-test or post-test, the experimenter can examine student
 (or tutor system) activity in the immediate vicinity of the event of 
-interest.  
-A key ingredient for improving an
-ITS is determining whether a particular student action or the tutoring
-given by the ITS at a given instance was effective.  There are several
+interest.  The key ingredient for this approach is to have a method
+for determining whether a particular change in instruction or 
+student behavior is, in fact, effective.  There are several
 senses in which an activity might be ``effective.''  For instance:
 %
 \begin{itemize}
@@ -111,43 +117,40 @@ problem-solving skills?
 \item Did it prepare the student to learn
 material later in the course?
 \end{itemize}
-
+%
 In the present investigation, we will take a narrower definition
-of effectiveness of a particular student or tutor action:  
-Did the action immediately precede the
-student learning a new skill?  Answering this question requires
+of effectiveness:   Did the student or tutor action precede the
+student mastering a new skill?  Answering this question requires
 the use of some sort of embedded assessment of student learning.
-Presumably, a student will encounter a given skill multiple times
-during a problem solving session, so any pre-test/post-test will
-not tell us directly at what step the student learned the skill
-(although the effectiveness of a particular action can
-be experimentally inferred by conducting a two-condition study).
-In addition, it means that the determination must be made
-after the fact, typically through some log file analysis. 
+To design such an assessment one needs to choose one or more ``observables'' 
+(measurable quantities that might correlate with student mastery of a skill)
+and a model that predicts mastery based on these observables.
 
-In this work, we investigate a method for determining when a student
-may have learned a skill based on their ability to apply that skill
-without errors or asking for hints.  In principle, there are other
+In this work, the observable will be ``correct/incorrect steps:''  the 
+student's ability to apply a skill at a given problem-solving step 
+without any errors or hints.  In principle, there are other
 observables that may give us clues on mastery: for instance, how much
 time a student takes to complete a step.  However, other such
-observables need some additional interpretation ({\em exempli gratia,}
-How long is too long?).  Baker, Goldstein, and
-Heffernan~\citeyear{baker_detecting_2010} attempt a model of learning
+observables need some additional theoretical interpretation ({\em exempli gratia},
+What is the relation between time taken and mastery?).  Baker, Goldstein, and
+Heffernan~\citeyear{baker_detecting_2010} develop a model of learning
 based on a Hidden Markov model approach.  In their model, they
-consider additional variables.  Inclusion of such additional
+consider a large number additional variables (including ``time to
+complete a step'') and use correct/incorrect steps (as defined above) to calibrate a model containing these additional observables.  Inclusion of such additional
 observables is a natural extension of the approach we will present
 here.
 
-First we will compare three different models of learning and examine
-whether there is emphirical support for using one model over the
+To start our investigation, we will compare three different models of learning and examine
+whether there is empirical support for using one model over the
 others.  In fact, using Akaike Information Criteria (AIC), we obtain
-results that seem to favor two models over the third, but conclude
+results that seem to favor two models over the third, but note
 that there are some unresolved issues.
 
-Second, we select a model and use a multimodel approach to predict
-where learning has occurred, with what probability, and how much
-learning has occurred.  We apply our approach to student data and
-discuss the reliability of our predictions.
+Second, we use a multi-model approach to predict the probability that 
+learning has occurred at a given step, and how much
+learning has occurred.  We apply our approach to student log data from
+and introductory physics course and discuss the reliability of any
+predictions of skill mastery.
 
 
 \subsection{Correct/Incorrect steps}
@@ -158,16 +161,17 @@ to determine whether a skill has been mastered; Table~1 of
 However, we will focus on correctness of a step.  Thus, we need to
 define precisely what we mean by a step being correct.
 
-For each student and Knowledge Component (KC)~\cite{vanlehn_behavior_2006}, 
-the student attempts some number of 
+A student attempts some number of 
 {\em steps}  when solving a problem.  
-Usually a given step is associated
-with creating/modifying a single user interface object (an equation, vector, etc.)  but
-not always, since a student may attempt a particular problem solving
+Usually, a step is associated
+with creating/modifying a single user interface object (writing an equation, drawing a vector,
+defining a quantity, {\em et cetera}) and is a distinct part of the problem solution
+(that is, help-giving dialogs are not considered to be steps).
+A student may attempt a particular problem solving
 step, delete the object, and later attempt that solution step again.
 A step can be an {\em opportunity} to learn
-a given KC if the student needs to apply that skill
-to complete that step.
+a given  Knowledge Component (KC)~\cite{vanlehn_behavior_2006} if the student 
+must apply that skill to complete the step.
 
 %
 %  Not needed in this paper.
@@ -180,13 +184,13 @@ to complete that step.
 %Since the policies chosen by the random-help version of Andes
 %are different for each student,
 %we need to determine the point of learning for each student.
-For each KC and student, we select all steps that involve application
-of that KC that were available to that student, and mark each step as ``correct'' if
+For each KC and student, we select all attempted steps that involve application
+of that KC and mark each step as ``correct'' if
 the student completes that step correctly without any associated errors or 
-requests for help; otherwise, the step is marked as ``incorrect.''
+requests for help; otherwise, we mark the step as ``incorrect.''
 \label{steps}  % Section reference for correct/incorrect
-Thus, if each incorrect/correct step is marked with a 0/1, then
-a single student's performance on a single KC is a bit sequence,
+If each incorrect/correct step is marked with a 0/1, then
+a single student's performance on a single KC can be expressed as a  sequence,
 {\em exempli gratia} 00101011.  We will label
 steps with $j\in\left\{1,\ldots,n\right\}$.  
 
@@ -223,8 +227,9 @@ Ideally, the model should have the the following properties:
 
 \end{enumerate}
 %
-We will consider three candidate models:  the ``step model,'' 
-the logistic function, and the Bayesian Knowledge Tracing model;
+We will consider three candidate models:  
+the Bayesian Knowledge Tracing (BKT) model, the logistic function,
+and the ``step model;''
 see Fig.~\ref{three-models}.
 
 
@@ -245,12 +250,12 @@ has not already occurred, mastery is {\em equally probable} on each step.
 This assumption of equal probability does not match well with 
 our goal of determining empirically the steps where learning has 
 actually occurred for an individual student, criterion~\ref{crit:step}.
-On the other hand, this model does provide initial and final
-error rates, so criterion~\ref{crit:perform} is satisfied. 
+On the other hand, this model does provide the final
+error rate $P(S)$ (the initial error rate is ambiguous), 
+so criterion~\ref{crit:perform} is partially satisfied. 
 
 Another model that is frequently used in the context of learning is
-the logistic
-model~\cite{cen_learning_2006,chi_instructional_2011},
+the logistic model~\cite{cen_learning_2006,chi_instructional_2011},
 %
 \begin{equation}
     P_\mathrm{logistic}(j)= \frac{1}{1+\exp\left(-b (j-L)\right)} \; .
@@ -288,11 +293,13 @@ model.  Thus, this model satisfies criteria \ref{crit:step} and
 \section{Model selection using AIC}
 \label{model-selection}
 
-Although this will not determine our choice of model in subsequent
-work, it would be reassuring to know whether the step model
-$P_\mathrm{step}(j)$ describes the student data as well (or better
-than) the other two models, $P_\mathrm{logistic}(j)$ and
-$P_\mathrm{BKT}(j)$.  We believe that the Akaike Information Criterion
+The BKT and logistic function models are widely used and
+we have introduced the step model $P_\mathrm{step}(j)$
+as an alternative.  How
+well do these models match actual student behavior?
+Since we will use the step model in subsequent
+work, it would be reassuring to know whether is describes the student data as 
+well (or better than) the other two models.  We believe that the Akaike Information Criterion
 (AIC) is the most appropriate
 metric~\cite{akaike_new_1974,burnham_model_2002} to use for this
 purpose.  AIC is defined as
@@ -331,7 +338,7 @@ underlie BIC are generally not met.  In particular, as the sample size
 increases, it is typical that the underlying ``true'' model also
 becomes more complicated.  This is certainly true in educational
 datamining: datasets are increased by adding data from new schools, or
-different years and one generally expects noticable variation of student
+different years and one generally expects noticeable variation of student
 behavior from school to school or from year to year.  In such cases, one
 safely can say that the ``true'' model is complicated (because people are
 complicated) and becomes more complicated as a dataset is increased in
@@ -370,11 +377,17 @@ for defining a variable).  The student-KC sequences with the largest
 number of steps are associated with user-interface related skills,
 since these skills are exercised throughout the entire course. 
 
+One of the most remarkable properties of the distribution in
+Fig.~\ref{student-length-histogram} is the large number of
+student-KC sequences containing just a few steps.
 The presence of many student-KC sequences with just one or two
 steps may indicate that the default cognitive model associated 
 with this tutor system may be sub-optimal; to date, there has not 
 been any attempt, to date, to improve on the cognitive model of 
 Andes with, say, Learning Factors Analysis~\cite{cen_learning_2006}.
+Another contributing factor is the way that physics is taught in most courses 
+where there is relatively little repetition of similar problems, in contrast with,
+for instance, a typical middle school math curriculum.
 
 \subsection{Analysis}
 
@@ -390,7 +403,7 @@ Andes with, say, Learning Factors Analysis~\cite{cen_learning_2006}.
    the upper cross.
   The dashed line on the left represents points
    where $w_\mathrm{step}=w_\mathrm{BKT}$.  Finally, the line on 
-   the right marks data with bit strings of the form
+   the right marks data with bit sequences of the form
    $00\cdots 011\cdots 1$.} 
    \label{scatter1}
 \end{figure}
@@ -399,8 +412,8 @@ Since the goodness of fit criterion, AIC, is valid in the limit of
 many steps, we include in this analysis only student-KC sequences that
 contain 10 or more steps, reducing the number of student-KC sequences to
 267, covering 38 distinct KC's.  We determine the correctness of each
-step (Section~\ref{steps}), constructing a bit string, {\em exempli
-gratia} 001001101, for each student-KC sequence.  This bit string is then
+step (Section~\ref{steps}), constructing a bit sequence, {\em exempli
+gratia} 001001101, for each student-KC sequence.  This bit sequence is then
 fit to each of the three models, $P_\mathrm{step}$,
 $P_\mathrm{logistic}$, and $P_\mathrm{BKT}$ by maximizing the
 associated log likelihood.
@@ -429,7 +442,7 @@ although there is a noticable accumulation of points along the line
 $w_\mathrm{step}= w_\mathrm{BKT}$.
 
 Note that data in the form of incorrect steps then correct steps, 
-{\it exempli gratia}, $00\cdots 011\cdots 1$
+{\it exempli gratia} $00\cdots 011\cdots 1$,
 is fit perfectly by both the $P_\mathrm{step}$ and 
 $P_\mathrm{logistic}$ models.  
 In this case, since $P_\mathrm{logistic}$ has one fewer parameter
@@ -460,7 +473,7 @@ strictly valid in the $n\to\infty$ limit.
 \end{figure}
 
 To further investigate this situation, we constructed an
-artificial dataset containing random bit strings (each
+artificial dataset containing random bit sequences (each
 step has 50\% probability of being ``correct'') of length 
 $n\in\left\{10,20,30,40,50\right\}$.
 This dataset corresponds to a model of the form
@@ -501,7 +514,7 @@ Fig.~\ref{scatter2}. This bias seems to persist as we increase $n$.
   \caption{Mean Akaike weights for the three models, 
    $P_\mathrm{step}$, $P_\mathrm{logistic}$, and $P_\mathrm{BKT}$, 
    when fit to randomly generated data of length $n$.
-   (Each mean is calculated by averaging over 10,000 random bit strings.)
+   (Each mean is calculated by averaging over 10,000 random bit sequences.)
    Also shown is a fit to a function of the form $a+b/n$ and
    a dashed line marking the asymptotic value $a$.
    Note that the differences between the weights persist
@@ -535,7 +548,7 @@ expected since all three models contain the true model.
 In conclusion, we obtain some suprising results when we compare
 the three models,  $P_\mathrm{step}$, $P_\mathrm{logistic}$, and
 $P_\mathrm{BKT}$.  The most remarkable result is that, for any bit
-string,  $P_\mathrm{BKT}$ {\em never} fits the data better than $P_\mathrm{BKT}$.  Since 
+sequence,  $P_\mathrm{BKT}$ {\em never} fits the data better than $P_\mathrm{BKT}$.  Since 
 both models have three parameters, this result holds for both
 AIC and BIC.  We don't have an analytic proof explaining this result, 
 but the numerical evidence (see Fig.~\ref{meanweight}) is quite strong.
@@ -547,7 +560,7 @@ This suggests that the student data has a high degree of randomness,
 and that study of the random model may be quite useful for better
 understanding the student data.
 
-Third, tanking into account the fact that AIC seems to prefer the step model over the other
+Third, taking into account the fact that AIC seems to prefer the step model over the other
 two for the random data (when we expect them to all work equally
 well), we can still conclude that the step model works at least as
 well as the other two for the student data.
@@ -559,7 +572,7 @@ However, our use of the step model is primarily motivated
 by criteria~\ref{crit:step} and \ref{crit:perform} of 
 Section~\ref{model-criteria}.
 In Section~\ref{multi-model}, we show how AIC-based methods
-can yield the probability that learning has occurred during given step.
+can yield the probability that learning has occurred during a given step.
 
 \section{Multi-model approach}
 \label{multi-model}
@@ -582,7 +595,7 @@ occurred at each step.
 \end{figure}
 
 Let us illustrate this technique with a simple example.  Suppose the
-bit string for a particular student-KC sequence is 00011011 (8
+bit sequence for a particular student-KC sequence is 00011011 (8
 opportunities); see Fig.~\ref{step-weights}.  We fit this datum to 8
 sub-models of the step model, corresponding to $L\in\{1,2,\ldots,8\}$,
 by maximizing the log likelihood $\log\mathcal{L}$.  The associated
@@ -600,7 +613,7 @@ parameters ($s$ and $g$) when $L>1$ and there is only one parameter
 %\end{equation}
 %
 Not suprisingly, the best fit (lowest AIC) corresponds to the first
-``1'' in the bit string at step~4.  From the AICs, we calculate 
+``1'' in the bit sequence at step~4.  From the AICs, we calculate 
 the Akaike weights
 %
 \begin{equation}
@@ -654,7 +667,7 @@ is a significant number of steps with negative gain (988), but there
 are somewhat more steps with positive gain (1312) .
 
 The fact that there are so many steps with negative gain is
-symptomatic of bit strings that are very noisy (a lot of
+symptomatic of bit sequences that are very noisy (a lot of
 randomness).  Indeed, if we compare the histogram for student
 dataset $\mathcal{A}$ with the histogram for a randomly 
 generated dataset $\mathcal{R}$ (we take $\mathcal{A}$ and
@@ -665,10 +678,10 @@ What would the distribution look like if the data weren't
 so noisy?  To see this, we generated an artificial ``ideal'' dataset
 $\mathcal{I}$ where there were no slips or guesses, but having
 the same length distribution as $\mathcal{A}$ 
-(Fig.~\ref{student-length-histogram}).  Thus, the bit strings
+(Fig.~\ref{student-length-histogram}).  Thus, the bit sequences
 in $\mathcal{I}$ have the form $00\cdots011\cdots1$.
 In this case, for each student-KC sequence, we expect a single 
-large weighted gain (corresponding to the first 1 in the bit string) 
+large weighted gain (corresponding to the first 1 in the bit sequence) 
 and the remaining weighted gains to be nearly zero.  The resulting 
 distribution of gains is shown
 in  Fig.~\ref{weighted-gain-histogram2}.
@@ -700,7 +713,7 @@ to calculate the standard error associated with $Q$.
 For the random dataset $\mathcal{R}$, the distribution of $\Delta_L$
 is symmetric about zero and $Q$ approaches zero as $N \to \infty$.
 For the ``ideal'' dataset $\mathcal{I}$, we expect, for the first 1 in
-the bit string, $w_L$ to be nearly one with the associated $\Delta_L$
+the bit sequence, $w_L$ to be nearly one with the associated $\Delta_L$
 also nearly one so that $Q\to 1$ in the limit of many opportunities.
 Numerically, we obtain $Q=0.5240\pm0.0003$.  The fact that it is
 smaller than one is due to the large number of student-KC sequences having
