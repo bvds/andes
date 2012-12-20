@@ -23,7 +23,7 @@
 
 
 % Title portion
-\title{Models of student learning and multimodel inference}
+\title{Measuring the Moment of Learning}
 \author{Brett van de Sande
 \affil{Arizona State University\\bvds@asu.edu}}
 
@@ -38,18 +38,11 @@ We use the Akaike Information Criterion to determine which of the models best
 describes the acquisition of skills associated with introductory
 physics.  Then we introduce a multi-model approach for determining 
 the probability that a student has learned a given skill at a 
-particular problem-solving step.
+particular problem-solving step.  We then investigate how well this
+approach works when applied to student data.
 \end{abstract}
 
-%\category{C.2.2}{Computer-Communication Networks}{Network Protocols}
-
-%\terms{Design, Algorithms, Performance}
-
-\keywords{data mininig, models of student learning}
-
-%\acmformat{Zhou, G., Wu, Y., Yan, T., He, T., Huang, C., Stankovic,
-%J. A., and Abdelzaher, T. F.  2010. A multifrequency MAC specially
-%designed for  wireless sensor network applications.}
+\keywords{data mining, models of student learning}
 
 \begin{bottomstuff}
 Funding for this research was provided by the Pittsburgh Science of
@@ -75,70 +68,60 @@ The traditional experimental paradigm for studying student learning
 is to use a pre-test and post-test combined with two or more experimental
 conditions.  Pre-test and post-test scores can indicate {\em whether}
 learning has occurred, but not {\em when} it may have occurred.  
-At best, one might infer when learning has occurred if a change to 
-the instructional materials or help-giving strategy at some point results in better post-test performance.  
+At best, one might infer when learning has occurred if an isolated change to 
+the instructional materials or help-giving strategy results in better
+post-test performance.  
 It is more difficult to infer whether a change in student {\em behavior} at
 some point has resulted in greater learning, since student behavior is 
 largely uncontrolled and must be recorded in some way.
-In a laboratory setting, addressing these issues is a part of every-day 
-experimental design.
+In a laboratory setting, these issues can be addressed by careful
+experimental design, albeit with an accompanying loss of authenticity.
 
-Moving from the laboratory to a more realistic setting, such as in a classroom
-study, there is much less control over what
-happens during an experiment and there is necessarily
-an extended time between any pre-test and post-test.  Thus, in
-cases where an experimental intervention is applied briefly, any
-experimental effect can easily be swamped by ``noise'' 
-(uncontrolled effects). 
+Moving from the laboratory to a more realistic setting, such as a
+classroom study, presents as challenge since there is necessarily an
+extended time between any pre-test and post-test.  Heckler and 
+Sayre~\citeyear{heckler_what_2010} introduce an experimental technique
+where they administered a test to a different subgroup of students in
+a large physics class each week during the quarter, cycling through
+the entire class over the course of the quarter (a
+between-students longitudinal study).  With a sufficiently large number
+of students (1694 students over five quarters), they were able to produce
+plots of student mastery of various skills as a function of time, and
+identify exactly which week(s) students learned a particular skill.
+However, the shortest time scale that one could imagine for this
+kind of approach (administering a test in a classroom setting) can, at
+best, be a day or so.  Can we do better?
 
-% Talk about studies by Heckler
+The use of an intelligent tutor systems (ITS) provides a way forward. 
+An ITS is a computer-based learning environment where students construct problem solutions on a user
+interface and the system evaluates the student work at the step-level.
+Examples include the CMU LISP tutor~\cite{corbett_knowledge_1995}, the
+Carnegie Learning Cognitive Tutors~\cite{koedinger_illustrating_1998},
+and Andes~\cite{vanlehn_andes_2005}.  In these tutors, student
+activity is analyzed and logged for each user interface element change, with a granularity
+of typically several 10s of seconds.
+Instead of relying on a distant pre-test or post-test, the experimenter can examine student
+(or tutor system) activity in the immediate vicinity of the event of interest.
 
-
-The use of an intelligent tutor systems (ITS) facilitates 
-a style of experimentation where there is continuous recording of
-%  Need a good citation for ITS with fine-grain logging in literature. 
-% "First paper" is Aleven and Ken?
-student actions as they work in the classroom (or at home)~\cite{Aleven_???}.  
-Instead of relying on a distant
-pre-test or post-test, the experimenter can examine student
-(or tutor system) activity in the immediate vicinity of the event of 
-interest.  The key ingredient for this approach is to have a method
-for determining whether a particular change in instruction or 
-student behavior is, in fact, effective.  There are several
-senses in which an activity might be ``effective.''  For instance:
-%
-\begin{itemize}
-\item Did it improve the student's attitude toward
-the subject?  
-\item Did it minimize time-on-task (assuming 
-a skill was eventually learned)?  
-\item Did it improve the student's 
-problem-solving skills?  
-\item Did it prepare the student to learn
-material later in the course?
-\end{itemize}
-%
-In the present investigation, we will take a narrower definition
-of effectiveness:   Did the student or tutor action precede the
-student mastering a new skill?  Answering this question requires
-the use of some sort of embedded assessment of student learning.
-To design such an assessment one needs to choose one or more ``observables'' 
-(measurable quantities that might correlate with student mastery of a skill)
-and a model that predicts mastery based on these observables.
-
-In this work, the observable will be ``correct/incorrect steps:''  the 
+Our stated goal is to determine student learning as they progress
+through a course.  What observable quantities should be used to
+determine student mastery?  One possible observable is ``correct/incorrect steps,''  the 
 student's ability to apply a skill at a given problem-solving step 
-without any errors or hints.  In principle, there are other
+without any preceeding errors or hints.  There are other
 observables that may give us clues on mastery: for instance, how much
 time a student takes to complete a step.  However, other such
-observables need some additional theoretical interpretation ({\em exempli gratia},
-What is the relation between time taken and mastery?).  Baker, Goldstein, and
+observables typically need some additional theoretical interpretation. {\em Exempli gratia},
+What is the relation between time taken and mastery?  Baker, Goldstein, and
 Heffernan~\citeyear{baker_detecting_2010} develop a model of learning
 based on a Hidden Markov model approach.  In their model, they
-consider a large number additional variables (including ``time to
-complete a step'') and use correct/incorrect steps (as defined above) to calibrate a model containing these additional observables.  Inclusion of such additional
-observables is a natural extension of the approach we will present
-here.
+consider a model that uses a large number of additional observables (including ``time to
+complete a step'') and use correct/incorrect steps (as defined above)
+to calibrate the additional observables.
+
+Since correct/incorrect steps is easy to interpret, we will use that
+as the starting point for our investigation.  Naturally, it is
+desirable to eventually include other observables in our determination
+of student learning.
 
 To start our investigation, we will compare three different models of learning and examine
 whether there is empirical support for using one model over the
@@ -234,7 +217,7 @@ see Fig.~\ref{three-models}.
 
 
 The first model is the Bayesian Knowledge Tracing (BKT) 
-model~\cite{corbett_knowledge_1994}.  The hidden Markov model
+model~\cite{corbett_knowledge_1995}.  The hidden Markov model
 form of BKT is often fit to student performance 
 data~\cite{beck_identifiability:_2007}.  One can show that
 this model, in functional form, is an exponential function
@@ -285,7 +268,7 @@ $g$ is the ``guess rate,'' the probability that the student gets a
 step correct by accident, and $s$ is the ``slip rate,'' the chance
 that the student makes an error after learning the skill.  These are
 analogous to the guess and slip parameters of
-BKT~\cite{corbett_knowledge_1994}.  The associated gain in performance
+BKT~\cite{corbett_knowledge_1995}.  The associated gain in performance
 is $1-g-s$ and the error rate after learning is simply $s$ in this
 model.  Thus, this model satisfies criteria \ref{crit:step} and
 \ref{crit:perform}.
@@ -297,7 +280,7 @@ The BKT and logistic function models are widely used and
 we have introduced the step model $P_\mathrm{step}(j)$
 as an alternative.  How
 well do these models match actual student behavior?
-Since we will use the step model in subsequent
+I we use the step model in subsequent
 work, it would be reassuring to know whether is describes the student data as 
 well (or better than) the other two models.  We believe that the Akaike Information Criterion
 (AIC) is the most appropriate
@@ -438,7 +421,7 @@ Instead, we see the step model (average weight 0.44) weakly
 favored over the logistic model (average weight 0.37) and 
 strongly favored over BKT (average weight 0.18).  Indeed, we 
 find no data points where $w_\mathrm{step}< w_\mathrm{BKT}$,
-although there is a noticable accumulation of points along the line 
+although there is a noticeable accumulation of points along the line 
 $w_\mathrm{step}= w_\mathrm{BKT}$.
 
 Note that data in the form of incorrect steps then correct steps, 
@@ -545,7 +528,7 @@ expected since all three models contain the true model.
 
 \subsection{Summary}
 
-In conclusion, we obtain some suprising results when we compare
+In conclusion, we obtain some surprising results when we compare
 the three models,  $P_\mathrm{step}$, $P_\mathrm{logistic}$, and
 $P_\mathrm{BKT}$.  The most remarkable result is that, for any bit
 sequence,  $P_\mathrm{BKT}$ {\em never} fits the data better than $P_\mathrm{BKT}$.  Since 
@@ -596,7 +579,7 @@ occurred at each step.
 
 Let us illustrate this technique with a simple example.  Suppose the
 bit sequence for a particular student-KC sequence is 00011011 (8
-opportunities); see Fig.~\ref{step-weights}.  We fit this datum to 8
+opportunities); see Fig.~\ref{step-weights}.  We fit this bit sequence to 8
 sub-models of the step model, corresponding to $L\in\{1,2,\ldots,8\}$,
 by maximizing the log likelihood $\log\mathcal{L}$.  The associated
 AIC values are given by $\mathrm{AIC}_L=2 K-\log \mathcal{L}$ where
@@ -612,7 +595,7 @@ parameters ($s$ and $g$) when $L>1$ and there is only one parameter
 %\end{tabular}
 %\end{equation}
 %
-Not suprisingly, the best fit (lowest AIC) corresponds to the first
+Not surprisingly, the best fit (lowest AIC) corresponds to the first
 ``1'' in the bit sequence at step~4.  From the AICs, we calculate 
 the Akaike weights
 %
@@ -729,10 +712,12 @@ We believe that a direct estimate of the moment when a student
 learns a skill could be very useful for improving instruction,
 improving help-giving and understanding student learning.
 However, the question of whether learning has occurred at a particular
-step can only be answered in a probabalistic sense:
-unamibiguous ``Aha moments'' are relatively rare~\cite{???}.
+step can only be answered in a probabilistic sense:
+unambiguous ``Aha moments'' seem to be relatively rare.
 Using the Akaike Information Criterion, we have introduced a method
-for determing this probability.
+for determining this probability.
+
+
 
 As can be seen in
 Fig.~\ref{weighted-gain-histogram2}, there is not much difference
@@ -741,7 +726,7 @@ the quality index $Q$ which can be used to quantify the
 size of the signal as well as the size of the background.  We see that
 $Q=0.0467\pm0.0065$ for the student dataset $\mathcal{A}$ is roughly
 10\% the size of $Q$ for the ideal dataset $\mathcal{I}$; we interpret
-this to mean that the ``signal'' is rougly 10\% as big as the
+this to mean that the ``signal'' is roughly 10\% as big as the
 ``noise.''  However, the fact that $Q$ for the student dataset is
 seven standard deviations from zero means that we have detected
 learning for 2000 student-KC sequences with room to spare.  Using the fact
@@ -758,7 +743,7 @@ is due to to the way that physics is typically taught, with relatively
 little reinforcement of specific KCs, emphasizing, instead, more
 general problem solving meta-skills.  If we were to repeat this
 analysis for high school or grade school math, where there is more
-repitition, we speculate that there would be significantly fewer KCs
+repetition, we speculate that there would be significantly fewer KCs
 with less than 10 opportunities and that detecting when learning has
 occurred would be significantly easier.
 
