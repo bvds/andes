@@ -9,7 +9,9 @@
 #  the release version.
 
 dojo-version=1.6
-dojo-svn=http://svn.dojotoolkit.org/src/branches/$(dojo-version)
+# Latest updates break build.  Bug #1965
+rev=-r28814  
+dojo-svn=$(rev) http://svn.dojotoolkit.org/src/branches/$(dojo-version)
 
 install:
 	-rm -r -f dojo dijit dojox util
@@ -25,10 +27,10 @@ install:
 #  If the latest version is installed, update, else upgrade to new version
 update:
 ifeq ($(shell test -f dojo-install-version && cat dojo-install-version),${dojo-version})
-	svn update dojo 
-	svn update dijit 
-	svn update dojox
-	svn update util
+	svn update $(rev) dojo 
+	svn update $(rev) dijit 
+	svn update $(rev) dojox
+	svn update $(rev) util
 	./andes.build.sh
 	@echo "Updated Dojo $(dojo-version); is this the latest?"
 else
