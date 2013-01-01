@@ -74,7 +74,7 @@ award No. SBE-0836012.
 \section{Introduction}
 
 Since its introduction by Corbett and 
-Anderson~\citeyear{corbett_knowledge_1994}, 
+Anderson~\citeyear{corbett_knowledge_1995}, 
 Bayesian Knowledge Tracing (BKT) has been widely applied
 to studies of student learning and to various tutor systems.  
 In addition, BKT often serves as the starting
@@ -119,7 +119,7 @@ Beck and Chang~\citeyear{beck_identifiability:_2007}.
 %can apply the skill correctly).   In contrast, a more behaviorist
 %approach would eschew $P(L_j)$ in favor of a model of actual behavior.
 
-Knowledge Tracing Algorithm form~\cite{corbett_knowledge_1994} 
+Knowledge Tracing Algorithm form~\cite{corbett_knowledge_1995} 
 of BKT is used to 
 determine in real time whether a student has learned a skill.
 The probability that the student has learned a skill is 
@@ -132,7 +132,7 @@ possible model parameters.
 
 \section{Hidden Markov Model form}
 
-The Bayesian Knowledge Trading model~\cite{corbett_knowledge_1994} 
+The Bayesian Knowledge Trading model~\cite{corbett_knowledge_1995} 
 has four parameters:
 %
 \begin{itemize}
@@ -222,7 +222,7 @@ Thus, $P(C_j)$ is an exponential; see Fig.~\ref{bktgraph}.
 \caption{The relation between $P(G)$ and $P(L_0)$ for the hidden
   Markov model form of BKT;  all points along the curve correspond
   to the same model.  
-  The curve is from Eqn.~(\ref{aa}), with $P(S)=0.05$ and $A=0.418$.
+  The curve is a plot of Eqn.~(\ref{aa}), with $P(S)=0.05$ and $A=0.416$.
   The three points are the three parameter sets listed in Table~1 of
   \cite{beck_identifiability:_2007}.
 }
@@ -232,9 +232,9 @@ Thus, $P(C_j)$ is an exponential; see Fig.~\ref{bktgraph}.
 The fact that the Markov model is a function of three parameters
 was first noticed by Beck and Chang~\citeyear{beck_identifiability:_2007} 
 where they call it the ``Identifiability Problem.''   In their paper, 
-they noted that multiple
-combinations of $P(G)$ and $P(L_0)$ give exactly the same $P(C_j)$, but
-failed to explain why this is the case.  An example showing the relation
+they noted that multiple combinations of $P(G)$ and $P(L_0)$ give
+exactly the same error rate $P(C_j)$, but do not explain the origin of 
+these degenerate solutions.  An example showing the relation
 between $P(G)$ and $P(L_0)$ for a given model is shown in Fig.~\ref{table1}.
 Thus, we can see that Eqn.~(\ref{aa}) provides an explanation
 of the Identifiability problem.
@@ -272,7 +272,7 @@ $A$ when fitting to student data.
 %in functional form, can be fitted to empirical data to obtain values
 %for the three model parameters.  
 In order to predict $P(L_j)$ for an individual student in real time,
-the Knowledge Tracing Algorithm~\cite{corbett_knowledge_1994} may be employed.
+the Knowledge Tracing Algorithm~\cite{corbett_knowledge_1995} may be employed.
 In this case, we find $P(L_j|O_j)$,  the probability that the student has 
 learned a skill given  student performance on previous
 steps, where $O_j=\left\{o_1,\ldots,o_j\right\}$ is the student performance
