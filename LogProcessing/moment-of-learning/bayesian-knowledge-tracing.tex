@@ -83,7 +83,7 @@ In addition, BKT often serves as the starting
 %   where Identifiability Problem exists.
 %
 point for more complicated models of learning, for 
-example~\cite{baker_r._improving_2008,lee_impact_2012}.
+example~\cite{baker_improving_2008,lee_impact_2012}.
 %  BKT comes in two flavors:  regular and unsweetened. 
 Researchers have applied BKT in two distinct ways:  
 The {\em Hidden Markov Model} (HMM) form and the 
@@ -94,9 +94,24 @@ forms of the BKT model.
 The HMM form~\cite{beck_identifiability:_2007} of BKT 
 predicts the probability of that a student will 
 correctly apply a skill when they have an opportunity to apply it.
+%
+% In the original Corbett and Anderson paper, they do not say
+% how they fix the model parameters.  baker_ensembling_2011 and
+% chang_bayes_2006  describes it as "curve fitting" and Baker private
+% email to me says they used SSR. 
+%
+% Also "The Sum is Greater than the Parts: Ensembling Student
+% Knowledge Models in ASSISTments" by Gowda et al. for KDD 2011
+% Workshop uses RSS, but I can't get bibliographic info.
+%
+% chang_bayes_2006 also uses "curve fitting"
+%
 Typically, this model is fit to student performance data 
-using either a $\chi^2$ or a Maximum Likelihood test.  The 
-fit is then used to fix the model parameters.
+using either a residual sum of squares (RSS)
+test (sometimes described as ``curve fitting'')
+\cite{corbett_knowledge_1995} or a Maximum Likelihood
+test~\cite{pardos_navigating_2010}, with several studies comparing the two
+approaches~\cite{baker_ensembling_2011,chang_bayes_2006,pardos_ensembling_2011,pardos_sum_2012}.  The fit is then used to fix the model parameters.
 %While using this model,  number of authors have noted have noted the 
 %existence of what is called the ``Identifiability Problem'' 
 %\cite{beck_identifiability:_2007}.    
@@ -110,7 +125,7 @@ it is, in fact, a three parameter model.  As we shall see,
 this explains the ``Identifiability Problem'' first noted by 
 Beck and Chang~\citeyear{beck_identifiability:_2007}.
 
-%There are several reasons why a HMM is a good represention.  First,
+%There are several reasons why a HMM is a good representation.  First,
 %the parameters of the HMM are often thought to have some physical
 %significance.  In BKT, for instance, $P(L_j)$ is the probability that the
 %student knows the skill at a certain point of time:  it is a simple
@@ -169,8 +184,10 @@ where $P(L_j)$ is the ``hidden'' variable.
 
 \begin{figure}
 \centering\includegraphics{exponential.eps}
-\caption{Solution of the hidden Markov model form of BKT. 
-          $P(C_j)$ is the probability of  the student getting step $j$ correct.}
+\caption{Solution of the hidden Markov model form of BKT.
+          $P(C_j)$ is the probability of  the student getting step $j$
+          correct.  Note that the solution has the functional form of
+          an exponential; see Eqn.~(\ref{solnn}).}
 \label{bktgraph}
 \end{figure}
 
@@ -209,20 +226,21 @@ If we define
 a clearer form:
 %
 \begin{equation}
-         P(C_j) = 1-P(S) -A e^{-\beta j} \, .
+         P(C_j) = 1-P(S) -A e^{-\beta j} \, . \label{solnn}
 \end{equation}
 %
 Thus, $P(C_j)$ is an exponential; see Fig.~\ref{bktgraph}.
 
 
-\section{Identifiability and Model Degeneracy}
+\section{Identifiability and Parameter Constraints}
 
 \begin{figure}
 \centering\includegraphics{table1.eps}
-\caption{The relation between $P(G)$ and $P(L_0)$ for the hidden
-  Markov model form of BKT;  all points along the curve correspond
-  to the same model.  
-  The curve is a plot of Eqn.~(\ref{aa}), with $P(S)=0.05$ and $A=0.416$.
+\caption{The relation between the guess rate $P(G)$ and the initial
+  learning rate $P(L_0)$ for the hidden
+  Markov model form of BKT.  All points along the curve correspond
+  to identical models.
+  The curve is a plot of solutions to Eqn.~(\ref{aa}), with $P(S)=0.05$ and $A=0.416$.
   The three points are the three parameter sets listed in Table~1 of
   \cite{beck_identifiability:_2007}.
 }
@@ -239,30 +257,39 @@ between $P(G)$ and $P(L_0)$ for a given model is shown in Fig.~\ref{table1}.
 Thus, we can see that Eqn.~(\ref{aa}) provides an explanation
 of the Identifiability problem.
 
-Baker, Corbett, and Aleven~\citeyear{baker_more_2008} discuss the need for 
-model parameters to be physically meaningful.  They call this 
-``Model Degeneracy.''   For example, all probabilities should lie between 
+For the model to make sense, all probabilities should lie between 
 zero and one.  In particular, $0\le P(L_0)\le 1$ and $0\le P(G) \le 1$.
 If we further demand that learning is positive (which may or may not be
-empirically justified), then we have the constraint $A>0$ or $P(G)+P(S)<1$.
-These constraints on $P(L_0)$ and $P(G)$ correspond to the rectangular region shown in Fig.~\ref{table1}.
+empirically justified), then we have the constraint $A>0$ or $P(G)+P(S)<1$.  
+These constraints on $P(L_0)$ and $P(G)$ correspond to the rectangular
+region shown in Fig.~\ref{table1}. 
 In terms of $A$, valid values of $P(G)$ and $P(L_0)$ occur when
 $0<A<1-P(S)$; for negative learning, meaningful values occur when
 $-P(S)<A<0$.  This sets the range of physically meaningful values of
 $A$ when fitting to student data.
+
+Note that it is reasonable for the HMM form of the model to find
+negative learning when fitting to student data.  If the student does
+well on the first opportunities to apply a skill and then poorly on latter
+opportunities, then the best fit to the student data will be a
+decreasing function, which corresponds to $A<0$.  However,
+we will see that such model parameters are problematic when
+used as input for the Knowledge Tracing Algorithm.
 
 \section{Bayesian Knowledge Tracing Algorithm}
 
 \begin{figure}
 \centering\includegraphics{p-recursion.eps}
 \caption{
- Recursion relation for the Knowledge Tracing Algorithm, 
+  Plot of the recursion relations for the Knowledge Tracing Algorithm, 
   Eqns.~(\ref{correct}) and (\ref{incorrect}).
   The stable fixed point for each equation is marked
- by a dot.  Since the ``step $j$ correct'' curve is above the
-  dashed line, Eqn.~(\ref{correct}) causes $P(L_j|O_j)$ to converge to the fixed point at 1.  Likewise, since 
-   the ``step $j$ incorrect'' curve is below the line, 
-   Eqn.~(\ref{incorrect}) causes $P(L_j|O_j)$ to converge to the lower fixed point~(\ref{incorrectfixedpoint}).
+  by a dot.  Since the ``step $j$ correct'' curve is above the
+  dashed line, Eqn.~(\ref{correct}) causes $P(L_j|O_j)$ to converge to
+  the fixed point at 1.  Likewise, since the ``step $j$ incorrect''
+  curve is below the line, Eqn.~(\ref{incorrect}) causes $P(L_j|O_j)$
+  to converge to the lower fixed point.
+  Model parameters are $P(S)=0.05$, $P(G)=0.3$,  $P(T)=0.1$, and $P(L_0)=0.36$.
  }
  \label{p-recursion}
 \end{figure}
@@ -274,11 +301,11 @@ $A$ when fitting to student data.
 In order to predict $P(L_j)$ for an individual student in real time,
 the Knowledge Tracing Algorithm~\cite{corbett_knowledge_1995} may be employed.
 In this case, we find $P(L_j|O_j)$,  the probability that the student has 
-learned a skill given  student performance on previous
-steps, where $O_j=\left\{o_1,\ldots,o_j\right\}$ is the student performance
-on the first $j$ opportunities and $o_i\in O_j$ can be either correct or
-incorrect.  This conditional probability obeys the 
-recursion~\cite{baker_more_2008}:
+learned a skill just after completing step $j$ given student
+performance $O_j$ on previous steps, where $O_j=\left\{o_1,\ldots,o_j\right\}$ is the student performance
+on the first $j$ opportunities and $o_i$ can be either correct or
+incorrect.  This conditional probability obeys the
+recursion~\cite{baker_more_2008}: 
 %
 \begin{eqnarray}
        P(L_{j-1}|O_j) &=&
@@ -304,11 +331,29 @@ These equations can be combined to give:
                         \; ,\;\; o_j=\mbox{incorrect} \; . \label{incorrect}
 \end{eqnarray}
 %
-Their functional forms are plotted in Fig.~\ref{p-recursion}.
-While this recursion relation cannot be solved analytically, we
-can learn much about its solutions by conducting a fixed point analysis.
-First, we find the fixed points of each equation, (\ref{correct}) and
-(\ref{incorrect}), by setting $P(L_j|O_j)=P(L_{j-1}|O_{j-1})$.  
+%  corrupted
+Their functional forms are plotted in Fig.~\ref{p-recursion}.  
+
+While this recursion relation cannot be solved analytically, we can learn
+much about its solutions by conducting a fixed point analysis. 
+This is a technique that is covered in many differential equations textbooks; for
+example, see \cite{blanchard_differential_2006}.  The the goal of this 
+analysis is to determine the qualitative behavior of the sequence $P(L_j|O_j)$ as a
+function of $j$.  If $P(L_j|O_j)>P(L_{j-1}|O_{j-1})$, then we know that $P(L_j|O_j)$
+increases with $j$.  Likewise, if $P(L_j|O_j)<P(L_{j-1}|O_{j-1})$,
+then we know that $P(L_j|O_j)$ decreases with $j$.  Thus, the case
+$P(L_j|O_j)=P(L_{j-1}|O_{j-1})$, shown as the dashed line in Fig.~\ref{p-recursion}, 
+serves as a boundary between increasing and decreasing solutions.
+A {\em fixed point} is a value of $P(L_j|O_j)$ such that the recursion
+relation obeys $P(L_j|O_j)=P(L_{j-1}|O_{j-1})$.  In the example at
+hand, there are two kinds of fixed points:
+\begin{description}
+  \item[Stable fixed point] The sequence $P(L_j|O_j)$ moves toward the fixed point
+    as $j$ increases;
+  \item[Unstable fixed point] The sequence $P(L_j|O_j)$ moves away from the fixed as $j$ increases.
+\end{description}
+
+Let us apply these ideas to Eqns.~(\ref{correct}) and (\ref{incorrect}).
 For Eqn.~(\ref{correct}), we find a stable fixed point at $1$ and 
 an unstable fixed point at
 %
@@ -325,15 +370,8 @@ and a stable fixed point at
        \label{incorrectfixedpoint}
 \end{equation}
 %
-The stable fixed points are plotted in Fig.~\ref{p-recursion}.
+The two stable fixed points are plotted as dots in Fig.~\ref{p-recursion}.
 
-The ``Identifiability Problem'' for the Knowledge Tracing Algorithm
-does not exist, so long as there are both correct and incorrect steps.
-This fact can be seen by examining Eqns.~(\ref{correct}) and (\ref{incorrect})
-where we see that $P(G)$ has a different functional form in
-the numerator of each equation.  Thus, any redefinition of $1-P(L_j|O_j)$ 
-cannot be compensated for by a redefinition
-of the parameters in both  (\ref{correct}) and (\ref{incorrect}).
 
 In order for $P(L_j|O_j)$ to remain in the interval $\left[0,1\right]$ 
 for any starting value $P(L_0)\in \left[0,1\right]$ and any sequence of 
@@ -344,7 +382,7 @@ to lie in the interval $\left[0,1\right]$ and the unstable fixed point
 constraints on allowed values for the model parameters:
 %
 \begin{eqnarray}
-        P(G)+P(S)&<& 1 \;, \\
+        P(G)+P(S)&<& 1 \;, \label{littleconstraint}\\
         0 < P(T) &<& 1-\frac{P(S)}{1-P(G)}  \; .
         \label{bigconstraint}
 \end{eqnarray}
@@ -353,12 +391,57 @@ If we instead choose parameters consistent with negative learning,
 $P(S)+P(G)>1$, we find that the behavior of $P(L_j|O_j)$ becomes inverted: 
 $P(L_j|O_j)$ decreases for correct steps and increases for incorrect steps.
 
-For the ``Model Degeneracy'' issue, we see that (\ref{bigconstraint})
-provides a significant constraint on allowed values of model parameters.
+Baker, Corbett, and Aleven~\citeyear{baker_more_2008} discuss the need
+to choose model parameters such that the BKT algorithm behaves in a sensible
+fashion.  In particular, they point out that correct actions by
+the student should cause the estimate of their learning
+$P(L_j|O_j)$ to increase.  They define models that do not have
+this property to be ``empirically degenerate.''   Our constraint
+(\ref{littleconstraint}) identifies precisely which models will be ``empirically
+degenerate.''  Note that \cite{baker_more_2008} impose the somewhat
+stronger constraints $P(S)<1/2$ and $P(G)<1/2$ on grounds that slip and
+guess rates that are very large are simply nonsensical.
+
+%For incorrect actions, the situation is
+%more complicated since the model allows
+%for the possibility that the student learns the skill during an incorrect
+%step.  Thus, incorrect responses to not cause learning to converge
+%to zero, but to the stable fixed point given by Eqn.~(\ref{incorrectfixedpoint}).
+%Because of this, if $P(L_j|O_j)$ is below the stable fixed point, it
+%will then increase with increasing $j$, even for incorrect
+
+\begin{figure}
+\centering\includegraphics{region.pdf}
+\caption{
+  Plot of the constraint on the learning rate $P(T)$
+  as a function of the  guess rate $P(G)$ and the
+  slip rate $P(S)$ given by  Eqn.~(\ref{bigconstraint}).  Valid model parameter lie in the region 
+  that is below this surface and above the $P(T)=0$ plane.  The
+  vertical surface represents the other constraint $ P(G)+P(S)< 1 $,
+  Eqn.~(\ref{littleconstraint}); valid model parameters lie to the left of this surface.
+}
+ \label{region}
+\end{figure}
+
+
+In terms of the parameter space, Eqn.~(\ref{bigconstraint})
+provides a significant constraint on allowed values of model
+parameters; see Fig.~\ref{region}.  In fact, it completely supersedes the
+other constraint $P(G)+P(S)<1$.
 It would be interesting to see how often this constraint is 
 violated in real tutor systems, such as the 
 Cognitive Tutors~\cite{ritter_cognitive_2007}, where the Knowledge
 Tracing algorithm is used.
+
+Finally, the ``Identifiability Problem'' for the Knowledge Tracing Algorithm
+does not exist, so long as there are both correct and incorrect steps.
+This fact can be seen by examining Eqns.~(\ref{correct}) and (\ref{incorrect})
+where we see that $P(G)$ has a different functional form in
+the numerator of each equation.  Thus, any redefinition of $1-P(L_j|O_j)$ 
+cannot be compensated for by a redefinition
+of other parameters in both  (\ref{correct}) and (\ref{incorrect}).
+That is, all four model parameters independently affect the behavior
+of the Knowledge Tracing Algorithm.
 
 
 \section{Conclusion}
@@ -367,15 +450,17 @@ Tracing algorithm is used.
 In conclusion, the hidden Markov model form of BKT, when expressed
 in functional form, is an exponential function with three parameters.
 Expressing the model in terms of three parameters should 
-improve the speed and stability of any $\chi^2$ or maximum likelihood 
+improve the speed and stability of any RSS or maximum likelihood 
 fit to student data.  In that case, if $P(G)$ or
 $P(L_0)$ is needed as output, then we suggest finding $A$ by
 the fitting process,  fixing $P(G)$ or $P(L_0)$ by some 
 external constraint, and using Eqn.~(\ref{aa}) to find the remaining
 variable.
-This would be equivalent to the Dirichlet 
+This would be an alternative to the Dirichlet 
 priors~\cite{beck_identifiability:_2007} approach used by
-some authors, but is much easier to implement.
+some authors, but is much easier to implement, and does not
+modify the model itself.  Typically, Dirichlet priors are applied
+to all four model parameters, which is functionally equivalent to modifying the model itself.
 
 Our other result is that the functional form of the Markov model 
 corresponds to an exponential, rather than a power law.  
@@ -393,12 +478,18 @@ Together, these results call into question the popular practice of
 fitting the Markov model form of BKT to student data. 
 Perhaps a model that has power law behavior would work better?
 
-Finally, We see that Knowledge Tracing Algorithm does not suffer from
+Finally, we see that the Knowledge Tracing Algorithm does not suffer from
 the Identifiability Problem:  all four model parameters
 affect model behavior separately.  
 We also see that, for the model to behave properly,  there are 
-significant constraints on allowed values for $P(S)$, $P(G)$, and $P(T)$
+significant constraints on the allowed values of $P(S)$, $P(G)$, and $P(T)$
 and that parameters consistent with negative learning are not allowed.
+It would be interesting to apply to see how often these constraints are
+violated in tutor systems that employ the Knowledge Tracing Algorithm.
+Finally, the fixed point analysis that we conducted here could be
+applied to more complicated models of learning, such 
+as~\cite{baker_improving_2008,lee_impact_2012}.
+
 
 \begin{acks}
 I would like to thank Ken Koedinger, Michael Yudelson, and Tristan Nixon for
