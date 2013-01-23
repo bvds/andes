@@ -118,7 +118,7 @@ approaches~\cite{baker_ensembling_2011,chang_bayes_2006,pardos_ensembling_2011,p
 %That is, there are certain combinations of the model 
 %parameters that produce identical models.   
 A typical HMM must be solved numerically to find its functional form.
-However, this form of the model is simple enough that it can be 
+However, the BKT model is simple enough that it can be 
 solved analytically, which we will do here.  We will see that the model, 
 in functional form, is an exponential.  Moreover, we will see that 
 it is, in fact, a three parameter model.  As we shall see, 
@@ -142,8 +142,8 @@ updated by student performance at each opportunity to apply
 that skill.  The model has four parameters which must be 
 supplied externally.  Although, this form of BKT is too complicated
 to solve analytically, we will use a fixed point analysis to
-study the behavior of its solutions.  This leads to constraints on 
-possible model parameters.
+study the behavior of its solutions.  Demanding that the model behaves
+in a reasonable manner leads to constraints on the model parameters.
 
 \section{Hidden Markov Model form}
 
@@ -157,7 +157,7 @@ has four parameters:
    \item $P(S)$ is probability of slips, if student does know the skill.
    \item $P(T)$ is probability of learning the skill if the student 
          does not know the skill.  Note that $P(T)$ is assumed to 
-         be constant over steps.
+         be constant over time.
 \end{itemize}
 %
 Let $P(L_j)$ be the probability that the student knows the skill at 
@@ -252,7 +252,10 @@ was first noticed by Beck and Chang~\citeyear{beck_identifiability:_2007}
 where they call it the ``Identifiability Problem.''   In their paper, 
 they noted that multiple combinations of $P(G)$ and $P(L_0)$ give
 exactly the same error rate $P(C_j)$, but do not explain the origin of 
-these degenerate solutions.  An example showing the relation
+these degenerate solutions.  From Eqn.~(\ref{aa}), we see that diffrent
+combinations of $P(G)$ and $P(L_0)$ that give the same value for
+$A$ will result in models that have the exact same functional form.   
+An example showing the relation
 between $P(G)$ and $P(L_0)$ for a given model is shown in Fig.~\ref{table1}.
 Thus, we can see that Eqn.~(\ref{aa}) provides an explanation
 of the Identifiability problem.
@@ -411,7 +414,9 @@ guess rates that are very large are simply nonsensical.
 %will then increase with increasing $j$, even for incorrect
 
 \begin{figure}
-\centering\includegraphics{region.pdf}
+% pdflatex will look for a pdf and latex will look for an eps.
+% The pdf version includes transparency, which looks a lot better.
+\centering\includegraphics{region}
 \caption{
   Plot of the constraint on the learning rate $P(T)$
   as a function of the  guess rate $P(G)$ and the
