@@ -4,6 +4,10 @@
 %
 % Steps to compile: latex, bibtex, latex latex
 %
+%  There is a bug in Zotero with exporting of ampersands to BibTeX.
+%  See  http://forums.zotero.org/discussion/27422/ampersands-in-bibtex-export
+%  As a work-around, replace '\$0' with '\&' in the file education-modelling.bib
+%
 % For tracking purposes => this is v1.3 - May 2012
 \documentclass{acmlarge-edm}
 
@@ -15,6 +19,7 @@
 \acmMonth{5}  % can also put in literal name
 
 \usepackage{graphics}
+%\usepackage{amssymb}
 
 %
 %  Cool LaTeX resource:
@@ -30,7 +35,7 @@ Bayesian Knowledge Tracing is used very widely to
 model student learning.  It comes in two different forms:
 The first form is the Bayesian Knowledge Tracing {\em hidden Markov model} 
 which predicts the probability of correct application of a skill 
-as a function of the number of opportunities and the model parameters.  
+as a function of the number of previous opportunities to apply that skill and the model parameters.  
 %This model can be fit to student prerformance data to determine model
 %parameters.  
 We present an analytical solution to this model and show that
@@ -106,12 +111,27 @@ correctly apply a skill when they have an opportunity to apply it.
 %
 % chang_bayes_2006 also uses "curve fitting"
 %
+%BNT-SM is Bayes Net Toolkit for Student Models, chang_bayes_2006,
+%originally used conjugate gradients to find maximum likelihood. These
+%guys introduced Expectation Maximixation (EM) for maximum likelihood.
+%
+% BKT brute force (BKT-BF) or grid search (usually over 4-dimensional
+% parameter space). Pardos "Navigating the parameter space" use this.
+% baker_contextual_2010 uses brute force search but it is not clear from
+% the paper itself they use BKT-BF although this is stated in a later paper.
+%
 Typically, this model is fit to student performance data 
 using either a residual sum of squares (RSS)
 test (sometimes described as ``curve fitting'')
 \cite{corbett_knowledge_1995} or a Maximum Likelihood
 test~\cite{pardos_navigating_2010}, with several studies comparing the two
-approaches~\cite{baker_ensembling_2011,chang_bayes_2006,pardos_ensembling_2011,pardos_sum_2012}.  The fit is then used to fix the model parameters.
+approaches~\cite{baker_ensembling_2011,chang_bayes_2006,pardos_ensembling_2011,pardos_sum_2012}.
+For the RSS test, many authors in these studies use a grid search
+over the parameter space, or ``BKT-BF'' \cite{baker_ensembling_2011}, to perform the fit.  
+Likewise, for the Maximum Likelihood test, the most widely used
+fitting technique is the Expecation Maximization (EM)
+algorithm~\cite{dempster_maximum_1977,chang_bayes_2006}. 
+
 %While using this model,  number of authors have noted have noted the 
 %existence of what is called the ``Identifiability Problem'' 
 %\cite{beck_identifiability:_2007}.    
@@ -143,7 +163,7 @@ that skill.  The model has four parameters which must be
 supplied externally.  Although, this form of BKT is too complicated
 to solve analytically, we will use a fixed point analysis to
 study the behavior of its solutions.  Demanding that the model behaves
-in a reasonable manner leads to constraints on the model parameters.
+in a reasonable manner leads to significant constraints on the model parameters.
 
 \section{Hidden Markov Model form}
 
@@ -151,15 +171,17 @@ The Bayesian Knowledge Trading model~\cite{corbett_knowledge_1995}
 has four parameters:
 %
 \begin{itemize}
-   \item $P(L_0)$ is the initial probability of knowing a skill.
+   \item $P(L_0)$ is the initial probability that the student knows a particular skill.
    \item $P(G)$ is probability of guessing correctly, if the student        
          doesn't know the skill.
-   \item $P(S)$ is probability of slips, if student does know the skill.
+   \item $P(S)$ is probability of making a slip, if student does know the skill.
    \item $P(T)$ is probability of learning the skill if the student 
          does not know the skill.  Note that $P(T)$ is assumed to 
          be constant over time.
 \end{itemize}
 %
+We define step $j$ to be the $j^\mathrm{th}$ opportunity for a student
+to apply a given skill.
 Let $P(L_j)$ be the probability that the student knows the skill at 
 step $j$. According to the model,  $P(L_j)$ can
 be determined from the previous opportunity:
@@ -184,10 +206,10 @@ where $P(L_j)$ is the ``hidden'' variable.
 
 \begin{figure}
 \centering\includegraphics{exponential.eps}
-\caption{Solution of the hidden Markov model form of BKT.
+\caption{Solution of the hidden Markov model form of BKT, Eqn.~(\ref{solnn}).
           $P(C_j)$ is the probability of  the student getting step $j$
           correct.  Note that the solution has the functional form of
-          an exponential; see Eqn.~(\ref{solnn}).}
+          an exponential.}
 \label{bktgraph}
 \end{figure}
 
@@ -237,10 +259,10 @@ Thus, $P(C_j)$ is an exponential; see Fig.~\ref{bktgraph}.
 \begin{figure}
 \centering\includegraphics{table1.eps}
 \caption{The relation between the guess rate $P(G)$ and the initial
-  learning rate $P(L_0)$ for the hidden
+  probability of knowing a skill $P(L_0)$ for the hidden
   Markov model form of BKT.  All points along the curve correspond
   to identical models.
-  The curve is a plot of solutions to Eqn.~(\ref{aa}), with $P(S)=0.05$ and $A=0.416$.
+  The curve is a plot of the solutions of Eqn.~(\ref{aa}), with $P(S)=0.05$ and $A=0.416$.
   The three points are the three parameter sets listed in Table~1 of
   \cite{beck_identifiability:_2007}.
 }
@@ -287,12 +309,13 @@ used as input for the Knowledge Tracing Algorithm.
   Plot of the recursion relations for the Knowledge Tracing Algorithm, 
   Eqns.~(\ref{correct}) and (\ref{incorrect}).
   The stable fixed point for each equation is marked
-  by a dot.  Since the ``step $j$ correct'' curve is above the
-  dashed line, Eqn.~(\ref{correct}) causes $P(L_j|O_j)$ to converge to
+  by a dot.  The dashed line represents the boundary between
+  increasing and decreasing solutions.  Since the ``step $j$ correct'' curve is above the
+  dashed line, Eqn.~(\ref{correct}) causes the sequence $\left\{P(L_j|O_j)\right\}$ to converge to
   the fixed point at 1.  Likewise, since the ``step $j$ incorrect''
-  curve is below the line, Eqn.~(\ref{incorrect}) causes $P(L_j|O_j)$
+  curve is below the line, Eqn.~(\ref{incorrect}) causes the sequence $\left\{P(L_j|O_j)\right\}$
   to converge to the lower fixed point.
-  Model parameters are $P(S)=0.05$, $P(G)=0.3$,  $P(T)=0.1$, and $P(L_0)=0.36$.
+  The model parameters are $P(S)=0.05$, $P(G)=0.3$,  $P(T)=0.1$, and $P(L_0)=0.36$.
  }
  \label{p-recursion}
 \end{figure}
@@ -340,9 +363,11 @@ Their functional forms are plotted in Fig.~\ref{p-recursion}.
 While this recursion relation cannot be solved analytically, we can learn
 much about its solutions by conducting a fixed point analysis. 
 This is a technique that is covered in many differential equations textbooks; for
-example, see \cite{blanchard_differential_2006}.  The the goal of this 
-analysis is to determine the qualitative behavior of the sequence $P(L_j|O_j)$ as a
-function of $j$.  If $P(L_j|O_j)>P(L_{j-1}|O_{j-1})$, then we know that $P(L_j|O_j)$
+example, see \cite{blanchard_differential_2006}.  The the goal of a
+fixed point  analysis is to determine the qualitative behavior of the sequence
+$\left\{P(L_j|O_j)\right\}_{j=0}^N$ as a
+function of $j$.  If $P(L_j|O_j)>P(L_{j-1}|O_{j-1})$, then we know
+that $P(L_j|O_j)$
 increases with $j$.  Likewise, if $P(L_j|O_j)<P(L_{j-1}|O_{j-1})$,
 then we know that $P(L_j|O_j)$ decreases with $j$.  Thus, the case
 $P(L_j|O_j)=P(L_{j-1}|O_{j-1})$, shown as the dashed line in Fig.~\ref{p-recursion}, 
@@ -351,9 +376,11 @@ A {\em fixed point} is a value of $P(L_j|O_j)$ such that the recursion
 relation obeys $P(L_j|O_j)=P(L_{j-1}|O_{j-1})$.  In the example at
 hand, there are two kinds of fixed points:
 \begin{description}
-  \item[Stable fixed point] The sequence $P(L_j|O_j)$ moves toward the fixed point
-    as $j$ increases;
-  \item[Unstable fixed point] The sequence $P(L_j|O_j)$ moves away from the fixed as $j$ increases.
+  \item[Stable fixed point] If $P(L_j|O_j)$ is near the fixed point,
+    then $P(L_j|O_j)$ converges to the fixed point as $j$ increases; 
+  \item[Unstable fixed point]  If $P(L_j|O_j)$ is near the fixed
+    point, then $P(L_j|O_j)$ moves away from the fixed point with
+    increasing $j$. 
 \end{description}
 
 Let us apply these ideas to Eqns.~(\ref{correct}) and (\ref{incorrect}).
@@ -397,7 +424,7 @@ $P(L_j|O_j)$ decreases for correct steps and increases for incorrect steps.
 Baker, Corbett, and Aleven~\citeyear{baker_more_2008} discuss the need
 to choose model parameters such that the BKT algorithm behaves in a sensible
 fashion.  In particular, they point out that correct actions by
-the student should cause the estimate of their learning
+the student should cause the estimate of learning
 $P(L_j|O_j)$ to increase.  They define models that do not have
 this property to be ``empirically degenerate.''   Our constraint
 (\ref{littleconstraint}) identifies precisely which models will be ``empirically
@@ -418,9 +445,9 @@ guess rates that are very large are simply nonsensical.
 % The pdf version includes transparency, which looks a lot better.
 \centering\includegraphics{region}
 \caption{
-  Plot of the constraint on the learning rate $P(T)$
-  as a function of the  guess rate $P(G)$ and the
-  slip rate $P(S)$ given by  Eqn.~(\ref{bigconstraint}).  Valid model parameter lie in the region 
+  Plot of the constraint on the learning rate $P(T)$ as a function of the  guess rate $P(G)$ and the
+  slip rate $P(S)$ given by Eqn.~(\ref{bigconstraint}).  Valid
+  parameters for the knowledge tracing algorithm lie in the region 
   that is below this surface and above the $P(T)=0$ plane.  The
   vertical surface represents the other constraint $ P(G)+P(S)< 1 $,
   Eqn.~(\ref{littleconstraint}); valid model parameters lie to the left of this surface.
@@ -433,10 +460,6 @@ In terms of the parameter space, Eqn.~(\ref{bigconstraint})
 provides a significant constraint on allowed values of model
 parameters; see Fig.~\ref{region}.  In fact, it completely supersedes the
 other constraint $P(G)+P(S)<1$.
-It would be interesting to see how often this constraint is 
-violated in real tutor systems, such as the 
-Cognitive Tutors~\cite{ritter_cognitive_2007}, where the Knowledge
-Tracing algorithm is used.
 
 Finally, the ``Identifiability Problem'' for the Knowledge Tracing Algorithm
 does not exist, so long as there are both correct and incorrect steps.
@@ -445,7 +468,7 @@ where we see that $P(G)$ has a different functional form in
 the numerator of each equation.  Thus, any redefinition of $1-P(L_j|O_j)$ 
 cannot be compensated for by a redefinition
 of other parameters in both  (\ref{correct}) and (\ref{incorrect}).
-That is, all four model parameters independently affect the behavior
+That is, all four model parameters are needed to define the behavior
 of the Knowledge Tracing Algorithm.
 
 
@@ -463,9 +486,10 @@ external constraint, and using Eqn.~(\ref{aa}) to find the remaining
 variable.
 This would be an alternative to the Dirichlet 
 priors~\cite{beck_identifiability:_2007} approach used by
-some authors, but is much easier to implement, and does not
+some authors, but is much easier to implement and does not
 modify the model itself.  Typically, Dirichlet priors are applied
-to all four model parameters, which is functionally equivalent to modifying the model itself.
+to all four model parameters, which adds further complexity to the
+model. 
 
 Our other result is that the functional form of the Markov model 
 corresponds to an exponential, rather than a power law.  
@@ -483,17 +507,25 @@ Together, these results call into question the popular practice of
 fitting the Markov model form of BKT to student data. 
 Perhaps a model that has power law behavior would work better?
 
-Finally, we see that the Knowledge Tracing Algorithm does not suffer from
+We see that the Knowledge Tracing Algorithm does not suffer from
 the Identifiability Problem:  all four model parameters
 affect model behavior separately.  
 We also see that, for the model to behave properly,  there are 
 significant constraints on the allowed values of $P(S)$, $P(G)$, and $P(T)$
 and that parameters consistent with negative learning are not allowed.
-It would be interesting to apply to see how often these constraints are
-violated in tutor systems that employ the Knowledge Tracing Algorithm.
-Finally, the fixed point analysis that we conducted here could be
+Violations of these constraints should correspond to the ``empirically
+degenerate'' models found in~\cite{baker_more_2008}.
+Also, it would be interesting to apply to see how often these constraints are
+violated in situations where the  Knowledge Tracing algorithm is
+employed, such as in the Cognitive Tutors~\cite{ritter_cognitive_2007}.
+A violation of these constraints could lead to incorrect estimates of
+student learning.
+
+Finally, a fixed point analysis like the one that we conducted here could be
 applied to more complicated models of learning, such 
-as~\cite{baker_improving_2008,lee_impact_2012}.
+as~\cite{baker_improving_2008,lee_impact_2012}.  This may give us
+greater insight into the qualitative behaviors of these models as well
+as constrain model parameters.
 
 
 \begin{acks}
