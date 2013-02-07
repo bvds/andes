@@ -33,13 +33,14 @@
 
 \begin{abstract}
 We compare three models of student learning with the goal of
-determining when a specific student has learned a particular skill.
-We use the Akaike Information Criterion to determine which of the models best
+determining exactly when a specific student has learned a particular skill.
+We use the Akaike Information Criterion to determine which of the three models best
 describes the acquisition of skills associated with introductory
 physics.  Then we introduce a multi-model approach for determining 
 the probability that a student has learned a given skill at a 
 particular problem-solving step.  We then investigate how well this
-approach works when applied to student data.
+approach works when applied to student data.  We show that, although the
+associated errors are large, our method can detect significant learning. 
 \end{abstract}
 
 \keywords{data mining, models of student learning}
@@ -93,8 +94,9 @@ kind of approach (administering a test in a classroom setting) can, at
 best, be a day or so.  Can we do better?
 
 The use of an intelligent tutor systems (ITS) provides a way forward. 
-An ITS is a computer-based learning environment where students construct problem solutions on a user
-interface and the system evaluates the student work at the step-level.
+An ITS is a computer-based learning environment where students
+construct problem solutions on a user interface and the system
+evaluates the student work at the step-level. 
 Examples include the CMU LISP tutor~\cite{corbett_knowledge_1995}, the
 Carnegie Learning Cognitive Tutors~\cite{koedinger_illustrating_1998},
 and Andes~\cite{vanlehn_andes_2005}.  In these tutors, student
@@ -103,56 +105,58 @@ of typically several 10s of seconds.
 Instead of relying on a distant pre-test or post-test, the experimenter can examine student
 (or tutor system) activity in the immediate vicinity of the event of interest.
 
-Our stated goal is to determine student learning as they progress
-through a course.  What observable quantities should be used to
-determine student mastery?  One possible observable is ``correct/incorrect steps,''  the 
-student's ability to apply a skill at a given problem-solving step 
+Our stated goal is to determine student learning for an individual
+student as they progress through a course.  What observable quantities should be used to
+determine student mastery?  One possible observable is ``correct/incorrect steps,''  whether 
+the student correctly applies a given skill at a particular problem-solving step 
 without any preceeding errors or hints.  There are other
 observables that may give us clues on mastery: for instance, how much
-time a student takes to complete a step.  However, other such
+time a student takes to complete a step that involved a given skill.  However, other such
 observables typically need some additional theoretical interpretation. {\em Exempli gratia},
 What is the relation between time taken and mastery?  Baker, Goldstein, and
-Heffernan~\citeyear{baker_detecting_2010} develop a model of learning
-based on a Hidden Markov model approach.  In their model, they
-consider a model that uses a large number of additional observables (including ``time to
-complete a step'') and use correct/incorrect steps (as defined above)
-to calibrate the additional observables.
+Heffernan~\citeyear{baker_detecting_2011} develop a model of learning
+based on a Hidden Markov model approach.  They start with a set of
+% BvdS:  use actual number.
+25 additional observables (including ``time to
+complete a step'') and construct their model and use correct/incorrect steps (as defined above)
+to calibrate the additional observables and determine which are significant.
 
 Since correct/incorrect steps is easy to interpret, we will use that
 as the starting point for our investigation.  Naturally, it is
-desirable to eventually include other observables in our determination
+desirable to eventually include various other observables in any determination
 of student learning.
 
-To start our investigation, we will compare three different models of learning and examine
+To start our investigation, we will compare three different models of
+learning using data from students taking introductory physics and examine
 whether there is empirical support for using one model over the
 others.  In fact, using Akaike Information Criteria (AIC), we obtain
 results that seem to favor two models over the third, but note
-that there are some unresolved issues.
+that fitting the models to individual students can make the determination ambiguous.
 
-Second, we use a multi-model approach to predict the probability that 
+Second, we introduce a multi-model approach to predict the probability that 
 learning has occurred at a given step, and how much
 learning has occurred.  We apply our approach to student log data from
 and introductory physics course and discuss the reliability of any
-predictions of skill mastery.
+predictions of skill mastery.  We find that, for an individual
+student and skill, detection of learning has large uncertainties.
+However, if one aggregates over skills or students, then learning can
+be detected at the desired level of significance.
 
 
 \subsection{Correct/Incorrect steps}
 
-There are many observables that may be used
-to determine whether a skill has been mastered; Table~1 of
-\cite{baker_detecting_2010} lists 14 different observables.  
-However, we will focus on correctness of a step.  Thus, we need to
+As mentioned above, we will use correctness/incorrectness of a step to
+determine when the student has learned above.  Thus, we need to
 define precisely what we mean by a step being correct.
 
-A student attempts some number of 
-{\em steps}  when solving a problem.  
-Usually, a step is associated
-with creating/modifying a single user interface object (writing an equation, drawing a vector,
+A student attempts some number of {\em steps}  when solving a problem.  
+Usually, a step is associated with creating/modifying a single user
+interface object (writing an equation, drawing a vector,
 defining a quantity, {\em et cetera}) and is a distinct part of the problem solution
 (that is, help-giving dialogs are not considered to be steps).
 A student may attempt a particular problem solving
 step, delete the object, and later attempt that solution step again.
-A step can be an {\em opportunity} to learn
+A step is an {\em opportunity} to learn
 a given  Knowledge Component (KC)~\cite{vanlehn_behavior_2006} if the student 
 must apply that skill to complete the step.
 
@@ -169,11 +173,11 @@ must apply that skill to complete the step.
 %we need to determine the point of learning for each student.
 For each KC and student, we select all attempted steps that involve application
 of that KC and mark each step as ``correct'' if
-the student completes that step correctly without any associated errors or 
+the student completes that step correctly without any preceeding errors or 
 requests for help; otherwise, we mark the step as ``incorrect.''
 \label{steps}  % Section reference for correct/incorrect
 If each incorrect/correct step is marked with a 0/1, then
-a single student's performance on a single KC can be expressed as a  sequence,
+a single student's performance on a single KC can be expressed as a bit  sequence,
 {\em exempli gratia} 00101011.  We will label
 steps with $j\in\left\{1,\ldots,n\right\}$.  
 
@@ -254,7 +258,8 @@ it does not predict a gain in performance,
 criterion~\ref{crit:perform}.
 
 The third model is the ``step model'' which assumes that learning 
-occurs all at once~\cite{baker_detecting_2011}.  It is defined as:
+occurs all at once; this corresponds to the ``eureka learning''
+discusse by \cite{baker_detecting_2011}.  It is defined as:
 %
 \begin{equation}
     P_\mathrm{step}(j)= \left\{\begin{array}{cc}
