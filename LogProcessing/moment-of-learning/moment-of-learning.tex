@@ -32,11 +32,16 @@
 %   http://en.wikibooks.org/wiki/LaTeX
 
 \begin{abstract}
-We compare three models of student learning with the goal of
-determining exactly when a specific student has learned a particular skill.
-We use the Akaike Information Criterion to determine which of the three models best
-describes the acquisition of skills associated with introductory
-physics.  Then we introduce a multi-model approach for determining 
+We introduce a method to determine the probability that an individual 
+student has learned a particular skill at some moment of time. 
+
+The method involves applying a model of learning
+we investigate three 
+models of student learning 
+determining when an individual student has learned a particular skill.
+We use the Akaike Information Criterion to investigate the three
+models in the context of students using an Intelligent Tutoring System.  
+We introduce a multi-model approach for determining 
 the probability that a student has learned a given skill at a 
 particular problem-solving step.  We then investigate how well this
 approach works when applied to student data.  We show that, although the
@@ -249,7 +254,7 @@ the logistic model~\cite{cen_learning_2006,chi_instructional_2011},
 \end{equation}
 %
 It is natural to associate $L$ with the moment of learning.  However,
-the finite slope $P_\mathrm{logistic}(j)$ means that learning may
+the finite slope of $P_\mathrm{logistic}(j)$ means that learning may
 occur in a range of roughly $1/b$ steps before and after $L$.  For
 $P_\mathrm{logistic}(j)$, the gain in performance is always 1 and the
 final error rate is always 0.  Thus, although this model makes a
@@ -285,12 +290,10 @@ The BKT and logistic function models are widely used and
 we have introduced the step model $P_\mathrm{step}(j)$
 as an alternative.  How
 well do these models match actual student behavior?
-I we use the step model in subsequent
-work, it would be reassuring to know whether is describes the student data as 
-well (or better than) the other two models.  We believe that the Akaike Information Criterion
-(AIC) is the most appropriate
-metric~\cite{akaike_new_1974,burnham_model_2002} to use for this
-purpose.  AIC is defined as
+Since we will use the step model in subsequent
+work, it would be reassuring to know whether it describes the student data as 
+well (or better than) the other two models.  We will use the Akaike Information Criterion (AIC) for this purpose~\cite{akaike_new_1974,burnham_model_2002}.
+AIC is defined as
 %
 \begin{equation}
    \mathrm{AIC}= -2 \log\left(\mathcal{L}\right) + 2K
@@ -298,7 +301,7 @@ purpose.  AIC is defined as
 % 
 where $\mathcal{L}$ is the maximized value of the likelihood function
 and $K$ is the number of parameters in the model.
- AIC is an estimate of the expected relative distance 
+ AIC is an estimate of the expected relative ``distance''
 between a given model and the true model (assumed to be complicated) 
 that actually generated the observed data.  It is valid in limit of 
 many data points, $n\to\infty$, with leading corrections of order $1/n$.
@@ -373,9 +376,11 @@ steps may indicate that the default cognitive model associated
 with this tutor system may be sub-optimal; to date, there has not 
 been any attempt, to date, to improve on the cognitive model of 
 Andes with, say, Learning Factors Analysis~\cite{cen_learning_2006}.
-Another contributing factor is the way that physics is taught in most courses 
-where there is relatively little repetition of similar problems, in contrast with,
-for instance, a typical middle school math curriculum.
+Another contributing factor is the way that introductory physics is 
+taught in most institutions, with relatively little repetition of 
+similar problems.  This is quite different than, for instance, 
+a typical middle school math curriculum where there are a large number
+of similar problems in a homework assignment.
 
 \subsection{Analysis}
 
@@ -390,7 +395,7 @@ for instance, a typical middle school math curriculum.
    The average of the  weights is marked with
    the upper cross.
   The dashed line on the left represents points
-   where $w_\mathrm{step}=w_\mathrm{BKT}$.  Finally, the line on 
+   where $w_\mathrm{step}=w_\mathrm{BKT}$.  Finally, the dashed line on 
    the right marks data with bit sequences of the form
    $00\cdots 011\cdots 1$.} 
    \label{scatter1}
@@ -406,8 +411,8 @@ fit to each of the three models, $P_\mathrm{step}$,
 $P_\mathrm{logistic}$, and $P_\mathrm{BKT}$ by maximizing the
 associated log likelihood.
 %This determines the free parameters in each model. 
-We then calculate the AIC score~\cite{burnham_model_2002} for each fit.  
-Finally, we calculated the Akaike weights, $w_\mathrm{logistic}$, $w_\mathrm{step}$, and $w_\mathrm{BKT}$ for each student-KC sequence.
+We then calculate the AIC score for each fit.  
+Finally, we calculated the Akaike weights, $w_\mathrm{logistic}$, $w_\mathrm{step}$, and $w_\mathrm{BKT}$ for each student-KC sequence~\cite{burnham_model_2002}.
 The weights are normalized so that
 %
 \begin{equation}
@@ -484,9 +489,10 @@ However, the only difference between AIC and BIC for our results is that BIC fav
 $P_\mathrm{logistic}$ more strongly over $P_\mathrm{step}$ and
 $P_\mathrm{BKT}$.  Thus, using BIC would shift the weights so that
 $w_\mathrm{logistic}$ would increase somewhat over the other two
-models.  However, in order to maintain consistency with
-our experimental results, Fig.~\ref{scatter1}, we will continue
-to use AIC.  This use of AIC versus BIC will not affect our conclusions.
+weights.  However, in order to maintain consistency with
+our experimental results, we used AIC for the random data as well;
+see Fig.~\ref{scatter1}.  This use of AIC versus BIC does not 
+affect our conclusions.
 
 For data generated by $P_\mathrm{random}$,
 one expects that all three models should perform equally
@@ -535,23 +541,38 @@ expected since all three models contain the true model.
 
 In conclusion, we obtain some surprising results when we compare
 the three models,  $P_\mathrm{step}$, $P_\mathrm{logistic}$, and
-$P_\mathrm{BKT}$.  The most remarkable result is that, for any bit
+$P_\mathrm{BKT}$, using individual student data.  The most remarkable 
+result is that, for any bit
 sequence,  $P_\mathrm{BKT}$ {\em never} fits the data better than $P_\mathrm{BKT}$.  Since 
 both models have three parameters, this result holds for both
 AIC and BIC.  We don't have an analytic proof explaining this result, 
 but the numerical evidence (see Fig.~\ref{meanweight}) is quite strong.
-It would be quite useful to better understand this result.
 
-Second, we see that the scatter plot of Akaike weights for student
+Even if I use $P_\mathrm{BKT}$ (for some set of model parameters) 
+to generate a bit sequence, I can
+always adjust the parameters in $P_\mathrm{step}$ so that it
+fits the data as well as, or better than, $P_\mathrm{BKT}$.
+Does this mean that there is something wrong with using Maximum 
+Likelihood-based criteria for model selection?  Let us think
+more carefully about what maximum liklihood means.
+If I use a model to generate a set of 
+
+Intuitively, we can understand how this might by thinking of 
+each model as a set of functions.  The question is how well the
+set of functions span the space of all functions:  given a random
+function, how close witl
+
+Second, taking into account the fact that AIC seems to prefer the step model over the other
+two for the random data (when we expect them to all work equally
+well), we can still conclude that the step model works at least as
+well as the other two for the student data.
+
+Third, we see that the scatter plot of Akaike weights for student
 data is remarkably similar to the scatter plots for the random model.
 This suggests that the student data has a high degree of randomness,
 and that study of the random model may be quite useful for better
 understanding the student data.
 
-Third, taking into account the fact that AIC seems to prefer the step model over the other
-two for the random data (when we expect them to all work equally
-well), we can still conclude that the step model works at least as
-well as the other two for the student data.
 
 Demonstrating that the step model fits student data as well as,
 or better than, the other two would be an
@@ -638,9 +659,10 @@ the student activity on that step.
 It is not sufficient to know {\it when} learning has occurred but one
 must also determine {\it how much} learning has occurred.  Consider
 the bit sequence 11011000.  When fit to the step model, the best fit
-will occur at $L=6$ but this would correspond to a decrease in student
-performance for that skill.  In other cases, the change in student
-performance may be almost zero.  In order to take this into account,
+will occur at $L=6$ but this would correspond to a {\it decrease} in student
+performance for that skill.  In many cases seen in our log data, 
+the change in student performance is almost zero.  In order to take 
+this into account,
 we propose using the Akaike weight $w_L$ times the associated learning
 gain $\Delta_L$ to characterize a step.  We define the learning gain
 $\Delta_L=1-\hat{g}-\hat{s}$ where $\hat{g}$ and $\hat{s}$ are the

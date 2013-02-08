@@ -27,10 +27,12 @@ install:
 
 update:
 ifeq ($(shell test -f dojo-install-version && cat dojo-install-version),${dojo-version})
-	# Work-around for Bug #1886
-	#   svn update -r 24327 *
+	# Work-around build failing, Bug #1886
+	#   svn update -r 24082 *
+	# Work-around for load failing on trunk, Bug #1957
+	   svn update -r 27116 *
 	# But try the latest version:
-	svn update *
+	# svn update *
 	./andes.build.sh
 	@echo "Updated Dojo $(dojo-version)."
 else
