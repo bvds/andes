@@ -537,12 +537,21 @@ In conclusion, we obtain some surprising results when we compare
 the three models,  $P_\mathrm{step}$, $P_\mathrm{logistic}$, and
 $P_\mathrm{BKT}$.  The most remarkable result is that, for any bit
 sequence,  $P_\mathrm{BKT}$ {\em never} fits the data better than $P_\mathrm{BKT}$.  Since 
-both models have three parameters, this result holds for both
-AIC and BIC.  We don't have an analytic proof explaining this result, 
+both models have three parameters, this result holds for any maximum
+likelihood-based criterion, including both AIC and BIC.  We don't have
+an analytic proof for this result, 
 but the numerical evidence (see Fig.~\ref{meanweight}) is quite strong.
-It would be quite useful to better understand this result.
 
-Second, we see that the scatter plot of Akaike weights for student
+How can we understand this?  Each model can be thought of as a
+set of functions.  One can ask how well each set of functions spans
+the space of all possible functions.  Evidently, the step model spans
+the space of all possible functions much better than the BKT model
+does.    Imagine that I choose some values for the parameters
+of the BKT model and then use the BKT model to construct a
+bit sequence $01011011\ldots$.  The 
+
+
+Also, we see that the scatter plot of Akaike weights for student
 data is remarkably similar to the scatter plots for the random model.
 This suggests that the student data has a high degree of randomness,
 and that study of the random model may be quite useful for better
