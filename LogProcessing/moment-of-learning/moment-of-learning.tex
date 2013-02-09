@@ -541,13 +541,23 @@ expected since all three models contain the true model.
 
 In conclusion, we obtain some surprising results when we compare
 the three models,  $P_\mathrm{step}$, $P_\mathrm{logistic}$, and
-$P_\mathrm{BKT}$, using individual student data.  The most remarkable 
-result is that, for any bit
-sequence,  $P_\mathrm{BKT}$ {\em never} fits the data better than $P_\mathrm{BKT}$.  Since 
+$P_\mathrm{BKT}$, using individual student data.   We see that AIC
+weakly favors the step model over the logistic model in a fashion that one might expect.
+However, in an unexpected fashion, we see that both are favored
+strongly over the BKT model.  We see that this effect remains for
+randomly generated data and is not a finite $n$ effect.
+
+In particular, for any bit sequence,  $P_\mathrm{BKT}$ {\em never}
+fits the data better than $P_\mathrm{BKT}$.  Since 
 both models have three parameters, this result holds for any maximum
 likelihood-based criterion, including both AIC and BIC.  We don't have
 an analytic proof for this result, 
 but the numerical evidence (see Fig.~\ref{meanweight}) is quite strong.
+In other words, even if I use $P_\mathrm{BKT}$ (for some set of model parameters) 
+to generate a bit sequence, I can
+always adjust the parameters in $P_\mathrm{step}$ so that it
+fits the bit sequence as well as, or better than, $P_\mathrm{BKT}$.
+
 
 % How can we understand this?  Each model can be thought of as a
 % set of functions.  One can ask how well each set of functions spans
@@ -557,39 +567,46 @@ but the numerical evidence (see Fig.~\ref{meanweight}) is quite strong.
 % of the BKT model and then use the BKT model to construct a
 % bit sequence $01011011\ldots$.  The 
 
-Even if I use $P_\mathrm{BKT}$ (for some set of model parameters) 
-to generate a bit sequence, I can
-always adjust the parameters in $P_\mathrm{step}$ so that it
-fits the data as well as, or better than, $P_\mathrm{BKT}$.
-Does this mean that there is something wrong with using Maximum 
-Likelihood-based criteria for model selection?  Let us think
-more carefully about what maximum liklihood means.
-If I use a model to generate a set of 
 
-Intuitively, we can understand how this might by thinking of 
-each model as a set of functions.  The question is how well the
-set of functions span the space of all functions:  given a random
-function, how close witl
 
-Second, taking into account the fact that AIC seems to prefer the step model over the other
-two for the random data (when we expect them to all work equally
-well), we can still conclude that the step model works at least as
-well as the other two for the student data.
+What does this mean?  Let us think
+more carefully about maximum liklihood.
+If I use a model to generate a single bit sequence, I cannot tell from
+that sequence the exact probability function (the probability as a
+function of $j$) that generated it.  At best, I can only
+talk about probability functions that {\em may} have generated that sequence.
+On the other hand, if I use a probability function to generate a collection of infinitely many
+sequences, then I know the exact probability for each step and, therefore, the exact function that
+produced those probabilities.  If that function comes from a
+particular model $\mathcal{A}$ (for some choice of model parameters),
+ then I can saftely conclude that model $\mathcal{A}$ is the correct model.
 
-Third, we see that the scatter plot of Akaike weights for student
+Thus, when we are fitting individual student data to a model (fitting
+model parameters separately for each student), then we can make no
+statements about what model is ``correct'' in the sense that it may
+have generated the data.  We can only talk about a model being a good
+fit in the sense that it is ``close'' to the data.
+On the othe hand, if we aggregate data from many students and fit to a
+model (finding the best fit model parameters), then we can talk about
+a model being correct in the usual sense  that it may have generated
+the data.
+
+In the present work, we are more concerned about being ``close'' to
+the student data than finding the correct theory of learning, so the
+fact that the step model fits the data better than the logistic function and
+the BKT model is good news.  However, one should not then conclude
+that the step function is a better model of student learning.
+
+Finally, we see that the scatter plot of Akaike weights for student
 data is remarkably similar to the scatter plots for the random model.
 This suggests that the student data has a high degree of randomness,
-and that study of the random model may be quite useful for better
+and, in general, that study of the random model may be quite useful for better
 understanding the student data.
 
-Demonstrating that the step model fits student data as well as,
-or better than, the other two would be an
-{\em ex post facto} justification for using that model.  
-However, our use of the step model is primarily motivated
-by criteria~\ref{crit:step} and \ref{crit:perform} of 
-Section~\ref{model-criteria}.
-In Section~\ref{multi-model}, we show how AIC-based methods
-can yield the probability that learning has occurred during a given step.
+% However, our use of the step model is primarily motivated
+% by criteria~\ref{crit:step} and \ref{crit:perform} of  Section~\ref{model-criteria}.
+% In Section~\ref{multi-model}, we show how AIC-based methods
+% can yield the probability that learning has occurred during a given step.
 
 \section{Multi-model approach}
 \label{multi-model}
