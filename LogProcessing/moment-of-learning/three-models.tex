@@ -2,6 +2,9 @@
 % LaTeX2e document class file for Conference Proceedings submissions.
 \documentclass{edm_template}
 
+% Somehow the desired top margin is being set to 1/16in?
+\addtolength{\topmargin}{0.6875in}
+
 \usepackage{graphics}
 
 \begin{document}
@@ -39,75 +42,41 @@ sense.
 
 \section{Introduction}
 
-%
-%  There is a post-it with note''  ``ICAP frame chi Cog Sci''
-%  http://gamesandimpact.org/uncategorized/cgi-qa-with-asu-fellow-dr-michelene-micki-chi/
-%
-
 %Talk about ultimate goal of using this to determine effectiveness
 %of help given or of a particular student behavior.
 
-The traditional experimental paradigm for studying student learning
-is to use a pre-test and post-test combined with two or more experimental
-conditions.  Pre-test and post-test scores can indicate {\em whether}
-learning has occurred, but not {\em when} it may have occurred.  
-At best, one might infer when learning has occurred if an isolated change to 
-the instructional materials or help-giving strategy results in better
-post-test performance.  
-It is more difficult to infer whether a change in student {\em behavior} at
-some point has resulted in greater learning, since student behavior is 
-largely uncontrolled and must be recorded in some way.
-In a laboratory setting, these issues can be addressed by careful
-experimental design, albeit with an accompanying loss of authenticity.
+Most Knowledge Component (KC) \cite{vanlehn_behavior_2006}
+based models of learning are constructed
+in a similar manner, following Corbett and Anderson~\citeyear{corbett_knowledge_1995}.
+First, some measure of learning is selected ({\em e.g.} correct/incorrect
+on first try) for the $j$-th opportunity for that student to apply a given KC.  
+This measure of learning is then aggregated over students 
+({\em e.g.} fraction of students correct) as a function of $j$.
+Finally, aggregated measure is then compared to some model
+({\em e.g.} Bayesian Knowledge Tracing) with model parameters
+chosen to optimize the model's fit to the data.
+In principle, given sufficient student log data, one could uniquely
+determine which of several competing models best matches the
+data.
 
-Moving from the laboratory to a more realistic setting, such as a
-classroom study, presents as challenge since there is necessarily an
-extended time between any pre-test and post-test.  Heckler and 
-Sayre~\citeyear{heckler_what_2010} introduce an experimental technique
-where they administered a test to a different subgroup of students in
-a large physics class each week during the quarter, cycling through
-the entire class over the course of the quarter (a
-between-students longitudinal study).  With a sufficiently large number
-of students (1694 students over five quarters), they were able to produce
-plots of student mastery of various skills as a function of time, and
-identify exactly which week(s) students learned a particular skill.
-However, the shortest time scale that one could imagine for this
-kind of approach (administering a test in a classroom setting) can, at
-best, be a day or so.  Can we do better?
+One drawback with this approach is that it does not take into account
+individual learner differences or the actual behaviors of students or
+tutors as they are learning.  Thus, a number of authors have extended
+their models to include individual student proficiency and actual help
+received by the student.  For instance, in the Cordillera natural
+language tutoring system for physics~\cite{vanlehn_developing_2007},
+the student may have been asked what the next step was or were told
+what the next stop was, and this was taken into account an associated
+model.  An overview of these models can be found 
+in~\cite{chi_instructional_2011}.
 
-The use of an intelligent tutor systems (ITS) provides a way forward. 
-An ITS is a computer-based learning environment where students
-construct problem solutions on a user interface and the system
-evaluates the student work at the step-level. 
-Examples include the CMU LISP tutor~\cite{corbett_knowledge_1995}, the
-Carnegie Learning Cognitive Tutors~\cite{koedinger_illustrating_1998},
-and Andes~\cite{vanlehn_andes_2005}.  In these tutors, student
-activity is analyzed and logged for each user interface element change, with a granularity
-of typically several 10s of seconds.
-Instead of relying on a distant pre-test or post-test, the experimenter can examine student
-(or tutor system) activity in the immediate vicinity of the event of interest.
-
-Our stated goal is to determine student learning for an individual
-student as they progress through a course.  What observable quantities should be used to
-determine student mastery?  One possible observable is ``correct/incorrect steps,''  whether 
-the student correctly applies a given skill at a particular problem-solving step 
-without any preceeding errors or hints.  There are other
-observables that may give us clues on mastery: for instance, how much
-time a student takes to complete a step that involved a given skill.  However, other such
-observables typically need some additional theoretical interpretation. {\em Exempli gratia},
-What is the relation between time taken and mastery?  Baker, Goldstein, and
-Heffernan~\citeyear{baker_detecting_2011} develop a model of learning
-based on a Hidden Markov model approach.  They start with a set of
-% BvdS:  use actual number.
-25 additional observables (including ``time to
-complete a step'') and construct their model and use correct/incorrect steps (as defined above)
-to calibrate the additional observables and determine which are significant.
-
-Since correct/incorrect steps is easy to interpret, we will use that
-as the starting point for our investigation.  Naturally, it is
-desirable to eventually include various other observables in any determination
-of student learning.
-
+If one is primarily interested in the effectiveness of help given to
+an individual student or the effectiveness (for learning) of a particular
+strategy or behavior of a the student, then it may make sense
+to fit a model of learning to the log data of each student individually.
+Given sufficient student log data, can we still talk about a particular
+model fitting the student log data well?  That is the central question
+of this paper.
 To start our investigation, we will compare three different models of
 learning using data from students taking introductory physics and examine
 whether there is empirical support for using one model over the
@@ -115,32 +84,44 @@ others.  In fact, using Akaike Information Criteria (AIC), we obtain
 results that seem to favor two models over the third, but note
 that fitting the models to individual students can make the determination ambiguous.
 
-Second, we introduce a multi-model approach to predict the probability that 
-learning has occurred at a given step, and how much
-learning has occurred.  We apply our approach to student log data from
-and introductory physics course and discuss the reliability of any
-predictions of skill mastery.  We find that, for an individual
-student and skill, detection of learning has large uncertainties.
-However, if one aggregates over skills or students, then learning can
-be detected at the desired level of significance.
-
 
 \subsection{Correct/Incorrect steps}
 
-As mentioned above, we will use correctness/incorrectness of a step to
-determine when the student has learned above.  Thus, we need to
-define precisely what we mean by a step being correct.
+Our stated goal is to determine student learning for an individual
+student as they progress through a course.  What observable quantities
+should be used to determine student mastery?  One possible observable
+is ``correct/incorrect steps,'' whether the student correctly applies
+a given skill at a particular problem-solving step without any
+preceding errors or hints.  There are other observables that may give
+us clues on mastery: for instance, how much time a student takes to
+complete a step that involved a given skill.  However, other such
+observables typically need some additional theoretical
+interpretation. {\em Exempli gratia}, What is the relation between
+time taken and mastery?  Baker, Goldstein, and
+Heffernan~\citeyear{baker_detecting_2011} develop a model of learning
+based on a Hidden Markov model approach.  They start with a set of
+% BvdS:  use actual number.
+25 additional observables (including ``time to complete a step'') and
+construct their model and use correct/incorrect steps
+to calibrate the additional observables and determine which are
+significant.  Naturally, it is
+desirable to eventually include various other observables in any
+determination of student learning.  However, in the present investigation,
+we will focus on correct/incorrect steps.
 
-A student attempts some number of {\em steps}  when solving a problem.  
+Next,  we need to define
+precisely what we mean by a step.
+A student attempts some number of {\em steps} when solving a problem
+using an intelligent tutor system (ITS).
 Usually, a step is associated with creating/modifying a single user
-interface object (writing an equation, drawing a vector,
-defining a quantity, {\em et cetera}) and is a distinct part of the problem solution
-(that is, help-giving dialogs are not considered to be steps).
-A student may attempt a particular problem solving
-step, delete the object, and later attempt that solution step again.
-A step is an {\em opportunity} to learn
-a given  Knowledge Component (KC)~\cite{vanlehn_behavior_2006} if the student 
-must apply that skill to complete the step.
+interface object (writing an equation, drawing a vector, defining a
+quantity, {\em et cetera}) and is a distinct part of the problem
+solution (that is, help-giving dialogs are not considered to be
+steps).  A student may attempt a particular problem solving step,
+delete the object, and later attempt that solution step again.  A step
+is an {\em opportunity} to learn a given Knowledge Component
+(KC)~\cite{vanlehn_behavior_2006} if the student must apply that skill
+to complete the step.
 
 %
 %  Not needed in this paper.
@@ -155,7 +136,7 @@ must apply that skill to complete the step.
 %we need to determine the point of learning for each student.
 For each KC and student, we select all attempted steps that involve application
 of that KC and mark each step as ``correct'' if
-the student completes that step correctly without any preceeding errors or 
+the student completes that step correctly without any preceding errors or 
 requests for help; otherwise, we mark the step as ``incorrect.''
 \label{steps}  % Section reference for correct/incorrect
 If each incorrect/correct step is marked with a 0/1, then
@@ -165,16 +146,10 @@ steps with $j\in\left\{1,\ldots,n\right\}$.
 
 \section{Three models of learning}
 
-\begin{figure}
-  \centering \includegraphics{three-models.eps}
-  \caption{Functional form of the three models of student learning.}
-    \label{three-models}
-\end{figure}
-
-
-In order to determine when a student has learned a particular still,
-we need to introduce a model of learning for that student and skill.
-Ideally, the model should have the the following properties:
+Ultimately, we are interested in determining when a student has mastered
+a particular KC and, by inference, the effectiveness of
+any help given by the tutor.  Thus, a useful model of learning
+should  have the the following properties:
 \label{model-criteria}
 %
 \begin{enumerate} 
@@ -199,6 +174,12 @@ We will consider three candidate models:
 the Bayesian Knowledge Tracing (BKT) model, the logistic function,
 and the ``step model;''
 see Fig.~\ref{three-models}.
+
+\begin{figure}
+  \centering \includegraphics{three-models.eps}
+  \caption{Functional form of the three models of student learning.}
+    \label{three-models}
+\end{figure}
 
 
 The first model is the Bayesian Knowledge Tracing (BKT) 
@@ -240,7 +221,7 @@ criterion~\ref{crit:perform}.
 
 The third model is the ``step model'' which assumes that learning 
 occurs all at once; this corresponds to the ``eureka learning''
-discusse by \cite{baker_detecting_2011}.  It is defined as:
+discussed by \cite{baker_detecting_2011}.  It is defined as:
 %
 \begin{equation}
     P_\mathrm{step}(j)= \left\{\begin{array}{cc}
@@ -304,7 +285,7 @@ sciences, medicine, and other ``noisy'' sciences, the assumptions that
 underlie BIC are generally not met.  In particular, as the sample size
 increases, it is typical that the underlying ``true'' model also
 becomes more complicated.  This is certainly true in educational
-datamining: datasets are increased by adding data from new schools, or
+datamining: datasets are generally increased by adding data from new schools, or
 different years and one generally expects noticeable variation of student
 behavior from school to school or from year to year.  In such cases, one
 safely can say that the ``true'' model is complicated (because people are
@@ -441,7 +422,8 @@ strictly valid in the $n\to\infty$ limit.
    the model that was used to generate the data.}\label{scatter2}
 \end{figure*}
 
-To further investigate this situation, we constructed an
+To further investigate the observed strong discrimination
+between the three models, we constructed an
 artificial dataset containing random bit sequences (each
 step has 50\% probability of being ``correct'') of length 
 $n\in\left\{10,20,30,40,50\right\}$.
@@ -454,20 +436,20 @@ This dataset corresponds to a model of the form
 We then repeated our analysis of the three models using this dataset
 and AIC as our selection criterion.  Note that all three models,
 with a suitable choice of parameters, can be made equal to 
-$P_\mathrm{random}$.
+$P_\mathrm{random}$ itself.
 
 As mentioned earlier, for data that is generated by a simple 
-model ($P_\mathrm{random}$ is about as
+model (and $P_\mathrm{random}$ is about as
 simple as one can get) and the ``true'' model is included among
 the set of models, BIC is the more appropriate criterion
 for model selection~\cite[Sections~6.3 \& 6.4]{burnham_model_2002}.
-However, the only difference between AIC and BIC for our results is that BIC favors
-$P_\mathrm{logistic}$ more strongly over $P_\mathrm{step}$ and
-$P_\mathrm{BKT}$.  Thus, using BIC would shift the weights so that
-$w_\mathrm{logistic}$ would increase somewhat over the other two
-weights.  However, in order to maintain consistency with
-our experimental results, we used AIC for the random data as well;
-see Fig.~\ref{scatter1}.  This use of AIC versus BIC does not 
+However, for our results, the only difference between AIC and BIC 
+is that BIC favors $P_\mathrm{logistic}$ more strongly over 
+$P_\mathrm{step}$ and $P_\mathrm{BKT}$.  Thus, using BIC would shift 
+the weights so that $w_\mathrm{logistic}$ would increase somewhat over 
+the other two weights.  However, in order to maintain consistency with
+our experimental results, Fig.~\ref{scatter1}, we used AIC for the random data as well;
+see Fig.~\ref{scatter2}.  This use of AIC versus BIC does not 
 affect our conclusions.
 
 For data generated by $P_\mathrm{random}$,
@@ -476,7 +458,7 @@ well since all three can equal (with suitable choice of parameters)
 the known correct model $P_\mathrm{random}$.  Thus, we would expect
 a scatter plot of the Akaike weights to center around
 $w_\mathrm{logistic}=w_\mathrm{step}=w_\mathrm{BKT}=1/3$.  Instead, we
-find that $P_\mathrm{step}$ is highly favored over the other two; see
+find that $P_\mathrm{step}$ is still highly favored over the other two; see
 Fig.~\ref{scatter2}. This bias seems to persist as we increase $n$.
 
 \begin{figure}
@@ -487,11 +469,15 @@ Fig.~\ref{scatter2}. This bias seems to persist as we increase $n$.
    (Each mean is calculated by averaging over 10,000 random bit sequences.)
    Also shown is a fit to a function of the form $a+b/n$ and
    a dashed line marking the asymptotic value $a$.
-   Note that the differences between the weights persist
+   Note that the large differences between the weights persist
    in the $n\to\infty$ limit.}\label{meanweight}
 \end{figure}
 
-If we plot the average weight as a function of $n$, we find
+Since we know that AIC (or BIC) is only strictly valid in
+the asymptotic limit $n\to\infty$, it is useful to see if
+the large differences persist as $n$ is increased.
+If we average over the 10,000 weights and plot the average weight 
+as a function of $n$, we find
 that the differences between the weights persist
 in the $n\to\infty$ limit;  see Fig.~\ref{meanweight}.
 If we fit the average weights to a constant plus $1/n$;
@@ -507,24 +493,27 @@ This shows that AIC, in the asymptotic limit $n\to\infty$,
 still favors  $P_\mathrm{step}$ over the other two models
 when used to evaluate randomly generated data.
 
-If we repeat this analysis with BIC, we would also
+If we repeat this analysis with BIC, we would still
 find that the weights converge to a constant value with 
 $1/n$ leading errors.  The only difference is that the logistic
-model has a larger weight than the other two.  This is to be
-expected since all three models contain the true model.
+model has a larger weight than the other two. 
+The differences between the weights of the three models still persist
+in the $n\to\infty$ limit 
 
 \subsection{Summary}
 
 In conclusion, we obtain some surprising results when we compare
 the three models,  $P_\mathrm{step}$, $P_\mathrm{logistic}$, and
 $P_\mathrm{BKT}$, using individual student data.   We see that AIC
-weakly favors the step model over the logistic model in a fashion that one might expect.
-However, in an unexpected fashion, we see that both are favored
-strongly over the BKT model.  We see that this effect remains for
-randomly generated data and is not a finite $n$ effect.
+weakly favors the step model over the logistic model in a fashion 
+that one might expect.  However, in an unexpected fashion, we see 
+that both are strongly favored over the BKT model.
+We see that this effect persists for
+randomly generated data and is not due to an insufficient number
+of opportunities (finite $n$ effect).
 
-In particular, for any bit sequence,  $P_\mathrm{BKT}$ {\em never}
-fits the data better than $P_\mathrm{BKT}$.  Since 
+Moreover, for any bit sequence,  $P_\mathrm{BKT}$ {\em never}
+fits the data better than $P_\mathrm{step}$.  Since 
 both models have three parameters, this result holds for any maximum
 likelihood-based criterion, including both AIC and BIC.  We don't have
 an analytic proof for this result, 
@@ -544,34 +533,38 @@ fits the bit sequence as well as, or better than, $P_\mathrm{BKT}$.
 % bit sequence $01011011\ldots$.  The 
 
 
-
 What does this mean?  Let us think
-more carefully about maximum liklihood.
+more carefully about maximum likelihood.
 If I use a model to generate a single bit sequence, I cannot tell from
 that sequence the exact probability function (the probability as a
 function of $j$) that generated it.  At best, I can only
 talk about probability functions that {\em may} have generated that sequence.
-On the other hand, if I use a probability function to generate a collection of infinitely many
-sequences, then I know the exact probability for each step and, therefore, the exact function that
-produced those probabilities.  If that function comes from a
+On the other hand, if I use a particular probability function to generate a collection 
+of infinitely many
+sequences, then I know the exact probability for each step.
+Therefore, given the collection of sequences, I can uniquely determine the 
+probability function that generated that collection. If that function comes from a
 particular model $\mathcal{A}$ (for some choice of model parameters),
- then I can saftely conclude that model $\mathcal{A}$ is the correct model.
+then I can safely conclude that model $\mathcal{A}$ is the correct model.
 
-Thus, when we are fitting individual student data to a model (fitting
+In other words, when we fit individual student data to a model (fitting
 model parameters separately for each student), then we can make no
 statements about what model is ``correct'' in the sense that it may
 have generated the data.  We can only talk about a model being a good
 fit in the sense that it is ``close'' to the data.
-On the othe hand, if we aggregate data from many students and fit to a
+On the other hand, if we aggregate data from many students and fit to a
 model (finding the best fit model parameters), then we can talk about
 a model being correct in the usual sense  that it may have generated
-the data.
+the data.  
 
-In the present work, we are more concerned about being ``close'' to
+If we are interested in determining the effectiveness
+of help given or of a particular student behavior,
+we are more concerned about being ``close'' to
 the student data than finding the correct theory of learning, so the
 fact that the step model fits the data better than the logistic function and
 the BKT model is good news.  However, one should not then conclude
-that the step function is a better model of student learning.
+that the step function is a better model of student learning,
+in the usual sense.
 
 Finally, we see that the scatter plot of Akaike weights for student
 data is remarkably similar to the scatter plots for the random model.

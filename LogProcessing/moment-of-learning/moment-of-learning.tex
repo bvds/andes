@@ -4,6 +4,9 @@
 
 \usepackage{graphics}
 
+% Somehow the desired top margin is being set to 1/16in?
+\addtolength{\topmargin}{0.6875in}
+
 \begin{document}
 
 \title{Measuring the moment of learning with an information-theoretic approach}
@@ -34,7 +37,7 @@ information, infer the relative effectiveness of any help given to the
 student or of any behavior in which the student has engaged.
 \end{abstract}
 
-\keywords{data mining, models of student learning}
+\keywords{data mining, information theory}
 
 
 \section{Introduction}
@@ -54,14 +57,14 @@ learning has occurred, but not {\em when} it may have occurred.
 At best, one might infer when learning has occurred if an isolated change to 
 the instructional materials or help-giving strategy results in better
 post-test performance.  
-It is more difficult to infer whether a change in student {\em behavior} at
+It is more difficult to infer whether a change in student behavior at
 some point has resulted in greater learning, since student behavior is 
 largely uncontrolled and must be recorded in some way.
 In a laboratory setting, these issues can be addressed by careful
 experimental design, albeit with an accompanying loss of authenticity.
 
 Moving from the laboratory to a more realistic setting, such as a
-classroom study, presents as challenge since there is necessarily an
+classroom study, presents a challenge since there is necessarily an
 extended time between any pre-test and post-test.  Heckler and 
 Sayre~\citeyear{heckler_what_2010} introduce an experimental technique
 where they administered a test to a different subgroup of students in
@@ -75,45 +78,14 @@ However, the shortest time scale that one could imagine for this
 kind of approach (administering a test in a classroom setting) can, at
 best, be a day or so.  Can we do better?
 
-The use of an intelligent tutor systems (ITS) provides a way forward. 
-An ITS is a computer-based learning environment where students
-construct problem solutions on a user interface and the system
-evaluates the student work at the step-level. 
-Examples include the CMU LISP tutor~\cite{corbett_knowledge_1995}, the
-Carnegie Learning Cognitive Tutors~\cite{koedinger_illustrating_1998},
-and Andes~\cite{vanlehn_andes_2005}.  In these tutors, student
-activity is analyzed and logged for each user interface element change, with a granularity
-of typically several 10s of seconds.
-Instead of relying on a distant pre-test or post-test, the experimenter can examine student
-(or tutor system) activity in the immediate vicinity of the event of interest.
+The use of an intelligent tutor systems (ITS) provides a way forward.
+In this case, student activity is
+analyzed and logged for each user interface element change, with a
+granularity of typically several 10s of seconds.  Instead of relying
+on a distant pre-test or post-test, the experimenter can examine
+student (or tutor system) activity in the immediate vicinity of the
+event of interest.
 
-Our stated goal is to determine student learning for an individual
-student as they progress through a course.  What observable quantities should be used to
-determine student mastery?  One possible observable is ``correct/incorrect steps,''  whether 
-the student correctly applies a given skill at a particular problem-solving step 
-without any preceeding errors or hints.  There are other
-observables that may give us clues on mastery: for instance, how much
-time a student takes to complete a step that involved a given skill.  However, other such
-observables typically need some additional theoretical interpretation. {\em Exempli gratia},
-What is the relation between time taken and mastery?  Baker, Goldstein, and
-Heffernan~\citeyear{baker_detecting_2011} develop a model of learning
-based on a Hidden Markov model approach.  They start with a set of
-% BvdS:  use actual number.
-25 additional observables (including ``time to
-complete a step'') and construct their model and use correct/incorrect steps (as defined above)
-to calibrate the additional observables and determine which are significant.
-
-Since correct/incorrect steps is easy to interpret, we will use that
-as the starting point for our investigation.  Naturally, it is
-desirable to eventually include various other observables in any determination
-of student learning.
-
-To start our investigation, we will compare three different models of
-learning using data from students taking introductory physics and examine
-whether there is empirical support for using one model over the
-others.  In fact, using Akaike Information Criteria (AIC), we obtain
-results that seem to favor two models over the third, but note
-that fitting the models to individual students can make the determination ambiguous.
 
 Second, we introduce a multi-model approach to predict the probability that 
 learning has occurred at a given step, and how much
@@ -126,6 +98,30 @@ be detected at the desired level of significance.
 
 
 \subsection{Correct/Incorrect steps}
+
+Our stated goal is to determine student learning for an individual
+student as they progress through a course.  What observable quantities
+should be used to determine student mastery?  One possible observable
+is ``correct/incorrect steps,'' whether the student correctly applies
+a given skill at a particular problem-solving step without any
+preceeding errors or hints.  There are other observables that may give
+us clues on mastery: for instance, how much time a student takes to
+complete a step that involved a given skill.  However, other such
+observables typically need some additional theoretical
+interpretation. {\em Exempli gratia}, What is the relation between
+time taken and mastery?  Baker, Goldstein, and
+Heffernan~\citeyear{baker_detecting_2011} develop a model of learning
+based on a Hidden Markov model approach.  They start with a set of
+% BvdS:  use actual number.
+25 additional observables (including ``time to complete a step'') and
+construct their model and use correct/incorrect steps (as defined
+above) to calibrate the additional observables and determine which are
+significant.
+
+Since correct/incorrect steps is easy to interpret, we will use that
+as the starting point for our investigation.  Naturally, it is
+desirable to eventually include various other observables in any determination
+of student learning.
 
 As mentioned above, we will use correctness/incorrectness of a step to
 determine when the student has learned above.  Thus, we need to
@@ -167,9 +163,29 @@ steps with $j\in\left\{1,\ldots,n\right\}$.
 
 \begin{figure}
   \centering \includegraphics{step-model.eps}
-  \caption{Functional form of the three models of student learning.}
+  \caption{Functional form of the step model.}
     \label{step-model}
 \end{figure}
+
+the ``step model'' assumes that learning 
+occurs all at once; this corresponds to the ``eureka learning''
+discussed by \cite{baker_detecting_2011}.  It is defined as:
+%
+\begin{equation}
+    P_\mathrm{step}(j)= \left\{\begin{array}{cc}
+                 g, & j<l \\
+                 1-s, & j\ge L 
+                 \end{array} \right. 
+\end{equation}
+%
+where $L$ is the step where the student first shows mastery of the KC,
+$g$ is the ``guess rate,'' the probability that the student gets a
+step correct by accident, and $s$ is the ``slip rate,'' the chance
+that the student makes an error after learning the skill.  These are
+analogous to the guess and slip parameters of
+BKT~\cite{corbett_knowledge_1995}.  The associated gain in performance
+is $1-g-s$ and the error rate after learning is simply $s$ in this
+model.
 
 \subsection{Method}
 
@@ -357,29 +373,29 @@ to calculate the standard error associated with $Q$.
 
 For the random dataset $\mathcal{R}$, the distribution of $\Delta_L$
 is symmetric about zero and $Q$ approaches zero as $N \to \infty$.
-For the ``ideal'' dataset $\mathcal{I}$, we expect, for the first 1 in
-the bit sequence, $w_L$ to be nearly one with the associated $\Delta_L$
+For the ``ideal'' dataset $\mathcal{I}$, we expect that, when
+$L$ coincides with the first 1 in
+the bit sequence, $w_L$ will be nearly one with the associated $\Delta_L$
 also nearly one so that $Q\to 1$ in the limit of many opportunities.
 Numerically, we obtain $Q=0.5240\pm0.0003$.  The fact that it is
 smaller than one is due to the large number of student-KC sequences having
 just a few steps.  For the student dataset $\mathcal{A}$, we obtain
 $Q=0.0467\pm0.0065$, which is small, but significant
-($p<0.001$). Thus, we conclude that this student dataset is of
-sufficient quality to use in determining where learning has occurred.
+($p<0.001$). Thus, we conclude that one can detect statistically
+significant learning when applying our method to this student dataset,
+with the location of that learning given by the Akaike weights $w_L$.
 
 
 \section{Conclusion}
 
 We believe that a direct estimate of the moment when a student
 learns a skill could be very useful for improving instruction,
-improving help-giving and understanding student learning.
+improving help-giving, and understanding student learning.
 However, the question of whether learning has occurred at a particular
 step can only be answered in a probabilistic sense:
 unambiguous ``Aha moments'' seem to be relatively rare.
 Using the Akaike Information Criterion, we have introduced a method
 for determining this probability.
-
-
 
 As can be seen in
 Fig.~\ref{weighted-gain-histogram2}, there is not much difference
@@ -392,7 +408,7 @@ this to mean that the ``signal'' is roughly 10\% as big as the
 ``noise.''  However, the fact that $Q$ for the student dataset is
 seven standard deviations from zero means that we have detected
 learning for 2000 student-KC sequences with room to spare.  Using the fact
-that the error goes as $1/\sqrt{N}$, where $N$ is the number 
+that the error is proportional $1/\sqrt{N}$, where $N$ is the number 
 of student-KC sequences, we estimate
 that we could still detect learning with only 260 student-KC sequences at the
 $p=0.01$ level.  This gives us an initial estimate for the amount of
@@ -401,9 +417,10 @@ students using the Andes tutor system.
 
 As seen in Fig.~\ref{student-length-histogram}, we see that many of
 the student-KC sequences are quite short.  We speculate that this
-is due to to the way that physics is typically taught, with relatively
-little reinforcement of specific KCs, emphasizing, instead, more
-general problem solving meta-skills.  If we were to repeat this
+is due to to the way that introductory physics is typically taught, 
+with relatively little reinforcement of specific KCs, emphasizing, 
+instead, more general problem solving meta-skills.  If we were to 
+repeat this
 analysis for high school or grade school math, where there is more
 repetition, we speculate that there would be significantly fewer KCs
 with less than 10 opportunities and that detecting when learning has
