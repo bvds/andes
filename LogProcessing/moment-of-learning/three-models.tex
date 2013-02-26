@@ -426,7 +426,8 @@ To further investigate the observed strong discrimination
 between the three models, we constructed an
 artificial dataset containing random bit sequences (each
 step has 50\% probability of being ``correct'') of length 
-$n\in\left\{10,20,30,40,50\right\}$.
+$n\in\left\{10,20,30,40,50\right\}$, with 10,000 sequences for 
+each $n$.
 This dataset corresponds to a model of the form
 %
 \begin{equation}
@@ -542,7 +543,7 @@ talk about probability functions that {\em may} have generated that sequence.
 On the other hand, if I use a particular probability function to generate a collection 
 of infinitely many
 sequences, then I know the exact probability for each step.
-Therefore, given the collection of sequences, I can uniquely determine the 
+Therefore, given an infinite collection of sequences, I can uniquely determine the 
 probability function that generated that collection. If that function comes from a
 particular model $\mathcal{A}$ (for some choice of model parameters),
 then I can safely conclude that model $\mathcal{A}$ is the correct model.
@@ -562,9 +563,10 @@ of help given or of a particular student behavior,
 we are more concerned about being ``close'' to
 the student data than finding the correct theory of learning, so the
 fact that the step model fits the data better than the logistic function and
-the BKT model is good news.  However, one should not then conclude
-that the step function is a better model of student learning,
-in the usual sense.
+the BKT model is of practical value when analyzing student log data.  
+However, one should not then conclude that the step function is a 
+better model of student learning, in the usual sense.  The better fit does
+not predict anything about the nature of learning.
 
 Finally, we see that the scatter plot of Akaike weights for student
 data is remarkably similar to the scatter plots for the random model.

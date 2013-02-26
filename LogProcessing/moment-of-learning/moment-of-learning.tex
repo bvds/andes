@@ -366,8 +366,8 @@ student-KC sequence:
            Q= \frac{1}{N} \sum_\alpha \sum_L w_L \Delta_L
 \end{equation}
 %
-where $\alpha$ is an index running over all student-KC sequences in a 
-dataset and $N$ is the number of student-KC sequences.
+where $\alpha$ is an index running over all $N$ student-KC sequences in a 
+dataset.
 We use the sample standard deviation of the weighted gains $w_L \Delta_L$
 to calculate the standard error associated with $Q$. 
 
@@ -399,12 +399,13 @@ for determining this probability.
 
 As can be seen in
 Fig.~\ref{weighted-gain-histogram2}, there is not much difference
-between a student dataset and a randomly generated dataset.  However,
+between our student dataset and a randomly generated dataset.  However,
 the quality index $Q$ which can be used to quantify the
-size of the signal as well as the size of the background.  We see that
+size of the signal of learning as well as the size of the background.  
+We see that the quality index
 $Q=0.0467\pm0.0065$ for the student dataset $\mathcal{A}$ is roughly
 10\% the size of $Q$ for the ideal dataset $\mathcal{I}$; we interpret
-this to mean that the ``signal'' is roughly 10\% as big as the
+this to mean that the ``signal'' for learning is roughly 10\% as big as the
 ``noise.''  However, the fact that $Q$ for the student dataset is
 seven standard deviations from zero means that we have detected
 learning for 2000 student-KC sequences with room to spare.  Using the fact
