@@ -21,6 +21,7 @@
 }
 
 \maketitle
+
 \begin{abstract}
 Normally, when considering a model of learning, one compares the model
 to some measure of learning that has been aggregated over students.
@@ -66,7 +67,7 @@ their models to include individual student proficiency and actual help
 received by the student.  For instance, in the Cordillera natural
 language tutoring system for physics~\cite{vanlehn_developing_2007},
 the student may have been asked what the next step was or were told
-what the next stop was, and this was taken into account an associated
+what the next stop was; this was used as input for an associated
 model.  An overview of these models can be found 
 in~\cite{chi_instructional_2011}.
 
@@ -94,7 +95,7 @@ is ``correct/incorrect steps,'' whether the student correctly applies
 a given skill at a particular problem-solving step without any
 preceding errors or hints.  There are other observables that may give
 us clues on mastery: for instance, how much time a student takes to
-complete a step that involved a given skill.  However, other such
+complete a step that involves a given skill.  However, other such
 observables typically need some additional theoretical
 interpretation. {\em Exempli gratia}, What is the relation between
 time taken and mastery?  Baker, Goldstein, and
@@ -117,7 +118,7 @@ Usually, a step is associated with creating/modifying a single user
 interface object (writing an equation, drawing a vector, defining a
 quantity, {\em et cetera}) and is a distinct part of the problem
 solution (that is, help-giving dialogs are not considered to be
-steps).  A student may attempt a particular problem solving step,
+steps).  A student may attempt a particular problem-solving step,
 delete the object, and later attempt that solution step again.  A step
 is an {\em opportunity} to learn a given Knowledge Component
 (KC)~\cite{vanlehn_behavior_2006} if the student must apply that skill
@@ -146,6 +147,12 @@ steps with $j\in\left\{1,\ldots,n\right\}$.
 
 \section{Three models of learning}
 
+\begin{figure}
+  \centering \includegraphics{three-models.eps}
+  \caption{Functional form of the three models of student learning.}
+    \label{three-models}
+\end{figure}
+
 Ultimately, we are interested in determining when a student has mastered
 a particular KC and, by inference, the effectiveness of
 any help given by the tutor.  Thus, a useful model of learning
@@ -164,7 +171,7 @@ should  have the the following properties:
 
 \item  \label{crit:perform}
      Assuming learning has occurred at a given step, the model
-     should give an prediction for the 
+     should give a prediction for the 
      associated increase in performance and 
      the rate of errors after learning.
 
@@ -175,11 +182,6 @@ the Bayesian Knowledge Tracing (BKT) model, the logistic function,
 and the ``step model;''
 see Fig.~\ref{three-models}.
 
-\begin{figure}
-  \centering \includegraphics{three-models.eps}
-  \caption{Functional form of the three models of student learning.}
-    \label{three-models}
-\end{figure}
 
 
 The first model is the Bayesian Knowledge Tracing (BKT) 
@@ -296,7 +298,6 @@ educational datamining work.
 
 \subsection{Method}
 
-
 \begin{figure}
   \centering \includegraphics{student-kc-length-histogram.eps}
   \caption{Histogram of number of distinct student-KC sequences in student 
@@ -315,7 +316,7 @@ Each step was assigned to one or more different KC's.  The dataset
 contains a total of 2017 distinct student-KC sequences covering a total of
 245 distinct KC's.  We will refer to this dataset as student dataset
 $\mathcal{A}$.  See Figure~\ref{student-length-histogram} for a
-histogram of the number student-KC sequences having a given number of
+histogram of the number of student-KC sequences having a given number of
 steps.
 
 Most KC's are associated with physics
@@ -331,7 +332,7 @@ student-KC sequences containing just a few steps.
 The presence of many student-KC sequences with just one or two
 steps may indicate that the default cognitive model associated 
 with this tutor system may be sub-optimal; to date, there has not 
-been any attempt, to date, to improve on the cognitive model of 
+been any attempt to improve on the cognitive model of 
 Andes with, say, Learning Factors Analysis~\cite{cen_learning_2006}.
 Another contributing factor is the way that introductory physics is 
 taught in most institutions, with relatively little repetition of 
@@ -358,18 +359,33 @@ of similar problems in a homework assignment.
    \label{scatter1}
 \end{figure}
 
+% LaTeX is very sensitive to the placement of this figure
+\begin{figure*}
+  \includegraphics{scatter10.eps}
+  \includegraphics{density50.eps}
+  \caption{Akaike weights for the three models, 
+   $P_\mathrm{step}$, $P_\mathrm{logistic}$, and $P_\mathrm{BKT}$, 
+   when fit to randomly generated data.  The point where
+   $w_\mathrm{step}=w_\mathrm{logistic}=w_\mathrm{BKT}=1/3$ is
+   marked with a cross.  For these datasets, each 
+   model should perform equally well, since, with an appropriate
+   choice of parameters, they all can be made equal to 
+   the model that was used to generate the data.}\label{scatter2}
+\end{figure*}
+
 Since the goodness of fit criterion, AIC, is valid in the limit of
 many steps, we include in this analysis only student-KC sequences that
-contain 10 or more steps, reducing the number of student-KC sequences to
-267, covering 38 distinct KC's.  We determine the correctness of each
-step (Section~\ref{steps}), constructing a bit sequence, {\em exempli
-gratia} 001001101, for each student-KC sequence.  This bit sequence is then
-fit to each of the three models, $P_\mathrm{step}$,
+contain 10 or more steps, reducing the number of student-KC sequences
+to 267, covering 38 distinct KC's.  We determine the correctness of
+each step (Section~\ref{steps}), constructing a bit sequence, {\em
+exempli gratia} 001001101, for each student-KC sequence.  This bit
+sequence is then fit to each of the three models, $P_\mathrm{step}$,
 $P_\mathrm{logistic}$, and $P_\mathrm{BKT}$ by maximizing the
-associated log likelihood.
-%This determines the free parameters in each model. 
-We then calculate the AIC score for each fit.  
-Finally, we calculated the Akaike weights, $w_\mathrm{logistic}$, $w_\mathrm{step}$, and $w_\mathrm{BKT}$ for each student-KC sequence~\cite{burnham_model_2002}.
+associated log likelihood.  %This determines the free parameters in
+each model.  We then calculate the AIC score for each fit.  Finally,
+we calculate the Akaike weights, $w_\mathrm{logistic}$,
+$w_\mathrm{step}$, and $w_\mathrm{BKT}$ for each student-KC
+sequence~\cite{burnham_model_2002}.
 The weights are normalized so that
 %
 \begin{equation}
@@ -402,25 +418,12 @@ plotted as the increasing dashed line in Fig.~\ref{scatter1}.
 
 Since the student-KC sequences contain an average of about $n=16$ 
 steps, it is surprising that we find that AIC so strongly
-discriminates between the models.  Perhaps this is due to
-some finite $n$ correction?  Recall that AIC is only 
+discriminates between the models.  Perhaps, though,  this is due to
+some finite $n$ correction:  recall that AIC is only 
 strictly valid in the $n\to\infty$ limit.
 
 \subsection{Random data}
 
-
-\begin{figure*}
-  \includegraphics{scatter10.eps} \hfill
-  \includegraphics{density50.eps}
-  \caption{Akaike weights for the three models, 
-   $P_\mathrm{step}$, $P_\mathrm{logistic}$, and $P_\mathrm{BKT}$, 
-   when fit to randomly generated data.  The point where
-   $w_\mathrm{step}=w_\mathrm{logistic}=w_\mathrm{BKT}=1/3$ is
-   marked with a cross.  For these datasets, each 
-   model should perform equally well, since, with an appropriate
-   choice of parameters, they all can be made equal to 
-   the model that was used to generate the data.}\label{scatter2}
-\end{figure*}
 
 To further investigate the observed strong discrimination
 between the three models, we constructed an
@@ -437,6 +440,7 @@ We then repeated our analysis of the three models using this dataset
 and AIC as our selection criterion.  Note that all three models,
 with a suitable choice of parameters, can be made equal to 
 $P_\mathrm{random}$ itself.
+
 
 As mentioned earlier, for data that is generated by a simple 
 model (and $P_\mathrm{random}$ is about as
@@ -498,7 +502,7 @@ find that the weights converge to a constant value with
 $1/n$ leading errors.  The only difference is that the logistic
 model has a larger weight than the other two. 
 The differences between the weights of the three models still persist
-in the $n\to\infty$ limit 
+in the $n\to\infty$ limit.
 
 \subsection{Summary}
 
@@ -518,8 +522,8 @@ both models have three parameters, this result holds for any maximum
 likelihood-based criterion, including both AIC and BIC.  We don't have
 an analytic proof for this result, 
 but the numerical evidence (see Fig.~\ref{meanweight}) is quite strong.
-In other words, even if I use $P_\mathrm{BKT}$ (for some set of model parameters) 
-to generate a bit sequence, I can
+In other words, even if one uses $P_\mathrm{BKT}$ (for some set of model parameters) 
+to generate a bit sequence, one can
 always adjust the parameters in $P_\mathrm{step}$ so that it
 fits the bit sequence as well as, or better than, $P_\mathrm{BKT}$.
 
@@ -535,17 +539,16 @@ fits the bit sequence as well as, or better than, $P_\mathrm{BKT}$.
 
 What does this mean?  Let us think
 more carefully about maximum likelihood.
-If I use a model to generate a single bit sequence, I cannot tell from
-that sequence the exact probability function (the probability as a
-function of $j$) that generated it.  At best, I can only
+If one uses a model to generate a single bit sequence, we cannot 
+distinguish between that sequence and the exact probability function (the probability as a
+function of $j$) that generated it.  At best, one can only
 talk about probability functions that {\em may} have generated that sequence.
-On the other hand, if I use a particular probability function to generate a collection 
-of infinitely many
-sequences, then I know the exact probability for each step.
-Therefore, given the collection of sequences, I can uniquely determine the 
+On the other hand, if one uses a particular probability function to generate a collection 
+of infinitely many sequences, then we know the exact probability for each step.
+Therefore, given the collection of sequences, one can uniquely determine the 
 probability function that generated that collection. If that function comes from a
 particular model $\mathcal{A}$ (for some choice of model parameters),
-then I can safely conclude that model $\mathcal{A}$ is the correct model.
+then we can safely conclude that model $\mathcal{A}$ is the correct model.
 
 In other words, when we fit individual student data to a model (fitting
 model parameters separately for each student), then we can make no
@@ -562,9 +565,11 @@ of help given or of a particular student behavior,
 we are more concerned about being ``close'' to
 the student data than finding the correct theory of learning, so the
 fact that the step model fits the data better than the logistic function and
-the BKT model is good news.  However, one should not then conclude
-that the step function is a better model of student learning,
-in the usual sense.
+the BKT model suggests that it may be useful for this purpose.
+The idea is that any help given or student actions taken that
+immediately precede step $L$ may have been more effective than
+help given elsewhere, especially if the change in performance $1-s-g$
+is large.
 
 Finally, we see that the scatter plot of Akaike weights for student
 data is remarkably similar to the scatter plots for the random model.
@@ -574,9 +579,10 @@ understanding the student data.
 
 %ACKNOWLEDGMENTS are optional
 \section{Acknowledgments}
+
 Funding for this research was provided by the Pittsburgh Science of
 Learning Center which is funded by the National Science Foundation
-award No. SBE-0836012.
+award No. SBE-0836012. 
 
 %
 % The following two commands are all you need in the
