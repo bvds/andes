@@ -86,9 +86,23 @@ on a distant pre-test or post-test, the experimenter can examine
 student (or tutor system) activity in the immediate vicinity of the
 event of interest.
 
+Baker, Goldstein, and Heffernan~\citeyear{baker_detecting_2011}
+construct a model that predicts the probability that a student has
+learned a skill at a particular time based on the Bayesian Knowledge
+Tracing (BKT) algorithm~\cite{corbett_knowledge_1995}.  BKT gives
+the probability that the student has mastered a skill at step $j$
+using the students performance on opportunities to apply that skill
+(previous steps).  The authors supplement the BKT result with
+information on student correctness for the two subsequent steps $j+1$
+and $j+2$ and infer the probability that the student learned
+the skill at that step.  Finally, they use their model to train a
+second machine-learned model that does not rely on future student behavior,
+so it could be run in real time as the student is working
 
-Second, we introduce a multi-model approach to predict the probability that 
-learning has occurred at a given step, and how much
+We will address the same problem using an information-theoretic approach.
+Starting with the Akaike informaton criterion and a simple model of
+learning, we use a multi-model strategy to predict the probability that 
+learning has occurred at a given step, and to predict how much
 learning has occurred.  We apply our approach to student log data from
 and introductory physics course and discuss the reliability of any
 predictions of skill mastery.  We find that, for an individual
@@ -104,7 +118,7 @@ student as they progress through a course.  What observable quantities
 should be used to determine student mastery?  One possible observable
 is ``correct/incorrect steps,'' whether the student correctly applies
 a given skill at a particular problem-solving step without any
-preceeding errors or hints.  There are other observables that may give
+preceding errors or hints.  There are other observables that may give
 us clues on mastery: for instance, how much time a student takes to
 complete a step that involved a given skill.  However, other such
 observables typically need some additional theoretical
@@ -116,17 +130,12 @@ based on a Hidden Markov model approach.  They start with a set of
 25 additional observables (including ``time to complete a step'') and
 construct their model and use correct/incorrect steps (as defined
 above) to calibrate the additional observables and determine which are
-significant.
-
-Since correct/incorrect steps is easy to interpret, we will use that
-as the starting point for our investigation.  Naturally, it is
+significant.   Naturally, it is
 desirable to eventually include various other observables in any determination
-of student learning.
+of student learning.   However, in the present investigation,
+we will focus on correct/incorrect steps.
 
-As mentioned above, we will use correctness/incorrectness of a step to
-determine when the student has learned above.  Thus, we need to
-define precisely what we mean by a step being correct.
-
+What do we mean by a step?
 A student attempts some number of {\em steps}  when solving a problem.  
 Usually, a step is associated with creating/modifying a single user
 interface object (writing an equation, drawing a vector,
@@ -136,7 +145,7 @@ A student may attempt a particular problem solving
 step, delete the object, and later attempt that solution step again.
 A step is an {\em opportunity} to learn
 a given  Knowledge Component (KC)~\cite{vanlehn_behavior_2006} if the student 
-must apply that skill to complete the step.
+must apply that KC or skill to complete the step.
 
 %
 %  Not needed in this paper.
@@ -151,7 +160,7 @@ must apply that skill to complete the step.
 %we need to determine the point of learning for each student.
 For each KC and student, we select all attempted steps that involve application
 of that KC and mark each step as ``correct'' if
-the student completes that step correctly without any preceeding errors or 
+the student completes that step correctly without any preceding errors or 
 requests for help; otherwise, we mark the step as ``incorrect.''
 \label{steps}  % Section reference for correct/incorrect
 If each incorrect/correct step is marked with a 0/1, then
@@ -294,18 +303,20 @@ that no learning has occurred while using the tutor system.
 
 \section{Weighted gain}
 
+\begin{figure}
+  \centering \includegraphics{weighted-gains.eps}
+   \caption{Weighted gain $w_L\Delta_L$ as a function of $L$ for an example bit sequence.
+    The associated quality factor is $Q=0.66\pm0.29$;  it is
+     significantly smaller than 1 since the student makes
+     a slip on step 6.  $Q$ is significant at the $p=0.01$ level.}
+    \label{weighted-gain-example}
+\end{figure}
+
 Our ultimate goal is to distinguish steps that result in 
 learning from steps that do not.  Hopefully, one can use this
 information to infer something about the effectiveness of the help
 given on a particular step, or the effectiveness of
 the student activity on that step.
-
-\begin{figure}
-  \centering \includegraphics{weighted-gain-histogram.eps}
-   \caption{Histogram of weighted gains $w_L \Delta_L$ for
-     all steps in all student-KC sequences in student dataset $\mathcal{A}$.}
-    \label{weighted-gain-histogram}
-\end{figure}
 
 It is not sufficient to know {\it when} learning has occurred but one
 must also determine {\it how much} learning has occurred.  Consider
@@ -320,7 +331,21 @@ $\Delta_L=1-\hat{g}-\hat{s}$ where $\hat{g}$ and $\hat{s}$ are the
 Maximum Likelihood estimators for $g$ and $s$ given by submodel
 $P_{\mathrm{step},L}(j)$.  For the ``no learning'' case $L=1$, we set
 $\Delta_1=0$.  We will call $w_L \Delta_L$ the ``weighted gain''
-associated with $P_{\mathrm{step},L}(j)$.  A histogram of $w_L
+associated with $P_{\mathrm{step},L}(j)$.
+An calculation of $w_L \Delta_L$  for an example bit sequence is
+shown in Fig.~\ref{weighted-gain-example}.  Not surprisingly, 
+the largest gain occurs at $L=4$, corresponding to the first 1 in the
+bit sequence.  Note that the rest of the weighted gains are much smaller.
+
+
+\begin{figure}
+  \centering \includegraphics{weighted-gain-histogram.eps}
+   \caption{Histogram of weighted gains $w_L \Delta_L$ for
+     all steps in all student-KC sequences in student dataset $\mathcal{A}$.}
+    \label{weighted-gain-histogram}
+\end{figure}
+
+A histogram of $w_L
 \Delta_L$ for student dataset $\mathcal{A}$ is shown in
 Fig.~\ref{weighted-gain-histogram}.  Note that the vast majority of
 steps (29730) have almost zero weighted gain.  We also see that there
@@ -347,14 +372,6 @@ and the remaining weighted gains to be nearly zero.  The resulting
 distribution of gains is shown
 in  Fig.~\ref{weighted-gain-histogram2}.
 
-\begin{figure}
-  \centering \includegraphics{weighted-gain-histogram2.eps}
-   \caption{Histogram of weighted gains $w_L \Delta_L$ for
-     the student dataset $\mathcal{A}$, 
-     a randomly generated dataset $\mathcal{R}$,
-     and an artificial ideal dataset $\mathcal{I}$.}
-    \label{weighted-gain-histogram2}
-\end{figure}
 
 
 We propose to use the following average of the weighed gains as
@@ -370,6 +387,16 @@ where $\alpha$ is an index running over all $N$ student-KC sequences in a
 dataset.
 We use the sample standard deviation of the weighted gains $w_L \Delta_L$
 to calculate the standard error associated with $Q$. 
+An example calculation of $Q$ for a single bit sequence is shown in Fig.~\ref{weighted-gain-example}.
+
+\begin{figure}
+  \centering \includegraphics{weighted-gain-histogram2.eps}
+   \caption{Histogram of weighted gains $w_L \Delta_L$ for
+     the student dataset $\mathcal{A}$, 
+     a randomly generated dataset $\mathcal{R}$,
+     and an artificial ideal dataset $\mathcal{I}$.}
+    \label{weighted-gain-histogram2}
+\end{figure}
 
 For the random dataset $\mathcal{R}$, the distribution of $\Delta_L$
 is symmetric about zero and $Q$ approaches zero as $N \to \infty$.
@@ -416,8 +443,10 @@ $p=0.01$ level.  This gives us an initial estimate for the amount of
 log data needed to measure the moment of learning, at least for
 students using the Andes tutor system.
 
-As seen in Fig.~\ref{student-length-histogram}, we see that many of
-the student-KC sequences are quite short.  We speculate that this
+Finally, we see that many of
+the student-KC sequences are quite short, as shown in
+Fig.~\ref{student-length-histogram}. 
+ We speculate that this
 is due to to the way that introductory physics is typically taught, 
 with relatively little reinforcement of specific KCs, emphasizing, 
 instead, more general problem solving meta-skills.  If we were to 
