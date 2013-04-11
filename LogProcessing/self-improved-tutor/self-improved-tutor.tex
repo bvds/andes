@@ -220,9 +220,10 @@ with normalization $W$ such that $\sum_L w_L=1$.
 
 \section{Self-improved tutor system}
 
+Section describing process.
 %
 %  The diagram was created by process.odg
-%  eps exporting in OpenOffice seems problems with 
+%  In CentOS, eps exporting in OpenOffice has problems with 
 %  creating bounding boxes.  The following process worked:
 %  1.  in draw, select the entire diagram
 %  2.  in draw, export pdf, choosing 'selection' as source
@@ -231,13 +232,23 @@ with normalization $W$ such that $\sum_L w_L=1$.
 %  4.  mv process.ps process.eps
 %  5.  rm process.pdf
 %
+% On OS X 10.8, Open Office 3.4.1, the export to eps works fine.
+%
 \begin{figure*}
 \centering    \includegraphics{process.eps}
 \caption{Iterative process for improvement of help-giving policies in a
-  tutor system.} \label{process}
+  tutor system.  The steps corresponding to Study 1 are marked
+  with an asterisk.} \label{process}
 \end{figure*}
 
+\section{Study 1}
 
+UW Platteville, 118 students, winter of 2012.  Tutor randomly chooses
+policy: 
+\begin{enumerate} 
+\item After error, give unsolicited hint or not?
+\item Give normal hint sequence or give bottom-out hint first?  
+\end{enumerate}
 
 \section{Objective function}
 
@@ -387,6 +398,25 @@ is determined before the student action itself is analyzed,
 in order that the help policy for that transaction can be set.  
 Thus the state can only depend correct/incorrect (or floundering) 
 information from previous transactions. 
+
+\section{Study 2}
+
+Improved help version of Andes with dynamic calculation of student state; find machine learned hinting policy for that state; give help based on policy.
+
+Run at St. Anselm College May-July 2012, 14 students, for entire
+two-semester course.  
+
+
+For each homework set, half of the students, chosen at random, were
+assigned to the experimental condition and half were assigned to
+the control condition.  Thus, the experimental design is a mixed factorial design.
+This means that individual students sometimes switched
+between the experimental and control conditions over the course of the
+semester.  Thus, for any student-KC sequence that spans multiple
+homework sets, the student may have learned the skill in either 
+condition.  Since the Akaike weights  give us the probability that learning occurred
+at step $j$, we then can find the probability the learning occurred
+during the experimental condition versus the control condition.
 
 
 \section{Results}
