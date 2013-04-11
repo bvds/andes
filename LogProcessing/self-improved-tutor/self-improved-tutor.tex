@@ -1,32 +1,28 @@
-% Users can also go through the FAQs available on the journal's submission webpage.
-%
-% Steps to compile: latex, bibtex, latex latex
-%
-% For tracking purposes => this is v1.3 - May 2012
+% It is an example file showing how to use the 'acm_proc_article-sp.cls' V3.2SP
+% LaTeX2e document class file for Conference Proceedings submissions.
+\documentclass{edm_template}
 
-
-\documentclass{acmlarge-edm}
-
-% Metadata Information
-\acmVolume{1}
-\acmNumber{2}
-\acmArticle{3}
-\acmYear{2012}
-\acmMonth{5}  % can also put in literal name
 
 \usepackage{amsmath}
 \usepackage{graphics}
 
-%
-%  Cool LaTeX resource:
-%   http://en.wikibooks.org/wiki/LaTeX
+% Somehow the desired top margin is being set to 1/16in?
+\addtolength{\topmargin}{0.6875in}
 
 \begin{document}
 
 % Title portion
 \title{Self-improving tutor system}
-\author{Brett van de Sande
-\affil{Arizona State University\\bvds@asu.edu}}
+\numberofauthors{1}
+\author{
+\alignauthor
+      Brett van de Sande\\
+       \affaddr{Arizona State University}\\
+       \affaddr{PO Box 878809}\\
+       \affaddr{Tempe, AZ~~85287}\\
+       \email{bvds@asu.edu}
+}
+\maketitle
 
 % Assignment of blame paper: 
 % http://www.public.asu.edu/~kvanlehn/Stringent/PDF/07UM_KVL_KK_etal.pdf
@@ -57,16 +53,7 @@ We discuss what is needed to make this into a sustainable iterative process.
 
 \keywords{data mininig, models of student learning}
 
-\begin{bottomstuff}
-Funding for this research was provided by the Pittsburgh Science of
-Learning Center which is funded by the National Science Foundation
-award No. SBE-0836012.
-\end{bottomstuff}
-
-\maketitle
-
-
-\section{Introduction1}
+\section{Introduction}
 
 
 Intelligent tutor systems (ITS) have become increasingly sophisticated
@@ -96,27 +83,14 @@ decisions the ITS must make:
          current affect/understanding?
 
 \end{itemize}
-%
-The traditional way to answer such questions is to conduct
-a series of studies, either in the lab or {\em in vivo}.  
-In the Learning Sciences, good 
-experimental technique requires one or more variable to be
-varied while the remaining context be held constant as much as 
-possible.  However, as ITS become more sophisticated, the number of 
-canditate variables increases and the context becomes more and 
-more complicated, and the number of experiments that one needs
-to run in order to determine an optimal tutoring strategy becomes
-unfeasable. 
 
-\section{Introduction2}
-
-Conventional theories of learning can tell us what kind of help-giving
+Theories of learning can tell us what kind of help-giving
 strategies may be effective and, broadly, when they might be effective.
 Likewise, theories of learning may help us identify what kinds of 
 features might be useful for determining the student's ``state'' at
 a given moment.  The purpose of this project is to fill in the gap
-by determining exactly what strategy the tutor should use in a 
-particular situation.
+by determining exactly what strategy the tutor should use for a 
+particular student state.
 The task of finding an optimal help-giving strategy for a
 given student state is commonly known as ``Reinforcement Learning.''
 We use past student behavior in response to various help-giving
@@ -144,24 +118,15 @@ for each KC while that policy is being enforced.
 
 
 
-\section{Models of learning}
+\section{Our model of learning}
 
-A number of authors have used a logistic function, 
-$\mathrm{logit}(x)=1/\left(1+e^{-x}\right)$, to 
-model student learning of a KC.  In that case, we have a two-parameter
-model for the probability that the student gets step $j$ correct:
-%
-\begin{equation}
-               P_j^\mathrm{logit} = \mathrm{logit}\left(\beta (j-L)\right)
-\end{equation}
-%
-where $\beta$ is the learning rate and $L$ is 
-the the step where the probability of correctness has risen to 50\%.
-
-Alternatively, we can use a function that retains the 
+In previous work, we introduced a simple ``step model'' of learning
+and showed that it was competative with other common models
+of learning, when applied to individual student data~\cite{three models paper}.
+It is the simplest possible model that has learning at
+a definite time and also retains the 
 guess $P(G)$ and slip $P(S)$ rates of Corbett and 
-Anderson~\cite{corbett_knowledge_1994}.
-The simplest such model is a step-function:
+Anderson~\cite{corbett_knowledge_1994}.  It is defined as:
 %
 \begin{equation}
                P_j^\mathrm{step} = \left\{\begin{array}{cc}
@@ -255,11 +220,22 @@ with normalization $W$ such that $\sum_L w_L=1$.
 
 \section{Self-improved tutor system}
 
-\begin{figure}
+%
+%  The diagram was created by process.odg
+%  eps exporting in OpenOffice seems problems with 
+%  creating bounding boxes.  The following process worked:
+%  1.  in draw, select the entire diagram
+%  2.  in draw, export pdf, choosing 'selection' as source
+%      with file name process.pdf
+%  3.  pdf2ps process.pdf 
+%  4.  mv process.ps process.eps
+%  5.  rm process.pdf
+%
+\begin{figure*}
 \centering    \includegraphics{process.eps}
 \caption{Iterative process for improvement of help-giving policies in a
   tutor system.} \label{process}
-\end{figure}
+\end{figure*}
 
 
 
@@ -412,6 +388,49 @@ in order that the help policy for that transaction can be set.
 Thus the state can only depend correct/incorrect (or floundering) 
 information from previous transactions. 
 
+
+\section{Results}
+%
+% Need to define \Delta and L and student-KC sequence.
+%
+
+\begin{figure}
+   \centering\includegraphics{scatter-step.eps}
+   \caption{Scatter plot of moment of learning $(L_e,L_c)$ for each
+     KC, averaging over students.  If the experimental intervention cause
+     faster learning then $L_e<L_c$ and more points would lie to the 
+     left of the diagonal line.
+     The weighted average over all KCs of $L_e-L_c = -0.05\pm 0.04$ ($p=0.12$).
+     Although the value of $L$ varies widely as a function of KC, there
+     is no large change in L across experimental condition.
+   }\label{scatterstep}
+\end{figure}
+
+\begin{figure}
+   \centering\includegraphics{scatter-gain.eps}
+   \caption{Scatter plot of weighted gains $\left(\Delta_e,\Delta_c\right)$
+   for each KC, averaging over students.  If the experimental intervention
+   caused greater learning then, $\Delta_e > \Delta_c$ and more points
+   would lie to the right of the diagonal line.
+   Individual data points have large 
+   uncertainties (standard error of order 1).
+   The weighed average over all KCs of $\Delta_e - \Delta_c = 
+        0.008\pm 0.038$ ($p=0.41$).
+   Note that there are a number
+   of KCs with negative learning $\Delta<0$, probably due to 
+   assignment problems that ramp quickly in complexity. 
+   }\label{scattergain}
+\end{figure}
+
+\section{Conclusion}
+
+Introduced method for iterative improvement of help-giving policies using 
+{\em in situ} assessment.
+
+Completed one cycle of iterative process:  need larger sample size.
+
+Conjecture: inclusion of preemptive hints (hints before student attempts
+a step) may be crucial for Andes. 
 
 % Bibliography
 \bibliographystyle{acmlarge}
