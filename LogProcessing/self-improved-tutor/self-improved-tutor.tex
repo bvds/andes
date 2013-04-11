@@ -120,16 +120,22 @@ for each KC while that policy is being enforced.
 
 \section{Our model of learning}
 
+\begin{figure}
+\centering    \includegraphics{step-model.eps}
+  \caption{Functional form of the step model.}
+         \label{stepf}
+\end{figure}
+
 In previous work, we introduced a simple ``step model'' of learning
 and showed that it was competative with other common models
-of learning, when applied to individual student data~\cite{three models paper}.
-It is the simplest possible model that has learning at
-a definite time and also retains the 
-guess $P(G)$ and slip $P(S)$ rates of Corbett and 
+of learning, when applied to individual student 
+data~\cite{van_de_sande_applying_2013}.
+It is the simplest possible model where learning occurs at
+a definite time and the guess and slip rates of Corbett and 
 Anderson~\cite{corbett_knowledge_1994}.  It is defined as:
 %
 \begin{equation}
-               P_j^\mathrm{step} = \left\{\begin{array}{cc}
+               P_\mathrm{step}(J) = \left\{\begin{array}{cc}
                                        g,& j<L\\
 				       1-s,& j\ge L
                                     \end{array}\right. \label{step}
@@ -147,37 +153,14 @@ For a given $L$, we can define an average learning gain,
 %
 where $\left\langle \cdots \right\rangle_L$ denotes the
 expecation value.
-\begin{figure}
-\centering    \includegraphics{step.eps}
-\caption{The step model with $g=0.15$, $s=0.8$, and $L=4$.}
-         \label{stepf}
-\end{figure}
+
 %
 We can fit $P_j^\mathrm{step} $ to the student data using the
 Maximum Likelihood method.
 Let $c_i$ \& $w_i$ be the number of correct \& incorrect steps observed
 for steps $j<L$ and $c_f$ \& $w_f$ be the number of correct \& incorrect
-steps for steps $j\ge L$.  The associated log likelihood for a given $L$ is
-%
-\begin{equation}
-  \mathcal{L}_L  =  \log\left(B_{c_i,w_i}(g)\right) 
-                  + \log\left(B_{c_f,w_f}(1-s) \right)  \, ,
-		  \label{logLike}
-\end{equation}
-%
-where the guess rate $g$ and slip rate $s$ follow the binomial distribution,
-%
-\begin{equation}
-       B_{a,b}(x) = x^a (1-x)^b\; \frac{(x+b+1)!}{a!\, b!} 
-\end{equation}
-%
-with normalization
-%
-\begin{equation}
-      1=\int_0^1 B_{a,b}(x) \,\mathrm{d}x \; .
-\end{equation} 
-%
-The maximum-likelihood estimators (MLE) for $g$ and $s$ are
+steps for steps $j\ge L$.  
+Then the maximum-likelihood estimators (MLE) for $g$ and $s$ are
 %
 \begin{eqnarray}
   \hat{g} &=&  \frac{c_i}{c_i+w_i} \, ,\\

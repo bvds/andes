@@ -176,9 +176,11 @@ steps with $j\in\left\{1,\ldots,n\right\}$.
     \label{step-model}
 \end{figure}
 
-the ``step model'' assumes that learning 
-occurs all at once; this corresponds to the ``eureka learning''
-discussed by \cite{baker_detecting_2011}.  It is defined as:
+We need to compare the student log data to some sort of model
+of learning.  In another paper~\cite{van_de_sande_applying_2013},
+we introduced the ``step model'' and showed that it was 
+competitive with other popular models of learning when applied
+to individual student log data.  It is defined as:
 %
 \begin{equation}
     P_\mathrm{step}(j)= \left\{\begin{array}{cc}
@@ -192,9 +194,9 @@ $g$ is the ``guess rate,'' the probability that the student gets a
 step correct by accident, and $s$ is the ``slip rate,'' the chance
 that the student makes an error after learning the skill.  These are
 analogous to the guess and slip parameters of
-BKT~\cite{corbett_knowledge_1995}.  The associated gain in performance
-is $1-g-s$ and the error rate after learning is simply $s$ in this
-model.
+BKT~\cite{corbett_knowledge_1995}.  This model assumes that learning 
+occurs all at once, reminiscent of ``eureka learning''
+discussed by \cite{baker_detecting_2011}.
 
 \subsection{Method}
 
