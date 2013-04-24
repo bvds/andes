@@ -145,8 +145,10 @@ where $g$ is the guess rate, $s$ is the slip rate and
 $L$ is ``the moment of learning,'' the step where the student
 first shows mastery of the KC; see Figure~\ref{stepf}.
 %
-We can fit $P_j^\mathrm{step}$ to the student data using the
-Maximum Likelihood method.
+We can fit $P_\mathrm{step}(j)$ to the student data using the
+Maximum Likelihood method and determine maximum likelihood estmators
+for the model parameters.  While the values for $s$ and $g$ are 
+usually normally distributed, we 
 For a given $L$, we can define the performance gain,
 %
 \begin{equation}
@@ -158,21 +160,7 @@ where $\hat{g}$ and $\hat{s}$ are the
 Maximum Likelihood estimators for $g$ and $s$ given by submodel
 $P_{\mathrm{step},L}(j)$.
 
-Let $c_i$ \& $w_i$ be the number of correct \& incorrect steps observed
-for steps $j<L$ and $c_f$ \& $w_f$ be the number of correct \& incorrect
-steps for steps $j\ge L$.  
-Then the maximum-likelihood estimators (MLE) for $g$ and $s$ are
-%
-\begin{eqnarray}
-  \hat{g} &=&  \frac{c_i}{c_i+w_i} \, ,\\
-  \hat{s} &=&  \frac{w_f}{c_f+w_f} \,  .
-\end{eqnarray}
-%
-Similarly, one can find the maximum-likelihood estimator
-for $L$.  However, in some cases, $L$ is not normally
-distributed and has a large uncertainty.
-So, instead of using the MLE value of $L$ and some
-associated error, we will use a multimodel approach~\cite{burnham_model_2002}.
+e will use a multimodel approach~\cite{burnham_model_2002}.
 We will use a set of models of the form (\ref{step}), 
 one for each $L$. Each model has a relative probability given 
 by its Akaike weight,  
@@ -183,24 +171,6 @@ by its Akaike weight,
 %
 with normalization $W$ such that $\sum_L w_L=1$.
 
-%
-%  This is not really needed below (remove later)
-%
-%Finally, we may want to determine whether, in the context
-%of the step-function model (\ref{step}), learning has occurred.
-%We say that learning has occurred at $L$ if $g<1-s$.
-%Since the model is a fit to student data ($c_i$, $w_i$, $c_f$, $w_f$), 
-%we can, at best, determine the {\em probability} that learning has occurred. 
-%The probability that learning has occurred (for a given L) 
-%can be calculated by integrating the Likelihood (see Eqn.~(\ref{logLike})) 
-%over the possible slip and guess rates in the region $g+s<1$:
-%
-%\begin{equation}
-%   P(c_i, w_i, c_f, w_f)= \int_0^1 \int_0^{1-g} 
-%   B_{c_i,w_i}(g) \, B_{c_f,w_f}(1-s) \,\mathrm{d}g\,\mathrm{d}s
-%\end{equation}
-%%
-%This integral can be solved exactly by repeated integration by parts.
 
 \section{Self-improved tutor system}
 
