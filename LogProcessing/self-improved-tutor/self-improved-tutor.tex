@@ -132,10 +132,10 @@ of learning, when applied to individual student
 data~\cite{van_de_sande_applying_2013}.
 It is the simplest possible model where learning occurs at
 a definite time and the guess and slip rates of Corbett and 
-Anderson~\cite{corbett_knowledge_1994}.  It is defined as:
+Anderson~\cite{corbett_knowledge_1995}.  It is defined as:
 %
 \begin{equation}
-               P_\mathrm{step}(J) = \left\{\begin{array}{cc}
+               P_\mathrm{step}(j) = \left\{\begin{array}{cc}
                                        g,& j<L\\
 				       1-s,& j\ge L
                                     \end{array}\right. \label{step}
@@ -144,19 +144,20 @@ Anderson~\cite{corbett_knowledge_1994}.  It is defined as:
 where $g$ is the guess rate, $s$ is the slip rate and 
 $L$ is ``the moment of learning,'' the step where the student
 first shows mastery of the KC; see Figure~\ref{stepf}.
-For a given $L$, we can define an average learning gain,
+%
+We can fit $P_j^\mathrm{step}$ to the student data using the
+Maximum Likelihood method.
+For a given $L$, we can define the performance gain,
 %
 \begin{equation}
      % need actual formula here.
-         \Delta_L = 1- \left\langle g+s \right\rangle_L ,
+         \Delta_L = 1- g+s\; .
 \end{equation}
 %
-where $\left\langle \cdots \right\rangle_L$ denotes the
-expecation value.
+where $\hat{g}$ and $\hat{s}$ are the
+Maximum Likelihood estimators for $g$ and $s$ given by submodel
+$P_{\mathrm{step},L}(j)$.
 
-%
-We can fit $P_j^\mathrm{step} $ to the student data using the
-Maximum Likelihood method.
 Let $c_i$ \& $w_i$ be the number of correct \& incorrect steps observed
 for steps $j<L$ and $c_f$ \& $w_f$ be the number of correct \& incorrect
 steps for steps $j\ge L$.  
@@ -226,8 +227,8 @@ Section describing process.
 
 \section{Study 1}
 
-UW Platteville, 118 students, winter of 2012.  Tutor randomly chooses
-policy: 
+UW Platteville, 111 students, 132 hours of student data, winter of 2012.  
+Tutor randomly chooses policy: 
 \begin{enumerate} 
 \item After error, give unsolicited hint or not?
 \item Give normal hint sequence or give bottom-out hint first?  
@@ -275,7 +276,7 @@ corresponds to {\em minimizing} $Z$.
 The first term (\ref{before}) rewards policies applied directly before
 the moment of learning (or step $j=L$ for model $L$).  
 These are weighted by the 
-average learning gain $\Delta_L = 1-\left\langle g+s\right\rangle_L$ 
+average performance gain $\Delta_L = 1-\left\langle g+s\right\rangle_L$ 
 predicted by model $L$.
 Also, $n(j,L)$ is the number
 of incorrect steps $\mathcal{I}$ between $j$ and $L$, 
@@ -386,19 +387,20 @@ information from previous transactions.
 
 Improved help version of Andes with dynamic calculation of student state; find machine learned hinting policy for that state; give help based on policy.
 
-Run at St. Anselm College May-July 2012, 14 students, for entire
-two-semester course.  
-
+Run at St. Anselm College May-July 2012, 16 students, 387 total hours, 
+for entire two-semester course.  
 
 For each homework set, half of the students, chosen at random, were
 assigned to the experimental condition and half were assigned to
-the control condition.  Thus, the experimental design is a mixed factorial design.
+the control condition.  Thus, the experimental design is a mixed 
+factorial design.
 This means that individual students sometimes switched
 between the experimental and control conditions over the course of the
 semester.  Thus, for any student-KC sequence that spans multiple
 homework sets, the student may have learned the skill in either 
-condition.  Since the Akaike weights  give us the probability that learning occurred
-at step $j$, we then can find the probability the learning occurred
+condition.  Since the Akaike weights  give us the probability that 
+learning occurred at step $j$, we then can find the probability 
+the learning occurred
 during the experimental condition versus the control condition.
 
 
@@ -410,7 +412,7 @@ during the experimental condition versus the control condition.
 \begin{figure}
    \centering\includegraphics{scatter-step.eps}
    \caption{Scatter plot of moment of learning $(L_e,L_c)$ for each
-     KC, averaging over students.  If the experimental intervention cause
+     KC, averaging over students.  If the experimental intervention caused
      faster learning then $L_e<L_c$ and more points would lie to the 
      left of the diagonal line.
      The weighted average over all KCs of $L_e-L_c = -0.05\pm 0.04$ ($p=0.12$).
@@ -421,7 +423,7 @@ during the experimental condition versus the control condition.
 
 \begin{figure}
    \centering\includegraphics{scatter-gain.eps}
-   \caption{Scatter plot of weighted gains $\left(\Delta_e,\Delta_c\right)$
+   \caption{Scatter plot of performance gains $\left(\Delta_e,\Delta_c\right)$
    for each KC, averaging over students.  If the experimental intervention
    caused greater learning then, $\Delta_e > \Delta_c$ and more points
    would lie to the right of the diagonal line.
@@ -434,6 +436,9 @@ during the experimental condition versus the control condition.
    assignment problems that ramp quickly in complexity. 
    }\label{scattergain}
 \end{figure}
+
+We can also ask how much student improved in each experimental condition.
+Thus, for each condition, we calculate, for each KC, 
 
 \section{Conclusion}
 

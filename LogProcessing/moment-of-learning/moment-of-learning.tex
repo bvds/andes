@@ -1,4 +1,4 @@
-% It is an example file showing how to use the 'acm_proc_article-sp.cls' V3.2SP
+% It is an example file showing how use the 'acm_proc_article-sp.cls' V3.2SP
 % LaTeX2e document class file for Conference Proceedings submissions.
 \documentclass{edm_template}
 
@@ -234,7 +234,7 @@ Fig.~\ref{student-length-histogram} is the large number of
 student-KC sequences containing just a few steps.
 The presence of many student-KC sequences with just one or two
 steps may indicate that the default cognitive model associated 
-with this tutor system may be sub-optimal; to date, there has not 
+with this tutor system may be sub-optimal; there has not 
 been any attempt, to date, to improve on the cognitive model of 
 Andes with, say, Learning Factors Analysis~\cite{cen_learning_2006}.
 Another contributing factor is the way that introductory physics is 
@@ -327,18 +327,17 @@ will occur at $L=6$ but this would correspond to a {\it decrease} in student
 performance for that skill.  In many cases seen in our log data, 
 the change in student performance is almost zero.  In order to take 
 this into account,
-we propose using the Akaike weight $w_L$ times the associated learning
-gain $\Delta_L$ to characterize a step.  We define the learning gain
+we propose using the Akaike weight $w_L$ times the associated performance
+gain $\Delta_L$ to characterize a step.  We define the performance gain
 $\Delta_L=1-\hat{g}-\hat{s}$ where $\hat{g}$ and $\hat{s}$ are the
 Maximum Likelihood estimators for $g$ and $s$ given by submodel
 $P_{\mathrm{step},L}(j)$.  For the ``no learning'' case $L=1$, we set
 $\Delta_1=0$.  We will call $w_L \Delta_L$ the ``weighted gain''
 associated with $P_{\mathrm{step},L}(j)$.
-An calculation of $w_L \Delta_L$  for an example bit sequence is
+A calculation of $w_L \Delta_L$  for an example bit sequence is
 shown in Fig.~\ref{weighted-gain-example}.  Not surprisingly, 
 the largest gain occurs at $L=4$, corresponding to the first 1 in the
 bit sequence.  Note that the rest of the weighted gains are much smaller.
-
 
 \begin{figure}
   \centering \includegraphics{weighted-gain-histogram.eps}
@@ -349,7 +348,7 @@ bit sequence.  Note that the rest of the weighted gains are much smaller.
 
 A histogram of $w_L
 \Delta_L$ for student dataset $\mathcal{A}$ is shown in
-Fig.~\ref{weighted-gain-histogram}.  Note that the vast majority of
+Fig.~\ref{weighted-gain-histogram}.  We find that the vast majority of
 steps (29730) have almost zero weighted gain.  We also see that there
 is a significant number of steps with negative gain (988), but there
 are somewhat more steps with positive gain (1312) .
@@ -367,7 +366,7 @@ so noisy?  To see this, we generated an artificial ``ideal'' dataset
 $\mathcal{I}$ where there were no slips or guesses, but having
 the same length distribution as $\mathcal{A}$ 
 (Fig.~\ref{student-length-histogram}).  Thus, the bit sequences
-in $\mathcal{I}$ have the form $00\cdots011\cdots1$.
+in $\mathcal{I}$ all have the form $00\cdots011\cdots1$.
 In this case, for each student-KC sequence, we expect a single 
 large weighted gain (corresponding to the first 1 in the bit sequence) 
 and the remaining weighted gains to be nearly zero.  The resulting 
@@ -376,7 +375,7 @@ in  Fig.~\ref{weighted-gain-histogram2}.
 
 
 
-We propose to use the following average of the weighed gains as
+We propose to use the following average of the weighted gains as
 a ``quality index'' for determining how suitable a 
 dataset is for determining the point of learning for an individual
 student-KC sequence:
