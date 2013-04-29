@@ -12,7 +12,7 @@
 \begin{document}
 
 % Title portion
-\title{Self-improving tutor system}
+\title{Self-improving intelligent tutor system}
 \numberofauthors{1}
 \author{
 \alignauthor
@@ -36,12 +36,14 @@
 
 
 \begin{abstract}
-Both human and computer tutors constantly make decisions about
+Human tutors constantly make decisions about
 what kind of help they are going to give (or not give).  Ideally,
 they make these decisions based on some determination of how
 the student is progressing coupled with some knowledge of what kind
 of tutoring strategies have worked in similar situations in the past.
-Thus, we have implemented a method for iteratively improving 
+Computer tutors, in contrast, often have fixed policies for their
+tutoring strategies.   Can we do better?  To address this question, 
+we have implemented a method for iteratively improving 
 help-giving policies of a computer tutor for introductory physics.  
 We created a version of the tutor that randomly uses one of several 
 (reasonable) policies when helping students and deployed it in the
@@ -63,15 +65,17 @@ sophisticated forms of interaction.  Now days, one can find systems with
 free-form drawing interfaces [Andes], and interactive dialogs [cite Grasser,
 Cordillera, etc.].  Along with the more sophisticated interactions
 with the student, comes a larger, more complicated set of 
-decisions the ITS must make:
+decisions the ITS must make, for example:
 %
+\label{intro}
 \begin{itemize}
+
    \item Do I tell the student what to do next or remain silent?
 
    \item Do I give a hint or wait until the student asks?
 
-   \item Do I give a pointing hint or do I just tell the student 
-         what to do next?
+   \item Do I give a pointing hint or do I tell the student 
+         what to do next, explicitly?
 
    \item Did the student really learn how to do this or should
          I suggest more practice?
@@ -90,92 +94,28 @@ strategies may be effective and, broadly, when they might be effective.
 Likewise, theories of learning may help us identify what kinds of 
 features might be useful for determining the student's ``state'' at
 a given moment.  The purpose of this project is to fill in the gap
-by determining exactly what strategy the tutor should use for a 
+by determining exactly what help-giving strategy the tutor should use for a 
 particular student state.
 The task of finding an optimal help-giving strategy for a
-given student state is commonly known as ``Reinforcement Learning.''
+given student state is commonly known as 
+Reinforcement Learning~\cite{kaelbling_reinforcement_1996}.
 We use past student behavior in response to various help-giving
 actions on the part of the tutor to construct a reward function
 and use that reward function to determine an optimal hinting policy.
+We will use a direct policy search strategy for determining the optimal
+policy~\cite{rosenstein_robot_2001}.
 
 Since the agent must give hints in real time, the student state
 must contain features that are available in real time, so that
 the learned policy can be applied immediately.  In contrast,
 the reward function uses subsequent student actions and is only
 available after the fact.  Thus, there must be a two-phase process:
-an ``off-line'' learning phase to determine the optimal help-giving 
-policy and an ``online'' tutoring phase where the policy is applied.
+an {\em off-line learning phase'} to determine the optimal help-giving 
+policy and an {\em online tutoring phase'} where the policy is applied.
+This leads to an iterative process where one alternates between 
+the {\em off-line learning phase} and the {\em online tutoring phase}.
 
-
-
-% No action-value function...
-
-\section*{To do:}
-
-Experimental design:  two conditions: normal Andes and learned
-help policy.  For each homework, randomly Divide students into two 
-even groups.  Reward for experiment is number of incorrect turns
-for each KC while that policy is being enforced.
-
-
-
-\section{Our model of learning}
-
-\begin{figure}
-\centering    \includegraphics{step-model.eps}
-  \caption{Functional form of the step model.}
-         \label{stepf}
-\end{figure}
-
-In previous work, we introduced a simple ``step model'' of learning
-and showed that it was competative with other common models
-of learning, when applied to individual student 
-data~\cite{van_de_sande_applying_2013}.
-It is the simplest possible model where learning occurs at
-a definite time and the guess and slip rates of Corbett and 
-Anderson~\cite{corbett_knowledge_1995}.  It is defined as:
-%
-\begin{equation}
-               P_\mathrm{step}(j) = \left\{\begin{array}{cc}
-                                       g,& j<L\\
-				       1-s,& j\ge L
-                                    \end{array}\right. \label{step}
-\end{equation}
-%
-where $g$ is the guess rate, $s$ is the slip rate and 
-$L$ is ``the moment of learning,'' the step where the student
-first shows mastery of the KC; see Figure~\ref{stepf}.
-%
-We can fit $P_\mathrm{step}(j)$ to the student data using the
-Maximum Likelihood method and determine maximum likelihood estmators
-for the model parameters.  While the values for $s$ and $g$ are 
-usually normally distributed, we 
-For a given $L$, we can define the performance gain,
-%
-\begin{equation}
-     % need actual formula here.
-         \Delta_L = 1- g+s\; .
-\end{equation}
-%
-where $\hat{g}$ and $\hat{s}$ are the
-Maximum Likelihood estimators for $g$ and $s$ given by submodel
-$P_{\mathrm{step},L}(j)$.
-
-e will use a multimodel approach~\cite{burnham_model_2002}.
-We will use a set of models of the form (\ref{step}), 
-one for each $L$. Each model has a relative probability given 
-by its Akaike weight,  
-%
-\begin{equation}
-                   w_L = \frac{\mathrm{e}^{\mathcal{L}_L-2}}{W}\, ,
-\end{equation}
-%
-with normalization $W$ such that $\sum_L w_L=1$.
-
-
-\section{Self-improved tutor system}
-
-Section describing process.
+\section{Improvment Process}
 %
 %  The diagram was created by process.odg
 %  In CentOS, eps exporting in OpenOffice has problems with 
@@ -191,10 +131,108 @@ Section describing process.
 %
 \begin{figure*}
 \centering    \includegraphics{process.eps}
-\caption{Iterative process for improvement of help-giving policies in a
-  tutor system.  The steps corresponding to Study 1 are marked
+\caption{Iterative process for improvement of help-giving policies in
+  an intelligent  tutor system (ITS).  The steps corresponding to Study 1 are marked
   with an asterisk.} \label{process}
 \end{figure*}
+
+Let us describe this process in more detail; see Fig.~\ref{process}.  The first
+step is to identify a set of tutoring policies that can be varied,
+such as those listed in Section~\ref{intro}.  Since we have no {\em a priori}
+way of choosing what policy is optimal, we create a version of the ITS
+that randomly chooses between the possible help-giving policies for each student
+at every problem-solving step.  This random-help ITS is then deployed
+in the classroom.  As students use the ITS, we log the help-giving policies actually chosen, as well
+as all student activity.  The logs serve as input for the
+{\em off-line learning phase}.
+
+For the {\em off-line learning phas}e, the first step is to identify
+features that can be used to define the student state $\mathbf{x}_k$
+associated with transaction $k$.  A rather
+long list of candidate features was investigated
+by~\cite{chi_micro-level_2009}.  Also, Baker {\em et alii} proposed
+a set of 25 features~\citeyear{baker_more_2008} that were used as input 
+for an extension to the Bayesian Knowledge Tracing model;  these
+could just as well be used to define a student state.
+
+Also, one needs some model of student learning to determine when the
+student learned each skill.  Since learning itself is not directly
+obeservable quantity, any model can, at best, give a probability that
+the student learned a skill at a given step.  Examples of such models
+include \cite{van_de_sande_measuring_2013,baker_detecting_2010}.
+The strategy is to reward help policy choices that occur
+just prior to the student learning a skill.
+
+The final ingredient is to construct a general help-giving model $f(\mathbf{x}_k)$ that
+acts as a function on the student state $\mathbf{x}_k$  and returns a suggested policy.
+The parameters of the model are then optimized so that, for steps
+just prior to learning, the model policies match the log policies.
+We do this optimization by constructing an objective function $Z$ that
+depends on the probability the student has learned at each step, the
+student state at each step,  the tutor policy actually chosen at
+that step (from the log data), and the help-giving model.
+
+The resulting machine learned help-giving model $f(\mathbf{x}_k)$ is
+then integrated into the  ITS and deployed in the classroom, beginning
+the {\em online tutoring phase}.  This process is then repeated.
+
+
+\section{Our model of learning}
+
+\begin{figure}
+\centering    \includegraphics{step-model.eps}
+  \caption{Functional form of the step model.}
+         \label{stepf}
+\end{figure}
+
+In previous work, we introduced a simple ``step model'' of learning
+and showed that it was competative with other common models
+of learning, when applied to individual student 
+data~\cite{van_de_sande_applying_2013}.
+It is the simplest possible model where learning occurs at
+a definite time and contains the guess and slip rates of Corbett and 
+Anderson~\cite{corbett_knowledge_1995}.  It is defined as:
+%
+\begin{equation}
+               P_\mathrm{step}(j) = \left\{\begin{array}{cc}
+                                       g,& j<L\\
+				       1-s,& j\ge L
+                                    \end{array}\right. \label{step}
+\end{equation}
+%
+where $g$ is the guess rate, $s$ is the slip rate and 
+$L$ is ``the moment of learning,'' the step where the student
+first shows mastery of the KC; see Figure~\ref{stepf}.  The case $L=1$
+corresponds to no learning and $g$ is ignored.
+%
+We can fit $P_\mathrm{step}(j)$ to the student data using the
+Maximum Likelihood method and determine maximum likelihood estmators
+for the model parameters.  
+
+Since the maximum likelihood estimator for $L$ often has large
+uncertainties, it is useful to consider the model for each value of $L$
+to be a separate ``sub-model''  $P_{\mathrm{step},L}(j)$ with parameters
+$s$ and $g$.
+Thus, for a given $L$, we can define the performance gain,
+%
+\begin{equation}
+     % need actual formula here.
+         \Delta_L = 1- \hat{g}+\hat{s}\; .
+\end{equation}
+%
+where $\hat{g}$ and $\hat{s}$ are the
+Maximum Likelihood estimators for $g$ and $s$ given by submodel
+$P_{\mathrm{step},L}(j)$.
+This allows us to use a multimodel approach~\cite{burnham_model_2002}.
+Each sub-mode $P_{\mathrm{step},L}(j)$ has a relative probability given 
+by its Akaike weight,  
+%
+\begin{equation}
+                   w_L = \frac{\mathrm{e}^{\mathcal{L}_L-2}}{W}\, ,
+\end{equation}
+%
+with normalization $W$ such that $\sum_L w_L=1$.
+
 
 \section{Study 1}
 
@@ -358,8 +396,10 @@ information from previous transactions.
 
 Improved help version of Andes with dynamic calculation of student state; find machine learned hinting policy for that state; give help based on policy.
 
+
 Run at St. Anselm College May-July 2012, 16 students, 387 total hours, 
 for entire two-semester course.  
+
 
 For each homework set, half of the students, chosen at random, were
 assigned to the experimental condition and half were assigned to
@@ -375,15 +415,15 @@ the learning occurred
 during the experimental condition versus the control condition.
 
 
-\section{Results}
+\section{Study 2 Results}
 %
 % Need to define \Delta and L and student-KC sequence.
 %
 
 \begin{figure}
    \centering\includegraphics{scatter-step.eps}
-   \caption{Scatter plot of moment of learning $(L_e,L_c)$ for each
-     KC, averaging over students.  If the experimental intervention caused
+   \caption{Scatter plot of the moment of learning $(L_e,L_c)$ for each
+     KC, averaging over students.  If the experimental intervention causes
      faster learning then $L_e<L_c$ and more points would lie to the 
      left of the diagonal line.
      The weighted average over all KCs of $L_e-L_c = -0.05\pm 0.04$ ($p=0.12$).
@@ -396,10 +436,10 @@ during the experimental condition versus the control condition.
    \centering\includegraphics{scatter-gain.eps}
    \caption{Scatter plot of performance gains $\left(\Delta_e,\Delta_c\right)$
    for each KC, averaging over students.  If the experimental intervention
-   caused greater learning then, $\Delta_e > \Delta_c$ and more points
+   causes greater learning then, $\Delta_e > \Delta_c$ and more points
    would lie to the right of the diagonal line.
-   Individual data points have large 
-   uncertainties (standard error of order 1).
+ %  Individual data points have large 
+ %  uncertainties (standard error of order 1).
    The weighed average over all KCs of $\Delta_e - \Delta_c = 
         0.008\pm 0.038$ ($p=0.41$).
    Note that there are a number
