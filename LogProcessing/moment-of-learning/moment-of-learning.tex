@@ -212,8 +212,8 @@ We examined log data from 12 students taking an intensive introductory
 physics course at St.\ Anselm College during summer 2011.  The course
 covered the same content as a normal two-semester introductory course.
 Log data was recorded as students solved homework problems while using
-the Andes intelligent tutor homework system.  231 hours of log data
-were recorded.
+the Andes intelligent tutor homework system~\cite{vanlehn_andes_2005}.  
+231 hours of log data were recorded.
 %, covering 85,744 transactions, and 26,204 student steps.  
 Each step was assigned to one or more different KC's.  The dataset
 contains a total of 2017 distinct student-KC sequences covering a total of
@@ -269,8 +269,8 @@ Let us illustrate this technique with a simple example.  Suppose the
 bit sequence for a particular student-KC sequence is 00011011 (8
 opportunities); see Fig.~\ref{step-weights}.  We fit this bit sequence to 8
 sub-models of the step model, corresponding to $L\in\{1,2,\ldots,8\}$,
-by maximizing the log likelihood $\log\mathcal{L}$.  The associated
-AIC values are given by $\mathrm{AIC}_L=2 K-\log \mathcal{L}$ where
+by maximizing the log likelihood, $\log\mathcal{L}_L$.  The associated
+AIC values are given by $\mathrm{AIC}_L=2 K-\log \mathcal{L}_L$ where
 $K$ is the number of fit parameters.  Note that there are two
 parameters ($s$ and $g$) when $L>1$ and there is only one parameter
 ($s$) when $L=1$.
