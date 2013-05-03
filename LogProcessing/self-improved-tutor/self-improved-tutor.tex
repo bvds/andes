@@ -490,7 +490,7 @@ A total of 387 hours of log data were recorded.
 We used a mixed factorial experimental design.  For each homework assignment,
 students were randomly assigned to one of two conditions:  the control
 condition which used the default Andes help-giving policy and the
-experimental condition which used the machine-learned help policy.
+machine-learned-help condition which used the machine-learned help policy.
 This means that individual students switched
 between the experimental and control conditions over the course of the
 semester.  Thus, for any student-KC sequence that spans multiple
@@ -498,7 +498,7 @@ homework sets, the student may have learned the skill in either
 condition.  Since the Akaike weights  give us the probability that 
 learning occurred at step $j$, we then can find the probability 
 the learning occurred
-during the experimental condition versus the control condition.
+during the machined-learned-helpl condition versus the control condition.
 
 
 \section{Study 2 Results}
@@ -538,15 +538,22 @@ For our proposed method of continuous improvement to be sustainable in
 the long run, we believe that it is important that any evaluation of
 effectiveness be embedded in the tutor system
 itself~\cite{vanlehn_intelligent_2008}.  Thus, we will use the student
-log data to determine if the experimental condition produced faster
+log data to determine if the machine-learned-help condition produced faster
 learning or greater improvements than the control condition.
 
 For each experimental condition, we calculate, for each KC, the
 average number of opportunities that it took students to learn the
-skill.  $L_e$ is the moment of learning for the experimental condition
+skill.  $L_e$ is the moment of learning for the machine-learned-help condition
 and $L_c$ is the moment of learning for the control condition,
 according to the step model.
-
+%
+\begin{equation}
+L_\zeta = \frac{1}{N_\mbox{students}}\sum_{s \in \{\mbox{students}\}}
+\sum_L w_L L \theta_{\zeta,L}(s) \;, \;\;\; \zeta \in \{e,c\} \; ,
+\end{equation}
+where $N_\mbox{students}$ is the number of students and 
+$\theta_{\zeta,L}(s)$ is 1 if step $L$ is in the $\zeta$ experimental
+condition for student $s$, zero otherwise.
 
 effect 
 In this experiment, we si
