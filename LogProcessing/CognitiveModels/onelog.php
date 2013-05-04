@@ -656,8 +656,11 @@ if(false){
 // and experimental condition where MLE occurred.
 //
 if(true){
+  $conditions=array('control','mlh');
   // Header
-  echo "\"Section\",\"student\",\"KC\",\"mlhProb\",\"controlProb\",\"mlhGain\",\"controlGain\",\"mlhL\",\"controlL\"\n";
+  echo "\"Section\",\"student\",\"KC\",\"condition\"," . 
+    "\"prob\",\"gain\",\"gainSquared\",\"L\",\"LSquared\"\n";
+  // The other method.
   // echo "\"Section\",\"student\",\"KC\",\"gain\",\"L\",\"condition\"\n";
   foreach ($allKCStudent as $kc => $ss){
     // none:  entries where assigment of blame failed
@@ -666,24 +669,28 @@ if(true){
     foreach($ss as $thisSection => $st){
       foreach($st as $thisName => $opps){
 	$maxv=$model[$kc][$thisSection][$thisName];
-	$eProb=0; $eGain=0; $eL=0;
-	$cProb=0; $cGain=0; $cL=0;
-	for($k=1; $k<count($opps); $k++){
-	  // All transactions in an
-	  // opportunity must occur in the same problem.
-	  $thisProb=$opps[$k-1][0]['problem'];
-	  $thisWeight=$maxv['learnHereProb'][$k];
-	  if($expt->inExperiment($thisSection,$thisName,$thisProb)){
-	    $eProb+=$thisWeight;
-	    $eGain+=$maxv['learnGain'][$k]*$thisWeight;
-	    $eL+=$k*$thisWeight;  // should this be k or k-1?
-	  } else {
-	    $cProb+=$thisWeight;
-	    $cGain+=$maxv['learnGain'][$k]*$thisWeight;
-	    $cL+=$k*$thisWeight;  // should this be k or k-1?
+	foreach($conditions as $condition){
+	  $prob=0; $gain=0; $L=0;
+	  $gain2=0; $L2=0;
+	  for($k=1; $k<count($opps); $k++){
+	    // All transactions in an
+	    // opportunity must occur in the same problem.
+	    $thisProb=$opps[$k-1][0]['problem'];
+	    $thisWeight=$maxv['learnHereProb'][$k];
+	    // true when $condition matches inExperiment
+	    if($expt->inExperiment($thisSection,$thisName,$thisProb)
+	       xor $condition=='control'){
+	      $prob+=$thisWeight;
+	      $gain+=$thisWeight*$maxv['learnGain'][$k];
+	      $gain2+=$thisWeight*pow($maxv['learnGain'][$k],2);
+	      // Labelling steps as 0,1,2, ...
+	      $L+=$thisWeight*($k);
+	      $L2+=$thisWeight*pow($k,2); 
+	    }
 	  }
+	  echo "\"$thisSection\",\"$thisName\",\"$kc\",\"$condition\"," . 
+	    "$prob,$gain,$gain2,$L,$L2\n";
 	}
-	echo "\"$thisSection\",\"$thisName\",\"$kc\",$eProb,$cProb,$eGain,$cGain,$eL,$cL\n";
 	$learnGain=1-$maxv['pg']-$maxv['ps'];
 	$theStep=$maxv['learn'];
 	// need to verify this bit of code.
