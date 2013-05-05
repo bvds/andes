@@ -508,13 +508,13 @@ during the machined-learned-helpl condition versus the control condition.
 
 \begin{figure}
    \centering\includegraphics{scatter-step.eps}
-   \caption{Scatter plot of the moment of learning $(L_e,L_c)$ for each
+   \caption{Scatter plot of the moment of learning $(L_\mbox{control},L_\mbox{mlh})$ for each
      KC, averaging over students.  If the experimental intervention causes
-     faster learning then $L_e<L_c$ and more points would lie to the 
-     left of the diagonal line.
-     The weighted average over all KCs of $L_e-L_c = -0.05\pm 0.04$ ($p=0.12$).
+     faster learning then $L_\mbox{mlh}<L_\mbox{control}$ and more points would lie to the 
+     right of the diagonal line.
+     The weighted average over all KCs of $L_\mbox{mlh}-L_\mbox{control} = -0.05\pm 0.04$ ($p=0.12$).
      Although the value of $L$ varies widely as a function of KC, there
-     is no large change in L across experimental condition.
+     is no large change in $L$ across experimental condition.
    }\label{scatterstep}
 \end{figure}
 
@@ -541,9 +541,13 @@ itself~\cite{vanlehn_intelligent_2008}.  Thus, we will use the student
 log data to determine if the machine-learned-help condition produced faster
 learning or greater improvements than the control condition.
 
-For each experimental condition, we calculate, for each KC, the
-average number of opportunities that it took students to learn the
-skill.  $L_e$ is the moment of learning for the machine-learned-help condition
+
+For each experimental condition, we want to determine how quickly
+learning occurred and what the gain in student performance was.
+For the step model $P_\mathrm{step}(j)$, one can use the maximum
+likelihood values for the moment of learning $L$ and the
+performance gain $1-s-g$, respectively.  
+$L_e$ is the moment of learning for the machine-learned-help condition
 and $L_c$ is the moment of learning for the control condition,
 according to the step model.
 %

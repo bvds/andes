@@ -96,7 +96,7 @@ function maximum_likelihood_models($opps,$debugML=false){
     $allll[$step]=$ll;
     
     // Maximum likelihood estimator for the learning gain 1-g-s
-    $allGain[$step]=($ps && $pg)?1-$ps-$pg:0;
+    $allGain[$step]=($ps !== false && $pg !== false)?1-$ps-$pg:false;
 
     // Find maximum value.
     if($maxll===false || $ll>$maxll){
@@ -166,9 +166,8 @@ function maximum_likelihood_models($opps,$debugML=false){
   // random rate of correctness.
 
   //  get all fits where there is enough data to fit.
-  $maxv['valid']=(count($opps)>=3) || 
-    (($maxv['learn']>0) && ($maxv['ps']+$maxv['pg']<1));
-  // use the value from learn=0 
+  $maxv['valid']=(count($opps)>=3);
+  // Otherwise, use the value from learn=0 
   if(!$maxv['valid']){
     $maxv['learn']=0;
     $maxv['pg']=false;
