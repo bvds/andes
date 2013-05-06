@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       145,          7]
-NotebookDataLength[    263748,       6540]
-NotebookOptionsPosition[    251862,       6153]
-NotebookOutlinePosition[    252220,       6169]
-CellTagsIndexPosition[    252177,       6166]
+NotebookDataLength[    264443,       6552]
+NotebookOptionsPosition[    252445,       6160]
+NotebookOutlinePosition[    252819,       6177]
+CellTagsIndexPosition[    252776,       6174]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -75,27 +75,14 @@ Cell[CellGroupData[{
 Cell[BoxData[
  RowBox[{"SetDirectory", "[", 
   RowBox[{"NotebookDirectory", "[", "]"}], "]"}]], "Input",
+ InitializationCell->True,
  CellChangeTimes->{{3.544401989256278*^9, 3.544402015850553*^9}}],
 
-Cell[BoxData[
- RowBox[{
-  RowBox[{"SetDirectory", "::", "\<\"fstr\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"File specification \
-\\\\\\\"\\\", \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\(\\\"\\\"\\), \\\
-\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" is not a string of one \
-or more characters.\\\\\\\"\\\", \\\"MT\\\"]\\) \\!\\(\\*ButtonBox[\\\"\
-\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
-ButtonData:>\\\"paclet:ref/message/General/fstr\\\", ButtonNote -> \
-\\\"SetDirectory::fstr\\\"]\\)\"\>"}]], "Message", "MSG",
- CellChangeTimes->{{3.546269435391487*^9, 3.546269446908948*^9}, 
-   3.546373332563699*^9}],
-
-Cell[BoxData[
- RowBox[{"SetDirectory", "[", "\<\"\"\>", "]"}]], "Output",
+Cell[BoxData["\<\"/Users/bvds/andes/LogProcessing/CognitiveModels\"\>"], \
+"Output",
  CellChangeTimes->{{3.544401995187523*^9, 3.544402017517837*^9}, 
    3.544437739206048*^9, {3.546269435393851*^9, 3.546269446913255*^9}, 
-   3.546373332566557*^9}]
+   3.546373332566557*^9, 3.576292047845118*^9}]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -1011,12 +998,12 @@ Cell[BoxData[{
          RowBox[{"yy", "/.", 
           RowBox[{"zz", "[", 
            RowBox[{"[", "2", "]"}], "]"}]}]}], "}"}]}]}], "]"}]}], ";"}], 
-  "\n", 
+  "\[IndentingNewLine]", 
   RowBox[{"(*", " ", 
    RowBox[{
    "Add", " ", "up", " ", "the", " ", "contribution", " ", "from", " ", 
     "each", " ", "policy", " ", "to", " ", "the", " ", "reward", " ", 
-    "function"}], " ", "*)"}]}], "\[IndentingNewLine]", 
+    "function"}], " ", "*)"}]}], "\n", 
  RowBox[{
   RowBox[{"minP", "[", 
    RowBox[{"beta_", ",", "opts___"}], "]"}], ":=", 
@@ -1389,8 +1376,8 @@ Cell[BoxData[
              RectangleBox[{2, 0}, {
                Rational[5, 2], 1}]},
             
-            ImageSizeCache->{{20.75, 38.41304347826087}, {37.60474797126861, 
-             38.77276774084608}}]},
+            ImageSizeCache->{{17.5, 35.98913043478261}, {39.61892937667586, 
+             41.29964109881022}}]},
           StatusArea[#, 1]& ,
           TagBoxNote->"1"],
          StyleBox["1", {
@@ -1413,8 +1400,8 @@ Cell[BoxData[
              RectangleBox[{
                Rational[5, 2], 0}, {3, 28}]},
             
-            ImageSizeCache->{{37.91304347826087, 55.576086956521735`}, {
-             19.56821419267686, 38.77276774084608}}]},
+            ImageSizeCache->{{34.98913043478261, 53.478260869565204`}, {
+             21.239712879048177`, 41.29964109881022}}]},
           StatusArea[#, 28]& ,
           TagBoxNote->"28"],
          StyleBox["28", {
@@ -1437,8 +1424,9 @@ Cell[BoxData[
              RectangleBox[{3, 0}, {
                Rational[7, 2], 131}]},
             
-            ImageSizeCache->{{55.076086956521735`, 
-             72.7391304347826}, {-49.237822073802775`, 38.77276774084608}}]},
+            ImageSizeCache->{{52.478260869565204`, 
+             70.96739130434781}, {-48.873594500790766`, 41.29964109881022}}]},
+          
           StatusArea[#, 131]& ,
           TagBoxNote->"131"],
          StyleBox["131", {
@@ -1461,8 +1449,8 @@ Cell[BoxData[
              RectangleBox[{
                Rational[7, 2], 0}, {4, 44}]},
             
-            ImageSizeCache->{{72.2391304347826, 89.90217391304347}, {
-             8.879897879437305, 38.77276774084608}}]},
+            ImageSizeCache->{{69.96739130434781, 88.45652173913042}, {
+             10.348325324898436`, 41.29964109881022}}]},
           StatusArea[#, 44]& ,
           TagBoxNote->"44"],
          StyleBox["44", {
@@ -1485,8 +1473,8 @@ Cell[BoxData[
              RectangleBox[{4, 0}, {
                Rational[9, 2], 53}]},
             
-            ImageSizeCache->{{89.40217391304347, 107.06521739130434`}, {
-             2.867719953240055, 38.77276774084608}}]},
+            ImageSizeCache->{{87.45652173913042, 105.94565217391302`}, {
+             4.221919825689206, 41.29964109881022}}]},
           StatusArea[#, 53]& ,
           TagBoxNote->"53"],
          StyleBox["53", {
@@ -1509,8 +1497,8 @@ Cell[BoxData[
              RectangleBox[{
                Rational[9, 2], 0}, {5, 32}]},
             
-            ImageSizeCache->{{106.56521739130434`, 124.2282608695652}, {
-             16.89613511436697, 38.77276774084608}}]},
+            ImageSizeCache->{{104.94565217391302`, 123.43478260869564`}, {
+             18.51686599051074, 41.29964109881022}}]},
           StatusArea[#, 32]& ,
           TagBoxNote->"32"],
          StyleBox["32", {
@@ -1533,9 +1521,8 @@ Cell[BoxData[
              RectangleBox[{5, 0}, {
                Rational[11, 2], 111}]},
             
-            ImageSizeCache->{{123.7282608695652, 
-             141.39130434782606`}, {-35.87742668225333, 38.77276774084608}}]},
-          
+            ImageSizeCache->{{122.43478260869564`, 
+             140.92391304347825`}, {-35.2593600581036, 41.29964109881022}}]},
           StatusArea[#, 111]& ,
           TagBoxNote->"111"],
          StyleBox["111", {
@@ -1558,9 +1545,9 @@ Cell[BoxData[
              RectangleBox[{
                Rational[11, 2], 0}, {6, 98}]},
             
-            ImageSizeCache->{{140.89130434782606`, 
-             158.55434782608694`}, {-27.193169677746184`, 
-             38.77276774084608}}]},
+            ImageSizeCache->{{139.92391304347825`, 
+             158.41304347826082`}, {-26.41010767035693, 41.29964109881022}}]},
+          
           StatusArea[#, 98]& ,
           TagBoxNote->"98"],
          StyleBox["98", {
@@ -1583,8 +1570,8 @@ Cell[BoxData[
              RectangleBox[{6, 0}, {
                Rational[13, 2], 2}]},
             
-            ImageSizeCache->{{158.05434782608694`, 175.7173913043478}, {
-             36.93672820169113, 38.77276774084608}}]},
+            ImageSizeCache->{{157.41304347826082`, 175.90217391304344`}, {
+             38.9382176545415, 41.29964109881022}}]},
           StatusArea[#, 2]& ,
           TagBoxNote->"2"],
          StyleBox["2", {
@@ -2471,6 +2458,52 @@ Cell[BoxData[
  CellChangeTimes->{{3.544384380890074*^9, 3.544384416912131*^9}, {
   3.544918282600356*^9, 3.544918283589955*^9}, {3.546377150113332*^9, 
   3.546377150919527*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Transpose", "[", 
+  RowBox[{
+   RowBox[{"soln", "[", 
+    RowBox[{"1", "/", "12"}], "]"}], "[", 
+   RowBox[{"[", "2", "]"}], "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.5762923988028793`*^9, 3.576292410834964*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"2.538800860156868`", ",", "0.5619599468110025`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"2.2803328747460023`", ",", 
+     RowBox[{"-", "3.170146371240845`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"3.14590147370558`", ",", 
+     RowBox[{"-", "5.469995221644137`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0.018859458291908493`", ",", 
+     RowBox[{"-", "6.320867938876214`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "3.9811501134507585`"}], ",", 
+     RowBox[{"-", "4.291569798230821`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1.9844137181914405`", ",", 
+     RowBox[{"-", "2.9339618036379775`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1.5409915433978683`"}], ",", 
+     RowBox[{"-", "3.553157996114464`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.7212502973981954`"}], ",", "3.742046728947423`"}], "}"}],
+    ",", 
+   RowBox[{"{", 
+    RowBox[{"4.7746864538535405`", ",", "5.0077662607773235`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "1"}], "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{{3.576292399539332*^9, 3.5762924120218287`*^9}}]
+}, Open  ]],
 
 Cell[CellGroupData[{
 
@@ -3917,31 +3950,27 @@ Cell[BoxData[
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"FindMinimum", "::", "\<\"cvmit\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Failed to converge to the \
-requested accuracy or precision within \\\\\\\"\\\", \\\"MT\\\"]\\)\[NoBreak]\
-\\!\\(\\*StyleBox[\\!\\(100\\), \
-\\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" \
-iterations.\\\\\\\"\\\", \\\"MT\\\"]\\) \\!\\(\\*ButtonBox[\\\"\
-\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
-ButtonData:>\\\"paclet:ref/message/FindMinimum/cvmit\\\", ButtonNote -> \
-\\\"FindMinimum::cvmit\\\"]\\)\"\>"}]], "Message", "MSG",
+  RowBox[{"FindMinimum", "::", "\<\"cvmit\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Failed to converge to the requested \
+accuracy or precision within \\\\\\\"\\\", \
+\\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\(100\\), \\\"MT\\\"]\\)\
+\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" iterations.\\\\\\\"\\\", \\\"MT\\\"]\
+\\) \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
+ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/FindMinimum/cvmit\\\", \
+ButtonNote -> \\\"FindMinimum::cvmit\\\"]\\)\"\>"}]], "Message", "MSG",
  CellChangeTimes->{3.544309161869667*^9, 3.544313370246946*^9, 
   3.544442511717819*^9, 3.544470205474635*^9}],
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"FindMinimum", "::", "\<\"cvmit\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Failed to converge to the \
-requested accuracy or precision within \\\\\\\"\\\", \\\"MT\\\"]\\)\[NoBreak]\
-\\!\\(\\*StyleBox[\\!\\(100\\), \
-\\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" \
-iterations.\\\\\\\"\\\", \\\"MT\\\"]\\) \\!\\(\\*ButtonBox[\\\"\
-\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
-ButtonData:>\\\"paclet:ref/message/FindMinimum/cvmit\\\", ButtonNote -> \
-\\\"FindMinimum::cvmit\\\"]\\)\"\>"}]], "Message", "MSG",
+  RowBox[{"FindMinimum", "::", "\<\"cvmit\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Failed to converge to the requested \
+accuracy or precision within \\\\\\\"\\\", \
+\\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\(100\\), \\\"MT\\\"]\\)\
+\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" iterations.\\\\\\\"\\\", \\\"MT\\\"]\
+\\) \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
+ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/FindMinimum/cvmit\\\", \
+ButtonNote -> \\\"FindMinimum::cvmit\\\"]\\)\"\>"}]], "Message", "MSG",
  CellChangeTimes->{3.544309161869667*^9, 3.544313370246946*^9, 
   3.544442511717819*^9, 3.544470205946004*^9}],
 
@@ -4031,10 +4060,9 @@ Cell[BoxData[
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"FindMinimum", "::", "\<\"lsbrak\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Unable to bracket a minimum \
-along the direction \\\\\\\"\\\", \
+  RowBox[{"FindMinimum", "::", "\<\"lsbrak\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Unable to bracket a minimum along \
+the direction \\\\\\\"\\\", \
 \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\({0, 0.12550865415375473`, 0, \
 0, 0, 0, 0, 0, 0, 0}\\), \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\
 \" from the point \\\\\\\"\\\", \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\
@@ -4051,10 +4079,9 @@ ButtonData:>\\\"paclet:ref/FindMinimum\\\", ButtonNote -> \
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"FindMinimum", "::", "\<\"lsbrak\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Unable to bracket a minimum \
-along the direction \\\\\\\"\\\", \
+  RowBox[{"FindMinimum", "::", "\<\"lsbrak\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Unable to bracket a minimum along \
+the direction \\\\\\\"\\\", \
 \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\({0, 0.0583414738710753`, 0, \
 0, 0, 0, 0, 0, 0, 0}\\), \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\
 \" from the point \\\\\\\"\\\", \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\
@@ -4157,12 +4184,11 @@ Cell[BoxData[
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"FindMinimum", "::", "\<\"lstol\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"The line search decreased \
-the step size to within tolerance specified by AccuracyGoal and PrecisionGoal \
-but was unable to find a sufficient decrease in the function.  You may need \
-more than \\\\\\\"\\\", \
+  RowBox[{"FindMinimum", "::", "\<\"lstol\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"The line search decreased the step \
+size to within tolerance specified by AccuracyGoal and PrecisionGoal but was \
+unable to find a sufficient decrease in the function.  You may need more than \
+\\\\\\\"\\\", \
 \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\(MachinePrecision\\), \\\"MT\\\
 \"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" digits of working precision to \
 meet these tolerances.\\\\\\\"\\\", \\\"MT\\\"]\\) \\!\\(\\*ButtonBox[\\\"\
@@ -4260,12 +4286,11 @@ Cell[BoxData[
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"FindMinimum", "::", "\<\"lstol\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"The line search decreased \
-the step size to within tolerance specified by AccuracyGoal and PrecisionGoal \
-but was unable to find a sufficient decrease in the function.  You may need \
-more than \\\\\\\"\\\", \
+  RowBox[{"FindMinimum", "::", "\<\"lstol\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"The line search decreased the step \
+size to within tolerance specified by AccuracyGoal and PrecisionGoal but was \
+unable to find a sufficient decrease in the function.  You may need more than \
+\\\\\\\"\\\", \
 \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\(MachinePrecision\\), \\\"MT\\\
 \"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" digits of working precision to \
 meet these tolerances.\\\\\\\"\\\", \\\"MT\\\"]\\) \\!\\(\\*ButtonBox[\\\"\
@@ -4277,16 +4302,14 @@ ButtonData:>\\\"paclet:ref/message/FindMinimum/lstol\\\", ButtonNote -> \
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"FindMinimum", "::", "\<\"cvmit\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Failed to converge to the \
-requested accuracy or precision within \\\\\\\"\\\", \\\"MT\\\"]\\)\[NoBreak]\
-\\!\\(\\*StyleBox[\\!\\(100\\), \
-\\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" \
-iterations.\\\\\\\"\\\", \\\"MT\\\"]\\) \\!\\(\\*ButtonBox[\\\"\
-\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
-ButtonData:>\\\"paclet:ref/message/FindMinimum/cvmit\\\", ButtonNote -> \
-\\\"FindMinimum::cvmit\\\"]\\)\"\>"}]], "Message", "MSG",
+  RowBox[{"FindMinimum", "::", "\<\"cvmit\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Failed to converge to the requested \
+accuracy or precision within \\\\\\\"\\\", \
+\\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\(100\\), \\\"MT\\\"]\\)\
+\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" iterations.\\\\\\\"\\\", \\\"MT\\\"]\
+\\) \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
+ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/FindMinimum/cvmit\\\", \
+ButtonNote -> \\\"FindMinimum::cvmit\\\"]\\)\"\>"}]], "Message", "MSG",
  CellChangeTimes->{3.544309178928197*^9, 3.544313400950732*^9, 
   3.544470277711292*^9}],
 
@@ -4714,10 +4737,9 @@ Cell[BoxData[
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"FindMinimum", "::", "\<\"fmgz\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Encountered a gradient that \
-is effectively zero. The result returned may not be a minimum; it may be a \
+  RowBox[{"FindMinimum", "::", "\<\"fmgz\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Encountered a gradient that is \
+effectively zero. The result returned may not be a minimum; it may be a \
 maximum or a saddle point.\\\\\\\"\\\", \\\"MT\\\"]\\) \
 \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
 ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/FindMinimum/fmgz\\\", \
@@ -4727,10 +4749,9 @@ ButtonNote -> \\\"FindMinimum::fmgz\\\"]\\)\"\>"}]], "Message", "MSG",
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"FindMinimum", "::", "\<\"fmgz\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Encountered a gradient that \
-is effectively zero. The result returned may not be a minimum; it may be a \
+  RowBox[{"FindMinimum", "::", "\<\"fmgz\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Encountered a gradient that is \
+effectively zero. The result returned may not be a minimum; it may be a \
 maximum or a saddle point.\\\\\\\"\\\", \\\"MT\\\"]\\) \
 \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
 ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/FindMinimum/fmgz\\\", \
@@ -4740,10 +4761,9 @@ ButtonNote -> \\\"FindMinimum::fmgz\\\"]\\)\"\>"}]], "Message", "MSG",
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"FindMinimum", "::", "\<\"fmgz\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Encountered a gradient that \
-is effectively zero. The result returned may not be a minimum; it may be a \
+  RowBox[{"FindMinimum", "::", "\<\"fmgz\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Encountered a gradient that is \
+effectively zero. The result returned may not be a minimum; it may be a \
 maximum or a saddle point.\\\\\\\"\\\", \\\"MT\\\"]\\) \
 \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
 ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/FindMinimum/fmgz\\\", \
@@ -4753,12 +4773,11 @@ ButtonNote -> \\\"FindMinimum::fmgz\\\"]\\)\"\>"}]], "Message", "MSG",
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"General", "::", "\<\"stop\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Further output of \\\\\\\"\\\
-\", \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\(FindMinimum :: \\\"fmgz\\\
-\"\\), \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" will be \
-suppressed during this calculation.\\\\\\\"\\\", \\\"MT\\\"]\\) \
+  RowBox[{"General", "::", "\<\"stop\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Further output of \\\\\\\"\\\", \
+\\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\(FindMinimum :: \
+\\\"fmgz\\\"\\), \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" will \
+be suppressed during this calculation.\\\\\\\"\\\", \\\"MT\\\"]\\) \
 \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
 ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/General/stop\\\", \
 ButtonNote -> \\\"General::stop\\\"]\\)\"\>"}]], "Message", "MSG",
@@ -4830,10 +4849,9 @@ Cell[BoxData[
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"FindMinimum", "::", "\<\"lsbrak\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Unable to bracket a minimum \
-along the direction \\\\\\\"\\\", \
+  RowBox[{"FindMinimum", "::", "\<\"lsbrak\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Unable to bracket a minimum along \
+the direction \\\\\\\"\\\", \
 \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\({0.1572711413405215`, 0, 0, \
 0, 0, 0, 0, 0, 0}\\), \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" \
 from the point \\\\\\\"\\\", \
@@ -4850,10 +4868,9 @@ ButtonFrame->None, ButtonData:>\\\"paclet:ref/FindMinimum\\\", ButtonNote -> \
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"FindMinimum", "::", "\<\"lsbrak\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Unable to bracket a minimum \
-along the direction \\\\\\\"\\\", \
+  RowBox[{"FindMinimum", "::", "\<\"lsbrak\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Unable to bracket a minimum along \
+the direction \\\\\\\"\\\", \
 \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\({0.11703350667909285`, 0, 0, \
 0, 0, 0, 0, 0, 0}\\), \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" \
 from the point \\\\\\\"\\\", \
@@ -4871,10 +4888,9 @@ ButtonData:>\\\"paclet:ref/FindMinimum\\\", ButtonNote -> \
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"FindMinimum", "::", "\<\"lsbrak\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Unable to bracket a minimum \
-along the direction \\\\\\\"\\\", \
+  RowBox[{"FindMinimum", "::", "\<\"lsbrak\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Unable to bracket a minimum along \
+the direction \\\\\\\"\\\", \
 \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\({0, 0.2045421323828221`, 0, \
 0, 0, 0, 0, 0, 0}\\), \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" \
 from the point \\\\\\\"\\\", \
@@ -4892,11 +4908,10 @@ ButtonData:>\\\"paclet:ref/FindMinimum\\\", ButtonNote -> \
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"General", "::", "\<\"stop\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Further output of \\\\\\\"\\\
-\", \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\(FindMinimum :: \\\"lsbrak\
-\\\"\\), \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" will be \
+  RowBox[{"General", "::", "\<\"stop\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Further output of \\\\\\\"\\\", \
+\\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\(FindMinimum :: \\\"lsbrak\\\"\
+\\), \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" will be \
 suppressed during this calculation.\\\\\\\"\\\", \\\"MT\\\"]\\) \
 \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
 ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/General/stop\\\", \
@@ -4968,10 +4983,9 @@ Cell[BoxData[
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"FindMinimum", "::", "\<\"fmgz\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Encountered a gradient that \
-is effectively zero. The result returned may not be a minimum; it may be a \
+  RowBox[{"FindMinimum", "::", "\<\"fmgz\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Encountered a gradient that is \
+effectively zero. The result returned may not be a minimum; it may be a \
 maximum or a saddle point.\\\\\\\"\\\", \\\"MT\\\"]\\) \
 \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
 ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/FindMinimum/fmgz\\\", \
@@ -4981,10 +4995,9 @@ ButtonNote -> \\\"FindMinimum::fmgz\\\"]\\)\"\>"}]], "Message", "MSG",
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"FindMinimum", "::", "\<\"fmgz\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Encountered a gradient that \
-is effectively zero. The result returned may not be a minimum; it may be a \
+  RowBox[{"FindMinimum", "::", "\<\"fmgz\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Encountered a gradient that is \
+effectively zero. The result returned may not be a minimum; it may be a \
 maximum or a saddle point.\\\\\\\"\\\", \\\"MT\\\"]\\) \
 \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
 ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/FindMinimum/fmgz\\\", \
@@ -4994,10 +5007,9 @@ ButtonNote -> \\\"FindMinimum::fmgz\\\"]\\)\"\>"}]], "Message", "MSG",
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"FindMinimum", "::", "\<\"fmgz\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Encountered a gradient that \
-is effectively zero. The result returned may not be a minimum; it may be a \
+  RowBox[{"FindMinimum", "::", "\<\"fmgz\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Encountered a gradient that is \
+effectively zero. The result returned may not be a minimum; it may be a \
 maximum or a saddle point.\\\\\\\"\\\", \\\"MT\\\"]\\) \
 \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
 ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/FindMinimum/fmgz\\\", \
@@ -5007,12 +5019,11 @@ ButtonNote -> \\\"FindMinimum::fmgz\\\"]\\)\"\>"}]], "Message", "MSG",
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"General", "::", "\<\"stop\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Further output of \\\\\\\"\\\
-\", \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\(FindMinimum :: \\\"fmgz\\\
-\"\\), \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" will be \
-suppressed during this calculation.\\\\\\\"\\\", \\\"MT\\\"]\\) \
+  RowBox[{"General", "::", "\<\"stop\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Further output of \\\\\\\"\\\", \
+\\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\(FindMinimum :: \
+\\\"fmgz\\\"\\), \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" will \
+be suppressed during this calculation.\\\\\\\"\\\", \\\"MT\\\"]\\) \
 \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
 ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/General/stop\\\", \
 ButtonNote -> \\\"General::stop\\\"]\\)\"\>"}]], "Message", "MSG",
@@ -5082,10 +5093,9 @@ Cell[BoxData[
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"FindMinimum", "::", "\<\"fmgz\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Encountered a gradient that \
-is effectively zero. The result returned may not be a minimum; it may be a \
+  RowBox[{"FindMinimum", "::", "\<\"fmgz\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Encountered a gradient that is \
+effectively zero. The result returned may not be a minimum; it may be a \
 maximum or a saddle point.\\\\\\\"\\\", \\\"MT\\\"]\\) \
 \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
 ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/FindMinimum/fmgz\\\", \
@@ -5095,10 +5105,9 @@ ButtonNote -> \\\"FindMinimum::fmgz\\\"]\\)\"\>"}]], "Message", "MSG",
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"FindMinimum", "::", "\<\"fmgz\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Encountered a gradient that \
-is effectively zero. The result returned may not be a minimum; it may be a \
+  RowBox[{"FindMinimum", "::", "\<\"fmgz\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Encountered a gradient that is \
+effectively zero. The result returned may not be a minimum; it may be a \
 maximum or a saddle point.\\\\\\\"\\\", \\\"MT\\\"]\\) \
 \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
 ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/FindMinimum/fmgz\\\", \
@@ -5108,10 +5117,9 @@ ButtonNote -> \\\"FindMinimum::fmgz\\\"]\\)\"\>"}]], "Message", "MSG",
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"FindMinimum", "::", "\<\"fmgz\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Encountered a gradient that \
-is effectively zero. The result returned may not be a minimum; it may be a \
+  RowBox[{"FindMinimum", "::", "\<\"fmgz\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Encountered a gradient that is \
+effectively zero. The result returned may not be a minimum; it may be a \
 maximum or a saddle point.\\\\\\\"\\\", \\\"MT\\\"]\\) \
 \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
 ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/FindMinimum/fmgz\\\", \
@@ -5121,12 +5129,11 @@ ButtonNote -> \\\"FindMinimum::fmgz\\\"]\\)\"\>"}]], "Message", "MSG",
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"General", "::", "\<\"stop\"\>"}], 
-  RowBox[{
-  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Further output of \\\\\\\"\\\
-\", \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\(FindMinimum :: \\\"fmgz\\\
-\"\\), \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" will be \
-suppressed during this calculation.\\\\\\\"\\\", \\\"MT\\\"]\\) \
+  RowBox[{"General", "::", "\<\"stop\"\>"}], ":", 
+  " ", "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Further output of \\\\\\\"\\\", \
+\\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\(FindMinimum :: \
+\\\"fmgz\\\"\\), \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" will \
+be suppressed during this calculation.\\\\\\\"\\\", \\\"MT\\\"]\\) \
 \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
 ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/General/stop\\\", \
 ButtonNote -> \\\"General::stop\\\"]\\)\"\>"}]], "Message", "MSG",
@@ -6154,7 +6161,8 @@ Cell[BoxData[
 WindowSize->{850, 659},
 WindowMargins->{{39, Automatic}, {Automatic, 56}},
 ShowSelection->True,
-FrontEndVersion->"7.0 for Linux x86 (32-bit) (November 10, 2008)",
+FrontEndVersion->"8.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (July 22, \
+2012)",
 StyleDefinitions->"Default.nb"
 ]
 (* End of Notebook Content *)
@@ -6168,378 +6176,382 @@ CellTagsIndex->{}
 *)
 (*NotebookFileOutline
 Notebook[{
-Cell[545, 20, 751, 13, 91, "Text"],
-Cell[1299, 35, 558, 9, 51, "Text"],
-Cell[1860, 46, 529, 8, 91, "Text"],
-Cell[2392, 56, 947, 14, 131, "Text"],
+Cell[545, 20, 751, 13, 71, "Text"],
+Cell[1299, 35, 558, 9, 41, "Text"],
+Cell[1860, 46, 529, 8, 56, "Text"],
+Cell[2392, 56, 947, 14, 86, "Text"],
 Cell[CellGroupData[{
-Cell[3364, 74, 170, 3, 32, "Input"],
-Cell[3537, 79, 674, 12, 24, "Message"],
-Cell[4214, 93, 237, 4, 31, "Output"]
+Cell[3364, 74, 197, 4, 27, "Input",
+ InitializationCell->True],
+Cell[3564, 80, 270, 4, 27, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[4488, 102, 27, 0, 39, "Subsection"],
+Cell[3871, 89, 27, 0, 34, "Subsection"],
 Cell[CellGroupData[{
-Cell[4540, 106, 216, 5, 32, "Input"],
-Cell[4759, 113, 982, 16, 31, "Output"]
+Cell[3923, 93, 216, 5, 27, "Input"],
+Cell[4142, 100, 982, 16, 27, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[5778, 134, 147, 3, 32, "Input"],
-Cell[5928, 139, 1203, 20, 52, "Output"]
+Cell[5161, 121, 147, 3, 27, "Input"],
+Cell[5311, 126, 1203, 20, 43, "Output"]
 }, Open  ]],
-Cell[7146, 162, 335, 8, 32, "Input"],
-Cell[7484, 172, 49, 0, 31, "Text"],
+Cell[6529, 149, 335, 8, 27, "Input"],
+Cell[6867, 159, 49, 0, 26, "Text"],
 Cell[CellGroupData[{
-Cell[7558, 176, 600, 18, 55, "Input"],
-Cell[8161, 196, 936, 14, 31, "Output"]
+Cell[6941, 163, 600, 18, 43, "Input"],
+Cell[7544, 183, 936, 14, 27, "Output"]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[9146, 216, 28, 0, 39, "Subsection"],
+Cell[8529, 203, 28, 0, 34, "Subsection"],
 Cell[CellGroupData[{
-Cell[9199, 220, 325, 7, 32, "Input"],
-Cell[9527, 229, 401, 8, 31, "Output"]
+Cell[8582, 207, 325, 7, 27, "Input"],
+Cell[8910, 216, 401, 8, 27, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[9965, 242, 229, 5, 32, "Input"],
-Cell[10197, 249, 1009, 16, 31, "Output"]
+Cell[9348, 229, 229, 5, 27, "Input"],
+Cell[9580, 236, 1009, 16, 27, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[11243, 270, 342, 7, 32, "Input"],
-Cell[11588, 279, 257, 5, 31, "Output"]
+Cell[10626, 257, 342, 7, 27, "Input"],
+Cell[10971, 266, 257, 5, 27, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[11882, 289, 272, 6, 32, "Input"],
-Cell[12157, 297, 417, 7, 31, "Output"]
+Cell[11265, 276, 272, 6, 27, "Input"],
+Cell[11540, 284, 417, 7, 27, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[12611, 309, 319, 7, 32, "Input"],
-Cell[12933, 318, 257, 5, 31, "Output"]
+Cell[11994, 296, 319, 7, 27, "Input"],
+Cell[12316, 305, 257, 5, 27, "Output"]
 }, Open  ]],
-Cell[13205, 326, 201, 3, 33, "Text"],
-Cell[13409, 331, 842, 22, 77, "Input"],
+Cell[12588, 313, 201, 3, 28, "Text"],
+Cell[12792, 318, 842, 22, 58, "Input"],
 Cell[CellGroupData[{
-Cell[14276, 357, 82, 2, 32, "Input"],
-Cell[14361, 361, 1384, 22, 52, "Output"]
+Cell[13659, 344, 82, 2, 27, "Input"],
+Cell[13744, 348, 1384, 22, 43, "Output"]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[15794, 389, 159, 2, 39, "Subsection"],
-Cell[15956, 393, 430, 12, 32, "Input"],
+Cell[15177, 376, 159, 2, 34, "Subsection"],
+Cell[15339, 380, 430, 12, 27, "Input"],
 Cell[CellGroupData[{
-Cell[16411, 409, 519, 15, 55, "Input"],
-Cell[16933, 426, 5096, 120, 173, "Output"]
+Cell[15794, 396, 519, 15, 27, "Input"],
+Cell[16316, 413, 5096, 120, 173, "Output"]
 }, Open  ]],
-Cell[22044, 549, 132, 3, 31, "Text"],
+Cell[21427, 536, 132, 3, 26, "Text"],
 Cell[CellGroupData[{
-Cell[22201, 556, 625, 19, 32, "Input"],
-Cell[22829, 577, 1928, 54, 72, "Output"]
+Cell[21584, 543, 625, 19, 27, "Input"],
+Cell[22212, 564, 1928, 54, 58, "Output"]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[24806, 637, 203, 3, 39, "Subsection"],
-Cell[25012, 642, 500, 8, 51, "Text"],
-Cell[25515, 652, 3342, 82, 231, "Input"],
-Cell[28860, 736, 2374, 63, 121, "Input"],
-Cell[31237, 801, 258, 5, 31, "Text"],
-Cell[31498, 808, 4206, 90, 165, "Input"],
-Cell[35707, 900, 6640, 162, 451, "Input"],
-Cell[42350, 1064, 328, 6, 51, "Text"],
-Cell[42681, 1072, 4512, 118, 209, "Input"]
+Cell[24189, 624, 203, 3, 34, "Subsection"],
+Cell[24395, 629, 500, 8, 41, "Text"],
+Cell[24898, 639, 3342, 82, 148, "Input"],
+Cell[28243, 723, 2374, 63, 88, "Input"],
+Cell[30620, 788, 258, 5, 26, "Text"],
+Cell[30881, 795, 4206, 90, 103, "Input"],
+Cell[35090, 887, 6640, 162, 268, "Input"],
+Cell[41733, 1051, 328, 6, 41, "Text"],
+Cell[42064, 1059, 4512, 118, 133, "Input"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[47230, 1195, 46, 0, 39, "Subsection"],
+Cell[46613, 1182, 46, 0, 34, "Subsection"],
 Cell[CellGroupData[{
-Cell[47301, 1199, 366, 10, 32, "Input"],
-Cell[47670, 1211, 264, 7, 31, "Output"]
+Cell[46684, 1186, 366, 10, 27, "Input"],
+Cell[47053, 1198, 264, 7, 27, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[47971, 1223, 1033, 23, 165, "Input"],
-Cell[49007, 1248, 116, 3, 31, "Output"]
+Cell[47354, 1210, 1033, 23, 103, "Input"],
+Cell[48390, 1235, 116, 3, 27, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[49160, 1256, 178, 6, 32, "Input"],
-Cell[49341, 1264, 115, 3, 31, "Output"]
+Cell[48543, 1243, 178, 6, 27, "Input"],
+Cell[48724, 1251, 115, 3, 27, "Output"]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[49505, 1273, 94, 1, 39, "Subsection"],
-Cell[49602, 1276, 107, 1, 31, "Text"],
+Cell[48888, 1260, 94, 1, 34, "Subsection"],
+Cell[48985, 1263, 107, 1, 26, "Text"],
 Cell[CellGroupData[{
-Cell[49734, 1281, 892, 19, 32, "Input"],
-Cell[50629, 1302, 2079, 29, 31, "Output"]
+Cell[49117, 1268, 892, 19, 27, "Input"],
+Cell[50012, 1289, 2079, 29, 27, "Output"]
 }, Open  ]],
-Cell[52723, 1334, 1222, 27, 55, "Input"],
+Cell[52106, 1321, 1222, 27, 27, "Input"],
 Cell[CellGroupData[{
-Cell[53970, 1365, 191, 5, 32, "Input"],
-Cell[54164, 1372, 8268, 234, 136, "Output"]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[62469, 1611, 966, 23, 55, "Input"],
-Cell[63438, 1636, 228, 4, 31, "Output"]
+Cell[53353, 1352, 191, 5, 27, "Input"],
+Cell[53547, 1359, 8272, 234, 133, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[63703, 1645, 1592, 26, 32, "Input"],
-Cell[65298, 1673, 1326, 29, 104, "Output"]
+Cell[61856, 1598, 966, 23, 27, "Input"],
+Cell[62825, 1623, 228, 4, 27, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[66661, 1707, 1709, 28, 32, "Input"],
-Cell[68373, 1737, 1478, 31, 92, "Output"]
+Cell[63090, 1632, 1592, 26, 27, "Input"],
+Cell[64685, 1660, 1326, 29, 93, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[69888, 1773, 364, 6, 32, "Input"],
-Cell[70255, 1781, 1741, 57, 97, "Output"]
+Cell[66048, 1694, 1709, 28, 27, "Input"],
+Cell[67760, 1724, 1478, 31, 58, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[72033, 1843, 181, 4, 32, "Input"],
-Cell[72217, 1849, 1398, 44, 80, "Output"]
+Cell[69275, 1760, 364, 6, 27, "Input"],
+Cell[69642, 1768, 1741, 57, 93, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[71420, 1830, 181, 4, 27, "Input"],
+Cell[71604, 1836, 1398, 44, 77, "Output"]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[73664, 1899, 217, 3, 39, "Subsection"],
+Cell[73051, 1886, 217, 3, 34, "Subsection"],
 Cell[CellGroupData[{
-Cell[73906, 1906, 209, 3, 29, "Subsubsection"],
+Cell[73293, 1893, 209, 3, 24, "Subsubsection"],
 Cell[CellGroupData[{
-Cell[74140, 1913, 1710, 28, 32, "Input"],
-Cell[75853, 1943, 1169, 28, 92, "Output"]
+Cell[73527, 1900, 1710, 28, 32, "Input"],
+Cell[75240, 1930, 1169, 28, 92, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[77059, 1976, 1909, 32, 32, "Input"],
-Cell[78971, 2010, 1173, 28, 92, "Output"]
+Cell[76446, 1963, 1909, 32, 32, "Input"],
+Cell[78358, 1997, 1173, 28, 92, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[80181, 2043, 1859, 31, 32, "Input"],
-Cell[82043, 2076, 1177, 28, 72, "Output"]
+Cell[79568, 2030, 1859, 31, 32, "Input"],
+Cell[81430, 2063, 1177, 28, 72, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[83257, 2109, 1955, 32, 32, "Input"],
-Cell[85215, 2143, 1134, 26, 92, "Output"]
+Cell[82644, 2096, 1955, 32, 32, "Input"],
+Cell[84602, 2130, 1134, 26, 92, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[86386, 2174, 1787, 29, 32, "Input"],
-Cell[88176, 2205, 1167, 27, 72, "Output"]
+Cell[85773, 2161, 1787, 29, 32, "Input"],
+Cell[87563, 2192, 1167, 27, 72, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[89380, 2237, 1740, 29, 32, "Input"],
-Cell[91123, 2268, 1185, 28, 92, "Output"]
+Cell[88767, 2224, 1740, 29, 32, "Input"],
+Cell[90510, 2255, 1185, 28, 92, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[92345, 2301, 1741, 29, 32, "Input"],
-Cell[94089, 2332, 1179, 27, 92, "Output"]
+Cell[91732, 2288, 1741, 29, 32, "Input"],
+Cell[93476, 2319, 1179, 27, 92, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[95305, 2364, 1614, 26, 32, "Input"],
-Cell[96922, 2392, 1169, 27, 72, "Output"]
+Cell[94692, 2351, 1614, 26, 32, "Input"],
+Cell[96309, 2379, 1169, 27, 72, "Output"]
 }, Open  ]],
-Cell[98106, 2422, 601, 14, 32, "Input"],
-Cell[98710, 2438, 955, 21, 55, "Input"]
+Cell[97493, 2409, 601, 14, 32, "Input"],
+Cell[98097, 2425, 955, 21, 55, "Input"]
 }, Closed]],
 Cell[CellGroupData[{
-Cell[99702, 2464, 108, 1, 23, "Subsubsection"],
-Cell[99813, 2467, 263, 5, 32, "Input"],
+Cell[99089, 2451, 108, 1, 18, "Subsubsection"],
+Cell[99200, 2454, 263, 5, 27, "Input"],
 Cell[CellGroupData[{
-Cell[100101, 2476, 277, 7, 32, "Input"],
-Cell[100381, 2485, 85, 1, 31, "Output"]
+Cell[99488, 2463, 240, 6, 27, "Input"],
+Cell[99731, 2471, 1221, 33, 43, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[100503, 2491, 1553, 39, 77, "Input"],
-Cell[102059, 2532, 2760, 48, 368, "Output"]
+Cell[100989, 2509, 277, 7, 27, "Input"],
+Cell[101269, 2518, 85, 1, 27, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[104856, 2585, 514, 15, 32, "Input"],
-Cell[105373, 2602, 11936, 372, 238, "Output"]
+Cell[101391, 2524, 1553, 39, 58, "Input"],
+Cell[102947, 2565, 2760, 48, 367, "Output"]
 }, Open  ]],
-Cell[117324, 2977, 124, 1, 31, "Text"],
 Cell[CellGroupData[{
-Cell[117473, 2982, 827, 20, 32, "Input"],
-Cell[118303, 3004, 17168, 526, 404, "Output"]
+Cell[105744, 2618, 514, 15, 27, "Input"],
+Cell[106261, 2635, 11936, 372, 225, "Output"]
+}, Open  ]],
+Cell[118212, 3010, 124, 1, 26, "Text"],
+Cell[CellGroupData[{
+Cell[118361, 3015, 827, 20, 27, "Input"],
+Cell[119191, 3037, 17168, 526, 378, "Output"]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[135532, 3537, 169, 2, 39, "Subsection"],
-Cell[135704, 3541, 637, 10, 51, "Text"],
+Cell[136420, 3570, 169, 2, 34, "Subsection"],
+Cell[136592, 3574, 637, 10, 51, "Text"],
 Cell[CellGroupData[{
-Cell[136366, 3555, 1749, 30, 32, "Input"],
-Cell[138118, 3587, 1503, 31, 104, "Output"]
+Cell[137254, 3588, 1749, 30, 32, "Input"],
+Cell[139006, 3620, 1503, 31, 104, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[139658, 3623, 309, 7, 32, "Input"],
-Cell[139970, 3632, 138, 2, 31, "Output"]
+Cell[140546, 3656, 309, 7, 32, "Input"],
+Cell[140858, 3665, 138, 2, 31, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[140145, 3639, 1769, 30, 55, "Input"],
-Cell[141917, 3671, 1413, 30, 104, "Output"]
+Cell[141033, 3672, 1769, 30, 55, "Input"],
+Cell[142805, 3704, 1413, 30, 104, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[143367, 3706, 321, 7, 32, "Input"],
-Cell[143691, 3715, 110, 1, 31, "Output"]
+Cell[144255, 3739, 321, 7, 32, "Input"],
+Cell[144579, 3748, 110, 1, 31, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[143838, 3721, 1792, 31, 55, "Input"],
-Cell[145633, 3754, 1361, 29, 104, "Output"]
+Cell[144726, 3754, 1792, 31, 55, "Input"],
+Cell[146521, 3787, 1361, 29, 104, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[147031, 3788, 341, 7, 32, "Input"],
-Cell[147375, 3797, 87, 1, 31, "Output"]
+Cell[147919, 3821, 341, 7, 32, "Input"],
+Cell[148263, 3830, 87, 1, 31, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[147499, 3803, 1750, 30, 32, "Input"],
-Cell[149252, 3835, 1312, 27, 103, "Output"]
+Cell[148387, 3836, 1750, 30, 32, "Input"],
+Cell[150140, 3868, 1312, 27, 103, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[150601, 3867, 334, 7, 32, "Input"],
-Cell[150938, 3876, 88, 1, 31, "Output"]
+Cell[151489, 3900, 334, 7, 32, "Input"],
+Cell[151826, 3909, 88, 1, 31, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[151063, 3882, 1910, 33, 55, "Input"],
-Cell[152976, 3917, 710, 13, 24, "Message"],
-Cell[153689, 3932, 710, 13, 24, "Message"],
-Cell[154402, 3947, 1287, 29, 92, "Output"]
+Cell[151951, 3915, 1910, 33, 55, "Input"],
+Cell[153864, 3950, 695, 11, 24, "Message"],
+Cell[154562, 3963, 695, 11, 24, "Message"],
+Cell[155260, 3976, 1287, 29, 92, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[155726, 3981, 340, 7, 32, "Input"],
-Cell[156069, 3990, 87, 1, 31, "Output"]
+Cell[156584, 4010, 340, 7, 32, "Input"],
+Cell[156927, 4019, 87, 1, 31, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[156193, 3996, 1849, 33, 55, "Input"],
-Cell[158045, 4031, 1057, 18, 45, "Message"],
-Cell[159105, 4051, 1041, 18, 65, "Message"],
-Cell[160149, 4071, 1307, 29, 104, "Output"]
+Cell[157051, 4025, 1849, 33, 55, "Input"],
+Cell[158903, 4060, 1044, 17, 45, "Message"],
+Cell[159950, 4079, 1028, 17, 65, "Message"],
+Cell[160981, 4098, 1307, 29, 104, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[161493, 4105, 362, 8, 32, "Input"],
-Cell[161858, 4115, 88, 1, 31, "Output"]
+Cell[162325, 4132, 362, 8, 32, "Input"],
+Cell[162690, 4142, 88, 1, 31, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[161983, 4121, 1929, 34, 55, "Input"],
-Cell[163915, 4157, 916, 15, 85, "Message"],
-Cell[164834, 4174, 1362, 30, 92, "Output"]
+Cell[162815, 4148, 1929, 34, 55, "Input"],
+Cell[164747, 4184, 903, 14, 85, "Message"],
+Cell[165653, 4200, 1362, 30, 92, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[166233, 4209, 329, 7, 32, "Input"],
-Cell[166565, 4218, 109, 1, 31, "Output"]
+Cell[167052, 4235, 329, 7, 32, "Input"],
+Cell[167384, 4244, 109, 1, 31, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[166711, 4224, 1940, 34, 55, "Input"],
-Cell[168654, 4260, 872, 15, 85, "Message"],
-Cell[169529, 4277, 688, 13, 24, "Message"],
-Cell[170220, 4292, 1292, 29, 104, "Output"]
+Cell[167530, 4250, 1940, 34, 55, "Input"],
+Cell[169473, 4286, 859, 14, 85, "Message"],
+Cell[170335, 4302, 673, 11, 24, "Message"],
+Cell[171011, 4315, 1292, 29, 104, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[171549, 4326, 334, 7, 32, "Input"],
-Cell[171886, 4335, 88, 1, 31, "Output"]
+Cell[172340, 4349, 334, 7, 32, "Input"],
+Cell[172677, 4358, 88, 1, 31, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[172011, 4341, 1968, 34, 55, "Input"],
-Cell[173982, 4377, 1256, 28, 112, "Output"]
+Cell[172802, 4364, 1968, 34, 55, "Input"],
+Cell[174773, 4400, 1256, 28, 112, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[175275, 4410, 336, 7, 32, "Input"],
-Cell[175614, 4419, 88, 1, 31, "Output"]
-}, Open  ]]
-}, Closed]],
-Cell[CellGroupData[{
-Cell[175751, 4426, 164, 2, 31, "Subsection"],
-Cell[175918, 4430, 475, 8, 51, "Text"],
-Cell[CellGroupData[{
-Cell[176418, 4442, 1398, 22, 32, "Input"],
-Cell[177819, 4466, 1358, 29, 92, "Output"]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[179214, 4500, 1439, 23, 32, "Input"],
-Cell[180656, 4525, 1351, 30, 72, "Output"]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[182044, 4560, 1454, 23, 32, "Input"],
-Cell[183501, 4585, 1413, 32, 92, "Output"]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[184951, 4622, 1426, 23, 32, "Input"],
-Cell[186380, 4647, 1407, 33, 92, "Output"]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[187824, 4685, 1585, 27, 32, "Input"],
-Cell[189412, 4714, 630, 11, 65, "Message"],
-Cell[190045, 4727, 631, 11, 65, "Message"],
-Cell[190679, 4740, 631, 11, 65, "Message"],
-Cell[191313, 4753, 702, 12, 24, "Message"],
-Cell[192018, 4767, 1364, 29, 92, "Output"]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[193419, 4801, 1581, 27, 32, "Input"],
-Cell[195003, 4830, 1074, 18, 45, "Message"],
-Cell[196080, 4850, 1065, 19, 45, "Message"],
-Cell[197148, 4871, 1064, 19, 45, "Message"],
-Cell[198215, 4892, 704, 12, 24, "Message"],
-Cell[198922, 4906, 1291, 27, 92, "Output"]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[200250, 4938, 1625, 28, 32, "Input"],
-Cell[201878, 4968, 609, 11, 65, "Message"],
-Cell[202490, 4981, 609, 11, 65, "Message"],
-Cell[203102, 4994, 609, 11, 65, "Message"],
-Cell[203714, 5007, 680, 12, 24, "Message"],
-Cell[204397, 5021, 1249, 26, 92, "Output"]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[205683, 5052, 1674, 28, 32, "Input"],
-Cell[207360, 5082, 609, 11, 65, "Message"],
-Cell[207972, 5095, 609, 11, 65, "Message"],
-Cell[208584, 5108, 609, 11, 65, "Message"],
-Cell[209196, 5121, 680, 12, 24, "Message"],
-Cell[209879, 5135, 1338, 29, 92, "Output"]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[211254, 5169, 1631, 28, 32, "Input"],
-Cell[212888, 5199, 1359, 31, 92, "Output"]
+Cell[176066, 4433, 336, 7, 32, "Input"],
+Cell[176405, 4442, 88, 1, 31, "Output"]
 }, Open  ]]
 }, Closed]],
 Cell[CellGroupData[{
-Cell[214296, 5236, 163, 2, 31, "Subsection"],
-Cell[214462, 5240, 351, 6, 51, "Text"],
-Cell[214816, 5248, 738, 21, 32, "Input"],
+Cell[176542, 4449, 164, 2, 26, "Subsection"],
+Cell[176709, 4453, 475, 8, 26, "Text"],
 Cell[CellGroupData[{
-Cell[215579, 5273, 504, 15, 32, "Input"],
-Cell[216086, 5290, 544, 8, 31, "Output"]
-}, Open  ]],
-Cell[216645, 5301, 128, 1, 31, "Text"],
-Cell[CellGroupData[{
-Cell[216798, 5306, 885, 26, 55, "Input"],
-Cell[217686, 5334, 344, 9, 47, "Output"]
-}, Open  ]],
-Cell[218045, 5346, 208, 4, 31, "Text"],
-Cell[CellGroupData[{
-Cell[218278, 5354, 1081, 29, 55, "Input"],
-Cell[219362, 5385, 444, 14, 51, "Output"]
+Cell[177209, 4465, 1398, 22, 27, "Input"],
+Cell[178610, 4489, 1358, 29, 58, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[219843, 5404, 130, 2, 32, "Input"],
-Cell[219976, 5408, 398, 13, 51, "Output"]
-}, Open  ]],
-Cell[220389, 5424, 232, 5, 31, "Text"],
-Cell[220624, 5431, 1653, 37, 77, "Input"],
-Cell[222280, 5470, 175, 2, 31, "Text"],
-Cell[222458, 5474, 4810, 100, 121, "Input"],
-Cell[227271, 5576, 142, 1, 31, "Text"],
-Cell[227416, 5579, 5657, 124, 165, "Input"],
-Cell[233076, 5705, 115, 1, 31, "Text"],
-Cell[CellGroupData[{
-Cell[233216, 5710, 1055, 26, 55, "Input"],
-Cell[234274, 5738, 7634, 171, 352, "Output"]
+Cell[180005, 4523, 1439, 23, 27, "Input"],
+Cell[181447, 4548, 1351, 30, 58, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[241945, 5914, 1077, 29, 55, "Input"],
-Cell[243025, 5945, 1119, 18, 35, "Output"]
+Cell[182835, 4583, 1454, 23, 27, "Input"],
+Cell[184292, 4608, 1413, 32, 58, "Output"]
 }, Open  ]],
-Cell[244159, 5966, 1906, 39, 77, "Input"],
-Cell[246068, 6007, 347, 7, 51, "Text"],
-Cell[246418, 6016, 2201, 45, 77, "Input"],
-Cell[248622, 6063, 1183, 27, 77, "Input"],
-Cell[249808, 6092, 119, 1, 31, "Text"],
 Cell[CellGroupData[{
-Cell[249952, 6097, 1109, 31, 55, "Input"],
-Cell[251064, 6130, 770, 19, 47, "Output"]
+Cell[185742, 4645, 1426, 23, 27, "Input"],
+Cell[187171, 4670, 1407, 33, 58, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[188615, 4708, 1585, 27, 27, "Input"],
+Cell[190203, 4737, 617, 10, 41, "Message"],
+Cell[190823, 4749, 618, 10, 41, "Message"],
+Cell[191444, 4761, 618, 10, 41, "Message"],
+Cell[192065, 4773, 689, 11, 23, "Message"],
+Cell[192757, 4786, 1364, 29, 73, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[194158, 4820, 1581, 27, 27, "Input"],
+Cell[195742, 4849, 1061, 17, 41, "Message"],
+Cell[196806, 4868, 1052, 18, 41, "Message"],
+Cell[197861, 4888, 1051, 18, 41, "Message"],
+Cell[198915, 4908, 691, 11, 23, "Message"],
+Cell[199609, 4921, 1291, 27, 58, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[200937, 4953, 1625, 28, 27, "Input"],
+Cell[202565, 4983, 596, 10, 41, "Message"],
+Cell[203164, 4995, 596, 10, 41, "Message"],
+Cell[203763, 5007, 596, 10, 41, "Message"],
+Cell[204362, 5019, 667, 11, 23, "Message"],
+Cell[205032, 5032, 1249, 26, 58, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[206318, 5063, 1674, 28, 27, "Input"],
+Cell[207995, 5093, 596, 10, 41, "Message"],
+Cell[208594, 5105, 596, 10, 41, "Message"],
+Cell[209193, 5117, 596, 10, 41, "Message"],
+Cell[209792, 5129, 667, 11, 23, "Message"],
+Cell[210462, 5142, 1338, 29, 73, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[211837, 5176, 1631, 28, 27, "Input"],
+Cell[213471, 5206, 1359, 31, 73, "Output"]
+}, Open  ]]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[214879, 5243, 163, 2, 26, "Subsection"],
+Cell[215045, 5247, 351, 6, 41, "Text"],
+Cell[215399, 5255, 738, 21, 27, "Input"],
+Cell[CellGroupData[{
+Cell[216162, 5280, 504, 15, 27, "Input"],
+Cell[216669, 5297, 544, 8, 27, "Output"]
+}, Open  ]],
+Cell[217228, 5308, 128, 1, 26, "Text"],
+Cell[CellGroupData[{
+Cell[217381, 5313, 885, 26, 43, "Input"],
+Cell[218269, 5341, 344, 9, 47, "Output"]
+}, Open  ]],
+Cell[218628, 5353, 208, 4, 26, "Text"],
+Cell[CellGroupData[{
+Cell[218861, 5361, 1081, 29, 43, "Input"],
+Cell[219945, 5392, 444, 14, 48, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[220426, 5411, 130, 2, 27, "Input"],
+Cell[220559, 5415, 398, 13, 48, "Output"]
+}, Open  ]],
+Cell[220972, 5431, 232, 5, 26, "Text"],
+Cell[221207, 5438, 1653, 37, 43, "Input"],
+Cell[222863, 5477, 175, 2, 26, "Text"],
+Cell[223041, 5481, 4810, 100, 73, "Input"],
+Cell[227854, 5583, 142, 1, 26, "Text"],
+Cell[227999, 5586, 5657, 124, 103, "Input"],
+Cell[233659, 5712, 115, 1, 26, "Text"],
+Cell[CellGroupData[{
+Cell[233799, 5717, 1055, 26, 43, "Input"],
+Cell[234857, 5745, 7634, 171, 223, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[242528, 5921, 1077, 29, 43, "Input"],
+Cell[243608, 5952, 1119, 18, 33, "Output"]
+}, Open  ]],
+Cell[244742, 5973, 1906, 39, 58, "Input"],
+Cell[246651, 6014, 347, 7, 26, "Text"],
+Cell[247001, 6023, 2201, 45, 58, "Input"],
+Cell[249205, 6070, 1183, 27, 43, "Input"],
+Cell[250391, 6099, 119, 1, 26, "Text"],
+Cell[CellGroupData[{
+Cell[250535, 6104, 1109, 31, 43, "Input"],
+Cell[251647, 6137, 770, 19, 47, "Output"]
 }, Open  ]]
 }, Closed]]
 }
