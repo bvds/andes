@@ -205,10 +205,17 @@ On the other hand, this model does provide the final
 error rate $P(S)$ (the initial error rate is ambiguous), 
 so criterion~\ref{crit:perform} is partially satisfied. 
 
-Another model that is frequently used in the context of learning is
-the logistic model~\cite{cen_learning_2006,chi_instructional_2011}.
-Since we are interested in fitting the model to a single student 
-and a single KC, these models take on the form 
+A number of models of learning based on 
+logistic regression have been studied~\cite{cen_learning_2006,%
+pavlik_performance_2009,chi_instructional_2011}.  
+These models involve fitting data for 
+multiple students and multiple KCs and may involve other observables
+such as the number of prior successes/failures a student has had for 
+a given skill.
+Since we are interested in fitting
+to the correct/incorrect bit sequence for a single student 
+and a single KC, a logistic regression model will take on a
+relatively simple form 
 %
 \begin{equation}
     \log\left(\frac{P_\mathrm{logistic}(j)}{1-P_\mathrm{logistic}(j)}\right)= 
