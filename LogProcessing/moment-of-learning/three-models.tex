@@ -211,10 +211,9 @@ pavlik_performance_2009,chi_instructional_2011}.
 These models involve fitting data for 
 multiple students and multiple KCs and may involve other observables
 such as the number of prior successes/failures a student has had for 
-a given skill.
-Since we are interested in fitting
+a given skill.  However, in this investigation, we are interested in fitting
 to the correct/incorrect bit sequence for a single student 
-and a single KC, a logistic regression model will take on a
+and a single KC and a logistic regression model takes on a
 relatively simple form 
 %
 \begin{equation}
@@ -237,7 +236,8 @@ criterion~\ref{crit:perform}.
 
 The third model is the ``step model'' which assumes that learning 
 occurs all at once; this corresponds to the ``eureka learning''
-discussed by \cite{baker_detecting_2011}.   It is defined as:
+discussed by \cite{baker_detecting_2011}.   
+It is defined as:
 %
 \begin{equation}
     P_\mathrm{step}(j)= \left\{\begin{array}{cc}
@@ -255,6 +255,7 @@ BKT~\cite{corbett_knowledge_1995}.  The associated gain in performance
 is $1-g-s$ and the error rate after learning is simply $s$ in this
 model.  Thus, this model satisfies criteria \ref{crit:step} and
 \ref{crit:perform}.
+
 
 \section{Model selection using AIC}
 \label{model-selection}
@@ -326,14 +327,14 @@ Log data was recorded as students solved homework problems while using
 the Andes intelligent tutor homework system~\cite{vanlehn_andes_2005}.  
 231 hours of log data were recorded.
 %, covering 85,744 transactions, and 26,204 student steps.  
-Each step was assigned to one or more different KC's.  The dataset
+Each step was assigned to one or more different KCs.  The dataset
 contains a total of 2017 distinct student-KC sequences covering a total of
-245 distinct KC's.  We will refer to this dataset as student dataset
+245 distinct KCs.  We will refer to this dataset as student dataset
 $\mathcal{A}$.  See Figure~\ref{student-length-histogram} for a
 histogram of the number of student-KC sequences having a given number of
 steps.
 
-Most KC's are associated with physics
+Most KCs are associated with physics
 or relevant math skills while others are associated with 
 Andes conventions or user-interface actions (such as, notation
 for defining a variable).  The student-KC sequences with the largest 
@@ -390,7 +391,7 @@ of similar problems in a homework assignment.
 Since the goodness of fit criterion, AIC, is valid in the limit of
 many steps, we include in this analysis only student-KC sequences that
 contain 10 or more steps, reducing the number of student-KC sequences
-to 267, covering 38 distinct KC's.  We determine the correctness of
+to 267, covering 38 distinct KCs.  We determine the correctness of
 each step (Section~\ref{steps}), constructing a bit sequence, {\em
 exempli gratia} 001001101, for each student-KC sequence.  This bit
 sequence is then fit to each of the three models, $P_\mathrm{step}$,
@@ -595,6 +596,26 @@ the BKT model is of practical value when analyzing student log data.
 However, one should not then conclude that the step function is a 
 better model of student learning, in the usual sense.  The better fit does
 not predict anything about the nature of learning.
+
+Our results suggest that the step model may be useful
+for modeling the learning of an individual student.
+However, the step model assumes that learning a skill occurs
+in one step.  Is this how people actually learn?  Certainly, everyone
+has experienced instances of ``eureka learning'' at some point.  However,
+it is unclear how well this describes the acquisition of most skills, 
+especially since
+many KCs are implicit and we are not consciously aware that we 
+know them~\cite{koedinger_knowledge-learning-instruction_2012}.
+Certainly, if the student performance bit sequence is of the 
+form $00\ldots 0 1 1 \ldots 1$, then is seems safe to assume
+that learning occurred all in one step, corresponding to the first
+1 in the sequence.  However, it is possible that the transition
+from unmastered to mastery occurs over some number of 
+opportunities. 
+In a companion paper~\cite{van_de_sande_measuring_2013}, we introduce
+a method (based on AIC)that can correctly describe gradual mastery, 
+even though the step model itself assumes all-at-once learning.
+
 
 Finally, we see that the scatter plot of Akaike weights for student
 data is remarkably similar to the scatter plots for the random model.
