@@ -2,8 +2,8 @@
 % LaTeX2e document class file for Conference Proceedings submissions.
 \documentclass{edm_template}
 
-% Somehow the desired top margin is being set to 1/16in?
-\addtolength{\topmargin}{0.6875in}
+% Somehow the desired top margin is being set to 1/16in? OK on Mac
+%\addtolength{\topmargin}{0.6875in}
 
 \usepackage{graphics}
 
@@ -73,7 +73,7 @@ in~\cite{chi_instructional_2011}.
 
 If one is primarily interested in the effectiveness of help given to
 an individual student or the effectiveness (for learning) of a particular
-strategy or behavior of a the student, then it may make sense
+strategy or behavior of a student, then it may make sense
 to fit a model of learning to the log data of each student individually.
 Given sufficient student log data, can we still talk about a particular
 model fitting the student log data well?  That is the central question
@@ -123,6 +123,26 @@ delete the object, and later attempt that solution step again.  A step
 is an {\em opportunity} to learn a given Knowledge Component
 (KC)~\cite{vanlehn_behavior_2006} if the student must apply that skill
 to complete the step.
+
+\label{blame}
+
+Andes is a model-tracing tutor~\cite{anderson_development_1991}, which
+means that the ITS contains a number of ``model solutions'' to each
+problem and each step of the model solution has one or more KCs
+assigned to it.   As a student solves a problem, Andes tries to match
+each student attempt at a step to a corresponding model solution step
+and, if that match is successful, assigns the corresponding KCs to
+that step attempt.  For some common errors, Andes has a number of
+error detectors that infer what solution step the student was
+attempting to work on.  In that case, KCs can assigned to that
+attempt.  However, there are many errors where the associated KCs
+cannot be determined.  In the log analysis, if a step attempt does not
+have any KCs assigned to it, we use the following 
+heuristic to determine the associated KCs:  First, we look at any  subsequent attempts
+associated with the same user interface element and see if they have
+any KCs associated with them.  If that fails, then we look for the
+next attempt having the same {\em type} of user interface element (equation,
+vector, {\em et cetera}) that has some KCs associated with it.
 
 %
 %  Not needed in this paper.
@@ -326,8 +346,10 @@ covered the same content as a normal two-semester introductory course.
 Log data was recorded as students solved homework problems while using
 the Andes intelligent tutor homework system~\cite{vanlehn_andes_2005}.  
 231 hours of log data were recorded.
-%, covering 85,744 transactions, and 26,204 student steps.  
-Each step was assigned to one or more different KCs.  The dataset
+%, covering 85,744 transactions, and 26,204 student steps. 
+Each student problem-solving step is assigned one or more KCs
+using the heuristic described in Section~\ref{blame}.
+The dataset
 contains a total of 2017 distinct student-KC sequences covering a total of
 245 distinct KCs.  We will refer to this dataset as student dataset
 $\mathcal{A}$.  See Figure~\ref{student-length-histogram} for a
@@ -357,7 +379,7 @@ of similar problems in a homework assignment.
 
 \subsection{Analysis}
 
-\begin{figure}
+\begin{figure}[t]
   \centering \includegraphics{scatter-weights.eps}
   \caption{Scatter plot of  Akaike weights for the three models, 
    $P_\mathrm{step}$, $P_\mathrm{logistic}$, and $P_\mathrm{BKT}$, 
@@ -373,20 +395,6 @@ of similar problems in a homework assignment.
    $00\cdots 011\cdots 1$.} 
    \label{scatter1}
 \end{figure}
-
-% LaTeX is very sensitive to the placement of this figure
-\begin{figure*}
-  \includegraphics{scatter10.eps}
-  \includegraphics{density50.eps}
-  \caption{Akaike weights for the three models, 
-   $P_\mathrm{step}$, $P_\mathrm{logistic}$, and $P_\mathrm{BKT}$, 
-   when fit to randomly generated data.  The point where
-   $w_\mathrm{step}=w_\mathrm{logistic}=w_\mathrm{BKT}=1/3$ is
-   marked with a cross.  For these datasets, each 
-   model should perform equally well, since, with an appropriate
-   choice of parameters, they all can be made equal to 
-   the model that was used to generate the data.}\label{scatter2}
-\end{figure*}
 
 Since the goodness of fit criterion, AIC, is valid in the limit of
 many steps, we include in this analysis only student-KC sequences that
@@ -466,6 +474,19 @@ and AIC as our selection criterion.  Note that all three models,
 with a suitable choice of parameters, can be made equal to 
 $P_\mathrm{random}$ itself.
 
+% LaTeX is very sensitive to the placement of this figure
+\begin{figure*}
+  \includegraphics{scatter10.eps}
+  \includegraphics{density50.eps}
+  \caption{Akaike weights for the three models, 
+   $P_\mathrm{step}$, $P_\mathrm{logistic}$, and $P_\mathrm{BKT}$, 
+   when fit to randomly generated data.  The point where
+   $w_\mathrm{step}=w_\mathrm{logistic}=w_\mathrm{BKT}=1/3$ is
+   marked with a cross.  For these datasets, each 
+   model should perform equally well, since, with an appropriate
+   choice of parameters, they all can be made equal to 
+   the model that was used to generate the data.}\label{scatter2}
+\end{figure*}
 
 As mentioned earlier, for data that is generated by a simple 
 model (and $P_\mathrm{random}$ is about as
@@ -489,18 +510,6 @@ a scatter plot of the Akaike weights to center around
 $w_\mathrm{logistic}=w_\mathrm{step}=w_\mathrm{BKT}=1/3$.  Instead, we
 find that $P_\mathrm{step}$ is still highly favored over the other two; see
 Fig.~\ref{scatter2}. This bias seems to persist as we increase $n$.
-
-\begin{figure}
-   \centering\includegraphics{mean-weights.eps}
-  \caption{Mean Akaike weights for the three models, 
-   $P_\mathrm{step}$, $P_\mathrm{logistic}$, and $P_\mathrm{BKT}$, 
-   when fit to randomly generated data of length $n$.
-   (Each mean is calculated by averaging over 10,000 random bit sequences.)
-   Also shown is a fit to a function of the form $a+b/n$ and
-   a dashed line marking the asymptotic value $a$.
-   Note that the large differences between the weights persist
-   in the $n\to\infty$ limit.}\label{meanweight}
-\end{figure}
 
 Since we know that AIC (or BIC) is only strictly valid in
 the asymptotic limit $n\to\infty$, it is useful to see if
@@ -529,7 +538,7 @@ model has a larger weight than the other two.
 The differences between the weights of the three models still persist
 in the $n\to\infty$ limit.
 
-\subsection{Summary}
+\subsection{Conclusions}
 
 In conclusion, we obtain some surprising results when we compare
 the three models,  $P_\mathrm{step}$, $P_\mathrm{logistic}$, and
@@ -551,7 +560,6 @@ In other words, even if one uses $P_\mathrm{BKT}$ (for some set of model paramet
 to generate a bit sequence, one can
 always adjust the parameters in $P_\mathrm{step}$ so that it
 fits the bit sequence as well as, or better than, $P_\mathrm{BKT}$.
-
 
 % How can we understand this?  Each model can be thought of as a
 % set of functions.  One can ask how well each set of functions spans
@@ -587,6 +595,19 @@ model (finding the best fit model parameters), then we can talk about
 a model being correct in the usual sense that it may have generated
 the data.  
 
+\begin{figure}
+   \centering\includegraphics{mean-weights.eps}
+  \caption{Mean Akaike weights for the three models, 
+   $P_\mathrm{step}$, $P_\mathrm{logistic}$, and $P_\mathrm{BKT}$, 
+   when fit to randomly generated data of length $n$.
+   (Each mean is calculated by averaging over 10,000 random bit sequences.)
+   Also shown is a fit to a function of the form $a+b/n$ and
+   a dashed line marking the asymptotic value $a$.
+   Note that the large differences between the weights persist
+   in the $n\to\infty$ limit.}\label{meanweight}
+\end{figure}
+
+
 If we are interested in determining the effectiveness
 of help given or of a particular student behavior,
 we are more concerned about being ``close'' to
@@ -600,21 +621,24 @@ not predict anything about the nature of learning.
 Our results suggest that the step model may be useful
 for modeling the learning of an individual student.
 However, the step model assumes that learning a skill occurs
-in one step.  Is this how people actually learn?  Certainly, everyone
-has experienced instances of ``eureka learning'' at some point.  However,
-it is unclear how well this describes the acquisition of most skills, 
-especially since
-many KCs are implicit and we are not consciously aware that we 
-know them~\cite{koedinger_knowledge-learning-instruction_2012}.
+in a single step.  Is this how people actually learn?  Certainly, everyone
+has experienced  ``eureka learning'' at some point in their lives.  However,
+it is unclear how well this describes the acquisition of other skills, 
+especially since many KCs are implicit and people are not consciously
+aware that they even know
+them~\cite{koedinger_knowledge-learning-instruction_2012}. 
 Certainly, if the student performance bit sequence is of the 
-form $00\ldots 0 1 1 \ldots 1$, then is seems safe to assume
+form $00\ldots 0 1 1 \ldots 1$, it seems safe to assume
 that learning occurred all in one step, corresponding to the first
 1 in the sequence.  However, it is possible that the transition
 from unmastered to mastery occurs over some number of 
-opportunities. 
+opportunities and the bit sequence of steps takes on a more
+complicated form. 
 In a companion paper~\cite{van_de_sande_measuring_2013}, we introduce
-a method (based on AIC)that can correctly describe gradual mastery, 
+a method (based on AIC) that can describe gradual mastery, 
 even though the step model itself assumes all-at-once learning.
+In that approach, for a given bit sequence, one speaks about the {\em
+  probability} that learning occurred at a particular step. 
 
 
 Finally, we see that the scatter plot of Akaike weights for student

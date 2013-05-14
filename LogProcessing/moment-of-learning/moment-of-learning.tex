@@ -4,8 +4,8 @@
 
 \usepackage{graphics}
 
-% Somehow the desired top margin is being set to 1/16in?
-\addtolength{\topmargin}{0.6875in}
+% Somehow the desired top margin is being set to 1/16in?   OK on MAC
+%\addtolength{\topmargin}{0.6875in}
 
 \begin{document}
 
@@ -91,8 +91,8 @@ construct a model that predicts the probability that a student has
 learned a skill at a particular time based on the Bayesian Knowledge
 Tracing (BKT) algorithm~\cite{corbett_knowledge_1995}.  BKT gives
 the probability that the student has mastered a skill at step $j$
-using the students performance on opportunities to apply that skill
-(previous steps).  The authors supplement the BKT result with
+using the students performance on previous opportunities to apply that
+skill.  The authors supplement the BKT result with
 information on student correctness for the two subsequent steps $j+1$
 and $j+2$ and infer the probability that the student learned
 the skill at that step.  Finally, they use their model to train a
@@ -100,17 +100,16 @@ second machine-learned model that does not rely on future student behavior,
 so it could be run in real time as the student is working
 
 We will address the same problem using an information-theoretic approach.
-Starting with the Akaike informaton criterion and a simple model of
+Starting with the Akaike information criterion and a simple model of
 learning, we use a multi-model strategy to predict the probability that 
 learning has occurred at a given step, and to predict how much
 learning has occurred.  We apply our approach to student log data from
-and introductory physics course and discuss the reliability of any
-predictions of skill mastery.  We find that, for an individual
+an introductory physics course.  We find that, for an individual
 student and skill, detection of learning has large uncertainties.
 However, if one aggregates over skills or students, then learning can
 be detected at the desired level of significance.
 
-
+\pagebreak
 \subsection{Correct/Incorrect steps}
 
 Our stated goal is to determine student learning for an individual
@@ -127,17 +126,17 @@ time taken and mastery?  Baker, Goldstein, and
 Heffernan~\citeyear{baker_detecting_2011} develop a model of learning
 based on a Hidden Markov model approach.  They start with a set of
 % BvdS:  use actual number.
-25 additional observables (including ``time to complete a step'') and
+25 additional observables (for instance, ``time to complete a step'') and
 construct their model and use correct/incorrect steps (as defined
 above) to calibrate the additional observables and determine which are
-significant.   Naturally, it is
-desirable to eventually include various other observables in any determination
+statistically significant.   Naturally, it is
+desirable to eventually include such additional observables in any determination
 of student learning.   However, in the present investigation,
 we will focus on correct/incorrect steps.
 
 What do we mean by a step?
 A student attempts some number of {\em steps}  when solving a problem.  
-Usually, a step is associated with creating/modifying a single user
+Usually, a step $j$ is associated with creating/modifying a single user
 interface object (writing an equation, drawing a vector,
 defining a quantity, {\em et cetera}) and is a distinct part of the problem solution
 (that is, help-giving dialogs are not considered to be steps).
@@ -158,15 +157,13 @@ must apply that KC or skill to complete the step.
 %Since the policies chosen by the random-help version of Andes
 %are different for each student,
 %we need to determine the point of learning for each student.
-For each KC and student, we select all attempted steps that involve application
-of that KC and mark each step as ``correct'' if
+For each KC and student, we select all relevant  step attempts and
+mark each step as ``correct'' (or 1) if
 the student completes that step correctly without any preceding errors or 
-requests for help; otherwise, we mark the step as ``incorrect.''
+requests for help; otherwise, we mark the step as ``incorrect'' (or 0).
 \label{steps}  % Section reference for correct/incorrect
-If each incorrect/correct step is marked with a 0/1, then
-a single student's performance on a single KC can be expressed as a bit  sequence,
-{\em exempli gratia} 00101011.  We will label
-steps with $j\in\left\{1,\ldots,n\right\}$.  
+A single student's performance on a single KC can be expressed as a bit  sequence,
+{\em exempli gratia} 00101011. 
 
 \section{The step model}
 
@@ -261,7 +258,8 @@ occurred at each step.
   \centering \includegraphics{step-weights.eps}
    \caption{Akaike weights for the sub-models $P_\mathrm{step,L}(j)$.  
      This gives the relative probability that
-      the student learned the KC just before step $L$.}
+      the student learned the KC just before step $L$.  The case $L=1$
+    corresponds to no learning occurring during use of the ITS.}  
     \label{step-weights}
 \end{figure}
 
@@ -298,7 +296,8 @@ the model that actually generated the data.
 
 
 Note that the case $L=1$ corresponds to the student having 
-``learned the skill'' some time before the first step.  That is to say, 
+``learned the skill'' some time before the first step or after the
+last step.  That is to say, 
 the student does not acquire the skill while using the tutor system.
 Thus, $w_1$ should be interpreted as the relative probability
 that no learning has occurred while using the tutor system.
@@ -310,7 +309,7 @@ that no learning has occurred while using the tutor system.
    \caption{Weighted gain $w_L\Delta_L$ as a function of $L$ for an example bit sequence.
     The associated quality factor is $Q=0.66\pm0.29$;  it is
      significantly smaller than 1 since the student makes
-     a slip on step 6.  $Q$ is significant at the $p=0.01$ level.}
+     a slip on step 6.  $Q$ is significantly greater than zero at the $p=0.01$ level.}
     \label{weighted-gain-example}
 \end{figure}
 
@@ -408,7 +407,7 @@ also nearly one so that $Q\to 1$ in the limit of many opportunities.
 Numerically, we obtain $Q=0.5240\pm0.0003$.  The fact that it is
 smaller than one is due to the large number of student-KC sequences having
 just a few steps.  For the student dataset $\mathcal{A}$, we obtain
-$Q=0.0467\pm0.0065$, which is small, but significant
+$Q=0.0467\pm0.0065$, which is small, but significantly larger than zero
 ($p<0.001$). Thus, we conclude that one can detect statistically
 significant learning when applying our method to this student dataset,
 with the location of that learning given by the Akaike weights $w_L$.
