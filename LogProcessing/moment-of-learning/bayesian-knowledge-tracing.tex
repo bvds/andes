@@ -5,15 +5,16 @@
 % Steps to compile: latex, bibtex, latex latex
 %
 % For tracking purposes => this is v1.3 - May 2012
-\documentclass{acmlarge-edm}
+\documentclass[jedm,acmnow]{acmtrans2m}
 
 % Metadata Information
-\acmVolume{5}
-\acmNumber{2}
-\acmArticle{1}
-\acmYear{2013}
-\acmMonth{5}  % can also put in literal name
+%\acmVolume{5}
+%\acmNumber{2}
+%\acmArticle{1}
+%\acmYear{2013}
+%\acmMonth{5}  % can also put in literal name
 
+%\usepackage[latin1]{inputenc}
 \usepackage{graphics}
 %\usepackage{amssymb}
 
@@ -21,9 +22,12 @@
 %  Cool LaTeX resource:
 %   http://en.wikibooks.org/wiki/LaTeX
 
-\title{Properties of the Bayesian Knowledge Tracing Model}
-\author{BRETT VAN DE SANDE
-\affil{Arizona State University\\bvds@asu.edu}}
+\markboth{}{Short title}
+
+\title{\sffamily Properties of the Bayesian Knowledge Tracing Model}
+\author{\linespread{1}\selectfont \MakeUppercase{Brett van de Sande}\\
+Arizona State University\\
+bvds@asu.edu}
 
 
 \begin{abstract}
@@ -47,18 +51,16 @@ the desired behavior.
 
 \end{abstract}
 
+\category{}{}{}
+
 \keywords{Bayesian Knowledge Tracing, student modelling, hidden Markov
 model}
 
+\linespread{1.25}\selectfont
+           
+\def\runningfoot{}
+\def\firstfoot{}
 \begin{document}
-
-\bibliographystyle{acmlarge}
-
-\begin{bottomstuff}
-Funding for this research was provided by the Pittsburgh Science of
-Learning Center which is funded by the National Science Foundation
-award No. SBE-0836012.
-\end{bottomstuff}
 
 \maketitle
 
@@ -260,8 +262,7 @@ Thus, $P(C_j)$ is an exponential; see Fig.~\ref{bktgraph}.
   to identical models.
   The curve is a plot of the solutions of Eqn.~(\ref{aa}), with $P(S)=0.05$ and $A=0.416$.
   The three points are the three parameter sets listed in Table~1 of
-  \cite{beck_identifiability:_2007}.
-}
+  \protect\cite{beck_identifiability:_2007}.}
  \label{table1}
 \end{figure}
 
@@ -332,14 +333,16 @@ recursion~\cite{baker_more_2008}:
 \begin{eqnarray}
        P(L_{j-1}|O_j) &=&
        \frac{P(L_{j-1}|O_{j-1})\left(1-P(S)\right)}{P(L_{j-1}|O_{j-1})\left(1-P(S)\right)+
-                                       \left[1-P(L_{j-1}|O_{j-1})\right]P(G)}
-                                     \; , \;\; o_j=\mbox{correct}\\
+                                       \left[1-P(L_{j-1}|O_{j-1})\right]P(G)} 
+                                     \; ,  \hspace{10ex}\nonumber\\
+            & &\hspace{45ex} o_j=\mbox{correct}\\
         P(L_{j-1}|O_j) &=& 
               \frac{P(L_{j-1}|O_{j-1}) P(S)}
               {P(L_{j-1}|O_{j-1}) P(S)+ \left[1-P(L_{j-1}|O_{j-1})\right]\left(1-P(G)\right)}
-                        \; , \;\; o_j=\mbox{incorrect}\\
+                        \; , \nonumber\\
+           & &\hspace{45ex}o_j=\mbox{incorrect}\\
        P(L_j|O_j) &=& P\left(L_{j-1}|O_j\right)+
-               \left[1-P(L_{j-1}|O_j)\right] P(T)
+               \left[1-P(L_{j-1}|O_j)\right] P(T) \; .
 \end{eqnarray}
 %
 These equations can be combined to give:
@@ -347,10 +350,12 @@ These equations can be combined to give:
 \begin{eqnarray}
        P(L_j|O_j) &=&
        1-\frac{\left(1-P(T)\right)\left[1-P(L_{j-1}|O_{j-1})\right]P(G)}{P(G)+\left(1-P(S)-P(G)\right)
-        P(L_{j-1}|O_{j-1})}  \;,\;\; o_j=\mbox{correct} \label{correct}\\
+        P(L_{j-1}|O_{j-1})}  \;, \hspace{10ex}\nonumber\\
+                        & &\hspace{45ex}  o_j=\mbox{correct} \label{correct}\\
       P(L_j|O_j) &=& 1-\frac{\left(1-P(T)\right)\left[1-P(L_{j-1}|O_{j-1})\right]\left(1-P(G)\right)}
                                  {1-P(G)-\left(1-P(S)-P(G)\right) P(L_{j-1}|O_{j-1})}
-                        \; ,\;\; o_j=\mbox{incorrect} \; . \label{incorrect}
+                        \; , \hspace{10ex}\nonumber\\
+                        & &\hspace{45ex} o_j=\mbox{incorrect} \; . \label{incorrect}
 \end{eqnarray}
 %
 %  corrupted
@@ -359,15 +364,15 @@ Their functional forms are plotted in Fig.~\ref{p-recursion}.
 While this recursion relation cannot be solved analytically, we can learn
 much about its solutions by conducting a fixed point analysis. 
 This is a technique that is covered in many differential equations textbooks; for
-example, see \cite{blanchard_differential_2006}.  The the goal of a
+example, see \cite{blanchard_differential_2006}.  The goal of a
 fixed point  analysis is to determine the qualitative behavior of the sequence
 $\left\{P(L_j|O_j)\right\}_{j=0}^n$ as a
 function of $j$.  If $P(L_j|O_j)>P(L_{j-1}|O_{j-1})$, then we know
 that $P(L_j|O_j)$
 increases with $j$.  Likewise, if $P(L_j|O_j)<P(L_{j-1}|O_{j-1})$,
-then we know that $P(L_j|O_j)$ decreases with $j$.  Thus, the case
-$P(L_j|O_j)=P(L_{j-1}|O_{j-1})$, shown as the dashed line in Fig.~\ref{p-recursion}, 
-serves as a boundary between increasing and decreasing solutions.
+then we know that $P(L_j|O_j)$ decreases with $j$.  Thus, the 
+boundary between increasing and decreasing solutions is 
+$P(L_j|O_j)=P(L_{j-1}|O_{j-1})$, shown as the dashed line in Fig.~\ref{p-recursion}.
 A {\em fixed point} is a value of $P(L_j|O_j)$ such that the recursion
 relation obeys $P(L_j|O_j)=P(L_{j-1}|O_{j-1})$.  In the example at
 hand, there are two kinds of fixed points:
@@ -525,10 +530,17 @@ as constrain model parameters.
 
 
 \begin{acks}
+Funding for this research was provided by the Pittsburgh Science of
+Learning Center which is funded by the National Science Foundation
+award No. SBE-0836012.
 I would like to thank Ken Koedinger, Michael Yudelson, and Tristan Nixon for
 useful comments.
 \end{acks}
 
+\linespread{1}\selectfont
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\normalsize
+\bibliographystyle{acmtrans}
 \bibliography{education-modeling}
 
 \end{document}
