@@ -5,29 +5,30 @@
         global.Ext = Ext = {};
     }
 
+    var Base = function() {};
+
+    Base.prototype = {
+        constructor: function() {}
+    };
+
     Ext.define = function(name, members) {
         var Class = function() {
-                return this.constructor && this.constructor.apply(this, arguments);
+                return this.constructor.apply(this, arguments);
             },
-            prototype = Class.prototype,
             root = global,
             parts = name.split('.'),
             ln = parts.length - 1,
             leaf = parts[ln],
-            extend = members.extend,
-            key, value, part, i;
+            extend = members.extend || Base,
+            prototype, key, value, part, i;
 
-        if (extend) {
-            delete members.extend;
-            Class.prototype = prototype = Object.create(extend.prototype);
-            prototype.superclass = extend.prototype;
-        }
+        delete members.extend;
+        Class.prototype = prototype = Object.create(extend.prototype);
+        prototype.superclass = extend.prototype;
 
         for (key in members) {
-            if (members.hasOwnProperty(key)) {
-                value = members[key];
-                prototype[key] = value;
-            }
+            value = members[key];
+            prototype[key] = value;
         }
 
         if (members.singleton) {
@@ -39,7 +40,7 @@
             root = root[part] || (root[part] = {});
         }
 
-        root[leaf] = value;
+        root[leaf] = Class;
 
         return Class;
     };

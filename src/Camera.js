@@ -13,9 +13,9 @@
  *
  * ## Example
  *
- * You can use the {@link Ext.device.Camera#capture} function to take a photo:
+ * You can use the {@link Ext.space.Camera#capture} function to take a photo:
  *
- *     Ext.device.Camera.capture({
+ *     Ext.space.Camera.capture({
  *         success: function(image) {
  *             imageView.setSrc(image);
  *         },
@@ -25,9 +25,9 @@
  *         destination: 'data'
  *     });
  *
- * See the documentation for {@link Ext.device.Camera#capture} all available configurations.
+ * See the documentation for {@link Ext.space.Camera#capture} all available configurations.
  *
- * @mixins Ext.device.camera.Abstract
+ * @mixins Ext.space.camera.Abstract
  *
  * @aside guide native_apis
  */

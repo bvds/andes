@@ -4,11 +4,11 @@
  * For more documentation see
  * http://docs.phonegap.com/en/2.7.0/cordova_file_file.md.html#File
  */
-Ext.define('Ext.device.filesystem.Cordova', {
-    alternateClassName: 'Ext.device.filesystem.PhoneGap',
-    extend: 'Ext.device.filesystem.HTML5',
+Ext.define('Ext.space.filesystem.Cordova', {
+    alternateClassName: 'Ext.space.filesystem.PhoneGap',
+    extend: 'Ext.space.filesystem.HTML5',
     constructor: function() {
-        Ext.override(Ext.device.filesystem.Entry,
+        Ext.override(Ext.space.filesystem.Entry,
             {
                 /**
                  *
@@ -60,7 +60,7 @@ Ext.define('Ext.device.filesystem.Cordova', {
                 },
 
                 /**
-                 * 
+                 *
                  * @param {Object} config
                  *
                  * @param {Object} config.options
@@ -106,7 +106,7 @@ Ext.define('Ext.device.filesystem.Cordova', {
             }
         );
 
-        Ext.override(Ext.device.filesystem.FileEntry, {
+        Ext.override(Ext.space.filesystem.FileEntry, {
             writeData: function(writer, data) {
                 writer.write(data.toString());
             },
@@ -114,7 +114,7 @@ Ext.define('Ext.device.filesystem.Cordova', {
              * Send a file to a server
              *
              * @param {Object} config
-             * 
+             *
              * @param {String} config.url
              * URL of server to receive the file
              *
@@ -179,7 +179,7 @@ Ext.define('Ext.device.filesystem.Cordova', {
              *
              * @param {Object} config.options
              * Header parameters (Auth, etc)
-             * 
+             *
              *     {
              *         headers: {
              *             "Authorization": "Basic dGVzdHVzZXJuYW1lOnRlc3RwYXNzd29yZA=="

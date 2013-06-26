@@ -1,13 +1,13 @@
 /**
  * @private
  */
-Ext.define('Ext.device.filesystem.HTML5', {
-    extend: 'Ext.device.filesystem.Abstract',
+Ext.define('Ext.space.filesystem.HTML5', {
+    extend: 'Ext.space.filesystem.Abstract',
     /**
-     * Requests a {@link Ext.device.filesystem.FileSystem} instance.
+     * Requests a {@link Ext.space.filesystem.FileSystem} instance.
      *
      *      var me = this;
-     *      var fs = Ext.create("Ext.device.FileSystem", {});
+     *      var fs = Ext.create("Ext.space.FileSystem", {});
      *      fs.requestFileSystem({
      *          type: window.PERSISTENT,
      *          size: 1024 * 1024,
@@ -31,7 +31,7 @@ Ext.define('Ext.device.filesystem.HTML5', {
      * @param {Function} config.success This is required.
      * The callback to be called when the file system has been successfully created.
      *
-     * @param {Ext.device.filesystem.FileSystem} config.success.fileSystem
+     * @param {Ext.space.filesystem.FileSystem} config.success.fileSystem
      * The created file system.
      *
      * @param {Function} config.failure This is optional.
@@ -45,13 +45,13 @@ Ext.define('Ext.device.filesystem.HTML5', {
      */
     requestFileSystem: function(config) {
         if (!config.success) {
-            throw new Error('Ext.device.filesystem#requestFileSystem: You must specify a `success` callback.');
+            throw new Error('Ext.space.filesystem#requestFileSystem: You must specify a `success` callback.');
             return null;
         }
 
         var me = this;
         var successCallback = function(fs) {
-            var fileSystem = Ext.create('Ext.device.filesystem.FileSystem', fs);
+            var fileSystem = Ext.create('Ext.space.filesystem.FileSystem', fs);
             config.success.call(config.scope || me, fileSystem);
         };
 
@@ -66,19 +66,19 @@ Ext.define('Ext.device.filesystem.HTML5', {
     /**
      * The FileSystem class which is used to represent a file system.
      */
-    Ext.define('Ext.device.filesystem.FileSystem', {
+    Ext.define('Ext.space.filesystem.FileSystem', {
         fs: null,
         root: null,
 
         constructor: function(fs) {
             this.fs = fs;
-            this.root = Ext.create('Ext.device.filesystem.DirectoryEntry', '/', this);
+            this.root = Ext.create('Ext.space.filesystem.DirectoryEntry', '/', this);
         },
 
         /**
-         * Returns a {@link Ext.device.filesystem.DirectoryEntry} instance for the root of the file system.
+         * Returns a {@link Ext.space.filesystem.DirectoryEntry} instance for the root of the file system.
          *
-         * @return {Ext.device.filesystem.DirectoryEntry}
+         * @return {Ext.space.filesystem.DirectoryEntry}
          * The file system root directory.
          */
         getRoot: function() {
@@ -87,12 +87,12 @@ Ext.define('Ext.device.filesystem.HTML5', {
     }, function() {
         /**
          * The Entry class which is used to represent entries in a file system,
-         * each of which may be a {@link Ext.device.filesystem.FileEntry} or a {@link Ext.device.filesystem.DirectoryEntry}.
+         * each of which may be a {@link Ext.space.filesystem.FileEntry} or a {@link Ext.space.filesystem.DirectoryEntry}.
          *
          * This is an abstract class.
          * @abstract
          */
-        Ext.define('Ext.device.filesystem.Entry', {
+        Ext.define('Ext.space.filesystem.Entry', {
             directory: false,
             path: 0,
             fileSystem: null,
@@ -154,7 +154,7 @@ Ext.define('Ext.device.filesystem.HTML5', {
             /**
              * Returns the file system on which the entry resides.
              *
-             * @return {Ext.device.filesystem.FileSystem}
+             * @return {Ext.space.filesystem.FileSystem}
              * The entry file system.
              */
             getFileSystem: function() {
@@ -171,7 +171,7 @@ Ext.define('Ext.device.filesystem.HTML5', {
              * @param {Object} config
              * The object which contains the following config options:
              *
-             * @param {Ext.device.filesystem.DirectoryEntry} config.parent This is required.
+             * @param {Ext.space.filesystem.DirectoryEntry} config.parent This is required.
              * The directory to which to move the entry.
              *
              * @param {String} config.newName This is optional.
@@ -180,7 +180,7 @@ Ext.define('Ext.device.filesystem.HTML5', {
              * @param {Function} config.success This is optional.
              * The callback to be called when the entry has been successfully moved.
              *
-             * @param {Ext.device.filesystem.Entry} config.success.entry
+             * @param {Ext.space.filesystem.Entry} config.success.entry
              * The entry for the new location.
              *
              * @param {Function} config.failure This is optional.
@@ -194,7 +194,7 @@ Ext.define('Ext.device.filesystem.HTML5', {
              */
             moveTo: function(config) {
                 if (config.parent == null) {
-                    throw new Error('Ext.device.filesystem.Entry#moveTo: You must specify a new `parent` of the entry.');
+                    throw new Error('Ext.space.filesystem.Entry#moveTo: You must specify a new `parent` of the entry.');
                     return null;
                 }
 
@@ -212,14 +212,14 @@ Ext.define('Ext.device.filesystem.HTML5', {
                                             sourceEntry.copyTo(destinationEntry, config.newName, function(entry) {
                                                 config.success.call(
                                                     config.scope || me,
-                                                    entry.isDirectory ? Ext.create('Ext.device.filesystem.DirectoryEntry', entry.fullPath, me.fileSystem) : Ext.create('Ext.device.filesystem.FileEntry', entry.fullPath, me.fileSystem)
+                                                    entry.isDirectory ? Ext.create('Ext.space.filesystem.DirectoryEntry', entry.fullPath, me.fileSystem) : Ext.create('Ext.space.filesystem.FileEntry', entry.fullPath, me.fileSystem)
                                                 );
                                             }, config.failure);
                                         } else {
                                             sourceEntry.moveTo(destinationEntry, config.newName, function(entry) {
                                                 config.success.call(
                                                     config.scope || me,
-                                                    entry.isDirectory ? Ext.create('Ext.device.filesystem.DirectoryEntry', entry.fullPath, me.fileSystem) : Ext.create('Ext.device.filesystem.FileEntry', entry.fullPath, me.fileSystem)
+                                                    entry.isDirectory ? Ext.create('Ext.space.filesystem.DirectoryEntry', entry.fullPath, me.fileSystem) : Ext.create('Ext.space.filesystem.FileEntry', entry.fullPath, me.fileSystem)
                                                 );
                                             }, config.failure);
                                         }
@@ -234,7 +234,7 @@ Ext.define('Ext.device.filesystem.HTML5', {
             },
 
             /**
-             * Works the same way as {@link Ext.device.filesystem.Entry#moveTo}, but copies the entry.
+             * Works the same way as {@link Ext.space.filesystem.Entry#moveTo}, but copies the entry.
              */
             copyTo: function(config) {
                 this.moveTo(Ext.apply(config, {
@@ -287,7 +287,7 @@ Ext.define('Ext.device.filesystem.HTML5', {
              * @param {Function} config.success This is required.
              * The callback to be called when the parent directory has been successfully selected.
              *
-             * @param {Ext.device.filesystem.DirectoryEntry} config.success.entry
+             * @param {Ext.space.filesystem.DirectoryEntry} config.success.entry
              * The parent directory of the entry.
              *
              * @param {Function} config.failure This is optional.
@@ -301,7 +301,7 @@ Ext.define('Ext.device.filesystem.HTML5', {
              */
             getParent: function(config) {
                 if (!config.success) {
-                    throw new Error('Ext.device.filesystem.Entry#getParent: You must specify a `success` callback.');
+                    throw new Error('Ext.space.filesystem.Entry#getParent: You must specify a `success` callback.');
                     return null;
                 }
 
@@ -315,8 +315,8 @@ Ext.define('Ext.device.filesystem.HTML5', {
                                     config.success.call(
                                         config.scope || me,
                                         parentEntry.isDirectory
-                                            ? Ext.create('Ext.device.filesystem.DirectoryEntry', parentEntry.fullPath, me.fileSystem)
-                                            : Ext.create('Ext.device.filesystem.FileEntry', parentEntry.fullPath, me.fileSystem)
+                                            ? Ext.create('Ext.space.filesystem.DirectoryEntry', parentEntry.fullPath, me.fileSystem)
+                                            : Ext.create('Ext.space.filesystem.FileEntry', parentEntry.fullPath, me.fileSystem)
                                     )
                                 },
                                 config.failure
@@ -332,8 +332,8 @@ Ext.define('Ext.device.filesystem.HTML5', {
         /**
          * The DirectoryEntry class which is used to represent a directory on a file system.
          */
-        Ext.define('Ext.device.filesystem.DirectoryEntry', {
-            extend: 'Ext.device.filesystem.Entry',
+        Ext.define('Ext.space.filesystem.DirectoryEntry', {
+            extend: 'Ext.space.filesystem.Entry',
             cachedDirectory: null,
 
             constructor: function(path, fileSystem) {
@@ -357,7 +357,7 @@ Ext.define('Ext.device.filesystem.HTML5', {
              * @param {Function} config.success
              * The function called when the Directory is returned successfully
              *
-             * @param {Ext.device.filesystem.DirectoryEntry} config.success.directory
+             * @param {Ext.space.filesystem.DirectoryEntry} config.success.directory
              * DirectoryEntry Object
              *
              * @param {Function} config.failure
@@ -403,7 +403,7 @@ Ext.define('Ext.device.filesystem.HTML5', {
              * @param {Function} config.success This is required.
              * The callback to be called when the entries has been successfully read.
              *
-             * @param {Ext.device.filesystem.Entry[]} config.success.entries
+             * @param {Ext.space.filesystem.Entry[]} config.success.entries
              * The array of entries of the directory.
              *
              * @param {Function} config.failure This is optional.
@@ -417,7 +417,7 @@ Ext.define('Ext.device.filesystem.HTML5', {
              */
             readEntries: function(config) {
                 if (!config.success) {
-                    throw new Error('Ext.device.filesystem.DirectoryEntry#readEntries: You must specify a `success` callback.');
+                    throw new Error('Ext.space.filesystem.DirectoryEntry#readEntries: You must specify a `success` callback.');
                     return null;
                 }
 
@@ -435,8 +435,8 @@ Ext.define('Ext.device.filesystem.HTML5', {
                                     for (; i < len; i++) {
                                         entryInfo = entryInfos[i];
                                         entries[i] = entryInfo.isDirectory
-                                            ? Ext.create('Ext.device.filesystem.DirectoryEntry', entryInfo.fullPath, me.fileSystem)
-                                            : Ext.create('Ext.device.filesystem.FileEntry', entryInfo.fullPath, me.fileSystem);
+                                            ? Ext.create('Ext.space.filesystem.DirectoryEntry', entryInfo.fullPath, me.fileSystem)
+                                            : Ext.create('Ext.space.filesystem.FileEntry', entryInfo.fullPath, me.fileSystem);
                                     }
                                     config.success.call(config.scope || this, entries);
                                 },
@@ -473,7 +473,7 @@ Ext.define('Ext.device.filesystem.HTML5', {
              * @param {Function} config.success This is optional.
              * The callback to be called when the file has been successfully created or selected.
              *
-             * @param {Ext.device.filesystem.Entry} config.success.entry
+             * @param {Ext.space.filesystem.Entry} config.success.entry
              * The created or selected file.
              *
              * @param {Function} config.failure This is optional.
@@ -487,13 +487,13 @@ Ext.define('Ext.device.filesystem.HTML5', {
              */
             getFile: function(config) {
                 if (config.path == null) {
-                    throw new Error('Ext.device.filesystem.DirectoryEntry#getFile: You must specify a `path` of the file.');
+                    throw new Error('Ext.space.filesystem.DirectoryEntry#getFile: You must specify a `path` of the file.');
                     return null;
                 }
 
                 var me = this;
                 var fullPath = this.path + config.path;
-                var fileEntry = Ext.create('Ext.device.filesystem.FileEntry', fullPath, this.fileSystem);
+                var fileEntry = Ext.create('Ext.space.filesystem.FileEntry', fullPath, this.fileSystem);
                 fileEntry.getEntry(
                     {
                         success: function() {
@@ -506,18 +506,18 @@ Ext.define('Ext.device.filesystem.HTML5', {
             },
 
             /**
-             * Works the same way as {@link Ext.device.filesystem.DirectoryEntry#getFile},
+             * Works the same way as {@link Ext.space.filesystem.DirectoryEntry#getFile},
              * but creates or looks up a directory.
              */
             getDirectory: function(config) {
                 if (config.path == null) {
-                    throw new Error('Ext.device.filesystem.DirectoryEntry#getFile: You must specify a `path` of the file.');
+                    throw new Error('Ext.space.filesystem.DirectoryEntry#getFile: You must specify a `path` of the file.');
                     return null;
                 }
 
                 var me = this;
                 var fullPath = this.path + config.path;
-                var directoryEntry = Ext.create('Ext.device.filesystem.DirectoryEntry', fullPath, this.fileSystem);
+                var directoryEntry = Ext.create('Ext.space.filesystem.DirectoryEntry', fullPath, this.fileSystem);
                 directoryEntry.getEntry(
                     {
                         success: function() {
@@ -530,7 +530,7 @@ Ext.define('Ext.device.filesystem.HTML5', {
             },
 
             /**
-             * Works the same way as {@link Ext.device.filesystem.Entry#remove},
+             * Works the same way as {@link Ext.space.filesystem.Entry#remove},
              * but removes the directory and all of its contents, if any.
              */
             removeRecursively: function(config) {
@@ -543,8 +543,8 @@ Ext.define('Ext.device.filesystem.HTML5', {
         /**
          * The FileEntry class which is used to represent a file on a file system.
          */
-        Ext.define('Ext.device.filesystem.FileEntry', {
-            extend: 'Ext.device.filesystem.Entry',
+        Ext.define('Ext.space.filesystem.FileEntry', {
+            extend: 'Ext.space.filesystem.Entry',
 
             length: 0,
             offset: 0,
@@ -597,7 +597,7 @@ Ext.define('Ext.device.filesystem.HTML5', {
                             if (folders.length > 1 && !config.recursive === true) {
                                 folders.pop();
 
-                                var dirEntry = Ext.create('Ext.device.filesystem.DirectoryEntry', folders.join("/"), me.fileSystem);
+                                var dirEntry = Ext.create('Ext.space.filesystem.DirectoryEntry', folders.join("/"), me.fileSystem);
                                 dirEntry.getEntry(
                                     {
                                         options: config.options,
@@ -674,7 +674,7 @@ Ext.define('Ext.device.filesystem.HTML5', {
              */
             seek: function(config) {
                 if (config.offset == null) {
-                    throw new Error('Ext.device.filesystem.FileEntry#seek: You must specify an `offset` in the file.');
+                    throw new Error('Ext.space.filesystem.FileEntry#seek: You must specify an `offset` in the file.');
                     return null;
                 }
 
@@ -822,7 +822,7 @@ Ext.define('Ext.device.filesystem.HTML5', {
              */
             write: function(config) {
                 if (config.data == null) {
-                    throw new Error('Ext.device.filesystem.FileEntry#write: You must specify `data` to write into the file.');
+                    throw new Error('Ext.space.filesystem.FileEntry#write: You must specify `data` to write into the file.');
                     return null;
                 }
 
@@ -894,7 +894,7 @@ Ext.define('Ext.device.filesystem.HTML5', {
              */
             truncate: function(config) {
                 if (config.size == null) {
-                    throw new Error('Ext.device.filesystem.FileEntry#write: You must specify a `size` of the file.');
+                    throw new Error('Ext.space.filesystem.FileEntry#write: You must specify a `size` of the file.');
                     return null;
                 }
 

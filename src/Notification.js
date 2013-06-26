@@ -14,7 +14,7 @@
  *
  * To show a simple notification:
  *
- *     Ext.device.Notification.show({
+ *     Ext.space.Notification.show({
  *         title: 'Verification',
  *         message: 'Is your email address: test@sencha.com',
  *         buttons: Ext.MessageBox.OKCANCEL,
@@ -29,9 +29,9 @@
  *
  * To make the device vibrate:
  *
- *     Ext.device.Notification.vibrate();
+ *     Ext.space.Notification.vibrate();
  *
- * @mixins Ext.device.notification.Abstract
+ * @mixins Ext.space.notification.Abstract
  *
  * @aside guide native_apis
  */

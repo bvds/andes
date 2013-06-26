@@ -55,40 +55,25 @@ Ext.define('Ext.space.Invoke', {
     messageId: 0,
 
     constructor: function() {
-        var me = this,
-            i, ln, message;
-
         this.pendingReceivePromises = {};
         this.connections = {};
         this.connectQueue = [];
         this.messageQueue = [];
+    },
 
-        var pendingMessages = window.__invokeMessages,
-            appId = window.__invokeAppId;
+    invoke: function(messages) {
+        var me = this;
 
-        delete window.__invokeAppId;
-        this.appId = appId;
-
-        if (!appId) {
-            throw new Error("window.__invokeAppId is not set properly");
+        if (!Array.isArray(messages)) {
+            throw new Error('[Invoke#invoke] Invalid messages, must be an array');
         }
 
-        if (pendingMessages && pendingMessages.length > 0) {
-            for (i = 0, ln = pendingMessages.length; i < ln; i++) {
-                message = pendingMessages[i];
-                this.onReceived(JSON.parse(atob(message)));
-            }
-        }
-
-        delete window.__invokeMessages;
-
-        window.__pushInvokeMessage = function(message) {
-            // Release the execution flow for that the native process can continue right away
-            // This enable any debugger statement during this flow to work probably
-            setTimeout(function() {
-                me.onReceived(JSON.parse(atob(message)));
-            }, 1);
-        }
+        // Unblock native thread
+        setTimeout(function() {
+            messages.forEach(function(message) {
+                me.onReceived(message);
+            })
+        }, 1);
     },
 
     /**
@@ -205,7 +190,6 @@ Ext.define('Ext.space.Invoke', {
      * @private
      */
     onReceived: function(data) {
-        console.warn('ON RECEIVED ', JSON.stringify(data, null, 2));
         var appId = data.appId,
             message = data.message,
             messageId = data.id,
@@ -318,16 +302,14 @@ Ext.define('Ext.space.Invoke', {
      * @returns {Ext.Promise}
      */
     doSend: function(receiverId, messageId, message, foreground) {
-        var promise = new Ext.Promise;
+        var promise = new Ext.Promise,
+            appId = Ext.space.Communicator.appId;
 
         var success = function(result) {
-            console.warn("RESULT", receiverId, messageId, result)
             promise.fulfill(result);
         };
 
         success.args = arguments;
-
-        console.warn("GOING OUT", receiverId, messageId, message);
 
         Ext.space.Communicator.send({
             command: 'Invoke#send',
@@ -339,12 +321,12 @@ Ext.define('Ext.space.Invoke', {
             },
             receiverId: receiverId,
             foreground: foreground,
-            message: btoa(JSON.stringify({
+            message: JSON.stringify({
                 id: messageId,
-                appId: this.appId,
+                appId: appId,
                 message: message,
                 foreground: foreground
-            }))
+            })
         });
 
         return promise;

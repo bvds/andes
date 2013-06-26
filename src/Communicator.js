@@ -7,9 +7,9 @@
  * 1. Maintaining unique string ids for callback functions, together with their scope objects
  * 2. Serializing given object data into HTTP GET request parameters
  *
- * As an example, to capture a photo from the device's camera, we use `Ext.device.Camera.capture()` like:
+ * As an example, to capture a photo from the device's camera, we use `Ext.space.Camera.capture()` like:
  *
- *     Ext.device.Camera.capture(
+ *     Ext.space.Camera.capture(
  *         function(dataUri){
  *             // Do something with the base64-encoded `dataUri` string
  *         },
@@ -24,9 +24,9 @@
  *         }
  *     );
  *
- * Internally, `Ext.device.Communicator.send()` will then be invoked with the following argument:
+ * Internally, `Ext.space.Communicator.send()` will then be invoked with the following argument:
  *
- *     Ext.device.Communicator.send({
+ *     Ext.space.Communicator.send({
  *         command: 'Camera#capture',
  *         callbacks: {
  *             onSuccess: function() {
@@ -48,25 +48,25 @@
  *     ?quality=75&width=500&height=500&command=Camera%23capture&onSuccess=3&onError=5
  *
  * Notice that `onSuccess` and `onError` have been converted into string ids (`3` and `5`
- * respectively) and maintained by `Ext.device.Communicator`.
+ * respectively) and maintained by `Ext.space.Communicator`.
  *
- * Whenever the requested operation finishes, `Ext.device.Communicator.invoke()` simply needs
+ * Whenever the requested operation finishes, `Ext.space.Communicator.invoke()` simply needs
  * to be executed from the native shell with the corresponding ids given before. For example:
  *
- *     Ext.device.Communicator.invoke('3', ['DATA_URI_OF_THE_CAPTURED_IMAGE_HERE']);
+ *     Ext.space.Communicator.invoke('3', ['DATA_URI_OF_THE_CAPTURED_IMAGE_HERE']);
  *
  * will invoke the original `onSuccess` callback under the given scope. (`callbackScope`), with
  * the first argument of 'DATA_URI_OF_THE_CAPTURED_IMAGE_HERE'
  *
- * Note that `Ext.device.Communicator` maintains the uniqueness of each function callback and
- * its scope object. If subsequent calls to `Ext.device.Communicator.send()` have the same
+ * Note that `Ext.space.Communicator` maintains the uniqueness of each function callback and
+ * its scope object. If subsequent calls to `Ext.space.Communicator.send()` have the same
  * callback references, the same old ids will simply be reused, which guarantee the best possible
  * performance for a large amount of repetitive calls.
  */
 Ext.define('Ext.space.Communicator', {
     singleton: true,
 
-    SERVER_URL: 'http://127.0.0.1:3000', // Change this to the correct server URL
+    SERVER_URL: 'http://127.0.0.1:30015/', // Change this to the correct server URL
 
     callbackDataMap: {},
 
@@ -76,9 +76,35 @@ Ext.define('Ext.space.Communicator', {
 
     globalScopeId: '0',
 
-    init: function(appId) {
+    init: function(info) {
+        var appId = info.appId,
+            device = info.device,
+            session = info.session,
+            messages = info.messages;
+
+        if (DEBUG && !appId) {
+            throw new Error("[Communicator#init] Missing appId");
+        }
+
+        if (DEBUG && !device) {
+            throw new Error("[Communicator#init] Missing device info");
+        }
+
+        if (DEBUG && !session) {
+            throw new Error("[Communicator#init] Missing session info");
+        }
+
+        if (DEBUG && !messages || !Array.isArray(messages)) {
+            throw new Error("[Communicator#init] Missing messages");
+        }
+
+        this.device = device;
+        this.session = session;
         this.appId = appId;
+
         Ext.setSpaceReady();
+
+        Ext.space.Invoke.invoke(messages);
     },
 
     generateId: function() {
@@ -102,9 +128,11 @@ Ext.define('Ext.space.Communicator', {
 
         if (!scope) {
             scopeId = this.globalScopeId;
-        } else if (scope.isIdentifiable) {
+        }
+        else if (scope.isIdentifiable) {
             scopeId = scope.getId();
-        } else {
+        }
+        else {
             scopeId = this.getId(scope);
         }
 
@@ -139,7 +167,8 @@ Ext.define('Ext.space.Communicator', {
     },
 
     send: function(args, synchronous) {
-        var callbacks, scope, name, callback, response;
+        var callbacks, scope, name, callback,
+            response, data, xhr;
 
         if (!args) {
             args = {};
@@ -162,27 +191,33 @@ Ext.define('Ext.space.Communicator', {
             }
         }
 
-        var xhr = new XMLHttpRequest();
-
+        xhr = new XMLHttpRequest();
         xhr.open('POST', this.SERVER_URL + '?_dc=' + new Date().getTime(), !synchronous);
         xhr.setRequestHeader('Content-Type', 'text/plain');
 
-        if (synchronous) {
+        data = {
+            args: args,
+            appId: this.appId
+        };
+
+        data = JSON.stringify(data);
+
+        DEBUG && console.log("[OUT]", data);
+
+        if (!synchronous) {
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4) {
                     var status = xhr.status;
 
-                    if (status < 200 || (status >= 300 && status != 304)) {
-                        throw new Error("Failed communicating to native bridge, status code: " + status);
+                    if (status !== 200) {
+                        throw new Error("Failed communicating to native bridge, got status code: " + status + ". " +
+                            "XHR Data: " + data);
                     }
                 }
             }
         }
 
-        xhr.send(JSON.stringify({
-            args: args,
-            appId: this.appId
-        }));
+        xhr.send(data);
 
         if (synchronous) {
             response = xhr.responseText;

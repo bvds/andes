@@ -8,30 +8,30 @@
  * Both the Sencha Packager and PhoneGap implementations will use the native functionality to determine if the current
  * device is online. The Simulator version will simply use `navigator.onLine`.
  *
- * When this singleton ({@link Ext.device.Connection}) is instantiated, it will automatically decide which version to
+ * When this singleton ({@link Ext.space.Connection}) is instantiated, it will automatically decide which version to
  * use based on the current platform.
  *
  * ## Examples
  *
  * Determining if the current device is online:
  *
- *     alert(Ext.device.Connection.isOnline());
+ *     alert(Ext.space.Connection.isOnline());
  *
  * Checking the type of connection the device has:
  *
- *     alert('Your connection type is: ' + Ext.device.Connection.getType());
+ *     alert('Your connection type is: ' + Ext.space.Connection.getType());
  *
  * The available connection types are:
  *
- * - {@link Ext.device.Connection#UNKNOWN UNKNOWN} - Unknown connection
- * - {@link Ext.device.Connection#ETHERNET ETHERNET} - Ethernet connection
- * - {@link Ext.device.Connection#WIFI WIFI} - WiFi connection
- * - {@link Ext.device.Connection#CELL_2G CELL_2G} - Cell 2G connection
- * - {@link Ext.device.Connection#CELL_3G CELL_3G} - Cell 3G connection
- * - {@link Ext.device.Connection#CELL_4G CELL_4G} - Cell 4G connection
- * - {@link Ext.device.Connection#NONE NONE} - No network connection
+ * - {@link Ext.space.Connection#UNKNOWN UNKNOWN} - Unknown connection
+ * - {@link Ext.space.Connection#ETHERNET ETHERNET} - Ethernet connection
+ * - {@link Ext.space.Connection#WIFI WIFI} - WiFi connection
+ * - {@link Ext.space.Connection#CELL_2G CELL_2G} - Cell 2G connection
+ * - {@link Ext.space.Connection#CELL_3G CELL_3G} - Cell 3G connection
+ * - {@link Ext.space.Connection#CELL_4G CELL_4G} - Cell 4G connection
+ * - {@link Ext.space.Connection#NONE NONE} - No network connection
  *
- * @mixins Ext.device.connection.Abstract
+ * @mixins Ext.space.connection.Abstract
  *
  * @aside guide native_apis
  */

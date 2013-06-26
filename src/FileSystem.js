@@ -1,33 +1,33 @@
 /**
  * Provides an API to navigate file system hierarchies.
  *
- * @mixins Ext.device.filesystem.Sencha
+ * @mixins Ext.space.filesystem.Sencha
  *
  * @aside guide native_apis
  */
-Ext.define('Ext.device.FileSystem', {
+Ext.define('Ext.space.FileSystem', {
     singleton: true,
 
     requires: [
-        'Ext.device.Communicator',
-        'Ext.device.filesystem.Cordova',
-        'Ext.device.filesystem.Chrome',
-        'Ext.device.filesystem.Simulator',
-        'Ext.device.filesystem.Sencha'
+        'Ext.space.Communicator',
+        'Ext.space.filesystem.Cordova',
+        'Ext.space.filesystem.Chrome',
+        'Ext.space.filesystem.Simulator',
+        'Ext.space.filesystem.Sencha'
     ],
 
     constructor: function() {
         var browserEnv = Ext.browser.is;
         if (browserEnv.WebView) {
             if (browserEnv.Cordova) {
-                return Ext.create('Ext.device.filesystem.Cordova');
+                return Ext.create('Ext.space.filesystem.Cordova');
             } else {
-                return Ext.create('Ext.device.filesystem.Sencha');
+                return Ext.create('Ext.space.filesystem.Sencha');
             }
         } else if (browserEnv.Chrome) {
-            return Ext.create('Ext.device.filesystem.Chrome');
+            return Ext.create('Ext.space.filesystem.Chrome');
         }
 
-        return Ext.create('Ext.device.filesystem.Simulator');
+        return Ext.create('Ext.space.filesystem.Simulator');
     }
 });

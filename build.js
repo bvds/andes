@@ -24,9 +24,9 @@ files.forEach(function(file) {
     content.push(fs.readFileSync(path.join('src', file + '.js'), 'utf8'));
 });
 
-fs.writeFileSync('out/device.js', content.join('\n'));
+fs.writeFileSync('out/space.js', content.join('\n'));
 
-result = UglifyJS.minify('out/device.js', {
+result = UglifyJS.minify('out/space.js', {
     compress: {
         global_defs: {
             DEBUG: false
@@ -34,6 +34,5 @@ result = UglifyJS.minify('out/device.js', {
     }
 });
 
-fs.writeFileSync('out/device.min.js', result.code);
-
+fs.writeFileSync('out/space.min.js', result.code);
 
