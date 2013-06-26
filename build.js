@@ -24,6 +24,7 @@ files.forEach(function(file) {
     content.push(fs.readFileSync(path.join('src', file + '.js'), 'utf8'));
 });
 
+fs.mkdirSync('out');
 fs.writeFileSync('out/space.js', content.join('\n'));
 
 result = UglifyJS.minify('out/space.js', {
