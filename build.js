@@ -1,7 +1,9 @@
+#!/usr/bin/env /usr/local/bin/node
 var fs = require('fs'),
     path = require('path'),
     UglifyJS = require('uglify-js'),
     files = [
+        'debug',
         'core',
         'Communicator',
         'Promise',
@@ -12,7 +14,8 @@ var fs = require('fs'),
         'Orientation',
         'invoke/Connection',
         'Invoke',
-        'Sqlite'
+        'Sqlite',
+        'extra'
     ],
     content = [];
 
@@ -21,10 +24,16 @@ files.forEach(function(file) {
     content.push(fs.readFileSync(path.join('src', file + '.js'), 'utf8'));
 });
 
-fs.writeFileSync('device.js', content.join('\n'));
+fs.writeFileSync('out/device.js', content.join('\n'));
 
-result = UglifyJS.minify('device.js');
+result = UglifyJS.minify('out/device.js', {
+    compress: {
+        global_defs: {
+            DEBUG: false
+        }
+    }
+});
 
-fs.writeFileSync('device.min.js', result.code);
+fs.writeFileSync('out/device.min.js', result.code);
 
 
