@@ -21,10 +21,10 @@ files.forEach(function(file) {
     content.push(fs.readFileSync(path.join('src', file + '.js'), 'utf8'));
 });
 
-fs.writeFileSync('device.js', content.join('\n'));
+fs.writeFileSync('space.js', content.join('\n'));
 
-result = UglifyJS.minify('device.js');
+result = UglifyJS.minify('space.js');
 
-fs.writeFileSync('device.min.js', result.code);
+fs.writeFileSync('space.min.js', result.code);
 
 
