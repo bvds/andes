@@ -9,7 +9,12 @@
                 eval(script);
             }
             catch (e) {
-                console.error("[EVALUATE][ERROR] Failed evaluating script. Error: ", e.toString(), ". Script: ", script);
+                if (e.constructor !== Error) {
+                    console.error("[EVALUATE][ERROR] Failed evaluating script. Error: ", e.toString(), ". Script: ", script);
+                }
+                else {
+                    throw e;
+                }
             }
         }, 1);
 
