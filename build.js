@@ -15,6 +15,7 @@ var fs = require('fs'),
         'invoke/Connection',
         'Invoke',
         'Sqlite',
+        'FileSystem',
         'extra'
     ],
     content = [];
