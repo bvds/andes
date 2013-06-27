@@ -118,6 +118,23 @@ Ext.define('Ext.space.Communicator', {
 
             queue.length = 0;
         }
+
+        this.watchTitle();
+    },
+
+    watchTitle: function() {
+        var me = this,
+            target = document.querySelector('head > title'),
+            observer = new window.WebKitMutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    me.send({
+                        command: 'TitleWatcher#update',
+                        title: mutation.target.textContent
+                    });
+                });
+            });
+
+        target && observer.observe(target, { subtree: true, characterData: true, childList: true });
     },
 
     generateId: function() {
