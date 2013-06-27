@@ -25,7 +25,7 @@
 
         delete members.extend;
         Class.prototype = prototype = Object.create(extend.prototype);
-        prototype.superclass = extend.prototype;
+        Class.superclass = prototype.superclass = extend.prototype;
 
         delete members.statics;
 
@@ -62,6 +62,17 @@
         Ext.isSpace = true;
         Ext.spaceVersion = match[1];
     }
+
+    Ext.apply = function(object, config) {
+        var key, value;
+
+        for (key in config) {
+            value = config[key];
+            object[key] = value;
+        }
+
+        return object;
+    };
 
     Ext.isSpaceReady = false;
     Ext.onSpaceReady = function(callback, scope) {
