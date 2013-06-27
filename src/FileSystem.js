@@ -241,7 +241,7 @@ Ext.define('Ext.space.filesystem.DirectoryEntry', {
     extend: Ext.space.filesystem.Entry,
 
     constructor: function(path, fileSystem) {
-        this.callParent([true, path, fileSystem]);
+        Ext.space.filesystem.DirectoryEntry.superclass.constructor.apply(this, [true, path, fileSystem]);
     },
 
     /**
@@ -398,7 +398,7 @@ Ext.define('Ext.space.filesystem.FileEntry', {
     offset: 0,
 
     constructor: function(path, fileSystem) {
-        this.callParent([false, path, fileSystem]);
+        Ext.space.filesystem.FileEntry.superclass.constructor.apply(this, [false, path, fileSystem]);
 
         this.offset = 0;
     },
