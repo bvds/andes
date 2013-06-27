@@ -77,6 +77,8 @@
         }
     };
     Ext.setSpaceReady = function() {
+        Ext.isSpaceReady = true;
+
         var ln = readyListeners.length,
             i = 0,
             listener;
