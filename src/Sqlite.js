@@ -1,7 +1,7 @@
 /**
- * The SQLResultSetRowList class which is used to represent rows returned by SQL statements.
+ * The SqlResultSetRowList class which is used to represent rows returned by Sql statements.
  */
-Ext.define('Ext.space.sqlite.SQLResultSetRowList', {
+Ext.define('Ext.space.sqlite.SqlResultSetRowList', {
     names: null,
     rows: null,
 
@@ -11,7 +11,7 @@ Ext.define('Ext.space.sqlite.SQLResultSetRowList', {
     },
 
     /**
-     * Returns the number of rows returned by the SQL statement.
+     * Returns the number of rows returned by the Sql statement.
      *
      * @return {Number}
      * The number of rows.
@@ -21,7 +21,7 @@ Ext.define('Ext.space.sqlite.SQLResultSetRowList', {
     },
 
     /**
-     * Returns a row at specified index returned by the SQL statement.
+     * Returns a row at specified index returned by the Sql statement.
      * If there is no such row, returns null.
      *
      * @param {Number} index
@@ -46,9 +46,9 @@ Ext.define('Ext.space.sqlite.SQLResultSetRowList', {
 });
 
 /**
- * The SQLResultSet class which is used to represent SQL statements results.
+ * The SqlResultSet class which is used to represent Sql statements results.
  */
-Ext.define('Ext.space.sqlite.SQLResultSet', {
+Ext.define('Ext.space.sqlite.SqlResultSet', {
     insertId: 0,
     rowsAffected: 0,
     rows: null,
@@ -56,11 +56,11 @@ Ext.define('Ext.space.sqlite.SQLResultSet', {
     constructor: function(data) {
         this.insertId = data.insertId;
         this.rowsAffected = data.rowsAffected;
-        this.rows = new Ext.space.sqlite.SQLResultSetRowList(data);
+        this.rows = new Ext.space.sqlite.SqlResultSetRowList(data);
     },
 
     /**
-     * Returns the row ID of the last row that the SQL statement inserted into the database, if the statement inserted any rows.
+     * Returns the row ID of the last row that the Sql statement inserted into the database, if the statement inserted any rows.
      * If the statement did not insert a row, throws an exception.
      *
      * @return {Number}
@@ -70,13 +70,13 @@ Ext.define('Ext.space.sqlite.SQLResultSet', {
         if (this.insertId != 0) {
             return this.insertId;
         } else {
-            throw new Error('Ext.space.sqlite.SQLResultSet#getInsertId: An SQLTransaction did not insert a row.');
+            throw new Error('Ext.space.sqlite.SqlResultSet#getInsertId: An SqlTransaction did not insert a row.');
             return null;
         }
     },
 
     /**
-     * Returns the number of rows that were changed by the SQL statement.
+     * Returns the number of rows that were changed by the Sql statement.
      * If the statement did not change any rows, returns zero.
      *
      * @return {Number}
@@ -87,9 +87,9 @@ Ext.define('Ext.space.sqlite.SQLResultSet', {
     },
 
     /**
-     * Returns a {@link Ext.space.sqlite.SQLResultSetRowList} instance representing rows returned by the SQL statement.
+     * Returns a {@link Ext.space.sqlite.SqlResultSetRowList} instance representing rows returned by the Sql statement.
      *
-     * @return {Ext.space.sqlite.SQLResultSetRowList}
+     * @return {Ext.space.sqlite.SqlResultSetRowList}
      * The rows.
      */
     getRows: function() {
@@ -98,9 +98,9 @@ Ext.define('Ext.space.sqlite.SQLResultSet', {
 });
 
 /**
- * The SQLTransaction class which is used to execute SQL statements.
+ * The SqlTransaction class which is used to execute Sql statements.
  */
-Ext.define('Ext.space.sqlite.SQLTransaction', {
+Ext.define('Ext.space.sqlite.SqlTransaction', {
     id: 0,
     active: false,
     statements: null,
@@ -111,32 +111,32 @@ Ext.define('Ext.space.sqlite.SQLTransaction', {
     },
 
     /**
-     * Executes an SQL statement.
+     * Executes an Sql statement.
      *
      * @param {Object} config
      * The object which contains the following config options:
      *
      * @param {String} config.sqlStatement
-     * The SQL statement to execute. This is required.
+     * The Sql statement to execute. This is required.
      *
      * @param {Array} config.arguments
-     * The arguments array to bind each '?' placeholder in the SQL statement. This is optional.
+     * The arguments array to bind each '?' placeholder in the Sql statement. This is optional.
      *
      * @param {Function} config.callback
-     * The callback to be called when the SQL statement succeeded. This is optional.
+     * The callback to be called when the Sql statement succeeded. This is optional.
      *
-     * @param {Ext.space.sqlite.SQLTransaction} config.callback.transaction
-     * The transaction of the SQL statement.
+     * @param {Ext.space.sqlite.SqlTransaction} config.callback.transaction
+     * The transaction of the Sql statement.
      *
-     * @param {Ext.space.sqlite.SQLTransaction} config.callback.resultSet
-     * The result of the SQL statement.
+     * @param {Ext.space.sqlite.SqlTransaction} config.callback.resultSet
+     * The result of the Sql statement.
      *
      * @param {Function} config.failure
      * The callback to be called when an error occurred. This is optional.
-     * If the callback returns false, next SQL statement will be executed.
+     * If the callback returns false, next Sql statement will be executed.
      *
-     * @param {Ext.space.sqlite.SQLTransaction} config.failure.transaction
-     * The transaction of the SQL statement.
+     * @param {Ext.space.sqlite.SqlTransaction} config.failure.transaction
+     * The transaction of the Sql statement.
      *
      * @param {Object} config.failure.error
      * The occurred error.
@@ -146,12 +146,12 @@ Ext.define('Ext.space.sqlite.SQLTransaction', {
      */
     executeSql: function(config) {
         if (!this.active) {
-            throw new Error('Ext.space.sqlite.SQLTransaction#executeSql: An attempt was made to use a SQLTransaction that is no longer usable.');
+            throw new Error('Ext.space.sqlite.SqlTransaction#executeSql: An attempt was made to use a SqlTransaction that is no longer usable.');
             return null;
         }
 
         if (config.sqlStatement == null) {
-            throw new Error('Ext.space.sqlite.SQLTransaction#executeSql: You must specify a `sqlStatement` for the transaction.');
+            throw new Error('Ext.space.sqlite.SqlTransaction#executeSql: You must specify a `sqlStatement` for the transaction.');
             return null;
         }
 
@@ -186,13 +186,12 @@ Ext.define('Ext.space.sqlite.Database', {
     getVersion: function() {
         return Ext.space.Communicator.send({
             command: 'Sqlite#getVersion',
-            sync: true,
             databaseId: this.id
-        });
+        }, true);
     },
 
     /**
-     * Performs a {@link Ext.space.sqlite.SQLTransaction} instance with a read/write mode.
+     * Performs a {@link Ext.space.sqlite.SqlTransaction} instance with a read/write mode.
      *
      * @param {Object} config
      * The object which contains the following config options:
@@ -200,7 +199,7 @@ Ext.define('Ext.space.sqlite.Database', {
      * @param {Function} config.callback
      * The callback to be called when the transaction has been created. This is required.
      *
-     * @param {Ext.space.sqlite.SQLTransaction} config.callback.transaction
+     * @param {Ext.space.sqlite.SqlTransaction} config.callback.transaction
      * The created transaction.
      *
      * @param {Function} config.success
@@ -230,13 +229,12 @@ Ext.define('Ext.space.sqlite.Database', {
                 success: function(id) {
                     var exception = null;
                     var error = null;
-                    var transaction = new Ext.space.sqlite.SQLTransaction(id);
+                    var transaction = new Ext.space.sqlite.SqlTransaction(id);
 
                     error = Ext.space.Communicator.send({
                         command: 'Sqlite#beginTransaction',
-                        sync: true,
                         transactionId: transaction.id
-                    });
+                    }, true);
 
                     if (!error && config.preflight) {
                         error = config.preflight.call(config.scope || this);
@@ -259,19 +257,18 @@ Ext.define('Ext.space.sqlite.Database', {
                         var statement = statements.shift();
                         var result = Ext.space.Communicator.send({
                             command: 'Sqlite#executeStatement',
-                            sync: true,
                             transactionId: transaction.id,
                             databaseId: me.id,
                             version: me.version,
                             sqlStatement: statement.sqlStatement,
                             arguments: JSON.stringify(statement.arguments)
-                        });
+                        }, true);
 
                         if (result) {
                             if (result.error) {
                                 error = result.error;
                             } else if (statement.callback) {
-                                var resultSet = new Ext.space.sqlite.SQLResultSet(result);
+                                var resultSet = new Ext.space.sqlite.SqlResultSet(result);
 
                                 try {
                                     transaction.active = true;
@@ -301,9 +298,8 @@ Ext.define('Ext.space.sqlite.Database', {
                     if (!(exception || error)) {
                         error = Ext.space.Communicator.send({
                             command: 'Sqlite#commitTransaction',
-                            sync: true,
                             transactionId: transaction.id
-                        });
+                        }, true);
 
                         if (!error) {
                             if (config.postflight) {
@@ -321,9 +317,8 @@ Ext.define('Ext.space.sqlite.Database', {
 
                         Ext.space.Communicator.send({
                             command: 'Sqlite#rollbackTransaction',
-                            sync: true,
                             transactionId: transaction.id
-                        });
+                        }, true);
 
                         if (exception) {
                             throw exception;
@@ -343,7 +338,7 @@ Ext.define('Ext.space.sqlite.Database', {
     },
 
     /**
-     * Works same as {@link Ext.space.sqlite.Database#transaction}, but performs a {@link Ext.space.sqlite.SQLTransaction} instance with a read-only mode.
+     * Works same as {@link Ext.space.sqlite.Database#transaction}, but performs a {@link Ext.space.sqlite.SqlTransaction} instance with a read-only mode.
      */
     readTransaction: function(config) {
         this.transaction(Ext.apply(config, {
@@ -352,7 +347,7 @@ Ext.define('Ext.space.sqlite.Database', {
     },
 
     /**
-     * Verifies and changes the version of the database at the same time as doing a schema update with a {@link Ext.space.sqlite.SQLTransaction} instance.
+     * Verifies and changes the version of the database at the same time as doing a schema update with a {@link Ext.space.sqlite.SqlTransaction} instance.
      *
      * @param {Object} config
      * The object which contains the following config options:
@@ -366,7 +361,7 @@ Ext.define('Ext.space.sqlite.Database', {
      * @param {Function} config.callback
      * The callback to be called when the transaction has been created. This is optional.
      *
-     * @param {Ext.space.sqlite.SQLTransaction} config.callback.transaction
+     * @param {Ext.space.sqlite.SqlTransaction} config.callback.transaction
      * The created transaction.
      *
      * @param {Function} config.success
@@ -399,10 +394,9 @@ Ext.define('Ext.space.sqlite.Database', {
             postflight: function() {
                 var result = Ext.space.Communicator.send({
                     command: 'Sqlite#setVersion',
-                    sync: true,
                     databaseId: this.id,
                     version: config.newVersion
-                });
+                }, true);
 
                 if (result) {
                     this.version = config.newVersion;
@@ -471,7 +465,6 @@ Ext.define('Ext.space.Sqlite', {
 
         var result = Ext.space.Communicator.send({
             command: 'Sqlite#openDatabase',
-            sync: true,
             name: config.name,
             version: config.version,
             displayName: config.displayName,
@@ -483,7 +476,7 @@ Ext.define('Ext.space.Sqlite', {
                 }
             },
             scope: config.scope || this
-        });
+        }, true);
 
         if (result) {
             if (result.error) {
