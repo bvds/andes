@@ -92,6 +92,16 @@ Ext.define('Ext.space.Connection', {
         });
     },
 
+    getStatus: function(config) {
+        Ext.space.Communicator.send({
+            command: 'Connection#getStatus',
+            callbacks: {
+                callback: config.callback
+            },
+            scope: config.scope
+        });
+    },
+
     onConnectionChange: function() {
         this.addListener.apply(this, arguments);
     },
