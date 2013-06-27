@@ -19,12 +19,22 @@
             parts = name.split('.'),
             ln = parts.length - 1,
             leaf = parts[ln],
+            statics = members.statics,
             extend = members.extend || Base,
             prototype, key, value, part, i;
 
         delete members.extend;
         Class.prototype = prototype = Object.create(extend.prototype);
         prototype.superclass = extend.prototype;
+
+        delete members.statics;
+
+        if (statics) {
+            for (key in statics) {
+                value = statics[key];
+                Class[key] = value;
+            }
+        }
 
         for (key in members) {
             value = members[key];
@@ -45,7 +55,7 @@
         return Class;
     };
 
-    var match = window.navigator.userAgent.match(/SenchaSpace\/([0-9\.]+)/),
+    var match = typeof window != 'undefined' && window.navigator.userAgent.match(/SenchaSpace\/([0-9\.]+)/),
         readyListeners = [];
 
     if (match) {

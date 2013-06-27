@@ -35,9 +35,11 @@ app.configure(function() {
 });
 
 app.post('/log', function(request, response) {
-    var logs = request.body;
+    var body = request.body,
+        logs;
 
-    if (Array.isArray(logs)) {
+    if (body) {
+        logs = body.logs;
         logs.forEach(function(log) {
             console.log(JSON.stringify(log, null, 4));
         });

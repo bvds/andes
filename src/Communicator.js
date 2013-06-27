@@ -167,8 +167,7 @@ Ext.define('Ext.space.Communicator', {
     },
 
     send: function(args, synchronous) {
-        var callbacks, scope, name, callback,
-            response, data, xhr;
+        var callbacks, scope, name, callback;
 
         if (!args) {
             args = {};
@@ -191,9 +190,20 @@ Ext.define('Ext.space.Communicator', {
             }
         }
 
+        return this.doSend(args, synchronous);
+    },
+
+    doSend: function(args, synchronous) {
+        var response, data, xhr;
+
         xhr = new XMLHttpRequest();
         xhr.open('POST', this.SERVER_URL + '?_dc=' + new Date().getTime(), !synchronous);
         xhr.setRequestHeader('Content-Type', 'text/plain');
+
+        if (!this.appId) {
+            debugger;
+            throw new Error("Missing appId at this point");
+        }
 
         data = {
             args: args,

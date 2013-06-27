@@ -81,16 +81,31 @@ Ext.define('Ext.space.Invoke', {
      * @param {String} receiverId The id of the application to connect to. Get this id from #broadcast
      * @returns {Ext.Promise}
      */
-    connect: function(receiverId) {
+//    connect: function(receiverId) {
+//        var connections = this.connections,
+//            connection = connections[receiverId];
+//
+//        if (connection) {
+//            return Ext.Promise.from(connection);
+//        }
+//        else {
+//            return this.send(receiverId, '__CONNECT__').then(function() {
+//                connections[receiverId] = connection = new Ext.space.invoke.Connection(receiverId);
+//                return connection;
+//            });
+//        }
+//    },
+
+    get: function(broadcastMessage) {
         var connections = this.connections,
-            connection = connections[receiverId];
+            connection = connections[broadcastMessage];
 
         if (connection) {
             return Ext.Promise.from(connection);
         }
         else {
-            return this.send(receiverId, '__CONNECT__').then(function() {
-                connections[receiverId] = connection = new Ext.space.invoke.Connection(receiverId);
+            return this.broadcast(broadcastMessage).then(this, function(receiverIds) {
+                connections[broadcastMessage] = connection = new Ext.space.invoke.Connection(receiverIds[0].id);
                 return connection;
             });
         }
@@ -321,12 +336,12 @@ Ext.define('Ext.space.Invoke', {
             },
             receiverId: receiverId,
             foreground: foreground,
-            message: JSON.stringify({
+            message: {
                 id: messageId,
                 appId: appId,
                 message: message,
                 foreground: foreground
-            })
+            }
         });
 
         return promise;

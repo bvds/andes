@@ -3,11 +3,14 @@ if (typeof DEBUG === 'undefined') {
     DEBUG = true;
 
     (function() {
-        var log = console.log,
+        var scripts = document.getElementsByTagName('script'),
+            script = scripts[scripts.length - 1],
+            log = console.log,
             warn = console.warn,
             error = console.error,
             pendingLogs = [],
-            xhrTimer = null;
+            xhrTimer = null,
+            logServer = script.getAttribute('logServer') || 'http://localhost:9876/log';
 
         function doLog(message, type) {
             var Communicator = Ext.space.Communicator;
@@ -16,9 +19,11 @@ if (typeof DEBUG === 'undefined') {
                 xhrTimer = setTimeout(function() {
                     var xhr = new XMLHttpRequest();
 
-                    xhr.open('POST', 'http://localhost:9876/log', true);
+                    xhr.open('POST', logServer, true);
                     xhr.setRequestHeader('Content-Type', 'application/json');
-                    xhr.send(JSON.stringify(pendingLogs));
+                    xhr.send(JSON.stringify({
+                        logs: pendingLogs
+                    }));
 
                     pendingLogs.length = 0;
                     xhrTimer = null;
@@ -77,6 +82,10 @@ if (typeof DEBUG === 'undefined') {
                         console.log('[EXPECT][' + id + '][END] ' + expectation.name + ' after ' +
                             (now - expectation.time) + 'ms');
                     }
+                }
+
+                if (expectations.length === 0) {
+                    object[method] = fn;
                 }
 
                 return fn.apply(object, arguments);
