@@ -76,8 +76,13 @@ Ext.define('Ext.space.Communicator', {
 
     globalScopeId: '0',
 
+    constructor: function() {
+        this.sendQueue = [];
+    },
+
     init: function(info) {
-        var appId = info.appId,
+        var queue = this.sendQueue,
+            appId = info.appId,
             device = info.device,
             session = info.session,
             messages = info.messages;
@@ -105,6 +110,14 @@ Ext.define('Ext.space.Communicator', {
         Ext.setSpaceReady();
 
         Ext.space.Invoke.invoke(messages);
+
+        if (queue.length > 0) {
+            queue.forEach(function(args) {
+                this.send(args);
+            }, this);
+
+            queue.length = 0;
+        }
     },
 
     generateId: function() {
@@ -167,6 +180,16 @@ Ext.define('Ext.space.Communicator', {
     },
 
     send: function(args, synchronous) {
+        if (!Ext.isSpaceReady) {
+            if (synchronous) {
+                throw new Error('Making synchronous request while Space isn\'t yet ready. ' +
+                    'Please wrap the statement inside Ext.onSpaceReady(callback)');
+            }
+
+            this.sendQueue.push(args);
+            return;
+        }
+
         var callbacks, scope, name, callback;
 
         if (!args) {
@@ -201,13 +224,13 @@ Ext.define('Ext.space.Communicator', {
         xhr.setRequestHeader('Content-Type', 'text/plain');
 
         if (!this.appId) {
-            debugger;
             throw new Error("Missing appId at this point");
         }
 
         data = {
             args: args,
-            appId: this.appId
+            appId: this.appId,
+            sync: synchronous
         };
 
         data = JSON.stringify(data);
@@ -231,7 +254,13 @@ Ext.define('Ext.space.Communicator', {
 
         if (synchronous) {
             response = xhr.responseText;
-            return response && JSON.parse(response);
+
+            try {
+                response = JSON.parse(response);
+            }
+            catch (e) {}
+
+            return response;
         }
     }
 });
