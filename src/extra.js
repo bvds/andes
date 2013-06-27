@@ -16,18 +16,19 @@
         return 'ok';
     };
 
-    document.addEventListener("DOMContentLoaded", function() {
-        var Communicator = Ext.space.Communicator,
-            communicatorInitId;
+    if (Ext.isSpace) {
+        document.addEventListener("DOMContentLoaded", function() {
+            var Communicator = Ext.space.Communicator,
+                communicatorInitId;
 
-        if (DEBUG) {
-            $expect('Communicator#init to be called from native', 1000, Communicator, 'init');
-        }
+            if (DEBUG) {
+                $expect('Communicator#init to be called from native', 1000, Communicator, 'init');
+            }
 
-        communicatorInitId = Communicator.getCallbackId(Communicator.init, Communicator);
+            communicatorInitId = Communicator.getCallbackId(Communicator.init, Communicator);
 
-        // Notify native bridge
-        window.location = 'sencha://ready.local/' + communicatorInitId;
-    });
-
+            // Notify native bridge
+            window.location = 'sencha://ready.local/' + communicatorInitId;
+        });
+    }
 })();
