@@ -233,51 +233,90 @@ Ext.define('Ext.space.Communicator', {
         return this.doSend(args, synchronous);
     },
 
-    doSend: function(args, synchronous) {
-        var response, data, xhr;
+    doSend: function() {
+        if (Ext.isBlackBerry) {
+            return function(args, synchronous) {
+                var data = {
+                    args: args,
+                    appId: this.appId,
+                    sync: synchronous
+                };
 
-        xhr = new XMLHttpRequest();
-        xhr.open('POST', this.SERVER_URL + '?_dc=' + new Date().getTime(), !synchronous);
-        xhr.setRequestHeader('Content-Type', 'text/plain');
+                navigator.cascades.postMessage(window.btoa(JSON.stringify(data)));
 
-        if (!this.appId) {
-            throw new Error("Missing appId at this point");
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', 'getdata', false);
+                xhr.send(null);
+
+                return xhr.responseText;
+            }
         }
+        else {
+            return function(args, synchronous) {
+                var response, data, xhr;
 
-        data = {
-            args: args,
-            appId: this.appId,
-            sync: synchronous
-        };
+                xhr = new XMLHttpRequest();
+                xhr.open('POST', this.SERVER_URL + '?_dc=' + new Date().getTime(), !synchronous);
+                xhr.setRequestHeader('Content-Type', 'text/plain');
 
-        data = JSON.stringify(data);
+                if (!this.appId) {
+                    throw new Error("Missing appId at this point");
+                }
 
-        DEBUG && console.log("[OUT]", data);
+                data = {
+                    args: args,
+                    appId: this.appId,
+                    sync: synchronous
+                };
 
-        if (!synchronous) {
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4) {
-                    var status = xhr.status;
+                data = JSON.stringify(data);
 
-                    if (status !== 200) {
-                        throw new Error("Failed communicating to native bridge, got status code: " + status + ". " +
-                            "XHR Data: " + data);
+                DEBUG && console.log("[OUT]", data);
+
+                if (!synchronous) {
+                    xhr.onreadystatechange = function() {
+                        if (xhr.readyState == 4) {
+                            var status = xhr.status;
+
+                            if (status !== 200) {
+                                throw new Error("Failed communicating to native bridge, got status code: " + status + ". " +
+                                    "XHR Data: " + data);
+                            }
+                        }
                     }
+                }
+
+                xhr.send(data);
+
+                if (synchronous) {
+                    response = xhr.responseText;
+
+                    try {
+                        response = JSON.parse(response);
+                    }
+                    catch (e) {
+                    }
+
+                    return response;
                 }
             }
         }
+    }(),
 
-        xhr.send(data);
+    notifyReady: function() {
+        var Communicator = Ext.space.Communicator,
+            communicatorInitId = Communicator.getCallbackId(Communicator.init, Communicator);
 
-        if (synchronous) {
-            response = xhr.responseText;
-
-            try {
-                response = JSON.parse(response);
-            }
-            catch (e) {}
-
-            return response;
+        if (Ext.isIos) {
+            window.location = 'sencha://ready.local/' + communicatorInitId;
+        }
+        else {
+            this.doSend({
+                command: "ViewStateManager#setOnReady",
+                callbacks: {
+                    callback: communicatorInitId
+                }
+            });
         }
     }
 });

@@ -100,5 +100,9 @@
         }
 
         readyListeners.length = 0;
-    }
+    };
+
+    Ext.isIos = /(iPad|iPhone|iPod)/i.test(window.navigator.userAgent);
+    Ext.isAndroid = /Android/i.test(window.navigator.userAgent);
+    Ext.isBlackBerry = /(BlackBerry|BB10)/i.test(window.navigator.userAgent);
 })(this);
