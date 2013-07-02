@@ -251,6 +251,17 @@ Ext.define('Ext.space.Communicator', {
                 return xhr.responseText;
             }
         }
+        else if (Ext.isAndroid) {
+            return function(args, synchronous) {
+                var data = {
+                    args: args,
+                    appId: this.appId,
+                    sync: synchronous
+                };
+
+                return window.Sencha.action(JSON.stringify(data));
+            }
+        }
         else {
             return function(args, synchronous) {
                 var response, data, xhr;
@@ -300,6 +311,7 @@ Ext.define('Ext.space.Communicator', {
                     return response;
                 }
             }
+
         }
     }(),
 
