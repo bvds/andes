@@ -248,7 +248,11 @@ Ext.define('Ext.space.Communicator', {
                 xhr.open('GET', 'getdata', false);
                 xhr.send(null);
 
-                return xhr.responseText;
+                var result = xhr.responseText;
+
+                if (result) {
+                    return JSON.parse(result);
+                }
             }
         }
         else if (Ext.isAndroid) {
@@ -259,7 +263,11 @@ Ext.define('Ext.space.Communicator', {
                     sync: synchronous
                 };
 
-                return window.Sencha.action(JSON.stringify(data));
+                var result = window.Sencha.action(JSON.stringify(data));
+
+                if (result) {
+                    return JSON.parse(result);
+                }
             }
         }
         else {
