@@ -325,9 +325,7 @@ Ext.define('Ext.space.Communicator', {
         else {
             this.doSend({
                 command: "ViewStateManager#setOnReady",
-                callbacks: {
-                    callback: communicatorInitId
-                }
+                callback: communicatorInitId
             });
         }
     }
