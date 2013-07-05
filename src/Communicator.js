@@ -234,7 +234,7 @@ Ext.define('Ext.space.Communicator', {
     },
 
     doSend: function() {
-        if (Ext.isBlackBerry) {
+        if (Ext.spaceIsBlackBerry) {
             return function(args, synchronous) {
                 var data = {
                     args: args,
@@ -255,7 +255,7 @@ Ext.define('Ext.space.Communicator', {
                 }
             }
         }
-        else if (Ext.isAndroid) {
+        else if (Ext.spaceIsAndroid) {
             return function(args, synchronous) {
                 var data = {
                     args: args,
@@ -327,7 +327,7 @@ Ext.define('Ext.space.Communicator', {
         var Communicator = Ext.space.Communicator,
             communicatorInitId = Communicator.getCallbackId(Communicator.init, Communicator);
 
-        if (Ext.isIos) {
+        if (Ext.spaceIsIos) {
             window.location = 'sencha://ready.local/' + communicatorInitId;
         }
         else {

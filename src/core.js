@@ -11,49 +11,51 @@
         constructor: function() {}
     };
 
-    Ext.define = function(name, members) {
-        var Class = function() {
-                return this.constructor.apply(this, arguments);
-            },
-            root = global,
-            parts = name.split('.'),
-            ln = parts.length - 1,
-            leaf = parts[ln],
-            statics = members.statics,
-            extend = members.extend || Base,
-            prototype, key, value, part, i;
+    if (!('define' in Ext)) {
+        Ext.define = function(name, members) {
+            var Class = function() {
+                    return this.constructor.apply(this, arguments);
+                },
+                root = global,
+                parts = name.split('.'),
+                ln = parts.length - 1,
+                leaf = parts[ln],
+                statics = members.statics,
+                extend = members.extend || Base,
+                prototype, key, value, part, i;
 
-        delete members.extend;
-        Class.prototype = prototype = Object.create(extend.prototype);
-        Class.superclass = prototype.superclass = extend.prototype;
+            delete members.extend;
+            Class.prototype = prototype = Object.create(extend.prototype);
+            Class.superclass = prototype.superclass = extend.prototype;
 
-        delete members.statics;
+            delete members.statics;
 
-        if (statics) {
-            for (key in statics) {
-                value = statics[key];
-                Class[key] = value;
+            if (statics) {
+                for (key in statics) {
+                    value = statics[key];
+                    Class[key] = value;
+                }
             }
-        }
 
-        for (key in members) {
-            value = members[key];
-            prototype[key] = value;
-        }
+            for (key in members) {
+                value = members[key];
+                prototype[key] = value;
+            }
 
-        if (members.singleton) {
-            Class = new Class();
-        }
+            if (members.singleton) {
+                Class = new Class();
+            }
 
-        for (i = 0; i < ln; i++) {
-            part = parts[i];
-            root = root[part] || (root[part] = {});
-        }
+            for (i = 0; i < ln; i++) {
+                part = parts[i];
+                root = root[part] || (root[part] = {});
+            }
 
-        root[leaf] = Class;
+            root[leaf] = Class;
 
-        return Class;
-    };
+            return Class;
+        };
+    }
 
     var match = typeof window != 'undefined' && window.navigator.userAgent.match(/SenchaSpace\/([0-9\.]+)/),
         readyListeners = [];
@@ -63,16 +65,18 @@
         Ext.spaceVersion = match[1];
     }
 
-    Ext.apply = function(object, config) {
-        var key, value;
+    if (!('apply' in Ext)) {
+        Ext.apply = function(object, config) {
+            var key, value;
 
-        for (key in config) {
-            value = config[key];
-            object[key] = value;
-        }
+            for (key in config) {
+                value = config[key];
+                object[key] = value;
+            }
 
-        return object;
-    };
+            return object;
+        };
+    }
 
     Ext.isSpaceReady = false;
     Ext.onSpaceReady = function(callback, scope) {
@@ -102,7 +106,7 @@
         readyListeners.length = 0;
     };
 
-    Ext.isIos = /(iPad|iPhone|iPod)/i.test(window.navigator.userAgent);
-    Ext.isAndroid = /Android/i.test(window.navigator.userAgent);
-    Ext.isBlackBerry = /(BlackBerry|BB10)/i.test(window.navigator.userAgent);
+    Ext.spaceIsIos = /(iPad|iPhone|iPod)/i.test(window.navigator.userAgent);
+    Ext.spaceIsAndroid = /Android/i.test(window.navigator.userAgent);
+    Ext.spaceIsBlackBerry = /(BlackBerry|BB10)/i.test(window.navigator.userAgent);
 })(this);

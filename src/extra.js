@@ -22,8 +22,20 @@
     };
 
     if (Ext.isSpace) {
-        document.addEventListener("DOMContentLoaded", function() {
+        function notifyNative() {
             Ext.space.Communicator.notifyReady();
-        });
+        }
+
+        if ('onReady' in Ext) {
+            Ext.onReady(notifyNative);
+        }
+        else {
+            if (document.readyState.match(/interactive|complete|loaded/) !== null) {
+                notifyNative();
+            }
+            else {
+                window.addEventListener('DOMContentLoaded', notifyNative, false);
+            }
+        }
     }
 })();
