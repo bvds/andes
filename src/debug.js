@@ -10,9 +10,13 @@ if (typeof DEBUG === 'undefined') {
             error = console.error,
             pendingLogs = [],
             xhrTimer = null,
-            logServer = script.getAttribute('logServer') || 'http://localhost:9876/log';
+            logServer = script.getAttribute('logServer');// || 'http://localhost:9876/log';
 
         function doLog(message, type) {
+            if(!logServer) {
+                return;
+            }
+            
             var Communicator = Ext.space.Communicator;
 
             if (!xhrTimer) {
