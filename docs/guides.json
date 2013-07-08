@@ -1,0 +1,25 @@
+[
+    {
+        "title": "Sencha Space 1.0",
+        "items": [
+            {
+                "name": "intro",
+                "url": "guides/space/intro",
+                "title": "Introduction",
+                "description": "Introduction to Sencha Space"
+            },
+            {
+                "name": "admin_guide",
+                "url": "guides/admin_guide",
+                "title": "Administration Application Guide",
+                "description": "How to use the Sencha Space Administration Application"
+            },
+            {
+                "name": "client_guide",
+                "url": "guides/client_guide",
+                "title": "Sencha Space Client Application Guide",
+                "description": "How to use the Sencha Space Client Application"
+            }
+        ]
+    }
+]
