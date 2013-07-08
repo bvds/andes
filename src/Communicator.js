@@ -123,37 +123,32 @@ Ext.define('Ext.space.Communicator', {
     },
 
     watchTitle: function() {
-        if (Ext.spaceIsAndroid) {
-            var currentTitle = document.title;
+        var me = this,
+            target = document.querySelector('head > title');
 
-            document.__defineSetter__('title', function(title) {
-                document.__title = title;
-                me.send({
-                    command: 'TitleWatcher#update',
-                    title: title
-                });
-                return title;
-            });
-
-            document.__defineGetter__('title', function() {
-                return document.__title;
-            });
-
-            document.title = currentTitle;
+        if (!target) {
+            return;
         }
-        else {
-            var me = this,
-                target = document.querySelector('head > title'),
-                observer = new window.WebKitMutationObserver(function(mutations) {
-                    mutations.forEach(function(mutation) {
-                        me.send({
-                            command: 'TitleWatcher#update',
-                            title: mutation.target.textContent
-                        });
+
+        if (window.WebKitMutationObserver) {
+            var observer = new window.WebKitMutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    me.send({
+                        command: 'TitleWatcher#update',
+                        title: mutation.target.textContent
                     });
                 });
+            });
 
-            target && observer.observe(target, { subtree: true, characterData: true, childList: true });
+            observer.observe(target, { subtree: true, characterData: true, childList: true });
+        }
+        else {
+            target.addEventListener('DOMCharacterDataModified', function() {
+                me.send({
+                    command: 'TitleWatcher#update',
+                    title: document.title
+                });
+            }, true);
         }
     },
 
