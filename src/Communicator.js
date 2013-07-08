@@ -123,18 +123,38 @@ Ext.define('Ext.space.Communicator', {
     },
 
     watchTitle: function() {
-        var me = this,
-            target = document.querySelector('head > title'),
-            observer = new window.WebKitMutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    me.send({
-                        command: 'TitleWatcher#update',
-                        title: mutation.target.textContent
-                    });
+        if (Ext.spaceIsAndroid) {
+            var currentTitle = document.title;
+
+            document.__defineSetter__('title', function(title) {
+                document.__title = title;
+                me.send({
+                    command: 'TitleWatcher#update',
+                    title: title
                 });
+                return title;
             });
 
-        target && observer.observe(target, { subtree: true, characterData: true, childList: true });
+            document.__defineGetter__('title', function() {
+                return document.__title;
+            });
+
+            document.title = currentTitle;
+        }
+        else {
+            var me = this,
+                target = document.querySelector('head > title'),
+                observer = new window.WebKitMutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        me.send({
+                            command: 'TitleWatcher#update',
+                            title: mutation.target.textContent
+                        });
+                    });
+                });
+
+            target && observer.observe(target, { subtree: true, characterData: true, childList: true });
+        }
     },
 
     generateId: function() {
