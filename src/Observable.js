@@ -1,3 +1,6 @@
+/**
+* @private
+*/
 Ext.define('Ext.space.Observable', {
     constructor: function() {
         this.listeners = [];

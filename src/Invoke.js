@@ -1,40 +1,38 @@
 /**
- * Example for a sender:
- *
- *      Ext.require('Ext.space.Invoke', function(Invoke) {
- *          var broadcast = Invoke.broadcast('time'),
- *              connectToFirstReceiver = broadcast.then(function(receivers){
- *                  return Invoke.connect(receivers[0].id);
- *              }),
- *              send = connectToFirstReceiver.then(function(connection) {
- *                  // 'true' as second argument to bring the receiver app to the foreground
- *                  // otherwise, it will simply run in the background
- *                  return connection.send('You are summoned!', true);
- *              });
- *
- *          send.then(function(reply){
- *              console.log(reply);
- *          });
- *      });
- *
- * Example for a receiver:
- *
- *      Ext.require('Ext.space.Invoke', function(Invoke) {
- *          Invoke.onConnect(function(appId) {
- *              console.log('Got connection from ' + appId);
- *
- *              // Accept all
- *              return true;
- *          });
- *
- *          Invoke.onMessage(function(appId, message) {
- *              console.log('Got message from ' + appId + ' ' + message);
- *
- *              return 'Yeah I got it';
- *          });
- *      });
+    
+    The Invoke API allows Applications running inside a Sencha Space client to communicate.
+    Applications can exchange data with each other.  
+
+    When one application requests data from another, that application is loaded and the user 
+    is shown that application. Once that user is done interacting with the called application
+    the called application returns data back to the calling application. When that happen the user
+    is returned to the original application. 
+
+    A simple interactive example would be for an application to request a photo from an application that 
+    know about photos. The photos app is loaded.  The user selects a photo. The photo application returns 
+    data about the photo to the calling application.
+
+    var success = function(message) {
+        console.log('Received response: ', message.photo.url, message.photo.title);
+    };
+
+    var failure = function(error) {
+        console.('Received error:', error);
+    }
+
+    var send = function(connection) {
+        connection.send(data, background).then(
+            success,
+            failure
+        );
+    };
+
+    Ext.space.Invoke.get('photos').then(send, failure);
+
  *
  * For aync message handling:
+ *
+ *   The photos application in the example above needs to list for messages:
  *
  *       Invoke.onMessage(function(appId, message) {
  *          var promise = new Ext.Promise();
@@ -54,6 +52,10 @@ Ext.define('Ext.space.Invoke', {
 
     messageId: 0,
 
+
+    /*
+    * @private
+    */
     constructor: function() {
         this.pendingReceivePromises = {};
         this.connections = {};
@@ -61,6 +63,10 @@ Ext.define('Ext.space.Invoke', {
         this.messageQueue = [];
     },
 
+
+    /*
+    * @private
+    */
     invoke: function(messages) {
         var me = this;
 
@@ -81,21 +87,6 @@ Ext.define('Ext.space.Invoke', {
      * @param {String} receiverId The id of the application to connect to. Get this id from #broadcast
      * @returns {Ext.Promise}
      */
-//    connect: function(receiverId) {
-//        var connections = this.connections,
-//            connection = connections[receiverId];
-//
-//        if (connection) {
-//            return Ext.Promise.from(connection);
-//        }
-//        else {
-//            return this.send(receiverId, '__CONNECT__').then(function() {
-//                connections[receiverId] = connection = new Ext.space.invoke.Connection(receiverId);
-//                return connection;
-//            });
-//        }
-//    },
-
     get: function(broadcastMessage) {
         var connections = this.connections,
             connection = connections[broadcastMessage];
@@ -135,6 +126,7 @@ Ext.define('Ext.space.Invoke', {
     },
 
     /**
+     * @private
      * Assign the callback to handle new connection. The boolean returned value dertermine whether or not to accept
      * the connection
      * @param {Function} callback
@@ -276,6 +268,7 @@ Ext.define('Ext.space.Invoke', {
     },
 
     /**
+     * @private
      * Broadcast a message (intent) to look for receivers who can respond to it
      * @param message
      * @returns {Ext.Promise} A promise which provides an array of objects upon fulfilled. Each object contains information about

@@ -1,15 +1,4 @@
 /**
- * This class allows you to use native APIs to take photos using the device camera.
- *
- * When this singleton is instantiated, it will automatically select the correct implementation depending on the
- * current device:
- *
- * - Sencha Packager
- * - PhoneGap
- * - Simulator
- *
- * Both the Sencha Packager and PhoneGap implementations will use the native camera functionality to take or select
- * a photo. The Simulator implementation will simply return fake images.
  *
  * ## Example
  *
@@ -26,10 +15,6 @@
  *     });
  *
  * See the documentation for {@link Ext.space.Camera#capture} all available configurations.
- *
- * @mixins Ext.space.camera.Abstract
- *
- * @aside guide native_apis
  */
 Ext.define('Ext.space.Camera', {
     singleton: true,

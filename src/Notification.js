@@ -1,15 +1,4 @@
 /**
- * Provides a cross device way to show notifications. There are three different implementations:
- *
- * - Sencha Packager
- * - PhoneGap
- * - Simulator
- *
- * When this singleton is instantiated, it will automatically use the correct implementation depending on the current device.
- *
- * Both the Sencha Packager and PhoneGap versions will use the native implementations to display the notification. The
- * Simulator implementation will use {@link Ext.MessageBox} for {@link #show} and a simply animation when you call {@link #vibrate}.
- *
  * ## Examples
  *
  * To show a simple notification:
