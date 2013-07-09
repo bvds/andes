@@ -4,7 +4,7 @@
         "items": [
             {
                 "name": "intro",
-                "url": "guides/space/intro",
+                "url": "guides/intro",
                 "title": "Introduction",
                 "description": "Introduction to Sencha Space"
             },
