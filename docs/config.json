@@ -1,0 +1,5 @@
+{
+    "--title": "SpaceSDK 1.0.0 - Sencha Docs",
+    "--guides": "guides.json",
+    "--local-storage-db": "space-1"
+}
