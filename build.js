@@ -16,6 +16,8 @@ var fs = require('fs'),
         'Invoke',
         'Sqlite',
         'FileSystem',
+        'localstorage/Collection',
+        'SecureLocalStorage',
         'extra'
     ],
     content = [];
