@@ -19,7 +19,19 @@
                 "url": "guides/client_guide",
                 "title": "Sencha Space Client Application Guide",
                 "description": "How to use the Sencha Space Client Application"
-            }
+            },
+            {
+                "name": "dev_guide",
+                "url": "guides/dev_guide",
+                "title": "Sencha Space Developer's Guide",
+                "description": "How to develop an app for Sencha Space"
+            },
+            {
+                "name": "examples",
+                "url": "guides/examples",
+                "title": "Sencha Space Examples",
+                "description": "Sencha Space Examples"
+            },
         ]
     }
 ]
