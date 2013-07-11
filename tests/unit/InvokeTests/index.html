@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta id="extViewportMeta" name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <title>Chat tester</title>
+    <style type="text/css">
+        button {
+            font-size: 100%;
+        }
+
+        #log {
+            padding: 20px;
+        }
+
+        #invokeResults {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<h1>Invoke Tests</h1>
+<p>Should return after 1.5 seconds</p>
+(Called By Api Tests, won't do anything if opened directly)
+<div id="invokeResults"></div>
+<div id="log"></div>
+<script type="text/javascript">
+    window.onerror = function(a, b, c) {
+        alert(a + ' ' + b + ' ' + c);
+    };
+</script>
+<script type="text/javascript" src="http://space.sencha.io/space.js"></script>
+
+<script type="text/javascript">
+
+Ext.onSpaceReady(function(){
+    console.log("Space Ready fired!");
+    Ext.space.Invoke.onMessage(function(senderId, message) {
+            var promise = new Ext.Promise;
+            setTimeout(function(){
+                promise.fulfill({data: "success"});
+            },1500);
+        return promise;  
+
+    });
+   
+});
+</script>
+</body>
+</html>

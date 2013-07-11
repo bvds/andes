@@ -1,0 +1,9 @@
+securelocalstorage.js
+sqlite.js
+invoke.js
+camera.js
+communcator.js
+connection.js
+filesystem.js
+notification.js
+oritentation.js
