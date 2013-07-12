@@ -21,14 +21,15 @@ for the current month:
 This tab lists:
 
  - Created users - Number of Space users who can participate
- - Active users - Number of Space users using Space-managed apps
+ - Active users - Number of Space users currently viewing Sencha Space
  - Opens - When a user starts a Space-managed app
  - Apps - Number of web apps available for use on Sencha Space Clients
  - Users - Number of created users
  - Groups - Number of enterprise groups
  - Active Devices - Lists:
    - Device. The device running Sencha Space Client and whether the device 
-     is simulated or actual.
+     is simulated or actual. The device is only active when the user is viewing 
+     Sencha Space--if a user switches apps, the device no longer lists as active.
    - User. User's email address and the Sencha Space Client version.
    - Last Access. When the user last accessed the Sencha Space Client and the user's location. 
 
@@ -36,9 +37,8 @@ You can click the red X icon to block a user from Sencha Space Client access:
 
 {@img Space_Ad_BlockUserButton.png}
 
-Blocking a user sends the 
-user a message and forces a log out from the Sencha Space Client. 
-To reactivate the user, click the 
+Blocking a user sends the user a message and forces a log out from the 
+Sencha Space Client. To reactivate the user, click the 
 Users tab and add the user information again.
 
 <b>Note</b> If no data appears in the Administration app at 
@@ -55,17 +55,19 @@ The Administration Application contains these menus:
 <table border="1" style="width: 600px">
 <tr><th>Menu</th><th>Description</th></tr>
 <tr><td>{@img Space_Ad_Overview_Icon.png}</td>
-	<td><a href="#OverviewTab">Overview</a> - Monitors system usage</td></tr>
+	<td><a href="#OverviewTab">Overview</a> - Monitors organization Space usage and user 
+  device and location</td></tr>
 <tr><td>{@img Space_Ad_Apps_Icon.png}</td>
-	<td><a href="#AppsTab">Applications</a> - Manages applications</td></tr>
+	<td><a href="#AppsTab">Applications</a> - Lists, adds, and
+removes applications</td></tr>
 <tr><td>{@img Space_Ad_Users_Icon.png}</td>
-	<td><a href="#UsersTab">Users</a> - Manages users</td></tr>
+	<td><a href="#UsersTab">Users</a> - Lists, adds, and removes user access to Space</td></tr>
 <tr><td>{@img Space_Ad_GroupsIcon.png}</td>
-	<td><a href="#GroupsTab">Groups</a> - Manages groups</td></tr>
+	<td><a href="#GroupsTab">Groups</a> - Lists, adds, and removes group access to Space</td></tr>
 <tr><td>{@img Space_Ad_VPNServices_Icon.png}</td>
 	<td><a href="#VPNServicesTab">VPN Services</a> - Manages VPN services</td></tr>
 <tr><td>{@img Space_Ad_GearIcon.png}</td>
-	<td><a href="#GearTab">Organizations</a> - Manages organizations</td></tr>
+	<td><a href="#GearTab">Settings</a> - Changes organization, email, and billing settings</td></tr>
 <tr><td>{@img Space_Ad_AdminMenu.png}</td>
 	<td><a href="#AdminMenu">Admin Menu</a> - Edit the admin profile, manage organizations, or log out of Sencha Space</td></tr>
 <tr><td>{@img Space_Ad_SenchaIcon.png}</td>
@@ -82,8 +84,6 @@ These icons provide additional controls on tabs:
    <td>Plus Icon - Add an entry</td></tr>
 <tr><td>{@img Space_Ad_CircleArrowIcon.png}</td>
    <td>Refresh - Refreshes the current list</td></tr>
-<tr><td>{@img Space_Ad_InformationIcon.png}</td>
-   <td>Magnify Icon - Get information about the entry</td></tr>
 <tr><td>{@img Space_Ad_TrashCanIcon.png}</td>
    <td>Trash Can - Remove the entry</td></tr>
 </table>
@@ -234,17 +234,27 @@ This tab lists:
 
 
 <a name="GearTab"></a>
-## Organizations Tab
+## Settings Tab
 
-Lists organizations and lets you add or delete organizations.
+Lists organizations and lets you add or delete organizations, set email, and 
+billing preferences. 
+
+
+
+
+### Change an Organization
+
+
+
 The first organization in the list is the one you are currently administering. 
+
 When you switch organizations, all the settings from the former organization 
 store while you work with other organizations.
 
 This tab lists:
 
 - Name - Organization name 
-- Code - Organization code, which is assigned by Sencha
+- Code - Organization code
 - Users - Number of users in the organization 
 - Groups - Number of groups in the organization
 - Apps - Number of apps handled for this organization
