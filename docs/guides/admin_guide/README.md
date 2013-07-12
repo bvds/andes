@@ -28,8 +28,7 @@ This tab lists:
  - Groups - Number of enterprise groups
  - Active Devices - Lists:
    - Device. The device running Sencha Space Client and whether the device 
-     is simulated or actual. The device is only active when the user is viewing 
-     Sencha Space--if a user switches apps, the device no longer lists as active.
+     is simulated or actual. 
    - User. User's email address and the Sencha Space Client version.
    - Last Access. When the user last accessed the Sencha Space Client and the user's location. 
 
@@ -43,7 +42,7 @@ Users tab and add the user information again.
 
 <b>Note</b> If no data appears in the Administration app at 
 [http://manage.space.sencha.com](http://manage.space.sencha.com), or you wish to log out, click 
-the administrator drop-down and click Logout:
+the administrator drop-down and click **Logout**:
 
 {@img Space_Ad_LogoutMenu.png}
 
@@ -138,7 +137,7 @@ so that the app can be accessed by Space Clients.
    Applications tab and on the Space Client.
  - App URL - The URL of the app. This can be an HTTP or HTTPS address.
  - Icon URL - The URL of the icon for the app. This can be an HTTP or HTTPS address.
- - Invokes - List the apps that this app can invoke. Separate app names with commas. 
+ - Intents - List the apps that this app can invoke. Separate app names with commas. 
  This field is case sensitive.
  - Description - Description of the app. This description appears on the Applications 
    tab and in the Space Client.
@@ -239,12 +238,44 @@ This tab lists:
 Lists organizations and lets you add or delete organizations, set email, and 
 billing preferences. 
 
+{@img Space_Ad_SettingsMenu.png}
 
+This tab lists:
 
+ - Organization Name 
+ - Organization Code 
+ - Email Method 
+ - Billing 
+ - Save button - click after changing information
 
-### Change an Organization
+<a name="AdminMenu"></a>
+## Admin Menu
 
+Lets you:
 
+ - Edit your administrator profile
+ - Switch organizations
+ - Log out of Sencha Space
+
+### Edit Your Admin Profile
+
+Edits your administrator's profile.
+Add or change:
+
+ - First Name
+ - Last Name
+ - Title (optional)
+ - Email address
+ - New Password
+ - Confirm New Password
+
+You can also click **Remove User** to remove your access to Sencha Space.
+
+### Switch Organizations
+
+Click the administrator menu drop-down and click **Switch organizations**:
+
+{@img Space_Ad_SwitchOrgs.png}
 
 The first organization in the list is the one you are currently administering. 
 
@@ -267,52 +298,9 @@ To add or change organization information:
  - Change the current organization by clicking the Switching button:
    {@img Space_Ad_OrgChangeButton.png}
 
-<a name="AdminMenu"></a>
-## Admin Menu
-
-Lets you:
-
- - Edit your administrator profile
- - Manage organizations
- - Log out of Sencha Space
-
-### Edit Your Admin Profile
-
-Edits your administrator's profile.
-Add or change:
-
- - First Name
- - Last Name
- - Title (optional)
- - Email address
- - New Password
- - Confirm New Password
-
- You can also click Remove User to remove your access to Sencha Space.
-
-### Manage Organizations
-
-Adds or changes information about the organizations that you manage with the
-Sencha Space Administration Application. 
- 
-The Organizations menu displays:
-
- - Name - Organization name
- - Code - A keyword to describe the organization
- - Users - Number of users in the organization
- - Groups - Number of groups in the organization
- - Apps - Number of web apps that users can view from their Sencha Space Client
-
-To use this menu:
-
- - Click Add to add a new organization to Sencha Space
- - Click the pencil icon to change information about an organization
- - Click the arrow icon to make the organization the current organization 
-   in the Sencha Space Administration console
-
 #### Add or Change an Organization
 
-Add an organization by clicking Add in the Organizations menu. 
+Add an organization by clicking **Add** in the Organizations menu. 
 Change organization information by clicking the pencil icon in
 the Organizations menu.
 
@@ -322,8 +310,8 @@ Fields:
  - Organization Code - A keyword to describe the organization
  - Cache Max Age - The duration in minutes that you want information 
    about an organization to persist in the Client. Zero indicates
-   that the information persist indefinitely and only update when a
-   user clicks the Refresh button
+   that the information persists indefinitely and only updates when a
+   user clicks the Refresh button.
 
 <a name="SenchaMenu"></a>
 ## Sencha Menu
