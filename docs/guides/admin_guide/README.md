@@ -41,6 +41,13 @@ user a message and forces a log out from the Sencha Space Client.
 To reactivate the user, click the 
 Users tab and add the user information again.
 
+<b>Note</b> If no data appears in the Administration app at 
+[http://manage.space.sencha.com](http://manage.space.sencha.com), or you wish to log out, click 
+the administrator drop-down and click Logout:
+
+{@img Space_Ad_LogoutMenu.png}
+
+
 ## Sencha Space Features
 
 The Administration Application contains these menus:
