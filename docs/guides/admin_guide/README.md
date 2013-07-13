@@ -10,6 +10,47 @@ authentication and authorization server.
 Users obtain their Sencha Space Client apps from the Apple App Store, 
 Google Play, or BlackBerry World Apps market.
 
+## Sencha Space Features
+
+The Administration Application contains these menus:
+
+<table border="1" style="width: 600px">
+<tr><th>Menu</th><th>Description</th></tr>
+<tr><td>{@img Space_Ad_Overview_Icon.png}</td>
+  <td><a href="#OverviewTab">Overview</a> - Monitors organization Space usage and user 
+  device and location</td></tr>
+<tr><td>{@img Space_Ad_Apps_Icon.png}</td>
+  <td><a href="#AppsTab">Applications</a> - Lists, adds, and
+removes applications</td></tr>
+<tr><td>{@img Space_Ad_Users_Icon.png}</td>
+  <td><a href="#UsersTab">Users</a> - Lists, adds, and removes user access to Space</td></tr>
+<tr><td>{@img Space_Ad_GroupsIcon.png}</td>
+  <td><a href="#GroupsTab">Groups</a> - Lists, adds, and removes group access to Space</td></tr>
+<tr><td>{@img Space_Ad_VPNServices_Icon.png}</td>
+  <td><a href="#VPNServicesTab">VPN Services</a> - Manages VPN services</td></tr>
+<tr><td>{@img Space_Ad_GearIcon.png}</td>
+  <td><a href="#GearTab">Settings</a> - Changes organization, email, and billing settings</td></tr>
+<tr><td>{@img Space_Ad_AdminMenu.png}</td>
+  <td><a href="#AdminMenu">Admin Menu</a> - Edit the admin profile, switch organizations, or log out of Sencha Space</td></tr>
+<tr><td>{@img Space_Ad_SenchaIcon.png}</td>
+  <td><a href="#SenchaMenu">Sencha Menu</a> - View a log of all administrator activities</td></tr>
+</table>
+
+**Icons**:
+
+These icons provide additional controls on tabs:
+
+<table border="1" style="width: 600px">
+<tr><th>Icon</th><th>Description</th></tr>
+<tr><td>{@img Space_Ad_PlusIcon.png}</td>
+   <td>Plus Icon - Add an entry</td></tr>
+<tr><td>{@img Space_Ad_CircleArrowIcon.png}</td>
+   <td>Refresh - Refreshes the current list</td></tr>
+<tr><td>{@img Space_Ad_TrashCanIcon.png}</td>
+   <td>Trash Can - Remove the entry</td></tr>
+</table>
+
+
 <a name="OverviewTab"></a>
 ## Overview
 
@@ -45,48 +86,6 @@ Users tab and add the user information again.
 the administrator drop-down and click **Logout**:
 
 {@img Space_Ad_LogoutMenu.png}
-
-
-## Sencha Space Features
-
-The Administration Application contains these menus:
-
-<table border="1" style="width: 600px">
-<tr><th>Menu</th><th>Description</th></tr>
-<tr><td>{@img Space_Ad_Overview_Icon.png}</td>
-	<td><a href="#OverviewTab">Overview</a> - Monitors organization Space usage and user 
-  device and location</td></tr>
-<tr><td>{@img Space_Ad_Apps_Icon.png}</td>
-	<td><a href="#AppsTab">Applications</a> - Lists, adds, and
-removes applications</td></tr>
-<tr><td>{@img Space_Ad_Users_Icon.png}</td>
-	<td><a href="#UsersTab">Users</a> - Lists, adds, and removes user access to Space</td></tr>
-<tr><td>{@img Space_Ad_GroupsIcon.png}</td>
-	<td><a href="#GroupsTab">Groups</a> - Lists, adds, and removes group access to Space</td></tr>
-<tr><td>{@img Space_Ad_VPNServices_Icon.png}</td>
-	<td><a href="#VPNServicesTab">VPN Services</a> - Manages VPN services</td></tr>
-<tr><td>{@img Space_Ad_GearIcon.png}</td>
-	<td><a href="#GearTab">Settings</a> - Changes organization, email, and billing settings</td></tr>
-<tr><td>{@img Space_Ad_AdminMenu.png}</td>
-	<td><a href="#AdminMenu">Admin Menu</a> - Edit the admin profile, manage organizations, or log out of Sencha Space</td></tr>
-<tr><td>{@img Space_Ad_SenchaIcon.png}</td>
-	<td><a href="#SenchaMenu">Sencha Menu</a> - View a log of all administrator activities</td></tr>
-</table>
-
-**Icons**:
-
-These icons provide additional controls on tabs:
-
-<table border="1" style="width: 600px">
-<tr><th>Icon</th><th>Description</th></tr>
-<tr><td>{@img Space_Ad_PlusIcon.png}</td>
-   <td>Plus Icon - Add an entry</td></tr>
-<tr><td>{@img Space_Ad_CircleArrowIcon.png}</td>
-   <td>Refresh - Refreshes the current list</td></tr>
-<tr><td>{@img Space_Ad_TrashCanIcon.png}</td>
-   <td>Trash Can - Remove the entry</td></tr>
-</table>
-
 
 
 <a name="AppsTab"></a>
