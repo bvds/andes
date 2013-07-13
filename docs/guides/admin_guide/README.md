@@ -100,7 +100,7 @@ becomes the first screen they see when they log into the Space Client. As admini
 you can use a web page as the starting application, for example, as a welcome screen
 with ways for users to get help or learn how to use their client.
 
-The aApplications tab lists:
+The Applications tab lists:
 
  - Name - Application name
  - Members - Number of users who are permitted to use the application
