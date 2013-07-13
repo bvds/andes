@@ -63,7 +63,7 @@ This tab lists:
 
  - Created users - Number of Space users who can participate
  - Active users - Number of Space users currently viewing Sencha Space
- - Opens - When a user starts a Space-managed app
+ - Opens - Indicates when a user starts a Space-managed app
  - Apps - Number of web apps available for use on Sencha Space Clients
  - Users - Number of created users
  - Groups - Number of enterprise groups
